@@ -274,8 +274,8 @@ def optional_outer_caller(output,public):
 
 class ContextRetirementObservations:
  """Observe original values only; never walk, stat, read or sample a clock."""
- def __init__(self,parent,deadline):
-  self.parent=Path(parent);self.deadline=deadline;self.context_hash=hashlib.sha256(str(parent).encode('utf-8','surrogateescape')).hexdigest();self.scalars={n:dict(status='NOT_EVALUATED')for n in('entry_count','file_bytes_total','owner_type_alias_all','monotonic')};self.evaluations={n:dict(status='NOT_EVALUATED',calls=0,true=0,false=0)for n in('byte_is_file','file_bytes','alias','owner_matches_current','type_is_file','type_is_dir')};self.samples={};self.events=hashlib.sha256();self.error_type=None
+ def __init__(self,parent,deadline,authority=None):
+  self.authority=authority;self.inventory_validation="NOT_EVALUATED";self.parent=Path(parent);self.deadline=deadline;self.context_hash=hashlib.sha256(str(parent).encode('utf-8','surrogateescape')).hexdigest();self.scalars={n:dict(status='NOT_EVALUATED')for n in('entry_count','file_bytes_total','owner_type_alias_all','monotonic')};self.evaluations={n:dict(status='NOT_EVALUATED',calls=0,true=0,false=0)for n in('byte_is_file','file_bytes','alias','owner_matches_current','type_is_file','type_is_dir')};self.samples={};self.events=hashlib.sha256();self.error_type=None
  def record(self,name,value,role=None):
   try:
    if name in self.scalars:self.scalars[name]=dict(status='EVALUATED',value=value)
@@ -287,18 +287,32 @@ class ContextRetirementObservations:
     if digest in self.samples or len(self.samples)<8:self.samples.setdefault(digest,{})[name]=value
   except BaseException as error:self.error_type=type(error).__name__
   return value
+ def inventory_check(self,call):
+  try:value=call()
+  except BaseException:self.inventory_validation='REFUSED';raise
+  self.inventory_validation='PASS_EXACT_CACHED_ENTRY_NAMESPACE';return value
  def emit(self,predicate=None,operand_error=None):
   try:
-   _,work,_,intent=outer_intent();value=dict(schema=1,status='OBSERVED_EXISTING_CURRENT_CONTEXT_RETIREMENT_GUARD_DATA_ONLY',identity=intent['identity'],nonce=intent['nonce'],source_export=intent['source_export'],context_role='CURRENT_SELECTED_CONTEXT',context_path_sha256=self.context_hash,limits=dict(entries=2048,bytes=768*1024**2,shared_cleanup_seconds=240),cleanup_end=self.deadline,scalars=self.scalars,evaluations=self.evaluations,role_event_sha256=self.events.hexdigest(),sampled_roles=[dict(role_sha256=k,values=v)for k,v in self.samples.items()],sample_limit=8,predicate=dict(status='OPERAND_RAISED',error_type=operand_error)if operand_error is not None else dict(status='EVALUATED',value=predicate),observation_error_type=self.error_type,extra_context_walks=0,extra_context_stats=0,extra_clock_samples=0,acceptance=False);outer_write(work/'context-retirement.json',outer_encoded(value),16384)
+   _,work,_,intent=outer_intent();value=dict(schema=1,status='OBSERVED_EXISTING_CURRENT_CONTEXT_RETIREMENT_GUARD_DATA_ONLY',identity=intent['identity'],nonce=intent['nonce'],source_export=intent['source_export'],context_role='CURRENT_SELECTED_CONTEXT',context_path_sha256=self.context_hash,limits=dict(entries=2048,bytes=768*1024**2,shared_cleanup_seconds=240),cleanup_end=self.deadline,scalars=self.scalars,evaluations=self.evaluations,role_event_sha256=self.events.hexdigest(),sampled_roles=[dict(role_sha256=k,values=v)for k,v in self.samples.items()],sample_limit=8,predicate=dict(status='OPERAND_RAISED',error_type=operand_error)if operand_error is not None else dict(status='EVALUATED',value=predicate),observation_error_type=self.error_type,extra_context_walks=0,extra_context_stats=0,extra_clock_samples=0,acceptance=False);
+   if self.authority is not None:value.update(schema=2,context_authority=self.authority,inventory_validation=self.inventory_validation);value['limits']['bytes']=self.authority['bytes']
+   outer_write(work/'context-retirement.json',outer_encoded(value),16384)
   except BaseException:pass # Observation cannot replace original guard/exception.
 
 class _NoContextRetirementObservation:
  def record(self,name,value,role=None):return value
+ def inventory_check(self,call):return call()
  def emit(self,predicate=None,operand_error=None):pass
 
-def context_retirement_observations(parent,deadline):
- try:return ContextRetirementObservations(parent,deadline)
+def context_retirement_observations(parent,deadline,authority=None):
+ try:return ContextRetirementObservations(parent,deadline,authority)
  except BaseException:return _NoContextRetirementObservation()
+
+def context_authority_value(value,index):
+ """Finite semantic budget declaration; not an independent removal receipt."""
+ import re
+ keys={'schema','status','identity','nonce','context_path_sha256','root_identity_sha256','files_sha256','context_owner','public_export','public_files_sha256','kernel_files_sha256','files','directories','components','bytes','acceptance'};need(type(value)is dict and set(value)==keys and type(value['schema'])is int and value['schema']==1 and value['status']=='EXACT_SOURCE_DECLARED_POST_CORE_CONTEXT_BYTES_DATA_ONLY'and value['identity']==index['identity']and value['nonce']==index['nonce']and value['acceptance']is False,'exact private context authority declaration')
+ def integer(v):return type(v)is int and 0<=v<=2**63-1
+ need(all(type(value[k])is str and re.fullmatch('[a-f0-9]{64}',value[k])for k in('context_path_sha256','root_identity_sha256','files_sha256','public_files_sha256','kernel_files_sha256'))and all(integer(value[k])for k in('files','directories','bytes'))and 0<value['files']+value['directories']<=2048,'bounded context inventory and private root marker');export=value['public_export'];need(type(export)is dict and set(export)=={'bytes','sha256'}and integer(export['bytes'])and export['bytes']<=4*1024**2 and type(export['sha256'])is str and re.fullmatch('[a-f0-9]{64}',export['sha256']),'finite original complete public export pin');owner=value['context_owner'];need(type(owner)is dict and set(owner)=={'bytes','sha256'}and integer(owner['bytes'])and owner['bytes']<=16384 and type(owner['sha256'])is str and re.fullmatch('[a-f0-9]{64}',owner['sha256']),'finite original owner pin');parts=value['components'];need(type(parts)is dict and set(parts)=={'public','inputs','kernel','fixed'}and all(type(r)is dict and set(r)=={'files','bytes'}and all(integer(r[k])for k in('files','bytes'))for r in parts.values()),'four exact declared retained components');need(sum(r['files']for r in parts.values())==value['files']and sum(r['bytes']for r in parts.values())==value['bytes']and parts['public']['files']<=4096 and parts['public']['bytes']<=768*1024**2 and parts['inputs']['files']==272 and parts['inputs']['bytes']<=647070676+3*1024**2 and parts['fixed']['files']==9 and parts['fixed']['bytes']<=16384+6*4*1024**2+2*64*1024**2,'exact component-derived private byte budget and unchanged retention capacities');profile=json.loads(outer_read(Path(__file__).absolute().parent/'profile.json',4*1024**2)[0]);kernel=profile['source_profiles']['kernel_carrier']['files'];need(value['kernel_files_sha256']==hashlib.sha256(outer_encoded(kernel)).hexdigest()and parts['kernel']==dict(files=len(kernel),bytes=sum(r['bytes']for r in kernel.values())),'entire pinned original kernel component');return value
 
 def context_observation_value(raw,index):
  import math,re
@@ -307,12 +321,12 @@ def context_observation_value(raw,index):
   value={}
   for key,item in pairs:need(key not in value,'unique observation fields');value[key]=item
   return value
- value=json.loads(raw,object_pairs_hook=unique,parse_constant=lambda x:need(False,'finite observation JSON'));keys={'schema','status','identity','nonce','source_export','context_role','context_path_sha256','limits','cleanup_end','scalars','evaluations','role_event_sha256','sampled_roles','sample_limit','predicate','observation_error_type','extra_context_walks','extra_context_stats','extra_clock_samples','acceptance'};need(type(value)is dict and set(value)==keys,'exact observation schema');need(type(value['schema'])is int and value['schema']==1 and value['status']=='OBSERVED_EXISTING_CURRENT_CONTEXT_RETIREMENT_GUARD_DATA_ONLY'and value['identity']==index['identity']and value['nonce']==index['nonce']and value['source_export']==index['source_export']and value['context_role']=='CURRENT_SELECTED_CONTEXT'and value['acceptance']is False,'Source-bound observation identity')
+ value=json.loads(raw,object_pairs_hook=unique,parse_constant=lambda x:need(False,'finite observation JSON'));keys={'schema','status','identity','nonce','source_export','context_role','context_path_sha256','limits','cleanup_end','scalars','evaluations','role_event_sha256','sampled_roles','sample_limit','predicate','observation_error_type','extra_context_walks','extra_context_stats','extra_clock_samples','acceptance'};need(type(value)is dict,'original observation object');version=value.get('schema');need(type(version)is int and version in(1,2)and set(value)==keys|({'context_authority','inventory_validation'}if version==2 else set()),'exact versioned observation schema');authority=context_authority_value(value['context_authority'],index)if version==2 else None;need(version==1 or value['inventory_validation']in('NOT_EVALUATED','REFUSED','PASS_EXACT_CACHED_ENTRY_NAMESPACE'),'finite authority validation outcome');need(type(value['schema'])is int and value['schema']==version and value['status']=='OBSERVED_EXISTING_CURRENT_CONTEXT_RETIREMENT_GUARD_DATA_ONLY'and value['identity']==index['identity']and value['nonce']==index['nonce']and value['source_export']==index['source_export']and value['context_role']=='CURRENT_SELECTED_CONTEXT'and value['acceptance']is False,'Source-bound observation identity')
  def hexpin(x):return type(x)is str and re.fullmatch('[0-9a-f]{64}',x)is not None
  def integer(x,maximum=2**127):return type(x)is int and 0<=x<=maximum
  def finite(x):return type(x)in(int,float)and math.isfinite(x)and x>=0
  errors={'OSError','FileNotFoundError','PermissionError','NotADirectoryError','IsADirectoryError','ValueError','TypeError','AttributeError','OverflowError','UnicodeError','UnicodeEncodeError','MemoryError','RuntimeError','InterruptedError','KeyboardInterrupt','SystemExit'}
- need(hexpin(value['context_path_sha256'])and hexpin(value['role_event_sha256'])and finite(value['cleanup_end'])and value['limits']==dict(entries=2048,bytes=768*1024**2,shared_cleanup_seconds=240),'safe hash/numeric observation fields');need(value['observation_error_type']is None or value['observation_error_type']in errors,'finite observer error class');need(all(type(value[k])is int and value[k]==0 for k in('extra_context_walks','extra_context_stats','extra_clock_samples')),'no additional context probes');need(type(value['sample_limit'])is int and value['sample_limit']==8,'fixed safe sample limit')
+ need(hexpin(value['context_path_sha256'])and hexpin(value['role_event_sha256'])and finite(value['cleanup_end'])and value['limits']==dict(entries=2048,bytes=authority['bytes']if authority is not None else 768*1024**2,shared_cleanup_seconds=240)and(authority is None or authority['context_path_sha256']==value['context_path_sha256']),'safe hash/numeric observation fields');need(value['observation_error_type']is None or value['observation_error_type']in errors,'finite observer error class');need(all(type(value[k])is int and value[k]==0 for k in('extra_context_walks','extra_context_stats','extra_clock_samples')),'no additional context probes');need(type(value['sample_limit'])is int and value['sample_limit']==8,'fixed safe sample limit')
  scalars=value['scalars'];need(type(scalars)is dict and set(scalars)=={'entry_count','file_bytes_total','owner_type_alias_all','monotonic'},'only existing guard scalar operands')
  for name,row in scalars.items():
   need(type(row)is dict and row.get('status')in('EVALUATED','NOT_EVALUATED'),'typed scalar evaluation')
@@ -334,7 +348,9 @@ def context_retirement_frame(bodies,index,remaining):
  if name not in bodies:return dict(status='UNAVAILABLE',acceptance=False),0
  raw=bodies[name];retained=pin(raw)
  try:
-  value=context_observation_value(raw,index);scalars={k:v['value']if v['status']=='EVALUATED'else'NOT_EVALUATED'for k,v in value['scalars'].items()};evaluations={k:[v['calls'],v['true'],v['false']]if v['status']=='EVALUATED'else'NOT_EVALUATED'for k,v in value['evaluations'].items()};projection=dict(status='SOURCE_ASSERTED_EXISTING_OPERANDS_DATA_ONLY',retained=retained,context_sha256=value['context_path_sha256'],role_event_sha256=value['role_event_sha256'],cleanup_end=value['cleanup_end'],scalars=scalars,evaluations=evaluations,predicate=value['predicate'],observation_error_type=value['observation_error_type'],acceptance=False);size=len(json.dumps(projection,sort_keys=True,separators=(',',':')).encode());need(size<=min(1024,remaining),'held aggregate plus tiny operand projection');return projection,size
+  value=context_observation_value(raw,index);scalars={k:v['value']if v['status']=='EVALUATED'else'NOT_EVALUATED'for k,v in value['scalars'].items()};evaluations={k:[v['calls'],v['true'],v['false']]if v['status']=='EVALUATED'else'NOT_EVALUATED'for k,v in value['evaluations'].items()};projection=dict(status='SOURCE_ASSERTED_EXISTING_OPERANDS_DATA_ONLY',retained=retained,context_sha256=value['context_path_sha256'],role_event_sha256=value['role_event_sha256'],cleanup_end=value['cleanup_end'],scalars=scalars,evaluations=evaluations,predicate=value['predicate'],observation_error_type=value['observation_error_type'],acceptance=False);
+  if value['schema']==2:projection.update(schema=2,inventory_validation=value['inventory_validation'],limit_bytes=value['context_authority']['bytes'],authority_sha256=hashlib.sha256(outer_encoded(value['context_authority'])).hexdigest())
+  size=len(json.dumps(projection,sort_keys=True,separators=(',',':')).encode());need(size<=min(1024,remaining),'held aggregate plus tiny operand projection');return projection,size
  except BaseException as error:return dict(status='REFUSED_OR_UNAVAILABLE',retained=retained,error_type=type(error).__name__,acceptance=False),0
 
 def context_stderr_privacy(raw,source_root):

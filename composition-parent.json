@@ -14185,6 +14185,385 @@
     "parent_source": "358afcba2c1364b8954d753a631d001328367ee7",
     "schema": 1
   },
+  "private_context_retirement_inventory_causal": {
+    "acceptance": false,
+    "actual": null,
+    "before": {
+      ".github/workflows/native-arm-build.yml": {
+        "bytes": 50261,
+        "sha256": "818aa03433027cf2e310cb15c85cf1293141eb377cf53f198a26f9bfdaa0ea67"
+      },
+      ".github/workflows/native-arm-core7-real-systemd.yml": {
+        "bytes": 50261,
+        "sha256": "818aa03433027cf2e310cb15c85cf1293141eb377cf53f198a26f9bfdaa0ea67"
+      },
+      "Core800-acceptance.json": {
+        "bytes": 2043,
+        "sha256": "d6f67e4c2782f9b609309e6e5627ad6534f172f0560ec7e2e2ec5c3a4f251e9d"
+      },
+      "LICENSE": {
+        "bytes": 27836,
+        "sha256": "624b2335eff599a84764ef0a51b6d2962b5ef504a792e1b362ea31f0cbc1ac4c"
+      },
+      "README.md": {
+        "bytes": 6730,
+        "sha256": "849d859eb0d7c49d4a1a673218fbc74a7bcf378b711b3e2ebb21ab3887dcff8e"
+      },
+      "acl_policy.py": {
+        "bytes": 83174,
+        "sha256": "9204e5794f01b49a0b301088f3a5b4439e57eb7273fc5afac278b3f967816462"
+      },
+      "adapter.py": {
+        "bytes": 1401,
+        "sha256": "fb0aadeb5fb230346161be90e94696aecaecf6d2b3e1e3f40538d7ab72f23586"
+      },
+      "assembly622.py": {
+        "bytes": 466,
+        "sha256": "610836ad8beeed379079b711c37d20867b28218d9422631ff7857d8a4872be55"
+      },
+      "boot.py": {
+        "bytes": 5422,
+        "sha256": "f6df3d8e5b5602f3b9eca4ebfbb54afaa354ac29b7b4b9cc26988a9de064349e"
+      },
+      "candidate_capacity.py": {
+        "bytes": 49900,
+        "sha256": "03018514575bb12b0f6623b4f4a2396a2ce3fa3691225c6134f061a787d12a83"
+      },
+      "case.py": {
+        "bytes": 8668,
+        "sha256": "07ea5e72a4ad8b22b9a6594aada61941abefa4659b46b26fc0bb59efa239319b"
+      },
+      "clock.py": {
+        "bytes": 4205,
+        "sha256": "cf43f16973294a8e687c65341cb63329a71d9a2a2ea488f0f6f2e20b97087c3c"
+      },
+      "composition-parent.json": {
+        "bytes": 2987232,
+        "sha256": "b2a539a0eafe20f5bf7bdee9d1300b7adc3f10ea29b961b7f4b6a1abb60da612"
+      },
+      "composition.json": {
+        "bytes": 444951,
+        "sha256": "154aab2490617a23d3fb745cc8c03d3bc4abb35d3c836f4a43394b1758158d6c"
+      },
+      "compression-profile.json": {
+        "bytes": 1179,
+        "sha256": "aec949ee839909702d208a3f91710c4565b5dcf46fa4fca0b2bd3bc13558d57c"
+      },
+      "controller.py": {
+        "bytes": 11715,
+        "sha256": "50061a1e0e91dabdbe66572500cfaf343c97e6cd750f77665b17c4ec4a1cb719"
+      },
+      "desktop622.py": {
+        "bytes": 9856,
+        "sha256": "eace06a0842aa08b803de34522178a086943c3e05086b1ed07f7fb986fd07400"
+      },
+      "effects.py": {
+        "bytes": 6147,
+        "sha256": "e2d4d80f64736975437615146f09f8796c20a634b02bb31d167614700609aae7"
+      },
+      "entry.py": {
+        "bytes": 6025,
+        "sha256": "f34a53b6ea08ef673d0d187e70a4fc1a496b8b00882cd432fbe3af0e50ddac68"
+      },
+      "evidence.py": {
+        "bytes": 7937,
+        "sha256": "21da5d7bc45214cac174da7fa779ddf281760841f5a233b9c57b21b154d4e4be"
+      },
+      "expected607.lock": {
+        "bytes": 12076,
+        "sha256": "be35402204ba5c03d78279722afa83047c9575d2da70fb5c4064f46ed15954c5"
+      },
+      "expected622.lock": {
+        "bytes": 12444,
+        "sha256": "189d037738680f5dfc9a5d48169eddf866383a06b070c094dac613c9d1b4eca8"
+      },
+      "export622.py": {
+        "bytes": 38540,
+        "sha256": "31a266e4ae58c8375bc9591ce66e7c4c9121ae770da8c465fc94c0b0cacc7256"
+      },
+      "formation622.py": {
+        "bytes": 4938,
+        "sha256": "c0dba994e0edb0da162e796a68b555ead745889baf5cd70a929fa465e79b4485"
+      },
+      "graph_api.py": {
+        "bytes": 1899,
+        "sha256": "16839d25ad6a3957b68848fb6718a393840840b433361eba1ae07ddbbdafe5d7"
+      },
+      "graph_stage_source.py": {
+        "bytes": 56225,
+        "sha256": "b0ce77149ff72ea2936c23fcbdeefe3c011a2dfc75d60d40ec650ab233e5e845"
+      },
+      "guest.py": {
+        "bytes": 23657,
+        "sha256": "e921b2aa54f47125dd83c8c4932fa6ba3c4048f107e4dcf6df4d42680c71b874"
+      },
+      "guest_guard.py": {
+        "bytes": 4160,
+        "sha256": "8db72fbc36f59c5660f7ddc4f56f3bdbed81cdec4344c65017db522501f83de7"
+      },
+      "hook.py": {
+        "bytes": 787,
+        "sha256": "b3e2bd1c4eb715928919028be1dddce2090605d233ba8f4d6bf98d67e95f5fa3"
+      },
+      "host.py": {
+        "bytes": 4302,
+        "sha256": "d25d18a115483bf7b6f2f0f0f1bfe21d19de37951949e55685edcfb77d84248b"
+      },
+      "initramfs.py": {
+        "bytes": 4502,
+        "sha256": "50d3a4833f5b783704c1a07fb3c213819769a08294eb677e7066ec13595d4b98"
+      },
+      "journal_acl.py": {
+        "bytes": 94610,
+        "sha256": "e3849c1604b6520c4fb813692290a0989d08542cf3ada1fbf412948a83a26c9c"
+      },
+      "lane622.py": {
+        "bytes": 9700,
+        "sha256": "31d47330f090f82c5ed5a1da108045492fa4de9d47bd45bbb2c169781d7c52bf"
+      },
+      "media.py": {
+        "bytes": 9202,
+        "sha256": "4ade0d8e6fb970e1291b2f9a5f55653934844c36e866491c338678650ac8af0e"
+      },
+      "mime-profile.json": {
+        "bytes": 259815,
+        "sha256": "4c601c715c4ee64484f49dacebfddb53da9391893c29e3c0626a92942a36a793"
+      },
+      "mime_cache.py": {
+        "bytes": 47294,
+        "sha256": "1e04c1a6d7918c6499a3a356397749a60083000bb493e9fb3df1f277ea635922"
+      },
+      "ownership622.py": {
+        "bytes": 63574,
+        "sha256": "4392285392cca3e9e01241599443f061bb4cdd559c507556b2ef5e1ae2915a8f"
+      },
+      "pid1-baseline.json": {
+        "bytes": 528,
+        "sha256": "b508b5ff108bc90d79952c7a90efdb812ccd008421297412b9338a2c6c1c8be6"
+      },
+      "pid1-expected.json": {
+        "bytes": 548,
+        "sha256": "2891023d89c1f35b47c8e4cb8b7c88105ddce72b18796a377b161e7278f03659"
+      },
+      "prepare.py": {
+        "bytes": 1394,
+        "sha256": "554c52290776a5f4ec314ba8abad836db1d99ab81e4782964e3a0d4bbe04a8a2"
+      },
+      "profile.json": {
+        "bytes": 334009,
+        "sha256": "e03456c28bcae23d3cb6ae856af81adf75a1a60905aefb0e0238acd147e3de24"
+      },
+      "provision622.py": {
+        "bytes": 48590,
+        "sha256": "0e11e0d2339ec94eef3a760c1298d74ba5caab2367adcf601258c1c3826ec341"
+      },
+      "run622.py": {
+        "bytes": 21378,
+        "sha256": "4f49692149c9651b6226a9d04affe3e7dea471b702fa190cf4da31e2912a19ff"
+      },
+      "serial-profile.json": {
+        "bytes": 734,
+        "sha256": "f7cd6095424948d3e108b3b96763674612fc086e2da08cb783da78057a0f0c0e"
+      },
+      "serial_result.py": {
+        "bytes": 52907,
+        "sha256": "d708f9de5f31a15882596ed95fb9514958ce8df4a85ce2152dcb265f878b3991"
+      },
+      "source-manifest.json": {
+        "bytes": 8714,
+        "sha256": "f9d59c5258cf46f720bc43ac4b94d8e53e1390048fce54a6e6340023a9ee20f5"
+      },
+      "source622.py": {
+        "bytes": 64103,
+        "sha256": "460f204afbd9cb47670025adca0293c4cff8dcb20a30a765eb42a6995203ca94"
+      },
+      "test_bridge622.py": {
+        "bytes": 143349,
+        "sha256": "b56532e99e7c6243e81dc1aec80118191b0feed9fd12aa058d08d52b6a2acb81"
+      },
+      "test_case.py": {
+        "bytes": 19195,
+        "sha256": "723c962fafa76c84e8d6764e687bdebe5faad63b00a96edb0355f27c8ad7a189"
+      },
+      "test_desktop622.py": {
+        "bytes": 5072,
+        "sha256": "ed28a02f696c57785041c53b8c8380b3817cbb2e884b1fd3df4451881c7a6daf"
+      },
+      "test_emission.py": {
+        "bytes": 2521,
+        "sha256": "57a4a755385a5e380e303f3e3da33bafcfc71063ffce2041f22b22b5a5ffdf8f"
+      },
+      "test_host.py": {
+        "bytes": 3090,
+        "sha256": "b01d3159bd0b0c688434bac69976dd16cf173358a598957f3be58f49c1642460"
+      },
+      "test_initramfs.py": {
+        "bytes": 7864,
+        "sha256": "0d0a521c9f4e8793c4b15a82119dfca7a46642033c94b72327e27118a797bae2"
+      },
+      "test_protocol.py": {
+        "bytes": 4378,
+        "sha256": "ac482fa3a8fc0ab932bcf8e65b864e4ac26affc1ecf30ecea61cd42b52264d25"
+      },
+      "test_route.py": {
+        "bytes": 9847,
+        "sha256": "b32ab0d4b5dd3cbfbb131811a8460bc82b07dcd517598971c1b14bdc437123ab"
+      },
+      "test_sources.py": {
+        "bytes": 19838,
+        "sha256": "eef8c2a75e8f3c5e282eb48daba98ce471c58791b29e0653626fe0949a06a8e7"
+      },
+      "tmpfiles_hash.py": {
+        "bytes": 41582,
+        "sha256": "6912c9ae1a14477212921c6aed68b54e7c83a6a9308664e515c51619603eba6b"
+      },
+      "transaction_output.py": {
+        "bytes": 42998,
+        "sha256": "8ce374e17744888ad70ca0b19485ffd6f72d6cf029f47f6fdfaa07c47dce6ce9"
+      },
+      "units/caa-core-observer.service": {
+        "bytes": 474,
+        "sha256": "95b66c92d2acbbfdb5d904c2c0f6b61518fd3bb7c71eb290751a27e9d2fc8e6e"
+      },
+      "units/caa-core-probe.service": {
+        "bytes": 358,
+        "sha256": "b8a4a142045304e53893608548c293b684fbe295831e25a84d5cf3c19ef0a6b4"
+      },
+      "units/caa-core-worker.service": {
+        "bytes": 352,
+        "sha256": "70ebee606afc5fee5359d3ea05cee62445766c8a4033d6fbee7398f0be6f9353"
+      },
+      "units/caa-core.target": {
+        "bytes": 189,
+        "sha256": "1025ff9b01e2132861b26cf35fd5f4a25424638f03e49222552ef0cbbb719e37"
+      },
+      "validate.py": {
+        "bytes": 7302,
+        "sha256": "00fd4f5a2c4652d6a6c39737188decc60b8a001964bf919fdaf9d68c11b1c051"
+      },
+      "vm_validation.py": {
+        "bytes": 52784,
+        "sha256": "a69264ea55374b2058048ca2441c89942e65f43d06125b0d1ad71d3e021202e1"
+      },
+      "workflow.yml.in": {
+        "bytes": 50261,
+        "sha256": "818aa03433027cf2e310cb15c85cf1293141eb377cf53f198a26f9bfdaa0ea67"
+      },
+      "xattr_diagnostic.py": {
+        "bytes": 17502,
+        "sha256": "ad88aee4e41afa9f78d45785a45f274abeac1aaf335225ec0c4cc61240cbba47"
+      }
+    },
+    "diagnostic_roles": 14,
+    "edits": {
+      "export622.py": [
+        [
+          " def __init__(self,parent,deadline):\n  self.parent=",
+          " def __init__(self,parent,deadline,authority=None):\n  self.authority=authority;self.inventory_validation=\"NOT_EVALUATED\";self.parent="
+        ],
+        [
+          "outer_write(work/'context-retirement.json',outer_encoded(value),16384)",
+          "\n   if self.authority is not None:value.update(schema=2,context_authority=self.authority,inventory_validation=self.inventory_validation);value['limits']['bytes']=self.authority['bytes']\n   outer_write(work/'context-retirement.json',outer_encoded(value),16384)"
+        ],
+        [
+          " def emit(self,predicate=None,operand_error=None):\n  try:",
+          " def inventory_check(self,call):\n  try:value=call()\n  except BaseException:self.inventory_validation='REFUSED';raise\n  self.inventory_validation='PASS_EXACT_CACHED_ENTRY_NAMESPACE';return value\n def emit(self,predicate=None,operand_error=None):\n  try:"
+        ],
+        [
+          " def record(self,name,value,role=None):return value\n def emit",
+          " def record(self,name,value,role=None):return value\n def inventory_check(self,call):return call()\n def emit"
+        ],
+        [
+          "def context_retirement_observations(parent,deadline):\n try:return ContextRetirementObservations(parent,deadline)",
+          "def context_retirement_observations(parent,deadline,authority=None):\n try:return ContextRetirementObservations(parent,deadline,authority)"
+        ],
+        [
+          "def context_observation_value(raw,index):",
+          "def context_authority_value(value,index):\n \"\"\"Finite semantic budget declaration; not an independent removal receipt.\"\"\"\n import re\n keys={'schema','status','identity','nonce','context_path_sha256','root_identity_sha256','files_sha256','context_owner','public_export','public_files_sha256','kernel_files_sha256','files','directories','components','bytes','acceptance'};need(type(value)is dict and set(value)==keys and type(value['schema'])is int and value['schema']==1 and value['status']=='EXACT_SOURCE_DECLARED_POST_CORE_CONTEXT_BYTES_DATA_ONLY'and value['identity']==index['identity']and value['nonce']==index['nonce']and value['acceptance']is False,'exact private context authority declaration')\n def integer(v):return type(v)is int and 0<=v<=2**63-1\n need(all(type(value[k])is str and re.fullmatch('[a-f0-9]{64}',value[k])for k in('context_path_sha256','root_identity_sha256','files_sha256','public_files_sha256','kernel_files_sha256'))and all(integer(value[k])for k in('files','directories','bytes'))and 0<value['files']+value['directories']<=2048,'bounded context inventory and private root marker');export=value['public_export'];need(type(export)is dict and set(export)=={'bytes','sha256'}and integer(export['bytes'])and export['bytes']<=4*1024**2 and type(export['sha256'])is str and re.fullmatch('[a-f0-9]{64}',export['sha256']),'finite original complete public export pin');owner=value['context_owner'];need(type(owner)is dict and set(owner)=={'bytes','sha256'}and integer(owner['bytes'])and owner['bytes']<=16384 and type(owner['sha256'])is str and re.fullmatch('[a-f0-9]{64}',owner['sha256']),'finite original owner pin');parts=value['components'];need(type(parts)is dict and set(parts)=={'public','inputs','kernel','fixed'}and all(type(r)is dict and set(r)=={'files','bytes'}and all(integer(r[k])for k in('files','bytes'))for r in parts.values()),'four exact declared retained components');need(sum(r['files']for r in parts.values())==value['files']and sum(r['bytes']for r in parts.values())==value['bytes']and parts['public']['files']<=4096 and parts['public']['bytes']<=768*1024**2 and parts['inputs']['files']==272 and parts['inputs']['bytes']<=647070676+3*1024**2 and parts['fixed']['files']==9 and parts['fixed']['bytes']<=16384+6*4*1024**2+2*64*1024**2,'exact component-derived private byte budget and unchanged retention capacities');profile=json.loads(outer_read(Path(__file__).absolute().parent/'profile.json',4*1024**2)[0]);kernel=profile['source_profiles']['kernel_carrier']['files'];need(value['kernel_files_sha256']==hashlib.sha256(outer_encoded(kernel)).hexdigest()and parts['kernel']==dict(files=len(kernel),bytes=sum(r['bytes']for r in kernel.values())),'entire pinned original kernel component');return value\n\ndef context_observation_value(raw,index):"
+        ],
+        [
+          "need(type(value)is dict and set(value)==keys,'exact observation schema');need(type(value['schema'])is int and value['schema']==1",
+          "need(type(value)is dict,'original observation object');version=value.get('schema');need(type(version)is int and version in(1,2)and set(value)==keys|({'context_authority','inventory_validation'}if version==2 else set()),'exact versioned observation schema');authority=context_authority_value(value['context_authority'],index)if version==2 else None;need(version==1 or value['inventory_validation']in('NOT_EVALUATED','REFUSED','PASS_EXACT_CACHED_ENTRY_NAMESPACE'),'finite authority validation outcome');need(type(value['schema'])is int and value['schema']==version"
+        ],
+        [
+          "value['limits']==dict(entries=2048,bytes=768*1024**2,shared_cleanup_seconds=240)",
+          "value['limits']==dict(entries=2048,bytes=authority['bytes']if authority is not None else 768*1024**2,shared_cleanup_seconds=240)and(authority is None or authority['context_path_sha256']==value['context_path_sha256'])"
+        ],
+        [
+          "size=len(json.dumps(projection,sort_keys=True,separators=(',',':')).encode());need(size<=min(1024,remaining)",
+          "\n  if value['schema']==2:projection.update(schema=2,inventory_validation=value['inventory_validation'],limit_bytes=value['context_authority']['bytes'],authority_sha256=hashlib.sha256(outer_encoded(value['context_authority'])).hexdigest())\n  size=len(json.dumps(projection,sort_keys=True,separators=(',',':')).encode());need(size<=min(1024,remaining)"
+        ]
+      ],
+      "run622.py": [
+        [
+          "import argparse,contextlib,hashlib,json,os,re,shutil,sys,time,types",
+          "import argparse,contextlib,hashlib,json,os,re,shutil,stat,sys,time,types"
+        ],
+        [
+          "def derive(text):",
+          "def declared_context_inventory(public,owner,claim,selected,kernel,export):\n \"\"\"Budget only the already-retained Source declarations, never observed sizes.\"\"\"\n C.selection(selected);C.need(type(public)is dict and public and type(claim)is dict and len(owner)<=16384 and owner==C.encoded(claim)and C.decode(owner)==claim and claim['schema']==1 and claim['status']=='OWNED_PRE_CORE_INPUT_CONTEXT_NO_CORE_ACTOR'and claim['Core_actor']=='NOT_STARTED'and claim['actual']==selected['actual']and claim['nonce']==selected['nonce'],'same original tracked context identity and Source/run/nonce');parent=Path(claim['path']);C.need(parent.parent==Path('/tmp')and parent.name.endswith('-context')and parent==parent.absolute()and all(type(v)is int for v in claim['root'])and len(claim['root'])==5 and claim['root'][2]==0o700 and len(claim['parent'])==2,'literal original private context role')\n def checked(name,row,cap=128*1024**2):\n  C.need(type(name)is str and name==Path(name).as_posix()and not Path(name).is_absolute()and all(v not in('','.','..')for v in name.split('/'))and type(row)is dict and set(row)=={'bytes','sha256'}and type(row['bytes'])is int and 0<=row['bytes']<=cap and type(row['sha256'])is str and re.fullmatch('[a-f0-9]{64}',row['sha256']),'finite declared context role pin');return dict(row)\n public={n:checked(n,r)for n,r in public.items()};record=C.decode(export);C.need(len(export)<=4*1024**2 and type(record)is dict and type(record.get('files'))is dict and set(public)==set(record['files'])|{'export.json'}and public['export.json']==C.pin(export)and all(public[n]==r for n,r in record['files'].items())and type(record['bytes'])is int and record['bytes']==sum(r['bytes']for r in record['files'].values()),'exact original private public-retainer export closure');C.need(sum(r['bytes']for r in public.values())<=768*1024**2 and len(public)<=4096,'unchanged complete public capacity');fixed={'source-proof.json':'source-proof.json','ordered-cleanup.json':'ordered-cleanup.json','original800-ordered-cleanup.json':'original800-ordered-cleanup.json',**{'retained/'+n:n for n in('fresh607-manifest.json','fresh607-producer.json','fresh607-base-build.json','fresh607-owner.json','fresh607-tooling-seed.json')}};C.need(set(fixed)<=set(public)and'export.json'in public,'all original fixed post-Core retained declarations');parts={'public':{'public/'+n:r for n,r in public.items()},'inputs':{n:r for n,r in public.items()if n.startswith('current607-inputs/')},'kernel':{'kernel-inputs/'+n:r for n,r in public.items()if n.startswith('kernel/')},'fixed':{n:public[k]for k,n in fixed.items()}};parts['fixed']['context-owner.json']=C.pin(owner)\n inputs=parts['inputs'];archives={n:r for n,r in inputs.items()if n.startswith('current607-inputs/packages/')};C.need(set(inputs)==set(archives)|{'current607-inputs/capture.json','current607-inputs/current607-inputs.json.gz'}and len(archives)==270 and all(n=='current607-inputs/packages/'+Path(n).name for n in archives)and sum(r['bytes']for r in archives.values())<=647070676 and inputs['current607-inputs/capture.json']['bytes']<=1024**2 and inputs['current607-inputs/current607-inputs.json.gz']['bytes']<=2*1024**2,'unchanged exact270 exported input roles and declared retention capacities');expected={}\n for n,r in kernel.items():\n  C.need(n.startswith('payload/')and'/'not in n[len('payload/'):],'flat pinned kernel payload role');expected['kernel-inputs/kernel/'+n[len('payload/'):]]=checked(n,r,256*1024**2)\n C.need(parts['kernel']==expected,'entire original pinned kernel projection');files={}\n for name,rows in parts.items():\n  for n,r in rows.items():C.need(n not in files,'disjoint private inventory roles');files[n]=r\n directories={p.as_posix()for n in files for p in Path(n).parents if p.as_posix()!='.'};C.need(len(files)+len(directories)<=2048,'unchanged private context node capacity');summary=dict(schema=1,status='EXACT_SOURCE_DECLARED_POST_CORE_CONTEXT_BYTES_DATA_ONLY',identity=selected['actual'],nonce=selected['nonce'],context_path_sha256=hashlib.sha256(str(parent).encode('utf-8','surrogateescape')).hexdigest(),root_identity_sha256=hashlib.sha256(C.encoded(dict(root=claim['root'],parent=claim['parent']))).hexdigest(),context_owner=C.pin(owner),public_export=C.pin(export),public_files_sha256=hashlib.sha256(C.encoded(public)).hexdigest(),kernel_files_sha256=hashlib.sha256(C.encoded(kernel)).hexdigest(),files_sha256=hashlib.sha256(C.encoded(files)).hexdigest(),files=len(files),directories=len(directories),components={n:dict(files=len(rows),bytes=sum(r['bytes']for r in rows.values()))for n,rows in parts.items()},bytes=sum(r['bytes']for r in files.values()),acceptance=False);return dict(public=public,owner=owner,claim=claim,selected=selected,kernel=kernel,export=export,files=files,directories=sorted(directories),summary=summary)\n\ndef context_inventory_stat(observed,path,value):\n observed.setdefault(path,[]).append(value);return value\n\ndef validate_context_inventory(value,parent,entries,selected,observed):\n \"\"\"Use only the original entries list, after every original guard conjunct.\"\"\"\n C.need(type(value)is dict and set(value)=={'public','owner','claim','selected','kernel','export','files','directories','summary'}and value['selected']==selected,'required exact cached context inventory');C.need(value==declared_context_inventory(value['public'],value['owner'],value['claim'],selected,value['kernel'],value['export']),'whole unchanged declared inventory before retirement');claim=value['claim'];parent=Path(parent);C.need(str(parent)==claim['path']and parent.parent==Path('/tmp'),'same exact owned private context scope');s=parent.lstat();grand=parent.parent.stat();C.need([s.st_dev,s.st_ino,stat.S_IMODE(s.st_mode),s.st_uid,s.st_gid]==claim['root']and[grand.st_dev,grand.st_ino]==claim['parent']and stat.S_ISDIR(s.st_mode)and s.st_uid==os.getuid(),'same original private context inode and parent marker');files={};directories=set()\n for p in entries:\n  name=p.relative_to(parent).as_posix();C.need(name and name==Path(name).as_posix()and all(v not in('','.','..')for v in name.split('/')),'literal same-scan context role');snapshots=observed.get(p,[]);C.need(bool(snapshots),'only actually evaluated original stat operands');st=snapshots[0];identity=lambda v:tuple(getattr(v,k)for k in('st_dev','st_ino','st_mode','st_uid','st_gid','st_nlink','st_size','st_mtime_ns','st_ctime_ns'));C.need(all(identity(v)==identity(st)for v in snapshots)and st.st_dev==s.st_dev and st.st_uid==os.getuid(),'stable same-device original stat operands')\n  if stat.S_ISDIR(st.st_mode):C.need(name not in directories,'unique declared context directory');directories.add(name)\n  else:C.need(stat.S_ISREG(st.st_mode)and st.st_nlink==1 and name not in files and name in value['files']and st.st_size==value['files'][name]['bytes'],'exact declared ordinary private context file size');files[name]=value['files'][name]\n C.need(files==value['files']and directories==set(value['directories']),'complete exact same-scan private namespace');return True\n\ndef derive(text):"
+        ],
+        [
+          "self.native_phase=native_phase",
+          "self.native_phase=native_phase;self.context_inventory=None"
+        ],
+        [
+          "  C.need(code==cleanup==retained==0,'complete actual607 formation and normal Core twoBoot result')",
+          "   try:self.context_inventory=declared_context_inventory(result['core_public'],C.read(parent/'context-owner.json',16384),self.context_lease,args.selected,C.decode(C.read(ROOT/'profile.json',4*1024**2))['source_profiles']['kernel_carrier']['files'],C.read(parent/'public/export.json',4*1024**2))\n   except BaseException:pass # Missing authority refuses retirement; original result/exception remains primary.\n  C.need(code==cleanup==retained==0,'complete actual607 formation and normal Core twoBoot result')"
+        ],
+        [
+          "parent=self.current.proof.parent;entries=list(parent.rglob('*'));observation=export622.context_retirement_observations(parent,self.cleanup_end)",
+          "parent=self.current.proof.parent;entries=list(parent.rglob('*'));C.need(self.context_inventory is not None,'required declared private context retirement inventory');limit=self.context_inventory['summary']['bytes'];inventory_nodes={};observation=export622.context_retirement_observations(parent,self.cleanup_end,self.context_inventory['summary'])"
+        ],
+        [
+          ")<=768*1024**2 and observation.record('owner_type_alias_all'",
+          ")<=limit and observation.record('owner_type_alias_all'"
+        ],
+        [
+          "observation.record('file_bytes',p.stat().st_size,p)",
+          "observation.record('file_bytes',context_inventory_stat(inventory_nodes,p,p.stat()).st_size,p)"
+        ],
+        [
+          "p.stat().st_uid==os.getuid()",
+          "context_inventory_stat(inventory_nodes,p,p.stat()).st_uid==os.getuid()"
+        ],
+        [
+          "and observation.record('monotonic',time.monotonic())<self.cleanup_end",
+          "and observation.inventory_check(lambda:validate_context_inventory(self.context_inventory,parent,entries,self.current.selected,inventory_nodes))and observation.record('monotonic',time.monotonic())<self.cleanup_end"
+        ]
+      ],
+      "test_bridge622.py": [
+        [
+          "parents=C.decode(C.read(CASE/'composition-parent.json',4*1024**2));context=parents['context_retirement_observations_causal'];",
+          "parents=C.decode(C.read(CASE/'composition-parent.json',4*1024**2));inventory=parents['private_context_retirement_inventory_causal'];self.assertEqual((inventory['schema'],inventory['parent_source'],inventory['actual']),(1,'425901e440a4fbe24a5aa00857a9962714599be4',None));prior=C.read(CASE/'run622.py',4*1024**2).decode()\n  for old,new in reversed(inventory['edits']['run622.py']):self.assertEqual(prior.count(new),1);prior=prior.replace(new,old,1)\n  self.assertEqual(inventory['before']['run622.py'],dict(bytes=21378,sha256='4f49692149c9651b6226a9d04affe3e7dea471b702fa190cf4da31e2912a19ff'));self.assertEqual(C.pin(prior.encode()),inventory['before']['run622.py']);context=parents['context_retirement_observations_causal'];"
+        ],
+        [
+          "self.assertEqual(len(context['edits']['run622.py']),1);prior=C.read(CASE/'run622.py',4*1024**2).decode()",
+          "self.assertEqual(len(context['edits']['run622.py']),1)"
+        ]
+      ]
+    },
+    "functional_acceptance": false,
+    "guard_anchor": " C=globals()['C'];root=Path(root)\n",
+    "guard_prefix": " C=globals()['C'];root=Path(root)\n causal=C.decode(C.read(root/'composition-parent.json',4*1024**2))['private_context_retirement_inventory_causal']\n C.need(causal['schema']==1 and causal['parent_source']=='425901e440a4fbe24a5aa00857a9962714599be4' and causal['actual']is None and causal['publication_parent']=='425901e440a4fbe24a5aa00857a9962714599be4'and len(causal['before'])==66 and causal['acceptance']is False,'exact staged export66 before retained DATA route, no invented publication')\n prior={n:C.read(root/n,4*1024**2)for n in causal['before']}\n for name,rules in causal['edits'].items():\n  text=prior[name].decode()\n  for before,after in reversed(rules):C.need(text.count(after)==1,'one exact retained causal source inverse');text=text.replace(after,before,1)\n  prior[name]=text.encode()\n parent=C.decode(prior['composition-parent.json']);C.need(parent.pop('private_context_retirement_inventory_causal')==causal,'complete causal parent inverse');prior['composition-parent.json']=C.encoded(parent)\n manifest=C.decode(prior['source-manifest.json']);manifest['files']={n:w for n,w in causal['before'].items()if n not in('source-manifest.json',*ALIASES)};prior['source-manifest.json']=C.encoded(manifest)\n text=prior['source622.py'].decode()\n for name,before in(('PRODUCTS',causal['guard_products_before']),('SELF',causal['guard_self_before'])):\n  node=next(n for n in ast.parse(text).body if isinstance(n,ast.Assign)and isinstance(n.targets[0],ast.Name)and n.targets[0].id==name);after=ast.get_source_segment(text,node);C.need(text.count(after)==1,'one retained causal guard seal inverse');text=text.replace(after,before,1)\n C.need(text.count(causal['guard_prefix'])==1,'one retained causal guard prefix inverse');text=text.replace(causal['guard_prefix'],causal['guard_anchor'],1);prior['source622.py']=text.encode();C.need({n:C.pin(raw)for n,raw in prior.items()}==causal['before'],'whole exact staged export66 before all previous Source predicates')\n tree=ast.parse(text);sealed={n.targets[0].id:ast.literal_eval(n.value)for n in tree.body if isinstance(n,ast.Assign)and isinstance(n.targets[0],ast.Name)and n.targets[0].id in('PRODUCTS','SELF')};C.need(all(C.pin(prior[n])==w for n,w in sealed['PRODUCTS'].items()),'all preceding export66 products');seal=sealed['SELF'];C.need(text.count(seal)==1 and hashlib.sha256(text.replace(seal,'@SELF@').encode()).hexdigest()==seal,'whole preceding export66 selfseal')\n def prior_read(path,maximum=1024**2):\n  name=Path(path).relative_to(root).as_posix();C.need(name in prior and len(prior[name])<=maximum,'bounded complete export66 inverse only');return prior[name]\n C=__import__('types').SimpleNamespace(**dict(vars(C),read=prior_read))\n",
+    "guard_products_before": "PRODUCTS={'Core800-acceptance.json': {'bytes': 2043, 'sha256': 'd6f67e4c2782f9b609309e6e5627ad6534f172f0560ec7e2e2ec5c3a4f251e9d'}, 'LICENSE': {'bytes': 27836, 'sha256': '624b2335eff599a84764ef0a51b6d2962b5ef504a792e1b362ea31f0cbc1ac4c'}, 'README.md': {'bytes': 6730, 'sha256': '849d859eb0d7c49d4a1a673218fbc74a7bcf378b711b3e2ebb21ab3887dcff8e'}, 'acl_policy.py': {'bytes': 83174, 'sha256': '9204e5794f01b49a0b301088f3a5b4439e57eb7273fc5afac278b3f967816462'}, 'adapter.py': {'bytes': 1401, 'sha256': 'fb0aadeb5fb230346161be90e94696aecaecf6d2b3e1e3f40538d7ab72f23586'}, 'assembly622.py': {'bytes': 466, 'sha256': '610836ad8beeed379079b711c37d20867b28218d9422631ff7857d8a4872be55'}, 'boot.py': {'bytes': 5422, 'sha256': 'f6df3d8e5b5602f3b9eca4ebfbb54afaa354ac29b7b4b9cc26988a9de064349e'}, 'candidate_capacity.py': {'bytes': 49900, 'sha256': '03018514575bb12b0f6623b4f4a2396a2ce3fa3691225c6134f061a787d12a83'}, 'case.py': {'bytes': 8668, 'sha256': '07ea5e72a4ad8b22b9a6594aada61941abefa4659b46b26fc0bb59efa239319b'}, 'clock.py': {'bytes': 4205, 'sha256': 'cf43f16973294a8e687c65341cb63329a71d9a2a2ea488f0f6f2e20b97087c3c'}, 'composition-parent.json': {'bytes': 2987232, 'sha256': 'b2a539a0eafe20f5bf7bdee9d1300b7adc3f10ea29b961b7f4b6a1abb60da612'}, 'composition.json': {'bytes': 444951, 'sha256': '154aab2490617a23d3fb745cc8c03d3bc4abb35d3c836f4a43394b1758158d6c'}, 'compression-profile.json': {'bytes': 1179, 'sha256': 'aec949ee839909702d208a3f91710c4565b5dcf46fa4fca0b2bd3bc13558d57c'}, 'controller.py': {'bytes': 11715, 'sha256': '50061a1e0e91dabdbe66572500cfaf343c97e6cd750f77665b17c4ec4a1cb719'}, 'desktop622.py': {'bytes': 9856, 'sha256': 'eace06a0842aa08b803de34522178a086943c3e05086b1ed07f7fb986fd07400'}, 'effects.py': {'bytes': 6147, 'sha256': 'e2d4d80f64736975437615146f09f8796c20a634b02bb31d167614700609aae7'}, 'entry.py': {'bytes': 6025, 'sha256': 'f34a53b6ea08ef673d0d187e70a4fc1a496b8b00882cd432fbe3af0e50ddac68'}, 'evidence.py': {'bytes': 7937, 'sha256': '21da5d7bc45214cac174da7fa779ddf281760841f5a233b9c57b21b154d4e4be'}, 'expected607.lock': {'bytes': 12076, 'sha256': 'be35402204ba5c03d78279722afa83047c9575d2da70fb5c4064f46ed15954c5'}, 'expected622.lock': {'bytes': 12444, 'sha256': '189d037738680f5dfc9a5d48169eddf866383a06b070c094dac613c9d1b4eca8'}, 'export622.py': {'bytes': 38540, 'sha256': '31a266e4ae58c8375bc9591ce66e7c4c9121ae770da8c465fc94c0b0cacc7256'}, 'formation622.py': {'bytes': 4938, 'sha256': 'c0dba994e0edb0da162e796a68b555ead745889baf5cd70a929fa465e79b4485'}, 'graph_api.py': {'bytes': 1899, 'sha256': '16839d25ad6a3957b68848fb6718a393840840b433361eba1ae07ddbbdafe5d7'}, 'graph_stage_source.py': {'bytes': 56225, 'sha256': 'b0ce77149ff72ea2936c23fcbdeefe3c011a2dfc75d60d40ec650ab233e5e845'}, 'guest.py': {'bytes': 23657, 'sha256': 'e921b2aa54f47125dd83c8c4932fa6ba3c4048f107e4dcf6df4d42680c71b874'}, 'guest_guard.py': {'bytes': 4160, 'sha256': '8db72fbc36f59c5660f7ddc4f56f3bdbed81cdec4344c65017db522501f83de7'}, 'hook.py': {'bytes': 787, 'sha256': 'b3e2bd1c4eb715928919028be1dddce2090605d233ba8f4d6bf98d67e95f5fa3'}, 'host.py': {'bytes': 4302, 'sha256': 'd25d18a115483bf7b6f2f0f0f1bfe21d19de37951949e55685edcfb77d84248b'}, 'initramfs.py': {'bytes': 4502, 'sha256': '50d3a4833f5b783704c1a07fb3c213819769a08294eb677e7066ec13595d4b98'}, 'journal_acl.py': {'bytes': 94610, 'sha256': 'e3849c1604b6520c4fb813692290a0989d08542cf3ada1fbf412948a83a26c9c'}, 'lane622.py': {'bytes': 9700, 'sha256': '31d47330f090f82c5ed5a1da108045492fa4de9d47bd45bbb2c169781d7c52bf'}, 'media.py': {'bytes': 9202, 'sha256': '4ade0d8e6fb970e1291b2f9a5f55653934844c36e866491c338678650ac8af0e'}, 'mime-profile.json': {'bytes': 259815, 'sha256': '4c601c715c4ee64484f49dacebfddb53da9391893c29e3c0626a92942a36a793'}, 'mime_cache.py': {'bytes': 47294, 'sha256': '1e04c1a6d7918c6499a3a356397749a60083000bb493e9fb3df1f277ea635922'}, 'ownership622.py': {'bytes': 63574, 'sha256': '4392285392cca3e9e01241599443f061bb4cdd559c507556b2ef5e1ae2915a8f'}, 'pid1-baseline.json': {'bytes': 528, 'sha256': 'b508b5ff108bc90d79952c7a90efdb812ccd008421297412b9338a2c6c1c8be6'}, 'pid1-expected.json': {'bytes': 548, 'sha256': '2891023d89c1f35b47c8e4cb8b7c88105ddce72b18796a377b161e7278f03659'}, 'prepare.py': {'bytes': 1394, 'sha256': '554c52290776a5f4ec314ba8abad836db1d99ab81e4782964e3a0d4bbe04a8a2'}, 'profile.json': {'bytes': 334009, 'sha256': 'e03456c28bcae23d3cb6ae856af81adf75a1a60905aefb0e0238acd147e3de24'}, 'provision622.py': {'bytes': 48590, 'sha256': '0e11e0d2339ec94eef3a760c1298d74ba5caab2367adcf601258c1c3826ec341'}, 'run622.py': {'bytes': 21378, 'sha256': '4f49692149c9651b6226a9d04affe3e7dea471b702fa190cf4da31e2912a19ff'}, 'serial-profile.json': {'bytes': 734, 'sha256': 'f7cd6095424948d3e108b3b96763674612fc086e2da08cb783da78057a0f0c0e'}, 'serial_result.py': {'bytes': 52907, 'sha256': 'd708f9de5f31a15882596ed95fb9514958ce8df4a85ce2152dcb265f878b3991'}, 'test_bridge622.py': {'bytes': 143349, 'sha256': 'b56532e99e7c6243e81dc1aec80118191b0feed9fd12aa058d08d52b6a2acb81'}, 'test_case.py': {'bytes': 19195, 'sha256': '723c962fafa76c84e8d6764e687bdebe5faad63b00a96edb0355f27c8ad7a189'}, 'test_desktop622.py': {'bytes': 5072, 'sha256': 'ed28a02f696c57785041c53b8c8380b3817cbb2e884b1fd3df4451881c7a6daf'}, 'test_emission.py': {'bytes': 2521, 'sha256': '57a4a755385a5e380e303f3e3da33bafcfc71063ffce2041f22b22b5a5ffdf8f'}, 'test_host.py': {'bytes': 3090, 'sha256': 'b01d3159bd0b0c688434bac69976dd16cf173358a598957f3be58f49c1642460'}, 'test_initramfs.py': {'bytes': 7864, 'sha256': '0d0a521c9f4e8793c4b15a82119dfca7a46642033c94b72327e27118a797bae2'}, 'test_protocol.py': {'bytes': 4378, 'sha256': 'ac482fa3a8fc0ab932bcf8e65b864e4ac26affc1ecf30ecea61cd42b52264d25'}, 'test_route.py': {'bytes': 9847, 'sha256': 'b32ab0d4b5dd3cbfbb131811a8460bc82b07dcd517598971c1b14bdc437123ab'}, 'test_sources.py': {'bytes': 19838, 'sha256': 'eef8c2a75e8f3c5e282eb48daba98ce471c58791b29e0653626fe0949a06a8e7'}, 'tmpfiles_hash.py': {'bytes': 41582, 'sha256': '6912c9ae1a14477212921c6aed68b54e7c83a6a9308664e515c51619603eba6b'}, 'transaction_output.py': {'bytes': 42998, 'sha256': '8ce374e17744888ad70ca0b19485ffd6f72d6cf029f47f6fdfaa07c47dce6ce9'}, 'units/caa-core-observer.service': {'bytes': 474, 'sha256': '95b66c92d2acbbfdb5d904c2c0f6b61518fd3bb7c71eb290751a27e9d2fc8e6e'}, 'units/caa-core-probe.service': {'bytes': 358, 'sha256': 'b8a4a142045304e53893608548c293b684fbe295831e25a84d5cf3c19ef0a6b4'}, 'units/caa-core-worker.service': {'bytes': 352, 'sha256': '70ebee606afc5fee5359d3ea05cee62445766c8a4033d6fbee7398f0be6f9353'}, 'units/caa-core.target': {'bytes': 189, 'sha256': '1025ff9b01e2132861b26cf35fd5f4a25424638f03e49222552ef0cbbb719e37'}, 'validate.py': {'bytes': 7302, 'sha256': '00fd4f5a2c4652d6a6c39737188decc60b8a001964bf919fdaf9d68c11b1c051'}, 'vm_validation.py': {'bytes': 52784, 'sha256': 'a69264ea55374b2058048ca2441c89942e65f43d06125b0d1ad71d3e021202e1'}, 'workflow.yml.in': {'bytes': 50261, 'sha256': '818aa03433027cf2e310cb15c85cf1293141eb377cf53f198a26f9bfdaa0ea67'}, 'xattr_diagnostic.py': {'bytes': 17502, 'sha256': 'ad88aee4e41afa9f78d45785a45f274abeac1aaf335225ec0c4cc61240cbba47'}}",
+    "guard_self_before": "SELF='044bfbc13dc0785c0c5ffbf6b82cb94e79df8f3835d48ce36fe9d10042c89c71'",
+    "native_acceptance": false,
+    "normal90_acceptance": false,
+    "observation_schema": 2,
+    "observed_failure": "PUBLIC768MIB_WRONGLY_APPLIED_TO_DECLARED_PRIVATE_DUPLICATE_INPUT_AND_PUBLIC_CONTEXT",
+    "parent_authorization": {
+      "bytes": 8523,
+      "sha256": "21e6a207a70fe66ddccce2224ff295aa775703bab474d5a1d59c63f6f67110fa"
+    },
+    "parent_ref": "codex/core66-context-observations-control-profile-v1",
+    "parent_source": "425901e440a4fbe24a5aa00857a9962714599be4",
+    "parent_tree": "f9186559dafb90e2c7992305d74917045321af11",
+    "public_transport_roles": 13,
+    "publication_parent": "425901e440a4fbe24a5aa00857a9962714599be4",
+    "retirement_authority": "EXACT_ALREADY_RETAINED_SOURCE_DECLARED_INVENTORY_IN_MEMORY",
+    "schema": 1
+  },
   "retained_complete574_transport": {
     "acceptance": false,
     "actual": null,

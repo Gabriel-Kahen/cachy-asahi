@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 """Fresh genuine607 provisioning followed by normal Core PID1 two-boot622."""
-import argparse,contextlib,hashlib,json,os,re,shutil,sys,time,types
+import argparse,contextlib,hashlib,json,os,re,shutil,stat,sys,time,types
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 import case as C,adapter,desktop622 as X,ownership622,export622
@@ -26,6 +26,32 @@ def public_rows(root):
   if p.is_file():
    raw=C.read(p,128*1024**2);total+=len(raw);C.need(total<=768*1024**2 and len(rows)<4096,'original whole public transport limits');rows[p.relative_to(root).as_posix()]=C.pin(raw)
  return rows
+
+def declared_context_inventory(public,owner,claim,selected,kernel,export):
+ """Budget only the already-retained Source declarations, never observed sizes."""
+ C.selection(selected);C.need(type(public)is dict and public and type(claim)is dict and len(owner)<=16384 and owner==C.encoded(claim)and C.decode(owner)==claim and claim['schema']==1 and claim['status']=='OWNED_PRE_CORE_INPUT_CONTEXT_NO_CORE_ACTOR'and claim['Core_actor']=='NOT_STARTED'and claim['actual']==selected['actual']and claim['nonce']==selected['nonce'],'same original tracked context identity and Source/run/nonce');parent=Path(claim['path']);C.need(parent.parent==Path('/tmp')and parent.name.endswith('-context')and parent==parent.absolute()and all(type(v)is int for v in claim['root'])and len(claim['root'])==5 and claim['root'][2]==0o700 and len(claim['parent'])==2,'literal original private context role')
+ def checked(name,row,cap=128*1024**2):
+  C.need(type(name)is str and name==Path(name).as_posix()and not Path(name).is_absolute()and all(v not in('','.','..')for v in name.split('/'))and type(row)is dict and set(row)=={'bytes','sha256'}and type(row['bytes'])is int and 0<=row['bytes']<=cap and type(row['sha256'])is str and re.fullmatch('[a-f0-9]{64}',row['sha256']),'finite declared context role pin');return dict(row)
+ public={n:checked(n,r)for n,r in public.items()};record=C.decode(export);C.need(len(export)<=4*1024**2 and type(record)is dict and type(record.get('files'))is dict and set(public)==set(record['files'])|{'export.json'}and public['export.json']==C.pin(export)and all(public[n]==r for n,r in record['files'].items())and type(record['bytes'])is int and record['bytes']==sum(r['bytes']for r in record['files'].values()),'exact original private public-retainer export closure');C.need(sum(r['bytes']for r in public.values())<=768*1024**2 and len(public)<=4096,'unchanged complete public capacity');fixed={'source-proof.json':'source-proof.json','ordered-cleanup.json':'ordered-cleanup.json','original800-ordered-cleanup.json':'original800-ordered-cleanup.json',**{'retained/'+n:n for n in('fresh607-manifest.json','fresh607-producer.json','fresh607-base-build.json','fresh607-owner.json','fresh607-tooling-seed.json')}};C.need(set(fixed)<=set(public)and'export.json'in public,'all original fixed post-Core retained declarations');parts={'public':{'public/'+n:r for n,r in public.items()},'inputs':{n:r for n,r in public.items()if n.startswith('current607-inputs/')},'kernel':{'kernel-inputs/'+n:r for n,r in public.items()if n.startswith('kernel/')},'fixed':{n:public[k]for k,n in fixed.items()}};parts['fixed']['context-owner.json']=C.pin(owner)
+ inputs=parts['inputs'];archives={n:r for n,r in inputs.items()if n.startswith('current607-inputs/packages/')};C.need(set(inputs)==set(archives)|{'current607-inputs/capture.json','current607-inputs/current607-inputs.json.gz'}and len(archives)==270 and all(n=='current607-inputs/packages/'+Path(n).name for n in archives)and sum(r['bytes']for r in archives.values())<=647070676 and inputs['current607-inputs/capture.json']['bytes']<=1024**2 and inputs['current607-inputs/current607-inputs.json.gz']['bytes']<=2*1024**2,'unchanged exact270 exported input roles and declared retention capacities');expected={}
+ for n,r in kernel.items():
+  C.need(n.startswith('payload/')and'/'not in n[len('payload/'):],'flat pinned kernel payload role');expected['kernel-inputs/kernel/'+n[len('payload/'):]]=checked(n,r,256*1024**2)
+ C.need(parts['kernel']==expected,'entire original pinned kernel projection');files={}
+ for name,rows in parts.items():
+  for n,r in rows.items():C.need(n not in files,'disjoint private inventory roles');files[n]=r
+ directories={p.as_posix()for n in files for p in Path(n).parents if p.as_posix()!='.'};C.need(len(files)+len(directories)<=2048,'unchanged private context node capacity');summary=dict(schema=1,status='EXACT_SOURCE_DECLARED_POST_CORE_CONTEXT_BYTES_DATA_ONLY',identity=selected['actual'],nonce=selected['nonce'],context_path_sha256=hashlib.sha256(str(parent).encode('utf-8','surrogateescape')).hexdigest(),root_identity_sha256=hashlib.sha256(C.encoded(dict(root=claim['root'],parent=claim['parent']))).hexdigest(),context_owner=C.pin(owner),public_export=C.pin(export),public_files_sha256=hashlib.sha256(C.encoded(public)).hexdigest(),kernel_files_sha256=hashlib.sha256(C.encoded(kernel)).hexdigest(),files_sha256=hashlib.sha256(C.encoded(files)).hexdigest(),files=len(files),directories=len(directories),components={n:dict(files=len(rows),bytes=sum(r['bytes']for r in rows.values()))for n,rows in parts.items()},bytes=sum(r['bytes']for r in files.values()),acceptance=False);return dict(public=public,owner=owner,claim=claim,selected=selected,kernel=kernel,export=export,files=files,directories=sorted(directories),summary=summary)
+
+def context_inventory_stat(observed,path,value):
+ observed.setdefault(path,[]).append(value);return value
+
+def validate_context_inventory(value,parent,entries,selected,observed):
+ """Use only the original entries list, after every original guard conjunct."""
+ C.need(type(value)is dict and set(value)=={'public','owner','claim','selected','kernel','export','files','directories','summary'}and value['selected']==selected,'required exact cached context inventory');C.need(value==declared_context_inventory(value['public'],value['owner'],value['claim'],selected,value['kernel'],value['export']),'whole unchanged declared inventory before retirement');claim=value['claim'];parent=Path(parent);C.need(str(parent)==claim['path']and parent.parent==Path('/tmp'),'same exact owned private context scope');s=parent.lstat();grand=parent.parent.stat();C.need([s.st_dev,s.st_ino,stat.S_IMODE(s.st_mode),s.st_uid,s.st_gid]==claim['root']and[grand.st_dev,grand.st_ino]==claim['parent']and stat.S_ISDIR(s.st_mode)and s.st_uid==os.getuid(),'same original private context inode and parent marker');files={};directories=set()
+ for p in entries:
+  name=p.relative_to(parent).as_posix();C.need(name and name==Path(name).as_posix()and all(v not in('','.','..')for v in name.split('/')),'literal same-scan context role');snapshots=observed.get(p,[]);C.need(bool(snapshots),'only actually evaluated original stat operands');st=snapshots[0];identity=lambda v:tuple(getattr(v,k)for k in('st_dev','st_ino','st_mode','st_uid','st_gid','st_nlink','st_size','st_mtime_ns','st_ctime_ns'));C.need(all(identity(v)==identity(st)for v in snapshots)and st.st_dev==s.st_dev and st.st_uid==os.getuid(),'stable same-device original stat operands')
+  if stat.S_ISDIR(st.st_mode):C.need(name not in directories,'unique declared context directory');directories.add(name)
+  else:C.need(stat.S_ISREG(st.st_mode)and st.st_nlink==1 and name not in files and name in value['files']and st.st_size==value['files'][name]['bytes'],'exact declared ordinary private context file size');files[name]=value['files'][name]
+ C.need(files==value['files']and directories==set(value['directories']),'complete exact same-scan private namespace');return True
 
 def derive(text):
  edits=(
@@ -58,7 +84,7 @@ def inputs(root,fresh):
  actual=dict(source=s,ref=ref,run=int(run),attempt=1);nonce=hashlib.sha256(('current607-core622:'+s+':'+run).encode()).hexdigest()[:32];selected=dict(schema=1,scope=X.SCOPE,actual=actual,nonce=nonce,kernel=p['kernel'],source_profiles={n:p['source_profiles'][n]for n in('core800','ksm637','core7_carrier')},budgets=C.BUDGET);C.selection(selected);return dict(status='PASS_GENUINE_CORE622_SOURCE_INPUTS_BEFORE_ACTORS',source_sha=s,run_id=run,attempt=1,selection=selected,consumer_token=nonce,git=git,source_preflight=fact)
 
 class Context:
- def __init__(self,workspace,fresh,proof,end,*,job_clock=None,native_phase=None):self.workspace,self.fresh,self.proof,self.end=workspace,fresh,proof,end;self.producer=None;self.current=None;self.cleanup_end=None;self.tooling_seed=None;self.desktop_build_failure=None;self.dependency_failure=None;self.verification=[];self.verification_error=None;self.context_lease=None;self.context_failure=None;self.job_clock=job_clock;self.native_phase=native_phase
+ def __init__(self,workspace,fresh,proof,end,*,job_clock=None,native_phase=None):self.workspace,self.fresh,self.proof,self.end=workspace,fresh,proof,end;self.producer=None;self.current=None;self.cleanup_end=None;self.tooling_seed=None;self.desktop_build_failure=None;self.dependency_failure=None;self.verification=[];self.verification_error=None;self.context_lease=None;self.context_failure=None;self.job_clock=job_clock;self.native_phase=native_phase;self.context_inventory=None
  def capture_desktop_build(self,value):
   ownership622.validate_desktop_note(value)
   if self.desktop_build_failure is None:self.desktop_build_failure=value
@@ -101,6 +127,8 @@ class Context:
    # Copy original complete public Core evidence before the unchanged outer
    # owner retires its private VM sibling. No old result is reused.
    target=producer.with_name(producer.name.removesuffix('-producer'))/'core622-public';C.need(not target.exists(),'fresh bounded full Core evidence destination');shutil.copytree(parent/'public',target);C.need(public_rows(target)==result['core_public'],'all current Core public bytes retained exactly')
+   try:self.context_inventory=declared_context_inventory(result['core_public'],C.read(parent/'context-owner.json',16384),self.context_lease,args.selected,C.decode(C.read(ROOT/'profile.json',4*1024**2))['source_profiles']['kernel_carrier']['files'],C.read(parent/'public/export.json',4*1024**2))
+   except BaseException:pass # Missing authority refuses retirement; original result/exception remains primary.
   C.need(code==cleanup==retained==0,'complete actual607 formation and normal Core twoBoot result')
  def retired(self,path):
   if self.current is None:return not path.exists()
@@ -128,9 +156,9 @@ class Context:
    remaining=self.cleanup_end-time.monotonic();C.need(remaining>0,'unchanged shared240 producer cleanup allowance');kw=dict(kw);kw['timeout']=min(kw.get('timeout',remaining),remaining);return subprocess.run(*args,**kw)
   shim=types.SimpleNamespace(**{n:getattr(subprocess,n)for n in dir(subprocess)if not n.startswith('__')});shim.run=run;scoped=X.clone(original,subprocess=shim);C.need(scoped.cleanup.__code__ is original.cleanup.__code__ and scoped.cleanup.__globals__['subprocess'].run is run,'actual whole original cleanup executing shared remaining clock');result=scoped.cleanup(producer)
   if self.current is not None:
-   parent=self.current.proof.parent;entries=list(parent.rglob('*'));observation=export622.context_retirement_observations(parent,self.cleanup_end)
+   parent=self.current.proof.parent;entries=list(parent.rglob('*'));C.need(self.context_inventory is not None,'required declared private context retirement inventory');limit=self.context_inventory['summary']['bytes'];inventory_nodes={};observation=export622.context_retirement_observations(parent,self.cleanup_end,self.context_inventory['summary'])
    try:
-    bounded=observation.record('entry_count',len(entries))<=2048 and observation.record('file_bytes_total',sum(observation.record('file_bytes',p.stat().st_size,p)for p in entries if observation.record('byte_is_file',p.is_file(),p)))<=768*1024**2 and observation.record('owner_type_alias_all',all(not observation.record('alias',p.is_symlink(),p)and observation.record('owner_matches_current',p.stat().st_uid==os.getuid(),p)and(observation.record('type_is_file',p.is_file(),p)or observation.record('type_is_dir',p.is_dir(),p))for p in entries))and observation.record('monotonic',time.monotonic())<self.cleanup_end
+    bounded=observation.record('entry_count',len(entries))<=2048 and observation.record('file_bytes_total',sum(observation.record('file_bytes',context_inventory_stat(inventory_nodes,p,p.stat()).st_size,p)for p in entries if observation.record('byte_is_file',p.is_file(),p)))<=limit and observation.record('owner_type_alias_all',all(not observation.record('alias',p.is_symlink(),p)and observation.record('owner_matches_current',context_inventory_stat(inventory_nodes,p,p.stat()).st_uid==os.getuid(),p)and(observation.record('type_is_file',p.is_file(),p)or observation.record('type_is_dir',p.is_dir(),p))for p in entries))and observation.inventory_check(lambda:validate_context_inventory(self.context_inventory,parent,entries,self.current.selected,inventory_nodes))and observation.record('monotonic',time.monotonic())<self.cleanup_end
    except BaseException as error:observation.emit(operand_error=type(error).__name__);raise
    observation.emit(predicate=bounded);C.need(bounded,'bounded exact owned current context retirement');C.need(shutil.rmtree.avoids_symlink_attacks,'descriptor-safe private context retirement');shutil.rmtree(parent);C.need(not parent.exists(),'current context retired')
   if self.current is None and self.context_lease is not None:
