@@ -1,0 +1,539 @@
+{
+  "Root_acceptance": {
+    "decision": {
+      "bytes": 23999,
+      "path": "artifacts/development/gnu792-paired-root-acceptance-20261031/Root-paired-acceptance.json",
+      "sha256": "64eda3a65744bb264c6294eb9812e5ab1afda015db32fdf4e233d3e2fcf6a50e"
+    },
+    "full_project_completion": false,
+    "issued": true,
+    "issued_at": "2026-10-31T10:08:48.065588+00:00",
+    "issuer": "Root",
+    "scope": "BOTH_SEPARATE_SAME_SOURCE_CONTROLLED_WRITER_SIGKILL_CHECKPOINTS_EXPORTED_PRESERVATION_AND_EXTERNAL_HELD_RECOVERY",
+    "status": "ACCEPTED_FINITE_PAIRED_QEMU_TCG16K_REMOVE_INTERRUPTION_EXTERNAL_HELD_RECOVERY"
+  },
+  "binding": {
+    "operation": "remove-interruption",
+    "ref": "codex/gnu792-selection-runtime-view-v1",
+    "source": "8a1841df9df7a544ec7702f38e8319fcbf07b766",
+    "source_files": 792,
+    "source_parent": "b340296015cf0b15f77d0fb7d9fd223017881542",
+    "source_tree": "d0f9a444e3ea6273f3f15806337b503ba777b26a"
+  },
+  "boundaries": {
+    "automatic_ALPM_active_modified_config_preservation": "NOT_CLAIMED",
+    "candidate_extraction": "NOT_TESTED",
+    "capacity_reserved": false,
+    "current1200_7200_partition_fit": "NOT_ESTABLISHED",
+    "environment": "QEMU_TCG_AARCH64_GENERIC_16384_BYTE_GUEST",
+    "installed_Asahi": "NOT_RUN",
+    "kernel_prerequisites": "HELD_SOURCE_BOUND_INPUTS_NOT_NEW_KERNEL_BUILD_OR_HARDWARE_ACCEPTANCE",
+    "native16K": "NOT_RUN",
+    "old600_or_copy2400_fit": "NOT_ESTABLISHED",
+    "performance": "NOT_MEASURED",
+    "physical_M2": "NOT_RUN",
+    "power_loss_durability": "NOT_TESTED",
+    "private_full_physical_auxiliary_raw_DB_and_lock_FD_identity": "SOURCE_ENFORCED_WHERE_NOT_EXPORTED",
+    "release": "NOT_ADMITTED",
+    "retained_cleanup": "AUTHENTICATED_RECEIPTS_NOT_FRESH_LIVE_PROCESS_MOUNT_DM_OR_PRODUCER_OBSERVATION"
+  },
+  "cases": {
+    "modified": {
+      "PID1_cleanup": "WORKER_GROUP_LEASES_MOUNTS_AND_OWNED_DM_RETIRED",
+      "artifacts": {
+        "immutable": 13037406825,
+        "native": 13037581469
+      },
+      "attempt": 1,
+      "case": "modified",
+      "checkpoint_phase": "ALPM_COMMIT_REMOVE_PAYLOAD_BEFORE_OLD_DATABASE_REMOVAL",
+      "configuration_handoffs": {
+        "ALPM_automatic_active_preservation": "NOT_CLAIMED",
+        "original_modified_gai_retained": true,
+        "original_modified_locale_retained": true,
+        "phases": 3,
+        "root_map_joins": 3,
+        "status": "PASS_THREE_EXPLICIT_CLONE_CONFIGURATION_HANDOFFS"
+      },
+      "consumer_cleanup": "PASS_ALL_ACTORS_CLONES_AND_SOURCE_DATA_RETIRED",
+      "full_reader": {
+        "all1110_post_pins_held": true,
+        "authorization": {
+          "bytes": 178011,
+          "sha256": "0f7b0832ffcd3993b29eedd9b37ff78ed3ffd61e70ea9e502ec3007128e521af"
+        },
+        "binding": {
+          "bytes": 435,
+          "sha256": "bbc769688ade1130a3afcd705a5c5f5b5afef0f009cffebb7f6741c3d3f08e3d"
+        },
+        "cap_seconds": 300,
+        "files": 1110,
+        "guard_stubs": 0,
+        "mandatory_guard_chain": "FULL_EXISTING_SOURCE_INVERSE_PUBLICATION_TRANSPORT_CASE_AND_POSITIVE_GUARDS_EXECUTED",
+        "positive_guards": "ALL_HELD_MANDATORY_AND",
+        "reader_pins": {
+          "bytes": 247460,
+          "sha256": "fe6e9a3e220b3b2c988756396f35776f3fe3a8af61d977e0bef8f810e3d7aad7"
+        },
+        "result": {
+          "bytes": 34848,
+          "path": "artifacts/development/gnu792-modified-originals-root-acquisition-20261031/strict/result.json",
+          "sha256": "1df3ace3f2fef47ed2c558b4554f1acb04f3b303aa79bd5372ffd2204d51dc17"
+        },
+        "result_status": "PASS_PASSIVE_REMOVE_INTERRUPTION_PENDING_PAIRED_ROOT_ACCEPTANCE",
+        "supervision": {
+          "error": null,
+          "exit": 0,
+          "forced_retirement": false,
+          "group_absent": true,
+          "passed": true,
+          "pid_reserved_until_retirement": true,
+          "reaped": true,
+          "seconds": 64.36795931000961,
+          "timeout": false
+        }
+      },
+      "held_recovery": {
+        "raw_DB_parser": "SOURCE_ENFORCED_FULL_DATABASE_PARSE",
+        "recovery_database_evidence": {
+          "after": {
+            "bytes": 489,
+            "sha256": "734d550f801dd653cc4a8c6eb095cac8e691e3101bed9fe03aac71698c159f86"
+          },
+          "before": {
+            "bytes": 489,
+            "sha256": "f71fc876a379fc1ce3f6f994cd75f9f8e7901b51d503aa9322ceb6283b080e63"
+          },
+          "byte_identical": false,
+          "capabilities": "ORIGINAL_STAGE_CAPABILITY_GATES_REQUIRED",
+          "descriptor_path": "var/lib/pacman/local/glibc-2.43+r22+g8362e8ce10b2-2/desc",
+          "full_database_parser_and_ownership": "SOURCE_ENFORCED_EQUAL_ROWS_AND_COMPLETE_MAP_JOIN",
+          "install_date": {
+            "after": 1793435384,
+            "before": 1793426521
+          },
+          "raw_INSTALLDATE_only_comparison": "INDEPENDENT_EXPORTED_BYTE_PRESERVING_COMPARISON",
+          "required_VALIDATION": "LITERAL_PGP_BEFORE_AND_AFTER",
+          "status": "PASS_EXPORTED_RAW_HELD_RECOVERY_INSTALLDATE_ONLY",
+          "unrelated_packages": 573
+        },
+        "stages": 1,
+        "status": "PASS_EXPORTED_FULL_HELD_RECOVERY_DB_CONFIG_PAYLOAD_PRESERVATION"
+      },
+      "job": 124459142284,
+      "logical_map_stages": {
+        "before574": {
+          "logical_bytes": 4904360149,
+          "node_sha256": "a81f7fe2f2b73f1ff57e012b97045273c4c9e93c3def51903a9f925472b36fe8",
+          "nodes": 123066
+        },
+        "clone": {
+          "logical_bytes": 4904271538,
+          "node_sha256": "076a7d41210453ed09cf7b431d199cae5a4353193ed76b4f71defc27eb5509b8",
+          "nodes": 123056
+        },
+        "held574": {
+          "logical_bytes": 4904405070,
+          "node_sha256": "5031d6c277dfcd73db00d3fee4144deace597b72a4410f87482912d6809e317b",
+          "nodes": 123076
+        },
+        "interrupted-before-unlock": {
+          "logical_bytes": 4899449036,
+          "node_sha256": "f1702d4809e080311961c4c3954e184a1c8e5bbea997eba34e576f9331e3dacf",
+          "nodes": 123025
+        },
+        "precommit-refused": {
+          "logical_bytes": 4904360149,
+          "node_sha256": "a81f7fe2f2b73f1ff57e012b97045273c4c9e93c3def51903a9f925472b36fe8",
+          "nodes": 123066
+        },
+        "provider574": {
+          "logical_bytes": 4960758832,
+          "node_sha256": "e5660f40ca25c83936ae4dfacfa23de716d23752ddd15a6b51827c1e044a6e6d",
+          "nodes": 123049
+        },
+        "recovered-held574": {
+          "logical_bytes": 4904360149,
+          "node_sha256": "ce63445cdb2bbbf227a7f57d4e16bb2d8d89dfd10f87541f4e77bbc0a9af7a19",
+          "nodes": 123067
+        },
+        "reinstalled574": {
+          "logical_bytes": 4960758832,
+          "node_sha256": "0f215434bd51c46d2c01db873d9801ebf922c747d77191ecaee9caa499d2df8f",
+          "nodes": 123051
+        },
+        "source-after": {
+          "logical_bytes": 4904271538,
+          "node_sha256": "076a7d41210453ed09cf7b431d199cae5a4353193ed76b4f71defc27eb5509b8",
+          "nodes": 123056
+        },
+        "source-before": {
+          "logical_bytes": 4904271538,
+          "node_sha256": "076a7d41210453ed09cf7b431d199cae5a4353193ed76b4f71defc27eb5509b8",
+          "nodes": 123056
+        }
+      },
+      "operation": "remove-interruption",
+      "ordered_cleanup": "PASS_ORDERED_ALL_CONSUMERS_THEN_PRODUCER",
+      "originals": {
+        "immutable.zip": {
+          "bytes": 51764062,
+          "sha256": "677e0aa8b35cd22c53c4eaefb8799fa29933efd05ed48a5f3d396b6f99da2e21"
+        },
+        "logs.zip": {
+          "bytes": 962011,
+          "sha256": "7f3358e797467341165da43cbf624636bcb9eeceb54661def9454595bd4183a3"
+        },
+        "native.zip": {
+          "bytes": 137482829,
+          "sha256": "6c96fa9d6e033399057664d504534fc69a67e94615a222816d536abbbf62e45d"
+        }
+      },
+      "precommit_map_unchanged": true,
+      "process": {
+        "qemu": {
+          "exit_code": 0,
+          "group_absence_verified": true,
+          "seconds": 9178.884379,
+          "stderr_bytes": 0,
+          "time_limit": 10800
+        },
+        "worker": {
+          "exit_code": 0,
+          "group_absence_verified": true,
+          "seconds": 7944.029829,
+          "stderr_bytes": 0,
+          "time_limit": 9271
+        },
+        "writer": {
+          "exit_code": -9,
+          "expected_signal": "SIGKILL_AFTER_OBSERVED_REAL_CHECKPOINT",
+          "group_absence_verified": true,
+          "output_limit": 8192,
+          "seconds": 0.792986,
+          "time_limit": 120
+        }
+      },
+      "process_detail": "TRUNCATED_PRE_REAP_AND_ADOPTED_CHILD_DETAIL_ARRAYS_NO_LIVE_REOBSERVATION",
+      "remove_checkpoint": {
+        "outer_runtime_physical_identity": "RETAINED_RECEIPT_NOT_LIVE_REOBSERVATION",
+        "pid": 90,
+        "private_lock_FD_identity": "SOURCE_ENFORCED_NOT_EXPORTED",
+        "stages": 1,
+        "status": "PASS_EXPORTED_REMOVE_CHECKPOINT_PARTIAL_DB_CONFIG_PAYLOAD_AND_OWNED_RETIREMENT"
+      },
+      "run": 41174502459,
+      "run_log_transport": {
+        "logs": {
+          "bytes": 962011,
+          "sha256": "7f3358e797467341165da43cbf624636bcb9eeceb54661def9454595bd4183a3"
+        },
+        "members": {
+          "0_native.txt": {
+            "bytes": 2991694,
+            "sha256": "2d63f2dc9af1c58ba538ae866c464fda114ba5b015d7afca578bf3bd01a215ac"
+          },
+          "native/9_Fetch exact complete574 original public package bytes as retained DATA.txt": {
+            "bytes": 2288282,
+            "sha256": "ee4ca0dadf6c47e5b020bcae997db6de325f3332f65667a079b51d99214dbd16"
+          }
+        },
+        "ref": "codex/gnu792-selection-runtime-view-v1",
+        "run": 41174502459,
+        "source": "8a1841df9df7a544ec7702f38e8319fcbf07b766"
+      },
+      "runtime_observations": 5,
+      "selected_capability_observations": "FULL_READER_JOINED_EXPORTED_VALUES_PRIVATE_STAGE_GATES_STILL_SOURCE_ENFORCED",
+      "source_nodes": 123056,
+      "source_preserved": true
+    },
+    "pristine": {
+      "PID1_cleanup": "WORKER_GROUP_LEASES_MOUNTS_AND_OWNED_DM_RETIRED",
+      "artifacts": {
+        "immutable": 12851759267,
+        "native": 12853205755
+      },
+      "attempt": 1,
+      "case": "pristine",
+      "checkpoint_phase": "ALPM_COMMIT_REMOVE_PAYLOAD_BEFORE_OLD_DATABASE_REMOVAL",
+      "configuration_handoffs": null,
+      "consumer_cleanup": "PASS_ALL_ACTORS_CLONES_AND_SOURCE_DATA_RETIRED",
+      "full_reader": {
+        "bound_reader_pins": {
+          "bytes": 228590,
+          "sha256": "ad49067cae76a59b6de41cc03416818c808baf9b5f7f097a869ab70f6328910b"
+        },
+        "cap_seconds": 300,
+        "external_runtime_selection": {
+          "bytes": 238703,
+          "sha256": "5e78a62253db88cabdc42b8bb9750237385492b90c6e501c299b9580caf0293a"
+        },
+        "files": 1110,
+        "mandatory_guard_chain": "FULL_EXISTING_SOURCE_INVERSE_PUBLICATION_TRANSPORT_CASE_AND_POSITIVE_GUARDS_EXECUTED",
+        "mandatory_guard_chain_receipt": "EXECUTED_UNCHANGED_ONCE_EPISODE",
+        "result": {
+          "bytes": 34288,
+          "path": "artifacts/development/gnu792-root-passive-qualification-20261031/full-reader-attempt-20261031/strict/result.json",
+          "sha256": "86f16f4a3ec5b511fb5ba61e4e320ecc6820f26bf0434c816f52b6e541a58ef3"
+        },
+        "result_status": "PASS_PASSIVE_REMOVE_INTERRUPTION_PENDING_PAIRED_ROOT_ACCEPTANCE",
+        "supervision": {
+          "error": null,
+          "exit": 0,
+          "forced_retirement": false,
+          "group_absent": true,
+          "passed": true,
+          "pid_reserved_until_retirement": true,
+          "reaped": true,
+          "seconds": 63.341518905996054,
+          "timeout": false
+        }
+      },
+      "held_recovery": {
+        "raw_DB_parser": "SOURCE_ENFORCED_FULL_DATABASE_PARSE",
+        "recovery_database_evidence": {
+          "after": {
+            "bytes": 489,
+            "sha256": "bb5b7c7c669349a2df3612d48fb991b46a6ff420c5f2a02988095eaeccb200c9"
+          },
+          "before": {
+            "bytes": 489,
+            "sha256": "bbdd48010409c15cf7289873e0a02d94a30a09dd0bca71e4ef58527986d698b8"
+          },
+          "byte_identical": false,
+          "capabilities": "ORIGINAL_STAGE_CAPABILITY_GATES_REQUIRED",
+          "descriptor_path": "var/lib/pacman/local/glibc-2.43+r22+g8362e8ce10b2-2/desc",
+          "full_database_parser_and_ownership": "SOURCE_ENFORCED_EQUAL_ROWS_AND_COMPLETE_MAP_JOIN",
+          "install_date": {
+            "after": 1793220301,
+            "before": 1793211541
+          },
+          "raw_INSTALLDATE_only_comparison": "INDEPENDENT_EXPORTED_BYTE_PRESERVING_COMPARISON",
+          "required_VALIDATION": "LITERAL_PGP_BEFORE_AND_AFTER",
+          "status": "PASS_EXPORTED_RAW_HELD_RECOVERY_INSTALLDATE_ONLY",
+          "unrelated_packages": 573
+        },
+        "stages": 1,
+        "status": "PASS_EXPORTED_FULL_HELD_RECOVERY_DB_CONFIG_PAYLOAD_PRESERVATION"
+      },
+      "job": 123008536492,
+      "logical_map_stages": {
+        "before574": {
+          "logical_bytes": 4904360087,
+          "node_sha256": "e788fc3d95d67dbd6e64abe20538104a7fc06e905c80e2df4dbe9778ff2c1de1",
+          "nodes": 123066
+        },
+        "clone": {
+          "logical_bytes": 4904271538,
+          "node_sha256": "5bdc71424d9de3bd5adf5f6c82e8eeb1e859723a487393ad31036b895babc134",
+          "nodes": 123056
+        },
+        "held574": {
+          "logical_bytes": 4904387085,
+          "node_sha256": "8f34cc365b8f8440fbea45140ef7c6cee662033a4b3b38a17c40f8348abbd038",
+          "nodes": 123072
+        },
+        "interrupted-before-unlock": {
+          "logical_bytes": 4899448974,
+          "node_sha256": "53cbbcb582cd6d723ec45304f8ce92b71fd74faa832f82006e279a0b2a2d7d8b",
+          "nodes": 123025
+        },
+        "precommit-refused": {
+          "logical_bytes": 4904360087,
+          "node_sha256": "e788fc3d95d67dbd6e64abe20538104a7fc06e905c80e2df4dbe9778ff2c1de1",
+          "nodes": 123066
+        },
+        "provider574": {
+          "logical_bytes": 4960743456,
+          "node_sha256": "bca947c90c18d0908ce05682f36c5df52829bd6f9007265a0c7c7ef7f9cf4288",
+          "nodes": 123046
+        },
+        "recovered-held574": {
+          "logical_bytes": 4904360087,
+          "node_sha256": "b3a2588470abea0c1a9c369cdf60b2a48dbb9b9287547fdd750856353929b6fe",
+          "nodes": 123067
+        },
+        "reinstalled574": {
+          "logical_bytes": 4960743456,
+          "node_sha256": "c9e3165ac9a5a6bd927fe6443965a5318eb149ab3ab025f03b9a7b8cc8a9af14",
+          "nodes": 123048
+        },
+        "source-after": {
+          "logical_bytes": 4904271538,
+          "node_sha256": "5bdc71424d9de3bd5adf5f6c82e8eeb1e859723a487393ad31036b895babc134",
+          "nodes": 123056
+        },
+        "source-before": {
+          "logical_bytes": 4904271538,
+          "node_sha256": "5bdc71424d9de3bd5adf5f6c82e8eeb1e859723a487393ad31036b895babc134",
+          "nodes": 123056
+        }
+      },
+      "operation": "remove-interruption",
+      "ordered_cleanup": "PASS_ORDERED_ALL_CONSUMERS_THEN_PRODUCER",
+      "originals": {
+        "immutable.zip": {
+          "bytes": 51753317,
+          "sha256": "3f5fd19b8b98a3cfa9c629f34cbb7b87112104c4fbea781130b8af164e7f0d8e"
+        },
+        "logs.zip": {
+          "bytes": 476676,
+          "sha256": "ce553b87d72c6673645d0ca4ba9f4b7e5049f2003388960aa08c2207f7c1679c"
+        },
+        "native.zip": {
+          "bytes": 137483423,
+          "sha256": "a0e45b17d908d7eac80b6d6d5c6685871321b25a9090a6418d496611174c46b5"
+        }
+      },
+      "precommit_map_unchanged": true,
+      "process": {
+        "qemu": {
+          "exit_code": 0,
+          "group_absence_verified": true,
+          "seconds": 8943.848658,
+          "stderr_bytes": 0,
+          "time_limit": 10800
+        },
+        "worker": {
+          "exit_code": 0,
+          "group_absence_verified": true,
+          "seconds": 7707.623959,
+          "stderr_bytes": 0,
+          "time_limit": 9270
+        },
+        "writer": {
+          "exit_code": -9,
+          "expected_signal": "SIGKILL_AFTER_OBSERVED_REAL_CHECKPOINT",
+          "group_absence_verified": true,
+          "output_limit": 8192,
+          "seconds": 0.759113,
+          "time_limit": 120
+        }
+      },
+      "process_detail": "TRUNCATED_PRE_REAP_AND_ADOPTED_CHILD_DETAIL_ARRAYS_NO_LIVE_REOBSERVATION",
+      "remove_checkpoint": {
+        "outer_runtime_physical_identity": "RETAINED_RECEIPT_NOT_LIVE_REOBSERVATION",
+        "pid": 90,
+        "private_lock_FD_identity": "SOURCE_ENFORCED_NOT_EXPORTED",
+        "stages": 1,
+        "status": "PASS_EXPORTED_REMOVE_CHECKPOINT_PARTIAL_DB_CONFIG_PAYLOAD_AND_OWNED_RETIREMENT"
+      },
+      "run": 40742786433,
+      "run_log_transport": {
+        "logs": {
+          "bytes": 476676,
+          "sha256": "ce553b87d72c6673645d0ca4ba9f4b7e5049f2003388960aa08c2207f7c1679c"
+        },
+        "members": {
+          "0_native.txt": {
+            "bytes": 2991625,
+            "sha256": "c1ebc4d1386d72bb51a2e1d27f5030d835a22c6fc6d472fe3cbc3a698bb6fa38"
+          }
+        },
+        "ref": "codex/gnu792-selection-runtime-view-v1",
+        "run": 40742786433,
+        "source": "8a1841df9df7a544ec7702f38e8319fcbf07b766"
+      },
+      "runtime_observations": 5,
+      "selected_capability_observations": "FULL_READER_JOINED_EXPORTED_VALUES_PRIVATE_STAGE_GATES_STILL_SOURCE_ENFORCED",
+      "source_nodes": 123056,
+      "source_preserved": true
+    }
+  },
+  "evidence_receipts": {
+    "modified_evidence": {
+      "bytes": 16959,
+      "path": "artifacts/development/gnu792-modified-originals-root-acquisition-20261031/guarded-modified-evidence.json",
+      "sha256": "f006a2e0efb7721d54ef319baa2e627c71d7bfdc875b277d6c426e5780a0dbf7"
+    },
+    "modified_paired_index": {
+      "bytes": 1874,
+      "path": "artifacts/development/gnu792-modified-originals-root-acquisition-20261031/paired-evidence-index.json",
+      "sha256": "7507ec25a6ae87fb3cfd9df0bd01b3e44f9d01bb20e4d48f87e8c4ce1694472b"
+    },
+    "modified_post_integrity": {
+      "bytes": 481,
+      "path": "artifacts/development/gnu792-modified-originals-root-acquisition-20261031/post-reader-integrity.json",
+      "sha256": "7104cb74c578f2ec99d1d16e8188d8f019acb8e070e42cd43aa4f2818d5f5eea"
+    },
+    "modified_seal": {
+      "bytes": 478807,
+      "path": "artifacts/development/gnu792-modified-originals-root-acquisition-20261031/freeze.json",
+      "sha256": "e5a43932849cc3cfead8adf5627405fea65f9b534905909e43286e8fc2b6e169"
+    },
+    "modified_selected_operands": {
+      "bytes": 1164,
+      "path": "artifacts/development/gnu792-modified-originals-root-acquisition-20261031/strict/selected-operands.json",
+      "sha256": "77b2ce826eb645d099da957607d08cf790ccaddb7294c5e0f1e3921f2c4b5cef"
+    },
+    "pristine_Root_finite_decision": {
+      "bytes": 1758,
+      "path": "artifacts/development/gnu792-root-passive-qualification-20261031/full-reader-attempt-20261031/Root-pristine-component-acceptance.json",
+      "sha256": "3c6296795176154c732fd1125409399edc5c3a990b8992ea8428b81bd6de0419"
+    },
+    "pristine_qualification": {
+      "bytes": 3860,
+      "path": "artifacts/development/gnu792-root-passive-qualification-20261031/full-reader-attempt-20261031/qualification-summary.json",
+      "sha256": "989eb65ba1a7e358051caa43785ee24db399016f9de384566472b958f92587ff"
+    },
+    "publication": {
+      "bytes": 384,
+      "path": "artifacts/development/gnu792-selection-runtime-view-native-trial-root-20261028/Root-committed-publication.json",
+      "sha256": "bd6707b8bfa1c84cde4bec419450ee778b1f5e37b76b21a8b82d35f1af3f1c72"
+    }
+  },
+  "historical_normal_cases": "SEPARATE_PREREQUISITES_NOT_TRANSFERRED_TO_INTERRUPTION",
+  "manifest_or_selection_change": false,
+  "normalizer": {
+    "aggregate_original": {
+      "bytes": 2991694,
+      "sha256": "2d63f2dc9af1c58ba538ae866c464fda114ba5b015d7afca578bf3bd01a215ac"
+    },
+    "all1110_post_pins_held": true,
+    "approved_module": {
+      "bytes": 4133,
+      "path": "artifacts/development/gnu792-root-passive-qualification-20261031/reader-correction-20261031/derived/retained_transport_reader.py",
+      "sha256": "614ffd83b5069049d07b1b04c0926b0af1115dbc3902e5a823d05d4b810eaf52"
+    },
+    "corrected_payload": {
+      "bytes": 1687375,
+      "sha256": "26d1cd5a64d894bff88f6cf1ee1603d9e9add2012f967f4388f30814b9548443"
+    },
+    "modified_observed_BOM_line": 2797,
+    "modified_observed_chunk": 464,
+    "original_framing_refusal_retained": true,
+    "original_function_restored": true,
+    "original_module": {
+      "bytes": 3752,
+      "sha256": "c17936cf2a3144b35571ce1f1bb593e19b287827a623c5ec28dfaf07814a2ec9"
+    },
+    "original_refusal_before_Source_prefix": true,
+    "parser_count_order_base64_digest_and_caps_held": true,
+    "reader_file_writes": 0,
+    "removed_bytes": 3,
+    "runtime_hook": "R.normalized = derived.normalized",
+    "scope": "EXTERNAL_RUNTIME_REPLACEMENT_OF_retained_transport_reader.normalized_ONLY",
+    "whole_module_byte_inverse": true
+  },
+  "package_inputs": {
+    "archive_bytes": 18598440,
+    "archive_sha256": "a8e9f3e1d8ffe049fdc834f62e74c14ff622b98898c2f849e1580ab8aa0fdbd9",
+    "descriptor_comparison": "EXPORTED_489_BYTE_RAW_DESCRIPTORS_LITERAL_PGP_ONLY_INSTALLDATE_MAY_DIFFER",
+    "held_glibc": "2.43+r22+g8362e8ce10b2-2",
+    "name": "cachy-asahi-glibc-gnu-provider",
+    "restoration": "574_PACKAGES_HELD_PAYLOAD_CONFIG_SIDECARS_SEEDED_USER_NODES_AND_573_UNRELATED_DB_ROWS",
+    "status": "HELD_PREVIOUSLY_QUALIFIED_ARCHIVE_NOT_NEW_COMPILE",
+    "version": "2.43.caa3-1"
+  },
+  "prior_pristine_finite_acceptance": {
+    "decision": {
+      "bytes": 1758,
+      "path": "artifacts/development/gnu792-root-passive-qualification-20261031/full-reader-attempt-20261031/Root-pristine-component-acceptance.json",
+      "sha256": "3c6296795176154c732fd1125409399edc5c3a990b8992ea8428b81bd6de0419"
+    },
+    "issued_at": "2026-10-31T06:07:10.088771+00:00",
+    "status": "ACCEPTED_FINITE_PRISTINE_TCG16K_REMOVE_COMPONENT"
+  },
+  "schema_version": 1,
+  "status": "ACCEPTED_FINITE_PAIRED_QEMU_TCG16K_REMOVE_INTERRUPTION_EXTERNAL_HELD_RECOVERY"
+}
