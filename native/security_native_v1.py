@@ -121,6 +121,54 @@ def archive_payload(command,archive):
     need({'.PKGINFO','.BUILDINFO','.MTREE'}<=set(result),'original makepkg metadata required')
     return result
 
+
+CLEANUP_FLAGS=frozenset(('required_signatures','installed','removed','payload_absent',
+    'inventory_restored','user_data_preserved','moved_prefix_absent','global_trust_unchanged',
+    'global_config_unchanged','private_homes_absent'))
+CLEANUP_ERRORS=frozenset(('ValueError','OSError','PermissionError','FileNotFoundError','TimeoutExpired','Other'))
+
+
+def cleanup_failure_data(report,map_hash,retirement):
+    need(re.fullmatch('[0-9a-f]{64}',map_hash or '')is not None,'explicit cleanup diagnostic source')
+    need(type(retirement)is list and len(retirement)==2,'two scoped retirement observations')
+    flags={key:report['lifecycle'].get(key)for key in sorted(CLEANUP_FLAGS)}
+    need(all(value is None or type(value)is bool for value in flags.values()),'finite cleanup flags')
+    rows=[]
+    for role,row in zip(('signing','trust'),retirement):
+        need(type(row)is dict and set(row)=={'role','retired','error','commands'}and row['role']==role
+             and type(row['retired'])is bool and (row['error']is None or row['error']in CLEANUP_ERRORS)
+             and type(row['commands'])is list and len(row['commands'])<=2,'scoped cleanup observation schema')
+        commands=[]
+        for command in row['commands']:
+            need(type(command)is dict and set(command)=={'step','exit','stdout','stderr'}
+                 and command['step']in ('retire-test-home','no-autostart-proof')
+                 and type(command['exit'])is int and -255<=command['exit']<=255,'finite cleanup command outcome')
+            for channel in ('stdout','stderr'):
+                value=command[channel]
+                need(type(value)is dict and set(value)=={'bytes','sha256'}and type(value['bytes'])is int
+                     and 0<=value['bytes']<=262144 and type(value['sha256'])is str
+                     and re.fullmatch('[0-9a-f]{64}',value['sha256'])is not None,'bounded output pin only')
+            commands.append({key:command[key]for key in ('step','exit','stdout','stderr')})
+        rows.append(dict(role=role,retired=row['retired'],error=row['error'],commands=commands))
+    return dict(schema=1,status='SECURITY_INNER_CLEANUP_FAILURE_DATA_ONLY',source_map_sha256=map_hash,
+        operation='security-alpm-v1',native='NOT_ADMITTED',scope='DISPOSABLE_IMAGE_INNER_CLEANUP',
+        flags=flags,retirement=rows)
+
+
+def emit_cleanup_failure(report,map_hash,retirement):
+    try:
+        value=cleanup_failure_data(report,map_hash,retirement)
+        text=json.dumps(value,sort_keys=True,allow_nan=False)
+        need(len(text.encode())<=8192,'cleanup diagnostic byte cap')
+        print('SECURITY_CLEANUP_FAILURE_DATA '+text,flush=True)
+    except BaseException:
+        try:
+            print('SECURITY_CLEANUP_DIAGNOSTIC_REFUSED '+json.dumps(dict(schema=1,
+                status='REFUSED_INNER_CLEANUP_DIAGNOSTIC',source_map_sha256=(map_hash if type(map_hash)is str and re.fullmatch('[0-9a-f]{64}',map_hash)else None),
+                code='SOURCE_DIAGNOSTIC_SCHEMA_OR_OUTPUT_REFUSED'),sort_keys=True),flush=True)
+        except BaseException:pass
+
+
 def inside(root,map_hash):
     need(os.getuid()==os.geteuid()==0 and platform.machine()=='aarch64' and root==SOURCE,'owned disposable native image root only')
     verify_source(root,map_hash);contract=policy(root);_,_,expected=input_contract(root)
@@ -225,12 +273,18 @@ def inside(root,map_hash):
         if installed:
             try:c.run('failure-remove',['/usr/bin/pacman','--config',private/'pacman.conf','--noconfirm','--noscriptlet','-R',NAME])
             except BaseException:report['failure_removal']='UNKNOWN'
-        for home in (signing,trust):
+        cleanup_retirement=[]
+        for role,home in zip(('signing','trust'),(signing,trust)):
+            before_commands=len(c.records);cleanup_error=None
             try:
                 c.run('retire-test-home',['/usr/bin/gpgconf','--homedir',home,'--kill','all'])
                 c.run('no-autostart-proof',['/usr/bin/gpg-connect-agent','--homedir',home,'--no-autostart','/bye'],'nonzero')
                 need(not any(stat.S_ISSOCK(p.lstat().st_mode) for p in home.rglob('*')),'scoped sockets absent');retired.append(home)
-            except BaseException:report['status']='FAIL'
+            except BaseException as error:
+                report['status']='FAIL'
+                name=type(error).__name__;cleanup_error=name if name in CLEANUP_ERRORS else 'Other'
+            cleanup_retirement.append(dict(role=role,retired=home in retired,error=cleanup_error,
+                commands=c.records[before_commands:]))
         shutil.rmtree(private)
         for label in ('installed','moved'):
             for kind in ('workflow','home'):
@@ -241,6 +295,8 @@ def inside(root,map_hash):
             private_homes_absent=len(retired)==2 and not private.exists() and all(not Path('/tmp/security-'+kind+'-'+label).exists() for kind in ('home','workflow') for label in ('installed','moved')))
         if not all(report['lifecycle'].values()):report['status']='FAIL'
         STORE.mkdir();save(STORE/'result.json',report);(STORE/'result.json').chmod(0o644)
+        if primary is None and report['status']!=STATUS:
+            emit_cleanup_failure(report,map_hash,cleanup_retirement)
         if primary is None:need(report['status']==STATUS,'lifecycle cleanup qualification failed')
 
 def export(root,output,map_hash):
