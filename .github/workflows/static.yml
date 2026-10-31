@@ -296,10 +296,15 @@ jobs:
           PYTHONDONTWRITEBYTECODE: '1'
         run: |
           python3 -B - <<'PY'
-          import unittest
+          import importlib.util, tempfile, unittest
+          from pathlib import Path
+          spec = importlib.util.spec_from_file_location('measurement_components', 'scripts/ci/measurement-tools-components-v1.py')
+          measurement = importlib.util.module_from_spec(spec); spec.loader.exec_module(measurement)
           for directory in ('scripts/release', 'scripts/client', 'scripts/benchmarks'):
               suite = unittest.TestLoader().discover(directory, pattern='test_*.py')
-              result = unittest.TextTestRunner(verbosity=2).run(suite)
+              with tempfile.TemporaryDirectory(prefix='static-measurement-source-') as temporary:
+                  with measurement.discovered_source_fixture(suite, Path.cwd(), Path(temporary)):
+                      result = unittest.TextTestRunner(verbosity=2).run(suite)
               if not result.wasSuccessful() or result.skipped or result.testsRun == 0:
                   raise SystemExit(f'{directory}: failures, skips, or empty suite')
           PY
