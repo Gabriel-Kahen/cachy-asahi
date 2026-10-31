@@ -1,0 +1,10 @@
+Original cachy-asahi Fish configuration and package recipe.
+Copyright (c) 2026 cachy-asahi contributors
+Licensed under the MIT License; the complete grant is in LICENSE.
+
+No third-party CachyOS configuration, plugin, font, or license text is bundled.
+The upstream CachyOS Fish v16 recipe declares MIT, but its main configuration
+has no license file or header; that code was inspected, not reused.
+
+This original package is a minimal opt-in alternative, not a feature-equivalent
+CachyOS configuration. Host checks do not establish Asahi or M2 compatibility.

@@ -1,0 +1,40 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 cachy-asahi contributors.
+pkgname=cachy-asahi-hyprland-settings
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Opt-in Hyprland Lua configuration preserving the existing Asahi platform'
+arch=('any')
+url='https://github.com/Gabriel-Kahen/cachy-asahi'
+license=('MIT')
+depends=('hyprland>=0.56.2' 'hyprland<0.57.0' 'alacritty' 'wofi' 'swaylock' 'wireplumber' 'brightnessctl')
+makedepends=('lua' 'python')
+optdepends=('waybar: optional status bar template'
+            'mako: optional notification template'
+            'noto-fonts: readable sans-serif text'
+            'xdg-desktop-portal-hyprland: base-session screencast integration'
+            'xdg-desktop-portal-gtk: base-session file chooser integration'
+            'hyprpolkitagent: authorization agent if absent from the base session')
+source=('hyprland.lua' 'waybar.json' 'waybar.css' 'mako.conf' 'README.md' 'NOTICE' 'LICENSE')
+sha256sums=('f900ffbfdea86acc686299fd9ef88a235fb4822f7177afe75a43369ca48d158b'
+            '4c7adb2deb0403fefc4562d39105635cebfc44ce88e44fe84c4a90a00b2be3c0'
+            'a97930965a4e622adc920491c7d433a803173bb6e644c4c3c88efb79187e11d5'
+            'c6ab55ae475611bf2df2b7120b97a924eed5d65c149561d4da4f12b5b8c25504'
+            '3edac178cb92d6d06b21fe4832bbbce5f7a55ed4dde8925ac0815c5350e2c525'
+            '7c108a66b5a4807f8fe7696ef1b1011386b37774fb94e674dd37c7e1dec7b9e4'
+            '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7')
+
+check() {
+    luac -p "$srcdir/hyprland.lua"
+    python -m json.tool "$srcdir/waybar.json" >/dev/null
+}
+
+package() {
+    local name
+    for name in hyprland.lua waybar.json waybar.css mako.conf; do
+        install -Dm644 "$srcdir/$name" "$pkgdir/usr/share/cachy-asahi/hyprland/$name"
+    done
+    install -Dm644 "$srcdir/README.md" "$pkgdir/usr/share/doc/$pkgname/README.md"
+    install -Dm644 "$srcdir/NOTICE" "$pkgdir/usr/share/licenses/$pkgname/NOTICE"
+    install -Dm644 "$srcdir/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

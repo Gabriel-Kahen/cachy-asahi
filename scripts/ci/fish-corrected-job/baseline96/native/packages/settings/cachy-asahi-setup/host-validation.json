@@ -1,0 +1,55 @@
+{
+  "observed_date": "2026-10-11",
+  "recorded_at_utc": "2026-10-12T00:35:32.521989+00:00",
+  "host_architecture": "x86_64",
+  "python": "3.14.7 (main, Aug 14 2026, 06:38:32) [GCC 16.2.1 20260810]",
+  "makepkg": "makepkg (pacman) 7.1.0",
+  "classification": "two temporary-directory package assemblies on same x86_64 host; not clean native aarch64 builds or package installation",
+  "package_version": "0.1.0-2",
+  "canonical_sha256": "a6251142b9c7e54796285c1a301fb590599d8aaa1625ea0bfebd7fc21622fdc2",
+  "canonical_owner_tests": "40 reported in canonical handoff; not counted as independent package tests",
+  "payload_comparison": "PASS",
+  "artifact_bytes_match": false,
+  "prepare_drift_refusal": "PASS",
+  "synchronization_tests": "9 passed in each package check()",
+  "native_aarch64": "NOT RUN",
+  "installed": "NOT RUN",
+  "hardware": "NOT RUN",
+  "builds": [
+    {
+      "command": "makepkg --config /etc/makepkg.conf --noconfirm",
+      "exit_code": 0,
+      "artifact": "/tmp/cachy-asahi-setup-build-wdr623ss/recipe/cachy-asahi-setup-0.1.0-2-any.pkg.tar.zst",
+      "artifact_sha256": "1270eb1a6142bc25df15fb270a3e00a9456ca05c6e49cbd47e4f6d2c538b180b",
+      "payload_sha256": {
+        "usr/bin/cachy-asahi-setup": "a6251142b9c7e54796285c1a301fb590599d8aaa1625ea0bfebd7fc21622fdc2",
+        "usr/share/doc/cachy-asahi-setup/README.md": "434328ca04e757a2dc8bba78bea82c6ed52da64b139e88666a3ec2db52ba0e56",
+        "usr/share/licenses/cachy-asahi-setup/LICENSE": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+        "usr/share/licenses/cachy-asahi-setup/NOTICE": "2c28b96b5e4dca86c8a71aa0df728a049820d5951812f20241be96e7000d9744"
+      },
+      "log": "evidence/host-build-1.txt",
+      "artifact_static_status": "artifact-static-pass",
+      "payload_count": 4
+    },
+    {
+      "command": "makepkg --config /etc/makepkg.conf --noconfirm",
+      "exit_code": 0,
+      "artifact": "/tmp/cachy-asahi-setup-build-29ajmodf/recipe/cachy-asahi-setup-0.1.0-2-any.pkg.tar.zst",
+      "artifact_sha256": "eb549a8dd5b7e49343078075d9dc833c2462c12446af9ef831b255c357f2bfc0",
+      "payload_sha256": {
+        "usr/bin/cachy-asahi-setup": "a6251142b9c7e54796285c1a301fb590599d8aaa1625ea0bfebd7fc21622fdc2",
+        "usr/share/doc/cachy-asahi-setup/README.md": "434328ca04e757a2dc8bba78bea82c6ed52da64b139e88666a3ec2db52ba0e56",
+        "usr/share/licenses/cachy-asahi-setup/LICENSE": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+        "usr/share/licenses/cachy-asahi-setup/NOTICE": "2c28b96b5e4dca86c8a71aa0df728a049820d5951812f20241be96e7000d9744"
+      },
+      "log": "evidence/host-build-2.txt",
+      "artifact_static_status": "artifact-static-pass",
+      "payload_count": 4
+    }
+  ],
+  "corrected_packaged_regressions": "6 PASS against source and each of two final archive CLIs",
+  "old_regression_reproduction": "6 expected FAIL against superseded c7d archive; fixture-only",
+  "packaged_cli_smoke": "PASS after canonical corrections; temporary prefix/home only",
+  "final_independent_review": "PASS pkgrel2 source/provenance/checksums/metadata/artifacts/fixtures",
+  "pkgbuild_sha256": "1d4326ccfa5b0a68b4eb82351c29a99ca2c0ad8af7503e84aa01bcd3dd1cbe68"
+}

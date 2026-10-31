@@ -1,0 +1,55 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 cachy-asahi contributors.
+pkgname=cachy-asahi-setup
+pkgver=0.1.0
+pkgrel=2
+pkgdesc='Explicit per-user setup and removal of cachy-asahi configuration'
+arch=('any')
+url='https://github.com/Gabriel-Kahen/cachy-asahi'
+license=('MIT')
+depends=('python>=3.11')
+optdepends=('cachy-asahi-hyprland-settings: optional desktop template'
+            'cachy-asahi-fish-config: optional Fish template'
+            'cachy-asahi-zsh-config: optional Zsh template')
+source=('cachy-asahi-setup' 'README.md' 'NOTICE' 'LICENSE'
+        'source-provenance.json' 'check-sync.py' 'test-sync.py')
+sha256sums=(
+    'a6251142b9c7e54796285c1a301fb590599d8aaa1625ea0bfebd7fc21622fdc2'
+    '434328ca04e757a2dc8bba78bea82c6ed52da64b139e88666a3ec2db52ba0e56'
+    '2c28b96b5e4dca86c8a71aa0df728a049820d5951812f20241be96e7000d9744'
+    '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
+    '3466cccc33c98f675af0779ebdc150636ed3544d78bc5c1543bd8d25c09aded7'
+    'ce66c6fc4b66d358378143f585fd3d1a708fddee80942e12900d5b76b2ff009b'
+    'f2694ef9e7ccca7201f444e5cad28aa524da374faae364e8bcbb75200149e6bb'
+)
+
+prepare() {
+    # A normal repository build must reject stale copied canonical code.
+    # Isolated snapshots retain the already-reviewed fixed source/provenance pins.
+    if [[ -f "$startdir/../../../AGENTS.md" ]]; then
+        python -B "$startdir/check-sync.py" --copy "$srcdir/cachy-asahi-setup" \
+            --canonical "$startdir/../../../scripts/setup/setup.py" \
+            --license "$startdir/../../../LICENSE"
+    fi
+}
+
+check() {
+    python -B - "$srcdir/cachy-asahi-setup" <<'PYTHON'
+import ast
+from pathlib import Path
+import sys
+ast.parse(Path(sys.argv[1]).read_bytes(), filename=sys.argv[1])
+PYTHON
+    # Snapshot pin verification; checkout synchronization runs before snapshotting.
+    python -B "$srcdir/check-sync.py" --copy "$srcdir/cachy-asahi-setup" \
+        --canonical "$srcdir/cachy-asahi-setup" --license "$srcdir/LICENSE"
+    python -B "$srcdir/test-sync.py"
+    python -B "$srcdir/cachy-asahi-setup" --help >/dev/null
+}
+
+package() {
+    install -Dm755 "$srcdir/cachy-asahi-setup" "$pkgdir/usr/bin/cachy-asahi-setup"
+    install -Dm644 "$srcdir/README.md" "$pkgdir/usr/share/doc/$pkgname/README.md"
+    install -Dm644 "$srcdir/NOTICE" "$pkgdir/usr/share/licenses/$pkgname/NOTICE"
+    install -Dm644 "$srcdir/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

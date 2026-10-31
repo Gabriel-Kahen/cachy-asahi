@@ -1,0 +1,113 @@
+{
+  "helpers": {
+    "/usr/bin/docker": {
+      "bytes": 41651784,
+      "mode": 493,
+      "sha256": "94128e4afada0d46de642165e79dd70beb08e6775014648013283ed901b68248"
+    },
+    "/usr/bin/git": {
+      "bytes": 4460200,
+      "mode": 493,
+      "sha256": "4cda0087547ee12bef91952e1123debb4bd2ec621838b347b5ca4fdaa6fecb58"
+    },
+    "/usr/bin/python3.12": {
+      "bytes": 7845048,
+      "mode": 493,
+      "sha256": "c86f21d0da9290ece2d7d49a3f7ed52aed59cb029abdf0ea25c79634f6cbe960"
+    },
+    "/usr/lib/aarch64-linux-gnu/ld-linux-aarch64.so.1": {
+      "bytes": 203968,
+      "mode": 493,
+      "sha256": "390027e5f45f236bd1838bc54bf464c5ff01d260ab9f8b415ea8276641bce505"
+    },
+    "/usr/lib/aarch64-linux-gnu/libassuan.so.0.8.6": {
+      "bytes": 133200,
+      "mode": 420,
+      "sha256": "436eb6f36289ffabff387b68ac62df342f7b229783b865c60baa346ecf59e31b"
+    },
+    "/usr/lib/aarch64-linux-gnu/libbz2.so.1.0.4": {
+      "bytes": 70504,
+      "mode": 420,
+      "sha256": "ac19913f44443f68f2e3ca29d79caaa785cd257bb424b028234bb4a2e8745c07"
+    },
+    "/usr/lib/aarch64-linux-gnu/libc.so.6": {
+      "bytes": 1722920,
+      "mode": 493,
+      "sha256": "0f1905dc27dbc6715875c70527bc8da846a10084c9c483e9d8ff76dce8d69d0e"
+    },
+    "/usr/lib/aarch64-linux-gnu/libexpat.so.1.9.1": {
+      "bytes": 198712,
+      "mode": 420,
+      "sha256": "b4b445a092ad711e535cfa7241974f709b716194c58227abc75b05e3a3bec7f7"
+    },
+    "/usr/lib/aarch64-linux-gnu/libgcrypt.so.20.4.3": {
+      "bytes": 1000536,
+      "mode": 420,
+      "sha256": "0021b10f8cf217477b73eb3721ed5711c02f77d9251a346552f6099928329151"
+    },
+    "/usr/lib/aarch64-linux-gnu/libgpg-error.so.0.34.0": {
+      "bytes": 198648,
+      "mode": 420,
+      "sha256": "ff2dccba4993ef97775b70c1ed1144f70dfe8581ee48c1eb25c76878c6cdfdf7"
+    },
+    "/usr/lib/aarch64-linux-gnu/libm.so.6": {
+      "bytes": 591800,
+      "mode": 420,
+      "sha256": "5e0391562de36de323fb9cb0f2c1b6bd6d034c840b1dac018499f5fe4ded1b4a"
+    },
+    "/usr/lib/aarch64-linux-gnu/libnpth.so.0.1.2": {
+      "bytes": 67888,
+      "mode": 420,
+      "sha256": "56aec4d8faab7df2b03f615bf18ab959d182cc13e564d6bcbb95c9fd662a6782"
+    },
+    "/usr/lib/aarch64-linux-gnu/libpcre2-8.so.0.11.2": {
+      "bytes": 592328,
+      "mode": 420,
+      "sha256": "aa4e91ff910dbb8e40472ed4fcaaeebfef19ad13fe925d9ed8e22e87d45ce13b"
+    },
+    "/usr/lib/aarch64-linux-gnu/libreadline.so.8.2": {
+      "bytes": 417504,
+      "mode": 420,
+      "sha256": "926b1d5d4793773021fb3383d797241323a1b68fb2eb4863e67cdf006dddf603"
+    },
+    "/usr/lib/aarch64-linux-gnu/libsqlite3.so.0.8.6": {
+      "bytes": 1526192,
+      "mode": 420,
+      "sha256": "ffab9364e26ea7bec92cedde903dd04eabae8b5eae86ec2bd7e3e9201725069e"
+    },
+    "/usr/lib/aarch64-linux-gnu/libtinfo.so.6.4": {
+      "bytes": 265416,
+      "mode": 420,
+      "sha256": "2d2f2bb5a2dd09a3f54dfe7847a7f601203a0e3fed210cb58df740d07989f554"
+    },
+    "/usr/lib/aarch64-linux-gnu/libz.so.1.3": {
+      "bytes": 133272,
+      "mode": 420,
+      "sha256": "e3bc90ee8cce46778c2f46c2a3e580d3b930f7b455910f25ea400a0b797fb9dc"
+    },
+    "/usr/lib/aarch64-linux-gnu/libzstd.so.1.5.5": {
+      "bytes": 657432,
+      "mode": 420,
+      "sha256": "fe726238b170b83aa83bf1f8a79109b8b61b9eb45234304511d093bbe5f5fb20"
+    }
+  },
+  "producer": {
+    "bytes": 26388,
+    "kind": "FISH_HISTORY_SINGLE_PACKAGE_PACMAN_DATABASE_V1",
+    "sha256": "8e27901c8bf395b0a9145fd5303bb8f35db2cd498ebc86b412a6916aa09fe5a7"
+  },
+  "purpose": "FISH_HISTORY_DISPOSABLE_TEST_TOOLCHAIN_INTERNAL_REPOSITORY_V2",
+  "schema_version": 2,
+  "tools": {
+    "/usr/bin/gpg": {
+      "bytes": 1135248,
+      "mode": 493,
+      "sha256": "e4fe2db2eee23a93a744a3453f5aff98fad4220ba7f2309f6a12680f5b8dcc51"
+    },
+    "/usr/bin/gpg-agent": {
+      "bytes": 398616,
+      "mode": 493,
+      "sha256": "90678f158b18887abb4cbedc7e17bd03c57d548a0a5f25bc86f75eddde11f644"
+    }
+  }
+}

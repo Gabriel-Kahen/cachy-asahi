@@ -1,0 +1,16 @@
+plugin-bang-bang history helper functions
+Source: https://github.com/oh-my-fish/plugin-bang-bang
+Revision: ec991b80ba7d4dda7a962167b036efc5c2d79419
+Copyright (c) 2015 Aerys Bat
+Copyright (c) 2015 Derek Stavis
+MIT license: see LICENSE.upstream for the full permission and warranty notice.
+
+Both __history_previous_command.fish and
+__history_previous_command_arguments.fish are unchanged upstream files.
+The upstream auto-binding conf.d script and uninstall hook are excluded from
+the installed payload because they erase existing bindings.
+
+Original opt-in wrapper, empty-history behavior, recipe, tests and documentation:
+Copyright (c) 2026 cachy-asahi contributors
+MIT license: see LICENSE.project for the full permission and warranty notice.
+This is independent Cachy-derived work, with no affiliation claim.
