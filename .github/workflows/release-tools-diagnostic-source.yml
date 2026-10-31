@@ -1,0 +1,42 @@
+name: Release prior-build retirement DATA controls
+on:
+  pull_request:
+    paths: ['scripts/ci/release-tools-native-source/**', '.github/workflows/release-tools-diagnostic-source.yml']
+  push:
+    branches: [main]
+    paths: ['scripts/ci/release-tools-native-source/**', '.github/workflows/release-tools-diagnostic-source.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  prior-build-retirement:
+    name: Release prior-build DATA14 (Python ${{ matrix.python }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Run only new two-row synthetic DATA controls with actor denial
+        shell: bash
+        run: |
+          set -euo pipefail
+          release_diag_factory="$GITHUB_WORKSPACE/scripts/ci/release-tools-native-source"
+          release_diag_stage=$(mktemp -d "$RUNNER_TEMP/release-prior-build.XXXXXXXX")
+          mkdir -p "$release_diag_stage/source/native"
+          cp "$release_diag_factory/test_prior_build_retirement.py" "$release_diag_stage/new-prior-build-data-controls.py"
+          cp "$release_diag_factory/payload/native/release_build_cause_v1.py" "$release_diag_stage/source/native/release_build_cause_v1.py"
+          cp "$release_diag_factory/fixtures/release_projection_v1.py.txt" "$release_diag_stage/source/native/release_projection_v1.py"
+          python -I -B -Werror::ResourceWarning "$release_diag_stage/new-prior-build-data-controls.py" \
+            --helper-sha256 a5506c35f1325353c78538658c5e3ac03cdeb1460c5284a0abd1e428aaacfc00 \
+            --privacy-sha256 54025eac68520a6191f6dfdf8d8ab6e9f958be2f53cc089f6143255bae7af8e7
+          python -I -B -c 'import json,sys; r=json.load(open(sys.argv[1])); assert r["total"]==14 and len(r["cases"])==14 and all(c["status"]=="PASS_NEW_SYNTHETIC_DATA" for c in r["cases"]); assert r["actor_denial_before_new_helper_import"] and r["denied_actor_attempts"]==[] and r["old12_controls_rerun"] is False and r["old_suite_reader_capsule_replays"]==0' "$release_diag_stage/new-prior-build-data-results/results.json"
