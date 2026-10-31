@@ -42,8 +42,8 @@
       "sha256": "cf43f16973294a8e687c65341cb63329a71d9a2a2ea488f0f6f2e20b97087c3c"
     },
     "composition-parent.json": {
-      "bytes": 3076421,
-      "sha256": "19df9a6ccd206cba1b4b134e0f811f214cbe08d1252a37558e0fb44ff83c0035"
+      "bytes": 3104180,
+      "sha256": "b9fc19e8f0868d55470a7dfc6542ea63796b8d758377d09764d6d7661976c1f7"
     },
     "composition.json": {
       "bytes": 444951,
@@ -175,7 +175,7 @@
     },
     "source622.py": {
       "bytes": 69373,
-      "sha256": "3bfea04298d048d6a9cb4c0d845384750a59e1b643d27896309d740d8953f890"
+      "sha256": "71c7ad8544fbfe92121f57992ea7f6c53ed8410141a583faac641aecd62aef3b"
     },
     "test_bridge622.py": {
       "bytes": 144293,
