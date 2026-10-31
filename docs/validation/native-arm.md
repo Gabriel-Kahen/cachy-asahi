@@ -6,6 +6,43 @@ Coordinator execution, October 12, 2026 UTC (October 11 local). Source snapshot
 `f4fc643192468526367f1ca34b96f78176cc5c8b`, published to the project repository.
 This record concerns a hosted Linux ARM builder, not a Mac installation.
 
+## Security maintenance finite native component (2026-10-31)
+
+Root accepts the finite native ARM 4K TEST-signed component for
+`cachy-asahi-security-maintenance 0.1.0-2` at
+[Source b6a02f11648738ded90084f7dcdcd4ea77c194fa](https://github.com/Gabriel-Kahen/cachy-asahi/commit/b6a02f11648738ded90084f7dcdcd4ea77c194fa),
+[run 41179285419](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/41179285419),
+[job 124473189670](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/41179285419/job/124473189670).
+[Artifact 13034143037](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/41179285419/artifacts/13034143037)
+is 914,324 bytes, SHA256
+`85927fa799425fbcd37b015c28fa81d50eeecde6d3ec8d6e4a09a0f7bcd58120`.
+The [public evidence record](security-native-component-v5-20261031.json) binds the
+Root decision, exact source/map and evidence hashes.
+
+Two distinct clean aarch64 / 4096-byte-page builds produce identical 94,166-byte
+`arch=any` archives, SHA256
+`897fee33c0ee97fc5d529ed9aae6a576cac0fa1010eefe127aabc28e15a7f2d2`.
+All 29 payload body/mode pins and 349 `.BUILDINFO` package identities match. Scoped
+ephemeral TEST authority exercises Required/Required unknown-key and untrusted
+installation refusals without changing inventory, signed installation and 29 ALPM
+owner checks, ordinary-user installed and moved-prefix offline workflows, and
+removal restoring the 349-package baseline while preserving user data. Each
+workflow exports aggregate results for 17 source-defined semantic controls and 23
+commands; removed inner workflow trees/logs were not independently reconstructed.
+All 10 inner lifecycle flags and exact source-bound outer retirement qualify from
+original joined receipts, rather than a new live host inspection.
+
+The full matching reader API completed once. Its first worker subsequently
+exited 1 during an optional DATA projection; that failure remains retained. A
+separate corrected projection and independent package DATA decode exited 0 without
+replaying the reader API. This is not an all-workers-pass claim.
+
+Upgrade is **NOT EXERCISED**: the source performs one installation and removal,
+without a distinct version transition. Generic 16K is NOT QUALIFIED; installed
+Asahi and physical M2 are NOT RUN, performance is NOT MEASURED, production trust
+and release are NOT ADMITTED, and ARM remediation is NOT ESTABLISHED. No release
+selection or broader security assurance follows from this finite component.
+
 ## Static validation
 
 [Run 38189008536](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38189008536)
