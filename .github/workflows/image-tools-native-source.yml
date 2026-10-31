@@ -1,0 +1,47 @@
+name: Image tools native Source controls
+on:
+  pull_request:
+    paths:
+      - 'scripts/ci/image-tools-native-source/**'
+      - '.github/workflows/image-tools-native-source.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/ci/image-tools-native-source/**'
+      - '.github/workflows/image-tools-native-source.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      IMAGE_TOOLS_PARENT: ${{ github.workspace }}/.ci-image-parent
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Obtain exact Source parent as data for reproduction
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 111f14d2b21b220d86912d5ead978848c7ef1cb0
+          path: .ci-image-parent
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Check source factory, workflow pins and bounded failure restoration
+        env:
+          IMAGE_TOOLS_NATIVE_SOURCE: ${{ runner.temp }}/image-tools-native-source
+        run: |
+          python -I -B -Werror::ResourceWarning scripts/ci/image-tools-native-source/test_factory.py
+          python -I -B scripts/ci/image-tools-native-source/prepare.py --parent "$IMAGE_TOOLS_PARENT" --output "$IMAGE_TOOLS_NATIVE_SOURCE"
+          python -I -B -Werror::ResourceWarning scripts/ci/image-tools-native-source/test_lifecycle.py
+          python -I -B -Werror::ResourceWarning scripts/ci/image-tools-native-source/test_positive_path.py
