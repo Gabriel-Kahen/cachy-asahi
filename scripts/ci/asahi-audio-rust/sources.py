@@ -13,7 +13,7 @@ import stat
 HERE = Path(__file__).resolve().parent
 SOURCE = 'b83c0f539034f10112a2d1e9743810344f13bb9d'
 INPUTS_SHA256 = '049c8a2f2146c9eb12666879947b42b902a51978df867d08459f2c120fe55ec2'
-NATIVE_SHA256 = 'a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898'
+NATIVE_SHA256 = '8e71ba83e7d5037c6f7772401ec3b872684ccfa8472d855d8d6d3052cb1f41ba'
 CHECKS_SHA256 = 'e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8'
 README = f'''Fixed local project-source handoff; consult report.json for this invocation.
 Project Source: https://github.com/Gabriel-Kahen/cachy-asahi/tree/{SOURCE}
