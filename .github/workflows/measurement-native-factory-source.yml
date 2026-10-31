@@ -1,0 +1,68 @@
+name: Measurement native factory Source controls
+on:
+  pull_request:
+    paths:
+      - .github/workflows/measurement-native-factory-source.yml
+      - scripts/ci/measurement-tools-native-source/**
+      - docs/workstreams/measurement-tools-native-source.md
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/measurement-native-factory-source.yml
+      - scripts/ci/measurement-tools-native-source/**
+      - docs/workstreams/measurement-tools-native-source.md
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-data:
+    name: Measurement31 finite Source DATA controls
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Read exact genuine191 parent as DATA
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 111f14d2b21b220d86912d5ead978848c7ef1cb0
+          path: .measurement-native-parent-data
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.14'
+      - name: Run exactly31 new DATA controls and emit Source under actor denial
+        timeout-minutes: 5
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          set -euo pipefail
+          ulimit -t 60 -v 1048576 -f 32768 -n 128
+          mkdir -m700 "$RUNNER_TEMP/measurement-native-data"
+          BASIS="$GITHUB_WORKSPACE/.measurement-native-parent-data"
+          FACTORY=scripts/ci/measurement-tools-native-source
+          timeout --signal=TERM --kill-after=5s 90s python -I -B "$FACTORY/test_components.py" --basis "$BASIS" --output "$RUNNER_TEMP/measurement-native-data/component21.json"
+          timeout --signal=TERM --kill-after=5s 90s python -I -B "$FACTORY/test_data.py" --basis "$BASIS" --result "$RUNNER_TEMP/measurement-native-data/factory10.json"
+          timeout --signal=TERM --kill-after=5s 90s python -I -B - "$BASIS" "$RUNNER_TEMP/measurement-native-data/trial" <<'PYDATA'
+          import json, pathlib, runpy, sys
+          def deny(event, args):
+              if event.startswith(('subprocess.', 'socket.')) or event in ('os.system', 'os.posix_spawn', 'os.fork', 'os.forkpty', 'os.exec', 'os.kill', 'os.killpg', 'pty.spawn'):
+                  raise RuntimeError('Source DATA actor denied: ' + event)
+          sys.addaudithook(deny)
+          basis, output = sys.argv[1:]
+          path = 'scripts/ci/measurement-tools-native-source/prepare.py'
+          sys.argv = [path, '--basis', basis, '--output', output]
+          runpy.run_path(path, run_name='__main__')
+          root = pathlib.Path(output).parent
+          a = json.loads((root/'component21.json').read_bytes())
+          b = json.loads((root/'factory10.json').read_bytes())
+          assert (a['tests'], b['tests']) == (21, 10)
+          assert a['status'] == 'PASS_ORDINARY_DATA_CONTROLS_ONLY' and b['status'] == 'PASS_DATA_ONLY'
+          assert all(x['failures'] == x['errors'] == x['skips'] == 0 and x['actor_attempts'] == [] for x in (a,b))
+          stage = json.loads((pathlib.Path(output)/'stage.json').read_bytes())
+          assert stage['source_files'] == 199 and stage['source_map_rows'] == 198 and stage['group_admission'] == 'NOT_ADMITTED'
+          assert all(x is None for x in stage['actual'].values())
+          print('PASS exactly31 DATA controls and actor-denied Source199 emission; native/build/GPG/VM NOT_RUN')
+          PYDATA
