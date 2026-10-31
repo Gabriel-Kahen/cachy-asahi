@@ -45,3 +45,4 @@ jobs:
           python -I -B scripts/ci/image-tools-native-source/prepare.py --parent "$IMAGE_TOOLS_PARENT" --output "$IMAGE_TOOLS_NATIVE_SOURCE"
           python -I -B -Werror::ResourceWarning scripts/ci/image-tools-native-source/test_lifecycle.py
           python -I -B -Werror::ResourceWarning scripts/ci/image-tools-native-source/test_positive_path.py
+          python -I -B -Werror::ResourceWarning scripts/ci/image-tools-native-source/test_group_census_diagnostic.py
