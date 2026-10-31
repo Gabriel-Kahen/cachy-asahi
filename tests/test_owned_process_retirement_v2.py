@@ -2,6 +2,7 @@
 """Versioned retirement controls: explicit models and fresh host Python children."""
 import ast
 import contextlib
+import contextvars
 import hashlib
 import importlib.util
 import inspect
@@ -30,12 +31,25 @@ R=load('retirement_v2',V2)
 OLD=load('canonical_retirement_reference',ORIGINAL)
 WAITID,WAITPID,KILL,KILLPG,OPEN,SCANDIR=os.waitid,os.waitpid,os.kill,os.killpg,os.open,os.scandir
 
+_AUDIT_ACTIVE=contextvars.ContextVar("retirement_v2_fixture_audit",default=False)
+
 def actors(event,args):
+    if not _AUDIT_ACTIVE.get():return
     if event.startswith('socket.')or event in {'os.system','os.posix_spawn','os.exec'}:raise AssertionError('forbidden control actor')
     if event=='subprocess.Popen':
         executable,argv=args[:2]
         if executable!=sys.executable or argv[:4]!=[sys.executable,'-I','-B','-c']:raise AssertionError('only authored host Python children allowed')
 sys.addaudithook(actors)
+
+@contextlib.contextmanager
+def fixture_audit():
+    token=_AUDIT_ACTIVE.set(True)
+    try:yield
+    finally:_AUDIT_ACTIVE.reset(token)
+
+class FixtureAudit:
+    def run(self,result=None):
+        with fixture_audit():return super().run(result)
 
 def terminal(pid):
     until=time.monotonic()+2
@@ -113,7 +127,7 @@ class Model:
     def __exit__(self,*args):return self.stack.__exit__(*args)
     def run(self):return self.core.supervise(self.pid,cap=1,retirement=.4,streams=())
 
-class DeterministicControls(unittest.TestCase):
+class DeterministicControls(FixtureAudit,unittest.TestCase):
     def test_old_later_reuse_signature_and_new_no_post_reap_census(self):
         with Model(OLD,late_reuse=True)as old:old_result=old.run()
         self.assertEqual({k:old_result[k]for k in('exit','reaped','ownership','output_complete','error','group_census','passed')},
@@ -198,7 +212,7 @@ class Audit:
         return self
     def __exit__(self,*args):return self.stack.__exit__(*args)
 
-class FreshHostChildren(unittest.TestCase):
+class FreshHostChildren(FixtureAudit,unittest.TestCase):
     def setUp(self):R.prepare();self.children=[]
     def tearDown(self):
         for child in self.children:
@@ -267,7 +281,7 @@ while True:time.sleep(1)
 # to the new local core. The ninth compatibility control changes only the intended
 # private _members AST assertion; public API and result fields stay exact.
 RSS=load('retained_rss_controls',ROOT/'tests/test_owned_process_memory.py');RSS.R=R;RSS.STAT=R._stat
-class RetainedRSSControls(RSS.OwnedMemory):
+class RetainedRSSControls(FixtureAudit,RSS.OwnedMemory):
     def test_default_helpers_and_result_contract_stay_compatible(self):
         self.assertEqual(inspect.signature(R.supervise),inspect.signature(OLD.supervise))
         child=self.launch('os._exit(0)')

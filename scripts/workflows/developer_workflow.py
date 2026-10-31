@@ -25,7 +25,6 @@ import time
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURES = ROOT / 'tests/workflows/fixtures/developer'
 CORE_PIN = '83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f'
-RETIREMENT_V2_PIN = 'f2669a2fbff358e7fcd9a54c67066021af8f0108f5652efc41d1d4a9ecfe14e9'
 MAX_SOURCE = 128 * 1024
 FLAGS = ('-Wall', '-Wextra', '-Werror', '-O2')
 ORIGINAL = b'Hello from cachy-asahi\n'
@@ -67,32 +66,17 @@ def load_core():
     return module
 
 
-def load_retirement_core():
-    """Explicit immutable v2 profile; legacy loader and pin remain unchanged."""
-    path = ROOT / 'scripts/virtual/owned_process_retirement_v2.py'
-    raw = path.read_bytes()
-    if pin(raw)['sha256'] != RETIREMENT_V2_PIN:
-        raise ValueError('reviewed retirement-v2 core pin differs')
-    spec = importlib.util.spec_from_file_location('_developer_retirement_v2', path)
-    module = importlib.util.module_from_spec(spec)
-    exec(compile(raw, str(path), 'exec'), module.__dict__)
-    return module
-
-
 class Failure(ValueError):
     pass
 
 
 class Commands:
     """Single main-thread wait owner. Logs are written only after supervision."""
-    def __init__(self, output, home, tool_path, timeout=15, total=180, max_output=128*1024, *, retirement_profile='legacy'):
+    def __init__(self, output, home, tool_path, timeout=15, total=180, max_output=128*1024):
         if (type(max_output) is not int or not 0 <= max_output <= 1024*1024
                 or not all(type(x) in (int, float) and math.isfinite(x)
                            for x in (timeout, total)) or not 2 <= timeout <= total <= 600):
             raise ValueError('finite command budgets and output cap required before launch')
-        if retirement_profile not in ('legacy', 'reserved-v2'):
-            raise ValueError('finite retirement profile required')
-        self.retirement_profile = retirement_profile
         self.output = Path(output)
         self.env = dict(PATH=tool_path, HOME=str(home), LC_ALL='C.UTF-8', TZ='UTC',
                         GIT_CONFIG_NOSYSTEM='1', GIT_CONFIG_GLOBAL='/dev/null',
@@ -101,7 +85,7 @@ class Commands:
         self.timeout, self.max_output = timeout, max_output
         self.deadline = time.monotonic() + total
         self.records = []
-        self.core = load_core() if retirement_profile == 'legacy' else load_retirement_core()
+        self.core = load_core()
         self.cancelled = []
 
     def run(self, step, argv, cwd, expected=0):
@@ -139,7 +123,7 @@ class Commands:
                    channels='stdout+stderr combined in pipe order')
         if result is not None:
             retired = (result['reaped'] and result['ownership'] == 'REAPED'
-                       and result['group_census'] == ('RESERVED_LEADER_ONLY' if self.retirement_profile == 'reserved-v2' else 'EMPTY_TWICE')
+                       and result['group_census'] == 'EMPTY_TWICE'
                        and result['output_complete'] and not result['timeout']
                        and not result['signals'] and result['error'] is None
                        and result['seconds'] < remaining)
@@ -150,13 +134,6 @@ class Commands:
         if not row['success']:
             raise Failure('command failed or retirement unknown: ' + step)
         return raw
-
-
-class RetirementCommands(Commands):
-    """Same budgets and command checks with the pinned pre-reap v2 profile."""
-    def __init__(self, output, home, tool_path, timeout=15, total=180, max_output=128*1024):
-        super().__init__(output, home, tool_path, timeout, total, max_output,
-                         retirement_profile='reserved-v2')
 
 
 class OnboardingAdapter:

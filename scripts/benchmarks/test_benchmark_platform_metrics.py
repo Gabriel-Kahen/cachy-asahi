@@ -70,6 +70,18 @@ class IntegrationTests(unittest.TestCase):
     def setUpClass(cls):
         cls.shared = tempfile.TemporaryDirectory(); cls.addClassCleanup(cls.shared.cleanup)
         cls.reference = Path(cls.shared.name)
+        # Sensor paths are generated fixture files; only owned workloads/clocks
+        # are real. Host sysfs reads can outlive the bounded sampler drain.
+        cls.sysfs = cls.reference / 'fixture-sysfs'
+        device = cls.sysfs / 'class/hwmon/hwmon0'
+        device.mkdir(parents=True)
+        for name, value in {'name': 'integration-fixture', 'temp1_input': '42000',
+                            'temp1_label': 'fixture', 'temp1_type': '1',
+                            'temp1_enable': '1', 'temp1_fault': '0'}.items():
+            (device / name).write_text(value + '\n')
+        discover = m.discover
+        cls.enterClassContext(patch.object(m, 'discover', side_effect=lambda: discover(cls.sysfs)))
+        cls.enterClassContext(patch.object(a, 'load_dependencies', return_value=(m, owner)))
         code, trial = genuine_trial(cls.reference)
         if code != 0:
             raise AssertionError(trial)
@@ -101,6 +113,16 @@ class IntegrationTests(unittest.TestCase):
         for name, want in self.trial['raw_sha256'].items():
             self.assertEqual(b.digest(self.directory / name), want)
         self.assertIn('platform-metrics/samples.jsonl', self.trial['raw_sha256'])
+
+    def test_integration_sensors_are_explicit_readable_fixture_files(self):
+        inventory = b.read_json(self.directory / 'platform-metrics/inventory.json')
+        self.assertEqual(inventory['sysfs_root'], str(self.sysfs))
+        self.assertEqual([row['id'] for row in inventory['sensors']],
+                         [str(self.sysfs / 'class/hwmon/hwmon0/temp1_input')])
+        for sample in self.samples:
+            self.assertEqual([row['value'] for row in sample['readings']], [42000])
+        self.assertTrue(self.capture['completed'])
+        self.assertTrue(self.capture['worker_stopped'])
 
     def test_frozen_plan_pins_adapter_collector_and_owner(self):
         plan = b.read_json(self.reference / 'plan.json')
