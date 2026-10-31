@@ -25,6 +25,22 @@
     "--carrier",
     "$RUNNER_TEMP/pgo-hosted-retained"
   ],
+  "operations": {
+    "default": "source184",
+    "platform-alpm-v1": {
+      "actual": {
+        "ref": null,
+        "run": null,
+        "source": null
+      },
+      "argv_extra": [
+        "--operation",
+        "platform-alpm-v1"
+      ],
+      "matching_reader": "native/platform_reader_v1.py",
+      "prerequisite": "ROOT_BOUND_RETAINED_TRANSPORT_SUCCESSOR_BEFORE_DISPATCH; CURRENT_NULL_HELD"
+    }
+  },
   "provisioning": "PROOF_PRIVATE22_PUBLIC14_ORIGINAL1154_FIXED16_COPY_THEN_OWNER",
   "publication": "ROOT_MUST_BIND_SOURCE_REF_RUN_AND_WHOLE_MAP_BEFORE_EXECUTION",
   "retention": {
