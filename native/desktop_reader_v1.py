@@ -369,7 +369,7 @@ def retained_consumer_diagnostic(view, files, receipt, binding, map_sha256, posi
 
 
 PRODUCERS = {
-    'native/desktop_alpm_v1.py': '4345179192004754c8c6219d63bbefb62d62860fdb81fb2d294751790a3c1f8f',
+    'native/desktop_alpm_v1.py': '94b0c96301a4a7985b758d6a36d50f597478a1a010cb794602d7a73d80da8dd3',
     'native/desktop_tools_v1.py': '88a8c5a8c188113564c8e0bf1e02176d9cc86f19998b51e19e075c5d0eaf8b62',
     'native/desktop_guest_v1.py': '2818cb5257433b290dd96dc8b1824e4c7932ac5ceff5b190004765caa1191e31',
     'native/desktop-contract-v1.json': 'f2c72aa0d24272966eb323a5a2bb11bca89569a9542330eedafe9f09cc46a894'}
@@ -445,6 +445,48 @@ def desktop_archive_custody(raw, command, contract, index, private_marker):
         metadata={name:pin(body) for name,body in metadata.items()},
         framing=dict(headers=headers,blocks=len(raw)//512,zero_padding=True,zero_trailer_bytes=len(raw)-cursor),
         privacy='Exact6 bound public payload bodies; every raw header and metadata body scanned; padding and trailer zero')
+
+
+def retained_group_census_diagnostics(commands):
+    """Typed existing-scan failure DATA; post-reap identity reuse stays unresolved."""
+    need(type(commands)is list and len(commands)<=1000,'finite census command list required')
+    count=0
+    for index,command in enumerate(commands):
+        need(type(command)is dict,'typed census command required')
+        state=command.get('supervision');need(state is None or type(state)is dict,'typed census supervision required')
+        state=state or{};value=command.get('group_census_diagnostic')
+        allowed=command.get('success')is False and state.get('group_census')in('PRESENT_OR_REUSED','UNKNOWN')
+        required=allowed and state['group_census']=='PRESENT_OR_REUSED'
+        need(not required or value is not None,'failed group census requires original scan diagnostic')
+        if value is None:continue
+        need(allowed and type(value)is dict and set(value)=={'schema','command_index','source_core_sha256','scope','scans'}
+             and type(value['schema'])is int and value['schema']==1 and type(value['command_index'])is int and value['command_index']==index
+             and value['source_core_sha256']=='83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f'
+             and value['scope']=='ORIGINAL_POST_REAP_SCAN_MATCHES_MAY_BE_REUSED','same original strict group-census command/core required')
+        scans=value['scans'];need(type(scans)is list and 0<len(scans)<=2,'bounded original scan count')
+        leader=None
+        for scan in scans:
+            need(type(scan)is dict and type(scan.get('leader'))is int and 0<scan['leader']<2**31,'typed original group leader')
+            leader=scan['leader']if leader is None else leader;need(scan['leader']==leader,'same original numeric group selector')
+            if scan.get('kind')=='REFUSED':
+                need(set(scan)=={'kind','leader','error_type'}and type(scan['error_type'])is str
+                     and re.fullmatch('[A-Za-z_][A-Za-z0-9_]{0,79}',scan['error_type']),'bounded original scan refusal')
+                continue
+            need(set(scan)=={'kind','leader','member_count','truncated','members'}and scan.get('kind')=='MATCHES'
+                 and type(scan['member_count'])is int and 0<=scan['member_count']<=131072 and type(scan['truncated'])is bool
+                 and scan['truncated']==(scan['member_count']>32)and type(scan['members'])is list
+                 and len(scan['members'])==min(scan['member_count'],32),'bounded typed original member rows')
+            rows=[]
+            for row in scan['members']:
+                need(type(row)is dict and set(row)=={'pid','start_ticks','state'}and type(row['pid'])is int and 0<row['pid']<2**31
+                     and type(row['start_ticks'])is int and 0<row['start_ticks']<2**63 and type(row['state'])is str
+                     and re.fullmatch('[A-Za-z]',row['state']),'typed original member identity DATA')
+                rows.append((row['pid'],row['start_ticks'],row['state']))
+            need(rows==sorted(set(rows)),'unique ordered bounded original members')
+        if state['group_census']=='PRESENT_OR_REUSED':
+            need(scans[-1]['kind']=='MATCHES'and scans[-1]['member_count']>0,'nonempty original census observation required')
+        count+=1
+    return dict(status='VALIDATED_UNRESOLVED_ORIGINAL_GROUP_CENSUS_DATA_ONLY',commands=count,native='NOT_ADMITTED')
 
 
 def retained_public_projection(view, files, binding, map_sha256):
@@ -531,6 +573,7 @@ def retained_public_projection(view, files, binding, map_sha256):
     need(not commands or command_file in selected, 'actual component command list must be projected')
     if command_file in selected:
         need(view.load(command_file) == commands, 'projected standalone and release command lists differ')
+    retained_group_census_diagnostics(commands)
     guest = view.load('journey/result.json') if 'journey/result.json' in selected else None
     if type(guest) is dict and guest.get('status') == PASS:
         need(guest.get('desktop_alpm') == report, 'positive guest and separately retained release results differ')
@@ -851,6 +894,7 @@ def strict_test_signature(status, signer):
 def desktop_commands(view, files, prefix, commands):
     need(type(commands) is list and 0 < len(commands) <= 160 and view.load(prefix + 'commands.json') == commands,
          'actual finite standalone desktop command list required')
+    retained_group_census_diagnostics(commands)
     for index, command in enumerate(commands):
         need(type(command) is dict, 'typed desktop command row required')
         step = command.get('step'); log = command.get('log'); state = command.get('supervision')
