@@ -90,7 +90,7 @@ def upgrade_policy(root):
     value=policy(root)['upgrade']
     need(type(value)is dict and set(value)=={'schema','protocol','from_version','to_version','prior_bundle',
         'prior_bundle_base64','prior_profile','prior_profile_base64','prior_adapter','prior_payload_files',
-        'prior_recipe_files','provenance'} and type(value['schema'])is int and value['schema']==1 and value['protocol']==UPGRADE_PROTOCOL
+        'prior_recipe_files','provenance','observation'} and type(value['schema'])is int and value['schema']==1 and value['protocol']==UPGRADE_PROTOCOL
         and value['from_version']=='0.1.0-1' and value['to_version']=='0.1.0-2','exact reviewed version transition')
     need(len(value['prior_payload_files'])==27 and len(value['prior_recipe_files'])==32,'complete genuine prior payload and recipe')
     return value
@@ -132,17 +132,77 @@ def snapshot(root):
 
 class Commands:
     def __init__(self,home):self.home,self.records=home,[]
-    def run(self,step,argv,expected=0,timeout=180,cwd=None,limit=262144,input_data=None):
+    def run(self,step,argv,expected=0,timeout=180,cwd=None,limit=262144,input_data=None,observe=None):
         env=dict(PATH='/usr/bin:/bin',HOME=str(self.home),LANG='C',LC_ALL='C',PYTHONDONTWRITEBYTECODE='1',PYTHONNOUSERSITE='1')
         need(input_data is None or (step=='decline-upgrade-precommit' and input_data==b'n\n'),'only finite explicit operator-decline input')
         input_options=dict(stdin=subprocess.DEVNULL)if input_data is None else dict(input=input_data)
+        if observe is not None:
+            need(step=='required-install' and len(observe)==2 and 'LD_PRELOAD' not in os.environ
+                 and 'LD_AUDIT' not in os.environ,'observer scoped only to genuine signed upgrade')
+            shared,fd=observe
+            need(shared==self.home/'alpm-observer.so' and shared.is_file() and type(fd)is int and 3<=fd<=127,
+                 'exact privately compiled observer and explicit owned FD')
+            env.update(LD_PRELOAD=str(shared),CACHY_SECURITY_OBSERVER_FD=str(fd),CACHY_SECURITY_OBSERVER_OWNER=str(os.getpid()))
+            input_options['pass_fds']=(fd,)
         with tempfile.TemporaryFile() as stdout,tempfile.TemporaryFile() as stderr:
-            result=subprocess.run(list(map(str,argv)),cwd=cwd or self.home,env=env,stdout=stdout,stderr=stderr,timeout=timeout,**input_options)
+            if step=='compile-upgrade-observer':
+                policy=upgrade_policy(SOURCE)['observation']['compiler_supervisor'];path=SOURCE/policy['path']
+                need(pin(read(path))['sha256']==policy['sha256'],'held reserved compiler supervisor')
+                spec=importlib.util.spec_from_file_location('_security_observer_compiler_owner',path)
+                owned=importlib.util.module_from_spec(spec);spec.loader.exec_module(owned)
+                self.compiler_lifecycle={}
+                result=owned.run(list(map(str,argv)),cwd=cwd or self.home,env=env,stdout=stdout,stderr=stderr,
+                    timeout=timeout,lifecycle=self.compiler_lifecycle,allowed_uids={0},stdout_limit=limit,stderr_limit=limit,**input_options)
+            else:
+                result=subprocess.run(list(map(str,argv)),cwd=cwd or self.home,env=env,stdout=stdout,stderr=stderr,timeout=timeout,**input_options)
             stdout.seek(0);stderr.seek(0);out,err=stdout.read(limit+1),stderr.read(limit+1)
         need(len(out)<=limit and len(err)<=limit,'bounded lifecycle command DATA')
         self.records.append(dict(step=step,exit=result.returncode,stdout=pin(out),stderr=pin(err)));self.last_output=out+err
         need(result.returncode!=0 if expected=='nonzero' else result.returncode==expected,'lifecycle command failed: '+step)
         return out
+
+def observe_real_upgrade(c,pacman,archive,policy):
+    """Future native observation only; never interrupt, unlock or recover ALPM."""
+    source=policy['source'].encode('ascii')
+    need(pin(source)==policy['source_pin'] and policy['record_cap']==16384,'exact bounded observer source')
+    header=Path('/usr/include/alpm.h');lib=Path('/usr/lib/libalpm.so.16.0.1');exe=Path('/usr/bin/pacman')
+    need(pin(read(header))==policy['header'] and pin(read(lib))['sha256']==policy['libalpm_sha256'],
+         'exact reviewed installed header and retained actual libalpm binary required')
+    binary={}
+    for label,path in (('pacman',exe),('libalpm',lib)):
+        info=path.stat();need(path==path.resolve() and stat.S_ISREG(info.st_mode) and info.st_uid==info.st_gid==0,'ordinary root-owned runtime binary')
+        binary[label]=dict(pin(read(path)),inode=[info.st_dev,info.st_ino])
+    src=c.home/'alpm-observer.c';shared=c.home/'alpm-observer.so';record=c.home/'alpm-observer.jsonl'
+    with src.open('xb')as stream:stream.write(source)
+    src.chmod(0o600)
+    c.run('compile-upgrade-observer',['/usr/bin/cc','-shared','-fPIC','-O2','-Wall','-Wextra','-Werror','-o',shared,src,'-ldl'])
+    compiled=pin(read(shared));owner=os.getpid()
+    fd=os.open(record,os.O_RDWR|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW|os.O_CLOEXEC,0o600)
+    try:
+        before=os.fstat(fd);need(stat.S_ISREG(before.st_mode) and before.st_uid==before.st_gid==0 and before.st_nlink==1 and before.st_size==0,'fresh ordinary owned observation FD')
+        c.run('required-install',pacman+['--noconfirm','--noscriptlet','-U',archive],observe=(shared,fd))
+        os.fsync(fd);info=os.fstat(fd);need(info.st_dev==before.st_dev and info.st_ino==before.st_ino and 0<info.st_size<=policy['record_cap'],'same bounded owned observation FD')
+        os.lseek(fd,0,os.SEEK_SET);raw=os.read(fd,policy['record_cap']+1)
+        need(len(raw)==info.st_size and info.st_nlink==1,'whole complete observation DATA')
+    finally:os.close(fd)
+    def pairs(values):
+        result={}
+        for key,value in values:
+            need(key not in result,'duplicate observation field');result[key]=value
+        return result
+    for label,path in (('pacman',exe),('libalpm',lib)):
+        info=path.stat();need(pin(read(path))=={k:binary[label][k]for k in('bytes','sha256')}
+             and [info.st_dev,info.st_ino]==binary[label]['inode'],'actual runtime binaries unchanged after observed upgrade')
+    rows=[json.loads(line,object_pairs_hook=pairs)for line in raw.splitlines()]
+    # Validate after the ordinary transaction returns; a bad observation never kills it.
+    from security_reader_v1 import validate_observation
+    result=dict(schema=1,protocol=policy['protocol'],phase=policy['phase'],observer_source=policy['source_pin'],
+        observer_compiled=compiled,compiler_retirement=c.compiler_lifecycle,raw_pin=pin(raw),raw_ascii=raw.decode('ascii'),records=rows,runtime=binary,owner_pid=owner,
+        witness_paths=dict(old_only=policy['old_only'],new_only=policy['new_only']),
+        source_binary_correspondence='OPEN',interruption='NOT_RUN',recovery='NOT_RUN')
+    validate_observation(result,policy)
+    return result
+
 
 def strict_signature(status,fingerprint):
     need(re.fullmatch('[0-9A-F]{40}',fingerprint or ''),'explicit scoped TEST fingerprint')
@@ -307,7 +367,7 @@ def inside(root,map_hash):
         c.run('decline-upgrade-precommit',pacman+['--confirm','--noscriptlet','-U',archive],1,input_data=b'n\n')
         need(b'Proceed with installation?' in c.last_output,'actual precommit confirmation reached before operator decline')
         current=inventory('declined-prior-inventory');need(current==prior_wanted,'operator-declined precommit upgrade preserves prior');upgrade_inventories['after_decline']=pin(current);owned_payload(prior_paths,'declined-prior');preserved()
-        c.run('required-install',pacman+['--noconfirm','--noscriptlet','-U',archive])
+        observation=observe_real_upgrade(c,pacman,archive,transition['observation'])
         current=inventory('installed-inventory');need(current==wanted,'actual signed prior-to-current350 upgrade inventory');upgrade_inventories['upgraded']=pin(current);owned_payload(paths,'candidate')
         need(all(not os.path.lexists('/usr/'+name)for name in set(prior_paths)-set(paths)),'prior-only payload removed by real upgrade');preserved()
         c.run('repeat-current',pacman+['--noconfirm','--noscriptlet','-U',archive])
@@ -341,7 +401,7 @@ def inside(root,map_hash):
             prior_source={name:transition['prior_'+name]for name in ('bundle','profile','adapter')},
             prior_archive=pin(read(prior)),prior_archive_base64=base64.b64encode(read(prior)).decode(),
             prior_payload={name:pin(body)for name,body in old.items()},flags={name:True for name in sorted(UPGRADE_FLAGS)},inventories=upgrade_inventories,
-            abort_scope='OPERATOR_DECLINED_BEFORE_COMMIT; NOT_SIGNAL_OR_POWERLOSS',repeat_scope='SAME_VERSION_REINSTALL',upgrade_scope='ONE_PACKAGE_VERSION_TRANSITION_ONLY',decline_input=pin(b'n\n'))
+            abort_scope='OPERATOR_DECLINED_BEFORE_COMMIT; NOT_SIGNAL_OR_POWERLOSS',repeat_scope='SAME_VERSION_REINSTALL',upgrade_scope='ONE_PACKAGE_VERSION_TRANSITION_ONLY',decline_input=pin(b'n\n'),observation=observation)
         report['test_authority']=dict(fingerprint=fingerprint,public_key=public.read_text('ascii'),signature_base64=base64.b64encode(signature.read_bytes()).decode(),signature_status=status,semantics='Required/Required; scoped ephemeral TEST ONLY')
         report['status']=STATUS
     except BaseException as error:

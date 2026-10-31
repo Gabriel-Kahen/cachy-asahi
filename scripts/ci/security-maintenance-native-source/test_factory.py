@@ -243,7 +243,7 @@ class Factory(unittest.TestCase):
 def upgrade_namespace():
     """Execute only maintained passive DATA function AST, never a native entry."""
     tree = ast.parse((HERE / 'overlay/native/security_reader_v1.py').read_text())
-    functions = {'_cleanup_require', '_cleanup_pin', 'validate_upgrade', 'validate_result'}
+    functions = {'_cleanup_require', '_cleanup_pin', 'validate_observation', 'validate_upgrade', 'validate_result'}
     constants = {'UPGRADE_PROTOCOL', 'UPGRADE_FLAGS', 'UPGRADE_STEPS', 'STATUS', 'PAIR', 'LIFECYCLE'}
     selected = [node for node in tree.body
                 if isinstance(node, ast.FunctionDef) and node.name in functions
@@ -251,10 +251,18 @@ def upgrade_namespace():
     def need(condition, message):
         if not condition:
             raise ValueError(message)
-    namespace = dict(base64=base64, re=re, pin=pin, need=need, Path=Path,
+    namespace = dict(base64=base64, re=re, pin=pin, need=need, Path=Path,json=json,
                      __file__=str(HERE / 'overlay/native/security_reader_v1.py'))
     exec(compile(ast.Module(body=selected, type_ignores=[]), '<maintained-security-passive-DATA-validators>', 'exec'), namespace)
     return namespace
+
+
+def observation_controls():
+    name='_maintained_security_new_observation_controls'
+    if name not in sys.modules:
+        spec=importlib.util.spec_from_file_location(name,HERE/'test_observation.py')
+        module=importlib.util.module_from_spec(spec);sys.modules[name]=module;spec.loader.exec_module(module)
+    return sys.modules[name]
 
 
 class UpgradeData(unittest.TestCase):
@@ -262,6 +270,7 @@ class UpgradeData(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.api = upgrade_namespace()
+        cls.observation=staticmethod(observation_controls().fixture)
         cls.contract = json.loads((HERE / 'overlay/native/security-contract-v1.json').read_bytes())['upgrade']
         cls.baseline = (PARENT / 'native/expected349.lock').read_bytes()
         cls.validate = staticmethod(cls.api['validate_upgrade'])
@@ -278,7 +287,7 @@ class UpgradeData(unittest.TestCase):
                         stdout=dict(empty), stderr=dict(empty))
         ordered = ('prior-required-install', 'prior-inventory', 'upgrade-signature-refusal',
                    'refusal-prior-inventory', 'decline-upgrade-precommit', 'declined-prior-inventory',
-                   'required-install', 'installed-inventory', 'repeat-current', 'repeated-inventory',
+                   'compile-upgrade-observer', 'required-install', 'installed-inventory', 'repeat-current', 'repeated-inventory',
                    'remove', 'removed-inventory', 'reinstall-current', 'reinstalled-inventory',
                    'remove-reinstalled', 'final-removed-inventory')
         commands = [record('unknown-key-refusal'), record('required-untrusted-install-refusal')]
@@ -307,7 +316,7 @@ class UpgradeData(unittest.TestCase):
                        flags={name: True for name in flags}, inventories=inventories,
                        abort_scope='OPERATOR_DECLINED_BEFORE_COMMIT; NOT_SIGNAL_OR_POWERLOSS',
                        repeat_scope='SAME_VERSION_REINSTALL', upgrade_scope='ONE_PACKAGE_VERSION_TRANSITION_ONLY',
-                       decline_input=pin(b'n\n'))
+                       decline_input=pin(b'n\n'),observation=self.observation())
         return dict(upgrade=upgrade, commands=commands)
 
     def refuses(self, data, contract=None, baseline=None):
@@ -434,6 +443,7 @@ if __name__ == '__main__':
     if not PARENT.is_dir() or PARENT != PARENT.resolve():
         parser.error('--parent-source must be an ordinary exact local Source directory')
     suite = unittest.defaultTestLoader.loadTestsFromModule(sys.modules[__name__])
+    suite.addTests(unittest.defaultTestLoader.loadTestsFromModule(observation_controls()))
     result = unittest.TextTestRunner(verbosity=2).run(suite)
     if args.results:
         report = dict(status='PASS_NEW_ACTOR_DENIED_FACTORY_PROTOCOL_DATA_CONTROLS_ONLY' if result.wasSuccessful() else 'FAIL_NEW_FACTORY_PROTOCOL_DATA_CONTROLS',

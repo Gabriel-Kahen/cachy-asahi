@@ -203,6 +203,52 @@
   },
   "upgrade": {
     "from_version": "0.1.0-1",
+    "observation": {
+      "compiler_supervisor": {
+        "path": "bootstrap/scripts/ci/zlib-pgo-native-hosted/owned_child.py",
+        "sha256": "eaf9a46630e4fe4ca0a8f94a6dc2de4a881a6ad7e8b4dd0810b3347c0d7038d5"
+      },
+      "header": {
+        "bytes": 100912,
+        "sha256": "c959bb93bc24bf96c1432d0b12cc0453a796259076a28f91ba9a4cbcb3102d44"
+      },
+      "interruption": "NOT_RUN",
+      "libalpm_sha256": "94c013b9026772ffe4f227f508a2cdf0c61323dc1f7b7836fe629b49bfbc3902",
+      "libalpm_version": "16.0.1",
+      "new_only": "/usr/lib/cachy-asahi/security-maintenance-v2/payload-pins.json",
+      "old_only": "/usr/lib/cachy-asahi/security-maintenance-v1/payload-pins.json",
+      "phase": "AFTER_OLD_REMOVAL_BEFORE_CANDIDATE_EXTRACTION",
+      "protocol": "first-real-upgrade-zero-observation-v1",
+      "record_cap": 16384,
+      "recovery": "NOT_RUN",
+      "schema": 1,
+      "semantic_files": {
+        "add.c": {
+          "bytes": 22431,
+          "sha256": "fd3136291885cae73ad00abab3d83de49ea0276f040e53cca3902cfb93cf58f1"
+        },
+        "alpm.h": {
+          "bytes": 100912,
+          "sha256": "c959bb93bc24bf96c1432d0b12cc0453a796259076a28f91ba9a4cbcb3102d44"
+        },
+        "handle.c": {
+          "bytes": 25439,
+          "sha256": "3e2a3d55cab489beecd7276a8ea0adb53082be0f22a6110dcd84c62eb7c47c65"
+        },
+        "remove.c": {
+          "bytes": 23468,
+          "sha256": "a052d455f088f34bf1d713a434957de7e1b9322862a07b69160c65ee15dca314"
+        }
+      },
+      "source": "#define OLD_ONLY \"/usr/lib/cachy-asahi/security-maintenance-v1/payload-pins.json\"\n#define NEW_ONLY \"/usr/lib/cachy-asahi/security-maintenance-v2/payload-pins.json\"\n/* SPDX-License-Identifier: MIT\n * Observation only: never stop, signal, abort or change the transaction. */\n#define _GNU_SOURCE\n#include <alpm.h>\n#include <dlfcn.h>\n#include <errno.h>\n#include <fcntl.h>\n#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <sys/stat.h>\n#include <unistd.h>\n_Static_assert(ALPM_PROGRESS_UPGRADE_START == 1, \"pinned libalpm16 progress ABI\");\nstatic alpm_handle_t *bound;\nstatic alpm_cb_progress original;\nstatic void *original_ctx;\nstatic unsigned registrations, hits, errors;\nstatic int observed_fd = -1;\nstatic int eligible(void) {\n    char exe[128];\n    const char *fd = getenv(\"CACHY_SECURITY_OBSERVER_FD\");\n    const char *owner = getenv(\"CACHY_SECURITY_OBSERVER_OWNER\");\n    if(!fd || !owner || !*fd || !*owner) return 0;\n    char *end;\n    long value = strtol(fd, &end, 10);\n    if(*end || value < 3 || value > 127) return 0;\n    long parent = strtol(owner, &end, 10);\n    if(*end || parent != getppid() || parent <= 1) return 0;\n    ssize_t n = readlink(\"/proc/self/exe\", exe, sizeof(exe)-1);\n    if(n <= 0 || n >= (ssize_t)sizeof(exe)-1) return 0;\n    exe[n] = 0;\n    if(strcmp(exe, \"/usr/bin/pacman\")) return 0;\n    struct stat s;\n    if(fstat((int)value, &s) || !S_ISREG(s.st_mode) || (s.st_mode & 0777) != 0600 ||\n       s.st_uid || s.st_gid || s.st_nlink != 1 || s.st_size > 16384) return 0;\n    observed_fd = (int)value;\n    return 1;\n}\nstatic int missing(const char *path) {\n    struct stat s;\n    return lstat(path, &s) == 0 ? 0 : errno;\n}\nstatic void emit(const char *text, int n) {\n    if(!eligible() || n <= 0 || n >= 4096) { errors++; return; }\n    struct stat s;\n    if(fstat(observed_fd, &s) || s.st_size + n > 16384) { errors++; return; }\n    ssize_t written;\n    do { written = write(observed_fd, text, (size_t)n); } while(written < 0 && errno == EINTR);\n    if(written != n) errors++;\n}\nstatic void observe(void *ctx, alpm_progress_t event, const char *pkg,\n                    int percent, size_t howmany, size_t current) {\n    int saved_errno = errno;\n    (void)ctx;\n    if(!hits && eligible() && event == ALPM_PROGRESS_UPGRADE_START && pkg &&\n       !strcmp(pkg, \"cachy-asahi-security-maintenance\") && percent == 0 && howmany == 1 && current == 1) {\n        hits++;\n        struct stat lock, exe, lib;\n        int le = lstat(\"/var/lib/pacman/db.lck\", &lock);\n        int pe = stat(\"/proc/self/exe\", &exe);\n        int ae = stat(\"/usr/lib/libalpm.so.16.0.1\", &lib);\n        char row[4096];\n        if(le || pe || ae) errors++;\n        else {\n            int n = snprintf(row, sizeof(row),\n              \"{\\\"type\\\":\\\"FIRST_UPGRADE_ZERO\\\",\\\"pid\\\":%ld,\\\"ppid\\\":%ld,\\\"event\\\":1,\\\"percent\\\":0,\\\"howmany\\\":1,\\\"current\\\":1,\"\n              \"\\\"old_only_errno\\\":%d,\\\"new_only_errno\\\":%d,\\\"old_desc_errno\\\":%d,\\\"new_desc_errno\\\":%d,\"\n              \"\\\"lock\\\":{\\\"dev\\\":%llu,\\\"ino\\\":%llu,\\\"mode\\\":%u,\\\"uid\\\":%u,\\\"gid\\\":%u,\\\"nlink\\\":%llu,\\\"bytes\\\":%lld},\"\n              \"\\\"symbol_object_verified\\\":1,\\\"pacman_inode\\\":[%llu,%llu],\\\"libalpm_inode\\\":[%llu,%llu]}\\n\",\n              (long)getpid(), (long)getppid(), missing(OLD_ONLY), missing(NEW_ONLY),\n              missing(\"/var/lib/pacman/local/cachy-asahi-security-maintenance-0.1.0-1/desc\"),\n              missing(\"/var/lib/pacman/local/cachy-asahi-security-maintenance-0.1.0-2/desc\"),\n              (unsigned long long)lock.st_dev, (unsigned long long)lock.st_ino, (unsigned)lock.st_mode,\n              (unsigned)lock.st_uid, (unsigned)lock.st_gid, (unsigned long long)lock.st_nlink, (long long)lock.st_size,\n              (unsigned long long)exe.st_dev, (unsigned long long)exe.st_ino,\n              (unsigned long long)lib.st_dev, (unsigned long long)lib.st_ino);\n            emit(row, n);\n        }\n    }\n    errno = saved_errno;\n    if(original) original(original_ctx, event, pkg, percent, howmany, current);\n}\nint alpm_option_set_progresscb(alpm_handle_t *h, alpm_cb_progress cb, void *ctx) {\n    int saved_errno = errno;\n    typedef int (*setter)(alpm_handle_t *, alpm_cb_progress, void *);\n    setter real = (setter)dlsym(RTLD_NEXT, \"alpm_option_set_progresscb\");\n    if(!real) return -1;\n    if(!eligible()) { errno = saved_errno; return real(h, cb, ctx); }\n    if(!cb) {\n        errno = saved_errno;\n        int result = real(h, cb, ctx);\n        if(result == 0 && h == bound) { bound = NULL; original = NULL; original_ctx = NULL; }\n        return result;\n    }\n    if(bound && bound != h) { errors++; errno = saved_errno; return real(h, cb, ctx); }\n    Dl_info object;\n    struct stat actual_object, approved_object;\n    if(!dladdr((void *)real, &object) || !object.dli_fname ||\n       stat(object.dli_fname, &actual_object) || stat(\"/usr/lib/libalpm.so.16.0.1\", &approved_object) ||\n       actual_object.st_dev != approved_object.st_dev || actual_object.st_ino != approved_object.st_ino) {\n        errors++; errno = saved_errno; return real(h, cb, ctx);\n    }\n    errno = saved_errno;\n    int result = real(h, observe, NULL);\n    if(result == 0) { bound = h; original = cb; original_ctx = ctx; registrations++; }\n    return result;\n}\nalpm_cb_progress alpm_option_get_progresscb(alpm_handle_t *h) {\n    int saved_errno = errno;\n    typedef alpm_cb_progress (*getter)(alpm_handle_t *);\n    getter real = (getter)dlsym(RTLD_NEXT, \"alpm_option_get_progresscb\");\n    errno = saved_errno;\n    return h == bound && bound ? original : (real ? real(h) : NULL);\n}\nvoid *alpm_option_get_progresscb_ctx(alpm_handle_t *h) {\n    int saved_errno = errno;\n    typedef void *(*getter)(alpm_handle_t *);\n    getter real = (getter)dlsym(RTLD_NEXT, \"alpm_option_get_progresscb_ctx\");\n    errno = saved_errno;\n    return h == bound && bound ? original_ctx : (real ? real(h) : NULL);\n}\n__attribute__((destructor)) static void finish(void) {\n    if(eligible()) {\n        char row[256];\n        int n = snprintf(row, sizeof(row), \"{\\\"type\\\":\\\"END\\\",\\\"pid\\\":%ld,\\\"registrations\\\":%u,\\\"hits\\\":%u,\\\"errors\\\":%u}\\n\",\n                         (long)getpid(), registrations, hits, errors);\n        emit(row, n);\n    }\n}\n",
+      "source_binary_correspondence": "OPEN",
+      "source_pin": {
+        "bytes": 6175,
+        "sha256": "b4f751cceeb5c2df8749025b91a8b2108704736d377b79d84abed6e573e3263c"
+      },
+      "upstream_revision": "54d94116164b0b2202c6061c4a59c6f3e70820d8",
+      "value_cap": 32768
+    },
     "prior_adapter": {
       "bytes": 10373,
       "sha256": "359c9c7fe80399f1cd640c59d8d5d095eb87febcd9f664e82bd76ef71c1e05ec"

@@ -161,6 +161,75 @@ UPGRADE_STEPS=('prior-required-install','prior-inventory','upgrade-signature-ref
     'reinstalled-inventory','remove-reinstalled','final-removed-inventory')
 
 
+def validate_observation(value,policy):
+    """A real callback/filesystem witness; no interrupted-commit or recovery credit."""
+    need(type(policy)is dict and policy['schema']==1 and policy['protocol']=='first-real-upgrade-zero-observation-v1'
+         and policy['phase']=='AFTER_OLD_REMOVAL_BEFORE_CANDIDATE_EXTRACTION' and policy['record_cap']==16384 and policy['value_cap']==32768
+         and policy['libalpm_version']=='16.0.1' and pin(policy['source'].encode('ascii'))==policy['source_pin'],
+         'exact source-pinned finite ALPM observer policy')
+    keys={'schema','protocol','phase','observer_source','observer_compiled','raw_pin','records','runtime','owner_pid',
+          'witness_paths','source_binary_correspondence','interruption','recovery','raw_ascii','compiler_retirement'}
+    need(type(value)is dict and set(value)==keys and type(value['schema'])is int and value['schema']==1
+         and value['protocol']==policy['protocol'] and value['phase']==policy['phase']
+         and value['observer_source']==policy['source_pin'] and value['witness_paths']=={k:policy[k]for k in('old_only','new_only')}
+         and value['source_binary_correspondence']=='OPEN' and value['interruption']==value['recovery']=='NOT_RUN',
+         'closed observation-only scope; no invented interruption/recovery claim')
+    need(len(json.dumps(value,sort_keys=True,separators=(',',':')).encode('ascii'))<=policy['value_cap'],
+         'bounded serialized observation role')
+    for row,cap in ((value['observer_compiled'],1024**2),(value['raw_pin'],policy['record_cap'])):
+        _cleanup_pin(row,cap);need(row['bytes']>0,'nonempty bounded observer DATA')
+    retired=value['compiler_retirement']
+    need(type(retired)is dict and set(retired)=={'pid','exit','natural_exit','group_absent',
+         'leader_held_until_group_inspection','exit_observed_via_waitpid','ownership_lost','retirement',
+         'forced_cleanup','cleanup_member_uids','elapsed_seconds'}
+         and type(retired['pid'])is int and retired['pid']>1 and type(retired['exit'])is int and retired['exit']==0
+         and all(retired[k]is True for k in('natural_exit','group_absent','leader_held_until_group_inspection','exit_observed_via_waitpid'))
+         and retired['ownership_lost']is retired['forced_cleanup']is False and retired['retirement']=='REAPED'
+         and retired['cleanup_member_uids']==[] and type(retired['elapsed_seconds'])in(int,float)
+         and 0<=retired['elapsed_seconds']<=195,'new compiler role requires bounded natural reserved owned retirement')
+    runtime=value['runtime'];need(type(runtime)is dict and set(runtime)=={'pacman','libalpm'},'actual binary identity roles')
+    for label,row in runtime.items():
+        need(type(row)is dict and set(row)=={'bytes','sha256','inode'},'closed runtime binary pin')
+        _cleanup_pin({k:row[k]for k in('bytes','sha256')},16*1024**2)
+        need(type(row['inode'])is list and len(row['inode'])==2 and all(type(x)is int and x>0 for x in row['inode']),
+             'actual runtime device/inode')
+    need(runtime['libalpm']['sha256']==policy['libalpm_sha256'],'pinned original actual libalpm16 binary')
+    raw=value['raw_ascii'];need(type(raw)is str and 0<len(raw)<=policy['record_cap'] and raw.isascii()
+         and raw.endswith('\n') and len(raw.splitlines())==2 and pin(raw.encode('ascii'))==value['raw_pin'],
+         'complete bounded original callback bytes and external pin')
+    def pairs(values):
+        result={}
+        for key,entry in values:
+            need(key not in result,'duplicate callback record field');result[key]=entry
+        return result
+    rows=value['records'];need(type(rows)is list and len(rows)==2
+         and rows==[json.loads(line,object_pairs_hook=pairs)for line in raw.splitlines()],
+         'exact original callback plus normal-exit observer records')
+    point,end=rows
+    need(type(point)is dict and set(point)=={'type','pid','ppid','event','percent','howmany','current','old_only_errno',
+         'new_only_errno','old_desc_errno','new_desc_errno','lock','pacman_inode','libalpm_inode','symbol_object_verified'},'closed genuine callback DATA')
+    need(point['type']=='FIRST_UPGRADE_ZERO' and type(point['pid'])is int and point['pid']>1
+         and type(value['owner_pid'])is int and value['owner_pid']>1 and point['ppid']==value['owner_pid']
+         and point['pid']!=point['ppid'] and all(type(point[k])is int for k in('ppid','event','percent','howmany','current',
+               'old_only_errno','new_only_errno','old_desc_errno','new_desc_errno'))
+         and type(point['symbol_object_verified'])is int and point['symbol_object_verified']==1
+         and (point['event'],point['percent'],point['howmany'],point['current'])==(1,0,1,1),
+         'first real exact-package one-target UPGRADE0 callback')
+    need(all(point[k]==2 for k in('old_only_errno','new_only_errno','old_desc_errno','new_desc_errno')),
+         'direct ENOENT old-only/new-only and old/new desc witnesses required; no intact old DB claim')
+    lock=point['lock'];need(type(lock)is dict and set(lock)=={'dev','ino','mode','uid','gid','nlink','bytes'}
+         and all(type(v)is int for v in lock.values())and lock['dev']>0 and lock['ino']>0
+         and (lock['mode'],lock['uid'],lock['gid'],lock['nlink'],lock['bytes'])==(0o100000,0,0,1,0),
+         'actual live libalpm empty mode000 root-owned lock, never unlink it here')
+    need(point['pacman_inode']==runtime['pacman']['inode']and point['libalpm_inode']==runtime['libalpm']['inode'],
+         'callback actual pacman/libalpm identity joins')
+    need(type(end)is dict and set(end)=={'type','pid','registrations','hits','errors'}and end['type']=='END'
+         and all(type(end[k])is int for k in('pid','registrations','hits','errors'))
+         and (end['pid'],end['registrations'],end['hits'],end['errors'])==(point['pid'],1,1,0),
+         'normal exit observer, one registration, one first callback, no observation error')
+    return value
+
+
 def validate_upgrade(value, contract, baseline):
     """Closed version-transition DATA; this never runs ALPM or grants Root acceptance."""
     need(type(contract)is dict and type(contract.get('schema'))is int and contract['schema']==1
@@ -171,7 +240,7 @@ def validate_upgrade(value, contract, baseline):
     upgrade=value.get('upgrade')
     need(type(upgrade)is dict and set(upgrade)=={'schema','protocol','from_version','to_version','prior_source',
          'prior_archive','prior_archive_base64','prior_payload','flags','inventories','abort_scope','repeat_scope',
-         'upgrade_scope','decline_input'} and type(upgrade['schema'])is int and upgrade['schema']==1
+         'upgrade_scope','decline_input','observation'} and type(upgrade['schema'])is int and upgrade['schema']==1
          and upgrade['protocol']==UPGRADE_PROTOCOL and upgrade['from_version']==contract['from_version']
          and upgrade['to_version']==contract['to_version'],'closed actual upgrade protocol/version DATA')
     need(upgrade['prior_source']=={name:contract['prior_'+name]for name in ('bundle','profile','adapter')},'actual upgrade binds genuine prior source/profile/adapter')
@@ -212,6 +281,11 @@ def validate_upgrade(value, contract, baseline):
     need(all(counts.get(name)==27 for name in ('prior-owner','refused-prior-owner','declined-prior-owner'))
          and all(counts.get(name)==29 for name in ('candidate-owner','repeated-owner','reinstalled-owner')),
          'both versions repeated actual ALPM payload ownership checks')
+    validate_observation(upgrade['observation'],contract['observation'])
+    steps=[row['step']for row in commands]
+    need(counts.get('compile-upgrade-observer')==1
+         and steps.index('declined-prior-inventory')<steps.index('compile-upgrade-observer')<steps.index('required-install'),
+         'one new reserved compiler role after decline and before genuine upgrade')
     return upgrade
 
 
@@ -289,7 +363,7 @@ def validate_component(view, files, receipt, cleanup, binding, expected, R):
     guest = validate_result(view.load('journey/result.json'), map_hash, receipt['input_inventory'])
     need(not any(name.startswith('journey/') and name != 'journey/result.json' for name in files),
          'security export retains only the finite public result; no original private workflow trees')
-    return dict(status='VALIDATED_NATIVE_SECURITY_SIGNED_UPGRADE_COMPONENT_EVIDENCE_ONLY', binding=binding,
+    return dict(status='VALIDATED_NATIVE_SECURITY_SIGNED_UPGRADE_WITH_CHECKPOINT_OBSERVATION_COMPONENT_EVIDENCE_ONLY', binding=binding,
                 upgrade_protocol=UPGRADE_PROTOCOL,from_version='0.1.0-1',to_version='0.1.0-2',
                 abort_scope=guest['upgrade']['abort_scope'],repeat_scope=guest['upgrade']['repeat_scope'],
                 upgrade_scope='ONE_PACKAGE_VERSION_TRANSITION_ONLY',
