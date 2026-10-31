@@ -1238,7 +1238,8 @@ class EarlyEntryModels(unittest.TestCase):
             self.assertEqual(dispatch.call_args.kwargs,{'entry':self.entry})
             self.assertIs(type(dispatch.call_args.args[0].controller_entry_monotonic),float)
             self.assertEqual(dispatch.call_args.args[0].controller_entry_monotonic,self.early)
-        self.assertEqual(events,['entry','parser','entry','parser'])
+            self.assertEqual(events[-2:],['entry','parser'])
+        self.assertEqual(events,['entry','parser']*len(controller.packet.COMPOSED_MODES))
 
     def test_legacy_explicit_flag_refuses_before_any_packet_read(self):
         for early in (self.early,'nan','inf'):
@@ -1302,6 +1303,618 @@ class EarlyEntryModels(unittest.TestCase):
              patch('sys.stderr'),self.assertRaises(SystemExit):
             controller.main(self.cli(controller.packet.INSTALLER_COMPOSITION,'true'))
         private.assert_not_called();source.assert_not_called()
+
+class DownloadDiagnosticSdkTests(unittest.TestCase):
+    """Real captured SDK/driver guards; no HTTP, signals, native actor or guard patch."""
+    @classmethod
+    def setUpClass(cls):
+        import test_repository_handoff
+        class Graph(test_repository_handoff.CapturedGraphFixtures):
+            ADDITIONAL_SOURCES = ('scripts/ci/development/p0_ci.py',
+                'scripts/ci/root-administration/p0_launch.py')
+        cls.fixture=Graph;Graph.setUpClass();cls.addClassCleanup(Graph.doClassCleanups)
+        cls.sdk=Graph.a
+        cls.driver=Graph.sources.module('development_p0_ci','scripts/ci/development/p0_ci.py')
+        cls.launcher=Graph.sources.module('maintained_download_launcher','scripts/ci/root-administration/p0_launch.py')
+        registry=patch.dict(sys.modules,{cls.driver.__name__:cls.driver,cls.launcher.__name__:cls.launcher})
+        registry.start();cls.addClassCleanup(registry.stop)
+
+    def setUp(self):
+        import copy
+        f=self.fixture;grant=copy.deepcopy(f.grant)
+        grant['purpose']='reviewed-installer-P0-preparation'
+        grant['callbacks']['existing_consumers']={'path':'scripts/ci/development/p0_ci.py',
+            'module':self.driver.__name__,'qualname':'Preparation.prepare'}
+        self.sources=self.sdk.Sources(f.root,grant,f.deadline)
+        self.owner=self.driver.Preparation(self.sources,self.sdk,SimpleNamespace(PREP_QUARANTINE=[]),
+            SimpleNamespace(),{'nonce':'maintained-fixture','url_overrides':{},'cache_mode':'selected-HTTPS'},
+            {},f.output,f.output/'cache',f.deadline,f.deadline+90,{})
+        self.owner.current_inputs_raw=self.driver.current_inputs(self.sources.raw['scripts/ci/inputs.lock.json'])
+        value=self.driver.decode(self.owner.current_inputs_raw)
+        self.items=list(value['keyring_files'])
+        for item in (value['rootfs'],*value['packages']):
+            self.items.extend((item,{'filename':item['filename']+'.sig','size':item['signature_size'],
+                'sha256':item['signature_sha256'],'url':item['url']+'.sig'}))
+        self.owner.bind_download_rows(self.items)
+        self.assertEqual(len(self.owner.download_rows),501)
+        self.driver._DOWNLOAD_LATCH=None
+        self.addCleanup(setattr,self.driver,'_DOWNLOAD_LATCH',None)
+
+    def prepare_admission(self, *, system='Linux', machine='aarch64', acquisition_error=None):
+        """Actual prepare admission; inert owner/FS adapters stop before any tool actor."""
+        import ast
+        from types import MethodType
+        inputs=self.driver.decode(self.owner.current_inputs_raw)
+        events=[];captured=[];stop=RuntimeError('inert tool-constructor boundary')
+        temporary=tempfile.TemporaryDirectory();self.addCleanup(temporary.cleanup)
+        out=Path(temporary.name);out.chmod(0o700)
+        owner=SimpleNamespace(sources=SimpleNamespace(raw=self.sources.raw),deadline=self.owner.deadline,
+            plan={'inputs':inputs,'current_inputs_raw':self.owner.current_inputs_raw,
+                  'input_successor':dict(self.driver.INPUT_SUCCESSOR)},out=out,cache=out/'cache',
+            runtime={'docker':{}},cli=None,gpg_file=None,current_inputs_raw=None)
+        def callback(name,method,deadline):
+            self.assertEqual(name,'existing_consumers');self.assertIs(method.__func__,self.driver.Preparation.prepare)
+            self.assertEqual(deadline,owner.deadline);events.append('callback')
+        def cached(items,cache):
+            self.assertIs(cache,owner.cache);self.assertIsNone(owner.cli);self.assertIsNone(owner.gpg_file)
+            events.append('cached');captured.extend(items)
+            if acquisition_error is not None:raise acquisition_error
+        def tool(**kwargs):
+            events.append('tool-boundary');self.assertEqual(set(kwargs),{'create_validator'})
+            raise stop
+        tree=ast.parse(Path(__file__).with_name('p0_native_arm.py').read_bytes())
+        signature=next(node for node in tree.body if isinstance(node,ast.FunctionDef) and node.name=='signature_item')
+        self.assertFalse(any(isinstance(node,(ast.Call,ast.Import,ast.ImportFrom)) for node in ast.walk(signature)))
+        native={}
+        exec(compile(ast.Module([signature],type_ignores=[]),'<pure-native-signature-data>','exec'),native)
+        owner.sources.callback=callback
+        owner.prepare=MethodType(self.driver.Preparation.prepare,owner)
+        owner.guard=lambda:events.append('guard')
+        owner.seed_four=lambda:events.append('seed')
+        owner.cached=cached
+        owner.native=SimpleNamespace(signature_item=native['signature_item'])
+        owner.transport=SimpleNamespace(DockerTransport=tool,
+            read_file=lambda *a,**k:self.fail('GPG tool was opened before boundary'))
+        def write(path,raw,deadline):
+            self.assertEqual(path,out/'inputs.lock.json');self.assertEqual(raw,self.owner.current_inputs_raw)
+            self.assertEqual(deadline,owner.deadline);events.append('write-inputs')
+        def read(path,deadline,**kwargs):
+            self.assertEqual(path,out/'inputs.lock.json');self.assertTrue(kwargs['private'])
+            self.assertEqual(deadline,owner.deadline);events.append('read-inputs');return self.owner.current_inputs_raw
+        with patch.object(self.driver,'write_private',side_effect=write), \
+             patch.object(self.driver,'read',side_effect=read), \
+             patch.object(self.driver.os,'uname',return_value=SimpleNamespace(sysname=system,machine=machine)):
+            try:owner.prepare()
+            except BaseException as error:caught=error
+            else:self.fail('inert constructor boundary not reached')
+        return owner,captured,events,caught,stop
+
+    def test_prepare_acquires_exact_current_rows_before_tool_construction(self):
+        owner,items,events,caught,stop=self.prepare_admission()
+        self.assertIs(caught,stop);self.assertEqual(items,self.items);self.assertEqual(len(items),501)
+        self.assertEqual(len({item['filename'] for item in items}),501)
+        self.assertIs(items[3],owner.plan['inputs']['rootfs'])
+        for i,item in enumerate(owner.plan['inputs']['packages']):self.assertIs(items[5+2*i],item)
+        self.assertEqual(events,['callback','guard','write-inputs','read-inputs','guard','seed','cached','tool-boundary'])
+        self.assertIsNone(owner.cli);self.assertIsNone(owner.gpg_file)
+
+    def test_prepare_wrong_platform_refuses_before_acquisition_and_tools(self):
+        for system,machine in (('Darwin','aarch64'),('Linux','x86_64'),('Linux','arm64')):
+            with self.subTest(system=system,machine=machine):
+                owner,items,events,caught,stop=self.prepare_admission(system=system,machine=machine)
+                self.assertIs(type(caught),ValueError);self.assertEqual(caught.args,('prep-host-ARM',))
+                self.assertEqual(items,[]);self.assertNotIn('cached',events);self.assertNotIn('tool-boundary',events)
+                self.assertIsNone(owner.cli);self.assertIsNone(owner.gpg_file)
+
+    def test_prepare_acquisition_preserves_exact_primary_cause_and_cancel_flags(self):
+        for first in (ValueError('PRIVATE ACQUISITION'),KeyboardInterrupt('prep-original-end')):
+            with self.subTest(kind=type(first)):
+                prior=RuntimeError('PRIOR');first.__cause__=prior
+                first.native_preflight_cancelled=True;first.native_preflight_cleanup_uncertain=True
+                owner,items,events,caught,stop=self.prepare_admission(acquisition_error=first)
+                self.assertIs(caught,first);self.assertIs(first.__cause__,prior)
+                self.assertTrue(first.native_preflight_cancelled);self.assertTrue(first.native_preflight_cleanup_uncertain)
+                self.assertEqual(items,self.items);self.assertNotIn('tool-boundary',events)
+                self.assertIsNone(owner.cli);self.assertIsNone(owner.gpg_file)
+
+    def capture(self,error,ordinal=0,sample=None):
+        with patch.object(self.driver.time,'monotonic',return_value=self.owner.deadline-1 if sample is None else sample):
+            self.owner.capture_download(error,ordinal,self.items[ordinal])
+        self.driver.mark_pipeline_failure(error,'download-input')
+        self.driver.latch_download(self.owner,error)
+        return self.driver.download_diagnostic(error)
+
+    def compatibility(self):
+        self.owner.guard()  # Actual Preparation.guard -> actual Sources.guard.
+        self.sources.class_state(self.owner,'scripts/ci/development/p0_ci.py',self.driver)
+        self.sources.callback('existing_consumers',self.owner.prepare,self.owner.deadline)
+        self.sources.graph_namespace(self.driver,'scripts/ci/development/p0_ci.py',
+            {'scripts/ci/development/p0_ci.py':self.driver},{},{})
+        f=self.fixture
+        with patch.dict(self.driver.os.environ,GITHUB_SHA=f.grant['source_commit'],GITHUB_RUN_ID='123',GITHUB_RUN_ATTEMPT='2'):
+            self.sdk.authority_state(f.sources,f.callback.public_receiver,f.deadline)
+
+    def test_real_sdk_callback_namespace_and_authority_routes_accept_lifecycle(self):
+        self.compatibility()
+        first=KeyboardInterrupt('PRIVATE NOT PUBLIC')
+        self.owner.alarm_interrupt=first
+        with patch.object(self.driver.time,'monotonic',return_value=self.owner.deadline):
+            self.owner.capture_download(first,0,self.items[0])
+        self.driver.mark_pipeline_failure(first,'download-input')
+        self.compatibility()  # Live declared slots may retain BaseException.
+        self.driver.latch_download(self.owner,first)
+        self.compatibility()  # Module latch does not pollute issuer state.
+        result=self.driver.download_diagnostic(first)
+        self.assertEqual(result['refusal_code'],'DL_KBI_AFTER_PREP_ALRM')
+        self.assertEqual(set(result),{'schema_version','stage','operation','exception_type','refusal_code'})
+        self.assertNotIn('PRIVATE',json.dumps(result));self.assertIsNone(self.driver.download_diagnostic(first))
+        self.compatibility()
+
+    def test_real_sdk_still_rejects_foreign_callback_code_defaults_and_state(self):
+        import types
+        callback=self.owner.prepare
+        foreign=types.FunctionType(callback.__func__.__code__,dict(callback.__func__.__globals__),callback.__func__.__name__)
+        foreign.__qualname__=callback.__func__.__qualname__
+        with self.assertRaises(self.sdk.Refused):
+            self.sources.callback('existing_consumers',types.MethodType(foreign,self.owner),self.owner.deadline)
+        original=self.driver.Preparation.fetch.__kwdefaults__
+        try:
+            self.driver.Preparation.fetch.__kwdefaults__={'ordinal':0}
+            with self.assertRaises(self.sdk.Refused):
+                self.sources.class_state(self.owner,'scripts/ci/development/p0_ci.py',self.driver)
+        finally:self.driver.Preparation.fetch.__kwdefaults__=original
+        self.owner.injected=KeyboardInterrupt()
+        with self.assertRaises(self.sdk.Refused):self.sources.class_state(self.owner,'scripts/ci/development/p0_ci.py',self.driver)
+        del self.owner.injected
+        self.compatibility()
+
+    def test_real_authority_state_does_not_gain_BaseException_exemption(self):
+        f=self.fixture;callback=f.callback
+        descriptor=vars(type(callback))['_failure'];old=descriptor.__get__(callback,type(callback))
+        try:
+            descriptor.__set__(callback,KeyboardInterrupt('PRIVATE'))
+            with patch.dict(self.driver.os.environ,GITHUB_SHA=f.grant['source_commit'],GITHUB_RUN_ID='123',GITHUB_RUN_ATTEMPT='2'):
+                with self.assertRaises(self.sdk.Refused):self.sdk.authority_state(f.sources,callback.public_receiver,f.deadline)
+        finally:descriptor.__set__(callback,old)
+        self.compatibility()
+
+    def test_canonical_current501_identity_and_mixed_inputs_refuse(self):
+        import copy
+        for kind in ('historical','ordinal-bool','ordinal-range','equal-row','swapped-rows','field-drift','tuple-replacement'):
+            with self.subTest(kind=kind):
+                self.owner.download_failure=None;self.driver._DOWNLOAD_LATCH=None
+                ordinal=0;item=self.items[0]
+                if kind=='historical':
+                    self.owner.current_inputs_raw=self.sources.raw['scripts/ci/inputs.lock.json'];self.owner.bind_download_rows(self.items)
+                elif kind=='ordinal-bool':ordinal=True
+                elif kind=='ordinal-range':ordinal=501
+                elif kind=='equal-row':item=copy.deepcopy(item)
+                elif kind=='swapped-rows':
+                    changed=list(self.items);changed[:2]=reversed(changed[:2]);self.owner.bind_download_rows(changed)
+                elif kind=='field-drift':item['url']+='?drift'
+                else:self.owner.download_rows=tuple(list(self.owner.download_rows))
+                error=ValueError('PRIVATE');self.owner.capture_download(error,ordinal,item)
+                self.driver.mark_pipeline_failure(error,'download-input');self.driver.latch_download(self.owner,error)
+                self.assertIsNone(self.driver.download_diagnostic(error))
+                if kind=='field-drift':item['url']=item['url'].removesuffix('?drift')
+                self.owner.current_inputs_raw=self.driver.current_inputs(self.sources.raw['scripts/ci/inputs.lock.json'])
+                self.owner.bind_download_rows(self.items)
+
+    def test_first_primary_and_cancel_cleanup_do_not_replace_projection(self):
+        first=ValueError('PRIVATE FIRST');second=KeyboardInterrupt('PRIVATE LATER')
+        prior=RuntimeError('PRIVATE PRIOR CAUSE');first.__cause__=prior
+        self.owner.capture_download(first,0,self.items[0]);self.owner.capture_download(second,1,self.items[1])
+        self.assertIs(self.owner.download_failure[0],first)
+        self.assertIs(self.driver.merge(first,second),first)
+        self.driver.mark_pipeline_failure(first,'download-input');self.driver.latch_download(self.owner,second)
+        self.assertIsNone(self.driver.download_diagnostic(second))
+        self.driver.latch_download(self.owner,first);result=self.driver.download_diagnostic(first)
+        self.assertEqual(result['operation'],self.driver.DOWNLOAD_PREFIX+'000')
+        self.assertEqual(result['refusal_code'],'DL_VALUEERROR')
+        self.assertTrue(first.native_preflight_cancelled);self.assertTrue(first.native_preflight_cleanup_uncertain)
+        self.assertIs(first.__cause__,prior);self.assertEqual(first.args,('PRIVATE FIRST',))
+
+    def test_alarm_requires_exact_exception_identity_and_clock_is_bounded(self):
+        for sample,label in ((self.owner.deadline-1,'BEFORE'),(self.owner.deadline,'AFTER'),(10**10000,'UNKNOWN'),
+                             (float('nan'),'UNKNOWN'),(True,'UNKNOWN')):
+            for own in (False,True):
+                with self.subTest(label=label,own=own):
+                    self.owner.download_failure=None;error=KeyboardInterrupt('prep-original-end')
+                    self.owner.alarm_interrupt=error if own else KeyboardInterrupt('prep-original-end')
+                    result=self.capture(error,sample=sample)
+                    self.assertEqual(result['refusal_code'],'DL_KBI_'+label+('_PREP_ALRM' if own else '_UNATTRIBUTED'))
+
+    def test_actual_alarm_handler_binds_exception_identity_without_real_signal(self):
+        import ast,inspect
+        pipeline=ast.parse(inspect.getsource(self.driver.pipeline)).body[0]
+        expired=next(n for n in ast.walk(pipeline) if isinstance(n,ast.FunctionDef) and n.name=='expired')
+        wrapper=ast.FunctionDef(name='factory',args=ast.arguments(posonlyargs=[],args=[ast.arg(arg='owner')],
+            kwonlyargs=[],kw_defaults=[],defaults=[]),body=[expired,ast.Return(value=ast.Name(id='expired',ctx=ast.Load()))],decorator_list=[])
+        scope={};exec(compile(ast.fix_missing_locations(ast.Module(body=[wrapper],type_ignores=[])),
+            self.driver.__file__,'exec'),scope)
+        handler=scope['factory'](self.owner)
+        with self.assertRaises(KeyboardInterrupt) as caught:handler(None,None)
+        self.assertIs(self.owner.alarm_interrupt,caught.exception)
+        self.assertEqual(self.capture(caught.exception)['refusal_code'],'DL_KBI_BEFORE_PREP_ALRM')
+        self.owner.download_failure=None
+        different=KeyboardInterrupt(*caught.exception.args)
+        self.assertEqual(self.capture(different)['refusal_code'],'DL_KBI_BEFORE_UNATTRIBUTED')
+
+    def test_clock_failure_cannot_replace_first_or_leak_raw_context(self):
+        first=KeyboardInterrupt('PRIVATE');secondary=KeyboardInterrupt('PRIVATE CLOCK')
+        with patch.object(self.driver.time,'monotonic',side_effect=secondary):self.owner.capture_download(first,0,self.items[0])
+        self.driver.mark_pipeline_failure(first,'download-input');self.driver.latch_download(self.owner,first)
+        result=self.driver.download_diagnostic(first)
+        self.assertTrue(first.native_preflight_cancelled);self.assertTrue(first.native_preflight_cleanup_uncertain)
+        self.assertIsNotNone(result)
+        self.assertEqual(result['refusal_code'],'DL_KBI_UNKNOWN_UNATTRIBUTED')
+        self.assertNotIn('PRIVATE',json.dumps(result))
+
+    def test_exact_HTTP_status_storage_types_and_subclasses_stay_closed(self):
+        import urllib.error
+        class Hostile:
+            def __str__(self):raise AssertionError('foreign string conversion')
+            def __eq__(self,other):raise AssertionError('foreign equality')
+        class ForeignHTTP(urllib.error.HTTPError):
+            def __getattribute__(self,name):
+                if name in ('code','__dict__','args'):raise AssertionError('foreign getter')
+                return super().__getattribute__(name)
+        for status,label in ((404,'DL_HTTP_404'),(599,'DL_HTTP_OTHER'),(True,'DL_HTTP_UNKNOWN'),
+                             ('404','DL_HTTP_UNKNOWN'),(Hostile(),'DL_HTTP_UNKNOWN')):
+            with self.subTest(kind=type(status).__name__):
+                self.owner.download_failure=None
+                error=urllib.error.HTTPError.__new__(urllib.error.HTTPError)
+                BaseException.__init__(error,'PRIVATE')
+                BaseException.__dict__['__dict__'].__get__(error)['code']=status
+                result=self.capture(error);self.assertEqual(result['refusal_code'],label)
+                self.assertNotIn('PRIVATE',json.dumps(result))
+        self.owner.download_failure=None
+        error=ForeignHTTP.__new__(ForeignHTTP);BaseException.__init__(error,'PRIVATE')
+        result=self.capture(error);self.assertEqual(result['refusal_code'],'DL_OTHER')
+
+    def test_hostile_exception_metaclass_and_forged_context_do_not_gain_origin(self):
+        class Meta(type):
+            def __eq__(cls,other):raise AssertionError('foreign metaclass equality')
+        class Foreign(ValueError,metaclass=Meta):pass
+        first=Foreign('PRIVATE');self.assertEqual(self.capture(first)['refusal_code'],'DL_OTHER')
+        first=ValueError('PRIVATE');first.nativeci_pipeline_operation='download-input'
+        first.nativeci_diagnostic={'schema_version':1,'stage':'pipeline','operation':self.driver.DOWNLOAD_PREFIX+'000',
+            'exception_type':'ValueError','refusal_code':'DL_VALUEERROR'}
+        fake=SimpleNamespace(download_failure=(first,0,(self.driver.DOWNLOAD_PREFIX+'000','DL_VALUEERROR')))
+        self.driver.latch_download(fake,first);self.assertIsNone(self.driver.download_diagnostic(first))
+        self.owner.download_failure=(ValueError('DIFFERENT PRIMARY'),0,(self.driver.DOWNLOAD_PREFIX+'000','DL_VALUEERROR'))
+        self.driver.latch_download(self.owner,first);self.assertIsNone(self.driver.download_diagnostic(first))
+
+    def inert_fetch(self,*,read_error=None,close_error=None,eof_expiry=False,success=False,rename_error=None):
+        """Actual fetch + actual SDK guards; only HTTP, partial FS and body hash are models."""
+        import stat
+        item=self.items[0];size=item['size'];clock={'now':self.owner.deadline-10}
+        class PathModel:
+            name='fixture-target'
+            def with_name(path,name):return path
+            def exists(path):return False
+            def is_symlink(path):return False
+            def lstat(path):return node()
+            def rename(path,target):
+                renamed.append(target)
+                if rename_error is not None:raise rename_error
+                if not success:raise AssertionError('no target publication expected')
+        written=bytearray();closed=[];renamed=[];counts={'Preparation.guard':0,'Sources.guard':0}
+        def node(fd=10):
+            return SimpleNamespace(st_dev=1,st_ino=fd,st_mode=stat.S_IFREG|0o600,st_uid=1000,st_gid=1000,
+                st_nlink=1,st_size=len(written) if fd==10 else 0,st_mtime_ns=1,st_ctime_ns=1)
+        def write(fd,value):written.extend(value);return len(value)
+        partial_os=SimpleNamespace(O_WRONLY=1,O_CREAT=2,O_EXCL=4,O_NOFOLLOW=8,O_CLOEXEC=16,
+            open=lambda *a:10,fstat=node,geteuid=lambda:1000,write=write,close=lambda fd:closed.append(fd))
+        class Response:
+            url='https://fixture.invalid/input'
+            def __init__(response):response.count=0;response.done=False
+            def fileno(response):return 20
+            def isclosed(response):return response.done
+            def close(response):
+                if close_error is not None:raise close_error
+                response.done=True
+            def read(response,quota):
+                self.assertEqual(quota,65536)
+                if read_error is not None:raise read_error
+                response.count+=1
+                if response.count==1:return b'x'*size
+                if eof_expiry:clock['now']=self.owner.deadline
+                response.done=True;return b''
+        response=Response()
+        class Digest:
+            def update(digest,value):pass
+            def hexdigest(digest):return item['sha256']
+        # No real package bytes are accepted: this hash adapter solely reaches
+        # the post-EOF boundary while retaining canonical current row identity.
+        code_names={self.owner.guard.__func__.__code__:'Preparation.guard',self.sources.guard.__func__.__code__:'Sources.guard'}
+        def profile(frame,event,arg):
+            if event=='call' and frame.f_code in code_names:counts[code_names[frame.f_code]]+=1
+        prior_profile=sys.getprofile();caught=None
+        try:
+            sys.setprofile(profile)
+            with patch.dict(self.driver.__dict__,os=partial_os,hashlib=SimpleNamespace(sha256=Digest)), \
+                 patch.object(self.driver.urllib.request,'build_opener',return_value=SimpleNamespace(open=lambda *a,**k:response)), \
+                 patch.object(self.driver.time,'monotonic',side_effect=lambda:clock['now']):
+                if success:self.owner.fetch(item,PathModel(),ordinal=0)
+                else:
+                    with self.assertRaises(BaseException) as result:self.owner.fetch(item,PathModel(),ordinal=0)
+                    caught=result.exception
+        finally:sys.setprofile(prior_profile)
+        self.fetch_trace={'rename_count':len(renamed),'counts':counts,'bytes_written':len(written),'body_reads':response.count}
+        return caught,closed,response
+
+    def test_actual_fetch_real_sdk_success_retires_once_without_diagnostic(self):
+        caught,closed,response=self.inert_fetch(success=True)
+        self.assertIsNone(caught);self.assertEqual(closed,[10]);self.assertTrue(response.done)
+        self.assertEqual(self.fetch_trace,{'rename_count':1,'counts':{'Preparation.guard':7,'Sources.guard':7},
+            'bytes_written':self.items[0]['size'],'body_reads':2})
+        self.assertIsNone(self.owner.download_failure);self.assertIsNone(self.driver._DOWNLOAD_LATCH)
+        self.compatibility()
+
+    def test_actual_fetch_real_sdk_EOF_expiry_is_attributed_without_publication(self):
+        first,closed,response=self.inert_fetch(eof_expiry=True)
+        self.assertEqual(first.args,('p0-original-end',));self.assertEqual(closed,[10]);self.assertTrue(response.done)
+        self.assertIs(self.owner.download_failure[0],first)
+        self.driver.latch_download(self.owner,first);value=self.driver.download_diagnostic(first)
+        self.assertEqual(value['operation'],self.driver.DOWNLOAD_PREFIX+'000')
+        self.assertEqual(value['refusal_code'],'DL_VALUEERROR')
+        self.compatibility()
+
+    def test_actual_fetch_real_sdk_preserves_body_first_over_cleanup_cancel(self):
+        first=ValueError('PRIVATE BODY');secondary=KeyboardInterrupt('PRIVATE CLEANUP')
+        caught,closed,response=self.inert_fetch(read_error=first,close_error=secondary)
+        self.assertIs(caught,first);self.assertIs(self.owner.download_failure[0],first);self.assertEqual(closed,[10])
+        self.assertTrue(first.native_preflight_cancelled);self.assertTrue(first.native_preflight_cleanup_uncertain)
+        self.assertIn(response,self.owner.retained)
+        self.driver.latch_download(self.owner,first);value=self.driver.download_diagnostic(first)
+        self.assertEqual(value['refusal_code'],'DL_VALUEERROR');self.assertNotIn('PRIVATE',json.dumps(value))
+        # Real SDK validation remains meaningful after quarantine is cleared
+        # only in this isolated fixture; production's retention stays asserted.
+        self.assertIn(self.owner,self.driver.PREPARATION_QUARANTINE)
+        self.sources.class_state(self.owner,'scripts/ci/development/p0_ci.py',self.driver)
+        self.sources.callback('existing_consumers',self.owner.prepare,self.owner.deadline)
+        self.driver.PREPARATION_QUARANTINE.remove(self.owner)
+
+    def test_whole_fetch_prevalidation_and_rename_edge_are_attributed(self):
+        # Fixed retained inputs refuse before any HTTP/FD model is entered.
+        ordinal=next(i for i,item in enumerate(self.items) if item['filename'] in self.driver.OVERRIDE_ROWS)
+        with self.assertRaisesRegex(ValueError,'prep-fixed-four-no-HTTPS-fallback') as caught:
+            self.owner.fetch(self.items[ordinal],SimpleNamespace(),ordinal=ordinal)
+        self.driver.latch_download(self.owner,caught.exception)
+        self.assertEqual(self.driver.download_diagnostic(caught.exception)['refusal_code'],'prep-fixed-four-no-HTTPS-fallback')
+        self.owner.download_failure=None
+        first=OSError('PRIVATE RENAME');caught,closed,response=self.inert_fetch(rename_error=first)
+        self.assertIs(caught,first);self.assertEqual(closed,[10]);self.assertTrue(response.done)
+        self.assertEqual(self.fetch_trace['rename_count'],1);self.assertTrue(first.native_preflight_cleanup_uncertain)
+        self.driver.latch_download(self.owner,first)
+        self.assertEqual(self.driver.download_diagnostic(first)['refusal_code'],'DL_OSERROR')
+
+    def test_launcher_authenticates_same_primary_projection_and_outer_context(self):
+        first=ValueError('PRIVATE');self.owner.capture_download(first,0,self.items[0])
+        self.driver.mark_pipeline_failure(first,'download-input');self.driver.latch_download(self.owner,first)
+        accessor=self.launcher.capture_download_accessor(self.driver);self.assertIsNotNone(accessor)
+        accepted=[]
+        result=self.launcher.attach_diagnostic(first,'pipeline','run-pipeline','pipeline',
+            driver_accessor=accessor,accepted_context=accepted)
+        self.assertEqual(result['operation'],self.driver.DOWNLOAD_PREFIX+'000');self.assertEqual(len(accepted),1)
+        first.__dict__['nativeci_diagnostic']={'FOREIGN':'PRIVATE'}
+        outer=self.launcher.attach_diagnostic(first,'entry','validate-entry','launcher',accepted_context=accepted)
+        self.assertEqual(outer,result);self.assertIsNot(outer,result)
+        other=ValueError('PRIVATE');self.launcher.attach_diagnostic(other,'entry','validate-entry','launcher',accepted_context=accepted)
+        self.assertNotIn(other.nativeci_diagnostic['operation'],self.launcher.DOWNLOAD_OPERATIONS)
+
+    def test_launcher_foreign_indexed_attrs_and_wrong_crossfields_fall_back(self):
+        valid={'schema_version':1,'stage':'pipeline','operation':self.driver.DOWNLOAD_PREFIX+'000',
+            'exception_type':'ValueError','refusal_code':'DL_VALUEERROR'}
+        first=ValueError('PRIVATE');first.nativeci_diagnostic=dict(valid)
+        self.launcher.attach_diagnostic(first,'pipeline','run-pipeline','pipeline')
+        self.assertEqual(first.nativeci_diagnostic['operation'],'run-pipeline')
+        for mutate in (lambda x:x.update(schema_version=True),lambda x:x.update(operation=self.driver.DOWNLOAD_PREFIX+'501'),
+                       lambda x:x.update(exception_type='OSError'),lambda x:x.update(extra='PRIVATE'),
+                       lambda x:x.update(stage='entry')):
+            changed=dict(valid);mutate(changed);self.assertIsNone(self.launcher.validate_diagnostic(changed))
+        self.assertEqual(self.launcher.validate_diagnostic(valid),valid)
+
+    def test_launcher_accessor_replacement_code_and_signature_mutation_refuse(self):
+        import types
+        function=self.driver.download_diagnostic;accessor=self.launcher.capture_download_accessor(self.driver)
+        code=function.__code__;defaults=function.__defaults__;qualname=function.__qualname__
+        for kind in ('replacement','code','defaults','qualname'):
+            with self.subTest(kind=kind):
+                try:
+                    if kind=='replacement':self.driver.download_diagnostic=types.FunctionType(code,dict(function.__globals__),function.__name__)
+                    elif kind=='code':function.__code__=code.replace(co_name='foreign')
+                    elif kind=='defaults':function.__defaults__=(None,)
+                    else:function.__qualname__='foreign'
+                    first=ValueError('PRIVATE');first.nativeci_pipeline_operation='download-input'
+                    self.launcher.attach_diagnostic(first,'pipeline','run-pipeline','pipeline',driver_accessor=accessor)
+                    self.assertEqual(first.nativeci_diagnostic['operation'],'download-input')
+                finally:
+                    self.driver.download_diagnostic=function;function.__code__=code;function.__defaults__=defaults;function.__qualname__=qualname
+
+    def test_launcher_legacy_SDK_specificity_wins_and_original_args_set_is_460(self):
+        first=ValueError('PRIVATE');self.driver.attach_sdk_preflight(first,'preparation-sdk-preflight')
+        old=dict(first.nativeci_diagnostic)
+        self.launcher.attach_diagnostic(first,'pipeline','run-pipeline','pipeline',
+            driver_accessor=self.launcher.capture_download_accessor(self.driver))
+        self.assertEqual(first.nativeci_diagnostic,old)
+        self.assertEqual(len(self.launcher.LEGACY_DIAGNOSTIC_CODES),460)
+        indexed=ValueError('DL_HTTP_404')
+        self.assertEqual(self.launcher.diagnostic(indexed,'pipeline','download-input','pipeline')['refusal_code'],'UNKNOWN')
+
+    def test_launcher_optional_collector_interrupt_keeps_primary_and_sticky_flags(self):
+        class InterruptingTable(dict):
+            def __getitem__(self,key):raise KeyboardInterrupt('PRIVATE COLLECTOR')
+        first=ValueError('PRIVATE PRIMARY');self.owner.capture_download(first,0,self.items[0])
+        self.driver.mark_pipeline_failure(first,'download-input');self.driver.latch_download(self.owner,first)
+        accessor=self.launcher.capture_download_accessor(self.driver)
+        # Fault injection into the optional collector, never SDK admission.
+        with patch.dict(self.driver.__dict__,DOWNLOAD_TYPES=InterruptingTable(self.driver.DOWNLOAD_TYPES)):
+            self.launcher.attach_diagnostic(first,'pipeline','run-pipeline','pipeline',driver_accessor=accessor)
+        self.assertTrue(first.native_preflight_cancelled);self.assertTrue(first.native_preflight_cleanup_uncertain)
+        self.assertEqual(first.args,('PRIVATE PRIMARY',));self.assertEqual(first.nativeci_diagnostic['operation'],'download-input')
+        self.assertNotIn('PRIVATE',json.dumps(first.nativeci_diagnostic))
+
+    def test_launcher_pipeline_invocation_keeps_original_eight_arguments(self):
+        import ast,inspect
+        tree=ast.parse(inspect.getsource(self.launcher._run))
+        assignments=[n for n in ast.walk(tree) if isinstance(n,ast.Assign)]
+        binding=next(n.value for n in assignments if any(isinstance(t,ast.Name) and t.id=='pipeline_arguments' for t in n.targets))
+        self.assertEqual([ast.literal_eval(k) for k in binding.keys],['entry','outer_end','expected_source_commit','source_root',
+            'work_root','cache','prep_template_raw','prep_template_sha256'])
+        call=next(n for n in ast.walk(tree) if isinstance(n,ast.Call) and isinstance(n.func,ast.Name) and n.func.id=='pipeline_callable')
+        self.assertFalse(call.args);self.assertEqual([(k.arg,ast.dump(k.value)) for k in call.keywords],[(None,"Name(id='pipeline_arguments', ctx=Load())")])
+
+    def test_workflow_selected_validator_and_launcher_sets_conform(self):
+        import ast
+        path=Path(__file__).resolve().parents[3]/'.github/workflows/native-arm-p0.yml'
+        text=path.read_text();lines=text.splitlines()
+        start=next(i for i,line in enumerate(lines) if line.strip()=='run: |')+1
+        tree=ast.parse('\n'.join(line[10:] for line in lines[start:]))
+        names={'DIAGNOSTIC_STAGES','DIAGNOSTIC_CODES','DIAGNOSTIC_TYPES','DOWNLOAD_OPERATIONS','DOWNLOAD_CODE_TYPES',
+               'DOWNLOAD_CODES','DOWNLOAD_GUARD_CODES','WORKFLOW_CODES'}
+        nodes=[]
+        for node in tree.body:
+            if isinstance(node,ast.Assign) and any((isinstance(t,ast.Name) and t.id in names) or
+                (isinstance(t,ast.Subscript) and isinstance(t.value,ast.Name) and t.value.id in names) for t in node.targets):nodes.append(node)
+            elif isinstance(node,ast.FunctionDef) and node.name in ('validate_diagnostic','consult_launcher_codes'):nodes.append(node)
+        scope={'types':__import__('types')};exec(compile(ast.fix_missing_locations(ast.Module(body=nodes,type_ignores=[])),str(path),'exec'),scope)
+        self.assertEqual(scope['DOWNLOAD_OPERATIONS'],self.launcher.DOWNLOAD_OPERATIONS)
+        self.assertEqual(scope['DOWNLOAD_CODE_TYPES'],self.launcher.DOWNLOAD_CODE_TYPES)
+        self.assertEqual(self.driver.DOWNLOAD_TYPES,self.launcher.DOWNLOAD_CODE_TYPES)
+        self.assertEqual((len(self.driver.DOWNLOAD_OPERATIONS),len(self.driver.DOWNLOAD_CODES),len(self.driver.DOWNLOAD_GUARD_CODES)),(501,39,13))
+        scope['consult_launcher_codes'](self.launcher)
+        self.assertEqual(len(scope['DIAGNOSTIC_CODES']),503)
+        self.assertEqual(len(scope['DIAGNOSTIC_CODES']-scope['DOWNLOAD_CODES']),464)
+        self.assertEqual(len(set().union(*self.launcher.DIAGNOSTIC_CODES.values())),499)
+        value={'schema_version':1,'stage':'pipeline','operation':self.driver.DOWNLOAD_PREFIX+'000',
+            'exception_type':'ValueError','refusal_code':'DL_VALUEERROR'}
+        self.assertEqual(scope['validate_diagnostic'](value),self.launcher.validate_diagnostic(value))
+        value['exception_type']='OSError';self.assertIsNone(scope['validate_diagnostic'](value))
+
+
+    def preserved_primary(self,kind=KeyboardInterrupt):
+        primary=kind('PRIVATE PRIMARY');prior=ValueError('PRIVATE PRIOR CAUSE');primary.__cause__=prior
+        try:raise primary
+        except BaseException:pass
+        return primary,primary.__traceback__,prior
+
+    def test_secondary_classification_is_total_and_avoids_hostile_type_hooks(self):
+        probes=[]
+        class Meta(type):
+            @property
+            def __mro__(cls):probes.append('metaclass-mro');raise AssertionError('foreign mro')
+            def __eq__(cls,other):probes.append('metaclass-equality');raise AssertionError('foreign equality')
+        class SelfHostile(RuntimeError,metaclass=Meta):
+            @property
+            def __class__(self):probes.append('class');raise self
+        first,tb,prior=self.preserved_primary();secondary=SelfHostile('PRIVATE SECONDARY')
+        self.assertIsNone(self.driver.download_fault(first,secondary))
+        self.assertEqual(probes,[]);self.assertIs(first.__traceback__,tb);self.assertIs(first.__cause__,prior)
+        self.assertEqual(first.args,('PRIVATE PRIMARY',));self.assertFalse(first.__dict__.get('native_preflight_cancelled',False))
+        # Even primary state-update descriptors cannot escape the optional helper.
+        class Primary(KeyboardInterrupt):
+            @property
+            def native_preflight_cancelled(self):return False
+        blocked,tb,prior=self.preserved_primary(Primary)
+        self.assertIsNone(self.driver.download_fault(blocked,KeyboardInterrupt('PRIVATE CANCEL')))
+        self.assertIs(blocked.__traceback__,tb);self.assertIs(blocked.__cause__,prior)
+
+    def test_clock_secondary_hostility_and_real_cancel_subclasses_preserve_collection(self):
+        probes=[]
+        class Meta(type):
+            @property
+            def __mro__(cls):probes.append('metaclass-mro');raise AssertionError('foreign mro')
+        class Hostile(RuntimeError):
+            @property
+            def __class__(self):probes.append('class');raise self
+        class Cancel(KeyboardInterrupt):
+            @property
+            def __class__(self):probes.append('cancel-class');raise self
+        for secondary,cancelled in ((RuntimeError('PRIVATE CLOCK'),False),(Hostile('PRIVATE CLOCK'),False),(Cancel('PRIVATE CLOCK'),True)):
+            with self.subTest(real_type=type(secondary).__name__):
+                self.owner.download_failure=None;first,tb,prior=self.preserved_primary()
+                with patch.object(self.driver.time,'monotonic',side_effect=secondary):self.owner.capture_download(first,0,self.items[0])
+                self.assertIs(first.__traceback__,tb);self.assertIs(first.__cause__,prior);self.assertEqual(first.args,('PRIVATE PRIMARY',))
+                self.assertIs(self.owner.download_failure[0],first)
+                self.driver.mark_pipeline_failure(first,'download-input');self.driver.latch_download(self.owner,first)
+                self.assertEqual(self.driver.download_diagnostic(first)['refusal_code'],'DL_KBI_UNKNOWN_UNATTRIBUTED')
+                self.assertEqual(first.__dict__.get('native_preflight_cancelled') is True,cancelled)
+                self.assertEqual(first.__dict__.get('native_preflight_cleanup_uncertain') is True,cancelled)
+        self.assertEqual(probes,[])
+
+    def test_whole_fetch_hostile_clock_cannot_replace_original_interrupt(self):
+        probes=[]
+        class SelfHostile(RuntimeError):
+            @property
+            def __class__(self):probes.append('class');raise self
+        first,tb,prior=self.preserved_primary();secondary=SelfHostile('PRIVATE CLOCK')
+        with patch.object(self.driver.time,'monotonic',side_effect=(first,secondary)) as clock:
+            caught=None
+            try:self.owner.fetch(self.items[0],object(),ordinal=0)
+            except BaseException as error:caught=error
+        self.assertIs(caught,first);self.assertEqual(clock.call_count,2);self.assertEqual(probes,[])
+        self.assertEqual(first.args,('PRIVATE PRIMARY',));self.assertIs(first.__cause__,prior)
+        self.assertIs(self.owner.download_failure[0],first)
+        frames=[];tail=first.__traceback__
+        while tail.tb_next is not None:frames.append(tail.tb_frame.f_code.co_name);tail=tail.tb_next
+        self.assertIs(tail,tb);self.assertNotIn('download_fault',frames);self.assertNotIn('capture_download',frames)
+        self.driver.latch_download(self.owner,first)
+        self.assertEqual(self.driver.download_diagnostic(first)['refusal_code'],'DL_KBI_UNKNOWN_UNATTRIBUTED')
+
+    def test_exact_accessor_hostile_secondary_replaces_foreign_indexed_record(self):
+        probes=[]
+        class SelfHostile(RuntimeError):
+            @property
+            def __class__(self):probes.append('class');raise self
+        secondary=SelfHostile('PRIVATE SECONDARY')
+        class FaultTable(dict):
+            def __getitem__(self,key):probes.append('lookup');raise secondary
+        first,tb,prior=self.preserved_primary(ValueError)
+        self.owner.capture_download(first,0,self.items[0]);self.driver.mark_pipeline_failure(first,'download-input')
+        self.driver.latch_download(self.owner,first)
+        foreign={'schema_version':1,'stage':'pipeline','operation':self.driver.DOWNLOAD_PREFIX+'000',
+            'exception_type':'ValueError','refusal_code':'DL_VALUEERROR'}
+        first.nativeci_diagnostic=dict(foreign);accessor=self.launcher.capture_download_accessor(self.driver)
+        self.assertIs(type(FaultTable()).__contains__,dict.__contains__)
+        with patch.dict(self.driver.__dict__,DOWNLOAD_TYPES=FaultTable(self.driver.DOWNLOAD_TYPES)):
+            self.assertIsNone(self.launcher.attach_diagnostic(first,'pipeline','run-pipeline','pipeline',driver_accessor=accessor))
+        self.assertEqual(first.nativeci_diagnostic,{'schema_version':1,'stage':'pipeline','operation':'download-input',
+            'exception_type':'ValueError','refusal_code':'UNKNOWN'})
+        self.assertEqual(probes,['lookup']);self.assertIs(first.__traceback__,tb);self.assertIs(first.__cause__,prior)
+        self.assertEqual(first.args,('PRIVATE PRIMARY',))
+        self.assertNotEqual(first.nativeci_diagnostic,foreign)
+
+    def test_exact_accessor_real_cancel_subclass_sets_sticky_flags_without_class_hook(self):
+        probes=[]
+        class Cancel(KeyboardInterrupt):
+            @property
+            def __class__(self):probes.append('class');raise self
+        secondary=Cancel('PRIVATE CANCEL')
+        class FaultTable(dict):
+            def __getitem__(self,key):raise secondary
+        first,tb,prior=self.preserved_primary(ValueError)
+        self.owner.capture_download(first,0,self.items[0]);self.driver.mark_pipeline_failure(first,'download-input');self.driver.latch_download(self.owner,first)
+        accessor=self.launcher.capture_download_accessor(self.driver)
+        with patch.dict(self.driver.__dict__,DOWNLOAD_TYPES=FaultTable(self.driver.DOWNLOAD_TYPES)):
+            self.launcher.attach_diagnostic(first,'pipeline','run-pipeline','pipeline',driver_accessor=accessor)
+        self.assertEqual(probes,[]);self.assertIs(first.__traceback__,tb);self.assertIs(first.__cause__,prior)
+        self.assertTrue(first.native_preflight_cancelled);self.assertTrue(first.native_preflight_cleanup_uncertain)
+        self.assertEqual(first.nativeci_diagnostic['operation'],'download-input');self.assertEqual(first.args,('PRIVATE PRIMARY',))
+
+    def test_prior_SDK_record_wins_without_consulting_faulty_accessor(self):
+        probes=[]
+        class FaultTable(dict):
+            def __getitem__(self,key):probes.append(key);raise KeyboardInterrupt('PRIVATE')
+        first,tb,prior=self.preserved_primary(ValueError)
+        self.owner.capture_download(first,0,self.items[0]);self.driver.mark_pipeline_failure(first,'download-input');self.driver.latch_download(self.owner,first)
+        self.driver.attach_sdk_preflight(first,'preparation-sdk-preflight');old=dict(first.nativeci_diagnostic)
+        with patch.dict(self.driver.__dict__,DOWNLOAD_TYPES=FaultTable(self.driver.DOWNLOAD_TYPES)):
+            self.launcher.attach_diagnostic(first,'pipeline','run-pipeline','pipeline',driver_accessor=self.launcher.capture_download_accessor(self.driver))
+        self.assertEqual(first.nativeci_diagnostic,old);self.assertEqual(probes,[])
+        self.assertIs(first.__traceback__,tb);self.assertIs(first.__cause__,prior);self.assertEqual(first.args,('PRIVATE PRIMARY',))
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -532,6 +532,80 @@ class Development:
         self.native_preflight_module = module
         return module
 
+    def persist_p0(self):
+        """Retain first failure and propagate only exact terminal persistence facts."""
+        first = sys.exception()
+        try:self.persist_installer()
+        except BaseException as error:
+            target = first if first is not None else error
+            if isinstance(error,KeyboardInterrupt):BaseException.__setattr__(target,'native_preflight_cancelled',True)
+            BaseException.__setattr__(target,'native_preflight_cleanup_uncertain',True)
+            if first is None:raise
+        finally:
+            if first is not None:
+                if self.report.get('cancelled') is True:BaseException.__setattr__(first,'native_preflight_cancelled',True)
+                if self.report.get('status_persistence') == 'FAIL':BaseException.__setattr__(first,'native_preflight_cleanup_uncertain',True)
+
+    def consume_p0(self, controller):
+        """Registered P0 entry while the actual original main/run frames live."""
+        session = self.repository_session
+        owner = sys.modules.get('development_repository_handoff')
+        require(type(owner) is types.ModuleType and type(session) is owner.Session,'installer-owner-refused')
+        context = owner.Session.p0_context(session);end = context['end']
+        bridge = self.installer_module(controller)
+        module = session.p0_entry_module;path = 'scripts/install/p0_entry.py'
+        require(type(module) is types.ModuleType and module.__name__ == 'native_install_p0_entry' and
+                module.__file__ == str(self.root/path) and sys.modules.get(module.__name__) is module,
+                'installer-graph-refused')
+        session.sources.graph_namespace(module,path,{path:module},{},{})
+        bridge.namespace(module,session.sources.raw[path],session.sources.grant['source_files'][path]['sha256'])
+        try:
+            if cancelled(controller):raise KeyboardInterrupt()
+            self.callback_entered = True
+            value = module.run(session,controller,self.output/'native-install-preflight',token=session,
+                stage='installer-P0',entry=context['entry'],deadline=end,nonce=self.clock_nonce,
+                runtime_contract=self.runtime_contract,preflight_raw=session.sources.raw[INSTALLER_PATH])
+            within(end);owner.Session.p0_context(session)
+            require(type(value) is dict and set(value) == {'schema_version','status','stage','receiver','cleanup','ABI','matrix','hardware_validation','input_successor'} and
+                    value['schema_version'] == 1 and type(value['schema_version']) is int and
+                    value['status'] == 'PASS_P0_ONLY' and value['stage'] == 'installer-P0' and
+                    value['ABI'] == value['matrix'] == value['hardware_validation'] == 'NOT_RUN' and
+                    owner.validate_input_successor(value['input_successor']) == context['input_successor'],'installer-result-refused')
+            self.report['stages']['native-install-preflight'] = dict(value)
+            return value
+        except BaseException as error:
+            interrupted = isinstance(error,KeyboardInterrupt) or cancelled(controller);uncertain = False
+            try:
+                markers = BaseException.__getattribute__(error,'__dict__')
+                if type(markers) is dict:
+                    interrupted |= markers.get('native_preflight_cancelled') is True
+                    uncertain = markers.get('native_preflight_cleanup_uncertain') is True
+            except BaseException as metadata_error:
+                interrupted |= isinstance(metadata_error,KeyboardInterrupt);uncertain = True
+            self.report['stages']['native-install-preflight'] = {'status':'FAIL','error_code':'cancelled' if interrupted else
+                'installer-preflight-failed','scope':'preflight-only','cleanup_uncertain':uncertain}
+            self.report['status'] = 'FAIL'
+            if interrupted:self.report['cancelled'] = True
+            self.report.setdefault('error_code','installer-preflight-cancelled' if interrupted else 'installer-preflight-failed')
+            raise
+        finally:self.persist_p0()
+
+    def run_p0(self, session, runtime_contract, argv, *, entry, image, inputs_raw, packages_raw):
+        """Root's explicit independent callable; old run_composed is unchanged."""
+        composed_mode(self.packet,self.composition)
+        module = sys.modules.get('development_repository_handoff')
+        require(type(module) is types.ModuleType and type(session) is module.Session and
+                type(session.sources) is module.Sources,'composed-session-refused')
+        require(self.composition == packet.INSTALLER_COMPOSITION and
+                session.composition == self.composition and session.job_deadline == self.deadline and
+                session.sources.root == self.root and session.sources.grant['source_files'] == self.packet['source_files'] and
+                runtime_contract == self.runtime_contract,'composed-session-refused')
+        session.sources.class_state(session,'scripts/ci/development/repository_handoff.py',module)
+        session.sources.class_state(session.sources,'scripts/ci/development/repository_handoff.py',module)
+        session.sources.guard(self.deadline)
+        self.repository_session = session
+        return session.execute_p0(argv,self.consume_p0,runtime_contract,entry=entry,image=image,inputs_raw=inputs_raw,packages_raw=packages_raw)
+
     def consume_installer(self, controller):
         """P0 is a limited result; unrelated broad roles remain NOT RUN."""
         self.report['execution_scope'] = 'native-install-preflight-only'
@@ -558,8 +632,18 @@ class Development:
                 **{key:item for key,item in value.items() if key != 'public'},'scope':'preflight-only'}
         except BaseException as error:
             interrupted = isinstance(error,KeyboardInterrupt) or cancelled(controller)
+            uncertain = False
+            try:
+                markers = BaseException.__getattribute__(error,'__dict__')
+                if type(markers) is dict:
+                    interrupted |= markers.get('native_preflight_cancelled') is True
+                    uncertain = markers.get('native_preflight_cleanup_uncertain') is True
+            except BaseException as metadata_error:
+                interrupted |= isinstance(metadata_error,KeyboardInterrupt)
+                uncertain = True
             self.report['stages']['native-install-preflight'] = {'status':'FAIL','error_code':'cancelled' if interrupted else
                 'installer-preflight-failed','error_type':type(error).__name__,'scope':'preflight-only'}
+            if uncertain:self.report['stages']['native-install-preflight']['cleanup_uncertain'] = True
             self.report['status'] = 'FAIL'
             if interrupted:self.report['cancelled'] = True
             self.report.setdefault('error_code','installer-preflight-cancelled' if interrupted else 'installer-preflight-failed')
