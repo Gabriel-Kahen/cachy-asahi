@@ -1,0 +1,73 @@
+{
+  "files": {
+    ".SRCINFO": {
+      "bytes": 1591,
+      "mode": 420,
+      "sha256": "4c49249fbd686ebbedb52dafa0189b00f6b88a7563572fefbe515e7066430e94"
+    },
+    "LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "NOTICE": {
+      "bytes": 352,
+      "mode": 420,
+      "sha256": "490e03a3dfe6881f4ad5c40c5cd1e38f6eef44da2e706a8e6c3fee4de11d54c2"
+    },
+    "PKGBUILD": {
+      "bytes": 5210,
+      "mode": 420,
+      "sha256": "71edd03a2b082fbd8e7c7fe9dd7989a9b4426964fc23fbd16734739bed931e30"
+    },
+    "README.md": {
+      "bytes": 5348,
+      "mode": 420,
+      "sha256": "fcf5a50cdf9f273ddcaea38cba070ba2d737477d56397cdfc32511c40512d3e4"
+    },
+    "cachy-asahi-platform-tools": {
+      "bytes": 8001,
+      "mode": 493,
+      "sha256": "7cf5f531f4e061ac2e1e15a730554e0b05a3391daf85434d9370f344c90b1cb1"
+    },
+    "check_package.py": {
+      "bytes": 3268,
+      "mode": 420,
+      "sha256": "cc00cd3bc9d65b68fa5aee00e939b5d1cfd4d40f1b793a4345fad2c2dbf54db9"
+    },
+    "payload-map.json": {
+      "bytes": 4237,
+      "mode": 420,
+      "sha256": "908214f3e6690844b0c4fcfb40bd03c79f536a11442543b728a1705e07c4ad5b"
+    },
+    "private-platform-transition-prepare.md": {
+      "bytes": 7054,
+      "mode": 420,
+      "sha256": "f824f04c5aa577d8e340bd33bcc8256ccc2f565484956733e2b6ed33aa9008bf"
+    },
+    "private-source.tar.gz": {
+      "bytes": 107041,
+      "mode": 420,
+      "sha256": "476845c9a4983258542f350535348772ac51f0b304f6c093d4f0296e06dc8ddb"
+    },
+    "runtime-map.json": {
+      "bytes": 1902,
+      "mode": 420,
+      "sha256": "0446426f0c66d7c9bf612582559466646bd5a5325d7dce9efa346b167cd08426"
+    },
+    "source-provenance.json": {
+      "bytes": 5775,
+      "mode": 420,
+      "sha256": "71c790bf425094db38ff2c4d66416584b002e0ed9dcbd407043a3bf8cecfa967"
+    },
+    "test_package.py": {
+      "bytes": 12326,
+      "mode": 420,
+      "sha256": "14286d95829f91f36f11a64e034727d4f3123624102f7d95a50e4de7eaf36f1a"
+    }
+  },
+  "package": "cachy-asahi-platform-tools",
+  "purpose": "platform-tools-recipe-source",
+  "schema_version": 1,
+  "version": "0.1.0-1"
+}

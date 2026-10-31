@@ -1,0 +1,37 @@
+pkgbase = cachy-asahi-source-tools
+	pkgdesc = Offline exact release source mirrors and inert rebuild contexts
+	pkgver = 0.1.0
+	pkgrel = 1
+	url = https://github.com/Gabriel-Kahen/cachy-asahi
+	arch = any
+	license = MIT
+	checkdepends = bubblewrap
+	depends = python>=3.14
+	depends = xz
+	depends = zstd
+	options = !strip
+	options = !debug
+	source = private-source.tar.gz
+	source = fixtures.tar.gz
+	source = cachy-asahi-source-tools
+	source = check_package.py
+	source = test_package.py
+	source = multi_package_roundtrip.py
+	source = README.md
+	source = source-provenance.json
+	source = payload-map.json
+	source = NOTICE
+	source = LICENSE
+	sha256sums = fa9db2ee4a6f16fee53b79494d437901570c80798de9219d2cc637b9f430575a
+	sha256sums = 6e307625ad97381ec6a4efb9a0ae651ad4c38c1c88a81fc19d4e931584d468c0
+	sha256sums = b7ccbb013b5479b80cfde65444454a3d22a4078e03ffd816a808ae12d983ac2a
+	sha256sums = 436b1cbffb58d712c499584d75da2651311c7f40da675b6e7f5f19566f5a0207
+	sha256sums = 43f26bb2def8a17d6df4aad13aad5e9a50c0a4316e01d789d8148d8f9c28cb7e
+	sha256sums = 16ddb03e644141b544afc755b13ac3ee3e4c61e5132d134e62aa431bf147cbf7
+	sha256sums = c6fa9875b2dab616e6a9b39e58df53d1b287084e8c09a2f2c1ae55bd6a6ff3bb
+	sha256sums = 28b2b8a2708bc3fece91d5560b17da358b59937d4afcebf5a42be28a1802b042
+	sha256sums = dc411ac7bb373b7758c7afa004e17a4e4c73127b922cf8dcb2232ede603e5189
+	sha256sums = 650d77ba3fddc940807b827b88a4f8f274a2cce5048c0e3e2a785337ca6b6bfb
+	sha256sums = 51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7
+
+pkgname = cachy-asahi-source-tools

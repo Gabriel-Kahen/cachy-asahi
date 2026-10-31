@@ -1,0 +1,23 @@
+{
+  "files": {
+    "scripts/checks/package_checks.py": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8",
+    "scripts/ci/native_arm.py": "a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898",
+    "scripts/integration/lifecycle.py": "c3223a1bd4002683071f4442e1f5b9caf439c68c4e231da10039cc9cebcdb52b",
+    "scripts/platform/archive_coverage.py": "685a98cb082739e5fa3630ff6496cceb09fc45698a806e737d40cfffe84b3c11",
+    "scripts/platform/authenticate_missing.py": "6af079cf10f8ebcc9416bf64bca4336ea03dbbf13f99ebd98a83808365f2fe59",
+    "scripts/platform/capture.py": "ce73314eb5a75b8afb963217fba15065106ae3f6ee081599a1ba7ab620b044c8",
+    "scripts/platform/platform_transition.py": "c2d8117d018fc3cf2c6e693f40ac52465d6119ba17c9ba22eda22495b81560c5",
+    "scripts/platform/prepare_transition.py": "383205909ce4b0eb55f18458f871cc41cd5764d34f3b9110131a37dc89d6165d",
+    "scripts/platform/recovery_inputs.py": "09be69917bf74b50a65841243e8e4cfef264a56074945b609264c76a0f387430",
+    "scripts/platform/recovery_preflight.py": "53c18e1c659684a509b7c17127441f1516cd9f32c6010e3f79d976ac9e3da68d",
+    "scripts/platform/transaction.py": "1e4776bd89c436af526ed132d75df32fbc15cf2349dd3cf7cf13ecf874238694",
+    "scripts/platform/tuple_audit.py": "e2fde6832d57f33aca1b215f03350edab67d9b3c66d31b7062bc4b0df8d92b5d",
+    "scripts/port/authenticate.py": "241cd67370eb593bdf948a25788f006ecf470c645ba5d198bc9c318119ebfe10",
+    "scripts/port/preview.py": "d737c51474e05cc2c4db2e87fc021f50328eea7744983dd4076d44751fce7383",
+    "scripts/release/compare_releases.py": "27086c7b0af74a1226deae7a6a71245882b82608a1fa9d33b68e657979c7d83c",
+    "scripts/release/release.py": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435"
+  },
+  "kind": "platform-tools-runtime-v1",
+  "launcher_sha256": "7cf5f531f4e061ac2e1e15a730554e0b05a3391daf85434d9370f344c90b1cb1",
+  "schema_version": 1
+}

@@ -1,0 +1,97 @@
+{
+  "files": {
+    "usr/bin/cachy-asahi-platform-tools": {
+      "mode": 493,
+      "sha256": "7cf5f531f4e061ac2e1e15a730554e0b05a3391daf85434d9370f344c90b1cb1"
+    },
+    "usr/lib/cachy-asahi/platform-tools/runtime-map.json": {
+      "mode": 420,
+      "sha256": "0446426f0c66d7c9bf612582559466646bd5a5325d7dce9efa346b167cd08426"
+    },
+    "usr/lib/cachy-asahi/platform-tools/scripts/checks/package_checks.py": {
+      "mode": 420,
+      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
+    },
+    "usr/lib/cachy-asahi/platform-tools/scripts/ci/native_arm.py": {
+      "mode": 420,
+      "sha256": "a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898"
+    },
+    "usr/lib/cachy-asahi/platform-tools/scripts/integration/lifecycle.py": {
+      "mode": 420,
+      "sha256": "c3223a1bd4002683071f4442e1f5b9caf439c68c4e231da10039cc9cebcdb52b"
+    },
+    "usr/lib/cachy-asahi/platform-tools/scripts/platform/archive_coverage.py": {
+      "mode": 420,
+      "sha256": "685a98cb082739e5fa3630ff6496cceb09fc45698a806e737d40cfffe84b3c11"
+    },
+    "usr/lib/cachy-asahi/platform-tools/scripts/platform/authenticate_missing.py": {
+      "mode": 420,
+      "sha256": "6af079cf10f8ebcc9416bf64bca4336ea03dbbf13f99ebd98a83808365f2fe59"
+    },
+    "usr/lib/cachy-asahi/platform-tools/scripts/platform/capture.py": {
+      "mode": 420,
+      "sha256": "ce73314eb5a75b8afb963217fba15065106ae3f6ee081599a1ba7ab620b044c8"
+    },
+    "usr/lib/cachy-asahi/platform-tools/scripts/platform/platform_transition.py": {
+      "mode": 420,
+      "sha256": "c2d8117d018fc3cf2c6e693f40ac52465d6119ba17c9ba22eda22495b81560c5"
+    },
+    "usr/lib/cachy-asahi/platform-tools/scripts/platform/prepare_transition.py": {
+      "mode": 420,
+      "sha256": "383205909ce4b0eb55f18458f871cc41cd5764d34f3b9110131a37dc89d6165d"
+    },
+    "usr/lib/cachy-asahi/platform-tools/scripts/platform/recovery_inputs.py": {
+      "mode": 420,
+      "sha256": "09be69917bf74b50a65841243e8e4cfef264a56074945b609264c76a0f387430"
+    },
+    "usr/lib/cachy-asahi/platform-tools/scripts/platform/recovery_preflight.py": {
+      "mode": 420,
+      "sha256": "53c18e1c659684a509b7c17127441f1516cd9f32c6010e3f79d976ac9e3da68d"
+    },
+    "usr/lib/cachy-asahi/platform-tools/scripts/platform/transaction.py": {
+      "mode": 420,
+      "sha256": "1e4776bd89c436af526ed132d75df32fbc15cf2349dd3cf7cf13ecf874238694"
+    },
+    "usr/lib/cachy-asahi/platform-tools/scripts/platform/tuple_audit.py": {
+      "mode": 420,
+      "sha256": "e2fde6832d57f33aca1b215f03350edab67d9b3c66d31b7062bc4b0df8d92b5d"
+    },
+    "usr/lib/cachy-asahi/platform-tools/scripts/port/authenticate.py": {
+      "mode": 420,
+      "sha256": "241cd67370eb593bdf948a25788f006ecf470c645ba5d198bc9c318119ebfe10"
+    },
+    "usr/lib/cachy-asahi/platform-tools/scripts/port/preview.py": {
+      "mode": 420,
+      "sha256": "d737c51474e05cc2c4db2e87fc021f50328eea7744983dd4076d44751fce7383"
+    },
+    "usr/lib/cachy-asahi/platform-tools/scripts/release/compare_releases.py": {
+      "mode": 420,
+      "sha256": "27086c7b0af74a1226deae7a6a71245882b82608a1fa9d33b68e657979c7d83c"
+    },
+    "usr/lib/cachy-asahi/platform-tools/scripts/release/release.py": {
+      "mode": 420,
+      "sha256": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435"
+    },
+    "usr/share/doc/cachy-asahi-platform-tools/README.md": {
+      "mode": 420,
+      "sha256": "fcf5a50cdf9f273ddcaea38cba070ba2d737477d56397cdfc32511c40512d3e4"
+    },
+    "usr/share/doc/cachy-asahi-platform-tools/private-platform-transition-prepare.md": {
+      "mode": 420,
+      "sha256": "f824f04c5aa577d8e340bd33bcc8256ccc2f565484956733e2b6ed33aa9008bf"
+    },
+    "usr/share/doc/cachy-asahi-platform-tools/source-provenance.json": {
+      "mode": 420,
+      "sha256": "71c790bf425094db38ff2c4d66416584b002e0ed9dcbd407043a3bf8cecfa967"
+    },
+    "usr/share/licenses/cachy-asahi-platform-tools/LICENSE": {
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "usr/share/licenses/cachy-asahi-platform-tools/NOTICE": {
+      "mode": 420,
+      "sha256": "490e03a3dfe6881f4ad5c40c5cd1e38f6eef44da2e706a8e6c3fee4de11d54c2"
+    }
+  },
+  "schema_version": 1
+}

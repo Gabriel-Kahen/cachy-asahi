@@ -1,0 +1,47 @@
+# SPDX-License-Identifier: MIT
+pkgname=cachy-asahi-platform-tools
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Offline coordinated Asahi platform planning and private metadata preparation'
+arch=(any)
+url=https://github.com/Gabriel-Kahen/cachy-asahi
+license=(MIT)
+depends=('python>=3.12' pacman gnupg glibc)
+checkdepends=(bubblewrap)
+options=('!strip' '!debug')
+source=(private-source.tar.gz cachy-asahi-platform-tools check_package.py test_package.py README.md private-platform-transition-prepare.md source-provenance.json runtime-map.json payload-map.json NOTICE LICENSE)
+sha256sums=(476845c9a4983258542f350535348772ac51f0b304f6c093d4f0296e06dc8ddb 7cf5f531f4e061ac2e1e15a730554e0b05a3391daf85434d9370f344c90b1cb1 cc00cd3bc9d65b68fa5aee00e939b5d1cfd4d40f1b793a4345fad2c2dbf54db9 14286d95829f91f36f11a64e034727d4f3123624102f7d95a50e4de7eaf36f1a fcf5a50cdf9f273ddcaea38cba070ba2d737477d56397cdfc32511c40512d3e4 f824f04c5aa577d8e340bd33bcc8256ccc2f565484956733e2b6ed33aa9008bf 71c790bf425094db38ff2c4d66416584b002e0ed9dcbd407043a3bf8cecfa967 0446426f0c66d7c9bf612582559466646bd5a5325d7dce9efa346b167cd08426 908214f3e6690844b0c4fcfb40bd03c79f536a11442543b728a1705e07c4ad5b 490e03a3dfe6881f4ad5c40c5cd1e38f6eef44da2e706a8e6c3fee4de11d54c2 51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7)
+
+check() {
+    python -I -B "$srcdir/check_package.py" --recipe-root "$startdir" || return
+    python -I -B -Werror::ResourceWarning "$srcdir/private/scripts/platform/test_platform_transition.py" || return
+    python -I -B -Werror::ResourceWarning "$srcdir/private/scripts/platform/test_prepare_transition.py" || return
+    python -I -B -Werror::ResourceWarning "$srcdir/test_package.py" --recipe-root "$startdir"
+}
+
+package() {
+    [[ -n ${srcdir:-} && -n ${pkgdir:-} && $pkgdir != / && $pkgdir != "$srcdir" ]] || return 1
+    install -Dm644 "$srcdir/private/scripts/platform/prepare_transition.py" "$pkgdir/usr/lib/cachy-asahi/platform-tools/scripts/platform/prepare_transition.py" || return
+    install -Dm644 "$srcdir/private/scripts/platform/platform_transition.py" "$pkgdir/usr/lib/cachy-asahi/platform-tools/scripts/platform/platform_transition.py" || return
+    install -Dm644 "$srcdir/private/scripts/platform/transaction.py" "$pkgdir/usr/lib/cachy-asahi/platform-tools/scripts/platform/transaction.py" || return
+    install -Dm644 "$srcdir/private/scripts/platform/recovery_preflight.py" "$pkgdir/usr/lib/cachy-asahi/platform-tools/scripts/platform/recovery_preflight.py" || return
+    install -Dm644 "$srcdir/private/scripts/platform/tuple_audit.py" "$pkgdir/usr/lib/cachy-asahi/platform-tools/scripts/platform/tuple_audit.py" || return
+    install -Dm644 "$srcdir/private/scripts/platform/recovery_inputs.py" "$pkgdir/usr/lib/cachy-asahi/platform-tools/scripts/platform/recovery_inputs.py" || return
+    install -Dm644 "$srcdir/private/scripts/platform/authenticate_missing.py" "$pkgdir/usr/lib/cachy-asahi/platform-tools/scripts/platform/authenticate_missing.py" || return
+    install -Dm644 "$srcdir/private/scripts/platform/archive_coverage.py" "$pkgdir/usr/lib/cachy-asahi/platform-tools/scripts/platform/archive_coverage.py" || return
+    install -Dm644 "$srcdir/private/scripts/platform/capture.py" "$pkgdir/usr/lib/cachy-asahi/platform-tools/scripts/platform/capture.py" || return
+    install -Dm644 "$srcdir/private/scripts/port/preview.py" "$pkgdir/usr/lib/cachy-asahi/platform-tools/scripts/port/preview.py" || return
+    install -Dm644 "$srcdir/private/scripts/port/authenticate.py" "$pkgdir/usr/lib/cachy-asahi/platform-tools/scripts/port/authenticate.py" || return
+    install -Dm644 "$srcdir/private/scripts/ci/native_arm.py" "$pkgdir/usr/lib/cachy-asahi/platform-tools/scripts/ci/native_arm.py" || return
+    install -Dm644 "$srcdir/private/scripts/checks/package_checks.py" "$pkgdir/usr/lib/cachy-asahi/platform-tools/scripts/checks/package_checks.py" || return
+    install -Dm644 "$srcdir/private/scripts/integration/lifecycle.py" "$pkgdir/usr/lib/cachy-asahi/platform-tools/scripts/integration/lifecycle.py" || return
+    install -Dm644 "$srcdir/private/scripts/release/compare_releases.py" "$pkgdir/usr/lib/cachy-asahi/platform-tools/scripts/release/compare_releases.py" || return
+    install -Dm644 "$srcdir/private/scripts/release/release.py" "$pkgdir/usr/lib/cachy-asahi/platform-tools/scripts/release/release.py" || return
+    install -Dm755 "$srcdir/cachy-asahi-platform-tools" "$pkgdir/usr/bin/cachy-asahi-platform-tools" || return
+    install -Dm644 "$srcdir/runtime-map.json" "$pkgdir/usr/lib/cachy-asahi/platform-tools/runtime-map.json" || return
+    install -Dm644 "$srcdir/README.md" "$pkgdir/usr/share/doc/cachy-asahi-platform-tools/README.md" || return
+    install -Dm644 "$srcdir/source-provenance.json" "$pkgdir/usr/share/doc/cachy-asahi-platform-tools/source-provenance.json" || return
+    install -Dm644 "$srcdir/private-platform-transition-prepare.md" "$pkgdir/usr/share/doc/cachy-asahi-platform-tools/private-platform-transition-prepare.md" || return
+    install -Dm644 "$srcdir/LICENSE" "$pkgdir/usr/share/licenses/cachy-asahi-platform-tools/LICENSE" || return
+    install -Dm644 "$srcdir/NOTICE" "$pkgdir/usr/share/licenses/cachy-asahi-platform-tools/NOTICE" || return
+}
