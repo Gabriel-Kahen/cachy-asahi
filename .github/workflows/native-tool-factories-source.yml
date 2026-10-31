@@ -1,0 +1,48 @@
+name: Native tool factories source controls
+on:
+  pull_request:
+    paths:
+      - scripts/ci/source-tools-native-lifecycle/**
+      - scripts/ci/platform-tools-native-lifecycle-source/**
+      - .github/workflows/native-tool-factories-source.yml
+  push:
+    branches: [main]
+    paths:
+      - scripts/ci/source-tools-native-lifecycle/**
+      - scripts/ci/platform-tools-native-lifecycle-source/**
+      - .github/workflows/native-tool-factories-source.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout maintained factories
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Checkout the exact genuine191 basis
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 111f14d2b21b220d86912d5ead978848c7ef1cb0
+          path: .ci-fixtures/native-tools-parent191
+          persist-credentials: false
+      - name: Finite factory materialization and refusal controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          stage=$(mktemp -d "$RUNNER_TEMP/native-tool-factories.XXXXXXXX")
+          mkdir "$stage/basis"
+          git -C .ci-fixtures/native-tools-parent191 archive --format=tar 111f14d2b21b220d86912d5ead978848c7ef1cb0 | tar -xf - -C "$stage/basis"
+          source_factory="$GITHUB_WORKSPACE/scripts/ci/source-tools-native-lifecycle"
+          platform_factory="$GITHUB_WORKSPACE/scripts/ci/platform-tools-native-lifecycle-source"
+          python3 -I -B -Werror::ResourceWarning "$source_factory/test_assemble_source.py"
+          python3 -I -B "$source_factory/assemble_source.py" \
+            --parent-source "$stage/basis" --raw-parent-commit "$source_factory/parent-commit.txt" \
+            --profile-sha256 92419904d48686b6856f951a5ca7aad8af9e4727ba5c6d0c5b219e33a56424ed \
+            --output "$stage/source200"
+          PLATFORM_NATIVE_BASIS="$stage/basis" python3 -I -B -Werror::ResourceWarning "$platform_factory/test_prepare.py"
+          python3 -I -B "$platform_factory/prepare.py" --basis "$stage/basis" --output "$stage/platform199"
+          PLATFORM_NATIVE_SOURCE="$stage/platform199/source" python3 -I -B -Werror::ResourceWarning "$platform_factory/test_archive_privacy.py"
