@@ -675,9 +675,9 @@
         "sha256": "8cdd968870a2a92d7006739e96dedefa14e51c40d62cfc15831f234a767a1421"
       },
       "native/security_native_v1.py": {
-        "bytes": 38523,
+        "bytes": 40182,
         "mode": 420,
-        "sha256": "970793258bca73525db8e40709c845c63a76396f0fbd7b45c9c446571b77e2ef"
+        "sha256": "7ab431933359f983bf0c1560930c68cf1e833eba170b5ee4351ef399abc6ae80"
       },
       "native/security_reader_v1.py": {
         "bytes": 27578,
@@ -690,9 +690,9 @@
         "sha256": "95b2dd41be8903da672a78a1dfd452de97ab925703d1c53d40b689ef5dc34159"
       },
       "native/source-map.json": {
-        "bytes": 39993,
+        "bytes": 40058,
         "mode": 420,
-        "sha256": "f30d050072e3d9fe1ff7b61706f5b3093df34cc2df02a98441aee296debac0b6"
+        "sha256": "2b5196d8bf80386e0aa8c982bab55961f3b55d58f2440b9a99e7ee0c5acc3155"
       },
       "native/transport_proof.py": {
         "bytes": 16711,
@@ -1010,7 +1010,7 @@
         "sha256": "daba66fd25a9a82caa23949686e967cbb69fd056177e991650643186057adaef"
       }
     },
-    "tree": "8da4b705b9ce1e20bc9c6ab80907c4a06630a25f"
+    "tree": "0561df2154bae3cfaa2295c8728d2a945e9469f2"
   },
   "kind": "security-maintenance-native-source-v1",
   "main_checkpoint": "5d5de45d64075c05a004d0171a8bbdbb35372c9b",
@@ -2034,9 +2034,9 @@
       "sha256": "6781cb62ed12f470c79a8a534b831878bf9a5edc150b2964ce3254e5f0c0b1f1"
     },
     "native/security_native_v1.py": {
-      "bytes": 38523,
+      "bytes": 40182,
       "mode": 420,
-      "sha256": "970793258bca73525db8e40709c845c63a76396f0fbd7b45c9c446571b77e2ef"
+      "sha256": "7ab431933359f983bf0c1560930c68cf1e833eba170b5ee4351ef399abc6ae80"
     },
     "native/security_reader_v1.py": {
       "bytes": 27578,
@@ -2056,7 +2056,7 @@
       "sha256": "cdb50b755f3e76d0229278bb89476752702544f3c31947e74676c82b213a8dc7"
     }
   },
-  "proposed_ref": "codex/native-security-maintenance-checkpoint-observation-v7",
+  "proposed_ref": "codex/native-security-maintenance-observation-fd-diagnostic-v8",
   "schema": 1,
   "source_map_metadata": {
     "actual": {
@@ -2076,6 +2076,7 @@
     "schema": 1,
     "security_basis_v5_map_sha256": "a9fde302394039671851852c9ff0f64ccf09cfa6a0d47055b66faa7c4a35ed94",
     "security_basis_v5_source": "b6a02f11648738ded90084f7dcdcd4ea77c194fa",
+    "security_observation_fd_refusal": "bounded-metadata-only-v1",
     "security_operation": "security-alpm-v1",
     "security_source_factory": "security-maintenance-native-source-v1",
     "security_upgrade_observation": "first-real-upgrade-zero-observation-v1",
