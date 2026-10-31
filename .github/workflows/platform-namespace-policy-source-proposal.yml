@@ -1,0 +1,57 @@
+name: Platform namespace policy Source201 preparation
+on:
+  workflow_dispatch:
+    inputs:
+      overlay_manifest_sha256:
+        description: Root-reviewed whole overlay-manifest.json SHA256
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: source-platform-namespace-policy-preparation
+  cancel-in-progress: false
+jobs:
+  source-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      EXPECTED_PARENT: 05df8c71ea2bcb525bb1cfbc59983452062a1e97
+      OVERLAY_MANIFEST_SHA256: ${{ inputs.overlay_manifest_sha256 }}
+    steps:
+      - name: Checkout reviewed maintained Source-only constructor
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Checkout exact actual05df parent Source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 05df8c71ea2bcb525bb1cfbc59983452062a1e97
+          path: .ci-fixtures/platform-policy-parent05df
+          persist-credentials: false
+      - name: Construct exact Source201 DATA proposal only
+        id: proposal
+        shell: bash
+        run: |
+          set -euo pipefail
+          factory="$GITHUB_WORKSPACE/scripts/ci/platform-namespace-policy-matrix-source"
+          basis="$GITHUB_WORKSPACE/.ci-fixtures/platform-policy-parent05df"
+          test "$(git -C "$basis" rev-parse HEAD)" = "$EXPECTED_PARENT"
+          stage=$(mktemp -d "$RUNNER_TEMP/platform-policy-source.XXXXXXXX")
+          chmod 0700 "$stage"
+          python3 -I -B "$factory/prepare.py" \
+            --basis "$basis" \
+            --overlay-root "$factory/payload" \
+            --overlay-manifest "$factory/overlay-manifest.json" \
+            --overlay-manifest-sha256 "$OVERLAY_MANIFEST_SHA256" \
+            --output "$stage/Source201"
+          printf 'path=%s\n' "$stage/Source201" >> "$GITHUB_OUTPUT"
+      - name: Retain Source-only proposal and complete inverse metadata
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: platform-namespace-policy-Source201-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ steps.proposal.outputs.path }}
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 3
