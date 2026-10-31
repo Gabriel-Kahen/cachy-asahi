@@ -1,0 +1,17 @@
+pkgbase = cachy-asahi-zsh-config
+	pkgdesc = Opt-in original Zsh completion settings for the cachy-asahi overlay
+	pkgver = 0.1.0
+	pkgrel = 1
+	arch = any
+	license = MIT
+	depends = zsh
+	source = config.zsh
+	source = NOTICE
+	source = usage.md
+	source = LICENSE
+	sha256sums = 7639b938dca689c445b64cc307148e2d3f85c5399d51c8ce69072dcf835baa6f
+	sha256sums = 20f1a90870566d337745019d5c465db48e14a566df3222c48a3320dc441e4de8
+	sha256sums = 19a9df455ad2c42b01eb184bdfb0b14402fe372e397fa91cc0ee28dd766bb65d
+	sha256sums = 51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7
+
+pkgname = cachy-asahi-zsh-config

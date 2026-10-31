@@ -1,0 +1,56 @@
+{
+  "result": "FAIL",
+  "helper_sha256": "c7d4b9b93241c112af7b620a01eed55b1946232f4075f7cd52bd0ff532666f07",
+  "scope": "temporary homes/templates only; no shell blocks or session commands executed",
+  "cases": [
+    {
+      "case": "oversized-fish-preview",
+      "passed": false,
+      "failures": [
+        "expected refusal exit 1, got 0"
+      ]
+    },
+    {
+      "case": "oversized-fish-apply",
+      "passed": false,
+      "failures": [
+        "expected refusal exit 1, got 0",
+        "activation changed configuration before rejecting oversized output",
+        "planning refusal left journal or committed state"
+      ]
+    },
+    {
+      "case": "mixed-oversized-zsh-preview",
+      "passed": false,
+      "failures": [
+        "expected refusal exit 1, got 0"
+      ]
+    },
+    {
+      "case": "mixed-oversized-zsh-apply",
+      "passed": false,
+      "failures": [
+        "expected refusal exit 1, got 0",
+        "activation changed configuration before rejecting oversized output",
+        "planning refusal left journal or committed state"
+      ]
+    },
+    {
+      "case": "forged-journal-root-preview",
+      "passed": false,
+      "failures": [
+        "expected forged-root refusal exit 1, got 2"
+      ]
+    },
+    {
+      "case": "forged-journal-root-apply",
+      "passed": false,
+      "failures": [
+        "expected forged-root refusal exit 1, got 0",
+        "recovery published forged source-root shell block",
+        "recovery removed or changed the refused journal",
+        "recovery committed forged component state"
+      ]
+    }
+  ]
+}

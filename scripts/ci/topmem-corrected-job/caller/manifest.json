@@ -1,0 +1,55 @@
+{
+  "addon_manifest_sha256": "4eb3b51f8eb7dcd0bc1ec01dd4b911326d7f0faef0d810517e42b5a9d6272cd7",
+  "addon_profile": "topmem-v1",
+  "baseline_packet_sha256": "16498f24649b981e99d803682e87e632bbba289e4bb6d3169d7608d7cecdc617",
+  "files": {
+    "agent_entry.py": {
+      "bytes": 2856,
+      "mode": 420,
+      "sha256": "ee885a13520ed03d66d6ba004b236c8de3a262861d3b7b25655a816f078f2a8c"
+    },
+    "caller.py": {
+      "bytes": 67368,
+      "mode": 420,
+      "sha256": "478f6439b4847b514173e29ddb98b32fb157d7472ff2e63c73fa18c358f542b6"
+    },
+    "producer.py": {
+      "bytes": 26388,
+      "mode": 420,
+      "sha256": "8e27901c8bf395b0a9145fd5303bb8f35db2cd498ebc86b412a6916aa09fe5a7"
+    },
+    "recovery.py": {
+      "bytes": 23506,
+      "mode": 420,
+      "sha256": "6606090171500c4f69e5ea5b7d2427f656d262d461efd17c1ed26c6230dd7ddb"
+    },
+    "repository_adapter.py": {
+      "bytes": 15425,
+      "mode": 420,
+      "sha256": "6b704d9048f83c231a47043ca9f415b30ce3abc76d243d17a4f2e38bf2e066fc"
+    },
+    "signing.py": {
+      "bytes": 42378,
+      "mode": 420,
+      "sha256": "a0d0db64e1f62a160ac9ad9efeca9e34deb22f082e882dc4d0cca6b78f2260e1"
+    }
+  },
+  "schema_version": 2,
+  "tools": {
+    "/usr/bin/docker": {
+      "bytes": 41651784,
+      "mode": 493,
+      "sha256": "94128e4afada0d46de642165e79dd70beb08e6775014648013283ed901b68248"
+    },
+    "/usr/bin/git": {
+      "bytes": 4460200,
+      "mode": 493,
+      "sha256": "4cda0087547ee12bef91952e1123debb4bd2ec621838b347b5ca4fdaa6fecb58"
+    },
+    "/usr/bin/python3.12": {
+      "bytes": 7845048,
+      "mode": 493,
+      "sha256": "c86f21d0da9290ece2d7d49a3f7ed52aed59cb029abdf0ea25c79634f6cbe960"
+    }
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "files": {
+    "addon.py": {
+      "bytes": 22998,
+      "mode": 420,
+      "sha256": "d2d9435ee5032abec36614a8ad2af98cf6ad9bf5d75506ab4166fd76e18d8579"
+    },
+    "lifecycle-entry.sh": {
+      "bytes": 2953,
+      "mode": 420,
+      "sha256": "ad084ad7608c0dfffb162941b0d45e510a6fbf28c58254b46f017b046e86e085"
+    },
+    "recipes.lock.json": {
+      "bytes": 1253,
+      "mode": 420,
+      "sha256": "5afc6f120ee8a741cbe890c2f010a6a7d0c9b4fa3ea6d10b13500f42ef4c3eba"
+    },
+    "recipes/current/.SRCINFO": {
+      "bytes": 779,
+      "mode": 420,
+      "sha256": "fa8b8e01ce36cfe9c5b3cd0f94ae5303c6d8e6444d91831eacf9a762f7490459"
+    },
+    "recipes/current/LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "recipes/current/NOTICE": {
+      "bytes": 395,
+      "mode": 420,
+      "sha256": "07227afce6f380bcf3deaf9b273fb286f6bcee69b5f1dddec9ebcd1dc2ecd098"
+    },
+    "recipes/current/PKGBUILD": {
+      "bytes": 1195,
+      "mode": 420,
+      "sha256": "fc17b0af876ae0dfb97b00e2293bb01fb8c054702d19252804e8ab11196315d2"
+    },
+    "recipes/current/README.md": {
+      "bytes": 2543,
+      "mode": 420,
+      "sha256": "90082e9119cdea843b0e060f4061a300015dffd6a25c55d12a72b0a75348cf2b"
+    },
+    "recipes/current/cachy-asahi-topmem": {
+      "bytes": 4203,
+      "mode": 493,
+      "sha256": "96c1b49a92cb6e97d1fe5c51c23f452d79341f2d71cd624cd3197d33b29633b1"
+    },
+    "recipes/current/test_topmem.py": {
+      "bytes": 7277,
+      "mode": 420,
+      "sha256": "207d3c924e37b3e27be2e0024dfe786716cd4464d3042125af543dfbdec6b847"
+    },
+    "recipes/upgrade-fixture/.SRCINFO": {
+      "bytes": 779,
+      "mode": 420,
+      "sha256": "3e3c1f209efb5430f520c45605df6a03896fbed44054585aa42940ee22307ac1"
+    },
+    "recipes/upgrade-fixture/LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "recipes/upgrade-fixture/NOTICE": {
+      "bytes": 395,
+      "mode": 420,
+      "sha256": "07227afce6f380bcf3deaf9b273fb286f6bcee69b5f1dddec9ebcd1dc2ecd098"
+    },
+    "recipes/upgrade-fixture/PKGBUILD": {
+      "bytes": 1195,
+      "mode": 420,
+      "sha256": "1bc62eee65437d0a4406cd544534239c7cc0af68ce016772b4e938dd8847cc44"
+    },
+    "recipes/upgrade-fixture/README.md": {
+      "bytes": 2543,
+      "mode": 420,
+      "sha256": "90082e9119cdea843b0e060f4061a300015dffd6a25c55d12a72b0a75348cf2b"
+    },
+    "recipes/upgrade-fixture/cachy-asahi-topmem": {
+      "bytes": 4203,
+      "mode": 493,
+      "sha256": "96c1b49a92cb6e97d1fe5c51c23f452d79341f2d71cd624cd3197d33b29633b1"
+    },
+    "recipes/upgrade-fixture/test_topmem.py": {
+      "bytes": 7277,
+      "mode": 420,
+      "sha256": "207d3c924e37b3e27be2e0024dfe786716cd4464d3042125af543dfbdec6b847"
+    },
+    "smoke.py": {
+      "bytes": 1178,
+      "mode": 420,
+      "sha256": "bb2bf72d9d78532879942e89500a19c31de551dd5a953a6fc58e7e11469fa3cc"
+    }
+  },
+  "parent_packet_sha256": "16498f24649b981e99d803682e87e632bbba289e4bb6d3169d7608d7cecdc617",
+  "recipes_sha256": "5afc6f120ee8a741cbe890c2f010a6a7d0c9b4fa3ea6d10b13500f42ef4c3eba",
+  "schema_version": 1
+}

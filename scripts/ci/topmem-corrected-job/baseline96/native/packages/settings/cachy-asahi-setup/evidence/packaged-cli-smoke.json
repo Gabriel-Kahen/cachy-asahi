@@ -1,0 +1,232 @@
+{
+  "result": "PASS",
+  "package_version": "0.1.0-2",
+  "canonical_sha256": "a6251142b9c7e54796285c1a301fb590599d8aaa1625ea0bfebd7fc21622fdc2",
+  "classification": "corrected archive CLI extracted into temporary prefix; fixture homes/templates only; no package-manager install, host HOME or system/session mutation",
+  "checks": [
+    "help/preview writes nothing",
+    "all-component activation",
+    "base/existing config preservation",
+    "repeat apply idempotence",
+    "edited desktop preservation/exit 2",
+    "surgical shell removal",
+    "unchanged desktop removal",
+    "CLI removal/recreation preserves user data",
+    "later activation/removal succeeds",
+    "no bytecode directories"
+  ],
+  "events": [
+    {
+      "arguments": [
+        "activate",
+        "--components",
+        "fish",
+        "zsh",
+        "hyprland"
+      ],
+      "exit_code": 0,
+      "mode": "preview",
+      "actions": [
+        {
+          "component": "fish",
+          "path": ".config/fish/config.fish",
+          "status": "would-add"
+        },
+        {
+          "component": "hyprland",
+          "path": ".config/cachy-asahi/hyprland.lua",
+          "status": "would-add"
+        },
+        {
+          "component": "zsh",
+          "path": ".zshrc",
+          "status": "would-add"
+        }
+      ],
+      "preserved_conflicts": false
+    },
+    {
+      "arguments": [
+        "activate",
+        "--components",
+        "fish",
+        "zsh",
+        "hyprland",
+        "--apply"
+      ],
+      "exit_code": 0,
+      "mode": "applied",
+      "actions": [
+        {
+          "component": "fish",
+          "path": ".config/fish/config.fish",
+          "status": "add"
+        },
+        {
+          "component": "hyprland",
+          "path": ".config/cachy-asahi/hyprland.lua",
+          "status": "add"
+        },
+        {
+          "component": "zsh",
+          "path": ".zshrc",
+          "status": "add"
+        }
+      ],
+      "preserved_conflicts": false
+    },
+    {
+      "arguments": [
+        "activate",
+        "--components",
+        "fish",
+        "zsh",
+        "hyprland",
+        "--apply"
+      ],
+      "exit_code": 0,
+      "mode": "applied",
+      "actions": [
+        {
+          "component": "fish",
+          "path": ".config/fish/config.fish",
+          "status": "unchanged"
+        },
+        {
+          "component": "hyprland",
+          "path": ".config/cachy-asahi/hyprland.lua",
+          "status": "unchanged"
+        },
+        {
+          "component": "zsh",
+          "path": ".zshrc",
+          "status": "unchanged"
+        }
+      ],
+      "preserved_conflicts": false
+    },
+    {
+      "arguments": [
+        "remove"
+      ],
+      "exit_code": 2,
+      "mode": "preview",
+      "actions": [
+        {
+          "component": "fish",
+          "path": ".config/fish/config.fish",
+          "status": "would-remove"
+        },
+        {
+          "component": "hyprland",
+          "path": ".config/cachy-asahi/hyprland.lua",
+          "status": "preserved-edited"
+        },
+        {
+          "component": "zsh",
+          "path": ".zshrc",
+          "status": "would-remove"
+        }
+      ],
+      "preserved_conflicts": true
+    },
+    {
+      "arguments": [
+        "remove",
+        "--apply"
+      ],
+      "exit_code": 2,
+      "mode": "applied",
+      "actions": [
+        {
+          "component": "fish",
+          "path": ".config/fish/config.fish",
+          "status": "remove"
+        },
+        {
+          "component": "hyprland",
+          "path": ".config/cachy-asahi/hyprland.lua",
+          "status": "preserved-edited"
+        },
+        {
+          "component": "zsh",
+          "path": ".zshrc",
+          "status": "remove"
+        }
+      ],
+      "preserved_conflicts": true
+    },
+    {
+      "arguments": [
+        "remove",
+        "--apply"
+      ],
+      "exit_code": 0,
+      "mode": "applied",
+      "actions": [
+        {
+          "component": "hyprland",
+          "path": ".config/cachy-asahi/hyprland.lua",
+          "status": "remove"
+        }
+      ],
+      "preserved_conflicts": false
+    },
+    {
+      "arguments": [
+        "activate",
+        "--components",
+        "fish",
+        "zsh",
+        "hyprland",
+        "--apply"
+      ],
+      "exit_code": 0,
+      "mode": "applied",
+      "actions": [
+        {
+          "component": "fish",
+          "path": ".config/fish/config.fish",
+          "status": "add"
+        },
+        {
+          "component": "hyprland",
+          "path": ".config/cachy-asahi/hyprland.lua",
+          "status": "add"
+        },
+        {
+          "component": "zsh",
+          "path": ".zshrc",
+          "status": "add"
+        }
+      ],
+      "preserved_conflicts": false
+    },
+    {
+      "arguments": [
+        "remove",
+        "--apply"
+      ],
+      "exit_code": 0,
+      "mode": "applied",
+      "actions": [
+        {
+          "component": "fish",
+          "path": ".config/fish/config.fish",
+          "status": "remove"
+        },
+        {
+          "component": "hyprland",
+          "path": ".config/cachy-asahi/hyprland.lua",
+          "status": "remove"
+        },
+        {
+          "component": "zsh",
+          "path": ".zshrc",
+          "status": "remove"
+        }
+      ],
+      "preserved_conflicts": false
+    }
+  ]
+}

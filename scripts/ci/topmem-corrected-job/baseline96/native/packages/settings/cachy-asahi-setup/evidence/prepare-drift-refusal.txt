@@ -1,0 +1,24 @@
+==> Making package: cachy-asahi-setup 0.1.0-2 (Sun Oct 11 20:35:32 2026)
+==> Checking runtime dependencies...
+==> Checking buildtime dependencies...
+==> Retrieving sources...
+  -> Found cachy-asahi-setup
+  -> Found README.md
+  -> Found NOTICE
+  -> Found LICENSE
+  -> Found source-provenance.json
+  -> Found check-sync.py
+  -> Found test-sync.py
+==> Validating source files with sha256sums...
+==> Extracting sources...
+==> Starting prepare()...
+    cachy-asahi-setup ... Passed
+    README.md ... Passed
+    NOTICE ... Passed
+    LICENSE ... Passed
+    source-provenance.json ... Passed
+    check-sync.py ... Passed
+    test-sync.py ... Passed
+FAIL: canonical helper differs from pinned provenance: /tmp/cachy-asahi-setup-drift-q3ezldx4/packages/settings/cachy-asahi-setup/../../../scripts/setup/setup.py
+==> ERROR: A failure occurred in prepare().
+    Aborting...

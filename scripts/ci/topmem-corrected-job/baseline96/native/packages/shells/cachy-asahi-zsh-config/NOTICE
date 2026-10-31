@@ -1,0 +1,14 @@
+cachy-asahi Zsh opt-in configuration
+
+The PKGBUILD, configuration, checks and documentation in this directory are
+original project material licensed under MIT. The accompanying LICENSE is the
+actual project MIT text, copyright (c) 2026 cachy-asahi contributors.
+
+No CachyOS configuration, Oh My Zsh code, third-party plugin, theme or font is
+bundled. CachyOS/cachyos-zsh-config was consulted for a source audit only. Its
+upstream recipe declares GPL-1.0-only, but the pinned configuration tree has no
+license text or explicit grant; permission to reuse it was not inferred. The
+project MIT selection does not clear that upstream licensing gap.
+
+Runtime Zsh is supplied separately by the base distribution under its own
+license. This package neither replaces nor relicenses Zsh.

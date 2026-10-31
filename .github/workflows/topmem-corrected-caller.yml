@@ -1,0 +1,137 @@
+name: topmem-corrected-caller
+on:
+  push:
+    branches: ['codex/topmem-native-execution-v1']
+permissions:
+  contents: read
+concurrency:
+  group: native-arm-build
+  cancel-in-progress: false
+jobs:
+  topmem:
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.ref == 'refs/heads/codex/topmem-native-execution-v1'
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 150
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      SOURCE: scripts/ci/topmem-corrected-job
+      TOOL_POLICY: scripts/ci/topmem-test-tool-policy.json
+      CALLER_MANIFEST_SHA256: '3086e42c74ec489105d37f41897b41f2cf49a86bd8b480906d70cb2c6bfdf092'
+      PACKET_SHA256: '16498f24649b981e99d803682e87e632bbba289e4bb6d3169d7608d7cecdc617'
+      ROOT_SOURCE_COMMIT: ${{ vars.TOPMEM_CORRECTED_SOURCE_COMMIT }}
+      ROOT_TOOL_POLICY_SHA256: '1bca9ee9afe9eabc3f9639592b5368e990d634aa0130168811777b667bd86d74'
+    steps:
+      - name: Record the one absolute deadline before checkout
+        id: clock
+        timeout-minutes: 1
+        shell: bash
+        run: |
+          set -euo pipefail
+          /usr/bin/python3.12 -I -B -S - <<'PYTHON'
+          import hashlib, json, math, os, pathlib, re, time
+          start = time.monotonic()
+          assert os.getuid() == os.geteuid() > 0 and os.getgid() == os.getegid() > 0
+          assert os.environ['RUNNER_ARCH'] == 'ARM64' and os.environ['RUNNER_OS'] == 'Linux'
+          commit = os.environ['GITHUB_SHA']
+          assert re.fullmatch('[0-9a-f]{40}', commit) and os.environ['GITHUB_WORKFLOW_SHA'] == commit
+          assert re.fullmatch('[1-9][0-9]{0,19}', os.environ['GITHUB_RUN_ID'])
+          assert re.fullmatch('[1-9][0-9]{0,9}', os.environ['GITHUB_RUN_ATTEMPT'])
+          parent = pathlib.Path(os.environ['RUNNER_TEMP']).resolve() / 'maintained-official-prefetch'
+          parent.mkdir(mode=0o700)
+          end = start + 7200
+          data = {'schema_version': 1, 'lane_id': 'maintained-native-official-prefetch-v1',
+                  'started_at': start, 'deadline_at': end, 'prefetch_end': min(start+1800, end-120-600),
+                  'guard_end': end-120, 'source_commit': commit, 'workflow_commit': commit,
+                  'run_id': os.environ['GITHUB_RUN_ID'], 'run_attempt': os.environ['GITHUB_RUN_ATTEMPT'], 'uid': os.getuid()}
+          raw = (json.dumps(data, sort_keys=True, indent=2, allow_nan=False)+'\n').encode()
+          path = parent / 'clock.json'
+          fd = os.open(path, os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW, 0o600)
+          try:
+              with os.fdopen(fd, 'wb') as stream: stream.write(raw); stream.flush(); os.fsync(stream.fileno())
+          except BaseException: raise
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as stream:
+              stream.write('path='+str(path)+'\nsha256='+hashlib.sha256(raw).hexdigest()+'\n')
+          PYTHON
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Prove the selected Topmem source and committed policy
+        id: proof
+        timeout-minutes: 3
+        shell: bash
+        env:
+          CLOCK_PATH: ${{ steps.clock.outputs.path }}
+          CLOCK_SHA256: ${{ steps.clock.outputs.sha256 }}
+        run: |
+          set -euo pipefail
+          printf '%s  %s\n' '478f6439b4847b514173e29ddb98b32fb157d7472ff2e63c73fa18c358f542b6' "$SOURCE/caller/caller.py" 'c84168539130394f9fe51bf440d036f44813ff2b923c1e9d77748f97f755c922' "$SOURCE/baseline96/contract.py" 'eee4feb256967fc7be90174ab026e08897d2f89aaa0f626653ba1f4cc0b62d20' "$SOURCE/baseline96/lane.py" "$CALLER_MANIFEST_SHA256" "$SOURCE/caller/manifest.json" | sha256sum --check
+          /usr/bin/python3.12 -I -B -S - <<'PYTHON'
+          import hashlib, json, os, pathlib, re, stat, time
+          assert re.fullmatch('[0-9a-f]{40}', os.environ['ROOT_SOURCE_COMMIT'])
+          assert os.environ['GITHUB_SHA'] == os.environ['GITHUB_WORKFLOW_SHA'] == os.environ['ROOT_SOURCE_COMMIT']
+          pin = os.environ['ROOT_TOOL_POLICY_SHA256']
+          assert re.fullmatch('[0-9a-f]{64}', pin)
+          clock = pathlib.Path(os.environ['CLOCK_PATH']).read_bytes()
+          assert hashlib.sha256(clock).hexdigest() == os.environ['CLOCK_SHA256']
+          stamp = json.loads(clock)
+          assert time.monotonic() < min(stamp['started_at']+300, stamp['prefetch_end'])
+          path = pathlib.Path(os.environ['GITHUB_WORKSPACE']) / os.environ['TOOL_POLICY']
+          info = path.lstat()
+          assert path == path.resolve() and stat.S_ISREG(info.st_mode) and info.st_nlink == 1
+          assert stat.S_IMODE(info.st_mode) == 0o644 and 0 < info.st_size <= 512*1024
+          raw = path.read_bytes()
+          assert len(raw) == info.st_size and hashlib.sha256(raw).hexdigest() == pin
+          value = json.loads(raw)
+          assert set(value) == {'schema_version','purpose','tools','helpers','producer'}
+          assert type(value['schema_version']) is int and value['schema_version'] == 2
+          assert value['purpose'] == 'TOPMEM_DISPOSABLE_TEST_TOOLCHAIN_INTERNAL_REPOSITORY_V2'
+          assert value['producer'] == {'kind':'TOPMEM_SINGLE_PACKAGE_PACMAN_DATABASE_V1','bytes':26388,'sha256':'8e27901c8bf395b0a9145fd5303bb8f35db2cd498ebc86b412a6916aa09fe5a7'}
+          assert set(value['tools']) == {'/usr/bin/gpg','/usr/bin/gpg-agent'} and type(value['helpers']) is dict
+          assert time.monotonic() < min(stamp['started_at']+300, stamp['prefetch_end'])
+          PYTHON
+          /usr/bin/python3.12 -I -B -S "$SOURCE/caller/caller.py" --addon-profile topmem-v1 --phase proof --caller-manifest-sha256 "$CALLER_MANIFEST_SHA256" --clock "$CLOCK_PATH" --clock-sha256 "$CLOCK_SHA256" --tool-policy "$GITHUB_WORKSPACE/$TOOL_POLICY" --tool-policy-sha256 "$ROOT_TOOL_POLICY_SHA256"
+      - name: Fetch only the official pinned 501 inputs
+        timeout-minutes: 30
+        shell: bash
+        env:
+          CLOCK_PATH: ${{ steps.clock.outputs.path }}
+          CLOCK_SHA256: ${{ steps.clock.outputs.sha256 }}
+        run: |
+          set -euo pipefail
+          printf '%s  %s\n' 'eee4feb256967fc7be90174ab026e08897d2f89aaa0f626653ba1f4cc0b62d20' "$SOURCE/baseline96/lane.py" | sha256sum --check
+          /usr/bin/python3.12 -I -B -S "$SOURCE/baseline96/lane.py" --phase prefetch --execute-prefetch --clock "$CLOCK_PATH" --clock-sha256 "$CLOCK_SHA256" --packet-sha256 "$PACKET_SHA256"
+      - name: Run fresh baseline then Topmem and all recovery in the caller
+        id: native
+        timeout-minutes: 118
+        shell: bash
+        env:
+          CLOCK_PATH: ${{ steps.clock.outputs.path }}
+          CLOCK_SHA256: ${{ steps.clock.outputs.sha256 }}
+        run: |
+          set -euo pipefail
+          printf '%s  %s\n' '478f6439b4847b514173e29ddb98b32fb157d7472ff2e63c73fa18c358f542b6' "$SOURCE/caller/caller.py" | sha256sum --check
+          /usr/bin/python3.12 -I -B -S "$SOURCE/caller/caller.py" --addon-profile topmem-v1 --phase native --caller-manifest-sha256 "$CALLER_MANIFEST_SHA256" --clock "$CLOCK_PATH" --clock-sha256 "$CLOCK_SHA256" --tool-policy "$GITHUB_WORKSPACE/$TOOL_POLICY" --tool-policy-sha256 "$ROOT_TOOL_POLICY_SHA256" --offline-cache "${CLOCK_PATH%/*}/prefetch/worker/cache" --output "$RUNNER_TEMP/tm-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" --docker-binary /usr/bin/docker --docker-sha256 94128e4afada0d46de642165e79dd70beb08e6775014648013283ed901b68248 --endpoint unix:///var/run/docker.sock
+      - name: Retain bounded caller status on native success or failure
+        if: always() && steps.proof.outcome == 'success' && steps.native.outcome != 'skipped'
+        timeout-minutes: 1
+        shell: bash
+        env:
+          CLOCK_PATH: ${{ steps.clock.outputs.path }}
+          CLOCK_SHA256: ${{ steps.clock.outputs.sha256 }}
+        run: |
+          set -euo pipefail
+          printf '%s  %s\n' '478f6439b4847b514173e29ddb98b32fb157d7472ff2e63c73fa18c358f542b6' "$SOURCE/caller/caller.py" | sha256sum --check
+          /usr/bin/python3.12 -I -B -S "$SOURCE/caller/caller.py" --addon-profile topmem-v1 --phase retain --caller-manifest-sha256 "$CALLER_MANIFEST_SHA256" --clock "$CLOCK_PATH" --clock-sha256 "$CLOCK_SHA256" --output "$RUNNER_TEMP/tm-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+      - name: Retain independent bounded prefetch metadata
+        if: always() && steps.proof.outcome == 'success'
+        timeout-minutes: 1
+        shell: bash
+        env:
+          CLOCK_PATH: ${{ steps.clock.outputs.path }}
+          CLOCK_SHA256: ${{ steps.clock.outputs.sha256 }}
+        run: |
+          set -euo pipefail
+          printf '%s  %s\n' 'eee4feb256967fc7be90174ab026e08897d2f89aaa0f626653ba1f4cc0b62d20' "$SOURCE/baseline96/lane.py" | sha256sum --check
+          /usr/bin/python3.12 -I -B -S "$SOURCE/baseline96/lane.py" --phase retain --clock "$CLOCK_PATH" --clock-sha256 "$CLOCK_SHA256" --packet-sha256 "$PACKET_SHA256"

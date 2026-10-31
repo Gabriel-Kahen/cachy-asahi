@@ -1,0 +1,87 @@
+#!/usr/bin/python3
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 cachy-asahi contributors.
+"""Show the current user's largest per-process resident memory estimates."""
+import argparse
+import json
+import os
+from pathlib import Path
+import re
+import sys
+
+MAX_STATUS = 16384
+MAX_ENTRIES = 4096
+
+
+def process_status(raw, pid, uid):
+    """Linux reports VmRSS in KiB; no assumed page size or command-line reading."""
+    if len(raw) > MAX_STATUS:raise ValueError('status-too-large')
+    fields = {}
+    for line in raw.decode('utf-8',errors='replace').splitlines():
+        key, sep, value = line.partition(':')
+        if sep and key in ('Name','Pid','Uid','VmRSS'):
+            if key in fields:raise ValueError('duplicate-status-field')
+            fields[key] = value.strip()
+    if fields.get('Pid') != str(pid):raise ValueError('pid-mismatch')
+    owners = fields.get('Uid','').split()
+    if len(owners)!=4 or not all(re.fullmatch('[0-9]+',part) for part in owners):raise ValueError('uid-missing')
+    if int(owners[0]) != uid:return None
+    name = fields.get('Name','')
+    if not name or len(name)>256:raise ValueError('name-missing')
+    rss = fields.get('VmRSS','').split()
+    if len(rss)!=2 or rss[1]!='kB' or not re.fullmatch('[0-9]+',rss[0]):raise ValueError('rss-unavailable')
+    kib = int(rss[0])
+    if kib > ((1<<64)-1)//1024:raise ValueError('rss-out-of-range')
+    return {'pid':pid,'name':name,'rss_bytes':kib*1024}
+
+
+def read_status(path):
+    with path.open('rb') as stream:return stream.read(MAX_STATUS+1)
+
+
+def snapshot(proc=Path('/proc'), *, uid=None, limit=10):
+    uid = os.getuid() if uid is None else uid
+    if type(uid) is not int or uid<0 or type(limit) is not int or not 1<=limit<=50:raise ValueError('invalid-selection')
+    rows = [];counts = dict(other_users=0,raced=0,permission_denied=0,unavailable=0,read_errors=0)
+    scanned = 0;truncated = False
+    with os.scandir(proc) as entries:
+        for number,entry in enumerate(entries):
+            if number>=MAX_ENTRIES:truncated=True;break
+            if not re.fullmatch('[1-9][0-9]*',entry.name):continue
+            scanned += 1
+            try:row = process_status(read_status(Path(proc)/entry.name/'status'),int(entry.name),uid)
+            except (FileNotFoundError,ProcessLookupError):counts['raced']+=1;continue
+            except PermissionError:counts['permission_denied']+=1;continue
+            except OSError:counts['read_errors']+=1;continue
+            except ValueError:counts['unavailable']+=1;continue
+            if row is None:counts['other_users']+=1
+            else:rows.append(row)
+    rows.sort(key=lambda row:(-row['rss_bytes'],row['pid']))
+    return {'scope':'current-real-uid','uid':uid,'processes':rows[:limit],'matching_processes':len(rows),
+            'status_reads':scanned,'skipped':counts,'scan_truncated':truncated,
+            'memory_semantics':'per-process VmRSS estimate; shared pages may appear in several processes; not total physical usage'}
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--limit',type=int,default=10,choices=range(1,51),metavar='1..50')
+    parser.add_argument('--json',action='store_true',help='emit a structured snapshot')
+    args = parser.parse_args(argv)
+    try:value = snapshot(limit=args.limit)
+    except (OSError,ValueError) as error:
+        print('Cannot read process memory: '+type(error).__name__,file=sys.stderr);return 1
+    if args.json:print(json.dumps(value,sort_keys=True,ensure_ascii=True))
+    else:
+        print('Current UID '+str(value['uid'])+' - per-process resident memory estimates')
+        print('    PID    RSS MiB  NAME')
+        for row in value['processes']:
+            # Quoted JSON escapes terminal controls without exposing command arguments.
+            print(f"{row['pid']:7d}  {row['rss_bytes']/1048576:9.2f}  "+json.dumps(row['name'],ensure_ascii=True))
+        print(value['memory_semantics'])
+        skipped=value['skipped']
+        print('Skipped: '+', '.join(f'{key}={count}' for key,count in skipped.items())+
+              '; scan_truncated='+str(value['scan_truncated']))
+    return 0
+
+
+if __name__=='__main__':raise SystemExit(main())

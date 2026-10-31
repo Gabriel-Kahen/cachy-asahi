@@ -1,0 +1,36 @@
+{
+  "observed_date": "2026-10-11",
+  "packaging_commit": "c7cf5b4f2c70f28ed50601b3f75b19da93ba663f",
+  "packaging_recipe": {
+    "url": "https://raw.githubusercontent.com/CachyOS/CachyOS-PKGBUILDS/c7cf5b4f2c70f28ed50601b3f75b19da93ba663f/cachyos-zsh-config/PKGBUILD",
+    "sha256": "efe905376be14054231cc4d05c87deef51cd94451a37af1e25db8c4812c4fb1a"
+  },
+  "upstream_version": "1.0.3",
+  "annotated_tag_object": "bb4e4e0cce4a332e164148b3e692d10ed4360971",
+  "source_commit": "79c20770964110b873a4c0429c2a560fd28d33ac",
+  "tag_signature": "GitHub API verification.verified=true; local GPG verification NOT RUN",
+  "recipe_signature_key": "B1B70BB1CD56047DEF31DE2EB62C3D10C54D5DA9",
+  "source_tree_complete_file_list": [
+    "README.md",
+    "cachyos-config.zsh",
+    "zshrc"
+  ],
+  "source_files": {
+    "README.md": {
+      "url": "https://raw.githubusercontent.com/CachyOS/cachyos-zsh-config/79c20770964110b873a4c0429c2a560fd28d33ac/README.md",
+      "sha256": "866207873617401b51c0422143e6b87e6c5d60aaf2f45ee0ab1aa1b07775a845",
+      "bytes": 52
+    },
+    "cachyos-config.zsh": {
+      "url": "https://raw.githubusercontent.com/CachyOS/cachyos-zsh-config/79c20770964110b873a4c0429c2a560fd28d33ac/cachyos-config.zsh",
+      "sha256": "343cea9bd86f9d430b7d98cfaa351cca8a9b90921fba6ec2cdf3b3969595faf3",
+      "bytes": 3578
+    },
+    "zshrc": {
+      "url": "https://raw.githubusercontent.com/CachyOS/cachyos-zsh-config/79c20770964110b873a4c0429c2a560fd28d33ac/zshrc",
+      "sha256": "d0c6b70ee1dab79468ad3075a967c6ca98ab87d5680ae76a375954ed7b34fa64",
+      "bytes": 56
+    }
+  },
+  "licensing": "Recipe declares GPL-1.0-only; complete pinned source tree has no license file or explicit grant. Not copied into this package."
+}
