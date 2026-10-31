@@ -15,14 +15,14 @@
   "consumer_basis182_source": "5b2016cc842970952c03cc2cc068a9cfbea5812c",
   "files": {
     ".github/workflows/native-arm-build.yml": {
-      "bytes": 12819,
+      "bytes": 13044,
       "mode": 420,
-      "sha256": "ac04dd166d8a71de0f00f84a1a0f4a22b03a65087e144c240881a225be30ba9d"
+      "sha256": "008de8d09e45e317b1be1164cf928bf01f5821609a922b7ea03c8a35e7f54786"
     },
     ".github/workflows/native-arm-developer-workflows.yml": {
-      "bytes": 12819,
+      "bytes": 13044,
       "mode": 420,
-      "sha256": "ac04dd166d8a71de0f00f84a1a0f4a22b03a65087e144c240881a225be30ba9d"
+      "sha256": "008de8d09e45e317b1be1164cf928bf01f5821609a922b7ea03c8a35e7f54786"
     },
     "bootstrap/.github/workflows/native-arm-build.yml": {
       "bytes": 16219,
@@ -615,9 +615,9 @@
       "sha256": "2c42c705654d31e639f389f9a868dada0d9df76813d865e766be7b7c08f8404c"
     },
     "native/invocation.json": {
-      "bytes": 999,
+      "bytes": 1423,
       "mode": 420,
-      "sha256": "5b216c7568900c4b128702350a894a04478b0453f66a5d9ce35b3de67a0802ba"
+      "sha256": "8a1cd7bd7c825102ba7e34a63af73c32abd9b6a1bf1aaf6b7d7a0d54db2add55"
     },
     "native/original341.lock": {
       "bytes": 6674,
@@ -625,9 +625,9 @@
       "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
     },
     "native/owner.py": {
-      "bytes": 26041,
+      "bytes": 26947,
       "mode": 420,
-      "sha256": "0c2c520b08c61394f0089dd2a661309ce2992d7f86e36dc394afc69087e2a04e"
+      "sha256": "79547de15962d9af6b689c4f3cf98513dc7e119c55a4fc49b63be4315b3546f9"
     },
     "native/predecessor-source-map.json": {
       "bytes": 27440,
@@ -668,6 +668,51 @@
       "bytes": 7948,
       "mode": 420,
       "sha256": "750b929681353a5915e5541d4bdbe167b558830e9762d6ac2da0c05146120a70"
+    },
+    "native/source-tools-contract-v1.json": {
+      "bytes": 21381,
+      "mode": 420,
+      "sha256": "5fe189406b40a16f08955df642781c22bba106507731ff33b4734bf43210d3cb"
+    },
+    "native/source-tools-makepkg-v1.conf": {
+      "bytes": 316,
+      "mode": 420,
+      "sha256": "8cdd968870a2a92d7006739e96dedefa14e51c40d62cfc15831f234a767a1421"
+    },
+    "native/source-tools-sources-v1.tar": {
+      "bytes": 501760,
+      "mode": 420,
+      "sha256": "919a6928211b862ecccb6ef6eab936fbe363b3754465775150d6c0643fc7a66a"
+    },
+    "native/source_tools_alpm_v1.py": {
+      "bytes": 27900,
+      "mode": 420,
+      "sha256": "4299d71ba98f8d6e8cf3cbbe057294a7b82359e93162c850b7808b0216141d3d"
+    },
+    "native/source_tools_guest_v1.py": {
+      "bytes": 3337,
+      "mode": 420,
+      "sha256": "e93e6b6dd0e717305b29236718339a448794808052f65e8279bbca37d40272e1"
+    },
+    "native/source_tools_probe_v1.py": {
+      "bytes": 17646,
+      "mode": 420,
+      "sha256": "bc7645b39df4b0fe39c0eda7da1ad46f9603786b3ec18aeafdd04b8d8f5563e2"
+    },
+    "native/source_tools_projection_v1.py": {
+      "bytes": 10628,
+      "mode": 420,
+      "sha256": "0c91e8bd674b05f1a68d6cff6000dcaa74752d665e0566f2ff7768764ce8150c"
+    },
+    "native/source_tools_reader_v1.py": {
+      "bytes": 116262,
+      "mode": 420,
+      "sha256": "6a640d1008d5f6364631a330f341945b55e8d59bda089360fb1656d0dcad5a92"
+    },
+    "native/source_tools_tools_v1.py": {
+      "bytes": 21268,
+      "mode": 420,
+      "sha256": "c43ca5ec8cb81ec78e7d6a0a224eb9272dad9bb831af3d6a8755d4d8db83c1c5"
     },
     "native/transport_proof.py": {
       "bytes": 16711,
@@ -968,6 +1013,13 @@
   "image_basis180_map_sha256": "cceed4d8b72e9e73a5cb433c2c4643f5e85a0490dacd5b226514e2961aaba458",
   "image_basis180_source": "a434716cbf53085e6380e06939be6a38dd5412fc",
   "schema": 1,
+  "source_tools_genuine_parent": "111f14d2b21b220d86912d5ead978848c7ef1cb0",
+  "source_tools_operation": "source-tools-alpm-v1",
+  "source_tools_resume_context": {
+    "date": "2026-10-31",
+    "development_pr_base": "main",
+    "main": "eaf43eddc5604773d8176f319700a450bc32ccb0"
+  },
   "transport_basis177_map_sha256": "99d676438a247749b3e1c564943d8735452a1ebd92ec91dd78ee37817e77f36d",
   "transport_basis187_map_sha256": "b295500787e25eeb77ac16e84fb786d3d6c1e9f02f7a9ddb83d950bbe9d75c90",
   "transport_basis187_source": "94d638063f826b3c501e3dd004d9a41b40f7a0e0"
