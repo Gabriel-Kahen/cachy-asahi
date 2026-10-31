@@ -1,0 +1,165 @@
+{
+  "schema": "measurement-tools-source-closure-v1",
+  "base_commit": "852d1b7324e4ad840fa94ea7c9fc994b1aa07280",
+  "package": "cachy-asahi-measurement-tools",
+  "version": "0.1.0-1",
+  "files": [
+    {
+      "path": "docs/benchmarks/measurement-tools-package.md",
+      "bytes": 3538,
+      "sha256": "1ae321c4caea812fc6f8e089bebbffa0450c4e01eadb596493517a8b1eebed00",
+      "mode": "0644"
+    },
+    {
+      "path": "manifests/measurement-tools-package-row.toml",
+      "bytes": 1122,
+      "sha256": "75b4518b0fcbdefeb09a8a9b0cf9e39e5fa4ea12df3143c2711a3cc2bede533a",
+      "mode": "0644"
+    },
+    {
+      "path": "packages/tools/cachy-asahi-measurement-tools/.SRCINFO",
+      "bytes": 2077,
+      "sha256": "cae75d5d9dc19723040dc77425cd8e94297a046b4bc58bb8cf8b08023da2fffa",
+      "mode": "0644"
+    },
+    {
+      "path": "packages/tools/cachy-asahi-measurement-tools/LICENSE",
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+      "mode": "0644"
+    },
+    {
+      "path": "packages/tools/cachy-asahi-measurement-tools/NOTICE",
+      "bytes": 690,
+      "sha256": "993cde3f1cd8094d28c9bccbe3b2c6b39f155976c906a4ea9b6e42375cbc9285",
+      "mode": "0644"
+    },
+    {
+      "path": "packages/tools/cachy-asahi-measurement-tools/PKGBUILD",
+      "bytes": 2434,
+      "sha256": "b48a454c1a393982ddb519e5838298dc839ebcf7df96c6816adcce314be5a75e",
+      "mode": "0644"
+    },
+    {
+      "path": "packages/tools/cachy-asahi-measurement-tools/README.md",
+      "bytes": 6697,
+      "sha256": "3870a5c9b164fed3bab99ec11dd3c073391ddb2d1b879cfd37942a2e2d6a2fb8",
+      "mode": "0644"
+    },
+    {
+      "path": "packages/tools/cachy-asahi-measurement-tools/assemble.py",
+      "bytes": 1942,
+      "sha256": "3ad1a329e7cf2b2f47b50515fb9d7b5ac2c4a547021f404082dca54d609df555",
+      "mode": "0644"
+    },
+    {
+      "path": "packages/tools/cachy-asahi-measurement-tools/benchmark.py",
+      "bytes": 50739,
+      "sha256": "3783f5e6f6a44bc177fd31254d044d5fb31832e232306a358d8cfb497a62b3cc",
+      "mode": "0644"
+    },
+    {
+      "path": "packages/tools/cachy-asahi-measurement-tools/benchmark_platform_metrics.py",
+      "bytes": 16254,
+      "sha256": "863442bfeb274b7dcfec540c33fd4632498e58a5672a3b466aca6bc6fc46b9bd",
+      "mode": "0644"
+    },
+    {
+      "path": "packages/tools/cachy-asahi-measurement-tools/cachy-asahi-measurement-tools",
+      "bytes": 3031,
+      "sha256": "d599f8f1ac277c1d19ba40aa45d8133d2f7ce28c873a46aea829c82da21d895c",
+      "mode": "0755"
+    },
+    {
+      "path": "packages/tools/cachy-asahi-measurement-tools/conditions.example.json",
+      "bytes": 520,
+      "sha256": "bcc89dc73d4aec57ca57eca1bd5cbef58cf2639f8b330dced9933fbbe69ff758",
+      "mode": "0644"
+    },
+    {
+      "path": "packages/tools/cachy-asahi-measurement-tools/experiment.example.json",
+      "bytes": 1801,
+      "sha256": "c7f90a9b0ab1c6a877653a17b44025160d7e9beb7065f48084bce9e3c065cecf",
+      "mode": "0644"
+    },
+    {
+      "path": "packages/tools/cachy-asahi-measurement-tools/owned_process.py",
+      "bytes": 25140,
+      "sha256": "83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f",
+      "mode": "0644"
+    },
+    {
+      "path": "packages/tools/cachy-asahi-measurement-tools/payload-map.json",
+      "bytes": 3293,
+      "sha256": "1747f8bbdd3d0a2ca411967501776c8232913be1223c74f6d390bd954c58e81d",
+      "mode": "0644"
+    },
+    {
+      "path": "packages/tools/cachy-asahi-measurement-tools/platform_metrics.py",
+      "bytes": 26497,
+      "sha256": "bf3d80c3e5a7d8e8a67c393e2cabf19c2a45945fd023628bdb5dcb5b03b2b4f2",
+      "mode": "0644"
+    },
+    {
+      "path": "packages/tools/cachy-asahi-measurement-tools/process_group_memory.py",
+      "bytes": 7097,
+      "sha256": "15d8e0f998f01e4f0a85122421ae76538eb05a0a2ab422e346674b8138ba2037",
+      "mode": "0644"
+    },
+    {
+      "path": "packages/tools/cachy-asahi-measurement-tools/smoke_workload.py",
+      "bytes": 489,
+      "sha256": "7f4dd277dd618d568c1df327b4f520bab26e7abfd33a91a8178da2c513cfd1cb",
+      "mode": "0644"
+    },
+    {
+      "path": "packages/tools/cachy-asahi-measurement-tools/source-provenance.json",
+      "bytes": 2328,
+      "sha256": "7c9de95405e819c0a2e693c7eb29eca3a1187e6e7c2d6ce26effad212cf50a5b",
+      "mode": "0644"
+    },
+    {
+      "path": "packages/tools/cachy-asahi-measurement-tools/test_package.py",
+      "bytes": 14021,
+      "sha256": "e176512445f0984968a5d98160333957402133be82415d0abeac5c78c9dfec2f",
+      "mode": "0644"
+    },
+    {
+      "path": "scripts/checks/check_measurement_tools_v1.py",
+      "bytes": 1817,
+      "sha256": "d09132b921d2eab383cbfda526d40a45c92a4fde6e7111af1f73fed9426be598",
+      "mode": "0644"
+    },
+    {
+      "path": "scripts/checks/measurement_tools_package_checks_original_v1.py",
+      "bytes": 17706,
+      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8",
+      "mode": "0644"
+    },
+    {
+      "path": "scripts/release/measurement_tools_source_delivery_v1.py",
+      "bytes": 4633,
+      "sha256": "f512ba4c1c2b22fb91daeea57ad40811fc62edcc7988d8f12b0fd2d4a2f400ae",
+      "mode": "0644"
+    },
+    {
+      "path": "scripts/release/test_measurement_tools_source_delivery_v1.py",
+      "bytes": 3604,
+      "sha256": "ae564bee17e0d7bb408f05761bb3ef6c92d03c48983ffc0935fdb1b4d2508de2",
+      "mode": "0644"
+    }
+  ],
+  "retained_static_checker": {
+    "source": "scripts/checks/package_checks.py",
+    "delivered": "scripts/checks/measurement_tools_package_checks_original_v1.py",
+    "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8",
+    "license": "MIT",
+    "transformation": "none; byte-identical"
+  },
+  "acquisition": "none; exact local originals plus new MIT package-only sources",
+  "native_build": "NOT RUN",
+  "installation": "NOT RUN",
+  "hardware_validation": "NOT RUN",
+  "performance": "NOT MEASURED",
+  "release": "NOT ADMITTED"
+}
