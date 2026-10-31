@@ -1,0 +1,158 @@
+#!/usr/bin/python3 -I
+# SPDX-License-Identifier: MIT
+"""Offline Apple-platform plan/check/prepare; no commit, boot or host DB operations."""
+import argparse
+import atexit
+import hashlib
+import importlib.util
+import json
+import os
+from pathlib import Path
+import re
+import runpy
+import shutil
+import stat
+import subprocess
+import sys
+import tempfile
+
+sys.dont_write_bytecode = True
+PREFIX = Path(__file__).resolve().parents[1]
+RUNTIME = PREFIX / 'lib/cachy-asahi/platform-tools'
+
+
+def need(value, message):
+    if not value:
+        raise ValueError(message)
+
+
+def read(path, maximum=4 * 1024**2):
+    need(not any(p.is_symlink() for p in (path, *path.parents)), 'symlink runtime path refused')
+    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    with os.fdopen(fd, 'rb') as stream:
+        info = os.fstat(stream.fileno())
+        need(stat.S_ISREG(info.st_mode) and info.st_size <= maximum, 'bounded regular runtime file required')
+        raw = stream.read(maximum + 1)
+        need(len(raw) <= maximum, 'runtime file limit exceeded')
+        return raw
+
+
+def unique(rows):
+    result = {}
+    for key, value in rows:
+        need(key not in result, 'duplicate runtime manifest key')
+        result[key] = value
+    return result
+
+
+def integrity():
+    manifest = json.loads(read(RUNTIME / 'runtime-map.json'), object_pairs_hook=unique)
+    need(set(manifest) == {'schema_version', 'kind', 'launcher_sha256', 'files'}
+         and type(manifest['schema_version']) is int and manifest['schema_version'] == 1
+         and manifest['kind'] == 'platform-tools-runtime-v1', 'runtime manifest refused')
+    need(hashlib.sha256(read(Path(__file__).resolve())).hexdigest() == manifest['launcher_sha256'],
+         'launcher checksum mismatch')
+    pins = manifest['files']
+    need(type(pins) is dict and len(pins) == 16, 'whole runtime closure required')
+    actual = {p.relative_to(RUNTIME).as_posix() for p in (RUNTIME / 'scripts').rglob('*') if not p.is_dir()}
+    need(actual == set(pins), 'runtime source file set differs')
+    for name, pin in pins.items():
+        need(re.fullmatch(r'scripts/[a-z_]+/[a-z_]+\.py', name) is not None
+             and isinstance(pin, str) and re.fullmatch(r'[0-9a-f]{64}', pin), 'runtime source pin refused')
+        need(hashlib.sha256(read(RUNTIME / name)).hexdigest() == pin, 'runtime source checksum mismatch: ' + name)
+    return {'schema_version': 1, 'kind': 'private-platform-prepare-source-closure', 'files': pins}
+
+
+def load(name):
+    spec = importlib.util.spec_from_file_location('platform_tools_' + name, RUNTIME / ('scripts/platform/' + name + '.py'))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def check(args, sources):
+    module = load('prepare_transition')
+    module.need(set(sources['files']) == set(module.SOURCE_FILES), 'runtime closure identity differs')
+    capabilities = {}
+    try:
+        versions = module.p.audit.Versions()
+        need(versions.compare(b'2-1', b'1-1') > 0 and versions.compare(b'1-1', b'1-1') == 0,
+             'libalpm comparator control failed')
+        command = subprocess.run(['vercmp', '2-1', '1-1'], capture_output=True, timeout=5, check=False)
+        need(command.returncode == 0 and command.stdout.strip() == b'1', 'vercmp control failed')
+        capabilities['plan'] = {'status': 'READY', 'real_version_controls': True}
+    except (ValueError, OSError, AttributeError, subprocess.TimeoutExpired) as error:
+        capabilities['plan'] = {'status': 'UNAVAILABLE', 'reason': str(error)}
+    try:
+        api = module.PrepareAlpm()
+        need(all(shutil.which(name) for name in ('gpg', 'gpgv')), 'gpg/gpgv required')
+        capabilities['prepare'] = {'status': 'READY', 'libalpm_version': api.version,
+                                   'transaction': 'NOT RUN', 'authentication': 'NOT RUN'}
+    except (ValueError, OSError, AttributeError) as error:
+        capabilities['prepare'] = {'status': 'NOT RUN', 'reason': str(error)}
+    report = {'schema_version': 1, 'kind': 'platform-tools-runtime-check', 'runtime_sources': sources,
+              'capabilities': capabilities, 'host_database_used': False, 'commit_called': False,
+              'hardware_accepted': False, 'production_admitted': False}
+    code = 0 if capabilities['plan']['status'] == 'READY' else 2
+    if args.contract:
+        contract = module.p.audit.load_json(module.p.audit.read_bound(args.contract, args.contract_sha256))
+        retained = module.p.audit.load_json(module.p.audit.read_bound(args.report, args.report_sha256))
+        need(retained.get('contract_sha256') == args.contract_sha256, 'retained plan/contract binding differs')
+        fresh = module.p.run(contract)
+        body = lambda value: {k: v for k, v in value.items() if k != 'contract_sha256'}
+        need(body(retained) == fresh, 'retained plan differs from fresh assessment')
+        report['retained_plan'] = {'status': fresh['status'], 'contract_sha256': args.contract_sha256,
+                                   'report_sha256': args.report_sha256, 'exact_fresh_match': True,
+                                   'input_references': contract}
+        code = 0 if fresh['software_data_bound'] else 2
+    if args.output:
+        module.p.audit.write_private(args.output, report)
+    print(json.dumps(report, sort_keys=True))
+    return code
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    sub = parser.add_subparsers(dest='action', required=True)
+    for name in ('plan', 'prepare'):
+        child = sub.add_parser(name, help='Frozen offline planner' if name == 'plan' else 'Strict authenticated private metadata prepare')
+        child.add_argument('--contract', type=Path, required=True)
+        child.add_argument('--contract-sha256', required=True)
+        child.add_argument('--output', type=Path, required=True)
+    child = sub.add_parser('sources', help='Write exact 16-source closure for a strict preparation contract')
+    child.add_argument('--output', type=Path, required=True)
+    child = sub.add_parser('check', help='Check runtime/tools, optionally recompute an exact retained plan')
+    child.add_argument('--output', type=Path)
+    child.add_argument('--contract', type=Path)
+    child.add_argument('--contract-sha256')
+    child.add_argument('--report', type=Path)
+    child.add_argument('--report-sha256')
+    args = parser.parse_args()
+    if args.action == 'check':
+        fields = (args.contract, args.contract_sha256, args.report, args.report_sha256)
+        if any(fields) and not all(fields):
+            parser.error('retained plan check requires contract, report and both SHA256 values')
+    try:
+        sources = integrity()
+        # A new PYC namespace precedes every private source import; children inherit it.
+        cache = tempfile.TemporaryDirectory(prefix='platform-tools-source-cache-')
+        atexit.register(cache.cleanup)
+        sys.pycache_prefix = cache.name
+        os.environ['PYTHONPYCACHEPREFIX'] = cache.name
+        if args.action in ('plan', 'prepare'):
+            sys.argv = [str(RUNTIME / 'scripts/platform' / ('platform_transition.py' if args.action == 'plan' else 'prepare_transition.py')),
+                        '--contract', str(args.contract), '--contract-sha256', args.contract_sha256,
+                        '--output', str(args.output)]
+            runpy.run_path(sys.argv[0], run_name='__main__')
+        if args.action == 'sources':
+            load('tuple_audit').write_private(args.output, sources)
+            print(json.dumps({'status': 'BOUND_RUNTIME_SOURCES', 'report': str(args.output),
+                              'sha256': hashlib.sha256(args.output.read_bytes()).hexdigest()}))
+            return 0
+        return check(args, sources)
+    except (ValueError, OSError, KeyError, TypeError, AttributeError, UnicodeError, EOFError) as error:
+        parser.exit(1, 'platform tools refused: ' + str(error) + '\n')
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())
