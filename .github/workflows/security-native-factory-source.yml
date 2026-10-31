@@ -1,0 +1,51 @@
+name: Security native factory Source controls
+on:
+  pull_request:
+    paths:
+      - .github/workflows/security-native-factory-source.yml
+      - scripts/ci/security-maintenance-native-source/**
+      - docs/workstreams/security-maintenance-native-source.md
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/security-native-factory-source.yml
+      - scripts/ci/security-maintenance-native-source/**
+      - docs/workstreams/security-maintenance-native-source.md
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-data:
+    name: Security finite Source DATA controls (Python ${{ matrix.python }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - name: Checkout maintained Security factory
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Checkout exact genuine Security200 parent as DATA
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: b6a02f11648738ded90084f7dcdcd4ea77c194fa
+          path: .ci-security-parent
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Run actor-denied finite factory and upgrade DATA controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          stage=$(mktemp -d "$RUNNER_TEMP/security-factory-controls.XXXXXXXX")
+          mkdir -m700 "$stage/parent"
+          test "$(/usr/bin/git -C .ci-security-parent rev-parse --verify HEAD)" = b6a02f11648738ded90084f7dcdcd4ea77c194fa
+          /usr/bin/git -C .ci-security-parent archive --format=tar b6a02f11648738ded90084f7dcdcd4ea77c194fa | tar -xf - -C "$stage/parent"
+          python -I -B -Werror::ResourceWarning scripts/ci/security-maintenance-native-source/test_factory.py --parent-source "$stage/parent"
