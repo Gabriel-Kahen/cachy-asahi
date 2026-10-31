@@ -63,6 +63,10 @@ def guest_config(helper_sha,python_mm):
 package_started=0
 bootstrap_log=/run/measurement-bootstrap.log
 bootstrap_stage=prepare
+stage() {
+ bootstrap_stage=$1
+ printf '\\nMEASUREMENT_BOOTSTRAP_STAGE_START=%s elapsed=%d\\n' "$bootstrap_stage" "$SECONDS" > /dev/ttyS0 || :
+}
 finish() {
  rc=$?
  trap - EXIT
@@ -80,11 +84,11 @@ umask 077
 exec > "$bootstrap_log" 2>&1
 umask "$bootstrap_umask"
 export DEBIAN_FRONTEND=noninteractive
-bootstrap_stage=apt-update
+stage apt-update
 apt-get update -qq
-bootstrap_stage=apt-install
+stage apt-install
 apt-get install --yes --quiet --no-install-recommends bubblewrap python3 libssl3t64 libexpat1 libzstd1 libffi8 liblzma5 libbz2-1.0 libsqlite3-0 libreadline8t64 libncursesw6 libuuid1
-bootstrap_stage=source-setup
+stage source-setup
 install -d /mnt/measureci /opt/measurement
 mount -o ro /dev/disk/by-label/MEASURECI /mnt/measureci
 cd /mnt/measureci
@@ -93,9 +97,9 @@ python3 -I -B -c 'import tarfile; t=tarfile.open("python.tar"); t.extractall("/o
 cp helper.py /opt/measurement/helper.py
 cp -a source /opt/measurement/source
 printf '%s  %s\\n' HELPER_SHA /opt/measurement/helper.py | sha256sum -c -
-bootstrap_stage=python-probe
+stage python-probe
 env LD_LIBRARY_PATH=/opt/measurement/python/lib /opt/measurement/python/bin/python3 -I -B -c 'import sys,ssl,hashlib,zlib,bz2,lzma,ctypes,sqlite3; assert sys.version_info[:2] == tuple(map(int,"PYTHON_MM".split(".")))'
-bootstrap_stage=package8
+stage package8
 package_started=1
 runuser -u measurement -- env PATH=/opt/measurement/python/bin:/usr/local/bin:/usr/bin:/bin LD_LIBRARY_PATH=/opt/measurement/python/lib /opt/measurement/python/bin/python3 -I -B -Werror::ResourceWarning /opt/measurement/helper.py package --root /opt/measurement/source --work /home/measurement/package-ci
 '''.replace('HELPER_SHA',helper_sha).replace('PYTHON_MM',python_mm).replace('PROFILE_PIN',PROFILE_SHA)
