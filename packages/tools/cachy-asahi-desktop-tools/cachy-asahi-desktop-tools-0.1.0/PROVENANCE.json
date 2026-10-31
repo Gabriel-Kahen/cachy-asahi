@@ -1,0 +1,46 @@
+{
+  "schema": 1,
+  "observed_head": "28814717fd2dbf66b9b65c2354a36b3c2843e3be",
+  "license": "MIT",
+  "runtime_dependencies": [
+    "python>=3.11 (standard library only)"
+  ],
+  "source_inputs": [
+    {
+      "path": "scripts/workflows/desktop_applications.py",
+      "bytes": 37685,
+      "sha256": "4eefd981d6e6d20471ba108e4450308a284ca7fcc47b08ebfea7e468887835a3"
+    },
+    {
+      "path": "scripts/workflows/desktop_application_inputs.py",
+      "bytes": 8690,
+      "sha256": "681fbe51d7c2e1be128821852605174849a834a88ce4cd6b1e8b13851f91330b"
+    },
+    {
+      "path": "scripts/workflows/desktop_application_runtime.py",
+      "bytes": 17456,
+      "sha256": "a1652af0a829b752f2fa79a9c2e8cff7774717fffee5ec73ae65e6069f81a7c4"
+    },
+    {
+      "path": "scripts/workflows/desktop_application_window_lifecycle.py",
+      "bytes": 22138,
+      "sha256": "b399dcbf7227f313788522f10e4c37b23d49808adabc770ee755550fe9d7696d"
+    },
+    {
+      "path": "scripts/workflows/test_desktop_applications.py",
+      "bytes": 29065,
+      "sha256": "3e48ae6f0ec0b5dcd235ee66f8874ce3bde251efde4e35cfac5a5ff9da5d146d"
+    },
+    {
+      "path": "LICENSE",
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    {
+      "path": "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/assemble.py",
+      "bytes": 3355,
+      "sha256": "57c29b4051d7079ccf35de500402b0d4b171b71babc2029ee40e5c52c9a37000"
+    }
+  ],
+  "notes": "Runtime, inputs and window modules inspected, not modified or included in executable payload. Static module and its 54 tests copied byte-for-byte. Assembler reused byte-for-byte."
+}

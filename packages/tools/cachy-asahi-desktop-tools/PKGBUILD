@@ -1,0 +1,20 @@
+# SPDX-License-Identifier: MIT
+pkgname=cachy-asahi-desktop-tools
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Offline staged desktop-entry checker with exact relocatable inventory bindings'
+arch=('any')
+url='https://github.com/Gabriel-Kahen/cachy-asahi'
+license=('MIT')
+depends=('python>=3.11')
+options=('!strip' '!debug')
+source=("$pkgname-$pkgver.tar.gz")
+sha256sums=('69d8c7bb3a13086d4b3ae5a46fa79db14ef4a034912bacb9f185ccc4d54b0ba4')
+
+check() {
+    python -I -B "$srcdir/$pkgname-$pkgver/test_package.py"
+}
+
+package() {
+    python -I -B "$srcdir/$pkgname-$pkgver/assemble.py" --destdir "$pkgdir" --prefix /usr
+}
