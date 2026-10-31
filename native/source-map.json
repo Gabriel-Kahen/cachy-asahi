@@ -668,9 +668,9 @@
       "sha256": "750b929681353a5915e5541d4bdbe167b558830e9762d6ac2da0c05146120a70"
     },
     "native/security-contract-v1.json": {
-      "bytes": 603466,
+      "bytes": 611744,
       "mode": 420,
-      "sha256": "8dfd607a847aa6b461f6d97298c6e1336f6c656da132ce24ae1fb6f92e44b8f2"
+      "sha256": "6781cb62ed12f470c79a8a534b831878bf9a5edc150b2964ce3254e5f0c0b1f1"
     },
     "native/security-makepkg.conf": {
       "bytes": 316,
@@ -678,14 +678,14 @@
       "sha256": "8cdd968870a2a92d7006739e96dedefa14e51c40d62cfc15831f234a767a1421"
     },
     "native/security_native_v1.py": {
-      "bytes": 33898,
+      "bytes": 38523,
       "mode": 420,
-      "sha256": "76e08d30767bac9f0eeceb7b4ceb10a7089117a48d00954c9bf2ed5908d6c151"
+      "sha256": "970793258bca73525db8e40709c845c63a76396f0fbd7b45c9c446571b77e2ef"
     },
     "native/security_reader_v1.py": {
-      "bytes": 21183,
+      "bytes": 27578,
       "mode": 420,
-      "sha256": "6e06c2e0300de3e3ba24c3f4366858dbbf86cf55eb5e824cde10bb64fe3daed1"
+      "sha256": "5d2442928ffe4c71f42969a15fb8786a0b0ca68fb63b54430c14a560166da8fc"
     },
     "native/security_workflow_v1.py": {
       "bytes": 13659,
@@ -1015,6 +1015,7 @@
   "security_basis_v5_source": "b6a02f11648738ded90084f7dcdcd4ea77c194fa",
   "security_operation": "security-alpm-v1",
   "security_source_factory": "security-maintenance-native-source-v1",
+  "security_upgrade_observation": "first-real-upgrade-zero-observation-v1",
   "security_upgrade_protocol": "signed-prior-to-current-v1",
   "transport_basis177_map_sha256": "99d676438a247749b3e1c564943d8735452a1ebd92ec91dd78ee37817e77f36d",
   "transport_basis187_map_sha256": "b295500787e25eeb77ac16e84fb786d3d6c1e9f02f7a9ddb83d950bbe9d75c90",
