@@ -76,6 +76,8 @@ def consumer_identity(row, own, image, root, output):
 
 def run(root, args):
     own, profile, original, expected = admission(root, args, os.environ)
+    operation=getattr(args,'operation','source184')
+    need(operation in ('source184','desktop-alpm-v1'),'explicit finite operation')
     need((root / '.git').is_dir() and not (root / '.git').is_symlink(), 'explicit ordinary publication Git directory')
     import provision
     proof = provision.prior_proof(root, args, own)
@@ -90,6 +92,7 @@ def run(root, args):
     report = dict(schema=1, status='FAIL', binding=own, source_map_sha256=args.map_sha256,
                   input_inventory=pin(expected), source_root=str(root), output_root=str(output),
                   native_16K='NOT_QUALIFIED', physical_M2='NOT_RUN', release='NOT_ADMITTED')
+    if operation=='desktop-alpm-v1':report['operation']=operation
     pgo = module(root / 'bootstrap/scripts/ci/zlib-pgo-native-hosted/owner.py', '_sealed_pgo102')
     pgo.DOCKER = DOCKER
     actor = pgo.Actors(args.work / 'actors', 4300)
@@ -203,6 +206,9 @@ def run(root, args):
            '&& pacman -U --noconfirm --noscriptlet /tmp/developer-deps/*.pkg.tar.xz && ldconfig '
            '&& rm -rf /tmp/developer-deps /tmp/developer-hooks.txt /var/cache/pacman/pkg/* '
            '&& pacman -Q | LC_ALL=C sort > /builder-packages.lock\nUSER alarm\nWORKDIR /tmp\n')
+        if operation=='desktop-alpm-v1':
+            from desktop_alpm_v1 import prepare,dockerfile as release_dockerfile
+            prepare(root,context,args.map_sha256);dockerfile=release_dockerfile(dockerfile,args.map_sha256)
         (context / 'Dockerfile').write_text(dockerfile)
         command = [*DOCKER, 'build', '--network=none', '--pull=false', '--no-cache', '--platform=linux/arm64',
             '--tag', 'native-developer-tools:' + own['token'], '--label', LABEL + '=' + own['token'],
@@ -228,7 +234,7 @@ def run(root, args):
             '--user', str(os.getuid()) + ':' + str(os.getgid()), '--tmpfs', '/tmp:rw,nosuid,nodev,exec,size=2g',
             '--label', LABEL + '=' + own['token'], '--label', LABEL + '.source=' + own['source'],
             '--mount', 'type=bind,src=' + str(root) + ',dst=/source,readonly', '--mount', 'type=bind,src=' + str(output) + ',dst=/out',
-            '--entrypoint=/usr/bin/python3', image, '-I', '-B', '/source/native/guest.py', '--output', '/out/journey', '--map-sha256', args.map_sha256]
+            '--entrypoint=/usr/bin/python3', image, '-I', '-B', ('/source/native/desktop_guest_v1.py' if operation=='desktop-alpm-v1' else '/source/native/guest.py'), '--output', '/out/journey', '--map-sha256', args.map_sha256]
         container = actor.docker(*command, timeout=60)
         need(re.fullmatch('[0-9a-f]{64}', container), 'exact created container ID')
         inspection = json.loads(actor.docker('inspect', container))[0]
@@ -256,7 +262,7 @@ def run(root, args):
         need(after['State']['Running'] is False and after['State']['ExitCode'] == 0, 'actual completed native consumer')
         report['consumer'] = dict(image=image, container=container, state=after['State'])
         result = load(output / 'journey/result.json')
-        need(result['status'] == 'PASS_NATIVE_DEVELOPER_COMPONENTS_ONLY', 'all actual native developer components required')
+        need(result['status'] == ('PASS_DESKTOP_TOOLS_NATIVE_ALPM_COMPONENT' if operation=='desktop-alpm-v1' else 'PASS_NATIVE_DEVELOPER_COMPONENTS_ONLY'), 'all actual native developer components required')
         report['status'] = result['status']
     except BaseException as error:
         primary_error = error
@@ -332,7 +338,7 @@ def run(root, args):
                 blocked_actor_logs=[str(args.work / 'bootstrap' / name) for name in ('key-import.log', 'bootstrap.log')])
         diagnostic['source_map_sha256'] = args.map_sha256
         report['bootstrap_failure_data'] = diagnostic
-        if diagnostic['status'] != 'PASS_BOUNDED_BOOTSTRAP_FAILURE_DATA' and report['status'] == 'PASS_NATIVE_DEVELOPER_COMPONENTS_ONLY':
+        if diagnostic['status'] != 'PASS_BOUNDED_BOOTSTRAP_FAILURE_DATA' and report['status'] in ('PASS_NATIVE_DEVELOPER_COMPONENTS_ONLY','PASS_DESKTOP_TOOLS_NATIVE_ALPM_COMPONENT'):
             report['status'] = 'FAIL_BOOTSTRAP_DIAGNOSTIC_RETENTION'
         save(output / 'bootstrap-failure-retention.json', diagnostic)
         retained_streams = {str(args.work / 'bootstrap' / name): row for name, row in diagnostic['files'].items()
@@ -368,7 +374,10 @@ def run(root, args):
         save(output / 'cleanup.json', cleanup); save(output / 'receipt.json', report)
         # Project only source-defined public evidence; never walk disposable guest trees.
         try:
-            from public_projection import project
+            if operation=='desktop-alpm-v1':
+                from desktop_projection_v1 import project
+            else:
+                from public_projection import project
             project(root, output, args.work / 'public-projection')
         except Exception as error:
             try:
@@ -393,6 +402,7 @@ if __name__ == '__main__':
     for name in ('source-sha', 'ref', 'run-id', 'map-sha256'):
         parser.add_argument('--' + name, required=True)
     parser.add_argument('--execute', action='store_true')
+    parser.add_argument('--operation',choices=('source184','desktop-alpm-v1'),default='source184')
     args = parser.parse_args()
     def cancel(number, frame):
         raise KeyboardInterrupt('native workflow cancellation')
