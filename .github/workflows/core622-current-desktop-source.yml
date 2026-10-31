@@ -183,6 +183,75 @@ jobs:
             python3 -I -B -Werror scripts/ci/core622-current-desktop-source/test_native_workflow.py --scope core --context "$context" --output-dir "$receipts/core-$context"
           done
           python3 -I -B -Werror scripts/ci/core622-current-desktop-source/test_native_workflow.py --scope installer-controller --installer-workspace "$CORE622_INSTALLER_WORKSPACE" --output-dir "$receipts/installer-controller"
+          export CORE622_RESILIENCE_SOURCE="$stage/resilience-workspace/core622-code"
+          python3 -I -B -Werror - "$receipts" <<'PYRESILIENCE'
+          import contextlib,importlib.util,json,os,socket,subprocess,sys,threading,unittest
+          from pathlib import Path
+          from unittest.mock import patch
+          
+          def need(ok,message):
+              if not ok:raise ValueError(message)
+          
+          def load(path,name):
+              spec=importlib.util.spec_from_file_location(name,path)
+              module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+              return module
+          
+          def denied(*args,**kwargs):
+              raise AssertionError('process, network, exec and thread actors denied in resilience DATA controls')
+          
+          def test_ids(suite):
+              if isinstance(suite,unittest.TestSuite):
+                  return [name for item in suite for name in test_ids(item)]
+              return [suite.id()]
+          
+          factory_path=Path(os.environ['GITHUB_WORKSPACE'])/'scripts/ci/core622-current-desktop-source'
+          roots={name:Path(os.environ['CORE622_'+name.upper()])for name in('parent','fresh607','core_record','fresh_record')}
+          output=Path(os.environ['CORE622_RESILIENCE_SOURCE'])
+          need(output.name=='core622-code'and not output.exists(),'one fresh opt-in namespace')
+          output.parent.mkdir(mode=0o700)
+          receipts=Path(sys.argv[1])/'runner-resilience';receipts.mkdir(mode=0o700)
+          results={};original_run=unittest.TextTestRunner.run
+          
+          with contextlib.ExitStack()as policy:
+              targets=[(subprocess,'Popen'),(socket,'socket'),(socket,'create_connection'),(threading.Thread,'start')]
+              targets.extend((os,name)for name in('system','fork','forkpty','posix_spawn','posix_spawnp','execve','execv','execl','execlp','execle','execlpe','execvp','execvpe')if hasattr(os,name))
+              for owner,name in targets:policy.enter_context(patch.object(owner,name,denied))
+              factory=load(factory_path/'prepare.py','resilience_ci_factory')
+              emission=factory.emit(roots,output,'null',runner_resilience=True)
+              need(emission['source']is emission['ref']is emission['actual']is None and emission['files']==66 and emission['publication_binding']=='UNISSUED','unbound opt-in Source66 DATA only')
+              expected=json.loads(factory.read(factory_path/'profile.json'))['runner_resilience_result']['files']
+              need({name:factory.pin(raw)for name,raw in factory.tree(output).items()}==expected,'exact opt-in namespace before new controls')
+              (receipts/'emission.json').write_bytes(factory.enc(emission))
+          
+              def run_controls(name,count):
+                  observed=[]
+                  def checked_run(runner,suite):
+                      selected=test_ids(suite)
+                      result=original_run(runner,suite)
+                      value=dict(tests=result.testsRun,failures=len(result.failures),errors=len(result.errors),skipped=len(result.skipped),selected=selected,acceptance=False)
+                      observed.append(value)
+                      (receipts/(name+'.unittest.json')).write_bytes(factory.enc(value))
+                      need(result.wasSuccessful()and not result.skipped and result.testsRun==count and len(selected)==count,'complete successful new suite without skips: '+name)
+                      if name=='test_runner_resilience.py':
+                          need(any(item.endswith('.DefaultEmitCallControls.test_inherited_one_argument_hook_reaches_late_drift_refusal')for item in selected),'actual default-call regression selected')
+                      return result
+                  with patch.object(unittest.TextTestRunner,'run',checked_run):
+                      module=load(factory_path/name,'resilience_ci_'+Path(name).stem)
+                      value=module.run_controls()
+                  need(len(observed)==1,'exactly one execution of new suite: '+name)
+                  need(value['tests']==count and value['errors']==value['failures']==0 and value['acceptance']is False,'successful new DATA control receipt: '+name)
+                  (receipts/(name+'.json')).write_bytes(factory.enc(value))
+                  results[name]=observed[0]
+          
+              run_controls('test_runner_resilience.py',7)
+              run_controls('test_checkpoint_data.py',12)
+              run_controls('test_telemetry_data.py',13)
+              run_controls('test_reader_data.py',12)
+              need({name:factory.pin(raw)for name,raw in factory.tree(output).items()}==expected,'negative DATA fixtures restored to exact opt-in namespace')
+              need(sum(value['tests']for value in results.values())==44,'all43 resilience controls plus default-call regression')
+              (receipts/'result.json').write_bytes(factory.enc(dict(status='PASS_RESILIENCE43_PLUS_DEFAULT_CALL_REGRESSION_DATA_ONLY',tests=44,suites=results,factory_emissions=1,Source_prefix='NOT_RUN',native='NOT_RUN',acceptance=False)))
+          PYRESILIENCE
       - name: Retain source-control command receipts
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
