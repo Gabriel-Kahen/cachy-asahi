@@ -369,7 +369,10 @@ def retain(root, args):
         capsule = pack(output, upload / 'public-tree.tar')
         return dict(status='EXISTING_NATIVE_PUBLIC_EVIDENCE_CAPSULED_WITHOUT_MUTATION', capsule=capsule)
     if output.exists():
-        from safe_diagnostic import create
+        if load(root / 'native/source-map.json').get('image_operation') == 'image-tools-alpm-v1':
+            from image_host_diagnostics_v1 import create_safe as create
+        else:
+            from safe_diagnostic import create
         report = create(args.work, own, args.map_sha256)
         upload.mkdir(mode=0o700)
         pack(args.work / 'safe-diagnostic', upload / 'public-tree.tar')

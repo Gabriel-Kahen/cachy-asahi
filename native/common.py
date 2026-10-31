@@ -68,7 +68,18 @@ def verify_source(root, checksum):
     raw = read(root / MAP); need(pin(raw)['sha256'] == checksum, 'whole source map differs')
     manifest = json.loads(raw)
     need(manifest['schema'] == 1 and manifest['actual'] == dict(source=None, ref=None, run=None), 'NULL unexecuted source selectors')
-    rows = manifest['files']; need(MAP not in rows and len(rows) <= 200, 'finite nonrecursive source map')
+    rows = manifest['files']
+    if manifest.get('source_profile') == 'image-tools202-source-v1':
+        additions = {'native/image_tools_v1.py','native/image_alpm_v1.py','native/image_guest_v1.py',
+                     'native/image_reader_v1.py','native/image_projection_v1.py','native/image_host_diagnostics_v1.py',
+                     'native/image-contract-v1.json','native/image-makepkg-v1.conf','native/image-sources-v1.tar',
+                     'native/image_synthetic_v1.py','native/image_readback_v1.py'}
+        need(MAP not in rows and len(rows) == 201 and additions <= set(rows)
+             and manifest.get('image_operation') == 'image-tools-alpm-v1'
+             and manifest.get('image_genuine_parent') == '111f14d2b21b220d86912d5ead978848c7ef1cb0',
+             'exact image-tools202 source-only profile')
+    else:
+        need(MAP not in rows and len(rows) <= 200, 'finite nonrecursive source map')
     actual = set(); actual_dirs = set()
     for directory, dirs, files in os.walk(root, followlinks=False):
         base = Path(directory)

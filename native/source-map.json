@@ -15,14 +15,14 @@
   "consumer_basis182_source": "5b2016cc842970952c03cc2cc068a9cfbea5812c",
   "files": {
     ".github/workflows/native-arm-build.yml": {
-      "bytes": 12819,
+      "bytes": 13042,
       "mode": 420,
-      "sha256": "ac04dd166d8a71de0f00f84a1a0f4a22b03a65087e144c240881a225be30ba9d"
+      "sha256": "1ff2794f435b634aa8a6e56986924afd66e456fec38ddf06c85ef46c319f37ad"
     },
     ".github/workflows/native-arm-developer-workflows.yml": {
-      "bytes": 12819,
+      "bytes": 13042,
       "mode": 420,
-      "sha256": "ac04dd166d8a71de0f00f84a1a0f4a22b03a65087e144c240881a225be30ba9d"
+      "sha256": "1ff2794f435b634aa8a6e56986924afd66e456fec38ddf06c85ef46c319f37ad"
     },
     "bootstrap/.github/workflows/native-arm-build.yml": {
       "bytes": 16219,
@@ -295,9 +295,9 @@
       "sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f"
     },
     "bootstrap/scripts/ci/native_arm.py": {
-      "bytes": 28318,
+      "bytes": 28877,
       "mode": 420,
-      "sha256": "a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898"
+      "sha256": "8e71ba83e7d5037c6f7772401ec3b872684ccfa8472d855d8d6d3052cb1f41ba"
     },
     "bootstrap/scripts/ci/offline-source-builder-native/bootstrap-owner-basis.py": {
       "bytes": 29788,
@@ -570,9 +570,9 @@
       "sha256": "70048a05f54091f24c7c34166c2ad6510c260187f01ea65646e367d2b175b828"
     },
     "native/common.py": {
-      "bytes": 8477,
+      "bytes": 9292,
       "mode": 420,
-      "sha256": "f037bca33940e764dce4a7d66dfe6d0c72fbeda07c7f417ee7e1d30629eb86f9"
+      "sha256": "9299e18ba0c409f8a1c3c8c45fae8e77fe22a21641209b7c3237b0459da3d118"
     },
     "native/consumer_diagnostics.py": {
       "bytes": 3463,
@@ -597,17 +597,72 @@
     "native/failure_retention.py": {
       "bytes": 13639,
       "mode": 420,
-      "sha256": "20f9f6fb153d3be98e41c343e63f5994aa3708ccbd4299e1f551a38b697ffbe3"
+      "sha256": "cdb50b755f3e76d0229278bb89476752702544f3c31947e74676c82b213a8dc7"
     },
     "native/guest.py": {
       "bytes": 4783,
       "mode": 420,
       "sha256": "d4c827a692d8eebdfc0c808ed4c81597f7fb78c1c700e4e52c88c463d484df0e"
     },
+    "native/image-contract-v1.json": {
+      "bytes": 42185,
+      "mode": 420,
+      "sha256": "79c0adad0f9153a74d5c06efe6950a2c32ed8035ff8e6d27e704b3e496fe03d7"
+    },
+    "native/image-makepkg-v1.conf": {
+      "bytes": 316,
+      "mode": 420,
+      "sha256": "8cdd968870a2a92d7006739e96dedefa14e51c40d62cfc15831f234a767a1421"
+    },
+    "native/image-sources-v1.tar": {
+      "bytes": 532480,
+      "mode": 420,
+      "sha256": "9694d3a28e0de4ac64692910a66f3e02b10afa3c59b320cf4e9c137a5f381638"
+    },
+    "native/image_alpm_v1.py": {
+      "bytes": 27180,
+      "mode": 420,
+      "sha256": "fba2680a23cf06e73517e92878d6d871d177138ce7cf5dd1fd4cdc40f61a3fba"
+    },
+    "native/image_guest_v1.py": {
+      "bytes": 3027,
+      "mode": 420,
+      "sha256": "10d125ed2ac288b7d3ce1b72e94a812a7fc9cdc3fc0e31bae6ad4b789f55747b"
+    },
+    "native/image_host_diagnostics_v1.py": {
+      "bytes": 20347,
+      "mode": 420,
+      "sha256": "a990aeda9442f934d6c24977c61b888c1f441a81fa640cfee1252a70fcc1f198"
+    },
     "native/image_lifecycle.py": {
       "bytes": 12996,
       "mode": 420,
       "sha256": "db316b70634018f4c85c179cabc4abfe28143dd3d863011b18367a050f8e5340"
+    },
+    "native/image_projection_v1.py": {
+      "bytes": 12748,
+      "mode": 420,
+      "sha256": "2e91450511a10b0ae70c786d28d9b37238b738acb9e625fc8deb732b89e4ed43"
+    },
+    "native/image_readback_v1.py": {
+      "bytes": 13913,
+      "mode": 420,
+      "sha256": "8fb8c2c32dc5a40998bf31cc5727768f88ce51e423b7090cfb702116bdc9b5d3"
+    },
+    "native/image_reader_v1.py": {
+      "bytes": 104994,
+      "mode": 420,
+      "sha256": "1e349f6c54c9bcd1b0fe8b6a5a3af73c926a78b46db4630143794204658dd41d"
+    },
+    "native/image_synthetic_v1.py": {
+      "bytes": 18682,
+      "mode": 420,
+      "sha256": "21825af46244f1b949d25ff0af70cb2c8f6fe52198a9bc013aaa38d86c7fa983"
+    },
+    "native/image_tools_v1.py": {
+      "bytes": 23932,
+      "mode": 420,
+      "sha256": "d78cf3ca4c9f455f40264fe0ef3d4e9a60defb5043a107a7c97c9d81e939edb5"
     },
     "native/input-profile.json": {
       "bytes": 168201,
@@ -615,9 +670,9 @@
       "sha256": "2c42c705654d31e639f389f9a868dada0d9df76813d865e766be7b7c08f8404c"
     },
     "native/invocation.json": {
-      "bytes": 999,
+      "bytes": 1407,
       "mode": 420,
-      "sha256": "5b216c7568900c4b128702350a894a04478b0453f66a5d9ce35b3de67a0802ba"
+      "sha256": "c078fea2d6664c386d04e89092e50dc2d67ec168985296477136e7083965712b"
     },
     "native/original341.lock": {
       "bytes": 6674,
@@ -625,9 +680,9 @@
       "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
     },
     "native/owner.py": {
-      "bytes": 26041,
+      "bytes": 27492,
       "mode": 420,
-      "sha256": "0c2c520b08c61394f0089dd2a661309ce2992d7f86e36dc394afc69087e2a04e"
+      "sha256": "473cbe58a0c563a9adca943f3713f5b7c414bb85059d7c16163fc51d006c8483"
     },
     "native/predecessor-source-map.json": {
       "bytes": 27440,
@@ -640,9 +695,9 @@
       "sha256": "871ac3fcaa05f06d5c25dc41e365207a7e649c8c16c60b0cc9e0af8243e8e9e8"
     },
     "native/provision.py": {
-      "bytes": 22896,
+      "bytes": 23084,
       "mode": 420,
-      "sha256": "4707fc0cc8a9d805d6521b330202b2fec1a0788fedc3ef432cb53c326f46c3fc"
+      "sha256": "728368042839b0d0493a2ab72d306ce8e9bcd9188f6baf4df7ca2b1769f858de"
     },
     "native/public_projection.py": {
       "bytes": 12829,
@@ -967,7 +1022,10 @@
   },
   "image_basis180_map_sha256": "cceed4d8b72e9e73a5cb433c2c4643f5e85a0490dacd5b226514e2961aaba458",
   "image_basis180_source": "a434716cbf53085e6380e06939be6a38dd5412fc",
+  "image_genuine_parent": "111f14d2b21b220d86912d5ead978848c7ef1cb0",
+  "image_operation": "image-tools-alpm-v1",
   "schema": 1,
+  "source_profile": "image-tools202-source-v1",
   "transport_basis177_map_sha256": "99d676438a247749b3e1c564943d8735452a1ebd92ec91dd78ee37817e77f36d",
   "transport_basis187_map_sha256": "b295500787e25eeb77ac16e84fb786d3d6c1e9f02f7a9ddb83d950bbe9d75c90",
   "transport_basis187_source": "94d638063f826b3c501e3dd004d9a41b40f7a0e0"
