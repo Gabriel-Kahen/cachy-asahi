@@ -369,8 +369,8 @@ def retained_consumer_diagnostic(view, files, receipt, binding, map_sha256, posi
 
 
 PRODUCERS = {
-    'native/platform_alpm_v1.py': '7867244f91d73da5ad1daca1dc13a71ad5a4b5e8f66517490fa1feae8361dfb5',
-    'native/platform_tools_v1.py': '794894cd053a4508cf00abe3928a8431bab0986f94bd4fcfb690a7e22ab38621',
+    'native/platform_alpm_v1.py': 'c5f533b3e117339fea89a8acab78f542dbfde15318f82ba951138addc32c9a11',
+    'native/platform_tools_v1.py': 'a52a2a869331f5b833b83ede039ba7bd860d612f018a7c2ed13100d8c15c9ad0',
     'native/platform_guest_v1.py': '4438b69a135ff5c6ea444e973b8a9bc886b1b6cdc8446401d1f9f5c890636703',
     'native/platform-contract-v1.json': 'd76efe3d9cc6f671f8810772aa213ae46bb85de88b81b356c19b37ed9c286c89'}
 PASS = 'PASS_PLATFORM_TOOLS_NATIVE_ALPM_COMPONENT'
@@ -891,6 +891,84 @@ def platform_metadata(raw):
     return result
 
 
+# SPDX-License-Identifier: MIT
+NAMESPACE_PREFIX = b'PLATFORM_NAMESPACE_CONTEXT_V1 '
+NAMESPACE_SOURCE_COMMIT = '719a4fd474d44b26906bcf2b1b0fb6eddd8d56d0'
+
+def namespace_observed(row, validator):
+    need(type(row) is dict, 'typed namespace observation')
+    if row.get('status') == 'UNKNOWN':
+        need(set(row)=={'status','reason'} and type(row['reason'])is str
+             and re.fullmatch(r'ABSENT|FORMAT|BOUND|READ_ERRNO_[0-9]{1,4}',row['reason']), 'finite unknown namespace observation')
+        return
+    need(set(row)=={'status','value'} and row['status']=='OBSERVED' and validator(row['value']), 'bounded observed namespace value')
+
+def namespace_context_document(value,map_hash,slot):
+    need(type(value)is dict and set(value)=={'schema','kind','position','source_map_sha256','upstream_commit','cwd','process','status','namespaces','sysctls','maps','lsm','bwrap','mounts'}
+         and type(value['schema'])is int and value['schema']==1 and value['kind']=='platform-makepkg-namespace-context-v1'
+         and value['position']=='SAME_PROCESS_BEFORE_EXEC_NO_PROBE' and value['source_map_sha256']==map_hash
+         and value['upstream_commit']==NAMESPACE_SOURCE_COMMIT and value['cwd']==str(slot), 'same-source finite same-process observation')
+    p=value['process'];need(type(p)is dict and set(p)=={'uid','euid','gid','egid','groups','group_count','groups_truncated'}
+         and all(type(p[k])is int and 0<=p[k]<=2**32-1 for k in ('uid','euid','gid','egid'))
+         and p['uid']==p['euid']!=0 and p['gid']==p['egid'] and type(p['groups'])is list
+         and len(p['groups'])<=32 and all(type(n)is int and 0<=n<=2**32-1 for n in p['groups'])
+         and p['groups']==sorted(p['groups']) and type(p['group_count'])is int and 0<=p['group_count']<=65536
+         and p['groups_truncated']is(p['group_count']>32) and len(p['groups'])==min(p['group_count'],32), 'ordinary complete or explicit truncated group DATA')
+    status=value['status'];names={'Uid','Gid','CapInh','CapPrm','CapEff','CapBnd','CapAmb','NoNewPrivs','Seccomp','Seccomp_filters'}
+    need(type(status)is dict and set(status)==names,'finite status field selection')
+    for name,row in status.items():
+        if name in ('Uid','Gid'):predicate=lambda v:type(v)is list and len(v)==4 and all(type(n)is int and 0<=n<=2**32-1 for n in v)
+        elif name.startswith('Cap'):predicate=lambda v:type(v)is str and re.fullmatch('[0-9a-f]{16}',v)is not None
+        else:predicate=lambda v:type(v)is int and 0<=v<=2**32-1
+        namespace_observed(row,predicate)
+    for key,a,b in [('Uid','uid','euid'),('Gid','gid','egid')]:
+        if status[key]['status']=='OBSERVED':need(status[key]['value'][:2]==[p[a],p[b]],'observed proc status and syscall IDs join')
+    need(type(value['namespaces'])is dict and set(value['namespaces'])=={'user','mnt','net','pid'},'fixed namespace links')
+    for name,row in value['namespaces'].items():namespace_observed(row,lambda v:type(v)is str and re.fullmatch(name+r':\[[0-9]{1,20}\]',v)is not None)
+    need(type(value['sysctls'])is dict and set(value['sysctls'])=={'unprivileged_userns_clone','max_user_namespaces','apparmor_restrict_unprivileged_userns'},'fixed public namespace policy leaves')
+    for row in value['sysctls'].values():namespace_observed(row,lambda v:type(v)is int and 0<=v<=2**32-1)
+    need(type(value['maps'])is dict and set(value['maps'])=={'uid_map','gid_map'},'fixed identity maps')
+    for row in value['maps'].values():namespace_observed(row,lambda v:type(v)is list and 0<len(v)<=16 and all(type(r)is list and len(r)==3 and all(type(n)is int and 0<=n<=2**32 for n in r)for r in v))
+    lsm=value['lsm'];need(type(lsm)is dict,'typed LSM observation')
+    if lsm.get('status')=='UNKNOWN':namespace_observed(lsm,lambda _:False)
+    elif lsm.get('status')=='OBSERVED':need(set(lsm)=={'status','label'} and lsm['label']in('unconfined','docker-default (enforce)'),'finite known LSM label')
+    else:need(set(lsm)=={'status','bytes','sha256'} and lsm['status']=='HASH_ONLY' and type(lsm['bytes'])is int and 0<=lsm['bytes']<=256 and re.fullmatch('[0-9a-f]{64}',lsm['sha256']or''),'other LSM label is bounded hash only')
+    binary=value['bwrap'];need(type(binary)is dict,'typed bwrap metadata')
+    if binary.get('status')=='UNKNOWN':namespace_observed(binary,lambda _:False)
+    else:need(set(binary)=={'status','mode','uid','gid','bytes','sha256'} and binary['status']=='OBSERVED'
+              and all(type(binary[k])is int and binary[k]>=0 for k in ('mode','uid','gid','bytes'))
+              and binary['mode']<=0o7777 and binary['bytes']<=16*1024**2 and re.fullmatch('[0-9a-f]{64}',binary['sha256']or''),'bounded actual bwrap binary identity')
+    mounts=value['mounts'];need(type(mounts)is dict and set(mounts)=={'/','/proc','/dev','/sys','/home'},'fixed public mountpoint selection')
+    for row in mounts.values():
+        if row.get('status')=='UNKNOWN':namespace_observed(row,lambda _:False)
+        else:need(set(row)=={'status','fstype','options'} and row['status']=='OBSERVED' and row['fstype']in('overlay','proc','tmpfs','sysfs','devtmpfs','ext4','xfs','btrfs')
+                  and type(row['options'])is list and row['options']==sorted(set(row['options']))and set(row['options'])<={'ro','rw','nosuid','nodev','noexec','relatime','noatime'},'bounded mount flags without source/root paths')
+    return value
+
+def retained_namespace_observation(view,files,map_sha256):
+    prefix='journey/platform-alpm-v1/';name=prefix+'result.json'
+    if name not in files:return dict(status='NOT_REACHED_NAMESPACE_OBSERVATION',native='NOT_ADMITTED')
+    report=view.load(name);commands=report.get('commands');need(type(commands)is list and len(commands)<=160,'finite component command DATA')
+    selected=[row for row in commands if row.get('step')in('build-a','build-b')];need(len(selected)<=2 and len({r['step']for r in selected})==len(selected),'finite unique build contexts')
+    fixed=Path(platform_contract()['invocation']['source']);slot=fixed.parent/'build-current';result=[]
+    for row in selected:
+        argv=['/usr/bin/runuser','-u','alarm','--','/usr/bin/env','HOME='+str(slot),'PKGDEST='+str(slot),'SRCDEST='+str(slot),'BUILDDIR='+str(slot),
+              'SOURCE_DATE_EPOCH=1793145600','PACKAGER=cachy-asahi native TEST builder','/usr/bin/python3','-I','-B',str(fixed/'native/platform_alpm_v1.py'),
+              '--observe-makepkg','--map-sha256',map_sha256,'--','/usr/bin/makepkg','--cleanbuild','--nodeps','--nosign','--noconfirm','--config',str(fixed/'native/platform-makepkg-v1.conf')]
+        leaf=row.get('log');need(type(leaf)is str and re.fullmatch(r'[0-9]{3}-build-[ab]\.log',leaf)and row.get('argv')==argv and row.get('cwd')==str(slot)
+             and type(row.get('expected'))is int and row['expected']==0,'exact source-owned unchanged makepkg observation argv')
+        raw=view.read(prefix+leaf);need(pin(raw)==row.get('log_pin')=={k:files[prefix+leaf][k]for k in('bytes','sha256')},'complete original build context log')
+        lines=raw.splitlines();need(lines and lines[0].startswith(NAMESPACE_PREFIX)and sum(line.startswith(NAMESPACE_PREFIX)for line in lines)==1 and len(lines[0])<=12320,'one complete bounded first context line')
+        encoded_context=lines[0][len(NAMESPACE_PREFIX):];document=json.loads(encoded_context)
+        need(json.dumps(document,sort_keys=True,separators=(',',':')).encode()==encoded_context,'exact canonical context bytes; duplicate keys refused')
+        context=namespace_context_document(document,map_sha256,slot)
+        need(type(row.get('supervision'))is dict and row['supervision'].get('output_complete')is True,'complete actor output required for observation')
+        result.append(dict(step=row['step'],context=context,context_pin=pin(lines[0]),command_log=leaf,command_log_pin=pin(raw),
+            source_mapped_clone_EPERM_message=b'bwrap: No permissions to create a new namespace'in raw,
+            raw_syscall_trace='NOT_COLLECTED',policy_cause='UNKNOWN',retirement=row['supervision'],native='NOT_ADMITTED'))
+    return dict(status='VALIDATED_PREEXEC_NAMESPACE_CONTEXT_DATA_ONLY',builds=result,native='NOT_ADMITTED')
+
+
 def platform_build_pair(view, prefix, report, contract, selected, map_sha256):
     import io
     import tarfile
@@ -921,8 +999,11 @@ def platform_build_pair(view, prefix, report, contract, selected, map_sha256):
         wanted = ['/usr/bin/runuser', '-u', 'alarm', '--', '/usr/bin/env', 'HOME=' + str(slot),
                   'PKGDEST=' + str(slot), 'SRCDEST=' + str(slot), 'BUILDDIR=' + str(slot),
                   'SOURCE_DATE_EPOCH=1793145600', 'PACKAGER=cachy-asahi native TEST builder',
-                  '/usr/bin/makepkg', '--cleanbuild', '--nodeps', '--nosign', '--noconfirm', '--config',
+                  '/usr/bin/python3', '-I', '-B', str(Path(contract['invocation']['source']) / 'native/platform_alpm_v1.py'),
+                  '--observe-makepkg', '--map-sha256', map_sha256, '--', '/usr/bin/makepkg', '--cleanbuild', '--nodeps', '--nosign', '--noconfirm', '--config',
                   str(Path(contract['invocation']['source']) / contract['makepkg_config']['path'])]
+        namespace_contexts=retained_namespace_observation(view,view.load('artifacts.json')['files'],map_sha256)
+        need(any(item['step']=='build-'+label for item in namespace_contexts['builds']),'actual pre-exec namespace observation for each build')
         need(argv == wanted and command.get('cwd') == str(slot) and command['expected'] == 0
              and b'Starting check()' in raw
              and [int(n) for n in re.findall(rb'(?m)^Ran ([0-9]+) tests? in [^\r\n]+\r?$', raw)] == [25, 15, 9]
@@ -1322,13 +1403,14 @@ def validate(capsule_path, expected):
          'same-source owner and explicit cleanup outcome required')
     consumer_diagnostic = retained_consumer_diagnostic(view, files, receipt, binding, expected['map_sha256'])
     build_summary = retained_build_summary(view, files, binding, expected['map_sha256'])
+    namespace_observation = retained_namespace_observation(view, files, expected['map_sha256'])
     failed = (receipt['status'] != PASS or cleanup['status'] != 'PASS_EXACT_OWNED_RESOURCES_RETIRED')
     need(failed or consumer_diagnostic['status'] != 'ABSENT_CONSUMER_DIAGNOSTIC_DATA_ONLY',
          'successful release owner cannot omit original consumer diagnostic')
     if failed or not consumer_diagnostic['positive_candidate']:
         return dict(status='VALIDATED_NATIVE_FAILURE_DATA_ONLY', binding=binding,
                     owner_status=receipt['status'], cleanup_status=cleanup['status'],
-                    consumer_diagnostic=consumer_diagnostic, build_summary=build_summary,
+                    consumer_diagnostic=consumer_diagnostic, build_summary=build_summary, namespace_observation=namespace_observation,
                     native='NOT_ADMITTED', physical_M2='NOT_RUN', release='NOT_ADMITTED')
     retained_consumer_diagnostic(view, files, receipt, binding, expected['map_sha256'], positive=True)
     retained_failure_data(view, files, receipt.get('bootstrap_failure_data'), binding, expected['map_sha256'])

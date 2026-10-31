@@ -96,7 +96,7 @@ def build_pair(run,source,recipes,policy,alarm,report):
   item=dict(label=label,version=T.VERSION,recipe_sha256=policy['recipe']['source_files']['PKGBUILD']['sha256'],build_step='build-'+label,check_invoked=False,check_tests=[],check_policy='POSITIVE_CHECK_NO_NOCHECK',build_directory=dict(logical=str(slot),retained=str(directory),identity=dict(device=key[0],inode=key[1]),initial_files=sorted(policy['recipe']['source_files'])))
   report['builds'][label]=item;directory.rename(slot)
   try:
-   argv=['/usr/bin/runuser','-u','alarm','--','/usr/bin/env','HOME='+str(slot),'PKGDEST='+str(slot),'SRCDEST='+str(slot),'BUILDDIR='+str(slot),'SOURCE_DATE_EPOCH='+policy['build_pair']['source_date_epoch'],'PACKAGER='+policy['build_pair']['packager'],'/usr/bin/makepkg','--cleanbuild','--nodeps','--nosign','--noconfirm','--config',str(config)]
+   argv=['/usr/bin/runuser','-u','alarm','--','/usr/bin/env','HOME='+str(slot),'PKGDEST='+str(slot),'SRCDEST='+str(slot),'BUILDDIR='+str(slot),'SOURCE_DATE_EPOCH='+policy['build_pair']['source_date_epoch'],'PACKAGER='+policy['build_pair']['packager'],'/usr/bin/python3','-I','-B',str(source/'native/platform_alpm_v1.py'),'--observe-makepkg','--map-sha256',report['source_map_sha256'],'--','/usr/bin/makepkg','--cleanbuild','--nodeps','--nosign','--noconfirm','--config',str(config)]
    raw=run('build-'+label,argv,cwd=slot);item['check_invoked']=b'Starting check()' in raw
    need(item['check_invoked'] and [int(n) for n in re.findall(rb'^Ran ([0-9]+) tests? in ',raw,re.M)]==[25,15,9] and len(re.findall(rb'^OK$',raw,re.M))==3,'actual ordered25+15+9 checks required')
    item['check_tests']=[25,15,9];archive=slot/policy['recipe']['archive']
@@ -273,10 +273,29 @@ def export(output,map_hash):
   (output/name).chmod(0o600)
  return report
 
+def observe_makepkg(root,map_hash,argv):
+ """Retain bounded caller context then exec the identical makepkg in this owned PID."""
+ from common import verify_source
+ root=Path(root);verify_source(root,map_hash)
+ alarm=pwd.getpwnam('alarm');slot=PREFIX/'build-current'
+ expected=['/usr/bin/makepkg','--cleanbuild','--nodeps','--nosign','--noconfirm','--config',str(root/'native/platform-makepkg-v1.conf')]
+ need(root==SOURCE and os.getuid()==os.geteuid()==alarm.pw_uid!=0 and os.getgid()==os.getegid()==alarm.pw_gid
+      and Path.cwd()==slot and argv==expected,'exact ordinary owned makepkg observation context')
+ need(all(os.environ.get(key)==str(slot)for key in ('HOME','PKGDEST','SRCDEST','BUILDDIR'))
+      and os.environ.get('SOURCE_DATE_EPOCH')=='1793145600' and os.environ.get('PACKAGER')=='cachy-asahi native TEST builder','unchanged source-pinned build environment')
+ value=T.namespace_context(map_hash)
+ sys.stdout.buffer.write(T.NAMESPACE_PREFIX+json.dumps(value,sort_keys=True,separators=(',',':')).encode()+b'\n');sys.stdout.buffer.flush()
+ os.execv('/usr/bin/makepkg',argv) # Same PID/session/security context; no child, wait or signal.
+
 if __name__=='__main__':
  parser=argparse.ArgumentParser(description=__doc__)
  parser.add_argument('--inside-image',action='store_true');parser.add_argument('--retain-failure-image',action='store_true');parser.add_argument('--map-sha256',required=True)
- args=parser.parse_args();need(args.inside_image,'explicit owned image operation')
+ parser.add_argument('--observe-makepkg',action='store_true');parser.add_argument('makepkg_args',nargs=argparse.REMAINDER)
+ args=parser.parse_args()
+ if args.observe_makepkg:
+  need(not args.inside_image and not args.retain_failure_image and args.makepkg_args[:1]==['--'],'exact observer ingress')
+  observe_makepkg(Path(__file__).resolve().parents[1],args.map_sha256,args.makepkg_args[1:]);raise AssertionError('exec returned')
+ need(args.inside_image and not args.makepkg_args,'explicit owned image operation')
  def cancel(number,frame):raise KeyboardInterrupt('native image actor cancelled')
  handlers={number:signal.signal(number,cancel) for number in (signal.SIGINT,signal.SIGTERM)}
  try:
