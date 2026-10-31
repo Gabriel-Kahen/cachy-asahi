@@ -1,0 +1,37 @@
+name: initializer-mount-query-source-data
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/initializer-mount-query-source.yml'
+      - 'scripts/ci/initializer_mount_query_controls.py'
+      - 'scripts/update/aux_initialize.py'
+      - 'scripts/update/full_root.py'
+      - 'scripts/update/aux_checkpoint.py'
+      - 'scripts/ci/full-root-upgrade-caller/upgrade_hook.py'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/initializer-mount-query-source.yml'
+      - 'scripts/ci/initializer_mount_query_controls.py'
+      - 'scripts/update/aux_initialize.py'
+      - 'scripts/update/full_root.py'
+      - 'scripts/update/aux_checkpoint.py'
+      - 'scripts/ci/full-root-upgrade-caller/upgrade_hook.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-data:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Check canonical initializer source DATA without lifecycle actors
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: >-
+          timeout --signal=TERM --kill-after=5s 60s
+          python3 -I -B -Werror scripts/ci/initializer_mount_query_controls.py
+          --root "$GITHUB_WORKSPACE"
