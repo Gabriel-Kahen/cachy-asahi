@@ -678,14 +678,14 @@
       "sha256": "8cdd968870a2a92d7006739e96dedefa14e51c40d62cfc15831f234a767a1421"
     },
     "native/security_native_v1.py": {
-      "bytes": 20277,
+      "bytes": 23869,
       "mode": 420,
-      "sha256": "6f3c759136f90eb12346497dc0da13ae9e1bb1718bdf022de611bf30d0f24a09"
+      "sha256": "351d334d7906f1c75d34bcef189314d5293a8f116cc4e81c24bee918721d1309"
     },
     "native/security_reader_v1.py": {
-      "bytes": 6793,
+      "bytes": 14573,
       "mode": 420,
-      "sha256": "c28772b8307734d4066844b342ccddfbe8aba23995431f120bc90d2ec9f5bbce"
+      "sha256": "901639ae7abd3724fe7543e2e6cfa17d7257f1ab19d4151ee9e29c1972ea24ec"
     },
     "native/security_workflow_v1.py": {
       "bytes": 13659,
