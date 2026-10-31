@@ -1,0 +1,77 @@
+{
+  "files": {
+    "contract.py": {
+      "bytes": 22481,
+      "mode": 420,
+      "sha256": "3c3005ac04fb19bfe75001c12622693aec733d5bd8762ae6501e3d058ff04ba9"
+    },
+    "media-source/scripts/apps/file_capabilities.py": {
+      "bytes": 13562,
+      "mode": 420,
+      "sha256": "498a3beec0327b9335dcd6d80ed5919fa2edebebd3284e9ee8b97770328e26a2"
+    },
+    "media-source/scripts/ci/current604-public-pair-updater16k/cap_scope.py": {
+      "bytes": 2598,
+      "mode": 420,
+      "sha256": "4559643fbfaa22657d68e07143e2f7dbc518765c0a9d9e9161acf94c5976ff13"
+    },
+    "media-source/scripts/ci/current604-public-pair-updater16k/disk.py": {
+      "bytes": 12836,
+      "mode": 420,
+      "sha256": "d33eda29a06088251f6a4e0c5bb07d903055ca1761a83a93ed9c70b38a90017f"
+    },
+    "media-source/scripts/ci/full-root-upgrade-caller/persistent_scope.py": {
+      "bytes": 17405,
+      "mode": 420,
+      "sha256": "cd1f23bd252b77e9b3a9e907e1c0defd5141025408e92ae5c2500152076b6f3a"
+    },
+    "media-source/scripts/ci/full-root-upgrade/root_upgrade.py": {
+      "bytes": 23555,
+      "mode": 420,
+      "sha256": "fe1232ae6b510021910b4fb80016ac3b4668c6e4386cdae45e7b95196e400756"
+    },
+    "media-source/scripts/ci/managed-gui-generic16k/elf_audit.py": {
+      "bytes": 3507,
+      "mode": 420,
+      "sha256": "b10b641060e273479d32d8a74719565c4264faf6fefd9e963c8f82dc1fbe738e"
+    },
+    "media-source/scripts/install/local_transaction.py": {
+      "bytes": 93752,
+      "mode": 420,
+      "sha256": "14381d049506b52770059bf7af415f7a079f69872543e74417aca11ce24ac3c5"
+    },
+    "media-source/scripts/update/capacity.py": {
+      "bytes": 1449,
+      "mode": 420,
+      "sha256": "dcb9899cd24daa21f75e6da6b0214393f093d140a70769092da091e0cfdf7c87"
+    },
+    "media-source/scripts/update/full_root.py": {
+      "bytes": 35970,
+      "mode": 420,
+      "sha256": "cece1c597b2e2eb98b0e3087cc7e7c148b54332f8a1c4f18e04e4552a71fb51d"
+    },
+    "media-source/scripts/update/measure_copy.py": {
+      "bytes": 25734,
+      "mode": 420,
+      "sha256": "e582245bd114b0b9d83f2de4fdc81a35d2f48493ba6147879871af794476813b"
+    },
+    "media-source/scripts/update/root_path.py": {
+      "bytes": 3435,
+      "mode": 420,
+      "sha256": "2efcbc1057e117a406488f05a3e0213751b00ab09f845a7830a71a4cf60fd2b4"
+    },
+    "media-source/scripts/update/supervision.py": {
+      "bytes": 3293,
+      "mode": 420,
+      "sha256": "f18bcbd2a6279cff8fe6c7e9c9f80fc01c9818844b01df8c4e97b83d61704b10"
+    },
+    "media-source/scripts/virtual/generic16k/fixture.py": {
+      "bytes": 15118,
+      "mode": 420,
+      "sha256": "47d2c042319246538f8724e294b9530e079ba00de7995ef42f9a1031ca17c4ba"
+    }
+  },
+  "ref": "codex/ksm16k-interrupted-sharing-v1",
+  "schema": 1,
+  "source": "de21d6c25e0fbf5ac83c71965bae3ffa23390461"
+}
