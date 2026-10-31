@@ -180,6 +180,7 @@ def before_later(values):
 def source_layer(values,p,operands,key,stem,parent_role):
  """Add one exact readable DATA layer while retaining every predecessor byte."""
  before={n:values[n]for n in sorted(values)};record=json.loads(operands[stem+'-context.json']);record['guard_prefix']=operands[stem+'-inverse.py.txt'].decode();need(record['schema']==1 and record['parent_source']==LAYER_PARENTS[key]==p[parent_role]['source']and record['actual']is None and record['before']==p[parent_role]['files']=={n:pin(b)for n,b in before.items()},'whole exact source layer parent')
+ if key=='runner_resilience':need(all(record['edits'].get(n)==record['edits']['workflow.yml.in']for n in LAYER_FILES[1:]),'complete runner-resilience workflow alias inverse edits')
  out=dict(before)
  for name,rules in record['edits'].items():out[name]=edits(out[name].decode(),rules).encode()
  guard=before['source622.py'].decode();assign={n.targets[0].id:ast.get_source_segment(guard,n)for n in ast.parse(guard).body if isinstance(n,ast.Assign)and isinstance(n.targets[0],ast.Name)and n.targets[0].id in('PRODUCTS','SELF')};need(assign==dict(PRODUCTS=record['guard_products_before'],SELF=record['guard_self_before']),'exact predecessor products/self operands');need(guard.count(record['guard_anchor'])==1,'one source-owned DATA namespace before layer');guard=guard.replace(record['guard_anchor'],record['guard_prefix'],1).replace(assign['PRODUCTS'],'PRODUCTS=None',1).replace(assign['SELF'],"SELF='@SELF@'",1)
