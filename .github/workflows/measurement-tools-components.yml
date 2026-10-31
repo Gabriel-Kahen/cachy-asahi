@@ -1,0 +1,66 @@
+name: measurement-tools-components
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/measurement-tools-components.yml'
+      - 'scripts/ci/measurement-tools-components-v1.py'
+      - 'packages/tools/cachy-asahi-measurement-tools/**'
+      - 'scripts/release/*measurement_tools*'
+      - 'scripts/checks/*measurement*'
+      - 'manifests/measurement-tools-*.json'
+      - 'manifests/measurement-tools-package-row.toml'
+      - 'docs/benchmarks/measurement-tools-package.md'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-static:
+    name: Measurement source4 and recipe API (Python ${{ matrix.python }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Four source controls on exact finite closure and explicit recipe API
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: python -I -B -Werror::ResourceWarning scripts/ci/measurement-tools-components-v1.py source --root "$GITHUB_WORKSPACE" --work "$RUNNER_TEMP/measurement-source-ci"
+      - name: Record scope
+        run: |
+          echo 'Four source controls and pinned recipe API only. Fresh makepkg/.SRCINFO generation and artifact-static checks remain separately retained host evidence. No native, ALPM, M2, host sensor/census or performance acceptance.' >> "$GITHUB_STEP_SUMMARY"
+  private-package:
+    name: Measurement package8 private fixture (Python ${{ matrix.python }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 11  # ceil((60 setup + 120 input prep + 401 QEMU + 20 export)/60)
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install required VM tools on the disposable CI runner
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends qemu-system-x86 qemu-utils cloud-image-utils genisoimage
+          qemu-system-x86_64 --version
+      - name: Run every unchanged private package control in a pinned Debian13 guest
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: python -I -B -Werror::ResourceWarning scripts/ci/measurement-tools-components-v1.py guest --root "$GITHUB_WORKSPACE" --work "$RUNNER_TEMP/measurement-package-ci"
+      - name: Record required boundary and non-acceptance
+        if: ${{ always() }}
+        run: |
+          echo 'Package8 executes as an ordinary user in a pinned supported Debian13 x86_64 software-emulated guest, retaining original nested private PID/proc/dev, empty sysfs and no-network guards. No host device access or policy/capability/sysctl change, no unconfined mode, no skip. Derived outer budgets are401s QEMU and11min job; the180s package runner,20s sandbox probe and15s package CLI deadlines are unchanged. Dependency provisioning uses disposable runner/guest administration only. This fixture is not native ARM, ALPM, Asahi/M2 or performance acceptance.' >> "$GITHUB_STEP_SUMMARY"
