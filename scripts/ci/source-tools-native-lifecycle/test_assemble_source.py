@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT
 """Focused DATA controls; no actor, Git, network or operand-code execution."""
 import copy
+import ast
 import hashlib
 import importlib.util
 import json
@@ -43,7 +44,8 @@ class AssemblerControls(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory(prefix='source-tools-assembler-data-')
         self.addCleanup(self.tmp.cleanup); self.root = Path(self.tmp.name)
         self.parent = {name: (('original inert parent ' + name + '\n').encode(), 0o644) for name in A.SEAMS}
-        self.parent.update({'base/x%03d.py' % n: (b'raise AssertionError("DATA must never execute")\n', 0o755 if n == 0 else 0o644) for n in range(186)})
+        self.parent.update({'base/x%03d.py' % n: (b'raise AssertionError("DATA must never execute")\n', 0o755 if n == 0 else 0o644) for n in range(184)})
+        self.parent.update({name: (('inert original '+name+'\n').encode(), 0o644) for name in A.PRODUCER_BEFORE if name not in A.ADDITIONS})
         self.assertEqual(len(self.parent), 191)
         self.parent_tree = A.tree(self.parent)
         self.raw = ('tree ' + self.parent_tree + '\nparent ' + '1' * 40 + '\nauthor Original <test@example.invalid> 1 +0000\ncommitter Original <test@example.invalid> 1 +0000\n\nOriginal inert fixture\n').encode()
@@ -54,6 +56,10 @@ class AssemblerControls(unittest.TestCase):
         self.overlay['.github/workflows/native-arm-build.yml'] = (b'name: inert\nconcurrency:\n  group: native-arm-developer-workflows\n  cancel-in-progress: false\njobs:\n', 0o644)
         self.overlay['.github/workflows/native-arm-developer-workflows.yml'] = self.overlay['.github/workflows/native-arm-build.yml']
         self.overlay['native/source-tools-contract-v1.json'] = (encoded(dict(operation=A.OPERATION, actual=dict(source=None, ref=None, run=None, job=None, artifact=None))), 0o644)
+        original = dict(self.parent); original.update(self.overlay)
+        original_pins = {name: A.pin(original[name][0]) for name in A.PRODUCER_BEFORE}
+        pin_patch = patch.object(A, 'PRODUCER_BEFORE', original_pins)
+        pin_patch.start(); self.addCleanup(pin_patch.stop)
         self.refresh_final()
         write_tree(self.root / 'overlay', self.overlay)
         self.profile_path = self.root / 'profile.json'; self.refresh_profile()
@@ -70,7 +76,7 @@ class AssemblerControls(unittest.TestCase):
     def refresh_profile(self, change=None):
         value = dict(schema=1, purpose='source-tools-native-main-overlay', genuine_parent=self.parent_sha,
             parent_tree=self.parent_tree, main_base=A.MAIN_BASE, operation=A.OPERATION, actual=dict(source=None, ref=None, run=None),
-            parent_files=A.descriptors(self.parent), overlay=A.descriptors(self.overlay), source_map_sha256=A.pin(self.final[A.MAP][0])['sha256'],
+            parent_files=A.descriptors(self.parent), overlay=A.descriptors(self.overlay), producer_overlay=A.PRODUCER_AFTER, source_map_sha256=A.pin(self.final[A.MAP][0])['sha256'],
             prospective_tree=A.tree(self.final), source_files=200)
         if change:
             change(value)
@@ -234,6 +240,71 @@ class AssemblerControls(unittest.TestCase):
     def test_mismatched_workflow_aliases_refuse_scheduling(self):
         with self.assertRaisesRegex(ValueError, 'aliases differ'):
             A.scheduled_workflows(dict(zip(A.WORKFLOW_ALIASES, (b'left', b'right'))))
+
+
+    def test_producer_cleanup_exact_five_file_delta_and_observer_inverse(self):
+        bodies = {n: raw for n, (raw, _) in (self.parent | self.overlay).items()}
+        result = A.retired_producer(bodies)
+        self.assertEqual({n for n in result if result[n] != bodies[n]}, set(A.PRODUCER_AFTER))
+        for name, row in A.PRODUCER_AFTER.items():
+            self.assertEqual(len(result[name]), row['bytes'])
+            self.assertEqual(hashlib.sha256(result[name]).hexdigest(), row['sha256'])
+        old = b'a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898'
+        new = b'8e71ba83e7d5037c6f7772401ec3b872684ccfa8472d855d8d6d3052cb1f41ba'
+        self.assertEqual(result['native/failure_retention.py'].count(new), 1)
+        self.assertNotIn(old, result['native/failure_retention.py'])
+        self.assert_component_producer_pins(result)
+        self.assertEqual(bodies, {n: raw for n, (raw, _) in (self.parent | self.overlay).items()})
+
+    def test_changed_immutable_producer_helper_refuses(self):
+        bodies = {n: raw for n, (raw, _) in (self.parent | self.overlay).items()}
+        overlay = A.snapshot(A.HERE / 'producer-overlay')
+        overlay = dict(overlay); body, mode = overlay['bootstrap/scripts/ci/native_arm.py']; overlay['bootstrap/scripts/ci/native_arm.py'] = (body+b'\n# changed\n', mode)
+        with patch.object(A, 'snapshot', return_value=overlay), self.assertRaisesRegex(ValueError, 'retirement overlay differs'):
+            A.retired_producer(bodies)
+
+    def test_stale_strict_observer_input_refuses(self):
+        bodies = dict({n: raw for n, (raw, _) in (self.parent | self.overlay).items()})
+        bodies['native/failure_retention.py'] += b'\n# stale observer\n'
+        with self.assertRaisesRegex(ValueError, 'producer/observer inputs differ'):
+            A.retired_producer(bodies)
+
+
+    def test_stale_strict_observer_overlay_refuses(self):
+        bodies = {n: raw for n, (raw, _) in (self.parent | self.overlay).items()}
+        overlay = dict(A.snapshot(A.HERE / 'producer-overlay'))
+        old = b'a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898'
+        new = b'8e71ba83e7d5037c6f7772401ec3b872684ccfa8472d855d8d6d3052cb1f41ba'
+        raw, mode = overlay['native/failure_retention.py']; overlay['native/failure_retention.py'] = (raw.replace(new, old, 1), mode)
+        with patch.object(A, 'snapshot', return_value=overlay), self.assertRaisesRegex(ValueError, 'retirement overlay differs'):
+            A.retired_producer(bodies)
+
+
+    def assert_component_producer_pins(self, bodies):
+        maps = []
+        for name in ('native/source_tools_reader_v1.py', 'native/source_tools_projection_v1.py'):
+            selected = [node.value for node in ast.parse(bodies[name]).body if isinstance(node, ast.Assign)
+                        and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name) and node.targets[0].id == 'PRODUCERS']
+            self.assertEqual(len(selected), 1)
+            maps.append(ast.literal_eval(selected[0]))
+        self.assertEqual(maps[0], maps[1])
+        self.assertEqual(maps[0]['native/source_tools_alpm_v1.py'], hashlib.sha256(bodies['native/source_tools_alpm_v1.py']).hexdigest())
+
+    def test_combined_old_alpm_reader_pin_refuses(self):
+        bodies = A.retired_producer({n: raw for n, (raw, _) in (self.parent | self.overlay).items()})
+        name = 'native/source_tools_reader_v1.py'
+        current = hashlib.sha256(bodies['native/source_tools_alpm_v1.py']).hexdigest().encode()
+        bodies[name] = bodies[name].replace(current, b'4299d71ba98f8d6e8cf3cbbe057294a7b82359e93162c850b7808b0216141d3d', 1)
+        with self.assertRaises(AssertionError):
+            self.assert_component_producer_pins(bodies)
+
+    def test_combined_old_alpm_projector_pin_refuses(self):
+        bodies = A.retired_producer({n: raw for n, (raw, _) in (self.parent | self.overlay).items()})
+        name = 'native/source_tools_projection_v1.py'
+        current = hashlib.sha256(bodies['native/source_tools_alpm_v1.py']).hexdigest().encode()
+        bodies[name] = bodies[name].replace(current, b'4299d71ba98f8d6e8cf3cbbe057294a7b82359e93162c850b7808b0216141d3d', 1)
+        with self.assertRaises(AssertionError):
+            self.assert_component_producer_pins(bodies)
 
 
 if __name__ == '__main__':

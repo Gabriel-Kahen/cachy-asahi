@@ -17,6 +17,7 @@ import shutil
 import stat
 import tempfile
 
+HERE = Path(__file__).resolve().parent
 GENUINE_PARENT = '111f14d2b21b220d86912d5ead978848c7ef1cb0'
 PARENT_TREE = 'f45820b0ef37b48f50bbc361a22f53b5dd309506'
 MAIN_BASE = 'eaf43eddc5604773d8176f319700a450bc32ccb0'
@@ -30,7 +31,7 @@ ADDITIONS = frozenset('native/' + name for name in (
     'source_tools_probe_v1.py', 'source_tools_reader_v1.py', 'source_tools_projection_v1.py',
     'source-tools-contract-v1.json', 'source-tools-makepkg-v1.conf', 'source-tools-sources-v1.tar'))
 FIELDS = frozenset(('schema', 'purpose', 'genuine_parent', 'parent_tree', 'parent_files',
-    'overlay', 'source_map_sha256', 'prospective_tree', 'operation', 'actual', 'main_base', 'source_files'))
+    'overlay', 'producer_overlay', 'source_map_sha256', 'prospective_tree', 'operation', 'actual', 'main_base', 'source_files'))
 
 
 def need(ok, message):
@@ -181,6 +182,20 @@ def tree(files):
 
 
 
+PRODUCER_BEFORE = {'bootstrap/scripts/ci/native_arm.py': {'bytes': 28318, 'sha256': 'a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898'}, 'native/failure_retention.py': {'bytes': 13639, 'sha256': '20f9f6fb153d3be98e41c343e63f5994aa3708ccbd4299e1f551a38b697ffbe3'}, 'native/source_tools_alpm_v1.py': {'bytes': 27900, 'sha256': '4299d71ba98f8d6e8cf3cbbe057294a7b82359e93162c850b7808b0216141d3d'}, 'native/source_tools_reader_v1.py': {'bytes': 116262, 'sha256': '6a640d1008d5f6364631a330f341945b55e8d59bda089360fb1656d0dcad5a92'}, 'native/source_tools_projection_v1.py': {'bytes': 10628, 'sha256': '0c91e8bd674b05f1a68d6cff6000dcaa74752d665e0566f2ff7768764ce8150c'}}
+PRODUCER_AFTER = {'native/failure_retention.py': {'bytes': 13639, 'sha256': 'cdb50b755f3e76d0229278bb89476752702544f3c31947e74676c82b213a8dc7', 'mode': 420}, 'native/source_tools_alpm_v1.py': {'bytes': 28092, 'sha256': 'c332fbef08d7e03be918b45a67c1eb705eaa41425e02bd84111a50058eed0279', 'mode': 420}, 'native/source_tools_reader_v1.py': {'bytes': 116398, 'sha256': '05c3ff5a7d32d6d797976337a8b28f95dc8dfd9b438b9ca916adc5d44ea65833', 'mode': 420}, 'native/source_tools_projection_v1.py': {'bytes': 10628, 'sha256': '91b906e7fc89fbe2df4cff1d2f7a37c8fc42b6eb34f6e3b2ff7d63a4601a1c3b', 'mode': 420}, 'bootstrap/scripts/ci/native_arm.py': {'bytes': 28877, 'sha256': '8e71ba83e7d5037c6f7772401ec3b872684ccfa8472d855d8d6d3052cb1f41ba', 'mode': 420}}
+
+
+def retired_producer(bodies):
+    """Five authenticated producer/cleanup replacements; operands never execute."""
+    need({name: dict(bytes=len(bodies[name]), sha256=hashlib.sha256(bodies[name]).hexdigest()) for name in PRODUCER_BEFORE} == PRODUCER_BEFORE,
+         'strict frozen producer/observer inputs differ')
+    overlay = snapshot(HERE / 'producer-overlay')
+    need(descriptors(overlay) == PRODUCER_AFTER, 'fixed producer retirement overlay differs')
+    result = dict(bodies)
+    result.update({name: raw for name, (raw, _) in overlay.items()})
+    return result
+
 CONCURRENCY_GROUP = 'native-arm-source-tools'
 WORKFLOW_ALIASES = ('.github/workflows/native-arm-build.yml', '.github/workflows/native-arm-developer-workflows.yml')
 
@@ -200,7 +215,7 @@ def scheduled_workflows(bodies):
 
 def scheduled_source(files):
     original = {name: raw for name, (raw, _) in files.items()}
-    bodies = scheduled_workflows(original)
+    bodies = retired_producer(scheduled_workflows(original))
     result = {name: (raw, files[name][1]) for name, raw in bodies.items()}
     manifest = decode(files['native/source-map.json'][0])
     need(manifest['files'] == {name: row for name, row in descriptors(files).items() if name != 'native/source-map.json'}, 'original source map before scheduling differs')
@@ -217,7 +232,7 @@ def profile(raw, checksum):
          value['purpose'] == 'source-tools-native-main-overlay' and value['genuine_parent'] == GENUINE_PARENT and
          value['parent_tree'] == PARENT_TREE and value['main_base'] == MAIN_BASE and
          value['operation'] == OPERATION and type(value['source_files']) is int and value['source_files'] == 200 and
-         value['actual'] == dict(source=None, ref=None, run=None), 'exact unexecuted native overlay identity required')
+         value['actual'] == dict(source=None, ref=None, run=None) and value['producer_overlay'] == PRODUCER_AFTER, 'exact unexecuted native overlay identity required')
     for field, count in (('parent_files', 191), ('overlay', 14)):
         rows = value[field]
         need(type(rows) is dict and len(rows) == count, 'exact finite source row count required')
