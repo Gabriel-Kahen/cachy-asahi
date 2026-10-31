@@ -425,5 +425,61 @@ class AdoptedZombie(unittest.TestCase):
             self.assertEqual(result['ownership'], 'UNKNOWN')
 
 
+    def test_real_foreign_exit73_sentinel_stays_reserved(self):
+        R.prepare()
+        foreign = subprocess.Popen(
+            ['/usr/bin/python3', '-I', '-B', '-c', 'import os;os._exit(73)'],
+            stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL, start_new_session=True,
+            env=dict(PATH='/usr/bin:/bin', PYTHONDONTWRITEBYTECODE='1'))
+        open_custody = True
+
+        def reserve():
+            nonlocal open_custody
+            self.assertTrue(open_custody, 'foreign query after closure')
+            try:
+                return WAITID(os.P_PID, foreign.pid,
+                              os.WEXITED | os.WNOWAIT | os.WNOHANG)
+            except ChildProcessError:
+                open_custody = False
+                foreign._child_created = False
+                raise
+
+        try:
+            limit = time.monotonic() + 3
+            while reserve() is None:
+                self.assertLess(time.monotonic(), limit, 'foreign readiness')
+                time.sleep(.002)
+            with self.fixture() as f:
+                # Spy rejects broad or foreign waits before transparently
+                # delegating each permitted exact call to the real kernel.
+                with Spy(self, f) as spy:
+                    result = f.finish()
+                self.assertTrue(result['passed'], result)
+                proof = result['group_retirement']['adopted_child']
+                self.assertEqual(proof['status'],
+                                 'QUALIFIED_ONE_ADOPTED_CHILD_REAPED')
+                consumed = [pid for op, pid in spy.events
+                            if op == 'RAW_CONSUMED']
+                self.assertEqual(consumed, [f.extra[0], f.child.pid])
+                self.assertNotIn(foreign.pid, consumed)
+                held = reserve()
+                self.assertIsNotNone(held)
+                self.assertEqual((held.si_pid, held.si_code, held.si_status),
+                                 (foreign.pid, os.CLD_EXITED, 73))
+        finally:
+            if open_custody:
+                held = reserve()
+                self.assertIsNotNone(held)
+                self.assertEqual((held.si_pid, held.si_code, held.si_status),
+                                 (foreign.pid, os.CLD_EXITED, 73))
+                open_custody = False  # Close queries before the one raw wait.
+                foreign._child_created = False
+                got, status = WAITPID(foreign.pid, os.WNOHANG)
+                self.assertEqual(got, foreign.pid)
+                self.assertEqual(os.waitstatus_to_exitcode(status), 73)
+                foreign.returncode = 73
+
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)
