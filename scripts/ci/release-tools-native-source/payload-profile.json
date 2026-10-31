@@ -1,0 +1,71 @@
+{
+  "Source201_required": true,
+  "Source_emission": "Exact byte-equal helper emitted into the closed native Source201; profile is not a generic factory or execution authorization",
+  "actual": {
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "kind": "FINITE_RELEASE_DIAGNOSTIC_SOURCE_PAYLOAD_NOT_INSTALLED_PACKAGE_RUNTIME",
+  "marker": "RELEASE_BUILD_FIRST_CAUSE_V1 ",
+  "matching_reader": {
+    "pin": {
+      "bytes": 97373,
+      "sha256": "775a6969dcc4cf933cf133d90786a58eacfb7b6dc7ef0f53d16060adbedf6a6f"
+    },
+    "producer_pin_only_change": true,
+    "target": "native/release_reader_v1.py"
+  },
+  "native": "NOT_ADMITTED",
+  "payload": {
+    "payload/native/release_build_cause_v1.py": {
+      "bytes": 37654,
+      "emission_target": "native/release_build_cause_v1.py",
+      "mode": 420,
+      "sha256": "a5506c35f1325353c78538658c5e3ac03cdeb1460c5284a0abd1e428aaacfc00"
+    }
+  },
+  "preserved_install_contract_parent_helper": "a076037fc3adf6087d0c7f9ba3bb28984d8d3c8a86e487f59ae1c991a3af2016",
+  "prior_build_retirement": {
+    "NEW_synthetic_controls": 14,
+    "adoption_missing_receipt": "NOT_OBSERVED_OR_UNKNOWN_NOT_PROVEN_ABSENT",
+    "max_observed_rows": 2,
+    "missing_or_refused": "UNKNOWN",
+    "no_migration_or_acceptance": true,
+    "original_row_digests": true,
+    "post_reap_group_absence": "UNKNOWN_NOT_RECORDED_BY_SOURCE",
+    "public_subset": "Fixed summary/no argv/cwd/logname/output",
+    "roles": [
+      "build-v1",
+      "build-v2"
+    ],
+    "source_core_pin": "9388d270d06e28fee50160b7c04dd69593e383647d791f8aaff69380032165d5"
+  },
+  "prior_install_DATA12_qualification": {
+    "helper_sha256": "a076037fc3adf6087d0c7f9ba3bb28984d8d3c8a86e487f59ae1c991a3af2016",
+    "rerun_here": false,
+    "results": {
+      "bytes": 2545,
+      "sha256": "183397ff0c3dae2cefb2ed6e883896e4cace53bfbdf21b1eec16347a5f7be38a"
+    },
+    "scope": "Retained predecessor DATA qualification; install functions byte-held, not a new full old12 execution",
+    "seal": {
+      "bytes": 985,
+      "sha256": "06a67c1f4f642ff243a61418303b0c27689a3a501a3b8afbfc6c50723909e9dc"
+    }
+  },
+  "privacy_dependency": {
+    "pin": {
+      "bytes": 10838,
+      "sha256": "54025eac68520a6191f6dfdf8d8ab6e9f958be2f53cc089f6143255bae7af8e7"
+    },
+    "resolution": "Matching closed Source201 only; no installed or standalone runtime import assumed",
+    "symbol": "PRIVATE_MARKER",
+    "target": "native/release_projection_v1.py",
+    "unchanged_privacy_literal": true
+  },
+  "publication_parent": "9f5731377772fd9a1893ffa35619bb39d02ef05d",
+  "schema": 1,
+  "scope": "Exact failed install-v1 contract plus at most two original successful build retirement observations; no acceptance or runtime/privilege/retirement changes",
+  "source_map_rows": 200
+}
