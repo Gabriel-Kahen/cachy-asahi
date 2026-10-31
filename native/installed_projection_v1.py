@@ -32,7 +32,7 @@ for alias in ('workflow','build-systems','debugger','python','control','backend-
     REPORTS['usr-'+alias]=set(REPORTS[alias]);PRIVATE['usr-'+alias]=set(PRIVATE[alias])
 REPORTS['pair-v1']={'result.json','commands.json'};PRIVATE['pair-v1']={'home'}
 PRODUCERS.update({'native/installed_tools_v1.py': '9335bbb76a726917a00b0b2807c7097c3d7cf4fd264cd77f43a91044bbc8c032', 'native/installed_guest_v1.py': 'dae919edd4f031330e973fdcb8d521aaf55fe23df053404af3d0975e2c8a36f6', 'native/installed_uv_v1.py': '590780db7b5e64ba861d85973df03497fd01af2069333398d9964c7504007c67', 'native/installed-contract-v1.json': '6cb07ef8dfa7e9e8be892ad7a491055fe3d83c28a194c4971f9a09d841ae0fdc'})
-PRODUCERS.update({'native/installed_alpm_v1.py': '3951ed79ce54ce1f8a61871cf8e725cc3a650b0c4c8929405895462b4ebecb99', 'native/alpm-contract-v1.json': 'd695f7924938a3bd750d47d2923183b1345e34060fd9950c8e859d49969a7841'})
+PRODUCERS.update({'native/installed_alpm_v1.py': 'bec0296e21d85ab405b20118d046e8bf2c6f3627d99b0799886ca6142d5ce6cb', 'native/alpm-contract-v1.json': 'd695f7924938a3bd750d47d2923183b1345e34060fd9950c8e859d49969a7841'})
 LOG=re.compile(r'[0-9]{3}-[A-Za-z0-9][A-Za-z0-9_+.-]{0,127}\.log')
 SITE='lib/python3.14/site-packages/';DIST='uv_build-0.11.28.dist-info/'
 BACKEND={'bin/uv-build'}|{SITE+'uv_build/'+n for n in ('__init__.py','__main__.py','py.typed')}|{

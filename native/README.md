@@ -493,3 +493,15 @@ This is a source-proven blocker, not a recovered diagnosis of the original run.
 Cleanup-only failures retain their first enum phase/category before subsequent
 cleanup work. Direct-log enum export is attempted even if the private JSON save
 fails. Raw logs, capsule privacy, process ownership and acceptance gates are held.
+
+
+## First pair command DATA diagnostic
+
+Actual v2 source13530af6/run41175124908 reported PAIR_MAKEPKG_ONE/VALUE_GUARD.
+That does not distinguish a launch guard, launch error, command exit or unknown
+retirement. This successor retains only the existing command-row boolean/enum/
+exit fields and original log pin before re-raising the identical exception.
+NOT_OBSERVED never proves no launch. The private log body and arbitrary messages
+remain unavailable. No supervisor, signal, wait, GPG/ALPM, or functional package
+policy is changed. New host schema2 is direct console/best-effort private JSON;
+public capsule and passive reader protocols remain held. Native result NOT_RUN.
