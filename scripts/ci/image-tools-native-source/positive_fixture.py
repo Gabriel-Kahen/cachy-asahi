@@ -81,6 +81,13 @@ def fixture(R):
         command(label+'-synthetic',['/usr/bin/runuser','-u','alarm','--','/usr/bin/python3',contract['synthetic_harness']['path']])
     command('remove',['/usr/bin/pacman','--config',config,'--noconfirm','--noscriptlet','-R','cachy-asahi-image-tools']);inventory('removed',None)
     for key,raw in reasons.items():command('restored-reasons-'+key,['/usr/bin/pacman','-Qqe' if key=='explicit' else '-Qqd'],raw)
+    # Synthetic records for the strict TEST-home cleanup reader; never actors.
+    for home in ('signing','trust'):
+        command('retire-'+home,['/usr/bin/gpgconf','--homedir',private/home,'--kill','all'],b'',expected=0)
+        commands[-1]['channels']='stdout+stderr combined in pipe order'
+        command('no-autostart-'+home,['/usr/bin/gpg-connect-agent','--homedir',private/home,'--no-autostart','/bye'],
+                b'gpg-connect-agent: no gpg-agent running in this session\n',expected=0)
+        commands[-1]['channels']='stdout+stderr combined in pipe order'
     report['diagnostic_files']={name[len(PREFIX):]:pin(raw) for name,raw in data.items() if name.startswith(PREFIX+'diagnostics/')}
     guest=dict(status=R.PASS,operation=R.OPERATION,source_map_sha256='a'*64,architecture='aarch64',page_size=4096,packages=pin(base),physical_M2='NOT_RUN',native_16K='NOT_QUALIFIED',system_install='IMAGE_STAGE_ALPM_ONLY',release='NOT_ADMITTED',image_alpm=report)
     data[PREFIX+'result.json']=encoded(report);data[PREFIX+'commands.json']=encoded(commands);data['journey/result.json']=encoded(guest)

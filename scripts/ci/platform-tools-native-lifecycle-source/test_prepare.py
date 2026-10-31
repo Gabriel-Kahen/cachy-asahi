@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: MIT
 """Focused Source DATA controls. No build, library transaction or process actors."""
+import ast
+import hashlib
 import importlib.util
 import json
 import os
@@ -40,8 +42,8 @@ class Controls(unittest.TestCase):
         self.assertEqual(P.git_tree(self.after), self.value['source_tree'])
         self.assertEqual(self.after['native/common.py'], self.before['native/common.py'])
         changed = {n for n in self.after if self.after[n] != self.before.get(n)}
-        self.assertEqual(changed, set(self.value['payload']))
-        self.assertEqual(len(changed), 13)
+        self.assertEqual(changed, set(self.value['payload']) | set(self.value['producer_overlay']))
+        self.assertEqual(len(changed), 15)
 
     def test_complete_materialization_and_existing_output_preserved(self):
         target = self.root / 'trial'; stage = P.emit(self.basis, target)
@@ -124,6 +126,71 @@ class Controls(unittest.TestCase):
     def test_mismatched_workflow_aliases_refuse_scheduling(self):
         with self.assertRaisesRegex(ValueError, 'aliases differ'):
             P.scheduled_workflows(dict(zip(P.WORKFLOW_ALIASES, (b'left', b'right'))))
+
+
+    def test_producer_cleanup_exact_five_file_delta_and_observer_inverse(self):
+        bodies = {n: raw for n, (raw, _) in (self.before | self.payload).items()}
+        result = P.retired_producer(bodies)
+        self.assertEqual({n for n in result if result[n] != bodies[n]}, set(P.PRODUCER_AFTER))
+        for name, row in P.PRODUCER_AFTER.items():
+            self.assertEqual(len(result[name]), row['bytes'])
+            self.assertEqual(hashlib.sha256(result[name]).hexdigest(), row['sha256'])
+        old = b'a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898'
+        new = b'8e71ba83e7d5037c6f7772401ec3b872684ccfa8472d855d8d6d3052cb1f41ba'
+        self.assertEqual(result['native/failure_retention.py'].count(new), 1)
+        self.assertNotIn(old, result['native/failure_retention.py'])
+        self.assert_component_producer_pins(result)
+        self.assertEqual(bodies, {n: raw for n, (raw, _) in (self.before | self.payload).items()})
+
+    def test_changed_immutable_producer_helper_refuses(self):
+        bodies = {n: raw for n, (raw, _) in (self.before | self.payload).items()}
+        overlay = P.tree(P.HERE / 'producer-overlay')
+        overlay = dict(overlay); body, mode = overlay['bootstrap/scripts/ci/native_arm.py']; overlay['bootstrap/scripts/ci/native_arm.py'] = (body+b'\n# changed\n', mode)
+        with patch.object(P, 'tree', return_value=overlay), self.assertRaisesRegex(ValueError, 'retirement overlay differs'):
+            P.retired_producer(bodies)
+
+    def test_stale_strict_observer_input_refuses(self):
+        bodies = dict({n: raw for n, (raw, _) in (self.before | self.payload).items()})
+        bodies['native/failure_retention.py'] += b'\n# stale observer\n'
+        with self.assertRaisesRegex(ValueError, 'producer/observer inputs differ'):
+            P.retired_producer(bodies)
+
+
+    def test_stale_strict_observer_overlay_refuses(self):
+        bodies = {n: raw for n, (raw, _) in (self.before | self.payload).items()}
+        overlay = dict(P.tree(P.HERE / 'producer-overlay'))
+        old = b'a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898'
+        new = b'8e71ba83e7d5037c6f7772401ec3b872684ccfa8472d855d8d6d3052cb1f41ba'
+        raw, mode = overlay['native/failure_retention.py']; overlay['native/failure_retention.py'] = (raw.replace(new, old, 1), mode)
+        with patch.object(P, 'tree', return_value=overlay), self.assertRaisesRegex(ValueError, 'retirement overlay differs'):
+            P.retired_producer(bodies)
+
+
+    def assert_component_producer_pins(self, bodies):
+        maps = []
+        for name in ('native/platform_reader_v1.py', 'native/platform_projection_v1.py'):
+            selected = [node.value for node in ast.parse(bodies[name]).body if isinstance(node, ast.Assign)
+                        and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name) and node.targets[0].id == 'PRODUCERS']
+            self.assertEqual(len(selected), 1)
+            maps.append(ast.literal_eval(selected[0]))
+        self.assertEqual(maps[0], maps[1])
+        self.assertEqual(maps[0]['native/platform_alpm_v1.py'], hashlib.sha256(bodies['native/platform_alpm_v1.py']).hexdigest())
+
+    def test_combined_old_alpm_reader_pin_refuses(self):
+        bodies = P.retired_producer({n: raw for n, (raw, _) in (self.before | self.payload).items()})
+        name = 'native/platform_reader_v1.py'
+        current = hashlib.sha256(bodies['native/platform_alpm_v1.py']).hexdigest().encode()
+        bodies[name] = bodies[name].replace(current, b'77e71a7d20002aadc62c3b77aae40f9631ebcdc1e95ef9dc85f317e417a87293', 1)
+        with self.assertRaises(AssertionError):
+            self.assert_component_producer_pins(bodies)
+
+    def test_combined_old_alpm_projector_pin_refuses(self):
+        bodies = P.retired_producer({n: raw for n, (raw, _) in (self.before | self.payload).items()})
+        name = 'native/platform_projection_v1.py'
+        current = hashlib.sha256(bodies['native/platform_alpm_v1.py']).hexdigest().encode()
+        bodies[name] = bodies[name].replace(current, b'77e71a7d20002aadc62c3b77aae40f9631ebcdc1e95ef9dc85f317e417a87293', 1)
+        with self.assertRaises(AssertionError):
+            self.assert_component_producer_pins(bodies)
 
 
 if __name__ == '__main__':
