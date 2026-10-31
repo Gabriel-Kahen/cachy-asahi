@@ -97,7 +97,7 @@ bootstrap_stage=python-probe
 env LD_LIBRARY_PATH=/opt/measurement/python/lib /opt/measurement/python/bin/python3 -I -B -c 'import sys,ssl,hashlib,zlib,bz2,lzma,ctypes,sqlite3; assert sys.version_info[:2] == tuple(map(int,"PYTHON_MM".split(".")))'
 bootstrap_stage=package8
 package_started=1
-runuser -u measurement -- env LD_LIBRARY_PATH=/opt/measurement/python/lib /opt/measurement/python/bin/python3 -I -B -Werror::ResourceWarning /opt/measurement/helper.py package --root /opt/measurement/source --work /home/measurement/package-ci
+runuser -u measurement -- env PATH=/opt/measurement/python/bin:/usr/local/bin:/usr/bin:/bin LD_LIBRARY_PATH=/opt/measurement/python/lib /opt/measurement/python/bin/python3 -I -B -Werror::ResourceWarning /opt/measurement/helper.py package --root /opt/measurement/source --work /home/measurement/package-ci
 '''.replace('HELPER_SHA',helper_sha).replace('PYTHON_MM',python_mm).replace('PROFILE_PIN',PROFILE_SHA)
  return {'users':[{'name':'measurement','lock_passwd':True,'shell':'/bin/bash'}],
          'ssh_pwauth':False,'disable_root':True,'package_update':False,
