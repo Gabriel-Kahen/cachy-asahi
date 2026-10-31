@@ -645,9 +645,9 @@
       "sha256": "30a2a92a1fc8a80e4110d5870b31e868797c259cd67b9bc8ceb42fcafdcbe2a5"
     },
     "native/platform_alpm_v1.py": {
-      "bytes": 22862,
+      "bytes": 24580,
       "mode": 420,
-      "sha256": "7867244f91d73da5ad1daca1dc13a71ad5a4b5e8f66517490fa1feae8361dfb5"
+      "sha256": "c5f533b3e117339fea89a8acab78f542dbfde15318f82ba951138addc32c9a11"
     },
     "native/platform_guest_v1.py": {
       "bytes": 3051,
@@ -657,17 +657,17 @@
     "native/platform_projection_v1.py": {
       "bytes": 14295,
       "mode": 420,
-      "sha256": "ac673854bd1f21a6079ca0910c41cfc49a5793ebe44069c113a3eb30574467be"
+      "sha256": "8f84d214c937104630bd027184bf1edae1f365d0b6f3824050bc67b0fd9c3967"
     },
     "native/platform_reader_v1.py": {
-      "bytes": 118148,
+      "bytes": 126861,
       "mode": 420,
-      "sha256": "c7ad1e8af0e06db2182fc72546bfa2c4e59c22f79fd63f248700970c8a76a205"
+      "sha256": "4b33f40262ca4848e5eada8dc61a95d2d86f9d3ebef7cd23a9317eecbe586a1c"
     },
     "native/platform_tools_v1.py": {
-      "bytes": 26713,
+      "bytes": 32445,
       "mode": 420,
-      "sha256": "794894cd053a4508cf00abe3928a8431bab0986f94bd4fcfb690a7e22ab38621"
+      "sha256": "a52a2a869331f5b833b83ede039ba7bd860d612f018a7c2ed13100d8c15c9ad0"
     },
     "native/predecessor-source-map.json": {
       "bytes": 27440,
