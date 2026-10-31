@@ -65,6 +65,26 @@ class SourceTests(unittest.TestCase):
         self.assertEqual([x['origin'] for x in report['objects']], ['verified_cache'] * 2)
         self.assertEqual(report['public_hosting'], 'NOT_RUN')
         self.assertEqual(report['compiler_correspondence'], 'NOT_ESTABLISHED')
+        self.assertEqual(report['downloader_sha256'], s.sha(HERE.parent / 'native_arm.py'))
+
+    def test_dependency_byte_drift_refused_before_import(self):
+        here = self.root / 'subject/scripts/ci/asahi-audio-rust'
+        here.mkdir(parents=True)
+        paths = (here.parent / 'native_arm.py', here.parents[1] / 'checks/package_checks.py')
+        originals = ((HERE.parent / 'native_arm.py').read_bytes(),
+                     (HERE.parents[1] / 'checks/package_checks.py').read_bytes())
+        for changed in paths:
+            with self.subTest(changed=changed.name):
+                for path, raw in zip(paths, originals):
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    path.write_bytes(raw)
+                changed.write_bytes(changed.read_bytes() + b'\n# fixture byte drift\n')
+                with patch.object(s, 'HERE', here), patch.object(
+                        s.importlib.util, 'spec_from_file_location',
+                        side_effect=AssertionError('untrusted dependency import')) as loader:
+                    with self.assertRaisesRegex(ValueError, 'source downloader API differs'):
+                        s.native()
+                    loader.assert_not_called()
 
     def test_corrupt_cache_fails_whole_handoff_and_preserves_valid_objects(self):
         bad = self.cached('one', b'wrong one\n'); good = self.cached('two')
