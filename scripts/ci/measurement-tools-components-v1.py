@@ -75,8 +75,10 @@ finish() {
  exit "$rc"
 }
 trap finish EXIT
+bootstrap_umask=$(umask)
 umask 077
 exec > "$bootstrap_log" 2>&1
+umask "$bootstrap_umask"
 export DEBIAN_FRONTEND=noninteractive
 bootstrap_stage=apt-update
 apt-get update -qq
