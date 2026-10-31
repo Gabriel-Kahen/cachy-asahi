@@ -10,7 +10,7 @@ import capsule as C
 import privacy_diagnostics as privacy
 
 PRODUCERS = {
- 'native/desktop_alpm_v1.py': '4345179192004754c8c6219d63bbefb62d62860fdb81fb2d294751790a3c1f8f',
+ 'native/desktop_alpm_v1.py': '94b0c96301a4a7985b758d6a36d50f597478a1a010cb794602d7a73d80da8dd3',
  'native/desktop_tools_v1.py': '88a8c5a8c188113564c8e0bf1e02176d9cc86f19998b51e19e075c5d0eaf8b62',
  'native/desktop_guest_v1.py': '2818cb5257433b290dd96dc8b1824e4c7932ac5ceff5b190004765caa1191e31',
  'native/desktop-contract-v1.json': 'f2c72aa0d24272966eb323a5a2bb11bca89569a9542330eedafe9f09cc46a894'}

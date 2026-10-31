@@ -598,9 +598,9 @@
       "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
     },
     "native/desktop_alpm_v1.py": {
-      "bytes": 27968,
+      "bytes": 30363,
       "mode": 420,
-      "sha256": "4345179192004754c8c6219d63bbefb62d62860fdb81fb2d294751790a3c1f8f"
+      "sha256": "94b0c96301a4a7985b758d6a36d50f597478a1a010cb794602d7a73d80da8dd3"
     },
     "native/desktop_guest_v1.py": {
       "bytes": 3041,
@@ -610,12 +610,12 @@
     "native/desktop_projection_v1.py": {
       "bytes": 17789,
       "mode": 420,
-      "sha256": "4323da54d0beedc18269ff29b06d7d1e44fef166f41041c64f900e2c29cd7203"
+      "sha256": "de658fc12830d4e454bb832784f43ace00b02dd5fa395a874d4110684f146021"
     },
     "native/desktop_reader_v1.py": {
-      "bytes": 116886,
+      "bytes": 120391,
       "mode": 420,
-      "sha256": "f2c58749efc7dce871486a2313c6a00e89eb69fbe413e5b4fb5a483778af5514"
+      "sha256": "5174bc2fffb54066c32a8204895fcc68977f98ed45383a84f91b647349a2c300"
     },
     "native/desktop_tools_v1.py": {
       "bytes": 26905,
@@ -705,7 +705,7 @@
     "native/source-map.json": {
       "bytes": 39630,
       "mode": 420,
-      "sha256": "918c0afac5bce3cdbdb8fb95fcd5623f570ffe61f720032de29eb8e25c2a528d"
+      "sha256": "8f3393986af9f87ff4249dadd0b6cdf42ccbc3e714bc5a4abc8c893990b25409"
     },
     "native/transport_proof.py": {
       "bytes": 16711,
@@ -2002,9 +2002,9 @@
       "sha256": "c9e119f8cb85404979cffc9a5aa4b3962ad3d990d4b899441370f22ad4d7964b"
     },
     "native/desktop_alpm_v1.py": {
-      "bytes": 27968,
+      "bytes": 30363,
       "mode": 420,
-      "sha256": "4345179192004754c8c6219d63bbefb62d62860fdb81fb2d294751790a3c1f8f"
+      "sha256": "94b0c96301a4a7985b758d6a36d50f597478a1a010cb794602d7a73d80da8dd3"
     },
     "native/desktop_guest_v1.py": {
       "bytes": 3041,
@@ -2014,12 +2014,12 @@
     "native/desktop_projection_v1.py": {
       "bytes": 17789,
       "mode": 420,
-      "sha256": "4323da54d0beedc18269ff29b06d7d1e44fef166f41041c64f900e2c29cd7203"
+      "sha256": "de658fc12830d4e454bb832784f43ace00b02dd5fa395a874d4110684f146021"
     },
     "native/desktop_reader_v1.py": {
-      "bytes": 116886,
+      "bytes": 120391,
       "mode": 420,
-      "sha256": "f2c58749efc7dce871486a2313c6a00e89eb69fbe413e5b4fb5a483778af5514"
+      "sha256": "5174bc2fffb54066c32a8204895fcc68977f98ed45383a84f91b647349a2c300"
     },
     "native/desktop_tools_v1.py": {
       "bytes": 26905,
@@ -2044,11 +2044,11 @@
     "native/source-map.json": {
       "bytes": 39630,
       "mode": 420,
-      "sha256": "1bfca71a94381ad3a1635a26e2aef0556e79723fc809118d3adc9475eddb3e27"
+      "sha256": "f9e50b823b07ac7289fd5031b2364d3e1978b85ff7de0ca10ace6325706f8aac"
     }
   },
   "pr_base": "main",
   "schema": 1,
-  "source_map_sha256": "918c0afac5bce3cdbdb8fb95fcd5623f570ffe61f720032de29eb8e25c2a528d",
-  "source_tree": "43fb55e1e30c541aa74b335c146d347d1bb48aa6"
+  "source_map_sha256": "8f3393986af9f87ff4249dadd0b6cdf42ccbc3e714bc5a4abc8c893990b25409",
+  "source_tree": "7af3afe8534967e635b741a80ad0b661dee19bae"
 }

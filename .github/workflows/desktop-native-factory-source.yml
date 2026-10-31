@@ -53,3 +53,4 @@ jobs:
           python -I -B scripts/ci/desktop-tools-native-source/test_lifecycle.py
           python -I -B scripts/ci/desktop-tools-native-source/test_reader.py
           python -I -B scripts/ci/desktop-tools-native-source/test_retirement.py
+          DESKTOP_CENSUS_SOURCE="$DESKTOP_NATIVE_SOURCE" python -I -B scripts/ci/desktop-tools-native-source/test_census_diagnostic.py

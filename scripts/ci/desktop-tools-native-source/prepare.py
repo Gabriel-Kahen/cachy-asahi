@@ -14,7 +14,7 @@ import tempfile
 
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
-PROFILE_SHA256 = 'd0fb2c46ff451577eb114430186a6d699e096e39ae3d54738cd756025425ee26'
+PROFILE_SHA256 = '18992d526c64779e389d568e6e88feb0a0bc8dae2daef0b167754fd5438f2ee5'
 MAX_FILE, MAX_TOTAL, MAX_FILES = 64 * 1024**2, 96 * 1024**2, 200
 
 

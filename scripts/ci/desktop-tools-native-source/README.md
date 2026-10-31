@@ -98,3 +98,28 @@ DESKTOP_NATIVE_BASIS=/absolute/retained-genuine191-source \
 DESKTOP_NATIVE_SOURCE=/absolute/private-output/desktop-trial/source \
   python3 -I -B scripts/ci/desktop-tools-native-source/test_retirement.py
 ```
+
+
+## Existing-scan failure census DATA successor
+
+The Desktop Commands instances retain at most two observations from their
+existing post-reap `_members` calls, with at most32 typed rows/count/truncated.
+Only a failed command row receives this DATA; the original supervision schema,
+core834 bytes, pass decisions, waits, signals and number of scans are held.
+Post-reap matches remain PRESENT_OR_REUSED and cannot establish original
+ownership or living descendants. This is not retirement APIv2 qualification.
+
+The matching reader validates this field on the failure projection and positive
+routes. Success still requires EMPTY_TWICE. Retention errors preserve the primary
+command exception. The maintainer/profile holds the complete199 Source and
+genuine191 basis; default unnamed cap200 and fixed Desktop queue are unchanged.
+
+New actor/network-denied DATA controls only:
+
+```sh
+DESKTOP_CENSUS_SOURCE=/absolute/path/to/complete/source \
+  python3 -I -B scripts/ci/desktop-tools-native-source/test_census_diagnostic.py
+```
+
+The historical suites were not rerun for this successor. No native result is
+claimed for the new diagnostic field.
