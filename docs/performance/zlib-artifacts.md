@@ -1,5 +1,7 @@
 # Measure the retained zlib compiler variants on M2
 
+Current source execution uses the [owned-retirement v2 layer](owned-retirement-v2.md). Historical `benchmark.py` and `paired_zlib.py` files and their frozen plans remain byte-held; their legacy workload execution is retired. Redeclare fresh v2 plans for new runs; do not edit or rebind historical plans. Offline historical comparison remains available.
+
 This entry supplies the missing workload for the existing [benchmark CLI](cli.md). It does not replace that harness, collect a physical baseline, manufacture hardware-gate records or grant optimization acceptance. No M2 measurement or host benchmark has been performed for this preparation.
 
 Use a separate plan/session for each compiler experiment and for each 13-inch or 15-inch M2 Air. The artifact-only comparison changes `ZLIB_MINIGZIP` between two immutable executables; installed packages, kernel and platform state must remain identical. The driver performs fixed level-6 compression/decompression roundtrips on repeated, pinned **held-out README bytes**, verifies gzip/payload correctness, and writes only in the fresh workload directory. C03's original repeated-text training corpus is not used for timing.
@@ -37,7 +39,7 @@ python3 -B scripts/benchmarks/zlib_workload.py prepare-config \
   --payload-bytes 33554432 --iterations 8 \
   --output "$TASK_EVIDENCE/config.json"
 
-python3 -B scripts/benchmarks/benchmark.py prepare-plan \
+python3 -B scripts/benchmarks/benchmark_v2.py prepare-plan \
   --config "$TASK_EVIDENCE/config.json" \
   --baseline "$TASK_EVIDENCE/reference.json" \
   --candidate-state "$TASK_EVIDENCE/candidate.json" \
@@ -52,7 +54,7 @@ Prepare a fresh empty workload directory outside the harness output directory, s
 
 ```bash
 mkdir -m 700 "$TASK_EVIDENCE/work-00"
-python3 -B scripts/benchmarks/benchmark.py run \
+python3 -B scripts/benchmarks/benchmark_v2.py run \
   --plan "$TASK_EVIDENCE/frozen-plan.json" --slot 0 \
   --state "$TASK_EVIDENCE/reference.json" \
   --conditions "$TASK_EVIDENCE/conditions-00.json" \
@@ -62,7 +64,7 @@ python3 -B scripts/benchmarks/benchmark.py run \
 Repeat with the actual state file, conditions, fresh cwd/output and slot number in the exact declared order. The harness selects the binary through its sole variant environment key; do not edit the plan or replace files between slots. The driver waits for its children and keeps them in the harness process group, so the existing timeout/interrupt cleanup can reach them. Failures, mismatched bytes, timeouts or missing observations invalidate a trial; retain the evidence rather than choosing favorable replacements.
 
 ```bash
-python3 -B scripts/benchmarks/benchmark.py compare \
+python3 -B scripts/benchmarks/benchmark_v2.py compare \
   --plan "$TASK_EVIDENCE/frozen-plan.json" \
   --runs "$TASK_EVIDENCE/trial-00" "$TASK_EVIDENCE/trial-01" \
          "$TASK_EVIDENCE/trial-02" "$TASK_EVIDENCE/trial-03" \

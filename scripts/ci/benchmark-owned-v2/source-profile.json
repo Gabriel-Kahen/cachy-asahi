@@ -1,0 +1,125 @@
+{
+  "author_freeze": {
+    "bytes": 69390,
+    "sha256": "52e20e596a9bce299015df0d1cb1ce9a3c245eb5962c9cbcc08bfeac782a5753"
+  },
+  "comparison_source_contracts": {
+    "actual_comparison": "one real v2 trial replay; forged summary and incomplete block refused; full performance block NOT RUN",
+    "byte_held_functions": {
+      "describe": "18c8e8a9bb718ba8c7e2020db97cc3f0cdf5b3e6884717d09e5b78ebc49aca1a",
+      "execute_owned_rss": "0d2e6b2d873bb57c250caaaf033a3c6c3580043661e5688f21f68889d90364fd",
+      "metrics": "4cb21f19fd61faa054507c9d74c9d3f17b11f50b6eeceda6f50b449b638a6153",
+      "owned_rss_metrics": "bec6951fb99a2ff0af9fa14f2ffb8891b6d13661dbc165d3eab1d1694323cc24",
+      "sensor_identity": "5fe7a2e63126e6d1402268dae9cb804815eba567d4b865c4e7db60da0d99c3eb",
+      "validate_conditions": "68f0b0444e1e371e1275d5b7d886bddaa162861fce8c11edf47913a8e19100a5",
+      "verify_owned_rss": "d87a797864dcb5f01bdafc516e00e95f842f852490c3f2261fc590c381c88be8"
+    },
+    "complete_block_and_decision_tail_sha256": "f2ac651e2486e39d6ecd32acdce381777e1ffc9de652ed0d364c6489f2eac4b3"
+  },
+  "controlled_entrypoint": "scripts/benchmarks/benchmark_v2_retirement_controls.py",
+  "files": {
+    "LICENSE": {
+      "bytes": 1081,
+      "mode": "0644",
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "docs/performance/README.md": {
+      "bytes": 11956,
+      "mode": "0644",
+      "sha256": "0ff8da1dd5e2c621d398935ca947cb086404c55560cadaa36bddef6bdff48adf"
+    },
+    "docs/performance/cli.md": {
+      "bytes": 12875,
+      "mode": "0644",
+      "sha256": "d7e7690edc384d99575668bd794ac8afe0beb461b63301f7faca054487f93d37"
+    },
+    "docs/performance/owned-retirement-v2.md": {
+      "bytes": 5302,
+      "mode": "0644",
+      "sha256": "870db95c4b79a50b9b020536e48cf0e1ea4b7144ba0d28b32a22e21a5aa90fe2"
+    },
+    "docs/performance/owned-v2-validation.md": {
+      "bytes": 2506,
+      "mode": "0644",
+      "sha256": "fd4e9c74cfbf22cc81868f230d1bdfa9e9bc1beb553b74d731af5288e785a80e"
+    },
+    "docs/performance/paired-zlib.md": {
+      "bytes": 7443,
+      "mode": "0644",
+      "sha256": "acdb6a867ca2e2bc0ca8702db28c8655462e89161a960507c305770526373220"
+    },
+    "docs/performance/zlib-artifacts.md": {
+      "bytes": 9013,
+      "mode": "0644",
+      "sha256": "16a4364260ad7125010c3c3c17882e7f5653501b6737af12478a735476fef29e"
+    },
+    "scripts/benchmarks/benchmark.py": {
+      "bytes": 50739,
+      "mode": "0644",
+      "sha256": "3783f5e6f6a44bc177fd31254d044d5fb31832e232306a358d8cfb497a62b3cc"
+    },
+    "scripts/benchmarks/benchmark_owned_retirement.py": {
+      "bytes": 11590,
+      "mode": "0644",
+      "sha256": "0d682260c424abf4207b90cc92607528ae1b17656ebd3093d4e9d3919463748c"
+    },
+    "scripts/benchmarks/benchmark_platform_metrics.py": {
+      "bytes": 16254,
+      "mode": "0644",
+      "sha256": "863442bfeb274b7dcfec540c33fd4632498e58a5672a3b466aca6bc6fc46b9bd"
+    },
+    "scripts/benchmarks/benchmark_v2.py": {
+      "bytes": 50231,
+      "mode": "0755",
+      "sha256": "6a49c204ca874a8f56b778678536a46892f26e38fa54b39635d9cfaa9fb9195c"
+    },
+    "scripts/benchmarks/benchmark_v2_retirement_controls.py": {
+      "bytes": 18148,
+      "mode": "0644",
+      "sha256": "ea0e55295e2d345c6cd3f1d56d6251534fe221d8ef120eb8151e65624cc06377"
+    },
+    "scripts/benchmarks/paired_zlib.py": {
+      "bytes": 17310,
+      "mode": "0644",
+      "sha256": "48e4efd78d58008e90ddc301e07f64f74b2ff904bbc83817db8ccdc0a3ab6cf6"
+    },
+    "scripts/benchmarks/paired_zlib_v2.py": {
+      "bytes": 18406,
+      "mode": "0755",
+      "sha256": "499bf56863d557f9c130b1ece4557c42fe0ba1d1fc0e7491faed83eb18091d6b"
+    },
+    "scripts/benchmarks/platform_metrics.py": {
+      "bytes": 26497,
+      "mode": "0644",
+      "sha256": "bf3d80c3e5a7d8e8a67c393e2cabf19c2a45945fd023628bdb5dcb5b03b2b4f2"
+    },
+    "scripts/benchmarks/process_group_memory.py": {
+      "bytes": 7097,
+      "mode": "0644",
+      "sha256": "15d8e0f998f01e4f0a85122421ae76538eb05a0a2ab422e346674b8138ba2037"
+    },
+    "scripts/benchmarks/zlib_workload.py": {
+      "bytes": 10785,
+      "mode": "0644",
+      "sha256": "4d11868277e9e323b04b149534a3c2455165dfcda357f4d0b2f4100430e75716"
+    },
+    "scripts/virtual/owned_process.py": {
+      "bytes": 25140,
+      "mode": "0755",
+      "sha256": "83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f"
+    }
+  },
+  "not_run": [
+    "fresh hosted lifecycle controls",
+    "actual paired artifacts",
+    "native ARM/M2",
+    "performance gains"
+  ],
+  "qualified_Pythons": [
+    "3.12.13",
+    "3.14.7"
+  ],
+  "qualified_controls": 12,
+  "schema_version": 1,
+  "scope": "SOURCE_ONLY_NO_WORKLOAD_EXECUTION"
+}
