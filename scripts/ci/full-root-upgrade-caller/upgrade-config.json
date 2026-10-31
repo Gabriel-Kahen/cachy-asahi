@@ -28,7 +28,7 @@
     "scripts/update/archive_stream.py": "10f1a4c0ac5b98852d9ebb150af28f9ce345c800935a64fa463bc90f72fcb838",
     "scripts/update/aux_checkpoint.py": "d51179ca24c981bafd817d7db082c0ceb3b2f5deb922004bfe97d1e2007edda7",
     "scripts/update/aux_copy.py": "bff93c029e21f9fce0868c80566396984443c8d3438264fac8a91c985175f05b",
-    "scripts/update/aux_initialize.py": "f1c0b523b6ec77d940a104e3294985d724355bb84b0b9c01e815454f29817812",
+    "scripts/update/aux_initialize.py": "d9160b842ef2dae7bc60999c4f23452ade15ba91b775d52bdef5f189a52e23e2",
     "scripts/update/aux_runtime.py": "4d0ee6d0040686cf4b4e2f7aca28f255f1d67c272f9d4e846b9c125dc78961b1",
     "scripts/update/bound_update.py": "4c2c8857414ec4d690a25c3208383f5fe79a584ecc42d99e9f217c5ce9b983ec",
     "scripts/update/capacity.py": "dcb9899cd24daa21f75e6da6b0214393f093d140a70769092da091e0cfdf7c87",
