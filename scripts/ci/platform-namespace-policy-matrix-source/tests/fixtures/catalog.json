@@ -1,0 +1,22 @@
+{
+  "files": {
+    "context.json": {
+      "bytes": 3328,
+      "sha256": "ceac49c336f84a80a54404bd8d22c7c3ca0ff51f455b120efd227d5cfda5aec4"
+    },
+    "raw-source.txt": {
+      "bytes": 345,
+      "sha256": "b6df51360348ee3d41df9df109083f0c10d4262763fb81c9a22f737daf0249d3"
+    },
+    "source-full-map.json": {
+      "bytes": 53196,
+      "sha256": "2867d2ed7b0cb2b6324d393d379cc460041ece935f6af26efa8c29bea215cc84"
+    },
+    "source-map.json": {
+      "bytes": 40001,
+      "sha256": "cc2d1aaee89bf8c8ff921b8d764572f94c29bcf76a625e501038d6413efb1cab"
+    }
+  },
+  "kind": "finite-public-synthetic-owner-DATA-fixtures",
+  "schema": 1
+}
