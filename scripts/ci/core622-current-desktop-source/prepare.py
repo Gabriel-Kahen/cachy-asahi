@@ -288,7 +288,7 @@ def paths(roots,output):
  return roots,output
 
 def emit(roots,output,context,runner_resilience=False):
- need(context in('known','null'),'explicit known/NULL source-only context');roots,output=paths(roots,output);values,p,inputs,states=compose(roots,runner_resilience);paths(roots,output)
+ need(context in('known','null'),'explicit known/NULL source-only context');roots,output=paths(roots,output);values,p,inputs,states=compose(roots,True)if runner_resilience else compose(roots);paths(roots,output)
  need(all(scan(roots[k])==inputs[k]for k in roots)and all(read_state(HERE/n)==w for n,w in states.items()),'late complete identity before any write');output.mkdir(mode=0o700)
  for name,raw in sorted(values.items()):
   q=output/name;q.parent.mkdir(parents=True,exist_ok=True);fd=os.open(q,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)

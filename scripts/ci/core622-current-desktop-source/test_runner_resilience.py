@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT
 """New DATA construction controls; consume one pre-emitted diagnostic namespace."""
-import ast,copy,importlib.util,json,os,unittest
+import ast,copy,importlib.util,json,os,tempfile,unittest
+from unittest.mock import patch
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
 spec=importlib.util.spec_from_file_location('_core622_opt_in_factory',HERE/'prepare.py')
@@ -10,6 +11,27 @@ ROOTS={n:Path(os.environ['CORE622_'+n.upper()])for n in('parent','fresh607','cor
 
 def function(raw,name):
  text=raw.decode();return next(ast.get_source_segment(text,n)for n in ast.parse(text).body if isinstance(n,ast.FunctionDef)and n.name==name)
+
+class DefaultEmitCallControls(unittest.TestCase):
+ def test_inherited_one_argument_hook_reaches_late_drift_refusal(self):
+  # Own finite DATA inputs: no historical Source constructor or actor runs.
+  self.assertEqual(json.loads(F.read(HERE/'profile.json'))['result']['source'],'ad09020a776c93fad3c2625c836a99cbde0c83b9')
+  for resilient in(False,True):
+   with self.subTest(runner_resilience=resilient),tempfile.TemporaryDirectory(prefix='core622-call-')as temporary:
+    root=Path(temporary).resolve();roles={name:root/name for name in('parent','fresh607','core_record','fresh_record')}
+    for path in roles.values():path.mkdir();(path/'probe.txt').write_bytes(b'finite DATA input\n')
+    calls=[]
+    def changed(inputs):
+     calls.append(dict(inputs));states={name:F.scan(path)for name,path in inputs.items()}
+     (inputs['parent']/'probe.txt').write_bytes(b'changed finite DATA input\n')
+     return {},{},states,{}
+    def opted(inputs,enabled):
+     self.assertIs(enabled,True);return changed(inputs)
+    with patch.object(F,'compose',side_effect=opted if resilient else changed):
+     with self.assertRaisesRegex(ValueError,'late complete identity before any write'):
+      if resilient:F.emit(roles,root/'out','null',runner_resilience=True)
+      else:F.emit(roles,root/'out','known')
+    self.assertEqual(calls,[roles]);self.assertFalse((root/'out').exists())
 
 class Controls(unittest.TestCase):
  def setUp(self):
@@ -38,7 +60,8 @@ class Controls(unittest.TestCase):
   self.assertEqual(self.values['ownership622.py'],self.before['ownership622.py']);self.assertEqual(self.values['provision622.py'],self.before['provision622.py']);self.assertEqual(self.values['profile.json'],self.before['profile.json']);self.assertEqual(self.values['expected607.lock'],self.before['expected607.lock']);self.assertEqual(self.values['expected622.lock'],self.before['expected622.lock'])
 
 def run_controls():
- result=unittest.TextTestRunner(verbosity=2).run(unittest.defaultTestLoader.loadTestsFromTestCase(Controls))
+ suite=unittest.TestSuite(unittest.defaultTestLoader.loadTestsFromTestCase(case)for case in(Controls,DefaultEmitCallControls))
+ result=unittest.TextTestRunner(verbosity=2).run(suite)
  return dict(status='PASS'if result.wasSuccessful()else'FAIL',tests=result.testsRun,errors=len(result.errors),failures=len(result.failures),factory_emissions=0,Source_prefix='NOT_RUN',old_suites='NOT_RUN',native='NOT_RUN',acceptance=False)
 
 if __name__=='__main__':

@@ -1,0 +1,10 @@
+Copyright (c) 2026 cachy-asahi contributors. MIT licensed original project work.
+
+Five runtime modules and LICENSE are copied byte-for-byte from the project
+commit recorded in source-provenance.json. No benchmark source was repaired or
+rewritten. This package adds a launcher, staging map, tests and documentation.
+The installed workload entrypoint requires the existing explicit owned-process
+platform-metrics path. Legacy run remains in retained original bytes only.
+No upstream downloads, vendored third-party libraries, hooks or system defaults.
+Host qualification does not establish native ARM, Asahi installation, M2,
+power/thermal acceptance, performance gains or release admission.

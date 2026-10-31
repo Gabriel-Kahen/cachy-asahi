@@ -42,3 +42,5 @@ NULL until Root independently qualifies a real run.
 
 Finished development changes target `main`. Hardware and release acceptance
 remain separate from development integration.
+
+A diagnostic-only successor retains at most32 typed rows from each already-performed legacy post-reap group scan. It never adds a scan, changes waits/signals/clocks, or changes the strict PRESENT_OR_REUSED refusal; numeric matches may be reused. The full Image reader validates the added failure DATA. No lifecycle fix or native pass is claimed until fresh evidence identifies and resolves the retained membership condition. Run only the new test_group_census_diagnostic.py with IMAGE_TOOLS_NATIVE_SOURCE bound to the exact proposed Source for its focused DATA controls.

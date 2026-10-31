@@ -368,7 +368,7 @@ def retained_consumer_diagnostic(view, files, receipt, binding, map_sha256, posi
                 actor_exit=row.get('exit'), container=container)
 
 
-PRODUCERS = {'native/image_alpm_v1.py': 'fba2680a23cf06e73517e92878d6d871d177138ce7cf5dd1fd4cdc40f61a3fba', 'native/image_tools_v1.py': 'd78cf3ca4c9f455f40264fe0ef3d4e9a60defb5043a107a7c97c9d81e939edb5', 'native/image_guest_v1.py': '10d125ed2ac288b7d3ce1b72e94a812a7fc9cdc3fc0e31bae6ad4b789f55747b', 'native/image-contract-v1.json': '79c0adad0f9153a74d5c06efe6950a2c32ed8035ff8e6d27e704b3e496fe03d7', 'native/image_synthetic_v1.py': '21825af46244f1b949d25ff0af70cb2c8f6fe52198a9bc013aaa38d86c7fa983', 'native/image_readback_v1.py': '8fb8c2c32dc5a40998bf31cc5727768f88ce51e423b7090cfb702116bdc9b5d3', 'native/image_host_diagnostics_v1.py': 'a990aeda9442f934d6c24977c61b888c1f441a81fa640cfee1252a70fcc1f198'}
+PRODUCERS = {'native/image_alpm_v1.py': '6babb792a704a5d1465ddcc69f7e8e075f1badc7a13d5ce6a487f0ae98f1cf1e', 'native/image_tools_v1.py': 'd78cf3ca4c9f455f40264fe0ef3d4e9a60defb5043a107a7c97c9d81e939edb5', 'native/image_guest_v1.py': '10d125ed2ac288b7d3ce1b72e94a812a7fc9cdc3fc0e31bae6ad4b789f55747b', 'native/image-contract-v1.json': '79c0adad0f9153a74d5c06efe6950a2c32ed8035ff8e6d27e704b3e496fe03d7', 'native/image_synthetic_v1.py': '21825af46244f1b949d25ff0af70cb2c8f6fe52198a9bc013aaa38d86c7fa983', 'native/image_readback_v1.py': '8fb8c2c32dc5a40998bf31cc5727768f88ce51e423b7090cfb702116bdc9b5d3', 'native/image_host_diagnostics_v1.py': 'a990aeda9442f934d6c24977c61b888c1f441a81fa640cfee1252a70fcc1f198'}
 
 PASS = 'PASS_IMAGE_TOOLS_NATIVE_ALPM_COMPONENT'
 OPERATION = 'image-tools-alpm-v1'
@@ -887,6 +887,43 @@ def diagnostic_name(name):
             and Path(parts[-1]).suffix in ('.json','.log','.stdout','.stderr'))
 
 
+
+def retained_group_census_diagnostics(commands):
+ """Typed original-scan failure DATA. Numeric post-reap matches stay unresolved."""
+ count=0
+ for index,command in enumerate(commands):
+  state=command.get('supervision')or{};value=command.get('group_census_diagnostic')
+  allowed=command.get('success')is False and state.get('group_census')in('PRESENT_OR_REUSED','UNKNOWN')
+  required=allowed and state['group_census']=='PRESENT_OR_REUSED'
+  need(not required or value is not None,'failed group census requires original scan diagnostic')
+  if value is None:continue
+  need(allowed and type(value)is dict and set(value)=={'schema','command_index','source_core_sha256','scope','scans'}
+   and type(value['schema'])is int and value['schema']==1 and type(value['command_index'])is int and value['command_index']==index
+   and value['source_core_sha256']=='83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f'
+   and value['scope']=='ORIGINAL_POST_REAP_SCAN_MATCHES_MAY_BE_REUSED','same original strict group-census command/core required')
+  scans=value['scans'];need(type(scans)is list and 0<len(scans)<=2,'bounded original scan count')
+  leader=None
+  for scan in scans:
+   need(type(scan)is dict and type(scan.get('leader'))is int and 0<scan['leader']<2**31,'typed original group leader')
+   leader=scan['leader']if leader is None else leader;need(scan['leader']==leader,'same original numeric group selector')
+   if scan.get('kind')=='REFUSED':
+    need(set(scan)=={'kind','leader','error_type'}and type(scan['error_type'])is str and re.fullmatch('[A-Za-z_][A-Za-z0-9_]{0,79}',scan['error_type']),'bounded original scan refusal')
+    continue
+   need(set(scan)=={'kind','leader','member_count','truncated','members'}and scan.get('kind')=='MATCHES'
+    and type(scan['member_count'])is int and 0<=scan['member_count']<=131072 and type(scan['truncated'])is bool
+    and scan['truncated']==(scan['member_count']>32)and type(scan['members'])is list
+    and len(scan['members'])==min(scan['member_count'],32),'bounded typed original member rows')
+   rows=[]
+   for row in scan['members']:
+    need(type(row)is dict and set(row)=={'pid','start_ticks','state'}and type(row['pid'])is int and 0<row['pid']<2**31
+     and type(row['start_ticks'])is int and 0<row['start_ticks']<2**63 and type(row['state'])is str
+     and re.fullmatch('[A-Za-z]',row['state']),'typed original member identity DATA')
+    rows.append((row['pid'],row['start_ticks'],row['state']))
+   need(rows==sorted(set(rows)),'unique ordered bounded original members')
+  if state['group_census']=='PRESENT_OR_REUSED':need(scans[-1]['kind']=='MATCHES'and scans[-1]['member_count']>0,'nonempty original census observation required')
+  count+=1
+ return dict(status='VALIDATED_UNRESOLVED_ORIGINAL_GROUP_CENSUS_DATA_ONLY',commands=count,native='NOT_ADMITTED')
+
 def retained_public_projection(view, files, binding, map_sha256):
     from image_projection_v1 import HOST, BOOTSTRAP, PRODUCERS as projected_producers
     name = 'public-projection.json'
@@ -926,6 +963,7 @@ def retained_public_projection(view, files, binding, map_sha256):
         return dict(status='VALIDATED_FINITE_IMAGE_PROJECTION_DATA_ONLY', selected=len(selected))
     report = view.load(result_name); commands = report.get('commands', [])
     need(type(commands) is list and len(commands) <= 160, 'finite original image command records')
+    retained_group_census_diagnostics(commands)
     wanted = set()
     for command in commands:
         leaf = command.get('log')

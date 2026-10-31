@@ -1,0 +1,663 @@
+{
+  "Root_acceptance": {
+    "decision": {
+      "bytes": 22729,
+      "path": "artifacts/development/security-upgrade-root-acceptance-20261031/Root-security-signed-upgrade-acceptance.json",
+      "sha256": "01325933551c687109435e41ba72652d33941cf0ccf883070217deaea6f88945"
+    },
+    "full_project_completion": false,
+    "issued": true,
+    "issued_at": "2026-10-31T10:09:41.987717+00:00",
+    "issuer": "Root",
+    "scope": "ONE_GENUINE_REBUILT_PRIOR_TO_CURRENT_TEST_SIGNED_VERSION_TRANSITION_AND_DECLARED_REFUSAL_DECLINE_REPEAT_REMOVE_REINSTALL_PRESERVATION_CLEANUP",
+    "status": "ACCEPTED_FINITE_NATIVE_ARM4K_SECURITY_TEST_SIGNED_UPGRADE_COMPONENT"
+  },
+  "Root_proposal": {
+    "bytes": 21997,
+    "path": "artifacts/development/security-upgrade-root-adjudication-preparation-20261031/security-native-signed-upgrade-v6-20261031.proposed.json",
+    "sha256": "155dedc2692339668ebf76ce6dd98489809d1cdc44cd16e1a374a37dfeeedd16"
+  },
+  "TEST_authority": {
+    "fingerprint": "A58B608E2526D92A9C80F684653C23140F3F9C3B",
+    "semantics": "Required/Required; scoped ephemeral TEST ONLY"
+  },
+  "adjudication_preparation": {
+    "Git_API_writes": 0,
+    "Source_prefixes": 0,
+    "authentication": {
+      "bytes": 15398,
+      "sha256": "aa798f549d094663ecb4ea3191024c14d0f9db802b5d542e6251c126db4954de"
+    },
+    "new_GETs": 0,
+    "reader_replays": 0,
+    "tests_actors_GPG_VM_native": 0
+  },
+  "artifact": {
+    "GET_retry": false,
+    "body_GETs": 1,
+    "body_cap": 16777216,
+    "bytes": 1001917,
+    "id": 13037988268,
+    "retained_original_unchanged": true,
+    "sha256": "1d1fe5679aef9f9d52601ffc9ce4d1f50ded21455956a2fcb2685212ee227da5"
+  },
+  "binding": {
+    "attempt": 1,
+    "job": 124503538167,
+    "map_sha256": "b89e5d08a90862e4ccb0ed3ab794131f03840afd4fe9580ab176df08d69a4f8a",
+    "ref": "refs/heads/codex/native-security-maintenance-upgrade-v6",
+    "run": "41189624856",
+    "source": "de542dc252d0b50d7256fe82544517780394cd72",
+    "workflow_id": 381664314
+  },
+  "boundaries": {
+    "ARM_remediation": "NOT_ESTABLISHED",
+    "abort": "OPERATOR_DECLINED_BEFORE_COMMIT; NOT_SIGNAL_OR_POWERLOSS",
+    "future_episodes": "NOT_QUALIFIED_BY_THIS_EPISODE",
+    "installed_Asahi": "NOT_RUN",
+    "migration": "ONE_PACKAGE_VERSION_TRANSITION_ONLY; NO_ARBITRARY_USER_STATE_MIGRATION",
+    "native16K": "NOT_QUALIFIED",
+    "performance": "NOT_MEASURED",
+    "physical_M2": "NOT_RUN",
+    "prior_version": "GENUINE_PRIOR_RECIPE_REBUILT_NOW; NOT_PREVIOUS_NATIVE_RELEASE",
+    "release": "NOT_ADMITTED",
+    "repeat": "SAME_VERSION_REINSTALL",
+    "trust": "SCOPED_EPHEMERAL_TEST_ONLY; PRODUCTION_TRUST_NOT_ADMITTED"
+  },
+  "builds": {
+    "all_current_reported_payload_pins_match_source": true,
+    "all_prior_reported_payload_pins_match_source": true,
+    "current_archives": {
+      "one": {
+        "bytes": 94166,
+        "sha256": "897fee33c0ee97fc5d529ed9aae6a576cac0fa1010eefe127aabc28e15a7f2d2"
+      },
+      "two": {
+        "bytes": 94166,
+        "sha256": "897fee33c0ee97fc5d529ed9aae6a576cac0fa1010eefe127aabc28e15a7f2d2"
+      }
+    },
+    "current_pair": {
+      "archive_equal": true,
+      "buildinfo": {
+        "bytes": 14222,
+        "sha256": "e4e7e28f6db64f5dc5e1b24fe23c4727fd97b6b652191645d4003d537df92a33"
+      },
+      "buildinfo_equal": true,
+      "checks": "ORIGINAL_CHECK_BOTH",
+      "one": {
+        "bytes": 94166,
+        "sha256": "897fee33c0ee97fc5d529ed9aae6a576cac0fa1010eefe127aabc28e15a7f2d2"
+      },
+      "payload_equal": true,
+      "pkginfo": {
+        "bytes": 565,
+        "sha256": "2243c5691c69a3d67fadcfe4d0ac53df88922ce2bfbd67c2312005dac42a68af"
+      },
+      "pkginfo_equal": true,
+      "two": {
+        "bytes": 94166,
+        "sha256": "897fee33c0ee97fc5d529ed9aae6a576cac0fa1010eefe127aabc28e15a7f2d2"
+      }
+    },
+    "current_payload_files": 29,
+    "current_payload_plus_metadata_files": 32,
+    "independent_package_archive_decompression": "NOT_RUN; source-matching reader and actual native archive/payload pins retained",
+    "makepkg_check_cleanbuild_commands": 3,
+    "prior_archive": {
+      "bytes": 83012,
+      "sha256": "02ea89500ab9050c8c45b4fb60d85448b6e694582c54ad4b93f0d32508d835f2"
+    },
+    "prior_payload_files": 27,
+    "prior_payload_plus_metadata_files": 30,
+    "prior_scope": "GENUINE_PRIOR_RECIPE_REBUILT_NOW; NOT_PREVIOUS_NATIVE_RELEASE",
+    "prior_source": {
+      "adapter": {
+        "bytes": 10373,
+        "sha256": "359c9c7fe80399f1cd640c59d8d5d095eb87febcd9f664e82bd76ef71c1e05ec"
+      },
+      "bundle": {
+        "bytes": 419840,
+        "sha256": "07cff9cd5929500466b894a47e71e7658f0fecb2346d8c84a30b017d45a86918"
+      },
+      "profile": {
+        "bytes": 5149,
+        "sha256": "ec01a83c444e045ded65c598fbc33a8a53bb6c2793fff3e98c1e38ee71f64c88"
+      }
+    },
+    "three_source_checked_clean_stages": {
+      "build-one": true,
+      "build-two": true,
+      "prior-build": true
+    }
+  },
+  "capsule": {
+    "bytes": 8099840,
+    "leaves": 108,
+    "manifest_files": 107,
+    "maximum_bytes": 33554432,
+    "sha256": "016d81ce7d8c865fc60e63bbcf18e6cfd45ae0a15b1871ec8edf147b215628f5"
+  },
+  "cleanup": {
+    "actor_groups": {
+      "component": {
+        "all_natural_exit0_reaped_group_absent": true,
+        "count": 35
+      },
+      "outer_cleanup": {
+        "all_natural_exit0_reaped_group_absent": true,
+        "count": 27
+      },
+      "retained_transport": {
+        "all_natural_exit0_reaped_group_absent": true,
+        "count": 0
+      },
+      "source_proof": {
+        "all_natural_exit0_reaped_group_absent": true,
+        "count": 2
+      }
+    },
+    "basis": "Original source-bound retirement/container/image/agent receipts; no new live inspection.",
+    "image_retirement": {
+      "final": {
+        "aliases": {
+          "base": [],
+          "tools": []
+        },
+        "owned_image_ids": []
+      },
+      "status": "PASS_EXACT_OWNED_IMAGE_ALIASES_RETIRED"
+    },
+    "inner_flags10": {
+      "global_config_unchanged": true,
+      "global_trust_unchanged": true,
+      "installed": true,
+      "inventory_restored": true,
+      "moved_prefix_absent": true,
+      "payload_absent": true,
+      "private_homes_absent": true,
+      "removed": true,
+      "required_signatures": true,
+      "user_data_preserved": true
+    },
+    "inner_retirement": {
+      "absence_stderr_pin": {
+        "bytes": 56,
+        "sha256": "3288efa6abe43a514f1479b1cb8ec0bf8f486823167e3f34624d794729af7fee"
+      },
+      "all10_lifecycle_flags": {
+        "global_config_unchanged": true,
+        "global_trust_unchanged": true,
+        "installed": true,
+        "inventory_restored": true,
+        "moved_prefix_absent": true,
+        "payload_absent": true,
+        "private_homes_absent": true,
+        "removed": true,
+        "required_signatures": true,
+        "user_data_preserved": true
+      },
+      "global_config_unchanged": true,
+      "global_trust_unchanged": true,
+      "kill_all": [
+        {
+          "exit": 0,
+          "stderr": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stdout": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "step": "retire-test-home"
+        },
+        {
+          "exit": 0,
+          "stderr": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stdout": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "step": "retire-test-home"
+        }
+      ],
+      "no_autostart": [
+        {
+          "exit": 0,
+          "stderr": {
+            "bytes": 56,
+            "sha256": "3288efa6abe43a514f1479b1cb8ec0bf8f486823167e3f34624d794729af7fee"
+          },
+          "stdout": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "step": "no-autostart-proof"
+        },
+        {
+          "exit": 0,
+          "stderr": {
+            "bytes": 56,
+            "sha256": "3288efa6abe43a514f1479b1cb8ec0bf8f486823167e3f34624d794729af7fee"
+          },
+          "stdout": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "step": "no-autostart-proof"
+        }
+      ],
+      "private_homes_absent": true
+    },
+    "outer_status": "PASS_EXACT_OWNED_RESOURCES_RETIRED"
+  },
+  "component": "cachy-asahi-security-maintenance",
+  "evidence_record_pins": {
+    "FINAL.json": {
+      "bytes": 5132,
+      "sha256": "4294f6e84fd2e43b75dd96951179c3db8aa54c6e73a1acfce1204597391346a3"
+    },
+    "capsule-ingress.json": {
+      "bytes": 846,
+      "sha256": "22819175775f93cf1fd95a0bdf5e125443a11ade8b9b75fa379f3508685cdd05"
+    },
+    "coverage.json": {
+      "bytes": 108662,
+      "sha256": "54a2821a5c0ed4897d032882b01177f811f44009ada30c46443e686e1f4c78cb"
+    },
+    "fresh-metadata-join.json": {
+      "bytes": 4995,
+      "sha256": "453c9411b34dde11e774ede595ea78d80c126c153519b9f81170fa2ab31fbdba"
+    },
+    "full-reader-call.json": {
+      "bytes": 2037,
+      "sha256": "e50edc1feb3c4dd974db814133174905c5d493730dfe08e98a7d404e7d27b3d4"
+    },
+    "reader-result.json": {
+      "bytes": 905,
+      "sha256": "8295b66932117b2840548b8ccf1bf9964d2b8c58851c461a4a4bb3c9db77ad79"
+    },
+    "selected/actor-logs/0025.log": {
+      "bytes": 17568,
+      "sha256": "3b7e130c883807f3155ff3562e87dae5de6b1f56d0e39232569c7dafcdedef47"
+    },
+    "selected/bootstrap-proof/bootstrap-runner.json": {
+      "bytes": 4075,
+      "sha256": "82982a0189363339c40aa2c4cfe07b2500f10d3bce2bbe5279e8e25c684a8860"
+    },
+    "selected/cleanup.json": {
+      "bytes": 84456,
+      "sha256": "b59f9a01db04822fb98680defdf0ab26c8c913180dd083a083f366215b03067e"
+    },
+    "selected/image-ledger.json": {
+      "bytes": 13696,
+      "sha256": "c2ca656cc275e9b93102cddf0667271f61c79e2751bed92191a22d45eb6ab5a1"
+    },
+    "selected/image-retirement.json": {
+      "bytes": 28280,
+      "sha256": "c5219e7693df6760df858970cb985589c51400a75f5994312eed98ef1dbcfeb0"
+    },
+    "selected/journey/result.json": {
+      "bytes": 478581,
+      "sha256": "89f5d3eba997bdbe82fe3f5f3c21fa1c971b45ed87b8e6360598b6e516a16b47"
+    },
+    "selected/receipt.json": {
+      "bytes": 3316868,
+      "sha256": "5f269333f89dacf41746d3b8ad897f5d3658c501ad3d7178be9459e30d2de63f"
+    },
+    "source-coverage.json": {
+      "bytes": 39867,
+      "sha256": "7d618867fa8c3dd569a948b3a758643af3c667a8d444c28e86c100921e48b5ba"
+    }
+  },
+  "from_version": "0.1.0-1",
+  "limits": [
+    "Independent package archive decompression was not repeated; source-matching reader and original native archive/payload pins are retained.",
+    "Installed/moved workflow aggregates pass; intentionally removed detailed workflow trees/logs are UNKNOWN here.",
+    "The genuine prior is a retained earlier development candidate rebuilt natively for this trial, not a previously published or native-qualified release.",
+    "The earlier v5 component and its optional-projection failure remain a separate historical episode.",
+    "This finite current episode does not waive process-retirement, signing, custody or cleanup gates for future trials."
+  ],
+  "native": {
+    "architecture": "aarch64",
+    "consumer": "ordinary alarm user exports finite DATA only",
+    "execution_scope": "DISPOSABLE_NATIVE_IMAGE_BUILD_STAGE; consumer exports finite DATA only",
+    "page_size": 4096
+  },
+  "prior_provenance": {
+    "PKGBUILD": {
+      "bytes": 5885,
+      "sha256": "449832932b43091117aff02fc513659c03780038c96b28dd3b99a9db5c134c9c"
+    },
+    "SRCINFO": {
+      "bytes": 3595,
+      "sha256": "9de8448dd815d290314e842a84f6d5b492634eed49808a0c55630d1ff802794b"
+    },
+    "origin": "artifacts/development/security-maintenance-package-development-20261028",
+    "payload_files": 27,
+    "recipe_files": 32,
+    "retained_host_archive_not_installed": true,
+    "source_commit_scope": "Informational pre-package helper snapshot; exact source hashes authoritative. Canonical Git only introduced -2 package; -1 is the genuine retained earlier candidate, not a published release.",
+    "status": "GENUINE_PRIOR_RETAINED_CANDIDATE_SOURCE_FOR_NEW_NATIVE_BUILD_NOT_RELEASE"
+  },
+  "proposed_decision": "ACCEPT_FINITE_NATIVE_ARM4K_SECURITY_TEST_SIGNED_UPGRADE_COMPONENT",
+  "public_links": {
+    "artifact": "https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/41189624856/artifacts/13037988268",
+    "job": "https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/41189624856/job/124503538167",
+    "run": "https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/41189624856",
+    "source": "https://github.com/Gabriel-Kahen/cachy-asahi/commit/de542dc252d0b50d7256fe82544517780394cd72"
+  },
+  "reader_episode": {
+    "API": "reader.validate(capsule_path, actual_binding)",
+    "actual_binding": {
+      "map_sha256": "b89e5d08a90862e4ccb0ed3ab794131f03840afd4fe9580ab176df08d69a4f8a",
+      "ref": "refs/heads/codex/native-security-maintenance-upgrade-v6",
+      "run": "41189624856",
+      "source": "de542dc252d0b50d7256fe82544517780394cd72"
+    },
+    "all_three_workers_natural_exit0_reaped_group_absent": true,
+    "calls": {
+      "retained_consumer_diagnostic": 2,
+      "retained_failure_data": 1,
+      "retained_image_lifecycle": 1,
+      "retained_public_projection": 1,
+      "retained_transport_proof": 1,
+      "validate": 1,
+      "validate_component": 1,
+      "validate_result": 1,
+      "validate_upgrade": 1
+    },
+    "lease": "DEV55_ORIGINAL_ACQUIRER_PIDFD_SAME_FD_INDEPENDENT_NB_CONFLICT_CLOSE_ONLY",
+    "raw_API_result_saved_before_projection": true,
+    "reader": {
+      "bytes": 66416,
+      "sha256": "7d8461c40d28b3a425296fdfc8dc5bb2bfae0277bf37d7f26ea9e454b4f882d1"
+    },
+    "replays": 0,
+    "security_reader": {
+      "bytes": 21183,
+      "sha256": "6e06c2e0300de3e3ba24c3f4366858dbbf86cf55eb5e824cde10bb64fe3daed1"
+    },
+    "status": "VALIDATED_NATIVE_SECURITY_SIGNED_UPGRADE_COMPONENT_EVIDENCE_ONLY",
+    "workers": {
+      "intake": {
+        "owner_status": "COMPLETE_EXACT_SUCCESS_V6_BODY_ONCE",
+        "process": {
+          "error": null,
+          "exit": 0,
+          "forced_retirement": false,
+          "group_absent": true,
+          "passed": true,
+          "pid_reserved_until_retirement": true,
+          "reaped": true,
+          "seconds": 1.5906028280005557,
+          "timeout": false
+        }
+      },
+      "projection": {
+        "owner_status": "COMPLETE_RESERVED_PASSIVE_STAGE",
+        "process": {
+          "error": null,
+          "exit": 0,
+          "forced_retirement": false,
+          "group_absent": true,
+          "passed": true,
+          "pid_reserved_until_retirement": true,
+          "reaped": true,
+          "seconds": 0.48633842200797517,
+          "timeout": false
+        }
+      },
+      "reader": {
+        "owner_status": "COMPLETE_RESERVED_PASSIVE_STAGE",
+        "process": {
+          "error": null,
+          "exit": 0,
+          "forced_retirement": false,
+          "group_absent": true,
+          "passed": true,
+          "pid_reserved_until_retirement": true,
+          "reaped": true,
+          "seconds": 1.638139343005605,
+          "timeout": false
+        }
+      }
+    }
+  },
+  "retained_packet": {
+    "members": 67,
+    "path": "artifacts/development/security-native-upgrade-v6-success-reader-20261031",
+    "seal": {
+      "bytes": 11185,
+      "sha256": "92c35355aafb5b045c34d0a2c1a1a928792ed00c5f141f68e5a1442331d9ebd5"
+    }
+  },
+  "schema": 1,
+  "source": {
+    "commit": "de542dc252d0b50d7256fe82544517780394cd72",
+    "current_author_and_committer": "Gabriel Kahen <93809974+Gabriel-Kahen@users.noreply.github.com>",
+    "files": 200,
+    "map_rows": 199,
+    "map_sha256": "b89e5d08a90862e4ccb0ed3ab794131f03840afd4fe9580ab176df08d69a4f8a",
+    "parent": "b6a02f11648738ded90084f7dcdcd4ea77c194fa",
+    "parent_tree": "23b818ecb00e942f38678c4aa8a2acae0cc74d4a",
+    "raw_commit": {
+      "bytes": 353,
+      "sha256": "ceb86d87a110f6be8b8bb3d374217a04cb1ae5902d4f10155e2bd18e3c627a9e"
+    },
+    "raw_parent": {
+      "bytes": 340,
+      "sha256": "030c96c6c53b196a89311bc162fac2080c97f779206529b09e834bc14404ef6f"
+    },
+    "raw_tree": {
+      "bytes": 21315,
+      "sha256": "0ba339136a93bd86bba94c4410da5eaf2963e7de2521e015818e4fc6b9738d85"
+    },
+    "tree": "8863ff3dd8fe72d3d27b0ecebfd651e4e5d6a6a1"
+  },
+  "status": "ACCEPTED_FINITE_NATIVE_ARM4K_SECURITY_TEST_SIGNED_UPGRADE_COMPONENT",
+  "to_version": "0.1.0-2",
+  "transactions": {
+    "command_step_counts": {
+      "actual-alpm-buildinfo-inventory": 1,
+      "archive-file": 94,
+      "archive-list": 3,
+      "baseline": 1,
+      "candidate-owner": 29,
+      "decline-upgrade-precommit": 1,
+      "declined-prior-inventory": 1,
+      "declined-prior-owner": 27,
+      "explicit-test-ownertrust": 1,
+      "final-removed-inventory": 1,
+      "fresh-test-key": 1,
+      "import-scoped-test-public": 1,
+      "installed-inventory": 1,
+      "no-autostart-proof": 2,
+      "offline-installed": 1,
+      "offline-moved": 1,
+      "prior-inventory": 1,
+      "prior-owner": 27,
+      "prior-required-install": 1,
+      "refusal-prior-inventory": 1,
+      "refused-inventory": 1,
+      "refused-prior-owner": 27,
+      "reinstall-current": 1,
+      "reinstalled-inventory": 1,
+      "reinstalled-owner": 29,
+      "remove": 1,
+      "remove-reinstalled": 1,
+      "removed-inventory": 1,
+      "repeat-current": 1,
+      "repeated-inventory": 1,
+      "repeated-owner": 29,
+      "required-install": 1,
+      "required-untrusted-install-refusal": 1,
+      "retire-test-home": 2,
+      "sign-exact-archive": 1,
+      "sign-prior-archive": 1,
+      "test-fingerprint": 1,
+      "test-public-export": 1,
+      "trust-membership": 1,
+      "unknown-key-refusal": 1,
+      "upgrade-signature-refusal": 1,
+      "verify-test-signature": 1
+    },
+    "flags13": {
+      "candidate_payload_owned": true,
+      "declined_precommit_preserved": true,
+      "final_removed": true,
+      "old_payload_absent": true,
+      "prior_clean_checked": true,
+      "prior_installed": true,
+      "prior_payload_owned": true,
+      "reinstalled": true,
+      "removed": true,
+      "repeat_same_version_reinstalled": true,
+      "tampered_signature_refused": true,
+      "user_data_preserved": true,
+      "version_upgrade": true
+    },
+    "inventory_counts": {
+      "after_decline": 350,
+      "after_refusal": 350,
+      "baseline": 349,
+      "final": 349,
+      "prior_installed": 350,
+      "reinstalled": 350,
+      "removed": 349,
+      "repeated": 350,
+      "upgraded": 350
+    },
+    "inventory_pins": {
+      "after_decline": {
+        "bytes": 6841,
+        "sha256": "c482099f8569ccdc26377671ed885f7c169539825bd806aa59aa8923af7aac9a"
+      },
+      "after_refusal": {
+        "bytes": 6841,
+        "sha256": "c482099f8569ccdc26377671ed885f7c169539825bd806aa59aa8923af7aac9a"
+      },
+      "baseline": {
+        "bytes": 6800,
+        "sha256": "579981195b654d8cdf142e4101dfc2bfffbc3576eed50f23796a06e90cf57453"
+      },
+      "final": {
+        "bytes": 6800,
+        "sha256": "579981195b654d8cdf142e4101dfc2bfffbc3576eed50f23796a06e90cf57453"
+      },
+      "prior_installed": {
+        "bytes": 6841,
+        "sha256": "c482099f8569ccdc26377671ed885f7c169539825bd806aa59aa8923af7aac9a"
+      },
+      "reinstalled": {
+        "bytes": 6841,
+        "sha256": "dcb7870609ca73625c9dbc481aab9bdc58c6ad2cdd60c9e985d6c56b3a254ac6"
+      },
+      "removed": {
+        "bytes": 6800,
+        "sha256": "579981195b654d8cdf142e4101dfc2bfffbc3576eed50f23796a06e90cf57453"
+      },
+      "repeated": {
+        "bytes": 6841,
+        "sha256": "dcb7870609ca73625c9dbc481aab9bdc58c6ad2cdd60c9e985d6c56b3a254ac6"
+      },
+      "upgraded": {
+        "bytes": 6841,
+        "sha256": "dcb7870609ca73625c9dbc481aab9bdc58c6ad2cdd60c9e985d6c56b3a254ac6"
+      }
+    },
+    "negative_exits": {
+      "decline-upgrade-precommit": [
+        {
+          "exit": 1,
+          "stderr": {
+            "bytes": 107,
+            "sha256": "4d9ce814da360a9257e14537f1d81d8045dbb315dfc64fe03020ac5d0e3db6c4"
+          },
+          "stdout": {
+            "bytes": 203,
+            "sha256": "2feb2055866e620cdb93239ea55ab738559cfe7ea7ba3873e1ee04b7073aaeee"
+          },
+          "step": "decline-upgrade-precommit"
+        }
+      ],
+      "required-untrusted-install-refusal": [
+        {
+          "exit": 1,
+          "stderr": {
+            "bytes": 269,
+            "sha256": "79f3eee95150fc7560045c4c3c233d9c07b2f14f2e1f890063dad551d7384094"
+          },
+          "stdout": {
+            "bytes": 20,
+            "sha256": "a1b4d401f2945515b3cb0cdf0d5d52db0c86b1f07df3e5ee1c64572591c51be0"
+          },
+          "step": "required-untrusted-install-refusal"
+        }
+      ],
+      "unknown-key-refusal": [
+        {
+          "exit": 2,
+          "stderr": {
+            "bytes": 236,
+            "sha256": "88f01f3fd20c78d56af9d07730b7688accaf6fb01c4f47e795ce81d87f692222"
+          },
+          "stdout": {
+            "bytes": 183,
+            "sha256": "27e105edddfc3633a9a8dfa8e4a545ada6226ebb589aece129ec9af4ea179886"
+          },
+          "step": "unknown-key-refusal"
+        }
+      ],
+      "upgrade-signature-refusal": [
+        {
+          "exit": 1,
+          "stderr": {
+            "bytes": 209,
+            "sha256": "6bfd1de8a5cc6cbc69f4460bc64625098f73554ec40a528dd762768e0faa4e91"
+          },
+          "stdout": {
+            "bytes": 20,
+            "sha256": "a1b4d401f2945515b3cb0cdf0d5d52db0c86b1f07df3e5ee1c64572591c51be0"
+          },
+          "step": "upgrade-signature-refusal"
+        }
+      ]
+    },
+    "ordered_sequence": [
+      "signed prior installation",
+      "tampered current-signature refusal",
+      "operator precommit decline with n newline",
+      "signed 0.1.0-1 to 0.1.0-2 upgrade",
+      "same-version current reinstall",
+      "remove",
+      "reinstall current",
+      "final remove"
+    ],
+    "original_command_exit_records": 301,
+    "ownership_counts": {
+      "candidate-owner": 29,
+      "declined-prior-owner": 27,
+      "prior-owner": 27,
+      "refused-prior-owner": 27,
+      "reinstalled-owner": 29,
+      "repeated-owner": 29
+    },
+    "protocol": "signed-prior-to-current-v1",
+    "user_preservation": {
+      "actual_flag": true,
+      "scope": "finite owned TEST user sentinel snapshot at each bounded transaction checkpoint; no arbitrary user-state migration claim"
+    }
+  },
+  "workflows": {
+    "aggregate": {
+      "installed": "PASS_OFFLINE_SECURITY_WORKFLOWS",
+      "moved": "PASS_OFFLINE_SECURITY_WORKFLOWS"
+    },
+    "detail": "Detailed installed/moved workflow trees intentionally removed; per-control raw trees UNKNOWN here"
+  }
+}
