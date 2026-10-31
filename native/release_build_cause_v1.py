@@ -51,8 +51,10 @@ def _pin(value):
 def _group_retirement(value):
     """Finite pre-reap DATA only; a snapshot never grants process authority."""
     if value is None:return
-    need(type(value)is dict and set(value)=={'phase','reserved_leader','member_count','members','truncated'}
-         and value['phase']=='PRE_REAP','fixed pre-reap snapshot schema')
+    need(type(value)is dict and set(value)=={'phase','reserved_leader','wait_owner_pid','wait_owner_subreaper','member_count','members','truncated'}
+         and value['phase']=='PRE_REAP'
+         and type(value['wait_owner_pid'])is int and 0<value['wait_owner_pid']<2**31
+         and value['wait_owner_subreaper']=='NOT_OBSERVED','fixed pre-reap snapshot schema')
     leader=value['reserved_leader']
     need(type(leader)is dict and set(leader)=={'pid','start_ticks'}
          and type(leader['pid'])is int and 0<leader['pid']<2**31
@@ -62,12 +64,17 @@ def _group_retirement(value):
          and type(value['truncated'])is bool and value['truncated']is(count>len(rows)),'bounded snapshot count/truncation')
     seen=[]
     for row in rows:
-        need(type(row)is dict and set(row)=={'pid','state','group','session','start_ticks'}
+        need(type(row)is dict and set(row)=={'pid','state','group','session','start_ticks','ppid','parent_relation'}
              and type(row['pid'])is int and 0<row['pid']<2**31
              and type(row['start_ticks'])is int and 0<=row['start_ticks']<2**64
              and type(row['state'])is str and row['state']in('R','S','D','Z','T','t','X','x','K','W','P','I')
              and type(row['group'])is int and type(row['session'])is int
-             and row['group']==row['session']==leader['pid'],'finite original group member DATA')
+             and row['group']==row['session']==leader['pid']
+             and type(row['ppid'])is int and 0<=row['ppid']<2**31,'finite original group member DATA')
+        relation=('WAIT_OWNER_PID' if row['ppid']==value['wait_owner_pid'] else
+            'RESERVED_LEADER_PID' if row['ppid']==leader['pid'] else
+            'PID1' if row['ppid']==1 else 'OTHER')
+        need(row['parent_relation']==relation,'numeric parent relation DATA is not wait authority')
         seen.append(row['pid'])
     need(seen==sorted(set(seen)),'ordered unique bounded member DATA')
 

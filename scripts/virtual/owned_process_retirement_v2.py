@@ -40,7 +40,9 @@ def prepare():
     signal.signal(signal.SIGCHLD, signal.SIG_DFL)
 
 
-def _stat(pid):
+def _stat(pid, *, with_parent=False):
+    if type(with_parent) is not bool:
+        raise ValueError('boolean parentage DATA selection required')
     fd = os.open('/proc/' + str(pid) + '/stat', os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW)
     try:
         raw = os.read(fd, 4097)
@@ -50,8 +52,9 @@ def _stat(pid):
     fields = tail.split()
     if len(raw) > 4096 or not sep or b'(' not in head or len(fields) < 20:
         raise ValueError('invalid bounded proc stat')
-    return (int(head.split(b'(', 1)[0]), fields[0], int(fields[2]),
-            int(fields[3]), int(fields[19]))
+    row = (int(head.split(b'(', 1)[0]), fields[0], int(fields[2]),
+           int(fields[3]), int(fields[19]))
+    return (*row, int(fields[1])) if with_parent else row
 
 
 def _members(pid, deadline, *, live=False, owned):
@@ -79,8 +82,10 @@ def _members(pid, deadline, *, live=False, owned):
     return found
 
 
-def _rss_members(pid, deadline, owned):
-    """Private built-in scan; owned is the supervisor's WNOWAIT check only."""
+def _rss_members(pid, deadline, owned, parentage=None):
+    """Owned scan; optional PPIDs are DATA from the same bounded stat reads."""
+    if parentage is not None and (type(parentage) is not dict or parentage):
+        raise ValueError('fresh bounded parentage DATA map required')
     found = {}
     owned()
     with os.scandir('/proc') as entries:
@@ -97,7 +102,8 @@ def _rss_members(pid, deadline, owned):
             if time.monotonic() >= deadline:
                 raise TimeoutError('RSS scan deadline')
             try:
-                row = _stat(int(entry.name))
+                row = (_stat(int(entry.name)) if parentage is None
+                       else _stat(int(entry.name), with_parent=True))
             except (FileNotFoundError, ProcessLookupError):
                 continue
             if row[0] != int(entry.name):
@@ -109,6 +115,8 @@ def _rss_members(pid, deadline, owned):
                                      group=row[2], session=row[3], start_ticks=row[4])
                 if len(found) > RSS_MAX_MEMBERS:
                     raise ValueError('RSS group member bound')
+                if parentage is not None:
+                    parentage[row[0]] = row[5]
     return found
 
 
@@ -436,13 +444,20 @@ def supervise(child, *, cap, retirement=1.0, grace=0.2, group=True,
             try:
                 verify()
                 until = min(deadline, retire_end if retire_end is not None else deadline)
-                members = _rss_members(pid, until, peek)
+                parentage = {}
+                members = _rss_members(pid, until, peek, parentage=parentage)
                 verify()
+                # PPIDs came from those exact reads; they confer no wait authority.
+                wait_owner_pid = os.getpid()
                 # DATA from the completed owned scan only; no later proc reads.
                 selected = sorted(members)[:32]
                 group_retirement = dict(phase='PRE_REAP',
                     reserved_leader=dict(pid=pid, start_ticks=identity[3]),
-                    member_count=len(members), members=[dict(members[p]) for p in selected],
+                    wait_owner_pid=wait_owner_pid, wait_owner_subreaper='NOT_OBSERVED',
+                    member_count=len(members), members=[dict(members[p], ppid=parentage[p],
+                        parent_relation=('WAIT_OWNER_PID' if parentage[p] == wait_owner_pid else
+                            'RESERVED_LEADER_PID' if parentage[p] == pid else
+                            'PID1' if parentage[p] == 1 else 'OTHER')) for p in selected],
                     truncated=len(members) > len(selected))
                 only = members.get(pid)
                 if (len(members) == 1 and only is not None and only['start_ticks'] == identity[3]
