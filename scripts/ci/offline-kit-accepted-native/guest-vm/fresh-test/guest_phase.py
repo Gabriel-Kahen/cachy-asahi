@@ -100,6 +100,7 @@ def run(path,expected):
   class Attr(C.Structure):_fields_=[(k,C.c_uint64)for k in('set','clear','propagation','userns')]
   attr=Attr(1,0,0,0);need(lib.syscall(442,-100,b'/',0x8000,C.byref(attr),C.sizeof(attr))==0,'recursive readonly phase root')
   mount(lib,'tmpfs','/kit77',6,'tmpfs','size=1m,mode=0700');mount(lib,'tmpfs','/tmp',6,'tmpfs','size=256m,mode=1777');mount(lib,'tmpfs','/dev',2,'tmpfs','size=1m,mode=0755')
+  os.symlink('/proc/self/fd','/dev/fd')
   for n,fd in devices.items():
    p=Path('/dev')/n;p.touch();mount(lib,'/proc/self/fd/'+str(fd),p,4096);mount(lib,None,p,4131)
   for row,fd in opened:mount(lib,'/proc/self/fd/'+str(fd),row['target'],4096);mount(lib,None,row['target'],4096|32|2|4|(0 if row['rw']else 1))

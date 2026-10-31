@@ -307,9 +307,9 @@
       "sha256": "cace0c8ba30e604a82c63a6dd0a7d4d62d24561102dcb867ce51d321b9e727ce"
     },
     "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/guest_phase.py": {
-      "bytes": 13427,
+      "bytes": 13467,
       "mode": 420,
-      "sha256": "8592168f8432d23b99da601019cdcf2060d422cf840ca88aae7b123c4d10461a"
+      "sha256": "a04adcac537ade2d3d9f98b50c8aa5eaf39f0414109d7d8f467a491b66432da9"
     },
     "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/guest_seccomp.py": {
       "bytes": 5294,

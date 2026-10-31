@@ -53,7 +53,7 @@ jobs:
           test "$GITHUB_SHA" = "$SOURCE_SHA"
           test "$GITHUB_WORKFLOW_SHA" = "$SOURCE_SHA"
           cmp .github/workflows/native-arm-build.yml .github/workflows/native-arm-offline-kit-accepted.yml
-          printf '%s  %s\n' 'c5bd5168155af5ca8db22ac3f6581207c588e48bd8dfa98629408385c8705b5e' "$SLICE/owner.py" 'ca4d824372121c10f150cdf5a3b7094a7c34cc4660e06a422245f567425fa118' "$SLICE/source-map.json" | sha256sum --check
+          printf '%s  %s\n' 'c5bd5168155af5ca8db22ac3f6581207c588e48bd8dfa98629408385c8705b5e' "$SLICE/owner.py" '51f8edb57aba4af173a1a9812f7c8d4608ccd8118e73a4e1d40184faffd4bd11' "$SLICE/source-map.json" | sha256sum --check
           timeout --signal=TERM --kill-after=10s 100s \
           env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC \
             TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 SOURCE_SHA="$SOURCE_SHA" NATIVE_OPERATION="$NATIVE_OPERATION" \
@@ -64,7 +64,7 @@ jobs:
             GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" \
             GITHUB_OUTPUT="$GITHUB_OUTPUT" \
             python3 -I -B "$SLICE/owner.py" proof \
-            --manifest-sha256 'ca4d824372121c10f150cdf5a3b7094a7c34cc4660e06a422245f567425fa118' --work "$RUNNER_TEMP/offline-kit-accepted-work"
+            --manifest-sha256 '51f8edb57aba4af173a1a9812f7c8d4608ccd8118e73a4e1d40184faffd4bd11' --work "$RUNNER_TEMP/offline-kit-accepted-work"
       - name: Verify owned process retirement before secrets or native package work
         timeout-minutes: 3
         run: |
@@ -160,7 +160,7 @@ jobs:
             GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" \
             GITHUB_OUTPUT="$GITHUB_OUTPUT" \
             python3 -I -B "$SLICE/owner.py" transport \
-            --manifest-sha256 'ca4d824372121c10f150cdf5a3b7094a7c34cc4660e06a422245f567425fa118' --work "$RUNNER_TEMP/offline-kit-accepted-work" --execute >"$PHASE/transport.stdout" 2>"$PHASE/transport.stderr"
+            --manifest-sha256 '51f8edb57aba4af173a1a9812f7c8d4608ccd8118e73a4e1d40184faffd4bd11' --work "$RUNNER_TEMP/offline-kit-accepted-work" --execute >"$PHASE/transport.stdout" 2>"$PHASE/transport.stderr"
           code=$?
           set -e
           printf '%s\n' "$code" >"$PHASE/transport.exit-code"
@@ -181,7 +181,7 @@ jobs:
             GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" \
             GITHUB_OUTPUT="$GITHUB_OUTPUT" \
             python3 -I -B "$SLICE/owner.py" bootstrap \
-            --manifest-sha256 'ca4d824372121c10f150cdf5a3b7094a7c34cc4660e06a422245f567425fa118' --work "$RUNNER_TEMP/offline-kit-accepted-work" --execute
+            --manifest-sha256 '51f8edb57aba4af173a1a9812f7c8d4608ccd8118e73a4e1d40184faffd4bd11' --work "$RUNNER_TEMP/offline-kit-accepted-work" --execute
       - name: Execute the explicit diagnostic or signed kit lifecycle operation
         timeout-minutes: ${{ inputs.operation == 'namespace-diagnostic' && 9 || 78 }}
         run: |
@@ -201,7 +201,7 @@ jobs:
             GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" \
             GITHUB_OUTPUT="$GITHUB_OUTPUT" \
             python3 -I -B "$SLICE/owner.py" execute-selected \
-            --manifest-sha256 'ca4d824372121c10f150cdf5a3b7094a7c34cc4660e06a422245f567425fa118' --work "$RUNNER_TEMP/offline-kit-accepted-work" --execute
+            --manifest-sha256 '51f8edb57aba4af173a1a9812f7c8d4608ccd8118e73a4e1d40184faffd4bd11' --work "$RUNNER_TEMP/offline-kit-accepted-work" --execute
       - name: Retire all owned kit consumers before the original574 producer
         if: always() && steps.proof.outcome == 'success'
         timeout-minutes: 6
@@ -217,7 +217,7 @@ jobs:
             GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" \
             GITHUB_OUTPUT="$GITHUB_OUTPUT" \
             python3 -I -B "$SLICE/owner.py" cleanup \
-            --manifest-sha256 'ca4d824372121c10f150cdf5a3b7094a7c34cc4660e06a422245f567425fa118' --work "$RUNNER_TEMP/offline-kit-accepted-work" --execute
+            --manifest-sha256 '51f8edb57aba4af173a1a9812f7c8d4608ccd8118e73a4e1d40184faffd4bd11' --work "$RUNNER_TEMP/offline-kit-accepted-work" --execute
       - name: Retain bounded closed source and concrete native execution evidence
         if: always() && steps.proof.outcome == 'success'
         timeout-minutes: 3
@@ -233,7 +233,7 @@ jobs:
             GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" \
             GITHUB_OUTPUT="$GITHUB_OUTPUT" \
             python3 -I -B "$SLICE/owner.py" retain \
-            --manifest-sha256 'ca4d824372121c10f150cdf5a3b7094a7c34cc4660e06a422245f567425fa118' --work "$RUNNER_TEMP/offline-kit-accepted-work"
+            --manifest-sha256 '51f8edb57aba4af173a1a9812f7c8d4608ccd8118e73a4e1d40184faffd4bd11' --work "$RUNNER_TEMP/offline-kit-accepted-work"
       - name: Upload only bounded public evidence
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
@@ -277,7 +277,7 @@ jobs:
           test "$GITHUB_SHA" = "$SOURCE_SHA"
           test "$GITHUB_WORKFLOW_SHA" = "$SOURCE_SHA"
           cmp .github/workflows/native-arm-build.yml .github/workflows/native-arm-offline-kit-accepted.yml
-          printf '%s  %s\n' 'c5bd5168155af5ca8db22ac3f6581207c588e48bd8dfa98629408385c8705b5e' "$SLICE/owner.py" 'ca4d824372121c10f150cdf5a3b7094a7c34cc4660e06a422245f567425fa118' "$SLICE/source-map.json" | sha256sum --check
+          printf '%s  %s\n' 'c5bd5168155af5ca8db22ac3f6581207c588e48bd8dfa98629408385c8705b5e' "$SLICE/owner.py" '51f8edb57aba4af173a1a9812f7c8d4608ccd8118e73a4e1d40184faffd4bd11' "$SLICE/source-map.json" | sha256sum --check
           printf '%s  %s\n' 'ed97d10b4302878a48230470dc65290b7029bf69aae78fe85827af65a55832cd' "$SLICE/guest-vm/vm_owner.py" 'f7d4693840cba732b1bdcd55481878391ced6561107cb7d5d1ca14080409970c' "$SLICE/guest-vm/vm_contract.py" | sha256sum --check
           timeout --signal=TERM --kill-after=10s 100s \
           env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC \
@@ -289,7 +289,7 @@ jobs:
             GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" \
             GITHUB_OUTPUT="$GITHUB_OUTPUT" \
             /usr/bin/python3 -I -B "$SLICE/guest-vm/vm_owner.py" proof \
-            --manifest-sha256 'ca4d824372121c10f150cdf5a3b7094a7c34cc4660e06a422245f567425fa118' --work "$RUNNER_TEMP/offline-kit-accepted-work"
+            --manifest-sha256 '51f8edb57aba4af173a1a9812f7c8d4608ccd8118e73a4e1d40184faffd4bd11' --work "$RUNNER_TEMP/offline-kit-accepted-work"
       - name: Checkout immutable accepted native tools source and archive DATA
         if: inputs.operation == 'kit-vm-lifecycle'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -321,7 +321,7 @@ jobs:
             GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" \
             GITHUB_OUTPUT="$GITHUB_OUTPUT" \
             /usr/bin/python3 -I -B "$SLICE/guest-vm/vm_owner.py" check-inputs \
-            --manifest-sha256 'ca4d824372121c10f150cdf5a3b7094a7c34cc4660e06a422245f567425fa118' --work "$RUNNER_TEMP/offline-kit-accepted-work" --execute
+            --manifest-sha256 '51f8edb57aba4af173a1a9812f7c8d4608ccd8118e73a4e1d40184faffd4bd11' --work "$RUNNER_TEMP/offline-kit-accepted-work" --execute
       - name: Seed the six exact retained inputs using existing secrets only
         timeout-minutes: 2
         env:
@@ -389,7 +389,7 @@ jobs:
             GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" \
             GITHUB_OUTPUT="$GITHUB_OUTPUT" \
             /usr/bin/python3 -I -B "$SLICE/guest-vm/vm_owner.py" transport \
-            --manifest-sha256 'ca4d824372121c10f150cdf5a3b7094a7c34cc4660e06a422245f567425fa118' --work "$RUNNER_TEMP/offline-kit-accepted-work" --execute >"$PHASE/transport.stdout" 2>"$PHASE/transport.stderr"
+            --manifest-sha256 '51f8edb57aba4af173a1a9812f7c8d4608ccd8118e73a4e1d40184faffd4bd11' --work "$RUNNER_TEMP/offline-kit-accepted-work" --execute >"$PHASE/transport.stdout" 2>"$PHASE/transport.stderr"
           code=$?
           set -e
           printf '%s\n' "$code" >"$PHASE/transport.exit-code"
@@ -410,7 +410,7 @@ jobs:
             GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" \
             GITHUB_OUTPUT="$GITHUB_OUTPUT" \
             /usr/bin/python3 -I -B "$SLICE/guest-vm/vm_owner.py" bootstrap \
-            --manifest-sha256 'ca4d824372121c10f150cdf5a3b7094a7c34cc4660e06a422245f567425fa118' --work "$RUNNER_TEMP/offline-kit-accepted-work" --execute
+            --manifest-sha256 '51f8edb57aba4af173a1a9812f7c8d4608ccd8118e73a4e1d40184faffd4bd11' --work "$RUNNER_TEMP/offline-kit-accepted-work" --execute
       - name: Execute full original Kit lifecycle in one owned ARM software guest
         timeout-minutes: 265
         run: |
@@ -426,7 +426,7 @@ jobs:
             GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" \
             GITHUB_OUTPUT="$GITHUB_OUTPUT" \
             /usr/bin/python3 -I -B "$SLICE/guest-vm/vm_owner.py" execute-selected \
-            --manifest-sha256 'ca4d824372121c10f150cdf5a3b7094a7c34cc4660e06a422245f567425fa118' --work "$RUNNER_TEMP/offline-kit-accepted-work" --execute
+            --manifest-sha256 '51f8edb57aba4af173a1a9812f7c8d4608ccd8118e73a4e1d40184faffd4bd11' --work "$RUNNER_TEMP/offline-kit-accepted-work" --execute
       - name: Retire exact VM helpers and media before original574 producer
         if: always() && steps.proof.outcome == 'success'
         timeout-minutes: 6
@@ -442,7 +442,7 @@ jobs:
             GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" \
             GITHUB_OUTPUT="$GITHUB_OUTPUT" \
             /usr/bin/python3 -I -B "$SLICE/guest-vm/vm_owner.py" cleanup \
-            --manifest-sha256 'ca4d824372121c10f150cdf5a3b7094a7c34cc4660e06a422245f567425fa118' --work "$RUNNER_TEMP/offline-kit-accepted-work" --execute
+            --manifest-sha256 '51f8edb57aba4af173a1a9812f7c8d4608ccd8118e73a4e1d40184faffd4bd11' --work "$RUNNER_TEMP/offline-kit-accepted-work" --execute
       - name: Retain bounded software VM lifecycle DATA and privacy guards
         if: always() && steps.proof.outcome == 'success'
         timeout-minutes: 3
@@ -458,7 +458,7 @@ jobs:
             GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" \
             GITHUB_OUTPUT="$GITHUB_OUTPUT" \
             /usr/bin/python3 -I -B "$SLICE/guest-vm/vm_owner.py" retain \
-            --manifest-sha256 'ca4d824372121c10f150cdf5a3b7094a7c34cc4660e06a422245f567425fa118' --work "$RUNNER_TEMP/offline-kit-accepted-work"
+            --manifest-sha256 '51f8edb57aba4af173a1a9812f7c8d4608ccd8118e73a4e1d40184faffd4bd11' --work "$RUNNER_TEMP/offline-kit-accepted-work"
       - name: Upload only bounded public evidence
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
@@ -502,7 +502,7 @@ jobs:
           test "$GITHUB_SHA" = "$SOURCE_SHA"
           test "$GITHUB_WORKFLOW_SHA" = "$SOURCE_SHA"
           cmp .github/workflows/native-arm-build.yml .github/workflows/native-arm-offline-kit-accepted.yml
-          printf '%s  %s\n' 'c5bd5168155af5ca8db22ac3f6581207c588e48bd8dfa98629408385c8705b5e' "$SLICE/owner.py" 'ca4d824372121c10f150cdf5a3b7094a7c34cc4660e06a422245f567425fa118' "$SLICE/source-map.json" | sha256sum --check
+          printf '%s  %s\n' 'c5bd5168155af5ca8db22ac3f6581207c588e48bd8dfa98629408385c8705b5e' "$SLICE/owner.py" '51f8edb57aba4af173a1a9812f7c8d4608ccd8118e73a4e1d40184faffd4bd11' "$SLICE/source-map.json" | sha256sum --check
           printf '%s  %s\n' 'c5043e7c71e88a063f1f28821f4249291af73e8fd563dc085afd7a36e5f794ce' "$SLICE/guest-vm/fresh-test/vm_owner.py" 'b8dc5b1de5296409507f21acdd72e0dc0be140f612fbbeb8f85a61336d71fbd4' "$SLICE/guest-vm/fresh-test/vm_contract.py" | sha256sum --check
           timeout --signal=TERM --kill-after=10s 100s \
           env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC \
@@ -514,7 +514,7 @@ jobs:
             GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" \
             GITHUB_OUTPUT="$GITHUB_OUTPUT" \
             /usr/bin/python3 -I -B "$SLICE/guest-vm/fresh-test/vm_owner.py" proof \
-            --manifest-sha256 'ca4d824372121c10f150cdf5a3b7094a7c34cc4660e06a422245f567425fa118' --work "$RUNNER_TEMP/offline-kit-accepted-work"
+            --manifest-sha256 '51f8edb57aba4af173a1a9812f7c8d4608ccd8118e73a4e1d40184faffd4bd11' --work "$RUNNER_TEMP/offline-kit-accepted-work"
       - name: Checkout immutable accepted native tools source and archive DATA
         if: inputs.operation == 'kit-vm-fresh-test-lifecycle'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -560,7 +560,7 @@ jobs:
             GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" \
             GITHUB_OUTPUT="$GITHUB_OUTPUT" \
             /usr/bin/python3 -I -B "$SLICE/guest-vm/fresh-test/vm_owner.py" check-inputs \
-            --manifest-sha256 'ca4d824372121c10f150cdf5a3b7094a7c34cc4660e06a422245f567425fa118' --work "$RUNNER_TEMP/offline-kit-accepted-work" --execute
+            --manifest-sha256 '51f8edb57aba4af173a1a9812f7c8d4608ccd8118e73a4e1d40184faffd4bd11' --work "$RUNNER_TEMP/offline-kit-accepted-work" --execute
       - name: Seed the six exact retained inputs using existing secrets only
         timeout-minutes: 2
         env:
@@ -628,7 +628,7 @@ jobs:
             GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" \
             GITHUB_OUTPUT="$GITHUB_OUTPUT" \
             /usr/bin/python3 -I -B "$SLICE/guest-vm/fresh-test/vm_owner.py" transport \
-            --manifest-sha256 'ca4d824372121c10f150cdf5a3b7094a7c34cc4660e06a422245f567425fa118' --work "$RUNNER_TEMP/offline-kit-accepted-work" --execute >"$PHASE/transport.stdout" 2>"$PHASE/transport.stderr"
+            --manifest-sha256 '51f8edb57aba4af173a1a9812f7c8d4608ccd8118e73a4e1d40184faffd4bd11' --work "$RUNNER_TEMP/offline-kit-accepted-work" --execute >"$PHASE/transport.stdout" 2>"$PHASE/transport.stderr"
           code=$?
           set -e
           printf '%s\n' "$code" >"$PHASE/transport.exit-code"
@@ -649,7 +649,7 @@ jobs:
             GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" \
             GITHUB_OUTPUT="$GITHUB_OUTPUT" \
             /usr/bin/python3 -I -B "$SLICE/guest-vm/fresh-test/vm_owner.py" bootstrap \
-            --manifest-sha256 'ca4d824372121c10f150cdf5a3b7094a7c34cc4660e06a422245f567425fa118' --work "$RUNNER_TEMP/offline-kit-accepted-work" --execute
+            --manifest-sha256 '51f8edb57aba4af173a1a9812f7c8d4608ccd8118e73a4e1d40184faffd4bd11' --work "$RUNNER_TEMP/offline-kit-accepted-work" --execute
       - name: Execute full original Kit lifecycle in one owned ARM software guest
         timeout-minutes: 265
         run: |
@@ -665,7 +665,7 @@ jobs:
             GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" \
             GITHUB_OUTPUT="$GITHUB_OUTPUT" \
             /usr/bin/python3 -I -B "$SLICE/guest-vm/fresh-test/vm_owner.py" execute-selected \
-            --manifest-sha256 'ca4d824372121c10f150cdf5a3b7094a7c34cc4660e06a422245f567425fa118' --work "$RUNNER_TEMP/offline-kit-accepted-work" --execute
+            --manifest-sha256 '51f8edb57aba4af173a1a9812f7c8d4608ccd8118e73a4e1d40184faffd4bd11' --work "$RUNNER_TEMP/offline-kit-accepted-work" --execute
       - name: Retire exact VM helpers and media before original574 producer
         if: always() && steps.proof.outcome == 'success'
         timeout-minutes: 6
@@ -681,7 +681,7 @@ jobs:
             GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" \
             GITHUB_OUTPUT="$GITHUB_OUTPUT" \
             /usr/bin/python3 -I -B "$SLICE/guest-vm/fresh-test/vm_owner.py" cleanup \
-            --manifest-sha256 'ca4d824372121c10f150cdf5a3b7094a7c34cc4660e06a422245f567425fa118' --work "$RUNNER_TEMP/offline-kit-accepted-work" --execute
+            --manifest-sha256 '51f8edb57aba4af173a1a9812f7c8d4608ccd8118e73a4e1d40184faffd4bd11' --work "$RUNNER_TEMP/offline-kit-accepted-work" --execute
       - name: Retain bounded software VM lifecycle DATA and privacy guards
         if: always() && steps.proof.outcome == 'success'
         timeout-minutes: 3
@@ -697,7 +697,7 @@ jobs:
             GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" \
             GITHUB_OUTPUT="$GITHUB_OUTPUT" \
             /usr/bin/python3 -I -B "$SLICE/guest-vm/fresh-test/vm_owner.py" retain \
-            --manifest-sha256 'ca4d824372121c10f150cdf5a3b7094a7c34cc4660e06a422245f567425fa118' --work "$RUNNER_TEMP/offline-kit-accepted-work"
+            --manifest-sha256 '51f8edb57aba4af173a1a9812f7c8d4608ccd8118e73a4e1d40184faffd4bd11' --work "$RUNNER_TEMP/offline-kit-accepted-work"
       - name: Upload only bounded public evidence
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
