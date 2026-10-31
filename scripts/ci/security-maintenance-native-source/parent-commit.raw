@@ -1,0 +1,6 @@
+tree 23b818ecb00e942f38678c4aa8a2acae0cc74d4a
+parent 50ddc9080669406b00d41f620f01acb45bb2b579
+author Gabriel Kahen <93809974+Gabriel-Kahen@users.noreply.github.com> 1793430395 -0400
+committer Gabriel Kahen <93809974+Gabriel-Kahen@users.noreply.github.com> 1793430395 -0400
+
+Require exact no-agent absence diagnostic with observed zero exit
