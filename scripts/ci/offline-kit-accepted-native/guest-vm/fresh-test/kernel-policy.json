@@ -1,0 +1,246 @@
+{
+  "carrier_files": {
+    "payload/Image": {
+      "bytes": 8884232,
+      "mode": 420,
+      "sha256": "039fbeaff5942de2317f47feec30a5c073691edf5f8cef8849b25d08006d4ddb"
+    },
+    "payload/Image.header": {
+      "bytes": 64,
+      "mode": 420,
+      "sha256": "88e21a4947e11f150950cd4ffbf62e5b09f18fbb0a41c1fbe10beee596697604"
+    },
+    "payload/Root-acceptance.json": {
+      "bytes": 1651,
+      "mode": 420,
+      "sha256": "882d0c24882fda0b99a5041e6ea31a8c6f34ab2d758c585f8cc22d57a69bacf6"
+    },
+    "payload/acquisition.json": {
+      "bytes": 1849,
+      "mode": 420,
+      "sha256": "2850b28a900a16fcb23f77024d191417cc3acff7d139b2ab05ab478cd5baedbc"
+    },
+    "payload/archive-header.bin": {
+      "bytes": 64,
+      "mode": 420,
+      "sha256": "7b55a2f470041a15cdb0a883366ddd1c1ebc6167bd940bf89eba49b316659cd6"
+    },
+    "payload/baseline-build-receipt.json": {
+      "bytes": 5534,
+      "mode": 420,
+      "sha256": "5c6656c600b89dc4b1da2d1b96d7b2d9e1319e4f44a61091268ba7a94f4f2d5c"
+    },
+    "payload/baseline-controller.json": {
+      "bytes": 692,
+      "mode": 420,
+      "sha256": "ed19c50312403a683c627acc03d484db98aa43f84a3edefffad8d240e779065f"
+    },
+    "payload/baseline-controller.stderr": {
+      "bytes": 0,
+      "mode": 420,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "payload/baseline-controller.stdout": {
+      "bytes": 0,
+      "mode": 420,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "payload/baseline.config": {
+      "bytes": 63765,
+      "mode": 420,
+      "sha256": "c1ba2738d00616e289582033cc9638a804e964ae8d542ec3dfaf51e25cbf8606"
+    },
+    "payload/build-receipt.json": {
+      "bytes": 6955,
+      "mode": 420,
+      "sha256": "fdd538c9e3c73f906da0c82f0b381b0385306a52d0dc1539ab13ceaa69938398"
+    },
+    "payload/build.log": {
+      "bytes": 59594,
+      "mode": 420,
+      "sha256": "d4af282252b62fb5b52378612c04025cdaecd0b01d2257735bb1541439e68bc4"
+    },
+    "payload/build_kernel.py": {
+      "bytes": 12899,
+      "mode": 420,
+      "sha256": "7372ebfece249fae202652f3c3bb419f730bd0e466dc076907270dac1ac873ed"
+    },
+    "payload/candidate-controller.json": {
+      "bytes": 684,
+      "mode": 420,
+      "sha256": "b972eec3758962f523d19e9c838a73291fd5b46143a4935ffc6a35b527866fc9"
+    },
+    "payload/candidate-controller.stderr": {
+      "bytes": 0,
+      "mode": 420,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "payload/candidate-controller.stdout": {
+      "bytes": 6955,
+      "mode": 420,
+      "sha256": "fdd538c9e3c73f906da0c82f0b381b0385306a52d0dc1539ab13ceaa69938398"
+    },
+    "payload/config": {
+      "bytes": 63793,
+      "mode": 420,
+      "sha256": "5f1f5e507586734c0955607960ceecfe822b5c908bfc1da9d29fe80ac627a8e9"
+    },
+    "payload/configuration-delta.json": {
+      "bytes": 574,
+      "mode": 420,
+      "sha256": "27c0a7e0919843056a85bf4c8786cdee2b7ceed909154611a3dd526f1741ddac"
+    },
+    "payload/configure.log": {
+      "bytes": 962,
+      "mode": 420,
+      "sha256": "dde62ad7c925ef366882cad11b172b825e670a3bc3dd8531ae14beaf0d140114"
+    },
+    "payload/controller.json": {
+      "bytes": 1727,
+      "mode": 420,
+      "sha256": "0ea8e5764272141524631e7bf727a7d7e1d623bc6f41fa5efe0c5f3650c7130b"
+    },
+    "payload/diagnostic.fragment": {
+      "bytes": 1885,
+      "mode": 420,
+      "sha256": "c482bd228f969e3424cb256a41512f12a0fc9d0f72eb25d70228108b3df329ae"
+    },
+    "payload/kernel-artifacts.json": {
+      "bytes": 5699,
+      "mode": 420,
+      "sha256": "e11098ddab0e45bc9fec297bae2b6f8b22530835b9e8b60e177af48ca87f982f"
+    },
+    "payload/kernel-profile.json": {
+      "bytes": 870,
+      "mode": 420,
+      "sha256": "32f07f6b229f0049cc71f8483977f9cdf371ff5ff1efff949659189637892569"
+    },
+    "payload/kernel.fragment": {
+      "bytes": 1846,
+      "mode": 420,
+      "sha256": "f4a6dc3fbebd5f0e184422cddc490e47e6737d208c55b7df255b678604fe9267"
+    },
+    "payload/ordered-cleanup.json": {
+      "bytes": 129,
+      "mode": 420,
+      "sha256": "062bc47b993a0966a6fcd8d3b16ebf0c1eecef35b534625dbc8ac879525c490e"
+    },
+    "payload/original-transport.json": {
+      "bytes": 496,
+      "mode": 420,
+      "sha256": "a6891003f76bb75cd4c69f20a448254a4f93f35c6f3c41ee8dda966b48f81d1b"
+    },
+    "payload/source-manifest.json": {
+      "bytes": 2764,
+      "mode": 420,
+      "sha256": "f9901c25b09612d493b3a7751ca15a07133090b07f99e337c27c904c50add927"
+    },
+    "payload/source-proof.json": {
+      "bytes": 433,
+      "mode": 420,
+      "sha256": "20d54194a75dbf33a92e2b0ca6e86578dc3e37d56361ac54256eb0afb054904c"
+    }
+  },
+  "carrier_git_blobs": {
+    "payload/Image": "5b6f288a0112ab3ffcb1debed35edd5ae72968ea",
+    "payload/Image.header": "fcb34a15c67a427a04f52f1e20b4db729ed51266",
+    "payload/Root-acceptance.json": "ce951b4bacd26e684b62ef4c4530a375c7308459",
+    "payload/acquisition.json": "d72f8c4804d251c8d592e96e6802166447007abe",
+    "payload/archive-header.bin": "35397e6e91c3027d350611c000b6f7a0ee885bf3",
+    "payload/baseline-build-receipt.json": "22857730c3783c5f9c7b94f25f67bf6cba868e8f",
+    "payload/baseline-controller.json": "98d7896076fa2cd36f4143a44b3c83b57514c843",
+    "payload/baseline-controller.stderr": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+    "payload/baseline-controller.stdout": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+    "payload/baseline.config": "cb63b9c936f98e56870e90a2d2f3030f3057e124",
+    "payload/build-receipt.json": "4d1b58a8b154e1a3068011ba0b55a2a87be10625",
+    "payload/build.log": "8cf6497a0074ee66c5e2c2741b61b4e1c6d8083e",
+    "payload/build_kernel.py": "8032ed9a63f7b72fe951c087b43fdedc82053d0b",
+    "payload/candidate-controller.json": "940a1a7ff8d19d738c856c4406ccb9965db0660e",
+    "payload/candidate-controller.stderr": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+    "payload/candidate-controller.stdout": "4d1b58a8b154e1a3068011ba0b55a2a87be10625",
+    "payload/config": "51a74f96518af07a3eaa113028968bae8da8d773",
+    "payload/configuration-delta.json": "66a7318dea72569ed254bfee004284334b8e761d",
+    "payload/configure.log": "3ca7fc285a10bd8d63d52299f7e86c6cc1971fb2",
+    "payload/controller.json": "20a883459fa0cc5caeb6c808ddcc8edc8dd9793b",
+    "payload/diagnostic.fragment": "6e7b84e6d27f28525ccef54ae98aa7c2ca436732",
+    "payload/kernel-artifacts.json": "845a582664b39547aa7d26933c53242905970a4a",
+    "payload/kernel-profile.json": "938089814a6f41592f1ace5f105ba73d804bd5d7",
+    "payload/kernel.fragment": "4747465595e34fdea60bee63775003ba87854279",
+    "payload/ordered-cleanup.json": "07fc3f192d73dc9fe92e4a82f6607ab6ff8673fe",
+    "payload/original-transport.json": "4d19ecc63b85e0db3958bf982de0705af037bf3f",
+    "payload/source-manifest.json": "506c37d4c53d061dadb7bfeeb58c13812a9f44cb",
+    "payload/source-proof.json": "29551eae1ca408c1793badeb7bae135f16953666"
+  },
+  "carrier_ref": "codex/ksm16k-advice-kernel-inputs-v1",
+  "carrier_source": "247123187cb1aceae5e61bc89f3c01dbf2986311",
+  "carrier_tree": "1576539092dfa858b1f3155433a894f92f55ef9e",
+  "config_required": {
+    "CONFIG_ARM64_16K_PAGES": "y",
+    "CONFIG_ARM64_4K_PAGES": "n",
+    "CONFIG_BINFMT_ELF": "y",
+    "CONFIG_BLK_DEV_INITRD": "y",
+    "CONFIG_CGROUPS": "y",
+    "CONFIG_DEVTMPFS": "y",
+    "CONFIG_DEVTMPFS_MOUNT": "y",
+    "CONFIG_EXT4_FS": "y",
+    "CONFIG_EXT4_FS_POSIX_ACL": "y",
+    "CONFIG_EXT4_FS_SECURITY": "y",
+    "CONFIG_FHANDLE": "y",
+    "CONFIG_IPC_NS": "y",
+    "CONFIG_MODULES": "n",
+    "CONFIG_NAMESPACES": "y",
+    "CONFIG_NET_NS": "y",
+    "CONFIG_OVERLAY_FS": "n",
+    "CONFIG_PID_NS": "y",
+    "CONFIG_SECCOMP": "y",
+    "CONFIG_SECCOMP_FILTER": "y",
+    "CONFIG_SECURITYFS": "n",
+    "CONFIG_USER_NS": "y",
+    "CONFIG_UTS_NS": "y",
+    "CONFIG_VIRTIO_BLK": "y",
+    "CONFIG_VIRTIO_PCI": "y"
+  },
+  "kernel": {
+    "kernel_authority": {
+      "bytes": 1651,
+      "path": "kernel/Root-acceptance.json",
+      "sha256": "882d0c24882fda0b99a5041e6ea31a8c6f34ab2d758c585f8cc22d57a69bacf6"
+    },
+    "kernel_build": {
+      "bytes": 5699,
+      "path": "kernel/kernel-artifacts.json",
+      "sha256": "e11098ddab0e45bc9fec297bae2b6f8b22530835b9e8b60e177af48ca87f982f"
+    },
+    "kernel_run": 39340364029,
+    "kernel_source": "80aa47304123106133832c11a9e4a405af5f1f67",
+    "kernel_transport": {
+      "bytes": 496,
+      "path": "kernel/original-transport.json",
+      "sha256": "a6891003f76bb75cd4c69f20a448254a4f93f35c6f3c41ee8dda966b48f81d1b"
+    },
+    "profile": {
+      "Image": {
+        "bytes": 8884232,
+        "sha256": "039fbeaff5942de2317f47feec30a5c073691edf5f8cef8849b25d08006d4ddb"
+      },
+      "architecture": "aarch64",
+      "archive_sha256": "874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad",
+      "config": {
+        "bytes": 63793,
+        "sha256": "5f1f5e507586734c0955607960ceecfe822b5c908bfc1da9d29fe80ac627a8e9"
+      },
+      "diagnostic_fragment_sha256": "c482bd228f969e3424cb256a41512f12a0fc9d0f72eb25d70228108b3df329ae",
+      "fragment_sha256": "f4a6dc3fbebd5f0e184422cddc490e47e6737d208c55b7df255b678604fe9267",
+      "helper_sha256": "7372ebfece249fae202652f3c3bb419f730bd0e466dc076907270dac1ac873ed",
+      "modules": "DISABLED",
+      "page_size": 16384,
+      "profile": "KSM_ADVICE_GENERIC16K_DIAGNOSTIC_V1",
+      "release": "7.1.13-generic16k-managed-gui",
+      "schema_version": 1,
+      "source_revision": "94fb23346d522edf53722357c426a3e58030beea"
+    }
+  },
+  "no_kernel_build": true,
+  "schema": 1,
+  "scope": "PINNED_CORE_GENERIC16K_BUILD_ONLY_INPUT_NOT_KIT_RUNTIME_ACCEPTANCE"
+}

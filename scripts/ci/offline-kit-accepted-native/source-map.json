@@ -261,6 +261,651 @@
       "mode": 420,
       "sha256": "6e199ce206038571a32bc480b11a39a62f1d7adbe85cae3730912360561c3aa1"
     },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/accepted-policy.json": {
+      "bytes": 5914,
+      "mode": 420,
+      "sha256": "070049284bca58f0bca88d6ce1750d40aeceeda139f1fad990f770f7f1445dda"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/accepted-public/diagnostics.TEST-public.asc": {
+      "bytes": 421,
+      "mode": 420,
+      "sha256": "7d0fd073223074d5a762d5475ddfaead162ba07d28fca62a025ccfb07dcb44b2"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/accepted-public/maintenance.TEST-public.asc": {
+      "bytes": 409,
+      "mode": 420,
+      "sha256": "a1ab3a1924faf62e21e419e207d5763334095007b07d36a8e7a49816c816decd"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/accepted-policy.json": {
+      "bytes": 34978,
+      "mode": 420,
+      "sha256": "a5c3a5c09601a7f51917b0d34d9a115f040b79dc57ee3bfab7a2847bd0604b58"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/accepted-public/diagnostics.TEST-public.asc": {
+      "bytes": 461,
+      "mode": 420,
+      "sha256": "b6d87d1d92177d218f3c235fdc897d0f55986a9d13918941de770559b2881ca6"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/accepted-public/maintenance.TEST-public.asc": {
+      "bytes": 461,
+      "mode": 420,
+      "sha256": "b6d87d1d92177d218f3c235fdc897d0f55986a9d13918941de770559b2881ca6"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/fresh_profile.py": {
+      "bytes": 29011,
+      "mode": 420,
+      "sha256": "a99f14b5c1c3e59678fe11443878306bdaeea6caf2f43ca850a27ea33523b5b9"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/guest_entry.py": {
+      "bytes": 24157,
+      "mode": 420,
+      "sha256": "8df88c7bdc7fcae6845bf5c5af785e045d1216e2fe29b4babbdb9242412d885a"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/guest_observer.py": {
+      "bytes": 3721,
+      "mode": 420,
+      "sha256": "cace0c8ba30e604a82c63a6dd0a7d4d62d24561102dcb867ce51d321b9e727ce"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/guest_phase.py": {
+      "bytes": 13427,
+      "mode": 420,
+      "sha256": "8592168f8432d23b99da601019cdcf2060d422cf840ca88aae7b123c4d10461a"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/guest_seccomp.py": {
+      "bytes": 5294,
+      "mode": 420,
+      "sha256": "939bb011e193d6eb345f45f0c37cc0cd0ee2d0f5b5fbff0b02addba228d5f8c2"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/kernel-policy.json": {
+      "bytes": 9587,
+      "mode": 420,
+      "sha256": "e8064830421991476f24ffc9ce1e25950d6a37c4ed958a8e2880c722ce0d9afa"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/media_helper.py": {
+      "bytes": 26406,
+      "mode": 420,
+      "sha256": "1562b640d5289ad7e155fbccddceac69cf9df2e56a360e9fac26e821474e1287"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/protocol-contract.json": {
+      "bytes": 5130,
+      "mode": 420,
+      "sha256": "cc2e4f29389a4e1b359918ecc2ff5655d6fb5254670af964c5c5519f5278f539"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/provider-manifest.json": {
+      "bytes": 2787,
+      "mode": 420,
+      "sha256": "a8b4c69c18ad48f44b7871e1f2099e30f2559e8fb71bfc3327e7f2ed5447a957"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/provider-pins.json": {
+      "bytes": 8617,
+      "mode": 420,
+      "sha256": "e9d91f48abbad36b10f57f6949a00ef8044bf58967f8831dbe4c297a0dcb8e6e"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/contract.py": {
+      "bytes": 22481,
+      "mode": 420,
+      "sha256": "3c3005ac04fb19bfe75001c12622693aec733d5bd8762ae6501e3d058ff04ba9"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/core/boot.py": {
+      "bytes": 5422,
+      "mode": 420,
+      "sha256": "f6df3d8e5b5602f3b9eca4ebfbb54afaa354ac29b7b4b9cc26988a9de064349e"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/core/case.py": {
+      "bytes": 8668,
+      "mode": 420,
+      "sha256": "07ea5e72a4ad8b22b9a6594aada61941abefa4659b46b26fc0bb59efa239319b"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/core/clock.py": {
+      "bytes": 4205,
+      "mode": 420,
+      "sha256": "cf43f16973294a8e687c65341cb63329a71d9a2a2ea488f0f6f2e20b97087c3c"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/core/host.py": {
+      "bytes": 4302,
+      "mode": 420,
+      "sha256": "d25d18a115483bf7b6f2f0f0f1bfe21d19de37951949e55685edcfb77d84248b"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/kernel-build-source/.github/workflows/native-arm-build.yml": {
+      "bytes": 2815,
+      "mode": 420,
+      "sha256": "d9e0655990d9423fce3b75987f1c3eac7ebc7688f15af4498d14d13cc0e3b9bb"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/kernel-build-source/.github/workflows/native-arm-ksm2-kernel.yml": {
+      "bytes": 2815,
+      "mode": 420,
+      "sha256": "d9e0655990d9423fce3b75987f1c3eac7ebc7688f15af4498d14d13cc0e3b9bb"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/kernel-build-source/scripts/ci/ksm2-kernel-native/fixtures/baseline.config": {
+      "bytes": 64022,
+      "mode": 420,
+      "sha256": "9729936f8a2a3ffa3edf1e3f689dbb56426795f733c73d83a9e4ee94ee8d7aa5"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/kernel-build-source/scripts/ci/ksm2-kernel-native/fixtures/configuration-proof.json": {
+      "bytes": 2981,
+      "mode": 420,
+      "sha256": "9f21c73803a6a31d745b86b5fa602d0bcb1297a295fd86e2ac9d28a6076f3236"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/kernel-build-source/scripts/ci/ksm2-kernel-native/fixtures/ksm.config": {
+      "bytes": 64050,
+      "mode": 420,
+      "sha256": "958f956770acf57925fe7274145897efbba71a5a26a134d7d53b3826a3056642"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/kernel-build-source/scripts/ci/ksm2-kernel-native/input-policy.json": {
+      "bytes": 645,
+      "mode": 420,
+      "sha256": "fc926cd8cd0c0970bdaf32f68035cc5c599e529248bf62f69e46e9b7082b2866"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/kernel-build-source/scripts/ci/ksm2-kernel-native/ksm_profile.py": {
+      "bytes": 5229,
+      "mode": 420,
+      "sha256": "42722dab543afde8da9d047569ce9b1f7f1fe0bf2219c6d5e2c33893f664c685"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/kernel-build-source/scripts/ci/ksm2-kernel-native/lane.py": {
+      "bytes": 11954,
+      "mode": 420,
+      "sha256": "77d5a8c657d31310dfbb4fcca4050a7c7063f0051b0f1fd65767f530da1881ae"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/kernel-build-source/scripts/ci/ksm2-kernel-native/runtime.py": {
+      "bytes": 16274,
+      "mode": 420,
+      "sha256": "4d9aa954d95032ab9ea9085ced784efc81a5db42e2f1f3401e679ee861c16090"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/kernel-build-source/scripts/ci/ksm2-kernel-native/source-manifest.json": {
+      "bytes": 2764,
+      "mode": 420,
+      "sha256": "f9901c25b09612d493b3a7751ca15a07133090b07f99e337c27c904c50add927"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/kernel-build-source/scripts/ci/ksm2-kernel-native/test_advice.py": {
+      "bytes": 2635,
+      "mode": 420,
+      "sha256": "6cc80c03dc17f492b474c7d1dd5f47359e2a0e7c86e2df10f4c7f4d444b19890"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/kernel-build-source/scripts/ci/ksm2-kernel-native/test_lane.py": {
+      "bytes": 6666,
+      "mode": 420,
+      "sha256": "d4fc2b25eac182d836a257b307d0025a1ae110c8f8ff1cbcd800d933fb1ba2d4"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/kernel-build-source/scripts/ci/managed-gui-generic16k/build_kernel.py": {
+      "bytes": 12900,
+      "mode": 420,
+      "sha256": "ccbead2912144c5aa4fcb3ce7af76b3c11f28fcde7987e5f32edb060ff7b0ee9"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/kernel-build-source/scripts/ci/managed-gui-generic16k/kernel.fragment": {
+      "bytes": 1808,
+      "mode": 420,
+      "sha256": "88819f00ebef80e385ebdfae6cc101ef21145e0bbd6bb12532b0d41a85c16d28"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/kernel-build-source/scripts/ci/managed-gui-generic16k/kernel_contract.py": {
+      "bytes": 4659,
+      "mode": 420,
+      "sha256": "30a4544e5407dbf932d9ec26bbd6bf21eab53347544afa134cd3a5870752cbff"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/kernel-build-source/scripts/ci/managed-gui-generic16k/run.py": {
+      "bytes": 10493,
+      "mode": 420,
+      "sha256": "64e279b7ce4b04f115a7e1897377ce59ea5c15010a97a0f22cf16e35ce5e7e46"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/kernel-build-source/scripts/ci/tools-generic16k/acquire_kernel.py": {
+      "bytes": 8844,
+      "mode": 420,
+      "sha256": "4a372e1f4bfbd1f8604579873fc6fbdec91ac2555bb36f028646017b44b8c23f"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/kernel-build-source/scripts/virtual/generic16k/fetch_inputs.py": {
+      "bytes": 7768,
+      "mode": 420,
+      "sha256": "212a0a9efc7c386158526ce40683a3646a899a9c7fd2c3140d6e24a02d778043"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/kernel-build-source/scripts/virtual/generic16k/inputs.json": {
+      "bytes": 1057,
+      "mode": 420,
+      "sha256": "bdfa44ed1d017c0d0e15c1f3af87bdf4a91923c20e812c861ca522d2cf428492"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/kernel-decision-contract.json": {
+      "bytes": 1227,
+      "mode": 420,
+      "sha256": "871bc8ac46cbf0e20f97fda3327602b34e517919af6471bf1a54fcfdcdac8ab7"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/kernel-source/scripts/ci/managed-gui-generic16k/build_kernel.py": {
+      "bytes": 12900,
+      "mode": 420,
+      "sha256": "ccbead2912144c5aa4fcb3ce7af76b3c11f28fcde7987e5f32edb060ff7b0ee9"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/kernel-source/scripts/ci/managed-gui-generic16k/kernel.fragment": {
+      "bytes": 1808,
+      "mode": 420,
+      "sha256": "88819f00ebef80e385ebdfae6cc101ef21145e0bbd6bb12532b0d41a85c16d28"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/kernel-source/scripts/ci/managed-gui-generic16k/kernel_contract.py": {
+      "bytes": 4659,
+      "mode": 420,
+      "sha256": "30a4544e5407dbf932d9ec26bbd6bf21eab53347544afa134cd3a5870752cbff"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/kernel-source/scripts/ci/managed-gui-generic16k/run.py": {
+      "bytes": 10493,
+      "mode": 420,
+      "sha256": "64e279b7ce4b04f115a7e1897377ce59ea5c15010a97a0f22cf16e35ce5e7e46"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/kernel_input.py": {
+      "bytes": 7997,
+      "mode": 420,
+      "sha256": "4f59e4dddf7e8a5e583f943a23ca4d5eb6881d8062831d89b877eea18bd8f621"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/media-source/scripts/apps/file_capabilities.py": {
+      "bytes": 13562,
+      "mode": 420,
+      "sha256": "498a3beec0327b9335dcd6d80ed5919fa2edebebd3284e9ee8b97770328e26a2"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/media-source/scripts/ci/current604-public-pair-updater16k/cap_scope.py": {
+      "bytes": 2598,
+      "mode": 420,
+      "sha256": "4559643fbfaa22657d68e07143e2f7dbc518765c0a9d9e9161acf94c5976ff13"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/media-source/scripts/ci/current604-public-pair-updater16k/disk.py": {
+      "bytes": 12836,
+      "mode": 420,
+      "sha256": "d33eda29a06088251f6a4e0c5bb07d903055ca1761a83a93ed9c70b38a90017f"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/media-source/scripts/ci/full-root-upgrade-caller/persistent_scope.py": {
+      "bytes": 17405,
+      "mode": 420,
+      "sha256": "cd1f23bd252b77e9b3a9e907e1c0defd5141025408e92ae5c2500152076b6f3a"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/media-source/scripts/ci/full-root-upgrade/root_upgrade.py": {
+      "bytes": 23555,
+      "mode": 420,
+      "sha256": "fe1232ae6b510021910b4fb80016ac3b4668c6e4386cdae45e7b95196e400756"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/media-source/scripts/ci/managed-gui-generic16k/elf_audit.py": {
+      "bytes": 3507,
+      "mode": 420,
+      "sha256": "b10b641060e273479d32d8a74719565c4264faf6fefd9e963c8f82dc1fbe738e"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/media-source/scripts/install/local_transaction.py": {
+      "bytes": 93752,
+      "mode": 420,
+      "sha256": "14381d049506b52770059bf7af415f7a079f69872543e74417aca11ce24ac3c5"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/media-source/scripts/update/capacity.py": {
+      "bytes": 1449,
+      "mode": 420,
+      "sha256": "dcb9899cd24daa21f75e6da6b0214393f093d140a70769092da091e0cfdf7c87"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/media-source/scripts/update/full_root.py": {
+      "bytes": 35970,
+      "mode": 420,
+      "sha256": "cece1c597b2e2eb98b0e3087cc7e7c148b54332f8a1c4f18e04e4552a71fb51d"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/media-source/scripts/update/measure_copy.py": {
+      "bytes": 25734,
+      "mode": 420,
+      "sha256": "e582245bd114b0b9d83f2de4fdc81a35d2f48493ba6147879871af794476813b"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/media-source/scripts/update/root_path.py": {
+      "bytes": 3435,
+      "mode": 420,
+      "sha256": "2efcbc1057e117a406488f05a3e0213751b00ab09f845a7830a71a4cf60fd2b4"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/media-source/scripts/update/supervision.py": {
+      "bytes": 3293,
+      "mode": 420,
+      "sha256": "f18bcbd2a6279cff8fe6c7e9c9f80fc01c9818844b01df8c4e97b83d61704b10"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/media-source/scripts/virtual/generic16k/fixture.py": {
+      "bytes": 15118,
+      "mode": 420,
+      "sha256": "47d2c042319246538f8724e294b9530e079ba00de7995ef42f9a1031ca17c4ba"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/profile/ksm_profile.py": {
+      "bytes": 5229,
+      "mode": 420,
+      "sha256": "42722dab543afde8da9d047569ce9b1f7f1fe0bf2219c6d5e2c33893f664c685"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/providers/sharing.py": {
+      "bytes": 20112,
+      "mode": 420,
+      "sha256": "b68524c767e7db45ab3816b4d1b579e28d3bf94299746c2027b7cbe761089e39"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/public_certificate.py": {
+      "bytes": 4912,
+      "mode": 420,
+      "sha256": "5082207de10685d2c72e1b7e1cf2c979553094a1226617847e6fc411aede9aa9"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/public_keys.py": {
+      "bytes": 2537,
+      "mode": 420,
+      "sha256": "664b61d3915c0db810432bc03d6836f037b1837601161489a0a0c34adc200019"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/trial-code/fresh_profile.py": {
+      "bytes": 29011,
+      "mode": 420,
+      "sha256": "a99f14b5c1c3e59678fe11443878306bdaeea6caf2f43ca850a27ea33523b5b9"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/trial-code/namespace_diagnostic.py": {
+      "bytes": 20230,
+      "mode": 420,
+      "sha256": "8f2c977c647168d4635821c5940b34a89f3b150766b0dda752a346e5fa0c1092"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/trial-code/plan_bridge.py": {
+      "bytes": 8031,
+      "mode": 420,
+      "sha256": "9ce7a390ed31c60865756e1a900c3e7d30fc4b88a002abf398366d44569050f5"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/trial-code/public_certificate.py": {
+      "bytes": 4912,
+      "mode": 420,
+      "sha256": "5082207de10685d2c72e1b7e1cf2c979553094a1226617847e6fc411aede9aa9"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/trial-code/trial.py": {
+      "bytes": 24006,
+      "mode": 420,
+      "sha256": "bf8055b1e17b1aa6fbb78b01f243a375067372df20c295693bff560b108c9cc0"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/vm_contract.py": {
+      "bytes": 7801,
+      "mode": 420,
+      "sha256": "b8dc5b1de5296409507f21acdd72e0dc0be140f612fbbeb8f85a61336d71fbd4"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/vm_owner.py": {
+      "bytes": 39172,
+      "mode": 420,
+      "sha256": "d6c2b405a60f36c0db56951d85ede002968d1270e489c3f9305c719ee28d76b0"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/fresh-test/vm_runtime.py": {
+      "bytes": 1685,
+      "mode": 420,
+      "sha256": "956616f92ea3d0f7730723e84271317d98562b7f65a41cc2bf5fb122fdb77fbe"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/guest_entry.py": {
+      "bytes": 23721,
+      "mode": 420,
+      "sha256": "0ac21e5d472eb783e988df8518d6eda99607914b3896703f7a7529d41f233182"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/guest_observer.py": {
+      "bytes": 3710,
+      "mode": 420,
+      "sha256": "b18b42c24fe40accea58fda6c52f4e22951764b266d5038fafef8b4770250ba9"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/guest_phase.py": {
+      "bytes": 13162,
+      "mode": 420,
+      "sha256": "6fd58ab7de560b18d8f4e63d1df326a19b62a6e4e2f54fe07e43984978d1f5a7"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/guest_seccomp.py": {
+      "bytes": 5294,
+      "mode": 420,
+      "sha256": "939bb011e193d6eb345f45f0c37cc0cd0ee2d0f5b5fbff0b02addba228d5f8c2"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/kernel-policy.json": {
+      "bytes": 9587,
+      "mode": 420,
+      "sha256": "e8064830421991476f24ffc9ce1e25950d6a37c4ed958a8e2880c722ce0d9afa"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/media_helper.py": {
+      "bytes": 24817,
+      "mode": 420,
+      "sha256": "26071ba61f443bed39b66e88c4681690d684ad1e6fff8d75d2cb482a0f30533b"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/protocol-contract.json": {
+      "bytes": 4848,
+      "mode": 420,
+      "sha256": "4e64a01074a9dd5291f3532a02ac6c32357ddc19ba093f4d12298576179e4e97"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/provider-manifest.json": {
+      "bytes": 2787,
+      "mode": 420,
+      "sha256": "a8b4c69c18ad48f44b7871e1f2099e30f2559e8fb71bfc3327e7f2ed5447a957"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/provider-pins.json": {
+      "bytes": 8617,
+      "mode": 420,
+      "sha256": "e9d91f48abbad36b10f57f6949a00ef8044bf58967f8831dbe4c297a0dcb8e6e"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/contract.py": {
+      "bytes": 22481,
+      "mode": 420,
+      "sha256": "3c3005ac04fb19bfe75001c12622693aec733d5bd8762ae6501e3d058ff04ba9"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/core/boot.py": {
+      "bytes": 5422,
+      "mode": 420,
+      "sha256": "f6df3d8e5b5602f3b9eca4ebfbb54afaa354ac29b7b4b9cc26988a9de064349e"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/core/case.py": {
+      "bytes": 8668,
+      "mode": 420,
+      "sha256": "07ea5e72a4ad8b22b9a6594aada61941abefa4659b46b26fc0bb59efa239319b"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/core/clock.py": {
+      "bytes": 4205,
+      "mode": 420,
+      "sha256": "cf43f16973294a8e687c65341cb63329a71d9a2a2ea488f0f6f2e20b97087c3c"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/core/host.py": {
+      "bytes": 4302,
+      "mode": 420,
+      "sha256": "d25d18a115483bf7b6f2f0f0f1bfe21d19de37951949e55685edcfb77d84248b"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/kernel-build-source/.github/workflows/native-arm-build.yml": {
+      "bytes": 2815,
+      "mode": 420,
+      "sha256": "d9e0655990d9423fce3b75987f1c3eac7ebc7688f15af4498d14d13cc0e3b9bb"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/kernel-build-source/.github/workflows/native-arm-ksm2-kernel.yml": {
+      "bytes": 2815,
+      "mode": 420,
+      "sha256": "d9e0655990d9423fce3b75987f1c3eac7ebc7688f15af4498d14d13cc0e3b9bb"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/kernel-build-source/scripts/ci/ksm2-kernel-native/fixtures/baseline.config": {
+      "bytes": 64022,
+      "mode": 420,
+      "sha256": "9729936f8a2a3ffa3edf1e3f689dbb56426795f733c73d83a9e4ee94ee8d7aa5"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/kernel-build-source/scripts/ci/ksm2-kernel-native/fixtures/configuration-proof.json": {
+      "bytes": 2981,
+      "mode": 420,
+      "sha256": "9f21c73803a6a31d745b86b5fa602d0bcb1297a295fd86e2ac9d28a6076f3236"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/kernel-build-source/scripts/ci/ksm2-kernel-native/fixtures/ksm.config": {
+      "bytes": 64050,
+      "mode": 420,
+      "sha256": "958f956770acf57925fe7274145897efbba71a5a26a134d7d53b3826a3056642"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/kernel-build-source/scripts/ci/ksm2-kernel-native/input-policy.json": {
+      "bytes": 645,
+      "mode": 420,
+      "sha256": "fc926cd8cd0c0970bdaf32f68035cc5c599e529248bf62f69e46e9b7082b2866"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/kernel-build-source/scripts/ci/ksm2-kernel-native/ksm_profile.py": {
+      "bytes": 5229,
+      "mode": 420,
+      "sha256": "42722dab543afde8da9d047569ce9b1f7f1fe0bf2219c6d5e2c33893f664c685"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/kernel-build-source/scripts/ci/ksm2-kernel-native/lane.py": {
+      "bytes": 11954,
+      "mode": 420,
+      "sha256": "77d5a8c657d31310dfbb4fcca4050a7c7063f0051b0f1fd65767f530da1881ae"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/kernel-build-source/scripts/ci/ksm2-kernel-native/runtime.py": {
+      "bytes": 16274,
+      "mode": 420,
+      "sha256": "4d9aa954d95032ab9ea9085ced784efc81a5db42e2f1f3401e679ee861c16090"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/kernel-build-source/scripts/ci/ksm2-kernel-native/source-manifest.json": {
+      "bytes": 2764,
+      "mode": 420,
+      "sha256": "f9901c25b09612d493b3a7751ca15a07133090b07f99e337c27c904c50add927"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/kernel-build-source/scripts/ci/ksm2-kernel-native/test_advice.py": {
+      "bytes": 2635,
+      "mode": 420,
+      "sha256": "6cc80c03dc17f492b474c7d1dd5f47359e2a0e7c86e2df10f4c7f4d444b19890"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/kernel-build-source/scripts/ci/ksm2-kernel-native/test_lane.py": {
+      "bytes": 6666,
+      "mode": 420,
+      "sha256": "d4fc2b25eac182d836a257b307d0025a1ae110c8f8ff1cbcd800d933fb1ba2d4"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/kernel-build-source/scripts/ci/managed-gui-generic16k/build_kernel.py": {
+      "bytes": 12900,
+      "mode": 420,
+      "sha256": "ccbead2912144c5aa4fcb3ce7af76b3c11f28fcde7987e5f32edb060ff7b0ee9"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/kernel-build-source/scripts/ci/managed-gui-generic16k/kernel.fragment": {
+      "bytes": 1808,
+      "mode": 420,
+      "sha256": "88819f00ebef80e385ebdfae6cc101ef21145e0bbd6bb12532b0d41a85c16d28"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/kernel-build-source/scripts/ci/managed-gui-generic16k/kernel_contract.py": {
+      "bytes": 4659,
+      "mode": 420,
+      "sha256": "30a4544e5407dbf932d9ec26bbd6bf21eab53347544afa134cd3a5870752cbff"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/kernel-build-source/scripts/ci/managed-gui-generic16k/run.py": {
+      "bytes": 10493,
+      "mode": 420,
+      "sha256": "64e279b7ce4b04f115a7e1897377ce59ea5c15010a97a0f22cf16e35ce5e7e46"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/kernel-build-source/scripts/ci/tools-generic16k/acquire_kernel.py": {
+      "bytes": 8844,
+      "mode": 420,
+      "sha256": "4a372e1f4bfbd1f8604579873fc6fbdec91ac2555bb36f028646017b44b8c23f"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/kernel-build-source/scripts/virtual/generic16k/fetch_inputs.py": {
+      "bytes": 7768,
+      "mode": 420,
+      "sha256": "212a0a9efc7c386158526ce40683a3646a899a9c7fd2c3140d6e24a02d778043"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/kernel-build-source/scripts/virtual/generic16k/inputs.json": {
+      "bytes": 1057,
+      "mode": 420,
+      "sha256": "bdfa44ed1d017c0d0e15c1f3af87bdf4a91923c20e812c861ca522d2cf428492"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/kernel-decision-contract.json": {
+      "bytes": 1227,
+      "mode": 420,
+      "sha256": "871bc8ac46cbf0e20f97fda3327602b34e517919af6471bf1a54fcfdcdac8ab7"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/kernel-source/scripts/ci/managed-gui-generic16k/build_kernel.py": {
+      "bytes": 12900,
+      "mode": 420,
+      "sha256": "ccbead2912144c5aa4fcb3ce7af76b3c11f28fcde7987e5f32edb060ff7b0ee9"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/kernel-source/scripts/ci/managed-gui-generic16k/kernel.fragment": {
+      "bytes": 1808,
+      "mode": 420,
+      "sha256": "88819f00ebef80e385ebdfae6cc101ef21145e0bbd6bb12532b0d41a85c16d28"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/kernel-source/scripts/ci/managed-gui-generic16k/kernel_contract.py": {
+      "bytes": 4659,
+      "mode": 420,
+      "sha256": "30a4544e5407dbf932d9ec26bbd6bf21eab53347544afa134cd3a5870752cbff"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/kernel-source/scripts/ci/managed-gui-generic16k/run.py": {
+      "bytes": 10493,
+      "mode": 420,
+      "sha256": "64e279b7ce4b04f115a7e1897377ce59ea5c15010a97a0f22cf16e35ce5e7e46"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/kernel_input.py": {
+      "bytes": 7997,
+      "mode": 420,
+      "sha256": "4f59e4dddf7e8a5e583f943a23ca4d5eb6881d8062831d89b877eea18bd8f621"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/media-source/scripts/apps/file_capabilities.py": {
+      "bytes": 13562,
+      "mode": 420,
+      "sha256": "498a3beec0327b9335dcd6d80ed5919fa2edebebd3284e9ee8b97770328e26a2"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/media-source/scripts/ci/current604-public-pair-updater16k/cap_scope.py": {
+      "bytes": 2598,
+      "mode": 420,
+      "sha256": "4559643fbfaa22657d68e07143e2f7dbc518765c0a9d9e9161acf94c5976ff13"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/media-source/scripts/ci/current604-public-pair-updater16k/disk.py": {
+      "bytes": 12836,
+      "mode": 420,
+      "sha256": "d33eda29a06088251f6a4e0c5bb07d903055ca1761a83a93ed9c70b38a90017f"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/media-source/scripts/ci/full-root-upgrade-caller/persistent_scope.py": {
+      "bytes": 17405,
+      "mode": 420,
+      "sha256": "cd1f23bd252b77e9b3a9e907e1c0defd5141025408e92ae5c2500152076b6f3a"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/media-source/scripts/ci/full-root-upgrade/root_upgrade.py": {
+      "bytes": 23555,
+      "mode": 420,
+      "sha256": "fe1232ae6b510021910b4fb80016ac3b4668c6e4386cdae45e7b95196e400756"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/media-source/scripts/ci/managed-gui-generic16k/elf_audit.py": {
+      "bytes": 3507,
+      "mode": 420,
+      "sha256": "b10b641060e273479d32d8a74719565c4264faf6fefd9e963c8f82dc1fbe738e"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/media-source/scripts/install/local_transaction.py": {
+      "bytes": 93752,
+      "mode": 420,
+      "sha256": "14381d049506b52770059bf7af415f7a079f69872543e74417aca11ce24ac3c5"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/media-source/scripts/update/capacity.py": {
+      "bytes": 1449,
+      "mode": 420,
+      "sha256": "dcb9899cd24daa21f75e6da6b0214393f093d140a70769092da091e0cfdf7c87"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/media-source/scripts/update/full_root.py": {
+      "bytes": 35970,
+      "mode": 420,
+      "sha256": "cece1c597b2e2eb98b0e3087cc7e7c148b54332f8a1c4f18e04e4552a71fb51d"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/media-source/scripts/update/measure_copy.py": {
+      "bytes": 25734,
+      "mode": 420,
+      "sha256": "e582245bd114b0b9d83f2de4fdc81a35d2f48493ba6147879871af794476813b"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/media-source/scripts/update/root_path.py": {
+      "bytes": 3435,
+      "mode": 420,
+      "sha256": "2efcbc1057e117a406488f05a3e0213751b00ab09f845a7830a71a4cf60fd2b4"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/media-source/scripts/update/supervision.py": {
+      "bytes": 3293,
+      "mode": 420,
+      "sha256": "f18bcbd2a6279cff8fe6c7e9c9f80fc01c9818844b01df8c4e97b83d61704b10"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/media-source/scripts/virtual/generic16k/fixture.py": {
+      "bytes": 15118,
+      "mode": 420,
+      "sha256": "47d2c042319246538f8724e294b9530e079ba00de7995ef42f9a1031ca17c4ba"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/profile/ksm_profile.py": {
+      "bytes": 5229,
+      "mode": 420,
+      "sha256": "42722dab543afde8da9d047569ce9b1f7f1fe0bf2219c6d5e2c33893f664c685"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/providers/sharing.py": {
+      "bytes": 20112,
+      "mode": 420,
+      "sha256": "b68524c767e7db45ab3816b4d1b579e28d3bf94299746c2027b7cbe761089e39"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/public_keys.py": {
+      "bytes": 2537,
+      "mode": 420,
+      "sha256": "664b61d3915c0db810432bc03d6836f037b1837601161489a0a0c34adc200019"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/vm_contract.py": {
+      "bytes": 6129,
+      "mode": 420,
+      "sha256": "f7d4693840cba732b1bdcd55481878391ced6561107cb7d5d1ca14080409970c"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/vm_owner.py": {
+      "bytes": 39021,
+      "mode": 420,
+      "sha256": "ed97d10b4302878a48230470dc65290b7029bf69aae78fe85827af65a55832cd"
+    },
+    "scripts/ci/offline-kit-accepted-native/guest-vm/vm_runtime.py": {
+      "bytes": 1685,
+      "mode": 420,
+      "sha256": "956616f92ea3d0f7730723e84271317d98562b7f65a41cc2bf5fb122fdb77fbe"
+    },
     "scripts/ci/offline-kit-accepted-native/namespace_diagnostic_owner.py": {
       "bytes": 10620,
       "mode": 420,
@@ -327,9 +972,9 @@
       "sha256": "eb3882c0ff60c9c33439fa7588700c05b16e6f116bde51079642722e956f4c31"
     },
     "scripts/ci/offline-kit-accepted-native/workflow.yml.in": {
-      "bytes": 14388,
+      "bytes": 44010,
       "mode": 420,
-      "sha256": "8724460377538764958bea897f8d4a8b98988d6754e096e749d06712d86555dd"
+      "sha256": "7a09d6c198770a9acea16c057b7ffdb5cce18cc868a051f0cd74b263178991ed"
     },
     "scripts/ci/old_four_seed.py": {
       "bytes": 29048,
@@ -372,6 +1017,6 @@
       "sha256": "e5d7dc11d1a59cf37a273e9a7103c7e55b169335b17c599990946f4e677ca974"
     }
   },
-  "purpose": "FRESH_RUNNER_FINITE_SELECTED_NAMESPACE_DIAGNOSTIC_CI_ROUTE",
+  "purpose": "EXPLICIT_FRESH_ROOT_LOCAL_TEST_CARRIER_SOFTWARE_VM_LIFECYCLE",
   "schema": 1
 }
