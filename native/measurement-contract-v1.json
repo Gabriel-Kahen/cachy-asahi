@@ -1,0 +1,742 @@
+{
+  "ALPM": "NOT_RUN",
+  "GPG": "NOT_RUN",
+  "actual": {
+    "artifact": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "build_pair": {
+    "logical_build_directory": "/opt/native-measurement-tools-alpm-v1/build-current",
+    "packager": "cachy-asahi native TEST builder",
+    "separate_clean_sources": true,
+    "source_date_epoch": "1793145600"
+  },
+  "buildinfo_installed": [
+    "abseil-cpp-20260817.0-2-aarch64",
+    "acl-2.4.0-1-aarch64",
+    "adwaita-cursors-51.0-1-any",
+    "adwaita-fonts-51.0-2-any",
+    "adwaita-icon-theme-51.0-1-any",
+    "adwaita-icon-theme-legacy-46.2-3-any",
+    "alacritty-0.17.0-1-aarch64",
+    "aquamarine-0.15.1-1-aarch64",
+    "archlinux-keyring-20260909-1-any",
+    "archlinuxarm-keyring-20240419-2-any",
+    "at-spi2-core-2.62.1-1-aarch64",
+    "attr-2.6.0-1-aarch64",
+    "audit-4.2.1-1-aarch64",
+    "autoconf-2.73-1-any",
+    "automake-1.19-1-any",
+    "avahi-1:0.9rc5-1-aarch64",
+    "base-3-3-any",
+    "base-devel-1-2-any",
+    "bash-5.3.20-1-aarch64",
+    "benchmark-1.9.5-2-aarch64",
+    "binutils-2.46+r70+g155188ea10a7-1-aarch64",
+    "bison-3.8.2-8-aarch64",
+    "boost-libs-1.92.0-1-aarch64",
+    "brightnessctl-0.5.1-3-aarch64",
+    "brotli-1.2.0-1-aarch64",
+    "bubblewrap-0.13.0-1-aarch64",
+    "bzip2-1.0.8-6-aarch64",
+    "ca-certificates-20240618-1-any",
+    "ca-certificates-mozilla-3.131-1-aarch64",
+    "ca-certificates-utils-20240618-1-any",
+    "cairo-1.18.6-1-aarch64",
+    "cmake-4.4.4-1-aarch64",
+    "coreutils-9.12-2-aarch64",
+    "cpio-2.15-3-aarch64",
+    "cppdap-1.58.0-3-aarch64",
+    "cryptsetup-2.8.8-1-aarch64",
+    "curl-8.22.0-1-aarch64",
+    "dav1d-1.5.4-1-aarch64",
+    "db5.3-5.3.28-7-aarch64",
+    "dbus-1.16.2-1-aarch64",
+    "dbus-broker-37-3-aarch64",
+    "dbus-broker-units-37-3-aarch64",
+    "dbus-units-37-3-aarch64",
+    "dconf-51.0-1-aarch64",
+    "debugedit-5.3-2-aarch64",
+    "default-cursors-3-1-any",
+    "desktop-file-utils-0.28-1-aarch64",
+    "device-mapper-2.03.43-2-aarch64",
+    "dhcpcd-10.5.2-1-aarch64",
+    "diffutils-3.12-2-aarch64",
+    "duktape-2.7.0-7-aarch64",
+    "e2fsprogs-1.47.4-1-aarch64",
+    "elfutils-0.196-1-aarch64",
+    "ex-vi-compat-3-1-any",
+    "expat-2.9.0-1-aarch64",
+    "fakeroot-1:1.37.2-3-aarch64",
+    "file-5.48-1-aarch64",
+    "filesystem-2025.10.12-1-any",
+    "findutils-4.11.0-1-aarch64",
+    "fish-4.9.3-1-aarch64",
+    "flex-2.6.4-6-aarch64",
+    "fontconfig-2:2.18.3-2-aarch64",
+    "freetype2-2.14.3-1-aarch64",
+    "fribidi-1.0.17-1-aarch64",
+    "gawk-5.4.1-1-aarch64",
+    "gc-8.2.12-1-aarch64",
+    "gcc-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+    "gcc-libs-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+    "gdb-18.1-1-aarch64",
+    "gdb-common-18.1-1-aarch64",
+    "gdbm-1.26-2-aarch64",
+    "gdk-pixbuf2-2.44.8-1-aarch64",
+    "gettext-1.0-2-aarch64",
+    "giflib-6.1.3-2-aarch64",
+    "glib-networking-1:2.90.0-1-aarch64",
+    "glib2-2.90.1-1-aarch64",
+    "glibc-2.43+r22+g8362e8ce10b2-2-aarch64",
+    "glslang-1:1.4.363.0-1-aarch64",
+    "glycin-2.2.2-1-aarch64",
+    "gmp-6.3.0-3-aarch64",
+    "gnulib-l10n-20241231-1-any",
+    "gnupg-2.4.9-3-aarch64",
+    "gnutls-3.8.13-3-aarch64",
+    "gperftools-2.18.1-1-aarch64",
+    "gpgme-2.2.0-1-aarch64",
+    "gpm-1.20.7.r38.ge82d1a6-7-aarch64",
+    "graphite-1:1.3.15-1-aarch64",
+    "grep-3.12-2-aarch64",
+    "groff-1.24.2-1-aarch64",
+    "gsettings-desktop-schemas-51.0-1-any",
+    "gsettings-system-schemas-51.0-1-any",
+    "gtest-1.18.0-1-aarch64",
+    "gtk-update-icon-cache-1:4.24.1-1-aarch64",
+    "gtk3-1:3.24.52-2-aarch64",
+    "guile-3.0.11-1-aarch64",
+    "gzip-1.15-1-aarch64",
+    "harfbuzz-14.6.0-1-aarch64",
+    "hicolor-icon-theme-0.18-1-any",
+    "highway-1.4.0-1-aarch64",
+    "hwdata-0.412-1-any",
+    "hyprcursor-0.1.13-7-aarch64",
+    "hyprgraphics-0.5.1-4-aarch64",
+    "hyprland-0.56.2-4-aarch64",
+    "hyprland-guiutils-0.2.2-4-aarch64",
+    "hyprlang-0.6.8-5-aarch64",
+    "hyprtoolkit-0.6.0-1-aarch64",
+    "hyprutils-0.14.2-1-aarch64",
+    "hyprwire-0.3.1-3-aarch64",
+    "iana-etc-20260617-1-any",
+    "icu-78.3-1-aarch64",
+    "iniparser-4.3.2-1-aarch64",
+    "iproute2-7.2.0-1-aarch64",
+    "iptables-1:1.8.13-1-aarch64",
+    "iputils-20250605-1-aarch64",
+    "iso-codes-4.20.1-1-any",
+    "jansson-2.15.1-1-aarch64",
+    "jbigkit-2.1-8-aarch64",
+    "json-c-0.19-1-aarch64",
+    "json-glib-1.10.8-1-aarch64",
+    "jsoncpp-1.9.8-1-aarch64",
+    "kbd-2.10.0-1-aarch64",
+    "keyutils-1.6.3-4-aarch64",
+    "kmod-34.2-1-aarch64",
+    "krb5-1.22.2-1-aarch64",
+    "lcms2-2.19.1-1-aarch64",
+    "leancrypto-1.9.1-1-aarch64",
+    "libarchive-3.8.9-1-aarch64",
+    "libasan-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+    "libassuan-3.0.0-1-aarch64",
+    "libatomic-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+    "libbpf-1.7.0-1-aarch64",
+    "libcap-2.78-1-aarch64",
+    "libcap-ng-0.9.6-1-aarch64",
+    "libcloudproviders-0.4.1-1-aarch64",
+    "libcolord-1.4.8-1-aarch64",
+    "libcups-2:2.4.20-1-aarch64",
+    "libdaemon-0.14-6-aarch64",
+    "libdatrie-0.2.14-1-aarch64",
+    "libdecor-0.2.5-1-aarch64",
+    "libdeflate-1.26-1-aarch64",
+    "libdisplay-info-0.3.0-1-aarch64",
+    "libdrm-2.4.134-1-aarch64",
+    "libedit-20260512_3.1-1-aarch64",
+    "libei-1.6.0-1-aarch64",
+    "libelf-0.196-1-aarch64",
+    "libepoxy-1.5.10-3-aarch64",
+    "libevdev-1.14.0-1-aarch64",
+    "libevent-2.1.13-2-aarch64",
+    "libffi-3.8.0-1-aarch64",
+    "libfontenc-1.1.9-1-aarch64",
+    "libgcc-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+    "libgcrypt-1.12.4-1-aarch64",
+    "libgfortran-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+    "libglvnd-1.7.0-3-aarch64",
+    "libgomp-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+    "libgpg-error-1.61-1-aarch64",
+    "libgudev-238-3-aarch64",
+    "libidn2-2.3.8-1-aarch64",
+    "libinput-1.32.0-1-aarch64",
+    "libisl-0.28-1-aarch64",
+    "libjpeg-turbo-3.2.0-2-aarch64",
+    "libjxl-0.12.0-1-aarch64",
+    "libksba-1.8.1-1-aarch64",
+    "libldap-2.7.1-1-aarch64",
+    "liblsan-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+    "libmakepkg-dropins-20-2-any",
+    "libmnl-1.0.5-2-aarch64",
+    "libmpc-1.4.1-1-aarch64",
+    "libnetfilter_conntrack-1.1.1-1-aarch64",
+    "libnfnetlink-1.0.2-2-aarch64",
+    "libnftnl-1.3.2-1-aarch64",
+    "libnghttp2-1.70.0-1-aarch64",
+    "libnghttp3-1.18.0-1-aarch64",
+    "libngtcp2-1.25.0-1-aarch64",
+    "libnl-3.12.0-1-aarch64",
+    "libnsl-2.0.1-2-aarch64",
+    "libobjc-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+    "libp11-kit-0.26.5-1-aarch64",
+    "libpcap-1.11.0-1-aarch64",
+    "libpciaccess-0.19-1-aarch64",
+    "libpipewire-1:1.6.9-1-aarch64",
+    "libpng-1.6.59-1-aarch64",
+    "libproxy-0.5.12-1-aarch64",
+    "libpsl-0.21.5-2-aarch64",
+    "libquadmath-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+    "librsvg-2:2.63.2-1-aarch64",
+    "libsasl-2.1.28-5-aarch64",
+    "libseccomp-2.6.0-1-aarch64",
+    "libsecret-0.21.8.2-1-aarch64",
+    "libsoup3-3.8.0-1-aarch64",
+    "libssh2-1.11.1-7-aarch64",
+    "libstdc++-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+    "libstemmer-3.1.1-1-aarch64",
+    "libsysprof-capture-51.0-1-aarch64",
+    "libtasn1-4.21.0-1-aarch64",
+    "libthai-0.1.30-1-aarch64",
+    "libtiff-4.7.2-1-aarch64",
+    "libtirpc-1.3.8-1-aarch64",
+    "libtool-2.6.0+r23+gb08cb0a0-1-aarch64",
+    "libtsan-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+    "libubsan-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+    "libunistring-1.4.2-1-aarch64",
+    "libunwind-1.8.3-1-aarch64",
+    "libusb-1.0.30-1-aarch64",
+    "libuv-1.52.1-2-aarch64",
+    "libverto-0.3.2-6-aarch64",
+    "libwacom-2.20.0-1-aarch64",
+    "libwebp-1.6.0-2-aarch64",
+    "libwireplumber-0.5.18-1-aarch64",
+    "libx11-1.8.13-2-aarch64",
+    "libxau-1.0.12-1-aarch64",
+    "libxcb-1.17.0-1-aarch64",
+    "libxcomposite-0.4.7-1-aarch64",
+    "libxcrypt-4.5.2-1-aarch64",
+    "libxcursor-1.2.3-1-aarch64",
+    "libxcvt-0.1.3-1-aarch64",
+    "libxdamage-1.1.7-1-aarch64",
+    "libxdmcp-1.1.5-2-aarch64",
+    "libxext-1.3.7-1-aarch64",
+    "libxfixes-6.0.2-1-aarch64",
+    "libxfont2-2.0.9-1-aarch64",
+    "libxft-2.3.9-1-aarch64",
+    "libxi-1.8.3-1-aarch64",
+    "libxinerama-1.1.6-1-aarch64",
+    "libxkbcommon-1.13.2-1-aarch64",
+    "libxkbcommon-x11-1.13.2-1-aarch64",
+    "libxkbfile-1.2.0-1-aarch64",
+    "libxml2-2.15.4-1-aarch64",
+    "libxrandr-1.5.5-1-aarch64",
+    "libxrender-0.9.12-1-aarch64",
+    "libxshmfence-1.3.3-1-aarch64",
+    "libxtst-1.2.5-1-aarch64",
+    "libxxf86vm-1.1.7-1-aarch64",
+    "libzip-1.11.4-1-aarch64",
+    "licenses-20240728-1-any",
+    "linux-aarch64-7.2.10-1-aarch64",
+    "linux-api-headers-7.2-1-aarch64",
+    "linux-firmware-20260916-1-any",
+    "linux-firmware-amd-20260916-1-any",
+    "linux-firmware-amdgpu-20260916-1-any",
+    "linux-firmware-atheros-20260916-1-any",
+    "linux-firmware-broadcom-20260916-1-any",
+    "linux-firmware-cirrus-20260916-1-any",
+    "linux-firmware-intel-20260916-1-any",
+    "linux-firmware-mediatek-20260916-1-any",
+    "linux-firmware-nvidia-20260916-1-any",
+    "linux-firmware-other-20260916-1-any",
+    "linux-firmware-radeon-20260916-1-any",
+    "linux-firmware-realtek-20260916-1-any",
+    "linux-firmware-ti-20260916-1-any",
+    "linux-firmware-whence-20260916-1-any",
+    "llvm-libs-23.1.1-1-aarch64",
+    "lm_sensors-1:3.6.2-1-aarch64",
+    "lmdb-0.9.35-1-aarch64",
+    "lua-5.5.1-1-aarch64",
+    "lua54-5.4.9-1-aarch64",
+    "lz4-1:1.10.0-2-aarch64",
+    "lzo-2.10-5-aarch64",
+    "m4-1.4.21-2-aarch64",
+    "make-4.4.1-3-aarch64",
+    "mesa-1:26.2.4-1-aarch64",
+    "meson-1.12.1-2-any",
+    "mkinitcpio-42.2-1-any",
+    "mkinitcpio-busybox-1.36.1-1-aarch64",
+    "mpdecimal-4.0.1-3-aarch64",
+    "mpfr-4.2.2-1-aarch64",
+    "mtdev-1.1.7-1-aarch64",
+    "muparser-2.3.5-2-aarch64",
+    "nano-9.2-1-aarch64",
+    "ncurses-6.6-2-aarch64",
+    "net-tools-2.10-3-aarch64",
+    "netctl-1.29-2-any",
+    "nettle-4.0-1-aarch64",
+    "nftables-1:1.1.7-3-aarch64",
+    "ninja-1.13.2-3-aarch64",
+    "npth-1.8-1-aarch64",
+    "openssh-10.6p1-1-aarch64",
+    "openssl-3.6.5-1-aarch64",
+    "p11-kit-0.26.5-1-aarch64",
+    "pacman-7.1.0.r9.g54d9411-2-aarch64",
+    "pacman-mirrorlist-20260411-2-any",
+    "pam-1.7.3-1-aarch64",
+    "pambase-20260616-1-any",
+    "pango-1:1.58.2-1-aarch64",
+    "patch-2.8-1-aarch64",
+    "pciutils-3.15.0-1-aarch64",
+    "pcre2-10.49-1-aarch64",
+    "perl-5.42.3-1-aarch64",
+    "pinentry-1.3.3-1-aarch64",
+    "pipewire-1:1.6.9-1-aarch64",
+    "pixman-0.46.4-1.1-aarch64",
+    "pkgconf-3.0.7-1-aarch64",
+    "popt-1.19-2-aarch64",
+    "procps-ng-4.0.7-1-aarch64",
+    "psmisc-23.7-2-aarch64",
+    "pugixml-1.16-1-aarch64",
+    "python-3.14.8-1-aarch64",
+    "python-tqdm-4.70.1-1-any",
+    "re2-2:2025.11.05-6-aarch64",
+    "readline-8.3.6-1-aarch64",
+    "rhash-1.4.6-1-aarch64",
+    "seatd-0.9.3-1-aarch64",
+    "sed-4.10-2-aarch64",
+    "shadow-4.20.0.arch1-1-aarch64",
+    "shared-mime-info-2.5.1-2-aarch64",
+    "source-highlight-3.1.9-19-aarch64",
+    "spirv-tools-1:1.4.363.0-1-aarch64",
+    "sqlite-3.53.4-1-aarch64",
+    "sudo-1.9.17.p2-6-aarch64",
+    "swaylock-1.8.6-1-aarch64",
+    "systemd-262-1-aarch64",
+    "systemd-libs-262-1-aarch64",
+    "systemd-resolvconf-262-1-aarch64",
+    "systemd-sysvcompat-262-1-aarch64",
+    "tar-1.35-5-aarch64",
+    "texinfo-7.3-1-aarch64",
+    "tinysparql-3.12.0-1-aarch64",
+    "tomlplusplus-3.4.0-1-aarch64",
+    "tpm2-tss-4.2.0-2-aarch64",
+    "tzdata-2026e-1-aarch64",
+    "util-linux-2.42.4-1-aarch64",
+    "util-linux-libs-2.42.4-1-aarch64",
+    "vim-9.2.1178-1-aarch64",
+    "vim-runtime-9.2.1178-1-aarch64",
+    "wayland-1.26.0-1-aarch64",
+    "wayland-protocols-1.49-1-any",
+    "which-2.25-1-aarch64",
+    "wireplumber-0.5.18-1-aarch64",
+    "wofi-1.5.3-1-aarch64",
+    "xcb-proto-1.17.0-4-any",
+    "xcb-util-0.4.1-2-aarch64",
+    "xcb-util-errors-1.0.1-2-aarch64",
+    "xcb-util-image-0.4.1-3-aarch64",
+    "xcb-util-keysyms-0.4.1-5-aarch64",
+    "xcb-util-renderutil-0.3.10-2-aarch64",
+    "xcb-util-wm-0.4.2-2-aarch64",
+    "xkeyboard-config-2.48-1-any",
+    "xorg-fonts-encodings-1.1.0-2-any",
+    "xorg-server-common-21.1.25-1-aarch64",
+    "xorg-setxkbmap-1.3.5-1-aarch64",
+    "xorg-xkbcomp-1.5.0-1-aarch64",
+    "xorg-xprop-1.2.8-1-aarch64",
+    "xorg-xwayland-24.1.14-1-aarch64",
+    "xorgproto-2026.1-1-any",
+    "xxhash-0.8.4-1-aarch64",
+    "xz-5.8.4-1-aarch64",
+    "zlib-1:1.3.2-3-aarch64",
+    "zsh-5.9.2-1-aarch64",
+    "zstd-1.5.7-3-aarch64"
+  ],
+  "bundle": {
+    "bytes": 225280,
+    "files": {
+      "docs/benchmarks/measurement-tools-package.md": {
+        "bytes": 3538,
+        "mode": 420,
+        "sha256": "1ae321c4caea812fc6f8e089bebbffa0450c4e01eadb596493517a8b1eebed00"
+      },
+      "manifests/measurement-tools-package-row.toml": {
+        "bytes": 1122,
+        "mode": 420,
+        "sha256": "75b4518b0fcbdefeb09a8a9b0cf9e39e5fa4ea12df3143c2711a3cc2bede533a"
+      },
+      "manifests/measurement-tools-source-20261028.json": {
+        "bytes": 5941,
+        "mode": 420,
+        "sha256": "24692e6754b466c9172343c80883733fe14b240b18d15b87b109aed397c14ec0"
+      },
+      "packages/tools/cachy-asahi-measurement-tools/.SRCINFO": {
+        "bytes": 2077,
+        "mode": 420,
+        "sha256": "cae75d5d9dc19723040dc77425cd8e94297a046b4bc58bb8cf8b08023da2fffa"
+      },
+      "packages/tools/cachy-asahi-measurement-tools/LICENSE": {
+        "bytes": 1081,
+        "mode": 420,
+        "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+      },
+      "packages/tools/cachy-asahi-measurement-tools/NOTICE": {
+        "bytes": 690,
+        "mode": 420,
+        "sha256": "993cde3f1cd8094d28c9bccbe3b2c6b39f155976c906a4ea9b6e42375cbc9285"
+      },
+      "packages/tools/cachy-asahi-measurement-tools/PKGBUILD": {
+        "bytes": 2434,
+        "mode": 420,
+        "sha256": "b48a454c1a393982ddb519e5838298dc839ebcf7df96c6816adcce314be5a75e"
+      },
+      "packages/tools/cachy-asahi-measurement-tools/README.md": {
+        "bytes": 6697,
+        "mode": 420,
+        "sha256": "3870a5c9b164fed3bab99ec11dd3c073391ddb2d1b879cfd37942a2e2d6a2fb8"
+      },
+      "packages/tools/cachy-asahi-measurement-tools/assemble.py": {
+        "bytes": 1942,
+        "mode": 420,
+        "sha256": "3ad1a329e7cf2b2f47b50515fb9d7b5ac2c4a547021f404082dca54d609df555"
+      },
+      "packages/tools/cachy-asahi-measurement-tools/benchmark.py": {
+        "bytes": 50739,
+        "mode": 420,
+        "sha256": "3783f5e6f6a44bc177fd31254d044d5fb31832e232306a358d8cfb497a62b3cc"
+      },
+      "packages/tools/cachy-asahi-measurement-tools/benchmark_platform_metrics.py": {
+        "bytes": 16254,
+        "mode": 420,
+        "sha256": "863442bfeb274b7dcfec540c33fd4632498e58a5672a3b466aca6bc6fc46b9bd"
+      },
+      "packages/tools/cachy-asahi-measurement-tools/cachy-asahi-measurement-tools": {
+        "bytes": 3031,
+        "mode": 493,
+        "sha256": "d599f8f1ac277c1d19ba40aa45d8133d2f7ce28c873a46aea829c82da21d895c"
+      },
+      "packages/tools/cachy-asahi-measurement-tools/conditions.example.json": {
+        "bytes": 520,
+        "mode": 420,
+        "sha256": "bcc89dc73d4aec57ca57eca1bd5cbef58cf2639f8b330dced9933fbbe69ff758"
+      },
+      "packages/tools/cachy-asahi-measurement-tools/experiment.example.json": {
+        "bytes": 1801,
+        "mode": 420,
+        "sha256": "c7f90a9b0ab1c6a877653a17b44025160d7e9beb7065f48084bce9e3c065cecf"
+      },
+      "packages/tools/cachy-asahi-measurement-tools/owned_process.py": {
+        "bytes": 25140,
+        "mode": 420,
+        "sha256": "83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f"
+      },
+      "packages/tools/cachy-asahi-measurement-tools/payload-map.json": {
+        "bytes": 3293,
+        "mode": 420,
+        "sha256": "1747f8bbdd3d0a2ca411967501776c8232913be1223c74f6d390bd954c58e81d"
+      },
+      "packages/tools/cachy-asahi-measurement-tools/platform_metrics.py": {
+        "bytes": 26497,
+        "mode": 420,
+        "sha256": "bf3d80c3e5a7d8e8a67c393e2cabf19c2a45945fd023628bdb5dcb5b03b2b4f2"
+      },
+      "packages/tools/cachy-asahi-measurement-tools/process_group_memory.py": {
+        "bytes": 7097,
+        "mode": 420,
+        "sha256": "15d8e0f998f01e4f0a85122421ae76538eb05a0a2ab422e346674b8138ba2037"
+      },
+      "packages/tools/cachy-asahi-measurement-tools/smoke_workload.py": {
+        "bytes": 489,
+        "mode": 420,
+        "sha256": "7f4dd277dd618d568c1df327b4f520bab26e7abfd33a91a8178da2c513cfd1cb"
+      },
+      "packages/tools/cachy-asahi-measurement-tools/source-provenance.json": {
+        "bytes": 2328,
+        "mode": 420,
+        "sha256": "7c9de95405e819c0a2e693c7eb29eca3a1187e6e7c2d6ce26effad212cf50a5b"
+      },
+      "packages/tools/cachy-asahi-measurement-tools/test_package.py": {
+        "bytes": 14021,
+        "mode": 420,
+        "sha256": "e176512445f0984968a5d98160333957402133be82415d0abeac5c78c9dfec2f"
+      },
+      "scripts/checks/check_measurement_tools_v1.py": {
+        "bytes": 1817,
+        "mode": 420,
+        "sha256": "d09132b921d2eab383cbfda526d40a45c92a4fde6e7111af1f73fed9426be598"
+      },
+      "scripts/checks/measurement_tools_package_checks_original_v1.py": {
+        "bytes": 17706,
+        "mode": 420,
+        "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
+      },
+      "scripts/release/measurement_tools_source_delivery_v1.py": {
+        "bytes": 4633,
+        "mode": 420,
+        "sha256": "f512ba4c1c2b22fb91daeea57ad40811fc62edcc7988d8f12b0fd2d4a2f400ae"
+      },
+      "scripts/release/test_measurement_tools_source_delivery_v1.py": {
+        "bytes": 3604,
+        "mode": 420,
+        "sha256": "ae564bee17e0d7bb408f05761bb3ef6c92d03c48983ffc0935fdb1b4d2508de2"
+      }
+    },
+    "max_bytes": 1048576,
+    "members": 25,
+    "mode": 420,
+    "path": "native/measurement-sources-v1.tar",
+    "sha256": "1e4b00d0904677b8e194913dd2ef2bedb7d58519dabde601fd76a17998f9709b"
+  },
+  "candidate_commit": "bef0d293b8510b1fd82e3f4448bd3ced956293c3",
+  "candidate_original_base": "852d1b7324e4ad840fa94ea7c9fc994b1aa07280",
+  "candidate_profile": {
+    "bytes": 5941,
+    "mode": 420,
+    "sha256": "24692e6754b466c9172343c80883733fe14b240b18d15b87b109aed397c14ec0"
+  },
+  "dependencies": {
+    "bubblewrap": "0.13.0-1",
+    "fakeroot": "1:1.37.2-3",
+    "glibc": "2.43+r22+g8362e8ce10b2-2",
+    "gnupg": "2.4.9-3",
+    "pacman": "7.1.0.r9.g54d9411-2",
+    "python": "3.14.8-1",
+    "util-linux": "2.42.4-1",
+    "zstd": "1.5.7-3"
+  },
+  "expected349": {
+    "bytes": 6800,
+    "count": 349,
+    "sha256": "579981195b654d8cdf142e4101dfc2bfffbc3576eed50f23796a06e90cf57453"
+  },
+  "failure_retention": "IMAGE_RESULT_AND_ORIGINAL_LOGS_RETAINED_BEFORE_CONSUMER_STATUS_GUARD; NO_NATIVE_CREDIT_FROM_CARRIER_IMAGE_EXIT",
+  "genuine_parent": "111f14d2b21b220d86912d5ead978848c7ef1cb0",
+  "group_admission": "NOT_ADMITTED",
+  "invocation": {
+    "inventory_counts": [
+      349,
+      350,
+      349
+    ],
+    "payload_counts": [
+      14,
+      0
+    ],
+    "signature_policy": "Required/Required",
+    "source": "/opt/native-measurement-tools-alpm-v1/source",
+    "store": "/opt/native-measurement-tools-alpm-v1/evidence",
+    "trust": "ONLY_EXPLICIT_EPHEMERAL_TEST_PUBLIC_PRIMARY"
+  },
+  "makepkg_config": {
+    "bytes": 316,
+    "checks": "REQUIRED_ENABLED",
+    "mode": 420,
+    "path": "native/measurement-makepkg-v1.conf",
+    "sha256": "8cdd968870a2a92d7006739e96dedefa14e51c40d62cfc15831f234a767a1421"
+  },
+  "namespace_support": "UNKNOWN_UNTIL_ORIGINAL_NATIVE_CHECKS",
+  "native": "NOT_RUN",
+  "native_16K": "NOT_QUALIFIED",
+  "operation": "measurement-tools-alpm-v1",
+  "original_workflow": {
+    "bytes": 29699,
+    "path": "scripts/workflows/developer_workflow.py",
+    "sha256": "531c124cde3fa41d46888acfc638c823196bb2f297b19ab68ab3d001b05f16ba"
+  },
+  "parent_tree": "f45820b0ef37b48f50bbc361a22f53b5dd309506",
+  "performance": "NOT_MEASURED",
+  "physical_M2": "NOT_RUN",
+  "recipe": {
+    "archive": "cachy-asahi-measurement-tools-0.1.0-1-any.pkg.tar.zst",
+    "check_dependencies": [
+      "bubblewrap"
+    ],
+    "expected_test_counts": [
+      8
+    ],
+    "name": "cachy-asahi-measurement-tools",
+    "payload_files": {
+      "usr/bin/cachy-asahi-measurement-tools": {
+        "bytes": 3031,
+        "mode": 493,
+        "sha256": "d599f8f1ac277c1d19ba40aa45d8133d2f7ce28c873a46aea829c82da21d895c"
+      },
+      "usr/lib/cachy-asahi/measurement-tools-v1/scripts/benchmarks/benchmark.py": {
+        "bytes": 50739,
+        "mode": 420,
+        "sha256": "3783f5e6f6a44bc177fd31254d044d5fb31832e232306a358d8cfb497a62b3cc"
+      },
+      "usr/lib/cachy-asahi/measurement-tools-v1/scripts/benchmarks/benchmark_platform_metrics.py": {
+        "bytes": 16254,
+        "mode": 420,
+        "sha256": "863442bfeb274b7dcfec540c33fd4632498e58a5672a3b466aca6bc6fc46b9bd"
+      },
+      "usr/lib/cachy-asahi/measurement-tools-v1/scripts/benchmarks/platform_metrics.py": {
+        "bytes": 26497,
+        "mode": 420,
+        "sha256": "bf3d80c3e5a7d8e8a67c393e2cabf19c2a45945fd023628bdb5dcb5b03b2b4f2"
+      },
+      "usr/lib/cachy-asahi/measurement-tools-v1/scripts/benchmarks/process_group_memory.py": {
+        "bytes": 7097,
+        "mode": 420,
+        "sha256": "15d8e0f998f01e4f0a85122421ae76538eb05a0a2ab422e346674b8138ba2037"
+      },
+      "usr/lib/cachy-asahi/measurement-tools-v1/scripts/virtual/owned_process.py": {
+        "bytes": 25140,
+        "mode": 420,
+        "sha256": "83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f"
+      },
+      "usr/share/doc/cachy-asahi-measurement-tools/README.md": {
+        "bytes": 6697,
+        "mode": 420,
+        "sha256": "3870a5c9b164fed3bab99ec11dd3c073391ddb2d1b879cfd37942a2e2d6a2fb8"
+      },
+      "usr/share/doc/cachy-asahi-measurement-tools/conditions.example.json": {
+        "bytes": 520,
+        "mode": 420,
+        "sha256": "bcc89dc73d4aec57ca57eca1bd5cbef58cf2639f8b330dced9933fbbe69ff758"
+      },
+      "usr/share/doc/cachy-asahi-measurement-tools/experiment.example.json": {
+        "bytes": 1801,
+        "mode": 420,
+        "sha256": "c7f90a9b0ab1c6a877653a17b44025160d7e9beb7065f48084bce9e3c065cecf"
+      },
+      "usr/share/doc/cachy-asahi-measurement-tools/payload-map.json": {
+        "bytes": 3293,
+        "mode": 420,
+        "sha256": "1747f8bbdd3d0a2ca411967501776c8232913be1223c74f6d390bd954c58e81d"
+      },
+      "usr/share/doc/cachy-asahi-measurement-tools/smoke_workload.py": {
+        "bytes": 489,
+        "mode": 420,
+        "sha256": "7f4dd277dd618d568c1df327b4f520bab26e7abfd33a91a8178da2c513cfd1cb"
+      },
+      "usr/share/doc/cachy-asahi-measurement-tools/source-provenance.json": {
+        "bytes": 2328,
+        "mode": 420,
+        "sha256": "7c9de95405e819c0a2e693c7eb29eca3a1187e6e7c2d6ce26effad212cf50a5b"
+      },
+      "usr/share/licenses/cachy-asahi-measurement-tools/LICENSE": {
+        "bytes": 1081,
+        "mode": 420,
+        "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+      },
+      "usr/share/licenses/cachy-asahi-measurement-tools/NOTICE": {
+        "bytes": 690,
+        "mode": 420,
+        "sha256": "993cde3f1cd8094d28c9bccbe3b2c6b39f155976c906a4ea9b6e42375cbc9285"
+      }
+    },
+    "runtime_dependencies": [
+      "python>=3.12"
+    ],
+    "source_files": {
+      ".SRCINFO": {
+        "bytes": 2077,
+        "mode": 420,
+        "sha256": "cae75d5d9dc19723040dc77425cd8e94297a046b4bc58bb8cf8b08023da2fffa"
+      },
+      "LICENSE": {
+        "bytes": 1081,
+        "mode": 420,
+        "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+      },
+      "NOTICE": {
+        "bytes": 690,
+        "mode": 420,
+        "sha256": "993cde3f1cd8094d28c9bccbe3b2c6b39f155976c906a4ea9b6e42375cbc9285"
+      },
+      "PKGBUILD": {
+        "bytes": 2434,
+        "mode": 420,
+        "sha256": "b48a454c1a393982ddb519e5838298dc839ebcf7df96c6816adcce314be5a75e"
+      },
+      "README.md": {
+        "bytes": 6697,
+        "mode": 420,
+        "sha256": "3870a5c9b164fed3bab99ec11dd3c073391ddb2d1b879cfd37942a2e2d6a2fb8"
+      },
+      "assemble.py": {
+        "bytes": 1942,
+        "mode": 420,
+        "sha256": "3ad1a329e7cf2b2f47b50515fb9d7b5ac2c4a547021f404082dca54d609df555"
+      },
+      "benchmark.py": {
+        "bytes": 50739,
+        "mode": 420,
+        "sha256": "3783f5e6f6a44bc177fd31254d044d5fb31832e232306a358d8cfb497a62b3cc"
+      },
+      "benchmark_platform_metrics.py": {
+        "bytes": 16254,
+        "mode": 420,
+        "sha256": "863442bfeb274b7dcfec540c33fd4632498e58a5672a3b466aca6bc6fc46b9bd"
+      },
+      "cachy-asahi-measurement-tools": {
+        "bytes": 3031,
+        "mode": 493,
+        "sha256": "d599f8f1ac277c1d19ba40aa45d8133d2f7ce28c873a46aea829c82da21d895c"
+      },
+      "conditions.example.json": {
+        "bytes": 520,
+        "mode": 420,
+        "sha256": "bcc89dc73d4aec57ca57eca1bd5cbef58cf2639f8b330dced9933fbbe69ff758"
+      },
+      "experiment.example.json": {
+        "bytes": 1801,
+        "mode": 420,
+        "sha256": "c7f90a9b0ab1c6a877653a17b44025160d7e9beb7065f48084bce9e3c065cecf"
+      },
+      "owned_process.py": {
+        "bytes": 25140,
+        "mode": 420,
+        "sha256": "83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f"
+      },
+      "payload-map.json": {
+        "bytes": 3293,
+        "mode": 420,
+        "sha256": "1747f8bbdd3d0a2ca411967501776c8232913be1223c74f6d390bd954c58e81d"
+      },
+      "platform_metrics.py": {
+        "bytes": 26497,
+        "mode": 420,
+        "sha256": "bf3d80c3e5a7d8e8a67c393e2cabf19c2a45945fd023628bdb5dcb5b03b2b4f2"
+      },
+      "process_group_memory.py": {
+        "bytes": 7097,
+        "mode": 420,
+        "sha256": "15d8e0f998f01e4f0a85122421ae76538eb05a0a2ab422e346674b8138ba2037"
+      },
+      "smoke_workload.py": {
+        "bytes": 489,
+        "mode": 420,
+        "sha256": "7f4dd277dd618d568c1df327b4f520bab26e7abfd33a91a8178da2c513cfd1cb"
+      },
+      "source-provenance.json": {
+        "bytes": 2328,
+        "mode": 420,
+        "sha256": "7c9de95405e819c0a2e693c7eb29eca3a1187e6e7c2d6ce26effad212cf50a5b"
+      },
+      "test_package.py": {
+        "bytes": 14021,
+        "mode": 420,
+        "sha256": "e176512445f0984968a5d98160333957402133be82415d0abeac5c78c9dfec2f"
+      }
+    },
+    "version": "0.1.0-1"
+  },
+  "release": "NOT_ADMITTED",
+  "schema": 1
+}

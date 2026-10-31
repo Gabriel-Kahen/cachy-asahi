@@ -15,14 +15,14 @@
   "consumer_basis182_source": "5b2016cc842970952c03cc2cc068a9cfbea5812c",
   "files": {
     ".github/workflows/native-arm-build.yml": {
-      "bytes": 12819,
+      "bytes": 13057,
       "mode": 420,
-      "sha256": "ac04dd166d8a71de0f00f84a1a0f4a22b03a65087e144c240881a225be30ba9d"
+      "sha256": "763812dc149234f6213f19d6a031ef32c92297bc2831ff51d8b6bd6e49fc68a8"
     },
     ".github/workflows/native-arm-developer-workflows.yml": {
-      "bytes": 12819,
+      "bytes": 13057,
       "mode": 420,
-      "sha256": "ac04dd166d8a71de0f00f84a1a0f4a22b03a65087e144c240881a225be30ba9d"
+      "sha256": "763812dc149234f6213f19d6a031ef32c92297bc2831ff51d8b6bd6e49fc68a8"
     },
     "bootstrap/.github/workflows/native-arm-build.yml": {
       "bytes": 16219,
@@ -295,9 +295,9 @@
       "sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f"
     },
     "bootstrap/scripts/ci/native_arm.py": {
-      "bytes": 28318,
+      "bytes": 28877,
       "mode": 420,
-      "sha256": "a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898"
+      "sha256": "8e71ba83e7d5037c6f7772401ec3b872684ccfa8472d855d8d6d3052cb1f41ba"
     },
     "bootstrap/scripts/ci/offline-source-builder-native/bootstrap-owner-basis.py": {
       "bytes": 29788,
@@ -597,7 +597,7 @@
     "native/failure_retention.py": {
       "bytes": 13639,
       "mode": 420,
-      "sha256": "20f9f6fb153d3be98e41c343e63f5994aa3708ccbd4299e1f551a38b697ffbe3"
+      "sha256": "cdb50b755f3e76d0229278bb89476752702544f3c31947e74676c82b213a8dc7"
     },
     "native/guest.py": {
       "bytes": 4783,
@@ -615,9 +615,49 @@
       "sha256": "2c42c705654d31e639f389f9a868dada0d9df76813d865e766be7b7c08f8404c"
     },
     "native/invocation.json": {
-      "bytes": 999,
+      "bytes": 1656,
       "mode": 420,
-      "sha256": "5b216c7568900c4b128702350a894a04478b0453f66a5d9ce35b3de67a0802ba"
+      "sha256": "2b9acc8c575dad6b1cb70ad0bd854d7306f728af6b42ab16f6edb6e51ab7c876"
+    },
+    "native/measurement-contract-v1.json": {
+      "bytes": 26153,
+      "mode": 420,
+      "sha256": "e1b8985635822cf02f11bddbd7afb157352c19e5f6e4945adf92c8a5e3c04913"
+    },
+    "native/measurement-makepkg-v1.conf": {
+      "bytes": 316,
+      "mode": 420,
+      "sha256": "8cdd968870a2a92d7006739e96dedefa14e51c40d62cfc15831f234a767a1421"
+    },
+    "native/measurement-sources-v1.tar": {
+      "bytes": 225280,
+      "mode": 420,
+      "sha256": "1e4b00d0904677b8e194913dd2ef2bedb7d58519dabde601fd76a17998f9709b"
+    },
+    "native/measurement_alpm_v1.py": {
+      "bytes": 26294,
+      "mode": 420,
+      "sha256": "7d92b1f4969f4dc83a7aae8dd91cc2adeefaefa10c230dbe5c2a82ba282381aa"
+    },
+    "native/measurement_guest_v1.py": {
+      "bytes": 3099,
+      "mode": 420,
+      "sha256": "8c0495a6956a4793436f8127a8960c605904198521a7a556497724bf3c1a1572"
+    },
+    "native/measurement_projection_v1.py": {
+      "bytes": 14161,
+      "mode": 420,
+      "sha256": "fd9c75e2202687116773c107c9e02f8eb4f9b0922ffac979443059b13c3c4106"
+    },
+    "native/measurement_reader_v1.py": {
+      "bytes": 50059,
+      "mode": 420,
+      "sha256": "24aae711a58e12fa41c9bd06268ce819d253964104a56466fff535e699682f6f"
+    },
+    "native/measurement_tools_v1.py": {
+      "bytes": 22043,
+      "mode": 420,
+      "sha256": "b4ede5c6832c80e22a6e69f99f02162d467c2b31bb35bddac4fbcfd35600cb8e"
     },
     "native/original341.lock": {
       "bytes": 6674,
@@ -625,9 +665,9 @@
       "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
     },
     "native/owner.py": {
-      "bytes": 26041,
+      "bytes": 26999,
       "mode": 420,
-      "sha256": "0c2c520b08c61394f0089dd2a661309ce2992d7f86e36dc394afc69087e2a04e"
+      "sha256": "6dddb1e8985fb6a52ab1550b5c7c65b0a8930c74c5f32a3d0c44b0df0bff5f30"
     },
     "native/predecessor-source-map.json": {
       "bytes": 27440,
@@ -967,6 +1007,9 @@
   },
   "image_basis180_map_sha256": "cceed4d8b72e9e73a5cb433c2c4643f5e85a0490dacd5b226514e2961aaba458",
   "image_basis180_source": "a434716cbf53085e6380e06939be6a38dd5412fc",
+  "measurement_candidate_commit": "bef0d293b8510b1fd82e3f4448bd3ced956293c3",
+  "measurement_profile_sha256": "24692e6754b466c9172343c80883733fe14b240b18d15b87b109aed397c14ec0",
+  "measurement_scope": "FINITE_UNRUN_NATIVE_PACKAGE_COMPONENT_ONLY",
   "schema": 1,
   "transport_basis177_map_sha256": "99d676438a247749b3e1c564943d8735452a1ebd92ec91dd78ee37817e77f36d",
   "transport_basis187_map_sha256": "b295500787e25eeb77ac16e84fb786d3d6c1e9f02f7a9ddb83d950bbe9d75c90",

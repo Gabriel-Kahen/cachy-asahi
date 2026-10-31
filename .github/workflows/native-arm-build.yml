@@ -1,4 +1,4 @@
-name: native-arm-developer-workflows
+name: native-arm-measurement-tools
 on:
   workflow_dispatch:
     inputs:
@@ -8,11 +8,17 @@ on:
       source_map_sha256:
         type: string
         required: true
+      operation:
+        type: choice
+        required: true
+        default: measurement-tools-alpm-v1
+        options: [measurement-tools-alpm-v1]
 permissions:
   contents: read
 concurrency:
-  group: native-arm-developer-workflows
+  group: native-arm-measurement-tools
   cancel-in-progress: false
+  queue: max
 jobs:
   native:
     if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
@@ -25,6 +31,7 @@ jobs:
       PYTHONDONTWRITEBYTECODE: '1'
       SOURCE_SHA: ${{ inputs.source_sha }}
       SOURCE_MAP_SHA256: ${{ inputs.source_map_sha256 }}
+      NATIVE_OPERATION: ${{ inputs.operation }}
       INPUTS_SHA256: beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f
     steps:
       - name: Checkout the exact closed source
@@ -167,7 +174,7 @@ jobs:
             RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" ImageVersion="${ImageVersion:-}" ImageOS="${ImageOS:-}" \
             python3 -I -B native/owner.py \
               --source-sha "$SOURCE_SHA" --ref "$GITHUB_REF" --run-id "$GITHUB_RUN_ID" --map-sha256 "$SOURCE_MAP_SHA256" \
-              --work "$RUNNER_TEMP/native-developer-work" --cache "$RUNNER_TEMP/alarm-cache" --carrier "$RUNNER_TEMP/pgo-hosted-retained" --execute
+              --work "$RUNNER_TEMP/native-developer-work" --cache "$RUNNER_TEMP/alarm-cache" --carrier "$RUNNER_TEMP/pgo-hosted-retained" --execute --operation "$NATIVE_OPERATION"
       - name: Retain bounded original DATA or native evidence capsule
         if: always() && steps.proof.outcome == 'success'
         timeout-minutes: 3

@@ -4,6 +4,13 @@
     "run": null,
     "source": null
   },
+  "actual_reader_binding": {
+    "capsule_sha256": null,
+    "map_sha256": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
   "argv": [
     "/usr/bin/python3",
     "-I",
@@ -25,6 +32,23 @@
     "--carrier",
     "$RUNNER_TEMP/pgo-hosted-retained"
   ],
+  "group_admission": "NOT_ADMITTED",
+  "operations": {
+    "default": "measurement-tools-alpm-v1",
+    "measurement-tools-alpm-v1": {
+      "actual": {
+        "ref": null,
+        "run": null,
+        "source": null
+      },
+      "argv_extra": [
+        "--operation",
+        "measurement-tools-alpm-v1"
+      ],
+      "matching_reader": "native/measurement_reader_v1.py",
+      "prerequisite": "ROOT_GROUP_RESOURCE_ADMISSION_AND_ACTUAL_SOURCE_BINDING_REQUIRED; NAMESPACE_SUPPORT_UNKNOWN"
+    }
+  },
   "provisioning": "PROOF_PRIVATE22_PUBLIC14_ORIGINAL1154_FIXED16_COPY_THEN_OWNER",
   "publication": "ROOT_MUST_BIND_SOURCE_REF_RUN_AND_WHOLE_MAP_BEFORE_EXECUTION",
   "retention": {
@@ -34,7 +58,7 @@
       "/usr/bin/python3",
       "-I",
       "-B",
-      "native/reader.py",
+      "native/measurement_reader_v1.py",
       "--capsule",
       "ROOT_AUTHENTICATED_PUBLIC_TREE_TAR",
       "--binding",
