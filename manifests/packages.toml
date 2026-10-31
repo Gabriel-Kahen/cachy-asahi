@@ -1105,6 +1105,31 @@ installation = "NOT RUN; ordinary-user archive extraction/private relocation/fil
 hardware_validation = "NOT RUN"
 performance = "NOT MEASURED"
 next_step = "Coordinator adoption, versioned finite native constructor, clean native ARM pair and signed disposable ALPM lifecycle. Native16K, selected Asahi/M2/bootability/production trust/release remain unaccepted."
+
+# Coordinator-owned proposal; no shared manifest was edited.
+[[packages]]
+name = "cachy-asahi-desktop-tools"
+phase = "desktop-workflows"
+status = "candidate"
+source = "local-original-pinned-MIT-static-checker"
+recipe = "packages/tools/cachy-asahi-desktop-tools/PKGBUILD"
+license = "MIT"
+candidate_version = "0.1.0-1"
+selected_for_development = false
+selected_for_release = false
+source_archive_sha256 = "69d8c7bb3a13086d4b3ae5a46fa79db14ef4a034912bacb9f185ccc4d54b0ba4"
+source_archive_bytes = 29282
+host_validation = "Original PASS81 unchanged54+package27 and host makepkg exact6-file archive/offline moved CLI/file inverse; new PASS20 semantic source controls on Python3.12/3.14; cross-backend gzip transport equality is not required"
+host_package_sha256 = "6e934317ad828898ace72b059bd3f5fcd0c5e83c9065f2588f8969c538a360bb"
+host_package_bytes = 28433
+native_build = "NOT RUN"
+installation = "NOT RUN; original private archive extraction and file inverse only, not ALPM"
+native_generic16k = "NOT RUN"
+GUI = "NOT RUN; static command activates no desktop entries"
+hardware_validation = "NOT RUN"
+performance = "NOT MEASURED"
+release = "NOT ADMITTED"
+next_step = "Merge completed development into main; qualify separate native ARM pairs and TEST Required disposable ALPM lifecycle, then selected Asahi/M2 composition."
 # Proposal only: Root owns canonical manifests/packages.toml and selection.
 [[packages]]
 name = "cachy-asahi-measurement-tools"
