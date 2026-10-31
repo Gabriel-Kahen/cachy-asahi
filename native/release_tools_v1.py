@@ -61,10 +61,12 @@ def source_policy(root):
     need(policy['bundle']['path']=='native/release-sources-v1.tar' and policy['bundle']['members']==37
          and policy['bundle']['bytes']<=policy['bundle']['max_bytes']<=1024**2,'finite source bundle')
     retirement=policy['retirement_profile']
-    need(set(retirement)=={'name','path','bytes','sha256','group_census'}
+    need(set(retirement)=={'name','path','bytes','sha256','group_census','caller'}
          and retirement['name']=='reserved-terminal-v2'
          and retirement['path']=='scripts/virtual/owned_process_retirement_v2.py'
          and retirement['group_census']=='RESERVED_LEADER_ONLY'
+         and retirement['caller']=='BUNDLED_FIXED_RETIREMENT_COMMANDS'
+         and policy['original_workflow']=={k:retirement[k]for k in ('path','bytes','sha256')}
          and data_pin(ordinary(root/retirement['path']))=={k:retirement[k] for k in ('bytes','sha256')},
          'exact versioned pre-reap retirement profile required')
     base=ordinary(root/'native/expected349.lock')
@@ -110,7 +112,7 @@ def extract_recipes(root,destination,policy):
 
 def load_workflow(root,policy):
     row=policy['original_workflow'];path=Path(root)/row['path'];raw=ordinary(path)
-    need(data_pin(raw)=={k:row[k] for k in ('bytes','sha256')},'genuine187 owned Commands bytes')
+    need(data_pin(raw)=={k:row[k] for k in ('bytes','sha256')},'exact reviewed retirement core/caller bundle bytes')
     spec=importlib.util.spec_from_file_location('_release_owned_workflow_v1',path);module=importlib.util.module_from_spec(spec)
     exec(compile(raw,str(path),'exec'),module.__dict__);return module
 

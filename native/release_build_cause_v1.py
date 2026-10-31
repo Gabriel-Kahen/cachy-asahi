@@ -18,6 +18,7 @@ SCOPE=PREFIX/'evidence/journey/release-alpm-v1'
 CONFIG=PREFIX/'source/native/release-makepkg-v1.conf'
 OPERATION='release-alpm-upgrade-v1'
 UNKNOWN='UNKNOWN'
+ABSENCE_OUTPUT=b'gpg-connect-agent: no gpg-agent running in this session\n'
 _LOCATION=re.compile(r'https?://[^\s"<>]+|/(?:home|root)/[^\s"<>]+|/tmp/release-tools-test-[^\s"<>]+',re.I)
 _ANSI=re.compile(r'\x1b\[[0-?]*[ -/]*[@-~]')
 
@@ -47,9 +48,32 @@ def _pin(value):
          and 0<=value['bytes']<=LOG_CAP and type(value['sha256'])is str
          and re.fullmatch('[0-9a-f]{64}',value['sha256']),'bounded pin')
 
+def _group_retirement(value):
+    """Finite pre-reap DATA only; a snapshot never grants process authority."""
+    if value is None:return
+    need(type(value)is dict and set(value)=={'phase','reserved_leader','member_count','members','truncated'}
+         and value['phase']=='PRE_REAP','fixed pre-reap snapshot schema')
+    leader=value['reserved_leader']
+    need(type(leader)is dict and set(leader)=={'pid','start_ticks'}
+         and type(leader['pid'])is int and 0<leader['pid']<2**31
+         and type(leader['start_ticks'])is int and 0<=leader['start_ticks']<2**64,'bounded reserved leader DATA')
+    rows=value['members'];count=value['member_count']
+    need(type(count)is int and 0<=count<=512 and type(rows)is list and len(rows)<=min(32,count)
+         and type(value['truncated'])is bool and value['truncated']is(count>len(rows)),'bounded snapshot count/truncation')
+    seen=[]
+    for row in rows:
+        need(type(row)is dict and set(row)=={'pid','state','group','session','start_ticks'}
+             and type(row['pid'])is int and 0<row['pid']<2**31
+             and type(row['start_ticks'])is int and 0<=row['start_ticks']<2**64
+             and type(row['state'])is str and row['state']in('R','S','D','Z','T','t','X','x','K','W','P','I')
+             and type(row['group'])is int and type(row['session'])is int
+             and row['group']==row['session']==leader['pid'],'finite original group member DATA')
+        seen.append(row['pid'])
+    need(seen==sorted(set(seen)),'ordered unique bounded member DATA')
+
 def _supervision(s):
     if s is not None:
-        need(type(s)is dict and set(s)=={'exit','reaped','ownership','timeout','signals','output_complete','group_census','error','seconds','passed'},'original non-RSS supervision fields')
+        need(type(s)is dict and set(s)in({'exit','reaped','ownership','timeout','signals','output_complete','group_census','error','seconds','passed'},{'exit','reaped','ownership','timeout','signals','output_complete','group_census','error','seconds','passed','group_retirement'}),'original non-RSS supervision fields')
         need(s['exit']is None or type(s['exit'])is int and -255<=s['exit']<=255,'observed exit only')
         need(all(type(s[k])is bool for k in('reaped','timeout','output_complete','passed')),'observed booleans')
         need(s['ownership']in('OWNED','UNKNOWN','REAPED')and type(s['signals'])is list and len(s['signals'])<=8
@@ -57,6 +81,7 @@ def _supervision(s):
         need(s['group_census']in('NOT_OBSERVED','RESERVED_LEADER_ONLY','RESERVED_MEMBERS_REMAIN','UNKNOWN','PRESENT_OR_REUSED','EMPTY_ONCE','EMPTY_TWICE'),'observed census')
         need(s['error']is None or type(s['error'])is str and len(s['error'].encode())<=2048,'bounded supervisor error')
         need(type(s['seconds'])in(int,float)and math.isfinite(s['seconds'])and 0<=s['seconds']<=610,'bounded observed time')
+        if 'group_retirement'in s:_group_retirement(s['group_retirement'])
 
 def _row(row,stage):
     keys={'step','argv','cwd','expected','success','log','log_pin','supervision','channels'}
@@ -90,7 +115,7 @@ def _read_log(scope,name):
 def _absence_unknown(status=UNKNOWN):
     return dict(status=status,row_pin=None,expected=UNKNOWN,success=UNKNOWN,
         supervision=None,launch_error=None,log_pin=None,
-        output=dict(status=UNKNOWN,pin=None,suffix=None))
+        output=dict(status=UNKNOWN,pin=None,suffix=None,exact_output_match=UNKNOWN))
 
 def _absence_row(row,role):
     step='no-autostart-'+role
@@ -101,7 +126,7 @@ def _absence_row(row,role):
          and args[3:]==['--no-autostart','/bye'] and type(args[2])is str
          and re.fullmatch('/tmp/release-tools-test-[A-Za-z0-9_-]{1,64}/'+role,args[2]),'fixed owned absence command')
     need(row['step']==step and row['cwd']==str(Path(args[2]).parent)
-         and row['expected']=='nonzero' and type(row['success'])is bool
+         and type(row['expected'])is int and row['expected']==0 and type(row['success'])is bool
          and row['channels']=='stdout+stderr combined in pipe order','exact original absence command role')
     need(type(row['log'])is str and re.fullmatch(r'[0-9]{3}-'+step+r'\.log',row['log']),'fixed absence log role')
     _pin(row['log_pin']);_supervision(row['supervision'])
@@ -127,7 +152,7 @@ def _absence_checks(scope,records):
             launch=None if launch is None else dict(pin=pin(launch.encode()),text=_text(launch.encode(),256))
             result=dict(status='OBSERVED',row_pin=pin(raw),expected=row['expected'],success=row['success'],
                 supervision=projected,launch_error=launch,log_pin=dict(row['log_pin']),
-                output=dict(status=UNKNOWN,pin=None,suffix=None))
+                output=dict(status=UNKNOWN,pin=None,suffix=None,exact_output_match=UNKNOWN))
             out[role]=result
         except BaseException:out[role]=_absence_unknown('REFUSED_COMMAND');continue
         try:
@@ -135,8 +160,8 @@ def _absence_checks(scope,records):
             result['output']['pin']=pin(raw)
             if pin(raw)!=row['log_pin']:result['output']['status']='REFUSED_PIN'
             elif private(raw):result['output']['status']='REFUSED_PRIVACY'
-            else:result['output'].update(status='OBSERVED_SUFFIX',suffix=_text(raw,512))
-        except BaseException:result['output']=dict(status='UNAVAILABLE_OR_REFUSED_READ',pin=None,suffix=None)
+            else:result['output'].update(status='OBSERVED_SUFFIX',suffix=_text(raw,512),exact_output_match=raw==ABSENCE_OUTPUT)
+        except BaseException:result['output']=dict(status='UNAVAILABLE_OR_REFUSED_READ',pin=None,suffix=None,exact_output_match=UNKNOWN)
     return out
 
 def _safe_error(value):
@@ -152,7 +177,7 @@ def _validate_absence_checks(checks):
         if value['status']!='OBSERVED':
             need(value['status']in(UNKNOWN,'REFUSED_COMMAND')and value==_absence_unknown(value['status']),'unavailable absence state remains unknown');continue
         _pin(value['row_pin']);need(value['row_pin']['bytes']<=ROW_CAP,'original absence row cap');_pin(value['log_pin'])
-        need(value['expected']=='nonzero' and type(value['success'])is bool,'observed absence expectation/success only')
+        need(type(value['expected'])is int and value['expected']==0 and type(value['success'])is bool,'observed absence expectation/success only')
         state=value['supervision']
         if state is not None:
             need(type(state)is dict and 'error_pin'in state,'projected original supervision')
@@ -160,7 +185,7 @@ def _validate_absence_checks(checks):
             if state['error']is None:need(error_pin is None,'no invented error pin')
             else:_safe_error(dict(pin=error_pin,text=state['error']))
         if value['launch_error']is not None:_safe_error(value['launch_error'])
-        out=value['output'];need(type(out)is dict and set(out)=={'status','pin','suffix'},'absence output fields')
+        out=value['output'];need(type(out)is dict and set(out)=={'status','pin','suffix','exact_output_match'},'absence output fields')
         need(out['status']in(UNKNOWN,'OBSERVED_SUFFIX','REFUSED_PIN','REFUSED_PRIVACY','UNAVAILABLE_OR_REFUSED_READ'),'absence output status')
         if out['pin']is not None:_pin(out['pin'])
         if out['status']in(UNKNOWN,'UNAVAILABLE_OR_REFUSED_READ'):need(out['pin']is None,'unavailable absence log pin')
@@ -169,7 +194,11 @@ def _validate_absence_checks(checks):
         if out['status']=='OBSERVED_SUFFIX':
             text=out['suffix'];need(out['pin']==value['log_pin']and type(text)is str and len(text.encode())<=512
                 and not private(text.encode())and not _LOCATION.search(text)and _text(text.encode(),512)==text,'bounded sanitized original absence suffix')
-        else:need(out['suffix']is None,'refused absence output carries no text')
+            need(type(out['exact_output_match'])is bool,'observed full-byte absence predicate')
+            known=out['pin']==pin(ABSENCE_OUTPUT)
+            need(out['exact_output_match']is known,'absence predicate joins complete known output pin')
+            if known:need(text==ABSENCE_OUTPUT.decode(),'exact known full absence output text')
+        else:need(out['suffix']is None and out['exact_output_match']==UNKNOWN,'refused absence output carries no text or predicate')
 
 def _cleanup(report,scope=None,records=None):
     report=report if type(report)is dict else {}

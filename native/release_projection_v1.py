@@ -10,13 +10,13 @@ import capsule as C
 import privacy_diagnostics as privacy
 
 PRODUCERS = {
-    'native/release_alpm_v1.py': 'bb80791daf41586234edebbbd0b1b9081dedc72636c2bb71044735796cb1f02c',
-    'native/release_tools_v1.py': '6910ff5c4e0e63fc64f7c13f5dccc2df5528377418135c91026d7ed3bb3bfd3a',
+    'native/release_alpm_v1.py': '61cb97fc1bdc4f55e398a083b7318c9ff08895917c1066e666d8cd62b24a271f',
+    'native/release_tools_v1.py': '911c629ab4426a1379e0f89192e4e3b8e3d769d70d106bbfb3771e249b1ec536',
     'native/release_guest_v1.py': '10eb4d88baabaa0efdecbab684b5caafaa68a7cfc50b668849df99cd3d532c85',
-    'native/release-contract-v1.json': 'e42ada621d718d8c0de2d6c4f5e34a90cd9789e8773b17537b451afd0874ebb6',
-    'native/release_build_cause_v1.py': '53bb46c90c2d5aa2fc3d860f5167a5c97d04e9b05f20fa0a957019e34474295d',
-    'scripts/workflows/developer_workflow.py': '12e0f3f8dbfe9df1ce50042300427f0fed10ae315d82df0af5ffcad9873eee29',
-    'scripts/virtual/owned_process_retirement_v2.py': 'f2669a2fbff358e7fcd9a54c67066021af8f0108f5652efc41d1d4a9ecfe14e9'}
+    'native/release-contract-v1.json': '5405c8ca70d1fb054c6ade471692bf80b5ffa9e6879b992866dd4cd8260845bb',
+    'native/release_build_cause_v1.py': 'f71d04c7ba6e4d03d5a5cbd4747775da652baf4b82374f57f1cc299755a72d7c',
+    'scripts/workflows/developer_workflow.py': '531c124cde3fa41d46888acfc638c823196bb2f297b19ab68ab3d001b05f16ba',
+    'scripts/virtual/owned_process_retirement_v2.py': 'e99ab3c68d7317fce3cd84d6b4427cc808d9edcce0f5a7566d86a305ef2955f6'}
 HOST={'transport-diagnostic.json','transport-proof.json','receipt.json','cleanup.json','source-proof.json','consumer-inspect.json','consumer-after.json',
  'consumer-diagnostic.json','image-ledger.json','image-retirement.json','bootstrap-failure-retention.json','provision-diagnostic.json','build-summary.json'}
 BOOTSTRAP={phase+'-'+name for phase in ('bootstrap','overlay') for name in

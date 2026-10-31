@@ -21,6 +21,7 @@ PREFIX=T.PREFIX
 SOURCE=T.SOURCE
 STORE=T.STORE
 TEST_UID='TEST ONLY release-tools <release-tools@test.invalid>'
+ABSENCE_OUTPUT=b'gpg-connect-agent: no gpg-agent running in this session\n'
 
 
 def prepare(root,context,map_hash):
@@ -71,10 +72,12 @@ def retire_homes(run,homes,work):
         home=Path(home);okay=True
         for step,argv,expected in (
             ('retire-'+home.name,['/usr/bin/gpgconf','--homedir',str(home),'--kill','all'],0),
-            ('no-autostart-'+home.name,['/usr/bin/gpg-connect-agent','--homedir',str(home),'--no-autostart','/bye'],'nonzero')):
+            ('no-autostart-'+home.name,['/usr/bin/gpg-connect-agent','--homedir',str(home),'--no-autostart','/bye'],0)):
             try:
                 need(home.parent==work and home.name in ('signing','trust') and not home.is_symlink(),'owned GPG home')
-                run(step,argv,expected)
+                raw=run(step,argv,expected)
+                if step=='no-autostart-'+home.name:
+                    need(type(raw)is bytes and raw==ABSENCE_OUTPUT,'exact no-agent absence response required')
             except BaseException as error:okay=False;failures.append(step+':'+type(error).__name__)
         try:
             sockets=any(stat.S_ISSOCK(path.lstat().st_mode) for path in home.rglob('*'))
