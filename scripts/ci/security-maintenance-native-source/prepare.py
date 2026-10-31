@@ -12,7 +12,7 @@ import stat
 import tempfile
 
 HERE = Path(__file__).resolve().parent
-PROFILE_SHA256 = '1324d7a1972bc66768a4abfc0bf940d2f814b6f00a4ffb2f7e0d9c450fc8e5e8'
+PROFILE_SHA256 = '4e74176f2804b618c53a6ae1238fc93f132b52c45dcc71f1d359fb8542e98ad1'
 FIELDS = ('st_dev','st_ino','st_mode','st_nlink','st_uid','st_gid','st_size','st_mtime_ns','st_ctime_ns')
 MAX_FILE = 64*1024**2
 MAX_SOURCE = 64*1024**2
@@ -143,6 +143,7 @@ def profile():
     value=json.loads(raw)
     need(value['schema']==1 and value['kind']=='security-maintenance-native-source-v1'
          and value['operation']=='security-alpm-v1' and value['upgrade_protocol']=='signed-prior-to-current-v1'
+         and value['observation_protocol']=='first-real-upgrade-zero-observation-v1'
          and value['target_base']=='main' and value['parent']['source']=='b6a02f11648738ded90084f7dcdcd4ea77c194fa'
          and len(value['parent']['files'])==len(value['expected']['files'])==200
          and len(value['payload'])==3 and value['producer_overlay']==PRODUCER_AFTER
@@ -187,11 +188,12 @@ def assemble(parent,output):
     need(output.parent.stat().st_uid==os.geteuid() and stat.S_IMODE(output.parent.stat().st_mode)==0o700,'caller-owned0700 output parent')
     need(all(not output.is_relative_to(root) and not root.is_relative_to(output)for root in (parent,HERE)),'disjoint input/output')
     value,before,bodies,modes=render(parent)
-    stage=dict(status='PREPARED_SECURITY_SIGNED_UPGRADE_SOURCE_ONLY',operation=value['operation'],upgrade_protocol=value['upgrade_protocol'],
+    stage=dict(status='PREPARED_SECURITY_UPGRADE_CHECKPOINT_OBSERVATION_SOURCE_ONLY',operation=value['operation'],upgrade_protocol=value['upgrade_protocol'],
                files=200,source_map_rows=199,parent=value['parent']['source'],parent_tree=value['parent']['tree'],
                prospective_tree=value['expected']['tree'],source_map_sha256=pin(bodies['native/source-map.json'])['sha256'],
                proposed_ref=value['proposed_ref'],workflow_id=381664314,target_base='main',main_checkpoint=value['main_checkpoint'],actual=value['actual'],
-               native='NOT_RUN',GPG='NOT_RUN',ALPM_upgrade='NOT_RUN',M2='NOT_RUN',release='NOT_ADMITTED')
+               native='NOT_RUN',GPG='NOT_RUN',ALPM_upgrade='NOT_RUN',ALPM_observation='NOT_RUN',
+               ALPM_interruption='NOT_RUN',ALPM_recovery='NOT_RUN',M2='NOT_RUN',release='NOT_ADMITTED')
     after=value['expected']['files'];changed={n:dict(before=before[n],after=after[n])for n in after if before[n]!=after[n]}
     operands={
         'stage.json':encoded(stage),
