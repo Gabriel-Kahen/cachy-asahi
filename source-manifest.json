@@ -47,7 +47,7 @@
     },
     "lifecycle/emissions/cases/normal/adapter.json": {
       "bytes": 58965,
-      "sha256": "6494f299a4697b03d4b2ab452b4e92562bcb46ed4f74f1c1025ad8d182150f17"
+      "sha256": "cf3af164a4204af26128da94082506b2b3093c3e5bb64d68c2c0ed4444b51b0d"
     },
     "lifecycle/emissions/cases/normal/packages/tools/cachy-asahi-apps/.SRCINFO": {
       "bytes": 1775,
@@ -402,8 +402,8 @@
       "sha256": "d51179ca24c981bafd817d7db082c0ceb3b2f5deb922004bfe97d1e2007edda7"
     },
     "lifecycle/emissions/cases/normal/scripts/update/aux_copy.py": {
-      "bytes": 46791,
-      "sha256": "fccc4ea132364f3a075c358ce75664c565724d65b1f9a72bc2afdc82fe9c08f3"
+      "bytes": 49847,
+      "sha256": "80a0e89755fff0503fe4823ade2c9f7333073273309a1ba5507cbc4284ef55c2"
     },
     "lifecycle/emissions/cases/normal/scripts/update/aux_initialize.py": {
       "bytes": 42802,
@@ -483,7 +483,7 @@
     },
     "lifecycle/emissions/cases/normal/upgrade-config.json": {
       "bytes": 14303,
-      "sha256": "a2fc4099e7515858b63051c393a20a5316aba261f81cb429df39ba47ba1a5ed5"
+      "sha256": "269f49005dd3e8ad86156c329d2dfe0e8daa040bc5b3525abd86e41edf31a6c5"
     },
     "lifecycle/emissions/cases/postcommit-exit87/adapter.json": {
       "bytes": 64434,
@@ -1398,8 +1398,8 @@
       "sha256": "be5969d6bda17e854035965391088e9ed4f4be68ceef3a3b3730f5f56c56f731"
     },
     "lifecycle/lifecycle_overlay.py": {
-      "bytes": 957482,
-      "sha256": "ae5ba7aa36bcea4ef8c3fe43bcfbb9e2a05c8cf9b4a14759a1a523870af7bf4a"
+      "bytes": 960631,
+      "sha256": "5a3a5f4619159a9dfc5f7b4134a346c800d0ce7b98a5a998aea5504b425fada9"
     },
     "lifecycle/parent360/.github/workflows/native-arm-build.yml": {
       "bytes": 87381,
@@ -2843,7 +2843,7 @@
     },
     "lifecycle/profile.json": {
       "bytes": 695846,
-      "sha256": "1219c88853ecd00f50d962c337fb4f30e23590d1eec3633c6dba897294f32f5d"
+      "sha256": "10dc0c290a4a07d6c6ed936ea5675a004049ab644db9de8059cbf59cd5029757"
     },
     "lifecycle/retain.py": {
       "bytes": 1275,
@@ -2855,7 +2855,7 @@
     },
     "lifecycle/source-manifest.json": {
       "bytes": 136380,
-      "sha256": "db76ec835d110e12c09136dcefc1d8861d0dd1bb98b937cd9f18253c9d56d4b2"
+      "sha256": "ce9477a1f4b2e216d9b5c3745dc149b0aa1fec8fba074e1fd33beeb1f4e90c7d"
     },
     "lifecycle/test_source.py": {
       "bytes": 3132,
@@ -5731,7 +5731,7 @@
     },
     "profile.json": {
       "bytes": 278408,
-      "sha256": "5a877b700bc2407de55a0f646379d349600280c789262110072c4dfd3df774e2"
+      "sha256": "eeee6ce16eecbfed0cb3d5680f31917e29f2910f4cb88ad3b6138b80f708375a"
     },
     "retain.py": {
       "bytes": 675,
