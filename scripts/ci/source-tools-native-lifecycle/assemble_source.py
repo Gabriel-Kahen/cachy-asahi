@@ -180,6 +180,35 @@ def tree(files):
     return body(nodes).hex()
 
 
+
+CONCURRENCY_GROUP = 'native-arm-source-tools'
+WORKFLOW_ALIASES = ('.github/workflows/native-arm-build.yml', '.github/workflows/native-arm-developer-workflows.yml')
+
+
+def scheduled_workflows(bodies):
+    """Change only the authenticated legacy scheduling block, never job behavior."""
+    before = b'concurrency:\n  group: native-arm-developer-workflows\n  cancel-in-progress: false\njobs:\n'
+    after = ('concurrency:\n  group: ' + CONCURRENCY_GROUP + '\n  cancel-in-progress: false\n  queue: max\njobs:\n').encode()
+    need(bodies[WORKFLOW_ALIASES[0]] == bodies[WORKFLOW_ALIASES[1]], 'workflow aliases differ before scheduling')
+    result = dict(bodies)
+    for name in WORKFLOW_ALIASES:
+        raw = bodies[name]
+        need(raw.count(before) == 1 and raw.count(b'\nconcurrency:\n') == 1, 'exact unqueued legacy concurrency block required')
+        result[name] = raw.replace(before, after, 1)
+    return result
+
+
+def scheduled_source(files):
+    original = {name: raw for name, (raw, _) in files.items()}
+    bodies = scheduled_workflows(original)
+    result = {name: (raw, files[name][1]) for name, raw in bodies.items()}
+    manifest = decode(files['native/source-map.json'][0])
+    need(manifest['files'] == {name: row for name, row in descriptors(files).items() if name != 'native/source-map.json'}, 'original source map before scheduling differs')
+    manifest['files'] = {name: row for name, row in descriptors(result).items() if name != 'native/source-map.json'}
+    result['native/source-map.json'] = ((json.dumps(manifest, sort_keys=True, indent=2) + '\n').encode(), files['native/source-map.json'][1])
+    return result
+
+
 def profile(raw, checksum):
     need(type(checksum) is str and re.fullmatch('[0-9a-f]{64}', checksum) and pin(raw)['sha256'] == checksum,
          'caller-authenticated profile checksum differs')
@@ -272,7 +301,7 @@ def assemble(parent_source, raw_parent_commit, profile_path, profile_sha256, out
     need(descriptors(parent) == policy['parent_files'] and tree(parent) == PARENT_TREE, 'full genuine191 source bytes/modes/tree differ')
     overlay = snapshot(absolute(profile_path).parent / 'overlay')
     need(descriptors(overlay) == policy['overlay'], 'exact14 canonical overlay bytes/modes/namespace differ')
-    files = dict(parent); files.update(overlay); check_final(files, policy)
+    files = dict(parent); files.update(overlay); files = scheduled_source(files); check_final(files, policy)
     publish(files, output)
     return dict(status='ASSEMBLED_EXACT_CLOSED_SOURCE_DATA_ONLY', source_files=200, source_map_rows=199,
         source_map_sha256=policy['source_map_sha256'], prospective_tree=policy['prospective_tree'],
