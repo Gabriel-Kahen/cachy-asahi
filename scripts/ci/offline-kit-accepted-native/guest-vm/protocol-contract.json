@@ -1,0 +1,243 @@
+{
+  "Root_qualification": "NOT_ISSUED",
+  "acceptance": false,
+  "all_frame_fields": [
+    "schema",
+    "event",
+    "nonce",
+    "selection_sha256",
+    "acceptance"
+  ],
+  "boot_fields": [
+    "pid",
+    "uid",
+    "architecture",
+    "page_size",
+    "kernel",
+    "boot_id",
+    "serials",
+    "clock"
+  ],
+  "boot_fixed": {
+    "architecture": "aarch64",
+    "page_size": 16384,
+    "pid": 1,
+    "uid": 0
+  },
+  "boundary_delivery": "BOUNDED_PREEXEC_STDOUT_FRAME: KIT77_PHASE_BOUNDARY <nonce> <compactJSON>; controller persists exact JSON suffix+newline after naturally reaped actor",
+  "clock_fields": [
+    "source",
+    "epoch_seconds",
+    "previous_realtime_ns",
+    "initialized_realtime_ns",
+    "monotonic_before_ns",
+    "monotonic_after_ns"
+  ],
+  "clock_source": "ROOT_BOUND_CURRENT_QEMU_LAUNCH_UTC",
+  "completed_phase_fields": [
+    "acceptance",
+    "actor_index",
+    "actor_log",
+    "actor_row",
+    "boundary",
+    "boundary_frame",
+    "descriptor",
+    "identity",
+    "nonce",
+    "phase",
+    "resource_retirement",
+    "schema_version",
+    "status",
+    "tool"
+  ],
+  "effective_mount_fields": [
+    "target",
+    "source_device",
+    "source_inode",
+    "device",
+    "inode",
+    "mode",
+    "uid",
+    "gid",
+    "readonly",
+    "mount_id",
+    "filesystem",
+    "mount_options"
+  ],
+  "events": [
+    "boot",
+    "result",
+    "exit"
+  ],
+  "exit_fields": [
+    "status",
+    "phase_processes",
+    "phase_mount_targets"
+  ],
+  "exit_status": [
+    "PASS_GUEST_PHASES_RETIRED",
+    "FAILED_OR_UNKNOWN_RETIREMENT"
+  ],
+  "hardware": "NOT_RUN",
+  "index": "EXACT{bytes:int,sha256:str} OR NULL_ON_FAILURE_ONLY",
+  "line": "KIT77_VM <nonce32> <compact JSON>\\n",
+  "native_actual": "NOT_RUN",
+  "outer_cleanup": "PENDING_PARENT_OWNERSHIP_PROOF",
+  "phase_boundary_fields": [
+    "acceptance",
+    "delivery",
+    "descriptor_sha256",
+    "effective_mounts",
+    "gid",
+    "groups",
+    "identity",
+    "image_origin",
+    "interfaces",
+    "kernel",
+    "kit77_hidden",
+    "mounts",
+    "no_raw_blocks",
+    "nonce",
+    "original_argv",
+    "phase",
+    "pid",
+    "policy",
+    "policy_plan_sha256",
+    "ppid",
+    "resources",
+    "root_readonly",
+    "schema_version",
+    "status",
+    "status_fields",
+    "tool",
+    "uid"
+  ],
+  "phase_descriptor_fields": [
+    "argv",
+    "cgroup_path",
+    "env",
+    "identity",
+    "image_origin",
+    "kernel_release",
+    "mounts",
+    "nonce",
+    "phase",
+    "receipt_path",
+    "schema_version",
+    "seconds",
+    "source_map_sha256",
+    "tool"
+  ],
+  "phase_mount_targets": [
+    "RETIRED_SAME_OWNED_NODES",
+    "UNKNOWN"
+  ],
+  "phase_processes": [
+    "ABSENT_NATURALLY_REAPED",
+    "UNKNOWN"
+  ],
+  "prefix": "KIT77_VM ",
+  "preservation": {
+    "inventory": [
+      "PASS",
+      "UNKNOWN"
+    ],
+    "source_capabilities": [
+      "PASS",
+      "UNKNOWN"
+    ],
+    "source_nodes": [
+      "PASS",
+      "UNKNOWN"
+    ]
+  },
+  "public_index": {
+    "caps": {
+      "aggregate": 132120576,
+      "aggregate_including_index": 132120576,
+      "files": 2047,
+      "files_including_index": 2048,
+      "index": 2097152,
+      "leaf": 16777216
+    },
+    "fields": [
+      "schema",
+      "purpose",
+      "identity",
+      "nonce",
+      "status",
+      "result_status",
+      "files",
+      "bytes",
+      "acceptance"
+    ],
+    "files": "SAFE_NESTED_RELATIVE_NAME->{bytes,sha256}; excludes index.json itself",
+    "purpose": "KIT77_GUEST_PUBLIC_INDEX_V1",
+    "schema": 1,
+    "status": "KIT77_GUEST_PUBLIC_DATA_ONLY"
+  },
+  "release": "NOT_ADMITTED",
+  "resource_fields": [
+    "path",
+    "relative",
+    "device",
+    "inode",
+    "uid",
+    "gid",
+    "memory_max",
+    "pids_max",
+    "membership",
+    "cpu_scope",
+    "online_cpus",
+    "docker_cpu_quota",
+    "cgroup_readonly"
+  ],
+  "resource_fixed": {
+    "cgroup_readonly": true,
+    "cpu_scope": "WHOLE_VM_SMP2",
+    "docker_cpu_quota": "NOT_CLAIMED_KERNEL_CFS_BANDWIDTH_N",
+    "memory_max": 1073741824,
+    "online_cpus": "0-1",
+    "pids_max": 128
+  },
+  "resource_retirement_fields": [
+    "path",
+    "device",
+    "inode",
+    "uid",
+    "gid",
+    "populated",
+    "procs_empty",
+    "memory_events",
+    "same_inode",
+    "removed"
+  ],
+  "result_fields": [
+    "status",
+    "index",
+    "preservation",
+    "kit_lifecycle",
+    "software_vm",
+    "hardware",
+    "release",
+    "outer_cleanup"
+  ],
+  "result_status": [
+    "PASS_SOFTWARE_ARM_VM_ORIGINAL_TWO_KIT_LIFECYCLES_PENDING_OUTER_CLEANUP",
+    "FAILED_OR_INCOMPLETE_NO_ADMISSION"
+  ],
+  "runtime_files": [
+    "guest_entry.py",
+    "guest_phase.py",
+    "guest_seccomp.py",
+    "guest_observer.py",
+    "owner_common.py"
+  ],
+  "schema": 1,
+  "serials": {
+    "boot": "CORE_CASE_DISK_SERIAL_NONCE_BOOT",
+    "data": "CORE_CASE_DISK_SERIAL_NONCE_DATA"
+  },
+  "software_vm": true,
+  "transport": "EXACTLY_THREE_UART_LINES"
+}

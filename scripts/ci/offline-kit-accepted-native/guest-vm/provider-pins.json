@@ -1,0 +1,227 @@
+{
+  "providers/contract.py": {
+    "bytes": 22481,
+    "mode": 420,
+    "sha256": "3c3005ac04fb19bfe75001c12622693aec733d5bd8762ae6501e3d058ff04ba9"
+  },
+  "providers/core/boot.py": {
+    "bytes": 5422,
+    "mode": 420,
+    "sha256": "f6df3d8e5b5602f3b9eca4ebfbb54afaa354ac29b7b4b9cc26988a9de064349e"
+  },
+  "providers/core/case.py": {
+    "bytes": 8668,
+    "mode": 420,
+    "sha256": "07ea5e72a4ad8b22b9a6594aada61941abefa4659b46b26fc0bb59efa239319b"
+  },
+  "providers/core/clock.py": {
+    "bytes": 4205,
+    "mode": 420,
+    "sha256": "cf43f16973294a8e687c65341cb63329a71d9a2a2ea488f0f6f2e20b97087c3c"
+  },
+  "providers/core/host.py": {
+    "bytes": 4302,
+    "mode": 420,
+    "sha256": "d25d18a115483bf7b6f2f0f0f1bfe21d19de37951949e55685edcfb77d84248b"
+  },
+  "providers/kernel-build-source/.github/workflows/native-arm-build.yml": {
+    "bytes": 2815,
+    "mode": 420,
+    "sha256": "d9e0655990d9423fce3b75987f1c3eac7ebc7688f15af4498d14d13cc0e3b9bb"
+  },
+  "providers/kernel-build-source/.github/workflows/native-arm-ksm2-kernel.yml": {
+    "bytes": 2815,
+    "mode": 420,
+    "sha256": "d9e0655990d9423fce3b75987f1c3eac7ebc7688f15af4498d14d13cc0e3b9bb"
+  },
+  "providers/kernel-build-source/scripts/ci/ksm2-kernel-native/fixtures/baseline.config": {
+    "bytes": 64022,
+    "mode": 420,
+    "sha256": "9729936f8a2a3ffa3edf1e3f689dbb56426795f733c73d83a9e4ee94ee8d7aa5"
+  },
+  "providers/kernel-build-source/scripts/ci/ksm2-kernel-native/fixtures/configuration-proof.json": {
+    "bytes": 2981,
+    "mode": 420,
+    "sha256": "9f21c73803a6a31d745b86b5fa602d0bcb1297a295fd86e2ac9d28a6076f3236"
+  },
+  "providers/kernel-build-source/scripts/ci/ksm2-kernel-native/fixtures/ksm.config": {
+    "bytes": 64050,
+    "mode": 420,
+    "sha256": "958f956770acf57925fe7274145897efbba71a5a26a134d7d53b3826a3056642"
+  },
+  "providers/kernel-build-source/scripts/ci/ksm2-kernel-native/input-policy.json": {
+    "bytes": 645,
+    "mode": 420,
+    "sha256": "fc926cd8cd0c0970bdaf32f68035cc5c599e529248bf62f69e46e9b7082b2866"
+  },
+  "providers/kernel-build-source/scripts/ci/ksm2-kernel-native/ksm_profile.py": {
+    "bytes": 5229,
+    "mode": 420,
+    "sha256": "42722dab543afde8da9d047569ce9b1f7f1fe0bf2219c6d5e2c33893f664c685"
+  },
+  "providers/kernel-build-source/scripts/ci/ksm2-kernel-native/lane.py": {
+    "bytes": 11954,
+    "mode": 420,
+    "sha256": "77d5a8c657d31310dfbb4fcca4050a7c7063f0051b0f1fd65767f530da1881ae"
+  },
+  "providers/kernel-build-source/scripts/ci/ksm2-kernel-native/runtime.py": {
+    "bytes": 16274,
+    "mode": 420,
+    "sha256": "4d9aa954d95032ab9ea9085ced784efc81a5db42e2f1f3401e679ee861c16090"
+  },
+  "providers/kernel-build-source/scripts/ci/ksm2-kernel-native/source-manifest.json": {
+    "bytes": 2764,
+    "mode": 420,
+    "sha256": "f9901c25b09612d493b3a7751ca15a07133090b07f99e337c27c904c50add927"
+  },
+  "providers/kernel-build-source/scripts/ci/ksm2-kernel-native/test_advice.py": {
+    "bytes": 2635,
+    "mode": 420,
+    "sha256": "6cc80c03dc17f492b474c7d1dd5f47359e2a0e7c86e2df10f4c7f4d444b19890"
+  },
+  "providers/kernel-build-source/scripts/ci/ksm2-kernel-native/test_lane.py": {
+    "bytes": 6666,
+    "mode": 420,
+    "sha256": "d4fc2b25eac182d836a257b307d0025a1ae110c8f8ff1cbcd800d933fb1ba2d4"
+  },
+  "providers/kernel-build-source/scripts/ci/managed-gui-generic16k/build_kernel.py": {
+    "bytes": 12900,
+    "mode": 420,
+    "sha256": "ccbead2912144c5aa4fcb3ce7af76b3c11f28fcde7987e5f32edb060ff7b0ee9"
+  },
+  "providers/kernel-build-source/scripts/ci/managed-gui-generic16k/kernel.fragment": {
+    "bytes": 1808,
+    "mode": 420,
+    "sha256": "88819f00ebef80e385ebdfae6cc101ef21145e0bbd6bb12532b0d41a85c16d28"
+  },
+  "providers/kernel-build-source/scripts/ci/managed-gui-generic16k/kernel_contract.py": {
+    "bytes": 4659,
+    "mode": 420,
+    "sha256": "30a4544e5407dbf932d9ec26bbd6bf21eab53347544afa134cd3a5870752cbff"
+  },
+  "providers/kernel-build-source/scripts/ci/managed-gui-generic16k/run.py": {
+    "bytes": 10493,
+    "mode": 420,
+    "sha256": "64e279b7ce4b04f115a7e1897377ce59ea5c15010a97a0f22cf16e35ce5e7e46"
+  },
+  "providers/kernel-build-source/scripts/ci/tools-generic16k/acquire_kernel.py": {
+    "bytes": 8844,
+    "mode": 420,
+    "sha256": "4a372e1f4bfbd1f8604579873fc6fbdec91ac2555bb36f028646017b44b8c23f"
+  },
+  "providers/kernel-build-source/scripts/virtual/generic16k/fetch_inputs.py": {
+    "bytes": 7768,
+    "mode": 420,
+    "sha256": "212a0a9efc7c386158526ce40683a3646a899a9c7fd2c3140d6e24a02d778043"
+  },
+  "providers/kernel-build-source/scripts/virtual/generic16k/inputs.json": {
+    "bytes": 1057,
+    "mode": 420,
+    "sha256": "bdfa44ed1d017c0d0e15c1f3af87bdf4a91923c20e812c861ca522d2cf428492"
+  },
+  "providers/kernel-decision-contract.json": {
+    "bytes": 1227,
+    "mode": 420,
+    "sha256": "871bc8ac46cbf0e20f97fda3327602b34e517919af6471bf1a54fcfdcdac8ab7"
+  },
+  "providers/kernel-source/scripts/ci/managed-gui-generic16k/build_kernel.py": {
+    "bytes": 12900,
+    "mode": 420,
+    "sha256": "ccbead2912144c5aa4fcb3ce7af76b3c11f28fcde7987e5f32edb060ff7b0ee9"
+  },
+  "providers/kernel-source/scripts/ci/managed-gui-generic16k/kernel.fragment": {
+    "bytes": 1808,
+    "mode": 420,
+    "sha256": "88819f00ebef80e385ebdfae6cc101ef21145e0bbd6bb12532b0d41a85c16d28"
+  },
+  "providers/kernel-source/scripts/ci/managed-gui-generic16k/kernel_contract.py": {
+    "bytes": 4659,
+    "mode": 420,
+    "sha256": "30a4544e5407dbf932d9ec26bbd6bf21eab53347544afa134cd3a5870752cbff"
+  },
+  "providers/kernel-source/scripts/ci/managed-gui-generic16k/run.py": {
+    "bytes": 10493,
+    "mode": 420,
+    "sha256": "64e279b7ce4b04f115a7e1897377ce59ea5c15010a97a0f22cf16e35ce5e7e46"
+  },
+  "providers/kernel_input.py": {
+    "bytes": 7997,
+    "mode": 420,
+    "sha256": "4f59e4dddf7e8a5e583f943a23ca4d5eb6881d8062831d89b877eea18bd8f621"
+  },
+  "providers/media-source/scripts/apps/file_capabilities.py": {
+    "bytes": 13562,
+    "mode": 420,
+    "sha256": "498a3beec0327b9335dcd6d80ed5919fa2edebebd3284e9ee8b97770328e26a2"
+  },
+  "providers/media-source/scripts/ci/current604-public-pair-updater16k/cap_scope.py": {
+    "bytes": 2598,
+    "mode": 420,
+    "sha256": "4559643fbfaa22657d68e07143e2f7dbc518765c0a9d9e9161acf94c5976ff13"
+  },
+  "providers/media-source/scripts/ci/current604-public-pair-updater16k/disk.py": {
+    "bytes": 12836,
+    "mode": 420,
+    "sha256": "d33eda29a06088251f6a4e0c5bb07d903055ca1761a83a93ed9c70b38a90017f"
+  },
+  "providers/media-source/scripts/ci/full-root-upgrade-caller/persistent_scope.py": {
+    "bytes": 17405,
+    "mode": 420,
+    "sha256": "cd1f23bd252b77e9b3a9e907e1c0defd5141025408e92ae5c2500152076b6f3a"
+  },
+  "providers/media-source/scripts/ci/full-root-upgrade/root_upgrade.py": {
+    "bytes": 23555,
+    "mode": 420,
+    "sha256": "fe1232ae6b510021910b4fb80016ac3b4668c6e4386cdae45e7b95196e400756"
+  },
+  "providers/media-source/scripts/ci/managed-gui-generic16k/elf_audit.py": {
+    "bytes": 3507,
+    "mode": 420,
+    "sha256": "b10b641060e273479d32d8a74719565c4264faf6fefd9e963c8f82dc1fbe738e"
+  },
+  "providers/media-source/scripts/install/local_transaction.py": {
+    "bytes": 93752,
+    "mode": 420,
+    "sha256": "14381d049506b52770059bf7af415f7a079f69872543e74417aca11ce24ac3c5"
+  },
+  "providers/media-source/scripts/update/capacity.py": {
+    "bytes": 1449,
+    "mode": 420,
+    "sha256": "dcb9899cd24daa21f75e6da6b0214393f093d140a70769092da091e0cfdf7c87"
+  },
+  "providers/media-source/scripts/update/full_root.py": {
+    "bytes": 35970,
+    "mode": 420,
+    "sha256": "cece1c597b2e2eb98b0e3087cc7e7c148b54332f8a1c4f18e04e4552a71fb51d"
+  },
+  "providers/media-source/scripts/update/measure_copy.py": {
+    "bytes": 25734,
+    "mode": 420,
+    "sha256": "e582245bd114b0b9d83f2de4fdc81a35d2f48493ba6147879871af794476813b"
+  },
+  "providers/media-source/scripts/update/root_path.py": {
+    "bytes": 3435,
+    "mode": 420,
+    "sha256": "2efcbc1057e117a406488f05a3e0213751b00ab09f845a7830a71a4cf60fd2b4"
+  },
+  "providers/media-source/scripts/update/supervision.py": {
+    "bytes": 3293,
+    "mode": 420,
+    "sha256": "f18bcbd2a6279cff8fe6c7e9c9f80fc01c9818844b01df8c4e97b83d61704b10"
+  },
+  "providers/media-source/scripts/virtual/generic16k/fixture.py": {
+    "bytes": 15118,
+    "mode": 420,
+    "sha256": "47d2c042319246538f8724e294b9530e079ba00de7995ef42f9a1031ca17c4ba"
+  },
+  "providers/profile/ksm_profile.py": {
+    "bytes": 5229,
+    "mode": 420,
+    "sha256": "42722dab543afde8da9d047569ce9b1f7f1fe0bf2219c6d5e2c33893f664c685"
+  },
+  "providers/sharing.py": {
+    "bytes": 20112,
+    "mode": 420,
+    "sha256": "b68524c767e7db45ab3816b4d1b579e28d3bf94299746c2027b7cbe761089e39"
+  }
+}
