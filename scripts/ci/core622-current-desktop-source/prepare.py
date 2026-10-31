@@ -3,7 +3,7 @@
 import argparse,ast,hashlib,json,os,stat
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
-PROFILE={'bytes': 328388, 'sha256': '2f09649d247c1cd1706b713e35c8b533fe93a8b03cbd4a70555fb657256bc386'}
+PROFILE={'bytes': 349249, 'sha256': '5735b369418a44819edfbc8983b05c4a68164c63e8ad8f56af8d37b144db6407'}
 SCOPE='CORE622_CURRENT607_COPIED_PROVISIONING_NORMAL_CORE_TWO_BOOT_GENERIC16K'
 PROVISIONING='COPIED_ROOT_PROVISIONING_NOT_NORMAL_HOOK_INSTALLATION'
 enc=lambda x:(json.dumps(x,sort_keys=True,indent=2,allow_nan=False)+'\n').encode()
@@ -151,7 +151,7 @@ def workflow(old,core_profile,value):
  text=edits(text,[('GITHUB_REF_NAME="${{ github.ref_name }}" RUNNER_ARCH=ARM64 GITHUB_WORKSPACE="$GITHUB_WORKSPACE"','GITHUB_REF_NAME="${{ github.ref_name }}" GITHUB_ACTIONS=true RUNNER_ARCH=ARM64 GITHUB_WORKSPACE="$GITHUB_WORKSPACE"')])
  return text
 
-LAYER_PARENTS={'live_auxiliary':'333f9b0a3f11bc2180557f7e9feedfa2f2359b98','owned_auxiliary_initialization':'b7b1a04c1bc0172f2af271546641aa374569c898','owned_proof_output':'358afcba2c1364b8954d753a631d001328367ee7','media_contract_inflate':'f46ac9e7aeec170ba554255e3cda380ea0364e64'}
+LAYER_PARENTS={'live_auxiliary': '333f9b0a3f11bc2180557f7e9feedfa2f2359b98', 'owned_auxiliary_initialization': 'b7b1a04c1bc0172f2af271546641aa374569c898', 'owned_proof_output': '358afcba2c1364b8954d753a631d001328367ee7', 'media_contract_inflate': 'f46ac9e7aeec170ba554255e3cda380ea0364e64', 'runner_resilience': 'ad09020a776c93fad3c2625c836a99cbde0c83b9'}
 LAYER_FILES=('source-manifest.json','.github/workflows/native-arm-build.yml','.github/workflows/native-arm-core7-real-systemd.yml')
 def before_layer(values,key):
  """Pure full66 inverse, including products/selfseal; no source execution."""
@@ -165,11 +165,13 @@ def before_layer(values,key):
   node=next(n for n in ast.parse(text).body if isinstance(n,ast.Assign)and isinstance(n.targets[0],ast.Name)and n.targets[0].id==name);new=ast.get_source_segment(text,node);need(text.count(new)==1,'one source layer products/self inverse');text=text.replace(new,old,1)
  need(text.count(record['guard_prefix'])==1,'one source layer whole prefix inverse');text=text.replace(record['guard_prefix'],record['guard_anchor'],1);prior['source622.py']=text.encode();need({n:pin(b)for n,b in prior.items()}==record['before'],'complete immediate66 source layer before map')
  sealed={n.targets[0].id:ast.literal_eval(n.value)for n in ast.parse(text).body if isinstance(n,ast.Assign)and isinstance(n.targets[0],ast.Name)and n.targets[0].id in('PRODUCTS','SELF')};need(all(pin(prior[n])==w for n,w in sealed['PRODUCTS'].items()),'all original source layer products');seal=sealed['SELF'];need(text.count(seal)==1 and hashlib.sha256(text.replace(seal,'@SELF@').encode()).hexdigest()==seal,'whole original source layer selfseal');return prior
+def before_resilience(values):return before_layer(values,'runner_resilience')
 def before_media_contract(values):return before_layer(values,'media_contract_inflate')
 def before_proof_output(values):return before_layer(values,'owned_proof_output')
 def before_owned_initialization(values):return before_layer(values,'owned_auxiliary_initialization')
 def before_live_auxiliary(values):return before_layer(values,'live_auxiliary')
 def before_later(values):
+ if 'runner_resilience'in json.loads(values['composition-parent.json']):values=before_resilience(values)
  if 'media_contract_inflate'in json.loads(values['composition-parent.json']):values=before_media_contract(values)
  if 'owned_proof_output'in json.loads(values['composition-parent.json']):values=before_proof_output(values)
  if 'owned_auxiliary_initialization'in json.loads(values['composition-parent.json']):values=before_owned_initialization(values)
@@ -221,7 +223,8 @@ def before_environment(values):
  need({n:pin(b)for n,b in prior.items()}==record['before'],'whole immediate bbdf66 inverse')
  constants={n.targets[0].id:ast.literal_eval(n.value)for n in ast.parse(text).body if isinstance(n,ast.Assign)and n.targets[0].id in('PRODUCTS','SELF')};need(all(pin(prior[n])==w for n,w in constants['PRODUCTS'].items()),'entire bbdf product map');seal=constants['SELF'];need(text.count(seal)==1 and hashlib.sha256(text.replace(seal,'@SELF@').encode()).hexdigest()==seal,'entire bbdf source selfseal');return prior
 
-def compose(roots):
+def compose(roots,runner_resilience=False):
+ need(type(runner_resilience)is bool,'explicit maintained runner-resilience selection')
  need(set(roots)=={'parent','fresh607','core_record','fresh_record'},'four explicit pinned public DATA roles')
  profile_raw,profile_state=read_state(HERE/'profile.json');need(pin(profile_raw)==PROFILE,'fixed factory profile');p=json.loads(profile_raw)
  need(p['counts']==dict(before=51,after=66,held=40,changed=11,added=15)and p['actual']is None and p['native_acceptance']is False,'finite source-only scope')
@@ -270,6 +273,9 @@ def compose(roots):
  for n in p['added']:restored.pop(n)
  for n,raw in changed.items():restored[n]=raw.encode()
  need(restored==old and all(out[n]==old[n]for n in p['held']),'whole51 inverse and all40 held')
+ if runner_resilience:
+  out=source_layer(out,p,operands,'runner_resilience','runner-resilience','resilience_parent')
+  need({n:pin(b)for n,b in out.items()}==p['runner_resilience_result']['files']and p['runner_resilience_result']['source']is p['runner_resilience_result']['ref']is None,'complete unbound maintained diagnostic result; no published25d7 claim')
  need(all(scan(roots[k])==input_states[k]for k in roots)and all(read_state(HERE/n)==w for n,w in states.items()),'late whole input/operand identity drift')
  return out,p,input_states,states
 
@@ -281,16 +287,18 @@ def paths(roots,output):
  for a in protected:need(not output.is_relative_to(a)and not a.is_relative_to(output),'disjoint output/input/factory')
  return roots,output
 
-def emit(roots,output,context):
- need(context in('known','null'),'explicit known/NULL source-only context');roots,output=paths(roots,output);values,p,inputs,states=compose(roots);paths(roots,output)
+def emit(roots,output,context,runner_resilience=False):
+ need(context in('known','null'),'explicit known/NULL source-only context');roots,output=paths(roots,output);values,p,inputs,states=compose(roots,True)if runner_resilience else compose(roots);paths(roots,output)
  need(all(scan(roots[k])==inputs[k]for k in roots)and all(read_state(HERE/n)==w for n,w in states.items()),'late complete identity before any write');output.mkdir(mode=0o700)
  for name,raw in sorted(values.items()):
   q=output/name;q.parent.mkdir(parents=True,exist_ok=True);fd=os.open(q,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)
   with os.fdopen(fd,'wb')as f:f.write(raw);os.fchmod(f.fileno(),0o644)
  need(tree(output)==values,'exact complete66 emission')
+ if runner_resilience:return dict(status='SOURCE_ONLY_UNBOUND_MAINTAINED_CORE622_RESILIENCE',source=None,ref=None,parent_source=p['resilience_parent']['source'],actual=None,native_acceptance=False,hardware='NOT_RUN',fit='NOT_ESTABLISHED',files=66,context=context,publication_binding='UNISSUED')
  return dict(status='SOURCE_ONLY_EXACT_CORE622_NOT_NATIVE_ACCEPTANCE',source=p['result']['source']if context=='known'else None,ref=p['result']['ref']if context=='known'else None,actual=None,native_acceptance=False,hardware='NOT_RUN',fit='NOT_ESTABLISHED',files=66,context=context)
 
 if __name__=='__main__':
  parser=argparse.ArgumentParser(description=__doc__)
  for role in('parent','fresh607','core-record','fresh-record','output','context'):parser.add_argument('--'+role,required=True)
- args=parser.parse_args();roots={k:getattr(args,k)for k in('parent','fresh607','core_record','fresh_record')};print(json.dumps(emit(roots,args.output,args.context),sort_keys=True))
+ parser.add_argument('--runner-resilience',action='store_true',help='unbound diagnostic layer after exact ad090 default')
+ args=parser.parse_args();roots={k:getattr(args,k)for k in('parent','fresh607','core_record','fresh_record')};print(json.dumps(emit(roots,args.output,args.context,args.runner_resilience),sort_keys=True))
