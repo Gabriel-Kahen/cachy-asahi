@@ -132,7 +132,7 @@
     },
     "scripts/ci/desktop-managed-workflow/source-pins.json": {
       "bytes": 4838,
-      "sha256": "8abc68b3483cfb825a6d2ffb5d5b330704a54a3ef0bc9a397f5cd9f567187f7d"
+      "sha256": "97b1b6b35f41dea62c926444cc2004ce7017bef7cf2f9301ffa4961136e6875e"
     },
     "scripts/ci/desktop-managed-workflow/terminal_session.py": {
       "bytes": 8051,
@@ -192,7 +192,7 @@
     },
     "scripts/ci/desktop-user-session/source-pins.json": {
       "bytes": 3242,
-      "sha256": "68644899375b08178f04435f853412f8e644a08e68d08d7f6c42474e25bcbca6"
+      "sha256": "b5e4df112c8a9ade746b6a60cafa68e5a58226a1f13280d0725b9e5175a7686d"
     },
     "scripts/ci/desktop574_fixture.sh": {
       "bytes": 4813,
@@ -244,7 +244,7 @@
     },
     "scripts/virtual/common.py": {
       "bytes": 84361,
-      "sha256": "4b61b407344ac7209a5d2ebd036a57143ee23525b6550aada6ff7488b5aab6a0"
+      "sha256": "aef2b4f09a91c4cfd66dd4504e69ef18396a94214c82ae0ec0a43c2716894a03"
     },
     "scripts/virtual/gbm_probe.c": {
       "bytes": 14149,
@@ -314,7 +314,7 @@
     },
     "source-pins.json": {
       "bytes": 4838,
-      "sha256": "8abc68b3483cfb825a6d2ffb5d5b330704a54a3ef0bc9a397f5cd9f567187f7d"
+      "sha256": "97b1b6b35f41dea62c926444cc2004ce7017bef7cf2f9301ffa4961136e6875e"
     },
     "terminal_session.py": {
       "bytes": 8051,

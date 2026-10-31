@@ -1,0 +1,13 @@
+# Mirror fallback: native ARM result
+
+Native run [39090252312](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/39090252312), source `01d4ecf6068cd7be9f7122c33ec33d73b515d8a6`, is Root accepted for the three-tool build pairs and installed CLI/PTY lifecycle described here. This is native aarch64 software evidence on actual4096-byte pages; M2 hardware, generic16K, external mirror ranking and supported-release admission remain untested.
+
+The mirror checker now treats malformed/truncated HTTP responses as a failed mirror and tries the next candidate. A healthy fallback must still match the selected database hash. Two real HTTP parser regressions and all31 product controls pass. The `0.2.0-2` recipe refreshes source/test checksums; activation, restoration, byte caps and deadlines remain held.
+
+The native workflow builds two copies each of Mirrors0.2.0-2, Zsh syntax highlighting0.8.1.dev.e6683f2-1 and history substring search0.1.0-1. Independent replay parses all six original archives and confirms identical package bytes, installed contents, PKGINFO and BUILDINFO for each pair. Mirror archive SHA256: `bb41f0d9435f875dfbe2090bb7b4dac298ee91795162caca8ab4bdb501a7717b`. Distinct containers on one runner do not attest independent-machine reproducibility.
+
+Installed transitions pass574→577→577→574→577→574: install, same-version reinstall, remove, reinstall and final remove. Both fresh/existing homes exercise installed CLI behavior, real fixture TLS mirror activation/restoration/conflicts, ZLE highlighting and six substring PTY cases. User/system configuration and outputs remain preserved. Mirror network/trust evidence uses the owned fixture, not external mirror qualification or release signatures.
+
+The once-retained raw artifact is complete:128 declared files,1193019 bytes, with no hidden-file supplement. ZIP SHA256: `3eda0072a802fe3f4581815f281ec622d216f63bbbe2d740d094534dcf70a27e`. Replay uses the exact64-file committed source, unchanged native retainer and package comparison code; it never executes collected harness code. All eight owned consumers retire in reverse order before the producer. These are retained source-bound cleanup receipts, not a later live observation.
+
+The earlier local host assembly's fakeroot diagnostic remains recorded separately; native ARM pairs and installed behavior pass on their own original evidence. Five inherited older Welcome rows in the generic-tools source manifest remain unchanged and are outside this mirror correction. New release selection, signing and complete target-composition validation require their own evidence.

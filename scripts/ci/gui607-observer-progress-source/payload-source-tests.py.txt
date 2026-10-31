@@ -1,0 +1,37 @@
+ def test_actual_selected_package_progress_complete_object_and_default_held(self):
+  expected=dict(line.split()for line in(HERE/'expected607.lock').read_text().splitlines());root=self.work/'root';local=root/'var/lib/pacman/local';local.mkdir(parents=True);(local/'ALPM_DB_VERSION').write_bytes(b'9\n');(root/'payload').mkdir()
+  for name,version in expected.items():
+   d=local/(name+'-'+version);d.mkdir();(d/'desc').write_text('%NAME%\n'+name+'\n\n%VERSION%\n'+version+'\n\n%ARCH%\nany\n');(d/'files').write_text('%FILES%\npayload/'+name+'\n');(root/'payload'/name).write_bytes((name+' '+version).encode())
+  raw=G.read(HERE/'factory/installed607.py');m=types.ModuleType('_actual_payload_progress');m.__file__=str(self.work/'installed606.py');exec(compile(O.edited(raw,O.observer_rows()),m.__file__,'exec'),vars(m));shutil.copyfile(HERE/'factory/support/file_capabilities.py',self.work/'file_capabilities.py');helper=load('_actual_payload_progress_alpm',HERE/'factory/support/alpm_reader.py');notes=[]
+  original=m.observe;default=original(root,helper,expected)
+  with patch.object(m.os,'write',side_effect=lambda fd,b:notes.append(b)or len(b)):actual=m._selected_verify_observe(root,helper,expected,deadline=1200)
+  self.assertEqual(actual,default);self.assertIs(m.observe,original);self.assertIs(m._payload_original607,original);self.assertIs(m._payload_observe607.__globals__,vars(m));self.assertEqual(len(notes),1214)
+  values=[json.loads(row.split(b' ',1)[1])for row in notes];self.assertEqual({r['package']for r in values},set(range(1,608)));self.assertTrue(all(r['boundary']==('begin'if i%2==0 else'end')for i,r in enumerate(values)));self.assertEqual(values[0]['nodes'],0);self.assertEqual(values[-1]['nodes'],607);self.assertEqual(values[-1]['payload_bytes'],actual['payload_bytes']);self.assertLessEqual(sum(map(len,notes)),233088)
+  old=ast.parse(O.edited(raw,O.observer_rows()));base=next(n for n in old.body if isinstance(n,ast.FunctionDef)and n.name=='observe');selected=next(n for n in old.body if isinstance(n,ast.FunctionDef)and n.name=='_payload_observe607');selected.name='observe'
+  # Remove only source-owned DATA calls and its private emitter construction.
+  selected.body=[n for n in selected.body if not(isinstance(n,ast.Assign)and any(isinstance(t,ast.Name)and t.id=='progress'for t in n.targets))]
+  loop=next(n for n in selected.body if isinstance(n,ast.For)and isinstance(n.target,ast.Name)and n.target.id=='row'and any(isinstance(c,ast.Expr)and isinstance(c.value,ast.Call)and isinstance(c.value.func,ast.Attribute)and c.value.func.attr=='mark'for c in n.body))
+  loop.body=[n for n in loop.body if not(isinstance(n,ast.Expr)and isinstance(n.value,ast.Call)and isinstance(n.value.func,ast.Attribute)and isinstance(n.value.func.value,ast.Name)and n.value.func.value.id=='progress')]
+  self.assertEqual(ast.dump(selected),ast.dump(base));self.assertEqual(m.observe.__kwdefaults__,{'deadline':600})
+  with patch.object(m.os,'write',side_effect=OSError('DATA loss')):self.assertEqual(m._selected_verify_observe(root,helper,expected,deadline=1200),default)
+  with patch.object(m.os,'write',side_effect=lambda *_:0),self.assertRaises(ValueError):m._selected_verify_observe(root,helper,expected,deadline=0)
+
+ def test_package_progress_fixed_types_caps_loss_and_no_contents(self):
+  raw=G.read(HERE/'factory/installed607.py');m=types.ModuleType('_bounded_payload_progress');m.__file__=str(self.work/'installed606.py');exec(compile(O.edited(raw,O.observer_rows()),m.__file__,'exec'),vars(m));notes=[];expected={'package'+str(i):'1'for i in range(607)}
+  with patch.object(m.os,'write',side_effect=lambda fd,b:notes.append(b)or len(b)):
+   emitter=m._Payload607(expected)
+   for args in((None,'package0',0,0),('begin','foreign',0,0),('begin','package0',True,0),('begin','package0',0,-1),('end','package0',200001,0)):
+    self.assertFalse(emitter.mark(*args))
+   for _ in range(1214):self.assertTrue(emitter.mark('begin','package0',200000,6*1024**3))
+   self.assertFalse(emitter.mark('begin','package0',0,0))
+  self.assertEqual(len(notes),1214);self.assertLessEqual(sum(map(len,notes))+2048,256*1024);self.assertTrue(all(len(b)<=192 for b in notes))
+  for b in notes:
+   self.assertTrue(b.startswith(b'INSTALLED607_PAYLOAD_DATA '));v=json.loads(b.split(b' ',1)[1]);self.assertEqual(set(v),{'schema','package','boundary','nodes','payload_bytes','elapsed_ns','status'});self.assertEqual(v['status'],'PROGRESS_DATA_ONLY');self.assertNotIn(b'package0',b)
+  with patch.object(m.os,'write',side_effect=OSError('lost')):self.assertFalse(m._Payload607(expected).mark('begin','package0',0,0))
+
+ def test_package_begin_existing_original_timeout_tail_before_error(self):
+  path=ROOT/'parent574/original/scripts/ci/desktop574_guest.py';raw=path.read_text();tree=ast.parse(raw);names={'need','terminate','Logged','command'};parts=[ast.get_source_segment(raw,n)for n in tree.body if isinstance(n,(ast.FunctionDef,ast.ClassDef))and n.name in names];self.assertEqual(len(parts),4);events=[];space=dict(os=os,signal=signal,subprocess=subprocess,threading=threading,Path=Path,hashlib=hashlib,base64=base64,MAX_LOG=256*1024,emit=lambda event,**row:events.append(dict(event=event,**row)));exec(compile('\n\n'.join(parts),'<original-command-timeout-tail>','exec'),space)
+  body='import json,os,time\n'+O.PAYLOAD_BODY607+"\np=_Payload607({'fixed':'1'});p.mark('begin','fixed',12,34);time.sleep(5)";logs=self.work/'logs';logs.mkdir()
+  with self.assertRaises(subprocess.TimeoutExpired):space['command']([sys.executable,'-I','-B','-c',body],dict(PATH='/usr/bin:/bin'),logs,'installed606-preserved',timeout=.3)
+  self.assertEqual(len(events),1);tail=base64.b64decode(events[0]['logs'][1]['tail_base64'],validate=True);self.assertEqual(tail,(logs/'installed606-preserved.stderr').read_bytes());self.assertIn(b'INSTALLED607_PAYLOAD_DATA ',tail);self.assertIn(b'"boundary":"begin"',tail);self.assertLessEqual(len(tail),2048);self.assertNotEqual(events[0]['returncode'],0)
+

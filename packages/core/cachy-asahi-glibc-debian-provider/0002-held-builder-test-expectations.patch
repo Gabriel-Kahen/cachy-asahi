@@ -1,0 +1,29 @@
+From: cachy-asahi contributors
+Subject: [PATCH] Require five formerly-XFAIL tests to pass on held builder
+
+Actual 38898464517 reports XPASS for these exact five tests. The held gdbm
+headers provide ndbm.h and the held GCC/binutils no longer exhibit the old
+protected-data failure. Do not remove tests or accept failure: without the
+blanket XFAIL annotation each is an ordinary required PASS (or hard FAIL).
+Leave every other upstream expectation unchanged; unknown XPASS remains fatal.
+
+--- a/elf/Makefile
++++ b/elf/Makefile
+@@ -1160,8 +1160,6 @@
+ # and https://gcc.gnu.org/bugzilla/show_bug.cgi?id=65248 for details.
+ # Perhaps in future we can make these XFAILs conditional on some detection
+ # of compiler/linker behavior/version.
+-test-xfail-tst-protected1a = yes
+-test-xfail-tst-protected1b = yes
+ endif
+ ifeq (yesyes,$(have-fpie)$(build-shared))
+ modules-names += tst-piemod1
+--- a/conform/Makefile
++++ b/conform/Makefile
+@@ -450,6 +450,3 @@
+ 
+ # Header not provided by glibc.
+ test-xfail-XPG42/ndbm.h/linknamespace = yes
+-test-xfail-UNIX98/ndbm.h/linknamespace = yes
+-test-xfail-XOPEN2K/ndbm.h/linknamespace = yes
+-test-xfail-XOPEN2K8/ndbm.h/linknamespace = yes

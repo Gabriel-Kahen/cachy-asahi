@@ -1,0 +1,14 @@
+cachy-asahi-zsh-history-substring-search
+
+The full unchanged runtime is from zsh-users/zsh-history-substring-search
+revision a0bdb0d47dbaba31dba2db7af8c48a5d9c74049a.
+The runtime's complete BSD-3-Clause grant and copyright notices are retained
+in the source and, verbatim, in LICENSE.upstream. They credit Peter Stephenson,
+Guido van Steen, Suraj N. Kurapati, Sorin Ionescu, Vincent Guerci, Geza Lore and
+Bengt Brodersen. The embedded BSD-3-Clause snippet credit for 2010-2011
+zsh-syntax-highlighting contributors is retained in the unchanged runtime.
+The FIZSH/contributor names may not be used to imply endorsement.
+
+The wrapper, recipe, usage, provenance and fixture driver are independent
+cachy-asahi contributor integration work under LICENSE.project (MIT).
+No unresolved CachyOS shell configuration is copied into this package.

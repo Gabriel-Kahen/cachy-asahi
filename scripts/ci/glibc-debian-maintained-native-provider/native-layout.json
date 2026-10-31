@@ -1,0 +1,24 @@
+{
+  "feature_choices": {
+    "gd": "not in accepted bootstrap; optional memusagestat unavailable",
+    "locales": "GNU source C.utf8 only; no ALARM locale-gen/memusagestat copied; broader locale migration not implemented",
+    "multiarch": "disabled",
+    "multiarch_reason": "--disable-multi-arch selects baseline AArch64 assembly FUNC symbols and memchr/strlen WEAK aliases; actual38906503054 multiarch IFUNC/GLOBAL differs. No ABI waiver or performance claim.",
+    "nscd": "disabled",
+    "systemtap": "disabled; no external sdt headers",
+    "test_timeout": "Only tst-malloc-too-large-malloc-hugetlb2: TIMEOUTFACTOR=5, full assertions retained; still bounded/fatal"
+  },
+  "layout": {
+    "abi_expectations": "UNMODIFIED strict GNU abilists and bootstrap OBJECT/TLS-size checks",
+    "compiled_locales": "/usr/lib/locale",
+    "configured_dirname_ascii_bytes": 17,
+    "exported_dirname_object_bytes": 18,
+    "gettext_catalogs": "/usr/share/locale",
+    "loader": "/usr/lib/ld-linux-aarch64.so.1",
+    "localstatedir": "/var",
+    "multiarch": "disabled",
+    "shared_libraries": "/usr/lib",
+    "sysconfdir": "/etc",
+    "versioned_prefix": null
+  }
+}

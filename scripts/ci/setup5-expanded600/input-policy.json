@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "status": "ROOT_BOUND_SETUP5_EXPANDED600_AFTER_NATIVE600_ACCEPTANCE",
+  "baseline_source": "8cc0a67295dc68772fc86ad81148eac3bec9eb56",
+  "baseline_acceptance": {
+    "path": "root-native600-acceptance.json",
+    "bytes": 1445,
+    "sha256": "85723d4edc3f03e44973fbc36df2612de5b6ebe47154e6b5238ac69d0784713c"
+  },
+  "setup5_source": "79d8d2f53510e4f3a04f39c1b1e24c999aa32e44",
+  "probe_source": "0bbf875369c816aab19945c3e4f63c9b1f0b61b0",
+  "expected600_sha256": "d263a3ca9089c204603f2e12b80dc4f209ee6e636f10da940a514040b636db79",
+  "setup5_acceptance": {
+    "path": "root-setup5-acceptance.json",
+    "bytes": 747,
+    "sha256": "961d2bc413fbd0d1b5d2042533bfdf57b2f85054bdf8cc8eb3766180ce7f4581"
+  }
+}

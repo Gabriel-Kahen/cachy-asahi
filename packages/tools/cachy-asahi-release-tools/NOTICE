@@ -1,0 +1,14 @@
+cachy-asahi-release-tools 0.1.0-1
+Copyright (c) 2026 cachy-asahi contributors. MIT License; see LICENSE.
+
+Original packaging and launcher freeze six project source modules without
+modification: release_sbom.py, source_delivery.py, recipe_source_delivery.py,
+recipe_source_delivery_v2.py, archive_stream.py and package_checks.py.
+Their original headers are retained. package_checks.py is original project
+source covered by the repository's top-level MIT LICENSE. Byte hashes, original
+paths and observed revisions are recorded in source-provenance.json.
+
+Build-only topmem fixture sources retain their original MIT notices. Synthetic
+release/package fixtures are inert test data and grant no source-completeness,
+license, native execution, hardware, signing or release acceptance.
+No official CachyOS or Asahi affiliation or approval is implied.

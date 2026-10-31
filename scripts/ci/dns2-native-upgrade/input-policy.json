@@ -1,0 +1,147 @@
+{
+  "actual_ref": null,
+  "actual_run": null,
+  "actual_source": null,
+  "base_inventory_sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+  "candidate_source": null,
+  "products": {
+    "cachy-asahi-dns": {
+      "check_markers": [
+        "Ran 21 tests",
+        "\nOK"
+      ],
+      "package_name": "cachy-asahi-dns",
+      "payload": {
+        "usr/bin/cachy-asahi-dns": [
+          "cachy-asahi-dns",
+          493
+        ],
+        "usr/share/doc/cachy-asahi-dns/README.md": [
+          "README.md",
+          420
+        ],
+        "usr/share/doc/cachy-asahi-dns/source-provenance.json": [
+          "source-provenance.json",
+          420
+        ],
+        "usr/share/licenses/cachy-asahi-dns/LICENSE": [
+          "LICENSE",
+          420
+        ],
+        "usr/share/licenses/cachy-asahi-dns/NOTICE": [
+          "NOTICE",
+          420
+        ]
+      },
+      "source_files": {
+        ".SRCINFO": {
+          "bytes": 1016,
+          "sha256": "07d5d92c9d92011f7ee9fab670d283e3889b06c248f27a4e77dfdb9f1a810098"
+        },
+        "LICENSE": {
+          "bytes": 1081,
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        },
+        "NOTICE": {
+          "bytes": 362,
+          "sha256": "1ff77dc69e120adfacea23ac77a756ff5931b888c7535f0e2f2b928114a5873e"
+        },
+        "PKGBUILD": {
+          "bytes": 1527,
+          "sha256": "9419e496146a8af5379f4bc886645943f703949274d75bcc52035acc996b251b"
+        },
+        "README.md": {
+          "bytes": 5399,
+          "sha256": "c1e0c9d4ca17e48587ad0070388c0f2c05191ee2537d079a2cca84c199d0d3d0"
+        },
+        "cachy-asahi-dns": {
+          "bytes": 12387,
+          "sha256": "86e91bee103876974c8296874c58ef9e1ea7b7e4b06c99928cda1d9f8cabca99"
+        },
+        "check_source.py": {
+          "bytes": 2430,
+          "sha256": "74fc9aa8dbba61cfaaca9cadba5f78ea080969bb2d9a58dc38f36dde35ddd7a1"
+        },
+        "source-provenance.json": {
+          "bytes": 1203,
+          "sha256": "80fc23caeb1d6b87a6ca8407106359a951cc7f880442954fde7d86647dd706ad"
+        },
+        "test_dns.py": {
+          "bytes": 11857,
+          "sha256": "f11a175e757e65959c2ed7902f041efb6be0becb772b34207cdd7b626ab50543"
+        }
+      },
+      "version": "0.1.0-1"
+    },
+    "cachy-asahi-dns2": {
+      "check_markers": [
+        "Ran 27 tests",
+        "\nOK"
+      ],
+      "package_name": "cachy-asahi-dns",
+      "payload": {
+        "usr/bin/cachy-asahi-dns": [
+          "cachy-asahi-dns",
+          493
+        ],
+        "usr/share/doc/cachy-asahi-dns/README.md": [
+          "README.md",
+          420
+        ],
+        "usr/share/doc/cachy-asahi-dns/source-provenance.json": [
+          "source-provenance.json",
+          420
+        ],
+        "usr/share/licenses/cachy-asahi-dns/LICENSE": [
+          "LICENSE",
+          420
+        ],
+        "usr/share/licenses/cachy-asahi-dns/NOTICE": [
+          "NOTICE",
+          420
+        ]
+      },
+      "source_files": {
+        ".SRCINFO": {
+          "bytes": 1027,
+          "sha256": "9a71d77853351e76649415f1851ecf23844c580fd6845d60cd36ace6a40c82af"
+        },
+        "LICENSE": {
+          "bytes": 1081,
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        },
+        "NOTICE": {
+          "bytes": 362,
+          "sha256": "1ff77dc69e120adfacea23ac77a756ff5931b888c7535f0e2f2b928114a5873e"
+        },
+        "PKGBUILD": {
+          "bytes": 1538,
+          "sha256": "f59423ab444744edce3df774687e1be226662fadaa73243d9bb7269c81c94543"
+        },
+        "README.md": {
+          "bytes": 7235,
+          "sha256": "a8192e1e96fe1bc5a8cfe0269dcef7961b79e590a50a9c93ddb9921e8c349582"
+        },
+        "cachy-asahi-dns": {
+          "bytes": 14882,
+          "sha256": "d708cbe54a8e96a62ff7d85e4eadfb7a980401adb3a9fe8465052f754b4c8c88"
+        },
+        "check_source.py": {
+          "bytes": 2430,
+          "sha256": "78b3080f5ee9c3a003de0719eff08ad85f6f862db608d9a3465ddcb40028b265"
+        },
+        "source-provenance.json": {
+          "bytes": 1704,
+          "sha256": "9f5af4c43a17754de5f9e2e77b0f271c74993a5f519b0c73094b103b744b2470"
+        },
+        "test_dns.py": {
+          "bytes": 14684,
+          "sha256": "c9f93d49bcf6d9c15cd6b2b098972c4494dee5774b1ed1a707c981bfbb8c6cc2"
+        }
+      },
+      "version": "0.1.0-2"
+    }
+  },
+  "schema_version": 1,
+  "status": "UNBOUND_SOURCE_TEMPLATE"
+}

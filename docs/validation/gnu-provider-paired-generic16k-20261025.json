@@ -1,0 +1,1141 @@
+{
+  "ALPM_automatic_active_configuration_preservation": "NOT_CLAIMED",
+  "M2": "NOT_RUN",
+  "cases": {
+    "modified": {
+      "PID1_cleanup": {
+        "hardware": "NOT_RUN",
+        "mounts": 8,
+        "raw_disks": "HOST_OWNER_MAY_DISPOSE_ONLY_AFTER_QEMU_GROUP_ABSENCE",
+        "release": "NOT_ADMITTED",
+        "status": "WORKER_GROUP_LEASES_MOUNTS_AND_OWNED_DM_RETIRED"
+      },
+      "full_normal": {
+        "complete_maps": {
+          "modified": {
+            "before574": {
+              "logical_bytes": 4904360151,
+              "node_sha256": "2ff073f50019681410f9074f6fc7d3b2ddb28cfc84b5d177116e8d6b2d2234db",
+              "nodes": 123066
+            },
+            "clone": {
+              "logical_bytes": 4904271540,
+              "node_sha256": "c410b29b8063fff6e91d2578bf33122c9d41461f6f23a9597120410c28f83fb6",
+              "nodes": 123056
+            },
+            "configuration_handoffs": {
+              "ALPM_automatic_active_preservation": "NOT_CLAIMED",
+              "original_modified_gai_retained": true,
+              "original_modified_locale_retained": true,
+              "phases": 3,
+              "root_map_joins": 3,
+              "status": "PASS_THREE_EXPLICIT_CLONE_CONFIGURATION_HANDOFFS"
+            },
+            "held574": {
+              "logical_bytes": 4904405067,
+              "node_sha256": "a02a67446908c831c647705f277fc4cc045f7a91b54524952021967556ef6c59",
+              "nodes": 123075
+            },
+            "precommit-refused": {
+              "logical_bytes": 4904360151,
+              "node_sha256": "2ff073f50019681410f9074f6fc7d3b2ddb28cfc84b5d177116e8d6b2d2234db",
+              "nodes": 123066
+            },
+            "provider574": {
+              "logical_bytes": 4960731818,
+              "node_sha256": "5d0c22822fc18eed6a927cac14b68d538a59a2b28c1dc5526623747fbb6bffb0",
+              "nodes": 123047
+            },
+            "reinstalled574": {
+              "logical_bytes": 4960758828,
+              "node_sha256": "98de40e8894bf44d1302a4abbf680c4880e437733b5c5e63a7e355d469e45dba",
+              "nodes": 123050
+            },
+            "root_initialization": {
+              "after": 493,
+              "before": 448,
+              "parent_private": true,
+              "private_FD_copy_proof": "SOURCE_ENFORCED_NOT_EXPORTED",
+              "scope": "GNU_VERITY_COPY_SCOPE_V1",
+              "scope_sha256": "438e6d1c38a35d57f7a06d59c5d71ff2ee387bbf7ca8bf3941a7afeb243a2a4d",
+              "source_unchanged": true,
+              "status": "PASS_IMMUTABLE_CLONE_ROOT_SEARCH_INITIALIZATION_JOIN"
+            },
+            "source-after": {
+              "logical_bytes": 4904271540,
+              "node_sha256": "c410b29b8063fff6e91d2578bf33122c9d41461f6f23a9597120410c28f83fb6",
+              "nodes": 123056
+            },
+            "source-before": {
+              "logical_bytes": 4904271540,
+              "node_sha256": "c410b29b8063fff6e91d2578bf33122c9d41461f6f23a9597120410c28f83fb6",
+              "nodes": 123056
+            }
+          }
+        },
+        "original_source_sha256": "c410b29b8063fff6e91d2578bf33122c9d41461f6f23a9597120410c28f83fb6",
+        "runtime_observations": 4,
+        "source_capabilities_sha256": "f51c5419ecea4e63a809c41e45dd04b57befac56d294e06ed555f1656d29c194",
+        "source_image": "sha256:2a1058418ea9677031333c4452f49a7c06f3ddc9666580e1314c07ff6e3f9ec7",
+        "source_nodes": 123056
+      },
+      "leases": {
+        "leases": 5,
+        "records": [
+          {
+            "calls": [
+              {
+                "api": "mount",
+                "errno": 0,
+                "errno_name": null,
+                "flags": 15,
+                "returncode": 0,
+                "target": "/work/.gnu-readonly-proc-probe"
+              },
+              {
+                "api": "umount2",
+                "errno": 0,
+                "errno_name": null,
+                "flags": 0,
+                "returncode": 0,
+                "target": "/work/.gnu-readonly-proc-probe"
+              }
+            ],
+            "case": "probe",
+            "cleanup": "EXACT_MOUNTS_ABSENT_PLACEHOLDERS_REMOVED",
+            "proc": {
+              "mount_row": "20 30 0:19 / /work/.gnu-readonly-proc-probe ro,nosuid,nodev,noexec,relatime - proc proc ro",
+              "status": "PASS_EXACT_READONLY_PROC_FLAGS"
+            },
+            "status": "PASS_PID1_OWNED_FIXED_LEASE"
+          },
+          {
+            "calls": [
+              {
+                "api": "mount",
+                "errno": 0,
+                "errno_name": null,
+                "flags": 15,
+                "returncode": 0,
+                "target": "/work/modified/root/proc"
+              },
+              {
+                "api": "mount",
+                "errno": 0,
+                "errno_name": null,
+                "flags": 4096,
+                "returncode": 0,
+                "target": "/work/modified/root/dev/null"
+              },
+              {
+                "api": "umount2",
+                "errno": 0,
+                "errno_name": null,
+                "flags": 0,
+                "returncode": 0,
+                "target": "/work/modified/root/dev/null"
+              },
+              {
+                "api": "umount2",
+                "errno": 0,
+                "errno_name": null,
+                "flags": 0,
+                "returncode": 0,
+                "target": "/work/modified/root/proc"
+              }
+            ],
+            "case": "modified",
+            "cleanup": "EXACT_MOUNTS_ABSENT_PLACEHOLDERS_REMOVED",
+            "dev_null": {
+              "device": 18,
+              "gid": 0,
+              "inode": 2,
+              "mode": 8630,
+              "mount_row": "29 30 0:18 /null /work/modified/root/dev/null rw,nosuid,relatime - tmpfs tmpfs rw,size=1024k,mode=755",
+              "rdev": 259,
+              "source_mount_row": "17 16 0:18 / /dev rw,nosuid,relatime - tmpfs tmpfs rw,size=1024k,mode=755",
+              "status": "PASS_EXACT_DEV_NULL_BIND_IDENTITY",
+              "uid": 0
+            },
+            "proc": {
+              "mount_row": "20 30 0:19 / /work/modified/root/proc ro,nosuid,nodev,noexec,relatime - proc proc ro",
+              "status": "PASS_EXACT_READONLY_PROC_FLAGS"
+            },
+            "status": "PASS_PID1_OWNED_FIXED_LEASE"
+          },
+          {
+            "calls": [
+              {
+                "api": "mount",
+                "errno": 0,
+                "errno_name": null,
+                "flags": 15,
+                "returncode": 0,
+                "target": "/work/modified/root/proc"
+              },
+              {
+                "api": "mount",
+                "errno": 0,
+                "errno_name": null,
+                "flags": 4096,
+                "returncode": 0,
+                "target": "/work/modified/root/dev/null"
+              },
+              {
+                "api": "umount2",
+                "errno": 0,
+                "errno_name": null,
+                "flags": 0,
+                "returncode": 0,
+                "target": "/work/modified/root/dev/null"
+              },
+              {
+                "api": "umount2",
+                "errno": 0,
+                "errno_name": null,
+                "flags": 0,
+                "returncode": 0,
+                "target": "/work/modified/root/proc"
+              }
+            ],
+            "case": "modified",
+            "cleanup": "EXACT_MOUNTS_ABSENT_PLACEHOLDERS_REMOVED",
+            "dev_null": {
+              "device": 18,
+              "gid": 0,
+              "inode": 2,
+              "mode": 8630,
+              "mount_row": "29 30 0:18 /null /work/modified/root/dev/null rw,nosuid,relatime - tmpfs tmpfs rw,size=1024k,mode=755",
+              "rdev": 259,
+              "source_mount_row": "17 16 0:18 / /dev rw,nosuid,relatime - tmpfs tmpfs rw,size=1024k,mode=755",
+              "status": "PASS_EXACT_DEV_NULL_BIND_IDENTITY",
+              "uid": 0
+            },
+            "proc": {
+              "mount_row": "20 30 0:19 / /work/modified/root/proc ro,nosuid,nodev,noexec,relatime - proc proc ro",
+              "status": "PASS_EXACT_READONLY_PROC_FLAGS"
+            },
+            "status": "PASS_PID1_OWNED_FIXED_LEASE"
+          },
+          {
+            "calls": [
+              {
+                "api": "mount",
+                "errno": 0,
+                "errno_name": null,
+                "flags": 15,
+                "returncode": 0,
+                "target": "/work/modified/root/proc"
+              },
+              {
+                "api": "mount",
+                "errno": 0,
+                "errno_name": null,
+                "flags": 4096,
+                "returncode": 0,
+                "target": "/work/modified/root/dev/null"
+              },
+              {
+                "api": "umount2",
+                "errno": 0,
+                "errno_name": null,
+                "flags": 0,
+                "returncode": 0,
+                "target": "/work/modified/root/dev/null"
+              },
+              {
+                "api": "umount2",
+                "errno": 0,
+                "errno_name": null,
+                "flags": 0,
+                "returncode": 0,
+                "target": "/work/modified/root/proc"
+              }
+            ],
+            "case": "modified",
+            "cleanup": "EXACT_MOUNTS_ABSENT_PLACEHOLDERS_REMOVED",
+            "dev_null": {
+              "device": 18,
+              "gid": 0,
+              "inode": 2,
+              "mode": 8630,
+              "mount_row": "29 30 0:18 /null /work/modified/root/dev/null rw,nosuid,relatime - tmpfs tmpfs rw,size=1024k,mode=755",
+              "rdev": 259,
+              "source_mount_row": "17 16 0:18 / /dev rw,nosuid,relatime - tmpfs tmpfs rw,size=1024k,mode=755",
+              "status": "PASS_EXACT_DEV_NULL_BIND_IDENTITY",
+              "uid": 0
+            },
+            "proc": {
+              "mount_row": "20 30 0:19 / /work/modified/root/proc ro,nosuid,nodev,noexec,relatime - proc proc ro",
+              "status": "PASS_EXACT_READONLY_PROC_FLAGS"
+            },
+            "status": "PASS_PID1_OWNED_FIXED_LEASE"
+          },
+          {
+            "calls": [
+              {
+                "api": "mount",
+                "errno": 0,
+                "errno_name": null,
+                "flags": 15,
+                "returncode": 0,
+                "target": "/work/modified/root/proc"
+              },
+              {
+                "api": "mount",
+                "errno": 0,
+                "errno_name": null,
+                "flags": 4096,
+                "returncode": 0,
+                "target": "/work/modified/root/dev/null"
+              },
+              {
+                "api": "umount2",
+                "errno": 0,
+                "errno_name": null,
+                "flags": 0,
+                "returncode": 0,
+                "target": "/work/modified/root/dev/null"
+              },
+              {
+                "api": "umount2",
+                "errno": 0,
+                "errno_name": null,
+                "flags": 0,
+                "returncode": 0,
+                "target": "/work/modified/root/proc"
+              }
+            ],
+            "case": "modified",
+            "cleanup": "EXACT_MOUNTS_ABSENT_PLACEHOLDERS_REMOVED",
+            "dev_null": {
+              "device": 18,
+              "gid": 0,
+              "inode": 2,
+              "mode": 8630,
+              "mount_row": "29 30 0:18 /null /work/modified/root/dev/null rw,nosuid,relatime - tmpfs tmpfs rw,size=1024k,mode=755",
+              "rdev": 259,
+              "source_mount_row": "17 16 0:18 / /dev rw,nosuid,relatime - tmpfs tmpfs rw,size=1024k,mode=755",
+              "status": "PASS_EXACT_DEV_NULL_BIND_IDENTITY",
+              "uid": 0
+            },
+            "proc": {
+              "mount_row": "20 30 0:19 / /work/modified/root/proc ro,nosuid,nodev,noexec,relatime - proc proc ro",
+              "status": "PASS_EXACT_READONLY_PROC_FLAGS"
+            },
+            "status": "PASS_PID1_OWNED_FIXED_LEASE"
+          }
+        ],
+        "status": "NO_ACTIVE_PID1_RUNTIME_MOUNTS"
+      },
+      "limitations": [
+        "All selected exported logical maps/ALPM/runtime/archive/capability predicates replayed; private full physical/auxiliary/rawDB reads remain enforced by pinned PID1/worker source",
+        "Retained process/DM/mount/producer absence receipts are validated; no live processes/mounts/devices are reobserved",
+        "Kernel source-bound prior build/boot inputs are distinct from actual successful mapping/lifecycle; no previous decision substitutes fresh actual results",
+        "Normal generic16K only; no interrupted transactions, performance or Apple/M2 acceptance"
+      ],
+      "nonce": "7ed07314cdcf378c213bce8e93e6e49c",
+      "ordered_cleanup": {
+        "apparmor": {
+          "add_attempted": true,
+          "after_load": {
+            "docker_default": "enforce",
+            "profiles": 123,
+            "registry_sha256": "26f2d608247d6c14eae4e8dc37baaff9a1383ffc6e14ab1f1702f3d210b9d3e8",
+            "target_mode": "enforce"
+          },
+          "after_remove": {
+            "docker_default": "enforce",
+            "profiles": 122,
+            "registry_sha256": "f188f744e30031090c80cc6fd636d6ff40e375343ccd3d930f471cc554b3f227",
+            "target_mode": null
+          },
+          "baseline": {
+            "bytes": 2448,
+            "sha256": "8a01e8af45309152d40f1e08895f9d4ac47b435c4f70e5ff03f6dbd77338ee1b"
+          },
+          "before": {
+            "docker_default": "enforce",
+            "profiles": 122,
+            "registry_sha256": "f188f744e30031090c80cc6fd636d6ff40e375343ccd3d930f471cc554b3f227",
+            "target_mode": null
+          },
+          "hardware": "NOT_RUN",
+          "host": {
+            "daemon_executable": "/usr/bin/dockerd",
+            "daemon_pid": 1298,
+            "daemon_profile": "unconfined",
+            "daemon_starttime": "911",
+            "macros": {
+              "abi/3.0": {
+                "bytes": 1925,
+                "sha256": "a786a2fde512336f885805b557b0fc4df6e0c2e21e336bba8d6f9b3c8d637a66"
+              },
+              "abstractions/base": {
+                "bytes": 7093,
+                "sha256": "bd5e82954361fb71ac6a41ed85c329e65610cb6f2c07a46151ac7a6a9660657b"
+              },
+              "tunables/global": {
+                "bytes": 897,
+                "sha256": "2c1d72013b53bf103fb8abe2199ce5775f8493df1acd3ef497046156c09fdf7c"
+              }
+            },
+            "namespaces": {
+              "mnt": {
+                "available": false,
+                "errno": 13
+              },
+              "pid": {
+                "available": false,
+                "errno": 13
+              },
+              "user": {
+                "available": false,
+                "errno": 13
+              }
+            }
+          },
+          "image": "sha256:2a1058418ea9677031333c4452f49a7c06f3ddc9666580e1314c07ff6e3f9ec7",
+          "lane": "lifecycle",
+          "name": "caa-gnu-lifecycle-c5d2257e083c2df80ba46a83273adfcd",
+          "native_counterfactual": "NOT_RUN",
+          "policy_delta": "EXACT3_READONLY_PROC_FLAGS15_PLUS2_DEV_NULL_BINDS_ONLY",
+          "producer_before": {
+            "image": "sha256:2a1058418ea9677031333c4452f49a7c06f3ddc9666580e1314c07ff6e3f9ec7",
+            "live_producer_profile_readback": "UNAVAILABLE_PROBE_ALREADY_AUTO_REMOVED",
+            "probe": {
+              "id": "15cc70edf1810111946e24e3d706e3d5f43bd1e7edce567a43e7bb813e3969db",
+              "name": "cachy-asahi-574-probe-2767b6c1d0998fb7"
+            },
+            "status": "PASS_ORIGINAL_FRESH_IMAGE_AND_COMPLETED_AUTO_REMOVED_PROBE_ABSENCE"
+          },
+          "producer_before_remove": {
+            "image": "sha256:2a1058418ea9677031333c4452f49a7c06f3ddc9666580e1314c07ff6e3f9ec7",
+            "live_producer_profile_readback": "UNAVAILABLE_PROBE_ALREADY_AUTO_REMOVED",
+            "probe": {
+              "id": "15cc70edf1810111946e24e3d706e3d5f43bd1e7edce567a43e7bb813e3969db",
+              "name": "cachy-asahi-574-probe-2767b6c1d0998fb7"
+            },
+            "status": "PASS_ORIGINAL_FRESH_IMAGE_AND_COMPLETED_AUTO_REMOVED_PROBE_ABSENCE"
+          },
+          "producer_probe": {
+            "id": "15cc70edf1810111946e24e3d706e3d5f43bd1e7edce567a43e7bb813e3969db",
+            "name": "cachy-asahi-574-probe-2767b6c1d0998fb7"
+          },
+          "producer_token": "2767b6c1d0998fb7",
+          "profile": {
+            "bytes": 2909,
+            "sha256": "ad8e186f3ca2cd4ef5a5fcc43d6acd354ccc13c221e9277fdfe69aa4cd583430"
+          },
+          "schema_version": 1,
+          "source_revision": "4b8214fc4971e06172938a1f1554ccff6647ee80",
+          "source_sha": "de1aab259df6bda8ad36f959392e3fc4eb35b622",
+          "status": "PASS_OWNED_PROFILE_REMOVED_AFTER_ALL_CONSUMERS",
+          "token": "c5d2257e083c2df80ba46a83273adfcd",
+          "users_before": {
+            "inspected_containers": 0,
+            "status": "PASS_ALL_OWNED_CONSUMERS_AND_PROFILE_USERS_ABSENT"
+          },
+          "users_before_remove": {
+            "inspected_containers": 0,
+            "status": "PASS_ALL_OWNED_CONSUMERS_AND_PROFILE_USERS_ABSENT"
+          }
+        },
+        "consumer": "PASS_ALL_ACTORS_CLONES_AND_SOURCE_DATA_RETIRED",
+        "producer": {
+          "build": "COMPLETED",
+          "image": {
+            "absence_verified": true,
+            "id": "sha256:2a1058418ea9677031333c4452f49a7c06f3ddc9666580e1314c07ff6e3f9ec7"
+          },
+          "probe": {
+            "absence_verified": true,
+            "cid": "15cc70edf1810111946e24e3d706e3d5f43bd1e7edce567a43e7bb813e3969db",
+            "name": "cachy-asahi-574-probe-2767b6c1d0998fb7"
+          },
+          "status": "PASS"
+        },
+        "status": "PASS_ORDERED_ALL_CONSUMERS_THEN_PRODUCER"
+      },
+      "originals": {
+        "artifacts.json": {
+          "bytes": 1891,
+          "sha256": "13b96c6604d675efea3f7545854af2aa5d3f2a9dd250a5b88259d5e0e184bf0e"
+        },
+        "collection-progress.json": {
+          "bytes": 384,
+          "sha256": "d8c9ba0299b6f6ff1e6c741ded780ab1a08919e846cf70f2ca755db06d300b9e"
+        },
+        "collection.json": {
+          "bytes": 839,
+          "sha256": "0153b230a657b723d07c6ef0856cb95632803771acae08e038c34da461e2791c"
+        },
+        "immutable.zip": {
+          "bytes": 41406307,
+          "sha256": "8a6a99d410517e53fbf0ba9a84a59c9fb04cd4c8fbcc62bcde3d88c42e10f987"
+        },
+        "logs.zip": {
+          "bytes": 377625,
+          "sha256": "1882984432af2f203ba3ef8668aca828c582b3dea16aba86cc06373dc1e4428b"
+        },
+        "native.zip": {
+          "bytes": 137480784,
+          "sha256": "2f5dd5c051daaaa744a52995552878328cdc0ccfb08893db5a2da347f288a23e"
+        },
+        "run.json": {
+          "bytes": 14310,
+          "sha256": "e8157c3e6211a6d5bb105de08fc9a470a465027190125c27db4151a325fa7e8a"
+        }
+      },
+      "positive": {
+        "bytes": 26907,
+        "sha256": "ceb4b1243571030b5407e9d6695f4ede7e6f0677b9fba55aac07c185e6b808f7"
+      },
+      "postjoin": {
+        "bytes": 405479,
+        "sha256": "c7c4c7fe494fd7ebcb3b2442b4737829c4f80d8f6fb811bfa40db7eab47a9754"
+      },
+      "run": 40234034646,
+      "source": "de1aab259df6bda8ad36f959392e3fc4eb35b622"
+    },
+    "pristine": {
+      "PID1_cleanup": {
+        "hardware": "NOT_RUN",
+        "mounts": 8,
+        "raw_disks": "HOST_OWNER_MAY_DISPOSE_ONLY_AFTER_QEMU_GROUP_ABSENCE",
+        "release": "NOT_ADMITTED",
+        "status": "WORKER_GROUP_LEASES_MOUNTS_AND_OWNED_DM_RETIRED"
+      },
+      "full_normal": {
+        "complete_maps": {
+          "pristine": {
+            "before574": {
+              "logical_bytes": 4904360089,
+              "node_sha256": "fb73e1161419bef3c026fb404b04c348f8726dad813ad3d4365755cb23830fff",
+              "nodes": 123066
+            },
+            "clone": {
+              "logical_bytes": 4904271540,
+              "node_sha256": "744337bcc8ff217d4e0232b86c5831029c1cb56dddcfa12fe8b5200d51c16345",
+              "nodes": 123056
+            },
+            "held574": {
+              "logical_bytes": 4904387082,
+              "node_sha256": "3ee756ad21c1e5335321fa589f9f4e088087a4bc7423ad747b529ee34f87a2a0",
+              "nodes": 123071
+            },
+            "precommit-refused": {
+              "logical_bytes": 4904360089,
+              "node_sha256": "fb73e1161419bef3c026fb404b04c348f8726dad813ad3d4365755cb23830fff",
+              "nodes": 123066
+            },
+            "provider574": {
+              "logical_bytes": 4960716442,
+              "node_sha256": "1f3bd27d591b0e7b53755f7da2ac3380b73b6e7ead0a9fbb8d2a77bcb7c89c55",
+              "nodes": 123044
+            },
+            "reinstalled574": {
+              "logical_bytes": 4960743452,
+              "node_sha256": "f9f8137377e6d9910e013dab7ed8d8de966ec99bed9c01e4128c91f9d53ec961",
+              "nodes": 123047
+            },
+            "root_initialization": {
+              "after": 493,
+              "before": 448,
+              "parent_private": true,
+              "private_FD_copy_proof": "SOURCE_ENFORCED_NOT_EXPORTED",
+              "scope": "GNU_VERITY_COPY_SCOPE_V1",
+              "scope_sha256": "b2f8bdde789e583366d0bcef38898dffc3ccf4479d5f09f20afb4f2276a0bc97",
+              "source_unchanged": true,
+              "status": "PASS_IMMUTABLE_CLONE_ROOT_SEARCH_INITIALIZATION_JOIN"
+            },
+            "source-after": {
+              "logical_bytes": 4904271540,
+              "node_sha256": "744337bcc8ff217d4e0232b86c5831029c1cb56dddcfa12fe8b5200d51c16345",
+              "nodes": 123056
+            },
+            "source-before": {
+              "logical_bytes": 4904271540,
+              "node_sha256": "744337bcc8ff217d4e0232b86c5831029c1cb56dddcfa12fe8b5200d51c16345",
+              "nodes": 123056
+            }
+          }
+        },
+        "original_source_sha256": "744337bcc8ff217d4e0232b86c5831029c1cb56dddcfa12fe8b5200d51c16345",
+        "runtime_observations": 4,
+        "source_capabilities_sha256": "f51c5419ecea4e63a809c41e45dd04b57befac56d294e06ed555f1656d29c194",
+        "source_image": "sha256:c4d3f042377d819eedb3de9c7ff2b07db49c9be9cfbc6780c44f9a2da8fd2e80",
+        "source_nodes": 123056
+      },
+      "leases": {
+        "leases": 5,
+        "records": [
+          {
+            "calls": [
+              {
+                "api": "mount",
+                "errno": 0,
+                "errno_name": null,
+                "flags": 15,
+                "returncode": 0,
+                "target": "/work/.gnu-readonly-proc-probe"
+              },
+              {
+                "api": "umount2",
+                "errno": 0,
+                "errno_name": null,
+                "flags": 0,
+                "returncode": 0,
+                "target": "/work/.gnu-readonly-proc-probe"
+              }
+            ],
+            "case": "probe",
+            "cleanup": "EXACT_MOUNTS_ABSENT_PLACEHOLDERS_REMOVED",
+            "proc": {
+              "mount_row": "20 30 0:19 / /work/.gnu-readonly-proc-probe ro,nosuid,nodev,noexec,relatime - proc proc ro",
+              "status": "PASS_EXACT_READONLY_PROC_FLAGS"
+            },
+            "status": "PASS_PID1_OWNED_FIXED_LEASE"
+          },
+          {
+            "calls": [
+              {
+                "api": "mount",
+                "errno": 0,
+                "errno_name": null,
+                "flags": 15,
+                "returncode": 0,
+                "target": "/work/pristine/root/proc"
+              },
+              {
+                "api": "mount",
+                "errno": 0,
+                "errno_name": null,
+                "flags": 4096,
+                "returncode": 0,
+                "target": "/work/pristine/root/dev/null"
+              },
+              {
+                "api": "umount2",
+                "errno": 0,
+                "errno_name": null,
+                "flags": 0,
+                "returncode": 0,
+                "target": "/work/pristine/root/dev/null"
+              },
+              {
+                "api": "umount2",
+                "errno": 0,
+                "errno_name": null,
+                "flags": 0,
+                "returncode": 0,
+                "target": "/work/pristine/root/proc"
+              }
+            ],
+            "case": "pristine",
+            "cleanup": "EXACT_MOUNTS_ABSENT_PLACEHOLDERS_REMOVED",
+            "dev_null": {
+              "device": 18,
+              "gid": 0,
+              "inode": 2,
+              "mode": 8630,
+              "mount_row": "29 30 0:18 /null /work/pristine/root/dev/null rw,nosuid,relatime - tmpfs tmpfs rw,size=1024k,mode=755",
+              "rdev": 259,
+              "source_mount_row": "17 16 0:18 / /dev rw,nosuid,relatime - tmpfs tmpfs rw,size=1024k,mode=755",
+              "status": "PASS_EXACT_DEV_NULL_BIND_IDENTITY",
+              "uid": 0
+            },
+            "proc": {
+              "mount_row": "20 30 0:19 / /work/pristine/root/proc ro,nosuid,nodev,noexec,relatime - proc proc ro",
+              "status": "PASS_EXACT_READONLY_PROC_FLAGS"
+            },
+            "status": "PASS_PID1_OWNED_FIXED_LEASE"
+          },
+          {
+            "calls": [
+              {
+                "api": "mount",
+                "errno": 0,
+                "errno_name": null,
+                "flags": 15,
+                "returncode": 0,
+                "target": "/work/pristine/root/proc"
+              },
+              {
+                "api": "mount",
+                "errno": 0,
+                "errno_name": null,
+                "flags": 4096,
+                "returncode": 0,
+                "target": "/work/pristine/root/dev/null"
+              },
+              {
+                "api": "umount2",
+                "errno": 0,
+                "errno_name": null,
+                "flags": 0,
+                "returncode": 0,
+                "target": "/work/pristine/root/dev/null"
+              },
+              {
+                "api": "umount2",
+                "errno": 0,
+                "errno_name": null,
+                "flags": 0,
+                "returncode": 0,
+                "target": "/work/pristine/root/proc"
+              }
+            ],
+            "case": "pristine",
+            "cleanup": "EXACT_MOUNTS_ABSENT_PLACEHOLDERS_REMOVED",
+            "dev_null": {
+              "device": 18,
+              "gid": 0,
+              "inode": 2,
+              "mode": 8630,
+              "mount_row": "29 30 0:18 /null /work/pristine/root/dev/null rw,nosuid,relatime - tmpfs tmpfs rw,size=1024k,mode=755",
+              "rdev": 259,
+              "source_mount_row": "17 16 0:18 / /dev rw,nosuid,relatime - tmpfs tmpfs rw,size=1024k,mode=755",
+              "status": "PASS_EXACT_DEV_NULL_BIND_IDENTITY",
+              "uid": 0
+            },
+            "proc": {
+              "mount_row": "20 30 0:19 / /work/pristine/root/proc ro,nosuid,nodev,noexec,relatime - proc proc ro",
+              "status": "PASS_EXACT_READONLY_PROC_FLAGS"
+            },
+            "status": "PASS_PID1_OWNED_FIXED_LEASE"
+          },
+          {
+            "calls": [
+              {
+                "api": "mount",
+                "errno": 0,
+                "errno_name": null,
+                "flags": 15,
+                "returncode": 0,
+                "target": "/work/pristine/root/proc"
+              },
+              {
+                "api": "mount",
+                "errno": 0,
+                "errno_name": null,
+                "flags": 4096,
+                "returncode": 0,
+                "target": "/work/pristine/root/dev/null"
+              },
+              {
+                "api": "umount2",
+                "errno": 0,
+                "errno_name": null,
+                "flags": 0,
+                "returncode": 0,
+                "target": "/work/pristine/root/dev/null"
+              },
+              {
+                "api": "umount2",
+                "errno": 0,
+                "errno_name": null,
+                "flags": 0,
+                "returncode": 0,
+                "target": "/work/pristine/root/proc"
+              }
+            ],
+            "case": "pristine",
+            "cleanup": "EXACT_MOUNTS_ABSENT_PLACEHOLDERS_REMOVED",
+            "dev_null": {
+              "device": 18,
+              "gid": 0,
+              "inode": 2,
+              "mode": 8630,
+              "mount_row": "29 30 0:18 /null /work/pristine/root/dev/null rw,nosuid,relatime - tmpfs tmpfs rw,size=1024k,mode=755",
+              "rdev": 259,
+              "source_mount_row": "17 16 0:18 / /dev rw,nosuid,relatime - tmpfs tmpfs rw,size=1024k,mode=755",
+              "status": "PASS_EXACT_DEV_NULL_BIND_IDENTITY",
+              "uid": 0
+            },
+            "proc": {
+              "mount_row": "20 30 0:19 / /work/pristine/root/proc ro,nosuid,nodev,noexec,relatime - proc proc ro",
+              "status": "PASS_EXACT_READONLY_PROC_FLAGS"
+            },
+            "status": "PASS_PID1_OWNED_FIXED_LEASE"
+          },
+          {
+            "calls": [
+              {
+                "api": "mount",
+                "errno": 0,
+                "errno_name": null,
+                "flags": 15,
+                "returncode": 0,
+                "target": "/work/pristine/root/proc"
+              },
+              {
+                "api": "mount",
+                "errno": 0,
+                "errno_name": null,
+                "flags": 4096,
+                "returncode": 0,
+                "target": "/work/pristine/root/dev/null"
+              },
+              {
+                "api": "umount2",
+                "errno": 0,
+                "errno_name": null,
+                "flags": 0,
+                "returncode": 0,
+                "target": "/work/pristine/root/dev/null"
+              },
+              {
+                "api": "umount2",
+                "errno": 0,
+                "errno_name": null,
+                "flags": 0,
+                "returncode": 0,
+                "target": "/work/pristine/root/proc"
+              }
+            ],
+            "case": "pristine",
+            "cleanup": "EXACT_MOUNTS_ABSENT_PLACEHOLDERS_REMOVED",
+            "dev_null": {
+              "device": 18,
+              "gid": 0,
+              "inode": 2,
+              "mode": 8630,
+              "mount_row": "29 30 0:18 /null /work/pristine/root/dev/null rw,nosuid,relatime - tmpfs tmpfs rw,size=1024k,mode=755",
+              "rdev": 259,
+              "source_mount_row": "17 16 0:18 / /dev rw,nosuid,relatime - tmpfs tmpfs rw,size=1024k,mode=755",
+              "status": "PASS_EXACT_DEV_NULL_BIND_IDENTITY",
+              "uid": 0
+            },
+            "proc": {
+              "mount_row": "20 30 0:19 / /work/pristine/root/proc ro,nosuid,nodev,noexec,relatime - proc proc ro",
+              "status": "PASS_EXACT_READONLY_PROC_FLAGS"
+            },
+            "status": "PASS_PID1_OWNED_FIXED_LEASE"
+          }
+        ],
+        "status": "NO_ACTIVE_PID1_RUNTIME_MOUNTS"
+      },
+      "limitations": [
+        "All selected exported logical maps/ALPM/runtime/archive/capability predicates replayed; private full physical/auxiliary/rawDB reads remain enforced by pinned PID1/worker source",
+        "Retained process/DM/mount/producer absence receipts are validated; no live processes/mounts/devices are reobserved",
+        "Kernel source-bound prior build/boot inputs are distinct from actual successful mapping/lifecycle; no previous decision substitutes fresh actual results",
+        "Normal generic16K only; no interrupted transactions, performance or Apple/M2 acceptance"
+      ],
+      "nonce": "0064687a09c1dbf70eadf9b5847fe9dd",
+      "ordered_cleanup": {
+        "apparmor": {
+          "add_attempted": true,
+          "after_load": {
+            "docker_default": "enforce",
+            "profiles": 123,
+            "registry_sha256": "60fbbaffe15b2eeec386e5570db12a6d2b49f545db34a240497b5fe6fbf4238c",
+            "target_mode": "enforce"
+          },
+          "after_remove": {
+            "docker_default": "enforce",
+            "profiles": 122,
+            "registry_sha256": "f188f744e30031090c80cc6fd636d6ff40e375343ccd3d930f471cc554b3f227",
+            "target_mode": null
+          },
+          "baseline": {
+            "bytes": 2448,
+            "sha256": "f2727d9dab55202f13ff69cba735171e3d78d7151e951005ea7aaeba303dc38c"
+          },
+          "before": {
+            "docker_default": "enforce",
+            "profiles": 122,
+            "registry_sha256": "f188f744e30031090c80cc6fd636d6ff40e375343ccd3d930f471cc554b3f227",
+            "target_mode": null
+          },
+          "hardware": "NOT_RUN",
+          "host": {
+            "daemon_executable": "/usr/bin/dockerd",
+            "daemon_pid": 1273,
+            "daemon_profile": "unconfined",
+            "daemon_starttime": "1058",
+            "macros": {
+              "abi/3.0": {
+                "bytes": 1925,
+                "sha256": "a786a2fde512336f885805b557b0fc4df6e0c2e21e336bba8d6f9b3c8d637a66"
+              },
+              "abstractions/base": {
+                "bytes": 7093,
+                "sha256": "bd5e82954361fb71ac6a41ed85c329e65610cb6f2c07a46151ac7a6a9660657b"
+              },
+              "tunables/global": {
+                "bytes": 897,
+                "sha256": "2c1d72013b53bf103fb8abe2199ce5775f8493df1acd3ef497046156c09fdf7c"
+              }
+            },
+            "namespaces": {
+              "mnt": {
+                "available": false,
+                "errno": 13
+              },
+              "pid": {
+                "available": false,
+                "errno": 13
+              },
+              "user": {
+                "available": false,
+                "errno": 13
+              }
+            }
+          },
+          "image": "sha256:c4d3f042377d819eedb3de9c7ff2b07db49c9be9cfbc6780c44f9a2da8fd2e80",
+          "lane": "lifecycle",
+          "name": "caa-gnu-lifecycle-8741d7737815cf517f454917ac06de7a",
+          "native_counterfactual": "NOT_RUN",
+          "policy_delta": "EXACT3_READONLY_PROC_FLAGS15_PLUS2_DEV_NULL_BINDS_ONLY",
+          "producer_before": {
+            "image": "sha256:c4d3f042377d819eedb3de9c7ff2b07db49c9be9cfbc6780c44f9a2da8fd2e80",
+            "live_producer_profile_readback": "UNAVAILABLE_PROBE_ALREADY_AUTO_REMOVED",
+            "probe": {
+              "id": "3f54f7c49ee0e52596d7a4c5c0b8cff35ffa6f42d83ec94633edc9eeca53181d",
+              "name": "cachy-asahi-574-probe-eba26912b2808643"
+            },
+            "status": "PASS_ORIGINAL_FRESH_IMAGE_AND_COMPLETED_AUTO_REMOVED_PROBE_ABSENCE"
+          },
+          "producer_before_remove": {
+            "image": "sha256:c4d3f042377d819eedb3de9c7ff2b07db49c9be9cfbc6780c44f9a2da8fd2e80",
+            "live_producer_profile_readback": "UNAVAILABLE_PROBE_ALREADY_AUTO_REMOVED",
+            "probe": {
+              "id": "3f54f7c49ee0e52596d7a4c5c0b8cff35ffa6f42d83ec94633edc9eeca53181d",
+              "name": "cachy-asahi-574-probe-eba26912b2808643"
+            },
+            "status": "PASS_ORIGINAL_FRESH_IMAGE_AND_COMPLETED_AUTO_REMOVED_PROBE_ABSENCE"
+          },
+          "producer_probe": {
+            "id": "3f54f7c49ee0e52596d7a4c5c0b8cff35ffa6f42d83ec94633edc9eeca53181d",
+            "name": "cachy-asahi-574-probe-eba26912b2808643"
+          },
+          "producer_token": "eba26912b2808643",
+          "profile": {
+            "bytes": 2909,
+            "sha256": "f84546787b6287ed499cb32fb95303203c4db0faf91305efa3d5fcbd8ee7ce33"
+          },
+          "schema_version": 1,
+          "source_revision": "4b8214fc4971e06172938a1f1554ccff6647ee80",
+          "source_sha": "de1aab259df6bda8ad36f959392e3fc4eb35b622",
+          "status": "PASS_OWNED_PROFILE_REMOVED_AFTER_ALL_CONSUMERS",
+          "token": "8741d7737815cf517f454917ac06de7a",
+          "users_before": {
+            "inspected_containers": 0,
+            "status": "PASS_ALL_OWNED_CONSUMERS_AND_PROFILE_USERS_ABSENT"
+          },
+          "users_before_remove": {
+            "inspected_containers": 0,
+            "status": "PASS_ALL_OWNED_CONSUMERS_AND_PROFILE_USERS_ABSENT"
+          }
+        },
+        "consumer": "PASS_ALL_ACTORS_CLONES_AND_SOURCE_DATA_RETIRED",
+        "producer": {
+          "build": "COMPLETED",
+          "image": {
+            "absence_verified": true,
+            "id": "sha256:c4d3f042377d819eedb3de9c7ff2b07db49c9be9cfbc6780c44f9a2da8fd2e80"
+          },
+          "probe": {
+            "absence_verified": true,
+            "cid": "3f54f7c49ee0e52596d7a4c5c0b8cff35ffa6f42d83ec94633edc9eeca53181d",
+            "name": "cachy-asahi-574-probe-eba26912b2808643"
+          },
+          "status": "PASS"
+        },
+        "status": "PASS_ORDERED_ALL_CONSUMERS_THEN_PRODUCER"
+      },
+      "originals": {
+        "artifacts.json": {
+          "bytes": 1891,
+          "sha256": "82e770cd900ca4899986013af73ac1771884a10d43e715d7b51f77228b14b1c8"
+        },
+        "collection-progress.json": {
+          "bytes": 384,
+          "sha256": "78c4eabe4a55b8cbbebe9a8e2035d41fcf14df46deaa055df64fd0a6294f8ba9"
+        },
+        "collection.json": {
+          "bytes": 839,
+          "sha256": "91b6290ba627ecc558fbf8ded8069f65f4802f1a19195d4ac916f1feb3159b2f"
+        },
+        "immutable.zip": {
+          "bytes": 41394948,
+          "sha256": "530cdd7ab7f8400a3781dc1dfb35c71163754e00bdee7b15e1da0f8a905ef733"
+        },
+        "logs.zip": {
+          "bytes": 377674,
+          "sha256": "22c152e55bf1c272bfb13dea82bb23223a9375c0e03ebddfaa3a81ade3f7d3c6"
+        },
+        "native.zip": {
+          "bytes": 137480067,
+          "sha256": "c143e56d0c28a1f987819c1c60a7cac31292e422bcfac401dd76b46917dbc7a0"
+        },
+        "run.json": {
+          "bytes": 14310,
+          "sha256": "1f4b497152d2aace4aeba15a2e505d5895e158cd940c58eb724d53641dfdde5f"
+        }
+      },
+      "positive": {
+        "bytes": 26570,
+        "sha256": "60f8c54f6e0066002e6aef75232e716f64ce78c54a208ab65040d59dbff04ea7"
+      },
+      "postjoin": {
+        "bytes": 405196,
+        "sha256": "25dcfe7294e23b3ef00dda2944e1a1d6a973d3c7b9355de4ff0349c1ca2c4213"
+      },
+      "run": 40219340417,
+      "source": "de1aab259df6bda8ad36f959392e3fc4eb35b622"
+    }
+  },
+  "cleanup": "SOURCE_BOUND_RETAINED_ORDERED_RECEIPTS_NOT_LIVE_REOBSERVATION",
+  "complete_logical_maps": 16,
+  "explicit_configuration_handoff_root_map_joins": 3,
+  "hardware": "NOT_RUN",
+  "interrupted_transactions": "NOT_RUN",
+  "kernel_input": {
+    "Image": {
+      "bytes": 9019400,
+      "sha256": "cd8053ebdb83302015efbad97ab1cc53fcd5a2353bf3f37ba208f4e6360946ec"
+    },
+    "boot_page_size": 16384,
+    "configured_symbols": [
+      "MD",
+      "BLK_DEV_DM",
+      "DM_VERITY",
+      "CRYPTO_SHA256"
+    ],
+    "profile": "GNU_GENERIC16K_IMMUTABLE_SOURCE_BOOTSTRAP_V1",
+    "release": "7.1.13-generic16k-managed-gui"
+  },
+  "performance": "NOT_MEASURED",
+  "prerequisites": {
+    "native_lifecycle": {
+      "ALPM_installation": "PASS",
+      "attempt": 1,
+      "candidate": {
+        "authority_sha256": "88643eabd61a39df63ecaeb50bb20041d17cf4fd3adee55d82d43d3c1ca08707",
+        "package": "cachy-asahi-glibc-gnu-provider",
+        "pkgbuild_sha256": "9d6d5e688c95febe85321abc69fbfe1b7781a02e318771ae43851d8c29f68bb8",
+        "prepared_tree": "08ea2aef96bd3144cf02cbc68cbbb003dc25ed9f",
+        "source_packet_ref": "60e174c5db7f770c94064198516dd3ee07b51b7b",
+        "version": "2.43.caa3-1"
+      },
+      "cases": [
+        "modified",
+        "pristine"
+      ],
+      "committed_transactions": 6,
+      "complete574_maps": 16,
+      "current_source_Git_joins": 159,
+      "hardware": "NOT_RUN",
+      "independent_runtime_replay_sha256": "5b9dbe0930df1b77ba05b01aece8dfc61b1a295d2deda474ed61169e2356c14c",
+      "input_phase": "NATIVE_COMPILE_INPUTS",
+      "lifecycle_commands": 60,
+      "native_pair": {
+        "archive_sha256": "a8e9f3e1d8ffe049fdc834f62e74c14ff622b98898c2f849e1580ab8aa0fdbd9",
+        "payload": {
+          "node_count": 1592,
+          "node_manifest_sha256": "db12785a1e49a16cefe82bcad2aee0a776c3d5b78b1f767f54c4ebb28700c574"
+        },
+        "run_id": 38994309021,
+        "source_sha": "78dfd3bbd85a61a84dda2dfc601796ee89edfd5f"
+      },
+      "normal_runtime_observations": 8,
+      "ordered_cleanup": "PASS",
+      "original_artifact_sha256": "f957d2ded6d4af0a40e75d2f776155fee2ca3b3d9220ade8cb4e58d06f690ada",
+      "original_logs_sha256": "b236e47ae1df00b9c46dfda818fd52c935236e687a77a00ef25d7ed16b1509ed",
+      "page_size": 4096,
+      "performance": "NOT_MEASURED",
+      "prior_source_data_Git_joins": 197,
+      "provider_archive_bytes": 18598440,
+      "provider_archive_sha256": "a8e9f3e1d8ffe049fdc834f62e74c14ff622b98898c2f849e1580ab8aa0fdbd9",
+      "qualifications": [
+        "The workflow remains FAILED: its diagnostic helper was missing after successful lifecycle, ordered cleanup and complete export. This decision accepts only independently replayed runtime behavior.",
+        "All16 complete maps, eight normal runtimes, hardlinks, capabilities, full574 inventories, source and seeded-user preservation were replayed.",
+        "Modified configuration uses three explicit clone handoffs; automatic ALPM active-configuration preservation is NOT_CLAIMED.",
+        "Source authority/package/TEST-signature bytes are joined; no new upstream cryptographic or release authority is established.",
+        "Original compiler receipts are retained inputs, not new compilations.",
+        "Private kernel-profile registry is represented by original length/hash; cleanup is retained original receipts rather than fresh absence probes.",
+        "No new generic16K, Apple/M2, GUI, performance or supported-release acceptance."
+      ],
+      "release": "NOT_ADMITTED",
+      "run_id": 39054408035,
+      "schema_version": 1,
+      "scope": "GENERIC_ARM_NORMAL_NATIVE_PROVIDER_LIFECYCLE_ONLY",
+      "source_authority_sha256": "88643eabd61a39df63ecaeb50bb20041d17cf4fd3adee55d82d43d3c1ca08707",
+      "source_nodes": 123056,
+      "source_sha": "9aef8b7429fb8dd9f9d8412f4e878c5e0324c58d",
+      "status": "ROOT_ACCEPTED_CAA3_PUBLIC_COMPILE_INPUT_NATIVE_LIFECYCLE",
+      "workflow_conclusion": "failure",
+      "workflow_failure": {
+        "category": "POST_RUNTIME_DIAGNOSTIC_HELPER_MISSING",
+        "closed_export": "PASS_NO_ERRORS",
+        "ordered_cleanup_step": "SUCCESS",
+        "runtime_steps": "SUCCESS",
+        "step": 14
+      },
+      "zero_commit_refusals": 2
+    },
+    "system16k": {
+      "ALPM_installation": "NOT_RUN",
+      "attempt": 1,
+      "candidate": {
+        "authority_sha256": "88643eabd61a39df63ecaeb50bb20041d17cf4fd3adee55d82d43d3c1ca08707",
+        "package": "cachy-asahi-glibc-gnu-provider",
+        "pkgbuild_sha256": "9d6d5e688c95febe85321abc69fbfe1b7781a02e318771ae43851d8c29f68bb8",
+        "prepared_tree": "08ea2aef96bd3144cf02cbc68cbbb003dc25ed9f",
+        "source_packet_ref": "60e174c5db7f770c94064198516dd3ee07b51b7b",
+        "version": "2.43.caa3-1"
+      },
+      "cleanup": "PASS",
+      "cleanup_evidence": "SOURCE_BOUND_RETAINED_ORDERED_RECEIPTS",
+      "current_guest_commands": 3,
+      "hardware": "NOT_RUN",
+      "independent_replay_sha256": "4e0a99e8a5dd5d0c820b20065b8ab20084db9d76466d524ce3334caae0fb5280",
+      "independent_source_Git_joins": 93,
+      "native_pair": {
+        "archive_sha256": "a8e9f3e1d8ffe049fdc834f62e74c14ff622b98898c2f849e1580ab8aa0fdbd9",
+        "payload": {
+          "node_count": 1592,
+          "node_manifest_sha256": "db12785a1e49a16cefe82bcad2aee0a776c3d5b78b1f767f54c4ebb28700c574"
+        },
+        "run_id": 38994309021,
+        "source_sha": "78dfd3bbd85a61a84dda2dfc601796ee89edfd5f"
+      },
+      "natural_VM_exit": 0,
+      "original_artifact_sha256": "a35e3567ba37f55da29eabc5a3896f0c1bd0e7670d094dc9d4ed926133c108a1",
+      "page_size": 16384,
+      "parent_cases": 8,
+      "performance": "NOT_MEASURED",
+      "provider_archive_bytes": 18598440,
+      "provider_archive_sha256": "a8e9f3e1d8ffe049fdc834f62e74c14ff622b98898c2f849e1580ab8aa0fdbd9",
+      "qualifications": [
+        "Independent reconstruction from original raw collection, exact Git source and existing public inputs.",
+        "Full captured tar/initramfs, kernel Image/config and UART were not exported; complete alignment/content/preservation predicates remain frozen-source-enforced.",
+        "Compiler receipts and probe bytes are reused; no new compiler or native commands ran during passive replay.",
+        "Ordered cleanup passed original retained receipts and source assertions; no fresh live absence probe.",
+        "Staged private-chroot runtime only; no ALPM installation, M2 hardware, performance, security or release acceptance."
+      ],
+      "release": "NOT_ADMITTED",
+      "run_id": 39001194484,
+      "runtime_file_joins": 19,
+      "runtime_records": 12,
+      "schema_version": 1,
+      "scope": "DATA_STAGED_PRIVATE_ROOT_NOT_ALPM_INSTALLATION",
+      "source_authority_sha256": "88643eabd61a39df63ecaeb50bb20041d17cf4fd3adee55d82d43d3c1ca08707",
+      "source_sha": "15d1d93da72cb0fa95b64cae90307e0c30903ed7",
+      "status": "ROOT_ACCEPTED_DEBIAN_MAINTAINED_SYSTEM_PATHS_GENERIC16K"
+    }
+  },
+  "private_full_raw_maps": "SOURCE_ENFORCED_NOT_EXPORTED",
+  "reader_files": 1035,
+  "ref": "codex/gnu-fixed-case-cleanup600-v1",
+  "release": "NOT_ADMITTED",
+  "root_decision_utc": "2026-10-25T23:56:05.557447+00:00",
+  "runtime_observations": 8,
+  "schema_version": 1,
+  "scope": "TWO_DISTINCT_SAME_SOURCE_PRISTINE_AND_MODIFIED_NORMAL_GENERIC_ARM16K_TEST_PROVIDER_LIFECYCLES",
+  "source": "de1aab259df6bda8ad36f959392e3fc4eb35b622",
+  "source_files": 749,
+  "status": "ROOT_ACCEPTED_PAIRED_GNU_PROVIDER_NORMAL_GENERIC16K_LIFECYCLE"
+}

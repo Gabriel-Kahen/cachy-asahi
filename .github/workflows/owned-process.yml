@@ -1,0 +1,56 @@
+name: Owned process core
+on:
+  pull_request:
+    paths:
+      - 'scripts/virtual/owned_process.py'
+      - 'tests/test_owned_process.py'
+      - 'tests/test_owned_process_memory.py'
+      - 'tests/fixtures/owned_process.py'
+      - 'tests/fixtures/process_group_memory.py'
+      - 'docs/owned-process.md'
+      - 'docs/owned-process-memory.md'
+      - '.github/workflows/owned-process.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/virtual/owned_process.py'
+      - 'tests/test_owned_process.py'
+      - 'tests/test_owned_process_memory.py'
+      - 'tests/fixtures/owned_process.py'
+      - 'tests/fixtures/process_group_memory.py'
+      - 'docs/owned-process.md'
+      - 'docs/owned-process-memory.md'
+      - '.github/workflows/owned-process.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  real-children:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - name: Checkout standalone core and controls
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /scripts/virtual/owned_process.py
+            /tests/test_owned_process.py
+            /tests/test_owned_process_memory.py
+            /tests/fixtures/owned_process.py
+            /tests/fixtures/process_group_memory.py
+            /LICENSE
+      - name: Select Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Run 13 standalone real-child controls
+        run: python -I -B -Werror::ResourceWarning tests/test_owned_process.py
+      - name: Run 9 opt-in RSS real-child controls
+        run: python -I -B -Werror::ResourceWarning tests/test_owned_process_memory.py

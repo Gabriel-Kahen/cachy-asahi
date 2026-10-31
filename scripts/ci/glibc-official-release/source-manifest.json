@@ -1,0 +1,75 @@
+{
+  "files": {
+    "LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "README.md": {
+      "bytes": 8840,
+      "sha256": "fb6a9ec5eb9046eae4ff138ab286a1cda2b2e3122403a6288c6d3e8b79536463"
+    },
+    "abi.py": {
+      "bytes": 4061,
+      "sha256": "b2ae51e792fc125fa664ba116794827fe5350912861256df8cdad1de479d5ff0"
+    },
+    "acquire.py": {
+      "bytes": 2446,
+      "sha256": "c10b5d9414dec148343a273c658d0f5c6345b8710b341865de6af829c3520312"
+    },
+    "build-entry.sh": {
+      "bytes": 1739,
+      "sha256": "3f585147898f2a4c9335c3889cfbe71f2d8c5b9328daaf7b9a0d2fcf7adc6bc4"
+    },
+    "collect_tests.py": {
+      "bytes": 3093,
+      "sha256": "cdbe9af94b0ca142e802267ce7d9af7ae006bde8ab55d4b81399a065b79f6c79"
+    },
+    "header_check.py": {
+      "bytes": 4336,
+      "sha256": "29f2c9e2530f6bfcc6542ec5256fb6c0732808e85c999942a01b836144107358"
+    },
+    "header_probe.c": {
+      "bytes": 1383,
+      "sha256": "ccc07c323632f9f916c1bed436d0a97f530fca25d9dd59bb489489c093790e7f"
+    },
+    "job.py": {
+      "bytes": 13763,
+      "sha256": "9efbdb3bcca86fcfe18d554a719c059b75cfa065bbaca2f9c930f4a2fa7a71ef"
+    },
+    "materialize.py": {
+      "bytes": 11692,
+      "sha256": "b58230a4b06404a192fa24d0d915a3e1602574e24e974bc145572e7e08c0505c"
+    },
+    "run.py": {
+      "bytes": 20220,
+      "sha256": "242c49db2365dc5d5806443c8faa2b35ce7c2e6c7e0980d27522045b3d8008f7"
+    },
+    "stage.py": {
+      "bytes": 4937,
+      "sha256": "3fe64f0b423f6d013a8680a37ab77471f350d00af599ef5bef5f72094da85410"
+    },
+    "test_check_repair.py": {
+      "bytes": 5394,
+      "sha256": "f538146446a6e7f6921f229b013723ab787bd69c742d8c0358fe6917bd47e5ff"
+    },
+    "test_controls.py": {
+      "bytes": 21431,
+      "sha256": "8448a987e919fd7a05248dd2ac5b2c08f950da036ddfda85aee4677f9e163479"
+    },
+    "test_job.py": {
+      "bytes": 6533,
+      "sha256": "ebe6e4f60349d9356db65578fbbcd36d554319518c491be2ff43eb0fbdca9481"
+    },
+    "test_makepkg_config.py": {
+      "bytes": 4707,
+      "sha256": "e2c823e946e7e2f0664b4d82dfaabeb11aa1a31557ce0664cdaa349139b6013d"
+    },
+    "test_multiarch_repair.py": {
+      "bytes": 4368,
+      "sha256": "0dba7de9ba68e58fdb7c71ef7e938e07e044dd83599d3e4a89b198e881b84a3f"
+    }
+  },
+  "license": "MIT",
+  "schema_version": 1,
+  "selection": "UNSELECTED_OFFICIAL_GNU_RELEASE"
+}

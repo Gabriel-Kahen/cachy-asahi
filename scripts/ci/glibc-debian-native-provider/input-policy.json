@@ -1,0 +1,13 @@
+{
+  "packet": {
+    "directory": "payload",
+    "index": {
+      "bytes": 1201,
+      "sha256": "55f0246dbe7b931cc2788e8073e6068e183944f676054dfffe2fa6ac4391cd45"
+    },
+    "ref": "05d07fd634cb004eb7feab6e5fa9b175c5687efa"
+  },
+  "qualification": "Independent Debian source authority and exact immutable public input carrier are bound. Fresh caa2 native evidence remains NOT_RUN. GNU caa1 pair/lifecycle/private16K/hardware/security/release credits do not transfer.",
+  "schema_version": 1,
+  "status": "ROOT_BOUND_IMMUTABLE_DEBIAN_SOURCE_PACKET"
+}

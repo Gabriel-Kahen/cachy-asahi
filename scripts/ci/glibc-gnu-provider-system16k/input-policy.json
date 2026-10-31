@@ -1,0 +1,19 @@
+{
+  "binding": {
+    "index": {
+      "bytes": 24368,
+      "path": "packet.json",
+      "sha256": "550c6b1b5c146beaebca0b8e0768ad7a9c625ccad35934f78687b4e4c1af676a"
+    },
+    "source": "ba5dd71b99eb7e117be4ed3e269abd8e5f2b0b5f"
+  },
+  "required_before_binding": [
+    "Actual Root-accepted conventional GNU provider native pair",
+    "Matching smoke-normal/direct-exec-child/plugin binaries and both original13-command normal receipts",
+    "Root-frozen provider/lifecycle packet index SHA256 and immutable public source",
+    "Exact original held glibc rollback archive"
+  ],
+  "schema_version": 1,
+  "scope": "DATA_STAGED_PRIVATE_ROOT_NOT_ALPM_INSTALLATION",
+  "status": "BOUND_BY_ROOT"
+}

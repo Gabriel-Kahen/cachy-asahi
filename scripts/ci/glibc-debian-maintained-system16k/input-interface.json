@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "status": "INTERFACE_ONLY_NATIVE_PAIR_PROBES_HELD_AUTHORITY_UNBOUND",
+  "candidate": "Exact canonical maintained-lifecycle candidate_gate.EXPECTED; version2.43.caa3-1 and current9d6d5e688c95febe85321abc69fbfe1b7781a02e318771ae43851d8c29f68bb8 recipe",
+  "policy": {"status": "UNBOUND_CURRENT_NATIVE_PAIR_NORMAL_PROBES_HELD_AUTHORITY", "binding": null},
+  "future_binding": {"status": "BOUND_BY_ROOT", "binding": {"source": "actual immutable staged input packet Git40hex", "index": {"path": "packet.json", "bytes": "actual positive size", "sha256": "actual index SHA256"}}},
+  "packet_status": "ROOT_ACCEPTED_PROVIDER_STAGED16K_INPUTS",
+  "required_fields": ["schema_version", "status", "candidate", "source_authority", "files", "provider_pair", "probe_receipt", "archives", "probes", "held", "provider_pkgbuild_sha256"],
+  "forbidden_prior_prerequisites": ["private16k", "private16k_archive_sha256"],
+  "authority": "Exact15506B/88643eabd61a39df63ecaeb50bb20041d17cf4fd3adee55d82d43d3c1ca08707 source-only decision, ordinary reference also in files",
+  "pair": "Root actual maintained-candidate ROOT_ACCEPTED_PROVIDER_NATIVE_PAIR, candidate EXACT, positive actual run_id and40hex source_sha, matching archive SHA and actual recipe, measured payload.node_count/node_manifest_sha256; no source-only carrier or oldcaa1/caa2 substitution",
+  "normal": "Root matching new ROOT_ACCEPTED_NORMAL_INTERPRETER_PROBES/candidate/source/run/files with both original13-command compile_receipts a/b; original normal_clients.validate still runs",
+  "held": "Exact original8fac217e98c6e4342326726b2640ac254e8c82032f06f30bfa13ebbcc4fcb25b rollback archive",
+  "bounds": "8..256 packet files,512MiB aggregate; all inherited capture/ELF/VM/runtime/cleanup caps unchanged",
+  "scope": "DATA_STAGED_PRIVATE_ROOT_NOT_ALPM_INSTALLATION",
+  "future_output": "Only Root acceptance of actual16384VM/3commands/12records/19verifiedmaps and ordered cleanup may supply current-candidate16K decision to later lifecycle packet; never a prerequisite of this first16K input packet"
+}

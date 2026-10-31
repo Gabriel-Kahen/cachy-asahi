@@ -1,0 +1,188 @@
+#!/usr/bin/python3
+# SPDX-License-Identifier: MIT
+"""Preview, store and undo only selected DNS properties on one NetworkManager UUID."""
+import argparse,contextlib,fcntl,hashlib,ipaddress,json,os,re,selectors,signal,stat,subprocess,sys,time,uuid
+from datetime import datetime,timezone
+from pathlib import Path
+
+FIELDS={f'ipv{family}.{prop}'for family in(4,6)for prop in('dns','ignore-auto-dns')}
+PHASES={'PLANNED','APPLYING','APPLIED','UNDOING','UNDONE','APPLY_UNKNOWN','UNDO_UNKNOWN'}
+CAP=65536
+class Refusal(ValueError):pass
+
+def need(ok,message):
+ if not ok:raise Refusal(message)
+def encoded(value):return (json.dumps(value,sort_keys=True,indent=2)+'\n').encode()
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def identifier(value):
+ try:parsed=str(uuid.UUID(value))
+ except (ValueError,TypeError,AttributeError):raise Refusal('a complete canonical connection UUID is required')
+ need(parsed==value,'use a lowercase canonical connection UUID');return value
+
+def value(field,raw):
+ need(type(field)is str and field in FIELDS and type(raw)is str,'only explicit DNS and ignore-auto-dns string fields are supported')
+ if field.endswith('ignore-auto-dns'):
+  need(raw in('yes','no'),'ignore-auto-dns must be yes or no');return raw
+ family=int(field[3]);items=[] if raw==''else raw.split(',');need(len(items)<=8,'at most eight plain DNS addresses per family')
+ result=[]
+ for item in items:
+  try:address=ipaddress.ip_address(item.strip())
+  except ValueError:raise Refusal('DNS servers must be bare IP addresses of the selected family')
+  need(address.version==family and '%'not in item,'DNS address family or scope differs');result.append(str(address))
+ need(len(set(result))==len(result),'duplicate DNS addresses are not accepted');return result
+
+def normalized(field,item):
+ need(type(field)is str and field in FIELDS,'unsupported DNS field')
+ need((type(item)is list and all(type(x)is str for x in item))if field.endswith('.dns')else type(item)is str,'invalid DNS value type')
+ return value(field,','.join(item)if type(item)is list else item)
+def modify_args(connection,properties):
+ identifier(connection);need(0<len(properties)<=4,'select at least one DNS property')
+ args=['connection','modify','uuid',connection]
+ for field,item in sorted(properties.items()):
+  parsed=normalized(field,item);need(parsed==item,'canonical property value required');args.extend((field,','.join(item)if isinstance(item,list)else item))
+ return args
+
+class Nmcli:
+ def invoke(self,args):
+  argv=['/usr/bin/nmcli','--wait','10','--colors','no',*args]
+  process=subprocess.Popen(argv,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,start_new_session=True,env=dict(PATH='/usr/bin:/bin',LANG='C',LC_ALL='C'))
+  buffers=[bytearray(),bytearray()];deadline=time.monotonic()+15
+  try:
+   with selectors.DefaultSelector()as select:
+    for index,stream in enumerate((process.stdout,process.stderr)):select.register(stream,selectors.EVENT_READ,index)
+    while select.get_map():
+     need(time.monotonic()<deadline,'nmcli deadline exceeded; stored outcome may be unknown')
+     for key,_ in select.select(min(.2,max(0,deadline-time.monotonic()))):
+      block=os.read(key.fd,4096)
+      if not block:select.unregister(key.fileobj);continue
+      buffers[key.data].extend(block);need(sum(map(len,buffers))<=CAP,'nmcli output cap exceeded; stored outcome may be unknown')
+   process.wait(timeout=max(.01,deadline-time.monotonic()));need(process.returncode==0,'nmcli refused or failed (exit '+str(process.returncode)+'); no raw connection details printed')
+   return bytes(buffers[0]).decode('utf8','strict')
+  finally:
+   if process.poll()is None:
+    try:os.killpg(process.pid,signal.SIGKILL)
+    except ProcessLookupError:pass
+    process.wait(timeout=2)
+   process.stdout.close();process.stderr.close()
+ def read(self,connection,fields):
+  fields=sorted(fields);raw=self.invoke(['--escape','no','--get-values',','.join(['connection.uuid',*fields]),'connection','show','uuid',identifier(connection)])
+  rows=raw.splitlines();need(len(rows)==len(fields)+1 and rows[0]==connection,'exact UUID and requested profile fields required')
+  return {field:value(field,item)for field,item in zip(fields,rows[1:])}
+ def modify(self,connection,properties):self.invoke(modify_args(connection,properties))
+
+def observe(nm,connection,fields):
+ first=nm.read(connection,fields);second=nm.read(connection,fields);need(first==second,'DNS settings changed between reads; cannot verify a stable snapshot');return first
+
+def decode(raw):
+ def pairs(rows):
+  result={}
+  for key,item in rows:need(key not in result,'duplicate receipt key');result[key]=item
+  return result
+ receipt=json.loads(raw,object_pairs_hook=pairs,parse_constant=lambda _:need(False,'nonfinite receipt value'));need(type(receipt)is dict,'DNS receipt must be an object')
+ need(set(receipt)=={'schema_version','uuid','before','after','phase','created_utc'}and type(receipt['schema_version'])is int and receipt['schema_version']==1,'exact DNS receipt schema required')
+ identifier(receipt['uuid']);need(receipt['phase']in PHASES and type(receipt['created_utc'])is str and len(receipt['created_utc'])<=40,'invalid receipt phase/time')
+ before,after=receipt['before'],receipt['after'];need(type(before)is type(after)is dict and set(before)==set(after)and 0<len(before)<=4 and set(before)<=FIELDS,'exact owned field subset required')
+ for state in(before,after):
+  for field,item in state.items():need(normalized(field,item)==item,'receipt DNS values are not canonical')
+ return receipt
+
+class State:
+ def __init__(self,path,create=False):
+  self.path=Path(path).absolute();need(not any(p.is_symlink()for p in(self.path,*self.path.parents)),'state path must not contain symlinks')
+  if create:os.mkdir(self.path,0o700)
+  self.fd=os.open(self.path,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC)
+  try:
+   info=os.fstat(self.fd);need(info.st_uid==os.geteuid()and stat.S_IMODE(info.st_mode)==0o700,'state directory must be private0700 and owned by this user')
+   self.lock=os.open('lock',os.O_RDWR|os.O_NOFOLLOW|os.O_CLOEXEC|(os.O_CREAT|os.O_EXCL if create else 0),0o600,dir_fd=self.fd)
+   try:
+    self.regular(self.lock);fcntl.flock(self.lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
+   except BaseException:os.close(self.lock);raise
+  except BaseException:os.close(self.fd);raise
+ def regular(self,fd):
+  s=os.fstat(fd);need(stat.S_ISREG(s.st_mode)and s.st_nlink==1 and s.st_uid==os.geteuid()and stat.S_IMODE(s.st_mode)==0o600,'private ordinary single-link state file required');return s
+ def close(self):os.close(self.lock);os.close(self.fd)
+ def read(self):
+  fd=os.open('receipt.json',os.O_RDONLY|os.O_NOFOLLOW|os.O_CLOEXEC,dir_fd=self.fd)
+  try:
+   info=self.regular(fd);need(0<info.st_size<=CAP,'bounded receipt required');raw=os.read(fd,CAP+1);need(len(raw)==info.st_size,'receipt length drift');return decode(raw),sha(raw)
+  finally:os.close(fd)
+ def save(self,receipt):
+  current=self.path.lstat();opened=os.fstat(self.fd);need((current.st_dev,current.st_ino)==(opened.st_dev,opened.st_ino),'state directory moved')
+  raw=encoded(receipt);need(len(raw)<=CAP,'receipt cap exceeded');temporary='pending-'+uuid.uuid4().hex;fd=os.open(temporary,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW|os.O_CLOEXEC,0o600,dir_fd=self.fd)
+  try:
+   with os.fdopen(fd,'wb')as stream:stream.write(raw);stream.flush();os.fsync(stream.fileno())
+   os.replace(temporary,'receipt.json',src_dir_fd=self.fd,dst_dir_fd=self.fd);os.fsync(self.fd)
+  finally:
+   try:os.unlink(temporary,dir_fd=self.fd)
+   except FileNotFoundError:pass
+  return sha(raw)
+
+@contextlib.contextmanager
+def state(path,create=False):
+ holder=State(path,create)
+ try:yield holder
+ finally:holder.close()
+
+def result(receipt,digest,status):return dict(status=status,uuid=receipt['uuid'],phase=receipt['phase'],receipt_sha256=digest,live_dns='NOT_REAPPLIED_STORED_PROFILE_ONLY')
+
+def preview(path,connection,changes,nm=None):
+ nm=nm or Nmcli();identifier(connection);need(0<len(changes)<=4,'select at least one DNS property')
+ for field,item in changes.items():need(normalized(field,item)==item,'canonical requested DNS values required')
+ before=observe(nm,connection,changes);receipt=dict(schema_version=1,uuid=connection,before=before,after=changes,phase='PLANNED',created_utc=datetime.now(timezone.utc).isoformat())
+ with state(path,True)as holder:digest=holder.save(receipt)
+ return dict(result(receipt,digest,'PREVIEW_ONLY'),changes={k:dict(before=before[k],after=changes[k])for k in sorted(changes)})
+
+def change(path,expected,undo=False,confirm=None,nm=None):
+ nm=nm or Nmcli();need(confirm==('RESTORE_CONNECTION_DNS'if undo else'APPLY_CONNECTION_DNS'),'explicit matching confirmation is required');need(type(expected)is str and re.fullmatch('[a-f0-9]{64}',expected),'exact receipt SHA256 required')
+ with state(path)as holder:
+  receipt,digest=holder.read();need(digest==expected,'receipt SHA256 changed; inspect status before acting');phase=receipt['phase'];current=observe(nm,receipt['uuid'],receipt['before'])
+  source,target=('after','before')if undo else('before','after');complete='UNDONE'if undo else'APPLIED'
+  if phase==complete:
+   need(current==receipt[target],'current DNS differs from completed receipt; later edits preserved');return result(receipt,digest,'ALREADY_'+complete)
+  need(phase==('APPLIED'if undo else'PLANNED'),'uncertain/interrupted or incompatible receipt; inspect prior settings, no automatic retry')
+  need(current==receipt[source],'current DNS differs from owned snapshot; later edits preserved')
+  if current!=receipt[target]:
+   receipt['phase']='UNDOING'if undo else'APPLYING';holder.save(receipt)
+   try:
+    nm.modify(receipt['uuid'],receipt[target]);need(observe(nm,receipt['uuid'],receipt[target])==receipt[target],'DNS readback differs after modification')
+   except Exception:
+    receipt['phase']='UNDO_UNKNOWN'if undo else'APPLY_UNKNOWN';holder.save(receipt);raise
+  receipt['phase']=complete;digest=holder.save(receipt);return result(receipt,digest,'STORED_PROFILE_'+complete)
+
+def status(path,nm=None):
+ nm=nm or Nmcli()
+ with state(path)as holder:
+  receipt,digest=holder.read();current=observe(nm,receipt['uuid'],receipt['before'])
+ return dict(result(receipt,digest,'STATUS'),current=current,matches_before=current==receipt['before'],matches_after=current==receipt['after'])
+
+def main(argv=None):
+ parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--json',action='store_true');commands=parser.add_subparsers(dest='command',required=True)
+ p=commands.add_parser('preview',help='save prior selected settings and preview; changes nothing in NetworkManager');p.add_argument('--uuid',required=True);p.add_argument('--state-dir',required=True,type=Path)
+ for family in(4,6):
+  p.add_argument('--ipv'+str(family)+'-dns',metavar='IP,IP');p.add_argument('--ipv'+str(family)+'-ignore-auto-dns',choices=('yes','no'))
+ for name in('apply','undo','status'):
+  p=commands.add_parser(name);p.add_argument('state_dir',type=Path)
+  if name!='status':p.add_argument('--receipt-sha256',required=True);p.add_argument('--confirm',required=True)
+ a=parser.parse_args(argv)
+ try:
+  if a.command=='preview':
+   changes={}
+   for family in(4,6):
+    for prop in('dns','ignore-auto-dns'):
+     raw=getattr(a,'ipv'+str(family)+'_'+prop.replace('-','_'))
+     if raw is not None:field='ipv'+str(family)+'.'+prop;changes[field]=value(field,raw)
+   answer=preview(a.state_dir,a.uuid,changes)
+  elif a.command=='status':answer=status(a.state_dir)
+  else:answer=change(a.state_dir,a.receipt_sha256,a.command=='undo',a.confirm)
+  if a.json:print(encoded(answer).decode(),end='')
+  else:
+   print(answer['status']+' — connection '+answer['uuid'])
+   print('Receipt phase: '+answer['phase'])
+   if a.command=='status':print('Current selected fields match: '+(', '.join(k for k in('before','after')if answer['matches_'+k])or'neither saved snapshot'))
+   for field,values in answer.get('changes',{}).items():print(field+': '+str(values['before'])+' → '+str(values['after']))
+   print('Receipt SHA256: '+answer['receipt_sha256']);print('Stored profile only; this tool does not reapply the live connection.')
+  return 0
+ except (Refusal,OSError,ValueError,KeyError,TypeError,subprocess.SubprocessError)as error:
+  print(('DNS operation refused: '+str(error))[:1024],file=sys.stderr);return 1
+
+if __name__=='__main__':raise SystemExit(main())

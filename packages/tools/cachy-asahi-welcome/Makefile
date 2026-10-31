@@ -10,20 +10,35 @@ CFLAGS += -std=c11 -Wall -Wextra -Wformat=2 -Werror
 LDFLAGS += -Wl,-z,max-page-size=16384
 GTK_CFLAGS := $(shell $(PKG_CONFIG) --cflags gtk+-3.0)
 GTK_LIBS := $(shell $(PKG_CONFIG) --libs gtk+-3.0)
-GLIB_CFLAGS := $(shell $(PKG_CONFIG) --cflags glib-2.0)
-GLIB_LIBS := $(shell $(PKG_CONFIG) --libs glib-2.0)
+GLIB_CFLAGS := $(shell $(PKG_CONFIG) --cflags gio-2.0)
+GLIB_LIBS := $(shell $(PKG_CONFIG) --libs gio-2.0)
 
 .PHONY: all check install clean
 all: cachy-asahi-welcome
 
-cachy-asahi-welcome: welcome.c status.c status.h
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(GTK_CFLAGS) welcome.c status.c -o $@ $(LDFLAGS) $(GTK_LIBS)
+cachy-asahi-welcome: welcome.c status.c status.h management.c management.h management-report.c management-report.h
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(GTK_CFLAGS) welcome.c status.c management.c management-report.c -o $@ $(LDFLAGS) $(GTK_LIBS)
 
 test-status: test_status.c status.c status.h
 	$(CC) $(CFLAGS) $(GLIB_CFLAGS) test_status.c status.c -o $@ $(LDFLAGS) $(GLIB_LIBS)
 
-check: all test-status
+test-management: test_management.c management.c management.h
+	$(CC) $(CFLAGS) -DMANAGEMENT_TEST $(GLIB_CFLAGS) test_management.c management.c -o $@ $(LDFLAGS) $(GLIB_LIBS)
+
+test-management-report: test_management_report.c management-report.c management-report.h management.h
+	$(CC) $(CFLAGS) $(GLIB_CFLAGS) test_management_report.c management-report.c -o $@ $(LDFLAGS) $(GLIB_LIBS)
+
+test-management-ui: test_management_ui.c welcome.c status.c status.h management.c management.h management-report.c management-report.h
+	$(CC) $(CPPFLAGS) $(CFLAGS) -DMANAGEMENT_TEST $(GTK_CFLAGS) test_management_ui.c status.c management.c management-report.c -o $@ $(LDFLAGS) $(GTK_LIBS)
+
+test-report-work: test_report_work.c welcome.c status.c status.h management.c management.h management-report.c management-report.h
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(GTK_CFLAGS) test_report_work.c status.c management.c management-report.c -o $@ $(LDFLAGS) $(GTK_LIBS)
+
+check: all test-status test-management test-management-report test-report-work
 	./test-status
+	./test-management
+	./test-management-report
+	./test-report-work
 	$(PYTHON) -B test_cli.py ./cachy-asahi-welcome
 	$(PYTHON) -B check_source.py --root "$(RECIPE_ROOT)"
 
@@ -41,4 +56,4 @@ install: all
 	install -Dm644 NOTICE $(DESTDIR)$(PREFIX)/share/licenses/cachy-asahi-welcome/NOTICE
 
 clean:
-	rm -f cachy-asahi-welcome test-status
+	rm -f cachy-asahi-welcome test-status test-management test-management-report test-management-ui test-report-work

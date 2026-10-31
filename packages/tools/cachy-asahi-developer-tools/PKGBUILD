@@ -1,0 +1,30 @@
+# SPDX-License-Identifier: MIT
+# Original finite offline developer journeys. Development candidate only.
+pkgname=cachy-asahi-developer-tools
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Offline developer fixture journeys runnable without a project checkout'
+arch=('any')
+url='https://github.com/Gabriel-Kahen/cachy-asahi'
+license=('MIT')
+depends=('python>=3.11')
+optdepends=('git: workflow local repository journey'
+            'gcc: C and C++ compiler journeys'
+            'vim: isolated scripted editor journey'
+            'make: workflow Make project'
+            'ninja: workflow Ninja and CMake/Meson projects'
+            'cmake>=3.20: CMake and CTest shared-library journey'
+            'meson: Meson shared-library journey'
+            'gdb: debugger C and C++ journeys'
+            'uv=0.11.28: exact offline built-in Python build backend')
+options=('!strip' '!debug')
+source=("$pkgname-$pkgver.tar.gz")
+sha256sums=('767ac7a1e98b35f212247ed906434c11c197ad5640ad3a13601d433c84d756c2')
+
+check() {
+    python -I -B "$srcdir/$pkgname-$pkgver/test_package.py"
+}
+
+package() {
+    python -I -B "$srcdir/$pkgname-$pkgver/assemble.py" --destdir "$pkgdir" --prefix /usr
+}

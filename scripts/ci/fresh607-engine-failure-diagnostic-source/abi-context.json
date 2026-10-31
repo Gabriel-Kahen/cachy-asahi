@@ -1,0 +1,84 @@
+{
+  "Root_acceptance": null,
+  "actual_import_output": "NOT_EXPORTED",
+  "actual_keyring": "NOT_EXPORTED",
+  "actual_ref": null,
+  "actual_run": null,
+  "actual_source": null,
+  "failure_DATA": {
+    "bytes": 109584,
+    "sha256": "a91f37668ae0a9d5dbcb921ac275710b9fd350c00948bc2d41fc10a9919b2d3c"
+  },
+  "failure_run": 40278230625,
+  "git": {
+    "ref": "codex/latest607-fresh-guest-clock-v1",
+    "source": "95a75cd9798b8b827f80233f3ea402ff7fc9b224",
+    "status": "PASS_INDEPENDENT_FULL_GIT_BLOB_JOIN"
+  },
+  "guard_edits": [
+    [
+      " r=p['engine_failure_parent']['realtime_initialization'];C.need(",
+      " a=p['engine_failure_parent']['alpm_type_origin'];C.need(a['source']=='95a75cd9798b8b827f80233f3ea402ff7fc9b224'and a['files']==a['git']['files']and a['source']==a['git']['source']==a['publication']['source'],'whole genuine95a75 before ABI correction')\n C.need(a['scope']=='SELECTED16K_TWO_ALPM_ORIGIN_PTR_ALLOCATIONS_RAW_4K_HELD'and all(a[k]is None for k in('actual_source','actual_ref','actual_run','Root_acceptance')),'closed source-only ABI scope')\n restored_abi={n:abi_before_body(n,p)for n in a['files']};prior_abi=abi_before_parent(p);C.need(len(restored_abi)==1203 and{n:C.pin(b)for n,b in restored_abi.items()}==a['files'],'whole1203 published95a75 before inverse')\n C.need(C.pin(restored_abi['implementation/page_source.py'].replace(a['files']['implementation/page-parent.json']['sha256'].encode(),b'@PARENT_'+b'SHA@'))==prior_abi['guard_template'],'whole original95a75 guard template')\n r=p['engine_failure_parent']['realtime_initialization'];C.need("
+    ],
+    [
+      " prior=json.loads(C.enc(p));r=prior['engine_failure_parent'].pop('realtime_initialization');",
+      " prior=abi_before_parent(p);r=prior['engine_failure_parent'].pop('realtime_initialization');"
+    ],
+    [
+      " raw=C.read(C.ROOT/name)\n if name in('implementation/page_mode.py','implementation/test_page_mode.py'):",
+      " raw=abi_before_body(name,p)\n if name in('implementation/page_mode.py','implementation/test_page_mode.py'):"
+    ],
+    [
+      "raw=one(raw,PARENT_SHA,r['files']['implementation/page-parent.json']['sha256'])",
+      "raw=one(raw,p['engine_failure_parent']['alpm_type_origin']['files']['implementation/page-parent.json']['sha256'],r['files']['implementation/page-parent.json']['sha256'])"
+    ],
+    [
+      "if name in ALIASES:raw=one(raw,C.pin(C.read(C.ROOT/'source-manifest.json'))['sha256'],r['files']['source-manifest.json']['sha256'])",
+      "if name in ALIASES:raw=one(raw,p['engine_failure_parent']['alpm_type_origin']['files']['source-manifest.json']['sha256'],r['files']['source-manifest.json']['sha256'])"
+    ]
+  ],
+  "guard_template": {
+    "bytes": 25953,
+    "sha256": "7b6fc61554e4c73431810233d61d100b0ae42deb75f926d5a39da4c881fc79ff"
+  },
+  "mode_append": "",
+  "mode_edits": [
+    [
+      "'installer.py':[(",
+      "'installer.py':[(\"details=base.Ptr(); alpm.ok(alpm.alpm_trans_prepare\",\"details=roots.installer.Ptr(); alpm.ok(alpm.alpm_trans_prepare\"),(\"details=base.Ptr(); alpm.ok(alpm.alpm_trans_commit\",\"details=roots.installer.Ptr(); alpm.ok(alpm.alpm_trans_commit\"),("
+    ]
+  ],
+  "products_before": {
+    "implementation/page_mode.py": {
+      "bytes": 24953,
+      "sha256": "e28fcd07aef53f40367189f387711550272804c2292b00c143d5fe6a06914821"
+    },
+    "implementation/test_page_mode.py": {
+      "bytes": 35551,
+      "sha256": "f7523224576b8b7246fab8db346e4702ec2a6dcc041813773aa5be7e39152126"
+    }
+  },
+  "publication": {
+    "actual": "NOT_RUN",
+    "files": 1203,
+    "git_joins": 1203,
+    "hardware": "NOT_RUN",
+    "ref": "codex/latest607-fresh-guest-clock-v1",
+    "release": "NOT_ADMITTED",
+    "source": "95a75cd9798b8b827f80233f3ea402ff7fc9b224",
+    "status": "PUBLISHED_EXACT_CLOSED_TRIAL_SOURCE"
+  },
+  "ref": "codex/latest607-fresh-guest-clock-v1",
+  "scope": "SELECTED16K_TWO_ALPM_ORIGIN_PTR_ALLOCATIONS_RAW_4K_HELD",
+  "source": "95a75cd9798b8b827f80233f3ea402ff7fc9b224",
+  "test_edits": [
+    [
+      "suite.countTestCases()==22",
+      "suite.countTestCases()==23"
+    ],
+    [
+      ".replace(b'ordinary generic4K guest required',b'ordinary generic16K guest required'))",
+      ".replace(b'ordinary generic4K guest required',b'ordinary generic16K guest required').replace(b'details=base.Ptr(); alpm.ok(alpm.alpm_trans_prepare',b'details=roots.installer.Ptr(); alpm.ok(alpm.alpm_trans_prepare').replace(b'details=base.Ptr(); alpm.ok(alpm.alpm_trans_commit',b'details=roots.installer.Ptr(); alpm.ok(alpm.alpm_trans_commit'))"
+    ]
+  ]
+}

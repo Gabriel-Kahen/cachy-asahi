@@ -1,0 +1,38 @@
+# SPDX-License-Identifier: MIT
+pkgname=cachy-asahi-repository-client-v2
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Explicit opt-in MIT offline development source client v2'
+arch=('any')
+url='https://github.com/Gabriel-Kahen/cachy-asahi'
+license=('MIT')
+depends=('python>=3.11' 'cachy-asahi-repository-runtime=0.1.0-1')
+source=('client_v2.py' 'helper-pins.json' 'source-provenance.json' 'check_source.py' 'test_runtime.py' 'test_client_v2.py' 'README.md' 'NOTICE' 'LICENSE')
+sha256sums=(
+    '915c2336a6515dcbde9801d7778c0aeae3a0251cf6463c4704d47590d94d1409'
+    '86478bf7125aa21aefbb20a37eb2c5fae32b6a2cac3cb572733cda42f74216c8'
+    '9a62f3674324b48cfaffeb132549414827b61204acc1757dea703963298b7ac1'
+    'ec2458c2623969776d05c52030df774ce8e6c35721640035bfe2159de2b2e32b'
+    'f49083f2dc580baa4dca2a6971499a02a345c0cd0fb83174fea6813a51ad1468'
+    '74f079c3e95fd88d50b6857b1dbfe13b97030fdacb31051564445c6d1770f410'
+    '922ad69c94a2ef12d55f895a35e7a71737083db6a0ec1841c8d504c9993a6123'
+    '138f32d5f31eefce9581b054f7b066d59209766cf5122521b8f1bf1063fec0fa'
+    '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
+)
+
+check() {
+    python -I -B "$srcdir/check_source.py" --recipe-root "$startdir"
+    python -I -B "$srcdir/test_runtime.py" --recipe-root "$startdir"
+}
+
+package() {
+    [[ -n $pkgdir && $pkgdir != / ]] || return 1
+    install -Dm644 "$srcdir/client_v2.py" "$pkgdir/usr/share/cachy-asahi/repository-runtime/scripts/client/client_v2.py" || return
+    local file
+    for file in README.md source-provenance.json helper-pins.json; do
+        install -Dm644 "$srcdir/$file" "$pkgdir/usr/share/doc/$pkgname/$file" || return
+    done
+    for file in NOTICE LICENSE; do
+        install -Dm644 "$srcdir/$file" "$pkgdir/usr/share/licenses/$pkgname/$file" || return
+    done
+}

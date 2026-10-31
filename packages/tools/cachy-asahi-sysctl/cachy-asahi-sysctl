@@ -1,0 +1,234 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 cachy-asahi contributors
+"""Named, temporary swappiness experiments with guarded baseline restoration."""
+import argparse
+from contextlib import contextmanager
+import fcntl
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import secrets
+import stat
+import sys
+import time
+
+KEY='vm.swappiness'
+LIVE=Path('/proc/sys')
+STATES={'PLANNED','APPLY_INTENT','APPLIED','UNDO_INTENT','UNDONE'}
+NAME=re.compile('[a-z][a-z0-9-]{0,47}\\Z')
+
+
+def need(ok,why):
+    if not ok:raise ValueError(why)
+
+
+def absolute(value):
+    text=os.fspath(value);path=Path(text)
+    need(path.is_absolute() and str(path)==text and '..' not in path.parts and len(text)<=4096,'canonical absolute path required')
+    return path
+
+
+def identity(info):
+    return dict(dev=info.st_dev,ino=info.st_ino,mode=info.st_mode,uid=info.st_uid,gid=info.st_gid,links=info.st_nlink)
+
+
+@contextmanager
+def directory(path):
+    path=absolute(path);fd=os.open('/',os.O_RDONLY|os.O_DIRECTORY|os.O_CLOEXEC)
+    try:
+        for part in path.parts[1:]:
+            child=os.open(part,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC,dir_fd=fd)
+            os.close(fd);fd=child
+        yield fd
+    finally:os.close(fd)
+
+
+def private(info,mode):
+    need(info.st_uid==os.geteuid() and stat.S_IMODE(info.st_mode)==mode,'state must be caller-owned and private')
+
+
+def value(fd):
+    os.lseek(fd,0,os.SEEK_SET);raw=os.read(fd,65)
+    need(len(raw)<=64 and re.fullmatch(b'(0|[1-9][0-9]{0,9})\n',raw) and int(raw)<=2**32-1,'bounded canonical unsigned sysctl value required')
+    return int(raw)
+
+
+def boot(root):
+    kernel=os.open('kernel',os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC,dir_fd=root)
+    random=handle=None
+    try:
+        random=os.open('random',os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC,dir_fd=kernel)
+        handle=os.open('boot_id',os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK|os.O_CLOEXEC,dir_fd=random)
+        info=os.fstat(handle);need(stat.S_ISREG(info.st_mode) and info.st_nlink==1,'ordinary boot generation interface required')
+        raw=os.read(handle,38)
+        need(re.fullmatch(b'[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}\n',raw),'canonical boot generation required')
+        return hashlib.sha256(raw).hexdigest()
+    finally:
+        if handle is not None:os.close(handle)
+        if random is not None:os.close(random)
+        os.close(kernel)
+
+
+class Tree:
+    def __init__(self,root=LIVE,*,model=False):
+        self.root=absolute(root);self.model=model
+        need((not model and self.root==LIVE) or (model and not self.root.is_relative_to(Path('/proc')) and not self.root.is_relative_to(Path('/sys'))),'only fixed proc/sys or explicit test model')
+
+    @contextmanager
+    def opened(self,write=False):
+        if write and not self.model:need(os.geteuid()==0,'kernel changes require the same root identity that planned the experiment')
+        with directory(self.root) as root:
+            if self.model:private(os.fstat(root),0o700)
+            vm=os.open('vm',os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC,dir_fd=root)
+            fd=None
+            try:
+                fd=os.open('swappiness',(os.O_RDWR if write else os.O_RDONLY)|os.O_NOFOLLOW|os.O_NONBLOCK|os.O_CLOEXEC,dir_fd=vm)
+                info=os.fstat(fd)
+                need(stat.S_ISREG(info.st_mode) and info.st_nlink==1 and not info.st_mode&0o6022 and info.st_uid in (0,os.geteuid()),'ordinary protected sysctl file required')
+                current=value(fd);meta=identity(info)
+                need(meta==identity(os.fstat(fd))==identity(os.stat('swappiness',dir_fd=vm,follow_symlinks=False)),'sysctl identity changed')
+                yield fd,current,dict(path=str(self.root),identity=identity(os.fstat(root)),boot_sha256=boot(root)),meta
+                need(meta==identity(os.fstat(fd))==identity(os.stat('swappiness',dir_fd=vm,follow_symlinks=False)),'sysctl identity changed')
+            finally:
+                if fd is not None:os.close(fd)
+                os.close(vm)
+
+    def write(self,fd,before,after):
+        need(value(fd)==before,'sysctl changed before write; conflict preserved')
+        raw=(str(after)+'\n').encode();os.lseek(fd,0,os.SEEK_SET)
+        need(os.write(fd,raw)==len(raw),'short sysctl write; inspect/undo required')
+        # Regular temporary files model proc's whole-value replacement only in tests.
+        if self.model:os.ftruncate(fd,len(raw))
+        need(value(fd)==after,'sysctl readback differs; inspect/undo required')
+
+
+def encoded(v):return (json.dumps(v,sort_keys=True,indent=2,allow_nan=False)+'\n').encode()
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+
+
+def read_json(fd,name):
+    handle=os.open(name,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK|os.O_CLOEXEC,dir_fd=fd)
+    try:
+        info=os.fstat(handle);private(info,0o600)
+        need(stat.S_ISREG(info.st_mode) and info.st_nlink==1 and 0<info.st_size<=16384,'ordinary bounded state file required')
+        raw=os.read(handle,16385)
+        need(len(raw)==info.st_size and identity(info)==identity(os.fstat(handle))==identity(os.stat(name,dir_fd=fd,follow_symlinks=False)),'state identity changed')
+    finally:os.close(handle)
+    def pairs(rows):
+        result={}
+        for key,item in rows:need(key not in result,'duplicate JSON key');result[key]=item
+        return result
+    return json.loads(raw,object_pairs_hook=pairs,parse_constant=lambda _:need(False,'nonfinite JSON')),raw
+
+
+def save(fd,name,item,previous=None):
+    raw=encoded(item);need(len(raw)<=16384,'state byte limit')
+    if previous is not None:need(read_json(fd,name)[1]==previous,'state edited concurrently; preserved')
+    temp='.pending-'+secrets.token_hex(12);handle=os.open(temp,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600,dir_fd=fd)
+    try:
+        with os.fdopen(handle,'wb') as stream:stream.write(raw);stream.flush();os.fsync(stream.fileno())
+        if previous is None:os.link(temp,name,src_dir_fd=fd,dst_dir_fd=fd,follow_symlinks=False)
+        else:
+            need(read_json(fd,name)[1]==previous,'state edited concurrently; preserved')
+            os.replace(temp,name,src_dir_fd=fd,dst_dir_fd=fd)
+        os.fsync(fd)
+    finally:
+        try:os.unlink(temp,dir_fd=fd)
+        except FileNotFoundError:pass
+    return raw
+
+
+@contextmanager
+def store(path,name,create=False):
+    need(NAME.fullmatch(name),'experiment name must be1..48 lowercase letters/digits/hyphens, starting with a letter')
+    with directory(path) as root:
+        private(os.fstat(root),0o700)
+        lock=os.open('.lock',os.O_RDWR|os.O_CREAT|os.O_NOFOLLOW|os.O_CLOEXEC,0o600,dir_fd=root)
+        child=None
+        try:
+            info=os.fstat(lock);private(info,0o600)
+            need(stat.S_ISREG(info.st_mode) and info.st_nlink==1,'ordinary state lock required')
+            fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
+            if create:os.mkdir(name,mode=0o700,dir_fd=root);os.fsync(root)
+            child=os.open(name,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC,dir_fd=root);private(os.fstat(child),0o700)
+            yield child
+        finally:
+            if child is not None:os.close(child)
+            os.close(lock)
+
+
+def plan(tree,state,name,key,target):
+    need(key==KEY and type(target) is int and 0<=target<=100,'only explicit vm.swappiness integer0..100 is supported')
+    with tree.opened() as (_,baseline,root,meta),store(state,name,True) as fd:
+        item=dict(schema_version=1,name=name,key=KEY,baseline=baseline,target=target,tree=root,file=meta)
+        raw=save(fd,'plan.json',item)
+        save(fd,'journal.json',dict(schema_version=1,plan_sha256=sha(raw),state='PLANNED'))
+    return dict(name=name,key=KEY,status='PLANNED',baseline=baseline,target=target,applied=False)
+
+
+def checked(fd,name):
+    item,raw=read_json(fd,'plan.json');journal,saved=read_json(fd,'journal.json')
+    need(set(item)=={'schema_version','name','key','baseline','target','tree','file'} and type(item['schema_version']) is int and item['schema_version']==1 and item['name']==name and item['key']==KEY,'exact named sysctl plan required')
+    need(type(item['baseline']) is int and 0<=item['baseline']<=2**32-1 and type(item['target']) is int and 0<=item['target']<=100,'plan value policy differs')
+    need(set(item['tree'])=={'path','identity','boot_sha256'} and type(item['tree']['boot_sha256']) is str and re.fullmatch('[0-9a-f]{64}',item['tree']['boot_sha256']) and
+         set(item['file'])==set(item['tree']['identity'])=={'dev','ino','mode','uid','gid','links'} and
+         all(type(v) is int and v>=0 for row in (item['file'],item['tree']['identity']) for v in row.values()),'plan identity fields differ')
+    need(set(journal)=={'schema_version','plan_sha256','state'} and type(journal['schema_version']) is int and journal['schema_version']==1 and journal['plan_sha256']==sha(raw) and journal['state'] in STATES,'journal/immutable baseline binding differs')
+    return item,journal,saved
+
+
+def operate(tree,state,name,action):
+    need(action in ('inspect','apply','undo'),'closed experiment action')
+    until=time.monotonic()+5
+    with store(state,name) as fd:
+        item,journal,saved=checked(fd,name)
+        with tree.opened(action!='inspect') as (handle,current,root,meta):
+            need(item['tree']==root and item['file']==meta,'sysctl root/file identity differs; no write')
+            before,target=item['baseline'],item['target'];phase=journal['state']
+            observed='BASELINE' if current==before else 'EXPERIMENT' if current==target else 'CONFLICT'
+            if action=='inspect':return dict(name=name,key=KEY,status=phase,observed=observed,current=current,baseline=before,target=target)
+            need(time.monotonic()<until,'experiment deadline expired')
+            if action=='apply':
+                if phase=='APPLIED':
+                    need(current==target,'sysctl conflict preserved');return dict(name=name,status='ALREADY_APPLIED',current=current,written=False)
+                need(phase=='PLANNED','experiment already used/interrupted; inspect then undo, or create a fresh plan')
+                need(current==before,'baseline changed; conflict preserved')
+                desired=target;intent='APPLY_INTENT';completed='APPLIED'
+            else:
+                allowed={before} if phase in ('PLANNED','UNDONE') else {before,target}
+                need(current in allowed,'sysctl conflict preserved; no restoration attempted')
+                if phase=='UNDONE':return dict(name=name,status='ALREADY_UNDONE',current=current,written=False)
+                desired=before;intent='UNDO_INTENT';completed='UNDONE'
+            if current!=desired:
+                journal['state']=intent;saved=save(fd,'journal.json',journal,saved)
+                need(time.monotonic()<until,'experiment deadline expired; inspect/undo required')
+                tree.write(handle,current,desired)
+            need(time.monotonic()<until,'experiment deadline expired; inspect/undo required')
+            journal['state']=completed;save(fd,'journal.json',journal,saved)
+            return dict(name=name,key=KEY,status=completed,current=desired,baseline=before,target=target,written=current!=desired)
+
+
+def main(argv=None,*,tree=None):
+    cli=argparse.ArgumentParser(description=__doc__)
+    commands=cli.add_subparsers(dest='action',required=True)
+    commands.add_parser('keys',help='read availability/current value; no changes')
+    for action in ('plan','inspect','apply','undo'):
+        sub=commands.add_parser(action);sub.add_argument('--state',type=absolute,required=True);sub.add_argument('--name',required=True)
+        if action=='plan':sub.add_argument('--key',choices=[KEY],required=True);sub.add_argument('--value',type=int,required=True)
+    args=cli.parse_args(argv);tree=tree or Tree()
+    try:
+        if args.action=='keys':
+            try:
+                with tree.opened() as (_,current,_,__):result=dict(key=KEY,status='AVAILABLE',current=current,target_range=[0,100],preset=None)
+            except FileNotFoundError:result=dict(key=KEY,status='UNAVAILABLE',preset=None)
+        elif args.action=='plan':result=plan(tree,args.state,args.name,args.key,args.value)
+        else:result=operate(tree,args.state,args.name,args.action)
+        print(json.dumps(result,sort_keys=True));return 0
+    except (OSError,ValueError,TypeError,KeyError) as error:
+        print('sysctl experiment refused: '+str(error)[:512],file=sys.stderr);return 1
+
+
+if __name__=='__main__':raise SystemExit(main())

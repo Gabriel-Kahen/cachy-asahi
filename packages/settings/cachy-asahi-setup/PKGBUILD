@@ -2,7 +2,7 @@
 # Copyright (c) 2026 cachy-asahi contributors.
 pkgname=cachy-asahi-setup
 pkgver=0.1.0
-pkgrel=4
+pkgrel=7
 pkgdesc='Explicit cachy-asahi user setup and repository enrollment'
 arch=('any')
 url='https://github.com/Gabriel-Kahen/cachy-asahi'
@@ -10,20 +10,26 @@ license=('MIT')
 depends=('python>=3.11' 'gnupg' 'pacman')
 optdepends=('cachy-asahi-hyprland-settings: optional desktop template'
             'cachy-asahi-fish-config: optional Fish template'
-            'cachy-asahi-zsh-config: optional Zsh template')
+            'cachy-asahi-zsh-config: optional Zsh template'
+            'cachy-asahi-fish-bang-bang: explicit optional Fish history expansion'
+            'cachy-asahi-fish-autopair: explicit optional Fish pairing'
+            'cachy-asahi-fish-done: explicit optional Fish completion notifications'
+            'cachy-asahi-zsh-autosuggestions: explicit optional Zsh history suggestions'
+            'cachy-asahi-zsh-syntax-highlighting: explicit optional Zsh highlighting'
+            'cachy-asahi-zsh-history-substring-search: explicit optional Zsh substring search')
 source=('cachy-asahi-setup' 'README.md' 'NOTICE' 'LICENSE'
         'source-provenance.json' 'check-sync.py' 'test-sync.py'
         'cachy-asahi-repository' 'repository-enrollment.md')
 sha256sums=(
-    '3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919'
-    'e868fe3ab18b6a4a175b2be011847ae830e2a589d8264bf8d3e6974dc6529a78'
+    'd33c87447afdc4dfebd55efb4ca9c8882ee1b091f9727390db1fd002c05f7817'
+    '4a595bf8930422c390efe99aa3926210c694257e3bd169daeedb1ed6d9936ddd'
     'a885656c42b81e413549976eb56fa1aad59018af1cad8954f00f45cbd1c2d018'
     '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
-    'ccdf67333850ed7e862b969b88423523c4a9e36ffc31bab0f529533626ddec2e'
+    'ad4c1e07e4140eb79ca9dd236dff8a32bcbaa2cffdd65c9e05b5ab6dc73d7e67'
     '9fb6ff8f1a9304f6e55895b5d83845a8776c77669aac0ec55a58c47b25150a1a'
     '9596373cef5469512b6bae3e0bf1dc6a1b093012779f1488765281aef27de9b3'
     '38db2d45955b569a4c74c3f31d6b6c79611126238e1bbe1e5cf819f81d0fb54f'
-    'a14a53311e7c995b468ddcec1e4996611d7cfe9bb08eb255e0cb6bfee6dcc7e1'
+    '67963698b98954466c5fe8eb684ce88c25865089c7ffd2035646eaa44b2988b4'
 )
 
 prepare() {

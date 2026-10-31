@@ -1,0 +1,60 @@
+name: core7-tmpfiles-hash-source
+on:
+  push:
+    paths:
+      - scripts/ci/core7-tmpfiles-hash-source/**
+      - .github/workflows/core7-tmpfiles-hash-source.yml
+  pull_request:
+    paths:
+      - scripts/ci/core7-tmpfiles-hash-source/**
+      - .github/workflows/core7-tmpfiles-hash-source.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONWARNINGS: error
+    steps:
+      - name: Check out the maintained dedicated factory
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Check out exact public46 source input
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 1fb4773b6d4e734aa2079e8fd8fa674e0808590d
+          path: .ci-fixtures/core-tmpfiles46
+          persist-credentials: false
+      - name: Check out exact public47 expected source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 3a5b0a33f469e4de4f3f85a87bc53815556e1430
+          path: .ci-fixtures/core-tmpfiles47
+          persist-credentials: false
+      - name: Select the explicit Python version
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Reproduce whole47 source and refuse altered inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          stage=$(mktemp -d "$RUNNER_TEMP/core-tmpfiles-hash.XXXXXXXX")
+          trap 'rm -rf -- "$stage"' EXIT
+          mkdir -m700 "$stage/input" "$stage/expected"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/core-tmpfiles46" archive --format=tar 1fb4773b6d4e734aa2079e8fd8fa674e0808590d | tar -x -C "$stage/input"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/core-tmpfiles47" archive --format=tar 3a5b0a33f469e4de4f3f85a87bc53815556e1430 | tar -x -C "$stage/expected"
+          export CORE_TMPFILES_INPUT="$stage/input"
+          export CORE_TMPFILES_EXPECTED="$stage/expected"
+          python3 -I -B -Werror scripts/ci/core7-tmpfiles-hash-source/test_source.py
+          python3 -I -B -Werror scripts/ci/core7-tmpfiles-hash-source/prepare.py --help

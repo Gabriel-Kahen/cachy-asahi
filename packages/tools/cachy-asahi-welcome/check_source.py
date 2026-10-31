@@ -33,6 +33,14 @@ def check(root=HERE):
         assert path.is_file() and not path.is_symlink()
         assert re.fullmatch('[0-9a-f]{64}',pin) and hashlib.sha256(path.read_bytes()).hexdigest()==pin,name
     assert "license=('MIT')" in recipe and "arch=('aarch64')" in recipe
+    assert re.search(r'^pkgrel=4$', recipe, re.M)
+    assert "'cachy-asahi-doctor: optional local observation report'" in recipe
+    assert "'cachy-asahi-orphans: optional installed metadata assessment'" in recipe
+    assert {'management.c','management.h','management-report.c','management-report.h',
+            'test_management.c','test_management_report.c','test_report_work.c'} <= set(sources)
+    makefile=(root/'Makefile').read_text()
+    assert re.search(r'^check:.*\btest-report-work\b',makefile,re.M)
+    assert '\t./test-report-work\n' in makefile
     assert 'Permission is hereby granted' in (root/'LICENSE').read_text()
     payload={}
     for line in (root/'Makefile').read_text().splitlines():

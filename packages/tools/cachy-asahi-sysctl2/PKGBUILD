@@ -1,0 +1,31 @@
+# SPDX-License-Identifier: MIT
+# Original single-key runtime experiment; no preset or automatic activation.
+pkgname=cachy-asahi-sysctl
+pkgver=0.1.0
+pkgrel=2
+pkgdesc='Named sysctl experiments with guarded saved-baseline restoration'
+arch=('any')
+url='https://github.com/Gabriel-Kahen/cachy-asahi'
+license=('MIT')
+depends=('python>=3.11')
+source=('cachy-asahi-sysctl' 'test_sysctl.py' 'README.md' 'NOTICE' 'LICENSE' 'source-provenance.json')
+sha256sums=(
+  '70e3e35d1bf517b21c84f5ecbe608da551e6f8577c68bbfbbd2412b8dd3ed4f0'
+  'e6e24ab48751ef0ec6747eb09c3a0fb3d0110732936d6da21824ba63d6e943f4'
+  'c9d25d4b56788c81118802080fc3b91b83f5d79087202c58d2a5cfeaa2002f4c'
+  '5f75cdf074f7df1736f78f3e8e654196dedabff686ea32bbe92bf95c8863c50e'
+  '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
+  '75e01b5ce01a6f7bdef0bd3913456e8d135704886eed7ca85dea156901887f67'
+)
+
+check() {
+    python -B -Werror::ResourceWarning "$srcdir/test_sysctl.py"
+}
+
+package() {
+    install -Dm755 "$srcdir/cachy-asahi-sysctl" "$pkgdir/usr/bin/cachy-asahi-sysctl"
+    install -Dm644 "$srcdir/README.md" "$pkgdir/usr/share/doc/$pkgname/README.md"
+    install -Dm644 "$srcdir/source-provenance.json" "$pkgdir/usr/share/doc/$pkgname/source-provenance.json"
+    install -Dm644 "$srcdir/NOTICE" "$pkgdir/usr/share/licenses/$pkgname/NOTICE"
+    install -Dm644 "$srcdir/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

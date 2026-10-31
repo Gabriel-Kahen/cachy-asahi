@@ -1,0 +1,40 @@
+{
+  "actual": null,
+  "algorithm": "gzip",
+  "budgets": "UNCHANGED",
+  "data": {
+    "bytes": 130,
+    "sha256": "40f45a296341403037975215ce82c55e8a7a22cd6eb69e3f6c7fce97eb695bf3"
+  },
+  "hooks_modules_preset": "BYTE_HELD",
+  "main_config": "BYTE_HELD",
+  "native_fit": "UNKNOWN",
+  "options": [
+    "-1",
+    "-n"
+  ],
+  "original_files": {
+    "etc/mkinitcpio.conf": {
+      "bytes": 3345,
+      "sha256": "b12d6b1e26e42633b3053cbab472a75ac6dfdc47f01e9f8220fc6c5f848ddd11"
+    },
+    "etc/mkinitcpio.d/linux-aarch64.preset": {
+      "bytes": 375,
+      "sha256": "3954be386f9e83e30fd2582d2aa19d1172bba01e1f8c2af93139d1b653dcbb79"
+    },
+    "usr/bin/gzip": {
+      "bytes": 134328,
+      "sha256": "3948d886905143e3639c3c83ca291d1034282c0bc8eb47077b36557cce66142b"
+    },
+    "usr/bin/mkinitcpio": {
+      "bytes": 44570,
+      "sha256": "6c5a5cbc4fab91d5bdb5bcccba49e3a7f55c45eabba835be4434ff5b33f3e50b"
+    },
+    "usr/lib/initcpio/functions": {
+      "bytes": 48081,
+      "sha256": "144d14f88c23186dd31dd6bc7c25b4c9ddd73b805a5d9eca10adf07afb3a9c0f"
+    }
+  },
+  "path": "etc/mkinitcpio.conf.d/99-caa-core-vm-compression.conf",
+  "scope": "OWNED_DISPOSABLE_VM_GZIP1_ONLY"
+}

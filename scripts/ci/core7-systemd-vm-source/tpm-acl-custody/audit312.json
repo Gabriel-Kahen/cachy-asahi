@@ -1,0 +1,68 @@
+{
+  "acceptance": false,
+  "actor_stage_clock": 3300,
+  "actual": null,
+  "ancestor_files": 39,
+  "budgets": {
+    "assembly": 1070,
+    "boot": 3600,
+    "cleanup": 60,
+    "media": 1900,
+    "owner": 14400,
+    "producer": 2300,
+    "transaction": 90,
+    "vm_shared": 7200
+  },
+  "changed_bodies": [
+    "entry.py:source",
+    "graph_api.py:capabilities",
+    "guest.py:graph",
+    "test_sources.py:GraphAPI",
+    "test_sources.py:GraphAPI.test_entire_actual_guest_graph_private_descriptor_and_caps_route",
+    "test_sources.py:GraphAPI.test_graph_api_source_drift_and_unknown_caps_refuse",
+    "validate.py:graph"
+  ],
+  "changed_files": 9,
+  "compressed_graph_bytes": 67108864,
+  "diagnostic_formal_qualification": "ROOT_QUALIFIED_FAILURE_DATA_ONLY",
+  "formal_unique_tests": 64,
+  "full_observer_functions": 14,
+  "graph_clock": 600,
+  "held_bodies": 157,
+  "held_files": 32,
+  "native": "NOT_RUN",
+  "observer_seams": 3,
+  "only_observer_function_changed": "_attrs",
+  "parent_files": 40,
+  "qualified_failure_files": 727,
+  "raw_graph_bytes": 268435456,
+  "ref": null,
+  "source": null,
+  "source_files": 41,
+  "source_guard": {
+    "actual": null,
+    "ancestor_files": 39,
+    "files": 41,
+    "parent_files": 40,
+    "status": "PASS_TYPED_TPM_DEFAULT_ACL_WHOLE40_AND39_INVERSE"
+  },
+  "status": "PASS_SOURCE41_TYPED_TPM_DEFAULT_ACL_QUALIFIED_FAILURE_DATA_ONLY",
+  "tests": {
+    "312": {
+      "result": {
+        "bytes": 4108,
+        "sha256": "9fac74d84b66fcc7f7e62b2e9945aceec06685c18489344561726b81959cde31"
+      },
+      "seconds": 7.113862942998821,
+      "tests": 63
+    },
+    "314": {
+      "result": {
+        "bytes": 3549,
+        "sha256": "82351a84d99b248e3c296d74b29e220d3d628d466d781e90f887b01327dbf19a"
+      },
+      "seconds": 5.711772999005916,
+      "tests": 63
+    }
+  }
+}

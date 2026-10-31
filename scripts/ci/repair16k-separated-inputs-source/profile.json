@@ -1,0 +1,46 @@
+{
+  "actual": null,
+  "added": 2,
+  "changed": 8,
+  "clocks": {
+    "CLI": 120,
+    "backend": 600,
+    "caller": 610,
+    "collector": 900,
+    "job": 21000,
+    "prepare": 9000,
+    "source": 300,
+    "strict_failure": 300,
+    "validation": 2400
+  },
+  "fixed_files": {
+    "input-source.json": {
+      "bytes": 37573,
+      "sha256": "5e43db12a3bda0c062ba0d1f84544aa5b19ed3ed437dced5e7ab5797dd28c665"
+    },
+    "output-source.json": {
+      "bytes": 37870,
+      "sha256": "248a04753210951b2a054ada92187aae7ec795c6407e830ba0b0ba78500e3e64"
+    },
+    "separated_source.py.in": {
+      "bytes": 7569,
+      "sha256": "d6474273da0005e28cd3fe71c5f265ba64c4938f5e46548a68b42773954dac2c"
+    }
+  },
+  "held": 229,
+  "input_files": 237,
+  "input_ref": "codex/apps16-repair16k-inspect-checkout-v1",
+  "input_source": "eaad9c6379557e89dae557a9b9e84283a96e56d1",
+  "native_acceptance": false,
+  "output_files": 239,
+  "output_ref": "codex/apps16-repair16k-separated-inputs-v1",
+  "output_source": "cd89f189f373dd5cc86450a7f07d0a1369238993",
+  "profiles": [
+    "known",
+    "null"
+  ],
+  "ref": null,
+  "run": null,
+  "source": null,
+  "status": "FIXED_PUBLIC237_TO239_SEPARATED_INPUT_SOURCE_ONLY"
+}

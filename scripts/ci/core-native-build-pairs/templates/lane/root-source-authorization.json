@@ -1,0 +1,30 @@
+{
+  "baseline_inputs": {
+    "bytes": 623664,
+    "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
+  },
+  "core_profile": {
+    "bytes": 8134,
+    "sha256": "734705a6719b0b54aaf4cc17d757abf4586ae2fdd87d5f8839ece8349e0635fa"
+  },
+  "core_source_manifest": {
+    "bytes": 84094,
+    "sha256": "2e10d130ce8419acfb2adf9faa342abb7a9c927b9b1e5170ca9b949529513a9e"
+  },
+  "hardware_acceptance": false,
+  "matrix": [
+    "systemd-a",
+    "systemd-b",
+    "pacman-a",
+    "pacman-b"
+  ],
+  "old261_credit": false,
+  "schema": 1,
+  "source_date_epoch": null,
+  "status": "UNBOUND",
+  "target_selection": false,
+  "versions": {
+    "pacman": "7.1.0.r9.g54d9411-2.1",
+    "systemd": "262-1.1"
+  }
+}

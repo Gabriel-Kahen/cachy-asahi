@@ -1,0 +1,37 @@
+{
+  "TPM-LICENSE": {
+    "bytes": 1236,
+    "sha256": "18c1bf4b1ba1fb2c4ffa7398c234d83c0d55475298e470ae1e5e3a8a8bd2e448",
+    "url": "https://raw.githubusercontent.com/tpm2-software/tpm2-tss/4.2.0/LICENSE"
+  },
+  "TPM-REUSE.toml": {
+    "bytes": 3628,
+    "sha256": "73ac3cf0736db17280b22440b9071343bc400139570785a286e67fdd34e79f4e",
+    "url": "https://raw.githubusercontent.com/tpm2-software/tpm2-tss/4.2.0/REUSE.toml"
+  },
+  "linux-posix_acl.c": {
+    "bytes": 31998,
+    "sha256": "487f64867780289cf2b192baa89aeb17318cfe06e77962f37b19bf558ec57f83",
+    "url": "https://raw.githubusercontent.com/torvalds/linux/v6.12/fs/posix_acl.c"
+  },
+  "linux-posix_acl_xattr.h": {
+    "bytes": 1115,
+    "sha256": "79a2903236a9ffd32702e6879e48e219556b860486119145561f64c591f87e96",
+    "url": "https://raw.githubusercontent.com/torvalds/linux/v6.12/include/uapi/linux/posix_acl_xattr.h"
+  },
+  "systemd-acl-util.c": {
+    "bytes": 18390,
+    "sha256": "440ac88b73a857a8d4edd1d20c6e3405f5282e78f0ec08348f5f1c6026a602f0",
+    "url": "https://raw.githubusercontent.com/systemd/systemd/v257/src/shared/acl-util.c"
+  },
+  "tpm2-tss-fapi.conf.in": {
+    "bytes": 1481,
+    "sha256": "91aab61577a44d076d94a606132cd85922824231b48db8f370f37b729b3a0b67",
+    "url": "https://raw.githubusercontent.com/tpm2-software/tpm2-tss/4.2.0/dist/tmpfiles.d/tpm2-tss-fapi.conf.in"
+  },
+  "upstream-tpm2-tss-sysusers.conf": {
+    "bytes": 89,
+    "sha256": "be9bdfb47e29d043cb7b07cf03fd840d3a324fc7fad314d3a834ea5dece6c285",
+    "url": "https://raw.githubusercontent.com/tpm2-software/tpm2-tss/4.2.0/dist/sysusers.d/tpm2-tss.conf"
+  }
+}

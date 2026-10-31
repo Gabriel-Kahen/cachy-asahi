@@ -1,0 +1,50 @@
+name: GNU candidate-extraction source factory
+on:
+  push:
+    paths: ['scripts/ci/gnu-candidate-extraction-source/**', '.github/workflows/gnu-candidate-extraction-source.yml']
+  pull_request:
+    paths: ['scripts/ci/gnu-candidate-extraction-source/**', '.github/workflows/gnu-candidate-extraction-source.yml']
+permissions:
+  contents: read
+jobs:
+  source-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - name: Check out maintained factory
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Exact public766 input
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: cc04fe3a57bac24a516004dfb670a172e76ac517
+          path: .ci-fixtures/gnu766
+          persist-credentials: false
+      - name: Exact public771 expected source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 4b2f8502655d2f4b65a20691247d1a54052089f3
+          path: .ci-fixtures/gnu771
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Reproduce771 and run source-only generation and emitted controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          stage=$(mktemp -d "$RUNNER_TEMP/gnu-extraction-source.XXXXXXXX")
+          trap 'rm -rf -- "$stage"' EXIT
+          mkdir -m700 "$stage/parent" "$stage/expected"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/gnu766" archive cc04fe3a57bac24a516004dfb670a172e76ac517 | tar -x -C "$stage/parent"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/gnu771" archive 4b2f8502655d2f4b65a20691247d1a54052089f3 | tar -x -C "$stage/expected"
+          export GNU_EXTRACT_PARENT="$stage/parent" GNU_EXTRACT_EXPECTED="$stage/expected"
+          python3 -I -B -Werror scripts/ci/gnu-candidate-extraction-source/test_prepare.py
+          python3 -I -B -Werror scripts/ci/gnu-candidate-extraction-source/test_source.py

@@ -2,8 +2,8 @@
 # Original project sources; SHA256 pins below are the source snapshot.
 pkgname=cachy-asahi-welcome
 pkgver=0.1.0
-pkgrel=1
-pkgdesc='Independent GTK3 welcome, offline guidance and read-only system status'
+pkgrel=4
+pkgdesc='Independent GTK3 welcome, offline guidance and read-only management checks'
 arch=('aarch64')
 url='https://github.com/Gabriel-Kahen/cachy-asahi'
 license=('MIT')
@@ -12,17 +12,27 @@ makedepends=('gcc' 'make' 'pkgconf')
 checkdepends=('python')
 optdepends=('alacritty: Terminal launch action' 'thunar: Files launch action'
             'cachy-asahi-setup: optional configuration preview and recovery guidance'
-            'cachy-asahi-update: optional separately configured updater guidance')
-source=('welcome.c' 'status.c' 'status.h' 'Makefile' 'test_status.c' 'test_cli.py' 'check_source.py' 'README.md' 'first-run.txt' 'updates.txt' 'recovery.txt' 'io.github.GabrielKahen.CachyAsahiWelcome.desktop' 'cachy-asahi-welcome.svg' 'NOTICE' 'LICENSE')
+            'cachy-asahi-update: optional separately configured updater guidance'
+            'cachy-asahi-doctor: optional local observation report'
+            'cachy-asahi-orphans: optional installed metadata assessment')
+source=('test_report_work.c' 'test_management_ui.c' 'management.c' 'management.h' 'management-report.c' 'management-report.h' 'test_management.c' 'test_management_report.c' 'welcome.c' 'status.c' 'status.h' 'Makefile' 'test_status.c' 'test_cli.py' 'check_source.py' 'README.md' 'first-run.txt' 'updates.txt' 'recovery.txt' 'io.github.GabrielKahen.CachyAsahiWelcome.desktop' 'cachy-asahi-welcome.svg' 'NOTICE' 'LICENSE')
 sha256sums=(
-    '891e0fc1f8e17c565e3a8c63dd48e47675fa91fffca169bb6d86d97d3db19f32'
+    '0cb5df7b5e3c302c1732a5f85f684421a58c34404582300fb47f24d580e48ea2'
+    '7a33f4d44d3739acb53f15b5b91d394ee0ba186482a12999e3bca6970d9fa230'
+    '1703fe13c3055a3f35ec12b85c2ffcb3814a0c364fc9537caf4adf32d24d20b4'
+    '5e5e8f196321eb6da75224cbb9f48e9dab7ed20909af4569a9a910ac29f8c212'
+    '21bb131d48a34f86f5a7035b6b9032980bb9330afbc409dca69639a5f0ec9e86'
+    '2caed0cedfc375577d05b8468ec1c54b98e2c23daa247f217671d033b68b739d'
+    '17a23fa7fce5562c3ddeab9a2dda2aa2853c4c2b40dc532bcd3e21fe9a67f18c'
+    'a75cf2d71536412cf315d9ab6b0d7337a1ee044847023058c6e40a53102971ed'
+    '0a3e7e34bf9ebf66e9932cfeb116ce5a202754956a41f9f5481d70784d3c0f66'
     '2bfd5f64c724670546057d01312fc6b9591416f6113c65eae8cbb9a53f3909cf'
     'da0c71ef784debe9ea8ec0be34d8326afe5520ad463efc4a2d432805324b8b78'
-    'ce76cbe478cf4354cb637d738f732515988cac29ea0c7966dffdcb806783a9cf'
+    '6cf2898bc0ea6f20acd09cc78b6873b7e7483e3da97cd5af809e431d8f5a54b7'
     '710eba6eafd4389bf2bf73bc39c7e727d4d60097cb783c035da60bc4ba8d740e'
     '722182698ca07b14b03787a52f5b3976f2f039ae048f142f2dee72e6176fa972'
-    '778e025cf5ca7caa7e1bacbb668876ef793d64e7cd3ba0d6d345c1fa9a70e502'
-    '55c0a3a77f40d0dbef7af779ab8ce7ef5270536ea3a33071700b7ebe20812f07'
+    'cb66f2bc2651003d89e0c6054013dc1ebb57aaf518e64266be8705ac9b024c8b'
+    'b2ecbb4a13549c069d9f7216fbbff47e282be1806dcacc8730788e0cc47a9c00'
     '2c123deef2cf02b586250c1128907ba294ced83a3671607dd2aef2f3cfa094eb'
     'fcde7d9aa0c6f1a0fc8090c5dc26f405708f18ea760d74b664732e2824d403b8'
     '09e5160543b0739b10f327972e338b01c16269d8bcfc6620325eceed0c6a26a2'

@@ -24,6 +24,61 @@ edited. All newly proposed tools below are **not built, not installed, not
 hardware-tested**. Both exact M2 Air sizes, lifecycle/recovery and maintained
 release evidence remain required.
 
+October16 implementation: the original MIT `cachy-asahi-mirrors` candidate now
+checks explicit asahi-alarm/aarch64 catalogs and ranks mirrors only after exact
+selected-snapshot database byte matches. It writes a separate0600 candidate,
+never modifies pacman configuration, and refuses redirects, wrong snapshots and
+existing output. Twelve mocked-network controls and exact four-file isolated
+host staging pass. No live mirror ranking, native package build, catalog trust,
+activation/restoration, target or complete mirror-management acceptance is
+claimed. See [candidate source](../../packages/tools/cachy-asahi-mirrors/README.md).
+
+# Proposed required-function coverage note
+
+Root owns edits to `docs/port/tools-functionality.md` and shared inventories.
+Keep the overall shell feature rows and target/integration gates open.
+
+Add a bounded progress note to the history/search/keybindings and individually
+licensed module coverage: `cachy-asahi-zsh-history-substring-search` now has a
+complete unchanged BSD-3-Clause runtime from commit
+`a0bdb0d47dbaba31dba2db7af8c48a5d9c74049a`, an independent MIT interactive opt-in
+wrapper, a local-source recipe and real x86_64 Zsh 5.9.2 PTY evidence. It performs
+literal substring search over in-memory history, including multiline/quoted
+cases. Existing public/private substring namespaces, ordinary custom Up/Down
+bindings and unrelated widgets are preserved; repeated source and noninteractive
+source do not activate it. Bindings are explicitly manual and documented.
+
+Six host controls pass, including actual ZLE editing and coexistence with the
+staged pinned syntax-highlighting module loaded first. The recipe's five-case
+check body and seven-file pure staging pass. These are host source/staging
+results, not native ARM packages, a package-manager lifecycle, a selected full
+composition, 16-KiB/M2 operation or release admission. No whole Cachy Zsh config
+or unresolved source grant is reused.
+
+
+October16 implementation: the mirror candidate0.2.0 now has explicit activation
+and restoration for caller-selected paths, a durable prior-state journal and
+conflict refusal. All29 host controls pass, including real tempfile CLI and
+SIGKILL recovery. Locks are advisory; external writers must stop during an
+operation. POSIX bytes/mode/uid/gid are covered; ACLs/xattrs/timestamps, storage
+power loss and actual base integration remain outside this evidence.
+
+The separate MIT Fish autopair candidate retains the exact audited upstream pin
+and five unchanged editing helpers. An independent opt-in wrapper avoids upstream
+startup/rebinder hooks and preserves existing keys/namespaces. The worker's14
+real host Fish4.9.3 controls/57 editor snapshots and eleven-file staging pass;
+no native/package-manager/16K/M2 acceptance is claimed. Older hosted Fish gets
+source/syntax checking only. Whole Fish configuration and M6 remain open.
+
+October16 implementation: the separate Fish Done MIT adaptation now provides
+explicit foreground completion and single-process background watching, private
+notification text by default, bounded notification-command execution and preserved
+existing hooks/bindings. Root replays all18 real host Fish4.9.3 PTY controls using
+a local notify-send recorder. This establishes invocation/failure/timeout handling,
+not real D-Bus or visible notifications. Eight-file staging passes separately;
+native package/lifecycle, generic16K and M2 remain open. Full upstream source and
+reviewable adaptation are retained in the package provenance.
+
 ## Scope and decision vocabulary
 
 Coverage includes the pinned Cachy-branded tool/configuration recipe catalog,
@@ -113,7 +168,7 @@ specification. Every fix/tweak family has an explicit destination below.
 | Initramfs/boot hooks, sdboot/GRUB/Limine/EFI signing | REPLACE upstream PC boot management with the selected Asahi installation's established boot/update interface. Exclude new PC bootloader/theme/EFI signing automation; retain an existing supported loader if the Asahi base uses it. | P/I/R: capture actual boot chain, non-destructive update plan, verified fallback and physical recovery. |
 | Recovery chroot/root filesystem mounting | ADAPT cachy-chroot only after Apple volume/boot layout and explicit selected-root handling; existing documented Asahi recovery plus `arch-chroot` is the initial alternative. Never auto-mount arbitrary discovered roots. | I/P/B: image fixtures, encrypted/fs cases, clean unmount and actual recovery. |
 | Snapshots/Snapper and bootable rollback | ADAPT data snapshots only when selected filesystem/layout supports them. REPLACE GRUB/Limine snapshot boot integration with proven Asahi recovery; ext4 uses retained packages/data backup instead. Snapshot existence is not boot recovery. | I/R/P: failed-upgrade restore and actual boot/session recovery. |
-| Kdump/crash diagnostics | REPLACE assumed PC loader/kexec integration with safe journal/pstore/local report first; optional crash-kernel capture requires actual kernel/boot support and recovery testing. | P/T: target capability evidence, sanitized local report, no automatic uploads. |
+| Kdump/crash diagnostics | REPLACE assumed PC loader/kexec integration with safe journal/pstore/local report first; [boot-report source candidate](../../packages/tools/cachy-asahi-boot-report/README.md) implements explicit boot selection and private local export; native/target/crash recovery NOT RUN; optional crash-kernel capture requires actual kernel/boot support and recovery testing. | P/T: target capability evidence, sanitized local report, no automatic uploads. |
 | KWin debug console | EXCLUDE KDE-specific invocation from Hyprland. Provide Hyprland/session/portal/log diagnostics instead. | D/T: actual compositor diagnostic workflow. |
 | Winboat/Windows applications | EXCLUDE as baseline requirement; x86 Windows/container/VM acceleration is not established Apple-native functionality. Offer audited native applications; any VM/emulation support needs separate M5 architecture/licensing/workload evidence. | C/B: finite supported application inventory. |
 | Gaming meta/app bundles, VRAM/dmemcg/Plasma booster | EXCLUDE unmodified lib32/Steam/Proton/NVIDIA/Plasma bundles on Apple Hyprland. Offer supported native ARM application catalog; evaluate optional game/graphics workflows individually without claiming compatibility. | C/B/D/P: app-specific ARM/graphics/license and measured policy gates. |
@@ -429,3 +484,12 @@ individually classified. Temporary primary-source receipts are under
 document are the durable retrieval path. Temporary evidence is not a release
 artifact. Documentation-only work requires no implementation test; no native
 build, installation, hardware or performance test was run for this audit.
+
+
+October18 management implementation: the original MIT DNS candidate provides exact-UUID, explicitly selected family/address settings, preview, saved prior state, guarded apply and conflict-preserving undo. Real nmcli offline apply/restore and21 controls pass; these are stored-profile settings, with no claimed live DNS effect or host connection mutation. The original MIT sysctl candidate provides one available key, vm.swappiness, with named baseline/target plans, inspect, durable intent and explicit apply/undo. Nineteen private-tree controls pass on Python3.12/3.14, including a real fixture SIGKILL and recovery. No preset, persistent boot setting, host sysctl write or performance gain is supplied. Both packages stage five owned files; native ALPM, live integration, Qt/polkit/wider key policy and both-model acceptance remain open. See the package READMEs for exact limits and operating steps.
+
+## Explicit KSM scanning implementation
+
+The same-name upgrade alternative [ksmctl2](../../packages/tools/cachy-asahi-ksmctl2/README.md) implements named preview, apply, inspect and undo for global scanning values0/1. It retains the original read-only reporter and saves a durable baseline and intent before a kernel write. Undo restores the scanning scalar; it does not restore memory sharing. It adds no service, defaults or unmerge action.
+
+The source and staged helper pass26 new private-filesystem controls and18 retained read-only/provenance controls on Python3.12 and3.14. Native package builds, signed installation/removal, actual kernel writes, both M2 Air sizes and performance/security/energy effects remain unverified. The selected package manifest still uses the existing reporting recipe until integration validation is recorded.

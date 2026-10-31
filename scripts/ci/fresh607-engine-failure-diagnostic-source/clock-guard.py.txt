@@ -1,0 +1,26 @@
+
+
+def realtime_before_parent(p):
+ prior=json.loads(C.enc(p));r=prior['engine_failure_parent'].pop('realtime_initialization');prior['guard_template']=r['guard_template']
+ for n,w in r['products_before'].items():prior['products'][n]=w
+ return prior
+
+def realtime_before_body(name,p):
+ r=p['engine_failure_parent']['realtime_initialization']
+ if name=='implementation/page-parent.json':return C.enc(realtime_before_parent(p))
+ raw=C.read(C.ROOT/name)
+ if name in('implementation/page_mode.py','implementation/test_page_mode.py'):
+  role='mode'if name.endswith('page_mode.py')and not name.endswith('test_page_mode.py')else'test';append=r[role+'_append'].encode()
+  if role=='mode':C.need(raw.endswith(append)and append,'whole current16K clock helper append inverse');raw=raw[:-len(append)]
+  else:raw=one(raw,append.decode()+"\nif __name__=='__main__':\n","if __name__=='__main__':\n")
+  for a,b in reversed(r[role+'_edits']):raw=one(raw,b,a)
+ elif name=='implementation/page_source.py':
+  raw=one(raw,PARENT_SHA,r['files']['implementation/page-parent.json']['sha256']);append=r['guard_append'].encode();C.need(raw.endswith(append)and append,'whole current realtime guard append');raw=raw[:-len(append)]
+  for a,b in reversed(r['guard_edits']):raw=one(raw,b,a)
+ elif name=='source-manifest.json':
+  m=json.loads(raw);m['files']={n:r['files'][n]for n in m['files']};raw=C.enc(m)
+ elif name in('implementation/workflow-template.yml',*ALIASES):
+  for a,b in reversed(r['workflow_edits']):raw=one(raw,b,a)
+  if name in ALIASES:raw=one(raw,C.pin(C.read(C.ROOT/'source-manifest.json'))['sha256'],r['files']['source-manifest.json']['sha256'])
+ C.need(C.pin(raw)==r['files'][name],'whole087c member before realtime correction '+name)
+ return raw

@@ -1,0 +1,2800 @@
+{
+  "Root_acceptance": null,
+  "actual_ref": null,
+  "actual_run": null,
+  "actual_source": null,
+  "authority": "DATA_ONLY_ORIGINAL_GPG_AND_VM_CHECKS_MANDATORY",
+  "authorization": {
+    "LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "NOTICE.md": {
+      "bytes": 1526,
+      "sha256": "e6ba6c1b715bbca4857f2f146e6aa3531b8d5a2f6b440e5f5de8c33d41d01437"
+    },
+    "authentication/auth.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "authentication/auth.stdout": {
+      "bytes": 213,
+      "sha256": "a27b1edfb0e993709ac2edfe8b4cea85f44c62ff2bbe65a5f73cc8502d8ada37"
+    },
+    "authentication/capstone.stderr": {
+      "bytes": 436,
+      "sha256": "4814e3a95c16334c005d5a520a10fd154d49cd5f4ca2d6dc1013ea60599448be"
+    },
+    "authentication/capstone.stdout": {
+      "bytes": 405,
+      "sha256": "1dc1a127de5e62fa9a9abf48216943815b5e8b8a9a02185772a96d5950301b3e"
+    },
+    "authentication/commands.json": {
+      "bytes": 25771,
+      "sha256": "6aec5ce23330757e4a2da939df9bb97c40e21ee4c30ddcac39aaba0f7b1af318"
+    },
+    "authentication/current-key-list.stderr": {
+      "bytes": 64,
+      "sha256": "dd130aa6af252149cb26cbb07cc3438a4f027d2c6d0290b7ceffdfb0aa578441"
+    },
+    "authentication/current-key-list.stdout": {
+      "bytes": 387,
+      "sha256": "c9a7416a28c04624570c3591f87934b48c888d7e0224246fdd4252399b086953"
+    },
+    "authentication/dtc.stderr": {
+      "bytes": 436,
+      "sha256": "2ecb4510522846005fbfbfacbe24f5784ecfb92be7f76ff5fe43ee02a8552f42"
+    },
+    "authentication/dtc.stdout": {
+      "bytes": 405,
+      "sha256": "72692b519eed802b346d23ec4f47652e341ca21a989c02d2fbf36e4228c6624b"
+    },
+    "authentication/gpg-version.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "authentication/gpg-version.stdout": {
+      "bytes": 554,
+      "sha256": "8db190e2511dfbcc54604794c8a83c9ad740dafd3a5fa4239b6b3529bb037a0f"
+    },
+    "authentication/key-import.stderr": {
+      "bytes": 586,
+      "sha256": "6f4a639116bbcfc41b7bc94f40405ab1c10b8b435fcc8fc0375c2a02ef8b5ffb"
+    },
+    "authentication/key-import.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "authentication/libaio.stderr": {
+      "bytes": 436,
+      "sha256": "ec16ce8f85eed98cef5a32028fade3ef864e8a05b8239630d0b7cb47a809096c"
+    },
+    "authentication/libaio.stdout": {
+      "bytes": 405,
+      "sha256": "3ae120cb165bb0260124106a32405a668224f33d422c4771b6a17d05b092b5bb"
+    },
+    "authentication/libslirp.stderr": {
+      "bytes": 436,
+      "sha256": "24ce00fb178f98c7787d0ca7fb45a0b47843dd2c9a43188b707420a0a888ac22"
+    },
+    "authentication/libslirp.stdout": {
+      "bytes": 405,
+      "sha256": "25b4c39452954aec9655565a2db79163183e951031b82739fe1dc5a908d440da"
+    },
+    "authentication/libtraceevent.stderr": {
+      "bytes": 436,
+      "sha256": "9e4d9f0934a7b3e72873969dfbfd43a4eb9af919efc314a6d15095ea40122aba"
+    },
+    "authentication/libtraceevent.stdout": {
+      "bytes": 405,
+      "sha256": "9e612e0cf2a28ff2ed9fcca731b5308ff9c24345eb5dd5a1406d7f8b5e36d729"
+    },
+    "authentication/libtracefs.stderr": {
+      "bytes": 436,
+      "sha256": "c07e8d2145fc0984980e9f2675f1570d993ca7738af4862dabb6b4726ad20165"
+    },
+    "authentication/libtracefs.stdout": {
+      "bytes": 405,
+      "sha256": "d35f46846b747f038c0b38db3df21b657712c47b3fc5cbc71c8e6ae88debdd4d"
+    },
+    "authentication/libxdp.stderr": {
+      "bytes": 436,
+      "sha256": "020c9751fd014ae45ca894f09f8f9ac92d4a2b9a0dc56e616b489a5166127f02"
+    },
+    "authentication/libxdp.stdout": {
+      "bytes": 405,
+      "sha256": "8804cb635c7db954692242c09972e47b428313d5b091546b8b2ed450b86fc1bd"
+    },
+    "authentication/libyaml.stderr": {
+      "bytes": 436,
+      "sha256": "74a28fc9b3e628bba45453660a759ba7a28c8e8f00e3f66d36256ea1ed00172f"
+    },
+    "authentication/libyaml.stdout": {
+      "bytes": 404,
+      "sha256": "513eb3c859d2f31f4eeb858c1e921da8600923db7bd40eea7b84ac246c35236c"
+    },
+    "authentication/ndctl.stderr": {
+      "bytes": 436,
+      "sha256": "39fac4f4e09cbd97f8993bd55616a537ee8e05ee3f40f1b357c31b7b678167d3"
+    },
+    "authentication/ndctl.stdout": {
+      "bytes": 405,
+      "sha256": "7f6121e449f601c685893ec25506fdee94f8b47b59ecdb7d514d99b03e008097"
+    },
+    "authentication/package-metadata.json": {
+      "bytes": 240594,
+      "sha256": "da9eb3d218404fbcf5e0223cbdd6133ea65d420caaaa6a9546165eb706b776ca"
+    },
+    "authentication/qemu-common.stderr": {
+      "bytes": 436,
+      "sha256": "ce63bec23d00dbcabdab5f26ff44fade494443750e789b659fffb36f03957a5b"
+    },
+    "authentication/qemu-common.stdout": {
+      "bytes": 405,
+      "sha256": "fed7a6fd23690ac403f70f116437a0f846edeabed0cd77ede73f93b36641103c"
+    },
+    "authentication/qemu-hw-display-virtio-gpu-pci.stderr": {
+      "bytes": 436,
+      "sha256": "ccff5619cadd21cdbc198a56e1d238beb4b67b76f15585b59b6cffe1276718f8"
+    },
+    "authentication/qemu-hw-display-virtio-gpu-pci.stdout": {
+      "bytes": 405,
+      "sha256": "4e39d6a9c3ca9d6ab79d7b9dcdf8d625b0c046ba92471addcd965e6b18d7d3e9"
+    },
+    "authentication/qemu-hw-display-virtio-gpu.stderr": {
+      "bytes": 436,
+      "sha256": "ccff5619cadd21cdbc198a56e1d238beb4b67b76f15585b59b6cffe1276718f8"
+    },
+    "authentication/qemu-hw-display-virtio-gpu.stdout": {
+      "bytes": 405,
+      "sha256": "9155a17436ba50684cb2ae31e459740f76de9d549f597e558d6b019985faae76"
+    },
+    "authentication/qemu-system-aarch64.stderr": {
+      "bytes": 436,
+      "sha256": "6676287c6438fde63fe4c80c7426aaba1ab354d7bbbdb0d1abf924b095161a3b"
+    },
+    "authentication/qemu-system-aarch64.stdout": {
+      "bytes": 405,
+      "sha256": "56e725a8df02259fe3804f13be72ad754d5a6a404c4cf925fd245a763e3718da"
+    },
+    "authentication/rdma-core.stderr": {
+      "bytes": 436,
+      "sha256": "20fc73be33ea01cd7d782a4cf04e6865e95d57bdb00d83de77684bc5254b20b1"
+    },
+    "authentication/rdma-core.stdout": {
+      "bytes": 405,
+      "sha256": "38b1440ab70bd1598ee7fed1348aaa9c0f8a4dc3e3a750c97613c2c56f0cee01"
+    },
+    "authentication/receipt.json": {
+      "bytes": 331011,
+      "sha256": "f248c4a33ed4ef5be891bcd2d623ef191f8d1c87db6eb54815693e7e4019c0bd"
+    },
+    "authentication/signatures.json": {
+      "bytes": 32874,
+      "sha256": "d264612753ee92f4147deae5c0c1dd794e141f3d0ef4fd391223eef352fbbaa1"
+    },
+    "authentication/trust-import.stderr": {
+      "bytes": 31,
+      "sha256": "79fb54aa0d14d4a5f75afa668175178b67b0cc596394ec5f3f16e4f85849bd58"
+    },
+    "authentication/trust-import.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "authentication/vde2.stderr": {
+      "bytes": 436,
+      "sha256": "5be3cb88bb73751fb0f689bb468e3038c7f93c402df67b34baf1a6f21e1a5643"
+    },
+    "authentication/vde2.stdout": {
+      "bytes": 405,
+      "sha256": "3fd9711a85635b0a5921d2d9b4cbf0b1c07853f5f3918e68c02eb47ac650df48"
+    },
+    "authentication/wolfssl.stderr": {
+      "bytes": 436,
+      "sha256": "60188af32fd2a59fc899810d17eb94b7ea0a3ef604dbafd0e109094678c2a97e"
+    },
+    "authentication/wolfssl.stdout": {
+      "bytes": 405,
+      "sha256": "34a6b0b1a6426809bdbfdb64b471db4a949f9d3748fe1dcfd59e0ee2a7a29776"
+    },
+    "index.json": {
+      "bytes": 34114,
+      "sha256": "0fd1ac42c67731a82a6cc402fb20669a63c9f2b7de56ce45248a57e5860d08cb"
+    },
+    "keyring/archlinuxarm-revoked": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "keyring/archlinuxarm-trusted": {
+      "bytes": 44,
+      "sha256": "f2a7250f2a2b77542f82f4219b2bae7895f27b3dcfdf350b497e2be306af776d"
+    },
+    "keyring/archlinuxarm.gpg": {
+      "bytes": 3098,
+      "sha256": "6ce771e853f04a38a5b533cb33e61f877b9b06b58b6db051eb8a15d737a2332f"
+    },
+    "package-licenses.json": {
+      "bytes": 12419,
+      "sha256": "e2ce09acd90cdcf9c6f8bed7f6a7409f65d8906925c41a6164e4ad03dfa19ff9"
+    },
+    "packages/capstone-5.0.9-1-aarch64.pkg.tar.xz": {
+      "bytes": 1402616,
+      "sha256": "f96ad05de152308112c6f895e42d52669942d5698d5a7491caeb853128fda3a9"
+    },
+    "packages/capstone-5.0.9-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "d3bceb44f8df6cc1a728ef56f3e8955cf33f1892c001bf594189a1c474ab50d3"
+    },
+    "packages/dtc-1:1.8.1-1-aarch64.pkg.tar.xz": {
+      "bytes": 150444,
+      "sha256": "c60faaee0f149ef74fc9feb9aba5cc564d971e021c5bff523568ae0fb257a319"
+    },
+    "packages/dtc-1:1.8.1-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "562081f2fef5b0bd99ce3d5c405b0190df2af584d2b4df4a0a5a6ba45ade2a9a"
+    },
+    "packages/libaio-0.3.113-5-aarch64.pkg.tar.xz": {
+      "bytes": 23840,
+      "sha256": "18af1ae9233952a6a505f09cc632b09b2eff5898ebff7e1e931829146169de47"
+    },
+    "packages/libaio-0.3.113-5-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "10fbfd57bb3df9569f86615e14da6683d2a61aeb37ae0ffc778b37c5308ab4ed"
+    },
+    "packages/libslirp-4.9.5-1-aarch64.pkg.tar.xz": {
+      "bytes": 64840,
+      "sha256": "ca402058ef0080a83dd386fe550ef4659f3caad96c8017531df3535e578a4e94"
+    },
+    "packages/libslirp-4.9.5-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "7fd4517fa54d162d793416b1012ab2f2df177c0c1e5d76f54509215c1a655f91"
+    },
+    "packages/libtraceevent-1:1.9.0-1-aarch64.pkg.tar.xz": {
+      "bytes": 168080,
+      "sha256": "413357116a57a128084aa28513951ad2ebd5b18215d3b9de2eb5fb01856acd20"
+    },
+    "packages/libtraceevent-1:1.9.0-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "0eda57e4363bac64004317cbe67b3b1b44ff3954a9c17bae06db5da09f9678e9"
+    },
+    "packages/libtracefs-1.8.3-1-aarch64.pkg.tar.xz": {
+      "bytes": 225796,
+      "sha256": "b41dc9bb609f2f72ab6078f111fedf7c4b559f3a2ab8b42c5dac65c0f1fe12ac"
+    },
+    "packages/libtracefs-1.8.3-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "539e6127e8756e55e5e997ab8393b9861a107c1f6045383b2bb48be0ce85e70e"
+    },
+    "packages/libxdp-1.6.3-2-aarch64.pkg.tar.xz": {
+      "bytes": 95740,
+      "sha256": "536cca5cad699995dcc464d842e923acb8b18dff0aa665e1a17fc11e322ea45c"
+    },
+    "packages/libxdp-1.6.3-2-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "0925fa82c07f14acd0630bfbf0475c28b459d5b03654962c33b482922a3bcda3"
+    },
+    "packages/libyaml-0.2.5-3-aarch64.pkg.tar.xz": {
+      "bytes": 53220,
+      "sha256": "f96d25c8898b27d3364034336630363bcf48eb968c90d5d5c240e4b237ae153b"
+    },
+    "packages/libyaml-0.2.5-3-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "998f7e827e1bbf718b704dbdc8d871b1fb101f2c73d9065410204706bfa94c9c"
+    },
+    "packages/ndctl-85-1-aarch64.pkg.tar.xz": {
+      "bytes": 374404,
+      "sha256": "5090e80deb3566e2530d6115b036215216b2e0fd7c1a2205161203d59a34aae9"
+    },
+    "packages/ndctl-85-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "0dbb686d324b365b93ada668cb286b6238313814f9629f9f44d54da86913b2f0"
+    },
+    "packages/qemu-common-11.1.2-1-aarch64.pkg.tar.xz": {
+      "bytes": 2100404,
+      "sha256": "f71da9d341459b24a0bf608d566421cad8788a3e8b3d0a93aa82f28066173be3"
+    },
+    "packages/qemu-common-11.1.2-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "8e465e8970fd1a74732ff6a97bb198314ac6c78e44044c51dff93af67ca0a808"
+    },
+    "packages/qemu-hw-display-virtio-gpu-11.1.2-1-aarch64.pkg.tar.xz": {
+      "bytes": 36236,
+      "sha256": "e4729661997f1f5879522a7866c872c80b90b8a67b90f5e500a7c70e6a516fcc"
+    },
+    "packages/qemu-hw-display-virtio-gpu-11.1.2-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "671fafcb82b172089ebd162a6b620e433eea0cb8eec67647ae62e1de6b24c363"
+    },
+    "packages/qemu-hw-display-virtio-gpu-pci-11.1.2-1-aarch64.pkg.tar.xz": {
+      "bytes": 16676,
+      "sha256": "9dbb3bdffbeed7e8714ed6ee5693126fafdebc7082bbaa1618b3c12aa04d9ba4"
+    },
+    "packages/qemu-hw-display-virtio-gpu-pci-11.1.2-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "a75573abb0b98ff517c2068a13b4634368fa27ba1716a8b5b86279929fcfbbc3"
+    },
+    "packages/qemu-system-aarch64-11.1.2-1-aarch64.pkg.tar.xz": {
+      "bytes": 5109200,
+      "sha256": "989a142989ab9c6696593af4561d6d7cb40c408d6a5eb2a4eaee0fdacbdb127d"
+    },
+    "packages/qemu-system-aarch64-11.1.2-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "9d7fc11edd3b7cd27a9d0d3af05db75b48e523280d785a2a9968c9ff5955aca7"
+    },
+    "packages/rdma-core-65.0-1-aarch64.pkg.tar.xz": {
+      "bytes": 1992600,
+      "sha256": "5031f9cbf8e98963c2b1b3e1a221e02e4f6962160cf8042afbe962577b236295"
+    },
+    "packages/rdma-core-65.0-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "1408e0824093ce4c92744a983e0ecfe674ebc91882bebed44b249607fd8bf711"
+    },
+    "packages/vde2-2.3.3-10-aarch64.pkg.tar.xz": {
+      "bytes": 199088,
+      "sha256": "3448c3a49d23407ac32f3dbd7fed4fefce406a4acc4cc150af3faaccc51cf77c"
+    },
+    "packages/vde2-2.3.3-10-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "8a92dfec49a8c69d50917062b493917679667fdab5e0fc16165cd918d1cbd0f6"
+    },
+    "packages/wolfssl-5.9.4-1-aarch64.pkg.tar.xz": {
+      "bytes": 1178536,
+      "sha256": "4a332bc1b879e3ef5619b012334a18393355297107dcba00e1c6daea8bee2704"
+    },
+    "packages/wolfssl-5.9.4-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "cd31ea4466eb54167f574f860ca4571fb7bdbd5772b945bd40118ae3ae97682e"
+    },
+    "source/audit_tooling.py": {
+      "bytes": 7045,
+      "sha256": "6677f391f2de23540bc147770148729fe4c993850b7bbed0b71fb7e48d296fdc"
+    },
+    "source/common.py": {
+      "bytes": 84361,
+      "sha256": "aef2b4f09a91c4cfd66dd4504e69ef18396a94214c82ae0ec0a43c2716894a03"
+    },
+    "tooling.lock.json": {
+      "bytes": 31183,
+      "sha256": "c18afc5bde9868594d41bd576a956960a7b01b190d148ba03ca4c41d4394e1b0"
+    },
+    "tooling32-policy.json": {
+      "bytes": 27408,
+      "sha256": "708d9ecbb05da7d1b6d072e3117fe9dc6a180acae1af8e60d09ce646cfdbabaa"
+    }
+  },
+  "builder574": {
+    "bytes": 11117,
+    "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+  },
+  "carrier_files": {
+    "LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "NOTICE.md": {
+      "bytes": 1526,
+      "sha256": "e6ba6c1b715bbca4857f2f146e6aa3531b8d5a2f6b440e5f5de8c33d41d01437"
+    },
+    "authentication/auth.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "authentication/auth.stdout": {
+      "bytes": 213,
+      "sha256": "a27b1edfb0e993709ac2edfe8b4cea85f44c62ff2bbe65a5f73cc8502d8ada37"
+    },
+    "authentication/capstone.stderr": {
+      "bytes": 436,
+      "sha256": "4814e3a95c16334c005d5a520a10fd154d49cd5f4ca2d6dc1013ea60599448be"
+    },
+    "authentication/capstone.stdout": {
+      "bytes": 405,
+      "sha256": "1dc1a127de5e62fa9a9abf48216943815b5e8b8a9a02185772a96d5950301b3e"
+    },
+    "authentication/commands.json": {
+      "bytes": 25771,
+      "sha256": "6aec5ce23330757e4a2da939df9bb97c40e21ee4c30ddcac39aaba0f7b1af318"
+    },
+    "authentication/current-key-list.stderr": {
+      "bytes": 64,
+      "sha256": "dd130aa6af252149cb26cbb07cc3438a4f027d2c6d0290b7ceffdfb0aa578441"
+    },
+    "authentication/current-key-list.stdout": {
+      "bytes": 387,
+      "sha256": "c9a7416a28c04624570c3591f87934b48c888d7e0224246fdd4252399b086953"
+    },
+    "authentication/dtc.stderr": {
+      "bytes": 436,
+      "sha256": "2ecb4510522846005fbfbfacbe24f5784ecfb92be7f76ff5fe43ee02a8552f42"
+    },
+    "authentication/dtc.stdout": {
+      "bytes": 405,
+      "sha256": "72692b519eed802b346d23ec4f47652e341ca21a989c02d2fbf36e4228c6624b"
+    },
+    "authentication/gpg-version.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "authentication/gpg-version.stdout": {
+      "bytes": 554,
+      "sha256": "8db190e2511dfbcc54604794c8a83c9ad740dafd3a5fa4239b6b3529bb037a0f"
+    },
+    "authentication/key-import.stderr": {
+      "bytes": 586,
+      "sha256": "6f4a639116bbcfc41b7bc94f40405ab1c10b8b435fcc8fc0375c2a02ef8b5ffb"
+    },
+    "authentication/key-import.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "authentication/libaio.stderr": {
+      "bytes": 436,
+      "sha256": "ec16ce8f85eed98cef5a32028fade3ef864e8a05b8239630d0b7cb47a809096c"
+    },
+    "authentication/libaio.stdout": {
+      "bytes": 405,
+      "sha256": "3ae120cb165bb0260124106a32405a668224f33d422c4771b6a17d05b092b5bb"
+    },
+    "authentication/libslirp.stderr": {
+      "bytes": 436,
+      "sha256": "24ce00fb178f98c7787d0ca7fb45a0b47843dd2c9a43188b707420a0a888ac22"
+    },
+    "authentication/libslirp.stdout": {
+      "bytes": 405,
+      "sha256": "25b4c39452954aec9655565a2db79163183e951031b82739fe1dc5a908d440da"
+    },
+    "authentication/libtraceevent.stderr": {
+      "bytes": 436,
+      "sha256": "9e4d9f0934a7b3e72873969dfbfd43a4eb9af919efc314a6d15095ea40122aba"
+    },
+    "authentication/libtraceevent.stdout": {
+      "bytes": 405,
+      "sha256": "9e612e0cf2a28ff2ed9fcca731b5308ff9c24345eb5dd5a1406d7f8b5e36d729"
+    },
+    "authentication/libtracefs.stderr": {
+      "bytes": 436,
+      "sha256": "c07e8d2145fc0984980e9f2675f1570d993ca7738af4862dabb6b4726ad20165"
+    },
+    "authentication/libtracefs.stdout": {
+      "bytes": 405,
+      "sha256": "d35f46846b747f038c0b38db3df21b657712c47b3fc5cbc71c8e6ae88debdd4d"
+    },
+    "authentication/libxdp.stderr": {
+      "bytes": 436,
+      "sha256": "020c9751fd014ae45ca894f09f8f9ac92d4a2b9a0dc56e616b489a5166127f02"
+    },
+    "authentication/libxdp.stdout": {
+      "bytes": 405,
+      "sha256": "8804cb635c7db954692242c09972e47b428313d5b091546b8b2ed450b86fc1bd"
+    },
+    "authentication/libyaml.stderr": {
+      "bytes": 436,
+      "sha256": "74a28fc9b3e628bba45453660a759ba7a28c8e8f00e3f66d36256ea1ed00172f"
+    },
+    "authentication/libyaml.stdout": {
+      "bytes": 404,
+      "sha256": "513eb3c859d2f31f4eeb858c1e921da8600923db7bd40eea7b84ac246c35236c"
+    },
+    "authentication/ndctl.stderr": {
+      "bytes": 436,
+      "sha256": "39fac4f4e09cbd97f8993bd55616a537ee8e05ee3f40f1b357c31b7b678167d3"
+    },
+    "authentication/ndctl.stdout": {
+      "bytes": 405,
+      "sha256": "7f6121e449f601c685893ec25506fdee94f8b47b59ecdb7d514d99b03e008097"
+    },
+    "authentication/package-metadata.json": {
+      "bytes": 240594,
+      "sha256": "da9eb3d218404fbcf5e0223cbdd6133ea65d420caaaa6a9546165eb706b776ca"
+    },
+    "authentication/qemu-common.stderr": {
+      "bytes": 436,
+      "sha256": "ce63bec23d00dbcabdab5f26ff44fade494443750e789b659fffb36f03957a5b"
+    },
+    "authentication/qemu-common.stdout": {
+      "bytes": 405,
+      "sha256": "fed7a6fd23690ac403f70f116437a0f846edeabed0cd77ede73f93b36641103c"
+    },
+    "authentication/qemu-hw-display-virtio-gpu-pci.stderr": {
+      "bytes": 436,
+      "sha256": "ccff5619cadd21cdbc198a56e1d238beb4b67b76f15585b59b6cffe1276718f8"
+    },
+    "authentication/qemu-hw-display-virtio-gpu-pci.stdout": {
+      "bytes": 405,
+      "sha256": "4e39d6a9c3ca9d6ab79d7b9dcdf8d625b0c046ba92471addcd965e6b18d7d3e9"
+    },
+    "authentication/qemu-hw-display-virtio-gpu.stderr": {
+      "bytes": 436,
+      "sha256": "ccff5619cadd21cdbc198a56e1d238beb4b67b76f15585b59b6cffe1276718f8"
+    },
+    "authentication/qemu-hw-display-virtio-gpu.stdout": {
+      "bytes": 405,
+      "sha256": "9155a17436ba50684cb2ae31e459740f76de9d549f597e558d6b019985faae76"
+    },
+    "authentication/qemu-system-aarch64.stderr": {
+      "bytes": 436,
+      "sha256": "6676287c6438fde63fe4c80c7426aaba1ab354d7bbbdb0d1abf924b095161a3b"
+    },
+    "authentication/qemu-system-aarch64.stdout": {
+      "bytes": 405,
+      "sha256": "56e725a8df02259fe3804f13be72ad754d5a6a404c4cf925fd245a763e3718da"
+    },
+    "authentication/rdma-core.stderr": {
+      "bytes": 436,
+      "sha256": "20fc73be33ea01cd7d782a4cf04e6865e95d57bdb00d83de77684bc5254b20b1"
+    },
+    "authentication/rdma-core.stdout": {
+      "bytes": 405,
+      "sha256": "38b1440ab70bd1598ee7fed1348aaa9c0f8a4dc3e3a750c97613c2c56f0cee01"
+    },
+    "authentication/receipt.json": {
+      "bytes": 331011,
+      "sha256": "f248c4a33ed4ef5be891bcd2d623ef191f8d1c87db6eb54815693e7e4019c0bd"
+    },
+    "authentication/signatures.json": {
+      "bytes": 32874,
+      "sha256": "d264612753ee92f4147deae5c0c1dd794e141f3d0ef4fd391223eef352fbbaa1"
+    },
+    "authentication/trust-import.stderr": {
+      "bytes": 31,
+      "sha256": "79fb54aa0d14d4a5f75afa668175178b67b0cc596394ec5f3f16e4f85849bd58"
+    },
+    "authentication/trust-import.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "authentication/vde2.stderr": {
+      "bytes": 436,
+      "sha256": "5be3cb88bb73751fb0f689bb468e3038c7f93c402df67b34baf1a6f21e1a5643"
+    },
+    "authentication/vde2.stdout": {
+      "bytes": 405,
+      "sha256": "3fd9711a85635b0a5921d2d9b4cbf0b1c07853f5f3918e68c02eb47ac650df48"
+    },
+    "authentication/wolfssl.stderr": {
+      "bytes": 436,
+      "sha256": "60188af32fd2a59fc899810d17eb94b7ea0a3ef604dbafd0e109094678c2a97e"
+    },
+    "authentication/wolfssl.stdout": {
+      "bytes": 405,
+      "sha256": "34a6b0b1a6426809bdbfdb64b471db4a949f9d3748fe1dcfd59e0ee2a7a29776"
+    },
+    "index.json": {
+      "bytes": 34114,
+      "sha256": "0fd1ac42c67731a82a6cc402fb20669a63c9f2b7de56ce45248a57e5860d08cb"
+    },
+    "keyring/archlinuxarm-revoked": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "keyring/archlinuxarm-trusted": {
+      "bytes": 44,
+      "sha256": "f2a7250f2a2b77542f82f4219b2bae7895f27b3dcfdf350b497e2be306af776d"
+    },
+    "keyring/archlinuxarm.gpg": {
+      "bytes": 3098,
+      "sha256": "6ce771e853f04a38a5b533cb33e61f877b9b06b58b6db051eb8a15d737a2332f"
+    },
+    "package-licenses.json": {
+      "bytes": 12419,
+      "sha256": "e2ce09acd90cdcf9c6f8bed7f6a7409f65d8906925c41a6164e4ad03dfa19ff9"
+    },
+    "packages/capstone-5.0.9-1-aarch64.pkg.tar.xz": {
+      "bytes": 1402616,
+      "sha256": "f96ad05de152308112c6f895e42d52669942d5698d5a7491caeb853128fda3a9"
+    },
+    "packages/capstone-5.0.9-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "d3bceb44f8df6cc1a728ef56f3e8955cf33f1892c001bf594189a1c474ab50d3"
+    },
+    "packages/dtc-1:1.8.1-1-aarch64.pkg.tar.xz": {
+      "bytes": 150444,
+      "sha256": "c60faaee0f149ef74fc9feb9aba5cc564d971e021c5bff523568ae0fb257a319"
+    },
+    "packages/dtc-1:1.8.1-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "562081f2fef5b0bd99ce3d5c405b0190df2af584d2b4df4a0a5a6ba45ade2a9a"
+    },
+    "packages/libaio-0.3.113-5-aarch64.pkg.tar.xz": {
+      "bytes": 23840,
+      "sha256": "18af1ae9233952a6a505f09cc632b09b2eff5898ebff7e1e931829146169de47"
+    },
+    "packages/libaio-0.3.113-5-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "10fbfd57bb3df9569f86615e14da6683d2a61aeb37ae0ffc778b37c5308ab4ed"
+    },
+    "packages/libslirp-4.9.5-1-aarch64.pkg.tar.xz": {
+      "bytes": 64840,
+      "sha256": "ca402058ef0080a83dd386fe550ef4659f3caad96c8017531df3535e578a4e94"
+    },
+    "packages/libslirp-4.9.5-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "7fd4517fa54d162d793416b1012ab2f2df177c0c1e5d76f54509215c1a655f91"
+    },
+    "packages/libtraceevent-1:1.9.0-1-aarch64.pkg.tar.xz": {
+      "bytes": 168080,
+      "sha256": "413357116a57a128084aa28513951ad2ebd5b18215d3b9de2eb5fb01856acd20"
+    },
+    "packages/libtraceevent-1:1.9.0-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "0eda57e4363bac64004317cbe67b3b1b44ff3954a9c17bae06db5da09f9678e9"
+    },
+    "packages/libtracefs-1.8.3-1-aarch64.pkg.tar.xz": {
+      "bytes": 225796,
+      "sha256": "b41dc9bb609f2f72ab6078f111fedf7c4b559f3a2ab8b42c5dac65c0f1fe12ac"
+    },
+    "packages/libtracefs-1.8.3-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "539e6127e8756e55e5e997ab8393b9861a107c1f6045383b2bb48be0ce85e70e"
+    },
+    "packages/libxdp-1.6.3-2-aarch64.pkg.tar.xz": {
+      "bytes": 95740,
+      "sha256": "536cca5cad699995dcc464d842e923acb8b18dff0aa665e1a17fc11e322ea45c"
+    },
+    "packages/libxdp-1.6.3-2-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "0925fa82c07f14acd0630bfbf0475c28b459d5b03654962c33b482922a3bcda3"
+    },
+    "packages/libyaml-0.2.5-3-aarch64.pkg.tar.xz": {
+      "bytes": 53220,
+      "sha256": "f96d25c8898b27d3364034336630363bcf48eb968c90d5d5c240e4b237ae153b"
+    },
+    "packages/libyaml-0.2.5-3-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "998f7e827e1bbf718b704dbdc8d871b1fb101f2c73d9065410204706bfa94c9c"
+    },
+    "packages/ndctl-85-1-aarch64.pkg.tar.xz": {
+      "bytes": 374404,
+      "sha256": "5090e80deb3566e2530d6115b036215216b2e0fd7c1a2205161203d59a34aae9"
+    },
+    "packages/ndctl-85-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "0dbb686d324b365b93ada668cb286b6238313814f9629f9f44d54da86913b2f0"
+    },
+    "packages/qemu-common-11.1.2-1-aarch64.pkg.tar.xz": {
+      "bytes": 2100404,
+      "sha256": "f71da9d341459b24a0bf608d566421cad8788a3e8b3d0a93aa82f28066173be3"
+    },
+    "packages/qemu-common-11.1.2-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "8e465e8970fd1a74732ff6a97bb198314ac6c78e44044c51dff93af67ca0a808"
+    },
+    "packages/qemu-hw-display-virtio-gpu-11.1.2-1-aarch64.pkg.tar.xz": {
+      "bytes": 36236,
+      "sha256": "e4729661997f1f5879522a7866c872c80b90b8a67b90f5e500a7c70e6a516fcc"
+    },
+    "packages/qemu-hw-display-virtio-gpu-11.1.2-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "671fafcb82b172089ebd162a6b620e433eea0cb8eec67647ae62e1de6b24c363"
+    },
+    "packages/qemu-hw-display-virtio-gpu-pci-11.1.2-1-aarch64.pkg.tar.xz": {
+      "bytes": 16676,
+      "sha256": "9dbb3bdffbeed7e8714ed6ee5693126fafdebc7082bbaa1618b3c12aa04d9ba4"
+    },
+    "packages/qemu-hw-display-virtio-gpu-pci-11.1.2-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "a75573abb0b98ff517c2068a13b4634368fa27ba1716a8b5b86279929fcfbbc3"
+    },
+    "packages/qemu-system-aarch64-11.1.2-1-aarch64.pkg.tar.xz": {
+      "bytes": 5109200,
+      "sha256": "989a142989ab9c6696593af4561d6d7cb40c408d6a5eb2a4eaee0fdacbdb127d"
+    },
+    "packages/qemu-system-aarch64-11.1.2-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "9d7fc11edd3b7cd27a9d0d3af05db75b48e523280d785a2a9968c9ff5955aca7"
+    },
+    "packages/rdma-core-65.0-1-aarch64.pkg.tar.xz": {
+      "bytes": 1992600,
+      "sha256": "5031f9cbf8e98963c2b1b3e1a221e02e4f6962160cf8042afbe962577b236295"
+    },
+    "packages/rdma-core-65.0-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "1408e0824093ce4c92744a983e0ecfe674ebc91882bebed44b249607fd8bf711"
+    },
+    "packages/vde2-2.3.3-10-aarch64.pkg.tar.xz": {
+      "bytes": 199088,
+      "sha256": "3448c3a49d23407ac32f3dbd7fed4fefce406a4acc4cc150af3faaccc51cf77c"
+    },
+    "packages/vde2-2.3.3-10-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "8a92dfec49a8c69d50917062b493917679667fdab5e0fc16165cd918d1cbd0f6"
+    },
+    "packages/wolfssl-5.9.4-1-aarch64.pkg.tar.xz": {
+      "bytes": 1178536,
+      "sha256": "4a332bc1b879e3ef5619b012334a18393355297107dcba00e1c6daea8bee2704"
+    },
+    "packages/wolfssl-5.9.4-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "cd31ea4466eb54167f574f860ca4571fb7bdbd5772b945bd40118ae3ae97682e"
+    },
+    "source/audit_tooling.py": {
+      "bytes": 7045,
+      "sha256": "6677f391f2de23540bc147770148729fe4c993850b7bbed0b71fb7e48d296fdc"
+    },
+    "source/common.py": {
+      "bytes": 84361,
+      "sha256": "aef2b4f09a91c4cfd66dd4504e69ef18396a94214c82ae0ec0a43c2716894a03"
+    },
+    "tooling.lock.json": {
+      "bytes": 31183,
+      "sha256": "c18afc5bde9868594d41bd576a956960a7b01b190d148ba03ca4c41d4394e1b0"
+    },
+    "tooling32-policy.json": {
+      "bytes": 27408,
+      "sha256": "708d9ecbb05da7d1b6d072e3117fe9dc6a180acae1af8e60d09ce646cfdbabaa"
+    }
+  },
+  "causal_failure": {
+    "Root_post": {
+      "bytes": 780713,
+      "sha256": "c938f87268ee49eae7b0080def9a471421e53024df192e0348ca46340813f77c"
+    },
+    "candidate_count": 35,
+    "failed_url": "NOT_EXPORTED_UNKNOWN",
+    "failure": {
+      "bytes": 29431,
+      "sha256": "2af2b2574166ecf4aad19f7b82bbe8376175acde50c30ee3732d8e858f01b079"
+    },
+    "logs": {
+      "bytes": 3678151,
+      "sha256": "68c72af0a048b22d0527c9d2b5e032dac6962f2c3ef0c10ef5cdc0d9f4946959"
+    },
+    "run": 40218574007,
+    "source": "3a7cacaee84de54200acabaca2769fb5e757fa25"
+  },
+  "desktop574": {
+    "bytes": 623664,
+    "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
+  },
+  "downloads": [
+    {
+      "filename": "archlinuxarm.gpg",
+      "sha256": "6ce771e853f04a38a5b533cb33e61f877b9b06b58b6db051eb8a15d737a2332f",
+      "size": 3098,
+      "url": "https://raw.githubusercontent.com/archlinuxarm/PKGBUILDs/29432c01130efc4ad297dfe8f487d5b79cbaf8e9/core/archlinuxarm-keyring/archlinuxarm.gpg"
+    },
+    {
+      "filename": "archlinuxarm-trusted",
+      "sha256": "f2a7250f2a2b77542f82f4219b2bae7895f27b3dcfdf350b497e2be306af776d",
+      "size": 44,
+      "url": "https://raw.githubusercontent.com/archlinuxarm/PKGBUILDs/29432c01130efc4ad297dfe8f487d5b79cbaf8e9/core/archlinuxarm-keyring/archlinuxarm-trusted"
+    },
+    {
+      "filename": "archlinuxarm-revoked",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0,
+      "url": "https://raw.githubusercontent.com/archlinuxarm/PKGBUILDs/29432c01130efc4ad297dfe8f487d5b79cbaf8e9/core/archlinuxarm-keyring/archlinuxarm-revoked"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "capstone-5.0.9-1-aarch64.pkg.tar.xz",
+      "license": [
+        "BSD-3-Clause"
+      ],
+      "name": "capstone",
+      "provides": [
+        "libcapstone.so=5-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "f96ad05de152308112c6f895e42d52669942d5698d5a7491caeb853128fda3a9",
+      "signature_sha256": "d3bceb44f8df6cc1a728ef56f3e8955cf33f1892c001bf594189a1c474ab50d3",
+      "signature_size": 566,
+      "size": 1402616,
+      "source_url": [
+        "https://www.capstone-engine.org/index.html"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/capstone-5.0.9-1-aarch64.pkg.tar.xz",
+      "version": "5.0.9-1"
+    },
+    {
+      "filename": "capstone-5.0.9-1-aarch64.pkg.tar.xz.sig",
+      "sha256": "d3bceb44f8df6cc1a728ef56f3e8955cf33f1892c001bf594189a1c474ab50d3",
+      "size": 566,
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/capstone-5.0.9-1-aarch64.pkg.tar.xz.sig"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "bash",
+        "glibc",
+        "libyaml"
+      ],
+      "filename": "dtc-1:1.8.1-1-aarch64.pkg.tar.xz",
+      "license": [
+        "GPL-2.0-or-later"
+      ],
+      "name": "dtc",
+      "provides": [
+        "libfdt.so=1-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "c60faaee0f149ef74fc9feb9aba5cc564d971e021c5bff523568ae0fb257a319",
+      "signature_sha256": "562081f2fef5b0bd99ce3d5c405b0190df2af584d2b4df4a0a5a6ba45ade2a9a",
+      "signature_size": 566,
+      "size": 150444,
+      "source_url": [
+        "https://www.devicetree.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/dtc-1:1.8.1-1-aarch64.pkg.tar.xz",
+      "version": "1:1.8.1-1"
+    },
+    {
+      "filename": "dtc-1:1.8.1-1-aarch64.pkg.tar.xz.sig",
+      "sha256": "562081f2fef5b0bd99ce3d5c405b0190df2af584d2b4df4a0a5a6ba45ade2a9a",
+      "size": 566,
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/dtc-1:1.8.1-1-aarch64.pkg.tar.xz.sig"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "libaio-0.3.113-5-aarch64.pkg.tar.xz",
+      "license": [
+        "LGPL-2.0-or-later"
+      ],
+      "name": "libaio",
+      "provides": [
+        "libaio.so=1-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "18af1ae9233952a6a505f09cc632b09b2eff5898ebff7e1e931829146169de47",
+      "signature_sha256": "10fbfd57bb3df9569f86615e14da6683d2a61aeb37ae0ffc778b37c5308ab4ed",
+      "signature_size": 566,
+      "size": 23840,
+      "source_url": [
+        "https://codeberg.org/jmoyer/libaio"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libaio-0.3.113-5-aarch64.pkg.tar.xz",
+      "version": "0.3.113-5"
+    },
+    {
+      "filename": "libaio-0.3.113-5-aarch64.pkg.tar.xz.sig",
+      "sha256": "10fbfd57bb3df9569f86615e14da6683d2a61aeb37ae0ffc778b37c5308ab4ed",
+      "size": 566,
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libaio-0.3.113-5-aarch64.pkg.tar.xz.sig"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glib2"
+      ],
+      "filename": "libslirp-4.9.5-1-aarch64.pkg.tar.xz",
+      "license": [
+        "BSD",
+        "MIT"
+      ],
+      "name": "libslirp",
+      "provides": [
+        "libslirp.so=0-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "ca402058ef0080a83dd386fe550ef4659f3caad96c8017531df3535e578a4e94",
+      "signature_sha256": "7fd4517fa54d162d793416b1012ab2f2df177c0c1e5d76f54509215c1a655f91",
+      "signature_size": 566,
+      "size": 64840,
+      "source_url": [
+        "https://gitlab.freedesktop.org/slirp/libslirp"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libslirp-4.9.5-1-aarch64.pkg.tar.xz",
+      "version": "4.9.5-1"
+    },
+    {
+      "filename": "libslirp-4.9.5-1-aarch64.pkg.tar.xz.sig",
+      "sha256": "7fd4517fa54d162d793416b1012ab2f2df177c0c1e5d76f54509215c1a655f91",
+      "size": 566,
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libslirp-4.9.5-1-aarch64.pkg.tar.xz.sig"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "libtraceevent-1:1.9.0-1-aarch64.pkg.tar.xz",
+      "license": [
+        "GPL-2.0-only",
+        "LGPL-2.1-only"
+      ],
+      "name": "libtraceevent",
+      "provides": [
+        "libtraceevent.so=1-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "413357116a57a128084aa28513951ad2ebd5b18215d3b9de2eb5fb01856acd20",
+      "signature_sha256": "0eda57e4363bac64004317cbe67b3b1b44ff3954a9c17bae06db5da09f9678e9",
+      "signature_size": 566,
+      "size": 168080,
+      "source_url": [
+        "https://git.kernel.org/pub/scm/libs/libtrace/libtraceevent.git/about/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libtraceevent-1:1.9.0-1-aarch64.pkg.tar.xz",
+      "version": "1:1.9.0-1"
+    },
+    {
+      "filename": "libtraceevent-1:1.9.0-1-aarch64.pkg.tar.xz.sig",
+      "sha256": "0eda57e4363bac64004317cbe67b3b1b44ff3954a9c17bae06db5da09f9678e9",
+      "size": 566,
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libtraceevent-1:1.9.0-1-aarch64.pkg.tar.xz.sig"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "libtraceevent",
+        "libtraceevent.so=1-64"
+      ],
+      "filename": "libtracefs-1.8.3-1-aarch64.pkg.tar.xz",
+      "license": [
+        "GPL-2.0-only",
+        "LGPL-2.1-only"
+      ],
+      "name": "libtracefs",
+      "provides": [
+        "libtracefs.so=1-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "b41dc9bb609f2f72ab6078f111fedf7c4b559f3a2ab8b42c5dac65c0f1fe12ac",
+      "signature_sha256": "539e6127e8756e55e5e997ab8393b9861a107c1f6045383b2bb48be0ce85e70e",
+      "signature_size": 566,
+      "size": 225796,
+      "source_url": [
+        "https://git.kernel.org/pub/scm/libs/libtrace/libtracefs.git/about/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libtracefs-1.8.3-1-aarch64.pkg.tar.xz",
+      "version": "1.8.3-1"
+    },
+    {
+      "filename": "libtracefs-1.8.3-1-aarch64.pkg.tar.xz.sig",
+      "sha256": "539e6127e8756e55e5e997ab8393b9861a107c1f6045383b2bb48be0ce85e70e",
+      "size": 566,
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libtracefs-1.8.3-1-aarch64.pkg.tar.xz.sig"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "libelf",
+        "linux-api-headers",
+        "libbpf"
+      ],
+      "filename": "libxdp-1.6.3-2-aarch64.pkg.tar.xz",
+      "license": [
+        "GPL",
+        "LGPL",
+        "BSD2"
+      ],
+      "name": "libxdp",
+      "provides": [
+        "libxdp.so=1-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "536cca5cad699995dcc464d842e923acb8b18dff0aa665e1a17fc11e322ea45c",
+      "signature_sha256": "0925fa82c07f14acd0630bfbf0475c28b459d5b03654962c33b482922a3bcda3",
+      "signature_size": 566,
+      "size": 95740,
+      "source_url": [
+        "https://github.com/xdp-project/xdp-tools"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libxdp-1.6.3-2-aarch64.pkg.tar.xz",
+      "version": "1.6.3-2"
+    },
+    {
+      "filename": "libxdp-1.6.3-2-aarch64.pkg.tar.xz.sig",
+      "sha256": "0925fa82c07f14acd0630bfbf0475c28b459d5b03654962c33b482922a3bcda3",
+      "size": 566,
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libxdp-1.6.3-2-aarch64.pkg.tar.xz.sig"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "libyaml-0.2.5-3-aarch64.pkg.tar.xz",
+      "license": [
+        "MIT"
+      ],
+      "name": "libyaml",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "f96d25c8898b27d3364034336630363bcf48eb968c90d5d5c240e4b237ae153b",
+      "signature_sha256": "998f7e827e1bbf718b704dbdc8d871b1fb101f2c73d9065410204706bfa94c9c",
+      "signature_size": 566,
+      "size": 53220,
+      "source_url": [
+        "https://pyyaml.org/wiki/LibYAML"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libyaml-0.2.5-3-aarch64.pkg.tar.xz",
+      "version": "0.2.5-3"
+    },
+    {
+      "filename": "libyaml-0.2.5-3-aarch64.pkg.tar.xz.sig",
+      "sha256": "998f7e827e1bbf718b704dbdc8d871b1fb101f2c73d9065410204706bfa94c9c",
+      "size": 566,
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libyaml-0.2.5-3-aarch64.pkg.tar.xz.sig"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "iniparser",
+        "json-c",
+        "keyutils",
+        "kmod",
+        "libtraceevent",
+        "libtracefs",
+        "systemd-libs",
+        "util-linux-libs"
+      ],
+      "filename": "ndctl-85-1-aarch64.pkg.tar.xz",
+      "license": [
+        "LGPL-2.1-only",
+        "GPL-2.0-only",
+        "CC0-1.0",
+        "MIT"
+      ],
+      "name": "ndctl",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "5090e80deb3566e2530d6115b036215216b2e0fd7c1a2205161203d59a34aae9",
+      "signature_sha256": "0dbb686d324b365b93ada668cb286b6238313814f9629f9f44d54da86913b2f0",
+      "signature_size": 566,
+      "size": 374404,
+      "source_url": [
+        "https://github.com/pmem/ndctl"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/ndctl-85-1-aarch64.pkg.tar.xz",
+      "version": "85-1"
+    },
+    {
+      "filename": "ndctl-85-1-aarch64.pkg.tar.xz.sig",
+      "sha256": "0dbb686d324b365b93ada668cb286b6238313814f9629f9f44d54da86913b2f0",
+      "size": 566,
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/ndctl-85-1-aarch64.pkg.tar.xz.sig"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [
+        "qemu-system-cris",
+        "qemu-system-nios2",
+        "qemu-block-gluster"
+      ],
+      "depends": [
+        "glibc",
+        "glib2",
+        "libgcc",
+        "libglib-2.0.so=0-64",
+        "libgmodule-2.0.so=0-64",
+        "hicolor-icon-theme",
+        "libcap-ng",
+        "libcap-ng.so=0-64"
+      ],
+      "filename": "qemu-common-11.1.2-1-aarch64.pkg.tar.xz",
+      "license": [
+        "BSD-2-Clause",
+        "BSD-2-Clause-Patent",
+        "BSD-3-Clause",
+        "CC0-1.0",
+        "FSFAP",
+        "GPL-1.0-or-later",
+        "GPL-2.0-only",
+        "GPL-2.0-only WITH Linux-syscall-note",
+        "GPL-2.0-only WITH Linux-syscall-note OR BSD-2-Clause",
+        "GPL-2.0-only WITH Linux-syscall-note OR BSD-3-Clause",
+        "GPL-2.0-or-later",
+        "GPL-2.0-or-later OR BSD-3-Clause",
+        "GPL-2.0-or-later WITH Linux-syscall-note",
+        "ISC",
+        "LGPL-2.1-only OR BSD-3-Clause",
+        "LGPL-2.0-or-later",
+        "LGPL-2.1-or-later",
+        "LicenseRef-Public-Domain",
+        "MIT"
+      ],
+      "name": "qemu-common",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "f71da9d341459b24a0bf608d566421cad8788a3e8b3d0a93aa82f28066173be3",
+      "signature_sha256": "8e465e8970fd1a74732ff6a97bb198314ac6c78e44044c51dff93af67ca0a808",
+      "signature_size": 566,
+      "size": 2100404,
+      "source_url": [
+        "https://www.qemu.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/qemu-common-11.1.2-1-aarch64.pkg.tar.xz",
+      "version": "11.1.2-1"
+    },
+    {
+      "filename": "qemu-common-11.1.2-1-aarch64.pkg.tar.xz.sig",
+      "sha256": "8e465e8970fd1a74732ff6a97bb198314ac6c78e44044c51dff93af67ca0a808",
+      "size": 566,
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/qemu-common-11.1.2-1-aarch64.pkg.tar.xz.sig"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "pixman",
+        "libpixman-1.so=0-64",
+        "qemu-common=11.1.2-1"
+      ],
+      "filename": "qemu-hw-display-virtio-gpu-11.1.2-1-aarch64.pkg.tar.xz",
+      "license": [
+        "BSD-2-Clause",
+        "BSD-2-Clause-Patent",
+        "BSD-3-Clause",
+        "CC0-1.0",
+        "FSFAP",
+        "GPL-1.0-or-later",
+        "GPL-2.0-only",
+        "GPL-2.0-only WITH Linux-syscall-note",
+        "GPL-2.0-only WITH Linux-syscall-note OR BSD-2-Clause",
+        "GPL-2.0-only WITH Linux-syscall-note OR BSD-3-Clause",
+        "GPL-2.0-or-later",
+        "GPL-2.0-or-later OR BSD-3-Clause",
+        "GPL-2.0-or-later WITH Linux-syscall-note",
+        "ISC",
+        "LGPL-2.1-only OR BSD-3-Clause",
+        "LGPL-2.0-or-later",
+        "LGPL-2.1-or-later",
+        "LicenseRef-Public-Domain",
+        "MIT"
+      ],
+      "name": "qemu-hw-display-virtio-gpu",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "e4729661997f1f5879522a7866c872c80b90b8a67b90f5e500a7c70e6a516fcc",
+      "signature_sha256": "671fafcb82b172089ebd162a6b620e433eea0cb8eec67647ae62e1de6b24c363",
+      "signature_size": 566,
+      "size": 36236,
+      "source_url": [
+        "https://www.qemu.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/qemu-hw-display-virtio-gpu-11.1.2-1-aarch64.pkg.tar.xz",
+      "version": "11.1.2-1"
+    },
+    {
+      "filename": "qemu-hw-display-virtio-gpu-11.1.2-1-aarch64.pkg.tar.xz.sig",
+      "sha256": "671fafcb82b172089ebd162a6b620e433eea0cb8eec67647ae62e1de6b24c363",
+      "size": 566,
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/qemu-hw-display-virtio-gpu-11.1.2-1-aarch64.pkg.tar.xz.sig"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "qemu-common=11.1.2-1"
+      ],
+      "filename": "qemu-hw-display-virtio-gpu-pci-11.1.2-1-aarch64.pkg.tar.xz",
+      "license": [
+        "BSD-2-Clause",
+        "BSD-2-Clause-Patent",
+        "BSD-3-Clause",
+        "CC0-1.0",
+        "FSFAP",
+        "GPL-1.0-or-later",
+        "GPL-2.0-only",
+        "GPL-2.0-only WITH Linux-syscall-note",
+        "GPL-2.0-only WITH Linux-syscall-note OR BSD-2-Clause",
+        "GPL-2.0-only WITH Linux-syscall-note OR BSD-3-Clause",
+        "GPL-2.0-or-later",
+        "GPL-2.0-or-later OR BSD-3-Clause",
+        "GPL-2.0-or-later WITH Linux-syscall-note",
+        "ISC",
+        "LGPL-2.1-only OR BSD-3-Clause",
+        "LGPL-2.0-or-later",
+        "LGPL-2.1-or-later",
+        "LicenseRef-Public-Domain",
+        "MIT"
+      ],
+      "name": "qemu-hw-display-virtio-gpu-pci",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "9dbb3bdffbeed7e8714ed6ee5693126fafdebc7082bbaa1618b3c12aa04d9ba4",
+      "signature_sha256": "a75573abb0b98ff517c2068a13b4634368fa27ba1716a8b5b86279929fcfbbc3",
+      "signature_size": 566,
+      "size": 16676,
+      "source_url": [
+        "https://www.qemu.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/qemu-hw-display-virtio-gpu-pci-11.1.2-1-aarch64.pkg.tar.xz",
+      "version": "11.1.2-1"
+    },
+    {
+      "filename": "qemu-hw-display-virtio-gpu-pci-11.1.2-1-aarch64.pkg.tar.xz.sig",
+      "sha256": "a75573abb0b98ff517c2068a13b4634368fa27ba1716a8b5b86279929fcfbbc3",
+      "size": 566,
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/qemu-hw-display-virtio-gpu-pci-11.1.2-1-aarch64.pkg.tar.xz.sig"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "capstone",
+        "fuse3",
+        "libgcc",
+        "glibc",
+        "glib2",
+        "libgio-2.0.so=0-64",
+        "libglib-2.0.so=0-64",
+        "libgmodule-2.0.so=0-64",
+        "gnutls",
+        "keyutils",
+        "libaio",
+        "libelf",
+        "libbpf",
+        "libbpf.so=1-64",
+        "libjpeg-turbo",
+        "libjpeg.so=8-64",
+        "libpng",
+        "libsasl",
+        "libseccomp",
+        "libseccomp.so=2-64",
+        "libslirp",
+        "libslirp.so=0-64",
+        "liburing",
+        "liburing.so=2-64",
+        "libxdp",
+        "libxdp.so=1-64",
+        "lzo",
+        "ndctl",
+        "numactl",
+        "libnuma.so=1-64",
+        "pam",
+        "libpam.so=0-64",
+        "pixman",
+        "libpixman-1.so=0-64",
+        "qemu-common=11.1.2-1",
+        "rdma-core",
+        "snappy",
+        "vde2",
+        "zlib",
+        "zstd",
+        "libzstd.so=1-64",
+        "dtc",
+        "systemd-libs",
+        "libudev.so=1-64"
+      ],
+      "filename": "qemu-system-aarch64-11.1.2-1-aarch64.pkg.tar.xz",
+      "license": [
+        "BSD-2-Clause",
+        "BSD-2-Clause-Patent",
+        "BSD-3-Clause",
+        "CC0-1.0",
+        "FSFAP",
+        "GPL-1.0-or-later",
+        "GPL-2.0-only",
+        "GPL-2.0-only WITH Linux-syscall-note",
+        "GPL-2.0-only WITH Linux-syscall-note OR BSD-2-Clause",
+        "GPL-2.0-only WITH Linux-syscall-note OR BSD-3-Clause",
+        "GPL-2.0-or-later",
+        "GPL-2.0-or-later OR BSD-3-Clause",
+        "GPL-2.0-or-later WITH Linux-syscall-note",
+        "ISC",
+        "LGPL-2.1-only OR BSD-3-Clause",
+        "LGPL-2.0-or-later",
+        "LGPL-2.1-or-later",
+        "LicenseRef-Public-Domain",
+        "MIT"
+      ],
+      "name": "qemu-system-aarch64",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "989a142989ab9c6696593af4561d6d7cb40c408d6a5eb2a4eaee0fdacbdb127d",
+      "signature_sha256": "9d7fc11edd3b7cd27a9d0d3af05db75b48e523280d785a2a9968c9ff5955aca7",
+      "signature_size": 566,
+      "size": 5109200,
+      "source_url": [
+        "https://www.qemu.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/qemu-system-aarch64-11.1.2-1-aarch64.pkg.tar.xz",
+      "version": "11.1.2-1"
+    },
+    {
+      "filename": "qemu-system-aarch64-11.1.2-1-aarch64.pkg.tar.xz.sig",
+      "sha256": "9d7fc11edd3b7cd27a9d0d3af05db75b48e523280d785a2a9968c9ff5955aca7",
+      "size": 566,
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/qemu-system-aarch64-11.1.2-1-aarch64.pkg.tar.xz.sig"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [
+        "ibacm",
+        "infiniband-diags",
+        "libcxgb3",
+        "libcxgb4",
+        "libibcm",
+        "libibmad",
+        "libibumad",
+        "libibverbs",
+        "libiwpm",
+        "libmlx4",
+        "libmlx5",
+        "libmthca",
+        "libnes",
+        "libocrdma",
+        "librdmacm",
+        "rdma",
+        "srptools"
+      ],
+      "depends": [
+        "bash",
+        "glibc",
+        "libnl",
+        "perl",
+        "systemd-libs"
+      ],
+      "filename": "rdma-core-65.0-1-aarch64.pkg.tar.xz",
+      "license": [
+        "GPL-2.0-or-later OR LicenseRef-OpenIB.org-BSD-MIT",
+        "GPL-2.0-or-later OR LicenseRef-OpenIB.org-BSD-FreeBSD",
+        "GPL-2.0-or-later OR LicenseRef-Intel-BSD-3-Clause",
+        "GPL-2.0-or-later OR LicenseRef-PathScale-BSD-Patent-License",
+        "CC0-1.0",
+        "MIT",
+        "BSD-2-Clause",
+        "CPL-1.0 OR BSD-2-Clause OR GPL-2.0-or-later"
+      ],
+      "name": "rdma-core",
+      "provides": [
+        "ibacm",
+        "infiniband-diags",
+        "libcxgb3",
+        "libcxgb4",
+        "libibcm",
+        "libibmad",
+        "libibumad",
+        "libibverbs",
+        "libiwpm",
+        "libmlx4",
+        "libmlx5",
+        "libmthca",
+        "libnes",
+        "libocrdma",
+        "librdmacm",
+        "rdma",
+        "srptools"
+      ],
+      "replaces": [
+        "ibacm",
+        "infiniband-diags",
+        "libcxgb3",
+        "libcxgb4",
+        "libibcm",
+        "libibmad",
+        "libibumad",
+        "libibverbs",
+        "libiwpm",
+        "libmlx4",
+        "libmlx5",
+        "libmthca",
+        "libnes",
+        "libocrdma",
+        "librdmacm",
+        "rdma",
+        "srptools"
+      ],
+      "repo": "extra",
+      "sha256": "5031f9cbf8e98963c2b1b3e1a221e02e4f6962160cf8042afbe962577b236295",
+      "signature_sha256": "1408e0824093ce4c92744a983e0ecfe674ebc91882bebed44b249607fd8bf711",
+      "signature_size": 566,
+      "size": 1992600,
+      "source_url": [
+        "https://github.com/linux-rdma/rdma-core"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/rdma-core-65.0-1-aarch64.pkg.tar.xz",
+      "version": "65.0-1"
+    },
+    {
+      "filename": "rdma-core-65.0-1-aarch64.pkg.tar.xz.sig",
+      "sha256": "1408e0824093ce4c92744a983e0ecfe674ebc91882bebed44b249607fd8bf711",
+      "size": 566,
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/rdma-core-65.0-1-aarch64.pkg.tar.xz.sig"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "libpcap",
+        "libpcap.so=1-64",
+        "wolfssl",
+        "libwolfssl.so=46-64"
+      ],
+      "filename": "vde2-2.3.3-10-aarch64.pkg.tar.xz",
+      "license": [
+        "GPL-2.0-or-later",
+        "LGPL-2.1-or-later"
+      ],
+      "name": "vde2",
+      "provides": [
+        "libvdehist.so=0-64",
+        "libvdemgmt.so=0-64",
+        "libvdeplug.so=3-64",
+        "libvdesnmp.so=0-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "3448c3a49d23407ac32f3dbd7fed4fefce406a4acc4cc150af3faaccc51cf77c",
+      "signature_sha256": "8a92dfec49a8c69d50917062b493917679667fdab5e0fc16165cd918d1cbd0f6",
+      "signature_size": 566,
+      "size": 199088,
+      "source_url": [
+        "https://github.com/virtualsquare/vde-2"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/vde2-2.3.3-10-aarch64.pkg.tar.xz",
+      "version": "2.3.3-10"
+    },
+    {
+      "filename": "vde2-2.3.3-10-aarch64.pkg.tar.xz.sig",
+      "sha256": "8a92dfec49a8c69d50917062b493917679667fdab5e0fc16165cd918d1cbd0f6",
+      "size": 566,
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/vde2-2.3.3-10-aarch64.pkg.tar.xz.sig"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "wolfssl-5.9.4-1-aarch64.pkg.tar.xz",
+      "license": [
+        "GPL-3.0-or-later"
+      ],
+      "name": "wolfssl",
+      "provides": [
+        "libwolfssl.so=46-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "4a332bc1b879e3ef5619b012334a18393355297107dcba00e1c6daea8bee2704",
+      "signature_sha256": "cd31ea4466eb54167f574f860ca4571fb7bdbd5772b945bd40118ae3ae97682e",
+      "signature_size": 566,
+      "size": 1178536,
+      "source_url": [
+        "https://www.wolfssl.com/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/wolfssl-5.9.4-1-aarch64.pkg.tar.xz",
+      "version": "5.9.4-1"
+    },
+    {
+      "filename": "wolfssl-5.9.4-1-aarch64.pkg.tar.xz.sig",
+      "sha256": "cd31ea4466eb54167f574f860ca4571fb7bdbd5772b945bd40118ae3ae97682e",
+      "size": 566,
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/wolfssl-5.9.4-1-aarch64.pkg.tar.xz.sig"
+    }
+  ],
+  "git": {
+    "files": {
+      "LICENSE": {
+        "bytes": 1081,
+        "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+      },
+      "NOTICE.md": {
+        "bytes": 1526,
+        "sha256": "e6ba6c1b715bbca4857f2f146e6aa3531b8d5a2f6b440e5f5de8c33d41d01437"
+      },
+      "authentication/auth.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "authentication/auth.stdout": {
+        "bytes": 213,
+        "sha256": "a27b1edfb0e993709ac2edfe8b4cea85f44c62ff2bbe65a5f73cc8502d8ada37"
+      },
+      "authentication/capstone.stderr": {
+        "bytes": 436,
+        "sha256": "4814e3a95c16334c005d5a520a10fd154d49cd5f4ca2d6dc1013ea60599448be"
+      },
+      "authentication/capstone.stdout": {
+        "bytes": 405,
+        "sha256": "1dc1a127de5e62fa9a9abf48216943815b5e8b8a9a02185772a96d5950301b3e"
+      },
+      "authentication/commands.json": {
+        "bytes": 25771,
+        "sha256": "6aec5ce23330757e4a2da939df9bb97c40e21ee4c30ddcac39aaba0f7b1af318"
+      },
+      "authentication/current-key-list.stderr": {
+        "bytes": 64,
+        "sha256": "dd130aa6af252149cb26cbb07cc3438a4f027d2c6d0290b7ceffdfb0aa578441"
+      },
+      "authentication/current-key-list.stdout": {
+        "bytes": 387,
+        "sha256": "c9a7416a28c04624570c3591f87934b48c888d7e0224246fdd4252399b086953"
+      },
+      "authentication/dtc.stderr": {
+        "bytes": 436,
+        "sha256": "2ecb4510522846005fbfbfacbe24f5784ecfb92be7f76ff5fe43ee02a8552f42"
+      },
+      "authentication/dtc.stdout": {
+        "bytes": 405,
+        "sha256": "72692b519eed802b346d23ec4f47652e341ca21a989c02d2fbf36e4228c6624b"
+      },
+      "authentication/gpg-version.stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "authentication/gpg-version.stdout": {
+        "bytes": 554,
+        "sha256": "8db190e2511dfbcc54604794c8a83c9ad740dafd3a5fa4239b6b3529bb037a0f"
+      },
+      "authentication/key-import.stderr": {
+        "bytes": 586,
+        "sha256": "6f4a639116bbcfc41b7bc94f40405ab1c10b8b435fcc8fc0375c2a02ef8b5ffb"
+      },
+      "authentication/key-import.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "authentication/libaio.stderr": {
+        "bytes": 436,
+        "sha256": "ec16ce8f85eed98cef5a32028fade3ef864e8a05b8239630d0b7cb47a809096c"
+      },
+      "authentication/libaio.stdout": {
+        "bytes": 405,
+        "sha256": "3ae120cb165bb0260124106a32405a668224f33d422c4771b6a17d05b092b5bb"
+      },
+      "authentication/libslirp.stderr": {
+        "bytes": 436,
+        "sha256": "24ce00fb178f98c7787d0ca7fb45a0b47843dd2c9a43188b707420a0a888ac22"
+      },
+      "authentication/libslirp.stdout": {
+        "bytes": 405,
+        "sha256": "25b4c39452954aec9655565a2db79163183e951031b82739fe1dc5a908d440da"
+      },
+      "authentication/libtraceevent.stderr": {
+        "bytes": 436,
+        "sha256": "9e4d9f0934a7b3e72873969dfbfd43a4eb9af919efc314a6d15095ea40122aba"
+      },
+      "authentication/libtraceevent.stdout": {
+        "bytes": 405,
+        "sha256": "9e612e0cf2a28ff2ed9fcca731b5308ff9c24345eb5dd5a1406d7f8b5e36d729"
+      },
+      "authentication/libtracefs.stderr": {
+        "bytes": 436,
+        "sha256": "c07e8d2145fc0984980e9f2675f1570d993ca7738af4862dabb6b4726ad20165"
+      },
+      "authentication/libtracefs.stdout": {
+        "bytes": 405,
+        "sha256": "d35f46846b747f038c0b38db3df21b657712c47b3fc5cbc71c8e6ae88debdd4d"
+      },
+      "authentication/libxdp.stderr": {
+        "bytes": 436,
+        "sha256": "020c9751fd014ae45ca894f09f8f9ac92d4a2b9a0dc56e616b489a5166127f02"
+      },
+      "authentication/libxdp.stdout": {
+        "bytes": 405,
+        "sha256": "8804cb635c7db954692242c09972e47b428313d5b091546b8b2ed450b86fc1bd"
+      },
+      "authentication/libyaml.stderr": {
+        "bytes": 436,
+        "sha256": "74a28fc9b3e628bba45453660a759ba7a28c8e8f00e3f66d36256ea1ed00172f"
+      },
+      "authentication/libyaml.stdout": {
+        "bytes": 404,
+        "sha256": "513eb3c859d2f31f4eeb858c1e921da8600923db7bd40eea7b84ac246c35236c"
+      },
+      "authentication/ndctl.stderr": {
+        "bytes": 436,
+        "sha256": "39fac4f4e09cbd97f8993bd55616a537ee8e05ee3f40f1b357c31b7b678167d3"
+      },
+      "authentication/ndctl.stdout": {
+        "bytes": 405,
+        "sha256": "7f6121e449f601c685893ec25506fdee94f8b47b59ecdb7d514d99b03e008097"
+      },
+      "authentication/package-metadata.json": {
+        "bytes": 240594,
+        "sha256": "da9eb3d218404fbcf5e0223cbdd6133ea65d420caaaa6a9546165eb706b776ca"
+      },
+      "authentication/qemu-common.stderr": {
+        "bytes": 436,
+        "sha256": "ce63bec23d00dbcabdab5f26ff44fade494443750e789b659fffb36f03957a5b"
+      },
+      "authentication/qemu-common.stdout": {
+        "bytes": 405,
+        "sha256": "fed7a6fd23690ac403f70f116437a0f846edeabed0cd77ede73f93b36641103c"
+      },
+      "authentication/qemu-hw-display-virtio-gpu-pci.stderr": {
+        "bytes": 436,
+        "sha256": "ccff5619cadd21cdbc198a56e1d238beb4b67b76f15585b59b6cffe1276718f8"
+      },
+      "authentication/qemu-hw-display-virtio-gpu-pci.stdout": {
+        "bytes": 405,
+        "sha256": "4e39d6a9c3ca9d6ab79d7b9dcdf8d625b0c046ba92471addcd965e6b18d7d3e9"
+      },
+      "authentication/qemu-hw-display-virtio-gpu.stderr": {
+        "bytes": 436,
+        "sha256": "ccff5619cadd21cdbc198a56e1d238beb4b67b76f15585b59b6cffe1276718f8"
+      },
+      "authentication/qemu-hw-display-virtio-gpu.stdout": {
+        "bytes": 405,
+        "sha256": "9155a17436ba50684cb2ae31e459740f76de9d549f597e558d6b019985faae76"
+      },
+      "authentication/qemu-system-aarch64.stderr": {
+        "bytes": 436,
+        "sha256": "6676287c6438fde63fe4c80c7426aaba1ab354d7bbbdb0d1abf924b095161a3b"
+      },
+      "authentication/qemu-system-aarch64.stdout": {
+        "bytes": 405,
+        "sha256": "56e725a8df02259fe3804f13be72ad754d5a6a404c4cf925fd245a763e3718da"
+      },
+      "authentication/rdma-core.stderr": {
+        "bytes": 436,
+        "sha256": "20fc73be33ea01cd7d782a4cf04e6865e95d57bdb00d83de77684bc5254b20b1"
+      },
+      "authentication/rdma-core.stdout": {
+        "bytes": 405,
+        "sha256": "38b1440ab70bd1598ee7fed1348aaa9c0f8a4dc3e3a750c97613c2c56f0cee01"
+      },
+      "authentication/receipt.json": {
+        "bytes": 331011,
+        "sha256": "f248c4a33ed4ef5be891bcd2d623ef191f8d1c87db6eb54815693e7e4019c0bd"
+      },
+      "authentication/signatures.json": {
+        "bytes": 32874,
+        "sha256": "d264612753ee92f4147deae5c0c1dd794e141f3d0ef4fd391223eef352fbbaa1"
+      },
+      "authentication/trust-import.stderr": {
+        "bytes": 31,
+        "sha256": "79fb54aa0d14d4a5f75afa668175178b67b0cc596394ec5f3f16e4f85849bd58"
+      },
+      "authentication/trust-import.stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "authentication/vde2.stderr": {
+        "bytes": 436,
+        "sha256": "5be3cb88bb73751fb0f689bb468e3038c7f93c402df67b34baf1a6f21e1a5643"
+      },
+      "authentication/vde2.stdout": {
+        "bytes": 405,
+        "sha256": "3fd9711a85635b0a5921d2d9b4cbf0b1c07853f5f3918e68c02eb47ac650df48"
+      },
+      "authentication/wolfssl.stderr": {
+        "bytes": 436,
+        "sha256": "60188af32fd2a59fc899810d17eb94b7ea0a3ef604dbafd0e109094678c2a97e"
+      },
+      "authentication/wolfssl.stdout": {
+        "bytes": 405,
+        "sha256": "34a6b0b1a6426809bdbfdb64b471db4a949f9d3748fe1dcfd59e0ee2a7a29776"
+      },
+      "index.json": {
+        "bytes": 34114,
+        "sha256": "0fd1ac42c67731a82a6cc402fb20669a63c9f2b7de56ce45248a57e5860d08cb"
+      },
+      "keyring/archlinuxarm-revoked": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "keyring/archlinuxarm-trusted": {
+        "bytes": 44,
+        "sha256": "f2a7250f2a2b77542f82f4219b2bae7895f27b3dcfdf350b497e2be306af776d"
+      },
+      "keyring/archlinuxarm.gpg": {
+        "bytes": 3098,
+        "sha256": "6ce771e853f04a38a5b533cb33e61f877b9b06b58b6db051eb8a15d737a2332f"
+      },
+      "package-licenses.json": {
+        "bytes": 12419,
+        "sha256": "e2ce09acd90cdcf9c6f8bed7f6a7409f65d8906925c41a6164e4ad03dfa19ff9"
+      },
+      "packages/capstone-5.0.9-1-aarch64.pkg.tar.xz": {
+        "bytes": 1402616,
+        "sha256": "f96ad05de152308112c6f895e42d52669942d5698d5a7491caeb853128fda3a9"
+      },
+      "packages/capstone-5.0.9-1-aarch64.pkg.tar.xz.sig": {
+        "bytes": 566,
+        "sha256": "d3bceb44f8df6cc1a728ef56f3e8955cf33f1892c001bf594189a1c474ab50d3"
+      },
+      "packages/dtc-1:1.8.1-1-aarch64.pkg.tar.xz": {
+        "bytes": 150444,
+        "sha256": "c60faaee0f149ef74fc9feb9aba5cc564d971e021c5bff523568ae0fb257a319"
+      },
+      "packages/dtc-1:1.8.1-1-aarch64.pkg.tar.xz.sig": {
+        "bytes": 566,
+        "sha256": "562081f2fef5b0bd99ce3d5c405b0190df2af584d2b4df4a0a5a6ba45ade2a9a"
+      },
+      "packages/libaio-0.3.113-5-aarch64.pkg.tar.xz": {
+        "bytes": 23840,
+        "sha256": "18af1ae9233952a6a505f09cc632b09b2eff5898ebff7e1e931829146169de47"
+      },
+      "packages/libaio-0.3.113-5-aarch64.pkg.tar.xz.sig": {
+        "bytes": 566,
+        "sha256": "10fbfd57bb3df9569f86615e14da6683d2a61aeb37ae0ffc778b37c5308ab4ed"
+      },
+      "packages/libslirp-4.9.5-1-aarch64.pkg.tar.xz": {
+        "bytes": 64840,
+        "sha256": "ca402058ef0080a83dd386fe550ef4659f3caad96c8017531df3535e578a4e94"
+      },
+      "packages/libslirp-4.9.5-1-aarch64.pkg.tar.xz.sig": {
+        "bytes": 566,
+        "sha256": "7fd4517fa54d162d793416b1012ab2f2df177c0c1e5d76f54509215c1a655f91"
+      },
+      "packages/libtraceevent-1:1.9.0-1-aarch64.pkg.tar.xz": {
+        "bytes": 168080,
+        "sha256": "413357116a57a128084aa28513951ad2ebd5b18215d3b9de2eb5fb01856acd20"
+      },
+      "packages/libtraceevent-1:1.9.0-1-aarch64.pkg.tar.xz.sig": {
+        "bytes": 566,
+        "sha256": "0eda57e4363bac64004317cbe67b3b1b44ff3954a9c17bae06db5da09f9678e9"
+      },
+      "packages/libtracefs-1.8.3-1-aarch64.pkg.tar.xz": {
+        "bytes": 225796,
+        "sha256": "b41dc9bb609f2f72ab6078f111fedf7c4b559f3a2ab8b42c5dac65c0f1fe12ac"
+      },
+      "packages/libtracefs-1.8.3-1-aarch64.pkg.tar.xz.sig": {
+        "bytes": 566,
+        "sha256": "539e6127e8756e55e5e997ab8393b9861a107c1f6045383b2bb48be0ce85e70e"
+      },
+      "packages/libxdp-1.6.3-2-aarch64.pkg.tar.xz": {
+        "bytes": 95740,
+        "sha256": "536cca5cad699995dcc464d842e923acb8b18dff0aa665e1a17fc11e322ea45c"
+      },
+      "packages/libxdp-1.6.3-2-aarch64.pkg.tar.xz.sig": {
+        "bytes": 566,
+        "sha256": "0925fa82c07f14acd0630bfbf0475c28b459d5b03654962c33b482922a3bcda3"
+      },
+      "packages/libyaml-0.2.5-3-aarch64.pkg.tar.xz": {
+        "bytes": 53220,
+        "sha256": "f96d25c8898b27d3364034336630363bcf48eb968c90d5d5c240e4b237ae153b"
+      },
+      "packages/libyaml-0.2.5-3-aarch64.pkg.tar.xz.sig": {
+        "bytes": 566,
+        "sha256": "998f7e827e1bbf718b704dbdc8d871b1fb101f2c73d9065410204706bfa94c9c"
+      },
+      "packages/ndctl-85-1-aarch64.pkg.tar.xz": {
+        "bytes": 374404,
+        "sha256": "5090e80deb3566e2530d6115b036215216b2e0fd7c1a2205161203d59a34aae9"
+      },
+      "packages/ndctl-85-1-aarch64.pkg.tar.xz.sig": {
+        "bytes": 566,
+        "sha256": "0dbb686d324b365b93ada668cb286b6238313814f9629f9f44d54da86913b2f0"
+      },
+      "packages/qemu-common-11.1.2-1-aarch64.pkg.tar.xz": {
+        "bytes": 2100404,
+        "sha256": "f71da9d341459b24a0bf608d566421cad8788a3e8b3d0a93aa82f28066173be3"
+      },
+      "packages/qemu-common-11.1.2-1-aarch64.pkg.tar.xz.sig": {
+        "bytes": 566,
+        "sha256": "8e465e8970fd1a74732ff6a97bb198314ac6c78e44044c51dff93af67ca0a808"
+      },
+      "packages/qemu-hw-display-virtio-gpu-11.1.2-1-aarch64.pkg.tar.xz": {
+        "bytes": 36236,
+        "sha256": "e4729661997f1f5879522a7866c872c80b90b8a67b90f5e500a7c70e6a516fcc"
+      },
+      "packages/qemu-hw-display-virtio-gpu-11.1.2-1-aarch64.pkg.tar.xz.sig": {
+        "bytes": 566,
+        "sha256": "671fafcb82b172089ebd162a6b620e433eea0cb8eec67647ae62e1de6b24c363"
+      },
+      "packages/qemu-hw-display-virtio-gpu-pci-11.1.2-1-aarch64.pkg.tar.xz": {
+        "bytes": 16676,
+        "sha256": "9dbb3bdffbeed7e8714ed6ee5693126fafdebc7082bbaa1618b3c12aa04d9ba4"
+      },
+      "packages/qemu-hw-display-virtio-gpu-pci-11.1.2-1-aarch64.pkg.tar.xz.sig": {
+        "bytes": 566,
+        "sha256": "a75573abb0b98ff517c2068a13b4634368fa27ba1716a8b5b86279929fcfbbc3"
+      },
+      "packages/qemu-system-aarch64-11.1.2-1-aarch64.pkg.tar.xz": {
+        "bytes": 5109200,
+        "sha256": "989a142989ab9c6696593af4561d6d7cb40c408d6a5eb2a4eaee0fdacbdb127d"
+      },
+      "packages/qemu-system-aarch64-11.1.2-1-aarch64.pkg.tar.xz.sig": {
+        "bytes": 566,
+        "sha256": "9d7fc11edd3b7cd27a9d0d3af05db75b48e523280d785a2a9968c9ff5955aca7"
+      },
+      "packages/rdma-core-65.0-1-aarch64.pkg.tar.xz": {
+        "bytes": 1992600,
+        "sha256": "5031f9cbf8e98963c2b1b3e1a221e02e4f6962160cf8042afbe962577b236295"
+      },
+      "packages/rdma-core-65.0-1-aarch64.pkg.tar.xz.sig": {
+        "bytes": 566,
+        "sha256": "1408e0824093ce4c92744a983e0ecfe674ebc91882bebed44b249607fd8bf711"
+      },
+      "packages/vde2-2.3.3-10-aarch64.pkg.tar.xz": {
+        "bytes": 199088,
+        "sha256": "3448c3a49d23407ac32f3dbd7fed4fefce406a4acc4cc150af3faaccc51cf77c"
+      },
+      "packages/vde2-2.3.3-10-aarch64.pkg.tar.xz.sig": {
+        "bytes": 566,
+        "sha256": "8a92dfec49a8c69d50917062b493917679667fdab5e0fc16165cd918d1cbd0f6"
+      },
+      "packages/wolfssl-5.9.4-1-aarch64.pkg.tar.xz": {
+        "bytes": 1178536,
+        "sha256": "4a332bc1b879e3ef5619b012334a18393355297107dcba00e1c6daea8bee2704"
+      },
+      "packages/wolfssl-5.9.4-1-aarch64.pkg.tar.xz.sig": {
+        "bytes": 566,
+        "sha256": "cd31ea4466eb54167f574f860ca4571fb7bdbd5772b945bd40118ae3ae97682e"
+      },
+      "source/audit_tooling.py": {
+        "bytes": 7045,
+        "sha256": "6677f391f2de23540bc147770148729fe4c993850b7bbed0b71fb7e48d296fdc"
+      },
+      "source/common.py": {
+        "bytes": 84361,
+        "sha256": "aef2b4f09a91c4cfd66dd4504e69ef18396a94214c82ae0ec0a43c2716894a03"
+      },
+      "tooling.lock.json": {
+        "bytes": 31183,
+        "sha256": "c18afc5bde9868594d41bd576a956960a7b01b190d148ba03ca4c41d4394e1b0"
+      },
+      "tooling32-policy.json": {
+        "bytes": 27408,
+        "sha256": "708d9ecbb05da7d1b6d072e3117fe9dc6a180acae1af8e60d09ce646cfdbabaa"
+      }
+    },
+    "ref": "codex/gui16-controller-tooling-v1",
+    "source": "fb515d735a81194f06ea117539dee60438bb8d87",
+    "status": "PASS_INDEPENDENT_FULL_GIT_BLOB_JOIN"
+  },
+  "legacy_files": {
+    "scripts/virtual/audit_tooling.py": {
+      "bytes": 7045,
+      "sha256": "6677f391f2de23540bc147770148729fe4c993850b7bbed0b71fb7e48d296fdc"
+    },
+    "scripts/virtual/common.py": {
+      "bytes": 84361,
+      "sha256": "aef2b4f09a91c4cfd66dd4504e69ef18396a94214c82ae0ec0a43c2716894a03"
+    }
+  },
+  "licenses": {
+    "path": "package-licenses.json",
+    "pin": {
+      "bytes": 12419,
+      "sha256": "e2ce09acd90cdcf9c6f8bed7f6a7409f65d8906925c41a6164e4ad03dfa19ff9"
+    }
+  },
+  "mapping": {
+    "archlinuxarm-revoked": {
+      "carrier_path": "keyring/archlinuxarm-revoked",
+      "pin": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "url": "https://raw.githubusercontent.com/archlinuxarm/PKGBUILDs/29432c01130efc4ad297dfe8f487d5b79cbaf8e9/core/archlinuxarm-keyring/archlinuxarm-revoked"
+    },
+    "archlinuxarm-trusted": {
+      "carrier_path": "keyring/archlinuxarm-trusted",
+      "pin": {
+        "bytes": 44,
+        "sha256": "f2a7250f2a2b77542f82f4219b2bae7895f27b3dcfdf350b497e2be306af776d"
+      },
+      "url": "https://raw.githubusercontent.com/archlinuxarm/PKGBUILDs/29432c01130efc4ad297dfe8f487d5b79cbaf8e9/core/archlinuxarm-keyring/archlinuxarm-trusted"
+    },
+    "archlinuxarm.gpg": {
+      "carrier_path": "keyring/archlinuxarm.gpg",
+      "pin": {
+        "bytes": 3098,
+        "sha256": "6ce771e853f04a38a5b533cb33e61f877b9b06b58b6db051eb8a15d737a2332f"
+      },
+      "url": "https://raw.githubusercontent.com/archlinuxarm/PKGBUILDs/29432c01130efc4ad297dfe8f487d5b79cbaf8e9/core/archlinuxarm-keyring/archlinuxarm.gpg"
+    },
+    "capstone-5.0.9-1-aarch64.pkg.tar.xz": {
+      "carrier_path": "packages/capstone-5.0.9-1-aarch64.pkg.tar.xz",
+      "pin": {
+        "bytes": 1402616,
+        "sha256": "f96ad05de152308112c6f895e42d52669942d5698d5a7491caeb853128fda3a9"
+      },
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/capstone-5.0.9-1-aarch64.pkg.tar.xz"
+    },
+    "capstone-5.0.9-1-aarch64.pkg.tar.xz.sig": {
+      "carrier_path": "packages/capstone-5.0.9-1-aarch64.pkg.tar.xz.sig",
+      "pin": {
+        "bytes": 566,
+        "sha256": "d3bceb44f8df6cc1a728ef56f3e8955cf33f1892c001bf594189a1c474ab50d3"
+      },
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/capstone-5.0.9-1-aarch64.pkg.tar.xz.sig"
+    },
+    "dtc-1:1.8.1-1-aarch64.pkg.tar.xz": {
+      "carrier_path": "packages/dtc-1:1.8.1-1-aarch64.pkg.tar.xz",
+      "pin": {
+        "bytes": 150444,
+        "sha256": "c60faaee0f149ef74fc9feb9aba5cc564d971e021c5bff523568ae0fb257a319"
+      },
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/dtc-1:1.8.1-1-aarch64.pkg.tar.xz"
+    },
+    "dtc-1:1.8.1-1-aarch64.pkg.tar.xz.sig": {
+      "carrier_path": "packages/dtc-1:1.8.1-1-aarch64.pkg.tar.xz.sig",
+      "pin": {
+        "bytes": 566,
+        "sha256": "562081f2fef5b0bd99ce3d5c405b0190df2af584d2b4df4a0a5a6ba45ade2a9a"
+      },
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/dtc-1:1.8.1-1-aarch64.pkg.tar.xz.sig"
+    },
+    "libaio-0.3.113-5-aarch64.pkg.tar.xz": {
+      "carrier_path": "packages/libaio-0.3.113-5-aarch64.pkg.tar.xz",
+      "pin": {
+        "bytes": 23840,
+        "sha256": "18af1ae9233952a6a505f09cc632b09b2eff5898ebff7e1e931829146169de47"
+      },
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libaio-0.3.113-5-aarch64.pkg.tar.xz"
+    },
+    "libaio-0.3.113-5-aarch64.pkg.tar.xz.sig": {
+      "carrier_path": "packages/libaio-0.3.113-5-aarch64.pkg.tar.xz.sig",
+      "pin": {
+        "bytes": 566,
+        "sha256": "10fbfd57bb3df9569f86615e14da6683d2a61aeb37ae0ffc778b37c5308ab4ed"
+      },
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libaio-0.3.113-5-aarch64.pkg.tar.xz.sig"
+    },
+    "libslirp-4.9.5-1-aarch64.pkg.tar.xz": {
+      "carrier_path": "packages/libslirp-4.9.5-1-aarch64.pkg.tar.xz",
+      "pin": {
+        "bytes": 64840,
+        "sha256": "ca402058ef0080a83dd386fe550ef4659f3caad96c8017531df3535e578a4e94"
+      },
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libslirp-4.9.5-1-aarch64.pkg.tar.xz"
+    },
+    "libslirp-4.9.5-1-aarch64.pkg.tar.xz.sig": {
+      "carrier_path": "packages/libslirp-4.9.5-1-aarch64.pkg.tar.xz.sig",
+      "pin": {
+        "bytes": 566,
+        "sha256": "7fd4517fa54d162d793416b1012ab2f2df177c0c1e5d76f54509215c1a655f91"
+      },
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libslirp-4.9.5-1-aarch64.pkg.tar.xz.sig"
+    },
+    "libtraceevent-1:1.9.0-1-aarch64.pkg.tar.xz": {
+      "carrier_path": "packages/libtraceevent-1:1.9.0-1-aarch64.pkg.tar.xz",
+      "pin": {
+        "bytes": 168080,
+        "sha256": "413357116a57a128084aa28513951ad2ebd5b18215d3b9de2eb5fb01856acd20"
+      },
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libtraceevent-1:1.9.0-1-aarch64.pkg.tar.xz"
+    },
+    "libtraceevent-1:1.9.0-1-aarch64.pkg.tar.xz.sig": {
+      "carrier_path": "packages/libtraceevent-1:1.9.0-1-aarch64.pkg.tar.xz.sig",
+      "pin": {
+        "bytes": 566,
+        "sha256": "0eda57e4363bac64004317cbe67b3b1b44ff3954a9c17bae06db5da09f9678e9"
+      },
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libtraceevent-1:1.9.0-1-aarch64.pkg.tar.xz.sig"
+    },
+    "libtracefs-1.8.3-1-aarch64.pkg.tar.xz": {
+      "carrier_path": "packages/libtracefs-1.8.3-1-aarch64.pkg.tar.xz",
+      "pin": {
+        "bytes": 225796,
+        "sha256": "b41dc9bb609f2f72ab6078f111fedf7c4b559f3a2ab8b42c5dac65c0f1fe12ac"
+      },
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libtracefs-1.8.3-1-aarch64.pkg.tar.xz"
+    },
+    "libtracefs-1.8.3-1-aarch64.pkg.tar.xz.sig": {
+      "carrier_path": "packages/libtracefs-1.8.3-1-aarch64.pkg.tar.xz.sig",
+      "pin": {
+        "bytes": 566,
+        "sha256": "539e6127e8756e55e5e997ab8393b9861a107c1f6045383b2bb48be0ce85e70e"
+      },
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libtracefs-1.8.3-1-aarch64.pkg.tar.xz.sig"
+    },
+    "libxdp-1.6.3-2-aarch64.pkg.tar.xz": {
+      "carrier_path": "packages/libxdp-1.6.3-2-aarch64.pkg.tar.xz",
+      "pin": {
+        "bytes": 95740,
+        "sha256": "536cca5cad699995dcc464d842e923acb8b18dff0aa665e1a17fc11e322ea45c"
+      },
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libxdp-1.6.3-2-aarch64.pkg.tar.xz"
+    },
+    "libxdp-1.6.3-2-aarch64.pkg.tar.xz.sig": {
+      "carrier_path": "packages/libxdp-1.6.3-2-aarch64.pkg.tar.xz.sig",
+      "pin": {
+        "bytes": 566,
+        "sha256": "0925fa82c07f14acd0630bfbf0475c28b459d5b03654962c33b482922a3bcda3"
+      },
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libxdp-1.6.3-2-aarch64.pkg.tar.xz.sig"
+    },
+    "libyaml-0.2.5-3-aarch64.pkg.tar.xz": {
+      "carrier_path": "packages/libyaml-0.2.5-3-aarch64.pkg.tar.xz",
+      "pin": {
+        "bytes": 53220,
+        "sha256": "f96d25c8898b27d3364034336630363bcf48eb968c90d5d5c240e4b237ae153b"
+      },
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libyaml-0.2.5-3-aarch64.pkg.tar.xz"
+    },
+    "libyaml-0.2.5-3-aarch64.pkg.tar.xz.sig": {
+      "carrier_path": "packages/libyaml-0.2.5-3-aarch64.pkg.tar.xz.sig",
+      "pin": {
+        "bytes": 566,
+        "sha256": "998f7e827e1bbf718b704dbdc8d871b1fb101f2c73d9065410204706bfa94c9c"
+      },
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libyaml-0.2.5-3-aarch64.pkg.tar.xz.sig"
+    },
+    "ndctl-85-1-aarch64.pkg.tar.xz": {
+      "carrier_path": "packages/ndctl-85-1-aarch64.pkg.tar.xz",
+      "pin": {
+        "bytes": 374404,
+        "sha256": "5090e80deb3566e2530d6115b036215216b2e0fd7c1a2205161203d59a34aae9"
+      },
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/ndctl-85-1-aarch64.pkg.tar.xz"
+    },
+    "ndctl-85-1-aarch64.pkg.tar.xz.sig": {
+      "carrier_path": "packages/ndctl-85-1-aarch64.pkg.tar.xz.sig",
+      "pin": {
+        "bytes": 566,
+        "sha256": "0dbb686d324b365b93ada668cb286b6238313814f9629f9f44d54da86913b2f0"
+      },
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/ndctl-85-1-aarch64.pkg.tar.xz.sig"
+    },
+    "qemu-common-11.1.2-1-aarch64.pkg.tar.xz": {
+      "carrier_path": "packages/qemu-common-11.1.2-1-aarch64.pkg.tar.xz",
+      "pin": {
+        "bytes": 2100404,
+        "sha256": "f71da9d341459b24a0bf608d566421cad8788a3e8b3d0a93aa82f28066173be3"
+      },
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/qemu-common-11.1.2-1-aarch64.pkg.tar.xz"
+    },
+    "qemu-common-11.1.2-1-aarch64.pkg.tar.xz.sig": {
+      "carrier_path": "packages/qemu-common-11.1.2-1-aarch64.pkg.tar.xz.sig",
+      "pin": {
+        "bytes": 566,
+        "sha256": "8e465e8970fd1a74732ff6a97bb198314ac6c78e44044c51dff93af67ca0a808"
+      },
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/qemu-common-11.1.2-1-aarch64.pkg.tar.xz.sig"
+    },
+    "qemu-hw-display-virtio-gpu-11.1.2-1-aarch64.pkg.tar.xz": {
+      "carrier_path": "packages/qemu-hw-display-virtio-gpu-11.1.2-1-aarch64.pkg.tar.xz",
+      "pin": {
+        "bytes": 36236,
+        "sha256": "e4729661997f1f5879522a7866c872c80b90b8a67b90f5e500a7c70e6a516fcc"
+      },
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/qemu-hw-display-virtio-gpu-11.1.2-1-aarch64.pkg.tar.xz"
+    },
+    "qemu-hw-display-virtio-gpu-11.1.2-1-aarch64.pkg.tar.xz.sig": {
+      "carrier_path": "packages/qemu-hw-display-virtio-gpu-11.1.2-1-aarch64.pkg.tar.xz.sig",
+      "pin": {
+        "bytes": 566,
+        "sha256": "671fafcb82b172089ebd162a6b620e433eea0cb8eec67647ae62e1de6b24c363"
+      },
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/qemu-hw-display-virtio-gpu-11.1.2-1-aarch64.pkg.tar.xz.sig"
+    },
+    "qemu-hw-display-virtio-gpu-pci-11.1.2-1-aarch64.pkg.tar.xz": {
+      "carrier_path": "packages/qemu-hw-display-virtio-gpu-pci-11.1.2-1-aarch64.pkg.tar.xz",
+      "pin": {
+        "bytes": 16676,
+        "sha256": "9dbb3bdffbeed7e8714ed6ee5693126fafdebc7082bbaa1618b3c12aa04d9ba4"
+      },
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/qemu-hw-display-virtio-gpu-pci-11.1.2-1-aarch64.pkg.tar.xz"
+    },
+    "qemu-hw-display-virtio-gpu-pci-11.1.2-1-aarch64.pkg.tar.xz.sig": {
+      "carrier_path": "packages/qemu-hw-display-virtio-gpu-pci-11.1.2-1-aarch64.pkg.tar.xz.sig",
+      "pin": {
+        "bytes": 566,
+        "sha256": "a75573abb0b98ff517c2068a13b4634368fa27ba1716a8b5b86279929fcfbbc3"
+      },
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/qemu-hw-display-virtio-gpu-pci-11.1.2-1-aarch64.pkg.tar.xz.sig"
+    },
+    "qemu-system-aarch64-11.1.2-1-aarch64.pkg.tar.xz": {
+      "carrier_path": "packages/qemu-system-aarch64-11.1.2-1-aarch64.pkg.tar.xz",
+      "pin": {
+        "bytes": 5109200,
+        "sha256": "989a142989ab9c6696593af4561d6d7cb40c408d6a5eb2a4eaee0fdacbdb127d"
+      },
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/qemu-system-aarch64-11.1.2-1-aarch64.pkg.tar.xz"
+    },
+    "qemu-system-aarch64-11.1.2-1-aarch64.pkg.tar.xz.sig": {
+      "carrier_path": "packages/qemu-system-aarch64-11.1.2-1-aarch64.pkg.tar.xz.sig",
+      "pin": {
+        "bytes": 566,
+        "sha256": "9d7fc11edd3b7cd27a9d0d3af05db75b48e523280d785a2a9968c9ff5955aca7"
+      },
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/qemu-system-aarch64-11.1.2-1-aarch64.pkg.tar.xz.sig"
+    },
+    "rdma-core-65.0-1-aarch64.pkg.tar.xz": {
+      "carrier_path": "packages/rdma-core-65.0-1-aarch64.pkg.tar.xz",
+      "pin": {
+        "bytes": 1992600,
+        "sha256": "5031f9cbf8e98963c2b1b3e1a221e02e4f6962160cf8042afbe962577b236295"
+      },
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/rdma-core-65.0-1-aarch64.pkg.tar.xz"
+    },
+    "rdma-core-65.0-1-aarch64.pkg.tar.xz.sig": {
+      "carrier_path": "packages/rdma-core-65.0-1-aarch64.pkg.tar.xz.sig",
+      "pin": {
+        "bytes": 566,
+        "sha256": "1408e0824093ce4c92744a983e0ecfe674ebc91882bebed44b249607fd8bf711"
+      },
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/rdma-core-65.0-1-aarch64.pkg.tar.xz.sig"
+    },
+    "vde2-2.3.3-10-aarch64.pkg.tar.xz": {
+      "carrier_path": "packages/vde2-2.3.3-10-aarch64.pkg.tar.xz",
+      "pin": {
+        "bytes": 199088,
+        "sha256": "3448c3a49d23407ac32f3dbd7fed4fefce406a4acc4cc150af3faaccc51cf77c"
+      },
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/vde2-2.3.3-10-aarch64.pkg.tar.xz"
+    },
+    "vde2-2.3.3-10-aarch64.pkg.tar.xz.sig": {
+      "carrier_path": "packages/vde2-2.3.3-10-aarch64.pkg.tar.xz.sig",
+      "pin": {
+        "bytes": 566,
+        "sha256": "8a92dfec49a8c69d50917062b493917679667fdab5e0fc16165cd918d1cbd0f6"
+      },
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/vde2-2.3.3-10-aarch64.pkg.tar.xz.sig"
+    },
+    "wolfssl-5.9.4-1-aarch64.pkg.tar.xz": {
+      "carrier_path": "packages/wolfssl-5.9.4-1-aarch64.pkg.tar.xz",
+      "pin": {
+        "bytes": 1178536,
+        "sha256": "4a332bc1b879e3ef5619b012334a18393355297107dcba00e1c6daea8bee2704"
+      },
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/wolfssl-5.9.4-1-aarch64.pkg.tar.xz"
+    },
+    "wolfssl-5.9.4-1-aarch64.pkg.tar.xz.sig": {
+      "carrier_path": "packages/wolfssl-5.9.4-1-aarch64.pkg.tar.xz.sig",
+      "pin": {
+        "bytes": 566,
+        "sha256": "cd31ea4466eb54167f574f860ca4571fb7bdbd5772b945bd40118ae3ae97682e"
+      },
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/wolfssl-5.9.4-1-aarch64.pkg.tar.xz.sig"
+    }
+  },
+  "publication": {
+    "actual": "NOT_RUN",
+    "files": 89,
+    "git_joins": 89,
+    "hardware": "NOT_RUN",
+    "ref": "codex/gui16-controller-tooling-v1",
+    "release": "NOT_ADMITTED",
+    "source": "fb515d735a81194f06ea117539dee60438bb8d87",
+    "status": "COMMITTED_EXACT_CLOSED_TRIAL_SOURCE"
+  },
+  "ref": "codex/gui16-controller-tooling-v1",
+  "rows": [
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "capstone-5.0.9-1-aarch64.pkg.tar.xz",
+      "license": [
+        "BSD-3-Clause"
+      ],
+      "name": "capstone",
+      "provides": [
+        "libcapstone.so=5-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "f96ad05de152308112c6f895e42d52669942d5698d5a7491caeb853128fda3a9",
+      "signature_sha256": "d3bceb44f8df6cc1a728ef56f3e8955cf33f1892c001bf594189a1c474ab50d3",
+      "signature_size": 566,
+      "size": 1402616,
+      "source_url": [
+        "https://www.capstone-engine.org/index.html"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/capstone-5.0.9-1-aarch64.pkg.tar.xz",
+      "version": "5.0.9-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "bash",
+        "glibc",
+        "libyaml"
+      ],
+      "filename": "dtc-1:1.8.1-1-aarch64.pkg.tar.xz",
+      "license": [
+        "GPL-2.0-or-later"
+      ],
+      "name": "dtc",
+      "provides": [
+        "libfdt.so=1-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "c60faaee0f149ef74fc9feb9aba5cc564d971e021c5bff523568ae0fb257a319",
+      "signature_sha256": "562081f2fef5b0bd99ce3d5c405b0190df2af584d2b4df4a0a5a6ba45ade2a9a",
+      "signature_size": 566,
+      "size": 150444,
+      "source_url": [
+        "https://www.devicetree.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/dtc-1:1.8.1-1-aarch64.pkg.tar.xz",
+      "version": "1:1.8.1-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "libaio-0.3.113-5-aarch64.pkg.tar.xz",
+      "license": [
+        "LGPL-2.0-or-later"
+      ],
+      "name": "libaio",
+      "provides": [
+        "libaio.so=1-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "18af1ae9233952a6a505f09cc632b09b2eff5898ebff7e1e931829146169de47",
+      "signature_sha256": "10fbfd57bb3df9569f86615e14da6683d2a61aeb37ae0ffc778b37c5308ab4ed",
+      "signature_size": 566,
+      "size": 23840,
+      "source_url": [
+        "https://codeberg.org/jmoyer/libaio"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libaio-0.3.113-5-aarch64.pkg.tar.xz",
+      "version": "0.3.113-5"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glib2"
+      ],
+      "filename": "libslirp-4.9.5-1-aarch64.pkg.tar.xz",
+      "license": [
+        "BSD",
+        "MIT"
+      ],
+      "name": "libslirp",
+      "provides": [
+        "libslirp.so=0-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "ca402058ef0080a83dd386fe550ef4659f3caad96c8017531df3535e578a4e94",
+      "signature_sha256": "7fd4517fa54d162d793416b1012ab2f2df177c0c1e5d76f54509215c1a655f91",
+      "signature_size": 566,
+      "size": 64840,
+      "source_url": [
+        "https://gitlab.freedesktop.org/slirp/libslirp"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libslirp-4.9.5-1-aarch64.pkg.tar.xz",
+      "version": "4.9.5-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "libtraceevent-1:1.9.0-1-aarch64.pkg.tar.xz",
+      "license": [
+        "GPL-2.0-only",
+        "LGPL-2.1-only"
+      ],
+      "name": "libtraceevent",
+      "provides": [
+        "libtraceevent.so=1-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "413357116a57a128084aa28513951ad2ebd5b18215d3b9de2eb5fb01856acd20",
+      "signature_sha256": "0eda57e4363bac64004317cbe67b3b1b44ff3954a9c17bae06db5da09f9678e9",
+      "signature_size": 566,
+      "size": 168080,
+      "source_url": [
+        "https://git.kernel.org/pub/scm/libs/libtrace/libtraceevent.git/about/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libtraceevent-1:1.9.0-1-aarch64.pkg.tar.xz",
+      "version": "1:1.9.0-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "libtraceevent",
+        "libtraceevent.so=1-64"
+      ],
+      "filename": "libtracefs-1.8.3-1-aarch64.pkg.tar.xz",
+      "license": [
+        "GPL-2.0-only",
+        "LGPL-2.1-only"
+      ],
+      "name": "libtracefs",
+      "provides": [
+        "libtracefs.so=1-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "b41dc9bb609f2f72ab6078f111fedf7c4b559f3a2ab8b42c5dac65c0f1fe12ac",
+      "signature_sha256": "539e6127e8756e55e5e997ab8393b9861a107c1f6045383b2bb48be0ce85e70e",
+      "signature_size": 566,
+      "size": 225796,
+      "source_url": [
+        "https://git.kernel.org/pub/scm/libs/libtrace/libtracefs.git/about/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libtracefs-1.8.3-1-aarch64.pkg.tar.xz",
+      "version": "1.8.3-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "libelf",
+        "linux-api-headers",
+        "libbpf"
+      ],
+      "filename": "libxdp-1.6.3-2-aarch64.pkg.tar.xz",
+      "license": [
+        "GPL",
+        "LGPL",
+        "BSD2"
+      ],
+      "name": "libxdp",
+      "provides": [
+        "libxdp.so=1-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "536cca5cad699995dcc464d842e923acb8b18dff0aa665e1a17fc11e322ea45c",
+      "signature_sha256": "0925fa82c07f14acd0630bfbf0475c28b459d5b03654962c33b482922a3bcda3",
+      "signature_size": 566,
+      "size": 95740,
+      "source_url": [
+        "https://github.com/xdp-project/xdp-tools"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libxdp-1.6.3-2-aarch64.pkg.tar.xz",
+      "version": "1.6.3-2"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "libyaml-0.2.5-3-aarch64.pkg.tar.xz",
+      "license": [
+        "MIT"
+      ],
+      "name": "libyaml",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "f96d25c8898b27d3364034336630363bcf48eb968c90d5d5c240e4b237ae153b",
+      "signature_sha256": "998f7e827e1bbf718b704dbdc8d871b1fb101f2c73d9065410204706bfa94c9c",
+      "signature_size": 566,
+      "size": 53220,
+      "source_url": [
+        "https://pyyaml.org/wiki/LibYAML"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libyaml-0.2.5-3-aarch64.pkg.tar.xz",
+      "version": "0.2.5-3"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "iniparser",
+        "json-c",
+        "keyutils",
+        "kmod",
+        "libtraceevent",
+        "libtracefs",
+        "systemd-libs",
+        "util-linux-libs"
+      ],
+      "filename": "ndctl-85-1-aarch64.pkg.tar.xz",
+      "license": [
+        "LGPL-2.1-only",
+        "GPL-2.0-only",
+        "CC0-1.0",
+        "MIT"
+      ],
+      "name": "ndctl",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "5090e80deb3566e2530d6115b036215216b2e0fd7c1a2205161203d59a34aae9",
+      "signature_sha256": "0dbb686d324b365b93ada668cb286b6238313814f9629f9f44d54da86913b2f0",
+      "signature_size": 566,
+      "size": 374404,
+      "source_url": [
+        "https://github.com/pmem/ndctl"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/ndctl-85-1-aarch64.pkg.tar.xz",
+      "version": "85-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [
+        "qemu-system-cris",
+        "qemu-system-nios2",
+        "qemu-block-gluster"
+      ],
+      "depends": [
+        "glibc",
+        "glib2",
+        "libgcc",
+        "libglib-2.0.so=0-64",
+        "libgmodule-2.0.so=0-64",
+        "hicolor-icon-theme",
+        "libcap-ng",
+        "libcap-ng.so=0-64"
+      ],
+      "filename": "qemu-common-11.1.2-1-aarch64.pkg.tar.xz",
+      "license": [
+        "BSD-2-Clause",
+        "BSD-2-Clause-Patent",
+        "BSD-3-Clause",
+        "CC0-1.0",
+        "FSFAP",
+        "GPL-1.0-or-later",
+        "GPL-2.0-only",
+        "GPL-2.0-only WITH Linux-syscall-note",
+        "GPL-2.0-only WITH Linux-syscall-note OR BSD-2-Clause",
+        "GPL-2.0-only WITH Linux-syscall-note OR BSD-3-Clause",
+        "GPL-2.0-or-later",
+        "GPL-2.0-or-later OR BSD-3-Clause",
+        "GPL-2.0-or-later WITH Linux-syscall-note",
+        "ISC",
+        "LGPL-2.1-only OR BSD-3-Clause",
+        "LGPL-2.0-or-later",
+        "LGPL-2.1-or-later",
+        "LicenseRef-Public-Domain",
+        "MIT"
+      ],
+      "name": "qemu-common",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "f71da9d341459b24a0bf608d566421cad8788a3e8b3d0a93aa82f28066173be3",
+      "signature_sha256": "8e465e8970fd1a74732ff6a97bb198314ac6c78e44044c51dff93af67ca0a808",
+      "signature_size": 566,
+      "size": 2100404,
+      "source_url": [
+        "https://www.qemu.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/qemu-common-11.1.2-1-aarch64.pkg.tar.xz",
+      "version": "11.1.2-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "pixman",
+        "libpixman-1.so=0-64",
+        "qemu-common=11.1.2-1"
+      ],
+      "filename": "qemu-hw-display-virtio-gpu-11.1.2-1-aarch64.pkg.tar.xz",
+      "license": [
+        "BSD-2-Clause",
+        "BSD-2-Clause-Patent",
+        "BSD-3-Clause",
+        "CC0-1.0",
+        "FSFAP",
+        "GPL-1.0-or-later",
+        "GPL-2.0-only",
+        "GPL-2.0-only WITH Linux-syscall-note",
+        "GPL-2.0-only WITH Linux-syscall-note OR BSD-2-Clause",
+        "GPL-2.0-only WITH Linux-syscall-note OR BSD-3-Clause",
+        "GPL-2.0-or-later",
+        "GPL-2.0-or-later OR BSD-3-Clause",
+        "GPL-2.0-or-later WITH Linux-syscall-note",
+        "ISC",
+        "LGPL-2.1-only OR BSD-3-Clause",
+        "LGPL-2.0-or-later",
+        "LGPL-2.1-or-later",
+        "LicenseRef-Public-Domain",
+        "MIT"
+      ],
+      "name": "qemu-hw-display-virtio-gpu",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "e4729661997f1f5879522a7866c872c80b90b8a67b90f5e500a7c70e6a516fcc",
+      "signature_sha256": "671fafcb82b172089ebd162a6b620e433eea0cb8eec67647ae62e1de6b24c363",
+      "signature_size": 566,
+      "size": 36236,
+      "source_url": [
+        "https://www.qemu.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/qemu-hw-display-virtio-gpu-11.1.2-1-aarch64.pkg.tar.xz",
+      "version": "11.1.2-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "qemu-common=11.1.2-1"
+      ],
+      "filename": "qemu-hw-display-virtio-gpu-pci-11.1.2-1-aarch64.pkg.tar.xz",
+      "license": [
+        "BSD-2-Clause",
+        "BSD-2-Clause-Patent",
+        "BSD-3-Clause",
+        "CC0-1.0",
+        "FSFAP",
+        "GPL-1.0-or-later",
+        "GPL-2.0-only",
+        "GPL-2.0-only WITH Linux-syscall-note",
+        "GPL-2.0-only WITH Linux-syscall-note OR BSD-2-Clause",
+        "GPL-2.0-only WITH Linux-syscall-note OR BSD-3-Clause",
+        "GPL-2.0-or-later",
+        "GPL-2.0-or-later OR BSD-3-Clause",
+        "GPL-2.0-or-later WITH Linux-syscall-note",
+        "ISC",
+        "LGPL-2.1-only OR BSD-3-Clause",
+        "LGPL-2.0-or-later",
+        "LGPL-2.1-or-later",
+        "LicenseRef-Public-Domain",
+        "MIT"
+      ],
+      "name": "qemu-hw-display-virtio-gpu-pci",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "9dbb3bdffbeed7e8714ed6ee5693126fafdebc7082bbaa1618b3c12aa04d9ba4",
+      "signature_sha256": "a75573abb0b98ff517c2068a13b4634368fa27ba1716a8b5b86279929fcfbbc3",
+      "signature_size": 566,
+      "size": 16676,
+      "source_url": [
+        "https://www.qemu.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/qemu-hw-display-virtio-gpu-pci-11.1.2-1-aarch64.pkg.tar.xz",
+      "version": "11.1.2-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "capstone",
+        "fuse3",
+        "libgcc",
+        "glibc",
+        "glib2",
+        "libgio-2.0.so=0-64",
+        "libglib-2.0.so=0-64",
+        "libgmodule-2.0.so=0-64",
+        "gnutls",
+        "keyutils",
+        "libaio",
+        "libelf",
+        "libbpf",
+        "libbpf.so=1-64",
+        "libjpeg-turbo",
+        "libjpeg.so=8-64",
+        "libpng",
+        "libsasl",
+        "libseccomp",
+        "libseccomp.so=2-64",
+        "libslirp",
+        "libslirp.so=0-64",
+        "liburing",
+        "liburing.so=2-64",
+        "libxdp",
+        "libxdp.so=1-64",
+        "lzo",
+        "ndctl",
+        "numactl",
+        "libnuma.so=1-64",
+        "pam",
+        "libpam.so=0-64",
+        "pixman",
+        "libpixman-1.so=0-64",
+        "qemu-common=11.1.2-1",
+        "rdma-core",
+        "snappy",
+        "vde2",
+        "zlib",
+        "zstd",
+        "libzstd.so=1-64",
+        "dtc",
+        "systemd-libs",
+        "libudev.so=1-64"
+      ],
+      "filename": "qemu-system-aarch64-11.1.2-1-aarch64.pkg.tar.xz",
+      "license": [
+        "BSD-2-Clause",
+        "BSD-2-Clause-Patent",
+        "BSD-3-Clause",
+        "CC0-1.0",
+        "FSFAP",
+        "GPL-1.0-or-later",
+        "GPL-2.0-only",
+        "GPL-2.0-only WITH Linux-syscall-note",
+        "GPL-2.0-only WITH Linux-syscall-note OR BSD-2-Clause",
+        "GPL-2.0-only WITH Linux-syscall-note OR BSD-3-Clause",
+        "GPL-2.0-or-later",
+        "GPL-2.0-or-later OR BSD-3-Clause",
+        "GPL-2.0-or-later WITH Linux-syscall-note",
+        "ISC",
+        "LGPL-2.1-only OR BSD-3-Clause",
+        "LGPL-2.0-or-later",
+        "LGPL-2.1-or-later",
+        "LicenseRef-Public-Domain",
+        "MIT"
+      ],
+      "name": "qemu-system-aarch64",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "989a142989ab9c6696593af4561d6d7cb40c408d6a5eb2a4eaee0fdacbdb127d",
+      "signature_sha256": "9d7fc11edd3b7cd27a9d0d3af05db75b48e523280d785a2a9968c9ff5955aca7",
+      "signature_size": 566,
+      "size": 5109200,
+      "source_url": [
+        "https://www.qemu.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/qemu-system-aarch64-11.1.2-1-aarch64.pkg.tar.xz",
+      "version": "11.1.2-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [
+        "ibacm",
+        "infiniband-diags",
+        "libcxgb3",
+        "libcxgb4",
+        "libibcm",
+        "libibmad",
+        "libibumad",
+        "libibverbs",
+        "libiwpm",
+        "libmlx4",
+        "libmlx5",
+        "libmthca",
+        "libnes",
+        "libocrdma",
+        "librdmacm",
+        "rdma",
+        "srptools"
+      ],
+      "depends": [
+        "bash",
+        "glibc",
+        "libnl",
+        "perl",
+        "systemd-libs"
+      ],
+      "filename": "rdma-core-65.0-1-aarch64.pkg.tar.xz",
+      "license": [
+        "GPL-2.0-or-later OR LicenseRef-OpenIB.org-BSD-MIT",
+        "GPL-2.0-or-later OR LicenseRef-OpenIB.org-BSD-FreeBSD",
+        "GPL-2.0-or-later OR LicenseRef-Intel-BSD-3-Clause",
+        "GPL-2.0-or-later OR LicenseRef-PathScale-BSD-Patent-License",
+        "CC0-1.0",
+        "MIT",
+        "BSD-2-Clause",
+        "CPL-1.0 OR BSD-2-Clause OR GPL-2.0-or-later"
+      ],
+      "name": "rdma-core",
+      "provides": [
+        "ibacm",
+        "infiniband-diags",
+        "libcxgb3",
+        "libcxgb4",
+        "libibcm",
+        "libibmad",
+        "libibumad",
+        "libibverbs",
+        "libiwpm",
+        "libmlx4",
+        "libmlx5",
+        "libmthca",
+        "libnes",
+        "libocrdma",
+        "librdmacm",
+        "rdma",
+        "srptools"
+      ],
+      "replaces": [
+        "ibacm",
+        "infiniband-diags",
+        "libcxgb3",
+        "libcxgb4",
+        "libibcm",
+        "libibmad",
+        "libibumad",
+        "libibverbs",
+        "libiwpm",
+        "libmlx4",
+        "libmlx5",
+        "libmthca",
+        "libnes",
+        "libocrdma",
+        "librdmacm",
+        "rdma",
+        "srptools"
+      ],
+      "repo": "extra",
+      "sha256": "5031f9cbf8e98963c2b1b3e1a221e02e4f6962160cf8042afbe962577b236295",
+      "signature_sha256": "1408e0824093ce4c92744a983e0ecfe674ebc91882bebed44b249607fd8bf711",
+      "signature_size": 566,
+      "size": 1992600,
+      "source_url": [
+        "https://github.com/linux-rdma/rdma-core"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/rdma-core-65.0-1-aarch64.pkg.tar.xz",
+      "version": "65.0-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "libpcap",
+        "libpcap.so=1-64",
+        "wolfssl",
+        "libwolfssl.so=46-64"
+      ],
+      "filename": "vde2-2.3.3-10-aarch64.pkg.tar.xz",
+      "license": [
+        "GPL-2.0-or-later",
+        "LGPL-2.1-or-later"
+      ],
+      "name": "vde2",
+      "provides": [
+        "libvdehist.so=0-64",
+        "libvdemgmt.so=0-64",
+        "libvdeplug.so=3-64",
+        "libvdesnmp.so=0-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "3448c3a49d23407ac32f3dbd7fed4fefce406a4acc4cc150af3faaccc51cf77c",
+      "signature_sha256": "8a92dfec49a8c69d50917062b493917679667fdab5e0fc16165cd918d1cbd0f6",
+      "signature_size": 566,
+      "size": 199088,
+      "source_url": [
+        "https://github.com/virtualsquare/vde-2"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/vde2-2.3.3-10-aarch64.pkg.tar.xz",
+      "version": "2.3.3-10"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "wolfssl-5.9.4-1-aarch64.pkg.tar.xz",
+      "license": [
+        "GPL-3.0-or-later"
+      ],
+      "name": "wolfssl",
+      "provides": [
+        "libwolfssl.so=46-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "4a332bc1b879e3ef5619b012334a18393355297107dcba00e1c6daea8bee2704",
+      "signature_sha256": "cd31ea4466eb54167f574f860ca4571fb7bdbd5772b945bd40118ae3ae97682e",
+      "signature_size": 566,
+      "size": 1178536,
+      "source_url": [
+        "https://www.wolfssl.com/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/wolfssl-5.9.4-1-aarch64.pkg.tar.xz",
+      "version": "5.9.4-1"
+    }
+  ],
+  "seed_seconds": 240,
+  "selector": {
+    "bytes": 15932,
+    "sha256": "bbd978269e1c64c367174a6962dc311f56694d9c520aad06c8e783837880fcfe"
+  },
+  "source": "fb515d735a81194f06ea117539dee60438bb8d87",
+  "tooling_lock": {
+    "bytes": 31183,
+    "sha256": "c18afc5bde9868594d41bd576a956960a7b01b190d148ba03ca4c41d4394e1b0"
+  }
+}

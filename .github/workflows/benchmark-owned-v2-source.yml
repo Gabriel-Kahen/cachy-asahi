@@ -1,0 +1,34 @@
+name: benchmark-owned-v2-source
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/benchmark-owned-v2-source.yml'
+      - 'scripts/ci/benchmark-owned-v2/**'
+      - 'scripts/benchmarks/**'
+      - 'scripts/virtual/owned_process.py'
+      - 'docs/performance/**'
+      - 'LICENSE'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-wiring:
+    name: Benchmark v2 source wiring (Python ${{ matrix.python }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Authenticate finite source and syntax without benchmark imports
+        run: python -I -B scripts/ci/benchmark-owned-v2/check_source.py --root "$GITHUB_WORKSPACE"
+      - name: Record exact source-only scope
+        run: |
+          echo 'Source pins, syntax, adapter/owner wiring and twelve declared controls only. Zero workload/lifecycle actors, sensor sampling or process census. Retained private12 controls are not reexecuted here. Fresh execution needs a separately qualified owned guest/namespace route; hosted availability is unknown. No native, paired-artifact or performance acceptance.' >> "$GITHUB_STEP_SUMMARY"

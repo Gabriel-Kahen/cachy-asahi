@@ -1,0 +1,35 @@
+#!/usr/bin/python3 -IB
+# SPDX-License-Identifier: MIT
+"""Offline exact source mirrors and inert rebuild contexts."""
+import argparse
+import importlib.util
+from pathlib import Path
+import sys
+
+RUNTIME = Path(__file__).resolve().parents[1] / 'lib/cachy-asahi/source-tools/scripts'
+COMMANDS = {
+    'mirror-export': ('release/release_source_mirror.py', 'export'),
+    'mirror-successor': ('release/release_source_mirror.py', 'update'),
+    'mirror-verify': ('release/release_source_mirror.py', 'verify'),
+    'build-context': ('build/mirror_consumer.py', 'materialize'),
+    'verify-context': ('build/mirror_consumer.py', 'verify-context'),
+}
+
+def main(argv=None):
+    argv = list(sys.argv[1:] if argv is None else argv)
+    parser = argparse.ArgumentParser(description=__doc__, epilog='Each command accepts --help for its exact caller-pinned inputs.')
+    parser.add_argument('--version', action='version', version='cachy-asahi-source-tools 0.1.0')
+    parser.add_argument('command', choices=COMMANDS)
+    if not argv or argv[0] not in COMMANDS:
+        parser.parse_args(argv)
+        return 2
+    path, command = COMMANDS[argv[0]]
+    spec = importlib.util.spec_from_file_location('installed_source_tools', RUNTIME / path)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module.main([command, *argv[1:]])
+
+if __name__ == '__main__':
+    sys.dont_write_bytecode = True
+    raise SystemExit(main())

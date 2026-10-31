@@ -1,0 +1,39 @@
+{
+  "archive_bytes": 10679,
+  "archive_sha256": "b9edc11a4a04d2a5cc23bb7bafd8f02935240a45efe8a2fa61605b7636ecb22f",
+  "archive_url": "https://codeload.github.com/zsh-users/zsh-history-substring-search/tar.gz/a0bdb0d47dbaba31dba2db7af8c48a5d9c74049a",
+  "build_dependencies": [
+    "python"
+  ],
+  "license_header": {
+    "bytes": 1943,
+    "derivation": "exact leading bytes of unchanged upstream source before first section separator",
+    "path": "LICENSE.upstream",
+    "sha256": "95f239dd39d079d2546aaefee371d09f3f423d6902e85e64787ae0bc5f441a33"
+  },
+  "minimum_Zsh_policy": "Project wrapper requires the modern ZLE hook path; upstream advertises 4.3+",
+  "modification": "NONE to upstream runtime; independent MIT wrapper, recipe, tests and documentation",
+  "native_ARM_16K_hardware": "NOT RUN",
+  "reference_documentation": {
+    "README.md": {
+      "bytes": 10334,
+      "redistributed_in_package": false,
+      "sha256": "0e9bbbbdf76fc1ef8a6a91eb8e4517d3150d7966f123bd19b9783d792b7cb034",
+      "upstream_path": "README.md",
+      "url": "https://github.com/zsh-users/zsh-history-substring-search/blob/a0bdb0d47dbaba31dba2db7af8c48a5d9c74049a/README.md"
+    }
+  },
+  "runtime_dependencies": [
+    "zsh>=5.9"
+  ],
+  "selected_files": {
+    "zsh-history-substring-search.zsh": {
+      "bytes": 29692,
+      "sha256": "0b864862a3b48992d7316cc7e585a1315fa389d730c17bf16e2f2bd5918089f3",
+      "upstream_path": "zsh-history-substring-search.zsh"
+    }
+  },
+  "upstream_repository": "https://github.com/zsh-users/zsh-history-substring-search",
+  "upstream_revision": "a0bdb0d47dbaba31dba2db7af8c48a5d9c74049a",
+  "upstream_source_license": "BSD-3-Clause embedded complete header; no separate upstream license file"
+}

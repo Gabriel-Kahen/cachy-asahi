@@ -1,0 +1,90 @@
+{
+  "usr/bin/cachy-asahi-recovery-tools": {
+    "mode": 493,
+    "source": "cachy-asahi-recovery-tools"
+  },
+  "usr/lib/cachy-asahi/recovery-tools/scripts/checks/package_checks.py": {
+    "mode": 420,
+    "source": "private/scripts/checks/package_checks.py"
+  },
+  "usr/lib/cachy-asahi/recovery-tools/scripts/ci/native_arm.py": {
+    "mode": 420,
+    "source": "private/scripts/ci/native_arm.py"
+  },
+  "usr/lib/cachy-asahi/recovery-tools/scripts/client/client.py": {
+    "mode": 420,
+    "source": "private/scripts/client/client.py"
+  },
+  "usr/lib/cachy-asahi/recovery-tools/scripts/integration/lifecycle.py": {
+    "mode": 420,
+    "source": "private/scripts/integration/lifecycle.py"
+  },
+  "usr/lib/cachy-asahi/recovery-tools/scripts/platform/archive_coverage.py": {
+    "mode": 420,
+    "source": "private/scripts/platform/archive_coverage.py"
+  },
+  "usr/lib/cachy-asahi/recovery-tools/scripts/platform/authenticate_missing.py": {
+    "mode": 420,
+    "source": "private/scripts/platform/authenticate_missing.py"
+  },
+  "usr/lib/cachy-asahi/recovery-tools/scripts/platform/capture.py": {
+    "mode": 420,
+    "source": "private/scripts/platform/capture.py"
+  },
+  "usr/lib/cachy-asahi/recovery-tools/scripts/platform/recovery_inputs.py": {
+    "mode": 420,
+    "source": "private/scripts/platform/recovery_inputs.py"
+  },
+  "usr/lib/cachy-asahi/recovery-tools/scripts/platform/transaction.py": {
+    "mode": 420,
+    "source": "private/scripts/platform/transaction.py"
+  },
+  "usr/lib/cachy-asahi/recovery-tools/scripts/platform/tuple_audit.py": {
+    "mode": 420,
+    "source": "private/scripts/platform/tuple_audit.py"
+  },
+  "usr/lib/cachy-asahi/recovery-tools/scripts/port/authenticate.py": {
+    "mode": 420,
+    "source": "private/scripts/port/authenticate.py"
+  },
+  "usr/lib/cachy-asahi/recovery-tools/scripts/port/preview.py": {
+    "mode": 420,
+    "source": "private/scripts/port/preview.py"
+  },
+  "usr/lib/cachy-asahi/recovery-tools/scripts/release/offline_kit.py": {
+    "mode": 420,
+    "source": "private/scripts/release/offline_kit.py"
+  },
+  "usr/lib/cachy-asahi/recovery-tools/scripts/release/recovery_bundle.py": {
+    "mode": 420,
+    "source": "private/scripts/release/recovery_bundle.py"
+  },
+  "usr/lib/cachy-asahi/recovery-tools/scripts/release/source_delivery.py": {
+    "mode": 420,
+    "source": "private/scripts/release/source_delivery.py"
+  },
+  "usr/share/doc/cachy-asahi-recovery-tools/README.md": {
+    "mode": 420,
+    "source": "README.md"
+  },
+  "usr/share/doc/cachy-asahi-recovery-tools/offline-recovery-bundle.md": {
+    "mode": 420,
+    "source": "offline-recovery-bundle.md"
+  },
+  "usr/share/doc/cachy-asahi-recovery-tools/payload-map.json": {
+    "mode": 420,
+    "source": "payload-map.json"
+  },
+  "usr/share/doc/cachy-asahi-recovery-tools/source-provenance.json": {
+    "mode": 420,
+    "source": "source-provenance.json"
+  },
+  "usr/share/licenses/cachy-asahi-recovery-tools/LICENSE": {
+    "mode": 420,
+    "source": "LICENSE"
+  },
+  "usr/share/licenses/cachy-asahi-recovery-tools/NOTICE": {
+    "mode": 420,
+    "source": "NOTICE"
+  }
+}

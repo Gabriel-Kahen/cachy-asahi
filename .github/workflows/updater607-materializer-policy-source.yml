@@ -1,0 +1,70 @@
+name: updater607-materializer-policy-source
+on:
+  push:
+    paths:
+      - scripts/ci/updater607-materializer-policy-source/**
+      - .github/workflows/updater607-materializer-policy-source.yml
+  pull_request:
+    paths:
+      - scripts/ci/updater607-materializer-policy-source/**
+      - .github/workflows/updater607-materializer-policy-source.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONWARNINGS: error
+    steps:
+      - name: Check out maintained source-only factory
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Check out exact public360 parent
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 4ddc6297db8d72a571f7759c947fd63a094b9ebd
+          path: .ci-fixtures/descriptor-cleanup-before360
+          persist-credentials: false
+      - name: Check out exact public360 expected source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: c6a5de859c3f190d47a5aef30962d2c3b50eaf8d
+          path: .ci-fixtures/descriptor-cleanup-after360
+          persist-credentials: false
+      - name: Check out exact public489 original held source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: b21a5864d5a4610b9181a1c270ac8821d8448a17
+          path: .ci-fixtures/updater-held489
+          persist-credentials: false
+      - name: Select explicit Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Reproduce source and execute current selected37 plus portable controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          stage=$(mktemp -d "$RUNNER_TEMP/updater-descriptor-cleanup-source.XXXXXXXX")
+          trap 'rm -rf -- "$stage"' EXIT
+          mkdir -m700 "$stage/input" "$stage/expected" "$stage/held"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/descriptor-cleanup-before360" archive --format=tar 4ddc6297db8d72a571f7759c947fd63a094b9ebd | tar -x -C "$stage/input"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/descriptor-cleanup-after360" archive --format=tar c6a5de859c3f190d47a5aef30962d2c3b50eaf8d | tar -x -C "$stage/expected"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/updater-held489" archive --format=tar b21a5864d5a4610b9181a1c270ac8821d8448a17 | tar -x -C "$stage/held"
+          export UPDATER_HELD_INPUT="$stage/held"
+          export UPDATER_POLICY_INPUT="$stage/input"
+          export UPDATER_POLICY_EXPECTED="$stage/expected"
+          umask 077
+          python3 -I -B -Werror scripts/ci/updater607-materializer-policy-source/prepare.py --source "$stage/input" --output "$stage/emitted" --context known
+          python3 -I -B -Werror scripts/ci/updater607-materializer-policy-source/test_factory.py

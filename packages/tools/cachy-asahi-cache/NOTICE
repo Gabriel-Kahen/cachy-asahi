@@ -1,0 +1,12 @@
+cachy-asahi-cache 0.2.0
+Copyright (c) 2026 cachy-asahi contributors. MIT License.
+
+Original local cache inspection/protection/selected cleanup implementation.
+No-follow FD traversal, stable snapshots, fsync/no-replace publication and guarded
+journal replacement adapt the project's MIT cachy-asahi-mirrors patterns.
+Copyright and the full MIT grant are retained in LICENSE.
+
+Calls the existing separately provided pacman/libalpm16 system dependency through
+its documented public API; no library bytes, package-manager implementation,
+repository catalog, signing authority or orphan-removal alias are bundled.
+Local protection policy is not signed-release, known-good or recovery authority.

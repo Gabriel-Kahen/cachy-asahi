@@ -1,0 +1,69 @@
+{
+  "actual_aarch64_binary_sha256": "94c013b9026772ffe4f227f508a2cdf0c61323dc1f7b7836fe629b49bfbc3902",
+  "arm_recipe_revision": "fd636a0077db0efe900d67d4de910c0d270fc8c4",
+  "files": {
+    "artifacts/development/updater-bound-auxiliary-20261015/alpm-audit/audit.md": {
+      "bytes": 15338,
+      "sha256": "2f8fbc3494d739e75b9f2d2a7959e975d0962ac5beee8e7cfc86a8583e7ac826"
+    },
+    "artifacts/development/updater-bound-auxiliary-20261015/alpm-audit/effective/lib/libalpm/alpm.h": {
+      "bytes": 100912,
+      "sha256": "c959bb93bc24bf96c1432d0b12cc0453a796259076a28f91ba9a4cbcb3102d44"
+    },
+    "artifacts/development/updater-bound-auxiliary-20261015/alpm-audit/effective/lib/libalpm/handle.c": {
+      "bytes": 25439,
+      "sha256": "3e2a3d55cab489beecd7276a8ea0adb53082be0f22a6110dcd84c62eb7c47c65"
+    },
+    "artifacts/development/updater-bound-auxiliary-20261015/alpm-audit/effective/lib/libalpm/remove.c": {
+      "bytes": 23468,
+      "sha256": "a052d455f088f34bf1d713a434957de7e1b9322862a07b69160c65ee15dca314"
+    }
+  },
+  "libalpm_version": "16.0.1",
+  "license": "GPL-2.0-or-later",
+  "lifecycle_origin": {
+    "common.py": {
+      "bytes": 9925,
+      "sha256": "5af002505349f62643759898defe66f24655f4a29329f8ab48a0df9213f589e4"
+    },
+    "container.py": {
+      "bytes": 23328,
+      "sha256": "163e73312df30f78fc111e31dcbfb58ac8d6a3563d214eeca661687160f7fe8d"
+    },
+    "dependencies.json": {
+      "bytes": 2685,
+      "sha256": "d8e87ce4e5ee499d422483a048954e0f06f05d7ca2c4b093064fb8cb41320b05"
+    },
+    "normal-exec-change.json": {
+      "bytes": 839,
+      "sha256": "9d3769704396a33acc0c144cc1519d10230a5fb07d2f7b135dcfd0ba1ab6a68b"
+    },
+    "run.py": {
+      "bytes": 7901,
+      "sha256": "074282e3a163000dfff5b2379a1eba76a28ae9e9419972e60ab659ae2b69cfb2"
+    },
+    "scrub.py": {
+      "bytes": 846,
+      "sha256": "bfac8896427c5fdcdd172a94af925dc5771452e150b44f27f4e16c498c548359"
+    },
+    "smoke-normal.c": {
+      "bytes": 12437,
+      "sha256": "a766bc7cd31cce18fe7e564432de4e4b63db49763608ae70ef8fab61cd29116c"
+    },
+    "test_controls.py": {
+      "bytes": 9932,
+      "sha256": "8061adcbb667423ca71b4c81e21a32519be4fb1bcef1c650db225207b7b63f05"
+    }
+  },
+  "schema_version": 1,
+  "semantics": [
+    "alpm.h enum REMOVE_START=4 and progress callback ABI at1117-1154; setter at1653",
+    "remove.c636-669 callback follows unlink and precedes local DB removal at742",
+    "handle.c119-144 creates exclusive empty mode000 db.lck",
+    "Actual phase requires independently observed file removal, stopped writer and exact unchanged complete local DB"
+  ],
+  "source_audit": "artifacts/development/updater-bound-auxiliary-20261015/alpm-audit/audit.md",
+  "source_binary_correspondence": "OPEN: exact-version ARM recipe does not match BUILDINFO PKGBUILD hash; no build-recipe or security admission credit",
+  "status": "SOURCE_AUDITED_NOT_NATIVE_EXECUTED",
+  "upstream_revision": "54d94116164b0b2202c6061c4a59c6f3e70820d8"
+}

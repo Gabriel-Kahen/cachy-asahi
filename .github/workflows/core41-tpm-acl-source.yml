@@ -1,0 +1,105 @@
+{
+  "name": "Core41 typed TPM ACL source factory",
+  "on": {
+    "push": {
+      "paths": [
+        "scripts/ci/core7-systemd-vm-source/**",
+        ".github/workflows/core41-tpm-acl-source.yml"
+      ]
+    },
+    "pull_request": {
+      "paths": [
+        "scripts/ci/core7-systemd-vm-source/**",
+        ".github/workflows/core41-tpm-acl-source.yml"
+      ]
+    }
+  },
+  "permissions": {
+    "contents": "read"
+  },
+  "jobs": {
+    "source-only": {
+      "runs-on": "ubuntu-24.04",
+      "timeout-minutes": 10,
+      "strategy": {
+        "fail-fast": false,
+        "matrix": {
+          "python": [
+            "3.12",
+            "3.14"
+          ]
+        }
+      },
+      "env": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONWARNINGS": "error"
+      },
+      "steps": [
+        {
+          "name": "Maintained portable factory",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Immutable expected",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "ref": "29a60eeaf45fad954ffa0932c8559192a911c298",
+            "path": ".ci-core41-expected",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Immutable parent40",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "ref": "536f96af5451697da2467e2e45e3129f32eed6d8",
+            "path": ".ci-core41-parent40",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Immutable core",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "ref": "1a76a09d9cb8210cc2b76eda0c63a08bcd89d4ec",
+            "path": ".ci-core41-core",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Immutable vm",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "ref": "de21d6c25e0fbf5ac83c71965bae3ffa23390461",
+            "path": ".ci-core41-vm",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Immutable kernel",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "ref": "247123187cb1aceae5e61bc89f3c01dbf2986311",
+            "path": ".ci-core41-kernel",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Select Python",
+          "uses": "actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+          "with": {
+            "python-version": "${{ matrix.python }}"
+          }
+        },
+        {
+          "name": "Exact41 known/unbound source and typed ACL positive controls",
+          "shell": "bash",
+          "run": "set -euo pipefail\nstage=$(mktemp -d \"$RUNNER_TEMP/core41-source.XXXXXXXX\")\ntrap 'rm -rf -- \"$stage\"' EXIT\nexport TMPDIR=\"$stage\"\npython3 -I -B -Werror \"$GITHUB_WORKSPACE/scripts/ci/core7-systemd-vm-source/test_tpm_acl.py\"  --expected \"$GITHUB_WORKSPACE/.ci-core41-expected\"  --parent40 \"$GITHUB_WORKSPACE/.ci-core41-parent40\"  --core-source \"$GITHUB_WORKSPACE/.ci-core41-core\"  --vm-source \"$GITHUB_WORKSPACE/.ci-core41-vm\"  --kernel-carrier \"$GITHUB_WORKSPACE/.ci-core41-kernel\"\n"
+        }
+      ]
+    }
+  }
+}

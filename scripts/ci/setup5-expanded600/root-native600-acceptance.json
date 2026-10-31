@@ -1,0 +1,31 @@
+{
+  "bang_pair_bytes_buildinfo": "PASS",
+  "bang_version": "0.1.0-2",
+  "cleanup": "PASS",
+  "evidence": {
+    "bytes": 2016,
+    "path": "artifacts/development/expanded600-run38948569244/passive-verification.json",
+    "sha256": "e502c1dfb03a768232e749d83cc28d5dd6c29cdf9a85b7b5b4fb20955c5e2f40"
+  },
+  "expected600_sha256": "d263a3ca9089c204603f2e12b80dc4f209ee6e636f10da940a514040b636db79",
+  "hardware": "NOT_RUN",
+  "installed_lifecycle": "PASS",
+  "installed_six_modules": "PASS",
+  "installer": "NOT_RUN",
+  "ldconfig_helper_exit": "NOT_OBSERVED",
+  "ldconfig_qualification": "Source-defined AArch64 tail padding; helper source/binary correspondence not independently established",
+  "limits": {
+    "hardware": "NOT_RUN",
+    "installer": "NOT_RUN",
+    "native_work": "NOT_EXECUTED_BY_VERIFIER",
+    "original587_and_audio_archives": "POLICY_AND_REPORTED_RUNTIME_JOINS_ONLY_NOT_REINSPECTED",
+    "release": "NOT_ADMITTED",
+    "signature_reverification": "NOT_RUN_PUBLIC_KEYS_SIGNATURE_BYTES_NOT_EXPORTED"
+  },
+  "package_count": 600,
+  "release": "NOT_ADMITTED",
+  "run_id": "38948569244",
+  "scope": "Native ARM generic4096 offline600 composition; baseline587 preserved/restored,6 main and2 Bang subtransactions,6 installed module cases,8 raw ld/aux checkpoints. Source-bound recorded cleanup; no live recheck.",
+  "source_sha": "8cc0a67295dc68772fc86ad81148eac3bec9eb56",
+  "status": "ROOT_ACCEPTED_NATIVE_EXPANDED600_COMPOSITION"
+}

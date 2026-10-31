@@ -1,0 +1,23 @@
+{
+  "actual": null,
+  "default": false,
+  "original1800_fit": "FAILED_NOT_RECLASSIFIED",
+  "original2400_fit": "FAILED_NOT_RECLASSIFIED",
+  "performance": "NOT_CLAIMED",
+  "profile": "layered4200",
+  "source": "12d7e769a8fe32a2714c10a9096f9805f8bb7920",
+  "support": {
+    "layered4200/budget_successor.py": {
+      "bytes": 4730,
+      "sha256": "52cdf54a362c81918bc547a20f4f07c15efbe9671d4977ba4aec054936d32568"
+    },
+    "layered4200/layered4200-successor.json": {
+      "bytes": 739642,
+      "sha256": "a62547e7eebbf5ecfe89eca6dfe19efd12a6054797c45dec05b5a48dcd5696c9"
+    },
+    "layered4200/source568.json": {
+      "bytes": 103722,
+      "sha256": "850d7bfed1b84554f5661a9ecab0ff6cae5bff9202d6c9e575376b1edbf135cd"
+    }
+  }
+}

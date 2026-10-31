@@ -1,0 +1,57 @@
+name: GNU remove-interruption source factory
+on:
+  push:
+    paths: ['scripts/ci/gnu-remove-interruption-source/**', '.github/workflows/gnu-remove-interruption-source.yml']
+  pull_request:
+    paths: ['scripts/ci/gnu-remove-interruption-source/**', '.github/workflows/gnu-remove-interruption-source.yml']
+permissions:
+  contents: read
+jobs:
+  source-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - name: Check out maintained factory
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Exact public749 input
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: de1aab259df6bda8ad36f959392e3fc4eb35b622
+          path: .ci-fixtures/gnu749
+          persist-credentials: false
+      - name: Exact public13 normal record
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 7ba9a2d8da09e17b0204546219d55cff414fcb8d
+          path: .ci-fixtures/gnu13
+          persist-credentials: false
+      - name: Exact public766 expected source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: cc04fe3a57bac24a516004dfb670a172e76ac517
+          path: .ci-fixtures/gnu766
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Reproduce766 and run focused generation controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          stage=$(mktemp -d "$RUNNER_TEMP/gnu-remove-source.XXXXXXXX")
+          trap 'rm -rf -- "$stage"' EXIT
+          mkdir -m700 "$stage/parent" "$stage/record" "$stage/expected"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/gnu749" archive de1aab259df6bda8ad36f959392e3fc4eb35b622 | tar -x -C "$stage/parent"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/gnu13" archive 7ba9a2d8da09e17b0204546219d55cff414fcb8d | tar -x -C "$stage/record"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/gnu766" archive cc04fe3a57bac24a516004dfb670a172e76ac517 | tar -x -C "$stage/expected"
+          export GNU_REMOVE_PARENT="$stage/parent" GNU_REMOVE_NORMAL_RECORD="$stage/record" GNU_REMOVE_EXPECTED="$stage/expected"
+          python3 -I -B -Werror scripts/ci/gnu-remove-interruption-source/test_prepare.py

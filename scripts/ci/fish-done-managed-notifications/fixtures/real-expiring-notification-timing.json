@@ -1,0 +1,231 @@
+{
+  "cases": [
+    {
+      "actual_closed": {
+        "cookie": 14,
+        "endian": "l",
+        "flags": 1,
+        "interface": "org.freedesktop.Notifications",
+        "member": "NotificationClosed",
+        "path": "/org/freedesktop/Notifications",
+        "payload": {
+          "data": [
+            1,
+            1
+          ],
+          "type": "uu"
+        },
+        "sender": ":1.25",
+        "timestamp-realtime": 1792179187968102,
+        "type": "signal",
+        "version": 1
+      },
+      "first_frame": "4c85e68f746a5bb3cd957b08cdfa789d2c26dd6ede16c291b4c39ee18d60c70c",
+      "last_pre_emit_manager_reply": {
+        "cookie": 547,
+        "destination": ":1.102",
+        "endian": "l",
+        "flags": 1,
+        "payload": {
+          "data": [
+            "/org/freedesktop/systemd1/unit/default_2etarget"
+          ],
+          "type": "o"
+        },
+        "reply_cookie": 2,
+        "sender": ":1.1",
+        "timestamp-realtime": 1792179187829243,
+        "type": "method_return",
+        "version": 1
+      },
+      "reported_notification_age_ms": 1534,
+      "root_visual": "FAIL_NOTIFICATION_ABSENT",
+      "stage": "minimal",
+      "wire": {
+        "app_name": "fish",
+        "body": "Foreground command completed.",
+        "call": {
+          "cookie": 9,
+          "destination": ":1.25",
+          "endian": "l",
+          "flags": 0,
+          "interface": "org.freedesktop.Notifications",
+          "member": "Notify",
+          "path": "/org/freedesktop/Notifications",
+          "payload": {
+            "data": [
+              "fish",
+              0,
+              "",
+              "Done in 5s",
+              "Foreground command completed.",
+              [],
+              {
+                "image-path": {
+                  "data": "utilities-terminal",
+                  "type": "s"
+                },
+                "sender-pid": {
+                  "data": 771,
+                  "type": "x"
+                },
+                "transient": {
+                  "data": 1,
+                  "type": "i"
+                },
+                "urgency": {
+                  "data": 1,
+                  "type": "y"
+                }
+              },
+              3000
+            ],
+            "type": "susssasa{sv}i"
+          },
+          "sender": ":1.97",
+          "timestamp-realtime": 1792179184962415,
+          "type": "method_call",
+          "version": 1
+        },
+        "expire_time_ms": 3000,
+        "id": 1,
+        "outcome": 0,
+        "recipient": ":1.25",
+        "reply": {
+          "cookie": 11,
+          "destination": ":1.97",
+          "endian": "l",
+          "flags": 1,
+          "payload": {
+            "data": [
+              1
+            ],
+            "type": "u"
+          },
+          "reply_cookie": 9,
+          "sender": ":1.25",
+          "timestamp-realtime": 1792179185866284,
+          "type": "method_return",
+          "version": 1
+        },
+        "sender": ":1.97",
+        "summary": "Done in 5s"
+      }
+    },
+    {
+      "actual_closed": {
+        "cookie": 14,
+        "endian": "l",
+        "flags": 1,
+        "interface": "org.freedesktop.Notifications",
+        "member": "NotificationClosed",
+        "path": "/org/freedesktop/Notifications",
+        "payload": {
+          "data": [
+            1,
+            1
+          ],
+          "type": "uu"
+        },
+        "sender": ":1.119",
+        "timestamp-realtime": 1792179247583457,
+        "type": "signal",
+        "version": 1
+      },
+      "first_frame": "31580af312a6f5bce9173e3fcd6102ad4673997262c1616a6e509cbc6723ee73",
+      "last_pre_emit_manager_reply": {
+        "cookie": 597,
+        "destination": ":1.152",
+        "endian": "l",
+        "flags": 1,
+        "payload": {
+          "data": [
+            "/org/freedesktop/systemd1/unit/default_2etarget"
+          ],
+          "type": "o"
+        },
+        "reply_cookie": 2,
+        "sender": ":1.1",
+        "timestamp-realtime": 1792179246926615,
+        "type": "method_return",
+        "version": 1
+      },
+      "reported_notification_age_ms": 1617,
+      "root_visual": "FAIL_NOTIFICATION_ABSENT",
+      "stage": "overlay",
+      "wire": {
+        "app_name": "fish",
+        "body": "Foreground command completed.",
+        "call": {
+          "cookie": 9,
+          "destination": ":1.119",
+          "endian": "l",
+          "flags": 0,
+          "interface": "org.freedesktop.Notifications",
+          "member": "Notify",
+          "path": "/org/freedesktop/Notifications",
+          "payload": {
+            "data": [
+              "fish",
+              0,
+              "",
+              "Failed (7) after 5s",
+              "Foreground command completed.",
+              [],
+              {
+                "image-path": {
+                  "data": "utilities-terminal",
+                  "type": "s"
+                },
+                "sender-pid": {
+                  "data": 1035,
+                  "type": "x"
+                },
+                "transient": {
+                  "data": 1,
+                  "type": "i"
+                },
+                "urgency": {
+                  "data": 2,
+                  "type": "y"
+                }
+              },
+              3000
+            ],
+            "type": "susssasa{sv}i"
+          },
+          "sender": ":1.147",
+          "timestamp-realtime": 1792179244576661,
+          "type": "method_call",
+          "version": 1
+        },
+        "expire_time_ms": 3000,
+        "id": 1,
+        "outcome": 7,
+        "recipient": ":1.119",
+        "reply": {
+          "cookie": 11,
+          "destination": ":1.147",
+          "endian": "l",
+          "flags": 1,
+          "payload": {
+            "data": [
+              1
+            ],
+            "type": "u"
+          },
+          "reply_cookie": 9,
+          "sender": ":1.119",
+          "timestamp-realtime": 1792179244977510,
+          "type": "method_return",
+          "version": 1
+        },
+        "sender": ":1.147",
+        "summary": "Failed (7) after 5s"
+      }
+    }
+  ],
+  "run": 38954684654,
+  "source": "6c7228162129a2e5f20118258bc4bad25fed20a0",
+  "status": "ORIGINAL_RETAINED_DATA_NOT_CAPTURE_TIME_PROOF"
+}

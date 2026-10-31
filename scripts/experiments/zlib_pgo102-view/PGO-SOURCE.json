@@ -1,0 +1,197 @@
+{
+  "actual": null,
+  "files": {
+    "LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "docs/port/zlib-pgo-v1.md": {
+      "bytes": 5402,
+      "mode": 420,
+      "sha256": "b08711c9731c4002f582bca260341f4d8cb501b5c158b9fc734004b0059eb146"
+    },
+    "inputs/cache-seed/FORMAT": {
+      "bytes": 28,
+      "mode": 420,
+      "sha256": "da163b8c4b855c77b0074778ecedf02f021d81e6b5f4140b638bcbef8f6a22d0"
+    },
+    "inputs/cache-seed/objects/bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16": {
+      "bytes": 1502830,
+      "mode": 420,
+      "sha256": "bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16"
+    },
+    "inputs/cache-seed/receipts/50979bf81eda4d1f5b23fbe05aec5fabd7827b270fe3edda22b7189944004c43-zlib-1.3.2.json": {
+      "bytes": 956,
+      "mode": 420,
+      "sha256": "7a8ad2a3803f8117f6a2d45629b6b500d2263433856279a6a737a98a2a640676"
+    },
+    "inputs/notices/LICENSE.zlib": {
+      "bytes": 1002,
+      "mode": 420,
+      "sha256": "e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2"
+    },
+    "inputs/source-inputs.json": {
+      "bytes": 752,
+      "mode": 420,
+      "sha256": "50979bf81eda4d1f5b23fbe05aec5fabd7827b270fe3edda22b7189944004c43"
+    },
+    "packages/experiments/cachy-asahi-zlib-pgo-v1/LICENSE.project": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/experiments/cachy-asahi-zlib-pgo-v1/PKGBUILD": {
+      "bytes": 4109,
+      "mode": 420,
+      "sha256": "6aaa11e22e2955177b7213874389e1bc80f2687672bc896ea37c7b9187409534"
+    },
+    "packages/experiments/cachy-asahi-zlib-pgo-v1/arm_c01.py": {
+      "bytes": 66103,
+      "mode": 420,
+      "sha256": "4034990eac1036cd9fee3f7f4911f181e8b2ce6a2441c25e6e502c09cca1e2a8"
+    },
+    "packages/experiments/cachy-asahi-zlib-pgo-v1/corpus-policy.json": {
+      "bytes": 3770,
+      "mode": 420,
+      "sha256": "b7a6c5a993766b6d1b014df31adfa6efe261a4aa1352f581ecc6feaff9ed5586"
+    },
+    "packages/experiments/cachy-asahi-zlib-pgo-v1/corpus.py": {
+      "bytes": 3364,
+      "mode": 420,
+      "sha256": "dbaf951adbb91d6769f40f8fb18c13044a42a3b5db11b4ad7d1f44afbed9ad8c"
+    },
+    "packages/experiments/cachy-asahi-zlib-pgo-v1/corpus_controls.py": {
+      "bytes": 6099,
+      "mode": 420,
+      "sha256": "19a0536f6d216e1d10831c4b0234d2f44b4c15edce7522b16cd399a4e8adbf42"
+    },
+    "packages/experiments/cachy-asahi-zlib-pgo-v1/pgo.py": {
+      "bytes": 19412,
+      "mode": 420,
+      "sha256": "71c948e55cdea6e75f91bd46751e7d4d1a5a3a81e700fe8210e2747150df69b3"
+    },
+    "packages/experiments/cachy-asahi-zlib-pgo-v1/pipeline.py": {
+      "bytes": 34671,
+      "mode": 420,
+      "sha256": "907717f2f0ecfd126f43ac55b8805bfa871922a4c8f5ee8a1d38f5412f30d2e4"
+    },
+    "packages/experiments/cachy-asahi-zlib-pgo-v1/probe.c": {
+      "bytes": 2822,
+      "mode": 420,
+      "sha256": "b85bab88cdb9048f26d5e812cc1ad2b8c783292882cbe3ab804e54353e4dfee1"
+    },
+    "packages/experiments/cachy-asahi-zlib-pgo-v1/profile_seal.py": {
+      "bytes": 9122,
+      "mode": 420,
+      "sha256": "5e96fe7a38e66bfa09146effce76547c3c61b555a52f6b8cdf71ccabb5bfe87e"
+    },
+    "packages/experiments/cachy-asahi-zlib-pgo-v1/recipe-policy.json": {
+      "bytes": 2252,
+      "mode": 420,
+      "sha256": "c1302c24e9c09665a618f7d035aa336bd03196ea91ba547a04497c656d725886"
+    },
+    "packages/experiments/cachy-asahi-zlib-pgo-v1/strict-gzip.c": {
+      "bytes": 2002,
+      "mode": 420,
+      "sha256": "369e4e0e3f7c79b5d892edf7476ade41d6647332fb78f95ad7de7d8449bbaca9"
+    },
+    "packages/experiments/cachy-asahi-zlib-pgo-v1/supervisor.py": {
+      "bytes": 42787,
+      "mode": 420,
+      "sha256": "38e10bbf57c9b83040624748967426aa829144585e5c26b7f39f56b8f58bb933"
+    },
+    "packages/experiments/cachy-asahi-zlib-pgo-v1/test_corpus_controls.py": {
+      "bytes": 5751,
+      "mode": 420,
+      "sha256": "c1e04e07f06cdaac5539509c4fe17b8652668054ee17ee99395bb096813a1093"
+    },
+    "packages/experiments/cachy-asahi-zlib-pgo-v1/test_pipeline.py": {
+      "bytes": 8633,
+      "mode": 420,
+      "sha256": "2d4891ed8ddece319e9f270b2827e20b31e8dec64b9d786da7af693426c02e46"
+    },
+    "packages/experiments/cachy-asahi-zlib-pgo-v1/test_profile_seal.py": {
+      "bytes": 8093,
+      "mode": 420,
+      "sha256": "5da635037db41c7fd35fe27bd910919838731235000d57d6450656f4cf7c4314"
+    },
+    "packages/experiments/cachy-asahi-zlib-pgo-v1/training.bin": {
+      "bytes": 262144,
+      "mode": 420,
+      "sha256": "a6e84ea4cf12d2152fd408cea20bc2a395d4308f06683d13fc4909ae7ad46af6"
+    },
+    "packages/experiments/cachy-asahi-zlib-pgo-v1/validation.bin": {
+      "bytes": 4194304,
+      "mode": 420,
+      "sha256": "e178d56b3a6d0af1900f8e3a1b668549793b48d0ae35c24e730b9a39992604bf"
+    },
+    "provenance/accepted-c01-component.json": {
+      "bytes": 2511,
+      "mode": 420,
+      "sha256": "5be1387433302f2099a27190a788ed1989ac3c67853ed1343a0a2cebdca3080a"
+    },
+    "provenance/prior-negative-experiment.json": {
+      "bytes": 1618,
+      "mode": 420,
+      "sha256": "78dd38b0e779a2c1d9ae2b5e8c6b3a2dcf0d910ecf172c08adeddf9e5849783d"
+    },
+    "provenance/reuse-origins.json": {
+      "bytes": 4031,
+      "mode": 420,
+      "sha256": "83f10eb676d70dca452f23de4badcf80e4decea583ce82351235058d7c89b871"
+    },
+    "scripts/build/build_v2.py": {
+      "bytes": 13242,
+      "mode": 420,
+      "sha256": "37242a5680c0cb587087042455782478dac0f574f977a5f696c97d29eac39b43"
+    },
+    "scripts/build/compare_v2.py": {
+      "bytes": 5963,
+      "mode": 420,
+      "sha256": "89c606044b587ea772d5bbab4bad55c09dc23a7080900a9ad51839b2f516215b"
+    },
+    "scripts/build/container-entry-v2.sh": {
+      "bytes": 2447,
+      "mode": 420,
+      "sha256": "9be3db97efde70536a81d1c97f9ac69893a6004ab403566f8453704a2a189d2a"
+    },
+    "scripts/build/source_materials.py": {
+      "bytes": 7877,
+      "mode": 420,
+      "sha256": "9b0d95d2604ae4689f081283fc671281ce13879fcb146ddf4188873b05c89e5a"
+    },
+    "scripts/checks/package_checks.py": {
+      "bytes": 17706,
+      "mode": 420,
+      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
+    },
+    "scripts/experiments/test_zlib_pgo_guest.py": {
+      "bytes": 9336,
+      "mode": 420,
+      "sha256": "a6355ceb11165b217f86d3f027b689c1904b501f021ca7fba31f8f8bd047fd75"
+    },
+    "scripts/experiments/zlib_pgo_guest.py": {
+      "bytes": 12836,
+      "mode": 420,
+      "sha256": "cd17518098abd3fd57fe9c7a2922959d34bfd13c7c9ebe9e05849339cf8bef4c"
+    },
+    "scripts/experiments/zlib_pgo_native_plan.py": {
+      "bytes": 5934,
+      "mode": 420,
+      "sha256": "5ded8266e86664ada29473071b88697dac392292d63d922fe62ab56801974534"
+    },
+    "scripts/maintenance/source_cache.py": {
+      "bytes": 14253,
+      "mode": 420,
+      "sha256": "3c922b1c5ea737605d7fd39aa986fa281c50bcf6926660390032e677706e28f3"
+    },
+    "scripts/release/source_delivery.py": {
+      "bytes": 16456,
+      "mode": 420,
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+    }
+  },
+  "purpose": "OFFLINE_FINITE_GCC_PGO_CANDIDATE_V1",
+  "schema": 1
+}

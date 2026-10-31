@@ -1,0 +1,31 @@
+{
+  "eight_pair_index": {
+    "bytes": 80131,
+    "path": "index.json",
+    "sha256": "ee3437ea5b833b9f0f5492d8d234d3fcde4b74ff7efbd7542815e73a8f96c7d7"
+  },
+  "eight_pair_source": "0d7ec3b5ec9b473c9a1b2557735f8dadd8de3f50",
+  "expected600_sha256": "d263a3ca9089c204603f2e12b80dc4f209ee6e636f10da940a514040b636db79",
+  "legacy_source": "b6b17e5f6b322f160f7eeb22c8a01380a3c854cd",
+  "original587_sha256": "2198942a546f4714587c810fe174d4457121960f3a7b1dbaa276e9f970f322c7",
+  "prerequisites": {
+    "native600": {
+      "bytes": 1445,
+      "path": "evidence/root/native600.json",
+      "sha256": "85723d4edc3f03e44973fbc36df2612de5b6ebe47154e6b5238ac69d0784713c"
+    },
+    "observer587": {
+      "bytes": 2182,
+      "path": "evidence/root/observer587.json",
+      "sha256": "99dfcc4036f4ba751a8c81642ffb5d954c93f3b90bf29f0a3e433ccbe5f95f38"
+    }
+  },
+  "retained_seven_index": {
+    "bytes": 71022,
+    "path": "index.json",
+    "sha256": "3cd0e37978614cd1c8b92da437dcb3125631f386f4f15a616868e7feb986c244"
+  },
+  "retained_seven_source": "7fee76d68e5fd75437d8b49aaaced8376d2215cd",
+  "schema_version": 1,
+  "status": "ROOT_BOUND_PREREQUISITES_AND_EIGHT_PAIRS"
+}

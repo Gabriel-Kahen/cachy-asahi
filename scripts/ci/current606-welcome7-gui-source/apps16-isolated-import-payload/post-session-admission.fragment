@@ -1,0 +1,24 @@
+
+# Fixed post-session stage DATA only. All original562 source and runtime predicates held.
+_POST_PARENT_MAPS={'selected': {'bytes': 94394, 'sha256': 'afb262e1226888a883c3dc6ec8d17508f26e81b10d35b862ef2477013dc7139d'}, 'unbound': {'bytes': 94392, 'sha256': 'bea181a7be38e85bea14755551c15759c5346ccb7809524a8d000930cc24de8f'}}
+_POST_FACTORY={'bytes': 20137, 'sha256': 'afea7d5a75ca9898fa09567b50a46291e4ceb0b16d1fdd713828b7f60b0584ff'}
+_POST_HELPER={'bytes': 637, 'sha256': 'f700e2f1f4fe6c9f59f583b577a6ce70ef72196d72bfca0525138fa9172e426e'}
+def source_context(root):
+ root=Path(root).absolute();manifest=obj(root/'source-manifest.json');need(manifest['status']=='SOURCE_ONLY_GUI_POST_SESSION_STAGE_DATA_NO_GUI_ACCEPTANCE'and manifest['actual_source']is manifest['actual_ref']is manifest['actual_run']is None,'post-session diagnostic grants no actual authority');closed(root,{**manifest['files'],'source-manifest.json':pin(read(root/'source-manifest.json'))})
+ p=obj(root/'post-session-parent.json');variant=p['variant'];need(variant in _POST_PARENT_MAPS and p['actual']is None and len(p['files'])==562 and pin(enc(p['files']))==_POST_PARENT_MAPS[variant],'whole exact562 parent map and variant');need((p['source'],p['ref'])==(('37bee5c50f8808b618b90ab0a559d7fa88a8a4ab','codex/welcome8-apps16-restore604-v1')if variant=='selected'else(None,None)),'known parent source versus NULL identity')
+ before=p['files'];bodies=p['before_bodies'];need(set(bodies)=={'admission.py','factory/factory.py','source-manifest.json'},'only original factory/admission/manifest before bodies')
+ def prior_read(path,cap=16*1024**2):
+  name=Path(path).relative_to(root).as_posix();raw=base64.b64decode(bodies[name],validate=True)if name in bodies else read(path,cap);need(name in before and pin(raw)==before[name]and len(raw)<=cap,'every complete original562 byte inverse '+name);return raw
+ def prior_closed(where,wanted):
+  prefix=''if where==root else where.relative_to(root).as_posix()+'/'
+  need({n.removeprefix(prefix):w for n,w in before.items()if n.startswith(prefix)}==wanted,'whole original562 closed namespace')
+  for name,want in wanted.items():need(pin(prior_read(where/name))==want,'every original562 namespace byte')
+  return wanted
+ for name,want in before.items():need(pin(prior_read(root/name))==want,'every original562 full body '+name)
+ need(pin(read(root/'factory/factory.py'))==_POST_FACTORY and pin(read(root/'factory/post_session.py'))==_POST_HELPER,'exact finite diagnostic factory/helper')
+ old=types.ModuleType('_whole_original562_post_session_parent');old.__file__=str(root/'admission.py');exec(compile(prior_read(root/'admission.py'),'<whole-original562>','exec'),old.__dict__);old.read=prior_read;old.obj=lambda path:json.loads(prior_read(path));old.closed=prior_closed;fact=old.source_context(root);need(fact['files']==562 and fact['cleanup']=='ORIGINAL_POSITIVE15_AND_FAILURE_RESOURCE_RETIREMENT_HELD'and fact['restore_fixture']=='EXACT606_BASELINE_MINUS_TWO_TOOLS_RESTORE604_ONLY','entire original562 restore/Apps16/cleanup/source proof')
+ return dict(fact,files=len(manifest['files'])+1,post_session='FIXED_BOUNDED_STAGE_DATA_ONLY_NOT_GUI_ACCEPTANCE')
+_post_original_prove=prove
+def prove(root):
+ value=_post_original_prove(root)
+ return dict(value,files=564,status='PASS_WHOLE564_POST_SESSION_DIAGNOSTIC_AND_ALL562_SOURCE_GATES')

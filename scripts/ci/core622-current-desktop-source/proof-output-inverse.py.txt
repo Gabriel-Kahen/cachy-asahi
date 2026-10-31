@@ -1,0 +1,22 @@
+ C=globals()['C'];root=Path(root)
+ current=C.decode(C.read(root/'composition-parent.json',4*1024**2))['owned_proof_output']
+ C.need(current['schema']==1 and current['parent_source']=='358afcba2c1364b8954d753a631d001328367ee7'and current['actual']is None and len(current['before'])==66,'whole exact public358 before owned proof output')
+ prior={n:C.read(root/n,4*1024**2)for n in current['before']}
+ for name,rules in current['edits'].items():
+  text=prior[name].decode()
+  for before,after in reversed(rules):C.need(text.count(after)==1,'one exact source-local proof output seam');text=text.replace(after,before,1)
+  prior[name]=text.encode()
+ parent=C.decode(prior['composition-parent.json']);C.need(parent.pop('owned_proof_output')==current,'complete finite owned proof output operand');prior['composition-parent.json']=C.encoded(parent)
+ manifest=C.decode(prior['source-manifest.json']);manifest['files']={n:w for n,w in current['before'].items()if n not in('source-manifest.json',*ALIASES)};prior['source-manifest.json']=C.encoded(manifest)
+ text=prior['source622.py'].decode();tree=ast.parse(text)
+ for name,before in(('PRODUCTS',current['guard_products_before']),('SELF',current['guard_self_before'])):
+  node=next(n for n in tree.body if isinstance(n,ast.Assign)and n.targets[0].id==name);after=ast.get_source_segment(text,node);C.need(text.count(after)==1,'one current proof-output product/seal DATA inverse');text=text.replace(after,before,1);tree=ast.parse(text)
+ C.need(text.count(current['guard_prefix'])==1,'one owned proof-output source guard prefix inverse');text=text.replace(current['guard_prefix'],current['guard_anchor'],1);prior['source622.py']=text.encode()
+ C.need({n:C.pin(b)for n,b in prior.items()}==current['before'],'entire source66 358 inverse, no historical result authority')
+ tree=ast.parse(text);sealed={n.targets[0].id:ast.literal_eval(n.value)for n in tree.body if isinstance(n,ast.Assign)and n.targets[0].id in('PRODUCTS','SELF')}
+ C.need(all(C.pin(prior[n])==w for n,w in sealed['PRODUCTS'].items()),'all old358 fixed source products');seal=sealed['SELF'];C.need(text.count(seal)==1 and hashlib.sha256(text.replace(seal,'@SELF@').encode()).hexdigest()==seal,'whole old358 selfseal')
+ # The existing358 initialization inverse consumes this exact DATA projection.
+ # Current verify and original51 guards keep the original module-global C.
+ def prior_read(path,maximum=1024**2):
+  name=Path(path).relative_to(root).as_posix();C.need(name in prior and len(prior[name])<=maximum,'exact bounded358 DATA projection only');return prior[name]
+ C=__import__('types').SimpleNamespace(**dict(vars(C),read=prior_read))

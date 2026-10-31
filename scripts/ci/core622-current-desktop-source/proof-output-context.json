@@ -1,0 +1,310 @@
+{
+  "actual": null,
+  "before": {
+    ".github/workflows/native-arm-build.yml": {
+      "bytes": 42674,
+      "sha256": "2ab5a2e4cb14c62e8385993ea7cec69a4f268be35b84f11903970e964a4bf4d9"
+    },
+    ".github/workflows/native-arm-core7-real-systemd.yml": {
+      "bytes": 42674,
+      "sha256": "2ab5a2e4cb14c62e8385993ea7cec69a4f268be35b84f11903970e964a4bf4d9"
+    },
+    "Core800-acceptance.json": {
+      "bytes": 2043,
+      "sha256": "d6f67e4c2782f9b609309e6e5627ad6534f172f0560ec7e2e2ec5c3a4f251e9d"
+    },
+    "LICENSE": {
+      "bytes": 27836,
+      "sha256": "624b2335eff599a84764ef0a51b6d2962b5ef504a792e1b362ea31f0cbc1ac4c"
+    },
+    "README.md": {
+      "bytes": 6730,
+      "sha256": "849d859eb0d7c49d4a1a673218fbc74a7bcf378b711b3e2ebb21ab3887dcff8e"
+    },
+    "acl_policy.py": {
+      "bytes": 83174,
+      "sha256": "9204e5794f01b49a0b301088f3a5b4439e57eb7273fc5afac278b3f967816462"
+    },
+    "adapter.py": {
+      "bytes": 1401,
+      "sha256": "fb0aadeb5fb230346161be90e94696aecaecf6d2b3e1e3f40538d7ab72f23586"
+    },
+    "assembly622.py": {
+      "bytes": 466,
+      "sha256": "610836ad8beeed379079b711c37d20867b28218d9422631ff7857d8a4872be55"
+    },
+    "boot.py": {
+      "bytes": 5422,
+      "sha256": "f6df3d8e5b5602f3b9eca4ebfbb54afaa354ac29b7b4b9cc26988a9de064349e"
+    },
+    "candidate_capacity.py": {
+      "bytes": 47168,
+      "sha256": "30b34914054a37d83c74950cb55232017ad90a31c7545bd36287064f850c051d"
+    },
+    "case.py": {
+      "bytes": 8668,
+      "sha256": "07ea5e72a4ad8b22b9a6594aada61941abefa4659b46b26fc0bb59efa239319b"
+    },
+    "clock.py": {
+      "bytes": 4205,
+      "sha256": "cf43f16973294a8e687c65341cb63329a71d9a2a2ea488f0f6f2e20b97087c3c"
+    },
+    "composition-parent.json": {
+      "bytes": 626289,
+      "sha256": "f1779589c7b6c1bfb9d6178c57d5fe9db64c192953a02eaa0f9350db1ef3449f"
+    },
+    "composition.json": {
+      "bytes": 444951,
+      "sha256": "154aab2490617a23d3fb745cc8c03d3bc4abb35d3c836f4a43394b1758158d6c"
+    },
+    "compression-profile.json": {
+      "bytes": 1179,
+      "sha256": "aec949ee839909702d208a3f91710c4565b5dcf46fa4fca0b2bd3bc13558d57c"
+    },
+    "controller.py": {
+      "bytes": 11715,
+      "sha256": "50061a1e0e91dabdbe66572500cfaf343c97e6cd750f77665b17c4ec4a1cb719"
+    },
+    "desktop622.py": {
+      "bytes": 9856,
+      "sha256": "eace06a0842aa08b803de34522178a086943c3e05086b1ed07f7fb986fd07400"
+    },
+    "effects.py": {
+      "bytes": 6147,
+      "sha256": "e2d4d80f64736975437615146f09f8796c20a634b02bb31d167614700609aae7"
+    },
+    "entry.py": {
+      "bytes": 6025,
+      "sha256": "f34a53b6ea08ef673d0d187e70a4fc1a496b8b00882cd432fbe3af0e50ddac68"
+    },
+    "evidence.py": {
+      "bytes": 7519,
+      "sha256": "6910175a5380f0c4263d5dde3dc52fdbc352b055bdd75d21969a47c2264b1987"
+    },
+    "expected607.lock": {
+      "bytes": 12076,
+      "sha256": "be35402204ba5c03d78279722afa83047c9575d2da70fb5c4064f46ed15954c5"
+    },
+    "expected622.lock": {
+      "bytes": 12444,
+      "sha256": "189d037738680f5dfc9a5d48169eddf866383a06b070c094dac613c9d1b4eca8"
+    },
+    "export622.py": {
+      "bytes": 3680,
+      "sha256": "a2c5de8f421642024c2292a894caab34052f9f430ca8d2392490d5e0f7615dee"
+    },
+    "formation622.py": {
+      "bytes": 4938,
+      "sha256": "c0dba994e0edb0da162e796a68b555ead745889baf5cd70a929fa465e79b4485"
+    },
+    "graph_api.py": {
+      "bytes": 1899,
+      "sha256": "16839d25ad6a3957b68848fb6718a393840840b433361eba1ae07ddbbdafe5d7"
+    },
+    "graph_stage_source.py": {
+      "bytes": 56225,
+      "sha256": "b0ce77149ff72ea2936c23fcbdeefe3c011a2dfc75d60d40ec650ab233e5e845"
+    },
+    "guest.py": {
+      "bytes": 18698,
+      "sha256": "aee907cc341726e87e87bb4334c1688145356925e17c7ad5eea89e39e8c9fef9"
+    },
+    "guest_guard.py": {
+      "bytes": 4160,
+      "sha256": "8db72fbc36f59c5660f7ddc4f56f3bdbed81cdec4344c65017db522501f83de7"
+    },
+    "hook.py": {
+      "bytes": 787,
+      "sha256": "b3e2bd1c4eb715928919028be1dddce2090605d233ba8f4d6bf98d67e95f5fa3"
+    },
+    "host.py": {
+      "bytes": 4302,
+      "sha256": "d25d18a115483bf7b6f2f0f0f1bfe21d19de37951949e55685edcfb77d84248b"
+    },
+    "initramfs.py": {
+      "bytes": 4502,
+      "sha256": "50d3a4833f5b783704c1a07fb3c213819769a08294eb677e7066ec13595d4b98"
+    },
+    "journal_acl.py": {
+      "bytes": 94610,
+      "sha256": "e3849c1604b6520c4fb813692290a0989d08542cf3ada1fbf412948a83a26c9c"
+    },
+    "lane622.py": {
+      "bytes": 8115,
+      "sha256": "f3d648cbfc602324800c7b900ba0495ee17a3a3fdf4bfa9038582779ac1a6e94"
+    },
+    "media.py": {
+      "bytes": 7894,
+      "sha256": "6c232e7b3fc1d041fdcf3fab033a424f04af5cd44935eaf186f174ea1be94f80"
+    },
+    "mime-profile.json": {
+      "bytes": 259815,
+      "sha256": "4c601c715c4ee64484f49dacebfddb53da9391893c29e3c0626a92942a36a793"
+    },
+    "mime_cache.py": {
+      "bytes": 47294,
+      "sha256": "1e04c1a6d7918c6499a3a356397749a60083000bb493e9fb3df1f277ea635922"
+    },
+    "ownership622.py": {
+      "bytes": 33403,
+      "sha256": "29bf2dfa2941f7178aa1c0d10325382a5b33164691e29f8e9136b01e4d2bcd91"
+    },
+    "pid1-baseline.json": {
+      "bytes": 528,
+      "sha256": "b508b5ff108bc90d79952c7a90efdb812ccd008421297412b9338a2c6c1c8be6"
+    },
+    "pid1-expected.json": {
+      "bytes": 548,
+      "sha256": "2891023d89c1f35b47c8e4cb8b7c88105ddce72b18796a377b161e7278f03659"
+    },
+    "prepare.py": {
+      "bytes": 1394,
+      "sha256": "554c52290776a5f4ec314ba8abad836db1d99ab81e4782964e3a0d4bbe04a8a2"
+    },
+    "profile.json": {
+      "bytes": 334009,
+      "sha256": "e03456c28bcae23d3cb6ae856af81adf75a1a60905aefb0e0238acd147e3de24"
+    },
+    "provision622.py": {
+      "bytes": 24493,
+      "sha256": "fea1be8b78036aab080bf851620aab732b04e9fdf5fb564cd3d6c48f73f46d7d"
+    },
+    "run622.py": {
+      "bytes": 17037,
+      "sha256": "41d4d209bbcb79a035b65b72e95799956ad48709ebb07eb8c21b63d7e39d8919"
+    },
+    "serial-profile.json": {
+      "bytes": 734,
+      "sha256": "f7cd6095424948d3e108b3b96763674612fc086e2da08cb783da78057a0f0c0e"
+    },
+    "serial_result.py": {
+      "bytes": 52907,
+      "sha256": "d708f9de5f31a15882596ed95fb9514958ce8df4a85ce2152dcb265f878b3991"
+    },
+    "source-manifest.json": {
+      "bytes": 8711,
+      "sha256": "8ec452eef7501f994e5a682a82705e658ffb48990f77f65096b46f68e9dbac63"
+    },
+    "source622.py": {
+      "bytes": 23912,
+      "sha256": "a2d976f6b50b977f1a7a35ff65774d75b153f93c4f82734e7aa5c456bcee3661"
+    },
+    "test_bridge622.py": {
+      "bytes": 42031,
+      "sha256": "b7f4fb900df345a1d4dc07e7371b111ca3df16a4def8ad214fafb03972c6e750"
+    },
+    "test_case.py": {
+      "bytes": 19195,
+      "sha256": "723c962fafa76c84e8d6764e687bdebe5faad63b00a96edb0355f27c8ad7a189"
+    },
+    "test_desktop622.py": {
+      "bytes": 5072,
+      "sha256": "ed28a02f696c57785041c53b8c8380b3817cbb2e884b1fd3df4451881c7a6daf"
+    },
+    "test_emission.py": {
+      "bytes": 2521,
+      "sha256": "57a4a755385a5e380e303f3e3da33bafcfc71063ffce2041f22b22b5a5ffdf8f"
+    },
+    "test_host.py": {
+      "bytes": 3090,
+      "sha256": "b01d3159bd0b0c688434bac69976dd16cf173358a598957f3be58f49c1642460"
+    },
+    "test_initramfs.py": {
+      "bytes": 7864,
+      "sha256": "0d0a521c9f4e8793c4b15a82119dfca7a46642033c94b72327e27118a797bae2"
+    },
+    "test_protocol.py": {
+      "bytes": 4378,
+      "sha256": "ac482fa3a8fc0ab932bcf8e65b864e4ac26affc1ecf30ecea61cd42b52264d25"
+    },
+    "test_route.py": {
+      "bytes": 9847,
+      "sha256": "b32ab0d4b5dd3cbfbb131811a8460bc82b07dcd517598971c1b14bdc437123ab"
+    },
+    "test_sources.py": {
+      "bytes": 19838,
+      "sha256": "eef8c2a75e8f3c5e282eb48daba98ce471c58791b29e0653626fe0949a06a8e7"
+    },
+    "tmpfiles_hash.py": {
+      "bytes": 41582,
+      "sha256": "6912c9ae1a14477212921c6aed68b54e7c83a6a9308664e515c51619603eba6b"
+    },
+    "transaction_output.py": {
+      "bytes": 42998,
+      "sha256": "8ce374e17744888ad70ca0b19485ffd6f72d6cf029f47f6fdfaa07c47dce6ce9"
+    },
+    "units/caa-core-observer.service": {
+      "bytes": 474,
+      "sha256": "95b66c92d2acbbfdb5d904c2c0f6b61518fd3bb7c71eb290751a27e9d2fc8e6e"
+    },
+    "units/caa-core-probe.service": {
+      "bytes": 358,
+      "sha256": "b8a4a142045304e53893608548c293b684fbe295831e25a84d5cf3c19ef0a6b4"
+    },
+    "units/caa-core-worker.service": {
+      "bytes": 352,
+      "sha256": "70ebee606afc5fee5359d3ea05cee62445766c8a4033d6fbee7398f0be6f9353"
+    },
+    "units/caa-core.target": {
+      "bytes": 189,
+      "sha256": "1025ff9b01e2132861b26cf35fd5f4a25424638f03e49222552ef0cbbb719e37"
+    },
+    "validate.py": {
+      "bytes": 7182,
+      "sha256": "80f0b8ee03df0f7208b1329309ec21da45cd8033a2ed3167bfb262faba293af2"
+    },
+    "vm_validation.py": {
+      "bytes": 52784,
+      "sha256": "a69264ea55374b2058048ca2441c89942e65f43d06125b0d1ad71d3e021202e1"
+    },
+    "workflow.yml.in": {
+      "bytes": 42674,
+      "sha256": "2ab5a2e4cb14c62e8385993ea7cec69a4f268be35b84f11903970e964a4bf4d9"
+    },
+    "xattr_diagnostic.py": {
+      "bytes": 17502,
+      "sha256": "ad88aee4e41afa9f78d45785a45f274abeac1aaf335225ec0c4cc61240cbba47"
+    }
+  },
+  "edits": {
+    "lane622.py": [
+      [
+        "def actor_text(body):",
+        "def proof_mounts(row,bindings,media,role):\n \"\"\"Only the two owned607 proof writers gain a writable /out bind.\"\"\"\n C.need(role in('provision607','retire607')and type(bindings)is dict and '/out'in bindings and '/measurement'not in bindings,'finite owned607 proof-writer mounts')\n expected={dest:str(path)for dest,path in bindings.items()};expected['/measurement']=str(media)\n for key,destination in(('Mounts','Destination'),('HostConfig','Target')):\n  rows=row['Mounts']if key=='Mounts'else row['HostConfig']['Mounts'];C.need(type(rows)is list and len(rows)==len(expected),'complete exact owned607 bind mount readback');seen=set()\n  for item in rows:\n   dest=item[destination];C.need(dest in expected and dest not in seen and item['Type']=='bind'and item['Source']==expected[dest],'unique exact owned607 bind source/destination');seen.add(dest);write=dest in('/out','/measurement')\n   if key=='Mounts':C.need(item['Propagation']=='rprivate'and type(item['RW'])is bool and item['RW']is write,'only owned proof and measurement binds writable')\n   else:C.need(type(item.get('ReadOnly',False))is bool and item.get('ReadOnly',False)is(not write),'matching exact HostConfig bind access')\n  C.need(seen==set(expected),'whole owned607 output/source mount closure')\n\ndef actor_text(body):"
+      ],
+      [
+        " return body\n\ndef media_text",
+        " body=replace(body,\"+',dst='+dest+',readonly']\",\"+',dst='+dest+(''if role in('provision607','retire607')and dest=='/out'else',readonly')]\")\n body=replace(body,\" C.need(row['State']['Running']\",\" if role in('provision607','retire607'):__import__('lane622').proof_mounts(row,bindings,media,role)\\n C.need(row['State']['Running']\")\n return body\n\ndef media_text"
+      ]
+    ],
+    "provision622.py": [
+      [
+        "def owned(selected,*,initialization=False,worker=False):",
+        "def proof_output(uid,gid):\n \"\"\"Refuse an unwritable proof bind before formation or destructive retirement.\"\"\"\n root=Path('/out');C.need(type(uid)is type(gid)is int and uid>=0 and gid>=0 and root.is_absolute()and not any(p.is_symlink()for p in(root,*root.parents)),'ordinary fixed owned proof-output directory');fd=os.open(root,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC)\n try:\n  st=os.fstat(fd);C.need(stat.S_ISDIR(st.st_mode)and stat.S_IMODE(st.st_mode)==0o700 and(st.st_uid,st.st_gid)==(uid,gid)and not(os.fstatvfs(fd).f_flag&os.ST_RDONLY),'actual writable owned0700 proof-output bind');C.need(C.identity(st)==C.identity(os.fstat(fd))==C.identity(root.lstat()),'stable actual proof-output descriptor/path')\n finally:os.close(fd)\n\ndef owned(selected,*,initialization=False,worker=False):"
+      ],
+      [
+        ";ms=C.decode(C.read('/workspace/media-selection.json'));value=profile()",
+        ";ms=C.decode(C.read('/workspace/media-selection.json'));proof_output(ms['uid'],ms['gid']);value=profile()"
+      ],
+      [
+        " selected=owned(C.decode(C.read('/workspace/selection.json')));lease=",
+        " selected=owned(C.decode(C.read('/workspace/selection.json')));ms=C.decode(C.read('/workspace/media-selection.json'));proof_output(ms['uid'],ms['gid']);lease="
+      ],
+      [
+        " ms=C.decode(C.read('/workspace/media-selection.json'));return write('current607-retirement.json'",
+        " return write('current607-retirement.json'"
+      ]
+    ],
+    "test_bridge622.py": [
+      [
+        "if __name__=='__main__':unittest.main(verbosity=2)",
+        "class ProofOutputControls(unittest.TestCase):\n \"\"\"Actual actor derivation, argv-derived Docker DATA and real output FDs.\n\n No Docker/helper executes. Early-call controls mock only bootstrap/process\n boundaries; selected-role mount predicates run without mocks.\n \"\"\"\n def modules(self):\n  import controller,provision622\n  self.assertEqual(Path(controller.__file__).resolve(),(CASE/'controller.py').resolve());self.assertEqual(Path(provision622.__file__).resolve(),(CASE/'provision622.py').resolve());return controller,provision622\n class Docker:\n  def __init__(self,args,role,change=None):\n   self.args=args;self.change=change;self.name='caa-core7-vm-'+args.selected['nonce']+'-'+role;self.exists=False;self.row=None;self.argv=None;self.commands=[]\n  def __call__(self,argv,*options):\n   self.commands.append(list(argv));self.args._owner_report['commands'].append(dict(argv=list(argv)))\n   if argv[:3]==['/usr/bin/docker','image','inspect']:return dict(code=0,err=b'',out=json.dumps([dict(Id=self.args.image,Architecture='arm64',Os='linux',Config=dict(Labels={'org.cachy-asahi.bootstrap574.job':'fixture-token'}))]).encode())\n   if argv[:3]==['/usr/bin/docker','container','inspect']:\n    if not self.exists:return dict(code=1,out=b'',err=('No such container: '+self.name).encode())\n    return dict(code=0,out=json.dumps([self.row]).encode(),err=b'')\n   if argv[:2]==['/usr/bin/docker','run']:\n    self.exists=True;self.argv=list(argv);mounts=[];host=[]\n    for number,value in enumerate(argv):\n     if value!='--mount':continue\n     items=argv[number+1].split(',');parts=dict(p.split('=',1)for p in items if'='in p);readonly='readonly'in items;propagation=parts.get('bind-propagation','rprivate');mounts.append(dict(Type=parts['type'],Source=parts['src'],Destination=parts['dst'],Mode='',RW=not readonly,Propagation=propagation));entry=dict(Type=parts['type'],Source=parts['src'],Target=parts['dst'])\n     if readonly:entry['ReadOnly']=True\n     if'bind-propagation'in parts:entry['BindOptions']=dict(Propagation=propagation)\n     host.append(entry)\n    labels=dict([argv[argv.index('--label')+1].split('=',1)]);image_position=argv.index(self.args.image);caps=['CAP_'+v.split('=',1)[1]for v in argv if v.startswith('--cap-add=')]\n    self.row=dict(Id='d'*64,Name='/'+self.name,Image=self.args.image,Mounts=mounts,Config=dict(Labels=labels,Cmd=argv[image_position+1:]),HostConfig=dict(NetworkMode='none'if'--network=none'in argv else'other',ReadonlyRootfs='--read-only'in argv,CapDrop=['ALL']if'--cap-drop=ALL'in argv else[],CapAdd=caps,SecurityOpt=['no-new-privileges']if'--security-opt=no-new-privileges'in argv else[],Mounts=host),State=dict(Running=False,Pid=0,ExitCode=0))\n    if self.change:self.change(self.row)\n    return dict(code=0,out=b'',err=b'')\n   if argv[:3]==['/usr/bin/docker','rm','-f']:\n    if argv[-1]!='d'*64:raise AssertionError('wrong synthetic actor removal')\n    self.exists=False;return dict(code=0,out=b'',err=b'')\n   raise AssertionError('unexpected synthetic Docker command')\n def actor(self,role,change=None):\n  controller,_=self.modules();folder=tempfile.TemporaryDirectory(prefix='proof-output-actor-',dir='/tmp');self.addCleanup(folder.cleanup);root=Path(folder.name);base=root/'base';base.mkdir(mode=0o700);image='sha256:'+'a'*64;(base/'report.json').write_text(json.dumps(dict(image=image,ownership=dict(token='fixture-token'))))\n  args=types.SimpleNamespace(selected=dict(nonce='c'*32),base=base,image=image,output=root/'output',vm_source=root/'vm-source',kernel_inputs=root/'kernel-inputs',core_source=A.core_source,current607_inputs=root/'current607-inputs',fresh607_source=root/'fresh607-source',current607_code=root/'current607-code',provision_public=root/'current607-public',provision_deadline=time.monotonic()+100,retirement_deadline=time.monotonic()+60,_owner_report=dict(commands=[]));docker=self.Docker(args,role,change);self.last_docker=docker;value=controller.actor(args,docker,root/'work',root/'media',role);return value,docker,args\n def test_actual_five_roles_have_only_the_declared_writable_binds(self):\n  five={'CAP_CHOWN','CAP_DAC_OVERRIDE','CAP_FOWNER','CAP_FSETID','CAP_SETFCAP'}\n  for role in('provision607','retire607','prepare','scrub','export'):\n   with self.subTest(role=role):\n    value,docker,args=self.actor(role);row=docker.row;mounts={m['Destination']:m for m in row['Mounts']};host={m['Target']:m for m in row['HostConfig']['Mounts']};writable={'/measurement','/out'}if role in('provision607','retire607')else{'/measurement'}\n    self.assertEqual({n for n,m in mounts.items()if m['RW']},writable);self.assertEqual({n for n,m in host.items()if not m.get('ReadOnly',False)},writable);self.assertTrue(all(m['Propagation']=='rprivate'for m in mounts.values()));self.assertEqual(mounts['/out']['Source'],str(args.provision_public)if role in('provision607','retire607')else str(args.output.parent/'work/guest-out'))\n    self.assertTrue(row['HostConfig']['ReadonlyRootfs']);self.assertEqual(set(row['HostConfig']['CapAdd']),five|({'CAP_SYS_CHROOT'}if role=='provision607'else set()));self.assertIn('--read-only',docker.argv);self.assertIn('--network=none',docker.argv);self.assertEqual(value['role'],role);self.assertTrue(value['actor_absent']);self.assertFalse(docker.exists);self.assertEqual(sum(cmd[:3]==['/usr/bin/docker','rm','-f']for cmd in docker.commands),1);self.assertEqual(docker.commands[-1][:3],['/usr/bin/docker','container','inspect'])\n def corrupt(self,row,case):\n  top=row['Mounts'];host=row['HostConfig']['Mounts'];out=next(m for m in top if m['Destination']=='/out');hout=next(m for m in host if m['Target']=='/out')\n  if case=='readonly-out':out['RW']=False;hout['ReadOnly']=True\n  elif case in('writable-input','writable-workspace','writable-source'):\n   destination={'writable-input':'/inputs','writable-workspace':'/workspace','writable-source':'/source'}[case];next(m for m in top if m['Destination']==destination)['RW']=True;next(m for m in host if m['Target']==destination)['ReadOnly']=False\n  elif case=='wrong-source':out['Source']+='/foreign';hout['Source']+='/foreign'\n  elif case=='duplicate':top.append(copy.deepcopy(out));host.append(copy.deepcopy(hout))\n  elif case=='missing':top.remove(out);host.remove(hout)\n  elif case=='extra':top.append(dict(Type='bind',Source='/foreign',Destination='/foreign',Mode='',RW=False,Propagation='rprivate'));host.append(dict(Type='bind',Source='/foreign',Target='/foreign',ReadOnly=True))\n  elif case=='propagation':out['Propagation']='rshared';hout['BindOptions']=dict(Propagation='rshared')\n  elif case=='host-readonly':hout['ReadOnly']=True\n  elif case=='host-source':hout['Source']+='/foreign'\n  elif case=='host-missing':host.remove(hout)\n  elif case=='host-duplicate':host.append(copy.deepcopy(hout))\n  elif case=='host-extra':host.append(dict(Type='bind',Source='/foreign',Target='/foreign',ReadOnly=True))\n  elif case=='root-writable':row['HostConfig']['ReadonlyRootfs']=False\n  else:raise AssertionError('unknown readback mutation')\n def test_selected_actor_refuses_wrong_mounts_after_owned_cleanup(self):\n  cases=('readonly-out','writable-input','writable-workspace','writable-source','wrong-source','duplicate','missing','extra','propagation','host-readonly','host-source','host-missing','host-duplicate','host-extra')\n  for role in('provision607','retire607'):\n   for case in cases:\n    with self.subTest(role=role,case=case):\n     with self.assertRaises(ValueError):self.actor(role,lambda row:self.corrupt(row,case))\n     self.assertFalse(self.last_docker.exists);self.assertEqual(sum(cmd[:3]==['/usr/bin/docker','rm','-f']for cmd in self.last_docker.commands),1);self.assertEqual(self.last_docker.commands[-1][:3],['/usr/bin/docker','container','inspect'])\n def test_original_readonly_root_guard_remains_held(self):\n  for role in('provision607','retire607','prepare','scrub','export'):\n   with self.subTest(role=role),self.assertRaises(ValueError):self.actor(role,lambda row:self.corrupt(row,'root-writable'))\n def test_other_actor_roles_bypass_only_the_new_proof_mount_checker(self):\n  with patch.object(L,'proof_mounts',side_effect=AssertionError('new checker must stay scoped'))as guard:\n   for role in('prepare','scrub','export'):self.actor(role)\n  guard.assert_not_called()\n def output_path(self,output):return lambda value:output if str(value)=='/out'else Path(value)\n def test_real_output_fd_accepts_exact_private_ordinary_writable_directory(self):\n  _,P=self.modules()\n  with tempfile.TemporaryDirectory(prefix='proof-output-fd-',dir='/tmp')as folder:\n   output=Path(folder);before=output.stat();fds=len(os.listdir('/proc/self/fd'))\n   with patch.object(P,'Path',side_effect=self.output_path(output)):P.proof_output(os.getuid(),os.getgid())\n   after=output.stat();self.assertEqual((before.st_dev,before.st_ino,before.st_mode),(after.st_dev,after.st_ino,after.st_mode));self.assertEqual(list(output.iterdir()),[]);self.assertEqual(len(os.listdir('/proc/self/fd')),fds)\n def test_real_output_guard_refuses_readonly_filesystem_mode_and_owner(self):\n  _,P=self.modules()\n  with tempfile.TemporaryDirectory(prefix='proof-output-bad-fd-',dir='/tmp')as folder:\n   output=Path(folder);mapping=self.output_path(output);fds=len(os.listdir('/proc/self/fd'))\n   with patch.object(P,'Path',side_effect=mapping),patch.object(P.os,'fstatvfs',return_value=types.SimpleNamespace(f_flag=os.ST_RDONLY)),self.assertRaises(ValueError):P.proof_output(os.getuid(),os.getgid())\n   with patch.object(P,'Path',side_effect=mapping),self.assertRaises(ValueError):P.proof_output(os.getuid()+1,os.getgid())\n   with patch.object(P,'Path',side_effect=mapping),self.assertRaises(ValueError):P.proof_output(os.getuid(),os.getgid()+1)\n   output.chmod(0o755)\n   with patch.object(P,'Path',side_effect=mapping),self.assertRaises(ValueError):P.proof_output(os.getuid(),os.getgid())\n   output.chmod(0o700);self.assertEqual(len(os.listdir('/proc/self/fd')),fds);self.assertEqual(list(output.iterdir()),[])\n def test_real_output_guard_refuses_alias_file_and_fd_identity_drift(self):\n  _,P=self.modules()\n  with tempfile.TemporaryDirectory(prefix='proof-output-alias-fd-',dir='/tmp')as folder:\n   root=Path(folder);directory=root/'directory';directory.mkdir(mode=0o700);alias=root/'alias';alias.symlink_to(directory,target_is_directory=True);regular=root/'file';regular.write_bytes(b'inert');fds=len(os.listdir('/proc/self/fd'))\n   for output in(alias,regular):\n    with self.subTest(output=output),patch.object(P,'Path',side_effect=self.output_path(output)),self.assertRaises((ValueError,OSError)):P.proof_output(os.getuid(),os.getgid())\n   original=P.os.fstat;calls=[]\n   def drift(fd):\n    info=original(fd);calls.append(fd)\n    if len(calls)==1:return info\n    values={name:getattr(info,name)for name in dir(info)if name.startswith('st_')};values['st_ino']+=1;return types.SimpleNamespace(**values)\n   with patch.object(P,'Path',side_effect=self.output_path(directory)),patch.object(P.os,'fstat',side_effect=drift),self.assertRaises(ValueError):P.proof_output(os.getuid(),os.getgid())\n   self.assertGreaterEqual(len(calls),2);self.assertEqual(len(os.listdir('/proc/self/fd')),fds);self.assertEqual(list(directory.iterdir()),[])\n def test_actual_prepare_and_retire_output_guard_precedes_mutating_calls(self):\n  _,P=self.modules();tree=ast.parse(C.read(CASE/'provision622.py'));functions={n.name:n for n in tree.body if isinstance(n,ast.FunctionDef)};mutating={'write_bytes','mkdir','chown','rmdir','_empty','initialize_auxiliary','provision'}\n  for name in('prepare','retire'):\n   node=functions[name];guard=next(n for n in ast.walk(node)if isinstance(n,ast.Call)and isinstance(n.func,ast.Name)and n.func.id=='proof_output');calls=[n for n in ast.walk(node)if isinstance(n,ast.Call)and((isinstance(n.func,ast.Attribute)and n.func.attr in mutating)or(isinstance(n.func,ast.Name)and n.func.id in mutating))];self.assertTrue(calls);self.assertTrue(all(guard.lineno<n.lineno for n in calls),name)\n def test_actual_early_guard_stops_prepare_and_retire_without_mutation(self):\n  _,P=self.modules()\n  class Reached(RuntimeError):pass\n  for role in('prepare','retire'):\n   with self.subTest(role=role),tempfile.TemporaryDirectory(prefix='proof-output-before-mutation-',dir='/tmp')as folder:\n    measurement=Path(folder);root=measurement/'current607'\n    if role=='retire':root.mkdir(mode=0o700)\n    selected=dict(nonce='c'*32);parent=measurement.stat();lease=dict(nonce=selected['nonce'],root=[root.stat().st_dev,root.stat().st_ino]if root.exists()else[1,2],parent=[parent.st_dev,parent.st_ino]);data={'/workspace/selection.json':selected,'/workspace/media-selection.json':dict(uid=os.getuid(),gid=os.getgid()),'/measurement/current607-lease.json':lease,str(measurement/'current607-lease.json'):lease};before=sorted(p.name for p in measurement.iterdir());reason=Reached('actual proof_output call before any mutation')\n    def read(name,*args):\n     if str(name)not in data:raise AssertionError('unexpected bootstrap read before output guard: '+str(name))\n     return json.dumps(data[str(name)]).encode()\n    mapping=lambda value:measurement if str(value)=='/measurement'else Path(value)\n    with patch.object(P,'ROOT',root),patch.object(P,'Path',side_effect=mapping),patch.object(P,'owned',return_value=selected),patch.object(P,'profile',return_value={}),patch.object(P.C,'read',side_effect=read),patch.object(P,'proof_output',side_effect=reason)as guard,patch.object(P.os,'chown',side_effect=AssertionError('mutation before output guard')),patch.object(P.os,'rmdir',side_effect=AssertionError('mutation before output guard')),patch.object(Path,'write_bytes',side_effect=AssertionError('mutation before output guard')),patch.dict(P.os.environ,{'CAA_CORE622_PHASE_END':str(time.monotonic()+100)}),self.assertRaises(Reached)as found:getattr(P,role)()\n    self.assertIs(found.exception,reason);guard.assert_called_once_with(os.getuid(),os.getgid());self.assertEqual(sorted(p.name for p in measurement.iterdir()),before)\n\n\nif __name__=='__main__':unittest.main(verbosity=2)"
+      ]
+    ]
+  },
+  "guard_anchor": " C=globals()['C'];root=Path(root)\n",
+  "guard_products_before": "PRODUCTS={'Core800-acceptance.json': {'bytes': 2043, 'sha256': 'd6f67e4c2782f9b609309e6e5627ad6534f172f0560ec7e2e2ec5c3a4f251e9d'}, 'LICENSE': {'bytes': 27836, 'sha256': '624b2335eff599a84764ef0a51b6d2962b5ef504a792e1b362ea31f0cbc1ac4c'}, 'README.md': {'bytes': 6730, 'sha256': '849d859eb0d7c49d4a1a673218fbc74a7bcf378b711b3e2ebb21ab3887dcff8e'}, 'acl_policy.py': {'bytes': 83174, 'sha256': '9204e5794f01b49a0b301088f3a5b4439e57eb7273fc5afac278b3f967816462'}, 'adapter.py': {'bytes': 1401, 'sha256': 'fb0aadeb5fb230346161be90e94696aecaecf6d2b3e1e3f40538d7ab72f23586'}, 'assembly622.py': {'bytes': 466, 'sha256': '610836ad8beeed379079b711c37d20867b28218d9422631ff7857d8a4872be55'}, 'boot.py': {'bytes': 5422, 'sha256': 'f6df3d8e5b5602f3b9eca4ebfbb54afaa354ac29b7b4b9cc26988a9de064349e'}, 'candidate_capacity.py': {'bytes': 47168, 'sha256': '30b34914054a37d83c74950cb55232017ad90a31c7545bd36287064f850c051d'}, 'case.py': {'bytes': 8668, 'sha256': '07ea5e72a4ad8b22b9a6594aada61941abefa4659b46b26fc0bb59efa239319b'}, 'clock.py': {'bytes': 4205, 'sha256': 'cf43f16973294a8e687c65341cb63329a71d9a2a2ea488f0f6f2e20b97087c3c'}, 'composition-parent.json': {'bytes': 626289, 'sha256': 'f1779589c7b6c1bfb9d6178c57d5fe9db64c192953a02eaa0f9350db1ef3449f'}, 'composition.json': {'bytes': 444951, 'sha256': '154aab2490617a23d3fb745cc8c03d3bc4abb35d3c836f4a43394b1758158d6c'}, 'compression-profile.json': {'bytes': 1179, 'sha256': 'aec949ee839909702d208a3f91710c4565b5dcf46fa4fca0b2bd3bc13558d57c'}, 'controller.py': {'bytes': 11715, 'sha256': '50061a1e0e91dabdbe66572500cfaf343c97e6cd750f77665b17c4ec4a1cb719'}, 'desktop622.py': {'bytes': 9856, 'sha256': 'eace06a0842aa08b803de34522178a086943c3e05086b1ed07f7fb986fd07400'}, 'effects.py': {'bytes': 6147, 'sha256': 'e2d4d80f64736975437615146f09f8796c20a634b02bb31d167614700609aae7'}, 'entry.py': {'bytes': 6025, 'sha256': 'f34a53b6ea08ef673d0d187e70a4fc1a496b8b00882cd432fbe3af0e50ddac68'}, 'evidence.py': {'bytes': 7519, 'sha256': '6910175a5380f0c4263d5dde3dc52fdbc352b055bdd75d21969a47c2264b1987'}, 'expected607.lock': {'bytes': 12076, 'sha256': 'be35402204ba5c03d78279722afa83047c9575d2da70fb5c4064f46ed15954c5'}, 'expected622.lock': {'bytes': 12444, 'sha256': '189d037738680f5dfc9a5d48169eddf866383a06b070c094dac613c9d1b4eca8'}, 'export622.py': {'bytes': 3680, 'sha256': 'a2c5de8f421642024c2292a894caab34052f9f430ca8d2392490d5e0f7615dee'}, 'formation622.py': {'bytes': 4938, 'sha256': 'c0dba994e0edb0da162e796a68b555ead745889baf5cd70a929fa465e79b4485'}, 'graph_api.py': {'bytes': 1899, 'sha256': '16839d25ad6a3957b68848fb6718a393840840b433361eba1ae07ddbbdafe5d7'}, 'graph_stage_source.py': {'bytes': 56225, 'sha256': 'b0ce77149ff72ea2936c23fcbdeefe3c011a2dfc75d60d40ec650ab233e5e845'}, 'guest.py': {'bytes': 18698, 'sha256': 'aee907cc341726e87e87bb4334c1688145356925e17c7ad5eea89e39e8c9fef9'}, 'guest_guard.py': {'bytes': 4160, 'sha256': '8db72fbc36f59c5660f7ddc4f56f3bdbed81cdec4344c65017db522501f83de7'}, 'hook.py': {'bytes': 787, 'sha256': 'b3e2bd1c4eb715928919028be1dddce2090605d233ba8f4d6bf98d67e95f5fa3'}, 'host.py': {'bytes': 4302, 'sha256': 'd25d18a115483bf7b6f2f0f0f1bfe21d19de37951949e55685edcfb77d84248b'}, 'initramfs.py': {'bytes': 4502, 'sha256': '50d3a4833f5b783704c1a07fb3c213819769a08294eb677e7066ec13595d4b98'}, 'journal_acl.py': {'bytes': 94610, 'sha256': 'e3849c1604b6520c4fb813692290a0989d08542cf3ada1fbf412948a83a26c9c'}, 'lane622.py': {'bytes': 8115, 'sha256': 'f3d648cbfc602324800c7b900ba0495ee17a3a3fdf4bfa9038582779ac1a6e94'}, 'media.py': {'bytes': 7894, 'sha256': '6c232e7b3fc1d041fdcf3fab033a424f04af5cd44935eaf186f174ea1be94f80'}, 'mime-profile.json': {'bytes': 259815, 'sha256': '4c601c715c4ee64484f49dacebfddb53da9391893c29e3c0626a92942a36a793'}, 'mime_cache.py': {'bytes': 47294, 'sha256': '1e04c1a6d7918c6499a3a356397749a60083000bb493e9fb3df1f277ea635922'}, 'ownership622.py': {'bytes': 33403, 'sha256': '29bf2dfa2941f7178aa1c0d10325382a5b33164691e29f8e9136b01e4d2bcd91'}, 'pid1-baseline.json': {'bytes': 528, 'sha256': 'b508b5ff108bc90d79952c7a90efdb812ccd008421297412b9338a2c6c1c8be6'}, 'pid1-expected.json': {'bytes': 548, 'sha256': '2891023d89c1f35b47c8e4cb8b7c88105ddce72b18796a377b161e7278f03659'}, 'prepare.py': {'bytes': 1394, 'sha256': '554c52290776a5f4ec314ba8abad836db1d99ab81e4782964e3a0d4bbe04a8a2'}, 'profile.json': {'bytes': 334009, 'sha256': 'e03456c28bcae23d3cb6ae856af81adf75a1a60905aefb0e0238acd147e3de24'}, 'provision622.py': {'bytes': 24493, 'sha256': 'fea1be8b78036aab080bf851620aab732b04e9fdf5fb564cd3d6c48f73f46d7d'}, 'run622.py': {'bytes': 17037, 'sha256': '41d4d209bbcb79a035b65b72e95799956ad48709ebb07eb8c21b63d7e39d8919'}, 'serial-profile.json': {'bytes': 734, 'sha256': 'f7cd6095424948d3e108b3b96763674612fc086e2da08cb783da78057a0f0c0e'}, 'serial_result.py': {'bytes': 52907, 'sha256': 'd708f9de5f31a15882596ed95fb9514958ce8df4a85ce2152dcb265f878b3991'}, 'test_bridge622.py': {'bytes': 42031, 'sha256': 'b7f4fb900df345a1d4dc07e7371b111ca3df16a4def8ad214fafb03972c6e750'}, 'test_case.py': {'bytes': 19195, 'sha256': '723c962fafa76c84e8d6764e687bdebe5faad63b00a96edb0355f27c8ad7a189'}, 'test_desktop622.py': {'bytes': 5072, 'sha256': 'ed28a02f696c57785041c53b8c8380b3817cbb2e884b1fd3df4451881c7a6daf'}, 'test_emission.py': {'bytes': 2521, 'sha256': '57a4a755385a5e380e303f3e3da33bafcfc71063ffce2041f22b22b5a5ffdf8f'}, 'test_host.py': {'bytes': 3090, 'sha256': 'b01d3159bd0b0c688434bac69976dd16cf173358a598957f3be58f49c1642460'}, 'test_initramfs.py': {'bytes': 7864, 'sha256': '0d0a521c9f4e8793c4b15a82119dfca7a46642033c94b72327e27118a797bae2'}, 'test_protocol.py': {'bytes': 4378, 'sha256': 'ac482fa3a8fc0ab932bcf8e65b864e4ac26affc1ecf30ecea61cd42b52264d25'}, 'test_route.py': {'bytes': 9847, 'sha256': 'b32ab0d4b5dd3cbfbb131811a8460bc82b07dcd517598971c1b14bdc437123ab'}, 'test_sources.py': {'bytes': 19838, 'sha256': 'eef8c2a75e8f3c5e282eb48daba98ce471c58791b29e0653626fe0949a06a8e7'}, 'tmpfiles_hash.py': {'bytes': 41582, 'sha256': '6912c9ae1a14477212921c6aed68b54e7c83a6a9308664e515c51619603eba6b'}, 'transaction_output.py': {'bytes': 42998, 'sha256': '8ce374e17744888ad70ca0b19485ffd6f72d6cf029f47f6fdfaa07c47dce6ce9'}, 'units/caa-core-observer.service': {'bytes': 474, 'sha256': '95b66c92d2acbbfdb5d904c2c0f6b61518fd3bb7c71eb290751a27e9d2fc8e6e'}, 'units/caa-core-probe.service': {'bytes': 358, 'sha256': 'b8a4a142045304e53893608548c293b684fbe295831e25a84d5cf3c19ef0a6b4'}, 'units/caa-core-worker.service': {'bytes': 352, 'sha256': '70ebee606afc5fee5359d3ea05cee62445766c8a4033d6fbee7398f0be6f9353'}, 'units/caa-core.target': {'bytes': 189, 'sha256': '1025ff9b01e2132861b26cf35fd5f4a25424638f03e49222552ef0cbbb719e37'}, 'validate.py': {'bytes': 7182, 'sha256': '80f0b8ee03df0f7208b1329309ec21da45cd8033a2ed3167bfb262faba293af2'}, 'vm_validation.py': {'bytes': 52784, 'sha256': 'a69264ea55374b2058048ca2441c89942e65f43d06125b0d1ad71d3e021202e1'}, 'workflow.yml.in': {'bytes': 42674, 'sha256': '2ab5a2e4cb14c62e8385993ea7cec69a4f268be35b84f11903970e964a4bf4d9'}, 'xattr_diagnostic.py': {'bytes': 17502, 'sha256': 'ad88aee4e41afa9f78d45785a45f274abeac1aaf335225ec0c4cc61240cbba47'}}",
+  "guard_self_before": "SELF='50120d78a45ee77a51958ae59978473687363b43c51b44df91687be77fff3bac'",
+  "parent_source": "358afcba2c1364b8954d753a631d001328367ee7",
+  "schema": 1
+}

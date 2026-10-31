@@ -1,0 +1,4 @@
+
+# Whole687 AND fixed607 build inventory; no actual acceptance.
+def verify(require_known=False):
+ return __import__('build_inventory_guard').verify(require_known)

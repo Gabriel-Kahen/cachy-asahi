@@ -1,0 +1,142 @@
+{
+  "files": {
+    "packages/core/cachy-asahi-glibc-debian-provider/stage.py": {
+      "bytes": 8147,
+      "sha256": "43b1b441dcc384379ab80c4864bbf7ffd898d56e4ba629c0faa966c25a979e6c"
+    },
+    "scripts/ci/glibc-debian-maintained-provider/0002-held-builder-test-expectations.patch": {
+      "bytes": 1169,
+      "sha256": "f730c778ba51f9e525c9f6a7949a76af00364d49f41eedb5d73b8e86a3d4c132"
+    },
+    "scripts/ci/glibc-debian-maintained-provider/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "scripts/ci/glibc-debian-maintained-provider/NOTICE": {
+      "bytes": 719,
+      "sha256": "8d255104cdf955a9f76dd9e137f6f11da036a51545c716c14344e2c3a30632ba"
+    },
+    "scripts/ci/glibc-debian-maintained-provider/PKGBUILD.in": {
+      "bytes": 3925,
+      "sha256": "71e4a63c16efa64c950cf10271cb16111575b4ea60cac55361f126498fd6055d"
+    },
+    "scripts/ci/glibc-debian-maintained-provider/README.md": {
+      "bytes": 4953,
+      "sha256": "c8ef88bb8226d587a6a4ef2c91c21244792256dcb2e3514c11fb871821ca7a6c"
+    },
+    "scripts/ci/glibc-debian-maintained-provider/authority.json": {
+      "bytes": 873,
+      "sha256": "709ab4276c02dc21d559a6c581ba7ceae2a4999fa221b85f900f913253be5562"
+    },
+    "scripts/ci/glibc-debian-maintained-provider/authority.py": {
+      "bytes": 2624,
+      "sha256": "2905c927d060c3536f8130a5fbd56e2aa56fd6d4392ee2a11cace8dfd5be4438"
+    },
+    "scripts/ci/glibc-debian-maintained-provider/bundle.py": {
+      "bytes": 5146,
+      "sha256": "62c5602689b246576c48877808de62d6e04c923276577808a0e2b8614cf864d5"
+    },
+    "scripts/ci/glibc-debian-maintained-provider/dependency-pins.json": {
+      "bytes": 547,
+      "sha256": "1e62a69c95765bcffccbbfead8a94afca1d80dfb5365bfd41b8cdf70a2d614b3"
+    },
+    "scripts/ci/glibc-debian-maintained-provider/materialize.py": {
+      "bytes": 17203,
+      "sha256": "6a59e5c801c84dbd24810c6940f2c6a746c629d0d3274c53f26c0fba1589d65d"
+    },
+    "scripts/ci/glibc-debian-maintained-provider/root-maintained-source-authority.json": {
+      "bytes": 15506,
+      "sha256": "88643eabd61a39df63ecaeb50bb20041d17cf4fd3adee55d82d43d3c1ca08707"
+    },
+    "scripts/ci/glibc-debian-maintained-provider/source-lock.json": {
+      "bytes": 53426,
+      "sha256": "9eef1925b041bdf022ae284e15e473ce5b6795976b132d574ad7d56d21e6d12a"
+    },
+    "scripts/ci/glibc-debian-maintained-provider/source-provenance.json": {
+      "bytes": 1110,
+      "sha256": "d272bd255b2711f87fd5f91d2c181ba1209a1fd09c067b432656f5aa93902fcd"
+    },
+    "scripts/ci/glibc-debian-maintained-provider/test_candidate.py": {
+      "bytes": 7199,
+      "sha256": "c2e6b8dcd62ed15af4380f7872eb9eb0e8b7f3fa71497f5ade47674968c55e9a"
+    },
+    "scripts/ci/glibc-debian-maintained-provider/test_materialize.py": {
+      "bytes": 2372,
+      "sha256": "7384841a881c49b75fd70e50df9a43828aebe3338e673f4e4de5aa60214ca6c9"
+    },
+    "scripts/ci/glibc-debian-provider/auth.py": {
+      "bytes": 9381,
+      "sha256": "cff55c85bda9d50fe209e93146d26d331bbe98b6f0a453e3e2ec1029fc57e1d1"
+    },
+    "scripts/ci/glibc-gnu-provider/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "scripts/ci/glibc-gnu-provider/abi.py": {
+      "bytes": 4061,
+      "sha256": "b2ae51e792fc125fa664ba116794827fe5350912861256df8cdad1de479d5ff0"
+    },
+    "scripts/ci/glibc-gnu-provider/base-devel-fileless-evidence.json": {
+      "bytes": 6314,
+      "sha256": "1fb65daa91274c662bbfeb1ed7ee1cc59054d9eb101ea1d4788e0b1b04f8138a"
+    },
+    "scripts/ci/glibc-gnu-provider/build-entry.sh": {
+      "bytes": 1892,
+      "sha256": "f1e0546d945ad0905a25a1d4a8489ec78b35cf8ae9614444d71a8ac9b9b6aa1d"
+    },
+    "scripts/ci/glibc-gnu-provider/collect_tests.py": {
+      "bytes": 3093,
+      "sha256": "cdbe9af94b0ca142e802267ce7d9af7ae006bde8ab55d4b81399a065b79f6c79"
+    },
+    "scripts/ci/glibc-gnu-provider/header_check.py": {
+      "bytes": 4336,
+      "sha256": "29f2c9e2530f6bfcc6542ec5256fb6c0732808e85c999942a01b836144107358"
+    },
+    "scripts/ci/glibc-gnu-provider/header_probe.c": {
+      "bytes": 1383,
+      "sha256": "ccc07c323632f9f916c1bed436d0a97f530fca25d9dd59bb489489c093790e7f"
+    },
+    "scripts/ci/glibc-gnu-provider/materialize.py": {
+      "bytes": 12553,
+      "sha256": "70bcde37f56b5a4ea3a44993a6add82ef4627635801c0a7909b14aefbca00d92"
+    },
+    "scripts/ci/glibc-gnu-provider/metadata.py": {
+      "bytes": 2712,
+      "sha256": "0c37477acf6b34c65850f01a9770786c38badf157d2914394612d0b35b07c51d"
+    },
+    "scripts/ci/glibc-gnu-provider/normal-child-exec.patch": {
+      "bytes": 773,
+      "sha256": "1a1f3b1898b0542dfb6bf03d7d6bf0acda33ba3f040055cf710027d69415b9ff"
+    },
+    "scripts/ci/glibc-gnu-provider/normal-client-policy.json": {
+      "bytes": 815,
+      "sha256": "92f8b918ade03b6ad71ff00fe38a3f797d416fe6225082c9d4ba23c2cc71dd8d"
+    },
+    "scripts/ci/glibc-gnu-provider/normal-exec-change.json": {
+      "bytes": 839,
+      "sha256": "9d3769704396a33acc0c144cc1519d10230a5fb07d2f7b135dcfd0ba1ab6a68b"
+    },
+    "scripts/ci/glibc-gnu-provider/normal_clients.py": {
+      "bytes": 7824,
+      "sha256": "2382a818358a5e28b81ce789d18cee815a0d0c7d52b96a1cbd1d55d7edf31309"
+    },
+    "scripts/ci/glibc-gnu-provider/ownership.py": {
+      "bytes": 3961,
+      "sha256": "d7e2d46cf28293c6e1e8105adfe4c3a345c6990c62b4605213a3b399f8959219"
+    },
+    "scripts/ci/glibc-gnu-provider/provider_stage.py": {
+      "bytes": 8147,
+      "sha256": "43b1b441dcc384379ab80c4864bbf7ffd898d56e4ba629c0faa966c25a979e6c"
+    },
+    "scripts/ci/glibc-gnu-provider/run.py": {
+      "bytes": 22188,
+      "sha256": "a755cb4e7191da3cdef785bbf77dfcc241dfe9e2b0da13d3e85ae7ccc17102a9"
+    },
+    "scripts/ci/glibc-gnu-provider/stage.py": {
+      "bytes": 5285,
+      "sha256": "31ac772b75e2ed3c1a69a07aec4120af24941481a4db8042e4a816bd5ea9e56c"
+    }
+  },
+  "schema_version": 1,
+  "scope": "Exact source helpers plus distinct Root-bound caa3 source policy; no old admission/job binding."
+}

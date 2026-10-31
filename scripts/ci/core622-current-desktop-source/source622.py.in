@@ -1,0 +1,81 @@
+# SPDX-License-Identifier: MIT
+"""Closed622 lane AND exact original51/800 source mechanisms; no actors."""
+import ast,hashlib,json,os,subprocess,sys,tempfile,time
+from pathlib import Path
+sys.path.insert(0,str(Path(__file__).resolve().parent))
+import case as C,desktop622 as X
+PRODUCTS=None
+SELF='@SELF@'
+ALIASES=('.github/workflows/native-arm-build.yml','.github/workflows/native-arm-core7-real-systemd.yml')
+
+def files(root):
+ result={}
+ for p in Path(root).rglob('*'):
+  name=p.relative_to(root).as_posix()
+  if name.split('/')[0]=='.git':continue
+  C.need(not p.is_symlink()and(p.is_dir()or p.is_file()),'ordinary full closed source')
+  if p.is_file():result[name]=C.pin(C.read(p,32*1024**2))
+ return result
+
+def inverse(root):
+ record=C.decode(C.read(root/'composition-parent.json',4*1024**2));rows=files(root);before=record['before'];C.need(record['source']=='11b3cfb59663e42b34247facb9f30f042e891444'and len(before)==51 and set(record['changed'])<=set(before),'whole published51 predecessor')
+ out={}
+ for n,pin in before.items():
+  raw=record['changed'][n].encode()if n in record['changed']else C.read(root/n,32*1024**2);C.need(C.pin(raw)==pin,'complete exact51 inverse: '+n);out[n]=raw
+ C.need({n:C.pin(raw)for n,raw in out.items()}==before,'whole before-source51 map');return out
+
+def verify(root):
+ root=Path(root).absolute();start=time.monotonic();same66_before(root);rows=files(root);manifest=C.decode(C.read(root/'source-manifest.json',4*1024**2));C.need(manifest['purpose']==X.SCOPE and manifest['actual']is None,'distinct unbound current622 source lane');C.need(rows==dict(manifest['files'],**{'source-manifest.json':C.pin(C.read(root/'source-manifest.json',4*1024**2)),**{n:rows[n]for n in ALIASES}}),'closed current source namespace')
+ C.need(PRODUCTS is not None and all(rows[n]==pin for n,pin in PRODUCTS.items()),'every fixed current product/data operand');raw=C.read(root/'source622.py');C.need(SELF!='@SELF@'and raw.count(SELF.encode())==1 and hashlib.sha256(raw.replace(SELF.encode(),b'@SELF@')).hexdigest()==SELF,'whole current sourceguard selfseal');C.need(all(C.read(root/n)==C.read(root/'workflow.yml.in')for n in ALIASES),'exact decoded workflow aliases')
+ value=C.decode(C.read(root/'composition.json',4*1024**2));X.plan(value);before=inverse(root)
+ # Original51 source executes only its unchanged source-only route in an exact
+ # private reconstruction. No current/native/result or actor authority follows.
+ with tempfile.TemporaryDirectory(prefix='core622-exact-source51-')as td:
+  target=Path(td)
+  for n,raw in before.items():p=target/n;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(raw)
+  C.need(files(target)==C.decode(C.read(root/'composition-parent.json',4*1024**2))['before'],'entire private51 inverse before source gate')
+  result=subprocess.run([sys.executable,'-I','-B',str(target/'entry.py'),'source','--source',str(target)],stdin=subprocess.DEVNULL,capture_output=True,timeout=max(.001,300-(time.monotonic()-start)),env=dict(PATH='/usr/bin:/bin',LANG='C',LC_ALL='C',PYTHONDONTWRITEBYTECODE='1'))
+  C.need(result.returncode==0 and not result.stderr and len(result.stdout)<=1024**2,'whole original51 and older source predicate');fact=C.decode(result.stdout);C.need(fact['status']=='PASS_CLOSED_SOURCE_ONLY_NOT_EXECUTED'and fact['files']==51,'genuine original51 source-only fact')
+ # All selected facades/actors are syntax checked; this source phase starts none.
+ for n in ('desktop622.py','formation622.py','provision622.py','lane622.py','assembly622.py','run622.py','ownership622.py'):ast.parse(C.read(root/n),filename=n)
+ C.need(time.monotonic()-start<300,'original fixed source300');return dict(status='PASS_SOURCE_ONLY_CURRENT607_COPIED_PROVISIONING_NORMAL_CORE622_TWO_BOOT_NOT_RUN',files=len(rows),parent51=fact,base=607,supported=620,installed=622,held=602,provisioning=X.PROVISIONING,normal_fresh607_installation='NOT_RUN',new_actual=None,fit='NOT_ESTABLISHED',M2='NOT_RUN')
+
+# Finite whole immediate66 inverse; the existing verify body and original51
+# execution remain mandatory. No historical actor/result is executed here.
+def same66_before(root):
+ C=globals()['C'];root=Path(root)
+ current=C.decode(C.read(root/'composition-parent.json',4*1024**2))['apparmor_environment']
+ C.need(current['schema']==1 and current['parent_source']=='bbdf05888b8bacb8a7ee8dfde4def4d508cc812b'and current['actual']is None and len(current['before'])==66,'whole exact public66 before CI environment correction')
+ prior={n:C.read(root/n,4*1024**2)for n in current['before']}
+ for name,rules in current['edits'].items():
+  text=prior[name].decode()
+  for before,after in reversed(rules):C.need(text.count(after)==1,'one exact selected sanitized CI caller flag');text=text.replace(after,before,1)
+  prior[name]=text.encode()
+ parent=C.decode(prior['composition-parent.json']);C.need(parent.pop('apparmor_environment')==current,'complete finite CI environment operand');prior['composition-parent.json']=C.encoded(parent)
+ manifest=C.decode(prior['source-manifest.json']);manifest['files']={n:w for n,w in current['before'].items()if n not in('source-manifest.json',*ALIASES)};prior['source-manifest.json']=C.encoded(manifest)
+ text=prior['source622.py'].decode();tree=ast.parse(text)
+ for name,before in(('PRODUCTS',current['guard_products_before']),('SELF',current['guard_self_before'])):
+  node=next(n for n in tree.body if isinstance(n,ast.Assign)and n.targets[0].id==name);after=ast.get_source_segment(text,node);C.need(text.count(after)==1,'one current product/seal DATA inverse');text=text.replace(after,before,1);tree=ast.parse(text)
+ C.need(text.count(current['guard_prefix'])==1,'one existing source guard prefix inverse');text=text.replace(current['guard_prefix'],'',1);prior['source622.py']=text.encode()
+ C.need({n:C.pin(b)for n,b in prior.items()}==current['before'],'entire source66 bbdf inverse, no historical result authority')
+ tree=ast.parse(text);sealed={n.targets[0].id:ast.literal_eval(n.value)for n in tree.body if isinstance(n,ast.Assign)and n.targets[0].id in('PRODUCTS','SELF')}
+ C.need(all(C.pin(prior[n])==w for n,w in sealed['PRODUCTS'].items()),'all old bbdf fixed source products');seal=sealed['SELF'];C.need(text.count(seal)==1 and hashlib.sha256(text.replace(seal,'@SELF@').encode()).hexdigest()==seal,'whole old bbdf selfseal')
+ # The unchanged existing66→ae39 inverse below consumes this EXACT bbdf DATA
+ # namespace. Current verify and original51 guard still use original global C.
+ def prior_read(path,maximum=1024**2):
+  name=Path(path).relative_to(root).as_posix();C.need(name in prior and len(prior[name])<=maximum,'exact bounded immediate source DATA projection only');return prior[name]
+ C=__import__('types').SimpleNamespace(**dict(vars(C),read=prior_read))
+ record=C.decode(C.read(root/'composition-parent.json',4*1024**2))['isolated_cache_import'];C.need(record['schema']==1 and record['parent_source']=='ae39c1ba4c613d6a86e5582c2ab4c2d5495b2bd7'and record['actual']is None and len(record['before'])==66,'exact isolated-cache source predecessor')
+ out={n:C.read(root/n,4*1024**2)for n in record['before']}
+ for name,rules in record['edits'].items():
+  text=out[name].decode()
+  for before,after in reversed(rules):C.need(text.count(after)==1,'one complete cache-import/CI-control inverse');text=text.replace(after,before,1)
+  out[name]=text.encode()
+ parent=C.decode(out['composition-parent.json']);C.need(parent.pop('isolated_cache_import')==record,'exact immediate source context operand');out['composition-parent.json']=C.encoded(parent)
+ manifest=C.decode(out['source-manifest.json']);manifest['files']={n:w for n,w in record['before'].items()if n not in('source-manifest.json',*ALIASES)};out['source-manifest.json']=C.encoded(manifest)
+ text=out['source622.py'].decode();tree=ast.parse(text)
+ for name,before in(('PRODUCTS',record['guard_products_before']),('SELF',record['guard_self_before'])):
+  node=next(n for n in tree.body if isinstance(n,ast.Assign)and n.targets[0].id==name);after=ast.get_source_segment(text,node);C.need(text.count(after)==1,'one exact current sourceguard DATA/seal');text=text.replace(after,before,1);tree=ast.parse(text)
+ for before,after in reversed(record['guard_edits']):C.need(text.count(after)==1,'one whole immediate sourceguard inverse');text=text.replace(after,before,1)
+ out['source622.py']=text.encode();C.need({n:C.pin(b)for n,b in out.items()}==record['before'],'all66 immediate source bytes reconstructed')
+ tree=ast.parse(text);values={n.targets[0].id:ast.literal_eval(n.value)for n in tree.body if isinstance(n,ast.Assign)and n.targets[0].id in('PRODUCTS','SELF')};C.need(all(C.pin(out[n])==w for n,w in values['PRODUCTS'].items()),'all original66 fixed products held');seal=values['SELF'];C.need(text.count(seal)==1 and hashlib.sha256(text.replace(seal,'@SELF@').encode()).hexdigest()==seal,'whole original66 sourceguard selfseal held');return out

@@ -1,0 +1,20 @@
+class _Payload607:
+    """Finite source-lock package ordinals; stderr DATA cannot change verification."""
+    def __init__(self,expected):
+        self.packages={name:index+1 for index,name in enumerate(sorted(expected))}
+        self.start=time.monotonic_ns();self.count=0;self.bytes=0
+
+    def mark(self,boundary,package,nodes,payload_bytes):
+        try:
+            ordinal=self.packages.get(package)
+            if boundary not in ('begin','end') or type(ordinal)is not int or not 1<=ordinal<=607:return False
+            if type(nodes)is not int or not 0<=nodes<=200000 or type(payload_bytes)is not int or not 0<=payload_bytes<=6*1024**3:return False
+            if self.count>=1214:return False
+            value=dict(schema=1,package=ordinal,boundary=boundary,nodes=nodes,payload_bytes=payload_bytes,
+                       elapsed_ns=min(max(time.monotonic_ns()-self.start,0),1215000000000),status='PROGRESS_DATA_ONLY')
+            raw=b'INSTALLED607_PAYLOAD_DATA '+json.dumps(value,sort_keys=True,separators=(',',':')).encode()+b'\n'
+            if len(raw)>192 or self.bytes+len(raw)>233088:return False
+            self.count+=1;self.bytes+=len(raw)
+            return os.write(2,raw)==len(raw)
+        except Exception:
+            return False

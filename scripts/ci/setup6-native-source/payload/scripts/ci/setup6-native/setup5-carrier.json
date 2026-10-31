@@ -1,0 +1,605 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 345,
+      "sha256": "4d868e434c98823c71ff5890c9011a1752669d2a2c8c4cb7fb49416a0ce490fd"
+    },
+    "base/installed-packages.lock": {
+      "bytes": 11117,
+      "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+    },
+    "base/report.json": {
+      "bytes": 1650,
+      "sha256": "ced472ab2497578bb751a6ead8bbbb76480d1ae59637ecf90c16af3c72b761f3"
+    },
+    "harness/README.md": {
+      "bytes": 8354,
+      "sha256": "a6ab452971de36fd94d8fb74226892afd45afdb31b84668f35d077bbd410927b"
+    },
+    "harness/contract.py": {
+      "bytes": 10085,
+      "sha256": "59761adacc10ce0d86a8f4f70408a879834ffbea0d556492dc3be0954ee6ee5a"
+    },
+    "harness/exercise.py": {
+      "bytes": 7751,
+      "sha256": "bf202fc410422b2bfa56b0843f7139904712434bd6e57ac6a4b5e718323b97ad"
+    },
+    "harness/freeze.py": {
+      "bytes": 3053,
+      "sha256": "408619ac3bc269ca5651b3beff1c361512fe7d15e14cad7bd457050f4c457fbf"
+    },
+    "harness/job.py": {
+      "bytes": 492,
+      "sha256": "8f42ae9830b9ea9fa9d57eba334ddab24408d0d3f8402f3c2e605ad8ad1640d7"
+    },
+    "harness/lifecycle.py": {
+      "bytes": 8249,
+      "sha256": "4e220a8b21b0607854dde65c51f32bf013d58dfcbeab3d912493f835ea7eb5bc"
+    },
+    "harness/prepare.py": {
+      "bytes": 4812,
+      "sha256": "76fdb72ddc5b2fd8d6b5842679477080b5e3124efd4a73c8e7b1a2314477f5c9"
+    },
+    "harness/retained-inputs.json": {
+      "bytes": 9761,
+      "sha256": "3a980f857aa4831a7dedadbddaf60525ff9d4965570963506c6ebae328431c33"
+    },
+    "harness/retained.py": {
+      "bytes": 4007,
+      "sha256": "445047812eb9d244ffda0aa9c6b3eabe9fae1dd9a06536283284f7c1aac6338a"
+    },
+    "harness/run.py": {
+      "bytes": 1025,
+      "sha256": "5a891c53aa02c6d5a7514eddd24eedfb1cef47dca4e06e0c814b68e35539e890"
+    },
+    "harness/source-pins.json": {
+      "bytes": 4568,
+      "sha256": "a12ffb482aed89f16acaab12537df39630fd98a6ab2599b4edd3a0a00006c244"
+    },
+    "harness/test_native.py": {
+      "bytes": 20502,
+      "sha256": "c38bb9aec7d81d9836dbdcc0e56b5d8aa25946505e9c1619cf8f167b002d4e1f"
+    },
+    "index.json": {
+      "bytes": 25005,
+      "sha256": "b1e4208d2f32935f2e5cb1c1e3535cc49f44c7bfe08e7d64692b8ac3781d5a5d"
+    },
+    "observations/journal-after-forward.json": {
+      "bytes": 305,
+      "sha256": "ceec2e0c2eb1055e60fe2cb10a30789a30aaf1dee54bf63ca4655a985d7055d3"
+    },
+    "observations/journal-after-legacy.json": {
+      "bytes": 299,
+      "sha256": "e58640b4328452224ecfac65d111f0a41bbd017a8e1ac9ec30682eb637f5fc73"
+    },
+    "observations/journal-after-rollback.json": {
+      "bytes": 297,
+      "sha256": "2f9855d7172784f590066d1569531d6cf081ff48d6c9e1392915d1594f11ce05"
+    },
+    "observations/journal-after-upgrade.json": {
+      "bytes": 494,
+      "sha256": "3c9b5cb04b5951c0e681ebeeabd9cab88abf5b7432fa309f33af63850e4df704"
+    },
+    "observations/journal-before-forward.json": {
+      "bytes": 306,
+      "sha256": "ced553ad96ab9b98b148ecdd904ea26e7667f89904b3352e85f3a913f1ed68ca"
+    },
+    "observations/journal-before-legacy.json": {
+      "bytes": 300,
+      "sha256": "73b744922ec5d665f8e272e48f3dcd9aa4ad1dd0ffa838c0225a3f128256e0ac"
+    },
+    "observations/journal-before-rollback.json": {
+      "bytes": 298,
+      "sha256": "63325678a0fcc7fcb689684b4d6b99985a857e77eaa5e6f13cb427e83518a9ac"
+    },
+    "observations/journal-before-upgrade.json": {
+      "bytes": 495,
+      "sha256": "0b1d1f719c69eda8cef535980eed90666d8071234a26f3b0ca958850e0d88375"
+    },
+    "observations/journal-commit-forward.json": {
+      "bytes": 306,
+      "sha256": "fc4b9151ea79cd3a16dd8f656076e688b0a8384df4c07a40a613c395c650bf30"
+    },
+    "observations/journal-commit-legacy.json": {
+      "bytes": 300,
+      "sha256": "7961aac6727be76fc04c635fcffe8e495e7aa881bc8d5f9ffa96462dc82dbb1a"
+    },
+    "observations/journal-commit-rollback.json": {
+      "bytes": 298,
+      "sha256": "ac4e203fc0de6a980fed8c1f1fd1223c3687cf0a4417636ca7190eefaf633013"
+    },
+    "observations/journal-commit-upgrade.json": {
+      "bytes": 495,
+      "sha256": "55580d0d8f098722d970f0d3008a24d0b89d73b70bbbe65bbb83c520008ced59"
+    },
+    "observations/new-grouped-journal-forward.json": {
+      "bytes": 311,
+      "sha256": "daeafe877d03688c2c4b407e52672e02e188695482fa96903ff6bd34a113a8b9"
+    },
+    "observations/new-grouped-journal-legacy.json": {
+      "bytes": 305,
+      "sha256": "a56ae4fb605c31752644abdac10d5032d1fedce67cf38b2d9a3336d72d7e586a"
+    },
+    "observations/new-grouped-journal-rollback.json": {
+      "bytes": 303,
+      "sha256": "a7a8812de3d7885d377034355669eab9219985a2ba9f748d8f5560d8bfdba3c6"
+    },
+    "observations/new-grouped-journal-upgrade.json": {
+      "bytes": 500,
+      "sha256": "c03ef3c88142663b3209c7dcc4373671038c2a55e51f5abb91d1c3db46ecc08f"
+    },
+    "observations/remove-journal-forward.json": {
+      "bytes": 306,
+      "sha256": "a97fdf5ab0eb03c61df5de4fd24aeff021191dd835cbc6bd075f5aec804698b6"
+    },
+    "observations/remove-journal-legacy.json": {
+      "bytes": 300,
+      "sha256": "5a9e43df93d8797595f2d9b26577b685d4ab69739a9d64e853b786be328ef96e"
+    },
+    "observations/remove-journal-rollback.json": {
+      "bytes": 298,
+      "sha256": "f0cf0b41a9ebb7c59d39e5ced41067ade7df3554f43f1d83b98f92e9a13bf468"
+    },
+    "observations/remove-journal-upgrade.json": {
+      "bytes": 495,
+      "sha256": "42e7dfeba05969f96771f7c6732a16c026f182ce220094c203b7ad160ad41783"
+    },
+    "observations/state-forward.json": {
+      "bytes": 297,
+      "sha256": "693f91e06a10c7748cfec62155122dbda081f83bf972167414528f5ad803e6e5"
+    },
+    "observations/state-legacy.json": {
+      "bytes": 291,
+      "sha256": "6c26c85bd9464b8e1fb5844fe43ac17f75bbe7cc3a91b3fefd486c458934ae66"
+    },
+    "observations/state-rollback.json": {
+      "bytes": 289,
+      "sha256": "4f253ad5f9a62f411589c5d4007d06d9ee8800eefcfc84048a5bfc7efeb8932c"
+    },
+    "observations/state-upgrade.json": {
+      "bytes": 486,
+      "sha256": "8e4f53abdbf639888cdd47fa788a0828b6a2dfc61e29d4d6fdfca328b514ded1"
+    },
+    "ordered-cleanup.json": {
+      "bytes": 1174,
+      "sha256": "d27c6313c0eeb5caf2ecdde6826bdf11e2f280b2a02b29f826d8796d86caeb57"
+    },
+    "packages/cachy-asahi-setup-a/cachy-asahi-setup-0.1.0-5-any.pkg.tar.xz": {
+      "bytes": 26872,
+      "sha256": "1aafee365e3bcb04e1fce694c110a997914a07f4359697df5e017375897385fc"
+    },
+    "packages/cachy-asahi-setup-b/cachy-asahi-setup-0.1.0-5-any.pkg.tar.xz": {
+      "bytes": 26872,
+      "sha256": "1aafee365e3bcb04e1fce694c110a997914a07f4359697df5e017375897385fc"
+    },
+    "retained-setup4/build-1/artifacts/cachy-asahi-setup-0.1.0-4-any.pkg.tar.xz": {
+      "bytes": 22632,
+      "sha256": "c817c01aad875fcf5a34073d4c9d0e830c577301189148b3c0e0969f001bea1a"
+    },
+    "retained-setup4/build-1/expected-packages.lock": {
+      "bytes": 6674,
+      "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
+    },
+    "retained-setup4/build-1/inputs/.SRCINFO": {
+      "bytes": 1427,
+      "sha256": "44565399f604017ab7084ec5d9cf62c1fa988dc3242bb24705adb92de79a2a5c"
+    },
+    "retained-setup4/build-1/inputs/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "retained-setup4/build-1/inputs/NOTICE": {
+      "bytes": 970,
+      "sha256": "a885656c42b81e413549976eb56fa1aad59018af1cad8954f00f45cbd1c2d018"
+    },
+    "retained-setup4/build-1/inputs/PKGBUILD": {
+      "bytes": 3922,
+      "sha256": "ec816728a154f77723d34e56bcbf04bb39ef436be1d883fb90c1af8d43dae31e"
+    },
+    "retained-setup4/build-1/inputs/README.md": {
+      "bytes": 8390,
+      "sha256": "e868fe3ab18b6a4a175b2be011847ae830e2a589d8264bf8d3e6974dc6529a78"
+    },
+    "retained-setup4/build-1/inputs/cachy-asahi-repository": {
+      "bytes": 19778,
+      "sha256": "38db2d45955b569a4c74c3f31d6b6c79611126238e1bbe1e5cf819f81d0fb54f"
+    },
+    "retained-setup4/build-1/inputs/cachy-asahi-setup": {
+      "bytes": 30396,
+      "sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919"
+    },
+    "retained-setup4/build-1/inputs/check-packaged.py": {
+      "bytes": 7628,
+      "sha256": "a36c6b0c5e5e51cee5a88b2bc2d21b292de413e3ea5664936f4097ff52e55ca6"
+    },
+    "retained-setup4/build-1/inputs/check-sync.py": {
+      "bytes": 4256,
+      "sha256": "9fb6ff8f1a9304f6e55895b5d83845a8776c77669aac0ec55a58c47b25150a1a"
+    },
+    "retained-setup4/build-1/inputs/evidence/artifact-check-1.json": {
+      "bytes": 55897,
+      "sha256": "f39576fe7d072cc964479d8b4477e547ef885a69f55b42b85fdbafc84f95226f"
+    },
+    "retained-setup4/build-1/inputs/evidence/artifact-check-2.json": {
+      "bytes": 55897,
+      "sha256": "c6fa3a00eda45aca371b651e37634600cde621d53c8e1081c66f141273b41808"
+    },
+    "retained-setup4/build-1/inputs/evidence/host-build-1-BUILDINFO.txt": {
+      "bytes": 52355,
+      "sha256": "d027509d0d0bc7c74b293d781c36001df48427a726f9e0778730e9fa554b7346"
+    },
+    "retained-setup4/build-1/inputs/evidence/host-build-1-PKGINFO.txt": {
+      "bytes": 578,
+      "sha256": "c02a9e4ac9e0d305b97fe63a6e6124446154dafdc4195254c1cac30b17e8761e"
+    },
+    "retained-setup4/build-1/inputs/evidence/host-build-1.txt": {
+      "bytes": 1503,
+      "sha256": "52b0a5112c6f23fa04567b6d60a50bd80d087f8691e9c066e91ddca8cd902923"
+    },
+    "retained-setup4/build-1/inputs/evidence/host-build-2-BUILDINFO.txt": {
+      "bytes": 52355,
+      "sha256": "e5e6c09c8f6bf62064c0200046d22a0e3b9611d57e199dc835c30e8bd55778d9"
+    },
+    "retained-setup4/build-1/inputs/evidence/host-build-2-PKGINFO.txt": {
+      "bytes": 578,
+      "sha256": "d04e52761ae002dd63fc6a684a073d68da2e994fa6dd90395039e861070e3dae"
+    },
+    "retained-setup4/build-1/inputs/evidence/host-build-2.txt": {
+      "bytes": 1451,
+      "sha256": "c744d661c373fab100ec930c50e4fe42f70c2ab319b37490e98124ef9e6d4a0e"
+    },
+    "retained-setup4/build-1/inputs/evidence/old-c7d-regression-reproducer.json": {
+      "bytes": 1575,
+      "sha256": "0a8be1068e9c98e31fe07816065422cad6d59e10828cceda1967bea01a956a11"
+    },
+    "retained-setup4/build-1/inputs/evidence/packaged-cli-smoke.json": {
+      "bytes": 5282,
+      "sha256": "b42c30a6469ea52d0b129c22aaac337081a0c7052736412cd640796d59e3495e"
+    },
+    "retained-setup4/build-1/inputs/evidence/packaged-regressions-1.json": {
+      "bytes": 808,
+      "sha256": "d449d77dfc618dcc3a042d2e80884f1d9dd6c0a9beee11edafdd97846412b6a5"
+    },
+    "retained-setup4/build-1/inputs/evidence/packaged-regressions-2.json": {
+      "bytes": 808,
+      "sha256": "d449d77dfc618dcc3a042d2e80884f1d9dd6c0a9beee11edafdd97846412b6a5"
+    },
+    "retained-setup4/build-1/inputs/evidence/prepare-drift-refusal.txt": {
+      "bytes": 863,
+      "sha256": "37701db28f3eef8d78855fc97130dc5b34737b689564d66775924bdc3a913edd"
+    },
+    "retained-setup4/build-1/inputs/evidence/recipe-check.json": {
+      "bytes": 4424,
+      "sha256": "c03666a59699d36af0ecdba565c65fcba2be2a9b7f5b3f867f42f58714400b29"
+    },
+    "retained-setup4/build-1/inputs/evidence/superseded-c7d-host-validation.json": {
+      "bytes": 2706,
+      "sha256": "1c4c1522612bb9f35c11745889d5cedabad6ea89b312f7812bbd65951d537ee3"
+    },
+    "retained-setup4/build-1/inputs/host-validation.json": {
+      "bytes": 3210,
+      "sha256": "e64e15a48b1636216c1419074ba7ae3280bddd42c5db76b7954a3da882f7766c"
+    },
+    "retained-setup4/build-1/inputs/repository-enrollment.md": {
+      "bytes": 7786,
+      "sha256": "a14a53311e7c995b468ddcec1e4996611d7cfe9bb08eb255e0cb6bfee6dcc7e1"
+    },
+    "retained-setup4/build-1/inputs/runtime-dependency-observation.json": {
+      "bytes": 484,
+      "sha256": "0f2382d15eb1c07c94826b1467492b248576350a43b96550cf23b94e018fa74c"
+    },
+    "retained-setup4/build-1/inputs/source-provenance.json": {
+      "bytes": 1687,
+      "sha256": "ccdf67333850ed7e862b969b88423523c4a9e36ffc31bab0f529533626ddec2e"
+    },
+    "retained-setup4/build-1/inputs/test-sync.py": {
+      "bytes": 8042,
+      "sha256": "9596373cef5469512b6bae3e0bf1dc6a1b093012779f1488765281aef27de9b3"
+    },
+    "retained-setup4/build-1/provenance.json": {
+      "bytes": 7720,
+      "sha256": "ceaa6ac12f311e3067508de427b33ea7abc4d0e7459b4ef2291ada3cbb210898"
+    },
+    "retained-setup4/build-2/artifacts/cachy-asahi-setup-0.1.0-4-any.pkg.tar.xz": {
+      "bytes": 22632,
+      "sha256": "c817c01aad875fcf5a34073d4c9d0e830c577301189148b3c0e0969f001bea1a"
+    },
+    "retained-setup4/build-2/expected-packages.lock": {
+      "bytes": 6674,
+      "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
+    },
+    "retained-setup4/build-2/inputs/.SRCINFO": {
+      "bytes": 1427,
+      "sha256": "44565399f604017ab7084ec5d9cf62c1fa988dc3242bb24705adb92de79a2a5c"
+    },
+    "retained-setup4/build-2/inputs/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "retained-setup4/build-2/inputs/NOTICE": {
+      "bytes": 970,
+      "sha256": "a885656c42b81e413549976eb56fa1aad59018af1cad8954f00f45cbd1c2d018"
+    },
+    "retained-setup4/build-2/inputs/PKGBUILD": {
+      "bytes": 3922,
+      "sha256": "ec816728a154f77723d34e56bcbf04bb39ef436be1d883fb90c1af8d43dae31e"
+    },
+    "retained-setup4/build-2/inputs/README.md": {
+      "bytes": 8390,
+      "sha256": "e868fe3ab18b6a4a175b2be011847ae830e2a589d8264bf8d3e6974dc6529a78"
+    },
+    "retained-setup4/build-2/inputs/cachy-asahi-repository": {
+      "bytes": 19778,
+      "sha256": "38db2d45955b569a4c74c3f31d6b6c79611126238e1bbe1e5cf819f81d0fb54f"
+    },
+    "retained-setup4/build-2/inputs/cachy-asahi-setup": {
+      "bytes": 30396,
+      "sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919"
+    },
+    "retained-setup4/build-2/inputs/check-packaged.py": {
+      "bytes": 7628,
+      "sha256": "a36c6b0c5e5e51cee5a88b2bc2d21b292de413e3ea5664936f4097ff52e55ca6"
+    },
+    "retained-setup4/build-2/inputs/check-sync.py": {
+      "bytes": 4256,
+      "sha256": "9fb6ff8f1a9304f6e55895b5d83845a8776c77669aac0ec55a58c47b25150a1a"
+    },
+    "retained-setup4/build-2/inputs/evidence/artifact-check-1.json": {
+      "bytes": 55897,
+      "sha256": "f39576fe7d072cc964479d8b4477e547ef885a69f55b42b85fdbafc84f95226f"
+    },
+    "retained-setup4/build-2/inputs/evidence/artifact-check-2.json": {
+      "bytes": 55897,
+      "sha256": "c6fa3a00eda45aca371b651e37634600cde621d53c8e1081c66f141273b41808"
+    },
+    "retained-setup4/build-2/inputs/evidence/host-build-1-BUILDINFO.txt": {
+      "bytes": 52355,
+      "sha256": "d027509d0d0bc7c74b293d781c36001df48427a726f9e0778730e9fa554b7346"
+    },
+    "retained-setup4/build-2/inputs/evidence/host-build-1-PKGINFO.txt": {
+      "bytes": 578,
+      "sha256": "c02a9e4ac9e0d305b97fe63a6e6124446154dafdc4195254c1cac30b17e8761e"
+    },
+    "retained-setup4/build-2/inputs/evidence/host-build-1.txt": {
+      "bytes": 1503,
+      "sha256": "52b0a5112c6f23fa04567b6d60a50bd80d087f8691e9c066e91ddca8cd902923"
+    },
+    "retained-setup4/build-2/inputs/evidence/host-build-2-BUILDINFO.txt": {
+      "bytes": 52355,
+      "sha256": "e5e6c09c8f6bf62064c0200046d22a0e3b9611d57e199dc835c30e8bd55778d9"
+    },
+    "retained-setup4/build-2/inputs/evidence/host-build-2-PKGINFO.txt": {
+      "bytes": 578,
+      "sha256": "d04e52761ae002dd63fc6a684a073d68da2e994fa6dd90395039e861070e3dae"
+    },
+    "retained-setup4/build-2/inputs/evidence/host-build-2.txt": {
+      "bytes": 1451,
+      "sha256": "c744d661c373fab100ec930c50e4fe42f70c2ab319b37490e98124ef9e6d4a0e"
+    },
+    "retained-setup4/build-2/inputs/evidence/old-c7d-regression-reproducer.json": {
+      "bytes": 1575,
+      "sha256": "0a8be1068e9c98e31fe07816065422cad6d59e10828cceda1967bea01a956a11"
+    },
+    "retained-setup4/build-2/inputs/evidence/packaged-cli-smoke.json": {
+      "bytes": 5282,
+      "sha256": "b42c30a6469ea52d0b129c22aaac337081a0c7052736412cd640796d59e3495e"
+    },
+    "retained-setup4/build-2/inputs/evidence/packaged-regressions-1.json": {
+      "bytes": 808,
+      "sha256": "d449d77dfc618dcc3a042d2e80884f1d9dd6c0a9beee11edafdd97846412b6a5"
+    },
+    "retained-setup4/build-2/inputs/evidence/packaged-regressions-2.json": {
+      "bytes": 808,
+      "sha256": "d449d77dfc618dcc3a042d2e80884f1d9dd6c0a9beee11edafdd97846412b6a5"
+    },
+    "retained-setup4/build-2/inputs/evidence/prepare-drift-refusal.txt": {
+      "bytes": 863,
+      "sha256": "37701db28f3eef8d78855fc97130dc5b34737b689564d66775924bdc3a913edd"
+    },
+    "retained-setup4/build-2/inputs/evidence/recipe-check.json": {
+      "bytes": 4424,
+      "sha256": "c03666a59699d36af0ecdba565c65fcba2be2a9b7f5b3f867f42f58714400b29"
+    },
+    "retained-setup4/build-2/inputs/evidence/superseded-c7d-host-validation.json": {
+      "bytes": 2706,
+      "sha256": "1c4c1522612bb9f35c11745889d5cedabad6ea89b312f7812bbd65951d537ee3"
+    },
+    "retained-setup4/build-2/inputs/host-validation.json": {
+      "bytes": 3210,
+      "sha256": "e64e15a48b1636216c1419074ba7ae3280bddd42c5db76b7954a3da882f7766c"
+    },
+    "retained-setup4/build-2/inputs/repository-enrollment.md": {
+      "bytes": 7786,
+      "sha256": "a14a53311e7c995b468ddcec1e4996611d7cfe9bb08eb255e0cb6bfee6dcc7e1"
+    },
+    "retained-setup4/build-2/inputs/runtime-dependency-observation.json": {
+      "bytes": 484,
+      "sha256": "0f2382d15eb1c07c94826b1467492b248576350a43b96550cf23b94e018fa74c"
+    },
+    "retained-setup4/build-2/inputs/source-provenance.json": {
+      "bytes": 1687,
+      "sha256": "ccdf67333850ed7e862b969b88423523c4a9e36ffc31bab0f529533626ddec2e"
+    },
+    "retained-setup4/build-2/inputs/test-sync.py": {
+      "bytes": 8042,
+      "sha256": "9596373cef5469512b6bae3e0bf1dc6a1b093012779f1488765281aef27de9b3"
+    },
+    "retained-setup4/build-2/provenance.json": {
+      "bytes": 7720,
+      "sha256": "43bef646fc3b568e44112fbbd223a00bd2e3c570ec27df699444d166c69b69be"
+    },
+    "retention.json": {
+      "bytes": 24363,
+      "sha256": "da0635501d6114c77d7a7a9df8d6092bd03024eee0ead89b4618c7502446a9e4"
+    },
+    "root-verification.json": {
+      "bytes": 739,
+      "sha256": "957a8887140280a62effbe2cb258e17ff70582daf066b26615c081df5145a2a4"
+    },
+    "runtime/base-inventory.log": {
+      "bytes": 11117,
+      "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+    },
+    "runtime/cachy-asahi-setup-a/artifacts/config.sha256": {
+      "bytes": 167,
+      "sha256": "8309cb4c0409ccdc1ca922475dde9377aec434911efc453299f41e8fadb234ec"
+    },
+    "runtime/cachy-asahi-setup-a/artifacts/environment.txt": {
+      "bytes": 11501,
+      "sha256": "f1b7d4e85509c7c8a3ebc682ae462dcc3534e6d450eacab514f074067d1f7010"
+    },
+    "runtime/cachy-asahi-setup-a/artifacts/generated.SRCINFO": {
+      "bytes": 1937,
+      "sha256": "cf98371cd63dee77de47a0b93805caf7639443e064a95dd584d77d50b790dcd8"
+    },
+    "runtime/cachy-asahi-setup-a/artifacts/makepkg.conf": {
+      "bytes": 6651,
+      "sha256": "cfcf0bd2601d887724c5ca7d9a48ac5dd347abad9e8ac5efa436080e45822a60"
+    },
+    "runtime/cachy-asahi-setup-a/artifacts/packages.lock": {
+      "bytes": 11117,
+      "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+    },
+    "runtime/cachy-asahi-setup-a/artifacts/pacman.conf": {
+      "bytes": 116,
+      "sha256": "14d304eeb83baf1379279356c232580fd095c2d508b41c74677347801a0bafe7"
+    },
+    "runtime/cachy-asahi-setup-a/build.log": {
+      "bytes": 2474,
+      "sha256": "cbd21fb23710fca792eddf51e21f9673db738ff3eb574c76718015f898f44d1f"
+    },
+    "runtime/cachy-asahi-setup-a/expected-packages.lock": {
+      "bytes": 11117,
+      "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+    },
+    "runtime/cachy-asahi-setup-a/provenance.json": {
+      "bytes": 6224,
+      "sha256": "fb88b1828b31bde298f7c1864412a1c33ed8f0eb1484842ecb238d6780a501f4"
+    },
+    "runtime/cachy-asahi-setup-a/validation.json": {
+      "bytes": 31707,
+      "sha256": "0b5b9c6b4c6007a8cbe5b2ce92e0a515bff9b1004889fbb76586c58abcb76aac"
+    },
+    "runtime/cachy-asahi-setup-b/artifacts/config.sha256": {
+      "bytes": 167,
+      "sha256": "8309cb4c0409ccdc1ca922475dde9377aec434911efc453299f41e8fadb234ec"
+    },
+    "runtime/cachy-asahi-setup-b/artifacts/environment.txt": {
+      "bytes": 11501,
+      "sha256": "1d22e240466a453bf2c50c8046fd349710b9a4b257b515b516c0f2f146bf388f"
+    },
+    "runtime/cachy-asahi-setup-b/artifacts/generated.SRCINFO": {
+      "bytes": 1937,
+      "sha256": "cf98371cd63dee77de47a0b93805caf7639443e064a95dd584d77d50b790dcd8"
+    },
+    "runtime/cachy-asahi-setup-b/artifacts/makepkg.conf": {
+      "bytes": 6651,
+      "sha256": "cfcf0bd2601d887724c5ca7d9a48ac5dd347abad9e8ac5efa436080e45822a60"
+    },
+    "runtime/cachy-asahi-setup-b/artifacts/packages.lock": {
+      "bytes": 11117,
+      "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+    },
+    "runtime/cachy-asahi-setup-b/artifacts/pacman.conf": {
+      "bytes": 116,
+      "sha256": "14d304eeb83baf1379279356c232580fd095c2d508b41c74677347801a0bafe7"
+    },
+    "runtime/cachy-asahi-setup-b/build.log": {
+      "bytes": 2474,
+      "sha256": "b10704fe87bee1f066fa02a6e221eadcf8d1b579a8a0961bca664198b207a09e"
+    },
+    "runtime/cachy-asahi-setup-b/expected-packages.lock": {
+      "bytes": 11117,
+      "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+    },
+    "runtime/cachy-asahi-setup-b/provenance.json": {
+      "bytes": 6224,
+      "sha256": "293d16c1b97066436575e41c06aaf71057969baf40dcf6f7eeaf3a2418ea96a7"
+    },
+    "runtime/cachy-asahi-setup-b/validation.json": {
+      "bytes": 31707,
+      "sha256": "0b5b9c6b4c6007a8cbe5b2ce92e0a515bff9b1004889fbb76586c58abcb76aac"
+    },
+    "runtime/cachy-asahi-setup-comparison.json": {
+      "bytes": 397,
+      "sha256": "4c6c628b30e4fc4404914cac1920f00ea8aa59a4de6c62871d83565a74afa236"
+    },
+    "runtime/lifecycle.json": {
+      "bytes": 19208,
+      "sha256": "dfcdcacbc716f992a800c5f32d047ba2fd8bf15cf5fac89090bd08ef9b8ea39c"
+    },
+    "runtime/lifecycle.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "runtime/owner.json": {
+      "bytes": 485,
+      "sha256": "8cd6a2ce7a74284b2f446b04f485134de7d88cd61e6f700e959c1f4a2ae19253"
+    },
+    "runtime/report.json": {
+      "bytes": 32026,
+      "sha256": "63602e09ade75daa1008f17b39c71867c50f955c52bada482f6c2da3d3e31d76"
+    },
+    "source-proof.json": {
+      "bytes": 600,
+      "sha256": "7f38ee2b3d99055ce20dabcb146a94809dbf257aa6dab5e8f6aba1957c31be0e"
+    },
+    "source/cachy-asahi-setup/.SRCINFO": {
+      "bytes": 1937,
+      "sha256": "cf98371cd63dee77de47a0b93805caf7639443e064a95dd584d77d50b790dcd8"
+    },
+    "source/cachy-asahi-setup/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "source/cachy-asahi-setup/NOTICE": {
+      "bytes": 970,
+      "sha256": "a885656c42b81e413549976eb56fa1aad59018af1cad8954f00f45cbd1c2d018"
+    },
+    "source/cachy-asahi-setup/PKGBUILD": {
+      "bytes": 4432,
+      "sha256": "d31e4bdfb5c0c38e0128bbcb5127926414628f2d8d047f9eb0a2da0142848519"
+    },
+    "source/cachy-asahi-setup/README.md": {
+      "bytes": 12485,
+      "sha256": "b5ab05066ad4b3cede6a300079f1a67a883dcc9f4b3f3a5d109280c9cba60221"
+    },
+    "source/cachy-asahi-setup/cachy-asahi-repository": {
+      "bytes": 19778,
+      "sha256": "38db2d45955b569a4c74c3f31d6b6c79611126238e1bbe1e5cf819f81d0fb54f"
+    },
+    "source/cachy-asahi-setup/cachy-asahi-setup": {
+      "bytes": 36348,
+      "sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd"
+    },
+    "source/cachy-asahi-setup/check-packaged.py": {
+      "bytes": 7628,
+      "sha256": "a36c6b0c5e5e51cee5a88b2bc2d21b292de413e3ea5664936f4097ff52e55ca6"
+    },
+    "source/cachy-asahi-setup/check-sync.py": {
+      "bytes": 4256,
+      "sha256": "9fb6ff8f1a9304f6e55895b5d83845a8776c77669aac0ec55a58c47b25150a1a"
+    },
+    "source/cachy-asahi-setup/repository-enrollment.md": {
+      "bytes": 7786,
+      "sha256": "a14a53311e7c995b468ddcec1e4996611d7cfe9bb08eb255e0cb6bfee6dcc7e1"
+    },
+    "source/cachy-asahi-setup/source-provenance.json": {
+      "bytes": 1685,
+      "sha256": "3d49de8f6a69e9efeebeb5b4b73e2016a80f4a419096078c7eb3234adfe68021"
+    },
+    "source/cachy-asahi-setup/test-sync.py": {
+      "bytes": 8042,
+      "sha256": "9596373cef5469512b6bae3e0bf1dc6a1b093012779f1488765281aef27de9b3"
+    },
+    "source/source-manifest.json": {
+      "bytes": 14044,
+      "sha256": "7dcf25b24caff398a8fdd5c2d3b2db5100b946a952f0ee58885ce860d6dbcee0"
+    }
+  },
+  "native_run": 38934198468,
+  "native_source": "4cf9884dacb2816532b07c8107982d7157656046",
+  "ref": "codex/setup5-accepted-pair-inputs-v1",
+  "source": "79d8d2f53510e4f3a04f39c1b1e24c999aa32e44",
+  "status": "EXACT_PUBLIC_RETAINED_SETUP5_DATA_NO_ACCEPTANCE_TRANSFER"
+}

@@ -1,0 +1,59 @@
+name: Apps15 native source factory
+on:
+  pull_request:
+    paths:
+      - 'scripts/ci/apps15-native-source/**'
+      - '.github/workflows/apps15-native-source.yml'
+  push:
+    paths:
+      - 'scripts/ci/apps15-native-source/**'
+      - '.github/workflows/apps15-native-source.yml'
+permissions:
+  contents: read
+jobs:
+  source-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 5bbf9b2078d67d5543d01a849144fbd5696fa677
+          path: .ci-fixtures/apps14-native
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 308c63abacc2435aeebb74f988f7a1f362b5b942
+          path: .ci-fixtures/apps15-recipe
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 598fabeafbd8d77c30dca18ca67b5a6c775d9a46
+          path: .ci-fixtures/apps15-native
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 6ff102c0883b5088ed93297eb47d14f99049ab68
+          path: .ci-fixtures/apps13-native
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 2e58341f6fa25de5167fd8a59566b3dd7f066fe3
+          path: .ci-fixtures/apps14-recipe
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Exact115 emission and all18 original lane controls
+        env:
+          APPS13_NATIVE_SOURCE: ${{ github.workspace }}/.ci-fixtures/apps13-native
+          APPS14_RECIPE_SOURCE: ${{ github.workspace }}/.ci-fixtures/apps14-recipe
+          APPS14_NATIVE_SOURCE: ${{ github.workspace }}/.ci-fixtures/apps14-native
+          APPS15_RECIPE_SOURCE: ${{ github.workspace }}/.ci-fixtures/apps15-recipe
+          APPS15_NATIVE_SOURCE: ${{ github.workspace }}/.ci-fixtures/apps15-native
+        run: python3 -I -B -Werror scripts/ci/apps15-native-source/test_prepare.py

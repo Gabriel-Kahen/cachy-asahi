@@ -1,0 +1,42 @@
+# SPDX-License-Identifier: MIT
+"""Entire676 guard AND exact lexical work reduction/bounded retained stage DATA."""
+import hashlib,importlib.util,json,tempfile
+from pathlib import Path
+import source_guard as G,observer_apply as O
+HERE=Path(__file__).resolve().parent;ROOT=HERE.parent
+PARENTS=@PARENTS@
+PRODUCTS=@PRODUCTS@
+EDITS=@EDITS@
+SELF_SHA='@SELF@'
+def verify(require_known=False):
+ raw=G.read(HERE/'observer_guard.py');needle=('SELF_SHA='+repr(SELF_SHA)).encode();G.need(raw.count(needle)==1 and hashlib.sha256(raw.replace(needle,b"SELF_SHA='@SELF@'",1)).hexdigest()==SELF_SHA,'complete observer guard self seal')
+ p=G.obj(HERE/'observer-parent.json');before=p['files'];v=p['variant'];G.need(v in PARENTS and len(before)==676 and G.pin(G.enc(before))==PARENTS[v]and p['actual']is None,'whole exact676 parent context');G.need((p['source'],p['ref'])==(('fbef98eeadf7d9120f0c98832966efcc667028ce','codex/latest607-welcome8-service1800-v1')if v=='known'else(None,None)),'genuine676 published context or NULL')
+ m=G.obj(ROOT/'source-manifest.json');wanted=dict(PRODUCTS,**{'implementation/observer_guard.py':G.pin(raw)});G.need(m['status']=='SOURCE_ONLY_LATEST607_LEXICAL_OBSERVER_DATA_NO_GUI_AUTHORITY'and m['actual_source']is m['actual_ref']is m['actual_run']is None and m['files']==wanted,'entire observer source fixed product map/NULL actuals');G.need(G.table(ROOT)==dict(wanted,**{'source-manifest.json':G.pin(G.read(ROOT/'source-manifest.json'))}),'closed complete current observer source')
+ bodies={}
+ for n,w in before.items():
+  b=G.read(ROOT/n)
+  if n=='implementation/native.py':b=O.edited(b,[(O.NATIVE_AFTER,O.NATIVE_BEFORE)])
+  elif n=='implementation/source_guard.py':G.need(b.endswith(O.SUFFIX)and b.count(O.SUFFIX)==1,'entire676 guard prefix');b=b[:-len(O.SUFFIX)]
+  elif n=='implementation/factory/support/alpm_reader.py':
+   G.need(G.pin(b)==O.AFTER,'exact frozen qualified lexical bytes')
+   b=O.edited(b,[(a,z)for z,a in reversed(EDITS)])
+  elif n=='implementation/factory/profile.json':
+   q=json.loads(b);G.need(q['support']['alpm_reader.py']==O.AFTER,'sole honest lexical support seal');q['support']['alpm_reader.py']=O.BEFORE;b=G.enc(q)
+  elif n=='implementation/body-inverses.json':
+   q=json.loads(b);row=next(x for x in q if x['after_path']=='implementation/native.py');G.need(row['seams'][-1]==dict(before=O.NATIVE_BEFORE,after=O.NATIVE_AFTER,count=1),'finite executing native facade inverse');row['seams'].pop();b=G.enc(q)
+  elif n=='implementation/test_source.py':b=O.edited(b,[(O.AFTER['sha256'],O.BEFORE['sha256']),("self.assertEqual(__import__('observer_apply').workflow(new),C.read(ROOT/","self.assertEqual(new,C.read(ROOT/")])
+  elif n.startswith('.github/workflows/'):
+   b=O.unworkflow(b)
+  elif n=='source-manifest.json':
+   q=json.loads(b);q['status']='SOURCE_ONLY_DISTINCT_LATEST607_GUI_NO_NATIVE_AUTHORITY';q['files']={x:y for x,y in before.items()if x!='source-manifest.json'};b=G.enc(q)
+  G.need(G.pin(b)==w,'every complete original676 byte inverse '+n);bodies[n]=b
+ # Execute original complete676 source policy on its genuine reconstructed closed bytes.
+ # Its old_prove caller still invokes the entire original574 prove afterwards.
+ with tempfile.TemporaryDirectory(prefix='whole676-observer-source-')as td:
+  oldroot=Path(td)/'source';oldroot.mkdir(mode=0o700)
+  for n,b in bodies.items():q=oldroot/n;q.parent.mkdir(parents=True,exist_ok=True);q.write_bytes(b)
+  G.need(G.table(oldroot)==before,'entire676 namespace before original guard');s=importlib.util.spec_from_file_location('_whole_original676_observer_parent',oldroot/'implementation/source_guard.py');old=importlib.util.module_from_spec(s);s.loader.exec_module(old);fact=old.verify(require_known)
+  G.need(fact['files']==676 and fact['packages']==607 and fact['optional_absent']==605 and fact['service_seconds']==1800,'whole676 typed target/service/source guard');G.need(G.table(oldroot)==before,'original676 source unchanged after guard')
+ G.need(G.read(HERE/'factory/installed607.py')==bodies['implementation/factory/installed607.py']and O.ANNOTATION==dict(role='EXACT_INSTALLED607_VERIFY',diagnostic_bytes=2048,observer_seconds=600,caller_seconds=600,service_seconds=1800,loop_seconds=1900,runtime_seconds=2350,owner_wait_seconds=2800,native_owner_seconds=6600,hotspot='UNKNOWN',native_fit='NOT_ESTABLISHED',M2_performance='NOT_RUN',acceptance=False),'complete observer/default body and every cap held')
+ for n in('.github/workflows/native-arm-build.yml','.github/workflows/native-arm-latest607-welcome8-gui.yml'):G.need(G.read(ROOT/n)==O.workflow(bodies[n]),'whole original676 workflow plus exactly one current observer control step')
+ return dict(fact,status='PASS_COMPLETE676_574_AND_LEXICAL_OBSERVER_DATA_SOURCE_ONLY',files=len(wanted)+1,parent676_files=676,observer_diagnostic=O.ANNOTATION,lexical='EXACT_FROZEN_D567_NO_FIT_OR_HOTSPOT_TRANSFER')

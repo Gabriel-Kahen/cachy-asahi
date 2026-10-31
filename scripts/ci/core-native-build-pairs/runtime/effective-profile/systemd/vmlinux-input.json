@@ -1,0 +1,582 @@
+{
+  "authority": false,
+  "diagnostic": {
+    "CI": "failure",
+    "attempt": 1,
+    "header": "ABSENT_NATIVE_HOST_WRAPPER_REFUSED",
+    "originals": {
+      "artifacts.json": {
+        "artifacts": [
+          {
+            "archive_download_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/actions/artifacts/12338807042/zip",
+            "created_at": "2026-10-21T10:22:51Z",
+            "digest": "sha256:bea0ba06f405524a0e04f5a21cee1d82ed6493cae358f6e9cb79afbdfb5298d2",
+            "expired": false,
+            "expires_at": "2026-10-24T10:22:50Z",
+            "id": 12338807042,
+            "name": "core-host-btf-input-39584141217-1",
+            "node_id": "MDg6QXJ0aWZhY3QxMjMzODgwNzA0Mg==",
+            "size_in_bytes": 8433963,
+            "updated_at": "2026-10-21T10:22:51Z",
+            "url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/actions/artifacts/12338807042",
+            "workflow_run": {
+              "head_branch": "codex/core-systemd-btf-diagnostic-v1",
+              "head_repository_id": 1414857795,
+              "head_sha": "d14992a95966feb1bc4e957b3a55be3a01e876da",
+              "id": 39584141217,
+              "repository_id": 1414857795
+            }
+          }
+        ],
+        "total_count": 1
+      },
+      "collection.json": {
+        "artifact": {
+          "bytes": 8433963,
+          "sha256": "bea0ba06f405524a0e04f5a21cee1d82ed6493cae358f6e9cb79afbdfb5298d2"
+        },
+        "artifact_id": 12338807042,
+        "attempt": 1,
+        "metadata": {
+          "artifacts.json": {
+            "bytes": 776,
+            "sha256": "342005ba33d2a6106f3242cadb41633fbfa57e12e8dacf91f8564ef98702f304"
+          },
+          "jobs.json": {
+            "bytes": 2040,
+            "sha256": "641be874cad1a17ec0558dee35122f2cab980583457c679dec82ecbf91195aab"
+          },
+          "run.json": {
+            "bytes": 12995,
+            "sha256": "91eae801bf87f9d8eccf696a41c96aa670db9693727830cdf78756cc3da93fd3"
+          }
+        },
+        "ref": "codex/core-systemd-btf-diagnostic-v1",
+        "role": "core-host-btf-input",
+        "run": 39584141217,
+        "source": "d14992a95966feb1bc4e957b3a55be3a01e876da"
+      },
+      "jobs.json": {
+        "jobs": [
+          {
+            "check_run_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/check-runs/119168743677",
+            "completed_at": "2026-10-21T10:22:52Z",
+            "conclusion": "failure",
+            "created_at": "2026-10-21T10:22:43Z",
+            "head_branch": "codex/core-systemd-btf-diagnostic-v1",
+            "head_sha": "d14992a95966feb1bc4e957b3a55be3a01e876da",
+            "html_url": "https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/39584141217/job/119168743677",
+            "id": 119168743677,
+            "labels": [
+              "ubuntu-24.04-arm"
+            ],
+            "name": "native",
+            "node_id": "CR_kwDOVFUEQ88AAAAbvwK4_Q",
+            "run_attempt": 1,
+            "run_id": 39584141217,
+            "run_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/actions/runs/39584141217",
+            "runner_group_id": 0,
+            "runner_group_name": "GitHub Actions",
+            "runner_id": 1000015256,
+            "runner_name": "GitHub Actions 1000015256",
+            "started_at": "2026-10-21T10:22:48Z",
+            "status": "completed",
+            "steps": [
+              {
+                "completed_at": "2026-10-21T10:22:49Z",
+                "conclusion": "success",
+                "name": "Set up job",
+                "number": 1,
+                "started_at": "2026-10-21T10:22:49Z",
+                "status": "completed"
+              },
+              {
+                "completed_at": "2026-10-21T10:22:50Z",
+                "conclusion": "success",
+                "name": "Checkout explicit reviewed diagnostic source",
+                "number": 2,
+                "started_at": "2026-10-21T10:22:49Z",
+                "status": "completed"
+              },
+              {
+                "completed_at": "2026-10-21T10:22:50Z",
+                "conclusion": "failure",
+                "name": "Read only native host BTF and generate full header",
+                "number": 3,
+                "started_at": "2026-10-21T10:22:50Z",
+                "status": "completed"
+              },
+              {
+                "completed_at": "2026-10-21T10:22:51Z",
+                "conclusion": "success",
+                "name": "Retain bounded host BTF input DATA",
+                "number": 4,
+                "started_at": "2026-10-21T10:22:50Z",
+                "status": "completed"
+              },
+              {
+                "completed_at": "2026-10-21T10:22:51Z",
+                "conclusion": "success",
+                "name": "Post Checkout explicit reviewed diagnostic source",
+                "number": 8,
+                "started_at": "2026-10-21T10:22:51Z",
+                "status": "completed"
+              },
+              {
+                "completed_at": "2026-10-21T10:22:51Z",
+                "conclusion": "success",
+                "name": "Complete job",
+                "number": 9,
+                "started_at": "2026-10-21T10:22:51Z",
+                "status": "completed"
+              }
+            ],
+            "url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/actions/jobs/119168743677",
+            "workflow_name": "core-systemd-host-btf-input-diagnostic"
+          }
+        ],
+        "total_count": 1
+      },
+      "run.json": {
+        "actor": {
+          "avatar_url": "https://avatars.githubusercontent.com/u/93809974?v=4",
+          "events_url": "https://api.github.com/users/Gabriel-Kahen/events{/privacy}",
+          "followers_url": "https://api.github.com/users/Gabriel-Kahen/followers",
+          "following_url": "https://api.github.com/users/Gabriel-Kahen/following{/other_user}",
+          "gists_url": "https://api.github.com/users/Gabriel-Kahen/gists{/gist_id}",
+          "gravatar_id": "",
+          "html_url": "https://github.com/Gabriel-Kahen",
+          "id": 93809974,
+          "login": "Gabriel-Kahen",
+          "node_id": "U_kgDOBZdtNg",
+          "organizations_url": "https://api.github.com/users/Gabriel-Kahen/orgs",
+          "received_events_url": "https://api.github.com/users/Gabriel-Kahen/received_events",
+          "repos_url": "https://api.github.com/users/Gabriel-Kahen/repos",
+          "site_admin": false,
+          "starred_url": "https://api.github.com/users/Gabriel-Kahen/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/Gabriel-Kahen/subscriptions",
+          "type": "User",
+          "url": "https://api.github.com/users/Gabriel-Kahen",
+          "user_view_type": "public"
+        },
+        "artifacts_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/actions/runs/39584141217/artifacts",
+        "cancel_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/actions/runs/39584141217/cancel",
+        "check_suite_id": 107270106921,
+        "check_suite_node_id": "CS_kwDOVFUEQ88AAAAY-cvvKQ",
+        "check_suite_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/check-suites/107270106921",
+        "conclusion": "failure",
+        "created_at": "2026-10-21T10:22:42Z",
+        "display_title": "native-arm-build",
+        "event": "workflow_dispatch",
+        "head_branch": "codex/core-systemd-btf-diagnostic-v1",
+        "head_commit": {
+          "author": {
+            "email": "gabe@users.noreply.github.com",
+            "name": "Gabriel Kahen"
+          },
+          "committer": {
+            "email": "gabe@users.noreply.github.com",
+            "name": "Gabriel Kahen"
+          },
+          "id": "d14992a95966feb1bc4e957b3a55be3a01e876da",
+          "message": "Capture one native ARM BTF input for reproducible systemd BPF builds",
+          "timestamp": "2026-10-21T10:17:33Z",
+          "tree_id": "bfdce8388ffb323a0ca2df8ce14a725e40e43037"
+        },
+        "head_repository": {
+          "archive_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/{archive_format}{/ref}",
+          "assignees_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/assignees{/user}",
+          "blobs_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/git/blobs{/sha}",
+          "branches_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/branches{/branch}",
+          "collaborators_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/collaborators{/collaborator}",
+          "comments_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/comments{/number}",
+          "commits_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/commits{/sha}",
+          "compare_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/compare/{base}...{head}",
+          "contents_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/contents/{+path}",
+          "contributors_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/contributors",
+          "deployments_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/deployments",
+          "description": "IN DEVELOPMENT: CachyOS package and configuration overlay for Asahi Linux on Apple Silicon",
+          "downloads_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/downloads",
+          "events_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/events",
+          "fork": false,
+          "forks_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/forks",
+          "full_name": "Gabriel-Kahen/cachy-asahi",
+          "git_commits_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/git/commits{/sha}",
+          "git_refs_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/git/refs{/sha}",
+          "git_tags_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/git/tags{/sha}",
+          "hooks_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/hooks",
+          "html_url": "https://github.com/Gabriel-Kahen/cachy-asahi",
+          "id": 1414857795,
+          "issue_comment_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/issues/comments{/number}",
+          "issue_events_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/issues/events{/number}",
+          "issues_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/issues{/number}",
+          "keys_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/keys{/key_id}",
+          "labels_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/labels{/name}",
+          "languages_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/languages",
+          "merges_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/merges",
+          "milestones_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/milestones{/number}",
+          "name": "cachy-asahi",
+          "node_id": "R_kgDOVFUEQw",
+          "notifications_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/notifications{?since,all,participating}",
+          "owner": {
+            "avatar_url": "https://avatars.githubusercontent.com/u/93809974?v=4",
+            "events_url": "https://api.github.com/users/Gabriel-Kahen/events{/privacy}",
+            "followers_url": "https://api.github.com/users/Gabriel-Kahen/followers",
+            "following_url": "https://api.github.com/users/Gabriel-Kahen/following{/other_user}",
+            "gists_url": "https://api.github.com/users/Gabriel-Kahen/gists{/gist_id}",
+            "gravatar_id": "",
+            "html_url": "https://github.com/Gabriel-Kahen",
+            "id": 93809974,
+            "login": "Gabriel-Kahen",
+            "node_id": "U_kgDOBZdtNg",
+            "organizations_url": "https://api.github.com/users/Gabriel-Kahen/orgs",
+            "received_events_url": "https://api.github.com/users/Gabriel-Kahen/received_events",
+            "repos_url": "https://api.github.com/users/Gabriel-Kahen/repos",
+            "site_admin": false,
+            "starred_url": "https://api.github.com/users/Gabriel-Kahen/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/Gabriel-Kahen/subscriptions",
+            "type": "User",
+            "url": "https://api.github.com/users/Gabriel-Kahen",
+            "user_view_type": "public"
+          },
+          "private": false,
+          "pulls_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/pulls{/number}",
+          "releases_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/releases{/id}",
+          "stargazers_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/stargazers",
+          "statuses_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/statuses/{sha}",
+          "subscribers_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/subscribers",
+          "subscription_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/subscription",
+          "tags_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/tags",
+          "teams_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/teams",
+          "trees_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/git/trees{/sha}",
+          "url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi"
+        },
+        "head_sha": "d14992a95966feb1bc4e957b3a55be3a01e876da",
+        "html_url": "https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/39584141217",
+        "id": 39584141217,
+        "jobs_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/actions/runs/39584141217/jobs",
+        "logs_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/actions/runs/39584141217/logs",
+        "name": "core-systemd-host-btf-input-diagnostic",
+        "node_id": "WFR_kwLOVFUEQ88AAAAJN2YPoQ",
+        "path": ".github/workflows/native-arm-build.yml",
+        "previous_attempt_url": null,
+        "pull_requests": [],
+        "referenced_workflows": [],
+        "repository": {
+          "archive_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/{archive_format}{/ref}",
+          "assignees_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/assignees{/user}",
+          "blobs_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/git/blobs{/sha}",
+          "branches_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/branches{/branch}",
+          "collaborators_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/collaborators{/collaborator}",
+          "comments_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/comments{/number}",
+          "commits_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/commits{/sha}",
+          "compare_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/compare/{base}...{head}",
+          "contents_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/contents/{+path}",
+          "contributors_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/contributors",
+          "deployments_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/deployments",
+          "description": "IN DEVELOPMENT: CachyOS package and configuration overlay for Asahi Linux on Apple Silicon",
+          "downloads_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/downloads",
+          "events_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/events",
+          "fork": false,
+          "forks_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/forks",
+          "full_name": "Gabriel-Kahen/cachy-asahi",
+          "git_commits_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/git/commits{/sha}",
+          "git_refs_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/git/refs{/sha}",
+          "git_tags_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/git/tags{/sha}",
+          "hooks_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/hooks",
+          "html_url": "https://github.com/Gabriel-Kahen/cachy-asahi",
+          "id": 1414857795,
+          "issue_comment_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/issues/comments{/number}",
+          "issue_events_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/issues/events{/number}",
+          "issues_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/issues{/number}",
+          "keys_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/keys{/key_id}",
+          "labels_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/labels{/name}",
+          "languages_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/languages",
+          "merges_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/merges",
+          "milestones_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/milestones{/number}",
+          "name": "cachy-asahi",
+          "node_id": "R_kgDOVFUEQw",
+          "notifications_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/notifications{?since,all,participating}",
+          "owner": {
+            "avatar_url": "https://avatars.githubusercontent.com/u/93809974?v=4",
+            "events_url": "https://api.github.com/users/Gabriel-Kahen/events{/privacy}",
+            "followers_url": "https://api.github.com/users/Gabriel-Kahen/followers",
+            "following_url": "https://api.github.com/users/Gabriel-Kahen/following{/other_user}",
+            "gists_url": "https://api.github.com/users/Gabriel-Kahen/gists{/gist_id}",
+            "gravatar_id": "",
+            "html_url": "https://github.com/Gabriel-Kahen",
+            "id": 93809974,
+            "login": "Gabriel-Kahen",
+            "node_id": "U_kgDOBZdtNg",
+            "organizations_url": "https://api.github.com/users/Gabriel-Kahen/orgs",
+            "received_events_url": "https://api.github.com/users/Gabriel-Kahen/received_events",
+            "repos_url": "https://api.github.com/users/Gabriel-Kahen/repos",
+            "site_admin": false,
+            "starred_url": "https://api.github.com/users/Gabriel-Kahen/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/Gabriel-Kahen/subscriptions",
+            "type": "User",
+            "url": "https://api.github.com/users/Gabriel-Kahen",
+            "user_view_type": "public"
+          },
+          "private": false,
+          "pulls_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/pulls{/number}",
+          "releases_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/releases{/id}",
+          "stargazers_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/stargazers",
+          "statuses_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/statuses/{sha}",
+          "subscribers_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/subscribers",
+          "subscription_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/subscription",
+          "tags_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/tags",
+          "teams_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/teams",
+          "trees_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/git/trees{/sha}",
+          "url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi"
+        },
+        "rerun_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/actions/runs/39584141217/rerun",
+        "run_attempt": 1,
+        "run_number": 670,
+        "run_started_at": "2026-10-21T10:22:42Z",
+        "status": "completed",
+        "triggering_actor": {
+          "avatar_url": "https://avatars.githubusercontent.com/u/93809974?v=4",
+          "events_url": "https://api.github.com/users/Gabriel-Kahen/events{/privacy}",
+          "followers_url": "https://api.github.com/users/Gabriel-Kahen/followers",
+          "following_url": "https://api.github.com/users/Gabriel-Kahen/following{/other_user}",
+          "gists_url": "https://api.github.com/users/Gabriel-Kahen/gists{/gist_id}",
+          "gravatar_id": "",
+          "html_url": "https://github.com/Gabriel-Kahen",
+          "id": 93809974,
+          "login": "Gabriel-Kahen",
+          "node_id": "U_kgDOBZdtNg",
+          "organizations_url": "https://api.github.com/users/Gabriel-Kahen/orgs",
+          "received_events_url": "https://api.github.com/users/Gabriel-Kahen/received_events",
+          "repos_url": "https://api.github.com/users/Gabriel-Kahen/repos",
+          "site_admin": false,
+          "starred_url": "https://api.github.com/users/Gabriel-Kahen/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/Gabriel-Kahen/subscriptions",
+          "type": "User",
+          "url": "https://api.github.com/users/Gabriel-Kahen",
+          "user_view_type": "public"
+        },
+        "updated_at": "2026-10-21T10:22:53Z",
+        "url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/actions/runs/39584141217",
+        "workflow_id": 381664314,
+        "workflow_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/actions/workflows/381664314"
+      }
+    },
+    "originals_bytes_base64": {
+      "artifacts.json": "eyJ0b3RhbF9jb3VudCI6MSwiYXJ0aWZhY3RzIjpbeyJpZCI6MTIzMzg4MDcwNDIsIm5vZGVfaWQiOiJNRGc2UVhKMGFXWmhZM1F4TWpNek9EZ3dOekEwTWc9PSIsIm5hbWUiOiJjb3JlLWhvc3QtYnRmLWlucHV0LTM5NTg0MTQxMjE3LTEiLCJzaXplX2luX2J5dGVzIjo4NDMzOTYzLCJ1cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3JlcG9zL0dhYnJpZWwtS2FoZW4vY2FjaHktYXNhaGkvYWN0aW9ucy9hcnRpZmFjdHMvMTIzMzg4MDcwNDIiLCJhcmNoaXZlX2Rvd25sb2FkX3VybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vcmVwb3MvR2FicmllbC1LYWhlbi9jYWNoeS1hc2FoaS9hY3Rpb25zL2FydGlmYWN0cy8xMjMzODgwNzA0Mi96aXAiLCJleHBpcmVkIjpmYWxzZSwiZGlnZXN0Ijoic2hhMjU2OmJlYTBiYTA2ZjQwNTUyNGEwZTA0ZjVhMjFjZWUxZDgyZWQ2NDkzY2FlMzU4ZjZlOWNiNzlhZmJkZmI1Mjk4ZDIiLCJjcmVhdGVkX2F0IjoiMjAyNi0xMC0yMVQxMDoyMjo1MVoiLCJ1cGRhdGVkX2F0IjoiMjAyNi0xMC0yMVQxMDoyMjo1MVoiLCJleHBpcmVzX2F0IjoiMjAyNi0xMC0yNFQxMDoyMjo1MFoiLCJ3b3JrZmxvd19ydW4iOnsiaWQiOjM5NTg0MTQxMjE3LCJyZXBvc2l0b3J5X2lkIjoxNDE0ODU3Nzk1LCJoZWFkX3JlcG9zaXRvcnlfaWQiOjE0MTQ4NTc3OTUsImhlYWRfYnJhbmNoIjoiY29kZXgvY29yZS1zeXN0ZW1kLWJ0Zi1kaWFnbm9zdGljLXYxIiwiaGVhZF9zaGEiOiJkMTQ5OTJhOTU5NjZmZWIxYmM0ZTk1N2IzYTU1YmUzYTAxZTg3NmRhIn19XX0=",
+      "collection.json": "ewogICJhcnRpZmFjdCI6IHsKICAgICJieXRlcyI6IDg0MzM5NjMsCiAgICAic2hhMjU2IjogImJlYTBiYTA2ZjQwNTUyNGEwZTA0ZjVhMjFjZWUxZDgyZWQ2NDkzY2FlMzU4ZjZlOWNiNzlhZmJkZmI1Mjk4ZDIiCiAgfSwKICAiYXJ0aWZhY3RfaWQiOiAxMjMzODgwNzA0MiwKICAiYXR0ZW1wdCI6IDEsCiAgIm1ldGFkYXRhIjogewogICAgImFydGlmYWN0cy5qc29uIjogewogICAgICAiYnl0ZXMiOiA3NzYsCiAgICAgICJzaGEyNTYiOiAiMzQyMDA1YmEzM2QyYTYxMDZmMzI0MmNhZGI0MTYzM2ZiZmE1N2UxMmU4ZGFjZjkxZjg1NjRlZjk4NzAyZjMwNCIKICAgIH0sCiAgICAiam9icy5qc29uIjogewogICAgICAiYnl0ZXMiOiAyMDQwLAogICAgICAic2hhMjU2IjogIjY0MWJlODc0Y2FkMWExN2VjMDU1OGRlZTM1MTIyZjJjYWI5ODA1ODM0NTdjNjc5ZGVjODJlY2JmOTExOTVhYWIiCiAgICB9LAogICAgInJ1bi5qc29uIjogewogICAgICAiYnl0ZXMiOiAxMjk5NSwKICAgICAgInNoYTI1NiI6ICI5MWVhZTgwMWJmODdmOWQ4ZWNjZjY5NmE0MWM5NmFhNjcwZGI5NjkzNzI3ODMwY2RmNzg3NTZjYzNkYTkzZmQzIgogICAgfQogIH0sCiAgInJlZiI6ICJjb2RleC9jb3JlLXN5c3RlbWQtYnRmLWRpYWdub3N0aWMtdjEiLAogICJyb2xlIjogImNvcmUtaG9zdC1idGYtaW5wdXQiLAogICJydW4iOiAzOTU4NDE0MTIxNywKICAic291cmNlIjogImQxNDk5MmE5NTk2NmZlYjFiYzRlOTU3YjNhNTViZTNhMDFlODc2ZGEiCn0K",
+      "jobs.json": "eyJ0b3RhbF9jb3VudCI6MSwiam9icyI6W3siaWQiOjExOTE2ODc0MzY3NywicnVuX2lkIjozOTU4NDE0MTIxNywid29ya2Zsb3dfbmFtZSI6ImNvcmUtc3lzdGVtZC1ob3N0LWJ0Zi1pbnB1dC1kaWFnbm9zdGljIiwiaGVhZF9icmFuY2giOiJjb2RleC9jb3JlLXN5c3RlbWQtYnRmLWRpYWdub3N0aWMtdjEiLCJydW5fdXJsIjoiaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy9HYWJyaWVsLUthaGVuL2NhY2h5LWFzYWhpL2FjdGlvbnMvcnVucy8zOTU4NDE0MTIxNyIsInJ1bl9hdHRlbXB0IjoxLCJub2RlX2lkIjoiQ1Jfa3dET1ZGVUVRODhBQUFBYnZ3SzRfUSIsImhlYWRfc2hhIjoiZDE0OTkyYTk1OTY2ZmViMWJjNGU5NTdiM2E1NWJlM2EwMWU4NzZkYSIsInVybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vcmVwb3MvR2FicmllbC1LYWhlbi9jYWNoeS1hc2FoaS9hY3Rpb25zL2pvYnMvMTE5MTY4NzQzNjc3IiwiaHRtbF91cmwiOiJodHRwczovL2dpdGh1Yi5jb20vR2FicmllbC1LYWhlbi9jYWNoeS1hc2FoaS9hY3Rpb25zL3J1bnMvMzk1ODQxNDEyMTcvam9iLzExOTE2ODc0MzY3NyIsInN0YXR1cyI6ImNvbXBsZXRlZCIsImNvbmNsdXNpb24iOiJmYWlsdXJlIiwiY3JlYXRlZF9hdCI6IjIwMjYtMTAtMjFUMTA6MjI6NDNaIiwic3RhcnRlZF9hdCI6IjIwMjYtMTAtMjFUMTA6MjI6NDhaIiwiY29tcGxldGVkX2F0IjoiMjAyNi0xMC0yMVQxMDoyMjo1MloiLCJuYW1lIjoibmF0aXZlIiwic3RlcHMiOlt7Im5hbWUiOiJTZXQgdXAgam9iIiwic3RhdHVzIjoiY29tcGxldGVkIiwiY29uY2x1c2lvbiI6InN1Y2Nlc3MiLCJudW1iZXIiOjEsInN0YXJ0ZWRfYXQiOiIyMDI2LTEwLTIxVDEwOjIyOjQ5WiIsImNvbXBsZXRlZF9hdCI6IjIwMjYtMTAtMjFUMTA6MjI6NDlaIn0seyJuYW1lIjoiQ2hlY2tvdXQgZXhwbGljaXQgcmV2aWV3ZWQgZGlhZ25vc3RpYyBzb3VyY2UiLCJzdGF0dXMiOiJjb21wbGV0ZWQiLCJjb25jbHVzaW9uIjoic3VjY2VzcyIsIm51bWJlciI6Miwic3RhcnRlZF9hdCI6IjIwMjYtMTAtMjFUMTA6MjI6NDlaIiwiY29tcGxldGVkX2F0IjoiMjAyNi0xMC0yMVQxMDoyMjo1MFoifSx7Im5hbWUiOiJSZWFkIG9ubHkgbmF0aXZlIGhvc3QgQlRGIGFuZCBnZW5lcmF0ZSBmdWxsIGhlYWRlciIsInN0YXR1cyI6ImNvbXBsZXRlZCIsImNvbmNsdXNpb24iOiJmYWlsdXJlIiwibnVtYmVyIjozLCJzdGFydGVkX2F0IjoiMjAyNi0xMC0yMVQxMDoyMjo1MFoiLCJjb21wbGV0ZWRfYXQiOiIyMDI2LTEwLTIxVDEwOjIyOjUwWiJ9LHsibmFtZSI6IlJldGFpbiBib3VuZGVkIGhvc3QgQlRGIGlucHV0IERBVEEiLCJzdGF0dXMiOiJjb21wbGV0ZWQiLCJjb25jbHVzaW9uIjoic3VjY2VzcyIsIm51bWJlciI6NCwic3RhcnRlZF9hdCI6IjIwMjYtMTAtMjFUMTA6MjI6NTBaIiwiY29tcGxldGVkX2F0IjoiMjAyNi0xMC0yMVQxMDoyMjo1MVoifSx7Im5hbWUiOiJQb3N0IENoZWNrb3V0IGV4cGxpY2l0IHJldmlld2VkIGRpYWdub3N0aWMgc291cmNlIiwic3RhdHVzIjoiY29tcGxldGVkIiwiY29uY2x1c2lvbiI6InN1Y2Nlc3MiLCJudW1iZXIiOjgsInN0YXJ0ZWRfYXQiOiIyMDI2LTEwLTIxVDEwOjIyOjUxWiIsImNvbXBsZXRlZF9hdCI6IjIwMjYtMTAtMjFUMTA6MjI6NTFaIn0seyJuYW1lIjoiQ29tcGxldGUgam9iIiwic3RhdHVzIjoiY29tcGxldGVkIiwiY29uY2x1c2lvbiI6InN1Y2Nlc3MiLCJudW1iZXIiOjksInN0YXJ0ZWRfYXQiOiIyMDI2LTEwLTIxVDEwOjIyOjUxWiIsImNvbXBsZXRlZF9hdCI6IjIwMjYtMTAtMjFUMTA6MjI6NTFaIn1dLCJjaGVja19ydW5fdXJsIjoiaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy9HYWJyaWVsLUthaGVuL2NhY2h5LWFzYWhpL2NoZWNrLXJ1bnMvMTE5MTY4NzQzNjc3IiwibGFiZWxzIjpbInVidW50dS0yNC4wNC1hcm0iXSwicnVubmVyX2lkIjoxMDAwMDE1MjU2LCJydW5uZXJfbmFtZSI6IkdpdEh1YiBBY3Rpb25zIDEwMDAwMTUyNTYiLCJydW5uZXJfZ3JvdXBfaWQiOjAsInJ1bm5lcl9ncm91cF9uYW1lIjoiR2l0SHViIEFjdGlvbnMifV19",
+      "run.json": "eyJpZCI6Mzk1ODQxNDEyMTcsIm5hbWUiOiJjb3JlLXN5c3RlbWQtaG9zdC1idGYtaW5wdXQtZGlhZ25vc3RpYyIsIm5vZGVfaWQiOiJXRlJfa3dMT1ZGVUVRODhBQUFBSk4yWVBvUSIsImhlYWRfYnJhbmNoIjoiY29kZXgvY29yZS1zeXN0ZW1kLWJ0Zi1kaWFnbm9zdGljLXYxIiwiaGVhZF9zaGEiOiJkMTQ5OTJhOTU5NjZmZWIxYmM0ZTk1N2IzYTU1YmUzYTAxZTg3NmRhIiwicGF0aCI6Ii5naXRodWIvd29ya2Zsb3dzL25hdGl2ZS1hcm0tYnVpbGQueW1sIiwiZGlzcGxheV90aXRsZSI6Im5hdGl2ZS1hcm0tYnVpbGQiLCJydW5fbnVtYmVyIjo2NzAsImV2ZW50Ijoid29ya2Zsb3dfZGlzcGF0Y2giLCJzdGF0dXMiOiJjb21wbGV0ZWQiLCJjb25jbHVzaW9uIjoiZmFpbHVyZSIsIndvcmtmbG93X2lkIjozODE2NjQzMTQsImNoZWNrX3N1aXRlX2lkIjoxMDcyNzAxMDY5MjEsImNoZWNrX3N1aXRlX25vZGVfaWQiOiJDU19rd0RPVkZVRVE4OEFBQUFZLWN2dktRIiwidXJsIjoiaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy9HYWJyaWVsLUthaGVuL2NhY2h5LWFzYWhpL2FjdGlvbnMvcnVucy8zOTU4NDE0MTIxNyIsImh0bWxfdXJsIjoiaHR0cHM6Ly9naXRodWIuY29tL0dhYnJpZWwtS2FoZW4vY2FjaHktYXNhaGkvYWN0aW9ucy9ydW5zLzM5NTg0MTQxMjE3IiwicHVsbF9yZXF1ZXN0cyI6W10sImNyZWF0ZWRfYXQiOiIyMDI2LTEwLTIxVDEwOjIyOjQyWiIsInVwZGF0ZWRfYXQiOiIyMDI2LTEwLTIxVDEwOjIyOjUzWiIsImFjdG9yIjp7ImxvZ2luIjoiR2FicmllbC1LYWhlbiIsImlkIjo5MzgwOTk3NCwibm9kZV9pZCI6IlVfa2dET0JaZHROZyIsImF2YXRhcl91cmwiOiJodHRwczovL2F2YXRhcnMuZ2l0aHVidXNlcmNvbnRlbnQuY29tL3UvOTM4MDk5NzQ/dj00IiwiZ3JhdmF0YXJfaWQiOiIiLCJ1cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3VzZXJzL0dhYnJpZWwtS2FoZW4iLCJodG1sX3VybCI6Imh0dHBzOi8vZ2l0aHViLmNvbS9HYWJyaWVsLUthaGVuIiwiZm9sbG93ZXJzX3VybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vdXNlcnMvR2FicmllbC1LYWhlbi9mb2xsb3dlcnMiLCJmb2xsb3dpbmdfdXJsIjoiaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS91c2Vycy9HYWJyaWVsLUthaGVuL2ZvbGxvd2luZ3svb3RoZXJfdXNlcn0iLCJnaXN0c191cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3VzZXJzL0dhYnJpZWwtS2FoZW4vZ2lzdHN7L2dpc3RfaWR9Iiwic3RhcnJlZF91cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3VzZXJzL0dhYnJpZWwtS2FoZW4vc3RhcnJlZHsvb3duZXJ9ey9yZXBvfSIsInN1YnNjcmlwdGlvbnNfdXJsIjoiaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS91c2Vycy9HYWJyaWVsLUthaGVuL3N1YnNjcmlwdGlvbnMiLCJvcmdhbml6YXRpb25zX3VybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vdXNlcnMvR2FicmllbC1LYWhlbi9vcmdzIiwicmVwb3NfdXJsIjoiaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS91c2Vycy9HYWJyaWVsLUthaGVuL3JlcG9zIiwiZXZlbnRzX3VybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vdXNlcnMvR2FicmllbC1LYWhlbi9ldmVudHN7L3ByaXZhY3l9IiwicmVjZWl2ZWRfZXZlbnRzX3VybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vdXNlcnMvR2FicmllbC1LYWhlbi9yZWNlaXZlZF9ldmVudHMiLCJ0eXBlIjoiVXNlciIsInVzZXJfdmlld190eXBlIjoicHVibGljIiwic2l0ZV9hZG1pbiI6ZmFsc2V9LCJydW5fYXR0ZW1wdCI6MSwicmVmZXJlbmNlZF93b3JrZmxvd3MiOltdLCJydW5fc3RhcnRlZF9hdCI6IjIwMjYtMTAtMjFUMTA6MjI6NDJaIiwidHJpZ2dlcmluZ19hY3RvciI6eyJsb2dpbiI6IkdhYnJpZWwtS2FoZW4iLCJpZCI6OTM4MDk5NzQsIm5vZGVfaWQiOiJVX2tnRE9CWmR0TmciLCJhdmF0YXJfdXJsIjoiaHR0cHM6Ly9hdmF0YXJzLmdpdGh1YnVzZXJjb250ZW50LmNvbS91LzkzODA5OTc0P3Y9NCIsImdyYXZhdGFyX2lkIjoiIiwidXJsIjoiaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS91c2Vycy9HYWJyaWVsLUthaGVuIiwiaHRtbF91cmwiOiJodHRwczovL2dpdGh1Yi5jb20vR2FicmllbC1LYWhlbiIsImZvbGxvd2Vyc191cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3VzZXJzL0dhYnJpZWwtS2FoZW4vZm9sbG93ZXJzIiwiZm9sbG93aW5nX3VybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vdXNlcnMvR2FicmllbC1LYWhlbi9mb2xsb3dpbmd7L290aGVyX3VzZXJ9IiwiZ2lzdHNfdXJsIjoiaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS91c2Vycy9HYWJyaWVsLUthaGVuL2dpc3Rzey9naXN0X2lkfSIsInN0YXJyZWRfdXJsIjoiaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS91c2Vycy9HYWJyaWVsLUthaGVuL3N0YXJyZWR7L293bmVyfXsvcmVwb30iLCJzdWJzY3JpcHRpb25zX3VybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vdXNlcnMvR2FicmllbC1LYWhlbi9zdWJzY3JpcHRpb25zIiwib3JnYW5pemF0aW9uc191cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3VzZXJzL0dhYnJpZWwtS2FoZW4vb3JncyIsInJlcG9zX3VybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vdXNlcnMvR2FicmllbC1LYWhlbi9yZXBvcyIsImV2ZW50c191cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3VzZXJzL0dhYnJpZWwtS2FoZW4vZXZlbnRzey9wcml2YWN5fSIsInJlY2VpdmVkX2V2ZW50c191cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3VzZXJzL0dhYnJpZWwtS2FoZW4vcmVjZWl2ZWRfZXZlbnRzIiwidHlwZSI6IlVzZXIiLCJ1c2VyX3ZpZXdfdHlwZSI6InB1YmxpYyIsInNpdGVfYWRtaW4iOmZhbHNlfSwiam9ic191cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3JlcG9zL0dhYnJpZWwtS2FoZW4vY2FjaHktYXNhaGkvYWN0aW9ucy9ydW5zLzM5NTg0MTQxMjE3L2pvYnMiLCJsb2dzX3VybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vcmVwb3MvR2FicmllbC1LYWhlbi9jYWNoeS1hc2FoaS9hY3Rpb25zL3J1bnMvMzk1ODQxNDEyMTcvbG9ncyIsImNoZWNrX3N1aXRlX3VybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vcmVwb3MvR2FicmllbC1LYWhlbi9jYWNoeS1hc2FoaS9jaGVjay1zdWl0ZXMvMTA3MjcwMTA2OTIxIiwiYXJ0aWZhY3RzX3VybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vcmVwb3MvR2FicmllbC1LYWhlbi9jYWNoeS1hc2FoaS9hY3Rpb25zL3J1bnMvMzk1ODQxNDEyMTcvYXJ0aWZhY3RzIiwiY2FuY2VsX3VybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vcmVwb3MvR2FicmllbC1LYWhlbi9jYWNoeS1hc2FoaS9hY3Rpb25zL3J1bnMvMzk1ODQxNDEyMTcvY2FuY2VsIiwicmVydW5fdXJsIjoiaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy9HYWJyaWVsLUthaGVuL2NhY2h5LWFzYWhpL2FjdGlvbnMvcnVucy8zOTU4NDE0MTIxNy9yZXJ1biIsInByZXZpb3VzX2F0dGVtcHRfdXJsIjpudWxsLCJ3b3JrZmxvd191cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3JlcG9zL0dhYnJpZWwtS2FoZW4vY2FjaHktYXNhaGkvYWN0aW9ucy93b3JrZmxvd3MvMzgxNjY0MzE0IiwiaGVhZF9jb21taXQiOnsiaWQiOiJkMTQ5OTJhOTU5NjZmZWIxYmM0ZTk1N2IzYTU1YmUzYTAxZTg3NmRhIiwidHJlZV9pZCI6ImJmZGNlODM4OGZmYjMyM2EwY2EyZGY4Y2UxNGE3MjVlNDBlNDMwMzciLCJtZXNzYWdlIjoiQ2FwdHVyZSBvbmUgbmF0aXZlIEFSTSBCVEYgaW5wdXQgZm9yIHJlcHJvZHVjaWJsZSBzeXN0ZW1kIEJQRiBidWlsZHMiLCJ0aW1lc3RhbXAiOiIyMDI2LTEwLTIxVDEwOjE3OjMzWiIsImF1dGhvciI6eyJuYW1lIjoiR2FicmllbCBLYWhlbiIsImVtYWlsIjoiZ2FiZUB1c2Vycy5ub3JlcGx5LmdpdGh1Yi5jb20ifSwiY29tbWl0dGVyIjp7Im5hbWUiOiJHYWJyaWVsIEthaGVuIiwiZW1haWwiOiJnYWJlQHVzZXJzLm5vcmVwbHkuZ2l0aHViLmNvbSJ9fSwicmVwb3NpdG9yeSI6eyJpZCI6MTQxNDg1Nzc5NSwibm9kZV9pZCI6IlJfa2dET1ZGVUVRdyIsIm5hbWUiOiJjYWNoeS1hc2FoaSIsImZ1bGxfbmFtZSI6IkdhYnJpZWwtS2FoZW4vY2FjaHktYXNhaGkiLCJwcml2YXRlIjpmYWxzZSwib3duZXIiOnsibG9naW4iOiJHYWJyaWVsLUthaGVuIiwiaWQiOjkzODA5OTc0LCJub2RlX2lkIjoiVV9rZ0RPQlpkdE5nIiwiYXZhdGFyX3VybCI6Imh0dHBzOi8vYXZhdGFycy5naXRodWJ1c2VyY29udGVudC5jb20vdS85MzgwOTk3ND92PTQiLCJncmF2YXRhcl9pZCI6IiIsInVybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vdXNlcnMvR2FicmllbC1LYWhlbiIsImh0bWxfdXJsIjoiaHR0cHM6Ly9naXRodWIuY29tL0dhYnJpZWwtS2FoZW4iLCJmb2xsb3dlcnNfdXJsIjoiaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS91c2Vycy9HYWJyaWVsLUthaGVuL2ZvbGxvd2VycyIsImZvbGxvd2luZ191cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3VzZXJzL0dhYnJpZWwtS2FoZW4vZm9sbG93aW5ney9vdGhlcl91c2VyfSIsImdpc3RzX3VybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vdXNlcnMvR2FicmllbC1LYWhlbi9naXN0c3svZ2lzdF9pZH0iLCJzdGFycmVkX3VybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vdXNlcnMvR2FicmllbC1LYWhlbi9zdGFycmVkey9vd25lcn17L3JlcG99Iiwic3Vic2NyaXB0aW9uc191cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3VzZXJzL0dhYnJpZWwtS2FoZW4vc3Vic2NyaXB0aW9ucyIsIm9yZ2FuaXphdGlvbnNfdXJsIjoiaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS91c2Vycy9HYWJyaWVsLUthaGVuL29yZ3MiLCJyZXBvc191cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3VzZXJzL0dhYnJpZWwtS2FoZW4vcmVwb3MiLCJldmVudHNfdXJsIjoiaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS91c2Vycy9HYWJyaWVsLUthaGVuL2V2ZW50c3svcHJpdmFjeX0iLCJyZWNlaXZlZF9ldmVudHNfdXJsIjoiaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS91c2Vycy9HYWJyaWVsLUthaGVuL3JlY2VpdmVkX2V2ZW50cyIsInR5cGUiOiJVc2VyIiwidXNlcl92aWV3X3R5cGUiOiJwdWJsaWMiLCJzaXRlX2FkbWluIjpmYWxzZX0sImh0bWxfdXJsIjoiaHR0cHM6Ly9naXRodWIuY29tL0dhYnJpZWwtS2FoZW4vY2FjaHktYXNhaGkiLCJkZXNjcmlwdGlvbiI6IklOIERFVkVMT1BNRU5UOiBDYWNoeU9TIHBhY2thZ2UgYW5kIGNvbmZpZ3VyYXRpb24gb3ZlcmxheSBmb3IgQXNhaGkgTGludXggb24gQXBwbGUgU2lsaWNvbiIsImZvcmsiOmZhbHNlLCJ1cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3JlcG9zL0dhYnJpZWwtS2FoZW4vY2FjaHktYXNhaGkiLCJmb3Jrc191cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3JlcG9zL0dhYnJpZWwtS2FoZW4vY2FjaHktYXNhaGkvZm9ya3MiLCJrZXlzX3VybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vcmVwb3MvR2FicmllbC1LYWhlbi9jYWNoeS1hc2FoaS9rZXlzey9rZXlfaWR9IiwiY29sbGFib3JhdG9yc191cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3JlcG9zL0dhYnJpZWwtS2FoZW4vY2FjaHktYXNhaGkvY29sbGFib3JhdG9yc3svY29sbGFib3JhdG9yfSIsInRlYW1zX3VybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vcmVwb3MvR2FicmllbC1LYWhlbi9jYWNoeS1hc2FoaS90ZWFtcyIsImhvb2tzX3VybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vcmVwb3MvR2FicmllbC1LYWhlbi9jYWNoeS1hc2FoaS9ob29rcyIsImlzc3VlX2V2ZW50c191cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3JlcG9zL0dhYnJpZWwtS2FoZW4vY2FjaHktYXNhaGkvaXNzdWVzL2V2ZW50c3svbnVtYmVyfSIsImV2ZW50c191cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3JlcG9zL0dhYnJpZWwtS2FoZW4vY2FjaHktYXNhaGkvZXZlbnRzIiwiYXNzaWduZWVzX3VybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vcmVwb3MvR2FicmllbC1LYWhlbi9jYWNoeS1hc2FoaS9hc3NpZ25lZXN7L3VzZXJ9IiwiYnJhbmNoZXNfdXJsIjoiaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy9HYWJyaWVsLUthaGVuL2NhY2h5LWFzYWhpL2JyYW5jaGVzey9icmFuY2h9IiwidGFnc191cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3JlcG9zL0dhYnJpZWwtS2FoZW4vY2FjaHktYXNhaGkvdGFncyIsImJsb2JzX3VybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vcmVwb3MvR2FicmllbC1LYWhlbi9jYWNoeS1hc2FoaS9naXQvYmxvYnN7L3NoYX0iLCJnaXRfdGFnc191cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3JlcG9zL0dhYnJpZWwtS2FoZW4vY2FjaHktYXNhaGkvZ2l0L3RhZ3N7L3NoYX0iLCJnaXRfcmVmc191cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3JlcG9zL0dhYnJpZWwtS2FoZW4vY2FjaHktYXNhaGkvZ2l0L3JlZnN7L3NoYX0iLCJ0cmVlc191cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3JlcG9zL0dhYnJpZWwtS2FoZW4vY2FjaHktYXNhaGkvZ2l0L3RyZWVzey9zaGF9Iiwic3RhdHVzZXNfdXJsIjoiaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy9HYWJyaWVsLUthaGVuL2NhY2h5LWFzYWhpL3N0YXR1c2VzL3tzaGF9IiwibGFuZ3VhZ2VzX3VybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vcmVwb3MvR2FicmllbC1LYWhlbi9jYWNoeS1hc2FoaS9sYW5ndWFnZXMiLCJzdGFyZ2F6ZXJzX3VybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vcmVwb3MvR2FicmllbC1LYWhlbi9jYWNoeS1hc2FoaS9zdGFyZ2F6ZXJzIiwiY29udHJpYnV0b3JzX3VybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vcmVwb3MvR2FicmllbC1LYWhlbi9jYWNoeS1hc2FoaS9jb250cmlidXRvcnMiLCJzdWJzY3JpYmVyc191cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3JlcG9zL0dhYnJpZWwtS2FoZW4vY2FjaHktYXNhaGkvc3Vic2NyaWJlcnMiLCJzdWJzY3JpcHRpb25fdXJsIjoiaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy9HYWJyaWVsLUthaGVuL2NhY2h5LWFzYWhpL3N1YnNjcmlwdGlvbiIsImNvbW1pdHNfdXJsIjoiaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy9HYWJyaWVsLUthaGVuL2NhY2h5LWFzYWhpL2NvbW1pdHN7L3NoYX0iLCJnaXRfY29tbWl0c191cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3JlcG9zL0dhYnJpZWwtS2FoZW4vY2FjaHktYXNhaGkvZ2l0L2NvbW1pdHN7L3NoYX0iLCJjb21tZW50c191cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3JlcG9zL0dhYnJpZWwtS2FoZW4vY2FjaHktYXNhaGkvY29tbWVudHN7L251bWJlcn0iLCJpc3N1ZV9jb21tZW50X3VybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vcmVwb3MvR2FicmllbC1LYWhlbi9jYWNoeS1hc2FoaS9pc3N1ZXMvY29tbWVudHN7L251bWJlcn0iLCJjb250ZW50c191cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3JlcG9zL0dhYnJpZWwtS2FoZW4vY2FjaHktYXNhaGkvY29udGVudHMveytwYXRofSIsImNvbXBhcmVfdXJsIjoiaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy9HYWJyaWVsLUthaGVuL2NhY2h5LWFzYWhpL2NvbXBhcmUve2Jhc2V9Li4ue2hlYWR9IiwibWVyZ2VzX3VybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vcmVwb3MvR2FicmllbC1LYWhlbi9jYWNoeS1hc2FoaS9tZXJnZXMiLCJhcmNoaXZlX3VybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vcmVwb3MvR2FicmllbC1LYWhlbi9jYWNoeS1hc2FoaS97YXJjaGl2ZV9mb3JtYXR9ey9yZWZ9IiwiZG93bmxvYWRzX3VybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vcmVwb3MvR2FicmllbC1LYWhlbi9jYWNoeS1hc2FoaS9kb3dubG9hZHMiLCJpc3N1ZXNfdXJsIjoiaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy9HYWJyaWVsLUthaGVuL2NhY2h5LWFzYWhpL2lzc3Vlc3svbnVtYmVyfSIsInB1bGxzX3VybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vcmVwb3MvR2FicmllbC1LYWhlbi9jYWNoeS1hc2FoaS9wdWxsc3svbnVtYmVyfSIsIm1pbGVzdG9uZXNfdXJsIjoiaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy9HYWJyaWVsLUthaGVuL2NhY2h5LWFzYWhpL21pbGVzdG9uZXN7L251bWJlcn0iLCJub3RpZmljYXRpb25zX3VybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vcmVwb3MvR2FicmllbC1LYWhlbi9jYWNoeS1hc2FoaS9ub3RpZmljYXRpb25zez9zaW5jZSxhbGwscGFydGljaXBhdGluZ30iLCJsYWJlbHNfdXJsIjoiaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy9HYWJyaWVsLUthaGVuL2NhY2h5LWFzYWhpL2xhYmVsc3svbmFtZX0iLCJyZWxlYXNlc191cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3JlcG9zL0dhYnJpZWwtS2FoZW4vY2FjaHktYXNhaGkvcmVsZWFzZXN7L2lkfSIsImRlcGxveW1lbnRzX3VybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vcmVwb3MvR2FicmllbC1LYWhlbi9jYWNoeS1hc2FoaS9kZXBsb3ltZW50cyJ9LCJoZWFkX3JlcG9zaXRvcnkiOnsiaWQiOjE0MTQ4NTc3OTUsIm5vZGVfaWQiOiJSX2tnRE9WRlVFUXciLCJuYW1lIjoiY2FjaHktYXNhaGkiLCJmdWxsX25hbWUiOiJHYWJyaWVsLUthaGVuL2NhY2h5LWFzYWhpIiwicHJpdmF0ZSI6ZmFsc2UsIm93bmVyIjp7ImxvZ2luIjoiR2FicmllbC1LYWhlbiIsImlkIjo5MzgwOTk3NCwibm9kZV9pZCI6IlVfa2dET0JaZHROZyIsImF2YXRhcl91cmwiOiJodHRwczovL2F2YXRhcnMuZ2l0aHVidXNlcmNvbnRlbnQuY29tL3UvOTM4MDk5NzQ/dj00IiwiZ3JhdmF0YXJfaWQiOiIiLCJ1cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3VzZXJzL0dhYnJpZWwtS2FoZW4iLCJodG1sX3VybCI6Imh0dHBzOi8vZ2l0aHViLmNvbS9HYWJyaWVsLUthaGVuIiwiZm9sbG93ZXJzX3VybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vdXNlcnMvR2FicmllbC1LYWhlbi9mb2xsb3dlcnMiLCJmb2xsb3dpbmdfdXJsIjoiaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS91c2Vycy9HYWJyaWVsLUthaGVuL2ZvbGxvd2luZ3svb3RoZXJfdXNlcn0iLCJnaXN0c191cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3VzZXJzL0dhYnJpZWwtS2FoZW4vZ2lzdHN7L2dpc3RfaWR9Iiwic3RhcnJlZF91cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3VzZXJzL0dhYnJpZWwtS2FoZW4vc3RhcnJlZHsvb3duZXJ9ey9yZXBvfSIsInN1YnNjcmlwdGlvbnNfdXJsIjoiaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS91c2Vycy9HYWJyaWVsLUthaGVuL3N1YnNjcmlwdGlvbnMiLCJvcmdhbml6YXRpb25zX3VybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vdXNlcnMvR2FicmllbC1LYWhlbi9vcmdzIiwicmVwb3NfdXJsIjoiaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS91c2Vycy9HYWJyaWVsLUthaGVuL3JlcG9zIiwiZXZlbnRzX3VybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vdXNlcnMvR2FicmllbC1LYWhlbi9ldmVudHN7L3ByaXZhY3l9IiwicmVjZWl2ZWRfZXZlbnRzX3VybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vdXNlcnMvR2FicmllbC1LYWhlbi9yZWNlaXZlZF9ldmVudHMiLCJ0eXBlIjoiVXNlciIsInVzZXJfdmlld190eXBlIjoicHVibGljIiwic2l0ZV9hZG1pbiI6ZmFsc2V9LCJodG1sX3VybCI6Imh0dHBzOi8vZ2l0aHViLmNvbS9HYWJyaWVsLUthaGVuL2NhY2h5LWFzYWhpIiwiZGVzY3JpcHRpb24iOiJJTiBERVZFTE9QTUVOVDogQ2FjaHlPUyBwYWNrYWdlIGFuZCBjb25maWd1cmF0aW9uIG92ZXJsYXkgZm9yIEFzYWhpIExpbnV4IG9uIEFwcGxlIFNpbGljb24iLCJmb3JrIjpmYWxzZSwidXJsIjoiaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy9HYWJyaWVsLUthaGVuL2NhY2h5LWFzYWhpIiwiZm9ya3NfdXJsIjoiaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy9HYWJyaWVsLUthaGVuL2NhY2h5LWFzYWhpL2ZvcmtzIiwia2V5c191cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3JlcG9zL0dhYnJpZWwtS2FoZW4vY2FjaHktYXNhaGkva2V5c3sva2V5X2lkfSIsImNvbGxhYm9yYXRvcnNfdXJsIjoiaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy9HYWJyaWVsLUthaGVuL2NhY2h5LWFzYWhpL2NvbGxhYm9yYXRvcnN7L2NvbGxhYm9yYXRvcn0iLCJ0ZWFtc191cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3JlcG9zL0dhYnJpZWwtS2FoZW4vY2FjaHktYXNhaGkvdGVhbXMiLCJob29rc191cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3JlcG9zL0dhYnJpZWwtS2FoZW4vY2FjaHktYXNhaGkvaG9va3MiLCJpc3N1ZV9ldmVudHNfdXJsIjoiaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy9HYWJyaWVsLUthaGVuL2NhY2h5LWFzYWhpL2lzc3Vlcy9ldmVudHN7L251bWJlcn0iLCJldmVudHNfdXJsIjoiaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy9HYWJyaWVsLUthaGVuL2NhY2h5LWFzYWhpL2V2ZW50cyIsImFzc2lnbmVlc191cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3JlcG9zL0dhYnJpZWwtS2FoZW4vY2FjaHktYXNhaGkvYXNzaWduZWVzey91c2VyfSIsImJyYW5jaGVzX3VybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vcmVwb3MvR2FicmllbC1LYWhlbi9jYWNoeS1hc2FoaS9icmFuY2hlc3svYnJhbmNofSIsInRhZ3NfdXJsIjoiaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy9HYWJyaWVsLUthaGVuL2NhY2h5LWFzYWhpL3RhZ3MiLCJibG9ic191cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3JlcG9zL0dhYnJpZWwtS2FoZW4vY2FjaHktYXNhaGkvZ2l0L2Jsb2Jzey9zaGF9IiwiZ2l0X3RhZ3NfdXJsIjoiaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy9HYWJyaWVsLUthaGVuL2NhY2h5LWFzYWhpL2dpdC90YWdzey9zaGF9IiwiZ2l0X3JlZnNfdXJsIjoiaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy9HYWJyaWVsLUthaGVuL2NhY2h5LWFzYWhpL2dpdC9yZWZzey9zaGF9IiwidHJlZXNfdXJsIjoiaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy9HYWJyaWVsLUthaGVuL2NhY2h5LWFzYWhpL2dpdC90cmVlc3svc2hhfSIsInN0YXR1c2VzX3VybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vcmVwb3MvR2FicmllbC1LYWhlbi9jYWNoeS1hc2FoaS9zdGF0dXNlcy97c2hhfSIsImxhbmd1YWdlc191cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3JlcG9zL0dhYnJpZWwtS2FoZW4vY2FjaHktYXNhaGkvbGFuZ3VhZ2VzIiwic3RhcmdhemVyc191cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3JlcG9zL0dhYnJpZWwtS2FoZW4vY2FjaHktYXNhaGkvc3RhcmdhemVycyIsImNvbnRyaWJ1dG9yc191cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3JlcG9zL0dhYnJpZWwtS2FoZW4vY2FjaHktYXNhaGkvY29udHJpYnV0b3JzIiwic3Vic2NyaWJlcnNfdXJsIjoiaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy9HYWJyaWVsLUthaGVuL2NhY2h5LWFzYWhpL3N1YnNjcmliZXJzIiwic3Vic2NyaXB0aW9uX3VybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vcmVwb3MvR2FicmllbC1LYWhlbi9jYWNoeS1hc2FoaS9zdWJzY3JpcHRpb24iLCJjb21taXRzX3VybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vcmVwb3MvR2FicmllbC1LYWhlbi9jYWNoeS1hc2FoaS9jb21taXRzey9zaGF9IiwiZ2l0X2NvbW1pdHNfdXJsIjoiaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy9HYWJyaWVsLUthaGVuL2NhY2h5LWFzYWhpL2dpdC9jb21taXRzey9zaGF9IiwiY29tbWVudHNfdXJsIjoiaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy9HYWJyaWVsLUthaGVuL2NhY2h5LWFzYWhpL2NvbW1lbnRzey9udW1iZXJ9IiwiaXNzdWVfY29tbWVudF91cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3JlcG9zL0dhYnJpZWwtS2FoZW4vY2FjaHktYXNhaGkvaXNzdWVzL2NvbW1lbnRzey9udW1iZXJ9IiwiY29udGVudHNfdXJsIjoiaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy9HYWJyaWVsLUthaGVuL2NhY2h5LWFzYWhpL2NvbnRlbnRzL3srcGF0aH0iLCJjb21wYXJlX3VybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vcmVwb3MvR2FicmllbC1LYWhlbi9jYWNoeS1hc2FoaS9jb21wYXJlL3tiYXNlfS4uLntoZWFkfSIsIm1lcmdlc191cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3JlcG9zL0dhYnJpZWwtS2FoZW4vY2FjaHktYXNhaGkvbWVyZ2VzIiwiYXJjaGl2ZV91cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3JlcG9zL0dhYnJpZWwtS2FoZW4vY2FjaHktYXNhaGkve2FyY2hpdmVfZm9ybWF0fXsvcmVmfSIsImRvd25sb2Fkc191cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3JlcG9zL0dhYnJpZWwtS2FoZW4vY2FjaHktYXNhaGkvZG93bmxvYWRzIiwiaXNzdWVzX3VybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vcmVwb3MvR2FicmllbC1LYWhlbi9jYWNoeS1hc2FoaS9pc3N1ZXN7L251bWJlcn0iLCJwdWxsc191cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3JlcG9zL0dhYnJpZWwtS2FoZW4vY2FjaHktYXNhaGkvcHVsbHN7L251bWJlcn0iLCJtaWxlc3RvbmVzX3VybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vcmVwb3MvR2FicmllbC1LYWhlbi9jYWNoeS1hc2FoaS9taWxlc3RvbmVzey9udW1iZXJ9Iiwibm90aWZpY2F0aW9uc191cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3JlcG9zL0dhYnJpZWwtS2FoZW4vY2FjaHktYXNhaGkvbm90aWZpY2F0aW9uc3s/c2luY2UsYWxsLHBhcnRpY2lwYXRpbmd9IiwibGFiZWxzX3VybCI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vcmVwb3MvR2FicmllbC1LYWhlbi9jYWNoeS1hc2FoaS9sYWJlbHN7L25hbWV9IiwicmVsZWFzZXNfdXJsIjoiaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy9HYWJyaWVsLUthaGVuL2NhY2h5LWFzYWhpL3JlbGVhc2Vzey9pZH0iLCJkZXBsb3ltZW50c191cmwiOiJodHRwczovL2FwaS5naXRodWIuY29tL3JlcG9zL0dhYnJpZWwtS2FoZW4vY2FjaHktYXNhaGkvZGVwbG95bWVudHMifX0="
+    },
+    "os_release_base64": "UFJFVFRZX05BTUU9IlVidW50dSAyNC4wNC41IExUUyIKTkFNRT0iVWJ1bnR1IgpWRVJTSU9OX0lEPSIyNC4wNCIKVkVSU0lPTj0iMjQuMDQuNSBMVFMgKE5vYmxlIE51bWJhdCkiClZFUlNJT05fQ09ERU5BTUU9bm9ibGUKSUQ9dWJ1bnR1CklEX0xJS0U9ZGViaWFuCkhPTUVfVVJMPSJodHRwczovL3d3dy51YnVudHUuY29tLyIKU1VQUE9SVF9VUkw9Imh0dHBzOi8vaGVscC51YnVudHUuY29tLyIKQlVHX1JFUE9SVF9VUkw9Imh0dHBzOi8vYnVncy5sYXVuY2hwYWQubmV0L3VidW50dS8iClBSSVZBQ1lfUE9MSUNZX1VSTD0iaHR0cHM6Ly93d3cudWJ1bnR1LmNvbS9sZWdhbC90ZXJtcy1hbmQtcG9saWNpZXMvcHJpdmFjeS1wb2xpY3kiClVCVU5UVV9DT0RFTkFNRT1ub2JsZQpMT0dPPXVidW50dS1sb2dvCg==",
+    "proc_version_base64": "TGludXggdmVyc2lvbiA3LjAuMC0xMDE3LWF6dXJlIChidWlsZGRAYm9zMDMtYXJtNjQtMDE3KSAoYWFyY2g2NC1saW51eC1nbnUtZ2NjLTEzIChVYnVudHUgMTMuMy4wLTZ1YnVudHUyfjI0LjA0LjEpIDEzLjMuMCwgR05VIGxkIChHTlUgQmludXRpbHMgZm9yIFVidW50dSkgMi40MikgIzE3fjI0LjA0LjEtVWJ1bnR1IFNNUCBQUkVFTVBUIFRodSBTZXAgMjQgMTk6MDY6MzkgVVRDIDIwMjYK",
+    "publication": {
+      "Root-committed-publication.json": {
+        "actual": "NOT_RUN",
+        "files": 6,
+        "git_joins": 6,
+        "hardware": "NOT_RUN",
+        "ref": "codex/core-systemd-btf-diagnostic-v1",
+        "release": "NOT_ADMITTED",
+        "source": "d14992a95966feb1bc4e957b3a55be3a01e876da",
+        "status": "COMMITTED_EXACT_CLOSED_TRIAL_SOURCE"
+      },
+      "Root-git-source-authorization.json": {
+        "files": {
+          ".github/workflows/core-systemd-btf-diagnostic.yml": {
+            "bytes": 1884,
+            "sha256": "029dec39b206c9f926e3f90ae7241e3489abb5536449e8eabd86ffe0bc1118f6"
+          },
+          ".github/workflows/native-arm-build.yml": {
+            "bytes": 1884,
+            "sha256": "029dec39b206c9f926e3f90ae7241e3489abb5536449e8eabd86ffe0bc1118f6"
+          },
+          "LICENSE": {
+            "bytes": 1081,
+            "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+          },
+          "README.md": {
+            "bytes": 1815,
+            "sha256": "d793bcf6c755682f461455aeed4f7fe679febe1bff02a8db1f4eacc7df6be7ca"
+          },
+          "capture.py": {
+            "bytes": 8854,
+            "sha256": "24c9dfc2f134086611d0340de4392b0ba9e53257b2f0fda856ed0a1416153729"
+          },
+          "source-manifest.json": {
+            "bytes": 528,
+            "sha256": "e5170af45967b9d931327c15da88dbdca6bf29074a90d6274a40edbbd6970190"
+          }
+        },
+        "ref": "codex/core-systemd-btf-diagnostic-v1",
+        "source": "d14992a95966feb1bc4e957b3a55be3a01e876da",
+        "status": "PASS_INDEPENDENT_FULL_GIT_BLOB_JOIN"
+      },
+      "source-authorization.json": {
+        ".github/workflows/core-systemd-btf-diagnostic.yml": {
+          "bytes": 1884,
+          "sha256": "029dec39b206c9f926e3f90ae7241e3489abb5536449e8eabd86ffe0bc1118f6"
+        },
+        ".github/workflows/native-arm-build.yml": {
+          "bytes": 1884,
+          "sha256": "029dec39b206c9f926e3f90ae7241e3489abb5536449e8eabd86ffe0bc1118f6"
+        },
+        "LICENSE": {
+          "bytes": 1081,
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        },
+        "README.md": {
+          "bytes": 1815,
+          "sha256": "d793bcf6c755682f461455aeed4f7fe679febe1bff02a8db1f4eacc7df6be7ca"
+        },
+        "capture.py": {
+          "bytes": 8854,
+          "sha256": "24c9dfc2f134086611d0340de4392b0ba9e53257b2f0fda856ed0a1416153729"
+        },
+        "source-manifest.json": {
+          "bytes": 528,
+          "sha256": "e5170af45967b9d931327c15da88dbdca6bf29074a90d6274a40edbbd6970190"
+        }
+      }
+    },
+    "receipt": {
+      "BTF": {
+        "bytes": 8430525,
+        "path": "/sys/kernel/btf/vmlinux",
+        "sha256": "bb0d29de550d1cf6f63cbc8792f4ad75e1b1f9b4df2d480a1015749949e4d5a2"
+      },
+      "actual_authority": false,
+      "attempt": 1,
+      "elapsed_seconds": 0.02742634400010502,
+      "error": {
+        "message": "root-owned native AArch64 ELF bpftool required; host wrapper not substituted",
+        "type": "ValueError"
+      },
+      "files": {
+        "os-release.txt": {
+          "bytes": 400,
+          "sha256": "87458b3b1f1ca0e5c693ade771de7007c3783bdc692fa6b39eb6414bf2af2763"
+        },
+        "proc-version.txt": {
+          "bytes": 222,
+          "sha256": "d86ea7d3ecc4fef2b65e685d0690a7250139e0d5d19aed8259f30f3e2d9b0491"
+        },
+        "vmlinux.btf": {
+          "bytes": 8430525,
+          "sha256": "bb0d29de550d1cf6f63cbc8792f4ad75e1b1f9b4df2d480a1015749949e4d5a2"
+        }
+      },
+      "hardware": "NOT_RUN",
+      "host": {
+        "kernel_btf_scope": "EXPOSED_RUNNING_HOST_KERNEL_ONLY_NOT_ASAHI_OR_TARGET",
+        "page_size": 4096,
+        "uid": 1001,
+        "uname": [
+          "Linux",
+          "runnervm05w4h",
+          "7.0.0-1017-azure",
+          "#17~24.04.1-Ubuntu SMP PREEMPT Thu Sep 24 19:06:39 UTC 2026",
+          "aarch64"
+        ],
+        "wall_time_UTC": "2026-10-21T10:22:50Z"
+      },
+      "limit_seconds": 180,
+      "native_package": "NOT_RUN",
+      "release": "NOT_ADMITTED",
+      "run": 39584141217,
+      "source": "d14992a95966feb1bc4e957b3a55be3a01e876da",
+      "source_files": {
+        ".github/workflows/core-systemd-btf-diagnostic.yml": {
+          "bytes": 1884,
+          "sha256": "029dec39b206c9f926e3f90ae7241e3489abb5536449e8eabd86ffe0bc1118f6"
+        },
+        ".github/workflows/native-arm-build.yml": {
+          "bytes": 1884,
+          "sha256": "029dec39b206c9f926e3f90ae7241e3489abb5536449e8eabd86ffe0bc1118f6"
+        },
+        "LICENSE": {
+          "bytes": 1081,
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        },
+        "README.md": {
+          "bytes": 1815,
+          "sha256": "d793bcf6c755682f461455aeed4f7fe679febe1bff02a8db1f4eacc7df6be7ca"
+        },
+        "capture.py": {
+          "bytes": 8854,
+          "sha256": "24c9dfc2f134086611d0340de4392b0ba9e53257b2f0fda856ed0a1416153729"
+        },
+        "source-manifest.json": {
+          "bytes": 528,
+          "sha256": "e5170af45967b9d931327c15da88dbdca6bf29074a90d6274a40edbbd6970190"
+        }
+      },
+      "status": "INCOMPLETE_READ_ONLY_HOST_BTF_DIAGNOSTIC",
+      "target_kernel": "NOT_SELECTED"
+    },
+    "receipt_base64": "ewogICJCVEYiOiB7CiAgICAiYnl0ZXMiOiA4NDMwNTI1LAogICAgInBhdGgiOiAiL3N5cy9rZXJuZWwvYnRmL3ZtbGludXgiLAogICAgInNoYTI1NiI6ICJiYjBkMjlkZTU1MGQxY2Y2ZjYzY2JjODc5MmY0YWQ3NWUxYjFmOWI0ZGYyZDQ4MGExMDE1NzQ5OTQ5ZTRkNWEyIgogIH0sCiAgImFjdHVhbF9hdXRob3JpdHkiOiBmYWxzZSwKICAiYXR0ZW1wdCI6IDEsCiAgImVsYXBzZWRfc2Vjb25kcyI6IDAuMDI3NDI2MzQ0MDAwMTA1MDIsCiAgImVycm9yIjogewogICAgIm1lc3NhZ2UiOiAicm9vdC1vd25lZCBuYXRpdmUgQUFyY2g2NCBFTEYgYnBmdG9vbCByZXF1aXJlZDsgaG9zdCB3cmFwcGVyIG5vdCBzdWJzdGl0dXRlZCIsCiAgICAidHlwZSI6ICJWYWx1ZUVycm9yIgogIH0sCiAgImZpbGVzIjogewogICAgIm9zLXJlbGVhc2UudHh0IjogewogICAgICAiYnl0ZXMiOiA0MDAsCiAgICAgICJzaGEyNTYiOiAiODc0NThiM2IxZjFjYTBlNWM2OTNhZGU3NzFkZTcwMDdjMzc4M2JkYzY5MmZhNmIzOWViNjQxNGJmMmFmMjc2MyIKICAgIH0sCiAgICAicHJvYy12ZXJzaW9uLnR4dCI6IHsKICAgICAgImJ5dGVzIjogMjIyLAogICAgICAic2hhMjU2IjogImQ4NmVhN2QzZWNjNGZlZjJiNjVlNjg1ZDA2OTBhNzI1MDEzOWUwZDVkMTlhZWQ4MjU5ZjMwZjNlMmQ5YjA0OTEiCiAgICB9LAogICAgInZtbGludXguYnRmIjogewogICAgICAiYnl0ZXMiOiA4NDMwNTI1LAogICAgICAic2hhMjU2IjogImJiMGQyOWRlNTUwZDFjZjZmNjNjYmM4NzkyZjRhZDc1ZTFiMWY5YjRkZjJkNDgwYTEwMTU3NDk5NDllNGQ1YTIiCiAgICB9CiAgfSwKICAiaGFyZHdhcmUiOiAiTk9UX1JVTiIsCiAgImhvc3QiOiB7CiAgICAia2VybmVsX2J0Zl9zY29wZSI6ICJFWFBPU0VEX1JVTk5JTkdfSE9TVF9LRVJORUxfT05MWV9OT1RfQVNBSElfT1JfVEFSR0VUIiwKICAgICJwYWdlX3NpemUiOiA0MDk2LAogICAgInVpZCI6IDEwMDEsCiAgICAidW5hbWUiOiBbCiAgICAgICJMaW51eCIsCiAgICAgICJydW5uZXJ2bTA1dzRoIiwKICAgICAgIjcuMC4wLTEwMTctYXp1cmUiLAogICAgICAiIzE3fjI0LjA0LjEtVWJ1bnR1IFNNUCBQUkVFTVBUIFRodSBTZXAgMjQgMTk6MDY6MzkgVVRDIDIwMjYiLAogICAgICAiYWFyY2g2NCIKICAgIF0sCiAgICAid2FsbF90aW1lX1VUQyI6ICIyMDI2LTEwLTIxVDEwOjIyOjUwWiIKICB9LAogICJsaW1pdF9zZWNvbmRzIjogMTgwLAogICJuYXRpdmVfcGFja2FnZSI6ICJOT1RfUlVOIiwKICAicmVsZWFzZSI6ICJOT1RfQURNSVRURUQiLAogICJydW4iOiAzOTU4NDE0MTIxNywKICAic291cmNlIjogImQxNDk5MmE5NTk2NmZlYjFiYzRlOTU3YjNhNTViZTNhMDFlODc2ZGEiLAogICJzb3VyY2VfZmlsZXMiOiB7CiAgICAiLmdpdGh1Yi93b3JrZmxvd3MvY29yZS1zeXN0ZW1kLWJ0Zi1kaWFnbm9zdGljLnltbCI6IHsKICAgICAgImJ5dGVzIjogMTg4NCwKICAgICAgInNoYTI1NiI6ICIwMjlkZWMzOWIyMDZjOWY5MjZlM2Y5MGFlNzI0MWUzNDg5YWJiNTUzNjQ0OWU4ZWFiZDg2ZmZlMGJjMTExOGY2IgogICAgfSwKICAgICIuZ2l0aHViL3dvcmtmbG93cy9uYXRpdmUtYXJtLWJ1aWxkLnltbCI6IHsKICAgICAgImJ5dGVzIjogMTg4NCwKICAgICAgInNoYTI1NiI6ICIwMjlkZWMzOWIyMDZjOWY5MjZlM2Y5MGFlNzI0MWUzNDg5YWJiNTUzNjQ0OWU4ZWFiZDg2ZmZlMGJjMTExOGY2IgogICAgfSwKICAgICJMSUNFTlNFIjogewogICAgICAiYnl0ZXMiOiAxMDgxLAogICAgICAic2hhMjU2IjogIjUxYTM1MmIzZTk0NzU3NTYwNTM4Y2E1ODY2YmVmOTI5ZGU1ZWM0ODY0ZTU4OTNmYzYzNWYyOTFmN2E1OTI2YzciCiAgICB9LAogICAgIlJFQURNRS5tZCI6IHsKICAgICAgImJ5dGVzIjogMTgxNSwKICAgICAgInNoYTI1NiI6ICJkNzkzYmNmNmM3NTU2ODJmNDYxNDU1YWVlZDRmN2ZlNjc5ZmViZTFiZmYwMmE4ZGIxZjRlYWNjN2RmNmJlN2NhIgogICAgfSwKICAgICJjYXB0dXJlLnB5IjogewogICAgICAiYnl0ZXMiOiA4ODU0LAogICAgICAic2hhMjU2IjogIjI0YzlkZmMyZjEzNDA4NjYxMWQwMzQwZGU0MzkyYjBiYTllNTMyNTdiMmYwZmRhODU2ZWQwYTE0MTYxNTM3MjkiCiAgICB9LAogICAgInNvdXJjZS1tYW5pZmVzdC5qc29uIjogewogICAgICAiYnl0ZXMiOiA1MjgsCiAgICAgICJzaGEyNTYiOiAiZTUxNzBhZjQ1OTY3YjlkOTMxMzI3YzE1ZGE4OGRiZGNhNmJmMjkwNzRhOTBkNjI3NGE0MGVkYmJkNjk3MDE5MCIKICAgIH0KICB9LAogICJzdGF0dXMiOiAiSU5DT01QTEVURV9SRUFEX09OTFlfSE9TVF9CVEZfRElBR05PU1RJQyIsCiAgInRhcmdldF9rZXJuZWwiOiAiTk9UX1NFTEVDVEVEIgp9Cg==",
+    "ref": "codex/core-systemd-btf-diagnostic-v1",
+    "run": 39584141217,
+    "source": "d14992a95966feb1bc4e957b3a55be3a01e876da",
+    "whole_original_zip_crc_and_members": "PRIOR_ROOT_ONCE_COLLECTION_AND_PASSIVE_REPLAY_ONLY_NOT_REACQUIRED"
+  },
+  "hardware": "NOT_RUN",
+  "raw": {
+    "bytes": 8430525,
+    "sha256": "bb0d29de550d1cf6f63cbc8792f4ad75e1b1f9b4df2d480a1015749949e4d5a2"
+  },
+  "raw_origin_path": "/sys/kernel/btf/vmlinux",
+  "release": "NOT_ADMITTED",
+  "schema": 1,
+  "source_bit_correspondence": "NOT_ESTABLISHED_NO_REBUILD_CLAIM",
+  "status": "SOURCE_BOUND_PREOBSERVED_RAW_BTF_BUILD_INPUT_ONLY",
+  "target_kernel": "NOT_SELECTED",
+  "tool": "ORIGINAL_PINNED638_BPF_AND_LIBBPF_PACKAGES_NOT_HOST_WRAPPER",
+  "ubuntu": {
+    "architecture": "arm64",
+    "copyright": {
+      "bytes": 21767,
+      "sha256": "8c2e788450b96fff746385c42d3985bf33aef09f10c94c5c66505165cdd0103a"
+    },
+    "copyright_url": "https://changelogs.ubuntu.com/changelogs/pool/main/l/linux-azure-7.0/linux-azure-7.0_7.0.0-1017.17~24.04.1/copyright",
+    "dsc_base64": "LS0tLS1CRUdJTiBQR1AgU0lHTkVEIE1FU1NBR0UtLS0tLQpIYXNoOiBTSEE1MTIKCkZvcm1hdDogMS4wClNvdXJjZTogbGludXgtYXp1cmUtNy4wCkJpbmFyeTogbGludXgtYXp1cmUtNy4wLWhlYWRlcnMtNy4wLjAtMTAxNywgbGludXgtYXp1cmUtNy4wLXRvb2xzLTcuMC4wLTEwMTcsIGxpbnV4LWF6dXJlLTcuMC1jbG91ZC10b29scy03LjAuMC0xMDE3LCBsaW51eC1pbWFnZS11bnNpZ25lZC03LjAuMC0xMDE3LWF6dXJlLCBsaW51eC1pbWFnZS11bnNpZ25lZC03LjAuMC0xMDE3LWF6dXJlLWRiZ3N5bSwgbGludXgtbW9kdWxlcy03LjAuMC0xMDE3LWF6dXJlLCBsaW51eC1oZWFkZXJzLTcuMC4wLTEwMTctYXp1cmUsIGxpbnV4LWxpYi1ydXN0LTcuMC4wLTEwMTctYXp1cmUsIGxpbnV4LXRvb2xzLTcuMC4wLTEwMTctYXp1cmUsIGxpbnV4LWNsb3VkLXRvb2xzLTcuMC4wLTEwMTctYXp1cmUsIGxpbnV4LXVkZWJzLWF6dXJlLCBsaW51eC1idWlsZGluZm8tNy4wLjAtMTAxNy1henVyZSwgbGludXgtbW9kdWxlcy1pd2x3aWZpLTcuMC4wLTEwMTctYXp1cmUKQXJjaGl0ZWN0dXJlOiBhbGwgYW1kNjQgYXJtNjQKVmVyc2lvbjogNy4wLjAtMTAxNy4xN34yNC4wNC4xCk1haW50YWluZXI6IFVidW50dSBLZXJuZWwgVGVhbSA8a2VybmVsLXRlYW1AbGlzdHMudWJ1bnR1LmNvbT4KU3RhbmRhcmRzLVZlcnNpb246IDMuOS40LjAKVmNzLUdpdDogZ2l0Oi8vZ2l0LmxhdW5jaHBhZC5uZXQvfmNhbm9uaWNhbC1rZXJuZWwvdWJ1bnR1Lytzb3VyY2UvbGludXgtYXp1cmUvK2dpdC9ub2JsZSAtYiBhenVyZS03LjAtbmV4dApCdWlsZC1EZXBlbmRzOiBnY2MtMTMsIGdjYy0xMy1hYXJjaDY0LWxpbnV4LWdudSBbYXJtNjRdIDxjcm9zcz4sIGdjYy0xMy1hcm0tbGludXgtZ251ZWFiaWhmIFthcm1oZl0gPGNyb3NzPiwgZ2NjLTEzLXBvd2VycGM2NGxlLWxpbnV4LWdudSBbcHBjNjRlbF0gPGNyb3NzPiwgZ2NjLTEzLXJpc2N2NjQtbGludXgtZ251IFtyaXNjdjY0XSA8Y3Jvc3M+LCBnY2MtMTMtczM5MHgtbGludXgtZ251IFtzMzkweF0gPGNyb3NzPiwgZ2NjLTEzLXg4Ni02NC1saW51eC1nbnUgW2FtZDY0XSA8Y3Jvc3M+LCBkZWJoZWxwZXItY29tcGF0ICg9IDEwKSwgYXV0b2NvbmYgPCFzdGFnZTE+LCBhdXRvbWFrZSA8IXN0YWdlMT4sIGJjIDwhc3RhZ2UxPiwgYmluZGdlbi0wLjY1IFthbWQ2NCBhcm02NCBhcm1oZiBwcGM2NGVsIHJpc2N2NjQgczM5MHhdLCBiaXNvbiA8IXN0YWdlMT4sIGNsYW5nLTE5IFthbWQ2NCBhcm02NCBhcm1oZiBwcGM2NGVsIHJpc2N2NjQgczM5MHhdLCBjcGlvLCBjdXJsIDwhc3RhZ2UxPiwgZGVmYXVsdC1qZGstaGVhZGxlc3MgPCFzdGFnZTE+LCBka21zIDwhc3RhZ2UxPiwgZmxleCA8IXN0YWdlMT4sIGdhd2sgPCFzdGFnZTE+LCBqYXZhLWNvbW1vbiA8IXN0YWdlMT4sIGttb2QgPCFzdGFnZTE+LCBsaWJhdWRpdC1kZXYgPCFzdGFnZTE+LCBsaWJicGYtZGV2IDwhc3RhZ2UxPiwgbGliY2FwLWRldiA8IXN0YWdlMT4sIGxpYmRlYnVnaW5mb2QtZGV2IFthbWQ2NCBhcm02NCBhcm1oZiBwcGM2NGVsIHMzOTB4IHJpc2N2NjRdIDwhc3RhZ2UxPiwgbGliZHctZGV2IDwhc3RhZ2UxPiwgbGliZWxmLWRldiA8IXN0YWdlMT4sIGxpYmliZXJ0eS1kZXYgPCFzdGFnZTE+LCBsaWJsem1hLWRldiA8IXN0YWdlMT4sIGxpYm5ld3QtZGV2IDwhc3RhZ2UxPiwgbGlibmwtMy1kZXYsIGxpYm5sLWdlbmwtMy1kZXYsIGxpYm51bWEtZGV2IFthbWQ2NCBhcm02NCBwcGM2NGVsIHMzOTB4XSA8IXN0YWdlMT4sIGxpYnBjaS1kZXYgPCFzdGFnZTE+LCBsaWJzc2wtZGV2IDwhc3RhZ2UxPiwgbGlic3RkYysrLTEzLWRldiwgbGlidG9vbCA8IXN0YWdlMT4sIGxpYnRyYWNlZXZlbnQtZGV2IFthbWQ2NCBhcm02NCBhcm1oZiBwcGM2NGVsIHMzOTB4IHJpc2N2NjRdIDwhc3RhZ2UxPiwgbGlidHJhY2Vmcy1kZXYgW2FtZDY0IGFybTY0IGFybWhmIHBwYzY0ZWwgczM5MHggcmlzY3Y2NF0gPCFzdGFnZTE+LCBsaWJ1ZGV2LWRldiA8IXN0YWdlMT4sIGxpYnVud2luZDgtZGV2IFthbWQ2NCBhcm02NCBhcm1oZiBwcGM2NGVsXSA8IXN0YWdlMT4sIGxsdm0tMTktZGV2LCBtYWtlZHVtcGZpbGUgW2FtZDY0XSA8IXN0YWdlMT4sIG9wZW5zc2wgPCFzdGFnZTE+LCBwYWhvbGUgW2FtZDY0IGFybTY0IGFybWhmIHBwYzY0ZWwgczM5MHggcmlzY3Y2NF0gfCBkd2FydmVzICg+PSAxLjIxKSBbYW1kNjQgYXJtNjQgYXJtaGYgcHBjNjRlbCBzMzkweCByaXNjdjY0XSA8IXN0YWdlMT4sIHBrZy1jb25maWcgPCFzdGFnZTE+LCBweXRob24zIDwhc3RhZ2UxPiwgcHl0aG9uMy1kZXYgPCFzdGFnZTE+LCBweXRob24zLXNldHVwdG9vbHMsIHJzeW5jIFshaTM4Nl0gPCFzdGFnZTE+LCBydXN0LTEuOTEtc3JjIFthbWQ2NCBhcm02NCBhcm1oZiBwcGM2NGVsIHJpc2N2NjQgczM5MHhdLCBydXN0Yy0xLjkxICg+PSAxLjgyKSBbYW1kNjQgYXJtNjQgYXJtaGYgcHBjNjRlbCByaXNjdjY0IHMzOTB4XSwgcnVzdGZtdC0xLjkxIFthbWQ2NCBhcm02NCBhcm1oZiBwcGM2NGVsIHJpc2N2NjQgczM5MHhdLCB1dWlkLWRldiA8IXN0YWdlMT4sIHpzdGQgPCFzdGFnZTE+CkJ1aWxkLURlcGVuZHMtSW5kZXA6IGFzY2lpZG9jIDwhc3RhZ2UxPiwgYnppcDIgPCFzdGFnZTE+LCBweXRob24zLWRvY3V0aWxzIDwhc3RhZ2UxPiwgc2hhcnV0aWxzIDwhc3RhZ2UxPiwgeG1sdG8gPCFzdGFnZTE+ClBhY2thZ2UtTGlzdDoKIGxpbnV4LWF6dXJlLTcuMC1jbG91ZC10b29scy03LjAuMC0xMDE3IGRlYiBkZXZlbCBvcHRpb25hbCBhcmNoPWFtZDY0LGFybTY0IHByb2ZpbGU9IXN0YWdlMQogbGludXgtYXp1cmUtNy4wLWhlYWRlcnMtNy4wLjAtMTAxNyBkZWIgZGV2ZWwgb3B0aW9uYWwgYXJjaD1hbGwgcHJvZmlsZT0hc3RhZ2UxCiBsaW51eC1henVyZS03LjAtdG9vbHMtNy4wLjAtMTAxNyBkZWIgZGV2ZWwgb3B0aW9uYWwgYXJjaD1hbWQ2NCxhcm02NCBwcm9maWxlPSFzdGFnZTEKIGxpbnV4LWJ1aWxkaW5mby03LjAuMC0xMDE3LWF6dXJlIGRlYiBrZXJuZWwgb3B0aW9uYWwgYXJjaD1hbWQ2NCxhcm02NCBwcm9maWxlPSFzdGFnZTEKIGxpbnV4LWNsb3VkLXRvb2xzLTcuMC4wLTEwMTctYXp1cmUgZGViIGRldmVsIG9wdGlvbmFsIGFyY2g9YW1kNjQsYXJtNjQgcHJvZmlsZT0hc3RhZ2UxCiBsaW51eC1oZWFkZXJzLTcuMC4wLTEwMTctYXp1cmUgZGViIGRldmVsIG9wdGlvbmFsIGFyY2g9YW1kNjQsYXJtNjQgcHJvZmlsZT0hc3RhZ2UxCiBsaW51eC1pbWFnZS11bnNpZ25lZC03LjAuMC0xMDE3LWF6dXJlIGRlYiBrZXJuZWwgb3B0aW9uYWwgYXJjaD1hbWQ2NCxhcm02NCBwcm9maWxlPSFzdGFnZTEKIGxpbnV4LWltYWdlLXVuc2lnbmVkLTcuMC4wLTEwMTctYXp1cmUtZGJnc3ltIGRlYiBkZXZlbCBvcHRpb25hbCBhcmNoPWFtZDY0LGFybTY0IHByb2ZpbGU9IXN0YWdlMQogbGludXgtbGliLXJ1c3QtNy4wLjAtMTAxNy1henVyZSBkZWIgZGV2ZWwgb3B0aW9uYWwgYXJjaD1hbWQ2NCBwcm9maWxlPSFzdGFnZTEKIGxpbnV4LW1vZHVsZXMtNy4wLjAtMTAxNy1henVyZSBkZWIga2VybmVsIG9wdGlvbmFsIGFyY2g9YW1kNjQsYXJtNjQgcHJvZmlsZT0hc3RhZ2UxCiBsaW51eC1tb2R1bGVzLWl3bHdpZmktNy4wLjAtMTAxNy1henVyZSBkZWIga2VybmVsIG9wdGlvbmFsIGFyY2g9YW1kNjQsYXJtNjQgcHJvZmlsZT0hc3RhZ2UxCiBsaW51eC10b29scy03LjAuMC0xMDE3LWF6dXJlIGRlYiBkZXZlbCBvcHRpb25hbCBhcmNoPWFtZDY0LGFybTY0IHByb2ZpbGU9IXN0YWdlMQogbGludXgtdWRlYnMtYXp1cmUgdWRlYiBkZWJpYW4taW5zdGFsbGVyIG9wdGlvbmFsIGFyY2g9YW1kNjQsYXJtNjQgcHJvZmlsZT0hc3RhZ2UxKyFub3VkZWIrIWNyb3NzKyFhdXRvcGtndGVzdApDaGVja3N1bXMtU2hhMToKIDg0Y2NkYWJlZGNiNWViMjhhZjU2OTg5YjYwNzBjZmE4NjRhMzI1YTkgMjU0OTM3ODMwIGxpbnV4LWF6dXJlLTcuMF83LjAuMC5vcmlnLnRhci5negogOWUzODQ5ZjcyNjZlNDc2ZWE0ZmM1ZjY3NmIyNmEzZjZiZjdlOGFiYyA0MTIxMTIyIGxpbnV4LWF6dXJlLTcuMF83LjAuMC0xMDE3LjE3fjI0LjA0LjEuZGlmZi5negpDaGVja3N1bXMtU2hhMjU2OgogYzYzNDM3OTVjOGM3ZTRmZWZmNTVmNWIzMDkzNjVjOGUwZWFmNDljZDZhYmNiNDEyZTMyMzE1MzEzZjE0OTUzNiAyNTQ5Mzc4MzAgbGludXgtYXp1cmUtNy4wXzcuMC4wLm9yaWcudGFyLmd6CiAwNjcyMzBkMDhkODhjOGNiNDIxOGE5YjE1NGM3OGQwNjBiNjFlYzkyNTk2MWNjMDhkYjFlNDJhZjA3YTI2NjM1IDQxMjExMjIgbGludXgtYXp1cmUtNy4wXzcuMC4wLTEwMTcuMTd+MjQuMDQuMS5kaWZmLmd6CkZpbGVzOgogNDE1ZTVkNGVlMTEwZDk0MTVjMjkwMTc1MWU2ZjljOWQgMjU0OTM3ODMwIGxpbnV4LWF6dXJlLTcuMF83LjAuMC5vcmlnLnRhci5negogYzNjYjZiMjI0N2E5YjcxNTUyOGRjODJjMTU0YTJlMzQgNDEyMTEyMiBsaW51eC1henVyZS03LjBfNy4wLjAtMTAxNy4xN34yNC4wNC4xLmRpZmYuZ3oKVWJ1bnR1LUNvbXBhdGlibGUtU2lnbmluZzogdWJ1bnR1LzQgcHJvLzMgbGl2ZXBhdGNoOjIwMjUga21vZDoyMDI1CgotLS0tLUJFR0lOIFBHUCBTSUdOQVRVUkUtLS0tLQoKaVFKTkJBRUJDZ0EzRmlFRW9FN0dMOTFMWWM0RWFab1gyeFJCVk9rVzQrRUZBbXExVmQ0WkhHcHZhRzR1WTJGaQpZV3BBWTJGdWIyNXBZMkZzTG1OdmJRQUtDUkRiRkVGVTZSYmo0Y1NsRUFEQkxPN3BDR2VXQnVwT25HbFlzbTIwCm5YdDNCTGFoV2RjMWRGMHZFcEFvc3BrZDRuV3R4TmVZL283YVBOMTBpWGVjbktmc0V0d09KbVFZazRnN0QyRXoKNGhyS3A2aWJPcWpjNnYvbGdRVGNBTldVT1lvUGVFMDV6NkJLRGVNZkxnWUVyOE50ejJJWU1vTDlHQ3BzV0ZBSQpuS1BYTHRMUEFBWnJmQzgwWmdVS21sOXFxYXRwT3kxTGEwbU15cEJHOXFyVVJmUmFMbGlDYzZSVjZQQVdnMXk3CnA0K2NINlY1VWhHVThFb1F2WHJWZVFUZXJoajNKQXlEVmZEV2I2cjhrcFhqYVV4aUNSTmJXYURDK2UwZFRDUTUKK0VBQkRCVUxtNW1RTHZSOUF2SnljeHZlZE8zbDNqd3BwWXZ4Z3pYeURhYVA1R0pEVFVHRzJFdmo5WmcrQkJnQwpLMkgyeGxoeVI1N1R0Ty96bkxNM1g4K2NOeW9tNDNsWWlueWtzaEdTY0U0UU9aNkg5bDFwV3N2U2NuSkFRSFhzCkNlbVZLQjBlT0p4bitpSkdwOTdiR25hbVZycmtQRzhsSHpmTFZFcFhxcFRKSFZ6OEVNekJ3Rm1wWXpsVnp0eEgKTHFRNFF0cWhUWXExcGx6VVo1SU9POSs2eEhXNm9PWC9wMkV6cHl1cUNXekFrVWxmUmoxaW01M241SFJoT1lYSwpicUJyMGp0Tjk1dTBiSjc1ZzRMZ3BaRXVNQ2RvTHhhTW5CWTNENjlIRlY5RkZxU3BxMFdraTA3dk1aY0M3R21iCjZoZGVHeG5Za241Q1R3bk5XQ2UzSWpWcVdvbHdjZ0NoVEgrSmo1bTBYdU9ZSld5anlta2JFb3FRZXdqbTBYOU0KSElnMVlsblVnVUNIL01mSk5UbXJwUT09Cj1vSXFvCi0tLS0tRU5EIFBHUCBTSUdOQVRVUkUtLS0tLQo=",
+    "kernel_root_declared_license": "GPL-2.0 WITH Linux-syscall-note; other source file licenses may also apply",
+    "license_files": {
+      "copyright": {
+        "bytes": 1292,
+        "sha256": "4ab34baa23c94237ffef144c80348b982d2d8e814c46b3a6a3538a706ef26114"
+      },
+      "kernel-COPYING": {
+        "bytes": 496,
+        "sha256": "fb5a425bd3b3cd6071a3a9aff9909a859e7c1158d54d32e07658398cd67eb6a0"
+      },
+      "kernel-LICENSES-preferred-GPL-2.0": {
+        "bytes": 18600,
+        "sha256": "8780e78a1a737e127f25a65f6d95269bffd36158dc261114de7859b490bfc5aa"
+      },
+      "kernel-Linux-syscall-note": {
+        "bytes": 1258,
+        "sha256": "8e378ab93586eb55135d3bc119cce787f7324f48394777d00c34fa3d0be3303f"
+      }
+    },
+    "publisher": "https://security.ubuntu.com/ubuntu/pool/main/l/linux-azure-7.0/",
+    "retrieval_authentication": "PUBLISHER_HTTPS_AND_WHOLE_DSC_SHA256_NOT_FRESH_DSC_SIGNATURE_VERIFICATION",
+    "signed_wrapper_dsc_base64": "LS0tLS1CRUdJTiBQR1AgU0lHTkVEIE1FU1NBR0UtLS0tLQpIYXNoOiBTSEE1MTIKCkZvcm1hdDogMy4wIChuYXRpdmUpClNvdXJjZTogbGludXgtc2lnbmVkLWF6dXJlLTcuMApCaW5hcnk6IGxpbnV4LWltYWdlLTcuMC4wLTEwMTctYXp1cmUsIGxpbnV4LWltYWdlLXVjLTcuMC4wLTEwMTctYXp1cmUsIGxpbnV4LWltYWdlLTcuMC4wLTEwMTctYXp1cmUtZGJnc3ltCkFyY2hpdGVjdHVyZTogYW1kNjQgYXJtNjQKVmVyc2lvbjogNy4wLjAtMTAxNy4xN34yNC4wNC4xCk1haW50YWluZXI6IENhbm9uaWNhbCBLZXJuZWwgVGVhbSA8a2VybmVsLXRlYW1AbGlzdHMudWJ1bnR1LmNvbT4KU3RhbmRhcmRzLVZlcnNpb246IDMuOS40CkJ1aWxkLURlcGVuZHM6IGRlYmhlbHBlciAoPj0gOSksIGxzYi1yZWxlYXNlLCBweXRob24zLCBweXRob24zLWFwdApCdWlsZC1EZXBlbmRzLUFyY2g6IGxpbnV4LWltYWdlLXVuc2lnbmVkLTcuMC4wLTEwMTctYXp1cmUgKD0gNy4wLjAtMTAxNy4xN34yNC4wNC4xKSBbYW1kNjQgYXJtNjRdLCBsaW51eC1idWlsZGluZm8tNy4wLjAtMTAxNy1henVyZSAoPSA3LjAuMC0xMDE3LjE3fjI0LjA0LjEpIFthbWQ2NCBhcm02NF0sIHVidW50dS1jb3JlLWluaXRyYW1mcyBbYW1kNjQgYXJtNjRdIDxwa2cubGludXgtZ2VuZXJhdGU+LCBjcGlvIDxwa2cubGludXgtZ2VuZXJhdGU+LCBsaW51eC1nZW5lcmF0ZS1henVyZS03LjAgKD0gNy4wLjAtMTAxNy4xN34yNC4wNC4xKSA8IXBrZy5saW51eC1nZW5lcmF0ZT4sIHNic2lnbnRvb2wgW2FtZDY0IGFybTY0XSwgb3BlbnNzbApQYWNrYWdlLUxpc3Q6CiBsaW51eC1pbWFnZS03LjAuMC0xMDE3LWF6dXJlIGRlYiBrZXJuZWwgb3B0aW9uYWwgYXJjaD1hbWQ2NCxhcm02NAogbGludXgtaW1hZ2UtNy4wLjAtMTAxNy1henVyZS1kYmdzeW0gZGViIGRldmVsIG9wdGlvbmFsIGFyY2g9YW1kNjQsYXJtNjQKIGxpbnV4LWltYWdlLXVjLTcuMC4wLTEwMTctYXp1cmUgZGViIGtlcm5lbCBvcHRpb25hbCBhcmNoPWFtZDY0LGFybTY0CkNoZWNrc3Vtcy1TaGExOgogNzE0ZWE0ODA4MjUzNTNlNzU1ZTZlMTUzOWI5NWFhMmE0NTE2ZTU0YyAxNDUwMCBsaW51eC1zaWduZWQtYXp1cmUtNy4wXzcuMC4wLTEwMTcuMTd+MjQuMDQuMS50YXIueHoKQ2hlY2tzdW1zLVNoYTI1NjoKIGM1ODkxZGQ2M2MxZDgxODQ1ODMzOTRjYmRiMjMxMDczMjUxNjU4ZWQ0ODkzMDIzZDIyNzE0YjhjYjUyZjdiZjMgMTQ1MDAgbGludXgtc2lnbmVkLWF6dXJlLTcuMF83LjAuMC0xMDE3LjE3fjI0LjA0LjEudGFyLnh6CkZpbGVzOgogOGVlMTM1ZDU5OTMzZDNhZDY0OWUzYzU2NDI3MzY0ZmMgMTQ1MDAgbGludXgtc2lnbmVkLWF6dXJlLTcuMF83LjAuMC0xMDE3LjE3fjI0LjA0LjEudGFyLnh6CgotLS0tLUJFR0lOIFBHUCBTSUdOQVRVUkUtLS0tLQoKaVFKTkJBRUJDZ0EzRmlFRW9FN0dMOTFMWWM0RWFab1gyeFJCVk9rVzQrRUZBbXExVmVJWkhHcHZhRzR1WTJGaQpZV3BBWTJGdWIyNXBZMkZzTG1OdmJRQUtDUkRiRkVGVTZSYmo0VVFoRC93Sm8wOTBkR0hISlp0Q1pORHlORVdtClM5Wm1EMXAxdGNEdmk0ZlZXZU1UNEp5NFB3TGVMUktlRHY2OVNsYU1mSS9hOHYxYTZQMHpLdTFpQWpjc0MxdncKazlsSzFRVDJvQ3p0bC9pTVRBUTVnVUdHM24yVi9SU0VXOGJHY2FZQ3lQZDdJTnh6eTJac1cyYnVxQkZyTFFJcQpSdXlEeUpFaEIzTllXOUpVWTJIamU0MXVEa3lqaVlJZFROTGp4RWZiSGpGeEUySmpqV0NibjVtVUJQODVpbUNXCnpwbWthaHVWaDU4T3Ayb1Q2LzVEVW81Z3RCeEpWYWFMbUpFMVQrVzBpMkdabW1iTmtqSGxQY0VvdHY2TGRVQk0Kd0JTSjhBVjhQQVQwcjBHdlFEY25vdjJvRHhrZmpYSWdWbUxCMlJobHJtMi9BbXVrSXduTmJ2S08vM0diNjd0OQpFQUFjb2M1MUd6UGQ3Z1BuOGlZUmFVcW1XWmJsbE82U1g1bEFlS25mRmM4T3B2VFNHTmRYaWlmV0o3bEpjVk9NCmFQYkdTMncwTWNnQ2dGMmdGQjRCVnU3ZnJSM1hmb1hmNFk3MlBQcUY3VmRxVlVIcVRrdGRRcDdldnBreHNxM2IKZWdTbHk1SGxIV3czOW1HS2I1NkthbEpGUXhoMTQ1WXpxbEhZUUJZYTFPRUl6eGlJemNXWjN5T1c5Q3h6ZldUeQptMGdDU1pYanVwRlVIYjJNdWdGSmdVUTIvUncxeEl1NVpjTTNLM2YyUDkzRG5MTVZhTnBlVTJ0RHQ2NEJmelFECjZjTlVmL1NxZTl2K3BBTURwb20yd2VQS09ld3l6NmZlMTNySkJKanVzTkwzdnRhcEtvOXB2WXJDU0NLR0lJekoKNjBiQlNsWmFxcFVNdm9VWTQycEpSdz09Cj1ubzkrCi0tLS0tRU5EIFBHUCBTSUdOQVRVUkUtLS0tLQo=",
+    "source": "linux-azure-7.0",
+    "source_archives": {
+      "linux-azure-7.0_7.0.0-1017.17~24.04.1.diff.gz": {
+        "bytes": 4121122,
+        "retrieved": "WHOLE_BYTES_HASHED_AGAINST_EXACT_DSC",
+        "sha256": "067230d08d88c8cb4218a9b154c78d060b61ec925961cc08db1e42af07a26635",
+        "url": "https://security.ubuntu.com/ubuntu/pool/main/l/linux-azure-7.0/linux-azure-7.0_7.0.0-1017.17~24.04.1.diff.gz"
+      },
+      "linux-azure-7.0_7.0.0.orig.tar.gz": {
+        "bytes": 254937830,
+        "retrieved": "WHOLE_BYTES_HASHED_AGAINST_EXACT_DSC",
+        "sha256": "c6343795c8c7e4feff55f5b309365c8e0eaf49cd6abcb412e32315313f149536",
+        "url": "https://security.ubuntu.com/ubuntu/pool/main/l/linux-azure-7.0/linux-azure-7.0_7.0.0.orig.tar.gz"
+      }
+    },
+    "version": "7.0.0-1017.17~24.04.1"
+  }
+}

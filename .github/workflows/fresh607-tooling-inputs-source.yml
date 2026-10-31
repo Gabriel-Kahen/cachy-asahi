@@ -1,0 +1,101 @@
+{
+  "name": "fresh607-tooling-inputs-source",
+  "on": {
+    "push": {
+      "paths": [
+        "scripts/ci/fresh607-tooling-inputs-source/**",
+        ".github/workflows/fresh607-tooling-inputs-source.yml"
+      ]
+    },
+    "pull_request": {
+      "paths": [
+        "scripts/ci/fresh607-tooling-inputs-source/**",
+        ".github/workflows/fresh607-tooling-inputs-source.yml"
+      ]
+    },
+    "workflow_dispatch": {}
+  },
+  "permissions": {
+    "contents": "read"
+  },
+  "jobs": {
+    "source-controls": {
+      "runs-on": "ubuntu-24.04",
+      "timeout-minutes": 10,
+      "strategy": {
+        "fail-fast": false,
+        "matrix": {
+          "python": [
+            "3.12",
+            "3.14"
+          ]
+        }
+      },
+      "env": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONWARNINGS": "error"
+      },
+      "steps": [
+        {
+          "name": "Check out maintained source factory",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Check out pinned parent1192",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "repository": "Gabriel-Kahen/cachy-asahi",
+            "ref": "3a7cacaee84de54200acabaca2769fb5e757fa25",
+            "path": ".ci-fixtures/parent1192",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Check out pinned expected1197",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "repository": "Gabriel-Kahen/cachy-asahi",
+            "ref": "b9976eea34eaed4b6e56af3be21d4d652fa971d6",
+            "path": ".ci-fixtures/expected1197",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Check out pinned carrier89",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "repository": "Gabriel-Kahen/cachy-asahi",
+            "ref": "fb515d735a81194f06ea117539dee60438bb8d87",
+            "path": ".ci-fixtures/carrier89",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Check out pinned legacy",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "repository": "Gabriel-Kahen/cachy-asahi",
+            "ref": "b6b17e5f6b322f160f7eeb22c8a01380a3c854cd",
+            "path": ".ci-fixtures/legacy",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Select explicit Python",
+          "uses": "actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+          "with": {
+            "python-version": "${{ matrix.python }}"
+          }
+        },
+        {
+          "name": "Real factory, exact35 original fetch and whole1197 source guard",
+          "shell": "bash",
+          "run": "set -euo pipefail\nstage=$(mktemp -d \"$RUNNER_TEMP/tooling1197.XXXXXXXX\")\ntrap 'rm -rf -- \"$stage\"' EXIT\nexport TMPDIR=\"$stage\"\nmkdir \"$stage/parent1192\"\ngit -C \"$GITHUB_WORKSPACE/.ci-fixtures/parent1192\" archive --format=tar 3a7cacaee84de54200acabaca2769fb5e757fa25 | tar -xf - -C \"$stage/parent1192\"\nmkdir \"$stage/expected1197\"\ngit -C \"$GITHUB_WORKSPACE/.ci-fixtures/expected1197\" archive --format=tar b9976eea34eaed4b6e56af3be21d4d652fa971d6 | tar -xf - -C \"$stage/expected1197\"\nmkdir \"$stage/carrier89\"\ngit -C \"$GITHUB_WORKSPACE/.ci-fixtures/carrier89\" archive --format=tar fb515d735a81194f06ea117539dee60438bb8d87 | tar -xf - -C \"$stage/carrier89\"\nmkdir \"$stage/legacy\"\ngit -C \"$GITHUB_WORKSPACE/.ci-fixtures/legacy\" archive --format=tar b6b17e5f6b322f160f7eeb22c8a01380a3c854cd | tar -xf - -C \"$stage/legacy\"\nexport FRESH_TOOLING_PARENT=\"$stage/parent1192\"\nexport FRESH_TOOLING_EXPECTED=\"$stage/expected1197\"\nexport FRESH_TOOLING_CARRIER=\"$stage/carrier89\"\nexport FRESH_TOOLING_LEGACY=\"$stage/legacy\"\nexport FRESH_TOOLING_SOURCE=\"$stage/source\"\npython3 -I -B -Werror scripts/ci/fresh607-tooling-inputs-source/prepare.py --parent \"$FRESH_TOOLING_PARENT\" --output \"$FRESH_TOOLING_SOURCE\" > \"$stage/authorization.json\"\npython3 -I -B -Werror scripts/ci/fresh607-tooling-inputs-source/test_source.py\npython3 -I -B -Werror scripts/ci/fresh607-tooling-inputs-source/test_runtime.py\ntimeout 300s python3 -I -B -Werror \"$FRESH_TOOLING_SOURCE/implementation/run.py\" --source-preflight\n"
+        }
+      ]
+    }
+  }
+}

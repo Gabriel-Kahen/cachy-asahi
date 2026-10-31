@@ -1,0 +1,26 @@
+{
+  "counterfactual": "Direct Sway/readiness-list/image-derivedROI instead of Hyprland geometry; original timing/cases/typed bus/caller/expiry/cleanup",
+  "helpers": {
+    "capture.py": {
+      "before_sha256": "283160761381a55b441396b4c3aa8049ee240f5c78656c26165d62c2efc56cbc",
+      "original": "scripts/ci/fish-done-managed-notifications/capture.py",
+      "proposed_sha256": "283160761381a55b441396b4c3aa8049ee240f5c78656c26165d62c2efc56cbc"
+    },
+    "fish_terminal.py": {
+      "before_sha256": "b95d8cea87d8831dba301df3068b3893fa429e372de1a14f6b609b045336c62f",
+      "original": "scripts/ci/fish-done-managed-notifications/fish_terminal.py",
+      "proposed_sha256": "fb6ec2870544fccfd3aeb005657709093f9da7dfe7650c06eb901526faba4734"
+    },
+    "monitor.py": {
+      "before_sha256": "7704da1b060e739f63e4d7062a02938e64bcfbe1c10b4d6581532ded2f194de0",
+      "original": "scripts/ci/fish-done-managed-notifications/monitor.py",
+      "proposed_sha256": "7704da1b060e739f63e4d7062a02938e64bcfbe1c10b4d6581532ded2f194de0"
+    },
+    "observation.py": {
+      "before_sha256": "153fad25f0b5f58730cd077bdf414ed2b30ae6d7c780aa4f8f99484b7348d057",
+      "original": "scripts/ci/fish-done-managed-notifications/observation.py",
+      "proposed_sha256": "153fad25f0b5f58730cd077bdf414ed2b30ae6d7c780aa4f8f99484b7348d057"
+    }
+  },
+  "license": "MIT; unchanged existing project helper notices retained"
+}

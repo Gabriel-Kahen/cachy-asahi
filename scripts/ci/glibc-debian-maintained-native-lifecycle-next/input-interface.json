@@ -1,0 +1,21 @@
+{
+ "schema_version": 1,
+ "status": "DESCRIPTION_ONLY_NATIVE_PACKET_AND_WORKFLOW_UNBOUND",
+ "original_packet": {"ref":"132aec86c0946f6c7b7a79c46e1a9ccaf91021e3","directory":"payload","index":{"bytes":5662,"sha256":"a8e3317cabb3fe914a6b3898b2bfbc900905c3823495f15166c419564f7e4956"},"payload_files":21,"payload_bytes":47420206},
+ "required_Root_runtime_receipt": {
+  "status":"ROOT_ACCEPTED_PRIVATE_GNU16K_RUNTIME",
+  "candidate":"Exact canonical candidate_gate.EXPECTED including authority88643/prepared08ea/recipe9d6d5/currentcaa3",
+  "native_source":"78dfd3bbd85a61a84dda2dfc601796ee89edfd5f",
+  "candidate_package_sha256":"a8e9f3e1d8ffe049fdc834f62e74c14ff622b98898c2f849e1580ab8aa0fdbd9",
+  "page_size":16384,"cases":8,"runtime_records":12,
+  "actual_parent_child_providers":"PASS","ordered_cleanup":"PASS","hardware":"NOT_RUN",
+  "source_sha":"Actual independently accepted current runtime40hex, not native/source packet carriers",
+  "run_id":"Actual independently accepted current runtime positive run, not38994309021",
+  "authorization":"Root must explicitly supply this actual decision file and its exact SHA256; currently UNBOUND"
+ },
+ "converted_packet": {"status":"ROOT_ACCEPTED_PROVIDER_LIFECYCLE_INPUTS","preserved_payload_files":21,"added_files":["acceptance/private16k.json","lifecycle-source-map.json"],"private16k":"Ordinary path/bytes/sha256 reference to added exact Root decision","payload_files":23,"maximum_payload_files":256,"maximum_payload_bytes":536870912},
+ "default_policy":{"status":"UNBOUND_CAA3_ACTUAL_CURRENT_PRIVATE16K_AND_NATIVE_PACKET","packet":null},
+ "future_policy":{"status":"ROOT_BOUND_IMMUTABLE_PROVIDER_PACKET","candidate":"Exact current descriptor","packet":{"ref":"Root new converted immutable40hex carrier, never132aec","directory":"payload","index_sha256":"Root exact newly converted packet.json SHA256"}},
+ "native_source":"Existing maintained lifecycle emitter32 files plus98 exact canonical helper/source copies, only normal owner's policy/manifest binding changed; original case and actor bodies unchanged",
+ "native_execution":"NOT_RUN","hardware":"NOT_RUN","release":"NOT_ADMITTED"
+}

@@ -1,0 +1,79 @@
+{
+  "experiment_id": "REPLACE-host-control",
+  "machine_id": "REPLACE-operator-ID",
+  "base_id": "REPLACE-base-record-ID",
+  "workload_id": "fixed-inert-fixture",
+  "execution_context": "unknown",
+  "change": {
+    "variable": "fixture environment label only",
+    "baseline": "baseline",
+    "candidate": "candidate",
+    "rationale": "host plumbing control; no performance claim",
+    "environment_key": "MEASUREMENT_CONTROL"
+  },
+  "argv": [
+    "/usr/bin/python3",
+    "/REPLACE/smoke_workload.py"
+  ],
+  "inputs": [
+    "/usr/bin/python3",
+    "/REPLACE/smoke_workload.py"
+  ],
+  "variant_env": {
+    "baseline": {
+      "MEASUREMENT_CONTROL": "baseline"
+    },
+    "candidate": {
+      "MEASUREMENT_CONTROL": "candidate"
+    }
+  },
+  "order": [
+    "baseline",
+    "candidate",
+    "candidate",
+    "baseline",
+    "candidate",
+    "baseline",
+    "baseline",
+    "candidate",
+    "baseline",
+    "candidate",
+    "candidate",
+    "baseline"
+  ],
+  "minimum_trials": 5,
+  "timeout_seconds": 2,
+  "sample_seconds": 0.02,
+  "platform_metrics": {
+    "interval_seconds": 0.1
+  },
+  "controls": {
+    "power_source": "synthetic fixture; not observed",
+    "display_config": "synthetic fixture; not observed",
+    "brightness": "synthetic fixture; not observed",
+    "cache_mode": "synthetic fixture; not observed",
+    "background_load": "synthetic fixture; not observed",
+    "warmup": "synthetic fixture; not observed",
+    "ambient_C": [
+      0,
+      0
+    ],
+    "thermal_start_C": [
+      0,
+      0
+    ],
+    "battery_soc_percent": [
+      0,
+      0
+    ]
+  },
+  "thresholds": {
+    "minimum_elapsed_improvement_pct": 100,
+    "maximum_elapsed_range_pct": 1000000,
+    "maximum_regression": {
+      "root_rss_kib_pct": 5,
+      "power_raw_uW_pct": 5,
+      "thermal_raw_mC": 5
+    }
+  }
+}

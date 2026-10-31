@@ -1,0 +1,86 @@
+# SPDX-License-Identifier: MIT
+# Separate development successor; no lifecycle hook or automatic configuration.
+pkgname=cachy-asahi-setup
+pkgver=0.3.0
+pkgrel=1
+pkgdesc='Explicit setup status and hash-pinned per-user configuration migration'
+arch=('any')
+url='https://github.com/Gabriel-Kahen/cachy-asahi'
+license=('MIT')
+depends=('python>=3.11' 'gnupg' 'pacman')
+optdepends=('cachy-asahi-hyprland-settings: optional desktop template'
+            'cachy-asahi-fish-config: optional Fish template'
+            'cachy-asahi-zsh-config: optional Zsh template'
+            'cachy-asahi-fish-bang-bang: explicit optional Fish history expansion'
+            'cachy-asahi-fish-autopair: explicit optional Fish pairing'
+            'cachy-asahi-fish-done: explicit optional Fish completion notifications'
+            'cachy-asahi-zsh-autosuggestions: explicit optional Zsh history suggestions'
+            'cachy-asahi-zsh-syntax-highlighting: explicit optional Zsh highlighting'
+            'cachy-asahi-zsh-history-substring-search: explicit optional Zsh substring search')
+source=(
+    'LICENSE'
+    'NOTICE'
+    'README.md'
+    'cachy-asahi-config-migrate'
+    'cachy-asahi-repository'
+    'cachy-asahi-setup'
+    'check-sync.py'
+    'config_migrate.py'
+    'configuration-migrations.md'
+    'payload-map.json'
+    'repository-enrollment.md'
+    'setup.py'
+    'status-integration-fix.md'
+    'test_config_migrate.original.py'
+    'test_config_migrate.py'
+    'test_delivery.py'
+    'test_package.py'
+    'source-provenance.json'
+)
+sha256sums=(
+    '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
+    'c47e845e85522c77bfc40b8a0d0e4a7cb44d0e4aa7ebfb244168bca8f604c9b1'
+    '2cba96f8e009b5611fde80854654db64ffc1d92772bbea3686e4ea335b8d6afd'
+    '844b5c01b49552ea5aaef19a7ced8637f49d1f5126c37f4c14471620d0951cc2'
+    '38db2d45955b569a4c74c3f31d6b6c79611126238e1bbe1e5cf819f81d0fb54f'
+    '724a37c9832d607455aeda1d929f0ee265ce268aecb64be5e00065c1edf85cf0'
+    '53606dad6cac9950a40fa987579d2b62bff3682c2dedb0b2724236be6b61788d'
+    '1368a1fa0586d946f33945b0be7e5c1deb4fe929509e34a81d55cfb9f5cb800b'
+    'c6c8d325fdfa7e2371591b0e9862f0b8baf802065a8e00bfea1b55db0bc8ae19'
+    '1430ac237d368a834402baf281d24e0cb4aebd7fd2b3bc5709434ea14ae4b5e1'
+    '67963698b98954466c5fe8eb684ce88c25865089c7ffd2035646eaa44b2988b4'
+    '724a37c9832d607455aeda1d929f0ee265ce268aecb64be5e00065c1edf85cf0'
+    'ccaf10c4d336807070e2267f78d70be23b31672b59f1ca1c284bbfe9fe785f6f'
+    'd13365d34fa86b34c1465fc6f2aa249c6214e6ba64b20a0b04621346f842ae1f'
+    '5aa67f40379c77eac07238c3b58e6ebd20128a9ee85d642c686cc51791db4d23'
+    'e07fd35837b5d1b7239fdd42313e11f72e0133d7ac8359a528c019c0c57bd7d2'
+    '56f1aa644dc416759a732cecd8f79b8b28b719dd0d921b8a4054b881866dedca'
+    '34422b001a768d6cf6f866755db99310c17e477c33416b4e1c3896931b393ecc'
+)
+
+prepare() {
+    if [[ -f "$startdir/../../../AGENTS.md" ]]; then
+        python -B "$startdir/check-sync.py" --root "$startdir/../../.."
+    fi
+}
+
+check() {
+    python -B "$srcdir/check-sync.py" --snapshot
+    python -B -Werror::ResourceWarning "$srcdir/test_config_migrate.py" -v
+    python -B -Werror::ResourceWarning "$srcdir/test_package.py" -v
+    python -B "$srcdir/cachy-asahi-setup" --help >/dev/null
+    python -B "$srcdir/cachy-asahi-repository" --help >/dev/null
+}
+
+package() {
+    install -Dm755 "$srcdir/cachy-asahi-setup" "$pkgdir/usr/bin/cachy-asahi-setup"
+    install -Dm755 "$srcdir/cachy-asahi-repository" "$pkgdir/usr/bin/cachy-asahi-repository"
+    install -Dm755 "$srcdir/cachy-asahi-config-migrate" "$pkgdir/usr/bin/cachy-asahi-config-migrate"
+    install -Dm644 "$srcdir/setup.py" "$pkgdir/usr/lib/cachy-asahi/setup8/setup.py"
+    install -Dm644 "$srcdir/config_migrate.py" "$pkgdir/usr/lib/cachy-asahi/setup8/config_migrate.py"
+    install -Dm644 "$srcdir/README.md" "$pkgdir/usr/share/doc/cachy-asahi-setup/README.md"
+    install -Dm644 "$srcdir/repository-enrollment.md" "$pkgdir/usr/share/doc/cachy-asahi-setup/repository-enrollment.md"
+    install -Dm644 "$srcdir/configuration-migrations.md" "$pkgdir/usr/share/doc/cachy-asahi-setup/configuration-migrations.md"
+    install -Dm644 "$srcdir/NOTICE" "$pkgdir/usr/share/licenses/cachy-asahi-setup/NOTICE"
+    install -Dm644 "$srcdir/LICENSE" "$pkgdir/usr/share/licenses/cachy-asahi-setup/LICENSE"
+}

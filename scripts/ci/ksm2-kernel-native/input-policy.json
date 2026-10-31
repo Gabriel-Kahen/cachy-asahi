@@ -1,0 +1,23 @@
+{
+  "VM": "NOT_RUN",
+  "actual_ref": null,
+  "actual_run": null,
+  "actual_source": null,
+  "archive_revision": "94fb23346d522edf53722357c426a3e58030beea",
+  "boot": "NOT_RUN",
+  "bounds": {
+    "aggregate_workspace_bytes": 17179869184,
+    "baseline_config_seconds": 300,
+    "build_seconds": 3600,
+    "controller_seconds": 3700,
+    "output_bytes": 402653184,
+    "per_file_bytes": 2147483648
+  },
+  "hardware": "NOT_RUN",
+  "live_kernel_write": "NOT_RUN",
+  "native_package_decision": null,
+  "profile": "KSM_SCALAR_GENERIC16K_DIAGNOSTIC_V1",
+  "purpose": "KSM_DIAGNOSTIC16K_BUILD_ONLY",
+  "release": "NOT_ADMITTED",
+  "schema_version": 1
+}

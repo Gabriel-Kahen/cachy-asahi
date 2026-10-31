@@ -1,0 +1,51 @@
+{
+  "repository": "https://github.com/franciscolourenco/done",
+  "revision": "b86292a52a2b8f646ef8d25daa3cc01ccab60b62",
+  "upstream_version": "1.21.1 declared in source",
+  "archive_url": "https://codeload.github.com/franciscolourenco/done/tar.gz/b86292a52a2b8f646ef8d25daa3cc01ccab60b62",
+  "archive_sha256": "1f42f20f0ba5ba41459d75655aa4b31f7db8ccf76dacf4f78d0c572fc50f3f43",
+  "archive_bytes": 7718,
+  "license": "MIT",
+  "files": [
+    {
+      "path": ".travis.yml",
+      "sha256": "d9a73cc4f599923382215a54f43d682273a9cb2be0d011984673c6cddc297afe",
+      "bytes": 335
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "sha256": "653fb20a38d5b5ac44c4b72de15aa10bb2fb20f4080b33c45f8237f233c33d14",
+      "bytes": 673
+    },
+    {
+      "path": "LICENSE",
+      "sha256": "d3a6b9e81b93ce9b59c72355867b03f15e9ec186ad9d6b96e0a96374fa3d4c30",
+      "bytes": 1092
+    },
+    {
+      "path": "README.md",
+      "sha256": "e9582cfb915a0391f64787594df6b90125621952e938ca8a77e4787146ca6726",
+      "bytes": 7194
+    },
+    {
+      "path": "conf.d/done.fish",
+      "sha256": "4aa68e18104966509dd0bfd6f7378423e212781d0674dae85fd38b1d30e30372",
+      "bytes": 13815
+    },
+    {
+      "path": "test/done.fish",
+      "sha256": "485c4b5e2cd33e2085653bc9b4329af6dfa8b33a008ce9bdfd25da44f0886424",
+      "bytes": 205
+    }
+  ],
+  "adaptations": [
+    "Full original MIT header retained in adapted done.fish; humanize_duration body unchanged.",
+    "Linux notify-send invocation, duration gate and success/failure semantics adapted from pinned fish_postexec handler.",
+    "Independent namespace guard; no automatic startup, focus probes, terminal escape notification, Windows/macOS helpers, eval override or upstream uninstall event.",
+    "Default body omits commands and working directories. Optional command text is bounded and XML-escaped.",
+    "Explicit current-shell single-process background watcher uses Fish on-process-exit, elapsed from registration; rejects multi-process/pipeline jobs; no all-shell job discovery.",
+    "Notification transport bounded by coreutils timeout (2s plus 1s kill grace).",
+    "Pkgrel2: timeout --foreground keeps monitor alive to reap the named single-process notify-send after forced kill. Bound remains2s+1s grace; arbitrary descendants are not covered. Proven by isolated host child-subreaper probe; native lifecycle retry remains required."
+  ],
+  "original_source_installed_as_inert_record": "done.upstream.fish; not sourced by wrapper"
+}

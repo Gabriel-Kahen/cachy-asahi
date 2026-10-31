@@ -1,0 +1,7 @@
+Copyright (c) 2026 cachy-asahi contributors. MIT License; see LICENSE.
+
+This original implementation provides a bounded named-experiment and restoration
+CLI for the available-key sysctl workflow in docs/port/tools-functionality.md.
+It contains no CachyOS sysctl-manager code, Qt assets or preset configuration.
+Python and Linux proc/sys are supplied by the chosen base. Neither the package
+architecture declaration nor temporary-tree controls establish ARM/M2 behavior.

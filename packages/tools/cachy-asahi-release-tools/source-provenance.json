@@ -1,0 +1,94 @@
+{
+  "dependencies": {
+    "python_role": "standard library; compression.zstd required for SBOM .zst archives",
+    "required": [
+      "python>=3.14",
+      "zstd"
+    ],
+    "zstd_role": "existing package_checks.py recipe archive .zst decoder; no fetching"
+  },
+  "future_native_build_pair": {
+    "actual_binding": null,
+    "build1": null,
+    "build2": null
+  },
+  "launcher_sha256": "7a43b135a6902912d15fde387479643e940efad310d33866137183ff3508c479",
+  "license": {
+    "copyright": "2026 cachy-asahi contributors",
+    "id": "MIT",
+    "path": "LICENSE",
+    "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+  },
+  "observed_integration_revision": "f278e69a95bfc4a9b81468fe434221bd95eff5c4",
+  "original_package_source": "proposal not yet committed; exact source arrays bind bytes",
+  "package": "cachy-asahi-release-tools",
+  "qualification": {
+    "ALPM": "NOT RUN",
+    "emulated16K": "NOT RUN",
+    "host": "synthetic moved-prefix tests separately recorded in HANDOFF.md",
+    "installed_target": "NOT RUN",
+    "native_ARM": "NOT RUN",
+    "performance": "NOT MEASURED",
+    "physical_M2": "NOT RUN",
+    "release": "NOT ADMITTED"
+  },
+  "runtime_closure": {
+    "archive_stream.py": {
+      "bytes": 11938,
+      "license": "MIT",
+      "license_authority": "repository LICENSE retained as LICENSE; original headers unchanged",
+      "observed_revision": "f278e69a95bfc4a9b81468fe434221bd95eff5c4",
+      "sha256": "10f1a4c0ac5b98852d9ebb150af28f9ce345c800935a64fa463bc90f72fcb838",
+      "source_path": "scripts/update/archive_stream.py",
+      "source_revision": "f278e69a95bfc4a9b81468fe434221bd95eff5c4"
+    },
+    "package_checks.py": {
+      "bytes": 17706,
+      "license": "MIT",
+      "license_authority": "repository LICENSE retained as LICENSE; original headers unchanged",
+      "observed_revision": "f278e69a95bfc4a9b81468fe434221bd95eff5c4",
+      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8",
+      "source_path": "scripts/checks/package_checks.py",
+      "source_revision": "f278e69a95bfc4a9b81468fe434221bd95eff5c4"
+    },
+    "recipe_source_delivery.py": {
+      "bytes": 24188,
+      "license": "MIT",
+      "license_authority": "repository LICENSE retained as LICENSE; original headers unchanged",
+      "observed_revision": "f278e69a95bfc4a9b81468fe434221bd95eff5c4",
+      "sha256": "779f8147a13d3f90d11b9e5610f2d7d74fce28d0732797331fc832f0e87323be",
+      "source_path": "scripts/release/recipe_source_delivery.py",
+      "source_revision": "f278e69a95bfc4a9b81468fe434221bd95eff5c4"
+    },
+    "recipe_source_delivery_v2.py": {
+      "bytes": 26264,
+      "license": "MIT",
+      "license_authority": "repository LICENSE retained as LICENSE; original headers unchanged",
+      "observed_revision": "f278e69a95bfc4a9b81468fe434221bd95eff5c4",
+      "sha256": "cbc13a6e2d604dfec9d0090cb22d279952f2c96b3d1196c2e8a18ee83ad922ae",
+      "source_path": "scripts/release/recipe_source_delivery_v2.py",
+      "source_revision": "f278e69a95bfc4a9b81468fe434221bd95eff5c4"
+    },
+    "release_sbom.py": {
+      "bytes": 31044,
+      "license": "MIT",
+      "license_authority": "repository LICENSE retained as LICENSE; original headers unchanged",
+      "observed_revision": "f278e69a95bfc4a9b81468fe434221bd95eff5c4",
+      "sha256": "1a53831128858c6c629f2449a7276a52846e52ebf426baa6f1c010aa209af486",
+      "source_path": "scripts/release/release_sbom.py",
+      "source_revision": "f278e69a95bfc4a9b81468fe434221bd95eff5c4"
+    },
+    "source_delivery.py": {
+      "bytes": 16456,
+      "license": "MIT",
+      "license_authority": "repository LICENSE retained as LICENSE; original headers unchanged",
+      "observed_revision": "f278e69a95bfc4a9b81468fe434221bd95eff5c4",
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e",
+      "source_path": "scripts/release/source_delivery.py",
+      "source_revision": "f278e69a95bfc4a9b81468fe434221bd95eff5c4"
+    }
+  },
+  "schema_version": 1,
+  "source_revision": null,
+  "version": "0.1.0-1"
+}

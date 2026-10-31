@@ -1,0 +1,10 @@
+{
+  "actual": "NOT_RUN",
+  "files": 348,
+  "git_joins": 348,
+  "hardware": "NOT_RUN",
+  "ref": "codex/current606-apps-renewed-signer-v1",
+  "release": "NOT_ADMITTED",
+  "source": "3660e6cb87b4cb5591b1d295c62c8b02cca4b7e6",
+  "status": "COMMITTED_EXACT_CLOSED_TRIAL_SOURCE"
+}

@@ -1,0 +1,162 @@
+{
+  "candidate": {
+    "archive_sha256": "b8f0d50a7d4255658efe1f608cacdc4be82bb3c009875626df5968cc64c58880",
+    "name": "cachy-asahi-glibc-gnu-provider",
+    "payload_tree": "1fbcd978e2051d72273231f03b921b1503e0e424",
+    "version": "2.43.caa2-1"
+  },
+  "checked_utc": "2026-10-17T00:49:08.353722+00:00",
+  "independent_evidence": {
+    "anchor": "Preexisting host pacman Arch trust; Root rejoined5livefiles against original retained pins; no new ownertrust/key import",
+    "arch_keys": {
+      "2AC0A42EFB0B5CBC7A0402ED4DC95B6D7BE9892E": {
+        "created": 1619456636,
+        "expires": null,
+        "validity": "f"
+      },
+      "3572FA2A1B067F22C58AF155F8B821B42A6FDCD7": {
+        "created": 1697129891,
+        "expires": null,
+        "validity": "f"
+      },
+      "69E6471E3AE065297529832E6BA0F5A2037F4F41": {
+        "created": 1666600687,
+        "expires": null,
+        "validity": "f"
+      },
+      "99B6618472A3B3B814185BAED7D3D823B88BDB9B": {
+        "created": 1768658086,
+        "expires": null,
+        "validity": "f"
+      },
+      "B5971F2C5C10A9A08C60030F786C63F330D7CB92": {
+        "created": 1327018226,
+        "expires": null,
+        "validity": "f"
+      },
+      "D8AFDDA07A5B6EDFA7D8CCDAD6D055F927843F1C": {
+        "created": 1541685162,
+        "expires": null,
+        "validity": "f"
+      }
+    },
+    "arch_package": {
+      "bytes": 176589,
+      "sha256": "c0e94de5abe3672b5cfae0eeb1b1db4467654e9a3b7aee8755994585419dd53b"
+    },
+    "arch_package_signature": {
+      "bytes": 566,
+      "sha256": "121445910e34617cb8a0e64731e3654dfda369fec164c13810415b714a0f9f45"
+    },
+    "arch_signer": "B5971F2C5C10A9A08C60030F786C63F330D7CB92",
+    "bootstrap_input_manifest": {
+      "bytes": 1572,
+      "sha256": "190963ebdee75ad5e8093395a2a1fbabd2fa64caa83a2d15045807166c807629"
+    },
+    "debian_certificates": {
+      "archive-key-12.asc": {
+        "bytes": 11861,
+        "sha256": "c2a9a16fde95e037bafd0fa6b7e31f41b4ff1e85851de5558f19a2a2f0e955e2"
+      },
+      "archive-key-13.asc": {
+        "bytes": 11861,
+        "sha256": "6f1d277429dd7ffedcc6f8688a7ad9a458859b1139ffa026d1eeaadcbffb0da7"
+      }
+    },
+    "host_origin": {
+      "bytes": 2098,
+      "sha256": "77902e40afa1ee01bfcbea633fbc582572e06938694f4d6ef78de024161818f4"
+    },
+    "private_replay_inputs": "Local full replay retained; host public ring/trustdb bytes are not published",
+    "replay_verifier": {
+      "bytes": 7826,
+      "sha256": "42f3bc635ea34401b2e16e6bee220405b201f0d1acd72c115dd0f052f5bcbf75"
+    },
+    "root_replay": {
+      "bytes": 36488,
+      "sha256": "111620ff871821fe11d0fcfbfa3f015ecac5a09667083eb5dfc4b2a0cc9de1b9"
+    },
+    "source_chain": {
+      "archive": {
+        "bytes": 21553420,
+        "sha256": "b8f0d50a7d4255658efe1f608cacdc4be82bb3c009875626df5968cc64c58880"
+      },
+      "date": "Fri, 16 Oct 2026 20:10:58 UTC",
+      "diagnostic": "gpgv: Signature made Fri Oct 16 20:12:25 2026 UTC\ngpgv:                using RSA key 4CB50190207B4758A3F73A796ED0E7B82643E131\ngpgv: Good signature from \"Debian Archive Automatic Signing Key (12/bookworm) <ftpmaster@debian.org>\"\ngpgv: Signature made Fri Oct 16 20:12:27 2026 UTC\ngpgv:                using RSA key B8E5F13176D2A7A75220028078DBA3BC47EF2265\ngpgv: Good signature from \"Debian Archive Automatic Signing Key (13/trixie) <ftpmaster@debian.org>\"\n",
+      "gpg_status": "[GNUPG:] PLAINTEXT 74 0 \n[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED B8B80B5B623EAB6AD8775C45B7C5D7D6350947F8 0\n[GNUPG:] SIG_ID /SAPfCvT7Vv440SeF0TUW7WDK8w 2026-10-16 1792181545\n[GNUPG:] GOODSIG 6ED0E7B82643E131 Debian Archive Automatic Signing Key (12/bookworm) <ftpmaster@debian.org>\n[GNUPG:] VALIDSIG 4CB50190207B4758A3F73A796ED0E7B82643E131 2026-10-16 1792181545 0 4 0 1 8 01 B8B80B5B623EAB6AD8775C45B7C5D7D6350947F8\n[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED 04B54C3CDCA79751B16BC6B5225629DF75B188BD 0\n[GNUPG:] SIG_ID +9UYrQqKxFGEJg0Fa6Z9sUUMZrc 2026-10-16 1792181547\n[GNUPG:] GOODSIG 78DBA3BC47EF2265 Debian Archive Automatic Signing Key (13/trixie) <ftpmaster@debian.org>\n[GNUPG:] VALIDSIG B8E5F13176D2A7A75220028078DBA3BC47EF2265 2026-10-16 1792181547 0 4 0 1 8 01 04B54C3CDCA79751B16BC6B5225629DF75B188BD\n",
+      "key_material": [
+        {
+          "created": 1674301461,
+          "expires": 1926589461,
+          "fingerprint": "B8B80B5B623EAB6AD8775C45B7C5D7D6350947F8",
+          "kind": "pub",
+          "primary": "B8B80B5B623EAB6AD8775C45B7C5D7D6350947F8"
+        },
+        {
+          "created": 1674301461,
+          "expires": 1926589461,
+          "fingerprint": "4CB50190207B4758A3F73A796ED0E7B82643E131",
+          "kind": "sub",
+          "primary": "B8B80B5B623EAB6AD8775C45B7C5D7D6350947F8"
+        },
+        {
+          "created": 1743339029,
+          "expires": 2058699029,
+          "fingerprint": "04B54C3CDCA79751B16BC6B5225629DF75B188BD",
+          "kind": "pub",
+          "primary": "04B54C3CDCA79751B16BC6B5225629DF75B188BD"
+        },
+        {
+          "created": 1743339029,
+          "expires": 2058699029,
+          "fingerprint": "B8E5F13176D2A7A75220028078DBA3BC47EF2265",
+          "kind": "sub",
+          "primary": "04B54C3CDCA79751B16BC6B5225629DF75B188BD"
+        }
+      ],
+      "key_pairs": {
+        "04B54C3CDCA79751B16BC6B5225629DF75B188BD": "B8E5F13176D2A7A75220028078DBA3BC47EF2265",
+        "B8B80B5B623EAB6AD8775C45B7C5D7D6350947F8": "4CB50190207B4758A3F73A796ED0E7B82643E131"
+      },
+      "release": {
+        "bytes": 191191,
+        "sha256": "4b5daf1fc2090f1dc49be99b0aabb4f56c396d934525b1e6964ab4ec852cd22e"
+      },
+      "release_admission": "NOT_GRANTED",
+      "security": "NO_CREDIT",
+      "source_record": {
+        "bytes": 7730,
+        "sha256": "d26c264ad15a3d5644434ada4813f9e891a8cd98cc78bb72b1dafeeedd8c5078"
+      },
+      "sources": {
+        "bytes": 12028604,
+        "sha256": "781f5a9546d0b41aaa5b4abcf61ba3168fc5dc8c0e74f17d68a2a24670035583"
+      },
+      "status": "CRYPTOGRAPHIC_DEBIAN_CHAIN_ONLY_NOT_BOOTSTRAP_AUTHORITY",
+      "valid_until": "Fri, 23 Oct 2026 20:10:58 UTC"
+    },
+    "strong_current_master_certifications": [
+      "2AC0A42EFB0B5CBC7A0402ED4DC95B6D7BE9892E",
+      "69E6471E3AE065297529832E6BA0F5A2037F4F41",
+      "99B6618472A3B3B814185BAED7D3D823B88BDB9B",
+      "D8AFDDA07A5B6EDFA7D8CCDAD6D055F927843F1C"
+    ]
+  },
+  "key_pairs": {
+    "04B54C3CDCA79751B16BC6B5225629DF75B188BD": "B8E5F13176D2A7A75220028078DBA3BC47EF2265",
+    "B8B80B5B623EAB6AD8775C45B7C5D7D6350947F8": "4CB50190207B4758A3F73A796ED0E7B82643E131"
+  },
+  "limits": [
+    "Arch package is signed April2025; no signed package expiry. Official current package listing/local preexisting repo record identify same version, but not a signed freshness timestamp.",
+    "Current key/revocation checks are against the exact preexisting host keyring, not an assertion that no newer revocation exists anywhere.",
+    "Trust consistency check may report next scheduled check; current signer/master expiry and required strong certification checks are independently enforced.",
+    "No Ubuntu trust anchor introduced; no claim original GNU signature repaired."
+  ],
+  "native": "NOT_RUN_NEW_SOURCE",
+  "not_just_publisher_https": true,
+  "original_GNU_source": "EXPIRED_SIGNATURE_UNCHANGED_DISTINCT_SOURCE",
+  "release": "NOT_ADMITTED",
+  "schema_version": 1,
+  "security": "NO_CREDIT_NO_MAINTAINED_CURRENCY_CLAIM",
+  "status": "ROOT_ACCEPTED_INDEPENDENT_DEBIAN_ARCHIVE_KEY_BOOTSTRAP"
+}

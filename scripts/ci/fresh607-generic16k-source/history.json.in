@@ -1,0 +1,24 @@
+{
+  "acceptance": "NOT_TRANSFERRED",
+  "actual": null,
+  "original1203": "UNPUBLISHED_SOURCE_DATA_ONLY",
+  "original1203_map": {
+    "bytes": 222105,
+    "sha256": "992505ad33f10789e6bae86d725d44eb0834a364ac6c6de93e08953b1893c21b"
+  },
+  "original_page_parent": {
+    "bytes": 839128,
+    "sha256": "bc31662b053ac8023719a3d70c880495e6761b01b720ce501185ed27e4448143"
+  },
+  "original_template": {
+    "bytes": 9245,
+    "sha256": "78127d7e1bddd6b52cff877392abfb4b0ded19a372c09b8e8b3a9d196da99d76"
+  },
+  "qualification": {
+    "pin": {
+      "bytes": 337,
+      "sha256": "db975d7c09318115b95d9092737f509aa2864c001d00076f42705e29b6ebe947"
+    },
+    "text": "{\n  \"API\": false,\n  \"GUI_dependency\": \"INDEPENDENT_OWNED_SOURCE_COPIES_NO_SHARED_GUI_MUTATION\",\n  \"cap\": 300,\n  \"cpu_seconds\": 8.647871,\n  \"current_actual\": null,\n  \"exit\": 0,\n  \"native\": false,\n  \"old_actual_replay\": false,\n  \"retry\": false,\n  \"seconds\": 8.768709351003054,\n  \"status\": \"PASS\",\n  \"stderr_bytes\": 0,\n  \"timeout\": false\n}\n"
+  }
+}

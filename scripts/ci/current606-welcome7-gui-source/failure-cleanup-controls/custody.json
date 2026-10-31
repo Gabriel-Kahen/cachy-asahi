@@ -1,0 +1,28 @@
+{
+  "GUI_acceptance": false,
+  "cleanup_acceptance": false,
+  "historical_cleanup": "FAIL_ALIAS_NOT_RELEASED_PRODUCER_PRESERVED",
+  "projection": {
+    "bytes": 1530,
+    "sha256": "3b4db2e0d501b446f2283520211e99ddf14f8d22648f91cc9f7243c9f135582a"
+  },
+  "root_facts": {
+    "bytes": 3341,
+    "sha256": "ada3ec571ba1d166ad29899e94982c488f318fc8ef1352d0bdd2c437a33158f4"
+  },
+  "root_post_pins": {
+    "bytes": 276398,
+    "sha256": "88aa756ffe258a55770c0972160bfc4d746803ed1a53ff9cb65c70b677a145fb"
+  },
+  "run": 39791682108,
+  "runtime": {
+    "bytes": 74033,
+    "sha256": "60f35dc403c4d299e537f8d618a1abd7a36f4b7f60d14c9ae37d84cee40bb00e"
+  },
+  "source": "803ed9c5c0357162ef9868bf6f82d37936ba7842",
+  "status": "JOINED_EXISTING_ROOT_AUTHENTICATED_FAILURE_ONLY_NO_REPLAY",
+  "terminal": {
+    "bytes": 183,
+    "sha256": "3c406bdd4b4138b980c34ad6de7c37e82826ddc95cd18cd416b3d65ff7f0de06"
+  }
+}

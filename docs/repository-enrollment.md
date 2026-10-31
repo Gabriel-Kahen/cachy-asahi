@@ -72,8 +72,9 @@ revocation-distribution policy.
 
 An identical enabled selection with a valid trusted key is a no-op. Selecting a
 different explicit snapshot URL with the same certificate updates only the
-managed include. A different certificate or fingerprint is refused while managed
-state exists; rotation requires separate operator review and disabling first.
+managed include. The enrollment command refuses a different certificate or
+fingerprint while managed state exists. Use the separate planned rotation command
+below for a key change while the managed repository stays enabled.
 
 To preview or apply disable:
 
@@ -87,6 +88,49 @@ include. Repeating disable is safe. Imported public keys and local signatures ar
 retained, because other configuration may rely on that trust. Neither operation
 refreshes databases, installs or removes packages, or changes services or Asahi's
 platform stack.
+
+## Planned signing-key rotation
+
+`scripts/repository/rotate.py` accepts a separately obtained successor public
+certificate and its independently authenticated full primary fingerprint. It
+requires an enabled managed repository, an exact expected current fingerprint,
+and a current key that remains usable and fully trusted. This is a planned local
+trust transition; obtain and authenticate the successor through the operator's
+chosen process before using it. No production signing identity is supplied.
+
+Preview is the default. The variables below are operator inputs:
+
+```sh
+python3 -B scripts/repository/rotate.py \
+  --expected-current-fingerprint "$EXPECTED_CURRENT_PRIMARY_FINGERPRINT" \
+  --public-key /etc/pacman.d/successor-public.gpg \
+  --fingerprint "$EXPECTED_NEW_PRIMARY_FINGERPRINT"
+```
+
+Inspect the current/new fingerprints, exact public-certificate SHA-256, unchanged
+snapshot URL, and proposed managed include. Run the same command as root with
+`--apply` to import and locally sign the successor in the existing pacman keyring.
+The tool checks successor signing usability and full validity before atomically
+replacing only the managed include. Global configuration bytes, snapshot URL,
+mandatory package/database signature policy, base trust, and old trust are
+retained. Pacman's global keyring still allows other trusted signers; the
+fingerprint comment does not impose exclusive per-repository trust.
+
+The existing pacman lock and observed-file identity/byte checks protect this
+operation. A failed import, local signature, or successor-trust check leaves the
+old include selected. Public import/local signatures can remain after failure;
+there is no automatic trust rollback. Failure after an atomic rename can leave
+the new include in place even when directory flushing fails. Inspect the actual
+include and the reported `config_may_have_changed` before retrying. An old
+expected-current fingerprint is refused once the include selects the new key.
+An explicit request using the observed new fingerprint and identical public
+certificate is a no-op. Changed certificates with the same primary fingerprint
+are refused and need a separate certificate-update policy.
+
+This command does not remove or revoke old trust, fetch certificates, refresh
+repositories, or install packages. Compromised, revoked, expired, or missing
+current keys require a separate recovery process. Authenticated remote
+rotation/revocation delivery remains unfinished work.
 
 ## Preservation and recovery
 
@@ -137,7 +181,17 @@ GPG daemons are stopped during cleanup.
 
 ```sh
 python3 -B scripts/repository/test_enroll.py
+python3 -B scripts/repository/test_rotate.py
 ```
+
+The rotation controls also run the unchanged enrollment suite. They verify a
+real successor signature and full trust after rotation, preservation of old/base
+public certificates and effective signature policy, preview keyring-byte
+conservation, current-fingerprint CAS and explicit no-op behavior, real-clock
+expiry/revocation refusal, retained keyring revocations, import/local-signing
+failures, concurrent edits, and post-rename flush uncertainty. Generated private
+TEST material is confined to private disposable homes and removed on cleanup.
+The fixtures use short temporary paths for GPG agent socket limits.
 
 The tests require unprivileged user namespaces and the installed GPG/pacman tools;
 they have no host-root fallback. `--root` exists for these disposable roots and is
@@ -145,5 +199,5 @@ not a supported installer or alternate-root package-management interface. Previe
 only reads target inputs and uses a private temporary GPG inspection home. No host
 trust store, host services, repository network endpoint, or package transaction was
 changed by validation. Native target installation, accepted release identity,
-authenticated key rotation/revocation delivery, M2 hardware operation, and
+authenticated remote key rotation/revocation delivery, M2 hardware operation, and
 performance remain untested by this work.

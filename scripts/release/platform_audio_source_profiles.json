@@ -1,0 +1,2626 @@
+{
+  "profiles": {
+    "alsa-ucm-conf-asahi": {
+      "arch": "any",
+      "extracts": {
+        "LICENSE.upstream": {
+          "archive": "alsa-ucm-conf-asahi-10.tar.gz",
+          "member": "alsa-ucm-conf-asahi-10/LICENSE.asahi"
+        }
+      },
+      "inputs": {
+        ".SRCINFO": {
+          "bytes": 842,
+          "path": "packages/platform/alsa-ucm-conf-asahi/.SRCINFO",
+          "sha256": "c65d42a0e3c57f7bd290f78bbdea17c1c08a9c0fe6337a0f5b061f06f24b13a0"
+        },
+        "BUILD.inputs.lock.json": {
+          "bytes": 328101,
+          "path": "scripts/ci/inputs.lock.json",
+          "sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f"
+        },
+        "NOTICE": {
+          "bytes": 791,
+          "path": "packages/platform/alsa-ucm-conf-asahi/NOTICE",
+          "sha256": "ea8d4dd8a097645b45a7d45cfe9db156b096ccad34f53095dad82ffe7c1df40a"
+        },
+        "PACKAGING.LICENSE": {
+          "bytes": 1081,
+          "path": "packages/platform/alsa-ucm-conf-asahi/PACKAGING.LICENSE",
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        },
+        "PKGBUILD": {
+          "bytes": 1560,
+          "path": "packages/platform/alsa-ucm-conf-asahi/PKGBUILD",
+          "sha256": "876569e3f8d2d53fe8da0842e890d738574efdb2902dbf87ce3ab95b779e6335"
+        },
+        "README.md": {
+          "bytes": 1817,
+          "path": "packages/platform/alsa-ucm-conf-asahi/README.md",
+          "sha256": "1d62c3c6df227893b4dde9ec9fc9ff13167eab99339629a652abfbf14162973f"
+        },
+        "alsa-ucm-conf-asahi-10.tar.gz": {
+          "bytes": 3887,
+          "path": "packages/platform/alsa-ucm-conf-asahi/alsa-ucm-conf-asahi-10.tar.gz",
+          "sha256": "4cbf77e7113dbe3981c1aa271bc12f30c8af1ac3326db8e261ee8aa25cf37295"
+        },
+        "source-provenance.json": {
+          "bytes": 1020,
+          "path": "packages/platform/alsa-ucm-conf-asahi/source-provenance.json",
+          "sha256": "809c68fcf459c27ba8fb617d917a1913e5b1502daed2e106e0ddaf0f7f8442f2"
+        }
+      },
+      "metadata": {
+        "arch": [
+          "any"
+        ],
+        "depends": [
+          "alsa-ucm-conf>=1.2.7.2"
+        ],
+        "license": [
+          "BSD-3-Clause",
+          "MIT"
+        ],
+        "pkgbase": [
+          "alsa-ucm-conf-asahi"
+        ],
+        "pkgdesc": [
+          "Selected Apple silicon ALSA UCM configuration (development candidate)"
+        ],
+        "pkgname": [
+          "alsa-ucm-conf-asahi"
+        ],
+        "pkgrel": [
+          "2"
+        ],
+        "pkgver": [
+          "10"
+        ],
+        "sha256sums": [
+          "4cbf77e7113dbe3981c1aa271bc12f30c8af1ac3326db8e261ee8aa25cf37295",
+          "ea8d4dd8a097645b45a7d45cfe9db156b096ccad34f53095dad82ffe7c1df40a",
+          "1d62c3c6df227893b4dde9ec9fc9ff13167eab99339629a652abfbf14162973f",
+          "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+          "809c68fcf459c27ba8fb617d917a1913e5b1502daed2e106e0ddaf0f7f8442f2"
+        ],
+        "source": [
+          "alsa-ucm-conf-asahi-10.tar.gz",
+          "NOTICE",
+          "README.md",
+          "PACKAGING.LICENSE",
+          "source-provenance.json"
+        ],
+        "url": [
+          "https://github.com/AsahiLinux/alsa-ucm-conf-asahi"
+        ]
+      },
+      "payload": {
+        "usr/share/alsa/ucm2/conf.d/aop_audio/3chan/HiFi.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "e6cfd0dfc86ee2a607ccc13671495b044a8eb851a4b528a119ff1b1c9821510b"
+        },
+        "usr/share/alsa/ucm2/conf.d/aop_audio/MacBook Air J313 High-Power Audio Interface.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "66c1da54fb834923d3a42c08c04d74758778356417e1edbb191af131a4911483"
+        },
+        "usr/share/alsa/ucm2/conf.d/aop_audio/MacBook Air J413 High-Power Audio Interface.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "66c1da54fb834923d3a42c08c04d74758778356417e1edbb191af131a4911483"
+        },
+        "usr/share/alsa/ucm2/conf.d/aop_audio/MacBook Air J415 High-Power Audio Interface.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "66c1da54fb834923d3a42c08c04d74758778356417e1edbb191af131a4911483"
+        },
+        "usr/share/alsa/ucm2/conf.d/aop_audio/MacBook Air J613 High-Power Audio Interface.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "66c1da54fb834923d3a42c08c04d74758778356417e1edbb191af131a4911483"
+        },
+        "usr/share/alsa/ucm2/conf.d/aop_audio/MacBook Air J615 High-Power Audio Interface.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "66c1da54fb834923d3a42c08c04d74758778356417e1edbb191af131a4911483"
+        },
+        "usr/share/alsa/ucm2/conf.d/aop_audio/MacBook Pro J293 High-Power Audio Interface.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "66c1da54fb834923d3a42c08c04d74758778356417e1edbb191af131a4911483"
+        },
+        "usr/share/alsa/ucm2/conf.d/aop_audio/MacBook Pro J314 High-Power Audio Interface.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "66c1da54fb834923d3a42c08c04d74758778356417e1edbb191af131a4911483"
+        },
+        "usr/share/alsa/ucm2/conf.d/aop_audio/MacBook Pro J316 High-Power Audio Interface.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "66c1da54fb834923d3a42c08c04d74758778356417e1edbb191af131a4911483"
+        },
+        "usr/share/alsa/ucm2/conf.d/aop_audio/MacBook Pro J414 High-Power Audio Interface.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "66c1da54fb834923d3a42c08c04d74758778356417e1edbb191af131a4911483"
+        },
+        "usr/share/alsa/ucm2/conf.d/aop_audio/MacBook Pro J416 High-Power Audio Interface.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "66c1da54fb834923d3a42c08c04d74758778356417e1edbb191af131a4911483"
+        },
+        "usr/share/alsa/ucm2/conf.d/aop_audio/MacBook Pro J493 High-Power Audio Interface.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "66c1da54fb834923d3a42c08c04d74758778356417e1edbb191af131a4911483"
+        },
+        "usr/share/alsa/ucm2/conf.d/aop_audio/MacBook Pro J504 High-Power Audio Interface.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "66c1da54fb834923d3a42c08c04d74758778356417e1edbb191af131a4911483"
+        },
+        "usr/share/alsa/ucm2/conf.d/aop_audio/MacBook Pro J514 High-Power Audio Interface.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "66c1da54fb834923d3a42c08c04d74758778356417e1edbb191af131a4911483"
+        },
+        "usr/share/alsa/ucm2/conf.d/aop_audio/MacBook Pro J516 High-Power Audio Interface.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "66c1da54fb834923d3a42c08c04d74758778356417e1edbb191af131a4911483"
+        },
+        "usr/share/alsa/ucm2/conf.d/macaudio/Mac Studio J375.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "e3230147f703fd281dccb3c2b1b9f6cf90afe6925cc47e11db68db063c55b29e"
+        },
+        "usr/share/alsa/ucm2/conf.d/macaudio/Mac Studio J475.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "e3230147f703fd281dccb3c2b1b9f6cf90afe6925cc47e11db68db063c55b29e"
+        },
+        "usr/share/alsa/ucm2/conf.d/macaudio/Mac Studio J575.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "e3230147f703fd281dccb3c2b1b9f6cf90afe6925cc47e11db68db063c55b29e"
+        },
+        "usr/share/alsa/ucm2/conf.d/macaudio/Mac mini J274.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "29fc7317ae1f38245e71b3a9778f2b6a2f87d3f3da5ec761b1c55133795528bb"
+        },
+        "usr/share/alsa/ucm2/conf.d/macaudio/Mac mini J473.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "e3230147f703fd281dccb3c2b1b9f6cf90afe6925cc47e11db68db063c55b29e"
+        },
+        "usr/share/alsa/ucm2/conf.d/macaudio/Mac mini J474.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "e3230147f703fd281dccb3c2b1b9f6cf90afe6925cc47e11db68db063c55b29e"
+        },
+        "usr/share/alsa/ucm2/conf.d/macaudio/MacBook Air J313.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "26774fbc20043f501ee8bb1847bb2cff643bce6aafbc22625888f774ccd23747"
+        },
+        "usr/share/alsa/ucm2/conf.d/macaudio/MacBook Air J413.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "d5a30686cb4795e4096d247476a12b5dc4925dfbf0c77348adfc5580d94a2203"
+        },
+        "usr/share/alsa/ucm2/conf.d/macaudio/MacBook Air J415.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "64a7594002f84d15a1fd9a0735ace44df4f9bca341112950850371a6f28213f0"
+        },
+        "usr/share/alsa/ucm2/conf.d/macaudio/MacBook Air J613.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "d5a30686cb4795e4096d247476a12b5dc4925dfbf0c77348adfc5580d94a2203"
+        },
+        "usr/share/alsa/ucm2/conf.d/macaudio/MacBook Air J615.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "64a7594002f84d15a1fd9a0735ace44df4f9bca341112950850371a6f28213f0"
+        },
+        "usr/share/alsa/ucm2/conf.d/macaudio/MacBook Pro J293.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "5fe2bc361a6fc168ddedbdd48af5b6ec26df1e96b0ffbf95c02150207cae1fea"
+        },
+        "usr/share/alsa/ucm2/conf.d/macaudio/MacBook Pro J314.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "64a7594002f84d15a1fd9a0735ace44df4f9bca341112950850371a6f28213f0"
+        },
+        "usr/share/alsa/ucm2/conf.d/macaudio/MacBook Pro J316.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "64a7594002f84d15a1fd9a0735ace44df4f9bca341112950850371a6f28213f0"
+        },
+        "usr/share/alsa/ucm2/conf.d/macaudio/MacBook Pro J414.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "64a7594002f84d15a1fd9a0735ace44df4f9bca341112950850371a6f28213f0"
+        },
+        "usr/share/alsa/ucm2/conf.d/macaudio/MacBook Pro J416.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "64a7594002f84d15a1fd9a0735ace44df4f9bca341112950850371a6f28213f0"
+        },
+        "usr/share/alsa/ucm2/conf.d/macaudio/MacBook Pro J493.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "0d404f9ef4aa634dc211d7879459d8aa9627ececb233164bf634af9ab875e318"
+        },
+        "usr/share/alsa/ucm2/conf.d/macaudio/MacBook Pro J504.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "64a7594002f84d15a1fd9a0735ace44df4f9bca341112950850371a6f28213f0"
+        },
+        "usr/share/alsa/ucm2/conf.d/macaudio/MacBook Pro J514.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "64a7594002f84d15a1fd9a0735ace44df4f9bca341112950850371a6f28213f0"
+        },
+        "usr/share/alsa/ucm2/conf.d/macaudio/MacBook Pro J516.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "64a7594002f84d15a1fd9a0735ace44df4f9bca341112950850371a6f28213f0"
+        },
+        "usr/share/alsa/ucm2/conf.d/macaudio/cs42l83/Headphones.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "3f9c8f3baa410d930114940e9791cdf0f3bf57b4596c8d7dbe3d223d59f96655"
+        },
+        "usr/share/alsa/ucm2/conf.d/macaudio/cs42l84/Headphones.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "13dfd64731257af28c3d33f32c452dfecc2f4b091a36f7ef4c12caff8d3ef6fa"
+        },
+        "usr/share/alsa/ucm2/conf.d/macaudio/desktops/mono/HiFi.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "ba400dfacdc13f50510255fab5044a63655405af108f1362f843ca8f3b195b08"
+        },
+        "usr/share/alsa/ucm2/conf.d/macaudio/iMac J433.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "f86375efc174f33b856ef42dac1c730d00cb0c9707ce70991ffb2047fbd37ddd"
+        },
+        "usr/share/alsa/ucm2/conf.d/macaudio/iMac J434.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "f86375efc174f33b856ef42dac1c730d00cb0c9707ce70991ffb2047fbd37ddd"
+        },
+        "usr/share/alsa/ucm2/conf.d/macaudio/iMac J456.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "ce293d286a43b4f95846c1e50b6232f185be44da75a0db9d62b0d75e0bc6ecf1"
+        },
+        "usr/share/alsa/ucm2/conf.d/macaudio/iMac J457.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "ce293d286a43b4f95846c1e50b6232f185be44da75a0db9d62b0d75e0bc6ecf1"
+        },
+        "usr/share/alsa/ucm2/conf.d/macaudio/laptops/HiFi.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "09ea22cf5d1d56255bf0a358b5b9ebd7f41ae96e0d222b41e49cef2a8b7da6f3"
+        },
+        "usr/share/doc/alsa-ucm-conf-asahi/README.md": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "1d62c3c6df227893b4dde9ec9fc9ff13167eab99339629a652abfbf14162973f"
+        },
+        "usr/share/doc/alsa-ucm-conf-asahi/source-provenance.json": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "809c68fcf459c27ba8fb617d917a1913e5b1502daed2e106e0ddaf0f7f8442f2"
+        },
+        "usr/share/licenses/alsa-ucm-conf-asahi/LICENSE.asahi": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "95c164b4181b61f830a05293e6e7e9bc34dbe76e7f5fa593cd20f5aa49029559"
+        },
+        "usr/share/licenses/alsa-ucm-conf-asahi/NOTICE": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "ea8d4dd8a097645b45a7d45cfe9db156b096ccad34f53095dad82ffe7c1df40a"
+        },
+        "usr/share/licenses/alsa-ucm-conf-asahi/PACKAGING.LICENSE": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        }
+      },
+      "publication_blockers": [],
+      "recipe_directory": "packages/platform/alsa-ucm-conf-asahi",
+      "source_scope": "EXACT_DATA_RECIPE_INPUTS",
+      "upstream_acquisition_receipt": {
+        "bytes": 3887,
+        "final_url": "https://codeload.github.com/AsahiLinux/alsa-ucm-conf-asahi/tar.gz/refs/tags/v10",
+        "name": "alsa-ucm-conf-asahi",
+        "path": "upstream/alsa-ucm-conf-asahi-v10.tar.gz",
+        "recipe_checksum_matches": true,
+        "repository": "AsahiLinux/alsa-ucm-conf-asahi",
+        "revision": "1473329acab595dfef039f38c384ce16674d6b15",
+        "sha256": "4cbf77e7113dbe3981c1aa271bc12f30c8af1ac3326db8e261ee8aa25cf37295",
+        "tag": "v10",
+        "url": "https://github.com/AsahiLinux/alsa-ucm-conf-asahi/archive/refs/tags/v10.tar.gz"
+      },
+      "upstream_revision": "1473329acab595dfef039f38c384ce16674d6b15",
+      "version": "10-2"
+    },
+    "asahi-audio": {
+      "arch": "aarch64",
+      "extracts": {
+        "LICENSE.upstream": {
+          "archive": "asahi-audio-4.1.tar.gz",
+          "member": "asahi-audio-4.1/LICENSE"
+        }
+      },
+      "inputs": {
+        ".SRCINFO": {
+          "bytes": 961,
+          "path": "packages/platform/asahi-audio/.SRCINFO",
+          "sha256": "63e2eb428992ce2361c7a0e8b93ad18e97a43ce95ef92246d28f125b5dcd136a"
+        },
+        "BUILD.inputs.lock.json": {
+          "bytes": 328101,
+          "path": "scripts/ci/inputs.lock.json",
+          "sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f"
+        },
+        "NOTICE": {
+          "bytes": 768,
+          "path": "packages/platform/asahi-audio/NOTICE",
+          "sha256": "910a4f8a8426f28922e3cfe0d50f7cdb14d67b01549097ccadae639e59ec1007"
+        },
+        "PACKAGING.LICENSE": {
+          "bytes": 1081,
+          "path": "packages/platform/asahi-audio/PACKAGING.LICENSE",
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        },
+        "PKGBUILD": {
+          "bytes": 1551,
+          "path": "packages/platform/asahi-audio/PKGBUILD",
+          "sha256": "f08f31964718544fb5f4954db0e2e380a6bcf43653965728ca925f702dea9e05"
+        },
+        "README.md": {
+          "bytes": 2493,
+          "path": "packages/platform/asahi-audio/README.md",
+          "sha256": "d958e9aa11a81b2a7283d98968aa2705a79d1968b77fa1864bc0b4d3347d9df1"
+        },
+        "asahi-audio-4.1.tar.gz": {
+          "bytes": 2582932,
+          "path": "packages/platform/asahi-audio/asahi-audio-4.1.tar.gz",
+          "sha256": "e2c3887fe20481675698ac8174f53b66276f75a2b3c0853daf9b1a70dda690c5"
+        },
+        "source-provenance.json": {
+          "bytes": 1403,
+          "path": "packages/platform/asahi-audio/source-provenance.json",
+          "sha256": "3da39cbdd69b1367fdb32ff9e4087f20812ea7c2491efbd81eab9642fb487ed1"
+        }
+      },
+      "metadata": {
+        "arch": [
+          "aarch64"
+        ],
+        "depends": [
+          "wireplumber>=0.5.2",
+          "pipewire>=1.0",
+          "bankstown>=1.1.0",
+          "lsp-plugins-lv2>=1.2.15",
+          "speakersafetyd",
+          "triforce-lv2>=0.2.0"
+        ],
+        "license": [
+          "MIT"
+        ],
+        "makedepends": [
+          "make"
+        ],
+        "pkgbase": [
+          "asahi-audio"
+        ],
+        "pkgdesc": [
+          "Selected Asahi Linux audio configuration and FIR data (development candidate)"
+        ],
+        "pkgname": [
+          "asahi-audio"
+        ],
+        "pkgrel": [
+          "2"
+        ],
+        "pkgver": [
+          "4.1"
+        ],
+        "sha256sums": [
+          "e2c3887fe20481675698ac8174f53b66276f75a2b3c0853daf9b1a70dda690c5",
+          "910a4f8a8426f28922e3cfe0d50f7cdb14d67b01549097ccadae639e59ec1007",
+          "d958e9aa11a81b2a7283d98968aa2705a79d1968b77fa1864bc0b4d3347d9df1",
+          "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+          "3da39cbdd69b1367fdb32ff9e4087f20812ea7c2491efbd81eab9642fb487ed1"
+        ],
+        "source": [
+          "asahi-audio-4.1.tar.gz",
+          "NOTICE",
+          "README.md",
+          "PACKAGING.LICENSE",
+          "source-provenance.json"
+        ],
+        "url": [
+          "https://github.com/AsahiLinux/asahi-audio"
+        ]
+      },
+      "payload": {
+        "usr/share/asahi-audio/j274/192.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "443bccb1ec65f07b83ea3176ae3a59fb511b4c393fee789b98d23a3e0c441ad4"
+        },
+        "usr/share/asahi-audio/j274/44.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "28acc673045f970e80f5313699e96e9eb2086fc4018ac754196059a9266f08dc"
+        },
+        "usr/share/asahi-audio/j274/48.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "dece2b5e2da1c750a939134a07981ff37d66a301ed1857a6206bbd66e3a3f7d8"
+        },
+        "usr/share/asahi-audio/j274/96.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "4fad78c5b29c9f86785b45ae8caae2f73a079ee5f17d507eaad819fe432fbe5a"
+        },
+        "usr/share/asahi-audio/j274/graph-j473.json": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "702f755ffc35ebd3e9806296f9ae17cf0aac545e7c7271d7b797dc37d40832a5"
+        },
+        "usr/share/asahi-audio/j274/graph-j474.json": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "9d6d8cfdda31468d9981c3c49a0d48ec1c7591bf51fd02162166fad2a441b697"
+        },
+        "usr/share/asahi-audio/j274/graph.json": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "96e3ef1fb29afe3b74c685f9ce5facf5747d9d00d95a41c9953d431ccf55e9d5"
+        },
+        "usr/share/asahi-audio/j293/front-192.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "eedcdc29e658080d7785b1271d8263bad362c006a567582c0f5ffdd0187384fa"
+        },
+        "usr/share/asahi-audio/j293/front-44.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "0dd032212eb33166dbbf87b11c91a862408bb6c450964cd3a3d9138aaab00637"
+        },
+        "usr/share/asahi-audio/j293/front-48.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "8dbd707b75e456b2b7fc126f93bfb3ea5e93cca362844a5ec0099fbe5775d4e3"
+        },
+        "usr/share/asahi-audio/j293/front-96.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "81fc79f6e3c842049d66d8082134964cce6979c84b6b6c8a6628c387cfbd9efa"
+        },
+        "usr/share/asahi-audio/j293/graph-j493.json": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "337b5761907f523f06f18e92608feb0c9581bcd1ba60c22a30288d5f3698cf68"
+        },
+        "usr/share/asahi-audio/j293/graph.json": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "c6695f9495ccb15eb759e221e6e17ba224727cfff24183fd614d00c2e2300d3a"
+        },
+        "usr/share/asahi-audio/j293/mic-j493.json": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "f7a72f74f650e3c53f47aa5885ad316028bd6ea5fecccc5e862dd127357641d4"
+        },
+        "usr/share/asahi-audio/j293/mic.json": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "72b59ddde0241799fda226003d4b64850f02eccb19266c3dc05911ddc68ddd5d"
+        },
+        "usr/share/asahi-audio/j293/rear-192.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "a171cc0493b0d148c61ba3f2b035ff264cb64e8933d296185f8e1f9581277e2f"
+        },
+        "usr/share/asahi-audio/j293/rear-44.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "b885fded490c22ee0baecc7d4a0a6db526e15012cd31fca7f57bc5047a4283fc"
+        },
+        "usr/share/asahi-audio/j293/rear-48.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "725cb0c04811d67637ec06c36fd5cc9dd90c4fa48d502e51e1facf667a0dcd5b"
+        },
+        "usr/share/asahi-audio/j293/rear-96.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "ca803371b0cf376aefe39424f7cded8a7792e8820e40a01ad4954e1c1b3d2367"
+        },
+        "usr/share/asahi-audio/j313/192.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "4ebe87309d7cae907919422a750eb4c81551135adc08ecb252d8c62b76f40770"
+        },
+        "usr/share/asahi-audio/j313/44.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "87b61529c71dab355142474b6d9cfd0d3f77307feb55f4c20c2aecd416f15f91"
+        },
+        "usr/share/asahi-audio/j313/48.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "c24020c0dfafcb04de52cbc8e4ca14e2fadabc3ee7bc2571cac67aa9b26c3759"
+        },
+        "usr/share/asahi-audio/j313/96.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "08a78a9928f5f307b57a3546281c37213c9d0abc7917a9a4f79aa79657df20f5"
+        },
+        "usr/share/asahi-audio/j313/graph.json": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "bb4dc3bf6bec2adb64113f2659a05f73b32f0a12efce2c154d01ea8cf7c5ef2e"
+        },
+        "usr/share/asahi-audio/j313/mic.json": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "27cb45225ca1ad39c7687f1e2d1f55c19ecfb3b2712875a651ed09593e915c2f"
+        },
+        "usr/share/asahi-audio/j314/graph-j414.json": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "0b8353c9242064a84108c625aa9a1fc6a8258f9285e7648369eec1d3499700c5"
+        },
+        "usr/share/asahi-audio/j314/graph-j504.json": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "6c1ca7c9c711c25b517f8c0965bc9ab59c25a3b895a8a9d2539bb3c2a63d48cc"
+        },
+        "usr/share/asahi-audio/j314/graph-j514.json": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "ec57f27220fde06c7c96d25404042a1ea54e59aac1293cd3a8ec8142d1e77228"
+        },
+        "usr/share/asahi-audio/j314/graph.json": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "f8e7a9b83686ff122d0347579ae28f3fb5c931c44c9b27d12aaceed8150cf0f9"
+        },
+        "usr/share/asahi-audio/j314/mic-j414.json": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "44eece6f12828fe2cf184e6556740b82868fac2cea36e8f348981d8728b31004"
+        },
+        "usr/share/asahi-audio/j314/mic-j504.json": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "350a7a95598cbb2253c9aa155d5ee733a459d09600f405be16cec851f9cd0f4f"
+        },
+        "usr/share/asahi-audio/j314/mic-j514.json": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "6b51cfc3be469111b7c877d147ec91b8c6592a782c2935caf99020519c948baa"
+        },
+        "usr/share/asahi-audio/j314/mic.json": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "c346ffc9c72014bf9927676ddf7bbfed79b194f608e709da7a7ca0ed5aca7976"
+        },
+        "usr/share/asahi-audio/j314/tweeters-192.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "3825f79f5b1c87daf42f7de8a80533cec6cacf3d722e54a864002dc58529fd2b"
+        },
+        "usr/share/asahi-audio/j314/tweeters-44.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "9198b953b687da6ebf192b13e7a434238d7ae9cb38cac66ea1a5c143a8c9e0ae"
+        },
+        "usr/share/asahi-audio/j314/tweeters-48.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "d7b4e310856634ee408585dde78d92361de8dc302d24108b62c2ffdbb52ef507"
+        },
+        "usr/share/asahi-audio/j314/tweeters-96.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "55671097a99cbf3f78828defdbd731e1eeefae68623452efbe69ffc2181b336a"
+        },
+        "usr/share/asahi-audio/j314/woofers-192.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "8678776305c9c6c22cc7461f7a7dc218ecfa39ef626c59b55344ef4484e5123d"
+        },
+        "usr/share/asahi-audio/j314/woofers-44.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "f9d62b55b1c83e1d8ebcccebbe2dfbaee940dbe6405b3eee4c81eaf7db3008c9"
+        },
+        "usr/share/asahi-audio/j314/woofers-48.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "6b02f1d491e19a8e10e09354f1277481bcb50d0fef3fb26374564dd7741faa57"
+        },
+        "usr/share/asahi-audio/j314/woofers-96.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "5da3619431db687a1514eab340812e94306a32d43a425d9fc07605db343a55a0"
+        },
+        "usr/share/asahi-audio/j316/graph-j416.json": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "efac81daee7d40e3ab791b8f77ebbbdbbd8d4d674e1a629dcdf828eb28d7d8db"
+        },
+        "usr/share/asahi-audio/j316/graph-j516.json": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "e9fb2344c1b53b7095e0f9a44159e473ca29544640844b4673121de0ef97b094"
+        },
+        "usr/share/asahi-audio/j316/graph.json": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "f6f8eba98e9ff39a745ec303a2c6fc88f27b4b81cf8289e67cf180114796b965"
+        },
+        "usr/share/asahi-audio/j316/mic-j416.json": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "72c48c90f40cdd5d326e1f3ea3c79637ca507c391fbbb1c8db9194b8db1add13"
+        },
+        "usr/share/asahi-audio/j316/mic-j516.json": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "8f9c0725e069cfdf91f23f381a0a2d6a7a22b4b59786ccbd1213fc890d85c808"
+        },
+        "usr/share/asahi-audio/j316/mic.json": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "1f1183f799e7b323aaa755a4bb835c458d3349ee0ef2a79184cee7e15545ad22"
+        },
+        "usr/share/asahi-audio/j316/tweeters-192.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "8a95bf3791bc063bc7dbcc6e241f037745abeb03306e34339ecbd7bd83a65be5"
+        },
+        "usr/share/asahi-audio/j316/tweeters-44.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "be25c922ca233a58948834b9f339bbf5764d056e225281292d13900db3735b31"
+        },
+        "usr/share/asahi-audio/j316/tweeters-48.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "b5c8a971e7e10ad2ac012e17452d4782d3f54cce3c9d3db91c32995d8073aeeb"
+        },
+        "usr/share/asahi-audio/j316/tweeters-96.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "9a7892d9dea367837e6dbef14e90e25e4157adcf9e4f1a94a602f342423f3d52"
+        },
+        "usr/share/asahi-audio/j316/woofers-192.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "f53ca117cee8c513bfe31f24ede1715ec693d0d8d65730dc4b1d576ade9c5d27"
+        },
+        "usr/share/asahi-audio/j316/woofers-44.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "4cce8c975cce6c48fa7443ce79da8e4a5e68491a189540cdd9ee12e2c9691776"
+        },
+        "usr/share/asahi-audio/j316/woofers-48.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "3bc1567a0698be87bffe87d7ecc93ce122398337454bb987a844d090f2cbaf7c"
+        },
+        "usr/share/asahi-audio/j316/woofers-96.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "b3cb7880c732263e51f6314c08d4b048e2db6eba050fca21397c6e6f0eefdc45"
+        },
+        "usr/share/asahi-audio/j375/192.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "a6a18ff67bc575eb06f8f42e89584691fbed36204baa567d7745669f627c593f"
+        },
+        "usr/share/asahi-audio/j375/44.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "a1e17f0765fdd09ef6beb3e1530907aba461665d71d95f58296209c9466a226f"
+        },
+        "usr/share/asahi-audio/j375/48.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "c42d4d92c83fad9c6459293b69e5635c0d19ebd976262cd6916bad700e541293"
+        },
+        "usr/share/asahi-audio/j375/96.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "a30a42e4b243acbe2cdae131ce987fc1f5ea7e96355ae0c91042fa768f2d2236"
+        },
+        "usr/share/asahi-audio/j375/graph-j475.json": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "70aa705e0ee4497c14896433e3c3d2d9939cd2bd359fc670b5fa931535535019"
+        },
+        "usr/share/asahi-audio/j375/graph-j575.json": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "5251649b97bba4755868008286341dabd406bf2355422612c0339d2467ab8972"
+        },
+        "usr/share/asahi-audio/j375/graph.json": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "a868d0c19873348059ed5eacbd4ffbb8941594364a240163ba3f88d6b95bbc81"
+        },
+        "usr/share/asahi-audio/j413/graph-j613.json": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "97e7dcc84e5f83a0dd61ba0f405d75b6994c39e4d0fb7b439573e5ab29f8f4ff"
+        },
+        "usr/share/asahi-audio/j413/graph.json": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "cf337e47a0fda5afa38d8891c94ab350ab02c85a30f14072569b61ca3f0f7417"
+        },
+        "usr/share/asahi-audio/j413/mic-j613.json": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "0a60431f3d927d9b5a93f6751d3f216310675d4c949c244a0e2defbcc7867873"
+        },
+        "usr/share/asahi-audio/j413/mic.json": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "612f46efa9b314e9fe59cd09495228a336edbd3aef808b5c459f2d8d99398294"
+        },
+        "usr/share/asahi-audio/j413/tweeters-192.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "15fee3cb2185868b2abe948f8d22d93550805e6869dc09fbc7359c049f421733"
+        },
+        "usr/share/asahi-audio/j413/tweeters-44.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "f08763713a4efc0036f54c56dbd0fba980be4af5c741c02f60c4ac2efdbd3e9d"
+        },
+        "usr/share/asahi-audio/j413/tweeters-48.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "a3c073d2924e9e0f147bc16e024ceca5f7f83dfdbb9b7a6b000ec9f388ab4912"
+        },
+        "usr/share/asahi-audio/j413/tweeters-96.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "7f230a8320d3ef432231c7331156c98fb2d5b5f62f35c3f1bdf438ce1b0ffc7a"
+        },
+        "usr/share/asahi-audio/j413/woofers-192.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "688e828c311d1cd44f0c84fa0a1d4ee2b590997226199913c040bf123180445d"
+        },
+        "usr/share/asahi-audio/j413/woofers-44.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "937eefa59c9b173d631ce4373b0a272f0d29ef8b38e8c4d845e7689eef7dd94a"
+        },
+        "usr/share/asahi-audio/j413/woofers-48.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "b586f2a29eb598f2f8a6eee10028658de663a6c81481deaff8203f2c09a8c736"
+        },
+        "usr/share/asahi-audio/j413/woofers-96.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "45f1878583d501d7b33d9ce356a7be4c3ba272ef0cf0a0394f64ed209aae780f"
+        },
+        "usr/share/asahi-audio/j415/graph-j615.json": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "2387ebd611132bce6fcb7879163b95d909bd32d12f38447f273ac2fc2004c1cf"
+        },
+        "usr/share/asahi-audio/j415/graph.json": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "944f3b71a1ec4853f6fd717d406356268f3ac4171b3e65eebfb84269777d345f"
+        },
+        "usr/share/asahi-audio/j415/mic-j615.json": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "cf2db82cb9e9924d809380483dbd811ec82a04eb42d62467746c812308d9e46e"
+        },
+        "usr/share/asahi-audio/j415/mic.json": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "3d5931298a48f0d4e8b5b5f34d8a216aedc62e57686654053fbfd8e5ffe61fe7"
+        },
+        "usr/share/asahi-audio/j415/tweeters-192.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "c2944d2cfc7b9d2ff65928dc4a916d3c798f06198cefcada440e7c6012f62824"
+        },
+        "usr/share/asahi-audio/j415/tweeters-44.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "1fbc4d096de1795f1c47f96636b4b0e8565925de83d872784ae63f6bc0891db5"
+        },
+        "usr/share/asahi-audio/j415/tweeters-48.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "79997776b519de3f6d7de22989093bd58d036d77674eca7ea7a67e24490d2073"
+        },
+        "usr/share/asahi-audio/j415/tweeters-96.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "c8051b3d44a061964134602f5e43cef7aab13978073da0afcdd585fc03b3bcda"
+        },
+        "usr/share/asahi-audio/j415/woofers-192.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "c94db36a1d80ba34b25ff9688a729cc8c0d3074fda4ed9ba1696e1fe1cf9afd1"
+        },
+        "usr/share/asahi-audio/j415/woofers-44.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "f66a458a6f456f6e87cf3d0cc5a3c87c8fbeb1a34f7ad8257e9da87778018099"
+        },
+        "usr/share/asahi-audio/j415/woofers-48.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "b3907e2779be94db56ebe850f9f557802bf654bce50086fa6e663803a73c443a"
+        },
+        "usr/share/asahi-audio/j415/woofers-96.wav": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "eff5be80eb2e883dd0df7ed690f15a0320f04d81adcff250204aa8f15e3c8dae"
+        },
+        "usr/share/doc/asahi-audio/README.md": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "d958e9aa11a81b2a7283d98968aa2705a79d1968b77fa1864bc0b4d3347d9df1"
+        },
+        "usr/share/doc/asahi-audio/source-provenance.json": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "3da39cbdd69b1367fdb32ff9e4087f20812ea7c2491efbd81eab9642fb487ed1"
+        },
+        "usr/share/licenses/asahi-audio/LICENSE.asahi": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "e387c0e93b7e329eedea013214adbf447a5483bd7496db5cbef9b5078aef4aa6"
+        },
+        "usr/share/licenses/asahi-audio/NOTICE": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "910a4f8a8426f28922e3cfe0d50f7cdb14d67b01549097ccadae639e59ec1007"
+        },
+        "usr/share/licenses/asahi-audio/PACKAGING.LICENSE": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        },
+        "usr/share/pipewire/pipewire-pulse.conf.d/99-asahi.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "00b6258c7052826d435141b39b5cb32fe528c70800cc745ab3488776f40da411"
+        },
+        "usr/share/pipewire/pipewire.conf.d/99-asahi.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "00b6258c7052826d435141b39b5cb32fe528c70800cc745ab3488776f40da411"
+        },
+        "usr/share/wireplumber/scripts/device/asahi-lock-volume.lua": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "c6edddd5d8708a646514195866d848a59a628ba8640eed272dbf10414ecd5ed6"
+        },
+        "usr/share/wireplumber/wireplumber.conf.d/99-asahi.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "fca59914cabbdcea255a890ffbe3956f1aaa36fd1e26a568b6c41afe5737b617"
+        }
+      },
+      "publication_blockers": [],
+      "recipe_directory": "packages/platform/asahi-audio",
+      "source_scope": "EXACT_DATA_RECIPE_INPUTS",
+      "upstream_acquisition_receipt": {
+        "bytes": 2582932,
+        "final_url": "https://codeload.github.com/AsahiLinux/asahi-audio/tar.gz/refs/tags/v4.1",
+        "name": "asahi-audio",
+        "path": "upstream/asahi-audio-v4.1.tar.gz",
+        "recipe_checksum_matches": true,
+        "repository": "AsahiLinux/asahi-audio",
+        "revision": "687d8cd0f6dc4b12fc0d9c3aebe360656de2882e",
+        "sha256": "e2c3887fe20481675698ac8174f53b66276f75a2b3c0853daf9b1a70dda690c5",
+        "tag": "v4.1",
+        "url": "https://github.com/AsahiLinux/asahi-audio/archive/refs/tags/v4.1.tar.gz"
+      },
+      "upstream_revision": "687d8cd0f6dc4b12fc0d9c3aebe360656de2882e",
+      "version": "4.1-2"
+    },
+    "bankstown": {
+      "arch": "aarch64",
+      "components": {
+        "cargo_lock_sha256": "66887346513dafbdbe171f77890b4e414bd49abfdde7e0d9e35eeb9ebd677f94",
+        "locked_components": [
+          {
+            "file_count": 12,
+            "license": "MIT OR Apache-2.0",
+            "name": "biquad",
+            "package_checksum": "820524f5e3e3add696ddf69f79575772e152c0e78e9f0370b56990a7e808ec3e",
+            "root": "vendor/biquad-0.4.2",
+            "version": "0.4.2"
+          },
+          {
+            "file_count": 142,
+            "license": "MIT OR Apache-2.0",
+            "name": "libm",
+            "package_checksum": "7fc7aa29613bd6a620df431842069224d8bc9011086b1db4c0e0cd47fa03ec9a",
+            "root": "vendor/libm-0.1.4",
+            "version": "0.1.4"
+          },
+          {
+            "file_count": 26,
+            "license": "MIT OR Apache-2.0",
+            "name": "lv2",
+            "package_checksum": "81300c8058a7747013c8f3e27e76eeceb8226621283d30d787b970019d8404f6",
+            "root": "vendor/lv2-0.6.0",
+            "version": "0.6.0"
+          },
+          {
+            "file_count": 17,
+            "license": "MIT OR Apache-2.0",
+            "name": "lv2-atom",
+            "package_checksum": "951b4e7b10349d32b7b7a26c15bd0f9cf42790b59531093d474f6964f5cba971",
+            "root": "vendor/lv2-atom-2.0.0",
+            "version": "2.0.0"
+          },
+          {
+            "file_count": 17,
+            "license": "MIT OR Apache-2.0",
+            "name": "lv2-core",
+            "package_checksum": "d50100435f793b25e9fcfe89c227dc1b1ca93bbfae0f3710149263fe4ba049de",
+            "root": "vendor/lv2-core-3.0.0",
+            "version": "3.0.0"
+          },
+          {
+            "file_count": 10,
+            "license": "MIT OR Apache-2.0",
+            "name": "lv2-core-derive",
+            "package_checksum": "7bf98f786ecb49030330834aaa458f84bbaf545d7084cf3dcb2fab2f03a1838b",
+            "root": "vendor/lv2-core-derive-2.1.1",
+            "version": "2.1.1"
+          },
+          {
+            "file_count": 9,
+            "license": "MIT OR Apache-2.0",
+            "name": "lv2-midi",
+            "package_checksum": "ad23e6bcd0036b1859992b92bbf1855f99ed648886ed9ad9a32fc4ecf2a20f74",
+            "root": "vendor/lv2-midi-1.2.0",
+            "version": "1.2.0"
+          },
+          {
+            "file_count": 15,
+            "license": "MIT OR Apache-2.0",
+            "name": "lv2-sys",
+            "package_checksum": "9dd0f9e7de3649dcec348de51cbf611ab88688b97c0ce038f8c07b996b2a8e30",
+            "root": "vendor/lv2-sys-2.0.0",
+            "version": "2.0.0"
+          },
+          {
+            "file_count": 7,
+            "license": "MIT OR Apache-2.0",
+            "name": "lv2-units",
+            "package_checksum": "02b9470e6f71a96c49ce27ff15838b27f4f07300dec810313423b70ec7adaa39",
+            "root": "vendor/lv2-units-0.1.3",
+            "version": "0.1.3"
+          },
+          {
+            "file_count": 10,
+            "license": "MIT OR Apache-2.0",
+            "name": "lv2-urid",
+            "package_checksum": "8c0803444d1e66fbdbc345ef8243470979f8bab570cdaf0cada4586fc1624e68",
+            "root": "vendor/lv2-urid-2.1.0",
+            "version": "2.1.0"
+          },
+          {
+            "file_count": 26,
+            "license": "MIT OR Apache-2.0",
+            "name": "proc-macro2",
+            "package_checksum": "134c189feb4956b20f6f547d2cf727d4c0fe06722b20a0eec87ed445a97f92da",
+            "root": "vendor/proc-macro2-1.0.69",
+            "version": "1.0.69"
+          },
+          {
+            "file_count": 33,
+            "license": "MIT OR Apache-2.0",
+            "name": "quote",
+            "package_checksum": "5267fca4496028628a95160fc423a33e8b2e6af8a5302579e322e4b520293cae",
+            "root": "vendor/quote-1.0.33",
+            "version": "1.0.33"
+          },
+          {
+            "file_count": 98,
+            "license": "MIT OR Apache-2.0",
+            "name": "syn",
+            "package_checksum": "72b64191b275b66ffe2469e8af2c1cfe3bafa67b529ead792a6d0160888b4237",
+            "root": "vendor/syn-1.0.109",
+            "version": "1.0.109"
+          },
+          {
+            "file_count": 25,
+            "license": "(MIT OR Apache-2.0) AND Unicode-DFS-2016",
+            "name": "unicode-ident",
+            "package_checksum": "3354b9ac3fae1ff6755cb6db53683adb661634f67557942dea4facebec0fee4b",
+            "root": "vendor/unicode-ident-1.0.12",
+            "version": "1.0.12"
+          },
+          {
+            "file_count": 9,
+            "license": "MIT OR Apache-2.0",
+            "name": "urid",
+            "package_checksum": "6828b5d766e783093935fb2f23f26ffb28b7cb9313921cec67db8ca09f38a6a4",
+            "root": "vendor/urid-0.1.0",
+            "version": "0.1.0"
+          },
+          {
+            "file_count": 9,
+            "license": "MIT OR Apache-2.0",
+            "name": "urid-derive",
+            "package_checksum": "819eee2ef008e55b0a415ed356db7772d0ad94ae499f0043015111fc34703644",
+            "root": "vendor/urid-derive-0.1.1",
+            "version": "0.1.1"
+          },
+          {
+            "file_count": 10,
+            "license": "MIT",
+            "name": "wmidi",
+            "package_checksum": "ca299959bb6d529c2bee3feb517899959da3052c4a29eea0a8ff568b825eb6cf",
+            "root": "vendor/wmidi-3.1.0",
+            "version": "3.1.0"
+          }
+        ],
+        "registry_crates": 17,
+        "vendor": {
+          "bytes": 5733816,
+          "cargo_checksum_manifest_exact_file_sets": "PASS_ALL_117",
+          "cargo_checksum_manifest_file_hashes": "PASS_ALL_117",
+          "crates": 117,
+          "expanded_bytes": 57569078,
+          "path": "packages/audio/speakersafetyd/cargo-vendor-117.tar.xz",
+          "regular_files": 4409,
+          "sha256": "64cd55473b19f104f3a90570409d58c5ab69f63c61396541c4ad1e56e8d6293f"
+        }
+      },
+      "extracts": {
+        "LICENSE.upstream": {
+          "archive": "bankstown-1.1.0.tar.gz",
+          "member": "bankstown-1.1.0/LICENSE"
+        },
+        "SOURCE.md": {
+          "archive": "audio-rust-notices-v1.tar.xz",
+          "member": "audio-rust-notices/bankstown/SOURCE.md"
+        },
+        "THIRD-PARTY-LICENSES.txt": {
+          "archive": "audio-rust-notices-v1.tar.xz",
+          "member": "audio-rust-notices/bankstown/THIRD-PARTY-LICENSES.txt"
+        },
+        "THIRD-PARTY.md": {
+          "archive": "audio-rust-notices-v1.tar.xz",
+          "member": "audio-rust-notices/bankstown/THIRD-PARTY.md"
+        }
+      },
+      "inputs": {
+        "BUILD.expected-packages.lock": {
+          "bytes": 6845,
+          "path": "scripts/ci/asahi-audio-rust/expected-packages.lock",
+          "sha256": "d6b50a41e5e1c1880faedfbd6a1eebad6d271901c0a42923af5c8e977f23e963"
+        },
+        "BUILD.inputs.lock.json": {
+          "bytes": 335837,
+          "path": "scripts/ci/asahi-audio-rust/inputs.lock.json",
+          "sha256": "7297c9fa299e65484cdb46fc4d149af5815627a385d3050c5c884cd0cc3889c2"
+        },
+        "PACKAGING.LICENSE": {
+          "bytes": 1081,
+          "path": "LICENSE",
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        },
+        "PKGBUILD": {
+          "bytes": 1806,
+          "path": "packages/audio/bankstown/PKGBUILD",
+          "sha256": "5838989edc7db8efd20ede6fabe75407270ed0f352f5d88a74d32a2a9811bf93"
+        },
+        "audio-rust-notices-v1.tar.xz": {
+          "bytes": 48916,
+          "path": "packages/audio/bankstown/audio-rust-notices-v1.tar.xz",
+          "sha256": "7cd393018f279ff2a1e71fe85fb5767e3f58398edcd395da4ab6f4eb357ce522"
+        },
+        "bankstown-1.1.0.tar.gz": {
+          "bytes": 6655,
+          "path": "packages/audio/bankstown/bankstown-1.1.0.tar.gz",
+          "sha256": "e877508b73fe90774d74526d838f75e8ea278bdbcee0a1f92e3eca67ed734675"
+        },
+        "cargo-vendor-117.tar.xz": {
+          "bytes": 5733816,
+          "path": "packages/audio/bankstown/cargo-vendor-117.tar.xz",
+          "sha256": "64cd55473b19f104f3a90570409d58c5ab69f63c61396541c4ad1e56e8d6293f"
+        }
+      },
+      "metadata": {
+        "arch": [
+          "aarch64"
+        ],
+        "depends": [
+          "lv2"
+        ],
+        "license": [
+          "MIT"
+        ],
+        "makedepends": [
+          "rust",
+          "make"
+        ],
+        "pkgname": [
+          "bankstown"
+        ],
+        "pkgrel": [
+          "4"
+        ],
+        "pkgver": [
+          "1.1.0"
+        ],
+        "sha256sums": [
+          "e877508b73fe90774d74526d838f75e8ea278bdbcee0a1f92e3eca67ed734675",
+          "64cd55473b19f104f3a90570409d58c5ab69f63c61396541c4ad1e56e8d6293f",
+          "7cd393018f279ff2a1e71fe85fb5767e3f58398edcd395da4ab6f4eb357ce522"
+        ],
+        "source": [
+          "bankstown-1.1.0.tar.gz",
+          "cargo-vendor-117.tar.xz",
+          "audio-rust-notices-v1.tar.xz"
+        ]
+      },
+      "payload": {
+        "usr/lib/lv2/bankstown.lv2/bankstown.so": {
+          "ELF": true,
+          "mode": 493,
+          "sha256": null
+        },
+        "usr/lib/lv2/bankstown.lv2/bankstown.ttl": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "9a200a1135ea0b1e4e3e44067a73e433239db396a1125f036f88e4dc71a21034"
+        },
+        "usr/lib/lv2/bankstown.lv2/manifest.ttl": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "e9fe8d95fa1e6807066af1562b14cb53afeb757f7297b7dca6a21c9cb0d0bf3c"
+        },
+        "usr/share/licenses/bankstown/LICENSE": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "8fa04678b3448b93afe2753a819f3723cd3d5de48766153d67a24fb55e987d3b"
+        },
+        "usr/share/licenses/bankstown/SOURCE.md": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "9df69f83b82974c8f5263714f38620b089069579402d72d30ce23c29dc73a97a"
+        },
+        "usr/share/licenses/bankstown/THIRD-PARTY-LICENSES.txt": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "22f1f0b9c70ec68ff842514f91a9baff5e49f33d2741dafd194759df4bbb46f1"
+        },
+        "usr/share/licenses/bankstown/THIRD-PARTY.md": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "e5280f30076165b61d8032c475383b2c95036e1c9c4f438758e1773b1886321f"
+        }
+      },
+      "publication_blockers": [
+        "Historical compiler/linker source correspondence, exact flags and full runtime dependency source closure are unresolved; environment locks identify binaries, not their corresponding sources.",
+        "wmidi 3.1.0 has a later 2023 MIT text; explicit retrospective association to the selected 2019 release remains limited (retained THIRD-PARTY.md)."
+      ],
+      "recipe_directory": "packages/audio/bankstown",
+      "source_scope": "EXACT_RECIPE_AND_VENDOR_INPUTS",
+      "upstream_acquisition_receipt": {
+        "bytes": 6655,
+        "final_url": "https://codeload.github.com/chadmed/bankstown/tar.gz/refs/tags/1.1.0",
+        "name": "bankstown",
+        "path": "upstream/bankstown-1.1.0.tar.gz",
+        "recipe_checksum_matches": true,
+        "repository": "chadmed/bankstown",
+        "revision": "e9829c9bccf5ed73768135c0ddd506f5a6690f9e",
+        "sha256": "e877508b73fe90774d74526d838f75e8ea278bdbcee0a1f92e3eca67ed734675",
+        "tag": "1.1.0",
+        "url": "https://github.com/chadmed/bankstown/archive/refs/tags/1.1.0.tar.gz"
+      },
+      "upstream_revision": "e9829c9bccf5ed73768135c0ddd506f5a6690f9e",
+      "version": "1.1.0-4"
+    },
+    "speakersafetyd": {
+      "arch": "aarch64",
+      "components": {
+        "cargo_lock_sha256": "2fcdbfe63c7123bfb39e2993956e3cd431d536f166fec1a985eb3fe36ced70d6",
+        "locked_components": [
+          {
+            "file_count": 25,
+            "license": "Apache-2.0/MIT",
+            "name": "alsa",
+            "package_checksum": "812947049edcd670a82cd5c73c3661d2e58468577ba8489de58e1a73c04cbd5d",
+            "root": "vendor/alsa-0.11.0",
+            "version": "0.11.0"
+          },
+          {
+            "file_count": 13,
+            "license": "MIT",
+            "name": "alsa-sys",
+            "package_checksum": "ad7569085a265dd3f607ebecce7458eaab2132a84393534c95b18dcbc3f31e04",
+            "root": "vendor/alsa-sys-0.4.0",
+            "version": "0.4.0"
+          },
+          {
+            "file_count": 10,
+            "license": "MIT/Apache-2.0",
+            "name": "android_system_properties",
+            "package_checksum": "819e7219dbd41043ac279b19830f2efc897156490d7fd6ea916720117ee66311",
+            "root": "vendor/android_system_properties-0.1.5",
+            "version": "0.1.5"
+          },
+          {
+            "file_count": 20,
+            "license": "MIT OR Apache-2.0",
+            "name": "anstream",
+            "package_checksum": "824a212faf96e9acacdbd09febd34438f8f711fb84e09a8916013cd7815ca28d",
+            "root": "vendor/anstream-1.0.0",
+            "version": "1.0.0"
+          },
+          {
+            "file_count": 14,
+            "license": "MIT OR Apache-2.0",
+            "name": "anstyle",
+            "package_checksum": "940b3a0ca603d1eade50a4846a2afffd5ef57a9feac2c0e2ec2e14f9ead76000",
+            "root": "vendor/anstyle-1.0.14",
+            "version": "1.0.14"
+          },
+          {
+            "file_count": 14,
+            "license": "MIT OR Apache-2.0",
+            "name": "anstyle-parse",
+            "package_checksum": "52ce7f38b242319f7cabaa6813055467063ecdc9d355bbb4ce0c68908cd8130e",
+            "root": "vendor/anstyle-parse-1.0.0",
+            "version": "1.0.0"
+          },
+          {
+            "file_count": 10,
+            "license": "MIT OR Apache-2.0",
+            "name": "anstyle-query",
+            "package_checksum": "40c48f72fd53cd289104fc64099abca73db4166ad86ea0b4341abe65af83dadc",
+            "root": "vendor/anstyle-query-1.1.5",
+            "version": "1.1.5"
+          },
+          {
+            "file_count": 13,
+            "license": "MIT OR Apache-2.0",
+            "name": "anstyle-wincon",
+            "package_checksum": "291e6a250ff86cd4a820112fb8898808a366d8f9f58ce16d1f538353ad55747d",
+            "root": "vendor/anstyle-wincon-3.0.11",
+            "version": "3.0.11"
+          },
+          {
+            "file_count": 23,
+            "license": "Apache-2.0 OR MIT",
+            "name": "autocfg",
+            "package_checksum": "f2032f911046de80f0a198e0901378627c33f59ea0ac00e363d481118bd70a53",
+            "root": "vendor/autocfg-1.5.1",
+            "version": "1.5.1"
+          },
+          {
+            "file_count": 64,
+            "license": "MIT OR Apache-2.0",
+            "name": "bitflags",
+            "package_checksum": "b4388bee8683e3d04af747c73422af53102d2bd24d9eadb6cbc100baef4b43f8",
+            "root": "vendor/bitflags-2.13.0",
+            "version": "2.13.0"
+          },
+          {
+            "file_count": 20,
+            "license": "MIT OR Apache-2.0",
+            "name": "bumpalo",
+            "package_checksum": "72f5acc6cb2ba439de613abc23857ec3d78374d8ed5ac84e9d11336e87da8649",
+            "root": "vendor/bumpalo-3.20.3",
+            "version": "3.20.3"
+          },
+          {
+            "file_count": 27,
+            "license": "MIT OR Apache-2.0",
+            "name": "cc",
+            "package_checksum": "dad887fd958be91b5098c0248def011f4523ab786cd411be668777e55063501f",
+            "root": "vendor/cc-1.2.64",
+            "version": "1.2.64"
+          },
+          {
+            "file_count": 14,
+            "license": "MIT OR Apache-2.0",
+            "name": "cfg-if",
+            "package_checksum": "9330f8b2ff13f34540b44e946ef35111825727b38d33286ef986142615121801",
+            "root": "vendor/cfg-if-1.0.4",
+            "version": "1.0.4"
+          },
+          {
+            "file_count": 51,
+            "license": "MIT OR Apache-2.0",
+            "name": "chrono",
+            "package_checksum": "1aa79e62e7697b8e29b513a68abacf485adcd1fe8284a4316c5ae868e6633327",
+            "root": "vendor/chrono-0.4.45",
+            "version": "0.4.45"
+          },
+          {
+            "file_count": 146,
+            "license": "MIT OR Apache-2.0",
+            "name": "clap",
+            "package_checksum": "1ddb117e43bbf7dacf0a4190fef4d345b9bad68dfc649cb349e7d17d28428e51",
+            "root": "vendor/clap-4.6.1",
+            "version": "4.6.1"
+          },
+          {
+            "file_count": 13,
+            "license": "MIT OR Apache-2.0",
+            "name": "clap-verbosity-flag",
+            "package_checksum": "9d92b1fab272fe943881b77cc6e920d6543e5b1bfadbd5ed81c7c5a755742394",
+            "root": "vendor/clap-verbosity-flag-3.0.4",
+            "version": "3.0.4"
+          },
+          {
+            "file_count": 64,
+            "license": "MIT OR Apache-2.0",
+            "name": "clap_builder",
+            "package_checksum": "714a53001bf66416adb0e2ef5ac857140e7dc3a0c48fb28b2f10762fc4b5069f",
+            "root": "vendor/clap_builder-4.6.0",
+            "version": "4.6.0"
+          },
+          {
+            "file_count": 23,
+            "license": "MIT OR Apache-2.0",
+            "name": "clap_derive",
+            "package_checksum": "f2ce8604710f6733aa641a2b3731eaa1e8b3d9973d5e3565da11800813f997a9",
+            "root": "vendor/clap_derive-4.6.1",
+            "version": "4.6.1"
+          },
+          {
+            "file_count": 9,
+            "license": "MIT OR Apache-2.0",
+            "name": "clap_lex",
+            "package_checksum": "c8d4a3bb8b1e0c1050499d1815f5ab16d04f0959b233085fb31653fbfc9d98f9",
+            "root": "vendor/clap_lex-1.1.0",
+            "version": "1.1.0"
+          },
+          {
+            "file_count": 8,
+            "license": "MIT OR Apache-2.0",
+            "name": "colorchoice",
+            "package_checksum": "1d07550c9036bf2ae0c684c4297d503f838287c83c53686d05370d0e139ae570",
+            "root": "vendor/colorchoice-1.0.5",
+            "version": "1.0.5"
+          },
+          {
+            "file_count": 32,
+            "license": "MPL-2.0",
+            "name": "colored",
+            "package_checksum": "faf9468729b8cbcea668e36183cb69d317348c2e08e994829fb56ebfdfbaac34",
+            "root": "vendor/colored-3.1.1",
+            "version": "3.1.1"
+          },
+          {
+            "file_count": 17,
+            "license": "MIT OR LGPL-3.0-or-later",
+            "name": "configparser",
+            "package_checksum": "b46dec724fd22199ebde05033a0cbae453bc3b1ecff11eb6a6bb3eec4b90c6a4",
+            "root": "vendor/configparser-3.2.0",
+            "version": "3.2.0"
+          },
+          {
+            "file_count": 45,
+            "license": "MIT OR Apache-2.0",
+            "name": "core-foundation-sys",
+            "package_checksum": "773648b94d0e5d620f64f280777445740e61fe701025087ec8b57f45c791888b",
+            "root": "vendor/core-foundation-sys-0.8.7",
+            "version": "0.8.7"
+          },
+          {
+            "file_count": 10,
+            "license": "MIT OR Apache-2.0",
+            "name": "deranged",
+            "package_checksum": "7cd812cc2bc1d69d4764bd80df88b4317eaef9e773c75226407d9bc0876b211c",
+            "root": "vendor/deranged-0.5.8",
+            "version": "0.5.8"
+          },
+          {
+            "file_count": 10,
+            "license": "Apache-2.0 OR MIT",
+            "name": "equivalent",
+            "package_checksum": "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f",
+            "root": "vendor/equivalent-1.0.2",
+            "version": "1.0.2"
+          },
+          {
+            "file_count": 18,
+            "license": "MIT OR Apache-2.0",
+            "name": "errno",
+            "package_checksum": "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb",
+            "root": "vendor/errno-0.3.14",
+            "version": "0.3.14"
+          },
+          {
+            "file_count": 18,
+            "license": "MIT OR Apache-2.0",
+            "name": "find-msvc-tools",
+            "package_checksum": "5baebc0774151f905a1a2cc41989300b1e6fbb29aff0ceffa1064fdd3088d582",
+            "root": "vendor/find-msvc-tools-0.1.9",
+            "version": "0.1.9"
+          },
+          {
+            "file_count": 14,
+            "license": "MIT OR Apache-2.0",
+            "name": "futures-core",
+            "package_checksum": "7e3450815272ef58cec6d564423f6e755e25379b217b0bc688e295ba24df6b1d",
+            "root": "vendor/futures-core-0.3.32",
+            "version": "0.3.32"
+          },
+          {
+            "file_count": 14,
+            "license": "MIT OR Apache-2.0",
+            "name": "futures-task",
+            "package_checksum": "037711b3d59c33004d3856fbdc83b99d4ff37a24768fa1be9ce3538a1cde4393",
+            "root": "vendor/futures-task-0.3.32",
+            "version": "0.3.32"
+          },
+          {
+            "file_count": 193,
+            "license": "MIT OR Apache-2.0",
+            "name": "futures-util",
+            "package_checksum": "389ca41296e6190b48053de0321d02a77f32f8a5d2461dd38762c0593805c6d6",
+            "root": "vendor/futures-util-0.3.32",
+            "version": "0.3.32"
+          },
+          {
+            "file_count": 50,
+            "license": "MIT OR Apache-2.0",
+            "name": "hashbrown",
+            "package_checksum": "ed5909b6e89a2db4456e54cd5f673791d7eca6732202bbf2a9cc504fe2f9b84a",
+            "root": "vendor/hashbrown-0.17.1",
+            "version": "0.17.1"
+          },
+          {
+            "file_count": 16,
+            "license": "MIT OR Apache-2.0",
+            "name": "heck",
+            "package_checksum": "2304e00983f87ffb38b55b444b5e3b60a884b5d30c0fca7d82fe33449bbe55ea",
+            "root": "vendor/heck-0.5.0",
+            "version": "0.5.0"
+          },
+          {
+            "file_count": 37,
+            "license": "MIT OR Apache-2.0",
+            "name": "iana-time-zone",
+            "package_checksum": "e31bc9ad994ba00e440a8aa5c9ef0ec67d5cb5e5cb0cc7f8b744a35b389cc470",
+            "root": "vendor/iana-time-zone-0.1.65",
+            "version": "0.1.65"
+          },
+          {
+            "file_count": 9,
+            "license": "MIT OR Apache-2.0",
+            "name": "iana-time-zone-haiku",
+            "package_checksum": "f31827a206f56af32e590ba56d5d2d085f558508192593743f16b2306495269f",
+            "root": "vendor/iana-time-zone-haiku-0.1.2",
+            "version": "0.1.2"
+          },
+          {
+            "file_count": 42,
+            "license": "Apache-2.0 OR MIT",
+            "name": "indexmap",
+            "package_checksum": "d466e9454f08e4a911e14806c24e16fba1b4c121d1ea474396f396069cf949d9",
+            "root": "vendor/indexmap-2.14.0",
+            "version": "2.14.0"
+          },
+          {
+            "file_count": 8,
+            "license": "MIT OR Apache-2.0",
+            "name": "is_terminal_polyfill",
+            "package_checksum": "a6cb138bb79a146c1bd460005623e142ef0181e3d0219cb493e02f7d08a35695",
+            "root": "vendor/is_terminal_polyfill-1.70.2",
+            "version": "1.70.2"
+          },
+          {
+            "file_count": 17,
+            "license": "MIT OR Apache-2.0",
+            "name": "js-sys",
+            "package_checksum": "03d04c30968dffe80775bd4d7fb676131cd04a1fb46d2686dbffbaec2d9dfd31",
+            "root": "vendor/js-sys-0.3.102",
+            "version": "0.3.102"
+          },
+          {
+            "file_count": 360,
+            "license": "MIT OR Apache-2.0",
+            "name": "libc",
+            "package_checksum": "68ab91017fe16c622486840e4c83c9a37afeff978bd239b5293d61ece587de66",
+            "root": "vendor/libc-0.2.186",
+            "version": "0.2.186"
+          },
+          {
+            "file_count": 23,
+            "license": "MIT OR Apache-2.0",
+            "name": "log",
+            "package_checksum": "953f07c43838f8e6f9758cab68bf5bed85465e7587ebe0b823f1bcd81978ad3a",
+            "root": "vendor/log-0.4.32",
+            "version": "0.4.32"
+          },
+          {
+            "file_count": 8,
+            "license": "MIT OR Apache-2.0",
+            "name": "num-conv",
+            "package_checksum": "521739c6d2bac4aa25192232afe6841231376b2b26d4d9fae5ecf8ca5772e441",
+            "root": "vendor/num-conv-0.2.2",
+            "version": "0.2.2"
+          },
+          {
+            "file_count": 29,
+            "license": "MIT OR Apache-2.0",
+            "name": "num-traits",
+            "package_checksum": "071dfc062690e90b734c0b2273ce72ad0ffa95f0c74596bc250dcfd960262841",
+            "root": "vendor/num-traits-0.2.19",
+            "version": "0.2.19"
+          },
+          {
+            "file_count": 11,
+            "license": "MIT OR Apache-2.0",
+            "name": "num_threads",
+            "package_checksum": "5c7398b9c8b70908f6371f47ed36737907c87c52af34c268fed0bf0ceb92ead9",
+            "root": "vendor/num_threads-0.1.7",
+            "version": "0.1.7"
+          },
+          {
+            "file_count": 29,
+            "license": "MIT OR Apache-2.0",
+            "name": "once_cell",
+            "package_checksum": "9f7c3e4beb33f85d45ae3e3a1792185706c8e16d043238c593331cc7cd313b50",
+            "root": "vendor/once_cell-1.21.4",
+            "version": "1.21.4"
+          },
+          {
+            "file_count": 9,
+            "license": "MIT OR Apache-2.0",
+            "name": "once_cell_polyfill",
+            "package_checksum": "384b8ab6d37215f3c5301a95a4accb5d64aa607f1fcb26a11b5303878451b4fe",
+            "root": "vendor/once_cell_polyfill-1.70.2",
+            "version": "1.70.2"
+          },
+          {
+            "file_count": 81,
+            "license": "Apache-2.0 OR MIT",
+            "name": "pin-project-lite",
+            "package_checksum": "a89322df9ebe1c1578d689c92318e070967d1042b512afbe49518723f4e6d5cd",
+            "root": "vendor/pin-project-lite-0.2.17",
+            "version": "0.2.17"
+          },
+          {
+            "file_count": 17,
+            "license": "MIT OR Apache-2.0",
+            "name": "pkg-config",
+            "package_checksum": "19f132c84eca552bf34cab8ec81f1c1dcc229b811638f9d283dceabe58c5569e",
+            "root": "vendor/pkg-config-0.3.33",
+            "version": "0.3.33"
+          },
+          {
+            "file_count": 11,
+            "license": "MIT OR Apache-2.0",
+            "name": "powerfmt",
+            "package_checksum": "439ee305def115ba05938db6eb1644ff94165c5ab5e9420d1c1bcedbba909391",
+            "root": "vendor/powerfmt-0.2.0",
+            "version": "0.2.0"
+          },
+          {
+            "file_count": 33,
+            "license": "MIT OR Apache-2.0",
+            "name": "proc-macro2",
+            "package_checksum": "8fd00f0bb2e90d81d1044c2b32617f68fcb9fa3bb7640c23e9c748e53fb30934",
+            "root": "vendor/proc-macro2-1.0.106",
+            "version": "1.0.106"
+          },
+          {
+            "file_count": 35,
+            "license": "MIT OR Apache-2.0",
+            "name": "quote",
+            "package_checksum": "41f2619966050689382d2b44f664f4bc593e129785a36d6ee376ddf37259b924",
+            "root": "vendor/quote-1.0.45",
+            "version": "1.0.45"
+          },
+          {
+            "file_count": 39,
+            "license": "MIT OR Apache-2.0",
+            "name": "rustversion",
+            "package_checksum": "b39cdef0fa800fc44525c84ccb54a029961a8215f9619753635a9c0d2538d46d",
+            "root": "vendor/rustversion-1.0.22",
+            "version": "1.0.22"
+          },
+          {
+            "file_count": 27,
+            "license": "MIT OR Apache-2.0",
+            "name": "serde_core",
+            "package_checksum": "41d385c7d4ca58e59fc732af25c3983b67ac852c1a25000afe1175de458b67ad",
+            "root": "vendor/serde_core-1.0.228",
+            "version": "1.0.228"
+          },
+          {
+            "file_count": 36,
+            "license": "MIT OR Apache-2.0",
+            "name": "serde_derive",
+            "package_checksum": "d540f220d3187173da220f885ab66608367b6574e925011a9353e4badda91d79",
+            "root": "vendor/serde_derive-1.0.228",
+            "version": "1.0.228"
+          },
+          {
+            "file_count": 13,
+            "license": "MIT OR Apache-2.0",
+            "name": "shlex",
+            "package_checksum": "f8fadd59c855ef2080decdef8ff161eb6661b86933c9d82e5ba29dc602a55aba",
+            "root": "vendor/shlex-2.0.1",
+            "version": "2.0.1"
+          },
+          {
+            "file_count": 26,
+            "license": "MIT OR Apache-2.0",
+            "name": "signal-hook",
+            "package_checksum": "b2a0c28ca5908dbdbcd52e6fdaa00358ab88637f8ab33e1f188dd510eb44b53d",
+            "root": "vendor/signal-hook-0.4.4",
+            "version": "0.4.4"
+          },
+          {
+            "file_count": 11,
+            "license": "MIT OR Apache-2.0",
+            "name": "signal-hook-registry",
+            "package_checksum": "c4db69cba1110affc0e9f7bcd48bbf87b3f4fc7c61fc9155afd4c469eb3d6c1b",
+            "root": "vendor/signal-hook-registry-1.4.8",
+            "version": "1.4.8"
+          },
+          {
+            "file_count": 24,
+            "license": "MIT",
+            "name": "simple_logger",
+            "package_checksum": "c7038d0e96661bf9ce647e1a6f6ef6d6f3663f66d9bf741abf14ba4876071c17",
+            "root": "vendor/simple_logger-5.2.0",
+            "version": "5.2.0"
+          },
+          {
+            "file_count": 13,
+            "license": "MIT",
+            "name": "slab",
+            "package_checksum": "0c790de23124f9ab44544d7ac05d60440adc586479ce501c1d6d7da3cd8c9cf5",
+            "root": "vendor/slab-0.4.12",
+            "version": "0.4.12"
+          },
+          {
+            "file_count": 13,
+            "license": "MIT",
+            "name": "strsim",
+            "package_checksum": "7da8b5736845d9f2fcb837ea5d9e2628564b3b043a70948a3f0b778838c5fb4f",
+            "root": "vendor/strsim-0.11.1",
+            "version": "0.11.1"
+          },
+          {
+            "file_count": 105,
+            "license": "MIT OR Apache-2.0",
+            "name": "syn",
+            "package_checksum": "e665b8803e7b1d2a727f4023456bbbbe74da67099c585258af0ad9c5013b9b99",
+            "root": "vendor/syn-2.0.117",
+            "version": "2.0.117"
+          },
+          {
+            "file_count": 165,
+            "license": "MIT OR Apache-2.0",
+            "name": "time",
+            "package_checksum": "711a53c2d47bbd818258c498c8dbfe186a2526c631495cfe7e078567f86b8469",
+            "root": "vendor/time-0.3.49",
+            "version": "0.3.49"
+          },
+          {
+            "file_count": 10,
+            "license": "MIT OR Apache-2.0",
+            "name": "time-core",
+            "package_checksum": "9e1c906769ad99c88eaa54e728060edef082f8e358ff32030cb7c7d315e81109",
+            "root": "vendor/time-core-0.1.9",
+            "version": "0.1.9"
+          },
+          {
+            "file_count": 26,
+            "license": "MIT OR Apache-2.0",
+            "name": "time-macros",
+            "package_checksum": "71c652a3727a9cbb9a02f707f530b618ce00d0ccd762009c8c23bd191df3c17d",
+            "root": "vendor/time-macros-0.2.29",
+            "version": "0.2.29"
+          },
+          {
+            "file_count": 26,
+            "license": "(MIT OR Apache-2.0) AND Unicode-3.0",
+            "name": "unicode-ident",
+            "package_checksum": "e6e4313cd5fcd3dad5cafa179702e2b244f760991f45397d14d4ebf38247da75",
+            "root": "vendor/unicode-ident-1.0.24",
+            "version": "1.0.24"
+          },
+          {
+            "file_count": 9,
+            "license": "Apache-2.0 OR MIT",
+            "name": "utf8parse",
+            "package_checksum": "06abde3611657adf66d383f00b093d7faecc7fa57071cce2578660c9f1010821",
+            "root": "vendor/utf8parse-0.2.2",
+            "version": "0.2.2"
+          },
+          {
+            "file_count": 26,
+            "license": "MIT OR Apache-2.0",
+            "name": "wasm-bindgen",
+            "package_checksum": "8ddb3f79143bced6de84270411622a2699cee572fc0875aeaf1e7867cf9fca1a",
+            "root": "vendor/wasm-bindgen-0.2.125",
+            "version": "0.2.125"
+          },
+          {
+            "file_count": 9,
+            "license": "MIT OR Apache-2.0",
+            "name": "wasm-bindgen-macro",
+            "package_checksum": "4e21a184b13fb19e157296e2c46056aec9092264fab83e4ba59e68c61b323c3d",
+            "root": "vendor/wasm-bindgen-macro-0.2.125",
+            "version": "0.2.125"
+          },
+          {
+            "file_count": 14,
+            "license": "MIT OR Apache-2.0",
+            "name": "wasm-bindgen-macro-support",
+            "package_checksum": "fecefd9c35bd935a20fc3fc344b5f29138961e4f47fb03297d88f2587afb5ebd",
+            "root": "vendor/wasm-bindgen-macro-support-0.2.125",
+            "version": "0.2.125"
+          },
+          {
+            "file_count": 11,
+            "license": "MIT OR Apache-2.0",
+            "name": "wasm-bindgen-shared",
+            "package_checksum": "23939e44bb9a5d7576fa2b563dc2e136628f1224e88a8deed09e04858b77871f",
+            "root": "vendor/wasm-bindgen-shared-0.2.125",
+            "version": "0.2.125"
+          },
+          {
+            "file_count": 42,
+            "license": "MIT OR Apache-2.0",
+            "name": "windows-core",
+            "package_checksum": "b8e83a14d34d0623b51dce9581199302a221863196a1dde71a7663a4c2be9deb",
+            "root": "vendor/windows-core-0.62.2",
+            "version": "0.62.2"
+          },
+          {
+            "file_count": 10,
+            "license": "MIT OR Apache-2.0",
+            "name": "windows-implement",
+            "package_checksum": "053e2e040ab57b9dc951b72c264860db7eb3b0200ba345b4e4c3b14f67855ddf",
+            "root": "vendor/windows-implement-0.60.2",
+            "version": "0.60.2"
+          },
+          {
+            "file_count": 8,
+            "license": "MIT OR Apache-2.0",
+            "name": "windows-interface",
+            "package_checksum": "3f316c4a2570ba26bbec722032c4099d8c8bc095efccdc15688708623367e358",
+            "root": "vendor/windows-interface-0.59.3",
+            "version": "0.59.3"
+          },
+          {
+            "file_count": 8,
+            "license": "MIT OR Apache-2.0",
+            "name": "windows-link",
+            "package_checksum": "f0805222e57f7521d6a62e36fa9163bc891acd422f971defe97d64e70d0a4fe5",
+            "root": "vendor/windows-link-0.2.1",
+            "version": "0.2.1"
+          },
+          {
+            "file_count": 16,
+            "license": "MIT OR Apache-2.0",
+            "name": "windows-result",
+            "package_checksum": "7781fa89eaf60850ac3d2da7af8e5242a5ea78d1a11c49bf2910bb5a73853eb5",
+            "root": "vendor/windows-result-0.4.1",
+            "version": "0.4.1"
+          },
+          {
+            "file_count": 21,
+            "license": "MIT OR Apache-2.0",
+            "name": "windows-strings",
+            "package_checksum": "7837d08f69c77cf6b07689544538e017c1bfcf57e34b4c0ff58e6c2cd3b37091",
+            "root": "vendor/windows-strings-0.5.1",
+            "version": "0.5.1"
+          },
+          {
+            "file_count": 257,
+            "license": "MIT OR Apache-2.0",
+            "name": "windows-sys",
+            "package_checksum": "ae137229bcbd6cdf0f7b80a31df61766145077ddf49416a728b02cb3921ff3fc",
+            "root": "vendor/windows-sys-0.61.2",
+            "version": "0.61.2"
+          }
+        ],
+        "registry_crates": 75,
+        "vendor": {
+          "bytes": 5733816,
+          "cargo_checksum_manifest_exact_file_sets": "PASS_ALL_117",
+          "cargo_checksum_manifest_file_hashes": "PASS_ALL_117",
+          "crates": 117,
+          "expanded_bytes": 57569078,
+          "path": "packages/audio/speakersafetyd/cargo-vendor-117.tar.xz",
+          "regular_files": 4409,
+          "sha256": "64cd55473b19f104f3a90570409d58c5ab69f63c61396541c4ad1e56e8d6293f"
+        }
+      },
+      "extracts": {
+        "LICENSE.upstream": {
+          "archive": "speakersafetyd-2.0.1.tar.gz",
+          "member": "speakersafetyd-2.0.1/LICENSE"
+        },
+        "SOURCE.md": {
+          "archive": "audio-rust-notices-v1.tar.xz",
+          "member": "audio-rust-notices/speakersafetyd/SOURCE.md"
+        },
+        "THIRD-PARTY-LICENSES.txt": {
+          "archive": "audio-rust-notices-v1.tar.xz",
+          "member": "audio-rust-notices/speakersafetyd/THIRD-PARTY-LICENSES.txt"
+        },
+        "THIRD-PARTY.md": {
+          "archive": "audio-rust-notices-v1.tar.xz",
+          "member": "audio-rust-notices/speakersafetyd/THIRD-PARTY.md"
+        }
+      },
+      "inputs": {
+        "0001-j504-Write-the-full-speaker-names-in-conf.patch": {
+          "bytes": 1470,
+          "path": "packages/audio/speakersafetyd/0001-j504-Write-the-full-speaker-names-in-conf.patch",
+          "sha256": "9c1060ca170f52ceb2a68fd1d3c67a31edc4171473b65c239de2115ac8c1870f"
+        },
+        "BUILD.expected-packages.lock": {
+          "bytes": 6845,
+          "path": "scripts/ci/asahi-audio-rust/expected-packages.lock",
+          "sha256": "d6b50a41e5e1c1880faedfbd6a1eebad6d271901c0a42923af5c8e977f23e963"
+        },
+        "BUILD.inputs.lock.json": {
+          "bytes": 335837,
+          "path": "scripts/ci/asahi-audio-rust/inputs.lock.json",
+          "sha256": "7297c9fa299e65484cdb46fc4d149af5815627a385d3050c5c884cd0cc3889c2"
+        },
+        "PACKAGING.LICENSE": {
+          "bytes": 1081,
+          "path": "LICENSE",
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        },
+        "PKGBUILD": {
+          "bytes": 2136,
+          "path": "packages/audio/speakersafetyd/PKGBUILD",
+          "sha256": "a446c4387c5547ebfde75542dd16b1684b77a47cd726ba15ad6543e8869aa087"
+        },
+        "audio-rust-notices-v1.tar.xz": {
+          "bytes": 48916,
+          "path": "packages/audio/speakersafetyd/audio-rust-notices-v1.tar.xz",
+          "sha256": "7cd393018f279ff2a1e71fe85fb5767e3f58398edcd395da4ab6f4eb357ce522"
+        },
+        "cargo-vendor-117.tar.xz": {
+          "bytes": 5733816,
+          "path": "packages/audio/speakersafetyd/cargo-vendor-117.tar.xz",
+          "sha256": "64cd55473b19f104f3a90570409d58c5ab69f63c61396541c4ad1e56e8d6293f"
+        },
+        "speakersafetyd-2.0.1.tar.gz": {
+          "bytes": 24865,
+          "path": "packages/audio/speakersafetyd/speakersafetyd-2.0.1.tar.gz",
+          "sha256": "0e1cb05a2f5521d80f9a502daa0b75ef5c7f2b9e8913b0f88c2d19a97d4439e5"
+        }
+      },
+      "metadata": {
+        "arch": [
+          "aarch64"
+        ],
+        "depends": [
+          "alsa-lib"
+        ],
+        "license": [
+          "MIT"
+        ],
+        "makedepends": [
+          "rust",
+          "make",
+          "pkgconf"
+        ],
+        "pkgname": [
+          "speakersafetyd"
+        ],
+        "pkgrel": [
+          "3"
+        ],
+        "pkgver": [
+          "2.0.1"
+        ],
+        "sha256sums": [
+          "0e1cb05a2f5521d80f9a502daa0b75ef5c7f2b9e8913b0f88c2d19a97d4439e5",
+          "64cd55473b19f104f3a90570409d58c5ab69f63c61396541c4ad1e56e8d6293f",
+          "9c1060ca170f52ceb2a68fd1d3c67a31edc4171473b65c239de2115ac8c1870f",
+          "7cd393018f279ff2a1e71fe85fb5767e3f58398edcd395da4ab6f4eb357ce522"
+        ],
+        "source": [
+          "speakersafetyd-2.0.1.tar.gz",
+          "cargo-vendor-117.tar.xz",
+          "0001-j504-Write-the-full-speaker-names-in-conf.patch",
+          "audio-rust-notices-v1.tar.xz"
+        ]
+      },
+      "payload": {
+        "usr/bin/speakersafetyd": {
+          "ELF": true,
+          "mode": 493,
+          "sha256": null
+        },
+        "usr/lib/systemd/system/speakersafetyd.service": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "8dca285ca0f3c74a6504228f95732d7cce6ad60c586d5308879fb848d16486c4"
+        },
+        "usr/lib/udev/rules.d/95-speakersafetyd.rules": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "b67a3116231d63ce6e44f2571889cf1bbb9f4e0347db38349e56420a8ddc7bfa"
+        },
+        "usr/share/licenses/speakersafetyd/LICENSE": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "b8ccaf94cb87451dfdbc96343ef0b47cdefe83f7b71bd3b9e6c3debd544e434f"
+        },
+        "usr/share/licenses/speakersafetyd/SOURCE.md": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "9d92f616bd6f2bcf1692687c2e5cd446d87b763686f3772cbf0869d9e703bfe4"
+        },
+        "usr/share/licenses/speakersafetyd/THIRD-PARTY-LICENSES.txt": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "ef39f00414e23f1251aa0a2e69f39d36b1de04345932abf7d8f417909782db27"
+        },
+        "usr/share/licenses/speakersafetyd/THIRD-PARTY.md": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "52e560b71ff675a9dde84c56dfeca6d8d562c4736b62c62dc163980d638cace0"
+        },
+        "usr/share/speakersafetyd/apple/j180.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "a28735c119520232590b418d0226843f0d56c62ce646367ce700cebb408df4b8"
+        },
+        "usr/share/speakersafetyd/apple/j274.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "e06f09bce008ec6b8557bf7725e78f93982c78d6cb56ebd6be71de033cac19de"
+        },
+        "usr/share/speakersafetyd/apple/j293.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "66a0740164d06e9525cabb7016b77bfb9c7b7ef827012b4f6e0d548f6aed9495"
+        },
+        "usr/share/speakersafetyd/apple/j313.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "cb778800e3423c6c9f7ac92a90a89981a82b01b6334c797777baa53f480f2a5e"
+        },
+        "usr/share/speakersafetyd/apple/j314.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "95de31393a1c1742aa694d014f724a0ae869650bbde77144d407b49337480b9a"
+        },
+        "usr/share/speakersafetyd/apple/j316.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "ffc81b081c22601420eb4ee7037af36c2cc522e7bdbc9e7e8dd146530304543a"
+        },
+        "usr/share/speakersafetyd/apple/j375.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "1b44f31aa7def71d7a25ae28125558336514397804545487f52333b68fc49982"
+        },
+        "usr/share/speakersafetyd/apple/j413.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "ca005e6d9a2f1619b6e05d7abb79647bab59387b239db76eee1d87ba72c33327"
+        },
+        "usr/share/speakersafetyd/apple/j414.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "95de31393a1c1742aa694d014f724a0ae869650bbde77144d407b49337480b9a"
+        },
+        "usr/share/speakersafetyd/apple/j415.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "bc97ebfe121455ac946e1a70c2ab1359b2617d76aee155c7112c0fdf6245b033"
+        },
+        "usr/share/speakersafetyd/apple/j416.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "ffc81b081c22601420eb4ee7037af36c2cc522e7bdbc9e7e8dd146530304543a"
+        },
+        "usr/share/speakersafetyd/apple/j456.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "e337f4826cf0c9e5e2de4f46f6c6ac789d64cf50b7afcf84ea531373f163429b"
+        },
+        "usr/share/speakersafetyd/apple/j457.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "e337f4826cf0c9e5e2de4f46f6c6ac789d64cf50b7afcf84ea531373f163429b"
+        },
+        "usr/share/speakersafetyd/apple/j473.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "1b44f31aa7def71d7a25ae28125558336514397804545487f52333b68fc49982"
+        },
+        "usr/share/speakersafetyd/apple/j474.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "1b44f31aa7def71d7a25ae28125558336514397804545487f52333b68fc49982"
+        },
+        "usr/share/speakersafetyd/apple/j475.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "1b44f31aa7def71d7a25ae28125558336514397804545487f52333b68fc49982"
+        },
+        "usr/share/speakersafetyd/apple/j493.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "245108b93a257ba4dcac16bb4df33db7fb0dc46ea466c266e497f2a038055557"
+        },
+        "usr/share/speakersafetyd/apple/j504.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "06a66a382772c24322c5de53db46229f0926d9f3c6cd50e30d03cf038ce1daf4"
+        },
+        "usr/share/speakersafetyd/apple/j514.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "95de31393a1c1742aa694d014f724a0ae869650bbde77144d407b49337480b9a"
+        },
+        "usr/share/speakersafetyd/apple/j516.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "ffc81b081c22601420eb4ee7037af36c2cc522e7bdbc9e7e8dd146530304543a"
+        },
+        "usr/share/speakersafetyd/apple/j575.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "1b44f31aa7def71d7a25ae28125558336514397804545487f52333b68fc49982"
+        },
+        "usr/share/speakersafetyd/apple/j613.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "ca005e6d9a2f1619b6e05d7abb79647bab59387b239db76eee1d87ba72c33327"
+        },
+        "usr/share/speakersafetyd/apple/j615.conf": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "bc97ebfe121455ac946e1a70c2ab1359b2617d76aee155c7112c0fdf6245b033"
+        }
+      },
+      "publication_blockers": [
+        "Historical compiler/linker source correspondence, exact flags and full runtime dependency source closure are unresolved; environment locks identify binaries, not their corresponding sources."
+      ],
+      "recipe_directory": "packages/audio/speakersafetyd",
+      "source_scope": "EXACT_RECIPE_AND_VENDOR_INPUTS",
+      "upstream_acquisition_receipt": {
+        "bytes": 24865,
+        "final_url": "https://codeload.github.com/AsahiLinux/speakersafetyd/tar.gz/refs/tags/2.0.1",
+        "name": "speakersafetyd",
+        "path": "upstream/speakersafetyd-2.0.1.tar.gz",
+        "recipe_checksum_matches": true,
+        "repository": "AsahiLinux/speakersafetyd",
+        "revision": "63a92658a4daec170c6472e38162374206e593fb",
+        "sha256": "0e1cb05a2f5521d80f9a502daa0b75ef5c7f2b9e8913b0f88c2d19a97d4439e5",
+        "tag": "2.0.1",
+        "url": "https://github.com/AsahiLinux/speakersafetyd/archive/refs/tags/2.0.1.tar.gz"
+      },
+      "upstream_revision": "63a92658a4daec170c6472e38162374206e593fb",
+      "version": "2.0.1-3"
+    },
+    "triforce-lv2": {
+      "arch": "aarch64",
+      "components": {
+        "cargo_lock_sha256": "453d5232d8309f7aba2c83ec3b5c27cef585181c31bd9345752e46e857d13ce3",
+        "locked_components": [
+          {
+            "file_count": 20,
+            "license": "Apache-2.0",
+            "name": "approx",
+            "package_checksum": "cab112f0a86d568ea0e627cc1d6be74a1e9cd55214684db5561995f6dad897c6",
+            "root": "vendor/approx-0.5.1",
+            "version": "0.5.1"
+          },
+          {
+            "file_count": 24,
+            "license": "Apache-2.0 OR MIT",
+            "name": "autocfg",
+            "package_checksum": "ace50bade8e6234aa140d9a2f552bbee1db4d353f69b8217bc503490fc1a9f26",
+            "root": "vendor/autocfg-1.4.0",
+            "version": "1.4.0"
+          },
+          {
+            "file_count": 37,
+            "license": "Zlib OR Apache-2.0 OR MIT",
+            "name": "bytemuck",
+            "package_checksum": "9134a6ef01ce4b366b50689c94f82c14bc72bc5d0386829828a2e2752ef7958c",
+            "root": "vendor/bytemuck-1.23.0",
+            "version": "1.23.0"
+          },
+          {
+            "file_count": 26,
+            "license": "MIT OR Apache-2.0",
+            "name": "lv2",
+            "package_checksum": "81300c8058a7747013c8f3e27e76eeceb8226621283d30d787b970019d8404f6",
+            "root": "vendor/lv2-0.6.0",
+            "version": "0.6.0"
+          },
+          {
+            "file_count": 17,
+            "license": "MIT OR Apache-2.0",
+            "name": "lv2-atom",
+            "package_checksum": "951b4e7b10349d32b7b7a26c15bd0f9cf42790b59531093d474f6964f5cba971",
+            "root": "vendor/lv2-atom-2.0.0",
+            "version": "2.0.0"
+          },
+          {
+            "file_count": 17,
+            "license": "MIT OR Apache-2.0",
+            "name": "lv2-core",
+            "package_checksum": "d50100435f793b25e9fcfe89c227dc1b1ca93bbfae0f3710149263fe4ba049de",
+            "root": "vendor/lv2-core-3.0.0",
+            "version": "3.0.0"
+          },
+          {
+            "file_count": 10,
+            "license": "MIT OR Apache-2.0",
+            "name": "lv2-core-derive",
+            "package_checksum": "7bf98f786ecb49030330834aaa458f84bbaf545d7084cf3dcb2fab2f03a1838b",
+            "root": "vendor/lv2-core-derive-2.1.1",
+            "version": "2.1.1"
+          },
+          {
+            "file_count": 9,
+            "license": "MIT OR Apache-2.0",
+            "name": "lv2-midi",
+            "package_checksum": "ad23e6bcd0036b1859992b92bbf1855f99ed648886ed9ad9a32fc4ecf2a20f74",
+            "root": "vendor/lv2-midi-1.2.0",
+            "version": "1.2.0"
+          },
+          {
+            "file_count": 15,
+            "license": "MIT OR Apache-2.0",
+            "name": "lv2-sys",
+            "package_checksum": "9dd0f9e7de3649dcec348de51cbf611ab88688b97c0ce038f8c07b996b2a8e30",
+            "root": "vendor/lv2-sys-2.0.0",
+            "version": "2.0.0"
+          },
+          {
+            "file_count": 7,
+            "license": "MIT OR Apache-2.0",
+            "name": "lv2-units",
+            "package_checksum": "02b9470e6f71a96c49ce27ff15838b27f4f07300dec810313423b70ec7adaa39",
+            "root": "vendor/lv2-units-0.1.3",
+            "version": "0.1.3"
+          },
+          {
+            "file_count": 10,
+            "license": "MIT OR Apache-2.0",
+            "name": "lv2-urid",
+            "package_checksum": "8c0803444d1e66fbdbc345ef8243470979f8bab570cdaf0cada4586fc1624e68",
+            "root": "vendor/lv2-urid-2.1.0",
+            "version": "2.1.0"
+          },
+          {
+            "file_count": 42,
+            "license": "MIT/Apache-2.0",
+            "name": "matrixmultiply",
+            "package_checksum": "a06de3016e9fae57a36fd14dba131fccf49f74b40b7fbdb472f96e361ec71a08",
+            "root": "vendor/matrixmultiply-0.3.10",
+            "version": "0.3.10"
+          },
+          {
+            "file_count": 309,
+            "license": "Apache-2.0",
+            "name": "nalgebra",
+            "package_checksum": "26aecdf64b707efd1310e3544d709c5c0ac61c13756046aaaba41be5c4f66a3b",
+            "root": "vendor/nalgebra-0.33.2",
+            "version": "0.33.2"
+          },
+          {
+            "file_count": 7,
+            "license": "Apache-2.0",
+            "name": "nalgebra-macros",
+            "package_checksum": "254a5372af8fc138e36684761d3c0cdb758a4410e938babcff1c860ce14ddbfc",
+            "root": "vendor/nalgebra-macros-0.2.2",
+            "version": "0.2.2"
+          },
+          {
+            "file_count": 51,
+            "license": "MIT OR Apache-2.0",
+            "name": "num-bigint",
+            "package_checksum": "a5e44f723f1133c9deac646763579fdb3ac745e418f2a7af9cd0c431da1f20b9",
+            "root": "vendor/num-bigint-0.4.6",
+            "version": "0.4.6"
+          },
+          {
+            "file_count": 13,
+            "license": "MIT OR Apache-2.0",
+            "name": "num-complex",
+            "package_checksum": "73f88a1307638156682bada9d7604135552957b7818057dcef22705b4d509495",
+            "root": "vendor/num-complex-0.4.6",
+            "version": "0.4.6"
+          },
+          {
+            "file_count": 16,
+            "license": "MIT OR Apache-2.0",
+            "name": "num-integer",
+            "package_checksum": "7969661fd2958a5cb096e56c8e1ad0444ac2bbcd0061bd28660485a44879858f",
+            "root": "vendor/num-integer-0.1.46",
+            "version": "0.1.46"
+          },
+          {
+            "file_count": 10,
+            "license": "MIT OR Apache-2.0",
+            "name": "num-rational",
+            "package_checksum": "f83d14da390562dca69fc84082e73e548e1ad308d24accdedd2720017cb37824",
+            "root": "vendor/num-rational-0.4.2",
+            "version": "0.4.2"
+          },
+          {
+            "file_count": 29,
+            "license": "MIT OR Apache-2.0",
+            "name": "num-traits",
+            "package_checksum": "071dfc062690e90b734c0b2273ce72ad0ffa95f0c74596bc250dcfd960262841",
+            "root": "vendor/num-traits-0.2.19",
+            "version": "0.2.19"
+          },
+          {
+            "file_count": 47,
+            "license": "MIT OR Apache-2.0",
+            "name": "paste",
+            "package_checksum": "57c0d7b74b563b49d38dae00a0c37d4d6de9b432382b2892f0574ddcae73fd0a",
+            "root": "vendor/paste-1.0.15",
+            "version": "1.0.15"
+          },
+          {
+            "file_count": 8,
+            "license": "MIT OR Apache-2.0",
+            "name": "primal-check",
+            "package_checksum": "dc0d895b311e3af9902528fbb8f928688abbd95872819320517cc24ca6b2bd08",
+            "root": "vendor/primal-check-0.3.4",
+            "version": "0.3.4"
+          },
+          {
+            "file_count": 28,
+            "license": "MIT OR Apache-2.0",
+            "name": "proc-macro2",
+            "package_checksum": "02b3e5e68a3a1a02aad3ec490a98007cbc13c37cbe84a3cd7b8e406d76e7f778",
+            "root": "vendor/proc-macro2-1.0.95",
+            "version": "1.0.95"
+          },
+          {
+            "file_count": 34,
+            "license": "MIT OR Apache-2.0",
+            "name": "quote",
+            "package_checksum": "1885c039570dc00dcb4ff087a89e185fd56bae234ddc7f056a945bf36467248d",
+            "root": "vendor/quote-1.0.40",
+            "version": "1.0.40"
+          },
+          {
+            "file_count": 8,
+            "license": "MIT/Apache-2.0",
+            "name": "rawpointer",
+            "package_checksum": "60a357793950651c4ed0f3f52338f53b2f809f32d83a07f72909fa13e4c6c1e3",
+            "root": "vendor/rawpointer-0.2.1",
+            "version": "0.2.1"
+          },
+          {
+            "file_count": 84,
+            "license": "MIT OR Apache-2.0",
+            "name": "rustfft",
+            "package_checksum": "f266ff9b0cfc79de11fd5af76a2bc672fe3ace10c96fa06456740fa70cb1ed49",
+            "root": "vendor/rustfft-6.3.0",
+            "version": "6.3.0"
+          },
+          {
+            "file_count": 54,
+            "license": "Zlib OR Apache-2.0 OR MIT",
+            "name": "safe_arch",
+            "package_checksum": "96b02de82ddbe1b636e6170c21be622223aea188ef2e139be0a5b219ec215323",
+            "root": "vendor/safe_arch-0.7.4",
+            "version": "0.7.4"
+          },
+          {
+            "file_count": 30,
+            "license": "Apache-2.0",
+            "name": "simba",
+            "package_checksum": "b3a386a501cd104797982c15ae17aafe8b9261315b5d07e3ec803f2ea26be0fa",
+            "root": "vendor/simba-0.9.0",
+            "version": "0.9.0"
+          },
+          {
+            "file_count": 13,
+            "license": "MIT OR Apache-2.0",
+            "name": "strength_reduce",
+            "package_checksum": "fe895eb47f22e2ddd4dabc02bce419d2e643c8e3b585c78158b349195bc24d82",
+            "root": "vendor/strength_reduce-0.2.4",
+            "version": "0.2.4"
+          },
+          {
+            "file_count": 98,
+            "license": "MIT OR Apache-2.0",
+            "name": "syn",
+            "package_checksum": "72b64191b275b66ffe2469e8af2c1cfe3bafa67b529ead792a6d0160888b4237",
+            "root": "vendor/syn-1.0.109",
+            "version": "1.0.109"
+          },
+          {
+            "file_count": 104,
+            "license": "MIT OR Apache-2.0",
+            "name": "syn",
+            "package_checksum": "8ce2b7fc941b3a24138a0a7cf8e858bfc6a992e7978a068a5c760deb0ed43caf",
+            "root": "vendor/syn-2.0.101",
+            "version": "2.0.101"
+          },
+          {
+            "file_count": 13,
+            "license": "MIT OR Apache-2.0",
+            "name": "transpose",
+            "package_checksum": "1ad61aed86bc3faea4300c7aee358b4c6d0c8d6ccc36524c96e4c92ccf26e77e",
+            "root": "vendor/transpose-0.2.3",
+            "version": "0.2.3"
+          },
+          {
+            "file_count": 32,
+            "license": "MIT OR Apache-2.0",
+            "name": "typenum",
+            "package_checksum": "1dccffe3ce07af9386bfd29e80c0ab1a8205a2fc34e4bcd40364df902cfa8f3f",
+            "root": "vendor/typenum-1.18.0",
+            "version": "1.18.0"
+          },
+          {
+            "file_count": 26,
+            "license": "(MIT OR Apache-2.0) AND Unicode-3.0",
+            "name": "unicode-ident",
+            "package_checksum": "5a5f39404a5da50712a4c1eecf25e90dd62b613502b7e925fd4e4d19b5c96512",
+            "root": "vendor/unicode-ident-1.0.18",
+            "version": "1.0.18"
+          },
+          {
+            "file_count": 9,
+            "license": "MIT OR Apache-2.0",
+            "name": "urid",
+            "package_checksum": "6828b5d766e783093935fb2f23f26ffb28b7cb9313921cec67db8ca09f38a6a4",
+            "root": "vendor/urid-0.1.0",
+            "version": "0.1.0"
+          },
+          {
+            "file_count": 9,
+            "license": "MIT OR Apache-2.0",
+            "name": "urid-derive",
+            "package_checksum": "819eee2ef008e55b0a415ed356db7772d0ad94ae499f0043015111fc34703644",
+            "root": "vendor/urid-derive-0.1.1",
+            "version": "0.1.1"
+          },
+          {
+            "file_count": 13,
+            "license": "MIT/Apache-2.0",
+            "name": "version_check",
+            "package_checksum": "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a",
+            "root": "vendor/version_check-0.9.5",
+            "version": "0.9.5"
+          },
+          {
+            "file_count": 52,
+            "license": "Zlib OR Apache-2.0 OR MIT",
+            "name": "wide",
+            "package_checksum": "41b5576b9a81633f3e8df296ce0063042a73507636cbe956c61133dd7034ab22",
+            "root": "vendor/wide-0.7.32",
+            "version": "0.7.32"
+          },
+          {
+            "file_count": 10,
+            "license": "MIT",
+            "name": "wmidi",
+            "package_checksum": "ca299959bb6d529c2bee3feb517899959da3052c4a29eea0a8ff568b825eb6cf",
+            "root": "vendor/wmidi-3.1.0",
+            "version": "3.1.0"
+          }
+        ],
+        "registry_crates": 38,
+        "vendor": {
+          "bytes": 5733816,
+          "cargo_checksum_manifest_exact_file_sets": "PASS_ALL_117",
+          "cargo_checksum_manifest_file_hashes": "PASS_ALL_117",
+          "crates": 117,
+          "expanded_bytes": 57569078,
+          "path": "packages/audio/speakersafetyd/cargo-vendor-117.tar.xz",
+          "regular_files": 4409,
+          "sha256": "64cd55473b19f104f3a90570409d58c5ab69f63c61396541c4ad1e56e8d6293f"
+        }
+      },
+      "extracts": {
+        "GPL-3.0.txt": {
+          "archive": "audio-rust-notices-v1.tar.xz",
+          "member": "audio-rust-notices/triforce-lv2/GPL-3.0.txt"
+        },
+        "LICENSE.upstream": {
+          "archive": "triforce-lv2-0.3.2.tar.gz",
+          "member": "triforce-0.3.2/LICENCE.txt"
+        },
+        "SOURCE.md": {
+          "archive": "audio-rust-notices-v1.tar.xz",
+          "member": "audio-rust-notices/triforce-lv2/SOURCE.md"
+        },
+        "THIRD-PARTY-LICENSES.txt": {
+          "archive": "audio-rust-notices-v1.tar.xz",
+          "member": "audio-rust-notices/triforce-lv2/THIRD-PARTY-LICENSES.txt"
+        },
+        "THIRD-PARTY.md": {
+          "archive": "audio-rust-notices-v1.tar.xz",
+          "member": "audio-rust-notices/triforce-lv2/THIRD-PARTY.md"
+        }
+      },
+      "inputs": {
+        "BUILD.expected-packages.lock": {
+          "bytes": 6845,
+          "path": "scripts/ci/asahi-audio-rust/expected-packages.lock",
+          "sha256": "d6b50a41e5e1c1880faedfbd6a1eebad6d271901c0a42923af5c8e977f23e963"
+        },
+        "BUILD.inputs.lock.json": {
+          "bytes": 335837,
+          "path": "scripts/ci/asahi-audio-rust/inputs.lock.json",
+          "sha256": "7297c9fa299e65484cdb46fc4d149af5815627a385d3050c5c884cd0cc3889c2"
+        },
+        "PACKAGING.LICENSE": {
+          "bytes": 1081,
+          "path": "LICENSE",
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        },
+        "PKGBUILD": {
+          "bytes": 2135,
+          "path": "packages/audio/triforce-lv2/PKGBUILD",
+          "sha256": "d077ab1b6a7fc2bfc1d6daca6e96502b569922c355bd8f7b1aed3363acb41a9f"
+        },
+        "audio-rust-notices-v1.tar.xz": {
+          "bytes": 48916,
+          "path": "packages/audio/triforce-lv2/audio-rust-notices-v1.tar.xz",
+          "sha256": "7cd393018f279ff2a1e71fe85fb5767e3f58398edcd395da4ab6f4eb357ce522"
+        },
+        "cargo-vendor-117.tar.xz": {
+          "bytes": 5733816,
+          "path": "packages/audio/triforce-lv2/cargo-vendor-117.tar.xz",
+          "sha256": "64cd55473b19f104f3a90570409d58c5ab69f63c61396541c4ad1e56e8d6293f"
+        },
+        "triforce-lv2-0.3.2.tar.gz": {
+          "bytes": 15910,
+          "path": "packages/audio/triforce-lv2/triforce-lv2-0.3.2.tar.gz",
+          "sha256": "1d081222d0bfe2c961ac44b368c9f1d2dd9ec0833a35bab87863bac07e9df019"
+        }
+      },
+      "metadata": {
+        "arch": [
+          "aarch64"
+        ],
+        "depends": [
+          "lv2"
+        ],
+        "license": [
+          "GPL-3.0-only",
+          "Apache-2.0",
+          "MIT",
+          "Zlib",
+          "Unicode-3.0"
+        ],
+        "makedepends": [
+          "rust",
+          "make"
+        ],
+        "pkgname": [
+          "triforce-lv2"
+        ],
+        "pkgrel": [
+          "3"
+        ],
+        "pkgver": [
+          "0.3.2"
+        ],
+        "sha256sums": [
+          "1d081222d0bfe2c961ac44b368c9f1d2dd9ec0833a35bab87863bac07e9df019",
+          "64cd55473b19f104f3a90570409d58c5ab69f63c61396541c4ad1e56e8d6293f",
+          "7cd393018f279ff2a1e71fe85fb5767e3f58398edcd395da4ab6f4eb357ce522"
+        ],
+        "source": [
+          "triforce-lv2-0.3.2.tar.gz",
+          "cargo-vendor-117.tar.xz",
+          "audio-rust-notices-v1.tar.xz"
+        ]
+      },
+      "payload": {
+        "usr/lib/lv2/triforce.lv2/manifest.ttl": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "f3ccd14d4bb94abbebc53d0d6ebb8a089312a216288fa0c8cfb5a87ce65977f3"
+        },
+        "usr/lib/lv2/triforce.lv2/triforce.so": {
+          "ELF": true,
+          "mode": 493,
+          "sha256": null
+        },
+        "usr/lib/lv2/triforce.lv2/triforce.ttl": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "b7317d9a9bc66415ac282cb2f707931a17e8739d254f8be720eea21f1e9de485"
+        },
+        "usr/share/licenses/triforce-lv2/GPL-3.0.txt": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "fb981668c18a279e285fc4d83fba1e836cc84dd4daa73c9697d3cfd2d8aca6e0"
+        },
+        "usr/share/licenses/triforce-lv2/LICENCE.txt": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "edaef632cbb643e4e7a221717a6c441a4c1a7c918e6e4d56debc3d8739b233f6"
+        },
+        "usr/share/licenses/triforce-lv2/SOURCE.md": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "36cb52a5c6379e49ac4685b87f5618f3c860ef43bf3acb119524f00f7b701feb"
+        },
+        "usr/share/licenses/triforce-lv2/THIRD-PARTY-LICENSES.txt": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "8917b1fdfcc5d960c491f794d168c980da48b523b0d116b6ba20f902b3a9e53a"
+        },
+        "usr/share/licenses/triforce-lv2/THIRD-PARTY.md": {
+          "ELF": false,
+          "mode": 420,
+          "sha256": "796dbc0acb109987a5f62b5131b9fbcbd524643774093e271eef9a35648d80c7"
+        }
+      },
+      "publication_blockers": [
+        "Historical compiler/linker source correspondence, exact flags and full runtime dependency source closure are unresolved; environment locks identify binaries, not their corresponding sources.",
+        "wmidi 3.1.0 has a later 2023 MIT text; explicit retrospective association to the selected 2019 release remains limited (retained THIRD-PARTY.md).",
+        "nalgebra-macros 0.2.2 supplemental Apache workspace text has published dev-dependency differences and absent VCS metadata; historical text association remains limited (retained THIRD-PARTY.md)."
+      ],
+      "recipe_directory": "packages/audio/triforce-lv2",
+      "source_scope": "EXACT_RECIPE_AND_VENDOR_INPUTS",
+      "upstream_acquisition_receipt": {
+        "bytes": 15910,
+        "final_url": "https://codeload.github.com/chadmed/triforce/tar.gz/refs/tags/0.3.2",
+        "name": "triforce-lv2",
+        "path": "upstream/triforce-lv2-0.3.2.tar.gz",
+        "recipe_checksum_matches": true,
+        "repository": "chadmed/triforce",
+        "revision": "c5e9cacb88e6d2bae476e5c2394ce022793c6d5c",
+        "sha256": "1d081222d0bfe2c961ac44b368c9f1d2dd9ec0833a35bab87863bac07e9df019",
+        "tag": "0.3.2",
+        "url": "https://github.com/chadmed/triforce/archive/refs/tags/0.3.2.tar.gz"
+      },
+      "upstream_revision": "c5e9cacb88e6d2bae476e5c2394ce022793c6d5c",
+      "version": "0.3.2-3"
+    }
+  },
+  "schema_version": 1
+}

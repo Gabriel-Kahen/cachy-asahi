@@ -235,7 +235,7 @@ def barrier_event(event, nonce, selection):
 
 TRANSACTION_PURPOSE = 'installer-transaction-only'
 TRANSACTION_FILES = {
-    'scripts/install/local_transaction.py': {'bytes': 91431, 'sha256': 'c34202676e30a5085828f92d413cad0aaeacda1c9ac95e86155952db430d62d2'},
+    'scripts/install/local_transaction.py': {'bytes': 93752, 'sha256': '14381d049506b52770059bf7af415f7a079f69872543e74417aca11ce24ac3c5'},
     'scripts/install/test_local_transaction.py': {'bytes': 131063, 'sha256': '1987ed23821da917215e9e3366545810d565ece08406fafd429a8c3c772eb2cd'},
     'scripts/port/kernel-native-job/runtime.py': {'bytes': 11345, 'sha256': '8a7cd5e73cf383b2d81ad577b8513c6fd7d49f9fd2572961c73ae9d289cab821'},
 }

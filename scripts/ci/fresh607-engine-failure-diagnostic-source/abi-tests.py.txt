@@ -1,0 +1,23 @@
+def test_exact_selected_engine_uses_alpm_origin_at_prepare_and_commit(self):
+ import ctypes as CT
+ for mode in('generic4k','generic16k'):
+  with numeric_source_fixture(mode)as(installer,p,modules,profile,raw):
+   roots,base,_,_=modules
+   self.assertIs(roots.Alpm.__mro__[1],roots.installer.Alpm)
+   self.assertIs(roots.installer.Alpm.__init__.__globals__['Ptr'],roots.installer.Ptr)
+   self.assertIs(installer.engine.__globals__['C'],CT)
+   if mode=='generic16k':
+    self.assertIsNot(base.Ptr,roots.installer.Ptr);self.assertEqual(CT.sizeof(base.List),CT.sizeof(roots.installer.List))
+   else:self.assertIs(base.Ptr,roots.installer.Ptr)
+   calls=[]
+   callback=CT.CFUNCTYPE(CT.c_int,CT.c_void_p,CT.POINTER(roots.installer.Ptr))(lambda handle,details:calls.append(handle)or 0)
+   with self.assertRaises(CT.ArgumentError)if mode=='generic16k'else __import__('contextlib').nullcontext():callback(None,CT.byref(base.Ptr()))
+   calls.clear();alpm=types.SimpleNamespace(handle=None,alpm_trans_prepare=callback,alpm_trans_commit=callback,ok=lambda value,label:self.assertEqual(value,0))
+   tree=ast.parse(P.transform(current('installer.py'),'installer.py')if mode=='generic16k'else current('installer.py'));engine=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='engine');selected=[]
+   for node in ast.walk(engine):
+    if isinstance(node,ast.Assign)and any(isinstance(t,ast.Name)and t.id=='details'for t in node.targets):selected.append(node)
+    elif isinstance(node,ast.Expr)and isinstance(node.value,ast.Call)and isinstance(node.value.func,ast.Attribute)and node.value.func.attr=='ok'and any(isinstance(q,ast.Attribute)and q.attr in('alpm_trans_prepare','alpm_trans_commit')for q in ast.walk(node)):selected.append(node)
+   selected.sort(key=lambda n:n.lineno);self.assertEqual(len(selected),4)
+   scope=dict(roots=roots,base=base,C=CT,alpm=alpm);exec(compile(ast.Module(body=selected,type_ignores=[]),'<ACTUAL_EMITTED_ENGINE_TYPED_PREPARE_COMMIT>','exec'),scope);self.assertEqual(calls,[None,None]);self.assertIs(type(scope['details']),roots.installer.Ptr)
+   self.assertEqual(C.read(C.ROOT/'installer604/scripts/install/local_transaction.py'),raw)
+Controls.test_exact_selected_engine_uses_alpm_origin_at_prepare_and_commit=test_exact_selected_engine_uses_alpm_origin_at_prepare_and_commit

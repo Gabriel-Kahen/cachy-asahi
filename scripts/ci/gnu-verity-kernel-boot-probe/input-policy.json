@@ -1,0 +1,40 @@
+{
+  "actual_ref": null,
+  "actual_run": null,
+  "actual_source": null,
+  "bounds": {
+    "UART_bytes": 4194304,
+    "compile_seconds": 30,
+    "guest_memory_MiB": 64,
+    "input_artifact_bytes": 33554432,
+    "public_bytes": 67108864,
+    "shared_seconds": 240,
+    "vcpus": 1
+  },
+  "compiler": {
+    "bytes": 136448,
+    "path": "/usr/lib/llvm-18/bin/clang",
+    "sha256": "6d99f6207153b8b2063ace5d2a6177debaf6a6b6f31649e03afac07b98ba0b4d"
+  },
+  "kernel_recipe": {
+    "profile": "GNU_GENERIC16K_IMMUTABLE_SOURCE_BOOTSTRAP_V1",
+    "ref": "codex/gnu-verity-kernel-config-domain-v1",
+    "run": "39156901928",
+    "source": "4056e2505ed7081674e949e0460258672cce14ff"
+  },
+  "linker": {
+    "bytes": 5121920,
+    "invocation": "/usr/lib/llvm-18/bin/ld.lld",
+    "path": "/usr/lib/llvm-18/bin/lld",
+    "sha256": "f8835e48488195c65fb3dcb946053284ddf6b1369922893785209a9073c4e57b"
+  },
+  "purpose": "GNU_VERITY_STANDALONE_BOOT_DM_PROBE_V1",
+  "qemu": {
+    "package": "qemu-system-arm",
+    "package_version": "1:8.2.2+ds-0ubuntu1.18",
+    "path": "/usr/bin/qemu-system-aarch64",
+    "version_line": "QEMU emulator version 8.2.2 (Debian 1:8.2.2+ds-0ubuntu1.18)"
+  },
+  "schema_version": 1,
+  "scope": "BOOT_AND_DM_TARGET_AVAILABILITY_ONLY"
+}

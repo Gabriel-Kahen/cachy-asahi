@@ -1,0 +1,588 @@
+{
+  "files": {
+    ".github/workflows/native-arm-apps-full574-repair.yml": {
+      "bytes": 8513,
+      "sha256": "89669e1c7ce76c3a1e89bba5850fd7efbfeedc55325a27ec2e5c8962107c10f0"
+    },
+    ".github/workflows/native-arm-apps-full574-transaction.yml": {
+      "bytes": 7988,
+      "sha256": "4b1128d876996c3cf7666b06b1f725e3f4391d19834ad0cf11f9df1a23eb362f"
+    },
+    "LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "manifests/packages.toml": {
+      "bytes": 37394,
+      "sha256": "edb1a4fcc10ba2beff81262e6ea01cd73cdb40a7d1cb6a15d9c9a4b838521298"
+    },
+    "packages/tools/cachy-asahi-apps/.SRCINFO": {
+      "bytes": 1775,
+      "sha256": "b1efe81a2c4385dd820f411194934ba64bbc288ebb5bc421b90056ade9e9ab3a"
+    },
+    "packages/tools/cachy-asahi-apps/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-apps/NOTICE": {
+      "bytes": 1079,
+      "sha256": "425c36c2e9ad688b398d8fbcb2fd8f972420a1db5e0d4b19e9d24021346d4239"
+    },
+    "packages/tools/cachy-asahi-apps/PKGBUILD": {
+      "bytes": 3700,
+      "sha256": "aa4d6ed7865aab606a55e7de94e50d6966f47f7b926a39efd4b3f64eec403778"
+    },
+    "packages/tools/cachy-asahi-apps/README.md": {
+      "bytes": 11707,
+      "sha256": "c4ec55dc26bd427c37df59c647bb47719c6a88d91bd7c32b8c9ccc5a08ba6d5d"
+    },
+    "packages/tools/cachy-asahi-apps/apps.py": {
+      "bytes": 22601,
+      "sha256": "c12f8548d5fd3007a61fb366ca279dd061917cc5320ba81ce5e2ab0d02c7d9a6"
+    },
+    "packages/tools/cachy-asahi-apps/cachy-asahi-apps": {
+      "bytes": 310,
+      "sha256": "4e9c078c2e05cc00cb6479d5fff23b92cbcabd8d6b3ff970f6181e6467921630"
+    },
+    "packages/tools/cachy-asahi-apps/helper-pins.json": {
+      "bytes": 493,
+      "sha256": "33a5e11e6d12df984e07c437c68ee581527cc4c95f3327bc44cbc09e0e29948a"
+    },
+    "packages/tools/cachy-asahi-apps/inventory.py": {
+      "bytes": 13160,
+      "sha256": "986c8baea2921cf3f58f98c2e76a1adad9013fbe4b1f47743d12397e9e6c2516"
+    },
+    "packages/tools/cachy-asahi-apps/source-provenance.json": {
+      "bytes": 3814,
+      "sha256": "e942a7ce47dc601de8639f320401e79561d74e0923080f660125825ef860328b"
+    },
+    "packages/tools/cachy-asahi-cache/.SRCINFO": {
+      "bytes": 800,
+      "sha256": "522849a5b59476dbafb3b3f74674a0ec03959452e9b0044ad46535dcc14fff74"
+    },
+    "packages/tools/cachy-asahi-cache/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-cache/NOTICE": {
+      "bytes": 690,
+      "sha256": "202fdd819c9e47bac1cbf804c98709b81c790ef4771af5c45018f8f944209485"
+    },
+    "packages/tools/cachy-asahi-cache/PKGBUILD": {
+      "bytes": 1175,
+      "sha256": "6bcd048d4b715d27e6fcfca82fda2fc67a54358721ecb4c12d863970d8a6e8e7"
+    },
+    "packages/tools/cachy-asahi-cache/README.md": {
+      "bytes": 9604,
+      "sha256": "e9bcd08a9478d28eecb24a19dd6296c719ab10130570f017c8c291f7dfe911af"
+    },
+    "packages/tools/cachy-asahi-cache/cachy-asahi-cache": {
+      "bytes": 28784,
+      "sha256": "841e126d68656639175b07ccb39b8061e9eebd72862a2b8dd62301dda2ec6013"
+    },
+    "packages/tools/cachy-asahi-orphans/.SRCINFO": {
+      "bytes": 914,
+      "sha256": "a324b86100e9a14aa431021f2ed3454920e764708faea4bc0775239dd9765223"
+    },
+    "packages/tools/cachy-asahi-orphans/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-orphans/NOTICE": {
+      "bytes": 759,
+      "sha256": "326f699857d31b8cd4462081aea074d4349721fb9c48965db6208c793a086720"
+    },
+    "packages/tools/cachy-asahi-orphans/PKGBUILD": {
+      "bytes": 1379,
+      "sha256": "b59a1b67a8fd6290549e861bd40f5e94447d5376c86eca6baa94d2cdddb6b91a"
+    },
+    "packages/tools/cachy-asahi-orphans/README.md": {
+      "bytes": 8810,
+      "sha256": "ef96e2cf1e0809a065edd36545c861e4064f3bae2cc4665401455a89dd144529"
+    },
+    "packages/tools/cachy-asahi-orphans/cachy-asahi-orphans": {
+      "bytes": 20007,
+      "sha256": "559ff8554b9c93f237ddebec8f6c8ac09749ed93b6a179c06fcf513dfffe3292"
+    },
+    "packages/tools/cachy-asahi-orphans/protection-floor.json": {
+      "bytes": 10489,
+      "sha256": "0d6dfbf3cd550fe72ddad30058693007f8bb86214de1e83442580677db5005f2"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/.SRCINFO": {
+      "bytes": 1269,
+      "sha256": "4677c10dcc40686877f9d2bc5b9cac88763fdb4cc395a9a7fd530b6b79db2502"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/NOTICE": {
+      "bytes": 624,
+      "sha256": "5c4ed38dd7675728134d292afb2e61f2a09342c0eefa0becf89b9bda011166df"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/PKGBUILD": {
+      "bytes": 1973,
+      "sha256": "e1f9071387ebd679e09fbbdecb31aadf2f89a59235c8ca03ac42eb2599f16f0b"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/README.md": {
+      "bytes": 1748,
+      "sha256": "faf56df41bb5783d566d5e186141b47688ef770f3b7e2baef6c62302b599d316"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/client.py": {
+      "bytes": 28669,
+      "sha256": "48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/helper-pins.json": {
+      "bytes": 493,
+      "sha256": "33a5e11e6d12df984e07c437c68ee581527cc4c95f3327bc44cbc09e0e29948a"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/release.py": {
+      "bytes": 41320,
+      "sha256": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/source-provenance.json": {
+      "bytes": 1195,
+      "sha256": "09cf1f6f0a7490e5c99bd8bc5caa67ba7c3ecf7cdb55e382dbe502d7e1042972"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/source_delivery.py": {
+      "bytes": 16456,
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+    },
+    "packages/tools/cachy-asahi-update/asahi-policy.py": {
+      "bytes": 13321,
+      "sha256": "80cda05980b064a9cb2ad47e5525ddba03dbaefaf350d44d18a27c63ac1ffbaf"
+    },
+    "scripts/apps/FULL574.md": {
+      "bytes": 13437,
+      "sha256": "5e8b32ed0a83adefd75cea9e036f04adfb18afed0a4283be10ddf37df8582c7c"
+    },
+    "scripts/apps/REPAIR_INSPECTION.md": {
+      "bytes": 4097,
+      "sha256": "1a501882d535f44e3f4304b81d9648d6a496bdb9a4d18b58a84df5a1d2299bad"
+    },
+    "scripts/apps/file_capabilities.py": {
+      "bytes": 13562,
+      "sha256": "498a3beec0327b9335dcd6d80ed5919fa2edebebd3284e9ee8b97770328e26a2"
+    },
+    "scripts/apps/full574_closure.py": {
+      "bytes": 22621,
+      "sha256": "f43304982dee768adf48f1c2ae5ecf6afa32e2cc405846046f6ac29604022b55"
+    },
+    "scripts/apps/full574_copy.py": {
+      "bytes": 7799,
+      "sha256": "33d49316c28dee344e78e17d7e7ffa409c9d7ad09bb48a82651f7d44f1cb61a0"
+    },
+    "scripts/apps/full574_statx.py": {
+      "bytes": 5897,
+      "sha256": "bf3b6bf522d353142808f027dd3e20032648ef7d0ebb6d8aa1d8a0c50a1db51f"
+    },
+    "scripts/apps/repair_inspection.py": {
+      "bytes": 9442,
+      "sha256": "1f49f75e565a60c7e159f28d005851c4ef38e0c3e11cff322a66093107e48538"
+    },
+    "scripts/apps/test_file_capabilities.py": {
+      "bytes": 8282,
+      "sha256": "b8bdbc6cc0cd88b8bd36aec492e8551d0e923cb614c43bc04aa03d29f6b443ae"
+    },
+    "scripts/apps/test_full574_budget.py": {
+      "bytes": 6370,
+      "sha256": "b1c60ca87170faf7657c8e086509f370ad2a603143dd9a6965e3c355880de4ca"
+    },
+    "scripts/apps/test_full574_closure.py": {
+      "bytes": 29886,
+      "sha256": "9079940dd78ca9da817add53244eaf411913eb65aa08c06ef9b05afa01de0ad3"
+    },
+    "scripts/apps/test_full574_copy.py": {
+      "bytes": 8786,
+      "sha256": "6732c3f92f1cefe15934f42aaed8fbe90af65c8bfa10543aac4e7046dbc6b395"
+    },
+    "scripts/apps/test_full574_statx.py": {
+      "bytes": 11737,
+      "sha256": "e2661f20d4933148cfdc82aed16cffc7870ac45134588b966e19582c12f28f9b"
+    },
+    "scripts/apps/test_repair_inspection.py": {
+      "bytes": 14490,
+      "sha256": "43c5931338dde5bb26cb2c8c8f3ddebfec128e427db384c9035fa7b0c6e56462"
+    },
+    "scripts/apps/test_transaction.py": {
+      "bytes": 8377,
+      "sha256": "951512a28c6f692806f3da7bf1e4e5d5b5166e9f1912f4370de52271bff7e9a4"
+    },
+    "scripts/apps/transaction.py": {
+      "bytes": 27125,
+      "sha256": "aedc814f9455f898e78e4944ce3a2b2483faddec11022fc73d9d24deb2a43b43"
+    },
+    "scripts/checks/package_checks.py": {
+      "bytes": 17706,
+      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
+    },
+    "scripts/ci/apps-full574-native/README.md": {
+      "bytes": 3802,
+      "sha256": "20be8b78978efb1208aa1a3ddad360c7b6085cf8ce0cfd863716cf05198807c9"
+    },
+    "scripts/ci/apps-full574-native/contract.py": {
+      "bytes": 7254,
+      "sha256": "a4c64251cd1e0d0051a057ea15e409f1b2cd252501e6465ee21f3996a8aa1623"
+    },
+    "scripts/ci/apps-full574-native/dependency-paths.json": {
+      "bytes": 3723,
+      "sha256": "844ffc23c98d562c21fff7e0c1ab5a590574a17f16518b1b01a1610d7d464fea"
+    },
+    "scripts/ci/apps-full574-native/export_extract.py": {
+      "bytes": 2410,
+      "sha256": "c7a09bc3996b9bff97dd57a8244d82d562566f1135b0618f87d90fbf09c58978"
+    },
+    "scripts/ci/apps-full574-native/fixture.py": {
+      "bytes": 5310,
+      "sha256": "5d6103e95fb2bac43b01e401c8a4715a6deca970618f1da8858855bc3cea51d1"
+    },
+    "scripts/ci/apps-full574-native/freeze.py": {
+      "bytes": 1417,
+      "sha256": "3d4a378095e6b445bf0eb4c7ee9bf2d0f53436ea43de1be517986da90babdd78"
+    },
+    "scripts/ci/apps-full574-native/input-policy.json": {
+      "bytes": 636,
+      "sha256": "841f627c6c8cc6c1c47deaaf0999519f535ee88893f46d7574b340aff0f482e4"
+    },
+    "scripts/ci/apps-full574-native/job.py": {
+      "bytes": 24954,
+      "sha256": "c07a0e689679eb916fbf6934414c662fbec349b96b94a456b2b3c30d27fb4224"
+    },
+    "scripts/ci/apps-full574-native/lifecycle.py": {
+      "bytes": 14676,
+      "sha256": "6456e2f3641ce357e5d46a4111a35b19b3d1d77863e58c54642fec3e42fe63b6"
+    },
+    "scripts/ci/apps-full574-native/scrub.py": {
+      "bytes": 1883,
+      "sha256": "48657a38f0bc31a17b3c0288868d6c20ccecbd4eda9a3faa27f5a72b29be72e3"
+    },
+    "scripts/ci/apps-full574-native/snapshot.py": {
+      "bytes": 8073,
+      "sha256": "0ed90684da8eda07acb3541f10b41134fb528f826757b93c95dac504467dadc0"
+    },
+    "scripts/ci/apps-full574-native/test_copy_scope.py": {
+      "bytes": 2286,
+      "sha256": "fe5670055f2b309640e80049d077ad16022f3a86100f2429104034cfe1ad554b"
+    },
+    "scripts/ci/apps-full574-native/test_lane.py": {
+      "bytes": 31021,
+      "sha256": "3d658a27e6e26437115f81f06bef30b4078965aa4826dfc883a58759c6e0fd54"
+    },
+    "scripts/ci/apps-full574-repair-native/README.md": {
+      "bytes": 3942,
+      "sha256": "901b884e1f97ccbd01f2e676070d278271955f27d6fd8a9c0e073e83767395c0"
+    },
+    "scripts/ci/apps-full574-repair-native/checks.py": {
+      "bytes": 6519,
+      "sha256": "16532ca856eadd0ab8e4a1b24ca1768ac9e664e211fba0d7c46e8e8955e71e84"
+    },
+    "scripts/ci/apps-full574-repair-native/cli-pins.json": {
+      "bytes": 511,
+      "sha256": "b8c93c9d447c0b29579c703188737535334600dead3abf76427de880c90b6f8a"
+    },
+    "scripts/ci/apps-full574-repair-native/contract.py": {
+      "bytes": 5046,
+      "sha256": "3b375c215933e7d8dea4502e379090ec1767ffd6a145276d7d8651957a68e733"
+    },
+    "scripts/ci/apps-full574-repair-native/export_extract.py": {
+      "bytes": 2410,
+      "sha256": "c7a09bc3996b9bff97dd57a8244d82d562566f1135b0618f87d90fbf09c58978"
+    },
+    "scripts/ci/apps-full574-repair-native/fixture.py": {
+      "bytes": 261,
+      "sha256": "78e094e8b0f35b8e6ab335663b4a8efce9ef5d6c5803a46ab5dc215a432d3908"
+    },
+    "scripts/ci/apps-full574-repair-native/input-policy.json": {
+      "bytes": 767,
+      "sha256": "f1108e62f36de532e38243bdd367cce32954d0b89542f8ac59409f40fde4558f"
+    },
+    "scripts/ci/apps-full574-repair-native/job.py": {
+      "bytes": 4561,
+      "sha256": "7f6da4d9dbf9ed469895034bfa9e8ae9f54ae687be598adbc645b17e5ffd7a20"
+    },
+    "scripts/ci/apps-full574-repair-native/lifecycle.py": {
+      "bytes": 12339,
+      "sha256": "7d22efc56ccf0ce3af73b7e872c8139037e03afc5ff5120354a5d712331b49df"
+    },
+    "scripts/ci/apps-full574-repair-native/packet.py": {
+      "bytes": 3441,
+      "sha256": "c06e8aabcca5793b65010a504457954eae49bd209115017e72f1a69f32584863"
+    },
+    "scripts/ci/apps-full574-repair-native/policy.json": {
+      "bytes": 567,
+      "sha256": "c3e8514883e8b1f140ff562dde690a4dd7e45cbf447ed880e8dd33a59139e357"
+    },
+    "scripts/ci/apps-full574-repair-native/prepare.py": {
+      "bytes": 6650,
+      "sha256": "d42f11c5b92b1c1f27170547ce364b5f5b4eeec30fffc7906d90b412accf3121"
+    },
+    "scripts/ci/apps-full574-repair-native/scrub.py": {
+      "bytes": 257,
+      "sha256": "7e5e8218500584828f469386b8d6828fb93b1c9baccd1ebd3e588e7ee6045d3e"
+    },
+    "scripts/ci/apps-full574-repair-native/snapshot.py": {
+      "bytes": 263,
+      "sha256": "43d8a187f5cece43a0cf4783419b42e45194ff6cc74b5f1e8b7096af0a39f8c2"
+    },
+    "scripts/ci/apps-full574-repair-native/source-manifest.json": {
+      "bytes": 18640,
+      "sha256": "636baf21fa537ca813b7403b1bc6afb920404d974236bd52d8c1cdf479477ba9"
+    },
+    "scripts/ci/apps-full574-repair-native/source-pins.json": {
+      "bytes": 15477,
+      "sha256": "bb09afe9e99ac754d03693f53b72653b2c1ffe45f731bdcc0d18b6389019e65a"
+    },
+    "scripts/ci/apps-full574-repair-native/supervise.py": {
+      "bytes": 4401,
+      "sha256": "01dbe1bd69e6d02819cb44350e3c1a7893b91ebfa16c78317df2e9e561c27164"
+    },
+    "scripts/ci/apps-full574-repair-native/test_cases.py": {
+      "bytes": 12050,
+      "sha256": "9a2bd087497e548f8f2b2a664dc1bbf1a4f1fd290ab7b8d9e10664ff88e294d5"
+    },
+    "scripts/ci/apps-full574-repair-native/test_inspection.py": {
+      "bytes": 5539,
+      "sha256": "6bdd864585621288bdaff2ccdd515be957a845b124cf2ad5649e7c9a613f95ae"
+    },
+    "scripts/ci/apps-full574-repair-native/test_lane.py": {
+      "bytes": 17266,
+      "sha256": "955590ccba91fe87829fe1ab0aa807fe60576a8134bc1ad8e7343256717fed48"
+    },
+    "scripts/ci/expanded600-installer-vm/observer600.py": {
+      "bytes": 2784,
+      "sha256": "c3d804e7f2927c7889835ad187a39a3d7c618a4651700f57b0c5413c46612607"
+    },
+    "scripts/ci/full-development-composition/audio_aux.py": {
+      "bytes": 4474,
+      "sha256": "3e9b0f0f153a1fade1ff98606dafd93a654730eea0a8e44464415112922fc552"
+    },
+    "scripts/ci/full-development-composition/run.py": {
+      "bytes": 29738,
+      "sha256": "f86af098fdb0fc9a57a8b78b351341395ce13f9977464783f6f8133626e85698"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle-owner/job.py": {
+      "bytes": 34418,
+      "sha256": "90415ffea62bda2aacf6a42826601cfb28b40d3507801554ed505557b6fd8c14"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle-owner/snapshot.py": {
+      "bytes": 9397,
+      "sha256": "9738acb125ce6d468d5359ecfbd5540454826567fd4ac4481576ec31da37190c"
+    },
+    "scripts/ci/glibc-owned-runtime/runner.py": {
+      "bytes": 16274,
+      "sha256": "4d9aa954d95032ab9ea9085ced784efc81a5db42e2f1f3401e679ee861c16090"
+    },
+    "scripts/ci/maintained-desktop574-inputs.json": {
+      "bytes": 623664,
+      "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
+    },
+    "scripts/ci/maintained_desktop574.py": {
+      "bytes": 22367,
+      "sha256": "27ba4be42cf2bd41675073e07cccc917ae033f9d68b07a33cfd7f074ac27b760"
+    },
+    "scripts/ci/management-tools-generic16k/contract.py": {
+      "bytes": 15229,
+      "sha256": "ff0c7a3701dec1b1997853106024cbeb1f3fddd67b77b08d050a630af084833b"
+    },
+    "scripts/ci/management-tools-generic16k/input-policy.json": {
+      "bytes": 466,
+      "sha256": "a6fa49dff5a42a12497a1d12d82f60b0c118f784c742023681633a5875219fa0"
+    },
+    "scripts/ci/old_four_seed.py": {
+      "bytes": 29048,
+      "sha256": "a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7"
+    },
+    "scripts/ci/orphans-full574-native/supervise.py": {
+      "bytes": 8227,
+      "sha256": "524118fb285107def1453bc7c4e9db505223611186ed952adf9fdfdd0e794171"
+    },
+    "scripts/ci/orphans-native-cancellation/cancel.py": {
+      "bytes": 23146,
+      "sha256": "e235c81ef82362e0135e1574ca7b8178244b55d4aae8e5607d4b4a3293bb8e94"
+    },
+    "scripts/client/client.py": {
+      "bytes": 28669,
+      "sha256": "48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7"
+    },
+    "scripts/install/local_transaction.py": {
+      "bytes": 93752,
+      "sha256": "14381d049506b52770059bf7af415f7a079f69872543e74417aca11ce24ac3c5"
+    },
+    "scripts/install/native_arm_trial.py": {
+      "bytes": 74929,
+      "sha256": "fe2becb4fe6c22e50903ab390db5a79aae311b7284fc71bf4b1c4b79e99824c4"
+    },
+    "scripts/port/kernel-native-job/runtime.py": {
+      "bytes": 11345,
+      "sha256": "8a7cd5e73cf383b2d81ad577b8513c6fd7d49f9fd2572961c73ae9d289cab821"
+    },
+    "scripts/release/release.py": {
+      "bytes": 41320,
+      "sha256": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435"
+    },
+    "scripts/release/source_delivery.py": {
+      "bytes": 16456,
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+    },
+    "scripts/update/aux_checkpoint.py": {
+      "bytes": 18456,
+      "sha256": "d51179ca24c981bafd817d7db082c0ceb3b2f5deb922004bfe97d1e2007edda7"
+    },
+    "scripts/update/aux_copy.py": {
+      "bytes": 3736,
+      "sha256": "bff93c029e21f9fce0868c80566396984443c8d3438264fac8a91c985175f05b"
+    },
+    "scripts/update/bound_update.py": {
+      "bytes": 20404,
+      "sha256": "4c2c8857414ec4d690a25c3208383f5fe79a584ecc42d99e9f217c5ce9b983ec"
+    },
+    "scripts/update/capacity.py": {
+      "bytes": 1449,
+      "sha256": "dcb9899cd24daa21f75e6da6b0214393f093d140a70769092da091e0cfdf7c87"
+    },
+    "scripts/update/disposable_copy.py": {
+      "bytes": 6098,
+      "sha256": "fb05d12a0d67a598cc940e0bc7edb5aa9ffc8cf87ce7b9f695ba5fbd26747667"
+    },
+    "scripts/update/full_root.py": {
+      "bytes": 35970,
+      "sha256": "cece1c597b2e2eb98b0e3087cc7e7c148b54332f8a1c4f18e04e4552a71fb51d"
+    },
+    "scripts/update/measure_copy.py": {
+      "bytes": 25734,
+      "sha256": "e582245bd114b0b9d83f2de4fdc81a35d2f48493ba6147879871af794476813b"
+    },
+    "scripts/update/root_link_selection.py": {
+      "bytes": 25684,
+      "sha256": "4b47223e9c66874193c2b38a620aa892871e93e556178c478dac1929d2540db9"
+    },
+    "scripts/update/root_path.py": {
+      "bytes": 3435,
+      "sha256": "2efcbc1057e117a406488f05a3e0213751b00ab09f845a7830a71a4cf60fd2b4"
+    },
+    "scripts/update/supervision.py": {
+      "bytes": 3293,
+      "sha256": "f18bcbd2a6279cff8fe6c7e9c9f80fc01c9818844b01df8c4e97b83d61704b10"
+    }
+  },
+  "native_source": "5051663cf191e40bdbb3b03e2d62748f69b6afb1",
+  "origins": {
+    ".github/workflows/native-arm-apps-full574-repair.yml": "FROZEN_NATIVE505",
+    ".github/workflows/native-arm-apps-full574-transaction.yml": "FROZEN_NATIVE505",
+    "LICENSE": "FROZEN_NATIVE505",
+    "manifests/packages.toml": "FROZEN_NATIVE505",
+    "packages/tools/cachy-asahi-apps/.SRCINFO": "FROZEN_NATIVE505",
+    "packages/tools/cachy-asahi-apps/LICENSE": "FROZEN_NATIVE505",
+    "packages/tools/cachy-asahi-apps/NOTICE": "FROZEN_NATIVE505",
+    "packages/tools/cachy-asahi-apps/PKGBUILD": "FROZEN_NATIVE505",
+    "packages/tools/cachy-asahi-apps/README.md": "FROZEN_NATIVE505",
+    "packages/tools/cachy-asahi-apps/apps.py": "FROZEN_NATIVE505",
+    "packages/tools/cachy-asahi-apps/cachy-asahi-apps": "FROZEN_NATIVE505",
+    "packages/tools/cachy-asahi-apps/helper-pins.json": "FROZEN_NATIVE505",
+    "packages/tools/cachy-asahi-apps/inventory.py": "FROZEN_NATIVE505",
+    "packages/tools/cachy-asahi-apps/source-provenance.json": "FROZEN_NATIVE505",
+    "packages/tools/cachy-asahi-cache/.SRCINFO": "FROZEN_NATIVE505",
+    "packages/tools/cachy-asahi-cache/LICENSE": "FROZEN_NATIVE505",
+    "packages/tools/cachy-asahi-cache/NOTICE": "FROZEN_NATIVE505",
+    "packages/tools/cachy-asahi-cache/PKGBUILD": "FROZEN_NATIVE505",
+    "packages/tools/cachy-asahi-cache/README.md": "FROZEN_NATIVE505",
+    "packages/tools/cachy-asahi-cache/cachy-asahi-cache": "FROZEN_NATIVE505",
+    "packages/tools/cachy-asahi-orphans/.SRCINFO": "FROZEN_NATIVE505",
+    "packages/tools/cachy-asahi-orphans/LICENSE": "FROZEN_NATIVE505",
+    "packages/tools/cachy-asahi-orphans/NOTICE": "FROZEN_NATIVE505",
+    "packages/tools/cachy-asahi-orphans/PKGBUILD": "FROZEN_NATIVE505",
+    "packages/tools/cachy-asahi-orphans/README.md": "FROZEN_NATIVE505",
+    "packages/tools/cachy-asahi-orphans/cachy-asahi-orphans": "FROZEN_NATIVE505",
+    "packages/tools/cachy-asahi-orphans/protection-floor.json": "FROZEN_NATIVE505",
+    "packages/tools/cachy-asahi-repository-runtime/.SRCINFO": "FROZEN_NATIVE505",
+    "packages/tools/cachy-asahi-repository-runtime/LICENSE": "FROZEN_NATIVE505",
+    "packages/tools/cachy-asahi-repository-runtime/NOTICE": "FROZEN_NATIVE505",
+    "packages/tools/cachy-asahi-repository-runtime/PKGBUILD": "FROZEN_NATIVE505",
+    "packages/tools/cachy-asahi-repository-runtime/README.md": "FROZEN_NATIVE505",
+    "packages/tools/cachy-asahi-repository-runtime/client.py": "FROZEN_NATIVE505",
+    "packages/tools/cachy-asahi-repository-runtime/helper-pins.json": "FROZEN_NATIVE505",
+    "packages/tools/cachy-asahi-repository-runtime/release.py": "FROZEN_NATIVE505",
+    "packages/tools/cachy-asahi-repository-runtime/source-provenance.json": "FROZEN_NATIVE505",
+    "packages/tools/cachy-asahi-repository-runtime/source_delivery.py": "FROZEN_NATIVE505",
+    "packages/tools/cachy-asahi-update/asahi-policy.py": "FROZEN_NATIVE505",
+    "scripts/apps/FULL574.md": "FROZEN_NATIVE505",
+    "scripts/apps/REPAIR_INSPECTION.md": "FROZEN_NATIVE505",
+    "scripts/apps/file_capabilities.py": "FROZEN_NATIVE505",
+    "scripts/apps/full574_closure.py": "FROZEN_NATIVE505",
+    "scripts/apps/full574_copy.py": "FROZEN_NATIVE505",
+    "scripts/apps/full574_statx.py": "FROZEN_NATIVE505",
+    "scripts/apps/repair_inspection.py": "FROZEN_NATIVE505",
+    "scripts/apps/test_file_capabilities.py": "FROZEN_NATIVE505",
+    "scripts/apps/test_full574_budget.py": "FROZEN_NATIVE505",
+    "scripts/apps/test_full574_closure.py": "FROZEN_NATIVE505",
+    "scripts/apps/test_full574_copy.py": "FROZEN_NATIVE505",
+    "scripts/apps/test_full574_statx.py": "FROZEN_NATIVE505",
+    "scripts/apps/test_repair_inspection.py": "FROZEN_NATIVE505",
+    "scripts/apps/test_transaction.py": "FROZEN_NATIVE505",
+    "scripts/apps/transaction.py": "FROZEN_NATIVE505",
+    "scripts/checks/package_checks.py": "FROZEN_NATIVE505",
+    "scripts/ci/apps-full574-native/README.md": "FROZEN_NATIVE505",
+    "scripts/ci/apps-full574-native/contract.py": "FROZEN_NATIVE505",
+    "scripts/ci/apps-full574-native/dependency-paths.json": "FROZEN_NATIVE505",
+    "scripts/ci/apps-full574-native/export_extract.py": "FROZEN_NATIVE505",
+    "scripts/ci/apps-full574-native/fixture.py": "FROZEN_NATIVE505",
+    "scripts/ci/apps-full574-native/freeze.py": "FROZEN_NATIVE505",
+    "scripts/ci/apps-full574-native/input-policy.json": "FROZEN_NATIVE505",
+    "scripts/ci/apps-full574-native/job.py": "FROZEN_NATIVE505",
+    "scripts/ci/apps-full574-native/lifecycle.py": "FROZEN_NATIVE505",
+    "scripts/ci/apps-full574-native/scrub.py": "FROZEN_NATIVE505",
+    "scripts/ci/apps-full574-native/snapshot.py": "FROZEN_NATIVE505",
+    "scripts/ci/apps-full574-native/test_copy_scope.py": "FROZEN_NATIVE505",
+    "scripts/ci/apps-full574-native/test_lane.py": "FROZEN_NATIVE505",
+    "scripts/ci/apps-full574-repair-native/README.md": "FROZEN_NATIVE505",
+    "scripts/ci/apps-full574-repair-native/checks.py": "FROZEN_NATIVE505",
+    "scripts/ci/apps-full574-repair-native/cli-pins.json": "FROZEN_NATIVE505",
+    "scripts/ci/apps-full574-repair-native/contract.py": "FROZEN_NATIVE505",
+    "scripts/ci/apps-full574-repair-native/export_extract.py": "FROZEN_NATIVE505",
+    "scripts/ci/apps-full574-repair-native/fixture.py": "FROZEN_NATIVE505",
+    "scripts/ci/apps-full574-repair-native/input-policy.json": "FROZEN_NATIVE505",
+    "scripts/ci/apps-full574-repair-native/job.py": "FROZEN_NATIVE505",
+    "scripts/ci/apps-full574-repair-native/lifecycle.py": "FROZEN_NATIVE505",
+    "scripts/ci/apps-full574-repair-native/packet.py": "FROZEN_NATIVE505",
+    "scripts/ci/apps-full574-repair-native/policy.json": "FROZEN_NATIVE505",
+    "scripts/ci/apps-full574-repair-native/prepare.py": "FROZEN_NATIVE505",
+    "scripts/ci/apps-full574-repair-native/scrub.py": "FROZEN_NATIVE505",
+    "scripts/ci/apps-full574-repair-native/snapshot.py": "FROZEN_NATIVE505",
+    "scripts/ci/apps-full574-repair-native/source-manifest.json": "FROZEN_NATIVE505",
+    "scripts/ci/apps-full574-repair-native/source-pins.json": "FROZEN_NATIVE505",
+    "scripts/ci/apps-full574-repair-native/supervise.py": "FROZEN_NATIVE505",
+    "scripts/ci/apps-full574-repair-native/test_cases.py": "FROZEN_NATIVE505",
+    "scripts/ci/apps-full574-repair-native/test_inspection.py": "FROZEN_NATIVE505",
+    "scripts/ci/apps-full574-repair-native/test_lane.py": "FROZEN_NATIVE505",
+    "scripts/ci/expanded600-installer-vm/observer600.py": "FROZEN_NATIVE505",
+    "scripts/ci/full-development-composition/audio_aux.py": "FROZEN_NATIVE505",
+    "scripts/ci/full-development-composition/run.py": "FROZEN_NATIVE505",
+    "scripts/ci/glibc-gnu-provider-lifecycle-owner/job.py": "FROZEN_NATIVE505",
+    "scripts/ci/glibc-gnu-provider-lifecycle-owner/snapshot.py": "FROZEN_NATIVE505",
+    "scripts/ci/glibc-owned-runtime/runner.py": "FROZEN_NATIVE505",
+    "scripts/ci/maintained-desktop574-inputs.json": "FROZEN_NATIVE505",
+    "scripts/ci/maintained_desktop574.py": "FROZEN_NATIVE505",
+    "scripts/ci/management-tools-generic16k/contract.py": "FROZEN_NATIVE505",
+    "scripts/ci/management-tools-generic16k/input-policy.json": "FROZEN_NATIVE505",
+    "scripts/ci/old_four_seed.py": "FROZEN_NATIVE505",
+    "scripts/ci/orphans-full574-native/supervise.py": "FROZEN_NATIVE505",
+    "scripts/ci/orphans-native-cancellation/cancel.py": "SOURCE_PINNED_READONLY_HELPERS_ONLY",
+    "scripts/client/client.py": "FROZEN_NATIVE505",
+    "scripts/install/local_transaction.py": "FROZEN_NATIVE505",
+    "scripts/install/native_arm_trial.py": "FROZEN_NATIVE505",
+    "scripts/port/kernel-native-job/runtime.py": "FROZEN_NATIVE505",
+    "scripts/release/release.py": "FROZEN_NATIVE505",
+    "scripts/release/source_delivery.py": "FROZEN_NATIVE505",
+    "scripts/update/aux_checkpoint.py": "FROZEN_NATIVE505",
+    "scripts/update/aux_copy.py": "FROZEN_NATIVE505",
+    "scripts/update/bound_update.py": "FROZEN_NATIVE505",
+    "scripts/update/capacity.py": "FROZEN_NATIVE505",
+    "scripts/update/disposable_copy.py": "FROZEN_NATIVE505",
+    "scripts/update/full_root.py": "FROZEN_NATIVE505",
+    "scripts/update/measure_copy.py": "FROZEN_NATIVE505",
+    "scripts/update/root_link_selection.py": "FROZEN_NATIVE505",
+    "scripts/update/root_path.py": "FROZEN_NATIVE505",
+    "scripts/update/supervision.py": "FROZEN_NATIVE505"
+  },
+  "schema_version": 1
+}

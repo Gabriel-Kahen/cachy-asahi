@@ -1,0 +1,78 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 cachy-asahi contributors.
+pkgname=cachy-asahi-setup
+pkgver=0.1.0
+pkgrel=6
+pkgdesc='Explicit cachy-asahi user setup and repository enrollment'
+arch=('any')
+url='https://github.com/Gabriel-Kahen/cachy-asahi'
+license=('MIT')
+depends=('python>=3.11' 'gnupg' 'pacman')
+optdepends=('cachy-asahi-hyprland-settings: optional desktop template'
+            'cachy-asahi-fish-config: optional Fish template'
+            'cachy-asahi-zsh-config: optional Zsh template'
+            'cachy-asahi-fish-bang-bang: explicit optional Fish history expansion'
+            'cachy-asahi-fish-autopair: explicit optional Fish pairing'
+            'cachy-asahi-fish-done: explicit optional Fish completion notifications'
+            'cachy-asahi-zsh-autosuggestions: explicit optional Zsh history suggestions'
+            'cachy-asahi-zsh-syntax-highlighting: explicit optional Zsh highlighting'
+            'cachy-asahi-zsh-history-substring-search: explicit optional Zsh substring search')
+source=('cachy-asahi-setup' 'README.md' 'NOTICE' 'LICENSE'
+        'source-provenance.json' 'check-sync.py' 'test-sync.py'
+        'cachy-asahi-repository' 'repository-enrollment.md')
+sha256sums=(
+    '29d68d371071487ffd9b5453c2c056105e73f6b2971c98873731193eab6534b0'
+    'ac3033357bf2443c65ec5e257b9504086c5b412f256de00aff12d07c93292e35'
+    'a885656c42b81e413549976eb56fa1aad59018af1cad8954f00f45cbd1c2d018'
+    '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
+    '988c363cd9024ae7e29867cf8153ac19fc824a39a58692fe0c8bddb79d0aa8cf'
+    '9fb6ff8f1a9304f6e55895b5d83845a8776c77669aac0ec55a58c47b25150a1a'
+    '9596373cef5469512b6bae3e0bf1dc6a1b093012779f1488765281aef27de9b3'
+    '38db2d45955b569a4c74c3f31d6b6c79611126238e1bbe1e5cf819f81d0fb54f'
+    'a14a53311e7c995b468ddcec1e4996611d7cfe9bb08eb255e0cb6bfee6dcc7e1'
+)
+
+prepare() {
+    # A normal repository build must reject stale copied canonical code.
+    # Isolated snapshots retain the already-reviewed fixed source/provenance pins.
+    if [[ -f "$startdir/../../../AGENTS.md" ]]; then
+        python -B "$startdir/check-sync.py" --copy "$srcdir/cachy-asahi-setup" \
+            --canonical "$startdir/../../../scripts/setup/setup.py" \
+            --license "$startdir/../../../LICENSE"
+        python -B "$startdir/check-sync.py" --source repository --copy "$srcdir/cachy-asahi-repository" \
+            --canonical "$startdir/../../../scripts/repository/enroll.py" --license "$startdir/../../../LICENSE"
+        python -B "$startdir/check-sync.py" --source repository-doc --copy "$srcdir/repository-enrollment.md" \
+            --canonical "$startdir/../../../docs/repository-enrollment.md" --license "$startdir/../../../LICENSE"
+    fi
+}
+
+check() {
+    python -B - "$srcdir/cachy-asahi-setup" "$srcdir/cachy-asahi-repository" <<'PYTHON'
+import ast
+from pathlib import Path
+import sys
+for path in sys.argv[1:]:
+    ast.parse(Path(path).read_bytes(), filename=path)
+PYTHON
+    # Snapshot pin verification; checkout synchronization runs before snapshotting.
+    python -B "$srcdir/check-sync.py" --copy "$srcdir/cachy-asahi-setup" \
+        --canonical "$srcdir/cachy-asahi-setup" --license "$srcdir/LICENSE"
+    python -B "$srcdir/check-sync.py" --source repository --copy "$srcdir/cachy-asahi-repository" \
+        --canonical "$srcdir/cachy-asahi-repository" --license "$srcdir/LICENSE"
+    python -B "$srcdir/check-sync.py" --source repository-doc --copy "$srcdir/repository-enrollment.md" \
+        --canonical "$srcdir/repository-enrollment.md" --license "$srcdir/LICENSE"
+    python -B "$srcdir/test-sync.py"
+    python -B "$srcdir/cachy-asahi-setup" --help >/dev/null
+    python -B "$srcdir/cachy-asahi-repository" --help >/dev/null
+    python -B "$srcdir/cachy-asahi-repository" enroll --help >/dev/null
+    python -B "$srcdir/cachy-asahi-repository" disable --help >/dev/null
+}
+
+package() {
+    install -Dm755 "$srcdir/cachy-asahi-setup" "$pkgdir/usr/bin/cachy-asahi-setup"
+    install -Dm755 "$srcdir/cachy-asahi-repository" "$pkgdir/usr/bin/cachy-asahi-repository"
+    install -Dm644 "$srcdir/repository-enrollment.md" "$pkgdir/usr/share/doc/$pkgname/repository-enrollment.md"
+    install -Dm644 "$srcdir/README.md" "$pkgdir/usr/share/doc/$pkgname/README.md"
+    install -Dm644 "$srcdir/NOTICE" "$pkgdir/usr/share/licenses/$pkgname/NOTICE"
+    install -Dm644 "$srcdir/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

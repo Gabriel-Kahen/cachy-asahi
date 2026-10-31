@@ -1,0 +1,3 @@
+# Source factory notice
+
+New factory implementation and tests are original Cachy-Asahi contributor work under the included MIT license. The48 payload leaves reproduce unchanged bodies from exact published Apps8/current606 source c2b61b7089e41baed6b284bf0f3a55819f661c05. They retain their original headers and notices. The complete348 parent and93 input carrier preserve their corresponding source/license closure; this factory does not relicense upstream code or infer publication rights for other packages. Carrier archive bytes are explicit external inputs and are never vendored in this factory. Source reproduction supplies no new native, current606, GUI, hardware or release acceptance.

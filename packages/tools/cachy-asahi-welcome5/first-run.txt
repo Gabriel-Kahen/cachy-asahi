@@ -1,0 +1,32 @@
+FIRST STEPS
+
+Welcome is an independent cachy-asahi desktop companion. Open Terminal for
+Alacritty, or Files for your home folder in Thunar. Your existing application
+settings are used. A disabled button means the app was not found; use another
+installed app from your desktop launcher. Welcome never installs applications.
+
+The System page shows this running machine's architecture, page size, kernel
+and six project package records. Refresh reads them again. An installed record
+does not establish a supported release or working Apple hardware. A missing
+or incomplete package database is reported as unknown.
+
+OPTIONAL CONFIGURATION
+
+Keep your working desktop and shell configuration. If cachy-asahi-setup and the
+chosen templates are installed, preview only the components you want:
+
+  cachy-asahi-setup activate --components fish zsh hyprland
+
+That command previews; it does not apply changes. Select fewer components if
+you only want one shell. Inspect conflicts and the installed setup guide at
+/usr/share/doc/cachy-asahi-setup/README.md before choosing to apply anything.
+Existing edits remain yours. Welcome does not activate templates, change your
+login shell, launch a second compositor or register a replacement session.
+
+For status in a terminal, including without a graphical session:
+
+  cachy-asahi-welcome --status
+  cachy-asahi-welcome --status --json
+  cachy-asahi-welcome --guide recovery
+
+The guides are installed locally. Reading them needs no network connection.

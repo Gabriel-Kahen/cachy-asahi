@@ -1,0 +1,56 @@
+{
+  "Root_acceptance": null,
+  "actual_ref": null,
+  "actual_run": null,
+  "actual_source": null,
+  "added": [
+    "implementation/tooling-builder574.lock",
+    "implementation/tooling-parent.json",
+    "implementation/tooling-profile.json",
+    "implementation/tooling_inputs.py",
+    "implementation/tooling_source.py"
+  ],
+  "changed": [
+    ".github/workflows/native-arm-build.yml",
+    ".github/workflows/native-arm-latest607-fresh-installer.yml",
+    "implementation/run.py",
+    "implementation/source_guard.py",
+    "implementation/test_source.py",
+    "implementation/workflow-template.yml",
+    "source-manifest.json"
+  ],
+  "files": {
+    "input-source.json": {
+      "bytes": 230173,
+      "sha256": "1a92a4aff833912c61d3e16ffd767ba8e71871c6bdaf23bfe8eb033c12a2769d"
+    },
+    "output-source.json": {
+      "bytes": 230954,
+      "sha256": "a3255bd054d6e1dd43bd9270d1aa706ac782d4e56df714094a8f641482f0cb48"
+    },
+    "tooling-builder574.lock.in": {
+      "bytes": 11117,
+      "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+    },
+    "tooling-parent.json.in": {
+      "bytes": 891074,
+      "sha256": "73b1121a16fca274687bcb0a44a6fa3e7419a2ddf6dda10961c68f7c2a2edc0c"
+    },
+    "tooling-profile.json.in": {
+      "bytes": 100311,
+      "sha256": "1625ba2caad3f67c85899bd7297411bea07f3c0c7a11a13110459380bd478377"
+    },
+    "tooling_inputs.py.in": {
+      "bytes": 8843,
+      "sha256": "ed285c7c88a5b8614c6046724c7d7837550dc9015cb0d37e7bd320c847289183"
+    },
+    "tooling_source.py.in": {
+      "bytes": 8325,
+      "sha256": "167f0620d5c5f7a7a48d1ca4bb9a56e0c96927c8ee748f9e0671d56c74708531"
+    }
+  },
+  "hardware": "NOT_RUN",
+  "held": 1185,
+  "parent": 1192,
+  "result": 1197
+}

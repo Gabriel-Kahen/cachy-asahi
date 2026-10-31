@@ -1,0 +1,7 @@
+Copyright (c) 2026 cachy-asahi contributors. MIT License; see LICENSE.
+This package preserves exactly three original MIT project helper files, unchanged:
+scripts/client/client.py, scripts/release/release.py and scripts/release/source_delivery.py.
+Their exact byte sizes/hashes are recorded in helper-pins.json and source-provenance.json.
+No test suite, signing key, accepted release catalog, Git metadata or repository checkout is installed.
+These helper sources provide existing authentication and semantic APIs to an explicit caller.
+Packaging them confers no install/apply authority or stable/native/hardware acceptance.

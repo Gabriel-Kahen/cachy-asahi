@@ -1,0 +1,23 @@
+{
+  "candidate_source": "0b74d8ecea4f152bda4adfbd9bee488890db4363",
+  "expected604_sha256": "3f64a13c4af7ab8b1598583f534af3347c8df2397a0afa33fb8b0f5f06b19cf5",
+  "native604": {
+    "carrier_source": null,
+    "decision": null,
+    "input_policy_sha256": null,
+    "run_id": null,
+    "source_manifest_sha256": null,
+    "source_sha": null
+  },
+  "schema_version": 1,
+  "status": "UNBOUND_CURRENT_NATIVE604_AND_FULL_WELCOME4_GUI",
+  "welcome4_gui": {
+    "asset_root": null,
+    "assets_index": null,
+    "carrier_source": null,
+    "decision": null,
+    "run_id": null,
+    "source_manifest_sha256": null,
+    "source_sha": null
+  }
+}

@@ -1,6 +1,8 @@
 # Per-user setup and removal tooling
 
-The standalone stdlib helper is `scripts/setup/setup.py`. It is designed for packaging as `/usr/bin/cachy-asahi-setup`; source implementation and temporary-user lifecycle tests are complete, while native package builds, actual Asahi installation and exact-M2 onboarding remain **NOT RUN**. The separate package worker owns the setup recipe. This helper does not install/remove packages, select a login shell, register/launch a session, enable services, or change boot, graphics, audio or system policy.
+Development selection now uses [Setup8 0.3.0-1](setup8-development.md), with source commands under `scripts/setup8/` and the separate `packages/tools/cachy-asahi-setup8/` recipe. The guide below retains the legacy `scripts/setup/` and Setup6/7 contract for historical fixtures; use the versioned development guide for current source and migration commands. Legacy source and recipes remain unchanged.
+
+The standalone stdlib helper is `scripts/setup/setup.py`, packaged as `/usr/bin/cachy-asahi-setup`. Setup6 passes the finite native ARM build pair, package lifecycle and installed recovery-fixture checks in [the native validation record](validation/setup6-native-recovery-20261021.md). The [installed six-module and interrupted-recovery trial](validation/setup6-real-modules-native-20261021.md) also passes on native ARM4K; actual Asahi installation and exact-M2 onboarding remain **NOT RUN**. The separate package worker owns the setup recipe. This helper does not install/remove packages, select a login shell, register/launch a session, enable services, or change boot, graphics, audio or system policy.
 
 ## Preview, then explicitly apply
 
@@ -20,6 +22,12 @@ Fish adds one identifiable interactive/readability-guarded source block to `${XD
 Blocks are delimited with `# >>> cachy-asahi setup COMPONENT v1 >>>` and the matching `# <<< ... <<<` line. Repeated setup recognizes its own exact recorded block and adds nothing. An untracked existing marker/block is preserved and reported as a conflict, rather than adopted. An edited tracked block is also preserved. The scripts being sourced already preserve existing functions/completion/theme choices; setup supplies no extra prompt, history or alias policy. It does not choose the account's default shell.
 
 The readability guards let shell startup continue after package templates disappear. Fresh shells pick up package template upgrades. Already-running shells retain functions/completion state until restarted; setup/removal does not execute a shell reset command.
+
+### Optional packaged shell modules
+
+Setup0.1.0-6 accepts the six explicit module component names listed in the [package guide](../packages/settings/cachy-asahi-setup/README.md). They enable none by default. Select only installed modules you want, preview, then apply with the same flags above. Setup adds guarded source blocks in deterministic shell order, preserving highlighting before substring search and every user-owned edit. Missing selected modules fail before configuration/state mutation. Module wrappers keep their own runtime, binding and notification policies.
+
+New modules and shared-file journal groups require the new CLI for recovery/removal. Old setup3/4 state and single-entry journals remain supported; old CLIs safely refuse new ownership. Complete recovery/removal before downgrading. See [host validation](validation/setup-shell-modules-host-20261016.md) for tested scope; native Setup6 installation, actual six-module configuration and interrupted recovery pass in isolated private homes. Target workflows remain pending.
 
 ### Explicit Hyprland configuration
 
@@ -60,7 +68,7 @@ Default private state is `${XDG_STATE_HOME:-$HOME/.local/state}/cachy-asahi/setu
 
 Before any config change, the helper fsyncs a private journal. It prepares every pending delta before new writes, writes/fsyncs a private sibling temporary file, rechecks the current target and atomically publishes each file. New targets use atomic no-clobber creation. It then fsyncs state and removes the journal. This is a recoverable sequence of atomic file operations, not an all-or-nothing multi-file filesystem transaction. A second apply fails while another helper holds its lock.
 
-After an interruption, preview reports the pending transaction. Use the original home/config/ZDOTDIR/state/template-root options:
+After an interruption, preview lists each recorded component and relative path as `would-add`, `would-update`, `would-remove` or `already-applied`. It runs the same read-only preparation and conflict checks used by replay, with no configuration, state or lock writes. A changed target or required template stops the preview with exit1 and retains the journal, so conflicts are visible before applying. Preview cannot reserve a file; apply repeats every check. Use the original home/config/ZDOTDIR/state/template-root options:
 
 ```sh
 cachy-asahi-setup recover
@@ -84,4 +92,4 @@ python3 -m unittest discover -s scripts/setup -p 'test_*.py' -v
 python3 -m py_compile scripts/setup/setup.py scripts/setup/test_setup.py
 ```
 
-There are 40 passing temporary-user tests on the development host. Installed Fish/Zsh also parsed and executed generated guarded blocks with quoted fixture paths, and continued cleanly after fixture templates disappeared; all homes/XDG roots were temporary. If those interpreters or extended-attribute support are unavailable, the corresponding tests visibly skip and do not establish their integration result. Static CI includes this suite. Actual package install/upgrade/remove, both M2 Air sizes, base launcher/UWSM selection, real existing-user profiles, filesystem power-loss recovery and an independent complete onboarding exercise remain execution gates.
+All 74 current temporary-user tests pass on Python3.12 and3.14 on the development host. Installed Fish/Zsh also parsed and executed generated guarded blocks with quoted fixture paths, and continued cleanly after fixture templates disappeared; all homes/XDG roots were temporary. If those interpreters or extended-attribute support are unavailable, the corresponding tests visibly skip and do not establish their integration result. Static CI includes this suite. Actual package install/upgrade/remove, both M2 Air sizes, base launcher/UWSM selection, real existing-user profiles, filesystem power-loss recovery and an independent complete onboarding exercise remain execution gates.

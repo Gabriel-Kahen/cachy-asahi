@@ -1,0 +1,67 @@
+{
+  "ALPM_installation": "PASS",
+  "attempt": 1,
+  "candidate": {
+    "authority_sha256": "88643eabd61a39df63ecaeb50bb20041d17cf4fd3adee55d82d43d3c1ca08707",
+    "package": "cachy-asahi-glibc-gnu-provider",
+    "pkgbuild_sha256": "9d6d5e688c95febe85321abc69fbfe1b7781a02e318771ae43851d8c29f68bb8",
+    "prepared_tree": "08ea2aef96bd3144cf02cbc68cbbb003dc25ed9f",
+    "source_packet_ref": "60e174c5db7f770c94064198516dd3ee07b51b7b",
+    "version": "2.43.caa3-1"
+  },
+  "cases": [
+    "modified",
+    "pristine"
+  ],
+  "committed_transactions": 6,
+  "complete574_maps": 16,
+  "current_source_Git_joins": 159,
+  "hardware": "NOT_RUN",
+  "independent_runtime_replay_sha256": "5b9dbe0930df1b77ba05b01aece8dfc61b1a295d2deda474ed61169e2356c14c",
+  "input_phase": "NATIVE_COMPILE_INPUTS",
+  "lifecycle_commands": 60,
+  "native_pair": {
+    "archive_sha256": "a8e9f3e1d8ffe049fdc834f62e74c14ff622b98898c2f849e1580ab8aa0fdbd9",
+    "payload": {
+      "node_count": 1592,
+      "node_manifest_sha256": "db12785a1e49a16cefe82bcad2aee0a776c3d5b78b1f767f54c4ebb28700c574"
+    },
+    "run_id": 38994309021,
+    "source_sha": "78dfd3bbd85a61a84dda2dfc601796ee89edfd5f"
+  },
+  "normal_runtime_observations": 8,
+  "ordered_cleanup": "PASS",
+  "original_artifact_sha256": "f957d2ded6d4af0a40e75d2f776155fee2ca3b3d9220ade8cb4e58d06f690ada",
+  "original_logs_sha256": "b236e47ae1df00b9c46dfda818fd52c935236e687a77a00ef25d7ed16b1509ed",
+  "page_size": 4096,
+  "performance": "NOT_MEASURED",
+  "prior_source_data_Git_joins": 197,
+  "provider_archive_bytes": 18598440,
+  "provider_archive_sha256": "a8e9f3e1d8ffe049fdc834f62e74c14ff622b98898c2f849e1580ab8aa0fdbd9",
+  "qualifications": [
+    "The workflow remains FAILED: its diagnostic helper was missing after successful lifecycle, ordered cleanup and complete export. This decision accepts only independently replayed runtime behavior.",
+    "All16 complete maps, eight normal runtimes, hardlinks, capabilities, full574 inventories, source and seeded-user preservation were replayed.",
+    "Modified configuration uses three explicit clone handoffs; automatic ALPM active-configuration preservation is NOT_CLAIMED.",
+    "Source authority/package/TEST-signature bytes are joined; no new upstream cryptographic or release authority is established.",
+    "Original compiler receipts are retained inputs, not new compilations.",
+    "Private kernel-profile registry is represented by original length/hash; cleanup is retained original receipts rather than fresh absence probes.",
+    "No new generic16K, Apple/M2, GUI, performance or supported-release acceptance."
+  ],
+  "release": "NOT_ADMITTED",
+  "run_id": 39054408035,
+  "schema_version": 1,
+  "scope": "GENERIC_ARM_NORMAL_NATIVE_PROVIDER_LIFECYCLE_ONLY",
+  "source_authority_sha256": "88643eabd61a39df63ecaeb50bb20041d17cf4fd3adee55d82d43d3c1ca08707",
+  "source_nodes": 123056,
+  "source_sha": "9aef8b7429fb8dd9f9d8412f4e878c5e0324c58d",
+  "status": "ROOT_ACCEPTED_CAA3_PUBLIC_COMPILE_INPUT_NATIVE_LIFECYCLE",
+  "workflow_conclusion": "failure",
+  "workflow_failure": {
+    "category": "POST_RUNTIME_DIAGNOSTIC_HELPER_MISSING",
+    "closed_export": "PASS_NO_ERRORS",
+    "ordered_cleanup_step": "SUCCESS",
+    "runtime_steps": "SUCCESS",
+    "step": 14
+  },
+  "zero_commit_refusals": 2
+}

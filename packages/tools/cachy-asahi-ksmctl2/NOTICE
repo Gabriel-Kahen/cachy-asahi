@@ -1,0 +1,27 @@
+cachy-asahi-ksmctl: DEVELOPMENT CANDIDATE
+
+Adapted from cachyos-ksm-settings/ksmctl in CachyOS/CachyOS-PKGBUILDS,
+commit c7cf5b4f2c70f28ed50601b3f75b19da93ba663f.
+Copyright (C) 2024-2025 Vasiliy Stelmachenok for CachyOS
+Copyright (C) 2026 cachy-asahi contributors
+License: GPL-2.0-or-later. The full GPL version 2 text is in LICENSE.
+
+Original source SHA256:
+cd5c8aa86df5a06a268ecc21297b4cd7d8df1053c90c8bcd4e53ef9bb16194d9
+Original bytes and the full adaptation diff accompany this source recipe.
+Changes translate the status function to Python, remove all kernel writes and
+privileged actions, validate interface input, and add page-size-aware reporting.
+This derivative is not relicensed under the project's original MIT license.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+No official CachyOS affiliation, ARM build, target installation, M2 hardware
+compatibility, complete KSM management or performance result is claimed.

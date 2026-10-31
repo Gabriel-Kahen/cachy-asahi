@@ -1,0 +1,18 @@
+{
+  "derived_source_sha256": "f9fd76eaa6a205d56fa4bb9123b8c721ea1277249c4cab58d1b57eaf8edc7558",
+  "hardware_tested": "NOT RUN",
+  "installed": "NOT RUN",
+  "license": "GPL-2.0-or-later",
+  "license_sha256": "edaef632cbb643e4e7a221717a6c441a4c1a7c918e6e4d56debc3d8739b233f6",
+  "license_url": "https://www.gnu.org/licenses/old-licenses/gpl-2.0.txt",
+  "management": "pending measured platform track; read-only status/report implemented",
+  "native_build": "NOT RUN",
+  "patch_sha256": "0bc6b1f4725eb510a0f890bd616ce682b98332b371c93d2144ad643181727212",
+  "performance": "NOT MEASURED",
+  "schema_version": 1,
+  "status": "source-audited-development-candidate",
+  "upstream_commit": "c7cf5b4f2c70f28ed50601b3f75b19da93ba663f",
+  "upstream_path": "cachyos-ksm-settings/ksmctl",
+  "upstream_sha256": "cd5c8aa86df5a06a268ecc21297b4cd7d8df1053c90c8bcd4e53ef9bb16194d9",
+  "upstream_url": "https://raw.githubusercontent.com/CachyOS/CachyOS-PKGBUILDS/c7cf5b4f2c70f28ed50601b3f75b19da93ba663f/cachyos-ksm-settings/ksmctl"
+}

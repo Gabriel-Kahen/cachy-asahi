@@ -1,0 +1,341 @@
+{
+  "dependency_bindings": {
+    "coreutils": {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "acl",
+        "attr",
+        "glibc",
+        "gmp",
+        "libcap",
+        "openssl"
+      ],
+      "filename": "coreutils-9.12-2-aarch64.pkg.tar.xz",
+      "license": [
+        "GPL-3.0-or-later",
+        "GFDL-1.3-or-later"
+      ],
+      "name": "coreutils",
+      "provides": [],
+      "replaces": [],
+      "sha256": "855b6439cc94fe5d0a3b1428e63ca785c0fa83135e0c0d59277d704d8f4dd647",
+      "signature_sha256": "f1e348bfb3c5dfc01681ecfc43df3c2a984bc9cd33cc0ea5d83e4b32ea05ee61",
+      "signature_size": 566,
+      "size": 2854560,
+      "source_url": [
+        "https://www.gnu.org/software/coreutils/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/coreutils-9.12-2-aarch64.pkg.tar.xz",
+      "version": "9.12-2"
+    },
+    "fish": {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "libgcc",
+        "pcre2"
+      ],
+      "filename": "fish-4.9.3-1-aarch64.pkg.tar.xz",
+      "license": [
+        "GPL-2.0-only AND BSD-3-Clause AND ISC AND MIT AND PSF-2.0"
+      ],
+      "name": "fish",
+      "provides": [],
+      "replaces": [],
+      "sha256": "c0fb16a8077312f6541ff1ef7208a3ecf5b9db5763269ceaefe2eeaba6dc3834",
+      "signature_sha256": "a40dd39034b4cdd7f5013ba76b7f04673c790aec8bd602b817cabf0473f6625f",
+      "signature_size": 566,
+      "size": 3410940,
+      "source_url": [
+        "https://fishshell.com/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/fish-4.9.3-1-aarch64.pkg.tar.xz",
+      "version": "4.9.3-1"
+    },
+    "libnotify": {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "gcc-libs",
+        "gdk-pixbuf2",
+        "glib2",
+        "glibc"
+      ],
+      "filename": "libnotify-0.8.8-1-aarch64.pkg.tar.xz",
+      "isize": 233782,
+      "license": [
+        "LGPL-2.1-or-later"
+      ],
+      "name": "libnotify",
+      "provides": [
+        "libnotify.so=4-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "4dadb77971d9bdae90afc13582983fafd410f05c14ccf2a6b37f00872adbee66",
+      "signature_sha256": "b9856da23c07eeae5275376824713e11e8ed276ade320e7381114b65404efd64",
+      "signature_size": 566,
+      "size": 38660,
+      "source_url": [
+        "https://gitlab.gnome.org/GNOME/libnotify"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libnotify-0.8.8-1-aarch64.pkg.tar.xz",
+      "version": "0.8.8-1"
+    },
+    "python": {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "bzip2",
+        "expat",
+        "gdbm",
+        "libffi",
+        "libnsl",
+        "libxcrypt",
+        "openssl",
+        "zlib",
+        "tzdata",
+        "mpdecimal",
+        "zstd"
+      ],
+      "filename": "python-3.14.8-1-aarch64.pkg.tar.xz",
+      "license": [
+        "PSF-2.0"
+      ],
+      "name": "python",
+      "provides": [
+        "python3",
+        "python-externally-managed"
+      ],
+      "replaces": [
+        "python3",
+        "python-externally-managed"
+      ],
+      "sha256": "5e00dbb30ab55fd160d64205e1f3418c8bcf5b295ff07bf9af7ad4ab85bc6984",
+      "signature_sha256": "ee28ca566685118f6048b859691802ddc6a1c0772581371a7d9cab2d3405c2f0",
+      "signature_size": 566,
+      "size": 13588352,
+      "source_url": [
+        "https://www.python.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/python-3.14.8-1-aarch64.pkg.tar.xz",
+      "version": "3.14.8-1"
+    }
+  },
+  "files": {
+    "packages/tools/cachy-asahi-fish-done/.SRCINFO": {
+      "bytes": 1266,
+      "sha256": "9b769ac2155a0d74550daaaa7d81ec6d098ce8e1dfe47cb06dbcfd227b3541df"
+    },
+    "packages/tools/cachy-asahi-fish-done/LICENSE.project": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-fish-done/LICENSE.upstream": {
+      "bytes": 1092,
+      "sha256": "d3a6b9e81b93ce9b59c72355867b03f15e9ec186ad9d6b96e0a96374fa3d4c30"
+    },
+    "packages/tools/cachy-asahi-fish-done/NOTICE": {
+      "bytes": 1213,
+      "sha256": "cb000928dc0f592c00ee4a8df16659b8aab326b235effd6ea208aaecf319f4c3"
+    },
+    "packages/tools/cachy-asahi-fish-done/PKGBUILD": {
+      "bytes": 2099,
+      "sha256": "d76f7d27959e79af0f78945ff6bae247e796b235ae6326abf8c3ae3de04ca28d"
+    },
+    "packages/tools/cachy-asahi-fish-done/README.md": {
+      "bytes": 2462,
+      "sha256": "8781f844987d1bcc677d9b3a69f23970840104d345f3698f5d44639bff797015"
+    },
+    "packages/tools/cachy-asahi-fish-done/check-module.py": {
+      "bytes": 18968,
+      "sha256": "79a869d9adc6405a07ac647d01be905f99cc1e8dedd0821f38680fc504b919dd"
+    },
+    "packages/tools/cachy-asahi-fish-done/done.fish": {
+      "bytes": 5011,
+      "sha256": "f545413bd75a3017b8d11a5ca7fe7394f326babbc8c18618323c39fbd8d0a0d4"
+    },
+    "packages/tools/cachy-asahi-fish-done/done.upstream.fish": {
+      "bytes": 13815,
+      "sha256": "4aa68e18104966509dd0bfd6f7378423e212781d0674dae85fd38b1d30e30372"
+    },
+    "packages/tools/cachy-asahi-fish-done/opt-in.fish": {
+      "bytes": 908,
+      "sha256": "6ff60eef9f211819833b0d94a9fef15a2982835c84d868d7b0d55200e37b6a20"
+    },
+    "packages/tools/cachy-asahi-fish-done/source-provenance.json": {
+      "bytes": 2478,
+      "sha256": "b78395517588426f45ede5953d30ca8c449fec77ef4b633ad53246031e4465e1"
+    },
+    "packages/tools/cachy-asahi-fish-done/usage.md": {
+      "bytes": 5792,
+      "sha256": "e338eec57d00f5f85dcfea84b33eda11bbf3d3174e41abf957246d8a94d3d622"
+    },
+    "scripts/build/build.py": {
+      "bytes": 11299,
+      "sha256": "e520b37e5dfc285914203cfab99daecc80543505fef7ded6704b3fb06f001d45"
+    },
+    "scripts/build/compare.py": {
+      "bytes": 5820,
+      "sha256": "4198864c264642b196a090a67b36185e5c194e38edc4cb928d08eb65b9f710cd"
+    },
+    "scripts/build/container-entry.sh": {
+      "bytes": 1787,
+      "sha256": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24"
+    },
+    "scripts/checks/package_checks.py": {
+      "bytes": 17706,
+      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
+    },
+    "scripts/ci/fish-done-native/README.md": {
+      "bytes": 6771,
+      "sha256": "720b674addb257177720ae6064474e994cb0911fd3e080f6a627149f66042b48"
+    },
+    "scripts/ci/fish-done-native/contract.py": {
+      "bytes": 13297,
+      "sha256": "9be4385f56d0216731e6bfb8aee6f7814096e0bbc15104bf9eea7d76b09f7311"
+    },
+    "scripts/ci/fish-done-native/freeze.py": {
+      "bytes": 2869,
+      "sha256": "4dd364c506d909fe8e47f18e520a0d602411cfb1c691eb55746a6706ce5b283f"
+    },
+    "scripts/ci/fish-done-native/job.py": {
+      "bytes": 494,
+      "sha256": "c5d3ebd1b972ec486d42afe376e2d9e26daca8fdc7711aeb482aa4d14abe80a5"
+    },
+    "scripts/ci/fish-done-native/lifecycle.py": {
+      "bytes": 9549,
+      "sha256": "98670a6c583545a38b5cb90bbe2c6125a966b1dd8779d6f2daa98f267868e52f"
+    },
+    "scripts/ci/fish-done-native/prepare.py": {
+      "bytes": 3415,
+      "sha256": "461f18e719b7140f90b58ee165e51a62bd1dfd4c7b92fadb3db4be62944837fc"
+    },
+    "scripts/ci/fish-done-native/run.py": {
+      "bytes": 904,
+      "sha256": "a77fba54beba6aa8d6f77127e498aee853deed54da99a879bbe1c662d1f55eb2"
+    },
+    "scripts/ci/fish-done-native/source-pins.json": {
+      "bytes": 3858,
+      "sha256": "3d0c9fc12a43e5c49bbc7039c84316a4b160b9b411962916307d51536bc6b61d"
+    },
+    "scripts/ci/fish-done-native/test_native.py": {
+      "bytes": 25977,
+      "sha256": "861b30ff3adf037e16ef5764c6187bc94a1619a22699a32a2940d91d44ce141e"
+    },
+    "scripts/ci/maintained-desktop574-inputs.json": {
+      "bytes": 623664,
+      "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
+    },
+    "scripts/ci/maintained_desktop574.py": {
+      "bytes": 22367,
+      "sha256": "27ba4be42cf2bd41675073e07cccc917ae033f9d68b07a33cfd7f074ac27b760"
+    },
+    "scripts/ci/old_four_seed.py": {
+      "bytes": 29048,
+      "sha256": "a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7"
+    },
+    "scripts/ci/test_maintained_desktop574.py": {
+      "bytes": 19082,
+      "sha256": "e5d7dc11d1a59cf37a273e9a7103c7e55b169335b17c599990946f4e677ca974"
+    },
+    "scripts/ci/tools-native/job.py": {
+      "bytes": 13110,
+      "sha256": "67dc1b888974303e59aa5d68cc68cfd362c3d0fe730ef93585121d69ac6aab1c"
+    },
+    "scripts/ci/tools-native/run.py": {
+      "bytes": 8992,
+      "sha256": "d13738494fd6cf66cb4f243a53eb2a33b91f74f0c692f42fe5464d48acd69f48"
+    },
+    "scripts/ci/welcome-native/ci/caller.py": {
+      "bytes": 8363,
+      "sha256": "cf80f438eff180b73ae9676e2145b56ba6a358fd9a69bb219e0a7a6f53ff01df"
+    },
+    "scripts/ci/welcome-native/lifecycle.py": {
+      "bytes": 12278,
+      "sha256": "b87831eea710dbf18cb3ab3aa7bf49856d26bebbd3e684861dcab7dc1d337c74"
+    },
+    "scripts/ci/welcome-native/run.py": {
+      "bytes": 12766,
+      "sha256": "52112b49ea98b5aef131b8bcbcc188bcc59cc3a4827161091d4e86af14d2757c"
+    },
+    "scripts/virtual/common.py": {
+      "bytes": 84361,
+      "sha256": "aef2b4f09a91c4cfd66dd4504e69ef18396a94214c82ae0ec0a43c2716894a03"
+    }
+  },
+  "native_runtime": "NOT_RUN",
+  "recipe": {
+    "input_sha256": {
+      ".SRCINFO": "9b769ac2155a0d74550daaaa7d81ec6d098ce8e1dfe47cb06dbcfd227b3541df",
+      "LICENSE.project": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+      "LICENSE.upstream": "d3a6b9e81b93ce9b59c72355867b03f15e9ec186ad9d6b96e0a96374fa3d4c30",
+      "NOTICE": "cb000928dc0f592c00ee4a8df16659b8aab326b235effd6ea208aaecf319f4c3",
+      "PKGBUILD": "d76f7d27959e79af0f78945ff6bae247e796b235ae6326abf8c3ae3de04ca28d",
+      "README.md": "8781f844987d1bcc677d9b3a69f23970840104d345f3698f5d44639bff797015",
+      "check-module.py": "79a869d9adc6405a07ac647d01be905f99cc1e8dedd0821f38680fc504b919dd",
+      "done.fish": "f545413bd75a3017b8d11a5ca7fe7394f326babbc8c18618323c39fbd8d0a0d4",
+      "done.upstream.fish": "4aa68e18104966509dd0bfd6f7378423e212781d0674dae85fd38b1d30e30372",
+      "opt-in.fish": "6ff60eef9f211819833b0d94a9fef15a2982835c84d868d7b0d55200e37b6a20",
+      "source-provenance.json": "b78395517588426f45ede5953d30ca8c449fec77ef4b633ad53246031e4465e1",
+      "usage.md": "e338eec57d00f5f85dcfea84b33eda11bbf3d3174e41abf957246d8a94d3d622"
+    },
+    "metadata": {
+      "arch": [
+        "any"
+      ],
+      "depends": [
+        "fish>=4.9.3",
+        "libnotify",
+        "coreutils"
+      ],
+      "license": [
+        "MIT"
+      ],
+      "makedepends": [
+        "python"
+      ],
+      "pkgdesc": [
+        "Explicitly enabled Fish command and selected child-job notifications"
+      ],
+      "pkgname": [
+        "cachy-asahi-fish-done"
+      ],
+      "pkgrel": [
+        "2"
+      ],
+      "pkgver": [
+        "0.1.0"
+      ],
+      "sha256sums": [
+        "f545413bd75a3017b8d11a5ca7fe7394f326babbc8c18618323c39fbd8d0a0d4",
+        "4aa68e18104966509dd0bfd6f7378423e212781d0674dae85fd38b1d30e30372",
+        "6ff60eef9f211819833b0d94a9fef15a2982835c84d868d7b0d55200e37b6a20",
+        "79a869d9adc6405a07ac647d01be905f99cc1e8dedd0821f38680fc504b919dd",
+        "e338eec57d00f5f85dcfea84b33eda11bbf3d3174e41abf957246d8a94d3d622",
+        "b78395517588426f45ede5953d30ca8c449fec77ef4b633ad53246031e4465e1",
+        "cb000928dc0f592c00ee4a8df16659b8aab326b235effd6ea208aaecf319f4c3",
+        "d3a6b9e81b93ce9b59c72355867b03f15e9ec186ad9d6b96e0a96374fa3d4c30",
+        "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+      ],
+      "source": [
+        "done.fish",
+        "done.upstream.fish",
+        "opt-in.fish",
+        "check-module.py",
+        "usage.md",
+        "source-provenance.json",
+        "NOTICE",
+        "LICENSE.upstream",
+        "LICENSE.project"
+      ],
+      "url": [
+        "https://github.com/franciscolourenco/done"
+      ]
+    }
+  },
+  "schema_version": 1,
+  "scope": "ONE_UNSELECTED_FISH_DONE_CANDIDATE"
+}

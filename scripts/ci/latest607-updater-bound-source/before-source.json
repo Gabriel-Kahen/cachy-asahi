@@ -1,0 +1,1435 @@
+{
+  "actual": null,
+  "files": {
+    ".github/workflows/native-arm-build.yml": {
+      "bytes": 86874,
+      "sha256": "55430a6f8d82534a6b981a3ac8f7129dc088c5065e06f5d7de5e962441de17a9"
+    },
+    ".github/workflows/native-arm-latest607-updater4k.yml": {
+      "bytes": 86874,
+      "sha256": "55430a6f8d82534a6b981a3ac8f7129dc088c5065e06f5d7de5e962441de17a9"
+    },
+    "LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "README.md": {
+      "bytes": 3099,
+      "sha256": "7618cdcea944c562feb66df6f70db68c29944e31bbd8a60b6a1c047f8e4e5e9b"
+    },
+    "cases/normal/adapter.json": {
+      "bytes": 24442,
+      "sha256": "4d638daf0d9268690ed5a32b19476980ab3291931b75629b796b9c1c9ac1b4e6"
+    },
+    "cases/normal/packages/tools/cachy-asahi-apps/.SRCINFO": {
+      "bytes": 1775,
+      "sha256": "b1efe81a2c4385dd820f411194934ba64bbc288ebb5bc421b90056ade9e9ab3a"
+    },
+    "cases/normal/packages/tools/cachy-asahi-apps/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "cases/normal/packages/tools/cachy-asahi-apps/NOTICE": {
+      "bytes": 1079,
+      "sha256": "425c36c2e9ad688b398d8fbcb2fd8f972420a1db5e0d4b19e9d24021346d4239"
+    },
+    "cases/normal/packages/tools/cachy-asahi-apps/PKGBUILD": {
+      "bytes": 3700,
+      "sha256": "aa4d6ed7865aab606a55e7de94e50d6966f47f7b926a39efd4b3f64eec403778"
+    },
+    "cases/normal/packages/tools/cachy-asahi-apps/README.md": {
+      "bytes": 11707,
+      "sha256": "c4ec55dc26bd427c37df59c647bb47719c6a88d91bd7c32b8c9ccc5a08ba6d5d"
+    },
+    "cases/normal/packages/tools/cachy-asahi-apps/apps.py": {
+      "bytes": 22601,
+      "sha256": "c12f8548d5fd3007a61fb366ca279dd061917cc5320ba81ce5e2ab0d02c7d9a6"
+    },
+    "cases/normal/packages/tools/cachy-asahi-apps/cachy-asahi-apps": {
+      "bytes": 310,
+      "sha256": "4e9c078c2e05cc00cb6479d5fff23b92cbcabd8d6b3ff970f6181e6467921630"
+    },
+    "cases/normal/packages/tools/cachy-asahi-apps/check-inputs.json": {
+      "bytes": 4127,
+      "sha256": "5cd338eb2ab9f4579825f3dd30de0f25d54a73ee1090737b0a21a506d12caad8"
+    },
+    "cases/normal/packages/tools/cachy-asahi-apps/check-inputs.tar.gz": {
+      "bytes": 61046,
+      "sha256": "6d38353fe33e0ce595df507ad9b928d80d3e1d6fe5d45d5418f927e9f50fe6d2"
+    },
+    "cases/normal/packages/tools/cachy-asahi-apps/check_source.py": {
+      "bytes": 3393,
+      "sha256": "c0943d74c0d9d681cb275e0d29fdacafef1e5dbdf1f9ff8f5194e9be0bf33630"
+    },
+    "cases/normal/packages/tools/cachy-asahi-apps/helper-pins.json": {
+      "bytes": 493,
+      "sha256": "33a5e11e6d12df984e07c437c68ee581527cc4c95f3327bc44cbc09e0e29948a"
+    },
+    "cases/normal/packages/tools/cachy-asahi-apps/inventory.py": {
+      "bytes": 13160,
+      "sha256": "986c8baea2921cf3f58f98c2e76a1adad9013fbe4b1f47743d12397e9e6c2516"
+    },
+    "cases/normal/packages/tools/cachy-asahi-apps/prepare-check-inputs.py": {
+      "bytes": 3321,
+      "sha256": "76bc1977cf402872816a430156541c0ccd41273e9080730d2ace7838ffa74214"
+    },
+    "cases/normal/packages/tools/cachy-asahi-apps/source-provenance.json": {
+      "bytes": 3814,
+      "sha256": "e942a7ce47dc601de8639f320401e79561d74e0923080f660125825ef860328b"
+    },
+    "cases/normal/packages/tools/cachy-asahi-apps/test_apps.py": {
+      "bytes": 38322,
+      "sha256": "760d41971c69606f4aec1f179ddf04167d570870aeeed8f0c0ddc22403337d1a"
+    },
+    "cases/normal/packages/tools/cachy-asahi-cache/.SRCINFO": {
+      "bytes": 800,
+      "sha256": "522849a5b59476dbafb3b3f74674a0ec03959452e9b0044ad46535dcc14fff74"
+    },
+    "cases/normal/packages/tools/cachy-asahi-cache/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "cases/normal/packages/tools/cachy-asahi-cache/NOTICE": {
+      "bytes": 690,
+      "sha256": "202fdd819c9e47bac1cbf804c98709b81c790ef4771af5c45018f8f944209485"
+    },
+    "cases/normal/packages/tools/cachy-asahi-cache/PKGBUILD": {
+      "bytes": 1175,
+      "sha256": "6bcd048d4b715d27e6fcfca82fda2fc67a54358721ecb4c12d863970d8a6e8e7"
+    },
+    "cases/normal/packages/tools/cachy-asahi-cache/README.md": {
+      "bytes": 9604,
+      "sha256": "e9bcd08a9478d28eecb24a19dd6296c719ab10130570f017c8c291f7dfe911af"
+    },
+    "cases/normal/packages/tools/cachy-asahi-cache/cachy-asahi-cache": {
+      "bytes": 28784,
+      "sha256": "841e126d68656639175b07ccb39b8061e9eebd72862a2b8dd62301dda2ec6013"
+    },
+    "cases/normal/packages/tools/cachy-asahi-cache/test_cache.py": {
+      "bytes": 21886,
+      "sha256": "6cf944285848c0d1fcb52aff8ef92d5d31ef3aa4fedbbace94daaccf1eb92033"
+    },
+    "cases/normal/packages/tools/cachy-asahi-orphans/.SRCINFO": {
+      "bytes": 914,
+      "sha256": "a324b86100e9a14aa431021f2ed3454920e764708faea4bc0775239dd9765223"
+    },
+    "cases/normal/packages/tools/cachy-asahi-orphans/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "cases/normal/packages/tools/cachy-asahi-orphans/NOTICE": {
+      "bytes": 759,
+      "sha256": "326f699857d31b8cd4462081aea074d4349721fb9c48965db6208c793a086720"
+    },
+    "cases/normal/packages/tools/cachy-asahi-orphans/PKGBUILD": {
+      "bytes": 1379,
+      "sha256": "b59a1b67a8fd6290549e861bd40f5e94447d5376c86eca6baa94d2cdddb6b91a"
+    },
+    "cases/normal/packages/tools/cachy-asahi-orphans/README.md": {
+      "bytes": 8810,
+      "sha256": "ef96e2cf1e0809a065edd36545c861e4064f3bae2cc4665401455a89dd144529"
+    },
+    "cases/normal/packages/tools/cachy-asahi-orphans/cachy-asahi-orphans": {
+      "bytes": 20007,
+      "sha256": "559ff8554b9c93f237ddebec8f6c8ac09749ed93b6a179c06fcf513dfffe3292"
+    },
+    "cases/normal/packages/tools/cachy-asahi-orphans/protection-floor.json": {
+      "bytes": 10489,
+      "sha256": "0d6dfbf3cd550fe72ddad30058693007f8bb86214de1e83442580677db5005f2"
+    },
+    "cases/normal/packages/tools/cachy-asahi-orphans/test_orphans.py": {
+      "bytes": 14653,
+      "sha256": "8f4080979ad3de2b1c27419f27cd6e3f61b122544164f1e16158cc4f8d73bb82"
+    },
+    "cases/normal/packages/tools/cachy-asahi-repository-runtime/.SRCINFO": {
+      "bytes": 1269,
+      "sha256": "4677c10dcc40686877f9d2bc5b9cac88763fdb4cc395a9a7fd530b6b79db2502"
+    },
+    "cases/normal/packages/tools/cachy-asahi-repository-runtime/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "cases/normal/packages/tools/cachy-asahi-repository-runtime/NOTICE": {
+      "bytes": 624,
+      "sha256": "5c4ed38dd7675728134d292afb2e61f2a09342c0eefa0becf89b9bda011166df"
+    },
+    "cases/normal/packages/tools/cachy-asahi-repository-runtime/PKGBUILD": {
+      "bytes": 1973,
+      "sha256": "e1f9071387ebd679e09fbbdecb31aadf2f89a59235c8ca03ac42eb2599f16f0b"
+    },
+    "cases/normal/packages/tools/cachy-asahi-repository-runtime/README.md": {
+      "bytes": 1748,
+      "sha256": "faf56df41bb5783d566d5e186141b47688ef770f3b7e2baef6c62302b599d316"
+    },
+    "cases/normal/packages/tools/cachy-asahi-repository-runtime/check_source.py": {
+      "bytes": 3328,
+      "sha256": "4d002bc596e29cb83426fd5b7d185b2aa30e9211c0da79fcb616cf003c11f4a7"
+    },
+    "cases/normal/packages/tools/cachy-asahi-repository-runtime/client.py": {
+      "bytes": 28669,
+      "sha256": "48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7"
+    },
+    "cases/normal/packages/tools/cachy-asahi-repository-runtime/helper-pins.json": {
+      "bytes": 493,
+      "sha256": "33a5e11e6d12df984e07c437c68ee581527cc4c95f3327bc44cbc09e0e29948a"
+    },
+    "cases/normal/packages/tools/cachy-asahi-repository-runtime/release.py": {
+      "bytes": 41320,
+      "sha256": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435"
+    },
+    "cases/normal/packages/tools/cachy-asahi-repository-runtime/source-provenance.json": {
+      "bytes": 1195,
+      "sha256": "09cf1f6f0a7490e5c99bd8bc5caa67ba7c3ecf7cdb55e382dbe502d7e1042972"
+    },
+    "cases/normal/packages/tools/cachy-asahi-repository-runtime/source_delivery.py": {
+      "bytes": 16456,
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+    },
+    "cases/normal/packages/tools/cachy-asahi-update/asahi-policy.py": {
+      "bytes": 13321,
+      "sha256": "80cda05980b064a9cb2ad47e5525ddba03dbaefaf350d44d18a27c63ac1ffbaf"
+    },
+    "cases/normal/scripts/build/build.py": {
+      "bytes": 11299,
+      "sha256": "e520b37e5dfc285914203cfab99daecc80543505fef7ded6704b3fb06f001d45"
+    },
+    "cases/normal/scripts/build/compare.py": {
+      "bytes": 5820,
+      "sha256": "4198864c264642b196a090a67b36185e5c194e38edc4cb928d08eb65b9f710cd"
+    },
+    "cases/normal/scripts/build/provision.py": {
+      "bytes": 5918,
+      "sha256": "cc7d719fad21185aea5fb7bd150f6cdab06958227de21f6e53d10084068bb1d3"
+    },
+    "cases/normal/scripts/checks/dependencies.py": {
+      "bytes": 5149,
+      "sha256": "56891732a3ad69f78bfe42cb1f3712286cce39a94b885e9cb7c368e11b22131c"
+    },
+    "cases/normal/scripts/checks/package_checks.py": {
+      "bytes": 17706,
+      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
+    },
+    "cases/normal/scripts/ci/expanded600-root-upgrade/accepted_pair.py": {
+      "bytes": 2938,
+      "sha256": "76938c4aa24dc6d04ed4c0cac4aa1d5ec880af0cda54079725607b908a56ae2a"
+    },
+    "cases/normal/scripts/ci/expanded600-root-upgrade/setup5.py": {
+      "bytes": 4708,
+      "sha256": "b995936917565114d383e3d0d4076cb24cba368e68f7c7e13b401839064c9167"
+    },
+    "cases/normal/scripts/ci/expanded604-apps6-public-pair-updater/apps6-binding.json": {
+      "bytes": 616,
+      "sha256": "e6e0cd130591b0be59b27b2d63692d5dcdd565f94458f26fe6456a1ed541dcc2"
+    },
+    "cases/normal/scripts/ci/expanded604-apps6-public-pair-updater/apps6-product.json": {
+      "bytes": 3020,
+      "sha256": "0019c1236e1d9294a0149e39e02c048e89431922a445e26b4ae067bcf5f46a5a"
+    },
+    "cases/normal/scripts/ci/expanded604-apps6-public-pair-updater/selected_package.py": {
+      "bytes": 6938,
+      "sha256": "6a0a4ef3576aa9c03f04aefcd7ba4792503d515ff5cb649a333889f13c2ab845"
+    },
+    "cases/normal/scripts/ci/expanded604-apps6-public-pairs/apps_inputs.py": {
+      "bytes": 6294,
+      "sha256": "080922852a400aeee2cead09e72b3b85b74194599c5d17eb4c4f00988f57b77a"
+    },
+    "cases/normal/scripts/ci/expanded604-apps6-public-pairs/pair_packet.py": {
+      "bytes": 3441,
+      "sha256": "c06e8aabcca5793b65010a504457954eae49bd209115017e72f1a69f32584863"
+    },
+    "cases/normal/scripts/ci/expanded604-composition/inputs.py": {
+      "bytes": 21815,
+      "sha256": "e079ea8a80ae4a20479369c61814020ad374a724b8653f5e54d4a1279b4f5166"
+    },
+    "cases/normal/scripts/ci/full-development-composition/audio_aux.py": {
+      "bytes": 4474,
+      "sha256": "3e9b0f0f153a1fade1ff98606dafd93a654730eea0a8e44464415112922fc552"
+    },
+    "cases/normal/scripts/ci/full-development-composition/expected-setup4-v2.lock": {
+      "bytes": 12076,
+      "sha256": "be35402204ba5c03d78279722afa83047c9575d2da70fb5c4064f46ed15954c5"
+    },
+    "cases/normal/scripts/ci/full-development-composition/expected-updater-v2.lock": {
+      "bytes": 12075,
+      "sha256": "72818a8a2ae488281b08486b92c435ec244ef3b5313f23b97473d1684ecb68b4"
+    },
+    "cases/normal/scripts/ci/full-development-composition/run.py": {
+      "bytes": 29738,
+      "sha256": "f86af098fdb0fc9a57a8b78b351341395ce13f9977464783f6f8133626e85698"
+    },
+    "cases/normal/scripts/ci/full-development-composition/setup4_inputs.py": {
+      "bytes": 5351,
+      "sha256": "fb3bd6e2bb6c97fb1400fd04969ba5acd9e9f8a712d93e4ac2eaa0aa70fa5aac"
+    },
+    "cases/normal/scripts/ci/full-root-upgrade-caller/container.py": {
+      "bytes": 16973,
+      "sha256": "069fef8bb9165a8d9f7ae5b23eaf5f8b80db36af85c74e859f52ae4d9e56ea8e"
+    },
+    "cases/normal/scripts/ci/full-root-upgrade-caller/persistent_scope.py": {
+      "bytes": 28101,
+      "sha256": "458ec2adbc3e509e89dc78b223b30d1ee2cdc041259f61c9c7578153d36cdeb0"
+    },
+    "cases/normal/scripts/ci/full-root-upgrade-caller/run.py": {
+      "bytes": 27803,
+      "sha256": "b9840c79ffc6c45070ac12b80d469fb46c26059df63e121801d6ab223035e303"
+    },
+    "cases/normal/scripts/ci/full-root-upgrade-caller/updater16k-adapter.json": {
+      "bytes": 4244,
+      "sha256": "d3fd65afb3dc44bade1e6a94ca2774aa4ffbb672dea061149d7c5334b10a78ea"
+    },
+    "cases/normal/scripts/ci/full-root-upgrade-caller/upgrade-config.json": {
+      "bytes": 6850,
+      "sha256": "b78c34f92cec146af49eb632bdb1955e3c87823bf12e6da056bffa44c2eefa0c"
+    },
+    "cases/normal/scripts/ci/full-root-upgrade-caller/upgrade_hook.py": {
+      "bytes": 15260,
+      "sha256": "eac002d7356489b275a989fd465845267c091ee1c408f77dbc99b42c80c2b77e"
+    },
+    "cases/normal/scripts/ci/full-root-upgrade/construct_repository.py": {
+      "bytes": 13960,
+      "sha256": "8e6d1e58ae8aa1b7c945eebb5d5d279800c2e26f60a4575c3f94c8f699789fec"
+    },
+    "cases/normal/scripts/ci/full-root-upgrade/driver_progress.py": {
+      "bytes": 11766,
+      "sha256": "8ddd274929b43cede4119ac9500b6268be47f368bb2ee73df5c536dbf844a1c1"
+    },
+    "cases/normal/scripts/ci/full-root-upgrade/root_upgrade.py": {
+      "bytes": 24173,
+      "sha256": "b97afc6ddadd38732dd952b16c8051d272c5e916bdffd554a0cd07b1083b8b35"
+    },
+    "cases/normal/scripts/ci/management-tools-generic16k/contract.py": {
+      "bytes": 15229,
+      "sha256": "ff0c7a3701dec1b1997853106024cbeb1f3fddd67b77b08d050a630af084833b"
+    },
+    "cases/normal/scripts/client/client.py": {
+      "bytes": 28669,
+      "sha256": "48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7"
+    },
+    "cases/normal/scripts/client/endpoint.py": {
+      "bytes": 7620,
+      "sha256": "e94520d9cc6ee0bb8ac007227dc51bc677de9efff7464f453ad7682eaa026e79"
+    },
+    "cases/normal/scripts/client/stage.py": {
+      "bytes": 34982,
+      "sha256": "1a182e1bfaf9e3e7aa80d608fbc59805865fdd67e3aed0f460667abe8d626283"
+    },
+    "cases/normal/scripts/install/local_transaction.py": {
+      "bytes": 91431,
+      "sha256": "c34202676e30a5085828f92d413cad0aaeacda1c9ac95e86155952db430d62d2"
+    },
+    "cases/normal/scripts/install/native_arm_trial.py": {
+      "bytes": 74929,
+      "sha256": "fe2becb4fe6c22e50903ab390db5a79aae311b7284fc71bf4b1c4b79e99824c4"
+    },
+    "cases/normal/scripts/install/native_preflight.py": {
+      "bytes": 22033,
+      "sha256": "d240f9959e25851f8688ada75257de54dde40db492b8a2cf9780216bb53bf8eb"
+    },
+    "cases/normal/scripts/port/kernel-native-job/runtime.py": {
+      "bytes": 11345,
+      "sha256": "8a7cd5e73cf383b2d81ad577b8513c6fd7d49f9fd2572961c73ae9d289cab821"
+    },
+    "cases/normal/scripts/release/check_source_pins.py": {
+      "bytes": 9981,
+      "sha256": "9b78c348e2d567f44f656285f6a562220cadead7025f1e0db2eb9a53d9f09ea3"
+    },
+    "cases/normal/scripts/release/compare_releases.py": {
+      "bytes": 11691,
+      "sha256": "27086c7b0af74a1226deae7a6a71245882b82608a1fa9d33b68e657979c7d83c"
+    },
+    "cases/normal/scripts/release/export_repository.py": {
+      "bytes": 14656,
+      "sha256": "03e7f9f39e014ab9c5d41f16ceb64bce2f67e5c928a68ec97384d966bdae8981"
+    },
+    "cases/normal/scripts/release/release.py": {
+      "bytes": 41320,
+      "sha256": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435"
+    },
+    "cases/normal/scripts/release/source_delivery.py": {
+      "bytes": 16456,
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+    },
+    "cases/normal/scripts/update/archive_stream.py": {
+      "bytes": 11938,
+      "sha256": "10f1a4c0ac5b98852d9ebb150af28f9ce345c800935a64fa463bc90f72fcb838"
+    },
+    "cases/normal/scripts/update/aux_checkpoint.py": {
+      "bytes": 18456,
+      "sha256": "d51179ca24c981bafd817d7db082c0ceb3b2f5deb922004bfe97d1e2007edda7"
+    },
+    "cases/normal/scripts/update/aux_copy.py": {
+      "bytes": 42782,
+      "sha256": "c953046e2174adbb4ac3f5bf5e959931c5c760f253cc90788d0e1429b3285dcd"
+    },
+    "cases/normal/scripts/update/aux_initialize.py": {
+      "bytes": 7611,
+      "sha256": "ebdfefb242e439ec8cd6e955eecbdacd6ddc60f2f9303e8176309ff65bf5a8f7"
+    },
+    "cases/normal/scripts/update/aux_runtime.py": {
+      "bytes": 10032,
+      "sha256": "c5281ddd912fa5cfa5d9842940f38805279fe71255a8dc3989556ee720697173"
+    },
+    "cases/normal/scripts/update/bound_update.py": {
+      "bytes": 20404,
+      "sha256": "4c2c8857414ec4d690a25c3208383f5fe79a584ecc42d99e9f217c5ce9b983ec"
+    },
+    "cases/normal/scripts/update/capacity.py": {
+      "bytes": 1449,
+      "sha256": "dcb9899cd24daa21f75e6da6b0214393f093d140a70769092da091e0cfdf7c87"
+    },
+    "cases/normal/scripts/update/disposable_copy.py": {
+      "bytes": 6098,
+      "sha256": "fb05d12a0d67a598cc940e0bc7edb5aa9ffc8cf87ce7b9f695ba5fbd26747667"
+    },
+    "cases/normal/scripts/update/full_root.py": {
+      "bytes": 35970,
+      "sha256": "3d8972efeb577750382c62d6801b8c507dbf612ed96e29ebde450a102c5c568e"
+    },
+    "cases/normal/scripts/update/generic_policy.py": {
+      "bytes": 3992,
+      "sha256": "80b9e3a664513e6dd084fa5156512d630573f1d34588adef581ee2a16e2d16d7"
+    },
+    "cases/normal/scripts/update/internal_runtime.py": {
+      "bytes": 8136,
+      "sha256": "8af393d1a9985689af532c118f09ef3c7d7072f6d53c9f96d123557ce58b11b9"
+    },
+    "cases/normal/scripts/update/linked_runtime.py": {
+      "bytes": 8059,
+      "sha256": "18fc4ecabf3bd2eec70ca8a49c7753e114a611392ab88c42a00b89f37e815564"
+    },
+    "cases/normal/scripts/update/measure_copy.py": {
+      "bytes": 25734,
+      "sha256": "e582245bd114b0b9d83f2de4fdc81a35d2f48493ba6147879871af794476813b"
+    },
+    "cases/normal/scripts/update/native_container.py": {
+      "bytes": 4802,
+      "sha256": "0c980201cd08ca33c8eb06f0d33376f6b29eeb5c0696e9433fa1c1da9c772128"
+    },
+    "cases/normal/scripts/update/native_trial.py": {
+      "bytes": 11322,
+      "sha256": "48cf4b94f87c2bcc897a41d4db43befbc4aa5dbbc13e626e7fb6791207d0d8ef"
+    },
+    "cases/normal/scripts/update/platform_policy.py": {
+      "bytes": 5042,
+      "sha256": "0240d66f0b9dbbb8551986a5efd177af9e6029cf8095069c3bfbc9bdaa9f6de4"
+    },
+    "cases/normal/scripts/update/root_link_selection.py": {
+      "bytes": 25684,
+      "sha256": "4b47223e9c66874193c2b38a620aa892871e93e556178c478dac1929d2540db9"
+    },
+    "cases/normal/scripts/update/root_path.py": {
+      "bytes": 3435,
+      "sha256": "2efcbc1057e117a406488f05a3e0213751b00ab09f845a7830a71a4cf60fd2b4"
+    },
+    "cases/normal/scripts/update/scale_update.py": {
+      "bytes": 11403,
+      "sha256": "04135d6dec91e634929ce82c7eaa372f773cf5e3a667c54580f28c5c733f5fe5"
+    },
+    "cases/normal/scripts/update/setup_trial.py": {
+      "bytes": 2093,
+      "sha256": "c378f6fb15c85cde320163a74e99a1dbd96d59f862bc96dbd445179014a7f724"
+    },
+    "cases/normal/scripts/update/snapshot.py": {
+      "bytes": 13494,
+      "sha256": "adaaa64727363de6603ed633142532bd30f6f23d0afde9195c584ec96157b3ae"
+    },
+    "cases/normal/scripts/update/supervision.py": {
+      "bytes": 3293,
+      "sha256": "f18bcbd2a6279cff8fe6c7e9c9f80fc01c9818844b01df8c4e97b83d61704b10"
+    },
+    "cases/normal/upgrade-config.json": {
+      "bytes": 13807,
+      "sha256": "4c9ebbf3f5c969cf416aa989b98afc87a517dcd6ad25d31b682ba5ec4f46bdc2"
+    },
+    "cases/postcommit-exit87/adapter.json": {
+      "bytes": 29431,
+      "sha256": "5c064647cf6a2be8142939efe6a99f5d963f944acea449d74227a22f599d6b49"
+    },
+    "cases/postcommit-exit87/packages/tools/cachy-asahi-apps/.SRCINFO": {
+      "bytes": 1775,
+      "sha256": "b1efe81a2c4385dd820f411194934ba64bbc288ebb5bc421b90056ade9e9ab3a"
+    },
+    "cases/postcommit-exit87/packages/tools/cachy-asahi-apps/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "cases/postcommit-exit87/packages/tools/cachy-asahi-apps/NOTICE": {
+      "bytes": 1079,
+      "sha256": "425c36c2e9ad688b398d8fbcb2fd8f972420a1db5e0d4b19e9d24021346d4239"
+    },
+    "cases/postcommit-exit87/packages/tools/cachy-asahi-apps/PKGBUILD": {
+      "bytes": 3700,
+      "sha256": "aa4d6ed7865aab606a55e7de94e50d6966f47f7b926a39efd4b3f64eec403778"
+    },
+    "cases/postcommit-exit87/packages/tools/cachy-asahi-apps/README.md": {
+      "bytes": 11707,
+      "sha256": "c4ec55dc26bd427c37df59c647bb47719c6a88d91bd7c32b8c9ccc5a08ba6d5d"
+    },
+    "cases/postcommit-exit87/packages/tools/cachy-asahi-apps/apps.py": {
+      "bytes": 22601,
+      "sha256": "c12f8548d5fd3007a61fb366ca279dd061917cc5320ba81ce5e2ab0d02c7d9a6"
+    },
+    "cases/postcommit-exit87/packages/tools/cachy-asahi-apps/cachy-asahi-apps": {
+      "bytes": 310,
+      "sha256": "4e9c078c2e05cc00cb6479d5fff23b92cbcabd8d6b3ff970f6181e6467921630"
+    },
+    "cases/postcommit-exit87/packages/tools/cachy-asahi-apps/check-inputs.json": {
+      "bytes": 4127,
+      "sha256": "5cd338eb2ab9f4579825f3dd30de0f25d54a73ee1090737b0a21a506d12caad8"
+    },
+    "cases/postcommit-exit87/packages/tools/cachy-asahi-apps/check-inputs.tar.gz": {
+      "bytes": 61046,
+      "sha256": "6d38353fe33e0ce595df507ad9b928d80d3e1d6fe5d45d5418f927e9f50fe6d2"
+    },
+    "cases/postcommit-exit87/packages/tools/cachy-asahi-apps/check_source.py": {
+      "bytes": 3393,
+      "sha256": "c0943d74c0d9d681cb275e0d29fdacafef1e5dbdf1f9ff8f5194e9be0bf33630"
+    },
+    "cases/postcommit-exit87/packages/tools/cachy-asahi-apps/helper-pins.json": {
+      "bytes": 493,
+      "sha256": "33a5e11e6d12df984e07c437c68ee581527cc4c95f3327bc44cbc09e0e29948a"
+    },
+    "cases/postcommit-exit87/packages/tools/cachy-asahi-apps/inventory.py": {
+      "bytes": 13160,
+      "sha256": "986c8baea2921cf3f58f98c2e76a1adad9013fbe4b1f47743d12397e9e6c2516"
+    },
+    "cases/postcommit-exit87/packages/tools/cachy-asahi-apps/prepare-check-inputs.py": {
+      "bytes": 3321,
+      "sha256": "76bc1977cf402872816a430156541c0ccd41273e9080730d2ace7838ffa74214"
+    },
+    "cases/postcommit-exit87/packages/tools/cachy-asahi-apps/source-provenance.json": {
+      "bytes": 3814,
+      "sha256": "e942a7ce47dc601de8639f320401e79561d74e0923080f660125825ef860328b"
+    },
+    "cases/postcommit-exit87/packages/tools/cachy-asahi-apps/test_apps.py": {
+      "bytes": 38322,
+      "sha256": "760d41971c69606f4aec1f179ddf04167d570870aeeed8f0c0ddc22403337d1a"
+    },
+    "cases/postcommit-exit87/packages/tools/cachy-asahi-cache/.SRCINFO": {
+      "bytes": 800,
+      "sha256": "522849a5b59476dbafb3b3f74674a0ec03959452e9b0044ad46535dcc14fff74"
+    },
+    "cases/postcommit-exit87/packages/tools/cachy-asahi-cache/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "cases/postcommit-exit87/packages/tools/cachy-asahi-cache/NOTICE": {
+      "bytes": 690,
+      "sha256": "202fdd819c9e47bac1cbf804c98709b81c790ef4771af5c45018f8f944209485"
+    },
+    "cases/postcommit-exit87/packages/tools/cachy-asahi-cache/PKGBUILD": {
+      "bytes": 1175,
+      "sha256": "6bcd048d4b715d27e6fcfca82fda2fc67a54358721ecb4c12d863970d8a6e8e7"
+    },
+    "cases/postcommit-exit87/packages/tools/cachy-asahi-cache/README.md": {
+      "bytes": 9604,
+      "sha256": "e9bcd08a9478d28eecb24a19dd6296c719ab10130570f017c8c291f7dfe911af"
+    },
+    "cases/postcommit-exit87/packages/tools/cachy-asahi-cache/cachy-asahi-cache": {
+      "bytes": 28784,
+      "sha256": "841e126d68656639175b07ccb39b8061e9eebd72862a2b8dd62301dda2ec6013"
+    },
+    "cases/postcommit-exit87/packages/tools/cachy-asahi-cache/test_cache.py": {
+      "bytes": 21886,
+      "sha256": "6cf944285848c0d1fcb52aff8ef92d5d31ef3aa4fedbbace94daaccf1eb92033"
+    },
+    "cases/postcommit-exit87/packages/tools/cachy-asahi-orphans/.SRCINFO": {
+      "bytes": 914,
+      "sha256": "a324b86100e9a14aa431021f2ed3454920e764708faea4bc0775239dd9765223"
+    },
+    "cases/postcommit-exit87/packages/tools/cachy-asahi-orphans/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "cases/postcommit-exit87/packages/tools/cachy-asahi-orphans/NOTICE": {
+      "bytes": 759,
+      "sha256": "326f699857d31b8cd4462081aea074d4349721fb9c48965db6208c793a086720"
+    },
+    "cases/postcommit-exit87/packages/tools/cachy-asahi-orphans/PKGBUILD": {
+      "bytes": 1379,
+      "sha256": "b59a1b67a8fd6290549e861bd40f5e94447d5376c86eca6baa94d2cdddb6b91a"
+    },
+    "cases/postcommit-exit87/packages/tools/cachy-asahi-orphans/README.md": {
+      "bytes": 8810,
+      "sha256": "ef96e2cf1e0809a065edd36545c861e4064f3bae2cc4665401455a89dd144529"
+    },
+    "cases/postcommit-exit87/packages/tools/cachy-asahi-orphans/cachy-asahi-orphans": {
+      "bytes": 20007,
+      "sha256": "559ff8554b9c93f237ddebec8f6c8ac09749ed93b6a179c06fcf513dfffe3292"
+    },
+    "cases/postcommit-exit87/packages/tools/cachy-asahi-orphans/protection-floor.json": {
+      "bytes": 10489,
+      "sha256": "0d6dfbf3cd550fe72ddad30058693007f8bb86214de1e83442580677db5005f2"
+    },
+    "cases/postcommit-exit87/packages/tools/cachy-asahi-orphans/test_orphans.py": {
+      "bytes": 14653,
+      "sha256": "8f4080979ad3de2b1c27419f27cd6e3f61b122544164f1e16158cc4f8d73bb82"
+    },
+    "cases/postcommit-exit87/packages/tools/cachy-asahi-repository-runtime/.SRCINFO": {
+      "bytes": 1269,
+      "sha256": "4677c10dcc40686877f9d2bc5b9cac88763fdb4cc395a9a7fd530b6b79db2502"
+    },
+    "cases/postcommit-exit87/packages/tools/cachy-asahi-repository-runtime/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "cases/postcommit-exit87/packages/tools/cachy-asahi-repository-runtime/NOTICE": {
+      "bytes": 624,
+      "sha256": "5c4ed38dd7675728134d292afb2e61f2a09342c0eefa0becf89b9bda011166df"
+    },
+    "cases/postcommit-exit87/packages/tools/cachy-asahi-repository-runtime/PKGBUILD": {
+      "bytes": 1973,
+      "sha256": "e1f9071387ebd679e09fbbdecb31aadf2f89a59235c8ca03ac42eb2599f16f0b"
+    },
+    "cases/postcommit-exit87/packages/tools/cachy-asahi-repository-runtime/README.md": {
+      "bytes": 1748,
+      "sha256": "faf56df41bb5783d566d5e186141b47688ef770f3b7e2baef6c62302b599d316"
+    },
+    "cases/postcommit-exit87/packages/tools/cachy-asahi-repository-runtime/check_source.py": {
+      "bytes": 3328,
+      "sha256": "4d002bc596e29cb83426fd5b7d185b2aa30e9211c0da79fcb616cf003c11f4a7"
+    },
+    "cases/postcommit-exit87/packages/tools/cachy-asahi-repository-runtime/client.py": {
+      "bytes": 28669,
+      "sha256": "48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7"
+    },
+    "cases/postcommit-exit87/packages/tools/cachy-asahi-repository-runtime/helper-pins.json": {
+      "bytes": 493,
+      "sha256": "33a5e11e6d12df984e07c437c68ee581527cc4c95f3327bc44cbc09e0e29948a"
+    },
+    "cases/postcommit-exit87/packages/tools/cachy-asahi-repository-runtime/release.py": {
+      "bytes": 41320,
+      "sha256": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435"
+    },
+    "cases/postcommit-exit87/packages/tools/cachy-asahi-repository-runtime/source-provenance.json": {
+      "bytes": 1195,
+      "sha256": "09cf1f6f0a7490e5c99bd8bc5caa67ba7c3ecf7cdb55e382dbe502d7e1042972"
+    },
+    "cases/postcommit-exit87/packages/tools/cachy-asahi-repository-runtime/source_delivery.py": {
+      "bytes": 16456,
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+    },
+    "cases/postcommit-exit87/packages/tools/cachy-asahi-update/asahi-policy.py": {
+      "bytes": 13321,
+      "sha256": "80cda05980b064a9cb2ad47e5525ddba03dbaefaf350d44d18a27c63ac1ffbaf"
+    },
+    "cases/postcommit-exit87/scripts/build/build.py": {
+      "bytes": 11299,
+      "sha256": "e520b37e5dfc285914203cfab99daecc80543505fef7ded6704b3fb06f001d45"
+    },
+    "cases/postcommit-exit87/scripts/build/compare.py": {
+      "bytes": 5820,
+      "sha256": "4198864c264642b196a090a67b36185e5c194e38edc4cb928d08eb65b9f710cd"
+    },
+    "cases/postcommit-exit87/scripts/build/provision.py": {
+      "bytes": 5918,
+      "sha256": "cc7d719fad21185aea5fb7bd150f6cdab06958227de21f6e53d10084068bb1d3"
+    },
+    "cases/postcommit-exit87/scripts/checks/dependencies.py": {
+      "bytes": 5149,
+      "sha256": "56891732a3ad69f78bfe42cb1f3712286cce39a94b885e9cb7c368e11b22131c"
+    },
+    "cases/postcommit-exit87/scripts/checks/package_checks.py": {
+      "bytes": 17706,
+      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
+    },
+    "cases/postcommit-exit87/scripts/ci/expanded600-root-upgrade/accepted_pair.py": {
+      "bytes": 2938,
+      "sha256": "76938c4aa24dc6d04ed4c0cac4aa1d5ec880af0cda54079725607b908a56ae2a"
+    },
+    "cases/postcommit-exit87/scripts/ci/expanded600-root-upgrade/setup5.py": {
+      "bytes": 4708,
+      "sha256": "b995936917565114d383e3d0d4076cb24cba368e68f7c7e13b401839064c9167"
+    },
+    "cases/postcommit-exit87/scripts/ci/expanded604-apps6-public-pair-updater/apps6-binding.json": {
+      "bytes": 616,
+      "sha256": "e6e0cd130591b0be59b27b2d63692d5dcdd565f94458f26fe6456a1ed541dcc2"
+    },
+    "cases/postcommit-exit87/scripts/ci/expanded604-apps6-public-pair-updater/apps6-product.json": {
+      "bytes": 3020,
+      "sha256": "0019c1236e1d9294a0149e39e02c048e89431922a445e26b4ae067bcf5f46a5a"
+    },
+    "cases/postcommit-exit87/scripts/ci/expanded604-apps6-public-pair-updater/selected_package.py": {
+      "bytes": 6938,
+      "sha256": "6a0a4ef3576aa9c03f04aefcd7ba4792503d515ff5cb649a333889f13c2ab845"
+    },
+    "cases/postcommit-exit87/scripts/ci/expanded604-apps6-public-pairs/apps_inputs.py": {
+      "bytes": 6294,
+      "sha256": "080922852a400aeee2cead09e72b3b85b74194599c5d17eb4c4f00988f57b77a"
+    },
+    "cases/postcommit-exit87/scripts/ci/expanded604-apps6-public-pairs/pair_packet.py": {
+      "bytes": 3441,
+      "sha256": "c06e8aabcca5793b65010a504457954eae49bd209115017e72f1a69f32584863"
+    },
+    "cases/postcommit-exit87/scripts/ci/expanded604-composition/inputs.py": {
+      "bytes": 21815,
+      "sha256": "e079ea8a80ae4a20479369c61814020ad374a724b8653f5e54d4a1279b4f5166"
+    },
+    "cases/postcommit-exit87/scripts/ci/full-development-composition/audio_aux.py": {
+      "bytes": 4474,
+      "sha256": "3e9b0f0f153a1fade1ff98606dafd93a654730eea0a8e44464415112922fc552"
+    },
+    "cases/postcommit-exit87/scripts/ci/full-development-composition/expected-setup4-v2.lock": {
+      "bytes": 12076,
+      "sha256": "be35402204ba5c03d78279722afa83047c9575d2da70fb5c4064f46ed15954c5"
+    },
+    "cases/postcommit-exit87/scripts/ci/full-development-composition/expected-updater-v2.lock": {
+      "bytes": 12075,
+      "sha256": "72818a8a2ae488281b08486b92c435ec244ef3b5313f23b97473d1684ecb68b4"
+    },
+    "cases/postcommit-exit87/scripts/ci/full-development-composition/run.py": {
+      "bytes": 29738,
+      "sha256": "f86af098fdb0fc9a57a8b78b351341395ce13f9977464783f6f8133626e85698"
+    },
+    "cases/postcommit-exit87/scripts/ci/full-development-composition/setup4_inputs.py": {
+      "bytes": 5351,
+      "sha256": "fb3bd6e2bb6c97fb1400fd04969ba5acd9e9f8a712d93e4ac2eaa0aa70fa5aac"
+    },
+    "cases/postcommit-exit87/scripts/ci/full-root-postcommit-failure/caller.py": {
+      "bytes": 15124,
+      "sha256": "b838da929a54015577f29cdafcb7eed0c5d7224dc7b8ce15f70a5e453e5f258e"
+    },
+    "cases/postcommit-exit87/scripts/ci/full-root-postcommit-failure/lane-config.json": {
+      "bytes": 7778,
+      "sha256": "ddc6e9951a11d71b053fe77cadbba8cc0af98594452838b681b080c1dc18c09d"
+    },
+    "cases/postcommit-exit87/scripts/ci/full-root-postcommit-failure/launch.py": {
+      "bytes": 3168,
+      "sha256": "e7c737c1fd145ee254bc977879f938dc1984b9df0ff159d158382ccba2c97411"
+    },
+    "cases/postcommit-exit87/scripts/ci/full-root-postcommit-failure/run.py": {
+      "bytes": 28876,
+      "sha256": "6c9429132954b6e13d6fd1689b10f95f053e083d9ac6705ff7e9a274142bb369"
+    },
+    "cases/postcommit-exit87/scripts/ci/full-root-upgrade-caller/container.py": {
+      "bytes": 16973,
+      "sha256": "069fef8bb9165a8d9f7ae5b23eaf5f8b80db36af85c74e859f52ae4d9e56ea8e"
+    },
+    "cases/postcommit-exit87/scripts/ci/full-root-upgrade-caller/persistent_scope.py": {
+      "bytes": 28101,
+      "sha256": "458ec2adbc3e509e89dc78b223b30d1ee2cdc041259f61c9c7578153d36cdeb0"
+    },
+    "cases/postcommit-exit87/scripts/ci/full-root-upgrade-caller/run.py": {
+      "bytes": 27803,
+      "sha256": "b9840c79ffc6c45070ac12b80d469fb46c26059df63e121801d6ab223035e303"
+    },
+    "cases/postcommit-exit87/scripts/ci/full-root-upgrade-caller/updater16k-adapter.json": {
+      "bytes": 4266,
+      "sha256": "da32fcb58c7689aff8486ded4ca1da036e3b499b6e70da6822dfc05ea78bb0be"
+    },
+    "cases/postcommit-exit87/scripts/ci/full-root-upgrade-caller/upgrade_hook.py": {
+      "bytes": 16262,
+      "sha256": "2fcfd30d2edea9382b9c84e1b4fbec0069e5917ce952d961f285dc113fc6fb77"
+    },
+    "cases/postcommit-exit87/scripts/ci/full-root-upgrade/construct_repository.py": {
+      "bytes": 13960,
+      "sha256": "8e6d1e58ae8aa1b7c945eebb5d5d279800c2e26f60a4575c3f94c8f699789fec"
+    },
+    "cases/postcommit-exit87/scripts/ci/full-root-upgrade/root_upgrade.py": {
+      "bytes": 23556,
+      "sha256": "b52fa90f5dd9b4d6cd31f3de4f81a44d5423660d0a820703756c5e4568036e4f"
+    },
+    "cases/postcommit-exit87/scripts/ci/management-tools-generic16k/contract.py": {
+      "bytes": 15229,
+      "sha256": "ff0c7a3701dec1b1997853106024cbeb1f3fddd67b77b08d050a630af084833b"
+    },
+    "cases/postcommit-exit87/scripts/client/client.py": {
+      "bytes": 28669,
+      "sha256": "48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7"
+    },
+    "cases/postcommit-exit87/scripts/client/endpoint.py": {
+      "bytes": 7620,
+      "sha256": "e94520d9cc6ee0bb8ac007227dc51bc677de9efff7464f453ad7682eaa026e79"
+    },
+    "cases/postcommit-exit87/scripts/client/stage.py": {
+      "bytes": 34982,
+      "sha256": "1a182e1bfaf9e3e7aa80d608fbc59805865fdd67e3aed0f460667abe8d626283"
+    },
+    "cases/postcommit-exit87/scripts/install/local_transaction.py": {
+      "bytes": 93752,
+      "sha256": "14381d049506b52770059bf7af415f7a079f69872543e74417aca11ce24ac3c5"
+    },
+    "cases/postcommit-exit87/scripts/install/native_arm_trial.py": {
+      "bytes": 74929,
+      "sha256": "fe2becb4fe6c22e50903ab390db5a79aae311b7284fc71bf4b1c4b79e99824c4"
+    },
+    "cases/postcommit-exit87/scripts/install/native_preflight.py": {
+      "bytes": 22033,
+      "sha256": "d240f9959e25851f8688ada75257de54dde40db492b8a2cf9780216bb53bf8eb"
+    },
+    "cases/postcommit-exit87/scripts/port/kernel-native-job/runtime.py": {
+      "bytes": 11345,
+      "sha256": "8a7cd5e73cf383b2d81ad577b8513c6fd7d49f9fd2572961c73ae9d289cab821"
+    },
+    "cases/postcommit-exit87/scripts/release/check_source_pins.py": {
+      "bytes": 9981,
+      "sha256": "9b78c348e2d567f44f656285f6a562220cadead7025f1e0db2eb9a53d9f09ea3"
+    },
+    "cases/postcommit-exit87/scripts/release/compare_releases.py": {
+      "bytes": 11691,
+      "sha256": "27086c7b0af74a1226deae7a6a71245882b82608a1fa9d33b68e657979c7d83c"
+    },
+    "cases/postcommit-exit87/scripts/release/export_repository.py": {
+      "bytes": 14656,
+      "sha256": "03e7f9f39e014ab9c5d41f16ceb64bce2f67e5c928a68ec97384d966bdae8981"
+    },
+    "cases/postcommit-exit87/scripts/release/release.py": {
+      "bytes": 41320,
+      "sha256": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435"
+    },
+    "cases/postcommit-exit87/scripts/release/source_delivery.py": {
+      "bytes": 16456,
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+    },
+    "cases/postcommit-exit87/scripts/update/archive_stream.py": {
+      "bytes": 11938,
+      "sha256": "10f1a4c0ac5b98852d9ebb150af28f9ce345c800935a64fa463bc90f72fcb838"
+    },
+    "cases/postcommit-exit87/scripts/update/aux_checkpoint.py": {
+      "bytes": 18456,
+      "sha256": "d51179ca24c981bafd817d7db082c0ceb3b2f5deb922004bfe97d1e2007edda7"
+    },
+    "cases/postcommit-exit87/scripts/update/aux_copy.py": {
+      "bytes": 42782,
+      "sha256": "c953046e2174adbb4ac3f5bf5e959931c5c760f253cc90788d0e1429b3285dcd"
+    },
+    "cases/postcommit-exit87/scripts/update/aux_initialize.py": {
+      "bytes": 7611,
+      "sha256": "ebdfefb242e439ec8cd6e955eecbdacd6ddc60f2f9303e8176309ff65bf5a8f7"
+    },
+    "cases/postcommit-exit87/scripts/update/aux_runtime.py": {
+      "bytes": 10032,
+      "sha256": "c5281ddd912fa5cfa5d9842940f38805279fe71255a8dc3989556ee720697173"
+    },
+    "cases/postcommit-exit87/scripts/update/bound_update.py": {
+      "bytes": 20404,
+      "sha256": "4c2c8857414ec4d690a25c3208383f5fe79a584ecc42d99e9f217c5ce9b983ec"
+    },
+    "cases/postcommit-exit87/scripts/update/capacity.py": {
+      "bytes": 1449,
+      "sha256": "dcb9899cd24daa21f75e6da6b0214393f093d140a70769092da091e0cfdf7c87"
+    },
+    "cases/postcommit-exit87/scripts/update/disposable_copy.py": {
+      "bytes": 6098,
+      "sha256": "fb05d12a0d67a598cc940e0bc7edb5aa9ffc8cf87ce7b9f695ba5fbd26747667"
+    },
+    "cases/postcommit-exit87/scripts/update/full_root.py": {
+      "bytes": 35970,
+      "sha256": "3d8972efeb577750382c62d6801b8c507dbf612ed96e29ebde450a102c5c568e"
+    },
+    "cases/postcommit-exit87/scripts/update/generic_policy.py": {
+      "bytes": 3992,
+      "sha256": "80b9e3a664513e6dd084fa5156512d630573f1d34588adef581ee2a16e2d16d7"
+    },
+    "cases/postcommit-exit87/scripts/update/internal_runtime.py": {
+      "bytes": 8136,
+      "sha256": "8af393d1a9985689af532c118f09ef3c7d7072f6d53c9f96d123557ce58b11b9"
+    },
+    "cases/postcommit-exit87/scripts/update/linked_runtime.py": {
+      "bytes": 8059,
+      "sha256": "18fc4ecabf3bd2eec70ca8a49c7753e114a611392ab88c42a00b89f37e815564"
+    },
+    "cases/postcommit-exit87/scripts/update/measure_copy.py": {
+      "bytes": 25734,
+      "sha256": "e582245bd114b0b9d83f2de4fdc81a35d2f48493ba6147879871af794476813b"
+    },
+    "cases/postcommit-exit87/scripts/update/native_container.py": {
+      "bytes": 4802,
+      "sha256": "0c980201cd08ca33c8eb06f0d33376f6b29eeb5c0696e9433fa1c1da9c772128"
+    },
+    "cases/postcommit-exit87/scripts/update/native_trial.py": {
+      "bytes": 11322,
+      "sha256": "48cf4b94f87c2bcc897a41d4db43befbc4aa5dbbc13e626e7fb6791207d0d8ef"
+    },
+    "cases/postcommit-exit87/scripts/update/platform_policy.py": {
+      "bytes": 5042,
+      "sha256": "0240d66f0b9dbbb8551986a5efd177af9e6029cf8095069c3bfbc9bdaa9f6de4"
+    },
+    "cases/postcommit-exit87/scripts/update/root_link_selection.py": {
+      "bytes": 25684,
+      "sha256": "4b47223e9c66874193c2b38a620aa892871e93e556178c478dac1929d2540db9"
+    },
+    "cases/postcommit-exit87/scripts/update/root_path.py": {
+      "bytes": 3435,
+      "sha256": "2efcbc1057e117a406488f05a3e0213751b00ab09f845a7830a71a4cf60fd2b4"
+    },
+    "cases/postcommit-exit87/scripts/update/scale_update.py": {
+      "bytes": 11403,
+      "sha256": "04135d6dec91e634929ce82c7eaa372f773cf5e3a667c54580f28c5c733f5fe5"
+    },
+    "cases/postcommit-exit87/scripts/update/setup_trial.py": {
+      "bytes": 2093,
+      "sha256": "c378f6fb15c85cde320163a74e99a1dbd96d59f862bc96dbd445179014a7f724"
+    },
+    "cases/postcommit-exit87/scripts/update/snapshot.py": {
+      "bytes": 13494,
+      "sha256": "adaaa64727363de6603ed633142532bd30f6f23d0afde9195c584ec96157b3ae"
+    },
+    "cases/postcommit-exit87/scripts/update/supervision.py": {
+      "bytes": 3293,
+      "sha256": "f18bcbd2a6279cff8fe6c7e9c9f80fc01c9818844b01df8c4e97b83d61704b10"
+    },
+    "cases/postcommit-exit87/upgrade-config.json": {
+      "bytes": 14237,
+      "sha256": "3a48f701c4cb3ce7c84ac1f218cffeb42ed9ee842a4ec4d0dc4132397c9c83ae"
+    },
+    "cases/precommit-exit86/adapter.json": {
+      "bytes": 26972,
+      "sha256": "805861bca2c7e0f5353e91ad37867e614f877509e1c1bb91f35129dfea827830"
+    },
+    "cases/precommit-exit86/packages/tools/cachy-asahi-apps/.SRCINFO": {
+      "bytes": 1775,
+      "sha256": "b1efe81a2c4385dd820f411194934ba64bbc288ebb5bc421b90056ade9e9ab3a"
+    },
+    "cases/precommit-exit86/packages/tools/cachy-asahi-apps/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "cases/precommit-exit86/packages/tools/cachy-asahi-apps/NOTICE": {
+      "bytes": 1079,
+      "sha256": "425c36c2e9ad688b398d8fbcb2fd8f972420a1db5e0d4b19e9d24021346d4239"
+    },
+    "cases/precommit-exit86/packages/tools/cachy-asahi-apps/PKGBUILD": {
+      "bytes": 3700,
+      "sha256": "aa4d6ed7865aab606a55e7de94e50d6966f47f7b926a39efd4b3f64eec403778"
+    },
+    "cases/precommit-exit86/packages/tools/cachy-asahi-apps/README.md": {
+      "bytes": 11707,
+      "sha256": "c4ec55dc26bd427c37df59c647bb47719c6a88d91bd7c32b8c9ccc5a08ba6d5d"
+    },
+    "cases/precommit-exit86/packages/tools/cachy-asahi-apps/apps.py": {
+      "bytes": 22601,
+      "sha256": "c12f8548d5fd3007a61fb366ca279dd061917cc5320ba81ce5e2ab0d02c7d9a6"
+    },
+    "cases/precommit-exit86/packages/tools/cachy-asahi-apps/cachy-asahi-apps": {
+      "bytes": 310,
+      "sha256": "4e9c078c2e05cc00cb6479d5fff23b92cbcabd8d6b3ff970f6181e6467921630"
+    },
+    "cases/precommit-exit86/packages/tools/cachy-asahi-apps/check-inputs.json": {
+      "bytes": 4127,
+      "sha256": "5cd338eb2ab9f4579825f3dd30de0f25d54a73ee1090737b0a21a506d12caad8"
+    },
+    "cases/precommit-exit86/packages/tools/cachy-asahi-apps/check-inputs.tar.gz": {
+      "bytes": 61046,
+      "sha256": "6d38353fe33e0ce595df507ad9b928d80d3e1d6fe5d45d5418f927e9f50fe6d2"
+    },
+    "cases/precommit-exit86/packages/tools/cachy-asahi-apps/check_source.py": {
+      "bytes": 3393,
+      "sha256": "c0943d74c0d9d681cb275e0d29fdacafef1e5dbdf1f9ff8f5194e9be0bf33630"
+    },
+    "cases/precommit-exit86/packages/tools/cachy-asahi-apps/helper-pins.json": {
+      "bytes": 493,
+      "sha256": "33a5e11e6d12df984e07c437c68ee581527cc4c95f3327bc44cbc09e0e29948a"
+    },
+    "cases/precommit-exit86/packages/tools/cachy-asahi-apps/inventory.py": {
+      "bytes": 13160,
+      "sha256": "986c8baea2921cf3f58f98c2e76a1adad9013fbe4b1f47743d12397e9e6c2516"
+    },
+    "cases/precommit-exit86/packages/tools/cachy-asahi-apps/prepare-check-inputs.py": {
+      "bytes": 3321,
+      "sha256": "76bc1977cf402872816a430156541c0ccd41273e9080730d2ace7838ffa74214"
+    },
+    "cases/precommit-exit86/packages/tools/cachy-asahi-apps/source-provenance.json": {
+      "bytes": 3814,
+      "sha256": "e942a7ce47dc601de8639f320401e79561d74e0923080f660125825ef860328b"
+    },
+    "cases/precommit-exit86/packages/tools/cachy-asahi-apps/test_apps.py": {
+      "bytes": 38322,
+      "sha256": "760d41971c69606f4aec1f179ddf04167d570870aeeed8f0c0ddc22403337d1a"
+    },
+    "cases/precommit-exit86/packages/tools/cachy-asahi-cache/.SRCINFO": {
+      "bytes": 800,
+      "sha256": "522849a5b59476dbafb3b3f74674a0ec03959452e9b0044ad46535dcc14fff74"
+    },
+    "cases/precommit-exit86/packages/tools/cachy-asahi-cache/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "cases/precommit-exit86/packages/tools/cachy-asahi-cache/NOTICE": {
+      "bytes": 690,
+      "sha256": "202fdd819c9e47bac1cbf804c98709b81c790ef4771af5c45018f8f944209485"
+    },
+    "cases/precommit-exit86/packages/tools/cachy-asahi-cache/PKGBUILD": {
+      "bytes": 1175,
+      "sha256": "6bcd048d4b715d27e6fcfca82fda2fc67a54358721ecb4c12d863970d8a6e8e7"
+    },
+    "cases/precommit-exit86/packages/tools/cachy-asahi-cache/README.md": {
+      "bytes": 9604,
+      "sha256": "e9bcd08a9478d28eecb24a19dd6296c719ab10130570f017c8c291f7dfe911af"
+    },
+    "cases/precommit-exit86/packages/tools/cachy-asahi-cache/cachy-asahi-cache": {
+      "bytes": 28784,
+      "sha256": "841e126d68656639175b07ccb39b8061e9eebd72862a2b8dd62301dda2ec6013"
+    },
+    "cases/precommit-exit86/packages/tools/cachy-asahi-cache/test_cache.py": {
+      "bytes": 21886,
+      "sha256": "6cf944285848c0d1fcb52aff8ef92d5d31ef3aa4fedbbace94daaccf1eb92033"
+    },
+    "cases/precommit-exit86/packages/tools/cachy-asahi-orphans/.SRCINFO": {
+      "bytes": 914,
+      "sha256": "a324b86100e9a14aa431021f2ed3454920e764708faea4bc0775239dd9765223"
+    },
+    "cases/precommit-exit86/packages/tools/cachy-asahi-orphans/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "cases/precommit-exit86/packages/tools/cachy-asahi-orphans/NOTICE": {
+      "bytes": 759,
+      "sha256": "326f699857d31b8cd4462081aea074d4349721fb9c48965db6208c793a086720"
+    },
+    "cases/precommit-exit86/packages/tools/cachy-asahi-orphans/PKGBUILD": {
+      "bytes": 1379,
+      "sha256": "b59a1b67a8fd6290549e861bd40f5e94447d5376c86eca6baa94d2cdddb6b91a"
+    },
+    "cases/precommit-exit86/packages/tools/cachy-asahi-orphans/README.md": {
+      "bytes": 8810,
+      "sha256": "ef96e2cf1e0809a065edd36545c861e4064f3bae2cc4665401455a89dd144529"
+    },
+    "cases/precommit-exit86/packages/tools/cachy-asahi-orphans/cachy-asahi-orphans": {
+      "bytes": 20007,
+      "sha256": "559ff8554b9c93f237ddebec8f6c8ac09749ed93b6a179c06fcf513dfffe3292"
+    },
+    "cases/precommit-exit86/packages/tools/cachy-asahi-orphans/protection-floor.json": {
+      "bytes": 10489,
+      "sha256": "0d6dfbf3cd550fe72ddad30058693007f8bb86214de1e83442580677db5005f2"
+    },
+    "cases/precommit-exit86/packages/tools/cachy-asahi-orphans/test_orphans.py": {
+      "bytes": 14653,
+      "sha256": "8f4080979ad3de2b1c27419f27cd6e3f61b122544164f1e16158cc4f8d73bb82"
+    },
+    "cases/precommit-exit86/packages/tools/cachy-asahi-repository-runtime/.SRCINFO": {
+      "bytes": 1269,
+      "sha256": "4677c10dcc40686877f9d2bc5b9cac88763fdb4cc395a9a7fd530b6b79db2502"
+    },
+    "cases/precommit-exit86/packages/tools/cachy-asahi-repository-runtime/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "cases/precommit-exit86/packages/tools/cachy-asahi-repository-runtime/NOTICE": {
+      "bytes": 624,
+      "sha256": "5c4ed38dd7675728134d292afb2e61f2a09342c0eefa0becf89b9bda011166df"
+    },
+    "cases/precommit-exit86/packages/tools/cachy-asahi-repository-runtime/PKGBUILD": {
+      "bytes": 1973,
+      "sha256": "e1f9071387ebd679e09fbbdecb31aadf2f89a59235c8ca03ac42eb2599f16f0b"
+    },
+    "cases/precommit-exit86/packages/tools/cachy-asahi-repository-runtime/README.md": {
+      "bytes": 1748,
+      "sha256": "faf56df41bb5783d566d5e186141b47688ef770f3b7e2baef6c62302b599d316"
+    },
+    "cases/precommit-exit86/packages/tools/cachy-asahi-repository-runtime/check_source.py": {
+      "bytes": 3328,
+      "sha256": "4d002bc596e29cb83426fd5b7d185b2aa30e9211c0da79fcb616cf003c11f4a7"
+    },
+    "cases/precommit-exit86/packages/tools/cachy-asahi-repository-runtime/client.py": {
+      "bytes": 28669,
+      "sha256": "48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7"
+    },
+    "cases/precommit-exit86/packages/tools/cachy-asahi-repository-runtime/helper-pins.json": {
+      "bytes": 493,
+      "sha256": "33a5e11e6d12df984e07c437c68ee581527cc4c95f3327bc44cbc09e0e29948a"
+    },
+    "cases/precommit-exit86/packages/tools/cachy-asahi-repository-runtime/release.py": {
+      "bytes": 41320,
+      "sha256": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435"
+    },
+    "cases/precommit-exit86/packages/tools/cachy-asahi-repository-runtime/source-provenance.json": {
+      "bytes": 1195,
+      "sha256": "09cf1f6f0a7490e5c99bd8bc5caa67ba7c3ecf7cdb55e382dbe502d7e1042972"
+    },
+    "cases/precommit-exit86/packages/tools/cachy-asahi-repository-runtime/source_delivery.py": {
+      "bytes": 16456,
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+    },
+    "cases/precommit-exit86/packages/tools/cachy-asahi-update/asahi-policy.py": {
+      "bytes": 13321,
+      "sha256": "80cda05980b064a9cb2ad47e5525ddba03dbaefaf350d44d18a27c63ac1ffbaf"
+    },
+    "cases/precommit-exit86/scripts/build/build.py": {
+      "bytes": 11299,
+      "sha256": "e520b37e5dfc285914203cfab99daecc80543505fef7ded6704b3fb06f001d45"
+    },
+    "cases/precommit-exit86/scripts/build/compare.py": {
+      "bytes": 5820,
+      "sha256": "4198864c264642b196a090a67b36185e5c194e38edc4cb928d08eb65b9f710cd"
+    },
+    "cases/precommit-exit86/scripts/build/provision.py": {
+      "bytes": 5918,
+      "sha256": "cc7d719fad21185aea5fb7bd150f6cdab06958227de21f6e53d10084068bb1d3"
+    },
+    "cases/precommit-exit86/scripts/checks/dependencies.py": {
+      "bytes": 5149,
+      "sha256": "56891732a3ad69f78bfe42cb1f3712286cce39a94b885e9cb7c368e11b22131c"
+    },
+    "cases/precommit-exit86/scripts/checks/package_checks.py": {
+      "bytes": 17706,
+      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
+    },
+    "cases/precommit-exit86/scripts/ci/expanded600-root-upgrade/accepted_pair.py": {
+      "bytes": 2938,
+      "sha256": "76938c4aa24dc6d04ed4c0cac4aa1d5ec880af0cda54079725607b908a56ae2a"
+    },
+    "cases/precommit-exit86/scripts/ci/expanded600-root-upgrade/setup5.py": {
+      "bytes": 4708,
+      "sha256": "b995936917565114d383e3d0d4076cb24cba368e68f7c7e13b401839064c9167"
+    },
+    "cases/precommit-exit86/scripts/ci/expanded604-apps6-public-pair-updater/apps6-binding.json": {
+      "bytes": 616,
+      "sha256": "e6e0cd130591b0be59b27b2d63692d5dcdd565f94458f26fe6456a1ed541dcc2"
+    },
+    "cases/precommit-exit86/scripts/ci/expanded604-apps6-public-pair-updater/apps6-product.json": {
+      "bytes": 3020,
+      "sha256": "0019c1236e1d9294a0149e39e02c048e89431922a445e26b4ae067bcf5f46a5a"
+    },
+    "cases/precommit-exit86/scripts/ci/expanded604-apps6-public-pair-updater/selected_package.py": {
+      "bytes": 6938,
+      "sha256": "6a0a4ef3576aa9c03f04aefcd7ba4792503d515ff5cb649a333889f13c2ab845"
+    },
+    "cases/precommit-exit86/scripts/ci/expanded604-apps6-public-pairs/apps_inputs.py": {
+      "bytes": 6294,
+      "sha256": "080922852a400aeee2cead09e72b3b85b74194599c5d17eb4c4f00988f57b77a"
+    },
+    "cases/precommit-exit86/scripts/ci/expanded604-apps6-public-pairs/pair_packet.py": {
+      "bytes": 3441,
+      "sha256": "c06e8aabcca5793b65010a504457954eae49bd209115017e72f1a69f32584863"
+    },
+    "cases/precommit-exit86/scripts/ci/expanded604-composition/inputs.py": {
+      "bytes": 21815,
+      "sha256": "e079ea8a80ae4a20479369c61814020ad374a724b8653f5e54d4a1279b4f5166"
+    },
+    "cases/precommit-exit86/scripts/ci/full-development-composition/audio_aux.py": {
+      "bytes": 4474,
+      "sha256": "3e9b0f0f153a1fade1ff98606dafd93a654730eea0a8e44464415112922fc552"
+    },
+    "cases/precommit-exit86/scripts/ci/full-development-composition/expected-setup4-v2.lock": {
+      "bytes": 12076,
+      "sha256": "be35402204ba5c03d78279722afa83047c9575d2da70fb5c4064f46ed15954c5"
+    },
+    "cases/precommit-exit86/scripts/ci/full-development-composition/expected-updater-v2.lock": {
+      "bytes": 12075,
+      "sha256": "72818a8a2ae488281b08486b92c435ec244ef3b5313f23b97473d1684ecb68b4"
+    },
+    "cases/precommit-exit86/scripts/ci/full-development-composition/run.py": {
+      "bytes": 29738,
+      "sha256": "f86af098fdb0fc9a57a8b78b351341395ce13f9977464783f6f8133626e85698"
+    },
+    "cases/precommit-exit86/scripts/ci/full-development-composition/setup4_inputs.py": {
+      "bytes": 5351,
+      "sha256": "fb3bd6e2bb6c97fb1400fd04969ba5acd9e9f8a712d93e4ac2eaa0aa70fa5aac"
+    },
+    "cases/precommit-exit86/scripts/ci/full-root-failed-update/caller.py": {
+      "bytes": 14746,
+      "sha256": "b59832e2110e8bde632fb810bdd3556b0c413fab81f79fd0a7a91a93dfccf3cc"
+    },
+    "cases/precommit-exit86/scripts/ci/full-root-failed-update/lane-config.json": {
+      "bytes": 7738,
+      "sha256": "43e1e3de12317b0c357678854679cd80a6f57e211d2413fce738b0d7b3c55e6e"
+    },
+    "cases/precommit-exit86/scripts/ci/full-root-failed-update/launch.py": {
+      "bytes": 3156,
+      "sha256": "6bdad9e19b49fcf5a87a8ad159616cc63cf4767f98597fbbb00ff40214f36946"
+    },
+    "cases/precommit-exit86/scripts/ci/full-root-failed-update/run.py": {
+      "bytes": 17342,
+      "sha256": "5d067bd6a5379654999a571f2ce40c5d87bb2ea9377d3ad9c4bfc6bb63303218"
+    },
+    "cases/precommit-exit86/scripts/ci/full-root-upgrade-caller/container.py": {
+      "bytes": 16973,
+      "sha256": "069fef8bb9165a8d9f7ae5b23eaf5f8b80db36af85c74e859f52ae4d9e56ea8e"
+    },
+    "cases/precommit-exit86/scripts/ci/full-root-upgrade-caller/persistent_scope.py": {
+      "bytes": 28101,
+      "sha256": "458ec2adbc3e509e89dc78b223b30d1ee2cdc041259f61c9c7578153d36cdeb0"
+    },
+    "cases/precommit-exit86/scripts/ci/full-root-upgrade-caller/run.py": {
+      "bytes": 27803,
+      "sha256": "b9840c79ffc6c45070ac12b80d469fb46c26059df63e121801d6ab223035e303"
+    },
+    "cases/precommit-exit86/scripts/ci/full-root-upgrade-caller/updater16k-adapter.json": {
+      "bytes": 4264,
+      "sha256": "7e419e96ad0a693b4faf58fe47da01046ba482ca197b2083a48dd52a6e0dec8f"
+    },
+    "cases/precommit-exit86/scripts/ci/full-root-upgrade-caller/upgrade_hook.py": {
+      "bytes": 15884,
+      "sha256": "a75eea7f1897c31446576b4a480de4301b46c4e9596a8c9fba724449ae6c4d55"
+    },
+    "cases/precommit-exit86/scripts/ci/full-root-upgrade/construct_repository.py": {
+      "bytes": 13960,
+      "sha256": "8e6d1e58ae8aa1b7c945eebb5d5d279800c2e26f60a4575c3f94c8f699789fec"
+    },
+    "cases/precommit-exit86/scripts/ci/full-root-upgrade/root_upgrade.py": {
+      "bytes": 23556,
+      "sha256": "b52fa90f5dd9b4d6cd31f3de4f81a44d5423660d0a820703756c5e4568036e4f"
+    },
+    "cases/precommit-exit86/scripts/ci/management-tools-generic16k/contract.py": {
+      "bytes": 15229,
+      "sha256": "ff0c7a3701dec1b1997853106024cbeb1f3fddd67b77b08d050a630af084833b"
+    },
+    "cases/precommit-exit86/scripts/client/client.py": {
+      "bytes": 28669,
+      "sha256": "48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7"
+    },
+    "cases/precommit-exit86/scripts/client/endpoint.py": {
+      "bytes": 7620,
+      "sha256": "e94520d9cc6ee0bb8ac007227dc51bc677de9efff7464f453ad7682eaa026e79"
+    },
+    "cases/precommit-exit86/scripts/client/stage.py": {
+      "bytes": 34982,
+      "sha256": "1a182e1bfaf9e3e7aa80d608fbc59805865fdd67e3aed0f460667abe8d626283"
+    },
+    "cases/precommit-exit86/scripts/install/local_transaction.py": {
+      "bytes": 91431,
+      "sha256": "c34202676e30a5085828f92d413cad0aaeacda1c9ac95e86155952db430d62d2"
+    },
+    "cases/precommit-exit86/scripts/install/native_arm_trial.py": {
+      "bytes": 74929,
+      "sha256": "fe2becb4fe6c22e50903ab390db5a79aae311b7284fc71bf4b1c4b79e99824c4"
+    },
+    "cases/precommit-exit86/scripts/install/native_preflight.py": {
+      "bytes": 22033,
+      "sha256": "d240f9959e25851f8688ada75257de54dde40db492b8a2cf9780216bb53bf8eb"
+    },
+    "cases/precommit-exit86/scripts/port/kernel-native-job/runtime.py": {
+      "bytes": 11345,
+      "sha256": "8a7cd5e73cf383b2d81ad577b8513c6fd7d49f9fd2572961c73ae9d289cab821"
+    },
+    "cases/precommit-exit86/scripts/release/check_source_pins.py": {
+      "bytes": 9981,
+      "sha256": "9b78c348e2d567f44f656285f6a562220cadead7025f1e0db2eb9a53d9f09ea3"
+    },
+    "cases/precommit-exit86/scripts/release/compare_releases.py": {
+      "bytes": 11691,
+      "sha256": "27086c7b0af74a1226deae7a6a71245882b82608a1fa9d33b68e657979c7d83c"
+    },
+    "cases/precommit-exit86/scripts/release/export_repository.py": {
+      "bytes": 14656,
+      "sha256": "03e7f9f39e014ab9c5d41f16ceb64bce2f67e5c928a68ec97384d966bdae8981"
+    },
+    "cases/precommit-exit86/scripts/release/release.py": {
+      "bytes": 41320,
+      "sha256": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435"
+    },
+    "cases/precommit-exit86/scripts/release/source_delivery.py": {
+      "bytes": 16456,
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+    },
+    "cases/precommit-exit86/scripts/update/archive_stream.py": {
+      "bytes": 11938,
+      "sha256": "10f1a4c0ac5b98852d9ebb150af28f9ce345c800935a64fa463bc90f72fcb838"
+    },
+    "cases/precommit-exit86/scripts/update/aux_checkpoint.py": {
+      "bytes": 18456,
+      "sha256": "d51179ca24c981bafd817d7db082c0ceb3b2f5deb922004bfe97d1e2007edda7"
+    },
+    "cases/precommit-exit86/scripts/update/aux_copy.py": {
+      "bytes": 42782,
+      "sha256": "c953046e2174adbb4ac3f5bf5e959931c5c760f253cc90788d0e1429b3285dcd"
+    },
+    "cases/precommit-exit86/scripts/update/aux_initialize.py": {
+      "bytes": 7611,
+      "sha256": "ebdfefb242e439ec8cd6e955eecbdacd6ddc60f2f9303e8176309ff65bf5a8f7"
+    },
+    "cases/precommit-exit86/scripts/update/aux_runtime.py": {
+      "bytes": 10032,
+      "sha256": "c5281ddd912fa5cfa5d9842940f38805279fe71255a8dc3989556ee720697173"
+    },
+    "cases/precommit-exit86/scripts/update/bound_update.py": {
+      "bytes": 20404,
+      "sha256": "4c2c8857414ec4d690a25c3208383f5fe79a584ecc42d99e9f217c5ce9b983ec"
+    },
+    "cases/precommit-exit86/scripts/update/capacity.py": {
+      "bytes": 1449,
+      "sha256": "dcb9899cd24daa21f75e6da6b0214393f093d140a70769092da091e0cfdf7c87"
+    },
+    "cases/precommit-exit86/scripts/update/disposable_copy.py": {
+      "bytes": 6098,
+      "sha256": "fb05d12a0d67a598cc940e0bc7edb5aa9ffc8cf87ce7b9f695ba5fbd26747667"
+    },
+    "cases/precommit-exit86/scripts/update/full_root.py": {
+      "bytes": 35970,
+      "sha256": "3d8972efeb577750382c62d6801b8c507dbf612ed96e29ebde450a102c5c568e"
+    },
+    "cases/precommit-exit86/scripts/update/generic_policy.py": {
+      "bytes": 3992,
+      "sha256": "80b9e3a664513e6dd084fa5156512d630573f1d34588adef581ee2a16e2d16d7"
+    },
+    "cases/precommit-exit86/scripts/update/internal_runtime.py": {
+      "bytes": 8136,
+      "sha256": "8af393d1a9985689af532c118f09ef3c7d7072f6d53c9f96d123557ce58b11b9"
+    },
+    "cases/precommit-exit86/scripts/update/linked_runtime.py": {
+      "bytes": 8059,
+      "sha256": "18fc4ecabf3bd2eec70ca8a49c7753e114a611392ab88c42a00b89f37e815564"
+    },
+    "cases/precommit-exit86/scripts/update/measure_copy.py": {
+      "bytes": 25734,
+      "sha256": "e582245bd114b0b9d83f2de4fdc81a35d2f48493ba6147879871af794476813b"
+    },
+    "cases/precommit-exit86/scripts/update/native_container.py": {
+      "bytes": 4802,
+      "sha256": "0c980201cd08ca33c8eb06f0d33376f6b29eeb5c0696e9433fa1c1da9c772128"
+    },
+    "cases/precommit-exit86/scripts/update/native_trial.py": {
+      "bytes": 11322,
+      "sha256": "48cf4b94f87c2bcc897a41d4db43befbc4aa5dbbc13e626e7fb6791207d0d8ef"
+    },
+    "cases/precommit-exit86/scripts/update/platform_policy.py": {
+      "bytes": 5042,
+      "sha256": "0240d66f0b9dbbb8551986a5efd177af9e6029cf8095069c3bfbc9bdaa9f6de4"
+    },
+    "cases/precommit-exit86/scripts/update/root_link_selection.py": {
+      "bytes": 25684,
+      "sha256": "4b47223e9c66874193c2b38a620aa892871e93e556178c478dac1929d2540db9"
+    },
+    "cases/precommit-exit86/scripts/update/root_path.py": {
+      "bytes": 3435,
+      "sha256": "2efcbc1057e117a406488f05a3e0213751b00ab09f845a7830a71a4cf60fd2b4"
+    },
+    "cases/precommit-exit86/scripts/update/scale_update.py": {
+      "bytes": 11403,
+      "sha256": "04135d6dec91e634929ce82c7eaa372f773cf5e3a667c54580f28c5c733f5fe5"
+    },
+    "cases/precommit-exit86/scripts/update/setup_trial.py": {
+      "bytes": 2093,
+      "sha256": "c378f6fb15c85cde320163a74e99a1dbd96d59f862bc96dbd445179014a7f724"
+    },
+    "cases/precommit-exit86/scripts/update/snapshot.py": {
+      "bytes": 13494,
+      "sha256": "adaaa64727363de6603ed633142532bd30f6f23d0afde9195c584ec96157b3ae"
+    },
+    "cases/precommit-exit86/scripts/update/supervision.py": {
+      "bytes": 3293,
+      "sha256": "f18bcbd2a6279cff8fe6c7e9c9f80fc01c9818844b01df8c4e97b83d61704b10"
+    },
+    "cases/precommit-exit86/upgrade-config.json": {
+      "bytes": 14207,
+      "sha256": "898232a6eb9e9238229452ae309839a474ff11b1cbc7f22e577a1ec6b35e36dc"
+    },
+    "cleanup.py": {
+      "bytes": 233,
+      "sha256": "acf5ca61ed2b5e3de15ba70449c93033e58ace2295623bcef11bc6de205afd12"
+    },
+    "entry.py": {
+      "bytes": 235,
+      "sha256": "21c542c7b643dcfe151f7d13dfa40d996db4a719edf7c2e0851af0dfe353f277"
+    },
+    "implementation/adapter.py": {
+      "bytes": 8371,
+      "sha256": "cd8475d66184cea844599e53654e1257c8a8dd399e2bcaf53f3a7d97670f8318"
+    },
+    "implementation/after607.lock": {
+      "bytes": 12076,
+      "sha256": "be35402204ba5c03d78279722afa83047c9575d2da70fb5c4064f46ed15954c5"
+    },
+    "implementation/authority.py": {
+      "bytes": 3150,
+      "sha256": "9e6a2f164c228476160bd209e9bdd7327121a93862dde9c0db2fa332452c848b"
+    },
+    "implementation/baseline.py": {
+      "bytes": 3213,
+      "sha256": "fc782128f3338015f6280c0c5dbee6f240d0db44af74321b5455da32f788c052"
+    },
+    "implementation/before607.lock": {
+      "bytes": 12075,
+      "sha256": "72818a8a2ae488281b08486b92c435ec244ef3b5313f23b97473d1684ecb68b4"
+    },
+    "implementation/cache.py": {
+      "bytes": 3312,
+      "sha256": "d6388d06a17e683b48ac4929033aca2331c1b78de73a6975d7a353c2017549f4"
+    },
+    "implementation/common.py": {
+      "bytes": 2707,
+      "sha256": "58ad5851aa8b4afde65c2b03afe593edc6a90aefbd512754ad97a4fb990f1824"
+    },
+    "implementation/entry.py": {
+      "bytes": 3855,
+      "sha256": "f9a577c9ed93ad9c88e43d4642c1d0201acd3e7d2f9a0d06488644af975e9de9"
+    },
+    "implementation/namespace_context.py": {
+      "bytes": 6474,
+      "sha256": "71c85c0231c4b9a464c6606e18c46f4f6160079749d6e6ceac5309ae126969ad"
+    },
+    "implementation/pair.py": {
+      "bytes": 1480,
+      "sha256": "0d3d8ba5e35de2aa5cf8943a98e4a95c488042fed9b769a691d2f8654bfabe21"
+    },
+    "implementation/parent355.json": {
+      "bytes": 877605,
+      "sha256": "744a0c1bdf23fd8374594a1f8b1926278187b840f73f5c2ae32e40d473792b5a"
+    },
+    "implementation/profile.json": {
+      "bytes": 896449,
+      "sha256": "4b42f05dc130942b114d29e6a0b81f8dd0f09fc51dc58ebcc48ad70c59a52593"
+    },
+    "implementation/runtime.py": {
+      "bytes": 7921,
+      "sha256": "5bea6ff8d01daa14fce60d59ee1924ed2df590ab48809ad0b2c75df9e7c389ba"
+    },
+    "implementation/selected-input.json": {
+      "bytes": 77149,
+      "sha256": "e1eb60f65eaecec54b53c80e1d8fa2f2ae3c1a52418ef95f77aee4b2a2aaf90e"
+    },
+    "implementation/selected_package.py": {
+      "bytes": 3836,
+      "sha256": "d4a696231b3fd66af1205a556eb4c6d54ea508bdf3261092c5e3badd73d95363"
+    },
+    "implementation/source_guard.py": {
+      "bytes": 4654,
+      "sha256": "a82f8886d24887a768870ad508a44844aa370a774f54b9fbd73d6e4f7a11161a"
+    },
+    "parent4k/.github/workflows/native-arm-build.yml": {
+      "bytes": 82742,
+      "sha256": "44d1bed6b58fa5b1962d5a5ef2b2fb96d34a32a1464ccc8117887385dafdf52f"
+    },
+    "parent4k/.github/workflows/native-arm-updater604-recovery4k.yml": {
+      "bytes": 82742,
+      "sha256": "44d1bed6b58fa5b1962d5a5ef2b2fb96d34a32a1464ccc8117887385dafdf52f"
+    },
+    "parent4k/case.py": {
+      "bytes": 5274,
+      "sha256": "57b552461ef557fbb1fd0d65a01367c61ebc2a71dc2bcbbacc60f4c88e398684"
+    },
+    "parent4k/cleanup.py": {
+      "bytes": 3231,
+      "sha256": "b15959bcb418e613aef03736cb0b460cc150034e47e66d68b671ef7470de41c2"
+    },
+    "parent4k/entry.py": {
+      "bytes": 5948,
+      "sha256": "575c1ca49830b0cf53930e94ddface604826f6d63a80b0c0928ba06785102388"
+    },
+    "parent4k/profile.json": {
+      "bytes": 177041,
+      "sha256": "413256e87f12b9146059ecbeec7204c43d8c4181dc4901a0f884bba0f6eededf"
+    },
+    "parent4k/retain.py": {
+      "bytes": 2650,
+      "sha256": "a3394c03e546e4026a6f57d2eb54c89015cab708626f20d6b29ef1fc312651d8"
+    },
+    "parent4k/runtime.py": {
+      "bytes": 3472,
+      "sha256": "fa9d0f74fa14ba9125cf4181f960131e1d8198786d96b98f3f33f28805e22a0c"
+    },
+    "parent4k/source-manifest.json": {
+      "bytes": 1423,
+      "sha256": "2a03ae31a858a7d95b3774fbc1c52126fa1277198b95cea39b8af9b6f7d786aa"
+    },
+    "parent4k/test_source.py": {
+      "bytes": 15299,
+      "sha256": "6786a325ca3b48e46f5b4071e093e94e780e3b488bd0fb28446201f80eee81c5"
+    },
+    "retain.py": {
+      "bytes": 231,
+      "sha256": "f9923fa0921bba5d8979da64d9c27551eaf952f000a12f908c408684a572102e"
+    },
+    "source-manifest.json": {
+      "bytes": 64364,
+      "sha256": "6622591287ff81a32b03a9c7839e2118594dee7f95437ed9d1dbf3ad460da9f2"
+    },
+    "test_source.py": {
+      "bytes": 3882,
+      "sha256": "bd6c5690f8608d9ea9a77e412a2a6551242d978a5825b26d9e61ba763d817845"
+    }
+  },
+  "ref": "codex/latest607-updater-tooling-source-v1",
+  "source": "3b8ca255d90f0b4b0be18639a4b754da8c7aa969"
+}

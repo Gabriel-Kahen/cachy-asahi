@@ -1,0 +1,42 @@
+{
+  "add_only": {
+    "development_alternative_native_evidence": "docs/validation/doctor2-installed-comparison-native-20261027.md",
+    "development_alternative_recipe": "packages/tools/cachy-asahi-doctor2/PKGBUILD",
+    "development_alternative_state": "ROOT_ACCEPTED_EXACT_DOCTOR2_NATIVE_PAIR47_AND_FINITE_INSTALLED_COMPARISON_OVER_SYNTHETIC_REPORTS_ONLY",
+    "development_alternative_version": "0.2.0-2"
+  },
+  "default_composition_unchanged": true,
+  "entry": "cachy-asahi-doctor",
+  "existing_native_evidence_unchanged": true,
+  "hardware": "NOT_RUN",
+  "native_ARM": "PASS_FINITE_NATIVE_PAIR47_AND_INSTALLED_COMPARISON_SYNTHETIC_REPORTS_ONLY",
+  "package": "cachy-asahi-doctor",
+  "path": "manifests/packages.toml",
+  "preserve_original_entry": {
+    "candidate_version": "0.1.0-1",
+    "hardware_validation": "NOT RUN",
+    "license": "MIT",
+    "name": "cachy-asahi-doctor",
+    "native_build": "PASS native ARM byte-identical pairs in38884680631 and38886781500",
+    "native_cli_lifecycle": "PASS fresh/existing users, install/reinstall/remove/report preservation in38886781500",
+    "native_generic16k_cli": "PASS unchanged unpacked CLI payloads in38904917140; not installed or GUI",
+    "native_generic16k_managed_report": "PASS private reports and readable co-present terminal in both installed593 GUI profiles38952428172; no hardware certification",
+    "native_generic_managed_report": "PASS actual CLI private report and co-present readable terminal in both GUI profiles38905814219",
+    "next_step": "Exercise the installed read-only report with unavailable model/bus and real managed session states; complete signed admission and target validation before selection.",
+    "phase": "tools-experience",
+    "recipe": "packages/tools/cachy-asahi-doctor/PKGBUILD",
+    "selected_for_development": false,
+    "selected_for_release": false,
+    "source": "local-original",
+    "status": "candidate"
+  },
+  "recipe": "packages/tools/cachy-asahi-doctor2/PKGBUILD",
+  "registration_scope": "Existing default Doctor1 inventory and historical native source pins are byte held. This separate recipe is a proposed upgrade only.",
+  "release_selected": false,
+  "release_selection": false,
+  "schema_version": 1,
+  "source": "local-original",
+  "status": "UNSELECTED_DEVELOPMENT_UPGRADE_PROPOSAL",
+  "validation": "Native ARM run40453019742, sourcec83dda6be13f9f28e1510cb87bca8e6a52725eb9: exact Doctor2 0.2.0-2 byte-identical pairs, all47 makepkg cases each build, full retained1148 cache/base574, five-phase installed CLI and six installed-comparison observations/72 cases (54 direct executable,18 explicit installed-code loader) over synthetic supplied reports only; live audio/GUI/16K/M2/performance/production trust/independent-machine and release acceptance remain open",
+  "version": "0.2.0-2"
+}

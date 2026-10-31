@@ -1,0 +1,24 @@
+{
+  "GUI_prerequisite": "CURRENT_GUI_FAIL_NOT_ACCEPTED_SEPARATE",
+  "expected604_sha256": "7bc6caa51301bf076aeda4d137277a128c53a16e5bfd25f02e7309c4b3a408c3",
+  "fresh600": {
+    "carrier_source": "fd42f51b6c32a1cca69df5699760ed2a9e39329f",
+    "decision": {
+      "bytes": 3332,
+      "path": "payload/fresh600.json",
+      "sha256": "bea4b56374ef779756ffdc3e0aba680e3c74fac7316257c2433eb14417f210ef"
+    },
+    "run_id": "38965999704",
+    "source_sha": "3cbd856315adb30ba7a1b9246739a520c19c9728"
+  },
+  "native604": {
+    "carrier_source": null,
+    "decision": null,
+    "input_policy_sha256": null,
+    "run_id": null,
+    "source_manifest_sha256": null,
+    "source_sha": null
+  },
+  "schema_version": 1,
+  "status": "UNBOUND_APPS6_CURRENT604_NATIVE_ACCEPTANCE"
+}

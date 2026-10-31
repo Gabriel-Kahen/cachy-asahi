@@ -25,7 +25,7 @@ def emit(nonce,value):
 
 
 def pinned_sources(c):
-    for name in ('guest.py','installer.py','profile.py','installer-profile.json','payload.json'):
+    for name in ('guest.py','installer.py','profile.py','numeric_vm.py','installer-profile.json','payload.json'):
         path=SHARED/name; ref=c['runner_files'][name]
         need(not any(p.is_symlink() for p in (path,*path.parents)),'ordinary guest source required')
         info=path.stat()
@@ -44,6 +44,7 @@ def main():
     c=json.loads((SHARED/'contract.json').read_bytes()); nonce=c['nonce']
     pinned_sources(c)
     emit(nonce,dict(event='boot',scope='generic-arm-full-installer-software',page_size=4096,kernel=os.uname().release,uid=0))
+    namespace_fd=None;numeric=None;p=None
     status='FAIL'; cleanup='FAIL'; result=dict(event='result',status='FAIL',phase='guest-bootstrap')
     try:
         spec=importlib.util.spec_from_file_location('_installer_guest_profile',SHARED/'profile.py')
@@ -66,18 +67,34 @@ def main():
         # The same selected source owns process-group retirement at both levels.
         spec=importlib.util.spec_from_file_location('_installer_guest_worker',SHARED/'installer.py')
         worker=importlib.util.module_from_spec(spec); spec.loader.exec_module(worker)
-        receipt=worker.supervise(argv,env=dict(PATH='/usr/bin:/bin',LC_ALL='C',HOME=str(trial),TMPDIR=str(trial)),timeout=4650)
+        _,profile,_,_=worker.checked_inputs(protected=True)
+        numeric=worker.numeric
+        namespace_fd,lease_sha=numeric.bootstrap(p,c,profile)
+        argv+=['--namespace-fd',str(namespace_fd),'--lease-sha256',lease_sha]
+        receipt=worker.supervise(argv,env=dict(PATH='/usr/bin:/bin',LC_ALL='C',HOME=str(trial),TMPDIR=str(trial)),
+                                 timeout=4650,namespace_fd=namespace_fd)
         rows=receipt.pop('output').decode('utf-8').splitlines()
         need(len(rows)==1,'exact one ordinary installer result required')
         result=json.loads(rows[0]); need(type(result) is dict,'installer result must be object')
-        result['event']='result'
         need(receipt['returncode']==0 and receipt['termination'] is None and receipt['direct_child_reaped'] and
-             receipt['group_retired'] and result.get('status')==PASS,'ordinary installer failed')
+             receipt['group_retired'] and result.get('status')=='PROVISIONAL_MAPPED_PARENT','ordinary installer failed')
+        # supervise returns only after the ordinary parent and its descendants
+        # have retired. The root guest now performs read-only independent readback.
+        numeric.checked_lease(p,namespace_fd,lease_sha,c,profile)
+        result=numeric.verify_export(p,worker,result,c)
+        result['event']='result'
         status=PASS; cleanup='PASS'
     except BaseException as error:
         status='FAIL'; result.update(status='FAIL',guest_error_type=type(error).__name__,guest_error=str(error)[:512])
         # Group retirement is explicit in supervise; all exceptions fail closed.
         cleanup='FAIL'
+    finally:
+        try:
+            if namespace_fd is not None:os.close(namespace_fd)
+            if namespace_fd is not None and p is not None:(p.SHARED/numeric.LEASE).unlink()
+        except BaseException as error:
+            status=cleanup='FAIL';result.update(status='FAIL',namespace_cleanup_error=str(error)[:512])
+    result['event']='result'
     emit(nonce,result)
     emit(nonce,dict(event='exit',status=status,cleanup=cleanup))
     # Natural QEMU shutdown remains separate from receipt completion.

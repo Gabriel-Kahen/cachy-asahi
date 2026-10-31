@@ -1,0 +1,141 @@
+{
+  "buildinfo": {
+    "architectures": {
+      "aarch64": 510,
+      "any": 64
+    },
+    "each_installed": 574,
+    "installed_vector_sha256": "087fee98e13709f25ab78a555a7db8d5501155774268d38c2932bacd818fbb54",
+    "recipe_sha256": "a023ae04c6ad73ef592df339aebc240860cfdd532a6977be695a05ba6b6f21d2",
+    "source_lock_sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
+  },
+  "date": "2026-10-27",
+  "lifecycle": {
+    "after": 7,
+    "before": 8,
+    "cases": [
+      "missing-authorization",
+      "target-mismatch",
+      "policy-hash",
+      "different-selection",
+      "duplicate-selection",
+      "same-bytes-assessment",
+      "same-bytes-policy",
+      "foreign-lock",
+      "positive",
+      "stale-after-removal",
+      "helper-alias",
+      "unsafe-payload",
+      "matching-hook"
+    ],
+    "cleanup": "EXACT_RECORDED_CONSUMER_ABSENCE_THEN_PRODUCER_AND_TEST_AUTHORITY_ABSENCE",
+    "commands": 64,
+    "handle_released": true,
+    "maps": 35,
+    "package_phases": [
+      "install",
+      "repeat",
+      "remove",
+      "reinstall",
+      "final-remove"
+    ],
+    "protected574_and_configuration_preserved": true,
+    "removed": "caa-orphans3-leaf-a=1-1",
+    "transaction_released": true
+  },
+  "limits": {
+    "M2": "NOT_RUN",
+    "cleanup": "SOURCE_ENFORCED_RECORDED_ABSENCE_NO_FRESH_DAEMON_QUERY",
+    "descendant_exit": "UNKNOWN_NOT_DIRECTLY_REAPED",
+    "full606_GUI": "NOT_RUN",
+    "full_port_acceptance": false,
+    "interruption_or_fatal_parent_cleanup": "NOT_PROVEN",
+    "live_host_removal": "NOT_RUN",
+    "native16K": "NOT_RUN",
+    "old02_admission_transfer": false,
+    "performance": "NOT_MEASURED",
+    "production_trust": "NOT_GRANTED",
+    "release": "NOT_ADMITTED",
+    "signature_qualification": "SOURCE_ENFORCED_NATIVE_INSTALLATION_GATE_AND_RETAINED_BINDINGS_NO_NEW_INDEPENDENT_GPG_REVERIFY"
+  },
+  "links": {
+    "implementation_status": "../implementation-status.md",
+    "native_evidence": "native-arm.md",
+    "record": "orphans03-native-private-removal-20261027.md"
+  },
+  "native": {
+    "architecture": "aarch64",
+    "page_size": 4096
+  },
+  "package": {
+    "archive": "cachy-asahi-orphans-0.3.0-2-any.pkg.tar.xz",
+    "builds": 2,
+    "bytes": 39516,
+    "checks_each": 109,
+    "independence": "DISTINCT_RECORDED_CONTAINERS_NOT_INDEPENDENT_MACHINES",
+    "name": "cachy-asahi-orphans",
+    "pair_equal": [
+      "archive_bytes",
+      "installed_members",
+      "PKGINFO",
+      "BUILDINFO"
+    ],
+    "payload_files": 12,
+    "sha256": "7c590d1faaae001e6d34d1c246392f8abb026ebf95232ab3e4e8667b79df3fda",
+    "version": "0.3.0-2"
+  },
+  "proof": {
+    "Root_admission": {
+      "bytes": 2336,
+      "sha256": "5259d7ea56c29d0fc3ded73c97334d36dc98155c5c892ad366f5968041d31667"
+    },
+    "collection": {
+      "bytes": 3719,
+      "sha256": "ab1e79832c0a1750e75c022546178cd0e98802853d91e0d98186252aeaa2e75b"
+    },
+    "delivery_seal": {
+      "bytes": 55737,
+      "sha256": "1fd190ddd33af1d65d046f30a4d7f093c6258e8628c00dbde8bf78866fb5c374"
+    },
+    "finite_facts": {
+      "bytes": 8376,
+      "sha256": "35b2678b36757d6505f2df529d082d18122f9f865ef6e8d16afd676d71b3cf6e"
+    }
+  },
+  "replay": {
+    "cap_seconds": 300,
+    "count": 1,
+    "new_acquisitions": 0,
+    "passive_reader_acceptance": false,
+    "result": {
+      "bytes": 301632,
+      "sha256": "ff24d85535e91b9b976af4fa622beb12663a83de57b5d0ffc10b522a3cbd444e"
+    },
+    "seconds": 11.528885
+  },
+  "run": {
+    "artifact": {
+      "bytes": 14103353,
+      "sha256": "9fd8217452548862fc1a1b1eedaf1c3e47328e83c1921a813906ded9f644f1f7"
+    },
+    "artifact_id": 12776637737,
+    "attempt": 1,
+    "conclusion": "success",
+    "id": 40597289861,
+    "job": 122516317572,
+    "steps": 11
+  },
+  "schema_version": 1,
+  "scope": "PRIVATE_EXPLICIT_LIVE_CLI_FIXTURE_ONLY",
+  "source": {
+    "files": 73,
+    "predecessor_result": "FAILED_NOT_ACCEPTED_NOT_TRANSFERRED",
+    "predecessor_sha": "394ce9cd50eb683e6046205103a400707d7b7900",
+    "predecessor_tree": "0de4a801813a81cfa88f55d4256eb6e24a220efd",
+    "product_files": 20,
+    "ref": "codex/orphans03-ordering-native-v1",
+    "sha": "4c64ddbb5cf7c018365287583df3d0efb8cfe686",
+    "tree": "d659e19395422f5bab112387bd0cc26f53599205"
+  },
+  "status": "ROOT_QUALIFIED_GENERIC_ARM4K_ORPHANS03_REPRODUCIBLE_PACKAGE_AND_PRIVATE_EXPLICIT_REMOVAL_COMPONENT_ONLY"
+}

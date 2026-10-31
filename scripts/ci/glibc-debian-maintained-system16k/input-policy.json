@@ -1,0 +1,27 @@
+{
+  "binding": {
+    "index": {
+      "bytes": 5662,
+      "path": "packet.json",
+      "sha256": "a8e3317cabb3fe914a6b3898b2bfbc900905c3823495f15166c419564f7e4956"
+    },
+    "source": "132aec86c0946f6c7b7a79c46e1a9ccaf91021e3"
+  },
+  "candidate": {
+    "authority_sha256": "88643eabd61a39df63ecaeb50bb20041d17cf4fd3adee55d82d43d3c1ca08707",
+    "package": "cachy-asahi-glibc-gnu-provider",
+    "pkgbuild_sha256": "9d6d5e688c95febe85321abc69fbfe1b7781a02e318771ae43851d8c29f68bb8",
+    "prepared_tree": "08ea2aef96bd3144cf02cbc68cbbb003dc25ed9f",
+    "source_packet_ref": "60e174c5db7f770c94064198516dd3ee07b51b7b",
+    "version": "2.43.caa3-1"
+  },
+  "required_before_binding": [
+    "Root accepted new maintained caa3 native pair and measured payload traits",
+    "Matching new original normal compiler receipts and precompiled probes",
+    "Exact held rollback archive and independent maintained source authority",
+    "Root-frozen staged-phase immutable packet; NO prior16K receipt"
+  ],
+  "schema_version": 1,
+  "scope": "DATA_STAGED_PRIVATE_ROOT_NOT_ALPM_INSTALLATION",
+  "status": "BOUND_BY_ROOT"
+}

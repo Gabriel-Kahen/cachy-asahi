@@ -1,0 +1,11 @@
+ rendered=edited((HERE/'factory/installed607.py').read_bytes(),rows)
+ node=next(n for n in ast.parse(rendered).body if isinstance(n,ast.FunctionDef)and n.name=='observe')
+ payload=ast.get_source_segment(rendered.decode(),node)
+ for before,after in (
+  ('def observe(root,helper,expected,*,deadline=600):','def _payload_observe607(root,helper,expected,*,deadline=600):'),
+  ("    for row in rows:\n        need(row['name'] not in owners", "    progress=_Payload607(expected)\n    for row in rows:\n        progress.mark('begin',row['name'],len(nodes),total)\n        need(row['name'] not in owners"),
+  ("    _observer_mark('payload_end')", "        progress.mark('end',row['name'],len(nodes),total)\n    _observer_mark('payload_end')")):
+  need(payload.count(before)==1,'one source-owned package progress seam');payload=payload.replace(before,after,1)
+ before,after=rows[-1];needle="\nif __name__=='__main__':main()";need(after.count(needle)==1,'one existing generated footer')
+ rows[-1]=(before,after.replace(needle,"\n_payload_original607=observe\n"+PAYLOAD_BODY607+"\n"+payload+needle,1))
+ return rows

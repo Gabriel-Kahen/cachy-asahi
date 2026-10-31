@@ -1,0 +1,34 @@
+{
+  "actual_ref": null,
+  "actual_source": null,
+  "inputs": {
+    "dns2": {
+      "carrier_ref": null,
+      "carrier_source": null,
+      "decision_pin": null,
+      "decision_status": null,
+      "index_path": null,
+      "index_pin": null,
+      "name": "cachy-asahi-dns",
+      "native_run": 39101228683,
+      "native_source": "59a9aee351226e93e22574fd14bd3e0b45c8368d",
+      "version": "0.1.0-2"
+    },
+    "welcome5": {
+      "carrier_ref": null,
+      "carrier_source": null,
+      "decision_pin": null,
+      "decision_status": null,
+      "index_path": null,
+      "index_pin": null,
+      "name": "cachy-asahi-welcome",
+      "native_run": 39104384568,
+      "native_source": "85ffec834fc72ef8764cdcae828a12ec8ddf7f20",
+      "version": "0.1.0-5"
+    }
+  },
+  "minimal_run": null,
+  "overlay_run": null,
+  "schema_version": 1,
+  "status": "UNBOUND"
+}

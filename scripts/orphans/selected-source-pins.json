@@ -1,0 +1,18 @@
+{
+  "files": {
+    "packages/tools/cachy-asahi-orphans/cachy-asahi-orphans": {
+      "bytes": 20007,
+      "sha256": "559ff8554b9c93f237ddebec8f6c8ac09749ed93b6a179c06fcf513dfffe3292"
+    },
+    "packages/tools/cachy-asahi-orphans/protection-floor.json": {
+      "bytes": 10489,
+      "sha256": "0d6dfbf3cd550fe72ddad30058693007f8bb86214de1e83442580677db5005f2"
+    },
+    "scripts/apps/transaction.py": {
+      "bytes": 27125,
+      "sha256": "aedc814f9455f898e78e4944ce3a2b2483faddec11022fc73d9d24deb2a43b43"
+    }
+  },
+  "schema_version": 1,
+  "scope": "SOURCE_ONLY_NO_NATIVE_REMOVAL_CREDIT"
+}

@@ -1,0 +1,41 @@
+{
+  "actual_ref": null,
+  "actual_run": null,
+  "actual_source": null,
+  "apps_source": "1dc9ecfee51145ba9cc43a95cc45bee97faed8b9",
+  "capture_receipt": null,
+  "current606": {
+    "decision_base64": "ewogICJjbGVhbnVwIjogIlBBU1MiLAogICJleHBlY3RlZDYwNl9zaGEyNTYiOiAiM2E1ODZjMWUzNDAwMzkxZjU2YmQyODFhYzljMTZhYmE4NWQ5NGQwZmNhMDAyNzcwZTc3ZWUxODAyYzVkOWZkMSIsCiAgImZ1bGw2MDRfcHJlc2VydmVkIjogdHJ1ZSwKICAiaGFyZHdhcmUiOiAiTk9UX1JVTiIsCiAgImluc3RhbGxlZF9jb250cm9scyI6IHsKICAgICJkbnMyIjogMjcsCiAgICAib3JkaW5hcnlfaG9tZXMiOiAyLAogICAgInN5c2N0bDIiOiAyOAogIH0sCiAgInBhY2thZ2VfY291bnQiOiA2MDYsCiAgInJlbGVhc2UiOiAiTk9UX0FETUlUVEVEIiwKICAicnVuX2lkIjogMzkxMDY5NTMyNTcsCiAgInNvdXJjZSI6ICJmM2EzMGYyMDQ5ZjU3ZDlmM2NiMjQzM2ZiZDU5YWY1MWQ0Y2M1NzIwIiwKICAic291cmNlX21hbmlmZXN0IjogewogICAgImJ5dGVzIjogNDU3OTYsCiAgICAic2hhMjU2IjogIjA5ZGFlNTRjMTBmNzZkMWE3YjBiZWRkMDEyZjgyYWE1MTNmNWNjOTMxMDJhZDRlZjVlNjQwNmRmZWU4YmRkNzQiCiAgfSwKICAic3RhdHVzIjogIlJPT1RfQUNDRVBURURfTkFUSVZFNjA2X0ROUzJfU1lTQ1RMMl9SRVRBSU5FRF9TQ09QRSIsCiAgInRyYW5zaXRpb25zIjogWwogICAgNjA2LAogICAgNjA2LAogICAgNjA0LAogICAgNjA2LAogICAgNjA0CiAgXQp9Cg==",
+    "decision_path": "decisions/current606-native.json",
+    "decision_pin": {
+      "bytes": 658,
+      "sha256": "c828d76d4198c6db4626a7d85d7c351344a6ad3f4b11ded53c5be00211d1021d"
+    },
+    "decision_source": "02d28b794c1a297171d82b5718fd98cddacbfa48",
+    "run": 39106953257,
+    "source": "f3a30f2049f57d9f3cb2433fbd59af51d4cc5720"
+  },
+  "doctor_packet_index": {
+    "bytes": 140641,
+    "sha256": "741c5a86b66d0189c0de78a660fa6b7c83c9feca37623db1bf28389c1c9a4237"
+  },
+  "doctor_packet_source": "24f8d8ed9de7f4ea1aedcc9624110e553204b36c",
+  "doctor_source": "141ba835bb632483342c6a7f0246c7fe0f2bc5c3",
+  "expected606_sha256": "3a586c1e3400391f56bd281ac9c16aba85d94d0fca002770e77ee1802c5d9fd1",
+  "measurement": null,
+  "native_pair_index": {
+    "bytes": 83411,
+    "sha256": "fb86de7fad44c50d84ae9ebb44e8dd150abbeae84bffc16058bcf7e68da510e2"
+  },
+  "native_pair_source": "02734c705565868b0b964c48399a4f659fc6f271",
+  "nonce": null,
+  "output": null,
+  "purpose": "CURRENT606_SETUP6_CLOSED_NATIVE",
+  "retirement": null,
+  "schema_version": 1,
+  "source_manifest606": {
+    "bytes": 45796,
+    "sha256": "09dae54c10f76d1a7b0bedd012f82aa513f5cc93102ad4ef5e6406dfee8bdd74"
+  },
+  "status": "ROOT_BOUND_CURRENT606_SETUP6_INPUTS"
+}

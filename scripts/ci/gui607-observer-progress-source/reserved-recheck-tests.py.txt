@@ -1,0 +1,79 @@
+
+# Actual emitted finite recheck controls; no acceptance from diagnostic DATA.
+import copy,time
+
+def _recheck_bodies607(raw):
+ return{n.name:ast.get_source_segment(raw.decode(),n)for n in ast.parse(raw).body if isinstance(n,(ast.FunctionDef,ast.ClassDef))}
+class RecheckControls(unittest.TestCase):
+ setUp=Controls.setUp
+ def module(self):
+  m=types.ModuleType('_actual_recheck_emitted');m.__file__=str(self.work/'installed606.py');raw=O.edited(G.read(HERE/'factory/installed607.py'),O.observer_rows());exec(compile(raw,m.__file__,'exec'),vars(m));m.capabilities=lambda:load('_actual_recheck_caps',HERE/'factory/support/file_capabilities.py');return m
+ def fixture(self):
+  root=self.work/'root';local=root/'var/lib/pacman/local';local.mkdir(parents=True);(root/'payload').mkdir();(local/'ALPM_DB_VERSION').write_bytes(b'9\n');expected={f'fixture{i:03}':'1'for i in range(607)}
+  for name in expected:
+   d=local/(name+'-1');d.mkdir();(d/'desc').write_text('%NAME%\n'+name+'\n\n%VERSION%\n1\n\n%ARCH%\nany\n\n');(d/'files').write_text('%FILES%\npayload/'+name+'\n\n');(root/'payload'/name).write_bytes(name.encode())
+  return root,expected,load('_owned_actual_alpm',HERE/'factory/support/alpm_reader.py')
+ def notes(self,m):
+  notes=[]
+  with patch.object(m.os,'write',side_effect=lambda fd,b:notes.append(b)or len(b)):
+   d=m._Recheck607()
+   for phase in d.phases:self.assertTrue(d.mark(phase))
+  return notes
+ def relay(self,events):
+  space=dict(json=json,_ObserverStageForward=object);exec(compile(O.RECHECK607_FORWARD,'<actual-recheck-relay>','exec'),space)
+  return space['_RecheckForward607'](lambda event,**v:events.append(dict(event=event,**v)))
+ def test_inverse_all_other_bodies_and_defaults_held(self):
+  raw=G.read(HERE/'factory/installed607.py');before=O.edited(raw,O._recheck_prior_observer_rows607());after=O.edited(raw,O.observer_rows());self.assertEqual(O.recheck_installed607(before),after);self.assertEqual(O.unrecheck_installed607(after),before);a=_recheck_bodies607(before);b=_recheck_bodies607(after);self.assertEqual(set(b)-set(a),{'_Recheck607'});self.assertEqual([n for n in a if a[n]!=b[n]],['_payload_observe607']);self.assertEqual(self.module().observe.__kwdefaults__,{'deadline':600})
+  self.assertEqual(O.unrecheck_observer_rows607(O.observer_rows()),O._recheck_prior_observer_rows607());self.assertEqual(O.unrecheck_forwarding_rows607(O.forwarding_rows()),O._recheck_prior_forwarding_rows607())
+  raw=G.read(ROOT/'parent574/original/scripts/ci/desktop574_guest.py');before=O.edited(raw,O._recheck_prior_forwarding_rows607());after=O.edited(raw,O.forwarding_rows());a=_recheck_bodies607(before);b=_recheck_bodies607(after);self.assertEqual([n for n in a if a[n]!=b[n]],['Logged']);self.assertIn('timeout=20',a['command']);self.assertEqual(a['command'],b['command'])
+ def test_actual607_equal_and_diagnostic_loss(self):
+  root,expected,h=self.fixture();m=self.module();baseline=m.observe(root,h,expected);notes=[]
+  with patch.object(m.os,'write',side_effect=lambda fd,b:notes.append(b)or len(b)):actual=m._selected_verify_observe(root,h,expected,deadline=1200)
+  self.assertEqual(actual,baseline);self.assertEqual(len(actual['nodes']),607);rows=[json.loads(x.split(b' ',1)[1])for x in notes if x.startswith(b'INSTALLED607_RECHECK_DATA ')]
+  self.assertEqual([x['phase']for x in rows],list(m._Recheck607.phases));self.assertEqual([x['ordinal']for x in rows],list(range(1,8)))
+  with patch.object(m.os,'write',side_effect=OSError('lost diagnostic')):
+   self.assertEqual(m._selected_verify_observe(root,h,expected,deadline=1200),baseline)
+   with self.assertRaises(ValueError)as old:m.observe(root,h,expected,deadline=0)
+   with self.assertRaises(ValueError)as new:m._payload_observe607(root,h,expected,deadline=0)
+   self.assertEqual(str(new.exception),str(old.exception))
+ def test_drift_short_circuit_and_original_exception(self):
+  root,expected,h=self.fixture();m=self.module();real=h.database;calls=[];notes=[]
+  def database(*a,**kw):
+   calls.append(True);rows=real(*a,**kw)
+   if len(calls)==2:rows=copy.deepcopy(rows);rows[0]['version']='changed'
+   return rows
+  h.database=database
+  with patch.object(m.os,'write',side_effect=lambda fd,b:notes.append(b)or len(b)):
+   with self.assertRaisesRegex(ValueError,'database/root drift or deadline'):m._selected_verify_observe(root,h,expected,deadline=1200)
+  phases=[json.loads(x.split(b' ',1)[1])['phase']for x in notes if x.startswith(b'INSTALLED607_RECHECK_DATA ')];self.assertEqual(phases,['observer_begin','database_begin','database_end'])
+  d=m._Recheck607();problem=ValueError('same exception')
+  with patch.object(d,'mark',return_value=False):
+   with self.assertRaises(ValueError)as got:d.call('database',lambda:(_ for _ in()).throw(problem))
+  self.assertIs(got.exception,problem)
+ def test_finite_emitter_and_fragmented_relay_recovery(self):
+  m=self.module();notes=self.notes(m);events=[];r=self.relay(events)
+  for byte in b'x'*1000+b'\n'+b''.join(notes):r.feed(bytes([byte]))
+  self.assertEqual([e['ordinal']for e in events],list(range(1,8)));self.assertLessEqual(r.input_bytes,1792);self.assertLessEqual(r.output_bytes,2304);self.assertEqual(r.pending,b'')
+  for raw in notes:self.assertLessEqual(len(raw),256);self.assertFalse(r.record(raw))
+  with patch.object(m.os,'write',return_value=0):
+   d=m._Recheck607();self.assertFalse(d.mark('private/path'));self.assertFalse(d.mark(True));self.assertFalse(d.mark('observer_begin'));self.assertFalse(d.mark('observer_begin'))
+  with patch.object(m.time,'monotonic_ns',side_effect=[0,2**63]):self.assertFalse(m._Recheck607().mark('observer_begin'))
+ def test_hostile_relay_and_loss_refused(self):
+  note=self.notes(self.module())[0];v=json.loads(note.split(b' ',1)[1])
+  for row in(dict(v,schema=True),dict(v,phase='private'),dict(v,ordinal=True),dict(v,monotonic_ns=-1),dict(v,monotonic_ns=2**63),dict(v,elapsed_ns=True),dict(v,elapsed_ns=1215000000001),dict(v,acceptance=True)):
+   events=[];raw=b'INSTALLED607_RECHECK_DATA '+json.dumps(row,sort_keys=True,separators=(',',':')).encode()+b'\n';self.assertFalse(self.relay(events).record(raw));self.assertEqual(events,[])
+  notes=self.notes(self.module());events=[];r=self.relay(events);self.assertTrue(r.record(notes[0]));v2=json.loads(notes[1].split(b' ',1)[1]);v2['elapsed_ns']+=1;bad=b'INSTALLED607_RECHECK_DATA '+json.dumps(v2,sort_keys=True,separators=(',',':')).encode()+b'\n';self.assertFalse(r.record(bad));self.assertEqual(len(events),1)
+  events=[];r=self.relay(events);self.assertFalse(r.record(note.replace(b':',b': ',1)));self.assertFalse(r.feed(b'x'*65537));r.send=lambda *a,**kw:(_ for _ in()).throw(OSError('lost'));self.assertFalse(r.record(note))
+ def test_live_before_exit_original_command_and_retirement(self):
+  raw=O.edited(G.read(ROOT/'parent574/original/scripts/ci/desktop574_guest.py'),O.forwarding_rows());names={'need','terminate','Logged','command','_ObserverStageForward','_RecheckForward607','_ObserverAndRecheck607'};parts=_recheck_bodies607(raw);events=[];share=self.work/'share';share.mkdir();logs=self.work/'logs';logs.mkdir()
+  space=dict(os=os,signal=signal,subprocess=subprocess,threading=threading,Path=Path,hashlib=hashlib,base64=base64,json=json,MAX_LOG=256*1024,SHARE=share,emit=lambda event,**v:events.append(dict(event=event,**v)))
+  exec(compile('\n\n'.join(parts[n]for n in parts if n in names),'<actual-rendered-command>','exec'),space)
+  (share/'installed606.py').write_text('import os,json,time\n'+O.RECHECK607_BODY+"\nd=_Recheck607();d.mark('observer_begin');time.sleep(5)\n")
+  argv=['/usr/bin/python3','-I','-B',str(share/'installed606.py'),'verify','/',str(share/'alpm_reader.py'),str(share/'expected.lock'),str(share/'installed606.json')];actor=space['Logged'](argv,'installed606-preserved',logs,dict(PATH='/usr/bin:/bin'))
+  try:
+   until=time.monotonic()+1
+   while not events and time.monotonic()<until:time.sleep(.01)
+   self.assertIsNone(actor.process.poll());self.assertEqual(events[0]['event'],'installed607_recheck_DATA')
+  finally:space['terminate'](actor.process);actor.finish()
+  self.assertEqual(events[-1]['event'],'process_exit');self.assertNotEqual(events[-1]['returncode'],0);self.assertIn(b'INSTALLED607_RECHECK_DATA',base64.b64decode(events[-1]['logs'][1]['tail_base64'],validate=True))
+

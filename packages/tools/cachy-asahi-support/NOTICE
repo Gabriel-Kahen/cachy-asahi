@@ -1,0 +1,13 @@
+cachy-asahi-support 0.1.0-1
+Copyright (c) 2026 cachy-asahi contributors. MIT License; see LICENSE.
+
+Original project packaging and launcher retain three exact original MIT files:
+support_bundle.py, session_probe.py and the Doctor2 command (source name
+doctor.py). Original copyright and SPDX headers are preserved. All three use
+Python's standard library. See source-provenance.json for byte hashes, origins,
+selection revision and the uncommitted original support-command proposal.
+
+The support command uses only offline parsing/validation/comparison APIs from
+the private modules. Importing them does not invoke their live collectors.
+This package has no relation to official CachyOS/Asahi approval or affiliation.
+No native ARM, ALPM installation, physical M2 or release qualification is claimed.

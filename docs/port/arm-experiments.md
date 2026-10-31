@@ -1,8 +1,14 @@
 # Bounded native ARM compiler experiments
 
-October 15, 2026. **ARM-C01–ARM-C04 passed hosted native build, correctness and within-variant byte reproduction.** The [C01](../validation/arm-c01-native-20261015.md) and [C02](../validation/arm-c02-native-20261015.md) actual records each cover four builds and the complete 505-command graph on a generic 4 KiB ARM builder. C02 baseline artifacts also match C01 exactly. [C03](../validation/arm-c03-native-20261015.md) additionally passes two public-input PGO training attempts and523 criteria, with both final builds bound to unchanged first-attempt raw profiles. [C04](../validation/arm-c04-native-20261015.md) also passes505 criteria and both byte pairs: GCC accepts the sole -mtune=apple-m2 change while retaining generic ISA/O2/no-LTO. Physical 16 KiB execution, optimized package installation, M2 validation and performance acceptance remain unfinished. This bounded M7/R2 work cannot complete R1–R5 or replace final-system A07 measurements. The original experimental contract below remains in force.
+[Installable C01 experiment packages](installable-arm-experiments.md) now provide separate baseline/LTO prefixes, finite installed probes and a disposable native package lifecycle job. Nineteen host controls include real pinned-source builds and cross-decoder checks; these use host ISA and grant no native package, installed,16K/M2, performance or release acceptance. The retained341 lock is test input DATA, not an install list.
+
+October 15, 2026. **ARM-C01–ARM-C04 passed hosted native build, correctness and within-variant byte reproduction.** The [C01](../validation/arm-c01-native-20261015.md) and [C02](../validation/arm-c02-native-20261015.md) actual records each cover four builds and the complete 505-command graph on a generic 4 KiB ARM builder. C02 baseline artifacts also match C01 exactly. [C03](../validation/arm-c03-native-20261015.md) additionally passes two public-input PGO training attempts and523 criteria, with both final builds bound to unchanged first-attempt raw profiles. [C04](../validation/arm-c04-native-20261015.md) also passes505 criteria and both byte pairs: GCC accepts the sole -mtune=apple-m2 change while retaining generic ISA/O2/no-LTO. Retained C01–C04 generic 16 KiB correctness also passes the four source-bound runtime records in [the accepted runtime matrix](../validation/arm-retained-generic16k-20261017.md). Native M2 execution, optimized package installation, physical validation and performance acceptance remain unfinished. This bounded M7/R2 work cannot complete R1–R5 or replace final-system A07 measurements. The original experimental contract below remains in force.
 
 ## First code workload and retrievable inputs
+
+October 17 retained runtime: all four original cases passed 468 normal-loader commands each on actual 16384-byte pages in a generic TCG guest, source `ede3730ec5cabfa917a9d9be62f4ebc2edb9748b`. The [accepted runtime record](../validation/arm-retained-generic16k-20261017.md) binds the original eight artifact inputs, same-job native574 userspace capture (including ctypes/libffi), derived kernel, static page probe and ordered actor/producer cleanup. The source-only manual policy remains inert; it is separate from these specific accepted hosted records. Nothing was rebuilt or substituted. Generic VM correctness establishes no M2 performance, installation or hardware acceptance.
+
+The proposed [paired zlib session runner](../performance/paired-zlib.md) composes the existing exact-artifact workload and benchmark APIs for correctness, excluded warmups and balanced timing. Its local executable fixtures are control-only. Exact ARM/M2 paired performance remains NOT RUN.
 
 Select **upstream zlib 1.3.2, its local static library and upstream `minigzip`
 example**, as a small integer/compression workload. Build an isolated experiment
@@ -171,7 +177,7 @@ source/image/tool hashes, full inventories, command/exit/timeout/cleanup records
 four C01 artifacts, correctness outputs and reproducibility results. Performance
 owner and physical operators supply later exact-machine plans and measurements.
 Missing artifacts, profiles, hardware or sensors remain named unfinished gates.
-Current results: **C01 hosted native 4 KiB correctness/build/rebuild PASS; C02–C04 NOT RUN; 16 KiB execution NOT RUN; both M2 performance records NOT RUN; release selection false.** See the [actual C01 record](../validation/arm-c01-native-20261015.md).
+Current results: **C01–C04 hosted native 4 KiB correctness/build/rebuild PASS; retained generic TCG 16 KiB correctness PASS; physical M2 execution and both M2 performance records NOT RUN; release selection false.** See the [actual C01 record](../validation/arm-c01-native-20261015.md).
 
 The retained source cache is
 `/tmp/cachy-asahi-zlib-audit-5bqceen9/zlib-1.3.2.tar.gz`; actual download hash

@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT
 """Adapter for the new optional-client lane using a pinned guest helper."""
 import importlib.util
+import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -15,6 +16,10 @@ def load(name, filename):
 
 def main():
     base = load('slice_base_guest', 'base_guest.py')
+    api = load('slice_managed_api', 'managed_session.py')
+    api.bind(base)
+    # Isolated Python excludes this directory; bind the exact loaded API for session.py.
+    sys.modules['managed_session'] = api
     session = load('slice_session', 'session.py')
     original_guard, original_emit = base.guard, base.emit
     completed = set()
@@ -25,6 +30,7 @@ def main():
                   'bar-notification fixture marker required')
 
     def phase(stage, config, env, logs):
+        trace = session.trace_requested(Path('/proc/cmdline').read_text())
         # Sentinels exercise explicit-template selection and repeated session setup.
         directory = Path(env['XDG_CONFIG_HOME'])
         if stage == 'minimal':
@@ -32,7 +38,7 @@ def main():
                 owned = directory / name
                 owned.mkdir(mode=0o700)
                 (owned / 'user-owned.conf').write_text('preserve this custom configuration\n')
-        session.phase(stage, config, env, logs)
+        session.phase(stage, config, env, logs, trace_waybar=trace)
         completed.add(stage)
 
     def emit(event, **values):

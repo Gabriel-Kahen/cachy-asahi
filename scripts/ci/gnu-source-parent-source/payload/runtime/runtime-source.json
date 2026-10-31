@@ -1,0 +1,2680 @@
+{
+  "actual_ref": null,
+  "actual_run": null,
+  "actual_source": null,
+  "files": {
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/.github/workflows/native-arm-build.yml": {
+      "bytes": 10533,
+      "sha256": "9f79a7f5d057892e72a3e693f6f47480a826ad116e2ce231e87ca4e554557e9e"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/.github/workflows/native-arm-glibc-debian-maintained-provider-lifecycle.yml": {
+      "bytes": 10359,
+      "sha256": "f224e0a559be5733cec6328a0b91b6cd53b9e227ba844cef04050e8c74eb697d"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/.github/workflows/native-arm-glibc-debian-maintained-public-provider-lifecycle.yml": {
+      "bytes": 10533,
+      "sha256": "9f79a7f5d057892e72a3e693f6f47480a826ad116e2ce231e87ca4e554557e9e"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/.github/workflows/native-arm-glibc-gnu-provider-installed16k.yml": {
+      "bytes": 17766,
+      "sha256": "0922e95cc75ab21b2a57e5c6e05f78ecb411cead262099ab653d26b377afaf22"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/.github/workflows/native-arm-glibc-gnu-provider-interruption.yml": {
+      "bytes": 9652,
+      "sha256": "0b91c98bcf3e6064b7f5d54097a63fb9e47876a169039add7f05ab8d7894c202"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/.github/workflows/native-arm-glibc-gnu-provider-lifecycle.yml": {
+      "bytes": 9441,
+      "sha256": "502734225082f5b3212dc162634bd8e152ab66ebe3c4b6f64d8798484cc8728c"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/AGENTS.md": {
+      "bytes": 1334,
+      "sha256": "a95eaf775ac935ebdfe6b9c89aad9382639671aecdaab91503e1453d4782a056"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/adaptation.json": {
+      "bytes": 48279,
+      "sha256": "bfa637f855f1f48dcde53b85e07731e2788779ff954c6e29011a7cab413c64dc"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/manifests/packages.toml": {
+      "bytes": 37484,
+      "sha256": "f530955f736b9c6924f157a733ea988b687186b86f9c51d120cb6deb107aa694"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/apps/file_capabilities.py": {
+      "bytes": 13562,
+      "sha256": "498a3beec0327b9335dcd6d80ed5919fa2edebebd3284e9ee8b97770328e26a2"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/apps/full574_copy.py": {
+      "bytes": 7799,
+      "sha256": "33d49316c28dee344e78e17d7e7ffa409c9d7ad09bb48a82651f7d44f1cb61a0"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/apps-full574-native/export_extract.py": {
+      "bytes": 2410,
+      "sha256": "c7a09bc3996b9bff97dd57a8244d82d562566f1135b0618f87d90fbf09c58978"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/expanded600-installer-vm/observer600.py": {
+      "bytes": 2784,
+      "sha256": "c3d804e7f2927c7889835ad187a39a3d7c618a4651700f57b0c5413c46612607"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/full-composition-installer-vm/prepare.py": {
+      "bytes": 15922,
+      "sha256": "4d3aa4650b0dad3598290fb00968f78ec3612f5ba280df05d34a46d859e2503e"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/full-composition-installer-vm/run.py": {
+      "bytes": 23677,
+      "sha256": "7788b2a38981f8b3fe13a6f4f8b8f38ce9500e8f76f6be60e669925e670adb75"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/full-root-upgrade/root_upgrade.py": {
+      "bytes": 23555,
+      "sha256": "fe1232ae6b510021910b4fb80016ac3b4668c6e4386cdae45e7b95196e400756"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-installed16k-ci/README.md": {
+      "bytes": 3335,
+      "sha256": "4061e488ed61611e03972f66edbb0cdfe7ec8241823069f15c934bf03cf3fc01"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-installed16k-ci/input-interface.json": {
+      "bytes": 1523,
+      "sha256": "b544cce0b4c02935aa263e6ac6e43484ef10c5f7b703c5893c90bf537d003660"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-installed16k-ci/policy.json": {
+      "bytes": 812,
+      "sha256": "767cbfa12e3c777acf9fb3d9f7e184e6405bb4cce9014387b3f243a48741e6b4"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-installed16k-ci/test_wiring.py": {
+      "bytes": 11935,
+      "sha256": "65f0de5c54b61972c5b855e81bf7abe632b5a4ce4998259b7cdb7536ede01f03"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-installed16k-ci/wiring.py": {
+      "bytes": 4997,
+      "sha256": "f9d0786936b1efda01363373575a55c665ed63bc4afc75531a8c9b92582b0a53"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-installed16k/README.md": {
+      "bytes": 5003,
+      "sha256": "1394e080561be5e15397184a11138999943d80c774cd5fc09c19a75aa27fdc96"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-installed16k/adapter.py": {
+      "bytes": 2204,
+      "sha256": "1940b462fce28799d7c047e22e96c35ed27eb7ca404a65672afdbcf5312197c3"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-installed16k/candidate_gate.py": {
+      "bytes": 4355,
+      "sha256": "92f390037767a9d1fdfaf9c9837fac75726c16178adc573b416b0ad7f540e5a4"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-installed16k/contract.py": {
+      "bytes": 2607,
+      "sha256": "20209af9558e669000899a088049ea214351f5ca1337483be0d9a881d804833d"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-installed16k/dependencies.json": {
+      "bytes": 36350,
+      "sha256": "03f06e8a9ce7ca0b2215c3c20a50f915471cda55023c99416e4ea75688fcf790"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-installed16k/export.py": {
+      "bytes": 9932,
+      "sha256": "046f37e8523d509b1bee678ac9f42bfc6d7532f701d958c7d812d006820a0331"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-installed16k/generator.py": {
+      "bytes": 7282,
+      "sha256": "51a13c19e989c086b6b588a100bfe20c08d90e4c11da56de9425da7eb0c7a99c"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-installed16k/guest.py": {
+      "bytes": 27256,
+      "sha256": "66b69e846a51c2ca8bfcf1ae1912b28e06625c2b78c8e0d2e41ff235cc6aab6c"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-installed16k/input-interface.json": {
+      "bytes": 2639,
+      "sha256": "84ab4bb804f4fcd3ddef11bcc3856576b17e0476441edb74df6ae93bc85449a8"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-installed16k/input-policy.json": {
+      "bytes": 1284,
+      "sha256": "3794130bc84dd5efdd5992eb964a0c8e0eb905933e0dcae540e5f3228524c9d3"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-installed16k/observer_progress.py": {
+      "bytes": 8229,
+      "sha256": "f427ce27bd8c90d1cc4aa68a9fb41abbc8b4fb1d7a9cdfa4153b1fafc7a2941a"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-installed16k/phase_gate.py": {
+      "bytes": 2925,
+      "sha256": "2f60001df636b15d4a8b2533b53410d831225ecc530cbcbcc91bf79fff3cbeba"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-installed16k/prepare.py": {
+      "bytes": 7096,
+      "sha256": "18261d72c8fe2287766f67f762c268384338f171ab8349300a534847bd10ce00"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-installed16k/prerequisites/native_lifecycle.json": {
+      "bytes": 3270,
+      "sha256": "f2e83638dba69df86159694319a9498c4f93c1846328cbd4c28d0928e73437b1"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-installed16k/prerequisites/system16k.json": {
+      "bytes": 2497,
+      "sha256": "0b5c33a21302dcb9d883a9d0f6e30326f129e467fe0586f6bbcbf76f2cd3567f"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-installed16k/run.py": {
+      "bytes": 16734,
+      "sha256": "dbf21be70f56abb7ce9ab4266069642795fa49b8d39e87da467c597a6fca4372"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-installed16k/sandbox.py": {
+      "bytes": 3472,
+      "sha256": "35fc16ddffe45e8687c168d9cf24e88a4682fc3ad915d50d22e2e57f49c1b3ca"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-installed16k/scrub.py": {
+      "bytes": 1032,
+      "sha256": "b4a2ee5c62031e4369f77cc11fd67a9fb8869b0bffb061b9ea234878ed17023e"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-installed16k/snapshot_progress.py": {
+      "bytes": 11105,
+      "sha256": "e21b16d6212c2dfa216fbc5e2dbe58d755ed6d17b401e29765cc6c399be383e6"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-installed16k/source-manifest.json": {
+      "bytes": 4089,
+      "sha256": "e2094f06601366093a70640dfa77f6c40a232215215462f1d3610764d85b7221"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-installed16k/source-pins.json": {
+      "bytes": 20813,
+      "sha256": "d05f1913abeed9eaa243df95220bd7bb10f36b71e9f519c82a86ccc97025f446"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-installed16k/support.py": {
+      "bytes": 408,
+      "sha256": "e3a3b3fa7d4ab84e088f6ea206799359164e8f6b92bf3dfbe152cd8df4d9ded1"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-installed16k/test_generator.py": {
+      "bytes": 13528,
+      "sha256": "4f44e080850d1f0c42425c75c7ede0ed1d1690d0ba904a91d454f25919d0dab1"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-lifecycle/README.md": {
+      "bytes": 4098,
+      "sha256": "8e91c5b36ed2ec4896ea93cb84627a7eb506868bbf7b1eab58fb872c67cb2b3c"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-lifecycle/adapter.py": {
+      "bytes": 7737,
+      "sha256": "3685a2a2eac3fb4a30a00ebdbeb01d66d692f6402ccefb82bb9d5e87f591658c"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-lifecycle/candidate_gate.py": {
+      "bytes": 4355,
+      "sha256": "92f390037767a9d1fdfaf9c9837fac75726c16178adc573b416b0ad7f540e5a4"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-lifecycle/input-interface.json": {
+      "bytes": 2236,
+      "sha256": "d3bc16421ec9508f49170bb56a779bbc216045b7828d3829a9124fa6edd72b37"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-lifecycle/source-pins.json": {
+      "bytes": 14415,
+      "sha256": "2300ebb451e8464cba34e6d33f77bf8009fbe3ded3cfb5695ebce3819245acbd"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-lifecycle/test_adapter.py": {
+      "bytes": 7488,
+      "sha256": "fb33951f6d1156a0b5aa567f03576c3f8fd0eeac2f0c4933b4913e9b022a258f"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-native-lifecycle-next/policy.json": {
+      "bytes": 1000,
+      "sha256": "81cf28d8cfa02171d4f43b01929f0cb1ced2d8b26680a92380f7bb736dc17686"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-native-lifecycle-next/prepare.py": {
+      "bytes": 9743,
+      "sha256": "df60c31d437e2ca0d4b452d78dff652abab2ed220a10c167664d502d17583022"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-native-lifecycle-next/source-pins.json": {
+      "bytes": 17055,
+      "sha256": "f63e896c21f1fe59aa61d04a3d315c3b126b70cea0f34c126b6b69a2918289b1"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-provider-interruption-owner/capability_snapshot.py": {
+      "bytes": 4104,
+      "sha256": "b287172c398ce03ed96b1c0b25f6217ffe807956c20a00f1d1b57da3cae20731"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-provider-interruption-owner/integration-manifest.json": {
+      "bytes": 12872,
+      "sha256": "8d26aae0489fe4e6337fd10de192f239ee99dfaf7ca5675be865a13b0f71f198"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-provider-interruption-owner/job.py": {
+      "bytes": 38742,
+      "sha256": "54100df793dc487c21fcc925f21ad329d3763ff1ac9024c2760d80cab28d8502"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-provider-interruption-owner/policy.json": {
+      "bytes": 670,
+      "sha256": "a5f4bf0a15ed38ea19016686dcc333780cfcf7ab8bc791c1ca751b9c47bf33fd"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-provider-interruption-owner/snapshot.py": {
+      "bytes": 9400,
+      "sha256": "0ff8d2e15ebcca5f91d09c19e986737d7d5596f3f439decb1e1d763d833c5e69"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-provider-interruption/alpm-semantics.json": {
+      "bytes": 2966,
+      "sha256": "8d8ed810403c62a9de6b336e7e953cd85504bdd5033a6370a1e66b8f625e2a2e"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-provider-interruption/candidate_gate.py": {
+      "bytes": 4355,
+      "sha256": "92f390037767a9d1fdfaf9c9837fac75726c16178adc573b416b0ad7f540e5a4"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-provider-interruption/common.py": {
+      "bytes": 13521,
+      "sha256": "12bbe70d7f60224a27ef89828a594f9267de261e8e324fb2d4a8fe396c886895"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-provider-interruption/container.py": {
+      "bytes": 36759,
+      "sha256": "22ce53335b8ec9a8d3200679855c7922c62cd3da4cefab15556660b1ab39192e"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-provider-interruption/dependencies.json": {
+      "bytes": 5083,
+      "sha256": "f1f22819a95a677a3e1520a6826acfffa70f2612488b6d0b88fe4e299b6987b4"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-provider-interruption/input-policy.json": {
+      "bytes": 436,
+      "sha256": "d777931e61834ab8accd6a80a2b00368080703fa050e8e20a206e959514ebd6b"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-provider-interruption/interruption.py": {
+      "bytes": 14293,
+      "sha256": "daf605b234ece080706a29f597f006da95b80113baeeb57c3e7f46c102c6d8bf"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-provider-interruption/normal-exec-change.json": {
+      "bytes": 839,
+      "sha256": "9d3769704396a33acc0c144cc1519d10230a5fb07d2f7b135dcfd0ba1ab6a68b"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-provider-interruption/run.py": {
+      "bytes": 9173,
+      "sha256": "319d775dd30cd5c6d0343b88170260d4668cbe152d04a920dc237830264f56e2"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-provider-interruption/scrub.py": {
+      "bytes": 849,
+      "sha256": "b3ab918d62c45428163975968c9a49cf0f4363029e1b46f19cdf03fc52fcb70b"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-provider-interruption/smoke-normal.c": {
+      "bytes": 12437,
+      "sha256": "a766bc7cd31cce18fe7e564432de4e4b63db49763608ae70ef8fab61cd29116c"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-provider-interruption/source-manifest.json": {
+      "bytes": 1586,
+      "sha256": "5a6201e429f6ca75853d86cedd82ee5749fdfed982a7355933bf06282b732c74"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-provider-lifecycle-owner/capability_snapshot.py": {
+      "bytes": 4101,
+      "sha256": "21242b74b3ade489f37e1affd41512a89e213a01a819e9d4f746b2a82d5544cf"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-provider-lifecycle-owner/integration-manifest.json": {
+      "bytes": 11827,
+      "sha256": "50d7e9a285b2bd7658fee36dc54aa06590542e768f2aeb3a82e0af416023477b"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-provider-lifecycle-owner/job.py": {
+      "bytes": 35136,
+      "sha256": "55544ec18a3b46ab2538320aedc126807239ab0978049b57fc3c34831b2c8a08"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-provider-lifecycle-owner/policy.json": {
+      "bytes": 670,
+      "sha256": "a5f4bf0a15ed38ea19016686dcc333780cfcf7ab8bc791c1ca751b9c47bf33fd"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-provider-lifecycle-owner/snapshot.py": {
+      "bytes": 9397,
+      "sha256": "9738acb125ce6d468d5359ecfbd5540454826567fd4ac4481576ec31da37190c"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-provider-lifecycle/candidate_gate.py": {
+      "bytes": 4355,
+      "sha256": "92f390037767a9d1fdfaf9c9837fac75726c16178adc573b416b0ad7f540e5a4"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-provider-lifecycle/common.py": {
+      "bytes": 13509,
+      "sha256": "a86c2f3206b99604e95414178d11b4d50ae687376b920c0eebdf5503460f4e1a"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-provider-lifecycle/container.py": {
+      "bytes": 35741,
+      "sha256": "f12e6e057b225b617fd26597edb00ea92c4df01ca426a21fb482b2681044f9a4"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-provider-lifecycle/dependencies.json": {
+      "bytes": 5083,
+      "sha256": "f1f22819a95a677a3e1520a6826acfffa70f2612488b6d0b88fe4e299b6987b4"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-provider-lifecycle/input-policy.json": {
+      "bytes": 436,
+      "sha256": "d777931e61834ab8accd6a80a2b00368080703fa050e8e20a206e959514ebd6b"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-provider-lifecycle/normal-exec-change.json": {
+      "bytes": 839,
+      "sha256": "9d3769704396a33acc0c144cc1519d10230a5fb07d2f7b135dcfd0ba1ab6a68b"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-provider-lifecycle/run.py": {
+      "bytes": 8910,
+      "sha256": "e7335f26c22c1e991eebcb8f1db0f9acc4094e8e0d60bbe6019b8aba25093890"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-provider-lifecycle/scrub.py": {
+      "bytes": 846,
+      "sha256": "bfac8896427c5fdcdd172a94af925dc5771452e150b44f27f4e16c498c548359"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-provider-lifecycle/smoke-normal.c": {
+      "bytes": 12437,
+      "sha256": "a766bc7cd31cce18fe7e564432de4e4b63db49763608ae70ef8fab61cd29116c"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-provider-lifecycle/source-manifest.json": {
+      "bytes": 1309,
+      "sha256": "8ea80c12b57de4e47b53c0b1e4c75c86426f9c17f013fe9a9fbb7a1fc1ef7523"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-provider/PKGBUILD.in": {
+      "bytes": 3925,
+      "sha256": "71e4a63c16efa64c950cf10271cb16111575b4ea60cac55361f126498fd6055d"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-provider/authority.json": {
+      "bytes": 873,
+      "sha256": "709ab4276c02dc21d559a6c581ba7ceae2a4999fa221b85f900f913253be5562"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-provider/root-maintained-source-authority.json": {
+      "bytes": 15506,
+      "sha256": "88643eabd61a39df63ecaeb50bb20041d17cf4fd3adee55d82d43d3c1ca08707"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-provider/source-lock.json": {
+      "bytes": 53426,
+      "sha256": "9eef1925b041bdf022ae284e15e473ce5b6795976b132d574ad7d56d21e6d12a"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-public-lifecycle/README.md": {
+      "bytes": 1662,
+      "sha256": "4e7ca04108d79d509cd413a3882ae29d7b8f24d48f0eb98c08b4f360fe3abb9d"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-public-lifecycle/input-interface.json": {
+      "bytes": 699,
+      "sha256": "27094556e45cdedc8550341f50b5bede92f67b32b89d727b92815e80a1a4b7fc"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-public-lifecycle/policy.json": {
+      "bytes": 628,
+      "sha256": "88d9e60fd1a8ef67b7eb0c90636efa2b207b35a3a5fac9f3fced1ec1a7fbc403"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-public-lifecycle/prepare.py": {
+      "bytes": 10372,
+      "sha256": "3f91f88e3c37ca96831fecbc224a2f1186c1e28b7b35062d87dca90e6bc2c003"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-public-lifecycle/public_gate.py": {
+      "bytes": 2722,
+      "sha256": "d4a944225ecad89d173c40966e58dbf0ae4d4c73e4886193e22e079f2f7ad00f"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-public-lifecycle/source-pins.json": {
+      "bytes": 17565,
+      "sha256": "c6ede50910169ef45c5893d5cb410a308fb31208ccff637b9f4a37aeff52badd"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-public-lifecycle/test_route.py": {
+      "bytes": 6978,
+      "sha256": "f9b85c0516550c0da93c4e56520ad00f4a30f21ec3e7192eb6262c8e9d895fc9"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-public-provider-lifecycle-owner/capability_snapshot.py": {
+      "bytes": 4101,
+      "sha256": "21242b74b3ade489f37e1affd41512a89e213a01a819e9d4f746b2a82d5544cf"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-public-provider-lifecycle-owner/integration-manifest.json": {
+      "bytes": 24677,
+      "sha256": "d603ecab9383b6505a5953144aee97b01989917c5a721ab68f1e24d1f55e7c62"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-public-provider-lifecycle-owner/job.py": {
+      "bytes": 35140,
+      "sha256": "f2d024c1209d8e467c9d7a86c342ea636dc22725c7e7de69c9bd36a6f8db91dc"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-public-provider-lifecycle-owner/policy.json": {
+      "bytes": 800,
+      "sha256": "bf17e0135f28400d3d00fedd61170ad4c97e19ed668d224b5a35a64b024618c9"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-public-provider-lifecycle-owner/snapshot.py": {
+      "bytes": 9397,
+      "sha256": "9738acb125ce6d468d5359ecfbd5540454826567fd4ac4481576ec31da37190c"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-public-provider-lifecycle/candidate_gate.py": {
+      "bytes": 4355,
+      "sha256": "92f390037767a9d1fdfaf9c9837fac75726c16178adc573b416b0ad7f540e5a4"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-public-provider-lifecycle/common.py": {
+      "bytes": 13019,
+      "sha256": "be7f4e4c7f7ea173b4ebb9c9085a9fd1b55b387db3ebf1d2471ee6f57a692516"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-public-provider-lifecycle/container.py": {
+      "bytes": 35741,
+      "sha256": "f12e6e057b225b617fd26597edb00ea92c4df01ca426a21fb482b2681044f9a4"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-public-provider-lifecycle/dependencies.json": {
+      "bytes": 5083,
+      "sha256": "f1f22819a95a677a3e1520a6826acfffa70f2612488b6d0b88fe4e299b6987b4"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-public-provider-lifecycle/input-policy.json": {
+      "bytes": 436,
+      "sha256": "d777931e61834ab8accd6a80a2b00368080703fa050e8e20a206e959514ebd6b"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-public-provider-lifecycle/normal-exec-change.json": {
+      "bytes": 839,
+      "sha256": "9d3769704396a33acc0c144cc1519d10230a5fb07d2f7b135dcfd0ba1ab6a68b"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-public-provider-lifecycle/public_gate.py": {
+      "bytes": 2722,
+      "sha256": "d4a944225ecad89d173c40966e58dbf0ae4d4c73e4886193e22e079f2f7ad00f"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-public-provider-lifecycle/run.py": {
+      "bytes": 8910,
+      "sha256": "e7335f26c22c1e991eebcb8f1db0f9acc4094e8e0d60bbe6019b8aba25093890"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-public-provider-lifecycle/scrub.py": {
+      "bytes": 846,
+      "sha256": "bfac8896427c5fdcdd172a94af925dc5771452e150b44f27f4e16c498c548359"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-public-provider-lifecycle/smoke-normal.c": {
+      "bytes": 12437,
+      "sha256": "a766bc7cd31cce18fe7e564432de4e4b63db49763608ae70ef8fab61cd29116c"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-public-provider-lifecycle/source-manifest.json": {
+      "bytes": 1444,
+      "sha256": "16192956d4d6051968c4149d0ac09d4daf3c99044c5086ffa29e883b9f240adb"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-staged-packet/prepare.py": {
+      "bytes": 13973,
+      "sha256": "37a00fb44e715b561acf172717381f861a5c237dca67c0fd524755237c74ec8f"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-staged-packet/source-pins.json": {
+      "bytes": 2797,
+      "sha256": "054671fee46b759f440b9cbb0702ebfa0f8388f0a35009b7b7ed8aa26306a721"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-debian-maintained-system16k/phase_gate.py": {
+      "bytes": 3711,
+      "sha256": "d1731a40d275c5ed74ccf20b654a76754031dbdcbd32b27154164e3953af6da4"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-failure-log/summary.py": {
+      "bytes": 11924,
+      "sha256": "9bd52ce4453a3a03d8dc8b5edb6b6a4b8ec421e0c3037dfb64dc31da45687555"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-failure-log/test_summary.py": {
+      "bytes": 10534,
+      "sha256": "e1f1a619f046396ad33862182531036224acfebf7746c025e24487dfbf53b24b"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-installed16k-interruption/ci/wiring.py": {
+      "bytes": 8198,
+      "sha256": "7483637091e30cc12d260ac01c3c4bf9af6b6330b5d7296068bfee9476678ef1"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-installed16k/README.md": {
+      "bytes": 10343,
+      "sha256": "3036fbc7907c80cf5f2be48da4aae8eb65fa0fc350e271557ddafd2456fb64f7"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-installed16k/adapter.py": {
+      "bytes": 2190,
+      "sha256": "5a6119714712f670e17a6a2e9260c82950077a0b6876bb4dd2933900ded1e327"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-installed16k/contract.py": {
+      "bytes": 3916,
+      "sha256": "ef83b59045a4b04798f9fbb75cc78f41a0d52dcdbf827e9f616533b8f72067a2"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-installed16k/dependencies.json": {
+      "bytes": 10933,
+      "sha256": "2856a57c08b552be090d948cbe7a7e58f1c4c0a0dfac715fdfe211b0843eed2e"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-installed16k/export.py": {
+      "bytes": 9914,
+      "sha256": "61e4bad870252dab3ca9580817247c9b88f0e6cdc6b40c5956a06e7b9e42a5a7"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-installed16k/guest.py": {
+      "bytes": 27060,
+      "sha256": "0043f45cbaab51419ff8db564fd4843edb2f5c7e088ffffb5290b331b0f6d6d3"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-installed16k/input-policy.json": {
+      "bytes": 927,
+      "sha256": "f0d4a61d6322dfd56d95d6353a2ff6953f7852381cd48d0feae862498d060902"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-installed16k/observer_progress.py": {
+      "bytes": 8229,
+      "sha256": "f427ce27bd8c90d1cc4aa68a9fb41abbc8b4fb1d7a9cdfa4153b1fafc7a2941a"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-installed16k/prepare.py": {
+      "bytes": 6913,
+      "sha256": "0903bccc52f544c66b760c460232490a210449d8b00c681096a0c652d7482ed5"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-installed16k/prerequisites/system16k.json": {
+      "bytes": 2655,
+      "sha256": "5a5377a6619d024f618dab79136ec2f6354fe483a92974dc7c5dccb12e3b045c"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-installed16k/run.py": {
+      "bytes": 16593,
+      "sha256": "92aefb4f4c861da401855efbc40e9d1392ab3cd9e67b16510254cbdfac792d88"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-installed16k/sandbox.py": {
+      "bytes": 3472,
+      "sha256": "35fc16ddffe45e8687c168d9cf24e88a4682fc3ad915d50d22e2e57f49c1b3ca"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-installed16k/scrub.py": {
+      "bytes": 1014,
+      "sha256": "012682ddc164737db1696f5dda3c43008febc32f865662c16f3c77637a426549"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-installed16k/snapshot_progress.py": {
+      "bytes": 11105,
+      "sha256": "e21b16d6212c2dfa216fbc5e2dbe58d755ed6d17b401e29765cc6c399be383e6"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-installed16k/source-manifest.json": {
+      "bytes": 3629,
+      "sha256": "a345ccb0203b5ea6a4f3112e6126c9deca12d359a627111f3c041e8174dd4673"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-installed16k/support.py": {
+      "bytes": 408,
+      "sha256": "e3a3b3fa7d4ab84e088f6ea206799359164e8f6b92bf3dfbe152cd8df4d9ded1"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-installed16k/test_first_observer_progress.py": {
+      "bytes": 31870,
+      "sha256": "4ac8fa37abea704fd74e2d1514025ed7444bdc11717ca25bac4011b862c8b848"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-installed16k/test_lane.py": {
+      "bytes": 16488,
+      "sha256": "5a34a678601bbb4b0dbdbd0546b460bab1245e53a6f84c78a00aa88afa61dc55"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-installed16k/test_snapshot_progress.py": {
+      "bytes": 10285,
+      "sha256": "84ee9e55a57a6cdf3a9e15b3af2bc07ed767f95926cd87501e54c534d36f787a"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-interruption-owner/README.md": {
+      "bytes": 6935,
+      "sha256": "f4caf1d4a87223ec8bcb0ab3ee6d0954980d40436a48d50a6a6f3500f1367888"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-interruption-owner/capability_snapshot.py": {
+      "bytes": 4104,
+      "sha256": "b287172c398ce03ed96b1c0b25f6217ffe807956c20a00f1d1b57da3cae20731"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-interruption-owner/integration-manifest.json": {
+      "bytes": 9809,
+      "sha256": "67c52a5b795e66e2a53512524adf5b6d80e61e6a04ded29bdc77b5c7bbf7d789"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-interruption-owner/job.py": {
+      "bytes": 38024,
+      "sha256": "bc402dbc16d667260f235dcb21fb606cbe829f3d1f0c91d8f2d3c0ce3be2454e"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-interruption-owner/packet-interface.json": {
+      "bytes": 2112,
+      "sha256": "0047b787c758c78a7d03c79da6eb58b5046f46f536fa19eff4a5076f7f77bfb3"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-interruption-owner/policy.json": {
+      "bytes": 719,
+      "sha256": "d0dfae1856033bccc8cd22c41d30330276308d6353f37af0f50eb979a1005de5"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-interruption-owner/snapshot.py": {
+      "bytes": 9400,
+      "sha256": "0ff8d2e15ebcca5f91d09c19e986737d7d5596f3f439decb1e1d763d833c5e69"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-interruption-owner/test_owner.py": {
+      "bytes": 28229,
+      "sha256": "9b159dca9521ff79bdf729df2a2085fed08c027fd7fcea1bfa281c5c3c4493ed"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-interruption/README.md": {
+      "bytes": 11492,
+      "sha256": "006e7b0a3af49e0bfcaac8f713a4c11c3eed1554c9684988c1d302834eb39064"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-interruption/alpm-semantics.json": {
+      "bytes": 2966,
+      "sha256": "8d8ed810403c62a9de6b336e7e953cd85504bdd5033a6370a1e66b8f625e2a2e"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-interruption/common.py": {
+      "bytes": 12904,
+      "sha256": "ac2e38d80b0c0a283b9865fb88e6000f7c10202194298a6a3ed31b5679574d8b"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-interruption/container.py": {
+      "bytes": 36759,
+      "sha256": "22ce53335b8ec9a8d3200679855c7922c62cd3da4cefab15556660b1ab39192e"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-interruption/dependencies.json": {
+      "bytes": 5083,
+      "sha256": "f1f22819a95a677a3e1520a6826acfffa70f2612488b6d0b88fe4e299b6987b4"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-interruption/input-interface.json": {
+      "bytes": 2567,
+      "sha256": "0ab1b78b5fae601e216159615a2212c2631eeb5f1f4be4860c84b910b4ac45e8"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-interruption/input-policy.json": {
+      "bytes": 436,
+      "sha256": "d777931e61834ab8accd6a80a2b00368080703fa050e8e20a206e959514ebd6b"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-interruption/interruption.py": {
+      "bytes": 14293,
+      "sha256": "daf605b234ece080706a29f597f006da95b80113baeeb57c3e7f46c102c6d8bf"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-interruption/normal-exec-change.json": {
+      "bytes": 839,
+      "sha256": "9d3769704396a33acc0c144cc1519d10230a5fb07d2f7b135dcfd0ba1ab6a68b"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-interruption/run.py": {
+      "bytes": 9173,
+      "sha256": "319d775dd30cd5c6d0343b88170260d4668cbe152d04a920dc237830264f56e2"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-interruption/scrub.py": {
+      "bytes": 849,
+      "sha256": "b3ab918d62c45428163975968c9a49cf0f4363029e1b46f19cdf03fc52fcb70b"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-interruption/smoke-normal.c": {
+      "bytes": 12437,
+      "sha256": "a766bc7cd31cce18fe7e564432de4e4b63db49763608ae70ef8fab61cd29116c"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-interruption/source-manifest.json": {
+      "bytes": 1955,
+      "sha256": "95b9fa21752dd06078bc3bbafe39dea7609a837d1358299055dfe2619be0e9e2"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-interruption/test_interruption.py": {
+      "bytes": 9795,
+      "sha256": "de778a8526e950b116d013d28e431db3c854a62648c52b31d4e5d51003904f44"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-interruption/test_lifecycle_controls.py": {
+      "bytes": 29474,
+      "sha256": "bcbbe19144ef3488a83eb0a9476c68be1664a0519f2b82a6871c4fef66721ea6"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-lifecycle-owner/README.md": {
+      "bytes": 5916,
+      "sha256": "99f5667a1f8b8d5e93805196c6a1c06338e9ec68a58251ecc0906f727d6baf87"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-lifecycle-owner/capability_snapshot.py": {
+      "bytes": 4101,
+      "sha256": "21242b74b3ade489f37e1affd41512a89e213a01a819e9d4f746b2a82d5544cf"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-lifecycle-owner/integration-manifest.json": {
+      "bytes": 9185,
+      "sha256": "80f1c0ac6ee8ac8ba79e2884ecc141af65fc191162f5b21523ee3bd8571a5aa5"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-lifecycle-owner/job.py": {
+      "bytes": 34418,
+      "sha256": "90415ffea62bda2aacf6a42826601cfb28b40d3507801554ed505557b6fd8c14"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-lifecycle-owner/packet-interface.json": {
+      "bytes": 2109,
+      "sha256": "7aa7fdbc33b53c28e86a3f8b3ea47428715e8f4944e3481882bed2cf4bbe1fac"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-lifecycle-owner/policy.json": {
+      "bytes": 704,
+      "sha256": "d64fb809c69a3a32d41efc74d6c431ef240b94774d760b7d835793277572ce3c"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-lifecycle-owner/snapshot.py": {
+      "bytes": 9397,
+      "sha256": "9738acb125ce6d468d5359ecfbd5540454826567fd4ac4481576ec31da37190c"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-lifecycle-owner/test_owner.py": {
+      "bytes": 22150,
+      "sha256": "52e6f55512b6fabfb6a3fe4b65f4acd82ff8ff5aed33c3792a1055330ebba02f"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-lifecycle/README.md": {
+      "bytes": 10223,
+      "sha256": "27abc2925cc414598e567b27c114eeef9a6d60f1b25dad85abd469eca62f6169"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-lifecycle/capabilities.py": {
+      "bytes": 4510,
+      "sha256": "28dfa14ef7d98c2114d0c9271b209b801362bb855dfac7f7592277da9ed2cdb9"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-lifecycle/common.py": {
+      "bytes": 12892,
+      "sha256": "42082d2e773d423d2abc0e1f7ff50e74163c09c9a51c1c073a4cb17f7e79cc72"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-lifecycle/container.py": {
+      "bytes": 35741,
+      "sha256": "f12e6e057b225b617fd26597edb00ea92c4df01ca426a21fb482b2681044f9a4"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-lifecycle/copy_scope.py": {
+      "bytes": 3470,
+      "sha256": "605ead63553641641f3b7d4edd9d9af6d2bd6e43d338e367ea846359e09f6fba"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-lifecycle/dependencies.json": {
+      "bytes": 5083,
+      "sha256": "f1f22819a95a677a3e1520a6826acfffa70f2612488b6d0b88fe4e299b6987b4"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-lifecycle/input-interface.json": {
+      "bytes": 2558,
+      "sha256": "702a37fc728c04e916b69f2cb299b2886340b9f0511820e12a1437a37e0ebdca"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-lifecycle/input-policy.json": {
+      "bytes": 436,
+      "sha256": "d777931e61834ab8accd6a80a2b00368080703fa050e8e20a206e959514ebd6b"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-lifecycle/normal-exec-change.json": {
+      "bytes": 839,
+      "sha256": "9d3769704396a33acc0c144cc1519d10230a5fb07d2f7b135dcfd0ba1ab6a68b"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-lifecycle/proc_mount.py": {
+      "bytes": 15565,
+      "sha256": "f868e4e36e34ee52fc40b6a9c37ae2bcace4d417d274fc6317f763a38af30a03"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-lifecycle/run.py": {
+      "bytes": 8910,
+      "sha256": "e7335f26c22c1e991eebcb8f1db0f9acc4094e8e0d60bbe6019b8aba25093890"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-lifecycle/scrub.py": {
+      "bytes": 846,
+      "sha256": "bfac8896427c5fdcdd172a94af925dc5771452e150b44f27f4e16c498c548359"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-lifecycle/smoke-normal.c": {
+      "bytes": 12437,
+      "sha256": "a766bc7cd31cce18fe7e564432de4e4b63db49763608ae70ef8fab61cd29116c"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-lifecycle/source-manifest.json": {
+      "bytes": 2212,
+      "sha256": "9cdd9b9b2f885ef38da119dfe686eddc2d68bfa8d875d2f3c0448762bbec02d7"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-lifecycle/test_controls.py": {
+      "bytes": 44383,
+      "sha256": "f3f4b764764404cdd2670b3db58a1789ab880f3eb050f6af6f3aa63b7c939f0e"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-lifecycle/test_copy_scope.py": {
+      "bytes": 11657,
+      "sha256": "776b75f0db1d93389056f0a6d0e300435b4a020003a5008dd014f352cb3d208d"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-lifecycle/test_proc_mount.py": {
+      "bytes": 18068,
+      "sha256": "34a66f6811c6a3695a812b3a4589605ef0c8f2620579b073eec6d2ae51b38c94"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider-system16k/common.py": {
+      "bytes": 12315,
+      "sha256": "24ecb33290876dde2cde0dd789d56ecf22098cfcb1728ed09c24ac3c92eb57fd"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider/normal-child-exec.patch": {
+      "bytes": 773,
+      "sha256": "1a1f3b1898b0542dfb6bf03d7d6bf0acda33ba3f040055cf710027d69415b9ff"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider/normal-client-policy.json": {
+      "bytes": 815,
+      "sha256": "92f8b918ade03b6ad71ff00fe38a3f797d416fe6225082c9d4ba23c2cc71dd8d"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider/normal_clients.py": {
+      "bytes": 7824,
+      "sha256": "2382a818358a5e28b81ce789d18cee815a0d0c7d52b96a1cbd1d55d7edf31309"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-provider/provider_stage.py": {
+      "bytes": 8147,
+      "sha256": "43b1b441dcc384379ab80c4864bbf7ffd898d56e4ba629c0faa966c25a979e6c"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-trial-apparmor/README.md": {
+      "bytes": 5103,
+      "sha256": "0cfa6907b891d97f59a9d9b555eae462818d27b916c1b0e734f0c48c2a690bd5"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-trial-apparmor/profile.py": {
+      "bytes": 18714,
+      "sha256": "66912eb9e3b4fdee936a2146ea6becd0209e2a4fe10b6e3465690bf845d59cf8"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-trial-apparmor/test_profile.py": {
+      "bytes": 11143,
+      "sha256": "62343b39fec6466ab0c52025874db24b8fd6ae063941ed58cf25819f7b7806d9"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-trial-apparmor/vendor/LICENSE": {
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-trial-apparmor/vendor/apparmor/apparmor.go": {
+      "bytes": 4974,
+      "sha256": "7bf6c04caeedb59df89e8de2b3fa335c73477b34efa2f0af3a0ad22484e3cb21"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-trial-apparmor/vendor/apparmor/template.go": {
+      "bytes": 6196,
+      "sha256": "7da15d81aa5c507f5002b844fdc49a969904681447a2cc29222bd6cbe797163b"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-gnu-trial-apparmor/vendor/source.json": {
+      "bytes": 1033,
+      "sha256": "02b8b22c590a58b959b0745c0c7381a891c977907576bdd9c6f2666c73606a8a"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-owned-runtime/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-owned-runtime/abi_smoke.c": {
+      "bytes": 12469,
+      "sha256": "f131a4f11693b15d7916170a685f9c4f6158596134bf5414f3d8ee472be1a9af"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-owned-runtime/exec_child.c": {
+      "bytes": 913,
+      "sha256": "0a2b48762f8f7ec6d942ca9fb4af4f04a50fd93d2d7dff42407adfea13b1e4cc"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-owned-runtime/plugin.c": {
+      "bytes": 320,
+      "sha256": "d0ce5506b261b5b4582aa35651b68afbf6257e8f4a990155dcac9d4e4596b654"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-owned-runtime/probe.c": {
+      "bytes": 5974,
+      "sha256": "8bc857277840264c29845764b6c4d34e40c3d1dcdb91592acbb31ae5dfeb80b6"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-owned-runtime/probe.h": {
+      "bytes": 270,
+      "sha256": "3806c2a05e640b8860a2c81e4eba55ae8bf416fcb84637e93a7b3d9b71476724"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-owned-runtime/runner.py": {
+      "bytes": 16274,
+      "sha256": "4d9aa954d95032ab9ea9085ced784efc81a5db42e2f1f3401e679ee861c16090"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/glibc-owned-runtime/source-manifest.json": {
+      "bytes": 1274,
+      "sha256": "e10336aef200731c7dd4b06546b718e095c1ecf7718e4a25fa57d6bbed6270a6"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/maintained-desktop574-inputs.json": {
+      "bytes": 623664,
+      "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/maintained_desktop574.py": {
+      "bytes": 22367,
+      "sha256": "27ba4be42cf2bd41675073e07cccc917ae033f9d68b07a33cfd7f074ac27b760"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/managed-gui-generic16k/build_kernel.py": {
+      "bytes": 12900,
+      "sha256": "ccbead2912144c5aa4fcb3ce7af76b3c11f28fcde7987e5f32edb060ff7b0ee9"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/managed-gui-generic16k/kernel.fragment": {
+      "bytes": 1808,
+      "sha256": "88819f00ebef80e385ebdfae6cc101ef21145e0bbd6bb12532b0d41a85c16d28"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/managed-gui-generic16k/kernel_contract.py": {
+      "bytes": 4659,
+      "sha256": "30a4544e5407dbf932d9ec26bbd6bf21eab53347544afa134cd3a5870752cbff"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/old_four_seed.py": {
+      "bytes": 29048,
+      "sha256": "a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/tools-generic16k/acquire_kernel.py": {
+      "bytes": 8844,
+      "sha256": "4a372e1f4bfbd1f8604579873fc6fbdec91ac2555bb36f028646017b44b8c23f"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/ci/tools-generic16k/retained_kernel.py": {
+      "bytes": 5444,
+      "sha256": "bddb14537790a484d770215e55cc2c59de50c764d15e4d677f6fbcaab84cd735"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/install/local_transaction.py": {
+      "bytes": 93752,
+      "sha256": "14381d049506b52770059bf7af415f7a079f69872543e74417aca11ce24ac3c5"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/install/native_arm_trial.py": {
+      "bytes": 74929,
+      "sha256": "fe2becb4fe6c22e50903ab390db5a79aae311b7284fc71bf4b1c4b79e99824c4"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/update/aux_checkpoint.py": {
+      "bytes": 18456,
+      "sha256": "d51179ca24c981bafd817d7db082c0ceb3b2f5deb922004bfe97d1e2007edda7"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/update/aux_copy.py": {
+      "bytes": 3736,
+      "sha256": "bff93c029e21f9fce0868c80566396984443c8d3438264fac8a91c985175f05b"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/update/capacity.py": {
+      "bytes": 1449,
+      "sha256": "dcb9899cd24daa21f75e6da6b0214393f093d140a70769092da091e0cfdf7c87"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/update/disposable_copy.py": {
+      "bytes": 6098,
+      "sha256": "fb05d12a0d67a598cc940e0bc7edb5aa9ffc8cf87ce7b9f695ba5fbd26747667"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/update/full_root.py": {
+      "bytes": 35970,
+      "sha256": "cece1c597b2e2eb98b0e3087cc7e7c148b54332f8a1c4f18e04e4552a71fb51d"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/update/measure_copy.py": {
+      "bytes": 25734,
+      "sha256": "e582245bd114b0b9d83f2de4fdc81a35d2f48493ba6147879871af794476813b"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/update/root_link_selection.py": {
+      "bytes": 25684,
+      "sha256": "4b47223e9c66874193c2b38a620aa892871e93e556178c478dac1929d2540db9"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/update/root_path.py": {
+      "bytes": 3435,
+      "sha256": "2efcbc1057e117a406488f05a3e0213751b00ab09f845a7830a71a4cf60fd2b4"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/update/supervision.py": {
+      "bytes": 3293,
+      "sha256": "f18bcbd2a6279cff8fe6c7e9c9f80fc01c9818844b01df8c4e97b83d61704b10"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/virtual/generic16k/fetch_inputs.py": {
+      "bytes": 7768,
+      "sha256": "212a0a9efc7c386158526ce40683a3646a899a9c7fd2c3140d6e24a02d778043"
+    },
+    "gnu-copy-context-inner-work-integration-development-20261018/expected-vm-source/scripts/virtual/generic16k/inputs.json": {
+      "bytes": 1057,
+      "sha256": "bdfa44ed1d017c0d0e15c1f3af87bdf4a91923c20e812c861ca522d2cf428492"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/.github/workflows/native-arm-build.yml": {
+      "bytes": 23638,
+      "sha256": "94fc95c3e2acfc0d6667bfe26a61d7c2eef551a4cde34eff29ea8dd893d45411"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/.github/workflows/native-arm-glibc-debian-maintained-public-installed16k.yml": {
+      "bytes": 23638,
+      "sha256": "94fc95c3e2acfc0d6667bfe26a61d7c2eef551a4cde34eff29ea8dd893d45411"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/.github/workflows/native-arm-glibc-gnu-provider-installed16k.yml": {
+      "bytes": 17766,
+      "sha256": "0922e95cc75ab21b2a57e5c6e05f78ecb411cead262099ab653d26b377afaf22"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/.github/workflows/native-arm-glibc-gnu-provider-interruption.yml": {
+      "bytes": 9652,
+      "sha256": "0b91c98bcf3e6064b7f5d54097a63fb9e47876a169039add7f05ab8d7894c202"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/.github/workflows/native-arm-glibc-gnu-provider-lifecycle.yml": {
+      "bytes": 9441,
+      "sha256": "502734225082f5b3212dc162634bd8e152ab66ebe3c4b6f64d8798484cc8728c"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/manifests/packages.toml": {
+      "bytes": 37484,
+      "sha256": "f530955f736b9c6924f157a733ea988b687186b86f9c51d120cb6deb107aa694"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/apps/file_capabilities.py": {
+      "bytes": 13562,
+      "sha256": "498a3beec0327b9335dcd6d80ed5919fa2edebebd3284e9ee8b97770328e26a2"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/apps/full574_copy.py": {
+      "bytes": 7799,
+      "sha256": "33d49316c28dee344e78e17d7e7ffa409c9d7ad09bb48a82651f7d44f1cb61a0"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/apps-full574-native/export_extract.py": {
+      "bytes": 2410,
+      "sha256": "c7a09bc3996b9bff97dd57a8244d82d562566f1135b0618f87d90fbf09c58978"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/expanded600-installer-vm/observer600.py": {
+      "bytes": 2784,
+      "sha256": "c3d804e7f2927c7889835ad187a39a3d7c618a4651700f57b0c5413c46612607"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/full-composition-installer-vm/prepare.py": {
+      "bytes": 15922,
+      "sha256": "4d3aa4650b0dad3598290fb00968f78ec3612f5ba280df05d34a46d859e2503e"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/full-composition-installer-vm/run.py": {
+      "bytes": 23677,
+      "sha256": "7788b2a38981f8b3fe13a6f4f8b8f38ce9500e8f76f6be60e669925e670adb75"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/full-root-upgrade/root_upgrade.py": {
+      "bytes": 23555,
+      "sha256": "fe1232ae6b510021910b4fb80016ac3b4668c6e4386cdae45e7b95196e400756"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-debian-maintained-installed16k-ci/README.md": {
+      "bytes": 3335,
+      "sha256": "4061e488ed61611e03972f66edbb0cdfe7ec8241823069f15c934bf03cf3fc01"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-debian-maintained-installed16k-ci/input-interface.json": {
+      "bytes": 1523,
+      "sha256": "b544cce0b4c02935aa263e6ac6e43484ef10c5f7b703c5893c90bf537d003660"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-debian-maintained-installed16k-ci/policy.json": {
+      "bytes": 812,
+      "sha256": "767cbfa12e3c777acf9fb3d9f7e184e6405bb4cce9014387b3f243a48741e6b4"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-debian-maintained-installed16k-ci/test_wiring.py": {
+      "bytes": 11935,
+      "sha256": "65f0de5c54b61972c5b855e81bf7abe632b5a4ce4998259b7cdb7536ede01f03"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-debian-maintained-installed16k-ci/wiring.py": {
+      "bytes": 4997,
+      "sha256": "f9d0786936b1efda01363373575a55c665ed63bc4afc75531a8c9b92582b0a53"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-debian-maintained-installed16k/README.md": {
+      "bytes": 5003,
+      "sha256": "1394e080561be5e15397184a11138999943d80c774cd5fc09c19a75aa27fdc96"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-debian-maintained-installed16k/generator.py": {
+      "bytes": 7282,
+      "sha256": "51a13c19e989c086b6b588a100bfe20c08d90e4c11da56de9425da7eb0c7a99c"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-debian-maintained-installed16k/input-interface.json": {
+      "bytes": 2639,
+      "sha256": "84ab4bb804f4fcd3ddef11bcc3856576b17e0476441edb74df6ae93bc85449a8"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-debian-maintained-installed16k/phase_gate.py": {
+      "bytes": 2808,
+      "sha256": "4e765b694ed3edeaec0dc1da3d311cc0b360702779dc65f8fc1ddd791843a7df"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-debian-maintained-installed16k/source-pins.json": {
+      "bytes": 20813,
+      "sha256": "d05f1913abeed9eaa243df95220bd7bb10f36b71e9f519c82a86ccc97025f446"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-debian-maintained-installed16k/test_generator.py": {
+      "bytes": 13528,
+      "sha256": "4f44e080850d1f0c42425c75c7ede0ed1d1690d0ba904a91d454f25919d0dab1"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-debian-maintained-lifecycle/README.md": {
+      "bytes": 4098,
+      "sha256": "8e91c5b36ed2ec4896ea93cb84627a7eb506868bbf7b1eab58fb872c67cb2b3c"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-debian-maintained-lifecycle/adapter.py": {
+      "bytes": 7737,
+      "sha256": "3685a2a2eac3fb4a30a00ebdbeb01d66d692f6402ccefb82bb9d5e87f591658c"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-debian-maintained-lifecycle/candidate_gate.py": {
+      "bytes": 4355,
+      "sha256": "92f390037767a9d1fdfaf9c9837fac75726c16178adc573b416b0ad7f540e5a4"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-debian-maintained-lifecycle/input-interface.json": {
+      "bytes": 2236,
+      "sha256": "d3bc16421ec9508f49170bb56a779bbc216045b7828d3829a9124fa6edd72b37"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-debian-maintained-lifecycle/source-pins.json": {
+      "bytes": 14415,
+      "sha256": "2300ebb451e8464cba34e6d33f77bf8009fbe3ded3cfb5695ebce3819245acbd"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-debian-maintained-lifecycle/test_adapter.py": {
+      "bytes": 7488,
+      "sha256": "fb33951f6d1156a0b5aa567f03576c3f8fd0eeac2f0c4933b4913e9b022a258f"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-debian-maintained-native-lifecycle-next/policy.json": {
+      "bytes": 1000,
+      "sha256": "81cf28d8cfa02171d4f43b01929f0cb1ced2d8b26680a92380f7bb736dc17686"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-debian-maintained-native-lifecycle-next/prepare.py": {
+      "bytes": 9743,
+      "sha256": "df60c31d437e2ca0d4b452d78dff652abab2ed220a10c167664d502d17583022"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-debian-maintained-native-lifecycle-next/source-pins.json": {
+      "bytes": 17055,
+      "sha256": "f63e896c21f1fe59aa61d04a3d315c3b126b70cea0f34c126b6b69a2918289b1"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-debian-maintained-provider/PKGBUILD.in": {
+      "bytes": 3925,
+      "sha256": "71e4a63c16efa64c950cf10271cb16111575b4ea60cac55361f126498fd6055d"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-debian-maintained-provider/authority.json": {
+      "bytes": 873,
+      "sha256": "709ab4276c02dc21d559a6c581ba7ceae2a4999fa221b85f900f913253be5562"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-debian-maintained-provider/root-maintained-source-authority.json": {
+      "bytes": 15506,
+      "sha256": "88643eabd61a39df63ecaeb50bb20041d17cf4fd3adee55d82d43d3c1ca08707"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-debian-maintained-provider/source-lock.json": {
+      "bytes": 53426,
+      "sha256": "9eef1925b041bdf022ae284e15e473ce5b6795976b132d574ad7d56d21e6d12a"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-debian-maintained-public-installed16k/README.md": {
+      "bytes": 3703,
+      "sha256": "8caac983755fd8e3047ad833385f279eb1f79d47a41b4cda5f1a1caf24f732bb"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-debian-maintained-public-installed16k/input-interface.json": {
+      "bytes": 1045,
+      "sha256": "91d437d64e242877e9c5fd3a63db9a4fe01b4a04520b652470e5ec7c3277f517"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-debian-maintained-public-installed16k/policy.json": {
+      "bytes": 1445,
+      "sha256": "9981a32d7e8c2a169ce4193ba4390c90b03cfccc675fe3abd52c0244506e6bf9"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-debian-maintained-public-installed16k/prepare.py": {
+      "bytes": 10856,
+      "sha256": "76aed455ea8b15ae6a151563c8fcb9e81af05d760ec4162f4bb05db216fab7de"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-debian-maintained-public-installed16k/source-pins.json": {
+      "bytes": 54806,
+      "sha256": "3702b2d80afce6f6ad8c320096bd21600bab9ec98dcd36706409a0d08bd5ed68"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-debian-maintained-public-installed16k/test_route.py": {
+      "bytes": 8602,
+      "sha256": "8070d34ba083dddedf11f45a0b58655c39dee0b92b44df6cb1ead29c1bc3a945"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-debian-maintained-staged-packet/prepare.py": {
+      "bytes": 13973,
+      "sha256": "37a00fb44e715b561acf172717381f861a5c237dca67c0fd524755237c74ec8f"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-debian-maintained-staged-packet/source-pins.json": {
+      "bytes": 2797,
+      "sha256": "054671fee46b759f440b9cbb0702ebfa0f8388f0a35009b7b7ed8aa26306a721"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-debian-maintained-system16k/phase_gate.py": {
+      "bytes": 3711,
+      "sha256": "d1731a40d275c5ed74ccf20b654a76754031dbdcbd32b27154164e3953af6da4"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-failure-log/summary.py": {
+      "bytes": 11924,
+      "sha256": "9bd52ce4453a3a03d8dc8b5edb6b6a4b8ec421e0c3037dfb64dc31da45687555"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-failure-log/test_summary.py": {
+      "bytes": 10534,
+      "sha256": "e1f1a619f046396ad33862182531036224acfebf7746c025e24487dfbf53b24b"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-installed16k-interruption/ci/wiring.py": {
+      "bytes": 8198,
+      "sha256": "7483637091e30cc12d260ac01c3c4bf9af6b6330b5d7296068bfee9476678ef1"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-installed16k/README.md": {
+      "bytes": 10343,
+      "sha256": "3036fbc7907c80cf5f2be48da4aae8eb65fa0fc350e271557ddafd2456fb64f7"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-installed16k/adapter.py": {
+      "bytes": 2190,
+      "sha256": "5a6119714712f670e17a6a2e9260c82950077a0b6876bb4dd2933900ded1e327"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-installed16k/contract.py": {
+      "bytes": 3916,
+      "sha256": "ef83b59045a4b04798f9fbb75cc78f41a0d52dcdbf827e9f616533b8f72067a2"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-installed16k/dependencies.json": {
+      "bytes": 10933,
+      "sha256": "2856a57c08b552be090d948cbe7a7e58f1c4c0a0dfac715fdfe211b0843eed2e"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-installed16k/export.py": {
+      "bytes": 9914,
+      "sha256": "61e4bad870252dab3ca9580817247c9b88f0e6cdc6b40c5956a06e7b9e42a5a7"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-installed16k/guest.py": {
+      "bytes": 27060,
+      "sha256": "0043f45cbaab51419ff8db564fd4843edb2f5c7e088ffffb5290b331b0f6d6d3"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-installed16k/input-policy.json": {
+      "bytes": 927,
+      "sha256": "f0d4a61d6322dfd56d95d6353a2ff6953f7852381cd48d0feae862498d060902"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-installed16k/observer_progress.py": {
+      "bytes": 8229,
+      "sha256": "f427ce27bd8c90d1cc4aa68a9fb41abbc8b4fb1d7a9cdfa4153b1fafc7a2941a"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-installed16k/prepare.py": {
+      "bytes": 6913,
+      "sha256": "0903bccc52f544c66b760c460232490a210449d8b00c681096a0c652d7482ed5"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-installed16k/prerequisites/system16k.json": {
+      "bytes": 2655,
+      "sha256": "5a5377a6619d024f618dab79136ec2f6354fe483a92974dc7c5dccb12e3b045c"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-installed16k/run.py": {
+      "bytes": 16593,
+      "sha256": "92aefb4f4c861da401855efbc40e9d1392ab3cd9e67b16510254cbdfac792d88"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-installed16k/sandbox.py": {
+      "bytes": 3472,
+      "sha256": "35fc16ddffe45e8687c168d9cf24e88a4682fc3ad915d50d22e2e57f49c1b3ca"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-installed16k/scrub.py": {
+      "bytes": 1014,
+      "sha256": "012682ddc164737db1696f5dda3c43008febc32f865662c16f3c77637a426549"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-installed16k/snapshot_progress.py": {
+      "bytes": 11105,
+      "sha256": "e21b16d6212c2dfa216fbc5e2dbe58d755ed6d17b401e29765cc6c399be383e6"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-installed16k/source-manifest.json": {
+      "bytes": 3629,
+      "sha256": "a345ccb0203b5ea6a4f3112e6126c9deca12d359a627111f3c041e8174dd4673"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-installed16k/support.py": {
+      "bytes": 408,
+      "sha256": "e3a3b3fa7d4ab84e088f6ea206799359164e8f6b92bf3dfbe152cd8df4d9ded1"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-installed16k/test_first_observer_progress.py": {
+      "bytes": 31870,
+      "sha256": "4ac8fa37abea704fd74e2d1514025ed7444bdc11717ca25bac4011b862c8b848"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-installed16k/test_lane.py": {
+      "bytes": 16488,
+      "sha256": "5a34a678601bbb4b0dbdbd0546b460bab1245e53a6f84c78a00aa88afa61dc55"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-installed16k/test_snapshot_progress.py": {
+      "bytes": 10285,
+      "sha256": "84ee9e55a57a6cdf3a9e15b3af2bc07ed767f95926cd87501e54c534d36f787a"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-interruption-owner/README.md": {
+      "bytes": 6935,
+      "sha256": "f4caf1d4a87223ec8bcb0ab3ee6d0954980d40436a48d50a6a6f3500f1367888"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-interruption-owner/capability_snapshot.py": {
+      "bytes": 4104,
+      "sha256": "b287172c398ce03ed96b1c0b25f6217ffe807956c20a00f1d1b57da3cae20731"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-interruption-owner/integration-manifest.json": {
+      "bytes": 9809,
+      "sha256": "67c52a5b795e66e2a53512524adf5b6d80e61e6a04ded29bdc77b5c7bbf7d789"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-interruption-owner/job.py": {
+      "bytes": 38024,
+      "sha256": "bc402dbc16d667260f235dcb21fb606cbe829f3d1f0c91d8f2d3c0ce3be2454e"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-interruption-owner/packet-interface.json": {
+      "bytes": 2112,
+      "sha256": "0047b787c758c78a7d03c79da6eb58b5046f46f536fa19eff4a5076f7f77bfb3"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-interruption-owner/policy.json": {
+      "bytes": 719,
+      "sha256": "d0dfae1856033bccc8cd22c41d30330276308d6353f37af0f50eb979a1005de5"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-interruption-owner/snapshot.py": {
+      "bytes": 9400,
+      "sha256": "0ff8d2e15ebcca5f91d09c19e986737d7d5596f3f439decb1e1d763d833c5e69"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-interruption-owner/test_owner.py": {
+      "bytes": 28229,
+      "sha256": "9b159dca9521ff79bdf729df2a2085fed08c027fd7fcea1bfa281c5c3c4493ed"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-interruption/README.md": {
+      "bytes": 11492,
+      "sha256": "006e7b0a3af49e0bfcaac8f713a4c11c3eed1554c9684988c1d302834eb39064"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-interruption/alpm-semantics.json": {
+      "bytes": 2966,
+      "sha256": "8d8ed810403c62a9de6b336e7e953cd85504bdd5033a6370a1e66b8f625e2a2e"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-interruption/common.py": {
+      "bytes": 12904,
+      "sha256": "ac2e38d80b0c0a283b9865fb88e6000f7c10202194298a6a3ed31b5679574d8b"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-interruption/container.py": {
+      "bytes": 36759,
+      "sha256": "22ce53335b8ec9a8d3200679855c7922c62cd3da4cefab15556660b1ab39192e"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-interruption/dependencies.json": {
+      "bytes": 5083,
+      "sha256": "f1f22819a95a677a3e1520a6826acfffa70f2612488b6d0b88fe4e299b6987b4"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-interruption/input-interface.json": {
+      "bytes": 2567,
+      "sha256": "0ab1b78b5fae601e216159615a2212c2631eeb5f1f4be4860c84b910b4ac45e8"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-interruption/input-policy.json": {
+      "bytes": 436,
+      "sha256": "d777931e61834ab8accd6a80a2b00368080703fa050e8e20a206e959514ebd6b"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-interruption/interruption.py": {
+      "bytes": 14293,
+      "sha256": "daf605b234ece080706a29f597f006da95b80113baeeb57c3e7f46c102c6d8bf"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-interruption/normal-exec-change.json": {
+      "bytes": 839,
+      "sha256": "9d3769704396a33acc0c144cc1519d10230a5fb07d2f7b135dcfd0ba1ab6a68b"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-interruption/run.py": {
+      "bytes": 9173,
+      "sha256": "319d775dd30cd5c6d0343b88170260d4668cbe152d04a920dc237830264f56e2"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-interruption/scrub.py": {
+      "bytes": 849,
+      "sha256": "b3ab918d62c45428163975968c9a49cf0f4363029e1b46f19cdf03fc52fcb70b"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-interruption/smoke-normal.c": {
+      "bytes": 12437,
+      "sha256": "a766bc7cd31cce18fe7e564432de4e4b63db49763608ae70ef8fab61cd29116c"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-interruption/source-manifest.json": {
+      "bytes": 1955,
+      "sha256": "95b9fa21752dd06078bc3bbafe39dea7609a837d1358299055dfe2619be0e9e2"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-interruption/test_interruption.py": {
+      "bytes": 9795,
+      "sha256": "de778a8526e950b116d013d28e431db3c854a62648c52b31d4e5d51003904f44"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-interruption/test_lifecycle_controls.py": {
+      "bytes": 29474,
+      "sha256": "bcbbe19144ef3488a83eb0a9476c68be1664a0519f2b82a6871c4fef66721ea6"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-lifecycle-owner/README.md": {
+      "bytes": 5916,
+      "sha256": "99f5667a1f8b8d5e93805196c6a1c06338e9ec68a58251ecc0906f727d6baf87"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-lifecycle-owner/capability_snapshot.py": {
+      "bytes": 4101,
+      "sha256": "21242b74b3ade489f37e1affd41512a89e213a01a819e9d4f746b2a82d5544cf"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-lifecycle-owner/integration-manifest.json": {
+      "bytes": 9185,
+      "sha256": "80f1c0ac6ee8ac8ba79e2884ecc141af65fc191162f5b21523ee3bd8571a5aa5"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-lifecycle-owner/job.py": {
+      "bytes": 34418,
+      "sha256": "90415ffea62bda2aacf6a42826601cfb28b40d3507801554ed505557b6fd8c14"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-lifecycle-owner/packet-interface.json": {
+      "bytes": 2109,
+      "sha256": "7aa7fdbc33b53c28e86a3f8b3ea47428715e8f4944e3481882bed2cf4bbe1fac"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-lifecycle-owner/policy.json": {
+      "bytes": 704,
+      "sha256": "d64fb809c69a3a32d41efc74d6c431ef240b94774d760b7d835793277572ce3c"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-lifecycle-owner/snapshot.py": {
+      "bytes": 9397,
+      "sha256": "9738acb125ce6d468d5359ecfbd5540454826567fd4ac4481576ec31da37190c"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-lifecycle-owner/test_owner.py": {
+      "bytes": 22150,
+      "sha256": "52e6f55512b6fabfb6a3fe4b65f4acd82ff8ff5aed33c3792a1055330ebba02f"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-lifecycle/README.md": {
+      "bytes": 10223,
+      "sha256": "27abc2925cc414598e567b27c114eeef9a6d60f1b25dad85abd469eca62f6169"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-lifecycle/capabilities.py": {
+      "bytes": 4510,
+      "sha256": "28dfa14ef7d98c2114d0c9271b209b801362bb855dfac7f7592277da9ed2cdb9"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-lifecycle/common.py": {
+      "bytes": 12892,
+      "sha256": "42082d2e773d423d2abc0e1f7ff50e74163c09c9a51c1c073a4cb17f7e79cc72"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-lifecycle/container.py": {
+      "bytes": 35741,
+      "sha256": "f12e6e057b225b617fd26597edb00ea92c4df01ca426a21fb482b2681044f9a4"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-lifecycle/copy_scope.py": {
+      "bytes": 3470,
+      "sha256": "605ead63553641641f3b7d4edd9d9af6d2bd6e43d338e367ea846359e09f6fba"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-lifecycle/dependencies.json": {
+      "bytes": 5083,
+      "sha256": "f1f22819a95a677a3e1520a6826acfffa70f2612488b6d0b88fe4e299b6987b4"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-lifecycle/input-interface.json": {
+      "bytes": 2558,
+      "sha256": "702a37fc728c04e916b69f2cb299b2886340b9f0511820e12a1437a37e0ebdca"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-lifecycle/input-policy.json": {
+      "bytes": 436,
+      "sha256": "d777931e61834ab8accd6a80a2b00368080703fa050e8e20a206e959514ebd6b"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-lifecycle/normal-exec-change.json": {
+      "bytes": 839,
+      "sha256": "9d3769704396a33acc0c144cc1519d10230a5fb07d2f7b135dcfd0ba1ab6a68b"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-lifecycle/proc_mount.py": {
+      "bytes": 15565,
+      "sha256": "f868e4e36e34ee52fc40b6a9c37ae2bcace4d417d274fc6317f763a38af30a03"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-lifecycle/run.py": {
+      "bytes": 8910,
+      "sha256": "e7335f26c22c1e991eebcb8f1db0f9acc4094e8e0d60bbe6019b8aba25093890"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-lifecycle/scrub.py": {
+      "bytes": 846,
+      "sha256": "bfac8896427c5fdcdd172a94af925dc5771452e150b44f27f4e16c498c548359"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-lifecycle/smoke-normal.c": {
+      "bytes": 12437,
+      "sha256": "a766bc7cd31cce18fe7e564432de4e4b63db49763608ae70ef8fab61cd29116c"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-lifecycle/source-manifest.json": {
+      "bytes": 2212,
+      "sha256": "9cdd9b9b2f885ef38da119dfe686eddc2d68bfa8d875d2f3c0448762bbec02d7"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-lifecycle/test_controls.py": {
+      "bytes": 44383,
+      "sha256": "f3f4b764764404cdd2670b3db58a1789ab880f3eb050f6af6f3aa63b7c939f0e"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-lifecycle/test_copy_scope.py": {
+      "bytes": 11657,
+      "sha256": "776b75f0db1d93389056f0a6d0e300435b4a020003a5008dd014f352cb3d208d"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-lifecycle/test_proc_mount.py": {
+      "bytes": 18068,
+      "sha256": "34a66f6811c6a3695a812b3a4589605ef0c8f2620579b073eec6d2ae51b38c94"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider-system16k/common.py": {
+      "bytes": 12315,
+      "sha256": "24ecb33290876dde2cde0dd789d56ecf22098cfcb1728ed09c24ac3c92eb57fd"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider/normal-child-exec.patch": {
+      "bytes": 773,
+      "sha256": "1a1f3b1898b0542dfb6bf03d7d6bf0acda33ba3f040055cf710027d69415b9ff"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider/normal-client-policy.json": {
+      "bytes": 815,
+      "sha256": "92f8b918ade03b6ad71ff00fe38a3f797d416fe6225082c9d4ba23c2cc71dd8d"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider/normal_clients.py": {
+      "bytes": 7824,
+      "sha256": "2382a818358a5e28b81ce789d18cee815a0d0c7d52b96a1cbd1d55d7edf31309"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-provider/provider_stage.py": {
+      "bytes": 8147,
+      "sha256": "43b1b441dcc384379ab80c4864bbf7ffd898d56e4ba629c0faa966c25a979e6c"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-trial-apparmor/README.md": {
+      "bytes": 5103,
+      "sha256": "0cfa6907b891d97f59a9d9b555eae462818d27b916c1b0e734f0c48c2a690bd5"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-trial-apparmor/profile.py": {
+      "bytes": 18714,
+      "sha256": "66912eb9e3b4fdee936a2146ea6becd0209e2a4fe10b6e3465690bf845d59cf8"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-trial-apparmor/test_profile.py": {
+      "bytes": 11143,
+      "sha256": "62343b39fec6466ab0c52025874db24b8fd6ae063941ed58cf25819f7b7806d9"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-trial-apparmor/vendor/LICENSE": {
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-trial-apparmor/vendor/apparmor/apparmor.go": {
+      "bytes": 4974,
+      "sha256": "7bf6c04caeedb59df89e8de2b3fa335c73477b34efa2f0af3a0ad22484e3cb21"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-trial-apparmor/vendor/apparmor/template.go": {
+      "bytes": 6196,
+      "sha256": "7da15d81aa5c507f5002b844fdc49a969904681447a2cc29222bd6cbe797163b"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-gnu-trial-apparmor/vendor/source.json": {
+      "bytes": 1033,
+      "sha256": "02b8b22c590a58b959b0745c0c7381a891c977907576bdd9c6f2666c73606a8a"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-owned-runtime/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-owned-runtime/abi_smoke.c": {
+      "bytes": 12469,
+      "sha256": "f131a4f11693b15d7916170a685f9c4f6158596134bf5414f3d8ee472be1a9af"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-owned-runtime/exec_child.c": {
+      "bytes": 913,
+      "sha256": "0a2b48762f8f7ec6d942ca9fb4af4f04a50fd93d2d7dff42407adfea13b1e4cc"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-owned-runtime/plugin.c": {
+      "bytes": 320,
+      "sha256": "d0ce5506b261b5b4582aa35651b68afbf6257e8f4a990155dcac9d4e4596b654"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-owned-runtime/probe.c": {
+      "bytes": 5974,
+      "sha256": "8bc857277840264c29845764b6c4d34e40c3d1dcdb91592acbb31ae5dfeb80b6"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-owned-runtime/probe.h": {
+      "bytes": 270,
+      "sha256": "3806c2a05e640b8860a2c81e4eba55ae8bf416fcb84637e93a7b3d9b71476724"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-owned-runtime/runner.py": {
+      "bytes": 16274,
+      "sha256": "4d9aa954d95032ab9ea9085ced784efc81a5db42e2f1f3401e679ee861c16090"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/glibc-owned-runtime/source-manifest.json": {
+      "bytes": 1274,
+      "sha256": "e10336aef200731c7dd4b06546b718e095c1ecf7718e4a25fa57d6bbed6270a6"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/maintained-desktop574-inputs.json": {
+      "bytes": 623664,
+      "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/maintained_desktop574.py": {
+      "bytes": 22367,
+      "sha256": "27ba4be42cf2bd41675073e07cccc917ae033f9d68b07a33cfd7f074ac27b760"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/managed-gui-generic16k/build_kernel.py": {
+      "bytes": 12900,
+      "sha256": "ccbead2912144c5aa4fcb3ce7af76b3c11f28fcde7987e5f32edb060ff7b0ee9"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/managed-gui-generic16k/kernel.fragment": {
+      "bytes": 1808,
+      "sha256": "88819f00ebef80e385ebdfae6cc101ef21145e0bbd6bb12532b0d41a85c16d28"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/managed-gui-generic16k/kernel_contract.py": {
+      "bytes": 4659,
+      "sha256": "30a4544e5407dbf932d9ec26bbd6bf21eab53347544afa134cd3a5870752cbff"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/old_four_seed.py": {
+      "bytes": 29048,
+      "sha256": "a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/tools-generic16k/acquire_kernel.py": {
+      "bytes": 8844,
+      "sha256": "4a372e1f4bfbd1f8604579873fc6fbdec91ac2555bb36f028646017b44b8c23f"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/ci/tools-generic16k/retained_kernel.py": {
+      "bytes": 5444,
+      "sha256": "bddb14537790a484d770215e55cc2c59de50c764d15e4d677f6fbcaab84cd735"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/install/local_transaction.py": {
+      "bytes": 93752,
+      "sha256": "14381d049506b52770059bf7af415f7a079f69872543e74417aca11ce24ac3c5"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/install/native_arm_trial.py": {
+      "bytes": 74929,
+      "sha256": "fe2becb4fe6c22e50903ab390db5a79aae311b7284fc71bf4b1c4b79e99824c4"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/update/aux_checkpoint.py": {
+      "bytes": 18456,
+      "sha256": "d51179ca24c981bafd817d7db082c0ceb3b2f5deb922004bfe97d1e2007edda7"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/update/aux_copy.py": {
+      "bytes": 3736,
+      "sha256": "bff93c029e21f9fce0868c80566396984443c8d3438264fac8a91c985175f05b"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/update/capacity.py": {
+      "bytes": 1449,
+      "sha256": "dcb9899cd24daa21f75e6da6b0214393f093d140a70769092da091e0cfdf7c87"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/update/disposable_copy.py": {
+      "bytes": 6098,
+      "sha256": "fb05d12a0d67a598cc940e0bc7edb5aa9ffc8cf87ce7b9f695ba5fbd26747667"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/update/full_root.py": {
+      "bytes": 35970,
+      "sha256": "cece1c597b2e2eb98b0e3087cc7e7c148b54332f8a1c4f18e04e4552a71fb51d"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/update/measure_copy.py": {
+      "bytes": 25734,
+      "sha256": "e582245bd114b0b9d83f2de4fdc81a35d2f48493ba6147879871af794476813b"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/update/root_link_selection.py": {
+      "bytes": 25684,
+      "sha256": "4b47223e9c66874193c2b38a620aa892871e93e556178c478dac1929d2540db9"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/update/root_path.py": {
+      "bytes": 3435,
+      "sha256": "2efcbc1057e117a406488f05a3e0213751b00ab09f845a7830a71a4cf60fd2b4"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/update/supervision.py": {
+      "bytes": 3293,
+      "sha256": "f18bcbd2a6279cff8fe6c7e9c9f80fc01c9818844b01df8c4e97b83d61704b10"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/virtual/generic16k/fetch_inputs.py": {
+      "bytes": 7768,
+      "sha256": "212a0a9efc7c386158526ce40683a3646a899a9c7fd2c3140d6e24a02d778043"
+    },
+    "gnu-copy-context-inner-work-trial-root-20261018/source/scripts/virtual/generic16k/inputs.json": {
+      "bytes": 1057,
+      "sha256": "bdfa44ed1d017c0d0e15c1f3af87bdf4a91923c20e812c861ca522d2cf428492"
+    },
+    "gnu-immutable-source-broker-development-20261018/bootstrap-derived.py": {
+      "bytes": 10561,
+      "sha256": "7fd69761a16064c68f61fbdc625db21309aae8358a1b6ffe91629c4eb9b458b2"
+    },
+    "gnu-immutable-source-broker-development-20261018/broker.py": {
+      "bytes": 2574,
+      "sha256": "9659c0a8d549301d38cf8ccc9b507b59dc83907857343354e9a4090249c00540"
+    },
+    "gnu-immutable-source-broker-development-20261018/check_handoff.py": {
+      "bytes": 621,
+      "sha256": "96366466c1683a3034859dc82e3faef154db3e4d92e123379c9427322b86ac99"
+    },
+    "gnu-immutable-source-broker-development-20261018/check_source.py": {
+      "bytes": 1128,
+      "sha256": "efe5f5828a303fe575764ca174f9c05a042b881cc1484da29e86bd8bc94655ac"
+    },
+    "gnu-immutable-source-broker-development-20261018/client.py": {
+      "bytes": 3690,
+      "sha256": "60d1c8fe32f17ddf357beba78958145e907847d8f00010c136485bff2da6aef0"
+    },
+    "gnu-immutable-source-broker-development-20261018/context.py": {
+      "bytes": 7674,
+      "sha256": "7f2b0c2ad9045b6e2b39bc6d289e72027d5223843b8bf63d82c358f49ed4a421"
+    },
+    "gnu-immutable-source-broker-development-20261018/input-pins.json": {
+      "bytes": 882,
+      "sha256": "b67294de7fc1c53bbaf6643fe1daca74df5ca23f2baedbcff4093c4e2b9d552f"
+    },
+    "gnu-immutable-source-broker-development-20261018/integration.py": {
+      "bytes": 2779,
+      "sha256": "2c15ef61f688f87bddd3cbb716c1a8698953a8c21219f019285f7931b69e98bc"
+    },
+    "gnu-immutable-source-broker-development-20261018/protocol.py": {
+      "bytes": 5056,
+      "sha256": "232fe2e013ebc80fe284bcc605e1e9ff58aff635b121e70bceb1e0a661222e6c"
+    },
+    "gnu-immutable-source-broker-development-20261018/scope.py": {
+      "bytes": 1229,
+      "sha256": "6eab2aa0cc7759c27153febbebfee7f52660a16259d1426b2fd2b994509d1fbf"
+    },
+    "gnu-immutable-source-broker-development-20261018/selection.template.json": {
+      "bytes": 172,
+      "sha256": "6eb4ea510228d1834e83fb822602988227fb98e9dac3ae92f4a21f1aa801dfb3"
+    },
+    "gnu-immutable-source-broker-development-20261018/source-authorization.json": {
+      "bytes": 1521,
+      "sha256": "9050591bfcde09ba65900cd021a65c551d8fb1864e68c991eb2e0c207e671b52"
+    },
+    "gnu-immutable-source-broker-development-20261018/test_broker.py": {
+      "bytes": 8631,
+      "sha256": "1b2c4e2e6da7131cd72682e7711506cd9085f13983ec4fdb2b86f25fe5e7da59"
+    },
+    "gnu-immutable-source-reader-development-20261018/freeze.json": {
+      "bytes": 2337,
+      "sha256": "5de3338c309a7210cca028429629020c5260247159e955fbb72befa8f21a1614"
+    },
+    "gnu-immutable-source-reader-development-20261018/kernel-source-evidence.json": {
+      "bytes": 1171,
+      "sha256": "5bd99e0b169254034c4b141804d7b18adb4dbd3a17bdeb7612d9ae72214fa251"
+    },
+    "gnu-immutable-source-reader-development-20261018/kernel.fragment.proposed": {
+      "bytes": 968,
+      "sha256": "36ba6f5d5f157c0525c1a938a7ba8817c6b274cb69321e5ef391b039554892c1"
+    },
+    "gnu-immutable-source-reader-development-20261018/profile-proposal.json": {
+      "bytes": 488,
+      "sha256": "0fd538a2cfb9b746e3cca8a4edcea6c654e5257ce80a20d5a37aa0916100f570"
+    },
+    "gnu-immutable-source-reader-development-20261018/reader.py": {
+      "bytes": 8537,
+      "sha256": "9ffb404f64e0dcfb1fbd564131b7d8be9e564fdee7937cf7e312cf04ee58ddaa"
+    },
+    "gnu-immutable-source-reader-development-20261018/verity_image.py": {
+      "bytes": 3454,
+      "sha256": "252acc8782b313fd28a170f0ea4688030e379670dc3ab91f985357cbbe5d8b24"
+    },
+    "gnu-installed16k-progress-trial-root-source-20261017/source/scripts/ci/glibc-gnu-provider-installed16k/test_progress.py": {
+      "bytes": 14833,
+      "sha256": "fb7a02b1bb65f460c2596d4428ae40c2da94690ae6de1babd14ab1f833553e49"
+    },
+    "gnu-verity-bootstrap-development-20261018/bootstrap.py": {
+      "bytes": 14751,
+      "sha256": "192b32a9e6e3183ecb8817c6a60bbfceed6ef4282f92493a2d789a3f010c6014"
+    },
+    "gnu-verity-bootstrap-development-20261018/borrowed/reader.py": {
+      "bytes": 8537,
+      "sha256": "9ffb404f64e0dcfb1fbd564131b7d8be9e564fdee7937cf7e312cf04ee58ddaa"
+    },
+    "gnu-verity-bootstrap-development-20261018/borrowed/verity_image.py": {
+      "bytes": 3454,
+      "sha256": "252acc8782b313fd28a170f0ea4688030e379670dc3ab91f985357cbbe5d8b24"
+    },
+    "gnu-verity-bootstrap-development-20261018/common.py": {
+      "bytes": 1832,
+      "sha256": "a486d60ef03c5c2847b0685a1ef4d5e69ddd0789545fdf6ac273f76ed478d9d4"
+    },
+    "gnu-verity-bootstrap-development-20261018/dm.py": {
+      "bytes": 3818,
+      "sha256": "cd72ca6fecd7d8bd6f85dec271a8a76a5fb5626d59345806576d5fe3708c996c"
+    },
+    "gnu-verity-bootstrap-development-20261018/images.py": {
+      "bytes": 4155,
+      "sha256": "c843227a61fe5b8265d1b7e52e93cf832680bc7285760f1906670df97bbdd11e"
+    },
+    "gnu-verity-bootstrap-development-20261018/input-pins.json": {
+      "bytes": 75819,
+      "sha256": "d683a4ad48e9529ee075aeb5382a15dcafaef8af24e0c3d3328d540db5067668"
+    },
+    "gnu-verity-bootstrap-development-20261018/recovery.py": {
+      "bytes": 3266,
+      "sha256": "f8733268208615e09fc2700852c5da158ecd871b509c88eba3b6b2c278515a2f"
+    },
+    "gnu-verity-bootstrap-development-20261018/runtime-pins.json": {
+      "bytes": 298,
+      "sha256": "83cedef4c96aaea9b8f068cdf5270076fb8bcaf1364ede976dee7af1e113d64d"
+    },
+    "gnu-verity-bootstrap-development-20261018/source_snapshot.py": {
+      "bytes": 3628,
+      "sha256": "757d2a1703ad6a22015b8c0834fbcf43e6f068028cd975066f79d5ad2f107539"
+    },
+    "immutable/bootstrap_loader.py": {
+      "bytes": 3237,
+      "sha256": "fd67e50c97c798a2de61d391fe91bbf2a485d454066d5e8340a465c083ebc5b8"
+    },
+    "immutable/disk_adapter.py": {
+      "bytes": 2288,
+      "sha256": "128839afdd8f49b56e00813414ea4c610a996df970bc6d9ff3431a75fe687b76"
+    },
+    "immutable/dispose.py": {
+      "bytes": 2648,
+      "sha256": "7472fec87f30fee2e605dd34ffb8c8b8c1b663def8f55f98ba8b13e0659673a9"
+    },
+    "immutable/entry.py": {
+      "bytes": 1053,
+      "sha256": "33f7cf6d82d993efe97b01230eb053cc256844c319072f100371e6875a042a3a"
+    },
+    "immutable/factory.py": {
+      "bytes": 4069,
+      "sha256": "f50c51427ad84be8393ec5f1cab3db49f456cae04df566e4340d8d0cf2b759ce"
+    },
+    "immutable/inputs.py": {
+      "bytes": 2783,
+      "sha256": "f6d6aa97418aa7b73153e75329163a46ef3a7f854709d1c5462b3b0e41b33e87"
+    },
+    "immutable/lease_table.py": {
+      "bytes": 1438,
+      "sha256": "867c29f0139d5a6fa3aefb2f118fc6534f56b0ea752ee0e43eb8029ad646e507"
+    },
+    "immutable/leases.py": {
+      "bytes": 4980,
+      "sha256": "1c40d0818de0568c8958e3810b8308857ea6111ffd7427705e4636a9324661c6"
+    },
+    "immutable/map_join.py": {
+      "bytes": 8483,
+      "sha256": "44560c46d3350e4646de73b4ac880b02df6d04cbbc1efbfae313999e9631188c"
+    },
+    "immutable/mount_proxy.py": {
+      "bytes": 1846,
+      "sha256": "14a6376d1fb4de2662fda3f31bd82b4afc68246fc01435d010a800af0f8bb480"
+    },
+    "immutable/native_controller.py": {
+      "bytes": 10213,
+      "sha256": "bcc8bead45b0347544b70ead3a1c9e2eaafbce93634fbc3558ab83b0f5e01e14"
+    },
+    "immutable/native_prepare.py": {
+      "bytes": 4338,
+      "sha256": "11341bbbdc928d226660d53af8c8e333464c5dc8d59a02a0fa5c5887ea025564"
+    },
+    "immutable/owner.py": {
+      "bytes": 11746,
+      "sha256": "6259cbc551e553ac6a83595a9243494cda235dc91972ccb71857345c4d73f8e4"
+    },
+    "immutable/policy.json": {
+      "bytes": 387,
+      "sha256": "5ddb441364d4d389f8ce6eea568f066672acda4937e491654e7e85b4f12668b5"
+    },
+    "immutable/prerequisites.py": {
+      "bytes": 1128,
+      "sha256": "ec908fd3ff976e47129997eb134f9e03798b4da0d5151b626ed1194a1856b75b"
+    },
+    "immutable/qualification-pins.json": {
+      "bytes": 252,
+      "sha256": "65419c374f197cf7eb3a50653ec28e153ee7e73926bd94f1c64d6cf019f371db"
+    },
+    "immutable/runtime_check.py": {
+      "bytes": 3459,
+      "sha256": "2136153e232379fb2712a449f33afbb467009a4ec43682d717b2735ad48e8694"
+    },
+    "immutable/runtime_context.py": {
+      "bytes": 1361,
+      "sha256": "64dc7acef8b41db4a8365e91fd8196445efd308c93976348ee9cbdc88429b8ac"
+    },
+    "immutable/runtime_policy.py": {
+      "bytes": 3949,
+      "sha256": "05048455808a217c1751260b7321800fa473d6349d034a6764c1007d004662ed"
+    },
+    "immutable/service.py": {
+      "bytes": 2829,
+      "sha256": "64348cb43e0eadf2ef890d690f1ab1269706c1a8454f2bfbc48c9f7bb2004549"
+    },
+    "immutable/source-pins.json": {
+      "bytes": 101130,
+      "sha256": "007a41aefa84df0ee43205512d98e49fbc6bbf680565b838445043a4f298c9fe"
+    },
+    "immutable/stage.py": {
+      "bytes": 7216,
+      "sha256": "eb270b6f5df37f4962ce26082a805ea39b0ccef85c88906cf0a7bcc097a37c92"
+    },
+    "immutable/supervisor.py": {
+      "bytes": 1884,
+      "sha256": "d0aa00574817eabfecaa0af886e251e45156fe2de46efa5d2775a9ce46d98a23"
+    },
+    "immutable/test_controls.py": {
+      "bytes": 10193,
+      "sha256": "7e2cda89fd12e03fbb37bffafa4e946b5e2d4689a7bfb6bd185595d83038c3f8"
+    },
+    "immutable/worker.py": {
+      "bytes": 4628,
+      "sha256": "f58aab507e0255991af73af85129007ccb7e910d4851d87b55b34f11315db162"
+    },
+    "immutable/worker_api.py": {
+      "bytes": 12770,
+      "sha256": "7cd6ccbcde3293c49cf34600de168720396b1057aaac97c0faca32c2adc5108a"
+    },
+    "runtime-vm/.github/workflows/native-arm-build.yml": {
+      "bytes": 10533,
+      "sha256": "9f79a7f5d057892e72a3e693f6f47480a826ad116e2ce231e87ca4e554557e9e"
+    },
+    "runtime-vm/.github/workflows/native-arm-glibc-debian-maintained-provider-lifecycle.yml": {
+      "bytes": 10359,
+      "sha256": "f224e0a559be5733cec6328a0b91b6cd53b9e227ba844cef04050e8c74eb697d"
+    },
+    "runtime-vm/.github/workflows/native-arm-glibc-debian-maintained-public-provider-lifecycle.yml": {
+      "bytes": 10533,
+      "sha256": "9f79a7f5d057892e72a3e693f6f47480a826ad116e2ce231e87ca4e554557e9e"
+    },
+    "runtime-vm/.github/workflows/native-arm-glibc-gnu-provider-installed16k.yml": {
+      "bytes": 17766,
+      "sha256": "0922e95cc75ab21b2a57e5c6e05f78ecb411cead262099ab653d26b377afaf22"
+    },
+    "runtime-vm/.github/workflows/native-arm-glibc-gnu-provider-interruption.yml": {
+      "bytes": 9652,
+      "sha256": "0b91c98bcf3e6064b7f5d54097a63fb9e47876a169039add7f05ab8d7894c202"
+    },
+    "runtime-vm/.github/workflows/native-arm-glibc-gnu-provider-lifecycle.yml": {
+      "bytes": 9441,
+      "sha256": "502734225082f5b3212dc162634bd8e152ab66ebe3c4b6f64d8798484cc8728c"
+    },
+    "runtime-vm/AGENTS.md": {
+      "bytes": 1334,
+      "sha256": "a95eaf775ac935ebdfe6b9c89aad9382639671aecdaab91503e1453d4782a056"
+    },
+    "runtime-vm/adaptation.json": {
+      "bytes": 48279,
+      "sha256": "bfa637f855f1f48dcde53b85e07731e2788779ff954c6e29011a7cab413c64dc"
+    },
+    "runtime-vm/manifests/packages.toml": {
+      "bytes": 37484,
+      "sha256": "f530955f736b9c6924f157a733ea988b687186b86f9c51d120cb6deb107aa694"
+    },
+    "runtime-vm/scripts/apps/file_capabilities.py": {
+      "bytes": 13562,
+      "sha256": "498a3beec0327b9335dcd6d80ed5919fa2edebebd3284e9ee8b97770328e26a2"
+    },
+    "runtime-vm/scripts/apps/full574_copy.py": {
+      "bytes": 7799,
+      "sha256": "33d49316c28dee344e78e17d7e7ffa409c9d7ad09bb48a82651f7d44f1cb61a0"
+    },
+    "runtime-vm/scripts/ci/apps-full574-native/export_extract.py": {
+      "bytes": 2410,
+      "sha256": "c7a09bc3996b9bff97dd57a8244d82d562566f1135b0618f87d90fbf09c58978"
+    },
+    "runtime-vm/scripts/ci/expanded600-installer-vm/observer600.py": {
+      "bytes": 2784,
+      "sha256": "c3d804e7f2927c7889835ad187a39a3d7c618a4651700f57b0c5413c46612607"
+    },
+    "runtime-vm/scripts/ci/full-composition-installer-vm/prepare.py": {
+      "bytes": 15922,
+      "sha256": "4d3aa4650b0dad3598290fb00968f78ec3612f5ba280df05d34a46d859e2503e"
+    },
+    "runtime-vm/scripts/ci/full-composition-installer-vm/run.py": {
+      "bytes": 23677,
+      "sha256": "7788b2a38981f8b3fe13a6f4f8b8f38ce9500e8f76f6be60e669925e670adb75"
+    },
+    "runtime-vm/scripts/ci/full-root-upgrade/root_upgrade.py": {
+      "bytes": 23555,
+      "sha256": "fe1232ae6b510021910b4fb80016ac3b4668c6e4386cdae45e7b95196e400756"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-installed16k-ci/README.md": {
+      "bytes": 3335,
+      "sha256": "4061e488ed61611e03972f66edbb0cdfe7ec8241823069f15c934bf03cf3fc01"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-installed16k-ci/input-interface.json": {
+      "bytes": 1523,
+      "sha256": "b544cce0b4c02935aa263e6ac6e43484ef10c5f7b703c5893c90bf537d003660"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-installed16k-ci/policy.json": {
+      "bytes": 812,
+      "sha256": "767cbfa12e3c777acf9fb3d9f7e184e6405bb4cce9014387b3f243a48741e6b4"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-installed16k-ci/test_wiring.py": {
+      "bytes": 11935,
+      "sha256": "65f0de5c54b61972c5b855e81bf7abe632b5a4ce4998259b7cdb7536ede01f03"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-installed16k-ci/wiring.py": {
+      "bytes": 4997,
+      "sha256": "f9d0786936b1efda01363373575a55c665ed63bc4afc75531a8c9b92582b0a53"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-installed16k/README.md": {
+      "bytes": 5003,
+      "sha256": "1394e080561be5e15397184a11138999943d80c774cd5fc09c19a75aa27fdc96"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-installed16k/adapter.py": {
+      "bytes": 2204,
+      "sha256": "1940b462fce28799d7c047e22e96c35ed27eb7ca404a65672afdbcf5312197c3"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-installed16k/candidate_gate.py": {
+      "bytes": 4355,
+      "sha256": "92f390037767a9d1fdfaf9c9837fac75726c16178adc573b416b0ad7f540e5a4"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-installed16k/contract.py": {
+      "bytes": 2607,
+      "sha256": "20209af9558e669000899a088049ea214351f5ca1337483be0d9a881d804833d"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-installed16k/dependencies.json": {
+      "bytes": 36350,
+      "sha256": "03f06e8a9ce7ca0b2215c3c20a50f915471cda55023c99416e4ea75688fcf790"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-installed16k/export.py": {
+      "bytes": 9932,
+      "sha256": "046f37e8523d509b1bee678ac9f42bfc6d7532f701d958c7d812d006820a0331"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-installed16k/generator.py": {
+      "bytes": 7282,
+      "sha256": "51a13c19e989c086b6b588a100bfe20c08d90e4c11da56de9425da7eb0c7a99c"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-installed16k/guest.py": {
+      "bytes": 27256,
+      "sha256": "66b69e846a51c2ca8bfcf1ae1912b28e06625c2b78c8e0d2e41ff235cc6aab6c"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-installed16k/input-interface.json": {
+      "bytes": 2639,
+      "sha256": "84ab4bb804f4fcd3ddef11bcc3856576b17e0476441edb74df6ae93bc85449a8"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-installed16k/input-policy.json": {
+      "bytes": 1284,
+      "sha256": "3794130bc84dd5efdd5992eb964a0c8e0eb905933e0dcae540e5f3228524c9d3"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-installed16k/observer_progress.py": {
+      "bytes": 8229,
+      "sha256": "f427ce27bd8c90d1cc4aa68a9fb41abbc8b4fb1d7a9cdfa4153b1fafc7a2941a"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-installed16k/phase_gate.py": {
+      "bytes": 2925,
+      "sha256": "2f60001df636b15d4a8b2533b53410d831225ecc530cbcbcc91bf79fff3cbeba"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-installed16k/prepare.py": {
+      "bytes": 7096,
+      "sha256": "18261d72c8fe2287766f67f762c268384338f171ab8349300a534847bd10ce00"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-installed16k/prerequisites/native_lifecycle.json": {
+      "bytes": 3270,
+      "sha256": "f2e83638dba69df86159694319a9498c4f93c1846328cbd4c28d0928e73437b1"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-installed16k/prerequisites/system16k.json": {
+      "bytes": 2497,
+      "sha256": "0b5c33a21302dcb9d883a9d0f6e30326f129e467fe0586f6bbcbf76f2cd3567f"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-installed16k/run.py": {
+      "bytes": 16734,
+      "sha256": "dbf21be70f56abb7ce9ab4266069642795fa49b8d39e87da467c597a6fca4372"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-installed16k/sandbox.py": {
+      "bytes": 3472,
+      "sha256": "35fc16ddffe45e8687c168d9cf24e88a4682fc3ad915d50d22e2e57f49c1b3ca"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-installed16k/scrub.py": {
+      "bytes": 1032,
+      "sha256": "b4a2ee5c62031e4369f77cc11fd67a9fb8869b0bffb061b9ea234878ed17023e"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-installed16k/snapshot_progress.py": {
+      "bytes": 11105,
+      "sha256": "e21b16d6212c2dfa216fbc5e2dbe58d755ed6d17b401e29765cc6c399be383e6"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-installed16k/source-manifest.json": {
+      "bytes": 4089,
+      "sha256": "e2094f06601366093a70640dfa77f6c40a232215215462f1d3610764d85b7221"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-installed16k/source-pins.json": {
+      "bytes": 20813,
+      "sha256": "d05f1913abeed9eaa243df95220bd7bb10f36b71e9f519c82a86ccc97025f446"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-installed16k/support.py": {
+      "bytes": 408,
+      "sha256": "e3a3b3fa7d4ab84e088f6ea206799359164e8f6b92bf3dfbe152cd8df4d9ded1"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-installed16k/test_generator.py": {
+      "bytes": 13528,
+      "sha256": "4f44e080850d1f0c42425c75c7ede0ed1d1690d0ba904a91d454f25919d0dab1"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-lifecycle/README.md": {
+      "bytes": 4098,
+      "sha256": "8e91c5b36ed2ec4896ea93cb84627a7eb506868bbf7b1eab58fb872c67cb2b3c"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-lifecycle/adapter.py": {
+      "bytes": 7737,
+      "sha256": "3685a2a2eac3fb4a30a00ebdbeb01d66d692f6402ccefb82bb9d5e87f591658c"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-lifecycle/candidate_gate.py": {
+      "bytes": 4355,
+      "sha256": "92f390037767a9d1fdfaf9c9837fac75726c16178adc573b416b0ad7f540e5a4"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-lifecycle/input-interface.json": {
+      "bytes": 2236,
+      "sha256": "d3bc16421ec9508f49170bb56a779bbc216045b7828d3829a9124fa6edd72b37"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-lifecycle/source-pins.json": {
+      "bytes": 14415,
+      "sha256": "2300ebb451e8464cba34e6d33f77bf8009fbe3ded3cfb5695ebce3819245acbd"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-lifecycle/test_adapter.py": {
+      "bytes": 7488,
+      "sha256": "fb33951f6d1156a0b5aa567f03576c3f8fd0eeac2f0c4933b4913e9b022a258f"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-native-lifecycle-next/policy.json": {
+      "bytes": 1000,
+      "sha256": "81cf28d8cfa02171d4f43b01929f0cb1ced2d8b26680a92380f7bb736dc17686"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-native-lifecycle-next/prepare.py": {
+      "bytes": 9743,
+      "sha256": "df60c31d437e2ca0d4b452d78dff652abab2ed220a10c167664d502d17583022"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-native-lifecycle-next/source-pins.json": {
+      "bytes": 17055,
+      "sha256": "f63e896c21f1fe59aa61d04a3d315c3b126b70cea0f34c126b6b69a2918289b1"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-provider-interruption-owner/capability_snapshot.py": {
+      "bytes": 4104,
+      "sha256": "b287172c398ce03ed96b1c0b25f6217ffe807956c20a00f1d1b57da3cae20731"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-provider-interruption-owner/integration-manifest.json": {
+      "bytes": 12872,
+      "sha256": "8d26aae0489fe4e6337fd10de192f239ee99dfaf7ca5675be865a13b0f71f198"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-provider-interruption-owner/job.py": {
+      "bytes": 38742,
+      "sha256": "54100df793dc487c21fcc925f21ad329d3763ff1ac9024c2760d80cab28d8502"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-provider-interruption-owner/policy.json": {
+      "bytes": 670,
+      "sha256": "a5f4bf0a15ed38ea19016686dcc333780cfcf7ab8bc791c1ca751b9c47bf33fd"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-provider-interruption-owner/snapshot.py": {
+      "bytes": 9400,
+      "sha256": "0ff8d2e15ebcca5f91d09c19e986737d7d5596f3f439decb1e1d763d833c5e69"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-provider-interruption/alpm-semantics.json": {
+      "bytes": 2966,
+      "sha256": "8d8ed810403c62a9de6b336e7e953cd85504bdd5033a6370a1e66b8f625e2a2e"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-provider-interruption/candidate_gate.py": {
+      "bytes": 4355,
+      "sha256": "92f390037767a9d1fdfaf9c9837fac75726c16178adc573b416b0ad7f540e5a4"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-provider-interruption/common.py": {
+      "bytes": 13521,
+      "sha256": "12bbe70d7f60224a27ef89828a594f9267de261e8e324fb2d4a8fe396c886895"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-provider-interruption/container.py": {
+      "bytes": 36759,
+      "sha256": "22ce53335b8ec9a8d3200679855c7922c62cd3da4cefab15556660b1ab39192e"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-provider-interruption/dependencies.json": {
+      "bytes": 5083,
+      "sha256": "f1f22819a95a677a3e1520a6826acfffa70f2612488b6d0b88fe4e299b6987b4"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-provider-interruption/input-policy.json": {
+      "bytes": 436,
+      "sha256": "d777931e61834ab8accd6a80a2b00368080703fa050e8e20a206e959514ebd6b"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-provider-interruption/interruption.py": {
+      "bytes": 14293,
+      "sha256": "daf605b234ece080706a29f597f006da95b80113baeeb57c3e7f46c102c6d8bf"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-provider-interruption/normal-exec-change.json": {
+      "bytes": 839,
+      "sha256": "9d3769704396a33acc0c144cc1519d10230a5fb07d2f7b135dcfd0ba1ab6a68b"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-provider-interruption/run.py": {
+      "bytes": 9173,
+      "sha256": "319d775dd30cd5c6d0343b88170260d4668cbe152d04a920dc237830264f56e2"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-provider-interruption/scrub.py": {
+      "bytes": 849,
+      "sha256": "b3ab918d62c45428163975968c9a49cf0f4363029e1b46f19cdf03fc52fcb70b"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-provider-interruption/smoke-normal.c": {
+      "bytes": 12437,
+      "sha256": "a766bc7cd31cce18fe7e564432de4e4b63db49763608ae70ef8fab61cd29116c"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-provider-interruption/source-manifest.json": {
+      "bytes": 1586,
+      "sha256": "5a6201e429f6ca75853d86cedd82ee5749fdfed982a7355933bf06282b732c74"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-provider-lifecycle-owner/capability_snapshot.py": {
+      "bytes": 4101,
+      "sha256": "21242b74b3ade489f37e1affd41512a89e213a01a819e9d4f746b2a82d5544cf"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-provider-lifecycle-owner/integration-manifest.json": {
+      "bytes": 11827,
+      "sha256": "50d7e9a285b2bd7658fee36dc54aa06590542e768f2aeb3a82e0af416023477b"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-provider-lifecycle-owner/job.py": {
+      "bytes": 35136,
+      "sha256": "55544ec18a3b46ab2538320aedc126807239ab0978049b57fc3c34831b2c8a08"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-provider-lifecycle-owner/policy.json": {
+      "bytes": 670,
+      "sha256": "a5f4bf0a15ed38ea19016686dcc333780cfcf7ab8bc791c1ca751b9c47bf33fd"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-provider-lifecycle-owner/snapshot.py": {
+      "bytes": 9397,
+      "sha256": "9738acb125ce6d468d5359ecfbd5540454826567fd4ac4481576ec31da37190c"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-provider-lifecycle/candidate_gate.py": {
+      "bytes": 4355,
+      "sha256": "92f390037767a9d1fdfaf9c9837fac75726c16178adc573b416b0ad7f540e5a4"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-provider-lifecycle/common.py": {
+      "bytes": 13509,
+      "sha256": "a86c2f3206b99604e95414178d11b4d50ae687376b920c0eebdf5503460f4e1a"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-provider-lifecycle/container.py": {
+      "bytes": 35741,
+      "sha256": "f12e6e057b225b617fd26597edb00ea92c4df01ca426a21fb482b2681044f9a4"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-provider-lifecycle/dependencies.json": {
+      "bytes": 5083,
+      "sha256": "f1f22819a95a677a3e1520a6826acfffa70f2612488b6d0b88fe4e299b6987b4"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-provider-lifecycle/input-policy.json": {
+      "bytes": 436,
+      "sha256": "d777931e61834ab8accd6a80a2b00368080703fa050e8e20a206e959514ebd6b"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-provider-lifecycle/normal-exec-change.json": {
+      "bytes": 839,
+      "sha256": "9d3769704396a33acc0c144cc1519d10230a5fb07d2f7b135dcfd0ba1ab6a68b"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-provider-lifecycle/run.py": {
+      "bytes": 8910,
+      "sha256": "e7335f26c22c1e991eebcb8f1db0f9acc4094e8e0d60bbe6019b8aba25093890"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-provider-lifecycle/scrub.py": {
+      "bytes": 846,
+      "sha256": "bfac8896427c5fdcdd172a94af925dc5771452e150b44f27f4e16c498c548359"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-provider-lifecycle/smoke-normal.c": {
+      "bytes": 12437,
+      "sha256": "a766bc7cd31cce18fe7e564432de4e4b63db49763608ae70ef8fab61cd29116c"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-provider-lifecycle/source-manifest.json": {
+      "bytes": 1309,
+      "sha256": "8ea80c12b57de4e47b53c0b1e4c75c86426f9c17f013fe9a9fbb7a1fc1ef7523"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-provider/PKGBUILD.in": {
+      "bytes": 3925,
+      "sha256": "71e4a63c16efa64c950cf10271cb16111575b4ea60cac55361f126498fd6055d"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-provider/authority.json": {
+      "bytes": 873,
+      "sha256": "709ab4276c02dc21d559a6c581ba7ceae2a4999fa221b85f900f913253be5562"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-provider/root-maintained-source-authority.json": {
+      "bytes": 15506,
+      "sha256": "88643eabd61a39df63ecaeb50bb20041d17cf4fd3adee55d82d43d3c1ca08707"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-provider/source-lock.json": {
+      "bytes": 53426,
+      "sha256": "9eef1925b041bdf022ae284e15e473ce5b6795976b132d574ad7d56d21e6d12a"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-public-lifecycle/README.md": {
+      "bytes": 1662,
+      "sha256": "4e7ca04108d79d509cd413a3882ae29d7b8f24d48f0eb98c08b4f360fe3abb9d"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-public-lifecycle/input-interface.json": {
+      "bytes": 699,
+      "sha256": "27094556e45cdedc8550341f50b5bede92f67b32b89d727b92815e80a1a4b7fc"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-public-lifecycle/policy.json": {
+      "bytes": 628,
+      "sha256": "88d9e60fd1a8ef67b7eb0c90636efa2b207b35a3a5fac9f3fced1ec1a7fbc403"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-public-lifecycle/prepare.py": {
+      "bytes": 10372,
+      "sha256": "3f91f88e3c37ca96831fecbc224a2f1186c1e28b7b35062d87dca90e6bc2c003"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-public-lifecycle/public_gate.py": {
+      "bytes": 2722,
+      "sha256": "d4a944225ecad89d173c40966e58dbf0ae4d4c73e4886193e22e079f2f7ad00f"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-public-lifecycle/source-pins.json": {
+      "bytes": 17565,
+      "sha256": "c6ede50910169ef45c5893d5cb410a308fb31208ccff637b9f4a37aeff52badd"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-public-lifecycle/test_route.py": {
+      "bytes": 6978,
+      "sha256": "f9b85c0516550c0da93c4e56520ad00f4a30f21ec3e7192eb6262c8e9d895fc9"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-public-provider-lifecycle-owner/capability_snapshot.py": {
+      "bytes": 4101,
+      "sha256": "21242b74b3ade489f37e1affd41512a89e213a01a819e9d4f746b2a82d5544cf"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-public-provider-lifecycle-owner/integration-manifest.json": {
+      "bytes": 24677,
+      "sha256": "d603ecab9383b6505a5953144aee97b01989917c5a721ab68f1e24d1f55e7c62"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-public-provider-lifecycle-owner/job.py": {
+      "bytes": 35140,
+      "sha256": "f2d024c1209d8e467c9d7a86c342ea636dc22725c7e7de69c9bd36a6f8db91dc"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-public-provider-lifecycle-owner/policy.json": {
+      "bytes": 800,
+      "sha256": "bf17e0135f28400d3d00fedd61170ad4c97e19ed668d224b5a35a64b024618c9"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-public-provider-lifecycle-owner/snapshot.py": {
+      "bytes": 9397,
+      "sha256": "9738acb125ce6d468d5359ecfbd5540454826567fd4ac4481576ec31da37190c"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-public-provider-lifecycle/candidate_gate.py": {
+      "bytes": 4355,
+      "sha256": "92f390037767a9d1fdfaf9c9837fac75726c16178adc573b416b0ad7f540e5a4"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-public-provider-lifecycle/common.py": {
+      "bytes": 13019,
+      "sha256": "be7f4e4c7f7ea173b4ebb9c9085a9fd1b55b387db3ebf1d2471ee6f57a692516"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-public-provider-lifecycle/container.py": {
+      "bytes": 35741,
+      "sha256": "f12e6e057b225b617fd26597edb00ea92c4df01ca426a21fb482b2681044f9a4"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-public-provider-lifecycle/dependencies.json": {
+      "bytes": 5083,
+      "sha256": "f1f22819a95a677a3e1520a6826acfffa70f2612488b6d0b88fe4e299b6987b4"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-public-provider-lifecycle/input-policy.json": {
+      "bytes": 436,
+      "sha256": "d777931e61834ab8accd6a80a2b00368080703fa050e8e20a206e959514ebd6b"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-public-provider-lifecycle/normal-exec-change.json": {
+      "bytes": 839,
+      "sha256": "9d3769704396a33acc0c144cc1519d10230a5fb07d2f7b135dcfd0ba1ab6a68b"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-public-provider-lifecycle/public_gate.py": {
+      "bytes": 2722,
+      "sha256": "d4a944225ecad89d173c40966e58dbf0ae4d4c73e4886193e22e079f2f7ad00f"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-public-provider-lifecycle/run.py": {
+      "bytes": 8910,
+      "sha256": "e7335f26c22c1e991eebcb8f1db0f9acc4094e8e0d60bbe6019b8aba25093890"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-public-provider-lifecycle/scrub.py": {
+      "bytes": 846,
+      "sha256": "bfac8896427c5fdcdd172a94af925dc5771452e150b44f27f4e16c498c548359"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-public-provider-lifecycle/smoke-normal.c": {
+      "bytes": 12437,
+      "sha256": "a766bc7cd31cce18fe7e564432de4e4b63db49763608ae70ef8fab61cd29116c"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-public-provider-lifecycle/source-manifest.json": {
+      "bytes": 1444,
+      "sha256": "16192956d4d6051968c4149d0ac09d4daf3c99044c5086ffa29e883b9f240adb"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-staged-packet/prepare.py": {
+      "bytes": 13973,
+      "sha256": "37a00fb44e715b561acf172717381f861a5c237dca67c0fd524755237c74ec8f"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-staged-packet/source-pins.json": {
+      "bytes": 2797,
+      "sha256": "054671fee46b759f440b9cbb0702ebfa0f8388f0a35009b7b7ed8aa26306a721"
+    },
+    "runtime-vm/scripts/ci/glibc-debian-maintained-system16k/phase_gate.py": {
+      "bytes": 3711,
+      "sha256": "d1731a40d275c5ed74ccf20b654a76754031dbdcbd32b27154164e3953af6da4"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-failure-log/summary.py": {
+      "bytes": 11924,
+      "sha256": "9bd52ce4453a3a03d8dc8b5edb6b6a4b8ec421e0c3037dfb64dc31da45687555"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-failure-log/test_summary.py": {
+      "bytes": 10534,
+      "sha256": "e1f1a619f046396ad33862182531036224acfebf7746c025e24487dfbf53b24b"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-installed16k-interruption/ci/wiring.py": {
+      "bytes": 8198,
+      "sha256": "7483637091e30cc12d260ac01c3c4bf9af6b6330b5d7296068bfee9476678ef1"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-installed16k/README.md": {
+      "bytes": 10343,
+      "sha256": "3036fbc7907c80cf5f2be48da4aae8eb65fa0fc350e271557ddafd2456fb64f7"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-installed16k/adapter.py": {
+      "bytes": 2190,
+      "sha256": "5a6119714712f670e17a6a2e9260c82950077a0b6876bb4dd2933900ded1e327"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-installed16k/contract.py": {
+      "bytes": 3916,
+      "sha256": "ef83b59045a4b04798f9fbb75cc78f41a0d52dcdbf827e9f616533b8f72067a2"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-installed16k/dependencies.json": {
+      "bytes": 10933,
+      "sha256": "2856a57c08b552be090d948cbe7a7e58f1c4c0a0dfac715fdfe211b0843eed2e"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-installed16k/export.py": {
+      "bytes": 9914,
+      "sha256": "61e4bad870252dab3ca9580817247c9b88f0e6cdc6b40c5956a06e7b9e42a5a7"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-installed16k/guest.py": {
+      "bytes": 27060,
+      "sha256": "0043f45cbaab51419ff8db564fd4843edb2f5c7e088ffffb5290b331b0f6d6d3"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-installed16k/input-policy.json": {
+      "bytes": 927,
+      "sha256": "f0d4a61d6322dfd56d95d6353a2ff6953f7852381cd48d0feae862498d060902"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-installed16k/observer_progress.py": {
+      "bytes": 8229,
+      "sha256": "f427ce27bd8c90d1cc4aa68a9fb41abbc8b4fb1d7a9cdfa4153b1fafc7a2941a"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-installed16k/prepare.py": {
+      "bytes": 6913,
+      "sha256": "0903bccc52f544c66b760c460232490a210449d8b00c681096a0c652d7482ed5"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-installed16k/prerequisites/system16k.json": {
+      "bytes": 2655,
+      "sha256": "5a5377a6619d024f618dab79136ec2f6354fe483a92974dc7c5dccb12e3b045c"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-installed16k/run.py": {
+      "bytes": 16593,
+      "sha256": "92aefb4f4c861da401855efbc40e9d1392ab3cd9e67b16510254cbdfac792d88"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-installed16k/sandbox.py": {
+      "bytes": 3472,
+      "sha256": "35fc16ddffe45e8687c168d9cf24e88a4682fc3ad915d50d22e2e57f49c1b3ca"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-installed16k/scrub.py": {
+      "bytes": 1014,
+      "sha256": "012682ddc164737db1696f5dda3c43008febc32f865662c16f3c77637a426549"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-installed16k/snapshot_progress.py": {
+      "bytes": 11105,
+      "sha256": "e21b16d6212c2dfa216fbc5e2dbe58d755ed6d17b401e29765cc6c399be383e6"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-installed16k/source-manifest.json": {
+      "bytes": 3629,
+      "sha256": "a345ccb0203b5ea6a4f3112e6126c9deca12d359a627111f3c041e8174dd4673"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-installed16k/support.py": {
+      "bytes": 408,
+      "sha256": "e3a3b3fa7d4ab84e088f6ea206799359164e8f6b92bf3dfbe152cd8df4d9ded1"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-installed16k/test_first_observer_progress.py": {
+      "bytes": 31870,
+      "sha256": "4ac8fa37abea704fd74e2d1514025ed7444bdc11717ca25bac4011b862c8b848"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-installed16k/test_lane.py": {
+      "bytes": 16488,
+      "sha256": "5a34a678601bbb4b0dbdbd0546b460bab1245e53a6f84c78a00aa88afa61dc55"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-installed16k/test_progress.py": {
+      "bytes": 14833,
+      "sha256": "fb7a02b1bb65f460c2596d4428ae40c2da94690ae6de1babd14ab1f833553e49"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-installed16k/test_snapshot_progress.py": {
+      "bytes": 10285,
+      "sha256": "84ee9e55a57a6cdf3a9e15b3af2bc07ed767f95926cd87501e54c534d36f787a"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-interruption-owner/README.md": {
+      "bytes": 6935,
+      "sha256": "f4caf1d4a87223ec8bcb0ab3ee6d0954980d40436a48d50a6a6f3500f1367888"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-interruption-owner/capability_snapshot.py": {
+      "bytes": 4104,
+      "sha256": "b287172c398ce03ed96b1c0b25f6217ffe807956c20a00f1d1b57da3cae20731"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-interruption-owner/integration-manifest.json": {
+      "bytes": 9809,
+      "sha256": "67c52a5b795e66e2a53512524adf5b6d80e61e6a04ded29bdc77b5c7bbf7d789"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-interruption-owner/job.py": {
+      "bytes": 38024,
+      "sha256": "bc402dbc16d667260f235dcb21fb606cbe829f3d1f0c91d8f2d3c0ce3be2454e"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-interruption-owner/packet-interface.json": {
+      "bytes": 2112,
+      "sha256": "0047b787c758c78a7d03c79da6eb58b5046f46f536fa19eff4a5076f7f77bfb3"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-interruption-owner/policy.json": {
+      "bytes": 719,
+      "sha256": "d0dfae1856033bccc8cd22c41d30330276308d6353f37af0f50eb979a1005de5"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-interruption-owner/snapshot.py": {
+      "bytes": 9400,
+      "sha256": "0ff8d2e15ebcca5f91d09c19e986737d7d5596f3f439decb1e1d763d833c5e69"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-interruption-owner/test_owner.py": {
+      "bytes": 28229,
+      "sha256": "9b159dca9521ff79bdf729df2a2085fed08c027fd7fcea1bfa281c5c3c4493ed"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-interruption/README.md": {
+      "bytes": 11492,
+      "sha256": "006e7b0a3af49e0bfcaac8f713a4c11c3eed1554c9684988c1d302834eb39064"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-interruption/alpm-semantics.json": {
+      "bytes": 2966,
+      "sha256": "8d8ed810403c62a9de6b336e7e953cd85504bdd5033a6370a1e66b8f625e2a2e"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-interruption/common.py": {
+      "bytes": 12904,
+      "sha256": "ac2e38d80b0c0a283b9865fb88e6000f7c10202194298a6a3ed31b5679574d8b"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-interruption/container.py": {
+      "bytes": 36759,
+      "sha256": "22ce53335b8ec9a8d3200679855c7922c62cd3da4cefab15556660b1ab39192e"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-interruption/dependencies.json": {
+      "bytes": 5083,
+      "sha256": "f1f22819a95a677a3e1520a6826acfffa70f2612488b6d0b88fe4e299b6987b4"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-interruption/input-interface.json": {
+      "bytes": 2567,
+      "sha256": "0ab1b78b5fae601e216159615a2212c2631eeb5f1f4be4860c84b910b4ac45e8"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-interruption/input-policy.json": {
+      "bytes": 436,
+      "sha256": "d777931e61834ab8accd6a80a2b00368080703fa050e8e20a206e959514ebd6b"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-interruption/interruption.py": {
+      "bytes": 14293,
+      "sha256": "daf605b234ece080706a29f597f006da95b80113baeeb57c3e7f46c102c6d8bf"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-interruption/normal-exec-change.json": {
+      "bytes": 839,
+      "sha256": "9d3769704396a33acc0c144cc1519d10230a5fb07d2f7b135dcfd0ba1ab6a68b"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-interruption/run.py": {
+      "bytes": 9173,
+      "sha256": "319d775dd30cd5c6d0343b88170260d4668cbe152d04a920dc237830264f56e2"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-interruption/scrub.py": {
+      "bytes": 849,
+      "sha256": "b3ab918d62c45428163975968c9a49cf0f4363029e1b46f19cdf03fc52fcb70b"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-interruption/smoke-normal.c": {
+      "bytes": 12437,
+      "sha256": "a766bc7cd31cce18fe7e564432de4e4b63db49763608ae70ef8fab61cd29116c"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-interruption/source-manifest.json": {
+      "bytes": 1955,
+      "sha256": "95b9fa21752dd06078bc3bbafe39dea7609a837d1358299055dfe2619be0e9e2"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-interruption/test_interruption.py": {
+      "bytes": 9795,
+      "sha256": "de778a8526e950b116d013d28e431db3c854a62648c52b31d4e5d51003904f44"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-interruption/test_lifecycle_controls.py": {
+      "bytes": 29474,
+      "sha256": "bcbbe19144ef3488a83eb0a9476c68be1664a0519f2b82a6871c4fef66721ea6"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-lifecycle-owner/README.md": {
+      "bytes": 5916,
+      "sha256": "99f5667a1f8b8d5e93805196c6a1c06338e9ec68a58251ecc0906f727d6baf87"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-lifecycle-owner/capability_snapshot.py": {
+      "bytes": 4101,
+      "sha256": "21242b74b3ade489f37e1affd41512a89e213a01a819e9d4f746b2a82d5544cf"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-lifecycle-owner/integration-manifest.json": {
+      "bytes": 9185,
+      "sha256": "80f1c0ac6ee8ac8ba79e2884ecc141af65fc191162f5b21523ee3bd8571a5aa5"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-lifecycle-owner/job.py": {
+      "bytes": 34418,
+      "sha256": "90415ffea62bda2aacf6a42826601cfb28b40d3507801554ed505557b6fd8c14"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-lifecycle-owner/packet-interface.json": {
+      "bytes": 2109,
+      "sha256": "7aa7fdbc33b53c28e86a3f8b3ea47428715e8f4944e3481882bed2cf4bbe1fac"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-lifecycle-owner/policy.json": {
+      "bytes": 704,
+      "sha256": "d64fb809c69a3a32d41efc74d6c431ef240b94774d760b7d835793277572ce3c"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-lifecycle-owner/snapshot.py": {
+      "bytes": 9397,
+      "sha256": "9738acb125ce6d468d5359ecfbd5540454826567fd4ac4481576ec31da37190c"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-lifecycle-owner/test_owner.py": {
+      "bytes": 22150,
+      "sha256": "52e6f55512b6fabfb6a3fe4b65f4acd82ff8ff5aed33c3792a1055330ebba02f"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-lifecycle/README.md": {
+      "bytes": 10223,
+      "sha256": "27abc2925cc414598e567b27c114eeef9a6d60f1b25dad85abd469eca62f6169"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-lifecycle/capabilities.py": {
+      "bytes": 4510,
+      "sha256": "28dfa14ef7d98c2114d0c9271b209b801362bb855dfac7f7592277da9ed2cdb9"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-lifecycle/common.py": {
+      "bytes": 12892,
+      "sha256": "42082d2e773d423d2abc0e1f7ff50e74163c09c9a51c1c073a4cb17f7e79cc72"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-lifecycle/container.py": {
+      "bytes": 35741,
+      "sha256": "f12e6e057b225b617fd26597edb00ea92c4df01ca426a21fb482b2681044f9a4"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-lifecycle/copy_scope.py": {
+      "bytes": 3470,
+      "sha256": "605ead63553641641f3b7d4edd9d9af6d2bd6e43d338e367ea846359e09f6fba"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-lifecycle/dependencies.json": {
+      "bytes": 5083,
+      "sha256": "f1f22819a95a677a3e1520a6826acfffa70f2612488b6d0b88fe4e299b6987b4"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-lifecycle/input-interface.json": {
+      "bytes": 2558,
+      "sha256": "702a37fc728c04e916b69f2cb299b2886340b9f0511820e12a1437a37e0ebdca"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-lifecycle/input-policy.json": {
+      "bytes": 436,
+      "sha256": "d777931e61834ab8accd6a80a2b00368080703fa050e8e20a206e959514ebd6b"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-lifecycle/normal-exec-change.json": {
+      "bytes": 839,
+      "sha256": "9d3769704396a33acc0c144cc1519d10230a5fb07d2f7b135dcfd0ba1ab6a68b"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-lifecycle/proc_mount.py": {
+      "bytes": 15565,
+      "sha256": "f868e4e36e34ee52fc40b6a9c37ae2bcace4d417d274fc6317f763a38af30a03"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-lifecycle/run.py": {
+      "bytes": 8910,
+      "sha256": "e7335f26c22c1e991eebcb8f1db0f9acc4094e8e0d60bbe6019b8aba25093890"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-lifecycle/scrub.py": {
+      "bytes": 846,
+      "sha256": "bfac8896427c5fdcdd172a94af925dc5771452e150b44f27f4e16c498c548359"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-lifecycle/smoke-normal.c": {
+      "bytes": 12437,
+      "sha256": "a766bc7cd31cce18fe7e564432de4e4b63db49763608ae70ef8fab61cd29116c"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-lifecycle/source-manifest.json": {
+      "bytes": 2212,
+      "sha256": "9cdd9b9b2f885ef38da119dfe686eddc2d68bfa8d875d2f3c0448762bbec02d7"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-lifecycle/test_controls.py": {
+      "bytes": 44383,
+      "sha256": "f3f4b764764404cdd2670b3db58a1789ab880f3eb050f6af6f3aa63b7c939f0e"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-lifecycle/test_copy_scope.py": {
+      "bytes": 11657,
+      "sha256": "776b75f0db1d93389056f0a6d0e300435b4a020003a5008dd014f352cb3d208d"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-lifecycle/test_proc_mount.py": {
+      "bytes": 18068,
+      "sha256": "34a66f6811c6a3695a812b3a4589605ef0c8f2620579b073eec6d2ae51b38c94"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider-system16k/common.py": {
+      "bytes": 12315,
+      "sha256": "24ecb33290876dde2cde0dd789d56ecf22098cfcb1728ed09c24ac3c92eb57fd"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider/normal-child-exec.patch": {
+      "bytes": 773,
+      "sha256": "1a1f3b1898b0542dfb6bf03d7d6bf0acda33ba3f040055cf710027d69415b9ff"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider/normal-client-policy.json": {
+      "bytes": 815,
+      "sha256": "92f8b918ade03b6ad71ff00fe38a3f797d416fe6225082c9d4ba23c2cc71dd8d"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider/normal_clients.py": {
+      "bytes": 7824,
+      "sha256": "2382a818358a5e28b81ce789d18cee815a0d0c7d52b96a1cbd1d55d7edf31309"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-provider/provider_stage.py": {
+      "bytes": 8147,
+      "sha256": "43b1b441dcc384379ab80c4864bbf7ffd898d56e4ba629c0faa966c25a979e6c"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-trial-apparmor/README.md": {
+      "bytes": 5103,
+      "sha256": "0cfa6907b891d97f59a9d9b555eae462818d27b916c1b0e734f0c48c2a690bd5"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-trial-apparmor/profile.py": {
+      "bytes": 18714,
+      "sha256": "66912eb9e3b4fdee936a2146ea6becd0209e2a4fe10b6e3465690bf845d59cf8"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-trial-apparmor/test_profile.py": {
+      "bytes": 11143,
+      "sha256": "62343b39fec6466ab0c52025874db24b8fd6ae063941ed58cf25819f7b7806d9"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-trial-apparmor/vendor/LICENSE": {
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-trial-apparmor/vendor/apparmor/apparmor.go": {
+      "bytes": 4974,
+      "sha256": "7bf6c04caeedb59df89e8de2b3fa335c73477b34efa2f0af3a0ad22484e3cb21"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-trial-apparmor/vendor/apparmor/template.go": {
+      "bytes": 6196,
+      "sha256": "7da15d81aa5c507f5002b844fdc49a969904681447a2cc29222bd6cbe797163b"
+    },
+    "runtime-vm/scripts/ci/glibc-gnu-trial-apparmor/vendor/source.json": {
+      "bytes": 1033,
+      "sha256": "02b8b22c590a58b959b0745c0c7381a891c977907576bdd9c6f2666c73606a8a"
+    },
+    "runtime-vm/scripts/ci/glibc-owned-runtime/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "runtime-vm/scripts/ci/glibc-owned-runtime/abi_smoke.c": {
+      "bytes": 12469,
+      "sha256": "f131a4f11693b15d7916170a685f9c4f6158596134bf5414f3d8ee472be1a9af"
+    },
+    "runtime-vm/scripts/ci/glibc-owned-runtime/exec_child.c": {
+      "bytes": 913,
+      "sha256": "0a2b48762f8f7ec6d942ca9fb4af4f04a50fd93d2d7dff42407adfea13b1e4cc"
+    },
+    "runtime-vm/scripts/ci/glibc-owned-runtime/plugin.c": {
+      "bytes": 320,
+      "sha256": "d0ce5506b261b5b4582aa35651b68afbf6257e8f4a990155dcac9d4e4596b654"
+    },
+    "runtime-vm/scripts/ci/glibc-owned-runtime/probe.c": {
+      "bytes": 5974,
+      "sha256": "8bc857277840264c29845764b6c4d34e40c3d1dcdb91592acbb31ae5dfeb80b6"
+    },
+    "runtime-vm/scripts/ci/glibc-owned-runtime/probe.h": {
+      "bytes": 270,
+      "sha256": "3806c2a05e640b8860a2c81e4eba55ae8bf416fcb84637e93a7b3d9b71476724"
+    },
+    "runtime-vm/scripts/ci/glibc-owned-runtime/runner.py": {
+      "bytes": 16274,
+      "sha256": "4d9aa954d95032ab9ea9085ced784efc81a5db42e2f1f3401e679ee861c16090"
+    },
+    "runtime-vm/scripts/ci/glibc-owned-runtime/source-manifest.json": {
+      "bytes": 1274,
+      "sha256": "e10336aef200731c7dd4b06546b718e095c1ecf7718e4a25fa57d6bbed6270a6"
+    },
+    "runtime-vm/scripts/ci/maintained-desktop574-inputs.json": {
+      "bytes": 623664,
+      "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
+    },
+    "runtime-vm/scripts/ci/maintained_desktop574.py": {
+      "bytes": 22367,
+      "sha256": "27ba4be42cf2bd41675073e07cccc917ae033f9d68b07a33cfd7f074ac27b760"
+    },
+    "runtime-vm/scripts/ci/managed-gui-generic16k/build_kernel.py": {
+      "bytes": 12900,
+      "sha256": "ccbead2912144c5aa4fcb3ce7af76b3c11f28fcde7987e5f32edb060ff7b0ee9"
+    },
+    "runtime-vm/scripts/ci/managed-gui-generic16k/kernel.fragment": {
+      "bytes": 1808,
+      "sha256": "88819f00ebef80e385ebdfae6cc101ef21145e0bbd6bb12532b0d41a85c16d28"
+    },
+    "runtime-vm/scripts/ci/managed-gui-generic16k/kernel_contract.py": {
+      "bytes": 4659,
+      "sha256": "30a4544e5407dbf932d9ec26bbd6bf21eab53347544afa134cd3a5870752cbff"
+    },
+    "runtime-vm/scripts/ci/old_four_seed.py": {
+      "bytes": 29048,
+      "sha256": "a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7"
+    },
+    "runtime-vm/scripts/ci/tools-generic16k/acquire_kernel.py": {
+      "bytes": 8844,
+      "sha256": "4a372e1f4bfbd1f8604579873fc6fbdec91ac2555bb36f028646017b44b8c23f"
+    },
+    "runtime-vm/scripts/ci/tools-generic16k/retained_kernel.py": {
+      "bytes": 5444,
+      "sha256": "bddb14537790a484d770215e55cc2c59de50c764d15e4d677f6fbcaab84cd735"
+    },
+    "runtime-vm/scripts/install/local_transaction.py": {
+      "bytes": 93752,
+      "sha256": "14381d049506b52770059bf7af415f7a079f69872543e74417aca11ce24ac3c5"
+    },
+    "runtime-vm/scripts/install/native_arm_trial.py": {
+      "bytes": 74929,
+      "sha256": "fe2becb4fe6c22e50903ab390db5a79aae311b7284fc71bf4b1c4b79e99824c4"
+    },
+    "runtime-vm/scripts/update/aux_checkpoint.py": {
+      "bytes": 18456,
+      "sha256": "d51179ca24c981bafd817d7db082c0ceb3b2f5deb922004bfe97d1e2007edda7"
+    },
+    "runtime-vm/scripts/update/aux_copy.py": {
+      "bytes": 3736,
+      "sha256": "bff93c029e21f9fce0868c80566396984443c8d3438264fac8a91c985175f05b"
+    },
+    "runtime-vm/scripts/update/capacity.py": {
+      "bytes": 1449,
+      "sha256": "dcb9899cd24daa21f75e6da6b0214393f093d140a70769092da091e0cfdf7c87"
+    },
+    "runtime-vm/scripts/update/disposable_copy.py": {
+      "bytes": 6098,
+      "sha256": "fb05d12a0d67a598cc940e0bc7edb5aa9ffc8cf87ce7b9f695ba5fbd26747667"
+    },
+    "runtime-vm/scripts/update/full_root.py": {
+      "bytes": 35970,
+      "sha256": "cece1c597b2e2eb98b0e3087cc7e7c148b54332f8a1c4f18e04e4552a71fb51d"
+    },
+    "runtime-vm/scripts/update/measure_copy.py": {
+      "bytes": 25734,
+      "sha256": "e582245bd114b0b9d83f2de4fdc81a35d2f48493ba6147879871af794476813b"
+    },
+    "runtime-vm/scripts/update/root_link_selection.py": {
+      "bytes": 25684,
+      "sha256": "4b47223e9c66874193c2b38a620aa892871e93e556178c478dac1929d2540db9"
+    },
+    "runtime-vm/scripts/update/root_path.py": {
+      "bytes": 3435,
+      "sha256": "2efcbc1057e117a406488f05a3e0213751b00ab09f845a7830a71a4cf60fd2b4"
+    },
+    "runtime-vm/scripts/update/supervision.py": {
+      "bytes": 3293,
+      "sha256": "f18bcbd2a6279cff8fe6c7e9c9f80fc01c9818844b01df8c4e97b83d61704b10"
+    },
+    "runtime-vm/scripts/virtual/generic16k/fetch_inputs.py": {
+      "bytes": 7768,
+      "sha256": "212a0a9efc7c386158526ce40683a3646a899a9c7fd2c3140d6e24a02d778043"
+    },
+    "runtime-vm/scripts/virtual/generic16k/inputs.json": {
+      "bytes": 1057,
+      "sha256": "bdfa44ed1d017c0d0e15c1f3af87bdf4a91923c20e812c861ca522d2cf428492"
+    }
+  },
+  "input_files": 413,
+  "own_files": 26,
+  "purpose": "GNU_IMMUTABLE_RUNTIME_V1_SOURCE_ONLY_NOT_ACTIVATED",
+  "runtime_vm": {
+    "held": 226,
+    "supplement": 1,
+    "total": 227
+  },
+  "schema_version": 1
+}

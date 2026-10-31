@@ -1,0 +1,79 @@
+{
+  "name": "core44-journal-acl1200-source",
+  "on": {
+    "push": {
+      "paths": [
+        "scripts/ci/core7-systemd-vm-source/**",
+        ".github/workflows/core44-journal-acl1200-source.yml"
+      ]
+    },
+    "pull_request": {
+      "paths": [
+        "scripts/ci/core7-systemd-vm-source/**",
+        ".github/workflows/core44-journal-acl1200-source.yml"
+      ]
+    },
+    "workflow_dispatch": {}
+  },
+  "permissions": {
+    "contents": "read"
+  },
+  "jobs": {
+    "source-controls": {
+      "runs-on": "ubuntu-24.04",
+      "timeout-minutes": 10,
+      "strategy": {
+        "fail-fast": false,
+        "matrix": {
+          "python": [
+            "3.12",
+            "3.14"
+          ]
+        }
+      },
+      "env": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONWARNINGS": "error"
+      },
+      "steps": [
+        {
+          "name": "Maintained portable factory",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Immutable public43 parent",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "ref": "386454785b19612f4aa1889f81878feb8ee5c0f6",
+            "path": ".ci-fixtures/parent43",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Immutable journal44 target",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "ref": "15a41fda11ac9ffa0ae4a7a53697d5f63a913a57",
+            "path": ".ci-fixtures/journal44",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Select Python",
+          "uses": "actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+          "with": {
+            "python-version": "${{ matrix.python }}"
+          }
+        },
+        {
+          "name": "Exact44 emission, old route parity, source entries and runtime guards",
+          "shell": "bash",
+          "run": "set -euo pipefail\nstage=$(mktemp -d \"$RUNNER_TEMP/core44-journal-source.XXXXXXXX\")\ntrap 'rm -rf -- \"$stage\"' EXIT\nexport TMPDIR=\"$stage\"\npython3 -I -B -Werror \"$GITHUB_WORKSPACE/scripts/ci/core7-systemd-vm-source/test_journal_acl1200_factory.py\" \\\n --parent \"$GITHUB_WORKSPACE/.ci-fixtures/parent43\" \\\n --expected \"$GITHUB_WORKSPACE/.ci-fixtures/journal44\"\n"
+        }
+      ]
+    }
+  }
+}

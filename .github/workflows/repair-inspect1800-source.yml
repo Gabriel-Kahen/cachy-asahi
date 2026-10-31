@@ -1,0 +1,61 @@
+name: repair-inspect1800-source
+on:
+  push:
+    paths:
+      - scripts/ci/repair-inspect1800-source/**
+      - .github/workflows/repair-inspect1800-source.yml
+  pull_request:
+    paths:
+      - scripts/ci/repair-inspect1800-source/**
+      - .github/workflows/repair-inspect1800-source.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONWARNINGS: error
+    steps:
+      - name: Check out the dedicated maintained factory
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Check out exact stderr-note public245 parent
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 652b93b58185864104d182776cf889cdd491fb20
+          path: .ci-fixtures/capacity-parent245
+          persist-credentials: false
+      - name: Check out exact inspect1800 public245 result
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: c14a8362e2cf9cda84c0b5c1a181658a8c9111a6
+          path: .ci-fixtures/capacity-result245
+          persist-credentials: false
+      - name: Select the explicit Python version
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Export ordinary fixtures and run portable source controls only
+        shell: bash
+        run: |
+          set -euo pipefail
+          stage=$(mktemp -d "$RUNNER_TEMP/repair-capacity.XXXXXXXX")
+          trap 'rm -rf -- "$stage"' EXIT
+          mkdir -m700 "$stage/input" "$stage/expected"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/capacity-parent245" archive --format=tar 652b93b58185864104d182776cf889cdd491fb20 | tar -x -C "$stage/input"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/capacity-result245" archive --format=tar c14a8362e2cf9cda84c0b5c1a181658a8c9111a6 | tar -x -C "$stage/expected"
+          export REPAIR_CAPACITY_INPUT="$stage/input"
+          export REPAIR_CAPACITY_EXPECTED="$stage/expected"
+          export REPAIR_CAPACITY_WORK="$stage"
+          python3 -I -B -Werror scripts/ci/repair-inspect1800-source/test_source.py
+          python3 -I -B -Werror scripts/ci/repair-inspect1800-source/prepare.py --help

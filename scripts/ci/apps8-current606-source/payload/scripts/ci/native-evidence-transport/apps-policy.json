@@ -1,0 +1,11 @@
+{
+  "job": "native",
+  "nonce_field": "nonce",
+  "nonce_path": "plan/bridge-selection.json",
+  "purpose": "SOURCE_OWNED_NATIVE_FRAMED_TRANSPORT_V1",
+  "repository": "Gabriel-Kahen/cachy-asahi",
+  "step_id": "native_public_retention",
+  "step_name": "Retain the separate bounded604 public closure and lifecycle",
+  "workflow_name": "native-arm-current606-apps8-owned-copy",
+  "workflow_path": ".github/workflows/native-arm-build.yml"
+}

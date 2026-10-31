@@ -1,0 +1,168 @@
+{
+  "files": {
+    ".SRCINFO": {
+      "bytes": 3595,
+      "mode": 420,
+      "sha256": "9de8448dd815d290314e842a84f6d5b492634eed49808a0c55630d1ff802794b"
+    },
+    "LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "NOTICE": {
+      "bytes": 708,
+      "mode": 420,
+      "sha256": "daa320d9386abc8e8d73592470c0fa89ed8147d6238510af42eeba8bbde9bb9d"
+    },
+    "PKGBUILD": {
+      "bytes": 5885,
+      "mode": 420,
+      "sha256": "449832932b43091117aff02fc513659c03780038c96b28dd3b99a9db5c134c9c"
+    },
+    "README.md": {
+      "bytes": 5211,
+      "mode": 420,
+      "sha256": "a79d06647d1ca6aed454a0839b30639775e610dc1feed7e40ba4ac3f439e68be"
+    },
+    "build.py": {
+      "bytes": 11299,
+      "mode": 420,
+      "sha256": "e520b37e5dfc285914203cfab99daecc80543505fef7ded6704b3fb06f001d45"
+    },
+    "build_batch.py": {
+      "bytes": 34362,
+      "mode": 420,
+      "sha256": "b2e27ed00ba4c795762e313a15e791b9dc7a9503d5d7078b1603d725d54137d5"
+    },
+    "build_batch_v2.py": {
+      "bytes": 15277,
+      "mode": 420,
+      "sha256": "1d4830817aff747965b2446f2cf42f3889ac7c6651c04d9a5884bfe29f33066d"
+    },
+    "build_outputs_v2.py": {
+      "bytes": 26635,
+      "mode": 420,
+      "sha256": "20c763488e6093b787b43d0ff952e071a2e1e7e3ed253510ff3a05f0f511cd53"
+    },
+    "build_v2.py": {
+      "bytes": 13242,
+      "mode": 420,
+      "sha256": "37242a5680c0cb587087042455782478dac0f574f977a5f696c97d29eac39b43"
+    },
+    "cachy-asahi-security-maintenance": {
+      "bytes": 1392,
+      "mode": 493,
+      "sha256": "d69cf55db74a1c7d73e45f95263279cc96da29ee87df62ef21e261b8a2122797"
+    },
+    "campaign.py": {
+      "bytes": 25588,
+      "mode": 420,
+      "sha256": "49450fefce70569dfaf1a0304ca1f127e2d8fa010da217ea4aad7a4b100db6b5"
+    },
+    "check_source.py": {
+      "bytes": 4180,
+      "mode": 420,
+      "sha256": "941d8d82e7c3217a7230cbbef010d1caf33b454f5557b1b19fb780482e7cea49"
+    },
+    "check_source_pins.py": {
+      "bytes": 9981,
+      "mode": 420,
+      "sha256": "9b78c348e2d567f44f656285f6a562220cadead7025f1e0db2eb9a53d9f09ea3"
+    },
+    "compare.py": {
+      "bytes": 5820,
+      "mode": 420,
+      "sha256": "4198864c264642b196a090a67b36185e5c194e38edc4cb928d08eb65b9f710cd"
+    },
+    "compare_v2.py": {
+      "bytes": 5963,
+      "mode": 420,
+      "sha256": "89c606044b587ea772d5bbab4bad55c09dc23a7080900a9ad51839b2f516215b"
+    },
+    "container-entry-v2.sh": {
+      "bytes": 2447,
+      "mode": 420,
+      "sha256": "9be3db97efde70536a81d1c97f9ac69893a6004ab403566f8453704a2a189d2a"
+    },
+    "container-entry.sh": {
+      "bytes": 1787,
+      "mode": 420,
+      "sha256": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24"
+    },
+    "fixture_security.py": {
+      "bytes": 9557,
+      "mode": 420,
+      "sha256": "c9ba4819a815b7c10d9e96c4afce1190d1097dc24ecf93f415a9d623a0b7cde5"
+    },
+    "installed-files.txt": {
+      "bytes": 2131,
+      "mode": 420,
+      "sha256": "00d58f051e1dcc9a33bf47ea690ad29746cd4a3d2ebd157a88ec44cda53821d5"
+    },
+    "package_checks.py": {
+      "bytes": 17706,
+      "mode": 420,
+      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
+    },
+    "payload-pins.json": {
+      "bytes": 2136,
+      "mode": 420,
+      "sha256": "fb5a61964a918f8e79966d2bec09e9a6f5a17fd78d27fdf449cca283d5fbd2b5"
+    },
+    "rebuild_plan.py": {
+      "bytes": 25822,
+      "mode": 420,
+      "sha256": "472f9bb621d78f79f5016a662b7f72eb03e995dae787c7846bc1f947ff21313c"
+    },
+    "release.py": {
+      "bytes": 41320,
+      "mode": 420,
+      "sha256": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435"
+    },
+    "security_advisories.py": {
+      "bytes": 12145,
+      "mode": 420,
+      "sha256": "f018ff4ac0265217213f749bf59afa08b61b24e4054973c0dcde110e57a0a2cb"
+    },
+    "security_campaign.py": {
+      "bytes": 17354,
+      "mode": 420,
+      "sha256": "31caf705cb019be9a0e470424d332788dd62ed4009c75b3e4cbc92a31e2de492"
+    },
+    "source-provenance.json": {
+      "bytes": 4706,
+      "mode": 420,
+      "sha256": "0e49cdb950dff29bf4ce552ca0f482fe7c0acdec0f184a1b514ff2b5a9aa9efe"
+    },
+    "source_cache.py": {
+      "bytes": 14253,
+      "mode": 420,
+      "sha256": "3c922b1c5ea737605d7fd39aa986fa281c50bcf6926660390032e677706e28f3"
+    },
+    "source_delivery.py": {
+      "bytes": 16456,
+      "mode": 420,
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+    },
+    "source_materials.py": {
+      "bytes": 7877,
+      "mode": 420,
+      "sha256": "9b0d95d2604ae4689f081283fc671281ce13879fcb146ddf4188873b05c89e5a"
+    },
+    "test_package.py": {
+      "bytes": 9197,
+      "mode": 420,
+      "sha256": "276db849d1854d44c160d34189affcd3d575569cb186a4f825288dee4425c771"
+    },
+    "update_plan.py": {
+      "bytes": 14881,
+      "mode": 420,
+      "sha256": "21af73923ca4bfff244d653e1f0046015d429a582548b2a60f1e0feb5b2a687e"
+    }
+  },
+  "package": "cachy-asahi-security-maintenance",
+  "purpose": "security-maintenance-recipe-source",
+  "schema_version": 1,
+  "version": "0.1.0-1"
+}

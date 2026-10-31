@@ -1,0 +1,27 @@
+{
+  "after_sha256": "04fabc5702c8389b7b2a53f6ed6168cc45931f6628c158e7e74b073349327c35",
+  "before_sha256": "d263a3ca9089c204603f2e12b80dc4f209ee6e636f10da940a514040b636db79",
+  "decision_source": "fd42f51b6c32a1cca69df5699760ed2a9e39329f",
+  "eight_pair_source": "0d7ec3b5ec9b473c9a1b2557735f8dadd8de3f50",
+  "installer_source": "3cbd856315adb30ba7a1b9246739a520c19c9728",
+  "prerequisites": {
+    "fresh600": {
+      "bytes": 3332,
+      "path": "payload/fresh600.json",
+      "sha256": "bea4b56374ef779756ffdc3e0aba680e3c74fac7316257c2433eb14417f210ef"
+    },
+    "native600": {
+      "bytes": 1445,
+      "path": "payload/native600.json",
+      "sha256": "85723d4edc3f03e44973fbc36df2612de5b6ebe47154e6b5238ac69d0784713c"
+    },
+    "setup5_600": {
+      "bytes": 4126,
+      "path": "payload/setup5-600.json",
+      "sha256": "0ac58c2d3cfb06dec6ec637de3ad7ae13e26441eef6024c4c917d6a4a082de19"
+    }
+  },
+  "schema_version": 1,
+  "setup5_pair_source": "79d8d2f53510e4f3a04f39c1b1e24c999aa32e44",
+  "status": "ROOT_BOUND_ACTUAL_PREREQUISITES"
+}

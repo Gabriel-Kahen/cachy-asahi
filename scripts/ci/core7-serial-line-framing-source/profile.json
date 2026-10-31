@@ -1,0 +1,648 @@
+{
+  "actual": null,
+  "clocks": "ALL_HELD",
+  "counts": {
+    "added": 0,
+    "changed": 6,
+    "held": 45,
+    "parent": 51,
+    "result": 51
+  },
+  "edits": {
+    "guest.py": [
+      [
+        "sys.stdout.buffer.write(C.PREFIX+",
+        "sys.stdout.buffer.write(b'\\n'+C.PREFIX+"
+      ],
+      [
+        "sys.stdout.buffer.write(C.RETIRED+",
+        "sys.stdout.buffer.write(b'\\n'+C.RETIRED+"
+      ]
+    ],
+    "serial_result.py": [
+      [
+        "EDITS={'guest.py': [(\"C.PREFIX+C.encoded(value).replace(b'\\\\n',b'')\", \"C.PREFIX+C.encoded(__import__('serial_result').project(value)).replace(b'\\\\n',b'')\"), ('observer=C.pin(C.encoded(observer)),service_result=', \"observer=C.pin(C.encoded(__import__('serial_result').project(observer))),service_result=\")], 'host.py': [(\"C.pin(C.encoded(rows[0]['result']['custody']))\", \"__import__('serial_result').custody_pin(rows[0]['result']['custody'])\")], 'validate.py': [('def validate(directory,source,selected,boots):\\n', \"def validate(directory,source,selected,boots):\\n boots=__import__('serial_result').resolve(directory,selected,boots)\\n\")], 'entry.py': [(\"validation=__import__('mime_cache').prove(root)\", \"validation=__import__('serial_result').prove(root)\")], 'test_case.py': [('raw=T.frames(v);row=', \"raw=T.frames(__import__('serial_result').project(v));row=\")], 'test_route.py': [(\"root=Path(tmp);old=guest.OUT;guest.OUT=root;v=dict(nonce='a'*32,phase=2,status='source-shaped-observer');(root/'phase2-observer.json').write_bytes(C.encoded(v))\", \"root=Path(tmp);old=guest.OUT;guest.OUT=root;_,_,v=__import__('test_protocol').fixture();v['custody']['nonce']=v['nonce'];v['previous']=C.pin(C.encoded(v['custody']));v['phase']=v['custody']['phase']=v['custody']['wallclock']['phase']=2;v['custody']['previous']=v['previous'];(root/'phase2-observer.json').write_bytes(C.encoded(v))\"), (\"self.assertEqual(receipt['observer'],C.pin(C.encoded(v)))\", \"self.assertEqual(receipt['observer'],C.pin(C.encoded(__import__('serial_result').project(v))))\")]}",
+        "EDITS={'guest.py': [(\"C.PREFIX+C.encoded(value).replace(b'\\\\n',b'')\", \"C.PREFIX+C.encoded(__import__('serial_result').project(value)).replace(b'\\\\n',b'')\"), ('observer=C.pin(C.encoded(observer)),service_result=', \"observer=C.pin(C.encoded(__import__('serial_result').project(observer))),service_result=\"), ('sys.stdout.buffer.write(C.PREFIX+', \"sys.stdout.buffer.write(b'\\\\n'+C.PREFIX+\"), ('sys.stdout.buffer.write(C.RETIRED+', \"sys.stdout.buffer.write(b'\\\\n'+C.RETIRED+\")], 'host.py': [(\"C.pin(C.encoded(rows[0]['result']['custody']))\", \"__import__('serial_result').custody_pin(rows[0]['result']['custody'])\")], 'validate.py': [('def validate(directory,source,selected,boots):\\n', \"def validate(directory,source,selected,boots):\\n boots=__import__('serial_result').resolve(directory,selected,boots)\\n\")], 'entry.py': [(\"validation=__import__('mime_cache').prove(root)\", \"validation=__import__('serial_result').prove(root)\")], 'test_case.py': [('raw=T.frames(v);row=', \"raw=T.frames(__import__('serial_result').project(v));row=\")], 'test_route.py': [(\"root=Path(tmp);old=guest.OUT;guest.OUT=root;v=dict(nonce='a'*32,phase=2,status='source-shaped-observer');(root/'phase2-observer.json').write_bytes(C.encoded(v))\", \"root=Path(tmp);old=guest.OUT;guest.OUT=root;_,_,v=__import__('test_protocol').fixture();v['custody']['nonce']=v['nonce'];v['previous']=C.pin(C.encoded(v['custody']));v['phase']=v['custody']['phase']=v['custody']['wallclock']['phase']=2;v['custody']['previous']=v['previous'];(root/'phase2-observer.json').write_bytes(C.encoded(v))\"), (\"self.assertEqual(receipt['observer'],C.pin(C.encoded(v)))\", \"self.assertEqual(receipt['observer'],C.pin(C.encoded(__import__('serial_result').project(v))))\"), ('self.assertEqual(C.decode(stream.data[len(C.RETIRED):]),receipt)', \"self.assertTrue(stream.data.startswith(b'\\\\n'+C.RETIRED));self.assertEqual(C.decode(stream.data[len(b'\\\\n'+C.RETIRED):]),receipt)\"), (\"if __name__=='__main__':\", \" def test_actual_machine_writers_delimit_partial_terminal_lines(self):\\n  from unittest.mock import patch\\n  import copy\\n  preludes=(b'partial-console-line',bytes.fromhex('1b502b7136453631364436351b5c'),b'\\\\x1b]0;partial-title\\\\x07',b'\\\\x1b[32mpartial-ansi')\\n  for prelude in preludes:\\n   with self.subTest(prelude=prelude),tempfile.TemporaryDirectory()as tmp:\\n    root=Path(tmp);selected,expected,fixture=__import__('test_protocol').fixture();custody=fixture['custody'];custody['nonce']=selected['nonce'];(root/'phase1-custody.json').write_bytes(C.encoded(custody))\\n    class Stream:\\n     def __init__(self):self.buffer=self;self.data=prelude\\n     def write(self,value):self.data+=value\\n     def flush(self):pass\\n    stream=Stream();old_state=guest.OUT,guest.END;guest.OUT=root\\n    def execute(argv,*unused):\\n     if argv==['/usr/bin/systemctl','--system','is-system-running','--wait']:out=b'running\\\\n'\\n     elif argv==['/usr/lib/systemd/systemd','--version']:out=fixture['pid1']['version'].encode()\\n     elif argv==['/usr/bin/pacman','-Q','systemd']:out=fixture['pid1']['package_version'].encode()\\n     elif '--property=Version,Virtualization,SystemState'in argv:out=''.join(k+'='+v+'\\\\n'for k,v in fixture['pid1']['manager'].items()).encode()\\n     else:out=''.join(k+'='+v+'\\\\n'for k,v in fixture['worker'].items()).encode()\\n     return row(argv,out),out,b'',None\\n    def pid1(commands,unused):\\n     # Only private PID1/architecture syscalls are replaced by the existing typed fixture.\\n     # Every source-owned command writer/manager/unit/observer/finish body executes.\\n     commands.call(['/usr/lib/systemd/systemd','--version']);commands.call(['/usr/bin/pacman','-Q','systemd']);manager=guest.manager(commands)\\n     self.assertEqual(manager,fixture['pid1']['manager']);return copy.deepcopy(fixture['pid1'])\\n    core=types.SimpleNamespace(api={'runtime':types.SimpleNamespace(run_command=execute)})\\n    try:\\n     with patch.object(guest,'sources',return_value=core),patch.object(guest,'pid1',side_effect=pid1),patch.object(guest.sys,'stdout',stream):guest.observer(selected,1,fixture['pid1']['root'])\\n     observer=C.decode(C.read(root/'phase1-observer.json'));wire=__import__('serial_result').project(observer)\\n     observer_frame=b'\\\\n'+C.PREFIX+C.encoded(wire).replace(b'\\\\n',b'')+b'\\\\n';self.assertEqual(stream.data,prelude+observer_frame)\\n     stream.data+=prelude\\n     with patch.dict(os.environ,dict(SERVICE_RESULT='success',EXIT_CODE='exited',EXIT_STATUS='0'),clear=True),patch.object(guest.sys,'stdout',stream):guest.finish(selected,1)\\n     retired=C.decode(C.read(root/'phase1-retirement.json'));retirement_frame=b'\\\\n'+C.RETIRED+C.encoded(retired).replace(b'\\\\n',b'')+b'\\\\n'\\n     self.assertEqual(stream.data,prelude+observer_frame+prelude+retirement_frame);self.assertEqual(retired['observer'],C.pin(C.encoded(wire)));self.assertEqual(C.protocol(stream.data,selected,1,expected),wire)\\n     # This exact old-writer shape has one retirement anywhere and zero line starts.\\n     old=prelude+observer_frame+prelude+retirement_frame[1:]\\n     self.assertEqual(old.count(C.RETIRED),1);self.assertEqual(sum(line.startswith(C.RETIRED)for line in old.splitlines()),0)\\n     with self.assertRaisesRegex(ValueError,'retirement marker'):C.protocol(old,selected,1,expected)\\n     for raw in(stream.data+retirement_frame,stream.data+observer_frame):\\n      with self.assertRaises(ValueError):C.protocol(raw,selected,1,expected)\\n     for change in({'nonce':'f'*32},{'phase':2},{'service_result':'exit-code'},{'observer':{'bytes':1,'sha256':'0'*64}}):\\n      forged=dict(retired,**change);raw=prelude+observer_frame+prelude+b'\\\\n'+C.RETIRED+C.encoded(forged).replace(b'\\\\n',b'')+b'\\\\n'\\n      with self.assertRaises(ValueError):C.protocol(raw,selected,1,expected)\\n    finally:guest.OUT,guest.END=old_state\\n\\nif __name__=='__main__':\")]}"
+      ],
+      [
+        "TEMPLATE_SHA='3f44dab87c570960ce6bbb09be925326b8216853eb931a377945ef6e21d12eb6'",
+        "TEMPLATE_SHA='7653f66aa0f25b5ff33d44d3eaf85fd73ef211cfbfdb7bbe7c7860abe160bdfa'"
+      ]
+    ],
+    "test_route.py": [
+      [
+        "self.assertEqual(C.decode(stream.data[len(C.RETIRED):]),receipt)",
+        "self.assertTrue(stream.data.startswith(b'\\n'+C.RETIRED));self.assertEqual(C.decode(stream.data[len(b'\\n'+C.RETIRED):]),receipt)"
+      ],
+      [
+        "if __name__=='__main__':",
+        " def test_actual_machine_writers_delimit_partial_terminal_lines(self):\n  from unittest.mock import patch\n  import copy\n  preludes=(b'partial-console-line',bytes.fromhex('1b502b7136453631364436351b5c'),b'\\x1b]0;partial-title\\x07',b'\\x1b[32mpartial-ansi')\n  for prelude in preludes:\n   with self.subTest(prelude=prelude),tempfile.TemporaryDirectory()as tmp:\n    root=Path(tmp);selected,expected,fixture=__import__('test_protocol').fixture();custody=fixture['custody'];custody['nonce']=selected['nonce'];(root/'phase1-custody.json').write_bytes(C.encoded(custody))\n    class Stream:\n     def __init__(self):self.buffer=self;self.data=prelude\n     def write(self,value):self.data+=value\n     def flush(self):pass\n    stream=Stream();old_state=guest.OUT,guest.END;guest.OUT=root\n    def execute(argv,*unused):\n     if argv==['/usr/bin/systemctl','--system','is-system-running','--wait']:out=b'running\\n'\n     elif argv==['/usr/lib/systemd/systemd','--version']:out=fixture['pid1']['version'].encode()\n     elif argv==['/usr/bin/pacman','-Q','systemd']:out=fixture['pid1']['package_version'].encode()\n     elif '--property=Version,Virtualization,SystemState'in argv:out=''.join(k+'='+v+'\\n'for k,v in fixture['pid1']['manager'].items()).encode()\n     else:out=''.join(k+'='+v+'\\n'for k,v in fixture['worker'].items()).encode()\n     return row(argv,out),out,b'',None\n    def pid1(commands,unused):\n     # Only private PID1/architecture syscalls are replaced by the existing typed fixture.\n     # Every source-owned command writer/manager/unit/observer/finish body executes.\n     commands.call(['/usr/lib/systemd/systemd','--version']);commands.call(['/usr/bin/pacman','-Q','systemd']);manager=guest.manager(commands)\n     self.assertEqual(manager,fixture['pid1']['manager']);return copy.deepcopy(fixture['pid1'])\n    core=types.SimpleNamespace(api={'runtime':types.SimpleNamespace(run_command=execute)})\n    try:\n     with patch.object(guest,'sources',return_value=core),patch.object(guest,'pid1',side_effect=pid1),patch.object(guest.sys,'stdout',stream):guest.observer(selected,1,fixture['pid1']['root'])\n     observer=C.decode(C.read(root/'phase1-observer.json'));wire=__import__('serial_result').project(observer)\n     observer_frame=b'\\n'+C.PREFIX+C.encoded(wire).replace(b'\\n',b'')+b'\\n';self.assertEqual(stream.data,prelude+observer_frame)\n     stream.data+=prelude\n     with patch.dict(os.environ,dict(SERVICE_RESULT='success',EXIT_CODE='exited',EXIT_STATUS='0'),clear=True),patch.object(guest.sys,'stdout',stream):guest.finish(selected,1)\n     retired=C.decode(C.read(root/'phase1-retirement.json'));retirement_frame=b'\\n'+C.RETIRED+C.encoded(retired).replace(b'\\n',b'')+b'\\n'\n     self.assertEqual(stream.data,prelude+observer_frame+prelude+retirement_frame);self.assertEqual(retired['observer'],C.pin(C.encoded(wire)));self.assertEqual(C.protocol(stream.data,selected,1,expected),wire)\n     # This exact old-writer shape has one retirement anywhere and zero line starts.\n     old=prelude+observer_frame+prelude+retirement_frame[1:]\n     self.assertEqual(old.count(C.RETIRED),1);self.assertEqual(sum(line.startswith(C.RETIRED)for line in old.splitlines()),0)\n     with self.assertRaisesRegex(ValueError,'retirement marker'):C.protocol(old,selected,1,expected)\n     for raw in(stream.data+retirement_frame,stream.data+observer_frame):\n      with self.assertRaises(ValueError):C.protocol(raw,selected,1,expected)\n     for change in({'nonce':'f'*32},{'phase':2},{'service_result':'exit-code'},{'observer':{'bytes':1,'sha256':'0'*64}}):\n      forged=dict(retired,**change);raw=prelude+observer_frame+prelude+b'\\n'+C.RETIRED+C.encoded(forged).replace(b'\\n',b'')+b'\\n'\n      with self.assertRaises(ValueError):C.protocol(raw,selected,1,expected)\n    finally:guest.OUT,guest.END=old_state\n\nif __name__=='__main__':"
+      ]
+    ]
+  },
+  "held": {
+    "Core800-acceptance.json": {
+      "bytes": 2043,
+      "sha256": "d6f67e4c2782f9b609309e6e5627ad6534f172f0560ec7e2e2ec5c3a4f251e9d"
+    },
+    "LICENSE": {
+      "bytes": 27836,
+      "sha256": "624b2335eff599a84764ef0a51b6d2962b5ef504a792e1b362ea31f0cbc1ac4c"
+    },
+    "README.md": {
+      "bytes": 6730,
+      "sha256": "849d859eb0d7c49d4a1a673218fbc74a7bcf378b711b3e2ebb21ab3887dcff8e"
+    },
+    "acl_policy.py": {
+      "bytes": 83174,
+      "sha256": "9204e5794f01b49a0b301088f3a5b4439e57eb7273fc5afac278b3f967816462"
+    },
+    "adapter.py": {
+      "bytes": 1294,
+      "sha256": "ac9a8b8ccaee210ad9054ee1f94d2ced8e410743fbcd4232eaaca545876e781a"
+    },
+    "boot.py": {
+      "bytes": 5422,
+      "sha256": "f6df3d8e5b5602f3b9eca4ebfbb54afaa354ac29b7b4b9cc26988a9de064349e"
+    },
+    "candidate_capacity.py": {
+      "bytes": 47168,
+      "sha256": "30b34914054a37d83c74950cb55232017ad90a31c7545bd36287064f850c051d"
+    },
+    "case.py": {
+      "bytes": 8691,
+      "sha256": "acc4393befa85a91c7a666fcaf4f765c170b0db2c505a4fdff13990cffb08a36"
+    },
+    "clock.py": {
+      "bytes": 4205,
+      "sha256": "cf43f16973294a8e687c65341cb63329a71d9a2a2ea488f0f6f2e20b97087c3c"
+    },
+    "compression-profile.json": {
+      "bytes": 1179,
+      "sha256": "aec949ee839909702d208a3f91710c4565b5dcf46fa4fca0b2bd3bc13558d57c"
+    },
+    "controller.py": {
+      "bytes": 10746,
+      "sha256": "6830a27db2a520bfbcf31129447da092f9945f9e6acfafd82393a7732da3a47a"
+    },
+    "effects.py": {
+      "bytes": 6147,
+      "sha256": "e2d4d80f64736975437615146f09f8796c20a634b02bb31d167614700609aae7"
+    },
+    "entry.py": {
+      "bytes": 6927,
+      "sha256": "1c428f7c8b1cfea0e8d46deff0a13b46afdc7a48cf44fb5f0d4ee3a047f719c1"
+    },
+    "evidence.py": {
+      "bytes": 6992,
+      "sha256": "9f32c35522b2f42df145bd16b2d7267c013f9eaac3ce37bc3f72a8ba6de67d67"
+    },
+    "graph_api.py": {
+      "bytes": 1899,
+      "sha256": "16839d25ad6a3957b68848fb6718a393840840b433361eba1ae07ddbbdafe5d7"
+    },
+    "graph_stage_source.py": {
+      "bytes": 56225,
+      "sha256": "b0ce77149ff72ea2936c23fcbdeefe3c011a2dfc75d60d40ec650ab233e5e845"
+    },
+    "guest_guard.py": {
+      "bytes": 4160,
+      "sha256": "8db72fbc36f59c5660f7ddc4f56f3bdbed81cdec4344c65017db522501f83de7"
+    },
+    "hook.py": {
+      "bytes": 787,
+      "sha256": "b3e2bd1c4eb715928919028be1dddce2090605d233ba8f4d6bf98d67e95f5fa3"
+    },
+    "host.py": {
+      "bytes": 4302,
+      "sha256": "d25d18a115483bf7b6f2f0f0f1bfe21d19de37951949e55685edcfb77d84248b"
+    },
+    "initramfs.py": {
+      "bytes": 4502,
+      "sha256": "50d3a4833f5b783704c1a07fb3c213819769a08294eb677e7066ec13595d4b98"
+    },
+    "journal_acl.py": {
+      "bytes": 94610,
+      "sha256": "e3849c1604b6520c4fb813692290a0989d08542cf3ada1fbf412948a83a26c9c"
+    },
+    "media.py": {
+      "bytes": 7850,
+      "sha256": "cc5fe0b84745ca509b79bb0d8d6f55eaf3b265fec656fb37e2d629beacec4849"
+    },
+    "mime-profile.json": {
+      "bytes": 259815,
+      "sha256": "4c601c715c4ee64484f49dacebfddb53da9391893c29e3c0626a92942a36a793"
+    },
+    "mime_cache.py": {
+      "bytes": 47294,
+      "sha256": "1e04c1a6d7918c6499a3a356397749a60083000bb493e9fb3df1f277ea635922"
+    },
+    "pid1-baseline.json": {
+      "bytes": 528,
+      "sha256": "b508b5ff108bc90d79952c7a90efdb812ccd008421297412b9338a2c6c1c8be6"
+    },
+    "pid1-expected.json": {
+      "bytes": 548,
+      "sha256": "2891023d89c1f35b47c8e4cb8b7c88105ddce72b18796a377b161e7278f03659"
+    },
+    "prepare.py": {
+      "bytes": 1394,
+      "sha256": "554c52290776a5f4ec314ba8abad836db1d99ab81e4782964e3a0d4bbe04a8a2"
+    },
+    "profile.json": {
+      "bytes": 333629,
+      "sha256": "e248308cc7a04607f18f21a5e06a21165fb985bb43130e7db94966cb4eaa879c"
+    },
+    "serial-profile.json": {
+      "bytes": 734,
+      "sha256": "f7cd6095424948d3e108b3b96763674612fc086e2da08cb783da78057a0f0c0e"
+    },
+    "test_case.py": {
+      "bytes": 19195,
+      "sha256": "723c962fafa76c84e8d6764e687bdebe5faad63b00a96edb0355f27c8ad7a189"
+    },
+    "test_emission.py": {
+      "bytes": 2521,
+      "sha256": "57a4a755385a5e380e303f3e3da33bafcfc71063ffce2041f22b22b5a5ffdf8f"
+    },
+    "test_host.py": {
+      "bytes": 3090,
+      "sha256": "b01d3159bd0b0c688434bac69976dd16cf173358a598957f3be58f49c1642460"
+    },
+    "test_initramfs.py": {
+      "bytes": 7864,
+      "sha256": "0d0a521c9f4e8793c4b15a82119dfca7a46642033c94b72327e27118a797bae2"
+    },
+    "test_protocol.py": {
+      "bytes": 4378,
+      "sha256": "ac482fa3a8fc0ab932bcf8e65b864e4ac26affc1ecf30ecea61cd42b52264d25"
+    },
+    "test_sources.py": {
+      "bytes": 19838,
+      "sha256": "eef8c2a75e8f3c5e282eb48daba98ce471c58791b29e0653626fe0949a06a8e7"
+    },
+    "tmpfiles_hash.py": {
+      "bytes": 41582,
+      "sha256": "6912c9ae1a14477212921c6aed68b54e7c83a6a9308664e515c51619603eba6b"
+    },
+    "transaction_output.py": {
+      "bytes": 42998,
+      "sha256": "8ce374e17744888ad70ca0b19485ffd6f72d6cf029f47f6fdfaa07c47dce6ce9"
+    },
+    "units/caa-core-observer.service": {
+      "bytes": 474,
+      "sha256": "95b66c92d2acbbfdb5d904c2c0f6b61518fd3bb7c71eb290751a27e9d2fc8e6e"
+    },
+    "units/caa-core-probe.service": {
+      "bytes": 358,
+      "sha256": "b8a4a142045304e53893608548c293b684fbe295831e25a84d5cf3c19ef0a6b4"
+    },
+    "units/caa-core-worker.service": {
+      "bytes": 352,
+      "sha256": "70ebee606afc5fee5359d3ea05cee62445766c8a4033d6fbee7398f0be6f9353"
+    },
+    "units/caa-core.target": {
+      "bytes": 189,
+      "sha256": "1025ff9b01e2132861b26cf35fd5f4a25424638f03e49222552ef0cbbb719e37"
+    },
+    "validate.py": {
+      "bytes": 7182,
+      "sha256": "80f0b8ee03df0f7208b1329309ec21da45cd8033a2ed3167bfb262faba293af2"
+    },
+    "vm_validation.py": {
+      "bytes": 52784,
+      "sha256": "a69264ea55374b2058048ca2441c89942e65f43d06125b0d1ad71d3e021202e1"
+    },
+    "workflow.yml.in": {
+      "bytes": 13109,
+      "sha256": "923ae66040ac4cfcd7644d7a677db3ba45f902f787daf9546e698f5c8e0471d4"
+    },
+    "xattr_diagnostic.py": {
+      "bytes": 17502,
+      "sha256": "ad88aee4e41afa9f78d45785a45f274abeac1aaf335225ec0c4cc61240cbba47"
+    }
+  },
+  "native_acceptance": false,
+  "parent": {
+    "files": {
+      ".github/workflows/native-arm-build.yml": {
+        "bytes": 13212,
+        "sha256": "01bdec93b9690d00f9191bcaf6088579daeb2129a50ec2071bd6e79fa79745c2"
+      },
+      ".github/workflows/native-arm-core7-real-systemd.yml": {
+        "bytes": 13212,
+        "sha256": "01bdec93b9690d00f9191bcaf6088579daeb2129a50ec2071bd6e79fa79745c2"
+      },
+      "Core800-acceptance.json": {
+        "bytes": 2043,
+        "sha256": "d6f67e4c2782f9b609309e6e5627ad6534f172f0560ec7e2e2ec5c3a4f251e9d"
+      },
+      "LICENSE": {
+        "bytes": 27836,
+        "sha256": "624b2335eff599a84764ef0a51b6d2962b5ef504a792e1b362ea31f0cbc1ac4c"
+      },
+      "README.md": {
+        "bytes": 6730,
+        "sha256": "849d859eb0d7c49d4a1a673218fbc74a7bcf378b711b3e2ebb21ab3887dcff8e"
+      },
+      "acl_policy.py": {
+        "bytes": 83174,
+        "sha256": "9204e5794f01b49a0b301088f3a5b4439e57eb7273fc5afac278b3f967816462"
+      },
+      "adapter.py": {
+        "bytes": 1294,
+        "sha256": "ac9a8b8ccaee210ad9054ee1f94d2ced8e410743fbcd4232eaaca545876e781a"
+      },
+      "boot.py": {
+        "bytes": 5422,
+        "sha256": "f6df3d8e5b5602f3b9eca4ebfbb54afaa354ac29b7b4b9cc26988a9de064349e"
+      },
+      "candidate_capacity.py": {
+        "bytes": 47168,
+        "sha256": "30b34914054a37d83c74950cb55232017ad90a31c7545bd36287064f850c051d"
+      },
+      "case.py": {
+        "bytes": 8691,
+        "sha256": "acc4393befa85a91c7a666fcaf4f765c170b0db2c505a4fdff13990cffb08a36"
+      },
+      "clock.py": {
+        "bytes": 4205,
+        "sha256": "cf43f16973294a8e687c65341cb63329a71d9a2a2ea488f0f6f2e20b97087c3c"
+      },
+      "compression-profile.json": {
+        "bytes": 1179,
+        "sha256": "aec949ee839909702d208a3f91710c4565b5dcf46fa4fca0b2bd3bc13558d57c"
+      },
+      "controller.py": {
+        "bytes": 10746,
+        "sha256": "6830a27db2a520bfbcf31129447da092f9945f9e6acfafd82393a7732da3a47a"
+      },
+      "effects.py": {
+        "bytes": 6147,
+        "sha256": "e2d4d80f64736975437615146f09f8796c20a634b02bb31d167614700609aae7"
+      },
+      "entry.py": {
+        "bytes": 6927,
+        "sha256": "1c428f7c8b1cfea0e8d46deff0a13b46afdc7a48cf44fb5f0d4ee3a047f719c1"
+      },
+      "evidence.py": {
+        "bytes": 6992,
+        "sha256": "9f32c35522b2f42df145bd16b2d7267c013f9eaac3ce37bc3f72a8ba6de67d67"
+      },
+      "graph_api.py": {
+        "bytes": 1899,
+        "sha256": "16839d25ad6a3957b68848fb6718a393840840b433361eba1ae07ddbbdafe5d7"
+      },
+      "graph_stage_source.py": {
+        "bytes": 56225,
+        "sha256": "b0ce77149ff72ea2936c23fcbdeefe3c011a2dfc75d60d40ec650ab233e5e845"
+      },
+      "guest.py": {
+        "bytes": 18686,
+        "sha256": "14c9063c67e6bfcb222087a492c9a4b7ae2033781935acc7436df11720ebc73b"
+      },
+      "guest_guard.py": {
+        "bytes": 4160,
+        "sha256": "8db72fbc36f59c5660f7ddc4f56f3bdbed81cdec4344c65017db522501f83de7"
+      },
+      "hook.py": {
+        "bytes": 787,
+        "sha256": "b3e2bd1c4eb715928919028be1dddce2090605d233ba8f4d6bf98d67e95f5fa3"
+      },
+      "host.py": {
+        "bytes": 4302,
+        "sha256": "d25d18a115483bf7b6f2f0f0f1bfe21d19de37951949e55685edcfb77d84248b"
+      },
+      "initramfs.py": {
+        "bytes": 4502,
+        "sha256": "50d3a4833f5b783704c1a07fb3c213819769a08294eb677e7066ec13595d4b98"
+      },
+      "journal_acl.py": {
+        "bytes": 94610,
+        "sha256": "e3849c1604b6520c4fb813692290a0989d08542cf3ada1fbf412948a83a26c9c"
+      },
+      "media.py": {
+        "bytes": 7850,
+        "sha256": "cc5fe0b84745ca509b79bb0d8d6f55eaf3b265fec656fb37e2d629beacec4849"
+      },
+      "mime-profile.json": {
+        "bytes": 259815,
+        "sha256": "4c601c715c4ee64484f49dacebfddb53da9391893c29e3c0626a92942a36a793"
+      },
+      "mime_cache.py": {
+        "bytes": 47294,
+        "sha256": "1e04c1a6d7918c6499a3a356397749a60083000bb493e9fb3df1f277ea635922"
+      },
+      "pid1-baseline.json": {
+        "bytes": 528,
+        "sha256": "b508b5ff108bc90d79952c7a90efdb812ccd008421297412b9338a2c6c1c8be6"
+      },
+      "pid1-expected.json": {
+        "bytes": 548,
+        "sha256": "2891023d89c1f35b47c8e4cb8b7c88105ddce72b18796a377b161e7278f03659"
+      },
+      "prepare.py": {
+        "bytes": 1394,
+        "sha256": "554c52290776a5f4ec314ba8abad836db1d99ab81e4782964e3a0d4bbe04a8a2"
+      },
+      "profile.json": {
+        "bytes": 333629,
+        "sha256": "e248308cc7a04607f18f21a5e06a21165fb985bb43130e7db94966cb4eaa879c"
+      },
+      "serial-profile.json": {
+        "bytes": 734,
+        "sha256": "f7cd6095424948d3e108b3b96763674612fc086e2da08cb783da78057a0f0c0e"
+      },
+      "serial_result.py": {
+        "bytes": 48634,
+        "sha256": "e8ed3942c99f0929d2f6d23e0ce86b6aee444b4b7c0c3e305eb632b9c9efe059"
+      },
+      "source-manifest.json": {
+        "bytes": 6639,
+        "sha256": "8c4774fbd7dc9dc29511ea67d19e2a6766e81db8bb5f490de7399f9372725fb7"
+      },
+      "test_case.py": {
+        "bytes": 19195,
+        "sha256": "723c962fafa76c84e8d6764e687bdebe5faad63b00a96edb0355f27c8ad7a189"
+      },
+      "test_emission.py": {
+        "bytes": 2521,
+        "sha256": "57a4a755385a5e380e303f3e3da33bafcfc71063ffce2041f22b22b5a5ffdf8f"
+      },
+      "test_host.py": {
+        "bytes": 3090,
+        "sha256": "b01d3159bd0b0c688434bac69976dd16cf173358a598957f3be58f49c1642460"
+      },
+      "test_initramfs.py": {
+        "bytes": 7864,
+        "sha256": "0d0a521c9f4e8793c4b15a82119dfca7a46642033c94b72327e27118a797bae2"
+      },
+      "test_protocol.py": {
+        "bytes": 4378,
+        "sha256": "ac482fa3a8fc0ab932bcf8e65b864e4ac26affc1ecf30ecea61cd42b52264d25"
+      },
+      "test_route.py": {
+        "bytes": 5999,
+        "sha256": "530bc4cdedbf29df139f91bebe14dfe26839ff680a472ea56369f9b422cd6793"
+      },
+      "test_sources.py": {
+        "bytes": 19838,
+        "sha256": "eef8c2a75e8f3c5e282eb48daba98ce471c58791b29e0653626fe0949a06a8e7"
+      },
+      "tmpfiles_hash.py": {
+        "bytes": 41582,
+        "sha256": "6912c9ae1a14477212921c6aed68b54e7c83a6a9308664e515c51619603eba6b"
+      },
+      "transaction_output.py": {
+        "bytes": 42998,
+        "sha256": "8ce374e17744888ad70ca0b19485ffd6f72d6cf029f47f6fdfaa07c47dce6ce9"
+      },
+      "units/caa-core-observer.service": {
+        "bytes": 474,
+        "sha256": "95b66c92d2acbbfdb5d904c2c0f6b61518fd3bb7c71eb290751a27e9d2fc8e6e"
+      },
+      "units/caa-core-probe.service": {
+        "bytes": 358,
+        "sha256": "b8a4a142045304e53893608548c293b684fbe295831e25a84d5cf3c19ef0a6b4"
+      },
+      "units/caa-core-worker.service": {
+        "bytes": 352,
+        "sha256": "70ebee606afc5fee5359d3ea05cee62445766c8a4033d6fbee7398f0be6f9353"
+      },
+      "units/caa-core.target": {
+        "bytes": 189,
+        "sha256": "1025ff9b01e2132861b26cf35fd5f4a25424638f03e49222552ef0cbbb719e37"
+      },
+      "validate.py": {
+        "bytes": 7182,
+        "sha256": "80f0b8ee03df0f7208b1329309ec21da45cd8033a2ed3167bfb262faba293af2"
+      },
+      "vm_validation.py": {
+        "bytes": 52784,
+        "sha256": "a69264ea55374b2058048ca2441c89942e65f43d06125b0d1ad71d3e021202e1"
+      },
+      "workflow.yml.in": {
+        "bytes": 13109,
+        "sha256": "923ae66040ac4cfcd7644d7a677db3ba45f902f787daf9546e698f5c8e0471d4"
+      },
+      "xattr_diagnostic.py": {
+        "bytes": 17502,
+        "sha256": "ad88aee4e41afa9f78d45785a45f274abeac1aaf335225ec0c4cc61240cbba47"
+      }
+    },
+    "ref": "codex/core7-serial-route-fixture-v1",
+    "source": "ee01d0239adca45c200b78eac939f7cc82df23b8"
+  },
+  "purpose": "CORE51_TO51_TWO_WRITER_LF_SOURCE_ONLY",
+  "result": {
+    "files": {
+      ".github/workflows/native-arm-build.yml": {
+        "bytes": 13212,
+        "sha256": "58b3bbaf7dad48c0466dc948f4e4ae3522dd6de5a2f112bcf94f5e3f7ea077d7"
+      },
+      ".github/workflows/native-arm-core7-real-systemd.yml": {
+        "bytes": 13212,
+        "sha256": "58b3bbaf7dad48c0466dc948f4e4ae3522dd6de5a2f112bcf94f5e3f7ea077d7"
+      },
+      "Core800-acceptance.json": {
+        "bytes": 2043,
+        "sha256": "d6f67e4c2782f9b609309e6e5627ad6534f172f0560ec7e2e2ec5c3a4f251e9d"
+      },
+      "LICENSE": {
+        "bytes": 27836,
+        "sha256": "624b2335eff599a84764ef0a51b6d2962b5ef504a792e1b362ea31f0cbc1ac4c"
+      },
+      "README.md": {
+        "bytes": 6730,
+        "sha256": "849d859eb0d7c49d4a1a673218fbc74a7bcf378b711b3e2ebb21ab3887dcff8e"
+      },
+      "acl_policy.py": {
+        "bytes": 83174,
+        "sha256": "9204e5794f01b49a0b301088f3a5b4439e57eb7273fc5afac278b3f967816462"
+      },
+      "adapter.py": {
+        "bytes": 1294,
+        "sha256": "ac9a8b8ccaee210ad9054ee1f94d2ced8e410743fbcd4232eaaca545876e781a"
+      },
+      "boot.py": {
+        "bytes": 5422,
+        "sha256": "f6df3d8e5b5602f3b9eca4ebfbb54afaa354ac29b7b4b9cc26988a9de064349e"
+      },
+      "candidate_capacity.py": {
+        "bytes": 47168,
+        "sha256": "30b34914054a37d83c74950cb55232017ad90a31c7545bd36287064f850c051d"
+      },
+      "case.py": {
+        "bytes": 8691,
+        "sha256": "acc4393befa85a91c7a666fcaf4f765c170b0db2c505a4fdff13990cffb08a36"
+      },
+      "clock.py": {
+        "bytes": 4205,
+        "sha256": "cf43f16973294a8e687c65341cb63329a71d9a2a2ea488f0f6f2e20b97087c3c"
+      },
+      "compression-profile.json": {
+        "bytes": 1179,
+        "sha256": "aec949ee839909702d208a3f91710c4565b5dcf46fa4fca0b2bd3bc13558d57c"
+      },
+      "controller.py": {
+        "bytes": 10746,
+        "sha256": "6830a27db2a520bfbcf31129447da092f9945f9e6acfafd82393a7732da3a47a"
+      },
+      "effects.py": {
+        "bytes": 6147,
+        "sha256": "e2d4d80f64736975437615146f09f8796c20a634b02bb31d167614700609aae7"
+      },
+      "entry.py": {
+        "bytes": 6927,
+        "sha256": "1c428f7c8b1cfea0e8d46deff0a13b46afdc7a48cf44fb5f0d4ee3a047f719c1"
+      },
+      "evidence.py": {
+        "bytes": 6992,
+        "sha256": "9f32c35522b2f42df145bd16b2d7267c013f9eaac3ce37bc3f72a8ba6de67d67"
+      },
+      "graph_api.py": {
+        "bytes": 1899,
+        "sha256": "16839d25ad6a3957b68848fb6718a393840840b433361eba1ae07ddbbdafe5d7"
+      },
+      "graph_stage_source.py": {
+        "bytes": 56225,
+        "sha256": "b0ce77149ff72ea2936c23fcbdeefe3c011a2dfc75d60d40ec650ab233e5e845"
+      },
+      "guest.py": {
+        "bytes": 18698,
+        "sha256": "aee907cc341726e87e87bb4334c1688145356925e17c7ad5eea89e39e8c9fef9"
+      },
+      "guest_guard.py": {
+        "bytes": 4160,
+        "sha256": "8db72fbc36f59c5660f7ddc4f56f3bdbed81cdec4344c65017db522501f83de7"
+      },
+      "hook.py": {
+        "bytes": 787,
+        "sha256": "b3e2bd1c4eb715928919028be1dddce2090605d233ba8f4d6bf98d67e95f5fa3"
+      },
+      "host.py": {
+        "bytes": 4302,
+        "sha256": "d25d18a115483bf7b6f2f0f0f1bfe21d19de37951949e55685edcfb77d84248b"
+      },
+      "initramfs.py": {
+        "bytes": 4502,
+        "sha256": "50d3a4833f5b783704c1a07fb3c213819769a08294eb677e7066ec13595d4b98"
+      },
+      "journal_acl.py": {
+        "bytes": 94610,
+        "sha256": "e3849c1604b6520c4fb813692290a0989d08542cf3ada1fbf412948a83a26c9c"
+      },
+      "media.py": {
+        "bytes": 7850,
+        "sha256": "cc5fe0b84745ca509b79bb0d8d6f55eaf3b265fec656fb37e2d629beacec4849"
+      },
+      "mime-profile.json": {
+        "bytes": 259815,
+        "sha256": "4c601c715c4ee64484f49dacebfddb53da9391893c29e3c0626a92942a36a793"
+      },
+      "mime_cache.py": {
+        "bytes": 47294,
+        "sha256": "1e04c1a6d7918c6499a3a356397749a60083000bb493e9fb3df1f277ea635922"
+      },
+      "pid1-baseline.json": {
+        "bytes": 528,
+        "sha256": "b508b5ff108bc90d79952c7a90efdb812ccd008421297412b9338a2c6c1c8be6"
+      },
+      "pid1-expected.json": {
+        "bytes": 548,
+        "sha256": "2891023d89c1f35b47c8e4cb8b7c88105ddce72b18796a377b161e7278f03659"
+      },
+      "prepare.py": {
+        "bytes": 1394,
+        "sha256": "554c52290776a5f4ec314ba8abad836db1d99ab81e4782964e3a0d4bbe04a8a2"
+      },
+      "profile.json": {
+        "bytes": 333629,
+        "sha256": "e248308cc7a04607f18f21a5e06a21165fb985bb43130e7db94966cb4eaa879c"
+      },
+      "serial-profile.json": {
+        "bytes": 734,
+        "sha256": "f7cd6095424948d3e108b3b96763674612fc086e2da08cb783da78057a0f0c0e"
+      },
+      "serial_result.py": {
+        "bytes": 52907,
+        "sha256": "d708f9de5f31a15882596ed95fb9514958ce8df4a85ce2152dcb265f878b3991"
+      },
+      "source-manifest.json": {
+        "bytes": 6639,
+        "sha256": "91d2242a77c6fd058dd78657de4b6764b24efb9c4780325c7fd32204de386e20"
+      },
+      "test_case.py": {
+        "bytes": 19195,
+        "sha256": "723c962fafa76c84e8d6764e687bdebe5faad63b00a96edb0355f27c8ad7a189"
+      },
+      "test_emission.py": {
+        "bytes": 2521,
+        "sha256": "57a4a755385a5e380e303f3e3da33bafcfc71063ffce2041f22b22b5a5ffdf8f"
+      },
+      "test_host.py": {
+        "bytes": 3090,
+        "sha256": "b01d3159bd0b0c688434bac69976dd16cf173358a598957f3be58f49c1642460"
+      },
+      "test_initramfs.py": {
+        "bytes": 7864,
+        "sha256": "0d0a521c9f4e8793c4b15a82119dfca7a46642033c94b72327e27118a797bae2"
+      },
+      "test_protocol.py": {
+        "bytes": 4378,
+        "sha256": "ac482fa3a8fc0ab932bcf8e65b864e4ac26affc1ecf30ecea61cd42b52264d25"
+      },
+      "test_route.py": {
+        "bytes": 9847,
+        "sha256": "b32ab0d4b5dd3cbfbb131811a8460bc82b07dcd517598971c1b14bdc437123ab"
+      },
+      "test_sources.py": {
+        "bytes": 19838,
+        "sha256": "eef8c2a75e8f3c5e282eb48daba98ce471c58791b29e0653626fe0949a06a8e7"
+      },
+      "tmpfiles_hash.py": {
+        "bytes": 41582,
+        "sha256": "6912c9ae1a14477212921c6aed68b54e7c83a6a9308664e515c51619603eba6b"
+      },
+      "transaction_output.py": {
+        "bytes": 42998,
+        "sha256": "8ce374e17744888ad70ca0b19485ffd6f72d6cf029f47f6fdfaa07c47dce6ce9"
+      },
+      "units/caa-core-observer.service": {
+        "bytes": 474,
+        "sha256": "95b66c92d2acbbfdb5d904c2c0f6b61518fd3bb7c71eb290751a27e9d2fc8e6e"
+      },
+      "units/caa-core-probe.service": {
+        "bytes": 358,
+        "sha256": "b8a4a142045304e53893608548c293b684fbe295831e25a84d5cf3c19ef0a6b4"
+      },
+      "units/caa-core-worker.service": {
+        "bytes": 352,
+        "sha256": "70ebee606afc5fee5359d3ea05cee62445766c8a4033d6fbee7398f0be6f9353"
+      },
+      "units/caa-core.target": {
+        "bytes": 189,
+        "sha256": "1025ff9b01e2132861b26cf35fd5f4a25424638f03e49222552ef0cbbb719e37"
+      },
+      "validate.py": {
+        "bytes": 7182,
+        "sha256": "80f0b8ee03df0f7208b1329309ec21da45cd8033a2ed3167bfb262faba293af2"
+      },
+      "vm_validation.py": {
+        "bytes": 52784,
+        "sha256": "a69264ea55374b2058048ca2441c89942e65f43d06125b0d1ad71d3e021202e1"
+      },
+      "workflow.yml.in": {
+        "bytes": 13109,
+        "sha256": "923ae66040ac4cfcd7644d7a677db3ba45f902f787daf9546e698f5c8e0471d4"
+      },
+      "xattr_diagnostic.py": {
+        "bytes": 17502,
+        "sha256": "ad88aee4e41afa9f78d45785a45f274abeac1aaf335225ec0c4cc61240cbba47"
+      }
+    },
+    "ref": "codex/core7-serial-line-framing-v1",
+    "source": "11b3cfb59663e42b34247facb9f30f042e891444"
+  },
+  "schema": 1
+}

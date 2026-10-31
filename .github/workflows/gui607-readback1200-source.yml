@@ -1,0 +1,81 @@
+{
+  "name": "gui607-readback1200-source",
+  "on": {
+    "push": {
+      "paths": [
+        "scripts/ci/gui607-readback1200-source/**",
+        ".github/workflows/gui607-readback1200-source.yml"
+      ]
+    },
+    "pull_request": {
+      "paths": [
+        "scripts/ci/gui607-readback1200-source/**",
+        ".github/workflows/gui607-readback1200-source.yml"
+      ]
+    },
+    "workflow_dispatch": {}
+  },
+  "permissions": {
+    "contents": "read"
+  },
+  "jobs": {
+    "source-controls": {
+      "runs-on": "ubuntu-24.04",
+      "timeout-minutes": 6,
+      "strategy": {
+        "fail-fast": false,
+        "matrix": {
+          "python": [
+            "3.12",
+            "3.14"
+          ]
+        }
+      },
+      "env": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONWARNINGS": "error"
+      },
+      "steps": [
+        {
+          "name": "Check out maintained factory",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Check out exact public parent692",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "repository": "Gabriel-Kahen/cachy-asahi",
+            "ref": "0e7211b326679319b4454bfe2a1c1e8e9b0aac29",
+            "path": ".ci-fixtures/parent692",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Check out qualified public readback692",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "repository": "Gabriel-Kahen/cachy-asahi",
+            "ref": "7c7ee9dc3c8c4289d21c3070d7d159add649a233",
+            "path": ".ci-fixtures/expected692",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Select Python",
+          "uses": "actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+          "with": {
+            "python-version": "${{ matrix.python }}"
+          }
+        },
+        {
+          "name": "Literal qualified factory outputs, defaults and selected source controls",
+          "shell": "bash",
+          "run": "set -euo pipefail\nstage=$(mktemp -d \"$RUNNER_TEMP/gui-readback692.XXXXXXXX\")\ntrap 'rm -rf -- \"$stage\"' EXIT\nexport TMPDIR=\"$stage\"\nmkdir \"$stage/parent692\" \"$stage/expected692\"\ngit -C \"$GITHUB_WORKSPACE/.ci-fixtures/parent692\" archive --format=tar 0e7211b326679319b4454bfe2a1c1e8e9b0aac29 | tar -xf - -C \"$stage/parent692\"\ngit -C \"$GITHUB_WORKSPACE/.ci-fixtures/expected692\" archive --format=tar 7c7ee9dc3c8c4289d21c3070d7d159add649a233 | tar -xf - -C \"$stage/expected692\"\nexport GUI_READBACK_INPUT=\"$stage/parent692\"\nexport GUI_READBACK_EXPECTED=\"$stage/expected692\"\nexport GUI_READBACK_SOURCE=\"$stage/source\"\numask 077\npython3 -I -B -Werror scripts/ci/gui607-readback1200-source/prepare.py --source \"$GUI_READBACK_INPUT\" --output \"$GUI_READBACK_SOURCE\" --context known > \"$stage/authorization.json\"\npython3 -I -B -Werror scripts/ci/gui607-readback1200-source/test_factory.py\npython3 -I -B -Werror scripts/ci/gui607-readback1200-source/test_selected.py\n"
+        }
+      ]
+    }
+  }
+}

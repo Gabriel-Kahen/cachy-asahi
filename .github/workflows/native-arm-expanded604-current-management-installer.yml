@@ -1,0 +1,512 @@
+name: native-arm-expanded604-current-management-installer
+on:
+  workflow_dispatch:
+    inputs:
+      source:
+        description: Exact Root frozen604 installer source; native604 acceptance must be bound
+        required: true
+        type: string
+      mode:
+        description: Fresh native original-four builder and required FDK pair
+        required: true
+        default: build
+        type: choice
+        options: [build]
+      inputs_sha256:
+        description: Exact pinned Source input lock
+        type: string
+        default: beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f
+      recipes_sha256:
+        description: Exact pinned four-package recipe lock
+        type: string
+        default: a5fb287b4dda2a90bf61d4fa8cbbc5d666dad8bb450a70544d00545b091f36e3
+      integration_sha256:
+        description: Leave empty; this FDK-only job does not run integration
+        type: string
+        default: ''
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: native-arm-expanded604-current-management-installer
+  cancel-in-progress: false
+jobs:
+  native:
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 350
+    env:
+      SOURCE_COMMIT: a79c4ca92486854f9edb639cd970d2c90fda4b12
+      INPUTS_SHA256: ${{ inputs.inputs_sha256 }}
+      RECIPES_SHA256: ${{ inputs.recipes_sha256 }}
+      RETRY_MODE: ${{ inputs.mode }}
+      REQUESTED_INTEGRATION_SHA256: ${{ inputs.integration_sha256 }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: a79c4ca92486854f9edb639cd970d2c90fda4b12
+          persist-credentials: false
+      - name: Checkout the separate expanded604 installer implementation
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.source }}
+          path: expanded604-installer
+          persist-credentials: false
+      - name: Require Root native604 acceptance before any secret or native work
+        id: installer_policy
+        shell: bash
+        env:
+          IMPLEMENTATION_SOURCE: ${{ inputs.source }}
+          WORKFLOW_SOURCE: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          test "$(sha256sum expanded604-installer/scripts/ci/expanded604-current-management-installer/ci.py | cut -d ' ' -f 1)" = 17f4ff9521484ffcb50d8e3c661ad6ad84ec6edb5343a88adbdee13d66ede79a
+          test "$(sha256sum expanded604-installer/scripts/ci/expanded604-current-management-installer/source-manifest.json | cut -d ' ' -f 1)" = 86c101e87aad63b84d3b49d7977704e6bdbff96f576c157280583ade6e6e0e05
+          python3 -B expanded604-installer/scripts/ci/expanded604-current-management-installer/gate.py \
+            --implementation "$GITHUB_WORKSPACE/expanded604-installer" --source "$IMPLEMENTATION_SOURCE" \
+            --workflow-sha "$WORKFLOW_SOURCE" --preflight
+      - name: Checkout the fixed old helper and setup3 baseline
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: b6b17e5f6b322f160f7eeb22c8a01380a3c854cd
+          path: expanded604-legacy
+          persist-credentials: false
+      - name: Checkout unchanged original seven-pair input root
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 7fee76d68e5fd75437d8b49aaaced8376d2215cd
+          path: expanded604-seven
+          persist-credentials: false
+      - name: Checkout the Root-bound accepted eight-pair input root
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ steps.installer_policy.outputs.eight_source }}
+          path: expanded604-eight
+          persist-credentials: false
+      - name: Checkout fixed public management source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ steps.installer_policy.outputs.management_source }}
+          path: expanded604-management-source
+          persist-credentials: false
+      - name: Checkout fixed public setup source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ steps.installer_policy.outputs.setup_source }}
+          path: expanded604-setup-source
+          persist-credentials: false
+      - name: Checkout fixed public welcome source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ steps.installer_policy.outputs.welcome_source }}
+          path: expanded604-welcome-source
+          persist-credentials: false
+      - name: Checkout fixed public fresh600 decisions
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ steps.installer_policy.outputs.fresh600_decisions }}
+          path: expanded604-fresh600-decisions
+          persist-credentials: false
+      - name: Checkout fixed public native604 decisions
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ steps.installer_policy.outputs.native604_decisions }}
+          path: expanded604-native604-decisions
+          persist-credentials: false
+      - name: Retrieve only the six original pinned audio inputs
+        id: audio_inputs
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 -B expanded604-legacy/scripts/ci/full-development-composition/retrieve_audio.py --output "$RUNNER_TEMP/audio-archives"
+      - name: Verify actual Root decisions and accepted archive bytes before secrets
+        shell: bash
+        env:
+          IMPLEMENTATION_SOURCE: ${{ inputs.source }}
+          WORKFLOW_SOURCE: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          python3 -B expanded604-installer/scripts/ci/expanded604-current-management-installer/gate.py \
+            --implementation "$GITHUB_WORKSPACE/expanded604-installer" --source "$IMPLEMENTATION_SOURCE" \
+            --workflow-sha "$WORKFLOW_SOURCE" --legacy-source "$GITHUB_WORKSPACE/expanded604-legacy" \
+            --seven-source "$GITHUB_WORKSPACE/expanded604-seven" --eight-source "$GITHUB_WORKSPACE/expanded604-eight" \
+            --management-source "$GITHUB_WORKSPACE/expanded604-management-source/payload" \
+            --setup-source "$GITHUB_WORKSPACE/expanded604-setup-source" \
+            --welcome-source "$GITHUB_WORKSPACE/expanded604-welcome-source/payload" \
+            --fresh600-decisions "$GITHUB_WORKSPACE/expanded604-fresh600-decisions" \
+            --native604-decisions "$GITHUB_WORKSPACE/expanded604-native604-decisions" \
+            --audio-inputs "$RUNNER_TEMP/audio-archives"
+      - name: Run unchanged installer controls and focused604 controls without actors
+        shell: bash
+        env:
+          EXPANDED600_LEGACY_ROOT: ${{ github.workspace }}/expanded604-legacy
+          EXPANDED600_SEVEN_ROOT: ${{ github.workspace }}/expanded604-seven
+          CURRENT604_INSTALLER_SOURCE: ${{ github.workspace }}/expanded604-installer
+          EXPANDED604_SOURCE: ${{ github.workspace }}/expanded604-installer
+          EXPANDED604_LEGACY_ROOT: ${{ github.workspace }}/expanded604-legacy
+          EXPANDED604_FRESH600_DECISION: ${{ github.workspace }}/expanded604-fresh600-decisions/payload/fresh600.json
+        run: |
+          set -euo pipefail
+          python3 -B -m unittest discover -s expanded604-installer/scripts/ci/expanded600-installer-vm -p 'test_*.py' -v
+          python3 -B -m unittest discover -s expanded604-installer/scripts/ci/expanded604-current-management-installer -p 'test_*.py' -v
+      - name: Seed the six frozen private cache objects before native work
+        if: inputs.mode == 'build'
+        shell: bash
+        env:
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01 }}
+          CACHY_OLD_FOUR_SCHEMA: '1'
+          CACHY_OLD_FOUR_SOURCE_EPOCH: '1791748800'
+          CACHY_OLD_FOUR_JBIGKIT_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_01 }}
+          CACHY_OLD_FOUR_JBIGKIT_02: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_02 }}
+          CACHY_OLD_FOUR_JBIGKIT_SIG_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_SIG_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_02: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_02 }}
+          CACHY_OLD_FOUR_LIBTIFF_03: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_03 }}
+          CACHY_OLD_FOUR_LIBTIFF_04: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_04 }}
+          CACHY_OLD_FOUR_LIBTIFF_05: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_05 }}
+          CACHY_OLD_FOUR_LIBTIFF_06: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_06 }}
+          CACHY_OLD_FOUR_LIBTIFF_07: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_07 }}
+          CACHY_OLD_FOUR_LIBTIFF_08: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_08 }}
+          CACHY_OLD_FOUR_LIBTIFF_09: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_09 }}
+          CACHY_OLD_FOUR_LIBTIFF_10: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_10 }}
+          CACHY_OLD_FOUR_LIBTIFF_11: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_11 }}
+          CACHY_OLD_FOUR_LIBTIFF_12: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_12 }}
+          CACHY_OLD_FOUR_LIBTIFF_13: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_13 }}
+          CACHY_OLD_FOUR_LIBTIFF_14: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_14 }}
+          CACHY_OLD_FOUR_LIBTIFF_15: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_15 }}
+          CACHY_OLD_FOUR_LIBTIFF_SIG_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_SIG_01 }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_COMMIT"
+          test "$INPUTS_SHA256" = beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f
+          timeout --signal=TERM --kill-after=5s 75s python3 -B - <<'PYSEED'
+          import hashlib
+          import os
+          from pathlib import Path
+          import sys
+          sys.path.insert(0, 'scripts/ci')
+          from old_four_seed import (OLD_FOUR_PRIVATE_ROWS, RETAINED_BUBBLEWRAP_PRIVATE_ROWS,
+                                     seed_current_build_cache)
+          pin = 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'
+          if hashlib.sha256(Path('scripts/ci/inputs.lock.json').read_bytes()).hexdigest() != pin:
+              raise SystemExit('private-cache-input-binding-refused')
+          names = {'CACHY_OLD_FOUR_' + f'{tag}_{i:02d}'
+                   for _, _, _, tag, count in OLD_FOUR_PRIVATE_ROWS for i in range(1, count + 1)}
+          retained = {'CACHY_RETAINED_BUBBLEWRAP_V1_' + f'{tag}_{i:02d}'
+                      for _, _, _, tag, sizes in RETAINED_BUBBLEWRAP_PRIVATE_ROWS
+                      for i in range(1, len(sizes) + 1)}
+          names |= retained
+          if len(names) != 22 or len(retained) != 3 or not all(os.environ.get(name) for name in names):
+              raise SystemExit('private-cache-required-secrets-missing')
+          cache = Path(os.environ['RUNNER_TEMP']) / 'alarm-cache'
+          cache.mkdir(mode=0o700)
+          keep = names | {'CACHY_OLD_FOUR_SCHEMA', 'CACHY_OLD_FOUR_SOURCE_EPOCH'}
+          for name in tuple(os.environ):
+              if name not in keep:
+                  os.environ.pop(name)
+          seed_current_build_cache(cache, pin)
+          PYSEED
+      - name: Checkout exact retained public input source
+        if: inputs.mode == 'build'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # existing pinned checkout
+        with:
+          ref: 04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd
+          path: retained-public-inputs
+          persist-credentials: false
+      - name: Seed fourteen exact public ARM input files
+        if: inputs.mode == 'build'
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C "$GITHUB_WORKSPACE/retained-public-inputs" rev-parse HEAD)" = 04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd
+          test "$(sha256sum retained-public-inputs/seed.py | cut -d ' ' -f 1)" = a7857658af224984065e575f6ffed8308ea85027d46eace8bda146d9033e93b3
+          test "$(sha256sum retained-public-inputs/index.json | cut -d ' ' -f 1)" = a388c8c8ba8e06cb92fd2be598b86e433c4e403b6e71a0f15b1eaec381bb7300
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC \
+            TMPDIR="$RUNNER_TEMP" \
+            python3 -I -B "$GITHUB_WORKSPACE/retained-public-inputs/seed.py" \
+              --cache "$RUNNER_TEMP/alarm-cache"
+      - name: Build the fresh native base and original package pairs
+        id: original_build
+        timeout-minutes: 50
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$RETRY_MODE" = build
+          test "$INPUTS_SHA256" = beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f
+          test "$RECIPES_SHA256" = a5fb287b4dda2a90bf61d4fa8cbbc5d666dad8bb450a70544d00545b091f36e3
+          test -z "$REQUESTED_INTEGRATION_SHA256"
+          test "$(git rev-parse HEAD)" = "$SOURCE_COMMIT"
+          install -d -m 700 "$RUNNER_TEMP/desktop-docker-config"
+          test "$(sha256sum retained-public-inputs/seed.py | cut -d ' ' -f 1)" = a7857658af224984065e575f6ffed8308ea85027d46eace8bda146d9033e93b3
+          test "$(sha256sum retained-public-inputs/index.json | cut -d ' ' -f 1)" = a388c8c8ba8e06cb92fd2be598b86e433c4e403b6e71a0f15b1eaec381bb7300
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC \
+            RUNNER_TEMP="$RUNNER_TEMP" DOCKER_CONFIG="$RUNNER_TEMP/desktop-docker-config" \
+            GITHUB_SHA="$SOURCE_COMMIT" GITHUB_REPOSITORY="$GITHUB_REPOSITORY" \
+            GITHUB_RUN_ID="$GITHUB_RUN_ID" GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" \
+            PYTHONDONTWRITEBYTECODE=1 INPUTS_SHA256="$INPUTS_SHA256" RECIPES_SHA256="$RECIPES_SHA256" \
+            /bin/bash --noprofile --norc -euo pipefail <<'RUN_ORIGINAL_BUILDS'
+          export TMPDIR="$RUNNER_TEMP"
+          python3 -B scripts/ci/native_arm.py build \
+            --inputs-sha256 "$INPUTS_SHA256" --recipes-sha256 "$RECIPES_SHA256" \
+            --cache "$RUNNER_TEMP/alarm-cache" --output "$RUNNER_TEMP/native-evidence"
+          RUN_ORIGINAL_BUILDS
+      - name: Retain bounded original-four and base evidence
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -d "$RUNNER_TEMP/native-evidence" ]; then
+            python3 -B scripts/ci/log_evidence.py "$RUNNER_TEMP/native-evidence"
+          fi
+      - name: Checkout the fixed FDK source
+        id: fdk_source
+        if: ${{ !cancelled() && steps.original_build.outcome == 'success' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 804b418f14459e82031046fb28a0308b4cb9348e
+          path: fdk-source
+          persist-credentials: false
+      - name: Required FDK pair on this job native base
+        id: fdk_pair
+        if: ${{ always() && !cancelled() }}
+        timeout-minutes: 25
+        shell: bash
+        env:
+          FDK_CHECKOUT_OUTCOME: ${{ steps.fdk_source.outcome }}
+        run: |
+          set -euo pipefail
+          test "$FDK_CHECKOUT_OUTCOME" = success
+          install -d -m 700 "$RUNNER_TEMP/fdk-home" "$RUNNER_TEMP/fdk-docker-config"
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/fdk-home" LANG=C.UTF-8 TZ=UTC \
+            RUNNER_TEMP="$RUNNER_TEMP" TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 \
+            DOCKER_CONFIG="$RUNNER_TEMP/fdk-docker-config" \
+            FDK_SOURCE_ROOT="$GITHUB_WORKSPACE/fdk-source" \
+            FDK_NATIVE_OUTPUT="$RUNNER_TEMP/native-evidence" \
+            FDK_OUTPUT="$RUNNER_TEMP/fdk-evidence" \
+            /bin/bash --noprofile --norc -euo pipefail > "$RUNNER_TEMP/fdk-driver.log" 2>&1 <<'RUN_FDK'
+          # Optional post-core step. Uses only the original base builder on this daemon.
+          set -euo pipefail
+          source_root=${FDK_SOURCE_ROOT:?}
+          native_out=${FDK_NATIVE_OUTPUT:?}
+          out=${FDK_OUTPUT:?}
+          mkdir -m 700 "$out"
+          status=FAIL
+          finish() {
+              rc=$?
+              printf 'FDK_PAIR=%s\nEXIT=%s\n' "$status" "$rc" > "$out/result.txt" || :
+              cat "$out/result.txt" || :
+              if [[ $status == FAIL ]]; then
+                  for log in "$out"/build-*/build.log "$out"/*.log; do
+                      [[ ! -f $log ]] || tail -n 40 "$log" || :
+                  done
+              fi
+              return "$rc"
+          }
+          trap finish EXIT
+          image=$(python3 - "$source_root" "$native_out" "$out" <<'PY'
+          from pathlib import Path
+          import hashlib, json, re, sys
+          source, native, out = map(Path, sys.argv[1:])
+          result = native / 'result.json'
+          if not result.exists() or json.loads(result.read_text()).get('native_build') != 'PASS':
+              raise SystemExit(0)
+          bootstrap = json.loads((native / 'bootstrap.json').read_text())
+          image = (native / 'image-id').read_text().strip()
+          assert re.fullmatch(r'sha256:[0-9a-f]{64}', image)
+          assert bootstrap['status'] == 'image-provisioned' and bootstrap['image_id'] == image
+          assert hashlib.sha256((native / 'packages.lock').read_bytes()).hexdigest() == bootstrap['packages_lock_sha256']
+          recipe = source / 'packages/libraries/cachy-asahi-fdk-aac/PKGBUILD'
+          digest = hashlib.sha256(recipe.read_bytes()).hexdigest()
+          assert digest == '774803633213d77e9879005608ff23528b6780465c7bd00f3234430c9a7346df'
+          for name in ('template-inputs.json', 'reviewed-inputs.json'):
+              data = json.loads((source / 'scripts/port/fdk-native-stage' / name).read_text())
+              data['PKGBUILD'] = digest
+              (out / name).write_text(json.dumps(data, sort_keys=True, indent=2) + '\n')
+          print(image)
+          PY
+          )
+          if [[ -z $image ]]; then
+              status=SKIPPED
+              printf 'No successful original-four builder; FDK was not run.\n'
+              exit 0
+          fi
+          python3 -B "$source_root/packages/libraries/cachy-asahi-fdk-aac/select-source.py" \
+              --fetch-upstream --output "$out/selected-source.tar" > "$out/selection.log" 2>&1
+          template_sha=$(sha256sum "$out/template-inputs.json" | cut -d ' ' -f 1)
+          python3 -B "$source_root/packages/libraries/cachy-asahi-fdk-aac/materialize.py" \
+              --archive "$out/selected-source.tar" --output "$out/recipe" \
+              --reviewed-template "$out/template-inputs.json" \
+              --reviewed-template-sha256 "$template_sha" > "$out/materialize.log" 2>&1
+          for attempt in 1 2; do
+              python3 -B "$source_root/scripts/build/build.py" "$out/recipe" \
+                  --image "$image" --output "$out/build-$attempt" --mode native \
+                  --source-date-epoch 1791748800 --network none --timeout 600 \
+                  --expected-packages "$native_out/packages.lock" \
+                  --reviewed-inputs "$out/reviewed-inputs.json" > "$out/build-$attempt.log" 2>&1
+          done
+          python3 -B "$source_root/scripts/build/compare.py" \
+              "$out/build-1" "$out/build-2" --require-bytes > "$out/compare.json" 2> "$out/compare.log"
+          cat "$out/compare.json"
+          status=PASS
+          RUN_FDK
+          grep -qx 'FDK_PAIR=PASS' "$RUNNER_TEMP/fdk-evidence/result.txt"
+      - name: Retain bounded FDK metadata and separate outcome
+        if: always()
+        shell: bash
+        env:
+          ORIGINAL_BUILD_OUTCOME: ${{ steps.original_build.outcome }}
+          FDK_CHECKOUT_OUTCOME: ${{ steps.fdk_source.outcome }}
+          FDK_PAIR_OUTCOME: ${{ steps.fdk_pair.outcome }}
+        run: |
+          set -euo pipefail
+          {
+            printf '\n### FDK-only native job\nOriginal pairs: %s; FDK checkout: %s; FDK step: %s\n' \
+              "$ORIGINAL_BUILD_OUTCOME" "$FDK_CHECKOUT_OUTCOME" "$FDK_PAIR_OUTCOME"
+            if [ -f "$RUNNER_TEMP/fdk-evidence/result.txt" ]; then
+              cat "$RUNNER_TEMP/fdk-evidence/result.txt"
+            else
+              printf 'No FDK script result; this is not a pair PASS.\n'
+            fi
+            printf 'Core lifecycle/integration: NOT RUN in this dedicated job.\n'
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+          python3 -B - <<'PYFDKLOG'
+          from pathlib import Path
+          import os, shutil
+          root = Path(os.environ['RUNNER_TEMP'])
+          source, public = root / 'fdk-evidence', root / 'fdk-metadata'
+          public.mkdir()
+          names = ['result.txt', 'compare.json', 'template-inputs.json', 'reviewed-inputs.json']
+          names += [f'build-{i}/{name}' for i in (1, 2) for name in ('provenance.json', 'validation.json')]
+          for name in names:
+              original, target = source / name, public / name
+              if original.is_file():
+                  target.parent.mkdir(parents=True, exist_ok=True)
+                  shutil.copyfile(original, target)
+          for name, original in [('driver-tail.log', root / 'fdk-driver.log')] + [
+                  (f'build-{i}-tail.log', source / f'build-{i}/build.log') for i in (1, 2)]:
+              if original.is_file():
+                  with original.open('rb') as stream:
+                      stream.seek(max(0, original.stat().st_size - 65536))
+                      (public / name).write_bytes(stream.read(65536))
+          (public / 'scope.txt').write_text('FDK build-pair metadata only; lifecycle/integration NOT RUN; no package binaries uploaded.\n')
+          PYFDKLOG
+          python3 -B scripts/ci/log_evidence.py "$RUNNER_TEMP/fdk-metadata"
+      - name: Checkout the ten current development recipes
+        if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: a58fca33c4db5f2ab3ea6111f4d7842a932cc336
+          path: composition-product
+          persist-credentials: false
+      - name: Checkout the exact updater compiler implementation
+        if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 1aea667aec50a62ba0ab2dad44be24a4dc3bd098
+          path: composition-updater
+          persist-credentials: false
+      - name: Checkout the proven 574-package runtime builder
+        if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 9a2e520dbdfce7e4af417595ff3de9e6a284ef04
+          path: composition-desktop
+          persist-credentials: false
+      - name: Checkout the exact v2 updater implementation
+        if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 480053c0866a922138d85af2b9880fb0e10d7b2c
+          path: composition-updater-v2
+          persist-credentials: false
+      - name: Checkout unchanged composition preparation APIs
+        if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 93bc9bfac7343ee3b443ae3332c0942ed1ba5b55
+          path: composition-preparation
+          persist-credentials: false
+      - name: Unpack only the exact retained public setup4 pair
+        if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' }}
+        shell: bash
+        run: |
+          python3 -B - <<'PYPAIR'
+          from pathlib import Path, PurePosixPath
+          import hashlib, os, tarfile
+          source=Path('composition-preparation/scripts/ci/full-development-composition/retained/setup4-pair.tar.xz')
+          assert source.stat().st_size==69776 and hashlib.sha256(source.read_bytes()).hexdigest()=='1637452a84733fdf059d7dbc10c5b6dddd11c589c4f97ebb6a4655aedd12359f'
+          target=Path(os.environ['RUNNER_TEMP'])/'setup4-retained'
+          target.mkdir(mode=0o700)
+          with tarfile.open(source,'r:xz') as archive:
+              members=archive.getmembers()
+              assert len(members)==64 and sum(item.size for item in members)<4*1024**2
+              assert len({item.name for item in members})==64
+              for item in members:
+                  name=PurePosixPath(item.name)
+                  assert item.isfile() and not name.is_absolute() and '..' not in name.parts
+                  assert name.parts[0] in ('build-1','build-2')
+              archive.extractall(target,filter='data')
+          PYPAIR
+      - name: Required fresh signed604 installation in the separately owned VM
+        id: composition
+        if: ${{ always() && !cancelled() }}
+        timeout-minutes: 270
+        shell: bash
+        env:
+          FDK_PAIR_OUTCOME: ${{ steps.fdk_pair.outcome }}
+          AUDIO_INPUTS_OUTCOME: ${{ steps.audio_inputs.outcome }}
+          IMPLEMENTATION_SOURCE: ${{ inputs.source }}
+        run: |
+          set -euo pipefail
+          test "$FDK_PAIR_OUTCOME" = success
+          test "$AUDIO_INPUTS_OUTCOME" = success
+          install -d -m 700 "$RUNNER_TEMP/expanded604-installer-home"
+          timeout --signal=TERM --kill-after=60s 15600s \
+            env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/expanded604-installer-home" LANG=C.UTF-8 TZ=UTC \
+            PYTHONDONTWRITEBYTECODE=1 \
+            python3 -B "$GITHUB_WORKSPACE/expanded604-installer/scripts/ci/expanded604-current-management-installer/ci.py" \
+              --implementation "$GITHUB_WORKSPACE/expanded604-installer" --implementation-revision "$IMPLEMENTATION_SOURCE" \
+              --legacy-source "$GITHUB_WORKSPACE/expanded604-legacy" \
+              --preparation-source "$GITHUB_WORKSPACE/composition-preparation" \
+              --updater-v2-source "$GITHUB_WORKSPACE/composition-updater-v2" --setup4-pair "$RUNNER_TEMP/setup4-retained" \
+              --product "$GITHUB_WORKSPACE/composition-product" --updater "$GITHUB_WORKSPACE/composition-updater" \
+              --desktop "$GITHUB_WORKSPACE/composition-desktop" \
+              --native "$RUNNER_TEMP/native-evidence" --fdk "$RUNNER_TEMP/fdk-evidence" --cache "$RUNNER_TEMP/alarm-cache" \
+              --seven-source "$GITHUB_WORKSPACE/expanded604-seven" --eight-source "$GITHUB_WORKSPACE/expanded604-eight" \
+              --management-source "$GITHUB_WORKSPACE/expanded604-management-source/payload" \
+              --setup-source "$GITHUB_WORKSPACE/expanded604-setup-source" \
+              --welcome-source "$GITHUB_WORKSPACE/expanded604-welcome-source/payload" \
+              --fresh600-decisions "$GITHUB_WORKSPACE/expanded604-fresh600-decisions" \
+              --native604-decisions "$GITHUB_WORKSPACE/expanded604-native604-decisions" \
+              --audio-inputs "$RUNNER_TEMP/audio-archives" \
+              --output "/tmp/cachy-asahi-expanded604-installer-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+      - name: Retain only bounded declared expanded604 installer reports
+        if: always()
+        timeout-minutes: 2
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -I -B - <<'PYPUBLIC'
+          import hashlib,json,os,pathlib,stat
+          source=pathlib.Path('/tmp')/('cachy-asahi-expanded604-installer-'+os.environ['GITHUB_RUN_ID']+'-'+os.environ['GITHUB_RUN_ATTEMPT'])
+          target=pathlib.Path(os.environ['RUNNER_TEMP'])/'expanded604-installer-public'
+          target.mkdir(mode=0o700)
+          names=('result.json','adapter.json','producer-producer.json','producer-producer-cleanup.json',
+                 'vm-result.json','vm-tooling-tooling.json','vm-disk-disk.json','vm-vm-vm.json','vm-serial-tail.log')
+          rows={};total=0
+          for name in names:
+              path=source/name
+              if not path.exists():continue
+              assert not path.is_symlink() and stat.S_ISREG(path.lstat().st_mode)
+              raw=path.read_bytes();assert len(raw)<=4*1024**2
+              total+=len(raw);assert total<=8*1024**2
+              (target/name).write_bytes(raw)
+              rows[name]={'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()}
+          (target/'retention.json').write_text(json.dumps(dict(files=rows,raw_bytes=total,
+              scope='generic4K signed604 installer only; no hardware or native-container P0 credit'),sort_keys=True)+'\n')
+          PYPUBLIC
+          python3 -B scripts/ci/log_evidence.py "$RUNNER_TEMP/expanded604-installer-public"

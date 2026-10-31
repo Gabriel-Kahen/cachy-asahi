@@ -1,0 +1,14 @@
+
+
+def engine_failure_transform(raw):
+ out=edit(raw,ENGINE_GUARD,ENGINE_GUARD_DIAGNOSTIC)
+ out=edit(out,AUTH_COMMAND,AUTH_COMMAND_DATA)
+ out=edit(out,NUMERIC_RETURN,NUMERIC_SELECTED_RETURN)
+ out=edit(out,"if __name__=='__main__':",ENGINE_HELPER+NUMERIC_HELPER+AUTH_HELPER+"\nif __name__=='__main__':")
+ C.need(engine_failure_inverse(out)==raw,'whole emitted installer failure-only inverse');return out
+
+def engine_failure_inverse(raw):
+ raw=edit(raw,ENGINE_HELPER+NUMERIC_HELPER+AUTH_HELPER+"\nif __name__=='__main__':","if __name__=='__main__':")
+ raw=edit(raw,NUMERIC_SELECTED_RETURN,NUMERIC_RETURN)
+ raw=edit(raw,AUTH_COMMAND_DATA,AUTH_COMMAND)
+ return edit(raw,ENGINE_GUARD_DIAGNOSTIC,ENGINE_GUARD)

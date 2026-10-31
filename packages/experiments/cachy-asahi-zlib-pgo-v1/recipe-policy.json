@@ -1,0 +1,71 @@
+{
+  "build_seconds": 180,
+  "job_seconds": 1200,
+  "local_files": {
+    "LICENSE.project": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "arm_c01.py": {
+      "bytes": 66103,
+      "sha256": "4034990eac1036cd9fee3f7f4911f181e8b2ce6a2441c25e6e502c09cca1e2a8"
+    },
+    "corpus-policy.json": {
+      "bytes": 3770,
+      "sha256": "b7a6c5a993766b6d1b014df31adfa6efe261a4aa1352f581ecc6feaff9ed5586"
+    },
+    "corpus.py": {
+      "bytes": 3364,
+      "sha256": "dbaf951adbb91d6769f40f8fb18c13044a42a3b5db11b4ad7d1f44afbed9ad8c"
+    },
+    "corpus_controls.py": {
+      "bytes": 6099,
+      "sha256": "19a0536f6d216e1d10831c4b0234d2f44b4c15edce7522b16cd399a4e8adbf42"
+    },
+    "pgo.py": {
+      "bytes": 19412,
+      "sha256": "71c948e55cdea6e75f91bd46751e7d4d1a5a3a81e700fe8210e2747150df69b3"
+    },
+    "pipeline.py": {
+      "bytes": 34671,
+      "sha256": "907717f2f0ecfd126f43ac55b8805bfa871922a4c8f5ee8a1d38f5412f30d2e4"
+    },
+    "probe.c": {
+      "bytes": 2822,
+      "sha256": "b85bab88cdb9048f26d5e812cc1ad2b8c783292882cbe3ab804e54353e4dfee1"
+    },
+    "profile_seal.py": {
+      "bytes": 9122,
+      "sha256": "5e96fe7a38e66bfa09146effce76547c3c61b555a52f6b8cdf71ccabb5bfe87e"
+    },
+    "strict-gzip.c": {
+      "bytes": 2002,
+      "sha256": "369e4e0e3f7c79b5d892edf7476ade41d6647332fb78f95ad7de7d8449bbaca9"
+    },
+    "supervisor.py": {
+      "bytes": 42787,
+      "sha256": "38e10bbf57c9b83040624748967426aa829144585e5c26b7f39f56b8f58bb933"
+    },
+    "training.bin": {
+      "bytes": 262144,
+      "sha256": "a6e84ea4cf12d2152fd408cea20bc2a395d4308f06683d13fc4909ae7ad46af6"
+    },
+    "validation.bin": {
+      "bytes": 4194304,
+      "sha256": "e178d56b3a6d0af1900f8e3a1b668549793b48d0ae35c24e730b9a39992604bf"
+    }
+  },
+  "schema": 1,
+  "source_sha256": "bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16",
+  "training": {
+    "bytes": 262144,
+    "path": "training.bin",
+    "sha256": "a6e84ea4cf12d2152fd408cea20bc2a395d4308f06683d13fc4909ae7ad46af6"
+  },
+  "training_seconds": 120,
+  "validation": {
+    "bytes": 4194304,
+    "path": "validation.bin",
+    "sha256": "e178d56b3a6d0af1900f8e3a1b668549793b48d0ae35c24e730b9a39992604bf"
+  }
+}

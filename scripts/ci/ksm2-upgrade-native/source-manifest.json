@@ -1,0 +1,303 @@
+{
+  "files": {
+    "packages/tools/cachy-asahi-ksmctl/.SRCINFO": {
+      "bytes": 1623,
+      "sha256": "60740b4d54a4ad38ba432b98784fdb804ec370154e93614afb40e204c2ebd196"
+    },
+    "packages/tools/cachy-asahi-ksmctl/LICENSE": {
+      "bytes": 17984,
+      "sha256": "edaef632cbb643e4e7a221717a6c441a4c1a7c918e6e4d56debc3d8739b233f6"
+    },
+    "packages/tools/cachy-asahi-ksmctl/NOTICE": {
+      "bytes": 1359,
+      "sha256": "939ad92c65a6c2f9da2c723a4c6e136add87ccb4a7a6e8ba0dd89692a77f3f10"
+    },
+    "packages/tools/cachy-asahi-ksmctl/PKGBUILD": {
+      "bytes": 2423,
+      "sha256": "b3714b1ef1136589081c69ed1f4aa48909d874c11f9c2d67ddb4b545309499d4"
+    },
+    "packages/tools/cachy-asahi-ksmctl/README.md": {
+      "bytes": 4832,
+      "sha256": "e7f806f7c81d5ddb2388faa4f7ddc53e04c004596a4f346bb270b47f8aad023d"
+    },
+    "packages/tools/cachy-asahi-ksmctl/adaptation.patch": {
+      "bytes": 8216,
+      "sha256": "0bc6b1f4725eb510a0f890bd616ce682b98332b371c93d2144ad643181727212"
+    },
+    "packages/tools/cachy-asahi-ksmctl/cachy-asahi-ksmctl": {
+      "bytes": 6433,
+      "sha256": "f9fd76eaa6a205d56fa4bb9123b8c721ea1277249c4cab58d1b57eaf8edc7558"
+    },
+    "packages/tools/cachy-asahi-ksmctl/check-source.py": {
+      "bytes": 2342,
+      "sha256": "7cca209ee6ad36726b03c0f54100b07bd6d08d974473d00c2092bbd5be4089a6"
+    },
+    "packages/tools/cachy-asahi-ksmctl/management-policy.md": {
+      "bytes": 5345,
+      "sha256": "ba5ca032b7e3b4757be38c18b24c295399ab1ec43c0ba3552ae5e2ff75d32437"
+    },
+    "packages/tools/cachy-asahi-ksmctl/native-stage.md": {
+      "bytes": 4762,
+      "sha256": "a2f0ea5fc896f06843bdf56a6b655cc93421d36fc3b59a864814a5c248bd6259"
+    },
+    "packages/tools/cachy-asahi-ksmctl/policy.py": {
+      "bytes": 6497,
+      "sha256": "53cea58f017b06ac55f5a39c388abf050e034f67132578e384e20c00bfe68281"
+    },
+    "packages/tools/cachy-asahi-ksmctl/source-provenance.json": {
+      "bytes": 1016,
+      "sha256": "d46e93a9893225d205a01fdcd3429782ba51d44c86b78e77fce458b53448b849"
+    },
+    "packages/tools/cachy-asahi-ksmctl/test_ksmctl.py": {
+      "bytes": 17730,
+      "sha256": "e42602fd16579e30c8cb799f26c897c1e3e89515f20a49a346b1888ce3c94b6f"
+    },
+    "packages/tools/cachy-asahi-ksmctl/test_policy.py": {
+      "bytes": 14446,
+      "sha256": "1ed306235087a760b8199829c35e99ecdb4ab6b6ddb2eb27562a9659d518121f"
+    },
+    "packages/tools/cachy-asahi-ksmctl/upstream-ksmctl": {
+      "bytes": 2606,
+      "sha256": "cd5c8aa86df5a06a268ecc21297b4cd7d8df1053c90c8bcd4e53ef9bb16194d9"
+    },
+    "packages/tools/cachy-asahi-ksmctl2/.SRCINFO": {
+      "bytes": 1557,
+      "sha256": "79c491a2930cc6d92648b301cc9af766d1d20dcb7e0687ab2690237b62e30a7f"
+    },
+    "packages/tools/cachy-asahi-ksmctl2/LICENSE": {
+      "bytes": 17984,
+      "sha256": "edaef632cbb643e4e7a221717a6c441a4c1a7c918e6e4d56debc3d8739b233f6"
+    },
+    "packages/tools/cachy-asahi-ksmctl2/NOTICE": {
+      "bytes": 1359,
+      "sha256": "939ad92c65a6c2f9da2c723a4c6e136add87ccb4a7a6e8ba0dd89692a77f3f10"
+    },
+    "packages/tools/cachy-asahi-ksmctl2/PKGBUILD": {
+      "bytes": 2373,
+      "sha256": "c4f2cd4a506181df68edadc5ae36a976f3402910ff63d07ac1d3715bd38a3e9a"
+    },
+    "packages/tools/cachy-asahi-ksmctl2/README.md": {
+      "bytes": 7590,
+      "sha256": "a0422a6b280c5b1583afe5da7575ba6e98c476c8ce1efbe196ba33513e94a4ed"
+    },
+    "packages/tools/cachy-asahi-ksmctl2/adaptation.patch": {
+      "bytes": 8216,
+      "sha256": "0bc6b1f4725eb510a0f890bd616ce682b98332b371c93d2144ad643181727212"
+    },
+    "packages/tools/cachy-asahi-ksmctl2/cachy-asahi-ksm-experiment": {
+      "bytes": 20549,
+      "sha256": "1ea518cc25a0d3099b7723756fd66631c35d7a79d50b300f6387a25588306d79"
+    },
+    "packages/tools/cachy-asahi-ksmctl2/cachy-asahi-ksmctl": {
+      "bytes": 6433,
+      "sha256": "f9fd76eaa6a205d56fa4bb9123b8c721ea1277249c4cab58d1b57eaf8edc7558"
+    },
+    "packages/tools/cachy-asahi-ksmctl2/check-source.py": {
+      "bytes": 2342,
+      "sha256": "7cca209ee6ad36726b03c0f54100b07bd6d08d974473d00c2092bbd5be4089a6"
+    },
+    "packages/tools/cachy-asahi-ksmctl2/experiment-provenance.json": {
+      "bytes": 2144,
+      "sha256": "e27da2f0e55a384bf8cb243e59437405391034347d10ff458fea7435898bba21"
+    },
+    "packages/tools/cachy-asahi-ksmctl2/source-provenance.json": {
+      "bytes": 1016,
+      "sha256": "d46e93a9893225d205a01fdcd3429782ba51d44c86b78e77fce458b53448b849"
+    },
+    "packages/tools/cachy-asahi-ksmctl2/test_experiment.py": {
+      "bytes": 16687,
+      "sha256": "2f13fe326171a7e42dc84d6c4e2ac2bbe6eb8391f9e06393f6e2c09fa8dbb843"
+    },
+    "packages/tools/cachy-asahi-ksmctl2/test_ksmctl.py": {
+      "bytes": 17730,
+      "sha256": "e42602fd16579e30c8cb799f26c897c1e3e89515f20a49a346b1888ce3c94b6f"
+    },
+    "packages/tools/cachy-asahi-ksmctl2/upstream-ksmctl": {
+      "bytes": 2606,
+      "sha256": "cd5c8aa86df5a06a268ecc21297b4cd7d8df1053c90c8bcd4e53ef9bb16194d9"
+    },
+    "scripts/build/build.py": {
+      "bytes": 11299,
+      "sha256": "e520b37e5dfc285914203cfab99daecc80543505fef7ded6704b3fb06f001d45"
+    },
+    "scripts/build/compare.py": {
+      "bytes": 5820,
+      "sha256": "4198864c264642b196a090a67b36185e5c194e38edc4cb928d08eb65b9f710cd"
+    },
+    "scripts/build/container-entry.sh": {
+      "bytes": 1787,
+      "sha256": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24"
+    },
+    "scripts/checks/package_checks.py": {
+      "bytes": 17706,
+      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
+    },
+    "scripts/ci/apps-cache-native/installed.py": {
+      "bytes": 4441,
+      "sha256": "10d210905f770854ddf9ebb72b46002d414787aa0a878a498ba4b21b663d9d8e"
+    },
+    "scripts/ci/full-development-composition/run.py": {
+      "bytes": 29738,
+      "sha256": "f86af098fdb0fc9a57a8b78b351341395ce13f9977464783f6f8133626e85698"
+    },
+    "scripts/ci/full-root-upgrade/root_upgrade.py": {
+      "bytes": 23555,
+      "sha256": "fe1232ae6b510021910b4fb80016ac3b4668c6e4386cdae45e7b95196e400756"
+    },
+    "scripts/ci/ksm2-upgrade-native/README.md": {
+      "bytes": 1656,
+      "sha256": "c6f838c69fc0c21255a81a5af271aef8712c9a39b013dac9fde280ddd7347e90"
+    },
+    "scripts/ci/ksm2-upgrade-native/adapter.py": {
+      "bytes": 3607,
+      "sha256": "e8e463d1ba0ac81f2a7f1ef4aae18903c89937bb011bbc5f2751952b50151f7c"
+    },
+    "scripts/ci/ksm2-upgrade-native/base_adapter.py": {
+      "bytes": 8720,
+      "sha256": "78ee8e094f6c69ea5a1f10639888f86fc81025b7d0f0dd067dd43c3ff04ff898"
+    },
+    "scripts/ci/ksm2-upgrade-native/contract.py": {
+      "bytes": 380,
+      "sha256": "575e55e9dcc7e006130ff549eddde8ce2a71396efb502baca6c93ee0c87eed00"
+    },
+    "scripts/ci/ksm2-upgrade-native/fixture_checks.py": {
+      "bytes": 4504,
+      "sha256": "fb3f6972f85e30fe53e98577fedddcbdb2b4d8fd336674c31271c1579300874c"
+    },
+    "scripts/ci/ksm2-upgrade-native/infrastructure-pins.json": {
+      "bytes": 4196,
+      "sha256": "dbd98f2229f0bd18904fc9f11585ffbfd67c369b0c28bd7c552942cc2d1ad779"
+    },
+    "scripts/ci/ksm2-upgrade-native/input-policy.json": {
+      "bytes": 6573,
+      "sha256": "9f09e3317c89add119b373261105397886dc923bbef184bb35eae6e0d85efdd5"
+    },
+    "scripts/ci/ksm2-upgrade-native/job.py": {
+      "bytes": 370,
+      "sha256": "6065fff6889eac2ce0123d4ea660147f51e204cce4d0b7a5d3a944d870b6c4c1"
+    },
+    "scripts/ci/ksm2-upgrade-native/lifecycle.py": {
+      "bytes": 5073,
+      "sha256": "b2dd55312eed76a1ee1dd79fe55f9124514962c74448d8b44f6ed051deb8321e"
+    },
+    "scripts/ci/ksm2-upgrade-native/original-pins.json": {
+      "bytes": 4196,
+      "sha256": "dbd98f2229f0bd18904fc9f11585ffbfd67c369b0c28bd7c552942cc2d1ad779"
+    },
+    "scripts/ci/ksm2-upgrade-native/preflight.py": {
+      "bytes": 1052,
+      "sha256": "9c0ad95b45c7113dc8d08ca61b4b78d09c7487479d2b936cce3098a9d8067e66"
+    },
+    "scripts/ci/ksm2-upgrade-native/prepare.py": {
+      "bytes": 4279,
+      "sha256": "580d9575a67639685137b49d3d87acdd80b53c75f01f4eb788bec0a86765937d"
+    },
+    "scripts/ci/ksm2-upgrade-native/rules.py": {
+      "bytes": 3155,
+      "sha256": "f5e6035fefca8ef21041af8ab746d94a4c39fe4b67dece2fe2632d36b0dfd01e"
+    },
+    "scripts/ci/ksm2-upgrade-native/run.py": {
+      "bytes": 370,
+      "sha256": "e11ed6953cb566e0684a72dfc62415df537478f9a2dbf873529c06ca57693880"
+    },
+    "scripts/ci/ksm2-upgrade-native/selection.py": {
+      "bytes": 3985,
+      "sha256": "027115761c0abce4e0305fe863ab5d7c27fef38b457474adcec40486048c43a6"
+    },
+    "scripts/ci/ksm2-upgrade-native/test_lane.py": {
+      "bytes": 5499,
+      "sha256": "cc22c0012d2feb432c53f0dc371ce663e79965ec1464f98c76c42d5138d77d4f"
+    },
+    "scripts/ci/ksm2-upgrade-native/workflow.yml.in": {
+      "bytes": 7173,
+      "sha256": "2a29fcd5a7280669b899ec35a6b491a628698be3790c12790072ca9e864f20d2"
+    },
+    "scripts/ci/maintained-desktop574-inputs.json": {
+      "bytes": 623664,
+      "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
+    },
+    "scripts/ci/maintained_desktop574.py": {
+      "bytes": 22367,
+      "sha256": "27ba4be42cf2bd41675073e07cccc917ae033f9d68b07a33cfd7f074ac27b760"
+    },
+    "scripts/ci/old_four_seed.py": {
+      "bytes": 29048,
+      "sha256": "a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7"
+    },
+    "scripts/ci/test_maintained_desktop574.py": {
+      "bytes": 19082,
+      "sha256": "e5d7dc11d1a59cf37a273e9a7103c7e55b169335b17c599990946f4e677ca974"
+    },
+    "scripts/ci/tools-native/README.md": {
+      "bytes": 5983,
+      "sha256": "e5d734f6d57fc61a9ea681e9d64693dfee84e505eb623d720dc1375629157027"
+    },
+    "scripts/ci/tools-native/contract.py": {
+      "bytes": 9420,
+      "sha256": "9367c5159883de71c9ba64bbdab03817d1088d0dd09a6e79a76b1d8044d264a2"
+    },
+    "scripts/ci/tools-native/freeze.py": {
+      "bytes": 3655,
+      "sha256": "d82887caf6d44d824418b965846c6fa189fdebb3ae3c5ebb7a6ea87ef723c50b"
+    },
+    "scripts/ci/tools-native/highlighting_fixture.py": {
+      "bytes": 3073,
+      "sha256": "34cbe559741c4bcc62a616eb9986b33fc39e443c63a6bb109e981ba36c7a7ef9"
+    },
+    "scripts/ci/tools-native/job.py": {
+      "bytes": 13110,
+      "sha256": "67dc1b888974303e59aa5d68cc68cfd362c3d0fe730ef93585121d69ac6aab1c"
+    },
+    "scripts/ci/tools-native/lifecycle.py": {
+      "bytes": 8069,
+      "sha256": "1f12f8b544115ea089de9ee9e76e7f83b4f6a095754e63c65b8e760c1111784d"
+    },
+    "scripts/ci/tools-native/mirror_fixture.py": {
+      "bytes": 7656,
+      "sha256": "29cd3c761693f5c185fb38380ca1d22f57d50236bd052715a3884d8f8e10bb2a"
+    },
+    "scripts/ci/tools-native/product-spec.json": {
+      "bytes": 4760,
+      "sha256": "cc8f6f64a0cbdcaaeb94726ccc7d9bec902ea6d6896dbcbf8670f4fdf638b7c5"
+    },
+    "scripts/ci/tools-native/run.py": {
+      "bytes": 8992,
+      "sha256": "d13738494fd6cf66cb4f243a53eb2a33b91f74f0c692f42fe5464d48acd69f48"
+    },
+    "scripts/ci/tools-native/source-manifest.json": {
+      "bytes": 20759,
+      "sha256": "3126108db1a9f27ae3f6a3aa8a90acf89aa20cd2985977d5202b758e86823766"
+    },
+    "scripts/ci/tools-native/source-pins.json": {
+      "bytes": 7613,
+      "sha256": "4ecd96135cf73c6c813f49eb60730fc67af28f54bd679a2f884af128abeb00fa"
+    },
+    "scripts/ci/tools-native/test_native.py": {
+      "bytes": 15756,
+      "sha256": "98c7115efefa50b5554169b2da5aa65c4af5dd8674c23b53514101619307294f"
+    },
+    "scripts/ci/welcome-native/ci/caller.py": {
+      "bytes": 8363,
+      "sha256": "cf80f438eff180b73ae9676e2145b56ba6a358fd9a69bb219e0a7a6f53ff01df"
+    },
+    "scripts/ci/welcome-native/lifecycle.py": {
+      "bytes": 12278,
+      "sha256": "b87831eea710dbf18cb3ab3aa7bf49856d26bebbd3e684861dcab7dc1d337c74"
+    },
+    "scripts/ci/welcome-native/run.py": {
+      "bytes": 12766,
+      "sha256": "52112b49ea98b5aef131b8bcbcc188bcc59cc3a4827161091d4e86af14d2757c"
+    },
+    "scripts/ci/zsh-highlighting-native/terminal.py": {
+      "bytes": 9842,
+      "sha256": "b5804c82328e7f1a93b47f137c9f0c8cac6bea2c28994e1909d2f4a958535f25"
+    },
+    "scripts/virtual/common.py": {
+      "bytes": 84361,
+      "sha256": "aef2b4f09a91c4cfd66dd4504e69ef18396a94214c82ae0ec0a43c2716894a03"
+    }
+  },
+  "native": "NOT_RUN",
+  "schema_version": 1,
+  "scope": "KSM_SAME_PACKAGE1_TO2_SIGNED_PRIVATE_MODEL_UPGRADE"
+}

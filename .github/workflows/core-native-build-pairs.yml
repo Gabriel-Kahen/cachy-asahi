@@ -1,0 +1,39 @@
+name: core-native-build-pairs
+on:
+  push:
+    paths:
+      - scripts/ci/core-native-build-pairs/**
+      - .github/workflows/core-native-build-pairs.yml
+  pull_request:
+    paths:
+      - scripts/ci/core-native-build-pairs/**
+      - .github/workflows/core-native-build-pairs.yml
+permissions:
+  contents: read
+jobs:
+  checks:
+    runs-on: ubuntu-24.04
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Check systemd isolation, cache order and environment wipe
+        run: python3 -B -Werror::ResourceWarning scripts/ci/core-native-build-pairs/test_factory.py
+      - name: Check typed testlog plans and raw operand retention
+        run: python3 -B -Werror::ResourceWarning scripts/ci/core-native-build-pairs/test_testlog.py
+      - name: Check complete fixed BTF input and corruption before processes
+        run: python3 -B -Werror::ResourceWarning scripts/ci/core-native-build-pairs/test_btf.py
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 9567ff78098f4a504575180e5a07150fbaafab8d
+          path: .ci-core-runtime
+          persist-credentials: false
+      - name: Reproduce both complete source maps and refuse changed selections
+        env:
+          CORE_NATIVE_RUNTIME: ${{ github.workspace }}/.ci-core-runtime
+        run: python3 -B -Werror::ResourceWarning scripts/ci/core-native-build-pairs/test_emitter.py
+      - name: Check standalone CLI help
+        working-directory: ${{ runner.temp }}
+        run: python3 -B "$GITHUB_WORKSPACE/scripts/ci/core-native-build-pairs/prepare.py" --help

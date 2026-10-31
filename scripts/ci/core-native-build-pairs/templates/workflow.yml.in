@@ -1,0 +1,113 @@
+name: target-core-native-build-pairs
+on:
+  workflow_dispatch:
+    inputs:
+      source:
+        description: Exact reviewed standalone core lane source commit
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: target-core-native-build-pairs
+  cancel-in-progress: false
+jobs:
+  native:
+    name: core-${{ matrix.cell }}
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 360
+    defaults:
+      run:
+        working-directory: core-source
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        cell: [systemd-a, systemd-b, pacman-a, pacman-b]
+    env:
+      SOURCE_SHA: ${{ inputs.source }}
+      CORE_CELL: ${{ matrix.cell }}
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - name: Checkout explicit reviewed standalone source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: ${{ inputs.source }}
+          path: core-source
+          persist-credentials: false
+      - name: Full source and Root decision before secrets or actors
+        timeout-minutes: 1
+        shell: bash
+        run: |
+          set -euo pipefail
+          SOURCE_MANIFEST_SHA256=UNSTAMPED
+          printf '%s  %s\n' "$SOURCE_MANIFEST_SHA256" source-manifest.json | sha256sum --check
+          python3 -I -B lane/preflight.py --source "$SOURCE_SHA" --run "$GITHUB_RUN_ID" --attempt "$GITHUB_RUN_ATTEMPT" --cell "$CORE_CELL"
+      - name: Checkout exact complete64 public cache outside closed source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: 7dfce898755583bbf8081aae04d8b8579f66be58
+          path: core64-recovered-inputs
+          persist-credentials: false
+      - name: Checkout exact complete248 public cache outside closed source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad
+          path: core-native248-recovered-inputs
+          persist-credentials: false
+      - name: Original six exact retained inputs only
+        timeout-minutes: 2
+        env:
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01 }}
+          CACHY_OLD_FOUR_SCHEMA: '1'
+          CACHY_OLD_FOUR_SOURCE_EPOCH: '1791748800'
+          CACHY_OLD_FOUR_JBIGKIT_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_01 }}
+          CACHY_OLD_FOUR_JBIGKIT_02: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_02 }}
+          CACHY_OLD_FOUR_JBIGKIT_SIG_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_SIG_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_02: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_02 }}
+          CACHY_OLD_FOUR_LIBTIFF_03: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_03 }}
+          CACHY_OLD_FOUR_LIBTIFF_04: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_04 }}
+          CACHY_OLD_FOUR_LIBTIFF_05: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_05 }}
+          CACHY_OLD_FOUR_LIBTIFF_06: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_06 }}
+          CACHY_OLD_FOUR_LIBTIFF_07: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_07 }}
+          CACHY_OLD_FOUR_LIBTIFF_08: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_08 }}
+          CACHY_OLD_FOUR_LIBTIFF_09: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_09 }}
+          CACHY_OLD_FOUR_LIBTIFF_10: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_10 }}
+          CACHY_OLD_FOUR_LIBTIFF_11: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_11 }}
+          CACHY_OLD_FOUR_LIBTIFF_12: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_12 }}
+          CACHY_OLD_FOUR_LIBTIFF_13: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_13 }}
+          CACHY_OLD_FOUR_LIBTIFF_14: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_14 }}
+          CACHY_OLD_FOUR_LIBTIFF_15: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_15 }}
+          CACHY_OLD_FOUR_LIBTIFF_SIG_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_SIG_01 }}
+        run: python3 -I -B baseline/maintained_desktop574.py seed --inputs baseline/maintained-desktop574-inputs.json --output "$RUNNER_TEMP/core-$CORE_CELL"
+      - name: Original exact archives and current signed64 private input reconstruction
+        timeout-minutes: 15
+        run: timeout --signal=TERM --kill-after=10s 890s python3 -I -B lane/prefetch.py --output "$RUNNER_TEMP/core-$CORE_CELL"
+      - name: Fresh exact574 then offline638 and required native package build
+        timeout-minutes: 330
+        run: timeout --signal=TERM --kill-after=60s 19740s python3 -I -B lane/owner.py --output "$RUNNER_TEMP/core-$CORE_CELL" --source "$SOURCE_SHA" --run "$GITHUB_RUN_ID" --attempt "$GITHUB_RUN_ATTEMPT" --cell "$CORE_CELL"
+      - name: Same recorded completed owners fallback retirement
+        if: always()
+        timeout-minutes: 5
+        run: python3 -I -B lane/cleanup.py --output "$RUNNER_TEMP/core-$CORE_CELL"
+      - name: Finalize complete source-owned success or failure export
+        if: always()
+        timeout-minutes: 1
+        run: python3 -I -B lane/finish.py --output "$RUNNER_TEMP/core-$CORE_CELL" --source "$SOURCE_SHA" --run "$GITHUB_RUN_ID" --attempt "$GITHUB_RUN_ATTEMPT" --cell "$CORE_CELL"
+      - name: Retain complete source-owned ordinary cell evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        timeout-minutes: 3
+        with:
+          name: target-core-${{ matrix.cell }}
+          path: ${{ runner.temp }}/core-${{ matrix.cell }}/export/
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 7

@@ -1,0 +1,12 @@
+{
+  "Root_interruption16k_decision": null,
+  "binding": {
+    "native_interruption": null,
+    "normal_installed16k": null
+  },
+  "future_ref": null,
+  "future_run": null,
+  "future_source": null,
+  "schema_version": 1,
+  "status": "UNBOUND_DO_NOT_EXECUTE"
+}

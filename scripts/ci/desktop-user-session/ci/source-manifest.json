@@ -90,7 +90,7 @@
     },
     "scripts/ci/desktop-user-session/source-pins.json": {
       "bytes": 3242,
-      "sha256": "68644899375b08178f04435f853412f8e644a08e68d08d7f6c42474e25bcbca6"
+      "sha256": "b5e4df112c8a9ade746b6a60cafa68e5a58226a1f13280d0725b9e5175a7686d"
     },
     "scripts/ci/desktop-user-session/test_managed.py": {
       "bytes": 22349,
@@ -146,7 +146,7 @@
     },
     "scripts/virtual/common.py": {
       "bytes": 84361,
-      "sha256": "4b61b407344ac7209a5d2ebd036a57143ee23525b6550aada6ff7488b5aab6a0"
+      "sha256": "aef2b4f09a91c4cfd66dd4504e69ef18396a94214c82ae0ec0a43c2716894a03"
     },
     "scripts/virtual/gbm_probe.c": {
       "bytes": 14149,
@@ -172,6 +172,6 @@
     "desktop574_runtime.py": "b1f5b65005a2d644a48f16c45dea132b9c504821313490f88c66ff65a2e821f6",
     "managed_contract.py": "0f6c7566afd2ffb4e283b7f2edd36433e13cca873c60e5d68a46afbd3c2d4218",
     "managed_session.py": "2187c47b3f5877d8585c66c806b0c5dd17efc38cee414c46bc746157f3c4d991",
-    "source-pins.json": "68644899375b08178f04435f853412f8e644a08e68d08d7f6c42474e25bcbca6"
+    "source-pins.json": "b5e4df112c8a9ade746b6a60cafa68e5a58226a1f13280d0725b9e5175a7686d"
   }
 }

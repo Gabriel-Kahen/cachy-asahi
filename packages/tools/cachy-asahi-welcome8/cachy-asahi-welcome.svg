@@ -1,0 +1,8 @@
+<!-- SPDX-License-Identifier: MIT; original cachy-asahi artwork, 2026 -->
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <title>cachy-asahi Welcome</title>
+  <rect x="8" y="8" width="112" height="112" rx="28" fill="#173b42"/>
+  <circle cx="64" cy="51" r="20" fill="#f6c46b"/>
+  <path d="M26 74 Q45 56 64 74 T102 74" fill="none" stroke="#8ce0cf" stroke-width="9" stroke-linecap="round"/>
+  <path d="M30 94 H98" fill="none" stroke="#e3f5ed" stroke-width="8" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "status": "ROOT_BOUND_ORIGINAL_PRODUCER_AND_FULL26",
+  "producer": {
+    "ref": "b07259bc63d7d58298a03bbb406d685b20e5c8a4",
+    "inputs_sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f",
+    "recipes_sha256": "a5fb287b4dda2a90bf61d4fa8cbbc5d666dad8bb450a70544d00545b091f36e3",
+    "integration_sha256": "290ba2a7ec5ff4152e3a914c35c0c40b928bdcd076aadc8762c2724493877c60"
+  },
+  "note": "Root binds exact original341+4 producer checkout and input/recipe/integration locks. Original native P0 authority remains failed and separate."
+}

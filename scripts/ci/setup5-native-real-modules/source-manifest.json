@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "scope": "SETUP5_LEGACY_8_ALPM_24_OBSERVATIONS_THEN_EXACT581_REAL_MODULES",
+  "module_source_ref": "de35c384a2e5b14b664d4156897f271b81e467ba",
+  "native": "NOT_RUN_BY_WORKER",
+  "files": {
+    "scripts/ci/expanded-development-composition/installed_shells.py": {
+      "bytes": 6009,
+      "sha256": "039aa924ca9fd22d12cd49f718d0cd3d21e93ff16c776b93b90b73f096f492b3"
+    },
+    "scripts/ci/setup5-native-real-modules/README.md": {
+      "bytes": 7912,
+      "sha256": "fb61402146253d7c75a40e9dd9cc58541277bae6b38f498595568d4ac0e0d0ff"
+    },
+    "scripts/ci/setup5-native-real-modules/adapter.py": {
+      "bytes": 2223,
+      "sha256": "1255ea0d8ad89444484b73c18fff300472baa336aea24a5e7ca6aca84731d723"
+    },
+    "scripts/ci/setup5-native-real-modules/contract.py": {
+      "bytes": 13864,
+      "sha256": "789a5cb9e1a81996216bc0adb79416c972c5ffbe6a13b628b895e3e2ecd14190"
+    },
+    "scripts/ci/setup5-native-real-modules/expected581.lock": {
+      "bytes": 11387,
+      "sha256": "7a14e0ccdd6b6e628a781cb0150c1ff8cfb617fd950ced795d7d90a2df04e8d9"
+    },
+    "scripts/ci/setup5-native-real-modules/freeze.py": {
+      "bytes": 1478,
+      "sha256": "0b68a89ba8b45094318d36f800670e2569000eec6dd1cfe568ce303c69900142"
+    },
+    "scripts/ci/setup5-native-real-modules/input-policy.json": {
+      "bytes": 444,
+      "sha256": "952616ca5c4bb9bfafddef96aca167510c31c0e65346b13c6dc0d615910a9a4e"
+    },
+    "scripts/ci/setup5-native-real-modules/installed.py": {
+      "bytes": 4715,
+      "sha256": "f007ec41722719dfc5f9ebfec91513a9604e190880c42a5646cdc275cff5cc81"
+    },
+    "scripts/ci/setup5-native-real-modules/job.py": {
+      "bytes": 7661,
+      "sha256": "4269f7134c095a7d344b1d28f5436023fd9c1beea2fe0d3c1d22b08afd2a6d40"
+    },
+    "scripts/ci/setup5-native-real-modules/lifecycle.py": {
+      "bytes": 8165,
+      "sha256": "1f80573af87730e17104593ebf9821580cd0ccc161ae30f9342ad7d4efa32822"
+    },
+    "scripts/ci/setup5-native-real-modules/prepare.py": {
+      "bytes": 3174,
+      "sha256": "6e5924f4d6a4360d2913c864a6b471d0dc0340e582daa5696007c49d5e2404cc"
+    },
+    "scripts/ci/setup5-native-real-modules/run.py": {
+      "bytes": 1041,
+      "sha256": "662b312ea4e2138497d465946ffbec93c481f12c89970ab7e217d3131e80270e"
+    },
+    "scripts/ci/setup5-native-real-modules/test_source.py": {
+      "bytes": 27329,
+      "sha256": "89266d9331e579a52f135905b02f93ad9528f3b59755d5d1fb429cb60b1064e1"
+    },
+    "scripts/ci/setup5-native/source-manifest.json": {
+      "bytes": 14044,
+      "sha256": "7dcf25b24caff398a8fdd5c2d3b2db5100b946a952f0ee58885ce860d6dbcee0"
+    },
+    "scripts/ci/setup5-native/source-pins.json": {
+      "bytes": 4568,
+      "sha256": "a12ffb482aed89f16acaab12537df39630fd98a6ab2599b4edd3a0a00006c244"
+    },
+    "scripts/ci/setup5-real-modules/source-manifest.json": {
+      "bytes": 16169,
+      "sha256": "7662cf50b13fba1c7f16e6b1dfecbfd1d54af5cc70b694b81e76fb8eec70d369"
+    },
+    "scripts/ci/tools-native/job.py": {
+      "bytes": 13110,
+      "sha256": "67dc1b888974303e59aa5d68cc68cfd362c3d0fe730ef93585121d69ac6aab1c"
+    },
+    "scripts/ci/tools-native/run.py": {
+      "bytes": 8992,
+      "sha256": "d13738494fd6cf66cb4f243a53eb2a33b91f74f0c692f42fe5464d48acd69f48"
+    }
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "accepted": [
+    {
+      "bytes": 13996,
+      "path": "artifacts/journey-commands.json",
+      "sha256": "8e4b41018c4f6e59adcca27acff9d67b2066a0a2cea984852589960d3ed4bbaf"
+    },
+    {
+      "bytes": 6385,
+      "path": "artifacts/preflight-commands.json",
+      "sha256": "c30142485656a8b5eef43c79475b695b8374e90911f2a458f6d715452e21faed"
+    },
+    {
+      "bytes": 147,
+      "path": "artifacts/release-tests.json",
+      "sha256": "11eeeab10a301d88abb730ffde059c03bd48fdcf8621b38f91a86c02442cdcfa"
+    },
+    {
+      "bytes": 18560,
+      "path": "artifacts/result.json",
+      "sha256": "a1b5f8159b18d9ba1e6f654948b9511973ddd9b7fbd808922b251d2938ff9892"
+    },
+    {
+      "bytes": 147,
+      "path": "artifacts/setup-tests.json",
+      "sha256": "859258da2cb9a6fda855d193978b86e7b2b221ea6c9592d108cb454a4bc478f8"
+    },
+    {
+      "bytes": 3317,
+      "path": "artifacts/suites-commands.json",
+      "sha256": "4d941ba6018b4184054a6dc8ad2b526d34b025147b56971b54110f4ade6f67b1"
+    },
+    {
+      "bytes": 23,
+      "path": "component-status.json",
+      "sha256": "041dff8cee4c14767a03435eb9f84a05152b2dc00e322d74a702b6f6944a4bdf"
+    },
+    {
+      "bytes": 0,
+      "path": "container.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 55,
+      "path": "driver.launcher.json",
+      "sha256": "e9ce81878f6cfdeeadeffe9bdab6d20eb1d0bcf6b6050d06a747470102942947"
+    },
+    {
+      "bytes": 0,
+      "path": "driver.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 7262,
+      "path": "excluded-public-material.json",
+      "sha256": "07e4f1d2dceadb45f555c614a92c8e03e9f6640ad8b06aa6aa7597a43e4b8d30"
+    },
+    {
+      "bytes": 7367,
+      "path": "provenance.json",
+      "sha256": "74c64b66781fa80cbe74d4aeaf495df237a9260b386ff874857705919cf44475"
+    }
+  ],
+  "accepted_bytes": 57259,
+  "evidence_export": "PASS",
+  "inventory_limit_exceeded": false,
+  "inventory_scope": "sensitive subtrees are rejected without enumeration",
+  "limits": {
+    "depth": 32,
+    "entries": 2048,
+    "per_file_bytes": 4194304,
+    "total_bytes_including_manifest": 16777216
+  },
+  "rejected": [],
+  "schema_version": 1
+}

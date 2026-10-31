@@ -1,0 +1,149 @@
+{
+  "guest.py": [
+    {
+      "after": "PASS_EXPANDED600_INSTALLER",
+      "before": "PASS_FULL_COMPOSITION_INSTALLER",
+      "count": 1
+    }
+  ],
+  "installer.py": [
+    {
+      "after": "Generic-VM-only fresh expanded600 transaction through the held installer barrier.",
+      "before": "Generic-VM-only fresh initial587 transaction through the held installer barrier.",
+      "count": 1
+    },
+    {
+      "after": "PASS_EXPANDED600_INSTALLER",
+      "before": "PASS_FULL_COMPOSITION_INSTALLER",
+      "count": 1
+    },
+    {
+      "after": 600,
+      "before": 587,
+      "count": 4
+    },
+    {
+      "after": "expanded600-installer-vm",
+      "before": "full-composition-installer-vm",
+      "count": 1
+    }
+  ],
+  "numeric_vm.py": [
+    {
+      "after": 600,
+      "before": 587,
+      "count": 1
+    }
+  ],
+  "prepare.py": [
+    {
+      "after": "expanded600-installer-vm",
+      "before": "full-composition-installer-vm",
+      "count": 1
+    }
+  ],
+  "profile.py": [
+    {
+      "after": "Source-only signed expanded600 profile; never install, extract, mount or fetch.",
+      "before": "Source-only signed initial587 profile; never install, extract, mount or fetch.",
+      "count": 1
+    },
+    {
+      "after": "d263a3ca9089c204603f2e12b80dc4f209ee6e636f10da940a514040b636db79",
+      "before": "2198942a546f4714587c810fe174d4457121960f3a7b1dbaa276e9f970f322c7",
+      "count": 1
+    },
+    {
+      "after": "full-installer-expanded600-ldconfig-sonames-v1",
+      "before": "full-installer-held587-ldconfig-sonames-v1",
+      "count": 1
+    },
+    {
+      "after": "held expanded600 lock differs",
+      "before": "held initial587 lock differs",
+      "count": 1
+    },
+    {
+      "after": 600,
+      "before": 587,
+      "count": 4
+    },
+    {
+      "after": "expanded600-installer-vm",
+      "before": "full-composition-installer-vm",
+      "count": 1
+    },
+    {
+      "after": "fresh signed expanded600 transaction plus declared user fixtures in generic4K VM",
+      "before": "fresh signed initial587 transaction plus declared user fixtures in generic4K VM",
+      "count": 1
+    },
+    {
+      "after": "READY_SIGNED_EXPANDED600",
+      "before": "READY_SIGNED_INITIAL587",
+      "count": 1
+    }
+  ],
+  "run.py": [
+    {
+      "after": "Owned, offline generic ARM VM route for the declared expanded600 installer.",
+      "before": "Owned, offline generic ARM VM route for the declared initial587 installer.",
+      "count": 1
+    },
+    {
+      "after": "d263a3ca9089c204603f2e12b80dc4f209ee6e636f10da940a514040b636db79",
+      "before": "2198942a546f4714587c810fe174d4457121960f3a7b1dbaa276e9f970f322c7",
+      "count": 1
+    },
+    {
+      "after": "PASS_EXPANDED600_INSTALLER",
+      "before": "PASS_FULL_COMPOSITION_INSTALLER",
+      "count": 1
+    },
+    {
+      "after": "actual signed full600 export required",
+      "before": "actual signed full587 export required",
+      "count": 1
+    },
+    {
+      "after": "cachy-asahi-expanded600-installer:",
+      "before": "cachy-asahi-full-installer:",
+      "count": 1
+    },
+    {
+      "after": "generic4K-full600-installer-software-only",
+      "before": "generic4K-full587-installer-software-only",
+      "count": 1
+    },
+    {
+      "after": "expanded600-installer-vm",
+      "before": "full-composition-installer-vm",
+      "count": 3
+    },
+    {
+      "after": "READY_SIGNED_EXPANDED600",
+      "before": "READY_SIGNED_INITIAL587",
+      "count": 1
+    },
+    {
+      "after": 600,
+      "before": 587,
+      "count": 3
+    },
+    {
+      "after": "cachy-expanded600-installer-",
+      "before": "cachy-full-installer-",
+      "count": 1
+    },
+    {
+      "after": "cachy-asahi.expanded600-installer",
+      "before": "cachy-asahi.full-installer",
+      "count": 1
+    },
+    {
+      "after": "cachy-asahi.expanded600-installer=",
+      "before": "cachy-asahi.full-installer=",
+      "count": 1
+    }
+  ]
+}

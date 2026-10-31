@@ -1,0 +1,177 @@
+{
+  "files": {
+    "packages/core/cachy-asahi-glibc-official-release/0001-mount-macro-guards.patch": {
+      "bytes": 905,
+      "sha256": "09117692cd3a1d5838ea700df68b512f9f625a6d2af497a1afcf92046deca8f5"
+    },
+    "packages/core/cachy-asahi-glibc-official-release/0002-held-builder-test-expectations.patch": {
+      "bytes": 1169,
+      "sha256": "f730c778ba51f9e525c9f6a7949a76af00364d49f41eedb5d73b8e86a3d4c132"
+    },
+    "packages/core/cachy-asahi-glibc-official-release/COPYING.LESSERv2": {
+      "bytes": 26419,
+      "sha256": "20e50fe7aae3e56378ebf0417d9de904f55a0e61e4df315333e632a4d3555d95"
+    },
+    "packages/core/cachy-asahi-glibc-official-release/COPYINGv2": {
+      "bytes": 17984,
+      "sha256": "edaef632cbb643e4e7a221717a6c441a4c1a7c918e6e4d56debc3d8739b233f6"
+    },
+    "packages/core/cachy-asahi-glibc-official-release/LICENSES": {
+      "bytes": 19665,
+      "sha256": "b22a69aa3f80a5201818c66cb0df0f25f9fa13cf5861b0093a058dbd12d50dce"
+    },
+    "packages/core/cachy-asahi-glibc-official-release/PKGBUILD": {
+      "bytes": 3959,
+      "sha256": "f6a7b2a3faab2ac1ce6b633b31e51c5764f59a29603c02d635dee3f2f19800c4"
+    },
+    "packages/core/cachy-asahi-glibc-official-release/README.md": {
+      "bytes": 6086,
+      "sha256": "8b285fcf3fa28ed52e48def77d012b848c6abea231e2bf7f9d856ed9b336a8d0"
+    },
+    "packages/core/cachy-asahi-glibc-official-release/source-lock.json": {
+      "bytes": 4840,
+      "sha256": "59c79be254f37c3ad11d5ebcb2afdcfded00648c75be51ef53dad5437ef62be7"
+    },
+    "packages/core/cachy-asahi-glibc-rebuild/PKGBUILD.in": {
+      "bytes": 5681,
+      "sha256": "b76404eeeaacffb7510c478a3350a0c225990030d6d3f23ccd0f316d30c9dbb9"
+    },
+    "scripts/ci/glibc-official-release/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "scripts/ci/glibc-official-release/README.md": {
+      "bytes": 8840,
+      "sha256": "fb6a9ec5eb9046eae4ff138ab286a1cda2b2e3122403a6288c6d3e8b79536463"
+    },
+    "scripts/ci/glibc-official-release/abi.py": {
+      "bytes": 4061,
+      "sha256": "b2ae51e792fc125fa664ba116794827fe5350912861256df8cdad1de479d5ff0"
+    },
+    "scripts/ci/glibc-official-release/acquire.py": {
+      "bytes": 2446,
+      "sha256": "c10b5d9414dec148343a273c658d0f5c6345b8710b341865de6af829c3520312"
+    },
+    "scripts/ci/glibc-official-release/build-entry.sh": {
+      "bytes": 1739,
+      "sha256": "3f585147898f2a4c9335c3889cfbe71f2d8c5b9328daaf7b9a0d2fcf7adc6bc4"
+    },
+    "scripts/ci/glibc-official-release/collect_tests.py": {
+      "bytes": 3093,
+      "sha256": "cdbe9af94b0ca142e802267ce7d9af7ae006bde8ab55d4b81399a065b79f6c79"
+    },
+    "scripts/ci/glibc-official-release/header_check.py": {
+      "bytes": 4336,
+      "sha256": "29f2c9e2530f6bfcc6542ec5256fb6c0732808e85c999942a01b836144107358"
+    },
+    "scripts/ci/glibc-official-release/header_probe.c": {
+      "bytes": 1383,
+      "sha256": "ccc07c323632f9f916c1bed436d0a97f530fca25d9dd59bb489489c093790e7f"
+    },
+    "scripts/ci/glibc-official-release/job.py": {
+      "bytes": 13763,
+      "sha256": "9efbdb3bcca86fcfe18d554a719c059b75cfa065bbaca2f9c930f4a2fa7a71ef"
+    },
+    "scripts/ci/glibc-official-release/materialize.py": {
+      "bytes": 11692,
+      "sha256": "b58230a4b06404a192fa24d0d915a3e1602574e24e974bc145572e7e08c0505c"
+    },
+    "scripts/ci/glibc-official-release/run.py": {
+      "bytes": 20220,
+      "sha256": "242c49db2365dc5d5806443c8faa2b35ce7c2e6c7e0980d27522045b3d8008f7"
+    },
+    "scripts/ci/glibc-official-release/source-manifest.json": {
+      "bytes": 2392,
+      "sha256": "6b7eef2596f145368b540cce93a19d633102675d90b6d8f924da897516a5937f"
+    },
+    "scripts/ci/glibc-official-release/stage.py": {
+      "bytes": 4937,
+      "sha256": "3fe64f0b423f6d013a8680a37ab77471f350d00af599ef5bef5f72094da85410"
+    },
+    "scripts/ci/glibc-official-release/test_check_repair.py": {
+      "bytes": 5394,
+      "sha256": "f538146446a6e7f6921f229b013723ab787bd69c742d8c0358fe6917bd47e5ff"
+    },
+    "scripts/ci/glibc-official-release/test_controls.py": {
+      "bytes": 21431,
+      "sha256": "8448a987e919fd7a05248dd2ac5b2c08f950da036ddfda85aee4677f9e163479"
+    },
+    "scripts/ci/glibc-official-release/test_job.py": {
+      "bytes": 6533,
+      "sha256": "ebe6e4f60349d9356db65578fbbcd36d554319518c491be2ff43eb0fbdca9481"
+    },
+    "scripts/ci/glibc-official-release/test_makepkg_config.py": {
+      "bytes": 4707,
+      "sha256": "e2c823e946e7e2f0664b4d82dfaabeb11aa1a31557ce0664cdaa349139b6013d"
+    },
+    "scripts/ci/glibc-official-release/test_multiarch_repair.py": {
+      "bytes": 4368,
+      "sha256": "0dba7de9ba68e58fdb7c71ef7e938e07e044dd83599d3e4a89b198e881b84a3f"
+    },
+    "scripts/ci/glibc-owned-runtime/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "scripts/ci/glibc-owned-runtime/README.md": {
+      "bytes": 5874,
+      "sha256": "82b6f3ca302f897edeefeae7aebf8e76e70f5c02f8c1d8ccecddafd4da86e7b4"
+    },
+    "scripts/ci/glibc-owned-runtime/abi_smoke.c": {
+      "bytes": 12469,
+      "sha256": "f131a4f11693b15d7916170a685f9c4f6158596134bf5414f3d8ee472be1a9af"
+    },
+    "scripts/ci/glibc-owned-runtime/exec_child.c": {
+      "bytes": 913,
+      "sha256": "0a2b48762f8f7ec6d942ca9fb4af4f04a50fd93d2d7dff42407adfea13b1e4cc"
+    },
+    "scripts/ci/glibc-owned-runtime/plugin.c": {
+      "bytes": 320,
+      "sha256": "d0ce5506b261b5b4582aa35651b68afbf6257e8f4a990155dcac9d4e4596b654"
+    },
+    "scripts/ci/glibc-owned-runtime/probe.c": {
+      "bytes": 5974,
+      "sha256": "8bc857277840264c29845764b6c4d34e40c3d1dcdb91592acbb31ae5dfeb80b6"
+    },
+    "scripts/ci/glibc-owned-runtime/probe.h": {
+      "bytes": 270,
+      "sha256": "3806c2a05e640b8860a2c81e4eba55ae8bf416fcb84637e93a7b3d9b71476724"
+    },
+    "scripts/ci/glibc-owned-runtime/runner.py": {
+      "bytes": 16274,
+      "sha256": "4d9aa954d95032ab9ea9085ced784efc81a5db42e2f1f3401e679ee861c16090"
+    },
+    "scripts/ci/glibc-owned-runtime/source-manifest.json": {
+      "bytes": 1274,
+      "sha256": "e10336aef200731c7dd4b06546b718e095c1ecf7718e4a25fa57d6bbed6270a6"
+    },
+    "scripts/ci/glibc-owned-runtime/test_runner.py": {
+      "bytes": 11922,
+      "sha256": "239646c25007415cdac6b74df32e190eb848ebb54440d991dffbdc858a6841e5"
+    },
+    "scripts/ci/inputs.lock.json": {
+      "bytes": 328101,
+      "sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f"
+    },
+    "scripts/ci/maintained-desktop574-inputs.json": {
+      "bytes": 623664,
+      "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
+    },
+    "scripts/ci/maintained_desktop574.py": {
+      "bytes": 22367,
+      "sha256": "27ba4be42cf2bd41675073e07cccc917ae033f9d68b07a33cfd7f074ac27b760"
+    },
+    "scripts/ci/old_four_seed.py": {
+      "bytes": 29048,
+      "sha256": "a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7"
+    },
+    "scripts/ci/test_maintained_desktop574.py": {
+      "bytes": 19082,
+      "sha256": "e5d7dc11d1a59cf37a273e9a7103c7e55b169335b17c599990946f4e677ca974"
+    },
+    "scripts/port/kernel-native-job/runtime.py": {
+      "bytes": 11345,
+      "sha256": "8a7cd5e73cf383b2d81ad577b8513c6fd7d49f9fd2572961c73ae9d289cab821"
+    }
+  },
+  "schema_version": 1
+}

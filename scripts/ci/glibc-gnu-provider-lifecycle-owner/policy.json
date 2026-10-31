@@ -1,0 +1,11 @@
+{
+  "needed": "Root must freeze the actual accepted new provider pair, normal-probe compiler receipt, held rollback archive and private16K Root receipt in one immutable public packet. No dispatch authorized by this file.",
+  "packet": {
+    "directory": "payload",
+    "index_sha256": "550c6b1b5c146beaebca0b8e0768ad7a9c625ccad35934f78687b4e4c1af676a",
+    "ref": "ba5dd71b99eb7e117be4ed3e269abd8e5f2b0b5f"
+  },
+  "runtime_binding": "Only a fresh verified token-owned original574 image, NEVER_STARTED export container and exact normal probes may populate a private lifecycle policy/index. Canonical lifecycle remains UNBOUND.",
+  "schema_version": 1,
+  "status": "ROOT_BOUND_IMMUTABLE_PROVIDER_PACKET"
+}

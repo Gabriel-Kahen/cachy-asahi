@@ -1,0 +1,29 @@
+UPDATES
+
+Use the complete, supported upgrade procedure for your existing Asahi base and
+the selected project release. Keep its repository configuration and signing
+trust intact. Avoid partial upgrades or changing repositories to satisfy a
+single application.
+
+Before a system change, retain your working configuration, a compatible known
+good package set and a recovery route you have actually checked. Review the
+whole proposed transaction, including coordinated Asahi kernel, boot, firmware,
+graphics and audio changes. Preserve speaker protection. An application build
+or package signature alone does not establish compatibility on your machine.
+
+If cachy-asahi-update is installed, read its installed instructions first:
+
+  /usr/share/doc/cachy-asahi-update/README.md
+  cachy-asahi-update --help
+
+The development updater requires a separately established compatible update
+policy. Its presence does not mean that policy, a supported release or a tested
+recovery path is available. Missing policy needs maintainer reconciliation;
+do not bypass it to force an update.
+
+After an upgrade, inspect pending configuration merges and confirm the normal
+desktop, sound protection and recovery baseline before discarding retained
+inputs. Keep intentional user edits when reconciling template changes.
+
+Welcome shows local guidance only. It does not check online repositories,
+start upgrades, clear package caches, enable timers or request privileges.

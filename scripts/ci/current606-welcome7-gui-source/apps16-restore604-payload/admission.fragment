@@ -1,0 +1,24 @@
+
+# Finite restore-cardinality repair; all original561 source gates stay mandatory.
+_RESTORE_PARENT_MAPS={'selected': {'bytes': 94248, 'sha256': '215a7ed4f466c8fe41d286bc12651a16c8b72c18c60b3c62266164195711ce72'}, 'unbound': {'bytes': 94246, 'sha256': 'c08ddd9f9abed94357194ba320dad9db4721a4d4535a097afc4bfdc26eab8103'}}
+_RESTORE_FACTORY={'bytes': 18160, 'sha256': '0142b83234fce1e6ad58cf68e2d3e1c476e10b5f593692a6aacdd42b909535c4'}
+def source_context(root):
+ root=Path(root).absolute();manifest=obj(root/'source-manifest.json');need(manifest['status']=='SOURCE_ONLY_APPS16_GUI_RESTORE604_NO_GUI_ACCEPTANCE'and manifest['actual_source']is manifest['actual_ref']is manifest['actual_run']is None,'restore successor grants no actual authority');closed(root,{**manifest['files'],'source-manifest.json':pin(read(root/'source-manifest.json'))})
+ p=obj(root/'management-restore-parent.json');variant=p['variant'];need(variant in _RESTORE_PARENT_MAPS and p['actual']is None and len(p['files'])==561 and pin(enc(p['files']))==_RESTORE_PARENT_MAPS[variant],'whole exact561 parent map and variant')
+ need((p['source'],p['ref'])==(('d34854151f578547c2f64f46d14f5d9129bf2d66','codex/welcome8-apps16-gui-v1')if variant=='selected'else(None,None)),'known parent publication versus NULL template identity')
+ before=p['files'];bodies=p['before_bodies'];need(set(bodies)=={'admission.py','factory/factory.py','source-manifest.json'},'only original gate/factory/manifest before bodies')
+ def prior_read(path,cap=16*1024**2):
+  name=Path(path).relative_to(root).as_posix();raw=base64.b64decode(bodies[name],validate=True)if name in bodies else read(path,cap);need(name in before and pin(raw)==before[name]and len(raw)<=cap,'every complete original561 byte inverse '+name);return raw
+ def prior_closed(where,wanted):
+  prefix=''if where==root else where.relative_to(root).as_posix()+'/'
+  need({n.removeprefix(prefix):w for n,w in before.items()if n.startswith(prefix)}==wanted,'whole original561 closed namespace')
+  for name,want in wanted.items():need(pin(prior_read(where/name))==want,'whole original561 namespace byte')
+  return wanted
+ for name,want in before.items():need(pin(prior_read(root/name))==want,'whole original561 body '+name)
+ need(pin(read(root/'factory/factory.py'))==_RESTORE_FACTORY,'sole exact source-owned restore cardinality seam')
+ old=types.ModuleType('_whole_original_apps16_561_restore_parent');old.__file__=str(root/'admission.py');exec(compile(prior_read(root/'admission.py'),'<whole-original-apps16-561>','exec'),old.__dict__);old.read=prior_read;old.obj=lambda path:json.loads(prior_read(path));old.closed=prior_closed;fact=old.source_context(root);need(fact['files']==561 and fact['cleanup']=='ORIGINAL_POSITIVE15_AND_FAILURE_RESOURCE_RETIREMENT_HELD','whole original source/cleanup/Apps16 proof')
+ return dict(fact,files=len(manifest['files'])+1,restore_fixture='EXACT606_BASELINE_MINUS_TWO_TOOLS_RESTORE604_ONLY')
+_restore_original_prove=prove
+def prove(root):
+ value=_restore_original_prove(root)
+ return dict(value,status='PASS_WHOLE562_RESTORE604_AND_ORIGINAL_APPS16_SOURCE_ONLY')

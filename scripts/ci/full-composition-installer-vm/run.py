@@ -24,7 +24,8 @@ EXPECTED_LOCK='2198942a546f4714587c810fe174d4457121960f3a7b1dbaa276e9f970f322c7'
 BUILDER_LOCK='cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac'
 PASS_FLAGS=('committed','namespace_barrier','payload_verified','ownership_verified','database_verified',
             'preservation_verified','private_trust_verified','parent_inventory_preserved',
-            'source_cache_preserved','process_retirement','ordinary_parent_nnp_cap0')
+            'source_cache_preserved','process_retirement','ordinary_parent_nnp_cap0',
+            'numeric_namespace_verified','root_guest_payload_verified','parent_payload_verified','numeric_ownership_verified')
 
 
 def need(ok, reason):
@@ -274,7 +275,7 @@ def host(args):
     save(args.output/'actor-state.json',dict(state='PRE_ACTORS',purpose='full-composition-installer-vm'))
     # Profile output belongs to this controller; the source candidate stays readonly.
     candidate=args.output/'candidate'; candidate.mkdir()
-    for name in ('run.py','prepare.py','guest.py','installer.py','profile.py'):
+    for name in ('run.py','prepare.py','guest.py','installer.py','profile.py','numeric_vm.py'):
         shutil.copyfile(ordinary(args.candidate/name),candidate/name)
     profile=selected_module('profile',candidate/'profile.py')
     need(Path(profile.__file__).resolve()==candidate/'profile.py','selected profile module origin differs')
@@ -287,7 +288,7 @@ def host(args):
     for name in ('scripts/virtual/common.py','scripts/virtual/audit_tooling.py','scripts/virtual/tooling.lock.json'):
         need(name in code_files,'missing generic source dependency')
     runner_files={name:row(ordinary(candidate/name)) for name in
-                  ('run.py','prepare.py','guest.py','installer.py','profile.py','installer-profile.json','payload.json')}
+                  ('run.py','prepare.py','guest.py','installer.py','profile.py','numeric_vm.py','installer-profile.json','payload.json')}
     token=uuid.uuid4().hex
     c=dict(schema_version=1,purpose='full-composition-installer-vm',nonce=token,
            source_commit=manifest['preparation']['sources']['code'],active_image=image,

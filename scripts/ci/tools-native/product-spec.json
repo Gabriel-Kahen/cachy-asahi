@@ -1,0 +1,161 @@
+{
+  "products": {
+    "cachy-asahi-mirrors": {
+      "activation_cli": {
+        "activate": [
+          "activate",
+          "{catalog}",
+          "--candidate",
+          "{candidate}",
+          "--target",
+          "{target}",
+          "--state",
+          "{journal}",
+          "--repository",
+          "core"
+        ],
+        "refusal_exit": 1,
+        "restore": [
+          "restore",
+          "--target",
+          "{target}",
+          "--state",
+          "{journal}",
+          "--repository",
+          "core"
+        ]
+      },
+      "check_markers": [
+        "Ran 31 tests",
+        "\nOK"
+      ],
+      "payload": {
+        "usr/bin/cachy-asahi-mirrors": [
+          "cachy-asahi-mirrors",
+          493
+        ],
+        "usr/share/doc/cachy-asahi-mirrors/README.md": [
+          "README.md",
+          420
+        ],
+        "usr/share/licenses/cachy-asahi-mirrors/LICENSE": [
+          "LICENSE",
+          420
+        ],
+        "usr/share/licenses/cachy-asahi-mirrors/NOTICE": [
+          "NOTICE",
+          420
+        ]
+      }
+    },
+    "cachy-asahi-zsh-history-substring-search": {
+      "check_markers": [
+        "PASS_HOST_ZSH_PTY_CONTROLS"
+      ],
+      "payload": {
+        "usr/share/cachy-asahi/zsh-history-substring-search/opt-in.zsh": [
+          "opt-in.zsh",
+          420
+        ],
+        "usr/share/cachy-asahi/zsh-history-substring-search/zsh-history-substring-search.zsh": [
+          "zsh-history-substring-search.zsh",
+          420
+        ],
+        "usr/share/doc/cachy-asahi-zsh-history-substring-search/source-provenance.json": [
+          "source-provenance.json",
+          420
+        ],
+        "usr/share/doc/cachy-asahi-zsh-history-substring-search/usage.md": [
+          "usage.md",
+          420
+        ],
+        "usr/share/licenses/cachy-asahi-zsh-history-substring-search/LICENSE.project": [
+          "LICENSE.project",
+          420
+        ],
+        "usr/share/licenses/cachy-asahi-zsh-history-substring-search/LICENSE.upstream": [
+          "LICENSE.upstream",
+          420
+        ],
+        "usr/share/licenses/cachy-asahi-zsh-history-substring-search/NOTICE": [
+          "NOTICE",
+          420
+        ]
+      }
+    },
+    "cachy-asahi-zsh-syntax-highlighting": {
+      "check_markers": [],
+      "payload": {
+        "usr/share/cachy-asahi/zsh-syntax-highlighting/.revision-hash": [
+          ".revision-hash",
+          420
+        ],
+        "usr/share/cachy-asahi/zsh-syntax-highlighting/.version": [
+          ".version",
+          420
+        ],
+        "usr/share/cachy-asahi/zsh-syntax-highlighting/highlighters/brackets/brackets-highlighter.zsh": [
+          "brackets-highlighter.zsh",
+          420
+        ],
+        "usr/share/cachy-asahi/zsh-syntax-highlighting/highlighters/cursor/cursor-highlighter.zsh": [
+          "cursor-highlighter.zsh",
+          420
+        ],
+        "usr/share/cachy-asahi/zsh-syntax-highlighting/highlighters/line/line-highlighter.zsh": [
+          "line-highlighter.zsh",
+          420
+        ],
+        "usr/share/cachy-asahi/zsh-syntax-highlighting/highlighters/main/main-highlighter.zsh": [
+          "main-highlighter.zsh",
+          420
+        ],
+        "usr/share/cachy-asahi/zsh-syntax-highlighting/highlighters/pattern/pattern-highlighter.zsh": [
+          "pattern-highlighter.zsh",
+          420
+        ],
+        "usr/share/cachy-asahi/zsh-syntax-highlighting/highlighters/regexp/regexp-highlighter.zsh": [
+          "regexp-highlighter.zsh",
+          420
+        ],
+        "usr/share/cachy-asahi/zsh-syntax-highlighting/highlighters/root/root-highlighter.zsh": [
+          "root-highlighter.zsh",
+          420
+        ],
+        "usr/share/cachy-asahi/zsh-syntax-highlighting/opt-in.zsh": [
+          "opt-in.zsh",
+          420
+        ],
+        "usr/share/cachy-asahi/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh": [
+          "zsh-syntax-highlighting.zsh",
+          420
+        ],
+        "usr/share/doc/cachy-asahi-zsh-syntax-highlighting/INSTALL.md": [
+          "INSTALL.md",
+          420
+        ],
+        "usr/share/doc/cachy-asahi-zsh-syntax-highlighting/README.md": [
+          "README.md",
+          420
+        ],
+        "usr/share/doc/cachy-asahi-zsh-syntax-highlighting/usage.md": [
+          "usage.md",
+          420
+        ],
+        "usr/share/licenses/cachy-asahi-zsh-syntax-highlighting/LICENSE.project": [
+          "LICENSE.project",
+          420
+        ],
+        "usr/share/licenses/cachy-asahi-zsh-syntax-highlighting/LICENSE.upstream": [
+          "LICENSE.upstream",
+          420
+        ],
+        "usr/share/licenses/cachy-asahi-zsh-syntax-highlighting/NOTICE": [
+          "NOTICE",
+          420
+        ]
+      }
+    }
+  },
+  "status": "FINAL_SOURCE_REVIEWED"
+}

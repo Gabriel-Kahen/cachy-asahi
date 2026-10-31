@@ -1,0 +1,364 @@
+{
+  "schema_version": 1,
+  "files": {
+    "packages/shells/cachy-asahi-fish-bang-bang/.SRCINFO": {
+      "bytes": 1120,
+      "sha256": "09b008c0acc48a0d6dcfee54e978fce880f08389012892345aa412e4e395e908"
+    },
+    "packages/shells/cachy-asahi-fish-bang-bang/LICENSE.project": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/shells/cachy-asahi-fish-bang-bang/LICENSE.upstream": {
+      "bytes": 1108,
+      "sha256": "14c6826a7e33a6c74194ece88b26b5f5aee8473474001946a73d0f298b69fce0"
+    },
+    "packages/shells/cachy-asahi-fish-bang-bang/NOTICE": {
+      "bytes": 811,
+      "sha256": "0704c1ff8bcd8c94ad40888b35c5e25468ea9152b5781e7722ff0d04fb8aa879"
+    },
+    "packages/shells/cachy-asahi-fish-bang-bang/PKGBUILD": {
+      "bytes": 2123,
+      "sha256": "224ca0a1485a11d5c13f479d2ba3855a5c2dbdc9a3c9676b5112a4e6d54feb53"
+    },
+    "packages/shells/cachy-asahi-fish-bang-bang/README.md": {
+      "bytes": 2721,
+      "sha256": "5e95126ffc5be69a17675a3e07d097201e8e2ac593eb5bac68b2abe208713ad3"
+    },
+    "packages/shells/cachy-asahi-fish-bang-bang/__history_previous_command.fish": {
+      "bytes": 170,
+      "sha256": "d34b75125a34199775eaa74dd47ae37488c4e67f95f40f71b101b6a8f6f32e50"
+    },
+    "packages/shells/cachy-asahi-fish-bang-bang/__history_previous_command_arguments.fish": {
+      "bytes": 198,
+      "sha256": "4e72dcce435d0fe1cf332fb339ed9608f10b29295b28f85ed6e7411ef8c05b64"
+    },
+    "packages/shells/cachy-asahi-fish-bang-bang/integration-proposal.json": {
+      "bytes": 984,
+      "sha256": "951ef1f566e2b1e524bba9dd2a8f4945cc6087f0727d2623566dfce6422c5de6"
+    },
+    "packages/shells/cachy-asahi-fish-bang-bang/opt-in.fish": {
+      "bytes": 3290,
+      "sha256": "47570d644a1525a7c85cb5cfa2d8fc36f9cd1a06b5ef2090d32e4da2e8af0f5e"
+    },
+    "packages/shells/cachy-asahi-fish-bang-bang/source-provenance.json": {
+      "bytes": 1908,
+      "sha256": "199b09174a92e887091479bef47ac1124bab17743d1ff0d77747a6a1dc66e4d3"
+    },
+    "packages/shells/cachy-asahi-fish-bang-bang/usage.md": {
+      "bytes": 3411,
+      "sha256": "bc79cd125d6fb923b49e9868e56c0b97f527d99abf8e22b8537dc3fda993b574"
+    },
+    "packages/shells/cachy-asahi-zsh-autosuggestions/.SRCINFO": {
+      "bytes": 981,
+      "sha256": "fd7ce4ce1c33534b1b168bfe6166463cd8d74ce602f0469b62d5f9d475081504"
+    },
+    "packages/shells/cachy-asahi-zsh-autosuggestions/LICENSE.project": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/shells/cachy-asahi-zsh-autosuggestions/LICENSE.upstream": {
+      "bytes": 1096,
+      "sha256": "4598a6be0b8d7f2b708da5259d2a30d4e15e59b3c66781bab9e27744a9f859d8"
+    },
+    "packages/shells/cachy-asahi-zsh-autosuggestions/NOTICE": {
+      "bytes": 633,
+      "sha256": "9171e9a773c8b7c60ae8e489608f7ef4a4dba3a762156aa57e4673960ab2c921"
+    },
+    "packages/shells/cachy-asahi-zsh-autosuggestions/PKGBUILD": {
+      "bytes": 1745,
+      "sha256": "dbcd109f38f75e8bda2c79a5b368961319a57ea7c618987d242cb90b79185408"
+    },
+    "packages/shells/cachy-asahi-zsh-autosuggestions/README.md": {
+      "bytes": 3269,
+      "sha256": "775d480926b42496f937aaa019978ae26db6d21cbfa331ef33999f1874c1e4fd"
+    },
+    "packages/shells/cachy-asahi-zsh-autosuggestions/check-module.py": {
+      "bytes": 13447,
+      "sha256": "fa81e94383b3d7caa1522ea6be165579ba7a4d0775f6cc7f1e14c343fb6946bc"
+    },
+    "packages/shells/cachy-asahi-zsh-autosuggestions/integration-proposal.json": {
+      "bytes": 1130,
+      "sha256": "40949e6667a2859c7fbc8ce82b78183db3bf353669e2ea1291ff47c2551d6c3d"
+    },
+    "packages/shells/cachy-asahi-zsh-autosuggestions/opt-in.zsh": {
+      "bytes": 253,
+      "sha256": "692bca1e9ba1a2e9bd32de08cb6ffa5d15b19f85b48e1c08d85a48e41fe6f768"
+    },
+    "packages/shells/cachy-asahi-zsh-autosuggestions/source-provenance.json": {
+      "bytes": 1482,
+      "sha256": "0e46b589fefba600766591e8cc02897111c5f45e17415f4a2aac004d46418f36"
+    },
+    "packages/shells/cachy-asahi-zsh-autosuggestions/usage.md": {
+      "bytes": 2776,
+      "sha256": "3b43dee6a8f3c20796bb6e0965fd60b3b2e7b7e8c2d508efc011ba36aada6760"
+    },
+    "packages/shells/cachy-asahi-zsh-autosuggestions/zsh-autosuggestions.zsh": {
+      "bytes": 27017,
+      "sha256": "eec7ba8f7a71414ace0ea0fab0908d005b24cf65d83b169c0ff97815d3cfc51a"
+    },
+    "packages/tools/cachy-asahi-fish-autopair/.SRCINFO": {
+      "bytes": 1591,
+      "sha256": "ab11b83a075f544d53dbd9974cdc5152649703db8f3c0dd6c7be02f65b6c0615"
+    },
+    "packages/tools/cachy-asahi-fish-autopair/LICENSE.project": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-fish-autopair/LICENSE.upstream": {
+      "bytes": 1080,
+      "sha256": "f101c761d255d0dddc77dd8a9327733b03d381798ec54a1bb718367207b48a8e"
+    },
+    "packages/tools/cachy-asahi-fish-autopair/NOTICE": {
+      "bytes": 629,
+      "sha256": "6c73e4ccb627a7d8d1541dfeb99821105b3f22276c304972c81c0eafc6c019ba"
+    },
+    "packages/tools/cachy-asahi-fish-autopair/PKGBUILD": {
+      "bytes": 2592,
+      "sha256": "97deb29c2a2c011a2b95c8bf505d7d00c5e4fa6f376c8fbf7e0ff07ec7c852f1"
+    },
+    "packages/tools/cachy-asahi-fish-autopair/README.md": {
+      "bytes": 1317,
+      "sha256": "7ce816bc658576bf7d0bc5a42384751ead891feb97bf9ad3b40b02fd683e5a52"
+    },
+    "packages/tools/cachy-asahi-fish-autopair/_autopair_backspace.fish": {
+      "bytes": 323,
+      "sha256": "eb5f42b837a98e721ec5f60f6c05df5fc709c9b8852317823b576d053ea9e0d8"
+    },
+    "packages/tools/cachy-asahi-fish-autopair/_autopair_insert_left.fish": {
+      "bytes": 403,
+      "sha256": "15739503faea70699ce121742bbfd59cf0ba64fb4ac044119aaeb644ec7019f1"
+    },
+    "packages/tools/cachy-asahi-fish-autopair/_autopair_insert_right.fish": {
+      "bytes": 330,
+      "sha256": "eaadbfd4cf10a40dfbe5eaf522f0d7d01a1e4538a6e9fbd591c35cc7a517744d"
+    },
+    "packages/tools/cachy-asahi-fish-autopair/_autopair_insert_same.fish": {
+      "bytes": 776,
+      "sha256": "ac34fd6de9b0c79e4499ace389d3bd61e2984087126a040bccd68d336050c23f"
+    },
+    "packages/tools/cachy-asahi-fish-autopair/_autopair_tab.fish": {
+      "bytes": 279,
+      "sha256": "dd298673353cc7d48b9fd988932594685888aaa8406b2ca0e64946fce261b068"
+    },
+    "packages/tools/cachy-asahi-fish-autopair/check-module.py": {
+      "bytes": 11719,
+      "sha256": "cbcb974c8cb0c2b1bf262a8c0f9166ed11f37f06666efd003a204c0859c76294"
+    },
+    "packages/tools/cachy-asahi-fish-autopair/opt-in.fish": {
+      "bytes": 4383,
+      "sha256": "77d5122d6fc5a9e933f15425946b806a9273b3ead3bb52a1ac1d81a698ee4a21"
+    },
+    "packages/tools/cachy-asahi-fish-autopair/source-provenance.json": {
+      "bytes": 2262,
+      "sha256": "850512269f1b560b47d7e34145af65d6b05b360a86d0295e8c6d957678e35d6b"
+    },
+    "packages/tools/cachy-asahi-fish-autopair/usage.md": {
+      "bytes": 2941,
+      "sha256": "5672092ff0515fcab67ebd3b83a0e71333908c2dc4732324f9c1d74e0894630f"
+    },
+    "packages/tools/cachy-asahi-fish-done/.SRCINFO": {
+      "bytes": 1266,
+      "sha256": "9b769ac2155a0d74550daaaa7d81ec6d098ce8e1dfe47cb06dbcfd227b3541df"
+    },
+    "packages/tools/cachy-asahi-fish-done/LICENSE.project": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-fish-done/LICENSE.upstream": {
+      "bytes": 1092,
+      "sha256": "d3a6b9e81b93ce9b59c72355867b03f15e9ec186ad9d6b96e0a96374fa3d4c30"
+    },
+    "packages/tools/cachy-asahi-fish-done/NOTICE": {
+      "bytes": 1213,
+      "sha256": "cb000928dc0f592c00ee4a8df16659b8aab326b235effd6ea208aaecf319f4c3"
+    },
+    "packages/tools/cachy-asahi-fish-done/PKGBUILD": {
+      "bytes": 2099,
+      "sha256": "d76f7d27959e79af0f78945ff6bae247e796b235ae6326abf8c3ae3de04ca28d"
+    },
+    "packages/tools/cachy-asahi-fish-done/README.md": {
+      "bytes": 2462,
+      "sha256": "8781f844987d1bcc677d9b3a69f23970840104d345f3698f5d44639bff797015"
+    },
+    "packages/tools/cachy-asahi-fish-done/check-module.py": {
+      "bytes": 18968,
+      "sha256": "79a869d9adc6405a07ac647d01be905f99cc1e8dedd0821f38680fc504b919dd"
+    },
+    "packages/tools/cachy-asahi-fish-done/done.fish": {
+      "bytes": 5011,
+      "sha256": "f545413bd75a3017b8d11a5ca7fe7394f326babbc8c18618323c39fbd8d0a0d4"
+    },
+    "packages/tools/cachy-asahi-fish-done/done.upstream.fish": {
+      "bytes": 13815,
+      "sha256": "4aa68e18104966509dd0bfd6f7378423e212781d0674dae85fd38b1d30e30372"
+    },
+    "packages/tools/cachy-asahi-fish-done/opt-in.fish": {
+      "bytes": 908,
+      "sha256": "6ff60eef9f211819833b0d94a9fef15a2982835c84d868d7b0d55200e37b6a20"
+    },
+    "packages/tools/cachy-asahi-fish-done/source-provenance.json": {
+      "bytes": 2478,
+      "sha256": "b78395517588426f45ede5953d30ca8c449fec77ef4b633ad53246031e4465e1"
+    },
+    "packages/tools/cachy-asahi-fish-done/usage.md": {
+      "bytes": 5792,
+      "sha256": "e338eec57d00f5f85dcfea84b33eda11bbf3d3174e41abf957246d8a94d3d622"
+    },
+    "packages/tools/cachy-asahi-zsh-history-substring-search/.SRCINFO": {
+      "bytes": 1212,
+      "sha256": "7493fe67908465a0d097bf40869de539ed7d53db3327a1c7d2173b29e21421b9"
+    },
+    "packages/tools/cachy-asahi-zsh-history-substring-search/LICENSE.project": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-zsh-history-substring-search/LICENSE.upstream": {
+      "bytes": 1943,
+      "sha256": "95f239dd39d079d2546aaefee371d09f3f423d6902e85e64787ae0bc5f441a33"
+    },
+    "packages/tools/cachy-asahi-zsh-history-substring-search/NOTICE": {
+      "bytes": 834,
+      "sha256": "36bc69d4b18cbef88cf8770cb01a8a91db018fef85170a458a9a5315511d9c08"
+    },
+    "packages/tools/cachy-asahi-zsh-history-substring-search/PKGBUILD": {
+      "bytes": 1973,
+      "sha256": "0f6096dd9a56da87221d6b9d1ac67ecb6471e6e7fb56e01335e21024a41dbf5b"
+    },
+    "packages/tools/cachy-asahi-zsh-history-substring-search/README.md": {
+      "bytes": 2331,
+      "sha256": "4e16b965d8253b82a3be486df0cb358eec0958fe653c860cc451cb7fbe645e88"
+    },
+    "packages/tools/cachy-asahi-zsh-history-substring-search/check-module.py": {
+      "bytes": 12038,
+      "sha256": "f79eb322f34617d43ae13deaaac057f431e8e81f11a23e8a79876158c37dff00"
+    },
+    "packages/tools/cachy-asahi-zsh-history-substring-search/opt-in.zsh": {
+      "bytes": 874,
+      "sha256": "2eedaa32f3504b5301afc7e8c302ef91d3c60fa1c1a532ab59c4d11915fedea5"
+    },
+    "packages/tools/cachy-asahi-zsh-history-substring-search/source-provenance.json": {
+      "bytes": 1721,
+      "sha256": "298036481160566fa28bb2a728285b95307c0b11b77cc3e4a5f22656e105c3f7"
+    },
+    "packages/tools/cachy-asahi-zsh-history-substring-search/usage.md": {
+      "bytes": 2659,
+      "sha256": "5ff7ca69e03cd53ddb51dc53a21e1737f9aae96ea12fa7e2a5a509fc9c19b7e3"
+    },
+    "packages/tools/cachy-asahi-zsh-history-substring-search/zsh-history-substring-search.zsh": {
+      "bytes": 29692,
+      "sha256": "0b864862a3b48992d7316cc7e585a1315fa389d730c17bf16e2f2bd5918089f3"
+    },
+    "packages/tools/cachy-asahi-zsh-syntax-highlighting/.SRCINFO": {
+      "bytes": 2145,
+      "sha256": "57342eb05727803deb5cbac427d4391f67641f5463bf1b7d252770e68311bf81"
+    },
+    "packages/tools/cachy-asahi-zsh-syntax-highlighting/.revision-hash": {
+      "bytes": 41,
+      "sha256": "0e4e0c3aaec5a3efe933c7b41cb940fe5e6c28874f5075a9f68427f63135abde"
+    },
+    "packages/tools/cachy-asahi-zsh-syntax-highlighting/.version": {
+      "bytes": 10,
+      "sha256": "97fd9d491486c9c26ce918b0ad429584dddd807f34655f2342872d8175383094"
+    },
+    "packages/tools/cachy-asahi-zsh-syntax-highlighting/INSTALL.md": {
+      "bytes": 6822,
+      "sha256": "0b5861730a9f2b1ba4b49f86531dd59e6f6e7241185c40ddc4b5722833129008"
+    },
+    "packages/tools/cachy-asahi-zsh-syntax-highlighting/LICENSE.project": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-zsh-syntax-highlighting/LICENSE.upstream": {
+      "bytes": 1544,
+      "sha256": "d810908db3cb75d30e46f5e55b18c8f483e1bc625b8f7dc5a581f5ad353af82e"
+    },
+    "packages/tools/cachy-asahi-zsh-syntax-highlighting/NOTICE": {
+      "bytes": 623,
+      "sha256": "a60bb4e9f334489676c8e67d256da8486c8e0674778597b05971c39448b3e307"
+    },
+    "packages/tools/cachy-asahi-zsh-syntax-highlighting/PKGBUILD": {
+      "bytes": 3556,
+      "sha256": "b43ea648a3bde440eebcee7c2d1c52ee1d383e863348bf64eb396226a4e6cf5c"
+    },
+    "packages/tools/cachy-asahi-zsh-syntax-highlighting/README.md": {
+      "bytes": 3779,
+      "sha256": "7cf98b55b87529321d0f708e04ca143601322e865c3a2efd5a2a629ab6678411"
+    },
+    "packages/tools/cachy-asahi-zsh-syntax-highlighting/brackets-highlighter.zsh": {
+      "bytes": 4436,
+      "sha256": "b3ac4a66edf133b8f029332e787b7d36e2e1d7cabec0d271f7e5fe6724490dd3"
+    },
+    "packages/tools/cachy-asahi-zsh-syntax-highlighting/cursor-highlighter.zsh": {
+      "bytes": 2492,
+      "sha256": "bd6ef3aae900fee57ff132360b3dd9d68df5aab150a33e32259fd5adbe8efd49"
+    },
+    "packages/tools/cachy-asahi-zsh-syntax-highlighting/line-highlighter.zsh": {
+      "bytes": 2318,
+      "sha256": "1a12c094770bc00276395dc71a398a63fd768c433453d35f4e47e5d315dfacf0"
+    },
+    "packages/tools/cachy-asahi-zsh-syntax-highlighting/main-highlighter.zsh": {
+      "bytes": 70110,
+      "sha256": "1f59176bc1e5fd8ac8eaa85dd7a4cd2a95083ee7c689a430ff4a5e2e9eee0061"
+    },
+    "packages/tools/cachy-asahi-zsh-syntax-highlighting/opt-in.zsh": {
+      "bytes": 242,
+      "sha256": "cfcc482c9472e863339e9d7f29d7d2f5786e467bb8818a1371176d55c2ce845c"
+    },
+    "packages/tools/cachy-asahi-zsh-syntax-highlighting/pattern-highlighter.zsh": {
+      "bytes": 2867,
+      "sha256": "c2d5b50db13936421672b5ce16c0d7ec4f1abfeded34ea3a23bb39d2499b953b"
+    },
+    "packages/tools/cachy-asahi-zsh-syntax-highlighting/regexp-highlighter.zsh": {
+      "bytes": 2873,
+      "sha256": "f567458da4fb89cae8ea220b8febea11ed67ab6f6c8f5e0d6723ea7285e932e7"
+    },
+    "packages/tools/cachy-asahi-zsh-syntax-highlighting/root-highlighter.zsh": {
+      "bytes": 2349,
+      "sha256": "7a038444d4cd60f9eaf07993b6a14d0055ad8706e09a32780cb65ea0a90530ee"
+    },
+    "packages/tools/cachy-asahi-zsh-syntax-highlighting/source-provenance.json": {
+      "bytes": 3484,
+      "sha256": "89326cf6d03154bed7f8743f07ae3dcf001e1c85e43e34c66ca5cb160688761a"
+    },
+    "packages/tools/cachy-asahi-zsh-syntax-highlighting/usage.md": {
+      "bytes": 2936,
+      "sha256": "82e14a392ca112706be631a513bfdb17a46b64d2ae461a696f7694cee0181b75"
+    },
+    "packages/tools/cachy-asahi-zsh-syntax-highlighting/zsh-syntax-highlighting.zsh": {
+      "bytes": 23776,
+      "sha256": "156ebe9530eb991dcef54d476967e2ff4338d35dabaaff9e5462673a287cc63b"
+    },
+    "scripts/ci/shell-modules-coexistence/README.md": {
+      "bytes": 4128,
+      "sha256": "dd4b0c15bd7549777d649f65ccf7452ef577be335a502fe1a266556bdcfd0ecc"
+    },
+    "scripts/ci/shell-modules-coexistence/run.py": {
+      "bytes": 16858,
+      "sha256": "1f87315b04aefdbb6ed7e4af87ade4384c822a61fc25dc2cc77cd6dcd0973fc4"
+    },
+    "scripts/ci/shell-modules-coexistence/source-manifest.json": {
+      "bytes": 11941,
+      "sha256": "0af43a3e5be659a4990dba86c5d801a3794e35bbd6a10ed6c492cf05b37b9e2f"
+    },
+    "scripts/ci/shell-modules-coexistence/test_source.py": {
+      "bytes": 1995,
+      "sha256": "8770c2285fd07934ba6755883090cdcb9ad5f7e236b9b731baf9e6847cc190c6"
+    }
+  },
+  "scope": "frozen existing real-module/coexistence dependencies; accepted setup5 pair independently pinned by run.py",
+  "driver_files": {
+    "README.md": {
+      "bytes": 4469,
+      "sha256": "4bc7ebb7f613edad9c197e1459fa8e2a11865c493396c10288b27fe603ba71f9"
+    },
+    "run.py": {
+      "bytes": 17912,
+      "sha256": "2d82f064173aa1d7984cef6a0eed54cbcdc8d8be35a1d52a95a8a7614eac65ee"
+    },
+    "test_source.py": {
+      "bytes": 6185,
+      "sha256": "9b06a4ac93aa18efcee0d8a6b2b54b7a5a701a7e795c2f9d3d880903194235a0"
+    }
+  }
+}

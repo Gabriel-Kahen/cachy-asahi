@@ -1,0 +1,126 @@
+{
+  "authentic_raw_datasets": {
+    "systemd-a": {
+      "definitions": 5031,
+      "logs": 1962,
+      "members": {
+        "package-build/artifacts/systemd-intro-tests.json": {
+          "CRC": 370811586,
+          "bytes": 9332297,
+          "compress_size": 125857,
+          "sha256": "a3fc4a262931861a7a7f2f098d84845c4a2fa72120a12b3d65d0bc5e1f5c63ff"
+        },
+        "package-build/artifacts/systemd-testlog.jsonl": {
+          "CRC": 3962022471,
+          "bytes": 15052437,
+          "compress_size": 856321,
+          "sha256": "016cda7a8f049764546e49b755fdcd97ac07d399e550427b57d922cbba5f4d80"
+        }
+      },
+      "old_suite_gate_refusals": 1,
+      "result_counts": {
+        "OK": 1930,
+        "SKIP": 32
+      },
+      "zip": {
+        "bytes": 2247318,
+        "sha256": "f8e4d99e2c3aaa8f26a425aa3c57c716df8fe085cf8b287930adf6dcbd4c8292"
+      }
+    },
+    "systemd-b": {
+      "definitions": 5031,
+      "logs": 1962,
+      "members": {
+        "package-build/artifacts/systemd-intro-tests.json": {
+          "CRC": 842373369,
+          "bytes": 9332297,
+          "compress_size": 125852,
+          "sha256": "fb21e532032abc6243e00bc35c46d20a5607ab6233285e220137efa3ff6b74f0"
+        },
+        "package-build/artifacts/systemd-testlog.jsonl": {
+          "CRC": 1304077259,
+          "bytes": 15068069,
+          "compress_size": 847786,
+          "sha256": "3635125b743132deb37c1c08bc9e562f94cb2c7fa6cc5d48fcb2b4fd026ee107"
+        }
+      },
+      "old_suite_gate_refusals": 1,
+      "result_counts": {
+        "OK": 1930,
+        "SKIP": 32
+      },
+      "zip": {
+        "bytes": 2238701,
+        "sha256": "6bb332af12774e411179d0e0083de39f4b5d445b2b908d5a977fea373792ad66"
+      }
+    }
+  },
+  "default_selected": 2,
+  "definitions": 5,
+  "excluded": 3,
+  "fixture": "FINITE_UNMODIFIED_VALUE_PROJECTION_FROM_SYSTEMD_A_NOT_FULL_NATIVE_REPLAY",
+  "meson": {
+    "package": {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "bash",
+        "ninja",
+        "python",
+        "python-tqdm"
+      ],
+      "filename": "meson-1.12.1-2-any.pkg.tar.xz",
+      "isize": 17699599,
+      "license": [
+        "Apache-2.0"
+      ],
+      "name": "meson",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "8b5f5b2168be053485f512debbb935f189c4b19f9a79d0e201fc91ccb5d15492",
+      "signature_sha256": "6baec90eff01db452ce849b11d9322a29c362989f794cbd8ca555b99aa022891",
+      "signature_size": 566,
+      "size": 2529168,
+      "source_url": [
+        "https://mesonbuild.com/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/meson-1.12.1-2-any.pkg.tar.xz",
+      "version": "1.12.1-2"
+    },
+    "scope": "PINNED_ORIGINAL_MESON_PYTHON_SOURCE_ONLY_NOT_NATIVE",
+    "source_files": 243
+  },
+  "upstream_default_setup": {
+    "excluded_suites": [
+      "clang-tidy",
+      "coccinelle",
+      "unused-symbols",
+      "integration-tests"
+    ],
+    "meson_build": {
+      "bytes": 123165,
+      "sha256": "34abd1e8b703835f289bda28d2a4f060f93732185b910cfd89e588d9f363a927"
+    },
+    "meson_build_member": "systemd-8cc40e0c5e9234bf45084751ac53b1fbfe70b492/meson.build",
+    "meson_source_pin": {
+      "bytes": 841,
+      "sha256": "8d131145598bc0d7d135523d24352b452442222431888a6785513766cd0fd40b"
+    },
+    "mtest": {
+      "bytes": 96867,
+      "sha256": "5ad02a58a5aa7211aa673dc944f079765bcbfb58dff074b17a7682bf67abf962"
+    },
+    "recipe_command": "meson test -C build --print-errorlogs",
+    "setup": "default",
+    "systemd_archive": {
+      "bytes": 19057032,
+      "sha256": "a8d72c03431860cefaafaa2f8cf6f68bcba817184c3708896e4b65471ab0f9ef"
+    },
+    "unchanged_recipe": {
+      "bytes": 16104,
+      "sha256": "a8c6d3d0f6db1a1fb4a49d93308f879bbca5fc12e650e449ba20aa814a9069a1"
+    },
+    "wrapper": "/tmp/work/src/systemd-8cc40e0c5e9234bf45084751ac53b1fbfe70b492/tools/test-crash-trace.sh"
+  }
+}

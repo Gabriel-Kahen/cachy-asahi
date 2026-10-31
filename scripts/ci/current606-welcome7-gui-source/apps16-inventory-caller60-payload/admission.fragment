@@ -1,0 +1,40 @@
+
+# Explicit TCG-only inventory caller60; original product30/default35 remain whole.
+_VM_PARENT_MAPS={'known': {'bytes': 94810, 'sha256': '28b3b263374b362ef00a05f5f4a376fa6386df4654a556a7093270cd40510309'}, 'null': {'bytes': 94808, 'sha256': 'c113809a9887fce7fce3bf0f4b15540c9afab057e9c1aae55ac87282e2889e41'}}
+_VM_HELPER={'bytes': 5998, 'sha256': '72753a00ecf6bfb206b1651bbba1cf6940f4c0b901bdf81267d6bc8fafc203c9'}
+_VM_PROFILE={'bytes': 900, 'sha256': '48e9b3b2398b78ba3b913fae6818bd33e695c57733a05301b9833a5bc177acfa'}
+_VM_FACTORY={'bytes': 20774, 'sha256': 'f027487f5be2585263ff2f1797da88c875399f5e1d5a3e2af262a0697c6c0640'}
+_VM_SHIM="\n# Explicit VM-test capacity only; all default35 functions above remain whole.\ndef _install_inventory_vm_capacity():\n    import importlib.util\n    path=Path(__file__).resolve().parent/'inventory_capacity.py'\n    spec=importlib.util.spec_from_file_location('_owned_tcg_inventory_capacity',path)\n    module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)\n    module.install(globals())\n_install_inventory_vm_capacity()\n"
+_VM_BLOCK=("('apps16_runtime.py','apps16-installed-profile.json','apps16_diagnostic.py')", "('apps16_runtime.py','apps16-installed-profile.json','apps16_diagnostic.py','inventory_capacity.py','inventory-vm-profile.json')", '/runner/apps16_diagnostic.py ', '/runner/apps16_diagnostic.py /runner/inventory_capacity.py /runner/inventory-vm-profile.json ')
+_VM_PROFILE_VALUE={'M2_performance': 'NOT_RUN', 'acceptance': False, 'actual': None, 'caller_seconds': 60, 'default_caller_seconds': 35, 'native_hotspot': 'UNKNOWN', 'old35_fit': 'NOT_ESTABLISHED', 'original_helpers': {'apps16_diagnostic.py': {'bytes': 6163, 'sha256': '9a39513103a495329eeb3eded4564570ae02f3e41fe7d1f149de921eecf4c1b4'}, 'apps16_runtime.py': {'bytes': 1948, 'sha256': 'df9d658794732b4a54c5eaf83037f54e64e87dde9c6d26b28672181893c77750'}, 'current_products.py': {'bytes': 7085, 'sha256': '5c0955b254813537f6b87cfad718afb05768ae12e3a5d7765b101c3c124a005e'}}, 'product_scan_seconds': 30, 'profile': 'GUI_TCG_INVENTORY_CALLER_60_V1', 'ref': None, 'run': None, 'schema_version': 1, 'scope': 'OPT_IN_VM_FUNCTIONAL_VALIDATION_ONLY_NOT_PERFORMANCE', 'source': None, 'stage_elapsed_data_limit_seconds': 65}
+def _vm_original(root):
+ root=Path(root).absolute();p=obj(root/'inventory-vm-parent.json');variant=p['variant'];need(variant in _VM_PARENT_MAPS and len(p['files'])==565 and pin(enc(p['files']))==_VM_PARENT_MAPS[variant]and p['actual']is None,'entire exact565 parent source map')
+ need((p['source'],p['ref'])==(('b9a1195e5f5c5e439db791383e18e56511de2f5a','codex/welcome8-apps16-isolated-import-v1')if variant=='known'else(None,None)),'genuine565 history versus NULL context')
+ if variant=='known':need(p['context']['authorization']==p['files']and p['context']['git']==dict(status='PASS_INDEPENDENT_FULL_GIT_BLOB_JOIN',source=p['source'],ref=p['ref'],files=p['files'])and p['context']['publication']==dict(status='COMMITTED_EXACT_CLOSED_TRIAL_SOURCE',source=p['source'],ref=p['ref'],files=565,git_joins=565,actual='NOT_RUN',hardware='NOT_RUN',release='NOT_ADMITTED'),'whole565 publication/source/Git joins')
+ else:need(p['context']is None,'NULL history has no invented publication')
+ before=p['files'];bodies=p['before_bodies'];need(set(bodies)=={'admission.py','factory/factory.py','factory/current_products.py','source-manifest.json'},'finite whole before bodies only')
+ def prior_read(path,cap=16*1024**2):
+  name=Path(path).relative_to(root).as_posix();raw=base64.b64decode(bodies[name],validate=True)if name in bodies else read(path,cap);need(name in before and pin(raw)==before[name]and len(raw)<=cap,'entire565 original byte inverse '+name);return raw
+ def prior_closed(where,wanted):
+  prefix=''if where==root else where.relative_to(root).as_posix()+'/'
+  need({n.removeprefix(prefix):w for n,w in before.items()if n.startswith(prefix)}==wanted,'entire original565 namespace')
+  for name,want in wanted.items():need(pin(prior_read(where/name))==want,'every original565 namespace byte')
+  return wanted
+ for name,want in before.items():need(pin(prior_read(root/name))==want,'every original565 full body')
+ old=types.ModuleType('_whole_original565_caller35');old.__file__=str(root/'admission.py');exec(compile(prior_read(root/'admission.py'),'<entire-original565-caller35>','exec'),vars(old));old.read=prior_read;old.obj=lambda path:json.loads(prior_read(path));old.closed=prior_closed
+ return old,prior_read
+
+def source_context(root):
+ root=Path(root).absolute();manifest=obj(root/'source-manifest.json');need(manifest['status']=='SOURCE_ONLY_GUI_TCG_INVENTORY_CALLER60_NO_GUI_ACCEPTANCE'and manifest['actual_source']is manifest['actual_ref']is manifest['actual_run']is None,'explicit new profile has no actual authority');closed(root,{**manifest['files'],'source-manifest.json':pin(read(root/'source-manifest.json'))})
+ old,prior_read=_vm_original(root);fact=old.source_context(root);need(fact['files']==565 and fact['isolated_startup']=='EXPLICIT_PINNED_POST_SESSION_BEFORE_ALL_CONSUMERS_NO_SYS_PATH_CHANGE','whole565/564/562/original source/cleanup predicates')
+ need(pin(read(root/'factory/inventory_capacity.py'))==_VM_HELPER and pin(read(root/'factory/inventory-vm-profile.json'))==_VM_PROFILE and obj(root/'factory/inventory-vm-profile.json')==_VM_PROFILE_VALUE,'whole fixed TCG profile and source-owned facade')
+ need(pin(read(root/'factory/factory.py'))==_VM_FACTORY,'exact factory copy-only profile seam');text=read(root/'factory/factory.py').decode();need(text.replace(_VM_BLOCK[1],_VM_BLOCK[0],1).replace(_VM_BLOCK[3],_VM_BLOCK[2],1).encode()==prior_read(root/'factory/factory.py'),'entire factory body inverse')
+ need(read(root/'factory/current_products.py')==prior_read(root/'factory/current_products.py')+_VM_SHIM.encode(),'entire original product/positive/failure harness body before finite footer')
+ for name in('apps16_diagnostic.py','apps16_runtime.py','apps16-installed-profile.json'):
+  need(read(root/'factory'/name)==prior_read(root/'factory'/name),'original default35 and product identity byte held '+name)
+ need(len(manifest['files'])+1==568,'exact complete568 new source')
+ return dict(fact,files=568,inventory_validation_profile=_VM_PROFILE_VALUE['profile'],inventory_product_seconds=30,inventory_caller_seconds=60,default_caller_seconds=35,old35_fit='NOT_ESTABLISHED',M2_performance='NOT_RUN',native_hotspot='UNKNOWN',actual=None)
+
+def prove(root):
+ fact=source_context(root);old,_=_vm_original(Path(root).absolute());prior=old.prove(root);need(prior['files']==565,'entire original565 preflight before profile60')
+ return dict(fact,status='PASS_WHOLE565_PLUS_EXPLICIT_TCG_INVENTORY_CALLER60_SOURCE_ONLY')

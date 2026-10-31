@@ -1,0 +1,91 @@
+{
+  "jobs": {
+    "source-controls": {
+      "env": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONWARNINGS": "error"
+      },
+      "runs-on": "ubuntu-24.04",
+      "steps": [
+        {
+          "name": "Check out maintained source factory",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Check out pinned parent1192",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "path": ".ci-fixtures/parent1192",
+            "persist-credentials": false,
+            "ref": "412742e6320aaf8f546c537cdcda534a843b6dcd",
+            "repository": "Gabriel-Kahen/cachy-asahi"
+          }
+        },
+        {
+          "name": "Check out pinned expected1197",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "path": ".ci-fixtures/expected1197",
+            "persist-credentials": false,
+            "ref": "04f4ae2f164fe6c58a4b3b31ea8ab544880d9892",
+            "repository": "Gabriel-Kahen/cachy-asahi"
+          }
+        },
+        {
+          "name": "Check out exact foreign Apps16 parent for role refusal",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "path": ".ci-fixtures/primary1192",
+            "persist-credentials": false,
+            "ref": "3a7cacaee84de54200acabaca2769fb5e757fa25",
+            "repository": "Gabriel-Kahen/cachy-asahi"
+          }
+        },
+        {
+          "name": "Select explicit Python",
+          "uses": "actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+          "with": {
+            "python-version": "${{ matrix.python }}"
+          }
+        },
+        {
+          "name": "Apps6 baseline factory, exact target/inverse and whole1197 source guard",
+          "run": "set -euo pipefail\nstage=$(mktemp -d \"$RUNNER_TEMP/tooling1197.XXXXXXXX\")\ntrap 'rm -rf -- \"$stage\"' EXIT\nexport TMPDIR=\"$stage\"\nmkdir \"$stage/parent1192\"\ngit -C \"$GITHUB_WORKSPACE/.ci-fixtures/parent1192\" archive --format=tar 412742e6320aaf8f546c537cdcda534a843b6dcd | tar -xf - -C \"$stage/parent1192\"\nmkdir \"$stage/expected1197\"\ngit -C \"$GITHUB_WORKSPACE/.ci-fixtures/expected1197\" archive --format=tar 04f4ae2f164fe6c58a4b3b31ea8ab544880d9892 | tar -xf - -C \"$stage/expected1197\"\nmkdir \"$stage/primary1192\"\ngit -C \"$GITHUB_WORKSPACE/.ci-fixtures/primary1192\" archive --format=tar 3a7cacaee84de54200acabaca2769fb5e757fa25 | tar -xf - -C \"$stage/primary1192\"\nexport FRESH_TOOLING_PRIMARY_PARENT=\"$stage/primary1192\"\nexport FRESH_TOOLING_PARENT=\"$stage/parent1192\"\nexport FRESH_TOOLING_EXPECTED=\"$stage/expected1197\"\nexport FRESH_TOOLING_SOURCE=\"$stage/source\"\npython3 -I -B -Werror scripts/ci/fresh607-apps6-baseline-tooling-source/prepare.py --parent \"$FRESH_TOOLING_PARENT\" --output \"$FRESH_TOOLING_SOURCE\" > \"$stage/authorization.json\"\npython3 -I -B -Werror scripts/ci/fresh607-apps6-baseline-tooling-source/test_source.py\npython3 -I -B -Werror scripts/ci/fresh607-apps6-baseline-tooling-source/test_baseline.py\ntimeout 300s python3 -I -B -Werror \"$FRESH_TOOLING_SOURCE/implementation/run.py\" --source-preflight\n",
+          "shell": "bash"
+        }
+      ],
+      "strategy": {
+        "fail-fast": false,
+        "matrix": {
+          "python": [
+            "3.12",
+            "3.14"
+          ]
+        }
+      },
+      "timeout-minutes": 10
+    }
+  },
+  "name": "fresh607-apps6-baseline-tooling-source",
+  "on": {
+    "pull_request": {
+      "paths": [
+        "scripts/ci/fresh607-apps6-baseline-tooling-source/**",
+        ".github/workflows/fresh607-apps6-baseline-tooling-source.yml"
+      ]
+    },
+    "push": {
+      "paths": [
+        "scripts/ci/fresh607-apps6-baseline-tooling-source/**",
+        ".github/workflows/fresh607-apps6-baseline-tooling-source.yml"
+      ]
+    },
+    "workflow_dispatch": {}
+  },
+  "permissions": {
+    "contents": "read"
+  }
+}

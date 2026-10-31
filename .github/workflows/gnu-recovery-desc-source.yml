@@ -1,0 +1,50 @@
+name: GNU raw recovery descriptor source factory
+on:
+  push:
+    paths: ['scripts/ci/gnu-recovery-desc-source/**', '.github/workflows/gnu-recovery-desc-source.yml']
+  pull_request:
+    paths: ['scripts/ci/gnu-recovery-desc-source/**', '.github/workflows/gnu-recovery-desc-source.yml']
+permissions:
+  contents: read
+jobs:
+  source-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - name: Check out maintained factory
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Exact public771 input
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 4b2f8502655d2f4b65a20691247d1a54052089f3
+          path: .ci-fixtures/gnu-parent771
+          persist-credentials: false
+      - name: Exact public775 expected source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 8a6b9b7d5cb1def4ed95c2fd739d1354db292405
+          path: .ci-fixtures/gnu-target775
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Reproduce775 and run generation plus emitted raw descriptor controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          stage=$(mktemp -d "$RUNNER_TEMP/gnu-recovery-source.XXXXXXXX")
+          trap 'rm -rf -- "$stage"' EXIT
+          mkdir -m700 "$stage/parent" "$stage/expected"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/gnu-parent771" archive 4b2f8502655d2f4b65a20691247d1a54052089f3 | tar -x -C "$stage/parent"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/gnu-target775" archive 8a6b9b7d5cb1def4ed95c2fd739d1354db292405 | tar -x -C "$stage/expected"
+          export GNU_RECOVERY_PARENT="$stage/parent" GNU_RECOVERY_EXPECTED="$stage/expected"
+          python3 -I -B -Werror scripts/ci/gnu-recovery-desc-source/test_prepare.py
+          python3 -I -B -Werror scripts/ci/gnu-recovery-desc-source/test_source.py

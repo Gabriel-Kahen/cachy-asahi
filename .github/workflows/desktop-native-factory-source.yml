@@ -1,0 +1,56 @@
+name: Desktop native factory Source controls
+on:
+  pull_request:
+    paths:
+      - .github/workflows/desktop-native-factory-source.yml
+      - scripts/ci/desktop-tools-native-source/**
+      - docs/workstreams/desktop-tools-native-source.md
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/desktop-native-factory-source.yml
+      - scripts/ci/desktop-tools-native-source/**
+      - docs/workstreams/desktop-tools-native-source.md
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-data:
+    name: Desktop finite Source DATA controls
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Read immutable genuine191 basis as DATA only
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 111f14d2b21b220d86912d5ead978848c7ef1cb0
+          path: .desktop-native-parent-data
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.14'
+      - name: Construct Source DATA and run actor-denied controls
+        env:
+          DESKTOP_NATIVE_BASIS: ${{ github.workspace }}/.desktop-native-parent-data
+          DESKTOP_NATIVE_SOURCE: ${{ runner.temp }}/desktop-source-data/trial/source
+        run: |
+          mkdir -m700 "$RUNNER_TEMP/desktop-source-data"
+          python -I -B - "$DESKTOP_NATIVE_BASIS" "$RUNNER_TEMP/desktop-source-data/trial" <<'PY'
+          import runpy, sys
+          def deny(event, args):
+              if event.startswith(('subprocess.', 'socket.')) or event in ('os.system', 'os.posix_spawn', 'os.fork', 'os.exec', 'os.kill', 'os.killpg'):
+                  raise RuntimeError('Source DATA actor denied: ' + event)
+          sys.addaudithook(deny)
+          path = 'scripts/ci/desktop-tools-native-source/prepare.py'
+          sys.argv = [path, '--basis', sys.argv[1], '--output', sys.argv[2]]
+          runpy.run_path(path, run_name='__main__')
+          PY
+          python -I -B scripts/ci/desktop-tools-native-source/test_factory.py
+          python -I -B scripts/ci/desktop-tools-native-source/test_lifecycle.py
+          python -I -B scripts/ci/desktop-tools-native-source/test_reader.py
+          python -I -B scripts/ci/desktop-tools-native-source/test_retirement.py
+          DESKTOP_CENSUS_SOURCE="$DESKTOP_NATIVE_SOURCE" python -I -B scripts/ci/desktop-tools-native-source/test_census_diagnostic.py

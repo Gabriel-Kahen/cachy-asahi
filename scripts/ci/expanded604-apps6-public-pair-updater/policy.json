@@ -1,0 +1,59 @@
+{
+  "GUI_prerequisite": "SEPARATE_GUI_AUTHORITY_NOT_UPDATER_CREDIT",
+  "after_sha256": "7bc6caa51301bf076aeda4d137277a128c53a16e5bfd25f02e7309c4b3a408c3",
+  "apps6": {
+    "authority_kind": "PUBLIC659_PAIRS_PLUS_INDEPENDENT_NATIVE574_REPAIR_BYTES_ONLY",
+    "authority_source": "1b04c762fdbf8a2e623b939b2e832bc0c084abf1",
+    "byte_case_decision": {
+      "bytes": 1481,
+      "path": "payload/repair-bytes-root-decision.json",
+      "sha256": "f8e106a882b7fc9b553c8a399f6d9296d17d77f9aadbdcf46135b090f88b4157"
+    },
+    "carrier_source": "65950a7e3ca82d97e21a65556844dab1cfd1a7f7",
+    "index": {
+      "bytes": 55737,
+      "path": "index.json",
+      "sha256": "782fd76c06831786cb74df396f195e8f5f8832e04b668c44bdadd802d1cb268b"
+    },
+    "status": "ROOT_BOUND_PUBLIC_CURRENT4_PAIRS_AND_NATIVE_BYTECASE"
+  },
+  "baseline_decisions_source": "1c953fb9b1f9442f40895f886b659534424345ce",
+  "baseline_source": "ed776a706fc711c5bcc4d933f38e88e7791bc9f6",
+  "before_sha256": "3f64a13c4af7ab8b1598583f534af3347c8df2397a0afa33fb8b0f5f06b19cf5",
+  "decision_source": null,
+  "installer_inputs": {
+    "apps6_authority_source": "1b04c762fdbf8a2e623b939b2e832bc0c084abf1",
+    "apps6_source": "65950a7e3ca82d97e21a65556844dab1cfd1a7f7",
+    "eight_source": "0d7ec3b5ec9b473c9a1b2557735f8dadd8de3f50",
+    "fresh600_decisions": "fd42f51b6c32a1cca69df5699760ed2a9e39329f",
+    "legacy_source": "b6b17e5f6b322f160f7eeb22c8a01380a3c854cd",
+    "management_source": "92e433fa79eb57bfb3e4038feb30e7a7c87c652f",
+    "native604_decisions": null,
+    "setup_source": "79d8d2f53510e4f3a04f39c1b1e24c999aa32e44",
+    "seven_source": "7fee76d68e5fd75437d8b49aaaced8376d2215cd",
+    "welcome_source": "77bd2c6ecf2e5c28a04116c3da85c45f70d1cc90"
+  },
+  "installer_source": null,
+  "prerequisites": {
+    "fresh604": null,
+    "native604": null,
+    "normal600": {
+      "bytes": 2803,
+      "path": "payload/normal600.json",
+      "sha256": "c23c4582de12499a0c2c9df86c0dc2d1c02e220c12442d9e50ddb2a434699092"
+    },
+    "postcommit600": {
+      "bytes": 2948,
+      "path": "payload/postcommit600.json",
+      "sha256": "22f817d14d208fa604c005cbf470fb68d1c078a6db980b1dcea7f91cb8ffe43b"
+    },
+    "precommit600": {
+      "bytes": 2827,
+      "path": "payload/precommit600.json",
+      "sha256": "b43fac85ce7ef4fb70f8ff8688cd6fc2a1f8afcd9bbfbd29edc69083269ee9a4"
+    }
+  },
+  "schema_version": 1,
+  "setup5_pair_source": "79d8d2f53510e4f3a04f39c1b1e24c999aa32e44",
+  "status": "UNBOUND_ACTUAL_PUBLIC_PAIRS_APPS6_CURRENT604_PREREQUISITES"
+}

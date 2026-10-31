@@ -1,0 +1,132 @@
+{
+  "name": "native-arm-owned-process-control",
+  "on": {
+    "workflow_dispatch": {
+      "inputs": {
+        "workflow_source": {
+          "description": "Exact registered main workflow-source SHA; Root classification is required before dispatch",
+          "required": true,
+          "type": "string"
+        },
+        "operation": {
+          "description": "Explicit pre-package process-control operation; no component acceptance",
+          "required": true,
+          "type": "choice",
+          "options": [
+            "owned-v2-adopted-zero-pre-package-v1"
+          ],
+          "default": "owned-v2-adopted-zero-pre-package-v1"
+        }
+      }
+    }
+  },
+  "permissions": {
+    "contents": "read"
+  },
+  "concurrency": {
+    "group": "native-arm-release-tools",
+    "cancel-in-progress": false,
+    "queue": "max"
+  },
+  "jobs": {
+    "adopted-zero-control": {
+      "if": "github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false",
+      "runs-on": "ubuntu-24.04-arm",
+      "timeout-minutes": 6,
+      "env": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "GIT_NO_LAZY_FETCH": "1",
+        "GIT_OPTIONAL_LOCKS": "0",
+        "WORKFLOW_SOURCE_SHA": "${{ github.workflow_sha }}",
+        "WORKFLOW_SOURCE_INPUT": "${{ inputs.workflow_source }}",
+        "CONTROL_OPERATION": "${{ inputs.operation }}",
+        "PUBLIC_REPOSITORY_ID": "${{ github.repository_id }}"
+      },
+      "steps": [
+        {
+          "name": "Checkout exact workflow and tested control Source",
+          "uses": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "with": {
+            "ref": "${{ github.workflow_sha }}",
+            "persist-credentials": false,
+            "fetch-depth": 1,
+            "sparse-checkout": "scripts/virtual/owned_process_v2_adoption_control.py\nscripts/virtual/owned_process_v2_adoption_fixture.py\n.github/workflows/native-arm-owned-process-control.yml",
+            "sparse-checkout-cone-mode": false
+          },
+          "env": {
+            "GIT_NO_LAZY_FETCH": "0"
+          }
+        },
+        {
+          "name": "Checkout exact native runtime Source as DATA",
+          "uses": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "with": {
+            "repository": "Gabriel-Kahen/cachy-asahi",
+            "ref": "3ab5da1b4a11495075a9660ad09625a4ff5f0f64",
+            "path": ".owned-v2-runtime-source-data",
+            "persist-credentials": false,
+            "fetch-depth": 1,
+            "sparse-checkout": "scripts/virtual/owned_process_retirement_v2.py",
+            "sparse-checkout-cone-mode": false
+          },
+          "env": {
+            "GIT_NO_LAZY_FETCH": "0"
+          }
+        },
+        {
+          "name": "Select actual Python3.14",
+          "uses": "actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+          "with": {
+            "python-version": "3.14",
+            "architecture": "arm64"
+          }
+        },
+        {
+          "name": "Guard exact sources and retain provenance",
+          "id": "source_guard",
+          "timeout-minutes": 1,
+          "shell": "bash",
+          "run": "set -euo pipefail\npython -I -B - <<'PYGUARD'\nimport hashlib,json,os,pathlib,platform,stat,subprocess,sys\nroot=pathlib.Path(os.environ['CONTROL_ROOT']);root.mkdir(mode=0o700)\nworkspace=pathlib.Path(os.environ['GITHUB_WORKSPACE']).resolve();data=workspace/'.owned-v2-runtime-source-data'\ndef pin(b):return dict(bytes=len(b),sha256=hashlib.sha256(b).hexdigest())\ndef git(folder,*args):return subprocess.check_output(['git','--no-replace-objects','-c','core.hooksPath=/dev/null', '-C',str(folder),*args],env=dict(os.environ,GIT_NO_LAZY_FETCH='1',GIT_OPTIONAL_LOCKS='0'),timeout=15).decode().strip()\ndef file(name,expected,mode):\n p=workspace/name;s=p.lstat();assert p==p.resolve()and stat.S_ISREG(s.st_mode)and s.st_nlink==1 and stat.S_IMODE(s.st_mode)==mode and s.st_size==expected['bytes'];b=p.read_bytes();assert pin(b)==expected;return dict(path=name,**expected,mode=mode)\nvalue=dict(schema=1,operation='owned-v2-adopted-zero-pre-package-v1',runtime_source='3ab5da1b4a11495075a9660ad09625a4ff5f0f64',workflow_source=os.environ['WORKFLOW_SOURCE_SHA'],workflow_source_input=os.environ['WORKFLOW_SOURCE_INPUT'],event=os.environ['GITHUB_EVENT_NAME'],ref=os.environ['GITHUB_REF'],repository=os.environ['GITHUB_REPOSITORY'],repository_id=os.environ['PUBLIC_REPOSITORY_ID'],run=os.environ['GITHUB_RUN_ID'],attempt=os.environ['GITHUB_RUN_ATTEMPT'],workflow_ref=os.environ['GITHUB_WORKFLOW_REF'],interpreter=dict(executable=sys.executable,version=sys.version),architecture=platform.machine(),page_size=os.sysconf('SC_PAGESIZE'),runner=dict(name=os.environ['RUNNER_NAME'],os=os.environ['RUNNER_OS'],arch=os.environ['RUNNER_ARCH'],environment=os.environ['JOB_RUNNER_ENVIRONMENT']),acceptance=False,scope='PRE_PACKAGE_PROCESS_CONTROL_ONLY_NO_COMPONENT_ALARM_M2_16K_PERFORMANCE_RELEASE_ACCEPTANCE')\ntry:\n assert value['event']=='workflow_dispatch'and value['repository']=='Gabriel-Kahen/cachy-asahi'and value['repository_id']=='1414857795'and value['ref']=='refs/heads/main'\n assert value['workflow_source']==value['workflow_source_input']==os.environ['GITHUB_SHA']==git(workspace,'rev-parse','HEAD')\n assert value['workflow_ref']=='Gabriel-Kahen/cachy-asahi/.github/workflows/native-arm-owned-process-control.yml@refs/heads/main'\n assert os.environ['CONTROL_OPERATION']==value['operation']and len(value['workflow_source'])==40 and all(c in '0123456789abcdef'for c in value['workflow_source'])\n assert int(value['run'])>0 and int(value['attempt'])>0 and sys.version_info[:2]==(3,14) and platform.machine()=='aarch64'and value['page_size']>0\n assert value['runner']['os']=='Linux'and value['runner']['arch']=='ARM64'and value['runner']['environment']=='github-hosted'\n assert git(data,'rev-parse','HEAD')==value['runtime_source']\n value['control']=file('scripts/virtual/owned_process_v2_adoption_control.py',dict(bytes=14469,sha256='493f52eac264d638c18bc82472a3875044dcd353d57b22ecb0b4cff0ff9e21de'),0o755)\n value['fixture']=file('scripts/virtual/owned_process_v2_adoption_fixture.py',dict(bytes=2783,sha256='0b37f2acf0a56df100a5e98404ddc0e4765208f52d1ce76a4dce9f9f142df678'),0o755)\n value['runtime']=file('.owned-v2-runtime-source-data/scripts/virtual/owned_process_retirement_v2.py',dict(bytes=38256,sha256='9388d270d06e28fee50160b7c04dd69593e383647d791f8aaff69380032165d5'),0o755)\n value['status']='PASS_EXACT_SOURCE_BODY_HOST_AND_PYTHON314_GUARDS'\nexcept BaseException as error:\n value['status']='REFUSED_PRE_ENTRY';value['error']=dict(type=type(error).__name__,message=str(error)[:512]);raise\nfinally:\n body=(json.dumps(value,sort_keys=True,indent=2)+'\\n').encode();assert len(body)<=32768\n with(root/'source-provenance.json').open('xb')as f:f.write(body)\nPYGUARD",
+          "env": {
+            "CONTROL_ROOT": "${{ runner.temp }}/owned-v2-native-control",
+            "JOB_RUNNER_ENVIRONMENT": "${{ runner.environment }}"
+          }
+        },
+        {
+          "name": "Run exact pre-package adopted-zero control",
+          "id": "control",
+          "timeout-minutes": 1,
+          "shell": "bash",
+          "run": "set -euo pipefail\npython -I -B - <<'PYCONTROL'\nimport os,pathlib,resource,sys\nroot=pathlib.Path(os.environ['GITHUB_WORKSPACE']);output=pathlib.Path(os.environ['CONTROL_ROOT'])/'control'\nresource.setrlimit(resource.RLIMIT_FSIZE,(512*1024**2,512*1024**2))\nresource.setrlimit(resource.RLIMIT_CPU,(15,20))\ncommand=[sys.executable,'-I','-B',str(root/'scripts/virtual/owned_process_v2_adoption_control.py'),'--runtime',str(root/'.owned-v2-runtime-source-data/scripts/virtual/owned_process_retirement_v2.py'),'--runtime-sha256','9388d270d06e28fee50160b7c04dd69593e383647d791f8aaff69380032165d5','--runtime-bytes','38256','--source-label','runtime:3ab5da1b4a11495075a9660ad09625a4ff5f0f64;workflow:'+os.environ['WORKFLOW_SOURCE_SHA'],'--execution-context','native-runner','--output',str(output)]\nos.execv(sys.executable,command)\nPYCONTROL",
+          "env": {
+            "CONTROL_ROOT": "${{ runner.temp }}/owned-v2-native-control"
+          }
+        },
+        {
+          "name": "Retain bounded passive JSON evidence",
+          "if": "always()",
+          "timeout-minutes": 1,
+          "shell": "bash",
+          "env": {
+            "SOURCE_GUARD_OUTCOME": "${{ steps.source_guard.outcome }}",
+            "CONTROL_STEP_OUTCOME": "${{ steps.control.outcome }}",
+            "CONTROL_ROOT": "${{ runner.temp }}/owned-v2-native-control"
+          },
+          "run": "set -euo pipefail\npython -I -B - <<'PYEVIDENCE'\nimport hashlib,io,json,os,pathlib,stat,tarfile\nroot=pathlib.Path(os.environ['CONTROL_ROOT']);root.mkdir(mode=0o700,exist_ok=True);out=root/'public-evidence.tar';assert not out.exists()\nroles={'source-provenance.json':32768,'control/intent.json':131072,'control/runtime-result.json':131072,'control/result.json':131072};bodies={};missing=[]\nfor name,cap in roles.items():\n p=root/name\n if not p.exists():missing.append(name);continue\n s=p.lstat();assert stat.S_ISREG(s.st_mode)and s.st_nlink==1 and p==p.resolve()and s.st_size<=cap\n body=p.read_bytes();assert len(body)==s.st_size;json.loads(body);bodies[name]=body\nmanifest=dict(schema=1,status='BOUNDED_PASSIVE_PROCESS_CONTROL_DATA_ONLY',run=os.environ['GITHUB_RUN_ID'],attempt=os.environ['GITHUB_RUN_ATTEMPT'],workflow_source=os.environ['WORKFLOW_SOURCE_SHA'],runtime_source='3ab5da1b4a11495075a9660ad09625a4ff5f0f64',operation='owned-v2-adopted-zero-pre-package-v1',source_guard_outcome=os.environ['SOURCE_GUARD_OUTCOME'],control_step_outcome=os.environ['CONTROL_STEP_OUTCOME'],missing=missing,files={n:dict(bytes=len(b),sha256=hashlib.sha256(b).hexdigest())for n,b in bodies.items()},acceptance=False,scope='PROCESS_CONTROL_ONLY_NO_COMPONENT_ALARM_M2_NATIVE16K_PERFORMANCE_RELEASE_ACCEPTANCE')\nmanifest_body=(json.dumps(manifest,sort_keys=True,indent=2)+'\\n').encode();assert len(manifest_body)<=16384;bodies['manifest.json']=manifest_body\nwith tarfile.open(out,'w',format=tarfile.USTAR_FORMAT)as archive:\n for name,body in sorted(bodies.items()):\n  info=tarfile.TarInfo(name);info.size=len(body);info.mode=0o600;info.uid=info.gid=0;info.uname=info.gname='';info.mtime=0;archive.addfile(info,io.BytesIO(body))\nassert out.stat().st_size<=512*1024\nif os.environ['CONTROL_STEP_OUTCOME']=='success':\n assert not missing and os.environ['SOURCE_GUARD_OUTCOME']=='success'\n result=json.loads(bodies['control/result.json']);raw=json.loads(bodies['control/runtime-result.json']);adopted=raw['group_retirement']['adopted_child']\n assert result['status']=='PASS_ACTUAL_RUNTIME_ADOPTED_ZERO_EXIT_CHILD_CONTROL'and result['runtime']==dict(bytes=38256,sha256='9388d270d06e28fee50160b7c04dd69593e383647d791f8aaff69380032165d5')\n assert raw['passed']is True and adopted['status']=='QUALIFIED_ONE_ADOPTED_CHILD_REAPED'and adopted['raw_reap']['exit']==0 and adopted['target_queries_closed']is True and adopted['final_census']=='RESERVED_LEADER_ONLY'\nPYEVIDENCE"
+        },
+        {
+          "name": "Upload only passive bounded control evidence",
+          "if": "always()",
+          "uses": "actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9",
+          "with": {
+            "name": "owned-v2-process-control-${{ github.run_id }}-${{ github.run_attempt }}",
+            "path": "${{ runner.temp }}/owned-v2-native-control/public-evidence.tar",
+            "if-no-files-found": "error",
+            "retention-days": 3,
+            "compression-level": 0
+          }
+        }
+      ]
+    }
+  }
+}

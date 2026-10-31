@@ -1,0 +1,63 @@
+{
+  "ALPM_installation": "NOT_RUN",
+  "ELF_closure": 337,
+  "capture_files": 1066,
+  "captured_bytes": 102303597,
+  "cleanup": "PASS",
+  "collection": {
+    "artifact.zip": {
+      "bytes": 95618,
+      "sha256": "f474de28ace96a417b5e4b332a06ddae0f260b9b79c49c576483a13a6db04118"
+    },
+    "logs.zip": {
+      "bytes": 103206,
+      "sha256": "cc7ddbe67c4fe79ba3d094cd568d01df7db8c871572cd908613f4b1bedd652b2"
+    }
+  },
+  "current_guest_commands": 3,
+  "dependency_subset": 33,
+  "gid": 23001,
+  "groups": [],
+  "hardware": "NOT_RUN",
+  "natural_exit": true,
+  "package_sha256": "b852e3fc647d63699c5f42003a748cbd2268991dc2615a494dc3cdda4d757d12",
+  "packet_index": {
+    "bytes": 24368,
+    "sha256": "550c6b1b5c146beaebca0b8e0768ad7a9c625ccad35934f78687b4e4c1af676a"
+  },
+  "packet_source": "ba5dd71b99eb7e117be4ed3e269abd8e5f2b0b5f",
+  "page_size": 16384,
+  "parent_cases": [
+    "allocation",
+    "dlopen_dlsym",
+    "fd_stat_clock_random",
+    "fork_exec_wait",
+    "numeric_address_lookup",
+    "numeric_math",
+    "pthread_tls_join",
+    "utf8_iconv_locale"
+  ],
+  "performance": "NOT_MEASURED",
+  "qemu_exit": 0,
+  "qemu_seconds": 19.633844,
+  "qualifications": [
+    "Local retained source records match the original manifest and Root freeze; Root independently joins exact Git. No Git process was run.",
+    "Full captured tar/initramfs, candidate archive body, kernel Image/config and full UART are not exported. Complete content/alignment/preservation, page probe and nonce checks remain original frozen-source-enforced assertions; retained summaries/identities are joined, not newly executed or observed.",
+    "Original normal native compiler receipts/probe bytes are reused and validated, never relabelled current16K compilations.",
+    "Consumer/producer/image/kernel-work absence is retained ordered receipt evidence, not a live reobservation.",
+    "Standard paths inside a private data-staged chroot in a generic16K VM only; no ALPM replacement/lifecycle, physical target/M2, security/source-key authority, historical correspondence or release acceptance."
+  ],
+  "release": "NOT_ADMITTED",
+  "run_id": 38983272600,
+  "runtime_file_joins": 19,
+  "runtime_records": 12,
+  "scope": "DATA_STAGED_PRIVATE_ROOT_NOT_ALPM_INSTALLATION",
+  "security": "NO_CREDIT",
+  "source_git_joins": 47,
+  "source_manifest_sha256": "1cfb9208c36cd0df2eef20db8707da248ac3f0d8dd4d6605969b7977d6a796e8",
+  "source_records": 45,
+  "source_sha": "947b37384e2d76f5d4a5265d3a471a85d839c791",
+  "status": "ROOT_ACCEPTED_GNU_PROVIDER_SYSTEM_PATHS_GENERIC16K",
+  "uid": 23001,
+  "workflow_sha256": "881d4e5f006bfb2bcf9d155b484f95ad431cbb83659b7e124915dd06beb18245"
+}

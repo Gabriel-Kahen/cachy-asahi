@@ -1,0 +1,2790 @@
+{
+  "baseline_head": "670067d84da4615b7779887ebbd8432d5771bf27",
+  "dependency_signatures": {
+    "packages/tools/cachy-asahi-cache/test_cache.py": "f0eee173ee4ff125328608a4e4895e830fd6c79628e0bbcd7523d0f0ce99be86",
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/assemble.py": "cb2af736c26a812f199c25a00068b8f2e9481ed9b41f391cc45feab41f693f89",
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/lib/cachy-asahi-developer-tools/0.1.0/scripts/virtual/owned_process.py": "1cf094f9a32da0f36842e6fcb066d67315f236237198ea4d98217056e6b867ff",
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/lib/cachy-asahi-developer-tools/0.1.0/scripts/workflows/developer_build_systems.py": "a3f30f829fe09eba6ff6cd74f9f66b05a0314d48cb7d0464b8cfeaced7fbe7e8",
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/lib/cachy-asahi-developer-tools/0.1.0/scripts/workflows/developer_debugger.py": "d7399f89779a989e5e65529038cb71dc46aa0329b10abde5879b14b9c9c7121f",
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/lib/cachy-asahi-developer-tools/0.1.0/scripts/workflows/developer_workflow.py": "82c367ec0ad15f95a46b30edb1e335ee66f48537309980c597bdf67ad1b52fd7",
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/lib/cachy-asahi-developer-tools/0.1.0/scripts/workflows/python_development.py": "d1ad61a462480feae4aa80c916ac007f45e099d348a41768272bc28cc8ec72b4",
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/developer/hello.py": "a47bedb647b4ff70de02dad09e545963e489a08989f3e0dbbead3a8f495fbba0",
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/developer/project/configure.py": "6ac6a74802adb1ec9dbca710b0091c4687387763d4e7ea31c36779c28a306ef0",
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/developer/test_hello.py": "11cd972f2729dd9cb2c4419080820af0b36f16bc126c6e9fcb0c5d742ba70551",
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/python-development/src/cachy_python_demo/__init__.py": "78e94671336ecb4ce8124a56abb3fce58b637514bcd5fde90d3f912d064abdc6",
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/python-development/src/cachy_python_demo/__main__.py": "537d477fce8390210112bcfb2fdc85e3825855e3fceae508ebfa24b6176da3ce",
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/python-development/test_demo.py": "4ed997bb5ebe706800310d6ae347cc604da0671828c678bdb698995168ad6d74",
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/test_package.py": "0e58040e6708a311def5e051fd52dadcf8566fce7e8fd412db08fdadd6f66326",
+    "packages/tools/cachy-asahi-dns/check_source.py": "30e01729603f314e7d05d46e240eee3e0a8f9c7979e8d65a56109dfccad6742f",
+    "packages/tools/cachy-asahi-dns/test_dns.py": "dbd3066b59a692ded3f523b4a7d91febf2dae7aa44a17f95c4de43ff320be500",
+    "packages/tools/cachy-asahi-maintenance/check_source.py": "d5dced75a57b38c3b7c8bee69c943a16dc3799bb41c486a54790197fd430d803",
+    "packages/tools/cachy-asahi-maintenance/check_source_pins.py": "4f9aafb8a3567f52f752f344fc1e17c3e0cb7abd7fa7c5a2569cdc4c686e00ab",
+    "packages/tools/cachy-asahi-maintenance/compare_releases.py": "27260211e27f04b3364b063cceb3fbf397a5fb0dee3f58de01c918686f87c740",
+    "packages/tools/cachy-asahi-maintenance/health.py": "86e6e4838035b3aa43cd15067287feb8691f3c120d63be6c40d0635876b42d33",
+    "packages/tools/cachy-asahi-maintenance/rebuild_plan.py": "d2980c8ce37a6bc31bfc281521bee616c32a5578b47cc65c4aa0cad461004587",
+    "packages/tools/cachy-asahi-maintenance/release.py": "fcd7fca8269a9ef0e453379265915231ea0b4552b49fc82e3d4d14ede572c5e8",
+    "packages/tools/cachy-asahi-maintenance/security_advisories.py": "7e812203d45afd331f8e92760a48cb39ef9d1fffa4c5942ae7a46b28f3cf1792",
+    "packages/tools/cachy-asahi-maintenance/signing_expiry.py": "286826e8efeb09ebe2fb5619a6b60f1ca5c3dd235015e7160d8828eb3012a495",
+    "packages/tools/cachy-asahi-maintenance/source_delivery.py": "117028bedbd9d2b70c98b9b454b9cf44569fdb114940c20db2f262a9771bff9e",
+    "packages/tools/cachy-asahi-maintenance/test_package.py": "1295e2225db5c5da8fe8177f70931caa8a9a9c65abdf5b143a61d6d23910dfe4",
+    "packages/tools/cachy-asahi-maintenance/update_plan.py": "2819b5fe830f0d768642166ea1ede35eec075367022c07a2a6d1b09b10da70f9",
+    "packages/tools/cachy-asahi-orphans/test_orphans.py": "47f8d7de2fb066e11c898f16960604e331672ac25f91a03edfe85fcab2a461a2",
+    "packages/tools/cachy-asahi-orphans03/check_source.py": "f1dbb41828e21d32157ff4116824b62b865a3012a7cd6cfb05dce8d4c665f5c9",
+    "packages/tools/cachy-asahi-orphans03/live.py": "410e955d5498f525b82ea3618942899f149f41d15a5244b26b4c73341f1b08d5",
+    "packages/tools/cachy-asahi-orphans03/live_policy.py": "adbc27b036fdf60293994dce411224a94df830e186007f67e2566d5a88ed02de",
+    "packages/tools/cachy-asahi-orphans03/remove.py": "e094a5eb65b1f6cd41bb6ab60b56786a64e0edcc42296ae814da7813ded46b45",
+    "packages/tools/cachy-asahi-orphans03/test_live.py": "74a5da1baf68ecc525472e5ea38584e21983913e420ca1adfad4d72eda820fe7",
+    "packages/tools/cachy-asahi-orphans03/test_live_policy.py": "66600b46b5bbc0e100f5344c0f52d87cbe5c1fb847d00cc3a6fd4149c1c791dd",
+    "packages/tools/cachy-asahi-orphans03/test_live_supervision.py": "972fa5ad930f8179088118fa78ecdf193e56e0ee6484f01b2ef11b180a872ded",
+    "packages/tools/cachy-asahi-orphans03/test_orphans.py": "47f8d7de2fb066e11c898f16960604e331672ac25f91a03edfe85fcab2a461a2",
+    "packages/tools/cachy-asahi-orphans03/test_remove.py": "c006e21b9df478e00476bdbd3c8d258857ce55f714dbf413716ff3446de31e9f",
+    "packages/tools/cachy-asahi-orphans03/test_retirement.py": "063438654de714f7b29b82c76913b7164250f9a7307368c5cc2d33568ded1013",
+    "packages/tools/cachy-asahi-release-tools-v2/archive_stream.py": "9ca59b336c892ed6064232a4d8ca11d38cca54d845b77fa30081dec23b2b7578",
+    "packages/tools/cachy-asahi-release-tools-v2/check_package.py": "25588a6d0b6ce5990ac57ecb862f7aed9087bbea33e973e80f251aadac2a8cc7",
+    "packages/tools/cachy-asahi-release-tools-v2/compare_sboms.py": "c10df7870f833ecfda0476b2ac52b33d8a1186929d00a5ca445a775e4ed5dae1",
+    "packages/tools/cachy-asahi-release-tools-v2/package_checks.py": "b75c538edfc08762c8220f398ec3cbb85bcc0356aede1755ec75518f3bb5fbde",
+    "packages/tools/cachy-asahi-release-tools-v2/recipe_source_delivery.py": "04d6fa9e1f6e362f989fcf353517f6f5edd45c97526ce96e03decd947e707eb3",
+    "packages/tools/cachy-asahi-release-tools-v2/recipe_source_delivery_v2.py": "52b95b4affc52d52ff23e7053214123b64b2619212374c99338f872cc997144d",
+    "packages/tools/cachy-asahi-release-tools-v2/release_sbom.py": "1916b662c19abaf27096671eda9db0f5878c3b2d78eb9a00d5fe48744eb316d2",
+    "packages/tools/cachy-asahi-release-tools-v2/source_delivery.py": "117028bedbd9d2b70c98b9b454b9cf44569fdb114940c20db2f262a9771bff9e",
+    "packages/tools/cachy-asahi-release-tools-v2/test_package.py": "03effefe654f73df7ef45c42b3f37e3338ab143953d9a1a619aceaf92c1bf4cc",
+    "packages/tools/cachy-asahi-release-tools/archive_stream.py": "9ca59b336c892ed6064232a4d8ca11d38cca54d845b77fa30081dec23b2b7578",
+    "packages/tools/cachy-asahi-release-tools/check_package.py": "203bd9fcc1bac946cafe90414aaa881f0f550d505d0f2361d728b67350495270",
+    "packages/tools/cachy-asahi-release-tools/package_checks.py": "b75c538edfc08762c8220f398ec3cbb85bcc0356aede1755ec75518f3bb5fbde",
+    "packages/tools/cachy-asahi-release-tools/recipe_source_delivery.py": "04d6fa9e1f6e362f989fcf353517f6f5edd45c97526ce96e03decd947e707eb3",
+    "packages/tools/cachy-asahi-release-tools/recipe_source_delivery_v2.py": "52b95b4affc52d52ff23e7053214123b64b2619212374c99338f872cc997144d",
+    "packages/tools/cachy-asahi-release-tools/release_sbom.py": "1916b662c19abaf27096671eda9db0f5878c3b2d78eb9a00d5fe48744eb316d2",
+    "packages/tools/cachy-asahi-release-tools/source_delivery.py": "117028bedbd9d2b70c98b9b454b9cf44569fdb114940c20db2f262a9771bff9e",
+    "packages/tools/cachy-asahi-release-tools/test_package.py": "485346b66510396d11cae34703a448c2599c0e0232ee8fe4b305231923cec971",
+    "packages/tools/cachy-asahi-repository-runtime/check_source.py": "fe0844522a41b0b3b202a465a7c37b655ad04374659962aee947fbb54c02c36f",
+    "packages/tools/cachy-asahi-repository-runtime/client.py": "7ad2412ba5b25fe3ae65c1e38edb6d7fbc9e353cf9efa42581a9f6b629c45cba",
+    "packages/tools/cachy-asahi-repository-runtime/release.py": "fcd7fca8269a9ef0e453379265915231ea0b4552b49fc82e3d4d14ede572c5e8",
+    "packages/tools/cachy-asahi-repository-runtime/source_delivery.py": "117028bedbd9d2b70c98b9b454b9cf44569fdb114940c20db2f262a9771bff9e",
+    "packages/tools/cachy-asahi-security-maintenance/advisory_cache.py": "ada766245e67703ba8d231291a7948c7efc0cb645fe9b2fcf473b70fa14613c2",
+    "packages/tools/cachy-asahi-security-maintenance/build.py": "f95bb36ad1bb18facce8a151f39e2ab20d84b81f06e5887ebe24e2d6c711030e",
+    "packages/tools/cachy-asahi-security-maintenance/build_batch.py": "d43d79e7c6b96eb1c20729e6bc70103a3689ef568b9ca842591a0ee7efefa9ae",
+    "packages/tools/cachy-asahi-security-maintenance/build_batch_v2.py": "253fd296ed73fb33e8e058b68f5ed0da5cb77f4302aa3884cb015845367ea02e",
+    "packages/tools/cachy-asahi-security-maintenance/build_outputs_v2.py": "5d1aedf8d7327b42f053cb238257495801df25fd1eaee6911ff392a6b4ceaa37",
+    "packages/tools/cachy-asahi-security-maintenance/build_v2.py": "44cf9da9ddd1c287c70078b2a7da012b78bc1e1b9a32ec5459392611ce237eb5",
+    "packages/tools/cachy-asahi-security-maintenance/campaign.py": "c528e1e8fdc322fed6f8cb36eeaab8eff5daf23f1df5b556e18883c5e100f6c9",
+    "packages/tools/cachy-asahi-security-maintenance/check_source.py": "62759fb6b1400fa2a25c55d5945fcbda5c47c236afcd1f71edf5b8e3bc905fff",
+    "packages/tools/cachy-asahi-security-maintenance/check_source_pins.py": "4f9aafb8a3567f52f752f344fc1e17c3e0cb7abd7fa7c5a2569cdc4c686e00ab",
+    "packages/tools/cachy-asahi-security-maintenance/compare.py": "316725290d498c72641498d34d27522fb1fcdd6b361dc971d48d798427a960dd",
+    "packages/tools/cachy-asahi-security-maintenance/compare_v2.py": "cc6d81f7fc627406a13c92387bc469caccadc89f7858e19bfc2a2ccd0ae82d2f",
+    "packages/tools/cachy-asahi-security-maintenance/fixture_security.py": "9048bbb22373dd5e96ac2466d38d919897f05ea06c88dd19cace7b6e83e82266",
+    "packages/tools/cachy-asahi-security-maintenance/owned_process.py": "1cf094f9a32da0f36842e6fcb066d67315f236237198ea4d98217056e6b867ff",
+    "packages/tools/cachy-asahi-security-maintenance/package_checks.py": "b75c538edfc08762c8220f398ec3cbb85bcc0356aede1755ec75518f3bb5fbde",
+    "packages/tools/cachy-asahi-security-maintenance/rebuild_plan.py": "d2980c8ce37a6bc31bfc281521bee616c32a5578b47cc65c4aa0cad461004587",
+    "packages/tools/cachy-asahi-security-maintenance/release.py": "fcd7fca8269a9ef0e453379265915231ea0b4552b49fc82e3d4d14ede572c5e8",
+    "packages/tools/cachy-asahi-security-maintenance/security_advisories.py": "7e812203d45afd331f8e92760a48cb39ef9d1fffa4c5942ae7a46b28f3cf1792",
+    "packages/tools/cachy-asahi-security-maintenance/security_campaign.py": "056f1085857257156256c564cf1050840a8427e9bf7128f8394cd84dae974292",
+    "packages/tools/cachy-asahi-security-maintenance/source_cache.py": "4b41febcebbaa900afa40061d75badb61ffe3bf6535a6322e7aad278327251d2",
+    "packages/tools/cachy-asahi-security-maintenance/source_delivery.py": "117028bedbd9d2b70c98b9b454b9cf44569fdb114940c20db2f262a9771bff9e",
+    "packages/tools/cachy-asahi-security-maintenance/source_materials.py": "013526b9385e2ef615b1294b512009676cd896c49d29353a1c03e8bd306da77b",
+    "packages/tools/cachy-asahi-security-maintenance/test_package.py": "8d08f6595a30202d36443f9f01d78c915dbe1ba6954cc7fa773fbba93a934e03",
+    "packages/tools/cachy-asahi-security-maintenance/update_plan.py": "2819b5fe830f0d768642166ea1ede35eec075367022c07a2a6d1b09b10da70f9",
+    "packages/tools/cachy-asahi-session-diagnostics/check_package.py": "fdff353b8503d0c9feb3c6325779e4ac6a395ff2029b15ddf5a47ecb53813b51",
+    "packages/tools/cachy-asahi-session-diagnostics/session_probe.py": "ac1e0af7348dc8240fcae52215ef4a4323dfab6ae0c5cd9b01e183f3ac6eaec9",
+    "packages/tools/cachy-asahi-session-diagnostics/test_package.py": "a18edec8788f0a4e72fa021c47c884ee9cd878786623b01f8d512e7cc78339a4",
+    "packages/tools/cachy-asahi-session-diagnostics/test_session_probe.py": "60998189a4867005c0ae22acd7ad37dffbc85f7fc2ad1d05169b8fc319487e95",
+    "packages/tools/cachy-asahi-support/check_package.py": "23abf84482825c396a14d776d19bd5f4710667833360ab36a4d3c4b83173aa81",
+    "packages/tools/cachy-asahi-support/doctor.py": "a69ed27810f7a4fb47afb74052326fa9193d6d65892894b06b0b58b9ba9a8995",
+    "packages/tools/cachy-asahi-support/session_probe.py": "ac1e0af7348dc8240fcae52215ef4a4323dfab6ae0c5cd9b01e183f3ac6eaec9",
+    "packages/tools/cachy-asahi-support/support_bundle.py": "1dc8babc5fc9dfe21aa47fcbb0a127315104469b279997b679ba860309833edc",
+    "packages/tools/cachy-asahi-support/test_package.py": "392ac52c121696e82644db4c7e8c71a9afeaa55e94451fa4dbb35e633ddc9dd5",
+    "packages/tools/cachy-asahi-support2/check_package.py": "73753c54152009d87768520c4668939fb2ad803f98865887668e18fb1e5eb545",
+    "packages/tools/cachy-asahi-support2/collect_support.py": "226d1330b44c3224827cf311ad7489b7e3f2dcd8d1fdb25c528fa4cc8e3238c7",
+    "packages/tools/cachy-asahi-support2/doctor.py": "a69ed27810f7a4fb47afb74052326fa9193d6d65892894b06b0b58b9ba9a8995",
+    "packages/tools/cachy-asahi-support2/session_probe.py": "ac1e0af7348dc8240fcae52215ef4a4323dfab6ae0c5cd9b01e183f3ac6eaec9",
+    "packages/tools/cachy-asahi-support2/support_bundle.py": "1dc8babc5fc9dfe21aa47fcbb0a127315104469b279997b679ba860309833edc",
+    "packages/tools/cachy-asahi-support2/test_package.py": "36ac7c56da344f80097065dcb175cfff83bf727591b27d2a3de49066cf480741",
+    "packages/tools/cachy-asahi-sysctl/test_sysctl.py": "bf96d798bfe95cc10c4b62819bc9a173ef12fff53cfce8750a5fe1ab4cf86ece",
+    "packages/tools/cachy-asahi-topmem/test_topmem.py": "476fb537a1649b831c0691d3fa66cf844696595082e72d2f94c95aed6d7919a1",
+    "scripts/benchmarks/benchmark.py": "d16c3351e264f90f11d1a5f5d30d74e235b7a6cc345bbe3c1d6e6ce62cb1d92d",
+    "scripts/benchmarks/benchmark_platform_metrics.py": "b006851f7b206cc95e4fce9608caab8113d5223de3d5838f68fa622b8d8596eb",
+    "scripts/benchmarks/platform_metrics.py": "2e26de67439401ecd7e19918f9014ff5f5e55ccd36f47a44857980f0cb444ea4",
+    "scripts/benchmarks/process_group_memory.py": "ab822ca4ae6ef82ddc58c45186c0d0f4e923d8a6048b0546d7ef000eb45ef87f",
+    "scripts/benchmarks/test_benchmark_owned_rss.py": "6a85f3315fea599538c732f7b8570d509e88db75cbe313aed206cca0f68ad577",
+    "scripts/benchmarks/test_benchmark_platform_metrics.py": "9528a34e3dc19fea5d11bcfe1bb81c9f37f91f10de3664d98c519aac75f37124",
+    "scripts/benchmarks/test_platform_metrics.py": "55daa109524e92c9f6cf78903c7ab5050e25393fcf4e989a76c81397c3938c9a",
+    "scripts/build/mirror_consumer.py": "62065519882118b7cb8d072db83a8d1685d268748ae76b127ffc7004141405fc",
+    "scripts/build/test_mirror_consumer.py": "a378f3d178a4ab2c992651ba093999e91ca8ae2f201b53b4524dd93bd8cf7633",
+    "scripts/checks/package_checks.py": "b75c538edfc08762c8220f398ec3cbb85bcc0356aede1755ec75518f3bb5fbde",
+    "scripts/experiments/test_zlib_pgo102.py": "3511b0e35319a682e265b7f74bd0710eef507508ae91c581d3c6b137c476b7eb",
+    "scripts/maintenance/advisory_cache.py": "ada766245e67703ba8d231291a7948c7efc0cb645fe9b2fcf473b70fa14613c2",
+    "scripts/maintenance/campaign.py": "c528e1e8fdc322fed6f8cb36eeaab8eff5daf23f1df5b556e18883c5e100f6c9",
+    "scripts/maintenance/retained_git_transport.py": "e58b37682feda22b4f2cc10f521460ef160453bb687a74fd2a03643be199d977",
+    "scripts/maintenance/security_campaign.py": "056f1085857257156256c564cf1050840a8427e9bf7128f8394cd84dae974292",
+    "scripts/maintenance/test_advisory_cache.py": "1113fa481c1658a9734c472e970545d28774c2ed25c38178ee7f88e2460dc95f",
+    "scripts/maintenance/test_retained_git_transport.py": "6c2b9781f3a1e8f924999455af13d53c38af708461de2f03a4420d2ac1e063c1",
+    "scripts/maintenance/test_security_campaign.py": "d9da6384bf0a7db262a1abf0b336bfff7409a3b1aa0efd72bbedb633aab25b22",
+    "scripts/maintenance/test_update_plan.py": "9b2c8cd113b6816a7f78c6ff7ef7b1b769905c98e9b3ff9a43d4eea0dc6868c2",
+    "scripts/release/compare_sboms.py": "c10df7870f833ecfda0476b2ac52b33d8a1186929d00a5ca445a775e4ed5dae1",
+    "scripts/release/recipe_source_delivery.py": "04d6fa9e1f6e362f989fcf353517f6f5edd45c97526ce96e03decd947e707eb3",
+    "scripts/release/recipe_source_delivery_v2.py": "52b95b4affc52d52ff23e7053214123b64b2619212374c99338f872cc997144d",
+    "scripts/release/release_sbom.py": "1916b662c19abaf27096671eda9db0f5878c3b2d78eb9a00d5fe48744eb316d2",
+    "scripts/release/release_source_mirror.py": "5cd10d51ce0bbd12ef7b68615d50fed51dfd6335c93c9123bd16ec6373a5d3a0",
+    "scripts/release/security_maintenance_source_delivery.py": "013b42143044917aa11bc8e5d313906bd2cf257d8d081babc61a5926302fe89b",
+    "scripts/release/security_maintenance_source_delivery_v2.py": "b378d010dfa1789058c56f7efd414849b3180a1b84ece647f94ebca8b7fe269a",
+    "scripts/release/source_delivery.py": "117028bedbd9d2b70c98b9b454b9cf44569fdb114940c20db2f262a9771bff9e",
+    "scripts/release/support_source_delivery_v1.py": "6682ee4d7c2b8ebbdbe3cef1077d57d1f277020f6398afca314f88d85961a495",
+    "scripts/release/support_source_delivery_v2.py": "24ed1005402b7b6cd1f8be64725a138c7e5317ae04343fd34a321f35bdd068d9",
+    "scripts/release/test_compare_sboms.py": "cb942580c55faab2efaa9a551f594e8738e884b2504f08565b5a6b7d7df4ed34",
+    "scripts/release/test_dns_sysctl_topmem_source_delivery.py": "9eac43a210dc83bc1643ad111176112f3182bc0024f7234138f2b8182b0c664a",
+    "scripts/release/test_management_tools_source_delivery.py": "b22e35cc124e09efd3a16b1dd56dda963564f7dd83870917841e07aa6cf35d25",
+    "scripts/release/test_recovery_bundle.py": "cedf421b202069538f27aeccdbfdfc093b1aade72d796a159c475a79e1f9936b",
+    "scripts/release/test_release_sbom.py": "f6f1fddb094298d1b934c218067aa8713935617437ce76be9f807bfcb4d92914",
+    "scripts/release/test_release_source_mirror.py": "51bcd7fecba5a55ed5bb9ff8d77bef258c45bee3de76be388fe73dc5862a68d7",
+    "scripts/release/test_release_source_mirror_incremental.py": "667e8f567cecc996ffc56957f07d9eab632569521d2022d01c0e7ed95d205c65",
+    "scripts/release/test_security_maintenance_source_delivery_v2.py": "06ddf9a6f37475fac0b5c8bb56be6c5864b96278abdbe0ceff98fb46e6afc2cf",
+    "scripts/release/test_support_source_delivery_v1.py": "4ea5c57e06afea9b35274e33ab7a63ec8c130827b5b3a4c7a2667325100b1c95",
+    "scripts/release/test_support_source_delivery_v2.py": "1728418175df127457cb63b7ae8e16f3fc6f12a37c923a8ceee176922eae8b45",
+    "scripts/support/collect_support.py": "226d1330b44c3224827cf311ad7489b7e3f2dcd8d1fdb25c528fa4cc8e3238c7",
+    "scripts/support/support_bundle.py": "1dc8babc5fc9dfe21aa47fcbb0a127315104469b279997b679ba860309833edc",
+    "scripts/update/archive_stream.py": "9ca59b336c892ed6064232a4d8ca11d38cca54d845b77fa30081dec23b2b7578",
+    "scripts/virtual/owned_process.py": "1cf094f9a32da0f36842e6fcb066d67315f236237198ea4d98217056e6b867ff",
+    "scripts/workflows/desktop_application_inputs.py": "7c53dbe8a8451e9d1af380d3f31817c552f22481f825e75e0a8d52bd647178b9",
+    "scripts/workflows/desktop_application_runtime.py": "b62ef3e19e647c066836fc5b154e6cd7edfc2afcf536cf0a3ff15939e71e8bcf",
+    "scripts/workflows/desktop_application_window_lifecycle.py": "26901ac6c4cae4b37ed97e0a273755e31b14ebb15a7859cdd62421f3b847005b",
+    "scripts/workflows/desktop_applications.py": "7b4f3112d75c6e2e81c28d347d7bda272dd20052bcc8f592ca2c43b1f45b2ed0",
+    "scripts/workflows/developer_build_systems.py": "a3f30f829fe09eba6ff6cd74f9f66b05a0314d48cb7d0464b8cfeaced7fbe7e8",
+    "scripts/workflows/developer_debugger.py": "d7399f89779a989e5e65529038cb71dc46aa0329b10abde5879b14b9c9c7121f",
+    "scripts/workflows/developer_workflow.py": "82c367ec0ad15f95a46b30edb1e335ee66f48537309980c597bdf67ad1b52fd7",
+    "scripts/workflows/python_development.py": "d1ad61a462480feae4aa80c916ac007f45e099d348a41768272bc28cc8ec72b4",
+    "scripts/workflows/python_extension.py": "737627f305de5ae48bb3f65bfd70bbaaedfa28f45361569bd07e5012a1b0a158",
+    "scripts/workflows/test_desktop_application_inputs.py": "05d29c4ea49dc132c3ba00b56b5810bd41ed5858e3dcfde78cfdc7f4fbe58ea8",
+    "scripts/workflows/test_desktop_application_runtime.py": "14d82db988f2c0306a9dbeaaade3a3d016a6d73b678c3e66f49f343a4e5c4a8a",
+    "scripts/workflows/test_desktop_application_window_lifecycle.py": "7861846efe9ab87bcb7c423b6a3a0c628b9391f2a76d2e9a195f1c19af6cd52a",
+    "scripts/workflows/test_desktop_applications.py": "1f68700ed1062bee238dc9333d280ee77294137d15a9748272f25fefc784711a",
+    "tests/support/test_collect_support.py": "3e35b61beb79002de488c4ef5c533cfd21b79a939a490f9545f50a70e1f4fee5",
+    "tests/support/test_support_bundle.py": "9efa16ff5a9bf2ff87231c6f97203ee5d7d9171323fbe1d15efb55ce7ec788e0",
+    "tests/test_build_outputs_v2.py": "54afbea70bcd2377283b6de7de6b1e93b9f79b2467a091e67737496fd173c7c1",
+    "tests/test_maintenance_campaign.py": "4123ddc882228464a5cb11950353d8e6966104c8e3856bb127fbabf86bd17a7b",
+    "tests/test_orphans03_adoption.py": "e34c435bcac458e3ac2079a8e0645bb5b478a933ae55329682456a08d5628440",
+    "tests/workflows/fixtures/developer/hello.py": "a47bedb647b4ff70de02dad09e545963e489a08989f3e0dbbead3a8f495fbba0",
+    "tests/workflows/fixtures/developer/project/configure.py": "6ac6a74802adb1ec9dbca710b0091c4687387763d4e7ea31c36779c28a306ef0",
+    "tests/workflows/fixtures/developer/test_hello.py": "11cd972f2729dd9cb2c4419080820af0b36f16bc126c6e9fcb0c5d742ba70551",
+    "tests/workflows/fixtures/python-development/src/cachy_python_demo/__init__.py": "78e94671336ecb4ce8124a56abb3fce58b637514bcd5fde90d3f912d064abdc6",
+    "tests/workflows/fixtures/python-development/src/cachy_python_demo/__main__.py": "537d477fce8390210112bcfb2fdc85e3825855e3fceae508ebfa24b6176da3ce",
+    "tests/workflows/fixtures/python-development/test_demo.py": "4ed997bb5ebe706800310d6ae347cc604da0671828c678bdb698995168ad6d74",
+    "tests/workflows/fixtures/python-extension/check_extension.py": "0a1d06a30ac53668d3e62afae986ca5f59f371030704aae5e1855097bc3f68a4",
+    "tests/workflows/test_developer_build_systems.py": "01e773c520f5723b5dcb0fbd769ef4e92fee6a2f3b3c6caaea24961022f12daf",
+    "tests/workflows/test_developer_debugger.py": "a19c603b2e0a173a0c582553357d89bd3d73a27e56c6992c13d246a735e38533",
+    "tests/workflows/test_developer_workflow.py": "69582552944ae6751f068c1bcd8cf3e459f95f52fb4465753390f191ca280da8",
+    "tests/workflows/test_python_development.py": "cccd6093c6b2449bc62bcb50c4da3fcf405e6264169d6bdbc609ec71424a51e7",
+    "tests/workflows/test_python_extension.py": "2965ab893c78f6c156206968ae03d55e5370316f7f2f7eb4eeb01e74bbcd4649"
+  },
+  "full_paths": [
+    "AGENTS.md",
+    "LICENSE",
+    "goal.md",
+    "outline.md",
+    "packages/tools/cachy-asahi-cache/.SRCINFO",
+    "packages/tools/cachy-asahi-cache/PKGBUILD",
+    "packages/tools/cachy-asahi-developer-tools/.SRCINFO",
+    "packages/tools/cachy-asahi-developer-tools/PKGBUILD",
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0.tar.gz",
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload-map.json",
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/lib/cachy-asahi-developer-tools/0.1.0/runtime.json",
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/share/doc/cachy-asahi-developer-tools/source-provenance.json",
+    "packages/tools/cachy-asahi-dns/.SRCINFO",
+    "packages/tools/cachy-asahi-dns/PKGBUILD",
+    "packages/tools/cachy-asahi-dns/source-provenance.json",
+    "packages/tools/cachy-asahi-maintenance/.SRCINFO",
+    "packages/tools/cachy-asahi-maintenance/PKGBUILD",
+    "packages/tools/cachy-asahi-maintenance/source-provenance.json",
+    "packages/tools/cachy-asahi-orphans/.SRCINFO",
+    "packages/tools/cachy-asahi-orphans/PKGBUILD",
+    "packages/tools/cachy-asahi-orphans03/.SRCINFO",
+    "packages/tools/cachy-asahi-orphans03/PKGBUILD",
+    "packages/tools/cachy-asahi-orphans03/source-provenance.json",
+    "packages/tools/cachy-asahi-release-tools-v2/.SRCINFO",
+    "packages/tools/cachy-asahi-release-tools-v2/PKGBUILD",
+    "packages/tools/cachy-asahi-release-tools-v2/export-v2.json",
+    "packages/tools/cachy-asahi-release-tools-v2/payload-map.json",
+    "packages/tools/cachy-asahi-release-tools-v2/source-provenance.json",
+    "packages/tools/cachy-asahi-release-tools/.SRCINFO",
+    "packages/tools/cachy-asahi-release-tools/PKGBUILD",
+    "packages/tools/cachy-asahi-release-tools/fixtures.json",
+    "packages/tools/cachy-asahi-release-tools/payload-map.json",
+    "packages/tools/cachy-asahi-release-tools/recipe-fixture.tar",
+    "packages/tools/cachy-asahi-release-tools/source-provenance.json",
+    "packages/tools/cachy-asahi-repository-runtime/.SRCINFO",
+    "packages/tools/cachy-asahi-repository-runtime/PKGBUILD",
+    "packages/tools/cachy-asahi-repository-runtime/source-provenance.json",
+    "packages/tools/cachy-asahi-security-maintenance/.SRCINFO",
+    "packages/tools/cachy-asahi-security-maintenance/PKGBUILD",
+    "packages/tools/cachy-asahi-security-maintenance/source-provenance.json",
+    "packages/tools/cachy-asahi-session-diagnostics/.SRCINFO",
+    "packages/tools/cachy-asahi-session-diagnostics/PKGBUILD",
+    "packages/tools/cachy-asahi-session-diagnostics/source-provenance.json",
+    "packages/tools/cachy-asahi-support/.SRCINFO",
+    "packages/tools/cachy-asahi-support/PKGBUILD",
+    "packages/tools/cachy-asahi-support/fixtures.json",
+    "packages/tools/cachy-asahi-support/payload-map.json",
+    "packages/tools/cachy-asahi-support/source-provenance.json",
+    "packages/tools/cachy-asahi-support2/.SRCINFO",
+    "packages/tools/cachy-asahi-support2/PKGBUILD",
+    "packages/tools/cachy-asahi-support2/fixtures.json",
+    "packages/tools/cachy-asahi-support2/payload-map.json",
+    "packages/tools/cachy-asahi-support2/source-provenance.json",
+    "packages/tools/cachy-asahi-sysctl/.SRCINFO",
+    "packages/tools/cachy-asahi-sysctl/PKGBUILD",
+    "packages/tools/cachy-asahi-sysctl/source-provenance.json",
+    "packages/tools/cachy-asahi-topmem/.SRCINFO",
+    "packages/tools/cachy-asahi-topmem/PKGBUILD",
+    "scripts/benchmarks/benchmark.py",
+    "scripts/benchmarks/benchmark_platform_metrics.py",
+    "scripts/benchmarks/platform_metrics.py",
+    "scripts/benchmarks/process_group_memory.py",
+    "scripts/build/build.py",
+    "scripts/build/build_v2.py",
+    "scripts/build/source_materials.py",
+    "scripts/checks/package_checks.py",
+    "scripts/ci/desktop574_guest.py",
+    "scripts/ci/welcome-managed-gui/managed_session.py",
+    "scripts/hardware/session_probe.py",
+    "scripts/integration/desktop.py",
+    "scripts/maintenance/build_batch.py",
+    "scripts/maintenance/build_batch_v2.py",
+    "scripts/maintenance/campaign.py",
+    "scripts/maintenance/health.py",
+    "scripts/maintenance/rebuild_plan.py",
+    "scripts/maintenance/security_advisories.py",
+    "scripts/maintenance/source_cache.py",
+    "scripts/maintenance/update_plan.py",
+    "scripts/release/check_source_pins.py",
+    "scripts/release/fixtures/recipe-source-legacy/cachy-asahi-maintenance-0.1.0-1.tar.gz",
+    "scripts/release/fixtures/recipe-source-legacy/cachy-asahi-session-diagnostics-0.1.0-2.tar.gz",
+    "scripts/release/recipe_source_delivery.py",
+    "scripts/release/recipe_source_delivery_v2.py",
+    "scripts/release/recovery_bundle.py",
+    "scripts/release/release.py",
+    "scripts/release/source_delivery.py",
+    "scripts/update/archive_stream.py",
+    "scripts/virtual/guest.py",
+    "scripts/virtual/owned_process.py",
+    "scripts/workflows/developer_workflow.py"
+  ],
+  "full_prefixes": [
+    ".github/",
+    "manifests/",
+    "packages/core/",
+    "packages/platform/",
+    "packages/tools/cachy-asahi-cache/",
+    "packages/tools/cachy-asahi-dns/",
+    "packages/tools/cachy-asahi-orphans/",
+    "packages/tools/cachy-asahi-repository-runtime/",
+    "packages/tools/cachy-asahi-sysctl/",
+    "packages/tools/cachy-asahi-topmem/",
+    "scripts/checks/",
+    "scripts/ci/",
+    "scripts/hardware/",
+    "scripts/platform/",
+    "scripts/virtual/",
+    "tests/platform/"
+  ],
+  "groups": {
+    "full-port": {
+      "key": "component",
+      "rows": [
+        {
+          "component": "image",
+          "python": "3.12"
+        },
+        {
+          "component": "signed-intake",
+          "python": "3.12"
+        },
+        {
+          "component": "signed-image",
+          "python": "3.12"
+        },
+        {
+          "component": "sbom",
+          "python": "3.12"
+        },
+        {
+          "component": "source-mirror",
+          "python": "3.12"
+        },
+        {
+          "component": "source-mirror-update",
+          "python": "3.12"
+        },
+        {
+          "component": "desktop",
+          "python": "3.12"
+        },
+        {
+          "component": "app-runtime",
+          "python": "3.12"
+        },
+        {
+          "component": "app-inputs",
+          "python": "3.12"
+        },
+        {
+          "component": "python",
+          "python": "3.12"
+        },
+        {
+          "component": "python-extension",
+          "python": "3.12"
+        },
+        {
+          "component": "build-systems",
+          "python": "3.12"
+        },
+        {
+          "component": "pgo-source",
+          "python": "3.12"
+        },
+        {
+          "component": "app-window",
+          "python": "3.12"
+        },
+        {
+          "component": "mirror-builder",
+          "python": "3.12"
+        },
+        {
+          "component": "debugger",
+          "python": "3.12"
+        },
+        {
+          "component": "support-bundle",
+          "python": "3.12"
+        },
+        {
+          "component": "support-collection",
+          "python": "3.12"
+        },
+        {
+          "component": "recovery-bundle",
+          "python": "3.12"
+        },
+        {
+          "component": "security-operation",
+          "python": "3.12"
+        },
+        {
+          "component": "advisory-cache",
+          "python": "3.12"
+        },
+        {
+          "component": "support-package2",
+          "python": "3.12"
+        },
+        {
+          "component": "security-maintenance-package",
+          "python": "3.12"
+        },
+        {
+          "component": "orphans03",
+          "python": "3.12"
+        },
+        {
+          "component": "support-package",
+          "python": "3.12"
+        },
+        {
+          "component": "image",
+          "python": "3.14"
+        },
+        {
+          "component": "signed-intake",
+          "python": "3.14"
+        },
+        {
+          "component": "signed-image",
+          "python": "3.14"
+        },
+        {
+          "component": "sbom",
+          "python": "3.14"
+        },
+        {
+          "component": "source-mirror",
+          "python": "3.14"
+        },
+        {
+          "component": "source-mirror-update",
+          "python": "3.14"
+        },
+        {
+          "component": "desktop",
+          "python": "3.14"
+        },
+        {
+          "component": "app-runtime",
+          "python": "3.14"
+        },
+        {
+          "component": "app-inputs",
+          "python": "3.14"
+        },
+        {
+          "component": "python",
+          "python": "3.14"
+        },
+        {
+          "component": "python-extension",
+          "python": "3.14"
+        },
+        {
+          "component": "build-systems",
+          "python": "3.14"
+        },
+        {
+          "component": "pgo-source",
+          "python": "3.14"
+        },
+        {
+          "component": "app-window",
+          "python": "3.14"
+        },
+        {
+          "component": "mirror-builder",
+          "python": "3.14"
+        },
+        {
+          "component": "debugger",
+          "python": "3.14"
+        },
+        {
+          "component": "support-bundle",
+          "python": "3.14"
+        },
+        {
+          "component": "support-collection",
+          "python": "3.14"
+        },
+        {
+          "component": "recovery-bundle",
+          "python": "3.14"
+        },
+        {
+          "component": "security-operation",
+          "python": "3.14"
+        },
+        {
+          "component": "advisory-cache",
+          "python": "3.14"
+        },
+        {
+          "component": "support-package2",
+          "python": "3.14"
+        },
+        {
+          "component": "security-maintenance-package",
+          "python": "3.14"
+        },
+        {
+          "component": "orphans03",
+          "python": "3.14"
+        },
+        {
+          "component": "support-package",
+          "python": "3.14"
+        }
+      ]
+    },
+    "parallel": {
+      "key": "lane",
+      "rows": [
+        {
+          "lane": "metrics",
+          "python": "3.12"
+        },
+        {
+          "lane": "developer",
+          "python": "3.12"
+        },
+        {
+          "lane": "campaign",
+          "python": "3.12"
+        },
+        {
+          "lane": "management-source",
+          "python": "3.12"
+        },
+        {
+          "lane": "retained-transport",
+          "python": "3.12"
+        },
+        {
+          "lane": "metrics",
+          "python": "3.14"
+        },
+        {
+          "lane": "developer",
+          "python": "3.14"
+        },
+        {
+          "lane": "campaign",
+          "python": "3.14"
+        },
+        {
+          "lane": "management-source",
+          "python": "3.14"
+        },
+        {
+          "lane": "retained-transport",
+          "python": "3.14"
+        }
+      ]
+    },
+    "static": {
+      "key": "component",
+      "rows": [
+        {
+          "component": "sbom-comparison",
+          "python": "3.12",
+          "tests": 25
+        },
+        {
+          "component": "sbom-comparison",
+          "python": "3.14",
+          "tests": 25
+        },
+        {
+          "component": "developer-package",
+          "python": "3.12",
+          "tests": 13
+        },
+        {
+          "component": "developer-package",
+          "python": "3.14",
+          "tests": 13
+        },
+        {
+          "component": "release-package",
+          "python": "3.14",
+          "tests": 13
+        },
+        {
+          "component": "release-package-v2",
+          "python": "3.14",
+          "tests": 7
+        }
+      ]
+    }
+  },
+  "paths": {
+    "packages/tools/cachy-asahi-cache/.SRCINFO": {
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-cache/LICENSE": {
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-cache/NOTICE": {
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-cache/PKGBUILD": {
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-cache/README.md": {
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-cache/cachy-asahi-cache": {
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-cache/test_cache.py": {
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-developer-tools/.SRCINFO": {
+      "static": [
+        "developer-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-developer-tools/PKGBUILD": {
+      "static": [
+        "developer-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0.tar.gz": {
+      "static": [
+        "developer-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/LICENSE": {
+      "static": [
+        "developer-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/assemble.py": {
+      "static": [
+        "developer-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload-map.json": {
+      "static": [
+        "developer-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/bin/cachy-asahi-developer-tools": {
+      "static": [
+        "developer-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/lib/cachy-asahi-developer-tools/0.1.0/runtime.json": {
+      "static": [
+        "developer-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/lib/cachy-asahi-developer-tools/0.1.0/scripts/virtual/owned_process.py": {
+      "static": [
+        "developer-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/lib/cachy-asahi-developer-tools/0.1.0/scripts/workflows/developer_build_systems.py": {
+      "static": [
+        "developer-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/lib/cachy-asahi-developer-tools/0.1.0/scripts/workflows/developer_debugger.py": {
+      "static": [
+        "developer-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/lib/cachy-asahi-developer-tools/0.1.0/scripts/workflows/developer_workflow.py": {
+      "static": [
+        "developer-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/lib/cachy-asahi-developer-tools/0.1.0/scripts/workflows/python_development.py": {
+      "static": [
+        "developer-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/debugger/LICENSE": {
+      "static": [
+        "developer-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/debugger/hello.c": {
+      "static": [
+        "developer-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/debugger/hello.cpp": {
+      "static": [
+        "developer-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/developer/LICENSE": {
+      "static": [
+        "developer-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/developer/build-systems/CMakeLists.txt": {
+      "static": [
+        "developer-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/developer/build-systems/LICENSE": {
+      "static": [
+        "developer-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/developer/build-systems/expected.txt": {
+      "static": [
+        "developer-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/developer/build-systems/greeting.cpp": {
+      "static": [
+        "developer-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/developer/build-systems/greeting.h": {
+      "static": [
+        "developer-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/developer/build-systems/main.c": {
+      "static": [
+        "developer-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/developer/build-systems/meson.build": {
+      "static": [
+        "developer-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/developer/hello.c": {
+      "static": [
+        "developer-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/developer/hello.cpp": {
+      "static": [
+        "developer-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/developer/hello.py": {
+      "static": [
+        "developer-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/developer/project/LICENSE": {
+      "static": [
+        "developer-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/developer/project/configure.py": {
+      "static": [
+        "developer-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/developer/project/hello.c": {
+      "static": [
+        "developer-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/developer/test_hello.py": {
+      "static": [
+        "developer-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/python-development/LICENSE": {
+      "static": [
+        "developer-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/python-development/pyproject.toml": {
+      "static": [
+        "developer-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/python-development/src/cachy_python_demo/__init__.py": {
+      "static": [
+        "developer-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/python-development/src/cachy_python_demo/__main__.py": {
+      "static": [
+        "developer-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/python-development/test_demo.py": {
+      "static": [
+        "developer-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/share/doc/cachy-asahi-developer-tools/README.md": {
+      "static": [
+        "developer-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/share/doc/cachy-asahi-developer-tools/source-provenance.json": {
+      "static": [
+        "developer-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/share/licenses/cachy-asahi-developer-tools/LICENSE": {
+      "static": [
+        "developer-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/share/licenses/cachy-asahi-developer-tools/NOTICE": {
+      "static": [
+        "developer-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/test_package.py": {
+      "static": [
+        "developer-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-dns/.SRCINFO": {
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-dns/LICENSE": {
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-dns/NOTICE": {
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-dns/PKGBUILD": {
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-dns/README.md": {
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-dns/cachy-asahi-dns": {
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-dns/check_source.py": {
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-dns/source-provenance.json": {
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-dns/test_dns.py": {
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-maintenance/.SRCINFO": {
+      "full-port": [
+        "mirror-builder",
+        "source-mirror",
+        "source-mirror-update"
+      ]
+    },
+    "packages/tools/cachy-asahi-maintenance/LICENSE": {
+      "full-port": [
+        "mirror-builder",
+        "source-mirror",
+        "source-mirror-update"
+      ]
+    },
+    "packages/tools/cachy-asahi-maintenance/NOTICE": {
+      "full-port": [
+        "mirror-builder",
+        "source-mirror",
+        "source-mirror-update"
+      ]
+    },
+    "packages/tools/cachy-asahi-maintenance/PKGBUILD": {
+      "full-port": [
+        "mirror-builder",
+        "source-mirror",
+        "source-mirror-update"
+      ]
+    },
+    "packages/tools/cachy-asahi-maintenance/README.md": {
+      "full-port": [
+        "mirror-builder",
+        "source-mirror",
+        "source-mirror-update"
+      ]
+    },
+    "packages/tools/cachy-asahi-maintenance/cachy-asahi-maintenance": {
+      "full-port": [
+        "mirror-builder",
+        "source-mirror",
+        "source-mirror-update"
+      ]
+    },
+    "packages/tools/cachy-asahi-maintenance/check_source.py": {
+      "full-port": [
+        "mirror-builder",
+        "source-mirror",
+        "source-mirror-update"
+      ]
+    },
+    "packages/tools/cachy-asahi-maintenance/check_source_pins.py": {
+      "full-port": [
+        "mirror-builder",
+        "source-mirror",
+        "source-mirror-update"
+      ]
+    },
+    "packages/tools/cachy-asahi-maintenance/compare_releases.py": {
+      "full-port": [
+        "mirror-builder",
+        "source-mirror",
+        "source-mirror-update"
+      ]
+    },
+    "packages/tools/cachy-asahi-maintenance/health-inputs.md": {
+      "full-port": [
+        "mirror-builder",
+        "source-mirror",
+        "source-mirror-update"
+      ]
+    },
+    "packages/tools/cachy-asahi-maintenance/health.py": {
+      "full-port": [
+        "mirror-builder",
+        "source-mirror",
+        "source-mirror-update"
+      ]
+    },
+    "packages/tools/cachy-asahi-maintenance/payload-pins.json": {
+      "full-port": [
+        "mirror-builder",
+        "source-mirror",
+        "source-mirror-update"
+      ]
+    },
+    "packages/tools/cachy-asahi-maintenance/rebuild_plan.py": {
+      "full-port": [
+        "mirror-builder",
+        "source-mirror",
+        "source-mirror-update"
+      ]
+    },
+    "packages/tools/cachy-asahi-maintenance/release.py": {
+      "full-port": [
+        "mirror-builder",
+        "source-mirror",
+        "source-mirror-update"
+      ]
+    },
+    "packages/tools/cachy-asahi-maintenance/security_advisories.py": {
+      "full-port": [
+        "mirror-builder",
+        "source-mirror",
+        "source-mirror-update"
+      ]
+    },
+    "packages/tools/cachy-asahi-maintenance/signing_expiry.py": {
+      "full-port": [
+        "mirror-builder",
+        "source-mirror",
+        "source-mirror-update"
+      ]
+    },
+    "packages/tools/cachy-asahi-maintenance/source-provenance.json": {
+      "full-port": [
+        "mirror-builder",
+        "source-mirror",
+        "source-mirror-update"
+      ]
+    },
+    "packages/tools/cachy-asahi-maintenance/source_delivery.py": {
+      "full-port": [
+        "mirror-builder",
+        "source-mirror",
+        "source-mirror-update"
+      ]
+    },
+    "packages/tools/cachy-asahi-maintenance/test_package.py": {
+      "full-port": [
+        "mirror-builder",
+        "source-mirror",
+        "source-mirror-update"
+      ]
+    },
+    "packages/tools/cachy-asahi-maintenance/update_plan.py": {
+      "full-port": [
+        "mirror-builder",
+        "source-mirror",
+        "source-mirror-update"
+      ]
+    },
+    "packages/tools/cachy-asahi-orphans/.SRCINFO": {
+      "full-port": [
+        "orphans03"
+      ],
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-orphans/LICENSE": {
+      "full-port": [
+        "orphans03"
+      ],
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-orphans/NOTICE": {
+      "full-port": [
+        "orphans03"
+      ],
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-orphans/PKGBUILD": {
+      "full-port": [
+        "orphans03"
+      ],
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-orphans/README.md": {
+      "full-port": [
+        "orphans03"
+      ],
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-orphans/cachy-asahi-orphans": {
+      "full-port": [
+        "orphans03"
+      ],
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-orphans/protection-floor.json": {
+      "full-port": [
+        "orphans03"
+      ],
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-orphans/test_orphans.py": {
+      "full-port": [
+        "orphans03"
+      ],
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-orphans03/.SRCINFO": {
+      "full-port": [
+        "orphans03"
+      ]
+    },
+    "packages/tools/cachy-asahi-orphans03/LICENSE": {
+      "full-port": [
+        "orphans03"
+      ]
+    },
+    "packages/tools/cachy-asahi-orphans03/NOTICE": {
+      "full-port": [
+        "orphans03"
+      ]
+    },
+    "packages/tools/cachy-asahi-orphans03/PKGBUILD": {
+      "full-port": [
+        "orphans03"
+      ]
+    },
+    "packages/tools/cachy-asahi-orphans03/README.md": {
+      "full-port": [
+        "orphans03"
+      ]
+    },
+    "packages/tools/cachy-asahi-orphans03/READONLY.md": {
+      "full-port": [
+        "orphans03"
+      ]
+    },
+    "packages/tools/cachy-asahi-orphans03/cachy-asahi-orphans": {
+      "full-port": [
+        "orphans03"
+      ]
+    },
+    "packages/tools/cachy-asahi-orphans03/check_source.py": {
+      "full-port": [
+        "orphans03"
+      ]
+    },
+    "packages/tools/cachy-asahi-orphans03/live.py": {
+      "full-port": [
+        "orphans03"
+      ]
+    },
+    "packages/tools/cachy-asahi-orphans03/live_policy.py": {
+      "full-port": [
+        "orphans03"
+      ]
+    },
+    "packages/tools/cachy-asahi-orphans03/orphans3": {
+      "full-port": [
+        "orphans03"
+      ]
+    },
+    "packages/tools/cachy-asahi-orphans03/protection-floor.json": {
+      "full-port": [
+        "orphans03"
+      ]
+    },
+    "packages/tools/cachy-asahi-orphans03/remove.py": {
+      "full-port": [
+        "orphans03"
+      ]
+    },
+    "packages/tools/cachy-asahi-orphans03/source-provenance.json": {
+      "full-port": [
+        "orphans03"
+      ]
+    },
+    "packages/tools/cachy-asahi-orphans03/test_live.py": {
+      "full-port": [
+        "orphans03"
+      ]
+    },
+    "packages/tools/cachy-asahi-orphans03/test_live_policy.py": {
+      "full-port": [
+        "orphans03"
+      ]
+    },
+    "packages/tools/cachy-asahi-orphans03/test_live_supervision.py": {
+      "full-port": [
+        "orphans03"
+      ]
+    },
+    "packages/tools/cachy-asahi-orphans03/test_orphans.py": {
+      "full-port": [
+        "orphans03"
+      ]
+    },
+    "packages/tools/cachy-asahi-orphans03/test_remove.py": {
+      "full-port": [
+        "orphans03"
+      ]
+    },
+    "packages/tools/cachy-asahi-orphans03/test_retirement.py": {
+      "full-port": [
+        "orphans03"
+      ]
+    },
+    "packages/tools/cachy-asahi-release-tools-v2/.SRCINFO": {
+      "static": [
+        "release-package-v2"
+      ]
+    },
+    "packages/tools/cachy-asahi-release-tools-v2/LICENSE": {
+      "static": [
+        "release-package-v2"
+      ]
+    },
+    "packages/tools/cachy-asahi-release-tools-v2/NOTICE": {
+      "static": [
+        "release-package-v2"
+      ]
+    },
+    "packages/tools/cachy-asahi-release-tools-v2/PKGBUILD": {
+      "static": [
+        "release-package-v2"
+      ]
+    },
+    "packages/tools/cachy-asahi-release-tools-v2/README.md": {
+      "static": [
+        "release-package-v2"
+      ]
+    },
+    "packages/tools/cachy-asahi-release-tools-v2/archive_stream.py": {
+      "static": [
+        "release-package-v2"
+      ]
+    },
+    "packages/tools/cachy-asahi-release-tools-v2/cachy-asahi-release-tools": {
+      "static": [
+        "release-package-v2"
+      ]
+    },
+    "packages/tools/cachy-asahi-release-tools-v2/check_package.py": {
+      "static": [
+        "release-package-v2"
+      ]
+    },
+    "packages/tools/cachy-asahi-release-tools-v2/compare_sboms.py": {
+      "static": [
+        "release-package-v2"
+      ]
+    },
+    "packages/tools/cachy-asahi-release-tools-v2/comparing-sboms.md": {
+      "static": [
+        "release-package-v2"
+      ]
+    },
+    "packages/tools/cachy-asahi-release-tools-v2/export-v2.json": {
+      "static": [
+        "release-package-v2"
+      ]
+    },
+    "packages/tools/cachy-asahi-release-tools-v2/package_checks.py": {
+      "static": [
+        "release-package-v2"
+      ]
+    },
+    "packages/tools/cachy-asahi-release-tools-v2/payload-map.json": {
+      "static": [
+        "release-package-v2"
+      ]
+    },
+    "packages/tools/cachy-asahi-release-tools-v2/recipe_source_delivery.py": {
+      "static": [
+        "release-package-v2"
+      ]
+    },
+    "packages/tools/cachy-asahi-release-tools-v2/recipe_source_delivery_v2.py": {
+      "static": [
+        "release-package-v2"
+      ]
+    },
+    "packages/tools/cachy-asahi-release-tools-v2/release_sbom.py": {
+      "static": [
+        "release-package-v2"
+      ]
+    },
+    "packages/tools/cachy-asahi-release-tools-v2/source-provenance.json": {
+      "static": [
+        "release-package-v2"
+      ]
+    },
+    "packages/tools/cachy-asahi-release-tools-v2/source_delivery.py": {
+      "static": [
+        "release-package-v2"
+      ]
+    },
+    "packages/tools/cachy-asahi-release-tools-v2/test_package.py": {
+      "static": [
+        "release-package-v2"
+      ]
+    },
+    "packages/tools/cachy-asahi-release-tools/.SRCINFO": {
+      "static": [
+        "release-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-release-tools/LICENSE": {
+      "static": [
+        "release-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-release-tools/NOTICE": {
+      "static": [
+        "release-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-release-tools/PKGBUILD": {
+      "static": [
+        "release-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-release-tools/README.md": {
+      "static": [
+        "release-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-release-tools/archive_stream.py": {
+      "static": [
+        "release-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-release-tools/cachy-asahi-release-tools": {
+      "static": [
+        "release-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-release-tools/check_package.py": {
+      "static": [
+        "release-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-release-tools/fixtures.json": {
+      "static": [
+        "release-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-release-tools/package_checks.py": {
+      "static": [
+        "release-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-release-tools/payload-map.json": {
+      "static": [
+        "release-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-release-tools/recipe-fixture.tar": {
+      "static": [
+        "release-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-release-tools/recipe_source_delivery.py": {
+      "static": [
+        "release-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-release-tools/recipe_source_delivery_v2.py": {
+      "static": [
+        "release-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-release-tools/release_sbom.py": {
+      "static": [
+        "release-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-release-tools/source-provenance.json": {
+      "static": [
+        "release-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-release-tools/source_delivery.py": {
+      "static": [
+        "release-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-release-tools/test_package.py": {
+      "static": [
+        "release-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-repository-runtime/.SRCINFO": {
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-repository-runtime/LICENSE": {
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-repository-runtime/NOTICE": {
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-repository-runtime/PKGBUILD": {
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-repository-runtime/README.md": {
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-repository-runtime/check_source.py": {
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-repository-runtime/client.py": {
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-repository-runtime/helper-pins.json": {
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-repository-runtime/release.py": {
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-repository-runtime/source-provenance.json": {
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-repository-runtime/source_delivery.py": {
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-security-maintenance/.SRCINFO": {
+      "full-port": [
+        "security-maintenance-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-security-maintenance/LICENSE": {
+      "full-port": [
+        "security-maintenance-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-security-maintenance/NOTICE": {
+      "full-port": [
+        "security-maintenance-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-security-maintenance/PKGBUILD": {
+      "full-port": [
+        "security-maintenance-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-security-maintenance/README.md": {
+      "full-port": [
+        "security-maintenance-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-security-maintenance/advisory_cache.py": {
+      "full-port": [
+        "security-maintenance-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-security-maintenance/build.py": {
+      "full-port": [
+        "security-maintenance-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-security-maintenance/build_batch.py": {
+      "full-port": [
+        "security-maintenance-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-security-maintenance/build_batch_v2.py": {
+      "full-port": [
+        "security-maintenance-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-security-maintenance/build_outputs_v2.py": {
+      "full-port": [
+        "security-maintenance-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-security-maintenance/build_v2.py": {
+      "full-port": [
+        "security-maintenance-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-security-maintenance/cachy-asahi-security-maintenance": {
+      "full-port": [
+        "security-maintenance-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-security-maintenance/campaign.py": {
+      "full-port": [
+        "security-maintenance-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-security-maintenance/check_source.py": {
+      "full-port": [
+        "security-maintenance-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-security-maintenance/check_source_pins.py": {
+      "full-port": [
+        "security-maintenance-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-security-maintenance/compare.py": {
+      "full-port": [
+        "security-maintenance-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-security-maintenance/compare_v2.py": {
+      "full-port": [
+        "security-maintenance-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-security-maintenance/container-entry-v2.sh": {
+      "full-port": [
+        "security-maintenance-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-security-maintenance/container-entry.sh": {
+      "full-port": [
+        "security-maintenance-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-security-maintenance/fixture_security.py": {
+      "full-port": [
+        "security-maintenance-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-security-maintenance/installed-files.txt": {
+      "full-port": [
+        "security-maintenance-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-security-maintenance/owned_process.py": {
+      "full-port": [
+        "security-maintenance-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-security-maintenance/package_checks.py": {
+      "full-port": [
+        "security-maintenance-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-security-maintenance/payload-pins.json": {
+      "full-port": [
+        "security-maintenance-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-security-maintenance/rebuild_plan.py": {
+      "full-port": [
+        "security-maintenance-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-security-maintenance/release.py": {
+      "full-port": [
+        "security-maintenance-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-security-maintenance/security_advisories.py": {
+      "full-port": [
+        "security-maintenance-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-security-maintenance/security_campaign.py": {
+      "full-port": [
+        "security-maintenance-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-security-maintenance/source-provenance.json": {
+      "full-port": [
+        "security-maintenance-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-security-maintenance/source_cache.py": {
+      "full-port": [
+        "security-maintenance-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-security-maintenance/source_delivery.py": {
+      "full-port": [
+        "security-maintenance-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-security-maintenance/source_materials.py": {
+      "full-port": [
+        "security-maintenance-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-security-maintenance/test_package.py": {
+      "full-port": [
+        "security-maintenance-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-security-maintenance/update_plan.py": {
+      "full-port": [
+        "security-maintenance-package"
+      ]
+    },
+    "packages/tools/cachy-asahi-session-diagnostics/.SRCINFO": {
+      "full-port": [
+        "mirror-builder",
+        "source-mirror",
+        "source-mirror-update"
+      ]
+    },
+    "packages/tools/cachy-asahi-session-diagnostics/LICENSE": {
+      "full-port": [
+        "mirror-builder",
+        "source-mirror",
+        "source-mirror-update"
+      ]
+    },
+    "packages/tools/cachy-asahi-session-diagnostics/NOTICE": {
+      "full-port": [
+        "mirror-builder",
+        "source-mirror",
+        "source-mirror-update"
+      ]
+    },
+    "packages/tools/cachy-asahi-session-diagnostics/PKGBUILD": {
+      "full-port": [
+        "mirror-builder",
+        "source-mirror",
+        "source-mirror-update"
+      ]
+    },
+    "packages/tools/cachy-asahi-session-diagnostics/README.md": {
+      "full-port": [
+        "mirror-builder",
+        "source-mirror",
+        "source-mirror-update"
+      ]
+    },
+    "packages/tools/cachy-asahi-session-diagnostics/cachy-asahi-session-diagnostics": {
+      "full-port": [
+        "mirror-builder",
+        "source-mirror",
+        "source-mirror-update"
+      ]
+    },
+    "packages/tools/cachy-asahi-session-diagnostics/check_package.py": {
+      "full-port": [
+        "mirror-builder",
+        "source-mirror",
+        "source-mirror-update"
+      ]
+    },
+    "packages/tools/cachy-asahi-session-diagnostics/session-probe.md": {
+      "full-port": [
+        "mirror-builder",
+        "source-mirror",
+        "source-mirror-update"
+      ]
+    },
+    "packages/tools/cachy-asahi-session-diagnostics/session_probe.py": {
+      "full-port": [
+        "mirror-builder",
+        "source-mirror",
+        "source-mirror-update"
+      ]
+    },
+    "packages/tools/cachy-asahi-session-diagnostics/source-provenance.json": {
+      "full-port": [
+        "mirror-builder",
+        "source-mirror",
+        "source-mirror-update"
+      ]
+    },
+    "packages/tools/cachy-asahi-session-diagnostics/test_package.py": {
+      "full-port": [
+        "mirror-builder",
+        "source-mirror",
+        "source-mirror-update"
+      ]
+    },
+    "packages/tools/cachy-asahi-session-diagnostics/test_session_probe.py": {
+      "full-port": [
+        "mirror-builder",
+        "source-mirror",
+        "source-mirror-update"
+      ]
+    },
+    "packages/tools/cachy-asahi-support/.SRCINFO": {
+      "full-port": [
+        "support-package",
+        "support-package2"
+      ]
+    },
+    "packages/tools/cachy-asahi-support/LICENSE": {
+      "full-port": [
+        "support-package",
+        "support-package2"
+      ]
+    },
+    "packages/tools/cachy-asahi-support/NOTICE": {
+      "full-port": [
+        "support-package",
+        "support-package2"
+      ]
+    },
+    "packages/tools/cachy-asahi-support/PKGBUILD": {
+      "full-port": [
+        "support-package",
+        "support-package2"
+      ]
+    },
+    "packages/tools/cachy-asahi-support/README.md": {
+      "full-port": [
+        "support-package",
+        "support-package2"
+      ]
+    },
+    "packages/tools/cachy-asahi-support/cachy-asahi-support": {
+      "full-port": [
+        "support-package",
+        "support-package2"
+      ]
+    },
+    "packages/tools/cachy-asahi-support/check_package.py": {
+      "full-port": [
+        "support-package",
+        "support-package2"
+      ]
+    },
+    "packages/tools/cachy-asahi-support/doctor.py": {
+      "full-port": [
+        "support-package",
+        "support-package2"
+      ]
+    },
+    "packages/tools/cachy-asahi-support/fixtures.json": {
+      "full-port": [
+        "support-package",
+        "support-package2"
+      ]
+    },
+    "packages/tools/cachy-asahi-support/payload-map.json": {
+      "full-port": [
+        "support-package",
+        "support-package2"
+      ]
+    },
+    "packages/tools/cachy-asahi-support/session_probe.py": {
+      "full-port": [
+        "support-package",
+        "support-package2"
+      ]
+    },
+    "packages/tools/cachy-asahi-support/source-provenance.json": {
+      "full-port": [
+        "support-package",
+        "support-package2"
+      ]
+    },
+    "packages/tools/cachy-asahi-support/support-bundle.md": {
+      "full-port": [
+        "support-package",
+        "support-package2"
+      ]
+    },
+    "packages/tools/cachy-asahi-support/support_bundle.py": {
+      "full-port": [
+        "support-package",
+        "support-package2"
+      ]
+    },
+    "packages/tools/cachy-asahi-support/test_package.py": {
+      "full-port": [
+        "support-package",
+        "support-package2"
+      ]
+    },
+    "packages/tools/cachy-asahi-support2/.SRCINFO": {
+      "full-port": [
+        "support-package2"
+      ]
+    },
+    "packages/tools/cachy-asahi-support2/LICENSE": {
+      "full-port": [
+        "support-package2"
+      ]
+    },
+    "packages/tools/cachy-asahi-support2/NOTICE": {
+      "full-port": [
+        "support-package2"
+      ]
+    },
+    "packages/tools/cachy-asahi-support2/PKGBUILD": {
+      "full-port": [
+        "support-package2"
+      ]
+    },
+    "packages/tools/cachy-asahi-support2/README.md": {
+      "full-port": [
+        "support-package2"
+      ]
+    },
+    "packages/tools/cachy-asahi-support2/cachy-asahi-support": {
+      "full-port": [
+        "support-package2"
+      ]
+    },
+    "packages/tools/cachy-asahi-support2/check_package.py": {
+      "full-port": [
+        "support-package2"
+      ]
+    },
+    "packages/tools/cachy-asahi-support2/collect-support.md": {
+      "full-port": [
+        "support-package2"
+      ]
+    },
+    "packages/tools/cachy-asahi-support2/collect_support.py": {
+      "full-port": [
+        "support-package2"
+      ]
+    },
+    "packages/tools/cachy-asahi-support2/doctor.py": {
+      "full-port": [
+        "support-package2"
+      ]
+    },
+    "packages/tools/cachy-asahi-support2/fixtures.json": {
+      "full-port": [
+        "support-package2"
+      ]
+    },
+    "packages/tools/cachy-asahi-support2/payload-map.json": {
+      "full-port": [
+        "support-package2"
+      ]
+    },
+    "packages/tools/cachy-asahi-support2/session_probe.py": {
+      "full-port": [
+        "support-package2"
+      ]
+    },
+    "packages/tools/cachy-asahi-support2/source-provenance.json": {
+      "full-port": [
+        "support-package2"
+      ]
+    },
+    "packages/tools/cachy-asahi-support2/support-bundle.md": {
+      "full-port": [
+        "support-package2"
+      ]
+    },
+    "packages/tools/cachy-asahi-support2/support_bundle.py": {
+      "full-port": [
+        "support-package2"
+      ]
+    },
+    "packages/tools/cachy-asahi-support2/test_package.py": {
+      "full-port": [
+        "support-package2"
+      ]
+    },
+    "packages/tools/cachy-asahi-sysctl/.SRCINFO": {
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-sysctl/LICENSE": {
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-sysctl/NOTICE": {
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-sysctl/PKGBUILD": {
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-sysctl/README.md": {
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-sysctl/cachy-asahi-sysctl": {
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-sysctl/source-provenance.json": {
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-sysctl/test_sysctl.py": {
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-topmem/.SRCINFO": {
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-topmem/LICENSE": {
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-topmem/NOTICE": {
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-topmem/PKGBUILD": {
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-topmem/README.md": {
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-topmem/cachy-asahi-topmem": {
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "packages/tools/cachy-asahi-topmem/test_topmem.py": {
+      "parallel": [
+        "management-source"
+      ]
+    },
+    "scripts/benchmarks/benchmark.py": {
+      "parallel": [
+        "metrics"
+      ]
+    },
+    "scripts/benchmarks/benchmark_platform_metrics.py": {
+      "parallel": [
+        "metrics"
+      ]
+    },
+    "scripts/benchmarks/platform_metrics.py": {
+      "parallel": [
+        "metrics"
+      ]
+    },
+    "scripts/benchmarks/process_group_memory.py": {
+      "parallel": [
+        "metrics"
+      ]
+    },
+    "scripts/benchmarks/test_benchmark_owned_rss.py": {
+      "parallel": [
+        "metrics"
+      ]
+    },
+    "scripts/benchmarks/test_benchmark_platform_metrics.py": {
+      "parallel": [
+        "metrics"
+      ]
+    },
+    "scripts/benchmarks/test_platform_metrics.py": {
+      "parallel": [
+        "metrics"
+      ]
+    },
+    "scripts/build/mirror_consumer.py": {
+      "full-port": [
+        "mirror-builder"
+      ],
+      "parallel": [
+        "campaign"
+      ]
+    },
+    "scripts/build/test_mirror_consumer.py": {
+      "full-port": [
+        "mirror-builder"
+      ],
+      "parallel": [
+        "campaign"
+      ]
+    },
+    "scripts/checks/package_checks.py": {
+      "parallel": [
+        "campaign"
+      ],
+      "static": [
+        "release-package",
+        "release-package-v2"
+      ]
+    },
+    "scripts/experiments/test_zlib_pgo102.py": {
+      "full-port": [
+        "pgo-source"
+      ]
+    },
+    "scripts/maintenance/advisory_cache.py": {
+      "full-port": [
+        "advisory-cache",
+        "security-maintenance-package"
+      ],
+      "parallel": [
+        "campaign"
+      ]
+    },
+    "scripts/maintenance/campaign.py": {
+      "parallel": [
+        "campaign"
+      ]
+    },
+    "scripts/maintenance/retained_git_transport.py": {
+      "parallel": [
+        "campaign",
+        "retained-transport"
+      ]
+    },
+    "scripts/maintenance/security_campaign.py": {
+      "full-port": [
+        "security-maintenance-package",
+        "security-operation"
+      ],
+      "parallel": [
+        "campaign"
+      ]
+    },
+    "scripts/maintenance/test_advisory_cache.py": {
+      "full-port": [
+        "advisory-cache"
+      ],
+      "parallel": [
+        "campaign"
+      ]
+    },
+    "scripts/maintenance/test_retained_git_transport.py": {
+      "parallel": [
+        "campaign",
+        "retained-transport"
+      ]
+    },
+    "scripts/maintenance/test_security_campaign.py": {
+      "full-port": [
+        "security-operation"
+      ],
+      "parallel": [
+        "campaign"
+      ]
+    },
+    "scripts/maintenance/test_update_plan.py": {
+      "parallel": [
+        "campaign"
+      ]
+    },
+    "scripts/release/compare_sboms.py": {
+      "parallel": [
+        "campaign"
+      ],
+      "static": [
+        "release-package-v2",
+        "sbom-comparison"
+      ]
+    },
+    "scripts/release/fixtures/recipe-source-legacy/cachy-asahi-maintenance-0.1.0-1.tar.gz": {
+      "full-port": [
+        "mirror-builder"
+      ]
+    },
+    "scripts/release/fixtures/recipe-source-legacy/cachy-asahi-session-diagnostics-0.1.0-2.tar.gz": {
+      "full-port": [
+        "mirror-builder"
+      ]
+    },
+    "scripts/release/recipe_source_delivery.py": {
+      "parallel": [
+        "campaign",
+        "management-source"
+      ],
+      "static": [
+        "release-package",
+        "release-package-v2",
+        "sbom-comparison"
+      ]
+    },
+    "scripts/release/recipe_source_delivery_v2.py": {
+      "parallel": [
+        "campaign"
+      ],
+      "static": [
+        "release-package",
+        "release-package-v2"
+      ]
+    },
+    "scripts/release/release_sbom.py": {
+      "full-port": [
+        "mirror-builder",
+        "sbom",
+        "source-mirror",
+        "source-mirror-update"
+      ],
+      "parallel": [
+        "campaign"
+      ],
+      "static": [
+        "release-package",
+        "release-package-v2",
+        "sbom-comparison"
+      ]
+    },
+    "scripts/release/release_source_mirror.py": {
+      "full-port": [
+        "mirror-builder",
+        "source-mirror",
+        "source-mirror-update"
+      ],
+      "parallel": [
+        "campaign"
+      ]
+    },
+    "scripts/release/security_maintenance_source_delivery.py": {
+      "full-port": [
+        "security-maintenance-package"
+      ],
+      "parallel": [
+        "campaign"
+      ]
+    },
+    "scripts/release/security_maintenance_source_delivery_v2.py": {
+      "full-port": [
+        "security-maintenance-package"
+      ],
+      "parallel": [
+        "campaign"
+      ]
+    },
+    "scripts/release/security_maintenance_source_profile.json": {
+      "full-port": [
+        "security-maintenance-package"
+      ]
+    },
+    "scripts/release/security_maintenance_source_profile_v2.json": {
+      "full-port": [
+        "security-maintenance-package"
+      ]
+    },
+    "scripts/release/source_delivery.py": {
+      "parallel": [
+        "campaign",
+        "management-source"
+      ],
+      "static": [
+        "release-package",
+        "release-package-v2",
+        "sbom-comparison"
+      ]
+    },
+    "scripts/release/support_source_delivery_v1.py": {
+      "full-port": [
+        "support-package",
+        "support-package2"
+      ],
+      "parallel": [
+        "campaign"
+      ]
+    },
+    "scripts/release/support_source_delivery_v2.py": {
+      "full-port": [
+        "support-package2"
+      ],
+      "parallel": [
+        "campaign"
+      ]
+    },
+    "scripts/release/test_compare_sboms.py": {
+      "parallel": [
+        "campaign"
+      ],
+      "static": [
+        "sbom-comparison"
+      ]
+    },
+    "scripts/release/test_dns_sysctl_topmem_source_delivery.py": {
+      "parallel": [
+        "campaign",
+        "management-source"
+      ]
+    },
+    "scripts/release/test_management_tools_source_delivery.py": {
+      "parallel": [
+        "campaign",
+        "management-source"
+      ]
+    },
+    "scripts/release/test_recovery_bundle.py": {
+      "full-port": [
+        "recovery-bundle"
+      ],
+      "parallel": [
+        "campaign"
+      ]
+    },
+    "scripts/release/test_release_sbom.py": {
+      "full-port": [
+        "sbom"
+      ],
+      "parallel": [
+        "campaign"
+      ],
+      "static": [
+        "sbom-comparison"
+      ]
+    },
+    "scripts/release/test_release_source_mirror.py": {
+      "full-port": [
+        "mirror-builder",
+        "source-mirror",
+        "source-mirror-update"
+      ],
+      "parallel": [
+        "campaign"
+      ]
+    },
+    "scripts/release/test_release_source_mirror_incremental.py": {
+      "full-port": [
+        "mirror-builder",
+        "source-mirror-update"
+      ],
+      "parallel": [
+        "campaign"
+      ]
+    },
+    "scripts/release/test_security_maintenance_source_delivery_v2.py": {
+      "full-port": [
+        "security-maintenance-package"
+      ],
+      "parallel": [
+        "campaign"
+      ]
+    },
+    "scripts/release/test_support_source_delivery_v1.py": {
+      "full-port": [
+        "support-package"
+      ],
+      "parallel": [
+        "campaign"
+      ]
+    },
+    "scripts/release/test_support_source_delivery_v2.py": {
+      "full-port": [
+        "support-package2"
+      ],
+      "parallel": [
+        "campaign"
+      ]
+    },
+    "scripts/support/collect_support.py": {
+      "full-port": [
+        "support-collection",
+        "support-package2"
+      ]
+    },
+    "scripts/support/support_bundle.py": {
+      "full-port": [
+        "support-bundle",
+        "support-collection",
+        "support-package",
+        "support-package2"
+      ]
+    },
+    "scripts/update/archive_stream.py": {
+      "static": [
+        "release-package",
+        "release-package-v2",
+        "sbom-comparison"
+      ]
+    },
+    "scripts/virtual/owned_process.py": {
+      "static": [
+        "developer-package",
+        "sbom-comparison"
+      ]
+    },
+    "scripts/workflows/desktop_application_inputs.py": {
+      "full-port": [
+        "app-inputs",
+        "app-runtime",
+        "app-window"
+      ]
+    },
+    "scripts/workflows/desktop_application_runtime.py": {
+      "full-port": [
+        "app-inputs",
+        "app-runtime",
+        "app-window"
+      ]
+    },
+    "scripts/workflows/desktop_application_window_lifecycle.py": {
+      "full-port": [
+        "app-window"
+      ]
+    },
+    "scripts/workflows/desktop_applications.py": {
+      "full-port": [
+        "app-inputs",
+        "app-runtime",
+        "app-window",
+        "desktop"
+      ]
+    },
+    "scripts/workflows/developer_build_systems.py": {
+      "full-port": [
+        "build-systems",
+        "python-extension"
+      ],
+      "static": [
+        "developer-package"
+      ]
+    },
+    "scripts/workflows/developer_debugger.py": {
+      "full-port": [
+        "debugger"
+      ],
+      "static": [
+        "developer-package"
+      ]
+    },
+    "scripts/workflows/developer_workflow.py": {
+      "full-port": [
+        "build-systems",
+        "debugger",
+        "python",
+        "python-extension"
+      ],
+      "parallel": [
+        "developer"
+      ],
+      "static": [
+        "developer-package"
+      ]
+    },
+    "scripts/workflows/python_development.py": {
+      "full-port": [
+        "python"
+      ],
+      "static": [
+        "developer-package"
+      ]
+    },
+    "scripts/workflows/python_extension.py": {
+      "full-port": [
+        "python-extension"
+      ]
+    },
+    "scripts/workflows/test_desktop_application_inputs.py": {
+      "full-port": [
+        "app-inputs"
+      ]
+    },
+    "scripts/workflows/test_desktop_application_runtime.py": {
+      "full-port": [
+        "app-inputs",
+        "app-runtime"
+      ]
+    },
+    "scripts/workflows/test_desktop_application_window_lifecycle.py": {
+      "full-port": [
+        "app-window"
+      ]
+    },
+    "scripts/workflows/test_desktop_applications.py": {
+      "full-port": [
+        "desktop"
+      ]
+    },
+    "tests/support/test_collect_support.py": {
+      "full-port": [
+        "support-collection"
+      ]
+    },
+    "tests/support/test_support_bundle.py": {
+      "full-port": [
+        "support-bundle",
+        "support-collection"
+      ]
+    },
+    "tests/test_build_outputs_v2.py": {
+      "parallel": [
+        "campaign"
+      ]
+    },
+    "tests/test_maintenance_campaign.py": {
+      "parallel": [
+        "campaign"
+      ]
+    },
+    "tests/test_orphans03_adoption.py": {
+      "full-port": [
+        "orphans03"
+      ]
+    },
+    "tests/workflows/fixtures/debugger/LICENSE": {
+      "full-port": [
+        "build-systems",
+        "debugger",
+        "python",
+        "python-extension"
+      ],
+      "parallel": [
+        "developer"
+      ],
+      "static": [
+        "developer-package"
+      ]
+    },
+    "tests/workflows/fixtures/debugger/hello.c": {
+      "full-port": [
+        "build-systems",
+        "debugger",
+        "python",
+        "python-extension"
+      ],
+      "parallel": [
+        "developer"
+      ],
+      "static": [
+        "developer-package"
+      ]
+    },
+    "tests/workflows/fixtures/debugger/hello.cpp": {
+      "full-port": [
+        "build-systems",
+        "debugger",
+        "python",
+        "python-extension"
+      ],
+      "parallel": [
+        "developer"
+      ],
+      "static": [
+        "developer-package"
+      ]
+    },
+    "tests/workflows/fixtures/developer/LICENSE": {
+      "full-port": [
+        "build-systems",
+        "debugger",
+        "python",
+        "python-extension"
+      ],
+      "parallel": [
+        "developer"
+      ],
+      "static": [
+        "developer-package"
+      ]
+    },
+    "tests/workflows/fixtures/developer/build-systems/CMakeLists.txt": {
+      "full-port": [
+        "build-systems",
+        "debugger",
+        "python",
+        "python-extension"
+      ],
+      "parallel": [
+        "developer"
+      ],
+      "static": [
+        "developer-package"
+      ]
+    },
+    "tests/workflows/fixtures/developer/build-systems/LICENSE": {
+      "full-port": [
+        "build-systems",
+        "debugger",
+        "python",
+        "python-extension"
+      ],
+      "parallel": [
+        "developer"
+      ],
+      "static": [
+        "developer-package"
+      ]
+    },
+    "tests/workflows/fixtures/developer/build-systems/expected.txt": {
+      "full-port": [
+        "build-systems",
+        "debugger",
+        "python",
+        "python-extension"
+      ],
+      "parallel": [
+        "developer"
+      ],
+      "static": [
+        "developer-package"
+      ]
+    },
+    "tests/workflows/fixtures/developer/build-systems/greeting.cpp": {
+      "full-port": [
+        "build-systems",
+        "debugger",
+        "python",
+        "python-extension"
+      ],
+      "parallel": [
+        "developer"
+      ],
+      "static": [
+        "developer-package"
+      ]
+    },
+    "tests/workflows/fixtures/developer/build-systems/greeting.h": {
+      "full-port": [
+        "build-systems",
+        "debugger",
+        "python",
+        "python-extension"
+      ],
+      "parallel": [
+        "developer"
+      ],
+      "static": [
+        "developer-package"
+      ]
+    },
+    "tests/workflows/fixtures/developer/build-systems/main.c": {
+      "full-port": [
+        "build-systems",
+        "debugger",
+        "python",
+        "python-extension"
+      ],
+      "parallel": [
+        "developer"
+      ],
+      "static": [
+        "developer-package"
+      ]
+    },
+    "tests/workflows/fixtures/developer/build-systems/meson.build": {
+      "full-port": [
+        "build-systems",
+        "debugger",
+        "python",
+        "python-extension"
+      ],
+      "parallel": [
+        "developer"
+      ],
+      "static": [
+        "developer-package"
+      ]
+    },
+    "tests/workflows/fixtures/developer/hello.c": {
+      "full-port": [
+        "build-systems",
+        "debugger",
+        "python",
+        "python-extension"
+      ],
+      "parallel": [
+        "developer"
+      ],
+      "static": [
+        "developer-package"
+      ]
+    },
+    "tests/workflows/fixtures/developer/hello.cpp": {
+      "full-port": [
+        "build-systems",
+        "debugger",
+        "python",
+        "python-extension"
+      ],
+      "parallel": [
+        "developer"
+      ],
+      "static": [
+        "developer-package"
+      ]
+    },
+    "tests/workflows/fixtures/developer/hello.py": {
+      "full-port": [
+        "build-systems",
+        "debugger",
+        "python",
+        "python-extension"
+      ],
+      "parallel": [
+        "developer"
+      ],
+      "static": [
+        "developer-package"
+      ]
+    },
+    "tests/workflows/fixtures/developer/project/LICENSE": {
+      "full-port": [
+        "build-systems",
+        "debugger",
+        "python",
+        "python-extension"
+      ],
+      "parallel": [
+        "developer"
+      ],
+      "static": [
+        "developer-package"
+      ]
+    },
+    "tests/workflows/fixtures/developer/project/configure.py": {
+      "full-port": [
+        "build-systems",
+        "debugger",
+        "python",
+        "python-extension"
+      ],
+      "parallel": [
+        "developer"
+      ],
+      "static": [
+        "developer-package"
+      ]
+    },
+    "tests/workflows/fixtures/developer/project/hello.c": {
+      "full-port": [
+        "build-systems",
+        "debugger",
+        "python",
+        "python-extension"
+      ],
+      "parallel": [
+        "developer"
+      ],
+      "static": [
+        "developer-package"
+      ]
+    },
+    "tests/workflows/fixtures/developer/test_hello.py": {
+      "full-port": [
+        "build-systems",
+        "debugger",
+        "python",
+        "python-extension"
+      ],
+      "parallel": [
+        "developer"
+      ],
+      "static": [
+        "developer-package"
+      ]
+    },
+    "tests/workflows/fixtures/python-development/LICENSE": {
+      "full-port": [
+        "build-systems",
+        "debugger",
+        "python",
+        "python-extension"
+      ],
+      "parallel": [
+        "developer"
+      ],
+      "static": [
+        "developer-package"
+      ]
+    },
+    "tests/workflows/fixtures/python-development/pyproject.toml": {
+      "full-port": [
+        "build-systems",
+        "debugger",
+        "python",
+        "python-extension"
+      ],
+      "parallel": [
+        "developer"
+      ],
+      "static": [
+        "developer-package"
+      ]
+    },
+    "tests/workflows/fixtures/python-development/src/cachy_python_demo/__init__.py": {
+      "full-port": [
+        "build-systems",
+        "debugger",
+        "python",
+        "python-extension"
+      ],
+      "parallel": [
+        "developer"
+      ],
+      "static": [
+        "developer-package"
+      ]
+    },
+    "tests/workflows/fixtures/python-development/src/cachy_python_demo/__main__.py": {
+      "full-port": [
+        "build-systems",
+        "debugger",
+        "python",
+        "python-extension"
+      ],
+      "parallel": [
+        "developer"
+      ],
+      "static": [
+        "developer-package"
+      ]
+    },
+    "tests/workflows/fixtures/python-development/test_demo.py": {
+      "full-port": [
+        "build-systems",
+        "debugger",
+        "python",
+        "python-extension"
+      ],
+      "parallel": [
+        "developer"
+      ],
+      "static": [
+        "developer-package"
+      ]
+    },
+    "tests/workflows/fixtures/python-extension/CMakeLists.txt": {
+      "full-port": [
+        "python-extension"
+      ]
+    },
+    "tests/workflows/fixtures/python-extension/LICENSE": {
+      "full-port": [
+        "python-extension"
+      ]
+    },
+    "tests/workflows/fixtures/python-extension/check_extension.py": {
+      "full-port": [
+        "python-extension"
+      ]
+    },
+    "tests/workflows/fixtures/python-extension/expected.txt": {
+      "full-port": [
+        "python-extension"
+      ]
+    },
+    "tests/workflows/fixtures/python-extension/extension.c": {
+      "full-port": [
+        "python-extension"
+      ]
+    },
+    "tests/workflows/test_developer_build_systems.py": {
+      "full-port": [
+        "build-systems"
+      ]
+    },
+    "tests/workflows/test_developer_debugger.py": {
+      "full-port": [
+        "debugger"
+      ]
+    },
+    "tests/workflows/test_developer_workflow.py": {
+      "parallel": [
+        "developer"
+      ]
+    },
+    "tests/workflows/test_python_development.py": {
+      "full-port": [
+        "python"
+      ]
+    },
+    "tests/workflows/test_python_extension.py": {
+      "full-port": [
+        "python-extension"
+      ]
+    }
+  },
+  "schema_version": 1,
+  "versioned_packages": {
+    "release-package-v2": {
+      "files": [
+        "packages/tools/cachy-asahi-release-tools-v2/.SRCINFO",
+        "packages/tools/cachy-asahi-release-tools-v2/LICENSE",
+        "packages/tools/cachy-asahi-release-tools-v2/NOTICE",
+        "packages/tools/cachy-asahi-release-tools-v2/PKGBUILD",
+        "packages/tools/cachy-asahi-release-tools-v2/README.md",
+        "packages/tools/cachy-asahi-release-tools-v2/archive_stream.py",
+        "packages/tools/cachy-asahi-release-tools-v2/cachy-asahi-release-tools",
+        "packages/tools/cachy-asahi-release-tools-v2/check_package.py",
+        "packages/tools/cachy-asahi-release-tools-v2/compare_sboms.py",
+        "packages/tools/cachy-asahi-release-tools-v2/comparing-sboms.md",
+        "packages/tools/cachy-asahi-release-tools-v2/export-v2.json",
+        "packages/tools/cachy-asahi-release-tools-v2/package_checks.py",
+        "packages/tools/cachy-asahi-release-tools-v2/payload-map.json",
+        "packages/tools/cachy-asahi-release-tools-v2/recipe_source_delivery.py",
+        "packages/tools/cachy-asahi-release-tools-v2/recipe_source_delivery_v2.py",
+        "packages/tools/cachy-asahi-release-tools-v2/release_sbom.py",
+        "packages/tools/cachy-asahi-release-tools-v2/source-provenance.json",
+        "packages/tools/cachy-asahi-release-tools-v2/source_delivery.py",
+        "packages/tools/cachy-asahi-release-tools-v2/test_package.py"
+      ],
+      "full_paths": [
+        "packages/tools/cachy-asahi-release-tools-v2/PKGBUILD",
+        "packages/tools/cachy-asahi-release-tools-v2/.SRCINFO",
+        "packages/tools/cachy-asahi-release-tools-v2/payload-map.json",
+        "packages/tools/cachy-asahi-release-tools-v2/source-provenance.json",
+        "packages/tools/cachy-asahi-release-tools-v2/export-v2.json"
+      ],
+      "runtime_origins": [
+        "scripts/checks/package_checks.py",
+        "scripts/release/compare_sboms.py",
+        "scripts/release/recipe_source_delivery.py",
+        "scripts/release/recipe_source_delivery_v2.py",
+        "scripts/release/release_sbom.py",
+        "scripts/release/source_delivery.py",
+        "scripts/update/archive_stream.py"
+      ]
+    }
+  }
+}

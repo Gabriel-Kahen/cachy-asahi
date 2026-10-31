@@ -1,0 +1,8 @@
+{
+  "acceptance": false,
+  "actual_ref": null,
+  "actual_run": null,
+  "actual_source": null,
+  "ref": "codex/latest607-updater-dependency-cache-v1",
+  "source": "764da54af95f91ad7e72059b3c0eea0af0631774"
+}

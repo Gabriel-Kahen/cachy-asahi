@@ -1,0 +1,446 @@
+name: native-arm-full-root-postcommit-failure
+on:
+  workflow_dispatch:
+    inputs:
+      source:
+        description: Exact integrated caller, driver and Tools source commit (Root freeze)
+        required: true
+        type: string
+      mode:
+        description: Fresh native original-four builder and required FDK pair
+        required: true
+        default: build
+        type: choice
+        options: [build]
+      inputs_sha256:
+        description: Exact pinned Source input lock
+        type: string
+        default: beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f
+      recipes_sha256:
+        description: Exact pinned four-package recipe lock
+        type: string
+        default: a5fb287b4dda2a90bf61d4fa8cbbc5d666dad8bb450a70544d00545b091f36e3
+      integration_sha256:
+        description: Leave empty; this FDK-only job does not run integration
+        type: string
+        default: ''
+permissions:
+  contents: read
+concurrency:
+  group: native-arm-full-root-postcommit-failure-fd8192-xz16
+  cancel-in-progress: false
+jobs:
+  native:
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 290
+    env:
+      SOURCE_COMMIT: a79c4ca92486854f9edb639cd970d2c90fda4b12
+      INPUTS_SHA256: ${{ inputs.inputs_sha256 }}
+      RECIPES_SHA256: ${{ inputs.recipes_sha256 }}
+      RETRY_MODE: ${{ inputs.mode }}
+      REQUESTED_INTEGRATION_SHA256: ${{ inputs.integration_sha256 }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: a79c4ca92486854f9edb639cd970d2c90fda4b12
+          persist-credentials: false
+      - name: Seed the six frozen private cache objects before native work
+        if: inputs.mode == 'build'
+        shell: bash
+        env:
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01 }}
+          CACHY_OLD_FOUR_SCHEMA: '1'
+          CACHY_OLD_FOUR_SOURCE_EPOCH: '1791748800'
+          CACHY_OLD_FOUR_JBIGKIT_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_01 }}
+          CACHY_OLD_FOUR_JBIGKIT_02: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_02 }}
+          CACHY_OLD_FOUR_JBIGKIT_SIG_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_SIG_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_02: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_02 }}
+          CACHY_OLD_FOUR_LIBTIFF_03: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_03 }}
+          CACHY_OLD_FOUR_LIBTIFF_04: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_04 }}
+          CACHY_OLD_FOUR_LIBTIFF_05: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_05 }}
+          CACHY_OLD_FOUR_LIBTIFF_06: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_06 }}
+          CACHY_OLD_FOUR_LIBTIFF_07: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_07 }}
+          CACHY_OLD_FOUR_LIBTIFF_08: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_08 }}
+          CACHY_OLD_FOUR_LIBTIFF_09: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_09 }}
+          CACHY_OLD_FOUR_LIBTIFF_10: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_10 }}
+          CACHY_OLD_FOUR_LIBTIFF_11: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_11 }}
+          CACHY_OLD_FOUR_LIBTIFF_12: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_12 }}
+          CACHY_OLD_FOUR_LIBTIFF_13: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_13 }}
+          CACHY_OLD_FOUR_LIBTIFF_14: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_14 }}
+          CACHY_OLD_FOUR_LIBTIFF_15: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_15 }}
+          CACHY_OLD_FOUR_LIBTIFF_SIG_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_SIG_01 }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_COMMIT"
+          test "$INPUTS_SHA256" = beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f
+          timeout --signal=TERM --kill-after=5s 75s python3 -B - <<'PYSEED'
+          import hashlib
+          import os
+          from pathlib import Path
+          import sys
+          sys.path.insert(0, 'scripts/ci')
+          from old_four_seed import (OLD_FOUR_PRIVATE_ROWS, RETAINED_BUBBLEWRAP_PRIVATE_ROWS,
+                                     seed_current_build_cache)
+          pin = 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'
+          if hashlib.sha256(Path('scripts/ci/inputs.lock.json').read_bytes()).hexdigest() != pin:
+              raise SystemExit('private-cache-input-binding-refused')
+          names = {'CACHY_OLD_FOUR_' + f'{tag}_{i:02d}'
+                   for _, _, _, tag, count in OLD_FOUR_PRIVATE_ROWS for i in range(1, count + 1)}
+          retained = {'CACHY_RETAINED_BUBBLEWRAP_V1_' + f'{tag}_{i:02d}'
+                      for _, _, _, tag, sizes in RETAINED_BUBBLEWRAP_PRIVATE_ROWS
+                      for i in range(1, len(sizes) + 1)}
+          names |= retained
+          if len(names) != 22 or len(retained) != 3 or not all(os.environ.get(name) for name in names):
+              raise SystemExit('private-cache-required-secrets-missing')
+          cache = Path(os.environ['RUNNER_TEMP']) / 'alarm-cache'
+          cache.mkdir(mode=0o700)
+          keep = names | {'CACHY_OLD_FOUR_SCHEMA', 'CACHY_OLD_FOUR_SOURCE_EPOCH'}
+          for name in tuple(os.environ):
+              if name not in keep:
+                  os.environ.pop(name)
+          seed_current_build_cache(cache, pin)
+          PYSEED
+      - name: Checkout exact retained public input source
+        if: inputs.mode == 'build'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # existing pinned checkout
+        with:
+          ref: 04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd
+          path: retained-public-inputs
+          persist-credentials: false
+      - name: Seed fourteen exact public ARM input files
+        if: inputs.mode == 'build'
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C "$GITHUB_WORKSPACE/retained-public-inputs" rev-parse HEAD)" = 04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd
+          test "$(sha256sum retained-public-inputs/seed.py | cut -d ' ' -f 1)" = a7857658af224984065e575f6ffed8308ea85027d46eace8bda146d9033e93b3
+          test "$(sha256sum retained-public-inputs/index.json | cut -d ' ' -f 1)" = a388c8c8ba8e06cb92fd2be598b86e433c4e403b6e71a0f15b1eaec381bb7300
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC \
+            TMPDIR="$RUNNER_TEMP" \
+            python3 -I -B "$GITHUB_WORKSPACE/retained-public-inputs/seed.py" \
+              --cache "$RUNNER_TEMP/alarm-cache"
+      - name: Build the fresh native base and original package pairs
+        id: original_build
+        timeout-minutes: 50
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$RETRY_MODE" = build
+          test "$INPUTS_SHA256" = beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f
+          test "$RECIPES_SHA256" = a5fb287b4dda2a90bf61d4fa8cbbc5d666dad8bb450a70544d00545b091f36e3
+          test -z "$REQUESTED_INTEGRATION_SHA256"
+          test "$(git rev-parse HEAD)" = "$SOURCE_COMMIT"
+          install -d -m 700 "$RUNNER_TEMP/desktop-docker-config"
+          test "$(sha256sum retained-public-inputs/seed.py | cut -d ' ' -f 1)" = a7857658af224984065e575f6ffed8308ea85027d46eace8bda146d9033e93b3
+          test "$(sha256sum retained-public-inputs/index.json | cut -d ' ' -f 1)" = a388c8c8ba8e06cb92fd2be598b86e433c4e403b6e71a0f15b1eaec381bb7300
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC \
+            RUNNER_TEMP="$RUNNER_TEMP" DOCKER_CONFIG="$RUNNER_TEMP/desktop-docker-config" \
+            GITHUB_SHA="$SOURCE_COMMIT" GITHUB_REPOSITORY="$GITHUB_REPOSITORY" \
+            GITHUB_RUN_ID="$GITHUB_RUN_ID" GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" \
+            PYTHONDONTWRITEBYTECODE=1 INPUTS_SHA256="$INPUTS_SHA256" RECIPES_SHA256="$RECIPES_SHA256" \
+            /bin/bash --noprofile --norc -euo pipefail <<'RUN_ORIGINAL_BUILDS'
+          export TMPDIR="$RUNNER_TEMP"
+          python3 -B scripts/ci/native_arm.py build \
+            --inputs-sha256 "$INPUTS_SHA256" --recipes-sha256 "$RECIPES_SHA256" \
+            --cache "$RUNNER_TEMP/alarm-cache" --output "$RUNNER_TEMP/native-evidence"
+          RUN_ORIGINAL_BUILDS
+      - name: Retain bounded original-four and base evidence
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -d "$RUNNER_TEMP/native-evidence" ]; then
+            python3 -B scripts/ci/log_evidence.py "$RUNNER_TEMP/native-evidence"
+          fi
+      - name: Checkout the fixed FDK source
+        id: fdk_source
+        if: ${{ !cancelled() && steps.original_build.outcome == 'success' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 804b418f14459e82031046fb28a0308b4cb9348e
+          path: fdk-source
+          persist-credentials: false
+      - name: Required FDK pair on this job native base
+        id: fdk_pair
+        if: ${{ always() && !cancelled() }}
+        timeout-minutes: 25
+        shell: bash
+        env:
+          FDK_CHECKOUT_OUTCOME: ${{ steps.fdk_source.outcome }}
+        run: |
+          set -euo pipefail
+          test "$FDK_CHECKOUT_OUTCOME" = success
+          install -d -m 700 "$RUNNER_TEMP/fdk-home" "$RUNNER_TEMP/fdk-docker-config"
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/fdk-home" LANG=C.UTF-8 TZ=UTC \
+            RUNNER_TEMP="$RUNNER_TEMP" TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 \
+            DOCKER_CONFIG="$RUNNER_TEMP/fdk-docker-config" \
+            FDK_SOURCE_ROOT="$GITHUB_WORKSPACE/fdk-source" \
+            FDK_NATIVE_OUTPUT="$RUNNER_TEMP/native-evidence" \
+            FDK_OUTPUT="$RUNNER_TEMP/fdk-evidence" \
+            /bin/bash --noprofile --norc -euo pipefail > "$RUNNER_TEMP/fdk-driver.log" 2>&1 <<'RUN_FDK'
+          # Optional post-core step. Uses only the original base builder on this daemon.
+          set -euo pipefail
+          source_root=${FDK_SOURCE_ROOT:?}
+          native_out=${FDK_NATIVE_OUTPUT:?}
+          out=${FDK_OUTPUT:?}
+          mkdir -m 700 "$out"
+          status=FAIL
+          finish() {
+              rc=$?
+              printf 'FDK_PAIR=%s\nEXIT=%s\n' "$status" "$rc" > "$out/result.txt" || :
+              cat "$out/result.txt" || :
+              if [[ $status == FAIL ]]; then
+                  for log in "$out"/build-*/build.log "$out"/*.log; do
+                      [[ ! -f $log ]] || tail -n 40 "$log" || :
+                  done
+              fi
+              return "$rc"
+          }
+          trap finish EXIT
+          image=$(python3 - "$source_root" "$native_out" "$out" <<'PY'
+          from pathlib import Path
+          import hashlib, json, re, sys
+          source, native, out = map(Path, sys.argv[1:])
+          result = native / 'result.json'
+          if not result.exists() or json.loads(result.read_text()).get('native_build') != 'PASS':
+              raise SystemExit(0)
+          bootstrap = json.loads((native / 'bootstrap.json').read_text())
+          image = (native / 'image-id').read_text().strip()
+          assert re.fullmatch(r'sha256:[0-9a-f]{64}', image)
+          assert bootstrap['status'] == 'image-provisioned' and bootstrap['image_id'] == image
+          assert hashlib.sha256((native / 'packages.lock').read_bytes()).hexdigest() == bootstrap['packages_lock_sha256']
+          recipe = source / 'packages/libraries/cachy-asahi-fdk-aac/PKGBUILD'
+          digest = hashlib.sha256(recipe.read_bytes()).hexdigest()
+          assert digest == '774803633213d77e9879005608ff23528b6780465c7bd00f3234430c9a7346df'
+          for name in ('template-inputs.json', 'reviewed-inputs.json'):
+              data = json.loads((source / 'scripts/port/fdk-native-stage' / name).read_text())
+              data['PKGBUILD'] = digest
+              (out / name).write_text(json.dumps(data, sort_keys=True, indent=2) + '\n')
+          print(image)
+          PY
+          )
+          if [[ -z $image ]]; then
+              status=SKIPPED
+              printf 'No successful original-four builder; FDK was not run.\n'
+              exit 0
+          fi
+          python3 -B "$source_root/packages/libraries/cachy-asahi-fdk-aac/select-source.py" \
+              --fetch-upstream --output "$out/selected-source.tar" > "$out/selection.log" 2>&1
+          template_sha=$(sha256sum "$out/template-inputs.json" | cut -d ' ' -f 1)
+          python3 -B "$source_root/packages/libraries/cachy-asahi-fdk-aac/materialize.py" \
+              --archive "$out/selected-source.tar" --output "$out/recipe" \
+              --reviewed-template "$out/template-inputs.json" \
+              --reviewed-template-sha256 "$template_sha" > "$out/materialize.log" 2>&1
+          for attempt in 1 2; do
+              python3 -B "$source_root/scripts/build/build.py" "$out/recipe" \
+                  --image "$image" --output "$out/build-$attempt" --mode native \
+                  --source-date-epoch 1791748800 --network none --timeout 600 \
+                  --expected-packages "$native_out/packages.lock" \
+                  --reviewed-inputs "$out/reviewed-inputs.json" > "$out/build-$attempt.log" 2>&1
+          done
+          python3 -B "$source_root/scripts/build/compare.py" \
+              "$out/build-1" "$out/build-2" --require-bytes > "$out/compare.json" 2> "$out/compare.log"
+          cat "$out/compare.json"
+          status=PASS
+          RUN_FDK
+          grep -qx 'FDK_PAIR=PASS' "$RUNNER_TEMP/fdk-evidence/result.txt"
+      - name: Retain bounded FDK metadata and separate outcome
+        if: always()
+        shell: bash
+        env:
+          ORIGINAL_BUILD_OUTCOME: ${{ steps.original_build.outcome }}
+          FDK_CHECKOUT_OUTCOME: ${{ steps.fdk_source.outcome }}
+          FDK_PAIR_OUTCOME: ${{ steps.fdk_pair.outcome }}
+        run: |
+          set -euo pipefail
+          {
+            printf '\n### FDK-only native job\nOriginal pairs: %s; FDK checkout: %s; FDK step: %s\n' \
+              "$ORIGINAL_BUILD_OUTCOME" "$FDK_CHECKOUT_OUTCOME" "$FDK_PAIR_OUTCOME"
+            if [ -f "$RUNNER_TEMP/fdk-evidence/result.txt" ]; then
+              cat "$RUNNER_TEMP/fdk-evidence/result.txt"
+            else
+              printf 'No FDK script result; this is not a pair PASS.\n'
+            fi
+            printf 'Core lifecycle/integration: NOT RUN in this dedicated job.\n'
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+          python3 -B - <<'PYFDKLOG'
+          from pathlib import Path
+          import os, shutil
+          root = Path(os.environ['RUNNER_TEMP'])
+          source, public = root / 'fdk-evidence', root / 'fdk-metadata'
+          public.mkdir()
+          names = ['result.txt', 'compare.json', 'template-inputs.json', 'reviewed-inputs.json']
+          names += [f'build-{i}/{name}' for i in (1, 2) for name in ('provenance.json', 'validation.json')]
+          for name in names:
+              original, target = source / name, public / name
+              if original.is_file():
+                  target.parent.mkdir(parents=True, exist_ok=True)
+                  shutil.copyfile(original, target)
+          for name, original in [('driver-tail.log', root / 'fdk-driver.log')] + [
+                  (f'build-{i}-tail.log', source / f'build-{i}/build.log') for i in (1, 2)]:
+              if original.is_file():
+                  with original.open('rb') as stream:
+                      stream.seek(max(0, original.stat().st_size - 65536))
+                      (public / name).write_bytes(stream.read(65536))
+          (public / 'scope.txt').write_text('FDK build-pair metadata only; lifecycle/integration NOT RUN; no package binaries uploaded.\n')
+          PYFDKLOG
+          python3 -B scripts/ci/log_evidence.py "$RUNNER_TEMP/fdk-metadata"
+      - name: Checkout the provider trial from this workflow commit
+        id: provider_source
+        if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 4b1ce901ca160ab71b3bd8689a2569f3073685dd
+          path: provider-source
+          persist-credentials: false
+      - name: Required offline provider and shipped PipeWire AAC codec trial
+        id: fdk_provider
+        if: ${{ always() && !cancelled() }}
+        timeout-minutes: 10
+        shell: bash
+        env:
+          PROVIDER_CHECKOUT_OUTCOME: ${{ steps.provider_source.outcome }}
+          FDK_PAIR_OUTCOME: ${{ steps.fdk_pair.outcome }}
+        run: |
+          set -euo pipefail
+          test "$PROVIDER_CHECKOUT_OUTCOME" = success
+          test "$FDK_PAIR_OUTCOME" = success
+          install -d -m 700 "$RUNNER_TEMP/provider-home" "$RUNNER_TEMP/provider-docker-config"
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/provider-home" LANG=C.UTF-8 TZ=UTC \
+            PYTHONDONTWRITEBYTECODE=1 DOCKER_CONFIG="$RUNNER_TEMP/provider-docker-config" \
+            python3 -B "$GITHUB_WORKSPACE/provider-source/scripts/ci/fdk-provider-trial/trial.py" \
+              --core-source "$GITHUB_WORKSPACE" --native "$RUNNER_TEMP/native-evidence" \
+              --fdk "$RUNNER_TEMP/fdk-evidence" --cache "$RUNNER_TEMP/alarm-cache" \
+              --output "$RUNNER_TEMP/fdk-provider"
+      - name: Retain bounded provider and AAC codec trial evidence
+        if: always()
+        shell: bash
+        env:
+          FDK_PROVIDER_OUTCOME: ${{ steps.fdk_provider.outcome }}
+        run: |
+          set -euo pipefail
+          printf '\nFDK provider/codec trial step: %s; Bluetooth and target hardware NOT RUN.\n' \
+            "$FDK_PROVIDER_OUTCOME" | tee -a "$GITHUB_STEP_SUMMARY"
+          python3 -B - <<'PYPROVIDERLOG'
+          from pathlib import Path
+          import os
+          root = Path(os.environ['RUNNER_TEMP'])
+          source, public = root / 'fdk-provider/public', root / 'fdk-provider-metadata'
+          public.mkdir()
+          for name in ('result.json', 'inputs.json', 'trial.log', 'upstream-before-codec.log',
+                       'candidate-codec.log', 'upstream-restored-codec.log'):
+              original = source / name
+              if original.is_file():
+                  with original.open('rb') as stream:
+                      stream.seek(max(0, original.stat().st_size - 65536))
+                      (public / name).write_bytes(stream.read(65536))
+          (public / 'scope.txt').write_text('Generic ARM disposable provider and shipped AAC codec trial; no Bluetooth, daemon graph or M2 validation; no binaries retained.\n')
+          PYPROVIDERLOG
+          python3 -B scripts/ci/log_evidence.py "$RUNNER_TEMP/fdk-provider-metadata"
+      - name: Checkout the ten current development recipes
+        if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: a58fca33c4db5f2ab3ea6111f4d7842a932cc336
+          path: composition-product
+          persist-credentials: false
+      - name: Checkout the exact updater compiler implementation
+        if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 1aea667aec50a62ba0ab2dad44be24a4dc3bd098
+          path: composition-updater
+          persist-credentials: false
+      - name: Checkout the proven 574-package runtime builder
+        if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 9a2e520dbdfce7e4af417595ff3de9e6a284ef04
+          path: composition-desktop
+          persist-credentials: false
+      - name: Checkout the exact v2 updater implementation
+        if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 480053c0866a922138d85af2b9880fb0e10d7b2c
+          path: composition-updater-v2
+          persist-credentials: false
+      - name: Checkout unchanged composition preparation APIs
+        if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 93bc9bfac7343ee3b443ae3332c0942ed1ba5b55
+          path: composition-preparation
+          persist-credentials: false
+      - name: Checkout the controlled postcommit interruption freeze
+        if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.source }}
+          path: upgrade-code
+          persist-credentials: false
+      - name: Unpack only the exact retained public setup4 pair
+        if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' }}
+        shell: bash
+        run: |
+          python3 -B - <<'PYPAIR'
+          from pathlib import Path, PurePosixPath
+          import hashlib, os, tarfile
+          source=Path('composition-preparation/scripts/ci/full-development-composition/retained/setup4-pair.tar.xz')
+          assert source.stat().st_size==69776 and hashlib.sha256(source.read_bytes()).hexdigest()=='1637452a84733fdf059d7dbc10c5b6dddd11c589c4f97ebb6a4655aedd12359f'
+          target=Path(os.environ['RUNNER_TEMP'])/'setup4-retained'
+          target.mkdir(mode=0o700)
+          with tarfile.open(source,'r:xz') as archive:
+              members=archive.getmembers()
+              assert len(members)==64 and sum(item.size for item in members)<4*1024**2
+              assert len({item.name for item in members})==64
+              for item in members:
+                  name=PurePosixPath(item.name)
+                  assert item.isfile() and not name.is_absolute() and '..' not in name.parts
+                  assert name.parts[0] in ('build-1','build-2')
+              archive.extractall(target,filter='data')
+          PYPAIR
+      - name: Required complete-root postcommit interruption and owned-copy disposal
+        id: composition
+        if: ${{ always() && !cancelled() }}
+        timeout-minutes: 90
+        shell: bash
+        env:
+          FDK_PAIR_OUTCOME: ${{ steps.fdk_pair.outcome }}
+          UPGRADE_SOURCE: ${{ inputs.source }}
+        run: |
+          set -euo pipefail
+          test "$FDK_PAIR_OUTCOME" = success
+          [[ "$UPGRADE_SOURCE" =~ ^[0-9a-f]{40}$ ]]
+          test "$(git -C upgrade-code rev-parse HEAD)" = "$UPGRADE_SOURCE"
+          test "$(git -C composition-preparation rev-parse HEAD)" = 93bc9bfac7343ee3b443ae3332c0942ed1ba5b55
+          install -d -m 700 "$RUNNER_TEMP/composition-home"
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/composition-home" LANG=C.UTF-8 TZ=UTC \
+            PYTHONDONTWRITEBYTECODE=1 \
+            python3 -B "$GITHUB_WORKSPACE/upgrade-code/scripts/ci/full-root-postcommit-failure/launch.py" \
+              --preparation-source "$GITHUB_WORKSPACE/composition-preparation" \
+              --upgrade-code "$GITHUB_WORKSPACE/upgrade-code" \
+              --upgrade-config "$GITHUB_WORKSPACE/upgrade-code/scripts/ci/full-root-postcommit-failure/lane-config.json" \
+              --updater-v2-source "$GITHUB_WORKSPACE/composition-updater-v2" \
+              --setup4-pair "$RUNNER_TEMP/setup4-retained" \
+              --product "$GITHUB_WORKSPACE/composition-product" \
+              --updater "$GITHUB_WORKSPACE/composition-updater" \
+              --desktop "$GITHUB_WORKSPACE/composition-desktop" \
+              --native "$RUNNER_TEMP/native-evidence" --fdk "$RUNNER_TEMP/fdk-evidence" \
+              --cache "$RUNNER_TEMP/alarm-cache" --output "/tmp/cachy-asahi-composition-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+      - name: Retain bounded development composition metadata
+        if: always()
+        shell: bash
+        env:
+          COMPOSITION_OUTCOME: ${{ steps.composition.outcome }}
+        run: |
+          set -euo pipefail
+          printf '\nDevelopment composition step: %s; target/platform/release NOT ACCEPTED.\n' \
+            "$COMPOSITION_OUTCOME" | tee -a "$GITHUB_STEP_SUMMARY"
+          if [ -d "/tmp/cachy-asahi-composition-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT/public" ]; then
+            python3 -B scripts/ci/log_evidence.py "/tmp/cachy-asahi-composition-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT/public"
+          fi

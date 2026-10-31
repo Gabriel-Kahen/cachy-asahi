@@ -1,0 +1,118 @@
+# Source-owned finite recheck DATA: selected verify only, exact common guest clock.
+RECHECK607_BODY=r'''class _Recheck607:
+    """Seven finite DATA records, with a guest clock anchor; never authority."""
+    phases=('observer_begin','database_begin','database_end','records_begin','records_end','root_begin','root_end')
+    def __init__(self):
+        self.start=time.monotonic_ns();self.last=-1;self.bytes=0
+
+    def mark(self,phase):
+        try:
+            if type(phase)is not str or phase not in self.phases:return False
+            ordinal=self.phases.index(phase)
+            if ordinal<=self.last:return False
+            now=time.monotonic_ns()
+            if type(now)is not int or not 0<=now<2**63:return False
+            elapsed=now-self.start
+            if not 0<=elapsed<=1215000000000:return False
+            value=dict(schema=1,phase=phase,ordinal=ordinal+1,monotonic_ns=now,
+                       elapsed_ns=elapsed,status='RECHECK_DATA_ONLY_NOT_ACCEPTANCE')
+            raw=b'INSTALLED607_RECHECK_DATA '+json.dumps(value,sort_keys=True,separators=(',',':')).encode()+b'\n'
+            if len(raw)>256 or self.bytes+len(raw)>1792:return False
+            self.last=ordinal;self.bytes+=len(raw)
+            return os.write(2,raw)==len(raw)
+        except Exception:
+            return False
+
+    def call(self,phase,operation):
+        self.mark(phase+'_begin')
+        result=operation()
+        self.mark(phase+'_end')
+        return result
+'''
+RECHECK607_FORWARD=r'''class _RecheckForward607:
+    """Selected stderr DATA only; no command success or cleanup authority."""
+    prefix=b'INSTALLED607_RECHECK_DATA '
+    phases=('observer_begin','database_begin','database_end','records_begin','records_end','root_begin','root_end')
+    def __init__(self,send):
+        self.send=send;self.pending=b'';self.discard=False;self.last=0
+        self.input_bytes=0;self.output_bytes=0;self.clock=-1;self.elapsed=-1;self.offset=None
+
+    def record(self,raw):
+        try:
+            if not raw.startswith(self.prefix)or not raw.endswith(b'\n')or len(raw)>256:return False
+            value=json.loads(raw[len(self.prefix):].decode('utf8','strict'))
+            if type(value)is not dict or set(value)!={'schema','phase','ordinal','monotonic_ns','elapsed_ns','status'}:return False
+            if type(value['schema'])is not int or value['schema']!=1 or value['status']!='RECHECK_DATA_ONLY_NOT_ACCEPTANCE':return False
+            if type(value['phase'])is not str or value['phase']not in self.phases:return False
+            ordinal=self.phases.index(value['phase'])+1
+            if type(value['ordinal'])is not int or value['ordinal']!=ordinal or ordinal<=self.last:return False
+            if type(value['monotonic_ns'])is not int or not self.clock<=value['monotonic_ns']<2**63 or value['monotonic_ns']<0:return False
+            if type(value['elapsed_ns'])is not int or not max(self.elapsed,0)<=value['elapsed_ns']<=1215000000000:return False
+            offset=value['monotonic_ns']-value['elapsed_ns']
+            if offset<0 or self.offset is not None and offset!=self.offset:return False
+            canonical=self.prefix+json.dumps(value,sort_keys=True,separators=(',',':')).encode()+b'\n'
+            if raw!=canonical or self.input_bytes+len(raw)>1792:return False
+            framed=('DESKTOP574_EVENT '+json.dumps(dict(event='installed607_recheck_DATA',**value),sort_keys=True)+'\n').encode()
+            if self.output_bytes+len(framed)>2304:return False
+            self.last=ordinal;self.clock=value['monotonic_ns'];self.elapsed=value['elapsed_ns'];self.offset=offset
+            self.input_bytes+=len(raw);self.output_bytes+=len(framed)
+            self.send('installed607_recheck_DATA',**value)
+            return True
+        except BaseException:
+            return False
+
+    def feed(self,raw):
+        try:
+            if type(raw)is not bytes or len(raw)>65536:return False
+            start=0
+            while start<len(raw):
+                end=raw.find(b'\n',start);end=len(raw)if end<0 else end+1;piece=raw[start:end];start=end
+                if not self.discard:
+                    if len(self.pending)+len(piece)>256:self.pending=b'';self.discard=True
+                    else:self.pending+=piece
+                if piece.endswith(b'\n'):
+                    if not self.discard:self.record(self.pending)
+                    self.pending=b'';self.discard=False
+            return True
+        except BaseException:
+            self.pending=b'';self.discard=True
+            return False
+
+class _ObserverAndRecheck607:
+    def __init__(self,send):
+        self.original=_ObserverStageForward(send);self.recheck=_RecheckForward607(send)
+    def feed(self,raw):
+        self.original.feed(raw);self.recheck.feed(raw)
+'''
+RECHECK607_EDITS=(
+ ("    end=time.monotonic()+deadline;","    end=time.monotonic()+deadline;diagnostic=_Recheck607();diagnostic.mark('observer_begin');"),
+ ("need(helper.database(root,max_packages=607)==rows and records()==initial_database and root_identity==helper.identity(root.lstat()) and time.monotonic()<end,",
+  "need(diagnostic.call('database',lambda:helper.database(root,max_packages=607))==rows and diagnostic.call('records',records)==initial_database and root_identity==diagnostic.call('root',lambda:helper.identity(root.lstat())) and time.monotonic()<end,"),
+)
+def _recheck_payload607(raw,inverse=False):
+ nodes=[n for n in ast.parse(raw).body if isinstance(n,ast.FunctionDef)and n.name=='_payload_observe607']
+ need(len(nodes)==1,'one actual selected recheck payload body')
+ before=ast.get_source_segment(raw.decode(),nodes[0]);body=before.encode()
+ rows=[(b,a)for a,b in reversed(RECHECK607_EDITS)]if inverse else RECHECK607_EDITS
+ for a,b in rows:body=edited(body,[(a,b)])
+ return edited(raw,[(before,body.decode())])
+def recheck_installed607(raw):
+ result=_recheck_payload607(raw)
+ return edited(result,[('_payload_original607=observe',RECHECK607_BODY+'\n_payload_original607=observe')])
+def unrecheck_installed607(raw):
+ result=edited(raw,[(RECHECK607_BODY+'\n_payload_original607=observe','_payload_original607=observe')])
+ return _recheck_payload607(result,True)
+def recheck_observer_rows607(rows):
+ rows=list(rows);before,after=rows[-1];rows[-1]=(before,recheck_installed607(after.encode()).decode());return rows
+def unrecheck_observer_rows607(rows):
+ rows=list(rows);before,after=rows[-1];rows[-1]=(before,unrecheck_installed607(after.encode()).decode());return rows
+def recheck_forwarding_rows607(rows):
+ rows=list(rows);before,after=rows[0];rows[0]=(before,edited(after.encode(),[('class Logged:',RECHECK607_FORWARD+'\n\nclass Logged:')]).decode())
+ before,after=rows[1];rows[1]=(before,edited(after.encode(),[('self._observer_forward = _ObserverStageForward(emit)','self._observer_forward = _ObserverAndRecheck607(emit)')]).decode());return rows
+def unrecheck_forwarding_rows607(rows):
+ rows=list(rows);before,after=rows[1];rows[1]=(before,edited(after.encode(),[('self._observer_forward = _ObserverAndRecheck607(emit)','self._observer_forward = _ObserverStageForward(emit)')]).decode())
+ before,after=rows[0];rows[0]=(before,edited(after.encode(),[(RECHECK607_FORWARD+'\n\nclass Logged:','class Logged:')]).decode());return rows
+_recheck_prior_observer_rows607=observer_rows
+def observer_rows():return recheck_observer_rows607(_recheck_prior_observer_rows607())
+_recheck_prior_forwarding_rows607=forwarding_rows
+def forwarding_rows():return recheck_forwarding_rows607(_recheck_prior_forwarding_rows607())

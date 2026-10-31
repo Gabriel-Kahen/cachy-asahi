@@ -1,0 +1,159 @@
+{
+  "advisory_acquisition_source": {
+    "installed_real_network": "NOT_RUN",
+    "path": "artifacts/development/security-advisory-acquisition-development-20261028/proposed/scripts/maintenance/advisory_cache.py",
+    "sha256": "727a9c1b9060231b6a6e017596d24de6f519828f5317b588a7c84a5efd4051fb",
+    "transport_controls": "22 PASS separate retained evidence, not rerun"
+  },
+  "affectedness": "UNKNOWN",
+  "commit_is_not_a_substitute_for_file_hashes": true,
+  "files": {
+    "scripts/build/build.py": {
+      "bytes": 11299,
+      "license": "MIT",
+      "sha256": "e520b37e5dfc285914203cfab99daecc80543505fef7ded6704b3fb06f001d45",
+      "source": "build.py"
+    },
+    "scripts/build/build_v2.py": {
+      "bytes": 13242,
+      "license": "MIT",
+      "sha256": "37242a5680c0cb587087042455782478dac0f574f977a5f696c97d29eac39b43",
+      "source": "build_v2.py"
+    },
+    "scripts/build/compare.py": {
+      "bytes": 5820,
+      "license": "MIT",
+      "sha256": "4198864c264642b196a090a67b36185e5c194e38edc4cb928d08eb65b9f710cd",
+      "source": "compare.py"
+    },
+    "scripts/build/compare_v2.py": {
+      "bytes": 5963,
+      "license": "MIT",
+      "sha256": "89c606044b587ea772d5bbab4bad55c09dc23a7080900a9ad51839b2f516215b",
+      "source": "compare_v2.py"
+    },
+    "scripts/build/container-entry-v2.sh": {
+      "bytes": 2447,
+      "license": "MIT",
+      "sha256": "9be3db97efde70536a81d1c97f9ac69893a6004ab403566f8453704a2a189d2a",
+      "source": "container-entry-v2.sh"
+    },
+    "scripts/build/container-entry.sh": {
+      "bytes": 1787,
+      "license": "MIT",
+      "sha256": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24",
+      "source": "container-entry.sh"
+    },
+    "scripts/build/source_materials.py": {
+      "bytes": 7877,
+      "license": "MIT",
+      "sha256": "9b0d95d2604ae4689f081283fc671281ce13879fcb146ddf4188873b05c89e5a",
+      "source": "source_materials.py"
+    },
+    "scripts/checks/package_checks.py": {
+      "bytes": 17706,
+      "license": "MIT",
+      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8",
+      "source": "package_checks.py"
+    },
+    "scripts/maintenance/advisory_cache.py": {
+      "bytes": 16067,
+      "license": "MIT",
+      "sha256": "727a9c1b9060231b6a6e017596d24de6f519828f5317b588a7c84a5efd4051fb",
+      "source": "advisory_cache.py"
+    },
+    "scripts/maintenance/build_batch.py": {
+      "bytes": 34362,
+      "license": "MIT",
+      "sha256": "b2e27ed00ba4c795762e313a15e791b9dc7a9503d5d7078b1603d725d54137d5",
+      "source": "build_batch.py"
+    },
+    "scripts/maintenance/build_batch_v2.py": {
+      "bytes": 15277,
+      "license": "MIT",
+      "sha256": "1d4830817aff747965b2446f2cf42f3889ac7c6651c04d9a5884bfe29f33066d",
+      "source": "build_batch_v2.py"
+    },
+    "scripts/maintenance/build_outputs_v2.py": {
+      "bytes": 26635,
+      "license": "MIT",
+      "sha256": "20c763488e6093b787b43d0ff952e071a2e1e7e3ed253510ff3a05f0f511cd53",
+      "source": "build_outputs_v2.py"
+    },
+    "scripts/maintenance/campaign.py": {
+      "bytes": 25588,
+      "license": "MIT",
+      "sha256": "49450fefce70569dfaf1a0304ca1f127e2d8fa010da217ea4aad7a4b100db6b5",
+      "source": "campaign.py"
+    },
+    "scripts/maintenance/rebuild_plan.py": {
+      "bytes": 25822,
+      "license": "MIT",
+      "sha256": "472f9bb621d78f79f5016a662b7f72eb03e995dae787c7846bc1f947ff21313c",
+      "source": "rebuild_plan.py"
+    },
+    "scripts/maintenance/security_advisories.py": {
+      "bytes": 12145,
+      "license": "MIT",
+      "sha256": "f018ff4ac0265217213f749bf59afa08b61b24e4054973c0dcde110e57a0a2cb",
+      "source": "security_advisories.py"
+    },
+    "scripts/maintenance/security_campaign.py": {
+      "bytes": 17354,
+      "license": "MIT",
+      "sha256": "31caf705cb019be9a0e470424d332788dd62ed4009c75b3e4cbc92a31e2de492",
+      "source": "security_campaign.py"
+    },
+    "scripts/maintenance/source_cache.py": {
+      "bytes": 14253,
+      "license": "MIT",
+      "sha256": "3c922b1c5ea737605d7fd39aa986fa281c50bcf6926660390032e677706e28f3",
+      "source": "source_cache.py"
+    },
+    "scripts/maintenance/update_plan.py": {
+      "bytes": 14881,
+      "license": "MIT",
+      "sha256": "21af73923ca4bfff244d653e1f0046015d429a582548b2a60f1e0feb5b2a687e",
+      "source": "update_plan.py"
+    },
+    "scripts/release/check_source_pins.py": {
+      "bytes": 9981,
+      "license": "MIT",
+      "sha256": "9b78c348e2d567f44f656285f6a562220cadead7025f1e0db2eb9a53d9f09ea3",
+      "source": "check_source_pins.py"
+    },
+    "scripts/release/release.py": {
+      "bytes": 41320,
+      "license": "MIT",
+      "sha256": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435",
+      "source": "release.py"
+    },
+    "scripts/release/source_delivery.py": {
+      "bytes": 16456,
+      "license": "MIT",
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e",
+      "source": "source_delivery.py"
+    },
+    "scripts/virtual/owned_process.py": {
+      "bytes": 25140,
+      "license": "MIT",
+      "sha256": "83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f",
+      "source": "owned_process.py"
+    }
+  },
+  "hardware": "NOT_RUN",
+  "installation": "NOT_RUN",
+  "native_build": "NOT_RUN",
+  "predecessor": {
+    "exact_unchanged_runtime_files": 20,
+    "original_exporter_tests": "10 PASS retained, not rerun",
+    "original_package_tests": "8 PASS retained, not rerun",
+    "profile_sha256": "ec01a83c444e045ded65c598fbc33a8a53bb6c2793fff3e98c1e38ee71f64c88",
+    "version": "0.1.0-1"
+  },
+  "production_trust": "NOT_ESTABLISHED",
+  "purpose": "security-maintenance-advisory-successor-source-closure",
+  "remediation": "NOT_ESTABLISHED",
+  "schema_version": 1,
+  "source_commit_observed": "715a9801375d467bacb3b752257c598fed46b919"
+}

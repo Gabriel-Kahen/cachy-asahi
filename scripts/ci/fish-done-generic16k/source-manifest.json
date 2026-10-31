@@ -1,0 +1,395 @@
+{
+  "files": {
+    ".github/workflows/native-arm-fish-done-generic16k.yml": {
+      "bytes": 16062,
+      "sha256": "4b683514a58f336122797078d43fc3f09cabb4ccb4c92d6b66a8898119d43e69"
+    },
+    "packages/desktop/cachy-asahi-hyprland-settings/.SRCINFO": {
+      "bytes": 1811,
+      "sha256": "6c2fd7e245f5ac15627ebef3fe34f7b5f6120b310055e9e934708c06c2126419"
+    },
+    "packages/desktop/cachy-asahi-hyprland-settings/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/desktop/cachy-asahi-hyprland-settings/NOTICE": {
+      "bytes": 1406,
+      "sha256": "0c8c331ce87a95b154e0e83c358a5cafc39bf08f2129ecc5be2438c6a97a325c"
+    },
+    "packages/desktop/cachy-asahi-hyprland-settings/PKGBUILD": {
+      "bytes": 2486,
+      "sha256": "fcaa62480565b8bb3b88b330a989b7bb37355e3908a9251285ce15765c985436"
+    },
+    "packages/desktop/cachy-asahi-hyprland-settings/README.md": {
+      "bytes": 7738,
+      "sha256": "68fe115241e834594d8c43330b0564c4171e21f5c039dbd48f72ad27b8fbb17c"
+    },
+    "packages/desktop/cachy-asahi-hyprland-settings/cachy-asahi-screenshot": {
+      "bytes": 8523,
+      "sha256": "5a920a5dd7a40463417a9b15e64a6620acfe7b2328960bf7014c9f587c4b69a8"
+    },
+    "packages/desktop/cachy-asahi-hyprland-settings/hyprland.lua": {
+      "bytes": 2875,
+      "sha256": "f75aebb1111123dc86c7f1a85e00bff0320edef6e6f071e28370fbabd6a40a6a"
+    },
+    "packages/desktop/cachy-asahi-hyprland-settings/mako.conf": {
+      "bytes": 100,
+      "sha256": "c6ab55ae475611bf2df2b7120b97a924eed5d65c149561d4da4f12b5b8c25504"
+    },
+    "packages/desktop/cachy-asahi-hyprland-settings/waybar.css": {
+      "bytes": 257,
+      "sha256": "a97930965a4e622adc920491c7d433a803173bb6e644c4c3c88efb79187e11d5"
+    },
+    "packages/desktop/cachy-asahi-hyprland-settings/waybar.json": {
+      "bytes": 436,
+      "sha256": "4c7adb2deb0403fefc4562d39105635cebfc44ce88e44fe84c4a90a00b2be3c0"
+    },
+    "packages/tools/cachy-asahi-doctor/.SRCINFO": {
+      "bytes": 808,
+      "sha256": "6eb3a106a899d701489d5a8903c15e57516544e164c40adebef2748de978284d"
+    },
+    "packages/tools/cachy-asahi-doctor/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-doctor/NOTICE": {
+      "bytes": 563,
+      "sha256": "96aa4022dcf6b97ea2b55ef63d78d5c261bfcd39c303822bad184a33d09e5804"
+    },
+    "packages/tools/cachy-asahi-doctor/PKGBUILD": {
+      "bytes": 1195,
+      "sha256": "119e2b839195e0c18b885b0208928e234af63e2a5f958dbf4fc9edad5a2c04b1"
+    },
+    "packages/tools/cachy-asahi-doctor/README.md": {
+      "bytes": 3995,
+      "sha256": "8d1260424db6e54c8a68b008ab1d317d54a2a58d34655f34ae5059603cf19e4e"
+    },
+    "packages/tools/cachy-asahi-doctor/cachy-asahi-doctor": {
+      "bytes": 14695,
+      "sha256": "d8eb487bc81b5880aceb412360ef674cc214150d61733dfdc8d8654e0f54cf38"
+    },
+    "packages/tools/cachy-asahi-doctor/test_doctor.py": {
+      "bytes": 10694,
+      "sha256": "7d555c98f79204d91c759171273c1ef24564a51d3384d6e8eb10751ab1cc4281"
+    },
+    "packages/tools/cachy-asahi-fish-done/.SRCINFO": {
+      "bytes": 1266,
+      "sha256": "9b769ac2155a0d74550daaaa7d81ec6d098ce8e1dfe47cb06dbcfd227b3541df"
+    },
+    "packages/tools/cachy-asahi-fish-done/LICENSE.project": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-fish-done/LICENSE.upstream": {
+      "bytes": 1092,
+      "sha256": "d3a6b9e81b93ce9b59c72355867b03f15e9ec186ad9d6b96e0a96374fa3d4c30"
+    },
+    "packages/tools/cachy-asahi-fish-done/NOTICE": {
+      "bytes": 1213,
+      "sha256": "cb000928dc0f592c00ee4a8df16659b8aab326b235effd6ea208aaecf319f4c3"
+    },
+    "packages/tools/cachy-asahi-fish-done/PKGBUILD": {
+      "bytes": 2099,
+      "sha256": "d76f7d27959e79af0f78945ff6bae247e796b235ae6326abf8c3ae3de04ca28d"
+    },
+    "packages/tools/cachy-asahi-fish-done/README.md": {
+      "bytes": 2462,
+      "sha256": "8781f844987d1bcc677d9b3a69f23970840104d345f3698f5d44639bff797015"
+    },
+    "packages/tools/cachy-asahi-fish-done/check-module.py": {
+      "bytes": 18968,
+      "sha256": "79a869d9adc6405a07ac647d01be905f99cc1e8dedd0821f38680fc504b919dd"
+    },
+    "packages/tools/cachy-asahi-fish-done/done.fish": {
+      "bytes": 5011,
+      "sha256": "f545413bd75a3017b8d11a5ca7fe7394f326babbc8c18618323c39fbd8d0a0d4"
+    },
+    "packages/tools/cachy-asahi-fish-done/done.upstream.fish": {
+      "bytes": 13815,
+      "sha256": "4aa68e18104966509dd0bfd6f7378423e212781d0674dae85fd38b1d30e30372"
+    },
+    "packages/tools/cachy-asahi-fish-done/opt-in.fish": {
+      "bytes": 908,
+      "sha256": "6ff60eef9f211819833b0d94a9fef15a2982835c84d868d7b0d55200e37b6a20"
+    },
+    "packages/tools/cachy-asahi-fish-done/source-provenance.json": {
+      "bytes": 2478,
+      "sha256": "b78395517588426f45ede5953d30ca8c449fec77ef4b633ad53246031e4465e1"
+    },
+    "packages/tools/cachy-asahi-fish-done/usage.md": {
+      "bytes": 5792,
+      "sha256": "e338eec57d00f5f85dcfea84b33eda11bbf3d3174e41abf957246d8a94d3d622"
+    },
+    "packages/tools/cachy-asahi-welcome/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-welcome/Makefile": {
+      "bytes": 3045,
+      "sha256": "7bb33f82c36b6c1c07b94afe5eb1615e0896b9755242476f4aff43ac5a95c5e2"
+    },
+    "packages/tools/cachy-asahi-welcome/NOTICE": {
+      "bytes": 665,
+      "sha256": "71e80969d77f4079bff80b62c53c84866489d91206a420384fc1622319d8021a"
+    },
+    "packages/tools/cachy-asahi-welcome/PKGBUILD": {
+      "bytes": 2983,
+      "sha256": "071cada88855ac7e462df8cde264d4ae60263655da4706d9c2c9dc5af7b33f6b"
+    },
+    "packages/tools/cachy-asahi-welcome/README.md": {
+      "bytes": 4847,
+      "sha256": "dbc3716ed6fb6264d976e8b49cb07e7b35990f69fa1f190f773aa61384573e54"
+    },
+    "packages/tools/cachy-asahi-welcome/cachy-asahi-welcome.svg": {
+      "bytes": 531,
+      "sha256": "0db6f69c16766172942551b512e89842d086f4a04320a20bfd9a4473b17a1b73"
+    },
+    "packages/tools/cachy-asahi-welcome/check_source.py": {
+      "bytes": 3656,
+      "sha256": "a688d4373c2d69a69aa59b314cb1f83dbfb99ccbedd78d159928ead6e00fef5a"
+    },
+    "packages/tools/cachy-asahi-welcome/first-run.txt": {
+      "bytes": 1484,
+      "sha256": "2c123deef2cf02b586250c1128907ba294ced83a3671607dd2aef2f3cfa094eb"
+    },
+    "packages/tools/cachy-asahi-welcome/io.github.GabrielKahen.CachyAsahiWelcome.desktop": {
+      "bytes": 358,
+      "sha256": "2c2159a75c7b0303eebf47e77e89d6d1f6241372f7ecb006c6b11002135cb441"
+    },
+    "packages/tools/cachy-asahi-welcome/recovery.txt": {
+      "bytes": 1555,
+      "sha256": "09e5160543b0739b10f327972e338b01c16269d8bcfc6620325eceed0c6a26a2"
+    },
+    "packages/tools/cachy-asahi-welcome/status.c": {
+      "bytes": 6735,
+      "sha256": "2bfd5f64c724670546057d01312fc6b9591416f6113c65eae8cbb9a53f3909cf"
+    },
+    "packages/tools/cachy-asahi-welcome/status.h": {
+      "bytes": 833,
+      "sha256": "da0c71ef784debe9ea8ec0be34d8326afe5520ad463efc4a2d432805324b8b78"
+    },
+    "packages/tools/cachy-asahi-welcome/test_cli.py": {
+      "bytes": 3170,
+      "sha256": "722182698ca07b14b03787a52f5b3976f2f039ae048f142f2dee72e6176fa972"
+    },
+    "packages/tools/cachy-asahi-welcome/test_status.c": {
+      "bytes": 5152,
+      "sha256": "710eba6eafd4389bf2bf73bc39c7e727d4d60097cb783c035da60bc4ba8d740e"
+    },
+    "packages/tools/cachy-asahi-welcome/updates.txt": {
+      "bytes": 1445,
+      "sha256": "fcde7d9aa0c6f1a0fc8090c5dc26f405708f18ea760d74b664732e2824d403b8"
+    },
+    "packages/tools/cachy-asahi-welcome/welcome.c": {
+      "bytes": 21403,
+      "sha256": "3f7979e2e4d9d511628491d77e267a39a4a47936e23cd9c612b56f775b48f414"
+    },
+    "scripts/build/build.py": {
+      "bytes": 11299,
+      "sha256": "e520b37e5dfc285914203cfab99daecc80543505fef7ded6704b3fb06f001d45"
+    },
+    "scripts/build/container-entry.sh": {
+      "bytes": 1787,
+      "sha256": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24"
+    },
+    "scripts/checks/package_checks.py": {
+      "bytes": 17706,
+      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
+    },
+    "scripts/ci/desktop-user-session/prepare.py": {
+      "bytes": 6300,
+      "sha256": "a70885622a36fe1ba764ea7d0846933b639ef04dc3c532598fb92ceb73ffe00b"
+    },
+    "scripts/ci/desktop574_fixture.sh": {
+      "bytes": 4813,
+      "sha256": "1b1fb62967ba52a165139388e38db959c5fc8827f18cb991305c1e8fb67b6cb7"
+    },
+    "scripts/ci/desktop574_guest.py": {
+      "bytes": 37011,
+      "sha256": "504b03489bb091904303431d22310331ecd0a6ebe470480544198e374e5daff4"
+    },
+    "scripts/ci/desktop574_runtime.py": {
+      "bytes": 21464,
+      "sha256": "5e3540a853c96616f6767e86df152a87747299c6f8b5c36f41cc51ae7f3403cd"
+    },
+    "scripts/ci/fish-done-generic16k/README.md": {
+      "bytes": 14705,
+      "sha256": "393c3e3617e1e593cd7679d51eca536ac0162455fa9b140a919d2dd6fd0c4523"
+    },
+    "scripts/ci/fish-done-generic16k/acquire_kernel.py": {
+      "bytes": 3510,
+      "sha256": "09601f994f25601b7242cb36f38c6b0ead58ab5188d61e27ffe813c737a854b3"
+    },
+    "scripts/ci/fish-done-generic16k/capture.py": {
+      "bytes": 11193,
+      "sha256": "27e42e5fc858966bbe961638ad16fcfd20460affd0314cf5398c8859d35e5a71"
+    },
+    "scripts/ci/fish-done-generic16k/dependencies.json": {
+      "bytes": 13953,
+      "sha256": "d8c44dc3bd35689bbbd96ffe3758d59e42473708f66e4de79294036920bf4de4"
+    },
+    "scripts/ci/fish-done-generic16k/guest.py": {
+      "bytes": 20918,
+      "sha256": "c9b32b17a25cd9f2b2f21127532d8be4e4554d4dc26fbe9c6eaee65b8f2a5ddd"
+    },
+    "scripts/ci/fish-done-generic16k/notify_recorder.c": {
+      "bytes": 4622,
+      "sha256": "9587d70952a4d9eef09aaa5c242e182018c77abdd9813d0c9723290f09d1cab4"
+    },
+    "scripts/ci/fish-done-generic16k/payload-map.json": {
+      "bytes": 3188,
+      "sha256": "47e1cd37bb11790dad7758e3c259f45929f53841bb789268b6d4bb75612603d1"
+    },
+    "scripts/ci/fish-done-generic16k/recorder_adapter.py": {
+      "bytes": 1312,
+      "sha256": "8d108ad36484d34f711e93cb5e3a2cc2cb32abd69132080d3fb53edf12ba2d34"
+    },
+    "scripts/ci/fish-done-generic16k/run.py": {
+      "bytes": 34008,
+      "sha256": "f472546b9e690b22167b06836ceb37fc1aa8e88dfc4b364b77f390fe3ae90b82"
+    },
+    "scripts/ci/fish-done-generic16k/support.py": {
+      "bytes": 5780,
+      "sha256": "d88358a557e9db8cb285804d22aca571a028e587e4b6942c12d8e863b1eeff73"
+    },
+    "scripts/ci/fish-done-generic16k/test_acquire.py": {
+      "bytes": 5604,
+      "sha256": "71a6154536fa94d7d004c7b8ab24f8d732ea0756321c4e49735a2ac02d993f6e"
+    },
+    "scripts/ci/fish-done-generic16k/test_diagnostics.py": {
+      "bytes": 9527,
+      "sha256": "929f5f1318b82bd1574ebd487a3f1bc0ab0c10288c1ea3de1f6af78b38738555"
+    },
+    "scripts/ci/fish-done-generic16k/test_foreground_probe.py": {
+      "bytes": 5730,
+      "sha256": "6dd053b91a7c79a091ce68094581549dae4f2c3fb7e05ea0879670c6aea33332"
+    },
+    "scripts/ci/fish-done-generic16k/test_native_capture.py": {
+      "bytes": 7930,
+      "sha256": "54c1def42bfaed79f55ce215c65e5ab237a63941b3166f0d9a6cc67679efa488"
+    },
+    "scripts/ci/fish-done-generic16k/test_smoke.py": {
+      "bytes": 27935,
+      "sha256": "59c192b7869308544507696f80ca3c668b5b0f4693cfa4da228478d580269dea"
+    },
+    "scripts/ci/maintained-desktop574-inputs.json": {
+      "bytes": 623664,
+      "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
+    },
+    "scripts/ci/maintained_desktop574.py": {
+      "bytes": 22367,
+      "sha256": "27ba4be42cf2bd41675073e07cccc917ae033f9d68b07a33cfd7f074ac27b760"
+    },
+    "scripts/ci/old_four_seed.py": {
+      "bytes": 29048,
+      "sha256": "a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7"
+    },
+    "scripts/ci/test_desktop574_runtime.py": {
+      "bytes": 12245,
+      "sha256": "e14dc90b5e3b6bedb7a791c128e05ec886127922549c38f2e97760510ab21cdf"
+    },
+    "scripts/ci/test_maintained_desktop574.py": {
+      "bytes": 19082,
+      "sha256": "e5d7dc11d1a59cf37a273e9a7103c7e55b169335b17c599990946f4e677ca974"
+    },
+    "scripts/ci/tools-generic16k/acquire_kernel.py": {
+      "bytes": 8844,
+      "sha256": "4a372e1f4bfbd1f8604579873fc6fbdec91ac2555bb36f028646017b44b8c23f"
+    },
+    "scripts/ci/tools-generic16k/build_kernel.py": {
+      "bytes": 12867,
+      "sha256": "3c8695685dcae7eded7406ccbf0f8152f6f5820f87ef47f4e791b577c2d3b55a"
+    },
+    "scripts/ci/tools-generic16k/cache-action.json": {
+      "bytes": 661,
+      "sha256": "ccb3e967a5b4b08b54886fc388d8a696a7c122984c20093d96347cfe6cec01f6"
+    },
+    "scripts/ci/tools-generic16k/kernel.fragment": {
+      "bytes": 815,
+      "sha256": "6d91180b80138d2d8039efafaaa9ca31349baea22b90430cbb15e07bce02e8f6"
+    },
+    "scripts/ci/tools-generic16k/retained-kernel-asset.json": {
+      "bytes": 554,
+      "sha256": "48933c549a846694ecd0e33d5f32f954d54ad9c6dd6747427d58d1089009bea2"
+    },
+    "scripts/ci/tools-generic16k/retained_kernel.py": {
+      "bytes": 5444,
+      "sha256": "bddb14537790a484d770215e55cc2c59de50c764d15e4d677f6fbcaab84cd735"
+    },
+    "scripts/ci/tools-generic16k/test_cache.py": {
+      "bytes": 13059,
+      "sha256": "58d031e9202b5903e11a62540ff7020d2a585c6d64b0904b36ca4674be32164b"
+    },
+    "scripts/ci/tools-generic16k/test_retained.py": {
+      "bytes": 6605,
+      "sha256": "f9a0d87169d43a11e8539c447ad9fb47ae4f20066ba5134c6c32a67cdc8bfe53"
+    },
+    "scripts/ci/welcome-managed-gui/candidates.py": {
+      "bytes": 6435,
+      "sha256": "bd1584aa86e7a0a0e7f7025eb8ce7e0fa9399fba5c625df64902bd179de675cd"
+    },
+    "scripts/ci/welcome-managed-gui/source-pins.json": {
+      "bytes": 5999,
+      "sha256": "70a7d8730fa8db1c5e570ede405ec035883f9f77341603480b36486ec568f470"
+    },
+    "scripts/ci/welcome-managed-gui/transport.json": {
+      "bytes": 402,
+      "sha256": "1b8c1291e8ebe0265f46e5fa63032a7dc1e518901889fff109703cce8c2deb91"
+    },
+    "scripts/ci/welcome-native/contract.py": {
+      "bytes": 9674,
+      "sha256": "d95e186ae3ecefc8efd7479e0ab2f6d7b231265d20555dbcbd4ae211b56298fa"
+    },
+    "scripts/integration/desktop.py": {
+      "bytes": 21125,
+      "sha256": "5320a10a198c9fad4650b7f5d5f510e63ec702e32a3c0dccffe19593892ae15a"
+    },
+    "scripts/virtual/common.py": {
+      "bytes": 84361,
+      "sha256": "aef2b4f09a91c4cfd66dd4504e69ef18396a94214c82ae0ec0a43c2716894a03"
+    },
+    "scripts/virtual/gbm_probe.c": {
+      "bytes": 14149,
+      "sha256": "fe0bb7b15df0bc93c4b5115543619e182ba3dac2ed22d0d8b1ab541d77a72efd"
+    },
+    "scripts/virtual/generic16k/build_kernel.py": {
+      "bytes": 10781,
+      "sha256": "e94adb4474183feea30ce1e2949b55c03e4969eeb1addb4c36892e8664ba9aaa"
+    },
+    "scripts/virtual/generic16k/fetch_inputs.py": {
+      "bytes": 7768,
+      "sha256": "212a0a9efc7c386158526ce40683a3646a899a9c7fd2c3140d6e24a02d778043"
+    },
+    "scripts/virtual/generic16k/fixture.py": {
+      "bytes": 15118,
+      "sha256": "47d2c042319246538f8724e294b9530e079ba00de7995ef42f9a1031ca17c4ba"
+    },
+    "scripts/virtual/generic16k/inputs.json": {
+      "bytes": 1057,
+      "sha256": "bdfa44ed1d017c0d0e15c1f3af87bdf4a91923c20e812c861ca522d2cf428492"
+    },
+    "scripts/virtual/generic16k/kernel.fragment": {
+      "bytes": 815,
+      "sha256": "6d91180b80138d2d8039efafaaa9ca31349baea22b90430cbb15e07bce02e8f6"
+    },
+    "scripts/virtual/generic16k/smoke.c": {
+      "bytes": 1720,
+      "sha256": "b71adf10496d563a20eed7cecef8074cb82dd103a63e47f48462a1bd5d18f23d"
+    },
+    "scripts/virtual/image_decode_report.py": {
+      "bytes": 19492,
+      "sha256": "377efb140ec7b5e50a18ae3c3d312f31f25676818f45942bde1c3acb5dceaacd"
+    },
+    "scripts/virtual/run.py": {
+      "bytes": 29448,
+      "sha256": "e96ec9b61dc26fa622702ef871bcdf9f53f3fd08ee12b5df03991163460d5766"
+    },
+    "scripts/virtual/tooling.lock.json": {
+      "bytes": 31183,
+      "sha256": "c18afc5bde9868594d41bd576a956960a7b01b190d148ba03ca4c41d4394e1b0"
+    }
+  },
+  "schema_version": 1,
+  "scope": "PRIVATE_GENERIC_ARM64_16K_FISH_DONE_RECORDER_PTY_ONLY",
+  "status": "SOURCE_ONLY_EXACT_KERNEL_CACHE_AND_RETAINED_ASSET_SEED_ACTUAL_NOT_RUN"
+}

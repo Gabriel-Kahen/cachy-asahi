@@ -1,0 +1,700 @@
+schema_version = 1
+target_arch = "aarch64"
+initial_base = "asahi-alarm"
+# Development inventory, not an install list or accepted release set.
+# Host assembly evidence is separate from clean native aarch64 build acceptance.
+
+[[packages]]
+name = "cachyos-hyprland-settings"
+phase = "desktop-overlay"
+status = "deferred"
+source = "https://github.com/CachyOS/CachyOS-PKGBUILDS/tree/master/cachyos-hyprland-settings"
+packaging_commit = "c7cf5b4f2c70f28ed50601b3f75b19da93ba663f"
+upstream_commit = "449635e3718f4f178503682b29b159b0a758e5e7"
+audit = "docs/audits/desktop.md"
+selected_for_release = false
+next_step = "Resolve source licensing and missing ARM dependencies; replace obsolete config syntax and PC-specific assumptions before any upstream reuse."
+
+[[packages]]
+name = "cachyos-fish-config"
+phase = "desktop-overlay"
+status = "deferred"
+source = "https://github.com/CachyOS/CachyOS-PKGBUILDS/tree/master/cachyos-fish-config"
+packaging_commit = "c7cf5b4f2c70f28ed50601b3f75b19da93ba663f"
+upstream_commit = "cc78c7f7a8a7a623aaaa9283994b64ce4fc50d6a"
+audit = "docs/audits/tools-defaults.md"
+selected_for_release = false
+next_step = "Resolve main-source grant/notices and missing plugin dependencies; omit bootloader, mirror and package-lock aliases."
+
+[[packages]]
+name = "cachyos-zsh-config"
+phase = "desktop-overlay"
+status = "deferred"
+source = "https://github.com/CachyOS/CachyOS-PKGBUILDS/tree/master/cachyos-zsh-config"
+packaging_commit = "c7cf5b4f2c70f28ed50601b3f75b19da93ba663f"
+upstream_commit = "79c20770964110b873a4c0429c2a560fd28d33ac"
+audit = "docs/audits/tools-defaults.md"
+selected_for_release = false
+next_step = "Resolve source grant and absent theme/framework recipes; review command overrides against target memory and thermal limits."
+
+[[packages]]
+name = "cachyos-settings"
+phase = "settings-audit"
+status = "deferred"
+source = "https://github.com/CachyOS/CachyOS-PKGBUILDS/tree/master/cachyos-settings"
+packaging_commit = "c7cf5b4f2c70f28ed50601b3f75b19da93ba663f"
+upstream_commit = "764693fe2863bc2b00db6ad6f4c1d57cded739f2"
+audit = "docs/audits/tools-defaults.md"
+selected_for_release = false
+next_step = "GPLv3 root evidence is recorded in docs/port/tools-functionality.md; reconcile recipe SPDX and individual notices, then evaluate separately justified defaults after baseline/recovery gates."
+
+[[packages]]
+name = "cachyos-kernel-manager"
+phase = "later-tools"
+status = "deferred"
+source = "https://github.com/CachyOS/CachyOS-PKGBUILDS/tree/master/cachyos-kernel-manager"
+next_step = "Audit chwd dependency and kernel/boot management assumptions; preserve linux-asahi."
+
+[[packages]]
+name = "chwd"
+phase = "later-tools"
+status = "deferred"
+source = "https://github.com/CachyOS/CachyOS-PKGBUILDS/tree/master/chwd"
+next_step = "Determine whether Apple needs this tool at all; do not infer suitability from a changed architecture field."
+
+[[packages]]
+name = "cachy-asahi-hyprland-settings"
+phase = "desktop-overlay"
+status = "candidate"
+source = "local-original"
+recipe = "packages/desktop/cachy-asahi-hyprland-settings/PKGBUILD"
+license = "MIT"
+audit = "docs/audits/desktop.md"
+selected_for_development = true
+selected_for_release = false
+native_build = "PASS"
+native_build_commit = "465bf53545e1d83053bf3c412e210493961b74ae"
+native_evidence = "docs/validation/native-arm.md"
+candidate_version = "0.1.0-2"
+historical_native_build = "PASS"
+historical_native_build_commit = "ebd5812640b0b69f5c09a47752b739e37e338754"
+historical_native_evidence = "docs/validation/native-arm.md"
+installation = "NOT RUN"
+hardware_validation = "NOT RUN"
+next_step = "Two clean current native ARM builds and exact archive comparison passed in run 38683309592; verify the selected dependency transaction and installation/removal plus full/region screenshot capture on both M2 Air sizes."
+
+[[packages]]
+name = "cachy-asahi-fish-config"
+phase = "desktop-overlay"
+status = "candidate"
+source = "local-original"
+recipe = "packages/shells/cachy-asahi-fish-config/PKGBUILD"
+license = "MIT"
+audit = "docs/audits/tools-defaults.md"
+selected_for_development = true
+selected_for_release = false
+native_build = "PASS"
+native_build_commit = "ebd5812640b0b69f5c09a47752b739e37e338754"
+native_evidence = "docs/validation/native-arm.md"
+installation = "NOT RUN"
+hardware_validation = "NOT RUN"
+next_step = "Native build pair passed; retain the actual Asahi target transaction and execute package/helper installation/removal on both Air sizes."
+
+[[packages]]
+name = "cachy-asahi-zsh-config"
+phase = "desktop-overlay"
+status = "candidate"
+source = "local-original"
+recipe = "packages/shells/cachy-asahi-zsh-config/PKGBUILD"
+license = "MIT"
+audit = "docs/audits/tools-defaults.md"
+selected_for_development = true
+selected_for_release = false
+native_build = "PASS"
+native_build_commit = "ebd5812640b0b69f5c09a47752b739e37e338754"
+native_evidence = "docs/validation/native-arm.md"
+installation = "NOT RUN"
+hardware_validation = "NOT RUN"
+next_step = "Native build pair passed; freeze the actual Asahi target transaction and execute completion/prompt installation/removal on both Air sizes."
+
+[[packages]]
+name = "cachy-asahi-setup"
+phase = "desktop-overlay"
+status = "candidate"
+source = "local-original"
+recipe = "packages/settings/cachy-asahi-setup/PKGBUILD"
+license = "MIT"
+audit = "docs/setup-tooling.md"
+selected_for_development = true
+selected_for_release = false
+native_build = "PASS0.1.0-5 identical native pair and eight-transition installed legacy lifecycle in38934198468"
+prior_native_build_commit = "98fecf28a3cde63a9dd7531501c2187825349310"
+prior_native_evidence = "docs/validation/repository-enrollment-native-20261015.md"
+native_build_commit = "4cf9884dacb2816532b07c8107982d7157656046"
+native_evidence = "docs/validation/setup-shell-modules-host-20261016.md"
+candidate_version = "0.1.0-5"
+historical_native_build = "PASS"
+historical_native_build_commit = "ebd5812640b0b69f5c09a47752b739e37e338754"
+historical_native_evidence = "docs/validation/native-arm.md"
+installation = "PASS native581 generated-RC38946664234 and native600 Setup3to5/repeat/rollback38964311175; generic4K only"
+hardware_validation = "NOT RUN"
+host_evidence = "docs/validation/setup-shell-modules-host-20261016.md"
+next_step = "Native Setup5 pair, legacy lifecycle, six real generated-RC cases and full600 upgrade/repeat/rollback pass; see docs/validation/setup5-expanded600-native-20261016.md. Complete signed600 fresh installation and full600 production updater; both M2 onboarding/trust/setup/recovery remain open."
+
+[[packages]]
+name = "cachy-asahi-ksmctl"
+phase = "complete-port-tools"
+status = "candidate"
+source = "adapted-CachyOS-source"
+packaging_commit = "c7cf5b4f2c70f28ed50601b3f75b19da93ba663f"
+recipe = "packages/tools/cachy-asahi-ksmctl/PKGBUILD"
+license = "GPL-2.0-or-later"
+audit = "docs/workstreams/ksmctl.md"
+selected_for_development = true
+selected_for_release = false
+native_build = "PASS"
+native_build_commit = "2db02a279cf7dcee90167858f96a543689e45198"
+native_evidence = "docs/validation/ksm-lifecycle-native-20261015.md"
+installation = "NOT RUN"
+hardware_validation = "NOT RUN"
+next_step = "Current native build pair, signed disposable install/status/remove/reinstall and owned cleanup passed. Test target lifecycle and interruption recovery; safe management and measured target policy remain unfinished."
+
+[[packages]]
+name = "cachy-asahi-update"
+phase = "complete-port-tools"
+status = "candidate"
+source = "https://github.com/CachyOS/cachy-update"
+upstream_commit = "e2b1b7144be71cf392809f48d1440f8da1d9c81a"
+recipe = "packages/tools/cachy-asahi-update/PKGBUILD"
+license = "GPL-3.0-or-later"
+audit = "docs/workstreams/cachy-update.md"
+selected_for_development = true
+selected_for_release = false
+native_build = "PASS"
+native_build_commit = "480053c0866a922138d85af2b9880fb0e10d7b2c"
+native_evidence = "docs/validation/updater-real-check-native-20261015.md"
+installation = "NOT RUN"
+hardware_validation = "NOT RUN"
+next_step = "Version 4.4.2-2 native pair, signed disposable installation and seven actual Check/refusal cases pass; see docs/validation/updater-real-check-native-20261015.md. Earlier v1 tray behavior is separate. Implement bound full-update transaction, combined v2/target lifecycle and coordinated Apple updates; release notice closure remains required."
+
+[[packages]]
+name = "cachy-asahi-fdk-aac"
+phase = "complete-port-libraries"
+status = "candidate"
+source = "https://github.com/mstorsjo/fdk-aac"
+upstream_commit = "a68a51aa45d86a43c7b228e3d45624af09dcdd8d"
+recipe = "packages/libraries/cachy-asahi-fdk-aac/PKGBUILD"
+license = "LicenseRef-Fraunhofer; LicenseRef-Fraunhofer-xHE-AAC; MIT"
+audit = "docs/workstreams/fdk-aac.md"
+selected_for_development = true
+selected_for_release = false
+native_build = "PASS"
+native_build_commit = "804b418f14459e82031046fb28a0308b4cb9348e"
+native_evidence = "docs/validation/fdk-current-native-20261015.md"
+installation = "NOT RUN"
+hardware_validation = "NOT RUN"
+next_step = "Native ARM pair, provider replacement/restoration and the shipped PipeWire AAC-LC codec passed; see docs/validation/fdk-provider-native-20261015.md. Verify daemon audio graphs, Bluetooth transport and actual target lifecycle before release selection."
+
+[[packages]]
+name = "cachy-asahi-zsh-autosuggestions"
+phase = "complete-port-tools"
+status = "candidate"
+source = "https://github.com/zsh-users/zsh-autosuggestions"
+upstream_commit = "85919cd1ffa7d2d5412f6d3fe437ebdbeeec4fc5"
+recipe = "packages/shells/cachy-asahi-zsh-autosuggestions/PKGBUILD"
+license = "MIT"
+audit = "docs/workstreams/zsh-autosuggestions.md"
+selected_for_development = true
+selected_for_release = false
+native_build = "PASS"
+native_build_commit = "4ee5a99e6ce7a83e2e5a5bdf4b71a1080e91d21c"
+native_evidence = "docs/validation/tools-batch-native-20261015.md"
+installation = "NOT RUN"
+hardware_validation = "NOT RUN"
+next_step = "Native ARM pair, lifecycle and real installed suggestion/editing/user-binding checks passed; see docs/validation/tools-interactive-native-20261015.md. Test remaining shell modes, both target Air workflows and signed release integration."
+
+[[packages]]
+name = "cachy-asahi-topmem"
+phase = "complete-port-tools"
+status = "candidate"
+source = "local-original"
+recipe = "packages/tools/cachy-asahi-topmem/PKGBUILD"
+license = "MIT"
+audit = "docs/reviews/topmem-source-registration-root-review.md"
+selected_for_development = true
+selected_for_release = false
+native_build = "PASS"
+native_build_commit = "4ee5a99e6ce7a83e2e5a5bdf4b71a1080e91d21c"
+native_evidence = "docs/validation/tools-batch-native-20261015.md"
+installation = "NOT RUN"
+hardware_validation = "NOT RUN"
+next_step = "Native ARM pair, lifecycle and controlled live-process PID/RSS/limit checks passed; see docs/validation/tools-interactive-native-20261015.md. Verify both target Air workflows and wider process conditions; no performance gain is claimed."
+
+[[packages]]
+name = "cachy-asahi-fish-bang-bang"
+phase = "complete-port-tools"
+status = "candidate"
+source = "https://github.com/oh-my-fish/plugin-bang-bang"
+upstream_commit = "ec991b80ba7d4dda7a962167b036efc5c2d79419"
+recipe = "packages/shells/cachy-asahi-fish-bang-bang/PKGBUILD"
+license = "MIT"
+audit = "docs/workstreams/fish-history-module.md"
+selected_for_development = true
+selected_for_release = false
+native_build = "PASS byte-identical0.1.0-2 native pairs in38935093520 and38948569244"
+native_build_commit = "592e87e0ac1381455ef4460ace13dcd9c1b3471a"
+prior_native_build_commit = "4ee5a99e6ce7a83e2e5a5bdf4b71a1080e91d21c"
+native_evidence = "docs/validation/tools-batch-native-20261015.md"
+installation = "PASS0.1.0-2 native600 lifecycle and six-module coexistence in38948569244; physical M2 NOT RUN"
+hardware_validation = "NOT RUN"
+host_evidence = "docs/validation/shell-coexistence-host-20261016.md"
+next_step = "Caller-guard successor0.1.0-2 passes host checks and two native builds (9652bytes/SHA256542585b5c6d50f379deca86cc394afbb0eca51174ee9e11d7ec895181ef73f8e). Corrected600 run38948569244 passes installed coexistence and restoration; see docs/validation/expanded600-native-20261016.md. Complete signed600 fresh installation, Setup5-on600 and both M2 flows. Preserve historical0.1.0-1 and both M2 requirements."
+
+[[packages]]
+name = "asahi-audio"
+phase = "platform-build-only"
+status = "candidate"
+source = "https://github.com/AsahiLinux/asahi-audio"
+upstream_commit = "687d8cd0f6dc4b12fc0d9c3aebe360656de2882e"
+recipe = "packages/platform/asahi-audio/PKGBUILD"
+license = "MIT"
+candidate_version = "4.1-2"
+selected_for_development = false
+selected_for_release = false
+native_build = "PASS"
+native_build_commit = "56b44dfde8d9b86ac9c48b830fa678ef1778232c"
+native_evidence = "docs/validation/asahi-audio-data-native-20261015.md"
+installation = "PASS generic native ARM current-version signed install/removal and recorded cache-state preservation; actual38857117019"
+installation_evidence = "docs/validation/full-composition-audio-padding-native-20261016.md"
+hardware_validation = "NOT RUN"
+next_step = "Current signed generic installation/removal and recorded cache-state preservation passed. Validate live services, routing and M2 hardware integration; complete corresponding-source/license delivery before production selection."
+
+
+[[packages]]
+name = "alsa-ucm-conf-asahi"
+phase = "platform-build-only"
+status = "candidate"
+source = "https://github.com/AsahiLinux/alsa-ucm-conf-asahi"
+upstream_commit = "1473329acab595dfef039f38c384ce16674d6b15"
+recipe = "packages/platform/alsa-ucm-conf-asahi/PKGBUILD"
+license = "BSD-3-Clause AND MIT"
+candidate_version = "10-2"
+selected_for_development = false
+selected_for_release = false
+native_build = "PASS"
+native_build_commit = "56b44dfde8d9b86ac9c48b830fa678ef1778232c"
+native_evidence = "docs/validation/asahi-audio-data-native-20261015.md"
+installation = "PASS generic native ARM current-version signed install/removal and recorded cache-state preservation; actual38857117019"
+installation_evidence = "docs/validation/full-composition-audio-padding-native-20261016.md"
+hardware_validation = "NOT RUN"
+next_step = "Current signed generic installation/removal and recorded cache-state preservation passed. Validate live services, routing and M2 hardware integration; complete corresponding-source/license delivery before production selection."
+
+
+[[packages]]
+name = "speakersafetyd"
+phase = "platform-build-only"
+status = "candidate"
+source = "https://github.com/AsahiLinux/speakersafetyd"
+upstream_commit = "63a92658a4daec170f6472e38162374206e593fb"
+recipe = "packages/audio/speakersafetyd/PKGBUILD"
+license = "MIT"
+candidate_version = "2.0.1-3"
+selected_for_development = false
+selected_for_release = false
+native_build = "PASS"
+native_build_commit = "b83c0f539034f10112a2d1e9743810344f13bb9d"
+native_evidence = "docs/validation/asahi-audio-rust-notices-native-20261015.md"
+prior_native_build_commit = "6983455c92ac39064909923836d7c5122d423f0f"
+prior_native_evidence = "docs/validation/asahi-audio-rust-native-20261015.md"
+installation = "PASS generic native ARM current-version signed install/removal and recorded cache-state preservation; actual38857117019"
+installation_evidence = "docs/validation/full-composition-audio-padding-native-20261016.md"
+hardware_validation = "NOT RUN"
+next_step = "Current notice-bearing native pair and exact-version installation/removal passed. Validate daemon lifecycle and supported M2 safety behavior; complete corresponding-source/license delivery before production selection."
+
+
+[[packages]]
+name = "bankstown"
+phase = "platform-build-only"
+status = "candidate"
+source = "https://github.com/AsahiLinux/bankstown"
+upstream_commit = "e9829c9bccf5ed73768135c0ddd506f5a6690f9e"
+recipe = "packages/audio/bankstown/PKGBUILD"
+license = "MIT"
+candidate_version = "1.1.0-4"
+selected_for_development = false
+selected_for_release = false
+native_build = "PASS"
+native_build_commit = "b83c0f539034f10112a2d1e9743810344f13bb9d"
+native_evidence = "docs/validation/asahi-audio-rust-notices-native-20261015.md"
+prior_native_build_commit = "6983455c92ac39064909923836d7c5122d423f0f"
+prior_native_evidence = "docs/validation/asahi-audio-rust-native-20261015.md"
+installation = "PASS generic native ARM current-version signed install/removal and recorded cache-state preservation; actual38857117019"
+installation_evidence = "docs/validation/full-composition-audio-padding-native-20261016.md"
+runtime_validation = "PASS bounded native offline DSP and four official graph synthetic processing"
+runtime_evidence = "docs/validation/asahi-audio-graph-processing-native-20261016.md"
+page_size_validation = "PASS generic ARM64 16384-byte guest: loaders and 60 software cases/120 instances; actual38873662542"
+page_size_evidence = "docs/validation/asahi-audio-generic16k-native-20261016.md"
+hardware_validation = "NOT RUN"
+next_step = "Current signed installation/removal and bounded native DSP/full-graph processing passed. Validate live services, routing, acoustics and M2 hardware; complete corresponding-source/license delivery before production selection."
+
+
+[[packages]]
+name = "triforce-lv2"
+phase = "platform-build-only"
+status = "candidate"
+source = "https://github.com/AsahiLinux/triforce"
+upstream_commit = "c5e9cacb88e6d2bae476e5c2394ce022793c6d5c"
+recipe = "packages/audio/triforce-lv2/PKGBUILD"
+license = "GPL-3.0-only AND Apache-2.0 AND MIT AND Zlib AND Unicode-3.0; proposed distribution summary, component details in notices"
+candidate_version = "0.3.2-3"
+selected_for_development = false
+selected_for_release = false
+native_build = "PASS"
+native_build_commit = "b83c0f539034f10112a2d1e9743810344f13bb9d"
+native_evidence = "docs/validation/asahi-audio-rust-notices-native-20261015.md"
+prior_native_build_commit = "6983455c92ac39064909923836d7c5122d423f0f"
+prior_native_evidence = "docs/validation/asahi-audio-rust-native-20261015.md"
+installation = "PASS generic native ARM current-version signed install/removal and recorded cache-state preservation; actual38857117019"
+installation_evidence = "docs/validation/full-composition-audio-padding-native-20261016.md"
+runtime_validation = "PASS bounded native offline DSP and four official graph synthetic processing"
+runtime_evidence = "docs/validation/asahi-audio-graph-processing-native-20261016.md"
+page_size_validation = "PASS generic ARM64 16384-byte guest: loaders and 60 software cases/120 instances; actual38873662542"
+page_size_evidence = "docs/validation/asahi-audio-generic16k-native-20261016.md"
+hardware_validation = "NOT RUN"
+next_step = "Current signed installation/removal and bounded native DSP/full-graph processing passed. Validate live services, routing, acoustics and M2 hardware; complete corresponding-source/license delivery before production selection."
+
+
+[[packages]]
+name = "lsp-plugins-lv2-headless-development"
+phase = "platform-build-only"
+status = "candidate"
+source = "https://github.com/lsp-plugins/lsp-plugins"
+upstream_commit = "2df6eea03604109eeb29f8c62a3b80ce4836d1b7"
+recipe = "scripts/ci/asahi-lsp-build/recipe/PKGBUILD"
+license = "LGPL-3.0-or-later AND ISC"
+candidate_version = "1.2.35-1"
+selected_for_development = false
+selected_for_release = false
+native_build = "PASS"
+native_build_commit = "71af5525cd7a62775e82b84aac702d384cf66c58"
+native_evidence = "docs/validation/asahi-lsp-native-20261015.md"
+installation = "NOT RUN"
+runtime_validation = "PASS bounded generic native offline loader and 48 DSP-property cases / 96 instances"
+runtime_evidence = "docs/validation/asahi-lsp-offline-native-20261015.md"
+hardware_validation = "NOT RUN"
+next_step = "Native pair and bounded offline loading/control/silence/bypass/synthetic properties passed. Validate full graph and active algorithms separately; resolve corresponding-source/relinking and complete license/source-fixture terms. Candidate overlaps upstream LV2 URIs; no installation replacement, speaker safety, M2 or performance acceptance."
+
+[[packages]]
+name = "cachy-asahi-zsh-syntax-highlighting"
+phase = "tools-candidate"
+status = "candidate"
+source = "https://github.com/zsh-users/zsh-syntax-highlighting"
+upstream_commit = "e6683f20e5c38d3e5447f45845d04ddda75d0f23"
+recipe = "packages/tools/cachy-asahi-zsh-syntax-highlighting/PKGBUILD"
+license = "BSD-3-Clause AND MIT"
+candidate_version = "0.8.1.dev.e6683f2-1"
+selected_for_development = false
+selected_for_release = false
+native_build = "PASS"
+native_build_commit = "e486ee56ceaac16d558e896b94f515ada19000a4"
+native_evidence = "docs/validation/zsh-highlighting-native-20261015.md"
+installation = "PASS generic native ARM signed install/remove/reinstall"
+native_combined_tools_lifecycle = "PASS new mirror/substr coexistence and byte-identical pair in38909646797"
+native_combined_tools_evidence = "docs/validation/tools-candidates-native-20261016.md"
+hardware_validation = "NOT RUN"
+next_step = "Manual opt-in only; existing user module wins. Native byte pair, four lifecycle checkpoints, four installed PTYs and user-file preservation passed. Integrate a future selected composition explicitly; target workflows, arbitrary plugin ordering and production release remain open."
+
+
+[[packages]]
+name = "cachy-asahi-welcome"
+phase = "tools-experience"
+status = "candidate"
+source = "local-original"
+recipe = "packages/tools/cachy-asahi-welcome/PKGBUILD"
+license = "MIT"
+candidate_version = "0.1.0-4"
+selected_for_development = false
+selected_for_release = false
+host_validation = "PASS35 ordinary host tests with one scoped UID0 skip; three mandatory report-worker lifetime/display controls and31GUI contract controls; exact retained984307B report host comparison supports responsiveness only"
+native_build = "PASS current0.1.0-4 byte-identical native ARM pair39002929704:32268bytes/SHA25680cd962d35d8652ab7891d61f856e37502f365adb842329a680b4fa88558503d; Root113source joins and strict TEST-signatures verified"
+native_cli_lifecycle = "PASS current0.1.0-4 signed577/577/574/577/574 fresh/existing users and36rawCLIreports39002929704; all574 DB/user preservation and ordered8consumer/producer cleanup; overallGUIFAIL"
+native_generic16k_cli = "HISTORICAL0.1.0-1: PASS unchanged unpacked CLI payloads in38904917140; not installed or GUI"
+native_generic_managed_gui = "HISTORICAL0.1.0-1: PASS fourteen Root-viewed captures and actual GTK actions in38905814219"
+native_generic16k_managed_gui = "HISTORICAL0.1.0-1: PASS installed593, sixteen GTK actions and fourteen Root-viewed first frames in38952428172; docs/validation/managed-gui-generic16k-native-20261016.md"
+hardware_validation = "NOT RUN"
+native_evidence = "docs/validation/welcome2-native-cli-20261016.md"
+next_step = "Complete Doctor reference actor lifetime/final-outcome correction and fresh full24-frame/17-operation GUI; actual39002929704 retains exact8KiB Orphans accessible preview but fails absent Doctor capture. Then rebase604 Welcome4/Orphans2 before current16K/M2; historical locks remain separate."
+
+
+installation = "PASS current0.1.0-4 native signed installed CLI lifecycle; full managed GUI remains FAIL and release unselected"
+[[packages]]
+name = "cachy-asahi-doctor"
+phase = "tools-experience"
+status = "candidate"
+source = "local-original"
+recipe = "packages/tools/cachy-asahi-doctor/PKGBUILD"
+license = "MIT"
+candidate_version = "0.1.0-1"
+selected_for_development = false
+selected_for_release = false
+native_build = "PASS native ARM byte-identical pairs in38884680631 and38886781500"
+native_cli_lifecycle = "PASS fresh/existing users, install/reinstall/remove/report preservation in38886781500"
+native_generic16k_cli = "PASS unchanged unpacked CLI payloads in38904917140; not installed or GUI"
+native_generic_managed_report = "PASS actual CLI private report and co-present readable terminal in both GUI profiles38905814219"
+native_generic16k_managed_report = "PASS private reports and readable co-present terminal in both installed593 GUI profiles38952428172; no hardware certification"
+hardware_validation = "NOT RUN"
+next_step = "Exercise the installed read-only report with unavailable model/bus and real managed session states; complete signed admission and target validation before selection."
+
+[[packages]]
+name = "cachy-asahi-mirrors"
+phase = "tools-experience"
+status = "candidate"
+source = "local-original"
+recipe = "packages/tools/cachy-asahi-mirrors/PKGBUILD"
+license = "MIT"
+candidate_version = "0.2.0-1"
+selected_for_development = false
+selected_for_release = false
+host_validation = "PASS 29 host controls, including actual tempfile CLI activation/restore and SIGKILL recovery"
+native_build = "PASS byte-identical native ARM pairs in38909646797"
+installation = "PASS generic ARM five-transition CLI/PTY preservation lifecycle in38909646797"
+native_evidence = "docs/validation/tools-candidates-native-20261016.md"
+hardware_validation = "NOT RUN"
+next_step = "Run native package/lifecycle checks for the implemented rank/activate/restore workflow and use an independently verified current ARM catalog; physical filesystem power-loss/base integration remains untested."
+
+# Coordinator proposal only; shared manifests have not been edited.
+[[packages]]
+name = "cachy-asahi-zsh-history-substring-search"
+phase = "tools-candidate"
+status = "candidate"
+source = "https://github.com/zsh-users/zsh-history-substring-search"
+upstream_commit = "a0bdb0d47dbaba31dba2db7af8c48a5d9c74049a"
+recipe = "packages/tools/cachy-asahi-zsh-history-substring-search/PKGBUILD"
+license = "BSD-3-Clause AND MIT"
+candidate_version = "0.1.0-1"
+audit = "packages/tools/cachy-asahi-zsh-history-substring-search/README.md"
+selected_for_development = false
+selected_for_release = false
+native_build = "PASS byte-identical native ARM pairs in38909646797"
+installation = "PASS generic ARM five-transition CLI/PTY preservation lifecycle in38909646797"
+native_evidence = "docs/validation/tools-candidates-native-20261016.md"
+hardware_validation = "NOT RUN"
+next_step = "Source-pinned opt-in implementation and real x86_64 Zsh 5.9.2 PTYs pass; seven-file pure staging only. Root may register the isolated native ARM build/lifecycle lane. Verify selected composition, generic16K runtime, supported target workflows and signed release integration separately. Manual key choices only; existing module namespaces and custom bindings take precedence."
+
+# Proposed inventory addition only; coordinator owns shared manifests.
+[[packages]]
+name = "cachy-asahi-fish-autopair"
+phase = "complete-port-tools"
+status = "candidate"
+source = "https://github.com/jorgebucaran/autopair.fish"
+upstream_commit = "4d1752ff5b39819ab58d7337c69220342e9de0e2"
+recipe = "packages/tools/cachy-asahi-fish-autopair/PKGBUILD"
+license = "MIT"
+selected_for_development = false
+selected_for_release = false
+native_build = "PASS byte-identical native ARM pair in38918809286; exporter-order failure explicitly qualified"
+installation = "PASS all five native ALPM lifecycle phases and six installed14-case PTY observations in38918809286"
+hardware_validation = "NOT RUN"
+native_evidence = "docs/validation/fish-candidates-native-20261016.md"
+next_step = "Native pair/installed lifecycle accepted from original exact receipts with an explicit export-validator ordering failure. Integrate the development composition, complete generic16K and both M2 Air workflows; no release selection."
+
+[[packages]]
+name = "cachy-asahi-fish-done"
+phase = "complete-port-tools"
+status = "candidate"
+source = "https://github.com/franciscolourenco/done"
+upstream_commit = "b86292a52a2b8f646ef8d25daa3cc01ccab60b62"
+recipe = "packages/tools/cachy-asahi-fish-done/PKGBUILD"
+license = "MIT"
+selected_for_development = false
+selected_for_release = false
+native_build = "PASS byte-identical0.1.0-2 native ARM pair in38921031485"
+installation = "PASS all five native package phases and six installed18-case local-recorder observations in38921031485"
+hardware_validation = "NOT RUN"
+native_evidence = "docs/validation/fish-candidates-native-20261016.md"
+next_step = "Generic16K actual38946660799 passes all18 original case bodies with an explicitly adapted native C private recorder, unchanged product timeout and complete cleanup. Integrate the complete600 composition and real notification-manager delivery; both M2 Air sizes, performance and release admission remain open. Candidate stays unselected."
+
+[[packages]]
+name = "cachy-asahi-glibc-official-release"
+phase = "complete-port-core-experiment"
+status = "candidate"
+source = "https://ftp.gnu.org/gnu/glibc/glibc-2.43.tar.gz"
+upstream_release = "2.43"
+source_archive_sha256 = "e1e622cbd635019090fa23260e5d9ec219b12f97ae7ae02f033d4ae42cf2c004"
+recipe = "packages/core/cachy-asahi-glibc-official-release/PKGBUILD"
+license = "GPL-2.0-or-later; LGPL-2.1-or-later; LicenseRef-glibc-notices"
+selected_for_development = false
+selected_for_release = false
+candidate_version = "2.43.caa1-3"
+native_build = "PASS byte-identical native pair in38915137670"
+native_build_commit = "d1055cf95f7d236fc55396db36b432df5191ff2a"
+native_evidence = "docs/validation/glibc-official-release-native-20261016.md"
+installation = "NOT RUN package lifecycle; explicit private-loader runtime smoke PASS"
+hardware_validation = "NOT RUN"
+next_step = "Unselected private-prefix experiment only. Generic16K eight-case runtime now passes38941180852. Complete conventional provider installation, M2 and broader compatibility, independent source-key authority and maintenance/security admission; preserve older held-binary source gap and make no performance claim."
+
+[[packages]]
+name = "cachy-asahi-glibc-gnu-provider"
+phase = "complete-port-core-experiment"
+status = "candidate"
+source = "https://ftp.gnu.org/gnu/glibc/glibc-2.43.tar.gz"
+upstream_release = "2.43"
+source_archive_sha256 = "e1e622cbd635019090fa23260e5d9ec219b12f97ae7ae02f033d4ae42cf2c004"
+recipe = "packages/core/cachy-asahi-glibc-gnu-provider/PKGBUILD"
+license = "GPL-2.0-or-later; LGPL-2.1-or-later; LicenseRef-glibc-notices"
+selected_for_development = false
+selected_for_release = false
+candidate_version = "2.43.caa1-1"
+native_build = "PASS native pair38960150458:19301932bytes/SHA256b852e3fc647d63699c5f42003a748cbd2268991dc2615a494dc3cdda4d757d12; full GNU7058 rows each, ABI/header/staged runtime"
+installation = "PASS disposable generic native4096 normal lifecycle39003494818/source393e4742d6f5f461a4a9efbeadb6ebee0aec8d5d: pristine/modified, six commits, eight normal runtime observations, sixteen maps and ordered cleanup; M2 NOT_RUN"
+native_lifecycle_evidence = "docs/validation/glibc-provider-normal-lifecycle-native-20261017.md"
+hardware_validation = "NOT RUN"
+native_generic16k_runtime = "PASS data-staged standard system paths38983272600; ALPM installation NOT_RUN"
+debian_orig_candidate = "2.43.caa2-1: native38988598760 rejected on missing manual test dependencies; check exit2; no pair/archive acceptance"
+debian_maintained_candidate = "2.43.caa3-1: Root accepted native pair38994309021/source78dfd3bbd85a61a84dda2dfc601796ee89edfd5f; two18598440-byte archives SHA256a8e9f3e1d8ffe049fdc834f62e74c14ff622b98898c2f849e1580ab8aa0fdbd9; each6948PASS/109UNSUPPORTED/13XFAIL/zero unexpected failures; normal probes compiled; staged normal-interpreter generic16384 runtime39001194484 accepted; maintained-candidate ALPM installation NOT_RUN"
+debian_maintained_evidence = "docs/validation/glibc-debian-maintained-source-20261017.md"
+next_step = "Normal GNU generic-native lifecycle39003494818 is Root accepted, including explicit modified configuration handoff/restoration. Separate REMOVE-phase interruption/recovery39005569381 is Root accepted after independent replay of20maps/10runtime observations and exact stop/kill/lock/external recovery; full ALPM-installed16K39005865466 fails after genuine16384-page boot; its missing child diagnostic is being corrected before a changed run. No full installation credit follows. Distinct maintained caa3 pair and staged16K39001194484 pass; its own native ALPM lifecycle remains gated on published inputs. Original GNU expiry, historical recipe correspondence, both M2 models and release/security admission remain open."
+
+
+[[packages]]
+name = "cachy-asahi-apps"
+phase = "tools-experience"
+status = "candidate"
+source = "local-original"
+recipe = "packages/tools/cachy-asahi-apps/PKGBUILD"
+license = "MIT"
+candidate_version = "0.1.0-6"
+historical_candidate_version = "0.1.0-5"
+selected_for_development = false
+selected_for_release = false
+historical_host_validation = "PASS 38 standalone checks plus real574 archive-derived 7MB metadata fixture: readonly ALPM9 inventory, signed collector-to-plan integration and eight-file staging"
+historical_native_build = "PASS native pair38970264456:22088bytes/SHA2569ec47f6cf506c5d2b6da3ac6f4f42e00ce98b8d1985b1b9eca065c38058c1580;39 checks each"
+historical_installation = "PASS signed574to577/repeat/remove/reinstall/final574; installed signed catalog/plans and complete577 metadata collection38970264456"
+historical_native_generic16k_cli = "PASS generic16384 private data-staged CLI/helper cases38978464494; NOT ALPM-installed inVM; docs/validation/management-generic16k-20261016.md"
+hardware_validation = "NOT RUN"
+next_step = "Integrate Apps6 into a fresh current604 composition and implement full574 signed repair; current604 Apps5 evidence retains its identity. Both M2 workflows remain open. See docs/validation/apps6-signed-reinstall-20261017.md."
+
+host_validation = "PASS42 package checks/15 backend controls and five real signed x86 copied-root transactions, including corrupt/missing ordinary leaf repair; six legacy plans byte-equal"
+native_build = "PASS Apps0.1.0-6 native pair39027622244:22876bytes/SHA2561ce4a540a5ec2fa26353847b93fed953e084cf65e872836f670ac721446cd3d7; Root pair-only replay, lifecycle not reached"
+installation = "PASS native577 lifecycle and five signed synthetic repair transactions39029873349 with complete raw workers/plans and ordered cleanup; full574 damaged repair NOT_RUN"
+native_generic16k_cli = "NOT_RUN Apps6; prior data-staged Apps5 result does not transfer"
+
+# Separately selectable upgrade recipe; historical Apps6 evidence above is retained.
+development_variant_version = "0.1.0-7"
+development_variant_recipe = "packages/tools/cachy-asahi-apps7/PKGBUILD"
+development_variant_host_validation = "PASS45 product tests,15 large-inventory/metadata controls and signed staged CLI; order-preserving parser sets; original Apps6 and30 consumers unchanged"
+development_variant_native_build = "PASS native39095436036/source1dc9ecfee51145ba9cc43a95cc45bee97faed8b9: two clean builds, byte/content/PKGINFO/BUILDINFO identity"
+development_variant_installation = "PASS isolated signed577/574 five-transition ALPM lifecycle, both ordinary users; private574 preservation maps remain source-enforced receipts; no604/16K/M2/release credit"
+
+
+[[packages]]
+name = "cachy-asahi-repository-runtime"
+phase = "tools-experience"
+status = "candidate"
+source = "local-original-pinned-project-helpers"
+recipe = "packages/tools/cachy-asahi-repository-runtime/PKGBUILD"
+license = "MIT"
+candidate_version = "0.1.0-1"
+selected_for_development = false
+selected_for_release = false
+host_validation = "PASS exact three original helpers, eight-file staging and real installed-layout planner calls in standalone25-check suite"
+native_build = "PASS native ARM pair38967303862: both 28888-byte archives/BUILDINFO byte-identical; Root original comparison replay passes"
+installation = "PASS signed dependency image575 and combined574to577/repeat/remove/reinstall/final574 lifecycle38970264456"
+native_generic16k_helpers = "PASS generic16384 private data-staged CLI/helper cases38978464494; NOT ALPM-installed inVM; docs/validation/management-generic16k-20261016.md"
+hardware_validation = "NOT RUN"
+next_step = "Complete generic16K management integration and both M2 workflows; see docs/validation/management-native-20261016.md. Runtime helpers authenticate development inputs; release selection false."
+
+
+[[packages]]
+name = "cachy-asahi-cache"
+phase = "tools-experience"
+status = "candidate"
+source = "local-original"
+recipe = "packages/tools/cachy-asahi-cache/PKGBUILD"
+license = "MIT"
+candidate_version = "0.2.0-1"
+selected_for_development = false
+selected_for_release = false
+host_validation = "PASS 27 temporary-target checks with real libalpm16 exclusion, selected cleanup, concurrent refusal and interruption; four-file staging"
+native_build = "PASS native pair38970264456:18304bytes/SHA256450706e2899f57b44ca2f446560c8aeab710a4726a13561d09a2cb4a8bf1da40;27 checks each"
+installation = "PASS signed package lifecycle and six ordinary installed real-ALPM selected cleanup/foreign-lock fixture observations38970264456"
+native_generic16k_cli = "PASS generic16384 private data-staged CLI/helper cases38978464494; NOT ALPM-installed inVM; docs/validation/management-generic16k-20261016.md"
+hardware_validation = "NOT RUN"
+next_step = "Complete generic16K management integration and both M2 workflows. Cache apply passed only disposable explicit fixtures; physical reclaimed bytes remain NOT_MEASURED. See docs/validation/management-native-20261016.md."
+
+
+[[packages]]
+name = "cachy-asahi-orphans"
+phase = "tools-experience"
+status = "candidate"
+source = "local-original"
+recipe = "packages/tools/cachy-asahi-orphans/PKGBUILD"
+license = "MIT"
+candidate_version = "0.1.0-2"
+selected_for_development = false
+selected_for_release = false
+host_validation = "PASS 20 real-libALPM temporary metadata checks; bounded per-inspection satisfier memoization preserves assessment/plan/verify results and DB"
+native_build = "PASS current0.1.0-2 byte-identical native ARM pair38993858003:18900bytes/SHA2562543a13b584bf974efc4ce79f4da585d9e4513c2bc3907750fe5c962d20c8c02;20 checks each;111 Root Git joins"
+installation = "PASS current0.1.0-2 signed three-product574to577/repeat/remove/reinstall/final574 and ordinary readonly CLI lifecycle38993858003; GUI FAIL before management helpers"
+native_generic16k_cli = "Current0.1.0-2 NOT RUN; historical0.1.0-1 PASS generic16384 private data-staged CLI/helper cases38978464494; NOT ALPM-installed inVM; docs/validation/management-generic16k-20261016.md"
+hardware_validation = "NOT RUN"
+next_step = "Complete current Welcome3 GUI39000068077 after earlier Orphans helper deadline failures, then current0.1.0-2 generic16K and both M2 workflows. Native pair/CLI: docs/validation/orphans2-native-20261017.md. Native GUI performance remains unestablished; actual orphan removal remains unimplemented; release selection false."
+
+
+[[packages]]
+name = "cachy-asahi-repository-client-v2"
+phase = "tools-experience"
+status = "candidate"
+source = "local-original-pinned-project-helper"
+recipe = "packages/tools/cachy-asahi-repository-client-v2/PKGBUILD"
+license = "MIT"
+candidate_version = "0.1.0-1"
+selected_for_development = false
+selected_for_release = false
+host_validation = "PASS five staged/genuine TEST-signature controls: tilde source lookup/export, tamper refusal, unchanged populated checkpoint and disjoint Runtime ownership; original Apps CLI compatibility passes"
+native_build = "PASS"
+native_build_commit = "1dc9ecfee51145ba9cc43a95cc45bee97faed8b9"
+native_evidence = "docs/validation/apps7-client-native-20261018.md"
+installation = "PASS isolated signed577/574 five-transition lifecycle, both ordinary users; actual4096 pages, no604/16K/M2/release credit"
+hardware_validation = "NOT RUN"
+next_step = "Extend accepted native component into the full selected composition and target hardware. Opt-in source entrypoint; existing Apps/Runtime and default callers are unchanged."
+
+[[packages]]
+name = "cachy-asahi-dns"
+phase = "later-tools"
+status = "candidate"
+source = "local-original"
+recipe = "packages/tools/cachy-asahi-dns/PKGBUILD"
+license = "MIT"
+audit = "packages/tools/cachy-asahi-dns/README.md"
+selected_for_development = true
+selected_for_release = false
+candidate_version = "0.1.0-1"
+source_commit = "8daeb115740ffb494e8fa91f0749c2edd6dd4284"
+host_validation = "PASS21 controls including real nmcli offline two-family apply/restore; exact5-file staging; no host profile mutation/live DNS/ALPM/M2 result"
+native_build = "PASS"
+native_build_commit = "8f09e6d0f4cc2ba276dbd3241be55a010a0ae438"
+native_evidence = "docs/validation/dns-sysctl-native-20261018.md"
+installation = "PASS signed576/574 five-transition native ALPM lifecycle, both ordinary users, original574 preserved by source-enforced receipts; no live DNS/kernel changes/M2/release credit"
+hardware_validation = "NOT RUN"
+next_step = "Independently scoped live integration and hardware checks; retain explicit opt-in and existing baseline."
+
+[[packages]]
+name = "cachy-asahi-sysctl"
+phase = "later-tools"
+status = "candidate"
+source = "local-original"
+recipe = "packages/tools/cachy-asahi-sysctl/PKGBUILD"
+license = "MIT"
+audit = "packages/tools/cachy-asahi-sysctl/README.md"
+selected_for_development = true
+selected_for_release = false
+candidate_version = "0.1.0-1"
+source_commit = "8daeb115740ffb494e8fa91f0749c2edd6dd4284"
+host_validation = "PASS19 private-tree controls on Python3.12/3.14 including genuine SIGKILL recovery and staged-command checks; no real kernel writes/performance/M2 result"
+native_build = "PASS"
+native_build_commit = "8f09e6d0f4cc2ba276dbd3241be55a010a0ae438"
+native_evidence = "docs/validation/dns-sysctl-native-20261018.md"
+installation = "PASS signed576/574 five-transition native ALPM lifecycle, both ordinary users, original574 preserved by source-enforced receipts; no live DNS/kernel changes/M2/release credit"
+hardware_validation = "NOT RUN"
+next_step = "Independently scoped live integration and hardware checks; retain explicit opt-in and existing baseline."

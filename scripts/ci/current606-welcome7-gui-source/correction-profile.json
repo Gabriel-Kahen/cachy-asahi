@@ -1,0 +1,72 @@
+{
+  "actual": null,
+  "after_source": "09f7758b20c638f302086374931e7e5ceb3ca6fd",
+  "before_source": "a8304cecaee54141b42edd48f9482b9f4ab0700f",
+  "changed": {
+    "admission.py": {
+      "before": {
+        "bytes": 4424,
+        "sha256": "910b4342995eb31cdeada322a16751772f8bcc5703481de80e367ce67ef72cec"
+      },
+      "proposed": {
+        "bytes": 4602,
+        "sha256": "a879b0d256ee85d12a44b93b58127d222753bec0c852bcd8e36c00287c9ef8ce"
+      }
+    },
+    "apps8-parent.json": {
+      "before": {
+        "bytes": 463453,
+        "sha256": "8a7742b23196206c7d5d0f655adfd834df59dc13b01fdd21a2c5acc736736c63"
+      },
+      "proposed": {
+        "bytes": 472166,
+        "sha256": "f3a071fba2afc94df7a3e0a9858d8977e959cc10097c7001bb06631771701650"
+      }
+    },
+    "factory/install606.py": {
+      "before": {
+        "bytes": 6509,
+        "sha256": "a2de060c97f6f7501e4636ecac48ac81e72625ae0ae847406de9ffcbb336e476"
+      },
+      "proposed": {
+        "bytes": 6509,
+        "sha256": "1c9b71a58e1a1ebd43daf01ada9af0fa74b65b60aeb69e5cd00fa76510b6171e"
+      }
+    },
+    "source-manifest.json": {
+      "before": {
+        "bytes": 98020,
+        "sha256": "b211cc20ed2c49e99051f0847cf7666cff2d04cbd24a1e6e97a9d1071e24389f"
+      },
+      "proposed": {
+        "bytes": 98020,
+        "sha256": "1f6e13bceb0a80c21a96ada553fd9ea9ebe8438fe19fef8e2fab9ba2c078e224"
+      }
+    }
+  },
+  "files": 556,
+  "held": 552,
+  "kind": "SOURCE_ONLY_EXACT_INSTALLER_LOCK_CORRECTION",
+  "maps": {
+    "bytes": 196034,
+    "sha256": "2b594eb4836702090ce5c767b9cdd0a5aa2290364acb5056eeeef9688074b7cb"
+  },
+  "payload": {
+    "admission.py": {
+      "bytes": 4602,
+      "sha256": "a879b0d256ee85d12a44b93b58127d222753bec0c852bcd8e36c00287c9ef8ce"
+    },
+    "apps8-parent.json": {
+      "bytes": 472166,
+      "sha256": "f3a071fba2afc94df7a3e0a9858d8977e959cc10097c7001bb06631771701650"
+    },
+    "factory/install606.py": {
+      "bytes": 6509,
+      "sha256": "1c9b71a58e1a1ebd43daf01ada9af0fa74b65b60aeb69e5cd00fa76510b6171e"
+    },
+    "source-manifest.json": {
+      "bytes": 98020,
+      "sha256": "1f6e13bceb0a80c21a96ada553fd9ea9ebe8438fe19fef8e2fab9ba2c078e224"
+    }
+  }
+}

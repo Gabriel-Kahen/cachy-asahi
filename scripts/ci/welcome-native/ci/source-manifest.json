@@ -1,6 +1,4 @@
 {
-  "schema": 1,
-  "scope": "two-original-unselected-native-product-candidates",
   "files": {
     "packages/tools/cachy-asahi-doctor/.SRCINFO": {
       "bytes": 808,
@@ -151,8 +149,8 @@
       "sha256": "d95e186ae3ecefc8efd7479e0ab2f6d7b231265d20555dbcbd4ae211b56298fa"
     },
     "scripts/ci/welcome-native/lifecycle.py": {
-      "bytes": 10327,
-      "sha256": "cec91519d21767a725407d05eaa139faa50583c038983066d59efb2f53c826a6"
+      "bytes": 12278,
+      "sha256": "b87831eea710dbf18cb3ab3aa7bf49856d26bebbd3e684861dcab7dc1d337c74"
     },
     "scripts/ci/welcome-native/package-inputs.json": {
       "bytes": 289137,
@@ -164,11 +162,11 @@
     },
     "scripts/ci/welcome-native/source-pins.json": {
       "bytes": 3826,
-      "sha256": "9f94275e1f02a5cd8f177c57f1dc23db2420a732badea357292057750bb054fc"
+      "sha256": "2ad26df57af7206b6e188cd592a374aaaf3aa4b9a9ef7d7fa902371d7b0d401a"
     },
     "scripts/ci/welcome-native/test_native.py": {
-      "bytes": 9082,
-      "sha256": "f907acfbceee4c197ddeeb789829ec5e8028bc21ccde984366cd92bb30497396"
+      "bytes": 13373,
+      "sha256": "29037e4285b2b882f5f20cf2f9f85bc0107fc1c99c0db05ee2a1d20578a19a6a"
     },
     "scripts/port/preview.py": {
       "bytes": 19736,
@@ -176,7 +174,9 @@
     },
     "scripts/virtual/common.py": {
       "bytes": 84361,
-      "sha256": "4b61b407344ac7209a5d2ebd036a57143ee23525b6550aada6ff7488b5aab6a0"
+      "sha256": "aef2b4f09a91c4cfd66dd4504e69ef18396a94214c82ae0ec0a43c2716894a03"
     }
-  }
+  },
+  "schema": 1,
+  "scope": "two-original-unselected-native-product-candidates"
 }

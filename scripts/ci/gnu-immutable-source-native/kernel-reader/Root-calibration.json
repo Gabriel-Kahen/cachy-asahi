@@ -1,0 +1,15 @@
+{
+  "API": "NOT_RUN",
+  "changed_module": "EXACT_RUN_LITERAL_ONLY",
+  "collector": "BYTE_HELD",
+  "default_templates": "ALL_NULL_HELD",
+  "metadata": {
+    "bytes": 14321,
+    "sha256": "0fe206e65175ff56cbe9b171c933152a2b8eebbfe8d150bb9a8cf1012ef6594f"
+  },
+  "ref": "codex/gnu-verity-kernel-config-domain-v1",
+  "run": "39156901928",
+  "source": "4056e2505ed7081674e949e0460258672cce14ff",
+  "source_files": 20,
+  "status": "PASS_GENUINE_METADATA_SOURCE_ONLY_NOT_NATIVE_ACCEPTANCE"
+}

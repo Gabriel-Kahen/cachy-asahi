@@ -1,0 +1,11 @@
+{
+  "Root_acceptance": "NOT_ISSUED",
+  "actual": null,
+  "cpu_seconds": 63.032143999999995,
+  "exit": 0,
+  "host_cap": 300,
+  "retry": false,
+  "seconds": 70.30997110799944,
+  "status": "PASS",
+  "timeout": false
+}

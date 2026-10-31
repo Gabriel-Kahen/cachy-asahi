@@ -1,0 +1,72 @@
+# SPDX-License-Identifier: MIT
+# Project-owned successor; unrelated to the old binary's unavailable build recipe.
+pkgname=cachy-asahi-glibc-gnu-provider
+pkgver=2.43.caa1
+pkgrel=1
+pkgdesc='Unselected conventional /usr GNU libc provider experiment'
+arch=('aarch64')
+url='https://www.gnu.org/software/libc/'
+license=('GPL-2.0-or-later' 'LGPL-2.1-or-later' 'LicenseRef-glibc-notices')
+depends=('linux-api-headers>=4.10' 'filesystem' 'tzdata')
+provides=('glibc=2.43')
+conflicts=('glibc')
+backup=('etc/gai.conf')
+makedepends=('gcc' 'binutils' 'make' 'bison' 'gawk' 'python' 'perl' 'texinfo' 'patch' 'linux-api-headers')
+options=('staticlibs' '!strip' '!debug' '!lto')
+_upstream=glibc-2.43
+source=('glibc-2.43.tar.gz' '0001-mount-macro-guards.patch' '0002-held-builder-test-expectations.patch' 'stage.py')
+sha256sums=('e1e622cbd635019090fa23260e5d9ec219b12f97ae7ae02f033d4ae42cf2c004'
+  '09117692cd3a1d5838ea700df68b512f9f625a6d2af497a1afcf92046deca8f5'
+  'f730c778ba51f9e525c9f6a7949a76af00364d49f41eedb5d73b8e86a3d4c132'
+  '43b1b441dcc384379ab80c4864bbf7ffd898d56e4ba629c0faa966c25a979e6c')
+
+prepare() {
+  [[ $CARCH == aarch64 && $(uname -m) == aarch64 && ${CACHY_ASAHI_GLIBC_BUILD:-} == 1 ]] || return 2
+  cd "$srcdir/$_upstream" || return
+  patch -Np1 --batch --fuzz=0 < "$srcdir/0001-mount-macro-guards.patch" || return
+  patch -Np1 --batch --fuzz=0 < "$srcdir/0002-held-builder-test-expectations.patch" || return
+}
+
+build() {
+  export CFLAGS='-O2 -g' CXXFLAGS='-O2 -g' CPPFLAGS='' LDFLAGS='' MAKEFLAGS='-j4'
+  export LC_ALL=C LANG=C TZ=UTC
+  mkdir -p "$srcdir/build" || return
+  cd "$srcdir/build" || return
+  printf '%s\n' "slibdir=/usr/lib" "rtlddir=/usr/lib" \
+    "sbindir=/usr/bin" "rootsbindir=/usr/bin" \
+    'tst-malloc-too-large-malloc-hugetlb2-ENV += TIMEOUTFACTOR=5' > configparms || return
+  "$srcdir/$_upstream/configure" --prefix=/usr --libdir=/usr/lib \
+    --libexecdir=/usr/lib --localedir=/usr/share/locale --sysconfdir=/etc --localstatedir=/var \
+    --build=aarch64-unknown-linux-gnu --host=aarch64-unknown-linux-gnu \
+    --disable-multi-arch \
+    --with-headers=/usr/include --enable-bind-now --enable-stack-protector=strong \
+    --enable-fortify-source --disable-systemtap --disable-nscd --disable-profile --disable-werror \
+    --with-pkgversion='cachy-asahi-gnu-provider-caa1 GNU2.43' || return
+  make -s -O || return
+  make -s info || return
+  mkdir -p "$srcdir/locales/C.utf8" || return
+  I18NPATH="$srcdir/$_upstream/localedata" GCONV_PATH="$srcdir/build/iconvdata" ./elf/ld.so \
+    --inhibit-cache --library-path "$srcdir/build:$srcdir/build/elf:$srcdir/build/math:$srcdir/build/nptl" \
+    ./locale/localedef --no-archive -i C -f UTF-8 "$srcdir/locales/C.utf8" || return
+}
+
+check() {
+  cd "$srcdir/build" || return
+  local check_status=0 abi_status=0
+  make -s -k -j4 check > /work/evidence/upstream-check.log 2>&1 || check_status=$?
+  printf '%s\n' "$check_status" > /work/evidence/check-exit
+  make -s -j4 check-abi > /work/evidence/upstream-abi.log 2>&1 || abi_status=$?
+  printf '%s\n' "$abi_status" > /work/evidence/abi-exit
+  python3 /runner/collect_tests.py --build "$srcdir/build" --output /work/evidence || return
+  (( check_status == 0 && abi_status == 0 ))
+}
+
+package() {
+  make -s -C "$srcdir/build" install_root="$pkgdir" install || return
+  install -Dm644 "$srcdir/$_upstream/posix/gai.conf" "$pkgdir/etc/gai.conf" || return
+  install -d "$pkgdir/usr/lib/locale" || return
+  cp -a "$srcdir/locales/C.utf8" "$pkgdir/usr/lib/locale/" || return
+  install -d "$pkgdir/usr/share/licenses/$pkgname" || return
+  install -m644 "$srcdir/$_upstream/"{COPYINGv2,COPYING.LESSERv2,LICENSES} "$pkgdir/usr/share/licenses/$pkgname/" || return
+  python3 "$srcdir/stage.py" --pkgdir "$pkgdir" || return
+}

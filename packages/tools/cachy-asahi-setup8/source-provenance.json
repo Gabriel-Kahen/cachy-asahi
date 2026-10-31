@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "candidate_version": "0.3.0-1",
+  "source_kind": "original-local pinned immutable engine plus separately corrected setup8 contract",
+  "baseline_setup_sha256": "d33c87447afdc4dfebd55efb4ca9c8882ee1b091f9727390db1fd002c05f7817",
+  "canonical_sources": {
+    "cachy-asahi-setup": "scripts/setup8/setup.py",
+    "setup.py": "scripts/setup8/setup.py",
+    "config_migrate.py": "scripts/setup8/config_migrate.py",
+    "test_config_migrate.py": "scripts/setup8/test_config_migrate.py",
+    "cachy-asahi-repository": "scripts/repository/enroll.py",
+    "repository-enrollment.md": "docs/repository-enrollment.md",
+    "configuration-migrations.md": "docs/port/configuration-migrations.md",
+    "LICENSE": "LICENSE"
+  },
+  "input_sha256": {
+    "LICENSE": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+    "NOTICE": "c47e845e85522c77bfc40b8a0d0e4a7cb44d0e4aa7ebfb244168bca8f604c9b1",
+    "README.md": "2cba96f8e009b5611fde80854654db64ffc1d92772bbea3686e4ea335b8d6afd",
+    "cachy-asahi-config-migrate": "844b5c01b49552ea5aaef19a7ced8637f49d1f5126c37f4c14471620d0951cc2",
+    "cachy-asahi-repository": "38db2d45955b569a4c74c3f31d6b6c79611126238e1bbe1e5cf819f81d0fb54f",
+    "cachy-asahi-setup": "724a37c9832d607455aeda1d929f0ee265ce268aecb64be5e00065c1edf85cf0",
+    "check-sync.py": "53606dad6cac9950a40fa987579d2b62bff3682c2dedb0b2724236be6b61788d",
+    "config_migrate.py": "1368a1fa0586d946f33945b0be7e5c1deb4fe929509e34a81d55cfb9f5cb800b",
+    "configuration-migrations.md": "c6c8d325fdfa7e2371591b0e9862f0b8baf802065a8e00bfea1b55db0bc8ae19",
+    "payload-map.json": "1430ac237d368a834402baf281d24e0cb4aebd7fd2b3bc5709434ea14ae4b5e1",
+    "repository-enrollment.md": "67963698b98954466c5fe8eb684ce88c25865089c7ffd2035646eaa44b2988b4",
+    "setup.py": "724a37c9832d607455aeda1d929f0ee265ce268aecb64be5e00065c1edf85cf0",
+    "status-integration-fix.md": "ccaf10c4d336807070e2267f78d70be23b31672b59f1ca1c284bbfe9fe785f6f",
+    "test_config_migrate.original.py": "d13365d34fa86b34c1465fc6f2aa249c6214e6ba64b20a0b04621346f842ae1f",
+    "test_config_migrate.py": "5aa67f40379c77eac07238c3b58e6ebd20128a9ee85d642c686cc51791db4d23",
+    "test_delivery.py": "e07fd35837b5d1b7239fdd42313e11f72e0133d7ac8359a528c019c0c57bd7d2",
+    "test_package.py": "56f1aa644dc416759a732cecd8f79b8b28b719dd0d921b8a4054b881866dedca"
+  },
+  "test_adapter": {
+    "before": "CONTRACT_DIR = next(p / 'scripts/setup' for p in HERE.parents\n                    if (p / 'scripts/setup/setup.py').is_file())",
+    "after": "CONTRACT_DIR = HERE",
+    "scope": "Only contract-directory lookup; all original29 cases/assertions retained"
+  },
+  "installed": "NOT RUN",
+  "native": "NOT RUN",
+  "hardware": "NOT RUN",
+  "release": "NOT ADMITTED"
+}

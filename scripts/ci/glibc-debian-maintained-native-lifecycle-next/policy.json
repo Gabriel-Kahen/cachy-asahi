@@ -1,0 +1,19 @@
+{
+  "authority": "PRIVATE_TEST_ONLY_NO_RELEASE_ADMISSION",
+  "candidate": {
+    "authority_sha256": "88643eabd61a39df63ecaeb50bb20041d17cf4fd3adee55d82d43d3c1ca08707",
+    "package": "cachy-asahi-glibc-gnu-provider",
+    "pkgbuild_sha256": "9d6d5e688c95febe85321abc69fbfe1b7781a02e318771ae43851d8c29f68bb8",
+    "prepared_tree": "08ea2aef96bd3144cf02cbc68cbbb003dc25ed9f",
+    "source_packet_ref": "60e174c5db7f770c94064198516dd3ee07b51b7b",
+    "version": "2.43.caa3-1"
+  },
+  "packet": null,
+  "required_before_binding": [
+    "Actual Root accepted CURRENT maintained staged16384/8case/12record normal runtime and complete cleanup",
+    "Convert exact first-stage packet preserving all21 payload files; validate canonical candidate and normal13-command checks",
+    "Root independently freezes/publishes new converted packet; bind exactref/directory/indexSHA; never first-stage or failed runtime"
+  ],
+  "schema_version": 1,
+  "status": "UNBOUND_CAA3_ACTUAL_CURRENT_PRIVATE16K_AND_NATIVE_PACKET"
+}

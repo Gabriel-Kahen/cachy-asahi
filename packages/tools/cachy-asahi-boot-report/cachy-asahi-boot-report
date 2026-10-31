@@ -1,0 +1,351 @@
+#!/usr/bin/python3 -I
+# SPDX-License-Identifier: MIT
+"""Read-only local boot diagnostics. Reports can contain sensitive kernel data."""
+import argparse
+from datetime import datetime, timezone
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import selectors
+import signal
+import stat
+import subprocess
+import sys
+import time
+
+JOURNALCTL = '/usr/bin/journalctl'
+ENV = {'PATH': '/usr/bin:/bin', 'LC_ALL': 'C', 'TZ': 'UTC',
+       'SYSTEMD_PAGER': 'cat', 'PAGER': 'cat', 'SYSTEMD_COLORS': '0',
+       'SYSTEMD_LOG_TARGET': 'console'}
+BOOT = re.compile('[0-9a-f]{32}\\Z')
+LIMITS = {'list_bytes': 1024 * 1024, 'journal_bytes': 8 * 1024 * 1024,
+          'stderr_bytes': 65536, 'command_seconds': 20, 'boots': 4096,
+          'pstore_files': 32, 'pstore_file_bytes': 1024 * 1024,
+          'pstore_total_bytes': 8 * 1024 * 1024, 'pstore_seconds': 5}
+
+
+def digest(data):
+    return {'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+
+
+def unique(pairs):
+    value = {}
+    for key, item in pairs:
+        if key in value:
+            raise ValueError('duplicate JSON field')
+        value[key] = item
+    return value
+
+
+def directory(path):
+    """Open absolute ordinary directory components without following symlinks."""
+    if not os.path.isabs(path) or str(Path(path)) != path or '..' in Path(path).parts:
+        raise ValueError('ordinary absolute directory required')
+    fd = os.open('/', os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC)
+    try:
+        for part in Path(path).parts[1:]:
+            nxt = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC | os.O_NOFOLLOW, dir_fd=fd)
+            os.close(fd)
+            fd = nxt
+        return fd
+    except BaseException:
+        os.close(fd)
+        raise
+
+
+def fresh_output(path):
+    parent, name = os.path.split(path)
+    if not name or name in ('.', '..'):
+        raise ValueError('fresh output directory name required')
+    parentfd = directory(parent)
+    fd = None
+    try:
+        info = os.fstat(parentfd)
+        if info.st_uid != os.getuid() or info.st_mode & 0o022:
+            raise ValueError('output parent must be caller-owned and not group/world writable')
+        os.mkdir(name, 0o700, dir_fd=parentfd)
+        fd = os.open(name, os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC | os.O_NOFOLLOW, dir_fd=parentfd)
+        info = os.fstat(fd)
+        if info.st_uid != os.getuid() or stat.S_IMODE(info.st_mode) != 0o700:
+            raise ValueError('private output directory required')
+        os.fsync(parentfd)
+        return fd
+    except BaseException:
+        if fd is not None:
+            os.close(fd)
+        raise
+    finally:
+        os.close(parentfd)
+
+
+def write_file(fd, name, data):
+    out = os.open(name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_CLOEXEC | os.O_NOFOLLOW, 0o600, dir_fd=fd)
+    with os.fdopen(out, 'wb') as stream:
+        stream.write(data)
+        stream.flush()
+        os.fsync(stream.fileno())
+    return digest(data)
+
+
+def query(argv, cap, seconds=20):
+    """Keep the direct child unreaped until the final process-group signal."""
+    started = time.monotonic()
+    result = {'argv': argv, 'environment': ENV, 'state': 'unavailable',
+              'exit_code': None, 'child_reaped': True, 'elapsed_seconds': 0}
+    parts = [bytearray(), bytearray()]
+    try:
+        child = subprocess.Popen(argv, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE, env=ENV, start_new_session=True,
+                                 close_fds=True)
+    except OSError as error:
+        result['errno'] = error.errno
+        return result, b'', b''
+    result.update(state='complete', child_reaped=False)
+    selector = None
+    try:
+        selector = selectors.DefaultSelector()
+        for index, stream in enumerate((child.stdout, child.stderr)):
+            os.set_blocking(stream.fileno(), False)
+            selector.register(stream, selectors.EVENT_READ, index)
+        while selector.get_map() or os.waitid(os.P_PID, child.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT) is None:
+            remaining = seconds - (time.monotonic() - started)
+            if remaining <= 0:
+                result['state'] = 'timeout'
+                break
+            for key, _ in selector.select(min(.05, remaining)):
+                data = os.read(key.fd, 65536)
+                if not data:
+                    selector.unregister(key.fileobj)
+                    continue
+                limit = cap if key.data == 0 else LIMITS['stderr_bytes']
+                room = limit - len(parts[key.data])
+                parts[key.data].extend(data[:room])
+                if len(data) > room:
+                    result['state'] = 'output-limit'
+                    break
+            if result['state'] != 'complete':
+                break
+    except (OSError, ValueError) as error:
+        result.update(state='error', errno=getattr(error, 'errno', None))
+    finally:
+        # PAGER/remote/user configuration cannot spawn children through inherited
+        # environment. This signal also retires same-group pipe-holding children;
+        # it does not claim authority over processes which escape the group.
+        try:
+            os.killpg(child.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+        try:
+            result['exit_code'] = child.wait(timeout=2)
+            result['child_reaped'] = True
+        except subprocess.TimeoutExpired:
+            result['state'] = 'retirement-unknown'
+        if selector is not None:
+            selector.close()
+        child.stdout.close()
+        child.stderr.close()
+    result['elapsed_seconds'] = round(time.monotonic() - started, 6)
+    return result, bytes(parts[0]), bytes(parts[1])
+
+
+def command(journal_directory, *arguments):
+    argv = [JOURNALCTL, '--no-pager', '--system']
+    if journal_directory is not None:
+        fd = directory(journal_directory)
+        os.close(fd)
+        argv.append('--directory=' + journal_directory)
+    return argv + list(arguments)
+
+
+def boots(result, raw):
+    if result['state'] != 'complete' or result['exit_code'] != 0:
+        raise ValueError('journal boot listing unavailable or incomplete')
+    rows = json.loads(raw, object_pairs_hook=unique)
+    if type(rows) is not list or len(rows) > LIMITS['boots']:
+        raise ValueError('unsupported or oversized journal boot listing')
+    seen = set()
+    for row in rows:
+        if type(row) is not dict or set(row) != {'index', 'boot_id', 'first_entry', 'last_entry'}:
+            raise ValueError('unsupported journal boot listing fields')
+        if (type(row['index']) is not int or not isinstance(row['boot_id'], str)
+                or not BOOT.fullmatch(row['boot_id']) or row['boot_id'] in seen
+                or any(type(row[k]) is not int or not 0 <= row[k] < 2**64 for k in ('first_entry', 'last_entry'))
+                or row['first_entry'] > row['last_entry']):
+            raise ValueError('invalid journal boot identity/times')
+        seen.add(row['boot_id'])
+    return rows
+
+
+def records(raw, selected):
+    count = 0
+    for line in raw.splitlines():
+        if not line:
+            raise ValueError('empty journal JSON record')
+        row = json.loads(line, object_pairs_hook=unique)
+        if (type(row) is not dict or row.get('_BOOT_ID') != selected
+                or row.get('_TRANSPORT') != 'kernel' or type(row.get('__CURSOR')) is not str
+                or not row['__CURSOR'] or len(row['__CURSOR']) > 4096
+                or any(type(row.get(k)) is not str or not re.fullmatch('[0-9]{1,20}', row[k])
+                       for k in ('__REALTIME_TIMESTAMP', '__MONOTONIC_TIMESTAMP'))):
+            raise ValueError('journal record selection/provenance differs')
+        count += 1
+    return count
+
+
+def metadata(info):
+    return dict(device=info.st_dev, inode=info.st_ino, mode=info.st_mode, uid=info.st_uid,
+                gid=info.st_gid, size=info.st_size, mtime_ns=info.st_mtime_ns, ctime_ns=info.st_ctime_ns)
+
+
+def pstore(path, outputfd):
+    """pstore is a separate un-attributed source, never assigned to selected boot."""
+    report = {'path': path, 'boot_attribution': 'UNKNOWN', 'completeness': 'UNKNOWN', 'files': []}
+    try:
+        fd = directory(path)
+    except OSError as error:
+        report.update(state='unavailable', errno=error.errno)
+        return report
+    total = 0
+    started = time.monotonic()
+    try:
+        with os.scandir(fd) as entries:
+            for index, entry in enumerate(entries):
+                if index >= LIMITS['pstore_files'] or time.monotonic() - started > LIMITS['pstore_seconds']:
+                    report['state'] = 'limit'
+                    break
+                row = {'name': entry.name, 'state': 'unavailable'}
+                report['files'].append(row)
+                source = None
+                try:
+                    before = os.stat(entry.name, dir_fd=fd, follow_symlinks=False)
+                    row['before'] = metadata(before)
+                    if not stat.S_ISREG(before.st_mode) or before.st_nlink != 1:
+                        row['state'] = 'refused-node'
+                        continue
+                    source = os.open(entry.name, os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=fd)
+                    if metadata(os.fstat(source)) != row['before']:
+                        raise ValueError('pstore identity changed before read')
+                    cap = min(LIMITS['pstore_file_bytes'], LIMITS['pstore_total_bytes'] - total)
+                    data = bytearray()
+                    limited = False
+                    while True:
+                        if time.monotonic() - started > LIMITS['pstore_seconds']:
+                            limited = True
+                            break
+                        chunk = os.read(source, min(65536, cap - len(data) + 1))
+                        if not chunk:
+                            break
+                        room = cap - len(data)
+                        data.extend(chunk[:room])
+                        if len(chunk) > room:
+                            # One extra byte distinguishes exact-cap EOF from truncation.
+                            limited = True
+                            break
+                    row['after'] = metadata(os.fstat(source))
+                    row['path_after'] = metadata(os.stat(entry.name, dir_fd=fd, follow_symlinks=False))
+                    row['stable_metadata'] = row['before'] == row['after'] == row['path_after']
+                    row['file'] = 'pstore-%04d.bin' % index
+                    row.update(write_file(outputfd, row['file'], data))
+                    row['state'] = 'limit' if limited else 'captured' if row['stable_metadata'] else 'changed'
+                    total += len(data)
+                except (OSError, ValueError) as error:
+                    row.update(state='unavailable', errno=getattr(error, 'errno', None))
+                finally:
+                    if source is not None:
+                        os.close(source)
+            else:
+                report['state'] = 'enumerated'
+    finally:
+        os.close(fd)
+    report['bytes'] = total
+    return report
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    commands = parser.add_subparsers(dest='action', required=True)
+    listing = commands.add_parser('list', help='list visible system-journal boot IDs; exports no report')
+    exporting = commands.add_parser('export', help='export an explicitly selected boot to a NEW private local directory')
+    for sub in (listing, exporting):
+        sub.add_argument('--journal-directory', help='explicit local journal directory instead of the live system journal')
+    exporting.add_argument('--boot-id', required=True, help='exact lowercase 32-hex boot ID from list (no relative offsets)')
+    exporting.add_argument('--output', required=True, help='fresh absolute directory beneath a private caller-owned parent')
+    exporting.add_argument('--include-pstore', action='store_true', help='also copy possibly sensitive pstore records; boot attribution stays UNKNOWN')
+    exporting.add_argument('--pstore-directory', default='/sys/fs/pstore', help='local pstore directory or saved local copy')
+    args = parser.parse_args(argv)
+    if args.action == 'export' and not BOOT.fullmatch(args.boot_id):
+        parser.error('boot ID must be exactly 32 lowercase hex characters')
+    if args.action == 'export' and args.pstore_directory != '/sys/fs/pstore' and not args.include_pstore:
+        parser.error('--pstore-directory requires --include-pstore')
+    try:
+        listing_argv = command(args.journal_directory, '--list-boots', '--output=json')
+        if args.action == 'export' and args.include_pstore:
+            if (not os.path.isabs(args.pstore_directory) or str(Path(args.pstore_directory)) != args.pstore_directory
+                    or '..' in Path(args.pstore_directory).parts):
+                raise ValueError('ordinary absolute pstore directory required')
+            if os.path.commonpath([args.output, args.pstore_directory]) == args.pstore_directory:
+                raise ValueError('report must be outside the pstore source')
+        if args.action == 'export' and args.journal_directory is not None:
+            if os.path.commonpath([args.output, args.journal_directory]) == args.journal_directory:
+                raise ValueError('report must be outside the journal source')
+        # Reject unsafe/existing output before reading potentially sensitive logs.
+        outputfd = fresh_output(args.output) if args.action == 'export' else None
+        try:
+            result, raw, err = query(listing_argv, LIMITS['list_bytes'], LIMITS['command_seconds'])
+            report = {'schema_version': 1, 'tool': 'cachy-asahi-boot-report', 'action': args.action,
+                      'created_utc': datetime.now(timezone.utc).isoformat(), 'limits': LIMITS,
+                      'journal_source': args.journal_directory or 'local system journal visible to caller',
+                      'history_completeness': 'UNKNOWN', 'kernel_crash_diagnosis': 'NOT_ESTABLISHED',
+                      'sensitive_local_contents': True, 'boot_listing': result}
+            if outputfd is not None:
+                report['boot_listing_raw'] = write_file(outputfd, 'boots.stdout.json', raw)
+                report['boot_listing_stderr'] = write_file(outputfd, 'boots.stderr', err)
+            try:
+                available = boots(result, raw)
+                report['boots'] = available
+            except (ValueError, TypeError, UnicodeError, RecursionError) as error:
+                report.update(state='unavailable', reason=str(error)[:256])
+                available = None
+            if args.action == 'list':
+                report.setdefault('state', 'listed')
+                print(json.dumps(report, sort_keys=True))
+                return 0 if available is not None else 1
+            report['selected_boot_id'] = args.boot_id
+            if available is not None and args.boot_id in {row['boot_id'] for row in available}:
+                result, raw, err = query(command(args.journal_directory, '--output=json', '--all',
+                                                 '--lines=all', '--boot=' + args.boot_id, '_TRANSPORT=kernel'),
+                                         LIMITS['journal_bytes'], LIMITS['command_seconds'])
+                report['kernel_journal'] = {**result, 'raw': write_file(outputfd, 'kernel.jsonl', raw),
+                                            'stderr': write_file(outputfd, 'kernel.stderr', err)}
+                try:
+                    count = records(raw, args.boot_id)
+                    report['kernel_journal']['validated_records'] = count
+                    report['state'] = 'captured' if result['state'] == 'complete' and result['exit_code'] == 0 and count else 'incomplete'
+                except (ValueError, TypeError, UnicodeError, RecursionError):
+                    report.update(state='incomplete', reason='journal record selection/provenance not validated')
+            elif available is not None:
+                report.update(state='unavailable', reason='selected boot is not visible; no absence or crash outcome inferred')
+            if args.include_pstore:
+                report['pstore'] = pstore(args.pstore_directory, outputfd)
+                if (report['pstore']['state'] != 'enumerated'
+                        or any(row['state'] != 'captured' for row in report['pstore']['files'])):
+                    report['state'] = 'incomplete'
+            else:
+                report['pstore'] = {'state': 'not-requested', 'boot_attribution': 'UNKNOWN'}
+            encoded = (json.dumps(report, sort_keys=True, indent=2) + '\n').encode()
+            write_file(outputfd, 'report.json', encoded)
+            os.fsync(outputfd)
+            print(json.dumps({'output': args.output, 'state': report['state'], 'history_completeness': 'UNKNOWN'}, sort_keys=True))
+            return 0 if report['state'] == 'captured' else 1
+        finally:
+            if outputfd is not None:
+                os.close(outputfd)
+    except (OSError, ValueError) as error:
+        print(json.dumps({'state': 'refused', 'reason': str(error)[:256]}, sort_keys=True), file=sys.stderr)
+        return 1
+
+
+if __name__ == '__main__':
+    sys.exit(main())

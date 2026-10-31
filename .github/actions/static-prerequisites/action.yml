@@ -1,0 +1,54 @@
+name: Disposable static prerequisites
+description: Fresh APT setup with verified archive-only cache and optional paired measurement
+inputs:
+  phase:
+    description: normal, cold or warm
+    default: normal
+  cold-receipt:
+    description: Completed cold predecessor setup receipt, required only for warm
+    default: ''
+outputs:
+  receipt:
+    description: Source, image, cache identity, package readback and setup timing
+    value: ${{ steps.receipt.outputs.receipt }}
+runs:
+  using: composite
+  steps:
+    - name: Bind setup source and caller scope
+      shell: bash
+      env:
+        CAA_STATIC_PHASE: ${{ inputs.phase }}
+        CAA_COLD_RECEIPT: ${{ inputs.cold-receipt }}
+      run: python3 -I -B scripts/ci/static_apt_trial.py begin
+    - name: Plan test prerequisites from fresh authenticated APT metadata
+      id: apt-plan
+      shell: bash
+      run: |
+        python3 -I -B scripts/ci/static_apt_trial.py clock plan_start_ns
+        bash -e scripts/ci/static_apt_plan.sh
+        python3 -I -B scripts/ci/static_apt_trial.py clock plan_end_ns
+    - name: Bind exact archive cache key
+      id: identity
+      shell: bash
+      run: python3 -I -B scripts/ci/static_apt_trial.py identity
+    - name: Cache test prerequisite archives only
+      id: archives
+      uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+      with:
+        path: ${{ runner.temp }}/static-apt-cache/*.deb
+        key: ${{ steps.identity.outputs.key }}
+    - name: Require the declared cold or exact warm cache state
+      shell: bash
+      env:
+        CAA_CACHE_HIT: ${{ steps.archives.outputs.cache-hit }}
+      run: python3 -I -B scripts/ci/static_apt_trial.py cache
+    - name: Install test prerequisites on disposable runner
+      shell: bash
+      run: |
+        python3 -I -B scripts/ci/static_apt_trial.py clock install_start_ns
+        bash -e scripts/ci/static_apt_install.sh
+        python3 -I -B scripts/ci/static_apt_trial.py clock install_end_ns
+    - name: Record source-bound setup receipt and package readback
+      id: receipt
+      shell: bash
+      run: python3 -I -B scripts/ci/static_apt_trial.py finish

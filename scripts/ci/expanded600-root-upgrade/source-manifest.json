@@ -1,0 +1,62 @@
+{
+  ".github/workflows/native-arm-expanded600-root-upgrade.yml": {
+    "bytes": 27476,
+    "sha256": "190286366784e6c89f55ae2db36a85b32efc63e2606dd4e8d5adee947a40b634"
+  },
+  "scripts/ci/expanded600-root-upgrade/README.md": {
+    "bytes": 6177,
+    "sha256": "1a02f028b93061d6f39abb89dccbc741cc405f79d818a399ae4453716fd29fab"
+  },
+  "scripts/ci/expanded600-root-upgrade/accepted_pair.py": {
+    "bytes": 2938,
+    "sha256": "76938c4aa24dc6d04ed4c0cac4aa1d5ec880af0cda54079725607b908a56ae2a"
+  },
+  "scripts/ci/expanded600-root-upgrade/adapter.py": {
+    "bytes": 8670,
+    "sha256": "81f985fbc80e0f2888327245414dd59689c87a5fafeb390c1e840cc3c647026c"
+  },
+  "scripts/ci/expanded600-root-upgrade/after600.lock": {
+    "bytes": 11874,
+    "sha256": "04fabc5702c8389b7b2a53f6ed6168cc45931f6628c158e7e74b073349327c35"
+  },
+  "scripts/ci/expanded600-root-upgrade/before600.lock": {
+    "bytes": 11874,
+    "sha256": "d263a3ca9089c204603f2e12b80dc4f209ee6e636f10da940a514040b636db79"
+  },
+  "scripts/ci/expanded600-root-upgrade/contract.py": {
+    "bytes": 5352,
+    "sha256": "c8a0fc237a10d1f6830407ab2984636b763283653f63b9d9906abf1d9cc16635"
+  },
+  "scripts/ci/expanded600-root-upgrade/freeze.py": {
+    "bytes": 1082,
+    "sha256": "bf6a76e2a349230842409d5abc070835effead967641328c9bd584fc16152646"
+  },
+  "scripts/ci/expanded600-root-upgrade/gate.py": {
+    "bytes": 6548,
+    "sha256": "aff73ba836dbc8488f78bee786efa7862c812f3ed236159c5432464171421589"
+  },
+  "scripts/ci/expanded600-root-upgrade/held-pins.json": {
+    "bytes": 27397,
+    "sha256": "1d2bb9e3a831f0b7c404bf4971699fc530fa139ed881b513cb62e3b339ed7493"
+  },
+  "scripts/ci/expanded600-root-upgrade/input-policy.json": {
+    "bytes": 1047,
+    "sha256": "9db7971be2d16a2b8978aae14c92f5d46cbf3b91c901cc81083978d1469863e7"
+  },
+  "scripts/ci/expanded600-root-upgrade/run.py": {
+    "bytes": 14561,
+    "sha256": "afb20d690d1a4efc97a8c6adbc4bdc96f2cfbf8beffc1f4817152348dfb35cee"
+  },
+  "scripts/ci/expanded600-root-upgrade/setup5.py": {
+    "bytes": 4708,
+    "sha256": "b995936917565114d383e3d0d4076cb24cba368e68f7c7e13b401839064c9167"
+  },
+  "scripts/ci/expanded600-root-upgrade/test_lane.py": {
+    "bytes": 15873,
+    "sha256": "4441f6c0952428d515a8e2d392889a44a070f4acd22f67e9efe3cdb20970bca6"
+  },
+  "scripts/ci/expanded600-root-upgrade/test_plan.py": {
+    "bytes": 10583,
+    "sha256": "6e8669e9e7d6dd07af929ace43f181a3aef314269dc3a209c987b6eb7f13889b"
+  }
+}

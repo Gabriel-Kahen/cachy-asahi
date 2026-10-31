@@ -1,0 +1,29 @@
+{
+  "authority": "PRIVATE_TEST_ONLY_NO_RELEASE_ADMISSION",
+  "decision_descriptor": {
+    "bytes": "integer1..131072",
+    "path": "ordinary relative JSON path",
+    "ref": "immutable40hex",
+    "sha256": "exact64hex"
+  },
+  "generic16k": "NOT_RUN",
+  "hardware": "NOT_RUN",
+  "implementation_files": 144,
+  "native_ALPM": "NOT_RUN",
+  "native_component_files": 159,
+  "native_component_source": "9aef8b7429fb8dd9f9d8412f4e878c5e0324c58d",
+  "native_input_phase": "NATIVE_COMPILE_INPUTS",
+  "native_lifecycle_decision": null,
+  "native_status": "ROOT_ACCEPTED_CAA3_PUBLIC_COMPILE_INPUT_NATIVE_LIFECYCLE",
+  "public_packet": {
+    "directory": "payload",
+    "index_sha256": "a8e3317cabb3fe914a6b3898b2bfbc900905c3823495f15166c419564f7e4956",
+    "payload_files": 21,
+    "ref": "132aec86c0946f6c7b7a79c46e1a9ccaf91021e3"
+  },
+  "release": "NOT_ADMITTED",
+  "schema_version": 1,
+  "status": "SOURCE_ONLY_ALL_FUTURE_AUTHORITIES_NULL",
+  "system16k_decision": null,
+  "system16k_status": "ROOT_ACCEPTED_DEBIAN_MAINTAINED_SYSTEM_PATHS_GENERIC16K"
+}

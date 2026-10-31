@@ -1,0 +1,385 @@
+{
+  "base604_state_sha256": "e35077a4b8fcb779466c31f193fbb188e2a1d8f55216e121c4a446d83adc4771",
+  "base_count": 604,
+  "events": [
+    {
+      "all604_preserved": true,
+      "count": 606,
+      "dependencies": true,
+      "observations": [
+        {
+          "hardware": "NOT_RUN",
+          "home": "606-home-fresh",
+          "kernel_mutation": "NOT_RUN",
+          "live_NM": "NOT_RUN",
+          "phase": "install606",
+          "products": {
+            "cachy-asahi-dns2": {
+              "controls": 27,
+              "program_sha256": "d708cbe54a8e96a62ff7d85e4eadfb7a980401adb3a9fe8465052f754b4c8c88",
+              "suite": {
+                "exit": 0,
+                "stderr_bytes": 3765,
+                "stderr_sha256": "a4cfb01b4fc085e71a83435a47dfd6494fbaec2804f7487e63193ca50d3f39a2",
+                "stdout_bytes": 0,
+                "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              },
+              "version": "0.1.0-2"
+            },
+            "cachy-asahi-sysctl2": {
+              "controls": 28,
+              "program_sha256": "70e3e35d1bf517b21c84f5ecbe608da551e6f8577c68bbfbbd2412b8dd3ed4f0",
+              "suite": {
+                "exit": 0,
+                "stderr_bytes": 4398,
+                "stderr_sha256": "45cc3b319e5dbf0c38da0d2efd9bb326b39584b7139e0c17189f61e5a57c6ba7",
+                "stdout_bytes": 0,
+                "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              },
+              "version": "0.1.0-2"
+            }
+          },
+          "status": "PASS_BOTH606_INSTALLED_PRIVATE_FIXTURES"
+        },
+        {
+          "hardware": "NOT_RUN",
+          "home": "606-home-existing",
+          "kernel_mutation": "NOT_RUN",
+          "live_NM": "NOT_RUN",
+          "phase": "install606",
+          "products": {
+            "cachy-asahi-dns2": {
+              "controls": 27,
+              "program_sha256": "d708cbe54a8e96a62ff7d85e4eadfb7a980401adb3a9fe8465052f754b4c8c88",
+              "suite": {
+                "exit": 0,
+                "stderr_bytes": 3765,
+                "stderr_sha256": "3334b0650a1cb8f6d01d21564c79eeaa233b6cdd0063657af9cc819cf56bf4d1",
+                "stdout_bytes": 0,
+                "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              },
+              "version": "0.1.0-2"
+            },
+            "cachy-asahi-sysctl2": {
+              "controls": 28,
+              "program_sha256": "70e3e35d1bf517b21c84f5ecbe608da551e6f8577c68bbfbbd2412b8dd3ed4f0",
+              "suite": {
+                "exit": 0,
+                "stderr_bytes": 4398,
+                "stderr_sha256": "18c6bf8bd583adb70facd7d7d694758ad2387ec5a50257b232820770fdd6a456",
+                "stdout_bytes": 0,
+                "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              },
+              "version": "0.1.0-2"
+            }
+          },
+          "status": "PASS_BOTH606_INSTALLED_PRIVATE_FIXTURES"
+        }
+      ],
+      "ownership": true,
+      "phase": "install606",
+      "signatures": true,
+      "trust_preserved": true,
+      "user_preserved": true
+    },
+    {
+      "all604_preserved": true,
+      "count": 606,
+      "dependencies": true,
+      "observations": [
+        {
+          "hardware": "NOT_RUN",
+          "home": "606-home-fresh",
+          "kernel_mutation": "NOT_RUN",
+          "live_NM": "NOT_RUN",
+          "phase": "same-version606",
+          "products": {
+            "cachy-asahi-dns2": {
+              "controls": 27,
+              "program_sha256": "d708cbe54a8e96a62ff7d85e4eadfb7a980401adb3a9fe8465052f754b4c8c88",
+              "suite": {
+                "exit": 0,
+                "stderr_bytes": 3765,
+                "stderr_sha256": "c975c195761d309985040a4360cac4db36f691d78e9e4ba11645b44e849b2088",
+                "stdout_bytes": 0,
+                "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              },
+              "version": "0.1.0-2"
+            },
+            "cachy-asahi-sysctl2": {
+              "controls": 28,
+              "program_sha256": "70e3e35d1bf517b21c84f5ecbe608da551e6f8577c68bbfbbd2412b8dd3ed4f0",
+              "suite": {
+                "exit": 0,
+                "stderr_bytes": 4398,
+                "stderr_sha256": "9dfb6bc620e02124cd3cec71c50345109ae40a21a5bf46adf56bcb199b0cebe1",
+                "stdout_bytes": 0,
+                "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              },
+              "version": "0.1.0-2"
+            }
+          },
+          "status": "PASS_BOTH606_INSTALLED_PRIVATE_FIXTURES"
+        },
+        {
+          "hardware": "NOT_RUN",
+          "home": "606-home-existing",
+          "kernel_mutation": "NOT_RUN",
+          "live_NM": "NOT_RUN",
+          "phase": "same-version606",
+          "products": {
+            "cachy-asahi-dns2": {
+              "controls": 27,
+              "program_sha256": "d708cbe54a8e96a62ff7d85e4eadfb7a980401adb3a9fe8465052f754b4c8c88",
+              "suite": {
+                "exit": 0,
+                "stderr_bytes": 3765,
+                "stderr_sha256": "3334b0650a1cb8f6d01d21564c79eeaa233b6cdd0063657af9cc819cf56bf4d1",
+                "stdout_bytes": 0,
+                "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              },
+              "version": "0.1.0-2"
+            },
+            "cachy-asahi-sysctl2": {
+              "controls": 28,
+              "program_sha256": "70e3e35d1bf517b21c84f5ecbe608da551e6f8577c68bbfbbd2412b8dd3ed4f0",
+              "suite": {
+                "exit": 0,
+                "stderr_bytes": 4398,
+                "stderr_sha256": "d4027404031a65b83861b160acd078ecb53a904a919ee629edb0a5beda07d391",
+                "stdout_bytes": 0,
+                "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              },
+              "version": "0.1.0-2"
+            }
+          },
+          "status": "PASS_BOTH606_INSTALLED_PRIVATE_FIXTURES"
+        }
+      ],
+      "ownership": true,
+      "phase": "same-version606",
+      "signatures": true,
+      "trust_preserved": true,
+      "user_preserved": true
+    },
+    {
+      "all604_preserved": true,
+      "count": 604,
+      "payloads_absent": true,
+      "phase": "remove604",
+      "trust_preserved": true,
+      "user_preserved": true
+    },
+    {
+      "all604_preserved": true,
+      "count": 606,
+      "dependencies": true,
+      "observations": [
+        {
+          "hardware": "NOT_RUN",
+          "home": "606-home-fresh",
+          "kernel_mutation": "NOT_RUN",
+          "live_NM": "NOT_RUN",
+          "phase": "reinstall606",
+          "products": {
+            "cachy-asahi-dns2": {
+              "controls": 27,
+              "program_sha256": "d708cbe54a8e96a62ff7d85e4eadfb7a980401adb3a9fe8465052f754b4c8c88",
+              "suite": {
+                "exit": 0,
+                "stderr_bytes": 3765,
+                "stderr_sha256": "334f5c90faa9a31cfa93ebad9939420235798bd7c3ff005565ebeb0262113c73",
+                "stdout_bytes": 0,
+                "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              },
+              "version": "0.1.0-2"
+            },
+            "cachy-asahi-sysctl2": {
+              "controls": 28,
+              "program_sha256": "70e3e35d1bf517b21c84f5ecbe608da551e6f8577c68bbfbbd2412b8dd3ed4f0",
+              "suite": {
+                "exit": 0,
+                "stderr_bytes": 4398,
+                "stderr_sha256": "5a2f77b00916121826b6b4d45fef69ce89ba64508d8bcbeacccba63a80286ef9",
+                "stdout_bytes": 0,
+                "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              },
+              "version": "0.1.0-2"
+            }
+          },
+          "status": "PASS_BOTH606_INSTALLED_PRIVATE_FIXTURES"
+        },
+        {
+          "hardware": "NOT_RUN",
+          "home": "606-home-existing",
+          "kernel_mutation": "NOT_RUN",
+          "live_NM": "NOT_RUN",
+          "phase": "reinstall606",
+          "products": {
+            "cachy-asahi-dns2": {
+              "controls": 27,
+              "program_sha256": "d708cbe54a8e96a62ff7d85e4eadfb7a980401adb3a9fe8465052f754b4c8c88",
+              "suite": {
+                "exit": 0,
+                "stderr_bytes": 3765,
+                "stderr_sha256": "c975c195761d309985040a4360cac4db36f691d78e9e4ba11645b44e849b2088",
+                "stdout_bytes": 0,
+                "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              },
+              "version": "0.1.0-2"
+            },
+            "cachy-asahi-sysctl2": {
+              "controls": 28,
+              "program_sha256": "70e3e35d1bf517b21c84f5ecbe608da551e6f8577c68bbfbbd2412b8dd3ed4f0",
+              "suite": {
+                "exit": 0,
+                "stderr_bytes": 4398,
+                "stderr_sha256": "45cc3b319e5dbf0c38da0d2efd9bb326b39584b7139e0c17189f61e5a57c6ba7",
+                "stdout_bytes": 0,
+                "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              },
+              "version": "0.1.0-2"
+            }
+          },
+          "status": "PASS_BOTH606_INSTALLED_PRIVATE_FIXTURES"
+        }
+      ],
+      "ownership": true,
+      "phase": "reinstall606",
+      "signatures": true,
+      "trust_preserved": true,
+      "user_preserved": true
+    },
+    {
+      "all604_preserved": true,
+      "count": 604,
+      "payloads_absent": true,
+      "phase": "final604",
+      "trust_preserved": true,
+      "user_preserved": true
+    }
+  ],
+  "hardware": "NOT_RUN",
+  "installed_count": 606,
+  "kernel_mutation": "NOT_RUN",
+  "ldconfig": [
+    {
+      "aux_sha256": "6538a49bdea02dbddd532bf0477d4ad8d10d3282780e0954e467e1d5974e5adb",
+      "helper_exit": "NOT_OBSERVED",
+      "phase": "baseline604",
+      "state_sha256": "c390e1b73028dd453e663a39c0b92fb8c6415d1b1a486f9a633f14ea75907868",
+      "transition": {
+        "kind": "RAW_EQUAL"
+      }
+    },
+    {
+      "aux_sha256": "84b017ceae67ddf5c15f50e0b7ab7cf123f7912ebede9ca222d7bea0a75655ef",
+      "helper_exit": "NOT_OBSERVED",
+      "phase": "install606",
+      "state_sha256": "46bd7f0f37989a76e01561dbdee17b4465bcf680f1cafa33041754d6f0e9d92f",
+      "transition": {
+        "entries": 995,
+        "hash_buckets": 1021,
+        "kind": "EXACT_LOAD_SAVE_ORDER",
+        "padding": {
+          "after_sha256": "c0af983ce9d32d55d865bf413829947874629caf3f8ee2ca7608b2a5e421da8c",
+          "before_sha256": "958806fde568075db908c9b08e2363b97c2bb97a306fd8dafc7ff85ff9f90323",
+          "bytes_changed": 185,
+          "bytes_per_record": 4,
+          "classification": "PINNED_SOURCE_AARCH64_TAIL_PADDING",
+          "slots_changed": 185,
+          "slots_compared": 995
+        },
+        "source_sha256": "4d8950977fbba59b0ccd479027811c6b82a31c3700d4478d04e8a4147c87bca8"
+      }
+    },
+    {
+      "aux_sha256": "f0f22a34a4602b9c68fcbb963e77b9bc73c1ad936f97c972977caab727b4b107",
+      "helper_exit": "NOT_OBSERVED",
+      "phase": "same-version606",
+      "state_sha256": "fa4c033c50b0f89323388df53532f88713aef6f5bf4d1c8f8aef41d8504560a7",
+      "transition": {
+        "entries": 995,
+        "hash_buckets": 1021,
+        "kind": "EXACT_LOAD_SAVE_ORDER",
+        "padding": {
+          "after_sha256": "0e7d9dbe925f26f68a68f42f80b0442e14312a4a79aa9282ff0da85f08b624a0",
+          "before_sha256": "c0af983ce9d32d55d865bf413829947874629caf3f8ee2ca7608b2a5e421da8c",
+          "bytes_changed": 185,
+          "bytes_per_record": 4,
+          "classification": "PINNED_SOURCE_AARCH64_TAIL_PADDING",
+          "slots_changed": 185,
+          "slots_compared": 995
+        },
+        "source_sha256": "4d8950977fbba59b0ccd479027811c6b82a31c3700d4478d04e8a4147c87bca8"
+      }
+    },
+    {
+      "aux_sha256": "631c3bc253dd7531d9701d19bd9c0cdc06e1c07afc3d97e35c025f716667392f",
+      "helper_exit": "NOT_OBSERVED",
+      "phase": "remove604",
+      "state_sha256": "1f05fde91680a988f2d001cdf9b2c9daf4306121bb2487ced4e6fb32e18002a6",
+      "transition": {
+        "entries": 995,
+        "hash_buckets": 1021,
+        "kind": "EXACT_LOAD_SAVE_ORDER",
+        "padding": {
+          "after_sha256": "bf4a43d1213bb5a61075bcfdab7a31f28206bec6c76ca5ed0b3ab61b0672776d",
+          "before_sha256": "0e7d9dbe925f26f68a68f42f80b0442e14312a4a79aa9282ff0da85f08b624a0",
+          "bytes_changed": 185,
+          "bytes_per_record": 4,
+          "classification": "PINNED_SOURCE_AARCH64_TAIL_PADDING",
+          "slots_changed": 185,
+          "slots_compared": 995
+        },
+        "source_sha256": "4d8950977fbba59b0ccd479027811c6b82a31c3700d4478d04e8a4147c87bca8"
+      }
+    },
+    {
+      "aux_sha256": "8a23c1783c454f305b31fcdf4a163ac2fd671ee5b9177fd286ca7d21493473d1",
+      "helper_exit": "NOT_OBSERVED",
+      "phase": "reinstall606",
+      "state_sha256": "2cd621d13565986364d0d3c9a890ebf26a17b2d42c4ab8dc5c5f3a8217fefaf7",
+      "transition": {
+        "entries": 995,
+        "hash_buckets": 1021,
+        "kind": "EXACT_LOAD_SAVE_ORDER",
+        "padding": {
+          "after_sha256": "2ac4d636e3926ec7f56a50f4fa5519748c13aa749004c9551609c88081b75488",
+          "before_sha256": "bf4a43d1213bb5a61075bcfdab7a31f28206bec6c76ca5ed0b3ab61b0672776d",
+          "bytes_changed": 185,
+          "bytes_per_record": 4,
+          "classification": "PINNED_SOURCE_AARCH64_TAIL_PADDING",
+          "slots_changed": 185,
+          "slots_compared": 995
+        },
+        "source_sha256": "4d8950977fbba59b0ccd479027811c6b82a31c3700d4478d04e8a4147c87bca8"
+      }
+    },
+    {
+      "aux_sha256": "041673b452be0c132fd455ce42f9519c01021a88d61def53a6c5b1c31f2db0dd",
+      "helper_exit": "NOT_OBSERVED",
+      "phase": "final604",
+      "state_sha256": "942b2c0b5fb07d59833a8a2f205bb3a63e402938c53168cec60f1437ae44b47e",
+      "transition": {
+        "entries": 995,
+        "hash_buckets": 1021,
+        "kind": "EXACT_LOAD_SAVE_ORDER",
+        "padding": {
+          "after_sha256": "c9364644908360b7f42b91557199b118a26847a7b0b503d495ec6e74c030b605",
+          "before_sha256": "2ac4d636e3926ec7f56a50f4fa5519748c13aa749004c9551609c88081b75488",
+          "bytes_changed": 185,
+          "bytes_per_record": 4,
+          "classification": "PINNED_SOURCE_AARCH64_TAIL_PADDING",
+          "slots_changed": 185,
+          "slots_compared": 995
+        },
+        "source_sha256": "4d8950977fbba59b0ccd479027811c6b82a31c3700d4478d04e8a4147c87bca8"
+      }
+    }
+  ],
+  "live_NM": "NOT_RUN",
+  "release": "NOT_ADMITTED",
+  "restored_count": 604,
+  "status": "PASS_SIGNED604_TO606_PRIVATE_LIFECYCLE"
+}

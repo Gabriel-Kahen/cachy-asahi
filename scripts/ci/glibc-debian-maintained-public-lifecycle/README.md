@@ -1,0 +1,10 @@
+# Maintained caa3 public compile-input native route
+
+Distinct native phase using exact already-public132aec21 payload objects plus packet.json. Root compilepair38994309021/source78df and original normal13-command compiler receipts supply inputs, not installed runtime credit. Existing private16K-gated native lane is unchanged. This lane establishes NEW actual native ALPM lifecycle/probe evidence with the original pristine+modified transactions, configuration handoff, signatures, caps/fullpayload/source/hardlink/copy maps, held rollback, bounded supervision and ordered cleanup.
+
+The public staged packet cannot supply a private16K Root acceptance. This phase does not reconstruct one. New normal output namespace and generated lifecycle binding status are distinct. Only input-gate functions are explicitly derived; all protected runtime and cleanup bodies remain exact. Owner packet/materialize retain original pair/probe/held/producer/snapshot/full574 policy and replace the private16K prerequisite with exact public compile-input validation and both original normal13 checks. No package, compiler, ALPM, VM or container executes during source preparation.
+
+policy.json authorization and packet areNULL by default; emit refuses before output/secrets/actors. Root must explicitly authorize the finite compile-input native trial in source, then bind ONLY the already-public carrier. This is not nativeALPM/16K/hardware/release acceptance. A future independently accepted normal result needs a new distinct Root decision ROOT_ACCEPTED_CAA3_PUBLIC_COMPILE_INPUT_NATIVE_LIFECYCLE. Existing oldGNU or compile/staged source IDs never substitute for that result.
+
+The diagnostic helper is explicitly source-pinned and its fixed hash/isolated `--help` is checked before secrets. Closed-source controls reproduce the old missing-helper hash failure and then run the corrected exact helper outside repository ancestry; these are ordinary inert Python CLI checks, not native actors.
+The public-native helper closure is102 files (the previous101 plus this exact existing diagnostic helper).

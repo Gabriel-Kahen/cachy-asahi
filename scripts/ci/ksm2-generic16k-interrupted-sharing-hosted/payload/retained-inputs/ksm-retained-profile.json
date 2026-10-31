@@ -1,0 +1,76 @@
+{
+  "actual": null,
+  "allowed_existing_inputs": 1153,
+  "archive_source": {
+    "archive20-policy.json": {
+      "bytes": 6155,
+      "sha256": "1f966afe0c24bb9a928154cb0638a8bb78292c799ffd544132633caddf6217ae"
+    },
+    "archive20.py": {
+      "bytes": 11096,
+      "sha256": "e8ef66fc0431a04deb331f75258457bf4bdeb13a18bcd863fd5bece3b9a54968"
+    },
+    "archive32-policy.json": {
+      "bytes": 9488,
+      "sha256": "4f6ce49214422579f1cc448ff95d9f311cbfaf47a0d0c4f32d828c9edf843585"
+    },
+    "archive32.py": {
+      "bytes": 11102,
+      "sha256": "b1e2fc13644510a613ce09e53b39d4f4471cf47fc03fa62f312258379666c418"
+    },
+    "archive8-policy.json": {
+      "bytes": 2589,
+      "sha256": "2b21c05d30a9c5efd2f717cfa8475c9de3150d7729f710b348b70a84f5b16e20"
+    },
+    "archive8.py": {
+      "bytes": 11040,
+      "sha256": "5e24808152c727f5dcd19252c66e1ab121bdb9dbd6b90becb943820634898565"
+    }
+  },
+  "carrier_relative": ".ci-inputs/retained574",
+  "early_cache_counts": [
+    32,
+    20,
+    8
+  ],
+  "early_cache_prefix": "ksm2-archive",
+  "early_seconds": 170,
+  "files": {
+    "maintained/archive_prefill.py": {
+      "bytes": 4717,
+      "sha256": "2090bd8098783834ac7b11a19eb3d8cd047b7de5b01f77ddc4bb60cd57bea726"
+    },
+    "maintained/carrier-profile.json": {
+      "bytes": 195440,
+      "sha256": "4089fd798849cafda23d03c0dd95ac896a83fd63ad21e331ae420c147535586c"
+    },
+    "maintained/legacy-prefill-profile.json": {
+      "bytes": 1510,
+      "sha256": "9cc82d4e0947415ecad9d40094a4c0a2709d01be54513e78af8c739fd76fb696"
+    },
+    "maintained/legacy_prefill.py": {
+      "bytes": 5986,
+      "sha256": "05a91a91efd69b3b2e06561f5bbf08bdbb105998d42dbf133e75fd1fe25945ac"
+    },
+    "maintained/prepare.py": {
+      "bytes": 3749,
+      "sha256": "6c688c315cb962c641b8c0b1d9d88f94778d57ae19bcef251e88e49cb4be6316"
+    }
+  },
+  "hardware": "NOT_RUN",
+  "inputs": 1148,
+  "mode": "desktop574",
+  "native": "NOT_RUN",
+  "original_build_seconds": 2300,
+  "original_cli_index_gpg_metadata": "UNCHANGED_REQUIRED",
+  "original_lock": {
+    "bytes": 623664,
+    "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
+  },
+  "outer_lane": "scripts/ci/ksm2-generic16k-vm-hosted",
+  "owner_seconds": 6600,
+  "purpose": "KSM_FIXED_ORIGINAL574_RETAINED_INPUT_DATA_ONLY",
+  "ref": "codex/native574-complete-retained-inputs-v1",
+  "schema": 1,
+  "source": "ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad"
+}

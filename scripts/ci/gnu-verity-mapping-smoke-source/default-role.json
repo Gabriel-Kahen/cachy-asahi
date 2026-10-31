@@ -1,0 +1,312 @@
+{
+  "actual_ref": null,
+  "actual_run": null,
+  "actual_source": null,
+  "files": {
+    ".github/workflows/native-arm-build.yml": {
+      "bytes": 3203,
+      "sha256": "ea592c271c80f9a3580630d6e4efabb51c276525b01b73c1a39f6e3a20597b9d"
+    },
+    ".github/workflows/native-arm-gnu-verity-mapping-smoke.yml": {
+      "bytes": 3203,
+      "sha256": "ea592c271c80f9a3580630d6e4efabb51c276525b01b73c1a39f6e3a20597b9d"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/LICENSE-GPL-2.0.txt": {
+      "bytes": 18600,
+      "sha256": "8780e78a1a737e127f25a65f6d95269bffd36158dc261114de7859b490bfc5aa"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/LICENSE-LGPL-2.0.txt": {
+      "bytes": 26144,
+      "sha256": "967792c8a6a57bbbc123a69fff6c3020af80b04623916b82ba721b0347e64433"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/LICENSE-Linux-syscall-note.txt": {
+      "bytes": 1258,
+      "sha256": "8e378ab93586eb55135d3bc119cce787f7324f48394777d00c34fa3d0be3303f"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/LICENSES.md": {
+      "bytes": 1756,
+      "sha256": "c8934eb2006c0fd6534fb10a1d48431d9fe1081de31165c355dd603525c6d3e3"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/Root-boot-basis-decision.json": {
+      "bytes": 9265,
+      "sha256": "301c4cb3c9edddac92064f6f9845d8255d5940e30175ea8c8ff286a5bbf87492"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/Root-build-decision.json": {
+      "bytes": 5,
+      "sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/boot-basis-source-authorization.json": {
+      "bytes": 14882,
+      "sha256": "beca83cdfaa543da71d537fd94562c70f847691d86b01f1d8da70e77ad761864"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/contract.py": {
+      "bytes": 9479,
+      "sha256": "60c1528e6292921d762f739f228c9642982fc8057d3135d715e2a692f1756250"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/entry.py": {
+      "bytes": 281,
+      "sha256": "0aa3115c5d4b9fcdc658872c9793d1bae449b429456811958d0dd18a0e74bccf"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/fixture-data.h": {
+      "bytes": 572,
+      "sha256": "e617d41602ac13f65d4a591ccc142ba2742c044374a18f0210b1ac7e23ca790c"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/fixture.py": {
+      "bytes": 2024,
+      "sha256": "c915e629bfd9e45536448538e8534b7dc4b0b4265e4abfc69bc9a7bdd9a38876"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/init.c": {
+      "bytes": 10853,
+      "sha256": "4fa89037f79e35709024118e032af6bf3449e740da09f18225ee32f796425646"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/input-policy.json": {
+      "bytes": 1268,
+      "sha256": "66f1533134f96dce07fc692590f679a6ec70db7019b5d5b29e1a72b9ff74bcb4"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-build-result.json": {
+      "bytes": 5,
+      "sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-descriptor.json": {
+      "bytes": 5,
+      "sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-provenance/artifacts.json": {
+      "bytes": 789,
+      "sha256": "4d67bf4eece2fa6d908559e54962083cfc154e10a0e1c387ccfc897cfefa1421"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-provenance/bound-original.json": {
+      "bytes": 254,
+      "sha256": "4469a6e63b5c99e95d2e313c14e62b690baff08b61e96fc5c6c5499ee9e6e36f"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-provenance/collection-outcome.json": {
+      "bytes": 776,
+      "sha256": "9d425c821f392718aee8f9edf2b86ce155bbdbc7d6cd5872d3a5523fe3d17d07"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-provenance/logs.zip": {
+      "bytes": 24550,
+      "sha256": "57849867c5f0db4bdbe8a2bd2c597db8dbcf87aff15ebfb403a931e922fb0ec0"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-provenance/run.json": {
+      "bytes": 12995,
+      "sha256": "9a8f9de4ce56af42532dd32530fbc2c2fa8bcede4c89a1c9b146e6f06f78c30f"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-reader/bind_source.py": {
+      "bytes": 2239,
+      "sha256": "42819b07c6681f55a4e91cd40e64b30562214bc75d4fe508b36779e9f3345c25"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-reader/binding.template.json": {
+      "bytes": 108,
+      "sha256": "2a3331f2ad460e68ea0ced46563305c6cecbb58ad9fded182d3a7d48d45e6391"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-reader/calibrate_run.py": {
+      "bytes": 2898,
+      "sha256": "1fbe50368cf61e6f1099fb2a904324d5c0c0f56427ee8050d6c386304807fade"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-reader/collect.py": {
+      "bytes": 4601,
+      "sha256": "ee2d6eaeb88d406c048e560fc4befb1998f781c00f7b4a766d49b8b606ca43f3"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-reader/custody-profile.json": {
+      "bytes": 121486,
+      "sha256": "622d60b21f0404ff2c12c0ec0339cb6a6b9a0a6b0e7dff9f29ad652c5e54162b"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-reader/custody.py": {
+      "bytes": 4006,
+      "sha256": "cfafd4fb721c4237c4b03e6cf74c5082b230420690aafecf3d2d59348b2245fe"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-reader/failure_facts.py": {
+      "bytes": 6117,
+      "sha256": "db9e7ee43439e1a06333fb61585660435866263ebf1853f9731241f481e45089"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-reader/prior-replay.txt": {
+      "bytes": 23725,
+      "sha256": "a729bc1745bd00be22199a90e89dd6bbcb9c5a2cdf73e5c10cbcb45cc6b00096"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-reader/reader-before/calibrate_run.py": {
+      "bytes": 2699,
+      "sha256": "f44fd8302df6318863e60d2aa7e30a3ef8e01e29f935d72bf00673315ab59836"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-reader/reader-before/replay.py": {
+      "bytes": 23725,
+      "sha256": "a729bc1745bd00be22199a90e89dd6bbcb9c5a2cdf73e5c10cbcb45cc6b00096"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-reader/replay.py": {
+      "bytes": 23738,
+      "sha256": "35b9f25e19e7ef2bcc4b7535ef85273a696b33b4774f7f8ed30c0691205d5184"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-reader/selection.template.json": {
+      "bytes": 81,
+      "sha256": "94ad0948842168b0c5f022257cfe9910224ed9bd50493b40e0c791fd1adef0be"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-reader/source-authorization.json": {
+      "bytes": 3445,
+      "sha256": "0b7759de4418d3b9d4d751ba20ab33a81bc1c52f2051aa04f8e2c3ed26fc4d87"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-reader/source-before/.github/workflows/native-arm-build.yml": {
+      "bytes": 2819,
+      "sha256": "7399e1394f13956c32e3105a9ecdbda227821f2e8bcf4b4a73d3f623ce1e6fe8"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-reader/source-before/.github/workflows/native-arm-gnu-verity-kernel.yml": {
+      "bytes": 2819,
+      "sha256": "7399e1394f13956c32e3105a9ecdbda227821f2e8bcf4b4a73d3f623ce1e6fe8"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-reader/source-before/scripts/ci/gnu-verity-kernel-native/fixtures/configuration-rules.json": {
+      "bytes": 6442,
+      "sha256": "f3246282672df10be151c31834df0626184dd5b59ba8cda0254239ad3b7b1c60"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-reader/source-before/scripts/ci/gnu-verity-kernel-native/fixtures/configuration-source-proof.json": {
+      "bytes": 71686,
+      "sha256": "65fa56109579057a618a23c02bb497f8a56377bb91a76d3724bfb3bd95991009"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-reader/source-before/scripts/ci/gnu-verity-kernel-native/lane.py": {
+      "bytes": 13712,
+      "sha256": "3db303b3e36aa9390f41b6dffc6ae40a1aba18bb00111071f1843e68766b7b64"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-reader/source-before/scripts/ci/gnu-verity-kernel-native/prepare.py": {
+      "bytes": 3300,
+      "sha256": "3dba43f060af6f1b8a0858488758447aa41c47bd846ea00dfed5a00e0477209b"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-reader/source-before/scripts/ci/gnu-verity-kernel-native/source-manifest.json": {
+      "bytes": 2846,
+      "sha256": "ddb1d1263eb5e3488a127dccfc8f6d421e42d0cb3cd3613d352bae238b13c756"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-reader/source-before/scripts/ci/gnu-verity-kernel-native/test_lane.py": {
+      "bytes": 12864,
+      "sha256": "0cb7b6c209f294736ae9d7da090066d905860e26c62b7c0c7b1e607938cf826d"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-reader/source/.github/workflows/native-arm-build.yml": {
+      "bytes": 2819,
+      "sha256": "d7c075cf71e4d930a85ebc80af166b8960a7c0f772e80b0127d848c83432eaf0"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-reader/source/.github/workflows/native-arm-gnu-verity-kernel.yml": {
+      "bytes": 2819,
+      "sha256": "d7c075cf71e4d930a85ebc80af166b8960a7c0f772e80b0127d848c83432eaf0"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-reader/source/scripts/ci/gnu-verity-kernel-native/domain.py": {
+      "bytes": 6140,
+      "sha256": "c1f4ba7e799b3eeb06752ecab3444d7a5be39b2dbcc2dc56a3be701d76c42f61"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-reader/source/scripts/ci/gnu-verity-kernel-native/fixtures/baseline.config": {
+      "bytes": 64022,
+      "sha256": "9729936f8a2a3ffa3edf1e3f689dbb56426795f733c73d83a9e4ee94ee8d7aa5"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-reader/source/scripts/ci/gnu-verity-kernel-native/fixtures/configuration-rules.json": {
+      "bytes": 6981,
+      "sha256": "4eddb2410da8ba4ec158d0e38326cf09ae0f7fd5a92c6526ecd99e14d1293d92"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-reader/source/scripts/ci/gnu-verity-kernel-native/fixtures/configuration-source-proof.json": {
+      "bytes": 141795,
+      "sha256": "4ff88bef3202dd3745da35a381c80eb28e2f93ce5768a933470a9dbc19621242"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-reader/source/scripts/ci/gnu-verity-kernel-native/input-policy.json": {
+      "bytes": 661,
+      "sha256": "f3d67ffc4a8c63a3819b2f638c019fc872585fb31141248748a8d0da2384ab73"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-reader/source/scripts/ci/gnu-verity-kernel-native/lane.py": {
+      "bytes": 13918,
+      "sha256": "5f5310a5ce20f6792dddb364b7cd01649e3407eb62dab49d4e3968f7906539d7"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-reader/source/scripts/ci/gnu-verity-kernel-native/prepare.py": {
+      "bytes": 3312,
+      "sha256": "8a94538d20c608a9756ecb08dd92148700e2fc3bad69c912fa2c98251e87a513"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-reader/source/scripts/ci/gnu-verity-kernel-native/runtime.py": {
+      "bytes": 16274,
+      "sha256": "4d9aa954d95032ab9ea9085ced784efc81a5db42e2f1f3401e679ee861c16090"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-reader/source/scripts/ci/gnu-verity-kernel-native/source-manifest.json": {
+      "bytes": 3013,
+      "sha256": "4bcfa94aba6526546dd8424f81ab9ab1f523baf3432c8ee96f5505908f8bd021"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-reader/source/scripts/ci/gnu-verity-kernel-native/test_lane.py": {
+      "bytes": 12623,
+      "sha256": "5d704ec1ca6b39bb177a6aad1d361396044ee0f77bc943cdd8af80af8c767f70"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-reader/source/scripts/ci/gnu-verity-kernel-native/verity_profile.py": {
+      "bytes": 5844,
+      "sha256": "8fe0ae5535fbf29eade46f7e4725bfe6af7cb38ad246f4ba7dabb73242311cb8"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-reader/source/scripts/ci/managed-gui-generic16k/build_kernel.py": {
+      "bytes": 12900,
+      "sha256": "ccbead2912144c5aa4fcb3ce7af76b3c11f28fcde7987e5f32edb060ff7b0ee9"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-reader/source/scripts/ci/managed-gui-generic16k/kernel.fragment": {
+      "bytes": 1808,
+      "sha256": "88819f00ebef80e385ebdfae6cc101ef21145e0bbd6bb12532b0d41a85c16d28"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-reader/source/scripts/ci/managed-gui-generic16k/kernel_contract.py": {
+      "bytes": 4659,
+      "sha256": "30a4544e5407dbf932d9ec26bbd6bf21eab53347544afa134cd3a5870752cbff"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-reader/source/scripts/ci/managed-gui-generic16k/run.py": {
+      "bytes": 10493,
+      "sha256": "64e279b7ce4b04f115a7e1897377ce59ea5c15010a97a0f22cf16e35ce5e7e46"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-reader/source/scripts/ci/tools-generic16k/acquire_kernel.py": {
+      "bytes": 8844,
+      "sha256": "4a372e1f4bfbd1f8604579873fc6fbdec91ac2555bb36f028646017b44b8c23f"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-reader/source/scripts/virtual/generic16k/fetch_inputs.py": {
+      "bytes": 7768,
+      "sha256": "212a0a9efc7c386158526ce40683a3646a899a9c7fd2c3140d6e24a02d778043"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-reader/source/scripts/virtual/generic16k/inputs.json": {
+      "bytes": 1057,
+      "sha256": "bdfa44ed1d017c0d0e15c1f3af87bdf4a91923c20e812c861ca522d2cf428492"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel_input.py": {
+      "bytes": 3492,
+      "sha256": "85ca82a9487c353164f574286904ae1e962bf960f143b5066b24fe270d9a6fb0"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/kernel_input_entry.py": {
+      "bytes": 205,
+      "sha256": "7aae9e4521fbe376a21e0d284efe4db1513ed56f802be5dbd5116fb9f4067de8"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/lane.py": {
+      "bytes": 14278,
+      "sha256": "29f8c841454b393fdfbdacdd1dc9ba9f8218fc9118e70b4004e2b9f07faadceb"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/layout.py": {
+      "bytes": 1884,
+      "sha256": "c8d6e20c0b7c21047ee2179b44ddbb94d8e4f4ec2e8a1e40217b227681cee722"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/probe-uapi.h": {
+      "bytes": 2099,
+      "sha256": "015cbe1067339e51b76bfb057e4f8d16211b97a7b4d5e389d7c4b1b56caf0c85"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/protocol.py": {
+      "bytes": 11397,
+      "sha256": "7580288b0ac80fa73f934f4ae58fa713f6b9ff4b2ebd9265c90fdecf64b7ccf5"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/source-manifest.json": {
+      "bytes": 14636,
+      "sha256": "6849b2a25736ceaf266b1dfc6f8988778523fb1ebe3739d348a594df221cc426"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/supervise.py": {
+      "bytes": 2356,
+      "sha256": "1d424b939d7b013ab7432b085a1efb1b23950e063a65e1473a2c0b4b555dce28"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/test_entry.py": {
+      "bytes": 217,
+      "sha256": "a569c305b67fefbcece62ba8621ba292de8e0d6f2ce81a88134ae4fd33242a7c"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/test_lane.py": {
+      "bytes": 16304,
+      "sha256": "cf2cc788046428a07bbb8cc476fbdc92efd1905e897bbde091297d13eb0d6c00"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/uapi-source-proof.json": {
+      "bytes": 441280,
+      "sha256": "d4302613fcb92deb3b46bfed7d1cc047f9ff5f9adf96ac5e3a5014c0e00c7690"
+    },
+    "scripts/ci/gnu-verity-mapping-smoke/workflow-pins.sha256": {
+      "bytes": 1031,
+      "sha256": "e8dd7ed46305464831982590ca1fb41b5d1af6eed91b770f6f951319365f44ce"
+    }
+  },
+  "integrity": "NOT_RUN",
+  "mapping": "NOT_RUN",
+  "purpose": "GNU_VERITY_STANDALONE_MAPPING_INTEGRITY_SMOKE_V1",
+  "schema_version": 1,
+  "scope": "STANDALONE_DM_VERITY_MAPPING_AND_INTEGRITY_SMOKE_ONLY"
+}

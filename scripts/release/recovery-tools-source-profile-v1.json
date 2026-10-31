@@ -1,0 +1,68 @@
+{
+  "files": {
+    ".SRCINFO": {
+      "bytes": 1416,
+      "mode": 420,
+      "sha256": "a01d96c504170df34f78ab5ce05e1f04b3e40d74cf6dab031b22ab3fc70c9ee1"
+    },
+    "LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "NOTICE": {
+      "bytes": 315,
+      "mode": 420,
+      "sha256": "fefc9b206fc24998f08e94f83ca8750695666db9419ee5ea93e72fa183d84120"
+    },
+    "PKGBUILD": {
+      "bytes": 4806,
+      "mode": 420,
+      "sha256": "5c6e411173ff1eeb31e70359b29871c0ccaaaeebf620ecb5eef57ad5e79bfad0"
+    },
+    "README.md": {
+      "bytes": 3100,
+      "mode": 420,
+      "sha256": "05263d1039ca10aca7a9c1a09329dcfd5252292fa3ce78586db45459d65804c1"
+    },
+    "cachy-asahi-recovery-tools": {
+      "bytes": 4435,
+      "mode": 493,
+      "sha256": "e444ea17c9ca4160b9e7facfe8a5b6d80c2d9d96ee181936ac4e595a66a079f3"
+    },
+    "check_package.py": {
+      "bytes": 7556,
+      "mode": 420,
+      "sha256": "9f346b9390a8e82fbf8031f54acefc9d7e99ce156ab5b853ab458931444a7b14"
+    },
+    "offline-recovery-bundle.md": {
+      "bytes": 10390,
+      "mode": 420,
+      "sha256": "fd82c28930bd0d45642137c7b7814a981cceb1a2eb216fdac05c319e8bea5c24"
+    },
+    "payload-map.json": {
+      "bytes": 3092,
+      "mode": 420,
+      "sha256": "5cefe72e155392b14b84703b2397b035176e9c5251e7f66495b068317789c659"
+    },
+    "private-source.tar.gz": {
+      "bytes": 97306,
+      "mode": 420,
+      "sha256": "2df0691e66fe8e78e233c1ad816cc7a71eb3580c898c3b240e63126bdf112485"
+    },
+    "source-provenance.json": {
+      "bytes": 7050,
+      "mode": 420,
+      "sha256": "d311eff96ea764e86ab4a6c07621577b0203cead3471822091f2a31e6f48222b"
+    },
+    "test_package.py": {
+      "bytes": 8884,
+      "mode": 420,
+      "sha256": "adfffc6c60ecc27077ef0aa2233fe4dbd4f7568cd83f007f3e40693c48db5be5"
+    }
+  },
+  "package": "cachy-asahi-recovery-tools",
+  "purpose": "recovery-tools-recipe-source",
+  "schema_version": 1,
+  "version": "0.1.0-1"
+}

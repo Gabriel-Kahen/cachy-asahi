@@ -1,0 +1,4 @@
+Original cachy-asahi recovery-tools packaging and launcher, copyright (c) 2026
+cachy-asahi contributors, MIT. Private source bytes are retained unchanged from
+852d1b7324e4ad840fa94ea7c9fc994b1aa07280. See source-provenance.json and LICENSE.
+No recovery archive, signing identity, keyring or certificate is shipped.

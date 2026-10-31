@@ -1,0 +1,42 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Same-name upgrade alternative; no automatic kernel/config/service action.
+pkgname=cachy-asahi-ksmctl
+pkgver=0.1.0
+pkgrel=2
+pkgdesc='Read-only KSM reports and explicit saved-baseline scanning experiments'
+arch=('any')
+url='https://github.com/Gabriel-Kahen/cachy-asahi'
+license=('GPL-2.0-or-later')
+depends=('python>=3.11')
+source=('cachy-asahi-ksmctl' 'cachy-asahi-ksm-experiment' 'test_ksmctl.py' 'test_experiment.py' 'README.md' 'NOTICE' 'LICENSE' 'upstream-ksmctl' 'adaptation.patch' 'source-provenance.json' 'check-source.py' 'experiment-provenance.json')
+sha256sums=(
+  'f9fd76eaa6a205d56fa4bb9123b8c721ea1277249c4cab58d1b57eaf8edc7558'
+  '1ea518cc25a0d3099b7723756fd66631c35d7a79d50b300f6387a25588306d79'
+  'e42602fd16579e30c8cb799f26c897c1e3e89515f20a49a346b1888ce3c94b6f'
+  '2f13fe326171a7e42dc84d6c4e2ac2bbe6eb8391f9e06393f6e2c09fa8dbb843'
+  'a0422a6b280c5b1583afe5da7575ba6e98c476c8ce1efbe196ba33513e94a4ed'
+  '939ad92c65a6c2f9da2c723a4c6e136add87ccb4a7a6e8ba0dd89692a77f3f10'
+  'edaef632cbb643e4e7a221717a6c441a4c1a7c918e6e4d56debc3d8739b233f6'
+  'cd5c8aa86df5a06a268ecc21297b4cd7d8df1053c90c8bcd4e53ef9bb16194d9'
+  '0bc6b1f4725eb510a0f890bd616ce682b98332b371c93d2144ad643181727212'
+  'd46e93a9893225d205a01fdcd3429782ba51d44c86b78e77fce458b53448b849'
+  '7cca209ee6ad36726b03c0f54100b07bd6d08d974473d00c2092bbd5be4089a6'
+  'e27da2f0e55a384bf8cb243e59437405391034347d10ff458fea7435898bba21'
+)
+
+check() {
+    python -B "$srcdir/check-source.py"
+    python -B -Werror::ResourceWarning "$srcdir/test_ksmctl.py"
+    python -B -Werror::ResourceWarning "$srcdir/test_experiment.py"
+    python -B "$srcdir/cachy-asahi-ksm-experiment" --help >/dev/null
+}
+
+package() {
+    install -Dm755 "$srcdir/cachy-asahi-ksmctl" "$pkgdir/usr/bin/cachy-asahi-ksmctl"
+    install -Dm755 "$srcdir/cachy-asahi-ksm-experiment" "$pkgdir/usr/bin/cachy-asahi-ksm-experiment"
+    install -Dm644 "$srcdir/README.md" "$pkgdir/usr/share/doc/$pkgname/README.md"
+    install -Dm644 "$srcdir/source-provenance.json" "$pkgdir/usr/share/doc/$pkgname/source-provenance.json"
+    install -Dm644 "$srcdir/experiment-provenance.json" "$pkgdir/usr/share/doc/$pkgname/experiment-provenance.json"
+    install -Dm644 "$srcdir/NOTICE" "$pkgdir/usr/share/licenses/$pkgname/NOTICE"
+    install -Dm644 "$srcdir/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

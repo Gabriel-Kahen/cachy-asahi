@@ -895,9 +895,10 @@ def block_service_ipc(architecture='x86_64'):
          'service IPC seccomp guard refused')
 
 
-def reduce_capabilities():
+def reduce_capabilities(*, fixture_identity_map=None):
     """After the last mount, retain only the existing copied-root ALPM capability set."""
-    safe = sum(1 << bit for bit in (0, 1, 3, 6, 7, 18))
+    safe = capability_mask(fixture_identity_map)
+    if fixture_identity_map is not None: numeric_fixture_environment(fixture_identity_map)
     class Header(C.Structure): _fields_ = [('version', C.c_uint), ('pid', C.c_int)]
     class Data(C.Structure): _fields_ = [('effective', C.c_uint), ('permitted', C.c_uint), ('inheritable', C.c_uint)]
     libc = C.CDLL(None, use_errno=True)
@@ -1019,6 +1020,41 @@ def namespace_evidence_view(original, expected_namespaces):
         if first is not None and prior is None: raise first
 
 
+# Explicit owned-generic-VM fixture only. Default callers retain their one-ID
+# mapping and exact old capability mask. No host/container policy is widened.
+NUMERIC_FIXTURE_PURPOSE = 'full-installer-owned-vm-numeric-groups-v1'
+NUMERIC_FIXTURE_GIDS = ((0,23001,1),(5,23005,1),(11,23011,1),(50,23050,1),(81,23081,1),(102,23102,1))
+
+
+def numeric_fixture_selection(value):
+    need(type(value) is dict and set(value)=={'purpose','uid_map','gid_map'} and
+         value['purpose']==NUMERIC_FIXTURE_PURPOSE and value['uid_map']==[[0,23001,1]] and
+         value['gid_map']==[list(row) for row in NUMERIC_FIXTURE_GIDS] and
+         all(type(row) is list and len(row)==3 and all(type(n) is int for n in row)
+             for row in value['uid_map']+value['gid_map']), 'exact numeric VM fixture selection required')
+    return value
+
+
+def numeric_fixture_environment(value):
+    numeric_fixture_selection(value)
+    need(os.uname().machine=='aarch64' and os.uname().release=='7.2.10-1-aarch64-ARCH'
+         and os.sysconf('SC_PAGE_SIZE')==4096 and os.getuid()==os.geteuid()==os.getgid()==os.getegid()==0,
+         'numeric fixture mapped generic4K guest required')
+    need('cachy_asahi_virtual_proof=1' in Path('/proc/cmdline').read_text().split(), 'numeric fixture guest marker required')
+    rows=lambda name:[list(map(int,line.split())) for line in Path('/proc/self/'+name).read_text().splitlines()]
+    need(rows('uid_map')==value['uid_map'] and rows('gid_map')==value['gid_map'] and
+         Path('/proc/self/setgroups').read_text().strip()=='allow' and os.getgroups()==[],
+         'numeric fixture actual namespace map/group policy differs')
+
+
+def capability_mask(fixture_identity_map=None):
+    safe=sum(1<<bit for bit in (0,1,3,6,7,18))
+    if fixture_identity_map is not None:
+        numeric_fixture_selection(fixture_identity_map)
+        safe |= 1<<4  # FSETID in this mapped guest namespace, preserving signed mode02755.
+    return safe
+
+
 def isolate(spec):
     global OWNED_OUTPUT
     architecture = spec['contract'].get('architecture', 'x86_64')
@@ -1029,6 +1065,9 @@ def isolate(spec):
     need(Path('/proc/self/uid_map').read_text().split() == ['0', str(spec['host_uid']), '1'] and
          spec['host_uid'] != 0 and all(entered_namespaces[k] != v for k, v in spec['host_namespaces'].items()) and os.getpid() == 1,
          'actual namespace identity/map refused')
+    if spec.get('fixture_identity_map') is not None:
+        need(spec['contract'].get('purpose')==NUMERIC_FIXTURE_PURPOSE and spec['host_uid']==23001, 'explicit numeric fixture contract required')
+        numeric_fixture_environment(spec['fixture_identity_map'])
     workspace = Path(spec['contract']['workspace']); private(workspace, 0); private(workspace / 'evidence', 0)
     need(type(INHERITED_EVIDENCE_FD) is int and INHERITED_EVIDENCE_FD >= 3, 'retained inherited evidence FD required')
     original = Evidence(workspace / 'evidence', INHERITED_EVIDENCE_FD, spec['evidence_identity'])

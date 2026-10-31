@@ -1,0 +1,172 @@
+name: current606-welcome7-gui-source
+on:
+  push:
+    paths:
+      - scripts/ci/current606-welcome7-gui-source/**
+      - .github/workflows/current606-welcome7-gui-source.yml
+  pull_request:
+    paths:
+      - scripts/ci/current606-welcome7-gui-source/**
+      - .github/workflows/current606-welcome7-gui-source.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONWARNINGS: error
+    steps:
+      - name: Check out the maintained factory
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Check out exact public media536 predecessor
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 3ed3da9c3393cbc56522db7311005049413204f3
+          path: .ci-fixtures/gui-media536
+          persist-credentials: false
+      - name: Check out exact public expected540 source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: bb72a0fc5e84af5621f0b783056137efdd780282
+          path: .ci-fixtures/gui540
+          persist-credentials: false
+      - name: Check out exact public expected Welcome8 source544
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 7b8be687a3562640d5f7d4a7c57f2e2d61d39dc1
+          path: .ci-fixtures/welcome8-544
+          persist-credentials: false
+      - name: Check out exact public expected transport546 source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: ac70245709f336d2c670b2b511bec40c99248370
+          path: .ci-fixtures/gui-transport546
+          persist-credentials: false
+      - name: Check out exact public expected BuildKit548 source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 865cc33c8f114c15cef75b3472fbb8d1f4e8da06
+          path: .ci-fixtures/gui-buildkit548
+          persist-credentials: false
+      - name: Check out exact public defined-loader549 source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 4e63aa1c67898417d3a47335c0af1cc8e0b7fa3f
+          path: .ci-fixtures/gui-loader549
+          persist-credentials: false
+      - name: Check out exact alias-corrected Apps8 GUI556 source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: a8304cecaee54141b42edd48f9482b9f4ab0700f
+          path: .ci-fixtures/gui-apps8-556
+          persist-credentials: false
+      - name: Check out exact accepted Apps8 public input93 source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 979b2d6ec7417e607a911d8c25bef2f1f7f72dcb
+          path: .ci-fixtures/apps8-input93
+          persist-credentials: false
+      - name: Check out exact published runtime correction
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 09f7758b20c638f302086374931e7e5ceb3ca6fd
+          path: .ci-fixtures/current606-welcome7-gui-source-correction
+          persist-credentials: false
+      - name: Checkout exact followup 556 source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 51e7797ef639de8fbed96e51b5b12bf5a92c7cb7
+          path: .ci-fixtures/current606-welcome7-gui-source-followup
+          persist-credentials: false
+      - name: Select the explicit Python version
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Check original fifteen and ten BuildKit source-only controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          stage=$(mktemp -d "$RUNNER_TEMP/current606-gui-source.XXXXXXXX")
+          trap 'rm -rf -- "$stage"' EXIT
+          mkdir -m700 "$stage/parent" "$stage/expected" "$stage/welcome8-expected" "$stage/transport-expected" "$stage/buildkit-expected" "$stage/loader-expected"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/gui-media536" archive --format=tar 3ed3da9c3393cbc56522db7311005049413204f3 | tar -x -C "$stage/parent"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/gui540" archive --format=tar bb72a0fc5e84af5621f0b783056137efdd780282 | tar -x -C "$stage/expected"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/welcome8-544" archive --format=tar 7b8be687a3562640d5f7d4a7c57f2e2d61d39dc1 | tar -x -C "$stage/welcome8-expected"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/gui-transport546" archive --format=tar ac70245709f336d2c670b2b511bec40c99248370 | tar -x -C "$stage/transport-expected"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/gui-buildkit548" archive --format=tar 865cc33c8f114c15cef75b3472fbb8d1f4e8da06 | tar -x -C "$stage/buildkit-expected"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/gui-loader549" archive --format=tar 4e63aa1c67898417d3a47335c0af1cc8e0b7fa3f | tar -x -C "$stage/loader-expected"
+          python3 -B -W error scripts/ci/current606-welcome7-gui-source/test_prepare.py --predecessor-root "$stage/parent" --welcome8-predecessor-root "$stage/expected" --transport-predecessor-root "$stage/welcome8-expected"
+          python3 -I -B -W error scripts/ci/current606-welcome7-gui-source/prepare.py --predecessor-root "$stage/parent" --output "$stage/generated"
+          python3 -I -B - "$stage/generated" "$stage/expected" <<'PY'
+          import hashlib,json,sys
+          from pathlib import Path
+          def files(root):
+              rows={}
+              for p in root.rglob('*'):
+                  assert not p.is_symlink(), 'source alias'
+                  if p.is_file():
+                      raw=p.read_bytes();rows[p.relative_to(root).as_posix()]={'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()}
+              return rows
+          generated,expected=map(Path,sys.argv[1:]);actual=files(generated);wanted=files(expected)
+          assert len(actual)==len(wanted)==540 and actual==wanted, 'whole exact public540 source differs'
+          print(json.dumps({'status':'PASS_WHOLE_PUBLIC540_SOURCE_ONLY','files':540,'native':'NOT_RUN','GUI':'NOT_RUN','M2':'NOT_RUN'},sort_keys=True))
+          PY
+          python3 -I -B -W error scripts/ci/current606-welcome7-gui-source/prepare.py --welcome8 --predecessor-root "$stage/expected" --output "$stage/welcome8-generated"
+          python3 -I -B - "$stage/welcome8-generated" "$stage/welcome8-expected" <<'PY8'
+          import hashlib,json,sys
+          from pathlib import Path
+          def files(root):
+              rows={}
+              for p in root.rglob('*'):
+                  assert not p.is_symlink(), 'source alias'
+                  if p.is_file():
+                      raw=p.read_bytes();rows[p.relative_to(root).as_posix()]={'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()}
+              return rows
+          generated,expected=map(Path,sys.argv[1:]);actual=files(generated);wanted=files(expected)
+          assert len(actual)==len(wanted)==544 and actual==wanted, 'whole exact public544 Welcome8 source differs'
+          print(json.dumps({'status':'PASS_WHOLE_PUBLIC544_WELCOME8_SOURCE_ONLY','files':544,'native':'NOT_RUN','GUI':'NOT_RUN','M2':'NOT_RUN'},sort_keys=True))
+          PY8
+          python3 -I -B -W error scripts/ci/current606-welcome7-gui-source/prepare.py --transport --predecessor-root "$stage/welcome8-expected" --output "$stage/transport-generated"
+          python3 -I -B - "$stage/transport-generated" "$stage/transport-expected" <<'PYT'
+          import hashlib,json,sys
+          from pathlib import Path
+          def rows(root):
+              result={}
+              for p in root.rglob('*'):
+                  assert not p.is_symlink()
+                  if p.is_file():
+                      body=p.read_bytes();result[p.relative_to(root).as_posix()]={'bytes':len(body),'sha256':hashlib.sha256(body).hexdigest()}
+              return result
+          got,wanted=map(Path,sys.argv[1:]);a,b=rows(got),rows(wanted)
+          assert a==b and len(a)==546, 'whole public546 diagnostic transport source'
+          print(json.dumps({'status':'PASS_EXACT_PUBLIC546_DIAGNOSTIC_SOURCE_ONLY','native':'NOT_RUN','GUI':'NOT_RUN'}))
+          PYT
+          python3 -I -B -W error scripts/ci/current606-welcome7-gui-source/test_buildkit.py --predecessor-root "$stage/transport-expected" --expected-root "$stage/buildkit-expected"
+          python3 -I -B -Werror scripts/ci/current606-welcome7-gui-source/test_loader.py --predecessor-root "$stage/buildkit-expected" --expected-root "$stage/loader-expected"
+          mkdir -m700 "$stage/apps8-expected" "$stage/apps8-inputs"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/gui-apps8-556" archive --format=tar a8304cecaee54141b42edd48f9482b9f4ab0700f | tar -x -C "$stage/apps8-expected"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/apps8-input93" archive --format=tar 979b2d6ec7417e607a911d8c25bef2f1f7f72dcb | tar -x -C "$stage/apps8-inputs"
+          python3 -I -B -Werror scripts/ci/current606-welcome7-gui-source/test_apps8.py --predecessor-root "$stage/loader-expected" --expected-root "$stage/apps8-expected" --apps8-input-root "$stage/apps8-inputs"
+          mkdir -m700 "$stage/installer-correction"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/current606-welcome7-gui-source-correction" archive --format=tar 09f7758b20c638f302086374931e7e5ceb3ca6fd | tar -x -C "$stage/installer-correction"
+          python3 -I -B -Werror scripts/ci/current606-welcome7-gui-source/test_correction.py --parent "$stage/apps8-expected" --expected "$stage/installer-correction"
+          python3 -I -B -Werror scripts/ci/current606-welcome7-gui-source/test_followup.py --parent "$GITHUB_WORKSPACE/.ci-fixtures/gui-apps8-556" --expected "$GITHUB_WORKSPACE/.ci-fixtures/current606-welcome7-gui-source-followup"

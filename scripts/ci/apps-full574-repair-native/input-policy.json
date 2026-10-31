@@ -1,0 +1,26 @@
+{
+  "adapter": {
+    "bytes": 22621,
+    "path": "scripts/apps/full574_closure.py",
+    "sha256": "f43304982dee768adf48f1c2ae5ecf6afa32e2cc405846046f6ac29604022b55"
+  },
+  "aggregate": "BOTH_INDEPENDENT_ROOT_CASE_DECISIONS_REQUIRED",
+  "cases": [
+    "repair-bytes",
+    "repair-missing"
+  ],
+  "packet_index": {
+    "bytes": 55737,
+    "path": "index.json",
+    "sha256": "782fd76c06831786cb74df396f195e8f5f8832e04b668c44bdadd802d1cb268b"
+  },
+  "packet_source": "65950a7e3ca82d97e21a65556844dab1cfd1a7f7",
+  "schema_version": 1,
+  "status": "ROOT_BOUND_NATIVE574_SIGNED_REPAIR_INPUTS",
+  "versions": {
+    "cachy-asahi-apps": "0.1.0-6",
+    "cachy-asahi-cache": "0.2.0-1",
+    "cachy-asahi-orphans": "0.1.0-2",
+    "cachy-asahi-repository-runtime": "0.1.0-1"
+  }
+}

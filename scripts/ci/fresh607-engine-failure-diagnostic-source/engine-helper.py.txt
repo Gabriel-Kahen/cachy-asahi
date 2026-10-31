@@ -1,0 +1,26 @@
+
+
+def engine_failure_projection(receipt):
+    """Returned supervisor DATA only; never transaction or cleanup authority."""
+    try:
+        import base64
+        if type(receipt) is not dict or set(receipt)!={'returncode','termination','direct_child_reaped','group_retired','output'}:
+            raise ValueError('closed returned engine receipt')
+        raw=receipt['output']
+        if (type(raw) is not bytes or len(raw)>1024**2 or type(receipt['returncode']) is not int or
+            not -255<=receipt['returncode']<=255 or receipt['termination'] is not None or
+            any(type(receipt[k]) is not bool for k in ('direct_child_reaped','group_retired'))):
+            raise ValueError('bounded typed returned engine receipt')
+        tail=raw[-2048:]
+        row=dict(purpose='FRESH607_ENGINE_FAILURE_DATA_V1',status='RETURNED_SUPERVISOR_OUTPUT_ONLY',
+            returncode=receipt['returncode'],termination=receipt['termination'],
+            direct_child_reaped=receipt['direct_child_reaped'],group_retired=receipt['group_retired'],
+            output_bytes=len(raw),output_sha256=hashlib.sha256(raw).hexdigest(),
+            tail_codec='base64',tail_bytes=len(tail),tail_base64=base64.b64encode(tail).decode('ascii'),
+            tail_complete=len(raw)<=2048,transaction_authority=False,cleanup_authority=False)
+        if len(json.dumps(row,sort_keys=True,allow_nan=False).encode())>4096:
+            raise ValueError('bounded engine DATA frame')
+        return row
+    except BaseException:
+        return dict(purpose='FRESH607_ENGINE_FAILURE_DATA_V1',status='REFUSED_DIAGNOSTIC_SHAPE',
+                    transaction_authority=False,cleanup_authority=False)

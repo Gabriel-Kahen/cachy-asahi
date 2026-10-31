@@ -1,0 +1,18 @@
+# The original five independent presecret controls retain order and all clocks.
+_HISTORICAL_OLD_LINE='python3 -I -B "$SLICE/test_lane.py"'
+_HISTORICAL_NEW_LINE='python3 -I -B gui607-source/implementation/historical_source.py legacy-source-tests --source "$GITHUB_WORKSPACE/gui607-source" --assets "$RUNNER_TEMP/welcome5-assets"'
+_historical_prior_derive=derive
+_historical_prior_commands=commands
+
+def derive(raw):
+ value,proof=_historical_prior_derive(raw);a=json.dumps(_HISTORICAL_OLD_LINE)[1:-1];b=json.dumps(_HISTORICAL_NEW_LINE)[1:-1]
+ need(value.count(a.encode())==1,'one explicit historical source-suite command');after=value.replace(a.encode(),b.encode(),1)
+ need(after.replace(b.encode(),a.encode(),1)==value,'entire historical source-suite workflow inverse')
+ proof=dict(proof,after=pin(after),seams=proof['seams']+[dict(before=a,after=b,count=1)],historical_source_scope='SOURCE_ONLY_NOT_CURRENT_SIGNATURE_AUTHORITY')
+ return after,proof
+
+def commands(raw):
+ a=json.dumps(_HISTORICAL_OLD_LINE)[1:-1].encode();b=json.dumps(_HISTORICAL_NEW_LINE)[1:-1].encode()
+ need(raw.count(b)==1 and raw.count(a)==0,'only source suite uses the historical worker')
+ rows=_historical_prior_commands(raw.replace(b,a,1))
+ return [_HISTORICAL_NEW_LINE if row==_HISTORICAL_OLD_LINE else row for row in rows]

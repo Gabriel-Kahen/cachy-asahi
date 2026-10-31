@@ -1,0 +1,32 @@
+{
+  "files": {
+    "Root-component-acceptance.json": {
+      "bytes": 5690,
+      "sha256": "8bc8c386059edaf710522d381d319924493fb010452d82369d1b62252101ec06"
+    },
+    "Root-corrected-reader-result.json": {
+      "bytes": 90286,
+      "sha256": "c90a63ac021f71eec77e374d2593fd6b019456320bf394a6454cd0bd308dced6"
+    },
+    "git-authorization.json": {
+      "bytes": 63331,
+      "sha256": "3a10eae603e958edca3da86c4b962d31f04c4a8b34f8c64a33a584d90a24e5ee"
+    },
+    "publication.json": {
+      "bytes": 275,
+      "sha256": "bd038f2b9f9210a4dddbdebf2c6052b672755c156993bacf6fbf85d29a004469"
+    },
+    "run.json": {
+      "bytes": 12999,
+      "sha256": "e1d8fe77bc791686d3db18b701c024a8653e391a741566f23f355a2ba6d73d56"
+    },
+    "source-authorization.json": {
+      "bytes": 60352,
+      "sha256": "55c36b4acf844f0fc068e153c5e703101d148cabd32640dc5673a9777b7d5000"
+    }
+  },
+  "new_actual": null,
+  "run": 39320580643,
+  "scope": "ACCEPTED_APPS7_ON_APPS6_BASELINE606_NO_SETUP6_COEXISTENCE_TRANSFER",
+  "source": "3660e6cb87b4cb5591b1d295c62c8b02cca4b7e6"
+}

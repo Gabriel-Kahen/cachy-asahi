@@ -1,0 +1,9 @@
+{
+  "package": "at-spi2-core",
+  "version": "2.62.1-1",
+  "sha256": "71efadc123171229c74281323db4b04c594c5e31ee0d7dfcb680bf5d8d98c74b",
+  "license": [
+    "LGPL-2.1-or-later"
+  ],
+  "inspection": "held archive headers only; native accessibility NOT_RUN"
+}

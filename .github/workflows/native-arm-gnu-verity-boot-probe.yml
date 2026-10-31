@@ -1,0 +1,69 @@
+name: native-arm-gnu-verity-boot-dm-probe-only
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact standalone boot-only source SHA
+        type: string
+        required: true
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: native-arm-gnu-verity-boot-dm-probe-only
+  cancel-in-progress: false
+jobs:
+  native:
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi'
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 22
+    defaults:
+      run:
+        shell: bash
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      SOURCE_SHA: ${{ inputs.source_sha }}
+      SLICE: scripts/ci/gnu-verity-kernel-boot-probe
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: ${{ inputs.source_sha }}
+          persist-credentials: false
+      - name: Exact source and Root BUILD-only authority before provisioning or input GET
+        timeout-minutes: 2
+        run: |
+          set -euo pipefail
+          [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$SOURCE_SHA" == "$GITHUB_SHA" ]]
+          [[ "$GITHUB_RUN_ATTEMPT" == 1 ]]
+          [[ "$(git -C "$GITHUB_WORKSPACE" rev-parse HEAD)" == "$SOURCE_SHA" ]]
+          sha256sum --check "$SLICE/workflow-pins.sha256"
+          printf '%s  %s\n' 'ef5438bc019705358c5d8039e65e761b1fd0c55a8c5e53ec7129ae98f91037b5' "$SLICE/source-manifest.json" | sha256sum --check
+          python3 -I -B "$SLICE/entry.py" check-source --source "$GITHUB_WORKSPACE"
+          python3 -I -B "$SLICE/entry.py" check-authority
+          python3 -I -B "$SLICE/test_entry.py"
+      - name: Pin disposable native compiler and QEMU package
+        timeout-minutes: 7
+        run: |
+          set -euo pipefail
+          timeout --kill-after=10s 150s sudo apt-get -o Acquire::Retries=0 -o Acquire::http::Timeout=30 update -qq
+          timeout --kill-after=10s 240s sudo env DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=0 -o Acquire::http::Timeout=30 install -y --no-install-recommends clang-18 lld-18 qemu-system-arm=1:8.2.2+ds-0ubuntu1.18 ca-certificates
+      - name: Acquire exact accepted kernel artifact once then boot standalone PID1
+        timeout-minutes: 10
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          timeout --kill-after=6s 300s python3 -I -B "$SLICE/kernel_input_entry.py" --output "$RUNNER_TEMP/gnu-verity-boot-input"
+          timeout --kill-after=8s 255s python3 -I -B "$SLICE/entry.py" probe --source "$GITHUB_WORKSPACE" --originals "$RUNNER_TEMP/gnu-verity-boot-input/originals" --work "$RUNNER_TEMP/gnu-verity-boot-work" --output "$RUNNER_TEMP/gnu-verity-boot-export"
+      - name: Retain bounded original boot-only output even on failure
+        if: always()
+        timeout-minutes: 3
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: gnu-verity-boot-dm-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/gnu-verity-boot-export
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14

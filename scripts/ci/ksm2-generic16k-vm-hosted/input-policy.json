@@ -1,0 +1,27 @@
+{
+  "actual_ref": null,
+  "actual_run": null,
+  "actual_source": null,
+  "bounds": {
+    "QEMU_output_bytes": 16777216,
+    "VM_seconds": 3000,
+    "owner_seconds": 6600,
+    "prepare_seconds": 1900,
+    "producer_seconds": 2300,
+    "public_output_bytes": 201326592,
+    "seed_seconds": 120
+  },
+  "kernel_authority": null,
+  "kernel_build": null,
+  "kernel_carrier": null,
+  "kernel_run": null,
+  "kernel_transport": null,
+  "known_kernel_source": "7b382cd8087407cebb33327180c8a76e7be5a79c",
+  "known_native_run": 39139213293,
+  "known_native_source": "72ea5a1e81268f08da9b9cc04cdc7e23a1a9ff8a",
+  "native_carrier": null,
+  "native_decision": null,
+  "native_inputs": null,
+  "purpose": "KSM2_GENERIC16K_OWNED_SYSFS_TEST_ONLY",
+  "schema_version": 1
+}

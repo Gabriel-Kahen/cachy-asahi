@@ -29,6 +29,7 @@ def build(code, driver, scope):
         pins['scripts/ci/full-root-upgrade/' + name] = sha(driver / name)
     return dict(schema_version=1, purpose='actual587-persistent-root-setup4-test', code_pins=pins,
         external_pins={'/setup4.py': 'aa9bcc4eff8208c9724de7d7f6490055404dc9e11979f6cbae372d98fd83d379',
+                       # Mounted from fixed PREPARATION_SOURCE, independently of upgrade-code.
                        '/footprint.py': '78391cd0e009bdf165cffdb26ba911642f5fec81ec6bd7feab65654fcf776387',
                        '/persistent_scope.py': sha(scope)},
         stage_seconds=900, verify_seconds=600, copy_seconds=600, driver_seconds=1800,
@@ -36,7 +37,7 @@ def build(code, driver, scope):
             before_lock_sha256=BEFORE, after_lock_sha256=AFTER, platform_mode='generic-development',
             limits=dict(root_nodes=200000, root_bytes=6*1024**3, file_bytes=1024**3,
                 package_files=500000, archive_bytes=1024**2, archive_total_bytes=2*1024**2,
-                decoded_bytes=16*1024**2, archive_members=1000, window_bytes=8*1024**2, seconds=1200),
+                decoded_bytes=16*1024**2, archive_members=1000, window_bytes=16*1024**2, seconds=1200),
             capacity=dict(root_reserve_bytes=256*1024**2, root_reserve_inodes=10000,
                           workspace_future_bytes=256*1024**2, workspace_future_inodes=20000)),
         release=dict(release_id='full-root-setup4-test-20261016', repo_name='cachy-asahi-test',

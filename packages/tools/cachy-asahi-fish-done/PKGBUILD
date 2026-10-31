@@ -1,0 +1,50 @@
+# SPDX-License-Identifier: MIT
+# Project integration version; pinned upstream b86292a52a2b8f646ef8d25daa3cc01ccab60b62.
+pkgname=cachy-asahi-fish-done
+pkgver=0.1.0
+pkgrel=2
+pkgdesc='Explicitly enabled Fish command and selected child-job notifications'
+arch=('any')
+url='https://github.com/franciscolourenco/done'
+license=('MIT')
+depends=('fish>=4.9.3' 'libnotify' 'coreutils')
+makedepends=('python')
+source=('done.fish' 'done.upstream.fish' 'opt-in.fish' 'check-module.py' 'usage.md' 'source-provenance.json' 'NOTICE' 'LICENSE.upstream' 'LICENSE.project')
+sha256sums=(
+    'f545413bd75a3017b8d11a5ca7fe7394f326babbc8c18618323c39fbd8d0a0d4'
+    '4aa68e18104966509dd0bfd6f7378423e212781d0674dae85fd38b1d30e30372'
+    '6ff60eef9f211819833b0d94a9fef15a2982835c84d868d7b0d55200e37b6a20'
+    '79a869d9adc6405a07ac647d01be905f99cc1e8dedd0821f38680fc504b919dd'
+    'e338eec57d00f5f85dcfea84b33eda11bbf3d3174e41abf957246d8a94d3d622'
+    'b78395517588426f45ede5953d30ca8c449fec77ef4b633ad53246031e4465e1'
+    'cb000928dc0f592c00ee4a8df16659b8aab326b235effd6ea208aaecf319f4c3'
+    'd3a6b9e81b93ce9b59c72355867b03f15e9ec186ad9d6b96e0a96374fa3d4c30'
+    '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
+)
+
+check() {
+    local file result
+    for file in "$srcdir"/*.fish; do
+        fish --no-config --no-execute "$file" || return
+    done
+    local fixture
+    fixture=$(mktemp -d "$srcdir/done-check.XXXXXX") || return
+    if python "$srcdir/check-module.py" --source "$srcdir" --output "$fixture/results"; then
+        result=0
+    else
+        result=$?
+    fi
+    rm -rf -- "$fixture"
+    return "$result"
+}
+
+package() {
+    local file
+    for file in done.fish done.upstream.fish opt-in.fish source-provenance.json; do
+        install -Dm644 "$srcdir/$file" "$pkgdir/usr/share/cachy-asahi/fish-done/$file" || return
+    done
+    install -Dm644 "$srcdir/usage.md" "$pkgdir/usr/share/cachy-asahi/fish-done/README.md" || return
+    for file in NOTICE LICENSE.upstream LICENSE.project; do
+        install -Dm644 "$srcdir/$file" "$pkgdir/usr/share/licenses/$pkgname/$file" || return
+    done
+}

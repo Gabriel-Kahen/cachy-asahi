@@ -1,0 +1,9 @@
+# Native orphan assessment candidate
+
+Root accepts run [38969154970](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38969154970), source `fd6fe5ab4abbb457a9590e35c23f6b52ae2d54d2`, as `ROOT_ACCEPTED_ORPHANS_NATIVE_PAIR_AND_READONLY_LIFECYCLE`. Both native aarch64 builds run all18 original checks without skips and produce identical18540-byte archives, SHA256 `21b13501d8ed5de828e7ac47ff8c8ec2132ca3f0af68bb7062f22852ef640bea`, including identical BUILDINFO and five installed source/license/data files.
+
+The signed disposable package lifecycle performs574→575→repeat575→remove574→reinstall575→final574. Original574 payload/database and user records remain preserved by the frozen-source checks. At all three installed phases, fresh and existing ordinary-user profiles run the actual default installed CLI against real575 root-owned nonwritable metadata. The tool separately exercises physical ALPM fixtures for versioned providers, optional dependencies, cycles, protections, explicit plans, verification and a real counterpart-held lock. All24 raw reports are retained. Plans remain NOT_APPLIED and actual orphan removal is NOT_IMPLEMENTED.
+
+Root joins all83 closed public members,34 frozen source files and eight exact recipe inputs, replays both original build validators/comparison and the original lifecycle validator, and checks every raw report digest and real575 inventory. Four owned consumers and the producer have successful ordered cleanup. Collection and Root receipt: `artifacts/development/orphans-native-run38969154970`.
+
+This is generic ARM/4096 software evidence. The private complete original574 payload snapshot was not exported, so its preservation is source-bound retained runtime evidence. No16K execution, M2 compatibility, orphan deletion, boot recovery, performance or release admission is established.

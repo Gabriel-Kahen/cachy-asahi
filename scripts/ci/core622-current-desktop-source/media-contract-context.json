@@ -1,0 +1,288 @@
+{
+  "actual": null,
+  "before": {
+    ".github/workflows/native-arm-build.yml": {
+      "bytes": 42674,
+      "sha256": "2ab5a2e4cb14c62e8385993ea7cec69a4f268be35b84f11903970e964a4bf4d9"
+    },
+    ".github/workflows/native-arm-core7-real-systemd.yml": {
+      "bytes": 42674,
+      "sha256": "2ab5a2e4cb14c62e8385993ea7cec69a4f268be35b84f11903970e964a4bf4d9"
+    },
+    "Core800-acceptance.json": {
+      "bytes": 2043,
+      "sha256": "d6f67e4c2782f9b609309e6e5627ad6534f172f0560ec7e2e2ec5c3a4f251e9d"
+    },
+    "LICENSE": {
+      "bytes": 27836,
+      "sha256": "624b2335eff599a84764ef0a51b6d2962b5ef504a792e1b362ea31f0cbc1ac4c"
+    },
+    "README.md": {
+      "bytes": 6730,
+      "sha256": "849d859eb0d7c49d4a1a673218fbc74a7bcf378b711b3e2ebb21ab3887dcff8e"
+    },
+    "acl_policy.py": {
+      "bytes": 83174,
+      "sha256": "9204e5794f01b49a0b301088f3a5b4439e57eb7273fc5afac278b3f967816462"
+    },
+    "adapter.py": {
+      "bytes": 1401,
+      "sha256": "fb0aadeb5fb230346161be90e94696aecaecf6d2b3e1e3f40538d7ab72f23586"
+    },
+    "assembly622.py": {
+      "bytes": 466,
+      "sha256": "610836ad8beeed379079b711c37d20867b28218d9422631ff7857d8a4872be55"
+    },
+    "boot.py": {
+      "bytes": 5422,
+      "sha256": "f6df3d8e5b5602f3b9eca4ebfbb54afaa354ac29b7b4b9cc26988a9de064349e"
+    },
+    "candidate_capacity.py": {
+      "bytes": 47168,
+      "sha256": "30b34914054a37d83c74950cb55232017ad90a31c7545bd36287064f850c051d"
+    },
+    "case.py": {
+      "bytes": 8668,
+      "sha256": "07ea5e72a4ad8b22b9a6594aada61941abefa4659b46b26fc0bb59efa239319b"
+    },
+    "clock.py": {
+      "bytes": 4205,
+      "sha256": "cf43f16973294a8e687c65341cb63329a71d9a2a2ea488f0f6f2e20b97087c3c"
+    },
+    "composition-parent.json": {
+      "bytes": 663714,
+      "sha256": "91bb2b3b0e4151f1a59982cc5ebbd6c792c6b8bc3e3d3417009b08f7fcdfa903"
+    },
+    "composition.json": {
+      "bytes": 444951,
+      "sha256": "154aab2490617a23d3fb745cc8c03d3bc4abb35d3c836f4a43394b1758158d6c"
+    },
+    "compression-profile.json": {
+      "bytes": 1179,
+      "sha256": "aec949ee839909702d208a3f91710c4565b5dcf46fa4fca0b2bd3bc13558d57c"
+    },
+    "controller.py": {
+      "bytes": 11715,
+      "sha256": "50061a1e0e91dabdbe66572500cfaf343c97e6cd750f77665b17c4ec4a1cb719"
+    },
+    "desktop622.py": {
+      "bytes": 9856,
+      "sha256": "eace06a0842aa08b803de34522178a086943c3e05086b1ed07f7fb986fd07400"
+    },
+    "effects.py": {
+      "bytes": 6147,
+      "sha256": "e2d4d80f64736975437615146f09f8796c20a634b02bb31d167614700609aae7"
+    },
+    "entry.py": {
+      "bytes": 6025,
+      "sha256": "f34a53b6ea08ef673d0d187e70a4fc1a496b8b00882cd432fbe3af0e50ddac68"
+    },
+    "evidence.py": {
+      "bytes": 7519,
+      "sha256": "6910175a5380f0c4263d5dde3dc52fdbc352b055bdd75d21969a47c2264b1987"
+    },
+    "expected607.lock": {
+      "bytes": 12076,
+      "sha256": "be35402204ba5c03d78279722afa83047c9575d2da70fb5c4064f46ed15954c5"
+    },
+    "expected622.lock": {
+      "bytes": 12444,
+      "sha256": "189d037738680f5dfc9a5d48169eddf866383a06b070c094dac613c9d1b4eca8"
+    },
+    "export622.py": {
+      "bytes": 3680,
+      "sha256": "a2c5de8f421642024c2292a894caab34052f9f430ca8d2392490d5e0f7615dee"
+    },
+    "formation622.py": {
+      "bytes": 4938,
+      "sha256": "c0dba994e0edb0da162e796a68b555ead745889baf5cd70a929fa465e79b4485"
+    },
+    "graph_api.py": {
+      "bytes": 1899,
+      "sha256": "16839d25ad6a3957b68848fb6718a393840840b433361eba1ae07ddbbdafe5d7"
+    },
+    "graph_stage_source.py": {
+      "bytes": 56225,
+      "sha256": "b0ce77149ff72ea2936c23fcbdeefe3c011a2dfc75d60d40ec650ab233e5e845"
+    },
+    "guest.py": {
+      "bytes": 18698,
+      "sha256": "aee907cc341726e87e87bb4334c1688145356925e17c7ad5eea89e39e8c9fef9"
+    },
+    "guest_guard.py": {
+      "bytes": 4160,
+      "sha256": "8db72fbc36f59c5660f7ddc4f56f3bdbed81cdec4344c65017db522501f83de7"
+    },
+    "hook.py": {
+      "bytes": 787,
+      "sha256": "b3e2bd1c4eb715928919028be1dddce2090605d233ba8f4d6bf98d67e95f5fa3"
+    },
+    "host.py": {
+      "bytes": 4302,
+      "sha256": "d25d18a115483bf7b6f2f0f0f1bfe21d19de37951949e55685edcfb77d84248b"
+    },
+    "initramfs.py": {
+      "bytes": 4502,
+      "sha256": "50d3a4833f5b783704c1a07fb3c213819769a08294eb677e7066ec13595d4b98"
+    },
+    "journal_acl.py": {
+      "bytes": 94610,
+      "sha256": "e3849c1604b6520c4fb813692290a0989d08542cf3ada1fbf412948a83a26c9c"
+    },
+    "lane622.py": {
+      "bytes": 9700,
+      "sha256": "31d47330f090f82c5ed5a1da108045492fa4de9d47bd45bbb2c169781d7c52bf"
+    },
+    "media.py": {
+      "bytes": 7894,
+      "sha256": "6c232e7b3fc1d041fdcf3fab033a424f04af5cd44935eaf186f174ea1be94f80"
+    },
+    "mime-profile.json": {
+      "bytes": 259815,
+      "sha256": "4c601c715c4ee64484f49dacebfddb53da9391893c29e3c0626a92942a36a793"
+    },
+    "mime_cache.py": {
+      "bytes": 47294,
+      "sha256": "1e04c1a6d7918c6499a3a356397749a60083000bb493e9fb3df1f277ea635922"
+    },
+    "ownership622.py": {
+      "bytes": 33403,
+      "sha256": "29bf2dfa2941f7178aa1c0d10325382a5b33164691e29f8e9136b01e4d2bcd91"
+    },
+    "pid1-baseline.json": {
+      "bytes": 528,
+      "sha256": "b508b5ff108bc90d79952c7a90efdb812ccd008421297412b9338a2c6c1c8be6"
+    },
+    "pid1-expected.json": {
+      "bytes": 548,
+      "sha256": "2891023d89c1f35b47c8e4cb8b7c88105ddce72b18796a377b161e7278f03659"
+    },
+    "prepare.py": {
+      "bytes": 1394,
+      "sha256": "554c52290776a5f4ec314ba8abad836db1d99ab81e4782964e3a0d4bbe04a8a2"
+    },
+    "profile.json": {
+      "bytes": 334009,
+      "sha256": "e03456c28bcae23d3cb6ae856af81adf75a1a60905aefb0e0238acd147e3de24"
+    },
+    "provision622.py": {
+      "bytes": 25304,
+      "sha256": "c2f541898f4628465afd77423af26f69b9d574198e2ac8a94f346c1eb9f8b19e"
+    },
+    "run622.py": {
+      "bytes": 17037,
+      "sha256": "41d4d209bbcb79a035b65b72e95799956ad48709ebb07eb8c21b63d7e39d8919"
+    },
+    "serial-profile.json": {
+      "bytes": 734,
+      "sha256": "f7cd6095424948d3e108b3b96763674612fc086e2da08cb783da78057a0f0c0e"
+    },
+    "serial_result.py": {
+      "bytes": 52907,
+      "sha256": "d708f9de5f31a15882596ed95fb9514958ce8df4a85ce2152dcb265f878b3991"
+    },
+    "source-manifest.json": {
+      "bytes": 8711,
+      "sha256": "d7087fd4b4123031c0204308d3a8b50e46920815c0a8a1cafdde76a39c6ce696"
+    },
+    "source622.py": {
+      "bytes": 26520,
+      "sha256": "0807060b0af6f588ee2499142577ca009a67a1c7cf4b5ee9e1b85678d138a54b"
+    },
+    "test_bridge622.py": {
+      "bytes": 55951,
+      "sha256": "a869d0f26fbab13b5c04619b100e59ad027ee148b21b0992aae196efc7862a39"
+    },
+    "test_case.py": {
+      "bytes": 19195,
+      "sha256": "723c962fafa76c84e8d6764e687bdebe5faad63b00a96edb0355f27c8ad7a189"
+    },
+    "test_desktop622.py": {
+      "bytes": 5072,
+      "sha256": "ed28a02f696c57785041c53b8c8380b3817cbb2e884b1fd3df4451881c7a6daf"
+    },
+    "test_emission.py": {
+      "bytes": 2521,
+      "sha256": "57a4a755385a5e380e303f3e3da33bafcfc71063ffce2041f22b22b5a5ffdf8f"
+    },
+    "test_host.py": {
+      "bytes": 3090,
+      "sha256": "b01d3159bd0b0c688434bac69976dd16cf173358a598957f3be58f49c1642460"
+    },
+    "test_initramfs.py": {
+      "bytes": 7864,
+      "sha256": "0d0a521c9f4e8793c4b15a82119dfca7a46642033c94b72327e27118a797bae2"
+    },
+    "test_protocol.py": {
+      "bytes": 4378,
+      "sha256": "ac482fa3a8fc0ab932bcf8e65b864e4ac26affc1ecf30ecea61cd42b52264d25"
+    },
+    "test_route.py": {
+      "bytes": 9847,
+      "sha256": "b32ab0d4b5dd3cbfbb131811a8460bc82b07dcd517598971c1b14bdc437123ab"
+    },
+    "test_sources.py": {
+      "bytes": 19838,
+      "sha256": "eef8c2a75e8f3c5e282eb48daba98ce471c58791b29e0653626fe0949a06a8e7"
+    },
+    "tmpfiles_hash.py": {
+      "bytes": 41582,
+      "sha256": "6912c9ae1a14477212921c6aed68b54e7c83a6a9308664e515c51619603eba6b"
+    },
+    "transaction_output.py": {
+      "bytes": 42998,
+      "sha256": "8ce374e17744888ad70ca0b19485ffd6f72d6cf029f47f6fdfaa07c47dce6ce9"
+    },
+    "units/caa-core-observer.service": {
+      "bytes": 474,
+      "sha256": "95b66c92d2acbbfdb5d904c2c0f6b61518fd3bb7c71eb290751a27e9d2fc8e6e"
+    },
+    "units/caa-core-probe.service": {
+      "bytes": 358,
+      "sha256": "b8a4a142045304e53893608548c293b684fbe295831e25a84d5cf3c19ef0a6b4"
+    },
+    "units/caa-core-worker.service": {
+      "bytes": 352,
+      "sha256": "70ebee606afc5fee5359d3ea05cee62445766c8a4033d6fbee7398f0be6f9353"
+    },
+    "units/caa-core.target": {
+      "bytes": 189,
+      "sha256": "1025ff9b01e2132861b26cf35fd5f4a25424638f03e49222552ef0cbbb719e37"
+    },
+    "validate.py": {
+      "bytes": 7182,
+      "sha256": "80f0b8ee03df0f7208b1329309ec21da45cd8033a2ed3167bfb262faba293af2"
+    },
+    "vm_validation.py": {
+      "bytes": 52784,
+      "sha256": "a69264ea55374b2058048ca2441c89942e65f43d06125b0d1ad71d3e021202e1"
+    },
+    "workflow.yml.in": {
+      "bytes": 42674,
+      "sha256": "2ab5a2e4cb14c62e8385993ea7cec69a4f268be35b84f11903970e964a4bf4d9"
+    },
+    "xattr_diagnostic.py": {
+      "bytes": 17502,
+      "sha256": "ad88aee4e41afa9f78d45785a45f274abeac1aaf335225ec0c4cc61240cbba47"
+    }
+  },
+  "edits": {
+    "media.py": [
+      [
+        "def module(root):\n text,_=derive(root);text=__import__('lane622').media_text(text);m=types.ModuleType('_core_real_systemd_media');m.__file__=str(Path(root)/'media_adapter.py');m.__dict__['BOOT']=boot\n sys.path.insert(0,str(Path(root)));C.load('contract',Path(root)/'contract.py');C.load('cap_scope',Path(root)/DONOR.replace('disk.py','cap_scope.py'));exec(compile(text,'whole-held574-core-systemd-media','exec'),m.__dict__);return m",
+        "def module(root):\n missing=object();saved={name:sys.modules.get(name,missing)for name in('contract','cap_scope')};paths=sys.path[:]\n try:\n  root=Path(root);pins=C.decode(C.read(Path(__file__).with_name('profile.json'),4*1024**2))['source_profiles']['ksm637']['files'];raw={}\n  for name in('contract.py',DONOR,DONOR.replace('disk.py','cap_scope.py')):\n   value=C.read(root/name,256*1024);C.need(C.pin(value)==pins['runtime/'+name],'exact pinned original media contract/donor/capability body');raw[name]=value\n  text,_=derive(root);C.need(C.read(root/DONOR,256*1024)==raw[DONOR],'same whole media donor after derivation');text=__import__('lane622').media_text(text);m=types.ModuleType('_core_real_systemd_media');m.__file__=str(root/'media_adapter.py');m.__dict__['BOOT']=boot\n  sys.path.insert(0,str(root));base=types.ModuleType('_core622_original_media_contract');base.__file__=str(root/'contract.py');exec(compile(raw['contract.py'],base.__file__,'exec'),vars(base));sys.modules['contract']=base\n  name=DONOR.replace('disk.py','cap_scope.py');caps=types.ModuleType('_core622_original_media_cap_scope');caps.__file__=str(root/name);exec(compile(raw[name],caps.__file__,'exec'),vars(caps));sys.modules['cap_scope']=caps\n  exec(compile(text,'whole-held574-core-systemd-media','exec'),vars(m));C.need(m.C is caps.C is base,'exact original media dependency namespace');m.C=types.SimpleNamespace(**dict(vars(base),inflate=C.inflate));C.need(m.prepare.__globals__['C']is m.C and m.C.inflate is C.inflate and not hasattr(base,'inflate'),'private original bounded Core inflater binding only');return m\n finally:\n  sys.path[:]=paths\n  for name,value in saved.items():\n   if value is missing:sys.modules.pop(name,None)\n   else:sys.modules[name]=value"
+      ]
+    ],
+    "test_bridge622.py": [
+      [
+        "if __name__=='__main__':unittest.main(verbosity=2)",
+        "class MediaContractInflateControls(unittest.TestCase):\n \"\"\"Real held prepare/read/gzip/copy/capability bodies on tiny owned files.\n\n The 48GiB reserve, finite measurement inode capacity and container read-only\n mount flag are modeled explicitly; actual capacity checks remain in the path.\n APIs point at actual held FD algorithms with small fixture limits. Execution\n stops at the first external cp command; no image, namespace or actor is made.\n \"\"\"\n OLD_MODULE=\"def module(root):\\n text,_=derive(root);text=__import__('lane622').media_text(text);m=types.ModuleType('_core_real_systemd_media');m.__file__=str(Path(root)/'media_adapter.py');m.__dict__['BOOT']=boot\\n sys.path.insert(0,str(Path(root)));C.load('contract',Path(root)/'contract.py');C.load('cap_scope',Path(root)/DONOR.replace('disk.py','cap_scope.py'));exec(compile(text,'whole-held574-core-systemd-media','exec'),m.__dict__);return m\\n\"\n class ExternalBoundary(RuntimeError):pass\n def modules(self):\n  import media,provision622\n  self.assertEqual(Path(media.__file__).resolve(),(CASE/'media.py').resolve());return media,provision622\n def original_module(self):\n  M,_=self.modules();self.assertEqual(C.pin(self.OLD_MODULE.encode())['sha256'],'add823c53e7a5c8a990ec790a3eadf98b1f71b158589c202aea5895c9ea709f0');namespace=dict(vars(M));exec(compile(self.OLD_MODULE,'exact-f46-module-DATA','exec'),namespace);missing=object();saved={n:sys.modules.get(n,missing)for n in('contract','cap_scope')};paths=sys.path[:]\n  try:return namespace['module'](A.vm_source/'runtime')\n  finally:\n   sys.path[:]=paths\n   for name,value in saved.items():\n    if value is missing:sys.modules.pop(name,None)\n    else:sys.modules[name]=value\n def construct_restored(self,call):\n  missing=object();saved={n:sys.modules.get(n,missing)for n in('contract','cap_scope')};sentinels={n:types.ModuleType('_fixture_prior_'+n)for n in saved};paths=sys.path[:];sys.modules.update(sentinels)\n  try:\n   try:return call()\n   finally:\n    self.assertEqual(sys.path,paths)\n    for name,value in sentinels.items():self.assertIs(sys.modules.get(name),value)\n  finally:\n   sys.path[:]=paths\n   for name,value in saved.items():\n    if value is missing:sys.modules.pop(name,None)\n    else:sys.modules[name]=value\n def tools(self):\n  update=A.vm_source/'runtime/media-source/scripts/update'\n  with R.namespace(update):\n   import full_root,measure_copy\n   roots,copier=full_root,measure_copy\n  name='_core622_media_tiny_scope';scope=C.load(name,A.vm_source/'runtime/media-source/scripts/ci/full-root-upgrade-caller/persistent_scope.py');sys.modules.pop(name,None);return scope,roots,copier\n def run_prepare(self,module,kind=None,readonly=True):\n  import contextlib,gzip\n  M,P=self.modules();folder=tempfile.TemporaryDirectory(prefix='media-contract-tiny-',dir='/var/tmp');self.addCleanup(folder.cleanup);root=Path(folder.name);paths={name:root/name.lstrip('/')for name in('/measurement','/current607-root','/current607-proof','/workspace','/source','/inputs')}\n  for path in paths.values():path.mkdir(mode=0o700)\n  source=paths['/current607-root'];(source/'usr/lib').mkdir(parents=True);(source/'usr/lib/libfixture.so').write_bytes(b'INERT_TINY_LIBRARY_DATA_NEVER_EXECUTED');helper='media-source/scripts/apps/file_capabilities.py';target=paths['/source']/helper;target.parent.mkdir(parents=True);target.write_bytes(C.read(A.vm_source/'runtime'/helper,256*1024));(paths['/inputs']/'input.txt').write_bytes(b'inert input')\n  scope,roots,copier=self.tools();limits=roots.Limits(deadline=time.monotonic()+30,max_nodes=1000,max_bytes=8*1024**2,max_file_bytes=1024**2,max_package_files=1000);graph=roots.observe(source,limits=limits,hardlinks='generic-development-internal',absolute_paths=True);nonce='c'*32;identity=[source.stat().st_dev,source.stat().st_ino];proof=dict(nonce=nonce,status='PASS_COMPLETE607_SIGNED_PROVISIONING_GRAPH_DB_CAPS_AND_PRESERVATION',root_identity=identity);data=dict(nodes=copy.deepcopy(graph['nodes']));mapping={}\n  if kind=='nonce':proof['nonce']='d'*32\n  elif kind=='identity':proof['root_identity']=[identity[0],identity[1]+1]\n  elif kind=='nodes':data['nodes']['usr/lib/libfixture.so']['sha256']='f'*64\n  elif kind=='caps':mapping={'foreign':'00'}\n  compressed=gzip.compress(C.encoded(data),mtime=0)\n  if kind=='gzip-truncated':compressed=compressed[:-1]\n  elif kind=='gzip-trailing':compressed+=b'x'\n  elif kind=='gzip-concatenated':compressed+=compressed\n  (paths['/current607-proof']/'current607-formation.json').write_bytes(C.encoded(proof));(paths['/current607-proof']/'current607-root.json.gz').write_bytes(compressed);(paths['/current607-proof']/'current607-capabilities.json').write_bytes(C.encoded(mapping));config=root/'upgrade-config.json';config.write_bytes(C.encoded(dict(scale=dict(limits=dict(root_nodes=1000,root_bytes=8*1024**2,file_bytes=1024**2,package_files=1000)))));paths['/upgrade-config.json']=config\n  # Project the host table to actual source/output descriptor mount IDs,\n  # matching the isolated container boundary without unrelated host aliases.\n  identifiers=set()\n  for path in(source,paths['/measurement']):\n   fd=os.open(path,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC)\n   try:identifiers.add(roots._mount_id(fd,limits))\n   finally:os.close(fd)\n  mount_table=''.join(line+'\\n'for line in scope._mount_table().splitlines()if int(line.split(' ',1)[0])in identifiers);self.assertEqual(len(mount_table.splitlines()),len(identifiers))\n  def mapped(value):\n   value=Path(value)\n   for name,target in sorted(paths.items(),key=lambda item:len(item[0]),reverse=True):\n    origin=Path(name)\n    if value==origin or value.is_relative_to(origin):return target/value.relative_to(origin)\n   return value\n  real_vfs=os.fstatvfs;calls=[];captures=[];base=module.cap_scope.C;before_path=base.Path;real_derive=module.cap_scope.derive\n  real_space=os.statvfs\n  def space(path):\n   value=real_space(path)\n   if Path(path).is_relative_to(paths['/measurement']):\n    fields={name:getattr(value,name)for name in dir(value)if name.startswith('f_')};fields['f_favail']=0 if kind=='capacity-unknown'else 16384;return types.SimpleNamespace(**fields)\n   return value\n  def vfs(fd):\n   value=real_vfs(fd);info=os.fstat(fd)\n   if readonly and[info.st_dev,info.st_ino]==identity:\n    fields={name:getattr(value,name)for name in dir(value)if name.startswith('f_')};fields['f_flag']|=os.ST_RDONLY;return types.SimpleNamespace(**fields)\n   return value\n  def command(argv,seconds=600):calls.append((list(map(str,argv)),seconds));raise self.ExternalBoundary('before external cp/mkfs, no actor executed')\n  s=dict(nonce=nonce,uid=os.getuid(),gid=os.getgid(),bindings=('/inputs',),runner_files={},source_files={})\n  with contextlib.ExitStack()as stack:\n   stack.enter_context(patch.object(module,'Path',side_effect=mapped));stack.enter_context(patch.object(base,'Path',side_effect=mapped));stack.enter_context(patch.object(module,'apis',return_value=(scope,roots,copier,None)));stack.enter_context(patch.object(module.shutil,'disk_usage',return_value=types.SimpleNamespace(total=64*1024**3,used=0,free=64*1024**3)));stack.enter_context(patch.object(module,'command',side_effect=command));stack.enter_context(patch.object(os,'fstatvfs',side_effect=vfs));stack.enter_context(patch.object(os,'statvfs',side_effect=space));stack.enter_context(patch('subprocess.Popen',side_effect=AssertionError('no external actor in media controls')))\n   stack.enter_context(patch.object(scope,'_mount_table',return_value=mount_table))\n   manifests=stack.enter_context(patch.object(scope,'source_manifest',wraps=scope.source_manifest));copies=stack.enter_context(patch.object(copier,'copy_data',wraps=copier.copy_data));clock=stack.enter_context(patch.object(module,'limits',wraps=module.limits));guard=stack.enter_context(patch.object(P,'readonly',wraps=P.readonly))\n   def derive(raw,omitted):\n    actual=real_derive(raw,omitted);observe=stack.enter_context(patch.object(actual,'observe',wraps=actual.observe));restore=stack.enter_context(patch.object(actual,'restore',wraps=actual.restore));captures.append((actual,observe,restore));return actual\n   stack.enter_context(patch.object(module.cap_scope,'derive',side_effect=derive))\n   try:module.prepare(s)\n   finally:self.last=dict(root=root,source=source,measurement=paths['/measurement'],calls=calls,manifests=manifests.call_count,copies=copies.call_count,clock=clock.call_args_list,readonly=guard.call_count,capabilities=[(observe.call_count,restore.call_count)for _,observe,restore in captures],original_contract=base,original_path=before_path)\n def test_old_f46_reproduces_missing_inflate_then_actual_fixed_prepare_reaches_cp(self):\n  M,_=self.modules();old=self.original_module();self.assertFalse(hasattr(old.C,'inflate'));self.assertIs(old.cap_scope.C,old.C)\n  with self.assertRaisesRegex(AttributeError,\"has no attribute 'inflate'\"):self.run_prepare(old)\n  self.assertEqual(self.last['calls'],[]);self.assertEqual(self.last['copies'],0);self.assertEqual(self.last['readonly'],0)\n  current=self.construct_restored(lambda:M.module(A.vm_source/'runtime'));self.assertEqual(current.prepare.__code__,old.prepare.__code__)\n  with self.assertRaises(self.ExternalBoundary):self.run_prepare(current)\n  self.assertEqual(len(self.last['calls']),1);argv,seconds=self.last['calls'][0];self.assertEqual(argv[:4],['/usr/bin/cp','-a','--reflink=never','--']);self.assertEqual(seconds,900);self.assertEqual(self.last['copies'],1);self.assertEqual(self.last['manifests'],2);self.assertEqual(self.last['readonly'],1);self.assertEqual(self.last['capabilities'],[(3,1)]);self.assertEqual(self.last['clock'][0].args[1],900);self.assertFalse(any(self.last['measurement'].glob('*.raw')));self.assertIs(current.cap_scope.C.Path,self.last['original_path'])\n def test_private_inflater_is_exact_case_helper_and_original_globals_stay_original(self):\n  M,_=self.modules();module=self.construct_restored(lambda:M.module(A.vm_source/'runtime'));base=module.cap_scope.C;self.assertIs(module.C.inflate,C.inflate);self.assertIsNot(module.C,base);self.assertFalse(hasattr(base,'inflate'));self.assertIs(module.C.read,base.read);self.assertIs(module.C.decode,base.decode);self.assertIs(base.read.__globals__,vars(base));self.assertEqual(Path(base.__file__),A.vm_source/'runtime/contract.py');self.assertEqual(base.HERE,A.vm_source/'runtime');self.assertIs(module.prepare.__globals__['C'],module.C)\n def test_real_bounded_gzip_accepts_complete_bytes_and_refuses_every_bad_framing(self):\n  import gzip\n  M,_=self.modules();module=M.module(A.vm_source/'runtime');payload=b'{\"nodes\":{\"bounded\":true}}';raw=gzip.compress(payload,mtime=0);self.assertIs(module.C.inflate,C.inflate);self.assertEqual(module.C.inflate(raw,len(payload)),payload)\n  for value in(raw[:-1],raw+b'trailing',raw+raw,bytearray(raw),b''):\n   with self.subTest(kind=type(value).__name__,length=len(value)),self.assertRaises(ValueError):module.C.inflate(value)\n  with self.assertRaises(ValueError):module.C.inflate(raw,len(payload)-1)\n def test_actual_prepare_refuses_bad_gzip_before_copy_or_external_command(self):\n  M,_=self.modules()\n  for kind in('gzip-truncated','gzip-trailing','gzip-concatenated'):\n   with self.subTest(kind=kind),self.assertRaises(ValueError):self.run_prepare(M.module(A.vm_source/'runtime'),kind)\n   self.assertEqual(self.last['copies'],0);self.assertEqual(self.last['calls'],[])\n def test_original_proof_identity_nodes_caps_and_real_readonly_fd_guard_stay_required(self):\n  M,_=self.modules()\n  for kind in('nonce','identity','nodes','caps','readonly'):\n   with self.subTest(kind=kind),self.assertRaises(ValueError):self.run_prepare(M.module(A.vm_source/'runtime'),kind,readonly=kind!='readonly')\n   self.assertEqual(self.last['copies'],0);self.assertEqual(self.last['calls'],[]);self.assertEqual(self.last['readonly'],1)\n def test_original_capacity_guard_refuses_unknown_measurement_inode_count(self):\n  M,_=self.modules()\n  with self.assertRaisesRegex(ValueError,'insufficient or unknown filesystem free inode count'):self.run_prepare(M.module(A.vm_source/'runtime'),'capacity-unknown')\n  self.assertEqual(self.last['copies'],1);self.assertEqual(self.last['calls'],[]);self.assertFalse((self.last['measurement']/'stage/boot').exists())\n def minimal_vm(self):\n  M,_=self.modules();folder=tempfile.TemporaryDirectory(prefix='media-contract-pinned-input-',dir='/var/tmp');self.addCleanup(folder.cleanup);root=Path(folder.name)\n  for name in('contract.py',M.DONOR,M.DONOR.replace('disk.py','cap_scope.py')):\n   target=root/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(C.read(A.vm_source/'runtime'/name,256*1024))\n  return root\n def test_each_exact_contract_donor_or_capability_drift_refuses_before_exec(self):\n  M,_=self.modules()\n  for name in('contract.py',M.DONOR,M.DONOR.replace('disk.py','cap_scope.py')):\n   with self.subTest(name=name):\n    root=self.minimal_vm();target=root/name;target.write_bytes(target.read_bytes()+b'\\n# private hostile fixture drift\\n')\n    with patch('builtins.exec',side_effect=AssertionError('drift must refuse before dependency execution')),self.assertRaisesRegex(ValueError,'exact pinned original media contract/donor/capability body'):self.construct_restored(lambda:M.module(root))\n def test_late_donor_drift_after_actual_derivation_refuses_before_exec(self):\n  M,_=self.modules();root=self.minimal_vm();original=M.derive\n  def drift(path):\n   result=original(path);target=Path(path)/M.DONOR;target.write_bytes(target.read_bytes()+b'\\n# late private fixture drift\\n');return result\n  with patch.object(M,'derive',side_effect=drift),patch('builtins.exec',side_effect=AssertionError('late drift must refuse before dependency execution')),self.assertRaisesRegex(ValueError,'same whole media donor after derivation'):self.construct_restored(lambda:M.module(root))\n def test_aliases_and_sys_path_restore_after_partial_donor_execution_failure(self):\n  import builtins\n  M,_=self.modules();original=builtins.exec;seen=[]\n  class Reached(RuntimeError):pass\n  reason=Reached('actual held donor exec boundary')\n  def stop(code,namespace=None,local=None,**kwargs):\n   name=namespace.get('__name__')if isinstance(namespace,dict)else None;seen.append(name)\n   if name=='_core_real_systemd_media':raise reason\n   return original(code,namespace,local,**kwargs)\n  with patch('builtins.exec',side_effect=stop),self.assertRaises(Reached)as found:self.construct_restored(lambda:M.module(A.vm_source/'runtime'))\n  self.assertIs(found.exception,reason);self.assertIn('_core622_original_media_contract',seen);self.assertIn('_core622_original_media_cap_scope',seen);self.assertIn('_core_real_systemd_media',seen)\n def test_held_prepare_code_outer_authority_and_all_clocks_remain_exact(self):\n  M,_=self.modules();text,held=M.derive(A.vm_source/'runtime');derived=L.media_text(text);module=M.module(A.vm_source/'runtime');expected=next(value for value in compile(derived,module.prepare.__code__.co_filename,'exec').co_consts if isinstance(value,types.CodeType)and value.co_name=='prepare');self.assertEqual(module.prepare.__code__,expected)\n  outer_text=C.read(CASE/'media.py').decode();node=next(n for n in ast.parse(outer_text).body if isinstance(n,ast.FunctionDef)and n.name=='prepare');outer=ast.get_source_segment(outer_text,node)+'\\n';self.assertEqual(C.pin(outer.encode())['sha256'],'8afe16445ff26c512427b61d180dc41c1af4268e5034c4a4eececa8a2d709d88');self.assertIn('mask=0x8000001b',outer);self.assertNotIn('SYS_CHROOT',outer)\n  self.assertEqual(C.BUDGET,dict(owner=14400,producer=2300,assembly=1070,media=1900,vm_shared=7200,boot=3600,transaction=90,cleanup=60));self.assertEqual(module.C.SHARED_SECONDS,3000);self.assertEqual(module.C.PRODUCT_SECONDS,5);self.assertEqual(module.C.CAP,16*1024**2)\n\n\nif __name__=='__main__':unittest.main(verbosity=2)"
+      ]
+    ]
+  },
+  "guard_anchor": " C=globals()['C'];root=Path(root)\n",
+  "guard_products_before": "PRODUCTS={'Core800-acceptance.json': {'bytes': 2043, 'sha256': 'd6f67e4c2782f9b609309e6e5627ad6534f172f0560ec7e2e2ec5c3a4f251e9d'}, 'LICENSE': {'bytes': 27836, 'sha256': '624b2335eff599a84764ef0a51b6d2962b5ef504a792e1b362ea31f0cbc1ac4c'}, 'README.md': {'bytes': 6730, 'sha256': '849d859eb0d7c49d4a1a673218fbc74a7bcf378b711b3e2ebb21ab3887dcff8e'}, 'acl_policy.py': {'bytes': 83174, 'sha256': '9204e5794f01b49a0b301088f3a5b4439e57eb7273fc5afac278b3f967816462'}, 'adapter.py': {'bytes': 1401, 'sha256': 'fb0aadeb5fb230346161be90e94696aecaecf6d2b3e1e3f40538d7ab72f23586'}, 'assembly622.py': {'bytes': 466, 'sha256': '610836ad8beeed379079b711c37d20867b28218d9422631ff7857d8a4872be55'}, 'boot.py': {'bytes': 5422, 'sha256': 'f6df3d8e5b5602f3b9eca4ebfbb54afaa354ac29b7b4b9cc26988a9de064349e'}, 'candidate_capacity.py': {'bytes': 47168, 'sha256': '30b34914054a37d83c74950cb55232017ad90a31c7545bd36287064f850c051d'}, 'case.py': {'bytes': 8668, 'sha256': '07ea5e72a4ad8b22b9a6594aada61941abefa4659b46b26fc0bb59efa239319b'}, 'clock.py': {'bytes': 4205, 'sha256': 'cf43f16973294a8e687c65341cb63329a71d9a2a2ea488f0f6f2e20b97087c3c'}, 'composition-parent.json': {'bytes': 663714, 'sha256': '91bb2b3b0e4151f1a59982cc5ebbd6c792c6b8bc3e3d3417009b08f7fcdfa903'}, 'composition.json': {'bytes': 444951, 'sha256': '154aab2490617a23d3fb745cc8c03d3bc4abb35d3c836f4a43394b1758158d6c'}, 'compression-profile.json': {'bytes': 1179, 'sha256': 'aec949ee839909702d208a3f91710c4565b5dcf46fa4fca0b2bd3bc13558d57c'}, 'controller.py': {'bytes': 11715, 'sha256': '50061a1e0e91dabdbe66572500cfaf343c97e6cd750f77665b17c4ec4a1cb719'}, 'desktop622.py': {'bytes': 9856, 'sha256': 'eace06a0842aa08b803de34522178a086943c3e05086b1ed07f7fb986fd07400'}, 'effects.py': {'bytes': 6147, 'sha256': 'e2d4d80f64736975437615146f09f8796c20a634b02bb31d167614700609aae7'}, 'entry.py': {'bytes': 6025, 'sha256': 'f34a53b6ea08ef673d0d187e70a4fc1a496b8b00882cd432fbe3af0e50ddac68'}, 'evidence.py': {'bytes': 7519, 'sha256': '6910175a5380f0c4263d5dde3dc52fdbc352b055bdd75d21969a47c2264b1987'}, 'expected607.lock': {'bytes': 12076, 'sha256': 'be35402204ba5c03d78279722afa83047c9575d2da70fb5c4064f46ed15954c5'}, 'expected622.lock': {'bytes': 12444, 'sha256': '189d037738680f5dfc9a5d48169eddf866383a06b070c094dac613c9d1b4eca8'}, 'export622.py': {'bytes': 3680, 'sha256': 'a2c5de8f421642024c2292a894caab34052f9f430ca8d2392490d5e0f7615dee'}, 'formation622.py': {'bytes': 4938, 'sha256': 'c0dba994e0edb0da162e796a68b555ead745889baf5cd70a929fa465e79b4485'}, 'graph_api.py': {'bytes': 1899, 'sha256': '16839d25ad6a3957b68848fb6718a393840840b433361eba1ae07ddbbdafe5d7'}, 'graph_stage_source.py': {'bytes': 56225, 'sha256': 'b0ce77149ff72ea2936c23fcbdeefe3c011a2dfc75d60d40ec650ab233e5e845'}, 'guest.py': {'bytes': 18698, 'sha256': 'aee907cc341726e87e87bb4334c1688145356925e17c7ad5eea89e39e8c9fef9'}, 'guest_guard.py': {'bytes': 4160, 'sha256': '8db72fbc36f59c5660f7ddc4f56f3bdbed81cdec4344c65017db522501f83de7'}, 'hook.py': {'bytes': 787, 'sha256': 'b3e2bd1c4eb715928919028be1dddce2090605d233ba8f4d6bf98d67e95f5fa3'}, 'host.py': {'bytes': 4302, 'sha256': 'd25d18a115483bf7b6f2f0f0f1bfe21d19de37951949e55685edcfb77d84248b'}, 'initramfs.py': {'bytes': 4502, 'sha256': '50d3a4833f5b783704c1a07fb3c213819769a08294eb677e7066ec13595d4b98'}, 'journal_acl.py': {'bytes': 94610, 'sha256': 'e3849c1604b6520c4fb813692290a0989d08542cf3ada1fbf412948a83a26c9c'}, 'lane622.py': {'bytes': 9700, 'sha256': '31d47330f090f82c5ed5a1da108045492fa4de9d47bd45bbb2c169781d7c52bf'}, 'media.py': {'bytes': 7894, 'sha256': '6c232e7b3fc1d041fdcf3fab033a424f04af5cd44935eaf186f174ea1be94f80'}, 'mime-profile.json': {'bytes': 259815, 'sha256': '4c601c715c4ee64484f49dacebfddb53da9391893c29e3c0626a92942a36a793'}, 'mime_cache.py': {'bytes': 47294, 'sha256': '1e04c1a6d7918c6499a3a356397749a60083000bb493e9fb3df1f277ea635922'}, 'ownership622.py': {'bytes': 33403, 'sha256': '29bf2dfa2941f7178aa1c0d10325382a5b33164691e29f8e9136b01e4d2bcd91'}, 'pid1-baseline.json': {'bytes': 528, 'sha256': 'b508b5ff108bc90d79952c7a90efdb812ccd008421297412b9338a2c6c1c8be6'}, 'pid1-expected.json': {'bytes': 548, 'sha256': '2891023d89c1f35b47c8e4cb8b7c88105ddce72b18796a377b161e7278f03659'}, 'prepare.py': {'bytes': 1394, 'sha256': '554c52290776a5f4ec314ba8abad836db1d99ab81e4782964e3a0d4bbe04a8a2'}, 'profile.json': {'bytes': 334009, 'sha256': 'e03456c28bcae23d3cb6ae856af81adf75a1a60905aefb0e0238acd147e3de24'}, 'provision622.py': {'bytes': 25304, 'sha256': 'c2f541898f4628465afd77423af26f69b9d574198e2ac8a94f346c1eb9f8b19e'}, 'run622.py': {'bytes': 17037, 'sha256': '41d4d209bbcb79a035b65b72e95799956ad48709ebb07eb8c21b63d7e39d8919'}, 'serial-profile.json': {'bytes': 734, 'sha256': 'f7cd6095424948d3e108b3b96763674612fc086e2da08cb783da78057a0f0c0e'}, 'serial_result.py': {'bytes': 52907, 'sha256': 'd708f9de5f31a15882596ed95fb9514958ce8df4a85ce2152dcb265f878b3991'}, 'test_bridge622.py': {'bytes': 55951, 'sha256': 'a869d0f26fbab13b5c04619b100e59ad027ee148b21b0992aae196efc7862a39'}, 'test_case.py': {'bytes': 19195, 'sha256': '723c962fafa76c84e8d6764e687bdebe5faad63b00a96edb0355f27c8ad7a189'}, 'test_desktop622.py': {'bytes': 5072, 'sha256': 'ed28a02f696c57785041c53b8c8380b3817cbb2e884b1fd3df4451881c7a6daf'}, 'test_emission.py': {'bytes': 2521, 'sha256': '57a4a755385a5e380e303f3e3da33bafcfc71063ffce2041f22b22b5a5ffdf8f'}, 'test_host.py': {'bytes': 3090, 'sha256': 'b01d3159bd0b0c688434bac69976dd16cf173358a598957f3be58f49c1642460'}, 'test_initramfs.py': {'bytes': 7864, 'sha256': '0d0a521c9f4e8793c4b15a82119dfca7a46642033c94b72327e27118a797bae2'}, 'test_protocol.py': {'bytes': 4378, 'sha256': 'ac482fa3a8fc0ab932bcf8e65b864e4ac26affc1ecf30ecea61cd42b52264d25'}, 'test_route.py': {'bytes': 9847, 'sha256': 'b32ab0d4b5dd3cbfbb131811a8460bc82b07dcd517598971c1b14bdc437123ab'}, 'test_sources.py': {'bytes': 19838, 'sha256': 'eef8c2a75e8f3c5e282eb48daba98ce471c58791b29e0653626fe0949a06a8e7'}, 'tmpfiles_hash.py': {'bytes': 41582, 'sha256': '6912c9ae1a14477212921c6aed68b54e7c83a6a9308664e515c51619603eba6b'}, 'transaction_output.py': {'bytes': 42998, 'sha256': '8ce374e17744888ad70ca0b19485ffd6f72d6cf029f47f6fdfaa07c47dce6ce9'}, 'units/caa-core-observer.service': {'bytes': 474, 'sha256': '95b66c92d2acbbfdb5d904c2c0f6b61518fd3bb7c71eb290751a27e9d2fc8e6e'}, 'units/caa-core-probe.service': {'bytes': 358, 'sha256': 'b8a4a142045304e53893608548c293b684fbe295831e25a84d5cf3c19ef0a6b4'}, 'units/caa-core-worker.service': {'bytes': 352, 'sha256': '70ebee606afc5fee5359d3ea05cee62445766c8a4033d6fbee7398f0be6f9353'}, 'units/caa-core.target': {'bytes': 189, 'sha256': '1025ff9b01e2132861b26cf35fd5f4a25424638f03e49222552ef0cbbb719e37'}, 'validate.py': {'bytes': 7182, 'sha256': '80f0b8ee03df0f7208b1329309ec21da45cd8033a2ed3167bfb262faba293af2'}, 'vm_validation.py': {'bytes': 52784, 'sha256': 'a69264ea55374b2058048ca2441c89942e65f43d06125b0d1ad71d3e021202e1'}, 'workflow.yml.in': {'bytes': 42674, 'sha256': '2ab5a2e4cb14c62e8385993ea7cec69a4f268be35b84f11903970e964a4bf4d9'}, 'xattr_diagnostic.py': {'bytes': 17502, 'sha256': 'ad88aee4e41afa9f78d45785a45f274abeac1aaf335225ec0c4cc61240cbba47'}}",
+  "guard_self_before": "SELF='4385b6d75b49eab561aac8c46c1156b1c25a30802fd4765c02a576446cc0e028'",
+  "parent_source": "f46ac9e7aeec170ba554255e3cda380ea0364e64",
+  "schema": 1
+}

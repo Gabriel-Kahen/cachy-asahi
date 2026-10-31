@@ -34,7 +34,7 @@ jobs:
         timeout-minutes: 2
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '68774e1832e8f3e9db78d60cd3e6ef87f981e1b427fa063e5ece7e34a47c4701' "$SLICE/ci/caller.py" '5f3e178682651888193835935e532d0b3d19d362f7c94400483a0011b2c93eb2' "$SLICE/ci/source-manifest.json" | sha256sum --check
+          printf '%s  %s\n' '68774e1832e8f3e9db78d60cd3e6ef87f981e1b427fa063e5ece7e34a47c4701' "$SLICE/ci/caller.py" '3611b96d18b1974537c974ab4c9a3ffedbdedd7a37006807b2198eb04926ce53' "$SLICE/ci/source-manifest.json" | sha256sum --check
           python3 -I -B "$SLICE/ci/caller.py" proof --workspace "$GITHUB_WORKSPACE" --manifest "$SLICE/ci/source-manifest.json" --proof "$RUNNER_TEMP/file-manager-workflow-source-proof.json"
       - name: Focused source and hosted entry controls
         timeout-minutes: 3

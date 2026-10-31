@@ -1,0 +1,23 @@
+{
+  "files": {
+    "LICENSE": {
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "url": "https://raw.githubusercontent.com/moby/profiles/4b8214fc4971e06172938a1f1554ccff6647ee80/LICENSE"
+    },
+    "apparmor/apparmor.go": {
+      "bytes": 4974,
+      "sha256": "7bf6c04caeedb59df89e8de2b3fa335c73477b34efa2f0af3a0ad22484e3cb21",
+      "url": "https://raw.githubusercontent.com/moby/profiles/4b8214fc4971e06172938a1f1554ccff6647ee80/apparmor/apparmor.go"
+    },
+    "apparmor/template.go": {
+      "bytes": 6196,
+      "sha256": "7da15d81aa5c507f5002b844fdc49a969904681447a2cc29222bd6cbe797163b",
+      "url": "https://raw.githubusercontent.com/moby/profiles/4b8214fc4971e06172938a1f1554ccff6647ee80/apparmor/template.go"
+    }
+  },
+  "license": "Apache-2.0",
+  "repository": "https://github.com/moby/profiles",
+  "revision": "4b8214fc4971e06172938a1f1554ccff6647ee80",
+  "scope": "Source data for exact inherited default profile; no daemon/global policy modification"
+}

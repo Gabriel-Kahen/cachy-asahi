@@ -5,7 +5,7 @@
   "scripts/ci/test_desktop574_runtime.py": "e14dc90b5e3b6bedb7a791c128e05ec886127922549c38f2e97760510ab21cdf",
   "scripts/ci/maintained_desktop574.py": "27ba4be42cf2bd41675073e07cccc917ae033f9d68b07a33cfd7f074ac27b760",
   "scripts/ci/maintained-desktop574-inputs.json": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9",
-  "scripts/virtual/common.py": "4b61b407344ac7209a5d2ebd036a57143ee23525b6550aada6ff7488b5aab6a0",
+  "scripts/virtual/common.py": "aef2b4f09a91c4cfd66dd4504e69ef18396a94214c82ae0ec0a43c2716894a03",
   "scripts/virtual/run.py": "e96ec9b61dc26fa622702ef871bcdf9f53f3fd08ee12b5df03991163460d5766",
   "scripts/virtual/image_decode_report.py": "377efb140ec7b5e50a18ae3c3d312f31f25676818f45942bde1c3acb5dceaacd",
   "scripts/virtual/tooling.lock.json": "c18afc5bde9868594d41bd576a956960a7b01b190d148ba03ca4c41d4394e1b0",

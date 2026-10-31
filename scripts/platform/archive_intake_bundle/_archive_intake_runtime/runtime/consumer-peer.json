@@ -1,0 +1,66 @@
+{
+  "Source_grant_actual_assembly_native_install_hardware": "NOT_RUN",
+  "all259_crypto_accepted": false,
+  "all261_accepted": false,
+  "authenticated_author_rows": 37,
+  "authenticated_runtime_rows": 29,
+  "author10_controls_replayed": false,
+  "author_receipt": {
+    "bytes": 11452,
+    "mode": 420,
+    "path": "artifacts/reviews/platform-recovered-two-association-consumer-proposal-20261013/receipt.json",
+    "sha256": "26ee9f812f6a7e567d826df7b8d1bfc5b4fd5a93a0c38d4df9fd461dbbe3b0f3"
+  },
+  "consumer": {
+    "bytes": 14186,
+    "mode": 420,
+    "path": "artifacts/reviews/platform-recovered-two-association-consumer-proposal-20261013/consumer.py",
+    "sha256": "25385b498845920575a12068f58af05159aed9482119227b43859489a4eb453f"
+  },
+  "files": [
+    {
+      "bytes": 9185,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-recovered-two-association-consumer-root-peer-20261013/review.py",
+      "sha256": "c9b1d838a8790f7eb7c27fbf4b86eaac254f141683d97dd0d6acb88caf6faf15"
+    },
+    {
+      "bytes": 4065,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-recovered-two-association-consumer-root-peer-20261013/checks.json",
+      "sha256": "b920061a4563a4eae9f1f61d7a46bb8cc06a00bf3e395fd1bd6e61d990dd1726"
+    },
+    {
+      "bytes": 5240,
+      "mode": 420,
+      "path": "docs/reviews/platform-recovered-two-association-consumer-root-review.md",
+      "sha256": "d21e3f4fd97269fbe9801d1d125476c34d0d5d1d31531defacf0e2c95a76bc1b"
+    }
+  ],
+  "fixed_snapshot_bytes": 1072764,
+  "forbidden_actor_attempts": [],
+  "fresh_controls": 5,
+  "goal_status_tools_called": false,
+  "healthy_status": "ASSOCIATION_CONSUMER_VALID_ASSEMBLY_BLOCKED18",
+  "held_FDs": {
+    "closed": 33,
+    "directory_FDs": 5,
+    "no_follow_all": true,
+    "nonblocking_file_FDs": 28,
+    "opened": 33
+  },
+  "indexed_count": 3,
+  "metadata_references": 261,
+  "missing_inputs": 18,
+  "nine_acceptance_flags": false,
+  "original_source_data_unchanged": true,
+  "remaining_integration": "Root externally selects complete runtime29 and consumer entry before readiness; no grant or actual job here",
+  "runtime_source_manifest": {
+    "bytes": 8104,
+    "mode": 420,
+    "path": "artifacts/reviews/platform-recovered-two-association-consumer-proposal-20261013/runtime-source-manifest.json",
+    "sha256": "93644386ec59434df3ebf2fba483f3aa09f2a5cda37a0c3fdb0a79a3bb43d81a"
+  },
+  "schema_version": 1,
+  "status": "PASS_FIXED_RECOVERED_TWO_ASSOCIATION_BEFORE_READINESS_SOURCE_MODELS"
+}

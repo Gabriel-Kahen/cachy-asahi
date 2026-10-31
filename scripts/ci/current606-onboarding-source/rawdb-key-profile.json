@@ -1,0 +1,102 @@
+{
+  "acceptance": "NOT_GRANTED",
+  "actual": null,
+  "after_source": "ed4fb355ff939bf269905592ba5d71517ffab373",
+  "before_source": "3b90012ed1e248f803d15f5f765667b6a249fb8c",
+  "changed": {
+    ".github/workflows/native-arm-build.yml": {
+      "before": {
+        "bytes": 55965,
+        "sha256": "56c57b90dc0941bc18f4f3ed70bfb029aabfa76217c9f13baff65fcb6a167269"
+      },
+      "proposed": {
+        "bytes": 55965,
+        "sha256": "a06188aa3c110e26491c43f46ef4356d5b3402a86827ff5d6b33daa69058684b"
+      }
+    },
+    ".github/workflows/native-arm-current606-doctor2-owned-copy.yml": {
+      "before": {
+        "bytes": 55965,
+        "sha256": "56c57b90dc0941bc18f4f3ed70bfb029aabfa76217c9f13baff65fcb6a167269"
+      },
+      "proposed": {
+        "bytes": 55965,
+        "sha256": "a06188aa3c110e26491c43f46ef4356d5b3402a86827ff5d6b33daa69058684b"
+      }
+    },
+    "coexist/component.py": {
+      "before": {
+        "bytes": 17485,
+        "sha256": "8451bb5f797630c40c381dda08d119e6d551862b16c5f23339aa036e3490f586"
+      },
+      "proposed": {
+        "bytes": 17493,
+        "sha256": "a0662dc2c13d19c6550d63005daca6b4ff63a37b61e37ddfe7bc2665bbba58fa"
+      }
+    },
+    "developer/parent676.json": {
+      "before": {
+        "bytes": 415406,
+        "sha256": "465764dc91b97ec079d351109d3fbdce86ab4d1015874cf2f59f9ad472f4374c"
+      },
+      "proposed": {
+        "bytes": 438754,
+        "sha256": "01bf795ab368db776e56a9d41ead65794848dd12bf7a3949e0833a466141de3f"
+      }
+    },
+    "developer/source-manifest.json": {
+      "before": {
+        "bytes": 123826,
+        "sha256": "da02d6ed61faba8dddf34864454deaf50fce51a63c31db7cb7dae2b90b417e02"
+      },
+      "proposed": {
+        "bytes": 123826,
+        "sha256": "7c92356ac8bb7f01e39224ba3e877f045b7db439900bbb698c4e90c2472278c2"
+      }
+    },
+    "developer/test_source.py": {
+      "before": {
+        "bytes": 17834,
+        "sha256": "0e9db3c0f5afe669142a017367072f9dd45662720760583103afdbd37db1363f"
+      },
+      "proposed": {
+        "bytes": 33829,
+        "sha256": "87db9db0e883756339f700d69cf51473fe612dbdb74477bed9f534fad3bc1ac5"
+      }
+    }
+  },
+  "files": 698,
+  "held": 692,
+  "kind": "SOURCE_ONLY_EXACT_RAWDB_KEY",
+  "maps": {
+    "bytes": 247580,
+    "sha256": "50e3ef2a9ef424bd231f69b32cb8dca1c779f3c1bc9fa645725662a8bde484a2"
+  },
+  "native": "NOT_RUN",
+  "payload": {
+    ".github/workflows/native-arm-build.yml": {
+      "bytes": 55965,
+      "sha256": "a06188aa3c110e26491c43f46ef4356d5b3402a86827ff5d6b33daa69058684b"
+    },
+    ".github/workflows/native-arm-current606-doctor2-owned-copy.yml": {
+      "bytes": 55965,
+      "sha256": "a06188aa3c110e26491c43f46ef4356d5b3402a86827ff5d6b33daa69058684b"
+    },
+    "coexist/component.py": {
+      "bytes": 17493,
+      "sha256": "a0662dc2c13d19c6550d63005daca6b4ff63a37b61e37ddfe7bc2665bbba58fa"
+    },
+    "developer/parent676.json": {
+      "bytes": 438754,
+      "sha256": "01bf795ab368db776e56a9d41ead65794848dd12bf7a3949e0833a466141de3f"
+    },
+    "developer/source-manifest.json": {
+      "bytes": 123826,
+      "sha256": "7c92356ac8bb7f01e39224ba3e877f045b7db439900bbb698c4e90c2472278c2"
+    },
+    "developer/test_source.py": {
+      "bytes": 33829,
+      "sha256": "87db9db0e883756339f700d69cf51473fe612dbdb74477bed9f534fad3bc1ac5"
+    }
+  }
+}

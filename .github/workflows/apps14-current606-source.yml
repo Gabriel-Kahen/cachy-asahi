@@ -1,0 +1,47 @@
+name: Apps14 current606 source factory
+on:
+  pull_request:
+    paths:
+      - 'scripts/ci/apps8-current606-source/**'
+      - '.github/workflows/apps14-current606-source.yml'
+  push:
+    paths:
+      - 'scripts/ci/apps8-current606-source/**'
+      - '.github/workflows/apps14-current606-source.yml'
+permissions:
+  contents: read
+jobs:
+  source-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 97368c093b3cc42ea25d29ff5d2bfdd353d9c02d
+          path: .ci-apps14-current606-parent
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 97666b742d1b29e469e6de171da6e7a0d15c18c7
+          path: .ci-apps14-current606-expected
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 9fc95ae7694bfb67d8d1e8065303a5b1770b4b55
+          path: .ci-apps14-current606-carrier
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Exact389 bound and NULL, old CLI routes and all emitted source controls
+        env:
+          APPS14_CURRENT606_PARENT: ${{ github.workspace }}/.ci-apps14-current606-parent
+          APPS14_CURRENT606_EXPECTED: ${{ github.workspace }}/.ci-apps14-current606-expected
+          APPS14_CURRENT606_CARRIER: ${{ github.workspace }}/.ci-apps14-current606-carrier
+        run: python3 -I -B -Werror scripts/ci/apps8-current606-source/test_apps14.py --full-source-controls

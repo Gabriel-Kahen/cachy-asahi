@@ -1,0 +1,54 @@
+# SPDX-License-Identifier: MIT
+# Integration version; upstream 4d1752ff5b39819ab58d7337c69220342e9de0e2.
+pkgname=cachy-asahi-fish-autopair
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Explicitly enabled pinned Fish pair editing for cachy-asahi'
+arch=('any')
+url='https://github.com/jorgebucaran/autopair.fish'
+license=('MIT')
+depends=('fish>=4.9.3')
+makedepends=('python')
+source=('_autopair_backspace.fish' '_autopair_insert_left.fish' '_autopair_insert_right.fish' '_autopair_insert_same.fish' '_autopair_tab.fish' 'opt-in.fish' 'check-module.py' 'usage.md' 'source-provenance.json' 'NOTICE' 'LICENSE.upstream' 'LICENSE.project')
+sha256sums=(
+    'eb5f42b837a98e721ec5f60f6c05df5fc709c9b8852317823b576d053ea9e0d8'
+    '15739503faea70699ce121742bbfd59cf0ba64fb4ac044119aaeb644ec7019f1'
+    'eaadbfd4cf10a40dfbe5eaf522f0d7d01a1e4538a6e9fbd591c35cc7a517744d'
+    'ac34fd6de9b0c79e4499ace389d3bd61e2984087126a040bccd68d336050c23f'
+    'dd298673353cc7d48b9fd988932594685888aaa8406b2ca0e64946fce261b068'
+    '77d5122d6fc5a9e933f15425946b806a9273b3ead3bb52a1ac1d81a698ee4a21'
+    'cbcb974c8cb0c2b1bf262a8c0f9166ed11f37f06666efd003a204c0859c76294'
+    '5672092ff0515fcab67ebd3b83a0e71333908c2dc4732324f9c1d74e0894630f'
+    '850512269f1b560b47d7e34145af65d6b05b360a86d0295e8c6d957678e35d6b'
+    '6c73e4ccb627a7d8d1541dfeb99821105b3f22276c304972c81c0eafc6c019ba'
+    'f101c761d255d0dddc77dd8a9327733b03d381798ec54a1bb718367207b48a8e'
+    '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
+)
+
+check() {
+    local file result
+    for file in "$srcdir"/*.fish; do
+        fish --no-config --no-execute "$file" || return
+    done
+    local fixture
+    fixture=$(mktemp -d "$srcdir/autopair-check.XXXXXX") || return
+    if python "$srcdir/check-module.py" --source "$srcdir" --output "$fixture/results"; then
+        result=0
+    else
+        result=$?
+    fi
+    rm -rf -- "$fixture"
+    return "$result"
+}
+
+package() {
+    local file
+    for file in _autopair_backspace.fish _autopair_insert_left.fish _autopair_insert_right.fish _autopair_insert_same.fish _autopair_tab.fish opt-in.fish; do
+        install -Dm644 "$srcdir/$file" "$pkgdir/usr/share/cachy-asahi/fish-autopair/$file" || return
+    done
+    install -Dm644 "$srcdir/usage.md" "$pkgdir/usr/share/cachy-asahi/fish-autopair/README.md" || return
+    install -Dm644 "$srcdir/source-provenance.json" "$pkgdir/usr/share/cachy-asahi/fish-autopair/source-provenance.json" || return
+    for file in NOTICE LICENSE.upstream LICENSE.project; do
+        install -Dm644 "$srcdir/$file" "$pkgdir/usr/share/licenses/$pkgname/$file" || return
+    done
+}

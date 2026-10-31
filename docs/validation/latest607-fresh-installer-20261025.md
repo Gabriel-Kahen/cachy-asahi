@@ -1,0 +1,11 @@
+# Signed latest607 fresh installer: accepted VM scope
+
+Root accepts the finite signed TEST607 installation from [run40223603945](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/40223603945), source `b9976eea34eaed4b6e56af3be21d4d652fa971d6`. The immutable [decision and retained originals](https://github.com/Gabriel-Kahen/cachy-asahi/tree/5a0789405ded23f759f4a3aa545cf737c4ec3bde) contain24 files. The [local decision](latest607-fresh-installer-20261025.json) is byte-identical to that packet's `decision.json`.
+
+The owned generic ARM4K VM installs the complete607-package Apps16 target with lock SHA256 `be35402204ba5c03d78279722afa83047c9575d2da70fb5c4064f46ed15954c5`. Private trust, package/database/payload, numeric ownership, preservation, ordinary-parent capability separation and process retirement checks pass. The root guest independently reads the installed tree after the ordinary parent exits:124513 nodes, zero missing required database nodes,487.820seconds within600. QEMU exits naturally after3847.197seconds. Cleanup is retained source-bound evidence.
+
+Root joins every1197 source file to frozen Git, all2606 reader files,18 once-original leaves and10 closed public reports (140719bytes). The single collector passes18.778seconds/900 and the complete positive replay17.177seconds/300, both without stderr. No original reacquisition or replay repetition occurs.
+
+Private raw node/hash/ownership maps and target lock/profile bytes were checked by frozen guest code and are not exported. Passive verification checks their complete summaries and exact retained protocol/source joins; it does not perform a new whole-byte root readback. Runtime statx-versus-fdinfo selection is not exported.
+
+This result establishes no target boot or hooks/scriptlets acceptance. Native-container P0 remains `UNCHANGED_FAILED`. Physical installation, Asahi/M2, accelerated graphics, performance/power and supported release remain unaccepted. The separate [Apps6-before607 installer baseline now passes](latest607-apps6-baseline-20261025.md). The full Apps6→16 updater/recovery matrix still requires its own results. Current GUI and generic16K repair retain their unfinished gates. [Core hooks/PID1 now pass a separate finite589 two-boot test](core7-two-boot-generic16k-20261026.md); integration with this607 target remains untested.

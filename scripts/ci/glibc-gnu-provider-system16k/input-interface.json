@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "status": "INTERFACE_ONLY_NO_INVENTED_PACKAGE_OR_RUN_IDENTITIES",
+  "binding": {
+    "source": "Root freezes actual immutable input Git SHA",
+    "index": {
+      "path": "packet.json",
+      "bytes": "actual index bytes",
+      "sha256": "actual index SHA256"
+    }
+  },
+  "index": {
+    "schema_version": 1,
+    "status": "ROOT_ACCEPTED_PROVIDER_LIFECYCLE_INPUTS",
+    "archives": {
+      "a": "reference",
+      "b": "reference"
+    },
+    "provider_pair": "reference to ROOT_ACCEPTED_PROVIDER_NATIVE_PAIR receipt",
+    "provider_pkgbuild_sha256": "actual accepted BUILDINFO recipe hash",
+    "held": "reference to exact original signed-input glibc archive",
+    "probes": {
+      "smoke-normal": "reference",
+      "exec-child": "reference",
+      "plugin.so": "reference"
+    },
+    "probe_receipt": "reference to ROOT_ACCEPTED_NORMAL_INTERPRETER_PROBES, files map and compile_receipts a/b ordinary refs",
+    "files": "complete materializer file map path -> bytes/sha256"
+  },
+  "reference": {
+    "path": "ordinary closed relative file",
+    "bytes": "actual bytes",
+    "sha256": "actual SHA256"
+  },
+  "reuse": "Consume the existing glibc-gnu-provider-packet/prepare.py packet directly, including packet.json/index.files and probe_receipt.compile_receipts. No second transport, held producer root, installed snapshot or ALPM gate."
+}

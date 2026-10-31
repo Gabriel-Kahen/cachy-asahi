@@ -1,0 +1,33 @@
+RECOVERY
+
+If a new desktop configuration fails, use your previously working base session
+or an already verified console/recovery route. Preserve the existing Asahi
+boot, kernel, firmware, graphics and audio stack. Welcome supplies no generic
+PC boot repair, partitioning or automatic kernel replacement.
+
+For an interrupted cachy-asahi-setup operation, preview its recorded recovery
+as the same user and with the original path options:
+
+  cachy-asahi-setup recover
+
+Read the preview and the installed setup documentation before applying it.
+An edited file that conflicts with the journal needs reconciliation; do not
+discard the journal or overwrite user edits to make the warning disappear.
+
+To preview removal of setup-owned configuration blocks/copies:
+
+  cachy-asahi-setup remove
+
+Return to your working session first. This is separate from package removal;
+it does not stop running apps or remove packages. Keep setup installed until
+its pending operation has been reconciled.
+
+For a failed package transaction, retain package-manager logs and inspect the
+actual database, installed files and hooks using your base's documented route.
+A leftover lock file is not permission to delete it: establish that no package
+transaction is running. Do not disable signature checks or remove protection
+services as a repair shortcut.
+
+Boot recovery depends on the actual Apple model, storage and tested base.
+Follow that base's established documentation and support route. This package
+does not invent a recovery endpoint or claim a hardware-tested rescue path.

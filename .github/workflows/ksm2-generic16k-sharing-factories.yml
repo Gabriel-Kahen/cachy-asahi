@@ -1,0 +1,36 @@
+name: ksm2-generic16k-sharing-factories
+on:
+  push:
+    paths:
+      - scripts/ci/ksm2-generic16k-sharing-hosted/**
+      - scripts/ci/ksm2-generic16k-interrupted-sharing-hosted/**
+      - .github/workflows/ksm2-generic16k-sharing-factories.yml
+  pull_request:
+    paths:
+      - scripts/ci/ksm2-generic16k-sharing-hosted/**
+      - scripts/ci/ksm2-generic16k-interrupted-sharing-hosted/**
+      - .github/workflows/ksm2-generic16k-sharing-factories.yml
+permissions:
+  contents: read
+jobs:
+  source-and-owned-process-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      KSM_SHARING_SCALAR_RUNTIME: ${{ github.workspace }}/.ci-fixtures/ksm-scalar605/runtime
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Checkout exact public scalar605 source fixture
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: fe43a83e80aef1463202e348a8dd795ea48264a4
+          path: .ci-fixtures/ksm-scalar605
+          persist-credentials: false
+      - name: Check original12 sharing factory controls
+        run: python3 -B -Werror::ResourceWarning scripts/ci/ksm2-generic16k-sharing-hosted/test_factory.py
+      - name: Check controlled emission and real owned-process cleanup5 controls
+        run: python3 -B -Werror::ResourceWarning scripts/ci/ksm2-generic16k-interrupted-sharing-hosted/test_factory.py

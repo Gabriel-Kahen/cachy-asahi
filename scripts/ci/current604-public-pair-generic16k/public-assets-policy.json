@@ -1,0 +1,8 @@
+{
+  "gui_authority": null,
+  "gui_authority_carrier": null,
+  "public_carrier": "77bd2c6ecf2e5c28a04116c3da85c45f70d1cc90",
+  "schema_version": 1,
+  "source_manifest_sha256": null,
+  "status": "UNBOUND_PUBLIC_ARCHIVES_AND_SEPARATE_GUI_COMPONENT_AUTHORITY"
+}

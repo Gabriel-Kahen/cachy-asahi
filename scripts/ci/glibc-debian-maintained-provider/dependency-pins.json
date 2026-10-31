@@ -1,0 +1,17 @@
+{
+  "files": {
+    "packages/core/cachy-asahi-glibc-debian-provider/stage.py": {
+      "bytes": 8147,
+      "sha256": "43b1b441dcc384379ab80c4864bbf7ffd898d56e4ba629c0faa966c25a979e6c"
+    },
+    "scripts/ci/glibc-debian-provider/auth.py": {
+      "bytes": 9381,
+      "sha256": "cff55c85bda9d50fe209e93146d26d331bbe98b6f0a453e3e2ec1029fc57e1d1"
+    },
+    "scripts/ci/glibc-gnu-provider/materialize.py": {
+      "bytes": 12553,
+      "sha256": "70bcde37f56b5a4ea3a44993a6add82ef4627635801c0a7909b14aefbca00d92"
+    }
+  },
+  "schema_version": 1
+}

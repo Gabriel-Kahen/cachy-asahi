@@ -1,0 +1,53 @@
+{
+  "archive_sha256": "874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad",
+  "commands": [
+    {
+      "argv": [
+        "/usr/bin/make",
+        "-C",
+        "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/generic-arm64-16k-20261016/configure-probe/linux-asahi-7.1.13-3",
+        "O=/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/ksm2-native-validation-development-20261018/configure-original-diagnostic",
+        "ARCH=arm64",
+        "LLVM=1",
+        "allnoconfig"
+      ],
+      "config": {
+        "bytes": 64022,
+        "sha256": "9729936f8a2a3ffa3edf1e3f689dbb56426795f733c73d83a9e4ee94ee8d7aa5"
+      },
+      "returncode": 0,
+      "role": "original"
+    },
+    {
+      "argv": [
+        "/usr/bin/make",
+        "-C",
+        "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/generic-arm64-16k-20261016/configure-probe/linux-asahi-7.1.13-3",
+        "O=/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/ksm2-native-validation-development-20261018/configure-ksm-diagnostic",
+        "ARCH=arm64",
+        "LLVM=1",
+        "allnoconfig"
+      ],
+      "config": {
+        "bytes": 64027,
+        "sha256": "4da404c4324583ba285c74a9c7c1571c9c11fb96b130cbdbf04d31b15816e559"
+      },
+      "returncode": 0,
+      "role": "ksm"
+    }
+  ],
+  "configuration_delta": {
+    "CONFIG_KSM": {
+      "before": "n",
+      "proposed": "y"
+    },
+    "CONFIG_XXHASH": {
+      "before": "n",
+      "proposed": "y"
+    }
+  },
+  "physical_Asahi": "UNCHANGED_NOT_RUN",
+  "status": "CONFIGURED_ONLY_NOT_BUILT_OR_BOOTED",
+  "verified_graph_sha256": "607df1b6675b09796188b76e6be896f4cc6ac3b4effde7b672943e15d1051956",
+  "verified_kconfig_makefiles_scripts": 5695
+}

@@ -1,0 +1,42 @@
+name: Platform image tools
+on:
+  pull_request:
+    paths:
+      - 'scripts/platform/**'
+      - 'scripts/virtual/owned_process.py'
+      - 'tests/platform/**'
+      - '.github/workflows/platform-image-tools.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/platform/**'
+      - 'scripts/virtual/owned_process.py'
+      - 'tests/platform/**'
+      - '.github/workflows/platform-image-tools.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  pure:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - name: Checkout platform code, pinned supervisor and pure tests
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /scripts/platform/
+            /scripts/virtual/owned_process.py
+            /tests/platform/
+      - name: Select Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Run intake and portable encoding pure controls
+        run: python -I -B -S -Werror::ResourceWarning tests/platform/run_pure.py

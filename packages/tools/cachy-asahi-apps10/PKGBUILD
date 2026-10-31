@@ -1,0 +1,66 @@
+# SPDX-License-Identifier: MIT
+# Original planner with exact three-helper installed runtime dependency.
+pkgname=cachy-asahi-apps
+pkgver=0.1.0
+pkgrel=10
+pkgdesc='Offline signed ARM development application catalog and explicit readonly package plans'
+arch=('any')
+url='https://github.com/Gabriel-Kahen/cachy-asahi'
+license=('MIT')
+depends=('python>=3.11' 'gnupg' 'libarchive' 'pacman' 'cachy-asahi-repository-runtime=0.1.0-1')
+source=('apps.py' 'cachy-asahi-apps' 'helper-pins.json' 'test_apps.py' 'check_source.py' 'README.md' 'source-provenance.json' 'NOTICE' 'LICENSE' 'prepare-check-inputs.py' 'check-inputs.json' 'check-inputs.tar.gz' 'inventory.py' 'test_inventory_paths.py' 'test_diagnostic_stage.py')
+noextract=('check-inputs.tar.gz')
+sha256sums=(
+    'de9118c7ea98d0ea0263a0615b1ad1e4ed3402c9ea6f1dcbf43d4e75258975dc'
+    '4e9c078c2e05cc00cb6479d5fff23b92cbcabd8d6b3ff970f6181e6467921630'
+    '33a5e11e6d12df984e07c437c68ee581527cc4c95f3327bc44cbc09e0e29948a'
+    '6d55ca76da60b7f1121d04cb3e16435f6db477b39e7ae8985bec01e7227d4987'
+    '9600c37a43937dfccb24a9566e1d1a31e683a104ac33d0d80e62632411882332'
+    '09ae1b989fa08c352eec89664511eaf6877ed2f24fa94c39593edb732eea1cc8'
+    '88273faa85b093dcd2e48ead5ed453f712c769e5fcb0bc055a275c5cc5cee1ee'
+    '980846ac3919dd2078f11da7263938a4869187dbc2311210f9fee6cb4ab820a5'
+    '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
+    '76bc1977cf402872816a430156541c0ccd41273e9080730d2ace7838ffa74214'
+    '5cd338eb2ab9f4579825f3dd30de0f25d54a73ee1090737b0a21a506d12caad8'
+    '6d38353fe33e0ce595df507ad9b928d80d3e1d6fe5d45d5418f927e9f50fe6d2'
+    '0f9dae65da1411548e5083ebdc14cc0d7f5f342ea0940dbcc2fd560e80b59888'
+    '2ad10c6c55a44eb10db2615cf0fd5b1e064fd50595a8b2c15b98f435cfa11775'
+    '72fca3174d5666c52e297d5651d5e76547ee6491a5f562a2e4630da6a1f95246'
+)
+
+# makepkg links local sources into srcdir; the strict preparer accepts regular files.
+_stage_check_sources() {
+    local staged i name
+    staged=$(mktemp -d "$srcdir/check-source.XXXXXXXX") || return
+    for i in "${!source[@]}"; do
+        name=${source[$i]}
+        [[ $name != */* && $name != . && $name != .. && ${sha256sums[$i]} =~ ^[0-9a-f]{64}$ ]] || return 1
+        install -m600 -- "$srcdir/$name" "$staged/$name" || return
+        printf '%s  %s\n' "${sha256sums[$i]}" "$staged/$name" | sha256sum --check >&2 || return
+    done
+    printf '%s\n' "$staged"
+}
+
+check() {
+    local staged
+    staged=$(_stage_check_sources) || return
+    python -I -B "$staged/prepare-check-inputs.py" \
+        --archive "$staged/check-inputs.tar.gz" --index "$staged/check-inputs.json" --output "$staged/check-inputs" || return
+    local source="${CACHY_ASAHI_REPOSITORY_SOURCE:-$staged/check-inputs/repository}"
+    local runtime="${CACHY_ASAHI_RUNTIME_RECIPE:-$staged/check-inputs/runtime-recipe}"
+    python -I -B "$staged/check_source.py" --recipe-root "$startdir" --repository-source "$source" || return
+    python -I -B "$staged/test_apps.py" --repository-source "$source" --runtime-recipe-root "$runtime" --app-recipe-root "$startdir" || return
+    python -I -B "$staged/test_inventory_paths.py" --repository-source "$source" || return
+    python -I -B "$staged/test_diagnostic_stage.py" --repository-source "$source"
+}
+package() {
+    [[ -n $pkgdir && $pkgdir != / ]] || return 1
+    install -Dm755 "$srcdir/cachy-asahi-apps" "$pkgdir/usr/bin/cachy-asahi-apps" || return
+    install -Dm644 "$srcdir/inventory.py" "$pkgdir/usr/lib/cachy-asahi-apps/inventory.py" || return
+    install -Dm644 "$srcdir/apps.py" "$pkgdir/usr/lib/cachy-asahi-apps/apps.py" || return
+    install -Dm644 "$srcdir/helper-pins.json" "$pkgdir/usr/lib/cachy-asahi-apps/helper-pins.json" || return
+    install -Dm644 "$srcdir/README.md" "$pkgdir/usr/share/doc/$pkgname/README.md" || return
+    install -Dm644 "$srcdir/source-provenance.json" "$pkgdir/usr/share/doc/$pkgname/source-provenance.json" || return
+    install -Dm644 "$srcdir/NOTICE" "$pkgdir/usr/share/licenses/$pkgname/NOTICE" || return
+    install -Dm644 "$srcdir/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

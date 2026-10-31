@@ -1,0 +1,34 @@
+pkgbase = cachy-asahi-ksmctl
+	pkgdesc = Read-only KSM reports and explicit saved-baseline scanning experiments
+	pkgver = 0.1.0
+	pkgrel = 2
+	url = https://github.com/Gabriel-Kahen/cachy-asahi
+	arch = any
+	license = GPL-2.0-or-later
+	depends = python>=3.11
+	source = cachy-asahi-ksmctl
+	source = cachy-asahi-ksm-experiment
+	source = test_ksmctl.py
+	source = test_experiment.py
+	source = README.md
+	source = NOTICE
+	source = LICENSE
+	source = upstream-ksmctl
+	source = adaptation.patch
+	source = source-provenance.json
+	source = check-source.py
+	source = experiment-provenance.json
+	sha256sums = f9fd76eaa6a205d56fa4bb9123b8c721ea1277249c4cab58d1b57eaf8edc7558
+	sha256sums = 1ea518cc25a0d3099b7723756fd66631c35d7a79d50b300f6387a25588306d79
+	sha256sums = e42602fd16579e30c8cb799f26c897c1e3e89515f20a49a346b1888ce3c94b6f
+	sha256sums = 2f13fe326171a7e42dc84d6c4e2ac2bbe6eb8391f9e06393f6e2c09fa8dbb843
+	sha256sums = a0422a6b280c5b1583afe5da7575ba6e98c476c8ce1efbe196ba33513e94a4ed
+	sha256sums = 939ad92c65a6c2f9da2c723a4c6e136add87ccb4a7a6e8ba0dd89692a77f3f10
+	sha256sums = edaef632cbb643e4e7a221717a6c441a4c1a7c918e6e4d56debc3d8739b233f6
+	sha256sums = cd5c8aa86df5a06a268ecc21297b4cd7d8df1053c90c8bcd4e53ef9bb16194d9
+	sha256sums = 0bc6b1f4725eb510a0f890bd616ce682b98332b371c93d2144ad643181727212
+	sha256sums = d46e93a9893225d205a01fdcd3429782ba51d44c86b78e77fce458b53448b849
+	sha256sums = 7cca209ee6ad36726b03c0f54100b07bd6d08d974473d00c2092bbd5be4089a6
+	sha256sums = e27da2f0e55a384bf8cb243e59437405391034347d10ff458fea7435898bba21
+
+pkgname = cachy-asahi-ksmctl

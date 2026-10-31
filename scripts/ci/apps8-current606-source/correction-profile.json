@@ -1,0 +1,86 @@
+{
+  "actual": null,
+  "after_source": "5c3c2d0ce5b4f6c2672c9367b722170687c7de69",
+  "before_source": "c2b61b7089e41baed6b284bf0f3a55819f661c05",
+  "changed": {
+    ".github/workflows/native-arm-build.yml": {
+      "before": {
+        "bytes": 52517,
+        "sha256": "2d0a9ac350778a9eaf3c5e57f8304f67e9ba8045765e8e22e83f6a6ece410380"
+      },
+      "proposed": {
+        "bytes": 52575,
+        "sha256": "3b6de6a6694253522ce9096e4d504d9bca5d26629650c74e84ea1714fa7086b9"
+      }
+    },
+    ".github/workflows/native-arm-current606-apps7-owned-copy.yml": {
+      "before": {
+        "bytes": 52517,
+        "sha256": "2d0a9ac350778a9eaf3c5e57f8304f67e9ba8045765e8e22e83f6a6ece410380"
+      },
+      "proposed": {
+        "bytes": 52575,
+        "sha256": "3b6de6a6694253522ce9096e4d504d9bca5d26629650c74e84ea1714fa7086b9"
+      }
+    },
+    "apps8/test_source.py": {
+      "before": {
+        "bytes": 11394,
+        "sha256": "9f61cde8e6392c5d90c54631073aef9b304529c51eb4e0915902ee1169f3df5a"
+      },
+      "proposed": {
+        "bytes": 15147,
+        "sha256": "1985a767ba5524e2e0c5be9387e8266404489990295c04e40b59dc985e94c689"
+      }
+    },
+    "apps8/workflow-profile.json": {
+      "before": {
+        "bytes": 101,
+        "sha256": "cd64c6be2fa967f36eda414e6eff7c77b2d6d891369dfcefbce223f97d780eb2"
+      },
+      "proposed": {
+        "bytes": 101,
+        "sha256": "a28f3795ecd977e064ee7d92e166430a2de792a8623641015d062ba0188f410d"
+      }
+    },
+    "scripts/ci/current606-apps7-closed-owner/source-manifest.json": {
+      "before": {
+        "bytes": 68205,
+        "sha256": "5f461fd48a255c5863ee6ae02b5d44ed723846e324184d556d57c1c24cd223f0"
+      },
+      "proposed": {
+        "bytes": 68205,
+        "sha256": "e1825674dfff6650a3698a007385590f4cbf40912e37b1b8053bea929b021fca"
+      }
+    }
+  },
+  "files": 380,
+  "held": 375,
+  "kind": "SOURCE_ONLY_EXACT_CARRIER_ENV_CORRECTION",
+  "maps": {
+    "bytes": 137150,
+    "sha256": "accbe5121eb60a2cbc735a7817355f39e78196b9834221ef039f38211cdbfd81"
+  },
+  "payload": {
+    ".github/workflows/native-arm-build.yml": {
+      "bytes": 52575,
+      "sha256": "3b6de6a6694253522ce9096e4d504d9bca5d26629650c74e84ea1714fa7086b9"
+    },
+    ".github/workflows/native-arm-current606-apps7-owned-copy.yml": {
+      "bytes": 52575,
+      "sha256": "3b6de6a6694253522ce9096e4d504d9bca5d26629650c74e84ea1714fa7086b9"
+    },
+    "apps8/test_source.py": {
+      "bytes": 15147,
+      "sha256": "1985a767ba5524e2e0c5be9387e8266404489990295c04e40b59dc985e94c689"
+    },
+    "apps8/workflow-profile.json": {
+      "bytes": 101,
+      "sha256": "a28f3795ecd977e064ee7d92e166430a2de792a8623641015d062ba0188f410d"
+    },
+    "scripts/ci/current606-apps7-closed-owner/source-manifest.json": {
+      "bytes": 68205,
+      "sha256": "e1825674dfff6650a3698a007385590f4cbf40912e37b1b8053bea929b021fca"
+    }
+  }
+}

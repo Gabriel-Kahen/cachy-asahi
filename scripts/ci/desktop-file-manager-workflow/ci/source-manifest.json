@@ -104,7 +104,7 @@
     },
     "scripts/ci/desktop-file-manager-workflow/source-pins.json": {
       "bytes": 3457,
-      "sha256": "f2578cc6d6f279e48bf7528e7f996d0b6b47b32de2a12188a7abe6dfe56b2322"
+      "sha256": "04047b75f5932570ae135a4f1957fd7f98ace463d522959249805ae9520dec26"
     },
     "scripts/ci/desktop-file-manager-workflow/test_workflow.py": {
       "bytes": 9843,
@@ -160,7 +160,7 @@
     },
     "scripts/virtual/common.py": {
       "bytes": 84361,
-      "sha256": "4b61b407344ac7209a5d2ebd036a57143ee23525b6550aada6ff7488b5aab6a0"
+      "sha256": "aef2b4f09a91c4cfd66dd4504e69ef18396a94214c82ae0ec0a43c2716894a03"
     },
     "scripts/virtual/gbm_probe.c": {
       "bytes": 14149,
@@ -218,7 +218,7 @@
     },
     "source-pins.json": {
       "bytes": 3457,
-      "sha256": "f2578cc6d6f279e48bf7528e7f996d0b6b47b32de2a12188a7abe6dfe56b2322"
+      "sha256": "04047b75f5932570ae135a4f1957fd7f98ace463d522959249805ae9520dec26"
     },
     "test_desktop574_runtime.py": {
       "bytes": 12245,

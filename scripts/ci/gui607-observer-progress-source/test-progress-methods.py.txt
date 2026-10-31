@@ -1,0 +1,138 @@
+ def forwarding_space(self,current,events):
+  raw=(ROOT/'parent574/original/scripts/ci/desktop574_guest.py').read_bytes()
+  if current:raw=O.edited(raw,O.forwarding_rows())
+  names={'need','terminate','Logged','command'}|({'_ObserverStageForward'}if current else set())
+  parts=[ast.get_source_segment(raw.decode(),n)for n in ast.parse(raw).body if isinstance(n,(ast.FunctionDef,ast.ClassDef))and n.name in names]
+  self.assertEqual(len(parts),len(names));share=self.work/('selected-share-'+str(current)+'-'+str(len(list(self.work.iterdir()))));share.mkdir()
+  space=dict(os=os,signal=signal,subprocess=subprocess,threading=threading,Path=Path,hashlib=hashlib,base64=base64,json=json,MAX_LOG=256*1024,SHARE=share,emit=lambda event,**row:events.append(dict(event=event,**row)))
+  exec(compile('\n\n'.join(parts),'<actual-whole-selected-guest-logging-bodies>','exec'),space)
+  self.assertIs(space['Logged'].drain.__globals__,space)
+  child=O.stage_body().replace('_ObserverStages','Stages').replace('_OBSERVER_STAGES','STAGES').replace('_OBSERVER_STAGE_CAP','CAP')
+  code='import json,os,time\n'+child+"\ns=Stages();s.mark('inventory_begin');s.mark('inventory_end');os.write(1,b'unchanged stdout');time.sleep(1)\n"
+  (share/'installed606.py').write_text(code)
+  argv=['/usr/bin/python3','-I','-B',str(share/'installed606.py'),'verify','/',str(share/'alpm_reader.py'),str(share/'expected.lock'),str(share/'installed606.json')]
+  return space,argv
+
+ def test_actual_selected_stream_forwards_before_exit_original_does_not(self):
+  import time
+  for current in(False,True):
+   events=[];space,argv=self.forwarding_space(current,events);logs=self.work/('stream-logs-'+str(current));logs.mkdir();actor=space['Logged'](argv,'installed606-preserved',logs,dict(PATH='/usr/bin:/bin'))
+   try:
+    until=time.monotonic()+.6
+    while current and not events and time.monotonic()<until:time.sleep(.01)
+    if not current:time.sleep(.2)
+    self.assertIsNone(actor.process.poll())
+    self.assertEqual([e['observer_stage']for e in events]if current else events,['inventory_begin','inventory_end']if current else [])
+    actor.process.wait(timeout=3);space['terminate'](actor.process);actor.finish()
+    final=events[-1];self.assertEqual(final['event'],'process_exit');self.assertEqual(final['returncode'],0)
+    self.assertEqual((logs/'installed606-preserved.stdout').read_bytes(),b'unchanged stdout')
+    stderr=(logs/'installed606-preserved.stderr').read_bytes();self.assertEqual(len(stderr.splitlines()),2);self.assertEqual(final['logs'][1]['bytes'],len(stderr));self.assertEqual(final['logs'][1]['sha256'],hashlib.sha256(stderr).hexdigest())
+    self.assertFalse(actor.errors);self.assertFalse(actor.overflow)
+   finally:space['terminate'](actor.process)
+
+ def test_forward_parser_fixed_caps_fragments_and_loss_never_authority(self):
+  events=[];space,_=self.forwarding_space(True,events);klass=space['_ObserverStageForward'];f=klass(lambda event,**row:events.append(dict(event=event,**row)))
+  def record(stage,**updates):
+   value=dict(schema=1,role='EXACT_INSTALLED607_VERIFY',stage=stage,ordinal=klass.stages.index(stage)+1,elapsed_ns=1215000000000,status='BOUNDARY_DATA_ONLY_NOT_ACCEPTANCE');value.update(updates)
+   return klass.prefix+json.dumps(value,sort_keys=True,separators=(',',':')).encode()+b'\n'
+  for raw in (b'/private/user/secret\n',record('inventory_begin',role='foreign'),record('inventory_begin',schema=True),record('inventory_begin',ordinal=True),record('inventory_begin',elapsed_ns=True),record('inventory_begin',elapsed_ns=1215000000001),record('inventory_begin',path='/private/user'),record('inventory_begin').replace(b'"schema":1',b'"schema": 1')):self.assertTrue(f.feed(raw))
+  self.assertEqual(events,[]);self.assertLessEqual(len(f.pending),512)
+  self.assertFalse(f.feed('not bytes'));self.assertFalse(f.feed(b'a'*65537))
+  f.feed(b'foreign'+b'a'*6000);f.feed(b'\n');self.assertFalse(f.discard)
+  for stage in klass.stages:
+   raw=record(stage)
+   for index in range(0,len(raw),7):self.assertTrue(f.feed(raw[index:index+7]))
+   f.feed(raw)
+  self.assertEqual([e['observer_stage']for e in events],list(klass.stages));self.assertLessEqual(f.input_bytes,2048);self.assertLessEqual(f.output_bytes,2048);self.assertLessEqual(len(f.pending),512)
+  for row in events:self.assertEqual(set(row),{'event','schema','observer_stage','ordinal','elapsed_ns','status'});self.assertEqual(row['status'],'BOUNDARY_DATA_ONLY_NOT_ACCEPTANCE')
+  def lost(*a,**k):raise OSError('private diagnostic capture loss')
+  loss=klass(lost);self.assertTrue(loss.feed(record('inventory_begin')));self.assertEqual(loss.last,1)
+
+ def test_selected_role_refuses_before_launch_and_other_drains_held(self):
+  events=[];space,argv=self.forwarding_space(True,events);logs=self.work/'no-launch';logs.mkdir()
+  for bad in (argv[:-1],tuple(argv),[argv[0],*argv[1:4],'capture',*argv[5:]],[*argv[:-1],'/private/foreign']):
+   with patch.object(subprocess,'Popen',side_effect=AssertionError('MUST_NOT_LAUNCH')),self.assertRaises(ValueError):space['Logged'](bad,'installed606-preserved',logs,{})
+  self.assertEqual(list(logs.iterdir()),[])
+  class Pipe:
+   def __init__(self):self.calls=[]
+   def __enter__(self):return self
+   def __exit__(self,*a):pass
+   def read(self,size):self.calls.append(('read',size));return b''
+   def read1(self,size):raise AssertionError('nonselected read semantics changed')
+  for name,selected_stdout in(('unrelated',False),('installed606-preserved',True)):
+   actor=space['Logged'].__new__(space['Logged']);actor.errors=[];actor.overflow=False;actor.paths=[logs/(name+'.stdout'),logs/(name+'.stderr')];actor._observer_forward=space['_ObserverStageForward'](lambda *a,**k:None)if selected_stdout else None
+   pipe=Pipe();actor.drain(pipe,actor.paths[0]if selected_stdout else actor.paths[1]);self.assertEqual(pipe.calls,[('read',65536)]);self.assertEqual(actor.errors,[])
+
+ def test_selected_timeout_and_diagnostic_loss_keep_original_result_and_logs(self):
+  events=[];space,argv=self.forwarding_space(True,events);logs=self.work/'timeout-logs';logs.mkdir();child=Path(argv[3]);child.write_text(child.read_text().replace('time.sleep(1)','time.sleep(5)'))
+  with self.assertRaises(subprocess.TimeoutExpired):space['command'](argv,dict(PATH='/usr/bin:/bin'),logs,'installed606-preserved',timeout=.3)
+  self.assertEqual([e['observer_stage']for e in events if e['event']=='installed607_observer_stage_DATA'],['inventory_begin','inventory_end'])
+  self.assertEqual(events[-1]['event'],'process_exit');self.assertNotEqual(events[-1]['returncode'],0)
+  self.assertEqual(len((logs/'installed606-preserved.stderr').read_bytes().splitlines()),2)
+  # Event capture loss remains diagnostic only: original stderr and exit0 survive.
+  events=[];space,argv=self.forwarding_space(True,events);logs=self.work/'loss-logs';logs.mkdir();original=space['emit']
+  def loss(event,**row):
+   if event=='installed607_observer_stage_DATA':raise OSError('private stage loss')
+   return original(event,**row)
+  space['emit']=loss
+  self.assertEqual(space['command'](argv,dict(PATH='/usr/bin:/bin'),logs,'installed606-preserved',timeout=3),'unchanged stdout')
+  self.assertEqual(events[-1]['returncode'],0);self.assertEqual(len((logs/'installed606-preserved.stderr').read_bytes().splitlines()),2)
+
+
+ def test_forwarded_stage_DATA_preserves_exact_profile_guard(self):
+  import types
+  raw=(ROOT/'parent574/original/scripts/ci/welcome-independent-profile-native/profile_adapter.py').read_bytes();tree=ast.parse(raw);runner=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='runner');contract=next(n for n in runner.body if isinstance(n,ast.FunctionDef)and n.name=='contract');call=contract.body[0].value
+  self.assertIsInstance(call,ast.Call);self.assertEqual(ast.literal_eval(call.args[1]),'def verify_result(events,lock):')
+  header=eval(compile(ast.Expression(call.args[2]),'<exact-source-generated-profile-guard>','eval'),dict(selected='minimal'))
+  def need(ok,why):
+   if not ok:raise ValueError(why)
+  guarded=dict(C=types.SimpleNamespace(need=need));exec(compile(header+"\n    return 'PROFILE_GUARD_ONLY_NOT_GUI_ACCEPTANCE'\n",'<trusted-original-first-profile-predicate>','exec'),guarded)
+  events=[];space,_=self.forwarding_space(True,events);klass=space['_ObserverStageForward'];forward=klass(lambda event,**row:events.append(dict(event=event,**row)))
+  for ordinal,stage in enumerate(klass.stages,1):
+   value=dict(schema=1,role='EXACT_INSTALLED607_VERIFY',stage=stage,ordinal=ordinal,elapsed_ns=1215000000000,status='BOUNDARY_DATA_ONLY_NOT_ACCEPTANCE');raw=klass.prefix+json.dumps(value,sort_keys=True,separators=(',',':')).encode()+b'\n';self.assertTrue(forward.record(raw))
+  self.assertEqual(len(events),8);self.assertTrue(all('stage'not in row and row['observer_stage']in klass.stages for row in events));self.assertLessEqual(forward.output_bytes,2048)
+  baseline=[dict(event='phase_pass',stage='minimal')];self.assertEqual(guarded['verify_result'](baseline+events,{}),'PROFILE_GUARD_ONLY_NOT_GUI_ACCEPTANCE')
+  old=[{('stage'if k=='observer_stage'else k):v for k,v in row.items()}for row in events]
+  with self.assertRaisesRegex(ValueError,'foreign or missing profile event'):guarded['verify_result'](baseline+old,{})
+  # Original decoder, no event filtering or parser edits: all8 DATA rows survive.
+  raw=(ROOT/'parent574/original/scripts/ci/desktop574_runtime.py').read_bytes();tree=ast.parse(raw);decoder=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='read_events');assign=[n for n in tree.body if isinstance(n,ast.Assign)and any(isinstance(x,ast.Name)and x.id in('PREFIX','MAX_EVENTS')for x in n.targets)];scope=dict(json=json,require=need);exec(compile(ast.Module(body=assign+[decoder],type_ignores=[]),'<exact-source-event-decoder>','exec'),scope)
+  path=self.work/'fixed-stage-events.log';path.write_bytes(b''.join((scope['PREFIX']+json.dumps(row,sort_keys=True)+'\n').encode()for row in baseline+events));_,pending,decoded=scope['read_events'](path,0,b'');self.assertFalse(pending);self.assertEqual(decoded,baseline+events)
+
+ def test_selected_root_directory_exact_live_fd_and_no_global_leak(self):
+  raw=G.read(HERE/'factory/installed607.py');m=types.ModuleType('_root_directory_actual');m.__file__=str(self.work/'installed606.py');exec(compile(O.edited(raw,O.observer_rows()),m.__file__,'exec'),vars(m))
+  spec=importlib.util.spec_from_file_location('_real_root_helper',HERE/'factory/support/alpm_reader.py');helper=importlib.util.module_from_spec(spec);spec.loader.exec_module(helper)
+  original=helper.directory;selected=m._selected_root_helper607(helper);self.assertIs(helper.directory,original);self.assertIsNot(selected,helper)
+  # /usr/share is read-only host DATA. Device crossing is refused identically.
+  for name in ('usr','usr/share'):
+   results=[]
+   for provider in(helper,selected):
+    try:
+     with provider.directory(Path('/'),name)as fd:results.append(('ok',helper.identity(os.fstat(fd))))
+    except (ValueError,OSError)as e:results.append(('refused',type(e).__name__))
+   self.assertEqual(results[0],results[1])
+  for name in ('../tmp','usr//share','/usr/share','usr/./share','usr/share/../share'):
+   for provider in(helper,selected):
+    with self.assertRaises((ValueError,OSError)):
+     with provider.directory(Path('/'),name):pass
+  # Actual symlink substitution in a private nonroot fixture still uses original traversal.
+  fixture=self.work/'root-helper-fixture';fixture.mkdir();(fixture/'real').mkdir();(fixture/'alias').symlink_to('real',target_is_directory=True)
+  with selected.directory(fixture,'real')as fd:self.assertEqual(helper.identity(os.fstat(fd)),helper.identity((fixture/'real').stat()))
+  for provider in(helper,selected):
+   with self.assertRaises(OSError):
+    with provider.directory(fixture,'alias'):pass
+  self.assertIs(helper.directory,original)
+
+ def test_selected_root_actual_executing_globals_and_capture_held(self):
+  raw=G.read(HERE/'factory/installed607.py');m=types.ModuleType('_root_directory_bind');m.__file__=str(self.work/'installed606.py');exec(compile(O.edited(raw,O.observer_rows()),m.__file__,'exec'),vars(m))
+  class Helper:pass
+  helper=Helper();helper.directory=lambda *a:None
+  seen=[];original=m.observe
+  m.__dict__['seen']=seen
+  exec('def observation(root,actual,expected,*,deadline):seen.append(actual);return actual',m.__dict__)
+  observation=m.observation;m.observe=observation
+  try:
+   selected=m._selected_verify_observe(Path('/'),helper,{},deadline=1200);self.assertIsNot(selected,helper);self.assertIs(m.observe,observation);self.assertIs(seen[-1],selected)
+   other=m._selected_verify_observe(self.work,helper,{},deadline=1200);self.assertIs(other,helper)
+   self.assertIs(observation(Path('/'),helper,{},deadline=600),helper)
+  finally:m.observe=original
+

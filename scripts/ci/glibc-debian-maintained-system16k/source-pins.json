@@ -1,0 +1,218 @@
+{
+  "files": {
+    "scripts/ci/glibc-debian-maintained-lifecycle/candidate_gate.py": {
+      "bytes": 4355,
+      "sha256": "92f390037767a9d1fdfaf9c9837fac75726c16178adc573b416b0ad7f540e5a4"
+    },
+    "scripts/ci/glibc-debian-maintained-provider/authority.json": {
+      "bytes": 873,
+      "sha256": "709ab4276c02dc21d559a6c581ba7ceae2a4999fa221b85f900f913253be5562"
+    },
+    "scripts/ci/glibc-debian-maintained-provider/root-maintained-source-authority.json": {
+      "bytes": 15506,
+      "sha256": "88643eabd61a39df63ecaeb50bb20041d17cf4fd3adee55d82d43d3c1ca08707"
+    },
+    "scripts/ci/glibc-generic16k/common.py": {
+      "bytes": 11573,
+      "sha256": "81e7f5618f2c69bcb26aba844743da8d60cb395eab1d725ee14d358c402cfba7"
+    },
+    "scripts/ci/glibc-generic16k/dependencies.json": {
+      "bytes": 3096,
+      "sha256": "c514b6ea178704cb56b55225ff85fb0b720bf9d550bb86c9afd15310d799322a"
+    },
+    "scripts/ci/glibc-generic16k/input-policy.json": {
+      "bytes": 1159,
+      "sha256": "64dae5e8dcebf16d7812f348dbfdd760bc8291221156b30fa1458260062b2ade"
+    },
+    "scripts/ci/glibc-generic16k/run.py": {
+      "bytes": 16335,
+      "sha256": "a111ef296fff624fef3560c175e46b4d983bdacc163ced49db4265de853ca6e4"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle-owner/integration-manifest.json": {
+      "bytes": 9185,
+      "sha256": "80f1c0ac6ee8ac8ba79e2884ecc141af65fc191162f5b21523ee3bd8571a5aa5"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle-owner/job.py": {
+      "bytes": 34418,
+      "sha256": "90415ffea62bda2aacf6a42826601cfb28b40d3507801554ed505557b6fd8c14"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle-owner/test_owner.py": {
+      "bytes": 22150,
+      "sha256": "52e6f55512b6fabfb6a3fe4b65f4acd82ff8ff5aed33c3792a1055330ebba02f"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle/common.py": {
+      "bytes": 12892,
+      "sha256": "42082d2e773d423d2abc0e1f7ff50e74163c09c9a51c1c073a4cb17f7e79cc72"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle/container.py": {
+      "bytes": 35741,
+      "sha256": "f12e6e057b225b617fd26597edb00ea92c4df01ca426a21fb482b2681044f9a4"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle/proc_mount.py": {
+      "bytes": 15565,
+      "sha256": "f868e4e36e34ee52fc40b6a9c37ae2bcace4d417d274fc6317f763a38af30a03"
+    },
+    "scripts/ci/glibc-gnu-provider-system16k/README.md": {
+      "bytes": 7282,
+      "sha256": "8be6140511d93aa2c25f714e9ce5648fa88a3630008703697b2c8d95223a076b"
+    },
+    "scripts/ci/glibc-gnu-provider-system16k/capture.py": {
+      "bytes": 7711,
+      "sha256": "2575dbc2d4c452d97e9a573b2f7673a50036e85073a730ead0405319c0b1e108"
+    },
+    "scripts/ci/glibc-gnu-provider-system16k/common.py": {
+      "bytes": 12315,
+      "sha256": "24ecb33290876dde2cde0dd789d56ecf22098cfcb1728ed09c24ac3c92eb57fd"
+    },
+    "scripts/ci/glibc-gnu-provider-system16k/dependencies.json": {
+      "bytes": 5619,
+      "sha256": "bd51f2ab67b0a112c902df97fdffb060aad4a9a06ed8ad6a6e4b9d0b4ee87733"
+    },
+    "scripts/ci/glibc-gnu-provider-system16k/enter-system.py": {
+      "bytes": 1123,
+      "sha256": "c768a8f1ca28cbdd22c5423d0c9884ba4857ec72294b780208fd6e5165844cc0"
+    },
+    "scripts/ci/glibc-gnu-provider-system16k/freeze.py": {
+      "bytes": 1897,
+      "sha256": "b52fdbc7d4260c0c4592da152dfd77c4d56cf45879ad6ea67294ee2cf0cdd29c"
+    },
+    "scripts/ci/glibc-gnu-provider-system16k/gate.py": {
+      "bytes": 2113,
+      "sha256": "8feb966872687c9561967dc3986f2a1fbf616490c0828670b0fe6bf6d38edca9"
+    },
+    "scripts/ci/glibc-gnu-provider-system16k/guest.py": {
+      "bytes": 5955,
+      "sha256": "ff149334df5add45fbba202c9b677a36d7b9578edff0ce091037254fb9814a75"
+    },
+    "scripts/ci/glibc-gnu-provider-system16k/input-interface.json": {
+      "bytes": 1370,
+      "sha256": "7d6d9fbd504e8fb67f2e6df742739a639ccd18e93dc5cf9eef7ce20f4242c0ab"
+    },
+    "scripts/ci/glibc-gnu-provider-system16k/input-policy.json": {
+      "bytes": 693,
+      "sha256": "509d5e0898db19eb1dd7c00afe5453899ef2e51b12636b5b8c48e28e5d5a62c0"
+    },
+    "scripts/ci/glibc-gnu-provider-system16k/run.py": {
+      "bytes": 8588,
+      "sha256": "f0847a28cdcf5bcd937b0a4c0b12c734ae88554a0d96815094be940c58f4603a"
+    },
+    "scripts/ci/glibc-gnu-provider-system16k/source-manifest.json": {
+      "bytes": 7792,
+      "sha256": "5049d83965422012615eabbf2475a7e9044847a751f38f0ee52aabf2a03da355"
+    },
+    "scripts/ci/glibc-gnu-provider-system16k/test_source.py": {
+      "bytes": 13848,
+      "sha256": "e2a31be66f97093c3816eba3642ac7b1c823a7b6a766f51420642f2f3556ad89"
+    },
+    "scripts/ci/glibc-gnu-provider/normal-child-exec.patch": {
+      "bytes": 773,
+      "sha256": "1a1f3b1898b0542dfb6bf03d7d6bf0acda33ba3f040055cf710027d69415b9ff"
+    },
+    "scripts/ci/glibc-gnu-provider/normal-client-policy.json": {
+      "bytes": 815,
+      "sha256": "92f8b918ade03b6ad71ff00fe38a3f797d416fe6225082c9d4ba23c2cc71dd8d"
+    },
+    "scripts/ci/glibc-gnu-provider/normal_clients.py": {
+      "bytes": 7824,
+      "sha256": "2382a818358a5e28b81ce789d18cee815a0d0c7d52b96a1cbd1d55d7edf31309"
+    },
+    "scripts/ci/glibc-gnu-provider/provider_stage.py": {
+      "bytes": 8147,
+      "sha256": "43b1b441dcc384379ab80c4864bbf7ffd898d56e4ba629c0faa966c25a979e6c"
+    },
+    "scripts/ci/glibc-owned-runtime/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "scripts/ci/glibc-owned-runtime/abi_smoke.c": {
+      "bytes": 12469,
+      "sha256": "f131a4f11693b15d7916170a685f9c4f6158596134bf5414f3d8ee472be1a9af"
+    },
+    "scripts/ci/glibc-owned-runtime/exec_child.c": {
+      "bytes": 913,
+      "sha256": "0a2b48762f8f7ec6d942ca9fb4af4f04a50fd93d2d7dff42407adfea13b1e4cc"
+    },
+    "scripts/ci/glibc-owned-runtime/plugin.c": {
+      "bytes": 320,
+      "sha256": "d0ce5506b261b5b4582aa35651b68afbf6257e8f4a990155dcac9d4e4596b654"
+    },
+    "scripts/ci/glibc-owned-runtime/probe.c": {
+      "bytes": 5974,
+      "sha256": "8bc857277840264c29845764b6c4d34e40c3d1dcdb91592acbb31ae5dfeb80b6"
+    },
+    "scripts/ci/glibc-owned-runtime/probe.h": {
+      "bytes": 270,
+      "sha256": "3806c2a05e640b8860a2c81e4eba55ae8bf416fcb84637e93a7b3d9b71476724"
+    },
+    "scripts/ci/glibc-owned-runtime/runner.py": {
+      "bytes": 16274,
+      "sha256": "4d9aa954d95032ab9ea9085ced784efc81a5db42e2f1f3401e679ee861c16090"
+    },
+    "scripts/ci/glibc-owned-runtime/source-manifest.json": {
+      "bytes": 1274,
+      "sha256": "e10336aef200731c7dd4b06546b718e095c1ecf7718e4a25fa57d6bbed6270a6"
+    },
+    "scripts/ci/maintained-desktop574-inputs.json": {
+      "bytes": 623664,
+      "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
+    },
+    "scripts/ci/maintained_desktop574.py": {
+      "bytes": 22367,
+      "sha256": "27ba4be42cf2bd41675073e07cccc917ae033f9d68b07a33cfd7f074ac27b760"
+    },
+    "scripts/ci/tools-generic16k/acquire_kernel.py": {
+      "bytes": 8844,
+      "sha256": "4a372e1f4bfbd1f8604579873fc6fbdec91ac2555bb36f028646017b44b8c23f"
+    },
+    "scripts/ci/tools-generic16k/build_kernel.py": {
+      "bytes": 12867,
+      "sha256": "3c8695685dcae7eded7406ccbf0f8152f6f5820f87ef47f4e791b577c2d3b55a"
+    },
+    "scripts/ci/tools-generic16k/dependencies.json": {
+      "bytes": 21413,
+      "sha256": "ce33af72681e305d2d69b8498b8d4b75514adfadd97bbf7b9d7d218102c69b27"
+    },
+    "scripts/ci/tools-generic16k/kernel.fragment": {
+      "bytes": 815,
+      "sha256": "6d91180b80138d2d8039efafaaa9ca31349baea22b90430cbb15e07bce02e8f6"
+    },
+    "scripts/ci/tools-generic16k/retained_kernel.py": {
+      "bytes": 5444,
+      "sha256": "bddb14537790a484d770215e55cc2c59de50c764d15e4d677f6fbcaab84cd735"
+    },
+    "scripts/ci/tools-generic16k/run.py": {
+      "bytes": 45543,
+      "sha256": "3a38f1037817d4087f455e859511246bb4a3fd90efac31d0b5258e3632703052"
+    },
+    "scripts/ci/tools-generic16k/support.py": {
+      "bytes": 2994,
+      "sha256": "6cafebc7f0aceaf1b8c97985816a3027befabf4d3e1a0fa43f71a000c3383143"
+    },
+    "scripts/virtual/generic16k/build_kernel.py": {
+      "bytes": 10781,
+      "sha256": "e94adb4474183feea30ce1e2949b55c03e4969eeb1addb4c36892e8664ba9aaa"
+    },
+    "scripts/virtual/generic16k/fetch_inputs.py": {
+      "bytes": 7768,
+      "sha256": "212a0a9efc7c386158526ce40683a3646a899a9c7fd2c3140d6e24a02d778043"
+    },
+    "scripts/virtual/generic16k/fixture.py": {
+      "bytes": 15118,
+      "sha256": "47d2c042319246538f8724e294b9530e079ba00de7995ef42f9a1031ca17c4ba"
+    },
+    "scripts/virtual/generic16k/inputs.json": {
+      "bytes": 1057,
+      "sha256": "bdfa44ed1d017c0d0e15c1f3af87bdf4a91923c20e812c861ca522d2cf428492"
+    },
+    "scripts/virtual/generic16k/kernel.fragment": {
+      "bytes": 815,
+      "sha256": "6d91180b80138d2d8039efafaaa9ca31349baea22b90430cbb15e07bce02e8f6"
+    },
+    "scripts/virtual/generic16k/smoke.c": {
+      "bytes": 1720,
+      "sha256": "b71adf10496d563a20eed7cecef8074cb82dd103a63e47f48462a1bd5d18f23d"
+    }
+  },
+  "schema_version": 1,
+  "status": "FROZEN_SOURCE_ONLY_NO_NEW_NATIVE_CREDIT"
+}

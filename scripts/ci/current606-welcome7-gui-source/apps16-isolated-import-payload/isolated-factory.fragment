@@ -1,0 +1,5 @@
+    # Register only the pinned diagnostic sibling before isolated consumers.
+    for name in ('desktop574_guest.py','doctor_worker.py'):
+        edit(name,lambda s:once(s,"load('management_root','management_root.py')","load('post_session','post_session.py')\nload('management_root','management_root.py')"))
+    edit('service_outcome.py',lambda s:once(s,"for name in ('doctor_lifetime','management_contract','management_root'):","for name in ('post_session','doctor_lifetime','management_contract','management_root'):"))
+

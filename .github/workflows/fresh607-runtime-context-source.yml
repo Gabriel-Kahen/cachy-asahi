@@ -1,0 +1,60 @@
+name: fresh607-runtime-context-source
+on:
+  push:
+    paths:
+      - scripts/ci/fresh607-runtime-context-source/**
+      - .github/workflows/fresh607-runtime-context-source.yml
+  pull_request:
+    paths:
+      - scripts/ci/fresh607-runtime-context-source/**
+      - .github/workflows/fresh607-runtime-context-source.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONWARNINGS: error
+    steps:
+      - name: Check out the maintained factory
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Check out exact public1189 parent
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 606e31cf03f66043bdbc13a44dcc8559ebe81ec7
+          path: .ci-fixtures/runtime-parent1189
+          persist-credentials: false
+      - name: Check out exact legacy tooling source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: b6b17e5f6b322f160f7eeb22c8a01380a3c854cd
+          path: .ci-fixtures/runtime-legacy
+          persist-credentials: false
+      - name: Select the explicit Python version
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Reproduce1192 source and exercise actual import and cleanup
+        shell: bash
+        run: |
+          set -euo pipefail
+          stage=$(mktemp -d "$RUNNER_TEMP/runtime-context.XXXXXXXX")
+          trap 'rm -rf -- "$stage"' EXIT
+          export FRESH_RUNTIME_PARENT="$GITHUB_WORKSPACE/.ci-fixtures/runtime-parent1189"
+          export FRESH_RUNTIME_LEGACY="$GITHUB_WORKSPACE/.ci-fixtures/runtime-legacy"
+          export FRESH_RUNTIME_SOURCE="$stage/source"
+          python3 -I -B -Werror scripts/ci/fresh607-runtime-context-source/prepare.py --parent "$FRESH_RUNTIME_PARENT" --output "$FRESH_RUNTIME_SOURCE" > "$stage/authorization.json"
+          python3 -I -B -Werror scripts/ci/fresh607-runtime-context-source/test_source.py
+          python3 -I -B -Werror scripts/ci/fresh607-runtime-context-source/test_runtime.py
+          timeout 300s python3 -I -B -Werror "$FRESH_RUNTIME_SOURCE/implementation/run.py" --source-preflight

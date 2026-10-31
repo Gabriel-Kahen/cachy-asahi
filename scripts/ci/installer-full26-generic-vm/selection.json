@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "classes": {
+    "ActualTransactionTests": [
+      "test_actual_signed_tiny_dependency_pair_commit",
+      "test_actual_missing_dependency_refuses_before_commit",
+      "test_actual_wrong_signer_refuses_before_commit",
+      "test_actual_invalid_signature_refuses_before_commit",
+      "test_actual_secret_certificate_refuses_before_commit",
+      "test_actual_signature_subkey_binds_primary_signer",
+      "test_actual_input_hardlink_refused_without_commit",
+      "test_actual_escaping_signed_archive_refused_without_escape",
+      "test_actual_existing_root_external_hardlink_refused",
+      "test_actual_file_conflict_preserves_foreign_bytes",
+      "test_declared_after_mismatch_refuses_before_commit",
+      "test_actual_protected_upgrade_refuses_before_commit",
+      "test_actual_protected_removal_refuses_before_commit",
+      "test_actual_signed_removal_uses_installed_seed",
+      "test_actual_upgrade_changes_installed_version_and_payload",
+      "test_actual_unrelated_add_preserves_protected_package_and_file",
+      "test_actual_wrong_before_inventory_refuses_before_commit"
+    ],
+    "SourceLoaderTests": [
+      "test_source_fixture_pinned_marker_runs_and_inherits_home",
+      "test_source_fixture_absent_home_stays_absent",
+      "test_source_fixture_sealed_buffers_refuse_write_append_and_resize",
+      "test_source_fixture_changed_capture_rejected_before_execution",
+      "test_source_fixture_worker_runtime_and_engine_pins_are_bound",
+      "test_source_fixture_code_references_and_runtime_bytes_poison_refused",
+      "test_source_fixture_adjacent_source_and_bytecode_cache_are_ignored"
+    ],
+    "SupervisionTests": [
+      "test_actual_timeout_reaps_owned_process_group"
+    ],
+    "BarrierTests": [
+      "test_actual_isolate_keeps_host_readonly_and_only_evidence_persistent"
+    ]
+  },
+  "methods": 26,
+  "transaction_calls": 22,
+  "scope": "GENERIC_ARM_FULL26_ORIGINAL_METHODS_SOFTWARE_ONLY"
+}

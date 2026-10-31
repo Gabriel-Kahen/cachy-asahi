@@ -1,0 +1,31 @@
+
+def numeric16k_installer(code,profile):
+    """Private exact-source numeric guard; never patch the sealed raw library."""
+    import ast
+    relative='scripts/install/local_transaction.py'
+    path=p.checked(code,relative,profile['code_files'][relative],maximum=2*1024**2)
+    raw=path.read_bytes();reference=dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())
+    p.need(reference==profile['code_files'][relative],'whole exact numeric installer source')
+    private=p.load('_full_installer_exact_numeric16k',path)
+    tree=ast.parse(raw);nodes=[n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='numeric_fixture_environment']
+    p.need(len(nodes)==1 and private.numeric_fixture_environment.__globals__ is vars(private)and
+           private.isolate.__globals__ is vars(private)and private.reduce_capabilities.__globals__ is vars(private),
+           'exact private numeric installer executing globals')
+    before=ast.get_source_segment(raw.decode(),nodes[0]);changed=before
+    edits=(("os.uname().release=='7.2.10-1-aarch64-ARCH'","os.uname().release=='7.1.13-generic16k-managed-gui'"),
+           ("os.sysconf('SC_PAGE_SIZE')==4096","os.sysconf('SC_PAGE_SIZE')==16384"),
+           ('numeric fixture mapped generic4K guest required','numeric fixture mapped generic16K guest required'))
+    for old,new in edits:
+        p.need(changed.count(old)==1,'one exact numeric platform operand');changed=changed.replace(old,new,1)
+    restored=changed
+    for old,new in reversed(edits):
+        p.need(restored.count(new)==1,'one numeric platform inverse');restored=restored.replace(new,old,1)
+    p.need(restored==before,'whole original numeric fixture environment inverse')
+    held=dict(vars(private));exec(compile(changed,'<exact-source-numeric16k-environment>','exec'),vars(private))
+    p.need(all(vars(private)[n]is value for n,value in held.items()if n!='numeric_fixture_environment')and
+           private.isolate.__globals__['numeric_fixture_environment'] is private.numeric_fixture_environment and
+           private.reduce_capabilities.__globals__['numeric_fixture_environment'] is private.numeric_fixture_environment,
+           'all other numeric isolation/capability/security bodies held')
+    p.checked(code,relative,reference,maximum=2*1024**2)
+    p.need(path.read_bytes()==raw,'raw sealed numeric library unchanged')
+    return private

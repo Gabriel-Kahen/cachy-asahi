@@ -1,0 +1,60 @@
+{
+  "Asahi": "NOT_RUN",
+  "M2": "NOT_RUN",
+  "PID1": "NOT_QUALIFIED",
+  "accepted_scope": "Two owned pristine/modified NoHooks fixture cases, seven Core products, signed ORIGINAL baseline hook initialization before capture, complete fresh graph and cache/library preservation predicates, installed589 and restored574 with ordered retirement",
+  "attempt": 1,
+  "automatic_hooks": "NOT_QUALIFIED_ORIGINAL_DISABLED",
+  "component": {
+    "cases": 2,
+    "full_graphs": 22,
+    "installed": 589,
+    "packages": 7,
+    "restored": 574
+  },
+  "old_target261": "UNCHANGED_UNACCEPTED",
+  "originals": {
+    "artifact.zip": {
+      "bytes": 169694185,
+      "sha256": "478c33985130ec95ba7c85f8b05fec6c6fa6c64568747416cb68f05da17e4a35"
+    },
+    "artifacts.json": {
+      "bytes": 777,
+      "sha256": "49591d91e841fe98e2deb923e13cc66dd0b20ce27c22935aacf94daf2fb4362b"
+    },
+    "collection.json": {
+      "bytes": 748,
+      "sha256": "baa521a5aa0d9e5cc7f22397521b693a4cb2ba19a015acc3b487e40d8f0780cf"
+    },
+    "jobs.json": {
+      "bytes": 5864,
+      "sha256": "7fcb4692bd04e40b3d19e1be0cdba938d12470ecf9db62b86b1ce1647e43b09d"
+    },
+    "run.json": {
+      "bytes": 12988,
+      "sha256": "82eb63f68d0d3783ce573f368560c333e07922aa577bedae378f07029a055e6c"
+    }
+  },
+  "performance": "NOT_CLAIMED",
+  "private_maps": "SOURCE_ENFORCED_NOT_EXPORTED_WHOLE_ROOT_MAPS",
+  "reader": {
+    "all_before_after_pins": "PASS",
+    "files": 814,
+    "original_proof": {
+      "bytes": 435,
+      "sha256": "8d829deb1c0b24e6fb1950ca751881bbf799664f1b8bbb79d2ad339ec653a776"
+    }
+  },
+  "recorded": "2026-10-22T05:39:35.961236+00:00",
+  "ref": "codex/core7-baseline-scriptlet-v1",
+  "release": "NOT_ADMITTED",
+  "result": {
+    "bytes": 594,
+    "sha256": "67808fbceb325367030223982461564f7861547a2fe8376ac9c70dc414fad2ce"
+  },
+  "retirement": "SOURCE_RECORDED_NOT_LIVE_REOBSERVED",
+  "run": 39723885884,
+  "source": "1a76a09d9cb8210cc2b76eda0c63a08bcd89d4ec",
+  "source_files": 800,
+  "status": "ROOT_ACCEPTED_FINITE_DISPOSABLE_CORE7_NATIVE_LIFECYCLE"
+}

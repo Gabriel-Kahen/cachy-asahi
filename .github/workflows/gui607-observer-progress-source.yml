@@ -1,0 +1,116 @@
+name: gui607-observer-progress-source
+on:
+  push:
+    paths:
+      - scripts/ci/gui607-observer-progress-source/**
+      - .github/workflows/gui607-observer-progress-source.yml
+  pull_request:
+    paths:
+      - scripts/ci/gui607-observer-progress-source/**
+      - .github/workflows/gui607-observer-progress-source.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONWARNINGS: error
+    steps:
+      - name: Check out maintained source-only factory
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Check out exact public692 parent
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 0bb0c9c3ff62b85227127ea82dbf05f5f56ebee1
+          path: .ci-fixtures/argument-before360
+          persist-credentials: false
+      - name: Check out exact public692 expected source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 01eff67f3c2674eeea3a70999c5a3282f211f087
+          path: .ci-fixtures/argument-after360
+          persist-credentials: false
+      - name: Check out pinned record22 historical source-test DATA
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: eea3f3022c9214deacc60c92dfca13704420756b
+          path: .ci-fixtures/record22
+          persist-credentials: false
+      - name: Check out pinned public-carrier historical source-test DATA
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 77bd2c6ecf2e5c28a04116c3da85c45f70d1cc90
+          path: .ci-fixtures/public-carrier
+          persist-credentials: false
+      - name: Check out pinned project-carrier historical source-test DATA
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 1057f6b5494adc71c469e8867d14fb0db01ce02f
+          path: .ci-fixtures/project-carrier
+          persist-credentials: false
+      - name: Check out pinned renewal historical source-test DATA
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 7cf7fb81d0b70b1b7421dc85788fabd45ec5adfc
+          path: .ci-fixtures/renewal
+          persist-credentials: false
+      - name: Select explicit Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Reproduce exact source and run complete inherited source tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          stage=$(mktemp -d "$RUNNER_TEMP/updater-argument-source.XXXXXXXX")
+          trap 'rm -rf -- "$stage"' EXIT
+          mkdir -m700 "$stage/input" "$stage/expected"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/argument-before360" archive --format=tar 0bb0c9c3ff62b85227127ea82dbf05f5f56ebee1 | tar -x -C "$stage/input"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/argument-after360" archive --format=tar 01eff67f3c2674eeea3a70999c5a3282f211f087 | tar -x -C "$stage/expected"
+          export GUI_PROGRESS_INPUT="$stage/input"
+          export GUI_PROGRESS_EXPECTED="$stage/expected"
+          umask 077
+          python3 -I -B -Werror scripts/ci/gui607-observer-progress-source/test_factory.py
+          for context in known null; do
+            python3 -I -B -Werror scripts/ci/gui607-observer-progress-source/prepare.py --source "$stage/input" --output "$stage/$context" --context "$context"
+          done
+          mkdir -m700 "$stage/record22"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/record22" archive --format=tar eea3f3022c9214deacc60c92dfca13704420756b | tar -x -C "$stage/record22"
+          mkdir -m700 "$stage/public-carrier"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/public-carrier" archive --format=tar 77bd2c6ecf2e5c28a04116c3da85c45f70d1cc90 | tar -x -C "$stage/public-carrier"
+          mkdir -m700 "$stage/project-carrier"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/project-carrier" archive --format=tar 1057f6b5494adc71c469e8867d14fb0db01ce02f | tar -x -C "$stage/project-carrier"
+          mkdir -m700 "$stage/renewal"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/renewal" archive --format=tar 7cf7fb81d0b70b1b7421dc85788fabd45ec5adfc | tar -x -C "$stage/renewal"
+          python3 -I -B -Werror scripts/ci/gui607-observer-progress-source/stage_source_inputs.py \
+            --source "$stage/known" --record22 "$stage/record22" \
+            --public-carrier "$stage/public-carrier" --project-carrier "$stage/project-carrier" \
+            --renewal "$stage/renewal" --output "$stage/source-fixtures"
+          python3 -I -B -Werror scripts/ci/gui607-observer-progress-source/test_historical_boundary.py \
+            --source "$stage/known" --assets "$stage/source-fixtures/assets484"
+          python3 -I -B -Werror "$stage/known/implementation/historical_source.py" legacy-source-tests \
+            --source "$stage/known" --assets "$stage/source-fixtures/assets484"
+          # This includes the complete original test_source.py seven-test command:
+          # python3 -I -B -Werror "$SOURCE/implementation/test_source.py" --record "$RECORD22" --public "$PUBLIC991" --assets "$ASSETS484"
+          # Historical SOURCE uses the pinned genuine receipt epoch1792457344.
+          # Actual actor ingress retains real current validity and expiry refusals.
+          for context in known null; do
+            python3 -I -B -Werror scripts/ci/gui607-observer-progress-source/test_emitted.py \
+              --source "$stage/$context" --record22 "$stage/record22" \
+              --public991 "$stage/source-fixtures/public991" --assets484 "$stage/source-fixtures/assets484"
+          done

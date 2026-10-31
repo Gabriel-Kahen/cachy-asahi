@@ -1,0 +1,44 @@
+{
+  "actual_ref": null,
+  "actual_run": null,
+  "actual_source": null,
+  "files": {
+    ".github/workflows/native-arm-build.yml": {
+      "bytes": 82489,
+      "sha256": "045d7c472f005b69e14ab5dd9af767055529a9fb19ca0e3540f288e6b8cb469a"
+    },
+    ".github/workflows/native-arm-updater604-copy4k.yml": {
+      "bytes": 82489,
+      "sha256": "045d7c472f005b69e14ab5dd9af767055529a9fb19ca0e3540f288e6b8cb469a"
+    },
+    "case.py": {
+      "bytes": 5204,
+      "sha256": "5845edf52dc6234d8542b2e0f46801766aedf0dc21cea87930bc7202647e1015"
+    },
+    "cleanup.py": {
+      "bytes": 3208,
+      "sha256": "9d474fc164b787a52c66a5ecac43dccc3a58d8e4e60db788a6e209516ac5befa"
+    },
+    "entry.py": {
+      "bytes": 5800,
+      "sha256": "953a16e65e07b350be02ea8c0c1ed89567c5e614e0ff98162682e91cc0443bb7"
+    },
+    "profile.json": {
+      "bytes": 173289,
+      "sha256": "89a118eadcf27fe88acff19691a9b2fa15c550b8919a32f12732895f32724285"
+    },
+    "retain.py": {
+      "bytes": 2642,
+      "sha256": "f0fc831c85a2693e31326f598fc05ca78f9a0a16a539246808babcd942cc258a"
+    },
+    "runtime.py": {
+      "bytes": 3250,
+      "sha256": "dc03f6252be8b92c2546a56a9f4dce7e260f1148dd87cf55649c4e50843e88c2"
+    },
+    "test_source.py": {
+      "bytes": 14330,
+      "sha256": "229f76017024f2c3a4cd0b68ee72f1bf3aefad83189587f30ef413f012e90754"
+    }
+  },
+  "status": "CLOSED_NATIVE_ARM4K_SOURCE_ONLY_NO_CURRENT_ACCEPTANCE"
+}

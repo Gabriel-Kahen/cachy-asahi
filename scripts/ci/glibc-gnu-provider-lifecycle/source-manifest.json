@@ -1,0 +1,69 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 10223,
+      "sha256": "27abc2925cc414598e567b27c114eeef9a6d60f1b25dad85abd469eca62f6169"
+    },
+    "capabilities.py": {
+      "bytes": 4510,
+      "sha256": "28dfa14ef7d98c2114d0c9271b209b801362bb855dfac7f7592277da9ed2cdb9"
+    },
+    "common.py": {
+      "bytes": 12892,
+      "sha256": "42082d2e773d423d2abc0e1f7ff50e74163c09c9a51c1c073a4cb17f7e79cc72"
+    },
+    "container.py": {
+      "bytes": 35741,
+      "sha256": "f12e6e057b225b617fd26597edb00ea92c4df01ca426a21fb482b2681044f9a4"
+    },
+    "copy_scope.py": {
+      "bytes": 3470,
+      "sha256": "605ead63553641641f3b7d4edd9d9af6d2bd6e43d338e367ea846359e09f6fba"
+    },
+    "dependencies.json": {
+      "bytes": 5083,
+      "sha256": "f1f22819a95a677a3e1520a6826acfffa70f2612488b6d0b88fe4e299b6987b4"
+    },
+    "input-interface.json": {
+      "bytes": 2558,
+      "sha256": "702a37fc728c04e916b69f2cb299b2886340b9f0511820e12a1437a37e0ebdca"
+    },
+    "input-policy.json": {
+      "bytes": 436,
+      "sha256": "d777931e61834ab8accd6a80a2b00368080703fa050e8e20a206e959514ebd6b"
+    },
+    "normal-exec-change.json": {
+      "bytes": 839,
+      "sha256": "9d3769704396a33acc0c144cc1519d10230a5fb07d2f7b135dcfd0ba1ab6a68b"
+    },
+    "proc_mount.py": {
+      "bytes": 15565,
+      "sha256": "f868e4e36e34ee52fc40b6a9c37ae2bcace4d417d274fc6317f763a38af30a03"
+    },
+    "run.py": {
+      "bytes": 8910,
+      "sha256": "e7335f26c22c1e991eebcb8f1db0f9acc4094e8e0d60bbe6019b8aba25093890"
+    },
+    "scrub.py": {
+      "bytes": 846,
+      "sha256": "bfac8896427c5fdcdd172a94af925dc5771452e150b44f27f4e16c498c548359"
+    },
+    "smoke-normal.c": {
+      "bytes": 12437,
+      "sha256": "a766bc7cd31cce18fe7e564432de4e4b63db49763608ae70ef8fab61cd29116c"
+    },
+    "test_controls.py": {
+      "bytes": 44383,
+      "sha256": "f3f4b764764404cdd2670b3db58a1789ab880f3eb050f6af6f3aa63b7c939f0e"
+    },
+    "test_copy_scope.py": {
+      "bytes": 11657,
+      "sha256": "776b75f0db1d93389056f0a6d0e300435b4a020003a5008dd014f352cb3d208d"
+    },
+    "test_proc_mount.py": {
+      "bytes": 18068,
+      "sha256": "34a66f6811c6a3695a812b3a4589605ef0c8f2620579b073eec6d2ae51b38c94"
+    }
+  },
+  "schema_version": 1
+}

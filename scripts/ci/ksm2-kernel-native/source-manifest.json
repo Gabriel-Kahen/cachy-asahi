@@ -1,0 +1,66 @@
+{
+  "files": {
+    "scripts/ci/ksm2-kernel-native/fixtures/baseline.config": {
+      "bytes": 64022,
+      "sha256": "9729936f8a2a3ffa3edf1e3f689dbb56426795f733c73d83a9e4ee94ee8d7aa5"
+    },
+    "scripts/ci/ksm2-kernel-native/fixtures/configuration-proof.json": {
+      "bytes": 1730,
+      "sha256": "18982c8efb66c7c2f4e2c711c700a004d68db8250157b91e5004aba30d20832b"
+    },
+    "scripts/ci/ksm2-kernel-native/fixtures/ksm.config": {
+      "bytes": 64027,
+      "sha256": "4da404c4324583ba285c74a9c7c1571c9c11fb96b130cbdbf04d31b15816e559"
+    },
+    "scripts/ci/ksm2-kernel-native/input-policy.json": {
+      "bytes": 645,
+      "sha256": "3fdbd28dc7d7c90ccc3ac5cdd8b5753c2f9b360562c313d8f86364316d2f379b"
+    },
+    "scripts/ci/ksm2-kernel-native/ksm_profile.py": {
+      "bytes": 5178,
+      "sha256": "c282dac57279110bae78c8bc995755c617833645a01c1bf7b9d2b1cd1c0c4aaa"
+    },
+    "scripts/ci/ksm2-kernel-native/lane.py": {
+      "bytes": 11729,
+      "sha256": "e92e75129f3117b65c90ff78a7770308affcab85281431c7081314bb89d96955"
+    },
+    "scripts/ci/ksm2-kernel-native/runtime.py": {
+      "bytes": 16274,
+      "sha256": "4d9aa954d95032ab9ea9085ced784efc81a5db42e2f1f3401e679ee861c16090"
+    },
+    "scripts/ci/ksm2-kernel-native/test_lane.py": {
+      "bytes": 6622,
+      "sha256": "2cc5bd363adf8ca8c31b8d761e19d840630bb5bb435100b99954dc937b971163"
+    },
+    "scripts/ci/managed-gui-generic16k/build_kernel.py": {
+      "bytes": 12900,
+      "sha256": "ccbead2912144c5aa4fcb3ce7af76b3c11f28fcde7987e5f32edb060ff7b0ee9"
+    },
+    "scripts/ci/managed-gui-generic16k/kernel.fragment": {
+      "bytes": 1808,
+      "sha256": "88819f00ebef80e385ebdfae6cc101ef21145e0bbd6bb12532b0d41a85c16d28"
+    },
+    "scripts/ci/managed-gui-generic16k/kernel_contract.py": {
+      "bytes": 4659,
+      "sha256": "30a4544e5407dbf932d9ec26bbd6bf21eab53347544afa134cd3a5870752cbff"
+    },
+    "scripts/ci/managed-gui-generic16k/run.py": {
+      "bytes": 10493,
+      "sha256": "64e279b7ce4b04f115a7e1897377ce59ea5c15010a97a0f22cf16e35ce5e7e46"
+    },
+    "scripts/ci/tools-generic16k/acquire_kernel.py": {
+      "bytes": 8844,
+      "sha256": "4a372e1f4bfbd1f8604579873fc6fbdec91ac2555bb36f028646017b44b8c23f"
+    },
+    "scripts/virtual/generic16k/fetch_inputs.py": {
+      "bytes": 7768,
+      "sha256": "212a0a9efc7c386158526ce40683a3646a899a9c7fd2c3140d6e24a02d778043"
+    },
+    "scripts/virtual/generic16k/inputs.json": {
+      "bytes": 1057,
+      "sha256": "bdfa44ed1d017c0d0e15c1f3af87bdf4a91923c20e812c861ca522d2cf428492"
+    }
+  },
+  "purpose": "KSM_DIAGNOSTIC16K_BUILD_ONLY",
+  "schema_version": 1
+}

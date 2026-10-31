@@ -1,0 +1,15 @@
+# Welcome8 stop-check candidate and native pair
+
+Welcome0.1.0-8 adds a per-panel **Stop check** control. It requests the existing owned-supervisor cancellation, keeps Run disabled until retirement/report completion, and permits retry afterward. Closing the whole window is no longer necessary to stop one check; other panels remain usable. Unconfirmed retirement still prevents rerunning.
+
+Source `23e1205414dc74c577f1ee61baf0ee661ed5e678` in [native ARM run 39591889512](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/39591889512) produced two byte-identical `cachy-asahi-welcome-0.1.0-8-aarch64.pkg.tar.xz` archives: 40,400 bytes, SHA256 `1cbb8f5f9fd5f072ba2974837cf10dc7e90edbd236cbf3a34916cd0af3d4b240`. Original API/artifact/source/signature/build/cleanup predicates passed complete strict replay; Root accepted only the finite native build pair.
+
+Each build passes 40 C cases and five CLI cases. The existing UID0-only guard remains explicitly NOT_EXERCISED under the ordinary builder. Both archives preserve the expected nine-file payload, eight linked sonames and AArch64 ELF 16,384-byte segment alignment. Structural alignment does not prove actual 16K execution.
+
+Separate host checks execute the real GTK fixture on a fresh authenticated displayfd Xvfb display. They verify actual owned helper and separate-session descendant retirement, duplicate stop/start refusal, a live window/other panel and successful retry. An unconfirmed-retirement case keeps both controls disabled. The permanent `welcome8-source` workflow runs source/build and GTK/process controls; it does not certify installed ARM desktop behavior.
+
+The native pair above qualifies the original recipe and fixture only. The current source keeps the installed program unchanged and fixes the private JSON child to write raw UTF-8; the original GTK test fails on Ubuntu24.04 GLib2.80, and the corrected whole test passes with every Unicode and Stop assertion intact. The changed test-source pins now independently pass [native ARM run39595325701](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/39595325701), source `77a5ea9efe5d033ef5402c081a3be06ba04770f8`: two byte-identical40,332-byte archives, SHA256 `7d8f100dba789454f5cd3582225f7db3d78989f9f85e10f2931fe345811454a1`. Each passes40 C/five CLI cases with the same explicit UID0 guard limitation. This fresh qualification is build-pair only; the separate installed GUI trial explicitly uses the earlier40400-byte input and does not inherit acceptance for this new archive.
+
+The recipe is an unselected development candidate. Installed lifecycle/GUI Stop behavior, actual 16K execution, both M2 Air sizes, performance and supported release acceptance remain NOT RUN. Welcome7 and its existing current606 results remain separate. Full composition must explicitly consume this new qualified archive.
+
+Retained local decision: `artifacts/development/welcome8-native-build-pair-actual-20261021/Root-component-acceptance.json`. The build pair uses distinct recorded containers on one host; physical-machine independence is not attested.

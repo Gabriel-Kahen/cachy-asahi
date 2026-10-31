@@ -47,3 +47,13 @@ Already-running shells keep loaded functions/bindings until restart. Reinstall
 restores the same opt-in path. The upstream auto-binding and uninstall hooks
 are retained in the complete source record but are never installed or sourced.
 Actual package-manager lifecycle and both M2 Air targets remain untested.
+
+
+Pkgrel2 contains every guard return inside an immediately erased private
+_caa_bang_enable function. Repeated, skipped and noninteractive sourcing now
+continues the caller's remaining commands, including when composing this module
+with autopair and Done. A preexisting private helper wins without replacement.
+All original helper/module/binding precedence and the two upstream helpers stay
+unchanged. No startup files or key choices are added. New combined host evidence
+is distinct from previously held pkgrel1/native587 results; pkgrel2 native/16K/M2
+acceptance remains NOT_RUN until a new actual.

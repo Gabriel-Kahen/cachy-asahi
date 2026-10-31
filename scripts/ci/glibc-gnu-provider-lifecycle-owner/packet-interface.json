@@ -1,0 +1,32 @@
+{
+  "normal_source_sha256": "a766bc7cd31cce18fe7e564432de4e4b63db49763608ae70ef8fab61cd29116c",
+  "ordinary_ref": "{path:closed relative path,bytes:actual positive count,sha256:actual digest}; all ordinary refs must join files",
+  "packet_json": {
+    "archives": "a/b actual new conventional package refs; bytes/hash independently checked",
+    "files": "Exact relative path -> actual bytes/sha256;8..256 files, total<=512MiB; never executable as packet code",
+    "held": "Ordinary ref to exact held glibc rollback archive8fac217e98c6e4342326726b2640ac254e8c82032f06f30bfa13ebbcc4fcb25b",
+    "private16k": "Ordinary ref to actual ROOT_ACCEPTED_PRIVATE_GNU16K_RUNTIME receipt",
+    "probe_receipt": "Ordinary ref to Root actual ROOT_ACCEPTED_NORMAL_INTERPRETER_PROBES receipt, normal_source_sha256 and same files map as probes",
+    "probes": "smoke-normal/exec-child/plugin.so actual normally linked compiled refs",
+    "provider_pair": "Ordinary ref to Root actual ROOT_ACCEPTED_PROVIDER_NATIVE_PAIR receipt with archive_sha256/hardware NOT_RUN",
+    "provider_pkgbuild_sha256": "Actual new provider BUILDINFO recipe hash",
+    "schema_version": 1,
+    "status": "ROOT_ACCEPTED_PROVIDER_LIFECYCLE_INPUTS"
+  },
+  "policy_after_Root_binding": {
+    "packet": {
+      "directory": "Dedicated ordinary packet directory relative to checkout",
+      "index_sha256": "Actual packet.json SHA256",
+      "ref": "Actual immutable40-hex public Git revision"
+    },
+    "status": "ROOT_BOUND_IMMUTABLE_PROVIDER_PACKET"
+  },
+  "purpose": "Description only; no accepted inputs or hashes are supplied",
+  "reserved_packet_paths": [
+    "lifecycle-input.json",
+    "base.lock",
+    "producer.json"
+  ],
+  "runtime_only_inputs": "Fresh owned574 image/token/report/lock and stopped-image source-node hash are derived after validated producer/snapshot, never prefilled or fabricated. They populate only a recorded private installed-lane policy/index copy. Complete security.capability map and canonical map hash derive only from the actual extracted source; the immutable held packet is unchanged.",
+  "schema_version": 1
+}

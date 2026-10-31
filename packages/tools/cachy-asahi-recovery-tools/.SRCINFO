@@ -1,0 +1,34 @@
+pkgbase = cachy-asahi-recovery-tools
+	pkgdesc = Offline selected predecessor and exact recovery data preparation
+	pkgver = 0.1.0
+	pkgrel = 1
+	url = https://github.com/Gabriel-Kahen/cachy-asahi
+	arch = any
+	license = MIT
+	depends = python>=3.14
+	depends = gnupg
+	depends = glibc
+	options = !strip
+	options = !debug
+	source = private-source.tar.gz
+	source = cachy-asahi-recovery-tools
+	source = check_package.py
+	source = test_package.py
+	source = README.md
+	source = offline-recovery-bundle.md
+	source = source-provenance.json
+	source = payload-map.json
+	source = NOTICE
+	source = LICENSE
+	sha256sums = 2df0691e66fe8e78e233c1ad816cc7a71eb3580c898c3b240e63126bdf112485
+	sha256sums = e444ea17c9ca4160b9e7facfe8a5b6d80c2d9d96ee181936ac4e595a66a079f3
+	sha256sums = 9f346b9390a8e82fbf8031f54acefc9d7e99ce156ab5b853ab458931444a7b14
+	sha256sums = adfffc6c60ecc27077ef0aa2233fe4dbd4f7568cd83f007f3e40693c48db5be5
+	sha256sums = 05263d1039ca10aca7a9c1a09329dcfd5252292fa3ce78586db45459d65804c1
+	sha256sums = fd82c28930bd0d45642137c7b7814a981cceb1a2eb216fdac05c319e8bea5c24
+	sha256sums = d311eff96ea764e86ab4a6c07621577b0203cead3471822091f2a31e6f48222b
+	sha256sums = 5cefe72e155392b14b84703b2397b035176e9c5251e7f66495b068317789c659
+	sha256sums = fefc9b206fc24998f08e94f83ca8750695666db9419ee5ea93e72fa183d84120
+	sha256sums = 51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7
+
+pkgname = cachy-asahi-recovery-tools

@@ -1,0 +1,26 @@
+{
+  "scripts/ci/apps7-full574-repair16k/adapter.py": [
+    [
+      "def rendered_backend(source,*,inspect_profile=False):",
+      "def _legacy_inspect_rendered_backend(source,*,inspect_profile=False):"
+    ],
+    [
+      "def lifecycle(raw,*,inspect_profile=False):",
+      "def _legacy_inspect_lifecycle(raw,*,inspect_profile=False):"
+    ]
+  ],
+  "scripts/ci/apps7-full574-repair16k/vm.py": [
+    [
+      "adaptation=adapter.execution(root,execution,manifest,inspect_profile=True)",
+      "adaptation=adapter.execution(root,execution,manifest,inspect_profile='REPAIR_GENERIC16K_OWNED_INSPECT_THREE_OBSERVATIONS_1800_V1')"
+    ],
+    [
+      "derived=adapter.lifecycle(raw,inspect_profile=True)",
+      "derived=adapter.lifecycle(raw,inspect_profile='REPAIR_GENERIC16K_OWNED_INSPECT_THREE_OBSERVATIONS_1800_V1')"
+    ],
+    [
+      "owned_inspect_validation=dict(profile='REPAIR_GENERIC16K_OWNED_INSPECT_VALIDATION_1200_V1',backend_seconds=1200,caller_seconds=1210,added_function='_tcg_owned_inspect_call',default_route_retained=True)",
+      "owned_inspect_validation=dict(profile='REPAIR_GENERIC16K_OWNED_INSPECT_THREE_OBSERVATIONS_1800_V1',backend_seconds=1800,caller_seconds=1810,observation_units=3,observation_unit_seconds=600,added_function='_tcg_owned_inspect_call',default_route_retained=True,legacy_route_retained=True,old600_fit='NOT_ESTABLISHED',old1200_fit='NOT_ESTABLISHED',new1800_fit='NOT_ESTABLISHED')"
+    ]
+  ]
+}

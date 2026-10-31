@@ -1,0 +1,15 @@
+{
+  "asset": {
+    "digest": "sha256:874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad",
+    "id": 647949735,
+    "name": "linux-asahi-7.1.13-3.tar.gz",
+    "size": 262965559,
+    "url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/releases/assets/647949735"
+  },
+  "release_draft": false,
+  "release_id": 415175342,
+  "repository": "Gabriel-Kahen/cachy-asahi",
+  "scope": "CI-only exact public original kernel source; no project release admission",
+  "tag_name": "ci-kernel-source-874ef68d04ac",
+  "release_prerelease": true
+}

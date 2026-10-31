@@ -1,0 +1,41 @@
+# SPDX-License-Identifier: MIT
+"""Exact systemd journal ACLs from pinned tmpfiles, groups and original nodes."""
+import hashlib,json,struct
+PATH='var/log/journal'
+ACCESS='system.posix_acl_access'
+DEFAULT='system.posix_acl_default'
+GROUPS={'root':0,'adm':999,'wheel':998,'systemd-journal':981,'tss':972}
+DECLARATIONS=@DECLARATIONS@
+ACL_SHA='ec8266fadd5c38077e36de64d5e890bd647e0722f4f1ab76617962386da7342d'
+def need(ok,why):
+ if not ok:raise ValueError(why)
+def pin(raw):return dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())
+def expected():
+ # Linux xattr version2; named groups are sorted by the genuine numeric GIDs.
+ entries=((1,7,0xffffffff),(4,5,0xffffffff),(8,5,GROUPS['wheel']),(8,5,GROUPS['adm']),(16,5,0xffffffff),(32,5,0xffffffff))
+ raw=struct.pack('<I',2)+b''.join(struct.pack('<HHI',*row)for row in entries)
+ need(pin(raw)==dict(bytes=52,sha256=ACL_SHA),'exact source-derived journal ACL bytes');return raw
+
+def typed(raw,attribute):
+ need(attribute in(ACCESS,DEFAULT)and type(raw)is bytes and raw==expected(),'exact six-entry journal ACL encoding/permissions/groups')
+ return dict(attribute=attribute,version=2,entries=[dict(tag=t,permissions=p,id=None if i==0xffffffff else i)for t,p,i in(struct.unpack_from('<HHI',raw,4+8*n)for n in range(6))],hex=raw.hex())
+
+def policy(nodes):
+ need(type(nodes)is dict,'complete journal ACL graph')
+ for name,raw in DECLARATIONS.items():need(nodes.get(name)==dict(type='file',mode=0o644,uid=0,gid=0,**pin(raw)),'exact journal source declaration '+name)
+ need(nodes.get(PATH)==dict(type='directory',mode=0o2755,uid=0,gid=GROUPS['systemd-journal']),'exact original journal directory metadata')
+ need(not any(n.startswith(PATH+'/')for n in nodes),'original finite journal directory has no descendants')
+ return {PATH:typed(expected(),DEFAULT)}
+
+def account(raw,group):
+ # The original complete account parser still executes first.
+ if group:
+  rows={line.split(':')[0]:int(line.split(':')[2])for line in raw.decode('utf-8').splitlines()}
+  need(all(rows.get(name)==gid for name,gid in GROUPS.items()),'fresh complete source journal group identities')
+
+def check_graph(value,label):
+ import acl_policy as A
+ need(label in A.LABELS and type(value)is dict and set(value)=={'complete','nodes','security_capabilities','posix_acl_defaults','posix_acl_access','mounts','excluded'}and value['complete']is True,'explicit complete journal access/default ACL graph schema')
+ journal=policy(value['nodes']);defaults={}if label==A.LABELS[0]else dict(A.policy(value['nodes']),**journal);access={}if label==A.LABELS[0]else{PATH:typed(expected(),ACCESS)}
+ need(type(value['posix_acl_defaults'])is dict and json.dumps(value['posix_acl_defaults'],sort_keys=True,allow_nan=False)==json.dumps(defaults,sort_keys=True,allow_nan=False) and type(value['posix_acl_access'])is dict and json.dumps(value['posix_acl_access'],sort_keys=True,allow_nan=False)==json.dumps(access,sort_keys=True,allow_nan=False),'complete exact journal/TPM ACL presence at mandatory stage')
+ return True

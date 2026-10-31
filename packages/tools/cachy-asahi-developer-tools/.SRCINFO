@@ -1,0 +1,23 @@
+pkgbase = cachy-asahi-developer-tools
+	pkgdesc = Offline developer fixture journeys runnable without a project checkout
+	pkgver = 0.1.0
+	pkgrel = 1
+	url = https://github.com/Gabriel-Kahen/cachy-asahi
+	arch = any
+	license = MIT
+	depends = python>=3.11
+	optdepends = git: workflow local repository journey
+	optdepends = gcc: C and C++ compiler journeys
+	optdepends = vim: isolated scripted editor journey
+	optdepends = make: workflow Make project
+	optdepends = ninja: workflow Ninja and CMake/Meson projects
+	optdepends = cmake>=3.20: CMake and CTest shared-library journey
+	optdepends = meson: Meson shared-library journey
+	optdepends = gdb: debugger C and C++ journeys
+	optdepends = uv=0.11.28: exact offline built-in Python build backend
+	options = !strip
+	options = !debug
+	source = cachy-asahi-developer-tools-0.1.0.tar.gz
+	sha256sums = 767ac7a1e98b35f212247ed906434c11c197ad5640ad3a13601d433c84d756c2
+
+pkgname = cachy-asahi-developer-tools

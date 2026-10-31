@@ -1,0 +1,79 @@
+{
+  "basis": "f3a30f2049f57d9f3cb2433fbd59af51d4cc5720",
+  "files": {
+    ".github/workflows/native-arm-current606-dns-sysctl2.yml": {
+      "bytes": 29203,
+      "sha256": "bf00505507dd2edbed42596d2045e75bc7feeb7c3b7e55c7ba246b9e9b721441"
+    },
+    "scripts/ci/current606-native/README.md": {
+      "bytes": 5117,
+      "sha256": "e9b12aa24197c33d07e15204b310655413276a57471a2c801fab3e1a42c2e388"
+    },
+    "scripts/ci/current606-native/adapter.py": {
+      "bytes": 3087,
+      "sha256": "401b563ca2da3fd8b1b8e12ade08e7d6c30344d2c516d64b5766d0a3bd332465"
+    },
+    "scripts/ci/current606-native/base-pins.json": {
+      "bytes": 24443,
+      "sha256": "e33a3c0a8eb95f35505da5627413985c3315b467b5dc629ef7e286f293ee9f62"
+    },
+    "scripts/ci/current606-native/bridge606.py": {
+      "bytes": 4663,
+      "sha256": "bf857667a3bb497fc9a0954c0902b061465a8c1fe245b773c4a8b27512a1ef87"
+    },
+    "scripts/ci/current606-native/build-pins.json": {
+      "bytes": 4196,
+      "sha256": "dbd98f2229f0bd18904fc9f11585ffbfd67c369b0c28bd7c552942cc2d1ad779"
+    },
+    "scripts/ci/current606-native/build_pairs.py": {
+      "bytes": 5055,
+      "sha256": "f49318b14f542d6c5a922d18683e2908b34cbb13eee4ded3373a436f7cd72251"
+    },
+    "scripts/ci/current606-native/contract.py": {
+      "bytes": 5936,
+      "sha256": "38da20c388a66b712cca04dc8d45af2c356b834384c4fbad2a7a4119d19ae49e"
+    },
+    "scripts/ci/current606-native/default-input-policy.json": {
+      "bytes": 4606,
+      "sha256": "8c38897dc84c0b16f813262543ce30a12b7928906184b963e578789dfea53f8e"
+    },
+    "scripts/ci/current606-native/expected606.lock": {
+      "bytes": 12043,
+      "sha256": "3a586c1e3400391f56bd281ac9c16aba85d94d0fca002770e77ee1802c5d9fd1"
+    },
+    "scripts/ci/current606-native/fixture606.py": {
+      "bytes": 2359,
+      "sha256": "bc1a2e834a34b39028f401759bf98655f1377fac497787e9b51f3e9e28def206"
+    },
+    "scripts/ci/current606-native/gate.py": {
+      "bytes": 576,
+      "sha256": "fd5c8ff1e031640ff863dede11b5f5f5d6af2969d8145852dc5556d514216b4d"
+    },
+    "scripts/ci/current606-native/input-policy.json": {
+      "bytes": 4606,
+      "sha256": "8c38897dc84c0b16f813262543ce30a12b7928906184b963e578789dfea53f8e"
+    },
+    "scripts/ci/current606-native/metadata-pins.json": {
+      "bytes": 8083,
+      "sha256": "b48ff835ebc9a1b6ce515f4eca48ab67b68ab606a980cdca13e2b9f1e57522b6"
+    },
+    "scripts/ci/current606-native/prepare.py": {
+      "bytes": 6308,
+      "sha256": "1248c4577a867fd428d71a828f45026fc4cae8c0855964b143adb5608d9cbd52"
+    },
+    "scripts/ci/current606-native/run.py": {
+      "bytes": 772,
+      "sha256": "ce1cbfdb602b3e67ea844eae7b9bc37768194f95009bdec642997a23801bf02a"
+    },
+    "scripts/ci/current606-native/test_lane.py": {
+      "bytes": 10082,
+      "sha256": "2cc463c7cb66cb16f2c2fdb2a50f6777081fc79bac5be796aca374a1e42fca1a"
+    },
+    "scripts/ci/current606-native/tools606.py": {
+      "bytes": 7327,
+      "sha256": "3302bddecdf4a5c0eeed4fc7bf2c906af7102d90b564c3656b87699fbae61f5f"
+    }
+  },
+  "schema_version": 1,
+  "status": "CANONICAL606_DEFAULT_NULL_SOURCE_ONLY"
+}

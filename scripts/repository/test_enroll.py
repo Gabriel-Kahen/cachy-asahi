@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT
 """Real GPG/pacman-key in owned disposable roots; never the host keyring/config."""
 import importlib.util
+import glob
 import json
 import os
 from pathlib import Path
@@ -10,6 +11,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 HERE = Path(__file__).resolve().parent
 spec = importlib.util.spec_from_file_location('enrollment', HERE / 'enroll.py')
@@ -31,6 +33,38 @@ def gpg(home, *args):
 
 def fingerprint(home):
     return next(line.split(':')[9] for line in gpg(home,'--with-colons','--fingerprint','--list-keys').decode().splitlines() if line.startswith('fpr:'))
+
+
+def effective_configuration(target):
+    """Query an exact owned config mirror with pacman6-compatible options.
+
+    --rootdir does not relocate absolute Includes. Remap every validated Include
+    into a private mirror instead; never let the parser resolve a host Include.
+    No package/keyring command or privilege escalation is part of this query.
+    """
+    selected = enrollment.state(target, 'enroll')
+    with tempfile.TemporaryDirectory(prefix='caa-query-') as directory:
+        mirror = Path(directory)
+        mapping = {path: mirror / path.relative_to(selected['root']) for path, value in selected['observed'].items() if value is not None}
+        for path, copied in mapping.items():
+            lines = []
+            for raw in selected['observed'][path][0].decode('utf-8').splitlines(keepends=True):
+                key, separator, value = raw.split('#', 1)[0].strip().partition('=')
+                if key.strip() == 'Include':
+                    enrollment.need(separator, 'fixture Include assignment missing')
+                    matches = sorted(Path(item) for item in glob.glob(str(selected['root'] / value.strip().lstrip('/'))))
+                    enrollment.need(matches and all(child in mapping for child in matches), 'fixture Include graph changed')
+                    lines.extend('Include = ' + str(mapping[child]) + '\n' for child in matches)
+                else:
+                    lines.append(raw)
+            copied.parent.mkdir(parents=True, exist_ok=True)
+            copied.write_text(''.join(lines), encoding='utf-8')
+        enrollment.stable(selected)
+        result = command(['/usr/bin/pacman-conf', '--config', mapping[selected['main']],
+                          '--repo', 'cachy-asahi', 'SigLevel', 'Server'])
+        enrollment.stable(selected)
+        enrollment.need(enrollment.state(target, 'enroll')['observed'] == selected['observed'], 'fixture Include graph changed during query')
+        return result
 
 
 class EnrollmentTests(unittest.TestCase):
@@ -115,7 +149,7 @@ except BaseException as error:
         result,body=self.cli(apply=True)
         self.assertEqual(result.returncode,0,body);self.assertFalse(body['config_changed']);self.assertFalse(body['keyring_may_have_changed'])
         self.assertEqual(self.main.read_bytes(),before)
-        query=command(['unshare','--user','--map-root-user','--','pacman-conf','--sysroot',self.target,'--config','/etc/pacman.conf','--repo','cachy-asahi','SigLevel','Server'])
+        query=effective_configuration(self.target)
         self.assertEqual(query.returncode,0,query.stderr.decode())
         effective=query.stdout.decode()
         for token in ('PackageRequired','DatabaseRequired','PackageTrustedOnly','DatabaseTrustedOnly',URL):self.assertIn(token,effective)
@@ -126,6 +160,51 @@ except BaseException as error:
         self.assertEqual(self.main.read_bytes(),self.original)
         self.assertTrue(gpg(self.ring,'--export',self.fpr))
         self.assertEqual(gpg(self.ring,'--export',self.base_fpr),self.base_export)
+
+    def test_portable_query_uses_owned_nested_include_graph_and_base_policy(self):
+        self.enable()
+        extra=self.target/'etc/pacman.d/base-options.conf'
+        nested=self.target/'etc/pacman.d/base-policy.conf'
+        nested.write_bytes(b'SigLevel = Required DatabaseOptional\n')
+        extra.write_bytes(b'Include = /etc/pacman.d/base-policy.conf\n')
+        self.main.write_bytes(self.main.read_bytes().replace(b'SigLevel = Required DatabaseOptional', b'Include = /etc/pacman.d/base-options.conf'))
+        before={path:path.read_bytes() for path in (self.main,extra,nested,self.target/enrollment.INCLUDE.lstrip('/'))}
+        original_command=command
+        inspected=[]
+        def checked(argv, **kwargs):
+            self.assertEqual(argv[0],'/usr/bin/pacman-conf')
+            self.assertNotIn('--sysroot',argv);self.assertNotIn('--rootdir',argv)
+            config=Path(argv[argv.index('--config')+1]);mirror=config.parents[1]
+            self.assertFalse(config.is_relative_to(self.target))
+            for copied in mirror.rglob('*'):
+                if not copied.is_file():continue
+                for line in copied.read_text().splitlines():
+                    key,separator,value=line.split('#',1)[0].strip().partition('=')
+                    if key.strip()=='Include':
+                        self.assertTrue(separator)
+                        selected=Path(value.strip())
+                        self.assertTrue(selected.is_relative_to(mirror));self.assertTrue(selected.is_file())
+            inspected.append(True)
+            return original_command(argv, **kwargs)
+        with patch.dict(effective_configuration.__globals__,{'command':checked}):
+            query=effective_configuration(self.target)
+        self.assertEqual(inspected,[True])
+        self.assertEqual(query.returncode,0,query.stderr.decode())
+        for token in ('PackageRequired','DatabaseRequired','PackageTrustedOnly','DatabaseTrustedOnly',URL):self.assertIn(token,query.stdout.decode())
+        self.assertNotIn('Optional',query.stdout.decode())
+        self.assertEqual({path:path.read_bytes() for path in before},before)
+        # The real parser must see fixture changes through the mirror, rather
+        # than returning hardcoded policy or reading the host's include.
+        include=self.target/enrollment.INCLUDE.lstrip('/')
+        changed=URL.replace('a'*64,'b'*64)
+        include.write_bytes(include.read_bytes().replace(URL.encode(),changed.encode()))
+        query=effective_configuration(self.target)
+        self.assertEqual(query.returncode,0,query.stderr.decode());self.assertIn(changed,query.stdout.decode());self.assertNotIn(URL,query.stdout.decode())
+
+    def test_portable_query_refuses_missing_include_before_parser(self):
+        self.enable()
+        self.main.write_bytes(self.main.read_bytes().replace(b'SigLevel = Required DatabaseOptional', b'Include = /etc/pacman.d/missing-fixture.conf'))
+        with self.assertRaises(enrollment.Error):effective_configuration(self.target)
 
     def test_operator_snapshot_selection_changes_only_owned_include(self):
         self.enable();main=self.main.read_bytes()

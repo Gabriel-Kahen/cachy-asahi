@@ -1,0 +1,24 @@
+{
+  "basis_source": "c361cd76b0be15c78122385e3f5b49468547e109",
+  "edits": [
+    {
+      "after": "self.assertEqual((q['service_seconds'],q['prior_selected_service_seconds'],q['default_service_seconds']),(3460,1800,1200));selected=q['reserved_profile'];basis=load('_latest607_held_service1800_expectation',HERE/'factory/service_capacity.py').profile();self.assertEqual((basis['service_seconds'],basis['default_service_seconds']),(1800,1200));self.assertEqual((selected['profile'],selected['service_seconds'],selected['default_service_seconds']),('GUI_TCG_RESERVED_READBACK_3460_V1',3460,1200));reserve=selected['reservation'];self.assertEqual((reserve['pre_observer_seconds'],reserve['observer_seconds'],reserve['caller_seconds'],reserve['cleanup_seconds'],reserve['readback_tail_seconds']),(1800,1200,1210,450,1660));self.assertIs(reserve['one_shared_deadline'],True);self.assertEqual(reserve['admission'],'REFUSE_BEFORE_VERIFY_IF_SHARED_REMAINING_BELOW1660');self.assertEqual((selected['old1800_fit'],selected['current3460_fit']),('NOT_ESTABLISHED','NOT_ESTABLISHED'));self.assertIs(selected['acceptance'],False);self.assertTrue(all(selected[k]is None for k in('actual','source','ref','run')))",
+      "before": "self.assertEqual(q['service_seconds'],1800)",
+      "count": 1,
+      "rationale": "The current full-source fact is selected3460, while the independently retained selected profile is1800 and the production/default profile is1200. Check those distinct facts and the reserved shared1660 tail, admission, NULL authority and unestablished-fit flags. The separate four explicit f.service1800 generator tests remain byte-held."
+    },
+    {
+      "after": "  if q['parent_context']=='known':\n   with self.assertRaisesRegex(Reached,'FULL574'):G.old_prove(ROOT/'parent574',lambda _:(_ for _ in()).throw(Reached('FULL574_SOURCE_GUARD_REQUIRED')))\n  else:\n   self.assertEqual(q['parent_context'],'null')\n   with self.assertRaisesRegex(ValueError,'NULL.*(?:actors|ACTORS)'):G.old_prove(ROOT/'parent574',lambda _:(_ for _ in()).throw(Reached('NULL_PARENT_MUST_NOT_REACH_ORIGINAL_PROVE')))\n",
+      "before": "  with self.assertRaisesRegex(Reached,'FULL574'):G.old_prove(ROOT/'parent574',lambda _:(_ for _ in()).throw(Reached('FULL574_SOURCE_GUARD_REQUIRED')))\n",
+      "count": 1,
+      "rationale": "G.old_prove always calls verify(require_known=True). Preserve its exact FULL574 sentinel assertion for known context. NULL must instead raise the explicit before-actors ValueError; its different Reached sentinel makes any call into original_prove fail this control."
+    }
+  ],
+  "file": "implementation/test_source.py",
+  "observed_occurrences": [
+    1,
+    1
+  ],
+  "scope": "ONLY_INHERITED_SOURCE_FACT_AND_KNOWN_NULL_ADMISSION_EXPECTATIONS_NO_GENERATOR_RUNTIME_POLICY_BUDGET_FRAME_CHANGES",
+  "validation": "SOURCE_READ_AND_COUNT_ONLY_NO_TEST_OR_SOURCE_EXECUTION"
+}

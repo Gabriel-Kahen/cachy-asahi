@@ -1,0 +1,116 @@
+{
+  "behaviors": {
+    "authentication": "client.Verifier signature_status and isolated external public keyring",
+    "catalog": "separate signed finite caller selection bound to exact signed release",
+    "local_inventory": "Explicit readonly nofollow ALPM9 database observation, two matching reads, fresh0600 output, metadata-only qualifier, no subprocess or DB writes; separate16MiB inventory capacity; idempotent exact repeated relations; literal POSIX backslash ownership; order-preserving per-section duplicate membership set, original duplicate/refusal order and two-read30s bound retained; equivalent canonical POSIX split/rpartition predicates remove repeated pathlib allocations only, every complete fresh raw scan/identity/hash/lock/race/30s predicate remains; Revision9 replaces only two Python ord/generator control-character predicates by exact C regex invalid-character searches, preserving whole scan/collect/publish/validate and all deadlines/caps",
+    "mutation": "NONE; explicit NOT_APPLIED",
+    "optional_inventory_stage": "Explicit --diagnostic-stage only: fixed fresh0600 sibling, at most1024 bytes, finite ordered phase/sequence/elapsed and optional finite error class; no metadata or contents; default functions/result byte-held; complete diagnostic derivatives inverse-held; both fresh scans and shared30-second deadline retained; original output rollback/identity checks retained. Source-only observability, no speedup.",
+    "reinstall": "Explicit same-version/metadata signed selection, no dependency expansion; CLI NOT_APPLIED; separate pinned owned-copy backend reauthenticates and verifies real payload repair",
+    "relations": "release.relation and release.satisfies with preinstalled ALPM vercmp",
+    "semantics": "release.verify_release, pkginfo, database_check, provenance_check, source associations and dependency_check"
+  },
+  "check_inputs": {
+    "archive": {
+      "bytes": 61046,
+      "sha256": "6d38353fe33e0ce595df507ad9b928d80d3e1d6fe5d45d5418f927e9f50fe6d2"
+    },
+    "bytes": 229223,
+    "execution": "data-only extraction; original test fixture is invoked only by explicit package check",
+    "files": 16,
+    "index": {
+      "bytes": 4127,
+      "sha256": "5cd338eb2ab9f4579825f3dd30de0f25d54a73ee1090737b0a21a506d12caad8"
+    },
+    "installed": false,
+    "license": "MIT",
+    "preparer": {
+      "bytes": 3321,
+      "sha256": "76bc1977cf402872816a430156541c0ccd41273e9080730d2ace7838ffa74214"
+    },
+    "source_roots": [
+      "exact existing scripts/release/test_release.py and three helper files",
+      "exact proposed companion recipe sources"
+    ]
+  },
+  "copyright": "2026 cachy-asahi contributors",
+  "external_helpers": {
+    "scripts/client/client.py": {
+      "bytes": 28669,
+      "sha256": "48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7"
+    },
+    "scripts/release/release.py": {
+      "bytes": 41320,
+      "sha256": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435"
+    },
+    "scripts/release/source_delivery.py": {
+      "bytes": 16456,
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+    }
+  },
+  "inventory_source_pointers": {
+    "scripts/ci/full-root-upgrade/root_upgrade.py": {
+      "bytes": 23555,
+      "sha256": "fe1232ae6b510021910b4fb80016ac3b4668c6e4386cdae45e7b95196e400756"
+    },
+    "scripts/port/repository-client-native/base.py": {
+      "bytes": 43739,
+      "sha256": "94a8e2898b062a0efd0f567d1f4f472bd04d6ff5a1573cd09f3bf8d1f556cddd"
+    }
+  },
+  "license": "MIT",
+  "package": "cachy-asahi-apps",
+  "parent_apps8": {
+    "acceptance": "SEPARATE_PARENT_ONLY_NOT_TRANSFERRED",
+    "current606_source": "5c3c2d0ce5b4f6c2672c9367b722170687c7de69",
+    "inventory": {
+      "bytes": 13293,
+      "sha256": "bf0068a57240094dba2eb860c48a0f7f547a9b8e7c675ef847834423de2dda9f"
+    },
+    "native_pair_source": "f1984a2481c541add7eb99b311a3ae3228307aa6",
+    "recipe_source": "98a0a6ab18355604683bee42c84c393940a690a1"
+  },
+  "parent_apps9": {
+    "acceptance": "SEPARATE_PARENT_ONLY_NOT_TRANSFERRED",
+    "inventory": {
+      "bytes": 13270,
+      "sha256": "8bb0e7374882d4b74f50cadf5a1d3d1524627e10714b53848b8b27eb6da30837"
+    },
+    "native_pair_run": 39748090833,
+    "native_pair_source": "4ebe9f9afb153b34e8fe200594eaee189626413f",
+    "recipe_source": "9f9eae97843531a41b201655100f13984d9ac01e"
+  },
+  "qualification": {
+    "hardware": "NOT_RUN",
+    "host_tests": "PASS_45_ORIGINAL_PLUS8_INVENTORY_PLUS8_OPTIONAL_STAGE_CONTROLS_PY312_PY314",
+    "installed_lifecycle": "NOT_RUN",
+    "native_build": "NOT_RUN",
+    "release_acceptance": "NOT_ESTABLISHED"
+  },
+  "runtime_dependency": {
+    "default_root": "/usr/share/cachy-asahi/repository-runtime",
+    "development_override": "--repository-source",
+    "package": "cachy-asahi-repository-runtime",
+    "version": "0.1.0-1"
+  },
+  "runtime_sources": {
+    "apps.py": {
+      "bytes": 22826,
+      "sha256": "de9118c7ea98d0ea0263a0615b1ad1e4ed3402c9ea6f1dcbf43d4e75258975dc"
+    },
+    "cachy-asahi-apps": {
+      "bytes": 310,
+      "sha256": "4e9c078c2e05cc00cb6479d5fff23b92cbcabd8d6b3ff970f6181e6467921630"
+    },
+    "helper-pins.json": {
+      "bytes": 493,
+      "sha256": "33a5e11e6d12df984e07c437c68ee581527cc4c95f3327bc44cbc09e0e29948a"
+    },
+    "inventory.py": {
+      "bytes": 20286,
+      "sha256": "0f9dae65da1411548e5083ebdc14cc0d7f5f342ea0940dbcc2fd560e80b59888"
+    }
+  },
+  "schema_version": 1,
+  "source_kind": "original project planner with exact installed three-helper runtime dependency",
+  "version": "0.1.0-10"
+}

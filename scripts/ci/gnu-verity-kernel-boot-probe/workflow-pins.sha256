@@ -1,0 +1,8 @@
+0aa3115c5d4b9fcdc658872c9793d1bae449b429456811958d0dd18a0e74bccf  scripts/ci/gnu-verity-kernel-boot-probe/entry.py
+7aae9e4521fbe376a21e0d284efe4db1513ed56f802be5dbd5116fb9f4067de8  scripts/ci/gnu-verity-kernel-boot-probe/kernel_input_entry.py
+d161528c44913a6da601cc6040d9d05659eb3f3031db2d9d17a2b2693b99a20d  scripts/ci/gnu-verity-kernel-boot-probe/lane.py
+ce2ec00a84e0106144876d4cf98c6b575105ce18f9e87eb45255725e50fb0724  scripts/ci/gnu-verity-kernel-boot-probe/contract.py
+2152088db0be00272f75db5fbc0ebbd90fdca1c47a2ce29e17866513aaf023dd  scripts/ci/gnu-verity-kernel-boot-probe/protocol.py
+c915e629bfd9e45536448538e8534b7dc4b0b4265e4abfc69bc9a7bdd9a38876  scripts/ci/gnu-verity-kernel-boot-probe/fixture.py
+1d424b939d7b013ab7432b085a1efb1b23950e063a65e1473a2c0b4b555dce28  scripts/ci/gnu-verity-kernel-boot-probe/supervise.py
+85ca82a9487c353164f574286904ae1e962bf960f143b5066b24fe270d9a6fb0  scripts/ci/gnu-verity-kernel-boot-probe/kernel_input.py

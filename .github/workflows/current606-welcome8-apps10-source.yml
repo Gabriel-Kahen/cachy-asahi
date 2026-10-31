@@ -1,0 +1,124 @@
+name: current606-welcome8-apps10-source
+on:
+  push:
+    paths:
+      - scripts/ci/current606-welcome7-gui-source/**
+      - .github/workflows/current606-welcome8-apps10-source.yml
+  pull_request:
+    paths:
+      - scripts/ci/current606-welcome7-gui-source/**
+      - .github/workflows/current606-welcome8-apps10-source.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONWARNINGS: error
+    steps:
+      - name: Check out the maintained factory
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Check out exact parent Apps8 failure-data source556
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 51e7797ef639de8fbed96e51b5b12bf5a92c7cb7
+          path: .ci-fixtures/apps9-gui-parent556
+          persist-credentials: false
+      - name: Check out exact expected Apps9 GUI source557
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 5c22c8dbac8b6a79ebbbd19141ace4840d41e43e
+          path: .ci-fixtures/apps9-gui557
+          persist-credentials: false
+      - name: Check out exact Root-qualified Apps9 public input93
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 128b9806c8e972a729d5c1ef4f2dc9e39e48fc42
+          path: .ci-fixtures/apps9-input93
+          persist-credentials: false
+      - name: Check out exact Apps9 recipe41
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 9f9eae97843531a41b201655100f13984d9ac01e
+          path: .ci-fixtures/apps9-recipe41
+          persist-credentials: false
+      - name: Check out exact Apps9 native pair source114
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 4ebe9f9afb153b34e8fe200594eaee189626413f
+          path: .ci-fixtures/apps9-native114
+          persist-credentials: false
+      - name: Check out exact expected GUI559
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 9d674476c227b2b4a40ab515e9b6a453071f1c3f
+          path: .ci-fixtures/apps10-gui559
+          persist-credentials: false
+      - name: Check out exact accepted Apps10 input94
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: a2bbf5edd57a7a31951a1e9060c83698f29302c4
+          path: .ci-fixtures/apps10-input94
+          persist-credentials: false
+      - name: Check out exact Apps10 recipe42
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 0c7fa965b38939df65034b4003260fff99097999
+          path: .ci-fixtures/apps10-recipe42
+          persist-credentials: false
+      - name: Check out exact Apps10 native source115
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 9d1b97e0adf704fa19b534a7db610350e36a42a5
+          path: .ci-fixtures/apps10-native115
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Verify opt-in factory, old body identity and publication custody
+        shell: bash
+        run: |
+          python -I -B -Werror scripts/ci/current606-welcome7-gui-source/test_apps9.py \
+            --parent "$GITHUB_WORKSPACE/.ci-fixtures/apps9-gui-parent556" \
+            --expected "$GITHUB_WORKSPACE/.ci-fixtures/apps9-gui557" \
+            --carrier "$GITHUB_WORKSPACE/.ci-fixtures/apps9-input93" \
+            --recipe "$GITHUB_WORKSPACE/.ci-fixtures/apps9-recipe41" \
+            --native "$GITHUB_WORKSPACE/.ci-fixtures/apps9-native114"
+      - name: Run all eleven actual emitted-source controls
+        shell: bash
+        run: |
+          python -I -B -Werror scripts/ci/current606-welcome7-gui-source/test_apps9_source.py \
+            --parent "$GITHUB_WORKSPACE/.ci-fixtures/apps9-gui-parent556" \
+            --expected "$GITHUB_WORKSPACE/.ci-fixtures/apps9-gui557" \
+            --carrier "$GITHUB_WORKSPACE/.ci-fixtures/apps9-input93" \
+            --recipe "$GITHUB_WORKSPACE/.ci-fixtures/apps9-recipe41" \
+            --native "$GITHUB_WORKSPACE/.ci-fixtures/apps9-native114"
+      - name: Verify exact Apps10 stage option, all four CLI cases and original diagnostic controls
+        shell: bash
+        run: |
+          python -I -B -Werror scripts/ci/current606-welcome7-gui-source/test_apps10.py \
+            --parent "$GITHUB_WORKSPACE/.ci-fixtures/apps9-gui557" \
+            --expected "$GITHUB_WORKSPACE/.ci-fixtures/apps10-gui559" \
+            --carrier "$GITHUB_WORKSPACE/.ci-fixtures/apps10-input94" \
+            --recipe "$GITHUB_WORKSPACE/.ci-fixtures/apps10-recipe42" \
+            --native "$GITHUB_WORKSPACE/.ci-fixtures/apps10-native115" \
+            --old-parent "$GITHUB_WORKSPACE/.ci-fixtures/apps9-gui-parent556"

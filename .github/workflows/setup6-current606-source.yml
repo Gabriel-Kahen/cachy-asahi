@@ -1,0 +1,102 @@
+name: setup6-current606-source
+on:
+  pull_request:
+    paths: ['scripts/ci/setup6-current606-source/**', '.github/workflows/setup6-current606-source.yml']
+  push:
+    paths: ['scripts/ci/setup6-current606-source/**', '.github/workflows/setup6-current606-source.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        python: ['3.12', '3.14']
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONWARNINGS: error
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Checkout the complete accepted Apps6 baseline source353
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 6f824cac64cd44f765e54fd3b5a853689ea0ce7b
+          path: fixtures/original
+          persist-credentials: false
+      - name: Checkout whole accepted real-module source240
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: d41d28d870227b0256a8980d3c305287fbfb6ffb
+          path: fixtures/setup6
+          persist-credentials: false
+      - name: Checkout exact Setup606 source608
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 0e4eac72e1edef34ecdc417d4c1e50ee2f196c80
+          path: fixtures/expected
+          persist-credentials: false
+      - name: Checkout exact normal-Docker real-module source636
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: a8eb556eed8813762b2ad50598741a2e3d51a022
+          path: fixtures/real-expected
+          persist-credentials: false
+      - name: Checkout exact Apps7 and Setup6 coexistence source676
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 5a45919d81890c3196cb712b0b67272d4469f570
+          path: fixtures/coexist-expected
+          persist-credentials: false
+      - name: Checkout accepted public Apps7 and Runtime1 input carrier
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 02734c705565868b0b964c48399a4f659fc6f271
+          path: fixtures/apps7-packet
+          persist-credentials: false
+      - name: Checkout corrected ordered normal636 source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: d09f6b5cb122062af7b9868f54bc1fda69318d34
+          path: fixtures/ordered-real-expected
+          persist-credentials: false
+      - name: Checkout corrected ordered coexistence676 source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: f9471acd0414c2f6abc53ee81111011df735430c
+          path: fixtures/ordered-coexist-expected
+          persist-credentials: false
+      - name: Verify exact608 emission and isolated source CLI with refusal controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -B -W error scripts/ci/setup6-current606-source/test_factory.py \
+            --original-source "$GITHUB_WORKSPACE/fixtures/original" \
+            --setup-source "$GITHUB_WORKSPACE/fixtures/setup6" \
+            --expected "$GITHUB_WORKSPACE/fixtures/expected" \
+            --real-expected "$GITHUB_WORKSPACE/fixtures/real-expected"
+      - name: Verify exact676 coexistence emission, guards and original nonce retainer
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -B -W error scripts/ci/setup6-current606-source/test_coexistence.py \
+            --original-source "$GITHUB_WORKSPACE/fixtures/original" \
+            --setup-source "$GITHUB_WORKSPACE/fixtures/setup6" \
+            --expected "$GITHUB_WORKSPACE/fixtures/coexist-expected" \
+            --apps-packet "$GITHUB_WORKSPACE/fixtures/apps7-packet"
+      - name: Verify ordered source revisions and exact failed nonce retention
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -B -W error scripts/ci/setup6-current606-source/test_ordered.py \
+            --original-source "$GITHUB_WORKSPACE/fixtures/original" \
+            --setup-source "$GITHUB_WORKSPACE/fixtures/setup6" \
+            --expected "$GITHUB_WORKSPACE/fixtures/ordered-coexist-expected" \
+            --real-expected "$GITHUB_WORKSPACE/fixtures/ordered-real-expected" \
+            --apps-packet "$GITHUB_WORKSPACE/fixtures/apps7-packet"

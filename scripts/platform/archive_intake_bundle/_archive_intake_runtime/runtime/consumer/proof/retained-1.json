@@ -1,0 +1,1142 @@
+{
+  "actors": {
+    "GPG": false,
+    "host_system_mutation": false,
+    "mounting": false,
+    "native_compiler": false,
+    "own_model_bundle_serialization": true,
+    "own_source_model_execution": true,
+    "package_acquisition": false,
+    "platform_boot_mutation": false,
+    "remote_plain_source_metadata_retrieval": true,
+    "selected_archive_reads": false,
+    "selected_image_reads": false,
+    "system_package_install": false
+  },
+  "actual_image_build": false,
+  "actual_model_input_authentication": false,
+  "all48_image_report": false,
+  "assembler": {
+    "bytes": 21554,
+    "mode": 420,
+    "sha256": "170b60eb8b314f99f883dfd155b918131fb23f7d6b6c6b299d19621c5a60f1d4"
+  },
+  "assembly_authorized": false,
+  "author": {
+    "actual_selected_archive_or_image_reads": false,
+    "assembler_sha256": "170b60eb8b314f99f883dfd155b918131fb23f7d6b6c6b299d19621c5a60f1d4",
+    "errors": 0,
+    "failures": 0,
+    "methods": 16,
+    "native_or_package_execution": false,
+    "schema_version": 1,
+    "scope": "OWNED_SYNTHETIC_PAYLOAD_MAPS_AND_STAGING_BUNDLE_ONLY",
+    "skips": 0,
+    "success": true,
+    "test_sha256": "af33e0a69d8a0838338efe672b1753ac35ce47fcd4d43e8a3d6a77b13be51b78"
+  },
+  "files": {
+    "acquisition/candidate-urls.json": {
+      "bytes": 3056,
+      "mode": 384,
+      "sha256": "ee75d860bed4bec5f6709a52624585beb2215a165968c9522d844f64090d0975"
+    },
+    "acquisition/historical-perl-index-binding.json": {
+      "bytes": 877,
+      "mode": 384,
+      "sha256": "43a057f7d7c4676bc261162e6546beac789c946b4cc9c1213e09eddf1aa51dc3"
+    },
+    "acquisition/http-observations.json": {
+      "bytes": 6824,
+      "mode": 384,
+      "sha256": "0f9c7df937c4bffde59bd52044581a3b6569e7bbaaf2674820f3465aaa0be85b"
+    },
+    "acquisition/http/alarm-networkmanager-override.json": {
+      "bytes": 3313,
+      "mode": 384,
+      "sha256": "0b1f328774bc1ed152740d57380313087e7867c5dff9eb4c73ac227f3be5dbb4"
+    },
+    "acquisition/http/alarm-networkmanager-recipe.txt": {
+      "bytes": 6235,
+      "mode": 384,
+      "sha256": "5db123a9d99e95509facd7f0e769bbd53f442e891e2058efd83f04de3725032a"
+    },
+    "acquisition/http/alarm-perl-extra-history.json": {
+      "bytes": 2,
+      "mode": 384,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "acquisition/http/alarm-perl-override.json": {
+      "bytes": 3298,
+      "mode": 384,
+      "sha256": "6db58b68ab5401be4901f631ffe93106319e488237cc72cbaf00d9aaedbcc0ec"
+    },
+    "acquisition/http/arch-networkmanager-pinned-recipe.txt": {
+      "bytes": 6167,
+      "mode": 384,
+      "sha256": "6182a0d88d0fedb3bfd8b92e23c65b6e9ce54565a02781ff47a59ffb214ec2e2"
+    },
+    "acquisition/http/arch-networkmanager-recipe.txt": {
+      "bytes": 6167,
+      "mode": 384,
+      "sha256": "6182a0d88d0fedb3bfd8b92e23c65b6e9ce54565a02781ff47a59ffb214ec2e2"
+    },
+    "acquisition/http/arch-networkmanager-tag.json": {
+      "bytes": 1073,
+      "mode": 384,
+      "sha256": "e4f280bcef8bfede1ae53963e1b0922710c0d67e71159acc3101020c9904a26e"
+    },
+    "acquisition/http/arch-perl-pinned-recipe.txt": {
+      "bytes": 9349,
+      "mode": 384,
+      "sha256": "8a03e3226c3a0cfa6ad62e527f3327c422a9e9f242822d0cc966803788ab0680"
+    },
+    "acquisition/http/arch-perl-recipe.txt": {
+      "bytes": 9349,
+      "mode": 384,
+      "sha256": "8a03e3226c3a0cfa6ad62e527f3327c422a9e9f242822d0cc966803788ab0680"
+    },
+    "acquisition/http/arch-perl-tag.json": {
+      "bytes": 1727,
+      "mode": 384,
+      "sha256": "2dbfa056dd9a8e7221631944edc3d9d0935a33ad291939bcd204fc0925fbeb85"
+    },
+    "acquisition/http/operator-networkmanager.txt": {
+      "bytes": 31474,
+      "mode": 384,
+      "sha256": "fe90fc61a1cb008f822a67ff141b6ff005deb0d92a63e1dfae6be33fcc3571da"
+    },
+    "acquisition/http/operator-perl.txt": {
+      "bytes": 29072,
+      "mode": 384,
+      "sha256": "813812414d26ac3c8890ece66e6f988f486e8a07e5ba9951cbc4dde770f2a964"
+    },
+    "acquisition/index.json": {
+      "bytes": 5822,
+      "mode": 384,
+      "sha256": "59a824dd7d0173429d2e2fee214dce22ac29abaf7e8607b125eaa654d856dd1d"
+    },
+    "acquisition/networkmanager-recipe-diff.txt": {
+      "bytes": 518,
+      "mode": 384,
+      "sha256": "c2e1bf95cda83f39abdfbb129f0b4270098841fe868048649aec4a2d6f9e0b1a"
+    },
+    "acquisition/readiness.json": {
+      "bytes": 4216,
+      "mode": 384,
+      "sha256": "7d4a6c020957e7ff1ac0234750c0d891ef6de6d9da23393239544515ba6456d8"
+    },
+    "acquisition/receipt.json": {
+      "bytes": 2968,
+      "mode": 384,
+      "sha256": "47c0d0ddb9c50f6609b24322d358c0da8a153fc815e24bc22b91858c18440045"
+    },
+    "acquisition/report.md": {
+      "bytes": 7217,
+      "mode": 384,
+      "sha256": "4b3108ad609ffab985e816e026d5c2eb1babb340daa79ca60e323832f07c31d6"
+    },
+    "acquisition/retained-target-reference-slice.json": {
+      "bytes": 858,
+      "mode": 384,
+      "sha256": "68ac939c2f47ed5540da29c41714b8ddf71bab70e3f697c2b9d0fb2b720e20c1"
+    },
+    "acquisition/retained/artifacts/platform/m8-minimal-20261012-b/image-inventory.json": {
+      "bytes": 340100,
+      "mode": 384,
+      "sha256": "5c1630b5cdf07898118979895682c3a3b705e416c9840ada4e1a5193dccd6941"
+    },
+    "acquisition/retained/artifacts/reviews/platform-image-assembly-contract-proposal-20261013/inputs/baseline-259-proposal.json": {
+      "bytes": 2709,
+      "mode": 384,
+      "sha256": "7404ce1f6307af31703104dca3ad7169784f6e309dd157445c82b82a6bff68c3"
+    },
+    "acquisition/retained/artifacts/reviews/platform-installed-payload-correspondence-20261012/python-supplemental-row.json": {
+      "bytes": 9918,
+      "mode": 384,
+      "sha256": "0496aec5aa66d9c38db67071f72abbbd5bb6ed72853d6a846b2087d408ed5634"
+    },
+    "acquisition/retained/docs/roadmap.md": {
+      "bytes": 17385,
+      "mode": 384,
+      "sha256": "6e720ad88eea80475217638fb080c8bac2d2a19046b0d3260c7e5ffd371a32ec"
+    },
+    "acquisition/retained/docs/workstreams/platform-installed-payload-correspondence.md": {
+      "bytes": 13441,
+      "mode": 384,
+      "sha256": "599079a3e1f0b9f9d7bcd8aa0ff613e25c5d09892bc5114d3871d8dfd56608d4"
+    },
+    "acquisition/retained/manifests/packages.toml": {
+      "bytes": 9010,
+      "mode": 384,
+      "sha256": "4a1be668b1296b598138efca3e4a47892dca47455b2efbd225b0ca2b68108f72"
+    },
+    "acquisition/target-tuples.json": {
+      "bytes": 7588,
+      "mode": 384,
+      "sha256": "81b5a053772578d050c79cec4ba14a83c237c0b5bff7ab838c618a5bb97994c8"
+    },
+    "acquisition/validation.json": {
+      "bytes": 733,
+      "mode": 384,
+      "sha256": "77f9375615a9866425920c5874d12ace31931b362d8c43e2bbe6d3738cc5b0c1"
+    },
+    "assembler.py": {
+      "bytes": 21554,
+      "mode": 420,
+      "sha256": "170b60eb8b314f99f883dfd155b918131fb23f7d6b6c6b299d19621c5a60f1d4"
+    },
+    "author-result.json": {
+      "bytes": 441,
+      "mode": 420,
+      "sha256": "7b6a35f95b0edf0c9ea1178b041f8b75a77a1b6ece1a893a504661fb117ac8ce"
+    },
+    "author-tests.log": {
+      "bytes": 2359,
+      "mode": 420,
+      "sha256": "b5442e5999540354109ddfba00687b05a90c29bc58689fe9007bc24bffe86703"
+    },
+    "baseline/attempt01/assembler.py": {
+      "bytes": 15546,
+      "mode": 420,
+      "sha256": "634e408c37e4cd251b6eb512e2414a33b4bfc0b065a7d973ebf40a5e03d826ea"
+    },
+    "baseline/attempt01/model-build-comparison.json": {
+      "bytes": 22257,
+      "mode": 420,
+      "sha256": "1c752d1c98d82416477bd93d3d58583a1a1f246d0ec8f4a65965693f80a4c004"
+    },
+    "baseline/attempt01/model-build-one.tar": {
+      "bytes": 20480,
+      "mode": 420,
+      "sha256": "d0e495bf33bb20dc85a99fae04493cccd633c42a6ff67fd2bcaf8754cb1e96d0"
+    },
+    "baseline/attempt01/model-build-two.tar": {
+      "bytes": 20480,
+      "mode": 420,
+      "sha256": "d0e495bf33bb20dc85a99fae04493cccd633c42a6ff67fd2bcaf8754cb1e96d0"
+    },
+    "baseline/attempt01/model-mutation-counter.json": {
+      "bytes": 191,
+      "mode": 420,
+      "sha256": "29a2d6c7c5d8ff44a1763e56215b3463e4082dc9c63df12f7b2daf2fd96c72aa"
+    },
+    "baseline/attempt01/retained-stage.json": {
+      "bytes": 977,
+      "mode": 420,
+      "sha256": "c42bee88c34d21701d3fa1f5df9eb76662345491f459028a8d7691fecd06252e"
+    },
+    "baseline/attempt01/test_assembler.py": {
+      "bytes": 11189,
+      "mode": 420,
+      "sha256": "0032ba53466ffb42f8af905c0d0df38ba47cab1febea9216f7b5406abd0fbc45"
+    },
+    "baseline/attempt02/assembler.py": {
+      "bytes": 20688,
+      "mode": 420,
+      "sha256": "cd3ebb4564b35f73bf2ca6b6f687209d3ddf075454df1db669c76869568ee931"
+    },
+    "baseline/attempt02/model-build-comparison.json": {
+      "bytes": 26657,
+      "mode": 420,
+      "sha256": "d0d9a4b1d415e5fe33df9a019e6199447b4e7a4876bb186b773bd9fb36d58fb0"
+    },
+    "baseline/attempt02/model-build-one.tar": {
+      "bytes": 20480,
+      "mode": 420,
+      "sha256": "ec9ae50402a2fc0f138bd27c9464c8e05ea4578068b0d9d826158133681c35bf"
+    },
+    "baseline/attempt02/model-build-two.tar": {
+      "bytes": 20480,
+      "mode": 420,
+      "sha256": "ec9ae50402a2fc0f138bd27c9464c8e05ea4578068b0d9d826158133681c35bf"
+    },
+    "baseline/attempt02/model-mutation-counter.json": {
+      "bytes": 191,
+      "mode": 420,
+      "sha256": "29a2d6c7c5d8ff44a1763e56215b3463e4082dc9c63df12f7b2daf2fd96c72aa"
+    },
+    "baseline/attempt02/model-three-recipes.json": {
+      "bytes": 16748,
+      "mode": 420,
+      "sha256": "46ad965accb479a1e98b99851144aae9c702dc5bbc4b6df8ff440a533c8e13e5"
+    },
+    "baseline/attempt02/retained-stage.json": {
+      "bytes": 1121,
+      "mode": 420,
+      "sha256": "ea21430f069124cff403bedac8344a4079f9ca01206424f1acd5443e17b19c74"
+    },
+    "baseline/attempt02/test_assembler.py": {
+      "bytes": 14241,
+      "mode": 420,
+      "sha256": "c729f37487a3280deacc0c13332c03c5743dd0768c244032afe5a2c7844b8a3d"
+    },
+    "input-capture.json": {
+      "bytes": 1313,
+      "mode": 420,
+      "sha256": "003f66473856c17c66cb6c68a2737fc69a283414b4a13d08d2f038c9d1ec7d81"
+    },
+    "inputs/assembly-plan.json": {
+      "bytes": 153364,
+      "mode": 420,
+      "sha256": "9bc1011c9e7c0bd1e54c967e74a04aa7d7e48d2746f59e017e2f2b5f459b0cb6"
+    },
+    "inputs/fstab.ext4.txt": {
+      "bytes": 220,
+      "mode": 420,
+      "sha256": "7e64abac2c07f61a3c4f420c381e5b1ed719dd72654dfb98ed5598eaab208675"
+    },
+    "inputs/image-inventory.json": {
+      "bytes": 340100,
+      "mode": 420,
+      "sha256": "5c1630b5cdf07898118979895682c3a3b705e416c9840ada4e1a5193dccd6941"
+    },
+    "inputs/package-reference-index.json": {
+      "bytes": 107648,
+      "mode": 420,
+      "sha256": "874b7406955baf36c455f8b0a9eeaddbfc0636506e757d3e98ff5ca6b97569a2"
+    },
+    "inputs/resolver-fastlink-completion.json": {
+      "bytes": 2643,
+      "mode": 420,
+      "sha256": "dff88eaec156ca15ad5f3b6f8b5e72fba378e826e1ab63330cf92ca776780397"
+    },
+    "inputs/validate_plan.py": {
+      "bytes": 16890,
+      "mode": 420,
+      "sha256": "c2ba2c6bd183ce4f300aec16757707017d273a7119b45072b1d2667d07ae0776"
+    },
+    "inputs/validation-result.json": {
+      "bytes": 1020,
+      "mode": 420,
+      "sha256": "09277244ca2a92169664b7e1e7397325623984698da469fdda6513cf9dadde5f"
+    },
+    "model-build-comparison.json": {
+      "bytes": 27877,
+      "mode": 420,
+      "sha256": "a93586e7232ed4d135e69f0e5c96a0557cc1e3ee60c791868ad921f81454c316"
+    },
+    "model-build-one.tar": {
+      "bytes": 20480,
+      "mode": 420,
+      "sha256": "b7f3ea6f350aa40cc5250b9f1dae8540ac1c11ee15d6c1a8bac996840bb90c7c"
+    },
+    "model-build-two.tar": {
+      "bytes": 20480,
+      "mode": 420,
+      "sha256": "b7f3ea6f350aa40cc5250b9f1dae8540ac1c11ee15d6c1a8bac996840bb90c7c"
+    },
+    "model-mutation-counter.json": {
+      "bytes": 191,
+      "mode": 420,
+      "sha256": "29a2d6c7c5d8ff44a1763e56215b3463e4082dc9c63df12f7b2daf2fd96c72aa"
+    },
+    "model-three-recipes.json": {
+      "bytes": 17328,
+      "mode": 420,
+      "sha256": "edaaa130333d4d23bf54571e83fbcafb8adccfea166e3f45f441ea00949e9566"
+    },
+    "peer/candidate-cd3/assembler.py": {
+      "bytes": 20688,
+      "mode": 420,
+      "sha256": "cd3ebb4564b35f73bf2ca6b6f687209d3ddf075454df1db669c76869568ee931"
+    },
+    "peer/candidate-cd3/inputs/assembly-plan.json": {
+      "bytes": 153364,
+      "mode": 420,
+      "sha256": "9bc1011c9e7c0bd1e54c967e74a04aa7d7e48d2746f59e017e2f2b5f459b0cb6"
+    },
+    "peer/candidate-cd3/inputs/fstab.ext4.txt": {
+      "bytes": 220,
+      "mode": 420,
+      "sha256": "7e64abac2c07f61a3c4f420c381e5b1ed719dd72654dfb98ed5598eaab208675"
+    },
+    "peer/candidate-cd3/inputs/image-inventory.json": {
+      "bytes": 340100,
+      "mode": 420,
+      "sha256": "5c1630b5cdf07898118979895682c3a3b705e416c9840ada4e1a5193dccd6941"
+    },
+    "peer/candidate-cd3/inputs/package-reference-index.json": {
+      "bytes": 107648,
+      "mode": 420,
+      "sha256": "874b7406955baf36c455f8b0a9eeaddbfc0636506e757d3e98ff5ca6b97569a2"
+    },
+    "peer/candidate-cd3/inputs/validate_plan.py": {
+      "bytes": 16890,
+      "mode": 420,
+      "sha256": "c2ba2c6bd183ce4f300aec16757707017d273a7119b45072b1d2667d07ae0776"
+    },
+    "peer/candidate-cd3/inputs/validation-result.json": {
+      "bytes": 1020,
+      "mode": 420,
+      "sha256": "09277244ca2a92169664b7e1e7397325623984698da469fdda6513cf9dadde5f"
+    },
+    "peer/candidate-cd3/primitives/payload.py": {
+      "bytes": 28493,
+      "mode": 420,
+      "sha256": "3a71ba896700f72130e35a56845516bd9c42de0b1b0fd782b79829b37ac262a7"
+    },
+    "peer/candidate-cd3/stream-failure-control.py": {
+      "bytes": 2783,
+      "mode": 420,
+      "sha256": "065909c0aa415aea19b9f17a6c10b033b8d3bf9744379a9bf68b37944a2b3dce"
+    },
+    "peer/candidate-cd3/stream-failure-result.json": {
+      "bytes": 604,
+      "mode": 420,
+      "sha256": "6bed465991b7816d687b272461204e15eb64a3b405e8a4941591d266e67eaa52"
+    },
+    "peer/candidate-cd3/stream-failure.log": {
+      "bytes": 604,
+      "mode": 420,
+      "sha256": "6bed465991b7816d687b272461204e15eb64a3b405e8a4941591d266e67eaa52"
+    },
+    "peer/candidate-cd3/stream-red-receipt.json": {
+      "bytes": 1544,
+      "mode": 420,
+      "sha256": "ffd8e2054fcf8a7a14ce3ef0a105dd8d141c8c3ed59dc28a39b960f7ab54fd2b"
+    },
+    "peer/candidate-cd3/transforms/content/firstboot.txt": {
+      "bytes": 49,
+      "mode": 420,
+      "sha256": "523a2ea0261145994fd8b3c27bab4456b1b5a5d590cd13c96534729a982c2c95"
+    },
+    "peer/candidate-cd3/transforms/content/mirrorlist.txt": {
+      "bytes": 116,
+      "mode": 420,
+      "sha256": "bf8463a7368742670d036b891ba82ae79cfac761a40398376d05ca75d837466a"
+    },
+    "peer/candidate-cd3/transforms/pristine-source/alarm-PKGBUILD": {
+      "bytes": 9236,
+      "mode": 420,
+      "sha256": "11478f8ea8872f59baef483d47bc12775b2fdfcd73ed15108ebd8358da76e913"
+    },
+    "peer/candidate-cd3/transforms/pristine-source/alarm-SRCINFO": {
+      "bytes": 3459,
+      "mode": 420,
+      "sha256": "bc5ea49f48b3ad99f9395c1e22324779d51add5a7c803da07be0e144b16558e8"
+    },
+    "peer/candidate-cd3/transforms/pristine-source/alarm-fstab": {
+      "bytes": 126,
+      "mode": 420,
+      "sha256": "e54626e74ed8fee4173b62a545ab1c3a3a069e4217a0ee8fc398d9933e9c1696"
+    },
+    "peer/candidate-cd3/transforms/pristine-source/alarm-package-contents.json": {
+      "bytes": 29605,
+      "mode": 420,
+      "sha256": "128d382bec2870738a505296266ab3ae940f27d13fb44595cebffa9dc90be88c"
+    },
+    "peer/candidate-cd3/transforms/pristine-source/alarm-path-commit.json": {
+      "bytes": 3312,
+      "mode": 420,
+      "sha256": "972d8da443c7cca2383231288a58ca032cec20e11cce4802d1fa41d3911dbf6c"
+    },
+    "peer/candidate-cd3/transforms/pristine-source/alarm-pinned-contents.json": {
+      "bytes": 35351,
+      "mode": 420,
+      "sha256": "9f2f81c1bf15b71a89a975fab78602c90ac1683a8643a9af68140394dc6cf87b"
+    },
+    "peer/candidate-cd3/transforms/pristine-source/arch-PKGBUILD": {
+      "bytes": 9162,
+      "mode": 420,
+      "sha256": "368032a1e67687b1190cd2a08cafba4a1146384dd00293fe1372bfb0281205ce"
+    },
+    "peer/candidate-cd3/transforms/pristine-source/arch-SRCINFO": {
+      "bytes": 3459,
+      "mode": 420,
+      "sha256": "bc5ea49f48b3ad99f9395c1e22324779d51add5a7c803da07be0e144b16558e8"
+    },
+    "peer/candidate-cd3/transforms/pristine-source/arch-fstab": {
+      "bytes": 126,
+      "mode": 420,
+      "sha256": "e54626e74ed8fee4173b62a545ab1c3a3a069e4217a0ee8fc398d9933e9c1696"
+    },
+    "peer/candidate-cd3/transforms/pristine-source/arch-fstab-file.json": {
+      "bytes": 579,
+      "mode": 420,
+      "sha256": "03f12cfefb98b7681163e892b9fc100be1a906df3a8f53a34078cbd2b6ae269b"
+    },
+    "peer/candidate-cd3/transforms/pristine-source/fetch-index.json": {
+      "bytes": 5331,
+      "mode": 420,
+      "sha256": "16c18fd7070a0880061c7c8834bbff7797ab05e933050ee523c1751fd16c479b"
+    },
+    "peer/candidate-cd3/transforms/pristine-source/pins.json": {
+      "bytes": 1061,
+      "mode": 420,
+      "sha256": "131bf76a871add1e6018bfbc62c785308709660577ac5cbc67c0286054c02a9e"
+    },
+    "peer/candidate-cd3/transforms/pristine-source/tag-fstab-response.txt": {
+      "bytes": 126,
+      "mode": 420,
+      "sha256": "e54626e74ed8fee4173b62a545ab1c3a3a069e4217a0ee8fc398d9933e9c1696"
+    },
+    "peer/candidate-cd3/transforms/pristine-source/tag.json": {
+      "bytes": 1146,
+      "mode": 420,
+      "sha256": "2a4303c6d0621fe498fdf72b649123e9e326f7326d2e81bd80edc3ef48d1ec12"
+    },
+    "peer/candidate-cd3/transforms/transforms.json": {
+      "bytes": 37776,
+      "mode": 420,
+      "sha256": "e261df266f2fff41f25a6900e1ab07a4bffbf5fb7399eb1d4f44c6efd1ab10f3"
+    },
+    "peer/design-review.json": {
+      "bytes": 3396,
+      "mode": 420,
+      "sha256": "a3132476b4a2a682b91c4bd6fe61d95605ac0a27f46612546dbe936144c3a1fc"
+    },
+    "peer/final/assembler.py": {
+      "bytes": 21554,
+      "mode": 420,
+      "sha256": "170b60eb8b314f99f883dfd155b918131fb23f7d6b6c6b299d19621c5a60f1d4"
+    },
+    "peer/final/capture-models.log": {
+      "bytes": 833,
+      "mode": 420,
+      "sha256": "bfefa8b804fb334fa15c62d0ed57b97cba0226c72acb740abe4f33d32a31fb52"
+    },
+    "peer/final/capture-models.py": {
+      "bytes": 1592,
+      "mode": 420,
+      "sha256": "d9f3933d90fdc3a9aa2a207fb62f16a4521ccbbc50948c6f7fab8ae31fa8b2f5"
+    },
+    "peer/final/controls.log": {
+      "bytes": 1261,
+      "mode": 420,
+      "sha256": "efe4fa2e22803cef77987a404ff133914376c9761db3bc96692310f6defffa8a"
+    },
+    "peer/final/controls.py": {
+      "bytes": 13696,
+      "mode": 420,
+      "sha256": "27626a748623e5a44fad8266dc2e57b426f5f181bac1395ec4827511c277e415"
+    },
+    "peer/final/inputs/assembly-plan.json": {
+      "bytes": 153364,
+      "mode": 420,
+      "sha256": "9bc1011c9e7c0bd1e54c967e74a04aa7d7e48d2746f59e017e2f2b5f459b0cb6"
+    },
+    "peer/final/inputs/fstab.ext4.txt": {
+      "bytes": 220,
+      "mode": 420,
+      "sha256": "7e64abac2c07f61a3c4f420c381e5b1ed719dd72654dfb98ed5598eaab208675"
+    },
+    "peer/final/inputs/image-inventory.json": {
+      "bytes": 340100,
+      "mode": 420,
+      "sha256": "5c1630b5cdf07898118979895682c3a3b705e416c9840ada4e1a5193dccd6941"
+    },
+    "peer/final/inputs/package-reference-index.json": {
+      "bytes": 107648,
+      "mode": 420,
+      "sha256": "874b7406955baf36c455f8b0a9eeaddbfc0636506e757d3e98ff5ca6b97569a2"
+    },
+    "peer/final/inputs/validate_plan.py": {
+      "bytes": 16890,
+      "mode": 420,
+      "sha256": "c2ba2c6bd183ce4f300aec16757707017d273a7119b45072b1d2667d07ae0776"
+    },
+    "peer/final/inputs/validation-result.json": {
+      "bytes": 1020,
+      "mode": 420,
+      "sha256": "09277244ca2a92169664b7e1e7397325623984698da469fdda6513cf9dadde5f"
+    },
+    "peer/final/model-artifacts.json": {
+      "bytes": 833,
+      "mode": 420,
+      "sha256": "bfefa8b804fb334fa15c62d0ed57b97cba0226c72acb740abe4f33d32a31fb52"
+    },
+    "peer/final/model-mutation.bundle": {
+      "bytes": 30720,
+      "mode": 420,
+      "sha256": "734e9834693c48a48e1ce3828e8d48dd1a9381464f40d85cd09733ea3ea921b7"
+    },
+    "peer/final/model-mutation.json": {
+      "bytes": 16608,
+      "mode": 420,
+      "sha256": "2083363b33084501659ebf1550363d305acc5988639e4cb1452710061f944c49"
+    },
+    "peer/final/model-one.bundle": {
+      "bytes": 30720,
+      "mode": 420,
+      "sha256": "ab4a99d6077e7cc47f54e5a5b2d7ff8cd3514863a481d049236b25e6dbad5f95"
+    },
+    "peer/final/model-one.json": {
+      "bytes": 16608,
+      "mode": 420,
+      "sha256": "94155cb3ebc209ca73b55c37a55a81de9dfd6b1b4d3c6b6d4c4326c7e30616d4"
+    },
+    "peer/final/model-two.bundle": {
+      "bytes": 30720,
+      "mode": 420,
+      "sha256": "ab4a99d6077e7cc47f54e5a5b2d7ff8cd3514863a481d049236b25e6dbad5f95"
+    },
+    "peer/final/model-two.json": {
+      "bytes": 16608,
+      "mode": 420,
+      "sha256": "94155cb3ebc209ca73b55c37a55a81de9dfd6b1b4d3c6b6d4c4326c7e30616d4"
+    },
+    "peer/final/primitives/payload.py": {
+      "bytes": 28493,
+      "mode": 420,
+      "sha256": "3a71ba896700f72130e35a56845516bd9c42de0b1b0fd782b79829b37ac262a7"
+    },
+    "peer/final/receipt.json": {
+      "bytes": 9078,
+      "mode": 420,
+      "sha256": "34894d6c1d483d43c321b066aa3ba60e09bbadaaa50123a64f99603cbe394737"
+    },
+    "peer/final/report.md": {
+      "bytes": 7200,
+      "mode": 420,
+      "sha256": "3788880edc579584192a5de92c761aba3c9e1b85510a0d21d9b93e365b4b7694"
+    },
+    "peer/final/results.json": {
+      "bytes": 2274,
+      "mode": 420,
+      "sha256": "c6eab37ac1e698dc0ba2be9a6769080b95d21e9b6f8301e84f79de8e68778a58"
+    },
+    "peer/final/retained-resolver-completion.json": {
+      "bytes": 2643,
+      "mode": 420,
+      "sha256": "dff88eaec156ca15ad5f3b6f8b5e72fba378e826e1ab63330cf92ca776780397"
+    },
+    "peer/final/runs/attempt01/controls.log": {
+      "bytes": 1989,
+      "mode": 420,
+      "sha256": "ac5d0d3dfa0b79c1ee7902b7b2bbdc2927c20e3ca7c344bf21b84b59b9f50c07"
+    },
+    "peer/final/runs/attempt01/controls.py": {
+      "bytes": 13663,
+      "mode": 420,
+      "sha256": "bb42fef0fa9634b92bfd07b54415e3946bd8cf4d58840e9a4eb883a9f3c5693c"
+    },
+    "peer/final/runs/attempt01/fixture-note.json": {
+      "bytes": 333,
+      "mode": 420,
+      "sha256": "308ae19d5e86e5855b956bffd619da29edc839132dd3b2ffdbafb5952d34a3c1"
+    },
+    "peer/final/runs/attempt01/results.json": {
+      "bytes": 2125,
+      "mode": 420,
+      "sha256": "7d79a976c72928fe026df595d54d4faae6ae259d21ce12121ba009a8850d54d0"
+    },
+    "peer/final/source-review.json": {
+      "bytes": 927,
+      "mode": 420,
+      "sha256": "82a1d2edb9f8c26e100ca36f788f4efe2e857a73687cf200f4e3864a07a63921"
+    },
+    "peer/final/transforms/content/firstboot.txt": {
+      "bytes": 49,
+      "mode": 420,
+      "sha256": "523a2ea0261145994fd8b3c27bab4456b1b5a5d590cd13c96534729a982c2c95"
+    },
+    "peer/final/transforms/content/mirrorlist.txt": {
+      "bytes": 116,
+      "mode": 420,
+      "sha256": "bf8463a7368742670d036b891ba82ae79cfac761a40398376d05ca75d837466a"
+    },
+    "peer/final/transforms/pristine-source/alarm-PKGBUILD": {
+      "bytes": 9236,
+      "mode": 420,
+      "sha256": "11478f8ea8872f59baef483d47bc12775b2fdfcd73ed15108ebd8358da76e913"
+    },
+    "peer/final/transforms/pristine-source/alarm-SRCINFO": {
+      "bytes": 3459,
+      "mode": 420,
+      "sha256": "bc5ea49f48b3ad99f9395c1e22324779d51add5a7c803da07be0e144b16558e8"
+    },
+    "peer/final/transforms/pristine-source/alarm-fstab": {
+      "bytes": 126,
+      "mode": 420,
+      "sha256": "e54626e74ed8fee4173b62a545ab1c3a3a069e4217a0ee8fc398d9933e9c1696"
+    },
+    "peer/final/transforms/pristine-source/alarm-package-contents.json": {
+      "bytes": 29605,
+      "mode": 420,
+      "sha256": "128d382bec2870738a505296266ab3ae940f27d13fb44595cebffa9dc90be88c"
+    },
+    "peer/final/transforms/pristine-source/alarm-path-commit.json": {
+      "bytes": 3312,
+      "mode": 420,
+      "sha256": "972d8da443c7cca2383231288a58ca032cec20e11cce4802d1fa41d3911dbf6c"
+    },
+    "peer/final/transforms/pristine-source/alarm-pinned-contents.json": {
+      "bytes": 35351,
+      "mode": 420,
+      "sha256": "9f2f81c1bf15b71a89a975fab78602c90ac1683a8643a9af68140394dc6cf87b"
+    },
+    "peer/final/transforms/pristine-source/arch-PKGBUILD": {
+      "bytes": 9162,
+      "mode": 420,
+      "sha256": "368032a1e67687b1190cd2a08cafba4a1146384dd00293fe1372bfb0281205ce"
+    },
+    "peer/final/transforms/pristine-source/arch-SRCINFO": {
+      "bytes": 3459,
+      "mode": 420,
+      "sha256": "bc5ea49f48b3ad99f9395c1e22324779d51add5a7c803da07be0e144b16558e8"
+    },
+    "peer/final/transforms/pristine-source/arch-fstab": {
+      "bytes": 126,
+      "mode": 420,
+      "sha256": "e54626e74ed8fee4173b62a545ab1c3a3a069e4217a0ee8fc398d9933e9c1696"
+    },
+    "peer/final/transforms/pristine-source/arch-fstab-file.json": {
+      "bytes": 579,
+      "mode": 420,
+      "sha256": "03f12cfefb98b7681163e892b9fc100be1a906df3a8f53a34078cbd2b6ae269b"
+    },
+    "peer/final/transforms/pristine-source/fetch-index.json": {
+      "bytes": 5331,
+      "mode": 420,
+      "sha256": "16c18fd7070a0880061c7c8834bbff7797ab05e933050ee523c1751fd16c479b"
+    },
+    "peer/final/transforms/pristine-source/pins.json": {
+      "bytes": 1061,
+      "mode": 420,
+      "sha256": "131bf76a871add1e6018bfbc62c785308709660577ac5cbc67c0286054c02a9e"
+    },
+    "peer/final/transforms/pristine-source/tag-fstab-response.txt": {
+      "bytes": 126,
+      "mode": 420,
+      "sha256": "e54626e74ed8fee4173b62a545ab1c3a3a069e4217a0ee8fc398d9933e9c1696"
+    },
+    "peer/final/transforms/pristine-source/tag.json": {
+      "bytes": 1146,
+      "mode": 420,
+      "sha256": "2a4303c6d0621fe498fdf72b649123e9e326f7326d2e81bd80edc3ef48d1ec12"
+    },
+    "peer/final/transforms/transforms.json": {
+      "bytes": 37776,
+      "mode": 420,
+      "sha256": "e261df266f2fff41f25a6900e1ab07a4bffbf5fb7399eb1d4f44c6efd1ab10f3"
+    },
+    "peer/old-red/assembler.py": {
+      "bytes": 15546,
+      "mode": 420,
+      "sha256": "634e408c37e4cd251b6eb512e2414a33b4bfc0b065a7d973ebf40a5e03d826ea"
+    },
+    "peer/old-red/payload-source.py": {
+      "bytes": 28493,
+      "mode": 420,
+      "sha256": "3a71ba896700f72130e35a56845516bd9c42de0b1b0fd782b79829b37ac262a7"
+    },
+    "peer/old-red/receipt.json": {
+      "bytes": 1294,
+      "mode": 420,
+      "sha256": "5b49062320cfd28280891fba7170dd8ec53f8f3b57224a29c35b4746eef534e9"
+    },
+    "peer/old-red/reproduce.log": {
+      "bytes": 1211,
+      "mode": 420,
+      "sha256": "69f84004908dc4ede58b9f9275f25effc03961da5397e283b65c8be76c5cf243"
+    },
+    "peer/old-red/reproduce.py": {
+      "bytes": 2673,
+      "mode": 420,
+      "sha256": "4123e59664adb55e1035f1890f00e86d08e8ede53a506c4cbf6e48390e6eb606"
+    },
+    "peer/old-red/results.json": {
+      "bytes": 1211,
+      "mode": 420,
+      "sha256": "69f84004908dc4ede58b9f9275f25effc03961da5397e283b65c8be76c5cf243"
+    },
+    "primitives/payload.py": {
+      "bytes": 28493,
+      "mode": 420,
+      "sha256": "3a71ba896700f72130e35a56845516bd9c42de0b1b0fd782b79829b37ac262a7"
+    },
+    "readiness-result.json": {
+      "bytes": 1647,
+      "mode": 420,
+      "sha256": "dd19c0b32fe91e5c79a51d281d4495eac15e9497895d290b653617b19a95e70c"
+    },
+    "resolver-planning.json": {
+      "bytes": 1168,
+      "mode": 420,
+      "sha256": "284073322322c605735a5250995f461e5a4cf40bdc281132cb1d6455619e0a5f"
+    },
+    "run_checks.py": {
+      "bytes": 1386,
+      "mode": 420,
+      "sha256": "a21e14b840d5a7ec2dd24a3a76fa67c059d1228e3a8c259e7a55ee9653261a12"
+    },
+    "seal_packet.py": {
+      "bytes": 6699,
+      "mode": 420,
+      "sha256": "fef92970637771e287fd1cbcc67c1337c275558ecf2e118565d3a8aa29ee1c93"
+    },
+    "test_assembler.py": {
+      "bytes": 15291,
+      "mode": 420,
+      "sha256": "af33e0a69d8a0838338efe672b1753ac35ce47fcd4d43e8a3d6a77b13be51b78"
+    },
+    "transforms/content/firstboot.txt": {
+      "bytes": 49,
+      "mode": 420,
+      "sha256": "523a2ea0261145994fd8b3c27bab4456b1b5a5d590cd13c96534729a982c2c95"
+    },
+    "transforms/content/fstab-before.txt": {
+      "bytes": 126,
+      "mode": 420,
+      "sha256": "e54626e74ed8fee4173b62a545ab1c3a3a069e4217a0ee8fc398d9933e9c1696"
+    },
+    "transforms/content/fstab.txt": {
+      "bytes": 220,
+      "mode": 420,
+      "sha256": "7e64abac2c07f61a3c4f420c381e5b1ed719dd72654dfb98ed5598eaab208675"
+    },
+    "transforms/content/grub-core-input.txt": {
+      "bytes": 88,
+      "mode": 420,
+      "sha256": "40a925e16d8c255d3c15b036ccbdd83a02e3be3b4a7e52b6112bb3da4c4be84b"
+    },
+    "transforms/content/mirrorlist.txt": {
+      "bytes": 116,
+      "mode": 420,
+      "sha256": "bf8463a7368742670d036b891ba82ae79cfac761a40398376d05ca75d837466a"
+    },
+    "transforms/declared-ownership-excerpt.json": {
+      "bytes": 4754,
+      "mode": 420,
+      "sha256": "9412a3da86b04424792235a7f159bee8ec6c724ba1b7ea51cb630398eece733a"
+    },
+    "transforms/hash-index.json": {
+      "bytes": 19080,
+      "mode": 420,
+      "sha256": "31d4cc0973c71c464949a8db2ac9ded7d2198483c5a955018a6e215fdee9b3b1"
+    },
+    "transforms/pristine-source/alarm-PKGBUILD": {
+      "bytes": 9236,
+      "mode": 420,
+      "sha256": "11478f8ea8872f59baef483d47bc12775b2fdfcd73ed15108ebd8358da76e913"
+    },
+    "transforms/pristine-source/alarm-SRCINFO": {
+      "bytes": 3459,
+      "mode": 420,
+      "sha256": "bc5ea49f48b3ad99f9395c1e22324779d51add5a7c803da07be0e144b16558e8"
+    },
+    "transforms/pristine-source/alarm-fstab": {
+      "bytes": 126,
+      "mode": 420,
+      "sha256": "e54626e74ed8fee4173b62a545ab1c3a3a069e4217a0ee8fc398d9933e9c1696"
+    },
+    "transforms/pristine-source/alarm-package-contents.json": {
+      "bytes": 29605,
+      "mode": 420,
+      "sha256": "128d382bec2870738a505296266ab3ae940f27d13fb44595cebffa9dc90be88c"
+    },
+    "transforms/pristine-source/alarm-path-commit.json": {
+      "bytes": 3312,
+      "mode": 420,
+      "sha256": "972d8da443c7cca2383231288a58ca032cec20e11cce4802d1fa41d3911dbf6c"
+    },
+    "transforms/pristine-source/alarm-pinned-contents.json": {
+      "bytes": 35351,
+      "mode": 420,
+      "sha256": "9f2f81c1bf15b71a89a975fab78602c90ac1683a8643a9af68140394dc6cf87b"
+    },
+    "transforms/pristine-source/arch-PKGBUILD": {
+      "bytes": 9162,
+      "mode": 420,
+      "sha256": "368032a1e67687b1190cd2a08cafba4a1146384dd00293fe1372bfb0281205ce"
+    },
+    "transforms/pristine-source/arch-SRCINFO": {
+      "bytes": 3459,
+      "mode": 420,
+      "sha256": "bc5ea49f48b3ad99f9395c1e22324779d51add5a7c803da07be0e144b16558e8"
+    },
+    "transforms/pristine-source/arch-fstab": {
+      "bytes": 126,
+      "mode": 420,
+      "sha256": "e54626e74ed8fee4173b62a545ab1c3a3a069e4217a0ee8fc398d9933e9c1696"
+    },
+    "transforms/pristine-source/arch-fstab-file.json": {
+      "bytes": 579,
+      "mode": 420,
+      "sha256": "03f12cfefb98b7681163e892b9fc100be1a906df3a8f53a34078cbd2b6ae269b"
+    },
+    "transforms/pristine-source/fetch-index.json": {
+      "bytes": 5331,
+      "mode": 420,
+      "sha256": "16c18fd7070a0880061c7c8834bbff7797ab05e933050ee523c1751fd16c479b"
+    },
+    "transforms/pristine-source/pins.json": {
+      "bytes": 1061,
+      "mode": 420,
+      "sha256": "131bf76a871add1e6018bfbc62c785308709660577ac5cbc67c0286054c02a9e"
+    },
+    "transforms/pristine-source/tag-fstab-response.txt": {
+      "bytes": 126,
+      "mode": 420,
+      "sha256": "e54626e74ed8fee4173b62a545ab1c3a3a069e4217a0ee8fc398d9933e9c1696"
+    },
+    "transforms/pristine-source/tag.json": {
+      "bytes": 1146,
+      "mode": 420,
+      "sha256": "2a4303c6d0621fe498fdf72b649123e9e326f7326d2e81bd80edc3ef48d1ec12"
+    },
+    "transforms/receipt.json": {
+      "bytes": 1322,
+      "mode": 420,
+      "sha256": "1e272cebb735705714339dc9f4599fbc5c426f3a74fe49fa35e8cbb5f2c6de0d"
+    },
+    "transforms/report.md": {
+      "bytes": 6662,
+      "mode": 420,
+      "sha256": "116e528f14e9a31c6f3145b17c5cbe8eb096d90352304fba1697e58ed7b3ac99"
+    },
+    "transforms/snapshot/artifacts/reviews/platform-image-assembly-contract-proposal-20261013/upstream/capture-source-linkage.json": {
+      "bytes": 2332,
+      "mode": 420,
+      "sha256": "eb19035dfec04c75a01de20ab066e7a5a5d4ad039ee1f972db612fffbd18c107"
+    },
+    "transforms/snapshot/artifacts/reviews/platform-image-assembly-contract-proposal-20261013/upstream/hash-index.json": {
+      "bytes": 37366,
+      "mode": 420,
+      "sha256": "692e117d50896b8f27c9d8f147dc5160eed18708ee25b39ad6382c0549b0c1c7"
+    },
+    "transforms/snapshot/artifacts/reviews/platform-image-assembly-contract-proposal-20261013/upstream/receipt.json": {
+      "bytes": 948,
+      "mode": 420,
+      "sha256": "2985a0fce0d761b2f5087096eee92b81c2777e8c1270991a9a9082268c7744cc"
+    },
+    "transforms/snapshot/artifacts/reviews/platform-image-assembly-contract-proposal-20261013/upstream/source/build.sh": {
+      "bytes": 4049,
+      "mode": 420,
+      "sha256": "a0b1d27b65f97a1c6ec5c638861cca1319109aec564aef774a9e4ecf7255979c"
+    },
+    "transforms/snapshot/artifacts/reviews/platform-image-assembly-contract-proposal-20261013/upstream/source/files/mirrorlist.asahi-alarm": {
+      "bytes": 116,
+      "mode": 420,
+      "sha256": "bf8463a7368742670d036b891ba82ae79cfac761a40398376d05ca75d837466a"
+    },
+    "transforms/snapshot/artifacts/reviews/platform-image-assembly-contract-proposal-20261013/upstream/source/scripts/base/00-pacman.sh": {
+      "bytes": 476,
+      "mode": 420,
+      "sha256": "89588ce388d03871f04ec7f58a4de4a771b4fa901c7d387dff7a6748cb30a4d9"
+    },
+    "transforms/snapshot/artifacts/reviews/platform-image-assembly-contract-proposal-20261013/upstream/source/scripts/base/10-base-packages.sh": {
+      "bytes": 353,
+      "mode": 420,
+      "sha256": "bf71c842c518ddbd21037a88102872d8beae2e023703432da248a32ea5ba59de"
+    },
+    "transforms/snapshot/artifacts/reviews/platform-image-assembly-contract-proposal-20261013/upstream/source/scripts/base/15-kernel.sh": {
+      "bytes": 349,
+      "mode": 420,
+      "sha256": "ca8247d38ea611c63347d40cbb71bcb68945cca42e9a1794db38c67d6a612e51"
+    },
+    "transforms/snapshot/artifacts/reviews/platform-image-assembly-contract-proposal-20261013/upstream/source/scripts/base/20-fstab.sh": {
+      "bytes": 608,
+      "mode": 420,
+      "sha256": "3d0f0b6ffaee802b0cf41efe57ca96c9e85387e72773b2566eadc12693a1131f"
+    },
+    "transforms/snapshot/artifacts/reviews/platform-image-assembly-contract-proposal-20261013/upstream/source/scripts/base/30-grub.sh": {
+      "bytes": 1294,
+      "mode": 420,
+      "sha256": "3313e293001b688f7fc2d1a9f9ff63c78b5f320cebc0faae4ab356838c91c593"
+    },
+    "transforms/snapshot/artifacts/reviews/platform-image-assembly-contract-proposal-20261013/upstream/source/scripts/base/30-networkmanager.sh": {
+      "bytes": 96,
+      "mode": 420,
+      "sha256": "0ebde4f289aa30fff4a1d0c90dd8dde96e639197928e31b2f4340b6d6169e7b6"
+    },
+    "transforms/snapshot/artifacts/reviews/platform-image-assembly-contract-proposal-20261013/upstream/source/scripts/base/50-firstboot.sh": {
+      "bytes": 204,
+      "mode": 420,
+      "sha256": "8da8b9a49735ce83ee730fe169666b60018568b1ce25cbd6f2971e5f685aaf55"
+    },
+    "transforms/snapshot/artifacts/reviews/platform-image-assembly-contract-proposal-20261013/upstream/source/scripts/desktop/00-users.sh": {
+      "bytes": 129,
+      "mode": 420,
+      "sha256": "7eda290e5f5bbae00e71fcd4b0d9a9df788cfb9fdf759ca1e96f1e9cc84347f4"
+    },
+    "transforms/snapshot/artifacts/reviews/platform-installed-payload-filesystem-regular-batch-proposal-20261013/target-inventory.json": {
+      "bytes": 20427,
+      "mode": 420,
+      "sha256": "e342245e1962f7c10969e91b40d3e6047cf669cd5686fd3a3fd7e40830cb9145"
+    },
+    "transforms/snapshot/docs/roadmap.md": {
+      "bytes": 17385,
+      "mode": 420,
+      "sha256": "6e720ad88eea80475217638fb080c8bac2d2a19046b0d3260c7e5ffd371a32ec"
+    },
+    "transforms/snapshot/manifests/packages.toml": {
+      "bytes": 9010,
+      "mode": 420,
+      "sha256": "4a1be668b1296b598138efca3e4a47892dca47455b2efbd225b0ca2b68108f72"
+    },
+    "transforms/snapshot/scripts/platform/installed_payload_correspondence.py": {
+      "bytes": 28493,
+      "mode": 420,
+      "sha256": "3a71ba896700f72130e35a56845516bd9c42de0b1b0fd782b79829b37ac262a7"
+    },
+    "transforms/snapshot/scripts/platform/ownership.py": {
+      "bytes": 24011,
+      "mode": 420,
+      "sha256": "aed58a9548ca5fbd440f6f28843e2b37b5481a4dba14c8241e953ea4ff1a725e"
+    },
+    "transforms/transforms.json": {
+      "bytes": 37776,
+      "mode": 420,
+      "sha256": "e261df266f2fff41f25a6900e1ab07a4bffbf5fb7399eb1d4f44c6efd1ab10f3"
+    },
+    "transforms/transforms.schema.json": {
+      "bytes": 10463,
+      "mode": 420,
+      "sha256": "45a41a184559ad23ca00902e29ccea719280b4725237ab6cd3d84871c670546d"
+    },
+    "transforms/validation.json": {
+      "bytes": 902,
+      "mode": 420,
+      "sha256": "ae776645588b904520ad67dc5ebe6e5649eccf6e712fc967ee9e33d7cd7ee3ce"
+    }
+  },
+  "guide": {
+    "bytes": 14103,
+    "mode": 420,
+    "path": "docs/workstreams/platform-image-assembler.md",
+    "sha256": "4a5b0b5f914f4ad9d0ca5a6ae6d1ca85f93ceed5bcd0fec35487bcb44f7bcb59"
+  },
+  "hardware_accepted": false,
+  "installation_accepted": false,
+  "model_bundle": {
+    "bytes": 20480,
+    "mode": 420,
+    "sha256": "b7f3ea6f350aa40cc5250b9f1dae8540ac1c11ee15d6c1a8bac996840bb90c7c"
+  },
+  "model_comparison": {
+    "differences": [],
+    "hardware_accepted": false,
+    "image_reproducibility_accepted": false,
+    "status": "MATCH_STAGING_BUNDLE_ONLY"
+  },
+  "peer": {
+    "receipt": {
+      "bytes": 9078,
+      "mode": 420,
+      "sha256": "34894d6c1d483d43c321b066aa3ba60e09bbadaaa50123a64f99603cbe394737"
+    },
+    "summary": {
+      "actual_complete261_payload_or_native_image_built": false,
+      "assembly_authorized": false,
+      "case_summary_rows": 10,
+      "core_helper_activity": "SIX_PURE_AST_FUNCTIONS_ONLY",
+      "errors": 0,
+      "failures": 0,
+      "first_writer_failure_objects_preserved": true,
+      "general_custody_external_artifact_authenticity_native_reproducibility": false,
+      "mutation_all_three_fields_differ": true,
+      "real_readiness_missing": 20,
+      "retained_failed_fixture_runs": 1,
+      "selected_archive_image_GPG_native_network_system_actors": "NOT RUN",
+      "synthetic_bundle_bytes": 30720,
+      "synthetic_bundle_sha256": "ab4a99d6077e7cc47f54e5a5b2d7ff8cd3514863a481d049236b25e6dbad5f95",
+      "tar_activity": "OWN_SYNTHETIC_BYTESIO_ONLY_NO_HOST_EXTRACTION",
+      "two_fresh_models_rehashed": true,
+      "unique_methods": 10,
+      "upstream_source_execution": "NOT RUN"
+    }
+  },
+  "readiness": {
+    "actual_build_executed": false,
+    "assembly_authorized": false,
+    "config": "FINITE_PINNED_DATA_RECIPES",
+    "contract": {
+      "acceptance": {
+        "hardware": false,
+        "image_issuer": false,
+        "installation": false,
+        "installed_configuration": false,
+        "key_owner": false,
+        "license_redistribution": false,
+        "package_payload": false,
+        "recovery": false,
+        "reproducible_image": false
+      },
+      "assembly_authorized": false,
+      "assembly_executed": false,
+      "config_candidates": 1,
+      "missing_inputs": [
+        "build-environment",
+        "dependency-install-order",
+        "esp-platform-artifacts",
+        "filesystem-determinism",
+        "hooks-and-sysusers",
+        "installer-source-closure",
+        "layout:root_image_bytes",
+        "layout:root_partition_bytes",
+        "package-signature-facts",
+        "package-source-license-closure",
+        "package:networkmanager",
+        "package:perl",
+        "release-output-bindings",
+        "remaining-config-transforms",
+        "resolver-link-and-service",
+        "resolver:source-target-service",
+        "target-firmware-and-stage1",
+        "target:firmware_manifest",
+        "target:machine_id",
+        "target:per_install_esp_gpt_uuid"
+      ],
+      "required_packages": 261,
+      "retained_archive_metadata": 259,
+      "schema_version": 1,
+      "status": "PLAN_VALID_BLOCKED_MISSING_INPUTS"
+    },
+    "deterministic_output": "PAX_STAGING_BUNDLE_ONLY",
+    "native_ext4_esp_build": "NOT_RUN",
+    "package_intake": "PREPARED_BYTE_MAPS_ONLY_NO_ARCHIVE_DISPATCH",
+    "pristine_staging": "IMPLEMENTED_PURE_PAYLOAD_MAPS",
+    "status": "ASSEMBLER_SOURCE_PROPOSED_ACTUAL_BUILD_BLOCKED"
+  },
+  "reproducible_image_accepted": false,
+  "resolver_observation": {
+    "additional_queries": 0,
+    "all48_report": false,
+    "evidence": {
+      "bytes": 2643,
+      "path": "artifacts/platform/installed-payload-resolver-fastlink-observation-actual01-20261013/completion.json",
+      "sha256": "dff88eaec156ca15ad5f3b6f8b5e72fba378e826e1ab63330cf92ca776780397"
+    },
+    "expected_project_target": null,
+    "historical_cause_accepted": false,
+    "kind": "LATER_ACTUAL_METADATA_FACT_SEPARATE_FROM_FROZEN_CONTRACT",
+    "observed_path": "etc/resolv.conf",
+    "observed_target": "/run/systemd/resolve/resolv.conf",
+    "old_contract_still_blocked20": true,
+    "old_unread_diagnostic_backfilled": false,
+    "remaining_inputs": [
+      "source-linked generating recipe and complete exact package hook/config effects",
+      "reviewed future project resolver backend/service/unit/runtime/DNS ownership policy",
+      "exact prepared package65-byte preimage and before/after metadata + target expectations",
+      "cold boot/service failure/offline DNS and removal/recovery behavior"
+    ],
+    "schema_version": 1,
+    "selected_project_transform": null,
+    "service_runtime_policy": null,
+    "source_recipe": null,
+    "target_content_read": false,
+    "target_followed": false
+  },
+  "schema_version": 1,
+  "status": "EXECUTABLE_SOURCE_MODEL_PROPOSAL_ACTUAL_IMAGE_BLOCKED",
+  "unchanged_prior_receipts": {
+    "artifacts/reviews/platform-image-assembly-contract-proposal-20261013/final-receipt.json": {
+      "bytes": 42147,
+      "mode": 420,
+      "sha256": "63a4292184dd80c67e2b735d0221f0117fc5d860e59d4ebe043be73cbb862250"
+    },
+    "artifacts/reviews/platform-image-assembly-contract-root-peer-20261013/receipt.json": {
+      "bytes": 9445,
+      "mode": 420,
+      "sha256": "e31c1ec55cd81134a7efe14dc42256d9407ee0c5497a58f2dc0ae80462096b74"
+    }
+  },
+  "unimplemented_integration": [
+    "authenticated full261 archive content intake and bounded spool",
+    "package database and closed libalpm/hook/sysusers/config transaction",
+    "pinned native ext4/ESP encoder with ACL/xattr/capability and deterministic filesystem state",
+    "two clean native full image builds and independent byte/content comparison"
+  ]
+}

@@ -8,6 +8,7 @@ import argparse
 from contextlib import contextmanager
 from datetime import datetime, timezone
 import hashlib
+import importlib.util
 import json
 import math
 import os
@@ -21,8 +22,13 @@ import sys
 import threading
 import time
 
+_memory_spec = importlib.util.spec_from_file_location('process_group_memory', Path(__file__).with_name('process_group_memory.py'))
+process_group_memory = importlib.util.module_from_spec(_memory_spec)
+_memory_spec.loader.exec_module(process_group_memory)
+
 CLEANUP_SECONDS = 0.25
 _active_sampler = None
+_platform_adapter = None
 
 
 class Invalid(ValueError):
@@ -202,11 +208,12 @@ def validate_config(config):
             raise Invalid("changed_packages must name the exact packages changed by the sole experiment variable")
     if config["execution_context"] == "physical" and not config.get("hardware_gate_evidence"):
         raise Invalid("physical trials require reviewed baseline-functional and recovery evidence file")
+    validate_owned_rss(config)
     guardrails = thresholds.get("maximum_regression", {})
     if not isinstance(guardrails, dict):
         raise Invalid("maximum_regression must be an object")
     for key, limit in guardrails.items():
-        if key not in ("root_rss_kib_pct", "thermal_raw_mC", "power_raw_uW_pct"):
+        if key not in ("root_rss_kib_pct", "process_group_sampled_rss_kib_pct", "thermal_raw_mC", "power_raw_uW_pct"):
             raise Invalid(f"unsupported guardrail {key}")
         number(limit, key, 0)
     domains = config.get("power_domains", {})
@@ -223,9 +230,21 @@ def validate_config(config):
                 raise Invalid(f"power_domains.{path}.{key} must record identity or explicit null")
 
 
+def platform_adapter():
+    """Load the optional instrumentation only when explicitly declared/selected."""
+    global _platform_adapter
+    if _platform_adapter is None:
+        spec = importlib.util.spec_from_file_location('benchmark_platform_metrics', Path(__file__).with_name('benchmark_platform_metrics.py'))
+        _platform_adapter = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(_platform_adapter)
+    return _platform_adapter
+
+
 def freeze(config_path, baseline_path, candidate_path, output):
     config = read_json(config_path)
     validate_config(config)
+    if "platform_metrics" in config:
+        platform_adapter().validate_config(config["platform_metrics"], config["timeout_seconds"])
     states = {"baseline": read_json(baseline_path), "candidate": read_json(candidate_path)}
     identities = {v: state_identity(s) for v, s in states.items()}
     differences = [key for key in identities["baseline"]
@@ -253,8 +272,13 @@ def freeze(config_path, baseline_path, candidate_path, output):
                     or identity["packages"] is None):
                 raise Invalid("physical acceptance plan needs an exact M2 Air record and package inventory")
     paths = list(config["inputs"])
+    for source in (str(Path(__file__).resolve()), str(Path(process_group_memory.__file__).resolve())):
+        if source not in paths:
+            paths.append(source)
     for values in config.get("variant_inputs", {}).values():
         paths.extend(values)
+    if "platform_metrics" in config:
+        paths.extend(str(p) for p in platform_adapter().source_paths())
     pins = [pin_file(p) for p in paths]
     for key in ("state_change_evidence", "hardware_gate_evidence"):
         if config.get(key):
@@ -278,6 +302,8 @@ def load_plan(path):
     if plan.get("schema_version") != 1 or plan.get("record_type") != "frozen-experiment-plan":
         raise Invalid("not a supported frozen plan")
     validate_config(plan["config"])
+    if "platform_metrics" in plan["config"]:
+        platform_adapter().validate_config(plan["config"]["platform_metrics"], plan["config"]["timeout_seconds"])
     utc_timestamp(plan["frozen_at"])
     for variant in ("baseline", "candidate"):
         check_pin(plan[f"{variant}_binding"], f"{variant} state file")
@@ -332,6 +358,7 @@ def telemetry(pid, sysroot=Path("/sys"), procroot=Path("/proc")):
     available = next((int(line.split()[1]) for line in meminfo.splitlines()
                       if line.startswith("MemAvailable:")), None)
     return {"monotonic_ns": time.monotonic_ns(), "thermal": thermal, "power": power, "battery": battery,
+            "process_group_memory": process_group_memory.sample(pid, procroot),
             "memory": {"root_rss_kib": rss, "system_available_kib": available,
                        "lifecycle": lifecycle, "proc_state": state, "path": str(status_path),
                        "scope": "sampled root process only; children/shared mappings excluded"},
@@ -443,6 +470,7 @@ def metrics(samples):
                 "unknown_lifecycle_samples": unknown}
     result = {"root_rss_kib": max(live) if live and not unknown and all(v is not None for v in live) else None,
               "rss_coverage": coverage, "thermal": {}, "power": {}}
+    result.update(process_group_memory.summarize([s.get("process_group_memory") for s in samples]))
     for group in ("thermal", "power"):
         paths = sorted({r["path"] for s in samples for r in s[group]})
         for path in paths:
@@ -453,11 +481,187 @@ def metrics(samples):
     return result
 
 
-def run(plan_path, slot, state_path, conditions_path, cwd, output):
+# Owner-aware RSS is separately frozen; ordinary/default calls do not select it.
+OWNED_RSS_CORE_SHA256 = '83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f'
+OWNED_RSS_SCHEMA = 'benchmark-owned-group-rss-v1'
+
+
+def validate_owned_rss(config):
+    if 'owned_rss' not in config:
+        return
+    value = config['owned_rss']
+    if ('platform_metrics' not in config or type(value) is not dict
+            or set(value) != {'interval_seconds'}):
+        raise Invalid('owned_rss requires platform_metrics and only interval_seconds')
+    interval = value['interval_seconds']
+    if (type(interval) not in (int, float) or not math.isfinite(interval)
+            or not .01 <= interval <= 60
+            or math.ceil((config['timeout_seconds'] + .5) / interval) + 1 > 4096):
+        raise Invalid('owned RSS interval/retained sample bound')
+    if digest(platform_adapter().dependencies()['owner']) != OWNED_RSS_CORE_SHA256:
+        raise Invalid('owned RSS requires Root adoption of the prepared core/pin before freezing')
+
+
+def owned_rss_metrics(rss, start, end, interval):
+    """Validate captured member data offline; never probe a retired numeric PID."""
+    def integer(value, low=0):
+        if type(value) is not int or value < low:
+            raise Invalid('owned RSS integer bound')
+        return value
+
+    if (type(rss) is not dict or rss.get('interval_seconds') != interval
+            or rss.get('sample_budget_seconds') != .1
+            or rss.get('scope') != process_group_memory.SCOPE
+            or rss.get('process_group_rss_scope') != process_group_memory.SCOPE):
+        raise Invalid('owned RSS schema/unit/scope/config mismatch')
+    problem = rss.get('error')
+    if problem is not None and (type(problem) is not str or not problem or len(problem) > 512):
+        raise Invalid('owned RSS error field')
+    samples = rss.get('samples')
+    if type(samples) is not list or len(samples) > 4096:
+        raise Invalid('owned RSS sample bound')
+    previous, rows, group, leaders, excluded, incomplete = start, 0, None, [], 0, 0
+    for sample in samples:
+        gid = integer(sample['group_id'], 1)
+        if group is not None and gid != group:
+            raise Invalid('owned RSS group identity changed')
+        group = gid
+        began, ended = integer(sample['monotonic_start_ns']), integer(sample['monotonic_end_ns'])
+        if not start <= previous <= began <= ended <= end or sample['scope'] != process_group_memory.SCOPE:
+            raise Invalid('owned RSS clock/window/scope mismatch')
+        previous = ended
+        state = sample['status']
+        members = sample['members']
+        if state not in ('complete', 'exited', 'incomplete') or type(members) is not list or len(members) > 512:
+            raise Invalid('owned RSS state/member bound')
+        rows += len(members)
+        if rows > 8192:
+            raise Invalid('owned RSS retained member-row bound')
+        ids, live, total, leader = set(), 0, 0, None
+        for member in members:
+            pid = integer(member['pid'], 1)
+            integer(member['start_ticks'])
+            value = integer(member['rss_kib'])
+            integer(member['group'], 1); integer(member['session'], 1)
+            if (pid in ids or member['group'] != gid or member['session'] != gid
+                    or type(member['state']) is not str or len(member['state']) != 1):
+                raise Invalid('owned RSS member identity mismatch')
+            ids.add(pid)
+            zombie = member['state'] in ('Z', 'X')
+            if zombie and value != 0:
+                raise Invalid('owned RSS zombie value mismatch')
+            live += not zombie
+            total += value
+            if pid == gid:
+                leader = member
+        if state == 'complete':
+            if not live or leader is None or type(sample['rss_sum_kib']) is not int or sample['rss_sum_kib'] != total:
+                raise Invalid('owned RSS complete sum/leader mismatch')
+            if leader['state'] not in ('Z', 'X'):
+                leaders.append(leader['rss_kib'])
+            else:
+                excluded += 1
+        elif state == 'exited':
+            if live or leader is None or sample['rss_sum_kib'] is not None:
+                raise Invalid('owned RSS exited snapshot mismatch')
+            excluded += 1
+        else:
+            if sample['rss_sum_kib'] is not None or not sample.get('reason'):
+                raise Invalid('owned RSS incomplete snapshot mismatch')
+            incomplete += 1
+    group_summary = process_group_memory.summarize(samples)
+    usable = group_summary['process_group_sampled_rss_kib'] is not None and problem is None
+    if not usable:
+        group_summary['process_group_sampled_rss_kib'] = None
+    root = max(leaders) if usable and leaders else None
+    expected_state = 'complete' if usable else 'partial' if group_summary['process_group_observed_rss_kib'] is not None else 'error' if problem else 'unavailable'
+    expected = group_summary | {'status': expected_state, 'leader_sampled_rss_kib': root,
+                                'leader_observed_rss_kib': max(leaders) if leaders else None}
+    if any(rss.get(key) != value for key, value in expected.items()):
+        raise Invalid('owned RSS cached summary differs from member samples')
+    return group_summary | {'root_rss_kib': root, 'rss_coverage': {
+        'live_samples': len(leaders), 'missing_live_samples': incomplete,
+        'excluded_exited_samples': excluded, 'unknown_lifecycle_samples': incomplete}}
+
+
+def execute_owned_rss(config, argv, cwd, environment, output):
+    """Pass only the built-in RSS option; no arbitrary PID callback/thread."""
+    from types import SimpleNamespace
+    adapter = platform_adapter()
+    collector, owner = adapter.load_dependencies()
+    if digest(owner.__file__) != OWNED_RSS_CORE_SHA256:
+        raise Invalid('owner-aware RSS requires the prepared exact core; Root pin adoption is a prerequisite')
+    interval = config['owned_rss']['interval_seconds']
+    def supervise(child, **kwargs):
+        return owner.supervise(child, **kwargs, rss_interval=interval)
+    facade = SimpleNamespace(prepare=owner.prepare, supervise=supervise)
+    previous = adapter.load_dependencies
+    adapter.load_dependencies = lambda: (collector, facade)
+    try:
+        result = adapter.execute(argv, cwd, environment, output, config['timeout_seconds'],
+                                 config['sample_seconds'], config['platform_metrics'], metrics)
+    finally:
+        adapter.load_dependencies = previous
+    capture_data = collector.ordinary(output / 'platform-metrics/capture.json', 16 * 1024**2)
+    capture = json.loads(capture_data)
+    replayable = len(capture_data) <= collector.MAX_LINE
+    observation = capture['supervision'].get('rss')
+    raw = {'schema': OWNED_RSS_SCHEMA, 'owner_sha256': OWNED_RSS_CORE_SHA256,
+           'interval_seconds': interval, 'monotonic_start_ns': result['monotonic_start_ns'],
+           'monotonic_end_ns': result['monotonic_end_ns'], 'observation': observation}
+    write_json(output / 'owned-rss.json', raw)
+    projected = owned_rss_metrics(observation, raw['monotonic_start_ns'], raw['monotonic_end_ns'], interval)
+    result['metrics'].update(projected)
+    result['owned_rss'] = {'schema': OWNED_RSS_SCHEMA, 'owner_sha256': OWNED_RSS_CORE_SHA256,
+                           'interval_seconds': interval, 'status': observation['status'],
+                           'scope': process_group_memory.SCOPE, 'raw': 'owned-rss.json',
+                           'capture_replayable': replayable}
+    if not replayable:
+        result['error'] = result['error'] or 'owned RSS capture exceeds metadata replay bound; retain raw evidence, no valid trial'
+    if observation['status'] != 'complete' or projected['root_rss_kib'] is None:
+        result['error'] = result['error'] or 'owned RSS incomplete/unavailable; diagnostic peaks are not usable'
+    return result
+
+
+def verify_owned_rss(directory, trial, config, legacy):
+    """Bind the new raw artifact to the existing source/clock/workload capture."""
+    collector, owner = platform_adapter().load_dependencies()
+    if digest(owner.__file__) != OWNED_RSS_CORE_SHA256:
+        raise Invalid('owned RSS core source mismatch')
+    raw = json.loads(collector.ordinary(directory / 'owned-rss.json', 16 * 1024**2))
+    interval = config['owned_rss']['interval_seconds']
+    expected_record = {'schema': OWNED_RSS_SCHEMA, 'owner_sha256': OWNED_RSS_CORE_SHA256,
+                       'interval_seconds': interval, 'scope': process_group_memory.SCOPE,
+                       'raw': 'owned-rss.json', 'status': raw['observation']['status'], 'capture_replayable': True}
+    if trial.get('owned_rss') != expected_record:
+        raise Invalid('owned RSS trial declaration differs from frozen/raw evidence')
+    capture = json.loads(collector.ordinary(directory / 'platform-metrics/capture.json', collector.MAX_LINE))
+    if (raw['schema'] != OWNED_RSS_SCHEMA or raw['owner_sha256'] != OWNED_RSS_CORE_SHA256
+            or raw['interval_seconds'] != interval
+            or raw['monotonic_start_ns'] != trial['monotonic_start_ns']
+            or raw['monotonic_end_ns'] != trial['monotonic_end_ns']
+            or raw['observation'] != capture['supervision'].get('rss')):
+        raise Invalid('owned RSS capture/source/config/window mismatch')
+    projected = owned_rss_metrics(raw['observation'], trial['monotonic_start_ns'], trial['monotonic_end_ns'], interval)
+    supervision = capture['supervision']
+    if trial.get('valid') is True and (
+            supervision.get('passed') is not True or supervision.get('error') is not None
+            or supervision.get('timeout') is not False or supervision.get('signals') != []
+            or supervision.get('output_complete') is not True
+            or supervision.get('group_census') != 'RESERVED_LEADER_ONLY'
+            or raw['observation']['status'] != 'complete' or projected['root_rss_kib'] is None
+            or projected['process_group_sampled_rss_kib'] is None):
+        raise Invalid('successful owned RSS trial contradicts supervision/usable coverage evidence')
+    return metrics(legacy) | projected
+
+
+def run(plan_path, slot, state_path, conditions_path, cwd, output, *, platform_metrics=False):
     if os.geteuid() == 0:
         raise Invalid("root workload execution is refused")
     plan = load_plan(plan_path)
     config = plan["config"]
+    if type(platform_metrics) is not bool or platform_metrics != ("platform_metrics" in config):
+        raise Invalid("platform metrics flag must match the frozen instrumentation declaration")
     if slot < 0 or slot >= len(config["order"]):
         raise Invalid("slot outside declared order")
     variant = config["order"][slot]
@@ -490,10 +694,20 @@ def run(plan_path, slot, state_path, conditions_path, cwd, output):
               else f"{platform.machine()}/{config['execution_context']} nonacceptance smoke",
               "optimization_acceptance": "NOT RUN"}
     write_json(output / "started.json", record)
-    result = execute(config["argv"], cwd, environment, output, config["timeout_seconds"], config["sample_seconds"])
+    if platform_metrics and "owned_rss" in config:
+        result = execute_owned_rss(config, config["argv"], cwd, environment, output)
+    elif platform_metrics:
+        result = platform_adapter().execute(config["argv"], cwd, environment, output,
+                                            config["timeout_seconds"], config["sample_seconds"], config["platform_metrics"], metrics)
+    else:
+        result = execute(config["argv"], cwd, environment, output, config["timeout_seconds"], config["sample_seconds"])
     record.update(result)
     record["finished_at"] = now()
-    record["raw_sha256"] = {p.name: digest(p) for p in output.iterdir() if p.name != "started.json"}
+    if platform_metrics:
+        record["raw_sha256"] = {str(p.relative_to(output)): digest(p) for p in output.rglob('*')
+                                if p.is_file() and p != output / 'started.json'}
+    else:
+        record["raw_sha256"] = {p.name: digest(p) for p in output.iterdir() if p.name != "started.json"}
     record["state_after"] = live_identity(config["execution_context"])
     record["valid"] = (result["error"] is None and result["returncode"] == 0
                        and record["state_after"] == record["state"])
@@ -522,6 +736,12 @@ def compare(plan_path, directories, output):
     for directory in directories:
         directory = Path(directory)
         trial = read_json(directory / "trial.json")
+        if ("owned_rss" in config) != ("owned_rss" in trial):
+            raise Invalid("owned RSS instrumentation differs from frozen plan")
+        if ("platform_metrics" in config) != ("platform_metrics" in trial):
+            raise Invalid("trial instrumentation differs from frozen plan")
+        if "platform_metrics" in config:
+            platform_adapter().verify_trial(directory, trial, config["platform_metrics"])
         if trial.get("record_type") != "benchmark-trial" or trial.get("plan_sha256") != digest(plan_path):
             raise Invalid("differing plan/base/machine/workload binding")
         slot = trial.get("slot")
@@ -554,6 +774,11 @@ def compare(plan_path, directories, output):
         if trial.get("declared_environment") != expected_env:
             raise Invalid("differing declared environment")
         expected_raw = {"stdout.txt", "stderr.txt", "telemetry.jsonl"}
+        if "platform_metrics" in config:
+            expected_raw.update('platform-metrics/' + name for name in
+                                ('started.json', 'inventory.json', 'samples.jsonl', 'capture.json', 'summary.json'))
+        if "owned_rss" in config:
+            expected_raw.add("owned-rss.json")
         if set(trial.get("raw_sha256", {})) != expected_raw:
             raise Invalid("missing raw outputs")
         for name, expected in trial["raw_sha256"].items():
@@ -565,7 +790,8 @@ def compare(plan_path, directories, output):
         times = [number(s.get("monotonic_ns"), "sample monotonic_ns", start, end) for s in samples]
         if times != sorted(times):
             raise Invalid("telemetry timestamps are out of order")
-        if trial.get("metrics") != metrics(samples):
+        measured = verify_owned_rss(directory, trial, config, samples) if "owned_rss" in config else metrics(samples)
+        if trial.get("metrics") != measured:
             raise Invalid("summary differs from raw telemetry")
         for sample in samples:
             identity = sensor_identity(sample)
@@ -593,7 +819,7 @@ def compare(plan_path, directories, output):
     guardrails = {}
     for name, budget in config["thresholds"].get("maximum_regression", {}).items():
         group = "thermal" if name == "thermal_raw_mC" else "power" if name == "power_raw_uW_pct" else None
-        keys = sorted({key for t in trials for key in t["metrics"][group]}) if group else ["root_rss_kib"]
+        keys = sorted({key for t in trials for key in t["metrics"][group]}) if group else ["process_group_sampled_rss_kib" if name == "process_group_sampled_rss_kib_pct" else "root_rss_kib"]
         if not keys:
             missing.append(name)
         for key in keys:
@@ -648,6 +874,7 @@ def main():
     runner.add_argument("--conditions", required=True, type=Path)
     runner.add_argument("--cwd", required=True, type=Path)
     runner.add_argument("--output", required=True, type=Path)
+    runner.add_argument("--platform-metrics", action="store_true", help="use the frozen optional platform instrumentation")
     comparator = commands.add_parser("compare")
     comparator.add_argument("--plan", required=True, type=Path)
     comparator.add_argument("--runs", required=True, nargs="+", type=Path)
@@ -658,7 +885,7 @@ def main():
             freeze(args.config, args.baseline, args.candidate_state, args.output)
             return 0
         if args.command == "run":
-            return run(args.plan, args.slot, args.state, args.conditions, args.cwd, args.output)
+            return run(args.plan, args.slot, args.state, args.conditions, args.cwd, args.output, platform_metrics=args.platform_metrics)
         return compare(args.plan, args.runs, args.output)
     except (ValueError, OSError, KeyError, TypeError) as error:
         print(f"benchmark refused: {error}", file=sys.stderr)

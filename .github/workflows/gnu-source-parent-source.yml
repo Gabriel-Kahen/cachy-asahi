@@ -1,0 +1,41 @@
+name: GNU fresh source-parent source factory
+on:
+  pull_request:
+    paths:
+      - 'scripts/ci/gnu-source-parent-source/**'
+      - '.github/workflows/gnu-source-parent-source.yml'
+  push:
+    paths:
+      - 'scripts/ci/gnu-source-parent-source/**'
+      - '.github/workflows/gnu-source-parent-source.yml'
+permissions:
+  contents: read
+jobs:
+  source-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 4a9b38339f23eca5ba1a413e267c97d0916c8f7e
+          path: .ci-gnu-parent
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 236405a169d764e612e6e9028d196ee3500f6c33
+          path: .ci-gnu-expected
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Reproduce fixed745 and run all56 bounded source controls
+        env:
+          GNU_PARENT_SOURCE: ${{ github.workspace }}/.ci-gnu-parent
+          GNU_EXPECTED_SOURCE: ${{ github.workspace }}/.ci-gnu-expected
+        run: python -I -B -Werror scripts/ci/gnu-source-parent-source/test_prepare.py

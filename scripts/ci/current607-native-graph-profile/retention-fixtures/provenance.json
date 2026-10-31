@@ -1,0 +1,49 @@
+{
+  "archive_path": "artifacts/development/boot607-archive-prefill-native-actual-20261021/originals/artifact.zip",
+  "archive_pin": {
+    "bytes": 13530380,
+    "sha256": "bb57748930b7dd92105f5a5e7b5e6fe667a0883f6d7a44b35781ee6ad7569b85"
+  },
+  "members": {
+    "retention-step.txt": {
+      "CRC": 3201990827,
+      "bytes": 13526546,
+      "sha256": "cc429eed7fbc9e3b11bb73ec1bf5343373d051a7db2eb03130e1beec34384691"
+    },
+    "transport.json": {
+      "CRC": 1097462006,
+      "bytes": 3564,
+      "sha256": "1f5f4211c3a123b516812042948bea2434e7b4e2e3044fdd5f7853b9cccddf0c"
+    }
+  },
+  "objects": {
+    "inputs/apps6_authority_source/payload/repair-bytes-root-decision.json": {
+      "bytes": 1481,
+      "sha256": "f8e106a882b7fc9b553c8a399f6d9296d17d77f9aadbdcf46135b090f88b4157"
+    },
+    "inputs/apps6_source/index.json": {
+      "bytes": 55737,
+      "sha256": "782fd76c06831786cb74df396f195e8f5f8832e04b668c44bdadd802d1cb268b"
+    }
+  },
+  "refs": [
+    {
+      "ref": {
+        "bytes": 1481,
+        "path": "payload/repair-bytes-root-decision.json",
+        "sha256": "f8e106a882b7fc9b553c8a399f6d9296d17d77f9aadbdcf46135b090f88b4157"
+      },
+      "root": "apps6_authority_source"
+    },
+    {
+      "ref": {
+        "bytes": 55737,
+        "path": "index.json",
+        "sha256": "782fd76c06831786cb74df396f195e8f5f8832e04b668c44bdadd802d1cb268b"
+      },
+      "root": "apps6_source"
+    }
+  ],
+  "source_scope": "ORIGINAL_PUBLIC_INPUT_OBJECTS_ONLY_NO_PRIVATE_ROOT_SOURCE_VENDOR",
+  "status": "AUTHENTIC_LOCAL_BOOT_PUBLIC_INPUT_FIXTURES_NOT_CURRENT607_ACTUAL_DATA"
+}

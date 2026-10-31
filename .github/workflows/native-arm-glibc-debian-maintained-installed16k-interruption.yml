@@ -1,0 +1,349 @@
+name: native-arm-glibc-debian-maintained-installed16k-interruption
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact Root-frozen owner source equal to workflow revision; policy must already bind an accepted actual packet
+        type: string
+        required: true
+      native_interruption_decision:
+        description: Exact Root-bound JSON descriptor {ref,path,bytes,sha256} for accepted native interruption
+        type: string
+        required: true
+      normal_installed16k_decision:
+        description: Exact Root-bound JSON descriptor {ref,path,bytes,sha256} for accepted normal installed16K
+        type: string
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: native-arm-glibc-debian-maintained-installed16k-interruption
+  cancel-in-progress: false
+jobs:
+  native:
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 360
+    defaults:
+      run:
+        shell: bash
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      SOURCE_SHA: ${{ inputs.source_sha }}
+      WORKFLOW_SHA: ${{ github.workflow_sha }}
+      SLICE: ${{ github.workspace }}/maintained-interrupted16k-source/scripts/ci/glibc-debian-maintained-public-provider-interruption-owner
+      NATIVE_INTERRUPTION_DECISION: ${{ inputs.native_interruption_decision }}
+      NORMAL_INSTALLED16K_DECISION: ${{ inputs.normal_installed16k_decision }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 3
+        with:
+          ref: ${{ inputs.source_sha }}
+          persist-credentials: false
+      - name: Reject unbound decisions and verify exact source before credentials or actors
+        id: decisions
+        timeout-minutes: 2
+        run: |
+          set -euo pipefail
+          printf '%s  %s\n' '4a010dc0e72b9ab917f2801db9bd37810b2deb2e6eb19d0a8b7cfec30b462157' 'scripts/ci/glibc-debian-maintained-installed16k-interruption-source/prepare.py' 'e012432c0c2fa81b0cf105d3c5c886bafc77cffaea24d54ff579c075a16695fb' 'scripts/ci/glibc-debian-maintained-installed16k-interruption-source/source-manifest.json' | sha256sum --check
+          python3 -I -B scripts/ci/glibc-debian-maintained-installed16k-interruption-source/prepare.py preflight --workspace "$GITHUB_WORKSPACE"
+          printf 'BUNDLE=%s/maintained-interrupted16k-source\n' "$GITHUB_WORKSPACE" >> "$GITHUB_ENV"
+      - name: Read only exact immutable native interruption Root decision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 3
+        with:
+          ref: ${{ steps.decisions.outputs.native_interruption_ref }}
+          path: interruption-root-decision
+          persist-credentials: false
+      - name: Read only exact immutable normal installed16K Root decision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 3
+        with:
+          ref: ${{ steps.decisions.outputs.normal_installed16k_ref }}
+          path: normal16k-root-decision
+          persist-credentials: false
+      - name: Checkout exact full normal implementation source only
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 3
+        with:
+          ref: 34548c30fa5b0d65172eba2302ddcb4a07840488
+          path: normal-component
+          persist-credentials: false
+      - name: Checkout exact maintained native interruption implementation only
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 3
+        with:
+          ref: 73da7728469c7c11b5877ba47645bf812ac6dbdc
+          path: native-component
+          persist-credentials: false
+      - name: Assemble closed source-only interrupted16K bundle and validate both actual decisions
+        id: wiring
+        timeout-minutes: 3
+        run: |
+          set -euo pipefail
+          python3 -I -B scripts/ci/glibc-debian-maintained-installed16k-interruption-source/prepare.py assemble --workspace "$GITHUB_WORKSPACE" \
+            --normal-source "$GITHUB_WORKSPACE/normal-component" --native-source "$GITHUB_WORKSPACE/native-component" \
+            --native-decision-root "$GITHUB_WORKSPACE/interruption-root-decision" --normal-decision-root "$GITHUB_WORKSPACE/normal16k-root-decision" \
+            --output "$BUNDLE" --public "$RUNNER_TEMP/interrupted16k-wiring-public"
+      - name: Require Root-bound source and immutable packet policy before secrets or native actors
+        id: proof
+        timeout-minutes: 2
+        run: |
+          set -euo pipefail
+          printf '%s  %s\n' '80f71347e2f02692426b0116f8f46dbd95eedab4b5af70a6c996ece38b064b13' "$SLICE/job.py" 'e1cc933166139d7d42097183268dc1a9c1ee0361ba579160d8658deee3d4beb3' "$SLICE/integration-manifest.json" | sha256sum --check
+          python3 -I -B "$SLICE/job.py" proof --workspace "$BUNDLE" --proof "$RUNNER_TEMP/provider-interruption-proof.json"
+      - name: Checkout only the exact Root-bound actual input packet
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 3
+        with:
+          ref: ${{ steps.proof.outputs.packet_ref }}
+          path: interruption-packet
+          persist-credentials: false
+      - name: Verify exact maintained public21 compilepair source authority normal probes and held rollback before secrets
+        id: packet
+        timeout-minutes: 4
+        run: |
+          set -euo pipefail
+          test "$(git -C interruption-packet rev-parse HEAD)" = '${{ steps.proof.outputs.packet_ref }}'
+          python3 -I -B "$SLICE/job.py" packet --workspace "$BUNDLE" --packet-root "$GITHUB_WORKSPACE/interruption-packet"
+      - name: Bounded exact source and interruption controls
+        timeout-minutes: 3
+        run: |
+          set -euo pipefail
+          python3 -I -B "$BUNDLE/scripts/ci/glibc-gnu-provider-interruption-owner/test_owner.py"
+          python3 -I -B "$BUNDLE/scripts/ci/glibc-gnu-provider-lifecycle/test_copy_scope.py"
+          python3 -I -B "$BUNDLE/scripts/ci/glibc-gnu-provider-interruption/test_lifecycle_controls.py"
+          python3 -I -B "$BUNDLE/scripts/ci/glibc-gnu-provider-interruption/test_interruption.py"
+          MAINTAINED_INTERRUPTION_NORMAL_SOURCE="$GITHUB_WORKSPACE/normal-component" MAINTAINED_INTERRUPTION_NATIVE_SOURCE="$GITHUB_WORKSPACE/native-component" python3 -B -m unittest discover -s scripts/ci/glibc-debian-maintained-installed16k-interruption-source -p test_source.py -v
+      - name: Seed the six existing private input files using unchanged secrets
+        timeout-minutes: 2
+        env:
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01 }}
+          CACHY_OLD_FOUR_SCHEMA: '1'
+          CACHY_OLD_FOUR_SOURCE_EPOCH: '1791748800'
+          CACHY_OLD_FOUR_JBIGKIT_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_01 }}
+          CACHY_OLD_FOUR_JBIGKIT_02: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_02 }}
+          CACHY_OLD_FOUR_JBIGKIT_SIG_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_SIG_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_02: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_02 }}
+          CACHY_OLD_FOUR_LIBTIFF_03: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_03 }}
+          CACHY_OLD_FOUR_LIBTIFF_04: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_04 }}
+          CACHY_OLD_FOUR_LIBTIFF_05: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_05 }}
+          CACHY_OLD_FOUR_LIBTIFF_06: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_06 }}
+          CACHY_OLD_FOUR_LIBTIFF_07: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_07 }}
+          CACHY_OLD_FOUR_LIBTIFF_08: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_08 }}
+          CACHY_OLD_FOUR_LIBTIFF_09: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_09 }}
+          CACHY_OLD_FOUR_LIBTIFF_10: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_10 }}
+          CACHY_OLD_FOUR_LIBTIFF_11: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_11 }}
+          CACHY_OLD_FOUR_LIBTIFF_12: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_12 }}
+          CACHY_OLD_FOUR_LIBTIFF_13: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_13 }}
+          CACHY_OLD_FOUR_LIBTIFF_14: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_14 }}
+          CACHY_OLD_FOUR_LIBTIFF_15: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_15 }}
+          CACHY_OLD_FOUR_LIBTIFF_SIG_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_SIG_01 }}
+        run: >-
+          python3 -I -B "$BUNDLE/scripts/ci/maintained_desktop574.py" seed
+          --inputs "$BUNDLE/scripts/ci/maintained-desktop574-inputs.json"
+          --output "$RUNNER_TEMP/desktop574"
+      - name: Checkout exact fourteen public input files
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 3
+        with:
+          ref: 04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd
+          path: retained-public-inputs
+          persist-credentials: false
+      - name: Seed the exact public inputs without secrets
+        timeout-minutes: 3
+        run: |
+          set -euo pipefail
+          test "$(git -C retained-public-inputs rev-parse HEAD)" = 04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd
+          printf '%s  %s\n' 'a7857658af224984065e575f6ffed8308ea85027d46eace8bda146d9033e93b3' 'retained-public-inputs/seed.py' 'a388c8c8ba8e06cb92fd2be598b86e433c4e403b6e71a0f15b1eaec381bb7300' 'retained-public-inputs/index.json' | sha256sum --check
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP" LANG=C.UTF-8 TZ=UTC TMPDIR="$RUNNER_TEMP" python3 -I -B "$GITHUB_WORKSPACE/retained-public-inputs/seed.py" --cache "$RUNNER_TEMP/desktop574/context/deps"
+      - name: Reuse unchanged owned574 native producer
+        timeout-minutes: 40
+        env:
+          JOB_TOKEN: ${{ steps.proof.outputs.job_token }}
+        run: >-
+          timeout --signal=TERM --kill-after=10s 2300s
+          python3 -I -B "$BUNDLE/scripts/ci/maintained_desktop574.py" build
+          --inputs "$BUNDLE/scripts/ci/maintained-desktop574-inputs.json"
+          --output "$RUNNER_TEMP/desktop574" --job-token "$JOB_TOKEN"
+      - name: Snapshot never-started original574 bind private source and run actual native interruption recovery
+        timeout-minutes: 80
+        run: |
+          set -euo pipefail
+          python3 -I -B "$SLICE/job.py" execute --workspace "$BUNDLE" \
+            --packet-root "$GITHUB_WORKSPACE/interruption-packet" --proof "$RUNNER_TEMP/provider-interruption-proof.json" \
+            --base "$RUNNER_TEMP/desktop574" --output "$RUNNER_TEMP/provider-interruption-owner"
+      - name: Provision accepted kernel and QEMU tools on disposable runner
+        timeout-minutes: 8
+        run: |
+          set -euo pipefail
+          docker version >/dev/null
+          timeout --kill-after=10s 180s sudo apt-get -o Acquire::Retries=0 -o Acquire::http::Timeout=30 update -qq
+          timeout --kill-after=10s 240s sudo env DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=0 -o Acquire::http::Timeout=30 install -y --no-install-recommends build-essential bc clang lld llvm flex bison libssl-dev libelf-dev python3 qemu-system-arm zstd ca-certificates
+      - name: Prepare dedicated archive-only kernel cache directory
+        timeout-minutes: 1
+        run: install -d -m 700 "$RUNNER_TEMP/kernel-source-cache/874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad"
+      - name: Restore only the exact content-addressed kernel archive
+        id: kernel_cache_restore
+        timeout-minutes: 2
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: ${{ runner.temp }}/kernel-source-cache/874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad/kernel.tar.gz
+          key: asahi-kernel-source-v1-874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad-262965559
+          enableCrossOsArchive: false
+          fail-on-cache-miss: false
+          lookup-only: false
+      - name: Seed a true miss from the exact retained public source asset
+        id: kernel_seed
+        if: steps.kernel_cache_restore.outputs.cache-hit != 'true'
+        timeout-minutes: 6
+        env:
+          GH_TOKEN: ${{ github.token }}
+          KERNEL_CACHE_HIT: ${{ steps.kernel_cache_restore.outputs.cache-hit }}
+          KERNEL_CACHE_MATCHED_KEY: ${{ steps.kernel_cache_restore.outputs.cache-matched-key }}
+        run: |
+          set -euo pipefail
+          python3 -I -B - "$BUNDLE" "scripts/ci/glibc-debian-maintained-installed16k-interruption" <<'PYSEED'
+          import os,pathlib,sys
+          root=pathlib.Path(sys.argv[1]);sys.path.insert(0,str(root/sys.argv[2]));import support as s
+          s.check_source(root)
+          acquire=s.load(root,'scripts/ci/tools-generic16k/acquire_kernel.py')
+          seed=s.load(root,'scripts/ci/tools-generic16k/retained_kernel.py')
+          fetch=s.load(root,'scripts/virtual/generic16k/fetch_inputs.py')
+          archive=pathlib.Path(os.environ['RUNNER_TEMP'])/'kernel-source-cache'/'874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad'/'kernel.tar.gz'
+          assert acquire.cache_state(archive,os.environ['KERNEL_CACHE_HIT'],os.environ['KERNEL_CACHE_MATCHED_KEY'])=='MISS'
+          result=seed.download(archive,acquire,fetch.deadline_alarm,pathlib.Path(os.environ['RUNNER_TEMP'])/'managed-gui16k-kernel-source-seed.json')
+          if result['status']=='RETAINED_ASSET_DOWNLOADED_HASH_VERIFIED':
+              with open(os.environ['GITHUB_OUTPUT'],'a') as stream:stream.write('retained_archive='+str(archive)+'\n')
+          else:assert result['status']=='RETAINED_ASSET_UNAVAILABLE'
+          PYSEED
+      - name: Acquire exact Asahi archive and stage the separate GUI helper
+        id: kernel_acquire
+        timeout-minutes: 6
+        env:
+          KERNEL_CACHE_HIT: ${{ steps.kernel_cache_restore.outputs.cache-hit }}
+          KERNEL_CACHE_MATCHED_KEY: ${{ steps.kernel_cache_restore.outputs.cache-matched-key }}
+          KERNEL_RETAINED_ARCHIVE: ${{ steps.kernel_seed.outputs.retained_archive }}
+        run: |
+          set -euo pipefail
+          python3 -I -B - "$BUNDLE" "scripts/ci/glibc-debian-maintained-installed16k-interruption" "$RUNNER_TEMP/managed-gui16k-kernel" <<'PYCODE'
+          import json,os,pathlib,shutil,sys,time
+          root=pathlib.Path(sys.argv[1]);sys.path.insert(0,str(root/sys.argv[2]));import support as s
+          s.check_source(root);work=pathlib.Path(sys.argv[3]);work.mkdir(mode=0o700);(work/'inputs').mkdir(mode=0o700)
+          fetch=s.load(root,'scripts/virtual/generic16k/fetch_inputs.py')
+          manifest,manifest_sha=fetch.load_manifest(root/'scripts/virtual/generic16k/inputs.json')
+          acquire=s.load(root,'scripts/ci/tools-generic16k/acquire_kernel.py')
+          cache=pathlib.Path(os.environ['RUNNER_TEMP'])/'kernel-source-cache'/'874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad'/'kernel.tar.gz'
+          acquire.acquire(fetch,manifest['inputs'][0],work/'inputs',manifest_sha,pathlib.Path(os.environ['RUNNER_TEMP'])/'managed-gui16k-acquisition.json',
+              cache_archive=cache,cache_hit=os.environ['KERNEL_CACHE_HIT'],cache_matched_key=os.environ['KERNEL_CACHE_MATCHED_KEY'],
+              retained_archive=os.environ['KERNEL_RETAINED_ARCHIVE'] or None)
+          helper=work/'helper';helper.mkdir(mode=0o700)
+          for name in ('build_kernel.py','kernel.fragment'):shutil.copyfile(root/'scripts/ci/managed-gui-generic16k'/name,helper/name)
+          PYCODE
+      - name: Save verified archive immediately before kernel build or cleanup
+        if: steps.kernel_acquire.outcome == 'success' && steps.kernel_cache_restore.outputs.cache-hit != 'true'
+        timeout-minutes: 2
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: ${{ runner.temp }}/kernel-source-cache/874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad/kernel.tar.gz
+          key: asahi-kernel-source-v1-874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad-262965559
+          enableCrossOsArchive: false
+      - name: Build only the separately derived managed GUI diagnostic16K kernel
+        timeout-minutes: 63
+        run: |
+          set -euo pipefail
+          timeout --signal=TERM --kill-after=30s 3700s python3 -I -B "$RUNNER_TEMP/managed-gui16k-kernel/helper/build_kernel.py" --archive "$RUNNER_TEMP/managed-gui16k-kernel/inputs/kernel.tar.gz" --output "$RUNNER_TEMP/managed-gui16k-kernel/helper/built" --build --boot-diagnostics > "$RUNNER_TEMP/managed-gui16k-kernel/controller.log" 2>&1
+      - name: Actual disk-backed complete574 generic16K interrupted replacement recovery and outer rollback
+        id: installed16k
+        timeout-minutes: 220
+        run: |
+          set -euo pipefail
+          python3 -I -B "$BUNDLE/scripts/ci/glibc-debian-maintained-installed16k-interruption/run.py" run \
+            --workspace "$BUNDLE" --acceptances "$BUNDLE/scripts/ci/glibc-debian-maintained-installed16k-interruption/prerequisites" \
+            --owner "$RUNNER_TEMP/provider-interruption-owner" --base "$RUNNER_TEMP/desktop574" \
+            --kernel-work "$RUNNER_TEMP/managed-gui16k-kernel" \
+            --kernel-receipt "$RUNNER_TEMP/managed-gui16k-kernel/helper/built/build-receipt.json" \
+            --output /tmp/caa-debian-maintained-interrupted16k
+      - name: Retire every clone consumer source snapshot and observer before original574 producer
+        if: always() && steps.proof.outcome == 'success'
+        timeout-minutes: 15
+        run: |
+          set -euo pipefail
+          python3 -I -B - <<'PYBARRIER'
+          import json,pathlib
+          output=pathlib.Path('/tmp/caa-debian-maintained-interrupted16k')
+          if output.exists():
+              value=json.loads((output/'owner.json').read_bytes())
+              assert value['consumer_cleanup']=='PASS_ALL_ACTORS_GROUPS_AND_DISKS_REMOVED', 'unknown16K consumer absence: retain original producer'
+          PYBARRIER
+          python3 -I -B "$SLICE/job.py" cleanup --workspace "$BUNDLE" \
+            --proof "$RUNNER_TEMP/provider-interruption-proof.json" --base "$RUNNER_TEMP/desktop574" \
+            --output "$RUNNER_TEMP/provider-interruption-owner" --receipt "$RUNNER_TEMP/provider-interruption-cleanup.json"
+      - name: Retain only closed bounded actual interruption receipts inputs and source snapshot metadata
+        if: always() && steps.proof.outcome == 'success'
+        timeout-minutes: 5
+        run: |
+          set -euo pipefail
+          python3 -I -B "$SLICE/job.py" retain --workspace "$BUNDLE" \
+            --proof "$RUNNER_TEMP/provider-interruption-proof.json" --base "$RUNNER_TEMP/desktop574" \
+            --output "$RUNNER_TEMP/provider-interruption-owner" --receipt "$RUNNER_TEMP/provider-interruption-cleanup.json" \
+            --packet-root "$GITHUB_WORKSPACE/interruption-packet" --public "$RUNNER_TEMP/provider-interruption-public"
+      - name: Upload only the closed provider interruption public packet
+        if: always() && steps.proof.outcome == 'success'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        timeout-minutes: 5
+        with:
+          name: glibc-gnu-provider-interruption-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/provider-interruption-public/
+          retention-days: 3
+          compression-level: 0
+          include-hidden-files: true
+          if-no-files-found: error
+      - name: Verify complete installed16K public export remains within its fixed bound
+        id: installed16k_export
+        if: always() && steps.proof.outcome == 'success'
+        timeout-minutes: 3
+        run: |
+          set -euo pipefail
+          python3 -I -B - <<'PYEXPORT'
+          import json,pathlib,sys
+          sys.path.insert(0,str(pathlib.Path(__import__('os').environ['BUNDLE'])/'scripts/ci/glibc-debian-maintained-installed16k-interruption'));import contract as C
+          public=pathlib.Path('/tmp/caa-debian-maintained-interrupted16k/public');value=C.decode(C.read(public/'retention.json'))
+          assert value['status']=='BOUNDED_SOURCE_DERIVED_METADATA_AND_LOGS_ONLY' and len(value['files'])<=320
+          assert value['bytes']==sum(r['bytes'] for r in value['files'].values())<=544*1024**2
+          actual={p.relative_to(public).as_posix() for p in public.rglob('*') if p.is_file()}
+          assert actual==set(value['files'])|{'retention.json'}
+          for name,row in value['files'].items():C.ref(public,dict(path=name,**row),64*1024**2)
+          PYEXPORT
+      - name: Upload complete bounded installed16K receipt and raw snapshots
+        if: always() && steps.installed16k_export.outcome == 'success'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        timeout-minutes: 5
+        with:
+          name: glibc-gnu-provider-installed16k-interruption-${{ github.run_id }}-${{ github.run_attempt }}
+          path: /tmp/caa-debian-maintained-interrupted16k/public/
+          retention-days: 3
+          compression-level: 0
+          include-hidden-files: true
+          if-no-files-found: warn
+      - name: Verify bounded decision and effective source metadata only
+        id: wiring_export
+        if: always() && steps.wiring.outcome == 'success'
+        timeout-minutes: 2
+        run: |
+          set -euo pipefail
+          python3 -I -B scripts/ci/glibc-debian-maintained-installed16k-interruption-source/prepare.py export --workspace "$GITHUB_WORKSPACE" --public "$RUNNER_TEMP/interrupted16k-wiring-public"
+      - name: Upload six bounded wiring metadata files plus retention index
+        if: always() && steps.wiring_export.outcome == 'success'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        timeout-minutes: 3
+        with:
+          name: glibc-gnu-interrupted16k-wiring-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/interrupted16k-wiring-public/
+          retention-days: 3
+          compression-level: 0
+          include-hidden-files: true
+          if-no-files-found: error

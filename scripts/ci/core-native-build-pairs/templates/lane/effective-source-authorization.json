@@ -1,0 +1,247 @@
+{
+  "actual": null,
+  "cleanup_acceptance": false,
+  "effective_profile": {
+    "bytes": 9227,
+    "sha256": "2c4ca550699576cb71fa5d0733b94e0a1d8d3e352150903b6d19261d6b0ed043"
+  },
+  "effective_profile_files": {
+    "pacman/.SRCINFO": {
+      "bytes": 2497,
+      "sha256": "993732a32cd0d74a7b2a8ca8911aaf2bf3814496a3f943754a7ea6ff638f4138"
+    },
+    "pacman/0001-Sychronize-filesystem.patch": {
+      "bytes": 971,
+      "sha256": "6c379199a6f5bdd64cfa7bd6b3c4acc6f34590fd1ff41e145627b113b59f9b56"
+    },
+    "pacman/0001-libalpm-invalidate-curl-data-in-child.patch": {
+      "bytes": 987,
+      "sha256": "9a734e5d75be603d58aa92e8d29a15466b3ac2af6b7d6f6728dd5c3e5ed8758d"
+    },
+    "pacman/0002-Revert-close-stdin-before-running-install-scripts.patch": {
+      "bytes": 1066,
+      "sha256": "c23f425e063a500fd7242bfff5a8d08ce22021e07e5383533d9f52f275160fd6"
+    },
+    "pacman/0003-Revert-alpm_run_chroot-always-connect-parent2child-p.patch": {
+      "bytes": 2237,
+      "sha256": "d356afdfab33b1a250c53758c20ef202d292896c7b1830899fb2040ff2127a76"
+    },
+    "pacman/PACKAGING-LICENSE": {
+      "bytes": 646,
+      "sha256": "7056c04df17a4e0f0bac9f787f347c9cd892cee6323d1c89528090afd0b934a3"
+    },
+    "pacman/PACKAGING-REUSE.toml": {
+      "bytes": 689,
+      "sha256": "f60b7cd8d7dc1148952ee0cc2d5554f03ebb011ec5c138cce9b5ed94bc759c41"
+    },
+    "pacman/PKGBUILD": {
+      "bytes": 5082,
+      "sha256": "923060d184327aca56e9b447e25980039bd77bbfd21b08c88b813b25d2b101d6"
+    },
+    "pacman/alpm.sysusers": {
+      "bytes": 44,
+      "sha256": "9c14afbc7dabee5a563202c833a043bd3b80c4522f8943c33d550641d7d1bbf1"
+    },
+    "pacman/fortran.conf": {
+      "bytes": 778,
+      "sha256": "5e23fb1a0735f6c5101139f380c4f36cc0c9eebfcdf8bf83e9eaa609f776cdcc"
+    },
+    "pacman/makepkg.conf": {
+      "bytes": 6601,
+      "sha256": "0c95fc798d6d695d5efeb6724371cd3bb76f14bbb2515bfa39402e51f8acfeb3"
+    },
+    "pacman/pacman-54d94116164b0b2202c6061c4a59c6f3e70820d8.tar.gz": {
+      "bytes": 1938264,
+      "sha256": "871a9616e5c82e265e4b2ff9eb4d1b4ae4e37bcc1387a48d04992a7b10af7336"
+    },
+    "pacman/pacman.conf": {
+      "bytes": 2693,
+      "sha256": "531d3b472b12f1686d98ea9dcaebe7bd57cc213e46329ed1558f788aa2f1b6d9"
+    },
+    "pacman/patch-reproducible-builds.patch": {
+      "bytes": 4792,
+      "sha256": "de428b496a825772ef49ec5555a386a4b23ffa10b9dfd9907f0671d5c1dc2178"
+    },
+    "pacman/revertme-makepkg-remove-libdepends-and-libprovides.patch": {
+      "bytes": 5738,
+      "sha256": "b3bce9d662e189e8e49013b818f255d08494a57e13fc264625f852f087d3def2"
+    },
+    "pacman/rust.conf": {
+      "bytes": 602,
+      "sha256": "3d7579f4fa52ef512dc82187c010f273aa45e6e8349f8fda9839f808c7dae042"
+    },
+    "profile.json": {
+      "bytes": 9227,
+      "sha256": "2c4ca550699576cb71fa5d0733b94e0a1d8d3e352150903b6d19261d6b0ed043"
+    },
+    "systemd/.SRCINFO": {
+      "bytes": 9667,
+      "sha256": "4fffb659a30ea694fa146708e42f3a42f60170aee6bbee5350471cbf7c4b8494"
+    },
+    "systemd/0001-Use-Arch-Linux-device-access-groups.patch": {
+      "bytes": 6920,
+      "sha256": "3ed6376fa18f9f79413c49ca0a04543476649217365c27cd396c83e867a3dffc"
+    },
+    "systemd/20-systemd-sysusers.hook": {
+      "bytes": 233,
+      "sha256": "f55162dc55268aa3850ef410aa1e444defa0f68b996e415c8b8bc04d63053e7a"
+    },
+    "systemd/21-systemd-tmpfiles.hook": {
+      "bytes": 228,
+      "sha256": "3cfdc3c21d32cc35b1315f4ff4df87238bc7d2c27bdcf4e5a70600832c481e95"
+    },
+    "systemd/25-systemd-binfmt.hook": {
+      "bytes": 226,
+      "sha256": "a938701f4244ebdc4ae88ed0032a8315b68f086c6e45d9f2e34ef9442a8f6b47"
+    },
+    "systemd/25-systemd-catalog.hook": {
+      "bytes": 254,
+      "sha256": "be3c749ed51ee26c8412e0304a41ac5e00e668f4d5227b5f359a3b0c31d18d5d"
+    },
+    "systemd/25-systemd-hwdb.hook": {
+      "bytes": 246,
+      "sha256": "b19b23467dc33b3e8267cabea10726b0d181e0de1b491ec538b9fb620bccf57f"
+    },
+    "systemd/25-systemd-sysctl.hook": {
+      "bytes": 231,
+      "sha256": "1af0fbaeaf974fe3d8409854179fac68e8461524dd49849b7e889374363ce3c9"
+    },
+    "systemd/30-systemd-daemon-reload-system.hook": {
+      "bytes": 272,
+      "sha256": "2d2733a167ee360a36d6cc613001913deb62f199d73e86d39bfe06e669f4b066"
+    },
+    "systemd/30-systemd-daemon-reload-user.hook": {
+      "bytes": 266,
+      "sha256": "5e35263da327771ec1b9bff1d792b0da4c802f0322e40838f07554788fc191e2"
+    },
+    "systemd/35-systemd-enqueue-marked.hook": {
+      "bytes": 214,
+      "sha256": "06180f1d8133babcec60bda7aacc06d881626e2a1d7ca164eeab59a6657bf501"
+    },
+    "systemd/35-systemd-udev-reload.hook": {
+      "bytes": 261,
+      "sha256": "f6364443609b1d5a07f385e7228ace0eae5040ae3bbd4e00ed5033ef1b19e4b9"
+    },
+    "systemd/35-systemd-update.hook": {
+      "bytes": 227,
+      "sha256": "1090b7b1edba2042298b609a77bbe122982ca936208408fb79d77b33a2f3c27a"
+    },
+    "systemd/36-systemd-modules-load.hook": {
+      "bytes": 321,
+      "sha256": "53e1ac2a7ddcd696f7c8c930bd36c8764b9d46502cf56340c67a579b128dae4c"
+    },
+    "systemd/BTF-COPYING": {
+      "bytes": 21767,
+      "sha256": "8c2e788450b96fff746385c42d3985bf33aef09f10c94c5c66505165cdd0103a"
+    },
+    "systemd/PACKAGING-LICENSE": {
+      "bytes": 646,
+      "sha256": "7056c04df17a4e0f0bac9f787f347c9cd892cee6323d1c89528090afd0b934a3"
+    },
+    "systemd/PACKAGING-REUSE.toml": {
+      "bytes": 630,
+      "sha256": "720d9d7e602fa68c2b0adb890af4e227cd7f75a2872c6886e459e5c454088c9f"
+    },
+    "systemd/PKGBUILD": {
+      "bytes": 16919,
+      "sha256": "b9cebe3d9ba506784f8f6f6a0fb83ca3be51c52570801d9d91cecd92e41a55ab"
+    },
+    "systemd/arch.conf": {
+      "bytes": 243,
+      "sha256": "e81d73077046628ba495ed07abfc819ea270d773fe806b3ff0af527a2c6b5d42"
+    },
+    "systemd/caa-owned-userns.h": {
+      "bytes": 4600,
+      "sha256": "a5b8cf1847e9d7f0d06228b251a40a55827681a6994baa1c95b1b8cbc03c0402"
+    },
+    "systemd/cachy-asahi-btf.py": {
+      "bytes": 12106,
+      "sha256": "4662b67524db7a25e9194588cb477d81d84e854f49e90f7ac8f71a07b5a1e046"
+    },
+    "systemd/cachy-asahi-owned-userns.patch": {
+      "bytes": 1959,
+      "sha256": "3f2183b5f54a9aa4d0a7fcff61bfd407bd427b91c4b9e320c2b9359a57430f16"
+    },
+    "systemd/cachy-asahi-testlog.py": {
+      "bytes": 7271,
+      "sha256": "b9b24eb4b0726f556097cb0b05b423aa14a5f147898e9e03519523f5ad523b1a"
+    },
+    "systemd/loader.conf": {
+      "bytes": 18,
+      "sha256": "45bde2e7da268c2cdd00efe6973821f92a51357d2009874adf8d854f850db349"
+    },
+    "systemd/splash-arch.bmp": {
+      "bytes": 378226,
+      "sha256": "d0ec3070db1f29799adbc8be8a26341290d2df4bf35939a5adce8e7947bad3bf"
+    },
+    "systemd/systemd-8cc40e0c5e9234bf45084751ac53b1fbfe70b492.tar.gz": {
+      "bytes": 19057032,
+      "sha256": "a8d72c03431860cefaafaa2f8cf6f68bcba817184c3708896e4b65471ab0f9ef"
+    },
+    "systemd/systemd-hook": {
+      "bytes": 1799,
+      "sha256": "90e00dd01359565be85a8cdd93b424b4c1c89563300d16eaf0e7eedc349bf9fc"
+    },
+    "systemd/systemd-user.pam": {
+      "bytes": 306,
+      "sha256": "d89d4a651a0ade67be200b05ddb622b57bc15027bb27a534f719c6274f680673"
+    },
+    "systemd/systemd.install": {
+      "bytes": 2247,
+      "sha256": "a726c5ae26164ccbbc7036daa7b00f3b0cc06f4d1bfa18aabc771c51b7c2081a"
+    },
+    "systemd/vmlinux-input.json": {
+      "bytes": 65768,
+      "sha256": "d28d901747a09b3473220a4c1fbe0ccf7dd2f9d777524bba41b08b66bf3ec973"
+    },
+    "systemd/vmlinux.btf": {
+      "bytes": 8430525,
+      "sha256": "bb0d29de550d1cf6f63cbc8792f4ad75e1b1f9b4df2d480a1015749949e4d5a2"
+    }
+  },
+  "effective_profile_proof": {
+    "bytes": 166831,
+    "sha256": "508857b443593238a89d1c0c3420bb958442ebb72118e0d0316db7021932eea9"
+  },
+  "namespace_header": {
+    "bytes": 4600,
+    "sha256": "a5b8cf1847e9d7f0d06228b251a40a55827681a6994baa1c95b1b8cbc03c0402"
+  },
+  "namespace_probe": {
+    "bytes": 6223,
+    "sha256": "253ae8d734862f8588c732718461393028f6a1852e114dac062b36791377e505"
+  },
+  "namespace_probe_validator": {
+    "bytes": 1668,
+    "sha256": "832d160eb7b1c46e8a96b03158bdbab75c116f3f2a82dab5cfade2b493cc8537"
+  },
+  "native_acceptance": false,
+  "old261_credit": false,
+  "original_core_authority": {
+    "bytes": 70465,
+    "sha256": "e10a2c41f0f8f739ef6e5a0c53098087cdc8d33cd9915f60ca3b03da4c20d895"
+  },
+  "original_source_policy": {
+    "bytes": 762,
+    "sha256": "1929616720cc8a68257c02c39c381a7a2f3189f9b1aecae4c099f240839bc54c"
+  },
+  "original_systemd_archive": {
+    "bytes": 19057032,
+    "sha256": "a8d72c03431860cefaafaa2f8cf6f68bcba817184c3708896e4b65471ab0f9ef"
+  },
+  "ref": null,
+  "schema": 1,
+  "source": null,
+  "source_date_epoch": 1792368000,
+  "status": "UNSELECTED_EFFECTIVE_CORE_TEST_PROFILE_SOURCE_ONLY",
+  "target_selection": false,
+  "versions": {
+    "pacman": "7.1.0.r9.g54d9411-2.1",
+    "systemd": "262-1.2",
+    "systemd-libs": "262-1.2",
+    "systemd-resolvconf": "262-1.2",
+    "systemd-sysvcompat": "262-1.2",
+    "systemd-tests": "262-1.2",
+    "systemd-ukify": "262-1.2"
+  }
+}

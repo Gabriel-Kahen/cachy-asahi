@@ -1,0 +1,12 @@
+    # Fixed post-session diagnostic DATA only; all original calls and caps held.
+    shutil.copyfile(HERE/'post_session.py',out/'post_session.py')
+    edit('desktop574_fixture.sh',lambda s:once(s,'cp /runner/service_outcome.py','cp /runner/post_session.py "$root/usr/local/share/desktop574/"\ncp /runner/service_outcome.py'))
+    for name in ('base_guest.py','management_root.py'):
+        edit(name,lambda s:once(s,'import time\n','import time\nimport post_session\n'))
+    edit('management_root.py',lambda s:once(s,"        try:restore_profile(L,pacman,products,baseline,preserved)","        post_session.mark(base.emit,'management_restore_begin')\n        try:restore_profile(L,pacman,products,baseline,preserved)"))
+    edit('management_root.py',lambda s:once(s,"        finally:L.command(['/usr/bin/gpgconf','--homedir','/tmp/management-trust','--kill','all'])","        finally:L.command(['/usr/bin/gpgconf','--homedir','/tmp/management-trust','--kill','all'])\n        post_session.mark(base.emit,'management_restore_end')"))
+    edit('base_guest.py',lambda s:once(s,"        proof=command(['/usr/bin/python3'","        post_session.mark(emit,'installed606_verify_begin')\n        proof=command(['/usr/bin/python3'"))
+    edit('base_guest.py',lambda s:once(s,"        emit('installed606_preserved'","        post_session.mark(emit,'installed606_verify_end')\n        emit('installed606_preserved'"))
+    edit('base_guest.py',lambda s:once(s,"        if manager is not None:\n            try:\n                manager.stop()","        if manager is not None:\n            post_session.mark(emit,'manager_cleanup_begin')\n            try:\n                manager.stop()\n                post_session.mark(emit,'manager_cleanup_end')"))
+    edit('base_guest.py',lambda s:once(s,"            if first is None:\n                emit('complete'","            if first is None:\n                post_session.mark(emit,'complete_boundary')\n                emit('complete'"))
+

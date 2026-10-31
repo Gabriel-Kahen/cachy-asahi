@@ -1,0 +1,17 @@
+{
+  "files": {
+    "scripts/apps/REPAIR_INSPECTION.md": {
+      "bytes": 4097,
+      "sha256": "1a501882d535f44e3f4304b81d9648d6a496bdb9a4d18b58a84df5a1d2299bad"
+    },
+    "scripts/apps/repair_inspection.py": {
+      "bytes": 9442,
+      "sha256": "1f49f75e565a60c7e159f28d005851c4ef38e0c3e11cff322a66093107e48538"
+    },
+    "scripts/apps/test_repair_inspection.py": {
+      "bytes": 14490,
+      "sha256": "43c5931338dde5bb26cb2c8c8f3ddebfec128e427db384c9035fa7b0c6e56462"
+    }
+  },
+  "schema_version": 1
+}

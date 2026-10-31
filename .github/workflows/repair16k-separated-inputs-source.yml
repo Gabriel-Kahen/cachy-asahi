@@ -1,0 +1,60 @@
+name: repair16k-separated-inputs-source
+on:
+  push:
+    paths:
+      - scripts/ci/repair16k-separated-inputs-source/**
+      - .github/workflows/repair16k-separated-inputs-source.yml
+  pull_request:
+    paths:
+      - scripts/ci/repair16k-separated-inputs-source/**
+      - .github/workflows/repair16k-separated-inputs-source.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONWARNINGS: error
+    steps:
+      - name: Check out the maintained dedicated factory
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Check out exact public237 source input
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: eaad9c6379557e89dae557a9b9e84283a96e56d1
+          path: .ci-fixtures/repair-separated237
+          persist-credentials: false
+      - name: Check out exact public239 expected source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: cd89f189f373dd5cc86450a7f07d0a1369238993
+          path: .ci-fixtures/repair-separated239
+          persist-credentials: false
+      - name: Select the explicit Python version
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Reproduce whole239 source and refuse altered inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          stage=$(mktemp -d "$RUNNER_TEMP/repair-separated-inputs.XXXXXXXX")
+          trap 'rm -rf -- "$stage"' EXIT
+          mkdir -m700 "$stage/input" "$stage/expected"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/repair-separated237" archive --format=tar eaad9c6379557e89dae557a9b9e84283a96e56d1 | tar -x -C "$stage/input"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/repair-separated239" archive --format=tar cd89f189f373dd5cc86450a7f07d0a1369238993 | tar -x -C "$stage/expected"
+          export REPAIR_SEPARATED_INPUT_SOURCE="$stage/input"
+          export REPAIR_SEPARATED_EXPECTED_SOURCE="$stage/expected"
+          python3 -I -B -Werror scripts/ci/repair16k-separated-inputs-source/test_source.py
+          python3 -I -B -Werror scripts/ci/repair16k-separated-inputs-source/prepare.py --help

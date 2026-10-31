@@ -1,0 +1,2 @@
+Copyright (c) 2026 cachy-asahi contributors. MIT License; see LICENSE.
+Original project per-connection DNS workflow. NetworkManager/nmcli is a separately supplied dependency, not copied into this package. Official API references and local tested version are recorded in source-provenance.json. No upstream endorsement or Apple/hardware compatibility is claimed.

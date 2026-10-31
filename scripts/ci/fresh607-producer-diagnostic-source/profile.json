@@ -1,0 +1,51 @@
+{
+  "actual": null,
+  "clocks": {
+    "build": 5400,
+    "diagnostic_data": 393216,
+    "existing_report": 458752,
+    "kill": 5,
+    "source": 300,
+    "term": 10,
+    "transport_member": 4194304
+  },
+  "fixed_files": {
+    "input-source.json": {
+      "bytes": 219020,
+      "sha256": "37f668d43e066e202a0fff1387513f66ef1894177e6c8f9309922b025a690fcd"
+    },
+    "output-source.json": {
+      "bytes": 219466,
+      "sha256": "15a106d08eaf3487c1e41e19a8a12493f7c3b00b8f5d4a8f2643f3f552125bb1"
+    },
+    "parent-codecs.json": {
+      "bytes": 173452,
+      "sha256": "a3a52a0c27d57f12244c6b350f5ba29cb0f39ce02f7d5dc3ed2237368dc302a6"
+    },
+    "parent-context.json": {
+      "bytes": 763,
+      "sha256": "d9f34a9d0096dfe3e86272a79da53d9a8fc5a74e78b1ee97984b47a346d35b87"
+    },
+    "producer_diagnostic.py": {
+      "bytes": 9170,
+      "sha256": "e8713c5c4b0dcd8f9d0debc9009c04228e3ae0c7d96e0ad391e94b1ff807088a"
+    },
+    "producer_source.py.in": {
+      "bytes": 5615,
+      "sha256": "976492c04ee2345b5bf359a4398a253f6d80951a3ea649c9c96cea296af10598"
+    },
+    "transform.py.in": {
+      "bytes": 2161,
+      "sha256": "aa6e3e855d84f928b694113a59c6162dd6a8e404799fa96f23544c64eb548890"
+    }
+  },
+  "input_files": 1182,
+  "input_ref": "codex/latest607-fresh-retained-cache-v1",
+  "input_source": "9a67f3e507c57f68ece48c253cdade47648f970c",
+  "native_acceptance": false,
+  "output_files": 1185,
+  "output_source": "2235c1d3c3b3de6d8a2ff30f66c5fd0df56c2ef6",
+  "ref": null,
+  "run": null,
+  "source": null
+}

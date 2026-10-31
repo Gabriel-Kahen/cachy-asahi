@@ -1,0 +1,7 @@
+test_formal_diagnostic_provenance_and_current_actual_NULL (__main__.Controls.test_formal_diagnostic_provenance_and_current_actual_NULL) ... ok
+test_whole_source_inverse_NULL_constructor_and_disjoint_refusals (__main__.Controls.test_whole_source_inverse_NULL_constructor_and_disjoint_refusals) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.454s
+
+OK

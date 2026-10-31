@@ -1,0 +1,166 @@
+name: native-arm-installer-full26-generic-vm
+on:
+  workflow_dispatch:
+    inputs:
+      source:
+        description: Exact Root-frozen full26 implementation and workflow revision
+        required: true
+        type: string
+      tooling_source:
+        description: Exact Root-frozen commit containing tooling-inputs/index.json and all45 retained files
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: native-arm-installer-full26-generic-vm
+  cancel-in-progress: false
+jobs:
+  full26:
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 120
+    env:
+      SOURCE_SHA: ${{ inputs.source }}
+      WORKFLOW_SHA: ${{ github.workflow_sha }}
+      TOOLING_SOURCE_SHA: ${{ inputs.tooling_source }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.source }}
+          persist-credentials: false
+      - name: Root binding and exact source proof before secrets or actors
+        id: proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$SOURCE_SHA" = "$WORKFLOW_SHA"
+          test "$SOURCE_SHA" = "$GITHUB_SHA"
+          [[ "$TOOLING_SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          test "$(sha256sum scripts/ci/installer-full26-generic-vm/job.py | cut -d ' ' -f 1)" = 42bb213dc126dad63d9c6e9a7cddfe50c9af343300b93139afae295fd75ed2a5
+          python3 -I -B scripts/ci/installer-full26-generic-vm/job.py proof \
+            --workspace "$GITHUB_WORKSPACE" --proof "$RUNNER_TEMP/full26-proof.json"
+      - name: Checkout the exact retained tooling packet
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.tooling_source }}
+          path: retained-tooling-inputs
+          persist-credentials: false
+      - name: Bind retained tooling checkout before secrets or actors
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C retained-tooling-inputs rev-parse HEAD)" = "$TOOLING_SOURCE_SHA"
+          test "$(sha256sum retained-tooling-inputs/tooling-inputs/index.json | cut -d ' ' -f 1)" = 450ae78175e7905fb677a920e716b95c397123f3c97f37fda3bce4852c8901ee
+      - name: Checkout the exact Root-bound original producer
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ steps.proof.outputs.producer_ref }}
+          path: producer-source
+          persist-credentials: false
+      - name: Seed the six frozen private cache objects before native work
+        shell: bash
+        env:
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01 }}
+          CACHY_OLD_FOUR_SCHEMA: '1'
+          CACHY_OLD_FOUR_SOURCE_EPOCH: '1791748800'
+          CACHY_OLD_FOUR_JBIGKIT_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_01 }}
+          CACHY_OLD_FOUR_JBIGKIT_02: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_02 }}
+          CACHY_OLD_FOUR_JBIGKIT_SIG_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_SIG_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_02: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_02 }}
+          CACHY_OLD_FOUR_LIBTIFF_03: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_03 }}
+          CACHY_OLD_FOUR_LIBTIFF_04: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_04 }}
+          CACHY_OLD_FOUR_LIBTIFF_05: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_05 }}
+          CACHY_OLD_FOUR_LIBTIFF_06: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_06 }}
+          CACHY_OLD_FOUR_LIBTIFF_07: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_07 }}
+          CACHY_OLD_FOUR_LIBTIFF_08: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_08 }}
+          CACHY_OLD_FOUR_LIBTIFF_09: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_09 }}
+          CACHY_OLD_FOUR_LIBTIFF_10: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_10 }}
+          CACHY_OLD_FOUR_LIBTIFF_11: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_11 }}
+          CACHY_OLD_FOUR_LIBTIFF_12: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_12 }}
+          CACHY_OLD_FOUR_LIBTIFF_13: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_13 }}
+          CACHY_OLD_FOUR_LIBTIFF_14: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_14 }}
+          CACHY_OLD_FOUR_LIBTIFF_15: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_15 }}
+          CACHY_OLD_FOUR_LIBTIFF_SIG_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_SIG_01 }}
+        run: |
+          set -euo pipefail
+          test "$(sha256sum producer-source/scripts/ci/inputs.lock.json | cut -d ' ' -f 1)" = beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f
+          timeout --signal=TERM --kill-after=5s 75s python3 -B - <<'PYSEED'
+          import hashlib
+          import os
+          from pathlib import Path
+          import sys
+          sys.path.insert(0, 'scripts/ci')
+          from old_four_seed import (OLD_FOUR_PRIVATE_ROWS, RETAINED_BUBBLEWRAP_PRIVATE_ROWS,
+                                     seed_current_build_cache)
+          pin = 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'
+          if hashlib.sha256(Path('scripts/ci/inputs.lock.json').read_bytes()).hexdigest() != pin:
+              raise SystemExit('private-cache-input-binding-refused')
+          names = {'CACHY_OLD_FOUR_' + f'{tag}_{i:02d}'
+                   for _, _, _, tag, count in OLD_FOUR_PRIVATE_ROWS for i in range(1, count + 1)}
+          retained = {'CACHY_RETAINED_BUBBLEWRAP_V1_' + f'{tag}_{i:02d}'
+                      for _, _, _, tag, sizes in RETAINED_BUBBLEWRAP_PRIVATE_ROWS
+                      for i in range(1, len(sizes) + 1)}
+          names |= retained
+          if len(names) != 22 or len(retained) != 3 or not all(os.environ.get(name) for name in names):
+              raise SystemExit('private-cache-required-secrets-missing')
+          cache = Path(os.environ['RUNNER_TEMP']) / 'alarm-cache'
+          cache.mkdir(mode=0o700)
+          keep = names | {'CACHY_OLD_FOUR_SCHEMA', 'CACHY_OLD_FOUR_SOURCE_EPOCH'}
+          for name in tuple(os.environ):
+              if name not in keep:
+                  os.environ.pop(name)
+          seed_current_build_cache(cache, pin)
+          PYSEED
+      - name: Checkout exact retained public input source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # existing pinned checkout
+        with:
+          ref: 04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd
+          path: retained-public-inputs
+          persist-credentials: false
+      - name: Seed fourteen exact public ARM input files
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C "$GITHUB_WORKSPACE/retained-public-inputs" rev-parse HEAD)" = 04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd
+          test "$(sha256sum retained-public-inputs/seed.py | cut -d ' ' -f 1)" = a7857658af224984065e575f6ffed8308ea85027d46eace8bda146d9033e93b3
+          test "$(sha256sum retained-public-inputs/index.json | cut -d ' ' -f 1)" = a388c8c8ba8e06cb92fd2be598b86e433c4e403b6e71a0f15b1eaec381bb7300
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC \
+            TMPDIR="$RUNNER_TEMP" \
+            python3 -I -B "$GITHUB_WORKSPACE/retained-public-inputs/seed.py" \
+              --cache "$RUNNER_TEMP/alarm-cache"
+      - name: Inert controls before the original producer
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/ci/installer-full26-generic-vm/test_full26.py
+      - name: Fresh owned original producer and full26 generic4K guest
+        id: run
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -I -B scripts/ci/installer-full26-generic-vm/job.py run \
+            --workspace "$GITHUB_WORKSPACE" --producer "$GITHUB_WORKSPACE/producer-source" \
+            --proof "$RUNNER_TEMP/full26-proof.json" --cache "$RUNNER_TEMP/alarm-cache" \
+            --tooling-inputs "$GITHUB_WORKSPACE/retained-tooling-inputs/tooling-inputs" \
+            --output "$RUNNER_TEMP/full26-owned"
+      - name: Closed bounded actual evidence including failure and cleanup
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f "$RUNNER_TEMP/full26-owned/result.json" ]; then
+            python3 -I -B scripts/ci/installer-full26-generic-vm/job.py retain \
+              --source "$RUNNER_TEMP/full26-owned" --output "$RUNNER_TEMP/full26-public"
+          fi
+      - name: Upload only the explicit public export
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: installer-full26-generic-vm-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/full26-public/
+          if-no-files-found: error
+          retention-days: 3

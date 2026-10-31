@@ -1,0 +1,7 @@
+# Signed latest607 Apps6 baseline: accepted VM scope
+
+Root accepts the separate Apps6-before607 baseline from [run40224231855](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/40224231855), source `04f4ae2f164fe6c58a4b3b31ea8ab544880d9892`. The [decision](latest607-apps6-baseline-20261025.json) is retained byte-for-byte with its [24-file public record](https://github.com/Gabriel-Kahen/cachy-asahi/tree/95d86b53df796b1b309fa5f37d04587adac5cbf8).
+
+The owned generic ARM4K VM installs the complete607-package Apps6 baseline, lock SHA256 `72818a8a2ae488281b08486b92c435ec244ef3b5313f23b97473d1684ecb68b4`. All15 installation/preservation/privilege/retirement checks pass. Root guest readback covers124513nodes with zero missing required database nodes in496.731seconds/600; QEMU exits naturally after3774.612seconds. Root joins1197 source files,4975 reader files,18 once-original leaves and10 closed public reports. Collection takes30.536seconds/900; positive replay28.381seconds/300.
+
+Private raw maps remain source-enforced and unexported; cleanup uses retained source-bound receipts. This accepted baseline and the separate [Apps16 target installation](latest607-fresh-installer-20261025.md) provide two installed prerequisites. Their acceptance does not grant the current Apps6-to16 updater, its interruption matrix, GUI, target boot/hooks, generic16K, Asahi/M2, performance or release acceptance.

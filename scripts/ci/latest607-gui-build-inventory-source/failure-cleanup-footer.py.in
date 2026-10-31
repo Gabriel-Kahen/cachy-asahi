@@ -1,0 +1,20 @@
+
+# Alias-only failures are a separate exact source-owned pre-build state.
+_original_retired=retired
+def selected_plan(containers,images,base,reference,fixture,report,active,qmp):
+    if containers or images or fixture:return plan(containers,images,base,reference,fixture)
+    need(containers==[]and images==[]and fixture is False and active is qmp is None,'no acquired GUI actors or fixture')
+    need(image(base)and type(reference)is str and re.fullmatch('cachy-asahi-desktop574-base:[a-f0-9]{32}',reference),'exact prebuild alias identity')
+    phase=report.get('build_acquisition',{});need(type(phase)is dict and type(phase.get('schema_version'))is int and phase.get('build_requested')is False,'typed prebuild phase')
+    need(report.get('build_acquisition')==dict(schema_version=1,role='runtime607',phase='ALIAS_BOUND_PRE_BUILD',build_requested=False)and report.get('commands')==[dict(argv=['docker','image','tag',base,reference],log='base-reference.log')]and report.get('frames')=={}and report.get('events')==[]and not any(k in report for k in('runtime_image','controller_image','image_build_proofs')),'only alias bound before first build intent')
+    return dict(schema_version=2,role='runtime607',phase='ALIAS_BOUND_PRE_BUILD',build_requested=False,containers=[],images=[],base_image=base,base_reference=reference,fixture=False)
+def retired(value):
+    p=value.get('resource_acquisition',{})
+    if p.get('schema_version')!=2:return _original_retired(value)
+    need(value.get('status')=='FAIL'and p==selected_plan([],[],value['base_image'],value['base_reference'],False,value,None,None),'exact alias-only failure acquisition')
+    rows=value['cleanup'];need(type(rows)is list and len(rows)==4 and [r.get('action')for r in rows]==['check-base-alias','remove-base-alias','check-base-alias-absent','check-base-image-after-alias'],'all four ordered alias retirement rows')
+    for row in rows:need(set(row)=={'action','exit','stdout','stdout_base64'},'closed alias command row');raw(row)
+    need(raw(rows[0])==(p['base_image']+'\n').encode()and raw(rows[1])==('Untagged: '+p['base_reference']+'\n').encode()and raw(rows[2])==b'','exact selected alias and fresh absence outputs')
+    listed=raw(rows[3]).decode().splitlines();need(len(set(listed))==len(listed)and all(image(v)for v in listed)and p['base_image']in listed,'borrowed base freshly present')
+    need(value['base_reference_cleanup']==dict(ok=True,base_image_present=True),'original borrowed base preservation')
+    return dict(status='PASS_FAILED_PRE_BUILD_ALIAS_RETIREMENT_ONLY',GUI='FAILED_NOT_ACCEPTED',images=[],containers=[],base_image=p['base_image'],base_reference=p['base_reference'],producer='BORROWED_NOT_REMOVED')

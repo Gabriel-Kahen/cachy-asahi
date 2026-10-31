@@ -1,0 +1,56 @@
+name: setup6-real-modules-source
+on:
+  pull_request:
+    paths: ['scripts/ci/setup6-real-modules-source/**', '.github/workflows/setup6-real-modules-source.yml']
+  push:
+    paths: ['scripts/ci/setup6-real-modules-source/**', '.github/workflows/setup6-real-modules-source.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        python: ['3.12', '3.14']
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONWARNINGS: error
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Checkout original real-module source operands
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 0bbf875369c816aab19945c3e4f63c9b1f0b61b0
+          path: fixtures/original
+          persist-credentials: false
+      - name: Checkout whole accepted Setup6 source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 141ba835bb632483342c6a7f0246c7fe0f2bc5c3
+          path: fixtures/setup6
+          persist-credentials: false
+      - name: Checkout exact native real-module source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: d41d28d870227b0256a8980d3c305287fbfb6ffb
+          path: fixtures/expected
+          persist-credentials: false
+      - name: Verify exact emission and input/output refusals
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -B -W error scripts/ci/setup6-real-modules-source/test_prepare.py \
+            --original-checkout "$GITHUB_WORKSPACE/fixtures/original" \
+            --setup6-source "$GITHUB_WORKSPACE/fixtures/setup6" \
+            --expected "$GITHUB_WORKSPACE/fixtures/expected"
+          python3 -I -B scripts/ci/setup6-real-modules-source/prepare.py \
+            --original-checkout "$GITHUB_WORKSPACE/fixtures/original" \
+            --setup6-source "$GITHUB_WORKSPACE/fixtures/setup6" \
+            --output "$RUNNER_TEMP/setup6-real-source"

@@ -136,6 +136,13 @@ def retain(base, runtime, proof, output):
              any(row.get('guest_disk_removed') is True for row in report['cleanup']), 'runtime cleanup incomplete')
         for stage in ('minimal', 'overlay'):
             need(result['frames'][stage]['sha256'] == report['frames'][stage]['sha256'], 'captured frame hash differs')
+            observer = report['frames'][stage].get('observer')
+            need(type(observer) is dict and observer.get('sha256') == result['frames'][stage]['sha256'] and
+                 observer.get('first_capture') is True and observer.get('visual_review') == 'NOT_RUN',
+                 'first normal capture receipt absent')
+            observed = [e for e in report['events'] if e.get('event') == 'frame_captured' and e.get('stage') == stage]
+            need(observed == [observer], 'retained capture/event identity differs')
+            result['frames'][stage]['observer'] = observer
         need(not result['errors'], 'public retention incomplete')
         result['status'] = 'PASS_NATIVE_METADATA_PIXELS_PENDING_VISUAL_REVIEW'
     except Exception as error:

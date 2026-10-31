@@ -1,0 +1,141 @@
+{
+  "actual_ref": null,
+  "actual_run": null,
+  "actual_source": null,
+  "base_inventory_sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+  "candidate_source": null,
+  "products": {
+    "cachy-asahi-dns": {
+      "check_markers": [
+        "Ran 21 tests",
+        "\nOK"
+      ],
+      "payload": {
+        "usr/bin/cachy-asahi-dns": [
+          "cachy-asahi-dns",
+          493
+        ],
+        "usr/share/doc/cachy-asahi-dns/README.md": [
+          "README.md",
+          420
+        ],
+        "usr/share/doc/cachy-asahi-dns/source-provenance.json": [
+          "source-provenance.json",
+          420
+        ],
+        "usr/share/licenses/cachy-asahi-dns/LICENSE": [
+          "LICENSE",
+          420
+        ],
+        "usr/share/licenses/cachy-asahi-dns/NOTICE": [
+          "NOTICE",
+          420
+        ]
+      },
+      "source_files": {
+        ".SRCINFO": {
+          "bytes": 1016,
+          "sha256": "07d5d92c9d92011f7ee9fab670d283e3889b06c248f27a4e77dfdb9f1a810098"
+        },
+        "LICENSE": {
+          "bytes": 1081,
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        },
+        "NOTICE": {
+          "bytes": 362,
+          "sha256": "1ff77dc69e120adfacea23ac77a756ff5931b888c7535f0e2f2b928114a5873e"
+        },
+        "PKGBUILD": {
+          "bytes": 1527,
+          "sha256": "9419e496146a8af5379f4bc886645943f703949274d75bcc52035acc996b251b"
+        },
+        "README.md": {
+          "bytes": 5399,
+          "sha256": "c1e0c9d4ca17e48587ad0070388c0f2c05191ee2537d079a2cca84c199d0d3d0"
+        },
+        "cachy-asahi-dns": {
+          "bytes": 12387,
+          "sha256": "86e91bee103876974c8296874c58ef9e1ea7b7e4b06c99928cda1d9f8cabca99"
+        },
+        "check_source.py": {
+          "bytes": 2430,
+          "sha256": "74fc9aa8dbba61cfaaca9cadba5f78ea080969bb2d9a58dc38f36dde35ddd7a1"
+        },
+        "source-provenance.json": {
+          "bytes": 1203,
+          "sha256": "80fc23caeb1d6b87a6ca8407106359a951cc7f880442954fde7d86647dd706ad"
+        },
+        "test_dns.py": {
+          "bytes": 11857,
+          "sha256": "f11a175e757e65959c2ed7902f041efb6be0becb772b34207cdd7b626ab50543"
+        }
+      },
+      "version": "0.1.0-1"
+    },
+    "cachy-asahi-sysctl": {
+      "check_markers": [
+        "Ran 19 tests",
+        "\nOK"
+      ],
+      "payload": {
+        "usr/bin/cachy-asahi-sysctl": [
+          "cachy-asahi-sysctl",
+          493
+        ],
+        "usr/share/doc/cachy-asahi-sysctl/README.md": [
+          "README.md",
+          420
+        ],
+        "usr/share/doc/cachy-asahi-sysctl/source-provenance.json": [
+          "source-provenance.json",
+          420
+        ],
+        "usr/share/licenses/cachy-asahi-sysctl/LICENSE": [
+          "LICENSE",
+          420
+        ],
+        "usr/share/licenses/cachy-asahi-sysctl/NOTICE": [
+          "NOTICE",
+          420
+        ]
+      },
+      "source_files": {
+        ".SRCINFO": {
+          "bytes": 882,
+          "sha256": "107e151422de3607cd3ec71679b84cad79733f626b8b321fedce29426cf32748"
+        },
+        "LICENSE": {
+          "bytes": 1081,
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        },
+        "NOTICE": {
+          "bytes": 470,
+          "sha256": "5f75cdf074f7df1736f78f3e8e654196dedabff686ea32bbe92bf95c8863c50e"
+        },
+        "PKGBUILD": {
+          "bytes": 1400,
+          "sha256": "ca35fc44379d22e3ec6b8b0d88455ab51427c48b11b0be9bb281deeda9c6e9e5"
+        },
+        "README.md": {
+          "bytes": 5062,
+          "sha256": "26de39821ec4396f2419e4c59f1f5fe1419d87510ad25b75d68150a71c5ac78f"
+        },
+        "cachy-asahi-sysctl": {
+          "bytes": 12547,
+          "sha256": "48f43f1ccd7b0c70205ddc0cf5b0da60766b25d1181fbc56447722fcff9a5dd0"
+        },
+        "source-provenance.json": {
+          "bytes": 461,
+          "sha256": "c94acfffed76fc1e9379c47ee221aea24ddd642278acad7aa4d62420dda77556"
+        },
+        "test_sysctl.py": {
+          "bytes": 12327,
+          "sha256": "e583bf9932981764adb4ade79b987ef5e2a4e7e395b732c8c948a4447b3d09c5"
+        }
+      },
+      "version": "0.1.0-1"
+    }
+  },
+  "schema_version": 1,
+  "status": "UNBOUND_SOURCE_TEMPLATE"
+}

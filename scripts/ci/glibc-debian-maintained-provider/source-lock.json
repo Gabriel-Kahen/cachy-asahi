@@ -1,0 +1,1272 @@
+{
+  "candidate": "UNBOUND_DEBIAN_2.43_7_FULL_QUILT_NEW_PROVIDER",
+  "complete_patched_tree": "aa963b6ef1d55056efbab622411d2530a636422d",
+  "debian_patch_tar": {
+    "bytes": 498952,
+    "file": "glibc_2.43-7.debian.tar.xz",
+    "sha256": "9f62b90fb4c7423ed5023698c9014ad0086d26f9b6f46b2a163afcea7e581a02"
+  },
+  "debian_version": "2.43-7",
+  "documentation": {
+    "authenticated_manual_files": [
+      "manual/Makefile"
+    ],
+    "makeinfo": ":",
+    "no_gnu_manual_reinsertion": true,
+    "omitted_files": [
+      "manual/README.pretty-printers",
+      "manual/README.tunables",
+      "manual/argp.texi",
+      "manual/arith.texi",
+      "manual/charset.texi",
+      "manual/check-deftype.sh",
+      "manual/check-safety.sh",
+      "manual/conf.texi",
+      "manual/contrib.texi",
+      "manual/creature.texi",
+      "manual/crypt.texi",
+      "manual/ctype.texi",
+      "manual/debug.texi",
+      "manual/dir",
+      "manual/dynlink.texi",
+      "manual/errno.texi",
+      "manual/examples/README",
+      "manual/examples/add.c",
+      "manual/examples/argp-ex1.c",
+      "manual/examples/argp-ex2.c",
+      "manual/examples/argp-ex3.c",
+      "manual/examples/argp-ex4.c",
+      "manual/examples/atexit.c",
+      "manual/examples/db.c",
+      "manual/examples/dir.c",
+      "manual/examples/dir2.c",
+      "manual/examples/execinfo.c",
+      "manual/examples/filecli.c",
+      "manual/examples/filesrv.c",
+      "manual/examples/fmtmsgexpl.c",
+      "manual/examples/inetcli.c",
+      "manual/examples/inetsrv.c",
+      "manual/examples/isockad.c",
+      "manual/examples/longopt.c",
+      "manual/examples/mbstouwcs.c",
+      "manual/examples/memopen.c",
+      "manual/examples/memstrm.c",
+      "manual/examples/mkdirent.c",
+      "manual/examples/mkfsock.c",
+      "manual/examples/mkisock.c",
+      "manual/examples/mygetpass.c",
+      "manual/examples/ofdlocks.c",
+      "manual/examples/pipe.c",
+      "manual/examples/popen.c",
+      "manual/examples/rprintf.c",
+      "manual/examples/search.c",
+      "manual/examples/select.c",
+      "manual/examples/setjmp.c",
+      "manual/examples/sigh1.c",
+      "manual/examples/sigusr.c",
+      "manual/examples/stpcpy.c",
+      "manual/examples/strdupa.c",
+      "manual/examples/strftim.c",
+      "manual/examples/subopt.c",
+      "manual/examples/swapcontext.c",
+      "manual/examples/termios.c",
+      "manual/examples/testopt.c",
+      "manual/examples/timespec_subtract.c",
+      "manual/examples/twalk.c",
+      "manual/fdl-1.3.texi",
+      "manual/filesys.texi",
+      "manual/freemanuals.texi",
+      "manual/getopt.texi",
+      "manual/header.texi",
+      "manual/install-plain.texi",
+      "manual/install.texi",
+      "manual/intro.texi",
+      "manual/io.texi",
+      "manual/ipc.texi",
+      "manual/job.texi",
+      "manual/lang.texi",
+      "manual/lgpl-2.1.texi",
+      "manual/libc-texinfo.sh",
+      "manual/libc.texinfo",
+      "manual/libcbook.texi",
+      "manual/llio.texi",
+      "manual/locale.texi",
+      "manual/macros.texi",
+      "manual/maint.texi",
+      "manual/math.texi",
+      "manual/memory.texi",
+      "manual/message.texi",
+      "manual/nss.texi",
+      "manual/nsswitch.texi",
+      "manual/pattern.texi",
+      "manual/pipe.texi",
+      "manual/platform.texi",
+      "manual/probes.texi",
+      "manual/process.texi",
+      "manual/resource.texi",
+      "manual/search.texi",
+      "manual/setjmp.texi",
+      "manual/signal.texi",
+      "manual/socket.texi",
+      "manual/startup.texi",
+      "manual/stdbit.texi",
+      "manual/stdio-fp.c",
+      "manual/stdio.texi",
+      "manual/string.texi",
+      "manual/summary.pl",
+      "manual/sysinfo.texi",
+      "manual/syslog.texi",
+      "manual/terminal.texi",
+      "manual/texinfo.tex",
+      "manual/texis.awk",
+      "manual/threads.texi",
+      "manual/time.texi",
+      "manual/tsort.awk",
+      "manual/tunables.texi",
+      "manual/users.texi",
+      "manual/xtract-typefun.awk"
+    ],
+    "orig_omitted_files": [
+      "manual/Makefile",
+      "manual/README.pretty-printers",
+      "manual/README.tunables",
+      "manual/argp.texi",
+      "manual/arith.texi",
+      "manual/charset.texi",
+      "manual/check-deftype.sh",
+      "manual/check-safety.sh",
+      "manual/conf.texi",
+      "manual/contrib.texi",
+      "manual/creature.texi",
+      "manual/crypt.texi",
+      "manual/ctype.texi",
+      "manual/debug.texi",
+      "manual/dir",
+      "manual/dynlink.texi",
+      "manual/errno.texi",
+      "manual/examples/README",
+      "manual/examples/add.c",
+      "manual/examples/argp-ex1.c",
+      "manual/examples/argp-ex2.c",
+      "manual/examples/argp-ex3.c",
+      "manual/examples/argp-ex4.c",
+      "manual/examples/atexit.c",
+      "manual/examples/db.c",
+      "manual/examples/dir.c",
+      "manual/examples/dir2.c",
+      "manual/examples/execinfo.c",
+      "manual/examples/filecli.c",
+      "manual/examples/filesrv.c",
+      "manual/examples/fmtmsgexpl.c",
+      "manual/examples/inetcli.c",
+      "manual/examples/inetsrv.c",
+      "manual/examples/isockad.c",
+      "manual/examples/longopt.c",
+      "manual/examples/mbstouwcs.c",
+      "manual/examples/memopen.c",
+      "manual/examples/memstrm.c",
+      "manual/examples/mkdirent.c",
+      "manual/examples/mkfsock.c",
+      "manual/examples/mkisock.c",
+      "manual/examples/mygetpass.c",
+      "manual/examples/ofdlocks.c",
+      "manual/examples/pipe.c",
+      "manual/examples/popen.c",
+      "manual/examples/rprintf.c",
+      "manual/examples/search.c",
+      "manual/examples/select.c",
+      "manual/examples/setjmp.c",
+      "manual/examples/sigh1.c",
+      "manual/examples/sigusr.c",
+      "manual/examples/stpcpy.c",
+      "manual/examples/strdupa.c",
+      "manual/examples/strftim.c",
+      "manual/examples/subopt.c",
+      "manual/examples/swapcontext.c",
+      "manual/examples/termios.c",
+      "manual/examples/testopt.c",
+      "manual/examples/timespec_subtract.c",
+      "manual/examples/twalk.c",
+      "manual/fdl-1.3.texi",
+      "manual/filesys.texi",
+      "manual/freemanuals.texi",
+      "manual/getopt.texi",
+      "manual/header.texi",
+      "manual/install-plain.texi",
+      "manual/install.texi",
+      "manual/intro.texi",
+      "manual/io.texi",
+      "manual/ipc.texi",
+      "manual/job.texi",
+      "manual/lang.texi",
+      "manual/lgpl-2.1.texi",
+      "manual/libc-texinfo.sh",
+      "manual/libc.texinfo",
+      "manual/libcbook.texi",
+      "manual/llio.texi",
+      "manual/locale.texi",
+      "manual/macros.texi",
+      "manual/maint.texi",
+      "manual/math.texi",
+      "manual/memory.texi",
+      "manual/message.texi",
+      "manual/nss.texi",
+      "manual/nsswitch.texi",
+      "manual/pattern.texi",
+      "manual/pipe.texi",
+      "manual/platform.texi",
+      "manual/probes.texi",
+      "manual/process.texi",
+      "manual/resource.texi",
+      "manual/search.texi",
+      "manual/setjmp.texi",
+      "manual/signal.texi",
+      "manual/socket.texi",
+      "manual/startup.texi",
+      "manual/stdbit.texi",
+      "manual/stdio-fp.c",
+      "manual/stdio.texi",
+      "manual/string.texi",
+      "manual/summary.pl",
+      "manual/sysinfo.texi",
+      "manual/syslog.texi",
+      "manual/terminal.texi",
+      "manual/texinfo.tex",
+      "manual/texis.awk",
+      "manual/threads.texi",
+      "manual/time.texi",
+      "manual/tsort.awk",
+      "manual/tunables.texi",
+      "manual/users.texi",
+      "manual/xtract-typefun.awk"
+    ],
+    "tests": "Debian disables tst-errno-manual, drops list-diagnostics manual comparison, redirects Hurd errno-generation dependency; full original GNU-test equivalence NOT_CLAIMED"
+  },
+  "license_provenance": {
+    "bytes": 68073,
+    "sha256": "80ad418d9e7bf47a5c5e12bed0b91ada082dbff0e933b26c68edcfbe520e16db"
+  },
+  "mount_guard_policy": {
+    "action": "SUPERSEDED_NOT_APPLIED",
+    "old_patch": "0001-mount-macro-guards.patch",
+    "reason": "Authenticated git-updates already contains upstream guarded OPEN_TREE_CLONE/CLOEXEC and bits/cloexec.h refactor; exact source pins enforce equivalent behavior"
+  },
+  "native": "NOT_RUN",
+  "orig": {
+    "bytes": 21553420,
+    "file": "glibc_2.43.orig.tar.xz",
+    "sha256": "b8f0d50a7d4255658efe1f608cacdc4be82bb3c009875626df5968cc64c58880",
+    "tree": "1fbcd978e2051d72273231f03b921b1503e0e424"
+  },
+  "package_identity": "2.43.caa3-1_UNBOUND_DISTINCT_CAA2",
+  "patch_outputs": [
+    {
+      "exit": 0,
+      "name": "git-updates.diff",
+      "stderr": "",
+      "stdout": "patching file ADVISORIES\npatching file NEWS\npatching file Rules\npatching file advisories/GLIBC-SA-2023-0001\npatching file advisories/GLIBC-SA-2023-0002\npatching file advisories/GLIBC-SA-2023-0003\npatching file advisories/GLIBC-SA-2023-0004\npatching file advisories/GLIBC-SA-2023-0005\npatching file advisories/GLIBC-SA-2024-0001\npatching file advisories/GLIBC-SA-2024-0002\npatching file advisories/GLIBC-SA-2024-0003\npatching file advisories/GLIBC-SA-2024-0004\npatching file advisories/GLIBC-SA-2024-0005\npatching file advisories/GLIBC-SA-2024-0006\npatching file advisories/GLIBC-SA-2024-0007\npatching file advisories/GLIBC-SA-2024-0008\npatching file advisories/GLIBC-SA-2025-0001\npatching file advisories/GLIBC-SA-2025-0002\npatching file advisories/GLIBC-SA-2025-0003\npatching file advisories/GLIBC-SA-2025-0004\npatching file advisories/GLIBC-SA-2025-0005\npatching file advisories/GLIBC-SA-2026-0001\npatching file advisories/GLIBC-SA-2026-0002\npatching file advisories/GLIBC-SA-2026-0003\npatching file advisories/README\npatching file elf/Makefile\npatching file elf/dl-load.c\npatching file elf/dl-path-normalize.h\npatching file elf/dl-reloc-static-pie.c\npatching file elf/dl-tunables.c\npatching file elf/libtst-origin-secure-mod.c\npatching file elf/tst-dl-path-normalize.c\npatching file elf/tst-glibc-hwcaps-prepend-cache.c\npatching file elf/tst-link-map-contiguous-ldso.c\npatching file elf/tst-origin-secure-evilmod.c\npatching file elf/tst-origin-secure-victim.c\npatching file elf/tst-origin-secure.c\npatching file elf/tst-origin-secure.h\npatching file elf/tst-origin-secure.root/postclean.req\npatching file elf/tst-rtld-list-tunables.sh\npatching file hesiod/nss_hesiod/hesiod-proto.c\npatching file hesiod/nss_hesiod/hesiod-service.c\npatching file iconv/Makefile\npatching file iconv/loop.c\npatching file iconv/tst-iconv_prog.sh\npatching file iconvdata/Makefile\npatching file iconvdata/euc-jisx0213.c\npatching file iconvdata/ibm1364.c\npatching file iconvdata/shift_jisx0213.c\npatching file iconvdata/tst-bug33980.c\npatching file iconvdata/tst-jisx0213-progress.c\npatching file include/bits/stdio2-decl.h\npatching file include/resolv.h\npatching file io/fcntl.c\npatching file libio/Makefile\npatching file libio/bug-wgenops-bz33998.c\npatching file libio/fileops.c\npatching file libio/tst-fopen-ccs-empty.c\npatching file libio/wgenops.c\npatching file malloc/malloc.c\npatching file math/auto-libm-test-in\npatching file math/auto-libm-test-out-fma\npatching file math/libm-test-ceil.inc\npatching file math/libm-test-floor.inc\npatching file math/libm-test-round.inc\npatching file math/libm-test-trunc.inc\npatching file misc/tsearch.c\npatching file nscd/aicache.c\npatching file nscd/hstcache.c\npatching file nss/Makefile\npatching file nss/nss_database.c\npatching file nss/nss_database.h\npatching file nss/nss_files/files-ethers.c\npatching file nss/nss_files/files-hosts.c\npatching file nss/nss_files/files-network.c\npatching file nss/nss_files/files-parse.c\npatching file nss/nss_files/files-proto.c\npatching file nss/nss_files/files-rpc.c\npatching file nss/nss_files/files-service.c\npatching file nss/tst-nss-malloc-failure-getlogin_r.c\npatching file po/ar.po\npatching file po/nl.po\npatching file posix/Makefile\npatching file posix/fork.c\npatching file posix/tst-wordexp-append.c\npatching file posix/tst-wordexp-tilde.c\npatching file posix/tst-wordexp-tilde.root/etc/group\npatching file posix/tst-wordexp-tilde.root/etc/nsswitch.conf\npatching file posix/tst-wordexp-tilde.root/etc/passwd\npatching file posix/wordexp.c\npatching file resolv/Makefile\npatching file resolv/ns_print.c\npatching file resolv/nss_dns/dns-host.c\npatching file resolv/res_debug.c\npatching file resolv/resolv_conf.c\npatching file resolv/tst-ns_sprintrr.c\npatching file resolv/tst-resolv-dns-section.c\npatching file resolv/tst-resolv-invalid-ptr.c\npatching file resolv/tst-resolv-res_init-skeleton.c\npatching file scripts/abilist.awk\npatching file stdio-common/Makefile\npatching file stdio-common/tst-vfscanf-bz34008.c\npatching file stdio-common/vfscanf-internal.c\npatching file stdlib/Makefile\npatching file stdlib/setenv.c\npatching file stdlib/strfmon_l.c\npatching file stdlib/tst-strfmon-bug34510.c\npatching file string/Makefile\npatching file string/test-strncasecmp-nonarray.c\npatching file sysdeps/aarch64/Makefile\npatching file sysdeps/aarch64/dl-gcs.c\npatching file sysdeps/aarch64/dl-start.S\npatching file sysdeps/aarch64/multiarch/dl-symbol-redir-ifunc.h\npatching file sysdeps/aarch64/multiarch/strlen_generic.S\npatching file sysdeps/alpha/Makefile\npatching file sysdeps/alpha/fpu/bits/fenv.h\npatching file sysdeps/arm/Makefile\npatching file sysdeps/arm/dl-trampoline.S\npatching file sysdeps/arm/tst-bz34144-audit.c\npatching file sysdeps/arm/tst-bz34144-auditmod.c\npatching file sysdeps/arm/tst-bz34144-mod.c\npatching file sysdeps/arm/tst-bz34144.c\npatching file sysdeps/hppa/fpu/feupdateenv.c\npatching file sysdeps/ieee754/dbl-64/s_fma.c\npatching file sysdeps/ieee754/ldbl-128ibm/s_ceill.c\npatching file sysdeps/ieee754/ldbl-128ibm/s_floorl.c\npatching file sysdeps/ieee754/ldbl-128ibm/s_roundl.c\npatching file sysdeps/ieee754/ldbl-128ibm/s_truncl.c\npatching file sysdeps/loongarch/lp64/multiarch/dl-symbol-redir-ifunc.h\npatching file sysdeps/m68k/m680x0/fpu/e_fmod.c\npatching file sysdeps/m68k/m680x0/fpu/e_fmodf.c\npatching file sysdeps/m68k/m680x0/fpu/w_fmod_compat.c\npatching file sysdeps/mach/hurd/bits/ioctls.h\npatching file sysdeps/mach/hurd/bits/socket.h\npatching file sysdeps/powerpc/nptl/bits/struct_mutex.h\npatching file sysdeps/powerpc/powerpc64/le/power10/memchr.S\npatching file sysdeps/powerpc/powerpc64/multiarch/Makefile\npatching file sysdeps/powerpc/powerpc64/multiarch/ifunc-impl-list.c\npatching file sysdeps/powerpc/powerpc64/multiarch/memchr-power10.S\npatching file sysdeps/powerpc/powerpc64/multiarch/memchr.c\npatching file sysdeps/powerpc/powerpc64/power8/strcasecmp.S\npatching file sysdeps/riscv/multiarch/dl-symbol-redir-ifunc.h\npatching file sysdeps/s390/fpu/bits/fenv.h\npatching file sysdeps/s390/nptl/bits/struct_mutex.h\npatching file sysdeps/unix/sysv/linux/Makefile\npatching file sysdeps/unix/sysv/linux/aarch64/Makefile\npatching file sysdeps/unix/sysv/linux/aarch64/libc-start.h\npatching file sysdeps/unix/sysv/linux/aarch64/tst-gcs-execv.c\npatching file sysdeps/unix/sysv/linux/aarch64/tst-gcs-fork.c\npatching file sysdeps/unix/sysv/linux/aarch64/tst-gcs-helper.h\npatching file sysdeps/unix/sysv/linux/aarch64/tst-gcs-lock-ptrace.c\npatching file sysdeps/unix/sysv/linux/aarch64/tst-gcs-lock-static.c\npatching file sysdeps/unix/sysv/linux/aarch64/tst-gcs-lock.c\npatching file sysdeps/unix/sysv/linux/aarch64/tst-gcs-unlock-static.c\npatching file sysdeps/unix/sysv/linux/aarch64/tst-gcs-unlock.c\npatching file sysdeps/unix/sysv/linux/alpha/bits/cloexec.h\npatching file sysdeps/unix/sysv/linux/alpha/makecontext.S\npatching file sysdeps/unix/sysv/linux/alpha/setrlimit64.c\npatching file sysdeps/unix/sysv/linux/bits/cloexec.h\npatching file sysdeps/unix/sysv/linux/bits/fcntl-linux.h\npatching file sysdeps/unix/sysv/linux/getlogin_r.c\npatching file sysdeps/unix/sysv/linux/hppa/bits/cloexec.h\npatching file sysdeps/unix/sysv/linux/openat2.c\npatching file sysdeps/unix/sysv/linux/riscv/multiarch/Makefile\npatching file sysdeps/unix/sysv/linux/sparc/bits/cloexec.h\npatching file sysdeps/unix/sysv/linux/sys/mount.h\npatching file sysdeps/unix/sysv/linux/tst-mount.c\npatching file sysdeps/unix/sysv/linux/tst-rseq.c\npatching file sysdeps/x86/dl-cacheinfo.h\npatching file sysdeps/x86/nptl/bits/struct_mutex.h\npatching file sysdeps/x86_64/multiarch/dl-symbol-redir-ifunc.h\npatching file timezone/zic.c\n"
+    },
+    {
+      "exit": 0,
+      "name": "locale/check-unknown-symbols.diff",
+      "stderr": "",
+      "stdout": "patching file locale/programs/ld-collate.c\nHunk #1 succeeded at 3515 (offset 17 lines).\n"
+    },
+    {
+      "exit": 0,
+      "name": "locale/locale-print-LANGUAGE.diff",
+      "stderr": "",
+      "stdout": "patching file locale/programs/locale.c\nHunk #1 succeeded at 797 (offset 4 lines).\npatching file locale/tst-locale-locpath.sh\n"
+    },
+    {
+      "exit": 0,
+      "name": "locale/LC_IDENTIFICATION-optional-fields.diff",
+      "stderr": "",
+      "stdout": "patching file locale/programs/ld-identification.c\nHunk #1 succeeded at 144 (offset -1 lines).\nHunk #2 succeeded at 157 (offset -1 lines).\n"
+    },
+    {
+      "exit": 0,
+      "name": "localedata/sort-UTF8-first.diff",
+      "stderr": "",
+      "stdout": "patching file localedata/SUPPORTED\nHunk #1 succeeded at 261 (offset 1 line).\nHunk #2 succeeded at 281 (offset 1 line).\nHunk #3 succeeded at 292 (offset 1 line).\nHunk #4 succeeded at 386 (offset 3 lines).\nHunk #5 succeeded at 474 (offset 4 lines).\nHunk #6 succeeded at 488 (offset 4 lines).\n"
+    },
+    {
+      "exit": 0,
+      "name": "localedata/supported.diff",
+      "stderr": "",
+      "stdout": "patching file localedata/SUPPORTED\nHunk #2 succeeded at 159 (offset 1 line).\nHunk #3 succeeded at 290 (offset 2 lines).\nHunk #4 succeeded at 392 (offset 5 lines).\nHunk #5 succeeded at 437 (offset 8 lines).\n"
+    },
+    {
+      "exit": 0,
+      "name": "localedata/locale-eu_FR.diff",
+      "stderr": "",
+      "stdout": "patching file localedata/locales/eu_FR\npatching file localedata/SUPPORTED\nHunk #1 succeeded at 214 (offset 23 lines).\npatching file localedata/locales/eu_FR@euro\n"
+    },
+    {
+      "exit": 0,
+      "name": "localedata/locale-ku_TR.diff",
+      "stderr": "",
+      "stdout": "patching file localedata/locales/ku_TR\n"
+    },
+    {
+      "exit": 0,
+      "name": "localedata/fo_FO-date_fmt.diff",
+      "stderr": "",
+      "stdout": "patching file localedata/locales/fo_FO\n"
+    },
+    {
+      "exit": 0,
+      "name": "localedata/locales-fr.diff",
+      "stderr": "",
+      "stdout": "patching file localedata/locales/fr_BE\nHunk #1 succeeded at 141 (offset 1 line).\nHunk #2 succeeded at 151 (offset 1 line).\npatching file localedata/locales/fr_CH\nHunk #1 succeeded at 124 (offset 1 line).\nHunk #2 succeeded at 134 (offset 1 line).\npatching file localedata/locales/fr_FR\nHunk #1 succeeded at 159 (offset 1 line).\nHunk #2 succeeded at 172 (offset 1 line).\npatching file localedata/locales/fr_LU\nHunk #1 succeeded at 140 (offset 1 line).\nHunk #2 succeeded at 150 (offset 1 line).\n"
+    },
+    {
+      "exit": 0,
+      "name": "localedata/locale-en_DK.diff",
+      "stderr": "",
+      "stdout": "patching file localedata/SUPPORTED\nHunk #1 succeeded at 137 (offset 3 lines).\npatching file localedata/locales/en_DK\nHunk #2 succeeded at 137 (offset 1 line).\n"
+    },
+    {
+      "exit": 0,
+      "name": "localedata/locale-zh_TW.diff",
+      "stderr": "",
+      "stdout": "patching file localedata/locales/zh_TW\n"
+    },
+    {
+      "exit": 0,
+      "name": "localedata/tailor-iso14651_t1.diff",
+      "stderr": "",
+      "stdout": "patching file localedata/locales/ar_SA\npatching file localedata/locales/sl_SI\n"
+    },
+    {
+      "exit": 0,
+      "name": "localedata/submitted-es_MX-decimal_point.diff",
+      "stderr": "",
+      "stdout": "patching file localedata/locales/es_MX\n"
+    },
+    {
+      "exit": 0,
+      "name": "alpha/local-gcc4.1.diff",
+      "stderr": "",
+      "stdout": "patching file sysdeps/unix/sysv/linux/alpha/ioperm.c\nHunk #1 succeeded at 176 (offset -1 lines).\nHunk #2 succeeded at 349 (offset -6 lines).\nHunk #3 succeeded at 359 (offset -6 lines).\n"
+    },
+    {
+      "exit": 0,
+      "name": "alpha/submitted-dl-support.diff",
+      "stderr": "",
+      "stdout": "patching file sysdeps/unix/sysv/linux/alpha/dl-support.c\n"
+    },
+    {
+      "exit": 0,
+      "name": "alpha/submitted-fts64.diff",
+      "stderr": "",
+      "stdout": "patching file sysdeps/unix/sysv/linux/alpha/fts.c\npatching file sysdeps/unix/sysv/linux/alpha/fts64.c\n"
+    },
+    {
+      "exit": 0,
+      "name": "alpha/submitted-makecontext.diff",
+      "stderr": "",
+      "stdout": "patching file sysdeps/unix/sysv/linux/alpha/makecontext.S\nHunk #1 succeeded at 141 (offset 3 lines).\nHunk #2 succeeded at 167 (offset 3 lines).\n"
+    },
+    {
+      "exit": 0,
+      "name": "arm/local-sigaction.diff",
+      "stderr": "",
+      "stdout": "patching file sysdeps/unix/sysv/linux/arm/libc_sigaction.c\n"
+    },
+    {
+      "exit": 0,
+      "name": "arm/unsubmitted-ldso-multilib.diff",
+      "stderr": "",
+      "stdout": "patching file elf/dl-load.c\nHunk #1 succeeded at 1615 (offset -91 lines).\n"
+    },
+    {
+      "exit": 0,
+      "name": "arm/local-arm-futex.diff",
+      "stderr": "",
+      "stdout": "patching file sysdeps/unix/sysv/linux/arm/kernel-features.h\nHunk #1 succeeded at 23 (offset -14 lines).\n"
+    },
+    {
+      "exit": 0,
+      "name": "hurd-i386/local-pthread_once.diff",
+      "stderr": "",
+      "stdout": "patching file sysdeps/htl/pt-once.c\npatching file sysdeps/mach/hurd/i386/libc.abilist\nHunk #1 succeeded at 2653 (offset 65 lines).\npatching file sysdeps/mach/hurd/x86_64/libc.abilist\nHunk #1 succeeded at 2330 (offset 59 lines).\npatching file htl/Versions\nHunk #1 succeeded at 201 (offset 53 lines).\n"
+    },
+    {
+      "exit": 0,
+      "name": "hurd-i386/local-64b-align.diff",
+      "stderr": "",
+      "stdout": "patching file mach/Makefile\npatching file hurd/Makefile\nHunk #1 succeeded at 183 (offset 1 line).\n"
+    },
+    {
+      "exit": 0,
+      "name": "hurd-i386/local-enable-ldconfig.diff",
+      "stderr": "",
+      "stdout": "patching file sysdeps/mach/hurd/configure\npatching file sysdeps/mach/hurd/configure.ac\n"
+    },
+    {
+      "exit": 0,
+      "name": "hurd-i386/tg-sysvshm.diff",
+      "stderr": "",
+      "stdout": "patching file hurd/Makefile\nHunk #1 succeeded at 120 (offset 5 lines).\npatching file hurd/sysvshm.c\npatching file hurd/sysvshm.h\npatching file sysdeps/mach/hurd/ftok.c\npatching file sysdeps/mach/hurd/shmat.c\npatching file sysdeps/mach/hurd/shmctl.c\npatching file sysdeps/mach/hurd/shmdt.c\npatching file sysdeps/mach/hurd/shmget.c\npatching file sysdeps/mach/hurd/bits/posix_opt.h\n"
+    },
+    {
+      "exit": 0,
+      "name": "hurd-i386/tg-thread-cancel.diff",
+      "stderr": "",
+      "stdout": "patching file hurd/hurdexec.c\nHunk #1 succeeded at 128 (offset 5 lines).\npatching file hurd/thread-cancel.c\nHunk #1 succeeded at 42 (offset -9 lines).\nHunk #2 succeeded at 81 (offset -9 lines).\npatching file sysdeps/mach/hurd/jmp-unwind.c\nHunk #1 succeeded at 47 (offset -2 lines).\npatching file sysdeps/mach/hurd/spawni.c\n"
+    },
+    {
+      "exit": 0,
+      "name": "hurd-i386/local-disable-ioctls.diff",
+      "stderr": "",
+      "stdout": "patching file sysdeps/mach/hurd/bits/ioctls.h\n"
+    },
+    {
+      "exit": 0,
+      "name": "hurd-i386/tg-sendmsg-SCM_CREDS.diff",
+      "stderr": "",
+      "stdout": "patching file sysdeps/mach/hurd/recvmsg.c\nHunk #2 succeeded at 333 (offset 5 lines).\nHunk #3 succeeded at 378 (offset 5 lines).\npatching file sysdeps/mach/hurd/sendmsg.c\nHunk #2 succeeded at 112 (offset -3 lines).\nHunk #3 succeeded at 148 (offset -3 lines).\npatching file hurd/Makefile\nHunk #1 succeeded at 50 (offset 5 lines).\n"
+    },
+    {
+      "exit": 0,
+      "name": "hurd-i386/tg-mach-hurd-link.diff",
+      "stderr": "",
+      "stdout": "patching file Makerules\nHunk #1 succeeded at 1025 (offset -41 lines).\n"
+    },
+    {
+      "exit": 0,
+      "name": "hurd-i386/local-ED.diff",
+      "stderr": "",
+      "stdout": "patching file sysdeps/mach/hurd/bits/errno.h\nHunk #1 succeeded at 112 (offset 1 line).\nHunk #2 succeeded at 312 (offset -4 lines).\n"
+    },
+    {
+      "exit": 0,
+      "name": "hurd-i386/local-madvise_warn.diff",
+      "stderr": "",
+      "stdout": "patching file misc/madvise.c\npatching file posix/posix_madvise.c\n"
+    },
+    {
+      "exit": 0,
+      "name": "hurd-i386/local-usr.diff",
+      "stderr": "",
+      "stdout": "patching file sysdeps/mach/hurd/i386/libc.abilist\nHunk #1 succeeded at 727 (offset 86 lines).\npatching file sysdeps/mach/hurd/x86_64/libc.abilist\nHunk #1 succeeded at 610 (offset 2 lines).\n"
+    },
+    {
+      "exit": 0,
+      "name": "hurd-i386/tg-ifaddrs_v6.diff",
+      "stderr": "",
+      "stdout": "patching file sysdeps/mach/hurd/ifaddrs.c\n"
+    },
+    {
+      "exit": 0,
+      "name": "hurd-i386/unsubmitted-clock_t_centiseconds.diff",
+      "stderr": "",
+      "stdout": "patching file sysdeps/mach/hurd/getclktck.c\npatching file sysdeps/mach/hurd/setitimer.c\nHunk #1 succeeded at 44 (offset 1 line).\npatching file sysdeps/mach/hurd/times.c\n"
+    },
+    {
+      "exit": 0,
+      "name": "hurd-i386/submitted-bind_umask2.diff",
+      "stderr": "",
+      "stdout": "patching file sysdeps/mach/hurd/bind.c\n"
+    },
+    {
+      "exit": 0,
+      "name": "hurd-i386/tg-bootstrap.diff",
+      "stderr": "",
+      "stdout": "patching file sysdeps/mach/Makefile\n"
+    },
+    {
+      "exit": 0,
+      "name": "hurd-i386/tg-libc_rwlock_recursive.diff",
+      "stderr": "",
+      "stdout": "patching file sysdeps/mach/libc-lock.h\nHunk #1 succeeded at 146 (offset -5 lines).\n"
+    },
+    {
+      "exit": 0,
+      "name": "hurd-i386/local-no_unsupported_ioctls.diff",
+      "stderr": "",
+      "stdout": "patching file sysdeps/mach/hurd/bits/ioctls.h\nHunk #2 succeeded at 330 (offset -2 lines).\nHunk #3 succeeded at 385 (offset -2 lines).\nHunk #4 succeeded at 412 (offset -2 lines).\n"
+    },
+    {
+      "exit": 0,
+      "name": "hurd-i386/local-stack_chk_guard.diff",
+      "stderr": "",
+      "stdout": "patching file sysdeps/mach/hurd/dl-sysdep.c\nHunk #1 succeeded at 65 (offset -3 lines).\npatching file sysdeps/mach/hurd/i386/ld.abilist\npatching file sysdeps/mach/hurd/x86_64/ld.abilist\n"
+    },
+    {
+      "exit": 0,
+      "name": "hurd-i386/git-fork-gdb.diff",
+      "stderr": "",
+      "stdout": "patching file sysdeps/mach/hurd/_Fork.c\n"
+    },
+    {
+      "exit": 0,
+      "name": "hurd-i386/git-sig-sig-mmx-fix.diff",
+      "stderr": "",
+      "stdout": "patching file sysdeps/mach/hurd/i386/bits/sigcontext.h\npatching file sysdeps/mach/hurd/x86/trampoline.c\npatching file sysdeps/mach/hurd/x86_64/bits/sigcontext.h\n"
+    },
+    {
+      "exit": 0,
+      "name": "hurd-i386/git-cancel-sig.diff",
+      "stderr": "",
+      "stdout": "patching file htl/cancellation.c\npatching file htl/pt-cancel.c\npatching file htl/pt-internal.h\npatching file htl/pt-setcancelstate.c\npatching file htl/pt-setcanceltype.c\npatching file htl/pt-testcancel.c\npatching file sysdeps/htl/pt-cond-timedwait.c\nHunk #5 succeeded at 205 (offset -4 lines).\nHunk #6 succeeded at 213 (offset -4 lines).\npatching file sysdeps/mach/hurd/htl/pt-docancel.c\n"
+    },
+    {
+      "exit": 0,
+      "name": "hurd-i386/git-mach_send_eintr.diff",
+      "stderr": "",
+      "stdout": "patching file hurd/intr-msg.c\n"
+    },
+    {
+      "exit": 0,
+      "name": "hurd-i386/git-itimer-lock.diff",
+      "stderr": "",
+      "stdout": "patching file sysdeps/mach/hurd/setitimer.c\n"
+    },
+    {
+      "exit": 0,
+      "name": "hurd-i386/git-posix-timers.diff",
+      "stderr": "",
+      "stdout": "patching file sysdeps/mach/hurd/bits/posix_opt.h\n"
+    },
+    {
+      "exit": 0,
+      "name": "hurd-i386/git-sig-alarm.diff",
+      "stderr": "",
+      "stdout": "patching file hurd/hurdsig.c\n"
+    },
+    {
+      "exit": 0,
+      "name": "hurd-i386/git-libio-mtsafe.diff",
+      "stderr": "",
+      "stdout": "patching file htl/pt-create.c\n"
+    },
+    {
+      "exit": 0,
+      "name": "hurd-i386/git-timedrwlock-unlock.diff",
+      "stderr": "",
+      "stdout": "patching file sysdeps/htl/pt-rwlock-timedrdlock.c\npatching file sysdeps/htl/pt-rwlock-timedwrlock.c\n"
+    },
+    {
+      "exit": 0,
+      "name": "hurd-i386/git-sigtimedwait-timeout.diff",
+      "stderr": "",
+      "stdout": "patching file signal/Makefile\npatching file signal/tst-sigtimedwait-timeout.c\npatching file sysdeps/mach/hurd/sigtimedwait.c\n"
+    },
+    {
+      "exit": 0,
+      "name": "hurd-i386/git-MSG_EXAMINE.diff",
+      "stderr": "",
+      "stdout": "patching file hurd/report-wait.c\npatching file sysdeps/mach/hurd/i386/intr-msg.h\npatching file sysdeps/mach/hurd/x86_64/intr-msg.h\n"
+    },
+    {
+      "exit": 0,
+      "name": "hurd-i386/git-interrupt-EINTR.diff",
+      "stderr": "",
+      "stdout": "patching file hurd/hurdsig.c\n"
+    },
+    {
+      "exit": 0,
+      "name": "hurd-i386/git-SEM_FAILED.diff",
+      "stderr": "",
+      "stdout": "patching file sysdeps/htl/bits/semaphore.h\n"
+    },
+    {
+      "exit": 0,
+      "name": "hurd-i386/git-tst-fix.diff",
+      "stderr": "",
+      "stdout": "patching file elf/tst-link-map-contiguous-ldso.c\n"
+    },
+    {
+      "exit": 0,
+      "name": "hurd-i386/git-SO_TIMESTAMP.diff",
+      "stderr": "",
+      "stdout": "patching file sysdeps/mach/hurd/bits/socket.h\n"
+    },
+    {
+      "exit": 0,
+      "name": "hurd-i386/git-path_mounted.diff",
+      "stderr": "",
+      "stdout": "patching file sysdeps/generic/paths.h\n"
+    },
+    {
+      "exit": 0,
+      "name": "hurd-i386/git-timedblock-signal.diff",
+      "stderr": "",
+      "stdout": "patching file sysdeps/mach/htl/pt-timedblock.c\n"
+    },
+    {
+      "exit": 0,
+      "name": "hurd-i386/git-time_bits_i386.diff",
+      "stderr": "",
+      "stdout": "patching file sysdeps/mach/hurd/i386/features-time64.h\n"
+    },
+    {
+      "exit": 0,
+      "name": "hurd-i386/git-time_bits_i386_32.diff",
+      "stderr": "",
+      "stdout": "patching file Makeconfig\nHunk #1 succeeded at 929 (offset -30 lines).\npatching file Makerules\nHunk #1 succeeded at 1201 (offset -66 lines).\npatching file io/Makefile\nHunk #1 succeeded at 306 (offset -3 lines).\npatching file login/Makefile\npatching file support/Makefile\nHunk #1 succeeded at 265 (offset -33 lines).\npatching file sysdeps/mach/hurd/i386/Makefile\n"
+    },
+    {
+      "exit": 0,
+      "name": "hurd-i386/git-setreugid.diff",
+      "stderr": "",
+      "stdout": "patching file sysdeps/mach/hurd/setregid.c\npatching file sysdeps/mach/hurd/setreuid.c\n"
+    },
+    {
+      "exit": 0,
+      "name": "i386/local-biarch.diff",
+      "stderr": "",
+      "stdout": "patching file sysdeps/unix/sysv/linux/i386/dl-cache.h\n"
+    },
+    {
+      "exit": 0,
+      "name": "i386/unsubmitted-quiet-ldconfig.diff",
+      "stderr": "",
+      "stdout": "patching file sysdeps/x86/readelflib.c\n"
+    },
+    {
+      "exit": 0,
+      "name": "i386/local-setcontext-revert-eax-ecx-edx.patch",
+      "stderr": "",
+      "stdout": "patching file sysdeps/unix/sysv/linux/i386/getcontext.S\npatching file sysdeps/unix/sysv/linux/i386/setcontext.S\npatching file sysdeps/unix/sysv/linux/i386/swapcontext.S\npatching file sysdeps/unix/sysv/linux/i386/ucontext_i.sym\n"
+    },
+    {
+      "exit": 0,
+      "name": "m68k/local-reloc.diff",
+      "stderr": "",
+      "stdout": "patching file sysdeps/m68k/dl-machine.h\nHunk #1 succeeded at 313 (offset 1 line).\n"
+    },
+    {
+      "exit": 0,
+      "name": "mips/submitted-rld_map.diff",
+      "stderr": "",
+      "stdout": "patching file sysdeps/mips/dl-debug.h\n"
+    },
+    {
+      "exit": 0,
+      "name": "powerpc/local-powerpc8xx-dcbz.diff",
+      "stderr": "",
+      "stdout": "patching file sysdeps/unix/sysv/linux/powerpc/dl-auxv.h\n"
+    },
+    {
+      "exit": 0,
+      "name": "sh4/local-fpscr_values.diff",
+      "stderr": "",
+      "stdout": "patching file sysdeps/unix/sysv/linux/sh/sysdep.S\npatching file sysdeps/unix/sysv/linux/sh/Versions\nHunk #1 succeeded at 3 (offset 1 line).\npatching file sysdeps/unix/sysv/linux/sh/le/libc.abilist\nHunk #1 succeeded at 307 (offset 40 lines).\n"
+    },
+    {
+      "exit": 0,
+      "name": "all/local-remove-manual.diff",
+      "stderr": "",
+      "stdout": "patching file manual/Makefile\npatching file stdio-common/Makefile\nHunk #1 succeeded at 490 (offset 155 lines).\npatching file sysdeps/mach/hurd/Makefile\npatching file elf/Makefile\nHunk #1 succeeded at 3074 (offset 241 lines).\n"
+    },
+    {
+      "exit": 0,
+      "name": "all/local-ldd.diff",
+      "stderr": "",
+      "stdout": "patching file elf/ldd.bash.in\n"
+    },
+    {
+      "exit": 0,
+      "name": "any/local-asserth-decls.diff",
+      "stderr": "",
+      "stdout": "patching file assert/assert.h\n"
+    },
+    {
+      "exit": 0,
+      "name": "any/local-fhs-linux-paths.diff",
+      "stderr": "",
+      "stdout": "patching file sysdeps/unix/sysv/linux/paths.h\npatching file sysdeps/generic/paths.h\n"
+    },
+    {
+      "exit": 0,
+      "name": "any/local-fhs-nscd.diff",
+      "stderr": "",
+      "stdout": "patching file nscd/nscd.h\nHunk #1 succeeded at 160 (offset 48 lines).\n"
+    },
+    {
+      "exit": 0,
+      "name": "any/local-ld-multiarch.diff",
+      "stderr": "",
+      "stdout": "patching file Makeconfig\nHunk #1 succeeded at 153 (offset 17 lines).\nHunk #2 succeeded at 665 (offset 71 lines).\npatching file elf/Makefile\nHunk #1 succeeded at 1585 (offset 1078 lines).\n"
+    },
+    {
+      "exit": 0,
+      "name": "any/local-stubs_h.diff",
+      "stderr": "",
+      "stdout": "patching file include/stubs-prologue.h\n"
+    },
+    {
+      "exit": 0,
+      "name": "any/local-tcsetaddr.diff",
+      "stderr": "",
+      "stdout": "patching file sysdeps/unix/sysv/linux/tcsetattr.c\n"
+    },
+    {
+      "exit": 0,
+      "name": "any/local-nss-overflow.diff",
+      "stderr": "",
+      "stdout": "patching file nss/nss_files/files-parse.c\n"
+    },
+    {
+      "exit": 0,
+      "name": "any/submitted-missing-etc-hosts.diff",
+      "stderr": "",
+      "stdout": "patching file nss/nss_files/files-hosts.c\nHunk #1 succeeded at 493 (offset 14 lines).\n"
+    },
+    {
+      "exit": 0,
+      "name": "any/local-ldconfig-multiarch.diff",
+      "stderr": "",
+      "stdout": "patching file elf/ldconfig.c\nHunk #2 succeeded at 1296 (offset 15 lines).\n"
+    },
+    {
+      "exit": 0,
+      "name": "any/local-disable-libnss-db.diff",
+      "stderr": "",
+      "stdout": "patching file nss/Makefile\nHunk #1 succeeded at 387 (offset 326 lines).\n"
+    },
+    {
+      "exit": 0,
+      "name": "any/local-revert-bz13979.diff",
+      "stderr": "",
+      "stdout": "patching file include/features.h\nHunk #1 succeeded at 446 (offset 39 lines).\n"
+    },
+    {
+      "exit": 0,
+      "name": "any/unsubmitted-ldso-machine-mismatch.diff",
+      "stderr": "",
+      "stdout": "patching file elf/dl-load.c\nHunk #1 succeeded at 1626 (offset -91 lines).\n"
+    },
+    {
+      "exit": 0,
+      "name": "any/local-ldconfig-ignore-ld.so.diff",
+      "stderr": "",
+      "stdout": "patching file elf/ldconfig.c\nHunk #1 succeeded at 459 (offset 9 lines).\nHunk #2 succeeded at 488 (offset 9 lines).\nHunk #3 succeeded at 517 (offset 9 lines).\n"
+    },
+    {
+      "exit": 0,
+      "name": "any/local-bootstrap-headers.diff",
+      "stderr": "",
+      "stdout": "patching file include/stubs-bootstrap.h\npatching file Makefile\nHunk #1 succeeded at 448 (offset 271 lines).\nHunk #2 succeeded at 463 (offset 271 lines).\nHunk #3 succeeded at 479 (offset 271 lines).\n"
+    },
+    {
+      "exit": 0,
+      "name": "any/local-test-install.diff",
+      "stderr": "",
+      "stdout": "patching file Makefile\nHunk #1 succeeded at 683 (offset 65 lines).\n"
+    },
+    {
+      "exit": 0,
+      "name": "any/local-cross.patch",
+      "stderr": "",
+      "stdout": "patching file malloc/Makefile\nHunk #1 succeeded at 362 (offset 101 lines).\nHunk #2 succeeded at 377 (offset 101 lines).\n"
+    },
+    {
+      "exit": 0,
+      "name": "project/0002-held-builder-test-expectations.patch",
+      "stderr": "",
+      "stdout": "patching file elf/Makefile\nHunk #1 succeeded at 1159 (offset -1 lines).\npatching file conform/Makefile\n"
+    }
+  ],
+  "prepared_tree": "08ea2aef96bd3144cf02cbc68cbbb003dc25ed9f",
+  "project_patch": {
+    "path": "0002-held-builder-test-expectations.patch",
+    "pin": {
+      "bytes": 1169,
+      "sha256": "f730c778ba51f9e525c9f6a7949a76af00364d49f41eedb5d73b8e86a3d4c132"
+    }
+  },
+  "quilt_manifest_pin": {
+    "bytes": 4059676,
+    "sha256": "f4a6627fd797e76efb50b7cb84be88d34827b88983b74bc9d5c6c172e78c97fa"
+  },
+  "release": "NOT_ADMITTED",
+  "schema": 1,
+  "security_currency": "NOT_ESTABLISHED",
+  "series": {
+    "bytes": 2718,
+    "count": 84,
+    "patches": [
+      {
+        "bytes": 541265,
+        "name": "git-updates.diff",
+        "sha256": "5b9bca7b5d42a3051015230f43db91d59746c96a4de33922db31eb5bb671b28e"
+      },
+      {
+        "bytes": 1136,
+        "name": "locale/check-unknown-symbols.diff",
+        "sha256": "1e012e5e754684ace8d1906e350598a68e481bf04bae23721d114ea37f9a5860"
+      },
+      {
+        "bytes": 1131,
+        "name": "locale/locale-print-LANGUAGE.diff",
+        "sha256": "7380447b8f845724bb7aa66e6a5b30098e3aecad6d1c748d0391218891ecf033"
+      },
+      {
+        "bytes": 1052,
+        "name": "locale/LC_IDENTIFICATION-optional-fields.diff",
+        "sha256": "0d34232f355bcef85e0dbb2cd989b05b256338512b7d4f9955b3da2cd2143c1e"
+      },
+      {
+        "bytes": 1546,
+        "name": "localedata/sort-UTF8-first.diff",
+        "sha256": "03f3214e4b1df6d7cd05a40881f7ab7c0843b125ccc3f455169e41a634911f5c"
+      },
+      {
+        "bytes": 1482,
+        "name": "localedata/supported.diff",
+        "sha256": "f10d7153e7f2e91c6a078fd690e466250c60cb9b54f7967aa8ec70d4697cb91e"
+      },
+      {
+        "bytes": 3832,
+        "name": "localedata/locale-eu_FR.diff",
+        "sha256": "ffb46b48511ee84cf343682f7bdadd1c19e278520c156fece975fd4064292fb3"
+      },
+      {
+        "bytes": 2751,
+        "name": "localedata/locale-ku_TR.diff",
+        "sha256": "f509f475f69f08a785440e40a0c112bb1d13f34631496883456d377c2f031784"
+      },
+      {
+        "bytes": 726,
+        "name": "localedata/fo_FO-date_fmt.diff",
+        "sha256": "4f7c6c5644fe6669563584b770406005cac0d8edd7e8212242492fb1a0c05c96"
+      },
+      {
+        "bytes": 2049,
+        "name": "localedata/locales-fr.diff",
+        "sha256": "6553fa58f80b7f9202d8b32b32ca477e31c8dbda724235c13e28d84820d7c58e"
+      },
+      {
+        "bytes": 1525,
+        "name": "localedata/locale-en_DK.diff",
+        "sha256": "60886407b1a099a1944bee532ae7fa5e021bc6accaaee2e19c5806e79b03bcd9"
+      },
+      {
+        "bytes": 547,
+        "name": "localedata/locale-zh_TW.diff",
+        "sha256": "da2a0d947d065fbfeb39f5ba69482e6fffb5340ba52d101a84dec4e2c2ba365a"
+      },
+      {
+        "bytes": 85111,
+        "name": "localedata/tailor-iso14651_t1.diff",
+        "sha256": "6d0cd73fc196be181b8605f3db9417da3fd371d86f70365052c89ffafe5d6162"
+      },
+      {
+        "bytes": 498,
+        "name": "localedata/submitted-es_MX-decimal_point.diff",
+        "sha256": "b16bf4fb56c3c8a48317a3e926bb742c94a52e38f02c516d61dda2c2bba3c455"
+      },
+      {
+        "bytes": 1831,
+        "name": "alpha/local-gcc4.1.diff",
+        "sha256": "9f2bb61ef79d39ebd75e2988541c5e0e7cdd52e2c8d0caa913e8ef457f9a4fed"
+      },
+      {
+        "bytes": 629,
+        "name": "alpha/submitted-dl-support.diff",
+        "sha256": "e1f29d99b180314d205c04995ea9e66762307f549df579f9caa2040f8332952d"
+      },
+      {
+        "bytes": 341,
+        "name": "alpha/submitted-fts64.diff",
+        "sha256": "fd5c7265ab941829881ee57a1e3b3ac26d55f5478430cd2a8f14bc6f8ee36998"
+      },
+      {
+        "bytes": 675,
+        "name": "alpha/submitted-makecontext.diff",
+        "sha256": "850621247bac6c82a88d85b71b426accd277bda5b57c2c19708eca6a8e499f28"
+      },
+      {
+        "bytes": 855,
+        "name": "arm/local-sigaction.diff",
+        "sha256": "3927c011f6971adf4f164cd5522976e3078d0efa3cfcf5c90cb930fb798701c6"
+      },
+      {
+        "bytes": 602,
+        "name": "arm/unsubmitted-ldso-multilib.diff",
+        "sha256": "af842dd5fc858cefbcbeb7371c49d149f3f76d845cfc891a8905839100d3eae4"
+      },
+      {
+        "bytes": 1035,
+        "name": "arm/local-arm-futex.diff",
+        "sha256": "627c5938baf5ccb990525e2ba2ee71de3db63a70fa1bc04000b5cbda439f710c"
+      },
+      {
+        "bytes": 2159,
+        "name": "hurd-i386/local-pthread_once.diff",
+        "sha256": "d275ce31355e21c5257f848436f54b8614cc51805b45b28131324a0ed55960c7"
+      },
+      {
+        "bytes": 1932,
+        "name": "hurd-i386/local-64b-align.diff",
+        "sha256": "76453cfc583c57e5c5f5e648bd186b45dff28265e80525421230d2959c961b71"
+      },
+      {
+        "bytes": 922,
+        "name": "hurd-i386/local-enable-ldconfig.diff",
+        "sha256": "16e21eb5d5c0a1ac5cc93e9f218d622ceeba58639875198845cdd57c3f97f6e2"
+      },
+      {
+        "bytes": 21953,
+        "name": "hurd-i386/tg-sysvshm.diff",
+        "sha256": "160a37b38e8c2d5432d73e43adfc0125948c109bb8052053d0917bfcf17461e4"
+      },
+      {
+        "bytes": 2887,
+        "name": "hurd-i386/tg-thread-cancel.diff",
+        "sha256": "864d1320e4c51e569bdf58e4b7747781e3559b9d392686cba901c00f158bf651"
+      },
+      {
+        "bytes": 924,
+        "name": "hurd-i386/local-disable-ioctls.diff",
+        "sha256": "f7615babf38f0a63191178d0af3d5c826334fd11de9f530ec305c77c96a2a477"
+      },
+      {
+        "bytes": 7729,
+        "name": "hurd-i386/tg-sendmsg-SCM_CREDS.diff",
+        "sha256": "b561a9617b114f54bab3b1b06fbd794709665414c1aa380b0a9ef2acdd24c782"
+      },
+      {
+        "bytes": 987,
+        "name": "hurd-i386/tg-mach-hurd-link.diff",
+        "sha256": "58e3929cfb0dd3573e9bef0877a9d5480cedf451193bcfcb12adefff8193016b"
+      },
+      {
+        "bytes": 1239,
+        "name": "hurd-i386/local-ED.diff",
+        "sha256": "f1a99a0f668ae4967f45257ddb3ddbf67fe9e825fbd95613175e35bc7210ae26"
+      },
+      {
+        "bytes": 553,
+        "name": "hurd-i386/local-madvise_warn.diff",
+        "sha256": "b9b226e5aa805bc6a884055f41ae8e013ac74f6299ce10fa29686fe78414527c"
+      },
+      {
+        "bytes": 1177,
+        "name": "hurd-i386/local-usr.diff",
+        "sha256": "7ff001cfd98568907adb7be727c84dc1c71420d9aefe2d0ceb0efc13c7c9a35c"
+      },
+      {
+        "bytes": 10986,
+        "name": "hurd-i386/tg-ifaddrs_v6.diff",
+        "sha256": "ec0b3065898fbe48af62def4ed85ad1edf06ae53e989a4caeab16d9bc9b31290"
+      },
+      {
+        "bytes": 1820,
+        "name": "hurd-i386/unsubmitted-clock_t_centiseconds.diff",
+        "sha256": "af3139bf83e29c1be1b34058f1c6965fb26ac22a059566ff546d6daca284fe1f"
+      },
+      {
+        "bytes": 1626,
+        "name": "hurd-i386/submitted-bind_umask2.diff",
+        "sha256": "d4f6e790a8bf02d189d133fbaa03548a0cf72c720702e0f0ea97c8d2b5914ca3"
+      },
+      {
+        "bytes": 775,
+        "name": "hurd-i386/tg-bootstrap.diff",
+        "sha256": "e17d0aa99e83a25772e6caf3e10f4dc55156905611b37733237d2fad8a89e0dc"
+      },
+      {
+        "bytes": 3694,
+        "name": "hurd-i386/tg-libc_rwlock_recursive.diff",
+        "sha256": "d30527ddf52e46b6367a2c885fc4a92761d9abc8e6fed6842e792a1bb4017d7e"
+      },
+      {
+        "bytes": 1997,
+        "name": "hurd-i386/local-no_unsupported_ioctls.diff",
+        "sha256": "1f61964fadcef816c9f4e8cff51fe46fb6a36579e4a0755560ff7d23625b0ab9"
+      },
+      {
+        "bytes": 1434,
+        "name": "hurd-i386/local-stack_chk_guard.diff",
+        "sha256": "7f1bb2efbb7444247b9f8a6aaa4d2b2cd21ae29abe58adad6813106b52f2cadd"
+      },
+      {
+        "bytes": 1611,
+        "name": "hurd-i386/git-fork-gdb.diff",
+        "sha256": "183721d72585c606f71dbc67d40b84824ae5ac6585cc32459a74d66930bed8b0"
+      },
+      {
+        "bytes": 6616,
+        "name": "hurd-i386/git-sig-sig-mmx-fix.diff",
+        "sha256": "ce6c552910915900827836ac2108c0d7ea7fb764e1ce8ff2b2e5859fa46c54ff"
+      },
+      {
+        "bytes": 8754,
+        "name": "hurd-i386/git-cancel-sig.diff",
+        "sha256": "4095a2e6f251a483553e85760848bf29e5d220e25117a3b0ba66d44e8fec9cc7"
+      },
+      {
+        "bytes": 1243,
+        "name": "hurd-i386/git-mach_send_eintr.diff",
+        "sha256": "3ef69639cd4f2f7609d1633a28d64289a295c22f15b4fd878ac01cf9b55b45af"
+      },
+      {
+        "bytes": 4918,
+        "name": "hurd-i386/git-itimer-lock.diff",
+        "sha256": "f6cdd1415a8124fc8e1694efd25725cc65edbbabce03c3224ca481be1ec655e7"
+      },
+      {
+        "bytes": 805,
+        "name": "hurd-i386/git-posix-timers.diff",
+        "sha256": "d1b41e7c0a70d2ba123bcd062031f19763fe3b6094383656d6f5d48b948afa35"
+      },
+      {
+        "bytes": 948,
+        "name": "hurd-i386/git-sig-alarm.diff",
+        "sha256": "8962ddf29a7ac63899e1f9923510793be273f8c4139ac2ece5bed8e0a4b6db9c"
+      },
+      {
+        "bytes": 979,
+        "name": "hurd-i386/git-libio-mtsafe.diff",
+        "sha256": "e40e57a74d5fa1ffd4dbf25a334d44ac1773b2900b730ba2a3655135edf19b3f"
+      },
+      {
+        "bytes": 4371,
+        "name": "hurd-i386/git-timedrwlock-unlock.diff",
+        "sha256": "c9b603a72b5b1e3329800ab4063b509bdfe2b4bcb5ccbf8b7c9b0ccce7007800"
+      },
+      {
+        "bytes": 4736,
+        "name": "hurd-i386/git-sigtimedwait-timeout.diff",
+        "sha256": "fadad23e4a0d5aec7b8cd4735aa00d367b8eb92b468714a7d95b80ea4e51a570"
+      },
+      {
+        "bytes": 5423,
+        "name": "hurd-i386/git-MSG_EXAMINE.diff",
+        "sha256": "fb8bda29ae844c28ce84df10e01166f43513570651879b5c60bb58d31cf4808a"
+      },
+      {
+        "bytes": 6025,
+        "name": "hurd-i386/git-interrupt-EINTR.diff",
+        "sha256": "109daf172e71e8f7a720e29d68d705e039fe52b89ab7c8ad008a8fd3616caab7"
+      },
+      {
+        "bytes": 516,
+        "name": "hurd-i386/git-SEM_FAILED.diff",
+        "sha256": "c0a8e4114784ac7b3a0058ef0ccde64c1481bf4c770b078cda04a8abdbc1bf36"
+      },
+      {
+        "bytes": 676,
+        "name": "hurd-i386/git-tst-fix.diff",
+        "sha256": "0961dffe872d634a872bb57a57ce25f8f010c7b5c784da69c6a7b9b122fdb82f"
+      },
+      {
+        "bytes": 944,
+        "name": "hurd-i386/git-SO_TIMESTAMP.diff",
+        "sha256": "9c96a9a23af06708562763db6d2326ee28a7a2f7c611383b153ba74e24a25169"
+      },
+      {
+        "bytes": 1439,
+        "name": "hurd-i386/git-path_mounted.diff",
+        "sha256": "bf1d4aa6f8abc7190f20fe048e45fe887a0c31e4c0dc7407adf823214a54c4a3"
+      },
+      {
+        "bytes": 1613,
+        "name": "hurd-i386/git-timedblock-signal.diff",
+        "sha256": "193e1ee89086fdfa9b6b6a4b4d98a538e365172cc22ec526a9b02593d72c0688"
+      },
+      {
+        "bytes": 1554,
+        "name": "hurd-i386/git-time_bits_i386.diff",
+        "sha256": "bf3fda4015df38434851ac6748243c978540780a23cbb6e358a89305f7101a47"
+      },
+      {
+        "bytes": 5301,
+        "name": "hurd-i386/git-time_bits_i386_32.diff",
+        "sha256": "f4ccff0e98c3415a8c1d6efa4a6180d99da9e76a8735be0ccb3566790d2708c9"
+      },
+      {
+        "bytes": 3275,
+        "name": "hurd-i386/git-setreugid.diff",
+        "sha256": "82b983a2b92c6a3bd64025ebf247c139845c65239588a1d5de116cae1f4d5adb"
+      },
+      {
+        "bytes": 507,
+        "name": "i386/local-biarch.diff",
+        "sha256": "e04e9f90c9521a562706b0ae14f6fcaf683bec3418949d8c2cf81b5745813259"
+      },
+      {
+        "bytes": 379,
+        "name": "i386/unsubmitted-quiet-ldconfig.diff",
+        "sha256": "826fde5f5b98710efef34e824ae33feb59ed2d13ce94bc8ac3bbdb83fa66c340"
+      },
+      {
+        "bytes": 3142,
+        "name": "i386/local-setcontext-revert-eax-ecx-edx.patch",
+        "sha256": "a19bc16a1d8bfb0da5f2819a83b7bb04fdbf1db8487eddcdbfe3ffab4a82b295"
+      },
+      {
+        "bytes": 806,
+        "name": "m68k/local-reloc.diff",
+        "sha256": "286055e52c8b7bd5677e99c1fdde1fe639f5e4dbca0f22cb707f053366c770df"
+      },
+      {
+        "bytes": 674,
+        "name": "mips/submitted-rld_map.diff",
+        "sha256": "1ee338abf51f73f455040cb6d94d39bb77b456bcae7bf7a7279a41bcc79ddd9d"
+      },
+      {
+        "bytes": 915,
+        "name": "powerpc/local-powerpc8xx-dcbz.diff",
+        "sha256": "c8f2edfc4fe17f0abf22290c0879a8d1b55f9b66bc9b82e7cd04869d7b6c16a3"
+      },
+      {
+        "bytes": 964,
+        "name": "sh4/local-fpscr_values.diff",
+        "sha256": "27454c3a56b3a1d115cfac1185e1e37d66976d1060cc54270b4ac6680d275ecd"
+      },
+      {
+        "bytes": 8078,
+        "name": "all/local-remove-manual.diff",
+        "sha256": "f4cac3b4b80413d5a981d93cfd828bae7a8337e3711186580d6bdba44e943f4a"
+      },
+      {
+        "bytes": 891,
+        "name": "all/local-ldd.diff",
+        "sha256": "221c95bcddc9535e62212eb8d5e4552533145ee27bc6da9b87492adc9b3b9bfd"
+      },
+      {
+        "bytes": 1161,
+        "name": "any/local-asserth-decls.diff",
+        "sha256": "2aacb4700daeca26d43a1f853589591bfa70450ac909cce7cb7085b316e732e3"
+      },
+      {
+        "bytes": 1026,
+        "name": "any/local-fhs-linux-paths.diff",
+        "sha256": "c1c2eff1d40d6913adfcb928176e1a9d9bb63a14a23a84dc576010fd1999b5b8"
+      },
+      {
+        "bytes": 855,
+        "name": "any/local-fhs-nscd.diff",
+        "sha256": "9756e24882ac856b01bc9c9d3f2f5a19b41524970f4f918173e3255787fe0beb"
+      },
+      {
+        "bytes": 1355,
+        "name": "any/local-ld-multiarch.diff",
+        "sha256": "f7c72262826010174c8e432e93bee93254bf60beb96d0294f0418dfc9472b51a"
+      },
+      {
+        "bytes": 432,
+        "name": "any/local-stubs_h.diff",
+        "sha256": "37b1bfd845bdc7317b585c7bfc07079c18212a4c26f7ab70fcfdbf4f2066482c"
+      },
+      {
+        "bytes": 3002,
+        "name": "any/local-tcsetaddr.diff",
+        "sha256": "a8ab148887b0dc44bb8d37813bc6669ae99f3e1d785644860e292cdeeecf3e5f"
+      },
+      {
+        "bytes": 1992,
+        "name": "any/local-nss-overflow.diff",
+        "sha256": "230770e23052edaef0bd70b3eb49d596fb77e6cdc9dab32043d3f1044883b756"
+      },
+      {
+        "bytes": 306,
+        "name": "any/submitted-missing-etc-hosts.diff",
+        "sha256": "1a7d9783b9270b97dbe6df55441f8a47d0cab7ae443720259c75e8ce53f5b477"
+      },
+      {
+        "bytes": 1558,
+        "name": "any/local-ldconfig-multiarch.diff",
+        "sha256": "214e510b8ac7624f2dac8983f2abc7db0a0c72e18f8c2abd0af0bb63d633ee58"
+      },
+      {
+        "bytes": 478,
+        "name": "any/local-disable-libnss-db.diff",
+        "sha256": "3d9654f23dc0b65f5f91a06e07a9bbee188e1f47317351058a9f3078bc811ba3"
+      },
+      {
+        "bytes": 1205,
+        "name": "any/local-revert-bz13979.diff",
+        "sha256": "f10c9b712b83b9430b22bc0b8a4d7553a94122f1e67d960b4270b5a5e2a4fc72"
+      },
+      {
+        "bytes": 556,
+        "name": "any/unsubmitted-ldso-machine-mismatch.diff",
+        "sha256": "5e79fa2421af1a2c6d9a055c7e6d2b0351eea5bf9a40c7ec5d3387f2f533ed63"
+      },
+      {
+        "bytes": 1810,
+        "name": "any/local-ldconfig-ignore-ld.so.diff",
+        "sha256": "d7f3513bf212a124f085bded16f012933c164fe3c500fc54b51b9d4a8787f613"
+      },
+      {
+        "bytes": 3245,
+        "name": "any/local-bootstrap-headers.diff",
+        "sha256": "4651f6bfd4bb62bd7e8372f970a1f5c4a6f4753c96d3577c29a35f123792469b"
+      },
+      {
+        "bytes": 641,
+        "name": "any/local-test-install.diff",
+        "sha256": "ecea70be891e06f0961f713b3dcd8851bc010db8b0c17bb336de00724fc7f167"
+      },
+      {
+        "bytes": 722,
+        "name": "any/local-cross.patch",
+        "sha256": "bc6ee0c521a5e705ad4745820563a15a33645e5358a86254beb8a350c9dbd98c"
+      }
+    ],
+    "path": "debian/patches/series",
+    "sha256": "cd9a5ad21b6ebcfaf87730ecd24129f8771c1fd1b195bbd62b71885497367a71"
+  },
+  "signed_chain": {
+    "glibc_2.43-7.dsc": {
+      "bytes": 8571,
+      "sha256": "a99e5beb8f568765d191f3d0d074cf6b60d2c89dec84f2f4bb70573e52e0a835"
+    },
+    "sid-InRelease": {
+      "bytes": 192842,
+      "sha256": "7adfcfd12245e14a1198f6340dfb60b19a61d73531ef6cce925a68deb4e06f98"
+    },
+    "sid-Sources.xz": {
+      "bytes": 12028604,
+      "sha256": "781f5a9546d0b41aaa5b4abcf61ba3168fc5dc8c0e74f17d68a2a24670035583"
+    }
+  },
+  "source_authority": "UNBOUND_FOR_NEW_CANDIDATE",
+  "source_manifest_pins": {
+    "after-tree.json": {
+      "bytes": 4059676,
+      "sha256": "704f933a94818ea80b8b164530c660fac5223ea0da6dc0ce2df30effa1d3c573"
+    },
+    "before-tree.json": {
+      "bytes": 4052354,
+      "sha256": "a70103a150897b780dc6ec497d08d6f2cb1b4404a1969b1e80b11c55e5a5fc09"
+    },
+    "metadata-manifest.json": {
+      "bytes": 79126,
+      "sha256": "1544d5f93e77cfab83a70218b57fcc168601d6ba532562d1a4208392b84cd5e9"
+    }
+  },
+  "source_policy_files": {
+    "elf/Makefile": {
+      "bytes": 119742,
+      "sha256": "a8ddd222d1b93c93693e7780cb49d5339bc9198848d348893200c540804685cb"
+    },
+    "manual/Makefile": {
+      "bytes": 6263,
+      "sha256": "b794313a78971e3ebe38d95ae5a465a396cdf86124e635f5585f8e4fbdea9d3a"
+    },
+    "stdio-common/Makefile": {
+      "bytes": 22725,
+      "sha256": "2863ce767c95893a161dd7adc7aa7f91d5b3715e9225f28729cfecfcb617d761"
+    },
+    "sysdeps/mach/hurd/Makefile": {
+      "bytes": 11222,
+      "sha256": "dbb2027e045d06a6628d6418a0851410798a06072bdd34a20638309dcff9e377"
+    },
+    "sysdeps/unix/sysv/linux/bits/cloexec.h": {
+      "bytes": 29,
+      "sha256": "fe4bf3585d48939dc11fe267943518a6714acc3cd6abd07efab46bb805376946"
+    },
+    "sysdeps/unix/sysv/linux/sys/mount.h": {
+      "bytes": 12176,
+      "sha256": "9fc8643b971614ce5f35ce09392d9e13e2fff2938c1cdeaef9ea34d7661bdc05"
+    }
+  }
+}

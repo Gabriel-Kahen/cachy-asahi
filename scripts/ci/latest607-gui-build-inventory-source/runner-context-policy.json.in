@@ -1,0 +1,932 @@
+{
+  "acceptance": false,
+  "actual": null,
+  "code": {
+    "minimal-generic16k": {
+      "a11y_driver.c": {
+        "bytes": 32085,
+        "sha256": "c22b6b48c228b596afb4e4431a5a95eedbfcdd433defbcac12d1ce2b37ba2233"
+      },
+      "accepted_lifecycle.py": {
+        "bytes": 12278,
+        "sha256": "b87831eea710dbf18cb3ab3aa7bf49856d26bebbd3e684861dcab7dc1d337c74"
+      },
+      "alpm_reader.py": {
+        "bytes": 23916,
+        "sha256": "d567aea0616bf92450e25e40daa54049ecc630dc7c988d2a55e19459e1958a8f"
+      },
+      "apps16_diagnostic.py": {
+        "bytes": 6163,
+        "sha256": "9a39513103a495329eeb3eded4564570ae02f3e41fe7d1f149de921eecf4c1b4"
+      },
+      "apps16_runtime.py": {
+        "bytes": 1948,
+        "sha256": "df9d658794732b4a54c5eaf83037f54e64e87dde9c6d26b28672181893c77750"
+      },
+      "base_guest.py": {
+        "bytes": 39475,
+        "sha256": "6d0957b92d002b88d7a49397c61bf22bff072f919ee887fdc5352e7f5b08e630"
+      },
+      "build_scope.py": {
+        "bytes": 7160,
+        "sha256": "caff48d3333b72a16f428b701f86f0ca772bfdec89f4c28ef029e4630b2f0e23"
+      },
+      "candidates.py": {
+        "bytes": 9239,
+        "sha256": "ebaa95bd680350142c3a9c6806ef7eee1d095b35d0d2a847067d6853a27a3627"
+      },
+      "candidates/trust.py": {
+        "bytes": 1586,
+        "sha256": "122804bdced8a309200ddf306cca9110e8156adc02a6a39711cc49a1b272b085"
+      },
+      "compositor_log.py": {
+        "bytes": 2511,
+        "sha256": "f9a234315adfa9147c25f5f5fdc48d706fa4d3b2bb820485ddfc799dc81d235e"
+      },
+      "context606.py": {
+        "bytes": 11133,
+        "sha256": "94b9265e1680e38fbc93c63b6f83cec1d67bed2759cb791d0b55a254b2d13301"
+      },
+      "contract.py": {
+        "bytes": 4453,
+        "sha256": "170b809605dd09ca6fcd80040faf6df25ff40a878ace4f0d10889eb6227c4cd2"
+      },
+      "current_products.py": {
+        "bytes": 7523,
+        "sha256": "dcad5ad29b8f50619361fa59ae27db29a831887664ecf4ce8ef9a3f34412d4f0"
+      },
+      "desktop574_fixture.sh": {
+        "bytes": 7172,
+        "sha256": "5ae704001264ed61747b7b82a9c0b7dd37f54c03519c1902ba92fe7bb36110d8"
+      },
+      "desktop574_guest.py": {
+        "bytes": 2431,
+        "sha256": "ab7da0e58c66a65394340c94263b577ba85c1563967b30a698692b717ddbc36c"
+      },
+      "desktop574_runtime.py": {
+        "bytes": 21067,
+        "sha256": "d28c20dbaa80a1d393753934533553e433320c9918b891ee3e9d3785a1af1230"
+      },
+      "dns_contract.py": {
+        "bytes": 8348,
+        "sha256": "7351b45f7e348e7477a84f5ff24dbc87fb99a890619223efa4fa121c4f522bea"
+      },
+      "dns_fixture.py": {
+        "bytes": 10358,
+        "sha256": "fc8cb6a2f1c3833a4cb19facd216d3da4371826fa1993ed92eca4baa1d0aa805"
+      },
+      "dns_phase.py": {
+        "bytes": 3419,
+        "sha256": "aabd343ee065d1cd773b43f595c2d237fdae24fdbe9e45e4e8f42e550094c103"
+      },
+      "doctor_lifetime.py": {
+        "bytes": 14245,
+        "sha256": "c54a6d38cf9b079ef3b2911eb9793703dede65731a01fb75c98e67994704fde4"
+      },
+      "doctor_worker.py": {
+        "bytes": 5862,
+        "sha256": "fbdd15009b6a8ff9a7639392d5cc1c56d4e98f4fe3aa6ab9dbc293083bc0bd41"
+      },
+      "elf_audit.py": {
+        "bytes": 3507,
+        "sha256": "b10b641060e273479d32d8a74719565c4264faf6fefd9e963c8f82dc1fbe738e"
+      },
+      "elf_reader.py": {
+        "bytes": 15118,
+        "sha256": "47d2c042319246538f8724e294b9530e079ba00de7995ef42f9a1031ca17c4ba"
+      },
+      "failure_cleanup.py": {
+        "bytes": 6664,
+        "sha256": "2124b139b5948ff6c5f94af6146dc1925b2707ef6dbcb5b518321b4beeca1945"
+      },
+      "file_capabilities.py": {
+        "bytes": 13562,
+        "sha256": "498a3beec0327b9335dcd6d80ed5919fa2edebebd3284e9ee8b97770328e26a2"
+      },
+      "gui_contract.py": {
+        "bytes": 9439,
+        "sha256": "42993affebd10b71756c3fcb1113bf95e71ae1f896bd7f89ed9006c92113bf66"
+      },
+      "hwcap_probe.c": {
+        "bytes": 629,
+        "sha256": "d707cba6ed4dfbf5ece4baa9bafb4c59c0ff7b3e0d6bae92d876dde2de6a7c81"
+      },
+      "install-context606/alpm_reader.py": {
+        "bytes": 23916,
+        "sha256": "d567aea0616bf92450e25e40daa54049ecc630dc7c988d2a55e19459e1958a8f"
+      },
+      "install-context606/build_scope.py": {
+        "bytes": 7160,
+        "sha256": "caff48d3333b72a16f428b701f86f0ca772bfdec89f4c28ef029e4630b2f0e23"
+      },
+      "install-context606/contract604.py": {
+        "bytes": 17546,
+        "sha256": "34bae2e815c3b01df43379f5251b0591430c55eb0079bd8befed5eef3f5bcb1f"
+      },
+      "install-context606/install606.py": {
+        "bytes": 6523,
+        "sha256": "f66a19b21ecab995a7f6e9cca93b656d2b73047735abc6f9f67dcab8f98bb454"
+      },
+      "install-context606/lifecycle604.py": {
+        "bytes": 18618,
+        "sha256": "ea01ae7bca622293ecd537f7d22b54c0530b541f5068219fe67fcb4332bb9402"
+      },
+      "install606.py": {
+        "bytes": 6523,
+        "sha256": "f66a19b21ecab995a7f6e9cca93b656d2b73047735abc6f9f67dcab8f98bb454"
+      },
+      "installed.py": {
+        "bytes": 4928,
+        "sha256": "ee8a67051a2b531e1fe321254e39b7271fe6b0dcc4b06a7ec63eeeb8938ba9c2"
+      },
+      "installed606.py": {
+        "bytes": 9074,
+        "sha256": "09a60e0ff49526abb62b2c7fe3539cc2bf3a9578a5701a874a73e6650fb64ff5"
+      },
+      "inventory_capacity.py": {
+        "bytes": 5998,
+        "sha256": "1606bfdf79fb5fd0f1cd2fd6d64b2984af9ccfd384863159788727b000196024"
+      },
+      "kernel_contract.py": {
+        "bytes": 4658,
+        "sha256": "ce15654e32b5826c5740af85110a1d08a5d04f9a4dffc2986aa2ef15ace1c133"
+      },
+      "legacy_contract.py": {
+        "bytes": 8170,
+        "sha256": "e2d61e69974c3e88922cd2af78c034f65916dcdbd3f99fd6d2a2ece0539c881d"
+      },
+      "managed_contract.py": {
+        "bytes": 3780,
+        "sha256": "9435f6dd8040e8dd62aadb54fc66b731fe48b9198935072407e2e54bda157c98"
+      },
+      "managed_session.py": {
+        "bytes": 11255,
+        "sha256": "2187c47b3f5877d8585c66c806b0c5dd17efc38cee414c46bc746157f3c4d991"
+      },
+      "management_contract.py": {
+        "bytes": 21596,
+        "sha256": "430cb70b8f923ae972c44985efaca8c4089a3149cec08d5dc9cd17e8b3867257"
+      },
+      "management_phase.py": {
+        "bytes": 15708,
+        "sha256": "abdcdb7d46267fbaf147dd41c64f758fff55ffd9566f4469fdb778fd11a5b041"
+      },
+      "management_root.py": {
+        "bytes": 18251,
+        "sha256": "2c72b7a1ef53f92a869e2751ad7e8602ec073e00011ef9a20fb9b575c98dfbb8"
+      },
+      "native_contract.py": {
+        "bytes": 14414,
+        "sha256": "180cf1d7c98dfbdf8178d5eab0bae8e8fa5f90ed32935b3f6febd3520e0c657a"
+      },
+      "nomops606.py": {
+        "bytes": 1118,
+        "sha256": "16211aeace15a27dd48b925e57d23823ca510f6dd002c9031dd18695b23062ec"
+      },
+      "observed.py": {
+        "bytes": 1997,
+        "sha256": "ae7a6b6e9479b6fc4575161d0ed03b807c58a4b11f8e374ec66d80451a6320b6"
+      },
+      "post_session.py": {
+        "bytes": 637,
+        "sha256": "f700e2f1f4fe6c9f59f583b577a6ce70ef72196d72bfca0525138fa9172e426e"
+      },
+      "qemu-context/alpm_reader.py": {
+        "bytes": 23916,
+        "sha256": "d567aea0616bf92450e25e40daa54049ecc630dc7c988d2a55e19459e1958a8f"
+      },
+      "qemu-context/build_scope.py": {
+        "bytes": 7160,
+        "sha256": "caff48d3333b72a16f428b701f86f0ca772bfdec89f4c28ef029e4630b2f0e23"
+      },
+      "qemu-context/contract604.py": {
+        "bytes": 17546,
+        "sha256": "34bae2e815c3b01df43379f5251b0591430c55eb0079bd8befed5eef3f5bcb1f"
+      },
+      "qemu-context/install_tooling.py": {
+        "bytes": 2760,
+        "sha256": "ac65ced048da8effe7c7cd78d49365bea47d9aed3b0ddf0846bcc9397dfb1401"
+      },
+      "qemu-context/lifecycle604.py": {
+        "bytes": 18618,
+        "sha256": "ea01ae7bca622293ecd537f7d22b54c0530b541f5068219fe67fcb4332bb9402"
+      },
+      "service_outcome.py": {
+        "bytes": 916,
+        "sha256": "5a780c908ddf5432a8c776126e20b35d908d43aee990588bdddb5e1daf7bcd75"
+      },
+      "session.py": {
+        "bytes": 19733,
+        "sha256": "eee60462ba77ae234ab3dd92968bdf0242a2207ce8dd685a82122afe123b5543"
+      },
+      "terminal_session.py": {
+        "bytes": 8053,
+        "sha256": "4088ae86877da08df33a56c044ea82aad956da67a749e03b6e706685346ee222"
+      },
+      "terminal_workflow.py": {
+        "bytes": 5147,
+        "sha256": "ca73da754373cf68148ac992f1c2281b03b604703f112a2c4fd24d4604033e87"
+      },
+      "test_desktop574_runtime.py": {
+        "bytes": 12245,
+        "sha256": "e14dc90b5e3b6bedb7a791c128e05ec886127922549c38f2e97760510ab21cdf"
+      },
+      "user_hwcap.py": {
+        "bytes": 1038,
+        "sha256": "a8613e33cb093aec98a02ff762082b43bf4d1d656e59fe0732749c44a0bbfd19"
+      },
+      "welcome8_stop.py": {
+        "bytes": 8881,
+        "sha256": "f4c378c66f7fbc4df406e40b4d0429c7744c6791f263ec79d6b5e71343444e1a"
+      }
+    },
+    "minimal-generic4k": {
+      "a11y_driver.c": {
+        "bytes": 32085,
+        "sha256": "c22b6b48c228b596afb4e4431a5a95eedbfcdd433defbcac12d1ce2b37ba2233"
+      },
+      "accepted_lifecycle.py": {
+        "bytes": 12278,
+        "sha256": "b87831eea710dbf18cb3ab3aa7bf49856d26bebbd3e684861dcab7dc1d337c74"
+      },
+      "alpm_reader.py": {
+        "bytes": 23916,
+        "sha256": "d567aea0616bf92450e25e40daa54049ecc630dc7c988d2a55e19459e1958a8f"
+      },
+      "apps16_diagnostic.py": {
+        "bytes": 6163,
+        "sha256": "9a39513103a495329eeb3eded4564570ae02f3e41fe7d1f149de921eecf4c1b4"
+      },
+      "apps16_runtime.py": {
+        "bytes": 1948,
+        "sha256": "df9d658794732b4a54c5eaf83037f54e64e87dde9c6d26b28672181893c77750"
+      },
+      "base_guest.py": {
+        "bytes": 38663,
+        "sha256": "a6a2f21bdad71fc3c6035d4aa2d7bb95ccc36a63eba0bc183fca927d9214a913"
+      },
+      "build_scope.py": {
+        "bytes": 7160,
+        "sha256": "caff48d3333b72a16f428b701f86f0ca772bfdec89f4c28ef029e4630b2f0e23"
+      },
+      "candidates.py": {
+        "bytes": 9239,
+        "sha256": "ebaa95bd680350142c3a9c6806ef7eee1d095b35d0d2a847067d6853a27a3627"
+      },
+      "candidates/trust.py": {
+        "bytes": 1586,
+        "sha256": "122804bdced8a309200ddf306cca9110e8156adc02a6a39711cc49a1b272b085"
+      },
+      "compositor_log.py": {
+        "bytes": 2511,
+        "sha256": "f9a234315adfa9147c25f5f5fdc48d706fa4d3b2bb820485ddfc799dc81d235e"
+      },
+      "context606.py": {
+        "bytes": 11133,
+        "sha256": "94b9265e1680e38fbc93c63b6f83cec1d67bed2759cb791d0b55a254b2d13301"
+      },
+      "contract.py": {
+        "bytes": 4258,
+        "sha256": "4daa699bd5b0b42a03eb9b2455da43734bb0e2e230992fc85127c259497c6618"
+      },
+      "current_products.py": {
+        "bytes": 7523,
+        "sha256": "dcad5ad29b8f50619361fa59ae27db29a831887664ecf4ce8ef9a3f34412d4f0"
+      },
+      "desktop574_fixture.sh": {
+        "bytes": 6625,
+        "sha256": "b08e23e2f3d315c02c96b09e00a8638e997b900049fedf7b71b8f145e025f77e"
+      },
+      "desktop574_guest.py": {
+        "bytes": 2431,
+        "sha256": "ab7da0e58c66a65394340c94263b577ba85c1563967b30a698692b717ddbc36c"
+      },
+      "desktop574_runtime.py": {
+        "bytes": 20362,
+        "sha256": "8546bb2ba93f44ab635d8fd704773d4d2eb71226bdae39a03845862ebd2f9893"
+      },
+      "dns_contract.py": {
+        "bytes": 8348,
+        "sha256": "7351b45f7e348e7477a84f5ff24dbc87fb99a890619223efa4fa121c4f522bea"
+      },
+      "dns_fixture.py": {
+        "bytes": 10358,
+        "sha256": "fc8cb6a2f1c3833a4cb19facd216d3da4371826fa1993ed92eca4baa1d0aa805"
+      },
+      "dns_phase.py": {
+        "bytes": 3419,
+        "sha256": "aabd343ee065d1cd773b43f595c2d237fdae24fdbe9e45e4e8f42e550094c103"
+      },
+      "doctor_lifetime.py": {
+        "bytes": 14245,
+        "sha256": "c54a6d38cf9b079ef3b2911eb9793703dede65731a01fb75c98e67994704fde4"
+      },
+      "doctor_worker.py": {
+        "bytes": 5862,
+        "sha256": "fbdd15009b6a8ff9a7639392d5cc1c56d4e98f4fe3aa6ab9dbc293083bc0bd41"
+      },
+      "failure_cleanup.py": {
+        "bytes": 6664,
+        "sha256": "2124b139b5948ff6c5f94af6146dc1925b2707ef6dbcb5b518321b4beeca1945"
+      },
+      "file_capabilities.py": {
+        "bytes": 13562,
+        "sha256": "498a3beec0327b9335dcd6d80ed5919fa2edebebd3284e9ee8b97770328e26a2"
+      },
+      "gui_contract.py": {
+        "bytes": 9438,
+        "sha256": "45a74eb6865e690b35f2e5b9d8cbacc04788207e744626582a042763102ba141"
+      },
+      "install-context606/alpm_reader.py": {
+        "bytes": 23916,
+        "sha256": "d567aea0616bf92450e25e40daa54049ecc630dc7c988d2a55e19459e1958a8f"
+      },
+      "install-context606/build_scope.py": {
+        "bytes": 7160,
+        "sha256": "caff48d3333b72a16f428b701f86f0ca772bfdec89f4c28ef029e4630b2f0e23"
+      },
+      "install-context606/contract604.py": {
+        "bytes": 17546,
+        "sha256": "34bae2e815c3b01df43379f5251b0591430c55eb0079bd8befed5eef3f5bcb1f"
+      },
+      "install-context606/install606.py": {
+        "bytes": 6523,
+        "sha256": "f66a19b21ecab995a7f6e9cca93b656d2b73047735abc6f9f67dcab8f98bb454"
+      },
+      "install-context606/lifecycle604.py": {
+        "bytes": 18618,
+        "sha256": "ea01ae7bca622293ecd537f7d22b54c0530b541f5068219fe67fcb4332bb9402"
+      },
+      "install606.py": {
+        "bytes": 6523,
+        "sha256": "f66a19b21ecab995a7f6e9cca93b656d2b73047735abc6f9f67dcab8f98bb454"
+      },
+      "installed.py": {
+        "bytes": 4928,
+        "sha256": "ee8a67051a2b531e1fe321254e39b7271fe6b0dcc4b06a7ec63eeeb8938ba9c2"
+      },
+      "installed606.py": {
+        "bytes": 9074,
+        "sha256": "09a60e0ff49526abb62b2c7fe3539cc2bf3a9578a5701a874a73e6650fb64ff5"
+      },
+      "inventory_capacity.py": {
+        "bytes": 5998,
+        "sha256": "1606bfdf79fb5fd0f1cd2fd6d64b2984af9ccfd384863159788727b000196024"
+      },
+      "legacy_contract.py": {
+        "bytes": 7978,
+        "sha256": "7efbc7547d7fb5ea3f684bc5e927d7aa37d9372a720c68ffc72cbf8fbb3fdcfd"
+      },
+      "managed_contract.py": {
+        "bytes": 3780,
+        "sha256": "9435f6dd8040e8dd62aadb54fc66b731fe48b9198935072407e2e54bda157c98"
+      },
+      "managed_session.py": {
+        "bytes": 11255,
+        "sha256": "2187c47b3f5877d8585c66c806b0c5dd17efc38cee414c46bc746157f3c4d991"
+      },
+      "management_contract.py": {
+        "bytes": 21595,
+        "sha256": "26dd8c60ac2b610b593b54ed83af043bcf47c9295d2a5863dc0ed70d22cb509a"
+      },
+      "management_phase.py": {
+        "bytes": 15707,
+        "sha256": "d0ab438e2cc7ee3638eb8da9308d3108e20e5b9c77047e492e4fb9a398fd189f"
+      },
+      "management_root.py": {
+        "bytes": 18251,
+        "sha256": "2c72b7a1ef53f92a869e2751ad7e8602ec073e00011ef9a20fb9b575c98dfbb8"
+      },
+      "native_contract.py": {
+        "bytes": 14414,
+        "sha256": "180cf1d7c98dfbdf8178d5eab0bae8e8fa5f90ed32935b3f6febd3520e0c657a"
+      },
+      "observed.py": {
+        "bytes": 1997,
+        "sha256": "ae7a6b6e9479b6fc4575161d0ed03b807c58a4b11f8e374ec66d80451a6320b6"
+      },
+      "post_session.py": {
+        "bytes": 637,
+        "sha256": "f700e2f1f4fe6c9f59f583b577a6ce70ef72196d72bfca0525138fa9172e426e"
+      },
+      "qemu-context/alpm_reader.py": {
+        "bytes": 23916,
+        "sha256": "d567aea0616bf92450e25e40daa54049ecc630dc7c988d2a55e19459e1958a8f"
+      },
+      "qemu-context/build_scope.py": {
+        "bytes": 7160,
+        "sha256": "caff48d3333b72a16f428b701f86f0ca772bfdec89f4c28ef029e4630b2f0e23"
+      },
+      "qemu-context/contract604.py": {
+        "bytes": 17546,
+        "sha256": "34bae2e815c3b01df43379f5251b0591430c55eb0079bd8befed5eef3f5bcb1f"
+      },
+      "qemu-context/install_tooling.py": {
+        "bytes": 2760,
+        "sha256": "ac65ced048da8effe7c7cd78d49365bea47d9aed3b0ddf0846bcc9397dfb1401"
+      },
+      "qemu-context/lifecycle604.py": {
+        "bytes": 18618,
+        "sha256": "ea01ae7bca622293ecd537f7d22b54c0530b541f5068219fe67fcb4332bb9402"
+      },
+      "service_outcome.py": {
+        "bytes": 916,
+        "sha256": "5a780c908ddf5432a8c776126e20b35d908d43aee990588bdddb5e1daf7bcd75"
+      },
+      "session.py": {
+        "bytes": 19733,
+        "sha256": "eee60462ba77ae234ab3dd92968bdf0242a2207ce8dd685a82122afe123b5543"
+      },
+      "terminal_session.py": {
+        "bytes": 8053,
+        "sha256": "4088ae86877da08df33a56c044ea82aad956da67a749e03b6e706685346ee222"
+      },
+      "terminal_workflow.py": {
+        "bytes": 5147,
+        "sha256": "ca73da754373cf68148ac992f1c2281b03b604703f112a2c4fd24d4604033e87"
+      },
+      "test_desktop574_runtime.py": {
+        "bytes": 12245,
+        "sha256": "e14dc90b5e3b6bedb7a791c128e05ec886127922549c38f2e97760510ab21cdf"
+      },
+      "welcome8_stop.py": {
+        "bytes": 8881,
+        "sha256": "f4c378c66f7fbc4df406e40b4d0429c7744c6791f263ec79d6b5e71343444e1a"
+      }
+    },
+    "overlay-generic16k": {
+      "a11y_driver.c": {
+        "bytes": 32085,
+        "sha256": "c22b6b48c228b596afb4e4431a5a95eedbfcdd433defbcac12d1ce2b37ba2233"
+      },
+      "accepted_lifecycle.py": {
+        "bytes": 12278,
+        "sha256": "b87831eea710dbf18cb3ab3aa7bf49856d26bebbd3e684861dcab7dc1d337c74"
+      },
+      "alpm_reader.py": {
+        "bytes": 23916,
+        "sha256": "d567aea0616bf92450e25e40daa54049ecc630dc7c988d2a55e19459e1958a8f"
+      },
+      "apps16_diagnostic.py": {
+        "bytes": 6163,
+        "sha256": "9a39513103a495329eeb3eded4564570ae02f3e41fe7d1f149de921eecf4c1b4"
+      },
+      "apps16_runtime.py": {
+        "bytes": 1948,
+        "sha256": "df9d658794732b4a54c5eaf83037f54e64e87dde9c6d26b28672181893c77750"
+      },
+      "base_guest.py": {
+        "bytes": 39506,
+        "sha256": "972f425ffdbd9114c331e9ded42667ca2584a21443e45d866e93a71b94fa33da"
+      },
+      "build_scope.py": {
+        "bytes": 7160,
+        "sha256": "caff48d3333b72a16f428b701f86f0ca772bfdec89f4c28ef029e4630b2f0e23"
+      },
+      "candidates.py": {
+        "bytes": 9239,
+        "sha256": "ebaa95bd680350142c3a9c6806ef7eee1d095b35d0d2a847067d6853a27a3627"
+      },
+      "candidates/trust.py": {
+        "bytes": 1586,
+        "sha256": "122804bdced8a309200ddf306cca9110e8156adc02a6a39711cc49a1b272b085"
+      },
+      "compositor_log.py": {
+        "bytes": 2511,
+        "sha256": "f9a234315adfa9147c25f5f5fdc48d706fa4d3b2bb820485ddfc799dc81d235e"
+      },
+      "context606.py": {
+        "bytes": 11133,
+        "sha256": "94b9265e1680e38fbc93c63b6f83cec1d67bed2759cb791d0b55a254b2d13301"
+      },
+      "contract.py": {
+        "bytes": 4453,
+        "sha256": "a89e9209f0281501dd9573abb53a080c1ed92466e7dfb058cd57aad76368c37d"
+      },
+      "current_products.py": {
+        "bytes": 7523,
+        "sha256": "dcad5ad29b8f50619361fa59ae27db29a831887664ecf4ce8ef9a3f34412d4f0"
+      },
+      "desktop574_fixture.sh": {
+        "bytes": 7172,
+        "sha256": "5ae704001264ed61747b7b82a9c0b7dd37f54c03519c1902ba92fe7bb36110d8"
+      },
+      "desktop574_guest.py": {
+        "bytes": 2431,
+        "sha256": "855cecdc2bb8d1fc49db3f322c7e58c7ecb318e8d3ecc66e0954c58973473490"
+      },
+      "desktop574_runtime.py": {
+        "bytes": 21067,
+        "sha256": "faa714dadfa3f597babd4fe3b87d274ace307170f3d8d177666f6f9c576644d5"
+      },
+      "dns_contract.py": {
+        "bytes": 8348,
+        "sha256": "7351b45f7e348e7477a84f5ff24dbc87fb99a890619223efa4fa121c4f522bea"
+      },
+      "dns_fixture.py": {
+        "bytes": 10358,
+        "sha256": "fc8cb6a2f1c3833a4cb19facd216d3da4371826fa1993ed92eca4baa1d0aa805"
+      },
+      "dns_phase.py": {
+        "bytes": 3419,
+        "sha256": "aabd343ee065d1cd773b43f595c2d237fdae24fdbe9e45e4e8f42e550094c103"
+      },
+      "doctor_lifetime.py": {
+        "bytes": 14245,
+        "sha256": "c54a6d38cf9b079ef3b2911eb9793703dede65731a01fb75c98e67994704fde4"
+      },
+      "doctor_worker.py": {
+        "bytes": 5862,
+        "sha256": "fbdd15009b6a8ff9a7639392d5cc1c56d4e98f4fe3aa6ab9dbc293083bc0bd41"
+      },
+      "elf_audit.py": {
+        "bytes": 3507,
+        "sha256": "b10b641060e273479d32d8a74719565c4264faf6fefd9e963c8f82dc1fbe738e"
+      },
+      "elf_reader.py": {
+        "bytes": 15118,
+        "sha256": "47d2c042319246538f8724e294b9530e079ba00de7995ef42f9a1031ca17c4ba"
+      },
+      "failure_cleanup.py": {
+        "bytes": 6664,
+        "sha256": "2124b139b5948ff6c5f94af6146dc1925b2707ef6dbcb5b518321b4beeca1945"
+      },
+      "file_capabilities.py": {
+        "bytes": 13562,
+        "sha256": "498a3beec0327b9335dcd6d80ed5919fa2edebebd3284e9ee8b97770328e26a2"
+      },
+      "gui_contract.py": {
+        "bytes": 9439,
+        "sha256": "42993affebd10b71756c3fcb1113bf95e71ae1f896bd7f89ed9006c92113bf66"
+      },
+      "hwcap_probe.c": {
+        "bytes": 629,
+        "sha256": "d707cba6ed4dfbf5ece4baa9bafb4c59c0ff7b3e0d6bae92d876dde2de6a7c81"
+      },
+      "install-context606/alpm_reader.py": {
+        "bytes": 23916,
+        "sha256": "d567aea0616bf92450e25e40daa54049ecc630dc7c988d2a55e19459e1958a8f"
+      },
+      "install-context606/build_scope.py": {
+        "bytes": 7160,
+        "sha256": "caff48d3333b72a16f428b701f86f0ca772bfdec89f4c28ef029e4630b2f0e23"
+      },
+      "install-context606/contract604.py": {
+        "bytes": 17546,
+        "sha256": "34bae2e815c3b01df43379f5251b0591430c55eb0079bd8befed5eef3f5bcb1f"
+      },
+      "install-context606/install606.py": {
+        "bytes": 6523,
+        "sha256": "f66a19b21ecab995a7f6e9cca93b656d2b73047735abc6f9f67dcab8f98bb454"
+      },
+      "install-context606/lifecycle604.py": {
+        "bytes": 18618,
+        "sha256": "ea01ae7bca622293ecd537f7d22b54c0530b541f5068219fe67fcb4332bb9402"
+      },
+      "install606.py": {
+        "bytes": 6523,
+        "sha256": "f66a19b21ecab995a7f6e9cca93b656d2b73047735abc6f9f67dcab8f98bb454"
+      },
+      "installed.py": {
+        "bytes": 4928,
+        "sha256": "ee8a67051a2b531e1fe321254e39b7271fe6b0dcc4b06a7ec63eeeb8938ba9c2"
+      },
+      "installed606.py": {
+        "bytes": 9074,
+        "sha256": "09a60e0ff49526abb62b2c7fe3539cc2bf3a9578a5701a874a73e6650fb64ff5"
+      },
+      "inventory_capacity.py": {
+        "bytes": 5998,
+        "sha256": "1606bfdf79fb5fd0f1cd2fd6d64b2984af9ccfd384863159788727b000196024"
+      },
+      "kernel_contract.py": {
+        "bytes": 4658,
+        "sha256": "ce15654e32b5826c5740af85110a1d08a5d04f9a4dffc2986aa2ef15ace1c133"
+      },
+      "legacy_contract.py": {
+        "bytes": 8170,
+        "sha256": "9f7f29b564bd40b47de48a95d6d403f20871eb7d3bd3146c71031f50c2d4053f"
+      },
+      "managed_contract.py": {
+        "bytes": 3780,
+        "sha256": "27397824735cd4b3a72c022971e7cda7dbd8478d30c4bca3e400adeba20434a2"
+      },
+      "managed_session.py": {
+        "bytes": 11255,
+        "sha256": "2187c47b3f5877d8585c66c806b0c5dd17efc38cee414c46bc746157f3c4d991"
+      },
+      "management_contract.py": {
+        "bytes": 21596,
+        "sha256": "b254b1e0a2ca09e2156246a82fe7dac46a4327d97b2dc7288f75aab0d97e2c61"
+      },
+      "management_phase.py": {
+        "bytes": 15708,
+        "sha256": "abdcdb7d46267fbaf147dd41c64f758fff55ffd9566f4469fdb778fd11a5b041"
+      },
+      "management_root.py": {
+        "bytes": 18251,
+        "sha256": "7bee5cb9e08dcadb52c1e4c5ba3851c29f168f21d70221ad8502e928697d4ca5"
+      },
+      "native_contract.py": {
+        "bytes": 14414,
+        "sha256": "180cf1d7c98dfbdf8178d5eab0bae8e8fa5f90ed32935b3f6febd3520e0c657a"
+      },
+      "nomops606.py": {
+        "bytes": 1118,
+        "sha256": "16211aeace15a27dd48b925e57d23823ca510f6dd002c9031dd18695b23062ec"
+      },
+      "observed.py": {
+        "bytes": 1997,
+        "sha256": "ae7a6b6e9479b6fc4575161d0ed03b807c58a4b11f8e374ec66d80451a6320b6"
+      },
+      "post_session.py": {
+        "bytes": 637,
+        "sha256": "f700e2f1f4fe6c9f59f583b577a6ce70ef72196d72bfca0525138fa9172e426e"
+      },
+      "qemu-context/alpm_reader.py": {
+        "bytes": 23916,
+        "sha256": "d567aea0616bf92450e25e40daa54049ecc630dc7c988d2a55e19459e1958a8f"
+      },
+      "qemu-context/build_scope.py": {
+        "bytes": 7160,
+        "sha256": "caff48d3333b72a16f428b701f86f0ca772bfdec89f4c28ef029e4630b2f0e23"
+      },
+      "qemu-context/contract604.py": {
+        "bytes": 17546,
+        "sha256": "34bae2e815c3b01df43379f5251b0591430c55eb0079bd8befed5eef3f5bcb1f"
+      },
+      "qemu-context/install_tooling.py": {
+        "bytes": 2760,
+        "sha256": "ac65ced048da8effe7c7cd78d49365bea47d9aed3b0ddf0846bcc9397dfb1401"
+      },
+      "qemu-context/lifecycle604.py": {
+        "bytes": 18618,
+        "sha256": "ea01ae7bca622293ecd537f7d22b54c0530b541f5068219fe67fcb4332bb9402"
+      },
+      "service_outcome.py": {
+        "bytes": 916,
+        "sha256": "7f2b1047c04a69643a0857d765822fd95eb3645a71649078aa7b29e827dd6eb2"
+      },
+      "session.py": {
+        "bytes": 19733,
+        "sha256": "eee60462ba77ae234ab3dd92968bdf0242a2207ce8dd685a82122afe123b5543"
+      },
+      "terminal_session.py": {
+        "bytes": 8053,
+        "sha256": "4088ae86877da08df33a56c044ea82aad956da67a749e03b6e706685346ee222"
+      },
+      "terminal_workflow.py": {
+        "bytes": 5147,
+        "sha256": "ca73da754373cf68148ac992f1c2281b03b604703f112a2c4fd24d4604033e87"
+      },
+      "test_desktop574_runtime.py": {
+        "bytes": 12245,
+        "sha256": "e14dc90b5e3b6bedb7a791c128e05ec886127922549c38f2e97760510ab21cdf"
+      },
+      "user_hwcap.py": {
+        "bytes": 1038,
+        "sha256": "a8613e33cb093aec98a02ff762082b43bf4d1d656e59fe0732749c44a0bbfd19"
+      },
+      "welcome8_stop.py": {
+        "bytes": 8881,
+        "sha256": "f4c378c66f7fbc4df406e40b4d0429c7744c6791f263ec79d6b5e71343444e1a"
+      }
+    },
+    "overlay-generic4k": {
+      "a11y_driver.c": {
+        "bytes": 32085,
+        "sha256": "c22b6b48c228b596afb4e4431a5a95eedbfcdd433defbcac12d1ce2b37ba2233"
+      },
+      "accepted_lifecycle.py": {
+        "bytes": 12278,
+        "sha256": "b87831eea710dbf18cb3ab3aa7bf49856d26bebbd3e684861dcab7dc1d337c74"
+      },
+      "alpm_reader.py": {
+        "bytes": 23916,
+        "sha256": "d567aea0616bf92450e25e40daa54049ecc630dc7c988d2a55e19459e1958a8f"
+      },
+      "apps16_diagnostic.py": {
+        "bytes": 6163,
+        "sha256": "9a39513103a495329eeb3eded4564570ae02f3e41fe7d1f149de921eecf4c1b4"
+      },
+      "apps16_runtime.py": {
+        "bytes": 1948,
+        "sha256": "df9d658794732b4a54c5eaf83037f54e64e87dde9c6d26b28672181893c77750"
+      },
+      "base_guest.py": {
+        "bytes": 38694,
+        "sha256": "70195174037b06d064c3ffcb57b39d286558336e5e3f8ba080717b729f0d5f07"
+      },
+      "build_scope.py": {
+        "bytes": 7160,
+        "sha256": "caff48d3333b72a16f428b701f86f0ca772bfdec89f4c28ef029e4630b2f0e23"
+      },
+      "candidates.py": {
+        "bytes": 9239,
+        "sha256": "ebaa95bd680350142c3a9c6806ef7eee1d095b35d0d2a847067d6853a27a3627"
+      },
+      "candidates/trust.py": {
+        "bytes": 1586,
+        "sha256": "122804bdced8a309200ddf306cca9110e8156adc02a6a39711cc49a1b272b085"
+      },
+      "compositor_log.py": {
+        "bytes": 2511,
+        "sha256": "f9a234315adfa9147c25f5f5fdc48d706fa4d3b2bb820485ddfc799dc81d235e"
+      },
+      "context606.py": {
+        "bytes": 11133,
+        "sha256": "94b9265e1680e38fbc93c63b6f83cec1d67bed2759cb791d0b55a254b2d13301"
+      },
+      "contract.py": {
+        "bytes": 4258,
+        "sha256": "ace24d711fd3f2d2ed28af859a1aa77e63a93dbe90472fdb82fcc44ea1c2427a"
+      },
+      "current_products.py": {
+        "bytes": 7523,
+        "sha256": "dcad5ad29b8f50619361fa59ae27db29a831887664ecf4ce8ef9a3f34412d4f0"
+      },
+      "desktop574_fixture.sh": {
+        "bytes": 6625,
+        "sha256": "b08e23e2f3d315c02c96b09e00a8638e997b900049fedf7b71b8f145e025f77e"
+      },
+      "desktop574_guest.py": {
+        "bytes": 2431,
+        "sha256": "855cecdc2bb8d1fc49db3f322c7e58c7ecb318e8d3ecc66e0954c58973473490"
+      },
+      "desktop574_runtime.py": {
+        "bytes": 20362,
+        "sha256": "e8263145346bb1d3e932599d5a92d8d2d7921b6d126f8b935ba2db54cedd4706"
+      },
+      "dns_contract.py": {
+        "bytes": 8348,
+        "sha256": "7351b45f7e348e7477a84f5ff24dbc87fb99a890619223efa4fa121c4f522bea"
+      },
+      "dns_fixture.py": {
+        "bytes": 10358,
+        "sha256": "fc8cb6a2f1c3833a4cb19facd216d3da4371826fa1993ed92eca4baa1d0aa805"
+      },
+      "dns_phase.py": {
+        "bytes": 3419,
+        "sha256": "aabd343ee065d1cd773b43f595c2d237fdae24fdbe9e45e4e8f42e550094c103"
+      },
+      "doctor_lifetime.py": {
+        "bytes": 14245,
+        "sha256": "c54a6d38cf9b079ef3b2911eb9793703dede65731a01fb75c98e67994704fde4"
+      },
+      "doctor_worker.py": {
+        "bytes": 5862,
+        "sha256": "fbdd15009b6a8ff9a7639392d5cc1c56d4e98f4fe3aa6ab9dbc293083bc0bd41"
+      },
+      "failure_cleanup.py": {
+        "bytes": 6664,
+        "sha256": "2124b139b5948ff6c5f94af6146dc1925b2707ef6dbcb5b518321b4beeca1945"
+      },
+      "file_capabilities.py": {
+        "bytes": 13562,
+        "sha256": "498a3beec0327b9335dcd6d80ed5919fa2edebebd3284e9ee8b97770328e26a2"
+      },
+      "gui_contract.py": {
+        "bytes": 9438,
+        "sha256": "45a74eb6865e690b35f2e5b9d8cbacc04788207e744626582a042763102ba141"
+      },
+      "install-context606/alpm_reader.py": {
+        "bytes": 23916,
+        "sha256": "d567aea0616bf92450e25e40daa54049ecc630dc7c988d2a55e19459e1958a8f"
+      },
+      "install-context606/build_scope.py": {
+        "bytes": 7160,
+        "sha256": "caff48d3333b72a16f428b701f86f0ca772bfdec89f4c28ef029e4630b2f0e23"
+      },
+      "install-context606/contract604.py": {
+        "bytes": 17546,
+        "sha256": "34bae2e815c3b01df43379f5251b0591430c55eb0079bd8befed5eef3f5bcb1f"
+      },
+      "install-context606/install606.py": {
+        "bytes": 6523,
+        "sha256": "f66a19b21ecab995a7f6e9cca93b656d2b73047735abc6f9f67dcab8f98bb454"
+      },
+      "install-context606/lifecycle604.py": {
+        "bytes": 18618,
+        "sha256": "ea01ae7bca622293ecd537f7d22b54c0530b541f5068219fe67fcb4332bb9402"
+      },
+      "install606.py": {
+        "bytes": 6523,
+        "sha256": "f66a19b21ecab995a7f6e9cca93b656d2b73047735abc6f9f67dcab8f98bb454"
+      },
+      "installed.py": {
+        "bytes": 4928,
+        "sha256": "ee8a67051a2b531e1fe321254e39b7271fe6b0dcc4b06a7ec63eeeb8938ba9c2"
+      },
+      "installed606.py": {
+        "bytes": 9074,
+        "sha256": "09a60e0ff49526abb62b2c7fe3539cc2bf3a9578a5701a874a73e6650fb64ff5"
+      },
+      "inventory_capacity.py": {
+        "bytes": 5998,
+        "sha256": "1606bfdf79fb5fd0f1cd2fd6d64b2984af9ccfd384863159788727b000196024"
+      },
+      "legacy_contract.py": {
+        "bytes": 7978,
+        "sha256": "f17a809ee9e38efc3c8e05011d0e4d3264d48df1c1aab7ba5b5801e60fcbcd04"
+      },
+      "managed_contract.py": {
+        "bytes": 3780,
+        "sha256": "27397824735cd4b3a72c022971e7cda7dbd8478d30c4bca3e400adeba20434a2"
+      },
+      "managed_session.py": {
+        "bytes": 11255,
+        "sha256": "2187c47b3f5877d8585c66c806b0c5dd17efc38cee414c46bc746157f3c4d991"
+      },
+      "management_contract.py": {
+        "bytes": 21595,
+        "sha256": "ccd3a93b9977093113ebbc530a7d4afafef4593c810574bba4b6681a260148ec"
+      },
+      "management_phase.py": {
+        "bytes": 15707,
+        "sha256": "d0ab438e2cc7ee3638eb8da9308d3108e20e5b9c77047e492e4fb9a398fd189f"
+      },
+      "management_root.py": {
+        "bytes": 18251,
+        "sha256": "7bee5cb9e08dcadb52c1e4c5ba3851c29f168f21d70221ad8502e928697d4ca5"
+      },
+      "native_contract.py": {
+        "bytes": 14414,
+        "sha256": "180cf1d7c98dfbdf8178d5eab0bae8e8fa5f90ed32935b3f6febd3520e0c657a"
+      },
+      "observed.py": {
+        "bytes": 1997,
+        "sha256": "ae7a6b6e9479b6fc4575161d0ed03b807c58a4b11f8e374ec66d80451a6320b6"
+      },
+      "post_session.py": {
+        "bytes": 637,
+        "sha256": "f700e2f1f4fe6c9f59f583b577a6ce70ef72196d72bfca0525138fa9172e426e"
+      },
+      "qemu-context/alpm_reader.py": {
+        "bytes": 23916,
+        "sha256": "d567aea0616bf92450e25e40daa54049ecc630dc7c988d2a55e19459e1958a8f"
+      },
+      "qemu-context/build_scope.py": {
+        "bytes": 7160,
+        "sha256": "caff48d3333b72a16f428b701f86f0ca772bfdec89f4c28ef029e4630b2f0e23"
+      },
+      "qemu-context/contract604.py": {
+        "bytes": 17546,
+        "sha256": "34bae2e815c3b01df43379f5251b0591430c55eb0079bd8befed5eef3f5bcb1f"
+      },
+      "qemu-context/install_tooling.py": {
+        "bytes": 2760,
+        "sha256": "ac65ced048da8effe7c7cd78d49365bea47d9aed3b0ddf0846bcc9397dfb1401"
+      },
+      "qemu-context/lifecycle604.py": {
+        "bytes": 18618,
+        "sha256": "ea01ae7bca622293ecd537f7d22b54c0530b541f5068219fe67fcb4332bb9402"
+      },
+      "service_outcome.py": {
+        "bytes": 916,
+        "sha256": "7f2b1047c04a69643a0857d765822fd95eb3645a71649078aa7b29e827dd6eb2"
+      },
+      "session.py": {
+        "bytes": 19733,
+        "sha256": "eee60462ba77ae234ab3dd92968bdf0242a2207ce8dd685a82122afe123b5543"
+      },
+      "terminal_session.py": {
+        "bytes": 8053,
+        "sha256": "4088ae86877da08df33a56c044ea82aad956da67a749e03b6e706685346ee222"
+      },
+      "terminal_workflow.py": {
+        "bytes": 5147,
+        "sha256": "ca73da754373cf68148ac992f1c2281b03b604703f112a2c4fd24d4604033e87"
+      },
+      "test_desktop574_runtime.py": {
+        "bytes": 12245,
+        "sha256": "e14dc90b5e3b6bedb7a791c128e05ec886127922549c38f2e97760510ab21cdf"
+      },
+      "welcome8_stop.py": {
+        "bytes": 8881,
+        "sha256": "f4c378c66f7fbc4df406e40b4d0429c7744c6791f263ec79d6b5e71343444e1a"
+      }
+    }
+  },
+  "proof_keys": [
+    "GUI",
+    "accepted_input_source",
+    "actual_run",
+    "derivatives",
+    "files",
+    "hardware",
+    "mode",
+    "observer_diagnostic",
+    "optional_absent",
+    "packages",
+    "page_size",
+    "profile",
+    "release",
+    "service_validation_profile",
+    "status"
+  ],
+  "source_generated": "EXACT_WHOLE_FROZEN682_FOUR_CODE_EMISSIONS",
+  "target": {
+    "bytes": 12076,
+    "sha256": "be35402204ba5c03d78279722afa83047c9575d2da70fb5c4064f46ed15954c5"
+  }
+}

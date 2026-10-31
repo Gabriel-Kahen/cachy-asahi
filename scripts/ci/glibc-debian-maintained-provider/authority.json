@@ -1,0 +1,21 @@
+{
+  "candidate": {
+    "archive_sha256": "b8f0d50a7d4255658efe1f608cacdc4be82bb3c009875626df5968cc64c58880",
+    "name": "cachy-asahi-glibc-gnu-provider",
+    "patch_tar_sha256": "9f62b90fb4c7423ed5023698c9014ad0086d26f9b6f46b2a163afcea7e581a02",
+    "prepared_tree": "08ea2aef96bd3144cf02cbc68cbbb003dc25ed9f",
+    "quilt_tree": "aa963b6ef1d55056efbab622411d2530a636422d",
+    "version": "2.43.caa3-1"
+  },
+  "decision": {
+    "bytes": 15506,
+    "path": "root-maintained-source-authority.json",
+    "sha256": "88643eabd61a39df63ecaeb50bb20041d17cf4fd3adee55d82d43d3c1ca08707"
+  },
+  "key_pairs": {
+    "04B54C3CDCA79751B16BC6B5225629DF75B188BD": "B8E5F13176D2A7A75220028078DBA3BC47EF2265",
+    "B8B80B5B623EAB6AD8775C45B7C5D7D6350947F8": "4CB50190207B4758A3F73A796ED0E7B82643E131"
+  },
+  "schema_version": 1,
+  "status": "ROOT_BOUND_DEBIAN_MAINTAINED_SOURCE_AUTHORITY"
+}

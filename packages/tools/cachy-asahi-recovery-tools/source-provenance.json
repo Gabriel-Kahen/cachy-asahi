@@ -1,0 +1,180 @@
+{
+  "acceptance": {
+    "ALPM_installation": "NOT RUN",
+    "M2": "NOT RUN",
+    "boot_recovery": "NOT RUN",
+    "emulated16k": "NOT RUN",
+    "native": "NOT RUN",
+    "performance": "NOT MEASURED",
+    "release": "NOT ADMITTED"
+  },
+  "check_dependencies": [],
+  "import_only_dependencies": [
+    "scripts/platform/capture.py",
+    "scripts/platform/transaction.py",
+    "scripts/platform/tuple_audit.py",
+    "scripts/port/preview.py",
+    "scripts/ci/native_arm.py",
+    "scripts/checks/package_checks.py",
+    "scripts/integration/lifecycle.py"
+  ],
+  "original_source_bytes_preserved": true,
+  "package": "cachy-asahi-recovery-tools",
+  "runtime_dependencies": [
+    "python>=3.14",
+    "gnupg",
+    "glibc"
+  ],
+  "schema_version": 1,
+  "source_revision": "852d1b7324e4ad840fa94ea7c9fc994b1aa07280",
+  "source_url": "https://github.com/Gabriel-Kahen/cachy-asahi",
+  "sources": {
+    "LICENSE": {
+      "bytes": 1081,
+      "installed": false,
+      "license": "MIT",
+      "packaged_as": "LICENSE",
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+      "source_commit": "852d1b7324e4ad840fa94ea7c9fc994b1aa07280"
+    },
+    "docs/port/offline-recovery-bundle.md": {
+      "bytes": 10390,
+      "installed": false,
+      "license": "MIT",
+      "packaged_as": "offline-recovery-bundle.md",
+      "sha256": "fd82c28930bd0d45642137c7b7814a981cceb1a2eb216fdac05c319e8bea5c24",
+      "source_commit": "852d1b7324e4ad840fa94ea7c9fc994b1aa07280"
+    },
+    "scripts/checks/package_checks.py": {
+      "bytes": 17706,
+      "installed": true,
+      "license": "MIT",
+      "packaged_as": "private/scripts/checks/package_checks.py",
+      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8",
+      "source_commit": "852d1b7324e4ad840fa94ea7c9fc994b1aa07280"
+    },
+    "scripts/ci/native_arm.py": {
+      "bytes": 28318,
+      "installed": true,
+      "license": "MIT",
+      "packaged_as": "private/scripts/ci/native_arm.py",
+      "sha256": "a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898",
+      "source_commit": "852d1b7324e4ad840fa94ea7c9fc994b1aa07280"
+    },
+    "scripts/client/client.py": {
+      "bytes": 28669,
+      "installed": true,
+      "license": "MIT",
+      "packaged_as": "private/scripts/client/client.py",
+      "sha256": "48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7",
+      "source_commit": "852d1b7324e4ad840fa94ea7c9fc994b1aa07280"
+    },
+    "scripts/integration/lifecycle.py": {
+      "bytes": 58929,
+      "installed": true,
+      "license": "MIT",
+      "packaged_as": "private/scripts/integration/lifecycle.py",
+      "sha256": "c3223a1bd4002683071f4442e1f5b9caf439c68c4e231da10039cc9cebcdb52b",
+      "source_commit": "852d1b7324e4ad840fa94ea7c9fc994b1aa07280"
+    },
+    "scripts/platform/archive_coverage.py": {
+      "bytes": 18010,
+      "installed": true,
+      "license": "MIT",
+      "packaged_as": "private/scripts/platform/archive_coverage.py",
+      "sha256": "685a98cb082739e5fa3630ff6496cceb09fc45698a806e737d40cfffe84b3c11",
+      "source_commit": "852d1b7324e4ad840fa94ea7c9fc994b1aa07280"
+    },
+    "scripts/platform/authenticate_missing.py": {
+      "bytes": 23070,
+      "installed": true,
+      "license": "MIT",
+      "packaged_as": "private/scripts/platform/authenticate_missing.py",
+      "sha256": "6af079cf10f8ebcc9416bf64bca4336ea03dbbf13f99ebd98a83808365f2fe59",
+      "source_commit": "852d1b7324e4ad840fa94ea7c9fc994b1aa07280"
+    },
+    "scripts/platform/capture.py": {
+      "bytes": 26406,
+      "installed": true,
+      "license": "MIT",
+      "packaged_as": "private/scripts/platform/capture.py",
+      "sha256": "ce73314eb5a75b8afb963217fba15065106ae3f6ee081599a1ba7ab620b044c8",
+      "source_commit": "852d1b7324e4ad840fa94ea7c9fc994b1aa07280"
+    },
+    "scripts/platform/recovery_inputs.py": {
+      "bytes": 22618,
+      "installed": true,
+      "license": "MIT",
+      "packaged_as": "private/scripts/platform/recovery_inputs.py",
+      "sha256": "09be69917bf74b50a65841243e8e4cfef264a56074945b609264c76a0f387430",
+      "source_commit": "852d1b7324e4ad840fa94ea7c9fc994b1aa07280"
+    },
+    "scripts/platform/transaction.py": {
+      "bytes": 29649,
+      "installed": true,
+      "license": "MIT",
+      "packaged_as": "private/scripts/platform/transaction.py",
+      "sha256": "1e4776bd89c436af526ed132d75df32fbc15cf2349dd3cf7cf13ecf874238694",
+      "source_commit": "852d1b7324e4ad840fa94ea7c9fc994b1aa07280"
+    },
+    "scripts/platform/tuple_audit.py": {
+      "bytes": 16220,
+      "installed": true,
+      "license": "MIT",
+      "packaged_as": "private/scripts/platform/tuple_audit.py",
+      "sha256": "e2fde6832d57f33aca1b215f03350edab67d9b3c66d31b7062bc4b0df8d92b5d",
+      "source_commit": "852d1b7324e4ad840fa94ea7c9fc994b1aa07280"
+    },
+    "scripts/port/authenticate.py": {
+      "bytes": 17452,
+      "installed": true,
+      "license": "MIT",
+      "packaged_as": "private/scripts/port/authenticate.py",
+      "sha256": "241cd67370eb593bdf948a25788f006ecf470c645ba5d198bc9c318119ebfe10",
+      "source_commit": "852d1b7324e4ad840fa94ea7c9fc994b1aa07280"
+    },
+    "scripts/port/preview.py": {
+      "bytes": 19736,
+      "installed": true,
+      "license": "MIT",
+      "packaged_as": "private/scripts/port/preview.py",
+      "sha256": "d737c51474e05cc2c4db2e87fc021f50328eea7744983dd4076d44751fce7383",
+      "source_commit": "852d1b7324e4ad840fa94ea7c9fc994b1aa07280"
+    },
+    "scripts/release/offline_kit.py": {
+      "bytes": 14796,
+      "installed": true,
+      "license": "MIT",
+      "packaged_as": "private/scripts/release/offline_kit.py",
+      "sha256": "8f9cdb4ad26525fb1c4c906a752f56e8115a3c39b8aa758dd86dca7d032f54b3",
+      "source_commit": "852d1b7324e4ad840fa94ea7c9fc994b1aa07280"
+    },
+    "scripts/release/recovery_bundle.py": {
+      "bytes": 20241,
+      "installed": true,
+      "license": "MIT",
+      "packaged_as": "private/scripts/release/recovery_bundle.py",
+      "sha256": "8629981d62b6bad24aa9908186e32bdfc8769b9199df630bd881bcece0bba219",
+      "source_commit": "852d1b7324e4ad840fa94ea7c9fc994b1aa07280"
+    },
+    "scripts/release/source_delivery.py": {
+      "bytes": 16456,
+      "installed": true,
+      "license": "MIT",
+      "packaged_as": "private/scripts/release/source_delivery.py",
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e",
+      "source_commit": "852d1b7324e4ad840fa94ea7c9fc994b1aa07280"
+    },
+    "scripts/release/test_recovery_bundle.py": {
+      "bytes": 23544,
+      "installed": false,
+      "license": "MIT",
+      "packaged_as": "private/scripts/release/test_recovery_bundle.py",
+      "sha256": "87a0c23c41cbcd96fae6af5a40830e880bb8b62e9ffbfcb98c6b0fe9c013f91c",
+      "source_commit": "852d1b7324e4ad840fa94ea7c9fc994b1aa07280"
+    }
+  },
+  "unsupported_entrypoints": "Private modules retain other tools for exact import closure; launcher exposes materialize/verify only. No direct invocation is supported.",
+  "upstream_repairs": [],
+  "version": "0.1.0-1"
+}

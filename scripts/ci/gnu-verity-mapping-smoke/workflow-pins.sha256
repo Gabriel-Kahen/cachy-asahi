@@ -1,0 +1,9 @@
+0aa3115c5d4b9fcdc658872c9793d1bae449b429456811958d0dd18a0e74bccf  scripts/ci/gnu-verity-mapping-smoke/entry.py
+7aae9e4521fbe376a21e0d284efe4db1513ed56f802be5dbd5116fb9f4067de8  scripts/ci/gnu-verity-mapping-smoke/kernel_input_entry.py
+29f8c841454b393fdfbdacdd1dc9ba9f8218fc9118e70b4004e2b9f07faadceb  scripts/ci/gnu-verity-mapping-smoke/lane.py
+60c1528e6292921d762f739f228c9642982fc8057d3135d715e2a692f1756250  scripts/ci/gnu-verity-mapping-smoke/contract.py
+7580288b0ac80fa73f934f4ae58fa713f6b9ff4b2ebd9265c90fdecf64b7ccf5  scripts/ci/gnu-verity-mapping-smoke/protocol.py
+c915e629bfd9e45536448538e8534b7dc4b0b4265e4abfc69bc9a7bdd9a38876  scripts/ci/gnu-verity-mapping-smoke/fixture.py
+1d424b939d7b013ab7432b085a1efb1b23950e063a65e1473a2c0b4b555dce28  scripts/ci/gnu-verity-mapping-smoke/supervise.py
+85ca82a9487c353164f574286904ae1e962bf960f143b5066b24fe270d9a6fb0  scripts/ci/gnu-verity-mapping-smoke/kernel_input.py
+c8d6e20c0b7c21047ee2179b44ddbb94d8e4f4ec2e8a1e40217b227681cee722  scripts/ci/gnu-verity-mapping-smoke/layout.py

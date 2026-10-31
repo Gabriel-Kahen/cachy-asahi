@@ -1,0 +1,79 @@
+{
+  "name": "current607-apps16-vmtest3600-source",
+  "on": {
+    "push": {
+      "paths": [
+        "scripts/ci/current607-native-graph-profile/**",
+        ".github/workflows/current607-apps16-vmtest3600-source.yml"
+      ]
+    },
+    "pull_request": {
+      "paths": [
+        "scripts/ci/current607-native-graph-profile/**",
+        ".github/workflows/current607-apps16-vmtest3600-source.yml"
+      ]
+    },
+    "workflow_dispatch": {}
+  },
+  "permissions": {
+    "contents": "read"
+  },
+  "jobs": {
+    "source-controls": {
+      "runs-on": "ubuntu-24.04",
+      "timeout-minutes": 10,
+      "strategy": {
+        "fail-fast": false,
+        "matrix": {
+          "python": [
+            "3.12",
+            "3.14"
+          ]
+        }
+      },
+      "env": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONWARNINGS": "error"
+      },
+      "steps": [
+        {
+          "name": "Check out maintained factory",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Check out immutable parent849",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "ref": "c64cee1167d2ff81f1de0128f57c275819e32868",
+            "path": ".ci-fixtures/parent849",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Check out immutable expected853",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "ref": "67e8155840f9851bff3b8acb2cd6de6a622515c4",
+            "path": ".ci-fixtures/expected853",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Select Python",
+          "uses": "actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+          "with": {
+            "python-version": "${{ matrix.python }}"
+          }
+        },
+        {
+          "name": "Exact853 known/NULL and held849 source guards with hostile input controls",
+          "shell": "bash",
+          "run": "set -euo pipefail\nstage=$(mktemp -d \"$RUNNER_TEMP/apps16-vmtest3600-source.XXXXXXXX\")\ntrap 'rm -rf -- \"$stage\"' EXIT\nexport TMPDIR=\"$stage\"\npython3 -I -B -Werror \"$GITHUB_WORKSPACE/scripts/ci/current607-native-graph-profile/test_apps16_vmtest3600.py\" \\\n --parent \"$GITHUB_WORKSPACE/.ci-fixtures/parent849\" \\\n --expected \"$GITHUB_WORKSPACE/.ci-fixtures/expected853\"\n"
+        }
+      ]
+    }
+  }
+}

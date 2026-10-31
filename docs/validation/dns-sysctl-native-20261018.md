@@ -1,0 +1,9 @@
+# DNS and sysctl native development components
+
+Native ARM run [39096750092](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/39096750092), source `8f09e6d0f4cc2ba276dbd3241be55a010a0ae438`, passes Root retained-source verification. Both0.1.0-1 recipes come from `8daeb115740ffb494e8fa91f0749c2edd6dd4284`.
+
+Four distinct clean containers build each tool twice on the exact574-package native base. Pair archive bytes, installed contents, PKGINFO and BUILDINFO match. Every native build runs the original21 DNS and19 sysctl controls without skips. REQUIRED isolated TEST signatures protect install, same-version reinstall, removal, reinstall and final removal:576,576,574,576,574 packages. Both ordinary-user homes run the actual installed code against private fixtures, including real nmcli offline profile edits and a SIGKILL/undo sysctl model. Owned files, original574 payload/raw database preservation, user state and six-consumer-before-producer cleanup pass their source-bound checks. The installed sysctl keys command is read-only.
+
+Original artifacts were collected once. The verifier executes trusted pinned comparison/retention code and treats exported code as data. Private574 preservation maps and installed-suite text remain unexported; stream identities, counts and their original source-enforced receipts are checked. Retirement is retained evidence, not a new live cleanup observation. TEST signatures supply no release trust and are not independently reverified here. Containers share one native host; actual pages are4096.
+
+No live DNS reconfiguration, actual sysctl mutation or memory-pressure effect was tested. PolicyKit, Wi-Fi/VPN/IPv6 live integration, reboot recovery, full604, generic16K, either physical M2 size, performance and release acceptance remain open. Stored-profile and control-value undo do not promise restoration of network connections, page residency or application effects.

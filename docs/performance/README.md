@@ -1,5 +1,7 @@
 # M4 measurement framework
 
+Current source execution uses the [owned-retirement v2 layer](owned-retirement-v2.md). Historical `benchmark.py` and `paired_zlib.py` files and their frozen plans remain byte-held; their legacy workload execution is retired. Redeclare fresh v2 plans for new runs; do not edit or rebind historical plans. Offline historical comparison remains available.
+
 Status: methodology prepared; exact M2 native baseline, measurements, recovery
 and optimization acceptance are **NOT RUN**. Development-host smoke runs and
 automated tests are x86/nonacceptance evidence only. This framework does not

@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: MIT
+"""Seal this finite native Setup6 source; no build or system actors."""
+import argparse,json
+from pathlib import Path
+import contract as C
+
+def freeze(root):
+ root=C.safe(root.absolute());here=root/'scripts/ci/setup6-native';C.need(here.resolve()==Path(__file__).resolve().parent,'only explicit private/adopted source root');C.recipe(root);names={p.relative_to(root).as_posix()for p in root.rglob('*')if p.is_file()and'.git'not in p.relative_to(root).parts and not p.relative_to(root).as_posix().startswith('.github/')and p.name not in('source-pins.json','source-manifest.json')};C.need(20<=len(names)<=96,'unchanged source-pin cap96');pins={n:C.digest(root/n)for n in sorted(names)};(here/'source-pins.json').write_text(json.dumps(pins,sort_keys=True,indent=2)+'\n');names.add('scripts/ci/setup6-native/source-pins.json');base=json.loads((root/'scripts/ci/maintained-desktop574-inputs.json').read_bytes());packages={r['name']:r for r in base['packages']};C.need(len(packages)==574 and all(n in packages for n in('python','pacman','gnupg'))and C.PACKAGE not in packages,'exact original574 dependency context');adapter=C.load('source_only_setup6_recovery_adapter',here/'recovery_preview.py').adapted_source((root/'scripts/setup/test_recovery_preview.py').read_text());manifest=dict(recovery_preview_adapter_sha256=__import__('hashlib').sha256(adapter.encode()).hexdigest(),schema_version=1,scope='ONE_UNSELECTED_SETUP6_CANDIDATE',version='0.1.0-6',actual_source=None,actual_ref=None,actual_run=None,native_runtime='NOT_RUN',recipe=C.recipe(root),dependency_bindings={n:packages[n]for n in('python','pacman','gnupg')},parent_source='4cf9884dacb2816532b07c8107982d7157656046',files={n:dict(bytes=(root/n).stat().st_size,sha256=C.digest(root/n))for n in sorted(names)});(here/'source-manifest.json').write_text(json.dumps(manifest,sort_keys=True,indent=2)+'\n');q=root/'.github/workflows/native-arm-setup6-candidate.yml';text=q.read_text()
+ for marker,path in(('@JOB_SHA256@',here/'job.py'),('@MANIFEST_SHA256@',here/'source-manifest.json')):C.need(text.count(marker)==1,'explicit source stamp marker');text=text.replace(marker,C.digest(path),1)
+ q.write_text(text);(root/'.github/workflows/native-arm-build.yml').write_text(text);return dict(status='FROZEN_SOURCE_ONLY_NOT_NATIVE',manifest_files=len(names),native='NOT_RUN',hardware='NOT_RUN')
+if __name__=='__main__':
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--source',type=Path,required=True);print(json.dumps(freeze(p.parse_args().source)))

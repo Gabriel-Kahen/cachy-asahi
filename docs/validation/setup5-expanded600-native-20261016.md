@@ -1,0 +1,11 @@
+# Setup5 on the native600 composition
+
+Run [38964311175](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38964311175), source `95ebf2aca32c829351f8b59ef49fa4edea9f0abc`, passes the separate native aarch64/4096 Setup5 lifecycle. Root accepts this finite software result as `ROOT_ACCEPTED_NATIVE_SETUP5_EXPANDED600_LIFECYCLE`.
+
+The genuine Setup5 archive is SHA256 `1aafee365e3bcb04e1fce694c110a997914a07f4359697df5e017375897385fc`. Starting with the exact600 composition `d263a3ca9089c204603f2e12b80dc4f209ee6e636f10da940a514040b636db79`, the separate consumer upgrades Setup3 to5, runs six real generated Fish/Zsh RC cases as UID1000, repeats Setup5 and rolls back to3. The other599 packages, existing configuration and user workspace remain preserved by the source-enforced runtime checks. Setup3 rollback changes only the normal ALPM INSTALLDATE in its recorded transaction interval. Six raw loader/cache and auxiliary checkpoints replay successfully.
+
+The original600 consumer remains isolated and unchanged: its full587→600→repeat→remove587→restore600→final587 lifecycle, six module cases and eight raw loader/cache checkpoints pass again. All four owned consumers, TEST signing state and original producer have successful ordered cleanup receipts.
+
+Root replay joins all72 closed public files, the original log frame,14 implementation files,147 probe files,34 baseline files,86 module files and149 accepted Setup5 input files to their frozen sources. All36 frozen source controls pass. Retained collection and Root decision are under `artifacts/development/setup5-expanded600-run38964311175`; the reproducible passive verifier and full limitations are under `artifacts/development/setup5-expanded600-actual-check-20261016`.
+
+Private full-root payload maps and raw other599 database snapshots were not exported, so this is source-bound retained preservation evidence, not a second independent live filesystem observation. Complete raw PTY streams and public signature-verification keys are absent. Auxiliary comparison retains its documented AArch64 padding qualification; helper exit remains NOT_OBSERVED. Notification checks use the private notify-send recorder and do not establish desktop delivery. This result establishes no fresh installation, Apple hardware, boot recovery, performance or release admission.

@@ -1,5 +1,8 @@
 """Portable source-framework tests; synthetic/x86 runs are never M2 acceptance."""
 import copy
+import base64
+import gzip
+import hashlib
 from datetime import timedelta
 import importlib.util
 import json
@@ -245,10 +248,106 @@ class BenchmarkTests(unittest.TestCase):
         with self.assertRaisesRegex(b.Invalid, "raw output"):
             b.compare(self.plan, directories, self.root / "compare.json")
 
+    def synthetic_sensor_cli(self):
+        # Test-only entry; production telemetry and comparison stay unchanged.
+        # Empty sensor identity matches the production no-snapshot fallback too.
+        entry = self.root / "synthetic_sensor_cli.py"
+        entry.write_text("""import importlib.util,os,sys,threading,time
+from pathlib import Path
+spec=importlib.util.spec_from_file_location('synthetic_sensor_benchmark',sys.argv[1])
+b=importlib.util.module_from_spec(spec);spec.loader.exec_module(b)
+release=threading.Event();calls=0
+original_killpg=b.os.killpg;original_queue=b.queue.Queue
+ready=Path(sys.argv[sys.argv.index('--cwd')+1])/'sample-ready' if 'run' in sys.argv else None
+def synthetic_telemetry(pid):
+    global calls
+    if calls and not release.wait(timeout=5):
+        raise RuntimeError('synthetic sampler cleanup acknowledgement missing')
+    calls+=1
+    return dict(monotonic_ns=time.monotonic_ns(),thermal=[],power=[],battery=[],
+                memory=dict(root_rss_kib=None,lifecycle='unknown'),
+                missing=['thermal','power','battery','memory'],
+                reason='EXPLICIT_SYNTHETIC_UNAVAILABLE_SENSORS_NOT_HARDWARE')
+def cleanup(pid,sig):
+    try:return original_killpg(pid,sig)
+    finally:release.set()
+class AcknowledgedQueue(original_queue):
+    def put_nowait(self,row):
+        super().put_nowait(row)
+        ready.write_text('snapshot queued')
+b.telemetry=synthetic_telemetry
+b.os.killpg=cleanup
+b.queue.Queue=AcknowledgedQueue
+sys.argv=[sys.argv[0],*sys.argv[2:]]
+raise SystemExit(b.main())
+""")
+        self.config["inputs"].append(str(entry))
+        return [sys.executable, "-B", str(entry), str(Path(b.__file__))]
+
+    def invalid_cli_packet(self, result, directory):
+        paths = [self.config_path, self.plan, self.state, self.driver, self.root / "synthetic_sensor_cli.py"]
+        paths += [directory / name for name in ("started.json", "trial.json", "stdout.txt", "stderr.txt", "telemetry.jsonl")]
+        files, total = {}, 0
+        for path in paths:
+            if not path.is_file():
+                continue
+            raw = path.read_bytes()
+            total += len(raw)
+            self.assertLessEqual(total, 4 * 1024**2, "failure packet byte cap; no full-packet claim")
+            files[str(path.relative_to(self.root))] = {"bytes": len(raw), "sha256": hashlib.sha256(raw).hexdigest(),
+                                                     "base64": base64.b64encode(raw).decode()}
+        body = json.dumps({"status": "INVALID_TRIAL_NOT_PERFORMANCE_EVIDENCE", "files": files,
+                           "command": {"argv": result.args, "returncode": result.returncode,
+                                       "stdout": result.stdout, "stderr": result.stderr}}, sort_keys=True).encode()
+        compressed = gzip.compress(body, mtime=0)
+        self.assertLessEqual(len(compressed), 256 * 1024, "failure packet log cap; no full-packet claim")
+        (self.root / "cli-failure.json.gz").write_bytes(compressed)
+        return "BENCHMARK_CLI_FAILURE_GZIP_BASE64 " + base64.b64encode(compressed).decode()
+
+    def require_valid_cli_trial(self, result, directory):
+        # run exit2 is INVALID evidence, never a negative timing verdict.
+        path = directory / "trial.json"
+        trial = b.read_json(path) if path.is_file() else {}
+        diagnostic = {"cli_returncode": result.returncode, "cli_stderr": result.stderr,
+                      "trial": {k: trial.get(k) for k in ("slot", "valid", "returncode", "error", "sampling_status")},
+                      "state_changed": trial.get("state_after") != trial.get("state"),
+                      "raw": {p.name: {"sha256": b.digest(p), "tail": p.read_text(errors="replace")[-4096:]}
+                              for p in (directory / "stdout.txt", directory / "stderr.txt", directory / "telemetry.jsonl")
+                              if p.is_file()}}
+        message = json.dumps(diagnostic, sort_keys=True)
+        if result.returncode != 0:
+            # Assertion text survives CI even when TemporaryDirectory removes raw files.
+            (self.root / "cli-invalid-trial.json").write_text(message + "\n")
+            message += "\n" + self.invalid_cli_packet(result, directory)
+        self.assertEqual(result.returncode, 0, message)
+        self.assertTrue(trial.get("valid"), message)
+        self.assertEqual(trial.get("returncode"), 0, message)
+        self.assertIsNone(trial.get("error"), message)
+
+    def require_cli_comparison(self, result, directories, output):
+        self.assertTrue(output.is_file(), "comparison refused: " + result.stderr)
+        report = b.read_json(output)
+        # Replay unchanged production validation of raw hashes, conditions, cleanup,
+        # complete trial graph and all budgets before accepting any CLI verdict.
+        with tempfile.TemporaryDirectory(dir=self.root) as work:
+            replay = Path(work) / "comparison.json"
+            code = b.compare(self.plan, directories, replay)
+            self.assertEqual(report, b.read_json(replay))
+        verdict = "FAIL" if report["failures"] else "INCOMPLETE" if report["missing_guardrail_telemetry"] else "MEETS_TIMING_RULE_ONLY"
+        self.assertEqual(report["preliminary_result"], verdict)
+        self.assertEqual(result.returncode, code)
+        self.assertEqual(code, 0 if verdict == "MEETS_TIMING_RULE_ONLY" else 2)
+        self.assertEqual(report["record_type"], "preliminary-comparison")
+        self.assertEqual(report["plan_sha256"], b.digest(self.plan))
+        self.assertEqual(report["optimization_acceptance"], "NOT RUN")
+
     @unittest.skipIf(os.geteuid() == 0, "root workload execution intentionally refused")
     def test_actual_cli_roundtrip_is_nonacceptance_smoke(self):
-        # Real Linux/x86-or-other-host execution; no synthetic timing or M2 claim.
-        self.driver.write_text("import os,time\ntime.sleep(.05)\nprint('nonacceptance smoke',os.environ['SMOKE_VARIANT'])\n")
+        # Real workload/CLI/timing; explicitly synthetic unavailable sensors.
+        # This portable protocol test establishes no physical sensor/M2 result.
+        self.driver.write_text("import os,time\nfrom pathlib import Path\n"
+                               "while not Path('sample-ready').exists():time.sleep(.001)\n"
+                               "time.sleep(.05)\nprint('nonacceptance smoke',os.environ['SMOKE_VARIANT'])\n")
         self.config["change"]["environment_key"] = "SMOKE_VARIANT"
         self.config["variant_env"] = {"baseline": {"SMOKE_VARIANT": "A"}, "candidate": {"SMOKE_VARIANT": "B"}}
         live = b.live_identity("unknown")
@@ -256,28 +355,87 @@ class BenchmarkTests(unittest.TestCase):
         record["packages"] = {"returncode": 0 if live["packages"] is not None else 1, "stdout": live["packages"]}
         record["repositories"] = {"sync_databases": live["repositories"]}
         self.state.write_text(json.dumps(record))
+        cli = self.synthetic_sensor_cli()
         self.config_path.write_text(json.dumps(self.config))
-        cli = [sys.executable, str(Path(b.__file__))]
         prepared = subprocess.run(cli + ["prepare-plan", "--config", str(self.config_path), "--baseline", str(self.state),
                                         "--candidate-state", str(self.state), "--output", str(self.plan)], capture_output=True, text=True)
         self.assertEqual(prepared.returncode, 0, prepared.stderr)
         directories = []
         for slot in range(len(self.config["order"])):
             directory = self.root / f"actual-{slot}"
+            (self.root / "sample-ready").unlink(missing_ok=True)
             result = subprocess.run(cli + ["run", "--plan", str(self.plan), "--slot", str(slot), "--state", str(self.state),
                                           "--conditions", str(self.conditions), "--cwd", str(self.root), "--output", str(directory)],
                                     capture_output=True, text=True)
-            self.assertEqual(result.returncode, 0, result.stderr)
+            self.require_valid_cli_trial(result, directory)
             self.assertIn("nonacceptance smoke", b.read_json(directory / "trial.json")["execution_label"])
             tag = self.config["change"][self.config["order"][slot]]
             self.assertIn(f"nonacceptance smoke {tag}", (directory / "stdout.txt").read_text())
+            for sample in (directory / "telemetry.jsonl").read_text().splitlines():
+                view = json.loads(sample)
+                self.assertEqual(b.sensor_identity(view), {"thermal": [], "power": []})
+                self.assertIsNone(view["memory"]["root_rss_kib"])
+                self.assertIn("memory", view["missing"])
             directories.append(str(directory))
         output = self.root / "comparison.json"
         result = subprocess.run(cli + ["compare", "--plan", str(self.plan), "--runs", *directories, "--output", str(output)],
                                 capture_output=True, text=True)
-        self.assertIn(result.returncode, (0, 2))  # Unchanged variants do not promise the improvement threshold.
-        self.assertTrue(output.exists(), result.stderr)
-        self.assertEqual(b.read_json(output)["optimization_acceptance"], "NOT RUN")
+        self.require_cli_comparison(result, directories, output)
+
+    def test_cli_complete_negative_and_incomplete_verdicts_are_preserved(self):
+        for verdict in ("FAIL", "INCOMPLETE", "MEETS_TIMING_RULE_ONLY"):
+            with self.subTest(verdict=verdict):
+                control = BenchmarkTests()
+                control.setUp()
+                try:
+                    if verdict == "FAIL":
+                        control.config["thresholds"]["minimum_elapsed_improvement_pct"] = 90
+                    elif verdict == "INCOMPLETE":
+                        control.config["thresholds"]["maximum_regression"] = {"thermal_raw_mC": 1}
+                    directories = control.synthetic_trials()
+                    output = control.root / "actual-comparison.json"
+                    command = [sys.executable, "-B", str(Path(b.__file__)), "compare", "--plan", str(control.plan),
+                               "--runs", *map(str, directories), "--output", str(output)]
+                    result = subprocess.run(command, capture_output=True, text=True)
+                    control.require_cli_comparison(result, directories, output)
+                    self.assertEqual(b.read_json(output)["preliminary_result"], verdict)
+                    # A genuine report cannot justify the wrong exit code.
+                    wrong = subprocess.CompletedProcess(command, 2 if result.returncode == 0 else 0, result.stdout, result.stderr)
+                    with self.assertRaises(AssertionError):
+                        control.require_cli_comparison(wrong, directories, output)
+                finally:
+                    control.doCleanups()
+
+    def test_cli_refused_raw_data_is_not_a_negative_timing_verdict(self):
+        directories = self.synthetic_trials()
+        (directories[0] / "stdout.txt").write_text("changed after measurement")
+        output = self.root / "refused-comparison.json"
+        result = subprocess.run([sys.executable, "-B", str(Path(b.__file__)), "compare", "--plan", str(self.plan),
+                                 "--runs", *map(str, directories), "--output", str(output)], capture_output=True, text=True)
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("raw output changed", result.stderr)
+        with self.assertRaises(AssertionError):
+            self.require_cli_comparison(result, directories, output)
+        self.assertFalse(output.exists())
+
+    def test_invalid_run_is_rejected_with_full_raw_diagnostics(self):
+        directories = self.synthetic_trials()
+        directory = directories[0]
+        trial = b.read_json(directory / "trial.json")
+        trial.update(valid=False, error="telemetry/cleanup incomplete")
+        trial["sampling_status"]["dropped_samples"] = 1
+        (directory / "trial.json").write_text(json.dumps(trial))
+        result = subprocess.CompletedProcess(["explicit-invalid-run-control"], 2, "", "")
+        with self.assertRaisesRegex(AssertionError, "dropped_samples"):
+            self.require_valid_cli_trial(result, directory)
+        packet = json.loads(gzip.decompress((self.root / "cli-failure.json.gz").read_bytes()))
+        self.assertEqual(packet["status"], "INVALID_TRIAL_NOT_PERFORMANCE_EVIDENCE")
+        for name, row in packet["files"].items():
+            raw = base64.b64decode(row["base64"], validate=True)
+            self.assertEqual(raw, (self.root / name).read_bytes())
+            self.assertEqual(hashlib.sha256(raw).hexdigest(), row["sha256"])
+        self.assertIn("trial-0/trial.json", packet["files"])
+        self.assertIn("trial-0/telemetry.jsonl", packet["files"])
 
     def test_baseline_record_drift_invalidates_comparison(self):
         directories = self.synthetic_trials()
@@ -464,6 +622,30 @@ Path(sys.argv[2],'result.json').write_text(json.dumps(result))
             self.replace_samples(directory, [sample])
         with self.assertRaisesRegex(b.Invalid, "sensor source/chip/channel"):
             b.compare(self.plan, directories, self.root / "identity.json")
+
+    def test_missing_to_identified_sensor_is_refused_within_and_between_trials(self):
+        # Actual strict comparator, valid raw hashes/metrics, no sensor values invented.
+        directories = self.synthetic_trials()
+        for location in ("within", "between"):
+            with self.subTest(location=location):
+                for directory in directories:
+                    trial = b.read_json(directory / "trial.json")
+                    sample = {"monotonic_ns": trial["monotonic_start_ns"] + 1,
+                              "memory": {"root_rss_kib": None, "lifecycle": "unknown"},
+                              "thermal": [], "power": [], "missing": ["memory", "thermal", "power"]}
+                    self.replace_samples(directory, [sample])
+                changed = directories[0 if location == "within" else 1]
+                sample = json.loads((changed / "telemetry.jsonl").read_text())
+                identified = copy.deepcopy(sample)
+                identified["monotonic_ns"] += 1
+                identified["power"] = [{"path": "/synthetic/identity-only", "unit": "uW", "value": None,
+                                        "status": "unavailable", "chip_name": "SYNTHETIC_ONLY",
+                                        "channel_label": "NO_MEASUREMENT", "device": None}]
+                self.replace_samples(changed, [sample, identified] if location == "within" else [identified])
+                output = self.root / ("refused-" + location + ".json")
+                with self.assertRaisesRegex(b.Invalid, "sensor source/chip/channel/device/unit"):
+                    b.compare(self.plan, directories, output)
+                self.assertFalse(output.exists())
 
     def test_unreviewed_power_domain_is_incomplete(self):
         self.config["thresholds"]["maximum_regression"] = {"power_raw_uW_pct": 0}

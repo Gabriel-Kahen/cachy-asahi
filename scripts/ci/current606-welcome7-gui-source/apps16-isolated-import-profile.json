@@ -1,0 +1,167 @@
+{
+  "actual": null,
+  "after_ref": "codex/welcome8-apps16-isolated-import-v1",
+  "after_source": "b9a1195e5f5c5e439db791383e18e56511de2f5a",
+  "before_ref": "codex/welcome8-apps16-restore604-v1",
+  "before_source": "37bee5c50f8808b618b90ab0a559d7fa88a8a4ab",
+  "caps": {
+    "full_scan": 600,
+    "profile": 1080,
+    "service": 1200,
+    "service_outcome_alarm": 2,
+    "source": 300
+  },
+  "held_functions": {
+    "apps8_profile": {
+      "bytes": 156,
+      "sha256": "01ba3296c569740840f46085b5805990a6b5f1f1bbdc6faaea6cb80123fd908b"
+    },
+    "buildkit_profile": {
+      "bytes": 156,
+      "sha256": "0182334454d3fd01c1041421885d8fb8fa425f4611f4a2b2d7f2caaa501b4a08"
+    },
+    "cli_failure_inputs": {
+      "bytes": 1198,
+      "sha256": "3b7b586e94f8b4d142456e0c0dd2ac34bf87fad2d2b79c6f4b7b1feada81594d"
+    },
+    "correction_inputs": {
+      "bytes": 1215,
+      "sha256": "915d297b024a3be6f12947bce51b2975a0bf140759495e34ddfd249db07a20a6"
+    },
+    "encoded": {
+      "bytes": 90,
+      "sha256": "aa1b17862d0d560152b5f639b753eb459fb17ec1cb2bec71d40dfc9c68030452"
+    },
+    "files": {
+      "bytes": 478,
+      "sha256": "8ae1436227ec346e561b8a513e7a6ba7079c37a0a06c340e7125ae4a6fcb4e98"
+    },
+    "loader_profile": {
+      "bytes": 146,
+      "sha256": "cc46de295f8f1335f9a392e5090abd1cbdb65a2fa2c9469b0396d3d3d11fcf44"
+    },
+    "need": {
+      "bytes": 50,
+      "sha256": "a8ebc8f5f3a23b40b0c85a9adaa7e6f5bb29fcb122a2f824dc2f25deed384a8a"
+    },
+    "ordinary": {
+      "bytes": 1037,
+      "sha256": "11603e23294c5416e9f96281094deaa4cb51adbd270ba80c6b178725b14734b5"
+    },
+    "pin": {
+      "bytes": 79,
+      "sha256": "f71b81de3a25bf17c4f69ffdebe13551b8d55744df3da3469a5b12a9b5ae1076"
+    },
+    "prepare": {
+      "bytes": 2805,
+      "sha256": "692658e23db894163ad617417b1dd288c90f896e792ead457e9b3213e70d2ce6"
+    },
+    "prepare_apps10_stage": {
+      "bytes": 317,
+      "sha256": "ea2b883e837a320d28fea3ae666ae593fc34cbfe305d1319a7122973a786a84c"
+    },
+    "prepare_apps14_stage": {
+      "bytes": 318,
+      "sha256": "dc2160a8442b638e95948ceb3f69a6a045feffa75bdd22f56c45ecc99db74a20"
+    },
+    "prepare_apps16": {
+      "bytes": 333,
+      "sha256": "48e97ba3af5d74c47a66953d0566d432cc29ca1f62b206ad3f02ddafb34a988d"
+    },
+    "prepare_apps16_restore604": {
+      "bytes": 331,
+      "sha256": "303efb93b6a09c39b58b8552fa633593fe327131277492fa6a68df53df53269a"
+    },
+    "prepare_apps8": {
+      "bytes": 4145,
+      "sha256": "dd77703ed47bb1227fc3e48aa9349969470da23d2e79f9f4bd57f4a3d9cea014"
+    },
+    "prepare_apps9": {
+      "bytes": 309,
+      "sha256": "7ffb339b74ff9fae9633f8a74ac235c26ea45424758dec357d6915ff908f85d2"
+    },
+    "prepare_buildkit": {
+      "bytes": 2716,
+      "sha256": "8a6b0721368847d95250ab4f4fb1f02174a98b85ad42d7c5196aed3843089fbc"
+    },
+    "prepare_cli_failure_data": {
+      "bytes": 1416,
+      "sha256": "ff6549cceed9d4d29ab90f15f07f7b745b27f8b6d02b3b3165e166150a1d5c7e"
+    },
+    "prepare_failure_cleanup": {
+      "bytes": 310,
+      "sha256": "67eaa0b2d6585560e11259a47d4a064ca3618afe901bd954fb7d3ae58439a3a3"
+    },
+    "prepare_installer_lock": {
+      "bytes": 1170,
+      "sha256": "638374e783373051576e3de9384a7c2b6c74c13ac7c964880226c78024fd5db7"
+    },
+    "prepare_loader": {
+      "bytes": 2318,
+      "sha256": "c82cc8d4dc5e6cb19005fa9316b3f0604b3868635310cd42dd682fb40227cba8"
+    },
+    "prepare_transport": {
+      "bytes": 1930,
+      "sha256": "930d03db1c1ace488387a77ed3d85f8dbb93b73155abbeb7e36b9bc076c60e35"
+    },
+    "prepare_welcome8": {
+      "bytes": 2213,
+      "sha256": "ad97ab861c65b05c3d53490cd171ffa1e62b75c32de8ece2c32f8c9f385b7174"
+    },
+    "profile": {
+      "bytes": 131,
+      "sha256": "8d795c49bd7a407d973a463f7e8b970e4f021d38bd36cc9ce84dbbedc337ac93"
+    },
+    "relative": {
+      "bytes": 223,
+      "sha256": "e3de32788dd994b66c973aac81f6dd804da191193c586f43e621c60d11e1be97"
+    }
+  },
+  "kind": "SOURCE_ONLY_GUI565_ISOLATED_IMPORT",
+  "maps": {
+    "bytes": 594898,
+    "sha256": "728247586128ab1899e1783cbbe564228fba8baedbb5047de4cfc86537bc304b"
+  },
+  "native_GUI": "NOT_RUN",
+  "native_fit": "UNKNOWN",
+  "payload": {
+    "isolated-admission.fragment": {
+      "bytes": 4241,
+      "sha256": "4a7518492de59e1b48e0e6cac4b37435c77ab44b3521762362bc6b1f575e6b53"
+    },
+    "isolated-factory.fragment": {
+      "bytes": 521,
+      "sha256": "62f03aede5ae7d2a4be71523e6f41820c5d63700636c90ef75c2f2916dbb423f"
+    },
+    "post-session-admission.fragment": {
+      "bytes": 3341,
+      "sha256": "2ada13dd320450cf16b139b0bb7e9f5e1976d562ae37e2e00e7bb707ffc9bbb1"
+    },
+    "post-session-factory.fragment": {
+      "bytes": 1977,
+      "sha256": "51f9092867e3f81832ff30a4c5cf4f3d9b9d4ec0a939a2d1223b5cf5141c35e8"
+    },
+    "post_session.py": {
+      "bytes": 637,
+      "sha256": "f700e2f1f4fe6c9f59f583b577a6ce70ef72196d72bfca0525138fa9172e426e"
+    }
+  },
+  "source_transitions": [
+    {
+      "added": 2,
+      "after": 564,
+      "before": 562,
+      "changed": 3,
+      "held": 559
+    },
+    {
+      "added": 1,
+      "after": 565,
+      "before": 564,
+      "changed": 3,
+      "held": 561
+    }
+  ],
+  "stage_ref": "codex/welcome8-apps16-post-session-stage-v1",
+  "stage_source": "a1a0dea6fc4d3cf15fb82c72c52385c277eae0cc"
+}

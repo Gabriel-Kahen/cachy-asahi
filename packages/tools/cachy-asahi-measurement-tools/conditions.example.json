@@ -1,0 +1,13 @@
+{
+  "power_source": "synthetic fixture; not observed",
+  "display_config": "synthetic fixture; not observed",
+  "brightness": "synthetic fixture; not observed",
+  "cache_mode": "synthetic fixture; not observed",
+  "background_load": "synthetic fixture; not observed",
+  "warmup": "synthetic fixture; not observed",
+  "ambient_C": 0,
+  "thermal_start_C": 0,
+  "battery_soc_percent": 0,
+  "operator": "host fixture only",
+  "notes": "invented environmental zeros; private PID/proc; empty sysfs; no physical observation"
+}

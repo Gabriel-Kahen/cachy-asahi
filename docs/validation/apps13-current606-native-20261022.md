@@ -1,0 +1,11 @@
+# Apps13 full606 native lifecycle
+
+Root accepted native ARM container run [39781944226](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/39781944226), exact389-file source `97368c093b3cc42ea25d29ff5d2bfdd353d9c02d`. The complete1695-file independent source-bound validator passed, and all389 source files,1695 reader files and five once-acquired originals matched afterward. Root issued `ROOT_ACCEPTED_FINITE_APPS13_CURRENT606_NATIVE_LIFECYCLE`.
+
+The eight phases are baseline6→upgrade7→upgrade13→same-version13→remove13→reinstall13→restore7→restore-original6. Counts are606/606/606/606/605/606/606/606, with seven actual transactions, six signed installs and150 installed checks across both fresh/existing ordinary homes. Runtime1 remains the exact protected native pair with no transaction; all other605 package/config/trust/raw database/payload/identity/hardlink/capability preservation and source606 rereads are enforced by the original full private-map predicates. Original Apps6 archive/signature, version and logical payload restore with source-bounded INSTALLDATE; selected inode restoration is not claimed.
+
+Fresh signing, full native package metadata, original transport/nonce/CRC, complete lifecycle and ordered retirement gates all remain mandatory. Private complete maps remain unexported/source-enforced; original cleanup receipts are retained without fresh actor queries. Public decoded evidence totals950 files/43,571,995 bytes.
+
+The immutable [fifteen-file retained record](https://github.com/Gabriel-Kahen/cachy-asahi/tree/833986da765e0d02d35785089af5991b755a6608) contains the original decision, full result, post-validation source/reader pins, all five once-acquired originals and four source-publication receipts (13,421,751 bytes). Full source/crypto/transport inspectors remain required for replay. This creates no new actor or acceptance.
+
+This finite package lifecycle grants no GUI,16K,Apple/M2,boot recovery,performance or supported-release acceptance. The separate Apps13 GUI run39781815012 hit its outer35-second deadline; ENCODE_PUBLICATION was the last authenticated stage and the inner cause remains unknown. That failure remains. Both M2 Air sizes remain NOT RUN and release NOT ADMITTED.

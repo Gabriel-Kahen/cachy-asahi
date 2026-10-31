@@ -1,6 +1,6 @@
 # cachy-asahi-fish-bang-bang
 
-Development package proposal for R4/M6, version 0.1.0-1. Two unchanged MIT
+Development package proposal for R4/M6, version 0.1.0-2. Two unchanged MIT
 upstream helpers at ec991b80ba7d4dda7a962167b036efc5c2d79419 are paired with an
 original opt-in wrapper. Full copyright/permission/warranty notices are shipped.
 The complete six-file upstream source record is held in the accompanying review.
@@ -32,3 +32,12 @@ Root must review source/recipe/SRCINFO pins, manifest and existing development
 addon bindings before native dispatch. See docs/workstreams/fish-history-module.md
 and the accompanying review receipt. No full M6, release, hardware or performance
 acceptance is claimed.
+
+
+Pkgrel2 corrects source-caller continuation identified by real three-module Fish
+PTY composition: top-level return in the previous wrapper cut off a calling
+function on repeat or noninteractive source. Only the independent wrapper's
+scope changes; full original upstream source and MIT notices, helper bytes,
+affected-binding precedence, expansion semantics and payload paths remain.
+All legacy standalone cases and the composed host checks are rerun separately.
+No old pkgrel1 or held587 evidence is relabeled as new native acceptance.

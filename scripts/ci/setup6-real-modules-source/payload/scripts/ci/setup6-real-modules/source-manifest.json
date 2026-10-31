@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "scope": "SETUP6_REAL_SIX_MODULES_581_AND_RECOVERY",
+  "files": {
+    "scripts/ci/setup6-real-modules/README.md": {
+      "bytes": 3438,
+      "sha256": "482f6e1560d7c364bd7dee0a0d9bf57730e4bbfef78ea4256988b517a42ef306"
+    },
+    "scripts/ci/setup6-real-modules/accepted6-profile.json": {
+      "bytes": 68233,
+      "sha256": "4682752b7cf7ee7beaf237c789e11988ee2a82da47436b959ae521ed65eab778"
+    },
+    "scripts/ci/setup6-real-modules/adapter.py": {
+      "bytes": 2223,
+      "sha256": "5e7683ffa5d53db5496b7ecbdd53ee3a5c16a63aee22037e5d80a4c3003dd084"
+    },
+    "scripts/ci/setup6-real-modules/contract.py": {
+      "bytes": 14071,
+      "sha256": "3d62c34ed8f8126bdfda3cbf7d2c81e19483eed2e128f5613d14cb0cc4e7f77d"
+    },
+    "scripts/ci/setup6-real-modules/expected581.lock": {
+      "bytes": 11387,
+      "sha256": "b6ae2e5363e4f665141fa08b0a688985000ec1afc2a08e3f42953b37e5bb8a3d"
+    },
+    "scripts/ci/setup6-real-modules/input-policy.json": {
+      "bytes": 444,
+      "sha256": "952616ca5c4bb9bfafddef96aca167510c31c0e65346b13c6dc0d615910a9a4e"
+    },
+    "scripts/ci/setup6-real-modules/installed.py": {
+      "bytes": 5475,
+      "sha256": "a6897555b600ae6b42af699c54e700ef42e47f095bf421910e74956dab33df61"
+    },
+    "scripts/ci/setup6-real-modules/job.py": {
+      "bytes": 7713,
+      "sha256": "3c351d8b85cd9e3e09eea4a65ec13532bd437743c2ba8edb5f3e12676fc04d93"
+    },
+    "scripts/ci/setup6-real-modules/lifecycle.py": {
+      "bytes": 9470,
+      "sha256": "5859798c9752dd13fece3cf7b9e653e2a584cf3d4f3958dbc3509e0ec5b5c7bf"
+    },
+    "scripts/ci/setup6-real-modules/original-source.json": {
+      "bytes": 25876,
+      "sha256": "a667e1802a84c94ca5c9158d114efb8c7bac4e7ab8de15afde076c6b9c304c68"
+    },
+    "scripts/ci/setup6-real-modules/prepare.py": {
+      "bytes": 1416,
+      "sha256": "ea35de044e55aa9a4453a1a639f83ec91b9a4a068145d3bb1ce2bccde09b9e2d"
+    },
+    "scripts/ci/setup6-real-modules/producer.py": {
+      "bytes": 1260,
+      "sha256": "82806641a36f6a75eeeac73cea564ae2833610b566abc0fd3bc2f731581158b2"
+    },
+    "scripts/ci/setup6-real-modules/real_recovery.py": {
+      "bytes": 6949,
+      "sha256": "23c873b61fc7b24fc2c3c5a1a1de6b9ce74d31e84ae5aea716e78ee99a829c9c"
+    },
+    "scripts/ci/setup6-real-modules/run.py": {
+      "bytes": 1259,
+      "sha256": "cadd7827ff3244b7292f7fc3f3b2783dff4a8247cf0d2635c1ab266062568b6b"
+    },
+    "scripts/ci/setup6-real-modules/test_source.py": {
+      "bytes": 1567,
+      "sha256": "7dfb0dbf15fd1a957dea3da79d1fa46f408c31a56ba7430ed22f992eee8d69bd"
+    },
+    "scripts/ci/setup6-real-modules/source-closure.json": {
+      "bytes": 41050,
+      "sha256": "471e48b7b579e63e7fb82ed90231edb8be7d557613da57a8d55be8ba8a998ac7"
+    }
+  },
+  "actual": null
+}

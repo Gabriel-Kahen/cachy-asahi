@@ -1,0 +1,43 @@
+
+FRESH607_CLOCK_CONTEXT = None
+
+def fresh607_initialize_realtime(c):
+    """Initialize only this owned VM wall clock; monotonic deadlines are untouched."""
+    import re,time
+    context=FRESH607_CLOCK_CONTEXT;value=c.get('fresh607_realtime')
+    need(type(context)is dict and set(context)=={'schema_version','purpose','source','run_id','run_attempt'} and
+         type(context['schema_version'])is int and context['schema_version']==1 and
+         context['purpose']=='SOURCE_OWNED_GENERIC16K_REALTIME_INIT_V1' and
+         type(context['source'])is str and re.fullmatch('[0-9a-f]{40}',context['source']) and
+         type(context['run_id'])is str and re.fullmatch('[1-9][0-9]{0,19}',context['run_id']) and
+         type(context['run_attempt'])is str and re.fullmatch('[1-9][0-9]{0,5}',context['run_attempt']),
+         'closed current16K guest realtime context')
+    need(type(value)is dict and set(value)==set(context)|{'nonce','workspace','workspace_identity','created_realtime_ns'} and
+         all(value[k]==v for k,v in context.items()) and type(value['nonce'])is str and
+         re.fullmatch('[0-9a-f]{32}',value['nonce']) and value['nonce']==c['nonce'] and
+         type(value['workspace'])is str and value['workspace'].startswith('/tmp/') and
+         len(value['workspace'].encode())<=4096 and '..'not in Path(value['workspace']).parts and
+         str(Path(value['workspace']))==value['workspace'] and
+         type(value['workspace_identity'])is list and len(value['workspace_identity'])==4 and
+         all(type(n)is int and n>=0 for n in value['workspace_identity']) and
+         type(value['created_realtime_ns'])is int and 1_000_000_000_000_000_000<=value['created_realtime_ns']<2**63,
+         'exact current nonce/source/run/workspace clock contract')
+    fields={}
+    for field in Path('/proc/cmdline').read_text().split():
+        if field.startswith('caa_fresh607_'):
+            key,separator,item=field.partition('=')
+            need(separator and key not in fields,'unique selected clock command-line field');fields[key]=item
+    need(set(fields)=={'caa_fresh607_realtime_ns','caa_fresh607_clock_sha256'} and
+         re.fullmatch('[1-9][0-9]{0,18}',fields['caa_fresh607_realtime_ns']),
+         'closed launch-time realtime command-line DATA')
+    expected=hashlib.sha256(json.dumps(value,sort_keys=True,separators=(',',':'),ensure_ascii=True).encode('ascii')).hexdigest()
+    need(fields['caa_fresh607_clock_sha256']==expected,'same original nonce/current source/run/workspace clock binding')
+    stamp=int(fields['caa_fresh607_realtime_ns'])
+    need(value['created_realtime_ns']<=stamp<=value['created_realtime_ns']+9_600_000_000_000,
+         'launch timestamp inside original owned VM lifetime')
+    elapsed=time.monotonic_ns()
+    need(type(elapsed)is int and 0<=elapsed<=5_400_000_000_000,'bounded original QEMU boot monotonic elapsed')
+    time.clock_settime_ns(time.CLOCK_REALTIME,stamp+elapsed)
+    lower=stamp+time.monotonic_ns();observed=time.clock_gettime_ns(time.CLOCK_REALTIME);upper=stamp+time.monotonic_ns()
+    need(lower<=upper and lower-1_000_000_000<=observed<=upper+1_000_000_000,
+         'owned guest realtime readback differs from current host launch plus boot elapsed')

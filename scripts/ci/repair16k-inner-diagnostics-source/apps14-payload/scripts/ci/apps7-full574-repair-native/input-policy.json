@@ -1,0 +1,26 @@
+{
+  "adapter": {
+    "bytes": 191,
+    "path": "scripts/ci/apps7-full574-repair-native/closure.py",
+    "sha256": "03fb4a1a609ab4711dc6f3d15f36409a15b294fb3c9b206353ab2260b8bc984d"
+  },
+  "aggregate": "BOTH_INDEPENDENT_ROOT_CASE_DECISIONS_REQUIRED",
+  "cases": [
+    "repair-bytes",
+    "repair-missing"
+  ],
+  "packet_index": {
+    "bytes": 82492,
+    "path": "index.json",
+    "sha256": "6995af00a982ec4545dff26bcb26f25f1868a8267d46031aa060ed0575443fb5"
+  },
+  "packet_source": "54352850a57a7e34e75c3a021fa20525eee59bf6",
+  "schema_version": 1,
+  "status": "SOURCE_SELECTED_APPS14_PAIR_PLUS_HELD_RUNTIME_CACHE_ORPHANS",
+  "versions": {
+    "cachy-asahi-apps": "0.1.0-14",
+    "cachy-asahi-cache": "0.2.0-1",
+    "cachy-asahi-orphans": "0.1.0-2",
+    "cachy-asahi-repository-runtime": "0.1.0-1"
+  }
+}

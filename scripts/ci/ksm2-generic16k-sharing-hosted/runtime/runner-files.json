@@ -1,0 +1,20 @@
+{
+  "files": {
+    "configure.py": {
+      "bytes": 1853,
+      "sha256": "82f3f16a7749b372fda2f173d892cddc6cc26a2024b5ce2a1395379ba0ef59be"
+    },
+    "contract.py": {
+      "bytes": 22481,
+      "sha256": "3c3005ac04fb19bfe75001c12622693aec733d5bd8762ae6501e3d058ff04ba9"
+    },
+    "guest.py": {
+      "bytes": 32916,
+      "sha256": "41c23326822677c4554f45272ef1f7db3b2eeb784aee847edb51e12bea6a68c4"
+    },
+    "media_adapter.py": {
+      "bytes": 6513,
+      "sha256": "54478b5a5adc4b24478b11dd6f9e2089c808a297d7c507ccad94f177ce05149f"
+    }
+  }
+}

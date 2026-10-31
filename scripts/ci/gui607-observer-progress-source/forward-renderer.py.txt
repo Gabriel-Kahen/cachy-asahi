@@ -1,0 +1,50 @@
+def forward_body():
+ return r'''class _ObserverStageForward:
+    """Fixed selected observer DATA only; loss never changes command authority."""
+    prefix=b'INSTALLED607_OBSERVER_STAGE_DATA '
+    stages=('inventory_begin','inventory_end','metadata_begin','metadata_end','payload_begin','payload_end','recheck_begin','recheck_end')
+    def __init__(self,send):
+        self.send=send;self.pending=b'';self.discard=False;self.last=0;self.input_bytes=0;self.output_bytes=0
+
+    def record(self,raw):
+        try:
+            if not raw.startswith(self.prefix) or not raw.endswith(b'\n') or len(raw)>512:return False
+            value=json.loads(raw[len(self.prefix):].decode('utf8','strict'))
+            if type(value)is not dict or set(value)!={'schema','role','stage','ordinal','elapsed_ns','status'}:return False
+            if type(value['schema'])is not int or value['schema']!=1 or value['role']!='EXACT_INSTALLED607_VERIFY' or value['status']!='BOUNDARY_DATA_ONLY_NOT_ACCEPTANCE':return False
+            if type(value['stage'])is not str or value['stage']not in self.stages:return False
+            ordinal=self.stages.index(value['stage'])+1
+            if type(value['ordinal'])is not int or value['ordinal']!=ordinal or ordinal<=self.last:return False
+            if type(value['elapsed_ns'])is not int or not 0<=value['elapsed_ns']<=1215000000000:return False
+            canonical=self.prefix+json.dumps(value,sort_keys=True,separators=(',',':')).encode()+b'\n'
+            if raw!=canonical or self.input_bytes+len(raw)>2048:return False
+            fields={('observer_stage'if k=='stage'else k):value[k]for k in ('schema','stage','ordinal','elapsed_ns','status')}
+            framed=('DESKTOP574_EVENT '+json.dumps(dict(event='installed607_observer_stage_DATA',**fields),sort_keys=True)+'\n').encode()
+            if self.output_bytes+len(framed)>2048:return False
+            self.last=ordinal;self.input_bytes+=len(raw);self.output_bytes+=len(framed)
+            self.send('installed607_observer_stage_DATA',**fields)
+            return True
+        except BaseException:
+            return False
+
+    def feed(self,raw):
+        try:
+            if type(raw)is not bytes or len(raw)>65536:return False
+            start=0
+            while start<len(raw):
+                end=raw.find(b'\n',start);end=len(raw)if end<0 else end+1;piece=raw[start:end];start=end
+                if not self.discard:
+                    if len(self.pending)+len(piece)>512:self.pending=b'';self.discard=True
+                    else:self.pending+=piece
+                if piece.endswith(b'\n'):
+                    if not self.discard:self.record(self.pending)
+                    self.pending=b'';self.discard=False
+            return True
+        except BaseException:
+            self.pending=b'';self.discard=True
+            return False
+'''
+
+def forwarding_rows():
+ return [("class Logged:",forward_body()+"\n\nclass Logged:"),("        self.overflow = False","        self.overflow = False\n        self._observer_forward = None\n        if name == 'installed606-preserved':\n            need(type(argv)is list and argv==['/usr/bin/python3','-I','-B',str(SHARE/'installed606.py'),'verify','/',str(SHARE/'alpm_reader.py'),str(SHARE/'expected.lock'),str(SHARE/'installed606.json')], 'exact selected installed607 verify command role')\n            self._observer_forward = _ObserverStageForward(emit)"),("            count = 0\n            with path.open('xb') as output, pipe:\n                while raw := pipe.read(65536):","            count = 0\n            forwarding = self._observer_forward if path == self.paths[1] else None\n            with path.open('xb') as output, pipe:\n                while raw := (pipe.read1(65536) if forwarding is not None else pipe.read(65536)):"),("                    output.write(raw[:max(0, MAX_LOG - count)])\n                    count += len(raw)","                    output.write(raw[:max(0, MAX_LOG - count)])\n                    if forwarding is not None:forwarding.feed(raw)\n                    count += len(raw)")]
+

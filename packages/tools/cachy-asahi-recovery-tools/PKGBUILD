@@ -1,0 +1,45 @@
+# SPDX-License-Identifier: MIT
+# Original offline data preparation candidate; no hooks or host mutation.
+pkgname=cachy-asahi-recovery-tools
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Offline selected predecessor and exact recovery data preparation'
+arch=(any)
+url=https://github.com/Gabriel-Kahen/cachy-asahi
+license=(MIT)
+depends=('python>=3.14' gnupg glibc)
+options=('!strip' '!debug')
+source=(private-source.tar.gz cachy-asahi-recovery-tools check_package.py test_package.py README.md offline-recovery-bundle.md source-provenance.json payload-map.json NOTICE LICENSE)
+sha256sums=(2df0691e66fe8e78e233c1ad816cc7a71eb3580c898c3b240e63126bdf112485 e444ea17c9ca4160b9e7facfe8a5b6d80c2d9d96ee181936ac4e595a66a079f3 9f346b9390a8e82fbf8031f54acefc9d7e99ce156ab5b853ab458931444a7b14 adfffc6c60ecc27077ef0aa2233fe4dbd4f7568cd83f007f3e40693c48db5be5 05263d1039ca10aca7a9c1a09329dcfd5252292fa3ce78586db45459d65804c1 fd82c28930bd0d45642137c7b7814a981cceb1a2eb216fdac05c319e8bea5c24 d311eff96ea764e86ab4a6c07621577b0203cead3471822091f2a31e6f48222b 5cefe72e155392b14b84703b2397b035176e9c5251e7f66495b068317789c659 fefc9b206fc24998f08e94f83ca8750695666db9419ee5ea93e72fa183d84120 51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7)
+
+check() {
+    python -I -B "$srcdir/check_package.py" --recipe-root "$startdir" || return
+    python -I -B -Werror::ResourceWarning "$srcdir/private/scripts/release/test_recovery_bundle.py" || return
+    python -I -B -Werror::ResourceWarning "$srcdir/test_package.py" --recipe-root "$startdir"
+}
+
+package() {
+    [[ -n ${srcdir:-} && -n ${pkgdir:-} && $pkgdir != / && $pkgdir != "$srcdir" ]] || return 1
+    install -Dm755 "$srcdir/cachy-asahi-recovery-tools" "$pkgdir/usr/bin/cachy-asahi-recovery-tools" || return
+    install -Dm644 "$srcdir/private/scripts/checks/package_checks.py" "$pkgdir/usr/lib/cachy-asahi/recovery-tools/scripts/checks/package_checks.py" || return
+    install -Dm644 "$srcdir/private/scripts/ci/native_arm.py" "$pkgdir/usr/lib/cachy-asahi/recovery-tools/scripts/ci/native_arm.py" || return
+    install -Dm644 "$srcdir/private/scripts/client/client.py" "$pkgdir/usr/lib/cachy-asahi/recovery-tools/scripts/client/client.py" || return
+    install -Dm644 "$srcdir/private/scripts/integration/lifecycle.py" "$pkgdir/usr/lib/cachy-asahi/recovery-tools/scripts/integration/lifecycle.py" || return
+    install -Dm644 "$srcdir/private/scripts/platform/archive_coverage.py" "$pkgdir/usr/lib/cachy-asahi/recovery-tools/scripts/platform/archive_coverage.py" || return
+    install -Dm644 "$srcdir/private/scripts/platform/authenticate_missing.py" "$pkgdir/usr/lib/cachy-asahi/recovery-tools/scripts/platform/authenticate_missing.py" || return
+    install -Dm644 "$srcdir/private/scripts/platform/capture.py" "$pkgdir/usr/lib/cachy-asahi/recovery-tools/scripts/platform/capture.py" || return
+    install -Dm644 "$srcdir/private/scripts/platform/recovery_inputs.py" "$pkgdir/usr/lib/cachy-asahi/recovery-tools/scripts/platform/recovery_inputs.py" || return
+    install -Dm644 "$srcdir/private/scripts/platform/transaction.py" "$pkgdir/usr/lib/cachy-asahi/recovery-tools/scripts/platform/transaction.py" || return
+    install -Dm644 "$srcdir/private/scripts/platform/tuple_audit.py" "$pkgdir/usr/lib/cachy-asahi/recovery-tools/scripts/platform/tuple_audit.py" || return
+    install -Dm644 "$srcdir/private/scripts/port/authenticate.py" "$pkgdir/usr/lib/cachy-asahi/recovery-tools/scripts/port/authenticate.py" || return
+    install -Dm644 "$srcdir/private/scripts/port/preview.py" "$pkgdir/usr/lib/cachy-asahi/recovery-tools/scripts/port/preview.py" || return
+    install -Dm644 "$srcdir/private/scripts/release/offline_kit.py" "$pkgdir/usr/lib/cachy-asahi/recovery-tools/scripts/release/offline_kit.py" || return
+    install -Dm644 "$srcdir/private/scripts/release/recovery_bundle.py" "$pkgdir/usr/lib/cachy-asahi/recovery-tools/scripts/release/recovery_bundle.py" || return
+    install -Dm644 "$srcdir/private/scripts/release/source_delivery.py" "$pkgdir/usr/lib/cachy-asahi/recovery-tools/scripts/release/source_delivery.py" || return
+    install -Dm644 "$srcdir/README.md" "$pkgdir/usr/share/doc/cachy-asahi-recovery-tools/README.md" || return
+    install -Dm644 "$srcdir/offline-recovery-bundle.md" "$pkgdir/usr/share/doc/cachy-asahi-recovery-tools/offline-recovery-bundle.md" || return
+    install -Dm644 "$srcdir/source-provenance.json" "$pkgdir/usr/share/doc/cachy-asahi-recovery-tools/source-provenance.json" || return
+    install -Dm644 "$srcdir/payload-map.json" "$pkgdir/usr/share/doc/cachy-asahi-recovery-tools/payload-map.json" || return
+    install -Dm644 "$srcdir/NOTICE" "$pkgdir/usr/share/licenses/cachy-asahi-recovery-tools/NOTICE" || return
+    install -Dm644 "$srcdir/LICENSE" "$pkgdir/usr/share/licenses/cachy-asahi-recovery-tools/LICENSE" || return
+}

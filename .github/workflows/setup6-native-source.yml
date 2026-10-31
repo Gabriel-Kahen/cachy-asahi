@@ -1,0 +1,69 @@
+name: setup6-native-source
+on:
+  push:
+    paths:
+      - 'scripts/ci/setup6-native-source/**'
+      - '.github/workflows/setup6-native-source.yml'
+      - 'scripts/setup/**'
+      - 'packages/settings/cachy-asahi-setup/**'
+  pull_request:
+    paths:
+      - 'scripts/ci/setup6-native-source/**'
+      - '.github/workflows/setup6-native-source.yml'
+      - 'scripts/setup/**'
+      - 'packages/settings/cachy-asahi-setup/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONWARNINGS: error
+    steps:
+      - name: Check out the maintained source factory
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Check out exact149 historical Setup5 inputs
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 79d8d2f53510e4f3a04f39c1b1e24c999aa32e44
+          path: .ci-fixtures/setup5-carrier
+          persist-credentials: false
+      - name: Check out exact73 expected Setup6 source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 141ba835bb632483342c6a7f0246c7fe0f2bc5c3
+          path: .ci-fixtures/setup6-expected
+          persist-credentials: false
+      - name: Install actual shell interpreters required by recovery controls
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends fish zsh
+          command -v fish
+          command -v zsh
+      - name: Select the exact Python series
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Check full source reproduction and all27 plus74 plus23 controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          factory=scripts/ci/setup6-native-source
+          carrier="$GITHUB_WORKSPACE/.ci-fixtures/setup5-carrier"
+          stage=$(mktemp -d "$RUNNER_TEMP/setup6-source.XXXXXXXX")
+          trap 'rm -rf -- "$stage"' EXIT
+          python3 -I -B -Werror "$factory/test_factory.py" --setup5-carrier "$carrier" --expected "$GITHUB_WORKSPACE/.ci-fixtures/setup6-expected"
+          python3 -I -B -Werror "$factory/prepare.py" --setup5-carrier "$carrier" --output "$stage/setup6"
+          python3 -I -B -Werror "$factory/prepare.py" --setup5-carrier "$carrier" --setup5-context --output "$stage/setup5"
+          python3 -I -B -Werror "$factory/check_controls.py" --source "$stage/setup6" --setup5-carrier "$carrier" --setup5-context "$stage/setup5" --output "$stage/controls"

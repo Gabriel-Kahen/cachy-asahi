@@ -1,0 +1,101 @@
+#!/usr/bin/python3 -IB
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 cachy-asahi contributors
+"""Offline release SBOM and exact source delivery from retained local inputs."""
+import argparse
+import importlib.util
+import json
+from pathlib import Path
+import sys
+import tarfile
+
+sys.dont_write_bytecode = True
+VERSION = '0.1.0'
+RUNTIME = Path(__file__).resolve().parents[1] / 'lib/cachy-asahi/release-tools/scripts'
+
+
+def module(name, path):
+    spec = importlib.util.spec_from_file_location(name, path)
+    value = importlib.util.module_from_spec(spec)
+    sys.modules[name] = value
+    spec.loader.exec_module(value)
+    return value
+
+
+def parser():
+    result = argparse.ArgumentParser(description=__doc__)
+    result.add_argument('--version', action='version', version='cachy-asahi-release-tools ' + VERSION)
+    commands = result.add_subparsers(dest='command', required=True)
+    for name, help_text in (
+        ('sbom', 'Export SPDX 2.3 JSON and unresolved source/license coverage'),
+        ('source-export', 'Copy exact source evidence for one release package'),
+        ('recipe-pack', 'Bundle an exact reviewed recipe without executing it'),
+        ('recipe-unpack', 'Verify and unpack an exact reviewed source bundle')):
+        command = commands.add_parser(name, help=help_text)
+        command.add_argument('--profile-set', choices=('v1', 'v2'), default='v2',
+                             help='Frozen recipe profile authority (default: v2); old pins stay unchanged')
+        command.add_argument('--output', type=Path, required=True, help='Fresh output directory; parent must exist')
+        if name in ('sbom', 'source-export'):
+            command.add_argument('--release-dir', type=Path, required=True)
+            command.add_argument('--release-sha256', required=True, help='Caller-authenticated release.json SHA-256')
+        if name in ('source-export', 'recipe-pack'):
+            command.add_argument('--package', required=True)
+        if name == 'recipe-pack':
+            command.add_argument('--recipe', type=Path, required=True)
+            command.add_argument('--source-revision', required=True, help='Full observed Git SHA-1; exact recipe hashes remain authoritative')
+            command.add_argument('--archive', type=Path)
+            command.add_argument('--review', type=Path)
+            command.add_argument('--review-status')
+            command.add_argument('--synthetic', action='store_true', help='Label a synthetic release association explicitly')
+        if name == 'recipe-unpack':
+            command.add_argument('--bundle', type=Path, required=True)
+            command.add_argument('--sha256', required=True, help='Caller-authenticated source.tar SHA-256')
+    return result
+
+
+def execute(args):
+    recipe_path = RUNTIME / 'release' / ('recipe_source_delivery' + ('_v2' if args.profile_set == 'v2' else '') + '.py')
+    recipe = module('installed_release_tools_recipe', recipe_path)
+    s = recipe.s
+    if args.command == 'recipe-pack':
+        return recipe.pack(args.recipe, args.package, args.source_revision, args.output,
+                           args.archive, args.review, args.review_status, args.synthetic)
+    if args.command == 'recipe-unpack':
+        saved, bodies = recipe.unpacked(s.read_file(args.bundle, recipe.MAX_TOTAL), args.sha256)
+        recipe.write_fresh(args.output, bodies)
+        return dict(status='UNPACKED_REVIEWED_SOURCE', package=saved['package'],
+                    archive_status=saved['archive_status'], code_executed=False)
+    sbom = module('installed_release_tools_sbom', RUNTIME / 'release/release_sbom.py')
+    stream = module('installed_release_tools_archive_stream', RUNTIME / 'update/archive_stream.py')
+    document, coverage = sbom.export(args.release_dir, args.release_sha256, (s, recipe, stream))
+    if args.command == 'sbom':
+        recipe.write_fresh(args.output, {'sbom.spdx.json': sbom.encoded(document),
+                                        'coverage.json': sbom.encoded(coverage)})
+        return dict(status='EXPORTED', packages=coverage['package_count'],
+                    unresolved_packages=coverage['unresolved_package_count'], spdx_sha256=coverage['spdx_sha256'])
+    # Validate the release/archive correspondence before copying its exact,
+    # registered evidence. Source delivery retains its existing authority.
+    release = sbom.Release(args.release_dir, args.release_sha256, s)
+    index = s.verify_associations(release.spec, release.manifest['packages'], release.evidence_read,
+                                  lambda p: s.decode(release.read(p['provenance'], s.MAX_JSON)))
+    s.need(index is not None, 'retained source association missing')
+    matches = [row for row in index['packages'] if row['package']['name'] == args.package]
+    s.need(len(matches) == 1, 'package missing from retained source index')
+    receipt = s.export_package(matches[0], release.evidence_read, args.output.absolute(), args.release_sha256)
+    return dict(status='EXPORTED_SOURCE', package=receipt['package'], files=len(receipt['files']),
+                source_completeness_accepted=False, legal_acceptance=False)
+
+
+def main():
+    args = parser().parse_args()
+    try:
+        result = execute(args)
+    except (ValueError, OSError, tarfile.TarError, EOFError, KeyError, TypeError, RecursionError, ImportError) as error:
+        print(json.dumps(dict(status='REFUSED', reason=str(error)), sort_keys=True), file=sys.stderr)
+        return 2
+    print(json.dumps(result, sort_keys=True))
+    return 0
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

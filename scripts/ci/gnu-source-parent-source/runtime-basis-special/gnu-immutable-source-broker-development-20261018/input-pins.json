@@ -1,0 +1,23 @@
+{
+  "accepted_authorities": null,
+  "gnu-immutable-source-reader-development-20261018/reader.py": {
+    "bytes": 8537,
+    "sha256": "9ffb404f64e0dcfb1fbd564131b7d8be9e564fdee7937cf7e312cf04ee58ddaa"
+  },
+  "gnu-verity-bootstrap-development-20261018/bootstrap.py": {
+    "bytes": 10452,
+    "sha256": "475865146ec8e3071a5e0240910536cc21fb127539c079415c3192f4bac2d9dd"
+  },
+  "gnu-verity-bootstrap-development-20261018/common.py": {
+    "bytes": 1832,
+    "sha256": "a486d60ef03c5c2847b0685a1ef4d5e69ddd0789545fdf6ac273f76ed478d9d4"
+  },
+  "gnu-verity-bootstrap-development-20261018/input-pins.json": {
+    "bytes": 75819,
+    "sha256": "d683a4ad48e9529ee075aeb5382a15dcafaef8af24e0c3d3328d540db5067668"
+  },
+  "gnu-verity-bootstrap-development-20261018/source_snapshot.py": {
+    "bytes": 1717,
+    "sha256": "cdf93229a2624b6ee2507006ad1e7c6626312079debe0deb9822f208f8c471a7"
+  }
+}

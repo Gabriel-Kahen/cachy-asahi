@@ -1,0 +1,211 @@
+{
+  "files": [
+    {
+      "bytes": 5369,
+      "mode": 493,
+      "path": "bin/cachy-asahi-developer-tools",
+      "sha256": "4a8afa67473a0a950fabffd7878e97f1d962d4b6d7a8cc402ad8d058df45b1b6"
+    },
+    {
+      "bytes": 5825,
+      "mode": 420,
+      "path": "lib/cachy-asahi-developer-tools/0.1.0/runtime.json",
+      "sha256": "97474e2b40e92fbfcc28a39c4942ec82d2921355d4c09d7b275cd046682727ef"
+    },
+    {
+      "bytes": 25140,
+      "mode": 420,
+      "path": "lib/cachy-asahi-developer-tools/0.1.0/scripts/virtual/owned_process.py",
+      "sha256": "83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f"
+    },
+    {
+      "bytes": 20558,
+      "mode": 420,
+      "path": "lib/cachy-asahi-developer-tools/0.1.0/scripts/workflows/developer_build_systems.py",
+      "sha256": "8c5025f3d748fb2e5aebb304310852158ebaac0bcaf9ef44cad8676ed5963fbc"
+    },
+    {
+      "bytes": 14863,
+      "mode": 420,
+      "path": "lib/cachy-asahi-developer-tools/0.1.0/scripts/workflows/developer_debugger.py",
+      "sha256": "13f3e790f62eea9f728d47c408ce4857b78579c067d53f4d12a806eb8d5b3870"
+    },
+    {
+      "bytes": 29699,
+      "mode": 420,
+      "path": "lib/cachy-asahi-developer-tools/0.1.0/scripts/workflows/developer_workflow.py",
+      "sha256": "531c124cde3fa41d46888acfc638c823196bb2f297b19ab68ab3d001b05f16ba"
+    },
+    {
+      "bytes": 19097,
+      "mode": 420,
+      "path": "lib/cachy-asahi-developer-tools/0.1.0/scripts/workflows/python_development.py",
+      "sha256": "3587267a38e77e9ca93301accf7fe0c6d73f5664320ee11635b0c17734e3004b"
+    },
+    {
+      "bytes": 1081,
+      "mode": 420,
+      "path": "lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/debugger/LICENSE",
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    {
+      "bytes": 368,
+      "mode": 420,
+      "path": "lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/debugger/hello.c",
+      "sha256": "1c3177b68259ed1153ebb2dca5bb4eb29519b92ac47b4c10340167dd7be61363"
+    },
+    {
+      "bytes": 368,
+      "mode": 420,
+      "path": "lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/debugger/hello.cpp",
+      "sha256": "00542aedf9370f925a1d4ea56da1e490594de2b09095ff656f0a55b71d7a527c"
+    },
+    {
+      "bytes": 1081,
+      "mode": 420,
+      "path": "lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/developer/LICENSE",
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    {
+      "bytes": 734,
+      "mode": 420,
+      "path": "lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/developer/build-systems/CMakeLists.txt",
+      "sha256": "5eeba8bbc14954df79a387d4bfaa334cbad3301941b47d563c4d94c9dae6fd48"
+    },
+    {
+      "bytes": 1081,
+      "mode": 420,
+      "path": "lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/developer/build-systems/LICENSE",
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    {
+      "bytes": 22,
+      "mode": 420,
+      "path": "lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/developer/build-systems/expected.txt",
+      "sha256": "7a4aa07e2a5b03230831c4f6ffb205842fd277529c359d7e40e1ac858746a77d"
+    },
+    {
+      "bytes": 119,
+      "mode": 420,
+      "path": "lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/developer/build-systems/greeting.cpp",
+      "sha256": "79c2cca4f281d572018fe249b105f9f21f465588ceb4fca380610cc0b3564599"
+    },
+    {
+      "bytes": 130,
+      "mode": 420,
+      "path": "lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/developer/build-systems/greeting.h",
+      "sha256": "42a39edfe7bee319c095e1e9e74803d1db83191d35fb227ff93c775aaf63b8e8"
+    },
+    {
+      "bytes": 704,
+      "mode": 420,
+      "path": "lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/developer/build-systems/main.c",
+      "sha256": "9f8ecfd71e081f2843db793135ed87032336660e8ea9ac61c8ffe2b41408ed8b"
+    },
+    {
+      "bytes": 561,
+      "mode": 420,
+      "path": "lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/developer/build-systems/meson.build",
+      "sha256": "500790862fa47b67dd8b1d5d03e05f5257fac6dbb51805a2e4f2d81ffa996c6f"
+    },
+    {
+      "bytes": 118,
+      "mode": 420,
+      "path": "lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/developer/hello.c",
+      "sha256": "fc4d365017395544876cf526639d8dfa1b4f6784d7f92887ee35c40146f749b5"
+    },
+    {
+      "bytes": 108,
+      "mode": 420,
+      "path": "lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/developer/hello.cpp",
+      "sha256": "236696999d920e1c8a32e246f9466cf43f61bb4664040e6d7a34e6ab715b032d"
+    },
+    {
+      "bytes": 219,
+      "mode": 420,
+      "path": "lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/developer/hello.py",
+      "sha256": "3ea6180ad2af405e517e41c5c6ddda18c5e16a8370a2491e57234e319e022d43"
+    },
+    {
+      "bytes": 1081,
+      "mode": 420,
+      "path": "lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/developer/project/LICENSE",
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    {
+      "bytes": 3378,
+      "mode": 420,
+      "path": "lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/developer/project/configure.py",
+      "sha256": "5bd888e868ef428454c830335ff660e050530df6bf046a13eb7ba4fa1494e38c"
+    },
+    {
+      "bytes": 479,
+      "mode": 420,
+      "path": "lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/developer/project/hello.c",
+      "sha256": "ce9dfe043be3c1df089cbd751db18b0c970c718a07391ac76449cd6d231caf56"
+    },
+    {
+      "bytes": 248,
+      "mode": 420,
+      "path": "lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/developer/test_hello.py",
+      "sha256": "cf2b01c0e3ad83b8eee578d7fdde2fbe22a9ed2d3378ff583e790ed2427fdbce"
+    },
+    {
+      "bytes": 1081,
+      "mode": 420,
+      "path": "lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/python-development/LICENSE",
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    {
+      "bytes": 324,
+      "mode": 420,
+      "path": "lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/python-development/pyproject.toml",
+      "sha256": "6feb03b1f10b005fffb21a0ac4431f9d5184cbb9ef3def4409d613881b03e621"
+    },
+    {
+      "bytes": 185,
+      "mode": 420,
+      "path": "lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/python-development/src/cachy_python_demo/__init__.py",
+      "sha256": "7bac22a560abc4de61eee80494c4c167ee96147ccc4cc61741b32dd6f77ddfef"
+    },
+    {
+      "bytes": 58,
+      "mode": 420,
+      "path": "lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/python-development/src/cachy_python_demo/__main__.py",
+      "sha256": "5501a285c101039e2e332eb0692b2c568efa370f211be2b519b7931484d6a947"
+    },
+    {
+      "bytes": 318,
+      "mode": 420,
+      "path": "lib/cachy-asahi-developer-tools/0.1.0/tests/workflows/fixtures/python-development/test_demo.py",
+      "sha256": "943936536480cccfb2d59d4f4c0ad1d374c5a9b81a6794442bf36d94bf87ba43"
+    },
+    {
+      "bytes": 6294,
+      "mode": 420,
+      "path": "share/doc/cachy-asahi-developer-tools/README.md",
+      "sha256": "4040bc11e87d1f191d26434266ea2612880f4ddd868e85c7ce7630204c1ab951"
+    },
+    {
+      "bytes": 8912,
+      "mode": 420,
+      "path": "share/doc/cachy-asahi-developer-tools/source-provenance.json",
+      "sha256": "72754f772c1e2aeb13574e4c283a9dd8e3bcac708e0971d9cdb809ace81b7b9f"
+    },
+    {
+      "bytes": 1081,
+      "mode": 420,
+      "path": "share/licenses/cachy-asahi-developer-tools/LICENSE",
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    {
+      "bytes": 992,
+      "mode": 420,
+      "path": "share/licenses/cachy-asahi-developer-tools/NOTICE",
+      "sha256": "6e9152ffb3176eac3ac3e136a2fa94be92136c2212b989ed17e69ece3f9ee2ba"
+    }
+  ],
+  "package": "cachy-asahi-developer-tools",
+  "schema": 1,
+  "version": "0.1.0"
+}

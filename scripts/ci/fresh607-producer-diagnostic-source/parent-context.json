@@ -1,0 +1,25 @@
+{
+  "actual_ref": null,
+  "actual_run": null,
+  "actual_source": null,
+  "parent_git": {
+    "ref": "codex/latest607-fresh-retained-cache-v1",
+    "source": "9a67f3e507c57f68ece48c253cdade47648f970c",
+    "status": "PASS_INDEPENDENT_FULL_GIT_BLOB_JOIN"
+  },
+  "parent_publication": {
+    "actual": "NOT_RUN",
+    "files": 1182,
+    "git_joins": 1182,
+    "hardware": "NOT_RUN",
+    "ref": "codex/latest607-fresh-retained-cache-v1",
+    "release": "NOT_ADMITTED",
+    "source": "9a67f3e507c57f68ece48c253cdade47648f970c",
+    "status": "PUBLISHED_EXACT_CLOSED_TRIAL_SOURCE"
+  },
+  "proof_template": {
+    "bytes": 5615,
+    "sha256": "976492c04ee2345b5bf359a4398a253f6d80951a3ea649c9c96cea296af10598"
+  },
+  "status": "SOURCE_ONLY_FAILURE_DIAGNOSTIC_PARENT1182"
+}

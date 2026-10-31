@@ -1,0 +1,24 @@
+{
+  "adapter": {
+    "bytes": 17201,
+    "path": "scripts/apps/full574_closure.py",
+    "sha256": "a15e62f40dcad8ba7824babec9f9046a4caec3e3cfa68c11d904c37988c3fb2c"
+  },
+  "cleanup_source": "scripts/orphans/selected.py",
+  "native_acceptance": "NOT_RUN",
+  "packet_index": {
+    "bytes": 104659,
+    "path": "index.json",
+    "sha256": "b60048aa1312d22b1012a5d2d2e4c5185c8087b3a8f2b6c410ff9ec6a1dddfcf"
+  },
+  "packet_source": "92e433fa79eb57bfb3e4038feb30e7a7c87c652f",
+  "purpose": "EXPLICIT_SELECTED_CACHE_ORPHAN_NATIVE_FIXTURE",
+  "schema_version": 1,
+  "status": "UNBOUND_NATIVE574_ORPHAN_CLEANUP_INPUTS",
+  "versions": {
+    "cachy-asahi-apps": "0.1.0-5",
+    "cachy-asahi-cache": "0.2.0-1",
+    "cachy-asahi-orphans": "0.1.0-1",
+    "cachy-asahi-repository-runtime": "0.1.0-1"
+  }
+}

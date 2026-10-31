@@ -1,0 +1,62 @@
+# SPDX-License-Identifier: MIT
+# Original planner with exact three-helper installed runtime dependency.
+pkgname=cachy-asahi-apps
+pkgver=0.1.0
+pkgrel=7
+pkgdesc='Offline signed ARM development application catalog and explicit readonly package plans'
+arch=('any')
+url='https://github.com/Gabriel-Kahen/cachy-asahi'
+license=('MIT')
+depends=('python>=3.11' 'gnupg' 'libarchive' 'pacman' 'cachy-asahi-repository-runtime=0.1.0-1')
+source=('apps.py' 'cachy-asahi-apps' 'helper-pins.json' 'test_apps.py' 'check_source.py' 'README.md' 'source-provenance.json' 'NOTICE' 'LICENSE' 'prepare-check-inputs.py' 'check-inputs.json' 'check-inputs.tar.gz' 'inventory.py')
+noextract=('check-inputs.tar.gz')
+sha256sums=(
+    'c12f8548d5fd3007a61fb366ca279dd061917cc5320ba81ce5e2ab0d02c7d9a6'
+    '4e9c078c2e05cc00cb6479d5fff23b92cbcabd8d6b3ff970f6181e6467921630'
+    '33a5e11e6d12df984e07c437c68ee581527cc4c95f3327bc44cbc09e0e29948a'
+    '6d55ca76da60b7f1121d04cb3e16435f6db477b39e7ae8985bec01e7227d4987'
+    'd6bc3c36bd2b20bad98299afba7d82e87c4faca4f6c8525c8ddbce9109ac8dc1'
+    'c00485326caa9a82f911549b6c2232e8109da1b6a8194a4480bdf757cfc3a518'
+    'd2431ddf8cc545b168d01e47c9ac35bb8b88728d35b42ed77a8059d68c49c34e'
+    '425c36c2e9ad688b398d8fbcb2fd8f972420a1db5e0d4b19e9d24021346d4239'
+    '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
+    '76bc1977cf402872816a430156541c0ccd41273e9080730d2ace7838ffa74214'
+    '5cd338eb2ab9f4579825f3dd30de0f25d54a73ee1090737b0a21a506d12caad8'
+    '6d38353fe33e0ce595df507ad9b928d80d3e1d6fe5d45d5418f927e9f50fe6d2'
+    '68f9b0bc6bd5c494ebfc10bdc1e243c014d7fa8e56b1386491b75cdb9ee2e3df'
+)
+
+# makepkg links local sources into srcdir; the strict preparer accepts regular files.
+_stage_check_sources() {
+    local staged i name
+    staged=$(mktemp -d "$srcdir/check-source.XXXXXXXX") || return
+    for i in "${!source[@]}"; do
+        name=${source[$i]}
+        [[ $name != */* && $name != . && $name != .. && ${sha256sums[$i]} =~ ^[0-9a-f]{64}$ ]] || return 1
+        install -m600 -- "$srcdir/$name" "$staged/$name" || return
+        printf '%s  %s\n' "${sha256sums[$i]}" "$staged/$name" | sha256sum --check >&2 || return
+    done
+    printf '%s\n' "$staged"
+}
+
+check() {
+    local staged
+    staged=$(_stage_check_sources) || return
+    python -I -B "$staged/prepare-check-inputs.py" \
+        --archive "$staged/check-inputs.tar.gz" --index "$staged/check-inputs.json" --output "$staged/check-inputs" || return
+    local source="${CACHY_ASAHI_REPOSITORY_SOURCE:-$staged/check-inputs/repository}"
+    local runtime="${CACHY_ASAHI_RUNTIME_RECIPE:-$staged/check-inputs/runtime-recipe}"
+    python -I -B "$staged/check_source.py" --recipe-root "$startdir" --repository-source "$source" || return
+    python -I -B "$staged/test_apps.py" --repository-source "$source" --runtime-recipe-root "$runtime" --app-recipe-root "$startdir"
+}
+package() {
+    [[ -n $pkgdir && $pkgdir != / ]] || return 1
+    install -Dm755 "$srcdir/cachy-asahi-apps" "$pkgdir/usr/bin/cachy-asahi-apps" || return
+    install -Dm644 "$srcdir/inventory.py" "$pkgdir/usr/lib/cachy-asahi-apps/inventory.py" || return
+    install -Dm644 "$srcdir/apps.py" "$pkgdir/usr/lib/cachy-asahi-apps/apps.py" || return
+    install -Dm644 "$srcdir/helper-pins.json" "$pkgdir/usr/lib/cachy-asahi-apps/helper-pins.json" || return
+    install -Dm644 "$srcdir/README.md" "$pkgdir/usr/share/doc/$pkgname/README.md" || return
+    install -Dm644 "$srcdir/source-provenance.json" "$pkgdir/usr/share/doc/$pkgname/source-provenance.json" || return
+    install -Dm644 "$srcdir/NOTICE" "$pkgdir/usr/share/licenses/$pkgname/NOTICE" || return
+    install -Dm644 "$srcdir/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

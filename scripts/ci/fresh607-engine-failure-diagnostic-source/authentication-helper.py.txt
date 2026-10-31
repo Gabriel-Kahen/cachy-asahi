@@ -1,0 +1,27 @@
+
+def authentication_failure_projection(argv,row):
+    """Complete returned merged buffer DATA; never signature or cleanup authority."""
+    try:
+        import base64
+        if (type(argv) is not list or not 1<=len(argv)<=32 or
+            any(type(v) is not str or not v or len(v.encode())>4096 for v in argv)):
+            raise ValueError('bounded authentication argv DATA')
+        encoded_argv=json.dumps(argv,separators=(',',':'),ensure_ascii=True).encode('ascii')
+        raw=row.stdout
+        if (len(encoded_argv)>16384 or type(row.returncode) is not int or
+            not -255<=row.returncode<=255 or row.returncode==0 or
+            type(raw) is not bytes or len(raw)>1024**2):
+            raise ValueError('bounded returned authentication row')
+        tail=raw[-2048:]
+        value=dict(purpose='FRESH607_PRIVATE_AUTHENTICATION_FAILURE_DATA_V1',
+            role='PRIVATE_GPG_AUTHENTICATION_60',status='RETURNED_MERGED_OUTPUT_ONLY',
+            argv_sha256=hashlib.sha256(encoded_argv).hexdigest(),returncode=row.returncode,
+            output_bytes=len(raw),output_sha256=hashlib.sha256(raw).hexdigest(),
+            tail_codec='base64',tail_bytes=len(tail),tail_base64=base64.b64encode(tail).decode('ascii'),
+            tail_complete=len(raw)<=2048,signature_authority=False,transaction_authority=False,cleanup_authority=False)
+        if len(json.dumps(value,sort_keys=True,allow_nan=False).encode())>4096:
+            raise ValueError('bounded authentication DATA frame')
+        return value
+    except BaseException:
+        return dict(purpose='FRESH607_PRIVATE_AUTHENTICATION_FAILURE_DATA_V1',status='REFUSED_DIAGNOSTIC_SHAPE',
+                    signature_authority=False,transaction_authority=False,cleanup_authority=False)

@@ -1,0 +1,27 @@
+pkgbase = cachy-asahi-doctor
+	pkgdesc = Read-only local platform and session observations for cachy-asahi
+	pkgver = 0.2.0
+	pkgrel = 2
+	url = https://github.com/Gabriel-Kahen/cachy-asahi
+	arch = any
+	license = MIT
+	depends = python>=3.11
+	depends = pacman
+	depends = systemd
+	optdepends = wireplumber: read-only default audio output volume and mute observation
+	source = cachy-asahi-doctor
+	source = test_doctor.py
+	source = test_audio.py
+	source = test_comparison.py
+	source = README.md
+	source = NOTICE
+	source = LICENSE
+	sha256sums = ddd8c3cedc5ba1291dcdd2d1d7a188e5b4d4a4ac7323ffe6f7ee554f6687d41e
+	sha256sums = 2f669a6c37b43521edb76717ac0c01818651041d479520676eaac1808195218f
+	sha256sums = e1ff1fd9bbe932d0e869ed9810543df1ea52b648e71f0a12186854270d3736c8
+	sha256sums = 2147cc320937eb16bf24b58e58b065ca17cbe16f305d1991fb9ee6bbc4d7e408
+	sha256sums = 15ee08aeae343e1000539c72efadece1ca1f01f27d06acd0dcfd8111abac2b58
+	sha256sums = fc77ae01a573c84a5a9970a5f563b3f044de7f04d4f01745c7ab6e9f8ec9b568
+	sha256sums = 51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7
+
+pkgname = cachy-asahi-doctor

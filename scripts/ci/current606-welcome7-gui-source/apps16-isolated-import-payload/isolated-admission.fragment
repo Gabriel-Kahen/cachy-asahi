@@ -1,0 +1,28 @@
+
+# Source-only isolated startup loader fix; entire published564 ancestry remains mandatory.
+_ISOLATED_PARENT_MAPS={'selected': {'bytes': 94668, 'sha256': '3a6b394d8fcc0e91fc14410954f19024645f6799477e09ab7c2afc0c97e4370e'}, 'unbound': {'bytes': 94666, 'sha256': '8a5e592131e4d548013d30987a3d77dc6a843e83779b1db86bc1b59ddc671090'}}
+_ISOLATED_FACTORY_BEFORE={'bytes': 20137, 'sha256': 'afea7d5a75ca9898fa09567b50a46291e4ceb0b16d1fdd713828b7f60b0584ff'}
+_ISOLATED_FACTORY_AFTER={'bytes': 20658, 'sha256': '23f23fc02287ea861f5ab12cc9e197d38efed0c1ae0aad0fc2445500ce4ebe04'}
+_ISOLATED_LOADER_BLOCK='    # Register only the pinned diagnostic sibling before isolated consumers.\n    for name in (\'desktop574_guest.py\',\'doctor_worker.py\'):\n        edit(name,lambda s:once(s,"load(\'management_root\',\'management_root.py\')","load(\'post_session\',\'post_session.py\')\\nload(\'management_root\',\'management_root.py\')"))\n    edit(\'service_outcome.py\',lambda s:once(s,"for name in (\'doctor_lifetime\',\'management_contract\',\'management_root\'):","for name in (\'post_session\',\'doctor_lifetime\',\'management_contract\',\'management_root\'):"))\n\n'
+def source_context(root):
+ root=Path(root).absolute();manifest=obj(root/'source-manifest.json');need(manifest['status']=='SOURCE_ONLY_GUI_POST_SESSION_ISOLATED_IMPORT_NO_GUI_ACCEPTANCE'and manifest['actual_source']is manifest['actual_ref']is manifest['actual_run']is None,'isolated startup source grants no current actual authority');closed(root,{**manifest['files'],'source-manifest.json':pin(read(root/'source-manifest.json'))})
+ p=obj(root/'isolated-import-parent.json');variant=p['variant'];need(variant in _ISOLATED_PARENT_MAPS and p['actual']is None and len(p['files'])==564 and pin(enc(p['files']))==_ISOLATED_PARENT_MAPS[variant],'complete exact published564 parent map and variant');need((p['source'],p['ref'])==(('a1a0dea6fc4d3cf15fb82c72c52385c277eae0cc','codex/welcome8-apps16-post-session-stage-v1')if variant=='selected'else(None,None)),'published564 INPUT versus NULL context')
+ before=p['files'];bodies=p['before_bodies'];need(set(bodies)=={'admission.py','source-manifest.json'},'only original admission/manifest before bodies')
+ def prior_read(path,cap=16*1024**2):
+  name=Path(path).relative_to(root).as_posix()
+  if name=='factory/factory.py':
+   raw=read(path,cap);need(pin(raw)==_ISOLATED_FACTORY_AFTER,'entire current isolated startup factory');text=raw.decode();need(text.count(_ISOLATED_LOADER_BLOCK)==1,'one finite complete loader block inverse');raw=text.replace(_ISOLATED_LOADER_BLOCK,'',1).encode();need(pin(raw)==_ISOLATED_FACTORY_BEFORE,'entire original564 factory byte inverse')
+  else:raw=base64.b64decode(bodies[name],validate=True)if name in bodies else read(path,cap)
+  need(name in before and pin(raw)==before[name]and len(raw)<=cap,'every entire original564 byte inverse '+name);return raw
+ def prior_closed(where,wanted):
+  prefix=''if where==root else where.relative_to(root).as_posix()+'/'
+  need({n.removeprefix(prefix):w for n,w in before.items()if n.startswith(prefix)}==wanted,'whole original564 closed namespace')
+  for name,want in wanted.items():need(pin(prior_read(where/name))==want,'every original564 namespace body')
+  return wanted
+ for name,want in before.items():need(pin(prior_read(root/name))==want,'complete original564 body '+name)
+ old=types.ModuleType('_whole_original564_isolated_parent');old.__file__=str(root/'admission.py');exec(compile(prior_read(root/'admission.py'),'<whole-original564-isolated-parent>','exec'),old.__dict__);old.read=prior_read;old.obj=lambda path:json.loads(prior_read(path));old.closed=prior_closed;fact=old.source_context(root);need(fact['files']==564 and fact['post_session']=='FIXED_BOUNDED_STAGE_DATA_ONLY_NOT_GUI_ACCEPTANCE'and fact['cleanup']=='ORIGINAL_POSITIVE15_AND_FAILURE_RESOURCE_RETIREMENT_HELD','whole original564/562 source/security/cleanup/post-session gates')
+ return dict(fact,files=len(manifest['files'])+1,isolated_startup='EXPLICIT_PINNED_POST_SESSION_BEFORE_ALL_CONSUMERS_NO_SYS_PATH_CHANGE')
+_isolated_original_prove=prove
+def prove(root):
+ value=_isolated_original_prove(root)
+ return dict(value,files=565,status='PASS_WHOLE565_ISOLATED_STARTUP_AND_ALL564_562_SOURCE_GATES')

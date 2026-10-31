@@ -1,0 +1,36 @@
+def reserved_recheck_verify(raw,require_known):
+ import copy
+ root=G.obj(HERE/'build-inventory-parent.json');p=root['reserved_recheck'];before=p['files'];variant=p['variant']
+ G.need(variant in ('known','null') and G.pin(G.enc(before))==RESERVED607_PINS[variant] and len(before)==692 and p['actual']is None,'whole immediate6e86 selected package-progress context')
+ G.need((p['source'],p['ref'])==(('3f8594cbbed6e8f9c774c00d540427a8f914c4c3','codex/latest607-gui-payload-progress-v1')if variant=='known'else(None,None)),'genuine descriptor-query predecessor or NULL')
+ if require_known:G.need(variant=='known','NULL progress parent refuses actors')
+ needle=('SELF_SHA='+repr(SELF_SHA)).encode();G.need(raw.count(needle)==1 and hashlib.sha256(raw.replace(needle,b"SELF_SHA='@SELF@'",1)).hexdigest()==SELF_SHA,'whole current package-progress guard selfseal')
+ wanted=dict(PRODUCTS,**{'implementation/build_inventory_guard.py':G.pin(raw)});manifest=G.obj(ROOT/'source-manifest.json');G.need(manifest['files']==wanted and manifest['actual_source']is manifest['actual_ref']is manifest['actual_run']is None and G.table(ROOT)==dict(wanted,**{'source-manifest.json':G.pin(G.read(ROOT/'source-manifest.json'))}),'complete closed current692 progress child and NULL actuals')
+ bodies={n:G.read(ROOT/n)for n in before}
+ for name,rows in p['seams'].items():bodies[name]=G.inverse(bodies[name],rows)
+ prior=copy.deepcopy(root);prior.pop('reserved_recheck');bodies['implementation/build-inventory-parent.json']=G.enc(prior)
+ bodies['implementation/runner-context-policy.json']=G.enc(p['policy_before'])
+ oldraw=assignment(raw,'PRODUCTS','PRODUCTS='+repr({n:w for n,w in before.items()if n not in('implementation/build_inventory_guard.py','source-manifest.json')}))
+ oldraw=assignment(oldraw,'SELF_SHA',"SELF_SHA='@SELF@'")
+ oldraw=G.inverse(oldraw,p['guard_seams']);oldraw=assignment(oldraw,'SELF_SHA','SELF_SHA='+repr(hashlib.sha256(oldraw).hexdigest()));bodies['implementation/build_inventory_guard.py']=oldraw
+ prior_manifest=copy.deepcopy(manifest);prior_manifest['files']={n:w for n,w in before.items()if n!='source-manifest.json'};bodies['source-manifest.json']=G.enc(prior_manifest)
+ G.need({n:G.pin(b)for n,b in bodies.items()}==before,'ENTIRE immediate published692 source before inverse')
+ paths=sys.path[:];saved=dict(sys.modules)
+ try:
+  with tempfile.TemporaryDirectory(prefix='whole692-package-progress-source-')as td:
+   oldroot=Path(td)/'source';oldroot.mkdir(mode=0o700)
+   for name,value in bodies.items():q=oldroot/name;q.parent.mkdir(parents=True,exist_ok=True);q.write_bytes(value)
+   sys.path.insert(0,str(oldroot/'implementation'))
+   for name in ('source_guard','runner_context','runner_context_guard','observer_guard','observer_apply','build_inventory_guard'):sys.modules.pop(name,None)
+   spec=importlib.util.spec_from_file_location('source_guard',oldroot/'implementation/source_guard.py');old=importlib.util.module_from_spec(spec);sys.modules['source_guard']=old;spec.loader.exec_module(old);fact=old.verify(require_known)
+   G.need(fact['files']==692 and fact['packages']==607 and fact['optional_absent']==605 and fact['service_seconds']==1800,'whole current692 and all older source predicates')
+   G.need(G.table(oldroot)==before,'complete predecessor namespace unchanged after guard')
+ finally:
+  sys.path[:]=paths
+  for name in set(sys.modules)-set(saved):sys.modules.pop(name,None)
+  sys.modules.update(saved)
+ import observer_apply as O
+ G.need(O.reservation_spec()==p['reservation'],'complete fixed VM reservation profile')
+ G.need(O.ANNOTATION['observer_seconds']==1200 and O.ANNOTATION['caller_seconds']==1210 and O.ANNOTATION['service_seconds']==3460,'selected observer budget and shared service reservation')
+ G.need(G.table(ROOT)==dict(wanted,**{'source-manifest.json':G.pin(G.read(ROOT/'source-manifest.json'))}),'complete current closure after original source proof')
+ return dict(fact,status='PASS_WHOLE692_AND_RESERVED_RECHECK_GUI_VM_SOURCE_ONLY',files=692,parent_reserved_files=692,service_seconds=3460,prior_selected_service_seconds=1800,reserved_profile=O.reservation_annotation(),recheck_DATA=dict(records=7,line_bytes=256,total_input_bytes=1792,total_event_bytes=2304,common_clock_offset='STRICT',acceptance=False),actual=None)

@@ -1,0 +1,10 @@
+{
+  "current606_acceptance": "NOT_RUN",
+  "index": {
+    "bytes": 140641,
+    "sha256": "741c5a86b66d0189c0de78a660fa6b7c83c9feca37623db1bf28389c1c9a4237"
+  },
+  "native": "141ba835bb632483342c6a7f0246c7fe0f2bc5c3",
+  "signature": "FRESH_ORIGINAL_PRODUCER_TEST_ONLY",
+  "source": "24f8d8ed9de7f4ea1aedcc9624110e553204b36c"
+}

@@ -1,0 +1,44 @@
+{
+  "binding": "PKGBUILD/SRCINFO SHA-256 arrays bind every listed source; packet EXPORT-v2.json binds canonical files",
+  "canonical_directory": "packages/tools/cachy-asahi-release-tools-v2",
+  "excludes": [
+    "previous immutable packets",
+    "shared manifests",
+    "CI",
+    "credentials",
+    "system installation"
+  ],
+  "package": "cachy-asahi-release-tools",
+  "runtime_exports": {
+    "usr/lib/cachy-asahi/release-tools-v2/scripts/checks/package_checks.py": "package_checks.py",
+    "usr/lib/cachy-asahi/release-tools-v2/scripts/release/compare_sboms.py": "compare_sboms.py",
+    "usr/lib/cachy-asahi/release-tools-v2/scripts/release/recipe_source_delivery.py": "recipe_source_delivery.py",
+    "usr/lib/cachy-asahi/release-tools-v2/scripts/release/recipe_source_delivery_v2.py": "recipe_source_delivery_v2.py",
+    "usr/lib/cachy-asahi/release-tools-v2/scripts/release/release_sbom.py": "release_sbom.py",
+    "usr/lib/cachy-asahi/release-tools-v2/scripts/release/source_delivery.py": "source_delivery.py",
+    "usr/lib/cachy-asahi/release-tools-v2/scripts/update/archive_stream.py": "archive_stream.py"
+  },
+  "schema_version": 2,
+  "source_files": [
+    "PKGBUILD",
+    ".SRCINFO",
+    "cachy-asahi-release-tools",
+    "release_sbom.py",
+    "source_delivery.py",
+    "recipe_source_delivery.py",
+    "recipe_source_delivery_v2.py",
+    "archive_stream.py",
+    "package_checks.py",
+    "compare_sboms.py",
+    "check_package.py",
+    "test_package.py",
+    "README.md",
+    "comparing-sboms.md",
+    "source-provenance.json",
+    "payload-map.json",
+    "export-v2.json",
+    "NOTICE",
+    "LICENSE"
+  ],
+  "version": "0.2.0-1"
+}

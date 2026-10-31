@@ -1,0 +1,4 @@
+Original cachy-asahi implementation, Copyright (c) 2026 cachy-asahi contributors.
+Licensed under MIT; see LICENSE.
+Uses the installed systemd journalctl public CLI. No systemd source is bundled.
+No CachyOS, Asahi or systemd affiliation or hardware certification is claimed.

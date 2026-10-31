@@ -1,0 +1,47 @@
+name: Apps11 native source factory
+on:
+  pull_request:
+    paths:
+      - 'scripts/ci/apps11-native-source/**'
+      - '.github/workflows/apps11-native-source.yml'
+  push:
+    paths:
+      - 'scripts/ci/apps11-native-source/**'
+      - '.github/workflows/apps11-native-source.yml'
+permissions:
+  contents: read
+jobs:
+  source-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 9d1b97e0adf704fa19b534a7db610350e36a42a5
+          path: .ci-fixtures/apps10-native
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 31bc46cdd58840e5c4337d2270a307d23a171373
+          path: .ci-fixtures/apps11-recipe
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: d4e86c4e7799b4138fc1a1a8720b223e78b99fe6
+          path: .ci-fixtures/apps11-native
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Exact115 emission and all18 original lane controls
+        env:
+          APPS10_NATIVE_SOURCE: ${{ github.workspace }}/.ci-fixtures/apps10-native
+          APPS11_RECIPE_SOURCE: ${{ github.workspace }}/.ci-fixtures/apps11-recipe
+          APPS11_NATIVE_SOURCE: ${{ github.workspace }}/.ci-fixtures/apps11-native
+        run: python3 -I -B -Werror scripts/ci/apps11-native-source/test_prepare.py

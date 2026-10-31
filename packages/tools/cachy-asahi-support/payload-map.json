@@ -1,0 +1,42 @@
+{
+  "usr/bin/cachy-asahi-support": {
+    "mode": 493,
+    "source": "cachy-asahi-support"
+  },
+  "usr/lib/cachy-asahi/support/packages/tools/cachy-asahi-doctor2/cachy-asahi-doctor": {
+    "mode": 420,
+    "source": "doctor.py"
+  },
+  "usr/lib/cachy-asahi/support/scripts/hardware/session_probe.py": {
+    "mode": 420,
+    "source": "session_probe.py"
+  },
+  "usr/lib/cachy-asahi/support/scripts/support/support_bundle.py": {
+    "mode": 420,
+    "source": "support_bundle.py"
+  },
+  "usr/share/doc/cachy-asahi-support/README.md": {
+    "mode": 420,
+    "source": "README.md"
+  },
+  "usr/share/doc/cachy-asahi-support/payload-map.json": {
+    "mode": 420,
+    "source": "payload-map.json"
+  },
+  "usr/share/doc/cachy-asahi-support/source-provenance.json": {
+    "mode": 420,
+    "source": "source-provenance.json"
+  },
+  "usr/share/doc/cachy-asahi-support/support-bundle.md": {
+    "mode": 420,
+    "source": "support-bundle.md"
+  },
+  "usr/share/licenses/cachy-asahi-support/LICENSE": {
+    "mode": 420,
+    "source": "LICENSE"
+  },
+  "usr/share/licenses/cachy-asahi-support/NOTICE": {
+    "mode": 420,
+    "source": "NOTICE"
+  }
+}

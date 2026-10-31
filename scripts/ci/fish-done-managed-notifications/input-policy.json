@@ -1,0 +1,16 @@
+{
+  "archive_bytes": 15380,
+  "archive_sha256": "9ce3c7ba89467f04660014c1b12056dce28bd0c4e69b4cab8a9c2c98e1cce54f",
+  "checkout_ref": "de35c384a2e5b14b664d4156897f271b81e467ba",
+  "index": {
+    "bytes": 78603,
+    "sha256": "f73f84b9be6317aa6a95eafae6801cab435220c98ad5b416b5280729bfbac704"
+  },
+  "native_run": 38921031485,
+  "native_source": "6c691098cd7be3ad4a4b2acb9acfb4fdc653cf53",
+  "package": "cachy-asahi-fish-done",
+  "schema_version": 1,
+  "scope": "existing Root declared immutable packet; no rebuilding/installation/real-manager proof from source data checks",
+  "status": "ROOT_BOUND_RETAINED_DONE_PAIR",
+  "version": "0.1.0-2"
+}

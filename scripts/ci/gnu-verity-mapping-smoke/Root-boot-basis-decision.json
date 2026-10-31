@@ -1,0 +1,306 @@
+{
+  "attempt": 1,
+  "cleanup": {
+    "absence_verified": true,
+    "identity": [
+      2049,
+      5538278,
+      1001
+    ],
+    "live_reobservation": "SOURCE_ENFORCED_AT_ORIGINAL_RUN_ONLY",
+    "order": "AFTER_ALL_NATIVE_CHILD_GROUP_ABSENCE",
+    "status": "PASS_OWNED_BOOT_WORK_REMOVED"
+  },
+  "guest": {
+    "UART": {
+      "bytes": 11659,
+      "sha256": "6475d7a46f4b1f063711320fa563a50696b039d1f412525c481a0eb874855007"
+    },
+    "acceptance": "NOT_GRANTED",
+    "boot": {
+      "event": "boot",
+      "kernel": "7.1.13-generic16k-managed-gui",
+      "machine": "aarch64",
+      "page_size": 16384,
+      "pid": 1
+    },
+    "dm_targets": {
+      "raw": {
+        "bytes": 432,
+        "sha256": "711ea6fcc64ea81b59b0d94b936808c3ae1c414c829fde08d384ca21838c8217"
+      },
+      "targets": {
+        "error": [
+          1,
+          7,
+          0
+        ],
+        "linear": [
+          1,
+          5,
+          0
+        ],
+        "striped": [
+          1,
+          7,
+          0
+        ],
+        "verity": [
+          1,
+          13,
+          0
+        ]
+      },
+      "version": [
+        4,
+        50,
+        0
+      ]
+    },
+    "dm_version": {
+      "raw": {
+        "bytes": 312,
+        "sha256": "0a25ede14deafc5e936ad3c5cc4d1ffa0509160026b1272817667ce69e14d482"
+      },
+      "version": [
+        4,
+        50,
+        0
+      ]
+    },
+    "hardware": "NOT_RUN",
+    "integrity": "NOT_TESTED",
+    "lifecycle": "NOT_TESTED",
+    "nonce": "0d40193392c007fe0732406cd25513e0",
+    "performance": "NOT_MEASURED",
+    "poweroff_request": {
+      "dm_closed": true,
+      "event": "poweroff",
+      "method": "LINUX_REBOOT_CMD_POWER_OFF",
+      "pid": 1
+    },
+    "scope": "BOOT_AND_DM_TARGET_AVAILABILITY_ONLY",
+    "status": "PASS_RETAINED_BOOT_AND_DM_TARGET_DATA_ONLY",
+    "verity_mapping": "NOT_TESTED"
+  },
+  "hardware": "NOT_RUN",
+  "input_cleanup": {
+    "absence_verified": true,
+    "identity": [
+      2049,
+      5537875,
+      1001
+    ],
+    "live_reobservation": "SOURCE_ENFORCED_AT_ORIGINAL_RUN_ONLY",
+    "order": "AFTER_ALL_NATIVE_CHILD_GROUP_ABSENCE_AND_PUBLIC_ORIGINAL_RETENTION",
+    "status": "PASS_OWNED_KERNEL_INPUT_WORK_REMOVED"
+  },
+  "integrity": "NOT_TESTED",
+  "kernel_input": {
+    "Image": {
+      "bytes": 9019400,
+      "sha256": "cd8053ebdb83302015efbad97ab1cc53fcd5a2353bf3f37ba208f4e6360946ec"
+    },
+    "artifact": {
+      "bytes": 9348486,
+      "id": 12147995917,
+      "name": "gnu-verity-kernel-build-only-39156901928-1",
+      "sha256": "b07124fb219e4af315094f97f201490433fc120a45cd3b55f39f9588e65d3057"
+    },
+    "config": {
+      "bytes": 68789,
+      "sha256": "e97d54d4852eceb6cba28c38f78d4a00aacbfdb0c1523cb96366590f7eaa915b"
+    },
+    "ref": "codex/gnu-verity-kernel-config-domain-v1",
+    "run_id": "39156901928",
+    "source": "4056e2505ed7081674e949e0460258672cce14ff"
+  },
+  "lifecycle": "NOT_TESTED",
+  "limitations": [
+    "Generic TCG VM only; no M2 compatibility or independent machine attestation.",
+    "Verity target availability only; no verity mapping or integrity operation was exercised.",
+    "Cleanup evidence was source-enforced at the original run, not independently reobserved afterward."
+  ],
+  "native_commands": [
+    {
+      "exit_code": 0,
+      "group_absence_verified": true,
+      "label": "qemu-package",
+      "natural_exit": true,
+      "seconds": 0.008267
+    },
+    {
+      "exit_code": 0,
+      "group_absence_verified": true,
+      "label": "qemu-version",
+      "natural_exit": true,
+      "seconds": 0.091076
+    },
+    {
+      "exit_code": 0,
+      "group_absence_verified": true,
+      "label": "compile",
+      "natural_exit": true,
+      "seconds": 1.914364
+    },
+    {
+      "exit_code": 0,
+      "group_absence_verified": true,
+      "label": "qemu",
+      "natural_exit": true,
+      "seconds": 0.583969
+    }
+  ],
+  "native_package_acceptance": "NOT_GRANTED",
+  "original_files": {
+    "Root-build-decision.json": {
+      "bytes": 6667,
+      "sha256": "f615551a21aa60195ca62884bc0359f4630da9cb12f8e10ad949b41798a4764a"
+    },
+    "compile.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "compile.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "init-build.json": {
+      "bytes": 2028,
+      "sha256": "fb33f5ffd32f2e46b8e4b071bf9444f56196ab31be22182a00aa5c209e64fc81"
+    },
+    "init.elf": {
+      "bytes": 7944,
+      "sha256": "fda6f1f50c0df17ef78bc0be871a375012db7add30570f5c14a67f952adffe13"
+    },
+    "initramfs.cpio": {
+      "bytes": 8828,
+      "sha256": "3ef00bf9d6392fd9aca839a3383fbece4475329ee7bda3ce4dcf7f54bd8e87ee"
+    },
+    "kernel-build-result.json": {
+      "bytes": 8083,
+      "sha256": "6c62e3c434786e96c5b0005716f793dc38ec859f7bde5ce3b1f6ea80809db060"
+    },
+    "kernel-current/current-artifacts.json": {
+      "bytes": 789,
+      "sha256": "4d67bf4eece2fa6d908559e54962083cfc154e10a0e1c387ccfc897cfefa1421"
+    },
+    "kernel-current/current-run.json": {
+      "bytes": 12995,
+      "sha256": "9a8f9de4ce56af42532dd32530fbc2c2fa8bcede4c89a1c9b146e6f06f78c30f"
+    },
+    "kernel-current/input-acquisition.json": {
+      "bytes": 7968,
+      "sha256": "6dde1cbce22bb85481852bc4edbfe9a4bad72d1f668a379c73640b675b2eab45"
+    },
+    "kernel-descriptor.json": {
+      "bytes": 5995,
+      "sha256": "c13bee2a9ec70f2b1e9d46c7a9455b7320e92febd2b32e2f00eac250628f0e32"
+    },
+    "kernel-input-replay.json": {
+      "bytes": 9407,
+      "sha256": "2af526b4dd9a427b1cc4fdbd8b81e4d22e1f8fd92381a8272baacc509a3e2e7a"
+    },
+    "kernel-originals/artifact.zip": {
+      "bytes": 9348486,
+      "sha256": "b07124fb219e4af315094f97f201490433fc120a45cd3b55f39f9588e65d3057"
+    },
+    "kernel-originals/artifacts.json": {
+      "bytes": 789,
+      "sha256": "4d67bf4eece2fa6d908559e54962083cfc154e10a0e1c387ccfc897cfefa1421"
+    },
+    "kernel-originals/bound-original.json": {
+      "bytes": 254,
+      "sha256": "4469a6e63b5c99e95d2e313c14e62b690baff08b61e96fc5c6c5499ee9e6e36f"
+    },
+    "kernel-originals/collection-outcome.json": {
+      "bytes": 776,
+      "sha256": "9d425c821f392718aee8f9edf2b86ce155bbdbc7d6cd5872d3a5523fe3d17d07"
+    },
+    "kernel-originals/logs.zip": {
+      "bytes": 24550,
+      "sha256": "57849867c5f0db4bdbe8a2bd2c597db8dbcf87aff15ebfb403a931e922fb0ec0"
+    },
+    "kernel-originals/run.json": {
+      "bytes": 12995,
+      "sha256": "9a8f9de4ce56af42532dd32530fbc2c2fa8bcede4c89a1c9b146e6f06f78c30f"
+    },
+    "qemu-package.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "qemu-package.stdout": {
+      "bytes": 22,
+      "sha256": "b13c3e23ea7721b303f55bfa660120d7205841931a944ea440fe1f0d9b24a336"
+    },
+    "qemu-version.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "qemu-version.stdout": {
+      "bytes": 132,
+      "sha256": "8f79ffd97970d85d6833a0ccc87f5d6e7182f8f52101c741dfa2fb6374670b18"
+    },
+    "qemu.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "qemu.stdout": {
+      "bytes": 11659,
+      "sha256": "6475d7a46f4b1f063711320fa563a50696b039d1f412525c481a0eb874855007"
+    },
+    "result.json": {
+      "bytes": 8278,
+      "sha256": "353ac6dcbf4a86aaf83eb69b229445c54b7eb321b677b927d1a0659e02cbdb9d"
+    },
+    "retention.json": {
+      "bytes": 4005,
+      "sha256": "647c5d3566a0d5bc69a8a68d71562c5f899fbb72a5492fecdf4f7e9ed086a1c6"
+    },
+    "source-manifest.json": {
+      "bytes": 14345,
+      "sha256": "bddf1728192dc5d891a9f33fd746ad84107022a08eb4305b1bbabb42db2d64f5"
+    },
+    "source-proof.json": {
+      "bytes": 380,
+      "sha256": "dd45bed52277aa3a1dbcffa2aa062eecfa0367bdff548bf872d4586c681b25aa"
+    }
+  },
+  "original_transport": {
+    "artifact": {
+      "bytes": 9501193,
+      "sha256": "2d88c69c680ef3b689d0adeb5cdb259ade27b0b357c82b2db77330988b846082"
+    },
+    "artifact_id": 12148139124,
+    "artifact_metadata": {
+      "bytes": 776,
+      "sha256": "30054e8be79ec596280349c82dc745cbaf583cd0a4f20e91e5b4552d0c9ff250"
+    },
+    "logs": {
+      "bytes": 32791,
+      "sha256": "b01f21d7bc775d3876de5ca85e99dee2dc76a8719569eaa12f45e59a6444e86c"
+    },
+    "metadata": {
+      "bytes": 12995,
+      "sha256": "212dacbb321bf40d1caec18e14c7f5d16bd0191b2947b5739b410b6411f8b88f"
+    }
+  },
+  "performance": "NOT_MEASURED",
+  "ref": "codex/gnu-verity-kernel-boot-probe-v1",
+  "release": "NOT_ADMITTED",
+  "root_independent_checks": "ALL72_GIT_BLOBS_WHOLE28_MEMBER_ARCHIVE_ALL4_TRANSPORT_PINS_RAW_UART_DM_LIST_POWERDOWN_AND_NATURAL_RETIREMENT",
+  "run": 39159992802,
+  "scope": "BOOT_AND_DM_TARGET_AVAILABILITY_ONLY",
+  "source": "bd31022395cc9231dfd966a4c0efc589ac1d49c2",
+  "source_authorization": {
+    "bytes": 14882,
+    "sha256": "beca83cdfaa543da71d537fd94562c70f847691d86b01f1d8da70e77ad761864"
+  },
+  "source_files": 72,
+  "status": "ROOT_ACCEPTED_GNU_VERITY_STANDALONE_BOOT_DM_TARGET_AVAILABILITY_ONLY",
+  "strict_result": {
+    "bytes": 16477,
+    "sha256": "086c4a0b9389b56cf4d16454244e44fc2a2237c4331b63747516ea4cc67277e3"
+  },
+  "verity_mapping": "NOT_TESTED"
+}

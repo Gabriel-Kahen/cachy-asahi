@@ -1,22 +1,68 @@
 name: static-validation
 on:
   push:
+    branches: [main, codex/virtual-integration]
+    tags: ['**']
   pull_request:
+  workflow_dispatch:
+    inputs:
+      measure-cache:
+        description: Run one cold setup followed by the full static suite on a fresh warm runner
+        type: boolean
+        required: false
+        default: false
+  workflow_call:
+    inputs:
+      setup-phase:
+        description: Explicit normal or warm setup; warm requires a cold predecessor
+        type: string
+        default: normal
+      cold-receipt:
+        description: Completed same-run cold predecessor; empty preserves normal validation
+        type: string
+        default: ''
 permissions:
   contents: read
 jobs:
+  cache-seed:
+    if: ${{ !cancelled() && github.event_name == 'workflow_dispatch' && inputs.measure-cache }}
+    runs-on: ubuntu-24.04
+    outputs:
+      receipt: ${{ steps.setup.outputs.receipt }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+      - name: Establish cold setup and seed this run's exact cache
+        id: setup
+        uses: ./.github/actions/static-prerequisites
+        with:
+          phase: cold
   checks:
+    needs: cache-seed
+    if: ${{ !cancelled() && ((github.event_name == 'workflow_dispatch' && inputs.measure-cache && needs.cache-seed.result == 'success') || (!(github.event_name == 'workflow_dispatch' && inputs.measure-cache) && needs.cache-seed.result == 'skipped')) }}
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
-      - name: Install test prerequisites on disposable runner
-        run: |
-          sudo apt-get update
-          sudo apt-get install --no-install-recommends -y bash fish zsh vim build-essential clang lld gnupg libarchive-tools pacman-package-manager makepkg
-          for tool in bash fish zsh vim cc clang ld.lld gpg gpgconf repo-add bsdtar vercmp pacman; do command -v "$tool"; done
-          dpkg-query -W bash fish zsh vim build-essential clang lld gnupg libarchive-tools pacman-package-manager makepkg
+      - name: Install verified test prerequisites on disposable runner
+        uses: ./.github/actions/static-prerequisites
+        with:
+          phase: ${{ github.event_name == 'workflow_dispatch' && inputs.measure-cache && 'warm' || inputs.setup-phase || 'normal' }}
+          cold-receipt: ${{ github.event_name == 'workflow_dispatch' && inputs.measure-cache && needs.cache-seed.outputs.receipt || inputs.cold-receipt }}
+      - name: Static prerequisite receipt controls without APT or cache service
+        run: python3 -I -B -Werror scripts/ci/test_static_apt_trial.py -v
+      - name: Copy preparation interruption and owned disposal controls
+        env:
+          APPS_COPY_RECOVERY_WORK: /tmp
+        run: python3 -I -B -Werror scripts/apps/test_prepare_copy_recovery.py
+      - name: Checkout pinned historical604 runtime source for derivative controls
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 3e71f2de1810d3eb94ab1621d23a087b27ea2568
+          path: .ci-inputs/historical604-runtime
+          persist-credentials: false
       - name: Verify packaged setup source and sync boundaries
         env:
           PYTHONDONTWRITEBYTECODE: '1'
@@ -24,6 +70,28 @@ jobs:
           python3 packages/settings/cachy-asahi-setup/check-sync.py
           python3 packages/settings/cachy-asahi-setup/test-sync.py -v
           python3 -B packages/tools/cachy-asahi-topmem/test_topmem.py -v
+      - name: Check accepted Setup8 snapshot, canonical sync and package controls
+        run: |
+          python3 -I -B packages/tools/cachy-asahi-setup8/check-sync.py --snapshot
+          python3 -I -B packages/tools/cachy-asahi-setup8/check-sync.py --root "$PWD"
+          python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-setup8/test_config_migrate.py -v
+          python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-setup8/test_package.py -v
+          python3 -I -B - <<'PY'
+          import importlib.util, json
+          from pathlib import Path
+          path = Path('scripts/checks/package_checks.py').resolve()
+          spec = importlib.util.spec_from_file_location('setup8_checks', path)
+          checks = importlib.util.module_from_spec(spec); spec.loader.exec_module(checks)
+          report = checks.recipe(Path('packages/tools/cachy-asahi-setup8/PKGBUILD'))
+          print(json.dumps(report, sort_keys=True, indent=2))
+          assert not report['errors'], report['errors']
+          metadata = report['metadata']
+          assert metadata['pkgname'] == ['cachy-asahi-setup']
+          assert metadata['pkgver'] == ['0.3.0'] and metadata['pkgrel'] == ['1']
+          assert metadata['arch'] == ['any'] and metadata['license'] == ['MIT']
+          assert set(metadata['depends']) == {'python>=3.11', 'gnupg', 'pacman'}
+          assert len(report['input_sha256']) == 20
+          PY
       - name: Validate tooling and safety boundaries
         env:
           PYTHONDONTWRITEBYTECODE: '1'
@@ -54,18 +122,228 @@ jobs:
                   subprocess.run([sys.executable, '-B', '-c', runner, directory], env=env, check=True)
           PY
           bash -n scripts/build/container-entry.sh
+          bash -n scripts/build/container-entry-v2.sh
+      - name: Check explicit Apps7 inventory parser candidate
+        run: |
+          python3 -I -B packages/tools/cachy-asahi-apps7/check_source.py --repository-source "$PWD" --recipe-root packages/tools/cachy-asahi-apps7
+          python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-apps7/test_apps.py --repository-source "$PWD" --app-recipe-root packages/tools/cachy-asahi-apps7 --runtime-recipe-root packages/tools/cachy-asahi-repository-runtime -v
+      - name: Check opt-in installed repository client v2
+        run: |
+          python3 -I -B packages/tools/cachy-asahi-repository-client-v2/check_source.py --recipe-root packages/tools/cachy-asahi-repository-client-v2
+          python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-repository-client-v2/test_runtime.py --recipe-root packages/tools/cachy-asahi-repository-client-v2 --runtime-recipe-root packages/tools/cachy-asahi-repository-runtime
+      - name: Check default Apps7 and client v2 native source without actors
+        run: |
+          python3 -I -B scripts/ci/apps7-client-native/preflight.py --source "$PWD"
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/apps7-client-native -p test_lane.py -v
+      - name: Check default DNS and sysctl native lane without actors
+        run: |
+          python3 -I -B scripts/ci/dns-sysctl-native/preflight.py --source "$PWD"
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/dns-sysctl-native -p test_lane.py -v
+      - name: Check default DNS and sysctl upgrade lanes without actors
+        run: |
+          python3 -I -B scripts/ci/sysctl2-upgrade-native/preflight.py --source "$PWD"
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/sysctl2-upgrade-native -p test_lane.py -v
+          python3 -I -B scripts/ci/dns2-native-upgrade/preflight.py --source "$PWD"
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/dns2-native-upgrade -p test_lane.py -v
+      - name: Check opt-in DNS and named sysctl controls without host changes
+        run: |
+          python3 -I -B packages/tools/cachy-asahi-dns/check_source.py --recipe-root packages/tools/cachy-asahi-dns
+          python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-dns/test_dns.py
+          python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-sysctl/test_sysctl.py
+          bash -n packages/tools/cachy-asahi-dns/PKGBUILD packages/tools/cachy-asahi-sysctl/PKGBUILD
+      - name: Check read-only DNS profile and sysctl experiment discovery
+        run: |
+          python3 -I -B packages/tools/cachy-asahi-dns2/check_source.py --recipe-root packages/tools/cachy-asahi-dns2
+          python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-dns2/test_dns.py
+          python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-sysctl2/test_sysctl.py
+          bash -n packages/tools/cachy-asahi-dns2/PKGBUILD packages/tools/cachy-asahi-sysctl2/PKGBUILD
+      - name: Check default KSM native upgrade source without actors
+        run: |
+          python3 -I -B scripts/ci/ksm2-upgrade-native/prepare.py --source "$PWD" --output "$RUNNER_TEMP/ksm2-upgrade-source" --baseline-recipe "$PWD/packages/tools/cachy-asahi-ksmctl" --candidate-recipe "$PWD/packages/tools/cachy-asahi-ksmctl2"
+          python3 -I -B "$RUNNER_TEMP/ksm2-upgrade-source/scripts/ci/ksm2-upgrade-native/preflight.py" --source "$RUNNER_TEMP/ksm2-upgrade-source"
+          python3 -B -Werror::ResourceWarning -m unittest discover -s "$RUNNER_TEMP/ksm2-upgrade-source/scripts/ci/ksm2-upgrade-native" -p test_lane.py -v
+      - name: Emit exact KSM diagnostic kernel source without building
+        run: |
+          python3 -I -B scripts/ci/ksm2-kernel-native/prepare.py --source "$PWD" --output "$RUNNER_TEMP/ksm2-kernel-source"
+          KSM2_FACTORY_SOURCE="$PWD" python3 -I -B scripts/ci/ksm2-kernel-native/test_prepare.py
+          python3 -B "$RUNNER_TEMP/ksm2-kernel-source/scripts/ci/ksm2-kernel-native/lane.py" preflight --source "$RUNNER_TEMP/ksm2-kernel-source"
+          python3 -B -Werror::ResourceWarning "$RUNNER_TEMP/ksm2-kernel-source/scripts/ci/ksm2-kernel-native/test_lane.py"
+      - name: Check GNU verity diagnostic kernel source without build or boot
+        run: |
+          python3 -B scripts/ci/gnu-verity-kernel-native/prepare.py --own "$PWD" --inputs "$PWD" --output "$RUNNER_TEMP/gnu-verity-kernel-source"
+          python3 -B "$RUNNER_TEMP/gnu-verity-kernel-source/scripts/ci/gnu-verity-kernel-native/lane.py" preflight --source "$RUNNER_TEMP/gnu-verity-kernel-source"
+          python3 -B -Werror::ResourceWarning "$RUNNER_TEMP/gnu-verity-kernel-source/scripts/ci/gnu-verity-kernel-native/test_lane.py"
+      - name: Emit standalone GNU boot and DM probe NULL default source without actors
+        run: |
+          python3 -I -B scripts/ci/gnu-verity-kernel-boot-probe-source/prepare.py --own "$PWD" --output "$RUNNER_TEMP/gnu-verity-boot-default-source"
+          python3 -I -B "$RUNNER_TEMP/gnu-verity-boot-default-source/scripts/ci/gnu-verity-kernel-boot-probe/entry.py" check-source --source "$RUNNER_TEMP/gnu-verity-boot-default-source"
+          python3 -I -B "$RUNNER_TEMP/gnu-verity-boot-default-source/scripts/ci/gnu-verity-kernel-boot-probe/test_entry.py"
+          python3 -I -B -Werror::ResourceWarning scripts/ci/gnu-verity-kernel-boot-probe-source/test_prepare.py
+      - name: Emit standalone GNU verity mapping smoke NULL default source without actors
+        run: |
+          python3 -I -B scripts/ci/gnu-verity-mapping-smoke-source/prepare.py --own "$PWD" --output "$RUNNER_TEMP/gnu-verity-mapping-default-source"
+          python3 -I -B "$RUNNER_TEMP/gnu-verity-mapping-default-source/scripts/ci/gnu-verity-mapping-smoke/entry.py" check-source --source "$RUNNER_TEMP/gnu-verity-mapping-default-source"
+          python3 -I -B "$RUNNER_TEMP/gnu-verity-mapping-default-source/scripts/ci/gnu-verity-mapping-smoke/test_entry.py"
+          python3 -I -B -Werror::ResourceWarning scripts/ci/gnu-verity-mapping-smoke-source/test_prepare.py
+      - name: Checkout whole copied606 code basis for optional KSM source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 9afbc5a373b1b027b89bb7ab32b4386269a21360
+          path: ksm606-copy-basis
+          persist-credentials: false
+      - name: Checkout native KSM code and private controls
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 72ea5a1e81268f08da9b9cc04cdc7e23a1a9ff8a
+          path: ksm606-native-source
+          persist-credentials: false
+      - name: Checkout renewed KSM TEST signature DATA without activation
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: fe67aaaae7ef4ea94dfc8a42cd2c806cc5436fc7
+          path: ksm606-native-data
+          persist-credentials: false
+      - name: Emit complete606 optional KSM2 source without actors
+        run: |
+          python3 -I -B scripts/ci/current606-ksm2-copy/prepare.py --basis-source "$PWD/ksm606-copy-basis" --native-source "$PWD/ksm606-native-source" --owner-source "$PWD/scripts/ci/current606-ksm2-closed-owner" --output "$RUNNER_TEMP/ksm606-roles"
+          python3 -I -B scripts/ci/current606-ksm2-closed-owner/prepare.py --held606-source "$RUNNER_TEMP/ksm606-roles/held606" --bridge-source "$RUNNER_TEMP/ksm606-roles/bridge" --copyworker-source "$RUNNER_TEMP/ksm606-roles/copyworker" --output "$RUNNER_TEMP/ksm606-source" --authorization "$RUNNER_TEMP/ksm606-authorization.json"
+          python3 -I -B "$RUNNER_TEMP/ksm606-source/scripts/ci/current606-ksm2-closed-owner/test_owner.py"
+          python3 -I -B "$RUNNER_TEMP/ksm606-source/copyworker/scripts/ci/current606-ksm2-copy/test_worker.py"
+          python3 -I -B - <<'PYKSM360SOURCE'
+          """Exact360 NULL source and complete32 native DATA provenance; no activation."""
+          import hashlib,importlib.util,json,os,subprocess,sys
+          from pathlib import Path
+          from unittest.mock import patch
+          root=Path(os.environ['RUNNER_TEMP'])/'ksm606-source';raw=(root.parent/'ksm606-authorization.json').read_bytes();assert len(raw)==62169 and hashlib.sha256(raw).hexdigest()=='f3353f6c43425237ee2a3b5bb0c07c8c4399fe7306f78f80469001bb2e25b7bd';rows=json.loads(raw);assert len(rows)==360
+          assert {p.relative_to(root).as_posix()for p in root.rglob('*')if p.is_file()}==set(rows)
+          assert all(not p.is_symlink()and(p.is_file()or p.is_dir())for p in root.rglob('*'))
+          for n,row in rows.items():
+           p=root/n;assert not any(q.is_symlink()for q in(p,*p.parents));value=p.read_bytes();assert dict(bytes=len(value),sha256=hashlib.sha256(value).hexdigest())==row
+          lane=root/'scripts/ci/current606-ksm2-closed-owner';policy=json.loads((lane/'input-policy.json').read_bytes());assert policy==(json.loads((lane/'null-policy.json').read_bytes()));assert all(policy[k]is None for k in('actual_source','actual_ref','actual_run','nonce','measurement','output','retirement','capture_receipt','native_pair_source','native_pair_index'));assert all(v is None for v in policy['current606'].values())
+          worker=root/'copyworker/scripts/ci/current606-ksm2-copy';sys.path.insert(0,str(worker))
+          for name,file in(('contract','contract.py'),('_canonical_native_data_inputs','inputs.py')):
+           spec=importlib.util.spec_from_file_location(name,worker/file);module=importlib.util.module_from_spec(spec);sys.modules[name]=module;spec.loader.exec_module(module)
+          with patch.object(subprocess,'Popen',side_effect=AssertionError('SOURCE_ONLY_NO_ACTORS')),patch.object(subprocess,'run',side_effect=AssertionError('SOURCE_ONLY_NO_ACTORS')),patch.object(subprocess,'check_output',side_effect=AssertionError('SOURCE_ONLY_NO_ACTORS')):native=module.inspect(Path.cwd()/'ksm606-native-data/payload')
+          assert native['signer']=='D0B033AD1C44F88A1B64A645D72B18C8C32E249A'and native['version']=='0.1.0-2'
+          print(json.dumps(dict(status='PASS_CANONICAL_COMPLETE360_NULL_AND_NATIVE32_DATA_ONLY',files=360,native_data_source='fe67aaaae7ef4ea94dfc8a42cd2c806cc5436fc7',actual_source=None,actual_ref=None,actual_run=None,acceptance='NOT_GRANTED'),sort_keys=True))
+          PYKSM360SOURCE
+      - name: Checkout whole frozen KSM hosted runtime without activation
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: fe43a83e80aef1463202e348a8dd795ea48264a4
+          path: .ci-inputs/ksm2-hosted-runtime
+          persist-credentials: false
+      - name: Emit and check default KSM hosted source without component activation
+        run: |
+          python3 -I -B scripts/ci/ksm2-generic16k-vm-hosted/prepare.py --runtime "$PWD/.ci-inputs/ksm2-hosted-runtime/runtime" --output "$RUNNER_TEMP/ksm2-hosted-source"
+          python3 -I -B "$RUNNER_TEMP/ksm2-hosted-source/scripts/ci/ksm2-generic16k-vm-hosted/entry.py" source --source "$RUNNER_TEMP/ksm2-hosted-source"
+          python3 -I -B -Werror::ResourceWarning "$RUNNER_TEMP/ksm2-hosted-source/scripts/ci/ksm2-generic16k-vm-hosted/test_lane.py" --source "$RUNNER_TEMP/ksm2-hosted-source" -v
+          python3 -I -B -Werror::ResourceWarning "$RUNNER_TEMP/ksm2-hosted-source/scripts/ci/ksm2-generic16k-vm-hosted/test_archive32.py"
+      - name: Check explicit KSM scanning experiments in private fixtures
+        run: |
+          python3 -I -B packages/tools/cachy-asahi-ksmctl2/check-source.py
+          python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-ksmctl2/test_ksmctl.py
+          python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-ksmctl2/test_experiment.py
+          python3 -I -B packages/tools/cachy-asahi-ksmctl2/cachy-asahi-ksm-experiment --help >/dev/null
+          bash -n packages/tools/cachy-asahi-ksmctl2/PKGBUILD
+      - name: Exercise planned repository key rotation without skipped controls
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          test "$(id -u)" -ne 0
+          for tool in gpg gpgconf pacman-key pacman-conf unshare; do command -v "$tool"; done
+          userns_previous=
+          restore_userns() {
+            if [ -n "$userns_previous" ]; then
+              sudo sysctl -w "kernel.apparmor_restrict_unprivileged_userns=$userns_previous"
+            fi
+          }
+          trap restore_userns EXIT
+          trap 'exit 129' HUP
+          trap 'exit 130' INT
+          trap 'exit 143' TERM
+          if ! unshare --user --map-root-user -- true; then
+            test "${GITHUB_ACTIONS:-}" = true
+            test "${RUNNER_OS:-}" = Linux
+            userns_previous=$(sysctl -n kernel.apparmor_restrict_unprivileged_userns)
+            test "$userns_previous" = 1
+            sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+          fi
+          unshare --user --map-root-user -- true
+          TMPDIR=/tmp python3 -I -B -Werror::ResourceWarning - <<'PY'
+          import importlib.util
+          import os
+          from pathlib import Path
+          import tempfile
+          import unittest
+
+          if os.getuid() == 0 or os.geteuid() == 0:
+              raise SystemExit('repository fixtures require an ordinary non-root runner')
+          spec = importlib.util.spec_from_file_location('rotation_controls', Path('scripts/repository/test_rotate.py'))
+          module = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(module)
+          with tempfile.TemporaryDirectory(prefix='repository-ci-') as temporary:
+              home = Path(temporary) / 'home'
+              home.mkdir(mode=0o700)
+              os.environ['HOME'] = str(home)
+              suite = unittest.defaultTestLoader.loadTestsFromModule(module)
+              result = unittest.TextTestRunner(verbosity=2).run(suite)
+              if not result.wasSuccessful() or result.skipped or result.testsRun < 24:
+                  raise SystemExit('repository rotation: failures, skips, or incomplete control suite')
+          PY
       - name: Exercise release and client contracts without skipped tests
         env:
           PYTHONDONTWRITEBYTECODE: '1'
         run: |
           python3 -B - <<'PY'
-          import unittest
-          for directory in ('scripts/release', 'scripts/client'):
+          import importlib.util, tempfile, unittest
+          from pathlib import Path
+          spec = importlib.util.spec_from_file_location('measurement_components', 'scripts/ci/measurement-tools-components-v1.py')
+          measurement = importlib.util.module_from_spec(spec); spec.loader.exec_module(measurement)
+          for directory in ('scripts/release', 'scripts/client', 'scripts/benchmarks'):
               suite = unittest.TestLoader().discover(directory, pattern='test_*.py')
-              result = unittest.TextTestRunner(verbosity=2).run(suite)
+              with tempfile.TemporaryDirectory(prefix='static-measurement-source-') as temporary:
+                  with measurement.discovered_source_fixture(suite, Path.cwd(), Path(temporary)):
+                      result = unittest.TextTestRunner(verbosity=2).run(suite)
               if not result.wasSuccessful() or result.skipped or result.testsRun == 0:
                   raise SystemExit(f'{directory}: failures, skips, or empty suite')
           PY
+      - name: Check offline exact platform and recovery preflight
+        run: python3 -B -Werror::ResourceWarning scripts/platform/test_recovery_preflight.py
+      - name: Check read-only exact-target snapshot collection
+        run: python3 -B -Werror::ResourceWarning scripts/platform/test_target_snapshot.py
+      - name: Check platform comparison and maintained ARM build planning
+        run: |
+          python3 -B -Werror::ResourceWarning scripts/platform/test_snapshot_compare.py
+          python3 -B -Werror::ResourceWarning scripts/maintenance/test_rebuild_plan.py
+          python3 -B -Werror::ResourceWarning scripts/maintenance/test_rebuild_provider_selections.py
+          python3 -B -Werror::ResourceWarning scripts/maintenance/test_update_plan.py
+          python3 -B -Werror::ResourceWarning scripts/maintenance/test_import_release_graph.py
+          python3 -B -Werror::ResourceWarning scripts/platform/test_retained_bundle.py
+          python3 -B -Werror::ResourceWarning scripts/maintenance/test_build_batch.py
+          python3 -B -Werror::ResourceWarning scripts/maintenance/test_build_batch_e2e.py
+          python3 -B -Werror::ResourceWarning scripts/maintenance/test_build_outputs.py
+          python3 -B -Werror::ResourceWarning scripts/maintenance/test_health.py
+          python3 -B -Werror::ResourceWarning scripts/maintenance/test_source_cache.py
+          python3 -B -Werror::ResourceWarning scripts/setup/test_config_migrate.py
+      - name: Check packaged offline maintenance health
+        run: python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-maintenance/test_package.py --recipe-root packages/tools/cachy-asahi-maintenance
+      - name: Check bounded session diagnostics and installed package
+        run: |
+          python3 -B -Werror::ResourceWarning scripts/hardware/test_session_probe.py
+          python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-session-diagnostics/test_session_probe.py
+          python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-session-diagnostics/test_package.py
+      - name: Check isolated ARM experiment packages with pinned source on host ISA
+        run: |
+          c01_source_dir="$(mktemp -d "$RUNNER_TEMP/c01-package-source.XXXXXX")"
+          trap 'rm -rf -- "$c01_source_dir"' EXIT
+          curl --fail --location --proto '=https' --proto-redir '=https' --connect-timeout 10 --max-time 60 --max-filesize 2000000 --retry 2 \
+            --output "$c01_source_dir/zlib-1.3.2.tar.gz" 'https://zlib.net/zlib-1.3.2.tar.gz'
+          printf '%s  %s\n' 'bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16' "$c01_source_dir/zlib-1.3.2.tar.gz" | sha256sum --check
+          printf '%s  %s\n' 'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25' 'scripts/experiments/fixtures/c01-packages.lock' | sha256sum --check
+          CACHY_ASAHI_ZLIB_SOURCE="$c01_source_dir/zlib-1.3.2.tar.gz" \
+            CACHY_ASAHI_ZLIB_PACKAGES="$GITHUB_WORKSPACE/scripts/experiments/fixtures/c01-packages.lock" \
+            python3 -B -Werror::ResourceWarning scripts/experiments/test_package_variants.py
       - name: Check fixed build-only Asahi data candidate boundaries
         run: python3 -B scripts/ci/asahi-audio-data/test_run.py
       - name: Check fixed build-only audio Rust candidate boundaries
@@ -97,7 +375,7 @@ jobs:
           bash -n scripts/ci/desktop574_fixture.sh
       - name: Check optional bar and notification session controls without actors
         run: |
-          python3 -B -m unittest discover -s scripts/ci/desktop-bar-notifications -p test_slice.py
+          python3 -B -m unittest discover -s scripts/ci/desktop-bar-notifications -p 'test_*.py'
           python3 -B -m unittest discover -s scripts/ci/desktop-bar-notifications/ci -p test_caller.py
       - name: Check managed user session controls without services or VM actors
         run: |
@@ -118,8 +396,200 @@ jobs:
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/maintained574-active-trial -p 'test_*.py'
           bash -n scripts/ci/maintained574-active-trial/ci_sequence.sh
       - name: Check read-only diagnostic product fixtures
-        run: python3 -B -Werror::ResourceWarning packages/tools/cachy-asahi-doctor/test_doctor.py
-      - name: Check original welcome package source and payload contract
+        run: |
+          python3 -B -Werror::ResourceWarning packages/tools/cachy-asahi-doctor/test_doctor.py
+          python3 -B -Werror::ResourceWarning packages/tools/cachy-asahi-doctor/test_comparison.py
+      - name: Check optional Doctor2 default audio and offline comparison diagnostics
+        run: |
+          python3 -B -Werror::ResourceWarning packages/tools/cachy-asahi-doctor2/test_doctor.py
+          python3 -B -Werror::ResourceWarning packages/tools/cachy-asahi-doctor2/test_audio.py
+          python3 -B -Werror::ResourceWarning packages/tools/cachy-asahi-doctor2/test_comparison.py
+          bash -n packages/tools/cachy-asahi-doctor2/PKGBUILD
+      - name: Checkout exact historical Doctor2 native source context
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 705c5a095f9cabbfd2f3cd137127f4bbc7665f52
+          path: .ci-inputs/doctor2-native-source
+          persist-credentials: false
+      - name: Check and stage exact historical Doctor2 native default source
+        env:
+          DOCTOR2_CURRENT_SOURCE: ${{ github.workspace }}/.ci-inputs/doctor2-native-source
+          DOCTOR2_NATIVE_SOURCE: ${{ github.workspace }}/.ci-inputs/doctor2-native-source
+        run: |
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/doctor2-native-source -p test_prepare.py
+          python3 -B scripts/ci/doctor2-native-source/prepare.py --current-root "$DOCTOR2_CURRENT_SOURCE" --native-root "$DOCTOR2_NATIVE_SOURCE" --output "$RUNNER_TEMP/doctor2-native-static"
+      - name: Check complete historical Doctor2 native default context without actors
+        working-directory: ${{ runner.temp }}/doctor2-native-static
+        run: |
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome-native -p test_native.py
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome-native/ci -p test_caller.py
+      - name: Check and stage maintained Doctor2 comparison default source
+        env:
+          DOCTOR2_COMPARISON_CURRENT_SOURCE: ${{ github.workspace }}
+          DOCTOR2_NATIVE_SOURCE: ${{ github.workspace }}/.ci-inputs/doctor2-native-source
+          DOCTOR2_HISTORICAL_FACTORY: ${{ github.workspace }}/scripts/ci/doctor2-native-source
+        run: |
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/doctor2-comparison-native-source -p test_prepare.py
+          python3 -B scripts/ci/doctor2-comparison-native-source/prepare.py --current-root "$DOCTOR2_COMPARISON_CURRENT_SOURCE" --native-root "$DOCTOR2_NATIVE_SOURCE" --historical-factory-root "$DOCTOR2_HISTORICAL_FACTORY" --output "$RUNNER_TEMP/doctor2-comparison-native-static"
+      - name: Check complete maintained Doctor2 comparison default context without actors
+        working-directory: ${{ runner.temp }}/doctor2-comparison-native-static
+        run: |
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome-native -p test_native.py
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome-native/ci -p test_caller.py
+      - name: Check read-only selected-boot diagnostic controls
+        run: |
+          python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-boot-report/test_boot_report.py
+          bash -n packages/tools/cachy-asahi-boot-report/PKGBUILD
+          python3 -I -B - <<'PYBOOTRECIPE'
+          import importlib.util,json
+          from pathlib import Path
+          root=Path.cwd();spec=importlib.util.spec_from_file_location('trusted_boot_recipe_checks',root/'scripts/checks/package_checks.py');checks=importlib.util.module_from_spec(spec);spec.loader.exec_module(checks)
+          report=checks.recipe(root/'packages/tools/cachy-asahi-boot-report/PKGBUILD')
+          assert report['status']=='static-pass'and report['errors']==[],report
+          assert report['metadata']['pkgname']==['cachy-asahi-boot-report']and report['metadata']['arch']==['any']and report['metadata']['depends']==['python>=3.11','systemd>=251']
+          assert report['input_sha256']['.SRCINFO']=='42d541331daf875b951d8583914bd889c24ddd46f7a1a22e11a927396584d046'
+          print(json.dumps(dict(status='PASS_DIRECT_BOOT_RECIPE_METADATA_AND_LOCAL_SOURCES_ONLY',report=report),sort_keys=True))
+          PYBOOTRECIPE
+      - name: Checkout exact boot-report native source context
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 2c524830adb007e3b49392ceb54dd4cc5236c77d
+          path: .ci-inputs/boot-report-native-source
+          persist-credentials: false
+      - name: Check and stage separate boot-report native source
+        env:
+          BOOT_CURRENT_SOURCE: ${{ github.workspace }}
+          BOOT_NATIVE_SOURCE: ${{ github.workspace }}/.ci-inputs/boot-report-native-source
+        run: |
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/boot-report-native-source -p test_prepare.py
+          python3 -B scripts/ci/boot-report-native-source/prepare.py --current-root "$GITHUB_WORKSPACE" --native-root "$GITHUB_WORKSPACE/.ci-inputs/boot-report-native-source" --output "$RUNNER_TEMP/boot-report-native-unbound"
+          python3 -B scripts/ci/boot-report-native-source/prepare.py --current-root "$GITHUB_WORKSPACE" --native-root "$GITHUB_WORKSPACE/.ci-inputs/boot-report-native-source" --output "$RUNNER_TEMP/boot-report-native-selected" --selected
+      - name: Check emitted boot-report native source without actors
+        working-directory: ${{ runner.temp }}/boot-report-native-selected
+        run: |
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome-native -p test_boot_native.py
+      - name: Check default native Apps parser experiment without actors
+        run: |
+          python3 -I -B scripts/ci/apps7-parser-native/job.py preflight --source "$PWD"
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/apps7-parser-native -p test_lane.py -v
+      - name: Build and check Welcome stored DNS discovery
+        run: |
+          work=$(mktemp -d)
+          trap 'rm -rf -- "$work"' EXIT
+          cp -a packages/tools/cachy-asahi-welcome5 "$work/recipe"
+          make -C "$work/recipe" RECIPE_ROOT="$PWD/packages/tools/cachy-asahi-welcome5" check
+      - name: Check unselected Welcome6 boot-history product source
+        run: |
+          work=$(mktemp -d)
+          trap 'rm -rf -- "$work"' EXIT
+          cp -a packages/tools/cachy-asahi-welcome6 "$work/recipe"
+          make -C "$work/recipe" RECIPE_ROOT="$PWD/packages/tools/cachy-asahi-welcome6" check
+      - name: Check unselected Welcome7 report accessibility product source
+        run: |
+          work=$(mktemp -d)
+          trap 'rm -rf -- "$work"' EXIT
+          cp -a packages/tools/cachy-asahi-welcome7 "$work/recipe"
+          make -C "$work/recipe" RECIPE_ROOT="$PWD/packages/tools/cachy-asahi-welcome7" check
+      - name: Check Welcome4 to Welcome5 signed native trial source without actors
+        run: |
+          python3 -I -B scripts/ci/welcome5-native-upgrade/preflight.py --source "$PWD"
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome5-native-upgrade -p test_lane.py -v
+      - name: Check default Welcome5 stored-DNS GUI source without actors or public activation
+        run: >-
+          python3 -I -B scripts/ci/welcome5-native-gui/source_check.py
+          --source "$GITHUB_WORKSPACE/.ci-inputs/historical604-runtime" --output "$RUNNER_TEMP/welcome5-gui-default-source"
+      - name: Check current TEST certificate projection for the Welcome5 guest fixture
+        run: >-
+          python3 -I -B -Werror::ResourceWarning scripts/ci/welcome5-native-gui/test_lane.py
+          GuestTrustProjectionControls
+      - name: Check exact DNS report focus scope and original visibility refusals
+        run: >-
+          python3 -I -B -Werror::ResourceWarning scripts/ci/welcome5-native-gui/test_lane.py
+          DNSReportFocusControls
+      - name: Check exact quoted DNS caption and post-open report scroll ordering
+        run: >-
+          python3 -I -B -Werror::ResourceWarning scripts/ci/welcome5-native-gui/test_lane.py
+          DNSReportPreviewControls
+      - name: Check exact expanded DNS report descendant focus and refusals
+        run: >-
+          python3 -I -B -Werror::ResourceWarning scripts/ci/welcome5-native-gui/test_lane.py
+          ExpandedDNSReportControls
+      - name: Checkout whole-pinned public current606 source roles
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: f3a30f2049f57d9f3cb2433fbd59af51d4cc5720
+          path: .ci-inputs/current606-source-roles
+          persist-credentials: false
+      - name: Check default current606 emission and original cache continuation without actors
+        run: |
+          python3 -B scripts/ci/current606-static/preflight.py --source "$PWD" --basis "$PWD/.ci-inputs/current606-source-roles" --output "$RUNNER_TEMP/current606-default"
+          python3 -B -Werror::ResourceWarning -m unittest discover -s "$RUNNER_TEMP/current606-default/scripts/ci/current606-native" -p test_lane.py -v
+      - name: Checkout whole-pinned Welcome-on606 source carrier without native authority
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: deaf5d618fbc7be87b4e0296481beb7e336a9155
+          path: .ci-inputs/current606-welcome5-source-roles
+          persist-credentials: false
+      - name: Check closed Welcome-on606 default source and interfaces without actors
+        run: |
+          python3 -B scripts/ci/current606-welcome5-static/preflight.py --source "$PWD" --basis "$PWD/.ci-inputs/current606-welcome5-source-roles" --output "$RUNNER_TEMP/current606-welcome5-default"
+          python3 -B -Werror::ResourceWarning -m unittest discover -s "$RUNNER_TEMP/current606-welcome5-default/scripts/ci/current606-welcome5-closed-owner" -p 'test_*.py' -v
+          python3 -I -B "$RUNNER_TEMP/current606-welcome5-default/copyworker/scripts/ci/current606-welcome5-copy/test_worker.py"
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/current606-welcome5-static -p test_registration.py -v
+      - name: Checkout whole-pinned Apps-on606 source carrier without activation
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 3660e6cb87b4cb5591b1d295c62c8b02cca4b7e6
+          path: .ci-inputs/current606-apps7-source-roles
+          persist-credentials: false
+      - name: Checkout exact public Apps7 and Runtime1 pair DATA for source controls
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 02734c705565868b0b964c48399a4f659fc6f271
+          path: .ci-inputs/current606-apps7-native-data
+          persist-credentials: false
+      - name: Checkout finite accepted606 decision DATA for source controls
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 02d28b794c1a297171d82b5718fd98cddacbfa48
+          path: .ci-inputs/current606-apps7-decision-data
+          persist-credentials: false
+      - name: Check default Apps-on606 source and private controls without native actors
+        env:
+          APPS7_PAIR_PACKET: ${{ github.workspace }}/.ci-inputs/current606-apps7-native-data
+          CURRENT606_DECISION: ${{ github.workspace }}/.ci-inputs/current606-apps7-decision-data/decisions/current606-native.json
+        run: |
+          python3 -B scripts/ci/current606-apps7-static/preflight.py --source "$PWD" --basis "$PWD/.ci-inputs/current606-apps7-source-roles" --output "$RUNNER_TEMP/current606-apps7-default"
+          python3 -I -B "$RUNNER_TEMP/current606-apps7-default/scripts/ci/current606-apps7-closed-owner/test_owner.py"
+          python3 -I -B "$RUNNER_TEMP/current606-apps7-default/copyworker/scripts/ci/current606-apps7-copy/test_worker.py"
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/current606-apps7-static -p test_registration.py -v
+      - name: Check exact Doctor353 default source without native actors
+        run: |
+          python3 -B scripts/ci/doctor2-current606-source/test_prepare.py --predecessor-root "$GITHUB_WORKSPACE/.ci-inputs/current606-apps7-source-roles"
+          python3 -B scripts/ci/doctor2-current606-source/prepare.py --predecessor-root "$GITHUB_WORKSPACE/.ci-inputs/current606-apps7-source-roles" --output "$RUNNER_TEMP/doctor353-default"
+      - name: Checkout exact Boot387 source without native activation
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 5beee1c993471669c165ef6adcf7e648371c0d9f
+          path: .ci-inputs/boot607-native-source
+          persist-credentials: false
+      - name: Check exact unbound Boot387 source factory without actors
+        run: |
+          python3 -B scripts/ci/boot607-native-source/test_prepare.py --predecessor-root "$GITHUB_WORKSPACE/.ci-inputs/boot607-native-source"
+          python3 -B scripts/ci/boot607-native-source/prepare.py --predecessor-root "$GITHUB_WORKSPACE/.ci-inputs/boot607-native-source" --output "$RUNNER_TEMP/boot387-default"
+          python3 -I -B "$RUNNER_TEMP/boot387-default/boot607/run.py" --source-preflight
+      - name: Checkout corrected whole joint606 source roles without qualification
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 1b844adcae6c5dedd7e148dd3f8dc5ce1b41f3ef
+          path: .ci-inputs/current606-joint-source-roles
+          persist-credentials: false
+      - name: Check joint latest-tools default source and per-step605 preservation without actors
+        run: |
+          python3 -B scripts/ci/current606-joint-static/preflight.py --source "$PWD" --basis "$PWD/.ci-inputs/current606-joint-source-roles" --output "$RUNNER_TEMP/current606-joint-default"
+          python3 -I -B "$RUNNER_TEMP/current606-joint-default/scripts/ci/current606-latest-tools/test_source.py"
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/current606-joint-static -p test_registration.py -v
+      - name: Check current Welcome2 package source and payload contract
         run: python3 -B packages/tools/cachy-asahi-welcome/check_source.py --root packages/tools/cachy-asahi-welcome
       - name: Check combined managed desktop app workflow without actors
         run: |
@@ -149,12 +619,373 @@ jobs:
           python3 -B -m unittest discover -s scripts/update -p test_var_lock_protection.py
       - name: Check controlled complete-root failure and disposal without actors
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/full-root-failed-update -p 'test_*.py'
+      - name: Check controlled postcommit interruption and disposal without actors
+        run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/full-root-postcommit-failure -p 'test_*.py'
+      - name: Check Debian-source provider authentication and source boundaries without actors
+        run: python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-debian-provider/test_candidate.py
+      - name: Validate maintained Debian glibc source preparation
+        run: |
+          python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-debian-maintained-provider/test_materialize.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-debian-maintained-provider/test_candidate.py
+      - name: Check Debian native pair source packet and cleanup boundaries without actors
+        run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/glibc-debian-native-provider -p 'test_*.py'
+      - name: Check maintained Debian first staged16K phase and candidate gates
+        run: |
+          python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-debian-maintained-system16k/test_adapter.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-debian-maintained-system16k/test_protocol.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-debian-maintained-staged-packet/test_prepare.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-gnu-failure-log/test_summary.py
+      - name: Stage explicit immutable historical inventory source view
+        run: >-
+          python3 -I -B scripts/ci/historical-inventory-source/prepare.py
+          --source "$GITHUB_WORKSPACE" --factory all
+          --baseline inventory-19a8bdb45916e5dffef7a4c1496ebbc489792795ea2906a3d705a67e3906b880
+          --output "$RUNNER_TEMP/historical-inventory-source"
+      - name: Check historical maintained Debian source factories with their original inventory
+        working-directory: ${{ runner.temp }}/historical-inventory-source
+        run: |
+          python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-debian-maintained-installed16k/test_generator.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-debian-maintained-native-lifecycle-next/test_prepare.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-debian-maintained-installed16k-ci/test_wiring.py
+      - name: Check maintained Debian lifecycle candidate gates and source adaptation
+        run: python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-debian-maintained-lifecycle/test_adapter.py
+      - name: Checkout exact public maintained glibc compile inputs
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 132aec86c0946f6c7b7a79c46e1a9ccaf91021e3
+          path: .ci-inputs/maintained-caa3-public
+          persist-credentials: false
+      - name: Check maintained glibc public compile-input route without actors
+        working-directory: ${{ runner.temp }}/historical-inventory-source
+        run: CAA3_PUBLIC_ROUTE_SOURCE="$PWD" CAA3_PUBLIC_ROUTE_PACKET="$GITHUB_WORKSPACE/.ci-inputs/maintained-caa3-public/payload" python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/glibc-debian-maintained-public-lifecycle -p test_route.py -v
+      - name: Checkout exact public maintained glibc native component
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 9aef8b7429fb8dd9f9d8412f4e878c5e0324c58d
+          path: .ci-inputs/maintained-caa3-public-native
+          persist-credentials: false
+      - name: Check maintained glibc public native-to16K source route without actors
+        working-directory: ${{ runner.temp }}/historical-inventory-source
+        run: CAA3_PUBLIC_NATIVE_SOURCE="$GITHUB_WORKSPACE/.ci-inputs/maintained-caa3-public-native" python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/glibc-debian-maintained-public-installed16k -p test_route.py -v
+      - name: Check maintained Debian native pair source and ownership
+        run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/glibc-debian-maintained-native-provider -p 'test_*.py'
+      - name: Check owned GNU trial AppArmor policy and retirement without actors
+        run: python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-gnu-trial-apparmor/test_profile.py
+      - name: Check provider configuration handoff and readonly proc controls without actors
+        run: |
+          python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-gnu-provider-lifecycle/test_controls.py
+          python3 -I -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/glibc-gnu-provider-interruption -p 'test_*.py'
+          python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-gnu-provider-lifecycle/test_proc_mount.py
+      - name: Check installed GNU provider16K source and disk serialization without actors
+        working-directory: ${{ runner.temp }}/historical-inventory-source
+        run: |
+          python3 -B -Werror::ResourceWarning scripts/ci/glibc-gnu-provider-installed16k/test_lane.py
+          python3 -I -B scripts/ci/glibc-gnu-provider-installed16k/test_child_failure.py
+          python3 -B -Werror::ResourceWarning scripts/ci/glibc-gnu-provider-installed16k/test_progress.py
+          python3 -B -Werror::ResourceWarning scripts/ci/glibc-gnu-provider-installed16k/test_snapshot_progress.py
+          python3 -B -Werror::ResourceWarning scripts/ci/glibc-gnu-provider-installed16k/test_first_observer_progress.py
+      - name: Check separate interrupted provider16K source and recovery gates without actors
+        working-directory: ${{ runner.temp }}/historical-inventory-source
+        run: python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-gnu-provider-installed16k-interruption/test_generator.py
+      - name: Check interrupted provider16K workflow assembly and prerequisite bindings without actors
+        working-directory: ${{ runner.temp }}/historical-inventory-source
+        run: python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-gnu-provider-installed16k-interruption/ci/test_wiring.py
       - name: Check full-composition installer VM contracts without actors
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/full-composition-installer-vm -p 'test_*.py'
-      - name: Check Welcome and Doctor native product contracts without actors
+      - name: Check outer Zsh readiness facts with bounded real PTY controls
+        run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci -p test_zsh_substring_readiness_wrapper.py -v
+      - name: Check opt-in Zsh substring module without changing user bindings
+        run: |
+          work=$(mktemp -d "$RUNNER_TEMP/substring.XXXXXX")
+          substring_cleanup() {
+            code=$?
+            trap - EXIT
+            if (( code != 0 )); then
+              python3 -I -B scripts/ci/zsh-substring-failure-report.py --work "$work" --checker "$GITHUB_WORKSPACE/packages/tools/cachy-asahi-zsh-history-substring-search/check-module.py" || true
+            fi
+            cleanup=0
+            rm -rf -- "$work" || cleanup=$?
+            if (( cleanup != 0 )); then printf 'ZSH_SUBSTRING_FIXTURE_CLEANUP_EXIT=%s\n' "$cleanup" >&2; fi
+            if (( code == 0 )); then code=$cleanup; fi
+            exit "$code"
+          }
+          trap substring_cleanup EXIT
+          python3 -B -Werror::ResourceWarning scripts/ci/zsh-substring-zle-reset-adapter.py packages/tools/cachy-asahi-zsh-history-substring-search/check-module.py --module-dir "$GITHUB_WORKSPACE/packages/tools/cachy-asahi-zsh-history-substring-search" --work "$work"
+          zsh -fn packages/tools/cachy-asahi-zsh-history-substring-search/opt-in.zsh
+          bash -n packages/tools/cachy-asahi-zsh-history-substring-search/PKGBUILD
+      - name: Check Fish autopair native lifecycle contracts without container actors
+        run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/fish-autopair-native -p 'test_*.py'
+      - name: Check Fish Done native lifecycle contracts without container actors
+        run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/fish-done-native -p 'test_*.py'
+      - name: Fetch exact updater sources for the complete passive replay suite
+        run: >-
+          git -c credential.helper= -c core.hooksPath=/dev/null fetch --no-tags --depth=1 origin
+          de04c6b102890218da4f0b77e938315d601e824f
+          001f0484ab8b599ddc03a84e62fd81af315a2a03
+          4b803ba7daa0eacd978a5bf86d62346363c3b6dc
+      - name: Checkout exact accepted Setup5 pair for passive updater checks
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 79d8d2f53510e4f3a04f39c1b1e24c999aa32e44
+          path: .ci-inputs/setup5-accepted-pair
+          persist-credentials: false
+      - name: Stage the149 original Setup5 pair data members
+        run: |
+          set -euo pipefail
+          test "$(git -C .ci-inputs/setup5-accepted-pair rev-parse HEAD)" = 79d8d2f53510e4f3a04f39c1b1e24c999aa32e44
+          target=artifacts/development/setup5-accepted-pair-inputs-20261016/payload
+          test ! -e "$target"
+          install -d -m 700 "$target"
+          git -C .ci-inputs/setup5-accepted-pair archive --format=tar 79d8d2f53510e4f3a04f39c1b1e24c999aa32e44 | tar -xf - -C "$target"
+          printf '%s  %s\n' b1e4208d2f32935f2e5cb1c1e3535cc49f44c7bfe08e7d64692b8ac3781d5a5d "$target/index.json" | sha256sum --check
+      - name: Check setup5 native upgrade contracts without container actors
+        run: |
+          set -euo pipefail
+          work=$(mktemp -d "$RUNNER_TEMP/setup5-held-context.XXXXXXXX")
+          trap 'rm -rf -- "$work"' EXIT
+          python3 -I -B scripts/ci/setup6-native-source/prepare.py --setup5-context \
+            --setup5-carrier "$GITHUB_WORKSPACE/artifacts/development/setup5-accepted-pair-inputs-20261016/payload" \
+            --output "$work/source"
+          python3 -B -Werror::ResourceWarning -m unittest discover -s "$work/source/scripts/ci/setup5-native" -p 'test_*.py'
+      - name: Fetch three exact passive replay operands into historical604 context
+        working-directory: ${{ github.workspace }}/.ci-inputs/historical604-runtime
+        run: >-
+          git -c credential.helper= -c core.hooksPath=/dev/null fetch --no-tags --depth=1 origin
+          de04c6b102890218da4f0b77e938315d601e824f
+          001f0484ab8b599ddc03a84e62fd81af315a2a03
+          4b803ba7daa0eacd978a5bf86d62346363c3b6dc
+      - name: Stage exact accepted Setup5 data into historical604 source context
+        run: |
+          set -euo pipefail
+          parent="$GITHUB_WORKSPACE/.ci-inputs/historical604-runtime/artifacts/development/setup5-accepted-pair-inputs-20261016"
+          target="$parent/payload"
+          test ! -e "$target"
+          install -d -m 700 "$parent"
+          cp -R -- "$GITHUB_WORKSPACE/artifacts/development/setup5-accepted-pair-inputs-20261016/payload" "$target"
+          printf '%s  %s\n' b1e4208d2f32935f2e5cb1c1e3535cc49f44c7bfe08e7d64692b8ac3781d5a5d "$target/index.json" | sha256sum --check
+      - name: Check Apps transactions and management source contracts
+        run: |
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/apps -p 'test_*.py'
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/orphans -p 'test_*.py'
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/job-retirement-diagnostics -p test_retirement.py
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/expanded600-root-upgrade -p 'test_*.py'
+          EXPANDED604_SOURCE="$GITHUB_WORKSPACE/.ci-inputs/historical604-runtime" python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/expanded604-root-upgrade -p 'test_*.py'
+          EXPANDED604_MANAGED_SOURCE="$GITHUB_WORKSPACE/.ci-inputs/historical604-runtime" python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/expanded604-managed16k -p 'test_*.py'
+          python3 -B -Werror::ResourceWarning -m unittest discover -s "$GITHUB_WORKSPACE/.ci-inputs/historical604-runtime/scripts/ci/management-tools-generic16k" -p 'test_*.py'
+          WELCOME_MANAGEMENT_SOURCE="$GITHUB_WORKSPACE/.ci-inputs/historical604-runtime" python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome-management-native -p 'test_*.py'
+      - name: Check historical Apps and Orphans source contracts with their original inventory
+        working-directory: ${{ runner.temp }}/historical-inventory-source
+        run: |
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/apps-full574-native -p 'test_*.py'
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/apps-full574-repair-native -p 'test_*.py'
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/orphans-full574-native -p 'test*.py'
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/orphans-native-cancellation -p 'test_*.py'
+      - name: Check historical Apps6 current604 composition, fresh install and upgrade source
+        working-directory: ${{ github.workspace }}/.ci-inputs/historical604-runtime
+        run: |
+          python3 -I -B -Werror::ResourceWarning scripts/ci/expanded604-apps6/test_lane.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/expanded604-apps6-public-pairs/test_lane.py
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/expanded604-apps6-installer -p 'test_*.py'
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/expanded604-apps6-updater -p 'test_*.py'
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/current604-apps6-generic16k -p test_lane.py
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/current604-apps6-updater16k -p test_lane.py
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/current604-apps6-updater16k -p test_wiring.py
+      - name: Checkout exact separate public-pair native604 source operand
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: b0154bd3b60434e45d4411b558f3ffda9e415640
+          path: .ci-inputs/public-pair-native604
+          persist-credentials: false
+      - name: Check separate public-pair current604 fresh installer source
+        run: PUBLIC_PAIR_INSTALLER_ROOT="$GITHUB_WORKSPACE/.ci-inputs/historical604-runtime" PUBLIC_PAIR_COMPOSITION_ROOT="$PWD/.ci-inputs/public-pair-native604" python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/expanded604-apps6-public-pair-installer -p test_lane.py -v
+      - name: Check separate public-pair current604 copied-root upgrade and recovery source
+        run: |
+          work=$(mktemp -d "$RUNNER_TEMP/public-pair-updater.XXXXXX")
+          trap 'rm -rf -- "$work"' EXIT
+          python3 -B scripts/ci/expanded604-apps6-public-pair-installer/prepare.py --source "$GITHUB_WORKSPACE/.ci-inputs/historical604-runtime" --composition "$PWD/.ci-inputs/public-pair-native604" --output "$work/fresh"
+          PUBLIC_PAIR_UPDATER_SOURCE="$GITHUB_WORKSPACE/.ci-inputs/historical604-runtime" PUBLIC_PAIR_UPDATER_FRESH="$work/fresh" python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/expanded604-apps6-public-pair-updater -p test_lane.py -v
+      - name: Assemble separate public-pair current604 generic16K source
+        run: |
+          python3 -B scripts/ci/expanded604-apps6-public-pair-installer/prepare.py --source "$GITHUB_WORKSPACE/.ci-inputs/historical604-runtime" --composition "$PWD/.ci-inputs/public-pair-native604" --output "$RUNNER_TEMP/public-pair-fresh604-source"
+          python3 -B scripts/ci/current604-public-pair-generic16k/prepare.py --source "$GITHUB_WORKSPACE/.ci-inputs/historical604-runtime" --installer "$RUNNER_TEMP/public-pair-fresh604-source" --assets "$GITHUB_WORKSPACE/.ci-inputs/historical604-runtime" --output "$RUNNER_TEMP/public-pair-profile16k-source"
+      - name: Check public-pair generic16K profiles and fresh asset source guards
+        run: python3 -B -Werror::ResourceWarning -m unittest discover -s "$RUNNER_TEMP/public-pair-profile16k-source/scripts/ci/current604-public-pair-generic16k" -p test_lane.py -v
+      - name: Check separate corrected public-pair current604 updater16K source without actors
+        run: |
+          work=$(mktemp -d "$RUNNER_TEMP/public-pair-updater16k.XXXXXX")
+          trap 'rm -rf -- "$work"' EXIT
+          python3 -B scripts/ci/expanded604-apps6-public-pair-installer/prepare.py --source "$GITHUB_WORKSPACE/.ci-inputs/historical604-runtime" --composition "$PWD/.ci-inputs/public-pair-native604" --output "$work/fresh"
+          python3 -B scripts/ci/expanded604-apps6-public-pair-updater/prepare.py --source "$GITHUB_WORKSPACE/.ci-inputs/historical604-runtime" --fresh "$work/fresh" --output "$work/updater"
+          python3 -B scripts/ci/current604-public-pair-updater16k/prepare.py --source "$GITHUB_WORKSPACE/.ci-inputs/historical604-runtime" --updater "$work/updater" --output "$work/16k"
+          PUBLIC_PAIR_UPDATER16K_SOURCE="$work/16k" PUBLIC_PAIR_UPDATER_SOURCE="$work/16k" python3 -B -Werror::ResourceWarning -m unittest discover -s "$work/16k/scripts/ci/current604-public-pair-updater16k" -p 'test_*.py' -v
+      - name: Checkout exact public native Welcome4 archive inputs
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 77bd2c6ecf2e5c28a04116c3da85c45f70d1cc90
+          path: .ci-inputs/welcome4-public
+          persist-credentials: false
+      - name: Checkout scoped public native GUI component authority
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 95fad8f409971551aa38b3bece44b8fdac72fab3
+          path: .ci-inputs/welcome4-gui-authority
+          persist-credentials: false
+      - name: Check distinct public GUI archive and fresh asset source guards
+        run: PUBLIC_GUI_SOURCE="$GITHUB_WORKSPACE/.ci-inputs/historical604-runtime" PUBLIC_GUI_PACKET="$PWD/.ci-inputs/welcome4-public/payload" PUBLIC_GUI_AUTHORITY="$PWD/.ci-inputs/welcome4-gui-authority/payload/gui-component-authority.json" python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/current604-public-gui-assets -p test_assets.py -v
+      - name: Checkout exact historical native repair case source operand
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 5051663cf191e40bdbb3b03e2d62748f69b6afb1
+          path: .ci-inputs/repair-native-baseline
+          persist-credentials: false
+      - name: Check default Apps7 full574 repair source without public inputs or actors
+        run: |
+          python3 -B scripts/ci/apps7-full574-repair-native/prepare.py --source "$PWD" --native-source "$PWD/.ci-inputs/repair-native-baseline" --output "$RUNNER_TEMP/apps7-full574-repair"
+          python3 -B -Werror::ResourceWarning -m unittest discover -s "$RUNNER_TEMP/apps7-full574-repair/scripts/ci/apps7-full574-repair-native" -p 'test*.py' -v
+      - name: Assemble full574 repair16K from separate frozen and current sources
+        run: |
+          python3 -B scripts/ci/apps-full574-repair16k/prepare.py --source "$PWD" --native-source "$PWD/.ci-inputs/repair-native-baseline" --output "$RUNNER_TEMP/repair16k-bridge"
+          python3 -B scripts/ci/apps-full574-repair16k-ci/prepare.py --source "$RUNNER_TEMP/repair16k-bridge" --implementation "$PWD" --output "$RUNNER_TEMP/repair16k-ci"
+      - name: Check full574 signed repair generic16K source without actors
+        run: FULL574_REPAIR16K_SOURCE="$RUNNER_TEMP/repair16k-ci" python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/apps-full574-repair16k -p 'test*.py'
+      - name: Check full574 repair16K CI source without actors
+        run: CACHY_ASAHI_REPAIR16K_TEST_SOURCE="$RUNNER_TEMP/repair16k-ci" python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/apps-full574-repair16k-ci -p test_ci.py
+      - name: Checkout exact Apps7 native574 repair source operand
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: c89868439988f99d4179d208d1198f6f9c94d5d5
+          path: .ci-inputs/apps7-repair-native-c898
+          persist-credentials: false
+      - name: Checkout exact repair16K kernel and media source operand
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 591470fd0f870cad75b79aff9f87a6cb1ad1bcd8
+          path: .ci-inputs/apps7-repair16k-kernel591
+          persist-credentials: false
+      - name: Check separate Apps7 repair16K emitted source and NULL authorities
+        run: |
+          set -euo pipefail
+          work=$(mktemp -d "$RUNNER_TEMP/apps7-repair16k-source.XXXXXX")
+          trap 'rm -rf -- "$work"' EXIT
+          python3 -B scripts/ci/apps7-full574-repair16k/prepare.py --source "$PWD/.ci-inputs/apps7-repair16k-kernel591" --native-source "$PWD/.ci-inputs/apps7-repair-native-c898" --output "$work/bridge"
+          python3 -B scripts/ci/apps7-full574-repair16k-ci/prepare.py --source "$work/bridge" --implementation "$PWD/.ci-inputs/apps7-repair16k-kernel591" --output "$work/ci"
+          cp "$work/ci/.github/workflows/native-arm-apps7-full574-repair16k.yml" "$work/ci/.github/workflows/native-arm-build.yml"
+          python3 -B -Werror::ResourceWarning -m unittest discover -s "$work/ci/scripts/ci/apps7-full574-repair16k" -p test_lane.py -v
+          python3 -B -Werror::ResourceWarning -m unittest discover -s "$work/ci/scripts/ci/apps7-full574-repair16k-ci" -p test_ci.py -v
+      - name: Checkout genuine compiled-parent Repair204 diagnostic base
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 33b9bcee3b42dd21f4317d3b400744839cdd38be
+          path: .ci-inputs/repair204-diagnostic-base
+          persist-credentials: false
+      - name: Check finite Repair16K inner diagnostics factory and NULL actuals
+        timeout-minutes: 4
+        env:
+          REPAIR_INNER_BASE_SOURCE: ${{ github.workspace }}/.ci-inputs/repair204-diagnostic-base
+        run: |
+          set -euo pipefail
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/repair16k-inner-diagnostics-source -p test_prepare.py
+          work=$(mktemp -d "$RUNNER_TEMP/repair-inner-source.XXXXXX")
+          trap 'rm -rf -- "$work"' EXIT
+          for view in default selected; do
+            selection=()
+            if [[ "$view" == selected ]]; then selection+=(--selected); fi
+            python3 -B scripts/ci/repair16k-inner-diagnostics-source/prepare.py --base-root "$REPAIR_INNER_BASE_SOURCE" --output "$work/$view" "${selection[@]}"
+            python3 -B "$work/$view/scripts/ci/apps7-full574-repair16k/prepare.py" --template --source "$work/$view" --output "$work/$view-bridge"
+            python3 -B -Werror::ResourceWarning -m unittest discover -s "$work/$view-bridge/scripts/ci/apps7-full574-repair16k" -p test_lane.py -v
+            python3 -B -Werror::ResourceWarning -m unittest discover -s "$work/$view/scripts/ci/apps7-full574-repair16k-ci" -p test_ci.py -v
+            (cd "$work/$view" && python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/apps -p 'test_*.py' -v)
+          done
+      - name: Assemble actual GitHub cancellation diagnostic without actors
+        run: python3 -I -B scripts/ci/apps-full574-github-cancel/prepare.py --native-source "$PWD/.ci-inputs/repair-native-baseline" --implementation "$PWD" --output "$RUNNER_TEMP/apps574-github-cancel"
+      - name: Check actual GitHub cancellation ownership and source guards
+        run: APPS574_GITHUB_CANCEL_SOURCE="$RUNNER_TEMP/apps574-github-cancel" python3 -I -B -Werror::ResourceWarning scripts/ci/apps-full574-github-cancel/test_cancel.py
+      - name: Check historical generic 16K tools contracts without VM actors
+        working-directory: ${{ github.workspace }}/.ci-inputs/historical604-runtime
+        run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/tools-generic16k -p 'test_*.py'
+      - name: Check historical Fish Done generic 16K contracts without VM actors
+        working-directory: ${{ github.workspace }}/.ci-inputs/historical604-runtime
+        run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/fish-done-generic16k -p 'test_*.py'
+      - name: Check combined shell source guards without interactive shell actors
+        run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/shell-modules-coexistence -p test_source.py
+      - name: Checkout the frozen expanded composition inputs for passive checks
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 7fee76d68e5fd75437d8b49aaaced8376d2215cd
+          path: .ci-inputs/expanded-candidates
+          persist-credentials: false
+      - name: Check expanded composition contracts without native actors
+        env:
+          EXPANDED_INPUT_PAYLOAD: ${{ github.workspace }}/.ci-inputs/expanded-candidates
+        run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/expanded-development-composition -p test_source.py
+      - name: Check native tool candidate contracts without container actors
+        run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/tools-native -p test_native.py
+      - name: Check Fish autopair source syntax without requiring newer host Fish runtime
+        run: |
+          fish -n packages/tools/cachy-asahi-fish-autopair/opt-in.fish
+          bash -n packages/tools/cachy-asahi-fish-autopair/PKGBUILD
+          python3 -B -c "import ast,pathlib; ast.parse(pathlib.Path('packages/tools/cachy-asahi-fish-autopair/check-module.py').read_text())"
+      - name: Check opt-in Fish completion notification source without host desktop actors
+        run: |
+          fish -n packages/tools/cachy-asahi-fish-done/opt-in.fish packages/tools/cachy-asahi-fish-done/done.fish
+          bash -n packages/tools/cachy-asahi-fish-done/PKGBUILD
+          python3 -B -c "import ast,pathlib; ast.parse(pathlib.Path('packages/tools/cachy-asahi-fish-done/check-module.py').read_text())"
+      - name: Check ARM mirror candidate behavior with mocked network
+        run: |
+          python3 -B -Werror::ResourceWarning packages/tools/cachy-asahi-mirrors/test_mirrors.py
+          bash -n packages/tools/cachy-asahi-mirrors/PKGBUILD
+      - name: Checkout immutable historical Welcome1 product source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 09717a45388e5b90ca80fd3fef327444101c108f
+          path: .ci-inputs/welcome1-source
+          persist-credentials: false
+      - name: Stage historical Welcome1 with pinned historical Doctor and helper inputs
+        run: |
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome1-static-replay -p 'test_*.py'
+          python3 -B scripts/ci/welcome1-static-replay/prepare.py --current-root "$GITHUB_WORKSPACE/.ci-inputs/historical604-runtime" --historical-root "$GITHUB_WORKSPACE/.ci-inputs/welcome1-source" --output "$RUNNER_TEMP/welcome1-static"
+      - name: Check historical Welcome1 and Doctor native contracts without actors
+        working-directory: ${{ runner.temp }}/welcome1-static
         run: |
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome-native -p 'test_*.py'
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome-native/ci -p 'test_*.py'
+      - name: Check official GNU release source and native build contracts without actors
+        run: |
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/glibc-official-release -p 'test_*.py'
+          bash -n scripts/ci/glibc-official-release/build-entry.sh packages/core/cachy-asahi-glibc-official-release/PKGBUILD
+      - name: Check unselected glibc source and build contracts without actors
+        run: |
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/glibc-owned-rebuild -p test_controls.py
+          bash -n scripts/ci/glibc-owned-rebuild/build-entry.sh packages/core/cachy-asahi-glibc-rebuild/PKGBUILD.in
+      - name: Check unselected glibc runtime smoke contracts without candidate execution
+        run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/glibc-owned-runtime -p 'test_*.py'
+      - name: Check virtual keyboard contracts without VM actors
+        run: |
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/desktop-virtual-keyboard -p test_keyboard.py
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/desktop-virtual-keyboard -p test_phase.py
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/desktop-virtual-keyboard/ci -p test_caller.py
+      - name: Checkout immutable Welcome and Doctor test inputs
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 8a38b3fd5963e61fc94707dd87e5dcd626a518a3
+          path: .ci-inputs/welcome-native
+          persist-credentials: false
+      - name: Check historical Welcome1 Doctor 16K CLI contracts without actors
+        working-directory: ${{ runner.temp }}/welcome1-static
+        env:
+          WELCOME16K_SOURCE_ROOT: ${{ runner.temp }}/welcome1-static
+          WELCOME16K_ASSETS: ${{ github.workspace }}/.ci-inputs/welcome-native
+        run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome-doctor-generic16k -p 'test_*.py'
+      - name: Check historical Welcome1 installed managed GUI contracts without actors
+        working-directory: ${{ runner.temp }}/welcome1-static
+        env:
+          WELCOME_GUI_ASSETS: ${{ github.workspace }}/.ci-inputs/welcome-native
+        run: |
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome-managed-gui -p test_gui.py
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome-managed-gui -p test_phase.py
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome-managed-gui -p test_doctor_worker.py
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome-managed-gui -p test_compositor_log.py
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome-managed-gui/ci -p 'test_*.py'
       - name: Check generic 16 KiB build and fixture controls without kernel or VM actors
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/virtual/generic16k -p 'test_*.py'
       - name: Check 16 KiB audio producer and userspace fixture without actors
@@ -178,8 +1009,113 @@ jobs:
           python3 -B scripts/ci/asahi-rust-lv2-offline/test_container.py
           python3 -B scripts/ci/asahi-rust-lv2-offline/test_run.py
           python3 -B scripts/ci/asahi-rust-lv2-offline/test_job.py
+      - name: Checkout exact immutable GNU runtime667 source without activation
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: c8886e2ddb2c224750e5da4f3ac35d4c3a6c8d72
+          path: .ci-inputs/gnu-immutable-runtime667
+          persist-credentials: false
+      - name: Check maintained GNU immutable deployment source and NULL gates without actors
+        run: |
+          set -euo pipefail
+          python3 -I -B scripts/ci/gnu-immutable-source-native/prepare.py --runtime "$GITHUB_WORKSPACE/.ci-inputs/gnu-immutable-runtime667" --output "$RUNNER_TEMP/gnu-immutable-default"
+          python3 -I -B "$RUNNER_TEMP/gnu-immutable-default/scripts/ci/gnu-immutable-source-native/entry.py" source --source "$RUNNER_TEMP/gnu-immutable-default"
+          python3 -I -B "$RUNNER_TEMP/gnu-immutable-default/scripts/ci/gnu-immutable-source-native/test_deployment.py" --source "$RUNNER_TEMP/gnu-immutable-default"
       - name: Inspect recipes without sourcing them
         run: python3 scripts/checks/package_checks.py recipes --require-recipes
       - name: Check recipe syntax without executing it
         run: |
           find packages -name PKGBUILD -type f -print0 | xargs -0 -r -n1 bash -n
+      - name: Check isolated native notification diagnostic without actors
+        run: python3 -I -B -Werror::ResourceWarning scripts/diagnostics/fish-done-native-graphics/test_run.py
+      - name: Historical ARM experiment generic16K owner controls without execution
+        working-directory: ${{ github.workspace }}/.ci-inputs/historical604-runtime
+        run: python3 -B -Werror::ResourceWarning scripts/ci/arm-experiments-generic16k-ci/test_owner.py
+      - name: Report one matched hosted setup pair after the full static suite
+        if: ${{ (github.event_name == 'workflow_dispatch' && inputs.measure-cache) || inputs.setup-phase == 'warm' }}
+        run: python3 -I -B scripts/ci/static_apt_trial.py report
+
+  developer-release-components:
+    needs: component-selection
+    if: ${{ !cancelled() && (needs.component-selection.result != 'success' || needs.component-selection.outputs.run != 'false') }}
+    name: Developer/release ${{ matrix.component }} (Python ${{ matrix.python }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.component-selection.result == 'success' && needs.component-selection.outputs.matrix || '{"include":[{"component":"sbom-comparison","python":"3.12","tests":25},{"component":"sbom-comparison","python":"3.14","tests":25},{"component":"developer-package","python":"3.12","tests":13},{"component":"developer-package","python":"3.14","tests":13},{"component":"release-package","python":"3.14","tests":13},{"component":"release-package-v2","python":"3.14","tests":7}]}') }}
+    steps:
+      - name: Checkout exact component source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Select supported component Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Bind fixed launcher interpreter on this disposable component runner
+        env:
+          COMPONENT_PYTHON: ${{ matrix.python }}
+        run: |
+          selected=$(python -I -c 'import sys; print(sys.executable)')
+          sudo ln -sfn "$selected" /usr/bin/python3
+          /usr/bin/python3 -I -c 'import os,sys; assert ".".join(map(str,sys.version_info[:2])) == os.environ["COMPONENT_PYTHON"]; print(sys.executable,sys.version)'
+          if [[ "$COMPONENT_PYTHON" == 3.14 ]]; then
+            /usr/bin/python3 -I -c 'from compression import zstd; assert zstd.decompress(zstd.compress(b"decoder-control")) == b"decoder-control"'
+          fi
+      - name: Run only the selected integrated focused suite
+        env:
+          COMPONENT: ${{ matrix.component }}
+          EXPECTED_TESTS: ${{ matrix.tests }}
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          case "$COMPONENT" in
+            sbom-comparison) suite=scripts/release/test_compare_sboms.py ;;
+            developer-package) suite=packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/test_package.py ;;
+            release-package) suite=packages/tools/cachy-asahi-release-tools/test_package.py ;;
+            release-package-v2) suite=packages/tools/cachy-asahi-release-tools-v2/test_package.py ;;
+            *) exit 2 ;;
+          esac
+          python -I -B -Werror::ResourceWarning - "$suite" "$EXPECTED_TESTS" <<'PY'
+          import importlib.util, sys, unittest
+          spec = importlib.util.spec_from_file_location('focused_component', sys.argv[1])
+          module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
+          suite = unittest.defaultTestLoader.loadTestsFromModule(module)
+          assert suite.countTestCases() == int(sys.argv[2]), 'focused suite count changed'
+          result = unittest.TextTestRunner(verbosity=2).run(suite)
+          assert result.wasSuccessful() and not result.skipped, 'focused component failed or skipped'
+          PY
+
+  component-selection:
+    name: Conservative component selection
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      run: ${{ steps.select.outputs.run }}
+      matrix: ${{ steps.select.outputs.matrix }}
+    steps:
+      - name: Checkout bounded depth-two selector source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+          fetch-tags: false
+      - name: Check selector failure and coverage controls
+        run: |
+          python3 -I -B -Werror::ResourceWarning scripts/ci/component_selection/test_select.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/component_selection/test_collect.py
+      - name: Select reviewed components or the complete baseline
+        id: select
+        shell: bash
+        env:
+          SELECTION_EVENT: ${{ github.event_name }}
+          SELECTION_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          SELECTION_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+          SELECTION_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          component_diff() {
+            timeout 30s git diff --no-ext-diff --no-renames --name-status -z "$1" "$2" -- | head -c 1048577 > "$3"
+          }
+          source scripts/ci/component_selection/collect.sh
+          collect_components static

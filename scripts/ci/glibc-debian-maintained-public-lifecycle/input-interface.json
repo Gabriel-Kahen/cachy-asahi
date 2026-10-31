@@ -1,0 +1,22 @@
+{
+  "compile_pair": {
+    "run_id": 38994309021,
+    "scope": "COMPILE_PAIR_ONLY",
+    "source": "78dfd3bbd85a61a84dda2dfc601796ee89edfd5f"
+  },
+  "expected_future_Root_status": "ROOT_ACCEPTED_CAA3_PUBLIC_COMPILE_INPUT_NATIVE_LIFECYCLE",
+  "new_native_ALPM_decision": null,
+  "new_native_run": null,
+  "new_native_source": null,
+  "new_private16k_decision": null,
+  "pending_unpublished_metadata": "NEVER_READ_OR_COPIED",
+  "phase": "NATIVE_COMPILE_INPUTS",
+  "public_input": {
+    "directory": "payload",
+    "index_files": 1,
+    "payload_bytes": 47420206,
+    "payload_files": 21,
+    "ref": "132aec86c0946f6c7b7a79c46e1a9ccaf91021e3"
+  },
+  "status": "SOURCE_ONLY_ALL_NEW_AUTHORITIES_UNBOUND"
+}

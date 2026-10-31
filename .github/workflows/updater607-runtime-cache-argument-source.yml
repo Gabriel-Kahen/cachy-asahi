@@ -1,0 +1,61 @@
+name: updater607-runtime-cache-argument-source
+on:
+  push:
+    paths:
+      - scripts/ci/updater607-runtime-cache-argument-source/**
+      - .github/workflows/updater607-runtime-cache-argument-source.yml
+  pull_request:
+    paths:
+      - scripts/ci/updater607-runtime-cache-argument-source/**
+      - .github/workflows/updater607-runtime-cache-argument-source.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONWARNINGS: error
+    steps:
+      - name: Check out maintained source-only factory
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Check out exact public360 parent
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 764da54af95f91ad7e72059b3c0eea0af0631774
+          path: .ci-fixtures/argument-before360
+          persist-credentials: false
+      - name: Check out exact public360 expected source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: ed981eb930d6efc3744c580e7d0f4cb3195cd081
+          path: .ci-fixtures/argument-after360
+          persist-credentials: false
+      - name: Select explicit Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Reproduce exact source and run portable runtime argument controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          stage=$(mktemp -d "$RUNNER_TEMP/updater-argument-source.XXXXXXXX")
+          trap 'rm -rf -- "$stage"' EXIT
+          mkdir -m700 "$stage/input" "$stage/expected"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/argument-before360" archive --format=tar 764da54af95f91ad7e72059b3c0eea0af0631774 | tar -x -C "$stage/input"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/argument-after360" archive --format=tar ed981eb930d6efc3744c580e7d0f4cb3195cd081 | tar -x -C "$stage/expected"
+          export UPDATER_ARGUMENT_INPUT="$stage/input"
+          export UPDATER_ARGUMENT_EXPECTED="$stage/expected"
+          umask 077
+          python3 -I -B -Werror scripts/ci/updater607-runtime-cache-argument-source/prepare.py --source "$stage/input" --output "$stage/emitted" --context known
+          python3 -I -B -Werror scripts/ci/updater607-runtime-cache-argument-source/test_factory.py

@@ -1,0 +1,34 @@
+{
+  "actual_ref": null,
+  "actual_run": null,
+  "actual_source": null,
+  "capture_receipt": null,
+  "current606": {
+    "decision_base64": "ewogICJjbGVhbnVwIjogIlBBU1MiLAogICJleHBlY3RlZDYwNl9zaGEyNTYiOiAiM2E1ODZjMWUzNDAwMzkxZjU2YmQyODFhYzljMTZhYmE4NWQ5NGQwZmNhMDAyNzcwZTc3ZWUxODAyYzVkOWZkMSIsCiAgImZ1bGw2MDRfcHJlc2VydmVkIjogdHJ1ZSwKICAiaGFyZHdhcmUiOiAiTk9UX1JVTiIsCiAgImluc3RhbGxlZF9jb250cm9scyI6IHsKICAgICJkbnMyIjogMjcsCiAgICAib3JkaW5hcnlfaG9tZXMiOiAyLAogICAgInN5c2N0bDIiOiAyOAogIH0sCiAgInBhY2thZ2VfY291bnQiOiA2MDYsCiAgInJlbGVhc2UiOiAiTk9UX0FETUlUVEVEIiwKICAicnVuX2lkIjogMzkxMDY5NTMyNTcsCiAgInNvdXJjZSI6ICJmM2EzMGYyMDQ5ZjU3ZDlmM2NiMjQzM2ZiZDU5YWY1MWQ0Y2M1NzIwIiwKICAic291cmNlX21hbmlmZXN0IjogewogICAgImJ5dGVzIjogNDU3OTYsCiAgICAic2hhMjU2IjogIjA5ZGFlNTRjMTBmNzZkMWE3YjBiZWRkMDEyZjgyYWE1MTNmNWNjOTMxMDJhZDRlZjVlNjQwNmRmZWU4YmRkNzQiCiAgfSwKICAic3RhdHVzIjogIlJPT1RfQUNDRVBURURfTkFUSVZFNjA2X0ROUzJfU1lTQ1RMMl9SRVRBSU5FRF9TQ09QRSIsCiAgInRyYW5zaXRpb25zIjogWwogICAgNjA2LAogICAgNjA2LAogICAgNjA0LAogICAgNjA2LAogICAgNjA0CiAgXQp9Cg==",
+    "decision_path": "decisions/current606-native.json",
+    "decision_pin": {
+      "bytes": 658,
+      "sha256": "c828d76d4198c6db4626a7d85d7c351344a6ad3f4b11ded53c5be00211d1021d"
+    },
+    "decision_source": "02d28b794c1a297171d82b5718fd98cddacbfa48",
+    "run": 39106953257,
+    "source": "f3a30f2049f57d9f3cb2433fbd59af51d4cc5720"
+  },
+  "expected606_sha256": "3a586c1e3400391f56bd281ac9c16aba85d94d0fca002770e77ee1802c5d9fd1",
+  "joint_decisions": {
+    "apps606": null,
+    "welcome606": null
+  },
+  "measurement": null,
+  "nonce": null,
+  "output": null,
+  "purpose": "CURRENT606_LATEST_TOOLS_CLOSED_NATIVE",
+  "retirement": null,
+  "schema_version": 1,
+  "source_manifest606": {
+    "bytes": 45796,
+    "sha256": "09dae54c10f76d1a7b0bedd012f82aa513f5cc93102ad4ef5e6406dfee8bdd74"
+  },
+  "status": "UNBOUND_JOINT_SOURCE_TEMPLATE",
+  "welcome_source": "85ffec834fc72ef8764cdcae828a12ec8ddf7f20"
+}

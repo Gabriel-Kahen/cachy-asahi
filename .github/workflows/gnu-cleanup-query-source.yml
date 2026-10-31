@@ -1,0 +1,43 @@
+name: GNU cleanup-query source factory
+on:
+  pull_request:
+    paths:
+      - 'scripts/ci/gnu-cleanup-query-source/**'
+      - 'scripts/ci/gnu-source-parent-source/prepare.py'
+      - '.github/workflows/gnu-cleanup-query-source.yml'
+  push:
+    paths:
+      - 'scripts/ci/gnu-cleanup-query-source/**'
+      - 'scripts/ci/gnu-source-parent-source/prepare.py'
+      - '.github/workflows/gnu-cleanup-query-source.yml'
+permissions:
+  contents: read
+jobs:
+  source-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 111152ccaa8c09abf12b4c9f4fad3d24d87b837b
+          path: .ci-gnu-cleanup-parent
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 305ae10cb4f0b553de9b480cddf0f0944e260806
+          path: .ci-gnu-cleanup-expected
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Reproduce746 source and run inherited controls
+        env:
+          GNU_CLEANUP_PARENT: ${{ github.workspace }}/.ci-gnu-cleanup-parent
+          GNU_CLEANUP_EXPECTED: ${{ github.workspace }}/.ci-gnu-cleanup-expected
+        run: python -I -B -Werror scripts/ci/gnu-cleanup-query-source/test_prepare.py

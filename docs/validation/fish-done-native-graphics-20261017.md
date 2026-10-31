@@ -1,0 +1,25 @@
+# Native Done notification counterfactual
+
+The unchanged Done0.1.0-2 payload delivers visible notifications for foreground success, foreground exit7 and a watched sleep8 job in a private native x86 Sway session. Root views all three original first frames, replays the raw typed Notify/reply and matching reason1 close signals, and verifies caller continuation and owned-process cleanup. The requested expiry remains3000ms. This is a Sway counterfactual; the failing ARM/Hyprland VM lane and both physical M2 Air sizes remain unaccepted.
+
+| Case | First capture completed after Notify | Caller status | Matching reason1 close after Notify |
+| --- | --- | --- | --- |
+| Foreground success | 62.934ms | 0 | 3000.139ms |
+| Foreground failure | 44.037ms | 7 | 3000.102ms |
+| Watched background success | 78.416ms | 0 | 3000.152ms |
+
+Each original1024×768 RGB PPM contains the readable expected notification; lossless PNG sidecars have identical decoded pixels. No capture was replaced or expiry extended. These are observations from one fixture, not performance measurements or a diagnosis of the earlier blank VM images.
+
+The15380-byte Done archive matches retained native package hash `9ce3c7ba89467f04660014c1b12056dce28bd0c4e69b4cab8a9c2c98e1cce54f`, including all eight payload files. Mako builds privately from the unchanged59 files of official1.11.0 source commit `91c6b799855762ad1eb8b4498967c270a339be0c`. Its native bus reports0.0.0, as hardcoded by that upstream implementation; this is separate from source/tag identity. The shipped Mako configuration is unchanged. Original ARM Mako source-to-binary correspondence is not established.
+
+The fixture uses privately built Sway/wlroots, the GLES renderer and only the selected render node, inside private user/PID/mount/network/IPC namespaces and a private home/runtime/bus. Physical DRM cards, input devices and the existing desktop/session are excluded. The live Sway GL vendor was not captured. Image-derived notification geometry supplies no original Hyprland layer proof. Mako, D-Bus and Sway return normally with owned-group absence; these retained receipts are not new live cleanup observations.
+
+Source/build inputs, all original frames and the frozen160-file evidence index remain under `artifacts/development/fish-done-native-graphics-20261017`. Root independently checks the retained source trees, three unchanged observation helpers and the terminal helper's three explicit path/UID/bus adaptations. Its separate `root-counterfactual-decision.json` accepts only this native x86/Sway fixture. No ALPM installation, normal ARM/Hyprland validation, M2 compatibility or release acceptance follows.
+
+The reusable [native diagnostic](../../scripts/diagnostics/fish-done-native-graphics/README.md) now accepts explicit hashed local inputs and a fresh owned workspace. It performs no downloads, builds or global installations. Thirteen inert input/staging/refusal and monitor synchronization controls pass. The first delivered CLI trial retained both foreground passes but failed before the background trigger because its monitor missed a one-shot readiness call. The controller now repeats only benign capability probes within the same five-second readiness budget; that failed trial remains failed. This source adaptation has separate runtime acceptance from the original counterfactual above.
+
+The corrected delivered CLI at source `c854335d5c7e240606bd924f67a479d1e52dd455` now independently passes all three cases in a fresh31.2761s execution. Root views every first capture and replays the original typed bus, caller0/7/0, Fish/watch retirement, unchanged payload/configuration and all21 normal command exits/group absences. First captures finish59.130/78.117/78.201ms after Notify; matching reason1 expiry arrives3000.132/3000.130/3000.118ms after Notify. Background readiness actually uses two benign probes inside the unchanged five-second deadline. Mako, bus and Sway exit normally with groups absent. Evidence and the separate Root decision are retained at `artifacts/development/fish-done-portable-native-actual-v2-20261017`; the earlier failed CLI and original successful counterfactual remain unchanged. Acceptance covers this delivered native x86/Sway diagnostic only.
+
+The launcher now also supports actual Linux aarch64 hosts, selecting ELF machine183 from the host architecture and rejecting mixed tools/libraries before actors. Bindings/results record the architecture, and the isolated controller repeats the native checks. Nineteen inert controls pass, including metadata-only ARM cases; no ARM binary, renderer or M2 execution is credited. Use real aarch64-native inputs rather than the historical x86 manifest.
+
+A fresh x86 regression at source8516443d4756722891cb4996e868f7f7102caea9 also passes all three cases in31.285276s, with actual x86_64/ELF62 metadata and all20 command groups plus compositor/bus/Mako retired normally. Every fresh first PPM equals the previously Root-viewed image byte for byte. Its separate frozen evidence is at `artifacts/development/fish-done-portable-native-actual-v3-20261017`. ARM execution remains NOT_RUN.

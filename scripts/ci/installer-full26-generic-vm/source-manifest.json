@@ -1,0 +1,117 @@
+{
+  "files": {
+    ".github/workflows/native-arm-installer-full26-generic-vm.yml": {
+      "bytes": 8981,
+      "sha256": "ba67d0a94fbfb41d1347627754b72f272dddd4cf12725dfef05353354f5cbc7f"
+    },
+    "scripts/ci/installer-full26-generic-vm/README.md": {
+      "bytes": 5469,
+      "sha256": "b29830445472a39b64a0313f4fdb603921b34c0e7373ec2443f4753af445fd49"
+    },
+    "scripts/ci/installer-full26-generic-vm/adapter.py": {
+      "bytes": 7680,
+      "sha256": "d14e2d271fd8acf1897240eea1a3385536755e9aba8e34e80670f3ddeb0f37ef"
+    },
+    "scripts/ci/installer-full26-generic-vm/held-files.json": {
+      "bytes": 2795,
+      "sha256": "436c0b7e25202a314bce71e745a19d91771d7340cf64c6f70bbb1b0b3ed608b3"
+    },
+    "scripts/ci/installer-full26-generic-vm/job.py": {
+      "bytes": 24601,
+      "sha256": "42bb213dc126dad63d9c6e9a7cddfe50c9af343300b93139afae295fd75ed2a5"
+    },
+    "scripts/ci/installer-full26-generic-vm/matrix.py": {
+      "bytes": 8011,
+      "sha256": "36417be2aedae5e45fb291e02d57e34d509a73e344a05e94596c672bfbe73961"
+    },
+    "scripts/ci/installer-full26-generic-vm/policy.json": {
+      "bytes": 585,
+      "sha256": "db649958714348e35ee90479cda37977c75dc5e324ca1b04c963f2dead8baae2"
+    },
+    "scripts/ci/installer-full26-generic-vm/protocol.py": {
+      "bytes": 4565,
+      "sha256": "70ca95c35c61bccfb73eee118f470b38620f8fbb37b95be06cdba0a42dce09ae"
+    },
+    "scripts/ci/installer-full26-generic-vm/selection.json": {
+      "bytes": 1953,
+      "sha256": "bc0a135a6db41d11cbae24b7e3a95c51292416b199b827379216b819c07fb458"
+    },
+    "scripts/ci/installer-full26-generic-vm/test_full26.py": {
+      "bytes": 25752,
+      "sha256": "2bd3b0fb65d3084d933e55505f354fd348447ab970345e460fb65ac098b6f1c5"
+    },
+    "scripts/ci/integration.py": {
+      "bytes": 79750,
+      "sha256": "8f0e0a8c17c9158e779d2a25b04dcb3f2084adb208d1b223b03db653234d78d3"
+    },
+    "scripts/ci/native_arm.py": {
+      "bytes": 28318,
+      "sha256": "a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898"
+    },
+    "scripts/ci/old_four_seed.py": {
+      "bytes": 29048,
+      "sha256": "a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7"
+    },
+    "scripts/install/local_transaction.py": {
+      "bytes": 93752,
+      "sha256": "14381d049506b52770059bf7af415f7a079f69872543e74417aca11ce24ac3c5"
+    },
+    "scripts/install/native_arm_trial.py": {
+      "bytes": 74929,
+      "sha256": "fe2becb4fe6c22e50903ab390db5a79aae311b7284fc71bf4b1c4b79e99824c4"
+    },
+    "scripts/install/test_local_transaction.py": {
+      "bytes": 131063,
+      "sha256": "1987ed23821da917215e9e3366545810d565ece08406fafd429a8c3c772eb2cd"
+    },
+    "scripts/port/kernel-native-job/runtime.py": {
+      "bytes": 11345,
+      "sha256": "8a7cd5e73cf383b2d81ad577b8513c6fd7d49f9fd2572961c73ae9d289cab821"
+    },
+    "scripts/virtual/audit_tooling.py": {
+      "bytes": 7045,
+      "sha256": "6677f391f2de23540bc147770148729fe4c993850b7bbed0b71fb7e48d296fdc"
+    },
+    "scripts/virtual/common.py": {
+      "bytes": 84361,
+      "sha256": "aef2b4f09a91c4cfd66dd4504e69ef18396a94214c82ae0ec0a43c2716894a03"
+    },
+    "scripts/virtual/controller.py": {
+      "bytes": 54778,
+      "sha256": "68a0a6f57293227431049b666237dc7ad0a4faba4f9fe112d1a7e5f9d601511c"
+    },
+    "scripts/virtual/gbm_probe.c": {
+      "bytes": 14149,
+      "sha256": "fe0bb7b15df0bc93c4b5115543619e182ba3dac2ed22d0d8b1ab541d77a72efd"
+    },
+    "scripts/virtual/guest.py": {
+      "bytes": 50702,
+      "sha256": "1a642f3e6102d76fc4d2885eb0554a73e5b0bf8c122c4fb5376321d2a1233a93"
+    },
+    "scripts/virtual/image_decode_probe.c": {
+      "bytes": 10012,
+      "sha256": "e5857f60f664ccfeb8a2275396c4a4f8ed6412f14bb5237e71bd34582479ba3a"
+    },
+    "scripts/virtual/image_decode_report.py": {
+      "bytes": 19492,
+      "sha256": "377efb140ec7b5e50a18ae3c3d312f31f25676818f45942bde1c3acb5dceaacd"
+    },
+    "scripts/virtual/prepare.py": {
+      "bytes": 23363,
+      "sha256": "5a9fbfbbafb56244b6a6c960fa40bbfc574bfd6bb4c3d5338e17082714c69488"
+    },
+    "scripts/virtual/run.py": {
+      "bytes": 29448,
+      "sha256": "e96ec9b61dc26fa622702ef871bcdf9f53f3fd08ee12b5df03991163460d5766"
+    },
+    "scripts/virtual/tooling-audit.json": {
+      "bytes": 323871,
+      "sha256": "d3289a52f3269ba44f1437b69a112dcbd2086ee16ebe8d44658e65e7fb8e2095"
+    },
+    "scripts/virtual/tooling.lock.json": {
+      "bytes": 31183,
+      "sha256": "c18afc5bde9868594d41bd576a956960a7b01b190d148ba03ca4c41d4394e1b0"
+    }
+  },
+  "schema_version": 1
+}

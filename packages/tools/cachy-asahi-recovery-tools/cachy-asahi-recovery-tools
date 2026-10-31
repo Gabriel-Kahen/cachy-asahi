@@ -1,0 +1,71 @@
+#!/usr/bin/python3 -IB
+# SPDX-License-Identifier: MIT
+"""Offline predecessor/recovery data materialization and verification only."""
+import hashlib
+import importlib.util
+import os
+from pathlib import Path
+import stat
+import sys
+
+sys.dont_write_bytecode = True
+VERSION = '0.1.0'
+RUNTIME = Path(__file__).resolve().parents[1] / 'lib/cachy-asahi/recovery-tools'
+PINS = {'scripts/checks/package_checks.py': 'e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8', 'scripts/ci/native_arm.py': 'a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898', 'scripts/client/client.py': '48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7', 'scripts/integration/lifecycle.py': 'c3223a1bd4002683071f4442e1f5b9caf439c68c4e231da10039cc9cebcdb52b', 'scripts/platform/archive_coverage.py': '685a98cb082739e5fa3630ff6496cceb09fc45698a806e737d40cfffe84b3c11', 'scripts/platform/authenticate_missing.py': '6af079cf10f8ebcc9416bf64bca4336ea03dbbf13f99ebd98a83808365f2fe59', 'scripts/platform/capture.py': 'ce73314eb5a75b8afb963217fba15065106ae3f6ee081599a1ba7ab620b044c8', 'scripts/platform/recovery_inputs.py': '09be69917bf74b50a65841243e8e4cfef264a56074945b609264c76a0f387430', 'scripts/platform/transaction.py': '1e4776bd89c436af526ed132d75df32fbc15cf2349dd3cf7cf13ecf874238694', 'scripts/platform/tuple_audit.py': 'e2fde6832d57f33aca1b215f03350edab67d9b3c66d31b7062bc4b0df8d92b5d', 'scripts/port/authenticate.py': '241cd67370eb593bdf948a25788f006ecf470c645ba5d198bc9c318119ebfe10', 'scripts/port/preview.py': 'd737c51474e05cc2c4db2e87fc021f50328eea7744983dd4076d44751fce7383', 'scripts/release/offline_kit.py': '8f9cdb4ad26525fb1c4c906a752f56e8115a3c39b8aa758dd86dca7d032f54b3', 'scripts/release/recovery_bundle.py': '8629981d62b6bad24aa9908186e32bdfc8769b9199df630bd881bcece0bba219', 'scripts/release/source_delivery.py': '8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e'}
+
+
+def checked_runtime():
+    for path in (RUNTIME, *RUNTIME.parents):
+        if path.is_symlink():
+            raise ValueError('private runtime symlink refused')
+    files = set()
+    for parent, dirs, names in os.walk(RUNTIME, followlinks=False):
+        for name in dirs:
+            path = Path(parent) / name
+            if path.is_symlink():
+                raise ValueError('private runtime symlink refused')
+        for name in names:
+            path = Path(parent) / name
+            rel = path.relative_to(RUNTIME).as_posix()
+            info = path.lstat()
+            if (rel not in PINS or not stat.S_ISREG(info.st_mode) or info.st_nlink != 1
+                    or info.st_mode & 0o022 or info.st_size > 8 * 1024**2):
+                raise ValueError('private runtime member refused: ' + rel)
+            fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+            with os.fdopen(fd, 'rb') as stream:
+                before = os.fstat(stream.fileno())
+                raw = stream.read(8 * 1024**2 + 1)
+                after = os.fstat(stream.fileno())
+            identity = lambda value: (value.st_dev, value.st_ino, value.st_size, value.st_mtime_ns, value.st_ctime_ns)
+            if (identity(info) != identity(before) or identity(before) != identity(after)
+                    or hashlib.sha256(raw).hexdigest() != PINS[rel]):
+                raise ValueError('private runtime checksum differs: ' + rel)
+            files.add(rel)
+    if files != set(PINS):
+        raise ValueError('private runtime file set differs')
+    def audit(event, args):
+        if event == 'open' and isinstance(args[0], (str, bytes, os.PathLike)):
+            path = Path(os.fsdecode(args[0]))
+            if path.suffix == '.pyc' and path.is_relative_to(RUNTIME):
+                raise PermissionError('private runtime bytecode refused')
+    sys.addaudithook(audit)
+
+
+def main():
+    if sys.argv[1:] == ['--version']:
+        print('cachy-asahi-recovery-tools ' + VERSION)
+        return 0
+    try:
+        checked_runtime()
+        path = RUNTIME / 'scripts/release/recovery_bundle.py'
+        spec = importlib.util.spec_from_file_location('installed_recovery_bundle', path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module.main()
+    except (OSError, ValueError, ImportError) as error:
+        print('offline recovery tools refused: ' + str(error), file=sys.stderr)
+        return 1
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

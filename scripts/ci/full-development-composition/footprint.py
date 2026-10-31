@@ -12,7 +12,7 @@ import time
 import subprocess
 
 SOURCES = {
-    'scripts/install/local_transaction.py': 'c34202676e30a5085828f92d413cad0aaeacda1c9ac95e86155952db430d62d2',
+    'scripts/install/local_transaction.py': '14381d049506b52770059bf7af415f7a079f69872543e74417aca11ce24ac3c5',
     'scripts/update/capacity.py': 'dcb9899cd24daa21f75e6da6b0214393f093d140a70769092da091e0cfdf7c87',
     'scripts/update/full_root.py': 'cece1c597b2e2eb98b0e3087cc7e7c148b54332f8a1c4f18e04e4552a71fb51d',
     'scripts/update/measure_copy.py': 'e582245bd114b0b9d83f2de4fdc81a35d2f48493ba6147879871af794476813b',

@@ -1,0 +1,24 @@
+name: Desktop tools static package
+on:
+  pull_request:
+    paths:
+      - .github/workflows/desktop-tools-package.yml
+      - packages/tools/cachy-asahi-desktop-tools/**
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  static-package:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.14'
+      - name: Source delivery controls
+        run: python -I -B packages/tools/cachy-asahi-desktop-tools/test_export_source.py
+      - name: Static and relocated CLI controls using the runner system Python
+        run: /usr/bin/python3 -I -B packages/tools/cachy-asahi-desktop-tools/cachy-asahi-desktop-tools-0.1.0/test_package.py

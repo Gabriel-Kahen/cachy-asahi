@@ -1,0 +1,47 @@
+name: Apps10 native source factory
+on:
+  pull_request:
+    paths:
+      - 'scripts/ci/apps10-native-source/**'
+      - '.github/workflows/apps10-native-source.yml'
+  push:
+    paths:
+      - 'scripts/ci/apps10-native-source/**'
+      - '.github/workflows/apps10-native-source.yml'
+permissions:
+  contents: read
+jobs:
+  source-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 4ebe9f9afb153b34e8fe200594eaee189626413f
+          path: .ci-fixtures/apps9-native
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 0c7fa965b38939df65034b4003260fff99097999
+          path: .ci-fixtures/apps10-recipe
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 9d1b97e0adf704fa19b534a7db610350e36a42a5
+          path: .ci-fixtures/apps10-native
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Exact115 emission and all18 original lane controls
+        env:
+          APPS9_NATIVE_SOURCE: ${{ github.workspace }}/.ci-fixtures/apps9-native
+          APPS10_RECIPE_SOURCE: ${{ github.workspace }}/.ci-fixtures/apps10-recipe
+          APPS10_NATIVE_SOURCE: ${{ github.workspace }}/.ci-fixtures/apps10-native
+        run: python3 -I -B -Werror scripts/ci/apps10-native-source/test_prepare.py

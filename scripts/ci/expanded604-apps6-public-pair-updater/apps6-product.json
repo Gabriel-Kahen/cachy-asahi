@@ -1,0 +1,106 @@
+{
+  "check_markers": [
+    "Ran 42 tests",
+    "OK"
+  ],
+  "name": "cachy-asahi-apps",
+  "payload": {
+    "usr/bin/cachy-asahi-apps": [
+      "cachy-asahi-apps",
+      493
+    ],
+    "usr/lib/cachy-asahi-apps/apps.py": [
+      "apps.py",
+      420
+    ],
+    "usr/lib/cachy-asahi-apps/helper-pins.json": [
+      "helper-pins.json",
+      420
+    ],
+    "usr/lib/cachy-asahi-apps/inventory.py": [
+      "inventory.py",
+      420
+    ],
+    "usr/share/doc/cachy-asahi-apps/README.md": [
+      "README.md",
+      420
+    ],
+    "usr/share/doc/cachy-asahi-apps/source-provenance.json": [
+      "source-provenance.json",
+      420
+    ],
+    "usr/share/licenses/cachy-asahi-apps/LICENSE": [
+      "LICENSE",
+      420
+    ],
+    "usr/share/licenses/cachy-asahi-apps/NOTICE": [
+      "NOTICE",
+      420
+    ]
+  },
+  "recipe_sha256": "aa4d6ed7865aab606a55e7de94e50d6966f47f7b926a39efd4b3f64eec403778",
+  "source_files": {
+    ".SRCINFO": {
+      "bytes": 1775,
+      "sha256": "b1efe81a2c4385dd820f411194934ba64bbc288ebb5bc421b90056ade9e9ab3a"
+    },
+    "LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "NOTICE": {
+      "bytes": 1079,
+      "sha256": "425c36c2e9ad688b398d8fbcb2fd8f972420a1db5e0d4b19e9d24021346d4239"
+    },
+    "PKGBUILD": {
+      "bytes": 3700,
+      "sha256": "aa4d6ed7865aab606a55e7de94e50d6966f47f7b926a39efd4b3f64eec403778"
+    },
+    "README.md": {
+      "bytes": 11707,
+      "sha256": "c4ec55dc26bd427c37df59c647bb47719c6a88d91bd7c32b8c9ccc5a08ba6d5d"
+    },
+    "apps.py": {
+      "bytes": 22601,
+      "sha256": "c12f8548d5fd3007a61fb366ca279dd061917cc5320ba81ce5e2ab0d02c7d9a6"
+    },
+    "cachy-asahi-apps": {
+      "bytes": 310,
+      "sha256": "4e9c078c2e05cc00cb6479d5fff23b92cbcabd8d6b3ff970f6181e6467921630"
+    },
+    "check-inputs.json": {
+      "bytes": 4127,
+      "sha256": "5cd338eb2ab9f4579825f3dd30de0f25d54a73ee1090737b0a21a506d12caad8"
+    },
+    "check-inputs.tar.gz": {
+      "bytes": 61046,
+      "sha256": "6d38353fe33e0ce595df507ad9b928d80d3e1d6fe5d45d5418f927e9f50fe6d2"
+    },
+    "check_source.py": {
+      "bytes": 3393,
+      "sha256": "c0943d74c0d9d681cb275e0d29fdacafef1e5dbdf1f9ff8f5194e9be0bf33630"
+    },
+    "helper-pins.json": {
+      "bytes": 493,
+      "sha256": "33a5e11e6d12df984e07c437c68ee581527cc4c95f3327bc44cbc09e0e29948a"
+    },
+    "inventory.py": {
+      "bytes": 13160,
+      "sha256": "986c8baea2921cf3f58f98c2e76a1adad9013fbe4b1f47743d12397e9e6c2516"
+    },
+    "prepare-check-inputs.py": {
+      "bytes": 3321,
+      "sha256": "76bc1977cf402872816a430156541c0ccd41273e9080730d2ace7838ffa74214"
+    },
+    "source-provenance.json": {
+      "bytes": 3814,
+      "sha256": "e942a7ce47dc601de8639f320401e79561d74e0923080f660125825ef860328b"
+    },
+    "test_apps.py": {
+      "bytes": 38322,
+      "sha256": "760d41971c69606f4aec1f179ddf04167d570870aeeed8f0c0ddc22403337d1a"
+    }
+  },
+  "source_sha": "ae475a4ef8d0d1994567e37064ef35c2dcbfac60",
+  "version": "0.1.0-6"
+}

@@ -1,0 +1,147 @@
+
+# The independent carrier is published before the future bound updater child.
+# Neither this profile nor its manifest contains the child's own Git SHA/run.
+PROJECTION_KIND='ROOT_SOURCE_BOUND_INSTALLED_PREREQUISITE_PROJECTION_V1'
+BEFORE357={'bytes': 61473, 'sha256': '5072f7e94377413b72036ab79daddacf31283ddbeb22f1add6b0f99cff557e2b'}
+FLAGS={'committed','database_verified','namespace_barrier','numeric_namespace_verified',
+ 'numeric_ownership_verified','ordinary_parent_nnp_cap0','ownership_verified',
+ 'parent_inventory_preserved','parent_payload_verified','payload_verified',
+ 'preservation_verified','private_trust_verified','process_retirement',
+ 'root_guest_payload_verified','source_cache_preserved'}
+
+def projection_policy(policy):
+ value=policy.get('authority_projection_policy')
+ C.need(policy.get('authority_projection')==PROJECTION_KIND and type(value)is dict and
+  set(value)=={'schema_version','records'}and type(value['schema_version'])is int and
+  value['schema_version']==1 and type(value['records'])is dict and
+  set(value['records'])==set(STATUSES),'closed source-owned two-role projection policy')
+ C.need(policy['actual_source']is policy['actual_ref']is policy['actual_run']is None,
+  'updater own actual identity comes from genuine runtime job, never self-pinned source')
+ for kind,record in value['records'].items():
+  if record is None:continue
+  C.need(type(record)is dict and set(record)=={'source','ref','files','original'}and
+   re.fullmatch('[0-9a-f]{40}',record['source'])and re.fullmatch('codex/[a-z0-9-]+',record['ref'])and
+   type(record['files'])is dict and record['files'],'complete independent Root decision source')
+  original=record['original'];C.need(type(original)is dict and record['files'].get('decision.json')==C.pin(C.enc(original)),
+   'exact whole issued original decision retained, not PASS-normalized')
+  original_decision(kind,original,policy)
+ return value
+
+def original_decision(kind,row,policy):
+ lock=policy['after']if kind=='fresh607'else policy['before']
+ C.need(kind in STATUSES and row.get('status')==STATUSES[kind]and
+  type(row.get('schema_version'))is int and row['schema_version']==1 and
+  re.fullmatch('[0-9a-f]{40}',row.get('source_sha')or'')and
+  type(row.get('run_id'))is int and row['run_id']>0 and
+  type(row.get('package_count'))is int and row['package_count']==607 and
+  row.get('expected607_sha256')==lock['sha256'],'genuine source-bound issued exact607 role/target')
+ C.need(type(row.get('ordinary_and_root_flags'))is dict and
+  set(row['ordinary_and_root_flags'])==FLAGS and
+  all(v is True for v in row['ordinary_and_root_flags'].values()),'all fifteen original ordinary/root flags')
+ o=row.get('root_observation');C.need(type(o)is dict and o.get('complete')is True and
+  type(o.get('deadline_seconds'))is int and o['deadline_seconds']==600 and
+  type(o.get('elapsed_ms'))is int and 0<=o['elapsed_ms']<600000 and
+  type(o.get('observed_nodes'))is int and 0<o['observed_nodes']<=200000 and
+  type(o.get('missing_database_nodes'))is int and o['missing_database_nodes']==0 and
+  o.get('missing_database_samples')==[] and
+  type(o.get('footprint'))is dict and type(o['footprint'].get('nodes'))is int and o['footprint']['nodes']==o['observed_nodes']and
+  type(o['footprint'].get('bytes'))is int and 0<=o['footprint']['bytes']<=6*1024**3,
+  'complete retained independent root report within original readback cap')
+ C.need(row.get('cleanup')=='PASS_SOURCE_BOUND_RETAINED_RECEIPTS'and
+  row.get('qemu_natural_exit')is True and row.get('hardware')==row.get('M2')=='NOT_RUN'and
+  row.get('release')=='NOT_ADMITTED'and type(row.get('limits'))is list and
+  row['limits']and all(type(v)is str and 0<len(v)<=2048 for v in row['limits']),
+  'original source-bound cleanup/limits retained; no new live absence or FD claim')
+ if kind=='fresh607':C.need(row['source_sha']==policy['fresh_source'],'exact current installer source decision')
+ return row
+
+def projection(kind,record,policy):
+ C.need(kind in STATUSES and record is not None,'missing genuine role record remains UNBOUND')
+ original=original_decision(kind,record['original'],policy)
+ other=C.pin(''.join(n+' '+v+'\n'for n,v in sorted(C.locks()[0].items())if n!='cachy-asahi-apps').encode())
+ return dict(schema_version=1,projection_kind=PROJECTION_KIND,target_kind=kind,
+  Apps_version='0.1.0-16'if kind=='fresh607'else'0.1.0-6',other606_lock_sha256=other['sha256'],
+  record_source=record['source'],record_ref=record['ref'],record_files=record['files'],
+  original=original,original_pin=C.pin(C.enc(original)),
+  readback='RETAINED_SOURCE_BOUND_ROOT_REPORT_NOT_FRESH_FD_OBSERVATION',
+  retirement='SOURCE_BOUND_RETAINED_RECEIPTS_NOT_LIVE_REOBSERVATION',
+  scope='ONE_INSTALLED_PREREQUISITE_NOT_UPDATER_ACCEPTANCE')
+
+def make_projection(root,kind,policy=None):
+ policy=C.profile()if policy is None else policy
+ record=projection_policy(policy)['records'][kind]
+ C.need(record is not None,'missing genuine role record remains UNBOUND')
+ root=C.safe(root);C.need(C.rows(root)==record['files'],'whole independent original decision packet')
+ C.need(C.read(root/'decision.json')==C.enc(record['original']),'exact original decision bytes')
+ return projection(kind,record,policy)
+
+def projected_decision(root,kind,ref,policy):
+ records=projection_policy(policy)['records'];C.need(kind in records and records[kind]is not None,
+  'both genuine independent decision roles required')
+ C.need(type(ref)is dict and set(ref)=={'path','bytes','sha256','source','run'},'closed projection reference')
+ path=ref['path'];C.need(type(path)is str and not path.startswith('/')and
+  all(v not in('','.','..')for v in path.split('/')),'ordinary immutable projection path')
+ row=json.loads(C.checked(Path(root)/path,{k:ref[k]for k in('bytes','sha256')}))
+ wanted=projection(kind,records[kind],policy)
+ C.need(row==wanted and ref['source']==wanted['original']['source_sha']and
+  type(ref['run'])is int and ref['run']==wanted['original']['run_id'],
+  'complete purpose-specific original decision projection and actual identity')
+ C.need(C.rows(Path(root)/kind/'record')==records[kind]['files'],
+  'whole original carrier retained alongside role projection')
+ C.need(C.read(Path(root)/kind/'record/decision.json')==C.enc(wanted['original']),
+  'original complete decision/limits never replaced by projection')
+ # Legacy callers inspect only run_id/source_sha after this strict role gate.
+ # Return the original issued decision itself, with every original field held.
+ return wanted['original']
+
+def source_context():
+ p=C.profile();projection_policy(p)
+ slots=p['authorities'];C.need(type(slots)is dict and set(slots)==set(STATUSES),'both authority slots required')
+ unbound=all(v is None for v in slots.values())
+ if unbound:C.need(p['authority_files']is None and p['input_sources']['latest_decisions']is None,
+  'UNBOUND source machine has no authority carrier')
+ else:
+  require_bound(p)
+  C.need(all(projection_policy(p)['records'][k]is not None for k in STATUSES),
+   'a source machine or fresh-only projection cannot satisfy both installed prerequisites')
+ return dict(status='SOURCE_ONLY_BINDING_MACHINERY_UNBOUND'if unbound else'BOUND_SOURCE_REQUIRES_RUNTIME_FULL_CARRIER_GATES',
+  fresh607='UNBOUND'if unbound else'RUNTIME_GATE_REQUIRED',baseline607='UNBOUND'if unbound else'RUNTIME_GATE_REQUIRED',
+  updater_actual=None,actor_authority=False)
+
+def source_preflight():
+ import os,signal,subprocess,sys,tempfile
+ p=json.loads(C.read(C.HERE/'parent355.json'));b=p['binding_context'];before=b['files']
+ manifest=json.loads(C.read(C.ROOT/'source-manifest.json'))
+ current=dict(manifest['files'],**{'source-manifest.json':C.pin(C.read(C.ROOT/'source-manifest.json'))})
+ C.need(b['source']=='3b8ca255d90f0b4b0be18639a4b754da8c7aa969'and b['ref']=='codex/latest607-updater-tooling-source-v1'and C.pin(C.enc(before))==BEFORE357 and len(before)==357 and C.rows(C.ROOT)==current,'whole genuine357 ancestor and current binding source namespace')
+ values={n:C.checked(C.ROOT/n,w)for n,w in current.items()}
+ profile=json.loads(values['implementation/profile.json'])
+ for name in('authority_projection','authority_projection_policy'):profile.pop(name)
+ profile['authorities']={'fresh607':None,'baseline607':None};profile['authority_files']=None
+ profile['input_sources']['latest_decisions']=None
+ values['implementation/profile.json']=C.enc(profile)
+ oldp=dict(p);oldp.pop('binding_context');values['implementation/parent355.json']=C.enc(oldp)
+ for n,raw in b['bodies'].items():values[n]=raw.encode()
+ old_manifest=json.loads(values['source-manifest.json']);old_manifest['files']={n:w for n,w in before.items()if n!='source-manifest.json'}
+ values['source-manifest.json']=C.enc(old_manifest)
+ C.need({n:C.pin(raw)for n,raw in values.items()}==before,'entire original357 private reconstruction including355/208')
+ with tempfile.TemporaryDirectory(prefix='updater-unbound-source-only-')as td:
+  private=Path(td)/'source';private.mkdir(mode=0o700)
+  for n,raw in values.items():
+   q=private/n;q.parent.mkdir(parents=True,exist_ok=True);q.write_bytes(raw)
+  C.need(C.rows(private)==before and C.rows(C.ROOT)==current,'complete private original357 before source-only invocation')
+  env={k:v for k,v in os.environ.items()if k not in('GH_TOKEN','GITHUB_TOKEN','PYTHONPATH','PYTHONHOME')}
+  proc=subprocess.Popen([sys.executable,'-I','-B','-Werror',str(private/'entry.py'),'--source-preflight'],
+   stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,env=env,start_new_session=True)
+  try:out,err=proc.communicate(timeout=300)
+  except BaseException:
+   try:os.killpg(proc.pid,signal.SIGKILL)
+   except ProcessLookupError:pass
+   proc.communicate(timeout=10);raise
+  C.need(proc.returncode==0 and not err and len(out)<65536,'complete original unbound357 source proof only')
+  fact=json.loads(out);C.need(fact['status']=='SOURCE_ONLY_LATEST607_UPDATER'and
+   fact['python_bodies']==208 and fact['cases']==3 and fact['fresh607']==fact['baseline607']=='UNBOUND',
+   'whole original357/355/208 source predicates; no installed authority')
+  C.need(C.rows(private)==before and C.rows(C.ROOT)==current,'original/private/current sources unchanged')
+ return dict(status='PASS_EXACT_PRIVATE_UNBOUND357_BEFORE_AND_CURRENT_BINDING_SOURCE',
+  original=fact,current=source_context(),actual=None,actors='NOT_RUN')

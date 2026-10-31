@@ -1,0 +1,46 @@
+ def test_projection_preserves_exact_original_and_limits(self):
+  p=C.profile();record=p['authority_projection_policy']['records']['fresh607'];row=authority.projection('fresh607',record,p)
+  self.assertEqual(row['original'],record['original']);self.assertEqual(row['original']['cleanup'],'PASS_SOURCE_BOUND_RETAINED_RECEIPTS')
+  self.assertEqual(row['original']['limits'],record['original']['limits']);self.assertIn('NOT_FRESH_FD_OBSERVATION',row['readback'])
+  self.assertNotIn('ordinary_parent_retired',row);self.assertNotIn('independent_root_readback',row)
+  unbound=all(v is None for v in p['authorities'].values())
+  if unbound:
+   self.assertEqual(authority.source_context()['status'],'SOURCE_ONLY_BINDING_MACHINERY_UNBOUND')
+   self.assertIsNone(p['authority_projection_policy']['records']['baseline607'])
+   with self.assertRaisesRegex(ValueError,'UNBOUND'):authority.require_bound()
+  else:
+   self.assertEqual(authority.source_context()['status'],'BOUND_SOURCE_REQUIRES_RUNTIME_FULL_CARRIER_GATES')
+   self.assertEqual(authority.require_bound(),p)
+  with self.assertRaisesRegex(ValueError,'UNBOUND'):authority.projection('baseline607',None,p)
+ def test_original_projection_flags_clock_identity_refusals(self):
+  p=C.profile();original=p['authority_projection_policy']['records']['fresh607']['original']
+  for change in({'status':'ROOT_ACCEPTED_FINITE_NATIVE_APPS16_SIX_TOOL_SOFTWARE_COMPOSITION'},
+    {'package_count':True},{'cleanup':'PASS'},{'qemu_natural_exit':False},
+    {'expected607_sha256':p['before']['sha256']},{'source_sha':'0'*40}):
+   row=copy.deepcopy(original);row.update(change)
+   with self.assertRaises(ValueError):authority.original_decision('fresh607',row,p)
+  for flag in authority.FLAGS:
+   row=copy.deepcopy(original);row['ordinary_and_root_flags'][flag]=False
+   with self.assertRaises(ValueError):authority.original_decision('fresh607',row,p)
+  for change in({'complete':False},{'deadline_seconds':601},{'elapsed_ms':600000},{'missing_database_nodes':1},{'observed_nodes':200001}):
+   row=copy.deepcopy(original);row['root_observation'].update(change)
+   with self.assertRaises(ValueError):authority.original_decision('fresh607',row,p)
+ def test_partial_or_source_machine_never_unlocks_actors(self):
+  p=copy.deepcopy(C.profile());p['authorities']['baseline607']=None;p['authorities']['fresh607']={'path':'fresh607/projection.json','bytes':1,'sha256':'0'*64,'source':p['fresh_source'],'run':40223603945}
+  with self.assertRaisesRegex(ValueError,'UNBOUND'):authority.require_bound(p)
+  old=C.profile
+  try:
+   C.profile=lambda:p
+   with self.assertRaises(ValueError):authority.source_context()
+  finally:C.profile=old
+  self.assertEqual(authority.source_context()['actor_authority'],False)
+ def test_private_before_inverse_and_no_circular_self_identity(self):
+  p=C.profile();b=json.loads(C.read(C.HERE/'parent355.json'))['binding_context']
+  self.assertEqual(len(b['files']),357);self.assertEqual(b['source'],'3b8ca255d90f0b4b0be18639a4b754da8c7aa969')
+  self.assertEqual({k:p[k]for k in('actual_source','actual_ref','actual_run')},{'actual_source':None,'actual_ref':None,'actual_run':None})
+  if all(v is None for v in p['authorities'].values()):
+   self.assertIsNone(p['input_sources']['latest_decisions']);self.assertIsNone(p['authority_files'])
+   self.assertEqual(authority.source_context()['baseline607'],'UNBOUND')
+  else:
+   self.assertIsInstance(p['authority_files'],dict)
+   self.assertEqual(authority.source_context()['baseline607'],'RUNTIME_GATE_REQUIRED')

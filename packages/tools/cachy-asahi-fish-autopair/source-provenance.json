@@ -1,0 +1,66 @@
+{
+  "repository": "https://github.com/jorgebucaran/autopair.fish",
+  "revision": "4d1752ff5b39819ab58d7337c69220342e9de0e2",
+  "archive_url": "https://codeload.github.com/jorgebucaran/autopair.fish/tar.gz/4d1752ff5b39819ab58d7337c69220342e9de0e2",
+  "archive_sha256": "7a194a051bfd9f31d168129328f6ee23fed66c5060482ee4beee85c8a6d59466",
+  "archive_bytes": 2900,
+  "license": "MIT",
+  "files": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "99c90c41a73f2eaff585e8bb63944496239ad058f7a27439c071e43dfd040000",
+      "bytes": 442
+    },
+    {
+      "path": "LICENSE.md",
+      "sha256": "f101c761d255d0dddc77dd8a9327733b03d381798ec54a1bb718367207b48a8e",
+      "bytes": 1080
+    },
+    {
+      "path": "README.md",
+      "sha256": "86175e584c469a517e385f192f5479e3cf4bebec8b91843ebc62da1e55412e82",
+      "bytes": 1374
+    },
+    {
+      "path": "conf.d/autopair.fish",
+      "sha256": "1203ab775b81073e49eb50cf244a063fafad0b05d8efda0420b337d978b1ef44",
+      "bytes": 1432
+    },
+    {
+      "path": "functions/_autopair_backspace.fish",
+      "sha256": "eb5f42b837a98e721ec5f60f6c05df5fc709c9b8852317823b576d053ea9e0d8",
+      "bytes": 323
+    },
+    {
+      "path": "functions/_autopair_insert_left.fish",
+      "sha256": "15739503faea70699ce121742bbfd59cf0ba64fb4ac044119aaeb644ec7019f1",
+      "bytes": 403
+    },
+    {
+      "path": "functions/_autopair_insert_right.fish",
+      "sha256": "eaadbfd4cf10a40dfbe5eaf522f0d7d01a1e4538a6e9fbd591c35cc7a517744d",
+      "bytes": 330
+    },
+    {
+      "path": "functions/_autopair_insert_same.fish",
+      "sha256": "ac34fd6de9b0c79e4499ace389d3bd61e2984087126a040bccd68d336050c23f",
+      "bytes": 776
+    },
+    {
+      "path": "functions/_autopair_tab.fish",
+      "sha256": "dd298673353cc7d48b9fd988932594685888aaa8406b2ca0e64946fce261b068",
+      "bytes": 279
+    }
+  ],
+  "shipped_upstream": [
+    "functions/_autopair_backspace.fish",
+    "functions/_autopair_insert_left.fish",
+    "functions/_autopair_insert_right.fish",
+    "functions/_autopair_insert_same.fish",
+    "functions/_autopair_tab.fish",
+    "LICENSE.md"
+  ],
+  "excluded_runtime": [
+    "conf.d/autopair.fish: automatic bindings, variable-change hook, uninstall hook; retained in full archive, not installed/sourced"
+  ]
+}

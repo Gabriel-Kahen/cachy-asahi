@@ -1,0 +1,13 @@
+# Setup6 native pair and disposable recovery candidate
+
+Source-only successor to the accepted Setup5 source4cf9884dacb2816532b07c8107982d7157656046/run38934198468. Setup6 0.1.0-6 is selected only by Root's source decision. No new native, installed, 16K, M2 or release result exists until this exact source is published and actually passes. Canonical integration is not required for this separate trial.
+
+The complete original42 manifest leaves, manifest and workflow are retained in predecessor.json with raw beforebodies. The new lane keeps the original tools/Welcome build, full574 lock, native pair, original setup4 public pair, all8 legacy transitions/24 ordinary observations/10 cases per six profiles, source/recipe/check()/all4 comparison flags/payload/ALPM ownership/database/dependencies, user preservation and ordered cleanup gates. Candidate references change explicitly to6. Four consumers, lane1500s, lifecycle600s, build/ordinary-user limits, producer2300s, cleanup330s, job95minutes and public96MiB caps are held.
+
+The same lifecycle consumer additionally performs direct exact accepted Setup5→6→5→6/repeat/remove, restoring the complete574 base. It checks the six exact files, database and all six legacy homes across every ALPM transition. Public Setup5 carrier79d8d2f53510e4f3a04f39c1b1e24c999aa32e44 is closed149 DATA; both original archives must retain26872bytes/SHA2561aafee365e3bcb04e1fce694c110a997914a07f4359697df5e017375897385fc with full original package/source/recipe/payload checks. No old acceptance substitutes for a new transition.
+
+An ordinary alarm user runs all six source-held interrupted recovery tests against the actual installed6 helper, including no-write action preview, partial install/remove, journal/state interruption, edited-target/template refusal and revalidation after preview. The helper is source-identical. The only test adaptation is SourceFileLoader for the installed extensionless script. Each test uses and retires a separate private temporary home; statuses and source pins are exported, no user configuration. No fixture shell/module is executed.
+
+The complete ddc6 original574 carrier is checked out separately and source-held helpers seed exact1148 archive/signature inputs after the original6+14 seeds, inside the unchanged producer2300s envelope. The original producer's fetch, current GPG, metadata, Docker/native inventory and cleanup remain unchanged. No unnecessary archive32/20/8 stage is introduced. Fresh rootfs/keyring acquisition remains original and pinned.
+
+Root alone publishes, binds, dispatches, collects and accepts. Original source/native evidence, canonical package bytes, old workflow/defaults and shared manifests remain unchanged.

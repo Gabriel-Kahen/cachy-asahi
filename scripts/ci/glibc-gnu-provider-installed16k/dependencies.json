@@ -1,0 +1,265 @@
+{
+  "files": {
+    "manifests/packages.toml": {
+      "bytes": 41394,
+      "sha256": "19a8bdb45916e5dffef7a4c1496ebbc489792795ea2906a3d705a67e3906b880"
+    },
+    "scripts/apps/file_capabilities.py": {
+      "bytes": 13562,
+      "sha256": "498a3beec0327b9335dcd6d80ed5919fa2edebebd3284e9ee8b97770328e26a2"
+    },
+    "scripts/apps/full574_copy.py": {
+      "bytes": 7799,
+      "sha256": "33d49316c28dee344e78e17d7e7ffa409c9d7ad09bb48a82651f7d44f1cb61a0"
+    },
+    "scripts/ci/apps-full574-native/export_extract.py": {
+      "bytes": 2410,
+      "sha256": "c7a09bc3996b9bff97dd57a8244d82d562566f1135b0618f87d90fbf09c58978"
+    },
+    "scripts/ci/expanded600-installer-vm/observer600.py": {
+      "bytes": 2784,
+      "sha256": "c3d804e7f2927c7889835ad187a39a3d7c618a4651700f57b0c5413c46612607"
+    },
+    "scripts/ci/full-composition-installer-vm/prepare.py": {
+      "bytes": 15922,
+      "sha256": "4d3aa4650b0dad3598290fb00968f78ec3612f5ba280df05d34a46d859e2503e"
+    },
+    "scripts/ci/full-composition-installer-vm/run.py": {
+      "bytes": 23677,
+      "sha256": "7788b2a38981f8b3fe13a6f4f8b8f38ce9500e8f76f6be60e669925e670adb75"
+    },
+    "scripts/ci/full-root-upgrade/root_upgrade.py": {
+      "bytes": 23555,
+      "sha256": "fe1232ae6b510021910b4fb80016ac3b4668c6e4386cdae45e7b95196e400756"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle-owner/README.md": {
+      "bytes": 5916,
+      "sha256": "99f5667a1f8b8d5e93805196c6a1c06338e9ec68a58251ecc0906f727d6baf87"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle-owner/capability_snapshot.py": {
+      "bytes": 4101,
+      "sha256": "21242b74b3ade489f37e1affd41512a89e213a01a819e9d4f746b2a82d5544cf"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle-owner/job.py": {
+      "bytes": 34418,
+      "sha256": "90415ffea62bda2aacf6a42826601cfb28b40d3507801554ed505557b6fd8c14"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle-owner/packet-interface.json": {
+      "bytes": 2109,
+      "sha256": "7aa7fdbc33b53c28e86a3f8b3ea47428715e8f4944e3481882bed2cf4bbe1fac"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle-owner/policy.json": {
+      "bytes": 704,
+      "sha256": "d64fb809c69a3a32d41efc74d6c431ef240b94774d760b7d835793277572ce3c"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle-owner/snapshot.py": {
+      "bytes": 9397,
+      "sha256": "9738acb125ce6d468d5359ecfbd5540454826567fd4ac4481576ec31da37190c"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle-owner/test_owner.py": {
+      "bytes": 22150,
+      "sha256": "52e6f55512b6fabfb6a3fe4b65f4acd82ff8ff5aed33c3792a1055330ebba02f"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle/README.md": {
+      "bytes": 10223,
+      "sha256": "27abc2925cc414598e567b27c114eeef9a6d60f1b25dad85abd469eca62f6169"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle/capabilities.py": {
+      "bytes": 4510,
+      "sha256": "28dfa14ef7d98c2114d0c9271b209b801362bb855dfac7f7592277da9ed2cdb9"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle/common.py": {
+      "bytes": 12892,
+      "sha256": "42082d2e773d423d2abc0e1f7ff50e74163c09c9a51c1c073a4cb17f7e79cc72"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle/container.py": {
+      "bytes": 35741,
+      "sha256": "f12e6e057b225b617fd26597edb00ea92c4df01ca426a21fb482b2681044f9a4"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle/copy_scope.py": {
+      "bytes": 3470,
+      "sha256": "605ead63553641641f3b7d4edd9d9af6d2bd6e43d338e367ea846359e09f6fba"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle/dependencies.json": {
+      "bytes": 5083,
+      "sha256": "f1f22819a95a677a3e1520a6826acfffa70f2612488b6d0b88fe4e299b6987b4"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle/input-interface.json": {
+      "bytes": 2558,
+      "sha256": "702a37fc728c04e916b69f2cb299b2886340b9f0511820e12a1437a37e0ebdca"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle/input-policy.json": {
+      "bytes": 436,
+      "sha256": "d777931e61834ab8accd6a80a2b00368080703fa050e8e20a206e959514ebd6b"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle/normal-exec-change.json": {
+      "bytes": 839,
+      "sha256": "9d3769704396a33acc0c144cc1519d10230a5fb07d2f7b135dcfd0ba1ab6a68b"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle/proc_mount.py": {
+      "bytes": 15565,
+      "sha256": "f868e4e36e34ee52fc40b6a9c37ae2bcace4d417d274fc6317f763a38af30a03"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle/run.py": {
+      "bytes": 8910,
+      "sha256": "e7335f26c22c1e991eebcb8f1db0f9acc4094e8e0d60bbe6019b8aba25093890"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle/scrub.py": {
+      "bytes": 846,
+      "sha256": "bfac8896427c5fdcdd172a94af925dc5771452e150b44f27f4e16c498c548359"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle/smoke-normal.c": {
+      "bytes": 12437,
+      "sha256": "a766bc7cd31cce18fe7e564432de4e4b63db49763608ae70ef8fab61cd29116c"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle/source-manifest.json": {
+      "bytes": 2212,
+      "sha256": "9cdd9b9b2f885ef38da119dfe686eddc2d68bfa8d875d2f3c0448762bbec02d7"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle/test_controls.py": {
+      "bytes": 44383,
+      "sha256": "f3f4b764764404cdd2670b3db58a1789ab880f3eb050f6af6f3aa63b7c939f0e"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle/test_copy_scope.py": {
+      "bytes": 11657,
+      "sha256": "776b75f0db1d93389056f0a6d0e300435b4a020003a5008dd014f352cb3d208d"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle/test_proc_mount.py": {
+      "bytes": 18068,
+      "sha256": "34a66f6811c6a3695a812b3a4589605ef0c8f2620579b073eec6d2ae51b38c94"
+    },
+    "scripts/ci/glibc-gnu-trial-apparmor/README.md": {
+      "bytes": 5103,
+      "sha256": "0cfa6907b891d97f59a9d9b555eae462818d27b916c1b0e734f0c48c2a690bd5"
+    },
+    "scripts/ci/glibc-gnu-trial-apparmor/profile.py": {
+      "bytes": 18714,
+      "sha256": "66912eb9e3b4fdee936a2146ea6becd0209e2a4fe10b6e3465690bf845d59cf8"
+    },
+    "scripts/ci/glibc-gnu-trial-apparmor/test_profile.py": {
+      "bytes": 11143,
+      "sha256": "62343b39fec6466ab0c52025874db24b8fd6ae063941ed58cf25819f7b7806d9"
+    },
+    "scripts/ci/glibc-gnu-trial-apparmor/vendor/LICENSE": {
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    "scripts/ci/glibc-gnu-trial-apparmor/vendor/apparmor/apparmor.go": {
+      "bytes": 4974,
+      "sha256": "7bf6c04caeedb59df89e8de2b3fa335c73477b34efa2f0af3a0ad22484e3cb21"
+    },
+    "scripts/ci/glibc-gnu-trial-apparmor/vendor/apparmor/template.go": {
+      "bytes": 6196,
+      "sha256": "7da15d81aa5c507f5002b844fdc49a969904681447a2cc29222bd6cbe797163b"
+    },
+    "scripts/ci/glibc-gnu-trial-apparmor/vendor/source.json": {
+      "bytes": 1033,
+      "sha256": "02b8b22c590a58b959b0745c0c7381a891c977907576bdd9c6f2666c73606a8a"
+    },
+    "scripts/ci/glibc-owned-runtime/exec_child.c": {
+      "bytes": 913,
+      "sha256": "0a2b48762f8f7ec6d942ca9fb4af4f04a50fd93d2d7dff42407adfea13b1e4cc"
+    },
+    "scripts/ci/glibc-owned-runtime/plugin.c": {
+      "bytes": 320,
+      "sha256": "d0ce5506b261b5b4582aa35651b68afbf6257e8f4a990155dcac9d4e4596b654"
+    },
+    "scripts/ci/glibc-owned-runtime/probe.c": {
+      "bytes": 5974,
+      "sha256": "8bc857277840264c29845764b6c4d34e40c3d1dcdb91592acbb31ae5dfeb80b6"
+    },
+    "scripts/ci/glibc-owned-runtime/probe.h": {
+      "bytes": 270,
+      "sha256": "3806c2a05e640b8860a2c81e4eba55ae8bf416fcb84637e93a7b3d9b71476724"
+    },
+    "scripts/ci/glibc-owned-runtime/runner.py": {
+      "bytes": 16274,
+      "sha256": "4d9aa954d95032ab9ea9085ced784efc81a5db42e2f1f3401e679ee861c16090"
+    },
+    "scripts/ci/maintained-desktop574-inputs.json": {
+      "bytes": 623664,
+      "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
+    },
+    "scripts/ci/maintained_desktop574.py": {
+      "bytes": 22367,
+      "sha256": "27ba4be42cf2bd41675073e07cccc917ae033f9d68b07a33cfd7f074ac27b760"
+    },
+    "scripts/ci/managed-gui-generic16k/build_kernel.py": {
+      "bytes": 12900,
+      "sha256": "ccbead2912144c5aa4fcb3ce7af76b3c11f28fcde7987e5f32edb060ff7b0ee9"
+    },
+    "scripts/ci/managed-gui-generic16k/kernel.fragment": {
+      "bytes": 1808,
+      "sha256": "88819f00ebef80e385ebdfae6cc101ef21145e0bbd6bb12532b0d41a85c16d28"
+    },
+    "scripts/ci/managed-gui-generic16k/kernel_contract.py": {
+      "bytes": 4659,
+      "sha256": "30a4544e5407dbf932d9ec26bbd6bf21eab53347544afa134cd3a5870752cbff"
+    },
+    "scripts/ci/old_four_seed.py": {
+      "bytes": 29048,
+      "sha256": "a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7"
+    },
+    "scripts/ci/tools-generic16k/acquire_kernel.py": {
+      "bytes": 8844,
+      "sha256": "4a372e1f4bfbd1f8604579873fc6fbdec91ac2555bb36f028646017b44b8c23f"
+    },
+    "scripts/ci/tools-generic16k/retained_kernel.py": {
+      "bytes": 5444,
+      "sha256": "bddb14537790a484d770215e55cc2c59de50c764d15e4d677f6fbcaab84cd735"
+    },
+    "scripts/install/local_transaction.py": {
+      "bytes": 93752,
+      "sha256": "14381d049506b52770059bf7af415f7a079f69872543e74417aca11ce24ac3c5"
+    },
+    "scripts/install/native_arm_trial.py": {
+      "bytes": 74929,
+      "sha256": "fe2becb4fe6c22e50903ab390db5a79aae311b7284fc71bf4b1c4b79e99824c4"
+    },
+    "scripts/update/aux_checkpoint.py": {
+      "bytes": 18456,
+      "sha256": "d51179ca24c981bafd817d7db082c0ceb3b2f5deb922004bfe97d1e2007edda7"
+    },
+    "scripts/update/aux_copy.py": {
+      "bytes": 3736,
+      "sha256": "bff93c029e21f9fce0868c80566396984443c8d3438264fac8a91c985175f05b"
+    },
+    "scripts/update/capacity.py": {
+      "bytes": 1449,
+      "sha256": "dcb9899cd24daa21f75e6da6b0214393f093d140a70769092da091e0cfdf7c87"
+    },
+    "scripts/update/disposable_copy.py": {
+      "bytes": 6098,
+      "sha256": "fb05d12a0d67a598cc940e0bc7edb5aa9ffc8cf87ce7b9f695ba5fbd26747667"
+    },
+    "scripts/update/full_root.py": {
+      "bytes": 35970,
+      "sha256": "cece1c597b2e2eb98b0e3087cc7e7c148b54332f8a1c4f18e04e4552a71fb51d"
+    },
+    "scripts/update/measure_copy.py": {
+      "bytes": 25734,
+      "sha256": "e582245bd114b0b9d83f2de4fdc81a35d2f48493ba6147879871af794476813b"
+    },
+    "scripts/update/root_link_selection.py": {
+      "bytes": 25684,
+      "sha256": "4b47223e9c66874193c2b38a620aa892871e93e556178c478dac1929d2540db9"
+    },
+    "scripts/update/root_path.py": {
+      "bytes": 3435,
+      "sha256": "2efcbc1057e117a406488f05a3e0213751b00ab09f845a7830a71a4cf60fd2b4"
+    },
+    "scripts/update/supervision.py": {
+      "bytes": 3293,
+      "sha256": "f18bcbd2a6279cff8fe6c7e9c9f80fc01c9818844b01df8c4e97b83d61704b10"
+    },
+    "scripts/virtual/generic16k/fetch_inputs.py": {
+      "bytes": 7768,
+      "sha256": "212a0a9efc7c386158526ce40683a3646a899a9c7fd2c3140d6e24a02d778043"
+    },
+    "scripts/virtual/generic16k/inputs.json": {
+      "bytes": 1057,
+      "sha256": "bdfa44ed1d017c0d0e15c1f3af87bdf4a91923c20e812c861ca522d2cf428492"
+    }
+  },
+  "schema_version": 1
+}

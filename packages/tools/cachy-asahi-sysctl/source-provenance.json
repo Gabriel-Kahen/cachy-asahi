@@ -1,0 +1,16 @@
+{
+  "files": {
+    "LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "cachy-asahi-sysctl": {
+      "bytes": 12547,
+      "sha256": "48f43f1ccd7b0c70205ddc0cf5b0da60766b25d1181fbc56447722fcff9a5dd0"
+    }
+  },
+  "implementation": "ORIGINAL_PROJECT_SOURCE",
+  "license": "MIT",
+  "schema_version": 1,
+  "scope": "NAMED_SINGLE_KEY_RUNTIME_EXPERIMENT_NO_PRESET_OR_PLATFORM_ACCEPTANCE"
+}

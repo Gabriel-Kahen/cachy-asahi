@@ -1,0 +1,150 @@
+name: native-arm-welcome-managed-gui
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact 40-character source SHA, equal to this workflow revision
+        type: string
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: native-arm-build
+  cancel-in-progress: false
+jobs:
+  native:
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi'
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 90
+    defaults:
+      run:
+        shell: bash
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      SOURCE_SHA: ${{ inputs.source_sha }}
+      SLICE: scripts/ci/welcome-managed-gui
+      WELCOME_GUI_ASSETS: ${{ github.workspace }}/native-product-inputs
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: ${{ inputs.source_sha }}
+          persist-credentials: false
+      - name: Prove the explicit source and workflow revision before secrets
+        id: proof
+        timeout-minutes: 2
+        run: |
+          set -euo pipefail
+          printf '%s  %s\n' '71ca3ff1d56ba002f4cf129195f5381c0e8fcdef8cbc5db655f53221c6865cf7' "$SLICE/ci/caller.py" 'd12d829b54b82efd0123c8b4eb086eeb4e1a761021fa8ea0c6bad17800feeb12' "$SLICE/ci/source-manifest.json" | sha256sum --check
+          python3 -I -B "$SLICE/ci/caller.py" proof --workspace "$GITHUB_WORKSPACE" --manifest "$SLICE/ci/source-manifest.json" --proof "$RUNNER_TEMP/welcome-gui-source-proof.json"
+      - name: Checkout only the exact native product input source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: 8a38b3fd5963e61fc94707dd87e5dcd626a518a3
+          path: native-product-inputs
+          persist-credentials: false
+      - name: Focused source and hosted entry controls
+        timeout-minutes: 3
+        run: |
+          set -euo pipefail
+          python3 -I -B scripts/ci/test_maintained_desktop574.py
+          python3 -B -m unittest discover -s "$SLICE" -p test_gui.py
+          python3 -B -m unittest discover -s "$SLICE" -p test_phase.py
+          python3 -B -m unittest discover -s "$SLICE" -p test_doctor_worker.py
+          python3 -B -m unittest discover -s "$SLICE" -p test_compositor_log.py
+          python3 -B -m unittest discover -s "$SLICE/ci" -p test_caller.py
+      - name: Prepare and prove the exact separate runner without native actors
+        timeout-minutes: 2
+        run: |
+          set -euo pipefail
+          python3 -B "$SLICE/prepare.py" --source "$GITHUB_WORKSPACE" --assets "$WELCOME_GUI_ASSETS" --output "$RUNNER_TEMP/welcome-gui-runner"
+          python3 -I -B "$SLICE/ci/caller.py" stage --workspace "$RUNNER_TEMP/welcome-gui-runner" --manifest "$SLICE/ci/source-manifest.json" --proof "$RUNNER_TEMP/welcome-gui-source-proof.json"
+          python3 -B "$RUNNER_TEMP/welcome-gui-runner/test_desktop574_runtime.py"
+          bash -n "$RUNNER_TEMP/welcome-gui-runner/desktop574_fixture.sh"
+      - name: Seed the six exact retained inputs using existing secrets only
+        timeout-minutes: 2
+        env:
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01 }}
+          CACHY_OLD_FOUR_SCHEMA: '1'
+          CACHY_OLD_FOUR_SOURCE_EPOCH: '1791748800'
+          CACHY_OLD_FOUR_JBIGKIT_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_01 }}
+          CACHY_OLD_FOUR_JBIGKIT_02: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_02 }}
+          CACHY_OLD_FOUR_JBIGKIT_SIG_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_SIG_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_02: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_02 }}
+          CACHY_OLD_FOUR_LIBTIFF_03: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_03 }}
+          CACHY_OLD_FOUR_LIBTIFF_04: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_04 }}
+          CACHY_OLD_FOUR_LIBTIFF_05: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_05 }}
+          CACHY_OLD_FOUR_LIBTIFF_06: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_06 }}
+          CACHY_OLD_FOUR_LIBTIFF_07: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_07 }}
+          CACHY_OLD_FOUR_LIBTIFF_08: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_08 }}
+          CACHY_OLD_FOUR_LIBTIFF_09: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_09 }}
+          CACHY_OLD_FOUR_LIBTIFF_10: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_10 }}
+          CACHY_OLD_FOUR_LIBTIFF_11: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_11 }}
+          CACHY_OLD_FOUR_LIBTIFF_12: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_12 }}
+          CACHY_OLD_FOUR_LIBTIFF_13: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_13 }}
+          CACHY_OLD_FOUR_LIBTIFF_14: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_14 }}
+          CACHY_OLD_FOUR_LIBTIFF_15: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_15 }}
+          CACHY_OLD_FOUR_LIBTIFF_SIG_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_SIG_01 }}
+        run: >-
+          python3 -I -B scripts/ci/maintained_desktop574.py seed
+          --inputs scripts/ci/maintained-desktop574-inputs.json
+          --output "$RUNNER_TEMP/desktop574"
+      - name: Checkout exact retained public input source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: 04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd
+          path: retained-public-inputs
+          persist-credentials: false
+      - name: Seed fourteen exact public ARM input files
+        timeout-minutes: 2
+        run: |
+          set -euo pipefail
+          printf '%s  %s\n' 'a7857658af224984065e575f6ffed8308ea85027d46eace8bda146d9033e93b3' 'retained-public-inputs/seed.py' 'a388c8c8ba8e06cb92fd2be598b86e433c4e403b6e71a0f15b1eaec381bb7300' 'retained-public-inputs/index.json' | sha256sum --check
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC TMPDIR="$RUNNER_TEMP" python3 -I -B "$GITHUB_WORKSPACE/retained-public-inputs/seed.py" --cache "$RUNNER_TEMP/desktop574/context/deps"
+      - name: Reconstruct pinned inputs and run offline owned native574 transaction
+        timeout-minutes: 40
+        env:
+          JOB_TOKEN: ${{ steps.proof.outputs.job_token }}
+        run: >-
+          timeout --signal=TERM --kill-after=10s 2300s
+          python3 -I -B scripts/ci/maintained_desktop574.py build
+          --inputs scripts/ci/maintained-desktop574-inputs.json
+          --output "$RUNNER_TEMP/desktop574" --job-token "$JOB_TOKEN"
+      - name: Native installed Welcome GUI and Doctor report trial
+        timeout-minutes: 35
+        run: >-
+          timeout --signal=TERM --kill-after=30s 2050s
+          python3 -B "$RUNNER_TEMP/welcome-gui-runner/desktop574_runtime.py"
+          --source "$GITHUB_WORKSPACE" --base-dir "$RUNNER_TEMP/desktop574"
+          --output "$RUNNER_TEMP/welcome-gui-runtime"
+      - name: Retire the original owned builder after every consumer
+        if: always() && steps.proof.outcome == 'success'
+        timeout-minutes: 3
+        env:
+          JOB_TOKEN: ${{ steps.proof.outputs.job_token }}
+        run: |
+          set -euo pipefail
+          if [ -f "$RUNNER_TEMP/desktop574/report.json" ]; then
+            timeout --signal=TERM --kill-after=10s 120s python3 -I -B scripts/ci/maintained_desktop574.py cleanup --inputs scripts/ci/maintained-desktop574-inputs.json --output "$RUNNER_TEMP/desktop574" --job-token "$JOB_TOKEN"
+          fi
+      - name: Retain bounded GUI evidence and fourteen QMP captures
+        if: always() && steps.proof.outcome == 'success'
+        timeout-minutes: 2
+        run: |
+          set -euo pipefail
+          printf '%s  %s\n' '71ca3ff1d56ba002f4cf129195f5381c0e8fcdef8cbc5db655f53221c6865cf7' "$SLICE/ci/caller.py" | sha256sum --check
+          python3 -I -B "$SLICE/ci/caller.py" retain --proof "$RUNNER_TEMP/welcome-gui-source-proof.json" --base "$RUNNER_TEMP/desktop574" --runtime "$RUNNER_TEMP/welcome-gui-runtime" --output "$RUNNER_TEMP/welcome-gui-public"
+      - name: Upload only the bounded public evidence directory
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        timeout-minutes: 2
+        with:
+          name: welcome-managed-gui-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 3
+          if-no-files-found: ignore
+          path: ${{ runner.temp }}/welcome-gui-public/

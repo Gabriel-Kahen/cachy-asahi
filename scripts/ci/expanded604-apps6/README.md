@@ -1,0 +1,22 @@
+# Apps6-only next current604 composition
+
+This separate manual native lane selects Apps0.1.0-6 instead of0.1.0-5. The other603 package versions and original587 baseline are unchanged. Target lock SHA256 is7bc6caa51301bf076aeda4d137277a128c53a16e5bfd25f02e7309c4b3a408c3. Historical current6043f64 inputs/results and their source modules remain unchanged. New604 native/fresh/update/managed16K acceptance is UNBOUND; Apps6's accepted native component result alone cannot authorize them.
+
+prepare.py emits a finite counted derivative of the source-pinned current604 seven modules and its manual owner workflow. It is a source overlay for the complete repository already containing exact Apps6 product sources, not an independently complete repository checkout. It preserves the original native574 producer, six604 lifecycle checkpoints/eight raw ldconfig states,19 incoming archives/17 additions/two original baseline upgrades, full dependency/signature/payload/ownership/config/user/source/auxiliary checks,6600s owner/1800s consumer,220min workflow/115min step/6660s wrapper, six capabilities/NNP/offline/resource bounds,64MiB public retention and ordered consumer/cache/producer cleanup. Installed shell integration remains byte-identical. Only finite input plumbing, Apps selection/target/result identities change.
+
+New inputs add --apps6-source PUBLIC_CARRIER/payload and --apps6-native-source EXACT_ec135_CHECKOUT to the existing six public carriers and six audio inputs. The immutable native checkout must beec135f26326158591e6d25d5f670083d5306b071; all87 original source operands and complete84-row source manifest are checked. Carrier SHA/index remain Root-bound policy data. Policy refuses before secrets/actors until Root sets status ROOT_BOUND_APPS6_CURRENT604_NATIVE_INPUTS and apps6 to the materializer's complete binding with an actual immutable carrier SHA. The packet index never claims its own future Git SHA.
+
+The Apps6 packet is exactly the216 public members from accepted39029873349, five original API/ZIP records, exact Root decision106d47fb1de4df5646c42d3b1ab95754ea2cd0871164d24f23425259166ab3c5 and index.json:223 files,2337537B. Original artifact/log SHA pins and native run/source remain exact; data is never executed. The gate rechecks ordinary bounded path/ref closure, original ZIP/public retention/source proof, native84+2workflow+manifest source joins, original installed/repair authority and five raw worker/plan joins, package pair/BUILDINFO/check/source/license/payload and cleanup. Only Apps6 is injected; the old four-tool packet is still fully validated before omitting its historical Apps5 and Orphans1 selections. Existing current Welcome4/Orphans2 authority supplies Orphans2 unchanged; Runtime/Cache stay original packets.
+
+Portable preparation (caller supplies complete current source, exact original inputs and native frozen source):
+
+    python3 -B scripts/ci/expanded604-apps6/prepare.py --repo /ordinary/held-source --output /ordinary/fresh-source-overlay
+    python3 -B scripts/ci/expanded604-apps6/prepare.py --action packet --repo /ordinary/apps6-repository --actual /ordinary/39029873349-originals --decision /ordinary/root-decision.json --native-source /ordinary/ec135-frozen-source --output /ordinary/fresh-payload
+
+The packet assembler returns its index pin and a binding with carrier_source null. Root owns final packet staging/publication/binding, source freeze and dispatch. After binding policy.json, re-emit to regenerate input-policy.json, source-manifest.json and workflow source stamps together; adopt the new namespace/workflow into the full Apps6 repository before freezing its actual source.
+
+    APPS6_HELD_SOURCE=/ordinary/held-source python3 -I -B scripts/ci/expanded604-apps6/test_lane.py
+
+Eight mandatory source/refusal controls run without Docker/Git/network/signing. Historical source drift or ambiguous anchors refuse before emission. The real retained223-file packet gate was additionally run with subprocess.Popen blocked; that is passive data validation, not a new native604 result.
+
+hooks.json explicitly leaves fresh and Apps5→Apps6 update UNBOUND. Separate fresh/updater successors must require this lane's new native decision, then a new fresh decision for updates; they must keep603 held packages and existing fault/cleanup guards. No old current604 pass transfers. Generic native development software only; no M2 hardware, production trust, stable release or full574 corrupted-node repair claim.

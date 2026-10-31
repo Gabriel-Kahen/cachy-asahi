@@ -1,0 +1,91 @@
+{
+  "name": "latest607-updater-tooling-source",
+  "on": {
+    "push": {
+      "paths": [
+        "scripts/ci/latest607-updater-tooling-source/**",
+        ".github/workflows/latest607-updater-tooling-source.yml"
+      ]
+    },
+    "pull_request": {
+      "paths": [
+        "scripts/ci/latest607-updater-tooling-source/**",
+        ".github/workflows/latest607-updater-tooling-source.yml"
+      ]
+    },
+    "workflow_dispatch": {}
+  },
+  "permissions": {
+    "contents": "read"
+  },
+  "jobs": {
+    "source-controls": {
+      "runs-on": "ubuntu-24.04",
+      "timeout-minutes": 10,
+      "strategy": {
+        "fail-fast": false,
+        "matrix": {
+          "python": [
+            "3.12",
+            "3.14"
+          ]
+        }
+      },
+      "env": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONWARNINGS": "error"
+      },
+      "steps": [
+        {
+          "name": "Check out maintained portable factory",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Check out exact public parent",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "repository": "Gabriel-Kahen/cachy-asahi",
+            "ref": "514446620daea7133de1b215202b41c895edef28",
+            "path": ".ci-fixtures/parent",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Check out exact public expected",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "repository": "Gabriel-Kahen/cachy-asahi",
+            "ref": "3b8ca255d90f0b4b0be18639a4b754da8c7aa969",
+            "path": ".ci-fixtures/expected",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Check out exact public fresh",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "repository": "Gabriel-Kahen/cachy-asahi",
+            "ref": "b9976eea34eaed4b6e56af3be21d4d652fa971d6",
+            "path": ".ci-fixtures/fresh",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Select explicit Python",
+          "uses": "actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+          "with": {
+            "python-version": "${{ matrix.python }}"
+          }
+        },
+        {
+          "name": "Exact357 factory, whole inverses and isolated current1197 source namespace",
+          "shell": "bash",
+          "run": "set -euo pipefail\nstage=$(mktemp -d \"$RUNNER_TEMP/updater357.XXXXXXXX\")\ntrap 'rm -rf -- \"$stage\"' EXIT\nexport TMPDIR=\"$stage\"\nmkdir \"$stage/parent\"\ngit -C \"$GITHUB_WORKSPACE/.ci-fixtures/parent\" archive --format=tar 514446620daea7133de1b215202b41c895edef28 | tar -xf - -C \"$stage/parent\"\nexport UPDATER_TOOLING_PARENT=\"$stage/parent\"\nmkdir \"$stage/expected\"\ngit -C \"$GITHUB_WORKSPACE/.ci-fixtures/expected\" archive --format=tar 3b8ca255d90f0b4b0be18639a4b754da8c7aa969 | tar -xf - -C \"$stage/expected\"\nexport UPDATER_TOOLING_EXPECTED=\"$stage/expected\"\nmkdir \"$stage/fresh\"\ngit -C \"$GITHUB_WORKSPACE/.ci-fixtures/fresh\" archive --format=tar b9976eea34eaed4b6e56af3be21d4d652fa971d6 | tar -xf - -C \"$stage/fresh\"\nexport UPDATER_TOOLING_FRESH=\"$stage/fresh\"\nexport UPDATER_TOOLING_SOURCE=\"$stage/source\"\npython3 -I -B -Werror scripts/ci/latest607-updater-tooling-source/prepare.py --parent \"$UPDATER_TOOLING_PARENT\" --fresh \"$UPDATER_TOOLING_FRESH\" --output \"$UPDATER_TOOLING_SOURCE\" --context known > \"$stage/source-receipt.json\"\ntimeout 180s python3 -I -B -Werror scripts/ci/latest607-updater-tooling-source/test_source.py\n"
+        }
+      ]
+    }
+  }
+}

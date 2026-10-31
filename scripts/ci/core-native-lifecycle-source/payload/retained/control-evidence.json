@@ -1,0 +1,77 @@
+{
+  "actual": null,
+  "cli_positive": "PROOF_AND_COPY_MOCKED_ROUTING_ONLY",
+  "native": "NOT_RUN",
+  "real_copy_and_Git": "PRIOR_RELEASED_CONTROLS_REUSED_NO_RERUN",
+  "references": {
+    "artifacts/development/core376-native248-cache-development-20261021/archive-prefill-env-final/real-environment-control.json": {
+      "bytes": 476,
+      "sha256": "c92225bb83837eebde8fc301ae833a0ac2a6341eaccea23ff39351b7b985e699"
+    },
+    "artifacts/development/core376-native248-cache-development-20261021/carrier574-freeze.json": {
+      "bytes": 197468,
+      "sha256": "e6bd297b466da29448a5ff122a84c59b415e3afab021f4d5cbfdc5ec9f19fd3e"
+    },
+    "artifacts/development/core376-native248-cache-development-20261021/current-signatures574.json": {
+      "bytes": 556397,
+      "sha256": "d168f265bcd6a567d136923cf5b1a4e95292d3399e8a1b3b16bfd4269d73bb5f"
+    },
+    "artifacts/development/core376-native248-cache-development-20261021/full574-mode-controls.stderr": {
+      "bytes": 653,
+      "sha256": "47ae4efdf386455bf812b212e4f2ece3dc3e2f9ed0433e361909d7aef58307f5"
+    },
+    "artifacts/development/core376-native248-cache-development-20261021/maintained-adoption/cli-controls.stderr": {
+      "bytes": 607,
+      "sha256": "7eb8f42fd1c3701e7a23b7bc6b880e85738af22152a32d5fd71f715f807addc8"
+    },
+    "artifacts/development/core376-native248-cache-development-20261021/maintained-adoption/cli-controls.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "artifacts/development/core376-native248-cache-development-20261021/maintained-adoption/controls.stderr": {
+      "bytes": 560,
+      "sha256": "fd54785dee896720e8039f0ffe1d0622e6bbc712210847c237f7e5dab5b9f199"
+    },
+    "artifacts/development/core376-native248-cache-development-20261021/maintained-adoption/profile-and-union-validation.json": {
+      "bytes": 534,
+      "sha256": "e313708ef33ac571a348d5b6a4cddfad1ea6ec6acfa0bb08459b3aed4e5185a4"
+    },
+    "artifacts/development/core376-native248-cache-development-20261021/maintained-adoption/test_cli.py": {
+      "bytes": 4391,
+      "sha256": "138b96b8e2ecd47f91d63d286d0c3fd8ed893f057944fa2edf8eefd9b27c34aa"
+    },
+    "artifacts/development/core376-native248-cache-development-20261021/original-package-metadata574.json": {
+      "bytes": 13019931,
+      "sha256": "dadc3dd94a852889b70095d33f44d7177024faf58d6ccdff1fdcc3089df53957"
+    },
+    "artifacts/development/core376-native248-cache-development-20261021/real574-core80-cache-control.json": {
+      "bytes": 232,
+      "sha256": "15c5f059adcfe8390aff9756e15a8b9e88e2eb7371daaaf4b2a8a8193daf92be"
+    },
+    "artifacts/development/core376-native248-cache-development-20261021/real574-two-mode-cache-control.json": {
+      "bytes": 227,
+      "sha256": "47555f7440bffd9a8c2ea9b55066d27163d1a76eab38247bfd904fa9440e177e"
+    },
+    "artifacts/development/current607-native-base-failure-development-20261021/early-legacy-prefill/compiler6-freeze.json": {
+      "bytes": 762,
+      "sha256": "4dbf189d146ac665075a696c0daeefec9aa053a8815bae5a4308b4a2aa03c0c8"
+    },
+    "artifacts/development/current607-native-base-failure-development-20261021/early-legacy-prefill/helper-freeze.json": {
+      "bytes": 890,
+      "sha256": "3c1d13ee2ce871d90ce159c60e220ce0fa3233ce433cb0aa2b09f2aed936a8ef"
+    },
+    "artifacts/development/current607-native-base-failure-development-20261021/maintained-prefill-adoption/control-results.json": {
+      "bytes": 116,
+      "sha256": "03127788076cf96aca005f2bdeabcc56f35903c31833bf31fee1c3d25acf8499"
+    },
+    "artifacts/development/current607-native-base-failure-development-20261021/maintained-prefill-adoption/controls.stderr": {
+      "bytes": 800,
+      "sha256": "fe083c35e40ba3dd33528319e613c8fedb78e818a34bfb9c1d70b73a91866df6"
+    },
+    "artifacts/development/current607-native-base-failure-development-20261021/maintained-prefill-adoption/real-controls.json": {
+      "bytes": 1777,
+      "sha256": "9a3ad9187fd1570fc88fbd50ce9b61ea788ce7c53f1449321803f264800a7d7e"
+    }
+  },
+  "status": "REUSED_FROZEN_REAL_CONTROLS_PLUS_NARROW_CLI_ROUTING_AND_REFUSALS"
+}

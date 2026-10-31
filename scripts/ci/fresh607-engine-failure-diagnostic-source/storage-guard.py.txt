@@ -1,0 +1,97 @@
+# SPDX-License-Identifier: MIT
+"""Complete current source seal and exact public0db934 inverse; no actual replay."""
+import importlib.util,json,stat,sys,tempfile
+from pathlib import Path
+import common as C
+CONTEXT_SHA='@STORAGE_CONTEXT_SHA@'
+ALIASES=('.github/workflows/native-arm-build.yml','.github/workflows/native-arm-latest607-fresh-installer.yml')
+ADDED={'implementation/storage_source.py','implementation/storage-parent.json','implementation/test_storage.py'}
+CONTROL_BEFORE='          python3 -I -B fresh607-code/implementation/test_page_mode.py\n'
+CONTROL_AFTER=CONTROL_BEFORE+'          python3 -I -B fresh607-code/implementation/test_storage.py\n'
+
+def one(raw,before,after):
+ before,after=(v.encode()if type(v)is str else v for v in(before,after))
+ C.need(before and raw.count(before)==1,'one exact storage inverse seam');return raw.replace(before,after,1)
+
+def with_storage_workflow(raw):return one(raw,CONTROL_BEFORE,CONTROL_AFTER)
+
+def scan(root):
+ values={};state={};directories={''}
+ for path in sorted(root.rglob('*')):
+  name=path.relative_to(root).as_posix()
+  if '.git'==Path(name).parts[0]:continue
+  C.need(not path.is_symlink(),'ordinary storage source namespace')
+  if path.is_dir():directories.add(name);continue
+  values[name]=C.read(path);info=path.lstat()
+  C.need(stat.S_IMODE(info.st_mode)==0o644,'exact source0644 file mode')
+  state[name]=(info.st_dev,info.st_ino,info.st_mode,info.st_nlink,info.st_size,info.st_mtime_ns,info.st_ctime_ns)
+ wanted={''}
+ for name in values:wanted.update(''if parent==Path('.')else parent.as_posix()for parent in Path(name).parents)
+ C.need(directories==wanted,'closed storage source directory membership')
+ return values,state
+
+def context(values):
+ raw=values['implementation/storage-parent.json'];C.need(C.pin(raw)['sha256']==CONTEXT_SHA,'whole pinned storage context');p=json.loads(raw)
+ C.need(p['schema_version']==1 and p['source']=='0db9341521b5cb5d9022715b5ba638b3e4018462'and len(p['files'])==1203,'exact public0db934 source parent')
+ C.need(p['publication']['source']==p['git']['source']==p['source']and p['publication']['ref']==p['git']['ref']==p['ref']and
+        p['publication']['files']==p['publication']['git_joins']==1203 and p['git']['files']==p['files']and
+        p['git']['status']=='PASS_INDEPENDENT_FULL_GIT_BLOB_JOIN','whole original0db publication and Git source joins')
+ C.need(p['scope']=='FRESH607_TARGET_ALLOCATION_ADMISSION_ORIGINAL512M_AND10000_MARGINS'and all(p[k]is None for k in('actual_source','actual_ref','actual_run','Root_acceptance')),'source-only storage scope')
+ guard=one(values['implementation/storage_source.py'],CONTEXT_SHA,'@STORAGE_'+'CONTEXT_SHA@')
+ C.need(C.pin(guard)==p['guard_template'],'exact storage guard self template')
+ C.need(set(values)==set(p['files'])|ADDED,'complete1206 storage successor namespace')
+ C.need({n:C.pin(values[n])for n in p['products']}==p['products'],'all finite changed products and focused controls pinned')
+ manifest=json.loads(values['source-manifest.json'])
+ C.need(manifest['files']=={n:C.pin(b)for n,b in values.items()if n not in('source-manifest.json',*ALIASES)},'complete current source manifest')
+ for name in ALIASES:
+  C.need(values[name]==values['implementation/workflow-template.yml'].replace(b'@FRESH607_MANIFEST@',C.pin(values['source-manifest.json'])['sha256'].encode(),1),'current workflow aliases and manifest seal')
+ for name in set(p['files'])-set(p['changed']):C.need(C.pin(values[name])==p['files'][name],'whole held storage ancestor '+name)
+ profile=json.loads(values['implementation/profile.json'])
+ C.need(profile['storage_admission']==p['profile']and profile['clocks']==p['clocks'],'bound capacity fields and unchanged clocks')
+ return p
+
+def before_files(values=None):
+ if values is None:values,_=scan(C.ROOT)
+ p=context(values);before={n:values[n]for n in p['files']}
+ before['parent604/installer.py']=one(one(before['parent604/installer.py'],p['helper'],''),p['capacity_after'],p['capacity_before'])
+ row=json.loads(before['parent604-map.json']);row['installer.py']=p['files']['parent604/installer.py'];before['parent604-map.json']=C.enc(row)
+ for name,edits in p['edits'].items():
+  for old,new in reversed(edits):before[name]=one(before[name],new,old)
+ profile=json.loads(before['implementation/profile.json']);C.need(profile.pop('storage_admission')==p['profile'],'closed storage profile inverse');before['implementation/profile.json']=C.enc(profile)
+ manifest=json.loads(before['source-manifest.json']);manifest['files']={n:w for n,w in p['files'].items()if n not in('source-manifest.json',*ALIASES)};before['source-manifest.json']=C.enc(manifest)
+ for name in ALIASES:before[name]=before['implementation/workflow-template.yml'].replace(b'@FRESH607_MANIFEST@',C.pin(before['source-manifest.json'])['sha256'].encode(),1)
+ C.need({n:C.pin(b)for n,b in before.items()}==p['files'],'ENTIRE exact public0db9341203 before inverse')
+ return before
+
+def verify():
+ values,state=scan(C.ROOT);p=context(values);before=before_files(values)
+ import adapter,page_mode
+ emitted={}
+ for name in adapter.NAMES:
+  raw,ledger=adapter.transform(values['parent604/'+name],name)
+  C.need(ledger['whole_inverse'],'whole current607 runtime operand inverse')
+  emitted[name]=raw
+  page_mode.transform(raw,name)
+ C.need(C.pin(emitted['installer.py'])==p['emitted4k'],'exact emitted4K storage installer')
+ C.need(C.pin(page_mode.transform(emitted['installer.py'],'installer.py'))==p['emitted16k'],'exact emitted16K storage installer with held ABI operands')
+ # Execute the unchanged complete parent's SOURCE guard only as mandatory
+ # ancestry of this current entry. No historical actual/collector is invoked.
+ saved,paths=dict(sys.modules),list(sys.path)
+ with tempfile.TemporaryDirectory(prefix='fresh607-storage-whole0db-')as folder:
+  root=Path(folder)/'source';root.mkdir(mode=0o700)
+  for name,raw in before.items():
+   target=root/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(raw);target.chmod(0o644)
+  try:
+   for name in{q.stem for q in(root/'implementation').glob('*.py')}:sys.modules.pop(name,None)
+   sys.path.insert(0,str(root/'implementation'))
+   spec=importlib.util.spec_from_file_location('source_guard',root/'implementation/source_guard.py');guard=importlib.util.module_from_spec(spec);sys.modules['source_guard']=guard;spec.loader.exec_module(guard)
+   fact=guard.verify();C.need(fact['files']==1203 and fact['default']=='generic4k'and fact['optional']=='generic16k','complete original0db SOURCE guard with all older inverses')
+  finally:
+   sys.path[:]=paths
+   for name in set(sys.modules)-set(saved):sys.modules.pop(name,None)
+   sys.modules.update(saved)
+  C.need({name:C.pin(C.read(root/name))for name in before}==p['files'],'private whole0db before source preserved')
+ C.need(scan(C.ROOT)==(values,state),'current storage source bytes identities and namespace preserved')
+ return dict(status='PASS_SOURCE_ONLY_FRESH607_ALLOCATION_ADMISSION_WHOLE0DB_INVERSE',files=len(values),parent_files=1203,
+  parent_source=p['source'],parent_proof=fact,default='generic4k',optional='generic16k',capacity_fields=p['profile']['fields'],
+  native='NOT_RUN',hardware='NOT_RUN',generic16k_fit='NOT_ESTABLISHED',actual_source=None,actual_ref=None,actual_run=None,Root_acceptance=None)

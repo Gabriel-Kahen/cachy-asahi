@@ -6,6 +6,11 @@ on:
         description: Exact 40-character source SHA, equal to this workflow revision
         type: string
         required: true
+      trace_waybar:
+        description: Enable diagnostic G_DBUS_DEBUG=call for Waybar only
+        type: boolean
+        required: false
+        default: false
 permissions:
   contents: read
 concurrency:
@@ -34,7 +39,7 @@ jobs:
         timeout-minutes: 2
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '8f2fcb60ce0a0bffd4112b5d1fb95615a0cc155e71dc387dc90449b650f12eba' "$SLICE/ci/caller.py" '43610e78a8c6842902ec1e22cea28b908051ae23508efed420ed95fed70caca3' "$SLICE/ci/source-manifest.json" | sha256sum --check
+          printf '%s  %s\n' 'dd0f7585be38abab4f1226ef51d729135b1b7c7c33f257e907ca0e3462af58cf' "$SLICE/ci/caller.py" 'ec38b5e6ba96454212344dae30c9d304c8d84c9e01a6b76420be2cb1c77dada1' "$SLICE/ci/source-manifest.json" | sha256sum --check
           python3 -I -B "$SLICE/ci/caller.py" proof --workspace "$GITHUB_WORKSPACE" --manifest "$SLICE/ci/source-manifest.json" --proof "$RUNNER_TEMP/bar-notification-source-proof.json"
       - name: Focused source and hosted entry controls
         timeout-minutes: 3
@@ -42,7 +47,7 @@ jobs:
           set -euo pipefail
           python3 -I -B scripts/ci/test_maintained_desktop574.py
           python3 -I -B scripts/ci/test_desktop574_guest.py
-          python3 -B -m unittest discover -s "$SLICE" -p test_slice.py
+          python3 -B -m unittest discover -s "$SLICE" -p 'test_*.py'
           python3 -B -m unittest discover -s "$SLICE/ci" -p test_caller.py
       - name: Prepare and prove the exact separate runner without native actors
         timeout-minutes: 2
@@ -107,11 +112,20 @@ jobs:
           --output "$RUNNER_TEMP/desktop574" --job-token "$JOB_TOKEN"
       - name: Native optional bar and notification generic ARM session
         timeout-minutes: 35
-        run: >-
-          timeout --signal=TERM --kill-after=30s 2050s
-          python3 -B "$RUNNER_TEMP/bar-notification-runner/desktop574_runtime.py"
-          --source "$GITHUB_WORKSPACE" --base-dir "$RUNNER_TEMP/desktop574"
-          --output "$RUNNER_TEMP/bar-notification-runtime"
+        env:
+          WAYBAR_TRACE: ${{ inputs.trace_waybar }}
+        run: |
+          set -euo pipefail
+          trace_args=()
+          case "${WAYBAR_TRACE:-false}" in
+            false) ;;
+            true) trace_args=(--trace-waybar) ;;
+            *) exit 2 ;;
+          esac
+          timeout --signal=TERM --kill-after=30s 2050s \
+            python3 -B "$RUNNER_TEMP/bar-notification-runner/desktop574_runtime.py" \
+            --source "$GITHUB_WORKSPACE" --base-dir "$RUNNER_TEMP/desktop574" \
+            --output "$RUNNER_TEMP/bar-notification-runtime" "${trace_args[@]}"
       - name: Retire the original owned builder after every consumer
         if: always() && steps.proof.outcome == 'success'
         timeout-minutes: 3
@@ -127,7 +141,7 @@ jobs:
         timeout-minutes: 2
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '8f2fcb60ce0a0bffd4112b5d1fb95615a0cc155e71dc387dc90449b650f12eba' "$SLICE/ci/caller.py" | sha256sum --check
+          printf '%s  %s\n' 'dd0f7585be38abab4f1226ef51d729135b1b7c7c33f257e907ca0e3462af58cf' "$SLICE/ci/caller.py" | sha256sum --check
           python3 -I -B "$SLICE/ci/caller.py" retain --proof "$RUNNER_TEMP/bar-notification-source-proof.json" --base "$RUNNER_TEMP/desktop574" --runtime "$RUNNER_TEMP/bar-notification-runtime" --output "$RUNNER_TEMP/bar-notification-public"
       - name: Upload only the bounded public evidence directory
         if: always()

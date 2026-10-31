@@ -1,0 +1,172 @@
+{
+  "archive_date": "2026/10/13",
+  "archive_host": "pkgmirror.sametimetomorrow.net",
+  "files": {
+    "avahi-1:0.9rc5-1-aarch64.pkg.tar.xz": {
+      "bytes": 413888,
+      "sha256": "cc5397663792b8a6aeeb8879d44020e21f7dc8f3889e4bcab25cb976b0033481",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/avahi-1:0.9rc5-1-aarch64.pkg.tar.xz"
+    },
+    "avahi-1:0.9rc5-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "764a6b9ba1ac7ea6c72b6515645115e60b27b1029ac8205cfebfaeeb135f2612",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/avahi-1:0.9rc5-1-aarch64.pkg.tar.xz.sig"
+    },
+    "benchmark-1.9.5-2-aarch64.pkg.tar.xz": {
+      "bytes": 222384,
+      "sha256": "710ab192abd501f2783bfb665377d0c3324a7619763a8b2afda0d69bc8798b96",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/benchmark-1.9.5-2-aarch64.pkg.tar.xz"
+    },
+    "benchmark-1.9.5-2-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "19836d4c54a9eba85ba1dfccfb843b218b93d7b92a1d5f189e5aa2272965aecb",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/benchmark-1.9.5-2-aarch64.pkg.tar.xz.sig"
+    },
+    "firefox-157.0.1-1-aarch64.pkg.tar.xz": {
+      "bytes": 71849756,
+      "sha256": "d142fdb8a339a65eca7cea6a2bba5b29202386166abd9d59851d6757c9eb2163",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/firefox-157.0.1-1-aarch64.pkg.tar.xz"
+    },
+    "firefox-157.0.1-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "ffb27cc69685248ecb9870e0b6f1c2e1bd7d9fe11b4ec4f257627e2037e2a808",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/firefox-157.0.1-1-aarch64.pkg.tar.xz.sig"
+    },
+    "freetype2-2.14.3-1-aarch64.pkg.tar.xz": {
+      "bytes": 487400,
+      "sha256": "080b6aa7827298e5b92800229d76689e0dbff08cd96690ae75e8feedf6a9ae5d",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/freetype2-2.14.3-1-aarch64.pkg.tar.xz"
+    },
+    "freetype2-2.14.3-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "2b7e1428b25300e635cfa8d6a58695f1c4c3f36feb2ddebd7e27a912aab2d7f2",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/freetype2-2.14.3-1-aarch64.pkg.tar.xz.sig"
+    },
+    "glycin-2.2.2-1-aarch64.pkg.tar.xz": {
+      "bytes": 3718772,
+      "sha256": "6d8739db5a24a0319b170912ff04b5e000ff5b7e9cf3561c4fcee977c6362dc2",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/glycin-2.2.2-1-aarch64.pkg.tar.xz"
+    },
+    "glycin-2.2.2-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "66f23d924d7d88f195dd0accab839efada2cd9d5512da5da5582f61fa4fc71e2",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/glycin-2.2.2-1-aarch64.pkg.tar.xz.sig"
+    },
+    "libcolord-1.4.8-1-aarch64.pkg.tar.xz": {
+      "bytes": 169748,
+      "sha256": "79b5775b226ec0974454621e527094f0d59e7e5017b2c31c07871354de8fda0f",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/libcolord-1.4.8-1-aarch64.pkg.tar.xz"
+    },
+    "libcolord-1.4.8-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "db3ec2b86c8727ed215866e3ca4a5c1f0de2257fb76fa4a7f0758930c4c841d6",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/libcolord-1.4.8-1-aarch64.pkg.tar.xz.sig"
+    },
+    "libnotify-0.8.8-1-aarch64.pkg.tar.xz": {
+      "bytes": 38660,
+      "sha256": "4dadb77971d9bdae90afc13582983fafd410f05c14ccf2a6b37f00872adbee66",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/libnotify-0.8.8-1-aarch64.pkg.tar.xz"
+    },
+    "libnotify-0.8.8-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "b9856da23c07eeae5275376824713e11e8ed276ade320e7381114b65404efd64",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/libnotify-0.8.8-1-aarch64.pkg.tar.xz.sig"
+    },
+    "librsvg-2:2.63.2-1-aarch64.pkg.tar.xz": {
+      "bytes": 2020292,
+      "sha256": "4081d59650b742c5eb370561c6619ac1de1179be4be5c5e6d894549f3f4f84c8",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/15/extra/librsvg-2:2.63.2-1-aarch64.pkg.tar.xz"
+    },
+    "librsvg-2:2.63.2-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "d71c40d60ce7e9609baec246d8b1a098fbf12e51d390aa07ddebed0ea2c4965c",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/15/extra/librsvg-2:2.63.2-1-aarch64.pkg.tar.xz.sig"
+    },
+    "linux-aarch64-7.2.10-1-aarch64.pkg.tar.xz": {
+      "bytes": 68687880,
+      "sha256": "9172d7677d3c1c4b4b72b50b7931b5ccc19a4552d68e4a029ca7e9663e1ebcb7",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/core/linux-aarch64-7.2.10-1-aarch64.pkg.tar.xz"
+    },
+    "linux-aarch64-7.2.10-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "9e258a5301a67e61bb46f6714287dd077d216ab583529fb80b4e90daaddedd6f",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/core/linux-aarch64-7.2.10-1-aarch64.pkg.tar.xz.sig"
+    },
+    "llvm-libs-23.1.1-1-aarch64.pkg.tar.xz": {
+      "bytes": 37588856,
+      "sha256": "d890dc562274f6e2ec59d5b2ceb21ddeabee89c0563ead27a550ee11810cdff4",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/llvm-libs-23.1.1-1-aarch64.pkg.tar.xz"
+    },
+    "llvm-libs-23.1.1-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "b06b35cb4e524be09461b4ae825c2a00d92733c59d4a4364c2a59d3060c4ece8",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/llvm-libs-23.1.1-1-aarch64.pkg.tar.xz.sig"
+    },
+    "mesa-1:26.2.4-1-aarch64.pkg.tar.xz": {
+      "bytes": 12639708,
+      "sha256": "b03b498ba04ef5217299a81a1ef4c1c3582a250fab74848a443b85ba4a352fbd",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/mesa-1:26.2.4-1-aarch64.pkg.tar.xz"
+    },
+    "mesa-1:26.2.4-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "70b68b0ad743f13cb4e1a3d53e8c7a041a13ab3f387ef830d0735c0883e0cb03",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/mesa-1:26.2.4-1-aarch64.pkg.tar.xz.sig"
+    },
+    "pcsclite-2.5.2-1-aarch64.pkg.tar.xz": {
+      "bytes": 103324,
+      "sha256": "17650c837779b3e2ead8cfb89f25c22267d8c6dce2c6b00ad9038a5a0d38b47d",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/pcsclite-2.5.2-1-aarch64.pkg.tar.xz"
+    },
+    "pcsclite-2.5.2-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "f48eb9cd59d2c7a7d4bccff3cb832a545f8febd06482e09c1ea00ac3ba9896a3",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/pcsclite-2.5.2-1-aarch64.pkg.tar.xz.sig"
+    },
+    "systemd-262-1-aarch64.pkg.tar.xz": {
+      "bytes": 9737940,
+      "sha256": "dd26469e35547b68793f5ef3e9ba343179704652425349a36d231f34ec6e0546",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/core/systemd-262-1-aarch64.pkg.tar.xz"
+    },
+    "systemd-262-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "de5b2b5b2c485613e7c854d049578c6c0a9bf9c680132c9e3c4076fffb5dc89b",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/core/systemd-262-1-aarch64.pkg.tar.xz.sig"
+    },
+    "systemd-libs-262-1-aarch64.pkg.tar.xz": {
+      "bytes": 1303288,
+      "sha256": "8e697c8f2db7c82dfcdcdc63540f7ad265d8e10fc7aab656c60229d858fca901",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/core/systemd-libs-262-1-aarch64.pkg.tar.xz"
+    },
+    "systemd-libs-262-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "1188b1b93ba1f79069a36c8d33555713b41746c981d246f5e3ffc726c4633de7",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/core/systemd-libs-262-1-aarch64.pkg.tar.xz.sig"
+    },
+    "systemd-resolvconf-262-1-aarch64.pkg.tar.xz": {
+      "bytes": 3420,
+      "sha256": "2c65f94c06ecca704afe9a95b7eed2de11a82447fecc3fac26e6d46da424fba3",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/core/systemd-resolvconf-262-1-aarch64.pkg.tar.xz"
+    },
+    "systemd-resolvconf-262-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "ed7bbb6e5123ea5874853fa56745cfc9256be96d82a5026f5c8115e366825c27",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/core/systemd-resolvconf-262-1-aarch64.pkg.tar.xz.sig"
+    },
+    "systemd-sysvcompat-262-1-aarch64.pkg.tar.xz": {
+      "bytes": 6692,
+      "sha256": "17ad08c06f3d759bb9d6eabc8881481b5b5dae02ef1ab591b6571bf4d675cc79",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/core/systemd-sysvcompat-262-1-aarch64.pkg.tar.xz"
+    },
+    "systemd-sysvcompat-262-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "a4196339ef70bec487b46ce875122bc7d1acecf9560b49f06110215f9d19f359",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/core/systemd-sysvcompat-262-1-aarch64.pkg.tar.xz.sig"
+    }
+  },
+  "original_inputs": {
+    "bytes": 623664,
+    "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
+  },
+  "purpose": "EXACT_FROZEN574_32_ROTATED_INPUT_BYTES_NO_VERSION_OR_TRUST_CHANGE",
+  "schema_version": 1
+}

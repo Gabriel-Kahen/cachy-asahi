@@ -1,0 +1,681 @@
+{
+  "actual_ref": null,
+  "actual_run": null,
+  "actual_source": null,
+  "boot_files": {
+    "packages/tools/cachy-asahi-boot-report/.SRCINFO": {
+      "bytes": 817,
+      "sha256": "42d541331daf875b951d8583914bd889c24ddd46f7a1a22e11a927396584d046"
+    },
+    "packages/tools/cachy-asahi-boot-report/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-boot-report/NOTICE": {
+      "bytes": 274,
+      "sha256": "6e20e714d7d5afcc327260ef23f53cfcba2aa4c2de7e427725c45deed1bb4e65"
+    },
+    "packages/tools/cachy-asahi-boot-report/PKGBUILD": {
+      "bytes": 1234,
+      "sha256": "07031123e32fb142d64bc0cdc5385f1794746965b4c7cb21195047429dc840a1"
+    },
+    "packages/tools/cachy-asahi-boot-report/README.md": {
+      "bytes": 5454,
+      "sha256": "6fca46e91f295568944249db1eda2b7d2719e5f16e940ce0e7f87190f7967a5d"
+    },
+    "packages/tools/cachy-asahi-boot-report/cachy-asahi-boot-report": {
+      "bytes": 17370,
+      "sha256": "d88fa9523b33900b06b8fbfbdb167ecdff98d3787fc620494d738ecf11646cb7"
+    },
+    "packages/tools/cachy-asahi-boot-report/test_boot_report.py": {
+      "bytes": 14940,
+      "sha256": "35170f432adafd37b719e1033f29fa0b97a78c61a2dade25e99dc0e095efc4a4"
+    }
+  },
+  "boot_recipe": "packages/tools/cachy-asahi-boot-report",
+  "carrier_source": "2c524830adb007e3b49392ceb54dd4cc5236c77d",
+  "default_delta": {
+    ".github/workflows/native-arm-build.yml": "name: native-arm-boot-report-products\non:\n  workflow_dispatch:\n    inputs:\n      source_sha:\n        description: Exact 40-character source SHA, equal to this workflow revision\n        type: string\n        required: true\npermissions:\n  contents: read\nconcurrency:\n  group: native-arm-boot-report-products\n  cancel-in-progress: false\njobs:\n  native:\n    if: github.repository == 'Gabriel-Kahen/cachy-asahi'\n    runs-on: ubuntu-24.04-arm\n    timeout-minutes: 90\n    defaults:\n      run:\n        shell: bash\n    env:\n      PYTHONDONTWRITEBYTECODE: '1'\n      SOURCE_SHA: ${{ inputs.source_sha }}\n      SLICE: scripts/ci/welcome-native\n    steps:\n      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1\n        timeout-minutes: 2\n        with:\n          ref: ${{ inputs.source_sha }}\n          persist-credentials: false\n      - name: Prove the explicit source and workflow revision before secrets\n        id: proof\n        timeout-minutes: 2\n        run: |\n          set -euo pipefail\n          printf '%s  %s\\n' 'ed3e8605535dd7ce5cbde17f770e9b3090894f2a360dfb932b31968095609dc0' \"$SLICE/ci/caller.py\" 'fb5d60354a11e8b0f40b466c8a072a07320e65a375bcf30a126124688f0d3799' \"$SLICE/ci/source-manifest.json\" | sha256sum --check\n          python3 -I -B \"$SLICE/ci/caller.py\" proof --workspace \"$GITHUB_WORKSPACE\" --manifest \"$SLICE/ci/source-manifest.json\" --proof \"$RUNNER_TEMP/product-native-source-proof.json\"\n      - name: Focused source and hosted entry controls\n        timeout-minutes: 3\n        run: |\n          set -euo pipefail\n          python3 -I -B scripts/ci/test_maintained_desktop574.py\n          python3 -B -m unittest discover -s \"$SLICE\" -p test_boot_native.py\n      - name: Seed the six exact retained inputs using existing secrets only\n        timeout-minutes: 2\n        env:\n          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01 }}\n          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02 }}\n          CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01 }}\n          CACHY_OLD_FOUR_SCHEMA: '1'\n          CACHY_OLD_FOUR_SOURCE_EPOCH: '1791748800'\n          CACHY_OLD_FOUR_JBIGKIT_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_01 }}\n          CACHY_OLD_FOUR_JBIGKIT_02: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_02 }}\n          CACHY_OLD_FOUR_JBIGKIT_SIG_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_SIG_01 }}\n          CACHY_OLD_FOUR_LIBTIFF_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_01 }}\n          CACHY_OLD_FOUR_LIBTIFF_02: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_02 }}\n          CACHY_OLD_FOUR_LIBTIFF_03: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_03 }}\n          CACHY_OLD_FOUR_LIBTIFF_04: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_04 }}\n          CACHY_OLD_FOUR_LIBTIFF_05: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_05 }}\n          CACHY_OLD_FOUR_LIBTIFF_06: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_06 }}\n          CACHY_OLD_FOUR_LIBTIFF_07: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_07 }}\n          CACHY_OLD_FOUR_LIBTIFF_08: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_08 }}\n          CACHY_OLD_FOUR_LIBTIFF_09: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_09 }}\n          CACHY_OLD_FOUR_LIBTIFF_10: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_10 }}\n          CACHY_OLD_FOUR_LIBTIFF_11: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_11 }}\n          CACHY_OLD_FOUR_LIBTIFF_12: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_12 }}\n          CACHY_OLD_FOUR_LIBTIFF_13: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_13 }}\n          CACHY_OLD_FOUR_LIBTIFF_14: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_14 }}\n          CACHY_OLD_FOUR_LIBTIFF_15: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_15 }}\n          CACHY_OLD_FOUR_LIBTIFF_SIG_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_SIG_01 }}\n        run: >-\n          python3 -I -B scripts/ci/maintained_desktop574.py seed\n          --inputs scripts/ci/maintained-desktop574-inputs.json\n          --output \"$RUNNER_TEMP/desktop574\"\n      - name: Checkout exact retained public input source\n        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1\n        timeout-minutes: 2\n        with:\n          ref: 04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd\n          path: retained-public-inputs\n          persist-credentials: false\n      - name: Seed fourteen exact public ARM input files\n        timeout-minutes: 2\n        run: |\n          set -euo pipefail\n          printf '%s  %s\\n' 'a7857658af224984065e575f6ffed8308ea85027d46eace8bda146d9033e93b3' 'retained-public-inputs/seed.py' 'a388c8c8ba8e06cb92fd2be598b86e433c4e403b6e71a0f15b1eaec381bb7300' 'retained-public-inputs/index.json' | sha256sum --check\n          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME=\"$HOME\" LANG=C.UTF-8 TZ=UTC TMPDIR=\"$RUNNER_TEMP\" python3 -I -B \"$GITHUB_WORKSPACE/retained-public-inputs/seed.py\" --cache \"$RUNNER_TEMP/desktop574/context/deps\"\n      - name: Recover exact frozen574 archive32 inputs before original producer\n        timeout-minutes: 4\n        run: |\n          set -euo pipefail\n          python3 -I -B \"$SLICE/archive32.py\" --policy \"$GITHUB_WORKSPACE/$SLICE/archive32-policy.json\" --inputs \"$GITHUB_WORKSPACE/scripts/ci/maintained-desktop574-inputs.json\" --cache \"$RUNNER_TEMP/doctor2-frozen574-archive32\"\n          python3 -I -B - \"$GITHUB_WORKSPACE/$SLICE/archive32.py\" \"$GITHUB_WORKSPACE/$SLICE/archive32-policy.json\" \"$GITHUB_WORKSPACE/scripts/ci/maintained-desktop574-inputs.json\" \"$RUNNER_TEMP/doctor2-frozen574-archive32\" \"$RUNNER_TEMP/desktop574/context/deps\" <<'PY'\n          import importlib.util,sys\n          from pathlib import Path\n          module,policy,inputs,cache,destination=map(Path,sys.argv[1:])\n          spec=importlib.util.spec_from_file_location('held_archive32_seed',module)\n          helper=importlib.util.module_from_spec(spec);spec.loader.exec_module(helper)\n          value=helper.policy(policy,inputs)\n          helper.seed_exact(cache,destination,value)\n          PY\n      - name: Recover exact frozen574 archive20 inputs before original producer\n        timeout-minutes: 4\n        run: |\n          set -euo pipefail\n          python3 -I -B \"$SLICE/archive20.py\" --policy \"$GITHUB_WORKSPACE/$SLICE/archive20-policy.json\" --inputs \"$GITHUB_WORKSPACE/scripts/ci/maintained-desktop574-inputs.json\" --cache \"$RUNNER_TEMP/doctor2-frozen574-archive20\"\n          python3 -I -B - \"$GITHUB_WORKSPACE/$SLICE/archive20.py\" \"$GITHUB_WORKSPACE/$SLICE/archive20-policy.json\" \"$GITHUB_WORKSPACE/scripts/ci/maintained-desktop574-inputs.json\" \"$RUNNER_TEMP/doctor2-frozen574-archive20\" \"$RUNNER_TEMP/desktop574/context/deps\" <<'PY'\n          import importlib.util,sys\n          from pathlib import Path\n          module,policy,inputs,cache,destination=map(Path,sys.argv[1:])\n          spec=importlib.util.spec_from_file_location('held_archive20_seed',module)\n          helper=importlib.util.module_from_spec(spec);spec.loader.exec_module(helper)\n          value=helper.policy(policy,inputs)\n          helper.seed_exact(cache,destination,value)\n          PY\n      - name: Recover exact frozen574 archive8 inputs before original producer\n        timeout-minutes: 4\n        run: |\n          set -euo pipefail\n          python3 -I -B \"$SLICE/archive8.py\" --policy \"$GITHUB_WORKSPACE/$SLICE/archive8-policy.json\" --inputs \"$GITHUB_WORKSPACE/scripts/ci/maintained-desktop574-inputs.json\" --cache \"$RUNNER_TEMP/doctor2-frozen574-archive8\"\n          python3 -I -B - \"$GITHUB_WORKSPACE/$SLICE/archive8.py\" \"$GITHUB_WORKSPACE/$SLICE/archive8-policy.json\" \"$GITHUB_WORKSPACE/scripts/ci/maintained-desktop574-inputs.json\" \"$RUNNER_TEMP/doctor2-frozen574-archive8\" \"$RUNNER_TEMP/desktop574/context/deps\" <<'PY'\n          import importlib.util,sys\n          from pathlib import Path\n          module,policy,inputs,cache,destination=map(Path,sys.argv[1:])\n          spec=importlib.util.spec_from_file_location('held_archive8_seed',module)\n          helper=importlib.util.module_from_spec(spec);spec.loader.exec_module(helper)\n          value=helper.policy(policy,inputs)\n          helper.seed_exact(cache,destination,value)\n          PY\n      - name: Reconstruct pinned inputs and run offline owned native574 transaction\n        timeout-minutes: 40\n        env:\n          JOB_TOKEN: ${{ steps.proof.outputs.job_token }}\n        run: >-\n          timeout --signal=TERM --kill-after=10s 2300s\n          python3 -I -B scripts/ci/maintained_desktop574.py build\n          --inputs scripts/ci/maintained-desktop574-inputs.json\n          --output \"$RUNNER_TEMP/desktop574\" --job-token \"$JOB_TOKEN\"\n      - name: Native Boot fresh build pair and installed synthetic CLI lifecycle\n        timeout-minutes: 37\n        run: >-\n          timeout --signal=TERM --kill-after=30s 2100s\n          python3 -B \"$SLICE/run.py\"\n          --source \"$GITHUB_WORKSPACE\" --base-dir \"$RUNNER_TEMP/desktop574\"\n          --output \"$RUNNER_TEMP/product-native-runtime\"\n      - name: Retire the original owned builder after every consumer\n        if: always() && steps.proof.outcome == 'success'\n        timeout-minutes: 3\n        env:\n          JOB_TOKEN: ${{ steps.proof.outputs.job_token }}\n        run: |\n          set -euo pipefail\n          if [ -f \"$RUNNER_TEMP/desktop574/report.json\" ]; then\n            timeout --signal=TERM --kill-after=10s 120s python3 -I -B scripts/ci/maintained_desktop574.py cleanup --inputs scripts/ci/maintained-desktop574-inputs.json --output \"$RUNNER_TEMP/desktop574\" --job-token \"$JOB_TOKEN\"\n          fi\n      - name: Retain bounded product candidates and native diagnostics\n        if: always() && steps.proof.outcome == 'success'\n        timeout-minutes: 2\n        run: |\n          set -euo pipefail\n          printf '%s  %s\\n' 'ed3e8605535dd7ce5cbde17f770e9b3090894f2a360dfb932b31968095609dc0' \"$SLICE/ci/caller.py\" | sha256sum --check\n          python3 -I -B \"$SLICE/ci/caller.py\" retain --proof \"$RUNNER_TEMP/product-native-source-proof.json\" --base \"$RUNNER_TEMP/desktop574\" --runtime \"$RUNNER_TEMP/product-native-runtime\" --output \"$RUNNER_TEMP/product-native-public\"\n      - name: Upload only the bounded public evidence directory\n        if: always()\n        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9\n        timeout-minutes: 2\n        with:\n          name: boot-report-native-products-${{ github.run_id }}-${{ github.run_attempt }}\n          retention-days: 3\n          if-no-files-found: ignore\n          path: ${{ runner.temp }}/product-native-public/\n",
+    ".github/workflows/native-arm-welcome-doctor-products.yml": "name: native-arm-boot-report-products\non:\n  workflow_dispatch:\n    inputs:\n      source_sha:\n        description: Exact 40-character source SHA, equal to this workflow revision\n        type: string\n        required: true\npermissions:\n  contents: read\nconcurrency:\n  group: native-arm-boot-report-products\n  cancel-in-progress: false\njobs:\n  native:\n    if: github.repository == 'Gabriel-Kahen/cachy-asahi'\n    runs-on: ubuntu-24.04-arm\n    timeout-minutes: 90\n    defaults:\n      run:\n        shell: bash\n    env:\n      PYTHONDONTWRITEBYTECODE: '1'\n      SOURCE_SHA: ${{ inputs.source_sha }}\n      SLICE: scripts/ci/welcome-native\n    steps:\n      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1\n        timeout-minutes: 2\n        with:\n          ref: ${{ inputs.source_sha }}\n          persist-credentials: false\n      - name: Prove the explicit source and workflow revision before secrets\n        id: proof\n        timeout-minutes: 2\n        run: |\n          set -euo pipefail\n          printf '%s  %s\\n' 'ed3e8605535dd7ce5cbde17f770e9b3090894f2a360dfb932b31968095609dc0' \"$SLICE/ci/caller.py\" 'fb5d60354a11e8b0f40b466c8a072a07320e65a375bcf30a126124688f0d3799' \"$SLICE/ci/source-manifest.json\" | sha256sum --check\n          python3 -I -B \"$SLICE/ci/caller.py\" proof --workspace \"$GITHUB_WORKSPACE\" --manifest \"$SLICE/ci/source-manifest.json\" --proof \"$RUNNER_TEMP/product-native-source-proof.json\"\n      - name: Focused source and hosted entry controls\n        timeout-minutes: 3\n        run: |\n          set -euo pipefail\n          python3 -I -B scripts/ci/test_maintained_desktop574.py\n          python3 -B -m unittest discover -s \"$SLICE\" -p test_boot_native.py\n      - name: Seed the six exact retained inputs using existing secrets only\n        timeout-minutes: 2\n        env:\n          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01 }}\n          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02 }}\n          CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01 }}\n          CACHY_OLD_FOUR_SCHEMA: '1'\n          CACHY_OLD_FOUR_SOURCE_EPOCH: '1791748800'\n          CACHY_OLD_FOUR_JBIGKIT_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_01 }}\n          CACHY_OLD_FOUR_JBIGKIT_02: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_02 }}\n          CACHY_OLD_FOUR_JBIGKIT_SIG_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_SIG_01 }}\n          CACHY_OLD_FOUR_LIBTIFF_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_01 }}\n          CACHY_OLD_FOUR_LIBTIFF_02: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_02 }}\n          CACHY_OLD_FOUR_LIBTIFF_03: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_03 }}\n          CACHY_OLD_FOUR_LIBTIFF_04: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_04 }}\n          CACHY_OLD_FOUR_LIBTIFF_05: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_05 }}\n          CACHY_OLD_FOUR_LIBTIFF_06: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_06 }}\n          CACHY_OLD_FOUR_LIBTIFF_07: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_07 }}\n          CACHY_OLD_FOUR_LIBTIFF_08: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_08 }}\n          CACHY_OLD_FOUR_LIBTIFF_09: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_09 }}\n          CACHY_OLD_FOUR_LIBTIFF_10: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_10 }}\n          CACHY_OLD_FOUR_LIBTIFF_11: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_11 }}\n          CACHY_OLD_FOUR_LIBTIFF_12: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_12 }}\n          CACHY_OLD_FOUR_LIBTIFF_13: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_13 }}\n          CACHY_OLD_FOUR_LIBTIFF_14: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_14 }}\n          CACHY_OLD_FOUR_LIBTIFF_15: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_15 }}\n          CACHY_OLD_FOUR_LIBTIFF_SIG_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_SIG_01 }}\n        run: >-\n          python3 -I -B scripts/ci/maintained_desktop574.py seed\n          --inputs scripts/ci/maintained-desktop574-inputs.json\n          --output \"$RUNNER_TEMP/desktop574\"\n      - name: Checkout exact retained public input source\n        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1\n        timeout-minutes: 2\n        with:\n          ref: 04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd\n          path: retained-public-inputs\n          persist-credentials: false\n      - name: Seed fourteen exact public ARM input files\n        timeout-minutes: 2\n        run: |\n          set -euo pipefail\n          printf '%s  %s\\n' 'a7857658af224984065e575f6ffed8308ea85027d46eace8bda146d9033e93b3' 'retained-public-inputs/seed.py' 'a388c8c8ba8e06cb92fd2be598b86e433c4e403b6e71a0f15b1eaec381bb7300' 'retained-public-inputs/index.json' | sha256sum --check\n          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME=\"$HOME\" LANG=C.UTF-8 TZ=UTC TMPDIR=\"$RUNNER_TEMP\" python3 -I -B \"$GITHUB_WORKSPACE/retained-public-inputs/seed.py\" --cache \"$RUNNER_TEMP/desktop574/context/deps\"\n      - name: Recover exact frozen574 archive32 inputs before original producer\n        timeout-minutes: 4\n        run: |\n          set -euo pipefail\n          python3 -I -B \"$SLICE/archive32.py\" --policy \"$GITHUB_WORKSPACE/$SLICE/archive32-policy.json\" --inputs \"$GITHUB_WORKSPACE/scripts/ci/maintained-desktop574-inputs.json\" --cache \"$RUNNER_TEMP/doctor2-frozen574-archive32\"\n          python3 -I -B - \"$GITHUB_WORKSPACE/$SLICE/archive32.py\" \"$GITHUB_WORKSPACE/$SLICE/archive32-policy.json\" \"$GITHUB_WORKSPACE/scripts/ci/maintained-desktop574-inputs.json\" \"$RUNNER_TEMP/doctor2-frozen574-archive32\" \"$RUNNER_TEMP/desktop574/context/deps\" <<'PY'\n          import importlib.util,sys\n          from pathlib import Path\n          module,policy,inputs,cache,destination=map(Path,sys.argv[1:])\n          spec=importlib.util.spec_from_file_location('held_archive32_seed',module)\n          helper=importlib.util.module_from_spec(spec);spec.loader.exec_module(helper)\n          value=helper.policy(policy,inputs)\n          helper.seed_exact(cache,destination,value)\n          PY\n      - name: Recover exact frozen574 archive20 inputs before original producer\n        timeout-minutes: 4\n        run: |\n          set -euo pipefail\n          python3 -I -B \"$SLICE/archive20.py\" --policy \"$GITHUB_WORKSPACE/$SLICE/archive20-policy.json\" --inputs \"$GITHUB_WORKSPACE/scripts/ci/maintained-desktop574-inputs.json\" --cache \"$RUNNER_TEMP/doctor2-frozen574-archive20\"\n          python3 -I -B - \"$GITHUB_WORKSPACE/$SLICE/archive20.py\" \"$GITHUB_WORKSPACE/$SLICE/archive20-policy.json\" \"$GITHUB_WORKSPACE/scripts/ci/maintained-desktop574-inputs.json\" \"$RUNNER_TEMP/doctor2-frozen574-archive20\" \"$RUNNER_TEMP/desktop574/context/deps\" <<'PY'\n          import importlib.util,sys\n          from pathlib import Path\n          module,policy,inputs,cache,destination=map(Path,sys.argv[1:])\n          spec=importlib.util.spec_from_file_location('held_archive20_seed',module)\n          helper=importlib.util.module_from_spec(spec);spec.loader.exec_module(helper)\n          value=helper.policy(policy,inputs)\n          helper.seed_exact(cache,destination,value)\n          PY\n      - name: Recover exact frozen574 archive8 inputs before original producer\n        timeout-minutes: 4\n        run: |\n          set -euo pipefail\n          python3 -I -B \"$SLICE/archive8.py\" --policy \"$GITHUB_WORKSPACE/$SLICE/archive8-policy.json\" --inputs \"$GITHUB_WORKSPACE/scripts/ci/maintained-desktop574-inputs.json\" --cache \"$RUNNER_TEMP/doctor2-frozen574-archive8\"\n          python3 -I -B - \"$GITHUB_WORKSPACE/$SLICE/archive8.py\" \"$GITHUB_WORKSPACE/$SLICE/archive8-policy.json\" \"$GITHUB_WORKSPACE/scripts/ci/maintained-desktop574-inputs.json\" \"$RUNNER_TEMP/doctor2-frozen574-archive8\" \"$RUNNER_TEMP/desktop574/context/deps\" <<'PY'\n          import importlib.util,sys\n          from pathlib import Path\n          module,policy,inputs,cache,destination=map(Path,sys.argv[1:])\n          spec=importlib.util.spec_from_file_location('held_archive8_seed',module)\n          helper=importlib.util.module_from_spec(spec);spec.loader.exec_module(helper)\n          value=helper.policy(policy,inputs)\n          helper.seed_exact(cache,destination,value)\n          PY\n      - name: Reconstruct pinned inputs and run offline owned native574 transaction\n        timeout-minutes: 40\n        env:\n          JOB_TOKEN: ${{ steps.proof.outputs.job_token }}\n        run: >-\n          timeout --signal=TERM --kill-after=10s 2300s\n          python3 -I -B scripts/ci/maintained_desktop574.py build\n          --inputs scripts/ci/maintained-desktop574-inputs.json\n          --output \"$RUNNER_TEMP/desktop574\" --job-token \"$JOB_TOKEN\"\n      - name: Native Boot fresh build pair and installed synthetic CLI lifecycle\n        timeout-minutes: 37\n        run: >-\n          timeout --signal=TERM --kill-after=30s 2100s\n          python3 -B \"$SLICE/run.py\"\n          --source \"$GITHUB_WORKSPACE\" --base-dir \"$RUNNER_TEMP/desktop574\"\n          --output \"$RUNNER_TEMP/product-native-runtime\"\n      - name: Retire the original owned builder after every consumer\n        if: always() && steps.proof.outcome == 'success'\n        timeout-minutes: 3\n        env:\n          JOB_TOKEN: ${{ steps.proof.outputs.job_token }}\n        run: |\n          set -euo pipefail\n          if [ -f \"$RUNNER_TEMP/desktop574/report.json\" ]; then\n            timeout --signal=TERM --kill-after=10s 120s python3 -I -B scripts/ci/maintained_desktop574.py cleanup --inputs scripts/ci/maintained-desktop574-inputs.json --output \"$RUNNER_TEMP/desktop574\" --job-token \"$JOB_TOKEN\"\n          fi\n      - name: Retain bounded product candidates and native diagnostics\n        if: always() && steps.proof.outcome == 'success'\n        timeout-minutes: 2\n        run: |\n          set -euo pipefail\n          printf '%s  %s\\n' 'ed3e8605535dd7ce5cbde17f770e9b3090894f2a360dfb932b31968095609dc0' \"$SLICE/ci/caller.py\" | sha256sum --check\n          python3 -I -B \"$SLICE/ci/caller.py\" retain --proof \"$RUNNER_TEMP/product-native-source-proof.json\" --base \"$RUNNER_TEMP/desktop574\" --runtime \"$RUNNER_TEMP/product-native-runtime\" --output \"$RUNNER_TEMP/product-native-public\"\n      - name: Upload only the bounded public evidence directory\n        if: always()\n        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9\n        timeout-minutes: 2\n        with:\n          name: boot-report-native-products-${{ github.run_id }}-${{ github.run_attempt }}\n          retention-days: 3\n          if-no-files-found: ignore\n          path: ${{ runner.temp }}/product-native-public/\n",
+    "scripts/ci/welcome-native/boot-policy.json": "{\n  \"actual_ref\": null,\n  \"actual_run\": null,\n  \"actual_source\": null,\n  \"input_sha256\": null,\n  \"recipe\": null,\n  \"schema_version\": 1,\n  \"status\": \"UNBOUND\",\n  \"version\": null\n}\n",
+    "scripts/ci/welcome-native/ci/source-manifest.json": "{\n  \"files\": {\n    \"packages/tools/cachy-asahi-boot-report/LICENSE\": {\n      \"bytes\": 1081,\n      \"sha256\": \"51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7\"\n    },\n    \"packages/tools/cachy-asahi-boot-report/NOTICE\": {\n      \"bytes\": 274,\n      \"sha256\": \"6e20e714d7d5afcc327260ef23f53cfcba2aa4c2de7e427725c45deed1bb4e65\"\n    },\n    \"packages/tools/cachy-asahi-boot-report/PKGBUILD\": {\n      \"bytes\": 1234,\n      \"sha256\": \"07031123e32fb142d64bc0cdc5385f1794746965b4c7cb21195047429dc840a1\"\n    },\n    \"packages/tools/cachy-asahi-boot-report/README.md\": {\n      \"bytes\": 5454,\n      \"sha256\": \"6fca46e91f295568944249db1eda2b7d2719e5f16e940ce0e7f87190f7967a5d\"\n    },\n    \"packages/tools/cachy-asahi-boot-report/cachy-asahi-boot-report\": {\n      \"bytes\": 17370,\n      \"sha256\": \"d88fa9523b33900b06b8fbfbdb167ecdff98d3787fc620494d738ecf11646cb7\"\n    },\n    \"packages/tools/cachy-asahi-boot-report/test_boot_report.py\": {\n      \"bytes\": 14940,\n      \"sha256\": \"35170f432adafd37b719e1033f29fa0b97a78c61a2dade25e99dc0e095efc4a4\"\n    },\n    \"packages/tools/cachy-asahi-doctor/.SRCINFO\": {\n      \"bytes\": 808,\n      \"sha256\": \"6eb3a106a899d701489d5a8903c15e57516544e164c40adebef2748de978284d\"\n    },\n    \"packages/tools/cachy-asahi-doctor/LICENSE\": {\n      \"bytes\": 1081,\n      \"sha256\": \"51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7\"\n    },\n    \"packages/tools/cachy-asahi-doctor/NOTICE\": {\n      \"bytes\": 563,\n      \"sha256\": \"96aa4022dcf6b97ea2b55ef63d78d5c261bfcd39c303822bad184a33d09e5804\"\n    },\n    \"packages/tools/cachy-asahi-doctor/PKGBUILD\": {\n      \"bytes\": 1195,\n      \"sha256\": \"119e2b839195e0c18b885b0208928e234af63e2a5f958dbf4fc9edad5a2c04b1\"\n    },\n    \"packages/tools/cachy-asahi-doctor/README.md\": {\n      \"bytes\": 3995,\n      \"sha256\": \"8d1260424db6e54c8a68b008ab1d317d54a2a58d34655f34ae5059603cf19e4e\"\n    },\n    \"packages/tools/cachy-asahi-doctor/cachy-asahi-doctor\": {\n      \"bytes\": 14695,\n      \"sha256\": \"d8eb487bc81b5880aceb412360ef674cc214150d61733dfdc8d8654e0f54cf38\"\n    },\n    \"packages/tools/cachy-asahi-doctor/test_doctor.py\": {\n      \"bytes\": 10694,\n      \"sha256\": \"7d555c98f79204d91c759171273c1ef24564a51d3384d6e8eb10751ab1cc4281\"\n    },\n    \"packages/tools/cachy-asahi-doctor2/.SRCINFO\": {\n      \"bytes\": 997,\n      \"sha256\": \"f05482cd59d8d70a62ec05d472f84dee16cfb8521970c8cf7476e6eaf99c05a9\"\n    },\n    \"packages/tools/cachy-asahi-doctor2/LICENSE\": {\n      \"bytes\": 1081,\n      \"sha256\": \"51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7\"\n    },\n    \"packages/tools/cachy-asahi-doctor2/NOTICE\": {\n      \"bytes\": 796,\n      \"sha256\": \"fc77ae01a573c84a5a9970a5f563b3f044de7f04d4f01745c7ab6e9f8ec9b568\"\n    },\n    \"packages/tools/cachy-asahi-doctor2/PKGBUILD\": {\n      \"bytes\": 1454,\n      \"sha256\": \"6db586b51bda2c0a97b9a581b90495d7aae47db4ce9d904779ade5e3c1d376c7\"\n    },\n    \"packages/tools/cachy-asahi-doctor2/README.md\": {\n      \"bytes\": 7637,\n      \"sha256\": \"1958eddf33857813874140ae22533f9a2a878fc64f6b18ab277a556107656a52\"\n    },\n    \"packages/tools/cachy-asahi-doctor2/cachy-asahi-doctor\": {\n      \"bytes\": 18288,\n      \"sha256\": \"f4b6dce36a44037cf6e28003c9da9514c511161ff1926be78c155e8f64f15ced\"\n    },\n    \"packages/tools/cachy-asahi-doctor2/test_audio.py\": {\n      \"bytes\": 9256,\n      \"sha256\": \"e1ff1fd9bbe932d0e869ed9810543df1ea52b648e71f0a12186854270d3736c8\"\n    },\n    \"packages/tools/cachy-asahi-doctor2/test_doctor.py\": {\n      \"bytes\": 10743,\n      \"sha256\": \"2f669a6c37b43521edb76717ac0c01818651041d479520676eaac1808195218f\"\n    },\n    \"packages/tools/cachy-asahi-welcome/LICENSE\": {\n      \"bytes\": 1081,\n      \"sha256\": \"51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7\"\n    },\n    \"packages/tools/cachy-asahi-welcome/Makefile\": {\n      \"bytes\": 2134,\n      \"sha256\": \"ce76cbe478cf4354cb637d738f732515988cac29ea0c7966dffdcb806783a9cf\"\n    },\n    \"packages/tools/cachy-asahi-welcome/NOTICE\": {\n      \"bytes\": 665,\n      \"sha256\": \"71e80969d77f4079bff80b62c53c84866489d91206a420384fc1622319d8021a\"\n    },\n    \"packages/tools/cachy-asahi-welcome/PKGBUILD\": {\n      \"bytes\": 2196,\n      \"sha256\": \"1e02bf118d385edf69321c55b9fba41149bea61499fd784d54df6b5904159f86\"\n    },\n    \"packages/tools/cachy-asahi-welcome/README.md\": {\n      \"bytes\": 3079,\n      \"sha256\": \"55c0a3a77f40d0dbef7af779ab8ce7ef5270536ea3a33071700b7ebe20812f07\"\n    },\n    \"packages/tools/cachy-asahi-welcome/cachy-asahi-welcome.svg\": {\n      \"bytes\": 531,\n      \"sha256\": \"0db6f69c16766172942551b512e89842d086f4a04320a20bfd9a4473b17a1b73\"\n    },\n    \"packages/tools/cachy-asahi-welcome/check_source.py\": {\n      \"bytes\": 3279,\n      \"sha256\": \"778e025cf5ca7caa7e1bacbb668876ef793d64e7cd3ba0d6d345c1fa9a70e502\"\n    },\n    \"packages/tools/cachy-asahi-welcome/first-run.txt\": {\n      \"bytes\": 1484,\n      \"sha256\": \"2c123deef2cf02b586250c1128907ba294ced83a3671607dd2aef2f3cfa094eb\"\n    },\n    \"packages/tools/cachy-asahi-welcome/io.github.GabrielKahen.CachyAsahiWelcome.desktop\": {\n      \"bytes\": 358,\n      \"sha256\": \"2c2159a75c7b0303eebf47e77e89d6d1f6241372f7ecb006c6b11002135cb441\"\n    },\n    \"packages/tools/cachy-asahi-welcome/recovery.txt\": {\n      \"bytes\": 1555,\n      \"sha256\": \"09e5160543b0739b10f327972e338b01c16269d8bcfc6620325eceed0c6a26a2\"\n    },\n    \"packages/tools/cachy-asahi-welcome/status.c\": {\n      \"bytes\": 6735,\n      \"sha256\": \"2bfd5f64c724670546057d01312fc6b9591416f6113c65eae8cbb9a53f3909cf\"\n    },\n    \"packages/tools/cachy-asahi-welcome/status.h\": {\n      \"bytes\": 833,\n      \"sha256\": \"da0c71ef784debe9ea8ec0be34d8326afe5520ad463efc4a2d432805324b8b78\"\n    },\n    \"packages/tools/cachy-asahi-welcome/test_cli.py\": {\n      \"bytes\": 3170,\n      \"sha256\": \"722182698ca07b14b03787a52f5b3976f2f039ae048f142f2dee72e6176fa972\"\n    },\n    \"packages/tools/cachy-asahi-welcome/test_status.c\": {\n      \"bytes\": 5152,\n      \"sha256\": \"710eba6eafd4389bf2bf73bc39c7e727d4d60097cb783c035da60bc4ba8d740e\"\n    },\n    \"packages/tools/cachy-asahi-welcome/updates.txt\": {\n      \"bytes\": 1445,\n      \"sha256\": \"fcde7d9aa0c6f1a0fc8090c5dc26f405708f18ea760d74b664732e2824d403b8\"\n    },\n    \"packages/tools/cachy-asahi-welcome/welcome.c\": {\n      \"bytes\": 13447,\n      \"sha256\": \"891e0fc1f8e17c565e3a8c63dd48e47675fa91fffca169bb6d86d97d3db19f32\"\n    },\n    \"scripts/build/build.py\": {\n      \"bytes\": 11299,\n      \"sha256\": \"e520b37e5dfc285914203cfab99daecc80543505fef7ded6704b3fb06f001d45\"\n    },\n    \"scripts/build/compare.py\": {\n      \"bytes\": 5820,\n      \"sha256\": \"4198864c264642b196a090a67b36185e5c194e38edc4cb928d08eb65b9f710cd\"\n    },\n    \"scripts/build/container-entry.sh\": {\n      \"bytes\": 1787,\n      \"sha256\": \"89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24\"\n    },\n    \"scripts/checks/package_checks.py\": {\n      \"bytes\": 17706,\n      \"sha256\": \"e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8\"\n    },\n    \"scripts/ci/maintained-desktop574-inputs.json\": {\n      \"bytes\": 623664,\n      \"sha256\": \"b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9\"\n    },\n    \"scripts/ci/maintained_desktop574.py\": {\n      \"bytes\": 22367,\n      \"sha256\": \"27ba4be42cf2bd41675073e07cccc917ae033f9d68b07a33cfd7f074ac27b760\"\n    },\n    \"scripts/ci/old_four_seed.py\": {\n      \"bytes\": 29048,\n      \"sha256\": \"a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7\"\n    },\n    \"scripts/ci/test_maintained_desktop574.py\": {\n      \"bytes\": 19082,\n      \"sha256\": \"e5d7dc11d1a59cf37a273e9a7103c7e55b169335b17c599990946f4e677ca974\"\n    },\n    \"scripts/ci/welcome-native/README.md\": {\n      \"bytes\": 7583,\n      \"sha256\": \"3ced6b7f7f823a642cc6a49b2c0bfb000c47627efb8864bb98cf1ff108cf3207\"\n    },\n    \"scripts/ci/welcome-native/archive20-policy.json\": {\n      \"bytes\": 6155,\n      \"sha256\": \"1f966afe0c24bb9a928154cb0638a8bb78292c799ffd544132633caddf6217ae\"\n    },\n    \"scripts/ci/welcome-native/archive20.py\": {\n      \"bytes\": 11096,\n      \"sha256\": \"e8ef66fc0431a04deb331f75258457bf4bdeb13a18bcd863fd5bece3b9a54968\"\n    },\n    \"scripts/ci/welcome-native/archive32-policy.json\": {\n      \"bytes\": 9488,\n      \"sha256\": \"4f6ce49214422579f1cc448ff95d9f311cbfaf47a0d0c4f32d828c9edf843585\"\n    },\n    \"scripts/ci/welcome-native/archive32.py\": {\n      \"bytes\": 11102,\n      \"sha256\": \"b1e2fc13644510a613ce09e53b39d4f4471cf47fc03fa62f312258379666c418\"\n    },\n    \"scripts/ci/welcome-native/archive8-policy.json\": {\n      \"bytes\": 2589,\n      \"sha256\": \"2b21c05d30a9c5efd2f717cfa8475c9de3150d7729f710b348b70a84f5b16e20\"\n    },\n    \"scripts/ci/welcome-native/archive8.py\": {\n      \"bytes\": 11040,\n      \"sha256\": \"5e24808152c727f5dcd19252c66e1ab121bdb9dbd6b90becb943820634898565\"\n    },\n    \"scripts/ci/welcome-native/boot-fixture/authored-records.json\": {\n      \"bytes\": 1555,\n      \"sha256\": \"cff33cac332a200aeccd983d883b912e875e733b4d13f6f0fb8407367afad7a4\"\n    },\n    \"scripts/ci/welcome-native/boot-fixture/decoded-records.json\": {\n      \"bytes\": 2387,\n      \"sha256\": \"748f2ea147625682f9acdf3375e02c5e6e5d96fa8d6992cfb328524880a5b15a\"\n    },\n    \"scripts/ci/welcome-native/boot-fixture/generation.json\": {\n      \"bytes\": 2904,\n      \"sha256\": \"d525387c14fb928809394951b68dc443546380af9da483f7e641a36165843e4d\"\n    },\n    \"scripts/ci/welcome-native/boot-fixture/journal.export\": {\n      \"bytes\": 1164,\n      \"sha256\": \"4f67b2043c9d9aa48d087a09b0a24aa2b3f2591b4486447989249153e9c48074\"\n    },\n    \"scripts/ci/welcome-native/boot-fixture/make_fixture.py\": {\n      \"bytes\": 3123,\n      \"sha256\": \"e6d0370267b1bae8343a9f16ec4a79da2b74d6bc09dcd8958bb3e57d84b2c60e\"\n    },\n    \"scripts/ci/welcome-native/boot-fixture/system.journal\": {\n      \"bytes\": 8388608,\n      \"sha256\": \"77c326d908442852de51e66c660153d4c6051390b14466e48fa9c037cc1c573e\"\n    },\n    \"scripts/ci/welcome-native/boot-policy.json\": {\n      \"bytes\": 179,\n      \"sha256\": \"f982db26564ea92833be42adab7df61dfe551cf4a0f548b63d3f6e3b109289bc\"\n    },\n    \"scripts/ci/welcome-native/boot-recipe.SRCINFO\": {\n      \"bytes\": 817,\n      \"sha256\": \"42d541331daf875b951d8583914bd889c24ddd46f7a1a22e11a927396584d046\"\n    },\n    \"scripts/ci/welcome-native/boot_fixture.py\": {\n      \"bytes\": 6844,\n      \"sha256\": \"b20a1e43c9f7290b563414c03e16a32a3ddf809c240c061dc8bf8fdd045ed571\"\n    },\n    \"scripts/ci/welcome-native/check_inputs.py\": {\n      \"bytes\": 2377,\n      \"sha256\": \"56c4ed5145676781d5d621afa818fefc383cd1ce985c0a70437f99138f83a742\"\n    },\n    \"scripts/ci/welcome-native/ci/HANDOFF.md\": {\n      \"bytes\": 2434,\n      \"sha256\": \"5e3849debd2ec3dbb66ae984728d9e8bccecc1e67968303405c064f0b5f28c51\"\n    },\n    \"scripts/ci/welcome-native/ci/caller.py\": {\n      \"bytes\": 8616,\n      \"sha256\": \"ed3e8605535dd7ce5cbde17f770e9b3090894f2a360dfb932b31968095609dc0\"\n    },\n    \"scripts/ci/welcome-native/ci/test_caller.py\": {\n      \"bytes\": 7403,\n      \"sha256\": \"dfce7fcf871705625a511ff96416591fcad3239d02e6d24fca6e7a9020d4b83a\"\n    },\n    \"scripts/ci/welcome-native/contract.py\": {\n      \"bytes\": 11330,\n      \"sha256\": \"3b629c3f16a70ad524e375d0a110f62f4ee72ddbfb2a22c0638abe5748d4363d\"\n    },\n    \"scripts/ci/welcome-native/doctor2-policy.json\": {\n      \"bytes\": 933,\n      \"sha256\": \"0a6a7a8be33f50135ddd9f80c15ae54dd86fafb12d9f02d7bb8d474b6be1a33b\"\n    },\n    \"scripts/ci/welcome-native/installed_fixture.py\": {\n      \"bytes\": 1477,\n      \"sha256\": \"d881a463e9e7be0b1661905dff6d34d423501ce639b37e862242c1ac3d62bb8a\"\n    },\n    \"scripts/ci/welcome-native/lifecycle.py\": {\n      \"bytes\": 5812,\n      \"sha256\": \"74474f1de64a4b423bcd84cdf60312bb36ab7d62cd12b48932428a432a6cd02b\"\n    },\n    \"scripts/ci/welcome-native/package-inputs.json\": {\n      \"bytes\": 289137,\n      \"sha256\": \"1a97ee205ce5ff475f803c9168c78683d2a855f98359a1dfac7f97c3703279da\"\n    },\n    \"scripts/ci/welcome-native/run.py\": {\n      \"bytes\": 12788,\n      \"sha256\": \"70dee50b399ec4b5251aeac8fc64a449f1f04dc83f5c94cd7728120d78d5f460\"\n    },\n    \"scripts/ci/welcome-native/source-pins.json\": {\n      \"bytes\": 7016,\n      \"sha256\": \"e477cc2c6ef147bece604bb205738b17290018644d912a57d9c76976c6c3044f\"\n    },\n    \"scripts/ci/welcome-native/test_boot_native.py\": {\n      \"bytes\": 5381,\n      \"sha256\": \"dbbc9fcaf304016fef285b5c609b13a037323ecbed4ca6e3546182d77a3d8268\"\n    },\n    \"scripts/ci/welcome-native/test_native.py\": {\n      \"bytes\": 13397,\n      \"sha256\": \"89b6ab073a525c01891083d67c0bc87f32d8622828e9b3cca6a67f1fb6a031a4\"\n    },\n    \"scripts/port/preview.py\": {\n      \"bytes\": 19736,\n      \"sha256\": \"d737c51474e05cc2c4db2e87fc021f50328eea7744983dd4076d44751fce7383\"\n    },\n    \"scripts/virtual/common.py\": {\n      \"bytes\": 84361,\n      \"sha256\": \"aef2b4f09a91c4cfd66dd4504e69ef18396a94214c82ae0ec0a43c2716894a03\"\n    }\n  },\n  \"schema\": 1,\n  \"scope\": \"FINITE_BOOT_ONLY_NATIVE_PAIR_SYNTHETIC_CLI_NOT_REAL_HISTORY_CRASH_HARDWARE\"\n}\n",
+    "scripts/ci/welcome-native/source-pins.json": "{\n  \"packages/tools/cachy-asahi-boot-report/LICENSE\": \"51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7\",\n  \"packages/tools/cachy-asahi-boot-report/NOTICE\": \"6e20e714d7d5afcc327260ef23f53cfcba2aa4c2de7e427725c45deed1bb4e65\",\n  \"packages/tools/cachy-asahi-boot-report/PKGBUILD\": \"07031123e32fb142d64bc0cdc5385f1794746965b4c7cb21195047429dc840a1\",\n  \"packages/tools/cachy-asahi-boot-report/README.md\": \"6fca46e91f295568944249db1eda2b7d2719e5f16e940ce0e7f87190f7967a5d\",\n  \"packages/tools/cachy-asahi-boot-report/cachy-asahi-boot-report\": \"d88fa9523b33900b06b8fbfbdb167ecdff98d3787fc620494d738ecf11646cb7\",\n  \"packages/tools/cachy-asahi-boot-report/test_boot_report.py\": \"35170f432adafd37b719e1033f29fa0b97a78c61a2dade25e99dc0e095efc4a4\",\n  \"packages/tools/cachy-asahi-doctor/.SRCINFO\": \"6eb3a106a899d701489d5a8903c15e57516544e164c40adebef2748de978284d\",\n  \"packages/tools/cachy-asahi-doctor/LICENSE\": \"51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7\",\n  \"packages/tools/cachy-asahi-doctor/NOTICE\": \"96aa4022dcf6b97ea2b55ef63d78d5c261bfcd39c303822bad184a33d09e5804\",\n  \"packages/tools/cachy-asahi-doctor/PKGBUILD\": \"119e2b839195e0c18b885b0208928e234af63e2a5f958dbf4fc9edad5a2c04b1\",\n  \"packages/tools/cachy-asahi-doctor/README.md\": \"8d1260424db6e54c8a68b008ab1d317d54a2a58d34655f34ae5059603cf19e4e\",\n  \"packages/tools/cachy-asahi-doctor/cachy-asahi-doctor\": \"d8eb487bc81b5880aceb412360ef674cc214150d61733dfdc8d8654e0f54cf38\",\n  \"packages/tools/cachy-asahi-doctor/test_doctor.py\": \"7d555c98f79204d91c759171273c1ef24564a51d3384d6e8eb10751ab1cc4281\",\n  \"packages/tools/cachy-asahi-doctor2/.SRCINFO\": \"f05482cd59d8d70a62ec05d472f84dee16cfb8521970c8cf7476e6eaf99c05a9\",\n  \"packages/tools/cachy-asahi-doctor2/LICENSE\": \"51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7\",\n  \"packages/tools/cachy-asahi-doctor2/NOTICE\": \"fc77ae01a573c84a5a9970a5f563b3f044de7f04d4f01745c7ab6e9f8ec9b568\",\n  \"packages/tools/cachy-asahi-doctor2/PKGBUILD\": \"6db586b51bda2c0a97b9a581b90495d7aae47db4ce9d904779ade5e3c1d376c7\",\n  \"packages/tools/cachy-asahi-doctor2/README.md\": \"1958eddf33857813874140ae22533f9a2a878fc64f6b18ab277a556107656a52\",\n  \"packages/tools/cachy-asahi-doctor2/cachy-asahi-doctor\": \"f4b6dce36a44037cf6e28003c9da9514c511161ff1926be78c155e8f64f15ced\",\n  \"packages/tools/cachy-asahi-doctor2/test_audio.py\": \"e1ff1fd9bbe932d0e869ed9810543df1ea52b648e71f0a12186854270d3736c8\",\n  \"packages/tools/cachy-asahi-doctor2/test_doctor.py\": \"2f669a6c37b43521edb76717ac0c01818651041d479520676eaac1808195218f\",\n  \"packages/tools/cachy-asahi-welcome/LICENSE\": \"51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7\",\n  \"packages/tools/cachy-asahi-welcome/Makefile\": \"ce76cbe478cf4354cb637d738f732515988cac29ea0c7966dffdcb806783a9cf\",\n  \"packages/tools/cachy-asahi-welcome/NOTICE\": \"71e80969d77f4079bff80b62c53c84866489d91206a420384fc1622319d8021a\",\n  \"packages/tools/cachy-asahi-welcome/PKGBUILD\": \"1e02bf118d385edf69321c55b9fba41149bea61499fd784d54df6b5904159f86\",\n  \"packages/tools/cachy-asahi-welcome/README.md\": \"55c0a3a77f40d0dbef7af779ab8ce7ef5270536ea3a33071700b7ebe20812f07\",\n  \"packages/tools/cachy-asahi-welcome/cachy-asahi-welcome.svg\": \"0db6f69c16766172942551b512e89842d086f4a04320a20bfd9a4473b17a1b73\",\n  \"packages/tools/cachy-asahi-welcome/check_source.py\": \"778e025cf5ca7caa7e1bacbb668876ef793d64e7cd3ba0d6d345c1fa9a70e502\",\n  \"packages/tools/cachy-asahi-welcome/first-run.txt\": \"2c123deef2cf02b586250c1128907ba294ced83a3671607dd2aef2f3cfa094eb\",\n  \"packages/tools/cachy-asahi-welcome/io.github.GabrielKahen.CachyAsahiWelcome.desktop\": \"2c2159a75c7b0303eebf47e77e89d6d1f6241372f7ecb006c6b11002135cb441\",\n  \"packages/tools/cachy-asahi-welcome/recovery.txt\": \"09e5160543b0739b10f327972e338b01c16269d8bcfc6620325eceed0c6a26a2\",\n  \"packages/tools/cachy-asahi-welcome/status.c\": \"2bfd5f64c724670546057d01312fc6b9591416f6113c65eae8cbb9a53f3909cf\",\n  \"packages/tools/cachy-asahi-welcome/status.h\": \"da0c71ef784debe9ea8ec0be34d8326afe5520ad463efc4a2d432805324b8b78\",\n  \"packages/tools/cachy-asahi-welcome/test_cli.py\": \"722182698ca07b14b03787a52f5b3976f2f039ae048f142f2dee72e6176fa972\",\n  \"packages/tools/cachy-asahi-welcome/test_status.c\": \"710eba6eafd4389bf2bf73bc39c7e727d4d60097cb783c035da60bc4ba8d740e\",\n  \"packages/tools/cachy-asahi-welcome/updates.txt\": \"fcde7d9aa0c6f1a0fc8090c5dc26f405708f18ea760d74b664732e2824d403b8\",\n  \"packages/tools/cachy-asahi-welcome/welcome.c\": \"891e0fc1f8e17c565e3a8c63dd48e47675fa91fffca169bb6d86d97d3db19f32\",\n  \"scripts/build/build.py\": \"e520b37e5dfc285914203cfab99daecc80543505fef7ded6704b3fb06f001d45\",\n  \"scripts/build/compare.py\": \"4198864c264642b196a090a67b36185e5c194e38edc4cb928d08eb65b9f710cd\",\n  \"scripts/build/container-entry.sh\": \"89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24\",\n  \"scripts/checks/package_checks.py\": \"e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8\",\n  \"scripts/ci/maintained-desktop574-inputs.json\": \"b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9\",\n  \"scripts/ci/maintained_desktop574.py\": \"27ba4be42cf2bd41675073e07cccc917ae033f9d68b07a33cfd7f074ac27b760\",\n  \"scripts/ci/old_four_seed.py\": \"a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7\",\n  \"scripts/ci/test_maintained_desktop574.py\": \"e5d7dc11d1a59cf37a273e9a7103c7e55b169335b17c599990946f4e677ca974\",\n  \"scripts/ci/welcome-native/boot-fixture/authored-records.json\": \"cff33cac332a200aeccd983d883b912e875e733b4d13f6f0fb8407367afad7a4\",\n  \"scripts/ci/welcome-native/boot-fixture/decoded-records.json\": \"748f2ea147625682f9acdf3375e02c5e6e5d96fa8d6992cfb328524880a5b15a\",\n  \"scripts/ci/welcome-native/boot-fixture/generation.json\": \"d525387c14fb928809394951b68dc443546380af9da483f7e641a36165843e4d\",\n  \"scripts/ci/welcome-native/boot-fixture/journal.export\": \"4f67b2043c9d9aa48d087a09b0a24aa2b3f2591b4486447989249153e9c48074\",\n  \"scripts/ci/welcome-native/boot-fixture/make_fixture.py\": \"e6d0370267b1bae8343a9f16ec4a79da2b74d6bc09dcd8958bb3e57d84b2c60e\",\n  \"scripts/ci/welcome-native/boot-fixture/system.journal\": \"77c326d908442852de51e66c660153d4c6051390b14466e48fa9c037cc1c573e\",\n  \"scripts/ci/welcome-native/boot-policy.json\": \"f982db26564ea92833be42adab7df61dfe551cf4a0f548b63d3f6e3b109289bc\",\n  \"scripts/ci/welcome-native/boot-recipe.SRCINFO\": \"42d541331daf875b951d8583914bd889c24ddd46f7a1a22e11a927396584d046\",\n  \"scripts/ci/welcome-native/boot_fixture.py\": \"b20a1e43c9f7290b563414c03e16a32a3ddf809c240c061dc8bf8fdd045ed571\",\n  \"scripts/ci/welcome-native/doctor2-policy.json\": \"0a6a7a8be33f50135ddd9f80c15ae54dd86fafb12d9f02d7bb8d474b6be1a33b\",\n  \"scripts/ci/welcome-native/installed_fixture.py\": \"d881a463e9e7be0b1661905dff6d34d423501ce639b37e862242c1ac3d62bb8a\",\n  \"scripts/ci/welcome-native/test_boot_native.py\": \"dbbc9fcaf304016fef285b5c609b13a037323ecbed4ca6e3546182d77a3d8268\",\n  \"scripts/port/preview.py\": \"d737c51474e05cc2c4db2e87fc021f50328eea7744983dd4076d44751fce7383\",\n  \"scripts/virtual/common.py\": \"aef2b4f09a91c4cfd66dd4504e69ef18396a94214c82ae0ec0a43c2716894a03\"\n}\n"
+  },
+  "default_files": {
+    ".github/workflows/native-arm-build.yml": {
+      "bytes": 10376,
+      "sha256": "408c8cbf005fedf9ee203a9303e725ff8bc7cc90d58363f9a7d5fff49beb4aa4"
+    },
+    ".github/workflows/native-arm-welcome-doctor-products.yml": {
+      "bytes": 10376,
+      "sha256": "408c8cbf005fedf9ee203a9303e725ff8bc7cc90d58363f9a7d5fff49beb4aa4"
+    },
+    "packages/tools/cachy-asahi-boot-report/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-boot-report/NOTICE": {
+      "bytes": 274,
+      "sha256": "6e20e714d7d5afcc327260ef23f53cfcba2aa4c2de7e427725c45deed1bb4e65"
+    },
+    "packages/tools/cachy-asahi-boot-report/PKGBUILD": {
+      "bytes": 1234,
+      "sha256": "07031123e32fb142d64bc0cdc5385f1794746965b4c7cb21195047429dc840a1"
+    },
+    "packages/tools/cachy-asahi-boot-report/README.md": {
+      "bytes": 5454,
+      "sha256": "6fca46e91f295568944249db1eda2b7d2719e5f16e940ce0e7f87190f7967a5d"
+    },
+    "packages/tools/cachy-asahi-boot-report/cachy-asahi-boot-report": {
+      "bytes": 17370,
+      "sha256": "d88fa9523b33900b06b8fbfbdb167ecdff98d3787fc620494d738ecf11646cb7"
+    },
+    "packages/tools/cachy-asahi-boot-report/test_boot_report.py": {
+      "bytes": 14940,
+      "sha256": "35170f432adafd37b719e1033f29fa0b97a78c61a2dade25e99dc0e095efc4a4"
+    },
+    "packages/tools/cachy-asahi-doctor/.SRCINFO": {
+      "bytes": 808,
+      "sha256": "6eb3a106a899d701489d5a8903c15e57516544e164c40adebef2748de978284d"
+    },
+    "packages/tools/cachy-asahi-doctor/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-doctor/NOTICE": {
+      "bytes": 563,
+      "sha256": "96aa4022dcf6b97ea2b55ef63d78d5c261bfcd39c303822bad184a33d09e5804"
+    },
+    "packages/tools/cachy-asahi-doctor/PKGBUILD": {
+      "bytes": 1195,
+      "sha256": "119e2b839195e0c18b885b0208928e234af63e2a5f958dbf4fc9edad5a2c04b1"
+    },
+    "packages/tools/cachy-asahi-doctor/README.md": {
+      "bytes": 3995,
+      "sha256": "8d1260424db6e54c8a68b008ab1d317d54a2a58d34655f34ae5059603cf19e4e"
+    },
+    "packages/tools/cachy-asahi-doctor/cachy-asahi-doctor": {
+      "bytes": 14695,
+      "sha256": "d8eb487bc81b5880aceb412360ef674cc214150d61733dfdc8d8654e0f54cf38"
+    },
+    "packages/tools/cachy-asahi-doctor/test_doctor.py": {
+      "bytes": 10694,
+      "sha256": "7d555c98f79204d91c759171273c1ef24564a51d3384d6e8eb10751ab1cc4281"
+    },
+    "packages/tools/cachy-asahi-doctor2/.SRCINFO": {
+      "bytes": 997,
+      "sha256": "f05482cd59d8d70a62ec05d472f84dee16cfb8521970c8cf7476e6eaf99c05a9"
+    },
+    "packages/tools/cachy-asahi-doctor2/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-doctor2/NOTICE": {
+      "bytes": 796,
+      "sha256": "fc77ae01a573c84a5a9970a5f563b3f044de7f04d4f01745c7ab6e9f8ec9b568"
+    },
+    "packages/tools/cachy-asahi-doctor2/PKGBUILD": {
+      "bytes": 1454,
+      "sha256": "6db586b51bda2c0a97b9a581b90495d7aae47db4ce9d904779ade5e3c1d376c7"
+    },
+    "packages/tools/cachy-asahi-doctor2/README.md": {
+      "bytes": 7637,
+      "sha256": "1958eddf33857813874140ae22533f9a2a878fc64f6b18ab277a556107656a52"
+    },
+    "packages/tools/cachy-asahi-doctor2/cachy-asahi-doctor": {
+      "bytes": 18288,
+      "sha256": "f4b6dce36a44037cf6e28003c9da9514c511161ff1926be78c155e8f64f15ced"
+    },
+    "packages/tools/cachy-asahi-doctor2/test_audio.py": {
+      "bytes": 9256,
+      "sha256": "e1ff1fd9bbe932d0e869ed9810543df1ea52b648e71f0a12186854270d3736c8"
+    },
+    "packages/tools/cachy-asahi-doctor2/test_doctor.py": {
+      "bytes": 10743,
+      "sha256": "2f669a6c37b43521edb76717ac0c01818651041d479520676eaac1808195218f"
+    },
+    "packages/tools/cachy-asahi-welcome/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-welcome/Makefile": {
+      "bytes": 2134,
+      "sha256": "ce76cbe478cf4354cb637d738f732515988cac29ea0c7966dffdcb806783a9cf"
+    },
+    "packages/tools/cachy-asahi-welcome/NOTICE": {
+      "bytes": 665,
+      "sha256": "71e80969d77f4079bff80b62c53c84866489d91206a420384fc1622319d8021a"
+    },
+    "packages/tools/cachy-asahi-welcome/PKGBUILD": {
+      "bytes": 2196,
+      "sha256": "1e02bf118d385edf69321c55b9fba41149bea61499fd784d54df6b5904159f86"
+    },
+    "packages/tools/cachy-asahi-welcome/README.md": {
+      "bytes": 3079,
+      "sha256": "55c0a3a77f40d0dbef7af779ab8ce7ef5270536ea3a33071700b7ebe20812f07"
+    },
+    "packages/tools/cachy-asahi-welcome/cachy-asahi-welcome.svg": {
+      "bytes": 531,
+      "sha256": "0db6f69c16766172942551b512e89842d086f4a04320a20bfd9a4473b17a1b73"
+    },
+    "packages/tools/cachy-asahi-welcome/check_source.py": {
+      "bytes": 3279,
+      "sha256": "778e025cf5ca7caa7e1bacbb668876ef793d64e7cd3ba0d6d345c1fa9a70e502"
+    },
+    "packages/tools/cachy-asahi-welcome/first-run.txt": {
+      "bytes": 1484,
+      "sha256": "2c123deef2cf02b586250c1128907ba294ced83a3671607dd2aef2f3cfa094eb"
+    },
+    "packages/tools/cachy-asahi-welcome/io.github.GabrielKahen.CachyAsahiWelcome.desktop": {
+      "bytes": 358,
+      "sha256": "2c2159a75c7b0303eebf47e77e89d6d1f6241372f7ecb006c6b11002135cb441"
+    },
+    "packages/tools/cachy-asahi-welcome/recovery.txt": {
+      "bytes": 1555,
+      "sha256": "09e5160543b0739b10f327972e338b01c16269d8bcfc6620325eceed0c6a26a2"
+    },
+    "packages/tools/cachy-asahi-welcome/status.c": {
+      "bytes": 6735,
+      "sha256": "2bfd5f64c724670546057d01312fc6b9591416f6113c65eae8cbb9a53f3909cf"
+    },
+    "packages/tools/cachy-asahi-welcome/status.h": {
+      "bytes": 833,
+      "sha256": "da0c71ef784debe9ea8ec0be34d8326afe5520ad463efc4a2d432805324b8b78"
+    },
+    "packages/tools/cachy-asahi-welcome/test_cli.py": {
+      "bytes": 3170,
+      "sha256": "722182698ca07b14b03787a52f5b3976f2f039ae048f142f2dee72e6176fa972"
+    },
+    "packages/tools/cachy-asahi-welcome/test_status.c": {
+      "bytes": 5152,
+      "sha256": "710eba6eafd4389bf2bf73bc39c7e727d4d60097cb783c035da60bc4ba8d740e"
+    },
+    "packages/tools/cachy-asahi-welcome/updates.txt": {
+      "bytes": 1445,
+      "sha256": "fcde7d9aa0c6f1a0fc8090c5dc26f405708f18ea760d74b664732e2824d403b8"
+    },
+    "packages/tools/cachy-asahi-welcome/welcome.c": {
+      "bytes": 13447,
+      "sha256": "891e0fc1f8e17c565e3a8c63dd48e47675fa91fffca169bb6d86d97d3db19f32"
+    },
+    "scripts/build/build.py": {
+      "bytes": 11299,
+      "sha256": "e520b37e5dfc285914203cfab99daecc80543505fef7ded6704b3fb06f001d45"
+    },
+    "scripts/build/compare.py": {
+      "bytes": 5820,
+      "sha256": "4198864c264642b196a090a67b36185e5c194e38edc4cb928d08eb65b9f710cd"
+    },
+    "scripts/build/container-entry.sh": {
+      "bytes": 1787,
+      "sha256": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24"
+    },
+    "scripts/checks/package_checks.py": {
+      "bytes": 17706,
+      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
+    },
+    "scripts/ci/maintained-desktop574-inputs.json": {
+      "bytes": 623664,
+      "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
+    },
+    "scripts/ci/maintained_desktop574.py": {
+      "bytes": 22367,
+      "sha256": "27ba4be42cf2bd41675073e07cccc917ae033f9d68b07a33cfd7f074ac27b760"
+    },
+    "scripts/ci/old_four_seed.py": {
+      "bytes": 29048,
+      "sha256": "a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7"
+    },
+    "scripts/ci/test_maintained_desktop574.py": {
+      "bytes": 19082,
+      "sha256": "e5d7dc11d1a59cf37a273e9a7103c7e55b169335b17c599990946f4e677ca974"
+    },
+    "scripts/ci/welcome-native/README.md": {
+      "bytes": 7583,
+      "sha256": "3ced6b7f7f823a642cc6a49b2c0bfb000c47627efb8864bb98cf1ff108cf3207"
+    },
+    "scripts/ci/welcome-native/archive20-policy.json": {
+      "bytes": 6155,
+      "sha256": "1f966afe0c24bb9a928154cb0638a8bb78292c799ffd544132633caddf6217ae"
+    },
+    "scripts/ci/welcome-native/archive20.py": {
+      "bytes": 11096,
+      "sha256": "e8ef66fc0431a04deb331f75258457bf4bdeb13a18bcd863fd5bece3b9a54968"
+    },
+    "scripts/ci/welcome-native/archive32-policy.json": {
+      "bytes": 9488,
+      "sha256": "4f6ce49214422579f1cc448ff95d9f311cbfaf47a0d0c4f32d828c9edf843585"
+    },
+    "scripts/ci/welcome-native/archive32.py": {
+      "bytes": 11102,
+      "sha256": "b1e2fc13644510a613ce09e53b39d4f4471cf47fc03fa62f312258379666c418"
+    },
+    "scripts/ci/welcome-native/archive8-policy.json": {
+      "bytes": 2589,
+      "sha256": "2b21c05d30a9c5efd2f717cfa8475c9de3150d7729f710b348b70a84f5b16e20"
+    },
+    "scripts/ci/welcome-native/archive8.py": {
+      "bytes": 11040,
+      "sha256": "5e24808152c727f5dcd19252c66e1ab121bdb9dbd6b90becb943820634898565"
+    },
+    "scripts/ci/welcome-native/boot-fixture/authored-records.json": {
+      "bytes": 1555,
+      "sha256": "cff33cac332a200aeccd983d883b912e875e733b4d13f6f0fb8407367afad7a4"
+    },
+    "scripts/ci/welcome-native/boot-fixture/decoded-records.json": {
+      "bytes": 2387,
+      "sha256": "748f2ea147625682f9acdf3375e02c5e6e5d96fa8d6992cfb328524880a5b15a"
+    },
+    "scripts/ci/welcome-native/boot-fixture/generation.json": {
+      "bytes": 2904,
+      "sha256": "d525387c14fb928809394951b68dc443546380af9da483f7e641a36165843e4d"
+    },
+    "scripts/ci/welcome-native/boot-fixture/journal.export": {
+      "bytes": 1164,
+      "sha256": "4f67b2043c9d9aa48d087a09b0a24aa2b3f2591b4486447989249153e9c48074"
+    },
+    "scripts/ci/welcome-native/boot-fixture/make_fixture.py": {
+      "bytes": 3123,
+      "sha256": "e6d0370267b1bae8343a9f16ec4a79da2b74d6bc09dcd8958bb3e57d84b2c60e"
+    },
+    "scripts/ci/welcome-native/boot-fixture/system.journal": {
+      "bytes": 8388608,
+      "sha256": "77c326d908442852de51e66c660153d4c6051390b14466e48fa9c037cc1c573e"
+    },
+    "scripts/ci/welcome-native/boot-policy.json": {
+      "bytes": 179,
+      "sha256": "f982db26564ea92833be42adab7df61dfe551cf4a0f548b63d3f6e3b109289bc"
+    },
+    "scripts/ci/welcome-native/boot-recipe.SRCINFO": {
+      "bytes": 817,
+      "sha256": "42d541331daf875b951d8583914bd889c24ddd46f7a1a22e11a927396584d046"
+    },
+    "scripts/ci/welcome-native/boot_fixture.py": {
+      "bytes": 6844,
+      "sha256": "b20a1e43c9f7290b563414c03e16a32a3ddf809c240c061dc8bf8fdd045ed571"
+    },
+    "scripts/ci/welcome-native/check_inputs.py": {
+      "bytes": 2377,
+      "sha256": "56c4ed5145676781d5d621afa818fefc383cd1ce985c0a70437f99138f83a742"
+    },
+    "scripts/ci/welcome-native/ci/HANDOFF.md": {
+      "bytes": 2434,
+      "sha256": "5e3849debd2ec3dbb66ae984728d9e8bccecc1e67968303405c064f0b5f28c51"
+    },
+    "scripts/ci/welcome-native/ci/caller.py": {
+      "bytes": 8616,
+      "sha256": "ed3e8605535dd7ce5cbde17f770e9b3090894f2a360dfb932b31968095609dc0"
+    },
+    "scripts/ci/welcome-native/ci/source-manifest.json": {
+      "bytes": 12665,
+      "sha256": "fb5d60354a11e8b0f40b466c8a072a07320e65a375bcf30a126124688f0d3799"
+    },
+    "scripts/ci/welcome-native/ci/test_caller.py": {
+      "bytes": 7403,
+      "sha256": "dfce7fcf871705625a511ff96416591fcad3239d02e6d24fca6e7a9020d4b83a"
+    },
+    "scripts/ci/welcome-native/contract.py": {
+      "bytes": 11330,
+      "sha256": "3b629c3f16a70ad524e375d0a110f62f4ee72ddbfb2a22c0638abe5748d4363d"
+    },
+    "scripts/ci/welcome-native/doctor2-policy.json": {
+      "bytes": 933,
+      "sha256": "0a6a7a8be33f50135ddd9f80c15ae54dd86fafb12d9f02d7bb8d474b6be1a33b"
+    },
+    "scripts/ci/welcome-native/installed_fixture.py": {
+      "bytes": 1477,
+      "sha256": "d881a463e9e7be0b1661905dff6d34d423501ce639b37e862242c1ac3d62bb8a"
+    },
+    "scripts/ci/welcome-native/lifecycle.py": {
+      "bytes": 5812,
+      "sha256": "74474f1de64a4b423bcd84cdf60312bb36ab7d62cd12b48932428a432a6cd02b"
+    },
+    "scripts/ci/welcome-native/package-inputs.json": {
+      "bytes": 289137,
+      "sha256": "1a97ee205ce5ff475f803c9168c78683d2a855f98359a1dfac7f97c3703279da"
+    },
+    "scripts/ci/welcome-native/run.py": {
+      "bytes": 12788,
+      "sha256": "70dee50b399ec4b5251aeac8fc64a449f1f04dc83f5c94cd7728120d78d5f460"
+    },
+    "scripts/ci/welcome-native/source-pins.json": {
+      "bytes": 7016,
+      "sha256": "e477cc2c6ef147bece604bb205738b17290018644d912a57d9c76976c6c3044f"
+    },
+    "scripts/ci/welcome-native/test_boot_native.py": {
+      "bytes": 5381,
+      "sha256": "dbbc9fcaf304016fef285b5c609b13a037323ecbed4ca6e3546182d77a3d8268"
+    },
+    "scripts/ci/welcome-native/test_native.py": {
+      "bytes": 13397,
+      "sha256": "89b6ab073a525c01891083d67c0bc87f32d8622828e9b3cca6a67f1fb6a031a4"
+    },
+    "scripts/port/preview.py": {
+      "bytes": 19736,
+      "sha256": "d737c51474e05cc2c4db2e87fc021f50328eea7744983dd4076d44751fce7383"
+    },
+    "scripts/virtual/common.py": {
+      "bytes": 84361,
+      "sha256": "aef2b4f09a91c4cfd66dd4504e69ef18396a94214c82ae0ec0a43c2716894a03"
+    }
+  },
+  "schema_version": 1,
+  "selected_files": {
+    ".github/workflows/native-arm-build.yml": {
+      "bytes": 10376,
+      "sha256": "3214ce1db83a9368cbb325970262969ac0b577cb2f81b35e6e2059f572563d66"
+    },
+    ".github/workflows/native-arm-welcome-doctor-products.yml": {
+      "bytes": 10376,
+      "sha256": "3214ce1db83a9368cbb325970262969ac0b577cb2f81b35e6e2059f572563d66"
+    },
+    "packages/tools/cachy-asahi-boot-report/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-boot-report/NOTICE": {
+      "bytes": 274,
+      "sha256": "6e20e714d7d5afcc327260ef23f53cfcba2aa4c2de7e427725c45deed1bb4e65"
+    },
+    "packages/tools/cachy-asahi-boot-report/PKGBUILD": {
+      "bytes": 1234,
+      "sha256": "07031123e32fb142d64bc0cdc5385f1794746965b4c7cb21195047429dc840a1"
+    },
+    "packages/tools/cachy-asahi-boot-report/README.md": {
+      "bytes": 5454,
+      "sha256": "6fca46e91f295568944249db1eda2b7d2719e5f16e940ce0e7f87190f7967a5d"
+    },
+    "packages/tools/cachy-asahi-boot-report/cachy-asahi-boot-report": {
+      "bytes": 17370,
+      "sha256": "d88fa9523b33900b06b8fbfbdb167ecdff98d3787fc620494d738ecf11646cb7"
+    },
+    "packages/tools/cachy-asahi-boot-report/test_boot_report.py": {
+      "bytes": 14940,
+      "sha256": "35170f432adafd37b719e1033f29fa0b97a78c61a2dade25e99dc0e095efc4a4"
+    },
+    "packages/tools/cachy-asahi-doctor/.SRCINFO": {
+      "bytes": 808,
+      "sha256": "6eb3a106a899d701489d5a8903c15e57516544e164c40adebef2748de978284d"
+    },
+    "packages/tools/cachy-asahi-doctor/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-doctor/NOTICE": {
+      "bytes": 563,
+      "sha256": "96aa4022dcf6b97ea2b55ef63d78d5c261bfcd39c303822bad184a33d09e5804"
+    },
+    "packages/tools/cachy-asahi-doctor/PKGBUILD": {
+      "bytes": 1195,
+      "sha256": "119e2b839195e0c18b885b0208928e234af63e2a5f958dbf4fc9edad5a2c04b1"
+    },
+    "packages/tools/cachy-asahi-doctor/README.md": {
+      "bytes": 3995,
+      "sha256": "8d1260424db6e54c8a68b008ab1d317d54a2a58d34655f34ae5059603cf19e4e"
+    },
+    "packages/tools/cachy-asahi-doctor/cachy-asahi-doctor": {
+      "bytes": 14695,
+      "sha256": "d8eb487bc81b5880aceb412360ef674cc214150d61733dfdc8d8654e0f54cf38"
+    },
+    "packages/tools/cachy-asahi-doctor/test_doctor.py": {
+      "bytes": 10694,
+      "sha256": "7d555c98f79204d91c759171273c1ef24564a51d3384d6e8eb10751ab1cc4281"
+    },
+    "packages/tools/cachy-asahi-doctor2/.SRCINFO": {
+      "bytes": 997,
+      "sha256": "f05482cd59d8d70a62ec05d472f84dee16cfb8521970c8cf7476e6eaf99c05a9"
+    },
+    "packages/tools/cachy-asahi-doctor2/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-doctor2/NOTICE": {
+      "bytes": 796,
+      "sha256": "fc77ae01a573c84a5a9970a5f563b3f044de7f04d4f01745c7ab6e9f8ec9b568"
+    },
+    "packages/tools/cachy-asahi-doctor2/PKGBUILD": {
+      "bytes": 1454,
+      "sha256": "6db586b51bda2c0a97b9a581b90495d7aae47db4ce9d904779ade5e3c1d376c7"
+    },
+    "packages/tools/cachy-asahi-doctor2/README.md": {
+      "bytes": 7637,
+      "sha256": "1958eddf33857813874140ae22533f9a2a878fc64f6b18ab277a556107656a52"
+    },
+    "packages/tools/cachy-asahi-doctor2/cachy-asahi-doctor": {
+      "bytes": 18288,
+      "sha256": "f4b6dce36a44037cf6e28003c9da9514c511161ff1926be78c155e8f64f15ced"
+    },
+    "packages/tools/cachy-asahi-doctor2/test_audio.py": {
+      "bytes": 9256,
+      "sha256": "e1ff1fd9bbe932d0e869ed9810543df1ea52b648e71f0a12186854270d3736c8"
+    },
+    "packages/tools/cachy-asahi-doctor2/test_doctor.py": {
+      "bytes": 10743,
+      "sha256": "2f669a6c37b43521edb76717ac0c01818651041d479520676eaac1808195218f"
+    },
+    "packages/tools/cachy-asahi-welcome/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-welcome/Makefile": {
+      "bytes": 2134,
+      "sha256": "ce76cbe478cf4354cb637d738f732515988cac29ea0c7966dffdcb806783a9cf"
+    },
+    "packages/tools/cachy-asahi-welcome/NOTICE": {
+      "bytes": 665,
+      "sha256": "71e80969d77f4079bff80b62c53c84866489d91206a420384fc1622319d8021a"
+    },
+    "packages/tools/cachy-asahi-welcome/PKGBUILD": {
+      "bytes": 2196,
+      "sha256": "1e02bf118d385edf69321c55b9fba41149bea61499fd784d54df6b5904159f86"
+    },
+    "packages/tools/cachy-asahi-welcome/README.md": {
+      "bytes": 3079,
+      "sha256": "55c0a3a77f40d0dbef7af779ab8ce7ef5270536ea3a33071700b7ebe20812f07"
+    },
+    "packages/tools/cachy-asahi-welcome/cachy-asahi-welcome.svg": {
+      "bytes": 531,
+      "sha256": "0db6f69c16766172942551b512e89842d086f4a04320a20bfd9a4473b17a1b73"
+    },
+    "packages/tools/cachy-asahi-welcome/check_source.py": {
+      "bytes": 3279,
+      "sha256": "778e025cf5ca7caa7e1bacbb668876ef793d64e7cd3ba0d6d345c1fa9a70e502"
+    },
+    "packages/tools/cachy-asahi-welcome/first-run.txt": {
+      "bytes": 1484,
+      "sha256": "2c123deef2cf02b586250c1128907ba294ced83a3671607dd2aef2f3cfa094eb"
+    },
+    "packages/tools/cachy-asahi-welcome/io.github.GabrielKahen.CachyAsahiWelcome.desktop": {
+      "bytes": 358,
+      "sha256": "2c2159a75c7b0303eebf47e77e89d6d1f6241372f7ecb006c6b11002135cb441"
+    },
+    "packages/tools/cachy-asahi-welcome/recovery.txt": {
+      "bytes": 1555,
+      "sha256": "09e5160543b0739b10f327972e338b01c16269d8bcfc6620325eceed0c6a26a2"
+    },
+    "packages/tools/cachy-asahi-welcome/status.c": {
+      "bytes": 6735,
+      "sha256": "2bfd5f64c724670546057d01312fc6b9591416f6113c65eae8cbb9a53f3909cf"
+    },
+    "packages/tools/cachy-asahi-welcome/status.h": {
+      "bytes": 833,
+      "sha256": "da0c71ef784debe9ea8ec0be34d8326afe5520ad463efc4a2d432805324b8b78"
+    },
+    "packages/tools/cachy-asahi-welcome/test_cli.py": {
+      "bytes": 3170,
+      "sha256": "722182698ca07b14b03787a52f5b3976f2f039ae048f142f2dee72e6176fa972"
+    },
+    "packages/tools/cachy-asahi-welcome/test_status.c": {
+      "bytes": 5152,
+      "sha256": "710eba6eafd4389bf2bf73bc39c7e727d4d60097cb783c035da60bc4ba8d740e"
+    },
+    "packages/tools/cachy-asahi-welcome/updates.txt": {
+      "bytes": 1445,
+      "sha256": "fcde7d9aa0c6f1a0fc8090c5dc26f405708f18ea760d74b664732e2824d403b8"
+    },
+    "packages/tools/cachy-asahi-welcome/welcome.c": {
+      "bytes": 13447,
+      "sha256": "891e0fc1f8e17c565e3a8c63dd48e47675fa91fffca169bb6d86d97d3db19f32"
+    },
+    "scripts/build/build.py": {
+      "bytes": 11299,
+      "sha256": "e520b37e5dfc285914203cfab99daecc80543505fef7ded6704b3fb06f001d45"
+    },
+    "scripts/build/compare.py": {
+      "bytes": 5820,
+      "sha256": "4198864c264642b196a090a67b36185e5c194e38edc4cb928d08eb65b9f710cd"
+    },
+    "scripts/build/container-entry.sh": {
+      "bytes": 1787,
+      "sha256": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24"
+    },
+    "scripts/checks/package_checks.py": {
+      "bytes": 17706,
+      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
+    },
+    "scripts/ci/maintained-desktop574-inputs.json": {
+      "bytes": 623664,
+      "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
+    },
+    "scripts/ci/maintained_desktop574.py": {
+      "bytes": 22367,
+      "sha256": "27ba4be42cf2bd41675073e07cccc917ae033f9d68b07a33cfd7f074ac27b760"
+    },
+    "scripts/ci/old_four_seed.py": {
+      "bytes": 29048,
+      "sha256": "a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7"
+    },
+    "scripts/ci/test_maintained_desktop574.py": {
+      "bytes": 19082,
+      "sha256": "e5d7dc11d1a59cf37a273e9a7103c7e55b169335b17c599990946f4e677ca974"
+    },
+    "scripts/ci/welcome-native/README.md": {
+      "bytes": 7583,
+      "sha256": "3ced6b7f7f823a642cc6a49b2c0bfb000c47627efb8864bb98cf1ff108cf3207"
+    },
+    "scripts/ci/welcome-native/archive20-policy.json": {
+      "bytes": 6155,
+      "sha256": "1f966afe0c24bb9a928154cb0638a8bb78292c799ffd544132633caddf6217ae"
+    },
+    "scripts/ci/welcome-native/archive20.py": {
+      "bytes": 11096,
+      "sha256": "e8ef66fc0431a04deb331f75258457bf4bdeb13a18bcd863fd5bece3b9a54968"
+    },
+    "scripts/ci/welcome-native/archive32-policy.json": {
+      "bytes": 9488,
+      "sha256": "4f6ce49214422579f1cc448ff95d9f311cbfaf47a0d0c4f32d828c9edf843585"
+    },
+    "scripts/ci/welcome-native/archive32.py": {
+      "bytes": 11102,
+      "sha256": "b1e2fc13644510a613ce09e53b39d4f4471cf47fc03fa62f312258379666c418"
+    },
+    "scripts/ci/welcome-native/archive8-policy.json": {
+      "bytes": 2589,
+      "sha256": "2b21c05d30a9c5efd2f717cfa8475c9de3150d7729f710b348b70a84f5b16e20"
+    },
+    "scripts/ci/welcome-native/archive8.py": {
+      "bytes": 11040,
+      "sha256": "5e24808152c727f5dcd19252c66e1ab121bdb9dbd6b90becb943820634898565"
+    },
+    "scripts/ci/welcome-native/boot-fixture/authored-records.json": {
+      "bytes": 1555,
+      "sha256": "cff33cac332a200aeccd983d883b912e875e733b4d13f6f0fb8407367afad7a4"
+    },
+    "scripts/ci/welcome-native/boot-fixture/decoded-records.json": {
+      "bytes": 2387,
+      "sha256": "748f2ea147625682f9acdf3375e02c5e6e5d96fa8d6992cfb328524880a5b15a"
+    },
+    "scripts/ci/welcome-native/boot-fixture/generation.json": {
+      "bytes": 2904,
+      "sha256": "d525387c14fb928809394951b68dc443546380af9da483f7e641a36165843e4d"
+    },
+    "scripts/ci/welcome-native/boot-fixture/journal.export": {
+      "bytes": 1164,
+      "sha256": "4f67b2043c9d9aa48d087a09b0a24aa2b3f2591b4486447989249153e9c48074"
+    },
+    "scripts/ci/welcome-native/boot-fixture/make_fixture.py": {
+      "bytes": 3123,
+      "sha256": "e6d0370267b1bae8343a9f16ec4a79da2b74d6bc09dcd8958bb3e57d84b2c60e"
+    },
+    "scripts/ci/welcome-native/boot-fixture/system.journal": {
+      "bytes": 8388608,
+      "sha256": "77c326d908442852de51e66c660153d4c6051390b14466e48fa9c037cc1c573e"
+    },
+    "scripts/ci/welcome-native/boot-policy.json": {
+      "bytes": 771,
+      "sha256": "0bb736af66442695fd47997a086f60dff0e6f50cc3fbe3433e34bc75f3702f9c"
+    },
+    "scripts/ci/welcome-native/boot-recipe.SRCINFO": {
+      "bytes": 817,
+      "sha256": "42d541331daf875b951d8583914bd889c24ddd46f7a1a22e11a927396584d046"
+    },
+    "scripts/ci/welcome-native/boot_fixture.py": {
+      "bytes": 6844,
+      "sha256": "b20a1e43c9f7290b563414c03e16a32a3ddf809c240c061dc8bf8fdd045ed571"
+    },
+    "scripts/ci/welcome-native/check_inputs.py": {
+      "bytes": 2377,
+      "sha256": "56c4ed5145676781d5d621afa818fefc383cd1ce985c0a70437f99138f83a742"
+    },
+    "scripts/ci/welcome-native/ci/HANDOFF.md": {
+      "bytes": 2434,
+      "sha256": "5e3849debd2ec3dbb66ae984728d9e8bccecc1e67968303405c064f0b5f28c51"
+    },
+    "scripts/ci/welcome-native/ci/caller.py": {
+      "bytes": 8616,
+      "sha256": "ed3e8605535dd7ce5cbde17f770e9b3090894f2a360dfb932b31968095609dc0"
+    },
+    "scripts/ci/welcome-native/ci/source-manifest.json": {
+      "bytes": 12665,
+      "sha256": "c5e4c4e738cffd75b53c0d37a6583bf4202e819af60c3b863d3e799cfd4ff9b6"
+    },
+    "scripts/ci/welcome-native/ci/test_caller.py": {
+      "bytes": 7403,
+      "sha256": "dfce7fcf871705625a511ff96416591fcad3239d02e6d24fca6e7a9020d4b83a"
+    },
+    "scripts/ci/welcome-native/contract.py": {
+      "bytes": 11330,
+      "sha256": "3b629c3f16a70ad524e375d0a110f62f4ee72ddbfb2a22c0638abe5748d4363d"
+    },
+    "scripts/ci/welcome-native/doctor2-policy.json": {
+      "bytes": 933,
+      "sha256": "0a6a7a8be33f50135ddd9f80c15ae54dd86fafb12d9f02d7bb8d474b6be1a33b"
+    },
+    "scripts/ci/welcome-native/installed_fixture.py": {
+      "bytes": 1477,
+      "sha256": "d881a463e9e7be0b1661905dff6d34d423501ce639b37e862242c1ac3d62bb8a"
+    },
+    "scripts/ci/welcome-native/lifecycle.py": {
+      "bytes": 5812,
+      "sha256": "74474f1de64a4b423bcd84cdf60312bb36ab7d62cd12b48932428a432a6cd02b"
+    },
+    "scripts/ci/welcome-native/package-inputs.json": {
+      "bytes": 289137,
+      "sha256": "1a97ee205ce5ff475f803c9168c78683d2a855f98359a1dfac7f97c3703279da"
+    },
+    "scripts/ci/welcome-native/run.py": {
+      "bytes": 12788,
+      "sha256": "70dee50b399ec4b5251aeac8fc64a449f1f04dc83f5c94cd7728120d78d5f460"
+    },
+    "scripts/ci/welcome-native/source-pins.json": {
+      "bytes": 7016,
+      "sha256": "dbd7b8338ebd479b1fd34588d729c3ffe70f2c4b338bc86a1e1fcbd0ab9ca701"
+    },
+    "scripts/ci/welcome-native/test_boot_native.py": {
+      "bytes": 5381,
+      "sha256": "dbbc9fcaf304016fef285b5c609b13a037323ecbed4ca6e3546182d77a3d8268"
+    },
+    "scripts/ci/welcome-native/test_native.py": {
+      "bytes": 13397,
+      "sha256": "89b6ab073a525c01891083d67c0bc87f32d8622828e9b3cca6a67f1fb6a031a4"
+    },
+    "scripts/port/preview.py": {
+      "bytes": 19736,
+      "sha256": "d737c51474e05cc2c4db2e87fc021f50328eea7744983dd4076d44751fce7383"
+    },
+    "scripts/virtual/common.py": {
+      "bytes": 84361,
+      "sha256": "aef2b4f09a91c4cfd66dd4504e69ef18396a94214c82ae0ec0a43c2716894a03"
+    }
+  }
+}

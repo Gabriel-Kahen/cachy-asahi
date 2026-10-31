@@ -1,0 +1,66 @@
+{
+  ".github/workflows/native-arm-expanded600-installer-vm.yml": {
+    "bytes": 25071,
+    "sha256": "31bf9edea0381122d84ba99f1dcadd38d3ec8e4e9e70a6d91a70347bb80695e6"
+  },
+  "scripts/ci/expanded600-installer-vm/README.md": {
+    "bytes": 6946,
+    "sha256": "3a94d0723597ea1c78f58ffbc2f8466546d39438003d74df609a09a97194bf53"
+  },
+  "scripts/ci/expanded600-installer-vm/adapter-rules.json": {
+    "bytes": 3895,
+    "sha256": "384a41d4db2159686736208fd2e0707a0c579816ac3190007c38a8c1dd63d7e1"
+  },
+  "scripts/ci/expanded600-installer-vm/adapter.py": {
+    "bytes": 5094,
+    "sha256": "df60573ea722d4ccd9312b0be132bdc302ded9fd3fc8e2473e0077920731a100"
+  },
+  "scripts/ci/expanded600-installer-vm/call-rules.json": {
+    "bytes": 98,
+    "sha256": "36784cbefc735e62ad51f75501983e2e2fc90753d1e058913a51c6a02ff079d1"
+  },
+  "scripts/ci/expanded600-installer-vm/ci.py": {
+    "bytes": 9156,
+    "sha256": "8850ee29f636bede4d32cc52925b6310da3c1b914acae156a2d5e03efd0c4291"
+  },
+  "scripts/ci/expanded600-installer-vm/contract.py": {
+    "bytes": 6642,
+    "sha256": "f636c614ae42fbc32ed8396441351872cc20db19bab4d6ac40b04dabd9cb9fd8"
+  },
+  "scripts/ci/expanded600-installer-vm/expected587.lock": {
+    "bytes": 11492,
+    "sha256": "2198942a546f4714587c810fe174d4457121960f3a7b1dbaa276e9f970f322c7"
+  },
+  "scripts/ci/expanded600-installer-vm/expected600.lock": {
+    "bytes": 11874,
+    "sha256": "d263a3ca9089c204603f2e12b80dc4f209ee6e636f10da940a514040b636db79"
+  },
+  "scripts/ci/expanded600-installer-vm/gate.py": {
+    "bytes": 1869,
+    "sha256": "2f7fbedf016639b87014da77f335ce82f0f01732b5c98fcef118d4fd7b91e8f7"
+  },
+  "scripts/ci/expanded600-installer-vm/input-policy.json": {
+    "bytes": 1164,
+    "sha256": "b1f92bef726b5ee1d6c7265a4480c9c61d3733327071598d6549d4b41539d5ed"
+  },
+  "scripts/ci/expanded600-installer-vm/legacy-pins.json": {
+    "bytes": 12884,
+    "sha256": "67416a3d292d3938c0a2d747d6bea08cd750b585fdd67473e62fac55e14a66c1"
+  },
+  "scripts/ci/expanded600-installer-vm/materializer.py": {
+    "bytes": 11186,
+    "sha256": "595e53962345923c6cc8e6e01a611389cb7701cb916ab7757c7614a3b7935d56"
+  },
+  "scripts/ci/expanded600-installer-vm/observer600.py": {
+    "bytes": 2784,
+    "sha256": "c3d804e7f2927c7889835ad187a39a3d7c618a4651700f57b0c5413c46612607"
+  },
+  "scripts/ci/expanded600-installer-vm/test_observer600.py": {
+    "bytes": 10942,
+    "sha256": "6fedfd937e7af2de21aa998efcbf83dc403eed9b52a59723c7c3411151c44222"
+  },
+  "scripts/ci/expanded600-installer-vm/test_source.py": {
+    "bytes": 15792,
+    "sha256": "0c992bef42ef9d6b3056edffe2e59f9bf278059817c5be250a53c145ca42e657"
+  }
+}

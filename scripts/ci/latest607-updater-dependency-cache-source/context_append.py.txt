@@ -1,0 +1,18 @@
+
+
+def cache_before(parent,values):
+ """One source-DATA inverse before the original357/355/208 proof, no runtime cache."""
+ c=parent['dependency_cache_context'];before=c['files'];C.need(c['source']=='01afa13fc81831099dab2bacdcbb59a9b030b5b6'and c['ref']=='codex/latest607-updater-bound-v1'and len(before)==357 and set(values)==set(before)|{'implementation/compiler6.py','implementation/compiler6-profile.json','implementation/producer_diagnostic.py'},'whole bound357 plus only three cache operands')
+ C.need(c['reused_source']=='ddfc78e30552356baa94fa123f17fd33efc2aedc'and c['reused_ref']=='codex/latest607-fresh-dependency-cache-v1'and C.profile()['dependency_cache']['operands']==c['operands'],'exact public source-owned cache/diagnostic operands')
+ for n,w in c['operands'].items():C.need(C.pin(values['implementation/'+n])==w,'whole byte-held reused helper '+n)
+ import cache
+ cache.dependency_policy();helper=C.load('_source_only_dependency_policy',C.HERE/'compiler6.py');helper.dependency_configuration()
+ prior=dict(parent);prior.pop('dependency_cache_context');restored={}
+ for n,w in before.items():
+  if n=='implementation/parent355.json':raw=C.enc(prior)
+  elif n in c['before_bodies']:raw=c['before_bodies'][n].encode()
+  elif n=='source-manifest.json':
+   manifest=json.loads(values[n]);manifest['files']={k:r for k,r in before.items()if k!='source-manifest.json'};raw=C.enc(manifest)
+  else:raw=values[n]
+  C.need(C.pin(raw)==w,'entire bound357 dependency-before inverse '+n);restored[n]=raw
+ return prior,restored

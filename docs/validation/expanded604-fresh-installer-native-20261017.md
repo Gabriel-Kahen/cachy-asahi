@@ -1,0 +1,13 @@
+# Full604 fresh installer: generic4K software acceptance
+
+Root accepts run38983143323, source`2d7414053d35ca8427ed2ee072c4507f5a08fc72`, within the complete signed604 generic4K fresh-install scope. This does not accept physical Apple installation/boot, hardware, performance, service/audio behavior, native-container P0 or a supported release.
+
+The terminal original log ZIP is3155003 bytes, SHA256`612c6d84a5f29d24ac0869f885afabc86f08f0aa85fd1011c8b9b2b98ae5ec81`. The zero-artifact transport's exact public frame is37595 bytes, SHA256`6ac571aad8160323ebf5cc9cb942480595e53bb9218d03f65ffb0aed6940392b`. Original collection occurred once. Its closed ten-file public set is143242 bytes, including retention. Root independently replayed the exact passive verifier and joined all158 frozen implementation/held/decision Git blobs, including68 source records,53 accepted native604 records,83 held records and six explicit original→600→604 adapters.
+
+All15 original parent/root completion flags pass, including namespace/privilege boundaries, commit/database/payload/ownership verification, source cache and parent inventory preservation, private trust and process retirement. Independent root observation completes124479 nodes/4930112074 bytes in454115ms, within the unchanged600-second bound. All1209 required database nodes are observed. The full footprint records1841 database files/11796561 bytes,1048 hardlink inodes and13337 symlinks; no unsupported reasons are hidden. Numeric ownership/namespace and original full hashing/fallback checks remain required.
+
+QEMU exits naturally with0 after3599.383s. Ordered consumer/cache/producer retirement passes through retained source-bound records. Native604 and signed fresh600 prerequisite decisions join their exact published original bytes. The complete604 inventory hash is`76c37db5eb097662f4a9ca0465680de285466b0443916a50255ea5b8f6d6c946`.
+
+Private raw node/hash/ownership maps and target/profile/lock bytes are not exported. Replay verifies complete summaries and exact frozen protocol/source joins, rather than making another raw readback. Live actor absence is not newly observed. Runtime statx versus original fdinfo fallback is unexported. Original native-container P0 remains failed; no M2 or release credit transfers.
+
+Originals, Root replay, source joins and decision are retained under`artifacts/development/native-frontier-terminal-20261017/38983143323`. The final604 updater still requires all three actual600 copied-root normal/precommit86/postcommit87 acceptance records before binding; this installer success does not manufacture those prerequisites.

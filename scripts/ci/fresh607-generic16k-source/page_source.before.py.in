@@ -1,0 +1,70 @@
+# SPDX-License-Identifier: MIT
+"""Finite whole1197 inverse; exact old guard executes once in a private namespace."""
+import importlib.util,json,sys,tempfile
+from pathlib import Path
+import common as C
+PARENT_SHA='@PARENT_SHA@'
+ALIASES=('.github/workflows/native-arm-build.yml','.github/workflows/native-arm-latest607-fresh-installer.yml')
+DOC='''\n\nExplicit generic16K TEST mode keeps the default4K six emitted bodies exact. Its kernel20 input is accepted BUILD_ONLY, never prior boot/lifecycle evidence. It uses the same607 ledger, signatures, ALPM/toolchain, namespace, post-parent root readback and retirement predicates with all old clocks. The stock rootfs kernel/modules/depmod remain unchanged; the separately pinned Image is QEMU input only. New actual/source/ref/run/Root authority and16K fit remain UNBOUND/NOT_RUN. It is not an Asahi/platform change or M2 compatibility result. See implementation/page-mode-profile.json for exact source/license/input scope.\n'''
+STEP='''      - name: Checkout exact kernel20 build-only source context for explicit16K
+        if: ${{ inputs.page_mode == 'generic16k' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: de1aab259df6bda8ad36f959392e3fc4eb35b622
+          path: fresh607-kernel20-source
+          persist-credentials: false
+      - name: Acquire only exact existing BUILD_ONLY kernel20 input for explicit16K
+        if: ${{ inputs.page_mode == 'generic16k' }}
+        timeout-minutes: 6
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          timeout --signal=TERM --kill-after=10s 300s python3 -I -B fresh607-code/implementation/kernel20_input.py --source "$GITHUB_WORKSPACE/fresh607-kernel20-source" --output "$RUNNER_TEMP/fresh607-kernel20-data"
+'''
+def one(raw,a,b):
+ C.need(raw.count(a.encode())==1,'one exact page-context seam '+a[:60]);return raw.replace(a.encode(),b.encode(),1)
+def with_mode(raw):
+ out=one(raw,'      mode:\n',"      page_mode:\n        description: Generic software VM page mode;16K uses only fixed BUILD_ONLY kernel20\n        required: true\n        default: generic4k\n        type: choice\n        options: [generic4k, generic16k]\n      mode:\n")
+ out=one(out,'      - name: Checkout issued Root accepted Six853 DATA record\n',STEP+'      - name: Checkout issued Root accepted Six853 DATA record\n')
+ out=one(out,'          FRESH_SOURCE: ${{ inputs.fresh_source_revision }}\n          IMPLEMENTATION_SOURCE: ${{ inputs.source }}\n','          FRESH_SOURCE: ${{ inputs.fresh_source_revision }}\n          IMPLEMENTATION_SOURCE: ${{ inputs.source }}\n          PAGE_MODE: ${{ inputs.page_mode }}\n')
+ out=one(out,'          test "$AUDIO_INPUTS_OUTCOME" = success\n','          test "$AUDIO_INPUTS_OUTCOME" = success\n          page_args=(--page-mode "$PAGE_MODE")\n          case "$PAGE_MODE" in generic4k) ;; generic16k) page_args+=(--kernel-input "$RUNNER_TEMP/fresh607-kernel20-data");; *) exit 1;; esac\n')
+ out=one(out,'      - name: Run unchanged installer controls and focused604 controls without actors\n','      - name: Current generic page-mode and complete607 source controls without actors\n        shell: bash\n        env:\n          FRESH607_ACCEPTED_PUBLIC: ${{ runner.temp }}/fresh607-input-data\n        run: |\n          set -euo pipefail\n          python3 -I -B fresh607-code/implementation/test_source.py\n          python3 -I -B fresh607-code/implementation/test_page_mode.py\n      - name: Run unchanged installer controls and focused604 controls without actors\n')
+ out=one(out,'              --tooling-inputs "$GITHUB_WORKSPACE/fresh607-tooling-inputs" \\\n','              --tooling-inputs "$GITHUB_WORKSPACE/fresh607-tooling-inputs" "${page_args[@]}" \\\n');return out
+
+def run_body(raw):
+ out=one(raw,'runtime_context,tooling_inputs','runtime_context,tooling_inputs,page_mode')
+ out=one(out," def __init__(self,record,public,legacy,contract,source=None,decision=None,tooling_root=None):self.tooling_root=tooling_root;", " def __init__(self,record,public,legacy,contract,source=None,decision=None,tooling_root=None,page='generic4k',kernel_input=None):page_mode.select(page,kernel_input);self.page,self.kernel_input=page,kernel_input;self.scope='GENERIC4K_LATEST607_FRESH_INSTALLER_SOFTWARE_ONLY'if page=='generic4k'else'GENERIC16K_LATEST607_FRESH_INSTALLER_SOFTWARE_ONLY';self.tooling_root=tooling_root;")
+ out=one(out,' def candidate(self,path):return adapter.emit(path)'," def candidate(self,path):return adapter.emit(path)if self.page=='generic4k'else page_mode.emit(path,self.kernel_input)")
+ out=one(out,"\"'GENERIC4K_LATEST607_FRESH_INSTALLER_SOFTWARE_ONLY'\"","'Y.scope'")
+ out=one(out,"p.add_argument('--fresh-source-revision',required=True);", "p.add_argument('--page-mode',choices=('generic4k','generic16k'),default='generic4k');p.add_argument('--kernel-input',type=Path);p.add_argument('--fresh-source-revision',required=True);")
+ out=one(out,'Integration(record,public,legacy,contract,new.fresh_source_revision,decision,tooling_root)','Integration(record,public,legacy,contract,new.fresh_source_revision,decision,tooling_root,new.page_mode,new.kernel_input)');compile(out,'<finite-page-owner>','exec');return out
+
+def transformed(before,products,parent,guard):
+ v=dict(before);v.update(products);v['implementation/page-parent.json']=parent;v['implementation/page_source.py']=guard;v['implementation/run.py']=run_body(v['implementation/run.py']);v['implementation/source_guard.py']=one(v['implementation/source_guard.py'],' import tooling_source\n return tooling_source.verify()',' import page_source\n return page_source.verify()');v['implementation/workflow-template.yml']=with_mode(v['implementation/workflow-template.yml'])
+ old="template=__import__('tooling_source').with_tooling(__import__('compiler6_source').with_compiler6(__import__('cache_controls_context').with_cache(workflow.derive(old))));self.assertEqual";new="template=__import__('page_source').with_mode(__import__('tooling_source').with_tooling(__import__('compiler6_source').with_compiler6(__import__('cache_controls_context').with_cache(workflow.derive(old)))));self.assertEqual";v['implementation/test_source.py']=one(v['implementation/test_source.py'],old,new);v['README.md']+=DOC.encode();m=json.loads(v['source-manifest.json']);m['files']={n:C.pin(raw)for n,raw in v.items()if n not in('source-manifest.json',*ALIASES)};v['source-manifest.json']=C.enc(m)
+ for n in ALIASES:v[n]=v['implementation/workflow-template.yml'].replace(b'@FRESH607_MANIFEST@',C.pin(v['source-manifest.json'])['sha256'].encode())
+ return v
+
+def verify():
+ raw=C.read(C.HERE/'page-parent.json');C.need(C.pin(raw)['sha256']==PARENT_SHA,'entire page parent1197 context');p=json.loads(raw);before={}
+ for n,w in p['files'].items():
+  b=p['before_bodies'][n].encode()if n in p['before_bodies']else C.read(C.ROOT/n);C.need(C.pin(b)==w,'complete1197 body inverse '+n);before[n]=b
+ C.need(len(before)==1197 and C.pin(C.read(C.HERE/'page_source.py').replace(PARENT_SHA.encode(),b'@PARENT_'+b'SHA@'))==p['guard_template'],'whole1197/currentguard template');products={n:C.checked(C.ROOT/n,w)for n,w in p['products'].items()};expected=transformed(before,products,raw,C.read(C.HERE/'page_source.py'));actual={q.relative_to(C.ROOT).as_posix():C.pin(C.read(q))for q in C.ROOT.rglob('*')if q.is_file()and'.git'not in q.relative_to(C.ROOT).parts};C.need(actual=={n:C.pin(b)for n,b in expected.items()},'complete1203 finite source-only page selector');import page_mode
+ for n in page_mode.edits():
+  import adapter
+  old=adapter.transform(before['parent604/'+n],n)[0];new=page_mode.transform(old,n);C.need(new!=old,'one explicit16K operand body')
+ saved,paths=dict(sys.modules),list(sys.path)
+ with tempfile.TemporaryDirectory(prefix='fresh607-whole1197-')as td:
+  root=Path(td)/'source';root.mkdir(mode=0o700)
+  for n,b in before.items():q=root/n;q.parent.mkdir(parents=True,exist_ok=True);q.write_bytes(b)
+  try:
+   for n in{q.stem for q in(root/'implementation').glob('*.py')}:sys.modules.pop(n,None)
+   sys.path.insert(0,str(root/'implementation'));s=importlib.util.spec_from_file_location('source_guard',root/'implementation/source_guard.py');g=importlib.util.module_from_spec(s);sys.modules['source_guard']=g;s.loader.exec_module(g);fact=g.verify();C.need(fact['files']==1197 and fact['status']=='PASS_SOURCE_ONLY_EXACT_ORIGINAL35_TOOLING_INPUT_PREPARATION','exact full1197 guard executes once, all older gates')
+  finally:
+   sys.path[:]=paths
+   for n in set(sys.modules)-set(saved):sys.modules.pop(n,None)
+   sys.modules.update(saved)
+  C.need({n:C.pin(C.read(root/n))for n in before}==p['files'],'whole1197 private source preserved')
+ C.need(actual=={q.relative_to(C.ROOT).as_posix():C.pin(C.read(q))for q in C.ROOT.rglob('*')if q.is_file()and'.git'not in q.relative_to(C.ROOT).parts},'current page source unchanged');return dict(fact,status='PASS_SOURCE_ONLY_EXPLICIT_GENERIC16K_KEEP_4K_DEFAULT',files=len(actual),parent_files=1197,default='generic4k',optional='generic16k',page_size=16384,kernel_input='BUILD_ONLY_NOT_BOOT',generic16k_fit='NOT_ESTABLISHED',actual_source=None,actual_ref=None,actual_run=None,Root_acceptance=None,hardware='NOT_RUN')

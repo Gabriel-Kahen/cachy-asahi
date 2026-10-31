@@ -1,0 +1,11 @@
+cachy-asahi maintained Debian glibc source preparation
+Copyright (c) 2026 cachy-asahi contributors. MIT for the original Python,
+recipe, tests and project adaptation code; full grant in LICENSE.
+
+Source preparation derives from the original local glibc materializers.
+Reuses unchanged source-pinned MIT Debian auth and GNU source inspector and
+provider staging helpers. GNU glibc retains its original COPYINGv2,
+COPYING.LESSERv2, COPYING.LIB and LICENSES. Debian patch notices are retained
+in the authenticated debian/copyright, changelog and individual patch headers;
+no blanket relicensing of upstream or distribution patches is asserted.
+The upstream reference-manual files absent from Debian orig are not restored.

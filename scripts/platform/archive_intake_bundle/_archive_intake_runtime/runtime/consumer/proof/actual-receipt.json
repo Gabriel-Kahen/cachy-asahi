@@ -1,0 +1,188 @@
+{
+  "acceptance": {
+    "all261_accepted": false,
+    "hardware_accepted": false,
+    "image_correspondence_accepted": false,
+    "independent_key_owner_trust_accepted": false,
+    "installation_accepted": false,
+    "signed_database_association_accepted": false
+  },
+  "downloads": [
+    {
+      "bytes": 3634536,
+      "hash_provenance": "observed post-download",
+      "identity": {
+        "arch": "aarch64",
+        "name": "networkmanager",
+        "version": "1.58.1-1"
+      },
+      "kind": "archive",
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/cache/networkmanager-1.58.1-1-aarch64.pkg.tar.xz",
+      "predeclared_sha256": null,
+      "redirects": false,
+      "sha256": "5f88ab112b7e2aa714ed000dd1db0fe4b972b7f91f1450ece1481bc7c3207093",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/packages/n/networkmanager/networkmanager-1.58.1-1-aarch64.pkg.tar.xz"
+    },
+    {
+      "bytes": 566,
+      "hash_provenance": "observed post-download",
+      "identity": {
+        "arch": "aarch64",
+        "name": "networkmanager",
+        "version": "1.58.1-1"
+      },
+      "kind": "signature",
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/cache/networkmanager-1.58.1-1-aarch64.pkg.tar.xz.sig",
+      "predeclared_sha256": null,
+      "redirects": false,
+      "sha256": "c7eb2548f68ed14f4fe7329aed6059abb8769015f2d3f11c063a7f9853bb2dd8",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/packages/n/networkmanager/networkmanager-1.58.1-1-aarch64.pkg.tar.xz.sig"
+    },
+    {
+      "bytes": 16001716,
+      "hash_provenance": "observed post-download",
+      "identity": {
+        "arch": "aarch64",
+        "name": "perl",
+        "version": "5.42.2-2"
+      },
+      "kind": "archive",
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/cache/perl-5.42.2-2-aarch64.pkg.tar.xz",
+      "predeclared_sha256": null,
+      "redirects": false,
+      "sha256": "21c8efe3c10c0c12b8a9b1bb504e71a834f1685916a78da61f71d31e61125161",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/packages/p/perl/perl-5.42.2-2-aarch64.pkg.tar.xz"
+    },
+    {
+      "bytes": 566,
+      "hash_provenance": "observed post-download",
+      "identity": {
+        "arch": "aarch64",
+        "name": "perl",
+        "version": "5.42.2-2"
+      },
+      "kind": "signature",
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/cache/perl-5.42.2-2-aarch64.pkg.tar.xz.sig",
+      "predeclared_sha256": null,
+      "redirects": false,
+      "sha256": "7a42e189d397bcbec6ba6d7686b603feb627d9e8927034ad7e3958d57382be62",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/packages/p/perl/perl-5.42.2-2-aarch64.pkg.tar.xz.sig"
+    }
+  ],
+  "elapsed_seconds": 1.8995184620143846,
+  "failures": [],
+  "finished_utc": "2026-10-13T06:01:03.083482+00:00",
+  "old_missing_contract_or_references_modified": false,
+  "owned_gpg_socket_paths_remaining": [],
+  "packages": [
+    {
+      "archive": {
+        "bytes": 3634536,
+        "hash_provenance": "observed post-download",
+        "identity": {
+          "arch": "aarch64",
+          "name": "networkmanager",
+          "version": "1.58.1-1"
+        },
+        "kind": "archive",
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/cache/networkmanager-1.58.1-1-aarch64.pkg.tar.xz",
+        "predeclared_sha256": null,
+        "redirects": false,
+        "sha256": "5f88ab112b7e2aa714ed000dd1db0fe4b972b7f91f1450ece1481bc7c3207093",
+        "url": "https://pkgmirror.sametimetomorrow.net/aarch64/packages/n/networkmanager/networkmanager-1.58.1-1-aarch64.pkg.tar.xz"
+      },
+      "identity": {
+        "arch": "aarch64",
+        "name": "networkmanager",
+        "version": "1.58.1-1"
+      },
+      "metadata_reference": {
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/observations/networkmanager.json",
+        "sha256": "b9c1c51c6f264acdafc8589d960443c6644a9c50b705835e177e747f2ef2184c"
+      },
+      "signature": {
+        "bytes": 566,
+        "hash_provenance": "observed post-download",
+        "identity": {
+          "arch": "aarch64",
+          "name": "networkmanager",
+          "version": "1.58.1-1"
+        },
+        "kind": "signature",
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/cache/networkmanager-1.58.1-1-aarch64.pkg.tar.xz.sig",
+        "predeclared_sha256": null,
+        "redirects": false,
+        "sha256": "c7eb2548f68ed14f4fe7329aed6059abb8769015f2d3f11c063a7f9853bb2dd8",
+        "url": "https://pkgmirror.sametimetomorrow.net/aarch64/packages/n/networkmanager/networkmanager-1.58.1-1-aarch64.pkg.tar.xz.sig"
+      },
+      "signature_verification": {
+        "fresh_verification": true,
+        "independent_owner_trust_accepted": false,
+        "primary_fingerprint": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+        "status": "cryptographic-signature-valid"
+      },
+      "status": "PASS_EXACT_SIGNED_ARCHIVE_METADATA_DATA"
+    },
+    {
+      "archive": {
+        "bytes": 16001716,
+        "hash_provenance": "observed post-download",
+        "identity": {
+          "arch": "aarch64",
+          "name": "perl",
+          "version": "5.42.2-2"
+        },
+        "kind": "archive",
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/cache/perl-5.42.2-2-aarch64.pkg.tar.xz",
+        "predeclared_sha256": null,
+        "redirects": false,
+        "sha256": "21c8efe3c10c0c12b8a9b1bb504e71a834f1685916a78da61f71d31e61125161",
+        "url": "https://pkgmirror.sametimetomorrow.net/aarch64/packages/p/perl/perl-5.42.2-2-aarch64.pkg.tar.xz"
+      },
+      "identity": {
+        "arch": "aarch64",
+        "name": "perl",
+        "version": "5.42.2-2"
+      },
+      "metadata_reference": {
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/observations/perl.json",
+        "sha256": "b7ff2f4c6a7e3fda9859603ec4f81e34f358d7c869b7ae56333dfa4cbb751057"
+      },
+      "signature": {
+        "bytes": 566,
+        "hash_provenance": "observed post-download",
+        "identity": {
+          "arch": "aarch64",
+          "name": "perl",
+          "version": "5.42.2-2"
+        },
+        "kind": "signature",
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/cache/perl-5.42.2-2-aarch64.pkg.tar.xz.sig",
+        "predeclared_sha256": null,
+        "redirects": false,
+        "sha256": "7a42e189d397bcbec6ba6d7686b603feb627d9e8927034ad7e3958d57382be62",
+        "url": "https://pkgmirror.sametimetomorrow.net/aarch64/packages/p/perl/perl-5.42.2-2-aarch64.pkg.tar.xz.sig"
+      },
+      "signature_verification": {
+        "fresh_verification": true,
+        "independent_owner_trust_accepted": false,
+        "primary_fingerprint": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+        "status": "cryptographic-signature-valid"
+      },
+      "status": "PASS_EXACT_SIGNED_ARCHIVE_METADATA_DATA"
+    }
+  ],
+  "plan_sha256": "fb97ce77914c8646770929750f8fc838fdf2353c1fc26f6a965ef22695e20a19",
+  "process_observation_count": 7,
+  "public_certificate": {
+    "no_autostart": true,
+    "primary_fingerprint": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+    "private_home": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/keys/private-home",
+    "source_sha256": "6ce771e853f04a38a5b533cb33e61f877b9b06b58b6db051eb8a15d737a2332f",
+    "user_global_keyring_modified": false
+  },
+  "schema_version": 1,
+  "started_utc": "2026-10-13T06:01:01.211975+00:00",
+  "status": "PASS_TWO_EXACT_SIGNED_ARCHIVE_DATA_ONLY",
+  "storage_bytes": 19936003
+}

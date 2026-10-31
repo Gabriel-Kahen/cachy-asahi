@@ -5,7 +5,7 @@
   "scripts/ci/test_desktop574_runtime.py": "e14dc90b5e3b6bedb7a791c128e05ec886127922549c38f2e97760510ab21cdf",
   "scripts/ci/maintained_desktop574.py": "27ba4be42cf2bd41675073e07cccc917ae033f9d68b07a33cfd7f074ac27b760",
   "scripts/ci/maintained-desktop574-inputs.json": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9",
-  "scripts/virtual/common.py": "4b61b407344ac7209a5d2ebd036a57143ee23525b6550aada6ff7488b5aab6a0",
+  "scripts/virtual/common.py": "aef2b4f09a91c4cfd66dd4504e69ef18396a94214c82ae0ec0a43c2716894a03",
   "scripts/virtual/run.py": "e96ec9b61dc26fa622702ef871bcdf9f53f3fd08ee12b5df03991163460d5766",
   "scripts/virtual/image_decode_report.py": "377efb140ec7b5e50a18ae3c3d312f31f25676818f45942bde1c3acb5dceaacd",
   "scripts/virtual/tooling.lock.json": "c18afc5bde9868594d41bd576a956960a7b01b190d148ba03ca4c41d4394e1b0",
@@ -25,5 +25,9 @@
   "packages/desktop/cachy-asahi-hyprland-settings/waybar.css": "a97930965a4e622adc920491c7d433a803173bb6e644c4c3c88efb79187e11d5",
   "packages/desktop/cachy-asahi-hyprland-settings/waybar.json": "4c7adb2deb0403fefc4562d39105635cebfc44ce88e44fe84c4a90a00b2be3c0",
   "scripts/port/preview.py": "d737c51474e05cc2c4db2e87fc021f50328eea7744983dd4076d44751fce7383",
-  "scripts/port/refreshed-desktop/archive-authentication-receipt.json": "0d172a7aed58660115ae087a31faf4bb57f564b799f5920273589a3cc339bc40"
+  "scripts/port/refreshed-desktop/archive-authentication-receipt.json": "0d172a7aed58660115ae087a31faf4bb57f564b799f5920273589a3cc339bc40",
+  "scripts/ci/desktop-user-session/prepare.py": "a70885622a36fe1ba764ea7d0846933b639ef04dc3c532598fb92ceb73ffe00b",
+  "scripts/ci/desktop-user-session/managed_session.py": "2187c47b3f5877d8585c66c806b0c5dd17efc38cee414c46bc746157f3c4d991",
+  "scripts/ci/desktop-user-session/managed_contract.py": "0f6c7566afd2ffb4e283b7f2edd36433e13cca873c60e5d68a46afbd3c2d4218",
+  "scripts/ci/desktop-user-session/source-pins.json": "b5e4df112c8a9ade746b6a60cafa68e5a58226a1f13280d0725b9e5175a7686d"
 }

@@ -1,0 +1,70 @@
+
+# Fixed retained dependency DATA prefill. Original acquire/auth/GPG still run.
+def dependency_configuration():
+ p=configuration();d=p['dependency_cache']
+ C.need(d['source']=='405761af52cdfa92b97bbf5b0519f32230d9a254'and d['ref']=='codex/current606-incoming31-v1'and len(d['carrier_files'])==108 and
+  d['preparation_source']=='93bc9bfac7343ee3b443ae3332c0942ed1ba5b55'and d['packages']=={'archlinux-contrib':'20261009-1','htmlq':'0.4.0-3','pacman-contrib':'1.13.1-1','pyalpm':'0.12.0-1','xdg-utils':'1.2.1-2'}and
+  d['status']=='FIXED_EIGHT_RETAINED_DEPENDENCY_INPUTS_UNAUTHENTICATED_DATA_ONLY'and d['acceptance']is False and all(d[k]is None for k in('actual_source','actual_ref','actual_run')),
+  'fixed five dependency identities and public incoming31 context only');return p,d
+
+def dependency_carrier_snapshot(root,expected):
+ root=C.safe(root);root_identity=identity(root.lstat());files={};directories={}
+ for path in root.rglob('*'):
+  rel=path.relative_to(root)
+  if rel.parts[0]=='.git':
+   C.need((root/'.git').is_dir()and not(root/'.git').is_symlink(),'only ordinary top-level checkout administration');continue
+  C.need('.git'not in rel.parts and not path.is_symlink(),'foreign Git or input alias refused');s=path.lstat()
+  if stat.S_ISDIR(s.st_mode):directories[rel.as_posix()]=identity(s)
+  else:
+   name=rel.as_posix();C.need(name in expected and stat.S_ISREG(s.st_mode)and s.st_nlink==1 and s.st_size==expected[name]['bytes'],'closed declared incoming31 file extent');files[name]=identity(s)
+ required={q.as_posix()for n in expected for q in Path(n).parents if q.as_posix()!='.'}
+ C.need(set(files)==set(expected)and set(directories)==required and identity(root.lstat())==root_identity,'whole declared incoming31 namespace; selected eight bodies separately checked');return files,root_identity,directories
+
+def prepare_dependency_cache(incoming,preparation,desktop_lock,cache,deadline):
+ C.need(type(deadline)in(int,float)and math.isfinite(deadline)and 0<deadline-time.monotonic()<=240,'same finite original240 preparation deadline');tick(deadline)
+ p,d=dependency_configuration();incoming=C.safe(incoming);preparation=C.safe(preparation);desktop_lock=C.safe(desktop_lock);cache=C.safe(cache)
+ for root in(incoming,preparation):C.need(not cache.is_relative_to(root)and not root.is_relative_to(cache),'cache disjoint from immutable dependency inputs')
+ source_identity={n:identity((preparation/n).lstat())for n in d['preparation_files']};preparation_identity=identity(preparation.lstat());desktop_identity=identity(desktop_lock.lstat());source={n:C.checked(preparation/n,w)for n,w in d['preparation_files'].items()};C.need({n:identity((preparation/n).lstat())for n in source}==source_identity,'stable dependency source descriptors');raw=source['scripts/ci/full-development-composition/dependencies/inputs.lock.json'];lock=json.loads(raw)
+ C.need(lock['signer_fingerprint']=='68B3537F39A313B3E574D06777193F152BDBE6A6'and len(lock['packages'])==5 and{r['name']:r['version']for r in lock['packages']}==d['packages'],'whole original fixed five lock/signature identity')
+ desktop_raw=C.checked(desktop_lock,p['desktop_lock']);desktop=json.loads(desktop_raw);packages,prior=inputs(desktop)
+ C.need(len(packages)==1148,'entire held complete574 input set')
+ prior.update({n.removeprefix('packages/'):w for n,w in p['carrier_files'].items()if n.startswith('packages/')})
+ C.need(len(prior)==1159,'entire prior1153 plus six original compiler inputs required')
+ before,directory=cache_snapshot(cache,prior);original=dependency_carrier_snapshot(incoming,d['carrier_files']);targets={};allten={};bodies={}
+ for row in lock['packages']:
+  for suffix,size,sha in(('',row['size'],row['sha256']),('.sig',row['signature_size'],row['signature_sha256'])):
+   name=row['filename']+suffix;w=dict(bytes=size,sha256=sha);C.need(name not in allten,'unique fixed dependency archive/signature');allten[name]=w
+   if row['name']=='xdg-utils':
+    C.need(prior.get(name)==w and C.pin(C.read(cache/name,size))==w,'exact already-retained xdg-utils pair; never overwritten')
+   else:
+    member=('upstream-signatures/'if suffix else'packages/')+name
+    C.need(name not in before and d['selected'].get(member)==w==d['carrier_files'].get(member),'exact selected eight declared incoming inputs; no overwrite')
+    targets[name]=w;tick(deadline);bodies[name]=C.checked(incoming/member,w)
+ C.need(len(allten)==10 and len(targets)==len(d['selected'])==8 and sum(w['bytes']for w in allten.values())<1024**2,'closed ten bytes below original dependency bound')
+ created={}
+ try:
+  for name,w in targets.items():
+   tick(deadline);fd=os.open(cache/name,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW|os.O_CLOEXEC,0o600);created[name]=identity(os.fstat(fd))[:2]
+   try:
+    offset=0;body=bodies[name]
+    while offset<len(body):tick(deadline);n=os.write(fd,body[offset:offset+65536]);C.need(n>0,'retained dependency cache copy');offset+=n
+   finally:os.close(fd)
+   C.need(C.pin(C.read(cache/name,w['bytes']))==w,'whole copied dependency archive/signature')
+  after,now=cache_snapshot(cache,dict(prior,**targets))
+  C.need({n:after[n]for n in before}==before and now==directory,'complete prior1159 file metadata/identity and owned cache directory preserved')
+  for name,w in allten.items():tick(deadline);C.need(C.pin(C.read(cache/name,w['bytes']))==w,'all ten exact cache-hit objects before unchanged180 acquisition')
+  C.need(dependency_carrier_snapshot(incoming,d['carrier_files'])==original and all(C.checked(preparation/n,w)==source[n]for n,w in d['preparation_files'].items())and C.checked(desktop_lock,p['desktop_lock'])==desktop_raw and identity(desktop_lock.lstat())==desktop_identity and identity(preparation.lstat())==preparation_identity and{n:identity((preparation/n).lstat())for n in source}==source_identity,'whole declared incoming namespace and source lock held');tick(deadline)
+ except BaseException:
+  for name,owned in created.items():
+   path=cache/name
+   if path.exists()and not path.is_symlink()and identity(path.lstat())[:2]==owned and path.stat().st_nlink==1:path.unlink()
+  C.need(cache_snapshot(cache,prior)==(before,directory),'failed new8 preparation preserves entire prior1159 metadata');raise
+ return dict(status='EXACT_EIGHT_RETAINED_DEPENDENCY_CACHE_DATA_NOT_AUTHENTICATED',source=d['source'],preparation_source=d['preparation_source'],new_files=targets,all_ten=allten,prior_files=len(before),before_identity=before,after_prior_identity={n:after[n]for n in before},directory_identity=directory,
+  namespace='WHOLE_DECLARED108_MEMBERS_AND_SIZES_ONLY',content='EXACT_SELECTED8_AND_EXISTING_XDG2_FULL_BYTES',original180_GPG_metadata_URLs='MANDATORY_UNCHANGED',acceptance_authority=False,cleanup_authority=False)
+
+def prepare_with_dependencies(carrier,updater,desktop_lock,cache,deadline,incoming,preparation):
+ C.need(incoming is not None and preparation is not None,'both immutable dependency roots required')
+ # The old six-copy function and its globals/default route remain unchanged.
+ compiler=prepare(carrier,updater,desktop_lock,cache,deadline)
+ dependency=prepare_dependency_cache(incoming,preparation,desktop_lock,cache,deadline)
+ return dict(compiler6=compiler,dependency_cache=dependency,shared_original_deadline=deadline,acceptance_authority=False)

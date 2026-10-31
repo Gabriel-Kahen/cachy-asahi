@@ -1,0 +1,270 @@
+{
+  "carrier_ref": null,
+  "carrier_source": null,
+  "files": {
+    "Root-acceptance.json": {
+      "bytes": 4672,
+      "sha256": "f251675c58cb4086a8885b903d2e9649ad2186526e54e50fa57364e780a13261"
+    },
+    "TEST-signing/TEST-public.asc": {
+      "bytes": 429,
+      "sha256": "fe1694d4616ab2f515e8a28c351c4a76b9de7e275449582ed9211658963a9254"
+    },
+    "TEST-signing/cachy-asahi-ksmctl-0.1.0-1-any.pkg.tar.xz.sig": {
+      "bytes": 119,
+      "sha256": "3f5dc11e2d56f4c404f2b71fc2b3a676836b45b08901cc5b1aa83be91c7af76d"
+    },
+    "TEST-signing/cachy-asahi-ksmctl-0.1.0-2-any.pkg.tar.xz.sig": {
+      "bytes": 119,
+      "sha256": "0d0e9bb33204e965abc615e14c6b9f30cc5b9cdd9ae59669948e43ddf466c6a2"
+    },
+    "TEST-signing/control.json": {
+      "bytes": 59,
+      "sha256": "f50e7c7a96960bb163cbe30f5be6a282da4006fbac5f03c0cdaf82813a2e0a3a"
+    },
+    "index.json": {
+      "bytes": 12513,
+      "sha256": "4fa63d8a633efc3f337110917d69abf6a932461354e9452ca8632990bf0120ec"
+    },
+    "original-transport.json": {
+      "bytes": 495,
+      "sha256": "0e1c026798f4cb2b4b5f6154816059753d824dceba27ed2545907631212cca0d"
+    },
+    "packages/cachy-asahi-ksmctl-a/cachy-asahi-ksmctl-0.1.0-1-any.pkg.tar.xz": {
+      "bytes": 17244,
+      "sha256": "b518e711c41b8d6bcdae71364b5529aaac982d12cef600f1b2fa17f51c895a4a"
+    },
+    "packages/cachy-asahi-ksmctl-b/cachy-asahi-ksmctl-0.1.0-1-any.pkg.tar.xz": {
+      "bytes": 17244,
+      "sha256": "b518e711c41b8d6bcdae71364b5529aaac982d12cef600f1b2fa17f51c895a4a"
+    },
+    "packages/cachy-asahi-ksmctl2-a/cachy-asahi-ksmctl-0.1.0-2-any.pkg.tar.xz": {
+      "bytes": 24128,
+      "sha256": "bac3d222b6490412c1c9c7bafd72d8169e8679a1e7b411b5794246aed0b57b5f"
+    },
+    "packages/cachy-asahi-ksmctl2-b/cachy-asahi-ksmctl-0.1.0-2-any.pkg.tar.xz": {
+      "bytes": 24128,
+      "sha256": "bac3d222b6490412c1c9c7bafd72d8169e8679a1e7b411b5794246aed0b57b5f"
+    },
+    "recipes/cachy-asahi-ksmctl2/.SRCINFO": {
+      "bytes": 1557,
+      "sha256": "79c491a2930cc6d92648b301cc9af766d1d20dcb7e0687ab2690237b62e30a7f"
+    },
+    "recipes/cachy-asahi-ksmctl2/LICENSE": {
+      "bytes": 17984,
+      "sha256": "edaef632cbb643e4e7a221717a6c441a4c1a7c918e6e4d56debc3d8739b233f6"
+    },
+    "recipes/cachy-asahi-ksmctl2/NOTICE": {
+      "bytes": 1359,
+      "sha256": "939ad92c65a6c2f9da2c723a4c6e136add87ccb4a7a6e8ba0dd89692a77f3f10"
+    },
+    "recipes/cachy-asahi-ksmctl2/PKGBUILD": {
+      "bytes": 2373,
+      "sha256": "c4f2cd4a506181df68edadc5ae36a976f3402910ff63d07ac1d3715bd38a3e9a"
+    },
+    "recipes/cachy-asahi-ksmctl2/README.md": {
+      "bytes": 7590,
+      "sha256": "a0422a6b280c5b1583afe5da7575ba6e98c476c8ce1efbe196ba33513e94a4ed"
+    },
+    "recipes/cachy-asahi-ksmctl2/adaptation.patch": {
+      "bytes": 8216,
+      "sha256": "0bc6b1f4725eb510a0f890bd616ce682b98332b371c93d2144ad643181727212"
+    },
+    "recipes/cachy-asahi-ksmctl2/cachy-asahi-ksm-experiment": {
+      "bytes": 20549,
+      "sha256": "1ea518cc25a0d3099b7723756fd66631c35d7a79d50b300f6387a25588306d79"
+    },
+    "recipes/cachy-asahi-ksmctl2/cachy-asahi-ksmctl": {
+      "bytes": 6433,
+      "sha256": "f9fd76eaa6a205d56fa4bb9123b8c721ea1277249c4cab58d1b57eaf8edc7558"
+    },
+    "recipes/cachy-asahi-ksmctl2/check-source.py": {
+      "bytes": 2342,
+      "sha256": "7cca209ee6ad36726b03c0f54100b07bd6d08d974473d00c2092bbd5be4089a6"
+    },
+    "recipes/cachy-asahi-ksmctl2/experiment-provenance.json": {
+      "bytes": 2144,
+      "sha256": "e27da2f0e55a384bf8cb243e59437405391034347d10ff458fea7435898bba21"
+    },
+    "recipes/cachy-asahi-ksmctl2/source-provenance.json": {
+      "bytes": 1016,
+      "sha256": "d46e93a9893225d205a01fdcd3429782ba51d44c86b78e77fce458b53448b849"
+    },
+    "recipes/cachy-asahi-ksmctl2/test_experiment.py": {
+      "bytes": 16687,
+      "sha256": "2f13fe326171a7e42dc84d6c4e2ac2bbe6eb8391f9e06393f6e2c09fa8dbb843"
+    },
+    "recipes/cachy-asahi-ksmctl2/test_ksmctl.py": {
+      "bytes": 17730,
+      "sha256": "e42602fd16579e30c8cb799f26c897c1e3e89515f20a49a346b1888ce3c94b6f"
+    },
+    "recipes/cachy-asahi-ksmctl2/upstream-ksmctl": {
+      "bytes": 2606,
+      "sha256": "cd5c8aa86df5a06a268ecc21297b4cd7d8df1053c90c8bcd4e53ef9bb16194d9"
+    },
+    "renewal/TEST-public.asc": {
+      "bytes": 441,
+      "sha256": "f4a8ffaa7a9b476f26523bfbe4bc41efb7cd0364f25c04502f1a3c28351ef4f5"
+    },
+    "renewal/cachy-asahi-ksmctl-0.1.0-2-any.pkg.tar.xz.sig": {
+      "bytes": 119,
+      "sha256": "5c6163ec3b4da098fd1f02f59d4fe71b3cd328a00eac6f1900856da8aff79bbf"
+    },
+    "renewal/receipt.json": {
+      "bytes": 2883,
+      "sha256": "0da6d71e91b6caf53fa7606d0b283c4ae00c22659fd764f3794cf9ed11120c5e"
+    },
+    "retention.json": {
+      "bytes": 17717,
+      "sha256": "b0535edfde656823a02f479abd65343875e7db06639224e7060c1c074b8668a1"
+    },
+    "runner-derivations.json": {
+      "bytes": 1343,
+      "sha256": "92ff369cadeccd208d452f7aa851cb29288695a25a640945001e279934faad7e"
+    },
+    "runtime/lifecycle.json": {
+      "bytes": 11539,
+      "sha256": "15a7c0bf0ac064770eb209db284253707ce337a6e2c10b5dfe549ac49ce95d88"
+    },
+    "runtime/report.json": {
+      "bytes": 38890,
+      "sha256": "898ca2da29a3cd36c291efc25871fd6c063cf4eb73828a0d990be62be573c71e"
+    }
+  },
+  "historical_carrier": "7a976288a9e67b93e23860c7ee1664775ccb2dbd",
+  "historical_files": {
+    "Root-acceptance.json": {
+      "bytes": 4672,
+      "sha256": "f251675c58cb4086a8885b903d2e9649ad2186526e54e50fa57364e780a13261"
+    },
+    "TEST-signing/TEST-public.asc": {
+      "bytes": 429,
+      "sha256": "fe1694d4616ab2f515e8a28c351c4a76b9de7e275449582ed9211658963a9254"
+    },
+    "TEST-signing/cachy-asahi-ksmctl-0.1.0-1-any.pkg.tar.xz.sig": {
+      "bytes": 119,
+      "sha256": "3f5dc11e2d56f4c404f2b71fc2b3a676836b45b08901cc5b1aa83be91c7af76d"
+    },
+    "TEST-signing/cachy-asahi-ksmctl-0.1.0-2-any.pkg.tar.xz.sig": {
+      "bytes": 119,
+      "sha256": "0d0e9bb33204e965abc615e14c6b9f30cc5b9cdd9ae59669948e43ddf466c6a2"
+    },
+    "TEST-signing/control.json": {
+      "bytes": 59,
+      "sha256": "f50e7c7a96960bb163cbe30f5be6a282da4006fbac5f03c0cdaf82813a2e0a3a"
+    },
+    "index.json": {
+      "bytes": 12352,
+      "sha256": "398f0208b50a3b7c581ae76daff8b9e2508d11cee33b497e55376fd9e3e4b339"
+    },
+    "original-transport.json": {
+      "bytes": 495,
+      "sha256": "0e1c026798f4cb2b4b5f6154816059753d824dceba27ed2545907631212cca0d"
+    },
+    "packages/cachy-asahi-ksmctl-a/cachy-asahi-ksmctl-0.1.0-1-any.pkg.tar.xz": {
+      "bytes": 17244,
+      "sha256": "b518e711c41b8d6bcdae71364b5529aaac982d12cef600f1b2fa17f51c895a4a"
+    },
+    "packages/cachy-asahi-ksmctl-b/cachy-asahi-ksmctl-0.1.0-1-any.pkg.tar.xz": {
+      "bytes": 17244,
+      "sha256": "b518e711c41b8d6bcdae71364b5529aaac982d12cef600f1b2fa17f51c895a4a"
+    },
+    "packages/cachy-asahi-ksmctl2-a/cachy-asahi-ksmctl-0.1.0-2-any.pkg.tar.xz": {
+      "bytes": 24128,
+      "sha256": "bac3d222b6490412c1c9c7bafd72d8169e8679a1e7b411b5794246aed0b57b5f"
+    },
+    "packages/cachy-asahi-ksmctl2-b/cachy-asahi-ksmctl-0.1.0-2-any.pkg.tar.xz": {
+      "bytes": 24128,
+      "sha256": "bac3d222b6490412c1c9c7bafd72d8169e8679a1e7b411b5794246aed0b57b5f"
+    },
+    "recipes/cachy-asahi-ksmctl2/.SRCINFO": {
+      "bytes": 1557,
+      "sha256": "79c491a2930cc6d92648b301cc9af766d1d20dcb7e0687ab2690237b62e30a7f"
+    },
+    "recipes/cachy-asahi-ksmctl2/LICENSE": {
+      "bytes": 17984,
+      "sha256": "edaef632cbb643e4e7a221717a6c441a4c1a7c918e6e4d56debc3d8739b233f6"
+    },
+    "recipes/cachy-asahi-ksmctl2/NOTICE": {
+      "bytes": 1359,
+      "sha256": "939ad92c65a6c2f9da2c723a4c6e136add87ccb4a7a6e8ba0dd89692a77f3f10"
+    },
+    "recipes/cachy-asahi-ksmctl2/PKGBUILD": {
+      "bytes": 2373,
+      "sha256": "c4f2cd4a506181df68edadc5ae36a976f3402910ff63d07ac1d3715bd38a3e9a"
+    },
+    "recipes/cachy-asahi-ksmctl2/README.md": {
+      "bytes": 7590,
+      "sha256": "a0422a6b280c5b1583afe5da7575ba6e98c476c8ce1efbe196ba33513e94a4ed"
+    },
+    "recipes/cachy-asahi-ksmctl2/adaptation.patch": {
+      "bytes": 8216,
+      "sha256": "0bc6b1f4725eb510a0f890bd616ce682b98332b371c93d2144ad643181727212"
+    },
+    "recipes/cachy-asahi-ksmctl2/cachy-asahi-ksm-experiment": {
+      "bytes": 20549,
+      "sha256": "1ea518cc25a0d3099b7723756fd66631c35d7a79d50b300f6387a25588306d79"
+    },
+    "recipes/cachy-asahi-ksmctl2/cachy-asahi-ksmctl": {
+      "bytes": 6433,
+      "sha256": "f9fd76eaa6a205d56fa4bb9123b8c721ea1277249c4cab58d1b57eaf8edc7558"
+    },
+    "recipes/cachy-asahi-ksmctl2/check-source.py": {
+      "bytes": 2342,
+      "sha256": "7cca209ee6ad36726b03c0f54100b07bd6d08d974473d00c2092bbd5be4089a6"
+    },
+    "recipes/cachy-asahi-ksmctl2/experiment-provenance.json": {
+      "bytes": 2144,
+      "sha256": "e27da2f0e55a384bf8cb243e59437405391034347d10ff458fea7435898bba21"
+    },
+    "recipes/cachy-asahi-ksmctl2/source-provenance.json": {
+      "bytes": 1016,
+      "sha256": "d46e93a9893225d205a01fdcd3429782ba51d44c86b78e77fce458b53448b849"
+    },
+    "recipes/cachy-asahi-ksmctl2/test_experiment.py": {
+      "bytes": 16687,
+      "sha256": "2f13fe326171a7e42dc84d6c4e2ac2bbe6eb8391f9e06393f6e2c09fa8dbb843"
+    },
+    "recipes/cachy-asahi-ksmctl2/test_ksmctl.py": {
+      "bytes": 17730,
+      "sha256": "e42602fd16579e30c8cb799f26c897c1e3e89515f20a49a346b1888ce3c94b6f"
+    },
+    "recipes/cachy-asahi-ksmctl2/upstream-ksmctl": {
+      "bytes": 2606,
+      "sha256": "cd5c8aa86df5a06a268ecc21297b4cd7d8df1053c90c8bcd4e53ef9bb16194d9"
+    },
+    "retention.json": {
+      "bytes": 17717,
+      "sha256": "b0535edfde656823a02f479abd65343875e7db06639224e7060c1c074b8668a1"
+    },
+    "runner-derivations.json": {
+      "bytes": 1343,
+      "sha256": "92ff369cadeccd208d452f7aa851cb29288695a25a640945001e279934faad7e"
+    },
+    "runtime/lifecycle.json": {
+      "bytes": 11539,
+      "sha256": "15a7c0bf0ac064770eb209db284253707ce337a6e2c10b5dfe549ac49ce95d88"
+    },
+    "runtime/report.json": {
+      "bytes": 38890,
+      "sha256": "898ca2da29a3cd36c291efc25871fd6c063cf4eb73828a0d990be62be573c71e"
+    }
+  },
+  "historical_index": {
+    "bytes": 12352,
+    "sha256": "398f0208b50a3b7c581ae76daff8b9e2508d11cee33b497e55376fd9e3e4b339"
+  },
+  "index": {
+    "bytes": 12513,
+    "sha256": "4fa63d8a633efc3f337110917d69abf6a932461354e9452ca8632990bf0120ec"
+  },
+  "local_reference": "fe67aaaae7ef4ea94dfc8a42cd2c806cc5436fc7",
+  "native_decision": {
+    "bytes": 4672,
+    "sha256": "f251675c58cb4086a8885b903d2e9649ad2186526e54e50fa57364e780a13261"
+  },
+  "native_run": 39139213293,
+  "native_source": "72ea5a1e81268f08da9b9cc04cdc7e23a1a9ff8a",
+  "recipe_source": "e753936b4d90d0b5127647581bed2a7fda64ce70",
+  "status": "LOCAL_SOURCE_ONLY_NOT_PUBLIC"
+}

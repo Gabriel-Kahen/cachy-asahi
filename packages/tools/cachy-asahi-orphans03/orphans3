@@ -1,0 +1,19 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
+"""Read-only assessment/planning plus an explicit finite remove command."""
+import importlib.util,sys
+from pathlib import Path
+sys.dont_write_bytecode=True
+here=Path(__file__).resolve().parent
+source=here/'remove.py'
+if not source.is_file():source=here.parent/'lib/cachy-asahi-orphans3/remove.py'
+spec=importlib.util.spec_from_file_location('orphan_removal',source);module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+if len(sys.argv)>1 and sys.argv[1]=='live':
+    live=source.with_name('live.py');spec=importlib.util.spec_from_file_location('orphan_live',live);backend=importlib.util.module_from_spec(spec);spec.loader.exec_module(backend)
+    raise SystemExit(backend.main(sys.argv[2:]))
+if sys.argv[1:]==['--version']:
+    print('cachy-asahi-orphans 0.3.0');raise SystemExit(0)
+if sys.argv[1:] in (['--help'],['-h']):
+    print('Successor removal: remove PLAN --plan-sha256 SHA --select NAME --result NEW_PATH\nUse remove --help for finite offline removal. Explicit live backend: live assess|plan|remove; all target/policy arguments mandatory. Read-only commands follow.\n')
+if len(sys.argv)>1 and sys.argv[1]=='remove':raise SystemExit(module.main(sys.argv[2:]))
+raise SystemExit(module.O.main(sys.argv[1:]))
