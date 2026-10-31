@@ -8,7 +8,7 @@ Maintained source-only ARM build/lifecycle lane for the exact original MIT `cach
 python -I -B assemble_source.py \
   --parent-source /absolute/retained-genuine191/source \
   --raw-parent-commit /absolute/this-directory/parent-commit.txt \
-  --profile-sha256 fb727176fc0c77e57311ea248518077c474c47e635a714ac4865e93bed3b3062 \
+  --profile-sha256 7cb6244c3f0e40e226b647755607d3fbb0d777530c69ff7ea3a2a19f1335ddfc \
   --output /absolute/private-parent/fresh-source
 ```
 

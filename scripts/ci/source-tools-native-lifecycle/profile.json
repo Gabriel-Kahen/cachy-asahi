@@ -1037,9 +1037,36 @@
     }
   },
   "parent_tree": "f45820b0ef37b48f50bbc361a22f53b5dd309506",
-  "prospective_tree": "5e6a03c6d258d6183f803afc6e736fbefdae4756",
+  "producer_overlay": {
+    "bootstrap/scripts/ci/native_arm.py": {
+      "bytes": 28877,
+      "mode": 420,
+      "sha256": "8e71ba83e7d5037c6f7772401ec3b872684ccfa8472d855d8d6d3052cb1f41ba"
+    },
+    "native/failure_retention.py": {
+      "bytes": 13639,
+      "mode": 420,
+      "sha256": "cdb50b755f3e76d0229278bb89476752702544f3c31947e74676c82b213a8dc7"
+    },
+    "native/source_tools_alpm_v1.py": {
+      "bytes": 28092,
+      "mode": 420,
+      "sha256": "c332fbef08d7e03be918b45a67c1eb705eaa41425e02bd84111a50058eed0279"
+    },
+    "native/source_tools_projection_v1.py": {
+      "bytes": 10628,
+      "mode": 420,
+      "sha256": "91b906e7fc89fbe2df4cff1d2f7a37c8fc42b6eb34f6e3b2ff7d63a4601a1c3b"
+    },
+    "native/source_tools_reader_v1.py": {
+      "bytes": 116398,
+      "mode": 420,
+      "sha256": "05c3ff5a7d32d6d797976337a8b28f95dc8dfd9b438b9ca916adc5d44ea65833"
+    }
+  },
+  "prospective_tree": "b3f7c9a86a9a2f461412106be39b3bdafaa75e7c",
   "purpose": "source-tools-native-main-overlay",
   "schema": 1,
   "source_files": 200,
-  "source_map_sha256": "9f16c8e7cd25126492f43cc3a60e537bb44b3cb382ac8bbfa570a386e3807ac1"
+  "source_map_sha256": "d4eca8ad0c0d25e7752306abe1e55a12a917c146cb8ef1a9fd314d4c720065ca"
 }
