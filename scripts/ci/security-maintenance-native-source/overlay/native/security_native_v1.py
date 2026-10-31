@@ -161,7 +161,29 @@ class Commands:
         need(result.returncode!=0 if expected=='nonzero' else result.returncode==expected,'lifecycle command failed: '+step)
         return out
 
-def observe_real_upgrade(c,pacman,archive,policy):
+def emit_observation_fd_failure(map_hash, owner, before, after, predicates, policy, compiled):
+    """Bounded metadata-only failure evidence; never reads or accepts FD payload."""
+    try:
+        def descriptor(info):
+            return dict(dev=info.st_dev,inode=info.st_ino,mode=info.st_mode,
+                uid=info.st_uid,gid=info.st_gid,nlink=info.st_nlink,bytes=info.st_size)
+        value=dict(schema=1,status='SECURITY_OBSERVATION_FD_FAILURE_DATA_ONLY',
+            source_map_sha256=map_hash,operation='security-alpm-v1',
+            phase='AFTER_REQUIRED_INSTALL_BEFORE_OBSERVER_RECORD_DECODE',
+            owner_pid=owner,before=descriptor(before),after=descriptor(after),
+            guard_predicates=predicates,record_cap=policy['record_cap'],
+            observer_source=policy['source_pin'],observer_compiled=compiled,
+            native='NOT_ADMITTED',interruption='NOT_RUN',recovery='NOT_RUN')
+        raw=json.dumps(value,sort_keys=True,separators=(',',':'),allow_nan=False)
+        need(len(raw.encode('ascii'))<=4096,'bounded observation FD failure metadata')
+        print('SECURITY_OBSERVATION_FD_FAILURE_DATA '+raw,flush=True)
+    except BaseException:
+        # Diagnostic failure must not replace the original FD refusal below.
+        try:print('SECURITY_OBSERVATION_FD_DIAGNOSTIC_REFUSED',flush=True)
+        except BaseException:pass
+
+
+def observe_real_upgrade(c,pacman,archive,policy,map_hash):
     """Future native observation only; never interrupt, unlock or recover ALPM."""
     source=policy['source'].encode('ascii')
     need(pin(source)==policy['source_pin'] and policy['record_cap']==16384,'exact bounded observer source')
@@ -181,7 +203,12 @@ def observe_real_upgrade(c,pacman,archive,policy):
     try:
         before=os.fstat(fd);need(stat.S_ISREG(before.st_mode) and before.st_uid==before.st_gid==0 and before.st_nlink==1 and before.st_size==0,'fresh ordinary owned observation FD')
         c.run('required-install',pacman+['--noconfirm','--noscriptlet','-U',archive],observe=(shared,fd))
-        os.fsync(fd);info=os.fstat(fd);need(info.st_dev==before.st_dev and info.st_ino==before.st_ino and 0<info.st_size<=policy['record_cap'],'same bounded owned observation FD')
+        os.fsync(fd);info=os.fstat(fd)
+        predicates=dict(same_device=info.st_dev==before.st_dev,same_inode=info.st_ino==before.st_ino,
+            positive_record_bytes=info.st_size>0,within_record_cap=info.st_size<=policy['record_cap'])
+        if not all(predicates.values()):
+            emit_observation_fd_failure(map_hash,owner,before,info,predicates,policy,compiled)
+        need(all(predicates.values()),'same bounded owned observation FD')
         os.lseek(fd,0,os.SEEK_SET);raw=os.read(fd,policy['record_cap']+1)
         need(len(raw)==info.st_size and info.st_nlink==1,'whole complete observation DATA')
     finally:os.close(fd)
@@ -367,7 +394,7 @@ def inside(root,map_hash):
         c.run('decline-upgrade-precommit',pacman+['--confirm','--noscriptlet','-U',archive],1,input_data=b'n\n')
         need(b'Proceed with installation?' in c.last_output,'actual precommit confirmation reached before operator decline')
         current=inventory('declined-prior-inventory');need(current==prior_wanted,'operator-declined precommit upgrade preserves prior');upgrade_inventories['after_decline']=pin(current);owned_payload(prior_paths,'declined-prior');preserved()
-        observation=observe_real_upgrade(c,pacman,archive,transition['observation'])
+        observation=observe_real_upgrade(c,pacman,archive,transition['observation'],map_hash)
         current=inventory('installed-inventory');need(current==wanted,'actual signed prior-to-current350 upgrade inventory');upgrade_inventories['upgraded']=pin(current);owned_payload(paths,'candidate')
         need(all(not os.path.lexists('/usr/'+name)for name in set(prior_paths)-set(paths)),'prior-only payload removed by real upgrade');preserved()
         c.run('repeat-current',pacman+['--noconfirm','--noscriptlet','-U',archive])
