@@ -10,6 +10,47 @@ SOURCE=T.SOURCE
 STORE=T.STORE
 PASS='PASS_DESKTOP_TOOLS_NATIVE_ALPM_COMPONENT'
 TEST_UID='TEST ONLY desktop-tools <desktop-tools@test.invalid>'
+
+CENSUS_CORE_SHA256='83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f'
+
+def observe_group_census(commands):
+ """Retain existing post-reap scan DATA; never add a scan or change its return."""
+ observations=[];core=getattr(commands,'core',None)
+ if core is None:return observations
+ original=core._members
+ def observed(pid,deadline,*,live=False):
+  try:members=original(pid,deadline,live=live)
+  except BaseException as error:
+   if not live:observations.append(dict(kind='REFUSED',leader=pid,error_type=type(error).__name__));del observations[:-2]
+   raise
+  if not live:
+   try:
+    rows=[dict(pid=p,start_ticks=t,state=s.decode('ascii')) for p,t,s in sorted(members)[:32]]
+    row=dict(kind='MATCHES',leader=pid,member_count=len(members),truncated=len(members)>32,members=rows)
+   except BaseException as error:row=dict(kind='REFUSED',leader=pid,error_type=type(error).__name__)
+   observations.append(row);del observations[:-2]
+  return members
+ core._members=observed
+ return observations
+
+def record_group_census(commands,index,observations):
+ """Failed-command DATA outside supervision; no retirement decision changes."""
+ if len(commands.records)!=index+1:return False
+ row=commands.records[index];state=row.get('supervision')or{}
+ if row.get('success')is not False or state.get('group_census')not in('PRESENT_OR_REUSED','UNKNOWN')or not observations:return False
+ row['group_census_diagnostic']=dict(schema=1,command_index=index,source_core_sha256=CENSUS_CORE_SHA256,
+  scope='ORIGINAL_POST_REAP_SCAN_MATCHES_MAY_BE_REUSED',scans=list(observations))
+ return True
+
+def retain_group_census(commands,index,observations,scope,report):
+ """A retention failure cannot replace the command's original exception."""
+ try:
+  if record_group_census(commands,index,observations):(scope/'commands.json').write_bytes(T.encoded(commands.records))
+ except BaseException as error:
+  failures=report.setdefault('diagnostic_retention_failures',[])
+  if len(failures)<160:failures.append(dict(kind='group-census',command_index=index,error_type=type(error).__name__))
+  else:report['diagnostic_retention_truncated']=True
+
 def prepare(root,context,map_hash):
  from common import verify_source
  root,context=Path(root),Path(context);manifest=verify_source(root,map_hash)
@@ -194,12 +235,13 @@ def inside(source,map_hash):
   signing,trust=work/'signing',work/'trust'
   for home in (signing,trust,work/'command-home'):home.mkdir(mode=0o700)
   alarm=pwd.getpwnam('alarm');W=T.load_workflow(source,policy)
-  commands=W.Commands(scope,work/'command-home','/usr/bin:/bin',timeout=180,total=450,max_output=1024**2);report['commands']=commands.records
+  commands=W.Commands(scope,work/'command-home','/usr/bin:/bin',timeout=180,total=450,max_output=1024**2);report['commands']=commands.records;census=observe_group_census(commands)
   def run(step,argv,expected=0,cwd=work):
    nonlocal phase
-   phase=step;before=len(commands.records)
+   phase=step;before=len(commands.records);census.clear()
    try:return commands.run(step,list(map(str,argv)),Path(cwd),expected)
    except BaseException as error:
+    retain_group_census(commands,before,census,scope,report)
     retain_exception(commands,scope,step,argv,cwd,expected,error,before);save_result(scope,report);raise
   def inventory(step):return b''.join(sorted(run(step,['/usr/bin/pacman','-Q']).splitlines(keepends=True)))
   def reasons(step):
@@ -281,11 +323,12 @@ def inside(source,map_hash):
   cleanup_failures=[]
   if commands is not None and work is not None:
    try:
-    cleanup_commands=W.Commands(scope,work/'command-home','/usr/bin:/bin',timeout=20,total=90,max_output=1024**2);cleanup_commands.records=commands.records
+    cleanup_commands=W.Commands(scope,work/'command-home','/usr/bin:/bin',timeout=20,total=90,max_output=1024**2);cleanup_commands.records=commands.records;cleanup_census=observe_group_census(cleanup_commands)
     def clean_run(step,argv,expected=0):
-     before=len(cleanup_commands.records)
+     before=len(cleanup_commands.records);cleanup_census.clear()
      try:return cleanup_commands.run(step,list(map(str,argv)),work,expected)
      except BaseException as error:
+      retain_group_census(cleanup_commands,before,cleanup_census,scope,report)
       retain_exception(cleanup_commands,scope,step,argv,work,expected,error,before);raise
    except BaseException as error:
     cleanup_failures.append('cleanup-supervisor:'+type(error).__name__)
