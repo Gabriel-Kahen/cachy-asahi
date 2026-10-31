@@ -315,6 +315,7 @@ class _InitializerTelemetry:
 
 def _initializer_clone(function,namespace):
     import types
+    if type(function)is not types.FunctionType:return function
     cloned=types.FunctionType(function.__code__,namespace,function.__name__,function.__defaults__,function.__closure__)
     cloned.__kwdefaults__=function.__kwdefaults__;return cloned
 

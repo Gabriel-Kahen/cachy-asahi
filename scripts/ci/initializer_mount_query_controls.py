@@ -6,10 +6,10 @@ chroot/helper execution, GPG, VM, transaction, native actor, or accepted outcome
 """
 import argparse,ast,contextlib,ctypes,errno,hashlib,json,os,sys,tempfile,types
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import Mock,patch
 INIT='scripts/update/aux_initialize.py'
 HOOK='scripts/ci/full-root-upgrade-caller/upgrade_hook.py'
-EXPECTED_INPUTS={'scripts/update/aux_initialize.py': {'bytes': 24810, 'sha256': 'f1c0b523b6ec77d940a104e3294985d724355bb84b0b9c01e815454f29817812'}, 'scripts/ci/full-root-upgrade-caller/upgrade_hook.py': {'bytes': 19972, 'sha256': '450908ffc661f78bb87a79654d040e6ed27f8311dc39ebee899218f445c73b81'}, 'scripts/update/full_root.py': {'bytes': 35970, 'sha256': 'cece1c597b2e2eb98b0e3087cc7e7c148b54332f8a1c4f18e04e4552a71fb51d'}, 'scripts/update/aux_checkpoint.py': {'bytes': 18456, 'sha256': 'd51179ca24c981bafd817d7db082c0ceb3b2f5deb922004bfe97d1e2007edda7'}}
+EXPECTED_INPUTS={'scripts/update/aux_initialize.py': {'bytes': 24873, 'sha256': 'd9160b842ef2dae7bc60999c4f23452ade15ba91b775d52bdef5f189a52e23e2'}, 'scripts/ci/full-root-upgrade-caller/upgrade_hook.py': {'bytes': 19972, 'sha256': '450908ffc661f78bb87a79654d040e6ed27f8311dc39ebee899218f445c73b81'}, 'scripts/update/full_root.py': {'bytes': 35970, 'sha256': 'cece1c597b2e2eb98b0e3087cc7e7c148b54332f8a1c4f18e04e4552a71fb51d'}, 'scripts/update/aux_checkpoint.py': {'bytes': 18456, 'sha256': 'd51179ca24c981bafd817d7db082c0ceb3b2f5deb922004bfe97d1e2007edda7'}}
 ORIGINAL_INITIALIZE_AST='842b7948f8dde1789270a98a1d1d28c4d05819a2cb7acb389bb107c08f8a3104'
 HELD_MOUNT_FACTORY_AST='166f37016d1a27fb7f74da85452faddaaa8bc2d1ccf3813fc460c8879d9cdf25'
 checks=[]
@@ -131,7 +131,12 @@ def main():
   exec("@contextlib.contextmanager\ndef parent(fd,limits):\n yield roots._mount_id(fd,limits)\nclass Reader:\n def query(self,fd,limits):return roots._mount_id(fd,limits)\ndef held_observe(root,limits):\n return roots.observe(root,limits=limits,hardlinks='generic-development-internal')",endpoint_space)
   parent=endpoint_space['parent'];Reader=endpoint_space['Reader'];held_observe=endpoint_space['held_observe']
   copier=types.SimpleNamespace(_parent=parent,_root_check=lambda:None,_source_alias=lambda:None)
-  aux=types.SimpleNamespace(Reader=Reader,checkpoint=lambda:None,load_comparator=lambda:None)
+  checkpoint=Mock(name='checkpoint');load_comparator=Mock(name='load_comparator')
+  aux=types.SimpleNamespace(Reader=Reader,checkpoint=checkpoint,load_comparator=load_comparator)
+  class Injected:
+   def __call__(self,*args,**kwargs):raise AssertionError('injected callable must not execute')
+  for function in (checkpoint,load_comparator,Mock(spec=types.FunctionType),len,[].append,Injected()):
+   assert E['_initializer_clone'](function,{})is function
   def forbidden(*args,**kwargs):raise AssertionError('lifecycle entry forbidden in control')
   E['_initializer_original']=dict(observe=held_observe,limits_from=forbidden,exec_helper=forbidden,initialize=forbidden)
   namespace=dict(roots=roots,copy=copier,aux=aux,supervision=types.SimpleNamespace(run=forbidden))
@@ -139,7 +144,10 @@ def main():
   with tempfile.TemporaryFile()as f:
    f.write(b'fresh unique bytes');f.flush();fd=f.fileno();info=os.fstat(fd);os.lseek(fd,0,os.SEEK_SET)
    with patch.object(ctypes,'CDLL',return_value=types.SimpleNamespace(statx=Call([(0,0x1000,7)]*3))),patch.object(os,'write'):
-    api=E['_initializer_facade'](namespace,state,None);value=api.observe((fd,info),Limits())
+    api=E['_initializer_facade'](namespace,state,None)
+    assert api.aux.checkpoint is checkpoint and api.aux.load_comparator is load_comparator
+    checkpoint.assert_not_called();load_comparator.assert_not_called()
+    value=api.observe((fd,info),Limits())
     assert api.aux.Reader().query(fd,Limits())==7
     with api.copy._parent(fd,Limits())as mount:assert mount==7
    assert value==dict(mount=7,digest=hashlib.sha256(b'fresh unique bytes').hexdigest())and state.ops[:6]==[3,3,0,1,1,len(b'fresh unique bytes')]
