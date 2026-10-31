@@ -11,7 +11,7 @@
   "causal_basis178_source": "cc6dcdb86bf358e7aa72335f671216d9eca91037",
   "composed_genuine_sole_parent": "94d638063f826b3c501e3dd004d9a41b40f7a0e0",
   "composition": {
-    "actual_parent": "4c3171a1937489badd22d350835e8287fee3c52a",
+    "actual_parent": "93e11f4bcebb80c3bbc132d164b12c6fa2a00389",
     "frozen201_map": "fa8ee12afce20da3a016192758fe094520f388aa2b54177fe244357508ca4bce",
     "native191_map": "6a9cf1b093d012c03ac3ec3de192718bb69c43e8922350869669a92bd75b614c",
     "required_parent_tree": "1f58d194ccbf29554754758f9c28b53fc56e1e57"
@@ -550,9 +550,9 @@
       "sha256": "d99cb38411412134781140cc64dc7d296dbc383fa1e81ddc13ecb6863852ecf5"
     },
     "native/README.md": {
-      "bytes": 27805,
+      "bytes": 29069,
       "mode": 420,
-      "sha256": "07f64c4582c6a4571a7d0e0661fd1898eb569ecac832fef1917ab8095800c2e2"
+      "sha256": "d3dfa09109b0adad651fe1680db58ac0e060f35d9640e576628dcf82c434178d"
     },
     "native/alpm-contract-v1.json": {
       "bytes": 17105,
@@ -595,9 +595,9 @@
       "sha256": "519af91e1b35ef7c1e404a53dd537d8d6498bc28098f76a562f0d65c5c27b658"
     },
     "native/consumer_diagnostics.py": {
-      "bytes": 3463,
+      "bytes": 9605,
       "mode": 420,
-      "sha256": "6d19be6a35dc12983889f0d6054d6cb529fb286291e0c0c8973b94c7efc543ed"
+      "sha256": "bc05b30513607e7dfd0d33930db3038602997ab4d4f2fa332b3168045b172198"
     },
     "native/contract.json": {
       "bytes": 5108,
@@ -645,9 +645,9 @@
       "sha256": "c07876c05335a3a8e29fe418d77605e1af9fa4dfa64f6a3c3d90680cdb6a5f68"
     },
     "native/installed_alpm_v1.py": {
-      "bytes": 29579,
+      "bytes": 33868,
       "mode": 420,
-      "sha256": "2b9bdf30ac038c1c7d77e44339dcc2561e9e29e6a1169b4c97d46194df2f8265"
+      "sha256": "3951ed79ce54ce1f8a61871cf8e725cc3a650b0c4c8929405895462b4ebecb99"
     },
     "native/installed_guest_v1.py": {
       "bytes": 6418,
@@ -657,12 +657,12 @@
     "native/installed_projection_v1.py": {
       "bytes": 16182,
       "mode": 420,
-      "sha256": "d68cb4d98d06b830da80e344ae5778f052045c2efc97ace86b75d427677ee29d"
+      "sha256": "60dfa5dcf6c574b0a90adc038af35c6b01830c9e6f4725d52b62ad15f198bd7f"
     },
     "native/installed_reader_v1.py": {
       "bytes": 27174,
       "mode": 420,
-      "sha256": "87ed088484dde5b001f833e234482479855ddccb7d8af1acd6fe706120759b50"
+      "sha256": "38dc09a96a7a37d02df7df28003dc89150ffad3a21357dd62ecf3ccf588f4c0a"
     },
     "native/installed_tools_v1.py": {
       "bytes": 5156,
@@ -685,9 +685,9 @@
       "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
     },
     "native/owner.py": {
-      "bytes": 27304,
+      "bytes": 27657,
       "mode": 420,
-      "sha256": "ab8f9a2157fcbb94c60616e84660a705c117064ce48ab46284730ce14634c6bb"
+      "sha256": "ac123ba5f259e0a99b300e2a4a66d55af1356e7a9be876b25d52b80465cbb608"
     },
     "native/predecessor-source-map.json": {
       "bytes": 27440,
@@ -1042,6 +1042,12 @@
   },
   "image_basis180_map_sha256": "cceed4d8b72e9e73a5cb433c2c4643f5e85a0490dacd5b226514e2961aaba458",
   "image_basis180_source": "a434716cbf53085e6380e06939be6a38dd5412fc",
+  "overlay_diagnostic_basis": {
+    "actual_inner_cause": "UNKNOWN",
+    "map_sha256": "8cd09e1742b5ebb4ce3e0149807cc92672516076618f898451ae28604e131912",
+    "public_capsule_protocol": "HELD; new diagnostic is direct job-log and private work JSON only",
+    "source": "93e11f4bcebb80c3bbc132d164b12c6fa2a00389"
+  },
   "schema": 1,
   "source_profile": "native191-installed-alpm205-v1",
   "transport_basis177_map_sha256": "99d676438a247749b3e1c564943d8735452a1ebd92ec91dd78ee37817e77f36d"

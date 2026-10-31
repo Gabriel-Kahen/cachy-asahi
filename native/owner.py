@@ -221,6 +221,11 @@ def run(root, args):
             actor.run(command, timeout=600)
         except BaseException as error:
             overlay_error = error
+            try:
+                from consumer_diagnostics import retain_overlay_failure_v1
+                report['overlay_build_diagnostic_v1'] = retain_overlay_failure_v1(args.work, own, args.map_sha256, actor.rows, before, operation)
+            except Exception:
+                pass  # Diagnostic failure must preserve the original overlay error.
             raise
         finally:
             build_operations.append(build_operation('tools', command, actor.rows, before))

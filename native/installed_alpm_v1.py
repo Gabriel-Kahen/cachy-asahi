@@ -24,6 +24,31 @@ NAME='cachy-asahi-developer-tools'
 UID='TEST ONLY developer-tools <developer-tools@test.invalid>'
 
 
+# Versioned enum-only failure protocol. No arbitrary exception names/messages.
+_DIAGNOSTIC_PHASE_V1='UNKNOWN'
+_DIAGNOSTIC_FIRST_FAILURE_V1=None
+DIAGNOSTIC_PHASES_V1=frozenset(['UNKNOWN', 'PAIR_ENTRY', 'PAIR_SOURCE_VERIFY', 'PAIR_INPUT_CONTRACT', 'PAIR_MAKEPKG_ONE', 'PAIR_MAKEPKG_TWO', 'PAIR_ARCHIVE_ONE', 'PAIR_ARCHIVE_TWO', 'PAIR_COMPARE', 'PAIR_COMPLETE', 'ALPM_ENTRY', 'ALPM_SOURCE_VERIFY', 'ALPM_BASELINE', 'OFFICIAL_GIT_INPUTS', 'ALPM_TEST_KEY', 'ALPM_TEST_FINGERPRINT', 'ALPM_EXPORT_TEST_PUBLIC', 'ALPM_SIGN_ARCHIVE', 'ALPM_UNTRUSTED_CONTROL', 'ALPM_IMPORT_TEST_PUBLIC', 'ALPM_TRUST_MEMBERSHIP', 'ALPM_OWNERTRUST', 'ALPM_VERIFY_TEST_SIGNATURE', 'ALPM_INSTALL', 'ALPM_INSTALLED_INVENTORY', 'ALPM_OWNER_CHECK', 'ALPM_VERSION', 'ALPM_RUNTIME_VERIFY', 'USR_JOURNEYS', 'MOVED_JOURNEYS', 'ALPM_REMOVE', 'ALPM_REMOVED_INVENTORY', 'ALPM_KEY_HOME_RETIREMENT', 'ALPM_AGENT_ABSENCE', 'ALPM_OTHER_STEP', 'ALPM_PRESERVATION', 'ALPM_COMPLETE'])
+DIAGNOSTIC_CODES_V1=frozenset(('FILE_NOT_FOUND','PERMISSION','TIMEOUT','OS_ERROR','VALUE_GUARD','RUNTIME_GUARD','UNCLASSIFIED'))
+
+def diagnostic_error_code_v1(error):
+    for cls,code in ((FileNotFoundError,'FILE_NOT_FOUND'),(PermissionError,'PERMISSION'),(TimeoutError,'TIMEOUT'),(OSError,'OS_ERROR'),(ValueError,'VALUE_GUARD'),(RuntimeError,'RUNTIME_GUARD')):
+        if isinstance(error,cls):return code
+    return 'UNCLASSIFIED'
+
+def remember_failure_v1(error):
+    global _DIAGNOSTIC_FIRST_FAILURE_V1
+    if _DIAGNOSTIC_FIRST_FAILURE_V1 is None:
+        _DIAGNOSTIC_FIRST_FAILURE_V1=dict(phase=_DIAGNOSTIC_PHASE_V1 if _DIAGNOSTIC_PHASE_V1 in DIAGNOSTIC_PHASES_V1 else 'UNKNOWN',error_code=diagnostic_error_code_v1(error))
+
+def emit_failure_v1(map_hash,emit=print):
+    if not re.fullmatch('[0-9a-f]{64}',map_hash or ''):return
+    failure=_DIAGNOSTIC_FIRST_FAILURE_V1 or dict(phase='UNKNOWN',error_code='UNCLASSIFIED')
+    value=dict(schema=1,status='INSTALLED_IMAGE_FAILURE_STAGE_DATA_ONLY_V1',source_map_sha256=map_hash,phase=failure['phase'],error_code=failure['error_code'])
+    if value['phase'] not in DIAGNOSTIC_PHASES_V1 or value['error_code'] not in DIAGNOSTIC_CODES_V1:return
+    try:emit('NATIVE_INSTALLED_ALPM_DIAGNOSTIC_V1 '+json.dumps(value,sort_keys=True,separators=(',',':')),flush=True)
+    except Exception:pass
+
+
 def prepare(root,context,map_hash,carrier,cache):
     from common import verify_source
     manifest=verify_source(root,map_hash);target=context/'alpm-source';target.mkdir()
@@ -173,9 +198,13 @@ def archive_data(path):
 
 
 def build_pair(source,map_hash):
+    global _DIAGNOSTIC_PHASE_V1
+    _DIAGNOSTIC_PHASE_V1='PAIR_ENTRY'
     from common import verify_source
     need(os.getuid()==os.geteuid()!=0 and os.uname().machine=='aarch64','actual ordinary native pair builder')
+    _DIAGNOSTIC_PHASE_V1='PAIR_SOURCE_VERIFY'
     verify_source(source,map_hash)
+    _DIAGNOSTIC_PHASE_V1='PAIR_INPUT_CONTRACT'
     _,expected=git_policy(source)
     need(Path('/builder-packages.lock').read_bytes()==expected,'exact selected354 pair environment')
     path=source/'scripts/workflows/developer_workflow.py'
@@ -183,7 +212,7 @@ def build_pair(source,map_hash):
     spec=importlib.util.spec_from_file_location('_native_developer_pair_workflow',path);W=importlib.util.module_from_spec(spec);spec.loader.exec_module(W)
     need(not PAIR_EVIDENCE.exists() and not Path(PAIR_BUILD).exists() and all(not Path(p).exists() for p in PAIR_ROOTS),'fresh independent pair trees')
     PAIR_EVIDENCE.mkdir(mode=0o700);(PAIR_EVIDENCE/'home').mkdir(mode=0o700)
-    commands=W.Commands(PAIR_EVIDENCE,PAIR_EVIDENCE/'home','/usr/bin:/bin',timeout=400,total=900,max_output=256*1024)
+    commands=W.Commands(PAIR_EVIDENCE,PAIR_EVIDENCE/'home','/usr/bin:/bin',timeout=400,total=600,max_output=256*1024)
     commands.env.update(SOURCE_DATE_EPOCH=PAIR_EPOCH,PACKAGER='TEST ONLY native developer pair <developer-tools@test.invalid>',BUILDDIR=PAIR_BUILD)
     before=pin(Path('/builder-packages.lock'));builds=[];views=[]
     for number,directory in enumerate(PAIR_ROOTS,1):
@@ -191,11 +220,14 @@ def build_pair(source,map_hash):
         for original in sorted((PREFIX/'recipe').iterdir()):
             need(original.is_file() and not original.is_symlink(),'fixed pair recipe file only');shutil.copyfile(original,root/original.name)
         commands.env.update(PKGDEST=str(root),SRCDEST=str(root))
+        _DIAGNOSTIC_PHASE_V1='PAIR_MAKEPKG_ONE' if number==1 else 'PAIR_MAKEPKG_TWO'
         commands.run('native-makepkg-'+str(number),['/usr/bin/makepkg','--nodeps','--nocheck','--nosign','--noconfirm','--config',str(PREFIX/'makepkg.conf')],root)
+        _DIAGNOSTIC_PHASE_V1='PAIR_ARCHIVE_ONE' if number==1 else 'PAIR_ARCHIVE_TWO'
         package=root/ARCHIVE.name;payload,metadata=archive_data(package)
         builds.append(dict(directory=str(root),archive=pin(package),payload=payload,PKGINFO=dict(bytes=len(metadata['.PKGINFO']),sha256=hashlib.sha256(metadata['.PKGINFO']).hexdigest()),BUILDINFO=dict(bytes=len(metadata['.BUILDINFO']),sha256=hashlib.sha256(metadata['.BUILDINFO']).hexdigest())))
         views.append(metadata)
         shutil.rmtree(PAIR_BUILD)
+    _DIAGNOSTIC_PHASE_V1='PAIR_COMPARE'
     need(builds[0]['archive']==builds[1]['archive'] and builds[0]['payload']==builds[1]['payload'] and views[0]==views[1],'exact native archive/payload/PKGINFO/BUILDINFO pair required')
     need(pin(Path('/builder-packages.lock'))==before,'pair dependency inventory unchanged')
     shutil.copyfile(Path(PAIR_ROOTS[0])/ARCHIVE.name,ARCHIVE)
@@ -205,6 +237,7 @@ def build_pair(source,map_hash):
         commands=commands.records,comparison='EXACT_ARCHIVE_PAYLOAD_PKGINFO_BUILDINFO')
     (PAIR_EVIDENCE/'result.json').write_text(json.dumps(report,indent=2,sort_keys=True)+'\n')
     for root in PAIR_ROOTS:shutil.rmtree(root)
+    _DIAGNOSTIC_PHASE_V1='PAIR_COMPLETE'
 
 
 def protected_file(path):
@@ -233,10 +266,13 @@ def protected_state(root):
 
 
 def inside(source,map_hash):
+    global _DIAGNOSTIC_PHASE_V1
+    _DIAGNOSTIC_PHASE_V1='ALPM_ENTRY'
     need(os.getuid()==os.geteuid()==0 and os.uname().machine=='aarch64'
          and source==Path('/opt/native-developer-alpm-v1/source')
          and Path('/builder-dependency-packages.lock').is_file(), 'owned disposable native image root only')
     from common import verify_source,input_contract
+    _DIAGNOSTIC_PHASE_V1='ALPM_SOURCE_VERIFY'
     verify_source(source,map_hash);_,expected=git_policy(source)
     W=load_packaged_workflow();base=Path('/builder-packages.lock').read_bytes()
     need(base==expected==Path('/builder-dependency-packages.lock').read_bytes()
@@ -266,10 +302,14 @@ def inside(source,map_hash):
     signing,trust,official=work/'signing',work/'trust',work/'official'
     for path in (signing,trust,official):path.mkdir(mode=0o700)
     primary=None;retired=[]
-    def run(step,argv,expected=0,cwd=work):return commands.run(step,list(map(str,argv)),cwd,expected)
+    def run(step,argv,expected=0,cwd=work):
+        global _DIAGNOSTIC_PHASE_V1
+        _DIAGNOSTIC_PHASE_V1={'baseline-inventory': 'ALPM_BASELINE', 'generate-test-key': 'ALPM_TEST_KEY', 'test-primary-fingerprint': 'ALPM_TEST_FINGERPRINT', 'export-only-test-public': 'ALPM_EXPORT_TEST_PUBLIC', 'sign-exact-built-package': 'ALPM_SIGN_ARCHIVE', 'untrusted-test-signature-control': 'ALPM_UNTRUSTED_CONTROL', 'import-only-test-public': 'ALPM_IMPORT_TEST_PUBLIC', 'trust-key-membership': 'ALPM_TRUST_MEMBERSHIP', 'trust-only-test-primary': 'ALPM_OWNERTRUST', 'verify-exact-test-signature': 'ALPM_VERIFY_TEST_SIGNATURE', 'required-signature-install': 'ALPM_INSTALL', 'installed-inventory': 'ALPM_INSTALLED_INVENTORY', 'installed-owner': 'ALPM_OWNER_CHECK', 'alpm-installed-version': 'ALPM_VERSION', 'alpm-installed-runtime-verify': 'ALPM_RUNTIME_VERIFY', 'usr-installed-user-journeys': 'USR_JOURNEYS', 'installed-user-journeys': 'MOVED_JOURNEYS', 'required-policy-remove': 'ALPM_REMOVE', 'removed-inventory': 'ALPM_REMOVED_INVENTORY', 'retire-test-gpg-home': 'ALPM_KEY_HOME_RETIREMENT', 'test-agent-no-autostart-control': 'ALPM_AGENT_ABSENCE'}.get(step,'ALPM_OTHER_STEP')
+        return commands.run(step,list(map(str,argv)),cwd,expected)
     def inventory(step):return b''.join(sorted(run(step,['/usr/bin/pacman','-Q']).splitlines(keepends=True)))
     try:
         need(inventory('baseline-inventory')==base,'actual baseline349 inventory')
+        _DIAGNOSTIC_PHASE_V1='OFFICIAL_GIT_INPUTS'
         report['git_inputs']=verify_git_inputs(commands,source,official)
         pair=json.loads((PAIR_EVIDENCE/'result.json').read_text())
         need(pair['status']=='PASS_REAL_NATIVE_DEVELOPER_PAIR_V1' and pair['source_map_sha256']==map_hash and {r['archive']['sha256'] for r in pair['builds']}=={pin(ARCHIVE)['sha256']},'verified exact pair before signing/install')
@@ -327,6 +367,7 @@ def inside(source,map_hash):
             installed_count=355,restored_count=354,package_owned_paths_absent=True,user_data_preserved=True,
             user_before=user_before,user_after=snapshot(user))
     except BaseException as error:
+        remember_failure_v1(error)
         primary=error;report['failure']=dict(type=type(error).__name__,message=str(error)[:1024])
         try:
             from build_summary import validate_summary
@@ -342,6 +383,7 @@ def inside(source,map_hash):
                 need(not any(stat.S_ISSOCK(p.lstat().st_mode) for p in home.rglob('*')),'no scoped GPG sockets after retirement')
                 retired.append(str(home))
             except BaseException as error:
+                remember_failure_v1(error)
                 report['status']='FAIL';report['retirement_error']=type(error).__name__
         report['test_homes_retired']=str(signing) in retired and str(trust) in retired
         report['official_home_retired']=str(official) in retired
@@ -353,6 +395,7 @@ def inside(source,map_hash):
         report['commands']=commands.records
         (raw/'result.json').write_text(json.dumps(report,indent=2,sort_keys=True)+'\n')
         if primary is None:
+            _DIAGNOSTIC_PHASE_V1='ALPM_PRESERVATION'
             need(report['test_homes_retired'] and report['official_home_retired'] and report['global_trust_unchanged'] and report['global_config_unchanged'] and report['protected_state_restored'], 'test trust cleanup/global protection unqualified')
     # Only our aggregate report is augmented. Original v1 command reports remain
     # byte-identical. Move the child guest output into the retained journey root.
@@ -370,6 +413,7 @@ def inside(source,map_hash):
     for path in raw.iterdir():
         if path.is_file():path.chmod(0o644)
     STORE.parent.mkdir(parents=True,exist_ok=True);out.rename(STORE)
+    _DIAGNOSTIC_PHASE_V1='ALPM_COMPLETE'
 
 
 def export(output,map_hash):
@@ -403,4 +447,8 @@ def export(output,map_hash):
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--inside-image',action='store_true');parser.add_argument('--build-pair',action='store_true');parser.add_argument('--map-sha256',required=True);args=parser.parse_args()
     need(args.inside_image != args.build_pair,'one explicit owned image operation required')
-    (build_pair if args.build_pair else inside)(Path(__file__).resolve().parents[1],args.map_sha256)
+    try:
+        (build_pair if args.build_pair else inside)(Path(__file__).resolve().parents[1],args.map_sha256)
+    except BaseException as error:
+        remember_failure_v1(error);emit_failure_v1(args.map_sha256)
+        raise
