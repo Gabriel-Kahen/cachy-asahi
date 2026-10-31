@@ -51,7 +51,7 @@ def package(root,work):
   sys.stderr.buffer.write(check.stderr[:8192]);raise ValueError('BLOCKED_REQUIRED_SANDBOX: private PID/proc/dev/empty-sys/network prerequisite refused; eight controls NOT_RUN; no sudo/unconfined/skip fallback')
  command=[*box,str(selected),'-I','-B','-Werror::ResourceWarning',str(Path(__file__).resolve()),'package-inner','--root',str(root),'--work',str(work)];result=subprocess.run(command,timeout=180);need(result.returncode==0,'eight private package controls failed; no fallback')
 # CI-only supported disposable guest. Original package()/Source25 stay unchanged.
-GUEST_IMAGE_URL='https://cloud.debian.org/images/cloud/trixie/20261026-2643/debian-13-generic-amd64-20261026-2643.qcow2'
+GUEST_IMAGE_URL='https://chuangtzu.ftp.acc.umu.se/images/cloud/trixie/20261026-2643/debian-13-generic-amd64-20261026-2643.qcow2'
 GUEST_IMAGE_BYTES=438894592
 GUEST_IMAGE_SHA512='5bd891c6e62d01639f52a5587b72a4607421e445732214be787dba6043cf9797a6ff90bed982aada6a6c7e619f1f956d961c4fad76757171abd607920aac098a'
 def guest_config(helper_sha,python_mm):
