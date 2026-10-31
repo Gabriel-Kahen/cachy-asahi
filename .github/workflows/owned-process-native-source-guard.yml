@@ -1,0 +1,63 @@
+name: Owned process native Source guard DATA
+on:
+  pull_request:
+    paths:
+      - .github/workflows/native-arm-owned-process-control.yml
+      - .github/workflows/owned-process-native-source-guard.yml
+      - scripts/checks/check_owned_process_native_source.py
+      - tests/test_owned_process_native_source.py
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/native-arm-owned-process-control.yml
+      - .github/workflows/owned-process-native-source-guard.yml
+      - scripts/checks/check_owned_process_native_source.py
+      - tests/test_owned_process_native_source.py
+permissions:
+  contents: read
+jobs:
+  source-data:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      GIT_NO_LAZY_FETCH: '1'
+      GIT_OPTIONAL_LOCKS: '0'
+    steps:
+      - name: Checkout exact workflow revision and passive checker
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        env:
+          GIT_NO_LAZY_FETCH: '0'
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          fetch-depth: 1
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /.github/workflows/native-arm-owned-process-control.yml
+            /scripts/checks/check_owned_process_native_source.py
+            /tests/test_owned_process_native_source.py
+      - name: Checkout production runtime Source as DATA only
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        env:
+          GIT_NO_LAZY_FETCH: '0'
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 3ab5da1b4a11495075a9660ad09625a4ff5f0f64
+          path: .owned-v2-runtime-source-data
+          persist-credentials: false
+          fetch-depth: 1
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /scripts/virtual/owned_process_retirement_v2.py
+      - name: Join actual checkouts; run eight Source and four checkout DATA controls
+        timeout-minutes: 2
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$RUNNER_OS/$RUNNER_ARCH" = Linux/X64
+          test "$(uname -m)" = x86_64
+          ulimit -t 30 -v 1048576 -f 4096 -n 64
+          CHECKER=scripts/checks/check_owned_process_native_source.py
+          mkdir -m700 "$RUNNER_TEMP/owned-source-guard-private-git-data"
+          timeout --signal=TERM --kill-after=5s 45s python3 -I -B "$CHECKER" --workspace "$GITHUB_WORKSPACE" --workflow-sha "$GITHUB_SHA"
+          timeout --signal=TERM --kill-after=5s 45s python3 -I -B tests/test_owned_process_native_source.py --checker "$CHECKER" --repository "$GITHUB_WORKSPACE/.owned-v2-runtime-source-data" --workflow "$GITHUB_WORKSPACE/.github/workflows/native-arm-owned-process-control.yml" --fixture-root "$RUNNER_TEMP/owned-source-guard-private-git-data"
