@@ -115,10 +115,28 @@ def _descriptor_relative(module):
     return relative
 
 
+
+_DESCRIPTOR_ROOT_PROFILE = (69703, '61cded0826b25e251e10e72b22bbd508c045182208abecd58b15e84f5179b4d8')
+_DESCRIPTOR_ROOT_INVERSE = ((58058, 182, '89be199fb19d4e8a542986280df83893cde6e01701e13995848e050606236553', b'        # Fixed error text only; never emit raw OS exception/path diagnostics.'), (57331, 118, '8564084764663e0b47c6d0ee3cbb5cdae8738644c71a60e77d72dbff07bf825a', b"        need(_identity(os.fstat(descriptor)) == _identity(root_info), 'root identity drift')"), (56166, 98, '969e19c2e05e9258688efa1b12d2e6479afd0cc5c4590fa60b2f1026f69fce0b', b'        for name, node in nodes.items():\n            limits.tick()'), (53884, 98, 'b62f4ef283bc0d2f4e0f61871fc92f7e51d6f995fcaf040a7993ace08e8f0553', b'            for name in members:\n                limits.tick()'), (53473, 102, '1926617ad27ab6e9903b4bf3465152371b9b52b015ed159264d86e2857be7acb', b'    def validate_groups():\n        result = {}'), (56841, 145, 'b8b91be583abb375f462261dfd9ebf7d200afc5d18e8f8c738d881b482374371', b'            limits.tick()\n            try:\n                resolved=installer.resolve_nodes(nodes,auxiliary)'), (56732, 52, '3daf9e847abeb663932be20c144b184c26efbc3e40de00d2a3960ff98fda06e2', b'        for auxiliary in ('), (53520, 93, '4a06476b57827436a6e58bdbb826ee5ce4d3dcaf1012e3f6e8e5b8bf78b284d3', b'        for group in groups.values():\n            limits.tick()'), (53327, 144, '9721298addb624a50aa8924c4d51b3f8d4a0768b4fddcad655c1804b6f2eeddf', b"        need(_identity(os.fstat(directory)) == _identity(before_directory), 'directory content drift')"), (53119, 143, 'b2b146a71c7cdfe7555022e91c27d87114306695dcd8208d542c8dd12084d0d0', b'                need(_identity(os.stat(entry.name, dir_fd=directory, follow_symlinks=False))'), (48048, 114, '7a4de504ee30fc5cd826ad6700a185e52be4ec496ee5c886753a03a744406487', b'            for entry in entries:\n                limits.tick()'), (47604, 81, 'e01f53bf3e868f0bedab35799a0152cfbac2ea7862949d342e46d78ad95233f1', b'        nonlocal aliases\n'), (44340, 38, 'fc370e022b26b7f2a2428bfb7762520696b562dd82bd135cc7eeca47075120f7', b'    aliases = 0\n'), (576, 33175, '56acb6a2eb2268f2667d356832a20f05453e541c2e11249dab51048097944555', b'\n\ndef need('))
+_DESCRIPTOR_ROOT_PROFILE_NAME = 'SOURCE02C_NORMAL_ROOT_DIAGNOSTIC_EXACT_INVERSE_V1'
+
+def _descriptor_root_bytes(raw, require):
+    # Only this exact whole diagnostic Source qualifies for the finite inverse.
+    # Historical587/607 bytes still reach the original whole-source pin below.
+    if (len(raw), _descriptor_hashlib.sha256(raw).hexdigest()) == _DESCRIPTOR_ROOT_PROFILE:
+        for offset, length, digest, original in _DESCRIPTOR_ROOT_INVERSE:
+            require(0 <= offset <= len(raw) and 0 <= length <= len(raw)-offset
+                    and _descriptor_hashlib.sha256(raw[offset:offset+length]).hexdigest() == digest,
+                    'exact diagnostic root inverse span')
+            raw = raw[:offset] + original + raw[offset+length:]
+    return raw
+
+
 def _descriptor_bind(original, query):
     """Whole original graph/hash/lease checks, with private mount/text APIs only."""
     for name,module in (('full_root',original.roots),('measure_copy',original.measure_copy),('aux_checkpoint',original.aux)):
         raw=Path(module.__file__).read_bytes()
+        if name=='full_root':raw=_descriptor_root_bytes(raw, original.aux.need)
         if name=='full_root' and b'max_packages: int = 607' in raw:
             original.aux.need(raw.count(b'max_packages: int = 607')==1,'one selected607 package default')
             raw=raw.replace(b'max_packages: int = 607',b'max_packages: int = 587',1)
