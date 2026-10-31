@@ -69,9 +69,9 @@ class Audit:
             self.events.append('raw_reap')
         return row
 
-    def stat(self, pid):
+    def stat(self, pid, **kwargs):
         self.numeric()
-        return STAT(pid)
+        return STAT(pid, **kwargs)
 
     def open(self, path, *args, **kwargs):
         if str(path).startswith('/proc/'):
@@ -288,9 +288,9 @@ os.waitpid(pid,0)
             finally:
                 inside = False
 
-        def steal(pid):
+        def steal(pid, **kwargs):
             nonlocal stolen
-            row = audited_stat(pid)
+            row = audited_stat(pid, **kwargs)
             if inside and not stolen:
                 terminal(child.pid)
                 WAITPID(child.pid, 0)  # Real theft of ONLY this fresh child.
@@ -330,9 +330,9 @@ while True: time.sleep(1)
             members = R._rss_members
             changed = False
 
-            def change(*args):
+            def change(*args, **kwargs):
                 nonlocal changed
-                rows = members(*args)
+                rows = members(*args, **kwargs)
                 if not changed:
                     changed = True
                     os.write(send, b'F')
@@ -361,17 +361,17 @@ while True: time.sleep(1)
         stolen = False
         audited_stat = None
 
-        def scan(*args):
+        def scan(*args, **kwargs):
             nonlocal retiring
             retiring = sys._getframe(1).f_code.co_name == 'live'
             try:
-                return members(*args)
+                return members(*args, **kwargs)
             finally:
                 retiring = False
 
-        def steal(pid):
+        def steal(pid, **kwargs):
             nonlocal stolen
-            row = audited_stat(pid)
+            row = audited_stat(pid, **kwargs)
             if retiring and not stolen:
                 self.assertIsNotNone(WAITID(os.P_PID, child.pid, os.WEXITED | os.WNOWAIT | os.WNOHANG))
                 WAITPID(child.pid, 0)
