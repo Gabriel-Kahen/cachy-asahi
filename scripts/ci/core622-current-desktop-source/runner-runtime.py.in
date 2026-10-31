@@ -1,0 +1,172 @@
+# Maintained stdlib-only observer; original installer clocks remain authoritative.
+_RESILIENCE_SOURCE=None
+RESILIENCE_PUBLIC={'runner-telemetry/phase.stdout.json','runner-telemetry/phase.stderr.json'}
+
+def resilience_encoded(value):return(json.dumps(value,sort_keys=True,indent=2,allow_nan=False)+'\n').encode()
+
+def resilience_json(raw):
+ def pairs(rows):
+  value={}
+  for k,v in rows:need(k not in value,'unique observer JSON fields');value[k]=v
+  return value
+ return json.loads(raw,object_pairs_hook=pairs,parse_constant=lambda _:need(False,'finite observer JSON'))
+
+def resilience_read(path,cap):
+ path=Path(path);need(path.is_absolute()and path==path.resolve()and not any(p.is_symlink()for p in(path,*path.parents)),'literal owned observer DATA');fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK|os.O_CLOEXEC)
+ try:
+  a=os.fstat(fd);key=lambda s:tuple(getattr(s,k)for k in('st_dev','st_ino','st_mode','st_uid','st_gid','st_nlink','st_size','st_mtime_ns','st_ctime_ns'));need(stat.S_ISREG(a.st_mode)and a.st_uid==os.getuid()and a.st_nlink==1 and stat.S_IMODE(a.st_mode)in(0o600,0o644)and 0<=a.st_size<=cap,'bounded single-link observer DATA');data=bytearray()
+  while len(data)<=a.st_size:
+   raw=os.read(fd,min(65536,a.st_size+1-len(data)))
+   if not raw:break
+   data.extend(raw)
+  need(len(data)==a.st_size and key(a)==key(os.fstat(fd))==key(path.lstat()),'stable whole observer DATA');return bytes(data)
+ finally:os.close(fd)
+
+def resilience_source():
+ global _RESILIENCE_SOURCE
+ if _RESILIENCE_SOURCE is not None:return _RESILIENCE_SOURCE
+ root=Path(__file__).absolute().parent;need(root==root.resolve()and not any(p.is_symlink()for p in(root,*root.parents)),'canonical closed Source');s=root.stat();need(stat.S_ISDIR(s.st_mode)and s.st_uid==os.getuid()and not s.st_mode&0o022,'ordinary owned closed Source');manifest=resilience_json(resilience_read(root/'source-manifest.json',4*1024**2));files=manifest['files'];aliases=('.github/workflows/native-arm-build.yml','.github/workflows/native-arm-core7-real-systemd.yml');expected=set(files)|{'source-manifest.json',*aliases};need(type(files)is dict and len(files)==63 and len(expected)==66 and manifest['actual']is None,'exact closed66 observer Source');found=set();directories={''}
+ for p in root.rglob('*'):
+  name=p.relative_to(root).as_posix()
+  if name.split('/')[0]=='.git':continue
+  need(not p.is_symlink()and(p.is_dir()or p.is_file()),'no Source aliases')
+  if p.is_dir():directories.add(name)
+  else:found.add(name)
+ need(found==expected,'complete Source leaves');wanted={''}
+ for name,want in files.items():
+  need(name==Path(name).as_posix()and not Path(name).is_absolute()and all(v not in('','.','..')for v in name.split('/')),'literal Source role');raw=resilience_read(root/name,4*1024**2);need(pin(raw)==want and stat.S_IMODE((root/name).stat().st_mode)==0o644,'whole Source pins and modes')
+ for name in expected:wanted.update(''if str(p)=='.'else p.as_posix()for p in Path(name).parents)
+ need(directories==wanted and all(resilience_read(root/n,4*1024**2)==resilience_read(root/'workflow.yml.in',4*1024**2)for n in aliases),'closed Source directories/workflow aliases');_RESILIENCE_SOURCE=root;return root
+
+def resilience_paths(*,actor=False):
+ import re
+ root=resilience_source();workspace=Path(os.environ['GITHUB_WORKSPACE']);need(root==workspace/'core622-code','literal original Source role');home=Path(os.environ['HOME']);temporary=home.parent if actor else Path(os.environ['RUNNER_TEMP']);need(not actor or home==temporary/'expanded604-installer-home','only original declared installer HOME parent')
+ if actor:
+  need(home==home.resolve()and not any(p.is_symlink()for p in(home,*home.parents)),'ordinary declared installer HOME');fd=os.open(home,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC)
+  try:
+   h=os.fstat(fd);p=home.lstat();need(stat.S_ISDIR(h.st_mode)and h.st_uid==os.getuid()and not h.st_mode&0o022 and(h.st_dev,h.st_ino,h.st_mode,h.st_uid)==(p.st_dev,p.st_ino,p.st_mode,p.st_uid),'stable owned declared installer HOME')
+  finally:os.close(fd)
+ need(temporary.is_absolute()and temporary==temporary.resolve()and not any(p.is_symlink()for p in(temporary,*temporary.parents))and temporary.is_dir()and temporary.stat().st_uid==os.getuid()and not temporary.stat().st_mode&0o022,'ordinary original observer temp');need(not root.is_relative_to(temporary)and not temporary.is_relative_to(root),'disjoint Source and observer temp');source=os.environ['GITHUB_SHA'];run=os.environ['GITHUB_RUN_ID'];ref=os.environ['GITHUB_REF_NAME'];need(source==os.environ.get('SOURCE_SHA',source)==os.environ.get('WORKFLOW_SHA',source)and re.fullmatch('[a-f0-9]{40}',source)and re.fullmatch('[1-9][0-9]{0,19}',run)and re.fullmatch('codex/[a-z0-9-]+',ref)and os.environ['GITHUB_RUN_ATTEMPT']=='1','same first Source/workflow/run identity');identity=dict(source=source,ref=ref,run=int(run),attempt=1);nonce=hashlib.sha256(('current607-core622:'+source+':'+run).encode()).hexdigest()[:32];work=temporary/'core622-resilience';need(not work.is_symlink(),'literal original observer work');return temporary,work,identity,nonce
+
+def resilience_write(path,raw,cap):
+ need(len(raw)<=cap,'bounded observer output');fd=os.open(path,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW|os.O_CLOEXEC,0o600)
+ try:
+  with os.fdopen(fd,'wb',closefd=False)as stream:stream.write(raw)
+  s=os.fstat(fd);return(s.st_dev,s.st_ino)
+ except BaseException:
+  try:
+   s=os.fstat(fd);p=Path(path).lstat()
+   if(s.st_dev,s.st_ino)==(p.st_dev,p.st_ino):Path(path).unlink()
+  except BaseException:pass
+  raise
+ finally:os.close(fd)
+
+def resilience_begin():
+ import time
+ temporary,work,identity,nonce=resilience_paths();need(not os.path.lexists(work),'one fresh owned observer context');started=time.monotonic();value=dict(schema=1,status='SOURCE_BOUND_BOUNDED_RUNNER_OBSERVER_DATA_ONLY',identity=identity,nonce=nonce,source_export=pin(resilience_read(Path(__file__).absolute(),4*1024**2)),source_root_sha256=hashlib.sha256(str(resilience_source()).encode()).hexdigest(),runtime_temp_sha256=hashlib.sha256(str(temporary).encode()).hexdigest(),started=started,deadline=started+15660,observer_seconds=15660,actor_timeout_seconds=15600,actor_kill_grace_seconds=60,acceptance=False);work.mkdir(mode=0o700);resilience_write(work/'intent.json',resilience_encoded(value),16384);return value
+
+def resilience_intent(*,actor=False):
+ import math,time
+ temporary,work,identity,nonce=resilience_paths(actor=actor);s=work.stat();need(stat.S_ISDIR(s.st_mode)and s.st_uid==os.getuid()and stat.S_IMODE(s.st_mode)==0o700,'same original owned observer context');raw=resilience_read(work/'intent.json',16384);value=resilience_json(raw);need(set(value)=={'schema','status','identity','nonce','source_export','source_root_sha256','runtime_temp_sha256','started','deadline','observer_seconds','actor_timeout_seconds','actor_kill_grace_seconds','acceptance'}and value['schema']==1 and type(value['schema'])is int and value['status']=='SOURCE_BOUND_BOUNDED_RUNNER_OBSERVER_DATA_ONLY'and value['identity']==identity and value['nonce']==nonce and value['source_export']==pin(resilience_read(Path(__file__).absolute(),4*1024**2))and value['source_root_sha256']==hashlib.sha256(str(resilience_source()).encode()).hexdigest()and value['runtime_temp_sha256']==hashlib.sha256(str(temporary).encode()).hexdigest()and value['acceptance']is False,'whole Source-bound observer intent');need(all(type(value[k])in(int,float)and math.isfinite(value[k])for k in('started','deadline'))and 0<=value['started']<=time.monotonic()and value['deadline']==value['started']+15660 and(value['observer_seconds'],value['actor_timeout_seconds'],value['actor_kill_grace_seconds'])==(15660,15600,60),'one immutable observer bound, original actor clocks');return temporary,work,raw,value
+
+def resilience_error(stage,error):
+ allowed={'OSError','FileNotFoundError','PermissionError','ValueError','TypeError','RuntimeError','TimeoutError','BrokenPipeError','BlockingIOError','InterruptedError','MemoryError'};name=type(error).__name__;return dict(stage=stage,error_type=name if name in allowed else'UNCLASSIFIED_OPTIONAL_ERROR')
+
+def resilience_pump(role,deadline):
+ """Finite owned shell pump; raw prefixes stay private, safe telemetry only live."""
+ import math,select,time
+ now=time.monotonic();need(role in('phase.stdout','phase.stderr')and type(deadline)in(int,float)and math.isfinite(deadline)and 0<deadline-now<=15660,'original caller-supplied observer bound');work=None;intent=None;stream=None;created=None;telemetry=None;errors=[];observed=0;digest=hashlib.sha256();eof=False;kept=0
+ try:
+  _,work,intent_raw,intent=resilience_intent();need(deadline==intent['deadline'],'same immutable begin deadline')
+  if role=='phase.stdout':telemetry=phase_resource_telemetry(intent,intent['started'])
+  try:
+   fd=os.open(work/role,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW|os.O_CLOEXEC,0o600)
+   try:stream=os.fdopen(fd,'wb',buffering=0)
+   except BaseException:os.close(fd);raise
+   s=os.fstat(stream.fileno());created=(s.st_dev,s.st_ino)
+  except BaseException as error:errors.append(resilience_error('OPEN_PREFIX',error))
+ except BaseException as error:errors.append(resilience_error('BINDING',error))
+ try:
+  while True:
+   now=time.monotonic();remaining=deadline-now
+   if remaining<=0:errors.append(resilience_error('DRAIN_DEADLINE',TimeoutError()));break
+   if telemetry is not None:telemetry.tick(now)
+   ready,_,_=select.select([0],[],[],min(.25,remaining))
+   if not ready:continue
+   raw=os.read(0,65536)
+   if not raw:eof=True;break
+   if telemetry is not None:telemetry.feed(raw,now)
+   observed+=len(raw);digest.update(raw)
+   if stream is not None and kept<1024**2:
+    try:
+     piece=raw[:1024**2-kept];count=stream.write(piece);kept+=count;need(count==len(piece),'whole bounded private prefix')
+    except BaseException as error:
+     errors.append(resilience_error('WRITE_PREFIX',error))
+     try:stream.close()
+     except BaseException:pass
+     stream=None
+ finally:
+  if stream is not None:
+   try:stream.close()
+   except BaseException as error:errors.append(resilience_error('CLOSE_PREFIX',error))
+ if work is not None and intent is not None:
+  retained=None
+  try:
+   need(created is not None,'never adopt borrowed stream prefix');s=(work/role).lstat();need((s.st_dev,s.st_ino)==created,'same created private prefix identity');retained=pin(resilience_read(work/role,1024**2))
+  except BaseException as error:errors.append(resilience_error('PREFIX_PIN',error))
+  value=dict(schema=1,status='BOUNDED_PRIVATE_STREAM_METADATA_DATA_ONLY',identity=intent['identity'],nonce=intent['nonce'],role=role,source_export=intent['source_export'],intent=pin(intent_raw),observer_deadline=deadline,observed_bytes=observed,observed_sha256=digest.hexdigest(),eof=eof,retained=retained,complete=eof and retained is not None and retained['bytes']==observed and not errors,window='FULL'if eof and retained is not None and retained['bytes']==observed and not errors else'PREFIX',errors=errors,acceptance=False)
+  if telemetry is not None:
+   try:value.update(schema=2,telemetry=telemetry.summary())
+   except BaseException:pass
+  try:resilience_write(work/(role+'.json'),resilience_encoded(value),16384)
+  except BaseException:pass
+ return 0 if eof else 1
+
+
+def resilience_receipt_value(value,identity,source_export):
+ import math,re
+ need(type(value)is dict,'sanitized receipt object');role=value.get('role');version=value.get('schema');keys={'schema','status','identity','nonce','role','source_export','intent','observer_deadline','observed_bytes','observed_sha256','eof','retained','complete','window','errors','acceptance'};need(type(version)is int and version in(1,2)and type(value)is dict and set(value)==keys|({'telemetry'}if version==2 else set())and role in('phase.stdout','phase.stderr')and(version==1 or role=='phase.stdout'),'exact versioned sanitized stream receipt');intent=dict(identity=identity);need(telemetry_selection(value['identity'],intent)and value['nonce']==hashlib.sha256(('current607-core622:'+identity['source']+':'+str(identity['run'])).encode()).hexdigest()[:32]and value['source_export']==source_export and value['status']=='BOUNDED_PRIVATE_STREAM_METADATA_DATA_ONLY'and value['acceptance']is False,'exact Source/run/nonce/writer public receipt')
+ def checked(p,cap):need(type(p)is dict and set(p)=={'bytes','sha256'}and type(p['bytes'])is int and 0<=p['bytes']<=cap and type(p['sha256'])is str and re.fullmatch('[a-f0-9]{64}',p['sha256']),'finite receipt pin')
+ checked(value['intent'],16384);need(type(value['observer_deadline'])in(int,float)and math.isfinite(value['observer_deadline'])and value['observer_deadline']>=0 and type(value['observed_bytes'])is int and 0<=value['observed_bytes']<2**63 and type(value['observed_sha256'])is str and re.fullmatch('[a-f0-9]{64}',value['observed_sha256'])and type(value['eof'])is type(value['complete'])is bool and value['window']in('FULL','PREFIX'),'typed observed stream metadata');retained=value['retained'];checked(retained,1024**2)if retained is not None else None;need(retained is None or retained['bytes']<=value['observed_bytes'],'private prefix not invented');errors=value['errors'];stages={'OPEN_PREFIX','BINDING','WRITE_PREFIX','CLOSE_PREFIX','PREFIX_PIN','DRAIN_DEADLINE'};classes={'OSError','FileNotFoundError','PermissionError','ValueError','TypeError','RuntimeError','TimeoutError','BrokenPipeError','BlockingIOError','InterruptedError','MemoryError','UNCLASSIFIED_OPTIONAL_ERROR'};need(type(errors)is list and len(errors)<=6 and all(type(r)is dict and set(r)=={'stage','error_type'}and r['stage']in stages and r['error_type']in classes for r in errors),'finite sanitized capture errors');complete=value['eof']and retained is not None and retained['bytes']==value['observed_bytes']and not errors;need(value['complete']is complete and value['window']==('FULL'if complete else'PREFIX')and(not complete or retained['sha256']==value['observed_sha256']),'exact EOF/complete/original observed hash semantics')
+ if version==2:telemetry_summary_value(value['telemetry'],dict(identity=identity,nonce=value['nonce']))
+ return value
+
+
+def resilience_delegate(call):
+ telemetry_phase('FRESH_INSTALLER_ENTER')
+ try:value=call();telemetry_phase('OUTER_CALLER_RETURN');return value
+ except BaseException:telemetry_phase('OUTER_CALLER_RAISE');raise
+
+
+def retain_resilience_metadata(public):
+ """Optional two sanitized public roles; original export stays closed on refusal."""
+ public=Path(public);written={};temporary=public/'.resilience-export.tmp';created=None;target=public/'runner-telemetry';made=False
+ try:
+  _,work,intent_raw,intent=resilience_intent();before=resilience_read(public/'export.json',4*1024**2);record=resilience_json(before);need(not os.path.lexists(target),'fresh optional metadata namespace');bodies={}
+  for role in('phase.stdout','phase.stderr'):
+   raw=resilience_read(work/(role+'.json'),16384);value=resilience_receipt_value(resilience_json(raw),intent['identity'],intent['source_export']);need(value['role']==role and value['intent']==pin(intent_raw)and value['observer_deadline']==intent['deadline'],'literal matching receipt/intent/deadline');bodies[role+'.json']=raw
+  need(sum(v['bytes']for v in record['files'].values())==record['bytes']and record['bytes']+sum(map(len,bodies.values()))<=768*1024**2 and len(record['files'])+2<=4096,'unchanged original public byte/member capacities');target.mkdir(mode=0o700);made=True
+  for name,raw in bodies.items():
+   identity=resilience_write(target/name,raw,16384);written[name]=dict(identity=identity,pin=pin(raw));record['files']['runner-telemetry/'+name]=pin(raw);record['bytes']+=len(raw)
+  record['runner_telemetry']=dict(schema=1,status='OPTIONAL_SANITIZED_RUNNER_METADATA_DATA_ONLY',roles={n:record['files'][n]for n in sorted(RESILIENCE_PUBLIC)},acceptance=False);prepared=resilience_encoded(record);need(len(prepared)<=4*1024**2 and resilience_read(public/'export.json',4*1024**2)==before,'same original closed export before commit');created=resilience_write(temporary,prepared,4*1024**2);s=temporary.lstat();need((s.st_dev,s.st_ino)==created and resilience_read(temporary,4*1024**2)==prepared and resilience_read(public/'export.json',4*1024**2)==before,'same owned temporary and unchanged original export');os.replace(temporary,public/'export.json');return True
+ except BaseException:
+  try:
+   if created is not None and resilience_read(public/'export.json',4*1024**2)==prepared:return True # Commit completed before an optional interruption.
+  except BaseException:pass
+  for name,row in written.items():
+   try:
+    path=target/name;s=path.lstat()
+    if(s.st_dev,s.st_ino)==row['identity']and pin(resilience_read(path,16384))==row['pin']:path.unlink()
+   except BaseException:pass
+  if made:
+   try:
+    if not any(target.iterdir()):target.rmdir()
+   except BaseException:pass
+  return False
+ finally:
+  if created is not None:
+   try:
+    s=temporary.lstat()
+    if(s.st_dev,s.st_ino)==created:temporary.unlink()
+   except BaseException:pass
+
