@@ -1,0 +1,37 @@
+{
+  "acceptance": false,
+  "architecture": "aarch64",
+  "bounds": {
+    "fixture_wait_seconds": 2,
+    "grace_seconds": 0.1,
+    "output_bytes": 4096,
+    "result_bytes": 131072,
+    "retirement_seconds": 2.0,
+    "runtime_seconds": 8.0
+  },
+  "caller_execution_context": "native-runner",
+  "context_provenance": "EXTERNAL; CLI does not attest native/M2 provenance",
+  "fixture": {
+    "bytes": 2783,
+    "sha256": "0b37f2acf0a56df100a5e98404ddc0e4765208f52d1ce76a4dce9f9f142df678"
+  },
+  "inherited_FSIZE": [
+    536870912,
+    536870912
+  ],
+  "interpreter": {
+    "executable": "/opt/hostedtoolcache/Python/3.14.9/arm64/bin/python",
+    "implementation": "CPython",
+    "version": "3.14.9 (main, Oct 21 2026, 14:53:03) [GCC 13.3.0]"
+  },
+  "once": true,
+  "owner": 2612,
+  "page_size": 4096,
+  "retry": false,
+  "runtime": {
+    "bytes": 38256,
+    "sha256": "9388d270d06e28fee50160b7c04dd69593e383647d791f8aaff69380032165d5"
+  },
+  "runtime_path": "/home/runner/work/cachy-asahi/cachy-asahi/.owned-v2-runtime-source-data/scripts/virtual/owned_process_retirement_v2.py",
+  "source_label": "runtime:3ab5da1b4a11495075a9660ad09625a4ff5f0f64;workflow:9e7c58f51548b7d901ac90084883f41b9dba4e90"
+}
