@@ -1,0 +1,182 @@
+{
+  "bwrap": {
+    "bytes": 133648,
+    "gid": 0,
+    "mode": 493,
+    "sha256": "3016d82c88481eeb15c1145ea82a591b11890faa6e957635b75bc148a1701e45",
+    "status": "OBSERVED",
+    "uid": 0
+  },
+  "cwd": "/tmp",
+  "kind": "platform-namespace-policy-probe-context-v1",
+  "lsm": {
+    "label": "docker-default (enforce)",
+    "status": "OBSERVED"
+  },
+  "maps": {
+    "gid_map": {
+      "status": "OBSERVED",
+      "value": [
+        [
+          0,
+          0,
+          4294967295
+        ]
+      ]
+    },
+    "uid_map": {
+      "status": "OBSERVED",
+      "value": [
+        [
+          0,
+          0,
+          4294967295
+        ]
+      ]
+    }
+  },
+  "mounts": {
+    "/": {
+      "fstype": "overlay",
+      "options": [
+        "relatime",
+        "rw"
+      ],
+      "status": "OBSERVED"
+    },
+    "/dev": {
+      "fstype": "tmpfs",
+      "options": [
+        "nosuid",
+        "rw"
+      ],
+      "status": "OBSERVED"
+    },
+    "/home": {
+      "reason": "ABSENT",
+      "status": "UNKNOWN"
+    },
+    "/proc": {
+      "fstype": "proc",
+      "options": [
+        "nodev",
+        "noexec",
+        "nosuid",
+        "relatime",
+        "rw"
+      ],
+      "status": "OBSERVED"
+    },
+    "/sys": {
+      "fstype": "sysfs",
+      "options": [
+        "nodev",
+        "noexec",
+        "nosuid",
+        "relatime",
+        "ro"
+      ],
+      "status": "OBSERVED"
+    }
+  },
+  "namespaces": {
+    "mnt": {
+      "status": "OBSERVED",
+      "value": "mnt:[700]"
+    },
+    "net": {
+      "status": "OBSERVED",
+      "value": "net:[701]"
+    },
+    "pid": {
+      "status": "OBSERVED",
+      "value": "pid:[702]"
+    },
+    "user": {
+      "status": "OBSERVED",
+      "value": "user:[703]"
+    }
+  },
+  "position": "SAME_PROCESS_BEFORE_SINGLE_BWRAP_EXEC",
+  "process": {
+    "egid": 1001,
+    "euid": 1001,
+    "gid": 1001,
+    "group_count": 2,
+    "groups": [
+      998,
+      1001
+    ],
+    "groups_truncated": false,
+    "uid": 1001
+  },
+  "schema": 1,
+  "source_map_sha256": "cc2d1aaee89bf8c8ff921b8d764572f94c29bcf76a625e501038d6413efb1cab",
+  "status": {
+    "CapAmb": {
+      "status": "OBSERVED",
+      "value": "0000000000000000"
+    },
+    "CapBnd": {
+      "status": "OBSERVED",
+      "value": "00000000a80425fb"
+    },
+    "CapEff": {
+      "status": "OBSERVED",
+      "value": "0000000000000000"
+    },
+    "CapInh": {
+      "status": "OBSERVED",
+      "value": "0000000000000000"
+    },
+    "CapPrm": {
+      "status": "OBSERVED",
+      "value": "0000000000000000"
+    },
+    "Gid": {
+      "status": "OBSERVED",
+      "value": [
+        1001,
+        1001,
+        1001,
+        1001
+      ]
+    },
+    "NoNewPrivs": {
+      "status": "OBSERVED",
+      "value": 0
+    },
+    "Seccomp": {
+      "status": "OBSERVED",
+      "value": 2
+    },
+    "Seccomp_filters": {
+      "status": "OBSERVED",
+      "value": 1
+    },
+    "Uid": {
+      "status": "OBSERVED",
+      "value": [
+        1001,
+        1001,
+        1001,
+        1001
+      ]
+    }
+  },
+  "sysctls": {
+    "apparmor_restrict_unprivileged_userns": {
+      "status": "OBSERVED",
+      "value": 1
+    },
+    "max_user_namespaces": {
+      "status": "OBSERVED",
+      "value": 65536
+    },
+    "unprivileged_userns_clone": {
+      "status": "OBSERVED",
+      "value": 1
+    }
+  },
+  "upstream_commit": "719a4fd474d44b26906bcf2b1b0fb6eddd8d56d0"
+}

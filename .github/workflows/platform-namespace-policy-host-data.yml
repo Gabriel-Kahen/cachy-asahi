@@ -1,0 +1,55 @@
+name: Platform namespace policy hosted DATA controls
+on:
+  pull_request:
+    paths:
+      - 'scripts/ci/platform-namespace-policy-matrix-source/**'
+      - '.github/workflows/platform-namespace-policy-host-data.yml'
+      - '.github/workflows/platform-namespace-policy-source-proposal.yml'
+  push:
+    paths:
+      - 'scripts/ci/platform-namespace-policy-matrix-source/**'
+      - '.github/workflows/platform-namespace-policy-host-data.yml'
+      - '.github/workflows/platform-namespace-policy-source-proposal.yml'
+permissions:
+  contents: read
+jobs:
+  owner-protocol-and-source-join:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Checkout existing exact published Source199 basis
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 05df8c71ea2bcb525bb1cfbc59983452062a1e97
+          path: .ci-fixtures/platform-policy-parent05df
+          persist-credentials: false
+      - name: Exact twelve portable owner protocol DATA controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(uname -m)" = x86_64
+          factory="$GITHUB_WORKSPACE/scripts/ci/platform-namespace-policy-matrix-source"
+          basis="$GITHUB_WORKSPACE/.ci-fixtures/platform-policy-parent05df"
+          test "$(git -C "$basis" rev-parse HEAD)" = 05df8c71ea2bcb525bb1cfbc59983452062a1e97
+          work=$(mktemp -d "$RUNNER_TEMP/platform-policy-host-data.XXXXXXXX")
+          chmod 0700 "$work"
+          printf 'PLATFORM_POLICY_HOST_WORK=%s\n' "$work" >> "$GITHUB_ENV"
+          python3 -I -B "$factory/tests/test_owner_data.py" \
+            --basis "$basis" --result "$work/owner-data-results.json"
+      - name: Construct and independently join Source201 DATA only
+        shell: bash
+        run: |
+          set -euo pipefail
+          factory="$GITHUB_WORKSPACE/scripts/ci/platform-namespace-policy-matrix-source"
+          basis="$GITHUB_WORKSPACE/.ci-fixtures/platform-policy-parent05df"
+          python3 -I -B "$factory/prepare.py" \
+            --basis "$basis" --overlay-root "$factory/payload" \
+            --overlay-manifest "$factory/overlay-manifest.json" \
+            --overlay-manifest-sha256 844228043b016d9411812cec0ce4d7fe70240b761c4d5569978cae4aec103cda \
+            --output "$PLATFORM_POLICY_HOST_WORK/Source201"
+          python3 -I -B "$factory/tests/check_constructed_source.py" "$PLATFORM_POLICY_HOST_WORK/Source201"
