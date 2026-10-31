@@ -41,7 +41,7 @@ jobs:
           python3 -I -B -Werror::ResourceWarning "$source_factory/test_assemble_source.py"
           python3 -I -B "$source_factory/assemble_source.py" \
             --parent-source "$stage/basis" --raw-parent-commit "$source_factory/parent-commit.txt" \
-            --profile-sha256 92419904d48686b6856f951a5ca7aad8af9e4727ba5c6d0c5b219e33a56424ed \
+            --profile-sha256 fb727176fc0c77e57311ea248518077c474c47e635a714ac4865e93bed3b3062 \
             --output "$stage/source200"
           PLATFORM_NATIVE_BASIS="$stage/basis" python3 -I -B -Werror::ResourceWarning "$platform_factory/test_prepare.py"
           python3 -I -B "$platform_factory/prepare.py" --basis "$stage/basis" --output "$stage/platform199"

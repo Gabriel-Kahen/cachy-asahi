@@ -98,5 +98,30 @@ class Factory(unittest.TestCase):
         self.assertEqual(self.policy['target_base'],'main')
 
 
+    def test_component_queue_keeps_multiple_pending_and_exact_job_body(self):
+        aliases = F.WORKFLOW_ALIASES
+        legacy = b'name: inert\nconcurrency:\n  group: native-arm-developer-workflows\n  cancel-in-progress: false\njobs:\n  native:\n    runs-on: ubuntu-24.04-arm\n    timeout-minutes: 135\n'
+        raw = {aliases[0]: legacy, aliases[1]: legacy, 'native/held.py': b'INERT DATA'}
+        scheduled = F.scheduled_workflows(raw)
+        self.assertEqual(raw[aliases[0]], legacy)
+        self.assertEqual(scheduled['native/held.py'], raw['native/held.py'])
+        self.assertEqual(scheduled[aliases[0]], scheduled[aliases[1]])
+        block = ('concurrency:\n  group: ' + F.CONCURRENCY_GROUP + '\n  cancel-in-progress: false\n  queue: max\njobs:\n').encode()
+        before = b'concurrency:\n  group: native-arm-developer-workflows\n  cancel-in-progress: false\njobs:\n'
+        self.assertEqual(scheduled[aliases[0]].replace(block, before, 1), legacy)
+        self.assertEqual(F.CONCURRENCY_GROUP, 'native-arm-image-tools')
+
+    def test_unreviewed_existing_queue_group_and_duplicate_block_refuse(self):
+        aliases = F.WORKFLOW_ALIASES
+        legacy = b'name: inert\nconcurrency:\n  group: native-arm-developer-workflows\n  cancel-in-progress: false\njobs:\n'
+        for bad in (legacy.replace(b'jobs:', b'  queue: max\njobs:'), legacy.replace(b'native-arm-developer-workflows', b'foreign-lane'), legacy + legacy):
+            with self.subTest(raw=bad), self.assertRaisesRegex(ValueError, 'legacy concurrency'):
+                F.scheduled_workflows({aliases[0]: bad, aliases[1]: bad})
+
+    def test_mismatched_workflow_aliases_refuse_scheduling(self):
+        with self.assertRaisesRegex(ValueError, 'aliases differ'):
+            F.scheduled_workflows(dict(zip(F.WORKFLOW_ALIASES, (b'left', b'right'))))
+
+
 if __name__=='__main__':
     unittest.main(verbosity=2)
