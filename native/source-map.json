@@ -680,9 +680,9 @@
       "sha256": "61cb97fc1bdc4f55e398a083b7318c9ff08895917c1066e666d8cd62b24a271f"
     },
     "native/release_build_cause_v1.py": {
-      "bytes": 28631,
+      "bytes": 32154,
       "mode": 420,
-      "sha256": "859144a2e90ce7ef5ac6884fed421023b8783e98a335b3f91fcfc522da5736ff"
+      "sha256": "a076037fc3adf6087d0c7f9ba3bb28984d8d3c8a86e487f59ae1c991a3af2016"
     },
     "native/release_guest_v1.py": {
       "bytes": 2987,
@@ -692,12 +692,12 @@
     "native/release_projection_v1.py": {
       "bytes": 10838,
       "mode": 420,
-      "sha256": "2d410e4fdfa8bb4830e238ad62f54cae96641fab8e4644ac0b8b233bac38c017"
+      "sha256": "25ffd34192a56ab4903fc25ad0e442385601e9830be2a9fd4e8f06e2ce599c51"
     },
     "native/release_reader_v1.py": {
       "bytes": 97373,
       "mode": 420,
-      "sha256": "c3b3ddf1f509eafd9f153c21fa0059541577a75d98e73ad3af3db651c6675224"
+      "sha256": "336508862b413371f2dec67f98da4320baecc53a08912989c7f51720d2a29207"
     },
     "native/release_tools_v1.py": {
       "bytes": 17450,
@@ -1065,6 +1065,8 @@
   "release_corrected191_parent": "111f14d2b21b220d86912d5ead978848c7ef1cb0",
   "release_correction_parent": "7e89c9d6a1d24fb118299b36f16ac853fc420cc3",
   "release_correction_scope": "exact-zero-GPG-absence-and-owned-member-DATA",
+  "release_install_v1_diagnostic_parent": "c4f030aaae1e0afaeb9f594b098904eeae7e6363",
+  "release_install_v1_diagnostic_scope": "EXACT_FAILED_INSTALL_V1_SOURCE_ARGV_PRIVATE_WORK_REDACTED_ORIGINAL_ROW_PIN_DIAGNOSTIC_ONLY",
   "release_maintained_main": "970a20ab9013d2fcf6d96626d998a50ac43383ee",
   "release_operation": "release-alpm-upgrade-v1",
   "release_original191_predecessor": "4c3171a1937489badd22d350835e8287fee3c52a",
