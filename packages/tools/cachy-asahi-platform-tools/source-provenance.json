@@ -1,0 +1,154 @@
+{
+  "files": {
+    "scripts/checks/package_checks.py": {
+      "bytes": 17706,
+      "license": "MIT",
+      "mode": 420,
+      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8",
+      "source_commit": "28814717fd2dbf66b9b65c2354a36b3c2843e3be"
+    },
+    "scripts/ci/native_arm.py": {
+      "bytes": 28318,
+      "license": "MIT",
+      "mode": 420,
+      "sha256": "a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898",
+      "source_commit": "28814717fd2dbf66b9b65c2354a36b3c2843e3be"
+    },
+    "scripts/integration/lifecycle.py": {
+      "bytes": 58929,
+      "license": "MIT",
+      "mode": 420,
+      "sha256": "c3223a1bd4002683071f4442e1f5b9caf439c68c4e231da10039cc9cebcdb52b",
+      "source_commit": "28814717fd2dbf66b9b65c2354a36b3c2843e3be"
+    },
+    "scripts/platform/archive_coverage.py": {
+      "bytes": 18010,
+      "license": "MIT",
+      "mode": 420,
+      "sha256": "685a98cb082739e5fa3630ff6496cceb09fc45698a806e737d40cfffe84b3c11",
+      "source_commit": "28814717fd2dbf66b9b65c2354a36b3c2843e3be"
+    },
+    "scripts/platform/authenticate_missing.py": {
+      "bytes": 23070,
+      "license": "MIT",
+      "mode": 420,
+      "sha256": "6af079cf10f8ebcc9416bf64bca4336ea03dbbf13f99ebd98a83808365f2fe59",
+      "source_commit": "28814717fd2dbf66b9b65c2354a36b3c2843e3be"
+    },
+    "scripts/platform/capture.py": {
+      "bytes": 26406,
+      "license": "MIT",
+      "mode": 420,
+      "sha256": "ce73314eb5a75b8afb963217fba15065106ae3f6ee081599a1ba7ab620b044c8",
+      "source_commit": "28814717fd2dbf66b9b65c2354a36b3c2843e3be"
+    },
+    "scripts/platform/platform_transition.py": {
+      "bytes": 22460,
+      "license": "MIT",
+      "mode": 420,
+      "sha256": "c2d8117d018fc3cf2c6e693f40ac52465d6119ba17c9ba22eda22495b81560c5",
+      "source_commit": "28814717fd2dbf66b9b65c2354a36b3c2843e3be"
+    },
+    "scripts/platform/prepare_transition.py": {
+      "bytes": 19977,
+      "license": "MIT",
+      "mode": 420,
+      "sha256": "383205909ce4b0eb55f18458f871cc41cd5764d34f3b9110131a37dc89d6165d",
+      "source_commit": "28814717fd2dbf66b9b65c2354a36b3c2843e3be"
+    },
+    "scripts/platform/recovery_inputs.py": {
+      "bytes": 22618,
+      "license": "MIT",
+      "mode": 420,
+      "sha256": "09be69917bf74b50a65841243e8e4cfef264a56074945b609264c76a0f387430",
+      "source_commit": "28814717fd2dbf66b9b65c2354a36b3c2843e3be"
+    },
+    "scripts/platform/recovery_preflight.py": {
+      "bytes": 20422,
+      "license": "MIT",
+      "mode": 420,
+      "sha256": "53c18e1c659684a509b7c17127441f1516cd9f32c6010e3f79d976ac9e3da68d",
+      "source_commit": "28814717fd2dbf66b9b65c2354a36b3c2843e3be"
+    },
+    "scripts/platform/test_platform_transition.py": {
+      "bytes": 16307,
+      "license": "MIT",
+      "mode": 420,
+      "sha256": "b6b7be7eba8fecb0a7eae12987216ed72c815b67fefe647ad6287741468a5367",
+      "source_commit": "28814717fd2dbf66b9b65c2354a36b3c2843e3be"
+    },
+    "scripts/platform/test_prepare_transition.py": {
+      "bytes": 9472,
+      "license": "MIT",
+      "mode": 420,
+      "sha256": "b0fcbe79f4348c7fac6fec12ee0c739d17be5a7abe2a027caf8086b59ed4ee4a",
+      "source_commit": "28814717fd2dbf66b9b65c2354a36b3c2843e3be"
+    },
+    "scripts/platform/transaction.py": {
+      "bytes": 29649,
+      "license": "MIT",
+      "mode": 420,
+      "sha256": "1e4776bd89c436af526ed132d75df32fbc15cf2349dd3cf7cf13ecf874238694",
+      "source_commit": "28814717fd2dbf66b9b65c2354a36b3c2843e3be"
+    },
+    "scripts/platform/tuple_audit.py": {
+      "bytes": 16220,
+      "license": "MIT",
+      "mode": 420,
+      "sha256": "e2fde6832d57f33aca1b215f03350edab67d9b3c66d31b7062bc4b0df8d92b5d",
+      "source_commit": "28814717fd2dbf66b9b65c2354a36b3c2843e3be"
+    },
+    "scripts/port/authenticate.py": {
+      "bytes": 17452,
+      "license": "MIT",
+      "mode": 420,
+      "sha256": "241cd67370eb593bdf948a25788f006ecf470c645ba5d198bc9c318119ebfe10",
+      "source_commit": "28814717fd2dbf66b9b65c2354a36b3c2843e3be"
+    },
+    "scripts/port/preview.py": {
+      "bytes": 19736,
+      "license": "MIT",
+      "mode": 420,
+      "sha256": "d737c51474e05cc2c4db2e87fc021f50328eea7744983dd4076d44751fce7383",
+      "source_commit": "28814717fd2dbf66b9b65c2354a36b3c2843e3be"
+    },
+    "scripts/release/compare_releases.py": {
+      "bytes": 11691,
+      "license": "MIT",
+      "mode": 420,
+      "sha256": "27086c7b0af74a1226deae7a6a71245882b82608a1fa9d33b68e657979c7d83c",
+      "source_commit": "28814717fd2dbf66b9b65c2354a36b3c2843e3be"
+    },
+    "scripts/release/release.py": {
+      "bytes": 41320,
+      "license": "MIT",
+      "mode": 420,
+      "sha256": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435",
+      "source_commit": "28814717fd2dbf66b9b65c2354a36b3c2843e3be"
+    }
+  },
+  "kind": "platform-tools-original-source-custody",
+  "license": "MIT",
+  "license_sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+  "runtime_files": [
+    "scripts/platform/prepare_transition.py",
+    "scripts/platform/platform_transition.py",
+    "scripts/platform/transaction.py",
+    "scripts/platform/recovery_preflight.py",
+    "scripts/platform/tuple_audit.py",
+    "scripts/platform/recovery_inputs.py",
+    "scripts/platform/authenticate_missing.py",
+    "scripts/platform/archive_coverage.py",
+    "scripts/platform/capture.py",
+    "scripts/port/preview.py",
+    "scripts/port/authenticate.py",
+    "scripts/ci/native_arm.py",
+    "scripts/checks/package_checks.py",
+    "scripts/integration/lifecycle.py",
+    "scripts/release/compare_releases.py",
+    "scripts/release/release.py"
+  ],
+  "schema_version": 1,
+  "source_commit": "28814717fd2dbf66b9b65c2354a36b3c2843e3be",
+  "source_url": "https://github.com/Gabriel-Kahen/cachy-asahi"
+}

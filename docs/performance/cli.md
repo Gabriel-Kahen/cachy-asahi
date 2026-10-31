@@ -1,8 +1,10 @@
 # Benchmark CLI and record boundaries
 
-Use Python 3.9 or newer with the standard library. Read the [methodology](README.md)
+Current source execution uses the [owned-retirement v2 layer](owned-retirement-v2.md). Historical `benchmark.py` and `paired_zlib.py` files and their frozen plans remain byte-held; their legacy workload execution is retired. Redeclare fresh v2 plans for new runs; do not edit or rebind historical plans. Offline historical comparison remains available.
+
+Use the verified Python 3.12 or 3.14 standard-library runtime. Read the [methodology](README.md)
 and inspect the workload before running. The source harness is
-[`scripts/benchmarks/benchmark.py`](../../scripts/benchmarks/benchmark.py).
+[`scripts/benchmarks/benchmark_v2.py`](../../scripts/benchmarks/benchmark_v2.py).
 It runs one declared slot per invocation, refuses root execution and creates
 fresh output paths. No invocation applies or removes the experiment for you.
 
@@ -16,7 +18,7 @@ one changed variable; permitting the whole packages field in a JSON schema does
 not authorize unrelated package updates.
 
 ```sh
-python3 scripts/benchmarks/benchmark.py prepare-plan \
+python3 scripts/benchmarks/benchmark_v2.py prepare-plan \
   --config artifacts/experiment-config.json \
   --baseline artifacts/baselines/reference.json \
   --candidate-state artifacts/baselines/candidate.json \
@@ -95,7 +97,7 @@ temperature, brightness or battery charge for the control checks.
 For slot 0, whose variant is determined by the frozen `order` array:
 
 ```sh
-python3 scripts/benchmarks/benchmark.py run \
+python3 scripts/benchmarks/benchmark_v2.py run \
   --plan artifacts/frozen-plan.json --slot 0 \
   --state artifacts/baselines/reference.json \
   --conditions artifacts/conditions-slot-00.json \
@@ -124,14 +126,15 @@ Elapsed timing includes asynchronous sampling and bounded cleanup overhead.
 Timeouts/failures return a failing result and retain
 evidence; comparison refuses them. Preserve the failed block and declare a new
 complete block instead of cherry-picking successful replacements into it.
-Telemetry runs in a daemon sampler and hands completed snapshots through a
-bounded queue. The main thread monitors the workload deadline without synchronous
-sensor reads. `sampling_status` records dropped snapshots, sampler errors,
-`worker_stopped` and `workload_reaped`; any incomplete sampling/cleanup invalidates
-the trial. Cleanup uses bounded waits (currently 0.25 seconds each for the root
-process and sampler). If the sampler remains blocked, another execution in that
-same Python process is refused until it stops; normal CLI exit ends its daemon
-thread. Inspect host/workload state before proceeding after a cleanup failure.
+The v2 sensor sampler receives no child PID and has no signaling responsibility.
+Original-group RSS comes from the shared owner's bounded in-flight observations,
+with the actual live leader's RSS kept separate from the group sum. The main
+thread owns the workload through the last possible signal and raw reap. Sensor
+errors, unavailable/incomplete RSS, unresolved waits and failed cleanup remain
+invalid evidence. A blocked sampler or unresolved wait prevents another workload
+in the same Python process. See the [v2 evidence/cleanup contract](owned-retirement-v2.md)
+for the changed raw receipt, output and timing scope. Inspect retained evidence
+before proceeding after a failure.
 
 SIGTERM records interruption and attempts cleanup of the original process group.
 Detached/`setsid` descendants are unsupported; workloads must wait for all
@@ -144,7 +147,7 @@ process remains an explicit invalid result rather than a successful trial.
 Pass all trial directories from the frozen order explicitly:
 
 ```sh
-python3 scripts/benchmarks/benchmark.py compare \
+python3 scripts/benchmarks/benchmark_v2.py compare \
   --plan artifacts/frozen-plan.json \
   --runs artifacts/trial-00 artifacts/trial-01 artifacts/trial-02 \
          artifacts/trial-03 artifacts/trial-04 artifacts/trial-05 \

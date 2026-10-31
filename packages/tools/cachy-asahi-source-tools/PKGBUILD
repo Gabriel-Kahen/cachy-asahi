@@ -1,0 +1,32 @@
+# SPDX-License-Identifier: MIT
+pkgname=cachy-asahi-source-tools
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Offline exact release source mirrors and inert rebuild contexts'
+arch=(any)
+url=https://github.com/Gabriel-Kahen/cachy-asahi
+license=(MIT)
+depends=('python>=3.14' xz zstd)
+checkdepends=(bubblewrap)
+options=('!strip' '!debug')
+source=(private-source.tar.gz fixtures.tar.gz cachy-asahi-source-tools check_package.py test_package.py multi_package_roundtrip.py README.md source-provenance.json payload-map.json NOTICE LICENSE)
+sha256sums=(fa9db2ee4a6f16fee53b79494d437901570c80798de9219d2cc637b9f430575a 6e307625ad97381ec6a4efb9a0ae651ad4c38c1c88a81fc19d4e931584d468c0 b7ccbb013b5479b80cfde65444454a3d22a4078e03ffd816a808ae12d983ac2a 436b1cbffb58d712c499584d75da2651311c7f40da675b6e7f5f19566f5a0207 43f26bb2def8a17d6df4aad13aad5e9a50c0a4316e01d789d8148d8f9c28cb7e 16ddb03e644141b544afc755b13ac3ee3e4c61e5132d134e62aa431bf147cbf7 c6fa9875b2dab616e6a9b39e58df53d1b287084e8c09a2f2c1ae55bd6a6ff3bb 28b2b8a2708bc3fece91d5560b17da358b59937d4afcebf5a42be28a1802b042 dc411ac7bb373b7758c7afa004e17a4e4c73127b922cf8dcb2232ede603e5189 650d77ba3fddc940807b827b88a4f8f274a2cce5048c0e3e2a785337ca6b6bfb 51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7)
+
+check() {
+    python -I -B "$srcdir/check_package.py" --recipe-root "$startdir" || return
+    python -I -B -Werror::ResourceWarning "$srcdir/test_package.py" --recipe-root "$startdir" --srcdir "$srcdir" --hide-checkout "${SOURCE_TOOLS_HIDE_ROOT:-$startdir}"
+}
+
+package() {
+    [[ -n ${srcdir:-} && -n ${pkgdir:-} && $pkgdir != / && $pkgdir != "$srcdir" ]] || return 1
+    install -Dm755 "$srcdir/cachy-asahi-source-tools" "$pkgdir/usr/bin/cachy-asahi-source-tools" || return
+    for path in build/build_v2.py build/container-entry-v2.sh build/mirror_consumer.py build/source_materials.py checks/package_checks.py maintenance/source_cache.py release/recipe_source_delivery.py release/release_sbom.py release/release_source_mirror.py release/source_delivery.py update/archive_stream.py; do
+        install -Dm644 "$srcdir/private/scripts/$path" "$pkgdir/usr/lib/cachy-asahi/source-tools/scripts/$path" || return
+    done
+    for leaf in README.md source-provenance.json payload-map.json; do
+        install -Dm644 "$srcdir/$leaf" "$pkgdir/usr/share/doc/cachy-asahi-source-tools/$leaf" || return
+    done
+    for leaf in LICENSE NOTICE; do
+        install -Dm644 "$srcdir/$leaf" "$pkgdir/usr/share/licenses/cachy-asahi-source-tools/$leaf" || return
+    done
+}
