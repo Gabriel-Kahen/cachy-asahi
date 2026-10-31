@@ -1,0 +1,166 @@
+{
+  "artifact": {
+    "bytes": 914324,
+    "id": 13034143037,
+    "sha256": "85927fa799425fbcd37b015c28fa81d50eeecde6d3ec8d6e4a09a0f7bcd58120"
+  },
+  "binding": {
+    "attempt": 1,
+    "job": 124473189670,
+    "map_sha256": "a9fde302394039671851852c9ff0f64ccf09cfa6a0d47055b66faa7c4a35ed94",
+    "ref": "refs/heads/codex/native-security-maintenance-agent-absence-v5",
+    "run": 41179285419,
+    "source": "b6a02f11648738ded90084f7dcdcd4ea77c194fa"
+  },
+  "boundaries": {
+    "installed_Asahi": "NOT_RUN",
+    "native16K": "NOT_QUALIFIED",
+    "performance": "NOT_MEASURED",
+    "physical_M2": "NOT_RUN",
+    "production_trust": "NOT_ADMITTED",
+    "release": "NOT_ADMITTED",
+    "remediation": "NOT_ESTABLISHED",
+    "upgrade": "NOT_EXERCISED"
+  },
+  "component": "cachy-asahi-security-maintenance",
+  "evidence_record_pins": {
+    "artifact-transport.json": {
+      "bytes": 1800,
+      "sha256": "3ed3955af07cd0a36953d3a16f338d0c2080acb40a1c364ada7dd9a25d9a343f"
+    },
+    "coverage.json": {
+      "bytes": 16117,
+      "sha256": "ccca583519b03aec8856ffb80f25f7b11a5056bdc62154be84bd4d7cfa2e981e"
+    },
+    "full-reader-call.json": {
+      "bytes": 1361,
+      "sha256": "9d4843bac0f216d59cd76af37af4aa729e3969c69ab6f5955d5ab31b200c491c"
+    },
+    "package-data.json": {
+      "bytes": 2549,
+      "sha256": "c7ee49fff47589badf252ff26d9dd517ccd530553d58f38d02c2b535a7d1f6fd"
+    },
+    "reader-and-projection-status.json": {
+      "bytes": 2885,
+      "sha256": "c8d6990a91a69113a152fd5296ad715f2de20d029b7066ead8e750b424dece2a"
+    },
+    "reader-result.json": {
+      "bytes": 537,
+      "sha256": "fff2c4156ee4357de2ad8eb24b93356d80f1769a5d5684e87c631c8100b3522e"
+    }
+  },
+  "limits": [
+    "Full reader API completed once; its worker later exited1 from an optional DATA projection error. Initial failure retained; corrected separate projection and independent package decode exited0 without replaying reader. This is not a blanket passed worker episode.",
+    "Installed/moved workflow outputs expose aggregate Source-defined17 controls/23 commands perflow; removed inner trees/logs not independently reconstructed.",
+    "Retired process/container/image/agent states validated from original Source-owned receipts, not live reobserved."
+  ],
+  "package": {
+    "all29_source_payload_body_mode_pins": true,
+    "arch": "any",
+    "archive_bytes": 94166,
+    "archive_sha256": "897fee33c0ee97fc5d529ed9aae6a576cac0fa1010eefe127aabc28e15a7f2d2",
+    "buildinfo": {
+      "bytes": 14222,
+      "sha256": "e4e7e28f6db64f5dc5e1b24fe23c4727fd97b6b652191645d4003d537df92a33"
+    },
+    "buildinfo_packages": 349,
+    "builds": 2,
+    "byte_equal": true,
+    "decompressed_tar": {
+      "bytes": 440320,
+      "sha256": "966bfaeaca1b2d0e1c7094999ee978f71b1f64d4930162c4d460de7852f7e2e4"
+    },
+    "name": "cachy-asahi-security-maintenance",
+    "native_builder": "aarch64_4096_BYTE_PAGES",
+    "payload_files": 29,
+    "pkginfo": {
+      "bytes": 565,
+      "sha256": "2243c5691c69a3d67fadcfe4d0ac53df88922ce2bfbd67c2312005dac42a68af"
+    },
+    "version": "0.1.0-2"
+  },
+  "public_links": {
+    "artifact": "https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/41179285419/artifacts/13034143037",
+    "job": "https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/41179285419/job/124473189670",
+    "run": "https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/41179285419",
+    "source": "https://github.com/Gabriel-Kahen/cachy-asahi/commit/b6a02f11648738ded90084f7dcdcd4ea77c194fa"
+  },
+  "reader_episode": {
+    "all_workers_pass": false,
+    "corrected_projection_exit": 0,
+    "full_API_replayed": false,
+    "full_matching_API_calls": 1,
+    "full_matching_API_completed": true,
+    "independent_package_DATA_decode": true,
+    "initial_failure_phase": "Optional DATA projection after completed full reader API and persisted result",
+    "initial_failure_retained": true,
+    "initial_worker_exit": 1
+  },
+  "root_acceptance": {
+    "issued_at": "2026-10-31T07:34:18.570660+00:00",
+    "receipt": {
+      "bytes": 3138,
+      "sha256": "4383fa827767a75d4d50cc9aaa9db2162261e059a448f6857f4be3b89add856c"
+    },
+    "scope": [
+      "two distinct clean native build stages and retained identical archives",
+      "Required TEST signature unknown-key/untrusted-install refusals with preserved inventory",
+      "signed installation and29 ALPM owner checks",
+      "ordinary-user installed and moved-prefix offline security workflows",
+      "removal restored349 package inventory and preserved user data",
+      "all10 inner cleanup flags and exact source-bound outer resource retirement"
+    ]
+  },
+  "schema_version": 1,
+  "status": "ACCEPTED_FINITE_NATIVE_ARM_TEST_SIGNED_SECURITY_COMPONENT_V1",
+  "test_signed_lifecycle": {
+    "alpm_owner_checks": 29,
+    "authority": "SCOPED_EPHEMERAL_TEST_ONLY",
+    "baseline_packages": 349,
+    "inner_lifecycle_flags": {
+      "global_config_unchanged": true,
+      "global_trust_unchanged": true,
+      "installed": true,
+      "inventory_restored": true,
+      "moved_prefix_absent": true,
+      "payload_absent": true,
+      "private_homes_absent": true,
+      "removed": true,
+      "required_signatures": true,
+      "user_data_preserved": true
+    },
+    "offline_workflows": {
+      "installed": {
+        "aggregate_commands": 23,
+        "aggregate_semantic_controls": 17,
+        "result": "PASS_OFFLINE_SECURITY_WORKFLOWS"
+      },
+      "moved_prefix": {
+        "aggregate_commands": 23,
+        "aggregate_semantic_controls": 17,
+        "result": "PASS_OFFLINE_SECURITY_WORKFLOWS"
+      }
+    },
+    "outer_retirement": "PASS_EXACT_OWNED_RESOURCES_RETIRED",
+    "refusals_preserve_inventory": true,
+    "removal_restores_baseline": true,
+    "retirement_evidence": "Original source-owned joined receipts; no fresh live reobservation",
+    "signature_requirement": "Required/Required",
+    "signed_install": true,
+    "unknown_key_refusal": true,
+    "untrusted_install_refusal": true,
+    "user_data_preserved": true
+  },
+  "transport": {
+    "capsule": {
+      "bytes": 7915520,
+      "sha256": "b78a70dc25f400c5699c06d985bd412921d838a795456bb5428bc030ce389730"
+    },
+    "capsule_leaves": 108,
+    "full_zip_crc": true,
+    "manifest_files": 107,
+    "original_body_GETs": 1,
+    "sole_regular_member": "public-tree.tar"
+  },
+  "version": "0.1.0-2"
+}
