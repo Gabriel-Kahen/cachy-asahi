@@ -14,7 +14,7 @@ PRODUCERS = {
     'native/release_tools_v1.py': '911c629ab4426a1379e0f89192e4e3b8e3d769d70d106bbfb3771e249b1ec536',
     'native/release_guest_v1.py': '10eb4d88baabaa0efdecbab684b5caafaa68a7cfc50b668849df99cd3d532c85',
     'native/release-contract-v1.json': 'e6a938f606954c213c5a38709b9cf2680d049c8ac8f20c381fc51800ccff1333',
-    'native/release_build_cause_v1.py': 'a076037fc3adf6087d0c7f9ba3bb28984d8d3c8a86e487f59ae1c991a3af2016',
+    'native/release_build_cause_v1.py': 'a5506c35f1325353c78538658c5e3ac03cdeb1460c5284a0abd1e428aaacfc00',
     'scripts/workflows/developer_workflow.py': '531c124cde3fa41d46888acfc638c823196bb2f297b19ab68ab3d001b05f16ba',
     'scripts/virtual/owned_process_retirement_v2.py': '9388d270d06e28fee50160b7c04dd69593e383647d791f8aaff69380032165d5'}
 HOST={'transport-diagnostic.json','transport-proof.json','receipt.json','cleanup.json','source-proof.json','consumer-inspect.json','consumer-after.json',

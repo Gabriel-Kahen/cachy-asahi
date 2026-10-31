@@ -23,6 +23,7 @@ INSTALL_WORK='[REDACTED_INSTALL_WORK]'
 INSTALL_REDACTION=dict(scheme='install-v1-work-root-v1',role='FAILED_INSTALL_V1_ORIGINAL_COMMAND',
     fields=['cwd','argv[2]'],replacement=INSTALL_WORK)
 INSTALL_ARCHIVE=str(PREFIX/'build-inputs/v1/cachy-asahi-release-tools-0.1.0-1-any.pkg.tar.zst')
+PRIOR_BUILD_ROLE='SOURCE_SUCCESSFUL_BUILD_COMMAND_RETIREMENT_V1'
 ABSENCE_OUTPUT=b'gpg-connect-agent: no gpg-agent running in this session\n'
 _LOCATION=re.compile(r'https?://[^\s"<>]+|/(?:home|root)/[^\s"<>]+|/tmp/release-tools-test-[^\s"<>]+',re.I)
 _ANSI=re.compile(r'\x1b\[[0-?]*[ -/]*[@-~]')
@@ -326,11 +327,83 @@ def _cleanup(report,scope=None,records=None):
     out['absence_checks']=_absence_checks(scope,records)
     return out
 
+def _prior_build_unknown(stage):
+    return dict(status=UNKNOWN,role=PRIOR_BUILD_ROLE,step=stage,original_row_pin=None,log_pin=None,
+        expected=UNKNOWN,success=UNKNOWN,supervision=None,pre_reap_snapshot_observation=UNKNOWN,
+        adoption_observation=UNKNOWN,post_reap_group_absence=UNKNOWN)
+
+def _prior_build_supervision(state):
+    """Validate retained success observations without inventing post-reap DATA."""
+    _supervision(state)
+    need(type(state)is dict and type(state['exit'])is int and state['exit']==0
+         and state['reaped']is True and state['ownership']=='REAPED' and state['passed']is True
+         and state['timeout']is False and state['signals']==[] and state['error']is None
+         and state['output_complete']is True and state['group_census']=='RESERVED_LEADER_ONLY'
+         and 0<=state['seconds']<300,'exact retained successful prior-build supervision')
+    snapshot=state.get('group_retirement')
+    if snapshot is None:return UNKNOWN,UNKNOWN
+    # _supervision already validates every retained snapshot field. A success
+    # summary additionally requires its recorded census to be this one leader.
+    leader=snapshot['reserved_leader'];members=snapshot['members']
+    need(snapshot['member_count']==1 and len(members)==1 and snapshot['truncated']is False
+         and members[0]['pid']==leader['pid'] and members[0]['start_ticks']==leader['start_ticks']
+         and members[0]['state']in('Z','X'),'recorded successful build snapshot must be exact sole terminal leader')
+    if 'adopted_child'not in snapshot:return 'OBSERVED','NOT_OBSERVED'
+    _adopted_child(snapshot['adopted_child'],snapshot,positive=True)
+    return 'OBSERVED','OBSERVED'
+
+def _prior_build_row(row,stage):
+    keys={'step','argv','cwd','expected','success','log','log_pin','supervision','channels'}
+    need(type(row)is dict and set(row)==keys and stage in('build-v1','build-v2')
+         and row['step']==stage and row['argv']==argv(stage)
+         and row['cwd']==str(PREFIX/'build-inputs'/stage[6:])
+         and type(row['expected'])is int and row['expected']==0 and row['success']is True
+         and row['channels']=='stdout+stderr combined in pipe order','exact successful source-owned prior-build command')
+    need(type(row['log'])is str and re.fullmatch(r'[0-9]{3}-'+stage+r'\.log',row['log']),'fixed successful prior-build log role')
+    _pin(row['log_pin']);snapshot,adoption=_prior_build_supervision(row['supervision'])
+    raw=encoded(row);need(len(raw)<=ROW_CAP and not private(raw)and not _LOCATION.search(raw.decode()),'original successful prior-build row cap/privacy')
+    result=dict(status='OBSERVED',role=PRIOR_BUILD_ROLE,step=stage,original_row_pin=pin(raw),log_pin=dict(row['log_pin']),
+        expected=row['expected'],success=row['success'],supervision=json.loads(encoded(row['supervision'])),
+        pre_reap_snapshot_observation=snapshot,adoption_observation=adoption,post_reap_group_absence=UNKNOWN)
+    public=encoded(result);need(len(public)<=ROW_CAP and not private(public)and not _LOCATION.search(public.decode()),'public prior-build summary cap/privacy')
+    return result
+
+def _prior_build_retirement(records,primary):
+    result={stage:_prior_build_unknown(stage)for stage in('build-v1','build-v2')}
+    try:eligible=type(primary).__name__=='Failure' and str(primary)==INSTALL_PRIMARY
+    except BaseException:eligible=False
+    if not eligible or type(records)is not list or len(records)>160:return result
+    for stage in result:
+        rows=[row for row in records if type(row)is dict and row.get('step')==stage]
+        if len(rows)!=1:continue
+        try:result[stage]=_prior_build_row(rows[0],stage)
+        except BaseException:pass
+    return result
+
+def _validate_prior_build_retirement(value,primary):
+    need(type(value)is dict and set(value)=={'build-v1','build-v2'},'two fixed prior-build retirement roles')
+    for stage,item in value.items():
+        unknown=_prior_build_unknown(stage)
+        need(type(item)is dict and set(item)==set(unknown),'fixed prior-build summary fields')
+        if item['status']==UNKNOWN:
+            need(item==unknown,'missing/refused prior-build evidence remains wholly unknown');continue
+        need(item['status']=='OBSERVED' and item['role']==PRIOR_BUILD_ROLE and item['step']==stage
+             and type(item['expected'])is int and item['expected']==0 and item['success']is True
+             and item['post_reap_group_absence']==UNKNOWN,'finite prior-build success DATA only')
+        need(primary==dict(type='Failure',message=INSTALL_PRIMARY,message_pin=pin(INSTALL_PRIMARY.encode())),
+             'prior-build observations require exact original install-v1 primary Failure')
+        _pin(item['original_row_pin']);need(0<item['original_row_pin']['bytes']<=ROW_CAP,'original successful prior-build row pin/cap')
+        _pin(item['log_pin']);snapshot,adoption=_prior_build_supervision(item['supervision'])
+        need(item['pre_reap_snapshot_observation']==snapshot and item['adoption_observation']==adoption,
+             'prior-build availability labels join retained snapshot/adoption fields')
+        raw=encoded(item);need(len(raw)<=ROW_CAP and not private(raw)and not _LOCATION.search(raw.decode()),'public prior-build summary cap/privacy')
+
 def build(scope,records,report,map_hash,primary):
     value=dict(schema=1,operation=OPERATION,source_map_sha256=map_hash,role='image-stage-release-build',
         status='DIAGNOSTIC_ONLY',stage=UNKNOWN,command=dict(status=UNKNOWN,row=None,pin=None),
         output=dict(status=UNKNOWN,pin=None,suffix=None),observed_exit=UNKNOWN,
         primary=dict(type=UNKNOWN,message=UNKNOWN,message_pin=None),inner_cleanup=_cleanup(report,scope,records),
+        prior_build_retirement=_prior_build_retirement(records,primary),
         native='NOT_ADMITTED',physical_M2='NOT_RUN',release='NOT_ADMITTED')
     try:
         message=str(primary).encode();kind=type(primary).__name__
@@ -358,7 +431,7 @@ def build(scope,records,report,map_hash,primary):
     return value
 
 def validate(value,map_hash):
-    keys={'schema','operation','source_map_sha256','role','status','stage','command','output','observed_exit','primary','inner_cleanup','native','physical_M2','release'}
+    keys={'schema','operation','source_map_sha256','role','status','stage','command','output','observed_exit','primary','inner_cleanup','prior_build_retirement','native','physical_M2','release'}
     need(type(value)is dict and set(value)==keys and type(value['schema'])is int and value['schema']==1
          and value['operation']==OPERATION and type(map_hash)is str and re.fullmatch('[0-9a-f]{64}',map_hash)
          and value['source_map_sha256']==map_hash and value['role']=='image-stage-release-build'
@@ -386,6 +459,7 @@ def validate(value,map_hash):
     if value['stage']=='install-v1':
         need(primary==dict(type='Failure',message=INSTALL_PRIMARY,message_pin=pin(INSTALL_PRIMARY.encode())),
              'install-v1 diagnostic requires exact original primary Failure')
+    _validate_prior_build_retirement(value['prior_build_retirement'],primary)
     cleanup=value['inner_cleanup'];need(type(cleanup)is dict and set(cleanup)=={'homes_retired','no_sockets','private_directory_absent','global_config_unchanged','global_trust_unchanged','failure_types','absence_checks'},'finite cleanup projection')
     need(all(type(cleanup[k])is bool or cleanup[k]==UNKNOWN for k in cleanup if k not in ('failure_types','absence_checks')),'observed cleanup booleans only')
     tags=cleanup['failure_types'];need(tags==UNKNOWN or type(tags)is list and len(tags)<=16 and all(type(x)is str and (x==UNKNOWN or re.fullmatch(r'(?:[A-Za-z][A-Za-z0-9_+-]{0,63}:[A-Za-z][A-Za-z0-9_]{0,63}|global-policy-drift)',x))for x in tags),'fixed cleanup failure class tags')
