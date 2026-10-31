@@ -1,0 +1,1045 @@
+{
+  "actual": {
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "genuine_parent": "111f14d2b21b220d86912d5ead978848c7ef1cb0",
+  "main_base": "eaf43eddc5604773d8176f319700a450bc32ccb0",
+  "operation": "source-tools-alpm-v1",
+  "overlay": {
+    ".github/workflows/native-arm-build.yml": {
+      "bytes": 13038,
+      "mode": 420,
+      "sha256": "ee319aabff223ee9fba6073150e5d581237010fa9068692d1a74474f378218a7"
+    },
+    ".github/workflows/native-arm-developer-workflows.yml": {
+      "bytes": 13038,
+      "mode": 420,
+      "sha256": "ee319aabff223ee9fba6073150e5d581237010fa9068692d1a74474f378218a7"
+    },
+    "native/invocation.json": {
+      "bytes": 1423,
+      "mode": 420,
+      "sha256": "8a1cd7bd7c825102ba7e34a63af73c32abd9b6a1bf1aaf6b7d7a0d54db2add55"
+    },
+    "native/owner.py": {
+      "bytes": 26947,
+      "mode": 420,
+      "sha256": "79547de15962d9af6b689c4f3cf98513dc7e119c55a4fc49b63be4315b3546f9"
+    },
+    "native/source-map.json": {
+      "bytes": 40014,
+      "mode": 420,
+      "sha256": "de2c03ecfa4cfa31ceb0a0fcb3ab6b99ad2ccc584b452f68bea6f172618686a7"
+    },
+    "native/source-tools-contract-v1.json": {
+      "bytes": 21381,
+      "mode": 420,
+      "sha256": "5fe189406b40a16f08955df642781c22bba106507731ff33b4734bf43210d3cb"
+    },
+    "native/source-tools-makepkg-v1.conf": {
+      "bytes": 316,
+      "mode": 420,
+      "sha256": "8cdd968870a2a92d7006739e96dedefa14e51c40d62cfc15831f234a767a1421"
+    },
+    "native/source-tools-sources-v1.tar": {
+      "bytes": 501760,
+      "mode": 420,
+      "sha256": "919a6928211b862ecccb6ef6eab936fbe363b3754465775150d6c0643fc7a66a"
+    },
+    "native/source_tools_alpm_v1.py": {
+      "bytes": 27900,
+      "mode": 420,
+      "sha256": "4299d71ba98f8d6e8cf3cbbe057294a7b82359e93162c850b7808b0216141d3d"
+    },
+    "native/source_tools_guest_v1.py": {
+      "bytes": 3337,
+      "mode": 420,
+      "sha256": "e93e6b6dd0e717305b29236718339a448794808052f65e8279bbca37d40272e1"
+    },
+    "native/source_tools_probe_v1.py": {
+      "bytes": 17646,
+      "mode": 420,
+      "sha256": "bc7645b39df4b0fe39c0eda7da1ad46f9603786b3ec18aeafdd04b8d8f5563e2"
+    },
+    "native/source_tools_projection_v1.py": {
+      "bytes": 10628,
+      "mode": 420,
+      "sha256": "0c91e8bd674b05f1a68d6cff6000dcaa74752d665e0566f2ff7768764ce8150c"
+    },
+    "native/source_tools_reader_v1.py": {
+      "bytes": 116262,
+      "mode": 420,
+      "sha256": "6a640d1008d5f6364631a330f341945b55e8d59bda089360fb1656d0dcad5a92"
+    },
+    "native/source_tools_tools_v1.py": {
+      "bytes": 21268,
+      "mode": 420,
+      "sha256": "c43ca5ec8cb81ec78e7d6a0a224eb9272dad9bb831af3d6a8755d4d8db83c1c5"
+    }
+  },
+  "parent_files": {
+    ".github/workflows/native-arm-build.yml": {
+      "bytes": 12819,
+      "mode": 420,
+      "sha256": "ac04dd166d8a71de0f00f84a1a0f4a22b03a65087e144c240881a225be30ba9d"
+    },
+    ".github/workflows/native-arm-developer-workflows.yml": {
+      "bytes": 12819,
+      "mode": 420,
+      "sha256": "ac04dd166d8a71de0f00f84a1a0f4a22b03a65087e144c240881a225be30ba9d"
+    },
+    "bootstrap/.github/workflows/native-arm-build.yml": {
+      "bytes": 16219,
+      "mode": 420,
+      "sha256": "1e08cb64be31fe70858199e7349d089d439dd18877014e83e2982be184ceadb3"
+    },
+    "bootstrap/.github/workflows/native-arm-zlib-pgo.yml": {
+      "bytes": 16219,
+      "mode": 420,
+      "sha256": "1e08cb64be31fe70858199e7349d089d439dd18877014e83e2982be184ceadb3"
+    },
+    "bootstrap/LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "bootstrap/docs/port/installable-arm-experiments.md": {
+      "bytes": 8219,
+      "mode": 420,
+      "sha256": "38f7f3cbf48e6d6168721985ee78a97b1607643ba901eae788befad0809b95b3"
+    },
+    "bootstrap/docs/port/zlib-pgo-native-hosted.md": {
+      "bytes": 5750,
+      "mode": 420,
+      "sha256": "1ec844f606b7af785627cac6a2b2082d26ace55772337e0c475f4e77de2bc51d"
+    },
+    "bootstrap/packages/experiments/cachy-asahi-zlib-baseline/LICENSE.project": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "bootstrap/packages/experiments/cachy-asahi-zlib-baseline/PKGBUILD": {
+      "bytes": 3210,
+      "mode": 420,
+      "sha256": "e512ef4b02cef42fd377b0501d44831ba6fb5174c02220cb3527d6f782b77a7d"
+    },
+    "bootstrap/packages/experiments/cachy-asahi-zlib-baseline/probe.c": {
+      "bytes": 2822,
+      "mode": 420,
+      "sha256": "b85bab88cdb9048f26d5e812cc1ad2b8c783292882cbe3ab804e54353e4dfee1"
+    },
+    "bootstrap/packages/experiments/cachy-asahi-zlib-baseline/strict-gzip.c": {
+      "bytes": 2002,
+      "mode": 420,
+      "sha256": "369e4e0e3f7c79b5d892edf7476ade41d6647332fb78f95ad7de7d8449bbaca9"
+    },
+    "bootstrap/packages/experiments/cachy-asahi-zlib-lto/LICENSE.project": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "bootstrap/packages/experiments/cachy-asahi-zlib-lto/PKGBUILD": {
+      "bytes": 3214,
+      "mode": 420,
+      "sha256": "2c5c53ed0231fd9562c54b48d3773f33b6bdbecb92a8f30daca1fac101cf8786"
+    },
+    "bootstrap/packages/experiments/cachy-asahi-zlib-lto/probe.c": {
+      "bytes": 2822,
+      "mode": 420,
+      "sha256": "b85bab88cdb9048f26d5e812cc1ad2b8c783292882cbe3ab804e54353e4dfee1"
+    },
+    "bootstrap/packages/experiments/cachy-asahi-zlib-lto/strict-gzip.c": {
+      "bytes": 2002,
+      "mode": 420,
+      "sha256": "369e4e0e3f7c79b5d892edf7476ade41d6647332fb78f95ad7de7d8449bbaca9"
+    },
+    "bootstrap/pgo-source/LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "bootstrap/pgo-source/PGO-SOURCE.json": {
+      "bytes": 7249,
+      "mode": 420,
+      "sha256": "4733aecfa53b40ba4ed78eee2408978c3523ff5e45f9c55287d295cddb3dfc84"
+    },
+    "bootstrap/pgo-source/docs/port/zlib-pgo-v1.md": {
+      "bytes": 5402,
+      "mode": 420,
+      "sha256": "b08711c9731c4002f582bca260341f4d8cb501b5c158b9fc734004b0059eb146"
+    },
+    "bootstrap/pgo-source/inputs/cache-seed/FORMAT": {
+      "bytes": 28,
+      "mode": 420,
+      "sha256": "da163b8c4b855c77b0074778ecedf02f021d81e6b5f4140b638bcbef8f6a22d0"
+    },
+    "bootstrap/pgo-source/inputs/cache-seed/objects/bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16": {
+      "bytes": 1502830,
+      "mode": 420,
+      "sha256": "bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16"
+    },
+    "bootstrap/pgo-source/inputs/cache-seed/receipts/50979bf81eda4d1f5b23fbe05aec5fabd7827b270fe3edda22b7189944004c43-zlib-1.3.2.json": {
+      "bytes": 956,
+      "mode": 420,
+      "sha256": "7a8ad2a3803f8117f6a2d45629b6b500d2263433856279a6a737a98a2a640676"
+    },
+    "bootstrap/pgo-source/inputs/notices/LICENSE.zlib": {
+      "bytes": 1002,
+      "mode": 420,
+      "sha256": "e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2"
+    },
+    "bootstrap/pgo-source/inputs/source-inputs.json": {
+      "bytes": 752,
+      "mode": 420,
+      "sha256": "50979bf81eda4d1f5b23fbe05aec5fabd7827b270fe3edda22b7189944004c43"
+    },
+    "bootstrap/pgo-source/packages/experiments/cachy-asahi-zlib-pgo-v1/LICENSE.project": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "bootstrap/pgo-source/packages/experiments/cachy-asahi-zlib-pgo-v1/PKGBUILD": {
+      "bytes": 4109,
+      "mode": 420,
+      "sha256": "6aaa11e22e2955177b7213874389e1bc80f2687672bc896ea37c7b9187409534"
+    },
+    "bootstrap/pgo-source/packages/experiments/cachy-asahi-zlib-pgo-v1/arm_c01.py": {
+      "bytes": 66103,
+      "mode": 420,
+      "sha256": "4034990eac1036cd9fee3f7f4911f181e8b2ce6a2441c25e6e502c09cca1e2a8"
+    },
+    "bootstrap/pgo-source/packages/experiments/cachy-asahi-zlib-pgo-v1/corpus-policy.json": {
+      "bytes": 3770,
+      "mode": 420,
+      "sha256": "b7a6c5a993766b6d1b014df31adfa6efe261a4aa1352f581ecc6feaff9ed5586"
+    },
+    "bootstrap/pgo-source/packages/experiments/cachy-asahi-zlib-pgo-v1/corpus.py": {
+      "bytes": 3364,
+      "mode": 420,
+      "sha256": "dbaf951adbb91d6769f40f8fb18c13044a42a3b5db11b4ad7d1f44afbed9ad8c"
+    },
+    "bootstrap/pgo-source/packages/experiments/cachy-asahi-zlib-pgo-v1/corpus_controls.py": {
+      "bytes": 6099,
+      "mode": 420,
+      "sha256": "19a0536f6d216e1d10831c4b0234d2f44b4c15edce7522b16cd399a4e8adbf42"
+    },
+    "bootstrap/pgo-source/packages/experiments/cachy-asahi-zlib-pgo-v1/pgo.py": {
+      "bytes": 19412,
+      "mode": 420,
+      "sha256": "71c948e55cdea6e75f91bd46751e7d4d1a5a3a81e700fe8210e2747150df69b3"
+    },
+    "bootstrap/pgo-source/packages/experiments/cachy-asahi-zlib-pgo-v1/pipeline.py": {
+      "bytes": 34671,
+      "mode": 420,
+      "sha256": "907717f2f0ecfd126f43ac55b8805bfa871922a4c8f5ee8a1d38f5412f30d2e4"
+    },
+    "bootstrap/pgo-source/packages/experiments/cachy-asahi-zlib-pgo-v1/probe.c": {
+      "bytes": 2822,
+      "mode": 420,
+      "sha256": "b85bab88cdb9048f26d5e812cc1ad2b8c783292882cbe3ab804e54353e4dfee1"
+    },
+    "bootstrap/pgo-source/packages/experiments/cachy-asahi-zlib-pgo-v1/profile_seal.py": {
+      "bytes": 9122,
+      "mode": 420,
+      "sha256": "5e96fe7a38e66bfa09146effce76547c3c61b555a52f6b8cdf71ccabb5bfe87e"
+    },
+    "bootstrap/pgo-source/packages/experiments/cachy-asahi-zlib-pgo-v1/recipe-policy.json": {
+      "bytes": 2252,
+      "mode": 420,
+      "sha256": "c1302c24e9c09665a618f7d035aa336bd03196ea91ba547a04497c656d725886"
+    },
+    "bootstrap/pgo-source/packages/experiments/cachy-asahi-zlib-pgo-v1/strict-gzip.c": {
+      "bytes": 2002,
+      "mode": 420,
+      "sha256": "369e4e0e3f7c79b5d892edf7476ade41d6647332fb78f95ad7de7d8449bbaca9"
+    },
+    "bootstrap/pgo-source/packages/experiments/cachy-asahi-zlib-pgo-v1/supervisor.py": {
+      "bytes": 42787,
+      "mode": 420,
+      "sha256": "38e10bbf57c9b83040624748967426aa829144585e5c26b7f39f56b8f58bb933"
+    },
+    "bootstrap/pgo-source/packages/experiments/cachy-asahi-zlib-pgo-v1/test_corpus_controls.py": {
+      "bytes": 5751,
+      "mode": 420,
+      "sha256": "c1e04e07f06cdaac5539509c4fe17b8652668054ee17ee99395bb096813a1093"
+    },
+    "bootstrap/pgo-source/packages/experiments/cachy-asahi-zlib-pgo-v1/test_pipeline.py": {
+      "bytes": 8633,
+      "mode": 420,
+      "sha256": "2d4891ed8ddece319e9f270b2827e20b31e8dec64b9d786da7af693426c02e46"
+    },
+    "bootstrap/pgo-source/packages/experiments/cachy-asahi-zlib-pgo-v1/test_profile_seal.py": {
+      "bytes": 8093,
+      "mode": 420,
+      "sha256": "5da635037db41c7fd35fe27bd910919838731235000d57d6450656f4cf7c4314"
+    },
+    "bootstrap/pgo-source/packages/experiments/cachy-asahi-zlib-pgo-v1/training.bin": {
+      "bytes": 262144,
+      "mode": 420,
+      "sha256": "a6e84ea4cf12d2152fd408cea20bc2a395d4308f06683d13fc4909ae7ad46af6"
+    },
+    "bootstrap/pgo-source/packages/experiments/cachy-asahi-zlib-pgo-v1/validation.bin": {
+      "bytes": 4194304,
+      "mode": 420,
+      "sha256": "e178d56b3a6d0af1900f8e3a1b668549793b48d0ae35c24e730b9a39992604bf"
+    },
+    "bootstrap/pgo-source/provenance/accepted-c01-component.json": {
+      "bytes": 2511,
+      "mode": 420,
+      "sha256": "5be1387433302f2099a27190a788ed1989ac3c67853ed1343a0a2cebdca3080a"
+    },
+    "bootstrap/pgo-source/provenance/prior-negative-experiment.json": {
+      "bytes": 1618,
+      "mode": 420,
+      "sha256": "78dd38b0e779a2c1d9ae2b5e8c6b3a2dcf0d910ecf172c08adeddf9e5849783d"
+    },
+    "bootstrap/pgo-source/provenance/reuse-origins.json": {
+      "bytes": 4031,
+      "mode": 420,
+      "sha256": "83f10eb676d70dca452f23de4badcf80e4decea583ce82351235058d7c89b871"
+    },
+    "bootstrap/pgo-source/scripts/build/build_v2.py": {
+      "bytes": 13242,
+      "mode": 420,
+      "sha256": "37242a5680c0cb587087042455782478dac0f574f977a5f696c97d29eac39b43"
+    },
+    "bootstrap/pgo-source/scripts/build/compare_v2.py": {
+      "bytes": 5963,
+      "mode": 420,
+      "sha256": "89c606044b587ea772d5bbab4bad55c09dc23a7080900a9ad51839b2f516215b"
+    },
+    "bootstrap/pgo-source/scripts/build/container-entry-v2.sh": {
+      "bytes": 2447,
+      "mode": 420,
+      "sha256": "9be3db97efde70536a81d1c97f9ac69893a6004ab403566f8453704a2a189d2a"
+    },
+    "bootstrap/pgo-source/scripts/build/source_materials.py": {
+      "bytes": 7877,
+      "mode": 420,
+      "sha256": "9b0d95d2604ae4689f081283fc671281ce13879fcb146ddf4188873b05c89e5a"
+    },
+    "bootstrap/pgo-source/scripts/checks/package_checks.py": {
+      "bytes": 17706,
+      "mode": 420,
+      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
+    },
+    "bootstrap/pgo-source/scripts/experiments/test_zlib_pgo_guest.py": {
+      "bytes": 9336,
+      "mode": 420,
+      "sha256": "a6355ceb11165b217f86d3f027b689c1904b501f021ca7fba31f8f8bd047fd75"
+    },
+    "bootstrap/pgo-source/scripts/experiments/zlib_pgo_guest.py": {
+      "bytes": 12836,
+      "mode": 420,
+      "sha256": "cd17518098abd3fd57fe9c7a2922959d34bfd13c7c9ebe9e05849339cf8bef4c"
+    },
+    "bootstrap/pgo-source/scripts/experiments/zlib_pgo_native_plan.py": {
+      "bytes": 5934,
+      "mode": 420,
+      "sha256": "5ded8266e86664ada29473071b88697dac392292d63d922fe62ab56801974534"
+    },
+    "bootstrap/pgo-source/scripts/maintenance/source_cache.py": {
+      "bytes": 14253,
+      "mode": 420,
+      "sha256": "3c922b1c5ea737605d7fd39aa986fa281c50bcf6926660390032e677706e28f3"
+    },
+    "bootstrap/pgo-source/scripts/release/source_delivery.py": {
+      "bytes": 16456,
+      "mode": 420,
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+    },
+    "bootstrap/scripts/checks/package_checks.py": {
+      "bytes": 17706,
+      "mode": 420,
+      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
+    },
+    "bootstrap/scripts/ci/inputs.lock.json": {
+      "bytes": 328101,
+      "mode": 420,
+      "sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f"
+    },
+    "bootstrap/scripts/ci/native_arm.py": {
+      "bytes": 28318,
+      "mode": 420,
+      "sha256": "a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898"
+    },
+    "bootstrap/scripts/ci/offline-source-builder-native/bootstrap-owner-basis.py": {
+      "bytes": 29788,
+      "mode": 420,
+      "sha256": "cb2eccae41a46a580d3e8e13af38f0c2589fc296ddd7233b408237a2ecba558d"
+    },
+    "bootstrap/scripts/ci/offline-source-builder-native/bootstrap-source52-map.json": {
+      "bytes": 9380,
+      "mode": 420,
+      "sha256": "719d3306bbd9a72566f93b517798e2cec2cff2806910dcc164802cdb3fb70555"
+    },
+    "bootstrap/scripts/ci/offline-source-builder-native/execute_builder.py": {
+      "bytes": 7942,
+      "mode": 420,
+      "sha256": "8e3c82f757c0ea9fb5966a47daf9c8c61da7cfca0823203f0316d2fc64d3b7f8"
+    },
+    "bootstrap/scripts/ci/offline-source-builder-native/expected-packages.lock": {
+      "bytes": 6674,
+      "mode": 420,
+      "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
+    },
+    "bootstrap/scripts/ci/offline-source-builder-native/held-original-builder-files.json": {
+      "bytes": 472,
+      "mode": 420,
+      "sha256": "bdf98eac93f7ebb2db801e326f1403b23c5187e984860c77d33ade37918243ee"
+    },
+    "bootstrap/scripts/ci/offline-source-builder-native/notices/LICENSE.zlib": {
+      "bytes": 1002,
+      "mode": 420,
+      "sha256": "e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2"
+    },
+    "bootstrap/scripts/ci/offline-source-builder-native/owner.py": {
+      "bytes": 37295,
+      "mode": 420,
+      "sha256": "5857caccab0429a372e9e0b507c99754a3dba9d6f3bf20e94decea91a2c9e34e"
+    },
+    "bootstrap/scripts/ci/offline-source-builder-native/recipe-inputs.json": {
+      "bytes": 342,
+      "mode": 420,
+      "sha256": "84d71597ffb5e07eb38bc78730704557dbf835b5869366509758a7abb3431a8f"
+    },
+    "bootstrap/scripts/ci/offline-source-builder-native/required-feature-files.json": {
+      "bytes": 1138,
+      "mode": 420,
+      "sha256": "f099c80962741007cc76e6630e31988a614009d0e41e4d9280f80a913876f329"
+    },
+    "bootstrap/scripts/ci/offline-source-builder-native/reviewed11.json": {
+      "bytes": 2983,
+      "mode": 420,
+      "sha256": "967ed4d69e0e1dc17c8ec9b7843b406afb5c89b17a86ce02b44e5f4967442e09"
+    },
+    "bootstrap/scripts/ci/offline-source-builder-native/source-inputs.json": {
+      "bytes": 752,
+      "mode": 420,
+      "sha256": "50979bf81eda4d1f5b23fbe05aec5fabd7827b270fe3edda22b7189944004c43"
+    },
+    "bootstrap/scripts/ci/offline-source-builder-native/source-map.json": {
+      "bytes": 6850,
+      "mode": 420,
+      "sha256": "de2eb526ff4c49ec18ed0439d5e783210389f5f07839ed3062d73d821ca2d362"
+    },
+    "bootstrap/scripts/ci/offline-source-builder-native/source-plan.json": {
+      "bytes": 712,
+      "mode": 420,
+      "sha256": "33ced69e523d6c4e0dca51d6806475b2ae647aeeef069525cd4d9514a8ea5c48"
+    },
+    "bootstrap/scripts/ci/offline-source-builder-native/test_context.py": {
+      "bytes": 10535,
+      "mode": 420,
+      "sha256": "d7b2fdbe575735b9f1ea8d2efafdd9281aafc1062fbb21d3c46a9234e0e291fe"
+    },
+    "bootstrap/scripts/ci/offline-source-builder-native/workflow.yml.in": {
+      "bytes": 17656,
+      "mode": 420,
+      "sha256": "098e54dc3a246065e07dfdcad89635ff03085a1f251d742f66cca60247078669"
+    },
+    "bootstrap/scripts/ci/offline-source-builder-native/zlib-1.3.2.tar.gz": {
+      "bytes": 1502830,
+      "mode": 420,
+      "sha256": "bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16"
+    },
+    "bootstrap/scripts/ci/old_four_seed.py": {
+      "bytes": 29048,
+      "mode": 420,
+      "sha256": "a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7"
+    },
+    "bootstrap/scripts/ci/setup6-retained-helpers/carrier-profile.json": {
+      "bytes": 195440,
+      "mode": 420,
+      "sha256": "4089fd798849cafda23d03c0dd95ac896a83fd63ad21e331ae420c147535586c"
+    },
+    "bootstrap/scripts/ci/setup6-retained-helpers/legacy-prefill-profile.json": {
+      "bytes": 1510,
+      "mode": 420,
+      "sha256": "9cc82d4e0947415ecad9d40094a4c0a2709d01be54513e78af8c739fd76fb696"
+    },
+    "bootstrap/scripts/ci/setup6-retained-helpers/legacy_prefill.py": {
+      "bytes": 5986,
+      "mode": 420,
+      "sha256": "05a91a91efd69b3b2e06561f5bbf08bdbb105998d42dbf133e75fd1fe25945ac"
+    },
+    "bootstrap/scripts/ci/setup6-retained-helpers/prepare.py": {
+      "bytes": 3749,
+      "mode": 420,
+      "sha256": "6c688c315cb962c641b8c0b1d9d88f94778d57ae19bcef251e88e49cb4be6316"
+    },
+    "bootstrap/scripts/ci/zlib-pgo-native-hosted/bootstrap-owner-reference.py": {
+      "bytes": 37295,
+      "mode": 420,
+      "sha256": "5857caccab0429a372e9e0b507c99754a3dba9d6f3bf20e94decea91a2c9e34e"
+    },
+    "bootstrap/scripts/ci/zlib-pgo-native-hosted/execute-builder-reference.py": {
+      "bytes": 7942,
+      "mode": 420,
+      "sha256": "8e3c82f757c0ea9fb5966a47daf9c8c61da7cfca0823203f0316d2fc64d3b7f8"
+    },
+    "bootstrap/scripts/ci/zlib-pgo-native-hosted/execute_builder.py": {
+      "bytes": 15054,
+      "mode": 420,
+      "sha256": "cd521350ea828fc517ab76d0525d7b995a14ae2115e737c59a0466d5622765d7"
+    },
+    "bootstrap/scripts/ci/zlib-pgo-native-hosted/expected-packages.lock": {
+      "bytes": 6674,
+      "mode": 420,
+      "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
+    },
+    "bootstrap/scripts/ci/zlib-pgo-native-hosted/owned_child.py": {
+      "bytes": 10908,
+      "mode": 420,
+      "sha256": "eaf9a46630e4fe4ca0a8f94a6dc2de4a881a6ad7e8b4dd0810b3347c0d7038d5"
+    },
+    "bootstrap/scripts/ci/zlib-pgo-native-hosted/owner.py": {
+      "bytes": 40512,
+      "mode": 420,
+      "sha256": "cf6e92745cc15d95a0e1494da4150ede42f463ff78c79aac862f76bcd54f8a05"
+    },
+    "bootstrap/scripts/ci/zlib-pgo-native-hosted/pgo-source-pins.json": {
+      "bytes": 7249,
+      "mode": 420,
+      "sha256": "4733aecfa53b40ba4ed78eee2408978c3523ff5e45f9c55287d295cddb3dfc84"
+    },
+    "bootstrap/scripts/ci/zlib-pgo-native-hosted/retention.py": {
+      "bytes": 39896,
+      "mode": 420,
+      "sha256": "e386629300559e5065a354bb8286d51accd85c403c2149b93677c7754133f045"
+    },
+    "bootstrap/scripts/ci/zlib-pgo-native-hosted/reviewed11.json": {
+      "bytes": 2983,
+      "mode": 420,
+      "sha256": "967ed4d69e0e1dc17c8ec9b7843b406afb5c89b17a86ce02b44e5f4967442e09"
+    },
+    "bootstrap/scripts/ci/zlib-pgo-native-hosted/source-map.json": {
+      "bytes": 19362,
+      "mode": 420,
+      "sha256": "82d2ff482bdcf4210de88c42189df0c0f0e23c37446916d0e02150102374d253"
+    },
+    "bootstrap/scripts/ci/zlib-pgo-native-hosted/test_hosted.py": {
+      "bytes": 10189,
+      "mode": 420,
+      "sha256": "6d467e4c6998ff2bdc3d121e19174e20cc8dfa097af40734e260a8e566c1f5d7"
+    },
+    "bootstrap/scripts/ci/zlib-pgo-native-hosted/test_owned_child.py": {
+      "bytes": 5633,
+      "mode": 420,
+      "sha256": "cfb388ca0ffb449f52294c4ff6d79c6fff9f1df09b49ca5a61aefef05d02b6a7"
+    },
+    "bootstrap/scripts/ci/zlib-pgo-native-hosted/test_owned_commands.py": {
+      "bytes": 9341,
+      "mode": 420,
+      "sha256": "bbadc7ee396fa4a67310cd18b0fd7ce368baa94108464e6a6b0bae9ab2752607"
+    },
+    "bootstrap/scripts/ci/zlib-pgo-native-hosted/test_owned_failure_export.py": {
+      "bytes": 11734,
+      "mode": 420,
+      "sha256": "7270cb1e7518f1352d452f5f94da73812daddb099a84cf1cc7ed7ea67a04fa59"
+    },
+    "bootstrap/scripts/ci/zlib-pgo-native-hosted/test_owned_host.py": {
+      "bytes": 12749,
+      "mode": 420,
+      "sha256": "c8fe217b902266c382d4ac365a137bc478fc207b2e17cd28df093a1bc7030336"
+    },
+    "bootstrap/scripts/ci/zlib-pgo-native-hosted/test_owned_receipts.py": {
+      "bytes": 2710,
+      "mode": 420,
+      "sha256": "a07afc2d963f336ecbcfc48d2a511027790697c0cee68197981cf384a15e5f58"
+    },
+    "bootstrap/scripts/ci/zlib-pgo-native-hosted/test_owned_tool_identity.py": {
+      "bytes": 9086,
+      "mode": 420,
+      "sha256": "bc04845d7cab30a8983dc7a1a67750b0cad18fec55ba18748c587f9bcf0030c9"
+    },
+    "bootstrap/scripts/ci/zlib-pgo-native-hosted/test_owned_transport.py": {
+      "bytes": 14005,
+      "mode": 420,
+      "sha256": "38e0580068a9a6ad1bdc75cb42bead8328d3698fd5b7b11ecae1c6e78dd24445"
+    },
+    "bootstrap/scripts/ci/zlib-pgo-native-hosted/test_owned_transport_retention.py": {
+      "bytes": 10239,
+      "mode": 420,
+      "sha256": "5dc48690dd76768063dd9f1ec95b37ec71e325e292b67a9844a98040e13b1ecc"
+    },
+    "bootstrap/scripts/ci/zlib-pgo-native-hosted/test_owned_workflow_transport.py": {
+      "bytes": 3284,
+      "mode": 420,
+      "sha256": "447b74b2df6e294857948487c94910d536864a4d92f0a26c3e3f0e4b0bdd1fee"
+    },
+    "bootstrap/scripts/ci/zlib-pgo-native-hosted/test_retention.py": {
+      "bytes": 15836,
+      "mode": 420,
+      "sha256": "848e0a5f5723bfe3d7b44e1fcdb7174918bf92dd5f13a6014dbc8e12f56f7f01"
+    },
+    "bootstrap/scripts/ci/zlib-pgo-native-hosted/test_workflow_contract.py": {
+      "bytes": 5025,
+      "mode": 420,
+      "sha256": "6bcf404a3d7d70c8c0c96dd489c57552de8b6c7a2e11c1bf72a256b7cef5a68a"
+    },
+    "bootstrap/scripts/ci/zlib-pgo-native-hosted/workflow.yml.in": {
+      "bytes": 15781,
+      "mode": 420,
+      "sha256": "78cb07e6a9d05f248249b4dc64de5fe247f655a0570d576f342f8f6d71c6028c"
+    },
+    "bootstrap/scripts/ci/zlib-pgo-native-hosted/workflow_contract.py": {
+      "bytes": 12375,
+      "mode": 420,
+      "sha256": "c1376c3ce8b701af5d87cacc1cb8be319088fdf3b401ff2376ae747b4ff4f390"
+    },
+    "bootstrap/scripts/experiments/package_variants.py": {
+      "bytes": 32520,
+      "mode": 420,
+      "sha256": "bb9dee8f7b38fde2ca69b02d625f1117418f5090921f75461ce2a04d8eee0b29"
+    },
+    "bootstrap/scripts/experiments/test_package_variants.py": {
+      "bytes": 18909,
+      "mode": 420,
+      "sha256": "d730aca4f3da18138bb2ce8b90bff8751a6fa2d8932bb40dba8bc55841254627"
+    },
+    "inputs/uv-aarch64-unknown-linux-gnu.tar.gz": {
+      "bytes": 24689886,
+      "mode": 420,
+      "sha256": "03e9fe0a81b0718d0bc84625de3885df6cc3f89a8b6af6121d6b9f6113fb6533"
+    },
+    "inputs/wheelhouse/uv_build-0.11.28-py3-none-manylinux_2_28_aarch64.whl": {
+      "bytes": 1616098,
+      "mode": 420,
+      "sha256": "d99cb38411412134781140cc64dc7d296dbc383fa1e81ddc13ecb6863852ecf5"
+    },
+    "native/README.md": {
+      "bytes": 13888,
+      "mode": 420,
+      "sha256": "08a8e09a1e9d6053ac595d51e4e4e94f01e8aef367cd91ac3ea796c235523a38"
+    },
+    "native/bootstrap_inputs.py": {
+      "bytes": 3306,
+      "mode": 420,
+      "sha256": "3f30b126988c2dc2ec57bea5f62f81f6bd93b2f7f5073644a495320e7d271a5b"
+    },
+    "native/build_summary.py": {
+      "bytes": 7499,
+      "mode": 420,
+      "sha256": "6f5bd1674b51de09ebcaa08a0097dce0cffe5999c975718c3d582bccada5589b"
+    },
+    "native/capsule.py": {
+      "bytes": 18741,
+      "mode": 420,
+      "sha256": "cf41bb125c9c9091445c7c146a7bc4687db63dd832b49406fce656530c837b1e"
+    },
+    "native/cleanup_control.py": {
+      "bytes": 3172,
+      "mode": 420,
+      "sha256": "70048a05f54091f24c7c34166c2ad6510c260187f01ea65646e367d2b175b828"
+    },
+    "native/common.py": {
+      "bytes": 8477,
+      "mode": 420,
+      "sha256": "f037bca33940e764dce4a7d66dfe6d0c72fbeda07c7f417ee7e1d30629eb86f9"
+    },
+    "native/consumer_diagnostics.py": {
+      "bytes": 3463,
+      "mode": 420,
+      "sha256": "6d19be6a35dc12983889f0d6054d6cb529fb286291e0c0c8973b94c7efc543ed"
+    },
+    "native/contract.json": {
+      "bytes": 5108,
+      "mode": 420,
+      "sha256": "b0acb5b87b3ff4ef1667f3295e772c4dde49636668ba290af35c68af99bfe5fd"
+    },
+    "native/desktop574-inputs.lock.json": {
+      "bytes": 623664,
+      "mode": 420,
+      "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
+    },
+    "native/expected349.lock": {
+      "bytes": 6800,
+      "mode": 420,
+      "sha256": "579981195b654d8cdf142e4101dfc2bfffbc3576eed50f23796a06e90cf57453"
+    },
+    "native/failure_retention.py": {
+      "bytes": 13639,
+      "mode": 420,
+      "sha256": "20f9f6fb153d3be98e41c343e63f5994aa3708ccbd4299e1f551a38b697ffbe3"
+    },
+    "native/guest.py": {
+      "bytes": 4783,
+      "mode": 420,
+      "sha256": "d4c827a692d8eebdfc0c808ed4c81597f7fb78c1c700e4e52c88c463d484df0e"
+    },
+    "native/image_lifecycle.py": {
+      "bytes": 12996,
+      "mode": 420,
+      "sha256": "db316b70634018f4c85c179cabc4abfe28143dd3d863011b18367a050f8e5340"
+    },
+    "native/input-profile.json": {
+      "bytes": 168201,
+      "mode": 420,
+      "sha256": "2c42c705654d31e639f389f9a868dada0d9df76813d865e766be7b7c08f8404c"
+    },
+    "native/invocation.json": {
+      "bytes": 999,
+      "mode": 420,
+      "sha256": "5b216c7568900c4b128702350a894a04478b0453f66a5d9ce35b3de67a0802ba"
+    },
+    "native/original341.lock": {
+      "bytes": 6674,
+      "mode": 420,
+      "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
+    },
+    "native/owner.py": {
+      "bytes": 26041,
+      "mode": 420,
+      "sha256": "0c2c520b08c61394f0089dd2a661309ce2992d7f86e36dc394afc69087e2a04e"
+    },
+    "native/predecessor-source-map.json": {
+      "bytes": 27440,
+      "mode": 420,
+      "sha256": "e41a4b76269528ba678bdf1d0fbd7f1a997b9799decfa6ade352e33dc79a56bd"
+    },
+    "native/privacy_diagnostics.py": {
+      "bytes": 11541,
+      "mode": 420,
+      "sha256": "871ac3fcaa05f06d5c25dc41e365207a7e649c8c16c60b0cc9e0af8243e8e9e8"
+    },
+    "native/provision.py": {
+      "bytes": 22896,
+      "mode": 420,
+      "sha256": "4707fc0cc8a9d805d6521b330202b2fec1a0788fedc3ef432cb53c326f46c3fc"
+    },
+    "native/public_projection.py": {
+      "bytes": 12829,
+      "mode": 420,
+      "sha256": "b6222fdc6e689fecd6b2f37446b041d93bcdd96d8eb4a7f5a6c5923cbcf1a34b"
+    },
+    "native/python_backend.py": {
+      "bytes": 6906,
+      "mode": 420,
+      "sha256": "ef300afa53a9480dd2605ee58d0bd18df6569acb6483d55494c6b9c696a96a31"
+    },
+    "native/reader.py": {
+      "bytes": 66106,
+      "mode": 420,
+      "sha256": "e87199b0be6d3fbd235be7584d06f83907b85da43d5ce6f753f021cd79a27854"
+    },
+    "native/retained_transport.py": {
+      "bytes": 12375,
+      "mode": 420,
+      "sha256": "46708771ccb93bbfe22c4f449f3a54052bc9494c4fb572e10b0853b5aa47bdef"
+    },
+    "native/safe_diagnostic.py": {
+      "bytes": 7948,
+      "mode": 420,
+      "sha256": "750b929681353a5915e5541d4bdbe167b558830e9762d6ac2da0c05146120a70"
+    },
+    "native/source-map.json": {
+      "bytes": 38164,
+      "mode": 420,
+      "sha256": "d772a91574e72c80bb92624c75a9f0a1be18949be01342f7551961761ee18139"
+    },
+    "native/transport_proof.py": {
+      "bytes": 16711,
+      "mode": 420,
+      "sha256": "56452a1df81087bc0a2f02f899e7607a2a49f0696cb23eed8c397a637a0173ec"
+    },
+    "native/transport_retention.py": {
+      "bytes": 28485,
+      "mode": 420,
+      "sha256": "7f39e3d7f3cf4738752b71a59d12d456ce378ad638f12909e8146d1b7a54db14"
+    },
+    "native/uv-inputs.json": {
+      "bytes": 9989,
+      "mode": 420,
+      "sha256": "b61aaff24cc354fc5946af07afc7a088587d52987081ea993e847270cfda94d3"
+    },
+    "scripts/checks/package_checks.py": {
+      "bytes": 17706,
+      "mode": 420,
+      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
+    },
+    "scripts/maintenance/retained_git_transport.py": {
+      "bytes": 25334,
+      "mode": 420,
+      "sha256": "9b90c423fd67c261d8be1dddd8450df5b927b6dbaba9972c4daff8c0da2836b7"
+    },
+    "scripts/virtual/owned_process.py": {
+      "bytes": 25140,
+      "mode": 420,
+      "sha256": "83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f"
+    },
+    "scripts/workflows/developer_build_systems.py": {
+      "bytes": 20558,
+      "mode": 420,
+      "sha256": "8c5025f3d748fb2e5aebb304310852158ebaac0bcaf9ef44cad8676ed5963fbc"
+    },
+    "scripts/workflows/developer_workflow.py": {
+      "bytes": 29699,
+      "mode": 420,
+      "sha256": "531c124cde3fa41d46888acfc638c823196bb2f297b19ab68ab3d001b05f16ba"
+    },
+    "scripts/workflows/python_development.py": {
+      "bytes": 19097,
+      "mode": 420,
+      "sha256": "3587267a38e77e9ca93301accf7fe0c6d73f5664320ee11635b0c17734e3004b"
+    },
+    "scripts/workflows/python_extension.py": {
+      "bytes": 22632,
+      "mode": 420,
+      "sha256": "cdb46ca82ec8d45923361cb190cf2cc426b1bf3587eb4c9fd4cef76d91dd5b36"
+    },
+    "tests/workflows/fixtures/developer/build-systems/CMakeLists.txt": {
+      "bytes": 734,
+      "mode": 420,
+      "sha256": "5eeba8bbc14954df79a387d4bfaa334cbad3301941b47d563c4d94c9dae6fd48"
+    },
+    "tests/workflows/fixtures/developer/build-systems/LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "tests/workflows/fixtures/developer/build-systems/expected.txt": {
+      "bytes": 22,
+      "mode": 420,
+      "sha256": "7a4aa07e2a5b03230831c4f6ffb205842fd277529c359d7e40e1ac858746a77d"
+    },
+    "tests/workflows/fixtures/developer/build-systems/greeting.cpp": {
+      "bytes": 119,
+      "mode": 420,
+      "sha256": "79c2cca4f281d572018fe249b105f9f21f465588ceb4fca380610cc0b3564599"
+    },
+    "tests/workflows/fixtures/developer/build-systems/greeting.h": {
+      "bytes": 130,
+      "mode": 420,
+      "sha256": "42a39edfe7bee319c095e1e9e74803d1db83191d35fb227ff93c775aaf63b8e8"
+    },
+    "tests/workflows/fixtures/developer/build-systems/main.c": {
+      "bytes": 704,
+      "mode": 420,
+      "sha256": "9f8ecfd71e081f2843db793135ed87032336660e8ea9ac61c8ffe2b41408ed8b"
+    },
+    "tests/workflows/fixtures/developer/build-systems/meson.build": {
+      "bytes": 561,
+      "mode": 420,
+      "sha256": "500790862fa47b67dd8b1d5d03e05f5257fac6dbb51805a2e4f2d81ffa996c6f"
+    },
+    "tests/workflows/fixtures/python-development/LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "tests/workflows/fixtures/python-development/pyproject.toml": {
+      "bytes": 324,
+      "mode": 420,
+      "sha256": "6feb03b1f10b005fffb21a0ac4431f9d5184cbb9ef3def4409d613881b03e621"
+    },
+    "tests/workflows/fixtures/python-development/src/cachy_python_demo/__init__.py": {
+      "bytes": 185,
+      "mode": 420,
+      "sha256": "7bac22a560abc4de61eee80494c4c167ee96147ccc4cc61741b32dd6f77ddfef"
+    },
+    "tests/workflows/fixtures/python-development/src/cachy_python_demo/__main__.py": {
+      "bytes": 58,
+      "mode": 420,
+      "sha256": "5501a285c101039e2e332eb0692b2c568efa370f211be2b519b7931484d6a947"
+    },
+    "tests/workflows/fixtures/python-development/test_demo.py": {
+      "bytes": 318,
+      "mode": 420,
+      "sha256": "943936536480cccfb2d59d4f4c0ad1d374c5a9b81a6794442bf36d94bf87ba43"
+    },
+    "tests/workflows/fixtures/python-extension/CMakeLists.txt": {
+      "bytes": 780,
+      "mode": 420,
+      "sha256": "e81840bd08be01e7ab5ea4866750c7fc188f9ca6d6a98ec684d815f985d452c3"
+    },
+    "tests/workflows/fixtures/python-extension/LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "tests/workflows/fixtures/python-extension/check_extension.py": {
+      "bytes": 1841,
+      "mode": 420,
+      "sha256": "fd3b199a0e2cf49ea6f63463fe22d058d02d909304e8f74bddb04360f972f053"
+    },
+    "tests/workflows/fixtures/python-extension/expected.txt": {
+      "bytes": 28,
+      "mode": 420,
+      "sha256": "fbea4da808401b25e13bed50460df31b0f7832cb3221d226626d2d6207cc46e6"
+    },
+    "tests/workflows/fixtures/python-extension/extension.c": {
+      "bytes": 601,
+      "mode": 420,
+      "sha256": "41abb6a57e519ee8efb1015e657e5ab87c38efbf44ee9363dd52f957d425218d"
+    },
+    "uv-provenance/UV-HANDOFF.json": {
+      "bytes": 40434,
+      "mode": 420,
+      "sha256": "93b6a2d64065b8579fc052f9470cbde1d6aa6fc56de17c1b0370af90633a5204"
+    },
+    "uv-provenance/archive-inspection.json": {
+      "bytes": 65201,
+      "mode": 420,
+      "sha256": "e73bbcb0a61cc4112bb7720a9164aec29c2a68fab8394cd34ce5aeb2fe286805"
+    },
+    "uv-provenance/downloads/uv-aarch64-unknown-linux-gnu.tar.gz.sha256": {
+      "bytes": 102,
+      "mode": 420,
+      "sha256": "98f31eee8385ef700d9937e0dc7995d6a63f4902c263cca9482d229fea3872ad"
+    },
+    "uv-provenance/http-ledger.json": {
+      "bytes": 52247,
+      "mode": 420,
+      "sha256": "ea5a9f899d9ae8b621e19e16c9fee4acc4fae018246f4b91dcad66bcc62f2a31"
+    },
+    "uv-provenance/inspected-wheel/uv_build-0.11.28.dist-info/METADATA": {
+      "bytes": 1727,
+      "mode": 420,
+      "sha256": "178dbd83732c8b819145d5b2a62d8a9e30d57f622ca622939486fac3c44187b1"
+    },
+    "uv-provenance/inspected-wheel/uv_build-0.11.28.dist-info/WHEEL": {
+      "bytes": 107,
+      "mode": 420,
+      "sha256": "3db55fec504d4e5ac116c25347d71f358fa5dc1e5ff41e62199e08025ae65b65"
+    },
+    "uv-provenance/inspected-wheel/uv_build/__init__.py": {
+      "bytes": 4803,
+      "mode": 420,
+      "sha256": "6fbe0020d04fa78db8fecc53bab420065e2ca0bdb8bcc4f9b0996d24a22a7465"
+    },
+    "uv-provenance/inspected-wheel/uv_build/__main__.py": {
+      "bytes": 449,
+      "mode": 420,
+      "sha256": "44d3061ee13523b399a218c08923e6e92de0fbef8caa4780730855d790a1f43c"
+    },
+    "uv-provenance/licenses/LICENSE-APACHE": {
+      "bytes": 11357,
+      "mode": 420,
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+    },
+    "uv-provenance/licenses/LICENSE-MIT": {
+      "bytes": 1077,
+      "mode": 420,
+      "sha256": "860e3d7a86b84e6a7012c7a635fc64df475cebc6cce34dfeb73a5982ec58176c"
+    },
+    "uv-provenance/metadata/github-commit.json": {
+      "bytes": 2501,
+      "mode": 420,
+      "sha256": "4c10846a892f64a1531621e2d11255b82bdef94ae968477d47e1a2f2b31e7c0e"
+    },
+    "uv-provenance/metadata/github-release.json": {
+      "bytes": 82256,
+      "mode": 420,
+      "sha256": "aa784956161f572961dbacfdd4c9dec5b3db6893ce201b6148cb72c7dea77221"
+    },
+    "uv-provenance/metadata/github-tag-ref.json": {
+      "bytes": 329,
+      "mode": 420,
+      "sha256": "fc00703900e36cd4b7b4bac363b39d1f4c71a2270d57f265365beb8fb5703fad"
+    },
+    "uv-provenance/metadata/github-tree.json": {
+      "bytes": 456042,
+      "mode": 420,
+      "sha256": "ff23f42a96f65f0876f423fee1a8863ef31cd0205b6aa75e33bf198484300f13"
+    },
+    "uv-provenance/metadata/pypi-uv-build.json": {
+      "bytes": 18595,
+      "mode": 420,
+      "sha256": "0c2e7451b14c961b48054feda8d3a0fa15fb487a156a54277e67248072578053"
+    },
+    "uv-provenance/source-joins.json": {
+      "bytes": 8402,
+      "mode": 420,
+      "sha256": "6f771108086f80eda9bff83180b6cd98595d1e5f8ee62d1e94f777a070b18c5b"
+    },
+    "uv-provenance/source/Cargo.toml": {
+      "bytes": 16623,
+      "mode": 420,
+      "sha256": "cc1fe02a7969bedf73d03ca98e9151e2b3fbb1ca53fd6ced989f26104d640b94"
+    },
+    "uv-provenance/source/LICENSE-APACHE": {
+      "bytes": 11357,
+      "mode": 420,
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+    },
+    "uv-provenance/source/LICENSE-MIT": {
+      "bytes": 1077,
+      "mode": 420,
+      "sha256": "860e3d7a86b84e6a7012c7a635fc64df475cebc6cce34dfeb73a5982ec58176c"
+    },
+    "uv-provenance/source/crates/uv-build-backend/src/lib.rs": {
+      "bytes": 80238,
+      "mode": 420,
+      "sha256": "1733b813f9800ae749760a6d834e435231d69e2e77ac5be27cbbd05db3bf0d28"
+    },
+    "uv-provenance/source/crates/uv-build-backend/src/metadata.rs": {
+      "bytes": 79183,
+      "mode": 420,
+      "sha256": "0e22f80046a365536da3bc2152d4239c3d0b842b2de59ff1cc2633bfb8faf4c5"
+    },
+    "uv-provenance/source/crates/uv-build-frontend/src/lib.rs": {
+      "bytes": 50014,
+      "mode": 420,
+      "sha256": "2d19a46185106e63313f58912ac966b481ab8d60dfc0c64813679a1a785d7f30"
+    },
+    "uv-provenance/source/crates/uv-build/Cargo.toml": {
+      "bytes": 662,
+      "mode": 420,
+      "sha256": "57fce2fd9b7b5ce84e97d4e9a1a65fe8531f20ea1d7c703b433fbce3511f4b47"
+    },
+    "uv-provenance/source/crates/uv-build/pyproject.toml": {
+      "bytes": 1629,
+      "mode": 420,
+      "sha256": "1bce4b0492684083f8db440d323a5b1449dfd5aea4180d8a7aebfda3271a3081"
+    },
+    "uv-provenance/source/crates/uv-build/python/uv_build/__init__.py": {
+      "bytes": 4803,
+      "mode": 420,
+      "sha256": "6fbe0020d04fa78db8fecc53bab420065e2ca0bdb8bcc4f9b0996d24a22a7465"
+    },
+    "uv-provenance/source/crates/uv-build/src/main.rs": {
+      "bytes": 6090,
+      "mode": 420,
+      "sha256": "b3526aaf1c73931d2c333633f1f69b4e56c5a0e8d49204072e401e93a70dbc69"
+    },
+    "uv-provenance/source/crates/uv-cli/src/lib.rs": {
+      "bytes": 328315,
+      "mode": 420,
+      "sha256": "4dd5895eb86b5ebf1da061da1165e581a3cf75b669564a14b4b783598a92d578"
+    },
+    "uv-provenance/source/crates/uv-version/Cargo.toml": {
+      "bytes": 368,
+      "mode": 420,
+      "sha256": "d5052e15647181cd95093776ff468b13e3e1a8b9bece4776214d06d74a0e3a50"
+    },
+    "uv-provenance/source/crates/uv-version/src/lib.rs": {
+      "bytes": 355,
+      "mode": 420,
+      "sha256": "56244bd779ca7895cc41f4e0dd12ec8d298f3fa34d4553e776f2c8aa050c88ae"
+    },
+    "uv-provenance/source/crates/uv/src/commands/build_backend.rs": {
+      "bytes": 3206,
+      "mode": 420,
+      "sha256": "12f63de7a978ef925250554035dbf751368d5139265a26da4856d20a7fb12f2b"
+    },
+    "uv-provenance/source/crates/uv/src/commands/build_frontend.rs": {
+      "bytes": 47726,
+      "mode": 420,
+      "sha256": "8525fa983711cb2de13dde1fa5063825e0cc11d747a2b37ec171216037d5b091"
+    },
+    "uv-provenance/uv_build-0.11.28.tar.gz": {
+      "bytes": 408697,
+      "mode": 420,
+      "sha256": "daba66fd25a9a82caa23949686e967cbb69fd056177e991650643186057adaef"
+    }
+  },
+  "parent_tree": "f45820b0ef37b48f50bbc361a22f53b5dd309506",
+  "prospective_tree": "bc5d4df589469a377d28782cfb647abff8039071",
+  "purpose": "source-tools-native-main-overlay",
+  "schema": 1,
+  "source_files": 200,
+  "source_map_sha256": "de2c03ecfa4cfa31ceb0a0fcb3ab6b99ad2ccc584b452f68bea6f172618686a7"
+}
