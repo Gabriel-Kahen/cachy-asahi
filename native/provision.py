@@ -353,6 +353,315 @@ def cache(root, args):
     return report
 
 
+MATRIX_OPERATION = 'platform-namespace-policy-matrix-v1'
+MATRIX_SCOPE = 'namespace-policy'
+MATRIX_JSON = ('result.json', 'diagnostic.json', 'owner.json', 'source-proof.json')
+MATRIX_ROOT_JSON = ('source-proof.json', 'receipt.json', 'cleanup.json', 'image-ledger.json', 'image-retirement.json')
+
+
+def matrix_json(raw):
+    def pairs(rows):
+        result = {}
+        for name,value in rows:
+            need(name not in result, 'duplicate matrix DATA key'); result[name] = value
+        return result
+    return json.loads(raw,object_pairs_hook=pairs,
+                      parse_constant=lambda _:need(False,'nonfinite matrix DATA'))
+
+
+def matrix_name(name):
+    """Fixed public DATA family; no directory walk or guest-tree fallback."""
+    return (name in MATRIX_ROOT_JSON or name == 'matrix-projection.json'
+            or name in {MATRIX_SCOPE+'/'+leaf for leaf in MATRIX_JSON}
+            or name == MATRIX_SCOPE+'/outer-cleanup.json'
+            or re.fullmatch(r'namespace-policy/(?:logs|outer-logs)/[0-9]{4}\.log', name) is not None)
+
+
+def matrix_calls(payloads):
+    """The actual actor receipt chooses each public log, never its actor index."""
+    owner_name = MATRIX_SCOPE+'/owner.json'
+    logs = {name for name in payloads if name.startswith(MATRIX_SCOPE+'/logs/')}
+    if owner_name not in payloads:
+        need(not logs, 'matrix logs require their original owner receipt')
+        return
+    owner = matrix_json(payloads[owner_name]); calls = owner.get('calls')
+    need(type(calls) is list and len(calls) <= 128, 'finite actual matrix actor receipts')
+    selected = set(); diagnostic = matrix_json(payloads.get(MATRIX_SCOPE+'/diagnostic.json',b'{}'))
+    for row in calls:
+        leaf = row.get('public_log')
+        if leaf is None:
+            need(row.get('log_pin') is None and row.get('output_retention') == 'REFUSED_CAP_OR_MISSING'
+                 and diagnostic.get('status') == 'DIAGNOSTIC_NAMESPACE_POLICY_MATRIX_UNKNOWN',
+                 'only explicit unretained output in UNKNOWN diagnostic')
+            continue
+        need(type(leaf) is str and re.fullmatch(r'logs/[0-9]{4}\.log', leaf)
+             and leaf not in selected and row.get('output_retention') == 'COMPLETE',
+             'unique original complete matrix actor public_log')
+        selected.add(leaf); name = MATRIX_SCOPE+'/'+leaf
+        need(name in payloads and pin(payloads[name]) == row.get('log_pin'),
+             'matrix receipt/public_log/complete original body pin')
+    need(logs == {MATRIX_SCOPE+'/'+name for name in selected}, 'complete matrix actor-log inverse')
+
+
+def matrix_outer_capture(payloads, work, own, map_hash):
+    """Only original retirement actors; no bootstrap key/import log export."""
+    from capsule import _ordinary
+    from public_projection import PRIVATE_MARKER
+    cleanup = matrix_json(payloads.get('cleanup.json',b'{}')); actors = cleanup.get('actors',[])
+    need(type(actors) is list and len(actors) <= 32, 'bounded original outer cleanup actors')
+    calls = []; total = 0; errors = []
+    for row in actors:
+        try:
+            path = Path(row['log'])
+            need(path.is_relative_to(work/'retirement-actors') and path.parent == work/'retirement-actors',
+                 'actual fixed outer retirement actor log')
+            raw = _ordinary(path,1024**2); total += len(raw)
+            need(total <= 2*1024**2 and pin(raw) == row.get('log_pin') and not PRIVATE_MARKER.search(raw),
+                 'privacy-qualified original outer cleanup body/pin')
+            name = MATRIX_SCOPE+'/outer-logs/%04d.log'%len(calls)
+            calls.append(dict(actor=row,public_log=name,log_pin=pin(raw))); payloads[name] = raw
+        except Exception as error:
+            errors.append(dict(type=type(error).__name__,code='OUTER_CLEANUP_LOG_NOT_QUALIFIED'))
+    value = dict(schema=1,operation=MATRIX_OPERATION,binding=own,source_map_sha256=map_hash,
+        status='ORIGINAL_OUTER_RETIREMENT_DATA_ONLY',cleanup=pin(payloads['cleanup.json']) if 'cleanup.json' in payloads else None,
+        calls=calls,errors=errors,native='NOT_ADMITTED',acceptance=False)
+    payloads[MATRIX_SCOPE+'/outer-cleanup.json'] = (json.dumps(value,sort_keys=True,indent=2)+'\n').encode()
+
+
+def matrix_outer_complete(payloads, own, map_hash):
+    """Rejoin actual cleanup rows/bodies and absence queries, not status alone."""
+    receipt = matrix_json(payloads.get('receipt.json',b'{}')); cleanup = matrix_json(payloads.get('cleanup.json',b'{}'))
+    need(receipt.get('binding') == own and receipt.get('source_map_sha256') == map_hash
+         and receipt.get('operation') == MATRIX_OPERATION
+         and receipt.get('status') == 'DIAGNOSTIC_NAMESPACE_POLICY_MATRIX_COMPLETE'
+         and receipt.get('native') == 'NOT_ADMITTED' and receipt.get('acceptance') is False
+         and 'error' not in receipt and not receipt.get('cancellation_during_cleanup'),
+         'actual owner first failure/cancellation remains UNKNOWN')
+    need(cleanup.get('status') == 'PASS_EXACT_OWNED_RESOURCES_RETIRED', 'outer resource retirement required')
+    diagnostic = matrix_json(payloads.get(MATRIX_SCOPE+'/diagnostic.json',b'{}'))
+    need(receipt.get('namespace_policy') == diagnostic
+         and diagnostic.get('status') == 'DIAGNOSTIC_NAMESPACE_POLICY_MATRIX_COMPLETE'
+         and diagnostic.get('first_failure') is None and diagnostic.get('cases') == 4
+         and diagnostic.get('cleanup',{}).get('status') == 'PASS_EXACT_MATRIX_OWNED_RESOURCES_RETIRED',
+         'actual prepared-image/case cleanup and no original matrix failure')
+    value = matrix_json(payloads[MATRIX_SCOPE+'/outer-cleanup.json'])
+    need(type(value.get('schema')) is int and value.get('schema') == 1 and value.get('operation') == MATRIX_OPERATION and value.get('binding') == own
+         and value.get('source_map_sha256') == map_hash and value.get('errors') == []
+         and value.get('cleanup') == pin(payloads['cleanup.json']), 'same original outer cleanup proof')
+    actors = cleanup.get('actors'); calls = value.get('calls')
+    need(type(actors) is list and actors and type(calls) is list and len(calls) == len(actors) <= 32,
+         'complete actual outer retirement actor inverse')
+    selected = set(); bodies = {}
+    for row,call in zip(actors,calls):
+        name = call.get('public_log')
+        need(type(name) is str and re.fullmatch(r'namespace-policy/outer-logs/[0-9]{4}\.log',name)
+             and name not in selected and call.get('actor') == row and name in payloads
+             and pin(payloads[name]) == call.get('log_pin') == row.get('log_pin'),
+             'outer actual actor/public_log/manifest/body join')
+        selected.add(name); bodies[row['log']] = payloads[name]
+        need(row.get('status') == 'PASS' and type(row.get('exit')) is int and row['exit'] == 0
+             and all(row.get(k) is True for k in ('natural_exit','group_absent','exit_observed_via_waitpid','leader_held_until_group_inspection'))
+             and row.get('retirement') == 'REAPED' and row.get('ownership_lost') is False
+             and row.get('forced_cleanup') is False, 'natural direct original outer retirement')
+    need(selected == {name for name in payloads if name.startswith(MATRIX_SCOPE+'/outer-logs/')},
+         'closed selected outer log namespace')
+    absence = cleanup.get('daemon_absence'); need(type(absence) is dict, 'original final daemon absence queries')
+    docker = ['/usr/bin/docker','--host=unix:///var/run/docker.sock']
+    for kind,argv in [('containers',docker+['ps','-aq','--no-trunc','--filter','label=org.cachy-asahi.native-developer='+own['token']]),
+                      ('images',docker+['image','ls','--no-trunc','-q','--filter','label=org.cachy-asahi.native-developer='+own['token']])]:
+        row = absence[kind]['actor']
+        need(row in actors and row['argv'] == argv and absence[kind]['output'] == ''
+             and row['log'] in bodies and not bodies[row['log']].strip(), 'raw actual empty outer daemon query')
+    retirement = cleanup.get('image_retirement')
+    need(type(retirement) is dict and retirement.get('status') == 'PASS_EXACT_OWNED_IMAGE_ALIASES_RETIRED'
+         and retirement.get('binding') == own and retirement.get('source_map_sha256') == map_hash,
+         'same-source original legacy image retirement')
+    return True
+
+
+def project_matrix(root, work, own, map_hash):
+    """Separate fixed diagnostic projection; never ALPM/native success retention."""
+    from capsule import _ordinary
+    from public_projection import PRIVATE_MARKER
+    work = Path(work); output = work/'public'; destination = work/'matrix-projection'
+    verify_source(root, map_hash)
+    need(not destination.exists() and not (work/'matrix-projection-intent.json').exists(),
+         'one matrix diagnostic projection, no replay')
+    save(work/'matrix-projection-intent.json', dict(schema=1, operation=MATRIX_OPERATION,
+        binding=own, source_map_sha256=map_hash, native='NOT_ADMITTED', acceptance=False))
+    payloads = {}; current = None; source_pin = None; refusals = []
+    try:
+        candidates = [(name, output/name) for name in MATRIX_ROOT_JSON if (output/name).exists()]
+        scope = output/MATRIX_SCOPE
+        if scope.exists():
+            need(scope.is_dir() and not scope.is_symlink(), 'ordinary fixed matrix DATA scope')
+            names = set(path.name for path in scope.iterdir())
+            need(names <= set(MATRIX_JSON)|{'logs'}, 'fixed matrix evidence namespace')
+            candidates += [(MATRIX_SCOPE+'/'+name,scope/name) for name in MATRIX_JSON if (scope/name).exists()]
+            logs = scope/'logs'
+            if logs.exists():
+                need(logs.is_dir() and not logs.is_symlink(), 'ordinary matrix log directory')
+                names = sorted(path.name for path in logs.iterdir())
+                need(len(names) <= 128 and all(re.fullmatch(r'[0-9]{4}\.log', n) for n in names),
+                     'fixed bounded matrix log names')
+                candidates += [(MATRIX_SCOPE+'/logs/'+name,logs/name) for name in names]
+        total = 0
+        for name, path in candidates:
+            current = name; source_pin = None
+            try:
+                raw = _ordinary(path, 16*1024**2 if '/logs/' in name else 1024**2)
+                source_pin = pin(raw); total += len(raw)
+                need(total <= 26*1024**2 and not PRIVATE_MARKER.search(raw),
+                     'bounded privacy-qualified matrix diagnostic DATA')
+                if name.endswith('.json'):
+                    value = matrix_json(raw)
+                    if name.startswith(MATRIX_SCOPE+'/') and name != MATRIX_SCOPE+'/result.json':
+                        need(type(value) is dict and type(value.get('schema')) is int and value.get('schema') == 1
+                             and value.get('operation') == MATRIX_OPERATION and value.get('binding') == own
+                             and value.get('source_map_sha256') == map_hash, 'same-source actual matrix receipt')
+                    if name == MATRIX_SCOPE+'/result.json':
+                        need(type(value) is dict and value.get('binding') == own
+                             and value.get('source_map_sha256') == map_hash,
+                             'same-source raw matrix result even when incomplete')
+                    if name in ('source-proof.json','receipt.json'):
+                        need(value.get('binding') == own, 'same-owner original Source/owner receipt')
+                    if name == 'receipt.json':need(value.get('operation') == MATRIX_OPERATION, 'matrix-only owner receipt')
+                payloads[name] = raw
+            except Exception as error:
+                refusals.append(dict(code='MATRIX_DIAGNOSTIC_DATA_REFUSED',type=type(error).__name__,file=current,original_pin=source_pin))
+    except Exception as error:
+        # Retain a safe refusal without discarding/replacing the original native
+        # error or routing any matrix bytes through another component retainer.
+        refusals.append(dict(code='MATRIX_DIAGNOSTIC_DATA_REFUSED',type=type(error).__name__,file=current,original_pin=source_pin))
+    try:matrix_calls(payloads)
+    except Exception as error:refusals.append(dict(code='MATRIX_ACTOR_LOG_JOIN_UNKNOWN',type=type(error).__name__))
+    try:matrix_outer_capture(payloads,work,own,map_hash)
+    except Exception as error:refusals.append(dict(code='OUTER_CLEANUP_CAPTURE_UNKNOWN',type=type(error).__name__))
+    diagnostic_name = MATRIX_SCOPE+'/diagnostic.json'
+    if diagnostic_name not in payloads:
+        value = dict(schema=1,operation=MATRIX_OPERATION,binding=own,source_map_sha256=map_hash,
+            status='DIAGNOSTIC_NAMESPACE_POLICY_MATRIX_UNKNOWN',native='NOT_ADMITTED',acceptance=False,
+            first_failure=dict(code='MATRIX_OWNER_NOT_REACHED_OR_DIAGNOSTIC_REFUSED',projection_refusal=refusals))
+        payloads[diagnostic_name] = (json.dumps(value,sort_keys=True,indent=2)+'\n').encode()
+    diagnostic = matrix_json(payloads[diagnostic_name])
+    need(diagnostic.get('status') in ('DIAGNOSTIC_NAMESPACE_POLICY_MATRIX_COMPLETE','DIAGNOSTIC_NAMESPACE_POLICY_MATRIX_UNKNOWN')
+         and diagnostic.get('native') == 'NOT_ADMITTED' and diagnostic.get('acceptance') is False,
+         'honest separate matrix diagnostic status')
+    complete = False
+    try:
+        complete = (diagnostic['status'] == 'DIAGNOSTIC_NAMESPACE_POLICY_MATRIX_COMPLETE'
+                    and MATRIX_SCOPE+'/result.json' in payloads and not refusals
+                    and matrix_outer_complete(payloads,own,map_hash))
+    except Exception as error:refusals.append(dict(code='OUTER_OWNER_OR_RETIREMENT_UNKNOWN',type=type(error).__name__))
+    rows = {name:dict(kind='file',mode=0o600,**pin(raw)) for name,raw in payloads.items()}
+    receipt = dict(schema=1,kind='fixed-namespace-policy-diagnostic-projection-v1',operation=MATRIX_OPERATION,
+        binding=own,source_map_sha256=map_hash,status='FIXED_NAMESPACE_POLICY_DIAGNOSTIC_PROJECTION',
+        diagnostic_status='DIAGNOSTIC_NAMESPACE_POLICY_MATRIX_COMPLETE' if complete else 'DIAGNOSTIC_NAMESPACE_POLICY_MATRIX_UNKNOWN',
+        selected=rows,native='NOT_ADMITTED',ALPM='NOT_RUN',acceptance=False,projection_refusal=refusals,
+        source_producers={name:pin(source_bytes(root,name)) for name in
+            ('native/owner.py','native/provision.py','native/platform_namespace_policy_v1.py','native/platform-namespace-policy-v1.json')})
+    payloads['matrix-projection.json'] = (json.dumps(receipt,sort_keys=True,indent=2)+'\n').encode()
+    need(len(payloads) <= 171 and sum(map(len,payloads.values())) <= 28*1024**2,
+         'lower fixed matrix projection count/byte cap')
+    destination.mkdir(mode=0o700)
+    for name, raw in sorted(payloads.items()):
+        need(matrix_name(name), 'fixed matrix projected leaf')
+        target = destination/name; target.parent.mkdir(parents=True,exist_ok=True,mode=0o700)
+        with target.open('xb') as stream:need(stream.write(raw) == len(raw), 'whole exclusive diagnostic output')
+        target.chmod(0o600)
+    files = {name:dict(kind='file',mode=0o600,**pin(raw)) for name,raw in payloads.items()}
+    save(destination/'artifacts.json',dict(schema=1,binding=own,source_map_sha256=map_hash,files=files))
+    return receipt
+
+
+def read_matrix_capsule(capsule_path, expected_binding, independent_expected):
+    """Matching trusted-local passive DATA reader; Root authority is external."""
+    from capsule import open_capsule
+    from public_projection import PRIVATE_MARKER
+    import platform_namespace_policy_v1 as matrix
+    need(type(expected_binding) is dict and set(expected_binding) == {'source','ref','run','map_sha256'},
+         'four explicit Root selectors required')
+    need(type(expected_binding['source']) is str and re.fullmatch('[0-9a-f]{40}',expected_binding['source'])
+         and type(expected_binding['ref']) is str and expected_binding['ref'].startswith('refs/heads/codex/')
+         and type(expected_binding['run']) is str and re.fullmatch('[1-9][0-9]*',expected_binding['run'])
+         and type(expected_binding['map_sha256']) is str and re.fullmatch('[0-9a-f]{64}',expected_binding['map_sha256']),
+         'NULL/unbound matrix selectors refused before opening capsule')
+    own = {key:expected_binding[key] for key in ('source','ref','run')}
+    own.update(attempt=1,token=hashlib.sha256((own['source']+':'+own['ref']+':'+own['run']).encode()).hexdigest()[:24])
+    matrix.binding(own); map_hash = expected_binding['map_sha256']
+    need(type(independent_expected) is dict and independent_expected.get('binding') == own
+         and independent_expected.get('source_parent') == matrix.PARENT
+         and independent_expected.get('source_map_sha256') == map_hash,
+         'independent Root Source/sole-parent/map authority, never artifact marker strings')
+    root = Path(__file__).resolve().parents[1]
+    verify_source(root,map_hash)
+    need(independent_expected.get('body_sha256') == pin(source_bytes(root,matrix.MODULE))['sha256']
+         and independent_expected.get('contract_sha256') == pin(source_bytes(root,matrix.CONTRACT))['sha256'],
+         'actual trusted-local Source module/contract body joins')
+    view = open_capsule(capsule_path); manifest = view.load('artifacts.json'); view.verify_manifest(manifest)
+    need(type(manifest['schema']) is int and manifest['schema'] == 1 and manifest['binding'] == own and manifest['source_map_sha256'] == map_hash,
+         'exact matrix capsule Source/ref/run/attempt/token/map')
+    files = manifest['files']; need(0 < len(files) <= 171 and sum(row['bytes'] for row in files.values()) <= 28*1024**2,
+                                   'lower fixed matrix namespace bound')
+    for name,row in files.items():
+        need(matrix_name(name) and row['kind'] == 'file' and row['mode'] == 0o600
+             and row['bytes'] <= (16*1024**2 if '/logs/' in name else 1024**2)
+             and pin(view.read(name)) == {key:row[key] for key in ('bytes','sha256')}
+             and not PRIVATE_MARKER.search(view.read(name)),
+             'matrix closed ordinary namespace and full actual body pins')
+    projection = view.load('matrix-projection.json')
+    need(type(projection['schema']) is int and projection['schema'] == 1 and projection['kind'] == 'fixed-namespace-policy-diagnostic-projection-v1'
+         and projection['operation'] == MATRIX_OPERATION and projection['binding'] == own
+         and projection['source_map_sha256'] == map_hash and projection['native'] == 'NOT_ADMITTED'
+         and projection['ALPM'] == 'NOT_RUN' and projection['acceptance'] is False
+         and set(files) == set(projection['selected'])|{'matrix-projection.json'},
+         'same-source separate fixed diagnostic projection, no ALPM success route')
+    for name,row in projection['selected'].items():
+        need(files[name] == row and pin(view.read(name)) == {key:row[key] for key in ('bytes','sha256')},
+             'projection/manifest/index/body inverse')
+    need(projection['source_producers'] == {name:pin(source_bytes(root,name)) for name in
+        ('native/owner.py','native/provision.py','native/platform_namespace_policy_v1.py','native/platform-namespace-policy-v1.json')},
+        'exact trusted Source producers')
+    payloads = {name:view.read(name) for name in projection['selected']}; joins = []
+    try:matrix_calls(payloads)
+    except Exception as error:joins.append(dict(code='MATRIX_ACTOR_LOG_JOIN_UNKNOWN',type=type(error).__name__))
+    diagnostic = view.load(MATRIX_SCOPE+'/diagnostic.json')
+    need(type(diagnostic.get('schema')) is int and diagnostic.get('schema') == 1 and diagnostic.get('operation') == MATRIX_OPERATION
+         and diagnostic.get('binding') == own and diagnostic.get('source_map_sha256') == map_hash
+         and diagnostic.get('status') in ('DIAGNOSTIC_NAMESPACE_POLICY_MATRIX_COMPLETE','DIAGNOSTIC_NAMESPACE_POLICY_MATRIX_UNKNOWN')
+         and diagnostic.get('native') == 'NOT_ADMITTED' and diagnostic.get('acceptance') is False,
+         'actual complete or incomplete matrix diagnostic DATA only')
+    raw_result = view.load(MATRIX_SCOPE+'/result.json') if MATRIX_SCOPE+'/result.json' in files else None
+    interpretation = dict(status='UNKNOWN',reason='incomplete experiment or resource retirement',native='NOT_ADMITTED',acceptance=False)
+    qualification = None; source_qualification = None; runtime_qualification = None
+    try:matrix_outer_complete(payloads,own,map_hash)
+    except Exception as error:joins.append(dict(code='OUTER_OWNER_OR_RETIREMENT_UNKNOWN',type=type(error).__name__))
+    try:
+        source_qualification = matrix.validate_source_proof(view.load(MATRIX_SCOPE+'/source-proof.json'),root,independent_expected)
+    except Exception as error:joins.append(dict(code='RAW_SOURCE_PARENT_FULL_MAP_JOIN_UNKNOWN',type=type(error).__name__))
+    complete = (projection['diagnostic_status'] == 'DIAGNOSTIC_NAMESPACE_POLICY_MATRIX_COMPLETE'
+                and diagnostic['status'] == 'DIAGNOSTIC_NAMESPACE_POLICY_MATRIX_COMPLETE'
+                and projection.get('projection_refusal') == [] and not joins and raw_result is not None)
+    if complete:
+        contract = matrix.contract(load(root/matrix.CONTRACT))
+        try:
+            runtime_qualification = matrix.validate_runtime_evidence(view.load(MATRIX_SCOPE+'/owner.json'),raw_result,
+                payloads,independent_expected,view.load(MATRIX_SCOPE+'/source-proof.json'))
+            qualification = matrix.validate_result(raw_result,contract,independent_expected)
+            interpretation = matrix.interpret(raw_result,contract,independent_expected)
+        except (ValueError,KeyError,TypeError,AttributeError,RecursionError) as error:
+            complete = False
+            joins.append(dict(code='RUNTIME_OR_MATRIX_DATA_JOIN_UNKNOWN',type=type(error).__name__))
+            interpretation = dict(status='UNKNOWN',reason=type(error).__name__+': '+str(error)[:256],native='NOT_ADMITTED',acceptance=False)
+    return dict(status='VALIDATED_NAMESPACE_POLICY_MATRIX_DIAGNOSTIC_DATA_ONLY',binding=own,
+        source_map_sha256=map_hash,raw_projection_status=projection['diagnostic_status'],
+        projection_status='DIAGNOSTIC_NAMESPACE_POLICY_MATRIX_COMPLETE' if complete else 'DIAGNOSTIC_NAMESPACE_POLICY_MATRIX_UNKNOWN',
+        raw_diagnostic=diagnostic,raw_result=raw_result,qualification=qualification,
+        source_qualification=source_qualification,runtime_qualification=runtime_qualification,
+        join_refusals=joins,interpretation=interpretation,
+        ALPM='NOT_RUN',native='NOT_ADMITTED',physical_M2='NOT_RUN',release='NOT_ADMITTED',acceptance=False)
+
+
 def retain(root, args):
     own, _ = admit(root, args, 'cache')
     proof = prior_proof(root, args, own)
@@ -361,6 +670,17 @@ def retain(root, args):
     from capsule import pack
     upload = args.work / 'upload'
     need(not upload.exists(), 'fresh public capsule output directory')
+    if getattr(args,'operation','source184') == MATRIX_OPERATION:
+        projected = args.work/'matrix-projection'
+        if not (projected/'artifacts.json').is_file():
+            project_matrix(root,args.work,own,args.map_sha256)
+        manifest = load(projected/'artifacts.json')
+        need(manifest['binding'] == own and manifest['source_map_sha256'] == args.map_sha256
+             and all(matrix_name(name) for name in manifest['files']), 'same-source fixed matrix projection only')
+        upload.mkdir(mode=0o700)
+        capsule = pack(projected,upload/'public-tree.tar')
+        return dict(status='NAMESPACE_POLICY_DIAGNOSTIC_CAPSULED_NO_ALPM_ACCEPTANCE',capsule=capsule,
+                    native='NOT_ADMITTED',ALPM='NOT_RUN',acceptance=False)
     if (projected / 'artifacts.json').is_file():
         output = projected
         manifest = load(output / 'artifacts.json')
@@ -413,6 +733,7 @@ if __name__ == '__main__':
     for name in ('source-sha', 'ref', 'run-id', 'map-sha256'):
         parser.add_argument('--' + name, required=True)
     parser.add_argument('--execute', action='store_true')
+    parser.add_argument('--operation',choices=('source184','platform-alpm-v1',MATRIX_OPERATION),default='source184')
     args = parser.parse_args()
     def cancel(number, frame):
         raise KeyboardInterrupt('hosted DATA phase cancellation')

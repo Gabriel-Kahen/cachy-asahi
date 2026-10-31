@@ -23,6 +23,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import LABEL, binding, consumer_contract, input_contract, load, need, pin, read, save, source_bytes, uv_policy, verify_source
 
 DOCKER = ('/usr/bin/docker', '--host=unix:///var/run/docker.sock')
+MATRIX_OPERATION = 'platform-namespace-policy-matrix-v1'
 
 
 def module(path, name):
@@ -77,7 +78,7 @@ def consumer_identity(row, own, image, root, output):
 def run(root, args):
     own, profile, original, expected = admission(root, args, os.environ)
     operation=getattr(args,'operation','source184')
-    need(operation in ('source184','platform-alpm-v1'),'explicit finite operation')
+    need(operation in ('source184','platform-alpm-v1',MATRIX_OPERATION),'explicit finite operation')
     need((root / '.git').is_dir() and not (root / '.git').is_symlink(), 'explicit ordinary publication Git directory')
     import provision
     proof = provision.prior_proof(root, args, own)
@@ -92,7 +93,11 @@ def run(root, args):
     report = dict(schema=1, status='FAIL', binding=own, source_map_sha256=args.map_sha256,
                   input_inventory=pin(expected), source_root=str(root), output_root=str(output),
                   native_16K='NOT_QUALIFIED', physical_M2='NOT_RUN', release='NOT_ADMITTED')
-    if operation=='platform-alpm-v1':report['operation']=operation
+    if operation in ('platform-alpm-v1',MATRIX_OPERATION):report['operation']=operation
+    if operation==MATRIX_OPERATION:
+        report.update(native='NOT_ADMITTED',acceptance=False)
+        need(not (args.work/'namespace-policy-operation.json').exists(),'one diagnostic operation; no retry')
+        save(args.work/'namespace-policy-operation.json',dict(schema=1,operation=operation,binding=own,source_map_sha256=args.map_sha256,native='NOT_ADMITTED',acceptance=False))
     pgo = module(root / 'bootstrap/scripts/ci/zlib-pgo-native-hosted/owner.py', '_sealed_pgo102')
     pgo.DOCKER = DOCKER
     actor = pgo.Actors(args.work / 'actors', 4300)
@@ -122,7 +127,8 @@ def run(root, args):
                  and digest == hashlib.sha1(b'blob ' + str(len(body)).encode() + b'\0' + body).hexdigest(), 'complete published Git byte/mode join')
             joined[name] = dict(mode=mode, blob=digest, **pin(body))
         need(set(joined) == set(load(root / 'native/source-map.json')['files']) | {'native/source-map.json'}, 'published closed Git namespace')
-        save(output / 'source-proof.json', dict(binding=own, files=joined))
+        source_proof=dict(binding=own,files=joined)
+        save(output / 'source-proof.json',source_proof)
         need(not actor.docker('ps', '-aq', '--filter', 'label=' + LABEL + '=' + own['token'])
              and not actor.docker('image', 'ls', '-q', '--filter', 'label=' + LABEL + '=' + own['token']), 'fresh owned daemon namespace')
         namespace_fresh = True
@@ -136,7 +142,7 @@ def run(root, args):
         # native248 seeds package pairs, not the original five base inputs.
         # Restore their pinned parent path only; package failures never fall back.
         from bootstrap_inputs import bind_fetch
-        parent_fetch = native.fetch
+        parent_fetch = (lambda row,selected_cache:cache_file(selected_cache,row)) if operation==MATRIX_OPERATION else native.fetch
         native.fetch = bind_fetch(original, profile['additions']['rows'], args.cache,
                                   lambda row, selected_cache: cache_file(selected_cache, row), parent_fetch)
         def native_run(argv, log=None, timeout=1800):
@@ -200,70 +206,85 @@ def run(root, args):
         for value in load(overlay / 'package-audit.json').values():
             hooks += [Path(n).name for n in value['installed_paths'] if n.startswith(('usr/share/libalpm/hooks/', 'etc/pacman.d/hooks/')) and n.endswith('.hook')]
         (context / 'disabled-hooks.txt').write_text(native.hook_masks(hooks))
-        base_tag = verify_base(actor, ledger, phase='before_overlay')
+        base_tag = ledger['aliases']['base'] if operation==MATRIX_OPERATION else verify_base(actor, ledger, phase='before_overlay')
         dockerfile = ('FROM ' + base_tag + '\nUSER root\nCOPY deps/ /tmp/developer-deps/\nCOPY tools/ /opt/native-developer-tools/\nCOPY disabled-hooks.txt /tmp/developer-hooks.txt\n'
            'RUN while IFS= read -r hook; do ln -sf /dev/null "/builder-disabled-hooks/$hook"; done < /tmp/developer-hooks.txt '
            '&& pacman -U --noconfirm --noscriptlet /tmp/developer-deps/*.pkg.tar.xz && ldconfig '
            '&& rm -rf /tmp/developer-deps /tmp/developer-hooks.txt /var/cache/pacman/pkg/* '
            '&& pacman -Q | LC_ALL=C sort > /builder-packages.lock\nUSER alarm\nWORKDIR /tmp\n')
-        if operation=='platform-alpm-v1':
+        if operation in ('platform-alpm-v1',MATRIX_OPERATION):
             from platform_alpm_v1 import prepare,dockerfile as release_dockerfile
             prepare(root,context,args.map_sha256);dockerfile=release_dockerfile(dockerfile,args.map_sha256)
         (context / 'Dockerfile').write_text(dockerfile)
-        command = [*DOCKER, 'build', '--network=none', '--pull=false', '--no-cache', '--platform=linux/arm64',
-            '--tag', 'native-developer-tools:' + own['token'], '--label', LABEL + '=' + own['token'],
-            '--label', LABEL + '.source=' + own['source'], '--iidfile', str(overlay / 'image-id'), str(context)]
-        before = len(actor.rows); overlay_error = None
-        try:
-            actor.run(command, timeout=600)
-        except BaseException as error:
-            overlay_error = error
-            raise
-        finally:
-            build_operations.append(build_operation('tools', command, actor.rows, before))
+        if operation==MATRIX_OPERATION:
+            import platform_namespace_policy_v1 as matrix
+            phases=iter(('before_overlay','after_overlay'))
+            def matrix_base():
+                try:phase=next(phases)
+                except StopIteration:raise ValueError('exact two base checks; no repeat')from None
+                return verify_base(actor,ledger,phase=phase)
+            diagnostic=matrix.owner_matrix(actor,root,args,own,context,dockerfile.encode(),ledger,matrix_base,source_proof)
+            need(diagnostic['schema']==1 and diagnostic['operation']==MATRIX_OPERATION
+                 and diagnostic['binding']==own and diagnostic['source_map_sha256']==args.map_sha256
+                 and diagnostic['native']=='NOT_ADMITTED' and diagnostic['acceptance']is False,
+                 'same-source separate matrix diagnostic only')
+            report['namespace_policy']=diagnostic
+            report['status']=diagnostic['status']
+        else:
+            command = [*DOCKER, 'build', '--network=none', '--pull=false', '--no-cache', '--platform=linux/arm64',
+                '--tag', 'native-developer-tools:' + own['token'], '--label', LABEL + '=' + own['token'],
+                '--label', LABEL + '.source=' + own['source'], '--iidfile', str(overlay / 'image-id'), str(context)]
+            before = len(actor.rows); overlay_error = None
             try:
-                verify_base(actor, ledger, phase='after_overlay')
-            except Exception:
-                if overlay_error is None:
-                    raise
-        image = read(overlay / 'image-id').decode().strip()
-        register(actor, ledger, 'tools', image, build_operations[-1]['actor'])
-        image_identity(json.loads(actor.docker('image', 'inspect', image))[0], own)
-        command = ['create', '--name', 'developer-' + own['token'], '--pull=never', '--network=none',
-            '--read-only', '--cap-drop=ALL', '--security-opt=no-new-privileges', '--pids-limit=256', '--memory=4g', '--cpus=2',
-            '--user', str(os.getuid()) + ':' + str(os.getgid()), '--tmpfs', '/tmp:rw,nosuid,nodev,exec,size=2g',
-            '--label', LABEL + '=' + own['token'], '--label', LABEL + '.source=' + own['source'],
-            '--mount', 'type=bind,src=' + str(root) + ',dst=/source,readonly', '--mount', 'type=bind,src=' + str(output) + ',dst=/out',
-            '--entrypoint=/usr/bin/python3', image, '-I', '-B', ('/source/native/platform_guest_v1.py' if operation=='platform-alpm-v1' else '/source/native/guest.py'), '--output', '/out/journey', '--map-sha256', args.map_sha256]
-        container = actor.docker(*command, timeout=60)
-        need(re.fullmatch('[0-9a-f]{64}', container), 'exact created container ID')
-        inspection = json.loads(actor.docker('inspect', container))[0]
-        consumer_identity(inspection, own, image, root, output); save(output / 'consumer-inspect.json', inspection)
-        from consumer_diagnostics import retain as retain_consumer
-        consumer_index = len(actor.rows); consumer_error = None
-        try:
-            actor.docker('start', '-a', container, timeout=1800)
-        except BaseException as error:
-            consumer_error = error
-            raise
-        finally:
-            report['consumer_diagnostic'] = retain_consumer(args.work, output, own, args.map_sha256,
-                actor.rows, consumer_index, container, consumer_error)
+                actor.run(command, timeout=600)
+            except BaseException as error:
+                overlay_error = error
+                raise
+            finally:
+                build_operations.append(build_operation('tools', command, actor.rows, before))
+                try:
+                    verify_base(actor, ledger, phase='after_overlay')
+                except Exception:
+                    if overlay_error is None:
+                        raise
+            image = read(overlay / 'image-id').decode().strip()
+            register(actor, ledger, 'tools', image, build_operations[-1]['actor'])
+            image_identity(json.loads(actor.docker('image', 'inspect', image))[0], own)
+            command = ['create', '--name', 'developer-' + own['token'], '--pull=never', '--network=none',
+                '--read-only', '--cap-drop=ALL', '--security-opt=no-new-privileges', '--pids-limit=256', '--memory=4g', '--cpus=2',
+                '--user', str(os.getuid()) + ':' + str(os.getgid()), '--tmpfs', '/tmp:rw,nosuid,nodev,exec,size=2g',
+                '--label', LABEL + '=' + own['token'], '--label', LABEL + '.source=' + own['source'],
+                '--mount', 'type=bind,src=' + str(root) + ',dst=/source,readonly', '--mount', 'type=bind,src=' + str(output) + ',dst=/out',
+                '--entrypoint=/usr/bin/python3', image, '-I', '-B', ('/source/native/platform_guest_v1.py' if operation=='platform-alpm-v1' else '/source/native/guest.py'), '--output', '/out/journey', '--map-sha256', args.map_sha256]
+            container = actor.docker(*command, timeout=60)
+            need(re.fullmatch('[0-9a-f]{64}', container), 'exact created container ID')
+            inspection = json.loads(actor.docker('inspect', container))[0]
+            consumer_identity(inspection, own, image, root, output); save(output / 'consumer-inspect.json', inspection)
+            from consumer_diagnostics import retain as retain_consumer
+            consumer_index = len(actor.rows); consumer_error = None
             try:
-                from build_summary import bind as bind_build_summary
-                report['build_summary'] = bind_build_summary(output, own, args.map_sha256)
-            except Exception:
-                report['build_summary_retention'] = 'REFUSED_BOUNDED_BUILD_SUMMARY_DATA'
-        need(report['consumer_diagnostic']['status'] == 'ORIGINAL_CONSUMER_ACTOR_DATA_ONLY',
-             'original consumer diagnostic retention required')
-        after = json.loads(actor.docker('inspect', container))[0]
-        consumer_identity(after, own, image, root, output)
-        save(output / 'consumer-after.json', after)
-        need(after['State']['Running'] is False and after['State']['ExitCode'] == 0, 'actual completed native consumer')
-        report['consumer'] = dict(image=image, container=container, state=after['State'])
-        result = load(output / 'journey/result.json')
-        need(result['status'] == ('PASS_PLATFORM_TOOLS_NATIVE_ALPM_COMPONENT' if operation=='platform-alpm-v1' else 'PASS_NATIVE_DEVELOPER_COMPONENTS_ONLY'), 'all actual native developer components required')
-        report['status'] = result['status']
+                actor.docker('start', '-a', container, timeout=1800)
+            except BaseException as error:
+                consumer_error = error
+                raise
+            finally:
+                report['consumer_diagnostic'] = retain_consumer(args.work, output, own, args.map_sha256,
+                    actor.rows, consumer_index, container, consumer_error)
+                try:
+                    from build_summary import bind as bind_build_summary
+                    report['build_summary'] = bind_build_summary(output, own, args.map_sha256)
+                except Exception:
+                    report['build_summary_retention'] = 'REFUSED_BOUNDED_BUILD_SUMMARY_DATA'
+            need(report['consumer_diagnostic']['status'] == 'ORIGINAL_CONSUMER_ACTOR_DATA_ONLY',
+                 'original consumer diagnostic retention required')
+            after = json.loads(actor.docker('inspect', container))[0]
+            consumer_identity(after, own, image, root, output)
+            save(output / 'consumer-after.json', after)
+            need(after['State']['Running'] is False and after['State']['ExitCode'] == 0, 'actual completed native consumer')
+            report['consumer'] = dict(image=image, container=container, state=after['State'])
+            result = load(output / 'journey/result.json')
+            need(result['status'] == ('PASS_PLATFORM_TOOLS_NATIVE_ALPM_COMPONENT' if operation=='platform-alpm-v1' else 'PASS_NATIVE_DEVELOPER_COMPONENTS_ONLY'), 'all actual native developer components required')
+            report['status'] = result['status']
     except BaseException as error:
         primary_error = error
         if ledger is None:
@@ -296,6 +317,10 @@ def run(root, args):
             need(not containers_after and not images_after, 'actual final owned daemon resources must be absent')
             need(cleanup['image_retirement']['status'] == 'PASS_EXACT_OWNED_IMAGE_ALIASES_RETIRED', 'owned image alias retirement unknown')
             cleanup['status'] = 'PASS_EXACT_OWNED_RESOURCES_RETIRED'
+            if operation==MATRIX_OPERATION and (report.get('namespace_policy',{}).get('status')!='DIAGNOSTIC_NAMESPACE_POLICY_MATRIX_COMPLETE'
+                    or report.get('namespace_policy',{}).get('cleanup',{}).get('status')!='PASS_EXACT_MATRIX_OWNED_RESOURCES_RETIRED'):
+                cleanup['status']='UNKNOWN_MATRIX_DIAGNOSTIC_OR_RESOURCE_OWNERSHIP'
+                report['status']='DIAGNOSTIC_NAMESPACE_POLICY_MATRIX_UNKNOWN'
         except BaseException as error:
             cleanup.update(status='UNKNOWN_NOT_ACCEPTED', error=type(error).__name__ + ': ' + str(error)[:2048])
             report['status'] = 'FAIL_RETIREMENT_UNKNOWN'
@@ -374,11 +399,14 @@ def run(root, args):
         save(output / 'cleanup.json', cleanup); save(output / 'receipt.json', report)
         # Project only source-defined public evidence; never walk disposable guest trees.
         try:
-            if operation=='platform-alpm-v1':
-                from platform_projection_v1 import project
+            if operation==MATRIX_OPERATION:
+                provision.project_matrix(root,args.work,own,args.map_sha256)
             else:
-                from public_projection import project
-            project(root, output, args.work / 'public-projection')
+                if operation=='platform-alpm-v1':
+                    from platform_projection_v1 import project
+                else:
+                    from public_projection import project
+                project(root, output, args.work / 'public-projection')
         except Exception as error:
             try:
                 from privacy_diagnostics import validate_refusal
@@ -392,6 +420,10 @@ def run(root, args):
             if primary_error is None:
                 raise
     need(report['bootstrap_failure_data']['status'] == 'PASS_BOUNDED_BOOTSTRAP_FAILURE_DATA', 'bootstrap failure DATA retention guard refused')
+    if operation==MATRIX_OPERATION:
+        need(report['status']=='DIAGNOSTIC_NAMESPACE_POLICY_MATRIX_COMPLETE'
+             and cleanup['status']=='PASS_EXACT_OWNED_RESOURCES_RETIRED',
+             'namespace policy diagnostic UNKNOWN; preserved original DATA, no retry')
     return report
 
 
@@ -402,7 +434,7 @@ if __name__ == '__main__':
     for name in ('source-sha', 'ref', 'run-id', 'map-sha256'):
         parser.add_argument('--' + name, required=True)
     parser.add_argument('--execute', action='store_true')
-    parser.add_argument('--operation',choices=('source184','platform-alpm-v1'),default='source184')
+    parser.add_argument('--operation',choices=('source184','platform-alpm-v1',MATRIX_OPERATION),default='source184')
     args = parser.parse_args()
     def cancel(number, frame):
         raise KeyboardInterrupt('native workflow cancellation')
