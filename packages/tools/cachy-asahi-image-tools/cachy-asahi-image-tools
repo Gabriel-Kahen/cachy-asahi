@@ -1,0 +1,117 @@
+#!/usr/bin/python3 -IB
+# SPDX-License-Identifier: MIT
+"""Offline signed pristine payload image operations from a private prefix."""
+import argparse
+import hashlib
+import json
+import os
+from pathlib import Path
+import resource
+import signal
+import stat
+import sys
+import types
+
+VERSION = '0.1.0'
+RUNTIME = Path(__file__).resolve().parents[1] / 'lib/cachy-asahi/image-tools'
+PINS = {'scripts/client/client.py': '48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7', 'scripts/platform/archive_inode_metadata.py': '8d8255ab64e8eb83148365e11aba391c1104bbabfc9f2da85a0adb21043a7a85', 'scripts/platform/archive_intake.py': 'dfc6e2d429b654359075bd135969c5948b12dd81db67f522ae46e1be61911a67', 'scripts/platform/archive_intake_bundle.json': '8c3838da1bfd6d5e7683d3634ffec9d14a5ff6b07966b15c2b06dde5319c4f0d', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/policy.py': '42ff1974180d00acfb211839ece6c55addcc7254f1a54f2450bf5ac91ab58521', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/real_admission.py': '98bf4430ae7bef56ed61aa9bf314613a86c73c54592a12564c108c2761aedcf5', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime-pins.json': 'b740615be3de67a04df08eaf1c2ce47d898def8246cd588b8c1b4bda25cfcbf2', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/consumer-author.json': '26ee9f812f6a7e567d826df7b8d1bfc5b4fd5a93a0c38d4df9fd461dbbe3b0f3', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/consumer-peer.json': '24c0de9328e206936c79fd1d838e4f97ac5157db0ec507a0ec3cce9c6b5724ce', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/consumer-runtime.json': '93644386ec59434df3ebf2fba483f3aa09f2a5cda37a0c3fdb0a79a3bb43d81a', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/consumer/assembler.py': 'ae6aa9acbfc2aa84e5bb1095235b2060d8637bafeae57510aab579a5a46f526e', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/consumer/config/fstab.ext4.txt': '7e64abac2c07f61a3c4f420c381e5b1ed719dd72654dfb98ed5598eaab208675', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/consumer/consumer.py': '25385b498845920575a12068f58af05159aed9482119227b43859489a4eb453f', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/consumer/inputs/assembly-plan.json': 'c1f3379385d210b8464d28b9e876141bec9dd45768c58ab5157c8580fabf92fe', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/consumer/inputs/image-inventory.json': '5c1630b5cdf07898118979895682c3a3b705e416c9840ada4e1a5193dccd6941', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/consumer/inputs/package-reference-index.json': '498078ecae47dc3cfa53a0c5580b2d4b1d4d4fd4dbaaa88772372f3240b00a68', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/consumer/inputs/validate_plan.py': 'c2ba2c6bd183ce4f300aec16757707017d273a7119b45072b1d2667d07ae0776', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/consumer/proof-source/authenticate_missing.py': '6af079cf10f8ebcc9416bf64bca4336ea03dbbf13f99ebd98a83808365f2fe59', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/consumer/proof-source/candidate-urls.json': 'ee75d860bed4bec5f6709a52624585beb2215a165968c9522d844f64090d0975', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/consumer/proof-source/capture.py': 'ce73314eb5a75b8afb963217fba15065106ae3f6ee081599a1ba7ab620b044c8', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/consumer/proof-source/lifecycle.py': 'e408a540765ede2350a57abd311e8814d516ab379351fe28751a20250a3a8461', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/consumer/proof-source/metadata_child.py': '29cd63c5b70ba351d6d1d63260e3bbed89bde5b24a34a58c62c4b39e43c8f715', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/consumer/proof-source/operator-networkmanager.txt': 'fe90fc61a1cb008f822a67ff141b6ff005deb0d92a63e1dfae6be33fcc3571da', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/consumer/proof-source/operator-perl.txt': '813812414d26ac3c8890ece66e6f988f486e8a07e5ba9951cbc4dde770f2a964', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/consumer/proof-source/package_checks.py': 'e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/consumer/proof-source/recover.py': '45c99099f4a2c94b7ed0091914539c8c8e113739fece56c9a6a1b291e2561c82', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/consumer/proof/actual-receipt.json': '53747d29b02c11517d3c330530f9a6de57afcd9575e0c75c8f23f2dbd7fb6b3c', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/consumer/proof/capture-receipt.json': '08895fac45c29fb67f37b78687f6bfffd2f61f0e66dbec1cf3cc7634b0a2e156', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/consumer/proof/execution-plan.json': 'fb97ce77914c8646770929750f8fc838fdf2353c1fc26f6a965ef22695e20a19', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/consumer/proof/metadata-networkmanager.json': 'b9c1c51c6f264acdafc8589d960443c6644a9c50b705835e177e747f2ef2184c', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/consumer/proof/metadata-perl.json': 'b7ff2f4c6a7e3fda9859603ec4f81e34f358d7c869b7ae56333dfa4cbb751057', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/consumer/proof/process-observations.json': '8d19c8f6b70218007b1ce06766913c48b4fdeabe5fe6796fb44b6d09f59ef02e', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/consumer/proof/proposal-peer-receipt.json': 'e435889658b54127626b4023f0a149b6c59bee4e803ffabc25af28cd573ebbc2', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/consumer/proof/proposal-receipt.json': '4b6921dee5fa3d223e7aa3657f257f3d9362c6c270053c8128fe43fa6c8e8925', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/consumer/proof/retained-0.json': '63a4292184dd80c67e2b735d0221f0117fc5d860e59d4ebe043be73cbb862250', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/consumer/proof/retained-1.json': 'f9649bbed45f89f5214a318d2214ae70cc5a11d6485354a252cf752168b4465b', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/consumer/proof/retained-2.json': '9407330375b60db80180abdbfffdd50bdd811c3269a9e665f8696efb8cbe223e', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/consumer/proof/retained-3.json': '0c4c8e7755195c6f33f83df9de746c4406520806e0e4856315444d0e23f68205', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/consumer/two-associations.json': '99178987d84a503c56a30c392812b80b3a8491f800e1f880d6427d9defd57203', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/intake/bridge.py': 'e89deffb80caf9cc007fd376f89f15806f2045ed5c2296a31036ad0a3ffe5360', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/intake/intake.py': '345fb5b49bccfc611234196eee65159d7b8372a6de49d05b1572166acd8ad7e2', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/intake/source/assembler.py': '170b60eb8b314f99f883dfd155b918131fb23f7d6b6c6b299d19621c5a60f1d4', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/intake/source/core.py': '3a71ba896700f72130e35a56845516bd9c42de0b1b0fd782b79829b37ac262a7', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/intake/source/inputs/assembly-plan.json': '9bc1011c9e7c0bd1e54c967e74a04aa7d7e48d2746f59e017e2f2b5f459b0cb6', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/intake/source/inputs/image-inventory.json': '5c1630b5cdf07898118979895682c3a3b705e416c9840ada4e1a5193dccd6941', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/intake/source/inputs/package-reference-index.json': '874b7406955baf36c455f8b0a9eeaddbfc0636506e757d3e98ff5ca6b97569a2', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/intake/source/inputs/validate_plan.py': 'c2ba2c6bd183ce4f300aec16757707017d273a7119b45072b1d2667d07ae0776', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/intake/source/transforms/content/firstboot.txt': '523a2ea0261145994fd8b3c27bab4456b1b5a5d590cd13c96534729a982c2c95', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/intake/source/transforms/content/mirrorlist.txt': 'bf8463a7368742670d036b891ba82ae79cfac761a40398376d05ca75d837466a', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/intake/source/transforms/transforms.json': 'e261df266f2fff41f25a6900e1ab07a4bffbf5fb7399eb1d4f44c6efd1ab10f3', 'scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/intake/spool.py': '390fc99fc22a3cd1f613889705ce86a03b4c93d0cfae6896ef25c3a9a4a2009b', 'scripts/platform/archive_intake_bundle/engine.py': '57b555b2e93534ab0f38dd2f9f7775e00481ea333a9cc102f8bd517ee68c582d', 'scripts/platform/filesystem_encoder.py': 'b23104886d8026798e7fb60c77180bc0a31357d6353495f4d5daa6880cfae97a', 'scripts/platform/independent_readback.py': '8fb8c2c32dc5a40998bf31cc5727768f88ce51e423b7090cfb702116bdc9b5d3', 'scripts/platform/metadata_gated_ext4.py': '467cbb9562189b79926deb9d15d9b027d7c73d2a27ba07bc01d6740941567227', 'scripts/platform/release_image.py': 'fc570d03cbf5656695e8e234f09963074d9fa0bb999d4eeac17077eb0e34e59b', 'scripts/platform/signed_archive_intake.py': 'fb06597a7ee68e9b3c66209e43a8b058d9d7a472a83434504936c99df2eed0f0', 'scripts/platform/verify_staging.py': '279201558a90ea6e429822fc7d5b63827e6bd47ef022f8aef3126109bdfaa711', 'scripts/release/offline_kit.py': '8f9cdb4ad26525fb1c4c906a752f56e8115a3c39b8aa758dd86dca7d032f54b3', 'scripts/virtual/owned_process.py': '83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f'}
+MAX_SOURCE = 2 * 1024**2
+FIELDS = ('st_dev', 'st_ino', 'st_mode', 'st_nlink', 'st_uid', 'st_gid',
+          'st_size', 'st_mtime_ns', 'st_ctime_ns')
+sys.dont_write_bytecode = True
+
+
+def checked_runtime():
+    """Validate the finite installed source/data set before interpreting any code."""
+    if RUNTIME != RUNTIME.resolve():
+        raise ValueError('private-runtime-path-symlink')
+    expected_dirs = {str(parent) for name in PINS for parent in Path(name).parents if str(parent) != '.'}
+    files, dirs, bodies = set(), set(), {}
+    for parent, names, leaves in os.walk(RUNTIME, followlinks=False):
+        directory = Path(parent)
+        info = directory.lstat()
+        if not stat.S_ISDIR(info.st_mode) or info.st_mode & 0o022:
+            raise ValueError('private-runtime-directory-mode')
+        for name in names:
+            node = directory / name
+            rel = node.relative_to(RUNTIME).as_posix()
+            if node.is_symlink() or rel not in expected_dirs:
+                raise ValueError('private-runtime-directory-set')
+            dirs.add(rel)
+        for name in leaves:
+            node = directory / name
+            rel = node.relative_to(RUNTIME).as_posix()
+            if rel not in PINS:
+                raise ValueError('private-runtime-unexpected-member:' + rel)
+            fd = os.open(node, os.O_RDONLY | os.O_NONBLOCK | os.O_NOFOLLOW)
+            try:
+                before = os.fstat(fd)
+                if (not stat.S_ISREG(before.st_mode) or before.st_nlink != 1
+                        or before.st_mode & 0o022 or not 0 < before.st_size <= MAX_SOURCE):
+                    raise ValueError('private-runtime-member-state:' + rel)
+                with os.fdopen(os.dup(fd), 'rb') as stream:
+                    raw = stream.read(MAX_SOURCE + 1)
+                if (len(raw) != before.st_size or any(
+                        getattr(before, key) != getattr(os.fstat(fd), key)
+                        or getattr(before, key) != getattr(node.lstat(), key) for key in FIELDS)
+                        or hashlib.sha256(raw).hexdigest() != PINS[rel]):
+                    raise ValueError('private-runtime-member-pin:' + rel)
+                bodies[rel] = raw
+                files.add(rel)
+            finally:
+                os.close(fd)
+    if files != set(PINS) or dirs != expected_dirs:
+        raise ValueError('private-runtime-incomplete-closure')
+    return bodies
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--version', action='version', version='cachy-asahi-image-tools ' + VERSION)
+    modes = parser.add_subparsers(dest='mode', required=True)
+    for mode in ('plan', 'assemble', 'verify', 'resume'):
+        branch = modes.add_parser(mode)
+        branch.add_argument('--recipe', required=True)
+        branch.add_argument('--recipe-sha256', required=True)
+        if mode != 'plan':
+            branch.add_argument('--output', required=True)
+        if mode in ('verify', 'resume'):
+            branch.add_argument('--receipt-sha256', required=True)
+    args = parser.parse_args()
+    resource.setrlimit(resource.RLIMIT_AS, (2*1024**3, 2*1024**3))
+    resource.setrlimit(resource.RLIMIT_CPU, (300, 300))
+    resource.setrlimit(resource.RLIMIT_FSIZE, (256*1024**2, 256*1024**2))
+    resource.setrlimit(resource.RLIMIT_NOFILE, (256, 256))
+    def expired(*_):
+        raise TimeoutError('image-tools-wall600')
+    signal.signal(signal.SIGALRM, expired)
+    signal.alarm(600)
+    try:
+        raws = checked_runtime()
+        path = RUNTIME / 'scripts/platform/release_image.py'
+        release = types.ModuleType('_installed_image_tools')
+        release.__file__ = str(path)
+        exec(compile(raws['scripts/platform/release_image.py'], str(path), 'exec'), release.__dict__)
+        recipe = release.decode(release.pinned(args.recipe, args.recipe_sha256))
+        release.need(type(recipe) is dict and recipe.get('kind') == release.SIGNED_KIND,
+                     'installed-image-tools-require-policy-signed-recipe')
+        if args.mode == 'plan':
+            result = release.plan(args.recipe, args.recipe_sha256)
+        elif args.mode == 'assemble':
+            result = release.run(args.recipe, args.recipe_sha256, args.output)
+        elif args.mode == 'verify':
+            result = release.verify(args.recipe, args.recipe_sha256, args.output, args.receipt_sha256)
+        else:
+            result = release.run(args.recipe, args.recipe_sha256, args.output, args.receipt_sha256)
+        checked_runtime()
+        print(json.dumps(result, sort_keys=True))
+        return 0
+    except (OSError, ValueError, ImportError, TimeoutError) as error:
+        print('image tools refused: ' + str(error), file=sys.stderr)
+        return 1
+    finally:
+        signal.alarm(0)
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

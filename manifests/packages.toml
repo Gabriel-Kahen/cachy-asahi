@@ -1047,3 +1047,61 @@ native_generic16k = "NOT RUN"
 hardware_validation = "NOT RUN"
 performance = "NOT MEASURED"
 next_step = "Coordinator adoption, clean native ARM pairs and disposable signed ALPM lifecycle; selected integrated Asahi/16K/M2/boot recovery and release remain unaccepted."
+
+# PROPOSAL ONLY. Coordinator owns canonical integration and shared manifest.
+[[packages]]
+name = "cachy-asahi-platform-tools"
+phase = "complete-port-tools"
+status = "candidate"
+source = "local-original-pinned-MIT-private-runtime"
+recipe = "packages/tools/cachy-asahi-platform-tools/PKGBUILD"
+license = "MIT"
+candidate_version = "0.1.0-1"
+selected_for_development = false
+selected_for_release = false
+host_validation = "PASS25 planner+15 private-ALPM+9 package controls and13 exporter controls; extracted23-file moved-prefix plan/check on Python3.14/3.12 with checkout/network/host DB unavailable"
+strict_authenticated_transition = "NOT RUN; synthetic signatures refused before ALPM with genuine pinned certificate"
+native_build = "NOT RUN"
+installation = "NOT RUN; private package() and archive extraction/file inverse only"
+hardware_validation = "NOT RUN"
+performance = "NOT MEASURED"
+next_step = "Coordinator adoption; separately scoped native ARM pair and signed disposable ALPM lifecycle, native16K and selected Asahi composition; both physical M2 sizes, recovery and release remain unaccepted."
+
+# Root-owned reconciliation proposal only; shared inventory was not edited.
+[[packages]]
+name = "cachy-asahi-source-tools"
+phase = "developer-workflows"
+status = "candidate"
+source = "local-original-pinned-MIT-private-runtime"
+recipe = "packages/tools/cachy-asahi-source-tools/PKGBUILD"
+audit = "packages/tools/cachy-asahi-source-tools/README.md"
+license = "MIT"
+candidate_version = "0.1.0-1"
+selected_for_development = false
+selected_for_release = false
+host_validation = "PASS two real same-host makepkg builds, exact17 payload/PKGINFO; transported-source offline checkout-hidden rebuild; final archive moved-prefix17 CLI controls; source14 and inherited54 held"
+host_package_bytes = 66334
+host_package_sha256 = "2a0584f8c10abc5ea30871c9d3c1442f1d7087e9be7153ec378a94416aa79f33"
+native_build = "NOT RUN"
+installation = "NOT RUN; private staging/archive extraction and file inverse only, no ALPM lifecycle"
+hardware_validation = "NOT RUN"
+performance = "NOT MEASURED"
+next_step = "Coordinator adoption, clean native ARM pair and signed disposable ALPM lifecycle; native16K, selected Asahi composition/M2 and release remain open. Existing release-tools and source profiles unchanged."
+
+# Coordinator proposal only. Do not append without canonical reconciliation.
+[[packages]]
+name = "cachy-asahi-image-tools"
+phase = "complete-port-tools"
+status = "candidate"
+source = "local-original-pinned-MIT-private-runtime"
+recipe = "packages/tools/cachy-asahi-image-tools/PKGBUILD"
+license = "MIT"
+candidate_version = "0.1.0-1"
+selected_for_development = false
+selected_for_release = false
+host_validation = "PASS host makepkg81 checks, exporter15, exact66-file payload, actual moved archive-prefix10 synthetic TEST-signature image controls;16MiB ext4/readback/fsck0; ordinary file inverse only"
+native_build = "NOT RUN"
+installation = "NOT RUN; ordinary-user archive extraction/private relocation/file inverse only, no ALPM"
+hardware_validation = "NOT RUN"
+performance = "NOT MEASURED"
+next_step = "Coordinator adoption, versioned finite native constructor, clean native ARM pair and signed disposable ALPM lifecycle. Native16K, selected Asahi/M2/bootability/production trust/release remain unaccepted."
