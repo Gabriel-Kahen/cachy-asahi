@@ -10,7 +10,7 @@ import re
 import stat
 
 HERE = Path(__file__).resolve().parent
-PROFILE_SHA256 = 'd8d76740499f0fe4054cd4d0ba5b1ad753ab352f1edcfe1e919b64f26362c17d'
+PROFILE_SHA256 = '3dcdfb0d2f78693b909800cee83b424096d943d0440bf10087c6d397354cad15'
 FIELDS = ('st_dev','st_ino','st_mode','st_nlink','st_uid','st_gid','st_size','st_mtime_ns','st_ctime_ns')
 MAX_FILE = 64*1024**2
 MAX_SOURCE = 64*1024**2
@@ -101,7 +101,7 @@ def tree_id(bodies, modes):
 
 
 PRODUCER_BEFORE = {'bootstrap/scripts/ci/native_arm.py': {'bytes': 28318, 'sha256': 'a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898'}, 'native/failure_retention.py': {'bytes': 13639, 'sha256': '20f9f6fb153d3be98e41c343e63f5994aa3708ccbd4299e1f551a38b697ffbe3'}, 'native/image_alpm_v1.py': {'bytes': 26998, 'sha256': '1f88ed10057cadfd99fe84822aa3f5e283f25baa1da948b42f9b01d6683a6cba'}, 'native/image_reader_v1.py': {'bytes': 102877, 'sha256': 'f7030add0ba69d559e3503cb0e411f99dc5ce170160a313c2e6bba1653af9c83'}, 'native/image_projection_v1.py': {'bytes': 12748, 'sha256': '4795b8a437cd63863823c05875f75f29eca517829cf8217d18dee0f890f62bfa'}}
-PRODUCER_AFTER = {'native/failure_retention.py': {'bytes': 13639, 'sha256': 'cdb50b755f3e76d0229278bb89476752702544f3c31947e74676c82b213a8dc7', 'mode': 420}, 'native/image_alpm_v1.py': {'bytes': 27180, 'sha256': 'fba2680a23cf06e73517e92878d6d871d177138ce7cf5dd1fd4cdc40f61a3fba', 'mode': 420}, 'native/image_reader_v1.py': {'bytes': 104994, 'sha256': '1e349f6c54c9bcd1b0fe8b6a5a3af73c926a78b46db4630143794204658dd41d', 'mode': 420}, 'native/image_projection_v1.py': {'bytes': 12748, 'sha256': '2e91450511a10b0ae70c786d28d9b37238b738acb9e625fc8deb732b89e4ed43', 'mode': 420}, 'bootstrap/scripts/ci/native_arm.py': {'bytes': 28877, 'sha256': '8e71ba83e7d5037c6f7772401ec3b872684ccfa8472d855d8d6d3052cb1f41ba', 'mode': 420}}
+PRODUCER_AFTER = {'bootstrap/scripts/ci/native_arm.py': {'bytes': 28877, 'mode': 420, 'sha256': '8e71ba83e7d5037c6f7772401ec3b872684ccfa8472d855d8d6d3052cb1f41ba'}, 'native/failure_retention.py': {'bytes': 13639, 'mode': 420, 'sha256': 'cdb50b755f3e76d0229278bb89476752702544f3c31947e74676c82b213a8dc7'}, 'native/image_alpm_v1.py': {'bytes': 29047, 'sha256': '6babb792a704a5d1465ddcc69f7e8e075f1badc7a13d5ce6a487f0ae98f1cf1e', 'mode': 420}, 'native/image_projection_v1.py': {'bytes': 12748, 'sha256': '3c2bd46a2b3cf4136187d6652a952c3d372ce30a8675b3c23c0b1ee67692d675', 'mode': 420}, 'native/image_reader_v1.py': {'bytes': 107867, 'sha256': '3a01b32e3daa8fe8164005040da75d6b6b8499a372ddae847457c610ee4edce1', 'mode': 420}}
 
 
 def retired_producer(bodies):
