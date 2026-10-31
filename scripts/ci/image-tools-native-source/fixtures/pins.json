@@ -1,0 +1,27 @@
+{
+  "files": {
+    "fsck.log": {
+      "bytes": 287,
+      "original_bytes": 287,
+      "original_sha256": "f63edc02dc242a3399eb42270700dd501dc9ab6f6aa6d25e9477258c6c044621",
+      "sha256": "f63edc02dc242a3399eb42270700dd501dc9ab6f6aa6d25e9477258c6c044621",
+      "source": "artifacts/development/release-image-tools-package-development-20261028/evidence/functional-built01/assembled/pipeline/encoded/03-e2fsck.log"
+    },
+    "inventory.json": {
+      "bytes": 2535,
+      "original_bytes": 2535,
+      "original_sha256": "6e1e13193d1b1f444ebe6d785b2922eb56ba539ccd21f0fab1d8ac3828bb3e6a",
+      "sha256": "6e1e13193d1b1f444ebe6d785b2922eb56ba539ccd21f0fab1d8ac3828bb3e6a",
+      "source": "artifacts/development/release-image-tools-package-development-20261028/evidence/functional-built01/assembled/pipeline/encoded/inventory.json"
+    },
+    "native-root.ext4.gz": {
+      "bytes": 16988,
+      "original_bytes": 16777216,
+      "original_sha256": "e020c3958a838df27ab72528bce57d97aea988ad10b1cec5dd633d59d9ebf4a2",
+      "sha256": "a27c4a93d355dc676092906fffb1cb236725cd4bf10f48aaf4efe3a223029946",
+      "source": "artifacts/development/release-image-tools-package-development-20261028/evidence/functional-built01/assembled/pipeline/encoded/root.ext4"
+    }
+  },
+  "purpose": "FROZEN_HOST_DATA_ONLY_NOT_NATIVE_ARM_EVIDENCE",
+  "schema_version": 1
+}
