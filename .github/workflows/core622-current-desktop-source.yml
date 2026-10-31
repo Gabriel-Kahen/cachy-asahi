@@ -248,9 +248,10 @@ jobs:
               run_controls('test_checkpoint_data.py',12)
               run_controls('test_telemetry_data.py',13)
               run_controls('test_reader_data.py',12)
+              run_controls('test_staged_alias_inverse.py',8)
               need({name:factory.pin(raw)for name,raw in factory.tree(output).items()}==expected,'negative DATA fixtures restored to exact opt-in namespace')
-              need(sum(value['tests']for value in results.values())==44,'all43 resilience controls plus default-call regression')
-              (receipts/'result.json').write_bytes(factory.enc(dict(status='PASS_RESILIENCE43_PLUS_DEFAULT_CALL_REGRESSION_DATA_ONLY',tests=44,suites=results,factory_emissions=1,Source_prefix='NOT_RUN',native='NOT_RUN',acceptance=False)))
+              need(sum(value['tests']for value in results.values())==52,'all44 existing caller/controls plus eight exact staged alias inverse controls')
+              (receipts/'result.json').write_bytes(factory.enc(dict(status='PASS_EXISTING44_PLUS_STAGED_ALIAS_INVERSE8_DATA_ONLY',tests=52,suites=results,factory_emissions=1,Source_prefix='NEW_AD090_FIRST_MAP_ONLY',historical_Source_gate='NOT_RUN',native='NOT_RUN',acceptance=False)))
           PYRESILIENCE
       - name: Retain source-control command receipts
         if: always()
