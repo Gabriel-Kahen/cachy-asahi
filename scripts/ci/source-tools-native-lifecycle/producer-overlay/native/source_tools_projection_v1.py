@@ -10,10 +10,10 @@ import capsule as C
 import privacy_diagnostics as privacy
 
 PRODUCERS = {
- 'native/source_tools_alpm_v1.py': 'c332fbef08d7e03be918b45a67c1eb705eaa41425e02bd84111a50058eed0279',
+ 'native/source_tools_alpm_v1.py': '103a364c0f8b3da143be856e830e273457289be0e49a373551610d49a349e0d7',
  'native/source_tools_tools_v1.py': 'c43ca5ec8cb81ec78e7d6a0a224eb9272dad9bb831af3d6a8755d4d8db83c1c5',
  'native/source_tools_guest_v1.py': 'e93e6b6dd0e717305b29236718339a448794808052f65e8279bbca37d40272e1',
- 'native/source_tools_probe_v1.py': 'bc7645b39df4b0fe39c0eda7da1ad46f9603786b3ec18aeafdd04b8d8f5563e2',
+ 'native/source_tools_probe_v1.py': 'bf9a0a883249c7ddaddc2091c455419b284bfbe6e97e42362933ef66f25af9cc',
  'native/source-tools-contract-v1.json': '5fe189406b40a16f08955df642781c22bba106507731ff33b4734bf43210d3cb',
 }
 
