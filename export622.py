@@ -167,11 +167,11 @@ def outer_exception(error,kind):
  raw=bytes(body);outer_write(work/(kind+'-exception.txt'),raw,65536);value=dict(schema=1,status='ORIGINAL_CAUGHT_EXCEPTION_TRACEBACK_DATA_ONLY',identity=intent['identity'],nonce=intent['nonce'],kind=kind,error_type=type(error).__name__,traceback=dict(original_bytes=total,original_sha256=digest.hexdigest(),retained=pin(raw),complete=len(raw)==total,window='FULL'if len(raw)==total else'PREFIX',locals=False),acceptance=False);outer_write(work/(kind+'-exception.json'),outer_encoded(value),16384)
 
 def outer_delegate(call):
- event=dict(schema=1,status='SELECTED_ORIGINAL_FRESH_MAIN_BOUNDARY_DATA_ONLY',phase='SELECTED_ORIGINAL_FRESH_MAIN',event='ENTER',acceptance=False)
+ event=dict(schema=1,status='SELECTED_ORIGINAL_FRESH_MAIN_BOUNDARY_DATA_ONLY',phase='SELECTED_ORIGINAL_FRESH_MAIN',event='ENTER',acceptance=False);telemetry_phase('FRESH_INSTALLER_ENTER')
  try:
-  value=call();event.update(event='RETURN',return_type=type(value).__name__,return_value=value if type(value)in(int,bool,type(None))else None);return value
+  value=call();event.update(event='RETURN',return_type=type(value).__name__,return_value=value if type(value)in(int,bool,type(None))else None);telemetry_phase('OUTER_CALLER_RETURN');return value
  except BaseException as error:
-  event.update(event='RAISE',error_type=type(error).__name__)
+  event.update(event='RAISE',error_type=type(error).__name__);telemetry_phase('OUTER_CALLER_RAISE')
   try:outer_exception(error,'outer')
   except BaseException:pass
   raise
@@ -180,12 +180,126 @@ def outer_delegate(call):
    _,work,_,intent=outer_intent();event.update(identity=intent['identity'],nonce=intent['nonce']);outer_write(work/'selected-main.json',outer_encoded(event),16384)
   except BaseException:pass # Optional DATA never replaces the original return/raise.
 
+# Finite live telemetry through the already-owned stdout pump. No new actor.
+TELEMETRY_PHASE_PREFIX=b'CORE622_PHASE_MARKER_V1 '
+TELEMETRY_PREFIX=b'CORE622_PHASE_RESOURCE_V1 '
+TELEMETRY_PHASES=('AWAITING_INSTALLER_PHASE','FRESH_INSTALLER_ENTER','PRODUCER_PREPARE','TOOLING_SEED','CORE_HOST_PREPARE','CORE_EXECUTION','CORE_EVIDENCE_CLEANUP','CORE_EVIDENCE_RETENTION','CORE_HOST_RETURN','ORIGINAL_PRODUCER_CLEANUP','CURRENT_CONTEXT_RETIREMENT','OUTER_CALLER_RETURN','OUTER_CALLER_RAISE')
+TELEMETRY_RESOURCES=('host_mem_total_kib','host_mem_available_kib','host_swap_total_kib','host_swap_free_kib','pump_vm_rss_kib','pump_vm_hwm_kib','pump_threads')
+_PHASE_MARKER_ATTEMPTS=0
+
+def telemetry_encoded(value):return json.dumps(value,sort_keys=True,separators=(',',':'),allow_nan=False).encode()
+
+def telemetry_proc(path,cap):
+ need(path in('/proc/meminfo','/proc/self/status','/proc/self/stat'),'fixed numeric kernel roles only');fd=os.open(path,os.O_RDONLY|os.O_NONBLOCK|os.O_CLOEXEC)
+ try:
+  raw=os.read(fd,cap+1);need(len(raw)<=cap,'bounded kernel observation');return raw
+ finally:os.close(fd)
+
+def telemetry_process_identity():
+ pid=os.getpid();ticks=None
+ try:
+  raw=telemetry_proc('/proc/self/stat',16384);head,tail=raw.split(b'(',1);fields=tail.rsplit(b')',1)[1].split();need(int(head)==pid and len(fields)>=20 and fields[19].isdigit(),'own kernel process identity');candidate=int(fields[19]);need(0<candidate<2**63,'bounded own process startticks');ticks=candidate
+ except BaseException:pass
+ return dict(pid=pid,start_ticks=ticks)
+
+def telemetry_resources():
+ rows={k:None for k in TELEMETRY_RESOURCES}
+ for path,fields in(('/proc/meminfo',{'MemTotal':'host_mem_total_kib','MemAvailable':'host_mem_available_kib','SwapTotal':'host_swap_total_kib','SwapFree':'host_swap_free_kib'}),('/proc/self/status',{'VmRSS':'pump_vm_rss_kib','VmHWM':'pump_vm_hwm_kib','Threads':'pump_threads'})):
+  try:
+   seen=set()
+   for line in telemetry_proc(path,65536).decode('ascii').splitlines():
+    key,sep,text=line.partition(':')
+    if key not in fields:continue
+    name=fields[key];parts=text.split();valid=key not in seen and len(parts)==(1 if key=='Threads'else 2)and parts[0].isdigit()and(key=='Threads'or parts[1]=='kB');seen.add(key);value=int(parts[0])if valid else None;rows[name]=value if value is not None and value<2**63 else None
+  except BaseException:pass
+ return rows
+
+def telemetry_write(raw):
+ """Independent nonblocking pipe description; never mutate inherited FD1 flags."""
+ fd=None
+ try:
+  need(type(raw)is bytes and 0<len(raw)<=1024,'finite safe telemetry write');fd=os.open('/proc/self/fd/1',os.O_WRONLY|os.O_NONBLOCK|os.O_CLOEXEC);s=os.fstat(fd);original=os.fstat(1);need(stat.S_ISFIFO(s.st_mode)and(s.st_dev,s.st_ino)==(original.st_dev,original.st_ino)and os.fpathconf(fd,'PC_PIPE_BUF')>=1024,'same inherited output pipe with atomic bounded writes');return os.write(fd,raw)==len(raw)
+ except BaseException:return False
+ finally:
+  if fd is not None:
+   try:os.close(fd)
+   except BaseException:pass
+
+def telemetry_identity(value):
+ return type(value)is dict and set(value)=={'pid','start_ticks'}and type(value['pid'])is int and 0<value['pid']<2**31 and(value['start_ticks']is None or type(value['start_ticks'])is int and 0<value['start_ticks']<2**63)
+
+def telemetry_selection(value,intent):
+ return type(value)is dict and set(value)=={'source','ref','run','attempt'}and type(value['source'])is str and len(value['source'])==40 and all(c in'0123456789abcdef'for c in value['source'])and type(value['ref'])is str and 6<len(value['ref'])<=96 and value['ref'].startswith('codex/')and all(c in'abcdefghijklmnopqrstuvwxyz0123456789-'for c in value['ref'][6:])and type(value['run'])is int and 0<value['run']<10**20 and type(value['attempt'])is int and value['attempt']==1 and value==intent['identity']
+
+def telemetry_frame_value(value,intent):
+ need(type(value)is dict and set(value)=={'schema','status','identity','nonce','sequence','kind','elapsed_ms','phase','installer_identity','pump_identity','resource_scope','resources','unavailable_fields','acceptance'},'exact finite live telemetry fields');need(type(value['schema'])is int and value['schema']==1 and value['status']=='BOUNDED_SOURCE_PHASE_RESOURCE_DATA_ONLY'and telemetry_selection(value['identity'],intent)and value['nonce']==intent['nonce']and value['acceptance']is False,'same Source/run/nonce live telemetry');need(type(value['sequence'])is int and 1<=value['sequence']<=294 and value['kind']in('INTERVAL','PHASE')and type(value['elapsed_ms'])is int and 0<=value['elapsed_ms']<=350*60*1000 and value['phase']in TELEMETRY_PHASES,'finite count/cadence/public phase');need(telemetry_identity(value['pump_identity'])and(value['installer_identity']is None or telemetry_identity(value['installer_identity'])and value['installer_identity']['start_ticks']is not None)and value['resource_scope']=='HOST_MEMINFO_PUMP_ONLY_INSTALLER_ID_ASSERTED','resource and actor identity scopes');resources=value['resources'];need(type(resources)is dict and set(resources)==set(TELEMETRY_RESOURCES)and all(v is None or type(v)is int and 0<=v<2**63 for v in resources.values())and value['unavailable_fields']==sorted(k for k,v in resources.items()if v is None),'fixed numeric resource allowlist with explicit availability');need(len(TELEMETRY_PREFIX+telemetry_encoded(value)+b'\n')<=1024,'bounded complete telemetry frame');return value
+
+def telemetry_summary_value(value,intent):
+ keys={'schema','status','identity','nonce','cadence_seconds','interval_cap','phase_marker_cap','frame_cap','total_frame_cap','interval_samples','phase_markers','emitted_frames','dropped_frames','rejected_markers','last_phase','installer_identity','pump_identity','recent','acceptance'};need(type(value)is dict and set(value)==keys and type(value['schema'])is int and value['schema']==1 and value['status']=='BOUNDED_STDOUT_PUMP_TELEMETRY_DATA_ONLY'and telemetry_selection(value['identity'],intent)and value['nonce']==intent['nonce']and value['acceptance']is False,'exact same-owner telemetry summary');need((value['cadence_seconds'],value['interval_cap'],value['phase_marker_cap'],value['frame_cap'],value['total_frame_cap'])==(60,262,32,1024,294)and all(type(value[k])is int for k in('cadence_seconds','interval_cap','phase_marker_cap','frame_cap','total_frame_cap','interval_samples','phase_markers','emitted_frames','dropped_frames','rejected_markers')),'fixed telemetry clocks/cap types');total=value['interval_samples']+value['phase_markers'];need(0<=value['interval_samples']<=262 and 0<=value['phase_markers']<=32 and 0<=value['emitted_frames']<=total and value['dropped_frames']==total-value['emitted_frames']and 0<=value['rejected_markers']<2**31 and value['last_phase']in TELEMETRY_PHASES and telemetry_identity(value['pump_identity'])and(value['installer_identity']is None or telemetry_identity(value['installer_identity'])),'finite event/output accounting');recent=value['recent'];need(type(recent)is list and len(recent)==min(8,total),'finite last-eight telemetry samples');previous=-1
+ for i,row in enumerate(recent,total-len(recent)+1):
+  telemetry_frame_value(row,intent);need(row['sequence']==i and row['elapsed_ms']>=previous and row['pump_identity']==value['pump_identity'],'same pump chronological sample suffix');previous=row['elapsed_ms']
+ if recent:need(recent[-1]['phase']==value['last_phase']and recent[-1]['installer_identity']==value['installer_identity'],'latest exact phase/identity summary')
+ need(len(outer_encoded(value))<=12000,'summary inside existing16KiB pump receipt');return value
+
+def telemetry_phase(phase):
+ global _PHASE_MARKER_ATTEMPTS
+ try:
+  need(phase in TELEMETRY_PHASES and _PHASE_MARKER_ATTEMPTS<32,'finite Source phase markers');_PHASE_MARKER_ATTEMPTS+=1;_,_,_,intent=outer_intent();actor=telemetry_process_identity();need(actor['start_ticks']is not None,'actual installer startticks only');value=dict(schema=1,status='SOURCE_OWNED_INSTALLER_PHASE_DATA_ONLY',identity=intent['identity'],nonce=intent['nonce'],phase=phase,installer_identity=actor,acceptance=False);raw=TELEMETRY_PHASE_PREFIX+telemetry_encoded(value)+b'\n';need(len(raw)<=512,'small fixed phase marker');telemetry_write(raw)
+ except BaseException:pass # Optional observation never replaces the installer outcome.
+
+class PhaseResourceTelemetry:
+ def __init__(self,intent,started):
+  need(type(intent['identity']['ref'])is str and len(intent['identity']['ref'])<=96,'bounded public ref telemetry');self.intent=intent;self.started=started;self.next=started;self.pump=telemetry_process_identity();self.phase='AWAITING_INSTALLER_PHASE';self.actor=None;self.intervals=0;self.markers=0;self.emitted=0;self.dropped=0;self.rejected=0;self.recent=[];self.line=b'';self.discard=False
+ def sample(self,kind,now):
+  intervals=self.intervals+(kind=='INTERVAL');markers=self.markers+(kind=='PHASE')
+  frame=dict(schema=1,status='BOUNDED_SOURCE_PHASE_RESOURCE_DATA_ONLY',identity=self.intent['identity'],nonce=self.intent['nonce'],sequence=intervals+markers,kind=kind,elapsed_ms=max(0,int((now-self.started)*1000)),phase=self.phase,installer_identity=self.actor,pump_identity=self.pump,resource_scope='HOST_MEMINFO_PUMP_ONLY_INSTALLER_ID_ASSERTED',resources=telemetry_resources(),unavailable_fields=[],acceptance=False);frame['unavailable_fields']=sorted(k for k,v in frame['resources'].items()if v is None);telemetry_frame_value(frame,self.intent);self.intervals=intervals;self.markers=markers;self.recent=(self.recent+[frame])[-8:]
+  try:emitted=telemetry_write(TELEMETRY_PREFIX+telemetry_encoded(frame)+b'\n')
+  except BaseException:emitted=False
+  if emitted:self.emitted+=1
+  else:self.dropped+=1
+ def tick(self,now):
+  try:
+   if self.intervals<262 and now>=self.next:self.next=now+60;self.sample('INTERVAL',now)
+  except BaseException:pass
+ def marker(self,raw,now):
+  if not raw.startswith(TELEMETRY_PHASE_PREFIX):return
+  try:
+   need(self.markers<32 and len(raw)<=512,'phase marker count and byte cap')
+   def pairs(rows):
+    value={}
+    for k,v in rows:need(k not in value,'unique phase fields');value[k]=v
+    return value
+   value=json.loads(raw[len(TELEMETRY_PHASE_PREFIX):],object_pairs_hook=pairs,parse_constant=lambda _:need(False,'finite phase JSON'));need(type(value)is dict and set(value)=={'schema','status','identity','nonce','phase','installer_identity','acceptance'}and type(value['schema'])is int and value['schema']==1 and value['status']=='SOURCE_OWNED_INSTALLER_PHASE_DATA_ONLY'and telemetry_selection(value['identity'],self.intent)and value['nonce']==self.intent['nonce']and value['phase']in TELEMETRY_PHASES and telemetry_identity(value['installer_identity'])and value['installer_identity']['start_ticks']is not None and value['acceptance']is False,'strict same-owner public phase marker');need(raw==TELEMETRY_PHASE_PREFIX+telemetry_encoded(value),'canonical Source marker bytes');previous=(self.phase,self.actor)
+   try:self.phase=value['phase'];self.actor=value['installer_identity'];self.sample('PHASE',now)
+   except BaseException:self.phase,self.actor=previous;raise
+  except BaseException:self.rejected=min(2**31-1,self.rejected+1)
+ def feed(self,raw,now):
+  try:
+   at=0
+   while at<len(raw):
+    end=raw.find(b'\n',at);end=len(raw)if end<0 else end;piece=raw[at:min(end,at+513)]
+    if not self.discard:
+     if len(self.line)+end-at>512:self.line=b'';self.discard=True
+     else:self.line+=piece
+    if end<len(raw):
+     if not self.discard:self.marker(self.line,now)
+     self.line=b'';self.discard=False
+    at=end+1
+  except BaseException:pass
+ def summary(self):
+  value=dict(schema=1,status='BOUNDED_STDOUT_PUMP_TELEMETRY_DATA_ONLY',identity=self.intent['identity'],nonce=self.intent['nonce'],cadence_seconds=60,interval_cap=262,phase_marker_cap=32,frame_cap=1024,total_frame_cap=294,interval_samples=self.intervals,phase_markers=self.markers,emitted_frames=self.emitted,dropped_frames=self.dropped,rejected_markers=self.rejected,last_phase=self.phase,installer_identity=self.actor,pump_identity=self.pump,recent=self.recent,acceptance=False);return telemetry_summary_value(value,self.intent)
+
+def phase_resource_telemetry(intent,started):
+ try:return PhaseResourceTelemetry(intent,started)
+ except BaseException:return None
+
 def outer_pump(role):
  """Drain FD0; optional prefix-write failure never closes the input early."""
  import select,time
- need(role in('phase.stdout','phase.stderr'),'fixed bounded stream role');deadline=time.monotonic()+60;work=None;intent=None;clock=None;stream=None;created=None;errors=[];observed=0;digest=hashlib.sha256();eof=False;kept=0
+ need(role in('phase.stdout','phase.stderr'),'fixed bounded stream role');started=time.monotonic();deadline=started+60;telemetry=None;work=None;intent=None;clock=None;stream=None;created=None;errors=[];observed=0;digest=hashlib.sha256();eof=False;kept=0
  try:
   _,work,_,intent=outer_intent();_admit_closed_sibling_source();O=__import__('ownership622');clock=O.job_clock();deadline=clock['deadline']-120
+  if role=='phase.stdout':telemetry=phase_resource_telemetry(intent,started)
   try:stream=open(work/role,'xb',buffering=0);info=os.fstat(stream.fileno());created=(info.st_dev,info.st_ino)
   except BaseException as error:errors.append(dict(stage='OPEN_PREFIX',error_type=type(error).__name__))
  except BaseException as error:errors.append(dict(stage='CAPTURE_BINDING',error_type=type(error).__name__))
@@ -196,12 +310,14 @@ def outer_pump(role):
     except FileNotFoundError:pass
     except BaseException as error:
      if not any(v['stage']=='PHASE_BOUND'for v in errors):errors.append(dict(stage='PHASE_BOUND',error_type=type(error).__name__))
-   remaining=deadline-time.monotonic()
+   now=time.monotonic();remaining=deadline-now
    if remaining<=0:errors.append(dict(stage='DRAIN_DEADLINE',error_type='TimeoutError'));break
+   if telemetry is not None:telemetry.tick(now)
    ready,_,_=select.select([0],[],[],min(.25,remaining))
    if not ready:continue
    raw=os.read(0,65536)
    if not raw:eof=True;break
+   if telemetry is not None:telemetry.feed(raw,now)
    observed+=len(raw);digest.update(raw)
    if stream is not None and kept<1024**2:
     try:piece=raw[:1024**2-kept];count=stream.write(piece);need(count==len(piece),'whole bounded prefix write');kept+=count
@@ -220,6 +336,9 @@ def outer_pump(role):
    need(created is not None,'no borrowed prefix adoption');info=(work/role).lstat();need((info.st_dev,info.st_ino)==created,'same owned prefix inode');retained=pin(outer_read(work/role,1024**2)[0])
   except BaseException as error:errors.append(dict(stage='PREFIX_PIN',error_type=type(error).__name__))
   value=dict(schema=1,status='BOUNDED_ORIGINAL_PHASE_STREAM_CAPTURE_DATA_ONLY',identity=intent['identity'],nonce=intent['nonce'],role=role,observed_bytes=observed,observed_sha256=digest.hexdigest(),eof=eof,retained=retained,complete=eof and retained is not None and retained['bytes']==observed and not errors,window='FULL'if eof and retained is not None and retained['bytes']==observed and not errors else'PREFIX',errors=errors,acceptance=False)
+  if telemetry is not None:
+   try:value.update(schema=2,telemetry=telemetry.summary())
+   except BaseException:pass # Original raw capture receipt remains primary.
   try:outer_write(work/(role+'.json'),outer_encoded(value),16384)
   except BaseException:pass
  return 0 if eof else 1
@@ -232,7 +351,11 @@ def outer_collect(output):
   try:
    raw,meta=outer_read(path,cap);
    if name in('phase.stdout','phase.stderr'):
-    pump_raw=outer_read(work/(name+'.json'),16384)[0];pump=json.loads(pump_raw);need(pump['schema']==1 and pump['status']=='BOUNDED_ORIGINAL_PHASE_STREAM_CAPTURE_DATA_ONLY'and pump['identity']==intent['identity']and pump['nonce']==intent['nonce']and pump['role']==name and pump['retained']==pin(raw)and type(pump['observed_bytes'])is int and pump['observed_bytes']>=len(raw)and type(pump['eof'])is bool and type(pump['complete'])is bool and pump['window']in('FULL','PREFIX')and pump['complete']==(pump['eof']and pump['observed_bytes']==len(raw)and not pump['errors']),'actual bounded stream pump receipt');meta.update(original_bytes=pump['observed_bytes'],original_sha256=pump['observed_sha256']if pump['eof']else None,complete=pump['complete'],window=pump['window'],whole_digest_known=pump['eof'],pump_metadata=pin(pump_raw))
+    pump_raw=outer_read(work/(name+'.json'),16384)[0];pump=json.loads(pump_raw);need(type(pump['schema'])is int and pump['schema']in(1,2)and pump['status']=='BOUNDED_ORIGINAL_PHASE_STREAM_CAPTURE_DATA_ONLY'and pump['identity']==intent['identity']and pump['nonce']==intent['nonce']and pump['role']==name and pump['retained']==pin(raw)and type(pump['observed_bytes'])is int and pump['observed_bytes']>=len(raw)and type(pump['eof'])is bool and type(pump['complete'])is bool and pump['window']in('FULL','PREFIX')and pump['complete']==(pump['eof']and pump['observed_bytes']==len(raw)and not pump['errors']),'actual bounded stream pump receipt');
+    if pump['schema']==2:
+     need(name=='phase.stdout'and set(pump)=={'schema','status','identity','nonce','role','observed_bytes','observed_sha256','eof','retained','complete','window','errors','acceptance','telemetry'},'only versioned stdout telemetry receipt');telemetry_summary_value(pump['telemetry'],intent)
+    else:need('telemetry'not in pump,'no unversioned telemetry receipt')
+    meta.update(original_bytes=pump['observed_bytes'],original_sha256=pump['observed_sha256']if pump['eof']else None,complete=pump['complete'],window=pump['window'],whole_digest_known=pump['eof'],pump_metadata=pin(pump_raw))
    need(total+len(raw)<=8*1024**2,'held8MiB outer diagnostic aggregate');total+=len(raw);bodies[name]=raw;rows[name]=dict(status='ORIGINAL_DATA'if meta['complete']else'PARTIAL_ORIGINAL_PREFIX_DATA',**meta)
   except BaseException as error:rows[name]=dict(status='REFUSED_OR_UNAVAILABLE',original_path=str(path),error_type=type(error).__name__);errors.append(dict(role=name,error_type=type(error).__name__))
  index=dict(schema=1,status='BOUNDED_ORIGINAL_OUTER_FRESH_CALLER_DIAGNOSTICS_DATA_ONLY',identity=intent['identity'],nonce=intent['nonce'],intent=pin(outer_encoded(intent)),source_export=intent['source_export'],output=str(expected),work_path=str(work),roles=rows,retained_bytes=total,errors=errors,exception_cause='NOT_INFERRED_FROM_ABSENCE_OR_STREAM_TEXT',acceptance=False);need(len(outer_encoded(index))<=65536,'bounded diagnostic index');return bodies,index
