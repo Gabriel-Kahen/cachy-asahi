@@ -51,7 +51,8 @@ def _pin(value):
 def _group_retirement(value):
     """Finite pre-reap DATA only; a snapshot never grants process authority."""
     if value is None:return
-    need(type(value)is dict and set(value)=={'phase','reserved_leader','wait_owner_pid','wait_owner_subreaper','member_count','members','truncated'}
+    need(type(value)is dict and set(value)in({'phase','reserved_leader','wait_owner_pid','wait_owner_subreaper','member_count','members','truncated'},
+            {'phase','reserved_leader','wait_owner_pid','wait_owner_subreaper','member_count','members','truncated','adopted_child'})
          and value['phase']=='PRE_REAP'
          and type(value['wait_owner_pid'])is int and 0<value['wait_owner_pid']<2**31
          and value['wait_owner_subreaper']=='NOT_OBSERVED','fixed pre-reap snapshot schema')
@@ -77,6 +78,68 @@ def _group_retirement(value):
         need(row['parent_relation']==relation,'numeric parent relation DATA is not wait authority')
         seen.append(row['pid'])
     need(seen==sorted(set(seen)),'ordered unique bounded member DATA')
+    if 'adopted_child'in value:_adopted_child(value['adopted_child'],value)
+
+def _adopted_child(value,snapshot,positive=False):
+    """One owned child's evidence only; PPID alone never grants wait authority."""
+    keys={'schema','status','candidate','initial_member_count','initial_scan_complete','waitid',
+        'identity_reverified','leader_reserved_before_reap','raw_reap','ownership','target_queries_closed',
+        'before_leader_reap','final_scan_complete','final_census','refusal'}
+    need(type(value)is dict and set(value)==keys and type(value['schema'])is int and value['schema']==1
+        and value['status']in('QUALIFIED_ONE_ADOPTED_CHILD_REAPED','REFUSED_ONE_ADOPTED_CHILD'),'fixed one-child receipt')
+    need(type(value['initial_member_count'])is int and 0<=value['initial_member_count']<=512
+        and value['initial_scan_complete']is True,'observed complete initial census')
+    need(all(type(value[k])is bool for k in('identity_reverified','leader_reserved_before_reap','target_queries_closed','before_leader_reap','final_scan_complete'))
+        and value['target_queries_closed']is True and value['before_leader_reap']is True,'closed target queries before leader consuming wait')
+    need(value['ownership']in('NOT_ACQUIRED','WNOWAIT_RESERVED','UNKNOWN','REAPED')
+        and value['final_census']in('NOT_REACHED','UNKNOWN','RESERVED_LEADER_ONLY','RESERVED_MEMBERS_REMAIN'),'bounded child ownership/census state')
+    refusals={'NONE','INELIGIBLE_MEMBER_SET','EXTRA_NOT_OWN_ZOMBIE','LEADER_RESERVATION_UNQUALIFIED','DEADLINE',
+        'EXTRA_ECHILD','EXTRA_NOT_TERMINAL','EXTRA_STATUS_MISMATCH','EXTRA_IDENTITY_UNQUALIFIED',
+        'EXTRA_RAW_WAIT_UNQUALIFIED','EXTRA_NONZERO','FINAL_CENSUS_UNAVAILABLE','FINAL_NOT_SOLE'}
+    need(value['refusal']in refusals,'fixed refusal code')
+    candidate=value['candidate'];leader=snapshot['reserved_leader'];owner=snapshot['wait_owner_pid']
+    if candidate is not None:
+        need(type(candidate)is dict and set(candidate)=={'pid','state','group','session','start_ticks','ppid','parent_relation'}
+            and value['initial_member_count']==2 and type(candidate['pid'])is int and 0<candidate['pid']<2**31
+            and candidate['pid']!=leader['pid'] and type(candidate['start_ticks'])is int and 0<=candidate['start_ticks']<2**64
+            and type(candidate['group'])is int and type(candidate['session'])is int and candidate['group']==candidate['session']==leader['pid']
+            and candidate['state']in('R','S','D','Z','T','t','X','x','K','W','P','I')
+            and type(candidate['ppid'])is int and 0<=candidate['ppid']<2**31,'exact initial original-group candidate DATA')
+        relation=('WAIT_OWNER_PID'if candidate['ppid']==owner else 'RESERVED_LEADER_PID'if candidate['ppid']==leader['pid']else 'PID1'if candidate['ppid']==1 else 'OTHER')
+        need(candidate['parent_relation']==relation,'candidate numeric PPID relation')
+    wait=value['waitid'];raw=value['raw_reap']
+    need(type(wait)is dict and set(wait)=={'observed','pid','code','status'}and type(wait['observed'])is bool,'exact WNOWAIT observation fields')
+    need(type(raw)is dict and set(raw)=={'attempted','pid','exit','status_matches'}and type(raw['attempted'])is bool and type(raw['status_matches'])is bool,'exact raw observation fields')
+    if wait['observed']:
+        need(candidate is not None and candidate['state']=='Z'and candidate['ppid']==owner
+            and type(wait['pid'])is int and wait['pid']==candidate['pid']and wait['code']in('CLD_EXITED','CLD_KILLED','CLD_DUMPED')
+            and type(wait['status'])is int and 0<=wait['status']<=255 and (wait['code']=='CLD_EXITED'or wait['status']>0),'exact owned terminal WNOWAIT observation')
+    else:need(wait==dict(observed=False,pid=None,code='NOT_OBSERVED',status=None),'unobserved status stays unavailable')
+    if value['identity_reverified']:need(wait['observed']is True,'identity cannot substitute for WNOWAIT')
+    if value['leader_reserved_before_reap']:need(value['identity_reverified']is True,'leader and candidate reverified before consuming')
+    if raw['attempted']:
+        need(wait['observed']is True and value['identity_reverified']is True and value['leader_reserved_before_reap']is True,'raw wait requires both reserved identities')
+        need(raw['pid']is None or type(raw['pid'])is int and 0<=raw['pid']<2**31,'observed raw PID only')
+        need(raw['exit']is None or type(raw['exit'])is int and -255<=raw['exit']<=255,'observed raw exit only')
+        if raw['exit']is not None:need(raw['pid']==candidate['pid']and value['ownership']=='REAPED','exact consumed candidate')
+    else:need(raw==dict(attempted=False,pid=None,exit=None,status_matches=False),'no invented consuming wait')
+    expected=wait['status']if wait['code']=='CLD_EXITED'else -wait['status']if wait['observed']else None
+    matches=bool(wait['observed']and raw['attempted']and raw['pid']==candidate['pid']and type(raw['exit'])is int and raw['exit']==expected)
+    need(raw['status_matches']is matches,'raw/reserved status crossjoin')
+    if value['ownership']=='REAPED':need(raw['attempted']is True and raw['pid']==candidate['pid'],'reaped ownership requires exact consuming wait')
+    if value['final_scan_complete']:need(value['ownership']=='REAPED'and raw['exit']==0 and raw['status_matches']is True,'fresh final scan follows qualified zero reap')
+    if value['status']=='QUALIFIED_ONE_ADOPTED_CHILD_REAPED':
+        need(value['initial_member_count']==2 and wait['observed']is True and wait['code']=='CLD_EXITED'and wait['status']==0
+            and value['identity_reverified']is True and value['leader_reserved_before_reap']is True
+            and raw['attempted']is True and raw['pid']==candidate['pid']and type(raw['exit'])is int and raw['exit']==0
+            and raw['status_matches']is True and value['ownership']=='REAPED'and value['final_scan_complete']is True
+            and value['final_census']=='RESERVED_LEADER_ONLY'and value['refusal']=='NONE'
+            and snapshot['member_count']==1 and snapshot['truncated']is False and len(snapshot['members'])==1
+            and snapshot['members'][0]['pid']==leader['pid']and snapshot['members'][0]['start_ticks']==leader['start_ticks']
+            and snapshot['members'][0]['state']in('Z','X'),'qualified zero adopted reap plus fresh sole-leader census required')
+    else:need(value['refusal']!='NONE','refused receipt cannot claim qualification')
+    if positive:need(value['status']=='QUALIFIED_ONE_ADOPTED_CHILD_REAPED','positive reader requires qualified adopted-child receipt')
+    return value
 
 def _supervision(s):
     if s is not None:

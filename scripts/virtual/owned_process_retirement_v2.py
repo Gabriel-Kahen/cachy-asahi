@@ -82,10 +82,12 @@ def _members(pid, deadline, *, live=False, owned):
     return found
 
 
-def _rss_members(pid, deadline, owned, parentage=None):
+def _rss_members(pid, deadline, owned, parentage=None, retired_pid=None):
     """Owned scan; optional PPIDs are DATA from the same bounded stat reads."""
     if parentage is not None and (type(parentage) is not dict or parentage):
         raise ValueError('fresh bounded parentage DATA map required')
+    if retired_pid is not None and (type(retired_pid) is not int or not 0 < retired_pid < 2**31 or retired_pid == pid):
+        raise ValueError('one exact retired adopted-child PID guard required')
     found = {}
     owned()
     with os.scandir('/proc') as entries:
@@ -95,6 +97,8 @@ def _rss_members(pid, deadline, owned, parentage=None):
                 raise TimeoutError('RSS scan deadline/entry bound')
             if not entry.name.isascii() or not entry.name.isdecimal():
                 continue
+            if retired_pid is not None and int(entry.name) == retired_pid:
+                raise ValueError('retired adopted-child PID encountered; no numeric probe')
             tasks += 1
             if tasks > RSS_MAX_TASKS:
                 raise ValueError('RSS task bound')
@@ -447,24 +451,127 @@ def supervise(child, *, cap, retirement=1.0, grace=0.2, group=True,
                 parentage = {}
                 members = _rss_members(pid, until, peek, parentage=parentage)
                 verify()
-                # PPIDs came from those exact reads; they confer no wait authority.
+                # Exclusive waits remain the caller's contract for this group.
+                # PPID selects a candidate; only its own WNOWAIT grants custody.
                 wait_owner_pid = os.getpid()
-                # DATA from the completed owned scan only; no later proc reads.
-                selected = sorted(members)[:32]
-                group_retirement = dict(phase='PRE_REAP',
-                    reserved_leader=dict(pid=pid, start_ticks=identity[3]),
-                    wait_owner_pid=wait_owner_pid, wait_owner_subreaper='NOT_OBSERVED',
-                    member_count=len(members), members=[dict(members[p], ppid=parentage[p],
-                        parent_relation=('WAIT_OWNER_PID' if parentage[p] == wait_owner_pid else
-                            'RESERVED_LEADER_PID' if parentage[p] == pid else
-                            'PID1' if parentage[p] == 1 else 'OTHER')) for p in selected],
-                    truncated=len(members) > len(selected))
+                adoption = None
+                def snapshot():
+                    selected = sorted(members)[:32]
+                    value = dict(phase='PRE_REAP',
+                        reserved_leader=dict(pid=pid, start_ticks=identity[3]),
+                        wait_owner_pid=wait_owner_pid, wait_owner_subreaper='NOT_OBSERVED',
+                        member_count=len(members), members=[dict(members[p], ppid=parentage[p],
+                            parent_relation=('WAIT_OWNER_PID' if parentage[p] == wait_owner_pid else
+                                'RESERVED_LEADER_PID' if parentage[p] == pid else
+                                'PID1' if parentage[p] == 1 else 'OTHER')) for p in selected],
+                        truncated=len(members) > len(selected))
+                    if adoption is not None:value['adopted_child'] = adoption
+                    return value
+                group_retirement = snapshot()
+                initial_leader = members.get(pid)
+                sole = (len(members) == 1 and initial_leader is not None
+                    and initial_leader['start_ticks'] == identity[3]
+                    and initial_leader['state'] in ('Z', 'X'))
+                if not sole:
+                    extras = [p for p in members if p != pid]
+                    candidate = (next(r for r in group_retirement['members'] if r['pid'] == extras[0])
+                        if len(members) == 2 and len(extras) == 1 else None)
+                    adoption = dict(schema=1, status='REFUSED_ONE_ADOPTED_CHILD',
+                        candidate=candidate, initial_member_count=len(members), initial_scan_complete=True,
+                        waitid=dict(observed=False, pid=None, code='NOT_OBSERVED', status=None),
+                        identity_reverified=False, leader_reserved_before_reap=False,
+                        raw_reap=dict(attempted=False, pid=None, exit=None, status_matches=False),
+                        ownership='NOT_ACQUIRED', target_queries_closed=True, before_leader_reap=True,
+                        final_scan_complete=False, final_census='NOT_REACHED', refusal='INELIGIBLE_MEMBER_SET')
+                    group_retirement['adopted_child'] = adoption
+                    eligible = (candidate is not None and initial_leader is not None
+                        and initial_leader['start_ticks'] == identity[3] and initial_leader['state'] == 'Z'
+                        and candidate['state'] == 'Z' and candidate['ppid'] == wait_owner_pid)
+                    if candidate is not None and not eligible:adoption['refusal'] = 'EXTRA_NOT_OWN_ZOMBIE'
+                    if eligible:
+                        extra = candidate['pid']; extra_terminal = None
+                        adoption['target_queries_closed'] = False
+                        def within():
+                            if time.monotonic() >= until:
+                                adoption['refusal'] = 'DEADLINE'
+                                raise TimeoutError('existing retirement deadline exhausted')
+                        def extra_peek():
+                            nonlocal extra_terminal
+                            if adoption['target_queries_closed']:
+                                raise ValueError('adopted-child query after authority closure refused')
+                            within()
+                            try:
+                                row = os.waitid(os.P_PID, extra, os.WEXITED | os.WNOWAIT | os.WNOHANG)
+                            except ChildProcessError:
+                                adoption['refusal'] = 'EXTRA_ECHILD'
+                                raise
+                            if row is None:
+                                adoption['refusal'] = 'EXTRA_NOT_TERMINAL'
+                                raise ValueError('adopted child is not WNOWAIT terminal')
+                            names = {os.CLD_EXITED: 'CLD_EXITED', os.CLD_KILLED: 'CLD_KILLED', os.CLD_DUMPED: 'CLD_DUMPED'}
+                            if (type(row.si_pid) is not int or row.si_pid != extra or type(row.si_code) is not int or row.si_code not in names
+                                    or type(row.si_status) is not int or not 0 <= row.si_status <= 255
+                                    or row.si_code != os.CLD_EXITED and row.si_status == 0):
+                                adoption['refusal'] = 'EXTRA_STATUS_MISMATCH'
+                                raise ValueError('exact adopted-child terminal status required')
+                            observed = dict(observed=True, pid=extra, code=names[row.si_code], status=row.si_status)
+                            if adoption['waitid']['observed'] and adoption['waitid'] != observed:
+                                adoption['refusal'] = 'EXTRA_STATUS_MISMATCH'
+                                raise ValueError('reserved adopted-child status changed')
+                            adoption['waitid'] = observed; adoption['ownership'] = 'WNOWAIT_RESERVED'
+                            extra_terminal = row.si_status if row.si_code == os.CLD_EXITED else -row.si_status
+                        try:
+                            adoption['refusal'] = 'LEADER_RESERVATION_UNQUALIFIED'
+                            within(); verify(); extra_peek()
+                            adoption['refusal'] = 'EXTRA_IDENTITY_UNQUALIFIED'
+                            verify(); extra_peek(); within()
+                            current = _stat(extra, with_parent=True)
+                            if current != (extra, b'Z', pid, pid, candidate['start_ticks'], wait_owner_pid):
+                                raise ValueError('adopted-child PID/start/group/session/PPID differs')
+                            adoption['identity_reverified'] = True
+                            adoption['refusal'] = 'LEADER_RESERVATION_UNQUALIFIED'
+                            verify(); extra_peek(); within()
+                            adoption['leader_reserved_before_reap'] = True
+                            adoption['target_queries_closed'] = True
+                            adoption['raw_reap']['attempted'] = True
+                            adoption['refusal'] = 'EXTRA_RAW_WAIT_UNQUALIFIED'
+                            try:got, status = os.waitpid(extra, os.WNOHANG)
+                            except ChildProcessError:
+                                adoption['refusal'] = 'EXTRA_ECHILD'
+                                raise
+                            adoption['raw_reap']['pid'] = got if type(got) is int and 0 <= got < 2**31 else None
+                            if type(got) is not int or got != extra:
+                                raise ValueError('exact adopted-child consuming wait required')
+                            adoption['ownership'] = 'REAPED'
+                            if type(status) is not int:raise ValueError('observed adopted-child raw status required')
+                            observed_exit = os.waitstatus_to_exitcode(status)
+                            adoption['raw_reap'].update(exit=observed_exit, status_matches=observed_exit == extra_terminal)
+                            if observed_exit != extra_terminal:raise ValueError('adopted-child raw/reserved status differs')
+                            if observed_exit != 0:
+                                adoption['refusal'] = 'EXTRA_NONZERO'
+                                raise ValueError('only zero adopted-child exit qualifies')
+                            adoption['refusal'] = 'FINAL_CENSUS_UNAVAILABLE'; adoption['final_census'] = 'UNKNOWN'
+                            within(); parentage = {}
+                            members = _rss_members(pid, until, peek, parentage=parentage, retired_pid=extra)
+                            verify(); within(); adoption['final_scan_complete'] = True
+                        except BaseException as exc:
+                            adoption['target_queries_closed'] = True
+                            if adoption['ownership'] != 'REAPED':adoption['ownership'] = 'UNKNOWN'
+                            fail(exc)
+                            raise ValueError('one adopted-child retirement refused: ' + adoption['refusal'])
                 only = members.get(pid)
                 if (len(members) == 1 and only is not None and only['start_ticks'] == identity[3]
                         and only['state'] in ('Z', 'X')):
                     census = 'RESERVED_LEADER_ONLY'
                 else:
                     census = 'RESERVED_MEMBERS_REMAIN'
+                if adoption is not None:
+                    adoption['final_census'] = census
+                    if adoption['final_scan_complete']:
+                        if census == 'RESERVED_LEADER_ONLY':
+                            adoption.update(status='QUALIFIED_ONE_ADOPTED_CHILD_REAPED', refusal='NONE')
+                        else:adoption['refusal'] = 'FINAL_NOT_SOLE'
+                group_retirement = snapshot()
             except (OSError, ValueError, TimeoutError) as exc:
                 census = 'UNKNOWN'
                 fail(exc)

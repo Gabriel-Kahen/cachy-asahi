@@ -15,14 +15,14 @@
   "consumer_basis182_source": "5b2016cc842970952c03cc2cc068a9cfbea5812c",
   "files": {
     ".github/workflows/native-arm-build.yml": {
-      "bytes": 13041,
+      "bytes": 13100,
       "mode": 420,
-      "sha256": "3e88275f27fc00dff72ed3244b0ced0b77a5b06ccc58c3d8c023521eb81af6b9"
+      "sha256": "1333c92f4423e46b6b73daf53671e4d5ec7609b1a4f695e8a9c2e29c4389d5b3"
     },
     ".github/workflows/native-arm-developer-workflows.yml": {
-      "bytes": 13041,
+      "bytes": 13100,
       "mode": 420,
-      "sha256": "3e88275f27fc00dff72ed3244b0ced0b77a5b06ccc58c3d8c023521eb81af6b9"
+      "sha256": "1333c92f4423e46b6b73daf53671e4d5ec7609b1a4f695e8a9c2e29c4389d5b3"
     },
     "bootstrap/.github/workflows/native-arm-build.yml": {
       "bytes": 16219,
@@ -662,7 +662,7 @@
     "native/release-contract-v1.json": {
       "bytes": 17440,
       "mode": 420,
-      "sha256": "33850cecc0ee78bf0f8fd74df015d55d10d2f2f4ed0dfc49fc1e6dda7fc1cea6"
+      "sha256": "e6a938f606954c213c5a38709b9cf2680d049c8ac8f20c381fc51800ccff1333"
     },
     "native/release-makepkg-v1.conf": {
       "bytes": 316,
@@ -680,9 +680,9 @@
       "sha256": "61cb97fc1bdc4f55e398a083b7318c9ff08895917c1066e666d8cd62b24a271f"
     },
     "native/release_build_cause_v1.py": {
-      "bytes": 21911,
+      "bytes": 28631,
       "mode": 420,
-      "sha256": "b4ad946d7926194936291027a2ff312bc4a35d436015c5af0702569bdaca17db"
+      "sha256": "859144a2e90ce7ef5ac6884fed421023b8783e98a335b3f91fcfc522da5736ff"
     },
     "native/release_guest_v1.py": {
       "bytes": 2987,
@@ -692,12 +692,12 @@
     "native/release_projection_v1.py": {
       "bytes": 10838,
       "mode": 420,
-      "sha256": "e71cbce0736d1e4abb7b380fa835797806403e102f61e01703a964d09554506c"
+      "sha256": "2d410e4fdfa8bb4830e238ad62f54cae96641fab8e4644ac0b8b233bac38c017"
     },
     "native/release_reader_v1.py": {
-      "bytes": 97165,
+      "bytes": 97373,
       "mode": 420,
-      "sha256": "5716c3e7276ca56432692eab2f6c1349d0b34765f96d60c31a73af6c650079f1"
+      "sha256": "c3b3ddf1f509eafd9f153c21fa0059541577a75d98e73ad3af3db651c6675224"
     },
     "native/release_tools_v1.py": {
       "bytes": 17450,
@@ -745,9 +745,9 @@
       "sha256": "83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f"
     },
     "scripts/virtual/owned_process_retirement_v2.py": {
-      "bytes": 29998,
+      "bytes": 38256,
       "mode": 493,
-      "sha256": "dc411c60c522b390e455848510cf34c25c740f19ebdf882cebadb4cb88375fc2"
+      "sha256": "9388d270d06e28fee50160b7c04dd69593e383647d791f8aaff69380032165d5"
     },
     "scripts/workflows/developer_build_systems.py": {
       "bytes": 20558,
@@ -1018,9 +1018,50 @@
   "image_basis180_map_sha256": "cceed4d8b72e9e73a5cb433c2c4643f5e85a0490dacd5b226514e2961aaba458",
   "image_basis180_source": "a434716cbf53085e6380e06939be6a38dd5412fc",
   "release187_predecessor": "94d638063f826b3c501e3dd004d9a41b40f7a0e0",
+  "release_adopted_child_parent": "e8dad3c18de6e8092df6a4bec4aa2bdf7c1f02d1",
+  "release_adopted_child_scope": "MAX_ONE_EXACT_OWNED_TERMINAL_CHILD_KERNEL_WNOWAIT_ZERO_RAW_REAP_FRESH_STRICT_CENSUS",
   "release_build_cause_marker": "RELEASE_BUILD_FIRST_CAUSE_V1 ",
   "release_build_cause_operation": "release-alpm-upgrade-v1",
   "release_build_cause_parent": "feb4d3c4b998fbc328eab0cd140e82497b5c3622",
+  "release_component_classification": {
+    "actor_bodies_changed": false,
+    "cancel_in_progress": false,
+    "classification": "finite_lightweight_component",
+    "component": "release-tools",
+    "global_capacity_owner": "Root scheduling proposal; worker changes no scheduling document or main workflow",
+    "group": "native-arm-release-tools",
+    "heavy_Core_GNU_limit": 1,
+    "input_keys": [
+      "source_sha",
+      "source_map_sha256",
+      "operation"
+    ],
+    "job_operation_guard": "inputs.operation == 'release-alpm-upgrade-v1'",
+    "kernel_limit": 1,
+    "new_class_ordinal": "Root-designated sixth component class",
+    "new_ref": null,
+    "new_run": null,
+    "new_source": null,
+    "not_applicable_to": [
+      "source184",
+      "Image/Offline legacy834 failures",
+      "heavy Core/GNU",
+      "kernel"
+    ],
+    "operation": "release-alpm-upgrade-v1",
+    "operation_choices": [
+      "release-alpm-upgrade-v1"
+    ],
+    "queue": "max",
+    "resource_caps_changed": false,
+    "source_only": true,
+    "workflow_aliases": [
+      ".github/workflows/native-arm-build.yml",
+      ".github/workflows/native-arm-developer-workflows.yml"
+    ],
+    "workflow_id": 381664314,
+    "workflow_name": "native-arm-developer-workflows"
+  },
   "release_corrected191_parent": "111f14d2b21b220d86912d5ead978848c7ef1cb0",
   "release_correction_parent": "7e89c9d6a1d24fb118299b36f16ac853fc420cc3",
   "release_correction_scope": "exact-zero-GPG-absence-and-owned-member-DATA",
