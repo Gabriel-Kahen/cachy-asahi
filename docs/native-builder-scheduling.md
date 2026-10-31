@@ -25,6 +25,7 @@ The finite lightweight component lane set is:
 | Desktop tools | `native-arm-desktop-tools` | Maintained factory on main |
 | Security maintenance | `native-arm-security-maintenance` | Proposed factory in PR314; trial gates remain |
 | Release tools | `native-arm-release-tools` | Reserved proposed Source201; not yet published or admitted |
+| Measurement tools (`measurement-tools-alpm-v1`) | `native-arm-measurement-tools` | Reserved proposed finite component; Root trial gates remain |
 
 Each component must use its exact qualified closed Source, operation and fixed
 workflow group, with `cancel-in-progress: false` and `queue: max`. The group
@@ -40,7 +41,22 @@ exact component operation, actual resource isolation and matching strict reader
 before using it. No Source SHA is assigned by this policy, no frozen Source is
 changed, and the reservation grants no automatic trial admission.
 
-These six components may overlap one another and the two heavy lanes only on
+The Measurement reservation covers only `measurement-tools-alpm-v1`, with one
+active and one pending reservation for its finite Docker image-build and
+unprivileged-container component. Retain the consumer's 2 CPUs, 4 GiB memory,
+256 PIDs, 2 GiB `/tmp`, read-only root, no network, dropped capabilities and
+no-new-privileges, and the inherited probes' 1 CPU, 128 MiB and 32 PIDs. Image
+builds retain inherited daemon-default resource limits; consumer/probe limits do
+not bound daemon builds. The tools image-build 840-second cap, 135-minute job
+and all other existing caps remain held. Root alone classifies, adopts, publishes
+and dispatches the exact Source. This reservation is not trial admission. Actual
+native namespace support stays UNKNOWN until the first observational trial; a
+prior namespace PASS is not required for that trial. Namespace failure remains
+retained failure under the unchanged guard, without fallback. Existing Source
+publication/readback, applicable CI, signing, custody and matching-reader gates
+remain unchanged.
+
+These seven components may overlap one another and the two heavy lanes only on
 separate fresh GitHub-hosted jobs with independent Docker/image namespaces and
 run-scoped evidence. All lanes retain `ubuntu-24.04-arm`; no self-hosted runner
 or shared Docker daemon is introduced. [GitHub documents that hosted runners
