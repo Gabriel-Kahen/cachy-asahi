@@ -11,7 +11,7 @@
   "causal_basis178_source": "cc6dcdb86bf358e7aa72335f671216d9eca91037",
   "composed_genuine_sole_parent": "94d638063f826b3c501e3dd004d9a41b40f7a0e0",
   "composition": {
-    "actual_parent": "93e11f4bcebb80c3bbc132d164b12c6fa2a00389",
+    "actual_parent": "13530af6b7258736f6dd8537971b5b24735c923b",
     "frozen201_map": "fa8ee12afce20da3a016192758fe094520f388aa2b54177fe244357508ca4bce",
     "native191_map": "6a9cf1b093d012c03ac3ec3de192718bb69c43e8922350869669a92bd75b614c",
     "required_parent_tree": "1f58d194ccbf29554754758f9c28b53fc56e1e57"
@@ -550,9 +550,9 @@
       "sha256": "d99cb38411412134781140cc64dc7d296dbc383fa1e81ddc13ecb6863852ecf5"
     },
     "native/README.md": {
-      "bytes": 29069,
+      "bytes": 29746,
       "mode": 420,
-      "sha256": "d3dfa09109b0adad651fe1680db58ac0e060f35d9640e576628dcf82c434178d"
+      "sha256": "338f9d06489186f12b80f028abfb602cdeac8bedd7e076013eecc399b3116603"
     },
     "native/alpm-contract-v1.json": {
       "bytes": 17105,
@@ -595,9 +595,9 @@
       "sha256": "519af91e1b35ef7c1e404a53dd537d8d6498bc28098f76a562f0d65c5c27b658"
     },
     "native/consumer_diagnostics.py": {
-      "bytes": 9605,
+      "bytes": 11400,
       "mode": 420,
-      "sha256": "bc05b30513607e7dfd0d33930db3038602997ab4d4f2fa332b3168045b172198"
+      "sha256": "9f171c951cdce5c368655e2e665453a1cbe2fe8b8183712324e27fb063ed6ba1"
     },
     "native/contract.json": {
       "bytes": 5108,
@@ -645,9 +645,9 @@
       "sha256": "c07876c05335a3a8e29fe418d77605e1af9fa4dfa64f6a3c3d90680cdb6a5f68"
     },
     "native/installed_alpm_v1.py": {
-      "bytes": 33868,
+      "bytes": 40141,
       "mode": 420,
-      "sha256": "3951ed79ce54ce1f8a61871cf8e725cc3a650b0c4c8929405895462b4ebecb99"
+      "sha256": "bec0296e21d85ab405b20118d046e8bf2c6f3627d99b0799886ca6142d5ce6cb"
     },
     "native/installed_guest_v1.py": {
       "bytes": 6418,
@@ -657,12 +657,12 @@
     "native/installed_projection_v1.py": {
       "bytes": 16182,
       "mode": 420,
-      "sha256": "60dfa5dcf6c574b0a90adc038af35c6b01830c9e6f4725d52b62ad15f198bd7f"
+      "sha256": "2237f34e21e0192b9b065a4549d8988edf007eca7ce28f4421c910e3292cf1df"
     },
     "native/installed_reader_v1.py": {
       "bytes": 27174,
       "mode": 420,
-      "sha256": "38dc09a96a7a37d02df7df28003dc89150ffad3a21357dd62ecf3ccf588f4c0a"
+      "sha256": "2a75bdc146a12477dabdde55636e79eca7294ecb32f987f374951ef2b30b1c3b"
     },
     "native/installed_tools_v1.py": {
       "bytes": 5156,
@@ -1047,6 +1047,16 @@
     "map_sha256": "8cd09e1742b5ebb4ce3e0149807cc92672516076618f898451ae28604e131912",
     "public_capsule_protocol": "HELD; new diagnostic is direct job-log and private work JSON only",
     "source": "93e11f4bcebb80c3bbc132d164b12c6fa2a00389"
+  },
+  "pair_command_diagnostic_basis": {
+    "job": 124461664799,
+    "map_sha256": "958e2d9f91b20c920ff0a48f28a73758262fb8a5525121326dca6c8551500cfa",
+    "observed_category": "VALUE_GUARD",
+    "observed_phase": "PAIR_MAKEPKG_ONE",
+    "run": 41175124908,
+    "source": "13530af6b7258736f6dd8537971b5b24735c923b",
+    "supervision": "HELD_NO_RETIREMENT_MIGRATION",
+    "underlying_cause": "UNKNOWN"
   },
   "schema": 1,
   "source_profile": "native191-installed-alpm205-v1",

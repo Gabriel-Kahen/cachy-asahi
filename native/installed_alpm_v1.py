@@ -221,7 +221,13 @@ def build_pair(source,map_hash):
             need(original.is_file() and not original.is_symlink(),'fixed pair recipe file only');shutil.copyfile(original,root/original.name)
         commands.env.update(PKGDEST=str(root),SRCDEST=str(root))
         _DIAGNOSTIC_PHASE_V1='PAIR_MAKEPKG_ONE' if number==1 else 'PAIR_MAKEPKG_TWO'
-        commands.run('native-makepkg-'+str(number),['/usr/bin/makepkg','--nodeps','--nocheck','--nosign','--noconfirm','--config',str(PREFIX/'makepkg.conf')],root)
+        pair_argv=['/usr/bin/makepkg','--nodeps','--nocheck','--nosign','--noconfirm','--config',str(PREFIX/'makepkg.conf')]
+        try:
+            commands.run('native-makepkg-'+str(number),pair_argv,root)
+        except BaseException:
+            try:emit_pair_command_v1(commands,number,root,map_hash,pair_argv)
+            except BaseException:pass  # The original command failure remains primary.
+            raise
         _DIAGNOSTIC_PHASE_V1='PAIR_ARCHIVE_ONE' if number==1 else 'PAIR_ARCHIVE_TWO'
         package=root/ARCHIVE.name;payload,metadata=archive_data(package)
         builds.append(dict(directory=str(root),archive=pin(package),payload=payload,PKGINFO=dict(bytes=len(metadata['.PKGINFO']),sha256=hashlib.sha256(metadata['.PKGINFO']).hexdigest()),BUILDINFO=dict(bytes=len(metadata['.BUILDINFO']),sha256=hashlib.sha256(metadata['.BUILDINFO']).hexdigest())))
@@ -442,6 +448,116 @@ def export(output,map_hash):
             need(name.startswith('/out/journey/python/venv/'),'fixed backend prefix');relative=name.removeprefix('/out/journey/')
             need(relative.removeprefix('python/venv/') in P.BACKEND,'fixed backend member only');copy(alias+relative,row)
     return json.loads((output/'result.json').read_text())
+
+
+# SPDX-License-Identifier: MIT
+"""Finite original command custody DATA; no raw strings or actor operations."""
+import json
+import re
+
+PAIR_COMMAND_CENSUS_V1 = frozenset((
+    'NOT_OBSERVED', 'RESERVED_LEADER_ONLY', 'RESERVED_MEMBERS_REMAIN',
+    'UNKNOWN', 'PRESENT_OR_REUSED', 'EMPTY_ONCE', 'EMPTY_TWICE'))
+PAIR_COMMAND_OWNERSHIP_V1 = frozenset(('OWNED', 'REAPED', 'UNKNOWN'))
+PAIR_COMMAND_ROW_FIELDS_V1 = frozenset((
+    'success', 'expected', 'launch_error_present', 'log_pin', 'supervision'))
+PAIR_COMMAND_SUPERVISION_FIELDS_V1 = frozenset((
+    'exit', 'reaped', 'ownership', 'group_census', 'output_complete',
+    'timeout', 'signal_count', 'error_present'))
+
+
+def _pair_need_v1(value):
+    if not value:
+        raise ValueError('PAIR_COMMAND_SCHEMA_REFUSED')
+
+
+def validate_pair_command_v1(value, map_hash):
+    """Validate the same exact finite schema for emission and host reuse."""
+    _pair_need_v1(type(map_hash) is str and re.fullmatch('[0-9a-f]{64}', map_hash))
+    _pair_need_v1(type(value) is dict and set(value) == {
+        'schema', 'status', 'source_map_sha256', 'step', 'record_status', 'row'})
+    _pair_need_v1(type(value['schema']) is int and value['schema'] == 1
+        and value['status'] == 'PAIR_COMMAND_FAILURE_DATA_ONLY_V1'
+        and value['source_map_sha256'] == map_hash
+        and type(value['step']) is str and value['step'] in ('MAKEPKG_ONE', 'MAKEPKG_TWO')
+        and type(value['record_status']) is str and value['record_status'] in (
+            'NOT_OBSERVED', 'MATCHED_ORIGINAL_ROW', 'REFUSED'))
+    row = value['row']
+    if value['record_status'] != 'MATCHED_ORIGINAL_ROW':
+        _pair_need_v1(row is None)
+        return value
+    _pair_need_v1(type(row) is dict and set(row) == PAIR_COMMAND_ROW_FIELDS_V1
+        and type(row['success']) is bool and type(row['expected']) is int
+        and row['expected'] == 0 and type(row['launch_error_present']) is bool)
+    pinned = row['log_pin']
+    _pair_need_v1(type(pinned) is dict and set(pinned) == {'bytes', 'sha256'}
+        and type(pinned['bytes']) is int and 0 <= pinned['bytes'] <= 256*1024
+        and type(pinned['sha256']) is str and re.fullmatch('[0-9a-f]{64}', pinned['sha256']))
+    state = row['supervision']
+    if state is not None:
+        _pair_need_v1(type(state) is dict and set(state) == PAIR_COMMAND_SUPERVISION_FIELDS_V1)
+        _pair_need_v1(state['exit'] is None or type(state['exit']) is int and -255 <= state['exit'] <= 255)
+        _pair_need_v1(type(state['ownership']) is str and state['ownership'] in PAIR_COMMAND_OWNERSHIP_V1
+            and type(state['group_census']) is str and state['group_census'] in PAIR_COMMAND_CENSUS_V1
+            and type(state['signal_count']) is int and 0 <= state['signal_count'] <= 2
+            and all(type(state[key]) is bool for key in (
+                'reaped', 'output_complete', 'timeout', 'error_present')))
+    return value
+
+
+def capture_pair_command_v1(commands, number, cwd, map_hash, expected_argv):
+    """Missing originals do not prove that no child launched."""
+    _pair_need_v1(type(number) is int and number in (1, 2))
+    value = dict(schema=1, status='PAIR_COMMAND_FAILURE_DATA_ONLY_V1',
+        source_map_sha256=map_hash, step='MAKEPKG_ONE' if number == 1 else 'MAKEPKG_TWO',
+        record_status='REFUSED', row=None)
+    validate_pair_command_v1(value, map_hash)
+    try:
+        records = commands.records
+        _pair_need_v1(type(records) is list)
+        if len(records) < number:
+            value['record_status'] = 'NOT_OBSERVED'
+            return validate_pair_command_v1(value, map_hash)
+        _pair_need_v1(len(records) == number and type(expected_argv) is list and expected_argv
+            and all(type(arg) is str for arg in expected_argv))
+        row = records[number-1]
+        _pair_need_v1(type(row) is dict and row.get('step') == 'native-makepkg-'+str(number)
+            and type(row.get('expected')) is int and row['expected'] == 0
+            and type(row.get('argv')) is list and row['argv'] == expected_argv
+            and type(row.get('cwd')) is str and row['cwd'] == str(cwd)
+            and row.get('log') == '%03d-native-makepkg-%d.log' % (number-1, number))
+        _pair_need_v1('launch_error' not in row or type(row['launch_error']) is str)
+        original = row['supervision']
+        state = None
+        if original is not None:
+            _pair_need_v1(type(original) is dict
+                and type(original.get('signals')) is list and len(original['signals']) <= 2
+                and all(type(sig) is str and sig in ('SIGTERM', 'SIGKILL') for sig in original['signals'])
+                and (original.get('error') is None or type(original['error']) is str))
+            state = {key:original[key] for key in (
+                'exit', 'reaped', 'ownership', 'group_census', 'output_complete', 'timeout')}
+            state.update(signal_count=len(original['signals']), error_present=original['error'] is not None)
+        selected = dict(success=row['success'], expected=row['expected'],
+            launch_error_present='launch_error' in row,
+            log_pin={key:row['log_pin'][key] for key in ('bytes', 'sha256')}, supervision=state)
+        _pair_need_v1(type(row['log_pin']) is dict and set(row['log_pin']) == {'bytes', 'sha256'})
+        matched = dict(value, record_status='MATCHED_ORIGINAL_ROW', row=selected)
+        return validate_pair_command_v1(matched, map_hash)
+    except Exception:
+        return value
+
+
+def emit_pair_command_v1(commands, number, cwd, map_hash, expected_argv, emit=print):
+    """Emission failure never replaces the caller's primary exception."""
+    value = None
+    try:
+        value = capture_pair_command_v1(commands, number, cwd, map_hash, expected_argv)
+        validate_pair_command_v1(value, map_hash)
+        emit('NATIVE_INSTALLED_ALPM_COMMAND_DIAGNOSTIC_V1 '+json.dumps(
+            value, sort_keys=True, separators=(',', ':'), ensure_ascii=True, allow_nan=False), flush=True)
+    except Exception:
+        pass
+    return value
 
 
 if __name__=='__main__':

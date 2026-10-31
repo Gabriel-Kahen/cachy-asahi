@@ -30,7 +30,7 @@ def retained_public_projection(view, files, binding, map_sha256):
     for alias in ('workflow','build-systems','debugger','python','control','backend-v1'):
         reports['usr-'+alias]=set(reports[alias]);private['usr-'+alias]=set(private[alias])
     reports['pair-v1']={'result.json','commands.json'};private['pair-v1']={'home'}
-    producers.update({'native/installed_alpm_v1.py': '3951ed79ce54ce1f8a61871cf8e725cc3a650b0c4c8929405895462b4ebecb99', 'native/alpm-contract-v1.json': 'd695f7924938a3bd750d47d2923183b1345e34060fd9950c8e859d49969a7841'})
+    producers.update({'native/installed_alpm_v1.py': 'bec0296e21d85ab405b20118d046e8bf2c6f3627d99b0799886ca6142d5ce6cb', 'native/alpm-contract-v1.json': 'd695f7924938a3bd750d47d2923183b1345e34060fd9950c8e859d49969a7841'})
     site = 'lib/python3.14/site-packages/'; dist = 'uv_build-0.11.28.dist-info/'
     backend = {'bin/uv-build'} | {site + 'uv_build/' + leaf for leaf in ('__init__.py', '__main__.py', 'py.typed')}
     backend |= {site + dist + leaf for leaf in ('METADATA', 'WHEEL', 'RECORD', 'INSTALLER', 'REQUESTED', 'direct_url.json',

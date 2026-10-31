@@ -105,6 +105,34 @@ def overlay_inner_v1(raw,map_hash):
     if not records:return dict(status='NOT_OBSERVED',phase='UNKNOWN',error_code='UNKNOWN')
     return dict(status='SOURCE_BOUND_ENUM_ONLY',phase=records[0]['phase'],error_code=records[0]['error_code'])
 
+
+PAIR_COMMAND_MARKER_V1=b'NATIVE_INSTALLED_ALPM_COMMAND_DIAGNOSTIC_V1 '
+
+def overlay_pair_command_v1(raw,map_hash):
+    from installed_alpm_v1 import validate_pair_command_v1
+    need(type(raw)is bytes and len(raw)<=LOG_CAP,'bounded private overlay input')
+    records=[];bad=False
+    for line in raw.split(b'\n'):
+        prefix=BUILD_PREFIX_V1.match(line)
+        selected=line[prefix.end():]if prefix else line
+        if not selected.startswith(PAIR_COMMAND_MARKER_V1):continue
+        payload=selected[len(PAIR_COMMAND_MARKER_V1):]
+        if len(records)>=2 or not 0<len(payload)<=4096:bad=True;continue
+        try:
+            def pairs(items):
+                value={}
+                for key,item in items:
+                    need(key not in value,'duplicate command diagnostic field');value[key]=item
+                return value
+            value=json.loads(payload,object_pairs_hook=pairs,parse_constant=lambda _:(_ for _ in()).throw(ValueError('nonfinite')))
+            validate_pair_command_v1(value,map_hash)
+            need(json.dumps(value,sort_keys=True,separators=(',',':')).encode()==payload,'canonical command diagnostic')
+            records.append(value)
+        except Exception:bad=True
+    if bad or len(records)>1:return dict(status='REFUSED',value=None)
+    if not records:return dict(status='NOT_OBSERVED',value=None)
+    return dict(status='SOURCE_BOUND_COMMAND_ENUM_DATA_ONLY',value=records[0])
+
 def capture_overlay_failure_v1(work,own,map_hash,rows,index,operation):
     from safe_diagnostic import check_binding
     check_binding(own,map_hash)
@@ -121,9 +149,11 @@ def capture_overlay_failure_v1(work,own,map_hash,rows,index,operation):
     try:safe_text(raw);privacy='GUARDED_TEXT_NOT_EXPORTED'
     except Exception:privacy='RAW_NOT_EXPORTABLE'
     inner=overlay_inner_v1(raw,map_hash) if operation=='installed-alpm-v1' else dict(status='NOT_OBSERVED',phase='UNKNOWN',error_code='UNKNOWN')
-    return dict(schema=1,status='OVERLAY_BUILD_FAILURE_SCALARS_ONLY_V1',binding=own,source_map_sha256=map_hash,
+    pair_command=overlay_pair_command_v1(raw,map_hash)if operation=='installed-alpm-v1'else dict(status='NOT_OBSERVED',value=None)
+    if pair_command['value']is not None and inner['phase']!={'MAKEPKG_ONE':'PAIR_MAKEPKG_ONE','MAKEPKG_TWO':'PAIR_MAKEPKG_TWO'}[pair_command['value']['step']]:pair_command=dict(status='REFUSED',value=None)
+    return dict(schema=2,status='OVERLAY_BUILD_FAILURE_SCALARS_ONLY_V2',binding=own,source_map_sha256=map_hash,
                 operation=operation,actor_index=index,actor=actor,original_log_pin=pin(raw),raw_body='NOT_EXPORTED',
-                raw_guard=privacy,inner=inner,native='NOT_ADMITTED',physical_M2='NOT_RUN',release='NOT_ADMITTED')
+                raw_guard=privacy,inner=inner,pair_command=pair_command,native='NOT_ADMITTED',physical_M2='NOT_RUN',release='NOT_ADMITTED')
 
 def retain_overlay_failure_v1(work,own,map_hash,rows,index,operation,emit=print):
     from safe_diagnostic import check_binding
@@ -131,15 +161,15 @@ def retain_overlay_failure_v1(work,own,map_hash,rows,index,operation,emit=print)
     except Exception:return dict(status='REFUSED_OVERLAY_DIAGNOSTIC_UNBOUND')
     try:value=capture_overlay_failure_v1(work,own,map_hash,rows,index,operation)
     except Exception:
-        value=dict(schema=1,status='REFUSED_OVERLAY_BUILD_DIAGNOSTIC_V1',binding=own,source_map_sha256=map_hash,
+        value=dict(schema=2,status='REFUSED_OVERLAY_BUILD_DIAGNOSTIC_V2',binding=own,source_map_sha256=map_hash,
                    reason='BOUNDED_SOURCE_BOUND_SCALARS_UNAVAILABLE',native='NOT_ADMITTED',physical_M2='NOT_RUN',release='NOT_ADMITTED')
     try:
         raw=json.dumps(value,sort_keys=True,ensure_ascii=True,allow_nan=False).encode();safe_text(raw)
         need(len(raw)<=16384,'finite overlay diagnostic envelope')
     except Exception:return dict(status='REFUSED_OVERLAY_DIAGNOSTIC_EMISSION')
     # Independent sinks: a private disk failure must not suppress direct-log DATA.
-    try:save(Path(work)/'overlay-build-diagnostic-v1.json',value)
+    try:save(Path(work)/'overlay-build-diagnostic-v2.json',value)
     except Exception:pass
-    try:emit('NATIVE_OVERLAY_BUILD_DIAGNOSTIC_V1 '+raw.decode(),flush=True)
+    try:emit('NATIVE_OVERLAY_BUILD_DIAGNOSTIC_V2 '+raw.decode(),flush=True)
     except Exception:return dict(status='REFUSED_OVERLAY_DIAGNOSTIC_EMISSION')
     return value
