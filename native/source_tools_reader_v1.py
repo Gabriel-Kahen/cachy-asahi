@@ -369,10 +369,10 @@ def retained_consumer_diagnostic(view, files, receipt, binding, map_sha256, posi
 
 
 PRODUCERS = {
-    'native/source_tools_alpm_v1.py': 'c332fbef08d7e03be918b45a67c1eb705eaa41425e02bd84111a50058eed0279',
+    'native/source_tools_alpm_v1.py': '103a364c0f8b3da143be856e830e273457289be0e49a373551610d49a349e0d7',
     'native/source_tools_tools_v1.py': 'c43ca5ec8cb81ec78e7d6a0a224eb9272dad9bb831af3d6a8755d4d8db83c1c5',
     'native/source_tools_guest_v1.py': 'e93e6b6dd0e717305b29236718339a448794808052f65e8279bbca37d40272e1',
-    'native/source_tools_probe_v1.py': 'bc7645b39df4b0fe39c0eda7da1ad46f9603786b3ec18aeafdd04b8d8f5563e2',
+    'native/source_tools_probe_v1.py': 'bf9a0a883249c7ddaddc2091c455419b284bfbe6e97e42362933ef66f25af9cc',
     'native/source-tools-contract-v1.json': '5fe189406b40a16f08955df642781c22bba106507731ff33b4734bf43210d3cb',
 }
 
@@ -918,6 +918,99 @@ def source_tools_restoration(report):
          and report['exports_before'].get('files', 0) > 0, 'all owned payload/private roots absent and operator outputs preserved')
 
 
+def source_tools_namespace_data(view,files,report,map_sha256):
+    """Join bounded prerequisite DATA; it never proves namespace/native success."""
+    values=report.get('namespace_observations',{})
+    need(type(values)is dict and set(values)<={'a','b'},'fixed namespace diagnostic builds')
+    result={};prefix='journey/source-tools-alpm-v1/';modes=('context','user','mount','user_mount','user_net','user_mount_net')
+    flags=(0,0x10000000,0x00020000,0x10020000,0x50000000,0x50020000)
+    commands=report.get('commands',[]);slot='/opt/native-source-tools-alpm-v1/build-current';source='/opt/native-source-tools-alpm-v1/source'
+    def context(value):
+        keys={'uid','euid','gid','egid','cwd','groups','group_count','groups_truncated','status_fields','status_state','namespaces','maps','policy','lsm','mounts','bwrap'}
+        need(type(value)is dict and set(value)==keys and value['cwd']==slot,'exact bounded build-actor context')
+        need(all(type(value[k])is int and 0<=value[k]<=4294967295 for k in('uid','euid','gid','egid'))
+             and type(value['groups'])is list and len(value['groups'])<=32 and all(type(n)is int and 0<=n<=4294967295 for n in value['groups'])
+             and type(value['group_count'])is int and len(value['groups'])==min(32,value['group_count'])
+             and value['groups_truncated']is(value['group_count']>32),'typed bounded actor identities/groups')
+        need(type(value['status_fields'])is dict and set(value['status_fields'])<={'CapInh','CapPrm','CapEff','CapBnd','CapAmb','NoNewPrivs','Seccomp','Seccomp_filters'}
+             and all(type(v)is str and re.fullmatch('[0-9a-fA-F]{1,32}',v)for v in value['status_fields'].values()),'bounded selected self status only')
+        need(set(value['namespaces'])=={'user','mnt','net'}and all(type(v)is str and (v=='UNKNOWN'or re.fullmatch(k+r':\[[0-9]{1,20}\]',v))for k,v in value['namespaces'].items()),'fixed namespace links only')
+        def reading(row,cap):
+            need(type(row)is dict and row.get('status')in('OBSERVED','UNKNOWN'),'explicit observed/unknown fixed read')
+            if row['status']=='OBSERVED':
+                need(set(row)=={'status','text'}and type(row['text'])is str and len(row['text'].encode())<=cap,'complete bounded fixed read text')
+            else:
+                need(set(row)in({'status','reason'},{'status','reason','errno'})and type(row.get('reason'))is str
+                     and re.fullmatch('[A-Za-z][A-Za-z0-9_]{0,63}',row['reason'])
+                     and (row.get('errno')is None or type(row['errno'])is int and 0<=row['errno']<=4095),'typed bounded unknown read reason')
+        for key,names,cap in(('maps',{'uid_map','gid_map'},4096),('policy',{'userns_clone','max_user_namespaces','apparmor_userns'},64)):
+            need(type(value[key])is dict and set(value[key])==names,'fixed namespace prerequisite fields')
+            for row in value[key].values():reading(row,cap)
+        reading(value['lsm'],256)
+        mounts=value['mounts'];need(type(mounts)is dict and set(mounts)=={'status','rows'}and mounts['status']in('OBSERVED','UNKNOWN')and type(mounts['rows'])is list and len(mounts['rows'])<=32,'bounded filtered mount nesting DATA')
+        for row in mounts['rows']:
+            need(type(row)is dict and set(row)=={'mount_id','parent_id','mountpoint','filesystem','options'}
+                 and all(type(row[k])is str and re.fullmatch('[0-9]{1,20}',row[k])for k in('mount_id','parent_id'))
+                 and row['mountpoint']in({'/proc',slot,'/usr/bin/bwrap'}|{str(p)for target in(slot,'/usr/bin/bwrap')for p in Path(target).parents})
+                 and type(row['filesystem'])is str and re.fullmatch('[A-Za-z0-9._+-]{1,64}',row['filesystem'])
+                 and type(row['options'])is list and len(row['options'])==len(set(row['options']))and set(row['options'])<={'ro','rw','nosuid','nodev','noexec'},'exact finite nonsensitive mount row')
+        binary=value['bwrap'];need(type(binary)is dict and binary.get('status')in('OBSERVED','UNKNOWN'),'fixed bwrap observation status')
+        if binary['status']=='UNKNOWN':need(set(binary)=={'status','reason'}and type(binary['reason'])is str and re.fullmatch('[A-Za-z][A-Za-z0-9_]{0,63}',binary['reason']),'exact unknown bwrap outcome')
+        else:
+            need(set(binary)=={'status','path','bytes','sha256','mode','uid','gid','file_capabilities'}and binary['path']=='/usr/bin/bwrap'
+                 and type(binary['bytes'])is int and 0<binary['bytes']<=4*1024**2 and re.fullmatch('[0-9a-f]{64}',binary['sha256'])
+                 and type(binary['mode'])is int and 0<=binary['mode']<=0o7777
+                 and all(type(binary[k])is int and 0<=binary[k]<=4294967295 for k in('uid','gid')),'actual fixed bwrap pin/mode/owner DATA')
+            caps=binary['file_capabilities']
+            need(type(caps)is str and (caps=='UNKNOWN_BYTE_CAP'or len(caps)<=256 and len(caps)%2==0 and re.fullmatch('[0-9a-f]*',caps))
+                 or type(caps)is dict and set(caps)=={'status','errno'}and caps['status']=='UNKNOWN_OR_ABSENT'and type(caps['errno'])is int and 0<=caps['errno']<=4095,'bounded exact file capability DATA')
+    for label,value in values.items():
+        need(type(value)is dict and set(value)<={'status','original_command_index','build','original_log','observations','native_acceptance','stopped'}
+             and value.get('status')=='BOUNDED_POST_FAILURE_NAMESPACE_DATA_ONLY'and value.get('build')==label and value.get('native_acceptance')=='NOT_ADMITTED','namespace observation grants no acceptance')
+        index=value.get('original_command_index');need(type(index)is int and 0<=index<len(commands),'exact original failed build reference')
+        original=commands[index];need(original.get('step')=='build-'+label and original.get('success')is False and original.get('log_pin')==value.get('original_log')
+             and report.get('first_failure',{}).get('command_index')==index,'namespace diagnostics must preserve original failure identity')
+        raw=view.read(prefix+original['log']);state=original.get('supervision',{})
+        need(pin(raw)==value['original_log']and b'bwrap: No permissions to create a new namespace'in raw
+             and state.get('reaped')is True and state.get('ownership')=='REAPED'and state.get('group_census')=='EMPTY_TWICE'
+             and state.get('output_complete')is True and state.get('timeout')is False and state.get('error')is None and state.get('signals')==[],'only complete owned original namespace failure can trigger observation')
+        observed=value.get('observations');need(type(observed)is list and len(observed)<=6,'six finite observation modes')
+        summaries=[]
+        for number,item in enumerate(observed):
+            need(type(item)is dict and set(item)=={'mode','command_index','output'}and item['mode']==modes[number]
+                 and item['command_index']==index+number+1,'ordered original follow-up observations')
+            row=commands[item['command_index']];argv=original['argv'];wanted=argv[:argv.index('/usr/bin/makepkg')]+['/usr/bin/python3','-I','-B',source+'/native/source_tools_probe_v1.py','--namespace-mode',modes[number],'--map-sha256',map_sha256]
+            need(row['step']=='namespace-'+label+'-'+modes[number]and row['argv']==wanted and row['cwd']==slot and row['expected']==0 and row['success']is True,'same original alarm launcher/env/cwd, exact source-pinned observer')
+            body=view.read(prefix+row['log']);need(len(body)<=32768 and pin(body)==item['output']==row['log_pin']=={k:files[prefix+row['log']][k]for k in('bytes','sha256')},'complete32KiB namespace DATA log')
+            state=row.get('supervision',{});need(state.get('exit')==0 and state.get('reaped')is True and state.get('ownership')=='REAPED'and state.get('group_census')=='EMPTY_TWICE'and state.get('output_complete')is True and state.get('error')is None and state.get('timeout')is False and state.get('signals')==[],'original complete owned observation receipt')
+            need(type(state.get('seconds'))in(int,float)and 0<=state['seconds']<10,'unchanged bounded diagnostic timeout')
+            data=json.loads(body);need(type(data)is dict and set(data)=={'schema','status','mode','source_map_sha256','before','syscall','after','scope','namespace_acceptance','native_acceptance'}
+                 and type(data['schema'])is int and data['schema']==1 and data['status']=='NAMESPACE_PREREQUISITE_DATA_ONLY'and data['mode']==modes[number]and data['source_map_sha256']==map_sha256
+                 and data['scope']=='OWN_BUILD_ACTOR_SELF_ONLY_NO_CHILD_OR_GLOBAL_MUTATION'and data['namespace_acceptance']=='NOT_ESTABLISHED'and data['native_acceptance']=='NOT_ADMITTED','exact same-map namespace DATA schema')
+            context(data['before']);context(data['after']);need(data['before']['uid']==data['before']['euid']and data['before']['uid']>0,'ordinary alarm actor before namespace syscall')
+            call=data['syscall']
+            if number==0:need(call is None and data['before']==data['after'],'context-only observation makes no syscall')
+            else:need(type(call)is dict and call.get('interface')=='libc.unshare'and call.get('flags')==flags[number]
+                      and (call.get('returncode')is None or type(call['returncode'])is int and call['returncode']in(-1,0))
+                      and (call.get('errno')is None or type(call['errno'])is int and call['errno']>=0),'exact syscall flags/returncode/errno DATA')
+            if number>0:
+                need((call['returncode']==0 and call['errno']==0)or(call['returncode']==-1 and type(call['errno'])is int and call['errno']>0)or(call['returncode']is None and call['errno']is None),'consistent exact syscall outcome')
+            summaries.append(dict(mode=data['mode'],syscall=call,before=data['before'],after=data['after']))
+        stopped=value.get('stopped');need(stopped is None or type(stopped)is str and (stopped=='ORIGINAL_DEADLINE_BUDGET'or re.fullmatch(r'OBSERVATION_UNAVAILABLE:[A-Za-z][A-Za-z0-9_]{0,63}',stopped)),'bounded explicit observation stop reason')
+        namespace_rows=[(i,row)for i,row in enumerate(commands)if row.get('step','').startswith('namespace-'+label+'-')]
+        complete=[index+n+1 for n in range(len(observed))];extra=[(i,row)for i,row in namespace_rows if i not in complete]
+        need([i for i,row in namespace_rows][:len(complete)]==complete and (not extra or stopped is not None and stopped.startswith('OBSERVATION_UNAVAILABLE:')and len(extra)==1),'no omitted namespace command attempts')
+        failed_attempt=None
+        if extra:
+            i,row=extra[0];number=len(observed);need(number<6 and i==index+number+1 and row['step']=='namespace-'+label+'-'+modes[number],'exact failed observation attempt order')
+            argv=original['argv'];wanted=argv[:argv.index('/usr/bin/makepkg')]+['/usr/bin/python3','-I','-B',source+'/native/source_tools_probe_v1.py','--namespace-mode',modes[number],'--map-sha256',map_sha256]
+            need(row['argv']==wanted and row['cwd']==slot and row['expected']==0,'same-context failed attempt has no extra authority')
+            body=view.read(prefix+row['log']);need(len(body)<=1024**2 and pin(body)==row['log_pin']=={k:files[prefix+row['log']][k]for k in('bytes','sha256')},'complete original failed observation output')
+            failed_attempt=dict(command_index=i,supervision=row.get('supervision'),status='OBSERVED_UNQUALIFIED_DATA_ONLY')
+        result[label]=dict(status='VALIDATED_NAMESPACE_PREREQUISITE_DATA_ONLY',observations=summaries,stopped=stopped,failed_attempt=failed_attempt,native='NOT_ADMITTED')
+    return result
+
+
 def source_tools_failure_data(view, files, map_sha256):
     """Read only source-bound first-failure observations; never acceptance."""
     prefix = 'journey/source-tools-alpm-v1/'; name = prefix + 'result.json'
@@ -939,7 +1032,7 @@ def source_tools_failure_data(view, files, map_sha256):
          and report.get('contract') == pin(contract_raw)
          and pin(contract_raw)['sha256'] == PRODUCERS['native/source-tools-contract-v1.json']
          and contract.get('operation') == OPERATION, 'same-map exact failure result/producer contract required')
-    result.update(reason='FIRST_FAILURE_UNAVAILABLE', result=pin(raw))
+    result.update(reason='FIRST_FAILURE_UNAVAILABLE', result=pin(raw), namespace_observations=source_tools_namespace_data(view,files,report,map_sha256))
     cleanup = report.get('cleanup')
     if type(cleanup) is dict:
         for key in ('homes_retired','no_sockets','private_directory_absent'):
@@ -1012,6 +1105,7 @@ def source_tools_positive_state(report):
 def retained_source_tools_alpm(view, files, guest, map_sha256):
     contract = source_tools_contract(); prefix = 'journey/source-tools-alpm-v1/'; report = guest.get('source_tools_alpm')
     source_tools_positive_state(report)
+    need(not report.get('namespace_observations')and not report.get('namespace_observation_failures'), 'failure-only prerequisite DATA cannot qualify positive native evidence')
     need(type(report) is dict and type(report.get('schema_version')) is int and report['schema_version'] == 1
          and report.get('operation') == OPERATION and report.get('status') == PASS and report.get('source_map_sha256') == map_sha256
          and report.get('version') == '0.1.0-1' and report.get('contract') == pin(read(Path(__file__).resolve().with_name('source-tools-contract-v1.json')))
