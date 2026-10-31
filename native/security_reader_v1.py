@@ -4,7 +4,7 @@ import base64
 import json
 from pathlib import Path
 import re
-from common import consumer_contract, need, pin
+from common import consumer_contract, load, need, pin, read
 
 STATUS = 'PASS_SECURITY_TEST_ALPM_LIFECYCLE_V1'
 PAIR = {'archive_equal', 'payload_equal', 'buildinfo_equal', 'pkginfo_equal'}
@@ -151,6 +151,70 @@ def retained_cleanup_failure(view, files, receipt, binding, map_hash):
         return _cleanup_unknown(True)
 
 
+UPGRADE_PROTOCOL='signed-prior-to-current-v1'
+UPGRADE_FLAGS=frozenset(('prior_clean_checked','prior_installed','prior_payload_owned','tampered_signature_refused',
+    'declined_precommit_preserved','version_upgrade','candidate_payload_owned','old_payload_absent',
+    'repeat_same_version_reinstalled','user_data_preserved','removed','reinstalled','final_removed'))
+UPGRADE_STEPS=('prior-required-install','prior-inventory','upgrade-signature-refusal','refusal-prior-inventory',
+    'decline-upgrade-precommit','declined-prior-inventory','required-install','installed-inventory',
+    'repeat-current','repeated-inventory','remove','removed-inventory','reinstall-current',
+    'reinstalled-inventory','remove-reinstalled','final-removed-inventory')
+
+
+def validate_upgrade(value, contract, baseline):
+    """Closed version-transition DATA; this never runs ALPM or grants Root acceptance."""
+    need(type(contract)is dict and type(contract.get('schema'))is int and contract['schema']==1
+         and contract.get('protocol')==UPGRADE_PROTOCOL and contract.get('from_version')=='0.1.0-1'
+         and contract.get('to_version')=='0.1.0-2','reviewed genuine prior-to-current source contract')
+    need(type(baseline)is bytes and len(baseline)<=1024**2 and len(baseline.splitlines())==349,'whole retained349 baseline DATA')
+    need(type(value)is dict,'finite native upgrade result DATA')
+    upgrade=value.get('upgrade')
+    need(type(upgrade)is dict and set(upgrade)=={'schema','protocol','from_version','to_version','prior_source',
+         'prior_archive','prior_archive_base64','prior_payload','flags','inventories','abort_scope','repeat_scope',
+         'upgrade_scope','decline_input'} and type(upgrade['schema'])is int and upgrade['schema']==1
+         and upgrade['protocol']==UPGRADE_PROTOCOL and upgrade['from_version']==contract['from_version']
+         and upgrade['to_version']==contract['to_version'],'closed actual upgrade protocol/version DATA')
+    need(upgrade['prior_source']=={name:contract['prior_'+name]for name in ('bundle','profile','adapter')},'actual upgrade binds genuine prior source/profile/adapter')
+    for row in upgrade['prior_source'].values():
+        _cleanup_pin(row,2*1024**2);need(row['bytes']>0,'nonempty original prior source inputs')
+    encoded=upgrade['prior_archive_base64'];need(type(encoded)is str and len(encoded)<=1024**2,'bounded genuine prior native archive DATA')
+    try:raw=base64.b64decode(encoded,validate=True)
+    except (ValueError,TypeError):raise ValueError('canonical prior native archive DATA required')
+    need(0<len(raw)<=1024**2 and base64.b64encode(raw).decode()==encoded and pin(raw)==upgrade['prior_archive'],'actual prior archive bytes/pin')
+    _cleanup_pin(upgrade['prior_archive'],1024**2)
+    payload=upgrade['prior_payload'];expected={'usr/'+name:{key:row[key]for key in ('bytes','sha256')}for name,row in contract['prior_payload_files'].items()}
+    need(type(payload)is dict and len(expected)==27 and set(payload)==set(expected)|{'.PKGINFO','.BUILDINFO','.MTREE'}
+         and all(payload[name]==row for name,row in expected.items()),'complete27 original prior payload plus native metadata pins')
+    for row in payload.values():
+        _cleanup_pin(row,8*1024**2);need(row['bytes']>0,'nonempty original prior package DATA')
+    flags=upgrade['flags'];need(type(flags)is dict and set(flags)==UPGRADE_FLAGS and all(flag is True for flag in flags.values()),'all mandatory upgrade/refusal/abort/repeat/reinstall/preservation DATA required')
+    need(upgrade['abort_scope']=='OPERATOR_DECLINED_BEFORE_COMMIT; NOT_SIGNAL_OR_POWERLOSS'
+         and upgrade['repeat_scope']=='SAME_VERSION_REINSTALL' and upgrade['upgrade_scope']=='ONE_PACKAGE_VERSION_TRANSITION_ONLY'
+         and upgrade['decline_input']==pin(b'n\n'),'precise operator-abort/repeat limits; no midcommit crash claim')
+    prior=pin(b''.join(sorted(baseline.splitlines(keepends=True)+[b'cachy-asahi-security-maintenance 0.1.0-1\n'])))
+    current=pin(b''.join(sorted(baseline.splitlines(keepends=True)+[b'cachy-asahi-security-maintenance 0.1.0-2\n'])))
+    wanted={name:pin(baseline)for name in ('baseline','removed','final')}
+    wanted.update({name:prior for name in ('prior_installed','after_refusal','after_decline')})
+    wanted.update({name:current for name in ('upgraded','repeated','reinstalled')})
+    need(upgrade['inventories']==wanted,'exact349/350 real version transition/refusal/abort/reinstall inventory pins')
+    commands=value.get('commands');need(type(commands)is list and 1<=len(commands)<=512,'finite actual version transition command records')
+    negative={'unknown-key-refusal','required-untrusted-install-refusal','upgrade-signature-refusal','decline-upgrade-precommit'}
+    counts={}
+    for row in commands:
+        need(type(row)is dict and set(row)=={'step','exit','stdout','stderr'} and type(row['step'])is str
+             and re.fullmatch('[a-z][a-z0-9-]{0,63}',row['step']) and type(row['exit'])is int
+             and -255<=row['exit']<=255,'finite original upgrade command schema')
+        for channel in ('stdout','stderr'):_cleanup_pin(row[channel],2*1024**2)
+        need(row['exit']==1 if row['step']in ('upgrade-signature-refusal','decline-upgrade-precommit') else (row['exit']!=0 if row['step']in negative else row['exit']==0),'actual required success/refusal/decline exit')
+        counts[row['step']]=counts.get(row['step'],0)+1
+    need(tuple(row['step']for row in commands if row['step']in UPGRADE_STEPS)==UPGRADE_STEPS
+         and all(counts.get(name)==1 for name in negative),'actual distinct ordered upgrade/refusal/abort/repeat/reinstall commands')
+    need(all(counts.get(name)==27 for name in ('prior-owner','refused-prior-owner','declined-prior-owner'))
+         and all(counts.get(name)==29 for name in ('candidate-owner','repeated-owner','reinstalled-owner')),
+         'both versions repeated actual ALPM payload ownership checks')
+    return upgrade
+
+
 def validate_result(value, map_hash, inventory):
     need(type(value) is dict and value.get('status') == STATUS and value.get('architecture') == 'aarch64'
          and value.get('source_map_sha256') == map_hash and value.get('packages') == inventory
@@ -176,6 +240,9 @@ def validate_result(value, map_hash, inventory):
     flows = value.get('workflows')
     need(type(flows) is dict and set(flows) == {'installed', 'moved'}
          and set(flows.values()) == {'PASS_OFFLINE_SECURITY_WORKFLOWS'}, 'both actual packaged offline workflows required')
+    root=Path(__file__).resolve().parents[1]
+    baseline=read(root/'native/expected349.lock');need(pin(baseline)==inventory,'upgrade baseline matches original retained dependency inventory')
+    validate_upgrade(value,load(root/'native/security-contract-v1.json')['upgrade'],baseline)
     return value
 
 
@@ -222,6 +289,10 @@ def validate_component(view, files, receipt, cleanup, binding, expected, R):
     guest = validate_result(view.load('journey/result.json'), map_hash, receipt['input_inventory'])
     need(not any(name.startswith('journey/') and name != 'journey/result.json' for name in files),
          'security export retains only the finite public result; no original private workflow trees')
-    return dict(status='VALIDATED_NATIVE_SECURITY_TEST_ALPM_COMPONENT_EVIDENCE_ONLY', binding=binding,
+    return dict(status='VALIDATED_NATIVE_SECURITY_SIGNED_UPGRADE_COMPONENT_EVIDENCE_ONLY', binding=binding,
+                upgrade_protocol=UPGRADE_PROTOCOL,from_version='0.1.0-1',to_version='0.1.0-2',
+                abort_scope=guest['upgrade']['abort_scope'],repeat_scope=guest['upgrade']['repeat_scope'],
+                upgrade_scope='ONE_PACKAGE_VERSION_TRANSITION_ONLY',
+                prior_scope='GENUINE_PRIOR_RECIPE_REBUILT_NOW; NOT_PREVIOUS_NATIVE_RELEASE',
                 execution_scope='DISPOSABLE_NATIVE_IMAGE_BUILD_STAGE; consumer exports finite DATA only',
                 native_16K='NOT_QUALIFIED', physical_M2='NOT_RUN', remediation='NOT_ESTABLISHED', release='NOT_ADMITTED')

@@ -16,8 +16,9 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: native-arm-developer-workflows
+  group: native-arm-security-maintenance
   cancel-in-progress: false
+  queue: max
 jobs:
   native:
     if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
