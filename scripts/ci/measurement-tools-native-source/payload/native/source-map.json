@@ -665,9 +665,9 @@
       "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
     },
     "native/owner.py": {
-      "bytes": 26999,
+      "bytes": 27118,
       "mode": 420,
-      "sha256": "6dddb1e8985fb6a52ab1550b5c7c65b0a8930c74c5f32a3d0c44b0df0bff5f30"
+      "sha256": "e8fab87d362d92dfda93a61864dbad5851f2484da8dae984610aee31b92209d2"
     },
     "native/predecessor-source-map.json": {
       "bytes": 27440,

@@ -66,3 +66,46 @@ jobs:
           assert all(x is None for x in stage['actual'].values())
           print('PASS exactly31 DATA controls and actor-denied Source199 emission; native/build/GPG/VM NOT_RUN')
           PYDATA
+  cleanup-binding-data:
+    name: Measurement cleanup-binding NEW10 DATA (Python ${{ matrix.python }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Run only NEW cleanup-binding DATA cases under actor denial
+        timeout-minutes: 5
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          set -euo pipefail
+          ulimit -t 60 -v 1048576 -f 32768 -n 128
+          mkdir -m700 "$RUNNER_TEMP/measurement-cleanup-binding-data"
+          FACTORY=scripts/ci/measurement-tools-native-source
+          RESULT="$RUNNER_TEMP/measurement-cleanup-binding-data/new10.json"
+          timeout --signal=TERM --kill-after=5s 90s python -I -B "$FACTORY/test_cleanup_binding.py" \
+            --owner "$FACTORY/payload/native/owner.py" \
+            --reader "$FACTORY/payload/native/measurement_reader_v1.py" \
+            --profile "$FACTORY/profile.json" --prepare "$FACTORY/prepare.py" --result "$RESULT"
+          python -I -B - "$RESULT" <<'PYDATA'
+          import json, pathlib, sys
+          value = json.loads(pathlib.Path(sys.argv[1]).read_bytes())
+          assert value['status'] == 'PASS_NEW_CLEANUP_BINDING_DATA_ONLY'
+          assert value['tests'] == len(value['cases']) == len(set(value['cases'])) == 10
+          assert value['failures'] == value['errors'] == value['skips'] == 0
+          assert value['actor_attempts'] == value['production_module_imports'] == []
+          assert value['source_AST_slices_only'] is True
+          assert all(value[key] == 0 for key in ('original_capsule_GETs', 'reader_validate_calls',
+              'Source_constructor_calls', 'Source_emissions', 'old_controls_replayed'))
+          assert value['native'] == 'NOT_RUN' and value['namespace_support'] == 'UNKNOWN'
+          assert value['native_acceptance'] == 'NOT_ADMITTED'
+          print('PASS exactly10 NEW cleanup-binding DATA cases; no Source construction, reader call, old31 or package/native actors')
+          PYDATA
