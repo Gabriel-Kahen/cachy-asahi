@@ -44,7 +44,7 @@ def dockerfile(base,map_hash):
         result+='COPY --from=security-build-'+label+' /tmp/security-build/'+ARCHIVE+' /opt/native-security-v1/pair/'+label+'/'+ARCHIVE+'\n'
     for label in ('one','two'):
         result+='COPY --from=security-build-'+label+' /security-pair-slot /opt/native-security-v1/pair/'+label+'/stage-slot\n'
-    result+='RUN /usr/bin/python3 -I -B /opt/native-security-v1/source/native/security_native_v1.py --inside-image --map-sha256 '+map_hash+'\n'
+    result+='RUN /usr/bin/python3 -I -B /opt/native-security-v1/source/native/security_native_v1.py --inside-image --map-sha256 '+map_hash+' & security_owner=$!; security_status=0; wait "$security_owner" || security_status=$?; exit "$security_status"\n'
     return result+ending
 
 def run_overlay(actor,command):
