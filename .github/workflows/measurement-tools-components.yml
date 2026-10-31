@@ -51,16 +51,16 @@ jobs:
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
           python-version: ${{ matrix.python }}
-      - name: Install required bubblewrap on the disposable CI runner
+      - name: Install required VM tools on the disposable CI runner
         run: |
           sudo apt-get update
-          sudo apt-get install --yes --no-install-recommends bubblewrap
-          command -v bwrap
-      - name: Require unprivileged bwrap and run every private package control
+          sudo apt-get install --yes --no-install-recommends qemu-system-x86 qemu-utils cloud-image-utils genisoimage
+          qemu-system-x86_64 --version
+      - name: Run every unchanged private package control in a pinned Debian13 guest
         env:
           PYTHONDONTWRITEBYTECODE: '1'
-        run: python -I -B -Werror::ResourceWarning scripts/ci/measurement-tools-components-v1.py package --root "$GITHUB_WORKSPACE" --work "$RUNNER_TEMP/measurement-package-ci"
+        run: python -I -B -Werror::ResourceWarning scripts/ci/measurement-tools-components-v1.py guest --root "$GITHUB_WORKSPACE" --work "$RUNNER_TEMP/measurement-package-ci"
       - name: Record required boundary and non-acceptance
         if: ${{ always() }}
         run: |
-          echo 'Package8 requires private PID/proc/dev, empty sysfs and no network. Any bwrap/namespace denial fails the job; tests stay unprivileged with no skip, unconfined mode or host-policy adjustment. Only dependency installation uses sudo on this disposable runner. This hosted fixture is not native ARM, ALPM, Asahi/M2 or performance acceptance.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Package8 executes as an ordinary user in a pinned supported Debian13 x86_64 software-emulated guest, retaining original nested private PID/proc/dev, empty sysfs and no-network guards. No host device access or policy/capability/sysctl change, no unconfined mode, no skip and no timeout increase. Dependency provisioning uses disposable runner/guest administration only. This fixture is not native ARM, ALPM, Asahi/M2 or performance acceptance.' >> "$GITHUB_STEP_SUMMARY"
