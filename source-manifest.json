@@ -47,7 +47,7 @@
     },
     "lifecycle/emissions/cases/normal/adapter.json": {
       "bytes": 58965,
-      "sha256": "cf3af164a4204af26128da94082506b2b3093c3e5bb64d68c2c0ed4444b51b0d"
+      "sha256": "0c98cd3e34e5545599259a8594407f4e068096e81702aa049575662d3ec04aed"
     },
     "lifecycle/emissions/cases/normal/packages/tools/cachy-asahi-apps/.SRCINFO": {
       "bytes": 1775,
@@ -310,8 +310,8 @@
       "sha256": "b78c34f92cec146af49eb632bdb1955e3c87823bf12e6da056bffa44c2eefa0c"
     },
     "lifecycle/emissions/cases/normal/scripts/ci/full-root-upgrade-caller/upgrade_hook.py": {
-      "bytes": 50080,
-      "sha256": "b3c044feb2f298d681e567bb7e9881241ad6be3959eb1660a639c42b826566fb"
+      "bytes": 56123,
+      "sha256": "dc1e400ca7d1f9c185ff90c84998fb60760a296ccb85dd497b627fd6ef9d3f87"
     },
     "lifecycle/emissions/cases/normal/scripts/ci/full-root-upgrade/construct_repository.py": {
       "bytes": 13960,
@@ -406,8 +406,8 @@
       "sha256": "80a0e89755fff0503fe4823ade2c9f7333073273309a1ba5507cbc4284ef55c2"
     },
     "lifecycle/emissions/cases/normal/scripts/update/aux_initialize.py": {
-      "bytes": 42802,
-      "sha256": "8a0f64b72310e1d0e3ee69691ecccbf098408c59a24a9210d7bd37566a2f1441"
+      "bytes": 60001,
+      "sha256": "56dc98f69bcb5a609c3f456010dd43cb4d0e8851e7107bb9b6950ee8ae321382"
     },
     "lifecycle/emissions/cases/normal/scripts/update/aux_runtime.py": {
       "bytes": 10032,
@@ -483,7 +483,7 @@
     },
     "lifecycle/emissions/cases/normal/upgrade-config.json": {
       "bytes": 14303,
-      "sha256": "269f49005dd3e8ad86156c329d2dfe0e8daa040bc5b3525abd86e41edf31a6c5"
+      "sha256": "888bb3c4304b012603d99899fb9f2a693c62c5049a06d0ddd1bacd6a77708ab5"
     },
     "lifecycle/emissions/cases/postcommit-exit87/adapter.json": {
       "bytes": 64434,
@@ -1398,8 +1398,8 @@
       "sha256": "be5969d6bda17e854035965391088e9ed4f4be68ceef3a3b3730f5f56c56f731"
     },
     "lifecycle/lifecycle_overlay.py": {
-      "bytes": 960631,
-      "sha256": "5a3a5f4619159a9dfc5f7b4134a346c800d0ce7b98a5a998aea5504b425fada9"
+      "bytes": 984942,
+      "sha256": "50caf533770e719cc6e2946f58557ce052d4bbd4e815db8e8a838776293a1f92"
     },
     "lifecycle/parent360/.github/workflows/native-arm-build.yml": {
       "bytes": 87381,
@@ -2843,7 +2843,7 @@
     },
     "lifecycle/profile.json": {
       "bytes": 695846,
-      "sha256": "10dc0c290a4a07d6c6ed936ea5675a004049ab644db9de8059cbf59cd5029757"
+      "sha256": "f62f6c343f8eeb3e2343dd02c1f6b29b88ac8d6b4a0fb5909fe48ef4a63a9aa0"
     },
     "lifecycle/retain.py": {
       "bytes": 1275,
@@ -2855,7 +2855,7 @@
     },
     "lifecycle/source-manifest.json": {
       "bytes": 136380,
-      "sha256": "ce9477a1f4b2e216d9b5c3745dc149b0aa1fec8fba074e1fd33beeb1f4e90c7d"
+      "sha256": "416b287b50cf2090f33d40a83c8857b270ee1f2e37ee66287452ca9f83d54498"
     },
     "lifecycle/test_source.py": {
       "bytes": 3132,
@@ -5731,7 +5731,7 @@
     },
     "profile.json": {
       "bytes": 278408,
-      "sha256": "eeee6ce16eecbfed0cb3d5680f31917e29f2910f4cb88ad3b6138b80f708375a"
+      "sha256": "e631526ff38e5e7b38548e2396269303cdb8e16d80ed6fd5be29fabf65dcb21a"
     },
     "retain.py": {
       "bytes": 675,

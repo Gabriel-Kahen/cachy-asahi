@@ -450,7 +450,7 @@
       ]
     }
   },
-  "config_sha256": "269f49005dd3e8ad86156c329d2dfe0e8daa040bc5b3525abd86e41edf31a6c5",
+  "config_sha256": "888bb3c4304b012603d99899fb9f2a693c62c5049a06d0ddd1bacd6a77708ab5",
   "current_native_and_installer": "UNBOUND_NO_TRANSFERRED_ACCEPTANCE",
   "derived_pin_count": 54,
   "emulated16k_lifecycle": {

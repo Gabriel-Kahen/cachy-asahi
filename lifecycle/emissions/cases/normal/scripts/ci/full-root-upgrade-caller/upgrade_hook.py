@@ -232,11 +232,95 @@ def _normal_primary_emit(result):
     except BaseException:pass
 
 
+
+_INITIALIZER_PHASES = ('WORKER_OBSERVE', 'WORKER_CHECKPOINT', 'WORKER_HELPER_PIN', 'WORKER_EXEC', 'PARENT_SOURCE_BEFORE', 'PARENT_ROOT_BEFORE', 'PARENT_ROOT_AFTER', 'PARENT_SOURCE_AFTER')
+_INITIALIZER_PROFILE = 'I16K_STATX_V1'
+_INITIALIZER_PREFIX = b'UPDATER607_INITIALIZER_TELEMETRY '
+_INITIALIZER_MAX = 2**63-1
+
+def _initializer_valid(value, nonce=None):
+    if type(value) is not dict or set(value) != {'v','profile','nonce','lane','seq','phase','state','elapsed_ns','remaining_ns','ops','saturated'}:return False
+    if type(value['v'])is not int or value['v']!=1 or value['profile']!=_INITIALIZER_PROFILE:return False
+    n=value['nonce']
+    if type(n)is not str or len(n)!=32 or any(c not in '0123456789abcdef'for c in n)or(nonce is not None and n!=nonce):return False
+    lane=value['lane']
+    if lane not in ('WORKER','PARENT')or type(value['seq'])is not int or not 0<=value['seq']<(6 if lane=='WORKER'else 8):return False
+    if value['phase']not in _INITIALIZER_PHASES or not value['phase'].startswith(lane+'_')or value['state']not in ('STARTED','PROGRESS','RETURNED','REFUSED'):return False
+    if type(value['elapsed_ns'])is not int or not 0<=value['elapsed_ns']<=_INITIALIZER_MAX:return False
+    r=value['remaining_ns']
+    if r is not None and(type(r)is not int or not -_INITIALIZER_MAX<=r<=_INITIALIZER_MAX):return False
+    if type(value['ops'])is not list or len(value['ops'])!=8 or any(type(x)is not int or not 0<=x<=_INITIALIZER_MAX for x in value['ops'])or type(value['saturated'])is not bool:return False
+    return len(_INITIALIZER_PREFIX)+len(json.dumps(value,sort_keys=True,separators=(',',':')).encode())+1<=768
+
+def _initializer_capture(raw, nonce, complete=True):
+    if type(raw)is not bytes or len(raw)>1024**2:return None,0
+    lines=[line[len(_INITIALIZER_PREFIX):]for line in raw.splitlines()if line.startswith(_INITIALIZER_PREFIX)]
+    if not 1<=len(lines)<=(6 if complete else 128):return None,0
+    records=[]
+    try:
+        for i,line in enumerate(lines):
+            if len(line)+len(_INITIALIZER_PREFIX)+1>768:return None,0
+            def pairs(items):
+                value={}
+                for key,item in items:
+                    if key in value:raise ValueError('duplicate initializer telemetry key')
+                    value[key]=item
+                return value
+            value=json.loads(line,object_pairs_hook=pairs)
+            if not _initializer_valid(value,nonce)or value['lane']!='WORKER'or(complete and value['seq']!=i):return None,0
+            if complete and records and(value['elapsed_ns']<records[-1]['elapsed_ns']or any(a<b for a,b in zip(value['ops'],records[-1]['ops']))):return None,0
+            records.append(value)
+    except(ValueError,TypeError,KeyError,UnicodeError,RecursionError):return None,0
+    return records[-1],len(records)
+
+def _initializer_emit(value):
+    if not _initializer_valid(value,os.environ.get('CACHY_ASAHI_BOUND_UPDATE','')):return
+    raw=_INITIALIZER_PREFIX+json.dumps(value,sort_keys=True,separators=(',',':')).encode()+b'\n'
+    try:os.write(2,raw)
+    except OSError as error:
+        # Ordinary diagnostic IO loss is not an acceptance predicate. The held
+        # phase alarm raises TimeoutError without errno and must still propagate.
+        if error.errno is None:raise
+
+def _initializer_wrapper_valid(value,nonce):
+    if type(value)is not dict or set(value)!={'v','profile','history','saturated','worker'}or type(value['v'])is not int or value['v']!=1 or value['profile']!=_INITIALIZER_PROFILE or type(value['saturated'])is not bool:return False
+    history=value['history']
+    if type(history)is not list or len(history)>8:return False
+    for i,record in enumerate(history):
+        if not _initializer_valid(record,nonce)or record['lane']!='PARENT'or record['seq']!=i:return False
+        if i and(record['elapsed_ns']<history[i-1]['elapsed_ns']or any(a<b for a,b in zip(record['ops'],history[i-1]['ops']))):return False
+    worker=value['worker']
+    if worker is not None:
+        if type(worker)is not dict or set(worker)!={'last','records','stderr','returncode','termination','direct_child_reaped','capture_scope'}or worker['capture_scope']!='ORIGINAL_SUPERVISOR_CAPTURE_MAY_BE_PARTIAL':return False
+        if type(worker['records'])is not int or not 0<=worker['records']<=6 or type(worker['direct_child_reaped'])is not bool or worker['termination']not in(None,'timeout','output-limit','interrupted'):return False
+        if worker['returncode']is not None and(type(worker['returncode'])is not int or not -255<=worker['returncode']<=255):return False
+        last=worker['last']
+        if worker['records']==0:
+            if last is not None:return False
+        elif not _initializer_valid(last,nonce)or last['lane']!='WORKER'or last['seq']!=worker['records']-1:return False
+        pin=worker['stderr']
+        if type(pin)is not dict or set(pin)!={'bytes','sha256'}or type(pin['bytes'])is not int or not 0<=pin['bytes']<=65536 or type(pin['sha256'])is not str or len(pin['sha256'])!=64 or any(c not in '0123456789abcdef'for c in pin['sha256']):return False
+    return len(json.dumps(value,sort_keys=True,separators=(',',':')).encode())<=8192
+
+def _initializer_final_emit(result, fallback):
+    value=fallback
+    driver=result.get('driver')
+    if type(driver)is dict:
+        initialization=driver.get('initialization')
+        if type(initialization)is dict:
+            telemetry=initialization.get('initializer_telemetry')
+            if _initializer_wrapper_valid(telemetry,os.environ.get('CACHY_ASAHI_BOUND_UPDATE','')):
+                worker=telemetry.get('worker')
+                if type(worker)is dict and _initializer_valid(worker.get('last'),os.environ.get('CACHY_ASAHI_BOUND_UPDATE','')):value=worker['last']
+    _initializer_emit(value)
+
+
 def run(pacman, plan, expected, source, work, composition):
     result = dict(status='FAIL', phase='selection', committed_transactions=0,
                   commit_started=False, packages_committed=False, checkpoint_changed=False,
                   scope='complete-persistent-payload-in-disposable-container', whole_container_root=False,
                   hardware='NOT RUN', apple_acceptance='NOT ESTABLISHED', outer_cleanup='OWNER REQUIRED')
+    _initializer_last=None
     try:
         composition.guard()
         need(plan.get('full_root_upgrade') is True and not plan.get('measurement_only')
@@ -281,6 +365,8 @@ def run(pacman, plan, expected, source, work, composition):
                       packages_committed='UNKNOWN', checkpoint_changed='UNKNOWN')
         row = supervision.run(driver_command(config, control, stage, signer), env=env, cwd=str(CODE),
                               timeout=_lifecycle_ci.guest_witness(config['driver_seconds'])['effective_seconds'], output_limit=1024**2)
+        _initializer_last,_=_initializer_capture(row.get('stderr'),os.environ.get('CACHY_ASAHI_BOUND_UPDATE',''),complete=False)
+        _initializer_emit(_initializer_last)
         result['worker_diagnostic'] = load('normal604_driver_progress', CODE / 'scripts/ci/full-root-upgrade/driver_progress.py').capture(row, control / 'data')
         _updater_cost_forward.forward(row)
         driver = driver_result(row)
@@ -309,4 +395,5 @@ def run(pacman, plan, expected, source, work, composition):
         result.update(status='FAIL', error_type=type(error).__name__, error=str(error)[:512])
     finally:
         _normal_primary_emit(result)
+        _initializer_final_emit(result,_initializer_last)
     return result
