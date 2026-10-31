@@ -10,8 +10,8 @@ import capsule as C
 import privacy_diagnostics as privacy
 
 PRODUCERS = {
- 'native/platform_alpm_v1.py': '7867244f91d73da5ad1daca1dc13a71ad5a4b5e8f66517490fa1feae8361dfb5',
- 'native/platform_tools_v1.py': '794894cd053a4508cf00abe3928a8431bab0986f94bd4fcfb690a7e22ab38621',
+ 'native/platform_alpm_v1.py': 'c5f533b3e117339fea89a8acab78f542dbfde15318f82ba951138addc32c9a11',
+ 'native/platform_tools_v1.py': 'a52a2a869331f5b833b83ede039ba7bd860d612f018a7c2ed13100d8c15c9ad0',
  'native/platform_guest_v1.py': '4438b69a135ff5c6ea444e973b8a9bc886b1b6cdc8446401d1f9f5c890636703',
  'native/platform-contract-v1.json': 'd76efe3d9cc6f671f8810772aa213ae46bb85de88b81b356c19b37ed9c286c89'}
 HOST={'transport-diagnostic.json','transport-proof.json','receipt.json','cleanup.json','source-proof.json','consumer-inspect.json','consumer-after.json',
