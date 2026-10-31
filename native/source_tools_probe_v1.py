@@ -283,3 +283,124 @@ def validate_fixtures(fixtures):
                  'exact fixture source/notices required')
     need(file_pins(fixtures) == expected and len(expected) == 41, 'complete exact41 fixture DATA required')
     return info
+
+# Namespace diagnostics run only as fresh, caller-supervised alarm actors after
+# the original check failure. No child, mount, map/sysctl write, signal or fallback.
+NS_MODES = {'context': 0, 'user': 0x10000000, 'mount': 0x00020000,
+            'user_mount': 0x10020000, 'user_net': 0x50000000,
+            'user_mount_net': 0x50020000}
+NS_STATUS = ('CapInh','CapPrm','CapEff','CapBnd','CapAmb','NoNewPrivs','Seccomp','Seccomp_filters')
+NS_POLICY = {'userns_clone':'/proc/sys/kernel/unprivileged_userns_clone',
+             'max_user_namespaces':'/proc/sys/user/max_user_namespaces',
+             'apparmor_userns':'/proc/sys/kernel/apparmor_restrict_unprivileged_userns'}
+
+
+def namespace_read(path, cap):
+    try:
+        fd=os.open(path,os.O_RDONLY|os.O_CLOEXEC|os.O_NOFOLLOW|os.O_NONBLOCK)
+        try:
+            chunks=[];size=0
+            while size<=cap:
+                part=os.read(fd,min(4096,cap+1-size))
+                if not part:break
+                chunks.append(part);size+=len(part)
+            raw=b''.join(chunks)
+        finally:os.close(fd)
+        if len(raw)>cap:return dict(status='UNKNOWN',reason='BYTE_CAP')
+        return dict(status='OBSERVED',text=raw.decode('ascii'))
+    except (OSError,UnicodeError) as error:
+        return dict(status='UNKNOWN',reason=type(error).__name__,errno=getattr(error,'errno',None))
+
+
+def namespace_binary():
+    path='/usr/bin/bwrap';fd=None
+    def identity(info):
+        return tuple(getattr(info,key)for key in('st_dev','st_ino','st_mode','st_uid','st_gid','st_nlink','st_size','st_mtime_ns','st_ctime_ns'))
+    try:
+        fd=os.open(path,os.O_RDONLY|os.O_CLOEXEC|os.O_NOFOLLOW|os.O_NONBLOCK);info=os.fstat(fd)
+        if not stat.S_ISREG(info.st_mode)or info.st_nlink!=1 or not 0<info.st_size<=4*1024**2:raise ValueError('ordinary bounded fixed bwrap required')
+        parts=[];size=0
+        while size<=info.st_size:
+            part=os.read(fd,min(65536,info.st_size+1-size))
+            if not part:break
+            parts.append(part);size+=len(part)
+        body=b''.join(parts)
+        try:
+            value=os.getxattr(fd,'security.capability')
+            caps=value.hex() if len(value)<=128 else 'UNKNOWN_BYTE_CAP'
+        except OSError as error:caps=dict(status='UNKNOWN_OR_ABSENT',errno=error.errno)
+        if size!=info.st_size or identity(info)!=identity(os.fstat(fd))or identity(info)!=identity(os.stat(path,follow_symlinks=False)):raise ValueError('bwrap identity changed')
+        return dict(status='OBSERVED',path=path,bytes=size,sha256=digest(body),mode=stat.S_IMODE(info.st_mode),uid=info.st_uid,gid=info.st_gid,file_capabilities=caps)
+    except (OSError,ValueError)as error:return dict(status='UNKNOWN',reason=type(error).__name__)
+    finally:
+        if fd is not None:os.close(fd)
+
+
+def namespace_context():
+    status=namespace_read('/proc/self/status',16384);fields={}
+    if status['status']=='OBSERVED':
+        for line in status['text'].splitlines():
+            key,sep,value=line.partition(':')
+            if sep and key in NS_STATUS:
+                value=value.strip()
+                if len(value)<=32 and all(c in '0123456789abcdefABCDEF' for c in value):fields[key]=value
+    links={}
+    for name in ('user','mnt','net'):
+        try:
+            value=os.readlink('/proc/self/ns/'+name)
+            links[name]=value if len(value)<=64 and value.startswith(name+':[') and value.endswith(']') else 'UNKNOWN'
+        except OSError:links[name]='UNKNOWN'
+    maps={name:namespace_read('/proc/self/'+name,4096) for name in ('uid_map','gid_map')}
+    policy={key:namespace_read(path,64) for key,path in NS_POLICY.items()}
+    lsm=namespace_read('/proc/self/attr/current',256)
+    # Paths, device sources and super options from unrelated mounts are omitted.
+    mounts=namespace_read('/proc/self/mountinfo',131072);selected=[]
+    if mounts['status']=='OBSERVED':
+        lines=mounts['text'].splitlines()
+        if len(lines)>512:mounts=dict(status='UNKNOWN',reason='ROW_CAP')
+        else:
+            cwd=os.getcwd()
+            for line in lines:
+                left,sep,right=line.partition(' - ');parts=left.split();tail=right.split()
+                if sep and len(parts)>=6 and tail and (parts[4]=='/proc'or any(target==parts[4]or target.startswith(parts[4].rstrip('/')+'/')for target in(cwd,'/usr/bin/bwrap'))):
+                    selected.append(dict(mount_id=parts[0],parent_id=parts[1],mountpoint=parts[4],filesystem=tail[0],
+                                         options=[v for v in parts[5].split(',')if v in('ro','rw','nosuid','nodev','noexec')]))
+    if len(selected)>32:mounts=dict(status='UNKNOWN',reason='SELECTED_ROW_CAP');selected=selected[:32]
+    executable=namespace_binary()
+    groups=os.getgroups()
+    return dict(uid=os.getuid(),euid=os.geteuid(),gid=os.getgid(),egid=os.getegid(),cwd=os.getcwd(),
+                groups=groups[:32],group_count=len(groups),groups_truncated=len(groups)>32,
+                status_fields=fields,status_state=status['status'],namespaces=links,maps=maps,policy=policy,lsm=lsm,
+                mounts=dict(status=mounts['status'],rows=selected),bwrap=executable)
+
+
+def namespace_unshare(flags):
+    import ctypes
+    import errno
+    try:
+        libc=ctypes.CDLL(None,use_errno=True);call=libc.unshare;call.argtypes=(ctypes.c_int,);call.restype=ctypes.c_int
+        ctypes.set_errno(0);rc=call(flags);number=ctypes.get_errno() if rc else 0
+        return dict(interface='libc.unshare',flags=flags,returncode=rc,errno=number,
+                    errno_name=errno.errorcode.get(number,'NONE'if number==0 else 'UNKNOWN'))
+    except (OSError,AttributeError) as error:
+        return dict(interface='libc.unshare',flags=flags,returncode=None,errno=None,errno_name='UNKNOWN',reason=type(error).__name__)
+
+
+def namespace_observation(mode,map_sha256):
+    need(mode in NS_MODES,'fixed namespace observation mode required')
+    before=namespace_context()
+    need(before['uid']==before['euid'] and before['uid']>0,'ordinary same alarm identity required')
+    syscall=None if mode=='context' else namespace_unshare(NS_MODES[mode])
+    after=before if mode=='context' else namespace_context()
+    return dict(schema=1,status='NAMESPACE_PREREQUISITE_DATA_ONLY',mode=mode,source_map_sha256=map_sha256,
+                before=before,syscall=syscall,after=after,scope='OWN_BUILD_ACTOR_SELF_ONLY_NO_CHILD_OR_GLOBAL_MUTATION',
+                namespace_acceptance='NOT_ESTABLISHED',native_acceptance='NOT_ADMITTED')
+
+
+if __name__=='__main__':
+    import argparse
+    parser=argparse.ArgumentParser();parser.add_argument('--namespace-mode',choices=tuple(NS_MODES),required=True);parser.add_argument('--map-sha256',required=True);args=parser.parse_args()
+    raw=read(Path(__file__).resolve().with_name('source-map.json'),1024**2)
+    need(digest(raw)==args.map_sha256,'exact current Source map before namespace observation')
+    value=namespace_observation(args.namespace_mode,args.map_sha256);body=encoded(value)
+    need(len(body)<=32768,'namespace observation output32KiB cap');print(body.decode(),end='')
