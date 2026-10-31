@@ -14,7 +14,7 @@ import tempfile
 
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
-PROFILE_SHA256 = 'cf11f25adeb501831131a4c1940ac04909eec9acaeb672c3cca0a4930b55f4ba'
+PROFILE_SHA256 = 'b9d112fb663f88512a15674f26feaf65ed15fb0d180ebafd4061dee0c183f717'
 MAX_FILE, MAX_TOTAL, MAX_FILES = 64 * 1024**2, 96 * 1024**2, 200
 
 
@@ -119,6 +119,35 @@ def git_tree(files):
     return visit(nested).hex()
 
 
+
+CONCURRENCY_GROUP = 'native-arm-platform-tools'
+WORKFLOW_ALIASES = ('.github/workflows/native-arm-build.yml', '.github/workflows/native-arm-developer-workflows.yml')
+
+
+def scheduled_workflows(bodies):
+    """Change only the authenticated legacy scheduling block, never job behavior."""
+    before = b'concurrency:\n  group: native-arm-developer-workflows\n  cancel-in-progress: false\njobs:\n'
+    after = ('concurrency:\n  group: ' + CONCURRENCY_GROUP + '\n  cancel-in-progress: false\n  queue: max\njobs:\n').encode()
+    need(bodies[WORKFLOW_ALIASES[0]] == bodies[WORKFLOW_ALIASES[1]], 'workflow aliases differ before scheduling')
+    result = dict(bodies)
+    for name in WORKFLOW_ALIASES:
+        raw = bodies[name]
+        need(raw.count(before) == 1 and raw.count(b'\nconcurrency:\n') == 1, 'exact unqueued legacy concurrency block required')
+        result[name] = raw.replace(before, after, 1)
+    return result
+
+
+def scheduled_source(files):
+    original = {name: raw for name, (raw, _) in files.items()}
+    bodies = scheduled_workflows(original)
+    result = {name: (raw, files[name][1]) for name, raw in bodies.items()}
+    manifest = json.loads(files['native/source-map.json'][0])
+    need(manifest['files'] == {name: row for name, row in rows(files).items() if name != 'native/source-map.json'}, 'original source map before scheduling differs')
+    manifest['files'] = {name: row for name, row in rows(result).items() if name != 'native/source-map.json'}
+    result['native/source-map.json'] = ((json.dumps(manifest, sort_keys=True, indent=2) + '\n').encode(), files['native/source-map.json'][1])
+    return result
+
+
 def profile():
     raw, _ = read(HERE / 'profile.json', 1024**2)
     need(hashlib.sha256(raw).hexdigest() == PROFILE_SHA256, 'whole fixed Source profile differs')
@@ -139,7 +168,7 @@ def render(basis):
     need([r[5:].decode() for r in header if r.startswith(b'tree ')] == [value['parent_tree']], 'raw parent tree differs')
     payload = tree(HERE / 'payload')
     need(rows(payload) == value['payload'], 'whole finite native payload differs')
-    after = dict(before); after.update(payload)
+    after = dict(before); after.update(payload); after = scheduled_source(after)
     need(rows(after) == value['after'] and git_tree(after) == value['source_tree'], 'whole prospective199 Source differs')
     manifest_raw = after['native/source-map.json'][0]
     need(hashlib.sha256(manifest_raw).hexdigest() == value['source_map_sha256'], 'source-map checksum differs')
