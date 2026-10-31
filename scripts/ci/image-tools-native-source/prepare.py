@@ -10,7 +10,7 @@ import re
 import stat
 
 HERE = Path(__file__).resolve().parent
-PROFILE_SHA256 = '14355b0aa64cd6eadea85bb268c61224553fee70f8c0a3d0596a7f53da29ed82'
+PROFILE_SHA256 = '13bd3f59f9f7782a41ae1f14f447d2065344bd8b308411075153ebf46edf5d46'
 FIELDS = ('st_dev','st_ino','st_mode','st_nlink','st_uid','st_gid','st_size','st_mtime_ns','st_ctime_ns')
 MAX_FILE = 64*1024**2
 MAX_SOURCE = 64*1024**2
@@ -99,6 +99,24 @@ def tree_id(bodies, modes):
     return digest(nodes).hex()
 
 
+
+CONCURRENCY_GROUP = 'native-arm-image-tools'
+WORKFLOW_ALIASES = ('.github/workflows/native-arm-build.yml', '.github/workflows/native-arm-developer-workflows.yml')
+
+
+def scheduled_workflows(bodies):
+    """Change only the authenticated legacy scheduling block, never job behavior."""
+    before = b'concurrency:\n  group: native-arm-developer-workflows\n  cancel-in-progress: false\njobs:\n'
+    after = ('concurrency:\n  group: ' + CONCURRENCY_GROUP + '\n  cancel-in-progress: false\n  queue: max\njobs:\n').encode()
+    need(bodies[WORKFLOW_ALIASES[0]] == bodies[WORKFLOW_ALIASES[1]], 'workflow aliases differ before scheduling')
+    result = dict(bodies)
+    for name in WORKFLOW_ALIASES:
+        raw = bodies[name]
+        need(raw.count(before) == 1 and raw.count(b'\nconcurrency:\n') == 1, 'exact unqueued legacy concurrency block required')
+        result[name] = raw.replace(before, after, 1)
+    return result
+
+
 def profile():
     raw = read(HERE/'profile.json',1024**2)
     need(pin(raw)['sha256'] == PROFILE_SHA256, 'whole fixed source profile')
@@ -120,6 +138,7 @@ def assemble(parent, output):
     need(maintained == value['payload'], 'complete fixed payload')
     # All parent and maintained input bytes are authenticated before writing output.
     bodies.update(replacements)
+    bodies = scheduled_workflows(bodies)
     expected = value['expected']['files']; modes = {n:r['mode'] for n,r in expected.items()}
     mapping = dict(value['source_map_metadata'])
     mapping['files'] = {n:dict(**pin(raw),mode=modes[n]) for n,raw in sorted(bodies.items()) if n != 'native/source-map.json'}

@@ -42,10 +42,10 @@ def suite(root,kind,work):
  else:module.RECIPE=root/RECIPE;module.EVIDENCE=work/'package-evidence';expected=8
  tests=unittest.defaultTestLoader.loadTestsFromModule(module);need(tests.countTestCases()==expected,'exact focused count');result=unittest.TextTestRunner(verbosity=2,failfast=True).run(tests);need(result.wasSuccessful()and not result.skipped and result.testsRun==expected,'focused tests failed/skipped/incomplete')
 def package(root,work):
- need(shutil.which('bwrap')is not None,'BLOCKED_REQUIRED_SANDBOX: bwrap unavailable; no fallback');selected=Path(sys.executable).resolve();need(selected!=Path('/usr/bin/python3').resolve(),'BLOCKED_SELECTED_INTERPRETER: setup-python isolated prefix required for private launcher bridge');bridge=work/'python-driver';bridge.write_text('#!/bin/sh\nexec '+shlex.quote(str(selected))+' "$@"\n');bridge.chmod(0o755)
+ need(shutil.which('bwrap')is not None,'BLOCKED_REQUIRED_SANDBOX: bwrap unavailable; no fallback');system_python=Path('/usr/bin/python3').resolve(strict=True);need(system_python.is_file(),'BLOCKED_SYSTEM_INTERPRETER: existing regular target required');selected=Path(sys.executable).resolve();need(selected!=system_python,'BLOCKED_SELECTED_INTERPRETER: setup-python isolated prefix required for private launcher bridge');bridge=work/'python-driver';bridge.write_text('#!/bin/sh\nexec '+shlex.quote(str(selected))+' "$@"\n');bridge.chmod(0o755)
  # The fixed installed shebang and workload path select this interpreter only
  # inside a private mount namespace. No host symlink or security policy changes.
- box=['bwrap','--die-with-parent','--ro-bind','/','/','--bind',str(work),str(work),'--ro-bind',str(bridge),'/usr/bin/python3','--dev','/dev','--tmpfs','/sys','--unshare-net','--unshare-pid','--proc','/proc','--']
+ box=['bwrap','--die-with-parent','--ro-bind','/','/','--bind',str(work),str(work),'--ro-bind',str(bridge),str(system_python),'--dev','/dev','--tmpfs','/sys','--unshare-net','--unshare-pid','--proc','/proc','--']
  check=subprocess.run([*box,'/usr/bin/true'],capture_output=True,timeout=20)
  if check.returncode:
   sys.stderr.buffer.write(check.stderr[:8192]);raise ValueError('BLOCKED_REQUIRED_SANDBOX: private PID/proc/dev/empty-sys/network prerequisite refused; eight controls NOT_RUN; no sudo/unconfined/skip fallback')
