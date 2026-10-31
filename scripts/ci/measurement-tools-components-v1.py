@@ -61,18 +61,28 @@ def guest_config(helper_sha,python_mm):
  # root bootstrap installs dependencies in this disposable guest only.
  script='''set -eu
 package_started=0
+bootstrap_log=/run/measurement-bootstrap.log
+bootstrap_stage=prepare
 finish() {
  rc=$?
  trap - EXIT
+ if ! tail -c 524289 -- "$bootstrap_log" > /dev/ttyS0; then
+  printf '\\nMEASUREMENT_BOOTSTRAP_LOG_EXPORT=FAILED\\n' > /dev/ttyS0 || :
+ fi
+ printf '\\nMEASUREMENT_BOOTSTRAP_STAGE=%s exit=%d\\n' "$bootstrap_stage" "$rc" > /dev/ttyS0
  printf '\\nMEASUREMENT_GUEST_RESULT={"exit":%d,"package_started":%d,"helper_sha256":"HELPER_SHA","python":"PYTHON_MM","profile_sha256":"PROFILE_PIN"}\\n' "$rc" "$package_started" > /dev/ttyS0
  /sbin/poweroff
  exit "$rc"
 }
 trap finish EXIT
-exec > /dev/ttyS0 2>&1
+umask 077
+exec > "$bootstrap_log" 2>&1
 export DEBIAN_FRONTEND=noninteractive
+bootstrap_stage=apt-update
 apt-get update -qq
+bootstrap_stage=apt-install
 apt-get install --yes --quiet --no-install-recommends bubblewrap python3 libssl3t64 libexpat1 libzstd1 libffi8 liblzma5 libbz2-1.0 libsqlite3-0 libreadline8t64 libncursesw6 libuuid1
+bootstrap_stage=source-setup
 install -d /mnt/measureci /opt/measurement
 mount -o ro /dev/disk/by-label/MEASURECI /mnt/measureci
 cd /mnt/measureci
@@ -81,9 +91,11 @@ python3 -I -B -c 'import tarfile; t=tarfile.open("python.tar"); t.extractall("/o
 cp helper.py /opt/measurement/helper.py
 cp -a source /opt/measurement/source
 printf '%s  %s\\n' HELPER_SHA /opt/measurement/helper.py | sha256sum -c -
+bootstrap_stage=python-probe
 env LD_LIBRARY_PATH=/opt/measurement/python/lib /opt/measurement/python/bin/python3 -I -B -c 'import sys,ssl,hashlib,zlib,bz2,lzma,ctypes,sqlite3; assert sys.version_info[:2] == tuple(map(int,"PYTHON_MM".split(".")))'
+bootstrap_stage=package8
 package_started=1
-runuser -u measurement -- env LD_LIBRARY_PATH=/opt/measurement/python/lib /opt/measurement/python/bin/python3 -I -B -Werror::ResourceWarning /opt/measurement/helper.py package --root /opt/measurement/source --work /home/measurement/package-ci > /dev/ttyS0 2>&1
+runuser -u measurement -- env LD_LIBRARY_PATH=/opt/measurement/python/lib /opt/measurement/python/bin/python3 -I -B -Werror::ResourceWarning /opt/measurement/helper.py package --root /opt/measurement/source --work /home/measurement/package-ci
 '''.replace('HELPER_SHA',helper_sha).replace('PYTHON_MM',python_mm).replace('PROFILE_PIN',PROFILE_SHA)
  return {'users':[{'name':'measurement','lock_passwd':True,'shell':'/bin/bash'}],
          'ssh_pwauth':False,'disable_root':True,'package_update':False,
