@@ -1,0 +1,2 @@
+Original cachy-asahi project source, Copyright (c) 2026 cachy-asahi contributors, MIT.
+The private runtime preserves the exact original source and data closure listed in source-provenance.json. Historical embedded package inventories, operator observations, proof receipts and URLs are inert provenance data, not installation inputs or claims about the current host or target. No upstream package payload or executable is distributed in this package. The signed recipe route authenticates separately supplied operands and does not run them as code.
