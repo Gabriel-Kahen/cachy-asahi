@@ -658,9 +658,9 @@
       "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
     },
     "native/owner.py": {
-      "bytes": 26999,
+      "bytes": 27118,
       "mode": 420,
-      "sha256": "6dddb1e8985fb6a52ab1550b5c7c65b0a8930c74c5f32a3d0c44b0df0bff5f30"
+      "sha256": "e8fab87d362d92dfda93a61864dbad5851f2484da8dae984610aee31b92209d2"
     },
     "native/predecessor-source-map.json": {
       "bytes": 27440,
@@ -705,7 +705,7 @@
     "native/source-map.json": {
       "bytes": 39795,
       "mode": 420,
-      "sha256": "e4f8f0eaa1fb93bb02f358ea6cd730c421460e3f92bea1c8e7f93508ec3468da"
+      "sha256": "18a66670c60d4f5550823895f9584052a4848d52ac6477c5457fe1994b81e0fa"
     },
     "native/transport_proof.py": {
       "bytes": 16711,
@@ -2042,17 +2042,17 @@
       "sha256": "b4ede5c6832c80e22a6e69f99f02162d467c2b31bb35bddac4fbcfd35600cb8e"
     },
     "native/owner.py": {
-      "bytes": 26999,
+      "bytes": 27118,
       "mode": 420,
-      "sha256": "6dddb1e8985fb6a52ab1550b5c7c65b0a8930c74c5f32a3d0c44b0df0bff5f30"
+      "sha256": "e8fab87d362d92dfda93a61864dbad5851f2484da8dae984610aee31b92209d2"
     },
     "native/source-map.json": {
       "bytes": 39795,
       "mode": 420,
-      "sha256": "e4f8f0eaa1fb93bb02f358ea6cd730c421460e3f92bea1c8e7f93508ec3468da"
+      "sha256": "18a66670c60d4f5550823895f9584052a4848d52ac6477c5457fe1994b81e0fa"
     }
   },
   "schema": 1,
-  "source_map_sha256": "e4f8f0eaa1fb93bb02f358ea6cd730c421460e3f92bea1c8e7f93508ec3468da",
-  "source_tree": "fac670d82329f1a5c7f68bf5a09ef59507b155fe"
+  "source_map_sha256": "18a66670c60d4f5550823895f9584052a4848d52ac6477c5457fe1994b81e0fa",
+  "source_tree": "9e30738959eae51df51a0b616b21f49a68aa97a4"
 }
