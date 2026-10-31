@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
 """Actor-free full Source reproduction and refusal controls."""
+import ast
 import hashlib
 import importlib.util
 import json
@@ -121,6 +122,72 @@ class Factory(unittest.TestCase):
     def test_mismatched_workflow_aliases_refuse_scheduling(self):
         with self.assertRaisesRegex(ValueError, 'aliases differ'):
             F.scheduled_workflows(dict(zip(F.WORKFLOW_ALIASES, (b'left', b'right'))))
+
+
+    def test_producer_cleanup_exact_five_file_delta_and_observer_inverse(self):
+        bodies = (F.snapshot(self.parent)[1] | F.snapshot(F.HERE / 'payload')[1])
+        result = F.retired_producer(bodies)
+        self.assertEqual({n for n in result if result[n] != bodies[n]}, set(F.PRODUCER_AFTER))
+        for name, row in F.PRODUCER_AFTER.items():
+            self.assertEqual(len(result[name]), row['bytes'])
+            self.assertEqual(hashlib.sha256(result[name]).hexdigest(), row['sha256'])
+        old = b'a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898'
+        new = b'8e71ba83e7d5037c6f7772401ec3b872684ccfa8472d855d8d6d3052cb1f41ba'
+        self.assertEqual(result['native/failure_retention.py'].count(new), 1)
+        self.assertNotIn(old, result['native/failure_retention.py'])
+        self.assert_component_producer_pins(result)
+        self.assertEqual(bodies, (F.snapshot(self.parent)[1] | F.snapshot(F.HERE / 'payload')[1]))
+
+    def test_changed_immutable_producer_helper_refuses(self):
+        bodies = (F.snapshot(self.parent)[1] | F.snapshot(F.HERE / 'payload')[1])
+        rows, overlay = F.snapshot(F.HERE / 'producer-overlay')
+        rows = dict(rows); rows['bootstrap/scripts/ci/native_arm.py'] = dict(rows['bootstrap/scripts/ci/native_arm.py'], sha256='0'*64)
+        with patch.object(F, 'snapshot', return_value=(rows, overlay)), self.assertRaisesRegex(ValueError, 'retirement overlay differs'):
+            F.retired_producer(bodies)
+
+    def test_stale_strict_observer_input_refuses(self):
+        bodies = dict((F.snapshot(self.parent)[1] | F.snapshot(F.HERE / 'payload')[1]))
+        bodies['native/failure_retention.py'] += b'\n# stale observer\n'
+        with self.assertRaisesRegex(ValueError, 'producer/observer inputs differ'):
+            F.retired_producer(bodies)
+
+
+    def test_stale_strict_observer_overlay_refuses(self):
+        bodies = (F.snapshot(self.parent)[1] | F.snapshot(F.HERE / 'payload')[1])
+        rows, overlay = F.snapshot(F.HERE / 'producer-overlay'); rows, overlay = dict(rows), dict(overlay)
+        old = b'a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898'
+        new = b'8e71ba83e7d5037c6f7772401ec3b872684ccfa8472d855d8d6d3052cb1f41ba'
+        overlay['native/failure_retention.py'] = overlay['native/failure_retention.py'].replace(new, old, 1)
+        raw = overlay['native/failure_retention.py']; rows['native/failure_retention.py'] = dict(bytes=len(raw), sha256=hashlib.sha256(raw).hexdigest(), mode=420)
+        with patch.object(F, 'snapshot', return_value=(rows, overlay)), self.assertRaisesRegex(ValueError, 'retirement overlay differs'):
+            F.retired_producer(bodies)
+
+
+    def assert_component_producer_pins(self, bodies):
+        maps = []
+        for name in ('native/image_reader_v1.py', 'native/image_projection_v1.py'):
+            selected = [node.value for node in ast.parse(bodies[name]).body if isinstance(node, ast.Assign)
+                        and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name) and node.targets[0].id == 'PRODUCERS']
+            self.assertEqual(len(selected), 1)
+            maps.append(ast.literal_eval(selected[0]))
+        self.assertEqual(maps[0], maps[1])
+        self.assertEqual(maps[0]['native/image_alpm_v1.py'], hashlib.sha256(bodies['native/image_alpm_v1.py']).hexdigest())
+
+    def test_combined_old_alpm_reader_pin_refuses(self):
+        bodies = F.retired_producer((F.snapshot(self.parent)[1] | F.snapshot(F.HERE / 'payload')[1]))
+        name = 'native/image_reader_v1.py'
+        current = hashlib.sha256(bodies['native/image_alpm_v1.py']).hexdigest().encode()
+        bodies[name] = bodies[name].replace(current, b'1f88ed10057cadfd99fe84822aa3f5e283f25baa1da948b42f9b01d6683a6cba', 1)
+        with self.assertRaises(AssertionError):
+            self.assert_component_producer_pins(bodies)
+
+    def test_combined_old_alpm_projector_pin_refuses(self):
+        bodies = F.retired_producer((F.snapshot(self.parent)[1] | F.snapshot(F.HERE / 'payload')[1]))
+        name = 'native/image_projection_v1.py'
+        current = hashlib.sha256(bodies['native/image_alpm_v1.py']).hexdigest().encode()
+        bodies[name] = bodies[name].replace(current, b'1f88ed10057cadfd99fe84822aa3f5e283f25baa1da948b42f9b01d6683a6cba', 1)
+        with self.assertRaises(AssertionError):
+            self.assert_component_producer_pins(bodies)
 
 
 if __name__=='__main__':
