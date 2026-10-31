@@ -44,5 +44,6 @@ jobs:
             --profile-sha256 7cb6244c3f0e40e226b647755607d3fbb0d777530c69ff7ea3a2a19f1335ddfc \
             --output "$stage/source200"
           PLATFORM_NATIVE_BASIS="$stage/basis" python3 -I -B -Werror::ResourceWarning "$platform_factory/test_prepare.py"
+          PLATFORM_NATIVE_BASIS="$stage/basis" python3 -I -B -Werror::ResourceWarning "$platform_factory/test_namespace_context.py"
           python3 -I -B "$platform_factory/prepare.py" --basis "$stage/basis" --output "$stage/platform199"
           PLATFORM_NATIVE_SOURCE="$stage/platform199/source" python3 -I -B -Werror::ResourceWarning "$platform_factory/test_archive_privacy.py"

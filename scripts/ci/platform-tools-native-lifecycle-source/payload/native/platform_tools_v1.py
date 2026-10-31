@@ -169,6 +169,96 @@ def extract_recipes(root, destination, policy):
     return destination
 
 
+# SPDX-License-Identifier: MIT
+# Inserted into the existing trusted native/platform_tools_v1.py; no new Source leaf.
+NAMESPACE_PREFIX = b'PLATFORM_NAMESPACE_CONTEXT_V1 '
+NAMESPACE_SOURCE_COMMIT = '719a4fd474d44b26906bcf2b1b0fb6eddd8d56d0'
+NAMESPACE_STATUS = ('Uid','Gid','CapInh','CapPrm','CapEff','CapBnd','CapAmb','NoNewPrivs','Seccomp','Seccomp_filters')
+NAMESPACE_SYSCTLS = {'unprivileged_userns_clone':'/proc/sys/kernel/unprivileged_userns_clone',
+    'max_user_namespaces':'/proc/sys/user/max_user_namespaces',
+    'apparmor_restrict_unprivileged_userns':'/proc/sys/kernel/apparmor_restrict_unprivileged_userns'}
+
+def namespace_read(path, limit):
+    """Read only a fixed public kernel metadata leaf, never export a partial body."""
+    fd = None
+    try:
+        fd = os.open(path, os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW | os.O_NONBLOCK)
+        need(stat.S_ISREG(os.fstat(fd).st_mode), 'public metadata ordinary leaf')
+        raw = bytearray()
+        while len(raw) <= limit:
+            block = os.read(fd, min(4096, limit + 1 - len(raw)))
+            if not block: break
+            raw.extend(block)
+        if len(raw) > limit: return None, 'BOUND'
+        return bytes(raw), None
+    except OSError as error:
+        return None, 'READ_ERRNO_' + str(error.errno)
+    except ValueError:
+        return None, 'FORMAT'
+    finally:
+        if fd is not None: os.close(fd)
+
+def namespace_unknown(reason):
+    return dict(status='UNKNOWN', reason=reason)
+
+def namespace_context(map_hash):
+    """Same-process pre-exec observation only; no namespace probe or policy mutation."""
+    status = {name:namespace_unknown('ABSENT') for name in NAMESPACE_STATUS}
+    raw,error = namespace_read('/proc/self/status', 16384)
+    if error is None:
+        for line in raw.splitlines():
+            key,sep,value=line.partition(b':')
+            if key.decode('ascii','ignore') not in status: continue
+            name=key.decode();value=value.strip()
+            if name in ('Uid','Gid') and re.fullmatch(rb'[0-9]+\s+[0-9]+\s+[0-9]+\s+[0-9]+',value): parsed=list(map(int,value.split()))
+            elif name.startswith('Cap') and re.fullmatch(rb'[0-9a-fA-F]{16}',value): parsed=value.decode().lower()
+            elif name in ('NoNewPrivs','Seccomp','Seccomp_filters') and re.fullmatch(rb'[0-9]{1,10}',value): parsed=int(value)
+            else: continue
+            status[name]=dict(status='OBSERVED',value=parsed)
+    else: status={name:namespace_unknown(error)for name in status}
+    namespaces={}
+    for name in ('user','mnt','net','pid'):
+        try:
+            value=os.readlink('/proc/self/ns/'+name)
+            namespaces[name]=dict(status='OBSERVED',value=value) if re.fullmatch(name+r':\[[0-9]{1,20}\]',value) else namespace_unknown('FORMAT')
+        except OSError as error:namespaces[name]=namespace_unknown('READ_ERRNO_'+str(error.errno))
+    sysctls={}
+    for name,path in NAMESPACE_SYSCTLS.items():
+        raw,error=namespace_read(path,64)
+        sysctls[name]=dict(status='OBSERVED',value=int(raw)) if error is None and re.fullmatch(rb'[0-9]{1,10}\n?',raw) else namespace_unknown(error or 'FORMAT')
+    maps={}
+    for name in ('uid_map','gid_map'):
+        raw,error=namespace_read('/proc/self/'+name,1024);lines=[] if raw is None else raw.splitlines()
+        maps[name]=dict(status='OBSERVED',value=[list(map(int,line.split()))for line in lines]) if error is None and 0<len(lines)<=16 and all(re.fullmatch(rb'\s*[0-9]{1,10}\s+[0-9]{1,10}\s+[0-9]{1,10}\s*',line)for line in lines) else namespace_unknown(error or 'FORMAT')
+    raw,error=namespace_read('/proc/self/attr/current',256)
+    if error is not None:lsm=namespace_unknown(error)
+    else:
+        label=raw.rstrip(b'\n\0')
+        lsm=dict(status='OBSERVED',label=label.decode()) if label in (b'unconfined',b'docker-default (enforce)') else dict(status='HASH_ONLY',**data_pin(raw))
+    try:
+        path=Path('/usr/bin/bwrap');info=path.lstat();raw=ordinary(path,16*1024**2)
+        bwrap=dict(status='OBSERVED',mode=stat.S_IMODE(info.st_mode),uid=info.st_uid,gid=info.st_gid,**data_pin(raw))
+    except (OSError,ValueError)as error:bwrap=namespace_unknown('READ_ERRNO_'+str(error.errno)if isinstance(error,OSError)else'FORMAT')
+    targets=('/', '/proc', '/dev', '/sys', '/home');mounts={name:namespace_unknown('ABSENT')for name in targets}
+    raw,error=namespace_read('/proc/self/mountinfo',256*1024)
+    if error is None:
+        for line in raw.splitlines():
+            left,sep,right=line.partition(b' - ');fields=left.split();tail=right.split()
+            if not sep or len(fields)<6 or len(tail)<3:continue
+            if fields[4]not in tuple(name.encode()for name in targets):continue
+            name=fields[4].decode();fs=tail[0]
+            if fs not in (b'overlay',b'proc',b'tmpfs',b'sysfs',b'devtmpfs',b'ext4',b'xfs',b'btrfs'):continue
+            options=sorted(set(fields[5].decode().split(','))&{'ro','rw','nosuid','nodev','noexec','relatime','noatime'})
+            mounts[name]=dict(status='OBSERVED',fstype=fs.decode(),options=options)
+    else:mounts={name:namespace_unknown(error)for name in targets}
+    groups=os.getgroups()
+    value=dict(schema=1,kind='platform-makepkg-namespace-context-v1',position='SAME_PROCESS_BEFORE_EXEC_NO_PROBE',source_map_sha256=map_hash,
+        upstream_commit=NAMESPACE_SOURCE_COMMIT,cwd=os.getcwd(),process=dict(uid=os.getuid(),euid=os.geteuid(),gid=os.getgid(),egid=os.getegid(),groups=sorted(groups)[:32],group_count=len(groups),groups_truncated=len(groups)>32),
+        status=status,namespaces=namespaces,sysctls=sysctls,maps=maps,lsm=lsm,bwrap=bwrap,mounts=mounts)
+    need(len(json.dumps(value,sort_keys=True).encode())<=12288,'namespace observation byte cap')
+    return value
+
+
 def load_workflow(root, policy):
     row = policy['original_workflow']
     path = Path(root) / row['path']; raw = ordinary(path)
