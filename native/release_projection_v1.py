@@ -13,10 +13,10 @@ PRODUCERS = {
     'native/release_alpm_v1.py': '61cb97fc1bdc4f55e398a083b7318c9ff08895917c1066e666d8cd62b24a271f',
     'native/release_tools_v1.py': '911c629ab4426a1379e0f89192e4e3b8e3d769d70d106bbfb3771e249b1ec536',
     'native/release_guest_v1.py': '10eb4d88baabaa0efdecbab684b5caafaa68a7cfc50b668849df99cd3d532c85',
-    'native/release-contract-v1.json': '33850cecc0ee78bf0f8fd74df015d55d10d2f2f4ed0dfc49fc1e6dda7fc1cea6',
-    'native/release_build_cause_v1.py': 'b4ad946d7926194936291027a2ff312bc4a35d436015c5af0702569bdaca17db',
+    'native/release-contract-v1.json': 'e6a938f606954c213c5a38709b9cf2680d049c8ac8f20c381fc51800ccff1333',
+    'native/release_build_cause_v1.py': '859144a2e90ce7ef5ac6884fed421023b8783e98a335b3f91fcfc522da5736ff',
     'scripts/workflows/developer_workflow.py': '531c124cde3fa41d46888acfc638c823196bb2f297b19ab68ab3d001b05f16ba',
-    'scripts/virtual/owned_process_retirement_v2.py': 'dc411c60c522b390e455848510cf34c25c740f19ebdf882cebadb4cb88375fc2'}
+    'scripts/virtual/owned_process_retirement_v2.py': '9388d270d06e28fee50160b7c04dd69593e383647d791f8aaff69380032165d5'}
 HOST={'transport-diagnostic.json','transport-proof.json','receipt.json','cleanup.json','source-proof.json','consumer-inspect.json','consumer-after.json',
  'consumer-diagnostic.json','image-ledger.json','image-retirement.json','bootstrap-failure-retention.json','provision-diagnostic.json','build-summary.json'}
 BOOTSTRAP={phase+'-'+name for phase in ('bootstrap','overlay') for name in

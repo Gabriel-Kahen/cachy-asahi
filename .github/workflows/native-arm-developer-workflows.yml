@@ -11,16 +11,17 @@ on:
       operation:
         type: choice
         required: true
-        default: source184
-        options: [source184, release-alpm-upgrade-v1]
+        default: release-alpm-upgrade-v1
+        options: [release-alpm-upgrade-v1]
 permissions:
   contents: read
 concurrency:
-  group: native-arm-developer-workflows
+  group: native-arm-release-tools
   cancel-in-progress: false
+  queue: max
 jobs:
   native:
-    if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false && inputs.operation == 'release-alpm-upgrade-v1'
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 135
     defaults:

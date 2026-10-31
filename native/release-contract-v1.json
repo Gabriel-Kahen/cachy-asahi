@@ -73,9 +73,9 @@
   "native_16K": "NOT_QUALIFIED",
   "operation": "release-alpm-upgrade-v1",
   "original_workflow": {
-    "bytes": 29998,
+    "bytes": 38256,
     "path": "scripts/virtual/owned_process_retirement_v2.py",
-    "sha256": "dc411c60c522b390e455848510cf34c25c740f19ebdf882cebadb4cb88375fc2"
+    "sha256": "9388d270d06e28fee50160b7c04dd69593e383647d791f8aaff69380032165d5"
   },
   "physical_M2": "NOT_RUN",
   "recipes": {
@@ -459,12 +459,12 @@
   },
   "release": "NOT_ADMITTED",
   "retirement_profile": {
-    "bytes": 29998,
+    "bytes": 38256,
     "caller": "BUNDLED_FIXED_RETIREMENT_COMMANDS",
     "group_census": "RESERVED_LEADER_ONLY",
     "name": "reserved-terminal-v2",
     "path": "scripts/virtual/owned_process_retirement_v2.py",
-    "sha256": "dc411c60c522b390e455848510cf34c25c740f19ebdf882cebadb4cb88375fc2"
+    "sha256": "9388d270d06e28fee50160b7c04dd69593e383647d791f8aaff69380032165d5"
   },
   "schema": 1
 }
