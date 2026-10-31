@@ -8,7 +8,7 @@ Maintained source-only ARM build/lifecycle lane for the exact original MIT `cach
 python -I -B assemble_source.py \
   --parent-source /absolute/retained-genuine191/source \
   --raw-parent-commit /absolute/this-directory/parent-commit.txt \
-  --profile-sha256 7cb6244c3f0e40e226b647755607d3fbb0d777530c69ff7ea3a2a19f1335ddfc \
+  --profile-sha256 da31f43fd89d246087047c626b385b875caa64c6f50d94515dc60610b64df024 \
   --output /absolute/private-parent/fresh-source
 ```
 
@@ -23,3 +23,5 @@ python -I -B -Werror::ResourceWarning test_assemble_source.py
 ```
 
 MIT applies to the original project source; the recipe bundle retains LICENSE/NOTICE and exact source/provenance maps. Runtime candidate dependencies remain Python>=3.14, xz and zstd; bubblewrap is required for real package checks. Existing native191 cache, current owned-process custody, full1154 retained transport, runtime/HTTP/member caps and clocks remain unchanged. Native build/ALPM results, native16K, physical M2, performance and release acceptance require separate evidence and are not established by source checks or assembly.
+
+Namespace-denial successor: a sixth immutable producer operand extends the existing probe. Only after an original bwrap namespace denial with complete owned retirement, up to six same-alarm/launcher/env/cwd actors record fixed bounded self context and exact libc.unshare outcomes. They use <=10s per actor inside the unchanged original Commands total deadline. No mount, uid-map/sysctl write, privilege waiver, check skip or retirement migration occurs; the original failure remains authoritative. New observations and missing fields are DATA/UNKNOWN, never namespace or native acceptance.
