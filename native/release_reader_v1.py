@@ -369,11 +369,13 @@ def retained_consumer_diagnostic(view, files, receipt, binding, map_sha256, posi
 
 
 PRODUCERS = {
-    'native/release_alpm_v1.py': '2c922b881709017d0a1a869c0c272b07aefd607c682b228daea249675e127e02',
-    'native/release_tools_v1.py': 'bb0742e5ffcd03dddf4b047ee4c6612bbd1c764d27de7003d9b12a9cbf1c8d46',
+    'native/release_alpm_v1.py': 'bb80791daf41586234edebbbd0b1b9081dedc72636c2bb71044735796cb1f02c',
+    'native/release_tools_v1.py': '6910ff5c4e0e63fc64f7c13f5dccc2df5528377418135c91026d7ed3bb3bfd3a',
     'native/release_guest_v1.py': '10eb4d88baabaa0efdecbab684b5caafaa68a7cfc50b668849df99cd3d532c85',
-    'native/release-contract-v1.json': '16d6854936e8fbfd10ae245d8414de29f742711f75a041230971cf1ff23161d5',
-    'native/release_build_cause_v1.py': 'ebd90211dba9cb7d090b07ea29909ca5cbeef0f6875a67760f3c52f72fda5750'}
+    'native/release-contract-v1.json': 'e42ada621d718d8c0de2d6c4f5e34a90cd9789e8773b17537b451afd0874ebb6',
+    'native/release_build_cause_v1.py': '53bb46c90c2d5aa2fc3d860f5167a5c97d04e9b05f20fa0a957019e34474295d',
+    'scripts/workflows/developer_workflow.py': '12e0f3f8dbfe9df1ce50042300427f0fed10ae315d82df0af5ffcad9873eee29',
+    'scripts/virtual/owned_process_retirement_v2.py': 'f2669a2fbff358e7fcd9a54c67066021af8f0108f5652efc41d1d4a9ecfe14e9'}
 PASS = 'PASS_RELEASE_TOOLS_NATIVE_ALPM_UPGRADE'
 OPERATION = 'release-alpm-upgrade-v1'
 
@@ -786,7 +788,7 @@ def retained_release_alpm(view, files, guest, map_sha256):
         matched = (type(code) is int and code > 0) if expected == 'nonzero' else type(expected) is int and code == expected
         need(command.get('success') is True and type(state) is dict and matched
              and state.get('reaped') is True and state.get('ownership') == 'REAPED'
-             and state.get('group_census') == 'EMPTY_TWICE' and state.get('output_complete') is True
+             and state.get('group_census') == 'RESERVED_LEADER_ONLY' and state.get('output_complete') is True
              and state.get('error') is None and state.get('timeout') is False and state.get('signals') == [],
              'release command requires actual owned natural retirement')
         need(type(command.get('argv')) is list and 0 < len(command['argv']) <= 128

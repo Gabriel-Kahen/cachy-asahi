@@ -130,7 +130,7 @@ def inside(source,map_hash):
         for home in (signing,trust):home.mkdir(mode=0o700)
         (work/'command-home').mkdir(mode=0o700)
         alarm=pwd.getpwnam('alarm');W=T.load_workflow(source,policy)
-        commands=W.Commands(scope,work/'command-home','/usr/bin:/bin',timeout=300,total=600,max_output=1024*1024)
+        commands=W.RetirementCommands(scope,work/'command-home','/usr/bin:/bin',timeout=300,total=600,max_output=1024*1024)
         def run(step,argv,expected=0,cwd=work):return commands.run(step,list(map(str,argv)),Path(cwd),expected)
         def inventory(step):return b''.join(sorted(run(step,['/usr/bin/pacman','-Q']).splitlines(keepends=True)))
         def reasons(step):
@@ -232,7 +232,7 @@ def inside(source,map_hash):
             # A fresh owned cleanup supervisor has its own bounded deadline, so an
             # exhausted/cancelled business Commands object cannot prevent retirement.
             try:
-                cleanup_commands=W.Commands(scope,work/'command-home','/usr/bin:/bin',timeout=30,total=120,max_output=1024*1024)
+                cleanup_commands=W.RetirementCommands(scope,work/'command-home','/usr/bin:/bin',timeout=30,total=120,max_output=1024*1024)
                 cleanup_commands.records=commands.records
                 def clean_run(step,argv,expected=0):return cleanup_commands.run(step,list(map(str,argv)),work,expected)
             except BaseException as error:
