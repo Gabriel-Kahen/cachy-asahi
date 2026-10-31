@@ -273,6 +273,7 @@ def supervise(child, *, cap, retirement=1.0, grace=0.2, group=True,
     output = bytearray()
     error = None
     census = 'NOT_OBSERVED'
+    group_retirement = None
     pipes_ready = False
     rss_samples = []
     rss_rows = 0
@@ -437,6 +438,12 @@ def supervise(child, *, cap, retirement=1.0, grace=0.2, group=True,
                 until = min(deadline, retire_end if retire_end is not None else deadline)
                 members = _rss_members(pid, until, peek)
                 verify()
+                # DATA from the completed owned scan only; no later proc reads.
+                selected = sorted(members)[:32]
+                group_retirement = dict(phase='PRE_REAP',
+                    reserved_leader=dict(pid=pid, start_ticks=identity[3]),
+                    member_count=len(members), members=[dict(members[p]) for p in selected],
+                    truncated=len(members) > len(selected))
                 only = members.get(pid)
                 if (len(members) == 1 and only is not None and only['start_ticks'] == identity[3]
                         and only['state'] in ('Z', 'X')):
@@ -480,7 +487,7 @@ def supervise(child, *, cap, retirement=1.0, grace=0.2, group=True,
     elapsed = time.monotonic() - started
     result = dict(exit=exitcode, reaped=reaped, ownership=ownership, timeout=timed_out,
                 signals=[signal.Signals(sig).name for sig in sent], output=bytes(output),
-                output_complete=pipes_ready and not pipes, group_census=census,
+                output_complete=pipes_ready and not pipes, group_census=census, group_retirement=group_retirement,
                 error=error, seconds=elapsed,
                 passed=reaped and exitcode == 0 and not timed_out and not sent
                 and error is None and elapsed < cap and not pipes
@@ -499,3 +506,91 @@ def supervise(child, *, cap, retirement=1.0, grace=0.2, group=True,
 
 if __name__ == '__main__':
     print(__doc__)
+
+
+# Source-only reviewed core/caller bundle; loaded through the contract pin.
+import hashlib
+import json
+from pathlib import Path
+from types import SimpleNamespace
+
+def load_core():
+    return SimpleNamespace(prepare=prepare, supervise=supervise)
+
+
+def pin(raw):
+    return dict(bytes=len(raw), sha256=hashlib.sha256(raw).hexdigest())
+
+
+def save(path, value):
+    path.write_text(json.dumps(value, indent=2, sort_keys=True, allow_nan=False) + '\n')
+
+
+class Failure(ValueError):
+    pass
+
+
+class RetirementCommands:
+    """Single main-thread wait owner. Logs are written only after supervision."""
+    def __init__(self, output, home, tool_path, timeout=15, total=180, max_output=128*1024):
+        if (type(max_output) is not int or not 0 <= max_output <= 1024*1024
+                or not all(type(x) in (int, float) and math.isfinite(x)
+                           for x in (timeout, total)) or not 2 <= timeout <= total <= 600):
+            raise ValueError('finite command budgets and output cap required before launch')
+        self.output = Path(output)
+        self.env = dict(PATH=tool_path, HOME=str(home), LC_ALL='C.UTF-8', TZ='UTC',
+                        GIT_CONFIG_NOSYSTEM='1', GIT_CONFIG_GLOBAL='/dev/null',
+                        GIT_TERMINAL_PROMPT='0', GIT_ALLOW_PROTOCOL='file',
+                        PYTHONDONTWRITEBYTECODE='1')
+        self.timeout, self.max_output = timeout, max_output
+        self.deadline = time.monotonic() + total
+        self.records = []
+        self.core = load_core()
+        self.cancelled = []
+
+    def run(self, step, argv, cwd, expected=0):
+        if self.cancelled:
+            raise Failure('cancellation requested; prior child already retired')
+        remaining = min(self.timeout, self.deadline - time.monotonic())
+        if remaining <= 1.1:
+            raise Failure('workflow deadline exhausted before launch')
+        if not isinstance(argv, list) or not argv or any(type(a) is not str for a in argv):
+            raise ValueError('explicit argv list required')
+        if not Path(argv[0]).is_absolute():
+            raise ValueError('absolute executable path required')
+        self.core.prepare()
+        handlers = {sig: signal.signal(sig, lambda number, frame: self.cancelled.append(number))
+                    for sig in (signal.SIGINT, signal.SIGTERM)}
+        result = None
+        row = dict(step=step, argv=argv, cwd=str(cwd), expected=expected, success=False)
+        try:
+            # No context manager/poll/wait/communicate: core owns every wait.
+            child = subprocess.Popen(argv, cwd=cwd, env=self.env,
+                                     stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                                     stderr=subprocess.STDOUT, start_new_session=True)
+            result = self.core.supervise(child, cap=remaining, retirement=1,
+                                         grace=.2, max_output=self.max_output)
+        except OSError as error:
+            row['launch_error'] = str(error)
+        finally:
+            for sig, handler in handlers.items():
+                signal.signal(sig, handler)
+        raw = result.pop('output') if result is not None else b''
+        log = '%03d-%s.log' % (len(self.records), step)
+        # Late logging failure never gains a PID or cleanup authority.
+        (self.output / log).write_bytes(raw)
+        row.update(log=log, log_pin=pin(raw), supervision=result,
+                   channels='stdout+stderr combined in pipe order')
+        if result is not None:
+            retired = (result['reaped'] and result['ownership'] == 'REAPED'
+                       and result['group_census'] == 'RESERVED_LEADER_ONLY'
+                       and result['output_complete'] and not result['timeout']
+                       and not result['signals'] and result['error'] is None
+                       and result['seconds'] < remaining)
+            matched = result['exit'] > 0 if expected == 'nonzero' and result['exit'] is not None else result['exit'] == expected
+            row['success'] = bool(retired and matched and not self.cancelled)
+        self.records.append(row)
+        save(self.output / 'commands.json', self.records)
+        if not row['success']:
+            raise Failure('command failed or retirement unknown: ' + step)
+        return raw

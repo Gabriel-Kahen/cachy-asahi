@@ -660,9 +660,9 @@
       "sha256": "e87199b0be6d3fbd235be7584d06f83907b85da43d5ce6f753f021cd79a27854"
     },
     "native/release-contract-v1.json": {
-      "bytes": 17382,
+      "bytes": 17440,
       "mode": 420,
-      "sha256": "e42ada621d718d8c0de2d6c4f5e34a90cd9789e8773b17537b451afd0874ebb6"
+      "sha256": "5405c8ca70d1fb054c6ade471692bf80b5ffa9e6879b992866dd4cd8260845bb"
     },
     "native/release-makepkg-v1.conf": {
       "bytes": 316,
@@ -675,14 +675,14 @@
       "sha256": "aed1ecd1091744d9a4353dcdcac00266bacab24a1a2c3d2cea6cb4a47166847c"
     },
     "native/release_alpm_v1.py": {
-      "bytes": 23463,
+      "bytes": 23698,
       "mode": 420,
-      "sha256": "bb80791daf41586234edebbbd0b1b9081dedc72636c2bb71044735796cb1f02c"
+      "sha256": "61cb97fc1bdc4f55e398a083b7318c9ff08895917c1066e666d8cd62b24a271f"
     },
     "native/release_build_cause_v1.py": {
-      "bytes": 18934,
+      "bytes": 21336,
       "mode": 420,
-      "sha256": "53bb46c90c2d5aa2fc3d860f5167a5c97d04e9b05f20fa0a957019e34474295d"
+      "sha256": "f71d04c7ba6e4d03d5a5cbd4747775da652baf4b82374f57f1cc299755a72d7c"
     },
     "native/release_guest_v1.py": {
       "bytes": 2987,
@@ -692,17 +692,17 @@
     "native/release_projection_v1.py": {
       "bytes": 10838,
       "mode": 420,
-      "sha256": "21251ae98cd44f6591bd01fac223bad51b5c876d71f9d5c19763ff8d5699d7e6"
+      "sha256": "e0a6aae49fd3edf97fabdf2a158dc2b50c1214cff65296860969577627c4f21e"
     },
     "native/release_reader_v1.py": {
-      "bytes": 96361,
+      "bytes": 97165,
       "mode": 420,
-      "sha256": "ea80755bc7e5dc61d5437df5aa28679973f086cee719e851b2136a39f5c7824f"
+      "sha256": "81d012e04913d5cb13254a2ea30684aa72719099431a3ae10b49215d3bd664db"
     },
     "native/release_tools_v1.py": {
-      "bytes": 17257,
+      "bytes": 17450,
       "mode": 420,
-      "sha256": "6910ff5c4e0e63fc64f7c13f5dccc2df5528377418135c91026d7ed3bb3bfd3a"
+      "sha256": "911c629ab4426a1379e0f89192e4e3b8e3d769d70d106bbfb3771e249b1ec536"
     },
     "native/retained_transport.py": {
       "bytes": 12375,
@@ -745,9 +745,9 @@
       "sha256": "83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f"
     },
     "scripts/virtual/owned_process_retirement_v2.py": {
-      "bytes": 24150,
+      "bytes": 28933,
       "mode": 493,
-      "sha256": "f2669a2fbff358e7fcd9a54c67066021af8f0108f5652efc41d1d4a9ecfe14e9"
+      "sha256": "e99ab3c68d7317fce3cd84d6b4427cc808d9edcce0f5a7566d86a305ef2955f6"
     },
     "scripts/workflows/developer_build_systems.py": {
       "bytes": 20558,
@@ -755,9 +755,9 @@
       "sha256": "8c5025f3d748fb2e5aebb304310852158ebaac0bcaf9ef44cad8676ed5963fbc"
     },
     "scripts/workflows/developer_workflow.py": {
-      "bytes": 31019,
+      "bytes": 29699,
       "mode": 493,
-      "sha256": "12e0f3f8dbfe9df1ce50042300427f0fed10ae315d82df0af5ffcad9873eee29"
+      "sha256": "531c124cde3fa41d46888acfc638c823196bb2f297b19ab68ab3d001b05f16ba"
     },
     "scripts/workflows/python_development.py": {
       "bytes": 19097,
@@ -1022,11 +1022,15 @@
   "release_build_cause_operation": "release-alpm-upgrade-v1",
   "release_build_cause_parent": "feb4d3c4b998fbc328eab0cd140e82497b5c3622",
   "release_corrected191_parent": "111f14d2b21b220d86912d5ead978848c7ef1cb0",
+  "release_correction_parent": "7e89c9d6a1d24fb118299b36f16ac853fc420cc3",
+  "release_correction_scope": "exact-zero-GPG-absence-and-owned-member-DATA",
+  "release_maintained_main": "970a20ab9013d2fcf6d96626d998a50ac43383ee",
   "release_operation": "release-alpm-upgrade-v1",
   "release_original191_predecessor": "4c3171a1937489badd22d350835e8287fee3c52a",
   "release_retirement_maintained_main": "eaf43eddc5604773d8176f319700a450bc32ccb0",
   "release_retirement_parent": "adb1f15aa0821e185218dea175b08650831549f1",
   "release_retirement_profile": "reserved-terminal-v2",
+  "release_shared_workflow": "ORIGINAL531_PRESERVED",
   "schema": 1,
   "transport_basis177_map_sha256": "99d676438a247749b3e1c564943d8735452a1ebd92ec91dd78ee37817e77f36d",
   "transport_basis187_map_sha256": "b295500787e25eeb77ac16e84fb786d3d6c1e9f02f7a9ddb83d950bbe9d75c90",
