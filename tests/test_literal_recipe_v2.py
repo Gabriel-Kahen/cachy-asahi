@@ -6,6 +6,7 @@ import importlib.util
 import io
 import json
 from pathlib import Path
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -27,10 +28,11 @@ def load(name, path):
 OLD = load('literal_before', ROOT / 'scripts/checks/package_checks.py')
 NEW = load('literal_v2', V2)
 ACTORS = []
+AUDIT_ACTIVE = False
 
 
 def deny(event, args):
-    if event.startswith(('socket.', 'subprocess.', 'os.exec', 'os.fork', 'os.spawn', 'os.posix_spawn')) or event == 'os.system':
+    if AUDIT_ACTIVE and (event.startswith(('socket.', 'subprocess.', 'os.exec', 'os.fork', 'os.spawn', 'os.posix_spawn')) or event == 'os.system'):
         ACTORS.append(event)
         raise AssertionError('literal metadata controls forbid actors')
 
@@ -39,6 +41,16 @@ sys.addaudithook(deny)
 
 
 class LiteralTests(unittest.TestCase):
+    def setUp(self):
+        global AUDIT_ACTIVE
+        AUDIT_ACTIVE = True
+        self.addCleanup(self.stop_audit)
+
+    @staticmethod
+    def stop_audit():
+        global AUDIT_ACTIVE
+        AUDIT_ACTIVE = False
+
     def test_actual_build_tools_and_source_tools_versioned_dependency_reproduction(self):
         for name, version in [('cachy-asahi-build-tools', '3.12'), ('cachy-asahi-source-tools', '3.14')]:
             path = ROOT / 'packages/tools' / name / 'PKGBUILD'
@@ -126,6 +138,32 @@ class LiteralTests(unittest.TestCase):
         for name in set(a) - {'literal_metadata', 'main'}: self.assertEqual(a[name], b[name], name)
         for name in ('FIELDS', 'PROTECTED', 'PROTECTED_PACKAGES', 'ARCH_FIELDS', 'PACKAGE_METADATA', 'MAX_MEMBER', 'MAX_TOTAL'):
             self.assertEqual(getattr(OLD, name), getattr(NEW, name))
+
+
+class AuditIsolationTests(unittest.TestCase):
+    def test_import_and_owned_test_cleanup_do_not_block_other_python_fixtures(self):
+        # A fresh process reproduces shared unittest discovery, including import
+        # before our tests and other fixture processes after our cleanup.
+        script = '''import importlib.util, subprocess, sys, unittest
+spec=importlib.util.spec_from_file_location('audit_fixture',sys.argv[1])
+m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+assert not m.AUDIT_ACTIVE
+subprocess.run([sys.executable,'-I','-c','pass'],check=True,timeout=5)
+case=m.LiteralTests('test_single_recipe_cli_reports_success_and_protected_failure_as_data')
+result=unittest.TextTestRunner().run(unittest.TestSuite([case]))
+assert result.wasSuccessful() and not m.AUDIT_ACTIVE
+case.setUp()
+try:
+    try: subprocess.run([sys.executable,'-I','-c','pass'],check=True,timeout=5)
+    except AssertionError: pass
+    else: raise AssertionError('owned DATA guard was not active')
+finally: case.doCleanups()
+assert not m.AUDIT_ACTIVE
+subprocess.run([sys.executable,'-I','-c','pass'],check=True,timeout=5)
+'''
+        result = subprocess.run([sys.executable, '-I', '-B', '-c', script, str(Path(__file__).resolve())],
+                                capture_output=True, timeout=20)
+        self.assertEqual(result.returncode, 0, result.stderr.decode())
 
 
 if __name__ == '__main__':
