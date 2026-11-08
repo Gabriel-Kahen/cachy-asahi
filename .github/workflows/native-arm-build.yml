@@ -34,14 +34,15 @@ jobs:
         timeout-minutes: 2
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '6065fff6889eac2ce0123d4ea660147f51e204cce4d0b7a5d3a944d870b6c4c1' "$SLICE/job.py" '970e2e92ca1af7e47d39fbbed6a06ff7ca7b6766e2c0f4b533149cbb84ccecb2' "$SLICE/source-manifest.json" | sha256sum --check
+          printf '%s  %s\n' '6065fff6889eac2ce0123d4ea660147f51e204cce4d0b7a5d3a944d870b6c4c1' "$SLICE/job.py" 'eee6e7783ff8fdaa0ea1c0d282577d326abed28215b68e0046a5ca9bf172664c' "$SLICE/source-manifest.json" | sha256sum --check
           python3 -I -B "$SLICE/job.py" proof --source "$GITHUB_WORKSPACE" --proof "$RUNNER_TEMP/client-v3-native-source-proof.json"
       - name: Focused source and hosted entry controls
         timeout-minutes: 3
         run: |
           set -euo pipefail
           python3 -I -B scripts/ci/test_maintained_desktop574.py
-          python3 -B -m unittest discover -s "$SLICE" -p test_source.py
+          python3 -I -B "$SLICE/test_source.py" --root "$GITHUB_WORKSPACE" --closed-source
+          python3 -I -B "$SLICE/test_entry_failures.py" --root "$GITHUB_WORKSPACE"
       - name: Seed the six exact retained inputs using existing secrets only
         timeout-minutes: 2
         env:

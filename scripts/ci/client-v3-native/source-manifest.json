@@ -169,8 +169,8 @@
       "sha256": "2bc7db6a8c1a33fbb0ca7af1577454e912b1a0d32569189ee1c027ebf65fcdd3"
     },
     "scripts/ci/client-v3-native/adapter.py": {
-      "bytes": 10179,
-      "sha256": "a34033562f719882ea7d3837b42ef962e48155c5340f7638865a89c90223ace3"
+      "bytes": 12328,
+      "sha256": "9ae86d4064b29663c4ce165e0e2b76222882f5d3dc0d2332d3eca47bbc4a3aaf"
     },
     "scripts/ci/client-v3-native/contract.py": {
       "bytes": 380,
@@ -232,9 +232,13 @@
       "bytes": 2057,
       "sha256": "a682b64a5326fc7edf0d2347c37ae50805f9b7773c2683f1fbae1769c18fa023"
     },
+    "scripts/ci/client-v3-native/test_entry_failures.py": {
+      "bytes": 11184,
+      "sha256": "1ac5a9eb9ef0a24c905ca2ea0408003a15c60d7e194b8843f9ead79e9a6bbfa3"
+    },
     "scripts/ci/client-v3-native/test_source.py": {
-      "bytes": 11706,
-      "sha256": "1bbe2d515533e787314fd98cb6eb2ddfc2ffd76c66c8d06cc2d81edca1b69369"
+      "bytes": 13852,
+      "sha256": "7ae1899399154710d617334c54283066ffce7595002f78d2657902c529864b17"
     },
     "scripts/ci/full-development-composition/run.py": {
       "bytes": 29738,

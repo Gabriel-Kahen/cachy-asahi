@@ -65,6 +65,8 @@ def text(source, name):
         raw = replace(raw, 'import contract as C\n', 'import contract as C\nimport adapter as A\n')
         raw = function(raw, 'execute', _run_body(raw))
     elif name == 'job.py':
+        raw = replace(raw, 'import contract as C\n', 'import contract as C\nimport adapter as A\n')
+        raw = replace(raw, "    old.manifest_files(source,C.read(C.HERE/'source-manifest.json'))\n", "    old.manifest_files(source,C.read(C.HERE/'source-manifest.json'))\n    A.cleanup_parent(runtime)\n")
         raw = replace(raw, "for name in ('base-inventory.log','lifecycle.log','catalog-fixture.log','runtime-dependency-image-install.log','runtime-dependency-image-commit.log'):",
                       "for name in ('base-inventory.log','lifecycle.log','runtime-dependency-image-install.log','runtime-dependency-image-commit.log'):")
         start = raw.index("    fixture=runtime/'catalog-fixture'\n")
@@ -79,14 +81,8 @@ def text(source, name):
         raw = replace(raw, "'PASS_NATIVE_UNSELECTED_APPS_RUNTIME_CACHE_CANDIDATES'", "'PASS_NATIVE_RUNTIME_CLIENT_V3_FRESH_COMPONENT'")
         raw = raw.replace('six clean native build bindings required', 'four clean native build bindings required')
         marker = "    try:\n        C.verify_source(source);report=C.read(runtime/'report.json');C.validate_lifecycle(report['lifecycle'])\n"
-        extra = """    for role,context in [('runtime-dependency',runtime/'runtime-context'),('lifecycle',runtime/'lifecycle-inputs')]:
-        proof=C.read(context/'runner-derivations.json');C.need(proof.get('schema')==1 and proof.get('status')=='SOURCE_CLOSED_ACTUAL_RUNTIME_RUNNER_DATA' and len(proof.get('files',{}))==12,'complete actual runner forwarding required')
-        copy(context/'runner-derivations.json','emitted/'+role+'/runner-derivations.json',65536)
-        for name,row in proof['files'].items():
-            C.need(type(name)is str and not Path(name).is_absolute() and all(p not in ('','.','..') for p in name.split('/')),'ordinary runner DATA name')
-            path=context/'runner'/name;C.need(path.stat().st_size==row['bytes'] and C.digest(path)==row['sha256'],'actual runner bytes differ')
-            copy(path,'emitted/'+role+'/runner/'+name,2*1024**2)
-"""
+        extra = "    A.forward_runners(C, runtime, copy, result)\n"
+
         raw = replace(raw, marker, extra + marker)
     else:
         raise ValueError('finite native derivative name required')
@@ -141,3 +137,39 @@ def runner(source, context):
         raise ValueError('exact complete twelve-file runtime runner required')
     (context / 'runner-derivations.json').write_text(json.dumps(dict(schema=1, status='SOURCE_CLOSED_ACTUAL_RUNTIME_RUNNER_DATA', files=rows), sort_keys=True, indent=2) + '\n')
     return runner
+
+
+RUNNER_NAMES = frozenset(('contract.py','lifecycle.py','installed.py','runtime_image.py','rules.py',
+    'installed_v3.py','rename_after_real_verification.py','input-policy.json','accepted/lifecycle.py',
+    'accepted/root_upgrade.py','fixture-client/test_client_v2.py','fixture-client/client_v2.py'))
+
+def cleanup_parent(runtime):
+    """Create only this owned report parent; forwarding is never a cleanup prerequisite."""
+    runtime = Path(runtime)
+    if not runtime.is_absolute() or any(p.is_symlink() for p in (runtime,*runtime.parents)):
+        raise ValueError('ordinary owned cleanup report parent required')
+    if not runtime.exists(): runtime.mkdir(mode=0o700)
+    info = runtime.lstat()
+    if not stat.S_ISDIR(info.st_mode) or info.st_uid != os.geteuid() or stat.S_IMODE(info.st_mode) != 0o700:
+        raise ValueError('private owned cleanup report parent required')
+
+def forward_runners(C, runtime, copy, result):
+    """Only retained actual bytes may satisfy positive forwarding; preserve failures as DATA."""
+    for role,context in [('runtime-dependency',runtime/'runtime-context'),('lifecycle',runtime/'lifecycle-inputs')]:
+        try:
+            proof = C.read(context/'runner-derivations.json')
+            C.need(type(proof) is dict and set(proof)=={'schema','status','files'} and type(proof['schema']) is int and proof['schema']==1
+                and proof['status']=='SOURCE_CLOSED_ACTUAL_RUNTIME_RUNNER_DATA' and type(proof['files']) is dict
+                and set(proof['files'])==RUNNER_NAMES,'complete actual runner forwarding required')
+            copy(context/'runner-derivations.json','emitted/'+role+'/runner-derivations.json',65536)
+            for name,row in proof['files'].items():
+                C.need(type(row) is dict and set(row)=={'bytes','sha256','mode'} and type(row['bytes']) is int and 0<row['bytes']<=2*1024**2
+                    and type(row['mode']) is int and row['mode']==0o644,'bounded actual runner row required')
+                path=context/'runner'/name
+                C.need(not path.is_symlink() and all(not p.is_symlink() for p in path.parents) and stat.S_ISREG(path.lstat().st_mode)
+                    and path.stat().st_nlink==1 and stat.S_IMODE(path.stat().st_mode)==row['mode'] and path.stat().st_size==row['bytes']
+                    and C.digest(path)==row['sha256'],'actual runner bytes differ')
+                copy(path,'emitted/'+role+'/runner/'+name,2*1024**2)
+        except Exception as error:
+            # Negative artifacts remain complete/honest; success still requires errors==[].
+            result['errors'].append('emitted/'+role+'/runner: '+type(error).__name__)
