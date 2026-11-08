@@ -1,0 +1,3 @@
+cachy-asahi-source-tools 0.1.0
+Copyright (c) 2026 cachy-asahi contributors
+Original MIT project launcher and exact private copies of the eleven source-mirror/build-context helpers identified by source-provenance.json. LICENSE applies to these helpers and this package. Mirrors contain caller-supplied material with its own notices; MIT does not relicense that material.
