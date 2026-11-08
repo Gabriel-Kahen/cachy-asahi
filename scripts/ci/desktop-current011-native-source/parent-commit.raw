@@ -1,0 +1,6 @@
+tree 54f053d477f6e5d6ef7edfdde23ce30967e90b12
+parent 72bc639de295704b94901c03ac8acf7667ff6f9c
+author Gabriel Kahen <93809974+Gabriel-Kahen@users.noreply.github.com> 1794139465 -0500
+committer Gabriel Kahen <93809974+Gabriel-Kahen@users.noreply.github.com> 1794139465 -0500
+
+native: add Desktop strict-v2 reader and Bash PID1 Source200

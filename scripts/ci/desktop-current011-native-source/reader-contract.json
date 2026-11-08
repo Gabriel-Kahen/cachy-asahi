@@ -1,0 +1,15 @@
+{
+  "expected_test_count": 91,
+  "package_source_commit": "446f657723c2e4443f8a3fe8ccbe592ebbaf282b",
+  "package_version": "0.1.1-1",
+  "path": "native/desktop_reader_v1.py",
+  "payload_contract": "native/desktop-contract-v1.json",
+  "payload_files": 6,
+  "private_layout": "desktop-alpm-v1-public-data-v1",
+  "process_layout": "bash-pid1-direct-python-child-v1",
+  "runtime_selection": "desktop-owned-retirement-v2",
+  "scope": "FINITE_NATURAL_RETIREMENT_OPTIONAL_QUALIFIED_ZERO_CHILD",
+  "selection": "desktop-current011-owned-v2-reader-v1",
+  "source_archive_sha256": "11a59ada0d99f1202694ed98adb7891594b27a7048e39a99d5590e425fc31986",
+  "update_version": "0.1.1-2"
+}

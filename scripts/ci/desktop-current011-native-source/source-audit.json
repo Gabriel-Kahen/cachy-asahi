@@ -1,0 +1,250 @@
+{
+  "actual": {
+    "artifact": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "common_constants": {
+    "ALIASES": [
+      ".github/workflows/native-arm-build.yml",
+      ".github/workflows/native-arm-developer-workflows.yml"
+    ],
+    "LABEL": "org.cachy-asahi.native-developer"
+  },
+  "extracted": {
+    "native/capsule.py": {
+      "_validate": "def _validate(entries):\n    need(type(entries) is dict, 'index entries object required')\n    leaves = set()\n    directories = set()\n    for name, row in entries.items():\n        with refusal_context('validate', name):\n            path = _name(name)\n            need(type(row) is dict, 'index row object required')\n            kind = row.get('kind')\n            need(kind in ('file', 'symlink', 'directory'), 'index DATA kind')\n            keys = {'kind', 'mode', 'bytes', 'sha256'} | ({'target'} if kind == 'symlink' else set())\n            need(set(row) == keys, 'index row fields')\n            _mode(row['mode'])\n            need(type(row['bytes']) is int and 0 <= row['bytes'] <= PAYLOAD_CAP, 'index DATA size')\n            need(type(row['sha256']) is str and len(row['sha256']) == 64 and all((c in '0123456789abcdef' for c in row['sha256'])), 'index DATA hash')\n            if kind == 'directory':\n                need(row['bytes'] == 0 and row['sha256'] == EMPTY, 'directory carries no payload')\n                directories.add(name)\n            else:\n                leaves.add(name)\n            if kind == 'symlink':\n                need(type(row['target']) is str and row['target'] and ('\\x00' not in row['target']) and (pin(row['target'].encode('utf-8')) == {k: row[k] for k in ('bytes', 'sha256')}), 'link-target DATA hash')\n            for parent in path.parents:\n                if parent != PurePosixPath('.'):\n                    need(parent.as_posix() in entries and entries[parent.as_posix()]['kind'] == 'directory', 'missing explicit directory or leaf parent collision')\n    need(len(leaves) <= LEAF_CAP and len(directories) + 1 <= DIR_CAP, 'capsule count cap')\n    return (leaves, directories)",
+      "open_capsule": "def open_capsule(path):\n    raw = _ordinary(path, CAP)\n    need(len(raw) >= 10240 and len(raw) % 10240 == 0, 'truncated/noncanonical USTAR record length')\n    index, offset = _take(raw, 0, 'index.json', INDEX_CAP)\n    document = _load(index)\n    need(type(document) is dict and set(document) == {'schema', 'root_mode', 'entries'} and (type(document['schema']) is int) and (document['schema'] == 1) and (_json(document) == index), 'noncanonical capsule index')\n    root_mode = _mode(document['root_mode'])\n    records = document['entries']\n    need(type(records) is dict and len(records) <= LEAF_CAP + DIR_CAP - 1, 'bounded capsule entry map')\n    entries = {}\n    references = {}\n    for name, record in records.items():\n        need(type(record) is dict, 'capsule index row')\n        row = dict(record)\n        if row.get('kind') != 'directory':\n            need('payload' in row, 'capsule payload reference required')\n            references[name] = row.pop('payload')\n        entries[name] = row\n    leaves, _ = _validate(entries)\n    payloads = {}\n    for number, name in enumerate(sorted(leaves)):\n        expected = 'data/%06d' % number\n        need(references[name] == expected, 'canonical unique payload reference required')\n        payload, offset = _take(raw, offset, expected, PAYLOAD_CAP)\n        row = entries[name]\n        need(pin(payload) == {k: row[k] for k in ('bytes', 'sha256')}, 'retained payload bytes/hash differs')\n        if row['kind'] == 'symlink':\n            need(payload == row['target'].encode('utf-8'), 'retained link-target DATA differs')\n        payloads[name] = payload\n    total = (offset + 1024 + 10239) // 10240 * 10240\n    need(len(raw) == total and (not any(raw[offset:])) and (len(raw) - offset >= 1024), 'extra/truncated/noncanonical USTAR tail')\n    return View(entries, payloads, root_mode)"
+    },
+    "native/common.py": {
+      "binding": "def binding(source, ref, run, env):\n    need(re.fullmatch('[0-9a-f]{40}', source or '') and isinstance(ref, str) and ref.startswith('refs/heads/codex/') and re.fullmatch('[1-9][0-9]*', run or ''), 'Root publication/source/ref/run required')\n    need(env.get('GITHUB_SHA') == env.get('GITHUB_WORKFLOW_SHA') == source and env.get('GITHUB_REF') == ref and (env.get('GITHUB_RUN_ID') == run) and (env.get('GITHUB_RUN_ATTEMPT') == '1') and (env.get('GITHUB_EVENT_NAME') == 'workflow_dispatch') and (env.get('GITHUB_REPOSITORY') == 'Gabriel-Kahen/cachy-asahi') and (env.get('GITHUB_WORKFLOW_REF') in {'Gabriel-Kahen/cachy-asahi/' + name + '@' + ref for name in ALIASES}), 'exact same-source first-attempt dedicated manual workflow binding')\n    token = hashlib.sha256((source + ':' + ref + ':' + run).encode()).hexdigest()[:24]\n    return dict(source=source, ref=ref, run=run, attempt=1, token=token)",
+      "consumer_contract": "def consumer_contract(row, own, image, root, output, uid, gid):\n    h = row['HostConfig']\n    labels = row['Config']['Labels']\n    need(row['Name'] == '/developer-' + own['token'] and row['Image'] == image and (labels.get(LABEL) == own['token']) and (labels.get(LABEL + '.source') == own['source']) and (row['Config']['User'] == str(uid) + ':' + str(gid)), 'exact owned consumer identity')\n    need(h['NetworkMode'] == 'none' and h['ReadonlyRootfs'] is True and (h['Privileged'] is False) and (h['PidsLimit'] == 256) and (h['Memory'] == 4 * 1024 ** 3) and (h['NanoCpus'] == 2000000000) and (set(h['CapDrop']) == {'ALL'}) and (not h.get('CapAdd')) and (h['SecurityOpt'] == ['no-new-privileges']) and (not h.get('Devices')) and (not h.get('DeviceRequests')) and (not h.get('VolumesFrom')), 'actual consumer resource/isolation limits')\n    binds = {(m['Destination'], m['Source'], m['RW']) for m in row['Mounts'] if m['Type'] == 'bind'}\n    need(binds == {('/source', str(root), False), ('/out', str(output), True)} and all((m['Type'] == 'bind' or (m['Type'] == 'tmpfs' and m['Destination'] == '/tmp') for m in row['Mounts'])) and (set(h['Tmpfs']) == {'/tmp'}) and (set(h['Tmpfs']['/tmp'].split(',')) == {'rw', 'nosuid', 'nodev', 'exec', 'size=2g'}), 'exact source/output/tmpfs mounts')",
+      "input_contract": "def input_contract(root):\n    root = Path(root)\n    profile = load(root / 'native/input-profile.json')\n    raw = read(root / 'bootstrap/scripts/ci/inputs.lock.json')\n    need(pin(raw)['sha256'] == INPUTS, 'original248 whole input pin')\n    original = json.loads(raw)\n    lock = read(root / 'native/original341.lock')\n    need(pin(lock)['sha256'] == LOCK and len(lock.splitlines()) == 341, 'exact original341 inventory')\n    versions = {r['name'][0]: r['version'][0] for r in original['rootfs_packages']}\n    versions.update({r['name']: r['version'] for r in original['packages']})\n    need(lock == ''.join((n + ' ' + v + '\\n' for n, v in sorted(versions.items()))).encode(), 'original inventory derivation differs')\n    extras = profile['additions']['rows']\n    desktop_raw = read(root / 'native/desktop574-inputs.lock.json')\n    need(pin(desktop_raw)['sha256'] == DESKTOP, 'whole retained574 supplementary input pin')\n    desktop = json.loads(desktop_raw)\n    need({r['name']: r for r in extras} == {r['name']: r for r in desktop['packages'] if r['name'] in EXTRAS}, 'exact retained8 rows and signatures differ')\n    need(len(extras) == 8 and {r['name'] for r in extras} == EXTRAS and (not EXTRAS & versions.keys()), 'fixed eight package additions')\n    available = set(versions) | EXTRAS\n    for row in extras:\n        need(row['arch'] in ('aarch64', 'any') and row['filename'].endswith('.pkg.tar.xz'), 'original ARM archive format')\n        for key in ('sha256', 'signature_sha256'):\n            need(re.fullmatch('[0-9a-f]{64}', row[key] or ''), 'exact archive/signature hash')\n        for key in ('size', 'signature_size'):\n            need(type(row[key]) is int and 0 < row[key] <= 64 * 1024 ** 2, 'finite archive/signature bytes')\n        need(all((d in available for d in row['depends'])), 'complete name-only retained dependency closure')\n        versions[row['name']] = row['version']\n    expected = ''.join((n + ' ' + v + '\\n' for n, v in sorted(versions.items()))).encode()\n    need(read(root / 'native/expected349.lock') == expected and len(versions) == 349, 'exact augmented349 inventory')\n    return (profile, original, expected)",
+      "read": "def read(path, cap=16 * 1024 ** 2):\n    path = Path(path)\n    info = path.lstat()\n    need(stat.S_ISREG(info.st_mode) and info.st_nlink == 1 and (info.st_size <= cap) and (not any((p.is_symlink() for p in path.parents))), 'bounded ordinary path: ' + str(path))\n    return path.read_bytes()",
+      "verify_source": "def verify_source(root, checksum):\n    root = Path(root).absolute()\n    need(re.fullmatch('[0-9a-f]{64}', checksum or ''), 'explicit whole source-map hash required')\n    raw = read(root / MAP)\n    need(pin(raw)['sha256'] == checksum, 'whole source map differs')\n    manifest = json.loads(raw)\n    need(manifest['schema'] == 1 and manifest['actual'] == dict(source=None, ref=None, run=None), 'NULL unexecuted source selectors')\n    rows = manifest['files']\n    need(MAP not in rows and len(rows) <= 200, 'finite nonrecursive source map')\n    actual = set()\n    actual_dirs = set()\n    for directory, dirs, files in os.walk(root, followlinks=False):\n        base = Path(directory)\n        for name in tuple(dirs):\n            need(not (base / name).is_symlink(), 'source directory alias')\n            if base == root and name == '.git':\n                dirs.remove(name)\n            else:\n                actual_dirs.add(str((base / name).relative_to(root)))\n        for name in files:\n            actual.add(str((base / name).relative_to(root)))\n    need(actual == set(rows) | {MAP}, 'closed complete source namespace differs')\n    expected_dirs = {str(p) for name in set(rows) | {MAP} for p in Path(name).parents if p != Path('.')}\n    need(actual_dirs == expected_dirs, 'closed source directory namespace differs')\n    for name, expected in rows.items():\n        path = Path(name)\n        need(not path.is_absolute() and '..' not in path.parts and (path.as_posix() == name), 'source path')\n        need(pin(source_bytes(root, name)) == {k: expected[k] for k in ('bytes', 'sha256')} and stat.S_IMODE((root / path).stat().st_mode) == expected['mode'], 'source bytes/mode differ: ' + name)\n    return manifest"
+    },
+    "native/provision.py": {
+      "admit": "def admit(root, args, phase):\n    verify_source(root, args.map_sha256)\n    profile, _, _ = input_contract(root)\n    own = binding(args.source_sha, args.ref, args.run_id, os.environ)\n    need((phase == 'cache' or args.execute) and platform.system() == 'Linux' and (platform.machine() in ('aarch64', 'arm64')) and (os.getuid() == os.geteuid() != 0) and (os.environ.get('GITHUB_ACTIONS') == 'true') and (os.environ.get('RUNNER_ARCH') == 'ARM64') and (os.environ.get('RUNNER_OS') == 'Linux'), 'explicit same-source unprivileged native ARM workflow required')\n    need(not any((k.startswith(('GIT_', 'LD_', 'DOCKER_', 'CACHY_OLD_FOUR_', 'CACHY_RETAINED_')) for k in os.environ)), 'ambient Git/loader/daemon/private transport overrides refused')\n    temp = Path(os.environ['RUNNER_TEMP']).absolute()\n    ordinary_directory(temp)\n    need(args.work == temp / 'native-developer-work' and args.cache == temp / 'alarm-cache' and (args.carrier == temp / 'pgo-hosted-retained') and (not temp.is_relative_to(root)) and (not root.is_relative_to(temp)), 'fixed external work/cache/full-carrier paths')\n    need(not any((p.is_symlink() for p in (root, *root.parents, args.work, args.cache, args.carrier))), 'no input/output aliases')\n    return (own, profile)"
+    },
+    "native/reader.py": {
+      "validate": "def validate(capsule_path, expected):\n    need(type(expected) is dict and set(expected) == {'source', 'ref', 'run', 'map_sha256'} and re.fullmatch('[0-9a-f]{40}', expected.get('source') or '') and isinstance(expected.get('ref'), str) and expected['ref'].startswith('refs/heads/codex/') and re.fullmatch('[1-9][0-9]*', expected.get('run') or '') and re.fullmatch('[0-9a-f]{64}', expected.get('map_sha256') or ''), 'NULL/unbound actual native evidence refused before reading')\n    view = open_capsule(capsule_path)\n    binding = {k: expected[k] for k in ('source', 'ref', 'run')}\n    binding.update(attempt=1, token=hashlib.sha256((binding['source'] + ':' + binding['ref'] + ':' + binding['run']).encode()).hexdigest()[:24])\n    manifest = view.load('artifacts.json')\n    need(manifest['schema'] == 1 and manifest['binding'] == binding and (manifest['source_map_sha256'] == expected['map_sha256']), 'actual binding differs')\n    files = manifest['files']\n    need(type(files) is dict and all((type(row.get('bytes')) is int and row['bytes'] >= 0 and re.fullmatch('[0-9a-f]{64}', row.get('sha256') or '') for row in files.values())), 'typed artifact pins')\n    need(0 < len(files) <= 3000 and sum((row['bytes'] for row in files.values())) <= 32 * 1024 ** 2, 'bounded artifact namespace')\n    view.verify_manifest(manifest)\n    if 'safe-diagnostic.json' in files:\n        return retained_safe_diagnostic(view, files, binding, expected['map_sha256'])\n    retained_public_projection(view, files, binding, expected['map_sha256'])\n    if 'provision-diagnostic.json' in files:\n        transport_phase = view.load('provision-diagnostic.json').get('phases', {}).get('input-transport-owner.json')\n        if transport_phase is not None:\n            retained_transport_diagnostic(view, files, transport_phase, binding, expected['map_sha256'])\n    if 'provision-diagnostic.json' in files:\n        diagnostic = view.load('provision-diagnostic.json')\n        need(diagnostic['binding'] == binding and diagnostic['source_map_sha256'] == expected['map_sha256'] and (diagnostic['status'] == 'DIAGNOSTIC_HOSTED_INPUT_PROVISIONING_ONLY') and (diagnostic['native'] == diagnostic['GPG'] == diagnostic['ALPM'] == 'NOT_RUN'), 'actual DATA diagnostic only')\n        return dict(status='VALIDATED_INPUT_PROVISIONING_DIAGNOSTIC_NOT_NATIVE', binding=binding, native='NOT_RUN', physical_M2='NOT_RUN')\n    receipt = view.load('receipt.json')\n    cleanup = view.load('cleanup.json')\n    need(receipt.get('binding') == binding and receipt.get('source_map_sha256') == expected['map_sha256'] and (type(receipt.get('status')) is str) and (type(cleanup.get('status')) is str), 'same-source owner and explicit cleanup outcome required')\n    consumer_diagnostic = retained_consumer_diagnostic(view, files, receipt, binding, expected['map_sha256'])\n    build_summary = retained_build_summary(view, files, binding, expected['map_sha256'])\n    failed = receipt['status'] != 'PASS_NATIVE_DEVELOPER_COMPONENTS_ONLY' or cleanup['status'] != 'PASS_EXACT_OWNED_RESOURCES_RETIRED'\n    need(failed or consumer_diagnostic['status'] != 'ABSENT_CONSUMER_DIAGNOSTIC_DATA_ONLY', 'successful owner cannot omit original consumer diagnostic')\n    need(failed or build_summary['status'] != 'ABSENT_BUILD_SUMMARY_DATA_ONLY', 'successful owner cannot omit original build summary')\n    if failed or not build_summary['positive_candidate']:\n        return dict(status='VALIDATED_NATIVE_FAILURE_DATA_ONLY', binding=binding, owner_status=receipt['status'], cleanup_status=cleanup['status'], consumer_diagnostic=consumer_diagnostic, build_summary=build_summary, native='NOT_ADMITTED', physical_M2='NOT_RUN')\n    if failed or not consumer_diagnostic['positive_candidate']:\n        return dict(status='VALIDATED_NATIVE_FAILURE_DATA_ONLY', binding=binding, owner_status=receipt['status'], cleanup_status=cleanup['status'], consumer_diagnostic=consumer_diagnostic, native='NOT_ADMITTED', physical_M2='NOT_RUN')\n    retained_consumer_diagnostic(view, files, receipt, binding, expected['map_sha256'], positive=True)\n    retained_build_summary(view, files, binding, expected['map_sha256'], positive=True)\n    retained_failure_data(view, files, receipt.get('bootstrap_failure_data'), binding, expected['map_sha256'])\n    retained_image_lifecycle(view, files, receipt, cleanup, binding, expected['map_sha256'])\n    need(receipt['binding'] == binding and receipt['source_map_sha256'] == expected['map_sha256'] and (receipt['status'] == 'PASS_NATIVE_DEVELOPER_COMPONENTS_ONLY') and (cleanup['status'] == 'PASS_EXACT_OWNED_RESOURCES_RETIRED'), 'all native components plus actual resource retirement required')\n    runner = view.load('bootstrap-proof/bootstrap-runner.json')\n    need(runner['kernel']['machine'] in ('aarch64', 'arm64') and runner['docker_server_arch'] in ('aarch64', 'arm64') and (runner['commit'] == binding['source']) and (runner['run_id'] == binding['run']) and (runner['docker_endpoint'] in ('unix:///var/run/docker.sock', 'unix:///run/docker.sock')) and (type(runner['page_size']) is int) and (runner['page_size'] > 0), 'actual native host/local daemon provenance')\n    before = view.load('consumer-inspect.json')\n    after = view.load('consumer-after.json')\n    for row in (before, after):\n        need(row['Id'] == receipt['consumer']['container'], 'retained exact consumer ID')\n        consumer_contract(row, binding, receipt['consumer']['image'], receipt['source_root'], receipt['output_root'], runner['uid'], runner['gid'])\n    need(after['State'] == receipt['consumer']['state'] and after['State']['Running'] is False and (after['State']['ExitCode'] == 0) and (after['State']['Status'] == 'exited'), 'actual completed consumer daemon state')\n    phases = receipt['provisioning']\n    retained_transport_proof(view, files, phases['transport'], binding, expected['map_sha256'])\n    need(phases['proof']['status'] == 'PASS_EXACT_PUBLISHED_SOURCE_PROOF_ONLY' and phases['transport']['status'] == 'PASS_EXACT_RETAINED_INPUT_TRANSPORT_DATA_ONLY' and (phases['cache']['status'] == 'PASS_EIGHT_INPUT_CACHE_DATA_ONLY'), 'complete hosted source and input DATA provisioning')\n    for phase in phases.values():\n        need(phase['binding'] == binding and phase['source_map_sha256'] == expected['map_sha256'], 'all provisioning same exact source and run')\n    for row in phases['proof']['actors'] + phases['transport']['actors'] + receipt['actors'] + cleanup['actors']:\n        need(row.get('public_log') in files and files[row['public_log']]['kind'] == 'file', 'actor log must be a retained ordinary artifact')\n        need(row['status'] == 'PASS' and row['exit'] == 0 and (row['natural_exit'] is True) and (row['group_absent'] is True) and (row['retirement'] == 'REAPED') and (row['exit_observed_via_waitpid'] is True) and (row['ownership_lost'] is False) and (row['forced_cleanup'] is False) and (row['leader_held_until_group_inspection'] is True) and (pin(view.read(row['public_log'])) == row['log_pin']), 'direct owned wait and retained actor output required')\n    guest = view.load('journey/result.json')\n    need(guest['status'] == receipt['status'] and guest['architecture'] == 'aarch64' and (guest['packages'] == receipt['input_inventory']) and (guest['physical_M2'] == 'NOT_RUN') and (guest['native_16K'] == 'NOT_QUALIFIED'), 'actual guest identity and non-hardware boundary')\n    need(guest['python']['status'] == 'PASS_LOCAL_PYTHON_PEP517_WORKFLOW' and guest['python']['build_protocol'] == 'FORCE_PEP517_PRIVATE_PINNED_UV_BUILD_NO_BUILD_ISOLATION_NO_INDEX' and (guest['extension']['status'] == 'PASS_LOCAL_COMPILED_PYTHON_WORKFLOW') and (set(guest['build_systems']['project_workflows']) == {'cmake', 'meson'}) and ({r['status'] for r in guest['build_systems']['project_workflows'].values()} == {'PASS_REAL_PROJECT_WORKFLOW'}), 'all component outcomes including actual PEP517')\n    for name, feature in [('python', guest['python']), ('extension', guest['extension']), ('build-systems', guest['build_systems'])]:\n        need(feature['commands'], 'actual feature commands')\n        for row in feature['commands']:\n            log = 'journey/' + name + '/' + row['log']\n            need(log in files and files[log]['kind'] == 'file' and (pin(view.read(log)) == row['log_pin']), 'raw feature command log pin differs')\n            state = row['supervision']\n            need(row['success'] is True and state['reaped'] is True and (state['ownership'] == 'REAPED') and (state['group_census'] == 'EMPTY_TWICE') and (state['output_complete'] is True) and (state['error'] is None) and (not state['timeout']) and (not state['signals']), 'feature owned retirement required')\n    builds = [row['argv'] for row in guest['python']['commands'] if 'build' in row['argv']]\n    need(builds and all(('--force-pep517' in row and '--no-build-isolation' in row and ('--offline' in row) and ('--no-index' in row) for row in builds)), 'actual forced offline PEP517 argv')\n    need(guest['python']['installed_backend']['identity']['version'] == '0.11.28' and guest['python']['installed_backend']['identity']['builtin_frontend'] is False, 'real separate backend import identity')\n    policy = uv_policy(Path(__file__).resolve().parents[1])\n    frontend = next((row for row in policy['artifacts'] if row['role'] == 'frontend'))\n    backend = next((row for row in policy['artifacts'] if row['role'] == 'backend'))\n    need(guest['python']['frontend']['file'] == {k: frontend['member'][k] for k in ('bytes', 'sha256')} and guest['python']['backend'] == backend, 'exact source-pinned frontend and separate backend receipt')\n    installed = guest['python']['installed_backend']\n    for name, expected_file in installed['files'].items():\n        need(name.startswith('/out/journey/python/venv/'), 'backend receipt path confined to private venv')\n        relative = name.removeprefix('/out/')\n        need(relative in files and files[relative]['kind'] == 'file' and ({k: files[relative][k] for k in ('bytes', 'sha256')} == expected_file), 'retained backend installation bytes')\n    for member in backend['verified_members']:\n        target = installed['identity']['backend'] if member['name'].endswith('.data/scripts/uv-build') else str(Path(installed['identity']['module']).parent / member['name'].removeprefix('uv_build/'))\n        need(installed['files'].get(target) == {k: member[k] for k in ('bytes', 'sha256')}, 'actual backend binary/shim equals original wheel payload')\n    return dict(status='VALIDATED_NATIVE_DEVELOPER_COMPONENT_EVIDENCE_ONLY', binding=binding, python_wheel='ACTUAL_PEP517_COMPONENT_PASS', native_16K='NOT_QUALIFIED', physical_M2='NOT_RUN', release='NOT_ADMITTED')"
+    }
+  },
+  "generic_reader": {
+    "on_desktop_success_call_path": false,
+    "patch_required": false,
+    "reason": "Desktop entry is desktop_reader_v1.validate_selected; provisioning diagnostic predicate is held directly in that module, not delegated to generic reader.validate."
+  },
+  "held_dependencies": {
+    "native/bootstrap_inputs.py": {
+      "bytes": 3306,
+      "mode": 420,
+      "sha256": "3f30b126988c2dc2ec57bea5f62f81f6bd93b2f7f5073644a495320e7d271a5b"
+    },
+    "native/build_summary.py": {
+      "bytes": 7499,
+      "mode": 420,
+      "sha256": "6f5bd1674b51de09ebcaa08a0097dce0cffe5999c975718c3d582bccada5589b"
+    },
+    "native/capsule.py": {
+      "bytes": 18741,
+      "mode": 420,
+      "sha256": "cf41bb125c9c9091445c7c146a7bc4687db63dd832b49406fce656530c837b1e"
+    },
+    "native/cleanup_control.py": {
+      "bytes": 3172,
+      "mode": 420,
+      "sha256": "70048a05f54091f24c7c34166c2ad6510c260187f01ea65646e367d2b175b828"
+    },
+    "native/common.py": {
+      "bytes": 8477,
+      "mode": 420,
+      "sha256": "f037bca33940e764dce4a7d66dfe6d0c72fbeda07c7f417ee7e1d30629eb86f9"
+    },
+    "native/consumer_diagnostics.py": {
+      "bytes": 3463,
+      "mode": 420,
+      "sha256": "6d19be6a35dc12983889f0d6054d6cb529fb286291e0c0c8973b94c7efc543ed"
+    },
+    "native/desktop_guest_v1.py": {
+      "bytes": 3041,
+      "mode": 420,
+      "sha256": "2818cb5257433b290dd96dc8b1824e4c7932ac5ceff5b190004765caa1191e31"
+    },
+    "native/failure_retention.py": {
+      "bytes": 13639,
+      "mode": 420,
+      "sha256": "cdb50b755f3e76d0229278bb89476752702544f3c31947e74676c82b213a8dc7"
+    },
+    "native/image_lifecycle.py": {
+      "bytes": 12996,
+      "mode": 420,
+      "sha256": "db316b70634018f4c85c179cabc4abfe28143dd3d863011b18367a050f8e5340"
+    },
+    "native/privacy_diagnostics.py": {
+      "bytes": 11541,
+      "mode": 420,
+      "sha256": "871ac3fcaa05f06d5c25dc41e365207a7e649c8c16c60b0cc9e0af8243e8e9e8"
+    },
+    "native/provision.py": {
+      "bytes": 22896,
+      "mode": 420,
+      "sha256": "6d52dfdaf8a1a148c9dedc751a98daaf7591f2ab113c62890004539448de9279"
+    },
+    "native/public_projection.py": {
+      "bytes": 12829,
+      "mode": 420,
+      "sha256": "b6222fdc6e689fecd6b2f37446b041d93bcdd96d8eb4a7f5a6c5923cbcf1a34b"
+    },
+    "native/reader.py": {
+      "bytes": 66106,
+      "mode": 420,
+      "sha256": "2edb4f3ec069c7bcdb5a9a9575d7aab8418a73aaaab791d25083bc78e1d2d3cd"
+    },
+    "native/retained_transport.py": {
+      "bytes": 12375,
+      "mode": 420,
+      "sha256": "46708771ccb93bbfe22c4f449f3a54052bc9494c4fb572e10b0853b5aa47bdef"
+    },
+    "native/safe_diagnostic.py": {
+      "bytes": 7948,
+      "mode": 420,
+      "sha256": "750b929681353a5915e5541d4bdbe167b558830e9762d6ac2da0c05146120a70"
+    },
+    "native/transport_proof.py": {
+      "bytes": 16711,
+      "mode": 420,
+      "sha256": "7e2a8616c5ed26573080e969b2f25405471fe319e0d3abd68c34f6b383d1eab7"
+    },
+    "native/transport_retention.py": {
+      "bytes": 28485,
+      "mode": 420,
+      "sha256": "1644222e088c8629e317c39866062d18b575af4103f07f80396947f1ab025643"
+    }
+  },
+  "kind": "READONLY_COMMITTED_SOURCE_AST_DATA_ONLY",
+  "map_sha256": "1f3a0f0f32ba80a73ae83da6039e3eb46274eefb4fcb19c4c8bda556066dd6b8",
+  "python_import_graph": {
+    "native/bootstrap_inputs.py": [],
+    "native/build_summary.py": [
+      "native/capsule.py",
+      "native/common.py",
+      "native/consumer_diagnostics.py"
+    ],
+    "native/capsule.py": [],
+    "native/cleanup_control.py": [
+      "native/common.py"
+    ],
+    "native/common.py": [],
+    "native/consumer_diagnostics.py": [
+      "native/capsule.py",
+      "native/common.py",
+      "native/public_projection.py"
+    ],
+    "native/desktop_alpm_v1.py": [
+      "native/common.py",
+      "native/desktop_tools_v1.py"
+    ],
+    "native/desktop_guest_v1.py": [
+      "native/common.py"
+    ],
+    "native/desktop_owned_process_v2.py": [],
+    "native/desktop_projection_v1.py": [
+      "native/capsule.py",
+      "native/privacy_diagnostics.py"
+    ],
+    "native/desktop_reader_v1.py": [
+      "native/capsule.py",
+      "native/common.py",
+      "native/privacy_diagnostics.py",
+      "native/safe_diagnostic.py",
+      "native/transport_proof.py",
+      "native/transport_retention.py"
+    ],
+    "native/desktop_tools_v1.py": [],
+    "native/failure_retention.py": [],
+    "native/guest.py": [
+      "native/build_summary.py",
+      "native/common.py"
+    ],
+    "native/image_lifecycle.py": [],
+    "native/owner.py": [
+      "native/bootstrap_inputs.py",
+      "native/build_summary.py",
+      "native/cleanup_control.py",
+      "native/common.py",
+      "native/consumer_diagnostics.py",
+      "native/desktop_alpm_v1.py",
+      "native/desktop_projection_v1.py",
+      "native/failure_retention.py",
+      "native/image_lifecycle.py",
+      "native/privacy_diagnostics.py",
+      "native/provision.py",
+      "native/public_projection.py"
+    ],
+    "native/privacy_diagnostics.py": [],
+    "native/provision.py": [
+      "native/capsule.py",
+      "native/common.py",
+      "native/public_projection.py",
+      "native/retained_transport.py",
+      "native/safe_diagnostic.py",
+      "native/transport_proof.py",
+      "native/transport_retention.py"
+    ],
+    "native/public_projection.py": [
+      "native/capsule.py",
+      "native/privacy_diagnostics.py"
+    ],
+    "native/python_backend.py": [
+      "native/common.py"
+    ],
+    "native/reader.py": [
+      "native/capsule.py",
+      "native/common.py",
+      "native/privacy_diagnostics.py",
+      "native/safe_diagnostic.py",
+      "native/transport_proof.py",
+      "native/transport_retention.py"
+    ],
+    "native/retained_transport.py": [],
+    "native/safe_diagnostic.py": [
+      "native/build_summary.py",
+      "native/capsule.py",
+      "native/consumer_diagnostics.py",
+      "native/privacy_diagnostics.py"
+    ],
+    "native/transport_proof.py": [
+      "native/capsule.py",
+      "native/public_projection.py"
+    ],
+    "native/transport_retention.py": []
+  },
+  "schema": 1,
+  "source": "d3c25388b6b44d8fc978c28cf118f5b2f258daf0",
+  "transitive_native_import_closure": [
+    "native/bootstrap_inputs.py",
+    "native/build_summary.py",
+    "native/capsule.py",
+    "native/cleanup_control.py",
+    "native/common.py",
+    "native/consumer_diagnostics.py",
+    "native/desktop_alpm_v1.py",
+    "native/desktop_guest_v1.py",
+    "native/desktop_projection_v1.py",
+    "native/desktop_reader_v1.py",
+    "native/desktop_tools_v1.py",
+    "native/failure_retention.py",
+    "native/image_lifecycle.py",
+    "native/owner.py",
+    "native/privacy_diagnostics.py",
+    "native/provision.py",
+    "native/public_projection.py",
+    "native/retained_transport.py",
+    "native/safe_diagnostic.py",
+    "native/transport_proof.py",
+    "native/transport_retention.py"
+  ]
+}
