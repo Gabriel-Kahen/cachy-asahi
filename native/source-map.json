@@ -660,9 +660,9 @@
       "sha256": "e87199b0be6d3fbd235be7584d06f83907b85da43d5ce6f753f021cd79a27854"
     },
     "native/release-contract-v1.json": {
-      "bytes": 17440,
+      "bytes": 31226,
       "mode": 420,
-      "sha256": "e6a938f606954c213c5a38709b9cf2680d049c8ac8f20c381fc51800ccff1333"
+      "sha256": "2d84955feee64aa91035d588e2d66f93d8f67ccc802f51a5de2196b6e9d1ac4e"
     },
     "native/release-makepkg-v1.conf": {
       "bytes": 316,
@@ -670,14 +670,14 @@
       "sha256": "8cdd968870a2a92d7006739e96dedefa14e51c40d62cfc15831f234a767a1421"
     },
     "native/release-sources-v1.tar": {
-      "bytes": 460800,
+      "bytes": 942080,
       "mode": 420,
-      "sha256": "aed1ecd1091744d9a4353dcdcac00266bacab24a1a2c3d2cea6cb4a47166847c"
+      "sha256": "8acd9d4203c5c84acad374b5aba66251abe1dc237c1d38a07322c282a51403e2"
     },
     "native/release_alpm_v1.py": {
-      "bytes": 24077,
+      "bytes": 24492,
       "mode": 420,
-      "sha256": "cf525aa3e598bdec52c79b06d5bdcc2c1c7836c52eb7d6faa369b22b55e47957"
+      "sha256": "6874c019cec7a78de953cabc8f8651273f761f81a603c3aeccc509015ed8d61e"
     },
     "native/release_build_cause_v1.py": {
       "bytes": 37654,
@@ -692,17 +692,17 @@
     "native/release_projection_v1.py": {
       "bytes": 10838,
       "mode": 420,
-      "sha256": "9846ad8251d8021162577b4c42c014a268882767a0970a62d4f0ffb7e208983e"
+      "sha256": "6dc76c3c160f03858f48c35246c776fa7d69f79ae6973ff276a972c6e9ca4140"
     },
     "native/release_reader_v1.py": {
-      "bytes": 97373,
+      "bytes": 110992,
       "mode": 420,
-      "sha256": "95bf321267f2a47b5a0f37073c82842d9e424890e20002237442e8a18cbd908d"
+      "sha256": "9a605c41f24f30d92c598da1e2f6f7ca59c20413833eb5b8977c11d1f1f13af6"
     },
     "native/release_tools_v1.py": {
-      "bytes": 17450,
+      "bytes": 32394,
       "mode": 420,
-      "sha256": "911c629ab4426a1379e0f89192e4e3b8e3d769d70d106bbfb3771e249b1ec536"
+      "sha256": "b2b22ba731a7d954394beeb472b00fed06484a1f2e4431a5e23e99e64eaba758"
     },
     "native/retained_transport.py": {
       "bytes": 12375,
@@ -1070,6 +1070,8 @@
   "release_maintained_main": "970a20ab9013d2fcf6d96626d998a50ac43383ee",
   "release_operation": "release-alpm-upgrade-v1",
   "release_original191_predecessor": "4c3171a1937489badd22d350835e8287fee3c52a",
+  "release_package_v4_parent": "686958cf7a3248fc0ef33ad4b61ffd22a325c4e5",
+  "release_package_v4_scope": "EXACT_0.1.0_TO_0.4.0_DATA_VARIANT_PARENT201_HELD194",
   "release_parentage_parent": "336bd49226663d659c194ef0af0b403dfe12dca5",
   "release_parentage_scope": "SAME_PRE_REAP_STAT_READ_PPID_DATA_ONLY_NO_WAIT_AUTHORITY",
   "release_parentage_subreaper": "NOT_OBSERVED",

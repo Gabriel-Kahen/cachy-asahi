@@ -11,6 +11,7 @@ import json
 from pathlib import Path
 import re
 import sys
+import tarfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import consumer_contract, load, need, pin, uv_policy, read
@@ -369,10 +370,10 @@ def retained_consumer_diagnostic(view, files, receipt, binding, map_sha256, posi
 
 
 PRODUCERS = {
-    'native/release_alpm_v1.py': 'cf525aa3e598bdec52c79b06d5bdcc2c1c7836c52eb7d6faa369b22b55e47957',
-    'native/release_tools_v1.py': '911c629ab4426a1379e0f89192e4e3b8e3d769d70d106bbfb3771e249b1ec536',
+    'native/release_alpm_v1.py': '6874c019cec7a78de953cabc8f8651273f761f81a603c3aeccc509015ed8d61e',
+    'native/release_tools_v1.py': 'b2b22ba731a7d954394beeb472b00fed06484a1f2e4431a5e23e99e64eaba758',
     'native/release_guest_v1.py': '10eb4d88baabaa0efdecbab684b5caafaa68a7cfc50b668849df99cd3d532c85',
-    'native/release-contract-v1.json': 'e6a938f606954c213c5a38709b9cf2680d049c8ac8f20c381fc51800ccff1333',
+    'native/release-contract-v1.json': '2d84955feee64aa91035d588e2d66f93d8f67ccc802f51a5de2196b6e9d1ac4e',
     'native/release_build_cause_v1.py': 'a5506c35f1325353c78538658c5e3ac03cdeb1460c5284a0abd1e428aaacfc00',
     'scripts/workflows/developer_workflow.py': '531c124cde3fa41d46888acfc638c823196bb2f297b19ab68ab3d001b05f16ba',
     'scripts/virtual/owned_process_retirement_v2.py': '9388d270d06e28fee50160b7c04dd69593e383647d791f8aaff69380032165d5'}
@@ -744,7 +745,24 @@ def release_contract():
     value = json.loads(raw)
     need(value.get('schema') == 1 and value.get('operation') == OPERATION
          and type(value.get('actual')) is dict and all(item is None for item in value['actual'].values())
-         and set(value.get('recipes', {})) == {'0.1.0-1', '0.2.0-1'}, 'unexecuted exact two-version release source contract')
+         and set(value.get('recipes', {})) == {'0.1.0-1', '0.4.0-1'}, 'unexecuted exact two-version release source contract')
+    target = value['recipes']['0.4.0-1']
+    need({key: target.get(key) for key in ('source_commit', 'product_merge', 'product_merge_tree')} ==
+         dict(source_commit='c393c38043bd34f2380ceab55434a59c2d3183d1',
+              product_merge='0dc457ae4a785bfa273890d84114d52f0cf87c17',
+              product_merge_tree='c40548c13d014c15716d04a6dfca5fefcd5a779d'),
+         'exact genuinely merged package-v4 product source/merge/tree required')
+    bundle = value.get('bundle')
+    need(type(bundle) is dict and type(bundle.get('members')) is int and bundle['members'] == 51
+         and type(bundle.get('bytes')) is int and 0 < bundle['bytes'] <= 1024**2
+         and type(bundle.get('max_bytes')) is int and bundle['max_bytes'] == 1024**2,
+         'exact 51-leaf source bundle within unchanged one-MiB cap required')
+    for version, sources, payload, tests in [('0.1.0-1', 18, 12, 13), ('0.4.0-1', 33, 23, 19)]:
+        recipe = value['recipes'][version]
+        need(type(recipe.get('source_files')) is dict and len(recipe['source_files']) == sources
+             and type(recipe.get('payload_files')) is dict and len(recipe['payload_files']) == payload
+             and type(recipe.get('expected_test_count')) is int and recipe['expected_test_count'] == tests,
+             'exact predecessor and package-v4 source/payload/check contract counts required')
     return value
 
 
@@ -761,9 +779,173 @@ def strict_test_signature(status, signer):
     need(any(row and row[0] == 'TRUST_ULTIMATE' for row in rows), 'explicitly trusted TEST primary required')
 
 
+
+def retained_business_features(view, files, business, fixed, selected, signer, endpoint_public_key, verifier, gpg):
+    """Match eight fixed command journeys to retained raw DATA, without actors."""
+    prefix = 'journey/release-alpm-v1/'
+    def encoded(value):
+        return (json.dumps(value, sort_keys=True, indent=2, allow_nan=False) + '\n').encode()
+    def pinned(value, maximum):
+        need(type(value) is dict and set(value) == {'bytes', 'sha256'}
+             and type(value['bytes']) is int and 0 < value['bytes'] <= maximum
+             and re.fullmatch('[0-9a-f]{64}', value['sha256'] or ''), 'bounded exact endpoint DATA pin required')
+    def command_data(step, argv, expected=0, maximum=65536):
+        index, command = selected(step)
+        need(command.get('argv') == argv and type(command.get('expected')) is int
+             and command['expected'] == expected, 'exact owned endpoint argv and exit expectation required')
+        leaf = command.get('log')
+        need(type(leaf) is str and re.fullmatch(r'[0-9]{3}-[A-Za-z0-9][A-Za-z0-9_+.-]{0,127}\.log', leaf),
+             'fixed endpoint raw log namespace required')
+        name = prefix + leaf; raw = view.read(name)
+        need(type(raw) is bytes and len(raw) <= maximum and name in files and files[name]['kind'] == 'file'
+             and pin(raw) == command.get('log_pin') == {k: files[name][k] for k in ('bytes', 'sha256')},
+             'endpoint evidence must join original complete raw command bytes')
+        return index, raw
+    pinned(endpoint_public_key, 4*1024**2)
+    exported, public = command_data('export-only-test-binary-public', gpg + ['--export', signer], maximum=4*1024**2)
+    need(pin(public) == endpoint_public_key, 'endpoint public certificate must join sole actual binary TEST export')
+    need(type(business) is dict and set(business) == {'system', 'moved'}, 'system and moved eight-command DATA required')
+    result = {}
+    names = ['sbom', 'source-export', 'recipe-pack', 'recipe-unpack', 'sbom-compare',
+             'endpoint-copy', 'endpoint-pack', 'endpoint-unpack']
+    for label, home in [('system', fixed / 'user-data/system'), ('moved', fixed / 'user-data/relocated')]:
+        value = business[label]
+        cli = '/usr/bin/cachy-asahi-release-tools' if label == 'system' else str(fixed / 'user-data/moved-prefix/usr/bin/cachy-asahi-release-tools')
+        need(type(value) is dict and set(value) == {'status', 'cli', 'synthetic', 'commands', 'roundtrip_files',
+             'held_unknowns', 'build_context', 'license_conclusion', 'exports', 'endpoint', 'release'}
+             and value['status'] == 'PASS_ALL_EIGHT_ACTUAL_COMMANDS' and value['cli'] == cli
+             and value['synthetic'] is True and value['commands'] == names
+             and type(value['roundtrip_files']) is int and value['roundtrip_files'] == 7
+             and type(value['held_unknowns']) is int and value['held_unknowns'] == 1
+             and value['build_context'] is None and value['license_conclusion'] == 'NOASSERTION'
+             and value['release'] == 'NOT_ADMITTED', 'all eight actual commands must retain unbound DATA semantics')
+        actor = ['/usr/bin/runuser', '-u', 'alarm', '--', '/usr/bin/env', 'HOME=' + str(home), cli]
+        version_index, version = command_data(label + '-version', actor + ['--version'])
+        need(version == b'cachy-asahi-release-tools 0.4.0\n', 'actual target v4 launcher version required')
+        indexes = [version_index]
+        for step, command_name in [('recipe-pack', 'recipe-pack'), ('recipe-unpack', 'recipe-unpack'),
+                ('sbom-before', 'sbom'), ('sbom-after', 'sbom'), ('source-export', 'source-export'),
+                ('sbom-compare', 'sbom-compare'), ('sbom-compare-human', 'sbom-compare')]:
+            index, command = selected(label + '-' + step); indexes.append(index)
+            need(command['argv'][:7] == actor and command['argv'][7] == command_name
+                 and type(command.get('expected')) is int and command['expected'] == 0,
+                 'actual ordinary-user retained five-command argv required')
+        need(indexes == sorted(set(indexes)), 'retained five-command journey order required')
+        endpoint = value['endpoint']
+        need(type(endpoint) is dict and set(endpoint) == {'signer', 'keyring', 'generation_sha256',
+             'generation_manifest', 'withdrawal', 'preview', 'copy', 'pack', 'unpack', 'archive',
+             'roundtrip_identical', 'source_unchanged', 'stable'} and endpoint['signer'] == signer
+             and endpoint['keyring'] == endpoint_public_key and endpoint['roundtrip_identical'] is True
+             and endpoint['source_unchanged'] is True, 'complete same-TEST-key unchanged endpoint feature DATA required')
+        directory = home / 'endpoint'; withdrawal = endpoint['withdrawal']
+        need(type(withdrawal) is dict and set(withdrawal) == {'record', 'pin', 'signature', 'status'},
+             'complete signed withdrawal DATA required')
+        reason = 'SYNTHETIC native v4 withdrawal fixture; not a production release.'
+        record = dict(schema_version=1, release_id='native-fixture-1', signer=signer,
+            withdrawn_utc='2026-10-28T00:00:00+00:00', reason=reason,
+            reason_sha256=pin(reason.encode())['sha256'], packages_retained=True)
+        need(withdrawal['record'] == record and type(withdrawal['record'].get('schema_version')) is int
+             and withdrawal['record'].get('packages_retained') is True and pin(encoded(record)) == withdrawal['pin'],
+             'exact signed fixture identity and canonical withdrawal pin required')
+        signature = withdrawal['signature']
+        need(type(signature) is dict and set(signature) == {'bytes', 'sha256', 'base64'}
+             and type(signature['base64']) is str and len(signature['base64']) <= 131072,
+             'bounded original endpoint detached signature DATA required')
+        raw_signature = base64.b64decode(signature['base64'], validate=True)
+        need(0 < len(raw_signature) <= 65536 and type(signature['bytes']) is int
+             and pin(raw_signature) == {k: signature[k] for k in ('bytes', 'sha256')}
+             and base64.b64encode(raw_signature).decode('ascii') == signature['base64'],
+             'endpoint signature bytes differ')
+        strict_test_signature(withdrawal['status'], signer)
+        original = directory / 'generation/withdrawals/native-fixture-1.json'
+        signed, _ = command_data(label + '-endpoint-sign-withdrawal', gpg + ['--local-user', signer,
+            '--digest-algo', 'SHA256', '--output', str(original) + '.sig', '--detach-sign', str(original)])
+        verified, status = command_data(label + '-endpoint-verify-withdrawal', verifier + ['--status-fd=1',
+            '--verify', str(original) + '.sig', str(original)])
+        need(max(indexes) < signed < verified and status.decode().strip() == withdrawal['status'].strip(),
+             'strict withdrawal TEST status must join actual source-owned raw verification')
+        indexes += [signed, verified]
+        plan = dict(schema_version=1, purpose='local-repository-endpoint', selected_release=None, signer=signer,
+            files={'withdrawals/native-fixture-1.json': withdrawal['pin']['sha256'],
+                   'withdrawals/native-fixture-1.json.sig': signature['sha256']}, symlinks={})
+        need(endpoint['generation_manifest'] == plan and type(endpoint['generation_manifest'].get('schema_version')) is int
+             and endpoint['generation_sha256'] == pin(encoded(plan))['sha256'],
+             'external generation identity must bind complete regular-only withdrawal inventory')
+        identity = endpoint['generation_sha256']
+        bodies = {'export.json': encoded(plan), 'withdrawals/native-fixture-1.json': encoded(record),
+                  'withdrawals/native-fixture-1.json.sig': raw_signature}
+        chunks = []
+        for name, raw in sorted(bodies.items()):
+            header = tarfile.TarInfo(name); header.size = len(raw); header.mode = 0o644
+            chunks += [header.tobuf(format=tarfile.USTAR_FORMAT), raw, b'\0' * (-len(raw) % 512)]
+        archive = pin(b''.join(chunks) + b'\0' * 1024); total = sum(len(raw) for raw in bodies.values())
+        need(endpoint['archive'] == archive, 'actual portable archive must bind exact canonical three-file DATA')
+        stable = endpoint['stable']
+        need(type(stable) is dict and set(stable) == {'generation_sha256', 'archive', 'refusals', 'outputs_absent', 'input_unchanged'}
+             and re.fullmatch('[0-9a-f]{64}', stable.get('generation_sha256') or '')
+             and stable['generation_sha256'] != identity and stable['outputs_absent'] is True
+             and stable['input_unchanged'] is True, 'distinct signed stable fixture and no-output unchanged-input refusals required')
+        pinned(stable['archive'], 16*1024**2)
+        last = verified
+        for role, leaf in [('package', 'release/repo/endpoint-fixture-1.0-1-any.pkg.tar.gz'),
+                ('database', 'release/repo/synthetic.db.tar.gz'), ('files', 'release/repo/synthetic.files.tar.gz'),
+                ('release', 'release/release.json'), ('promotion', 'promotion.json')]:
+            path = directory / 'stable-generation' / leaf
+            index, _ = command_data(label + '-endpoint-sign-stable-' + role, gpg + ['--local-user', signer,
+                '--digest-algo', 'SHA256', '--output', str(path) + '.sig', '--detach-sign', str(path)])
+            need(index > last, 'all signed stable fixture inputs must precede CLI gate tests in source order')
+            last = index; indexes.append(index)
+        common = ['--expected-generation', identity, '--public-keyring', str(directory / 'public.gpg'), '--signer', signer, '--output']
+        verify = dict(generation=identity, signer=signer, selected_release=None, withdrawn_releases=['native-fixture-1'],
+            repository_relative_path=None, stable_contract_checked=False, freshness_established=False,
+            installation_authorized=False, production_accepted=False, network_used=False, trust_changed=False, state_changed=False)
+        variants = [('preview', 'endpoint-preview', ['endpoint-copy', '--generation', str(directory / 'generation'),
+                *common, str(directory / 'copied')], 'planned-local-endpoint-copy', directory / 'copied', False),
+            ('copy', 'endpoint-copy', ['endpoint-copy', '--generation', str(directory / 'generation'),
+                *common, str(directory / 'copied'), '--apply'], 'copied-local-endpoint', directory / 'copied', True),
+            ('pack', 'endpoint-pack', ['endpoint-pack', '--generation', str(directory / 'copied'),
+                *common, str(directory / 'endpoint.tar')], 'packed-endpoint-archive', directory / 'endpoint.tar', True),
+            ('unpack', 'endpoint-unpack', ['endpoint-unpack', '--archive', str(directory / 'endpoint.tar'),
+                '--archive-sha256', archive['sha256'], *common, str(directory / 'unpacked')], 'unpacked-endpoint-archive', directory / 'unpacked', True)]
+        for key, step, tail, state, output, created in variants:
+            index, raw = command_data(label + '-' + step, actor + tail)
+            expected = dict(verify, status=state, output=str(output), files=3, bytes=total, output_created=created)
+            if key in ('pack', 'unpack'):
+                expected.update(aliases=0, archive_sha256=archive['sha256'], archive_bytes=archive['bytes'])
+            else:
+                expected.update(symlinks=0)
+            actual = endpoint[key]
+            need(type(actual) is dict and actual == expected and actual.get('output_created') is created
+                 and all(actual.get(flag) is False for flag in verify if type(verify[flag]) is bool)
+                 and all(type(actual.get(field)) is int for field in ('files', 'bytes', 'aliases' if key in ('pack', 'unpack') else 'symlinks'))
+                 and raw == (json.dumps(expected, sort_keys=True) + '\n').encode() and index > last,
+                 'exact actual CLI JSON must join generation/archive pins, byte counts, no-acceptance flags and original raw log')
+            last = index; indexes.append(index)
+        need(type(stable['refusals']) is dict and set(stable['refusals']) == {'endpoint-copy', 'endpoint-pack', 'endpoint-unpack'},
+             'all three real stable gate refusals required')
+        for name, output in [('copy', 'refused-copy'), ('pack', 'refused.tar'), ('unpack', 'refused-unpack')]:
+            if name == 'unpack':
+                tail = ['--archive', str(directory / 'stable.tar'), '--archive-sha256', stable['archive']['sha256']]
+            else:
+                tail = ['--generation', str(directory / 'stable-generation')]
+            tail += ['--expected-generation', stable['generation_sha256'], '--public-keyring', str(directory / 'public.gpg'),
+                     '--signer', signer, '--output', str(directory / output)]
+            if name == 'copy': tail += ['--apply']
+            index, raw = command_data(label + '-stable-' + name, actor + ['endpoint-' + name, *tail], 1)
+            refusal = dict(status='endpoint-copy-refused' if name == 'copy' else 'endpoint-transport-refused',
+                           errors=['synthetic fixtures cannot enter stable'])
+            need(stable['refusals']['endpoint-' + name] == refusal
+                 and raw == (json.dumps(refusal, sort_keys=name == 'copy') + '\n').encode() and index > last,
+                 'actual unchanged signature/release/source/hardware stable gate refusal must join exact raw JSON')
+            last = index; indexes.append(index)
+        need(exported < min(indexes), 'actual sole TEST binary export must precede feature commands')
+        result[label] = indexes
+    return result
+
+
 def retained_release_alpm(view, files, guest, map_sha256):
     """Qualify only new component DATA, joining raw owned command evidence."""
-    contract = release_contract(); versions = ['0.1.0-1', '0.2.0-1']
+    contract = release_contract(); versions = ['0.1.0-1', '0.4.0-1']
     prefix = 'journey/release-alpm-v1/'
     report = guest.get('release_alpm')
     need(type(report) is dict and type(report.get('schema_version')) is int and report['schema_version'] == 1
@@ -829,7 +1011,7 @@ def retained_release_alpm(view, files, guest, map_sha256):
     payloads = report.get('payloads')
     need(type(payloads) is dict and set(payloads) == {'installed_v1', 'upgraded_v2', 'downgraded_v1'},
          'three exact ALPM payload transitions required')
-    for key, version, count in [('installed_v1', versions[0], 12), ('upgraded_v2', versions[1], 15), ('downgraded_v1', versions[0], 12)]:
+    for key, version, count in [('installed_v1', versions[0], 12), ('upgraded_v2', versions[1], 23), ('downgraded_v1', versions[0], 12)]:
         row = payloads[key]
         need(type(row) is dict and row == dict(version=version, count=count, verified=True, stale_absent=True)
              and row.get('verified') is True and row.get('stale_absent') is True
@@ -967,25 +1149,10 @@ def retained_release_alpm(view, files, guest, map_sha256):
     need(type(cleanup) is dict and cleanup == dict(homes_retired=True, no_sockets=True, private_directory_absent=True, failures=[])
          and all(cleanup.get(key) is True for key in ('homes_retired', 'no_sockets', 'private_directory_absent')),
          'both scoped TEST homes, sockets and private directory must retire')
-    business = report.get('business')
-    need(type(business) is dict and set(business) == {'system', 'moved'}, 'system and actual-installed moved-prefix command journeys required')
-    for key, value in business.items():
-        need(type(value) is dict and value.get('status') == 'PASS_ALL_FIVE_ACTUAL_COMMANDS'
-             and value.get('synthetic') is True and value.get('commands') == ['sbom', 'source-export', 'recipe-pack', 'recipe-unpack', 'sbom-compare']
-             and value.get('roundtrip_files') == 7 and value.get('held_unknowns') == 1
-             and value.get('build_context') is None and value.get('license_conclusion') == 'NOASSERTION'
-             and value.get('release') == 'NOT_ADMITTED', 'all five actual commands must retain unknown/unbound DATA semantics')
-    business_indexes = {}
-    for key, home in [('system', fixed / 'user-data/system'), ('moved', fixed / 'user-data/relocated')]:
-        cli = '/usr/bin/cachy-asahi-release-tools' if key == 'system' else str(fixed / 'user-data/moved-prefix/usr/bin/cachy-asahi-release-tools')
-        need(business[key].get('cli') == cli, 'system or ALPM-copied moved-prefix launcher identity differs')
-        indexes_for_key = []
-        for step, command_name in [('recipe-pack', 'recipe-pack'), ('recipe-unpack', 'recipe-unpack'), ('sbom-before', 'sbom'), ('sbom-after', 'sbom'),
-                                    ('source-export', 'source-export'), ('sbom-compare', 'sbom-compare'), ('sbom-compare-human', 'sbom-compare')]:
-            index, command = selected(key + '-' + step); indexes_for_key.append(index)
-            need(command['argv'][:7] == ['/usr/bin/runuser', '-u', 'alarm', '--', '/usr/bin/env', 'HOME=' + str(home), cli]
-                 and command['argv'][7] == command_name and command['expected'] == 0, 'actual ordinary-user five-command argv required')
-        business_indexes[key] = indexes_for_key
+    gpg = ['/usr/bin/gpg', '--batch', '--no-options', '--homedir', str(trust.parent / 'signing'),
+           '--no-auto-key-retrieve', '--pinentry-mode', 'loopback', '--passphrase', '']
+    business_indexes = retained_business_features(view, files, report.get('business'), fixed, selected, signer,
+        report.get('endpoint_public_key'), verifier, gpg)
     need(indexes['upgraded_v2'] < min(business_indexes['system']) and max(business_indexes['system']) < min(business_indexes['moved'])
          and max(business_indexes['moved']) < transactions[2], 'both complete v2 journeys must occur before downgrade')
     for home in ('signing', 'trust'):

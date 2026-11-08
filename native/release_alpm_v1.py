@@ -174,6 +174,9 @@ def inside(source,map_hash):
         fingerprints=[line.split(':')[9] for line in listing.splitlines() if line.startswith('fpr:')]
         need(len(fingerprints)==1 and re.fullmatch('[0-9A-F]{40}',fingerprints[0]),'one explicit TEST primary key');fingerprint=fingerprints[0]
         public=work/'TEST-public.asc';public.write_bytes(run('export-only-test-public',gpg+['--armor','--export',fingerprint]))
+        public_binary=run('export-only-test-binary-public',gpg+['--export',fingerprint])
+        need(0<len(public_binary)<=4*1024**2 and not public_binary.startswith(b'-----BEGIN'),'finite binary TEST public export required')
+        report['endpoint_public_key']=T.data_pin(public_binary)
         verifier=['/usr/bin/gpg','--batch','--no-options','--homedir',str(trust),'--no-auto-key-retrieve']
         for version in T.VERSIONS:
             archive=archives[version];run('sign-'+version,gpg+['--local-user',fingerprint,'--output',str(archive)+'.sig','--detach-sign',str(archive)])
@@ -201,13 +204,13 @@ def inside(source,map_hash):
             actual=inventory(key+'-inventory');need(actual==T.inventory_expected(base,version),'exact350 installed version/dependencies')
             report['inventory'][key]=dict(**T.data_pin(actual),count=350,version=version)
             report['payloads'][key]=T.check_payload('/',policy,version,run,pacman)
-            other='usr/lib/cachy-asahi/release-tools-v2' if version==T.VERSIONS[0] else 'usr/lib/cachy-asahi/release-tools'
+            other='usr/lib/cachy-asahi/release-tools-v4' if version==T.VERSIONS[0] else 'usr/lib/cachy-asahi/release-tools'
             need(not os.path.lexists('/'+other),'stale other-version private root absent')
             expected=(T.NAME+' '+version.rsplit('-',1)[0]+'\n').encode()
             need(run(stage+'-version',['/usr/bin/runuser','-u','alarm','--','/usr/bin/'+T.NAME,'--version'])==expected,'actual installed version output')
             report['stages'].append(stage)
         topmem=T.topmem_sources(recipes/'v1')
-        report['business']['system']=T.business(run,Path('/usr/bin')/T.NAME,user/'system',topmem,alarm.pw_uid,alarm.pw_gid,'system')
+        report['business']['system']=T.business(run,Path('/usr/bin')/T.NAME,user/'system',topmem,alarm.pw_uid,alarm.pw_gid,'system',gpg,verifier,fingerprint,public_binary,strict_signature)
         report['stages'].append('commands-system')
         moved=user/'moved-prefix';moved.mkdir()
         for name,item in policy['recipes'][T.VERSIONS[1]]['payload_files'].items():
@@ -215,18 +218,18 @@ def inside(source,map_hash):
             need(T.pin(target)=={k:item[k] for k in ('bytes','sha256')},'moved exact actual installed payload')
             os.chown(target,alarm.pw_uid,alarm.pw_gid)
         for directory in (moved,*[p for p in moved.rglob('*') if p.is_dir()]):os.chown(directory,alarm.pw_uid,alarm.pw_gid);directory.chmod(0o755)
-        report['business']['moved']=T.business(run,moved/'usr/bin'/T.NAME,user/'relocated',topmem,alarm.pw_uid,alarm.pw_gid,'moved')
+        report['business']['moved']=T.business(run,moved/'usr/bin'/T.NAME,user/'relocated',topmem,alarm.pw_uid,alarm.pw_gid,'moved',gpg,verifier,fingerprint,public_binary,strict_signature)
         report['stages'].append('commands-moved');exports_before=T.snapshot(user);report['exports_before']=T.snapshot_receipt(user)
         version=T.VERSIONS[0];run('downgrade-v1',['/usr/bin/pacman',*pacman,'--noconfirm','--noscriptlet','-U',str(archives[version])])
         actual=inventory('downgraded-v1-inventory');need(actual==T.inventory_expected(base,version),'exact350 downgraded version')
         report['inventory']['downgraded_v1']=dict(**T.data_pin(actual),count=350,version=version)
         report['payloads']['downgraded_v1']=T.check_payload('/',policy,version,run,pacman)
-        need(not os.path.lexists('/usr/lib/cachy-asahi/release-tools-v2'),'v2 private runtime absent after downgrade');report['stages'].append('downgrade-v1')
+        need(not os.path.lexists('/usr/lib/cachy-asahi/release-tools-v4'),'v4 private runtime absent after downgrade');report['stages'].append('downgrade-v1')
         run('remove',['/usr/bin/pacman',*pacman,'--noconfirm','--noscriptlet','-R',T.NAME]);installed=False
         actual=inventory('removed-inventory');need(actual==base,'exact349 final dependencies')
         report['inventory']['removed']=dict(**T.data_pin(actual),count=349,version=None)
-        need(all(not os.path.lexists('/'+name) for name in payload_union),'all15 owned files absent after removal')
-        need(all(not os.path.lexists('/usr/lib/cachy-asahi/'+leaf) for leaf in ('release-tools','release-tools-v2')),'all private runtime roots absent')
+        need(all(not os.path.lexists('/'+name) for name in payload_union),'all exact package-owned files absent after removal')
+        need(all(not os.path.lexists('/usr/lib/cachy-asahi/'+leaf) for leaf in ('release-tools','release-tools-v4')),'all private runtime roots absent')
         report['stages'].append('remove')
         after_reasons=reasons('restored-reasons');need(after_reasons==baseline_reasons,'exact explicit/dependency install reasons restored')
         report['install_reasons_after']={k:T.data_pin(v) for k,v in after_reasons.items()}

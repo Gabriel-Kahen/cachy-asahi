@@ -10,10 +10,10 @@ import capsule as C
 import privacy_diagnostics as privacy
 
 PRODUCERS = {
-    'native/release_alpm_v1.py': 'cf525aa3e598bdec52c79b06d5bdcc2c1c7836c52eb7d6faa369b22b55e47957',
-    'native/release_tools_v1.py': '911c629ab4426a1379e0f89192e4e3b8e3d769d70d106bbfb3771e249b1ec536',
+    'native/release_alpm_v1.py': '6874c019cec7a78de953cabc8f8651273f761f81a603c3aeccc509015ed8d61e',
+    'native/release_tools_v1.py': 'b2b22ba731a7d954394beeb472b00fed06484a1f2e4431a5e23e99e64eaba758',
     'native/release_guest_v1.py': '10eb4d88baabaa0efdecbab684b5caafaa68a7cfc50b668849df99cd3d532c85',
-    'native/release-contract-v1.json': 'e6a938f606954c213c5a38709b9cf2680d049c8ac8f20c381fc51800ccff1333',
+    'native/release-contract-v1.json': '2d84955feee64aa91035d588e2d66f93d8f67ccc802f51a5de2196b6e9d1ac4e',
     'native/release_build_cause_v1.py': 'a5506c35f1325353c78538658c5e3ac03cdeb1460c5284a0abd1e428aaacfc00',
     'scripts/workflows/developer_workflow.py': '531c124cde3fa41d46888acfc638c823196bb2f297b19ab68ab3d001b05f16ba',
     'scripts/virtual/owned_process_retirement_v2.py': '9388d270d06e28fee50160b7c04dd69593e383647d791f8aaff69380032165d5'}
