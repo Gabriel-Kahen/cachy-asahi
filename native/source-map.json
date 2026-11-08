@@ -13,6 +13,21 @@
   "causal_basis178_source": "cc6dcdb86bf358e7aa72335f671216d9eca91037",
   "consumer_basis182_map_sha256": "778bbaaf14024d283d6aa0241c95c9caf0770bdd2346f0781e1f1ea7769552f1",
   "consumer_basis182_source": "5b2016cc842970952c03cc2cc068a9cfbea5812c",
+  "desktop_current011_reader": {
+    "expected_test_count": 91,
+    "package_source_commit": "446f657723c2e4443f8a3fe8ccbe592ebbaf282b",
+    "package_version": "0.1.1-1",
+    "path": "native/desktop_reader_v1.py",
+    "payload_contract": "native/desktop-contract-v1.json",
+    "payload_files": 6,
+    "private_layout": "desktop-alpm-v1-public-data-v1",
+    "process_layout": "bash-pid1-direct-python-child-v1",
+    "runtime_selection": "desktop-owned-retirement-v2",
+    "scope": "FINITE_NATURAL_RETIREMENT_OPTIONAL_QUALIFIED_ZERO_CHILD",
+    "selection": "desktop-current011-owned-v2-reader-v1",
+    "source_archive_sha256": "11a59ada0d99f1202694ed98adb7891594b27a7048e39a99d5590e425fc31986",
+    "update_version": "0.1.1-2"
+  },
   "desktop_genuine_parent": "111f14d2b21b220d86912d5ead978848c7ef1cb0",
   "desktop_operation": "desktop-alpm-v1",
   "desktop_owned_v2_control": {
@@ -45,14 +60,14 @@
   },
   "files": {
     ".github/workflows/native-arm-build.yml": {
-      "bytes": 13576,
+      "bytes": 14077,
       "mode": 420,
-      "sha256": "761f93a0cc02110cbdd35977f6711fe65ed543d38a41b49359e707c7ee7cfd84"
+      "sha256": "d761ad399f54ed01927838f037681abf3bac96e8f3c72ca2ed5053f6bf11fd74"
     },
     ".github/workflows/native-arm-developer-workflows.yml": {
-      "bytes": 13576,
+      "bytes": 14077,
       "mode": 420,
-      "sha256": "761f93a0cc02110cbdd35977f6711fe65ed543d38a41b49359e707c7ee7cfd84"
+      "sha256": "d761ad399f54ed01927838f037681abf3bac96e8f3c72ca2ed5053f6bf11fd74"
     },
     "bootstrap/.github/workflows/native-arm-build.yml": {
       "bytes": 16219,
@@ -615,9 +630,9 @@
       "sha256": "b0acb5b87b3ff4ef1667f3295e772c4dde49636668ba290af35c68af99bfe5fd"
     },
     "native/desktop-contract-v1.json": {
-      "bytes": 19571,
+      "bytes": 19909,
       "mode": 420,
-      "sha256": "f2c72aa0d24272966eb323a5a2bb11bca89569a9542330eedafe9f09cc46a894"
+      "sha256": "bc910072e9f519cd681bf0c3bc23d3472684d24dcc3fddcf5639535a983b6d34"
     },
     "native/desktop-makepkg-v1.conf": {
       "bytes": 316,
@@ -625,9 +640,9 @@
       "sha256": "8cdd968870a2a92d7006739e96dedefa14e51c40d62cfc15831f234a767a1421"
     },
     "native/desktop-sources-v1.tar": {
-      "bytes": 51200,
+      "bytes": 61440,
       "mode": 420,
-      "sha256": "c9e119f8cb85404979cffc9a5aa4b3962ad3d990d4b899441370f22ad4d7964b"
+      "sha256": "4b6265f5a235a74301c142174747604fe9290a0c39c94f1fb09a57da3570d0f5"
     },
     "native/desktop574-inputs.lock.json": {
       "bytes": 623664,
@@ -635,9 +650,9 @@
       "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
     },
     "native/desktop_alpm_v1.py": {
-      "bytes": 33078,
+      "bytes": 41008,
       "mode": 420,
-      "sha256": "bc5c84ae2abc21883507785b108101d5b0da964dde384c04e0c090478aeed8ca"
+      "sha256": "bad953ba7c43b81c261772a6e48d1c8eafff8427bf245e3e118fe35e778c5491"
     },
     "native/desktop_guest_v1.py": {
       "bytes": 3041,
@@ -650,19 +665,19 @@
       "sha256": "9388d270d06e28fee50160b7c04dd69593e383647d791f8aaff69380032165d5"
     },
     "native/desktop_projection_v1.py": {
-      "bytes": 20728,
+      "bytes": 39383,
       "mode": 420,
-      "sha256": "621598cf1408fe1414637e4d787b67aeca2c8f228e567ea7b7911ec2a05c0b5f"
+      "sha256": "87d3e56b1363635aa96831e7cc4e04bc61e42384a0bacb8979cc7b5e0843e90d"
     },
     "native/desktop_reader_v1.py": {
-      "bytes": 140631,
+      "bytes": 213325,
       "mode": 420,
-      "sha256": "837e3f83cc2b1433a282c3bf5edb3f3e06c1e9d18264362680d28ae97b60a24e"
+      "sha256": "f64a61b39e117c6ffc2403d293889bbe7e703b77be89e674bb9b4d11bb011381"
     },
     "native/desktop_tools_v1.py": {
-      "bytes": 26905,
+      "bytes": 52692,
       "mode": 420,
-      "sha256": "88a8c5a8c188113564c8e0bf1e02176d9cc86f19998b51e19e075c5d0eaf8b62"
+      "sha256": "18a13fd6da420fb8cf8ffa634333dd438dbf972d39c371f190d1e3e856f80e4e"
     },
     "native/expected349.lock": {
       "bytes": 6800,
@@ -690,9 +705,9 @@
       "sha256": "2c42c705654d31e639f389f9a868dada0d9df76813d865e766be7b7c08f8404c"
     },
     "native/invocation.json": {
-      "bytes": 2101,
+      "bytes": 2867,
       "mode": 420,
-      "sha256": "f24bb54b4fb6bef80a87b49c1fc36dae02fa441b93d744a0b5c0fe0da10c63fd"
+      "sha256": "1d4cfe1c7c9f149b99c9c4d075b2b4c982bdbc0d5cdee27767d9faf4df13431f"
     },
     "native/original341.lock": {
       "bytes": 6674,
@@ -700,9 +715,9 @@
       "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
     },
     "native/owner.py": {
-      "bytes": 27470,
+      "bytes": 29092,
       "mode": 420,
-      "sha256": "4175def0f0613d78140ec10e9739bafd7cacb9b08c22d6165bb970a344c34c0b"
+      "sha256": "95e89f404c7ebb3113dc11b9ad7b1ce4415d9947552684d7b9be2acaef4f84bd"
     },
     "native/predecessor-source-map.json": {
       "bytes": 27440,

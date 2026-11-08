@@ -18,6 +18,11 @@ on:
         type: boolean
         required: false
         default: false
+      desktop_current011:
+        description: Exact current desktop-tools 0.1.1 qualification only
+        type: boolean
+        required: false
+        default: false
 permissions:
   contents: read
 concurrency:
@@ -38,6 +43,7 @@ jobs:
       SOURCE_MAP_SHA256: ${{ inputs.source_map_sha256 }}
       NATIVE_OPERATION: ${{ inputs.operation }}
       NATIVE_OWNED_RETIREMENT_V2: ${{ inputs.owned_retirement_v2 }}
+      NATIVE_DESKTOP_CURRENT011: ${{ inputs.desktop_current011 }}
       INPUTS_SHA256: beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f
     steps:
       - name: Checkout the exact closed source
@@ -174,6 +180,11 @@ jobs:
           owned_retirement_args=()
           case "$NATIVE_OWNED_RETIREMENT_V2" in
             true) [[ "$NATIVE_OPERATION" == desktop-alpm-v1 ]]; owned_retirement_args+=(--desktop-owned-retirement-v2) ;;
+            false|"") ;;
+            *) exit 1 ;;
+          esac
+          case "$NATIVE_DESKTOP_CURRENT011" in
+            true) [[ "$NATIVE_OPERATION" == desktop-alpm-v1 && "$NATIVE_OWNED_RETIREMENT_V2" == true ]]; owned_retirement_args+=(--desktop-current011) ;;
             false|"") ;;
             *) exit 1 ;;
           esac

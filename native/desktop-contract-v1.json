@@ -366,11 +366,19 @@
     "zstd-1.5.7-3-aarch64"
   ],
   "bundle": {
-    "bytes": 51200,
+    "bytes": 61440,
     "max_bytes": 1048576,
     "members": 5,
     "path": "native/desktop-sources-v1.tar",
-    "sha256": "c9e119f8cb85404979cffc9a5aa4b3962ad3d990d4b899441370f22ad4d7964b"
+    "sha256": "4b6265f5a235a74301c142174747604fe9290a0c39c94f1fb09a57da3570d0f5"
+  },
+  "current011": {
+    "expected_test_count": 91,
+    "schema": 1,
+    "selection": "desktop-current011",
+    "source_archive_sha256": "11a59ada0d99f1202694ed98adb7891594b27a7048e39a99d5590e425fc31986",
+    "update_version": "0.1.1-2",
+    "version": "0.1.1-1"
   },
   "dependencies": {
     "fakeroot": "1:1.37.2-3",
@@ -437,18 +445,19 @@
   "physical_M2": "NOT_RUN",
   "product": {
     "GUI": "NOT_APPLICABLE_STATIC_CLI",
-    "accepted_main": "5d5de45d64075c05a004d0171a8bbdbb35372c9b",
+    "accepted_main": "2561dcebee3ba70b924c9c4b42e4316b2994d832",
     "accepted_name": "cachy-asahi-desktop-tools",
-    "accepted_version": "0.1.0-1",
+    "accepted_version": "0.1.1-1",
     "license": "MIT",
+    "package_source_commit": "446f657723c2e4443f8a3fe8ccbe592ebbaf282b",
     "runtime_dependencies": [
       "python>=3.11"
     ],
     "update_fixture_release": "NOT_SELECTED_NOT_A_PRODUCT_CANDIDATE"
   },
   "recipe": {
-    "archive": "cachy-asahi-desktop-tools-0.1.0-1-any.pkg.tar.zst",
-    "expected_test_count": 81,
+    "archive": "cachy-asahi-desktop-tools-0.1.1-1-any.pkg.tar.zst",
+    "expected_test_count": 91,
     "payload_files": {
       "usr/bin/cachy-asahi-desktop-tools": {
         "bytes": 211,
@@ -458,22 +467,22 @@
       "usr/lib/cachy-asahi-desktop-tools/cli.py": {
         "bytes": 5741,
         "mode": 420,
-        "sha256": "a53e822e99133eb020fac1877c0796cd15cb8734415a13539304512bea57c0b6"
+        "sha256": "ab44cb1c461ce298287fbb3ed3aab83677fa161521c92f06dafcd71e051191bc"
       },
       "usr/lib/cachy-asahi-desktop-tools/desktop_applications.py": {
-        "bytes": 37685,
+        "bytes": 38009,
         "mode": 420,
-        "sha256": "4eefd981d6e6d20471ba108e4450308a284ca7fcc47b08ebfea7e468887835a3"
+        "sha256": "9b680551717b67e05741926c19e6137c9ff67278578e2c88af04462dd393d4f0"
       },
       "usr/share/doc/cachy-asahi-desktop-tools/PROVENANCE.json": {
-        "bytes": 1678,
+        "bytes": 2006,
         "mode": 420,
-        "sha256": "89a14ad88fa6dfb55c5daf1292640d065e06d98f9a7d31dd7234bcc546645783"
+        "sha256": "4385377942ee22feb61c74643a83dd86c531191dd7d97c82482821530e7ddcb3"
       },
       "usr/share/doc/cachy-asahi-desktop-tools/README.md": {
-        "bytes": 5630,
+        "bytes": 6084,
         "mode": 420,
-        "sha256": "4f9d3df15aba6181e601f973d38859a97b94bf37458e957401a91854501036a9"
+        "sha256": "58e86f66dcd75154b002b5bf1f60e59e0a3cb30abae550143ba00cf112117689"
       },
       "usr/share/licenses/cachy-asahi-desktop-tools/LICENSE": {
         "bytes": 1081,
@@ -485,31 +494,31 @@
       "PKGBUILD": {
         "bytes": 602,
         "mode": 420,
-        "sha256": "5508bdd547bf9d15caef5ecd83589e84e9fb5b944c92a861f61d4c897b2832ca"
+        "sha256": "383e547f1099334876dc67d45662d98fb642c737954d41d768642d428516c601"
       },
-      "cachy-asahi-desktop-tools-0.1.0.tar.gz": {
-        "bytes": 29282,
+      "cachy-asahi-desktop-tools-0.1.1.tar.gz": {
+        "bytes": 31159,
         "mode": 420,
-        "sha256": "69d8c7bb3a13086d4b3ae5a46fa79db14ef4a034912bacb9f185ccc4d54b0ba4"
+        "sha256": "11a59ada0d99f1202694ed98adb7891594b27a7048e39a99d5590e425fc31986"
       },
       "export_source.py": {
         "bytes": 6362,
         "mode": 420,
-        "sha256": "0e19d6d45cc26172e520d063ac4de436a6eb55b397fd68aa8b92daad9f94124b"
+        "sha256": "889a0da7a7d9d12531087dfd7089a8b4945ad42de4274be3f74cb049edb169eb"
       },
       "test_export_source.py": {
-        "bytes": 8968,
+        "bytes": 8964,
         "mode": 420,
-        "sha256": "ea32bc66f53a32ae8265a07225b3abcc96e33712f7df08946e1fb1f92a303943"
+        "sha256": "8adda128783824ef67806235c4c03b58052e3e1c91254baf02dafa6a3c7b4483"
       }
     },
-    "version": "0.1.0-1"
+    "version": "0.1.1-1"
   },
   "release": "NOT_ADMITTED",
   "schema": 1,
   "update_recipe": {
-    "archive": "cachy-asahi-desktop-tools-0.1.0-2-any.pkg.tar.zst",
-    "expected_test_count": 81,
+    "archive": "cachy-asahi-desktop-tools-0.1.1-2-any.pkg.tar.zst",
+    "expected_test_count": 91,
     "payload_files": {
       "usr/bin/cachy-asahi-desktop-tools": {
         "bytes": 211,
@@ -519,22 +528,22 @@
       "usr/lib/cachy-asahi-desktop-tools/cli.py": {
         "bytes": 5741,
         "mode": 420,
-        "sha256": "a53e822e99133eb020fac1877c0796cd15cb8734415a13539304512bea57c0b6"
+        "sha256": "ab44cb1c461ce298287fbb3ed3aab83677fa161521c92f06dafcd71e051191bc"
       },
       "usr/lib/cachy-asahi-desktop-tools/desktop_applications.py": {
-        "bytes": 37685,
+        "bytes": 38009,
         "mode": 420,
-        "sha256": "4eefd981d6e6d20471ba108e4450308a284ca7fcc47b08ebfea7e468887835a3"
+        "sha256": "9b680551717b67e05741926c19e6137c9ff67278578e2c88af04462dd393d4f0"
       },
       "usr/share/doc/cachy-asahi-desktop-tools/PROVENANCE.json": {
-        "bytes": 1678,
+        "bytes": 2006,
         "mode": 420,
-        "sha256": "89a14ad88fa6dfb55c5daf1292640d065e06d98f9a7d31dd7234bcc546645783"
+        "sha256": "4385377942ee22feb61c74643a83dd86c531191dd7d97c82482821530e7ddcb3"
       },
       "usr/share/doc/cachy-asahi-desktop-tools/README.md": {
-        "bytes": 5630,
+        "bytes": 6084,
         "mode": 420,
-        "sha256": "4f9d3df15aba6181e601f973d38859a97b94bf37458e957401a91854501036a9"
+        "sha256": "58e86f66dcd75154b002b5bf1f60e59e0a3cb30abae550143ba00cf112117689"
       },
       "usr/share/licenses/cachy-asahi-desktop-tools/LICENSE": {
         "bytes": 1081,
@@ -548,24 +557,24 @@
       "PKGBUILD": {
         "bytes": 602,
         "mode": 420,
-        "sha256": "d9d3749d141a3ac27e06d2423d94fb3898bf773ee72d7eca3b1cea1718439e9c"
+        "sha256": "c367a4a32a6c8f12cc4d857f6b376b10a70453cf01fae8225a86b0ecb0a74500"
       },
-      "cachy-asahi-desktop-tools-0.1.0.tar.gz": {
-        "bytes": 29282,
+      "cachy-asahi-desktop-tools-0.1.1.tar.gz": {
+        "bytes": 31159,
         "mode": 420,
-        "sha256": "69d8c7bb3a13086d4b3ae5a46fa79db14ef4a034912bacb9f185ccc4d54b0ba4"
+        "sha256": "11a59ada0d99f1202694ed98adb7891594b27a7048e39a99d5590e425fc31986"
       },
       "export_source.py": {
         "bytes": 6362,
         "mode": 420,
-        "sha256": "0e19d6d45cc26172e520d063ac4de436a6eb55b397fd68aa8b92daad9f94124b"
+        "sha256": "889a0da7a7d9d12531087dfd7089a8b4945ad42de4274be3f74cb049edb169eb"
       },
       "test_export_source.py": {
-        "bytes": 8968,
+        "bytes": 8964,
         "mode": 420,
-        "sha256": "ea32bc66f53a32ae8265a07225b3abcc96e33712f7df08946e1fb1f92a303943"
+        "sha256": "8adda128783824ef67806235c4c03b58052e3e1c91254baf02dafa6a3c7b4483"
       }
     },
-    "version": "0.1.0-2"
+    "version": "0.1.1-2"
   }
 }

@@ -1737,10 +1737,699 @@ def validate(capsule_path, expected, *, retirement_selection="legacy834"):
                 physical_M2='NOT_RUN', release='NOT_ADMITTED')
 
 
+
+CURRENT011_READER_SELECTION = 'desktop-current011-owned-v2-reader-v1'
+CURRENT011_READER_CONTRACT = {'expected_test_count': 91, 'package_source_commit': '446f657723c2e4443f8a3fe8ccbe592ebbaf282b', 'package_version': '0.1.1-1', 'path': 'native/desktop_reader_v1.py', 'payload_contract': 'native/desktop-contract-v1.json', 'payload_files': 6, 'private_layout': 'desktop-alpm-v1-public-data-v1', 'process_layout': 'bash-pid1-direct-python-child-v1', 'runtime_selection': 'desktop-owned-retirement-v2', 'scope': 'FINITE_NATURAL_RETIREMENT_OPTIONAL_QUALIFIED_ZERO_CHILD', 'selection': 'desktop-current011-owned-v2-reader-v1', 'source_archive_sha256': '11a59ada0d99f1202694ed98adb7891594b27a7048e39a99d5590e425fc31986', 'update_version': '0.1.1-2'}
+CURRENT011_PACKAGE_MARKER = {'expected_test_count': 91, 'schema': 1, 'selection': 'desktop-current011', 'source_archive_sha256': '11a59ada0d99f1202694ed98adb7891594b27a7048e39a99d5590e425fc31986', 'update_version': '0.1.1-2', 'version': '0.1.1-1'}
+CURRENT011_PRODUCERS = {'native/desktop-contract-v1.json': 'bc910072e9f519cd681bf0c3bc23d3472684d24dcc3fddcf5639535a983b6d34', 'native/desktop_alpm_v1.py': 'bad953ba7c43b81c261772a6e48d1c8eafff8427bf245e3e118fe35e778c5491', 'native/desktop_guest_v1.py': '2818cb5257433b290dd96dc8b1824e4c7932ac5ceff5b190004765caa1191e31', 'native/desktop_tools_v1.py': '18a13fd6da420fb8cf8ffa634333dd438dbf972d39c371f190d1e3e856f80e4e'}
+
+
+def current011_reader_contract(value):
+    need(type(value) is dict and value == CURRENT011_READER_CONTRACT
+         and type(value['payload_files']) is int and type(value['expected_test_count']) is int,
+         'exact typed current011 reader scope required')
+    return value
+
+
+def current011_package_marker(value):
+    need(type(value) is dict and value.get('package_selection') == CURRENT011_PACKAGE_MARKER
+         and type(value['package_selection']['schema']) is int
+         and type(value['package_selection']['expected_test_count']) is int,
+         'explicit exact current011 package selection required')
+    return value['package_selection']
+
+
+def current011_contract_value(value):
+    need(type(value) is dict and type(value.get('schema')) is int and value['schema'] == 1
+         and value.get('operation') == OPERATION
+         and value.get('actual') == dict(source=None, ref=None, run=None, job=None, artifact=None)
+         and value.get('current011') == CURRENT011_PACKAGE_MARKER
+         and type(value['current011']['schema']) is int
+         and type(value['current011']['expected_test_count']) is int,
+         'exact unexecuted current011 contract and marker required')
+    recipe, update = value['recipe'], value['update_recipe']
+    need(recipe.get('version') == '0.1.1-1' and update.get('version') == '0.1.1-2'
+         and type(recipe.get('expected_test_count')) is int and recipe['expected_test_count'] == 91
+         and type(update.get('expected_test_count')) is int and update['expected_test_count'] == 91
+         and len(recipe.get('payload_files', {})) == 6 and update.get('payload_files') == recipe['payload_files']
+         and update.get('provenance') == update.get('scope') == 'TEST_LIFECYCLE_UPDATE_FIXTURE_ONLY'
+         and recipe['source_files']['cachy-asahi-desktop-tools-0.1.1.tar.gz']['sha256'] == CURRENT011_PACKAGE_MARKER['source_archive_sha256']
+         and value['product']['accepted_main'] == '2561dcebee3ba70b924c9c4b42e4316b2994d832'
+         and value['product']['package_source_commit'] == CURRENT011_READER_CONTRACT['package_source_commit'],
+         'exact current package pair/source/91 checks and Root-accepted Main required')
+    return value
+
+
+def current011_env_business(view, prefix, value, selected, cli, home, label, after, before):
+    row = value.get('env_unset')
+    keys = ('env_unset_capture', 'env_unset_audit', 'env_unset_path_refusal',
+            'env_unset_absolute_capture', 'env_unset_restored_capture', 'env_unset_malformed_refusal')
+    logical = '/home/fixture/.local/share/applications/tool.desktop'
+    checks = dict(long_form='PASS_STAGED_CHECKS', path_basename='FAIL_STAGED_CHECKS',
+                  absolute='PASS_CAPTURE_INVENTORY', restored='PASS_CAPTURE_INVENTORY', malformed='FAIL_STAGED_CHECKS')
+    need(type(row) is dict and set(row) == {'schema', 'selection', 'inventory', 'inventory_leaf',
+         'override_logical', 'override_before', 'override_after', 'override_preserved', 'reports', 'steps', 'checks', 'zero_payload_execution'}
+         and type(row['schema']) is int and row['schema'] == 1
+         and row['selection'] == 'GNU_ENV_UNSET_EQUALS_BOUNDED'
+         and row['inventory_leaf'] == 'env-unset-inventory.json' and row['override_logical'] == logical
+         and row['override_preserved'] is True and row['zero_payload_execution'] is True
+         and row['checks'] == checks and type(row['steps']) is dict and type(row['reports']) is dict
+         and set(row['steps']) == set(row['reports']) == set(keys),
+         'complete current env-unset raw evidence and preservation scope required')
+    texts = dict(env_unset_capture='env --unset=WAYLAND_DISPLAY tool-link %F',
+                 env_unset_audit='env --unset=WAYLAND_DISPLAY tool-link %F',
+                 env_unset_path_refusal='env --unset=PATH tool-link %F',
+                 env_unset_absolute_capture='env --unset=PATH /usr/bin/tool-link %F',
+                 env_unset_restored_capture='env --unset=PATH PATH=/usr/bin tool-link %F',
+                 env_unset_malformed_refusal='env --unset= tool-link %F')
+    def override_pin(key):
+        raw = ('[Desktop Entry]\nType=Application\nName=Current user override\nExec=' + texts[key]
+               + '\nTryExec=tool\nTerminal=true\nNoDisplay=true\nIcon=fixture\nMimeType=text/plain;\n').encode()
+        return pin(raw)
+    positive = override_pin('env_unset_capture')
+    need(row['override_before'] == row['override_after'] == positive,
+         'actual positive user override bytes preserved across current audit')
+    reports, positions = {}, []
+    for key in keys:
+        step = label + '-' + key.replace('_', '-')
+        need(row['steps'][key] == step, 'fixed current env-unset command step required')
+        index, command = selected(step)
+        raw = view.read(prefix + command['log'])
+        operation = 'audit' if key == 'env_unset_audit' else 'capture'
+        argv = ['/usr/bin/runuser', '-u', 'alarm', '--', '/usr/bin/env', 'HOME=' + str(home), cli,
+                operation, '--root', str(home/'moved-staged-root'), '--environment', str(home/'environment.json'),
+                '--select', 'tool.desktop', '--mime', 'text/plain']
+        if operation == 'audit':
+            argv += ['--inventory', str(home/'env-unset-inventory.json'), '--inventory-sha256', row['inventory']['sha256']]
+        expected = 1 if key in ('env_unset_path_refusal', 'env_unset_malformed_refusal') else 0
+        need(type(index) is int and command['argv'] == argv and command.get('cwd') == str(home)
+             and type(command['expected']) is int and command['expected'] == expected
+             and pin(raw) == row['reports'][key], 'actual ordinary-user current CLI argv/outcome/raw pin required')
+        positions.append(index); reports[key] = json.loads(raw)
+    need(after < min(positions) and positions == sorted(set(positions)) and max(positions) < before,
+         'all six current probes after legacy drift and before next lifecycle boundary required')
+    for key in ('env_unset_capture', 'env_unset_absolute_capture', 'env_unset_restored_capture'):
+        data = reports[key]
+        need(type(data.get('schema')) is int and data['schema'] == 1
+             and data.get('kind') == 'cachy-asahi-desktop-static-inventory-v1'
+             and data.get('selected') == ['tool.desktop'] and data.get('mime') == ['text/plain']
+             and data.get('environment') == value['environment']
+             and type(data.get('files')) is dict and len(data['files']) >= 8
+             and {k:data['files'][logical][k] for k in ('bytes','sha256')} == override_pin(key)
+             and data['files'][logical]['path'] == data['files'][logical]['resolved'] == logical
+             and data['files'][logical]['mode'] == '0o644' and data['files'][logical]['symlinks'] == [],
+             'source-exact current user override is bound into each actual static capture')
+    capture, audited = reports['env_unset_capture'], reports['env_unset_audit']
+    need(row['inventory'] == row['reports']['env_unset_capture']
+         and audited.get('status') == 'PASS_STAGED_CHECKS' and audited.get('scope') == 'STAGED_DESKTOP_INTEGRATION_ONLY'
+         and audited.get('inventory_binding') == 'EXACT_STATIC_INVENTORY'
+         and audited.get('inventory_input') == row['inventory'] and audited.get('pins') == capture['files'],
+         'actual equals-form audit joins exact captured inventory')
+    app = audited['applications'][0]
+    need(app.get('id') == 'tool.desktop' and app.get('origin') == 'user_override' and app.get('path') == logical
+         and app['exec']['argv_without_file_inputs'] == ['env', '--unset=WAYLAND_DISPLAY', 'tool-link']
+         and app['exec']['resolution']['env_target']['file']['path'] == '/usr/bin/tool-link',
+         'actual equals-form user override audit selects the exact staged command')
+    normalized = {name:item for name,item in audited.items() if name not in ('root','inventory_input','inventory_binding')}
+    digest = hashlib.sha256(json.dumps(normalized,sort_keys=True,separators=(',', ':'),ensure_ascii=True,allow_nan=False).encode()).hexdigest()
+    need(digest == capture.get('audit_sha256'), 'entire equals-form static audit binds captured inventory')
+    for key, message in [('env_unset_path_refusal', 'PATH unset'), ('env_unset_malformed_refusal', 'invalid env unset variable')]:
+        data = reports[key]; app = data['applications'][0]
+        need(data.get('status') == 'FAIL_STAGED_CHECKS'
+             and app.get('origin') == 'user_override' and app.get('path') == logical
+             and {k:app['file'][k] for k in ('bytes','sha256')} == override_pin(key)
+             and message in app['exec']['resolution']['env_target'].get('error', ''),
+             'actual source-bound PATH or malformed-name refusal required')
+    return max(positions)
+
+
+def current011_archive_custody(raw, command, contract, index, private_marker):
+    """Independently parse exact public source bodies and every tar byte boundary."""
+    import io
+    import tarfile
+    need(type(raw) is bytes and 0 < len(raw) <= 2 * 1024 ** 2 and (len(raw) % 512 == 0), 'bounded block-aligned package tar required')
+    label = {'archive-a': 'a', 'archive-b': 'b', 'archive-update': 'update'}.get(command.get('step'))
+    recipe = contract['update_recipe'] if label == 'update' else contract['recipe']
+    fixed = Path(contract['invocation']['source']).parent
+    need(label is not None and type(index) is int and (index >= 0) and (command.get('log') == '%03d-archive-%s.log' % (index, label)) and (command.get('argv') == ['/usr/bin/zstd', '-dc', str(fixed / 'build-inputs' / label / recipe['archive'])]) and (type(command.get('expected')) is int) and (command['expected'] == 0) and (command.get('log_pin') == pin(raw)), 'exact source-owned archive decoder command and raw pin required')
+    expected = recipe['payload_files']
+    need(len(expected) == 6, 'exact6 source-bound package payload required')
+    ancestors = {str(parent) for leaf in expected for parent in Path(leaf).parents if str(parent) != '.'}
+    payload = {}
+    metadata = {}
+    seen = set()
+    directories = set()
+    cursor = 0
+    headers = 0
+    try:
+        with tarfile.open(fileobj=io.BytesIO(raw), mode='r:') as archive:
+            for member in archive:
+                name = member.name.rstrip('/')
+                need(member.offset == cursor and member.offset_data == cursor + 512 and (not member.pax_headers) and (member.type in (tarfile.REGTYPE, tarfile.AREGTYPE, tarfile.DIRTYPE)), 'contiguous single-header ordinary tar member required; hidden headers refused')
+                header = raw[cursor:cursor + 512]
+                need(len(header) == 512 and (not private_marker.search(header)), 'private marker in package tar header refused')
+                need(name not in seen and member.uid == member.gid == 0 and (name == Path(name).as_posix()) and ('..' not in Path(name).parts), 'unique canonical root-owned package members required')
+                need(type(member.size) is int and 0 <= member.size <= 1024 ** 2, 'finite nonnegative package member size required')
+                seen.add(name)
+                start = member.offset_data
+                end = start + member.size
+                padded = start + (member.size + 511) // 512 * 512
+                need(end <= padded <= len(raw) and (not any(raw[end:padded])), 'package tar padding must be zero')
+                if member.isdir():
+                    need(name in ancestors and member.mode == 493 and (member.size == 0), 'exact zero-body package directory required')
+                    directories.add(name)
+                else:
+                    need(member.isfile() and member.size <= 1024 ** 2, 'ordinary finite package body required')
+                    body = raw[start:end]
+                    need(len(body) == member.size, 'complete raw package body required')
+                    if name in ('.PKGINFO', '.BUILDINFO', '.MTREE'):
+                        need(member.mode == 420 and (not private_marker.search(body)), 'private marker or wrong mode in package metadata refused')
+                        metadata[name] = body
+                    else:
+                        need(name in expected and member.mode == expected[name]['mode'] and (pin(body) == {key: expected[name][key] for key in ('bytes', 'sha256')}), 'exact source-bound public package body required')
+                        payload[name] = dict(mode=member.mode, **pin(body))
+                cursor = padded
+                headers += 1
+    except (tarfile.TarError, UnicodeError, EOFError):
+        raise ValueError('bounded source-bound package tar structure refused') from None
+    need(set(payload) == set(expected) and directories == ancestors and (set(metadata) == {'.PKGINFO', '.BUILDINFO', '.MTREE'}), 'complete finite package payload and metadata namespace required')
+    need(len(raw) - cursor >= 1024 and (not any(raw[cursor:])), 'complete zero package tar trailer required')
+    for name in ('.PKGINFO', '.BUILDINFO'):
+        need(len(metadata[name]) <= 256 * 1024, 'bounded textual package metadata required')
+    pkg = desktop_metadata(metadata['.PKGINFO'])
+    build = desktop_metadata(metadata['.BUILDINFO'])
+    need(all((re.fullmatch('[a-z][a-z0-9_]*', key) and all((len(value) <= 8192 for value in values)) for doc in (pkg, build) for key, values in doc.items())), 'bounded canonical makepkg metadata fields required')
+    for key, value in (('pkgname', 'cachy-asahi-desktop-tools'), ('pkgbase', 'cachy-asahi-desktop-tools'), ('pkgver', recipe['version']), ('arch', 'any')):
+        need(pkg.get(key) == [value], 'exact package identity required')
+    need(pkg.get('license') == ['MIT'] and pkg.get('depend') == ['python>=3.11'], 'exact MIT package/runtime dependency metadata required')
+    for key, value in (('format', '2'), ('pkgname', 'cachy-asahi-desktop-tools'), ('pkgbase', 'cachy-asahi-desktop-tools'), ('pkgver', recipe['version']), ('pkgarch', 'any'), ('pkgbuild_sha256sum', recipe['source_files']['PKGBUILD']['sha256'])):
+        need(build.get(key) == [value], 'exact package BUILDINFO identity required')
+    installed = build.get('installed', [])
+    need(len(installed) == len(set(installed)) == 349 and sorted(installed) == contract['buildinfo_installed'] and ('check' in build.get('buildenv', [])) and ('!check' not in build['buildenv']), 'exact349 provenance and checks required')
+    return dict(kind='exact-source-bound-desktop-package-tar-v1', label=label, step=command['step'], argv=command['argv'], raw_pin=pin(raw), contract_sha256=CURRENT011_PRODUCERS['native/desktop-contract-v1.json'], payload_files=len(payload), metadata={name: pin(body) for name, body in metadata.items()}, framing=dict(headers=headers, blocks=len(raw) // 512, zero_padding=True, zero_trailer_bytes=len(raw) - cursor), privacy='Exact6 bound public payload bodies; every raw header and metadata body scanned; padding and trailer zero')
+
+def current011_public_projection(view, files, binding, map_sha256, *, retirement_selection='legacy834'):
+    """Closed new component DATA seam; no original187 feature credit."""
+    name = 'public-projection.json'
+    need(name in files and files[name]['kind'] == 'file', 'source-owned finite projection receipt required')
+    value = view.load(name)
+    host = {'transport-diagnostic.json', 'transport-proof.json', 'receipt.json', 'cleanup.json', 'source-proof.json', 'consumer-inspect.json', 'consumer-after.json', 'consumer-diagnostic.json', 'image-ledger.json', 'image-retirement.json', 'bootstrap-failure-retention.json', 'provision-diagnostic.json', 'build-summary.json'}
+    bootstrap = {phase + '-' + leaf for phase in ('bootstrap', 'overlay') for leaf in ('packages.lock', 'signatures.json', 'bootstrap.json', 'cache-checksums.json', 'Dockerfile', 'runner.json')}
+    bootstrap |= {'bootstrap-acquisition.json', 'bootstrap-key-import.log', 'bootstrap-bootstrap.log'}
+    prefix = 'journey/desktop-alpm-v1/'
+    log_pattern = '[0-9]{3}-[A-Za-z0-9][A-Za-z0-9_+.-]{0,127}\\.log'
+    private_marker = re.compile(b'-----BEGIN[^\\r\\n]{0,100}PRIVATE KEY|BEGIN PGP PRIVATE|ssh-(?:rsa|ed25519)|ecdsa-sha2-|(?:gh[pousr]_|github_pat_)[A-Za-z0-9_]+|authorization\\s*:\\s*(?:bearer|token)|(?:access[_-]?token|password|secret)\\s*[=:]|CACHY_(?:OLD_FOUR|RETAINED_BUBBLEWRAP)|PRIVATE_KEY|(?:_TOKEN|_SECRET|_PASSWORD)\\b', re.I)
+    need(type(value) is dict and type(value.get('schema')) is int and (value['schema'] == 1) and (value.get('status') == 'PASS_FINITE_DESKTOP_ALPM_PUBLIC_DATA_PROJECTION') and (value.get('binding') == binding) and (value.get('source_map_sha256') == map_sha256) and (value.get('source_producers') == CURRENT011_PRODUCERS) and (value.get('omitted_private_scopes') == ['journey/desktop-alpm-v1/home']) and (value.get('original_output_unchanged') is True) and (value.get('omitted_private_trees_walked') is False) and (value.get('privacy') == 'Ordinary DATA marker refusal; only exact source-bound package tar custody permits bound public source identifiers') and (value.get('scope') == 'Fixed desktop-alpm-v1 result, commands and raw referenced logs only; private home trees not retained'), 'same-source exact finite release projection and explicit omission scope required')
+    if retirement_selection == OWNED_V2_READER_SELECTION:
+        current011_projection_contract(value, binding, map_sha256)
+    need(pin(view.read(name)) == {key: files[name][key] for key in ('bytes', 'sha256')}, 'projection receipt actual bytes differ')
+    selected = value.get('selected')
+    need(type(selected) is dict and 0 < len(selected) <= 2998 and (set(files) == set(selected) | {name}) and (('receipt.json' in selected) != ('provision-diagnostic.json' in selected)), 'closed finite projection leaf set and sole authority required')
+    custody = value.get('archive_custody')
+    need(type(custody) is dict and len(custody) <= 3, 'finite exact archive custody map required')
+    result_name = prefix + 'result.json'
+    archive_commands = {}
+    if result_name in selected:
+        source_report = view.load(result_name)
+        source_commands = source_report.get('commands', [])
+        need(type(source_commands) is list and len(source_commands) <= 1000, 'finite source command records required')
+        for index, command in enumerate(source_commands):
+            need(type(command) is dict, 'typed original command row required')
+            if command.get('step') in ('archive-a', 'archive-b', 'archive-update'):
+                leaf = command.get('log')
+                need(type(leaf) is str and re.fullmatch(log_pattern, leaf), 'exact archive log name required')
+                target = prefix + leaf
+                need(target not in archive_commands, 'duplicate archive custody target refused')
+                archive_commands[target] = (index, command)
+    checked_custody = {}
+    for target, row in selected.items():
+        parts = target.split('/')
+        allowed = target in host or target in {'journey/result.json', 'journey/build-summary.json'}
+        if len(parts) == 2:
+            allowed |= parts[0] == 'actor-logs' and re.fullmatch('[0-9]{4}\\.log', parts[1]) is not None or (parts[0] == 'provision-logs' and re.fullmatch('(?:proof\\.json|input-transport-owner\\.json|input-cache-owner\\.json)-[0-9]{3}\\.log', parts[1]) is not None) or (parts[0] == 'bootstrap-proof' and parts[1] in bootstrap) or (parts[0] == 'transport-proof' and re.fullmatch('receipt\\.json|[0-9]{4}\\.(stdout|stderr)', parts[1]) is not None)
+        if target.startswith(prefix):
+            leaf = target[len(prefix):]
+            allowed |= leaf in {'result.json', 'commands.json'} or re.fullmatch(log_pattern, leaf) is not None
+        need(allowed and type(row) is dict and (set(row) == {'kind', 'mode', 'source_mode', 'bytes', 'sha256'}) and (row['kind'] == 'file') and (type(row['mode']) is int) and (row['mode'] == 384) and (type(row['source_mode']) is int) and (0 <= row['source_mode'] <= 511) and (type(row['bytes']) is int) and (0 <= row['bytes'] <= 16 * 1024 ** 2) and re.fullmatch('[0-9a-f]{64}', row['sha256'] or ''), 'finite ordinary projected evidence leaf required')
+        need(files[target] == {key: row[key] for key in ('kind', 'mode', 'bytes', 'sha256')} and pin(view.read(target)) == {key: row[key] for key in ('bytes', 'sha256')}, 'projection selected pin and modes must match manifest and actual DATA')
+        if target in archive_commands:
+            index, command = archive_commands[target]
+            checked_custody[target] = current011_archive_custody(view.read(target), command, current011_contract(), index, private_marker)
+        else:
+            need(not private_marker.search(view.read(target)), 'private marker in projected public DATA refused')
+    need(custody == checked_custody, 'complete independently parsed source-bound archive custody required')
+    result_name = prefix + 'result.json'
+    actual_logs = {target for target in selected if target.startswith(prefix) and re.fullmatch(log_pattern, target[len(prefix):])}
+    if result_name not in selected:
+        need(not actual_logs, 'projected release logs require original component result')
+        return dict(status='VALIDATED_FINITE_DESKTOP_PUBLIC_DATA_PROJECTION_ONLY', selected=len(selected))
+    report = view.load(result_name)
+    commands = report.get('commands', [])
+    need(type(commands) is list and len(commands) <= 1000, 'finite projected component command list required')
+    wanted = set()
+    for command in commands:
+        leaf = command.get('log')
+        need(type(leaf) is str and re.fullmatch(log_pattern, leaf) and (prefix + leaf not in wanted), 'finite unique projected release log names required')
+        target = prefix + leaf
+        wanted.add(target)
+        need(target in selected and {key: selected[target][key] for key in ('bytes', 'sha256')} == command.get('log_pin'), 'all original release raw command logs must be projected')
+    need(actual_logs == wanted, 'closed original release log projection required')
+    command_file = prefix + 'commands.json'
+    need(not commands or command_file in selected, 'actual component command list must be projected')
+    if command_file in selected:
+        need(view.load(command_file) == commands, 'projected standalone and release command lists differ')
+    retained_group_census_diagnostics(commands)
+    guest = view.load('journey/result.json') if 'journey/result.json' in selected else None
+    if type(guest) is dict and guest.get('status') == PASS:
+        need(guest.get('desktop_alpm') == report, 'positive guest and separately retained release results differ')
+    return dict(status='VALIDATED_FINITE_DESKTOP_PUBLIC_DATA_PROJECTION_ONLY', selected=len(selected))
+
+def current011_source_contract(mapping, expected, map_sha256):
+    owned_v2_need(type(expected) is dict and set(expected) == {'source', 'ref', 'run', 'map_sha256'} and (type(expected['source']) is str) and re.fullmatch('[0-9a-f]{40}', expected['source']) and (type(expected['ref']) is str) and re.fullmatch('refs/heads/codex/[A-Za-z0-9._/-]{1,200}', expected['ref']) and ('..' not in expected['ref']) and ('//' not in expected['ref']) and (not expected['ref'].endswith('/')) and (type(expected['run']) is str) and re.fullmatch('[1-9][0-9]{0,19}', expected['run']) and owned_v2_hash(map_sha256) and (expected['map_sha256'] == map_sha256), 'v2 explicit actual Source/ref/run and whole map binding required')
+    owned_v2_need(type(mapping) is dict and type(mapping.get('schema')) is int and (mapping['schema'] == 1) and (mapping.get('actual') == dict(source=None, ref=None, run=None)) and (mapping.get('desktop_operation') == 'desktop-alpm-v1') and (mapping.get('desktop_owned_v2_reader') == OWNED_V2_READER_CONTRACT) and (type(mapping['desktop_owned_v2_reader']['payload_files']) is int) and (type(mapping.get('files')) is dict) and (len(mapping['files']) == 199), 'v2 exact selected Source200/map199 and versioned reader contract required')
+    files = mapping['files']
+    runtime = files.get('native/desktop_owned_process_v2.py')
+    owned_v2_need(type(runtime) is dict and type(runtime.get('bytes')) is int and (type(runtime.get('mode')) is int) and (runtime == dict(bytes=38256, sha256=OWNED_V2_READER_RUNTIME['sha256'], mode=493)), 'v2 exact whole unchanged runtime Source body and executable mode required')
+    for name, digest in CURRENT011_PRODUCERS.items():
+        row = files.get(name)
+        owned_v2_need(type(row) is dict and set(row) == {'bytes', 'sha256', 'mode'} and (type(row['bytes']) is int) and (0 < row['bytes'] <= 16 * 1024 ** 2) and (type(row['mode']) is int) and (row['mode'] == 420) and (row['sha256'] == digest), 'v2 exact Source producer/payload contract pin required: ' + name)
+    reader = files.get('native/desktop_reader_v1.py')
+    owned_v2_need(type(reader) is dict and set(reader) == {'bytes', 'sha256', 'mode'} and (type(reader['bytes']) is int) and (0 < reader['bytes'] <= 16 * 1024 ** 2) and (type(reader['mode']) is int) and (reader['mode'] == 420) and owned_v2_hash(reader['sha256']), 'v2 complete matching Source reader body pin required')
+    current011_reader_contract(mapping.get('desktop_current011_reader'))
+    return mapping['desktop_owned_v2_reader']
+
+def current011_projection_contract(value, binding, map_sha256):
+    owned_v2_need(type(value) is dict and value.get('binding') == binding and (value.get('source_map_sha256') == map_sha256) and (value.get('source_producers') == CURRENT011_PRODUCERS) and (value.get('omitted_private_scopes') == ['journey/desktop-alpm-v1/home']) and (value.get('omitted_private_trees_walked') is False) and (value.get('original_output_unchanged') is True), 'v2 exact bound public projection and unchanged private omission required')
+    layout = value.get('owned_retirement_reader')
+    owned_v2_need(type(layout) is dict and layout == OWNED_V2_READER_LAYOUT and (type(layout['schema']) is int) and (layout['schema'] == 1) and (layout['private_trees_walked'] is False) and (type(layout['runtime']['bytes']) is int) and (type(layout['payload_files']) is int) and (type(layout['projected_mode']) is int), 'v2 exact versioned runtime/payload/public/private layout contract required')
+    current011_reader_contract(value.get('current011_reader'))
+    return layout
+
+def current011_build_launcher(raw, map_sha256):
+    owned_v2_need(type(raw) is bytes and 0 < len(raw) <= 16 * 1024 ** 2 and owned_v2_hash(map_sha256), 'v2 complete bounded same-map retained Dockerfile required')
+    script = 'test "$$" -eq 1 || exit 125; /usr/bin/python3 -I -B /opt/native-desktop-tools-alpm-v1/source/native/desktop_alpm_v1.py --inside-image --retain-failure-image --owned-retirement-v2 --current011 --map-sha256 ' + map_sha256 + ' & desktop_owner=$!; desktop_status=0; wait "$desktop_owner" || desktop_status=$?; exit "$desktop_status"'
+    run = ('RUN ' + json.dumps(['/usr/bin/bash', '--noprofile', '--norc', '-p', '-c', script])).encode()
+    owned_v2_need(raw.endswith(run + b'\nUSER alarm\nWORKDIR /tmp\n') and raw.splitlines().count(run) == 1, 'v2 exact Bash PID1/background Python/explicit wait/status propagation RUN required')
+    return dict(contract='bash-pid1-direct-python-child-v1', source_map_sha256=map_sha256)
+
+def current011_build_layout(view, files, map_sha256):
+    name = 'bootstrap-proof/overlay-Dockerfile'
+    need(name in files and files[name]['kind'] == 'file' and (pin(view.read(name)) == {k: files[name][k] for k in ('bytes', 'sha256')}), 'v2 actual complete retained build-stage Dockerfile pin required')
+    return current011_build_launcher(view.read(name), map_sha256)
+
+def current011_contract():
+    path = Path(__file__).resolve().with_name('desktop-contract-v1.json')
+    raw = read(path)
+    need(pin(raw)['sha256'] == CURRENT011_PRODUCERS['native/desktop-contract-v1.json'], 'exact desktop contract producer pin required')
+    value = json.loads(raw)
+    need(value.get('schema') == 1 and value.get('operation') == OPERATION and (type(value.get('actual')) is dict) and all((item is None for item in value['actual'].values())) and (value.get('recipe', {}).get('version') == '0.1.1-1') and (len(value['recipe'].get('payload_files', {})) == 6) and (value.get('update_recipe', {}).get('version') == '0.1.1-2') and (value['update_recipe'].get('provenance') == 'TEST_LIFECYCLE_UPDATE_FIXTURE_ONLY'), 'exact unexecuted desktop source contract')
+    return current011_contract_value(value)
+
+def current011_update_source(contract):
+    """Independently bind the sole generated recipe edit to exact original input."""
+    import io
+    import tarfile
+    recipe, update = (contract['recipe'], contract['update_recipe'])
+    marker = 'TEST_LIFECYCLE_UPDATE_FIXTURE_ONLY'
+    need(recipe['version'] == '0.1.1-1' and update['version'] == '0.1.1-2' and (update.get('provenance') == marker), 'explicit TEST lifecycle version update only')
+    need(update['payload_files'] == recipe['payload_files'] and len(update['payload_files']) == 6 and (set(update['source_files']) == set(recipe['source_files'])) and (len(recipe['source_files']) == 4), 'same six payloads and exact four recipe sources required')
+    archive = 'cachy-asahi-desktop-tools-0.1.1.tar.gz'
+    need(recipe['source_files'][archive]['sha256'] == '11a59ada0d99f1202694ed98adb7891594b27a7048e39a99d5590e425fc31986', 'held original source archive required')
+    for name, item in recipe['source_files'].items():
+        if name != 'PKGBUILD':
+            need(update['source_files'][name] == item, 'unchanged original source bytes/modes required')
+    bundle = contract['bundle']
+    raw = read(Path(__file__).resolve().parents[1] / bundle['path'])
+    need(pin(raw) == {key: bundle[key] for key in ('bytes', 'sha256')} and bundle['members'] == 5, 'exact five-member source bundle required')
+    rows = {}
+    with tarfile.open(fileobj=io.BytesIO(raw), mode='r:') as contents:
+        for member in contents:
+            need(member.name not in rows and member.isfile() and (not member.pax_headers) and (member.uid == member.gid == member.mtime == 0) and (0 < member.size <= 1024 ** 2), 'unique bounded ordinary original source member required')
+            rows[member.name] = (contents.extractfile(member).read(), member.mode)
+    expected = {'recipe/' + name: item for name, item in recipe['source_files'].items()}
+    expected['update/PKGBUILD'] = update['source_files']['PKGBUILD']
+    need(set(rows) == set(expected), 'only original four inputs and generated PKGBUILD required')
+    for name, item in expected.items():
+        body, mode = rows[name]
+        need(mode == item['mode'] and pin(body) == {key: item[key] for key in ('bytes', 'sha256')}, 'exact bundle input bytes/mode')
+    before = rows['recipe/PKGBUILD'][0]
+    after = rows['update/PKGBUILD'][0]
+    need(before.count(b'pkgrel=1\n') == 1 and after == before.replace(b'pkgrel=1\n', b'pkgrel=2\n', 1), 'sole exact pkgrel1 to2 edit required')
+    return dict(scope=marker, version_from='0.1.1-1', version_to='0.1.1-2', source_archive={key: recipe['source_files'][archive][key] for key in ('bytes', 'sha256')}, recipe_before=pin(before), recipe_after=pin(after), replacement=dict(before='pkgrel=1\n', after='pkgrel=2\n', count=1), unchanged_payload=True, changed_sources=['PKGBUILD'])
+
+def current011_build_pair(view, prefix, report, contract, selected, map_sha256):
+    import io
+    import tarfile
+    recipe = contract['recipe']
+    builds = report.get('builds')
+    comparison = report.get('comparison')
+    need(type(builds) is dict and set(builds) == {'a', 'b', 'update'} and (type(comparison) is dict), 'two separate actual native builds/comparison required')
+    need(comparison.get('status') == 'PASS_EXACT_NATIVE_BUILD_PAIR' and comparison.get('equality') == {key: True for key in ('archive', 'payload', 'pkginfo', 'buildinfo', 'mtree')} and (comparison.get('source_map_sha256') == map_sha256) and (comparison.get('payload_files') == 6) and (comparison.get('base_inventory_count') == 349) and (comparison.get('pkgbuild_sha256') == recipe['source_files']['PKGBUILD']['sha256']), 'exact native build-pair/provenance comparison required')
+    expected = recipe['payload_files']
+    indexes = []
+    decoded = {}
+    archives = {}
+    identities = []
+    fixed = Path(contract['invocation']['source']).parent
+    slot = fixed / 'build-current'
+    for label in ('a', 'b'):
+        build = builds[label]
+        archive = build.get('archive')
+        directory = build.get('build_directory')
+        need(build.get('version') == '0.1.1-1' and build.get('recipe_sha256') == recipe['source_files']['PKGBUILD']['sha256'] and (build.get('check_invoked') is True) and (build.get('check_tests') == recipe['expected_test_count'] == 91) and (build.get('check_policy') == 'POSITIVE_CHECK_NO_NOCHECK'), 'exact recipe and positive91 makepkg checks required')
+        need(type(directory) is dict and directory.get('logical') == str(slot) and (directory.get('retained') == str(fixed / 'build-inputs' / label)) and (directory.get('initial_files') == sorted(recipe['source_files'])) and (type(directory.get('identity')) is dict) and (set(directory['identity']) == {'device', 'inode'}) and all((type(value) is int and value >= 0 for value in directory['identity'].values())), 'distinct fresh exact source directories required')
+        identities.append(directory['identity'])
+        need(type(archive) is dict and archive.get('filename') == recipe['archive'] and (type(archive.get('bytes')) is int) and (0 < archive['bytes'] <= 2 * 1024 ** 2) and re.fullmatch('[0-9a-f]{64}', archive.get('sha256') or ''), 'bounded actual native archive pin required')
+        archives[label] = {key: archive[key] for key in ('bytes', 'sha256')}
+        index, command = selected(build.get('build_step'))
+        indexes.append(index)
+        argv = command['argv']
+        raw = view.read(prefix + command['log'])
+        wanted = ['/usr/bin/runuser', '-u', 'alarm', '--', '/usr/bin/env', 'HOME=' + str(slot), 'PKGDEST=' + str(slot), 'SRCDEST=' + str(slot), 'BUILDDIR=' + str(slot), 'SOURCE_DATE_EPOCH=1793145600', 'PACKAGER=cachy-asahi native TEST builder', '/usr/bin/makepkg', '--cleanbuild', '--nodeps', '--nosign', '--noconfirm', '--config', str(Path(contract['invocation']['source']) / contract['makepkg_config']['path'])]
+        need(argv == wanted and command.get('cwd') == str(slot) and (command['expected'] == 0) and (b'Starting check()' in raw) and re.search(b'Ran 91 tests? in ', raw) and re.search(b'\\nOK(?:\\n|$)', raw), 'ordinary separate clean builds must run actual91 check() controls')
+        decode_index, decode = selected('archive-' + label)
+        need(decode['argv'] == ['/usr/bin/zstd', '-dc', str(fixed / 'build-inputs' / label / recipe['archive'])] and decode['expected'] == 0 and (decode_index > indexes[-1]), 'raw actual archive decoder command required')
+        raw_tar = view.read(prefix + decode['log'])
+        need(len(raw_tar) <= 2 * 1024 ** 2, 'bounded actual decoded package DATA')
+        payload = {}
+        metadata = {}
+        seen = set()
+        directories = set()
+        ancestors = {str(parent) for leaf in expected for parent in Path(leaf).parents if str(parent) != '.'}
+        with tarfile.open(fileobj=io.BytesIO(raw_tar), mode='r:') as archive_data:
+            for member in archive_data:
+                name = member.name
+                need(name not in seen and member.uid == member.gid == 0 and (not member.pax_headers), 'unique root-owned archive members')
+                seen.add(name)
+                if member.isdir():
+                    need(member.mode == 493 and name.rstrip('/') in ancestors, 'finite root-owned package directory')
+                    directories.add(name.rstrip('/'))
+                    continue
+                need(member.isfile() and member.size <= 1024 ** 2, 'ordinary bounded package member')
+                body = archive_data.extractfile(member).read()
+                need(len(body) == member.size, 'complete actual archive member')
+                if name in ('.PKGINFO', '.BUILDINFO', '.MTREE'):
+                    need(member.mode == 420, 'ordinary makepkg metadata mode')
+                    metadata[name] = body
+                else:
+                    need(name in expected and member.mode == expected[name]['mode'] and (pin(body) == {key: expected[name][key] for key in ('bytes', 'sha256')}), 'exact source-bound payload bytes/mode')
+                    payload[name] = dict(mode=member.mode, **pin(body))
+        need(set(payload) == set(expected) and directories == ancestors and (set(metadata) == {'.PKGINFO', '.BUILDINFO', '.MTREE'}), 'complete six-file archive namespace required')
+        info = desktop_metadata(metadata['.PKGINFO'])
+        provenance = desktop_metadata(metadata['.BUILDINFO'])
+        need(info.get('pkgname') == ['cachy-asahi-desktop-tools'] and info.get('pkgver') == ['0.1.1-1'] and (info.get('arch') == ['any']) and (info.get('license') == ['MIT']) and (info.get('depend') == ['python>=3.11']), 'exact package identity and runtime dependency metadata')
+        need(provenance.get('pkgname') == ['cachy-asahi-desktop-tools'] and provenance.get('pkgver') == ['0.1.1-1'] and (provenance.get('pkgarch') == ['any']) and (provenance.get('pkgbuild_sha256sum') == [recipe['source_files']['PKGBUILD']['sha256']]) and (sorted(provenance.get('installed', [])) == contract['buildinfo_installed']) and (len(provenance.get('installed', [])) == 349) and ('check' in provenance.get('buildenv', [])) and ('!check' not in provenance.get('buildenv', [])), 'full349 build provenance and checks required')
+        actual = dict(archive=archives[label], pkginfo=pin(metadata['.PKGINFO']), buildinfo=pin(metadata['.BUILDINFO']), mtree=pin(metadata['.MTREE']), payload=payload)
+        need(comparison.get('builds', {}).get(label) == actual, 'comparison must join every raw actual archive member')
+        decoded[label] = (payload, metadata)
+    need(indexes == sorted(set(indexes)) and identities[0] != identities[1] and (decoded['a'] == decoded['b']) and (archives['a'] == archives['b'] == comparison.get('archive')), 'two distinct ordered builds with exact archive/metadata/payload equality')
+    need(comparison.get('pkginfo_text') == decoded['a'][1]['.PKGINFO'].decode() and comparison.get('buildinfo_text') == decoded['a'][1]['.BUILDINFO'].decode() and (base64.b64decode(comparison.get('mtree_base64', ''), validate=True) == decoded['a'][1]['.MTREE']), 'complete raw provenance DATA must match')
+    return (indexes, archives)
+
+def current011_update_build(view, prefix, report, contract, selected, map_sha256):
+    """A third distinct clean build is a TEST transaction fixture, not a release."""
+    import io
+    import tarfile
+    recipe = contract['update_recipe']
+    build = report['builds']['update']
+    fixed = Path(contract['invocation']['source']).parent
+    slot = fixed / 'build-current'
+    directory = build.get('build_directory')
+    marker = 'TEST_LIFECYCLE_UPDATE_FIXTURE_ONLY'
+    need(report.get('update_fixture') == current011_update_source(contract), 'actual generated update must join sole exact source edit')
+    need(build.get('version') == '0.1.1-2' and build.get('fixture') == marker and (build.get('recipe_sha256') == recipe['source_files']['PKGBUILD']['sha256']) and (build.get('check_invoked') is True) and (build.get('check_tests') == recipe['expected_test_count'] == 91) and (build.get('check_policy') == 'POSITIVE_CHECK_NO_NOCHECK'), 'actual third91-check TEST fixture build required')
+    need(type(directory) is dict and directory.get('logical') == str(slot) and (directory.get('retained') == str(fixed / 'build-inputs/update')) and (directory.get('initial_files') == sorted(recipe['source_files'])) and (type(directory.get('identity')) is dict) and (set(directory['identity']) == {'device', 'inode'}) and all((type(value) is int and value >= 0 for value in directory['identity'].values())) and all((directory['identity'] != report['builds'][label]['build_directory']['identity'] for label in ('a', 'b'))), 'third fresh exact source directory must differ from both baseline builds')
+    archive = build.get('archive')
+    need(type(archive) is dict and archive.get('filename') == recipe['archive'] and (type(archive.get('bytes')) is int) and (0 < archive['bytes'] <= 2 * 1024 ** 2) and re.fullmatch('[0-9a-f]{64}', archive.get('sha256') or ''), 'bounded actual update archive pin')
+    index, command = selected(build.get('build_step'))
+    need(build.get('build_step') == 'build-update', 'fixed update build step')
+    argv = ['/usr/bin/runuser', '-u', 'alarm', '--', '/usr/bin/env', 'HOME=' + str(slot), 'PKGDEST=' + str(slot), 'SRCDEST=' + str(slot), 'BUILDDIR=' + str(slot), 'SOURCE_DATE_EPOCH=1793145600', 'PACKAGER=cachy-asahi native TEST builder', '/usr/bin/makepkg', '--cleanbuild', '--nodeps', '--nosign', '--noconfirm', '--config', str(Path(contract['invocation']['source']) / contract['makepkg_config']['path'])]
+    raw = view.read(prefix + command['log'])
+    before, _ = selected('archive-b')
+    need(command['argv'] == argv and command.get('cwd') == str(slot) and (command['expected'] == 0) and (index > before) and (b'Starting check()' in raw) and re.search(b'Ran 91 tests? in ', raw) and re.search(b'\\nOK(?:\\n|$)', raw), 'actual ordered third clean makepkg check91 log required')
+    decode_index, decode = selected('archive-update')
+    raw = view.read(prefix + decode['log'])
+    need(decode_index > index, 'update archive decode after third build')
+    private = re.compile(b'-----BEGIN[^\\r\\n]{0,100}PRIVATE KEY|BEGIN PGP PRIVATE|ssh-(?:rsa|ed25519)|ecdsa-sha2-|(?:gh[pousr]_|github_pat_)[A-Za-z0-9_]+|authorization\\s*:\\s*(?:bearer|token)|(?:access[_-]?token|password|secret)\\s*[=:]|CACHY_(?:OLD_FOUR|RETAINED_BUBBLEWRAP)|PRIVATE_KEY|(?:_TOKEN|_SECRET|_PASSWORD)\\b', re.I)
+    current011_archive_custody(raw, decode, contract, decode_index, private)
+    bodies = {}
+    with tarfile.open(fileobj=io.BytesIO(raw), mode='r:') as contents:
+        for member in contents:
+            if member.isfile() and member.name in ('.PKGINFO', '.BUILDINFO', '.MTREE'):
+                bodies[member.name] = contents.extractfile(member).read()
+    expected = dict(status='PASS_TEST_LIFECYCLE_UPDATE_ARCHIVE', fixture=marker, version='0.1.1-2', archive={key: archive[key] for key in ('bytes', 'sha256')}, pkginfo=pin(bodies['.PKGINFO']), buildinfo=pin(bodies['.BUILDINFO']), mtree=pin(bodies['.MTREE']), payload={name: dict(mode=item['mode'], **{key: item[key] for key in ('bytes', 'sha256')}) for name, item in recipe['payload_files'].items()}, pkginfo_text=bodies['.PKGINFO'].decode(), buildinfo_text=bodies['.BUILDINFO'].decode(), mtree_base64=base64.b64encode(bodies['.MTREE']).decode(), source_map_sha256=map_sha256, pkgbuild_sha256=recipe['source_files']['PKGBUILD']['sha256'], base_inventory_count=349)
+    need(report.get('update_provenance') == expected, 'complete raw third-build provenance joins unchanged payload and TEST-only recipe')
+    return (index, {key: archive[key] for key in ('bytes', 'sha256')})
+
+def current011_retained_desktop_alpm(view, files, guest, map_sha256, *, retirement_selection='legacy834'):
+    current011_package_marker(guest.get('desktop_alpm'))
+    contract = current011_contract()
+    prefix = 'journey/desktop-alpm-v1/'
+    report = guest.get('desktop_alpm')
+    need(type(report) is dict and type(report.get('schema_version')) is int and (report['schema_version'] == 1) and (report.get('operation') == OPERATION) and (report.get('status') == PASS) and (report.get('source_map_sha256') == map_sha256) and (report.get('version') == '0.1.1-1') and (report.get('contract') == pin(read(Path(__file__).resolve().with_name('desktop-contract-v1.json')))) and (view.load(prefix + 'result.json') == report), 'same-map exact actual desktop component result required')
+    need(report.get('stages') == ['build-a', 'build-b', 'compare', 'build-update', 'sign', 'install', 'commands-system', 'commands-moved', 'update', 'commands-updated', 'remove', 'restore', 'cleanup'], 'complete ordered desktop lifecycle stages required')
+    commands = report.get('commands')
+    if retirement_selection == OWNED_V2_READER_SELECTION:
+        owned_v2_validate_selection(report, map_sha256)
+        layout = owned_v2_process_layout(report)
+        selected = desktop_commands_v2(view, files, prefix, commands, wait_owner_pid=layout['python_pid'])
+    else:
+        selected = desktop_commands(view, files, prefix, commands)
+    build_indexes, archives = current011_build_pair(view, prefix, report, contract, selected, map_sha256)
+    update_index, update_archive = current011_update_build(view, prefix, report, contract, selected, map_sha256)
+    build_indexes.append(update_index)
+    recipe = contract['recipe']
+    fixed = Path(contract['invocation']['source']).parent
+    archive_paths = {label: str(fixed / 'build-inputs' / label / recipe['archive']) for label in ('a', 'b')}
+    archive_paths['update'] = str(fixed / 'build-inputs/update' / contract['update_recipe']['archive'])
+    base = read(Path(__file__).resolve().with_name('expected349.lock'))
+    need(pin(base) == {key: contract['expected349'][key] for key in ('bytes', 'sha256')} and len(base.splitlines()) == 349, 'exact retained349 baseline required')
+    inventory = report.get('inventory')
+    indexes = {}
+    need(type(inventory) is dict and set(inventory) == {'baseline', 'installed', 'updated', 'removed'}, 'complete349/350/349 inventory map required')
+    for key, version, count in [('baseline', None, 349), ('installed', '0.1.1-1', 350), ('updated', '0.1.1-2', 350), ('removed', None, 349)]:
+        rows = base.splitlines(keepends=True)
+        if version is not None:
+            rows.append(('cachy-asahi-desktop-tools ' + version + '\n').encode())
+        expected = pin(b''.join(sorted(rows)))
+        row = inventory[key]
+        index, command = selected(key + '-inventory')
+        indexes[key] = index
+        need(type(row) is dict and type(row.get('count')) is int and (row['count'] == count) and (row.get('version') == version) and ({k: row.get(k) for k in ('bytes', 'sha256')} == expected) and (command['argv'] == ['/usr/bin/pacman', '-Q']) and (pin(b''.join(sorted(view.read(prefix + command['log']).splitlines(keepends=True)))) == expected), 'exact raw ALPM inventory must restore')
+    need(guest.get('packages') == pin(base), 'guest exact349 baseline required')
+    need(set(report.get('payloads', {})) == {'installed', 'updated'}, 'both installed and updated ALPM payload receipts required')
+    for key, version in [('installed', '0.1.1-1'), ('updated', '0.1.1-2')]:
+        payload = report['payloads'][key]
+        need(payload == dict(version=version, count=6, verified=True, stale_absent=True, files={name: {field: item[field] for field in ('bytes', 'sha256', 'mode')} for name, item in recipe['payload_files'].items()}) and payload.get('verified') is True, 'actual six-byte-held payload required at each ALPM version')
+    signatures = report.get('signatures')
+    need(type(signatures) is dict and set(signatures) == {'a', 'b', 'update'}, 'both actual native archive signatures required')
+    verify_indexes = []
+    signers = set()
+    for label in ('a', 'b', 'update'):
+        signature = signatures[label]
+        signer = signature.get('signer')
+        signers.add(signer)
+        strict_test_signature(signature.get('status'), signer)
+        encoded = signature.get('signature')
+        need(type(encoded) is dict and type(encoded.get('base64')) is str and (len(encoded['base64']) <= 131072), 'bounded detached TEST signature DATA required')
+        raw = base64.b64decode(encoded['base64'], validate=True)
+        need(0 < len(raw) <= 65536 and pin(raw) == {key: encoded.get(key) for key in ('bytes', 'sha256')}, 'exact TEST signature bytes required')
+        index, command = selected(signature.get('verify_step'))
+        verify_indexes.append(index)
+        need(command['expected'] == 0 and command['argv'][0] == '/usr/bin/gpg' and ('--status-fd=1' in command['argv']) and (command['argv'][-3:] == ['--verify', archive_paths[label] + '.sig', archive_paths[label]]) and (view.read(prefix + command['log']).decode().strip() == signature['status'].strip()), 'actual raw detached signature verification required')
+    need(build_indexes == sorted(set(build_indexes)) and max(build_indexes) < min(verify_indexes) and (verify_indexes == sorted(set(verify_indexes))) and (len(signers) == 1), 'both builds precede ordered verification under sole TEST primary')
+    signer, = signers
+    need(report.get('fingerprint') == signer, 'same explicit TEST primary fingerprint')
+    public = report.get('public_key')
+    need(type(public) is dict and type(public.get('text')) is str and (len(public['text'].encode()) <= 65536) and public['text'].startswith('-----BEGIN PGP PUBLIC KEY BLOCK-----') and ('PRIVATE KEY' not in public['text']) and (pin(public['text'].encode()) == {key: public.get(key) for key in ('bytes', 'sha256')}), 'bounded TEST public key only')
+    need(report.get('signature_policy') == dict(SigLevel='Required', LocalFileSigLevel='Required'), 'Required/Required isolated TEST policy required')
+    config_index, command = selected('required-signature-config')
+    need(command['argv'][:1] == ['/usr/bin/cat'] and len(command['argv']) == 2, 'actual isolated ALPM config command required')
+    config_path = command['argv'][1]
+    trust = Path(config_path).with_name('trust')
+    raw = view.read(prefix + command['log'])
+    need(Path(config_path).name == 'pacman.conf' and trust.parent.parent == Path('/tmp') and trust.parent.name.startswith('desktop-tools-test-') and (raw == ('[options]\nArchitecture = aarch64\nSigLevel = Required\nLocalFileSigLevel = Required\nGPGDir = ' + str(trust) + '\nHookDir = /builder-disabled-hooks\n').encode()) and (pin(raw) == report.get('signature_config')), 'exact private TEST Required/Required config required')
+    verifier = ['/usr/bin/gpg', '--batch', '--no-options', '--homedir', str(trust), '--no-auto-key-retrieve']
+    for label in ('a', 'b', 'update'):
+        _, command = selected(signatures[label]['verify_step'])
+        need(command['argv'] == verifier + ['--status-fd=1', '--verify', archive_paths[label] + '.sig', archive_paths[label]], 'exact private TEST verifier argv')
+    for step in ('test-primary-fingerprint', 'trust-key-membership'):
+        _, command = selected(step)
+        actual = [line.split(':')[9] for line in view.read(prefix + command['log']).decode().splitlines() if line.startswith('fpr:')]
+        need(actual == [signer], 'signing and trust contain only exact TEST primary')
+    _, command = selected('export-only-test-public')
+    need(view.read(prefix + command['log']) == public['text'].encode() and command['argv'][-3:] == ['--armor', '--export', signer], 'actual public-only TEST key export')
+    for step, marker in [('untrusted-signature-control', b'NO_PUBKEY'), ('tampered-signature-control', None)]:
+        index, command = selected(step)
+        raw = view.read(prefix + command['log'])
+        need(command['expected'] == 'nonzero' and '--verify' in command['argv'] and (marker in raw if marker else b'BADSIG' in raw or b'ERRSIG' in raw), 'actual unknown/tamper TEST refusal required')
+        need(max(build_indexes) < index < min(verify_indexes) if marker else max(verify_indexes) < index < config_index, 'TEST refusal ordering required')
+    transactions = []
+    for step, tail in [('install', ['-U', archive_paths['a']]), ('update', ['-U', archive_paths['update']]), ('remove', ['-R', 'cachy-asahi-desktop-tools'])]:
+        index, command = selected(step)
+        transactions.append(index)
+        need(command['argv'] == ['/usr/bin/pacman', '--config', config_path, '--noconfirm', '--noscriptlet', *tail] and command['expected'] == 0, 'finite Required-policy ALPM transaction argv')
+    need(indexes['baseline'] < min(build_indexes) and max(verify_indexes) < config_index < transactions[0] < indexes['installed'] < transactions[1] < indexes['updated'] < transactions[2] < indexes['removed'], 'actual build/sign/install/probe/remove order required')
+    for version, key, low, high in [('0.1.1-1', 'installed', indexes['installed'], transactions[1]), ('0.1.1-2', 'updated', indexes['updated'], transactions[2])]:
+        owner_step = 'owner-cachy-asahi-desktop-tools-' + version
+        owners = []
+        for index, command in enumerate(commands):
+            if command['step'] != owner_step:
+                continue
+            need(command['argv'][:4] == ['/usr/bin/pacman', '--config', config_path, '-Qoq'] and len(command['argv']) == 5 and (view.read(prefix + command['log']).strip() == b'cachy-asahi-desktop-tools') and (low < index < high), 'actual version-qualified ALPM ownership query')
+            owners.append(command['argv'][4].removeprefix('/'))
+        need(sorted(owners) == sorted(recipe['payload_files']), 'all six leaves need actual ownership at each version')
+        index, command = selected('owned-files-cachy-asahi-desktop-tools-' + version)
+        names = view.read(prefix + command['log']).decode().splitlines()
+        need(command['argv'] == ['/usr/bin/pacman', '--config', config_path, '-Qlq', 'cachy-asahi-desktop-tools'] and low < index < high and (len(names) == len(set(names))) and all((name.startswith('/') and '..' not in Path(name).parts and (name.rstrip('/') == Path(name.rstrip('/')).as_posix()) for name in names)) and ({name.lstrip('/') for name in names if not name.endswith('/')} == set(recipe['payload_files'])) and ({name.lstrip('/').rstrip('/') for name in names if name.endswith('/')} == {str(parent) for name in recipe['payload_files'] for parent in Path(name).parents if str(parent) != '.'}), 'complete actual ALPM file/directory set at each version')
+    for key, flag in [('explicit', '-Qqe'), ('dependencies', '-Qqd')]:
+        pins = []
+        for phase, target in [('baseline-reasons', 'install_reasons_before'), ('restored-reasons', 'install_reasons_after')]:
+            _, command = selected(phase + '-' + key)
+            raw = view.read(prefix + command['log'])
+            need(command['argv'] == ['/usr/bin/pacman', flag] and command['expected'] == 0, 'actual installation-reason query required')
+            current = pin(b''.join(sorted(raw.splitlines(keepends=True))))
+            need(report.get(target, {}).get(key) == current, 'reasons join original raw ALPM query')
+            pins.append(current)
+        need(pins[0] == pins[1], 'exact original installation reasons restored')
+    package_index, package_command = selected('updated-package-version')
+    need(package_command['argv'] == ['/usr/bin/pacman', '--config', config_path, '-Q', 'cachy-asahi-desktop-tools'] and view.read(prefix + package_command['log']) == b'cachy-asahi-desktop-tools 0.1.1-2\n' and (indexes['updated'] < package_index < transactions[2]), 'actual updated ALPM package version query')
+    need(report.get('update_exports_preserved') is True and type(report.get('exports_before_update')) is dict and (report['exports_before_update'] == report.get('exports_after_update')), 'operator outputs survive actual ALPM version update')
+    current011_business(view, prefix, report, selected, fixed, indexes['installed'], indexes['updated'], transactions[1], transactions[2])
+    desktop_restoration(report)
+    cleanup = report.get('cleanup')
+    need(cleanup == dict(homes_retired=True, no_sockets=True, private_directory_absent=True, failures=[]) and all((cleanup.get(key) is True for key in ('homes_retired', 'no_sockets', 'private_directory_absent'))), 'all scoped TEST homes/sockets/private directory retire')
+    for home in ('signing', 'trust'):
+        index, command = selected('retire-' + home)
+        need(command['argv'] == ['/usr/bin/gpgconf', '--homedir', str(trust.parent / home), '--kill', 'all'] and command['expected'] == 0 and (index > indexes['removed']), 'exact TEST home retirement after remove')
+        after, command = selected('no-autostart-' + home)
+        need(command['argv'] == ['/usr/bin/gpg-connect-agent', '--homedir', str(trust.parent / home), '--no-autostart', '/bye'] and command['expected'] == 0 and (after > index), 'no-autostart absence after each TEST retirement')
+        if retirement_selection == OWNED_V2_READER_SELECTION:
+            exact_agent_absence_v2(command, view.read(prefix + command['log']))
+        else:
+            exact_agent_absence(command, view.read(prefix + command['log']))
+    native = report.get('native')
+    need(type(native) is dict and native.get('architecture') == 'aarch64' and (type(native.get('page_bytes')) is int) and (native['page_bytes'] == guest.get('page_size')) and (native['page_bytes'] > 0) and (native.get('execution') == 'OWNED_IMAGE_BUILD_STAGE') and (native.get('physical_M2') == 'NOT_RUN') and (native.get('release') == 'NOT_ADMITTED'), 'actual native image-stage identity without M2/release inference')
+    return dict(status='MATCHED_DESKTOP_TOOLS_ALPM_COMPONENT_DATA_ONLY', version='0.1.1-1', update_version='0.1.1-2', update_scope='TEST_LIFECYCLE_UPDATE_FIXTURE_ONLY', native='NOT_ADMITTED', native_16K='NOT_QUALIFIED', physical_M2='NOT_RUN', release='NOT_ADMITTED')
+
+def current011_business(view, prefix, report, selected, fixed, installed_index, updated_index, update_transaction, remove_index):
+    business = report.get('business')
+    need(type(business) is dict and set(business) == {'system', 'moved', 'updated'}, 'installed /usr and moved installed-prefix probes required')
+    last = installed_index
+    for label, home in [('system', fixed / 'user-data/system'), ('moved', fixed / 'user-data/relocated'), ('updated', fixed / 'user-data/updated')]:
+        value = business[label]
+        cli = '/usr/bin/cachy-asahi-desktop-tools' if label in ('system', 'updated') else str(fixed / 'user-data/moved-prefix/usr/bin/cachy-asahi-desktop-tools')
+        need(type(value) is dict and value.get('status') == 'PASS_ACTUAL_STATIC_CAPTURE_AUDIT_REFUSAL' and (value.get('cli') == cli) and (value.get('synthetic') is True) and (value.get('version') == ('0.1.1-2' if label == 'updated' else '0.1.1-1')) and (value.get('payload_cli_version') == '0.1.1') and (value.get('selected') == ['tool.desktop']) and (value.get('mime') == ['text/plain']) and (value.get('baseline_status') == value.get('moved_root_status') == 'PASS_STAGED_CHECKS') and (value.get('changed_data_status') == 'REFUSED') and (value.get('changed_data_exit') == 2) and (value.get('zero_payload_execution') is True) and (value.get('release') == 'NOT_ADMITTED'), 'static-only complete probe scope without application launch or acceptance')
+        need(type(value.get('steps')) is dict and type(value.get('reports')) is dict and (set(value['steps']) == set(value['reports']) == {'capture', 'audit', 'moved_root', 'changed_data'}), 'four actual static CLI log references required')
+        if label == 'updated':
+            need(value.get('fixture') == 'TEST_LIFECYCLE_UPDATE_FIXTURE_ONLY', 'updated probe is TEST transaction fixture only')
+            last = updated_index
+        captures = {}
+        positions = []
+        for key in ('capture', 'audit', 'moved_root', 'changed_data'):
+            step = label + '-' + key.replace('_', '-')
+            need(value['steps'][key] == step, 'fixed source probe step')
+            index, command = selected(step)
+            positions.append(index)
+            raw = view.read(prefix + command['log'])
+            root = home / ('staged-root' if key in ('capture', 'audit') else 'moved-staged-root')
+            argv = ['/usr/bin/runuser', '-u', 'alarm', '--', '/usr/bin/env', 'HOME=' + str(home), cli, 'capture' if key == 'capture' else 'audit', '--root', str(root), '--environment', str(home / 'environment.json'), '--select', 'tool.desktop', '--mime', 'text/plain']
+            if key != 'capture':
+                argv += ['--inventory', str(home / 'inventory.json'), '--inventory-sha256', value['inventory']['sha256']]
+            need(command['argv'] == argv and command.get('cwd') == str(home) and (command['expected'] == (2 if key == 'changed_data' else 0)) and (pin(raw) == value['reports'][key]), 'exact ordinary-user CLI argv and raw report pin required')
+            captures[key] = json.loads(raw)
+        need(last < min(positions) and positions == sorted(set(positions)) and (max(positions) < (remove_index if label == 'updated' else update_transaction)), 'both installed journeys occur in order before remove')
+        last = max(positions)
+        capture = captures['capture']
+        need(type(capture.get('schema')) is int and capture['schema'] == 1 and (capture.get('kind') == 'cachy-asahi-desktop-static-inventory-v1') and (capture.get('selected') == ['tool.desktop']) and (capture.get('mime') == ['text/plain']) and (capture.get('environment') == value.get('environment')) and (value.get('inventory') == value['reports']['capture']) and (type(capture.get('files')) is dict) and (len(capture['files']) >= 7), 'actual nontrivial static inventory and explicit environment binding required')
+        for key in ('audit', 'moved_root'):
+            data = captures[key]
+            need(data.get('status') == 'PASS_STAGED_CHECKS' and data.get('scope') == 'STAGED_DESKTOP_INTEGRATION_ONLY' and (data.get('inventory_input') == value['inventory']) and (data.get('inventory_binding') == 'EXACT_STATIC_INVENTORY') and (data.get('pins') == capture['files']), 'actual /usr and moved-root exact inventory audit required')
+            normalized = {name: item for name, item in data.items() if name not in ('root', 'inventory_input', 'inventory_binding')}
+            audit_pin = hashlib.sha256(json.dumps(normalized, sort_keys=True, separators=(',', ':'), ensure_ascii=True, allow_nan=False).encode()).hexdigest()
+            need(audit_pin == capture.get('audit_sha256'), 'entire static audit binds captured inventory')
+        need(captures['changed_data'].get('status') == 'REFUSED' and 'staged inventory differs' in captures['changed_data'].get('error', ''), 'actual changed-data refusal rather than application action required')
+        last = current011_env_business(view, prefix, value, selected, cli, home, label, last, remove_index if label == 'updated' else update_transaction)
+
+def validate_current011(capsule_path, expected, *, retirement_selection):
+    need(retirement_selection == CURRENT011_READER_SELECTION, 'explicit current011 reader selection required')
+    retirement_selection = OWNED_V2_READER_SELECTION
+    need(type(expected) is dict and set(expected) == {'source', 'ref', 'run', 'map_sha256'} and re.fullmatch('[0-9a-f]{40}', expected.get('source') or '') and isinstance(expected.get('ref'), str) and expected['ref'].startswith('refs/heads/codex/') and re.fullmatch('[1-9][0-9]*', expected.get('run') or '') and re.fullmatch('[0-9a-f]{64}', expected.get('map_sha256') or ''), 'NULL/unbound actual native evidence refused before reading')
+    need(type(retirement_selection) is str and retirement_selection in ('legacy834', OWNED_V2_READER_SELECTION), 'explicit versioned reader selection required')
+    if retirement_selection == OWNED_V2_READER_SELECTION:
+        source = Path(__file__).resolve().parents[1]
+        mapping = verify_source(source, expected['map_sha256'])
+        current011_source_contract(mapping, expected, pin(read(source / 'native/source-map.json'))['sha256'])
+    view = open_capsule(capsule_path)
+    binding = {k: expected[k] for k in ('source', 'ref', 'run')}
+    binding.update(attempt=1, token=hashlib.sha256((binding['source'] + ':' + binding['ref'] + ':' + binding['run']).encode()).hexdigest()[:24])
+    manifest = view.load('artifacts.json')
+    need(manifest['schema'] == 1 and manifest['binding'] == binding and (manifest['source_map_sha256'] == expected['map_sha256']), 'actual binding differs')
+    files = manifest['files']
+    need(type(files) is dict and all((type(row.get('bytes')) is int and row['bytes'] >= 0 and re.fullmatch('[0-9a-f]{64}', row.get('sha256') or '') for row in files.values())), 'typed artifact pins')
+    need(0 < len(files) <= 3000 and sum((row['bytes'] for row in files.values())) <= 32 * 1024 ** 2, 'bounded artifact namespace')
+    view.verify_manifest(manifest)
+    if 'safe-diagnostic.json' in files:
+        return retained_safe_diagnostic(view, files, binding, expected['map_sha256'])
+    if 'provision-diagnostic.json' in files:
+        need(all((name in {'provision-diagnostic.json', 'public-projection.json', 'transport-diagnostic.json', 'transport-proof.json'} or re.fullmatch('provision-logs/(?:proof\\.json|input-transport-owner\\.json|input-cache-owner\\.json)-[0-9]{3}\\.log', name) or re.fullmatch('transport-proof/(?:receipt\\.json|[0-9]{4}\\.(stdout|stderr))', name) for name in files)), 'closed provisioning diagnostic DATA-only namespace required')
+        retained_191_provision_projection(view, files, binding, expected['map_sha256'])
+        transport_phase = view.load('provision-diagnostic.json').get('phases', {}).get('input-transport-owner.json')
+        if transport_phase is not None:
+            retained_transport_diagnostic(view, files, transport_phase, binding, expected['map_sha256'])
+        diagnostic = view.load('provision-diagnostic.json')
+        need(diagnostic['binding'] == binding and diagnostic['source_map_sha256'] == expected['map_sha256'] and (diagnostic['status'] == 'DIAGNOSTIC_HOSTED_INPUT_PROVISIONING_ONLY') and (diagnostic['native'] == diagnostic['GPG'] == diagnostic['ALPM'] == 'NOT_RUN'), 'actual DATA diagnostic only')
+        return dict(status='VALIDATED_INPUT_PROVISIONING_DIAGNOSTIC_NOT_NATIVE', binding=binding, native='NOT_RUN', physical_M2='NOT_RUN', release='NOT_ADMITTED')
+    current011_public_projection(view, files, binding, expected['map_sha256'], retirement_selection=retirement_selection)
+    receipt = view.load('receipt.json')
+    current011_package_marker(receipt)
+    cleanup = view.load('cleanup.json')
+    need(receipt.get('binding') == binding and receipt.get('source_map_sha256') == expected['map_sha256'] and (type(receipt.get('status')) is str) and (type(cleanup.get('status')) is str), 'same-source owner and explicit cleanup outcome required')
+    consumer_diagnostic = retained_consumer_diagnostic(view, files, receipt, binding, expected['map_sha256'])
+    build_summary = retained_build_summary(view, files, binding, expected['map_sha256'])
+    failed = receipt['status'] != PASS or cleanup['status'] != 'PASS_EXACT_OWNED_RESOURCES_RETIRED'
+    need(failed or consumer_diagnostic['status'] != 'ABSENT_CONSUMER_DIAGNOSTIC_DATA_ONLY', 'successful release owner cannot omit original consumer diagnostic')
+    if failed or not consumer_diagnostic['positive_candidate']:
+        return dict(status='VALIDATED_NATIVE_FAILURE_DATA_ONLY', binding=binding, owner_status=receipt['status'], cleanup_status=cleanup['status'], consumer_diagnostic=consumer_diagnostic, build_summary=build_summary, native='NOT_ADMITTED', physical_M2='NOT_RUN', release='NOT_ADMITTED')
+    retained_consumer_diagnostic(view, files, receipt, binding, expected['map_sha256'], positive=True)
+    retained_failure_data(view, files, receipt.get('bootstrap_failure_data'), binding, expected['map_sha256'])
+    retained_image_lifecycle(view, files, receipt, cleanup, binding, expected['map_sha256'])
+    need(receipt['binding'] == binding and receipt['source_map_sha256'] == expected['map_sha256'] and (receipt['status'] == PASS) and (cleanup['status'] == 'PASS_EXACT_OWNED_RESOURCES_RETIRED'), 'all native components plus actual resource retirement required')
+    runner = view.load('bootstrap-proof/bootstrap-runner.json')
+    need(runner['kernel']['machine'] in ('aarch64', 'arm64') and runner['docker_server_arch'] in ('aarch64', 'arm64') and (runner['commit'] == binding['source']) and (runner['run_id'] == binding['run']) and (runner['docker_endpoint'] in ('unix:///var/run/docker.sock', 'unix:///run/docker.sock')) and (type(runner['page_size']) is int) and (runner['page_size'] > 0), 'actual native host/local daemon provenance')
+    before = view.load('consumer-inspect.json')
+    after = view.load('consumer-after.json')
+    for row in (before, after):
+        need(row['Id'] == receipt['consumer']['container'], 'retained exact consumer ID')
+        consumer_contract(row, binding, receipt['consumer']['image'], receipt['source_root'], receipt['output_root'], runner['uid'], runner['gid'])
+    need(after['State'] == receipt['consumer']['state'] and after['State']['Running'] is False and (after['State']['ExitCode'] == 0) and (after['State']['Status'] == 'exited'), 'actual completed consumer daemon state')
+    phases = receipt['provisioning']
+    retained_transport_proof(view, files, phases['transport'], binding, expected['map_sha256'])
+    need(phases['proof']['status'] == 'PASS_EXACT_PUBLISHED_SOURCE_PROOF_ONLY' and phases['transport']['status'] == 'PASS_EXACT_RETAINED_INPUT_TRANSPORT_DATA_ONLY' and (phases['cache']['status'] == 'PASS_EIGHT_INPUT_CACHE_DATA_ONLY'), 'complete hosted source and input DATA provisioning')
+    for phase in phases.values():
+        need(phase['binding'] == binding and phase['source_map_sha256'] == expected['map_sha256'], 'all provisioning same exact source and run')
+    for row in phases['proof']['actors'] + phases['transport']['actors'] + receipt['actors'] + cleanup['actors']:
+        need(row.get('public_log') in files and files[row['public_log']]['kind'] == 'file', 'actor log must be a retained ordinary artifact')
+        need(row['status'] == 'PASS' and row['exit'] == 0 and (row['natural_exit'] is True) and (row['group_absent'] is True) and (row['retirement'] == 'REAPED') and (row['exit_observed_via_waitpid'] is True) and (row['ownership_lost'] is False) and (row['forced_cleanup'] is False) and (row['leader_held_until_group_inspection'] is True) and (pin(view.read(row['public_log'])) == row['log_pin']), 'direct owned wait and retained actor output required')
+    guest = view.load('journey/result.json')
+    need(guest['status'] == receipt['status'] and guest['architecture'] == 'aarch64' and (guest['packages'] == receipt['input_inventory']) and (guest['physical_M2'] == 'NOT_RUN') and (guest['native_16K'] == 'NOT_QUALIFIED'), 'actual guest identity and non-hardware boundary')
+    need(guest.get('operation') == OPERATION and guest.get('source_map_sha256') == expected['map_sha256'] and (guest.get('system_install') == 'IMAGE_STAGE_ALPM_ONLY') and (guest.get('release') == 'NOT_ADMITTED'), 'selected release operation and no target/release inference required')
+    if retirement_selection == OWNED_V2_READER_SELECTION:
+        current011_build_layout(view, files, expected['map_sha256'])
+    component = current011_retained_desktop_alpm(view, files, guest, expected['map_sha256'], retirement_selection=retirement_selection)
+    return dict(status='VALIDATED_NATIVE_DESKTOP_TOOLS_ALPM_COMPONENT_EVIDENCE_ONLY', binding=binding, desktop_tools=component, native='NOT_ADMITTED', native_16K='NOT_QUALIFIED', physical_M2='NOT_RUN', release='NOT_ADMITTED')
+
+
+def validate_selected(capsule_path,expected,*,retirement_selection="legacy834"):
+    if retirement_selection == CURRENT011_READER_SELECTION:
+        return validate_current011(capsule_path,expected,retirement_selection=retirement_selection)
+    return validate(capsule_path,expected,retirement_selection=retirement_selection)
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--capsule', type=Path, required=True, help='ordinary public-tree.tar; directory ingress is unsupported')
     parser.add_argument('--binding', type=Path, required=True)
-    parser.add_argument('--retirement-selection',choices=('legacy834',OWNED_V2_READER_SELECTION),default='legacy834')
+    parser.add_argument('--retirement-selection',choices=('legacy834',OWNED_V2_READER_SELECTION,CURRENT011_READER_SELECTION),default='legacy834')
     args = parser.parse_args()
-    print(json.dumps(validate(args.capsule, load(args.binding),retirement_selection=args.retirement_selection), sort_keys=True))
+    print(json.dumps(validate_selected(args.capsule, load(args.binding),retirement_selection=args.retirement_selection), sort_keys=True))

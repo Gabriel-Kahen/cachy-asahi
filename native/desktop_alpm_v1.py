@@ -411,15 +411,139 @@ def export(output,map_hash):
   (output/name).chmod(0o600)
  return report
 
+
+
+def current011_build_pair(run, source, recipes, policy, alarm, report):
+    """Two fresh inodes, one stable logical path; never rewrite metadata."""
+    result = {}
+    config = source / policy['makepkg_config']['path']
+    slot = PREFIX / 'build-current'
+    seen = set()
+    for label in ('a', 'b'):
+        directory = recipes / label
+        need(not os.path.lexists(slot), 'fresh fixed build slot')
+        need(set((p.name for p in directory.iterdir())) == set(policy['recipe']['source_files']), 'separate clean exact recipe tree')
+        identity = directory.stat()
+        key = (identity.st_dev, identity.st_ino)
+        need(key not in seen, 'independent source directory identity')
+        seen.add(key)
+        for path in (directory, *directory.iterdir()):
+            os.chown(path, alarm.pw_uid, alarm.pw_gid)
+        item = dict(label=label, version=T.VERSION, recipe_sha256=policy['recipe']['source_files']['PKGBUILD']['sha256'], build_step='build-' + label, check_invoked=False, check_tests=0, check_policy='POSITIVE_CHECK_NO_NOCHECK', build_directory=dict(logical=str(slot), retained=str(directory), identity=dict(device=key[0], inode=key[1]), initial_files=sorted(policy['recipe']['source_files'])))
+        report['builds'][label] = item
+        directory.rename(slot)
+        primary = None
+        try:
+            argv = ['/usr/bin/runuser', '-u', 'alarm', '--', '/usr/bin/env', 'HOME=' + str(slot), 'PKGDEST=' + str(slot), 'SRCDEST=' + str(slot), 'BUILDDIR=' + str(slot), 'SOURCE_DATE_EPOCH=' + policy['build_pair']['source_date_epoch'], 'PACKAGER=' + policy['build_pair']['packager'], '/usr/bin/makepkg', '--cleanbuild', '--nodeps', '--nosign', '--noconfirm', '--config', str(config)]
+            raw = run('build-' + label, argv, cwd=slot)
+            item['check_invoked'] = b'Starting check()' in raw
+            need(item['check_invoked'] and re.search(b'Ran 91 tests? in ', raw) and re.search(b'\\nOK(?:\\n|$)', raw), 'actual complete91-test check required')
+            item['check_tests'] = 91
+            archive = slot / policy['recipe']['archive']
+            need(archive.is_file() and (not archive.is_symlink()), 'actual built archive')
+            item['archive'] = dict(filename=archive.name, **T.pin(archive))
+            result[label] = directory / archive.name
+            report['stages'].append('build-' + label)
+        except BaseException as error:
+            primary = error
+            raise
+        finally:
+            try:
+                need(not os.path.lexists(directory) and slot.is_dir() and (not slot.is_symlink()), 'known build tree custody')
+                slot.rename(directory)
+            except BaseException as error:
+                item['build_directory']['restoration'] = 'UNKNOWN_NO_CUSTODY_FALLBACK'
+                item['build_directory']['restoration_error'] = type(error).__name__
+                if primary is None:
+                    raise
+                primary.add_note('baseline source restoration unknown: ' + type(error).__name__)
+    return result
+
+def current011_build_update(run, source, recipes, policy, alarm, report):
+    """One independent TEST-only pkgrel update; no second product recipe exists."""
+    recipe = T.update_policy(policy)
+    directory = recipes / 'update'
+    slot = PREFIX / 'build-current'
+    need(not os.path.lexists(slot), 'fresh fixed update build slot')
+    need(set((path.name for path in directory.iterdir())) == set(recipe['source_files']), 'clean exact generated update tree')
+    for name, item in recipe['source_files'].items():
+        path = directory / name
+        need(T.pin(path) == {key: item[key] for key in ('bytes', 'sha256')} and stat.S_IMODE(path.stat().st_mode) == item['mode'], 'exact generated update input bytes/mode')
+    identity = directory.stat()
+    key = (identity.st_dev, identity.st_ino)
+    need(all((row['build_directory']['identity'] != dict(device=key[0], inode=key[1]) for row in report['builds'].values())), 'update source tree independent of baseline builds')
+    for path in (directory, *directory.iterdir()):
+        os.chown(path, alarm.pw_uid, alarm.pw_gid)
+    item = dict(label='update', version=T.UPDATE_VERSION, fixture=T.UPDATE_FIXTURE, recipe_sha256=recipe['source_files']['PKGBUILD']['sha256'], build_step='build-update', check_invoked=False, check_tests=0, check_policy='POSITIVE_CHECK_NO_NOCHECK', build_directory=dict(logical=str(slot), retained=str(directory), identity=dict(device=key[0], inode=key[1]), initial_files=sorted(recipe['source_files'])))
+    report['builds']['update'] = item
+    directory.rename(slot)
+    primary = None
+    try:
+        config = source / policy['makepkg_config']['path']
+        argv = ['/usr/bin/runuser', '-u', 'alarm', '--', '/usr/bin/env', 'HOME=' + str(slot), 'PKGDEST=' + str(slot), 'SRCDEST=' + str(slot), 'BUILDDIR=' + str(slot), 'SOURCE_DATE_EPOCH=' + policy['build_pair']['source_date_epoch'], 'PACKAGER=' + policy['build_pair']['packager'], '/usr/bin/makepkg', '--cleanbuild', '--nodeps', '--nosign', '--noconfirm', '--config', str(config)]
+        raw = run('build-update', argv, cwd=slot)
+        item['check_invoked'] = b'Starting check()' in raw
+        need(item['check_invoked'] and re.search(b'Ran 91 tests? in ', raw) and re.search(b'\\nOK(?:\\n|$)', raw), 'actual complete91-test update check required')
+        item['check_tests'] = 91
+        archive = slot / recipe['archive']
+        need(archive.is_file() and (not archive.is_symlink()), 'actual TEST-update built archive')
+        item['archive'] = dict(filename=archive.name, **T.pin(archive))
+        report['stages'].append('build-update')
+        return directory / archive.name
+    except BaseException as error:
+        primary = error
+        raise
+    finally:
+        try:
+            need(not os.path.lexists(directory) and slot.is_dir() and (not slot.is_symlink()), 'known update build tree custody')
+            slot.rename(directory)
+        except BaseException as error:
+            item['build_directory']['restoration'] = 'UNKNOWN_NO_CUSTODY_FALLBACK'
+            item['build_directory']['restoration_error'] = type(error).__name__
+            if primary is None:
+                raise
+            primary.add_note('update source restoration unknown: ' + type(error).__name__)
+
+# Explicit current package route; no old function or predicate is replaced in source.
+_LEGACY_DOCKERFILE = dockerfile
+
+
+def current011_dockerfile(base, map_hash, *, owned_retirement_v2=False):
+    need(owned_retirement_v2 is True, 'current011 requires explicit owned-retirement-v2')
+    original = _LEGACY_DOCKERFILE(base, map_hash, owned_retirement_v2=True)
+    before = '--owned-retirement-v2 --map-sha256 '
+    need(original.count(before) == 1, 'exact current011 PID1 command anchor')
+    return original.replace(before, '--owned-retirement-v2 --current011 --map-sha256 ', 1)
+
+
+def current011_inside(source, map_hash, *, owned_retirement_v2=False):
+    need(owned_retirement_v2 is True, 'current011 requires explicit owned-retirement-v2')
+    global T, build_pair, build_update, save_result
+    original = T, build_pair, build_update, save_result
+    selected = T.current011_namespace()
+    marker = selected.package_selection()
+    def save_selected(scope, report):
+        need(report.get('package_selection', marker) == marker, 'current011 report marker differs')
+        report['package_selection'] = dict(marker)
+        return original[3](scope, report)
+    try:
+        T, build_pair, build_update, save_result = selected, current011_build_pair, current011_build_update, save_selected
+        return inside(source, map_hash, owned_retirement_v2=True)
+    finally:
+        T, build_pair, build_update, save_result = original
+
 if __name__=='__main__':
  parser=argparse.ArgumentParser(description=__doc__)
  parser.add_argument('--inside-image',action='store_true');parser.add_argument('--retain-failure-image',action='store_true');parser.add_argument('--map-sha256',required=True)
  parser.add_argument('--owned-retirement-v2',action='store_true',default=False)
+ parser.add_argument('--current011',action='store_true',default=False)
  args=parser.parse_args();need(args.inside_image,'explicit owned image operation')
  def cancel(number,frame):raise KeyboardInterrupt('native image actor cancelled')
  handlers={number:signal.signal(number,cancel) for number in (signal.SIGINT,signal.SIGTERM)}
  try:
-  if args.owned_retirement_v2:
+  if args.current011:
+   value=current011_inside(Path(__file__).resolve().parents[1],args.map_sha256,owned_retirement_v2=args.owned_retirement_v2)
+  elif args.owned_retirement_v2:
    value=inside(Path(__file__).resolve().parents[1],args.map_sha256,owned_retirement_v2=True)
   else:
    value=inside(Path(__file__).resolve().parents[1],args.map_sha256)

@@ -402,6 +402,39 @@ def run(root, args):
     return report
 
 
+
+
+def current011_selection(args):
+    need(getattr(args, 'desktop_current011', False) is True
+         and getattr(args, 'operation', 'source184') == 'desktop-alpm-v1'
+         and getattr(args, 'desktop_owned_retirement_v2', False) is True,
+         'explicit current011 requires desktop-alpm-v1 and owned-retirement-v2')
+    return 'desktop-current011'
+
+
+def run_current011(root, args):
+    current011_selection(args)
+    verify_source(root, args.map_sha256)
+    import desktop_alpm_v1 as lifecycle
+    import desktop_projection_v1 as projection
+    marker = lifecycle.T.current011_namespace().package_selection()
+    global save
+    original = lifecycle.dockerfile, projection.project, save
+    def selected_project(source, public, destination):
+        return projection.project_current011(source, public, destination,
+                    selection='desktop-current011-owned-v2-reader-v1')
+    def selected_save(path, value):
+        if Path(path).name == 'receipt.json' and isinstance(value, dict) and value.get('operation') == 'desktop-alpm-v1':
+            need(value.get('package_selection', marker) == marker, 'current011 outer marker differs')
+            value['package_selection'] = dict(marker)
+        return original[2](path, value)
+    try:
+        lifecycle.dockerfile, projection.project, save = lifecycle.current011_dockerfile, selected_project, selected_save
+        return run(root, args)
+    finally:
+        lifecycle.dockerfile, projection.project, save = original
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ('work', 'cache', 'carrier'):
@@ -411,12 +444,13 @@ if __name__ == '__main__':
     parser.add_argument('--execute', action='store_true')
     parser.add_argument('--operation',choices=('source184','desktop-alpm-v1'),default='source184')
     parser.add_argument('--desktop-owned-retirement-v2',action='store_true',default=False)
+    parser.add_argument('--desktop-current011',action='store_true',default=False)
     args = parser.parse_args()
     def cancel(number, frame):
         raise KeyboardInterrupt('native workflow cancellation')
     handlers = {number: signal.signal(number, cancel) for number in (signal.SIGINT, signal.SIGTERM)}
     try:
-        result = run(Path(__file__).resolve().parents[1], args)
+        result = (run_current011 if args.desktop_current011 else run)(Path(__file__).resolve().parents[1], args)
         print(json.dumps(dict(status=result['status'])))
     finally:
         for number, handler in handlers.items():

@@ -59,6 +59,28 @@
       ],
       "matching_reader": "native/desktop_reader_v1.py",
       "prerequisite": "ROOT_BOUND_RETAINED_TRANSPORT_SUCCESSOR_BEFORE_DISPATCH; CURRENT_NULL_HELD"
+    },
+    "desktop-current011-owned-v2": {
+      "actual": {
+        "ref": null,
+        "run": null,
+        "source": null
+      },
+      "argv_extra": [
+        "--operation",
+        "desktop-alpm-v1",
+        "--desktop-owned-retirement-v2",
+        "--desktop-current011"
+      ],
+      "matching_reader": "native/desktop_reader_v1.py",
+      "package_selection": "desktop-current011",
+      "prerequisite": "ROOT_EXACT_CURRENT011_SOURCE_REF_RUN_MAP_AND_AUTHENTICATED_ARTIFACT_BINDING_REQUIRED; PREPARATION_ONLY",
+      "reader_argv_extra": [
+        "--retirement-selection",
+        "desktop-current011-owned-v2-reader-v1"
+      ],
+      "reader_selection": "desktop-current011-owned-v2-reader-v1",
+      "runtime_selection": "desktop-owned-retirement-v2"
     }
   },
   "provisioning": "PROOF_PRIVATE22_PUBLIC14_ORIGINAL1154_FIXED16_COPY_THEN_OWNER",
