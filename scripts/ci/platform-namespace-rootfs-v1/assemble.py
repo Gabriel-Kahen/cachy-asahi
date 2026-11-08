@@ -29,6 +29,9 @@ ROOTS = {'busybox': ('mkinitcpio-busybox', 'usr/lib/initcpio/busybox'),
          'usr/bin/python3': ('python', 'usr/bin/python3.14')}
 STDLIB = 'usr/lib/python3.14/'
 HEADLESS = 'finite-headless-namespace-v1'
+BUILD_OBJECT = STDLIB+'config-3.14-aarch64-linux-gnu/python.o'
+BUILD_OBJECT_PIN = dict(bytes=1480, mode=0o644,
+    sha256='f23e0477f0b8035aea1692221ddb6f42f420d138348221c406f725cd5c2bc26b')
 MAX_INPUT = 128*1024**2
 MAX_EXPANDED = 512*1024**2
 
@@ -159,9 +162,12 @@ def headless_profile(profile, base, packages, files):
     for row in profile['excluded']:
         need(type(row) is dict and set(row) == {'path', 'package', 'member', 'bytes', 'sha256', 'mode', 'reason'}, 'exact exclusion provenance')
         path = canonical(row['path'])
-        need(gui_path(path) and row['package'] == 'python' and row['member'] == path
+        need((gui_path(path) or path == BUILD_OBJECT) and row['package'] == 'python' and row['member'] == path
              and path not in excluded and path not in files and type(row['reason']) is str
-             and 0 < len(row['reason']) <= 512, 'only declared unused Tk/GUI paths may be excluded')
+             and 0 < len(row['reason']) <= 512, 'only declared unused Tk/GUI or exact pinned build object paths may be excluded')
+        if path == BUILD_OBJECT:
+            need({key: row[key] for key in BUILD_OBJECT_PIN} == BUILD_OBJECT_PIN,
+                 'exact finite headless build object pin required')
         raw, mode, _ = packages['python'].resolve(path)
         need(type(row['bytes']) is int and type(row['mode']) is int
              and (row['bytes'], row['sha256'], row['mode']) == (len(raw), digest(raw), mode), 'exclusion pin mismatch')
@@ -271,7 +277,7 @@ def assemble_files(plan, base, lock_raw):
             need(path in files and files[path]['mode'] == 0o755 and custody[path]['package'] == package
                  and custody[path]['member'] == member, 'required entrypoint provenance/mode')
         excluded, scope = ({}, dict(profile='FULL_PACKAGED_STDLIB')) if 'python_profile' not in plan else headless_profile(plan['python_profile'], base, packages, files)
-        # Only the exact declared Tk/GUI exclusions may narrow packaged stdlib.
+        # Only declared Tk/GUI files and the exact pinned build object may be omitted.
         for name, archive in packages.items():
             for member, entry in archive.members.items():
                 if (name == 'python' and member.startswith(STDLIB) or member.startswith('usr/share/licenses/')) and not entry.isdir():
