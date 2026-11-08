@@ -23,6 +23,7 @@ commands = {
     'cache-init': ('scripts/maintenance/source_cache.py', ['init']),
     'cache-verify': ('scripts/maintenance/source_cache.py', ['verify']),
     'import-local': ('scripts/build/source-cache-local-v1/import_source.py', []),
+    'recipe-check': ('scripts/checks/package_checks.py', ['recipe']),
     'source-preflight': ('scripts/build/offline-source-preflight-v1/preflight.py', []),
 }
 if len(sys.argv) < 2 or sys.argv[1] not in commands:

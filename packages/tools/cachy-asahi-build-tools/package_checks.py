@@ -54,6 +54,52 @@ def metadata(text):
     return result
 
 
+def relation_literals(value, key):
+    """Read complete literal words; comparison signs are never shell syntax."""
+    if any(ord(c) > 126 or ord(c) < 32 and c not in '\t\r\n' for c in value):
+        raise ValueError(f'ASCII literal dependency words required in {key}')
+    result = []
+    at = 0
+    pattern = r'([A-Za-z0-9@_+][A-Za-z0-9@._+-]*)(?:(>=|<=|=|>|<)((?:[0-9]+:)?[A-Za-z0-9_+.~]+(?:-[0-9]+(?:\.[0-9]+)?)?))?'
+    while at < len(value):
+        if value[at].isspace():
+            at += 1
+            continue
+        if value[at] == '#':
+            end = value.find('\n', at)
+            end = len(value) if end < 0 else end
+            if any(c in value[at:end] for c in '<>'):
+                raise ValueError(f'nonliteral comparison in {key}')
+            at = end
+            continue
+        quoted = value[at] in "'\""
+        if quoted:
+            end = value.find(value[at], at + 1)
+            if end < 0:
+                raise ValueError(f'unterminated literal {key}')
+            item = value[at + 1:end]
+            at = end + 1
+            if at < len(value) and not value[at].isspace():
+                raise ValueError(f'compound shell word in {key}')
+        else:
+            end = at
+            while end < len(value) and not value[end].isspace():
+                end += 1
+            item = value[at:end]
+            at = end
+            if any(c in item for c in "'\"<>"):
+                raise ValueError(f'quoted comparison required in {key}')
+        relation, separator, reason = item.partition(': ') if key == 'optdepends' else (item, '', '')
+        match = re.fullmatch(pattern, relation, re.ASCII)
+        if not match or key == 'provides' and match[2] not in (None, '='):
+            raise ValueError(f'invalid literal dependency in {key}')
+        if separator and (not reason or any(c in reason for c in '<>') or
+                          any(ord(c) < 32 or ord(c) > 126 for c in reason)):
+            raise ValueError(f'invalid optional dependency reason in {key}')
+        result.append(item)
+    return result
+
+
 def literal_metadata(text):
     """Conservative fallback: constant assignments only; no shell evaluation."""
     result = {}
@@ -63,15 +109,23 @@ def literal_metadata(text):
         key, value = match.groups()
         if key not in FIELDS:
             continue
+        relation_key = key.removesuffix('_aarch64')
+        relation = relation_key in {'depends', 'makedepends', 'checkdepends',
+                                   'optdepends', 'conflicts', 'replaces', 'provides'}
         if value.startswith('('):
             end = text.find(')', match.start(2) + 1)
             if end < 0:
                 raise ValueError(f'unterminated {key}')
+            if relation:
+                tail = text[end + 1:].split('\n', 1)[0].strip()
+                if tail and not tail.startswith('#'):
+                    raise ValueError(f'nonliteral assignment tail in {key}')
             value = text[match.start(2) + 1:end]
         # Shell expansions anywhere, even quotes, are outside the static subset.
-        if any(token in value for token in ('$', '`', ';', '\\', '<', '>')):
+        if any(token in value for token in ('$', '`', ';', '\\')) or (
+                not relation and any(token in value for token in ('<', '>'))):
             raise ValueError(f'dynamic {key}; provide reviewed .SRCINFO')
-        result[key] = shlex.split(value, comments=True)
+        result[key] = relation_literals(value, relation_key) if relation else shlex.split(value, comments=True)
     return result
 
 
@@ -371,6 +425,8 @@ def main():
     recipes = commands.add_parser('recipes')
     recipes.add_argument('--root', type=Path, default=Path(__file__).resolve().parents[2])
     recipes.add_argument('--require-recipes', action='store_true')
+    single = commands.add_parser('recipe')
+    single.add_argument('path', type=Path)
     artifacts = commands.add_parser('artifacts')
     artifacts.add_argument('paths', nargs='+', type=Path)
     args = parser.parse_args()
@@ -378,6 +434,9 @@ def main():
         if args.command == 'recipes':
             reports = [recipe(path) for path in discover(args.root)]
             result = {'recipes': reports, 'errors': ['no recipes found'] if not reports else []}
+        elif args.command == 'recipe':
+            reports = [recipe(args.path)]
+            result = {'recipes': reports, 'errors': []}
         else:
             reports = [package(path) for path in args.paths]
             result = {'artifacts': reports, 'errors': conflicts(reports)}

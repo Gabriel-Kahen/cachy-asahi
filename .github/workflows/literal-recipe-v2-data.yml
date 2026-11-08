@@ -1,0 +1,36 @@
+name: Literal recipe v2 DATA controls
+on:
+  pull_request:
+    paths:
+      - 'scripts/checks/package_checks_v2.py'
+      - 'tests/test_literal_recipe_v2.py'
+      - 'packages/tools/cachy-asahi-build-tools/**'
+      - 'packages/tools/cachy-asahi-source-tools/PKGBUILD'
+      - '.github/workflows/literal-recipe-v2-data.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/checks/package_checks_v2.py'
+      - 'tests/test_literal_recipe_v2.py'
+      - 'packages/tools/cachy-asahi-build-tools/**'
+      - 'packages/tools/cachy-asahi-source-tools/PKGBUILD'
+      - '.github/workflows/literal-recipe-v2-data.yml'
+permissions:
+  contents: read
+jobs:
+  literal-data:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Check twelve literal-recipe DATA controls
+        run: python3 -I -B -Werror::ResourceWarning tests/test_literal_recipe_v2.py
