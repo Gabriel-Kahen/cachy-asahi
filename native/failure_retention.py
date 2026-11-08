@@ -11,7 +11,7 @@ import stat
 MIB = 1024 ** 2
 CAP = 32 * MIB
 NAMES = ('acquisition.json', 'key-import.log', 'bootstrap.log', 'signatures.json')
-PRODUCER = 'a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898'
+PRODUCER = '8e71ba83e7d5037c6f7772401ec3b872684ccfa8472d855d8d6d3052cb1f41ba'
 INPUTS = 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'
 GENERIC = 'transport, cache or pinned-byte validation failed'
 LABEL = 'org.cachy-asahi.native-developer'

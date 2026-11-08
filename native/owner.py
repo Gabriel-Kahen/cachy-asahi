@@ -74,8 +74,100 @@ def consumer_identity(row, own, image, root, output):
     return consumer_contract(row, own, image, root, output, os.getuid(), os.getgid())
 
 
+def build_policy_declared(argv):
+    """Describe existing Docker build arguments; no effective-policy inference."""
+    need(type(argv) is list and 3 <= len(argv) <= 96
+         and all(type(v) is str and 0 < len(v.encode()) <= 4096 for v in argv)
+         and len(json.dumps(argv, allow_nan=False).encode()) <= 16*1024
+         and argv[:3] == ['/usr/bin/docker', '--host=unix:///var/run/docker.sock', 'build'],
+         'bounded original Docker build argv required')
+    def values(option):
+        result = []; index = 3
+        while index < len(argv):
+            item = argv[index]
+            if item == option:
+                need(index+1 < len(argv) and not argv[index+1].startswith('--'), 'declared build option value required')
+                result.append(argv[index+1]); index += 2; continue
+            if item.startswith(option+'='):
+                value = item[len(option)+1:]; need(value, 'empty declared build option refused'); result.append(value)
+            index += 1
+        return result
+    caches = [v for v in argv[3:] if v == '--no-cache' or v.startswith('--no-cache=')]
+    need(len(caches) <= 1 and all(v in ('--no-cache','--no-cache=true','--no-cache=false') for v in caches),
+         'single boolean no-cache declaration required')
+    result = dict(daemon_endpoint='unix:///var/run/docker.sock', no_cache=bool(caches) and caches[0] != '--no-cache=false')
+    for key in ('network', 'pull', 'platform', 'builder'):
+        rows = values('--'+key); need(len(rows) <= 1, 'duplicate singleton build declaration refused')
+        result[key] = rows[0] if rows else None
+    options = values('--security-opt')
+    need(len(options) <= 4 and all(len(v.encode()) <= 256 for v in options), 'bounded declared security options required')
+    result.update(security_options=options, security_options_status='DECLARED' if options else 'NOT_DECLARED',
+                  builder_status='DECLARED' if result['builder'] is not None else 'NOT_DECLARED')
+    return result
+
+
+def _image_build_policy_identity(own,map_hash):
+    need(type(own)is dict and set(own)=={'source','ref','run','attempt','token'}
+         and re.fullmatch('[0-9a-f]{40}',own.get('source')or'')
+         and type(own.get('ref'))is str and own['ref'].startswith('refs/heads/codex/')
+         and re.fullmatch('[1-9][0-9]*',own.get('run')or'')
+         and type(own.get('attempt'))is int and own['attempt']==1
+         and own.get('token')==hashlib.sha256((own['source']+':'+own['ref']+':'+own['run']).encode()).hexdigest()[:24]
+         and re.fullmatch('[0-9a-f]{64}',map_hash or''),'exact image-build policy identity')
+
+
+def unknown_image_build_policy(own,map_hash,reason='NO_RETAINED_BUILD_ACTOR'):
+    _image_build_policy_identity(own,map_hash)
+    need(reason in('NO_RETAINED_BUILD_ACTOR','NO_RETAINED_BUILD_LOG','RECEIPT_DATA_REFUSED'),'fixed policy unavailability')
+    return dict(schema=1,status='UNKNOWN_IMAGE_BUILD_LAUNCHER_POLICY_DATA_ONLY',binding=dict(own),
+        source_map_sha256=map_hash,domain='IMAGE_BUILD_STAGE',reason=reason,build_actor=None,declared=None,context=None,
+        policy_provenance=dict(declared_source='UNKNOWN',context_source='UNKNOWN',effective_seccomp_rules='UNKNOWN',
+            matched_lsm_denial='UNKNOWN',bwrap_exec_boundary='UNKNOWN',daemon_policy='UNKNOWN'),native_acceptance='NOT_ADMITTED')
+
+
+def image_build_policy_receipt(own,map_hash,actors,build_operations,context):
+    """Join existing original tools-build actor and exported image-stage DATA only."""
+    result=unknown_image_build_policy(own,map_hash)
+    need(type(actors)is list and len(actors)<=1000 and type(build_operations)is list and len(build_operations)<=2,'bounded original build records')
+    tools=[v for v in build_operations if type(v)is dict and v.get('role')=='tools']
+    if not tools:return result
+    need(len(tools)==1 and tools[0].get('terminal')is True and type(tools[0].get('actor'))is dict,'sole terminal original tools-build actor')
+    row=tools[0]['actor'];indexes=[i for i,v in enumerate(actors)if v==row]
+    need(len(indexes)==1,'tools-build actor must join original owner index')
+    argv=row.get('argv');declared=build_policy_declared(argv)
+    def options(option):
+        result=[]
+        for index,part in enumerate(argv[3:],3):
+            if part==option:
+                need(index+1<len(argv),'missing original build identity option');result.append(argv[index+1])
+            elif part.startswith(option+'='):result.append(part[len(option)+1:])
+        return result
+    labels=options('--label')
+    need(options('--tag')==['native-developer-tools:'+own['token']]
+         and [v for v in labels if v.startswith(LABEL+'=')]==[LABEL+'='+own['token']]
+         and [v for v in labels if v.startswith(LABEL+'.source=')]==[LABEL+'.source='+own['source']],
+         'same Source/token build tag and labels')
+    public=row.get('public_log');log_pin=row.get('log_pin')
+    if public is None or log_pin is None:return unknown_image_build_policy(own,map_hash,'NO_RETAINED_BUILD_LOG')
+    need(type(public)is str and re.fullmatch(r'actor-logs/[0-9]{4}\.log',public)
+         and type(log_pin)is dict and set(log_pin)=={'bytes','sha256'}and type(log_pin['bytes'])is int
+         and 0<=log_pin['bytes']<=16*1024**2 and re.fullmatch('[0-9a-f]{64}',log_pin['sha256']or''),'actual retained public build log pin')
+    if context is not None:
+        need(type(context)is dict and context.get('domain')=='IMAGE_BUILD_STAGE'and context.get('source_map_sha256')==map_hash
+             and context.get('status')in('OBSERVED','UNKNOWN')and context.get('native_acceptance')=='NOT_ADMITTED','image-stage context only')
+        context=json.loads(json.dumps(context,sort_keys=True,allow_nan=False))
+    result.update(status='BOUND_IMAGE_BUILD_LAUNCHER_POLICY_DATA_ONLY',reason=None,
+        build_actor=dict(index=indexes[0],argv=list(argv),public_log=public,log_pin=dict(log_pin)),declared=declared,context=context)
+    result['policy_provenance'].update(declared_source='ORIGINAL_BUILD_ACTOR_ARGV',
+        context_source='EXPORTED_IMAGE_STAGE_RESULT'if context is not None else'UNKNOWN')
+    need(len(json.dumps(result,sort_keys=True,allow_nan=False).encode())<=64*1024,'bounded policy receipt64KiB')
+    return result
+
+
 def run(root, args):
     own, profile, original, expected = admission(root, args, os.environ)
+    operation=getattr(args,'operation','source184')
+    need(operation in ('source184','build-tools-alpm-v2'),'explicit finite operation')
     need((root / '.git').is_dir() and not (root / '.git').is_symlink(), 'explicit ordinary publication Git directory')
     import provision
     proof = provision.prior_proof(root, args, own)
@@ -90,6 +182,7 @@ def run(root, args):
     report = dict(schema=1, status='FAIL', binding=own, source_map_sha256=args.map_sha256,
                   input_inventory=pin(expected), source_root=str(root), output_root=str(output),
                   native_16K='NOT_QUALIFIED', physical_M2='NOT_RUN', release='NOT_ADMITTED')
+    if operation=='build-tools-alpm-v2':report['operation']=operation
     pgo = module(root / 'bootstrap/scripts/ci/zlib-pgo-native-hosted/owner.py', '_sealed_pgo102')
     pgo.DOCKER = DOCKER
     actor = pgo.Actors(args.work / 'actors', 4300)
@@ -203,6 +296,9 @@ def run(root, args):
            '&& pacman -U --noconfirm --noscriptlet /tmp/developer-deps/*.pkg.tar.xz && ldconfig '
            '&& rm -rf /tmp/developer-deps /tmp/developer-hooks.txt /var/cache/pacman/pkg/* '
            '&& pacman -Q | LC_ALL=C sort > /builder-packages.lock\nUSER alarm\nWORKDIR /tmp\n')
+        if operation=='build-tools-alpm-v2':
+            from build_tools_alpm_v2 import prepare,dockerfile as release_dockerfile
+            prepare(root,context,args.map_sha256);dockerfile=release_dockerfile(dockerfile,args.map_sha256)
         (context / 'Dockerfile').write_text(dockerfile)
         command = [*DOCKER, 'build', '--network=none', '--pull=false', '--no-cache', '--platform=linux/arm64',
             '--tag', 'native-developer-tools:' + own['token'], '--label', LABEL + '=' + own['token'],
@@ -228,7 +324,7 @@ def run(root, args):
             '--user', str(os.getuid()) + ':' + str(os.getgid()), '--tmpfs', '/tmp:rw,nosuid,nodev,exec,size=2g',
             '--label', LABEL + '=' + own['token'], '--label', LABEL + '.source=' + own['source'],
             '--mount', 'type=bind,src=' + str(root) + ',dst=/source,readonly', '--mount', 'type=bind,src=' + str(output) + ',dst=/out',
-            '--entrypoint=/usr/bin/python3', image, '-I', '-B', '/source/native/guest.py', '--output', '/out/journey', '--map-sha256', args.map_sha256]
+            '--entrypoint=/usr/bin/python3', image, '-I', '-B', ('/source/native/build_tools_guest_v2.py' if operation=='build-tools-alpm-v2' else '/source/native/guest.py'), '--output', '/out/journey', '--map-sha256', args.map_sha256]
         container = actor.docker(*command, timeout=60)
         need(re.fullmatch('[0-9a-f]{64}', container), 'exact created container ID')
         inspection = json.loads(actor.docker('inspect', container))[0]
@@ -256,7 +352,7 @@ def run(root, args):
         need(after['State']['Running'] is False and after['State']['ExitCode'] == 0, 'actual completed native consumer')
         report['consumer'] = dict(image=image, container=container, state=after['State'])
         result = load(output / 'journey/result.json')
-        need(result['status'] == 'PASS_NATIVE_DEVELOPER_COMPONENTS_ONLY', 'all actual native developer components required')
+        need(result['status'] == ('PASS_BUILD_TOOLS_NATIVE_ALPM_COMPONENT' if operation=='build-tools-alpm-v2' else 'PASS_NATIVE_DEVELOPER_COMPONENTS_ONLY'), 'all actual native developer components required')
         report['status'] = result['status']
     except BaseException as error:
         primary_error = error
@@ -332,7 +428,7 @@ def run(root, args):
                 blocked_actor_logs=[str(args.work / 'bootstrap' / name) for name in ('key-import.log', 'bootstrap.log')])
         diagnostic['source_map_sha256'] = args.map_sha256
         report['bootstrap_failure_data'] = diagnostic
-        if diagnostic['status'] != 'PASS_BOUNDED_BOOTSTRAP_FAILURE_DATA' and report['status'] == 'PASS_NATIVE_DEVELOPER_COMPONENTS_ONLY':
+        if diagnostic['status'] != 'PASS_BOUNDED_BOOTSTRAP_FAILURE_DATA' and report['status'] in ('PASS_NATIVE_DEVELOPER_COMPONENTS_ONLY','PASS_BUILD_TOOLS_NATIVE_ALPM_COMPONENT'):
             report['status'] = 'FAIL_BOOTSTRAP_DIAGNOSTIC_RETENTION'
         save(output / 'bootstrap-failure-retention.json', diagnostic)
         retained_streams = {str(args.work / 'bootstrap' / name): row for name, row in diagnostic['files'].items()
@@ -365,10 +461,22 @@ def run(root, args):
                     (proofs / (directory + '-' + name)).write_bytes(read(path))
         save(output / 'image-ledger.json', ledger)
         save(output / 'image-retirement.json', cleanup['image_retirement'])
+        if operation=='build-tools-alpm-v2':
+            try:
+                result_path=output/'journey/build-tools-alpm-v2/result.json'
+                existing_context=(json.loads(read(result_path,cap=4*1024**2)).get('image_build_context')
+                                  if result_path.is_file() else None)
+                report['image_build_policy']=image_build_policy_receipt(own,args.map_sha256,actor.rows,build_operations,existing_context)
+            except Exception:
+                # Optional policy DATA cannot replace the original actor/failure/status.
+                report['image_build_policy']=unknown_image_build_policy(own,args.map_sha256,'RECEIPT_DATA_REFUSED')
         save(output / 'cleanup.json', cleanup); save(output / 'receipt.json', report)
         # Project only source-defined public evidence; never walk disposable guest trees.
         try:
-            from public_projection import project
+            if operation=='build-tools-alpm-v2':
+                from build_tools_projection_v2 import project
+            else:
+                from public_projection import project
             project(root, output, args.work / 'public-projection')
         except Exception as error:
             try:
@@ -393,6 +501,7 @@ if __name__ == '__main__':
     for name in ('source-sha', 'ref', 'run-id', 'map-sha256'):
         parser.add_argument('--' + name, required=True)
     parser.add_argument('--execute', action='store_true')
+    parser.add_argument('--operation',choices=('source184','build-tools-alpm-v2'),default='source184')
     args = parser.parse_args()
     def cancel(number, frame):
         raise KeyboardInterrupt('native workflow cancellation')
