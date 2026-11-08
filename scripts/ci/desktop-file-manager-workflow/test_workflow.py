@@ -2,6 +2,8 @@
 import copy
 import importlib.util
 import json
+import hashlib
+import tarfile
 from pathlib import Path
 import socket
 import tempfile
@@ -41,8 +43,29 @@ class Controls(unittest.TestCase):
         with self.assertRaises(ValueError):T.window([good,good],11,'Files')
 
     def test_source_pins_and_zero_delta_inventory(self):
-        root=Path(__file__).resolve().parents[3]
-        contract.verify_source(root)
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary) / 'pinned-source'
+            root.mkdir(mode=0o700)
+            archive = Path(__file__).with_name('fixtures') / 'pinned-source-v1.tar.gz'
+            if hashlib.sha256(archive.read_bytes()).hexdigest() != '251494d18fe6db53a2739960a322e9f8d7fddb8a8d8879c971f6c263668e2999':
+                raise ValueError('historical file-manager fixture archive differs')
+            pins = json.loads(Path(__file__).with_name('source-pins.json').read_text())
+            with tarfile.open(archive, 'r:gz') as frozen:
+                members = frozen.getmembers()
+                if len(members) != len(pins) or {member.name for member in members} != set(pins):
+                    raise ValueError('historical file-manager fixture membership differs')
+                for member in members:
+                    if not member.isfile() or member.size > 2 * 1024**2 or member.mode not in (0o644, 0o755):
+                        raise ValueError('historical file-manager fixture member differs')
+                    with frozen.extractfile(member) as stream:
+                        data = stream.read()
+                    if hashlib.sha256(data).hexdigest() != pins[member.name]:
+                        raise ValueError('historical file-manager fixture bytes differ')
+                    target = root / member.name
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    target.write_bytes(data)
+                    target.chmod(member.mode)
+            contract.verify_source(root)
         proposal=json.loads(Path(__file__).with_name('package-inputs.json').read_text())
         installed={r['name']:r['version'] for r in proposal['closure_packages']}
         contract.verify_package_input(proposal,installed)

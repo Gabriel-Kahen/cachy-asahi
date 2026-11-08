@@ -13,7 +13,7 @@ import session
 C = session.C
 import prepare
 from test_terminal_worker import exercise, FakeProcess
-from test_managed_api import row, m
+from test_managed_api import row, m, fixture_source
 
 ROOT = Path(__file__).resolve().parents[3]
 
@@ -230,7 +230,8 @@ class LayoutAndStage(unittest.TestCase):
 
     def test_prepare_exact_managed_transform_bounds_markers_and_zero_package_delta(self):
         with tempfile.TemporaryDirectory() as d:
-            out=prepare.prepare(ROOT,Path(d)/'runner')
+            source=fixture_source(Path(d)/'source')
+            out=prepare.prepare(source,Path(d)/'runner')
             guest=(out/'base_guest.py').read_text();runtime=(out/'desktop574_runtime.py').read_text()
             self.assertNotIn('dbus-run-session',guest);self.assertNotIn('runuser',guest)
             self.assertIn('managed_session.SETPRIV',guest);self.assertIn('session.wait(timeout=1080)',guest)
@@ -238,7 +239,7 @@ class LayoutAndStage(unittest.TestCase):
             for marker in ('managed_user','terminal_workflow','file_manager','managed_workflow'):
                 self.assertIn('cachy_asahi_'+marker+'=1',runtime)
             self.assertIn('deadline = time.monotonic() + 1300',runtime)
-            with self.assertRaises(ValueError):prepare.prepare(ROOT,out)
+            with self.assertRaises(ValueError):prepare.prepare(source,out)
         proposal=json.loads(Path(__file__).with_name('package-inputs.json').read_text())
         installed={r['name']:r['version'] for r in proposal['closure_packages']}
         contract.verify_package_input(proposal,installed)

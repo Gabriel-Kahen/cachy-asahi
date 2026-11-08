@@ -902,8 +902,8 @@ class RepositoryTests(unittest.TestCase):
         values = {'name': 'cachy-asahi-hyprland-settings', 'version': '0.1.0-2', 'arch': 'any',
                   'license': 'MIT', 'member': 'usr/bin/cachy-asahi-screenshot', 'mode': 0o755,
                   'uid': 0, 'gid': 0, 'type': tarfile.REGTYPE,
-                  'data': (Path(__file__).resolve().parents[2] / 'packages/desktop/'
-                           'cachy-asahi-hyprland-settings/cachy-asahi-screenshot').read_bytes()}
+                  'data': (Path(__file__).resolve().parents[2] /
+                           'tests/fixtures/desktop-screenshot-v2.helper.data').read_bytes()}
         values.update(changes)
         path = self.base / 'scope-fixture.pkg.tar.gz'
         info = (f"pkgname = {values['name']}\npkgver = {values['version']}\narch = {values['arch']}\n"
@@ -951,8 +951,8 @@ class RepositoryTests(unittest.TestCase):
         # Inert listing/selector observations only; no archive command or helper runs.
         path = self.base / 'normalized-destination-fixture.pkg.tar.xz'
         path.write_bytes(b'INERT LISTING FIXTURE')
-        reviewed = (Path(__file__).resolve().parents[2] / 'packages/desktop/'
-                    'cachy-asahi-hyprland-settings/cachy-asahi-screenshot').read_bytes()
+        reviewed = (Path(__file__).resolve().parents[2] /
+                    'tests/fixtures/desktop-screenshot-v2.helper.data').read_bytes()
         calls = []
         def command(operation, argv, binary=False):
             calls.append(operation)

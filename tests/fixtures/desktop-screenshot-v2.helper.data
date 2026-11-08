@@ -1,0 +1,200 @@
+#!/usr/bin/python
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 cachy-asahi contributors. See LICENSE and NOTICE.
+"""Explicit Wayland full/region capture to a private PNG; never upload or edit."""
+import argparse
+from datetime import datetime
+import os
+from pathlib import Path
+import re
+import secrets
+import shutil
+import signal
+import stat
+import subprocess
+import sys
+
+PNG = b'\x89PNG\r\n\x1a\n'
+IEND = b'\0\0\0\0IEND\xaeB`\x82'
+
+class CaptureError(Exception):
+    pass
+
+def tool(name):
+    path = shutil.which(name)
+    if path is None:
+        raise CaptureError(f'Missing optional tool {name}; install it on a validated base before capture.')
+    return path
+
+def region(slurp):
+    result = subprocess.run([slurp,'-f','%x,%y %wx%h'], stdin=subprocess.DEVNULL,
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=120, check=False)
+    if result.returncode:
+        raise CaptureError('No region captured: selection cancelled or slurp failed. No full-screen fallback.')
+    try:
+        geometry = result.stdout.decode('ascii').strip()
+    except UnicodeDecodeError as error:
+        raise CaptureError('Invalid slurp geometry.') from error
+    match = re.fullmatch(r'(-?\d{1,10}),(-?\d{1,10}) ([1-9]\d{0,9})x([1-9]\d{0,9})',geometry)
+    if len(result.stdout)>128 or match is None:
+        raise CaptureError('No valid nonempty region selected.')
+    return geometry
+
+def private_directory(path):
+    path = Path(path).expanduser()
+    if not path.is_absolute() or '..' in path.parts:
+        raise CaptureError('Choose an absolute --directory path without parent traversal.')
+    current = Path(path.anchor)
+    for part in path.parts[1:]:
+        current /= part
+        try:
+            os.mkdir(current,0o700)
+        except FileExistsError:
+            pass
+        node = current.lstat()
+        if not stat.S_ISDIR(node.st_mode):
+            raise CaptureError(f'Refusing a symlink or non-directory: {current}')
+    node = path.lstat()
+    if node.st_uid != os.getuid() or stat.S_IMODE(node.st_mode) & 0o077:
+        raise CaptureError('Output directory must be user-owned and private; choose a new --directory. Existing permissions were preserved.')
+    fd = os.open(path,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC)
+    try:
+        held = os.fstat(fd)
+        if (held.st_dev,held.st_ino) != (node.st_dev,node.st_ino) or held.st_uid != os.getuid() or stat.S_IMODE(held.st_mode) & 0o077:
+            raise CaptureError('Output directory changed while opening.')
+    except BaseException:
+        os.close(fd)
+        raise
+    return path,fd
+
+def owned(dirfd,name,filefd):
+    try:
+        node = os.stat(name,dir_fd=dirfd,follow_symlinks=False)
+    except FileNotFoundError:
+        return False
+    held = os.fstat(filefd)
+    return stat.S_ISREG(node.st_mode) and node.st_uid == held.st_uid == os.getuid() and (node.st_dev,node.st_ino) == (held.st_dev,held.st_ino)
+
+def remove_partial(dirfd,name,filefd):
+    if owned(dirfd,name,filefd):
+        os.unlink(name,dir_fd=dirfd)
+
+def capture(mode,directory):
+    grim = tool('grim')
+    geometry = region(tool('slurp')) if mode == 'region' else None
+    previous_umask = os.umask(0o077)
+    dirfd = filefd = None
+    partial = None
+    saved = None
+    candidate = None
+    try:
+        directory,dirfd = private_directory(directory)
+        stamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+        for _ in range(32):
+            partial = '.Screenshot-'+stamp+'-'+secrets.token_hex(12)+'.partial'
+            try:
+                filefd = os.open(partial,os.O_RDWR|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW|os.O_CLOEXEC,0o600,dir_fd=dirfd)
+                break
+            except FileExistsError:
+                partial = None
+        if filefd is None:
+            raise CaptureError('Could not reserve a unique screenshot file.')
+        args = [grim,'-t','png'] + (['-g',geometry] if geometry is not None else []) + ['-']
+        result = subprocess.run(args,stdin=subprocess.DEVNULL,stdout=filefd,
+            stderr=subprocess.PIPE,timeout=30,check=False)
+        if result.returncode:
+            raise CaptureError('grim failed; no screenshot was published.')
+        node = os.fstat(filefd)
+        if node.st_uid != os.getuid() or stat.S_IMODE(node.st_mode) != 0o600:
+            raise CaptureError('Private screenshot file ownership or permissions changed.')
+        if node.st_size<45 or os.pread(filefd,8,0)!=PNG or os.pread(filefd,8,8)!=b'\0\0\0\rIHDR' or os.pread(filefd,12,node.st_size-12)!=IEND:
+            raise CaptureError('grim returned an incomplete PNG; no screenshot was published.')
+        if not owned(dirfd,partial,filefd):
+            raise CaptureError('Partial filename changed; its replacement was preserved.')
+        named,held = directory.lstat(),os.fstat(dirfd)
+        if (named.st_dev,named.st_ino) != (held.st_dev,held.st_ino) or not stat.S_ISDIR(named.st_mode) or named.st_uid != os.getuid() or stat.S_IMODE(named.st_mode) & 0o077:
+            raise CaptureError('Private output directory changed; no screenshot was published.')
+        os.fsync(filefd)
+        for _ in range(32):
+            name = 'Screenshot-'+stamp+'-'+secrets.token_hex(12)+'.png'
+            candidate = name
+            try:
+                os.link(partial,name,src_dir_fd=dirfd,dst_dir_fd=dirfd,follow_symlinks=False)
+                break
+            except FileExistsError:
+                candidate = None
+        else:
+            raise CaptureError('Could not publish without overwriting an existing screenshot.')
+        if not owned(dirfd,name,filefd):
+            raise CaptureError('Published filename changed; its replacement was preserved.')
+        saved = directory/name
+        print(saved)
+        try:
+            remove_partial(dirfd,partial,filefd)
+            partial = None
+        except OSError:
+            print(f'Warning: PNG saved at {saved}; partial cleanup failed.',file=sys.stderr)
+        return saved
+    except BaseException:
+        if saved is None and candidate is not None:
+            try:
+                if owned(dirfd,candidate,filefd):
+                    saved = directory/candidate
+                else:
+                    print(f'No owned publication confirmed at {directory/candidate}; existing files were preserved.',file=sys.stderr)
+            except OSError:
+                print(f'Publication outcome unknown at {directory/candidate}; existing files were preserved.',file=sys.stderr)
+        if saved is not None:
+            print(f'PNG was saved at {saved} before the later interruption or failure.',file=sys.stderr)
+        raise
+    finally:
+        try:
+            if partial is not None and filefd is not None:
+                try:
+                    remove_partial(dirfd,partial,filefd)
+                except OSError:
+                    print('Warning: an owned private partial file could not be removed.',file=sys.stderr)
+        except BaseException:
+            if saved is not None:
+                print(f'PNG was saved at {saved}; cleanup was interrupted.',file=sys.stderr)
+            raise
+        finally:
+            try:
+                if filefd is not None:
+                    try:
+                        os.close(filefd)
+                    except OSError:
+                        print('Warning: screenshot file descriptor close failed; no retry.',file=sys.stderr)
+            finally:
+                try:
+                    if dirfd is not None:
+                        try:
+                            os.close(dirfd)
+                        except OSError:
+                            print('Warning: screenshot directory descriptor close failed; no retry.',file=sys.stderr)
+                finally:
+                    os.umask(previous_umask)
+
+def cancelled(signum,frame):
+    raise KeyboardInterrupt
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('mode',choices=('full','region'))
+    parser.add_argument('--directory',type=Path,default=Path.home()/'Pictures/Screenshots')
+    args = parser.parse_args()
+    old_term = signal.signal(signal.SIGTERM,cancelled)
+    try:
+        capture(args.mode,args.directory)
+        return 0
+    except KeyboardInterrupt:
+        print('Screenshot cancelled.',file=sys.stderr)
+        return 130
+    except (CaptureError,OSError,subprocess.TimeoutExpired) as error:
+        print(str(error),file=sys.stderr)
+        return 1
+    finally:
+        signal.signal(signal.SIGTERM,old_term)
+
+if __name__ == '__main__':
+    raise SystemExit(main())

@@ -75,7 +75,23 @@ cachy-asahi-screenshot region
 cachy-asahi-screenshot region --directory "$HOME/Pictures/Private-Screenshots"
 ```
 
-The default is `~/Pictures/Screenshots`. Missing directories are created0700;
+The default is `Screenshots` inside the Pictures folder configured by
+`XDG_PICTURES_DIR` in `${XDG_CONFIG_HOME:-$HOME/.config}/user-dirs.dirs`.
+For example, `XDG_PICTURES_DIR="$HOME/Meine Bilder"` saves below
+`~/Meine Bilder/Screenshots`, preserving a localized or relocated Pictures folder.
+With no file or Pictures setting, the default remains `~/Pictures/Screenshots`.
+A Pictures setting equal to `$HOME` uses `~/Screenshots`.
+
+The helper reads at most64KiB of ordinary UTF-8 configuration as data. It never
+sources that file or runs `xdg-user-dir`, a shell, or commands from the setting.
+Quoted absolute paths and an initial `$HOME`/`${HOME}` are supported, including
+literal escaped quotes, backslashes, dollar signs and backticks. Duplicate,
+malformed, relative, traversing or dynamically expanded Pictures settings and
+symlink/nonregular/oversized configuration files are refused before capture.
+The error directs you to `--directory`, which bypasses this lookup completely.
+The configuration's contents and permissions are never changed.
+
+Missing output directories are created0700;
 existing directories and their permissions are preserved. The final directory
 must already be user-owned and private or be newly created by the helper.
 Choose a new `--directory` if an existing shared directory is refused. Symlink

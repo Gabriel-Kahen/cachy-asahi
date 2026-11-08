@@ -3,6 +3,8 @@
 import base64
 import copy
 import json
+import hashlib
+import tarfile
 from pathlib import Path
 import tempfile
 from types import SimpleNamespace
@@ -174,7 +176,27 @@ class Phase(unittest.TestCase):
     def test_generated_host_failure_capture_is_optional_nonce_bound_and_separate(self):
         import ast
         import prepare
-        source=next(p for p in Path(__file__).resolve().parents if (p/'scripts/ci/maintained-desktop574-inputs.json').exists())
+        source = self.root / 'pinned-source'
+        source.mkdir(mode=0o700)
+        archive = Path(__file__).with_name('fixtures') / 'pinned-source-v1.tar.gz'
+        if hashlib.sha256(archive.read_bytes()).hexdigest() != 'e8c3653be0a325e9d99510a98b768c677f4e0f90cb2e8391893569310d831acc':
+            raise ValueError('historical keyboard fixture archive differs')
+        pins = json.loads(Path(__file__).with_name('source-pins.json').read_text())
+        with tarfile.open(archive, 'r:gz') as frozen:
+            members = frozen.getmembers()
+            if len(members) != len(pins) or {member.name for member in members} != set(pins):
+                raise ValueError('historical keyboard fixture membership differs')
+            for member in members:
+                if not member.isfile() or member.size > 2 * 1024**2 or member.mode not in (0o644, 0o755):
+                    raise ValueError('historical keyboard fixture member differs')
+                with frozen.extractfile(member) as stream:
+                    data = stream.read()
+                if hashlib.sha256(data).hexdigest() != pins[member.name]:
+                    raise ValueError('historical keyboard fixture bytes differ')
+                target = source / member.name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(data)
+                target.chmod(member.mode)
         runner=self.root/'runner';prepare.prepare(source,runner)
         tree=ast.parse((runner/'desktop574_runtime.py').read_text())
         node=next(n for n in ast.walk(tree) if isinstance(n,ast.If) and isinstance(n.test,ast.Compare) and

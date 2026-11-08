@@ -20,6 +20,67 @@ IEND = b'\0\0\0\0IEND\xaeB`\x82'
 class CaptureError(Exception):
     pass
 
+def default_directory(home=None,environ=None):
+    """Read the Pictures setting as bounded DATA, never source a shell file."""
+    home = Path.home() if home is None else Path(home)
+    environ = os.environ if environ is None else environ
+    fallback = home/'Pictures/Screenshots'
+    config = Path(environ.get('XDG_CONFIG_HOME') or home/'.config')
+    if not home.is_absolute() or not config.is_absolute():
+        raise CaptureError('HOME and XDG_CONFIG_HOME must be absolute; choose --directory explicitly.')
+    path = config/'user-dirs.dirs'
+    try:
+        fd = os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK|os.O_CLOEXEC)
+    except FileNotFoundError:
+        return fallback
+    except OSError as error:
+        raise CaptureError('Cannot safely read user-dirs.dirs; choose --directory explicitly.') from error
+    try:
+        with os.fdopen(fd,'rb') as stream:
+            before = os.fstat(stream.fileno())
+            if not stat.S_ISREG(before.st_mode) or before.st_size>65536:
+                raise CaptureError('user-dirs.dirs must be an ordinary file of at most64KiB; choose --directory explicitly.')
+            raw = stream.read(65537)
+            identity = lambda x:(x.st_dev,x.st_ino,x.st_mode,x.st_size,x.st_mtime_ns,x.st_ctime_ns)
+            if len(raw)>65536 or identity(before)!=identity(os.fstat(stream.fileno())) or identity(before)!=identity(path.lstat()):
+                raise CaptureError('user-dirs.dirs changed while reading; no screenshot was taken.')
+        lines = raw.decode('utf-8').splitlines()
+    except (OSError,UnicodeError) as error:
+        raise CaptureError('Cannot safely read user-dirs.dirs; choose --directory explicitly.') from error
+    matches = []
+    for line in lines:
+        if not re.match(r'\s*(?:export\s+)?XDG_PICTURES_DIR\b',line):
+            continue
+        match = re.fullmatch(r'\s*(?:export\s+)?XDG_PICTURES_DIR\s*=\s*"((?:[^"\\]|\\.)*)"\s*(?:#.*)?',line)
+        if match is None:
+            raise CaptureError('Invalid XDG_PICTURES_DIR; choose --directory explicitly.')
+        matches.append(match[1])
+    if not matches:
+        return fallback
+    if len(matches)!=1:
+        raise CaptureError('Duplicate XDG_PICTURES_DIR; choose --directory explicitly.')
+    value, result = matches[0], ''
+    for prefix in ('${HOME}','$HOME'):
+        if value==prefix or value.startswith(prefix+'/'):
+            result,value = str(home),value[len(prefix):]
+            break
+    index = 0
+    while index<len(value):
+        char = value[index]
+        if char=='\\':
+            index += 1
+            if index==len(value) or value[index] not in '\\"$`':
+                raise CaptureError('Unsupported Pictures path escape; choose --directory explicitly.')
+            char = value[index]
+        elif char in '$`':
+            raise CaptureError('Only an initial HOME variable is supported; choose --directory explicitly.')
+        result += char
+        index += 1
+    pictures = Path(result)
+    if not pictures.is_absolute() or '..' in pictures.parts or any(ord(c)<32 or ord(c)==127 for c in result):
+        raise CaptureError('Pictures path must be absolute without parent traversal; choose --directory explicitly.')
+    return pictures/'Screenshots'
+
 def tool(name):
     path = shutil.which(name)
     if path is None:
@@ -181,11 +242,11 @@ def cancelled(signum,frame):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('mode',choices=('full','region'))
-    parser.add_argument('--directory',type=Path,default=Path.home()/'Pictures/Screenshots')
+    parser.add_argument('--directory',type=Path,help='Explicit output directory; otherwise Pictures/Screenshots from user-dirs.dirs')
     args = parser.parse_args()
     old_term = signal.signal(signal.SIGTERM,cancelled)
     try:
-        capture(args.mode,args.directory)
+        capture(args.mode,args.directory if args.directory is not None else default_directory())
         return 0
     except KeyboardInterrupt:
         print('Screenshot cancelled.',file=sys.stderr)
