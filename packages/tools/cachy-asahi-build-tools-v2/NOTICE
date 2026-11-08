@@ -1,0 +1,10 @@
+cachy-asahi-build-tools is independent, opt-in development tooling.
+Project launcher and six frozen0.1.1 project modules and the exact PR394 metadata checker: Copyright (c) 2026
+cachy-asahi contributors, MIT; see LICENSE and source-provenance.json.
+
+check-inputs.tar.gz is build-check DATA only and is not installed. It contains
+the retained exact zlib 1.3.2 archive and upstream copyright/license notice
+(check-inputs/inputs/notices/LICENSE.zlib), plus MIT project recipe DATA.
+The zlib source remains subject to its upstream license. This package neither
+builds nor installs zlib. Receipt/notice validation grants no legal clearance,
+complete-source, signature, native, hardware, performance or release acceptance.
