@@ -1,0 +1,54 @@
+{
+  "actual": {
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "component_acceptance": false,
+  "diagnostics": "SOURCE_BOUND_RECEIPT_ROOTFS_TRANSPORT_ATTEMPTS_AND_CACHE_VALIDATIONS",
+  "kind": "EXPLICIT_SOURCE201_ROOTFS_TRANSPORT_VARIANT",
+  "matching_reader": {
+    "bytes": 97373,
+    "sha256": "95bf321267f2a47b5a0f37073c82842d9e424890e20002237442e8a18cbd908d",
+    "target": "native/release_reader_v1.py"
+  },
+  "native": "NOT_RUN",
+  "old_variants": "PRESERVED_UNMODIFIED",
+  "original_deadline": "EXISTING_ACTOR_DEADLINE_NO_RESET",
+  "parent_files": {
+    "bytes": 48766,
+    "sha256": "b5111d2a9884e9faf1eb36b46def6f27f07207b345280ec75711435c86893d6c"
+  },
+  "parent_raw": {
+    "bytes": 347,
+    "sha256": "5b45d26c0de0b0f0e6020313f9bd5c50b1080ff236f3058219823ef90a158cc5"
+  },
+  "parent_source": "7d11efd7c15026d0480eaf58657dc3b0c1ad4bd8",
+  "parent_tree": "cb33c9807fcf22bab26ac838961395d580da6dd7",
+  "payload": {
+    "native/bootstrap_inputs.py": {
+      "bytes": 6776,
+      "sha256": "344fa8728f307cc912799cbf462b45eb4f1c45036899d2eb537ae92e14390b2b"
+    },
+    "native/owner.py": {
+      "bytes": 29295,
+      "sha256": "1b8f46eb176ee4b3cfd0b84fa87831bfd0bc57e5333ba4344aff69717fb05537"
+    }
+  },
+  "rootfs_total_attempts_maximum": 2,
+  "same_rootfs_input": {
+    "filename": "ArchLinuxARM-2026.08-aarch64-rootfs.tar.gz",
+    "sha256": "42a4eeaa038994ffd31fa173256ef2f0ef511358eeb41b9ea1f8626391b9b319",
+    "signature_sha256": "0157d8cd6261c85205931c766b754d6d56112b28800666fb64add1de192ebe11",
+    "signature_size": 566,
+    "size": 829367415,
+    "url": "https://ca.us.mirror.archlinuxarm.org/os/multi/ArchLinuxARM-2026.08-aarch64-rootfs.tar.gz"
+  },
+  "schema": 1,
+  "source_map": {
+    "bytes": 43059,
+    "sha256": "83f0961b2bca1c8c042f201fa6c0d73313f7deccde32ce06af0538ffd9d58794"
+  },
+  "source_tree": "bcf78785cd46a2acc75c772f9f6ba21f7bd831b0",
+  "variant": "pid1-rootfs-transport-v1"
+}
