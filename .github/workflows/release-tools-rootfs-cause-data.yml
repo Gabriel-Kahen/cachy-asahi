@@ -1,0 +1,43 @@
+name: Release typed rootfs transport cause DATA controls
+on:
+  pull_request:
+    paths: ['scripts/ci/release-tools-native-source/pid1-rootfs-typed-cause-v1/**', '.github/workflows/release-tools-rootfs-cause-data.yml']
+  push:
+    branches: [main]
+    paths: ['scripts/ci/release-tools-native-source/pid1-rootfs-typed-cause-v1/**', '.github/workflows/release-tools-rootfs-cause-data.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  variant-data:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Checkout immutable failed parent as DATA only
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 686958cf7a3248fc0ef33ad4b61ffd22a325c4e5
+          path: .ci-inputs/release-typed-cause-parent
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Construct exact Source201 DATA successor
+        run: >-
+          python -I -B -Werror::ResourceWarning
+          scripts/ci/release-tools-native-source/pid1-rootfs-typed-cause-v1/prepare.py
+          --parent-source "$GITHUB_WORKSPACE/.ci-inputs/release-typed-cause-parent"
+          --output "$RUNNER_TEMP/release-rootfs-source"
+          --profile-sha256 23c10774c01a1dbedab676551d2b23241678a64956276ce2865eebb97e66ed50
+      - name: Run fifteen NEW typed-cause DATA controls
+        run: >-
+          python -I -B -Werror::ResourceWarning
+          scripts/ci/release-tools-native-source/pid1-rootfs-typed-cause-v1/test_typed_cause.py
+          --parent-source "$GITHUB_WORKSPACE/.ci-inputs/release-typed-cause-parent"
