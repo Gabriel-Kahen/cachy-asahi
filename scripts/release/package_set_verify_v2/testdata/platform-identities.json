@@ -1,0 +1,47 @@
+{
+  "source": "scripts/platform/archive_intake_bundle/_archive_intake_runtime/runtime/intake/source/inputs/image-inventory.json",
+  "source_bytes": 340100,
+  "source_sha256": "5c1630b5cdf07898118979895682c3a3b705e416c9840ada4e1a5193dccd6941",
+  "source_records": 261,
+  "dependency_transaction_accepted": false,
+  "hardware_accepted": false,
+  "archive_payloads": "synthetic; descriptors are metadata hashes, not archive hashes",
+  "packages": [
+    {
+      "name": "alsa-ucm-conf-asahi",
+      "version": "10-1",
+      "arch": "any",
+      "metadata_descriptor_sha256": "7883677c36a757ee02a2be5a1eec5bb800c67afd692238501878b7319b0d5f2f"
+    },
+    {
+      "name": "asahi-fwextract",
+      "version": "0.9.2-1",
+      "arch": "any",
+      "metadata_descriptor_sha256": "42d976c113262711dca807e18d832206c8db6d2363e30960cfdd7be421854efa"
+    },
+    {
+      "name": "grub",
+      "version": "2:2.16-3",
+      "arch": "aarch64",
+      "metadata_descriptor_sha256": "741711186f14f73c93d317b910ef2484b7ed3af49d3e7fbfaa830fe9e96681f8"
+    },
+    {
+      "name": "linux-asahi",
+      "version": "7.1.13.asahi3-2",
+      "arch": "aarch64",
+      "metadata_descriptor_sha256": "9a641825cbef519677cf1bddf5dcd4575dabb2279b18e1afdc4d2ebee742387d"
+    },
+    {
+      "name": "m1n1",
+      "version": "1.6.1-1",
+      "arch": "aarch64",
+      "metadata_descriptor_sha256": "65381fb23e30ca12e7298c68908ffd0f2398a165a62d5694ffa74ef6aef314ab"
+    },
+    {
+      "name": "uboot-asahi",
+      "version": "2026.07.asahi2-1",
+      "arch": "aarch64",
+      "metadata_descriptor_sha256": "25d52c37131feef7470ba266f6f17e5daeae04ff97bf0d211420cfbbe3f97892"
+    }
+  ]
+}

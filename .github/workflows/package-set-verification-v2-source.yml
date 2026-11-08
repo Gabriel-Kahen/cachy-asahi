@@ -1,0 +1,70 @@
+name: Full package set verification source controls
+on:
+  pull_request:
+    paths:
+      - scripts/release/package_set_verify_v2/**
+      - scripts/release/package_set_verify_v1/**
+      - scripts/checks/package_checks.py
+      - tests/test_package_*.py
+      - scripts/ci/core622-current-desktop-source/expected607.lock
+      - .github/workflows/package-set-verification-v2-source.yml
+  push:
+    branches: [main]
+    paths:
+      - scripts/release/package_set_verify_v2/**
+      - scripts/release/package_set_verify_v1/**
+      - scripts/checks/package_checks.py
+      - tests/test_package_*.py
+      - scripts/ci/core622-current-desktop-source/expected607.lock
+      - .github/workflows/package-set-verification-v2-source.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  package-set-v2-tests:
+    name: package-set-v2 (${{ matrix.suite }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - suite: full-set
+            directory: scripts/release/package_set_verify_v2
+            pattern: test_*.py
+            minimum: 22
+          - suite: unchanged-v1
+            directory: scripts/release/package_set_verify_v1
+            pattern: test_*.py
+            minimum: 17
+          - suite: validator
+            directory: tests
+            pattern: test_package_*.py
+            minimum: 28
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.14'
+      - name: Ensure the existing archive inspector's zstd dependency
+        run: |
+          if ! command -v zstd; then
+            sudo apt-get update
+            sudo apt-get install --yes --no-install-recommends zstd
+          fi
+          zstd --version
+      - name: Run the selected source controls without skips
+        env:
+          TEST_DIRECTORY: ${{ matrix.directory }}
+          TEST_PATTERN: ${{ matrix.pattern }}
+          MINIMUM_TESTS: ${{ matrix.minimum }}
+        run: |
+          python -B -Werror::ResourceWarning - <<'PYTHON'
+          import os, unittest
+          suite = unittest.TestLoader().discover(os.environ['TEST_DIRECTORY'], pattern=os.environ['TEST_PATTERN'])
+          result = unittest.TextTestRunner(verbosity=2).run(suite)
+          if not result.wasSuccessful() or result.skipped or result.testsRun < int(os.environ['MINIMUM_TESTS']):
+              raise SystemExit('failures, skips, or missing controls')
+          PYTHON
