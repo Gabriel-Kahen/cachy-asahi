@@ -33,9 +33,13 @@ def target_size(architecture, compatible):
     if architecture != "aarch64":
         return None
     identifiers = (compatible or "").splitlines()
-    if "apple,j413" in identifiers:
+    has_j413 = "apple,j413" in identifiers
+    has_j415 = "apple,j415" in identifiers
+    if has_j413 and has_j415:
+        return None
+    if has_j413:
         return "13-inch"
-    if "apple,j415" in identifiers:
+    if has_j415:
         return "15-inch"
     return None
 

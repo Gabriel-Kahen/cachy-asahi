@@ -13,7 +13,7 @@
   "scripts/build/build.py": "e520b37e5dfc285914203cfab99daecc80543505fef7ded6704b3fb06f001d45",
   "scripts/build/container-entry.sh": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24",
   "scripts/integration/desktop.py": "5320a10a198c9fad4650b7f5d5f510e63ec702e32a3c0dccffe19593892ae15a",
-  "scripts/checks/package_checks.py": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8",
+  "scripts/checks/package_checks.py": "314e8b4a0920b3f6d93619fc74ad1d63a6210d1b17b925618451b493d2610a1a",
   "packages/desktop/cachy-asahi-hyprland-settings/.SRCINFO": "6c2fd7e245f5ac15627ebef3fe34f7b5f6120b310055e9e934708c06c2126419",
   "packages/desktop/cachy-asahi-hyprland-settings/LICENSE": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
   "packages/desktop/cachy-asahi-hyprland-settings/NOTICE": "0c8c331ce87a95b154e0e83c358a5cafc39bf08f2129ecc5be2438c6a97a325c",

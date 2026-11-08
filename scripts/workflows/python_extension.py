@@ -15,7 +15,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURES = ROOT / 'tests/workflows/fixtures/python-extension'
 PINS = {'scripts/workflows/developer_build_systems.py': '8c5025f3d748fb2e5aebb304310852158ebaac0bcaf9ef44cad8676ed5963fbc',
-        'scripts/checks/package_checks.py': 'e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8'}
+        'scripts/checks/package_checks.py': '314e8b4a0920b3f6d93619fc74ad1d63a6210d1b17b925618451b493d2610a1a'}
 NAMES = ('CMakeLists.txt', 'extension.c', 'check_extension.py', 'expected.txt', 'LICENSE')
 ORIGINAL, EDITED = b'Compiled Python version one\n', b'Compiled Python version two\n'
 

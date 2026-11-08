@@ -51,8 +51,8 @@
       "sha256": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24"
     },
     "scripts/checks/package_checks.py": {
-      "bytes": 17706,
-      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
+      "bytes": 19289,
+      "sha256": "314e8b4a0920b3f6d93619fc74ad1d63a6210d1b17b925618451b493d2610a1a"
     },
     "scripts/ci/desktop-file-manager-workflow/README.md": {
       "bytes": 4956,
@@ -104,7 +104,7 @@
     },
     "scripts/ci/desktop-file-manager-workflow/source-pins.json": {
       "bytes": 3457,
-      "sha256": "04047b75f5932570ae135a4f1957fd7f98ace463d522959249805ae9520dec26"
+      "sha256": "c622691a22279d526747ef140ea54f68fa6bff2100b7e5ce180547304b4d596f"
     },
     "scripts/ci/desktop-file-manager-workflow/test_workflow.py": {
       "bytes": 9843,
@@ -218,7 +218,7 @@
     },
     "source-pins.json": {
       "bytes": 3457,
-      "sha256": "04047b75f5932570ae135a4f1957fd7f98ace463d522959249805ae9520dec26"
+      "sha256": "c622691a22279d526747ef140ea54f68fa6bff2100b7e5ce180547304b4d596f"
     },
     "test_desktop574_runtime.py": {
       "bytes": 12245,

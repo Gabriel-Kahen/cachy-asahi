@@ -170,6 +170,13 @@ jobs:
           command -v bwrap
           test -x /usr/bin/python3
           # The corrected fixture preserves real host /lib and optional /lib64; no host-layout mutation.
+      - name: Checkout exact historical validator Source basis
+        if: matrix.component == 'pgo-source'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 97f44c9e275b8d6446ae2d5aa99f1c413e884c64
+          path: .ci-inputs/historical-inventory-input-basis
+          persist-credentials: false
       - name: Run exact focused component suite
         env:
           COMPONENT: ${{ matrix.component }}
@@ -184,7 +191,7 @@ jobs:
             app-inputs) suite=scripts/workflows/test_desktop_application_inputs.py ;;
             python-extension) suite=tests/workflows/test_python_extension.py ;;
             app-runtime) suite=scripts/workflows/test_desktop_application_runtime.py ;;
-            pgo-source) suite=scripts/experiments/test_zlib_pgo102.py ;;
+            pgo-source) suite="$GITHUB_WORKSPACE/.ci-inputs/historical-inventory-input-basis/scripts/experiments/test_zlib_pgo102.py" ;;
             app-window) suite=scripts/workflows/test_desktop_application_window_lifecycle.py ;;
             mirror-builder) suite=scripts/build/test_mirror_consumer.py ;;
             python) suite=tests/workflows/test_python_development.py ;;

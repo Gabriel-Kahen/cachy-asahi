@@ -13,7 +13,7 @@
   "scripts/build/build.py": "e520b37e5dfc285914203cfab99daecc80543505fef7ded6704b3fb06f001d45",
   "scripts/build/container-entry.sh": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24",
   "scripts/integration/desktop.py": "5320a10a198c9fad4650b7f5d5f510e63ec702e32a3c0dccffe19593892ae15a",
-  "scripts/checks/package_checks.py": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8",
+  "scripts/checks/package_checks.py": "314e8b4a0920b3f6d93619fc74ad1d63a6210d1b17b925618451b493d2610a1a",
   "packages/desktop/cachy-asahi-hyprland-settings/.SRCINFO": "6c2fd7e245f5ac15627ebef3fe34f7b5f6120b310055e9e934708c06c2126419",
   "packages/desktop/cachy-asahi-hyprland-settings/LICENSE": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
   "packages/desktop/cachy-asahi-hyprland-settings/NOTICE": "0c8c331ce87a95b154e0e83c358a5cafc39bf08f2129ecc5be2438c6a97a325c",
@@ -29,5 +29,5 @@
   "scripts/ci/desktop-user-session/prepare.py": "a70885622a36fe1ba764ea7d0846933b639ef04dc3c532598fb92ceb73ffe00b",
   "scripts/ci/desktop-user-session/managed_session.py": "2187c47b3f5877d8585c66c806b0c5dd17efc38cee414c46bc746157f3c4d991",
   "scripts/ci/desktop-user-session/managed_contract.py": "0f6c7566afd2ffb4e283b7f2edd36433e13cca873c60e5d68a46afbd3c2d4218",
-  "scripts/ci/desktop-user-session/source-pins.json": "b5e4df112c8a9ade746b6a60cafa68e5a58226a1f13280d0725b9e5175a7686d"
+  "scripts/ci/desktop-user-session/source-pins.json": "a118870422cde1138c0469c32c02b92f0b08321f13d1f82856fcf07df7e23ba5"
 }

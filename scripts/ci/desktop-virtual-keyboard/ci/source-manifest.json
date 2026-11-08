@@ -51,8 +51,8 @@
       "sha256": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24"
     },
     "scripts/checks/package_checks.py": {
-      "bytes": 17706,
-      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
+      "bytes": 19289,
+      "sha256": "314e8b4a0920b3f6d93619fc74ad1d63a6210d1b17b925618451b493d2610a1a"
     },
     "scripts/ci/desktop-user-session/prepare.py": {
       "bytes": 6300,
@@ -116,7 +116,7 @@
     },
     "scripts/ci/desktop-virtual-keyboard/source-pins.json": {
       "bytes": 3464,
-      "sha256": "fc43c9410c0c749a52044d79e6e26b5439ca033d9e1c1b94813affc940ecd3af"
+      "sha256": "93b590bd473c6536c64809606051a653e6d9a0cb4ad46ab9cadb2248c7a36511"
     },
     "scripts/ci/desktop-virtual-keyboard/terminal_session.py": {
       "bytes": 8051,
@@ -258,7 +258,7 @@
     },
     "source-pins.json": {
       "bytes": 3464,
-      "sha256": "fc43c9410c0c749a52044d79e6e26b5439ca033d9e1c1b94813affc940ecd3af"
+      "sha256": "93b590bd473c6536c64809606051a653e6d9a0cb4ad46ab9cadb2248c7a36511"
     },
     "terminal_session.py": {
       "bytes": 8051,
