@@ -1061,14 +1061,17 @@ selected_for_release = false
 archive_bytes = 81480
 archive_sha256 = "4f6673ccf6170305f4c8e145a6038e77608d6be055daec3029337440eedb4be2"
 host_validation = "PASS19 focused real TEST-GPG/filesystem/moved CLI/privacy/refusal/legacy and actual-v3 private file-inverse controls; makepkg verifysource and cleanbuild --nodeps --nosign including check() PASS; exact31 local source pins/17 retained runtime files/23 installed payload files and modes. Actual unsigned any host archive inspected and relocated; two real TEST-GPG CLI withdrawal roundtrip/stable refusal controls PASS. Exact merged PR396 transport and unchanged seven helper closure; legacy commands retained."
-native_build = "NOT RUN"
-installation = "NOT RUN; private package staging, exact actual archive extraction, moved CLI and file ownership inverse only; no ALPM or installed target lifecycle"
+native_build = "PASS finite native ARM component: one makepkg build per version (0.1.0-1 and 0.4.0-1), with actual check13/19; repeat-build byte reproducibility for 0.4 NOT ESTABLISHED"
+installation = "PASS owned native ARM image-stage Required/Required TEST-signed install0.1 -> upgrade0.4 -> all8 /usr and moved-prefix CLI -> downgrade0.1 -> remove; exact349 restoration, payload12/23/12/0, ALPM ownership/reasons, trust/config/exports and owned retirement. Supported Asahi/M2 target installation NOT RUN"
 hardware_validation = "NOT RUN"
 performance = "NOT MEASURED"
 release = "NOT ADMITTED"
-validation_record = "packages/tools/cachy-asahi-release-tools-v4/README.md"
-next_step = "Qualify dependency resolution (host build used --nodeps), native ARM/16K and disposable signed ALPM lifecycle before target selection. Physical M2, production signing and release acceptance remain separate. Positive stable API fixtures model only the existing hardware gate; real installed CLI stable refusal remains enforced."
+validation_record = "docs/validation/release-tools04-native-20261108.md"
+next_step = "Qualify repeated clean 0.4 builds and reproducibility, native16K and supported Asahi/M2 target installation/hardware before selection. Production trust/signing, performance and release acceptance remain separate; preserve this finite component result and historical0.1-0.3 evidence."
 
+installation_evidence = "docs/validation/release-tools04-native-20261108.md"
+native_build_commit = "f94c4ce6123468d1f991fc83fcba9090280b369d"
+native_evidence = "docs/validation/release-tools04-native-20261108.md"
 
 [[packages]]
 name = "cachy-asahi-recovery-tools"
