@@ -20,7 +20,12 @@ availability. Source URLs are original package metadata, not fetched source tree
 
 The default profile requires the complete packaged `usr/lib/python3.14/`, including
 all extensions. The explicitly named `finite-headless-namespace-v1` profile permits
-only pinned `_tkinter`, tkinter, turtle, turtledemo and idlelib exclusions. Every
+pinned `_tkinter`, tkinter, turtle, turtledemo and idlelib exclusions, plus one
+exact build-DATA exception: `config-3.14-aarch64-linux-gnu/python.o` under the
+stdlib prefix, exactly 1480 bytes/SHA256
+`f23e0477f0b8035aea1692221ddb6f42f420d138348221c406f725cd5c2bc26b`.
+The finite probe never links this object; its controller requires load segments
+for every included ELF. This does not permit other objects or an ET_REL skip. Every
 excluded path records its original Python package, member, size, hash, mode and
 reason; arbitrary exclusions and automatic missing-library skipping are refused.
 The finite probe sources are pinned, their AST imports must exactly match the
@@ -71,9 +76,11 @@ null. Root owns qualification, admission and any subsequent runtime trial.
 
 The original full-stdlib plan remains preserved with its Tcl/Tk closure failure;
 neither Tcl nor Tk exists in frozen349. The headless profile explicitly excludes
-412 unused GUI files and retains 2535 regular files, with every included runtime
+412 unused GUI files and the exact build object, retaining 2534 regular files, with every included runtime
 ELF and interpreter closed. It does not support Tk/GUI or claim full Python package
 coverage. `retained-inputs.json` records the package identities, exact exclusions,
-probe-source pins and both plan identities, separately from any Root qualification
-descriptor. Actual DATA assembly produced a 101601280-byte uncompressed tar; this
-does not qualify imports, 16K-page execution, namespace behavior or hardware.
+probe-source pins and retained plan identities, separately from any Root qualification
+descriptor. The original 2535-file payload and actual-controller refusal remain
+preserved. Fresh assembly and the actual controller's payload/ELF preflight are
+DATA checks; they do not qualify imports, guest execution, namespace behavior or
+hardware.

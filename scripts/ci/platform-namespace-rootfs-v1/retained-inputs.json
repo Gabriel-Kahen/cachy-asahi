@@ -2,8 +2,8 @@
   "actual": null,
   "corresponding_source_availability": "NOT_ASSERTED",
   "full_plan": {
-    "bytes": 1074940,
-    "sha256": "a624dfc3c4486d51870feecc90ca1c587a344e56dd9b6ca4b5f6ff86555244a5"
+    "bytes": 1075123,
+    "sha256": "ff5cd2379674bbaeb23424ff06c630e28e870e57800e2a67855b82f62db92208"
   },
   "lock": {
     "bytes": 6800,
@@ -2152,6 +2152,12 @@
       "version": "1.5.7-3"
     }
   ],
+  "previous_headless_plan": {
+    "bytes": 1074940,
+    "controller401_refusal": "ELF headers on config-3.14-aarch64-linux-gnu/python.o",
+    "included_files": 2535,
+    "sha256": "a624dfc3c4486d51870feecc90ca1c587a344e56dd9b6ca4b5f6ff86555244a5"
+  },
   "python_profile": {
     "excluded": [
       {
@@ -5861,6 +5867,15 @@
         "path": "usr/lib/python3.14/turtledemo/yinyang.py",
         "reason": "Explicit finite-headless-namespace-v1 scope: turtledemo_resources; GUI coverage NOT_CLAIMED",
         "sha256": "7ed2d74aeacd701f8721c1a62200bef1dafffc1d88b82a43fe0b4454de4abda1"
+      },
+      {
+        "bytes": 1480,
+        "member": "usr/lib/python3.14/config-3.14-aarch64-linux-gnu/python.o",
+        "mode": 420,
+        "package": "python",
+        "path": "usr/lib/python3.14/config-3.14-aarch64-linux-gnu/python.o",
+        "reason": "Explicit unused CPython build/link object exclusion: incompatible with finite PR401 loadable ELF contract; no runtime or general object exception",
+        "sha256": "f23e0477f0b8035aea1692221ddb6f42f420d138348221c406f725cd5c2bc26b"
       }
     ],
     "name": "finite-headless-namespace-v1",
@@ -5916,6 +5931,6 @@
   },
   "runtime": "NOT_RUN",
   "schema": 1,
-  "signature_authentication": "NOT_RUN",
+  "signature_authentication": "Historical evidence plus separately retained fresh SQLite3534 addendum",
   "status": "FINITE_HEADLESS_RETAINED_INPUT_PINS"
 }

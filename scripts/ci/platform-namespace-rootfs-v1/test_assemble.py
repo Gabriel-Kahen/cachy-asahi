@@ -27,6 +27,10 @@ LOCK_Z85 = 'c-oCw*^;9;)4i{!@O=dYo40wH2>}AD&DN6eQcwS#lLG9XnZN44=x8fbNU6+|YpK#{(?!
 LOCK_RAW = zlib.decompress(base64.b85decode(LOCK_Z85))
 assert len(LOCK_RAW) == A.LOCK['bytes'] and A.digest(LOCK_RAW) == A.LOCK['sha256']
 
+# Exact retained unused CPython ET_REL object DATA; never executed or linked.
+BUILD_OBJECT_RAW = zlib.decompress(base64.b85decode('c-o~?O-sW-5S_%YidCw3P!x?Qs9=|*S}k6zinfPZq#$^auxVFYG>s%%Y`u8!(xX4coBj+>;$QJ*+DvG>O^N7(?CiYE<jrJupH6b8vLt~I3ErUNb&!=i`!udoFbOe$mzbRX26_1tGRMdJ%0|()9EV%hT|A#rG?GXWm24+<ZAVQci^)wz+a(&&l!ThtRd=>k@0&4S|FHnW^(AQ`y4>dGkdLB0Ty+=9s8P|c8Ra#b>9ktXjS6?#bxR;a7=~cDkMnx&=RGC@vjRWnJ~MJBKH6ntL85DQSSx`^D^)me=tm9CoU@iAV9zaNq)#6pCGd-AM<nQ-7jYUUr-o~}?b))w<E+kslqjb_495Xtvpd>m-C%0-+C7k>Wtyz&hE*-jNG5*~cV886F_x9}Ynz%3$YJ4(P|od&QFA+ie`5h>Fe>or0rBD)T|sW>kNNBEDgQlR3#mUU@QUDX;jBfyCJNy-feDO@pzq(01JqZA{G5NT2GsA{Y(P&fJpZ!)E9Au6*F?J^@Dahk9MJ!})Z6C-=8FB_c(c0~>wNXEUr7BywYTtv_N8l%LH~a|;Ow+eMxpr-{pkVu9~k%$lK%r2eOui'))
+assert len(BUILD_OBJECT_RAW) == 1480 and A.digest(BUILD_OBJECT_RAW) == 'f23e0477f0b8035aea1692221ddb6f42f420d138348221c406f725cd5c2bc26b'
+
 
 def elf(*, needed=(), soname=None, static=False):
     """Inert ELF structure based on adjacent auditor's synthetic fixture layout."""
@@ -374,6 +378,54 @@ class AssemblyControls(unittest.TestCase):
             changed['required_modules']=required
             with self.subTest(source=source),self.assertRaisesRegex(ValueError,message):
                 A.headless_profile(changed,self.root,packages,files)
+
+    def object_exception_fixture(self, object_raw=BUILD_OBJECT_RAW):
+        profile,packages,files,probe=self.headless_fixture()
+        gui=profile['excluded'][0]['path'];gui_raw,gui_mode,_=packages['python'].resolve(gui)
+        packages={'python':self.package([row(gui,gui_raw,gui_mode),
+            row('usr/lib/python3.14/os.py',files['usr/lib/python3.14/os.py']['raw']),
+            row(A.BUILD_OBJECT,object_raw)])}
+        profile['excluded'].append(dict(path=A.BUILD_OBJECT,package='python',member=A.BUILD_OBJECT,
+            bytes=1480,sha256='f23e0477f0b8035aea1692221ddb6f42f420d138348221c406f725cd5c2bc26b',
+            mode=0o644,reason='Explicit exact unused CPython build/link object; SYNTHETIC DATA control'))
+        return profile,packages,files,probe
+
+    def test_exact_retained_1480_byte_build_object_exclusion_passes(self):
+        self.assertEqual(A.BUILD_OBJECT,'usr/lib/python3.14/config-3.14-aarch64-linux-gnu/python.o')
+        self.assertEqual(A.BUILD_OBJECT_PIN,dict(bytes=1480,mode=0o644,
+            sha256='f23e0477f0b8035aea1692221ddb6f42f420d138348221c406f725cd5c2bc26b'))
+        profile,packages,files,_=self.object_exception_fixture();before=copy.deepcopy(files)
+        excluded,_=A.headless_profile(profile,self.root,packages,files)
+        self.assertIn(A.BUILD_OBJECT,excluded)
+        self.assertEqual(files,before)
+        self.assertEqual(A.audit_closure(files,roots=['busybox'])['status'],'PASS_STATIC_AARCH64_ELF_DEPENDENCY_CLOSURE')
+
+    def test_build_object_other_path_or_pin_variation_refuses_before_archive_join(self):
+        profile,packages,files,_=self.object_exception_fixture()
+        variants=[]
+        for path in ('usr/lib/python3.14/config-3.14-aarch64-linux-gnu/other.o',
+                     'usr/lib/python3.14/config-3.13-aarch64-linux-gnu/python.o',
+                     'usr/lib/python3.14/python.o'):
+            changed=copy.deepcopy(profile);changed['excluded'][-1].update(path=path,member=path)
+            variants.append((changed,'only declared unused Tk/GUI'))
+        for field,value in (('bytes',1479),('bytes',1481),('sha256','0'*64),('mode',0o755)):
+            changed=copy.deepcopy(profile);changed['excluded'][-1][field]=value
+            variants.append((changed,'exact finite headless build object pin required'))
+        for changed,message in variants:
+            # Test object validation first; the earlier GUI row is independently valid.
+            changed['excluded']=[changed['excluded'][-1]]
+            with self.subTest(excluded=changed['excluded']),mock.patch.object(packages['python'],'resolve',side_effect=AssertionError('unapproved object reached archive join')):
+                with self.assertRaisesRegex(ValueError,message):A.headless_profile(changed,self.root,packages,files)
+
+    def test_build_object_exception_rejoins_original_bytes_and_keeps_runtime_elf_strict(self):
+        changed=bytes([BUILD_OBJECT_RAW[0]^1])+BUILD_OBJECT_RAW[1:]
+        profile,packages,files,_=self.object_exception_fixture(changed)
+        with self.assertRaisesRegex(ValueError,'exclusion pin mismatch'):
+            A.headless_profile(profile,self.root,packages,files)
+        profile,packages,files,_=self.object_exception_fixture()
+        A.headless_profile(profile,self.root,packages,files)
+        files.pop('usr/lib/libdemo.so.1')
+        with self.assertRaisesRegex(ValueError,'libdemo.so.1'):A.audit_closure(files,roots=['busybox'])
 
     def test_plan_identity_metadata_pin_and_file_binding_refuse_before_output(self):
         original = self.fixture_plan()
