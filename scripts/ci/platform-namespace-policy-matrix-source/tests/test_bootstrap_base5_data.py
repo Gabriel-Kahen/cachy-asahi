@@ -90,6 +90,15 @@ class BootstrapBase5Data(unittest.TestCase):
         self.assertFalse(base_names & package_names)
         self.assertTrue(all(r['url'].startswith('https://') for r in base))
 
+    def test_full201_fixture_retains_explicit_git_modes(self):
+        rows = json.loads((F / 'tests/fixtures/source-full-map.json').read_bytes())
+        self.assertEqual(len(rows), 201)
+        for name, row in rows.items():
+            with self.subTest(path=name):
+                self.assertEqual(set(row), {'bytes', 'sha256', 'mode', 'blob', 'git_mode'})
+                self.assertIn(row['mode'], (420, 493))
+                self.assertEqual(row['git_mode'], '100755' if row['mode'] == 493 else '100644')
+
     def test_package_callback_stays_cache_only_before_unchanged_signed248_audit(self):
         calls = [n for n in ast.walk(self.owner_run) if isinstance(n, ast.Call)
                  and isinstance(n.func, ast.Name) and n.func.id == 'bind_fetch']

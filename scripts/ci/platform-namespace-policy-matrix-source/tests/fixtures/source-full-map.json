@@ -856,6 +856,7 @@
   "native/owner.py": {
     "blob": "c37f01678e4adb7135c29a11460ff9dcabf98a29",
     "bytes": 29588,
+    "git_mode": "100644",
     "mode": 420,
     "sha256": "45b40b5c48749ab3d7016fbe18a32b5a9cfdfed8fd751900f8322b3d4c563e49"
   },
@@ -988,6 +989,7 @@
   "native/source-map.json": {
     "blob": "54d952f14a99317acda1da8af610ce6d492d1b71",
     "bytes": 40001,
+    "git_mode": "100644",
     "mode": 420,
     "sha256": "4c5867ae736e65ac4c9583c8547c44d64508ef1256ef702c740cd51c83808624"
   },
