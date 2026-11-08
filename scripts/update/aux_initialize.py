@@ -352,6 +352,23 @@ def _initializer_hash_api(original_roots, state, clock=None):
             if sys.exception() is None: state.progress(end)
     return file_hash
 
+def _initializer_relative_api(module):
+    """Exact canonical POSIX text fast path; uncertain text runs the full original."""
+    import ast
+    text = Path(module.__file__).read_text()
+    nodes = [n for n in ast.parse(text).body if isinstance(n, ast.FunctionDef) and n.name == 'relative']
+    if (len(nodes) != 1 or hashlib.sha256(ast.get_source_segment(text, nodes[0]).encode()).hexdigest()
+            != '486c47ebbe2e6cfc392bde908003baf7559fd70d2f6ed17684f2ba34340fac41'):
+        raise ValueError('whole original initializer relative validator source')
+    original = module.relative
+    if os.name != 'posix': return original
+    def relative(value):
+        # Text only: no path observations, strings, hashes or successful results are retained.
+        if type(value) is str and value and '\0' not in value and all(p not in ('', '.', '..') for p in value.split('/')):
+            return value
+        return original(value)
+    return relative
+
 def _initializer_facade(namespace,state,marker):
     import types,contextlib
     original_roots=namespace['roots'];original_copy=namespace['copy'];original_aux=namespace['aux']
@@ -368,7 +385,9 @@ def _initializer_facade(namespace,state,marker):
             if sys.exception()is None:state.progress(end)
     file_hash = _initializer_hash_api(original_roots, state)
     root._mount_id=mount;root._file_hash=file_hash
-    root_space=dict(vars(original_roots),_mount_id=mount,_file_hash=file_hash)
+    root.installer=types.SimpleNamespace(**vars(original_roots.installer))
+    root.installer.relative=_initializer_relative_api(original_roots.installer)
+    root_space=dict(vars(original_roots),_mount_id=mount,_file_hash=file_hash,installer=root.installer)
     for name in ('observe','_projected_paths','_path_set','_group_graph','check_hardlink_preservation'):
         if hasattr(original_roots,name):root_space[name]=_initializer_clone(getattr(original_roots,name),root_space)
     for name in ('observe','_projected_paths','_path_set','_group_graph','check_hardlink_preservation'):
