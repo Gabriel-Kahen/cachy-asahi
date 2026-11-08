@@ -1,0 +1,6 @@
+tree bcf78785cd46a2acc75c772f9f6ba21f7bd831b0
+parent 7d11efd7c15026d0480eaf58657dc3b0c1ad4bd8
+author Gabriel Kahen <93809974+Gabriel-Kahen@users.noreply.github.com> 1794139418 -0500
+committer Gabriel Kahen <93809974+Gabriel-Kahen@users.noreply.github.com> 1794139418 -0500
+
+Recover exact Release rootfs transport once while retaining strict signed inputs

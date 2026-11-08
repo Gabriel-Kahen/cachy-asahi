@@ -1,0 +1,58 @@
+{
+  "native/release_alpm_v1.py": {
+    "build_recipes": "8b0e5d504d533598f1108d7706fea47529496feab594db7214b4a15365bac3ca",
+    "dockerfile": "80e0a6880d89d304dfea7fb9c95b585cf9a73619cd6e12d6405743df04cae9cf",
+    "export": "f111cdb9e77aed20978bfa55991f59391a51d3ed336ccbc19d52d94d728095ef",
+    "inside": "140948102052dfa5db9f0af62c4b35ca7a81585dc2644db246b892880a804841",
+    "prepare": "61db2f29ed9bd8519f35bc2e4d873bfe510b01be584fe33923e79ca23bb23506",
+    "primary_failure": "28368847dd598b35d03f83d20cff017f5fa4eeb53cf628ee6c9de7eee4bd5325",
+    "retire_homes": "8b05543787f3796eb90bd19e420b46d977b7889670759f9a3d8679bf29dfc699",
+    "strict_signature": "dcffb7dcb3c9f136acd783179096a061d250a1f23a8a6bceed950de00e41bde5",
+    "test_config": "73adc9be0661ac7751e64105a43be734e0f35c5cf62d883e28fa48b7c9e68548"
+  },
+  "native/release_projection_v1.py": {
+    "_names": "900a392351fd17ff29fac03debdfae8a9d79551c0efe7b89531acd7c1b191ecc",
+    "_pin": "281c40c7259a3e131dee3e2a060a7b442b73bebd895165f51310548809f369c2",
+    "_project": "b8ab796e45d858e3868fa3e573d04f28ba852246226680653bb62a4fe563b5b9",
+    "_read": "d1399a57a2bf04e211361bbc606a64fe12a2c62f599cd434cf84181f915fbed5",
+    "project": "b4a080f7420cbd85d5f3a52533d21898323b226153a218a4f1b88ba7c0b3891f"
+  },
+  "native/release_reader_v1.py": {
+    "bound_build_summary": "14d1f1e53c728f18aa38552ee05eebd4f3689fa66fe3e3a194c63063101618e6",
+    "build_summary_document": "5f5b8e5e1a193817e817818fab7e406ccba9e6a9dfb9c0a016861f7f2e778831",
+    "release_contract": "cb46636f6733d9fc5eb80878057dd131fd4e48fb9098b509402ec0bbf146b9bb",
+    "retained_191_provision_projection": "9bd488f5b68ce46385eae38a6eddb214823d6b8643dffbafad88992ab9fb5ca9",
+    "retained_build_summary": "19e901234e656afd2bd9c11b391636bb17442c3474e78434bae044f2ba77fab1",
+    "retained_consumer_diagnostic": "81b09982b4b05c69a4e71f9ef02099c877cb8a6a4f941dfb591ada4ad885b0af",
+    "retained_failure_data": "8e56b78048bb17c4e2771036218e6c6b871213c4fc0d48841e92560bbb267adf",
+    "retained_image_lifecycle": "7bf1d9c59a5336a2cba5b08fcd6bccfa587b7609fcfa6a650c01518a2a98af9f",
+    "retained_public_projection": "c54906539b52d5c15731580198bf96abdd4d4893742d90e343c9b1dbe5b6586a",
+    "retained_release_alpm": "76975d5324dbfc0ea4eeab5a302631c73042aa6c7a6300de6eee2147031226a7",
+    "retained_release_build_cause": "9b8069ef50fdb5e0fd23975c21c5be833588ceeed93ed57549af3dcdb81fd44a",
+    "retained_safe_diagnostic": "46fa7bc7e4bc8f51c287d2843061418ae7c8591e72938f136536afa326210440",
+    "retained_transport_diagnostic": "d72b1e2d23591acb0534fdee3043ccb9bb13ee88258c96fd2a7161b0b71eccf6",
+    "retained_transport_proof": "3f52572a12761cc3b37bd2179e1acfa6671bdfe1d78585bf9c89e1defdb6e68e",
+    "strict_test_signature": "b63949027318991c91a89c8adf049132df0a926c5787ed73d0e3b6bd4412ad40",
+    "validate": "9f36a55bf4283a2e9fa07ffc4fe03664a24f3d84d866abc754dce9288129f4d9"
+  },
+  "native/release_tools_v1.py": {
+    "business": "cd8692fa71267a2b6274d1db4d064752c45d9ad7979a047c66aa2ea5551e24e7",
+    "check_payload": "66b602020b1dad223ebadd509e7c51c321589ad2937f8ac4462c20bdb7d5ea89",
+    "data_pin": "88903429ffe6222aebac2e8ad72fe1489a24bc74294c64aad19392cc5bfcd438",
+    "encoded": "cb163dbf9e7ba0f0a70aee916e449de59484bcfc68a49c249e0a69637984808d",
+    "extract_recipes": "8a54ce9c880d512eac7b3bd23e09659b1bdea5a29a1550f9ea5e206283cea6c6",
+    "fixture_release": "c8e32d5df977ba0ae0beb092484efef2b3d6299eae6382fbe1ca9532c3901936",
+    "inventory_expected": "bb76db203d9b59ad97c62f0e9d4035cab0f1ba76b64fc1c841e0796fc638c42a",
+    "load_workflow": "6c1377902760aa6352d4d582f3505e51c342db7282d218df4f93b915f2c65e57",
+    "need": "7545a250fa32233e5e0b555cd89cce666373fa59527e9a208b35b8832b199610",
+    "ordinary": "3a0f1fd7f7bf57ae72fb0620859a89bd92fb7c283f57202721c6f295da76e4bb",
+    "own_user_tree": "d683ff06931eee5d92502780f8b72a65f192d7b7e586ffcb534a98a315538e5e",
+    "pin": "a6b45468a4f98b79f74bf125160a222d66d90c1f26b634e106ef9f71f729947f",
+    "recipe_members": "27fc6fc8df399b8f60f2833a4f34ff6710691c37cc761ba7009cded1742fe366",
+    "snapshot": "be56b2430c3a4046837b9df6ac04385db70f49548136689c423a758742cf126b",
+    "snapshot_receipt": "d4859c87d897f5e676a4fdc57145cb4d825df86e18ba555c7921b056eb085275",
+    "source_policy": "0c27de2d0aacf4b3289c4d0c013fbe4f3625a780411d87863c39e9eaef04acf8",
+    "tar_bytes": "945647a240689e06eeadb2ef36b517adab41bd5151f775cc647f2cdc84a06ebd",
+    "topmem_sources": "b9c1a612e0f834a5e331a1ccc5dc1bba67d368cd25743db7387f07c3c403b847"
+  }
+}
