@@ -2,12 +2,25 @@
 # SPDX-License-Identifier: MIT
 """Root-only once Source publication proposal; no actor on import."""
 import argparse
+import importlib.util
 import json
 import os
 from pathlib import Path
 import re
 import subprocess
-import prepare as P
+
+
+def load_sibling_prepare():
+    path = Path(__file__).resolve().with_name('prepare.py')
+    spec = importlib.util.spec_from_file_location('_desktop_current011_prepare', path)
+    if spec is None or spec.loader is None:
+        raise ImportError('cannot load sibling prepare module: ' + str(path))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+P = load_sibling_prepare()
 
 REF = 'refs/heads/codex/native-desktop-current011-owned-v2-v1'
 EMAIL = '93809974+Gabriel-Kahen@users.noreply.github.com'
