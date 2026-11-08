@@ -17,17 +17,19 @@ jobs:
     timeout-minutes: 10
     env:
       PYTHONDONTWRITEBYTECODE: '1'
-      EXPECTED_PARENT: 05df8c71ea2bcb525bb1cfbc59983452062a1e97
+      HISTORICAL_PARENT: 05df8c71ea2bcb525bb1cfbc59983452062a1e97
+      EXPECTED_PARENT: 639e3f9b5176bf8ebe497fc0b247182af90904e7
+      EXPECTED_PARENT_TREE: 7e66e27a352cee19a3d022d8c167c43b9ab72804
       OVERLAY_MANIFEST_SHA256: ${{ inputs.overlay_manifest_sha256 }}
     steps:
       - name: Checkout reviewed maintained Source-only constructor
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
           persist-credentials: false
-      - name: Checkout exact actual05df parent Source
+      - name: Checkout current commit with held historical Source199 bodies
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
-          ref: 05df8c71ea2bcb525bb1cfbc59983452062a1e97
+          ref: 639e3f9b5176bf8ebe497fc0b247182af90904e7
           path: .ci-fixtures/platform-policy-parent05df
           persist-credentials: false
       - name: Construct exact Source201 DATA proposal only
@@ -38,6 +40,7 @@ jobs:
           factory="$GITHUB_WORKSPACE/scripts/ci/platform-namespace-policy-matrix-source"
           basis="$GITHUB_WORKSPACE/.ci-fixtures/platform-policy-parent05df"
           test "$(git -C "$basis" rev-parse HEAD)" = "$EXPECTED_PARENT"
+          test "$(git -C "$basis" rev-parse HEAD^{tree})" = "$EXPECTED_PARENT_TREE"
           stage=$(mktemp -d "$RUNNER_TEMP/platform-policy-source.XXXXXXXX")
           chmod 0700 "$stage"
           python3 -I -B "$factory/prepare.py" \

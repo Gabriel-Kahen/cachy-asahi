@@ -254,7 +254,11 @@ def emit(basis, overlay_root, overlay_manifest, manifest_sha256, output):
     with tempfile.TemporaryDirectory(prefix='.namespace-policy-source-', dir=parent) as temporary:
         staged = Path(temporary) / 'output'; staged.mkdir(mode=0o700)
         for name, (raw, mode) in sorted(bodies.items()):
-            target = staged / name; target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+            target = staged / name
+            directory = staged
+            for part in target.parent.relative_to(staged).parts:
+                directory /= part
+                directory.mkdir(mode=0o700, exist_ok=True)
             with target.open('xb') as stream:
                 need(stream.write(raw) == len(raw), 'whole Source DATA write'); stream.flush(); os.fsync(stream.fileno())
             target.chmod(mode)

@@ -15,19 +15,30 @@ permissions:
 jobs:
   owner-protocol-and-source-join:
     runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
     timeout-minutes: 10
     env:
       PYTHONDONTWRITEBYTECODE: '1'
+      HISTORICAL_PARENT: 05df8c71ea2bcb525bb1cfbc59983452062a1e97
+      EXPECTED_PARENT: 639e3f9b5176bf8ebe497fc0b247182af90904e7
+      EXPECTED_PARENT_TREE: 7e66e27a352cee19a3d022d8c167c43b9ab72804
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
           persist-credentials: false
-      - name: Checkout existing exact published Source199 basis
+      - name: Checkout current commit with held historical Source199 bodies
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
-          ref: 05df8c71ea2bcb525bb1cfbc59983452062a1e97
+          ref: 639e3f9b5176bf8ebe497fc0b247182af90904e7
           path: .ci-fixtures/platform-policy-parent05df
           persist-credentials: false
+      - name: Set up Python ${{ matrix.python }}
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
       - name: Exact twelve portable owner protocol DATA controls
         shell: bash
         run: |
@@ -35,12 +46,19 @@ jobs:
           test "$(uname -m)" = x86_64
           factory="$GITHUB_WORKSPACE/scripts/ci/platform-namespace-policy-matrix-source"
           basis="$GITHUB_WORKSPACE/.ci-fixtures/platform-policy-parent05df"
-          test "$(git -C "$basis" rev-parse HEAD)" = 05df8c71ea2bcb525bb1cfbc59983452062a1e97
+          test "$(git -C "$basis" rev-parse HEAD)" = "$EXPECTED_PARENT"
+          test "$(git -C "$basis" rev-parse HEAD^{tree})" = "$EXPECTED_PARENT_TREE"
           work=$(mktemp -d "$RUNNER_TEMP/platform-policy-host-data.XXXXXXXX")
           chmod 0700 "$work"
           printf 'PLATFORM_POLICY_HOST_WORK=%s\n' "$work" >> "$GITHUB_ENV"
           python3 -I -B "$factory/tests/test_owner_data.py" \
             --basis "$basis" --result "$work/owner-data-results.json"
+      - name: Source output directory permissions under portable umasks
+        shell: bash
+        run: |
+          set -euo pipefail
+          factory="$GITHUB_WORKSPACE/scripts/ci/platform-namespace-policy-matrix-source"
+          python3 -I -B "$factory/tests/test_source_directories.py"
       - name: Construct and independently join Source201 DATA only
         shell: bash
         run: |
