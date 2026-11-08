@@ -165,7 +165,7 @@ class BundleASTControls(unittest.TestCase):
 
 class PureSelectionControls(unittest.TestCase):
     def setUp(self):self.tree=parse('desktop_alpm_v1.py');self.base='FROM SYNTHETIC\nUSER alarm\nWORKDIR /tmp\n'
-    def dockerfile(self):return isolated(function(self.tree,'dockerfile'),dict(need=need,re=re))
+    def dockerfile(self):return isolated(function(self.tree,'dockerfile'),dict(need=need,re=re,json=json))
     def loader(self,raw=None,read_error=False):
         events=[];sentinel=object();raw=(NATIVE/'desktop_owned_process_v2.py').read_bytes()if raw is None else raw
         def ordinary(path,cap):
@@ -200,10 +200,17 @@ class PureSelectionControls(unittest.TestCase):
         expected=self.base[:-len('USER alarm\nWORKDIR /tmp\n')]+('COPY desktop-alpm-v1/source/ /opt/native-desktop-tools-alpm-v1/source/\n'
                  'RUN /usr/bin/python3 -I -B /opt/native-desktop-tools-alpm-v1/source/native/desktop_alpm_v1.py --inside-image --retain-failure-image --map-sha256 '+MAP+'\nUSER alarm\nWORKDIR /tmp\n')
         self.assertEqual(a,expected)
-    def test_explicit_dockerfile_adds_only_one_inner_optin(self):
-        fn=self.dockerfile();default=invoke(fn,self.base,MAP);selected=invoke(fn,self.base,MAP,owned_retirement_v2=True)
-        self.assertEqual(selected.count('--owned-retirement-v2'),1)
-        self.assertEqual(selected.replace(' --owned-retirement-v2',''),default)
+    def test_explicit_dockerfile_uses_versioned_pid1_json_layout(self):
+        fn=self.dockerfile();selected=invoke(fn,self.base,MAP,owned_retirement_v2=True)
+        self.assertTrue(selected.startswith(self.base[:-len('USER alarm\nWORKDIR /tmp\n')]))
+        runs=[line[4:] for line in selected.splitlines() if line.startswith('RUN ')]
+        self.assertEqual(len(runs),1);argv=json.loads(runs[0])
+        self.assertEqual(argv[:5],['/usr/bin/bash','--noprofile','--norc','-p','-c'])
+        self.assertEqual(len(argv),6)
+        self.assertEqual(argv[5], 'test "$$" -eq 1 || exit 125; /usr/bin/python3 -I -B /opt/native-desktop-tools-alpm-v1/source/native/desktop_alpm_v1.py --inside-image --retain-failure-image --owned-retirement-v2 --map-sha256 '+MAP+' & desktop_owner=$!; desktop_status=0; wait "$desktop_owner" || desktop_status=$?; exit "$desktop_status"')
+        self.assertEqual(json.loads((HERE/'profile.json').read_bytes())['reader_contract']['process_layout'],
+                         'bash-pid1-direct-python-child-v1')
+        self.assertTrue(selected.endswith('USER alarm\nWORKDIR /tmp\n'))
     def test_nonboolean_and_bad_map_or_suffix_refuse_as_pure_data(self):
         fn=self.dockerfile()
         for flag in (None,0,1,'true',[]):
@@ -276,14 +283,17 @@ class RoutingAndDefaultASTControls(unittest.TestCase):
         other=next(node for node in selected if node is not with_flag[0]);self.assertEqual(other.keywords,[])
         branches=[node for node in ast.walk(run)if isinstance(node,ast.If)and isinstance(node.test,ast.Name)and node.test.id=='owned_retirement_v2']
         self.assertTrue(any(with_flag[0]in calls(node)and other in [call for statement in node.orelse for call in calls(statement)]for node in branches))
-    def test_invocation_default_and_legacy_route_held_new_route_is_unqualified(self):
+    def test_invocation_default_and_legacy_route_held_new_route_is_explicit(self):
         value=json.loads((NATIVE/'invocation.json').read_bytes());operations=value['operations']
         self.assertEqual(operations['default'],'source184');self.assertNotIn('--desktop-owned-retirement-v2',value['argv'])
         self.assertEqual(value['actual'],dict(source=None,ref=None,run=None))
         self.assertEqual(operations['desktop-alpm-v1']['argv_extra'],['--operation','desktop-alpm-v1'])
         self.assertEqual(operations['desktop-alpm-v1']['matching_reader'],'native/desktop_reader_v1.py')
         selected=operations['desktop-alpm-owned-v2'];self.assertEqual(selected['argv_extra'],['--operation','desktop-alpm-v1','--desktop-owned-retirement-v2'])
-        self.assertIsNone(selected['matching_reader']);self.assertIn('QUALIFICATION_REQUIRED',selected['prerequisite'])
+        self.assertEqual(selected['matching_reader'],'native/desktop_reader_v1.py')
+        self.assertEqual(selected['reader_selection'],'desktop-owned-retirement-v2-reader-v1')
+        self.assertEqual(selected['reader_argv_extra'],['--retirement-selection','desktop-owned-retirement-v2-reader-v1'])
+        self.assertIn('ROOT_ACTUAL_SOURCE_REF_RUN_MAP_AND_AUTHENTICATED_ARTIFACT_BINDING_REQUIRED',selected['prerequisite'])
         self.assertEqual(selected['actual'],dict(source=None,ref=None,run=None))
     def test_workflow_aliases_preserve_false_default_and_guarded_owner_route(self):
         first=(PAYLOAD/'.github/workflows/native-arm-build.yml').read_text();second=(PAYLOAD/'.github/workflows/native-arm-developer-workflows.yml').read_text()
@@ -395,21 +405,20 @@ class FactoryProfileControls(unittest.TestCase):
             self.assertEqual(after,self.profile['after'][row['path']])
             self.assertEqual(stat.S_IMODE((HERE/row['candidate_body']).stat().st_mode),after['mode'])
         self.assertEqual(self.profile['runtime'],dict(**BUNDLE_PIN,mode=0o755))
-    def test_reader_and_projection_delta_changes_only_exact_producer_and_carrier_pins(self):
+    def test_reader_keeps_legacy_retirement_and_business_helpers_exact(self):
         delta={row['path']:row for row in self.profile['delta']}
-        before=delta['native/desktop_alpm_v1.py']['before']['sha256'].encode()
-        after=delta['native/desktop_alpm_v1.py']['after']['sha256'].encode()
-        self.assertEqual(before,b'94b0c96301a4a7985b758d6a36d50f597478a1a010cb794602d7a73d80da8dd3')
-        self.assertEqual(after,b'8651601d55ea799c57010c4a61fe8cdd40783175b38eac41d4d56855a488888e')
-        for name in ('native/desktop_reader_v1.py','native/desktop_projection_v1.py'):
-            row=delta[name];raw=(HERE/row['candidate_body']).read_bytes()
-            self.assertEqual(raw.count(after),1,name);self.assertNotIn(before,raw,name)
-            restored=raw.replace(after,before)
-            if name=='native/desktop_reader_v1.py':
-                restored=restored.replace(b'4659076d3a1d3e5cf87c185a3ff383fbc38e734d',b'ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad')
-                restored=restored.replace(b'47ea6a3f358922ad1d643bc2cbd517fe0335f5dbe1313a87af3d24396d5a39ea',b'4089fd798849cafda23d03c0dd95ac896a83fd63ad21e331ae420c147535586c')
-            self.assertEqual(pin(restored),{k:row['before'][k]for k in ('bytes','sha256')},name)
-            self.assertEqual(row['before']['mode'],row['after']['mode']);self.assertEqual(row['after']['mode'],0o644)
+        self.assertEqual(delta['native/desktop_alpm_v1.py']['before']['sha256'],
+                         '94b0c96301a4a7985b758d6a36d50f597478a1a010cb794602d7a73d80da8dd3')
+        self.assertEqual(delta['native/desktop_alpm_v1.py']['after']['sha256'],
+                         'bc5c84ae2abc21883507785b108101d5b0da964dde384c04e0c090478aeed8ca')
+        expected={'retained_failure_data': '8e56b78048bb17c4e2771036218e6c6b871213c4fc0d48841e92560bbb267adf', 'retained_image_lifecycle': '7bf1d9c59a5336a2cba5b08fcd6bccfa587b7609fcfa6a650c01518a2a98af9f', 'retained_consumer_diagnostic': '81b09982b4b05c69a4e71f9ef02099c877cb8a6a4f941dfb591ada4ad885b0af', 'desktop_archive_custody': 'd5b56ce7cc14308c483d8862225a96e70810bd6cf3d332ee6c0087706e741ca4', 'retained_group_census_diagnostics': 'e2e523ea96b04f881735864c6cedb349ec2f58a8d2b84b434d20f5617ca95873', 'retained_191_provision_projection': '9bd488f5b68ce46385eae38a6eddb214823d6b8643dffbafad88992ab9fb5ca9', 'build_summary_document': '5f5b8e5e1a193817e817818fab7e406ccba9e6a9dfb9c0a016861f7f2e778831', 'bound_build_summary': '14d1f1e53c728f18aa38552ee05eebd4f3689fa66fe3e3a194c63063101618e6', 'retained_build_summary': '19e901234e656afd2bd9c11b391636bb17442c3474e78434bae044f2ba77fab1', 'retained_safe_diagnostic': '46fa7bc7e4bc8f51c287d2843061418ae7c8591e72938f136536afa326210440', 'desktop_contract': '0aa0d987c13e14f6fec523107533efaabdfa8a4343af2f1456cf3af308184464', 'strict_test_signature': 'b63949027318991c91a89c8adf049132df0a926c5787ed73d0e3b6bd4412ad40', 'desktop_commands': '5f93cec7cae5c4a69f5031b5926d6695e28e9f3f02f74639db147e73120965f5', 'desktop_metadata': '6a08462cb0bf03b3d90eaa11ed759f6b163c4fa54377cd4727c75f77b13df0e0', 'desktop_update_source': 'bf6c4c9dded24f82e80cb12625714c9f5697a195b61bf09951868651d421517a', 'desktop_build_pair': '97b357b059eaafb93e0957b043f11dc2386dacc41f8f830f2fa2e3dda2a3073e', 'desktop_update_build': 'bcb3ef7e39e6e2aeb8c28267557a8b24266ea48cabeb4f07b6dead6c60985dee', 'desktop_restoration': '25bc2d92d55ce2e406b880af323eb0ca0bd463cc7cf263b059c0978be24524a5', 'exact_agent_absence': 'a34b174b3a34c86911c38e14edcd80f01ff589846c32e698636a728963ff69a1', 'desktop_business': 'e87281fc4a19cc19f2905bff6d39fdb5eacbf0fa3d2c0162d9403bff322721ca', 'retained_transport_diagnostic': 'd72b1e2d23591acb0534fdee3043ccb9bb13ee88258c96fd2a7161b0b71eccf6', 'retained_transport_proof': '3e58e891f95c8b329483bef92b16c2cfd6e6993e33e78e61a66c4cb860c1b929'}
+        tree=parse('desktop_reader_v1.py')
+        for name,sha in expected.items():
+            with self.subTest(legacy_function=name):self.assertEqual(ast_digest(function(tree,name)),sha)
+        for name in ('desktop_reader_v1.py','desktop_projection_v1.py'):
+            raw=(NATIVE/name).read_bytes()
+            self.assertEqual(raw.count(b'bc5c84ae2abc21883507785b108101d5b0da964dde384c04e0c090478aeed8ca'),1)
+            self.assertNotIn(b'94b0c96301a4a7985b758d6a36d50f597478a1a010cb794602d7a73d80da8dd3',raw)
     def test_proposed_map_is_full199_rows_for_full200_source_and_actuals_stay_null(self):
         delta={row['path']:row for row in self.profile['delta']}
         raw=(HERE/delta['native/source-map.json']['candidate_body']).read_bytes();mapping=json.loads(raw)
@@ -417,12 +426,12 @@ class FactoryProfileControls(unittest.TestCase):
         self.assertEqual(mapping['actual'],dict(source=None,ref=None,run=None))
         self.assertEqual(len(mapping['files']),199)
         self.assertEqual(mapping['files'],{name:{k:row[k]for k in ('bytes','sha256','mode')}for name,row in self.profile['after'].items()if name!='native/source-map.json'})
-    def test_unchanged_caps_finite_control_and_unqualified_component_reader_are_explicit(self):
+    def test_unchanged_caps_finite_control_and_reader_actual_binding_pending_are_explicit(self):
         d=self.profile
         self.assertEqual((d['MAX_FILE'],d['MAX_TOTAL']),(64*1024**2,96*1024**2))
         self.assertIs(d['constructor_invoked'],False);self.assertIs(d['Source_generated'],False)
         self.assertEqual(d['actual'],dict(source=None,ref=None,run=None,job=None,artifact=None))
-        self.assertEqual(d['admission'],dict(native_control='ROOT_ACCEPTED_FINITE_NATIVE_ARM4K_ADOPTED_ZERO_EXIT_CHILD_PROCESS_CONTROL',matching_reader='HELD_V2_COMPONENT_SCHEMA_PENDING_ROOT',
+        self.assertEqual(d['admission'],dict(native_control='ROOT_ACCEPTED_FINITE_NATIVE_ARM4K_ADOPTED_ZERO_EXIT_CHILD_PROCESS_CONTROL',matching_reader='IMPLEMENTED_V2_DATA_PROTOCOL_ROOT_ACTUAL_BINDING_PENDING',
                          producer_pins='EXACT_SOURCE_PRODUCER_PINS_ONLY',publication='ROOT_ONLY_NOT_AUTHORIZED_HERE'))
 
 
@@ -517,7 +526,7 @@ class PhysicalCarrierDATAControls(unittest.TestCase):
                                                                b'ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad')):
             with self.subTest(carrier_pin=pin(carrier)),self.assertRaises(ValueError):
                 invoke(self.validator(),self.bridge,self.raw,carrier)
-    def test_nine_carrier_corrections_are_exact_reversible_literal_changes(self):
+    def test_carrier_literal_inverses_and_versioned_reader_transport_seam_are_exact(self):
         names={'bootstrap/scripts/ci/setup6-retained-helpers/carrier-profile.json',
                'bootstrap/scripts/ci/setup6-retained-helpers/legacy-prefill-profile.json',
                'bootstrap/scripts/ci/setup6-retained-helpers/legacy_prefill.py',
@@ -529,11 +538,18 @@ class PhysicalCarrierDATAControls(unittest.TestCase):
         for name in sorted(names):
             raw=(PAYLOAD/name).read_bytes();restored=raw
             for current,old in substitutions:restored=restored.replace(current,old)
-            if name=='native/desktop_reader_v1.py':
-                restored=restored.replace(b'8651601d55ea799c57010c4a61fe8cdd40783175b38eac41d4d56855a488888e',
-                                          b'94b0c96301a4a7985b758d6a36d50f597478a1a010cb794602d7a73d80da8dd3')
             before=self.profile['before199'][name]
-            self.assertEqual(pin(restored),{k:before[k]for k in ('bytes','sha256')},name)
+            if name=='native/desktop_reader_v1.py':
+                # This leaf now also implements the versioned reader. Bind its
+                # carrier-only function instead of pretending the whole reader
+                # can still be restored using literal substitutions alone.
+                tree=ast.parse(restored)
+                seam=ast.get_source_segment(restored.decode(),function(tree,'retained_transport_proof')).encode()
+                self.assertEqual(pin(seam),{'bytes': 1434, 'sha256': 'e82e9ea58ef41cad81c5cd9ef0134e918d8db6c8dc19860827cab1a6d51ff85d'},name)
+                current_seam=ast.get_source_segment(raw.decode(),function(ast.parse(raw),'retained_transport_proof')).encode()
+                for current,old in substitutions[:2]:self.assertEqual(current_seam.count(current),1,name)
+            else:
+                self.assertEqual(pin(restored),{k:before[k]for k in ('bytes','sha256')},name)
             self.assertNotEqual(raw,restored,name)
             self.assertEqual(self.profile['after200'][name]['mode'],before['mode'])
         self.assertEqual(CAPABILITY_ATTEMPTS,[])

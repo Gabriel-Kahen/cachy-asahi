@@ -18,7 +18,7 @@ import tempfile
 
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
-PROFILE_SHA256 = '2481a9da27fb93806e390c1cc6ff74392ccbe38e8b53b8da58d6328332068732'
+PROFILE_SHA256 = '44cc421207ae3ba0c95773b659e0626e0ce099f574e193ea67114eb142a5dcf3'
 SELECTION = 'desktop-owned-retirement-v2'
 PARENT = '72bc639de295704b94901c03ac8acf7667ff6f9c'
 PARENT_TREE = '7af3afe8534967e635b741a80ad0b661dee19bae'
@@ -358,6 +358,7 @@ def stage_document(value):
                 source_map_sha256=value['output']['map_sha256'], map_sha256=value['output']['map_sha256'],
                 source_files=200, source_map_rows=199, map_rows=199, profile_sha256=PROFILE_SHA256,
                 actual=dict(NULL_ACTUAL), matching_reader=None, default_switch=False,
+                proposed_reader=dict(value['reader_contract'], admission='IMPLEMENTED_V2_DATA_PROTOCOL_ROOT_ACTUAL_BINDING_PENDING', actual_binding=dict(NULL_READER)),
                 native_control=dict(value['native_control'], scope='FINITE_ZERO_CHILD_ONLY_NO_NATIVE_LANE_ACCEPTANCE'),
                 physical_carrier=dict(current='4659076d3a1d3e5cf87c185a3ff383fbc38e734d',
                     tree='e21f947bac3afdfbd67e4e65c8234b35ae42b00f',

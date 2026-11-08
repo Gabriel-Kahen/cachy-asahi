@@ -77,3 +77,5 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Inspect pinned adapter and invoke pure DATA stubs only
         run: python -I -B scripts/ci/desktop-owned-v2-native-source/test_adapter_data.py
+      - run: python -I -B scripts/ci/desktop-owned-v2-native-source/test_strict_v2_data.py
+      - run: python -I -B scripts/ci/desktop-owned-v2-native-source/test_pid1_layout_data.py
