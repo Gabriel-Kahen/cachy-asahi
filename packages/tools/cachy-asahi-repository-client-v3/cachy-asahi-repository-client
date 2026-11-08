@@ -1,0 +1,7 @@
+#!/usr/bin/python3 -I
+# SPDX-License-Identifier: MIT
+"""Explicit maintained development client v3; no legacy caller is redirected."""
+from pathlib import Path
+import runpy
+helper=Path(__file__).absolute().parents[1]/'share/cachy-asahi/repository-runtime/scripts/client/client_v3.py'
+runpy.run_path(str(helper),run_name='__main__')

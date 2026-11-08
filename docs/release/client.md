@@ -2,18 +2,24 @@
 
 Status: implemented and tested locally with synthetic bundles and ephemeral TEST keys; native ARM client execution and production deployment **NOT RUN**. This wrapper adds a signed, expiring, sequenced metadata envelope around an existing release bundle. It is a foundation for R1/R5 repository and maintenance work toward the complete port, not completion of M3/M5/M8/M9 or A06/A08/A12/A15. Envelope schema1 and its target set remain unchanged. The optional source-delivery path below uses the companion release helper and existing evidence transport. Only `scope: development` is supported; stable/production scope is rejected with no override. It never installs packages, fetches a network resource, creates a key, imports a key, changes trust, publishes or satisfies hardware/promotion gates.
 
+## Current maintained client route
+
+The examples on this page select `client_v3.py`. It retains the v2 tilde-version support and rechecks the selected private state-directory pathname after verification and temporary-input cleanup, immediately before checkpoint commit. If the directory was removed, replaced, redirected through a symlink, or lost its required ownership/mode during verification, apply refuses before creating a checkpoint. Previously, a renamed directory could receive the checkpoint while its replacement at `--state-dir` remained empty. The inode check does not make pathname changes by the same user after that check impossible; the existing descriptor-relative atomic checkpoint commit and durability reporting remain unchanged.
+
+The opt-in `cachy-asahi-repository-client-v3` package supplies the explicit `cachy-asahi-repository-client` command with this implementation. It requires the unchanged `cachy-asahi-repository-runtime=0.1.0-1` release/source helpers. Substitute that command for `python3 scripts/client/client_v3.py` in the examples when using the reviewed package layout. Package selection remains opt-in; no existing Apps integration is silently redirected. The historical v1/v2 helpers, Runtime package, Apps7–15 recipes, and retained native sources keep their original identities and evidence. Old native results do not validate v3. The new state-binding controls use mocked cryptographic verification and real temporary filesystem operations; native build, installed ALPM lifecycle, actual GPG verification of v3 and hardware checks remain NOT RUN.
+
 ## Finite interface
 
-`python3 scripts/client/client.py build` reads an existing bundle and writes a new **unsigned** JSON envelope to an explicitly chosen, previously absent output file. Required arguments: `--bundle`, `--output`, `--namespace`, `--sequence`, `--issued-utc`, `--expires-utc`, `--signer`. The caller signs the exact resulting bytes separately with an explicitly selected external key; the source CLI supplies no signing command or identity.
+`python3 scripts/client/client_v3.py build` reads an existing bundle and writes a new **unsigned** JSON envelope to an explicitly chosen, previously absent output file. Required arguments: `--bundle`, `--output`, `--namespace`, `--sequence`, `--issued-utc`, `--expires-utc`, `--signer`. The caller signs the exact resulting bytes separately with an explicitly selected external key; the source CLI supplies no signing command or identity.
 
-`python3 scripts/client/client.py verify` requires `--bundle`, `--metadata`, `--signature`, `--public-keyring`, `--signer`, `--namespace`, and an existing private `--state-dir`. Verification is read-only with respect to that directory. `--apply` explicitly enables committing its checkpoint after all checks. `--minimum-sequence` optionally supplies an independently known sequence floor; default 1 is only a cold-start floor, not discovery of the latest release.
+`python3 scripts/client/client_v3.py verify` requires `--bundle`, `--metadata`, `--signature`, `--public-keyring`, `--signer`, `--namespace`, and an existing private `--state-dir`. Verification is read-only with respect to that directory. `--apply` explicitly enables committing its checkpoint after all checks. `--minimum-sequence` optionally supplies an independently known sequence floor; default 1 is only a cold-start floor, not discovery of the latest release.
 
 All supplied paths are absolute and must have no symlink components. Inputs are regular files with a single hard link; the existing bundle's ordinary repo-add aliases are not dereferenced as targets. The state directory must belong to the invoking user with mode 0700. The client takes a nonblocking cooperative flock on that directory inode, validates a private regular checkpoint, and atomically replaces it with a mode-0600 checkpoint only on explicit apply. No default home/keyring/package-manager paths are used. GPG works with a copied binary public keyring and private temporary home; neither the caller keyring nor its trust database is modified. Trust comes from the separately authenticated full primary fingerprint, not a Web-of-Trust assertion. GPG, Python 3.11+ and Linux directory flock/fsync behavior are required; nothing is downloaded or installed.
 
 Example development verification, with all inputs provisioned separately:
 
 ```sh
-python3 scripts/client/client.py verify \
+python3 scripts/client/client_v3.py verify \
   --bundle /absolute/local-storage/staging/ID \
   --metadata /absolute/reviewed/envelope.json \
   --signature /absolute/reviewed/envelope.json.sig \
@@ -30,7 +36,7 @@ Add `--apply` to commit only the private checkpoint. Exit 0 emits one JSON resul
 For an opted-in development bundle, `sources` uses the same required verification arguments and optional `--minimum-sequence` as `verify`. Also supply exact `--package`, `--version`, `--arch` (`any` or `aarch64`) and `--artifact-sha256`. It verifies the existing signatures, namespace, expiry and checkpoint/sequence rules before returning the package's typed source-delivery record. The record identifies the selected source bundle, notices, source map, recipe, existing review artifact and supplied review-status label. No source or notice file is executed or extracted.
 
 ```sh
-python3 scripts/client/client.py sources \
+python3 scripts/client/client_v3.py sources \
   --bundle /absolute/local-storage/staging/ID \
   --metadata /absolute/reviewed/envelope.json \
   --signature /absolute/reviewed/envelope.json.sig \
@@ -72,4 +78,4 @@ Time checks trust the local wall clock. Recording applied time catches some late
 
 The checks are informed by TUF's documented rollback/freeze threats, expiration/version checks and fixed update-start time; this reduced single-signer prototype omits its role/key lifecycle guarantees. [TUF specification](https://theupdateframework.github.io/specification/latest/). GPG status parsing follows the full `VALIDSIG` primary/subkey, digest and invalid-key status records. [GnuPG status definitions](https://github.com/gpg/gnupg/blob/master/doc/DETAILS).
 
-Run `python3 -B scripts/client/test_client.py`. Actual results and source hashes are recorded in [the workstream](../workstreams/release-client.md). Tests use temporary synthetic archives and explicit ephemeral TEST homes; the CLI itself never creates/imports keys. Native execution is deferred until after initial virtual-integration stages; no pipeline files are owned by this work.
+Run `python3 -I -B -Werror scripts/client/test_state_binding_v3.py` for the current state-binding regression controls. Historical client coverage remains `python3 -B scripts/client/test_client.py`. Actual results and source hashes are recorded in [the workstream](../workstreams/release-client.md). Tests use temporary synthetic archives and explicit ephemeral TEST homes; the CLI itself never creates/imports keys. Native execution is deferred until after initial virtual-integration stages; no pipeline files are owned by this work.
