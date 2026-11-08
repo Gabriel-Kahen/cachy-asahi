@@ -1310,8 +1310,8 @@ def retained_transport_proof(view, files, phase, binding, map_sha256):
     """Actual canonical supervision and all complete carrier/object proof DATA."""
     need(phase['binding'] == binding and phase['source_map_sha256'] == map_sha256
          and phase['actors'] == [] and phase['status'] == 'PASS_EXACT_RETAINED_INPUT_TRANSPORT_DATA_ONLY'
-         and phase['carrier_source'] == 'ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad'
-         and phase['profile_sha256'] == '4089fd798849cafda23d03c0dd95ac896a83fd63ad21e331ae420c147535586c'
+         and phase['carrier_source'] == '4659076d3a1d3e5cf87c185a3ff383fbc38e734d'
+         and phase['profile_sha256'] == '47ea6a3f358922ad1d643bc2cbd517fe0335f5dbe1313a87af3d24396d5a39ea'
          and phase['expected_carrier_files'] == 1154 and phase['expected_carrier_bytes'] == 1046432165
          and phase['budget_seconds'] == 480 and phase['retry'] is False,
          'same-source complete canonical transport, original clocks and whole profile required')

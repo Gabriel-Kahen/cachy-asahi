@@ -345,12 +345,17 @@ class FactoryProfileControls(unittest.TestCase):
         for key,value in changes:
             bad=copy.deepcopy(self.profile);bad[key]=value
             with self.subTest(key=key,value=value),self.assertRaises(ValueError):invoke(self.selector(),bad,selection='desktop-owned-retirement-v2')
-    def test_finite_delta_and_all_191_unlisted_leaves_are_closed(self):
-        d=self.profile;delta={row['path']:row for row in d['delta']};self.assertEqual(len(delta),9)
+    def test_finite_delta_and_all_183_unlisted_leaves_are_closed(self):
+        d=self.profile;delta={row['path']:row for row in d['delta']};self.assertEqual(len(delta),17)
         self.assertEqual(set(delta),{'.github/workflows/native-arm-build.yml','.github/workflows/native-arm-developer-workflows.yml',
                         'native/desktop_alpm_v1.py','native/desktop_owned_process_v2.py','native/invocation.json','native/owner.py',
-                        'native/desktop_projection_v1.py','native/desktop_reader_v1.py','native/source-map.json'})
-        self.assertEqual(len(d['after']),200);self.assertEqual(len(d['all_unlisted_held']),191)
+                        'native/desktop_projection_v1.py','native/desktop_reader_v1.py','native/source-map.json',
+                        'bootstrap/scripts/ci/setup6-retained-helpers/carrier-profile.json',
+                        'bootstrap/scripts/ci/setup6-retained-helpers/legacy-prefill-profile.json',
+                        'bootstrap/scripts/ci/setup6-retained-helpers/legacy_prefill.py',
+                        'bootstrap/scripts/ci/zlib-pgo-native-hosted/owner.py','native/provision.py',
+                        'native/reader.py','native/transport_proof.py','native/transport_retention.py'})
+        self.assertEqual(len(d['after']),200);self.assertEqual(len(d['all_unlisted_held']),183)
         self.assertEqual(set(d['after'])-set(delta),set(d['all_unlisted_held']))
         self.assertEqual([row['path']for row in d['delta']if row['before']is None],['native/desktop_owned_process_v2.py'])
         for name,row in d['all_unlisted_held'].items():
@@ -390,7 +395,7 @@ class FactoryProfileControls(unittest.TestCase):
             self.assertEqual(after,self.profile['after'][row['path']])
             self.assertEqual(stat.S_IMODE((HERE/row['candidate_body']).stat().st_mode),after['mode'])
         self.assertEqual(self.profile['runtime'],dict(**BUNDLE_PIN,mode=0o755))
-    def test_reader_and_projection_delta_changes_only_exact_alpm_producer_pin(self):
+    def test_reader_and_projection_delta_changes_only_exact_producer_and_carrier_pins(self):
         delta={row['path']:row for row in self.profile['delta']}
         before=delta['native/desktop_alpm_v1.py']['before']['sha256'].encode()
         after=delta['native/desktop_alpm_v1.py']['after']['sha256'].encode()
@@ -399,7 +404,11 @@ class FactoryProfileControls(unittest.TestCase):
         for name in ('native/desktop_reader_v1.py','native/desktop_projection_v1.py'):
             row=delta[name];raw=(HERE/row['candidate_body']).read_bytes()
             self.assertEqual(raw.count(after),1,name);self.assertNotIn(before,raw,name)
-            self.assertEqual(pin(raw.replace(after,before)),{k:row['before'][k]for k in ('bytes','sha256')},name)
+            restored=raw.replace(after,before)
+            if name=='native/desktop_reader_v1.py':
+                restored=restored.replace(b'4659076d3a1d3e5cf87c185a3ff383fbc38e734d',b'ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad')
+                restored=restored.replace(b'47ea6a3f358922ad1d643bc2cbd517fe0335f5dbe1313a87af3d24396d5a39ea',b'4089fd798849cafda23d03c0dd95ac896a83fd63ad21e331ae420c147535586c')
+            self.assertEqual(pin(restored),{k:row['before'][k]for k in ('bytes','sha256')},name)
             self.assertEqual(row['before']['mode'],row['after']['mode']);self.assertEqual(row['after']['mode'],0o644)
     def test_proposed_map_is_full199_rows_for_full200_source_and_actuals_stay_null(self):
         delta={row['path']:row for row in self.profile['delta']}
@@ -455,6 +464,79 @@ class RootFiniteNativeControlMetadata(unittest.TestCase):
                   'Developer_migration','M2','Asahi_installed','native16K','performance','production_trust','release'}
         self.assertEqual(set(limits),expected)
         for key in expected:self.assertIs(limits[key],False,key)
+
+
+class PhysicalCarrierDATAControls(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.bridge_raw=(HERE/'physical-carrier-bridge.json').read_bytes()
+        cls.bridge=json.loads(cls.bridge_raw)
+        cls.raw=(HERE/'carrier-current-commit.raw').read_bytes()
+        cls.carrier=(PAYLOAD/'bootstrap/scripts/ci/setup6-retained-helpers/carrier-profile.json').read_bytes()
+        cls.factory=ast.parse((HERE/'prepare.py').read_bytes())
+        cls.profile=json.loads((HERE/'profile.json').read_bytes())
+    def validator(self):
+        def oid(kind,raw):return hashlib.sha1(kind+b' '+str(len(raw)).encode()+b'\0'+raw).digest()
+        return isolated(function(self.factory,'carrier_identity'),dict(need=need,pin=pin,oid=oid,document=json.loads))
+    def test_current_raw_commit_full_tree_profile_and_bridge_are_bound_as_data(self):
+        before=copy.deepcopy(self.bridge)
+        self.assertIs(invoke(self.validator(),self.bridge,self.raw,self.carrier),self.bridge)
+        self.assertEqual(self.bridge,before)
+        self.assertEqual(pin(self.raw),dict(bytes=287,sha256='52311786d11bd25af74a108efe9399b253a6bdad6e36c5b36f03ab70b6756e36'))
+        self.assertEqual(hashlib.sha1(b'commit '+str(len(self.raw)).encode()+b'\0'+self.raw).hexdigest(),
+                         '4659076d3a1d3e5cf87c185a3ff383fbc38e734d')
+        self.assertEqual(self.bridge['tree'],'e21f947bac3afdfbd67e4e65c8234b35ae42b00f')
+        selected=self.profile['physical_carrier_bridge']
+        self.assertEqual(selected['path'],'physical-carrier-bridge.json')
+        self.assertEqual(pin(self.bridge_raw),{k:selected[k]for k in ('bytes','sha256')})
+        factory_profile=function(self.factory,'profile')
+        self.assertEqual(len(calls(factory_profile,'physical_carrier')),1)
+        self.assertLess(calls(factory_profile,'physical_carrier')[0].lineno,factory_profile.body[-1].lineno)
+    def test_historical_raw_header_cannot_be_used_as_current_commit(self):
+        old=self.raw.replace(b'93809974+Gabriel-Kahen@users.noreply.github.com',b'gabe@users.noreply.github.com')
+        self.assertEqual(pin(old),dict(bytes=251,sha256='0e3c9f82541401886b12c5dbf2fa925655dcdcd6ae966a05723a41c4dedbef86'))
+        self.assertEqual(hashlib.sha1(b'commit '+str(len(old)).encode()+b'\0'+old).hexdigest(),
+                         self.bridge['historical']['commit'])
+        for raw in (old,self.raw+b'\n',self.raw.replace(b'e21f947b',b'00000000')):
+            with self.subTest(raw_pin=pin(raw)),self.assertRaises(ValueError):
+                invoke(self.validator(),self.bridge,raw,self.carrier)
+        self.assertEqual(self.bridge['historical_raw_header'],'HISTORICAL_ONLY_NOT_CURRENT_OPERAND')
+        self.assertNotEqual(self.bridge['historical']['commit'],self.bridge['current']['commit'])
+    def test_changed_tree_current_source_profile_body_or_historical_metadata_refuses(self):
+        changes=[('schema',True),('tree','0'*40),('code_tree','REBUILT'),('historical_raw_header','CURRENT')]
+        for key,value in changes:
+            bad=copy.deepcopy(self.bridge);bad[key]=value
+            with self.subTest(key=key),self.assertRaises(ValueError):
+                invoke(self.validator(),bad,self.raw,self.carrier)
+        for section,key,value in [('current','commit',self.bridge['historical']['commit']),
+                                  ('historical','commit','0'*40),('current_carrier_profile','sha256','0'*64)]:
+            bad=copy.deepcopy(self.bridge);bad[section][key]=value
+            with self.subTest(section=section,key=key),self.assertRaises(ValueError):
+                invoke(self.validator(),bad,self.raw,self.carrier)
+        for carrier in (self.carrier+b'\n',self.carrier.replace(b'4659076d3a1d3e5cf87c185a3ff383fbc38e734d',
+                                                               b'ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad')):
+            with self.subTest(carrier_pin=pin(carrier)),self.assertRaises(ValueError):
+                invoke(self.validator(),self.bridge,self.raw,carrier)
+    def test_nine_carrier_corrections_are_exact_reversible_literal_changes(self):
+        names={'bootstrap/scripts/ci/setup6-retained-helpers/carrier-profile.json',
+               'bootstrap/scripts/ci/setup6-retained-helpers/legacy-prefill-profile.json',
+               'bootstrap/scripts/ci/setup6-retained-helpers/legacy_prefill.py',
+               'bootstrap/scripts/ci/zlib-pgo-native-hosted/owner.py','native/provision.py',
+               'native/transport_proof.py','native/transport_retention.py','native/desktop_reader_v1.py','native/reader.py'}
+        substitutions=[(b'4659076d3a1d3e5cf87c185a3ff383fbc38e734d',b'ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad'),
+                       (b'47ea6a3f358922ad1d643bc2cbd517fe0335f5dbe1313a87af3d24396d5a39ea',b'4089fd798849cafda23d03c0dd95ac896a83fd63ad21e331ae420c147535586c'),
+                       (b'91f15e75afff88b7379eaba720f725a0efe6f642648f8dbf002bff058d11ba7c',b'9cc82d4e0947415ecad9d40094a4c0a2709d01be54513e78af8c739fd76fb696')]
+        for name in sorted(names):
+            raw=(PAYLOAD/name).read_bytes();restored=raw
+            for current,old in substitutions:restored=restored.replace(current,old)
+            if name=='native/desktop_reader_v1.py':
+                restored=restored.replace(b'8651601d55ea799c57010c4a61fe8cdd40783175b38eac41d4d56855a488888e',
+                                          b'94b0c96301a4a7985b758d6a36d50f597478a1a010cb794602d7a73d80da8dd3')
+            before=self.profile['before199'][name]
+            self.assertEqual(pin(restored),{k:before[k]for k in ('bytes','sha256')},name)
+            self.assertNotEqual(raw,restored,name)
+            self.assertEqual(self.profile['after200'][name]['mode'],before['mode'])
+        self.assertEqual(CAPABILITY_ATTEMPTS,[])
 
 
 if __name__=='__main__':unittest.main(verbosity=2)
