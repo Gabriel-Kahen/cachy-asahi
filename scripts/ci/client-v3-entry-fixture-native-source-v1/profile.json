@@ -1,0 +1,672 @@
+{
+  "Native_authority": null,
+  "Reader_calls": 0,
+  "base_Source": {
+    ".github/workflows/native-arm-build.yml": {
+      "bytes": 8687,
+      "mode": "100644",
+      "oid": "8107b0ebf09be233795a9f0267f47fb89ca0a8a5",
+      "sha256": "bccb08978eea5fdae4ff914d053b08cb78660c8775e18aff1808b0e2b16b938b"
+    },
+    "packages/tools/cachy-asahi-repository-client-v3/.SRCINFO": {
+      "bytes": 1528,
+      "mode": "100644",
+      "oid": "7858a12b73e4b451d0f0e745234ae0d3f01aed68",
+      "sha256": "422f608ee69cd22000011fec69edaca29c07b8fc7b9c02ae010a24140d60e77e"
+    },
+    "packages/tools/cachy-asahi-repository-client-v3/LICENSE": {
+      "bytes": 1081,
+      "mode": "100644",
+      "oid": "4a871664e48917bbb97e51b6d4d0eeb825772d1f",
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-repository-client-v3/NOTICE": {
+      "bytes": 428,
+      "mode": "100644",
+      "oid": "09f0053ff894dcf91465ee4b57628a71158646ae",
+      "sha256": "ea4bc42028760f475c93e37e2769db77eb2bf52c3c2de8c2c687ac1fcbc6941e"
+    },
+    "packages/tools/cachy-asahi-repository-client-v3/PKGBUILD": {
+      "bytes": 2293,
+      "mode": "100644",
+      "oid": "52f8d8ab1b82f09aa8fc5af98c3c9a6291428ba8",
+      "sha256": "db835c262156b7bfad4c03d695c1f1f9a1e9d44f0b2d1626e5e7b24a0f538b1c"
+    },
+    "packages/tools/cachy-asahi-repository-client-v3/README.md": {
+      "bytes": 2430,
+      "mode": "100644",
+      "oid": "fabaedd71fd13f78b6545ed4a4a53b7234134e99",
+      "sha256": "994548e7215fdd06e5e113e7c453309499b278c829116fe55b55f3db2fd4d0d8"
+    },
+    "packages/tools/cachy-asahi-repository-client-v3/cachy-asahi-repository-client": {
+      "bytes": 331,
+      "mode": "100644",
+      "oid": "6b2a3702650c6d2e8017a2096344c54f880a0978",
+      "sha256": "859540def486ab1b3182f90b727056bd83004a0dc94a6d3a22a1498e500bd05f"
+    },
+    "packages/tools/cachy-asahi-repository-client-v3/check_source.py": {
+      "bytes": 4434,
+      "mode": "100644",
+      "oid": "4ceb1d691e0424a81de1de0c8a1322b151918337",
+      "sha256": "6dadc5ee2f014725bf584b074bee7fa155d0f41d18133ba7829ad9ddead9b808"
+    },
+    "packages/tools/cachy-asahi-repository-client-v3/client_v3.py": {
+      "bytes": 29503,
+      "mode": "100644",
+      "oid": "a44ac650953143971d61d19a1909ed5fb27c7bd2",
+      "sha256": "4cf428452d08ea212d8bb92d899329f3445d15877c5b79e5ff5f138b0a696e76"
+    },
+    "packages/tools/cachy-asahi-repository-client-v3/helper-pins.json": {
+      "bytes": 790,
+      "mode": "100644",
+      "oid": "09fe3599c56489a133e9839a785a6d5add77a33f",
+      "sha256": "1ab94b176f798ef9d95f079e02dad803265995081e575070b1c53612fc9292b7"
+    },
+    "packages/tools/cachy-asahi-repository-client-v3/source-provenance.json": {
+      "bytes": 1633,
+      "mode": "100644",
+      "oid": "2b07abd08a34b7f87640cf838046f6e061840597",
+      "sha256": "a38d0035f2adc03bf8d5556c2eb5132f29cddcfac3e56d3a79d5f086231c47d3"
+    },
+    "packages/tools/cachy-asahi-repository-client-v3/state-binding-before-v2.py.txt": {
+      "bytes": 28763,
+      "mode": "100644",
+      "oid": "b1d5a71b8437a7f2ecf31096e69bd819b01cd5bb",
+      "sha256": "915c2336a6515dcbde9801d7778c0aeae3a0251cf6463c4704d47590d94d1409"
+    },
+    "packages/tools/cachy-asahi-repository-client-v3/test_package.py": {
+      "bytes": 6091,
+      "mode": "100644",
+      "oid": "9163418d585df3faa64989a95c706cf6032a84ef",
+      "sha256": "009ab3b9f7760898778b40fa283cd0f2fc4a7ace0593f926e20fab21391f5ffc"
+    },
+    "packages/tools/cachy-asahi-repository-client-v3/test_state_binding_v3.py": {
+      "bytes": 7817,
+      "mode": "100644",
+      "oid": "0d5c5547b204d5d153d4739e44988beb57e27675",
+      "sha256": "ae0f1bcc19343e3f1c4e36652511c4077850bd1e45d860bd3a12841f1d7e5f06"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/.SRCINFO": {
+      "bytes": 1269,
+      "mode": "100644",
+      "oid": "e788e07e218c9fd692f5f8370f628fde90b67167",
+      "sha256": "4677c10dcc40686877f9d2bc5b9cac88763fdb4cc395a9a7fd530b6b79db2502"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/LICENSE": {
+      "bytes": 1081,
+      "mode": "100644",
+      "oid": "4a871664e48917bbb97e51b6d4d0eeb825772d1f",
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/NOTICE": {
+      "bytes": 624,
+      "mode": "100644",
+      "oid": "8b5d9a545d3867e26b2e885431885fe164773164",
+      "sha256": "5c4ed38dd7675728134d292afb2e61f2a09342c0eefa0becf89b9bda011166df"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/PKGBUILD": {
+      "bytes": 1973,
+      "mode": "100644",
+      "oid": "69708e9452950a7c80b223675c894776a9310b3d",
+      "sha256": "e1f9071387ebd679e09fbbdecb31aadf2f89a59235c8ca03ac42eb2599f16f0b"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/README.md": {
+      "bytes": 1748,
+      "mode": "100644",
+      "oid": "20913a3183b6fdfbbb4851c3732e3bc86a8cfef4",
+      "sha256": "faf56df41bb5783d566d5e186141b47688ef770f3b7e2baef6c62302b599d316"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/check_source.py": {
+      "bytes": 3328,
+      "mode": "100644",
+      "oid": "90b61010153be0a002b8bebcc99dcde0fc0f2f3b",
+      "sha256": "4d002bc596e29cb83426fd5b7d185b2aa30e9211c0da79fcb616cf003c11f4a7"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/client.py": {
+      "bytes": 28669,
+      "mode": "100644",
+      "oid": "2cddca8ef6240485b6a5f72c425b14d1a9379e04",
+      "sha256": "48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/helper-pins.json": {
+      "bytes": 493,
+      "mode": "100644",
+      "oid": "4b392195d3d7c0609d8b32776f03ab80783bbe84",
+      "sha256": "33a5e11e6d12df984e07c437c68ee581527cc4c95f3327bc44cbc09e0e29948a"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/release.py": {
+      "bytes": 41320,
+      "mode": "100644",
+      "oid": "bf8d1cfe49af449bb6c51d109069d24f3e37fe25",
+      "sha256": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/source-provenance.json": {
+      "bytes": 1195,
+      "mode": "100644",
+      "oid": "841b0fbfc48f44d8430fd02dd74aea19adb537f3",
+      "sha256": "09cf1f6f0a7490e5c99bd8bc5caa67ba7c3ecf7cdb55e382dbe502d7e1042972"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/source_delivery.py": {
+      "bytes": 16456,
+      "mode": "100644",
+      "oid": "c578c29c1d22aa8475590186cc646a5f29d0efe2",
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+    },
+    "scripts/build/build.py": {
+      "bytes": 11299,
+      "mode": "100644",
+      "oid": "582b48f1908ab79607f3ef1a581ec4618a3872dc",
+      "sha256": "e520b37e5dfc285914203cfab99daecc80543505fef7ded6704b3fb06f001d45"
+    },
+    "scripts/build/compare.py": {
+      "bytes": 5820,
+      "mode": "100644",
+      "oid": "41f97c963514f48c0ece7bef9762906b7e279e79",
+      "sha256": "4198864c264642b196a090a67b36185e5c194e38edc4cb928d08eb65b9f710cd"
+    },
+    "scripts/build/container-entry.sh": {
+      "bytes": 1787,
+      "mode": "100644",
+      "oid": "91dae28ec41dece868632362e992619f9b47cc88",
+      "sha256": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24"
+    },
+    "scripts/checks/package_checks.py": {
+      "bytes": 17706,
+      "mode": "100644",
+      "oid": "bc839eae57e47797a09cc7671f15f7b81fff77bd",
+      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
+    },
+    "scripts/ci/apps-cache-native/README.md": {
+      "bytes": 8590,
+      "mode": "100644",
+      "oid": "31fccdbd118f8193988afd6c75272eaf0835eb1b",
+      "sha256": "7f1bb7042b057b25c2ce2a2408f36df92736a7be4c7f1bad07a7ac92eadfa508"
+    },
+    "scripts/ci/apps-cache-native/catalog_fixture.py": {
+      "bytes": 3333,
+      "mode": "100644",
+      "oid": "408434b806b4bf1445c77814b924f9bc683dd417",
+      "sha256": "0314733b88cc73f9813e488eff55bea8833e6b196d876d5a40fa7507e3ddc071"
+    },
+    "scripts/ci/apps-cache-native/contract.py": {
+      "bytes": 11912,
+      "mode": "100644",
+      "oid": "3761bb02ea7886613bf3c16999b5f20b2c236b1a",
+      "sha256": "16c68aa997dc018c568178f7a270938b164bec6721729be1231432ef96b280c4"
+    },
+    "scripts/ci/apps-cache-native/freeze.py": {
+      "bytes": 1846,
+      "mode": "100644",
+      "oid": "d1e5e14e9a55c473dae102e6c7791ec9180a433d",
+      "sha256": "0e2d9d882e605d5305158a868b80542822a7e66cee01ba585620ad86d1beb9f8"
+    },
+    "scripts/ci/apps-cache-native/infrastructure-pins.json": {
+      "bytes": 2934,
+      "mode": "100644",
+      "oid": "da72841d0ca06e5e1c740b3514d649e29cfe7232",
+      "sha256": "5f5718d243cf21de5b0a6ecff086c411bc9cc1350dcb28baa07e64dbf3d96bbd"
+    },
+    "scripts/ci/apps-cache-native/input-policy.json": {
+      "bytes": 9126,
+      "mode": "100644",
+      "oid": "173e2fd098ff97e70e89b8bb8174310bf580cc9c",
+      "sha256": "aabd371598bc186ead840841b5ce002365986dc3c10fa10d2e09fa4aa47b5fdc"
+    },
+    "scripts/ci/apps-cache-native/installed.py": {
+      "bytes": 4441,
+      "mode": "100644",
+      "oid": "0057ab4745a9d867788141b20fb70a18b8556757",
+      "sha256": "10d210905f770854ddf9ebb72b46002d414787aa0a878a498ba4b21b663d9d8e"
+    },
+    "scripts/ci/apps-cache-native/job.py": {
+      "bytes": 13236,
+      "mode": "100644",
+      "oid": "9be16e37804225ea62c1c7deeb5119c70826287e",
+      "sha256": "9a88aa45a16a5a6056d719828a1bae8b04a3cb3b32a2768b5aecb8167ef2adda"
+    },
+    "scripts/ci/apps-cache-native/lifecycle.py": {
+      "bytes": 16624,
+      "mode": "100644",
+      "oid": "2a17392f05f518effe076af559f96eda52d4dda1",
+      "sha256": "971cd386da65cbe247e93f4fbbc6ce6a6c6f9e77aadbc6f6b1df6d39c049e45c"
+    },
+    "scripts/ci/apps-cache-native/run.py": {
+      "bytes": 15349,
+      "mode": "100644",
+      "oid": "10440cd57db841b5392d312b8a358f588f28e1d8",
+      "sha256": "d3cdf95b0757e1f2ebd04cb8bc56f90888ff8c17f615e9ca6e65357c4462b56e"
+    },
+    "scripts/ci/apps-cache-native/runtime_image.py": {
+      "bytes": 2057,
+      "mode": "100644",
+      "oid": "723c7aedc17559261163acc6c679a98d7a593c74",
+      "sha256": "a682b64a5326fc7edf0d2347c37ae50805f9b7773c2683f1fbae1769c18fa023"
+    },
+    "scripts/ci/apps-cache-native/source-manifest.json": {
+      "bytes": 20060,
+      "mode": "100644",
+      "oid": "12ec42fa34b99940c06943ada3ae30ecb2171a20",
+      "sha256": "70856125e4e282c3b27bc5d1efeac5df00ccdfa09147d6bbcfb75634437281c5"
+    },
+    "scripts/ci/apps-cache-native/test_lane.py": {
+      "bytes": 19853,
+      "mode": "100644",
+      "oid": "6bb3c89f2ae096263e9edcfafb1dedbf4ababe9b",
+      "sha256": "3f03a6f2624386ac18eba42493783c475c6616559522ba3cbda225827c5a732b"
+    },
+    "scripts/ci/client-v3-native/README.md": {
+      "bytes": 4867,
+      "mode": "100644",
+      "oid": "9d9d68ec2a19d535a3153959a6f56060d98079bc",
+      "sha256": "a30d742eb3c463664affc538d5a21b51ee1b7f67587bd2cfe630cb063a8a5e3f"
+    },
+    "scripts/ci/client-v3-native/adapter.py": {
+      "bytes": 12328,
+      "mode": "100644",
+      "oid": "282125ef6d6631b893d715fb792efffd67828676",
+      "sha256": "9ae86d4064b29663c4ce165e0e2b76222882f5d3dc0d2332d3eca47bbc4a3aaf"
+    },
+    "scripts/ci/client-v3-native/contract.py": {
+      "bytes": 380,
+      "mode": "100644",
+      "oid": "5918af8fc340eee11755d344b5a5382b71e7b8cf",
+      "sha256": "575e55e9dcc7e006130ff549eddde8ce2a71396efb502baca6c93ee0c87eed00"
+    },
+    "scripts/ci/client-v3-native/infrastructure-pins.json": {
+      "bytes": 5245,
+      "mode": "100644",
+      "oid": "f43bfd9739888d0b0779708cd66a41e56c5a47d0",
+      "sha256": "1b01d55dced3ec8cc4da90daca29cbfbb1d5b08cdfabb6c92583d59a0b173154"
+    },
+    "scripts/ci/client-v3-native/input-policy.json": {
+      "bytes": 7576,
+      "mode": "100644",
+      "oid": "bced51770549198b0543f82475b17d43eafc36dd",
+      "sha256": "3bdef11e28276b656387314beb95411751f765640c596eea0c8663b81babf959"
+    },
+    "scripts/ci/client-v3-native/installed.py": {
+      "bytes": 4441,
+      "mode": "100644",
+      "oid": "0057ab4745a9d867788141b20fb70a18b8556757",
+      "sha256": "10d210905f770854ddf9ebb72b46002d414787aa0a878a498ba4b21b663d9d8e"
+    },
+    "scripts/ci/client-v3-native/installed_v3.py": {
+      "bytes": 7660,
+      "mode": "100644",
+      "oid": "7595162d2a2db5b4280dd76c4f78233b3328e33d",
+      "sha256": "4c55cd45d2eb70a644b0d6cc5b3e5079ff8859cd13afc2b3d4cd779b27db625f"
+    },
+    "scripts/ci/client-v3-native/job.py": {
+      "bytes": 370,
+      "mode": "100644",
+      "oid": "94668ae8b2616d190721934f8911ec0534211f33",
+      "sha256": "6065fff6889eac2ce0123d4ea660147f51e204cce4d0b7a5d3a944d870b6c4c1"
+    },
+    "scripts/ci/client-v3-native/lifecycle.py": {
+      "bytes": 5745,
+      "mode": "100644",
+      "oid": "fb25e0dc40860d92958c53cd1ccce7059a8abf37",
+      "sha256": "331d2ed17813cd6bd75f135e95d4a81593e6f87dea2e22583e975e3eae999c77"
+    },
+    "scripts/ci/client-v3-native/original-pins.json": {
+      "bytes": 2173,
+      "mode": "100644",
+      "oid": "cc1695614853e5896752b6c68311695431b73f24",
+      "sha256": "91b0b88bd94743b0c3418e4b66db8783efe22adc4dbe742211042dc43ed96fb4"
+    },
+    "scripts/ci/client-v3-native/preflight.py": {
+      "bytes": 2083,
+      "mode": "100644",
+      "oid": "d02046a619917fabd666c520298281b04d6294ec",
+      "sha256": "3e61a85c2b1ced009d96555a89410f788007255654ebdd9c39875debe60e463a"
+    },
+    "scripts/ci/client-v3-native/prepare.py": {
+      "bytes": 9151,
+      "mode": "100644",
+      "oid": "2436f225286e07039763ffb196715fec5ab16d5b",
+      "sha256": "f67a1d34723e9136adda0c08638346f8aa9149c45fd0965cf8b6a8cb92d366b6"
+    },
+    "scripts/ci/client-v3-native/rename_after_real_verification.py": {
+      "bytes": 2710,
+      "mode": "100644",
+      "oid": "b3a6a3c9131874d73da2d50f015add738291bd20",
+      "sha256": "42c63b5d8b56d38f3cc4d1e6890942e71d49c0cdeb90f70c840b44b7758b01f1"
+    },
+    "scripts/ci/client-v3-native/retained-input-carrier.json": {
+      "bytes": 713,
+      "mode": "100644",
+      "oid": "589cc9faafede180dc1ecc553666d93fe10ec982",
+      "sha256": "73dfc92537396191efd1136f488e0166ddc2ab552fb1ce5f62068fe886a7006f"
+    },
+    "scripts/ci/client-v3-native/retained574.py": {
+      "bytes": 5943,
+      "mode": "100644",
+      "oid": "7d07f4e563a98964914db4bef58f0232cbd412df",
+      "sha256": "92ac0a9a27ad00a9b475b48db2b76f8c017927f54cb1f9547724118f7b0b89c2"
+    },
+    "scripts/ci/client-v3-native/rules.py": {
+      "bytes": 4745,
+      "mode": "100644",
+      "oid": "ce2efb35fae7392b9c61be79b781039e135bdbd9",
+      "sha256": "dc5874f502fed52c03c8c4279d5e2018fe95f79d705f1614924dc52fd9f62f8c"
+    },
+    "scripts/ci/client-v3-native/run.py": {
+      "bytes": 370,
+      "mode": "100644",
+      "oid": "554d641da914a1606e599802faf4d04e4903f123",
+      "sha256": "e11ed6953cb566e0684a72dfc62415df537478f9a2dbf873529c06ca57693880"
+    },
+    "scripts/ci/client-v3-native/runtime_image.py": {
+      "bytes": 2057,
+      "mode": "100644",
+      "oid": "723c7aedc17559261163acc6c679a98d7a593c74",
+      "sha256": "a682b64a5326fc7edf0d2347c37ae50805f9b7773c2683f1fbae1769c18fa023"
+    },
+    "scripts/ci/client-v3-native/source-manifest.json": {
+      "bytes": 13460,
+      "mode": "100644",
+      "oid": "c780b776c65ce1b225b971516dd5e92f99049a3b",
+      "sha256": "ea8a5a4f11546db4decb14b9393665f11bd7ef1b09945cdf3520a57878995d6a"
+    },
+    "scripts/ci/client-v3-native/test_entry_failures.py": {
+      "bytes": 11184,
+      "mode": "100644",
+      "oid": "5d50d18a15409241dc7eccb6f762a97452dc839c",
+      "sha256": "1ac5a9eb9ef0a24c905ca2ea0408003a15c60d7e194b8843f9ead79e9a6bbfa3"
+    },
+    "scripts/ci/client-v3-native/test_retained574.py": {
+      "bytes": 4945,
+      "mode": "100644",
+      "oid": "aec882c491abc092085bc3ca5113b73f03ae30b0",
+      "sha256": "6ad5b6971598a2f1525c6abad1170198c3a73be5c31d6dfc651113c9986e985c"
+    },
+    "scripts/ci/client-v3-native/test_source.py": {
+      "bytes": 13852,
+      "mode": "100644",
+      "oid": "beb3cc4bf51f65d3e273b7cc29faa48467eb252b",
+      "sha256": "cd32db5f3729ba53ffa3d4a21cef7d3f4f6db27e48d901570af90fc6c9140703"
+    },
+    "scripts/ci/full-development-composition/run.py": {
+      "bytes": 29738,
+      "mode": "100644",
+      "oid": "339d5a281f6992e902af1b34c1661f18f7b74077",
+      "sha256": "f86af098fdb0fc9a57a8b78b351341395ce13f9977464783f6f8133626e85698"
+    },
+    "scripts/ci/full-root-upgrade/root_upgrade.py": {
+      "bytes": 23555,
+      "mode": "100644",
+      "oid": "df2cf736133a5f2223bc41bfd1cea71f3513beb1",
+      "sha256": "fe1232ae6b510021910b4fb80016ac3b4668c6e4386cdae45e7b95196e400756"
+    },
+    "scripts/ci/maintained-desktop574-inputs.json": {
+      "bytes": 623664,
+      "mode": "100644",
+      "oid": "8ce016316e2e48b4c9b376a166c4747d8520c02c",
+      "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
+    },
+    "scripts/ci/maintained_desktop574.py": {
+      "bytes": 22367,
+      "mode": "100644",
+      "oid": "25dfb5eec1acf359cdd15b96e0ad3947da4a2c86",
+      "sha256": "27ba4be42cf2bd41675073e07cccc917ae033f9d68b07a33cfd7f074ac27b760"
+    },
+    "scripts/ci/old_four_seed.py": {
+      "bytes": 29048,
+      "mode": "100644",
+      "oid": "747037ca44975d36249671ad7b93879a06a60a81",
+      "sha256": "a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7"
+    },
+    "scripts/ci/test_maintained_desktop574.py": {
+      "bytes": 19082,
+      "mode": "100644",
+      "oid": "5e2a0f255ba10c9a37024945a7e0be3377f89d0c",
+      "sha256": "e5d7dc11d1a59cf37a273e9a7103c7e55b169335b17c599990946f4e677ca974"
+    },
+    "scripts/ci/tools-native/job.py": {
+      "bytes": 13110,
+      "mode": "100644",
+      "oid": "359d7b7208a2419f4c980cbe49b8e4b9e8363c5b",
+      "sha256": "67dc1b888974303e59aa5d68cc68cfd362c3d0fe730ef93585121d69ac6aab1c"
+    },
+    "scripts/ci/tools-native/run.py": {
+      "bytes": 8992,
+      "mode": "100644",
+      "oid": "2329eb40150f06bd16441f70a693afecfe58a214",
+      "sha256": "d13738494fd6cf66cb4f243a53eb2a33b91f74f0c692f42fe5464d48acd69f48"
+    },
+    "scripts/ci/welcome-native/ci/caller.py": {
+      "bytes": 8363,
+      "mode": "100644",
+      "oid": "c0365b87983901de97d066079dca133cb75f3947",
+      "sha256": "cf80f438eff180b73ae9676e2145b56ba6a358fd9a69bb219e0a7a6f53ff01df"
+    },
+    "scripts/ci/welcome-native/lifecycle.py": {
+      "bytes": 12278,
+      "mode": "100644",
+      "oid": "e4c58ee892cd6dd2371d6d3f7161097e86da8e60",
+      "sha256": "b87831eea710dbf18cb3ab3aa7bf49856d26bebbd3e684861dcab7dc1d337c74"
+    },
+    "scripts/ci/welcome-native/run.py": {
+      "bytes": 12766,
+      "mode": "100644",
+      "oid": "d54fc4166d0de0e77af8a48d673911eac70cf9d8",
+      "sha256": "52112b49ea98b5aef131b8bcbcc188bcc59cc3a4827161091d4e86af14d2757c"
+    },
+    "scripts/client/client.py": {
+      "bytes": 28669,
+      "mode": "100644",
+      "oid": "2cddca8ef6240485b6a5f72c425b14d1a9379e04",
+      "sha256": "48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7"
+    },
+    "scripts/client/client_v2.py": {
+      "bytes": 28763,
+      "mode": "100644",
+      "oid": "b1d5a71b8437a7f2ecf31096e69bd819b01cd5bb",
+      "sha256": "915c2336a6515dcbde9801d7778c0aeae3a0251cf6463c4704d47590d94d1409"
+    },
+    "scripts/client/test_client_v2.py": {
+      "bytes": 56931,
+      "mode": "100644",
+      "oid": "1be087e1ef60008e8e536bd68e39c9407f77214a",
+      "sha256": "74f079c3e95fd88d50b6857b1dbfe13b97030fdacb31051564445c6d1770f410"
+    },
+    "scripts/release/release.py": {
+      "bytes": 41320,
+      "mode": "100644",
+      "oid": "bf8d1cfe49af449bb6c51d109069d24f3e37fe25",
+      "sha256": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435"
+    },
+    "scripts/release/source_delivery.py": {
+      "bytes": 16456,
+      "mode": "100644",
+      "oid": "c578c29c1d22aa8475590186cc646a5f29d0efe2",
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+    },
+    "scripts/release/test_release.py": {
+      "bytes": 43541,
+      "mode": "100644",
+      "oid": "250f44f07a18521196a6258ad4d8070472ae462d",
+      "sha256": "7ee9e693d4574c6bb11dcc927937475742b9fa7a6f8e988608532c1e1bab5f2e"
+    },
+    "scripts/virtual/common.py": {
+      "bytes": 84361,
+      "mode": "100644",
+      "oid": "cb1e412223e560e1fec1ce56b9b71431d7c0ebb8",
+      "sha256": "aef2b4f09a91c4cfd66dd4504e69ef18396a94214c82ae0ec0a43c2716894a03"
+    }
+  },
+  "fixture_after": {
+    "bytes": 11184,
+    "sha256": "8e7b8ad617a40314fa3ec2947f4dba8897f9a2d2ad265c369ef473ec2702b310"
+  },
+  "fixture_before": {
+    "bytes": 11184,
+    "sha256": "1ac5a9eb9ef0a24c905ca2ea0408003a15c60d7e194b8843f9ead79e9a6bbfa3"
+  },
+  "fixture_path": "scripts/ci/client-v3-native/test_entry_failures.py",
+  "future_run": null,
+  "future_source": null,
+  "parent_tree": "e7bbcb46c095918023d950416f2c8eb995ab2e17",
+  "physical_parent": "15b72d34ed8e31be8bd24364cca68859485f32e0",
+  "recipe_source": "438acd83fa3bcb79abe29a007ae9e8d0f784d03f",
+  "schema": 1,
+  "status": "UNBOUND_EXACT_SOURCE15B_ENTRY_FIXTURE_SUCCESSOR_DATA_ONLY",
+  "trusted_inputs": {
+    "scripts/ci/client-v3-makepkg-native-source-v1/README.md": {
+      "bytes": 2414,
+      "sha256": "562969929d4417bbea5e02e9894955a841997f360fb2252077a36b388e9b7080"
+    },
+    "scripts/ci/client-v3-makepkg-native-source-v1/prepare.py": {
+      "bytes": 7054,
+      "sha256": "5302fa4837ac11bae13a678a2a0675197e9363d3c4334ca9afd5199157c6e170"
+    },
+    "scripts/ci/client-v3-makepkg-native-source-v1/producer/prepare.py": {
+      "bytes": 9151,
+      "sha256": "f67a1d34723e9136adda0c08638346f8aa9149c45fd0965cf8b6a8cb92d366b6"
+    },
+    "scripts/ci/client-v3-makepkg-native-source-v1/producer/test_source.py": {
+      "bytes": 13852,
+      "sha256": "cd32db5f3729ba53ffa3d4a21cef7d3f4f6db27e48d901570af90fc6c9140703"
+    },
+    "scripts/ci/client-v3-makepkg-native-source-v1/profile.json": {
+      "bytes": 30020,
+      "sha256": "63be63f6abcae6614ccc2406ab20fe82087a999a87abf4cff7f6bec48ef51eba"
+    },
+    "scripts/ci/client-v3-makepkg-native-source-v1/reader.py": {
+      "bytes": 3001,
+      "sha256": "9d8b1a166db546cb2a04e48d52b3e45fbcf3600039ba8c4f74ae390010fe5e6b"
+    },
+    "scripts/ci/client-v3-makepkg-native-source-v1/test_data.py": {
+      "bytes": 4968,
+      "sha256": "2060e84a60cd8dd758bb1555d2d3f9c37a0359952055e5efcd8602a009a1b8d0"
+    },
+    "scripts/ci/client-v3-native-intake-v1/README.md": {
+      "bytes": 3901,
+      "sha256": "ed7f6e1395e65046b288ac924df32cfe49352a755930b740bb837ca2517f30de"
+    },
+    "scripts/ci/client-v3-native-intake-v1/binding.template.json": {
+      "bytes": 241,
+      "sha256": "b141371b7bfb525a9bc4201b93d4344793e89a6b885ea2f204fffea03061f5e3"
+    },
+    "scripts/ci/client-v3-native-intake-v1/client_v3_common.py": {
+      "bytes": 6212,
+      "sha256": "f14b580194524a63c215a374b1b326f25daa27c9f8b7cf075397922b8abee151"
+    },
+    "scripts/ci/client-v3-native-intake-v1/lifecycle_rules_v1.py": {
+      "bytes": 4745,
+      "sha256": "dc5874f502fed52c03c8c4279d5e2018fe95f79d705f1614924dc52fd9f62f8c"
+    },
+    "scripts/ci/client-v3-native-intake-v1/model_data.py": {
+      "bytes": 9798,
+      "sha256": "976c876f77377f7a498bca48b5aaf1fd936a3329f4a9292d35f4f48ba3bb2d4b"
+    },
+    "scripts/ci/client-v3-native-intake-v1/package_data.py": {
+      "bytes": 4373,
+      "sha256": "7926e95c514c2c6fc9085f5b3c60123d77e9f9c9111960a607d59b9e8a43f590"
+    },
+    "scripts/ci/client-v3-native-intake-v1/profile.json": {
+      "bytes": 964,
+      "sha256": "a2dcf9ca3c26f08f95e671c59ff19542e0429b9928277b07958719164c9e4b8c"
+    },
+    "scripts/ci/client-v3-native-intake-v1/projection.py": {
+      "bytes": 2996,
+      "sha256": "6c2f9158d85b4755ebe64fa65c13b3f1c12ab759d9ad8faa3bac3094184fce27"
+    },
+    "scripts/ci/client-v3-native-intake-v1/reader.py": {
+      "bytes": 29454,
+      "sha256": "fde04151cf1c0fc8430cf345dc645df56344e39041db91d8fc6620698a4cd8c8"
+    },
+    "scripts/ci/client-v3-native-intake-v1/test_intake.py": {
+      "bytes": 19988,
+      "sha256": "07138a3c67140d29ac3f039ecac62d7691c8a4a7fbdf379e29e9f56f4849fead"
+    },
+    "scripts/ci/client-v3-native/README.md": {
+      "bytes": 4867,
+      "sha256": "a30d742eb3c463664affc538d5a21b51ee1b7f67587bd2cfe630cb063a8a5e3f"
+    },
+    "scripts/ci/client-v3-native/adapter.py": {
+      "bytes": 12328,
+      "sha256": "9ae86d4064b29663c4ce165e0e2b76222882f5d3dc0d2332d3eca47bbc4a3aaf"
+    },
+    "scripts/ci/client-v3-native/contract.py": {
+      "bytes": 380,
+      "sha256": "575e55e9dcc7e006130ff549eddde8ce2a71396efb502baca6c93ee0c87eed00"
+    },
+    "scripts/ci/client-v3-native/infrastructure-pins.json": {
+      "bytes": 5245,
+      "sha256": "1b01d55dced3ec8cc4da90daca29cbfbb1d5b08cdfabb6c92583d59a0b173154"
+    },
+    "scripts/ci/client-v3-native/input-policy.json": {
+      "bytes": 7419,
+      "sha256": "8c41d5fc5023c7937dc1f10db3bedf6b224e838933ab897fa84eb4a8fe7d6b1e"
+    },
+    "scripts/ci/client-v3-native/installed.py": {
+      "bytes": 4441,
+      "sha256": "10d210905f770854ddf9ebb72b46002d414787aa0a878a498ba4b21b663d9d8e"
+    },
+    "scripts/ci/client-v3-native/installed_v3.py": {
+      "bytes": 7660,
+      "sha256": "4c55cd45d2eb70a644b0d6cc5b3e5079ff8859cd13afc2b3d4cd779b27db625f"
+    },
+    "scripts/ci/client-v3-native/job.py": {
+      "bytes": 370,
+      "sha256": "6065fff6889eac2ce0123d4ea660147f51e204cce4d0b7a5d3a944d870b6c4c1"
+    },
+    "scripts/ci/client-v3-native/lifecycle.py": {
+      "bytes": 5745,
+      "sha256": "331d2ed17813cd6bd75f135e95d4a81593e6f87dea2e22583e975e3eae999c77"
+    },
+    "scripts/ci/client-v3-native/original-pins.json": {
+      "bytes": 2173,
+      "sha256": "91b0b88bd94743b0c3418e4b66db8783efe22adc4dbe742211042dc43ed96fb4"
+    },
+    "scripts/ci/client-v3-native/preflight.py": {
+      "bytes": 2083,
+      "sha256": "3e61a85c2b1ced009d96555a89410f788007255654ebdd9c39875debe60e463a"
+    },
+    "scripts/ci/client-v3-native/prepare.py": {
+      "bytes": 9151,
+      "sha256": "659a2412e036d677aa41415bfe27e00e3062d9209eaa4f8b7fe4263a839747e0"
+    },
+    "scripts/ci/client-v3-native/rename_after_real_verification.py": {
+      "bytes": 2710,
+      "sha256": "42c63b5d8b56d38f3cc4d1e6890942e71d49c0cdeb90f70c840b44b7758b01f1"
+    },
+    "scripts/ci/client-v3-native/retained-input-carrier.json": {
+      "bytes": 713,
+      "sha256": "73dfc92537396191efd1136f488e0166ddc2ab552fb1ce5f62068fe886a7006f"
+    },
+    "scripts/ci/client-v3-native/retained574.py": {
+      "bytes": 5943,
+      "sha256": "92ac0a9a27ad00a9b475b48db2b76f8c017927f54cb1f9547724118f7b0b89c2"
+    },
+    "scripts/ci/client-v3-native/rules.py": {
+      "bytes": 4745,
+      "sha256": "dc5874f502fed52c03c8c4279d5e2018fe95f79d705f1614924dc52fd9f62f8c"
+    },
+    "scripts/ci/client-v3-native/run.py": {
+      "bytes": 370,
+      "sha256": "e11ed6953cb566e0684a72dfc62415df537478f9a2dbf873529c06ca57693880"
+    },
+    "scripts/ci/client-v3-native/runtime_image.py": {
+      "bytes": 2057,
+      "sha256": "a682b64a5326fc7edf0d2347c37ae50805f9b7773c2683f1fbae1769c18fa023"
+    },
+    "scripts/ci/client-v3-native/test_entry_failures.py": {
+      "bytes": 11184,
+      "sha256": "1ac5a9eb9ef0a24c905ca2ea0408003a15c60d7e194b8843f9ead79e9a6bbfa3"
+    },
+    "scripts/ci/client-v3-native/test_retained574.py": {
+      "bytes": 4945,
+      "sha256": "6ad5b6971598a2f1525c6abad1170198c3a73be5c31d6dfc651113c9986e985c"
+    },
+    "scripts/ci/client-v3-native/test_source.py": {
+      "bytes": 13852,
+      "sha256": "7ae1899399154710d617334c54283066ffce7595002f78d2657902c529864b17"
+    },
+    "scripts/ci/client-v3-native/workflow.yml.in": {
+      "bytes": 8571,
+      "sha256": "8e6f5ef8bac0561d9c31f51518d358addba7ab024a91e6eadecfb53e1981c18c"
+    }
+  }
+}

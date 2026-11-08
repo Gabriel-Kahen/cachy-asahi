@@ -1,0 +1,41 @@
+name: client-v3-entry-fixture-source-data
+on:
+  pull_request:
+    paths:
+      - 'scripts/ci/client-v3-entry-fixture-native-source-v1/**'
+      - '.github/workflows/client-v3-entry-fixture-source-data.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/ci/client-v3-entry-fixture-native-source-v1/**'
+      - '.github/workflows/client-v3-entry-fixture-source-data.yml'
+permissions:
+  contents: read
+jobs:
+  fixture-data:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 15b72d34ed8e31be8bd24364cca68859485f32e0
+          path: .ci-inputs/client-source15b
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Check exact fixture projection and strict guard DATA boundaries without actors
+        run: |
+          set -euo pipefail
+          ulimit -t 60 -v 1048576 -f 4096 -n 128
+          L=scripts/ci/client-v3-entry-fixture-native-source-v1
+          timeout --signal=TERM --kill-after=5s 60s python3 -I -B -Werror "$L/test_data.py" --source15b "$GITHUB_WORKSPACE/.ci-inputs/client-source15b" --trusted-root "$GITHUB_WORKSPACE"
+          timeout --signal=TERM --kill-after=5s 60s python3 -I -B -Werror "$L/prepare.py" --root "$GITHUB_WORKSPACE" --stage-entry-controls "$RUNNER_TEMP/client-entry-controls"
+          timeout --signal=TERM --kill-after=5s 60s python3 -I -B -Werror "$RUNNER_TEMP/client-entry-controls/test_entry_failures.py" --root "$GITHUB_WORKSPACE"
