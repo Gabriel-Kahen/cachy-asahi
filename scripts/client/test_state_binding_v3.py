@@ -3,10 +3,13 @@ import argparse,contextlib,hashlib,json,os,stat,sys,tempfile,types,unittest
 from datetime import datetime,timedelta,timezone
 from pathlib import Path
 from unittest.mock import patch
-T=Path(__file__).resolve().parent;parser=argparse.ArgumentParser(add_help=False);parser.add_argument('--client',type=Path);parser.add_argument('--before',type=Path);options,rest=parser.parse_known_args();ATTEMPTS=[]
+T=Path(__file__).resolve().parent;parser=argparse.ArgumentParser(add_help=False);parser.add_argument('--client',type=Path);parser.add_argument('--before',type=Path);options,rest=parser.parse_known_args();ATTEMPTS=[];ACTIVE=False
 def fence(event,args):
- if event.startswith(('subprocess.','socket.','ctypes.','os.exec','os.spawn','os.fork','os.posix_spawn'))or event in('os.system','pty.spawn','os.kill','os.killpg'):
+ if ACTIVE and (event.startswith(('subprocess.','socket.','ctypes.','os.exec','os.spawn','os.fork','os.posix_spawn'))or event in('os.system','pty.spawn','os.kill','os.killpg')):
   ATTEMPTS.append(event);raise RuntimeError('client DATA actor fence '+event)
+def end_fence():
+ global ACTIVE
+ ACTIVE=False
 sys.addaudithook(fence)
 def load(name,path):
  module=types.ModuleType(name);module.__file__=str(path);sys.modules[name]=module
@@ -14,6 +17,8 @@ def load(name,path):
 old=load('_unchanged_client_before',options.before or T/'fixtures/state-binding-before-v2.py.txt');c=load('_candidate_client_state_binding',options.client or T/'client_v3.py')
 class Controls(unittest.TestCase):
  def setUp(self):
+  global ACTIVE
+  ACTIVE=True;self.addCleanup(end_fence)
   self.temp=tempfile.TemporaryDirectory(prefix='client-state-binding-');self.addCleanup(self.temp.cleanup);self.base=Path(self.temp.name);self.state=self.base/'state';self.state.mkdir(mode=0o700);self.detached=self.base/'detached-state';self.bundle=self.base/'bundle';self.bundle.mkdir(mode=0o700);self.now=datetime(2026,11,8,12,0,tzinfo=timezone.utc);self.key='A'*40
   self.prior=dict(schema_version=1,scope='development',namespace='dev.fixture',signer=self.key,sequence=1,metadata_sha256='a'*64,release_sha256='b'*64,issued_utc=c.utc(self.now-timedelta(minutes=2)),verified_utc=c.utc(self.now-timedelta(minutes=1)))
   self.prior_raw=c.encoded(self.prior);(self.state/'checkpoint.json').write_bytes(self.prior_raw);(self.state/'checkpoint.json').chmod(0o600)

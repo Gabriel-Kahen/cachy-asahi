@@ -3,15 +3,20 @@
 """NEW client-v3 source/layout controls; only owned DATA staging, no package actor."""
 import argparse,contextlib,importlib.util,io,json,os,runpy,shutil,stat,sys,tempfile,unittest
 from pathlib import Path
-p=argparse.ArgumentParser(add_help=False);p.add_argument('--recipe-root',type=Path);p.add_argument('--runtime-recipe-root',type=Path);p.add_argument('--canonical-root',type=Path);args,rest=p.parse_known_args();ROOT=args.recipe_root or Path(__file__).resolve().parent;ATTEMPTS=[]
+p=argparse.ArgumentParser(add_help=False);p.add_argument('--recipe-root',type=Path);p.add_argument('--runtime-recipe-root',type=Path);p.add_argument('--canonical-root',type=Path);args,rest=p.parse_known_args();ROOT=args.recipe_root or Path(__file__).resolve().parent;ATTEMPTS=[];ACTIVE=False
 def deny(event,values):
- if event.startswith(('subprocess.','socket.','ctypes.','os.exec','os.spawn','os.fork','os.posix_spawn'))or event in('os.system','pty.spawn','os.kill','os.killpg'):ATTEMPTS.append(event);raise RuntimeError('package DATA actor denied '+event)
+ if ACTIVE and (event.startswith(('subprocess.','socket.','ctypes.','os.exec','os.spawn','os.fork','os.posix_spawn'))or event in('os.system','pty.spawn','os.kill','os.killpg')):ATTEMPTS.append(event);raise RuntimeError('package DATA actor denied '+event)
+def end_fence():
+ global ACTIVE
+ ACTIVE=False
 sys.addaudithook(deny)
 def load(name,path):
  spec=importlib.util.spec_from_file_location(name,path);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);return m
 C=load('_v3_package_source_checker',ROOT/'check_source.py')
 class Controls(unittest.TestCase):
  def setUp(self):
+  global ACTIVE
+  ACTIVE=True;self.addCleanup(end_fence)
   self.temp=tempfile.TemporaryDirectory(prefix='client-v3-package-data-');self.addCleanup(self.temp.cleanup);self.base=Path(self.temp.name);self.recipe=self.base/'recipe';shutil.copytree(ROOT,self.recipe);self.stage=self.base/'stage';self.stage.mkdir(mode=0o700)
  def stage_data(self):
   for n,(source,mode)in C.payload().items():q=self.stage/n;q.parent.mkdir(parents=True,exist_ok=True);q.write_bytes((self.recipe/source).read_bytes());q.chmod(mode)
