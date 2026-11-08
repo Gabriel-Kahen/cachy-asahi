@@ -165,8 +165,8 @@
       "sha256": "3f03a6f2624386ac18eba42493783c475c6616559522ba3cbda225827c5a732b"
     },
     "scripts/ci/client-v3-native/README.md": {
-      "bytes": 3783,
-      "sha256": "2bc7db6a8c1a33fbb0ca7af1577454e912b1a0d32569189ee1c027ebf65fcdd3"
+      "bytes": 4867,
+      "sha256": "a30d742eb3c463664affc538d5a21b51ee1b7f67587bd2cfe630cb063a8a5e3f"
     },
     "scripts/ci/client-v3-native/adapter.py": {
       "bytes": 12328,
@@ -220,6 +220,10 @@
       "bytes": 713,
       "sha256": "73dfc92537396191efd1136f488e0166ddc2ab552fb1ce5f62068fe886a7006f"
     },
+    "scripts/ci/client-v3-native/retained574.py": {
+      "bytes": 5943,
+      "sha256": "92ac0a9a27ad00a9b475b48db2b76f8c017927f54cb1f9547724118f7b0b89c2"
+    },
     "scripts/ci/client-v3-native/rules.py": {
       "bytes": 4745,
       "sha256": "dc5874f502fed52c03c8c4279d5e2018fe95f79d705f1614924dc52fd9f62f8c"
@@ -235,6 +239,10 @@
     "scripts/ci/client-v3-native/test_entry_failures.py": {
       "bytes": 11184,
       "sha256": "1ac5a9eb9ef0a24c905ca2ea0408003a15c60d7e194b8843f9ead79e9a6bbfa3"
+    },
+    "scripts/ci/client-v3-native/test_retained574.py": {
+      "bytes": 4945,
+      "sha256": "6ad5b6971598a2f1525c6abad1170198c3a73be5c31d6dfc651113c9986e985c"
     },
     "scripts/ci/client-v3-native/test_source.py": {
       "bytes": 13852,

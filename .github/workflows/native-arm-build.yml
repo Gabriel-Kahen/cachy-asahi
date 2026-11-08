@@ -34,7 +34,7 @@ jobs:
         timeout-minutes: 2
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '6065fff6889eac2ce0123d4ea660147f51e204cce4d0b7a5d3a944d870b6c4c1' "$SLICE/job.py" 'eee6e7783ff8fdaa0ea1c0d282577d326abed28215b68e0046a5ca9bf172664c' "$SLICE/source-manifest.json" | sha256sum --check
+          printf '%s  %s\n' '6065fff6889eac2ce0123d4ea660147f51e204cce4d0b7a5d3a944d870b6c4c1' "$SLICE/job.py" '2a05cc14e7fa203b338bf722e8b4e720aec736fc2b43addbe828df2dedf51e88' "$SLICE/source-manifest.json" | sha256sum --check
           python3 -I -B "$SLICE/job.py" proof --source "$GITHUB_WORKSPACE" --proof "$RUNNER_TEMP/client-v3-native-source-proof.json"
       - name: Focused source and hosted entry controls
         timeout-minutes: 3
@@ -43,6 +43,7 @@ jobs:
           python3 -I -B scripts/ci/test_maintained_desktop574.py
           python3 -I -B "$SLICE/test_source.py" --root "$GITHUB_WORKSPACE" --closed-source
           python3 -I -B "$SLICE/test_entry_failures.py" --root "$GITHUB_WORKSPACE"
+          python3 -I -B "$SLICE/test_retained574.py"
       - name: Seed the six exact retained inputs using existing secrets only
         timeout-minutes: 2
         env:
@@ -87,6 +88,22 @@ jobs:
           set -euo pipefail
           printf '%s  %s\n' 'a7857658af224984065e575f6ffed8308ea85027d46eace8bda146d9033e93b3' 'retained-public-inputs/seed.py' 'a388c8c8ba8e06cb92fd2be598b86e433c4e403b6e71a0f15b1eaec381bb7300' 'retained-public-inputs/index.json' | sha256sum --check
           env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC TMPDIR="$RUNNER_TEMP" python3 -I -B "$GITHUB_WORKSPACE/retained-public-inputs/seed.py" --cache "$RUNNER_TEMP/desktop574/context/deps"
+      - name: Checkout complete exact retained574 package DATA
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 5
+        with:
+          ref: 4659076d3a1d3e5cf87c185a3ff383fbc38e734d
+          path: retained-complete574-inputs
+          persist-credentials: false
+      - name: Join all1148 exact retained package and signature inputs without network
+        timeout-minutes: 2
+        run: |
+          set -euo pipefail
+          test "$(git -C retained-complete574-inputs rev-parse HEAD)" = 4659076d3a1d3e5cf87c185a3ff383fbc38e734d
+          test "$(git -C retained-complete574-inputs rev-parse HEAD^{tree})" = e21f947bac3afdfbd67e4e65c8234b35ae42b00f
+          printf '%s  %s\n' '92ac0a9a27ad00a9b475b48db2b76f8c017927f54cb1f9547724118f7b0b89c2' "$SLICE/retained574.py" | sha256sum --check
+          deadline=$(python3 -I -B -c 'import time; print(time.monotonic()+110)')
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC TMPDIR="$RUNNER_TEMP" python3 -I -B "$SLICE/retained574.py" --lock scripts/ci/maintained-desktop574-inputs.json --carrier "$GITHUB_WORKSPACE/retained-complete574-inputs" --cache "$RUNNER_TEMP/desktop574/context/deps" --deadline "$deadline"
       - name: Reconstruct pinned inputs and run offline owned native574 transaction
         timeout-minutes: 40
         env:
