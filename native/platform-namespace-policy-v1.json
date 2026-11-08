@@ -1,0 +1,132 @@
+{
+  "acceptance": false,
+  "actual": {
+    "image": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "build_network": "none",
+  "build_pull": false,
+  "cap_add": [],
+  "cap_drop": [],
+  "cases": [
+    {
+      "id": "baseline",
+      "security_opt": []
+    },
+    {
+      "id": "apparmor_only",
+      "security_opt": [
+        "apparmor=unconfined"
+      ]
+    },
+    {
+      "id": "seccomp_only",
+      "security_opt": [
+        "seccomp=unconfined"
+      ]
+    },
+    {
+      "id": "both",
+      "security_opt": [
+        "apparmor=unconfined",
+        "seccomp=unconfined"
+      ]
+    }
+  ],
+  "context": {
+    "baseline_lsm": "docker-default (enforce)",
+    "baseline_seccomp": 2,
+    "bwrap": {
+      "bytes": 133648,
+      "gid": 0,
+      "mode": 493,
+      "sha256": "3016d82c88481eeb15c1145ea82a591b11890faa6e957635b75bc148a1701e45",
+      "status": "OBSERVED",
+      "uid": 0
+    },
+    "cap_bound": "00000000a80425fb",
+    "cap_effective": "0000000000000000",
+    "cap_permitted": "0000000000000000",
+    "gid": 1001,
+    "groups": [
+      998,
+      1001
+    ],
+    "kind": "platform-namespace-policy-probe-context-v1",
+    "no_new_privs": 0,
+    "position": "SAME_PROCESS_BEFORE_SINGLE_BWRAP_EXEC",
+    "uid": 1001
+  },
+  "downloads_added": false,
+  "kind": "platform-namespace-policy-matrix-contract-v1",
+  "limits": {
+    "Source_leaf_bytes": 33554432,
+    "Source_mapped_files": 200,
+    "case_output_bytes": 65536,
+    "cases": 4,
+    "container_start_seconds": 30,
+    "metadata_bytes": 1048576,
+    "probe_seconds": 20,
+    "result_bytes": 1048576,
+    "whole_matrix_seconds": 240
+  },
+  "network": "none",
+  "no_host_mounts": true,
+  "no_new_privileges_added": false,
+  "operation": "platform-namespace-policy-matrix-v1",
+  "package_install_during_probe": false,
+  "package_target": "platform-alpm-release",
+  "prepared_target": "namespace-policy-prepared",
+  "privileged": false,
+  "probe": {
+    "argv": [
+      "/usr/bin/bwrap",
+      "--die-with-parent",
+      "--ro-bind",
+      "/",
+      "/",
+      "--unshare-net",
+      "--dev",
+      "/dev",
+      "--tmpfs",
+      "/home",
+      "--chdir",
+      "/tmp",
+      "--tmpfs",
+      "/var/lib/pacman",
+      "--",
+      "/usr/bin/true"
+    ],
+    "cwd": "/tmp",
+    "environment": {
+      "HOME": "/tmp",
+      "LC_ALL": "C",
+      "PATH": "/usr/bin:/bin",
+      "TMPDIR": "/tmp"
+    },
+    "namespace_errno": "UNKNOWN_FROM_BWRAP_EXIT",
+    "note": "Original namespace flags retained; fixture binds and application launcher replaced by true; no invented --unshare-user",
+    "one_exec": true
+  },
+  "resources": {
+    "memory": 536870912,
+    "memory_swap": 536870912,
+    "nano_cpus": 1000000000,
+    "nofile": 128,
+    "pids_limit": 32
+  },
+  "schema": 1,
+  "source_context_reference": {
+    "attempt": 1,
+    "build_log_sha256": "39ee995118ce3a367d58358d12116a32a8db0a0b256760d9fa36627790b0662c",
+    "context_sha256": "16d40e46e7db99fb9ca0c4f7c8fa9faf25e4f3b362508a0044cb9e8fef0e1d13",
+    "job": 124539071818,
+    "original_build_cgroup_limits": "NOT_RETAINED",
+    "run": 41201863412,
+    "runtime_to_BuildKit_policy_equivalence": "NOT_PROVED",
+    "source": "05df8c71ea2bcb525bb1cfbc59983452062a1e97"
+  },
+  "source_parent": "05df8c71ea2bcb525bb1cfbc59983452062a1e97"
+}
