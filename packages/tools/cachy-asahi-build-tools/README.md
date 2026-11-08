@@ -1,8 +1,8 @@
 # Opt-in offline development build tools
 
-This independent `0.1.0-1` development candidate packages the maintained local-cache importer and recipe/source preflight without requiring project checkout code at runtime. It is unselected for development/release inventories. It does not replace `cachy-asahi-source-tools` or any existing command.
+This independent `0.1.1-1` development candidate packages the maintained local-cache importer and recipe/source preflight without requiring project checkout code at runtime. It is unselected for development/release inventories. It does not replace `cachy-asahi-source-tools` or any existing command.
 
-The only runtime dependency is `python>=3.12`. `/usr/bin/cachy-asahi-build-tools` uses isolated Python and selects four commands. Six exact MIT project modules are installed under `/usr/lib/cachy-asahi-build-tools/trusted/scripts/`; their relative import layout is preserved. `source-provenance.json` records the exact project commit, file paths, lengths, hashes and installed paths. A data/recipe workspace is never a code root; there is no code-root option or environment override. Python network and process audit events are refused by this DATA-only launcher. This is a narrow command boundary, not a general sandbox or permission to run arbitrary code.
+The only runtime dependency is `python>=3.12`. `/usr/bin/cachy-asahi-build-tools` uses isolated Python and selects five commands. Five exact MIT project modules plus the reviewed v2 recipe checker are installed under `/usr/lib/cachy-asahi-build-tools/trusted/scripts/`; their relative import layout is preserved. `source-provenance.json` records the exact project commit, file paths, lengths, hashes and installed paths. A data/recipe workspace is never a code root; there is no code-root option or environment override. Python network and process audit events are refused by this DATA-only launcher. This is a narrow command boundary, not a general sandbox or permission to run arbitrary code.
 
 ```sh
 cachy-asahi-build-tools cache-init --cache /absolute/private/source-cache
@@ -15,6 +15,7 @@ cachy-asahi-build-tools cache-verify \
   --cache /absolute/private/source-cache \
   --inputs /absolute/reviewed/source-inputs.json \
   --inputs-sha256 INDEPENDENTLY_REVIEWED_CATALOG_SHA256 --id EXACT_MATERIAL_ID
+cachy-asahi-build-tools recipe-check /absolute/reviewed/recipe/PKGBUILD
 cachy-asahi-build-tools source-preflight \
   --recipe /absolute/reviewed/recipe \
   --source-plan /absolute/reviewed/source-plan.json \
@@ -37,6 +38,8 @@ Build/check without installing:
 makepkg --nodeps --cleanbuild --noconfirm
 ```
 
-`check()` runs seven packaging controls through the actual `package()` staging function and moved CLI. Its finite `check-inputs.tar.gz` contains one real retained zlib1.3.2 archive (1,502,830 bytes/SHA256`bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16`), its notice/catalog and pinned project baseline/LTO recipe DATA. None is imported or executed. Fixtures and tests are not installed. Controls cover import/verify/both preflights, missing/tampered data, preserved cache conflicts, hostile workspace/Python environment, inert recipe shell text, offline-only dispatch, exact installed files/modes and relocation. Dedicated hosted Python3.12/3.14 DATA CI maintains them.
+`check()` runs eight packaging controls through the actual `package()` staging function and moved CLI. Its finite `check-inputs.tar.gz` contains one real retained zlib1.3.2 archive (1,502,830 bytes/SHA256`bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16`), its notice/catalog and pinned project baseline/LTO recipe DATA. None is imported or executed. Fixtures and tests are not installed. Controls cover import/verify/both preflights, missing/tampered data, preserved cache conflicts, hostile workspace/Python environment, inert recipe shell text, offline-only dispatch, exact installed files/modes, relocation and versioned-dependency recipe/preflight use without .SRCINFO. Dedicated hosted Python3.12/3.14 DATA CI maintains them.
 
 Host package assembly and source controls are separate from native ARM build or ALPM installation/removal acceptance. Native ARM/16K/M2, performance, complete-source/legal clearance and release admission remain **NOT RUN / NOT ADMITTED**. This tool neither verifies publisher signatures nor grants native or hardware authority.
+
+The 0.1.1 private checker accepts the standard quoted literal dependency comparisons (`>=`, `<=`, `=`, `>`, `<`; provides only `=`), numeric epochs and package releases without shell evaluation. `recipe-check` inspects one PKGBUILD and records complete input hashes, using `.SRCINFO` if present. The versioned owner is `scripts/checks/package_checks_v2.py`; the old central checker and SourceTools private runtime remain unchanged. Only the literal parser and single-recipe CLI dispatcher differ from the pinned checker basis; protected-platform, source integrity and archive checks remain held. Unquoted operators, command substitutions, redirections, compound words and nonliteral assignment tails refuse. This is static inspection, not dependency solving, version ordering or a Bash sandbox.

@@ -124,13 +124,30 @@ class PackageTests(unittest.TestCase):
         self.preflight(expected=1)
         self.assertFalse((self.workspace / 'EXECUTED_RECIPE').exists())
 
-    def test_only_four_offline_commands_and_isolated_invocation_are_supported(self):
+    def test_only_five_offline_commands_and_isolated_invocation_are_supported(self):
         self.invoke('cache-acquire', expected=2)
         self.invoke('build', expected=2)
         result = subprocess.run([sys.executable, '-S', str(self.cli)], cwd=self.root,
                                 env={k:v for k,v in os.environ.items() if not k.startswith('PYTHON')},
                                 capture_output=True, timeout=10)
         self.assertEqual(result.returncode, 1); self.assertIn(b'python3 -I', result.stderr)
+
+    def test_versioned_recipe_check_and_preflight_use_the_packaged_parser_without_srcinfo(self):
+        self.import_real()
+        recipe = self.data / 'recipes/baseline/PKGBUILD'
+        recipe.write_text(recipe.read_text() + "\ndepends=('python>=3.12')\n")
+        plan_path = self.data / 'baseline-source-plan.json'
+        plan = json.loads(plan_path.read_bytes())
+        plan['recipe_inputs']['PKGBUILD'] = digest(recipe.read_bytes())
+        plan_path.write_text(json.dumps(plan))
+        checked = self.invoke('recipe-check', recipe)
+        self.assertFalse(checked['recipes'][0]['errors'])
+        self.assertEqual(checked['recipes'][0]['metadata']['depends'], ['python>=3.12'])
+        self.assertEqual(self.preflight()['status'], 'VERIFIED_OFFLINE_SOURCE_BINDING_ONLY')
+        self.assertFalse((recipe.parent / '.SRCINFO').exists())
+        recipe.write_text(recipe.read_text() + "\nconflicts=('linux-asahi>=1')\n")
+        refused = self.invoke('recipe-check', recipe, expected=1)
+        self.assertTrue(any('protected platform' in e for e in refused['recipes'][0]['errors']))
 
     def test_exact_installed_code_paths_pins_modes_and_no_hooks(self):
         installed = {str(p.relative_to(self.prefix)) for p in self.prefix.rglob('*') if p.is_file()}

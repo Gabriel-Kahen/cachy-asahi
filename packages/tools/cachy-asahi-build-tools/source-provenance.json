@@ -72,7 +72,7 @@
   "project_source_commit": "56444ede0a48752dd63cc592b1fc33c3e29448ff",
   "qualification": {
     "hardware": "NOT RUN",
-    "host_package_assembly": "NOT RUN",
+    "host_package_assembly": "NOT_ATTESTED_BY_SOURCE_METADATA",
     "installed_ALPM_lifecycle": "NOT RUN",
     "legal_acceptance": false,
     "native_build": "NOT RUN",
@@ -85,7 +85,7 @@
   "schema_version": 1,
   "selected_for_development": false,
   "selected_for_release": false,
-  "source_kind": "six exact project modules plus new isolated launcher; local SHA-pinned recipe inputs",
+  "source_kind": "five exact project modules plus reviewed versioned recipe checker and isolated launcher; local SHA-pinned recipe inputs",
   "trusted_code": {
     "scripts/build/offline-source-preflight-v1/preflight.py": {
       "bytes": 3258,
@@ -105,11 +105,26 @@
       "local_source": "source_materials.py",
       "sha256": "9b0d95d2604ae4689f081283fc671281ce13879fcb146ddf4188873b05c89e5a"
     },
-    "scripts/checks/package_checks.py": {
-      "bytes": 19289,
+    "scripts/checks/package_checks_v2.py": {
+      "basis": {
+        "added_functions": [
+          "relation_literals"
+        ],
+        "all_other_functions_and_protected_constants_held": true,
+        "changed_existing_functions": [
+          "literal_metadata",
+          "main"
+        ],
+        "path": "scripts/checks/package_checks.py",
+        "sha256": "314e8b4a0920b3f6d93619fc74ad1d63a6210d1b17b925618451b493d2610a1a",
+        "source": "29c640b52e67d97be8670200f26a17dc1e1def87"
+      },
+      "bytes": 22139,
       "installed_path": "/usr/lib/cachy-asahi-build-tools/trusted/scripts/checks/package_checks.py",
       "local_source": "package_checks.py",
-      "sha256": "314e8b4a0920b3f6d93619fc74ad1d63a6210d1b17b925618451b493d2610a1a"
+      "sha256": "fe305b58881c9fbcb53b351ee05aac1cb606f9e569a49f2485dd1892ab616168",
+      "source_commit": null,
+      "source_path": "scripts/checks/package_checks_v2.py"
     },
     "scripts/maintenance/source_cache.py": {
       "bytes": 14253,
@@ -124,5 +139,5 @@
       "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
     }
   },
-  "version": "0.1.0-1"
+  "version": "0.1.1-1"
 }
