@@ -470,6 +470,13 @@ class Audit:
                 if args[i + 1] == 'PATH':
                     tool_path = None
                 i += 2
+            elif options and arg.startswith('--unset='):
+                name = arg[len('--unset='):]
+                if not name or '=' in name or '\0' in name:
+                    return {'error': 'invalid env unset variable'}
+                if name == 'PATH':
+                    tool_path = None
+                i += 1
             elif options and arg.startswith('-'):
                 return {'error': 'unsupported env option; nested command unresolved: ' + arg}
             elif '=' in arg:

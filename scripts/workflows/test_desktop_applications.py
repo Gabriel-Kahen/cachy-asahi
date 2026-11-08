@@ -519,5 +519,115 @@ class FixtureTests(unittest.TestCase):
             desktop.Stage('/')
 
 
+    def test_env_unset_equals_user_override_is_preserved(self):
+        self.write('/usr/bin/env', elf(), 0o755)
+        path = self.desktop(base=self.env['XDG_DATA_HOME'], body=
+            '[Desktop Entry]\nType=Application\nName=User override\n'
+            'Exec=env --unset=WAYLAND_DISPLAY app\n')
+        before = path.read_bytes(), path.stat().st_mode
+        report = self.run_audit()
+        app = report['applications'][0]
+        self.assertEqual(report['status'], 'PASS_STAGED_CHECKS')
+        self.assertEqual(app['origin'], 'user_override')
+        self.assertEqual(app['exec']['resolution']['env_target']['file']['path'], '/usr/bin/app')
+        self.assertEqual((path.read_bytes(), path.stat().st_mode), before)
+        self.assertEqual(report['pins'][app['path']]['sha256'], desktop.pin(before[0])['sha256'])
+
+    def test_env_unset_equals_path_does_not_infer_default_search(self):
+        self.write('/usr/bin/env', elf(), 0o755)
+        for option in ('--unset=PATH', '--unset PATH'):
+            with self.subTest(option=option):
+                self.desktop(body='[Desktop Entry]\nType=Application\nName=Env\n'
+                             'Exec=env ' + option + ' app\n')
+                report = self.run_audit()
+                target = report['applications'][0]['exec']['resolution']['env_target']
+                self.assertEqual(report['status'], 'FAIL_STAGED_CHECKS')
+                self.assertIn('PATH unset', target['error'])
+
+    def test_env_unset_equals_path_allows_explicit_absolute_command(self):
+        self.write('/usr/bin/env', elf(), 0o755)
+        for option in ('--unset=PATH', '--unset PATH'):
+            with self.subTest(option=option):
+                self.desktop(body='[Desktop Entry]\nType=Application\nName=Env\n'
+                             'Exec=env ' + option + ' /usr/bin/app\n')
+                report = self.run_audit()
+                self.assertEqual(report['status'], 'PASS_STAGED_CHECKS')
+                target = report['applications'][0]['exec']['resolution']['env_target']
+                self.assertEqual(target['file']['path'], '/usr/bin/app')
+
+    def test_env_unset_equals_path_can_be_restored_explicitly(self):
+        self.write('/usr/bin/env', elf(), 0o755)
+        self.write('/chosen/bin/app', elf(), 0o755)
+        for option in ('--unset=PATH', '--unset PATH'):
+            with self.subTest(option=option):
+                self.desktop(body='[Desktop Entry]\nType=Application\nName=Env\n'
+                             'Exec=env ' + option + ' PATH=/chosen/bin app\n')
+                report = self.run_audit()
+                self.assertEqual(report['status'], 'PASS_STAGED_CHECKS')
+                target = report['applications'][0]['exec']['resolution']['env_target']
+                self.assertEqual(target['file']['path'], '/chosen/bin/app')
+
+    def test_env_repeated_unset_equals_keeps_path_unset(self):
+        self.write('/usr/bin/env', elf(), 0o755)
+        for command, expected in (('app', 'FAIL_STAGED_CHECKS'),
+                                  ('/usr/bin/app', 'PASS_STAGED_CHECKS')):
+            with self.subTest(command=command):
+                self.desktop(body='[Desktop Entry]\nType=Application\nName=Env\n'
+                    'Exec=env --unset=PATH --unset=WAYLAND_DISPLAY --unset=PATH ' + command + '\n')
+                report = self.run_audit()
+                self.assertEqual(report['status'], expected)
+                target = report['applications'][0]['exec']['resolution']['env_target']
+                if command == 'app':
+                    self.assertIn('PATH unset', target['error'])
+                else:
+                    self.assertEqual(target['file']['path'], '/usr/bin/app')
+
+    def test_env_unset_equals_after_end_of_options_is_not_an_option(self):
+        self.write('/usr/bin/env', elf(), 0o755)
+        self.desktop(body='[Desktop Entry]\nType=Application\nName=Env\n'
+                     'Exec=env -- --unset=PATH app\n')
+        report = self.run_audit()
+        target = report['applications'][0]['exec']['resolution']['env_target']
+        self.assertEqual(report['status'], 'FAIL_STAGED_CHECKS')
+        self.assertEqual(target['error'], 'invalid env assignment')
+
+    def test_env_unset_equals_does_not_admit_unknown_options_or_shell_payloads(self):
+        self.write('/usr/bin/env', elf(), 0o755)
+        self.write('/usr/bin/sh', elf(), 0o755)
+        for option in ('--unsetx=LANG', '--unknown-option'):
+            with self.subTest(option=option):
+                self.desktop(body='[Desktop Entry]\nType=Application\nName=Env\n'
+                             'Exec=env ' + option + ' app\n')
+                report = self.run_audit()
+                self.assertEqual(report['status'], 'FAIL_STAGED_CHECKS')
+                target = report['applications'][0]['exec']['resolution']['env_target']
+                self.assertIn('unsupported env option', target['error'])
+        for option in ('--unset=', '--unset=BAD=VALUE'):
+            with self.subTest(option=option):
+                self.desktop(body='[Desktop Entry]\nType=Application\nName=Env\n'
+                             'Exec=env ' + option + ' app\n')
+                report = self.run_audit()
+                self.assertEqual(report['status'], 'FAIL_STAGED_CHECKS')
+                target = report['applications'][0]['exec']['resolution']['env_target']
+                self.assertEqual(target['error'], 'invalid env unset variable')
+        self.desktop(body='[Desktop Entry]\nType=Application\nName=Env shell\n'
+                     'Exec=env --unset=WAYLAND_DISPLAY sh -c "touch sentinel"\n')
+        report = self.run_audit()
+        self.assertEqual(report['status'], 'FAIL_STAGED_CHECKS')
+        target = report['applications'][0]['exec']['resolution']['env_target']
+        self.assertIn('NOT_AUDITED', target['error'])
+        self.assertFalse((self.root / 'sentinel').exists())
+
+    def test_env_split_shebang_accepts_unset_equals(self):
+        self.write('/usr/bin/env', elf(), 0o755)
+        self.write('/usr/bin/interpreter', elf(), 0o755)
+        self.write('/usr/bin/app',
+                   '#!/usr/bin/env -S --unset=WAYLAND_DISPLAY /usr/bin/interpreter\n', 0o755)
+        report = self.run_audit()
+        self.assertEqual(report['status'], 'PASS_STAGED_CHECKS')
+        target = report['applications'][0]['exec']['resolution']['env_target']
+        self.assertEqual(target['file']['path'], '/usr/bin/interpreter')
+
+
 if __name__ == '__main__':
     unittest.main()
