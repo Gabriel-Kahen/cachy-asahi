@@ -216,6 +216,8 @@ def elf_check(data):
         alignment = struct.unpack_from('<Q', data, entry + 48)[0]
         if alignment < 16384 or alignment & (alignment - 1) or file_offset % 16384 != vaddr % 16384:
             errors.append('PT_LOAD fails structural 16K alignment check')
+        if alignment > 0 and file_offset % alignment != vaddr % alignment:
+            errors.append(f'PT_LOAD p_align {alignment} congruence check failed')
     if not loads:
         errors.append('ELF executable/shared object has no PT_LOAD segments')
     return {'machine': machine, 'load_segments': loads, 'errors': errors,
@@ -227,8 +229,12 @@ def package(path):
     process = None
     raw = path.open('rb')
     if path.name.endswith('.zst'):
-        process = subprocess.Popen(['zstd', '-dc', '--', str(path)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stream = process.stdout
+        try:
+            process = subprocess.Popen(['zstd', '-dc', '--', str(path)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            stream = process.stdout
+        except BaseException:
+            raw.close()
+            raise
     else:
         stream = raw
     members, info, errors, review, elf = {}, {}, [], [], {}
@@ -280,12 +286,21 @@ def package(path):
                 if result:
                     elf[name] = result
                     errors.extend(f'{name}: {error}' for error in result['errors'])
+                if name in ('.PKGINFO', '.BUILDINFO', '.MTREE') and not member.isfile():
+                    errors.append(f'{name} must be a regular file')
     finally:
         raw.close()
         if process:
-            process.stdout.close()
-            diagnostic = process.stderr.read().decode(errors='replace')
-            if process.wait() != 0:
+            try:
+                process.stdout.close()
+                diagnostic = process.stderr.read().decode(errors='replace')
+            finally:
+                try:
+                    process.stderr.close()
+                finally:
+                    exit_code = process.wait()
+
+            if exit_code != 0:
                 raise ValueError(f'zstd decompression failed: {diagnostic[:500]}')
     for name, member in members.items():
         for ancestor in PurePosixPath(name).parents:
@@ -293,7 +308,9 @@ def package(path):
                 errors.append(f'archive path has non-directory ancestor: {name}')
         if member['type'] == '1':
             target = clean_name(member['link'])
-            if target not in members or members[target]['type'] != '0':
+            if target not in members:
+                errors.append(f'hardlink target must be a regular archive member: {name}')
+            elif members[target]['type'].encode('ascii') not in tarfile.REGULAR_TYPES:
                 errors.append(f'hardlink target must be a regular archive member: {name}')
     for field in ('.PKGINFO', '.BUILDINFO', '.MTREE'):
         if field not in members:
@@ -326,14 +343,25 @@ def package(path):
 
 
 def conflicts(reports):
-    owners, findings = {}, []
-    for report in reports:
+    owners, findings, path_owners = {}, [], {}
+    for report_index, report in enumerate(reports):
         for path, member in report['members'].items():
-            if path in PACKAGE_METADATA or member['type'] == '5':
+            if path in PACKAGE_METADATA:
                 continue
             if path in owners:
-                findings.append(f"{path}: {owners[path]} conflicts with {report['artifact']}")
-            owners[path] = report['artifact']
+                prev_owner, prev_type = owners[path]
+                if not (prev_type == '5' and member['type'] == '5'):
+                    findings.append(f"{path}: {prev_owner} conflicts with {report['artifact']}")
+            owners[path] = (report['artifact'], member['type'])
+            path_owners.setdefault(path, []).append((report_index, report['artifact'], member['type']))
+    for report_index, report in enumerate(reports):
+        for child_path, member in report['members'].items():
+            for ancestor in PurePosixPath(child_path).parents:
+                ancestor_str = str(ancestor)
+                if ancestor_str in path_owners:
+                    for owner_idx, owner_label, owner_type in path_owners[ancestor_str]:
+                        if owner_idx != report_index and owner_type != '5':
+                            findings.append(f"{child_path} is a child of {ancestor_str} (owned by {owner_label}), but {report['artifact']} also claims it.")
     return findings
 
 
