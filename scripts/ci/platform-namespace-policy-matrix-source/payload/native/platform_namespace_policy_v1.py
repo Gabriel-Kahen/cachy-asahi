@@ -184,7 +184,7 @@ if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('--guest',action='store_true');p.add_argument('--source',required=True);p.add_argument('--ref',required=True);p.add_argument('--run',required=True);p.add_argument('--map',required=True);p.add_argument('--case',choices=CASES,required=True);p.add_argument('--image',required=True);a=p.parse_args();need(a.guest,'explicit future guest entry only');raise SystemExit(guest(a))
 
 # Runtime integration is additive. The frozen DATA/guest contract above is held.
-MATRIX_GUEST_BOOTSTRAP="import runpy,sys;sys.path.insert(0,sys.argv.pop(1));scope=runpy.run_module('platform_namespace_policy_v1',run_name='platform_namespace_policy_guest_v2',alter_sys=True);raise SystemExit(scope['guest_cli_v2']())"
+MATRIX_GUEST_BOOTSTRAP="import runpy,sys;sys.path.insert(0,sys.argv.pop(1));scope=runpy.run_module('platform_namespace_policy_v1',run_name='platform_namespace_policy_guest_v3',alter_sys=True);raise SystemExit(scope['guest_cli_v3']())"
 _frozen_create_plan=create_plan
 def create_plan(image,own,map_hash,module_sha,contract_sha,c):
  """Retain isolated Python while admitting only the exact Source native directory."""
@@ -222,6 +222,85 @@ def guest_v2(args):
 def guest_cli_v2():
  import argparse
  p=argparse.ArgumentParser();p.add_argument('--guest',action='store_true');p.add_argument('--source',required=True);p.add_argument('--ref',required=True);p.add_argument('--run',required=True);p.add_argument('--map',required=True);p.add_argument('--case',choices=CASES,required=True);p.add_argument('--image',required=True);a=p.parse_args();need(a.guest,'explicit future guest entry only');return guest_v2(a)
+
+def guest_groups_v3(groups):
+ """Only exact allowed membership, with at most the observed duplicate primary GID."""
+ need(type(groups)is list and len(groups)in(2,3)and all(type(g)is int for g in groups),'bounded typed supplementary groups')
+ ordered=sorted(groups)
+ need(ordered in([998,1001],[998,1001,1001]),'only998/1001 membership and single duplicate primary1001')
+ return 'SINGLE_DUPLICATE_PRIMARY_GID'if len(ordered)==3 else'EXACT_GROUP_MEMBERSHIP'
+
+def guest_identity_data_v3(args):
+ diagnostic=guest_identity_data_v2(args);observed=diagnostic['observed']
+ try:
+  status=guest_groups_v3(observed['groups'])
+  need(observed['groups_complete']is True and type(observed['groups_count'])is int and observed['groups_count']==len(observed['groups']),'complete actual guest group vector')
+ except MatrixGuard:status='REFUSED_GROUP_VECTOR'
+ diagnostic.update(schema=3,kind='platform-namespace-policy-guest-identity-v3',phase='BEFORE_VERSIONED_IDENTITY_GUARD',group_comparison=dict(predicate='single-duplicate-primary-gid-membership-v3',status=status,raw_groups_unchanged=True))
+ diagnostic['checks']['groups']=status!='REFUSED_GROUP_VECTOR'
+ for name in('uid','euid','gid','egid'):diagnostic['checks'][name]=type(observed[name])is int and observed[name]==1001
+ diagnostic['failed_checks']=[name for name,passed in diagnostic['checks'].items()if not passed]
+ return diagnostic
+
+def _guest_process_v3(args):
+ """Future disposable-container entry only; no package/GPG/VM or extra PID probe."""
+ from common import verify_source
+ import platform_tools_v1 as T
+ root=Path(__file__).resolve().parents[1];manifest=verify_source(root,args.map);c=contract(json.loads((root/CONTRACT).read_bytes()))
+ own=dict(source=args.source,ref=args.ref,run=args.run,attempt=1,token=hashlib.sha256((args.source+':'+args.ref+':'+args.run).encode()).hexdigest()[:24]);binding(own)
+ need(args.case in CASES and re.fullmatch('sha256:[0-9a-f]{64}',args.image)and os.uname().machine in('aarch64','arm64')and os.getuid()==os.geteuid()==1001 and os.getgid()==os.getegid()==1001 and guest_groups_v3(os.getgroups())and Path.cwd()==Path('/tmp'),'exact unprivileged prepared native guest')
+ need(Path('/builder-packages.lock').is_file()and Path('/var/lib/pacman').is_dir(),'prepared tools prefix, no package work')
+ need(all(os.environ.get(k)==v for k,v in c['probe']['environment'].items()),'fixed minimal probe environment')
+ need(manifest['files'][MODULE]['sha256']==pin(Path(__file__).read_bytes())['sha256'],'source-owned probe body')
+ ctx=T.namespace_context(args.map);ctx['kind']=c['context']['kind'];ctx['position']=c['context']['position']
+ sys.stdout.buffer.write(PREFIX+encoded(ctx)+b'\n');sys.stdout.buffer.flush()
+ # One bwrap operation; parent-owned container/attach supervisor supplies deadline,
+ # complete output, exit/signal evidence and stopped-container retirement.
+ import signal
+ signal.alarm(c['limits']['probe_seconds']) # This owned probe only; never a foreign PID.
+ try:os.execve(c['probe']['argv'][0],c['probe']['argv'],c['probe']['environment'])
+ except OSError as error:
+  sys.stdout.buffer.write(b'PLATFORM_NAMESPACE_POLICY_EXEC_ERROR_V1 '+encoded(dict(errno=error.errno))+b'\n');sys.stdout.buffer.flush();return 125
+
+def guest_v3(args):
+ diagnostic=guest_identity_data_v3(args)
+ if diagnostic['failed_checks']:
+  raw=encoded(diagnostic);need(len(raw)<=2048,'bounded guest identity diagnostic')
+  sys.stderr.buffer.write(b'PLATFORM_NAMESPACE_POLICY_GUEST_IDENTITY_V3 '+raw+b'\n');sys.stderr.buffer.flush()
+  need(False,'exact unprivileged prepared native guest; bounded identity DATA retained')
+ return _guest_process_v3(args)
+
+def guest_cli_v3():
+ import argparse
+ p=argparse.ArgumentParser();p.add_argument('--guest',action='store_true');p.add_argument('--source',required=True);p.add_argument('--ref',required=True);p.add_argument('--run',required=True);p.add_argument('--map',required=True);p.add_argument('--case',choices=CASES,required=True);p.add_argument('--image',required=True);a=p.parse_args();need(a.guest,'explicit future guest entry only');return guest_v3(a)
+
+def process_groups_v3(process):
+ fields={'uid','euid','gid','egid','groups','group_count','groups_truncated'}
+ need(type(process)is dict and set(process)==fields,'exact raw process identity fields')
+ need(all(type(process[k])is int and process[k]==1001 for k in('uid','euid','gid','egid')),'exact integer UID/EUID/GID/EGID1001')
+ need(process['groups_truncated']is False and type(process['group_count'])is int and type(process['groups'])is list and process['group_count']==len(process['groups']),'complete actual process group vector')
+ return guest_groups_v3(process['groups'])
+
+_frozen_context=_context
+def _context(ctx,c,map_hash,case):
+ # Raw first context line/output inverse is checked by the unchanged frozen
+ # validator BEFORE this narrow internal process comparison view is consumed.
+ process=ctx['process'];process_groups_v3(process)
+ view=dict(ctx);view['process']=dict(process,groups=[998,1001],group_count=2)
+ stable=_frozen_context(view,c,map_hash,case)
+ # Cross-case equality still compares the actual raw process including counts.
+ stable['process']=process
+ return stable
+
+def guest_group_comparison_v3(value):
+ duplicates=[]
+ for row in value['cases']:
+  need(type(row['context'])is dict,'actual complete same-process context required')
+  status=process_groups_v3(row['context']['process'])
+  if status=='SINGLE_DUPLICATE_PRIMARY_GID':duplicates.append(row['id'])
+ return dict(schema=3,predicate='single-duplicate-primary-gid-membership-v3',
+             status='PASS_SAME_MEMBERSHIP_SINGLE_PRIMARY_GID_DUPLICATE'if duplicates else'PASS_EXACT_TWO_GROUP_VECTOR',
+             duplicate_primary_gid_cases=duplicates,raw_records_unchanged=True)
 
 def _typed_equal(left,right):
  if type(left)is not type(right):return False
@@ -281,14 +360,14 @@ _frozen_validate_result=validate_result
 def validate_result(value,c,expected=None):
  """Internal comparison view only; retained result/raw-role joins stay untouched."""
  need(len(encoded(value))<=c['limits']['result_bytes'],'whole original result cap')
- comparison=host_config_comparison_v1(value);profiles=apparmor_profile_comparison_v1(value);view=dict(value);view['cases']=[]
+ comparison=host_config_comparison_v1(value);profiles=apparmor_profile_comparison_v1(value);groups=guest_group_comparison_v3(value);view=dict(value);view['cases']=[]
  for row in value['cases']:
   current=dict(row);before=dict(row['inspect_before']);after=dict(row['inspect_after']);host=dict(after['HostConfig'])
   # The predicate above already proved this sole representation is equivalent.
   host['OomKillDisable']=False;after['HostConfig']=host;current['inspect_after']=after
   before['AppArmorProfile']=after['AppArmorProfile'];current['inspect_before']=before
   view['cases'].append(current)
- qualified=_frozen_validate_result(view,c,expected);qualified['host_config_comparison']=comparison;qualified['apparmor_profile_comparison']=profiles
+ qualified=_frozen_validate_result(view,c,expected);qualified['host_config_comparison']=comparison;qualified['apparmor_profile_comparison']=profiles;qualified['guest_group_comparison']=groups
  return qualified
 
 MATRIX_PARENT_TREE='7e66e27a352cee19a3d022d8c167c43b9ab72804'
@@ -548,7 +627,7 @@ def owner_matrix(actor,root,args,own,context,original_dockerfile,ledger,verify_b
    if state['ExitCode']!=0:report.setdefault('probe_failures',[]).append(dict(case=plan['id'],container=cid,returncode=state['ExitCode'],output=pin(output),namespace_errno=row['namespace_errno'],exec_errno=exec_errno))
    snapshot()
   report['engine_after']=engine_info('engine-after',matrix_deadline);need(report['engine_after']==engine,'same actual Engine through all four cases')
-  qualified=validate_result(result,c,expected);report['host_config_comparison']=qualified['host_config_comparison'];report['apparmor_profile_comparison']=qualified['apparmor_profile_comparison']
+  qualified=validate_result(result,c,expected);report['host_config_comparison']=qualified['host_config_comparison'];report['apparmor_profile_comparison']=qualified['apparmor_profile_comparison'];report['guest_group_comparison']=qualified['guest_group_comparison']
   report['candidate_interpretation']=interpret(result,c,expected);report['status']='DIAGNOSTIC_NAMESPACE_POLICY_MATRIX_COMPLETE'
  except BaseException as error:
   failure('matrix',error);pending=error if not isinstance(error,Exception)else None
@@ -593,7 +672,7 @@ def owner_matrix(actor,root,args,own,context,original_dockerfile,ledger,verify_b
   diagnostic={k:report[k]for k in('schema','operation','binding','source_map_sha256','status','native','acceptance','first_failure','cleanup')}
   diagnostic.update(cases=len(report['cases']),interpretation=report.get('interpretation',dict(status='UNKNOWN',reason='incomplete or unqualified actual matrix',native='NOT_ADMITTED',acceptance=False)),
        Root_external_expected_required=True,BuildKit_policy_equivalence='NOT_PROVED',package_ALPM='NOT_RUN',probe_failures=report.get('probe_failures',[]))
-  diagnostic['host_config_comparison']=report.get('host_config_comparison');diagnostic['apparmor_profile_comparison']=report.get('apparmor_profile_comparison')
+  diagnostic['host_config_comparison']=report.get('host_config_comparison');diagnostic['apparmor_profile_comparison']=report.get('apparmor_profile_comparison');diagnostic['guest_group_comparison']=report.get('guest_group_comparison')
   write_json('diagnostic.json',diagnostic);snapshot()
  if pending is not None:raise pending
  return diagnostic
@@ -688,7 +767,8 @@ def validate_runtime_evidence(owner,result,payloads,expected,source_proof):
   need(value['Id']==image and value['Config']['Labels']==image_labels and not(value.get('RepoTags')or[])and not value.get('RepoDigests'),'actual unaliased own image before removal');call('remove-prepared-image',DOCKER+['image','rm',image])
  need(ids('final-prepared-alias-absence',DOCKER+['image','ls','--no-trunc','-q','--filter','reference='+alias])==[]
       and ids('final-prepared-image-absence',DOCKER+['image','ls','--no-trunc','-q','--filter','label='+LABEL+'='+token])==[],'actual final prepared alias/image absence')
- comparison=host_config_comparison_v1(result);profiles=apparmor_profile_comparison_v1(result)
+ comparison=host_config_comparison_v1(result);profiles=apparmor_profile_comparison_v1(result);groups=guest_group_comparison_v3(result)
  need(owner.get('host_config_comparison')==comparison,'reader independently recomputed raw HostConfig predicate, not an artifact marker')
  need(owner.get('apparmor_profile_comparison')==profiles,'reader independently recomputed raw AppArmor phase predicate, not an artifact marker')
- return dict(status='VALIDATED_ACTUAL_MATRIX_RUNTIME_ROLE_BODY_OWNERSHIP_INVERSES',binding=own,calls=len(calls),logs=len(selectors),host_config_comparison=comparison,apparmor_profile_comparison=profiles,native='NOT_ADMITTED',acceptance=False)
+ need(owner.get('guest_group_comparison')==groups,'reader independently recomputed raw group membership predicate, not an artifact marker')
+ return dict(status='VALIDATED_ACTUAL_MATRIX_RUNTIME_ROLE_BODY_OWNERSHIP_INVERSES',binding=own,calls=len(calls),logs=len(selectors),host_config_comparison=comparison,apparmor_profile_comparison=profiles,guest_group_comparison=groups,native='NOT_ADMITTED',acceptance=False)

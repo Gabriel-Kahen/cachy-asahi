@@ -93,6 +93,13 @@ jobs:
           basis="$GITHUB_WORKSPACE/.ci-fixtures/platform-policy-parent05df"
           python3 -I -B "$factory/tests/test_apparmor_phase_data.py" --basis "$basis"
           python3 -I -B "$factory/tests/test_guest_identity_data.py"
+      - name: Versioned supplementary group membership and raw-context DATA controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          factory="$GITHUB_WORKSPACE/scripts/ci/platform-namespace-policy-matrix-source"
+          basis="$GITHUB_WORKSPACE/.ci-fixtures/platform-policy-parent05df"
+          python3 -I -B "$factory/tests/test_guest_group_membership_data.py" --basis "$basis"
       - name: Construct and independently join Source201 DATA only
         shell: bash
         run: |
@@ -102,6 +109,6 @@ jobs:
           python3 -I -B "$factory/prepare.py" \
             --basis "$basis" --overlay-root "$factory/payload" \
             --overlay-manifest "$factory/overlay-manifest.json" \
-            --overlay-manifest-sha256 4df359b21a784c9b2a015ff987a7d24456f6702c52d745cf69ca6981bdb238b2 \
+            --overlay-manifest-sha256 6b8e689777d222edd221f800b8e5f042d669cbf2e68a5f8e167b3233e96cdf66 \
             --output "$PLATFORM_POLICY_HOST_WORK/Source201"
           python3 -I -B "$factory/tests/check_constructed_source.py" "$PLATFORM_POLICY_HOST_WORK/Source201"

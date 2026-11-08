@@ -1,6 +1,6 @@
 {
-  "expected_map_sha256": "d1171e7af9cc3d9873bf7a51cc0aa104fff753f191ef1cd4cf7160aba4e5d9da",
-  "expected_tree": "626120a692fc65fda21244e3c16c35da6f0066fb",
+  "expected_map_sha256": "3a95802874b574723ad1d0fe03d13997afd908e6215935872e812e78dcd212f3",
+  "expected_tree": "7bef16deabcee949b098f37907a02092e1982b21",
   "files": {
     ".github/workflows/native-arm-build.yml": {
       "bytes": 13209,
@@ -23,9 +23,9 @@
       "sha256": "7d34c33b80053863424137b2b6faa47e2d7bc5fc0d4f0f1f966439ef60373059"
     },
     "native/platform_namespace_policy_v1.py": {
-      "bytes": 73624,
+      "bytes": 79792,
       "mode": 420,
-      "sha256": "88f651006fb24f5d73c60fc8b1f2268a5a4ee6205df195420aab6759c842e42b"
+      "sha256": "243691777af57f5e2f5bc19f3138d2f5802ce6fb62f79617c81c04b8a7c463ec"
     },
     "native/provision.py": {
       "bytes": 46376,
