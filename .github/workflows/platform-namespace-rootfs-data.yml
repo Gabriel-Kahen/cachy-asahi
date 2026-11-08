@@ -1,0 +1,34 @@
+name: Platform namespace rootfs DATA controls
+on:
+  pull_request:
+    paths:
+      - 'scripts/ci/platform-namespace-rootfs-v1/**'
+      - '.github/workflows/platform-namespace-rootfs-data.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/ci/platform-namespace-rootfs-v1/**'
+      - '.github/workflows/platform-namespace-rootfs-data.yml'
+permissions:
+  contents: read
+jobs:
+  pinned-data-assembly:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Verify inert package, tar, provenance and ELF dependency DATA
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: >-
+          python -B -Werror::ResourceWarning -m unittest discover
+          -s scripts/ci/platform-namespace-rootfs-v1 -p 'test_*.py' -v
