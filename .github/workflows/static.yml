@@ -638,10 +638,16 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-debian-maintained-system16k/test_protocol.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-debian-maintained-staged-packet/test_prepare.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-gnu-failure-log/test_summary.py
+      - name: Checkout exact immutable historical inventory input basis
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 97f44c9e275b8d6446ae2d5aa99f1c413e884c64
+          path: .ci-inputs/historical-inventory-input-basis
+          persist-credentials: false
       - name: Stage explicit immutable historical inventory source view
         run: >-
           python3 -I -B scripts/ci/historical-inventory-source/prepare.py
-          --source "$GITHUB_WORKSPACE" --factory all
+          --source "$GITHUB_WORKSPACE/.ci-inputs/historical-inventory-input-basis" --factory all
           --baseline inventory-19a8bdb45916e5dffef7a4c1496ebbc489792795ea2906a3d705a67e3906b880
           --output "$RUNNER_TEMP/historical-inventory-source"
       - name: Check historical maintained Debian source factories with their original inventory
