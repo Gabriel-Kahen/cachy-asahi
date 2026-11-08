@@ -18,21 +18,18 @@ namespace=dict(need=need,pin=pin,json=json,re=re)
 functions=[n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name in('_cleanup_require','_cleanup_pin','validate_observation')]
 exec(compile(ast.Module(body=functions,type_ignores=[]),'maintained-new-observer-validator','exec'),namespace)
 validate=namespace['validate_observation']
+def provenance_controls():
+ name='_maintained_security_observer_provenance_controls'
+ if name not in sys.modules:
+  import importlib.util
+  spec=importlib.util.spec_from_file_location(name,HERE/'test_observer_provenance.py')
+  module=importlib.util.module_from_spec(spec);sys.modules[name]=module;spec.loader.exec_module(module)
+ return sys.modules[name]
 def fixture():
- # Deliberately unbound schema DATA only; this is not a pacman transaction mock.
- point=dict(type='FIRST_UPGRADE_ZERO',pid=202,ppid=101,event=1,percent=0,howmany=1,current=1,
-   old_only_errno=2,new_only_errno=2,old_desc_errno=2,new_desc_errno=2,
-   lock=dict(dev=55,ino=123,mode=0o100000,uid=0,gid=0,nlink=1,bytes=0),
-   pacman_inode=[55,201],libalpm_inode=[55,202],symbol_object_verified=1)
- end=dict(type='END',pid=202,registrations=1,hits=1,errors=0);rows=[point,end]
- raw=''.join(json.dumps(r,separators=(',',':'))+'\n'for r in rows)
- retirement=dict(pid=203,exit=0,natural_exit=True,group_absent=True,leader_held_until_group_inspection=True,
-   exit_observed_via_waitpid=True,ownership_lost=False,retirement='REAPED',forced_cleanup=False,cleanup_member_uids=[],elapsed_seconds=0.1)
- return dict(schema=1,protocol=policy['protocol'],phase=policy['phase'],observer_source=policy['source_pin'],
-   observer_compiled=pin(b'unbound new compiled-observer DATA'),compiler_retirement=retirement,raw_pin=pin(raw.encode()),
-   raw_ascii=raw,records=rows,runtime=dict(pacman=dict(pin(b'UNBOUND pacman DATA'),inode=[55,201]),
-   libalpm=dict(bytes=4096,sha256=policy['libalpm_sha256'],inode=[55,202])),owner_pid=101,
-   witness_paths={k:policy[k]for k in('old_only','new_only')},source_binary_correspondence='OPEN',interruption='NOT_RUN',recovery='NOT_RUN')
+ # The same UNBOUND schema fixture is shared with NEW provenance DATA controls.
+ # No recorded native ELF, callback, reader or compiler is replayed.
+ return provenance_controls().fixture(policy=policy)[1]
+
 def refresh(v):
  v['raw_ascii']=''.join(json.dumps(r,separators=(',',':'))+'\n'for r in v['records']);v['raw_pin']=pin(v['raw_ascii'].encode())
 class Observation(unittest.TestCase):

@@ -2,6 +2,7 @@
 """Passive finite security component DATA validation; no runtime execution."""
 import base64
 import json
+import os
 from pathlib import Path
 import re
 from common import consumer_contract, load, need, pin, read
@@ -161,6 +162,119 @@ UPGRADE_STEPS=('prior-required-install','prior-inventory','upgrade-signature-ref
     'reinstalled-inventory','remove-reinstalled','final-removed-inventory')
 
 
+def _observer_integer(value, minimum=0, maximum=(1<<64)-1):
+    need(type(value)is int and minimum<=value<=maximum,'bounded observer provenance integer')
+    return value
+
+
+def _observer_inode(value):
+    need(type(value)is list and len(value)==2,'closed observer object device/inode')
+    for number in value:_observer_integer(number,1)
+    return value
+
+
+def _observer_elf(raw, manifest, load):
+    """Independently parse retained ELF DATA; never map, load or execute it."""
+    need(type(raw)is bytes and 64<=len(raw)<=1024**2 and raw[:7]==b'\x7fELF\x02\x01\x01','bounded ELF64 little-endian observer object')
+    def integer(offset,size):
+        need(0<=offset and offset+size<=len(raw),'ELF field bounds')
+        return int.from_bytes(raw[offset:offset+size],'little')
+    need(integer(16,2)==3 and integer(18,2)==183 and integer(20,4)==1 and integer(52,2)==64,'ET_DYN AArch64 ELF version/header')
+    phoff,shoff=integer(32,8),integer(40,8)
+    phsize,phnum,shsize,shnum,shstr=(integer(i,2)for i in(54,56,58,60,62))
+    need(phsize==56 and 0<phnum<=128 and phoff>=64 and phoff+phsize*phnum<=len(raw),'bounded complete ELF program table')
+    need(shsize==64 and 0<shnum<=256 and shoff>=64 and shoff+shsize*shnum<=len(raw) and 0<shstr<shnum,'bounded complete ELF section table')
+    sections=[]
+    for index in range(shnum):
+        at=shoff+index*shsize
+        row=dict(name=integer(at,4),type=integer(at+4,4),flags=integer(at+8,8),address=integer(at+16,8),offset=integer(at+24,8),size=integer(at+32,8))
+        if row['type']!=8:need(row['offset']+row['size']<=len(raw),'ELF section body bounds')
+        sections.append(row)
+    names=sections[shstr];need(names['type']==3 and names['size']<=65536,'bounded ELF section names')
+    strings=raw[names['offset']:names['offset']+names['size']]
+    found=[]
+    for row in sections:
+        need(row['name']<len(strings),'ELF section name bounds')
+        end=strings.find(b'\0',row['name']);need(end>=0,'terminated ELF section name')
+        if strings[row['name']:end]==b'.cachy_provenance':found.append(row)
+    need(len(found)==1,'one observer provenance section')
+    section=found[0]
+    need(section['type']==1 and section['flags']&2 and not section['flags']&1 and section['size']==len(manifest)
+         and raw[section['offset']:section['offset']+section['size']]==manifest,'exact allocated nonwritable manifest bytes in retained object')
+    executable=[];manifest_load=[]
+    for index in range(phnum):
+        at=phoff+index*phsize
+        kind,flags,offset,address,filesz,memsz=(integer(at+i,size)for i,size in((0,4),(4,4),(8,8),(16,8),(32,8),(40,8)))
+        need(offset+filesz<=len(raw) and filesz<=memsz,'ELF segment file bounds')
+        if kind!=1:continue
+        if flags&1:executable.append((offset,address,filesz))
+        if not flags&2 and offset<=section['offset'] and section['offset']+section['size']<=offset+filesz and section['address']==address+section['offset']-offset:
+            manifest_load.append((offset,address,filesz))
+    need(manifest_load,'provenance section belongs to nonwritable PT_LOAD')
+    pc=load['pc']-load['base'];actual_offset=load['offset']+load['pc']-load['start']
+    need(any(address<=pc<address+size and offset+pc-address==actual_offset for offset,address,size in executable),'actual callback PC/file-offset belongs to retained executable PT_LOAD')
+    return dict(bytes=len(raw),provenance_section_bytes=section['size'],executable_segments=len(executable))
+
+
+def validate_observer_provenance(value, observation, policy, baseline, commands):
+    """A recorded trusted-toolchain shim chain, not upstream binary semantics."""
+    keys={'schema','protocol','scope','manifest','manifest_pin','generated_header','object_base64','object','before','after',
+          'compiler_retirement','compile_record','inputs_after','source_binary_semantics','upstream_source_binary_correspondence'}
+    need(type(value)is dict and set(value)==keys and type(value['schema'])is int and value['schema']==1
+         and value['protocol']=='observer-shim-recorded-provenance-v1'
+         and value['scope']=='OBSERVER_SHIM_RECORDED_SOURCE_COMPILE_LOADED_OBJECT_BINDING'
+         and value['source_binary_semantics']=='NOT_CLAIMED' and value['upstream_source_binary_correspondence']=='OPEN',
+         'closed finite shim provenance; upstream correspondence remains OPEN')
+    need(len(json.dumps(value,sort_keys=True,separators=(',',':'),allow_nan=False).encode('ascii'))<=1572864,'bounded observer provenance role')
+    manifest=value['manifest'];need(type(manifest)is dict and set(manifest)=={'schema','protocol','source','header','compiler','toolchain','recipe'}
+         and type(manifest['schema'])is int and manifest['schema']==1 and manifest['protocol']==value['protocol'],'closed observer build manifest')
+    encoded=json.dumps(manifest,sort_keys=True,separators=(',',':'),allow_nan=False).encode('ascii')
+    need(0<len(encoded)<=16384 and pin(encoded)==value['manifest_pin'],'canonical bounded manifest pin')
+    need(manifest['source']==policy['source_pin']==observation['observer_source'] and manifest['header']==policy['header'],'exact reviewed source/header input pins')
+    for name in('source','header'):_cleanup_pin(manifest[name],1024**2)
+    compiler=manifest['compiler'];need(type(compiler)is dict and set(compiler)=={'path','bytes','sha256','inode','mode','uid','gid','nlink'}
+         and type(compiler['path'])is str and compiler['path']in [base+suffix for base in('/usr/bin/gcc','/usr/bin/aarch64-unknown-linux-gnu-gcc','/usr/bin/aarch64-linux-gnu-gcc')for suffix in('','-16','-16.1.1')],'resolved canonical compiler input')
+    _cleanup_pin({k:compiler[k]for k in('bytes','sha256')},16*1024**2);need(compiler['bytes']>0,'nonempty compiler input');_observer_inode(compiler['inode'])
+    need(all(type(compiler[k])is int for k in('mode','uid','gid','nlink'))and 0<=compiler['mode']<=0o777 and compiler['mode']&0o100 and not compiler['mode']&0o022 and compiler['uid']==compiler['gid']==0 and 1<=compiler['nlink']<=64,'ordinary retained root-owned nonwritable GCC driver with bounded stable hardlinks')
+    need(value['inputs_after']=={name:manifest[name]for name in('source','header','compiler')},'source/header/compiler inputs unchanged after owned compilation')
+    q=policy['provenance'];toolchain=manifest['toolchain']
+    need(type(q)is dict and type(q['schema'])is int and q['schema']==1 and q['protocol']==value['protocol']and q['scope']==value['scope']and q['section']=='.cachy_provenance'
+         and(q['manifest_cap'],q['maps_cap'],q['object_cap'],q['value_cap'])==(16384,65536,1048576,1572864)
+         and q['compiler_paths']==[base+suffix for base in('/usr/bin/gcc','/usr/bin/aarch64-unknown-linux-gnu-gcc','/usr/bin/aarch64-linux-gnu-gcc')for suffix in('','-16','-16.1.1')], 'fixed finite observer provenance policy and compiler path set')
+    need(type(baseline)is bytes and len(baseline)<=1024**2 and len(baseline.splitlines())==349,'whole retained349 compiler baseline DATA')
+    need(type(toolchain)is dict and set(toolchain)=={'inventory','packages'} and toolchain['inventory']==q['inventory']==pin(baseline),'exact retained349 toolchain inventory')
+    versions=dict(line.decode('ascii').split(' ',1)for line in baseline.splitlines())
+    wanted={name:versions[name]for name in('gcc','binutils','glibc','linux-api-headers')}
+    need(toolchain['packages']==q['package_versions']==wanted,'exact retained signed toolchain package versions')
+    recipe=manifest['recipe'];need(type(recipe)is dict and set(recipe)=={'argv','cwd','env'}and type(recipe['cwd'])is str
+         and re.fullmatch(r'/tmp/security-test-[a-z0-9_]{8}',recipe['cwd']),'fixed private observer compiler directory')
+    home=recipe['cwd']
+    need(recipe['argv']==['/usr/bin/cc','-shared','-fPIC','-O2','-Wall','-Wextra','-Werror','-include',home+'/alpm-observer-provenance.h','-o',home+'/alpm-observer.so',home+'/alpm-observer.c','-ldl']
+         and recipe['env']==dict(PATH='/usr/bin:/bin',HOME=home,LANG='C',LC_ALL='C',PYTHONDONTWRITEBYTECODE='1',PYTHONNOUSERSITE='1'),'exact compile argv/cwd/clean environment')
+    header=('static const unsigned char cachy_observer_provenance[] __attribute__((used,section(".cachy_provenance"))) = {'+','.join(str(byte)for byte in encoded)+'};\n').encode('ascii')
+    need(pin(header)==value['generated_header'],'exact generated acyclic provenance header')
+    encoded_object=value['object_base64'];need(type(encoded_object)is str and 0<len(encoded_object)<=1398104,'bounded retained object base64')
+    try:raw=base64.b64decode(encoded_object,validate=True)
+    except (ValueError,TypeError):raise ValueError('canonical observer object DATA required')
+    need(base64.b64encode(raw).decode('ascii')==encoded_object and pin(raw)==value['object']==observation['observer_compiled'],'independent retained compiled object bytes/pin')
+    need(0<len(raw)<=1024**2,'original observer object cap')
+    before,after=value['before'],value['after'];need(type(before)is dict and set(before)=={'bytes','sha256','inode','mode','uid','gid','nlink'}and before==after,'held observer object stable before/after genuine upgrade')
+    need({k:before[k]for k in('bytes','sha256')}==value['object'] and all(type(before[k])is int for k in('mode','uid','gid','nlink'))
+         and(before['mode'],before['uid'],before['gid'],before['nlink'])==(0o500,0,0,1),'ordinary private readonly root-owned singlelink observer object')
+    _observer_inode(before['inode'])
+    need(value['compiler_retirement']==observation['compiler_retirement'],'same actual reserved compiler lifecycle')
+    compile_rows=[row for row in commands if row['step']=='compile-upgrade-observer']
+    need(len(compile_rows)==1 and value['compile_record']==compile_rows[0] and value['compile_record']['exit']==0 and set(value['compile_record'])=={'step','exit','stdout','stderr','recipe'}and value['compile_record']['recipe']==recipe,'exact successful compile record and actual captured argv/cwd/environment')
+    point=observation['records'][0];_observer_inode(point['observer_inode']);_observer_inode(point['observer_fd_inode'])
+    need(point['observer_inode']==point['observer_fd_inode']==before['inode'],'callback dladdr object and held FD join compiled object')
+    load=point['observer_load'];need(type(load)is dict and set(load)=={'base','pc','start','end','offset','dev_major','dev_minor','inode'},'closed actual kernel observer mapping')
+    for name,number in load.items():_observer_integer(number,0 if name in('offset','dev_major','dev_minor')else 1)
+    need(load['start']<=load['pc']<load['end'] and load['pc']>=load['base']
+         and load['inode']==before['inode'][1] and load['dev_major']==os.major(before['inode'][0])and load['dev_minor']==os.minor(before['inode'][0]),'actual PC mapping and exact kernel backing device/inode')
+    _observer_elf(raw,encoded,load)
+    return value
+
+
 def validate_observation(value,policy):
     """A real callback/filesystem witness; no interrupted-commit or recovery credit."""
     need(type(policy)is dict and policy['schema']==1 and policy['protocol']=='first-real-upgrade-zero-observation-v1'
@@ -207,7 +321,7 @@ def validate_observation(value,policy):
          'exact original callback plus normal-exit observer records')
     point,end=rows
     need(type(point)is dict and set(point)=={'type','pid','ppid','event','percent','howmany','current','old_only_errno',
-         'new_only_errno','old_desc_errno','new_desc_errno','lock','pacman_inode','libalpm_inode','symbol_object_verified'},'closed genuine callback DATA')
+         'new_only_errno','old_desc_errno','new_desc_errno','lock','pacman_inode','libalpm_inode','symbol_object_verified','observer_inode','observer_fd_inode','observer_load'},'closed genuine callback DATA')
     need(point['type']=='FIRST_UPGRADE_ZERO' and type(point['pid'])is int and point['pid']>1
          and type(value['owner_pid'])is int and value['owner_pid']>1 and point['ppid']==value['owner_pid']
          and point['pid']!=point['ppid'] and all(type(point[k])is int for k in('ppid','event','percent','howmany','current',
@@ -240,7 +354,7 @@ def validate_upgrade(value, contract, baseline):
     upgrade=value.get('upgrade')
     need(type(upgrade)is dict and set(upgrade)=={'schema','protocol','from_version','to_version','prior_source',
          'prior_archive','prior_archive_base64','prior_payload','flags','inventories','abort_scope','repeat_scope',
-         'upgrade_scope','decline_input','observation'} and type(upgrade['schema'])is int and upgrade['schema']==1
+         'upgrade_scope','decline_input','observation','observer_provenance'} and type(upgrade['schema'])is int and upgrade['schema']==1
          and upgrade['protocol']==UPGRADE_PROTOCOL and upgrade['from_version']==contract['from_version']
          and upgrade['to_version']==contract['to_version'],'closed actual upgrade protocol/version DATA')
     need(upgrade['prior_source']=={name:contract['prior_'+name]for name in ('bundle','profile','adapter')},'actual upgrade binds genuine prior source/profile/adapter')
@@ -270,7 +384,7 @@ def validate_upgrade(value, contract, baseline):
     negative={'unknown-key-refusal','required-untrusted-install-refusal','upgrade-signature-refusal','decline-upgrade-precommit'}
     counts={}
     for row in commands:
-        need(type(row)is dict and set(row)=={'step','exit','stdout','stderr'} and type(row['step'])is str
+        need(type(row)is dict and set(row)==({'step','exit','stdout','stderr','recipe'}if row.get('step')=='compile-upgrade-observer'else{'step','exit','stdout','stderr'}) and type(row['step'])is str
              and re.fullmatch('[a-z][a-z0-9-]{0,63}',row['step']) and type(row['exit'])is int
              and -255<=row['exit']<=255,'finite original upgrade command schema')
         for channel in ('stdout','stderr'):_cleanup_pin(row[channel],2*1024**2)
@@ -282,6 +396,7 @@ def validate_upgrade(value, contract, baseline):
          and all(counts.get(name)==29 for name in ('candidate-owner','repeated-owner','reinstalled-owner')),
          'both versions repeated actual ALPM payload ownership checks')
     validate_observation(upgrade['observation'],contract['observation'])
+    validate_observer_provenance(upgrade['observer_provenance'],upgrade['observation'],contract['observation'],baseline,commands)
     steps=[row['step']for row in commands]
     need(counts.get('compile-upgrade-observer')==1
          and steps.index('declined-prior-inventory')<steps.index('compile-upgrade-observer')<steps.index('required-install'),
@@ -364,6 +479,8 @@ def validate_component(view, files, receipt, cleanup, binding, expected, R):
     need(not any(name.startswith('journey/') and name != 'journey/result.json' for name in files),
          'security export retains only the finite public result; no original private workflow trees')
     return dict(status='VALIDATED_NATIVE_SECURITY_SIGNED_UPGRADE_WITH_CHECKPOINT_OBSERVATION_COMPONENT_EVIDENCE_ONLY', binding=binding,
+                observer_provenance='OBSERVER_SHIM_RECORDED_SOURCE_COMPILE_LOADED_OBJECT_BINDING',
+                upstream_source_binary_correspondence='OPEN',source_binary_semantics='NOT_CLAIMED',
                 upgrade_protocol=UPGRADE_PROTOCOL,from_version='0.1.0-1',to_version='0.1.0-2',
                 abort_scope=guest['upgrade']['abort_scope'],repeat_scope=guest['upgrade']['repeat_scope'],
                 upgrade_scope='ONE_PACKAGE_VERSION_TRANSITION_ONLY',

@@ -137,13 +137,14 @@ class Commands:
         need(input_data is None or (step=='decline-upgrade-precommit' and input_data==b'n\n'),'only finite explicit operator-decline input')
         input_options=dict(stdin=subprocess.DEVNULL)if input_data is None else dict(input=input_data)
         if observe is not None:
-            need(step=='required-install' and len(observe)==2 and 'LD_PRELOAD' not in os.environ
+            need(step=='required-install' and len(observe)==3 and 'LD_PRELOAD' not in os.environ
                  and 'LD_AUDIT' not in os.environ,'observer scoped only to genuine signed upgrade')
-            shared,fd=observe
+            shared,fd,object_fd=observe
             need(shared==self.home/'alpm-observer.so' and shared.is_file() and type(fd)is int and 3<=fd<=127,
                  'exact privately compiled observer and explicit owned FD')
-            env.update(LD_PRELOAD=str(shared),CACHY_SECURITY_OBSERVER_FD=str(fd),CACHY_SECURITY_OBSERVER_OWNER=str(os.getpid()))
-            input_options['pass_fds']=(fd,)
+            need(type(object_fd)is int and 3<=object_fd<=127 and object_fd!=fd,'separate read-only compiled object descriptor')
+            env.update(LD_PRELOAD=str(shared),CACHY_SECURITY_OBSERVER_FD=str(fd),CACHY_SECURITY_OBSERVER_OWNER=str(os.getpid()),CACHY_SECURITY_OBSERVER_OBJECT_FD=str(object_fd))
+            input_options['pass_fds']=(fd,object_fd)
         with tempfile.TemporaryFile() as stdout,tempfile.TemporaryFile() as stderr:
             if step=='compile-upgrade-observer':
                 policy=upgrade_policy(SOURCE)['observation']['compiler_supervisor'];path=SOURCE/policy['path']
@@ -151,13 +152,16 @@ class Commands:
                 spec=importlib.util.spec_from_file_location('_security_observer_compiler_owner',path)
                 owned=importlib.util.module_from_spec(spec);spec.loader.exec_module(owned)
                 self.compiler_lifecycle={}
+                self.compiler_recipe=dict(argv=list(map(str,argv)),cwd=str(cwd or self.home),env=dict(env))
                 result=owned.run(list(map(str,argv)),cwd=cwd or self.home,env=env,stdout=stdout,stderr=stderr,
                     timeout=timeout,lifecycle=self.compiler_lifecycle,allowed_uids={0},stdout_limit=limit,stderr_limit=limit,**input_options)
             else:
                 result=subprocess.run(list(map(str,argv)),cwd=cwd or self.home,env=env,stdout=stdout,stderr=stderr,timeout=timeout,**input_options)
             stdout.seek(0);stderr.seek(0);out,err=stdout.read(limit+1),stderr.read(limit+1)
         need(len(out)<=limit and len(err)<=limit,'bounded lifecycle command DATA')
-        self.records.append(dict(step=step,exit=result.returncode,stdout=pin(out),stderr=pin(err)));self.last_output=out+err
+        row=dict(step=step,exit=result.returncode,stdout=pin(out),stderr=pin(err))
+        if step=='compile-upgrade-observer':row['recipe']=dict(self.compiler_recipe)
+        self.records.append(row);self.last_output=out+err
         need(result.returncode!=0 if expected=='nonzero' else result.returncode==expected,'lifecycle command failed: '+step)
         return out
 
@@ -183,6 +187,24 @@ def emit_observation_fd_failure(map_hash, owner, before, after, predicates, poli
         except BaseException:pass
 
 
+def observer_file(path,maximum,mode=None,single=True,descriptor=None):
+    path=Path(path);need(path.is_absolute() and path==path.resolve(),'ordinary canonical observer input/output')
+    own=descriptor is None;fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_CLOEXEC)if own else descriptor
+    try:
+        before=os.fstat(fd);named=path.lstat()
+        need(stat.S_ISREG(before.st_mode) and before.st_uid==before.st_gid==0 and 1<=before.st_nlink<=64
+             and(not single or before.st_nlink==1) and(mode is None or stat.S_IMODE(before.st_mode)==mode)
+             and 0<before.st_size<=maximum and(before.st_dev,before.st_ino)==(named.st_dev,named.st_ino),'bounded owned observer input/output')
+        with os.fdopen(os.dup(fd),'rb')as stream:stream.seek(0);raw=stream.read(maximum+1)
+        after=os.fstat(fd);named=path.lstat();fields=('st_dev','st_ino','st_mode','st_nlink','st_uid','st_gid','st_size','st_mtime_ns','st_ctime_ns')
+        need(len(raw)==before.st_size and all(getattr(before,k)==getattr(after,k)==getattr(named,k)for k in fields),'observer input/output changed during read')
+        return raw,dict(pin(raw),inode=[before.st_dev,before.st_ino],mode=stat.S_IMODE(before.st_mode),uid=before.st_uid,gid=before.st_gid,nlink=before.st_nlink)
+    finally:
+        if own:os.close(fd)
+
+def observer_header(raw):
+    return ('static const unsigned char cachy_observer_provenance[] __attribute__((used,section(".cachy_provenance"))) = {'+','.join(str(value)for value in raw)+'};\n').encode('ascii')
+
 def observe_real_upgrade(c,pacman,archive,policy,map_hash):
     """Future native observation only; never interrupt, unlock or recover ALPM."""
     source=policy['source'].encode('ascii')
@@ -194,41 +216,74 @@ def observe_real_upgrade(c,pacman,archive,policy,map_hash):
     for label,path in (('pacman',exe),('libalpm',lib)):
         info=path.stat();need(path==path.resolve() and stat.S_ISREG(info.st_mode) and info.st_uid==info.st_gid==0,'ordinary root-owned runtime binary')
         binary[label]=dict(pin(read(path)),inode=[info.st_dev,info.st_ino])
-    src=c.home/'alpm-observer.c';shared=c.home/'alpm-observer.so';record=c.home/'alpm-observer.jsonl'
+    src=c.home/'alpm-observer.c';shared=c.home/'alpm-observer.so';record=c.home/'alpm-observer.jsonl';generated=c.home/'alpm-observer-provenance.h'
     with src.open('xb')as stream:stream.write(source)
     src.chmod(0o600)
-    c.run('compile-upgrade-observer',['/usr/bin/cc','-shared','-fPIC','-O2','-Wall','-Wextra','-Werror','-o',shared,src,'-ldl'])
-    compiled=pin(read(shared));owner=os.getpid()
-    fd=os.open(record,os.O_RDWR|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW|os.O_CLOEXEC,0o600)
-    try:
-        before=os.fstat(fd);need(stat.S_ISREG(before.st_mode) and before.st_uid==before.st_gid==0 and before.st_nlink==1 and before.st_size==0,'fresh ordinary owned observation FD')
-        c.run('required-install',pacman+['--noconfirm','--noscriptlet','-U',archive],observe=(shared,fd))
-        os.fsync(fd);info=os.fstat(fd)
-        predicates=dict(same_device=info.st_dev==before.st_dev,same_inode=info.st_ino==before.st_ino,
-            positive_record_bytes=info.st_size>0,within_record_cap=info.st_size<=policy['record_cap'])
-        if not all(predicates.values()):
-            emit_observation_fd_failure(map_hash,owner,before,info,predicates,policy,compiled)
-        need(all(predicates.values()),'same bounded owned observation FD')
-        os.lseek(fd,0,os.SEEK_SET);raw=os.read(fd,policy['record_cap']+1)
-        need(len(raw)==info.st_size and info.st_nlink==1,'whole complete observation DATA')
-    finally:os.close(fd)
-    def pairs(values):
-        result={}
-        for key,value in values:
-            need(key not in result,'duplicate observation field');result[key]=value
+    rules=policy['provenance'];need(rules['object_cap']==1024**2 and rules['manifest_cap']==16384 and rules['value_cap']==1572864,'closed observer provenance caps')
+    compiler=Path('/usr/bin/cc').resolve();need(str(compiler)in rules['compiler_paths'],'finite retained GCC driver resolution')
+    compiler_raw,compiler_stat=observer_file(compiler,16*1024**2,single=False)
+    need(compiler_stat['mode']<=0o777 and compiler_stat['mode']&0o100 and not compiler_stat['mode']&0o022,'owned non-writable executable compiler mode')
+    compiler_id=dict(path=str(compiler),**compiler_stat)
+    inventory=read(SOURCE/'native/expected349.lock');versions=dict(line.decode().split(' ',1)for line in inventory.splitlines())
+    packages={k:versions[k]for k in rules['package_versions']};need(packages==rules['package_versions'],'retained actual compiler package inventory')
+    argv=list(map(str,['/usr/bin/cc','-shared','-fPIC','-O2','-Wall','-Wextra','-Werror','-include',generated,'-o',shared,src,'-ldl']))
+    env=dict(PATH='/usr/bin:/bin',HOME=str(c.home),LANG='C',LC_ALL='C',PYTHONDONTWRITEBYTECODE='1',PYTHONNOUSERSITE='1')
+    recipe=dict(argv=argv,cwd=str(c.home),env=env)
+    manifest=dict(schema=1,protocol=rules['protocol'],source=policy['source_pin'],header=policy['header'],compiler=compiler_id,toolchain=dict(inventory=pin(inventory),packages=packages),recipe=recipe)
+    manifest_raw=json.dumps(manifest,sort_keys=True,separators=(',',':'),allow_nan=False).encode('ascii');need(len(manifest_raw)<=rules['manifest_cap'],'bounded recorded build manifest')
+    generated_raw=observer_header(manifest_raw)
+    with generated.open('xb')as stream:stream.write(generated_raw)
+    generated.chmod(0o600)
+    need(pin(observer_file(src,16384,0o600)[0])==policy['source_pin'] and pin(observer_file(header,1024**2)[0])==policy['header'],'actual compile inputs before invocation')
+    c.run('compile-upgrade-observer',argv)
+    need(c.compiler_recipe==recipe,'actual reserved compile recipe equals embedded manifest')
+    need(Path('/usr/bin/cc').resolve()==compiler,'compiler driver resolution held after invocation')
+    after_compiler,after_compiler_stat=observer_file(compiler,16*1024**2,single=False)
+    after_id=dict(path=str(compiler),**after_compiler_stat)
+    inputs_after=dict(source=pin(observer_file(src,16384,0o600)[0]),header=pin(observer_file(header,1024**2)[0]),compiler=after_id)
+    need(inputs_after==dict(source=policy['source_pin'],header=policy['header'],compiler=compiler_id)and observer_file(generated,128*1024,0o600)[0]==generated_raw,'actual compiler and source/header inputs held after invocation')
+    observer_file(shared,rules['object_cap'])
+    shared.chmod(0o500)
+    with os.fdopen(os.open(shared,os.O_RDONLY|os.O_NOFOLLOW|os.O_CLOEXEC),'rb')as object_stream:
+        object_fd=object_stream.fileno()
+        object_raw,object_before=observer_file(shared,rules['object_cap'],0o500,descriptor=object_fd)
+        compiled=pin(object_raw);owner=os.getpid();compile_record=dict(c.records[-1])
+        fd=os.open(record,os.O_RDWR|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW|os.O_CLOEXEC,0o600)
+        try:
+            before=os.fstat(fd);need(stat.S_ISREG(before.st_mode) and before.st_uid==before.st_gid==0 and before.st_nlink==1 and before.st_size==0,'fresh ordinary owned observation FD')
+            c.run('required-install',pacman+['--noconfirm','--noscriptlet','-U',archive],observe=(shared,fd,object_fd))
+            os.fsync(fd);info=os.fstat(fd)
+            predicates=dict(same_device=info.st_dev==before.st_dev,same_inode=info.st_ino==before.st_ino,
+                positive_record_bytes=info.st_size>0,within_record_cap=info.st_size<=policy['record_cap'])
+            if not all(predicates.values()):
+                emit_observation_fd_failure(map_hash,owner,before,info,predicates,policy,compiled)
+            need(all(predicates.values()),'same bounded owned observation FD')
+            os.lseek(fd,0,os.SEEK_SET);raw=os.read(fd,policy['record_cap']+1)
+            need(len(raw)==info.st_size and info.st_nlink==1,'whole complete observation DATA')
+        finally:os.close(fd)
+        object_after_raw,object_after=observer_file(shared,rules['object_cap'],0o500,descriptor=object_fd)
+        need(object_raw==object_after_raw and object_before==object_after,'held compiled object unchanged across actual upgrade')
+        provenance=dict(schema=1,protocol=rules['protocol'],scope=rules['scope'],manifest=manifest,manifest_pin=pin(manifest_raw),generated_header=pin(generated_raw),object_base64=base64.b64encode(object_raw).decode('ascii'),object=compiled,before=object_before,after=object_after,compiler_retirement=c.compiler_lifecycle,compile_record=compile_record,inputs_after=inputs_after,source_binary_semantics='NOT_CLAIMED',upstream_source_binary_correspondence='OPEN')
+        need(len(json.dumps(provenance,sort_keys=True,separators=(',',':')).encode('ascii'))<=rules['value_cap'],'bounded recorded observer provenance role')
+        c.observer_provenance=provenance
+        def pairs(values):
+            result={}
+            for key,value in values:
+                need(key not in result,'duplicate observation field');result[key]=value
+            return result
+        for label,path in (('pacman',exe),('libalpm',lib)):
+            info=path.stat();need(pin(read(path))=={k:binary[label][k]for k in('bytes','sha256')}
+                 and [info.st_dev,info.st_ino]==binary[label]['inode'],'actual runtime binaries unchanged after observed upgrade')
+        rows=[json.loads(line,object_pairs_hook=pairs)for line in raw.splitlines()]
+        # Validate after the ordinary transaction returns; a bad observation never kills it.
+        from security_reader_v1 import validate_observation, validate_observer_provenance
+        result=dict(schema=1,protocol=policy['protocol'],phase=policy['phase'],observer_source=policy['source_pin'],
+            observer_compiled=compiled,compiler_retirement=c.compiler_lifecycle,raw_pin=pin(raw),raw_ascii=raw.decode('ascii'),records=rows,runtime=binary,owner_pid=owner,
+            witness_paths=dict(old_only=policy['old_only'],new_only=policy['new_only']),
+            source_binary_correspondence='OPEN',interruption='NOT_RUN',recovery='NOT_RUN')
+        validate_observation(result,policy)
+        validate_observer_provenance(provenance,result,policy,inventory,c.records)
         return result
-    for label,path in (('pacman',exe),('libalpm',lib)):
-        info=path.stat();need(pin(read(path))=={k:binary[label][k]for k in('bytes','sha256')}
-             and [info.st_dev,info.st_ino]==binary[label]['inode'],'actual runtime binaries unchanged after observed upgrade')
-    rows=[json.loads(line,object_pairs_hook=pairs)for line in raw.splitlines()]
-    # Validate after the ordinary transaction returns; a bad observation never kills it.
-    from security_reader_v1 import validate_observation
-    result=dict(schema=1,protocol=policy['protocol'],phase=policy['phase'],observer_source=policy['source_pin'],
-        observer_compiled=compiled,compiler_retirement=c.compiler_lifecycle,raw_pin=pin(raw),raw_ascii=raw.decode('ascii'),records=rows,runtime=binary,owner_pid=owner,
-        witness_paths=dict(old_only=policy['old_only'],new_only=policy['new_only']),
-        source_binary_correspondence='OPEN',interruption='NOT_RUN',recovery='NOT_RUN')
-    validate_observation(result,policy)
-    return result
 
 
 def strict_signature(status,fingerprint):
@@ -428,7 +483,7 @@ def inside(root,map_hash):
             prior_source={name:transition['prior_'+name]for name in ('bundle','profile','adapter')},
             prior_archive=pin(read(prior)),prior_archive_base64=base64.b64encode(read(prior)).decode(),
             prior_payload={name:pin(body)for name,body in old.items()},flags={name:True for name in sorted(UPGRADE_FLAGS)},inventories=upgrade_inventories,
-            abort_scope='OPERATOR_DECLINED_BEFORE_COMMIT; NOT_SIGNAL_OR_POWERLOSS',repeat_scope='SAME_VERSION_REINSTALL',upgrade_scope='ONE_PACKAGE_VERSION_TRANSITION_ONLY',decline_input=pin(b'n\n'),observation=observation)
+            abort_scope='OPERATOR_DECLINED_BEFORE_COMMIT; NOT_SIGNAL_OR_POWERLOSS',repeat_scope='SAME_VERSION_REINSTALL',upgrade_scope='ONE_PACKAGE_VERSION_TRANSITION_ONLY',decline_input=pin(b'n\n'),observation=observation,observer_provenance=c.observer_provenance)
         report['test_authority']=dict(fingerprint=fingerprint,public_key=public.read_text('ascii'),signature_base64=base64.b64encode(signature.read_bytes()).decode(),signature_status=status,semantics='Required/Required; scoped ephemeral TEST ONLY')
         report['status']=STATUS
     except BaseException as error:
