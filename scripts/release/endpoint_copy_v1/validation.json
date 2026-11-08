@@ -1,0 +1,72 @@
+{
+  "checkout_head_at_validation": "a314493c81cdb2fddc395b1358339612da3d8630",
+  "checks": [
+    {
+      "argv": [
+        "python",
+        "-I",
+        "-B",
+        "-W",
+        "error::ResourceWarning",
+        "scripts/release/endpoint_copy_v1/test_copy.py",
+        "-v"
+      ],
+      "errors": 0,
+      "failures": 0,
+      "result": "PASS by bounded test owner",
+      "seconds": 8.2,
+      "skipped": 0,
+      "tests": 23
+    },
+    {
+      "argv": [
+        "python3",
+        "-I",
+        "-B",
+        "-Werror::ResourceWarning",
+        "scripts/client/test_endpoint.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "seconds": 6.817,
+      "skipped": 0,
+      "tests": 20
+    },
+    {
+      "directory": "scripts/release/endpoint_copy_v1",
+      "kind": "dedicated workflow discovery",
+      "tests_discovered": 23
+    }
+  ],
+  "implementation": {
+    ".github/workflows/endpoint-copy-source.yml": {
+      "bytes": 2888,
+      "sha256": "062a08830dd7e24ebe751f97fd9a08f1a21e11860442194d2f452b07e2129ae9"
+    },
+    "scripts/release/endpoint_copy_v1/README.md": {
+      "bytes": 4087,
+      "sha256": "80157c754ebae3718b6b8a3205f5d677c2e987a34b7ad73a7fc561927e8e60ba"
+    },
+    "scripts/release/endpoint_copy_v1/copy_endpoint.py": {
+      "bytes": 5417,
+      "sha256": "c4de7e4c2eebc7a0fb510377480c19eee873bd65ab965ad6ed04ac0aa7aada79"
+    },
+    "scripts/release/endpoint_copy_v1/test_copy.py": {
+      "bytes": 17243,
+      "sha256": "7da33eb59bb42e5c61a6da6674aa157dac0e9b45f8d63700acfd4053f44fdcc1"
+    }
+  },
+  "integration": "Four new feature files plus dedicated source-only workflow. Current endpoint/exporter/release/client/offline helpers, shared manifests/static.yml and historical/native Sources untouched.",
+  "schema_version": 1,
+  "scope": "endpoint_copy_v1",
+  "scope_limits": "No download, installation, trust/checkpoint/activation change, native ARM/M2 or release acceptance. Source and externally provisioned keyring remain unchanged.",
+  "test_actors": "Real TEST-GPG signatures, repo-add,bsdtar,vercmp and temporary filesystem. Positive synthetic stable cases model only existing hardware/promotion gate; real CLI refuses synthetic stable and copies signed withdrawal-only generation without a hardware seam.",
+  "unchanged_current_dependencies": {
+    "scripts/client/client.py": "48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7",
+    "scripts/client/endpoint.py": "e94520d9cc6ee0bb8ac007227dc51bc677de9efff7464f453ad7682eaa026e79",
+    "scripts/release/export_repository.py": "9d07089a8855a1b11ad8a8f2ef680b00aa4ea48f7f422e05ce83a279780595ea",
+    "scripts/release/offline_kit.py": "8f9cdb4ad26525fb1c4c906a752f56e8115a3c39b8aa758dd86dca7d032f54b3",
+    "scripts/release/release.py": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435",
+    "scripts/release/source_delivery.py": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+  }
+}
