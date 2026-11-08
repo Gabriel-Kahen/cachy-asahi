@@ -36,11 +36,12 @@ capsule 32 MiB, payload 16 MiB and index 1 MiB. Runtime bytes, PID1 layout and
 the finite natural-retirement/optional qualified-zero-child scope are held.
 
 CI runs only the 21 constructor/producer and 24 passive-reader DATA/AST controls
-on Python 3.12 and 3.14:
+plus four build-log function controls on Python 3.12 and 3.14:
 
 ```sh
 python -I -B scripts/ci/desktop-current011-native-source/test_current011_data.py
 python -I -B scripts/ci/desktop-current011-native-source/test_current011_reader_data.py
+python -I -B scripts/ci/desktop-current011-native-source/test_current011_build_logs_data.py
 ```
 
 These controls use synthetic evidence and audit-denied actors. They do not run
@@ -61,3 +62,8 @@ identity before commit and again before a single nonforce push. Receipt output
 must be fresh and disjoint from stage, factory and Git inputs. A template with
 NULL future identities is not publication authority. No actual constructor or
 publisher invocation is authorized by passing these DATA tests.
+
+The current pair/update log guards require the actual91-test summary. Actor-denied
+function controls accept the retained host summary shape and reject81,191,
+truncated/wrong OK, literal backslashes and missing-check logs for a/b/update.
+The existing newline OK regex and every old81-test function remain held.

@@ -30,3 +30,5 @@ jobs:
         run: python -I -B scripts/ci/desktop-current011-native-source/test_current011_data.py
       - name: Passive reader DATA and AST controls
         run: python -I -B scripts/ci/desktop-current011-native-source/test_current011_reader_data.py
+      - name: Current build-log function controls with actors denied
+        run: python -I -B scripts/ci/desktop-current011-native-source/test_current011_build_logs_data.py

@@ -437,7 +437,7 @@ def current011_build_pair(run, source, recipes, policy, alarm, report):
             argv = ['/usr/bin/runuser', '-u', 'alarm', '--', '/usr/bin/env', 'HOME=' + str(slot), 'PKGDEST=' + str(slot), 'SRCDEST=' + str(slot), 'BUILDDIR=' + str(slot), 'SOURCE_DATE_EPOCH=' + policy['build_pair']['source_date_epoch'], 'PACKAGER=' + policy['build_pair']['packager'], '/usr/bin/makepkg', '--cleanbuild', '--nodeps', '--nosign', '--noconfirm', '--config', str(config)]
             raw = run('build-' + label, argv, cwd=slot)
             item['check_invoked'] = b'Starting check()' in raw
-            need(item['check_invoked'] and re.search(b'Ran 81 tests? in ', raw) and re.search(b'\\nOK(?:\\n|$)', raw), 'actual complete91-test check required')
+            need(item['check_invoked'] and re.search(b'Ran 91 tests? in ', raw) and re.search(b'\\nOK(?:\\n|$)', raw), 'actual complete91-test check required')
             item['check_tests'] = 91
             archive = slot / policy['recipe']['archive']
             need(archive.is_file() and (not archive.is_symlink()), 'actual built archive')
@@ -483,7 +483,7 @@ def current011_build_update(run, source, recipes, policy, alarm, report):
         argv = ['/usr/bin/runuser', '-u', 'alarm', '--', '/usr/bin/env', 'HOME=' + str(slot), 'PKGDEST=' + str(slot), 'SRCDEST=' + str(slot), 'BUILDDIR=' + str(slot), 'SOURCE_DATE_EPOCH=' + policy['build_pair']['source_date_epoch'], 'PACKAGER=' + policy['build_pair']['packager'], '/usr/bin/makepkg', '--cleanbuild', '--nodeps', '--nosign', '--noconfirm', '--config', str(config)]
         raw = run('build-update', argv, cwd=slot)
         item['check_invoked'] = b'Starting check()' in raw
-        need(item['check_invoked'] and re.search(b'Ran 81 tests? in ', raw) and re.search(b'\\nOK(?:\\n|$)', raw), 'actual complete91-test update check required')
+        need(item['check_invoked'] and re.search(b'Ran 91 tests? in ', raw) and re.search(b'\\nOK(?:\\n|$)', raw), 'actual complete91-test update check required')
         item['check_tests'] = 91
         archive = slot / recipe['archive']
         need(archive.is_file() and (not archive.is_symlink()), 'actual TEST-update built archive')
