@@ -39,6 +39,19 @@
       ],
       "matching_reader": "native/source_tools_reader_v1.py",
       "prerequisite": "ROOT_BOUND_RETAINED_TRANSPORT_SUCCESSOR_BEFORE_DISPATCH; CURRENT_NULL_HELD"
+    },
+    "source-tools-alpm-v2": {
+      "actual": {
+        "ref": null,
+        "run": null,
+        "source": null
+      },
+      "argv_extra": [
+        "--operation",
+        "source-tools-alpm-v2"
+      ],
+      "matching_reader": "native/source_tools_reader_v2.py",
+      "prerequisite": "ROOT_GENUINE_CAUSE_AND_RESOURCE_CLASSIFICATION_AND_NEW_BOUND_SOURCE_BEFORE_DISPATCH; CURRENT_NULL_HELD"
     }
   },
   "provisioning": "PROOF_PRIVATE22_PUBLIC14_ORIGINAL1154_FIXED16_COPY_THEN_OWNER",

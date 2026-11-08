@@ -167,7 +167,7 @@ def image_build_policy_receipt(own,map_hash,actors,build_operations,context):
 def run(root, args):
     own, profile, original, expected = admission(root, args, os.environ)
     operation=getattr(args,'operation','source184')
-    need(operation in ('source184','source-tools-alpm-v1'),'explicit finite operation')
+    need(operation in ('source184','source-tools-alpm-v1','source-tools-alpm-v2'),'explicit finite operation')
     need((root / '.git').is_dir() and not (root / '.git').is_symlink(), 'explicit ordinary publication Git directory')
     import provision
     proof = provision.prior_proof(root, args, own)
@@ -182,7 +182,7 @@ def run(root, args):
     report = dict(schema=1, status='FAIL', binding=own, source_map_sha256=args.map_sha256,
                   input_inventory=pin(expected), source_root=str(root), output_root=str(output),
                   native_16K='NOT_QUALIFIED', physical_M2='NOT_RUN', release='NOT_ADMITTED')
-    if operation=='source-tools-alpm-v1':report['operation']=operation
+    if operation in ('source-tools-alpm-v1','source-tools-alpm-v2'):report['operation']=operation
     pgo = module(root / 'bootstrap/scripts/ci/zlib-pgo-native-hosted/owner.py', '_sealed_pgo102')
     pgo.DOCKER = DOCKER
     actor = pgo.Actors(args.work / 'actors', 4300)
@@ -299,6 +299,9 @@ def run(root, args):
         if operation=='source-tools-alpm-v1':
             from source_tools_alpm_v1 import prepare,dockerfile as release_dockerfile
             prepare(root,context,args.map_sha256);dockerfile=release_dockerfile(dockerfile,args.map_sha256)
+        elif operation=='source-tools-alpm-v2':
+            from source_tools_alpm_v2 import prepare,dockerfile as release_dockerfile
+            prepare(root,context,args.map_sha256);dockerfile=release_dockerfile(dockerfile,args.map_sha256)
         (context / 'Dockerfile').write_text(dockerfile)
         command = [*DOCKER, 'build', '--network=none', '--pull=false', '--no-cache', '--platform=linux/arm64',
             '--tag', 'native-developer-tools:' + own['token'], '--label', LABEL + '=' + own['token'],
@@ -324,7 +327,7 @@ def run(root, args):
             '--user', str(os.getuid()) + ':' + str(os.getgid()), '--tmpfs', '/tmp:rw,nosuid,nodev,exec,size=2g',
             '--label', LABEL + '=' + own['token'], '--label', LABEL + '.source=' + own['source'],
             '--mount', 'type=bind,src=' + str(root) + ',dst=/source,readonly', '--mount', 'type=bind,src=' + str(output) + ',dst=/out',
-            '--entrypoint=/usr/bin/python3', image, '-I', '-B', ('/source/native/source_tools_guest_v1.py' if operation=='source-tools-alpm-v1' else '/source/native/guest.py'), '--output', '/out/journey', '--map-sha256', args.map_sha256]
+            '--entrypoint=/usr/bin/python3', image, '-I', '-B', ('/source/native/source_tools_guest_v2.py' if operation=='source-tools-alpm-v2' else '/source/native/source_tools_guest_v1.py' if operation=='source-tools-alpm-v1' else '/source/native/guest.py'), '--output', '/out/journey', '--map-sha256', args.map_sha256]
         container = actor.docker(*command, timeout=60)
         need(re.fullmatch('[0-9a-f]{64}', container), 'exact created container ID')
         inspection = json.loads(actor.docker('inspect', container))[0]
@@ -352,7 +355,7 @@ def run(root, args):
         need(after['State']['Running'] is False and after['State']['ExitCode'] == 0, 'actual completed native consumer')
         report['consumer'] = dict(image=image, container=container, state=after['State'])
         result = load(output / 'journey/result.json')
-        need(result['status'] == ('PASS_SOURCE_TOOLS_NATIVE_ALPM_COMPONENT' if operation=='source-tools-alpm-v1' else 'PASS_NATIVE_DEVELOPER_COMPONENTS_ONLY'), 'all actual native developer components required')
+        need(result['status'] == ('PASS_SOURCE_TOOLS_NATIVE_ALPM_COMPONENT' if operation in ('source-tools-alpm-v1','source-tools-alpm-v2') else 'PASS_NATIVE_DEVELOPER_COMPONENTS_ONLY'), 'all actual native developer components required')
         report['status'] = result['status']
     except BaseException as error:
         primary_error = error
@@ -461,9 +464,9 @@ def run(root, args):
                     (proofs / (directory + '-' + name)).write_bytes(read(path))
         save(output / 'image-ledger.json', ledger)
         save(output / 'image-retirement.json', cleanup['image_retirement'])
-        if operation=='source-tools-alpm-v1':
+        if operation in ('source-tools-alpm-v1','source-tools-alpm-v2'):
             try:
-                result_path=output/'journey/source-tools-alpm-v1/result.json'
+                result_path=output/('journey/'+operation+'/result.json')
                 existing_context=(json.loads(read(result_path,cap=4*1024**2)).get('image_build_context')
                                   if result_path.is_file() else None)
                 report['image_build_policy']=image_build_policy_receipt(own,args.map_sha256,actor.rows,build_operations,existing_context)
@@ -475,6 +478,8 @@ def run(root, args):
         try:
             if operation=='source-tools-alpm-v1':
                 from source_tools_projection_v1 import project
+            elif operation=='source-tools-alpm-v2':
+                from source_tools_projection_v2 import project
             else:
                 from public_projection import project
             project(root, output, args.work / 'public-projection')
@@ -501,7 +506,7 @@ if __name__ == '__main__':
     for name in ('source-sha', 'ref', 'run-id', 'map-sha256'):
         parser.add_argument('--' + name, required=True)
     parser.add_argument('--execute', action='store_true')
-    parser.add_argument('--operation',choices=('source184','source-tools-alpm-v1'),default='source184')
+    parser.add_argument('--operation',choices=('source184','source-tools-alpm-v1','source-tools-alpm-v2'),default='source184')
     args = parser.parse_args()
     def cancel(number, frame):
         raise KeyboardInterrupt('native workflow cancellation')

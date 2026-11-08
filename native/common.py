@@ -68,7 +68,7 @@ def verify_source(root, checksum):
     raw = read(root / MAP); need(pin(raw)['sha256'] == checksum, 'whole source map differs')
     manifest = json.loads(raw)
     need(manifest['schema'] == 1 and manifest['actual'] == dict(source=None, ref=None, run=None), 'NULL unexecuted source selectors')
-    rows = manifest['files']; need(MAP not in rows and len(rows) <= 200, 'finite nonrecursive source map')
+    rows = manifest['files']; need(MAP not in rows and (len(rows) == 211 if manifest.get('source_tools_operation') == 'source-tools-alpm-v2' else len(rows) <= 200), 'finite nonrecursive source map')
     actual = set(); actual_dirs = set()
     for directory, dirs, files in os.walk(root, followlinks=False):
         base = Path(directory)
