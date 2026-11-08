@@ -1,0 +1,6 @@
+tree 7e66e27a352cee19a3d022d8c167c43b9ab72804
+parent d78b8446f590ad44a972b0e727cd032752372bd4
+author Gabriel Kahen <93809974+Gabriel-Kahen@users.noreply.github.com> 1793448209 -0400
+committer Gabriel Kahen <93809974+Gabriel-Kahen@users.noreply.github.com> 1793448209 -0400
+
+Observe exact Platform build namespace context without changing policy

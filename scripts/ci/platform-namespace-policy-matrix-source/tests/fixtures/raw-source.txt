@@ -1,0 +1,6 @@
+tree 6225879650afde24a93fd33905819e779384c550
+parent 05df8c71ea2bcb525bb1cfbc59983452062a1e97
+author Gabriel Kahen <93809974+Gabriel-Kahen@users.noreply.github.com> 1793456720 +0000
+committer Gabriel Kahen <93809974+Gabriel-Kahen@users.noreply.github.com> 1793456720 +0000
+
+Add bounded namespace policy matrix owner and passive diagnostic route

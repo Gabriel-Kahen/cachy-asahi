@@ -1,0 +1,40 @@
+{
+  "expected_map_sha256": "cc2d1aaee89bf8c8ff921b8d764572f94c29bcf76a625e501038d6413efb1cab",
+  "expected_tree": "6225879650afde24a93fd33905819e779384c550",
+  "files": {
+    ".github/workflows/native-arm-build.yml": {
+      "bytes": 13209,
+      "mode": 420,
+      "sha256": "94ba5c5bac5142608cc68b3a267f8e4582da6299cbf4ae245d279a93ace7f9df"
+    },
+    ".github/workflows/native-arm-developer-workflows.yml": {
+      "bytes": 13209,
+      "mode": 420,
+      "sha256": "94ba5c5bac5142608cc68b3a267f8e4582da6299cbf4ae245d279a93ace7f9df"
+    },
+    "native/owner.py": {
+      "bytes": 29683,
+      "mode": 420,
+      "sha256": "49be53ee5064132d27c9c4501586828242e12a6eb3b1347e0450fca0f4318259"
+    },
+    "native/platform-namespace-policy-v1.json": {
+      "bytes": 3267,
+      "mode": 420,
+      "sha256": "7d34c33b80053863424137b2b6faa47e2d7bc5fc0d4f0f1f966439ef60373059"
+    },
+    "native/platform_namespace_policy_v1.py": {
+      "bytes": 64924,
+      "mode": 420,
+      "sha256": "f4d9630e268ea7973f369d874b019c65e830bc3814b86a2f8b4cfe4516222918"
+    },
+    "native/provision.py": {
+      "bytes": 46376,
+      "mode": 420,
+      "sha256": "7328c58425c961168273b305b6dffc6dcdba39c3ecae78b4c843210b61c68cc4"
+    }
+  },
+  "kind": "platform-namespace-policy-overlay-v1",
+  "operation": "platform-namespace-policy-matrix-v1",
+  "parent": "05df8c71ea2bcb525bb1cfbc59983452062a1e97",
+  "schema": 1
+}
