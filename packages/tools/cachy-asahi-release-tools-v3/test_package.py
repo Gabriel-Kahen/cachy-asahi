@@ -247,7 +247,7 @@ class InstalledPackageTests(unittest.TestCase):
 
     def command(self, args, *, legacy=False, audited=False, output=None):
         target = self.legacy_cli if legacy else self.cli
-        command = [str(target), *map(str, args)]
+        command = [sys.executable, '-I', '-B', str(target), *map(str, args)]
         if audited:
             command = [sys.executable, '-I', '-B', '-c', AUDIT, str(self.cli),
                 str(self.prefix), str(self.base), str(self.workspace / 'outside-private-input'), 'run',
@@ -445,11 +445,11 @@ class InstalledPackageTests(unittest.TestCase):
         upgraded = snapshot(root)
         self.assertEqual(set(upgraded), set(new_rows) | set(users))
         for name, row in new_rows.items(): self.assertEqual(upgraded[name], row)
-        run = subprocess.run([str(root / 'usr/bin' / NAME), '--version'], capture_output=True, timeout=10)
+        run = subprocess.run([sys.executable, '-I', '-B', str(root / 'usr/bin' / NAME), '--version'], capture_output=True, timeout=10)
         self.assertEqual(run.stdout, b'cachy-asahi-release-tools 0.3.0\n')
         remove_rows(set(new_rows) - set(self.old_rows)); write_rows(self.old_rows)
         self.assertEqual(snapshot(root), baseline)
-        old = subprocess.run([str(root / 'usr/bin' / NAME), '--version'], capture_output=True, timeout=10)
+        old = subprocess.run([sys.executable, '-I', '-B', str(root / 'usr/bin' / NAME), '--version'], capture_output=True, timeout=10)
         self.assertEqual(old.stdout, b'cachy-asahi-release-tools 0.2.0\n')
         remove_rows(self.old_rows)
         self.assertEqual({name: row[0] for name, row in snapshot(root).items()}, users)

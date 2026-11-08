@@ -68,6 +68,6 @@ pkgbase = cachy-asahi-release-tools
 	sha256sums = 8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e
 	sha256sums = d886af488886924362b9a9c679d05cd14e9e7db53102b6430344a73ca21a10f7
 	sha256sums = b6d915cc2abc5cfdb981d9b2925d740d27be4dc872c83093816ab18b9facc4df
-	sha256sums = 09d012ef78f54dedc0d0dc5fba4cfe9ced9f4773a095f1f6765563b22ad6c40f
+	sha256sums = 0d20e5265152c57631c779f60e0d7c9ecbf0b8616e0bfbc673e153568d70ac3d
 
 pkgname = cachy-asahi-release-tools
