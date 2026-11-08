@@ -306,13 +306,19 @@
           }
         },
         {
-          "env": {
-            "GH_TOKEN": "${{ github.token }}"
-          },
+          "name": "Checkout exact retained five dependency input source",
+          "uses": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "with": {
+            "path": "latest607-dependency-incoming",
+            "persist-credentials": false,
+            "ref": "405761af52cdfa92b97bbf5b0519f32230d9a254"
+          }
+        },
+        {
           "id": "audio_inputs",
           "if": "${{ !cancelled() && steps.root_decisions.outcome == 'success' }}",
           "name": "Retrieve only the six original pinned audio inputs",
-          "run": "set -euo pipefail\npython3 -B expanded604-legacy/scripts/ci/full-development-composition/retrieve_audio.py --output \"$RUNNER_TEMP/audio-archives\"\n",
+          "run": "set -euo pipefail\ntest \"$(git -C \"$GITHUB_WORKSPACE/latest607-dependency-incoming\" rev-parse HEAD)\" = 405761af52cdfa92b97bbf5b0519f32230d9a254\npython3 -I -B - --policy \"$GITHUB_WORKSPACE/expanded604-legacy/scripts/ci/full-development-composition/audio-inputs.json\" --carrier \"$GITHUB_WORKSPACE/latest607-dependency-incoming\" --output \"$RUNNER_TEMP/audio-archives\" <<'PYEXACTRETAINEDAUDIO'\n#!/usr/bin/env python3\n# SPDX-License-Identifier: MIT\n\"\"\"Copy the exact seven retained audio objects; no download, extraction or execution.\"\"\"\nimport argparse,hashlib,json,os,shutil,stat,time\nfrom pathlib import Path\nPOLICY='5dae018a1357708e85393048728a6fb44cd9c9eb02a78ab19e60435d370ffdf2'\nCARRIER='405761af52cdfa92b97bbf5b0519f32230d9a254'\nNAMES={'asahi-audio','alsa-ucm-conf-asahi','speakersafetyd','bankstown','triforce-lv2','lsp-plugins-lv2'}\nMAX_TOTAL=8*1024**2;SECONDS=600\n\ndef need(ok,reason):\n if not ok:raise ValueError(reason)\ndef pin(raw):return dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())\ndef identity(s):return(s.st_dev,s.st_ino,s.st_mode,s.st_nlink,s.st_uid,s.st_gid,s.st_size,s.st_mtime_ns,s.st_ctime_ns)\ndef read(path,cap,deadline):\n path=Path(path);need(path==path.resolve()and not any(p.is_symlink()for p in(path,*path.parents)),'ordinary retained input path')\n fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK|os.O_CLOEXEC)\n try:\n  before=os.fstat(fd);need(stat.S_ISREG(before.st_mode)and before.st_nlink==1 and before.st_uid==os.geteuid()and stat.S_IMODE(before.st_mode)in(0o600,0o644)and 0<=before.st_size<=cap,'owned nonexecuting retained input shape');parts=[];left=before.st_size+1\n  while left:\n   need(time.monotonic()<deadline,'audio seed deadline');chunk=os.read(fd,min(left,1024**2))\n   if not chunk:break\n   parts.append(chunk);left-=len(chunk)\n  raw=b''.join(parts);need(len(raw)==before.st_size and identity(before)==identity(os.fstat(fd))==identity(path.lstat()),'retained input changed');return raw\n finally:os.close(fd)\ndef seed(policy,carrier,output):\n deadline=time.monotonic()+SECONDS;raw=read(policy,1024**2,deadline);need(pin(raw)['sha256']==POLICY,'frozen audio policy pin');rows=json.loads(raw)\n need(type(rows)is list and len(rows)==6 and {r['name']for r in rows}==NAMES,'six frozen audio policy rows');wanted={}\n for row in rows:\n  name=row['filename'];need(type(name)is str and Path(name).name==name and name not in wanted,'unique ordinary audio filename');wanted[name]=(carrier/'packages'/name,dict(bytes=row['size'],sha256=row['sha256']))\n  if row['origin']=='ALARM':\n   need(row['name']=='lsp-plugins-lv2','only fixed LSP official signature');wanted[name+'.sig']=(carrier/'upstream-signatures'/(name+'.sig'),dict(bytes=row['signature_size'],sha256=row['signature_sha256']))\n need(len(wanted)==7 and all(type(r['bytes'])is int and 0<r['bytes']<=MAX_TOTAL for _,r in wanted.values())and sum(r['bytes']for _,r in wanted.values())<=MAX_TOTAL,'seven bounded original objects')\n output=Path(output);parent=output.parent;need(output.is_absolute()and output.name=='audio-archives'and parent==parent.resolve()and not any(p.is_symlink()for p in(parent,*parent.parents))and parent.is_dir()and parent.stat().st_uid==os.geteuid()and not parent.stat().st_mode&0o022 and not os.path.lexists(output),'fresh private runner audio output')\n output.mkdir(mode=0o700);owned=output.stat();made=[]\n try:\n  for name,(source,expected)in wanted.items():\n   body=read(source,expected['bytes'],deadline);need(pin(body)==expected,'retained original audio byte pin: '+name)\n   fd=os.open(output/name,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW|os.O_CLOEXEC,0o600)\n   with os.fdopen(fd,'wb')as stream:stream.write(body);stream.flush();os.fsync(stream.fileno())\n   made.append(name)\n  need(set(p.name for p in output.iterdir())==set(wanted)and(output.stat().st_dev,output.stat().st_ino)==(owned.st_dev,owned.st_ino)and time.monotonic()<deadline,'closed exact owned audio output')\n  return dict(status='AUDIO_INPUT_SEED_PASS_EXACT_RETAINED_SEVEN',files={n:r for n,(_,r)in wanted.items()},carrier_source_expected=CARRIER,carrier_revision_verification='CALLER_ENFORCED',policy_sha256=POLICY,network_requests=0,package_or_signature_execution=False,cold_retriever='SKIPPED_EXISTING_OUTPUT_WOULD_REFUSE',later_frozen_audit='REQUIRED_UNCHANGED',deadline_seconds=SECONDS)\n except BaseException:\n  if output.is_dir()and not output.is_symlink()and(output.stat().st_dev,output.stat().st_ino)==(owned.st_dev,owned.st_ino):shutil.rmtree(output)\n  raise\n\ndef main():\n parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--policy',required=True,type=Path);parser.add_argument('--carrier',required=True,type=Path);parser.add_argument('--output',required=True,type=Path);a=parser.parse_args();print(json.dumps(seed(a.policy,a.carrier,a.output),sort_keys=True));return 0\nif __name__=='__main__':raise SystemExit(main())\nPYEXACTRETAINEDAUDIO\n",
           "shell": "bash"
         },
         {
@@ -579,15 +585,6 @@
           "run": "set -euo pipefail\narchive8_helper=\"$GITHUB_WORKSPACE/expanded604-upgrade/scripts/ci/current604-public-pair-updater16k/archive8.py\"\narchive8_policy=\"$GITHUB_WORKSPACE/expanded604-upgrade/scripts/ci/current604-public-pair-updater16k/archive8-policy.json\"\narchive8_inputs=\"$GITHUB_WORKSPACE/composition-desktop/scripts/ci/maintained-desktop574-inputs.json\"\nprintf '%s  %s\\n' '5e24808152c727f5dcd19252c66e1ab121bdb9dbd6b90becb943820634898565' \"$archive8_helper\" '2b21c05d30a9c5efd2f717cfa8475c9de3150d7729f710b348b70a84f5b16e20' \"$archive8_policy\" | sha256sum --check\npython3 -I -B \"$archive8_helper\" --policy \"$archive8_policy\" --inputs \"$archive8_inputs\" --cache \"$RUNNER_TEMP/frozen574-archive8\"\npython3 -I -B - \"$archive8_helper\" \"$archive8_policy\" \"$archive8_inputs\" \"$GITHUB_WORKSPACE/scripts/ci/inputs.lock.json\" \"$RUNNER_TEMP/frozen574-archive8\" \"$RUNNER_TEMP/alarm-cache\" <<'PYARCHIVE8'\nimport importlib.util,json,sys\nfrom pathlib import Path\nhelper,policy,inputs,native,cache,destination=map(Path,sys.argv[1:])\nspec=importlib.util.spec_from_file_location('source_owned_archive8_seed',helper)\nmodule=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)\nselected=module.policy(policy,inputs)\nresult=module.seed_exact(cache,destination,selected)\nresult.update(destination='EXISTING_OWNED_ALARM_CACHE',original_versions='UNCHANGED',original_signature_and_trust_checks='UNCHANGED')\nprint(module.encoded(result).decode(),end='')\nPYARCHIVE8\n",
           "shell": "bash",
           "timeout-minutes": 4
-        },
-        {
-          "name": "Checkout exact retained five dependency input source",
-          "uses": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
-          "with": {
-            "path": "latest607-dependency-incoming",
-            "persist-credentials": false,
-            "ref": "405761af52cdfa92b97bbf5b0519f32230d9a254"
-          }
         },
         {
           "env": {

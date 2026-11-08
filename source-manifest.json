@@ -2,12 +2,12 @@
   "actual": null,
   "files": {
     ".github/workflows/native-arm-build.yml": {
-      "bytes": 113363,
-      "sha256": "d9aaf1494d0d6b204e7d155e4f207446de7e12fd3c387284025cc885228c5382"
+      "bytes": 118082,
+      "sha256": "3d44fa32f528145458ed02424b99e7625608d246267a1e496a504393c2fe13a3"
     },
     ".github/workflows/native-arm-updater607-normal-lifecycle.yml": {
-      "bytes": 113363,
-      "sha256": "d9aaf1494d0d6b204e7d155e4f207446de7e12fd3c387284025cc885228c5382"
+      "bytes": 118082,
+      "sha256": "3d44fa32f528145458ed02424b99e7625608d246267a1e496a504393c2fe13a3"
     },
     "LICENSE": {
       "bytes": 1081,
