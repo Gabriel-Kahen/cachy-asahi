@@ -41,7 +41,8 @@ jobs:
         run: |
           set -euo pipefail
           python3 -I -B scripts/ci/test_maintained_desktop574.py
-          python3 -B -m unittest discover -s "$SLICE" -p test_source.py
+          python3 -I -B "$SLICE/test_source.py" --root "$GITHUB_WORKSPACE" --closed-source
+          python3 -I -B "$SLICE/test_entry_failures.py" --root "$GITHUB_WORKSPACE"
       - name: Seed the six exact retained inputs using existing secrets only
         timeout-minutes: 2
         env:

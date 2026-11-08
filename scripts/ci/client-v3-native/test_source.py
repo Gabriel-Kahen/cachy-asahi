@@ -19,6 +19,7 @@ import rules
 HERE = Path(__file__).resolve().parent
 parser = argparse.ArgumentParser(add_help=False)
 parser.add_argument('--root', type=Path, default=HERE.parents[2])
+parser.add_argument('--closed-source', action='store_true')
 args, rest = parser.parse_known_args()
 ROOT = args.root.resolve()
 ACTIVE = False
@@ -28,6 +29,28 @@ def fence(event, args):
         ATTEMPTS.append(event)
         raise RuntimeError('component DATA actor denied: ' + event)
 sys.addaudithook(fence)
+
+def workflow_controls(here, root, closed_source):
+    """Explicit caller mode; deployed Sources are checked against their real bound inputs."""
+    policy=json.loads((here/'input-policy.json').read_bytes())
+    if any(k not in policy or policy[k] is not None for k in ('native_source','actual_run','native_authority','resource_authority')):
+        raise ValueError('actual native selectors must remain NULL')
+    if closed_source:
+        manifest_raw=(here/'source-manifest.json').read_bytes()
+        manifest=json.loads(manifest_raw)
+        if (policy.get('status')!='ROOT_BOUND_FINAL_PRODUCT_SOURCES' or manifest.get('status')!='FROZEN_ROOT_FINAL_SOURCES'
+                or policy.get('candidate_source')!='2dbe7fe5623fae9ed5940a26385400958c3ffb42'
+                or policy.get('retained_input_carrier')!='3856733787d10820ab73f842e9f2bbf4fdb84181'):
+            raise ValueError('explicit closed component Source required')
+        raw=(root/'.github/workflows/native-arm-build.yml').read_text()
+        markers=(policy['retained_input_carrier'],hashlib.sha256((here/'job.py').read_bytes()).hexdigest(),
+                 hashlib.sha256(manifest_raw).hexdigest())
+        if any(x in raw for x in ('@RETAINED_INPUT_SOURCE@','@JOB_SHA256@','@MANIFEST_SHA256@')):
+            raise ValueError('deployed workflow placeholders refused')
+        return raw,markers
+    if policy.get('status')!='UNBOUND_CLIENT_V3_COMPONENT' or policy.get('candidate_source') is not None or policy.get('retained_input_carrier') is not None:
+        raise ValueError('explicit maintained UNBOUND component required')
+    return (here/'workflow.yml.in').read_text(),('@RETAINED_INPUT_SOURCE@','@JOB_SHA256@','@MANIFEST_SHA256@')
 
 class Controls(unittest.TestCase):
     def setUp(self):
@@ -59,8 +82,15 @@ class Controls(unittest.TestCase):
         self.assertEqual(value['status'], 'UNBOUND_CLIENT_V3_COMPONENT')
         self.assertTrue(all(value[k] is None for k in ('candidate_source', 'native_source', 'actual_run', 'native_authority', 'resource_authority')))
         self.assertTrue(all(r['source_sha'] is None for r in value['products'].values()))
-        with self.assertRaisesRegex(ValueError, 'remain UNBOUND'):
-            self.C.policy()
+        original = self.C.read
+        with patch.object(self.C, 'read', lambda path,*a: value if Path(path).name=='input-policy.json' else original(path,*a)):
+            with self.assertRaisesRegex(ValueError, 'remain UNBOUND'):
+                self.C.policy()
+        if args.closed_source:
+            self.assertEqual(self.C.policy()['status'], 'ROOT_BOUND_FINAL_PRODUCT_SOURCES')
+        else:
+            with self.assertRaisesRegex(ValueError, 'remain UNBOUND'):
+                self.C.policy()
 
     def test_exact_current_two_recipe_source_and_runtime_dependency_closure(self):
         with self.bound():
@@ -128,9 +158,9 @@ class Controls(unittest.TestCase):
         self.assertIn("'[GNUPG:] VALIDSIG '", code)
 
     def test_workflow_serialization_caps_and_explicit_qualified_carrier(self):
-        raw = (HERE / 'workflow.yml.in').read_text()
+        raw, markers = workflow_controls(HERE, ROOT, args.closed_source)
         for marker in ('group: native-arm-apps7-client', 'cancel-in-progress: false', 'runs-on: ubuntu-24.04-arm',
-                       'timeout-minutes: 100', '@RETAINED_INPUT_SOURCE@', '@JOB_SHA256@', '@MANIFEST_SHA256@'):
+                       'timeout-minutes: 100', *markers):
             self.assertIn(marker, raw)
         self.assertNotIn('04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd', raw)
         carrier = json.loads((HERE / 'retained-input-carrier.json').read_bytes())
