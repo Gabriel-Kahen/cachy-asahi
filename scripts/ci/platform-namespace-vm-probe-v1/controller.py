@@ -20,7 +20,7 @@ HERE = Path(__file__).resolve().parent
 FIXTURE = 'scripts/virtual/generic16k/fixture.py'
 SUPERVISOR = 'scripts/ci/glibc-owned-runtime/runner.py'
 KERNEL_CHECK = 'scripts/virtual/generic16k/build_kernel.py'
-GUEST_FILES = ('common.py', 'guest.py', 'probe_exec.py', 'inside.py')
+GUEST_FILES = ('common.py', 'guest.py', 'probe_exec.py', 'inside.py', 'boot.py')
 REQUIRED = {'busybox', 'usr/bin/python3', 'usr/bin/bwrap'}
 RESERVED = ('probe', 'init', 'proc', 'dev', 'tmp', 'home', 'var/lib/pacman')
 
@@ -98,9 +98,7 @@ def init(nonce, release):
     return f'''#!/busybox sh
 export PATH=/usr/bin:/bin HOME=/tmp LANG=C LC_ALL=C PYTHONDONTWRITEBYTECODE=1
 fail() {{ printf 'NSVM_BOOT_FAIL_V1 {nonce}\\n'; exec /busybox poweroff -f; }}
-/busybox mount -t proc -o nosuid,nodev,noexec proc /proc || fail
-/busybox mount -t devtmpfs -o nosuid devtmpfs /dev || fail
-/busybox mkdir -p /tmp /home /var/lib/pacman || fail
+/usr/bin/python3 -I -B /probe/boot.py '{nonce}' '{release}' || fail
 /usr/bin/python3 -I -B /probe/guest.py '{nonce}' '{release}'
 code=$?
 printf 'NSVM_END_V1 {nonce} %s\\n' "$code"

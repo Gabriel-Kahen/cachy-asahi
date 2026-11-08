@@ -176,7 +176,7 @@ class DataControls(unittest.TestCase):
         before = copy.deepcopy(payload)
         raw = H.assemble(payload, dict(dependencies, source_root=str(ROOT)), NONCE, RELEASE, generic)
         self.assertTrue(raw.startswith(b'070701'))
-        for name in (b'probe/guest.py\0', b'probe/runner.py\0', b'probe/selection.json\0', b'init\0'):
+        for name in (b'probe/guest.py\0', b'probe/boot.py\0', b'probe/runner.py\0', b'probe/selection.json\0', b'init\0'):
             self.assertIn(name, raw)
         self.assertEqual(before, payload)
 
@@ -195,6 +195,9 @@ class DataControls(unittest.TestCase):
         self.assertTrue(init.startswith(b'#!/busybox sh\n'))
         self.assertEqual(init.count(b'/usr/bin/python3 -I -B /probe/guest.py'), 1)
         self.assertIn(b'exec /busybox poweroff -f', init)
+        self.assertEqual(init.count(b'/usr/bin/python3 -I -B /probe/boot.py'), 1)
+        self.assertNotIn(b'/busybox mount', init)
+        self.assertNotIn(b'/busybox mkdir', init)
         self.assertNotIn(b'sysctl', init)
         self.assertNotIn(b'docker', init)
 
