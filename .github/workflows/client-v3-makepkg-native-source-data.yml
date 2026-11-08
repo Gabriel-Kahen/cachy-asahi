@@ -1,0 +1,43 @@
+name: client-v3-makepkg-source-reader-data
+on:
+  pull_request:
+    paths:
+      - 'scripts/ci/client-v3-makepkg-native-source-v1/**'
+      - '.github/workflows/client-v3-makepkg-native-source-data.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/ci/client-v3-makepkg-native-source-v1/**'
+      - '.github/workflows/client-v3-makepkg-native-source-data.yml'
+permissions:
+  contents: read
+jobs:
+  successor-data:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: d1d89a9ec054d08e3717895510e016b84d860365
+          path: .ci-inputs/client-source82
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 438acd83fa3bcb79abe29a007ae9e8d0f784d03f
+          path: .ci-inputs/client-recipe438
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Check eight exact Source and matching-reader DATA boundaries without actors
+        run: |
+          set -euo pipefail
+          ulimit -t 60 -v 1048576 -f 4096 -n 128
+          timeout --signal=TERM --kill-after=5s 60s python3 -I -B -Werror scripts/ci/client-v3-makepkg-native-source-v1/test_data.py --source82 "$GITHUB_WORKSPACE/.ci-inputs/client-source82" --recipe-root "$GITHUB_WORKSPACE/.ci-inputs/client-recipe438" --reader-body "$GITHUB_WORKSPACE/scripts/ci/client-v3-native-intake-v1/reader.py"
