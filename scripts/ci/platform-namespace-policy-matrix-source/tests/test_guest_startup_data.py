@@ -67,7 +67,9 @@ class GuestStartupData(unittest.TestCase):
             script = root / 'platform_namespace_policy_v1.py'
             script.write_text(CHILD_GUARD + '''from common import MARKER
 import json
-print(json.dumps(dict(marker=MARKER,args=sys.argv[1:],isolated=sys.flags.isolated,bytecode=sys.dont_write_bytecode)))
+def guest_cli_v2():
+ print(json.dumps(dict(marker=MARKER,args=sys.argv[1:],isolated=sys.flags.isolated,bytecode=sys.dont_write_bytecode)))
+ return 0
 ''')
             arguments = ['--guest', '--source', 'synthetic-new-DATA-only']
             for force_spawn in (False, True):
