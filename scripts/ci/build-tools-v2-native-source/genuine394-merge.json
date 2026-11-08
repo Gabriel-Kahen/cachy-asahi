@@ -1,0 +1,22 @@
+{
+  "CI": "COMPLETE_FRESH_73_ALL_LATEST_STATUS_4_RUNS_ALL_JOBS_24_LITERAL_METADATA_CONTROLS_BOTH_PYTHON",
+  "Main": "8dd2a730540693a04e148557f6971d370471ba8a",
+  "PR": 394,
+  "REST_base_SHA": "METADATA_ONLY",
+  "Source_publication": false,
+  "all_unlisted_held": true,
+  "combined_config_pin_joins": 0,
+  "files": 4,
+  "full_inverse": true,
+  "head": "9a225d5bc2d60c69a7ef06094251871ef0fe3988",
+  "merge_PUTs": 1,
+  "native": "NOT_RUN",
+  "parents": [
+    "2198a5c0514451cbfbb22b883f405dfc1f2c6f5d",
+    "9a225d5bc2d60c69a7ef06094251871ef0fe3988"
+  ],
+  "previous_Main": "2198a5c0514451cbfbb22b883f405dfc1f2c6f5d",
+  "retry": false,
+  "status": "PR394_LITERAL_RECIPE_METADATA_CONSISTENCY_MAIN4_MERGED_FULL_MAP_RAW_PARENTS_AND_CLEAN_FF",
+  "tree": "b8304fc88e10973fb3a0eb20dbbc8b76c3d19cd8"
+}

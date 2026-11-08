@@ -1,0 +1,36 @@
+{
+  "all_unlisted_objects_modes_preserved": true,
+  "changed_from_previous_main": [
+    ".github/workflows/build-tools-v2-package-data.yml",
+    "packages/tools/cachy-asahi-build-tools-v2/.SRCINFO",
+    "packages/tools/cachy-asahi-build-tools-v2/LICENSE",
+    "packages/tools/cachy-asahi-build-tools-v2/NOTICE",
+    "packages/tools/cachy-asahi-build-tools-v2/PKGBUILD",
+    "packages/tools/cachy-asahi-build-tools-v2/README.md",
+    "packages/tools/cachy-asahi-build-tools-v2/cachy-asahi-build-tools",
+    "packages/tools/cachy-asahi-build-tools-v2/check-inputs.tar.gz",
+    "packages/tools/cachy-asahi-build-tools-v2/import_source.py",
+    "packages/tools/cachy-asahi-build-tools-v2/package_checks.py",
+    "packages/tools/cachy-asahi-build-tools-v2/preflight.py",
+    "packages/tools/cachy-asahi-build-tools-v2/recipe_metadata_consistency.py",
+    "packages/tools/cachy-asahi-build-tools-v2/source-provenance.json",
+    "packages/tools/cachy-asahi-build-tools-v2/source_cache.py",
+    "packages/tools/cachy-asahi-build-tools-v2/source_delivery.py",
+    "packages/tools/cachy-asahi-build-tools-v2/source_materials.py",
+    "packages/tools/cachy-asahi-build-tools-v2/test_package.py"
+  ],
+  "inverse_restores_actual_premerge_main": true,
+  "main": "39af4cc7d12573ac73d13c8832b42b72be1e1174",
+  "merge_PUTs": 1,
+  "no_native_installed_M2_performance_release_acceptance": true,
+  "parents": [
+    "dadc9acb4d4fdcb903c548a6c569bec02c8d1890",
+    "7ef85998fbede9730355806b4e6d10649fe32d31"
+  ],
+  "previous_main": "dadc9acb4d4fdcb903c548a6c569bec02c8d1890",
+  "retry": false,
+  "status": "PASS_EXACT_SEVENTEEN_PATH_BUILD_TOOLS_V2_PACKAGE_MERGE",
+  "tested_head": "7ef85998fbede9730355806b4e6d10649fe32d31",
+  "tracked_clean": true,
+  "tree": "96f75795409b1d8b8e7663cb9a06bef4914bd839"
+}
