@@ -39,9 +39,9 @@ def dockerfile(base,map_hash):
     result+='RUN /usr/bin/python3 -I -B /opt/native-security-v1/source/native/security_native_v1.py --unpack-prior --map-sha256 '+map_hash+' && echo prior > /security-prior-slot\nUSER alarm\nWORKDIR /tmp/security-prior-build\n'
     result+='RUN SOURCE_DATE_EPOCH=1793145600 PKGDEST=/tmp/security-prior-build SRCDEST=/tmp/security-prior-build BUILDDIR=/tmp/security-prior-build makepkg --check --cleanbuild --nosign --noconfirm --config /opt/native-security-v1/source/native/security-makepkg.conf\n'
     result+='FROM security-dependencies\nCOPY security-recovery-binding.json /opt/native-security-v1/recovery/native-scope.json\n'
-    result+='COPY --from=security-prior-build /tmp/security-prior-build/'+PRIOR_ARCHIVE+' /opt/native-security-v1/prior/'+PRIOR_ARCHIVE+'\nCOPY --from=security-prior-build /security-prior-slot /opt/native-security-v1/prior/stage-slot\n'
+    result+='COPY --from=security-prior-build --chown=0:0 /tmp/security-prior-build/'+PRIOR_ARCHIVE+' /opt/native-security-v1/prior/'+PRIOR_ARCHIVE+'\nCOPY --from=security-prior-build /security-prior-slot /opt/native-security-v1/prior/stage-slot\n'
     for label in ('one','two'):
-        result+='COPY --from=security-build-'+label+' /tmp/security-build/'+ARCHIVE+' /opt/native-security-v1/pair/'+label+'/'+ARCHIVE+'\n'
+        result+='COPY --from=security-build-'+label+' --chown=0:0 /tmp/security-build/'+ARCHIVE+' /opt/native-security-v1/pair/'+label+'/'+ARCHIVE+'\n'
     for label in ('one','two'):
         result+='COPY --from=security-build-'+label+' /security-pair-slot /opt/native-security-v1/pair/'+label+'/stage-slot\n'
     result+='RUN /usr/bin/python3 -I -B /opt/native-security-v1/source/native/security_native_v1.py --inside-image --map-sha256 '+map_hash+' & security_owner=$!; security_status=0; wait "$security_owner" || security_status=$?; exit "$security_status"\n'
@@ -379,7 +379,7 @@ def inside(root,map_hash):
     report=dict(schema=1,status='FAIL',source_map_sha256=map_hash,architecture=platform.machine(),page_size=os.sysconf('SC_PAGE_SIZE'),
         packages=pin(baseline),physical_M2='NOT_RUN',native_16K='NOT_QUALIFIED',release='NOT_ADMITTED',remediation='NOT_ESTABLISHED',
         execution_scope='OWNED_NATIVE_IMAGE_BUILD_STAGE; ordinary alarm workflows; consumer exports DATA',pair={},lifecycle={},workflows={},upgrade={},commands=c.records)
-    primary=None;installed=False;retired=[];recovery_context=None
+    primary=None;installed=False;retired=[];recovery_context=None;recovery_phase=None
     archive=PREFIX/'pair/one'/ARCHIVE;second=PREFIX/'pair/two'/ARCHIVE;prior=PREFIX/'prior'/PRIOR_ARCHIVE
     def inventory(step):return b''.join(sorted(c.run(step,['/usr/bin/pacman','-Q']).splitlines(keepends=True)))
     def owned_payload(expected,label):
@@ -441,7 +441,9 @@ def inside(root,map_hash):
         prior_wanted=b''.join(sorted(baseline.splitlines(keepends=True)+[b'cachy-asahi-security-maintenance 0.1.0-1\n']))
         wanted=b''.join(sorted(baseline.splitlines(keepends=True)+[b'cachy-asahi-security-maintenance 0.1.0-2\n']))
         from security_recovery_native import prepare as prepare_recovery
+        recovery_phase='PREPARE_RECOVERY'
         recovery_context=prepare_recovery(sys.modules[__name__],c,archive,prior,paths,prior_paths,fingerprint,public,trust,map_hash)
+        recovery_phase=None
         c.run('prior-required-install',pacman+['--noconfirm','--noscriptlet','-U',prior]);installed=True
         current=inventory('prior-inventory');need(current==prior_wanted,'actual prior350 inventory');upgrade_inventories['prior_installed']=pin(current);owned_payload(prior_paths,'prior');preserved()
         tampered=private/ARCHIVE;shutil.copyfile(archive,tampered);bad=bytearray(read(signature));need(len(bad)>32,'actual detached candidate TEST signature');bad[len(bad)//2]^=1;Path(str(tampered)+'.sig').write_bytes(bad)
@@ -495,7 +497,7 @@ def inside(root,map_hash):
         report['test_authority']=dict(fingerprint=fingerprint,public_key=public.read_text('ascii'),signature_base64=base64.b64encode(signature.read_bytes()).decode(),signature_status=status,semantics='Required/Required; scoped ephemeral TEST ONLY')
         report['status']=STATUS
     except BaseException as error:
-        primary=error;report['failure']=dict(type=type(error).__name__,phase=c.records[-1]['step'] if c.records else 'admission')
+        primary=error;report['failure']=dict(type=type(error).__name__,phase=recovery_phase or (c.records[-1]['step'] if c.records else 'admission'))
         print('SECURITY_IMAGE_FAILURE '+json.dumps(report['failure'],sort_keys=True),flush=True)
         raise
     finally:

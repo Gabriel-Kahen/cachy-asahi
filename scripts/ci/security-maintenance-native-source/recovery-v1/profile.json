@@ -679,9 +679,9 @@
         "sha256": "897d1aa9c0324a7433d26fba6f13571e1eb6d18a2133283dd211815dc0371879"
       },
       "native/security_native_v1.py": {
-        "bytes": 47715,
+        "bytes": 47849,
         "mode": 420,
-        "sha256": "3fbfda981120bd867aaf463b3a7bda2c66547c4172324a4ae13340a3d29a9655"
+        "sha256": "7be3ed52dc2f32596b0cf70a158b86f0ae20fb98cf29b1000ab7ed3ff06b3e3e"
       },
       "native/security_reader_v1.py": {
         "bytes": 46784,
@@ -714,9 +714,9 @@
         "sha256": "bb29033441f3ff615a8d88534c61f995dfae7e711ab760027a49955d936447ea"
       },
       "native/security_recovery_native.py": {
-        "bytes": 21215,
+        "bytes": 23246,
         "mode": 420,
-        "sha256": "e7040ca63a5ce13efffee0c9ccca66f67b088d47aec833d6eb3bcd7ede811d77"
+        "sha256": "723e43edc3eca5e85ea566190a515bb32097efb10f4a7bbfe80587499f9f747a"
       },
       "native/security_recovery_reader.py": {
         "bytes": 24462,
@@ -736,7 +736,7 @@
       "native/source-map.json": {
         "bytes": 41997,
         "mode": 420,
-        "sha256": "8e28e24e8079ecc0edca5e4255f8ca0125d196c6e14b84f3b77b6405e7874813"
+        "sha256": "d75407f4a2d60421ef1c65e51b908eaaef27975aa44d7c632fb29930ca351e73"
       },
       "native/transport_proof.py": {
         "bytes": 16711,
@@ -1054,7 +1054,7 @@
         "sha256": "daba66fd25a9a82caa23949686e967cbb69fd056177e991650643186057adaef"
       }
     },
-    "tree": "d9076d6451d01738b2005161d5d91ca1adc37463"
+    "tree": "6f756676fa74b3f876a40efda8647d5d61ed4011"
   },
   "files": 209,
   "kind": "security-interrupted-recovery-native-source-v1",
@@ -2117,9 +2117,9 @@
       "sha256": "897d1aa9c0324a7433d26fba6f13571e1eb6d18a2133283dd211815dc0371879"
     },
     "native/security_native_v1.py": {
-      "bytes": 47715,
+      "bytes": 47849,
       "mode": 420,
-      "sha256": "3fbfda981120bd867aaf463b3a7bda2c66547c4172324a4ae13340a3d29a9655"
+      "sha256": "7be3ed52dc2f32596b0cf70a158b86f0ae20fb98cf29b1000ab7ed3ff06b3e3e"
     },
     "native/security_reader_v1.py": {
       "bytes": 46784,
@@ -2152,9 +2152,9 @@
       "sha256": "bb29033441f3ff615a8d88534c61f995dfae7e711ab760027a49955d936447ea"
     },
     "native/security_recovery_native.py": {
-      "bytes": 21215,
+      "bytes": 23246,
       "mode": 420,
-      "sha256": "e7040ca63a5ce13efffee0c9ccca66f67b088d47aec833d6eb3bcd7ede811d77"
+      "sha256": "723e43edc3eca5e85ea566190a515bb32097efb10f4a7bbfe80587499f9f747a"
     },
     "native/security_recovery_reader.py": {
       "bytes": 24462,
@@ -2167,7 +2167,7 @@
       "sha256": "106bb99cc2d768dbfef4a4629545d044183a05197100386b65f37fb979e4890a"
     }
   },
-  "proposed_ref": "codex/native-security-maintenance-recovery-v11",
+  "proposed_ref": "codex/native-security-maintenance-recovery-v13",
   "schema": 1,
   "source_map_metadata": {
     "actual": {
