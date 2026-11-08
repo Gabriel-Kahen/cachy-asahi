@@ -1,0 +1,49 @@
+# SPDX-License-Identifier: MIT
+pkgname=cachy-asahi-build-tools
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Opt-in offline source-cache import and recipe source preflight'
+arch=('any')
+url='https://github.com/Gabriel-Kahen/cachy-asahi'
+license=('MIT')
+depends=('python>=3.12')
+options=('!strip' '!debug')
+source=('source_cache.py' 'source_delivery.py' 'package_checks.py' 'source_materials.py' 'import_source.py' 'preflight.py' 'cachy-asahi-build-tools' 'check-inputs.tar.gz' 'source-provenance.json' 'test_package.py' 'README.md' 'NOTICE' 'LICENSE')
+noextract=('check-inputs.tar.gz')
+sha256sums=(
+    '3c922b1c5ea737605d7fd39aa986fa281c50bcf6926660390032e677706e28f3'
+    '8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e'
+    '314e8b4a0920b3f6d93619fc74ad1d63a6210d1b17b925618451b493d2610a1a'
+    '9b0d95d2604ae4689f081283fc671281ce13879fcb146ddf4188873b05c89e5a'
+    '9b91b767f082ce41009b609517b4fa0b285e2c0c43bcfc6e27666182eae9425f'
+    '24dcd252837853796d5a94c7ec81f9d5d9c9c7e7fbc565c5c607fa3cf1040652'
+    '97af28fa77fa5d76b1af367b9cb5cae78fb8ee9f5e87469fb38f58163a2f0097'
+    '112fa3eb9c18245ad95ea874f66c4943dc2678b0927e63a6ac705ff398e6ac72'
+    '7de81f3454bc10471f155951fca4e6f261255ed4b06edfc434a6a49071bb6892'
+    '6b5ec3e109d263694351fe30af6157e7135a2e6e1f03298bcb81fdcdb357184c'
+    '77b220783947514210760029910e07b2cb3533df6cc4618e86e5a48aff30689c'
+    '2291f9ef2f5eca52f6434fe5d4c49ee2a7d9b0ea58183d27be0a8466df505085'
+    '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
+)
+
+check() {
+    python -I -B -Werror::ResourceWarning "$srcdir/test_package.py" --recipe-root "$startdir"
+}
+
+package() {
+    [[ -n ${srcdir:-} && ${pkgdir:-} = /* && $pkgdir != / && $pkgdir != "$srcdir" ]] || return 1
+    install -Dm755 "$srcdir/cachy-asahi-build-tools" "$pkgdir/usr/bin/cachy-asahi-build-tools" || return
+    install -Dm644 "$srcdir/source_cache.py" "$pkgdir/usr/lib/cachy-asahi-build-tools/trusted/scripts/maintenance/source_cache.py" || return
+    install -Dm644 "$srcdir/source_delivery.py" "$pkgdir/usr/lib/cachy-asahi-build-tools/trusted/scripts/release/source_delivery.py" || return
+    install -Dm644 "$srcdir/package_checks.py" "$pkgdir/usr/lib/cachy-asahi-build-tools/trusted/scripts/checks/package_checks.py" || return
+    install -Dm644 "$srcdir/source_materials.py" "$pkgdir/usr/lib/cachy-asahi-build-tools/trusted/scripts/build/source_materials.py" || return
+    install -Dm644 "$srcdir/import_source.py" "$pkgdir/usr/lib/cachy-asahi-build-tools/trusted/scripts/build/source-cache-local-v1/import_source.py" || return
+    install -Dm644 "$srcdir/preflight.py" "$pkgdir/usr/lib/cachy-asahi-build-tools/trusted/scripts/build/offline-source-preflight-v1/preflight.py" || return
+    local leaf
+    for leaf in README.md source-provenance.json; do
+        install -Dm644 "$srcdir/$leaf" "$pkgdir/usr/share/doc/$pkgname/$leaf" || return
+    done
+    for leaf in LICENSE NOTICE; do
+        install -Dm644 "$srcdir/$leaf" "$pkgdir/usr/share/licenses/$pkgname/$leaf" || return
+    done
+}
