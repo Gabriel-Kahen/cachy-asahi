@@ -2,7 +2,7 @@
   "files": {
     "packages/tools/cachy-asahi-repository-client-v3/.SRCINFO": {
       "bytes": 1528,
-      "sha256": "9bfc5eed3d4918eb7fd40a3fe45a7a981fd323ebd176b2a2379f9a61a47d9a1a"
+      "sha256": "422f608ee69cd22000011fec69edaca29c07b8fc7b9c02ae010a24140d60e77e"
     },
     "packages/tools/cachy-asahi-repository-client-v3/LICENSE": {
       "bytes": 1081,
@@ -14,7 +14,7 @@
     },
     "packages/tools/cachy-asahi-repository-client-v3/PKGBUILD": {
       "bytes": 2293,
-      "sha256": "7576be2613310101d10bdeb6ca0a6dc059e2e4adea74eeb6e995a5fdff9747cc"
+      "sha256": "db835c262156b7bfad4c03d695c1f1f9a1e9d44f0b2d1626e5e7b24a0f538b1c"
     },
     "packages/tools/cachy-asahi-repository-client-v3/README.md": {
       "bytes": 2430,
@@ -45,8 +45,8 @@
       "sha256": "915c2336a6515dcbde9801d7778c0aeae3a0251cf6463c4704d47590d94d1409"
     },
     "packages/tools/cachy-asahi-repository-client-v3/test_package.py": {
-      "bytes": 4170,
-      "sha256": "a68136adda35e18414aa6f580af2f3113c783bc6c0cb8cc8e2fc51f55cedc287"
+      "bytes": 6091,
+      "sha256": "009ab3b9f7760898778b40fa283cd0f2fc4a7ace0593f926e20fab21391f5ffc"
     },
     "packages/tools/cachy-asahi-repository-client-v3/test_state_binding_v3.py": {
       "bytes": 7817,
@@ -182,7 +182,7 @@
     },
     "scripts/ci/client-v3-native/input-policy.json": {
       "bytes": 7576,
-      "sha256": "e8def63b9fc688b7f0fc6284e613926dd95694c7749f43c353e2803f2291b9f9"
+      "sha256": "3bdef11e28276b656387314beb95411751f765640c596eea0c8663b81babf959"
     },
     "scripts/ci/client-v3-native/installed.py": {
       "bytes": 4441,
@@ -210,7 +210,7 @@
     },
     "scripts/ci/client-v3-native/prepare.py": {
       "bytes": 9151,
-      "sha256": "659a2412e036d677aa41415bfe27e00e3062d9209eaa4f8b7fe4263a839747e0"
+      "sha256": "f67a1d34723e9136adda0c08638346f8aa9149c45fd0965cf8b6a8cb92d366b6"
     },
     "scripts/ci/client-v3-native/rename_after_real_verification.py": {
       "bytes": 2710,
@@ -246,7 +246,7 @@
     },
     "scripts/ci/client-v3-native/test_source.py": {
       "bytes": 13852,
-      "sha256": "7ae1899399154710d617334c54283066ffce7595002f78d2657902c529864b17"
+      "sha256": "cd32db5f3729ba53ffa3d4a21cef7d3f4f6db27e48d901570af90fc6c9140703"
     },
     "scripts/ci/full-development-composition/run.py": {
       "bytes": 29738,

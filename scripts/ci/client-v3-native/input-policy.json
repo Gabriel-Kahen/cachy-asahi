@@ -1,7 +1,7 @@
 {
   "actual_run": null,
   "base_inventory_sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
-  "candidate_source": "2dbe7fe5623fae9ed5940a26385400958c3ffb42",
+  "candidate_source": "438acd83fa3bcb79abe29a007ae9e8d0f784d03f",
   "dependency": null,
   "dependency_source": null,
   "helper_pins": {
@@ -25,7 +25,7 @@
       "check_markers": [
         "PASS_EXACT_CLIENT_V3_COMPANION_SOURCE_AND_PAYLOAD",
         "Ran 10 tests",
-        "Ran 6 tests",
+        "Ran 8 tests",
         "OK"
       ],
       "name": "cachy-asahi-repository-client-v3",
@@ -60,11 +60,11 @@
         ]
       },
       "recipe_directory": "packages/tools/cachy-asahi-repository-client-v3",
-      "recipe_sha256": "7576be2613310101d10bdeb6ca0a6dc059e2e4adea74eeb6e995a5fdff9747cc",
+      "recipe_sha256": "db835c262156b7bfad4c03d695c1f1f9a1e9d44f0b2d1626e5e7b24a0f538b1c",
       "source_files": {
         ".SRCINFO": {
           "bytes": 1528,
-          "sha256": "9bfc5eed3d4918eb7fd40a3fe45a7a981fd323ebd176b2a2379f9a61a47d9a1a"
+          "sha256": "422f608ee69cd22000011fec69edaca29c07b8fc7b9c02ae010a24140d60e77e"
         },
         "LICENSE": {
           "bytes": 1081,
@@ -76,7 +76,7 @@
         },
         "PKGBUILD": {
           "bytes": 2293,
-          "sha256": "7576be2613310101d10bdeb6ca0a6dc059e2e4adea74eeb6e995a5fdff9747cc"
+          "sha256": "db835c262156b7bfad4c03d695c1f1f9a1e9d44f0b2d1626e5e7b24a0f538b1c"
         },
         "README.md": {
           "bytes": 2430,
@@ -107,15 +107,15 @@
           "sha256": "915c2336a6515dcbde9801d7778c0aeae3a0251cf6463c4704d47590d94d1409"
         },
         "test_package.py": {
-          "bytes": 4170,
-          "sha256": "a68136adda35e18414aa6f580af2f3113c783bc6c0cb8cc8e2fc51f55cedc287"
+          "bytes": 6091,
+          "sha256": "009ab3b9f7760898778b40fa283cd0f2fc4a7ace0593f926e20fab21391f5ffc"
         },
         "test_state_binding_v3.py": {
           "bytes": 7817,
           "sha256": "ae0f1bcc19343e3f1c4e36652511c4077850bd1e45d860bd3a12841f1d7e5f06"
         }
       },
-      "source_sha": "2dbe7fe5623fae9ed5940a26385400958c3ffb42",
+      "source_sha": "438acd83fa3bcb79abe29a007ae9e8d0f784d03f",
       "version": "0.1.0-1"
     },
     "runtime": {
@@ -205,7 +205,7 @@
           "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
         }
       },
-      "source_sha": "2dbe7fe5623fae9ed5940a26385400958c3ffb42",
+      "source_sha": "438acd83fa3bcb79abe29a007ae9e8d0f784d03f",
       "version": "0.1.0-1"
     }
   },

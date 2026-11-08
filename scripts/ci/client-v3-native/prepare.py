@@ -70,7 +70,7 @@ def plan(source, candidate_source=None):
             payload = {n: [f, mode] for n, (f, mode) in checker.payload().items()}
             if len(payload) != 7 or checker.HELPER != PIN(directory / 'client_v3.py'):
                 raise ValueError('exact new seven-file v3 payload required')
-            markers = ['PASS_EXACT_CLIENT_V3_COMPANION_SOURCE_AND_PAYLOAD', 'Ran 10 tests', 'Ran 6 tests', 'OK']
+            markers = ['PASS_EXACT_CLIENT_V3_COMPANION_SOURCE_AND_PAYLOAD', 'Ran 10 tests', 'Ran 8 tests', 'OK']
         products[role] = dict(name=name, version='0.1.0-1', recipe_directory='packages/tools/' + name,
             source_sha=candidate_source, recipe_sha256=PIN(directory / 'PKGBUILD')['sha256'], source_files=files,
             payload=payload, check_markers=markers)

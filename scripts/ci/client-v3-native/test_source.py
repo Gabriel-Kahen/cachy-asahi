@@ -39,7 +39,7 @@ def workflow_controls(here, root, closed_source):
         manifest_raw=(here/'source-manifest.json').read_bytes()
         manifest=json.loads(manifest_raw)
         if (policy.get('status')!='ROOT_BOUND_FINAL_PRODUCT_SOURCES' or manifest.get('status')!='FROZEN_ROOT_FINAL_SOURCES'
-                or policy.get('candidate_source')!='2dbe7fe5623fae9ed5940a26385400958c3ffb42'
+                or policy.get('candidate_source')!='438acd83fa3bcb79abe29a007ae9e8d0f784d03f'
                 or policy.get('retained_input_carrier')!='3856733787d10820ab73f842e9f2bbf4fdb84181'):
             raise ValueError('explicit closed component Source required')
         raw=(root/'.github/workflows/native-arm-build.yml').read_text()
@@ -57,7 +57,7 @@ class Controls(unittest.TestCase):
         global ACTIVE
         ACTIVE = True
         self.addCleanup(self.end_fence)
-        self.policy = P.plan(ROOT, '2dbe7fe5623fae9ed5940a26385400958c3ffb42')
+        self.policy = P.plan(ROOT, '438acd83fa3bcb79abe29a007ae9e8d0f784d03f')
         self.policy['retained_input_carrier'] = '3856733787d10820ab73f842e9f2bbf4fdb84181'
         self.C = A.module(ROOT, 'contract.py')
 
