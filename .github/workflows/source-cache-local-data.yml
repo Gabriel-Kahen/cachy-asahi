@@ -1,0 +1,42 @@
+name: Local source-cache import DATA controls
+on:
+  pull_request:
+    paths:
+      - 'scripts/build/source-cache-local-v1/**'
+      - 'scripts/maintenance/source_cache.py'
+      - 'scripts/release/source_delivery.py'
+      - 'scripts/build/source_materials.py'
+      - 'scripts/ci/source-carriers/zlib-1.3.2/**'
+      - 'tests/fixtures/offline-build-v2-c01/**'
+      - '.github/workflows/source-cache-local-data.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/build/source-cache-local-v1/**'
+      - 'scripts/maintenance/source_cache.py'
+      - 'scripts/release/source_delivery.py'
+      - 'scripts/build/source_materials.py'
+      - 'scripts/ci/source-carriers/zlib-1.3.2/**'
+      - 'tests/fixtures/offline-build-v2-c01/**'
+      - '.github/workflows/source-cache-local-data.yml'
+permissions:
+  contents: read
+jobs:
+  local-import-data:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Run twelve local-import source DATA controls
+        run: >-
+          python3 -I -B -Werror::ResourceWarning
+          scripts/build/source-cache-local-v1/test_import_source.py
