@@ -668,9 +668,9 @@
       "sha256": "750b929681353a5915e5541d4bdbe167b558830e9762d6ac2da0c05146120a70"
     },
     "native/security-contract-v1.json": {
-      "bytes": 611744,
+      "bytes": 616403,
       "mode": 420,
-      "sha256": "6781cb62ed12f470c79a8a534b831878bf9a5edc150b2964ce3254e5f0c0b1f1"
+      "sha256": "f83461f2286381ceca731766b172ebfabc444ca486f7cec68f77917053c633e3"
     },
     "native/security-makepkg.conf": {
       "bytes": 316,
@@ -678,14 +678,14 @@
       "sha256": "8cdd968870a2a92d7006739e96dedefa14e51c40d62cfc15831f234a767a1421"
     },
     "native/security_native_v1.py": {
-      "bytes": 40292,
+      "bytes": 46282,
       "mode": 420,
-      "sha256": "f662e720612d044dabdd04d8d7f2305fc01dd7431c28acf2f6cb4d0889a2b28c"
+      "sha256": "be979319633f7c5811f0dbd7c41e787cf132d0f58ca46f15d1000e55a255e884"
     },
     "native/security_reader_v1.py": {
-      "bytes": 27578,
+      "bytes": 38973,
       "mode": 420,
-      "sha256": "5d2442928ffe4c71f42969a15fb8786a0b0ca68fb63b54430c14a560166da8fc"
+      "sha256": "de5b24b0b7ecd09381cfc07148fbf24928eda5c0f0bca7035f45f46efe841c73"
     },
     "native/security_workflow_v1.py": {
       "bytes": 13659,
@@ -1014,6 +1014,7 @@
   "security_basis_v5_map_sha256": "a9fde302394039671851852c9ff0f64ccf09cfa6a0d47055b66faa7c4a35ed94",
   "security_basis_v5_source": "b6a02f11648738ded90084f7dcdcd4ea77c194fa",
   "security_observation_fd_refusal": "bounded-metadata-only-v1",
+  "security_observer_provenance": "observer-shim-recorded-provenance-v1",
   "security_operation": "security-alpm-v1",
   "security_source_factory": "security-maintenance-native-source-v1",
   "security_upgrade_observation": "first-real-upgrade-zero-observation-v1",
