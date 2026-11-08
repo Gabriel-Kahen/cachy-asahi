@@ -12,6 +12,8 @@ The five entrypoints forward the existing arguments without changing authority:
 | `cachy-asahi-source-tools build-context` | `mirror_consumer.py materialize` |
 | `cachy-asahi-source-tools verify-context` | `mirror_consumer.py verify-context` |
 
+Option names must be written in full. Each pin, selector and path option may appear only once, including equal-valued repeats and mixed `--option=value`/`--option value` forms. Duplicate or abbreviated options refuse before the private runtime is loaded. The existing `-h`/`--help` forms remain available.
+
 Run any command with `--help` for required paths and SHA-256 pins. Export requires a caller-authenticated release.json digest plus a complete retained release directory. Fixed-SHA256 HTTPS recipes additionally require the exact retained-input descriptor/root/digest; cache verification is always offline. Verify requires bundle SHA-256 and selected release SHA-256. Successor requires the previous bundle, its SHA-256, previous head release digest, and complete next-release inputs. It retains all historical release objects and reports new/reused/retired/recovery counts without pruning. Verification can select any retained release by its exact digest.
 
 `build-context` additionally requires exact package/version/architecture/archive/PKGBUILD/SRCINFO pins. It prepares a fresh context containing the recipe, notices, retained archive/BUILDINFO/provenance, verified HTTPS SRCDEST where applicable, and a held builder request. `verify-context` checks its caller-pinned selection.json. No command invokes a native builder, downloads sources, executes retained Python/PKGBUILD, or installs packages. All actual builder selectors stay NULL. Request generation and source custody do not establish a rebuild.
