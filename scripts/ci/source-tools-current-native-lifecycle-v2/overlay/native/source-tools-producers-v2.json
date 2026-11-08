@@ -1,0 +1,51 @@
+{
+  "files": {
+    "native/source-tools-contract-v2.json": {
+      "bytes": 34076,
+      "mode": 420,
+      "sha256": "1e324866b73a7b2d7c99f83d330a08da0b9d3e0d4077bcf2f10307a0f813ece9"
+    },
+    "native/source-tools-makepkg-v2.conf": {
+      "bytes": 316,
+      "mode": 420,
+      "sha256": "8cdd968870a2a92d7006739e96dedefa14e51c40d62cfc15831f234a767a1421"
+    },
+    "native/source-tools-sources-v2.tar": {
+      "bytes": 542720,
+      "mode": 420,
+      "sha256": "3dd7502403dc3bdbbf291cb05f03f73a3e89ba2a299bb8e5e22a7e08a373441d"
+    },
+    "native/source_tools_alpm_v2.py": {
+      "bytes": 32811,
+      "mode": 420,
+      "sha256": "86c0260fb6dc0d038204f024c18be89cc81fa04766d40efdabb70bf484d603bf"
+    },
+    "native/source_tools_current_check_v2.py": {
+      "bytes": 6224,
+      "mode": 420,
+      "sha256": "1aa25c88c892e6f710845c15811604ba3ae20d18148f679161916716de5e6ec1"
+    },
+    "native/source_tools_current_package_v2.py": {
+      "bytes": 13974,
+      "mode": 420,
+      "sha256": "1bf75697ab4deab0966247211b95191c3386aeb73c930b7235be7ba4eacf11ae"
+    },
+    "native/source_tools_guest_v2.py": {
+      "bytes": 3337,
+      "mode": 420,
+      "sha256": "1049b421c03974c73ed6e1c1002a9d7e0fe6f1a309be456dbd27cbe9e38dda99"
+    },
+    "native/source_tools_probe_v2.py": {
+      "bytes": 30514,
+      "mode": 420,
+      "sha256": "a20e7d6b238d69fc9e1322a3521652bd34b7e6558be8ba61b68c294cb6f50cf6"
+    },
+    "native/source_tools_tools_v2.py": {
+      "bytes": 23092,
+      "mode": 420,
+      "sha256": "343b547accbb0a421b345cebba0a0acbfd5b0c03bf096eda4027d21b5c864f2c"
+    }
+  },
+  "purpose": "source-tools-current-producer-pins",
+  "schema": 1
+}

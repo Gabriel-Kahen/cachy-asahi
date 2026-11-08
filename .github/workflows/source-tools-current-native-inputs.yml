@@ -1,0 +1,43 @@
+name: SourceTools current native route source controls
+on:
+  pull_request:
+    paths:
+      - scripts/ci/source-tools-current-native-inputs-v2/**
+      - scripts/ci/source-tools-current-native-lifecycle-v2/**
+      - packages/tools/cachy-asahi-source-tools/**
+      - .github/workflows/source-tools-current-native-inputs.yml
+  push:
+    branches: [main]
+    paths:
+      - scripts/ci/source-tools-current-native-inputs-v2/**
+      - scripts/ci/source-tools-current-native-lifecycle-v2/**
+      - packages/tools/cachy-asahi-source-tools/**
+      - .github/workflows/source-tools-current-native-inputs.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  package-input-data:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.14'
+      - name: Bind current16 recipe files,18 payload files and frozen11 helpers
+        run: python -I -B -Werror::ResourceWarning scripts/ci/source-tools-current-native-inputs-v2/test_current_package_inputs.py --recipe-root packages/tools/cachy-asahi-source-tools
+      - name: Validate five current check-output objects without granting native credit
+        run: python -I -B -Werror::ResourceWarning scripts/ci/source-tools-current-native-inputs-v2/test_check_current_makepkg.py
+      - name: Validate finite package component, build pair and signed ALPM policy data
+        run: python -I -B -Werror::ResourceWarning scripts/ci/source-tools-current-native-inputs-v2/test_prepare_inputs.py
+      - name: Current native adapter and catalog probe DATA controls
+        run: python -I -B -Werror::ResourceWarning scripts/ci/source-tools-current-native-lifecycle-v2/test_current_native_actors.py --current-inputs scripts/ci/source-tools-current-native-inputs-v2 --actor-root scripts/ci/source-tools-current-native-lifecycle-v2/overlay/native
+      - name: Matching current reader and projection DATA controls
+        run: python -I -B -Werror::ResourceWarning scripts/ci/source-tools-current-native-lifecycle-v2/test_reader_v2_data.py --reader scripts/ci/source-tools-current-native-lifecycle-v2/overlay/native/source_tools_reader_v2.py --projection scripts/ci/source-tools-current-native-lifecycle-v2/overlay/native/source_tools_projection_v2.py --fixtures-archive packages/tools/cachy-asahi-source-tools/fixtures.tar.gz
+      - name: Versioned exact Source factory DATA controls without constructor
+        run: python -I -B -Werror::ResourceWarning scripts/ci/source-tools-current-native-lifecycle-v2/test_assemble_source_v2.py
+      - name: Concrete profile and preserved route binding controls
+        run: python -I -B -Werror::ResourceWarning scripts/ci/source-tools-current-native-lifecycle-v2/test_route_bindings.py
