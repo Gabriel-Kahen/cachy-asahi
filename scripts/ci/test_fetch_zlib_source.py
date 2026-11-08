@@ -180,7 +180,7 @@ class FetchTests(unittest.TestCase):
         self.assertEqual(list(self.directory.iterdir()), [self.output])
 
     def test_partial_transport_failure_cleans_temporary_not_final(self):
-        self.refused('transport-or-filesystem', Response(body=b'\x1f\x8b' + b'x' * 100000, error_after=1))
+        self.refused('transport', Response(body=b'\x1f\x8b' + b'x' * 100000, error_after=1))
 
     def test_deadline_checked_each_chunk(self):
         ticks = iter((0, 0, 0, F.SECONDS + 1))
@@ -200,7 +200,7 @@ class FetchTests(unittest.TestCase):
         temporary = self.directory / ('.' + F.FILENAME + '.fixed.part')
         temporary.write_bytes(b'caller-temporary')
         with patch.object(F.secrets, 'token_hex', return_value='fixed'):
-            with self.assertRaisesRegex(F.Refused, '^transport-or-filesystem$'):
+            with self.assertRaisesRegex(F.Refused, '^filesystem$'):
                 self.fetch(Response())
         self.assertEqual(temporary.read_bytes(), b'caller-temporary')
         self.assertFalse(self.output.exists())
@@ -230,6 +230,91 @@ class FetchTests(unittest.TestCase):
         self.assertEqual(result['status'], 'REFUSED')
         self.assertEqual(result['reason'], 'sha256')
         self.assertEqual(result['source_url'], F.URL)
+
+    def sources(self, *responses, clock=None):
+        transport = Transport(*responses)
+        kwargs = {} if clock is None else {'clock': clock}
+        return F._fetch_sources(self.output, expected_sha256=FIXTURE_SHA,
+                                transport=transport, **kwargs), transport
+
+    def test_primary_direct_success_never_calls_fallback(self):
+        result, transport = self.sources(Response())
+        self.assertEqual([r.full_url for r, _ in transport.requests], [F.URL])
+        self.assertEqual(result['source_url'], F.URL)
+        self.assertEqual(len(result['attempts']), 1)
+
+    def test_open_failure_uses_only_fixed_fallback_and_safe_receipt(self):
+        error = URLError('https://example.invalid/SECRET?sig=PRIVATE')
+        result, transport = self.sources(error, Response(code=302, headers={
+            'Location': 'https://release-assets.githubusercontent.com/file?sig=PRIVATE'}), Response())
+        self.assertEqual([r.full_url for r, _ in transport.requests][:2], [F.URL, F.FALLBACK_URL])
+        self.assertEqual(result['source_url'], F.FALLBACK_URL)
+        self.assertEqual(result['attempts'][0]['phase'], 'open')
+        self.assertNotIn('PRIVATE', json.dumps(result))
+
+    def test_primary_availability_status_uses_fallback_without_reading_page(self):
+        primary = Response(body=b'not an archive', code=503)
+        result, transport = self.sources(primary, Response())
+        self.assertEqual(primary.reads, 0)
+        self.assertTrue(primary.closed)
+        self.assertEqual(result['attempts'][0]['http_status'], 503)
+        self.assertEqual(len(transport.requests), 2)
+
+    def test_primary_partial_read_failure_cleans_and_shares_bytes(self):
+        primary = Response(body=PAYLOAD, error_after=1)
+        result, transport = self.sources(primary, Response())
+        self.assertEqual(result['total_received_bytes'], 2 * len(PAYLOAD))
+        self.assertEqual(result['attempts'][0]['phase'], 'read')
+        self.assertEqual(list(self.directory.iterdir()), [self.output])
+
+    def test_integrity_and_policy_failures_do_not_fallback(self):
+        cases = [('sha256', Response(body=PAYLOAD + b'x')),
+                 ('content-type', Response(headers={'Content-Type': 'text/html'})),
+                 ('primary-redirect', Response(code=302, headers={'Location': F.FALLBACK_URL})),
+                 ('http-status', Response(code=403))]
+        for reason, response in cases:
+            with self.subTest(reason=reason):
+                transport = Transport(response)
+                with self.assertRaisesRegex(F.Refused, '^' + reason + '$'):
+                    F._fetch_sources(self.output, expected_sha256=FIXTURE_SHA, transport=transport)
+                self.assertEqual(len(transport.requests), 1)
+                self.assertEqual(list(self.directory.iterdir()), [])
+
+    def test_filesystem_failure_does_not_fallback(self):
+        transport = Transport(Response())
+        with patch.object(F.secrets, 'token_hex', return_value='fixed'):
+            partial = self.directory / ('.' + F.FILENAME + '.fixed.part')
+            partial.write_bytes(b'caller')
+            with self.assertRaisesRegex(F.Refused, '^filesystem$'):
+                F._fetch_sources(self.output, expected_sha256=FIXTURE_SHA, transport=transport)
+        self.assertEqual(len(transport.requests), 1)
+        self.assertEqual(partial.read_bytes(), b'caller')
+
+    def test_both_unavailable_have_no_third_request_and_safe_receipt(self):
+        transport = Transport(URLError('PRIVATE'), URLError('PRIVATE'))
+        with self.assertRaises(F.Refused) as caught:
+            F._fetch_sources(self.output, expected_sha256=FIXTURE_SHA, transport=transport)
+        self.assertEqual(len(transport.requests), 2)
+        self.assertEqual(len(caught.exception.facts['attempts']), 2)
+        self.assertNotIn('PRIVATE', json.dumps(caught.exception.facts))
+        self.assertEqual(list(self.directory.iterdir()), [])
+
+    def test_shared_deadline_expires_before_fallback_request(self):
+        ticks = iter((0, 0, F.SECONDS + 1))
+        transport = Transport(URLError('unavailable'))
+        with self.assertRaisesRegex(F.Refused, '^deadline$'):
+            F._fetch_sources(self.output, expected_sha256=FIXTURE_SHA,
+                             transport=transport, clock=lambda: next(ticks))
+        self.assertEqual(len(transport.requests), 1)
+
+    def test_shared_stream_budget_refuses_second_body_and_cleans(self):
+        primary = Response(body=b'\x1f\x8b' + b'x' * 1100000, error_after=17)
+        transport = Transport(primary, Response(body=b'\x1f\x8b' + b'x' * 1100000))
+        with self.assertRaisesRegex(F.Refused, '^stream-size$') as caught:
+            F._fetch_sources(self.output, expected_sha256=FIXTURE_SHA, transport=transport)
+        self.assertEqual(caught.exception.facts['total_received_bytes'], F.MAX_BYTES + 1)
+        self.assertEqual(len(transport.requests), 2)
+        self.assertEqual(list(self.directory.iterdir()), [])
 
 
 if __name__ == '__main__':
