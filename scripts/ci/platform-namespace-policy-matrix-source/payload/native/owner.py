@@ -142,7 +142,7 @@ def run(root, args):
         # native248 seeds package pairs, not the original five base inputs.
         # Restore their pinned parent path only; package failures never fall back.
         from bootstrap_inputs import bind_fetch
-        parent_fetch = (lambda row,selected_cache:cache_file(selected_cache,row)) if operation==MATRIX_OPERATION else native.fetch
+        parent_fetch = native.fetch
         native.fetch = bind_fetch(original, profile['additions']['rows'], args.cache,
                                   lambda row, selected_cache: cache_file(selected_cache, row), parent_fetch)
         def native_run(argv, log=None, timeout=1800):

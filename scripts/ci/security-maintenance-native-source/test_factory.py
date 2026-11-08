@@ -243,7 +243,8 @@ class Factory(unittest.TestCase):
 def upgrade_namespace():
     """Execute only maintained passive DATA function AST, never a native entry."""
     tree = ast.parse((HERE / 'overlay/native/security_reader_v1.py').read_text())
-    functions = {'_cleanup_require', '_cleanup_pin', 'validate_observation', 'validate_upgrade', 'validate_result'}
+    functions = {'_cleanup_require', '_cleanup_pin', '_observer_integer', '_observer_inode', '_observer_elf',
+                 'validate_observer_provenance', 'validate_observation', 'validate_upgrade', 'validate_result'}
     constants = {'UPGRADE_PROTOCOL', 'UPGRADE_FLAGS', 'UPGRADE_STEPS', 'STATUS', 'PAIR', 'LIFECYCLE'}
     selected = [node for node in tree.body
                 if isinstance(node, ast.FunctionDef) and node.name in functions
@@ -251,7 +252,7 @@ def upgrade_namespace():
     def need(condition, message):
         if not condition:
             raise ValueError(message)
-    namespace = dict(base64=base64, re=re, pin=pin, need=need, Path=Path,json=json,
+    namespace = dict(base64=base64, re=re, os=os, pin=pin, need=need, Path=Path,json=json,
                      __file__=str(HERE / 'overlay/native/security_reader_v1.py'))
     exec(compile(ast.Module(body=selected, type_ignores=[]), '<maintained-security-passive-DATA-validators>', 'exec'), namespace)
     return namespace
@@ -316,7 +317,10 @@ class UpgradeData(unittest.TestCase):
                        flags={name: True for name in flags}, inventories=inventories,
                        abort_scope='OPERATOR_DECLINED_BEFORE_COMMIT; NOT_SIGNAL_OR_POWERLOSS',
                        repeat_scope='SAME_VERSION_REINSTALL', upgrade_scope='ONE_PACKAGE_VERSION_TRANSITION_ONLY',
-                       decline_input=pin(b'n\n'),observation=self.observation())
+                       decline_input=pin(b'n\n'),observation=None)
+        _,observation,provenance,_,commands = observation_controls().provenance_controls().fixture(
+            policy=self.contract['observation'],baseline=self.baseline,commands=commands)
+        upgrade.update(observation=observation,observer_provenance=provenance)
         return dict(upgrade=upgrade, commands=commands)
 
     def refuses(self, data, contract=None, baseline=None):

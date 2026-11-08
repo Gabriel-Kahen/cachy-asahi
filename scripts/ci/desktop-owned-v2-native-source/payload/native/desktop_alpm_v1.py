@@ -77,7 +77,9 @@ def dockerfile(base,map_hash,*,owned_retirement_v2=False):
  ending='USER alarm\nWORKDIR /tmp\n'
  need(base.endswith(ending) and base.count(ending)==1,'exact genuine191 image suffix; no fallback')
  if owned_retirement_v2:
-  return base[:-len(ending)]+('COPY desktop-alpm-v1/source/ /opt/native-desktop-tools-alpm-v1/source/\nRUN /usr/bin/python3 -I -B /opt/native-desktop-tools-alpm-v1/source/native/desktop_alpm_v1.py --inside-image --retain-failure-image --owned-retirement-v2 --map-sha256 '+map_hash+'\n'+ending)
+  return base[:-len(ending)]+('COPY desktop-alpm-v1/source/ /opt/native-desktop-tools-alpm-v1/source/\nRUN '+json.dumps(['/usr/bin/bash','--noprofile','--norc','-p','-c',
+   'test "$$" -eq 1 || exit 125; /usr/bin/python3 -I -B /opt/native-desktop-tools-alpm-v1/source/native/desktop_alpm_v1.py --inside-image --retain-failure-image --owned-retirement-v2 --map-sha256 '+map_hash+
+   ' & desktop_owner=$!; desktop_status=0; wait "$desktop_owner" || desktop_status=$?; exit "$desktop_status"'])+'\n'+ending)
  return base[:-len(ending)]+('COPY desktop-alpm-v1/source/ /opt/native-desktop-tools-alpm-v1/source/\nRUN /usr/bin/python3 -I -B /opt/native-desktop-tools-alpm-v1/source/native/desktop_alpm_v1.py --inside-image --retain-failure-image --map-sha256 '+map_hash+'\n'+ending)
 
 def strict_signature(status,fingerprint):
@@ -234,12 +236,14 @@ def save_result(scope,report):
  for directory in (scope,scope.parent,STORE):directory.chmod(0o755)
 def inside(source,map_hash,*,owned_retirement_v2=False):
  need(type(owned_retirement_v2)is bool,'explicit boolean owned-retirement-v2 selection')
+ if owned_retirement_v2:need(os.getpid()>1 and os.getppid()==1,'owned-v2 Python must be the direct non-PID1 child of the fresh PID1 shell')
  source=Path(source)
  need(os.getuid()==os.geteuid()==0 and os.uname().machine=='aarch64' and source==SOURCE and Path('/builder-packages.lock').is_file(),'explicit owned disposable native image root only')
  from common import verify_source
  verify_source(source,map_hash);need(not STORE.exists(),'fresh fixed evidence store')
  scope=STORE/'journey'/'desktop-alpm-v1';scope.mkdir(parents=True)
  report=dict(schema_version=1,operation=T.OPERATION,status='FAIL',source_map_sha256=map_hash,version=T.VERSION,versions=[T.VERSION,T.UPDATE_VERSION],contract=T.pin(source/'native/desktop-contract-v1.json'),stages=[],inventory={},payloads={},builds={},signatures={},business={},commands=[],signature_policy=dict(SigLevel='Required',LocalFileSigLevel='Required'),native=dict(architecture=os.uname().machine,page_bytes=os.sysconf('SC_PAGE_SIZE'),execution='OWNED_IMAGE_BUILD_STAGE',physical_M2='NOT_RUN',release='NOT_ADMITTED'),first_failure=None,cleanup=dict(homes_retired=False,no_sockets=False,private_directory_absent=False,failures=['INITIALIZATION_NOT_COMPLETED']))
+ if owned_retirement_v2:report['process_layout']=dict(schema=1,contract='bash-pid1-direct-python-child-v1',python_pid=os.getpid(),python_ppid=os.getppid(),status='OBSERVED_NON_PID1_PYTHON_DIRECT_CHILD')
  work=None;commands=None;primary=None;pacman=None;baseline=None;baseline_reasons=None;phase='initialize'
  save_result(scope,report)
  try:

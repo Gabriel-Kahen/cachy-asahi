@@ -369,7 +369,7 @@ def retained_consumer_diagnostic(view, files, receipt, binding, map_sha256, posi
 
 
 PRODUCERS = {
-    'native/source_tools_alpm_v1.py': '103a364c0f8b3da143be856e830e273457289be0e49a373551610d49a349e0d7',
+    'native/source_tools_alpm_v1.py': '2abc9190f5015fd400e25c430ee74cf6f0a0ec34659f460616d3a604742b7c31',
     'native/source_tools_tools_v1.py': 'c43ca5ec8cb81ec78e7d6a0a224eb9272dad9bb831af3d6a8755d4d8db83c1c5',
     'native/source_tools_guest_v1.py': 'e93e6b6dd0e717305b29236718339a448794808052f65e8279bbca37d40272e1',
     'native/source_tools_probe_v1.py': 'bf9a0a883249c7ddaddc2091c455419b284bfbe6e97e42362933ef66f25af9cc',
@@ -1366,6 +1366,175 @@ def retained_transport_proof(view, files, phase, binding, map_sha256):
 
 
 
+def build_policy_declared(argv):
+    """Describe existing Docker build arguments; no effective-policy inference."""
+    need(type(argv) is list and 3 <= len(argv) <= 96
+         and all(type(v) is str and 0 < len(v.encode()) <= 4096 for v in argv)
+         and len(json.dumps(argv, allow_nan=False).encode()) <= 16*1024
+         and argv[:3] == ['/usr/bin/docker', '--host=unix:///var/run/docker.sock', 'build'],
+         'bounded original Docker build argv required')
+    def values(option):
+        result = []; index = 3
+        while index < len(argv):
+            item = argv[index]
+            if item == option:
+                need(index+1 < len(argv) and not argv[index+1].startswith('--'), 'declared build option value required')
+                result.append(argv[index+1]); index += 2; continue
+            if item.startswith(option+'='):
+                value = item[len(option)+1:]; need(value, 'empty declared build option refused'); result.append(value)
+            index += 1
+        return result
+    caches = [v for v in argv[3:] if v == '--no-cache' or v.startswith('--no-cache=')]
+    need(len(caches) <= 1 and all(v in ('--no-cache','--no-cache=true','--no-cache=false') for v in caches),
+         'single boolean no-cache declaration required')
+    result = dict(daemon_endpoint='unix:///var/run/docker.sock', no_cache=bool(caches) and caches[0] != '--no-cache=false')
+    for key in ('network', 'pull', 'platform', 'builder'):
+        rows = values('--'+key); need(len(rows) <= 1, 'duplicate singleton build declaration refused')
+        result[key] = rows[0] if rows else None
+    options = values('--security-opt')
+    need(len(options) <= 4 and all(len(v.encode()) <= 256 for v in options), 'bounded declared security options required')
+    result.update(security_options=options, security_options_status='DECLARED' if options else 'NOT_DECLARED',
+                  builder_status='DECLARED' if result['builder'] is not None else 'NOT_DECLARED')
+    return result
+
+
+def source_tools_build_policy_data(view, files, receipt, binding, map_hash):
+    """Join original build-launcher/context DATA; unavailable rules stay UNKNOWN."""
+    def same(left, right):
+        return json.dumps(left,sort_keys=True,allow_nan=False,separators=(',',':')) == json.dumps(right,sort_keys=True,allow_nan=False,separators=(',',':'))
+    need(type(binding) is dict and set(binding) == {'source','ref','run','attempt','token'}
+         and re.fullmatch('[0-9a-f]{40}', binding.get('source') or '')
+         and type(binding.get('ref')) is str and binding['ref'].startswith('refs/heads/codex/')
+         and re.fullmatch('[1-9][0-9]*', binding.get('run') or '')
+         and type(binding.get('attempt')) is int and binding['attempt'] == 1
+         and binding.get('token') == hashlib.sha256((binding['source']+':'+binding['ref']+':'+binding['run']).encode()).hexdigest()[:24]
+         and type(map_hash) is str and re.fullmatch('[0-9a-f]{64}', map_hash), 'exact build policy source/run/token/map binding required')
+    need(type(receipt) is dict and same(receipt.get('binding'), binding)
+         and receipt.get('source_map_sha256') == map_hash, 'original owner receipt source binding differs')
+    value = receipt.get('image_build_policy')
+    keys = {'schema','status','binding','source_map_sha256','domain','reason','build_actor','declared','context','policy_provenance','native_acceptance'}
+    need(type(value) is dict and set(value) == keys and type(value['schema']) is int and value['schema'] == 1
+         and type(value['binding']) is dict and type(value['binding'].get('attempt')) is int
+         and same(value['binding'], binding) and value['source_map_sha256'] == map_hash
+         and value['domain'] == 'IMAGE_BUILD_STAGE' and value['native_acceptance'] == 'NOT_ADMITTED'
+         and len(json.dumps(value, sort_keys=True, allow_nan=False).encode()) <= 64*1024,
+         'typed bounded image-build policy receipt required')
+    provenance = value['policy_provenance']
+    need(type(provenance) is dict and set(provenance) == {'declared_source','context_source','effective_seccomp_rules','matched_lsm_denial','bwrap_exec_boundary','daemon_policy'}
+         and all(provenance[k] == 'UNKNOWN' for k in ('effective_seccomp_rules','matched_lsm_denial','bwrap_exec_boundary','daemon_policy')),
+         'receipt cannot claim effective policy/rule/denial/exec attribution')
+    projection = view.load('public-projection.json').get('selected')
+    need(type(projection) is dict, 'original public projection required for build policy')
+    def projected(name, cap=16*1024**2):
+        need(type(name) is str and name in files and name in projection and files[name].get('kind') == 'file'
+             and type(files[name].get('bytes')) is int and 0 <= files[name]['bytes'] <= cap
+             and type(projection[name]) is dict and type(projection[name].get('bytes')) is int,
+             'retained ordinary bounded build policy DATA required')
+        body = view.read(name); digest = pin(body)
+        need(digest == {k:files[name][k] for k in ('bytes','sha256')}
+             == {k:projection[name][k] for k in ('bytes','sha256')}, 'build policy manifest/projection/body pin differs')
+        return body
+    need(same(json.loads(projected('receipt.json')), receipt), 'original receipt DATA differs')
+    if value['status'] == 'UNKNOWN_IMAGE_BUILD_LAUNCHER_POLICY_DATA_ONLY':
+        need(value['reason'] in ('NO_RETAINED_BUILD_ACTOR','NO_RETAINED_BUILD_LOG','RECEIPT_DATA_REFUSED')
+             and value['build_actor'] is value['declared'] is value['context'] is None
+             and provenance['declared_source'] == provenance['context_source'] == 'UNKNOWN',
+             'unavailable build policy must carry explicit UNKNOWN only')
+        return dict(status='VALIDATED_IMAGE_BUILD_LAUNCHER_POLICY_DATA_ONLY', receipt=value, native='NOT_ADMITTED')
+    need(value['status'] == 'BOUND_IMAGE_BUILD_LAUNCHER_POLICY_DATA_ONLY' and value['reason'] is None
+         and provenance['declared_source'] == 'ORIGINAL_BUILD_ACTOR_ARGV', 'bound original build policy required')
+    actor = value['build_actor']; rows = receipt.get('actors')
+    need(type(actor) is dict and set(actor) == {'index','argv','public_log','log_pin'}
+         and type(actor['index']) is int and type(rows) is list and len(rows) <= 1000 and 0 <= actor['index'] < len(rows),
+         'exact original build actor selector required')
+    row = rows[actor['index']]
+    need(type(row) is dict and all(k in row for k in ('argv','public_log','log_pin'))
+         and [index for index,item in enumerate(rows) if same(item, row)] == [actor['index']]
+         and same(actor, dict(index=actor['index'], **{k:row[k] for k in ('argv','public_log','log_pin')})),
+         'build actor fields must equal its original owner row')
+    cleanup = json.loads(projected('cleanup.json')); operations = cleanup.get('build_operations')
+    need(type(operations) is list and len(operations) <= 2, 'bounded original build operations required')
+    tools = [item for item in operations if type(item) is dict and item.get('role') == 'tools']
+    need(len(tools) == 1 and tools[0].get('terminal') is True and same(tools[0].get('actor'), row),
+         'sole terminal tools build operation must select original actor')
+    declared = build_policy_declared(actor['argv'])
+    need(type(value['declared']) is dict and set(value['declared']) == set(declared)
+         and type(value['declared'].get('no_cache')) is bool
+         and type(value['declared'].get('security_options')) is list
+         and same(value['declared'], declared), 'declared policy must describe exact original build argv')
+    def options(option):
+        argv = actor['argv']; result = []
+        for index, part in enumerate(argv[3:], 3):
+            if part == option:
+                need(index+1 < len(argv), 'missing original build identity option'); result.append(argv[index+1])
+            elif part.startswith(option+'='): result.append(part[len(option)+1:])
+        return result
+    label = 'org.cachy-asahi.native-developer'; labels = options('--label')
+    need(options('--tag') == ['native-developer-tools:'+binding['token']]
+         and [v for v in labels if v.startswith(label+'=')] == [label+'='+binding['token']]
+         and [v for v in labels if v.startswith(label+'.source=')] == [label+'.source='+binding['source']],
+         'actual tools tag/source/token labels required')
+    need(type(actor['log_pin']) is dict and set(actor['log_pin']) == {'bytes','sha256'}
+         and type(actor['log_pin']['bytes']) is int and type(actor['log_pin']['sha256']) is str
+         and type(actor['public_log']) is str and re.fullmatch(r'actor-logs/[0-9]{4}\.log', actor['public_log'])
+         and pin(projected(actor['public_log'])) == actor['log_pin'],
+         'actual build public_log/body required; actor index is not a filename')
+    context = value['context']; report_name = 'journey/source-tools-alpm-v1/result.json'
+    report = json.loads(projected(report_name,4*1024**2)) if report_name in files else None
+    need(report is None or type(report) is dict and type(report.get('image_build_context')) is dict, 'exported image-stage result context field required')
+    need(same(context, report.get('image_build_context') if type(report) is dict else None),
+         'policy context must equal original exported image-stage result')
+    if context is None:
+        need(provenance['context_source'] == 'UNKNOWN', 'absent build context cannot claim provenance')
+        return dict(status='VALIDATED_IMAGE_BUILD_LAUNCHER_POLICY_DATA_ONLY', receipt=value, native='NOT_ADMITTED')
+    need(provenance['context_source'] == 'EXPORTED_IMAGE_STAGE_RESULT'
+         and type(report) is dict and report.get('source_map_sha256') == map_hash
+         and report.get('operation') == OPERATION and type(context) is dict
+         and set(context) == {'schema','status','domain','source_map_sha256','reason','evidence','values','native_acceptance'}
+         and type(context['schema']) is int and context['schema'] == 1
+         and context['domain'] == 'IMAGE_BUILD_STAGE' and context['source_map_sha256'] == map_hash
+         and context['native_acceptance'] == 'NOT_ADMITTED', 'typed exact image-stage context required')
+    if context['status'] == 'UNKNOWN':
+        need(context['reason'] in ('NO_RETAINED_CONTEXT','CONTEXT_DATA_REFUSED')
+             and context['evidence'] is context['values'] is None, 'unavailable context must be explicit UNKNOWN')
+        return dict(status='VALIDATED_IMAGE_BUILD_LAUNCHER_POLICY_DATA_ONLY', receipt=value, native='NOT_ADMITTED')
+    need(context['status'] == 'OBSERVED' and context['reason'] is None, 'only existing observed context allowed')
+    evidence = context['evidence']; commands = report.get('commands')
+    need(type(evidence) is dict and set(evidence) == {'command_index','log','log_pin'}
+         and type(evidence['command_index']) is int and type(commands) is list and len(commands) <= 160
+         and 0 <= evidence['command_index'] < len(commands), 'original context command selector required')
+    command = commands[evidence['command_index']]
+    need(type(command) is dict and command.get('log') == evidence['log'] and command.get('log_pin') == evidence['log_pin']
+         and type(evidence['log']) is str and re.fullmatch(r'[0-9]{3}-namespace-[ab]-context\.log', evidence['log'])
+         and evidence['log'].startswith('%03d-'%evidence['command_index'])
+         and type(evidence['log_pin']) is dict and set(evidence['log_pin']) == {'bytes','sha256'}
+         and type(evidence['log_pin']['bytes']) is int and 0 < evidence['log_pin']['bytes'] <= 32768
+         and type(evidence['log_pin']['sha256']) is str and re.fullmatch('[0-9a-f]{64}', evidence['log_pin']['sha256']),
+         'original context log selector/pin required')
+    observations = report.get('namespace_observations'); need(type(observations) is dict, 'existing namespace observations required')
+    need(all(type(group) is dict and type(group.get('observations')) is list for group in observations.values()),
+         'typed original context observation groups required')
+    matches = [entry for group in observations.values() if type(group) is dict
+               for entry in group.get('observations',[]) if type(entry) is dict and entry.get('mode') == 'context'
+               and entry.get('command_index') == evidence['command_index'] and entry.get('output') == evidence['log_pin']]
+    need(len(matches) == 1, 'sole existing context observation/output pin required')
+    body = projected('journey/source-tools-alpm-v1/'+evidence['log'],32768); observed = json.loads(body)
+    need(pin(body) == evidence['log_pin'] and type(observed) is dict
+         and set(observed) == {'schema','status','mode','source_map_sha256','before','syscall','after','scope','namespace_acceptance','native_acceptance'}
+         and type(observed.get('schema')) is int and observed.get('schema') == 1 and observed.get('status') == 'NAMESPACE_PREREQUISITE_DATA_ONLY'
+         and observed.get('mode') == 'context' and observed.get('source_map_sha256') == map_hash
+         and observed.get('syscall') is None and same(observed.get('before'), observed.get('after'))
+         and same(observed.get('before'), context['values'])
+         and observed.get('scope') == 'OWN_BUILD_ACTOR_SELF_ONLY_NO_CHILD_OR_GLOBAL_MUTATION'
+         and observed.get('namespace_acceptance') == 'NOT_ESTABLISHED' and observed.get('native_acceptance') == 'NOT_ADMITTED',
+         'context must copy exact same-map existing namespace DATA, not later consumer metadata')
+    need(type(context['values']) is dict and set(context['values']) == {'uid','euid','gid','egid','cwd','groups',
+         'group_count','groups_truncated','status_fields','status_state','namespaces','maps','policy','lsm','mounts','bwrap'}
+         and len(json.dumps(context['values'],sort_keys=True,allow_nan=False).encode()) <= 32768,
+         'bounded complete retained launcher context required')
+    return dict(status='VALIDATED_IMAGE_BUILD_LAUNCHER_POLICY_DATA_ONLY', receipt=value, native='NOT_ADMITTED')
+
+
 def validate(capsule_path, expected):
     need(type(expected) is dict and set(expected) == {'source', 'ref', 'run', 'map_sha256'}
          and re.fullmatch('[0-9a-f]{40}', expected.get('source') or '')
@@ -1409,13 +1578,14 @@ def validate(capsule_path, expected):
          'same-source owner and explicit cleanup outcome required')
     consumer_diagnostic = retained_consumer_diagnostic(view, files, receipt, binding, expected['map_sha256'])
     build_summary = retained_build_summary(view, files, binding, expected['map_sha256'])
+    image_build_policy = source_tools_build_policy_data(view, files, receipt, binding, expected['map_sha256'])
     failed = (receipt['status'] != PASS or cleanup['status'] != 'PASS_EXACT_OWNED_RESOURCES_RETIRED')
     need(failed or consumer_diagnostic['status'] != 'ABSENT_CONSUMER_DIAGNOSTIC_DATA_ONLY',
          'successful release owner cannot omit original consumer diagnostic')
     if failed or not consumer_diagnostic['positive_candidate']:
         return dict(status='VALIDATED_NATIVE_FAILURE_DATA_ONLY', binding=binding,
                     owner_status=receipt['status'], cleanup_status=cleanup['status'],
-                    consumer_diagnostic=consumer_diagnostic, build_summary=build_summary,
+                    consumer_diagnostic=consumer_diagnostic, build_summary=build_summary, image_build_policy=image_build_policy,
                     component_failure=source_tools_failure_data(view, files, expected['map_sha256']),
                     native='NOT_ADMITTED', physical_M2='NOT_RUN', release='NOT_ADMITTED')
     retained_consumer_diagnostic(view, files, receipt, binding, expected['map_sha256'], positive=True)
@@ -1458,7 +1628,7 @@ def validate(capsule_path, expected):
          'selected release operation and no target/release inference required')
     component = retained_source_tools_alpm(view, files, guest, expected['map_sha256'])
     return dict(status='VALIDATED_NATIVE_SOURCE_TOOLS_ALPM_COMPONENT_EVIDENCE_ONLY', binding=binding,
-                source_tools=component, native='NOT_ADMITTED', native_16K='NOT_QUALIFIED',
+                source_tools=component, image_build_policy=image_build_policy, native='NOT_ADMITTED', native_16K='NOT_QUALIFIED',
                 physical_M2='NOT_RUN', release='NOT_ADMITTED')
 
 

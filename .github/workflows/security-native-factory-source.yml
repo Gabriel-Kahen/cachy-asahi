@@ -47,7 +47,7 @@ jobs:
           stage=$(mktemp -d "$RUNNER_TEMP/security-factory-controls.XXXXXXXX")
           mkdir -m700 "$stage/parent"
           test "$(/usr/bin/git -C .ci-security-parent rev-parse --verify HEAD)" = b6a02f11648738ded90084f7dcdcd4ea77c194fa
-          /usr/bin/git -C .ci-security-parent archive --format=tar b6a02f11648738ded90084f7dcdcd4ea77c194fa | tar -xf - -C "$stage/parent"
+          /usr/bin/git -c tar.umask=0022 -C .ci-security-parent archive --format=tar b6a02f11648738ded90084f7dcdcd4ea77c194fa | tar -xf - -C "$stage/parent"
           python -I -B -Werror::ResourceWarning scripts/ci/security-maintenance-native-source/test_factory.py --parent-source "$stage/parent"
       - name: Checkout exact failed v7 Source200 as FD control DATA
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
@@ -56,19 +56,44 @@ jobs:
           ref: d7c34e02dec0bfee06d0cb6e165bd781471fffd7
           path: .ci-security-v7
           persist-credentials: false
-      - name: New FD diagnostic16 actor-denied DATA controls
+      - name: Checkout exact retained FD/HOST control factory as DATA
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 8411a50018e100d5ce2617c15111a51db6a17e19
+          path: .ci-security-retained-factory
+          persist-credentials: false
+      - name: Retained FD diagnostic16 actor-denied DATA controls against ff factory
         shell: bash
         run: |
           set -euo pipefail
+          test "$(/usr/bin/git -C .ci-security-retained-factory rev-parse --verify HEAD)" = 8411a50018e100d5ce2617c15111a51db6a17e19
           security_fd_stage=$(mktemp -d "$RUNNER_TEMP/security-fd-data.XXXXXXXX")
           python -I -B -Werror::ResourceWarning scripts/ci/security-maintenance-native-source/test_fd_failure_diagnostic.py \
+            --factory-root "$GITHUB_WORKSPACE/.ci-security-retained-factory/scripts/ci/security-maintenance-native-source" \
             --baseline-source "$GITHUB_WORKSPACE/.ci-security-v7" --results "$security_fd_stage/results.json"
           python -I -B -c 'import json,sys; r=json.load(open(sys.argv[1])); assert r["status"]=="PASS_NEW_FD_FAILURE_DIAGNOSTIC_DATA_CONTROLS" and r["controls"]==16 and r["failures"]==r["errors"]==0 and r["denied_events"]==[] and r["Source_actor_imports"]==r["factory_emissions"]==r["observer_FD_payload_reads"]==0' "$security_fd_stage/results.json"
-      - name: New HOST parent-layout6 private controls
+      - name: Retained HOST parent-layout6 private controls against ff helper
         shell: bash
         run: |
           set -euo pipefail
           security_layout_stage=$(mktemp -d "$RUNNER_TEMP/security-layout-host.XXXXXXXX")
           python -I -B -Werror::ResourceWarning scripts/ci/security-maintenance-native-source/test_parent_layout.py \
-            --execute-once --results "$security_layout_stage/once"
+            --execute-once --results "$security_layout_stage/once" \
+            --helper "$GITHUB_WORKSPACE/.ci-security-retained-factory/scripts/ci/security-maintenance-native-source/overlay/native/security_native_v1.py"
           python -I -B -c 'import json,sys; r=json.load(open(sys.argv[1])); assert r["status"]=="PASS_NEW_HOST_PRIVATE_PROCESS_LAYOUT_CONTROLS" and r["case_count"]==6 and r["failures"]==r["errors"]==0 and all(c["passed"] for c in r["cases"]) and r["python_version"]==sys.argv[2] and r["repository_Source_imports"]==r["Source_constructor_emitter_calls"]==r["FD_payload_reads"]==r["native_C_compiler_probe_runtime_GPG_package_VM_namespace_actors"]==r["old_tests_readers_GET_POST_Git_API_primary_writes"]==0 and r["native_PID1_namespace_test"] is False and r["acceptance"] is False' "$security_layout_stage/once/result.json" '${{ matrix.python }}'
+      - name: New current observer-provenance DATA controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          security_provenance_stage=$(mktemp -d "$RUNNER_TEMP/security-observer-provenance-data.XXXXXXXX")
+          security_factory="$GITHUB_WORKSPACE/scripts/ci/security-maintenance-native-source"
+          security_retained="$GITHUB_WORKSPACE/.ci-security-retained-factory/scripts/ci/security-maintenance-native-source"
+          python -I -B -Werror::ResourceWarning "$security_factory/test_observer_provenance.py" \
+            --reader "$security_factory/overlay/native/security_reader_v1.py" \
+            --contract "$security_factory/overlay/native/security-contract-v1.json" \
+            --helper "$security_factory/overlay/native/security_native_v1.py" \
+            --baseline-helper "$security_retained/overlay/native/security_native_v1.py" \
+            --baseline-contract "$security_retained/overlay/native/security-contract-v1.json" \
+            --results "$security_provenance_stage/results.json"
+          python -I -B -c 'import json,sys; r=json.load(open(sys.argv[1])); assert r["status"]=="PASS" and r["controls"]==55 and r["failures"]==r["errors"]==0 and r["actor_network_FFI_denied"] is True and r["old_suite_replays"]==r["reader_validate_replays"]==r["C_callbacks"]==r["Git_API_native"]==0' "$security_provenance_stage/results.json"

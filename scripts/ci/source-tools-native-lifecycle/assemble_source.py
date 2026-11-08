@@ -18,7 +18,7 @@ import stat
 import tempfile
 
 HERE = Path(__file__).resolve().parent
-GENUINE_PARENT = '111f14d2b21b220d86912d5ead978848c7ef1cb0'
+GENUINE_PARENT = 'c5e2c80a6dc2c66b471b4ea5d5162963c08a36b8'
 PARENT_TREE = 'f45820b0ef37b48f50bbc361a22f53b5dd309506'
 MAIN_BASE = 'eaf43eddc5604773d8176f319700a450bc32ccb0'
 OPERATION = 'source-tools-alpm-v1'
@@ -183,7 +183,7 @@ def tree(files):
 
 
 PRODUCER_BEFORE = {'bootstrap/scripts/ci/native_arm.py': {'bytes': 28318, 'sha256': 'a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898'}, 'native/failure_retention.py': {'bytes': 13639, 'sha256': '20f9f6fb153d3be98e41c343e63f5994aa3708ccbd4299e1f551a38b697ffbe3'}, 'native/source_tools_alpm_v1.py': {'bytes': 27900, 'sha256': '4299d71ba98f8d6e8cf3cbbe057294a7b82359e93162c850b7808b0216141d3d'}, 'native/source_tools_reader_v1.py': {'bytes': 116262, 'sha256': '6a640d1008d5f6364631a330f341945b55e8d59bda089360fb1656d0dcad5a92'}, 'native/source_tools_projection_v1.py': {'bytes': 10628, 'sha256': '0c91e8bd674b05f1a68d6cff6000dcaa74752d665e0566f2ff7768764ce8150c'}, 'native/source_tools_probe_v1.py': {'bytes': 17646, 'sha256': 'bc7645b39df4b0fe39c0eda7da1ad46f9603786b3ec18aeafdd04b8d8f5563e2'}}
-PRODUCER_AFTER = {'native/failure_retention.py': {'bytes': 13639, 'sha256': 'cdb50b755f3e76d0229278bb89476752702544f3c31947e74676c82b213a8dc7', 'mode': 420}, 'native/source_tools_alpm_v1.py': {'bytes': 30929, 'sha256': '103a364c0f8b3da143be856e830e273457289be0e49a373551610d49a349e0d7', 'mode': 420}, 'native/source_tools_projection_v1.py': {'bytes': 10628, 'sha256': '9ff1046c9f126f950c70e1b5bf3c43374d3de8b6c85cf1f851fa1202489c1f54', 'mode': 420}, 'native/source_tools_reader_v1.py': {'bytes': 128284, 'sha256': '1bcc580d67e4ac4c5470f9c081d7102ffbfe8a42a64ccbbc71f07f8d12eb3ec1', 'mode': 420}, 'native/source_tools_probe_v1.py': {'bytes': 24713, 'sha256': 'bf9a0a883249c7ddaddc2091c455419b284bfbe6e97e42362933ef66f25af9cc', 'mode': 420}, 'bootstrap/scripts/ci/native_arm.py': {'bytes': 28877, 'sha256': '8e71ba83e7d5037c6f7772401ec3b872684ccfa8472d855d8d6d3052cb1f41ba', 'mode': 420}}
+PRODUCER_AFTER = {'bootstrap/scripts/ci/native_arm.py': {'bytes': 28877, 'mode': 420, 'sha256': '8e71ba83e7d5037c6f7772401ec3b872684ccfa8472d855d8d6d3052cb1f41ba'}, 'native/failure_retention.py': {'bytes': 13639, 'mode': 420, 'sha256': 'cdb50b755f3e76d0229278bb89476752702544f3c31947e74676c82b213a8dc7'}, 'native/source_tools_alpm_v1.py': {'bytes': 33986, 'sha256': '2abc9190f5015fd400e25c430ee74cf6f0a0ec34659f460616d3a604742b7c31', 'mode': 420}, 'native/source_tools_probe_v1.py': {'bytes': 24713, 'mode': 420, 'sha256': 'bf9a0a883249c7ddaddc2091c455419b284bfbe6e97e42362933ef66f25af9cc'}, 'native/source_tools_projection_v1.py': {'bytes': 10628, 'sha256': 'f86e723d020bf590cfc75cded367841bcd62b5eb6cf8e18e56e9d31146a6f513', 'mode': 420}, 'native/source_tools_reader_v1.py': {'bytes': 142578, 'sha256': '2abda1f5cf33fff055e8f2a69da0c5732fef9af64f0c8821c4938747d08d8ef5', 'mode': 420}}
 
 
 def retired_producer(bodies):

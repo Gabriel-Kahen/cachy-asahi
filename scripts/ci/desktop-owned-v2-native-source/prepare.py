@@ -18,7 +18,7 @@ import tempfile
 
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
-PROFILE_SHA256 = '2b34ce484406cfeedfc990bc0bb3698ba01bec71d36e4f9b35d18c50e6edc9c5'
+PROFILE_SHA256 = '44cc421207ae3ba0c95773b659e0626e0ce099f574e193ea67114eb142a5dcf3'
 SELECTION = 'desktop-owned-retirement-v2'
 PARENT = '72bc639de295704b94901c03ac8acf7667ff6f9c'
 PARENT_TREE = '7af3afe8534967e635b741a80ad0b661dee19bae'
@@ -226,6 +226,51 @@ def native_control(value):
     return raw, control
 
 
+def carrier_identity(bridge, raw_commit, carrier_raw):
+    """Authenticate current physical Git bytes; historical headers stay DATA."""
+    need(type(bridge) is dict and type(bridge.get('schema')) is int and bridge['schema'] == 1
+         and bridge.get('tree') == 'e21f947bac3afdfbd67e4e65c8234b35ae42b00f'
+         and bridge.get('code_tree') == 'UNCHANGED'
+         and bridge.get('historical_raw_header') == 'HISTORICAL_ONLY_NOT_CURRENT_OPERAND',
+         'explicit unchanged carrier tree and historical-only old header')
+    need(bridge.get('historical') == dict(commit='ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad',
+         raw_commit=dict(bytes=251, sha256='0e3c9f82541401886b12c5dbf2fa925655dcdcd6ae966a05723a41c4dedbef86')),
+         'historical carrier receipt held')
+    need(bridge.get('current') == dict(commit='4659076d3a1d3e5cf87c185a3ff383fbc38e734d',
+         raw_commit=dict(path='carrier-current-commit.raw', bytes=287,
+         sha256='52311786d11bd25af74a108efe9399b253a6bdad6e36c5b36f03ab70b6756e36'))
+         and pin(raw_commit) == {key: bridge['current']['raw_commit'][key] for key in ('bytes', 'sha256')}
+         and oid(b'commit', raw_commit).hex() == bridge['current']['commit'],
+         'current carrier raw commit identity differs')
+    need([line[5:].decode('ascii') for line in raw_commit.split(b'\n\n', 1)[0].splitlines()
+          if line.startswith(b'tree ')] == [bridge['tree']], 'current complete carrier tree differs')
+    need(bridge.get('current_carrier_profile') == dict(
+         path='payload/bootstrap/scripts/ci/setup6-retained-helpers/carrier-profile.json', bytes=195440,
+         sha256='47ea6a3f358922ad1d643bc2cbd517fe0335f5dbe1313a87af3d24396d5a39ea')
+         and pin(carrier_raw) == {key: bridge['current_carrier_profile'][key] for key in ('bytes', 'sha256')},
+         'current whole carrier profile differs')
+    carrier = document(carrier_raw)
+    need(carrier['source'] == bridge['current']['commit'] and carrier['actual'] is None
+         and carrier['ref'] == 'codex/native574-complete-retained-inputs-v1'
+         and len(carrier['files']) == 1154
+         and sum(row['bytes'] for row in carrier['files'].values()) == 1046432165,
+         'exact complete current1154 carrier DATA profile')
+    return bridge
+
+
+def physical_carrier(value):
+    selected = value['physical_carrier_bridge']
+    need(set(selected) == {'path', 'bytes', 'sha256'} and selected['path'] == 'physical-carrier-bridge.json',
+         'fixed current physical carrier bridge')
+    raw, mode = read(HERE / selected['path'], 1024**2)
+    need(mode == 0o644 and pin(raw) == {key: selected[key] for key in ('bytes', 'sha256')}, 'whole carrier bridge pin')
+    bridge = document(raw)
+    commit, commit_mode = read(HERE / 'carrier-current-commit.raw', 4096)
+    carrier, carrier_mode = read(HERE / 'payload/bootstrap/scripts/ci/setup6-retained-helpers/carrier-profile.json', 1024**2)
+    need(commit_mode == carrier_mode == 0o644, 'current carrier DATA modes')
+    return carrier_identity(bridge, commit, carrier)
+
+
 def profile():
     raw, mode = read(HERE / 'profile.json', 1024**2)
     need(mode == 0o644 and re.fullmatch('[0-9a-f]{64}', PROFILE_SHA256)
@@ -238,11 +283,11 @@ def profile():
     check_rows(value['before199'], 199); check_rows(value['after200'], 200)
     before, after, delta = value['before199'], value['after200'], changes(value)
     need(set(after) - set(before) == {RUNTIME_PATH} and not set(before) - set(after)
-         and len(delta) == 9 and sum(item['before'] is not None for item in delta.values()) == 8
-         and after[RUNTIME_PATH] == RUNTIME, 'exact eight replacements plus one pinned0755 runtime')
+         and len(delta) == 17 and sum(item['before'] is not None for item in delta.values()) == 16
+         and after[RUNTIME_PATH] == RUNTIME, 'exact sixteen replacements plus one pinned0755 runtime')
     need(all(after[name]['mode'] == before[name]['mode'] for name in before), 'existing Source modes held')
     need(type(value['payload']) is dict and value['payload'] == {name: 'payload/' + name for name in delta},
-         'exact finite nine-body payload namespace')
+         'exact finite seventeen-body payload namespace')
     output = value['output']
     need(type(output) is dict and set(output) == {'tree', 'map_sha256'}
          and re.fullmatch('[0-9a-f]{40}', output['tree'])
@@ -277,6 +322,7 @@ def profile():
         need(encoded(value['all_unlisted_held']) in (encoded(held), encoded(simple_rows(held))),
              'all unlisted held Source rows differ')
     native_control(value)
+    physical_carrier(value)
     return value
 
 
@@ -312,7 +358,11 @@ def stage_document(value):
                 source_map_sha256=value['output']['map_sha256'], map_sha256=value['output']['map_sha256'],
                 source_files=200, source_map_rows=199, map_rows=199, profile_sha256=PROFILE_SHA256,
                 actual=dict(NULL_ACTUAL), matching_reader=None, default_switch=False,
+                proposed_reader=dict(value['reader_contract'], admission='IMPLEMENTED_V2_DATA_PROTOCOL_ROOT_ACTUAL_BINDING_PENDING', actual_binding=dict(NULL_READER)),
                 native_control=dict(value['native_control'], scope='FINITE_ZERO_CHILD_ONLY_NO_NATIVE_LANE_ACCEPTANCE'),
+                physical_carrier=dict(current='4659076d3a1d3e5cf87c185a3ff383fbc38e734d',
+                    tree='e21f947bac3afdfbd67e4e65c8234b35ae42b00f',
+                    bridge=value['physical_carrier_bridge'], historical_headers='DATA_ONLY'),
                 native='NOT_RUN', native_lane='NOT_RUN', GPG='NOT_RUN', ALPM='NOT_RUN',
                 native_16K='NOT_QUALIFIED', physical_M2='NOT_RUN', performance='NOT_MEASURED', release='NOT_ADMITTED')
 
@@ -334,6 +384,8 @@ def metadata(value):
         'reader-binding.NULL.json': encoded(NULL_READER),
         'params.NULL.json': encoded(NULL_PARAMS),
         'native-control.json': native_control(value)[0],
+        'physical-carrier-bridge.json': read(HERE / 'physical-carrier-bridge.json', 1024**2)[0],
+        'carrier-current-commit.raw': read(HERE / 'carrier-current-commit.raw', 4096)[0],
     }
 
 
@@ -391,13 +443,13 @@ def verify_output(stage):
     delta = changes(value)
     expected_originals = {name: item['before'] for name, item in delta.items() if item['before'] is not None}
     originals = snapshot(root / 'before199', expected_originals)
-    need(len(expected_originals) == 8 and body_rows(originals) == expected_originals, 'exact eight physical inverse operands')
+    need(len(expected_originals) == 16 and body_rows(originals) == expected_originals, 'exact sixteen physical inverse operands')
     expected_names = {'source/' + name for name in after} | {'before199/' + name for name in originals} | set(expected_metadata)
     namespace(root, expected_names)
     for name, expected in expected_metadata.items():
         raw, mode = read(root / name, 1024**2)
         need(mode == 0o644 and raw == expected, 'emitted stage metadata differs: ' + name)
-    # Reconstruct on disk: restore eight originals and delete the one new leaf.
+    # Reconstruct on disk: restore sixteen originals and delete the one new leaf.
     with tempfile.TemporaryDirectory(prefix='.owned-v2-inverse-', dir=root.parent) as temporary:
         inverse = Path(temporary) / 'source'; inverse.mkdir(mode=0o700)
         for name, (raw, mode) in sorted(after.items()):
@@ -425,7 +477,7 @@ def materialize(parent_source, output, *, selection):
     verified = verify_parent(parent_source); value = verified['profile']; before = verified['files']
     payload = snapshot(HERE / 'payload', value['payload'])
     need(body_rows(payload) == {name: value['after200'][name] for name in value['payload']},
-         'complete nine pinned payload bodies/modes/blobs differ')
+         'complete seventeen pinned payload bodies/modes/blobs differ')
     after = dict(before); after.update(payload)
     need(body_rows(after) == value['after200'] and git_tree(after) == value['output']['tree'], 'complete intended Source200 differs')
     source_map(after, 200)

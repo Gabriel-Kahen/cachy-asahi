@@ -1,0 +1,9 @@
+# PID1 build-shell Source201 variant
+
+This explicit variant changes the finite Release Docker BUILD RUN launcher. It uses the already locked Bash as PID1, requires Python to be its direct child, waits for that exact Python child and preserves its exit status. The unchanged retirement runtime must continue to refuse unreaped or unknown members. Native PID1 scheduling/reaping remains NOT RUN; these source changes grant no native/component/installed/M2/release acceptance.
+
+`prepare.py` accepts only the complete ordinary Source201 bodies/modes/tree of actual parent `d9708daa75083f85f1a182cb3aa97a728d04d695`, authenticated by the included raw commit and parent-file table. It is a DATA-only emitter: no Git/network/process/native operation, Source import or execution is implemented. Supply an externally reviewed profile SHA and a fresh output outside the parent and variant. It applies exactly three pinned payload bodies and reseals the map200, keeping197 leaves byte/mode/OID-identical. Output actual selectors stay NULL. The metadata-only `release_prior_build_retirement_parent` records the actual new publication parent D970; its old historical value is retained in the immutable parent map.
+
+The projection privacy fixture and matching reader95bf belong to this variant. The older diagnostic-only profile, old fixture54025e, old reader775a, runtime9388 and default834 remain unchanged. Do not substitute this reader into the old profile or relabel older evidence.
+
+Four NEW factory DATA controls cover actual complete emission and refusal of parent-file drift, an unlisted directory and projection-fixture drift before output. They import only this data emitter, with process/network/foreign-C actor denial active; no emitted Source code, reader or prior10 lifecycle controls are replayed. CI checks out the immutable D970 parent as DATA. Actual publication, current CI/admission and a genuine new finite native trial remain separate Root operations.

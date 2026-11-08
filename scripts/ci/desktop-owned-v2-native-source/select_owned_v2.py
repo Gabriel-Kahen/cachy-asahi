@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 
 SELECTION = 'desktop-owned-retirement-v2'
-PROFILE_SHA256 = '2b34ce484406cfeedfc990bc0bb3698ba01bec71d36e4f9b35d18c50e6edc9c5'
+PROFILE_SHA256 = '44cc421207ae3ba0c95773b659e0626e0ce099f574e193ea67114eb142a5dcf3'
 PARENT = '72bc639de295704b94901c03ac8acf7667ff6f9c'
 RUNTIME = dict(bytes=38256, sha256='9388d270d06e28fee50160b7c04dd69593e383647d791f8aaff69380032165d5', mode=0o755)
 
@@ -28,9 +28,9 @@ def select(value, *, selection):
          and value.get('source_files') == 200 and value.get('source_map_rows') == 199
          and value.get('common_mapped_cap') == value.get('factory_full_file_cap') == 200, 'unchanged closed Source caps required')
     need(value.get('actual') == dict(source=None, ref=None, run=None, job=None, artifact=None), 'preparation actuals must stay NULL')
-    need(value.get('admission') == dict(native_control='ROOT_ACCEPTED_FINITE_NATIVE_ARM4K_ADOPTED_ZERO_EXIT_CHILD_PROCESS_CONTROL', matching_reader='HELD_V2_COMPONENT_SCHEMA_PENDING_ROOT',
+    need(value.get('admission') == dict(native_control='ROOT_ACCEPTED_FINITE_NATIVE_ARM4K_ADOPTED_ZERO_EXIT_CHILD_PROCESS_CONTROL', matching_reader='IMPLEMENTED_V2_DATA_PROTOCOL_ROOT_ACTUAL_BINDING_PENDING',
          producer_pins='EXACT_SOURCE_PRODUCER_PINS_ONLY', publication='ROOT_ONLY_NOT_AUTHORIZED_HERE'), 'held native/reader/publication boundaries required')
-    need(type(value.get('delta')) is list and len(value['delta']) == 9, 'exact finite opt-in Source delta required')
+    need(type(value.get('delta')) is list and len(value['delta']) == 17, 'exact finite opt-in Source delta required')
     return dict(status='EXPLICIT_SOURCE_DELTA_SELECTED_PREPARATION_ONLY', selection=SELECTION, parent_source=PARENT,
                 source_files=200, source_map_rows=199, runtime=dict(RUNTIME),
                 workflow_inputs=dict(operation='desktop-alpm-v1', owned_retirement_v2=True),

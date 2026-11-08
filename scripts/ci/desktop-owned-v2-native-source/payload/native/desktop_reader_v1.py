@@ -13,7 +13,7 @@ import re
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import consumer_contract, load, need, pin, uv_policy, read
+from common import consumer_contract, load, need, pin, uv_policy, read, verify_source
 from capsule import open_capsule
 from privacy_diagnostics import validate_refusal
 from safe_diagnostic import check_consumer
@@ -369,7 +369,7 @@ def retained_consumer_diagnostic(view, files, receipt, binding, map_sha256, posi
 
 
 PRODUCERS = {
-    'native/desktop_alpm_v1.py': '8651601d55ea799c57010c4a61fe8cdd40783175b38eac41d4d56855a488888e',
+    'native/desktop_alpm_v1.py': 'bc5c84ae2abc21883507785b108101d5b0da964dde384c04e0c090478aeed8ca',
     'native/desktop_tools_v1.py': '88a8c5a8c188113564c8e0bf1e02176d9cc86f19998b51e19e075c5d0eaf8b62',
     'native/desktop_guest_v1.py': '2818cb5257433b290dd96dc8b1824e4c7932ac5ceff5b190004765caa1191e31',
     'native/desktop-contract-v1.json': 'f2c72aa0d24272966eb323a5a2bb11bca89569a9542330eedafe9f09cc46a894'}
@@ -489,7 +489,7 @@ def retained_group_census_diagnostics(commands):
     return dict(status='VALIDATED_UNRESOLVED_ORIGINAL_GROUP_CENSUS_DATA_ONLY',commands=count,native='NOT_ADMITTED')
 
 
-def retained_public_projection(view, files, binding, map_sha256):
+def retained_public_projection(view, files, binding, map_sha256, *, retirement_selection="legacy834"):
     """Closed new component DATA seam; no original187 feature credit."""
     name = 'public-projection.json'
     need(name in files and files[name]['kind'] == 'file', 'source-owned finite projection receipt required')
@@ -512,6 +512,8 @@ def retained_public_projection(view, files, binding, map_sha256):
          and value.get('privacy') == 'Ordinary DATA marker refusal; only exact source-bound package tar custody permits bound public source identifiers'
          and value.get('scope') == 'Fixed desktop-alpm-v1 result, commands and raw referenced logs only; private home trees not retained',
          'same-source exact finite release projection and explicit omission scope required')
+    if retirement_selection == OWNED_V2_READER_SELECTION:
+        owned_v2_projection_contract(value,binding,map_sha256)
     need(pin(view.read(name)) == {key: files[name][key] for key in ('bytes', 'sha256')}, 'projection receipt actual bytes differ')
     selected = value.get('selected')
     need(type(selected) is dict and 0 < len(selected) <= 2998 and set(files) == set(selected) | {name}
@@ -864,6 +866,304 @@ def retained_safe_diagnostic(view, files, binding, map_sha256):
                 original_result_and_feature_logs='NOT_AVAILABLE_PIN_VERIFICATION_NOT_PERFORMED')
 
 
+OWNED_V2_READER_RUNTIME = {
+    'path': 'native/desktop_owned_process_v2.py',
+    'bytes': 38256,
+    'sha256': '9388d270d06e28fee50160b7c04dd69593e383647d791f8aaff69380032165d5',
+}
+
+OWNED_V2_READER_STATE_KEYS = {
+    'exit', 'reaped', 'ownership', 'timeout', 'signals', 'output_complete',
+    'group_census', 'group_retirement', 'error', 'seconds', 'passed',
+}
+
+OWNED_V2_READER_MEMBER_KEYS = {
+    'pid', 'state', 'group', 'session', 'start_ticks', 'ppid', 'parent_relation',
+}
+
+OWNED_V2_READER_ADOPTION_KEYS = {
+    'schema', 'status', 'candidate', 'initial_member_count', 'initial_scan_complete',
+    'waitid', 'identity_reverified', 'leader_reserved_before_reap', 'raw_reap',
+    'ownership', 'target_queries_closed', 'before_leader_reap',
+    'final_scan_complete', 'final_census', 'refusal',
+}
+
+def owned_v2_need(ok, message):
+    if not ok:
+        raise ValueError(message)
+
+def owned_v2_pid(value):
+    return type(value) is int and 0 < value < 2**31
+
+def owned_v2_ticks(value):
+    return type(value) is int and 0 <= value < 2**64
+
+def owned_v2_hash(value):
+    return type(value) is str and len(value) == 64 and all(c in '0123456789abcdef' for c in value)
+
+def owned_v2_member(member, leader, owner, *, candidate=False):
+    owned_v2_need(type(member) is dict and set(member) == OWNED_V2_READER_MEMBER_KEYS,
+                  'v2 complete typed member identity required')
+    owned_v2_need(owned_v2_pid(member['pid']) and owned_v2_pid(member['ppid'])
+                  and owned_v2_ticks(member['start_ticks'])
+                  and type(member['group']) is int and member['group'] == leader['pid']
+                  and type(member['session']) is int and member['session'] == leader['pid']
+                  and member['ppid'] == owner and member['parent_relation'] == 'WAIT_OWNER_PID',
+                  'v2 current PID/start/group/session and known wait-owner parent required')
+    if candidate:
+        owned_v2_need(member['pid'] not in (leader['pid'], owner) and member['state'] == 'Z',
+                      'v2 distinct own terminal adopted-child candidate required')
+    else:
+        owned_v2_need(member['pid'] == leader['pid']
+                      and member['start_ticks'] == leader['start_ticks']
+                      and member['state'] in ('Z', 'X'),
+                      'v2 exact terminal reserved leader required')
+    return member
+
+def owned_v2_retirement(value):
+    base = {'phase', 'reserved_leader', 'wait_owner_pid', 'wait_owner_subreaper',
+            'member_count', 'members', 'truncated'}
+    owned_v2_need(type(value) is dict and set(value) in (base, base | {'adopted_child'}),
+                  'v2 complete finite group retirement schema required')
+    leader = value['reserved_leader']; owner = value['wait_owner_pid']
+    owned_v2_need(value['phase'] == 'PRE_REAP' and type(leader) is dict
+                  and set(leader) == {'pid', 'start_ticks'}
+                  and owned_v2_pid(leader['pid']) and owned_v2_ticks(leader['start_ticks'])
+                  and owned_v2_pid(owner) and owner != leader['pid']
+                  and value['wait_owner_subreaper'] == 'NOT_OBSERVED'
+                  and type(value['member_count']) is int and value['member_count'] == 1
+                  and type(value['members']) is list and len(value['members']) == 1
+                  and value['truncated'] is False,
+                  'v2 complete pre-reap sole reserved leader; no inferred subreaper authority')
+    owned_v2_member(value['members'][0], leader, owner)
+    if 'adopted_child' not in value:
+        return value
+    adoption = value['adopted_child']
+    owned_v2_need(type(adoption) is dict and set(adoption) == OWNED_V2_READER_ADOPTION_KEYS
+                  and type(adoption['schema']) is int and adoption['schema'] == 1
+                  and adoption['status'] == 'QUALIFIED_ONE_ADOPTED_CHILD_REAPED'
+                  and type(adoption['initial_member_count']) is int and adoption['initial_member_count'] == 2
+                  and adoption['ownership'] == 'REAPED'
+                  and adoption['final_census'] == 'RESERVED_LEADER_ONLY'
+                  and adoption['refusal'] == 'NONE',
+                  'v2 only the finite qualified adopted-zero-child branch is admissible')
+    for name in ('initial_scan_complete', 'identity_reverified', 'leader_reserved_before_reap',
+                 'target_queries_closed', 'before_leader_reap', 'final_scan_complete'):
+        owned_v2_need(adoption[name] is True, 'v2 adopted-child reservation/reap/closure proof incomplete')
+    child = owned_v2_member(adoption['candidate'], leader, owner, candidate=True)
+    wait = adoption['waitid']; reap = adoption['raw_reap']
+    owned_v2_need(type(wait) is dict and set(wait) == {'observed', 'pid', 'code', 'status'}
+                  and wait['observed'] is True and type(wait['pid']) is int and wait['pid'] == child['pid']
+                  and wait['code'] == 'CLD_EXITED' and type(wait['status']) is int and wait['status'] == 0,
+                  'v2 exact genuine adopted-child WNOWAIT CLD_EXITED zero reservation required')
+    owned_v2_need(type(reap) is dict and set(reap) == {'attempted', 'pid', 'exit', 'status_matches'}
+                  and reap['attempted'] is True and type(reap['pid']) is int and reap['pid'] == child['pid']
+                  and type(reap['exit']) is int and reap['exit'] == 0 and reap['status_matches'] is True,
+                  'v2 exact consuming wait and reserved/raw zero status match required')
+    return value
+
+def owned_v2_validate_command(command, *, budget):
+    owned_v2_need(type(budget) in (int, float) and 0 < budget <= 180,
+                  'v2 existing finite operation180 or cleanup20 bound required')
+    keys = {'step', 'argv', 'cwd', 'expected', 'success', 'log', 'log_pin', 'supervision', 'channels'}
+    owned_v2_need(type(command) is dict and set(command) == keys and command['success'] is True,
+                  'v2 exact successful command row required; failure/UNKNOWN cannot qualify')
+    step = command['step']; argv = command['argv']; cwd = command['cwd']; log = command['log']
+    allowed = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_+.-'
+    owned_v2_need(type(step) is str and 0 < len(step) <= 128 and step[0] in allowed[:62]
+                  and all(c in allowed for c in step)
+                  and type(log) is str and len(log) >= 9 and log[:3].isascii() and log[:3].isdigit()
+                  and log[3:] == '-' + step + '.log', 'v2 bounded source-owned step/log names required')
+    owned_v2_need(type(argv) is list and 0 < len(argv) <= 128
+                  and all(type(arg) is str and len(arg) <= 8192 and '\0' not in arg for arg in argv)
+                  and argv[0].startswith('/')
+                  and type(cwd) is str and 0 < len(cwd) <= 8192 and cwd.startswith('/') and '\0' not in cwd,
+                  'v2 bounded explicit absolute argv and cwd required')
+    log_pin = command['log_pin']
+    owned_v2_need(type(log_pin) is dict and set(log_pin) == {'bytes', 'sha256'}
+                  and type(log_pin['bytes']) is int and 0 <= log_pin['bytes'] <= 1024**2
+                  and owned_v2_hash(log_pin['sha256'])
+                  and command['channels'] == 'stdout+stderr combined in pipe order',
+                  'v2 complete bounded combined-output pin required')
+    state = command['supervision']; expected = command['expected']
+    owned_v2_need(type(state) is dict and set(state) == OWNED_V2_READER_STATE_KEYS,
+                  'v2 exact supervision schema required; RSS/unknown extensions not qualified')
+    code = state['exit']
+    owned_v2_need(type(code) is int and 0 <= code <= 255
+                  and ((type(expected) is int and 0 <= expected <= 255 and code == expected)
+                       or (type(expected) is str and expected == 'nonzero' and code > 0)),
+                  'v2 exact typed expected natural exit required')
+    owned_v2_need(state['reaped'] is True and state['ownership'] == 'REAPED'
+                  and state['timeout'] is False and type(state['signals']) is list and state['signals'] == []
+                  and state['output_complete'] is True and state['error'] is None
+                  and state['group_census'] == 'RESERVED_LEADER_ONLY'
+                  and type(state['seconds']) in (int, float) and 0 <= state['seconds'] < budget
+                  and type(state['passed']) is bool and state['passed'] is (code == 0),
+                  'v2 natural owned complete retirement within the unchanged budget required')
+    owned_v2_retirement(state['group_retirement'])
+    return command
+
+def owned_v2_validate_selection(report, source_map_sha256):
+    owned_v2_need(type(report) is dict and owned_v2_hash(source_map_sha256)
+                  and report.get('operation') == 'desktop-alpm-v1'
+                  and report.get('source_map_sha256') == source_map_sha256,
+                  'v2 same-map Desktop report required')
+    selected = report.get('runtime_selection')
+    expected = dict(schema=1, status='SELECTED_EXACT_BUNDLE', selection='desktop-owned-retirement-v2',
+                    explicit_opt_in=True, source_map_sha256=source_map_sha256,
+                    source=dict(OWNED_V2_READER_RUNTIME), operation_commands='RetirementCommands',
+                    cleanup_commands='RetirementCommands', legacy_census_wrapper_installed=False,
+                    supervision_rows='UNCHANGED_BUNDLE_OUTPUT')
+    owned_v2_need(type(selected) is dict and selected == expected
+                  and type(selected['schema']) is int and selected['schema'] == 1
+                  and selected['explicit_opt_in'] is True and selected['legacy_census_wrapper_installed'] is False
+                  and type(selected['source']) is dict and type(selected['source']['bytes']) is int,
+                  'v2 explicit exact runtime body/map/instance-local operation and cleanup selection required')
+    return selected
+
+OWNED_V2_READER_SELECTION = 'desktop-owned-retirement-v2-reader-v1'
+OWNED_V2_READER_CONTRACT = dict(
+    selection=OWNED_V2_READER_SELECTION, path='native/desktop_reader_v1.py',
+    runtime_selection='desktop-owned-retirement-v2',
+    private_layout='desktop-alpm-v1-public-data-v1',
+    payload_contract='native/desktop-contract-v1.json', payload_files=6,
+    scope='FINITE_NATURAL_RETIREMENT_OPTIONAL_QUALIFIED_ZERO_CHILD',
+    process_layout='bash-pid1-direct-python-child-v1')
+OWNED_V2_READER_LAYOUT = dict(
+    schema=1, selection=OWNED_V2_READER_SELECTION,
+    public_prefix='journey/desktop-alpm-v1/',
+    omitted_private_scopes=['journey/desktop-alpm-v1/home'],
+    private_trees_walked=False, projected_mode=0o600,
+    payload_contract='native/desktop-contract-v1.json', payload_files=6,
+    process_layout='bash-pid1-direct-python-child-v1',runtime=dict(OWNED_V2_READER_RUNTIME))
+
+
+def owned_v2_source_contract(mapping, expected, map_sha256):
+    owned_v2_need(type(expected) is dict and set(expected)=={'source','ref','run','map_sha256'}
+        and type(expected['source']) is str and re.fullmatch('[0-9a-f]{40}',expected['source'])
+        and type(expected['ref']) is str and re.fullmatch(r'refs/heads/codex/[A-Za-z0-9._/-]{1,200}',expected['ref'])
+        and '..' not in expected['ref'] and '//' not in expected['ref'] and not expected['ref'].endswith('/')
+        and type(expected['run']) is str and re.fullmatch('[1-9][0-9]{0,19}',expected['run'])
+        and owned_v2_hash(map_sha256) and expected['map_sha256']==map_sha256,
+        'v2 explicit actual Source/ref/run and whole map binding required')
+    owned_v2_need(type(mapping) is dict and type(mapping.get('schema')) is int and mapping['schema']==1
+        and mapping.get('actual')==dict(source=None,ref=None,run=None)
+        and mapping.get('desktop_operation')=='desktop-alpm-v1'
+        and mapping.get('desktop_owned_v2_reader')==OWNED_V2_READER_CONTRACT
+        and type(mapping['desktop_owned_v2_reader']['payload_files']) is int
+        and type(mapping.get('files')) is dict and len(mapping['files'])==199,
+        'v2 exact selected Source200/map199 and versioned reader contract required')
+    files=mapping['files']
+    runtime=files.get('native/desktop_owned_process_v2.py')
+    owned_v2_need(type(runtime) is dict and type(runtime.get('bytes')) is int and type(runtime.get('mode')) is int
+        and runtime==dict(
+        bytes=38256,sha256=OWNED_V2_READER_RUNTIME['sha256'],mode=0o755),
+        'v2 exact whole unchanged runtime Source body and executable mode required')
+    for name,digest in PRODUCERS.items():
+        row=files.get(name)
+        owned_v2_need(type(row) is dict and set(row)=={'bytes','sha256','mode'}
+            and type(row['bytes']) is int and 0<row['bytes']<=16*1024**2
+            and type(row['mode']) is int and row['mode']==0o644 and row['sha256']==digest,
+            'v2 exact Source producer/payload contract pin required: '+name)
+    reader=files.get('native/desktop_reader_v1.py')
+    owned_v2_need(type(reader) is dict and set(reader)=={'bytes','sha256','mode'}
+        and type(reader['bytes']) is int and 0<reader['bytes']<=16*1024**2
+        and type(reader['mode']) is int and reader['mode']==0o644 and owned_v2_hash(reader['sha256']),
+        'v2 complete matching Source reader body pin required')
+    return mapping['desktop_owned_v2_reader']
+
+
+def owned_v2_projection_contract(value, binding, map_sha256):
+    owned_v2_need(type(value) is dict and value.get('binding')==binding
+        and value.get('source_map_sha256')==map_sha256
+        and value.get('source_producers')==PRODUCERS
+        and value.get('omitted_private_scopes')==['journey/desktop-alpm-v1/home']
+        and value.get('omitted_private_trees_walked') is False
+        and value.get('original_output_unchanged') is True,
+        'v2 exact bound public projection and unchanged private omission required')
+    layout=value.get('owned_retirement_reader')
+    owned_v2_need(type(layout) is dict and layout==OWNED_V2_READER_LAYOUT
+        and type(layout['schema']) is int and layout['schema']==1
+        and layout['private_trees_walked'] is False
+        and type(layout['runtime']['bytes']) is int
+        and type(layout['payload_files']) is int and type(layout['projected_mode']) is int,
+        'v2 exact versioned runtime/payload/public/private layout contract required')
+    return layout
+
+
+def owned_v2_process_layout(report):
+    layout=report.get('process_layout') if type(report) is dict else None
+    owned_v2_need(type(layout) is dict and set(layout)=={'schema','contract','python_pid','python_ppid','status'}
+        and type(layout['schema']) is int and layout['schema']==1
+        and layout['contract']=='bash-pid1-direct-python-child-v1'
+        and type(layout['python_pid']) is int and 1<layout['python_pid']<2**31
+        and type(layout['python_ppid']) is int and layout['python_ppid']==1
+        and layout['status']=='OBSERVED_NON_PID1_PYTHON_DIRECT_CHILD',
+        'v2 explicit observed non-PID1 Python directly parented by namespace init required')
+    return layout
+
+
+def owned_v2_build_launcher(raw,map_sha256):
+    owned_v2_need(type(raw) is bytes and 0<len(raw)<=16*1024**2 and owned_v2_hash(map_sha256),
+        'v2 complete bounded same-map retained Dockerfile required')
+    script=('test "$$" -eq 1 || exit 125; /usr/bin/python3 -I -B '
+        '/opt/native-desktop-tools-alpm-v1/source/native/desktop_alpm_v1.py '
+        '--inside-image --retain-failure-image --owned-retirement-v2 --map-sha256 '+map_sha256+
+        ' & desktop_owner=$!; desktop_status=0; wait "$desktop_owner" || desktop_status=$?; exit "$desktop_status"')
+    run=('RUN '+json.dumps(['/usr/bin/bash','--noprofile','--norc','-p','-c',script])).encode()
+    owned_v2_need(raw.endswith(run+b'\nUSER alarm\nWORKDIR /tmp\n') and raw.splitlines().count(run)==1,
+        'v2 exact Bash PID1/background Python/explicit wait/status propagation RUN required')
+    return dict(contract='bash-pid1-direct-python-child-v1',source_map_sha256=map_sha256)
+
+
+def owned_v2_build_layout(view,files,map_sha256):
+    name='bootstrap-proof/overlay-Dockerfile'
+    need(name in files and files[name]['kind']=='file'
+        and pin(view.read(name))=={k:files[name][k] for k in ('bytes','sha256')},
+        'v2 actual complete retained build-stage Dockerfile pin required')
+    return owned_v2_build_launcher(view.read(name),map_sha256)
+
+
+def owned_v2_command_budgets(commands,*,wait_owner_pid):
+    owned_v2_need(type(commands) is list and 4<len(commands)<=160,'v2 bounded complete Desktop commands required')
+    owned_v2_need(type(wait_owner_pid) is int and 1<wait_owner_pid<2**31,'v2 observed non-PID1 Python wait owner required')
+    cleanup=['retire-signing','no-autostart-signing','retire-trust','no-autostart-trust']
+    owned_v2_need([row.get('step') for row in commands[-4:] if type(row) is dict]==cleanup,
+        'v2 exact four terminal cleanup commands required')
+    totals=[0.0,0.0]
+    for index,command in enumerate(commands):
+        phase=int(index>=len(commands)-4)
+        owned_v2_validate_command(command,budget=20 if phase else 180)
+        owned_v2_need(command['supervision']['group_retirement']['wait_owner_pid']==wait_owner_pid,'v2 every command wait owner must join observed Python layout')
+        owned_v2_need(command['log']=='%03d-%s.log'%(index,command['step']), 'v2 exact ordered log identity required')
+        owned_v2_need(phase or command['step'] not in cleanup and not command['step'].startswith('cleanup-'),
+            'v2 no cleanup rows hidden inside operation budget')
+        totals[phase]+=command['supervision']['seconds']
+    owned_v2_need(totals[0]<450 and totals[1]<90,'v2 existing operation450/cleanup90 cumulative child-time bounds required')
+    return commands
+
+
+def desktop_commands_v2(view,files,prefix,commands,*,wait_owner_pid):
+    owned_v2_command_budgets(commands,wait_owner_pid=wait_owner_pid)
+    need(view.load(prefix+'commands.json')==commands,'v2 actual standalone command list required')
+    for command in commands:
+        target=prefix+command['log']
+        need(target in files and files[target]['kind']=='file'
+            and pin(view.read(target))==command['log_pin']=={k:files[target][k] for k in ('bytes','sha256')},
+            'v2 complete raw ordered command output pin required')
+    def selected(step):
+        rows=[(i,row) for i,row in enumerate(commands) if row['step']==step]
+        need(len(rows)==1,'sole exact v2 Desktop command reference required')
+        return rows[0]
+    return selected
+
+
+def exact_agent_absence_v2(command,raw):
+    owned_v2_validate_command(command,budget=20)
+    need(type(command['expected']) is int and command['expected']==0
+        and type(raw) is bytes and raw==AGENT_ABSENT,'v2 owned exact no-agent protocol required')
+
+
 def desktop_contract():
     path = Path(__file__).resolve().with_name('desktop-contract-v1.json')
     raw = read(path)
@@ -1112,7 +1412,7 @@ def exact_agent_absence(command, raw):
          'owned complete exit0 and exact no-agent protocol required')
 
 
-def retained_desktop_alpm(view, files, guest, map_sha256):
+def retained_desktop_alpm(view, files, guest, map_sha256, *, retirement_selection="legacy834"):
     contract = desktop_contract(); prefix = 'journey/desktop-alpm-v1/'; report = guest.get('desktop_alpm')
     need(type(report) is dict and type(report.get('schema_version')) is int and report['schema_version'] == 1
          and report.get('operation') == OPERATION and report.get('status') == PASS and report.get('source_map_sha256') == map_sha256
@@ -1120,7 +1420,13 @@ def retained_desktop_alpm(view, files, guest, map_sha256):
          and view.load(prefix + 'result.json') == report, 'same-map exact actual desktop component result required')
     need(report.get('stages') == ['build-a','build-b','compare','build-update','sign','install','commands-system','commands-moved','update','commands-updated','remove','restore','cleanup'],
          'complete ordered desktop lifecycle stages required')
-    commands = report.get('commands'); selected = desktop_commands(view, files, prefix, commands)
+    commands = report.get('commands')
+    if retirement_selection == OWNED_V2_READER_SELECTION:
+        owned_v2_validate_selection(report,map_sha256)
+        layout = owned_v2_process_layout(report)
+        selected = desktop_commands_v2(view,files,prefix,commands,wait_owner_pid=layout['python_pid'])
+    else:
+        selected = desktop_commands(view,files,prefix,commands)
     build_indexes, archives = desktop_build_pair(view, prefix, report, contract, selected, map_sha256)
     update_index,update_archive = desktop_update_build(view,prefix,report,contract,selected,map_sha256)
     build_indexes.append(update_index)
@@ -1233,7 +1539,10 @@ def retained_desktop_alpm(view, files, guest, map_sha256):
         after, command = selected('no-autostart-' + home)
         need(command['argv'] == ['/usr/bin/gpg-connect-agent', '--homedir', str(trust.parent / home), '--no-autostart', '/bye']
              and command['expected'] == 0 and after > index, 'no-autostart absence after each TEST retirement')
-        exact_agent_absence(command, view.read(prefix + command['log']))
+        if retirement_selection == OWNED_V2_READER_SELECTION:
+            exact_agent_absence_v2(command,view.read(prefix+command['log']))
+        else:
+            exact_agent_absence(command, view.read(prefix + command['log']))
     native = report.get('native')
     need(type(native) is dict and native.get('architecture') == 'aarch64' and type(native.get('page_bytes')) is int and native['page_bytes'] == guest.get('page_size')
          and native['page_bytes'] > 0 and native.get('execution') == 'OWNED_IMAGE_BUILD_STAGE' and native.get('physical_M2') == 'NOT_RUN' and native.get('release') == 'NOT_ADMITTED',
@@ -1310,8 +1619,8 @@ def retained_transport_proof(view, files, phase, binding, map_sha256):
     """Actual canonical supervision and all complete carrier/object proof DATA."""
     need(phase['binding'] == binding and phase['source_map_sha256'] == map_sha256
          and phase['actors'] == [] and phase['status'] == 'PASS_EXACT_RETAINED_INPUT_TRANSPORT_DATA_ONLY'
-         and phase['carrier_source'] == 'ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad'
-         and phase['profile_sha256'] == '4089fd798849cafda23d03c0dd95ac896a83fd63ad21e331ae420c147535586c'
+         and phase['carrier_source'] == '4659076d3a1d3e5cf87c185a3ff383fbc38e734d'
+         and phase['profile_sha256'] == '47ea6a3f358922ad1d643bc2cbd517fe0335f5dbe1313a87af3d24396d5a39ea'
          and phase['expected_carrier_files'] == 1154 and phase['expected_carrier_bytes'] == 1046432165
          and phase['budget_seconds'] == 480 and phase['retry'] is False,
          'same-source complete canonical transport, original clocks and whole profile required')
@@ -1326,12 +1635,17 @@ def retained_transport_proof(view, files, phase, binding, map_sha256):
 
 
 
-def validate(capsule_path, expected):
+def validate(capsule_path, expected, *, retirement_selection="legacy834"):
     need(type(expected) is dict and set(expected) == {'source', 'ref', 'run', 'map_sha256'}
          and re.fullmatch('[0-9a-f]{40}', expected.get('source') or '')
          and isinstance(expected.get('ref'), str) and expected['ref'].startswith('refs/heads/codex/')
          and re.fullmatch('[1-9][0-9]*', expected.get('run') or '')
          and re.fullmatch('[0-9a-f]{64}', expected.get('map_sha256') or ''), 'NULL/unbound actual native evidence refused before reading')
+    need(type(retirement_selection) is str and retirement_selection in ('legacy834',OWNED_V2_READER_SELECTION), 'explicit versioned reader selection required')
+    if retirement_selection == OWNED_V2_READER_SELECTION:
+        source = Path(__file__).resolve().parents[1]
+        mapping = verify_source(source,expected['map_sha256'])
+        owned_v2_source_contract(mapping,expected,pin(read(source/'native/source-map.json'))['sha256'])
     view = open_capsule(capsule_path)
     binding = {k: expected[k] for k in ('source', 'ref', 'run')}
     binding.update(attempt=1, token=hashlib.sha256((binding['source'] + ':' + binding['ref'] + ':' + binding['run']).encode()).hexdigest()[:24])
@@ -1362,7 +1676,7 @@ def validate(capsule_path, expected):
              and diagnostic['status'] == 'DIAGNOSTIC_HOSTED_INPUT_PROVISIONING_ONLY'
              and diagnostic['native'] == diagnostic['GPG'] == diagnostic['ALPM'] == 'NOT_RUN', 'actual DATA diagnostic only')
         return dict(status='VALIDATED_INPUT_PROVISIONING_DIAGNOSTIC_NOT_NATIVE', binding=binding, native='NOT_RUN', physical_M2='NOT_RUN', release='NOT_ADMITTED')
-    retained_public_projection(view, files, binding, expected['map_sha256'])
+    retained_public_projection(view, files, binding, expected['map_sha256'],retirement_selection=retirement_selection)
     receipt = view.load('receipt.json'); cleanup = view.load('cleanup.json')
     need(receipt.get('binding') == binding and receipt.get('source_map_sha256') == expected['map_sha256']
          and type(receipt.get('status')) is str and type(cleanup.get('status')) is str,
@@ -1415,7 +1729,9 @@ def validate(capsule_path, expected):
     need(guest.get('operation') == OPERATION and guest.get('source_map_sha256') == expected['map_sha256']
          and guest.get('system_install') == 'IMAGE_STAGE_ALPM_ONLY' and guest.get('release') == 'NOT_ADMITTED',
          'selected release operation and no target/release inference required')
-    component = retained_desktop_alpm(view, files, guest, expected['map_sha256'])
+    if retirement_selection == OWNED_V2_READER_SELECTION:
+        owned_v2_build_layout(view,files,expected['map_sha256'])
+    component = retained_desktop_alpm(view, files, guest, expected['map_sha256'],retirement_selection=retirement_selection)
     return dict(status='VALIDATED_NATIVE_DESKTOP_TOOLS_ALPM_COMPONENT_EVIDENCE_ONLY', binding=binding,
                 desktop_tools=component, native='NOT_ADMITTED', native_16K='NOT_QUALIFIED',
                 physical_M2='NOT_RUN', release='NOT_ADMITTED')
@@ -1425,5 +1741,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--capsule', type=Path, required=True, help='ordinary public-tree.tar; directory ingress is unsupported')
     parser.add_argument('--binding', type=Path, required=True)
+    parser.add_argument('--retirement-selection',choices=('legacy834',OWNED_V2_READER_SELECTION),default='legacy834')
     args = parser.parse_args()
-    print(json.dumps(validate(args.capsule, load(args.binding)), sort_keys=True))
+    print(json.dumps(validate(args.capsule, load(args.binding),retirement_selection=args.retirement_selection), sort_keys=True))
