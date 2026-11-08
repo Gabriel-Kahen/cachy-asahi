@@ -230,4 +230,88 @@ class Retrieval(unittest.TestCase):
         self.assertNotIn(b'PRIVATE-BINARY-OR-SOURCE', next(p for p in public.rglob('*') if p.is_file()).read_bytes())
 
 
+# Exact passive consumer definition from frozen b6b17e5, never its module/entry.
+_FROZEN_AUDIO_CONSUMER = r'''def audio(root,code):
+    policy=code/'scripts/ci/full-development-composition/audio-inputs.json'
+    C.need(C.sha(policy)==C.AUDIO_SHA,'audio source policy changed')
+    rows=C.read(policy);C.need(len(rows)==6 and {r['name'] for r in rows}==C.AUDIO,'six exact audio rows required')
+    checks,_=tools(code)
+    helper=C.load('expanded_audio_inputs',code/'scripts/ci/full-development-composition/audio_inputs.py')
+    api=C.load('expanded_audio_api',code/'scripts/ci/full-development-composition/run.py')
+    expected={r['filename'] for r in rows}|{r['filename']+'.sig' for r in rows if r['origin']=='ALARM'}
+    C.need({p.name for p in root.iterdir()}==expected,'closed audio input directory required')
+    result={}
+    for row in rows:
+        path=C.checked(root,dict(path=row['filename'],bytes=row['size'],sha256=row['sha256']))
+        report=checks.package(path);inspected=helper.inspect(row,report,api)
+        if row['origin']=='ALARM':
+            C.checked(root,dict(path=row['filename']+'.sig',bytes=row['signature_size'],sha256=row['signature_sha256']),1024**2)
+        result[row['name']]=dict(inspected,archive=str(path),inspected=report)
+    return result'''
+seed_retained = load('audio_retained_seed', HERE / 'seed_audio.py')
+
+class RetainedAudioSeed(unittest.TestCase):
+    """NEW inert carrier transport and unchanged frozen-consumer controls."""
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name); self.carrier = self.root/'carrier'
+        (self.carrier/'packages').mkdir(parents=True); (self.carrier/'upstream-signatures').mkdir()
+        self.policy = self.root/'audio-inputs.json'; self.output = self.root/'audio-archives'
+        self.rows = []
+        for name in sorted(seed_retained.NAMES):
+            body = ('INERT-'+name).encode(); filename = name+'.pkg.tar.xz'
+            row = dict(name=name, filename=filename, size=len(body), sha256=hashlib.sha256(body).hexdigest(), origin='ALARM' if name=='lsp-plugins-lv2' else 'TEST-signed-native-output')
+            (self.carrier/'packages'/filename).write_bytes(body)
+            if name=='lsp-plugins-lv2':
+                sig=b'INERT-DETACHED-SIGNATURE'; row.update(signature_size=len(sig), signature_sha256=hashlib.sha256(sig).hexdigest())
+                (self.carrier/'upstream-signatures'/(filename+'.sig')).write_bytes(sig)
+            self.rows.append(row)
+        self.policy.write_text(json.dumps(self.rows)); self.digest=hashlib.sha256(self.policy.read_bytes()).hexdigest()
+        patcher=patch.object(seed_retained,'POLICY',self.digest);patcher.start();self.addCleanup(patcher.stop)
+    def seed(self): return seed_retained.seed(self.policy,self.carrier,self.output)
+    def consumer(self):
+        from types import SimpleNamespace
+        self.checked=[]; self.packages=[]; self.audits=[]
+        def checked(root,row,cap=8*1024**2):
+            self.checked.append((row['path'],cap)); raw=seed_retained.read(root/row['path'],cap,time.monotonic()+20)
+            seed_retained.need(seed_retained.pin(raw)==dict(bytes=row['bytes'],sha256=row['sha256']),'consumer byte pin');return root/row['path']
+        helper=SimpleNamespace(inspect=lambda row,report,api:self.audits.append(row['name']) or dict(name=row['name']))
+        checks=SimpleNamespace(package=lambda path:self.packages.append(path.name) or dict(inert=True))
+        C=SimpleNamespace(need=seed_retained.need,sha=lambda path:hashlib.sha256(path.read_bytes()).hexdigest(),AUDIO_SHA=self.digest,AUDIO=seed_retained.NAMES,read=lambda path:json.loads(path.read_bytes()),checked=checked,load=lambda name,path:helper if name=='expanded_audio_inputs' else object())
+        namespace=dict(C=C,tools=lambda code:(checks,None));exec(compile(_FROZEN_AUDIO_CONSUMER,'<exact-frozen-audio-consumer-DATA>','exec'),namespace)
+        code=self.root/'legacy'; policy=code/'scripts/ci/full-development-composition/audio-inputs.json';policy.parent.mkdir(parents=True);policy.write_bytes(self.policy.read_bytes())
+        return namespace['audio'],code
+    def test_retained_seven_reaches_all_frozen_package_audits_and_signature_gate(self):
+        result=self.seed(); audio,code=self.consumer(); value=audio(self.output,code)
+        self.assertEqual(result['network_requests'],0);self.assertEqual(set(value),seed_retained.NAMES)
+        self.assertEqual(len(self.packages),6);self.assertEqual(set(self.audits),seed_retained.NAMES);self.assertEqual(len(self.checked),7)
+        self.assertEqual([cap for name,cap in self.checked if name.endswith('.sig')],[1024**2])
+        self.assertTrue(all((p.stat().st_mode&0o777)==0o600 for p in self.output.iterdir()))
+    def test_valid_seed_is_selected_without_calling_cold_retriever(self):
+        with patch.object(trial,'retrieve',side_effect=AssertionError('cold fetch would refuse existing output')):
+            result=self.seed();self.assertEqual(len(result['files']),7)
+    def test_0600_and_0644_retained_inputs_are_both_accepted(self):
+        files=list((self.carrier/'packages').iterdir());files[0].chmod(0o600);files[1].chmod(0o644);self.assertEqual(len(self.seed()['files']),7)
+    def test_tampered_carrier_refuses_and_disposes_only_new_output(self):
+        path=next((self.carrier/'packages').iterdir());path.write_bytes(b'CHANGED')
+        with self.assertRaisesRegex(ValueError,'byte pin|input shape'):self.seed()
+        self.assertFalse(self.output.exists());self.assertEqual(path.read_bytes(),b'CHANGED')
+    def test_symlink_and_executable_input_refuse(self):
+        path=next((self.carrier/'packages').iterdir());saved=path.read_bytes();path.unlink();path.symlink_to(self.policy)
+        with self.assertRaisesRegex(ValueError,'ordinary retained'):self.seed()
+        path.unlink();path.write_bytes(saved);path.chmod(0o755)
+        with self.assertRaisesRegex(ValueError,'nonexecuting'):self.seed()
+    def test_existing_output_is_not_overwritten(self):
+        self.output.mkdir();marker=self.output/'keep';marker.write_bytes(b'HELD')
+        with self.assertRaisesRegex(ValueError,'fresh private'):self.seed()
+        self.assertEqual(marker.read_bytes(),b'HELD')
+    def test_frozen_consumer_still_refuses_extra_files(self):
+        self.seed();(self.output/'extra').write_bytes(b'EXTRA');audio,code=self.consumer()
+        with self.assertRaisesRegex(ValueError,'closed audio'):audio(self.output,code)
+        self.assertEqual(self.packages,[])
+    def test_frozen_consumer_still_checks_signature_bytes(self):
+        self.seed();next(self.output.glob('*.sig')).write_bytes(b'TAMPERED');audio,code=self.consumer()
+        with self.assertRaisesRegex(ValueError,'consumer byte pin'):audio(self.output,code)
+
+
 if __name__ == '__main__': unittest.main()
