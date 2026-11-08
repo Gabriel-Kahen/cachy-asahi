@@ -1,0 +1,11 @@
+# Private journal parser refusal diagnostics v5
+
+Source56's qualified diagnostic capsule contained zero AVC candidates. Three journal actors returned1 with empty output; the fourth returned0 with1069 private bytes classified `UNKNOWN_MALFORMED_OR_EXCESS_OUTPUT`. The private original was not transported, so its exact rejected subcondition remains unknown. `runtime_qualification` also remains NULL: the strict complete-experiment gate retains the matrix's original first failure. That gate is unchanged.
+
+The explicit v5 owner route adds `namespace-policy/kernel-audit-refusals-v5.json` beside the unchanged v4 audit leaf. It records a closed parser phase/reason and, for an offending bounded line, only its number/length/SHA256. It exports no raw message, field name, cursor, error string or journal original. Nonzero command exit stays a command failure; it is not classified as a permission denial. Missing captures and nonmatching valid input stay unknown. Parser bounds, field selection, candidates, refusal status, four journal commands and all existing resource/ownership guards are unchanged.
+
+The matching passive reader checks the closed versioned envelope, original v4 status, case/CID/private pins, actor exit and finite line-pin bounds. It explicitly returns `REPORTED_PRIVATE_REASON_NOT_RECOMPUTED`: absent private raw bytes cannot establish an independent parse-reason inverse. A reported reason is useful for directing review, not namespace, syscall, policy, PID-ownership or BuildKit evidence. The original v4 reader still independently validates its existing envelope and candidate fields.
+
+New DATA controls distinguish JSON syntax/duplicates, record shape, timestamp/boot shape, capability mismatch and match limits, preserve valid/nonmatching/command-error behavior, exercise the current synthetic owner/projection/reader route, and refuse forged cause/proof/type/selector/raw-text claims. No new native trial, Source publication or replay of Source56 evidence is part of these controls. Existing frozen core22423, contract3267 and earlier immutable Sources are held.
+
+This is authored MIT code. Journal command semantics remain based on pinned systemd255 commit `db11bab38ccf1ed257f310d29070843d4c58ea01`, `man/journalctl.xml`, LGPL-2.1-or-later; no upstream code is copied and no bubblewrap patch is selected.

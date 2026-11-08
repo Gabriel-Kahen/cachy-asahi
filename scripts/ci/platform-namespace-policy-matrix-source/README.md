@@ -50,3 +50,8 @@ The guest-v2 launcher records bounded current-process UID/EUID/GID/EGID, raw sor
 The explicit guest-v3 route admits the already valid supplementary vector and the observed single duplicate primary GID1001, with membership still exactly998/1001. Raw process vectors, counts, first context lines and output pins remain unchanged; the matching reader independently checks the versioned comparison after raw-role joins. See [group-membership v3](guest-groups-v3.md).
 
 The explicit kernel audit v4 owner route retains bounded private journal output and publishes only closed AVC candidate fields. Missing permissions/output or comm/time coincidence remain UNKNOWN. See [kernel-audit-v4.md](kernel-audit-v4.md); the four policies, guest/bwrap argv, capabilities, frozen core and old contract stay held.
+
+The current owner uses the additive [v5 refusal diagnostic route](kernel-refusals-v5.md).
+It retains closed private-parser reason codes without changing v4 candidate/refusal
+semantics. Matching readers label these private reasons as reported and not
+independently recomputed; no raw journal/PID/cause authority is implied.

@@ -430,7 +430,7 @@ def _matrix_ownership(row):
              pid_reserved_until_retirement=True,timeout=False,
              reservation_evidence='ORIGINAL_NATIVE_LEADER_HELD_THROUGH_GROUP_INSPECTION_THEN_DIRECT_WAITPID')
 
-def owner_matrix(actor,root,args,own,context,original_dockerfile,ledger,verify_base_callback,source_proof,_kernel_audit_v4=False):
+def owner_matrix(actor,root,args,own,context,original_dockerfile,ledger,verify_base_callback,source_proof,_kernel_audit_v4=False,_kernel_refusal_v5=False):
  """Own a prefix-only image and four policy-only containers; no ALPM success path.
 
  The caller supplies the existing signed341/eight-addition/uv context and base
@@ -446,7 +446,8 @@ def owner_matrix(actor,root,args,own,context,original_dockerfile,ledger,verify_b
              first_failure=None,calls=[],prepared_ledger=None,cases=[],cleanup=dict(status='UNKNOWN'),
              controls=dict(build_seconds=600,matrix_seconds=240,case_seconds=30,case_output_bytes=65536),
              ownership_adapter='UNCHANGED_NATIVE_OWNED_CHILD_LEADER_RESERVATION_PROOF')
- need(type(_kernel_audit_v4)is bool,'explicit versioned audit route')
+ need(type(_kernel_audit_v4)is bool and type(_kernel_refusal_v5)is bool and(not _kernel_refusal_v5 or _kernel_audit_v4),'explicit versioned audit route')
+ if _kernel_refusal_v5:report['kernel_refusals_v5']=dict(schema=1,diagnostic_version=5,operation=OPERATION,kind='kernel-private-parse-refusals-v5',binding=own,source_map_sha256=args.map_sha256,captures=[],native='NOT_ADMITTED',acceptance=False)
  if _kernel_audit_v4:
   report['kernel_audit_v4']=dict(schema=1,kind='kernel-avc-window-candidates-v4',operation=OPERATION,binding=own,source_map_sha256=args.map_sha256,spec_sha256=digest(KERNEL_AUDIT_V4_SPEC),captures=[],summary=kernel_audit_summary_v4([]),native='NOT_ADMITTED',acceptance=False)
  result=None;expected=None;prepared=None;engine=None;pending=None;image=None;registered=False;matrix_deadline=None
@@ -631,6 +632,7 @@ def owner_matrix(actor,root,args,own,context,original_dockerfile,ledger,verify_b
    if _kernel_audit_v4:
     capture=capture_kernel_audit_v4(actor,root,args,own,plan['id'],cid,[audit_start_us,time.time_ns()//1000],matrix_deadline,24*1024**2-total_logs,128-len(report['calls'])-len(report['kernel_audit_v4']['captures']))
     if capture['private_raw_pin']is not None:total_logs+=capture['private_raw_pin']['bytes']
+    if _kernel_refusal_v5:report['kernel_refusals_v5']['captures'].append(dict(case=capture['case'],container=capture['container'],private_raw_pin=capture['private_raw_pin'],diagnostic=kernel_refusal_capture_v5(capture,args.work)))
     report['kernel_audit_v4']['captures'].append(capture)
     report['kernel_audit_v4']['summary']=kernel_audit_summary_v4(report['kernel_audit_v4']['captures'])
    if state['ExitCode']!=0:report.setdefault('probe_failures',[]).append(dict(case=plan['id'],container=cid,returncode=state['ExitCode'],output=pin(output),namespace_errno=row['namespace_errno'],exec_errno=exec_errno))
@@ -685,6 +687,9 @@ def owner_matrix(actor,root,args,own,context,original_dockerfile,ledger,verify_b
   if _kernel_audit_v4:
    need(len(encoded(report['kernel_audit_v4']))<=65536,'bounded closed public audit fields only')
    write_json('kernel-audit-v4.json',report['kernel_audit_v4'])
+  if _kernel_refusal_v5:
+   need(len(encoded(report['kernel_refusals_v5']))<=16384,'lower closed private parser reason cap')
+   write_json('kernel-audit-refusals-v5.json',report['kernel_refusals_v5'])
   write_json('diagnostic.json',diagnostic);snapshot()
  if pending is not None:raise pending
  return diagnostic
@@ -959,3 +964,103 @@ def validate_kernel_audit_v4(value,owner,expected):
  summary=kernel_audit_summary_v4(rows);need(value['summary']==summary,'independently recomputed UNKNOWN candidate summary')
  return dict(status='VALIDATED_BOUNDED_AVC_CANDIDATE_DATA_ONLY_PRIVATE_RAW_UNAVAILABLE',binding=value['binding'],captures=len(rows),summary=summary,
              independent_owned_process_proof=False,raw_original_body_inverse=False,native='NOT_ADMITTED',acceptance=False)
+
+# Version5 is a diagnostic-only envelope around the unchanged v4 refusal.
+# Private parser reasons are reported, never independently qualified without raw DATA.
+KERNEL_REFUSAL_V5_LEAF='namespace-policy/kernel-audit-refusals-v5.json'
+_KERNEL_REFUSAL_V5_REASONS={
+ 'bounded journal line set':('OUTPUT_BOUNDS','LINE_SET_LIMIT'),
+ 'duplicate journal JSON key':('JSON','DUPLICATE_JSON_FIELD'),
+ 'nonfinite journal JSON':('JSON','NONFINITE_JSON_VALUE'),
+ 'closed bounded kernel journal record':('RECORD_FIELDS','RECORD_SCHEMA_OR_MESSAGE_LIMIT'),
+ 'bounded implicit journal metadata, private only':('RECORD_FIELDS','IMPLICIT_METADATA_TYPE_OR_LIMIT'),
+ 'exact kernel journal timestamp/boot fields':('RECORD_FIELDS','TIMESTAMP_OR_BOOT_ID_SHAPE'),
+ 'duplicate/nonstring AVC token refused':('AVC_FIELDS','DUPLICATE_OR_NONSTRING_AVC_TOKEN'),
+ 'bounded AVC host PID, not process authority':('AVC_FIELDS','HOST_PID_SHAPE'),
+ 'bounded capability number':('AVC_FIELDS','CAPABILITY_NUMBER_SHAPE'),
+ 'exact capability name/number pair':('AVC_FIELDS','CAPABILITY_NAME_NUMBER_MISMATCH'),
+ 'bounded audit error field, never bwrap syscall errno':('AVC_FIELDS','AUDIT_ERROR_SHAPE'),
+ 'finite matching AVC limit, no silent truncation':('MATCH_COUNT','MATCH_LIMIT')}
+_KERNEL_REFUSAL_V5_CODES=set(_KERNEL_REFUSAL_V5_REASONS.values())|{
+ ('COMMAND','COMMAND_EXIT_NONZERO'),('NO_REFUSAL','NO_MATCHED_CANDIDATE'),
+ ('NO_REFUSAL','CANDIDATES_UNCHANGED'),('JSON','JSON_DECODE_OR_VALUE'),
+ ('AVC_FIELDS','JSON_DECODE_OR_VALUE'),('INTERNAL','UNCLASSIFIED_PRIVATE_REFUSAL'),
+ ('NOT_STARTED','CAPTURE_NOT_STARTED')}
+
+def kernel_refusal_diagnostic_v5(raw,window,exit_code):
+ """No raw/error text is exported. Existing v4 acceptance and refusal stay exact."""
+ original=kernel_audit_parse_v4(raw,window,exit_code)
+ result=dict(schema=5,phase='COMMAND',code='COMMAND_EXIT_NONZERO',line=None,
+             v4_status=original['status'],private_reason_recomputed=False,
+             raw_original_body_inverse=False,owned_process_binding=KERNEL_AUDIT_V4_SPEC['PID_binding'],
+             namespace_effect='UNKNOWN',syscall_errno='UNKNOWN',acceptance=False)
+ if exit_code!=0:return result
+ if original['status']!='UNKNOWN_MALFORMED_OR_EXCESS_OUTPUT':
+  result.update(phase='NO_REFUSAL',code='CANDIDATES_UNCHANGED'if original['records']else'NO_MATCHED_CANDIDATE');return result
+ phase='OUTPUT_BOUNDS';line_number=None;line=None
+ try:
+  lines=raw.splitlines();need(len(lines)<=4096 and all(len(v)<=16384 for v in lines),'bounded journal line set')
+  def pairs(rows):
+   value={}
+   for k,v in rows:need(k not in value,'duplicate journal JSON key');value[k]=v
+   return value
+  count=0
+  for line_number,line in enumerate(lines):
+   phase='JSON';record=json.loads(line,object_pairs_hook=pairs,parse_constant=lambda _:need(False,'nonfinite journal JSON'))
+   phase='AVC_FIELDS';public=kernel_avc_fields_v4(record,window)
+   if public is not None:
+    phase='MATCH_COUNT';need(count<8,'finite matching AVC limit, no silent truncation');count+=1
+ except (ValueError,TypeError,KeyError,RecursionError)as error:
+  known=_KERNEL_REFUSAL_V5_REASONS.get(str(error))
+  if known is not None:result['phase'],result['code']=known
+  elif isinstance(error,json.JSONDecodeError):result.update(phase=phase if phase in('JSON','AVC_FIELDS')else'JSON',code='JSON_DECODE_OR_VALUE')
+  else:result.update(phase='INTERNAL',code='UNCLASSIFIED_PRIVATE_REFUSAL')
+  if line_number is not None:result['line']=dict(number=line_number,**pin(line))
+  return result
+ result.update(phase='INTERNAL',code='UNCLASSIFIED_PRIVATE_REFUSAL');return result
+
+def kernel_refusal_capture_v5(capture,work):
+ from common import read
+ if capture['private_raw_pin']is None:
+  return dict(schema=5,phase='NOT_STARTED',code='CAPTURE_NOT_STARTED',line=None,
+       v4_status='UNKNOWN_NOT_STARTED',private_reason_recomputed=False,raw_original_body_inverse=False,
+       owned_process_binding=KERNEL_AUDIT_V4_SPEC['PID_binding'],namespace_effect='UNKNOWN',syscall_errno='UNKNOWN',acceptance=False)
+ raw=read(Path(work)/capture['private_raw_role'],2*1024**2)
+ need(pin(raw)==capture['private_raw_pin'],'same private raw body for diagnostic only')
+ value=kernel_refusal_diagnostic_v5(raw,capture['window_us'],capture['actor']['exit'])
+ need(value['v4_status']==capture['observation']['status'],'new reason never changes original v4 refusal')
+ return value
+
+def owner_matrix_kernel_refusals_v5(actor,root,args,own,context,original_dockerfile,ledger,verify_base_callback,source_proof):
+ return owner_matrix(actor,root,args,own,context,original_dockerfile,ledger,verify_base_callback,source_proof,
+                     _kernel_audit_v4=True,_kernel_refusal_v5=True)
+
+def validate_kernel_refusals_v5(value,audit,owner,expected):
+ """Envelope validation only. The private raw parser reason cannot be recomputed."""
+ keys(value,('schema','diagnostic_version','operation','kind','binding','source_map_sha256','captures','native','acceptance'),'private refusal diagnostic v5')
+ need(type(value['schema'])is int and value['schema']==1 and type(value['diagnostic_version'])is int and value['diagnostic_version']==5 and value['operation']==OPERATION and value['kind']=='kernel-private-parse-refusals-v5'
+      and value['binding']==expected['binding']and value['source_map_sha256']==expected['source_map_sha256']
+      and value['native']=='NOT_ADMITTED'and value['acceptance']is False and len(encoded(value))<=16384,'closed v5 refusal envelope')
+ need(owner.get('kernel_refusals_v5')==value,'same-owner v5 envelope inverse')
+ rows=value['captures'];need(type(rows)is list and len(rows)==len(audit['captures']),'same original capture count')
+ reports=[]
+ for row,capture in zip(rows,audit['captures']):
+  keys(row,('case','container','private_raw_pin','diagnostic'),'closed v5 reported capture')
+  need(all(row[k]==capture[k]for k in('case','container','private_raw_pin')),'same v4 case/CID/private pin')
+  d=row['diagnostic'];keys(d,('schema','phase','code','line','v4_status','private_reason_recomputed','raw_original_body_inverse','owned_process_binding','namespace_effect','syscall_errno','acceptance'),'closed reported parser reason')
+  need(type(d['schema'])is int and d['schema']==5 and type(d['phase'])is str and type(d['code'])is str and(d['phase'],d['code'])in _KERNEL_REFUSAL_V5_CODES
+       and d['v4_status']==capture['observation']['status']and d['private_reason_recomputed']is d['raw_original_body_inverse']is d['acceptance']is False
+       and d['owned_process_binding']==KERNEL_AUDIT_V4_SPEC['PID_binding']and d['namespace_effect']==d['syscall_errno']=='UNKNOWN','no private reason/PID/errno/cause authority')
+  if d['v4_status']=='UNKNOWN_NOT_STARTED':need((d['phase'],d['code'])==('NOT_STARTED','CAPTURE_NOT_STARTED')and d['line']is None,'no invented unstarted parser reason')
+  elif capture['actor']['exit']!=0:need((d['phase'],d['code'])==('COMMAND','COMMAND_EXIT_NONZERO')and d['line']is None,'nonzero command cannot invent a parse reason')
+  elif d['v4_status']=='UNKNOWN_MALFORMED_OR_EXCESS_OUTPUT':need(d['phase']not in('NO_REFUSAL','COMMAND','NOT_STARTED'),'malformed v4 remains refused')
+  else:need(d['phase']=='NO_REFUSAL'and d['code']==('CANDIDATES_UNCHANGED'if capture['observation']['records']else'NO_MATCHED_CANDIDATE')and d['line']is None,'no new refusal or candidate acceptance')
+  line=d['line']
+  if line is not None:
+   keys(line,('number','bytes','sha256'),'private refused line pin')
+   need(type(line['number'])is int and 0<=line['number']<4096 and type(line['bytes'])is int and 0<=line['bytes']<=16384
+        and capture['private_raw_pin']is not None and line['bytes']<=capture['private_raw_pin']['bytes']and hexvalue(line['sha256'],64),'bounded private line pin only')
+  reports.append(dict(case=row['case'],phase=d['phase'],code=d['code'],qualification='REPORTED_PRIVATE_REASON_NOT_RECOMPUTED'))
+ return dict(status='VALIDATED_PRIVATE_REFUSAL_ENVELOPE_RAW_REASON_NOT_RECOMPUTED',reports=reports,
+             private_reason_recomputed=False,raw_original_body_inverse=False,independent_owned_process_proof=False,
+             namespace_effect='UNKNOWN',native='NOT_ADMITTED',acceptance=False)

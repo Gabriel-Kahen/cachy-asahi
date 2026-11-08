@@ -1,6 +1,6 @@
 {
-  "expected_map_sha256": "7bc2552ef64f4d3ac2ccd3b9e9a49079b935faa431cd8ba0e1460ea32c2c83c5",
-  "expected_tree": "73c6acaa6a39a6eeb2c888734fe219ca0c93d10f",
+  "expected_map_sha256": "b01e0c71c65c28433cc3d4e7d7fc727f176846dccf04262e2159c5d88bffef62",
+  "expected_tree": "fc968807ec27f9ac0492d402f8c9ef6832ef992a",
   "files": {
     ".github/workflows/native-arm-build.yml": {
       "bytes": 13209,
@@ -13,9 +13,9 @@
       "sha256": "94ba5c5bac5142608cc68b3a267f8e4582da6299cbf4ae245d279a93ace7f9df"
     },
     "native/owner.py": {
-      "bytes": 29604,
+      "bytes": 29607,
       "mode": 420,
-      "sha256": "bc32e263bf33bb561756406108bc8197506a4f7706826e07787e52c82160affc"
+      "sha256": "a5bc52279d3189fa5dcc1589cf08113aae5be65383e66bc92c69b98f6641ed44"
     },
     "native/platform-namespace-policy-v1.json": {
       "bytes": 3267,
@@ -23,14 +23,14 @@
       "sha256": "7d34c33b80053863424137b2b6faa47e2d7bc5fc0d4f0f1f966439ef60373059"
     },
     "native/platform_namespace_policy_v1.py": {
-      "bytes": 96239,
+      "bytes": 105153,
       "mode": 420,
-      "sha256": "da91f51508a10022e8415b29beff2644bcbfd0f25e59158ea5a7a86c521db142"
+      "sha256": "948f1152e30a05105759e1311158496ec8741927484c0374b048ba89bc850635"
     },
     "native/provision.py": {
-      "bytes": 46674,
+      "bytes": 47137,
       "mode": 420,
-      "sha256": "1e75c74e8a52218235253d05d387aad8b719a33148ab4634dbe1bfe8cbf8d6cb"
+      "sha256": "b53e214eb997672abf1e9497c58b2edb67526ae2d4d8a7d3fc0a5a00a1c8db56"
     }
   },
   "kind": "platform-namespace-policy-overlay-v1",

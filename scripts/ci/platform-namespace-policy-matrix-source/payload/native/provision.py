@@ -355,7 +355,7 @@ def cache(root, args):
 
 MATRIX_OPERATION = 'platform-namespace-policy-matrix-v1'
 MATRIX_SCOPE = 'namespace-policy'
-MATRIX_JSON = ('result.json', 'diagnostic.json', 'owner.json', 'source-proof.json', 'kernel-audit-v4.json')
+MATRIX_JSON = ('result.json', 'diagnostic.json', 'owner.json', 'source-proof.json', 'kernel-audit-v4.json', 'kernel-audit-refusals-v5.json')
 MATRIX_ROOT_JSON = ('source-proof.json', 'receipt.json', 'cleanup.json', 'image-ledger.json', 'image-retirement.json')
 
 
@@ -656,11 +656,15 @@ def read_matrix_capsule(capsule_path, expected_binding, independent_expected):
     audit_qualification = None
     if matrix.KERNEL_AUDIT_V4_LEAF in payloads:
         audit_qualification=matrix.validate_kernel_audit_v4(view.load(matrix.KERNEL_AUDIT_V4_LEAF),view.load(MATRIX_SCOPE+'/owner.json'),independent_expected)
+    refusal_qualification = None
+    if matrix.KERNEL_REFUSAL_V5_LEAF in payloads:
+        need(audit_qualification is not None,'v5 envelope requires original v4 audit qualification')
+        refusal_qualification=matrix.validate_kernel_refusals_v5(view.load(matrix.KERNEL_REFUSAL_V5_LEAF),view.load(matrix.KERNEL_AUDIT_V4_LEAF),view.load(MATRIX_SCOPE+'/owner.json'),independent_expected)
     return dict(status='VALIDATED_NAMESPACE_POLICY_MATRIX_DIAGNOSTIC_DATA_ONLY',binding=own,
         source_map_sha256=map_hash,raw_projection_status=projection['diagnostic_status'],
         projection_status='DIAGNOSTIC_NAMESPACE_POLICY_MATRIX_COMPLETE' if complete else 'DIAGNOSTIC_NAMESPACE_POLICY_MATRIX_UNKNOWN',
         raw_diagnostic=diagnostic,raw_result=raw_result,qualification=qualification,
-        source_qualification=source_qualification,runtime_qualification=runtime_qualification,kernel_audit_v4=audit_qualification,
+        source_qualification=source_qualification,runtime_qualification=runtime_qualification,kernel_audit_v4=audit_qualification,kernel_refusals_v5=refusal_qualification,
         join_refusals=joins,interpretation=interpretation,
         ALPM='NOT_RUN',native='NOT_ADMITTED',physical_M2='NOT_RUN',release='NOT_ADMITTED',acceptance=False)
 
