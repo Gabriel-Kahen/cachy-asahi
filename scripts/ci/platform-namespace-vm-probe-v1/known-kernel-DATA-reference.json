@@ -1,0 +1,26 @@
+{
+  "Image": {
+    "bytes": 9019400,
+    "sha256": "cd8053ebdb83302015efbad97ab1cc53fcd5a2353bf3f37ba208f4e6360946ec"
+  },
+  "config": {
+    "bytes": 68789,
+    "sha256": "e97d54d4852eceb6cba28c38f78d4a00aacbfdb0c1523cb96366590f7eaa915b"
+  },
+  "default_input_selection": "UNBOUND",
+  "descriptor": {
+    "bytes": 1138,
+    "path": "kernel-input.json",
+    "sha256": "4194ad7212e07a5b96c8bd6c95fc23482524bdd6ba340d12a77fc193a9ee3db1"
+  },
+  "historical_descriptor_boot": "NOT_RUN",
+  "kernel": "7.1.13-generic16k-managed-gui",
+  "modules": "DISABLED",
+  "namespace_config": "Root inspected USER_NS/NET_NS/UTS_NS/IPC_NS/PID_NS/NAMESPACES all=y",
+  "new_kernel_build": false,
+  "page_size": 16384,
+  "source": "24252ac5d5b416d4407e33725ffbfabac28e0bc8",
+  "status": "ROOT_REPORTED_GENUINE_KERNEL_DATA_REFERENCE_NOT_THIS_PROBE_BOOT_ACCEPTANCE",
+  "this_probe_boot": null,
+  "tree": "983d2ae6419b39824beb34da491d5ee69d3b8861"
+}
