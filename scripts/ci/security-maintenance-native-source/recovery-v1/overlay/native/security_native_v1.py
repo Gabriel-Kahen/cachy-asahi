@@ -39,9 +39,9 @@ def dockerfile(base,map_hash):
     result+='RUN /usr/bin/python3 -I -B /opt/native-security-v1/source/native/security_native_v1.py --unpack-prior --map-sha256 '+map_hash+' && echo prior > /security-prior-slot\nUSER alarm\nWORKDIR /tmp/security-prior-build\n'
     result+='RUN SOURCE_DATE_EPOCH=1793145600 PKGDEST=/tmp/security-prior-build SRCDEST=/tmp/security-prior-build BUILDDIR=/tmp/security-prior-build makepkg --check --cleanbuild --nosign --noconfirm --config /opt/native-security-v1/source/native/security-makepkg.conf\n'
     result+='FROM security-dependencies\nCOPY security-recovery-binding.json /opt/native-security-v1/recovery/native-scope.json\n'
-    result+='COPY --from=security-prior-build /tmp/security-prior-build/'+PRIOR_ARCHIVE+' /opt/native-security-v1/prior/'+PRIOR_ARCHIVE+'\nCOPY --from=security-prior-build /security-prior-slot /opt/native-security-v1/prior/stage-slot\n'
+    result+='COPY --from=security-prior-build --chown=0:0 /tmp/security-prior-build/'+PRIOR_ARCHIVE+' /opt/native-security-v1/prior/'+PRIOR_ARCHIVE+'\nCOPY --from=security-prior-build /security-prior-slot /opt/native-security-v1/prior/stage-slot\n'
     for label in ('one','two'):
-        result+='COPY --from=security-build-'+label+' /tmp/security-build/'+ARCHIVE+' /opt/native-security-v1/pair/'+label+'/'+ARCHIVE+'\n'
+        result+='COPY --from=security-build-'+label+' --chown=0:0 /tmp/security-build/'+ARCHIVE+' /opt/native-security-v1/pair/'+label+'/'+ARCHIVE+'\n'
     for label in ('one','two'):
         result+='COPY --from=security-build-'+label+' /security-pair-slot /opt/native-security-v1/pair/'+label+'/stage-slot\n'
     result+='RUN /usr/bin/python3 -I -B /opt/native-security-v1/source/native/security_native_v1.py --inside-image --map-sha256 '+map_hash+' & security_owner=$!; security_status=0; wait "$security_owner" || security_status=$?; exit "$security_status"\n'

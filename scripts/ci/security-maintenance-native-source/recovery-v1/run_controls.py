@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-"""Run 62 original and 103 new recovery controls; never emit or execute Source."""
+"""Run 62 original and 110 new recovery controls; never emit or execute Source."""
 import argparse
 import hashlib
 import importlib.util
@@ -13,7 +13,7 @@ import time
 import unittest
 
 HERE = Path(__file__).resolve().parent
-EXPECTED = {'original62': 62, 'new80': 80, 'data23': 23}
+EXPECTED = {'original62': 62, 'new80': 87, 'data23': 23}
 
 
 def encoded(value):
@@ -156,9 +156,9 @@ def main():
                            'test_factory_recovery_new.py', 'run_controls.py'}))
     pins = {p.relative_to(HERE).as_posix(): pin(p) for p in paths}
     total = sum(row['tests'] for row in groups)
-    passed = total == 165 and all(row['status'] == 'PASS' and row.get('retirement', {}).get('exit') == 0 for row in groups)
-    report = dict(schema=1, status='PASS' if passed else 'FAIL', tests=total, expected_tests=165,
-        original_controls=62, new_controls=103, groups=groups,
+    passed = total == 172 and all(row['status'] == 'PASS' and row.get('retirement', {}).get('exit') == 0 for row in groups)
+    report = dict(schema=1, status='PASS' if passed else 'FAIL', tests=total, expected_tests=172,
+        original_controls=62, new_controls=110, groups=groups,
         original62_replayed=True, cached_results_counted=False, python=sys.version.split()[0],
         elapsed_seconds=round(time.monotonic()-started, 3), input_pins=pins,
         parent_source='850368889d6dcabdc8afbe87f64f05650c44f90a',

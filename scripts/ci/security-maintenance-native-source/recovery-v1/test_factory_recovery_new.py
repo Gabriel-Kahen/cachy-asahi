@@ -17,7 +17,7 @@ import sys
 import tempfile
 import unittest
 
-EXPECTED_TREE = 'd9076d6451d01738b2005161d5d91ca1adc37463'
+EXPECTED_TREE = '6e6660003155b24307d7e3cd8780d7f1a27f77bc'
 ALIASES = ('.github/workflows/native-arm-build.yml', '.github/workflows/native-arm-developer-workflows.yml')
 NEW_LEAVES = {'native/security_interruption_owner.py', 'native/security_recovery.py',
     'native/security_recovery_adapter.py', 'native/security_recovery_fs.py',
