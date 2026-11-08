@@ -1032,6 +1032,26 @@ performance = "NOT MEASURED"
 next_step = "Qualify v2 package build, native ARM/16K and disposable signed ALPM lifecycle before target selection. Physical M2, performance, signing and release acceptance remain separate."
 
 # Proposal only: coordinator owns manifests/packages.toml and selection.
+
+# Insert inside the existing cachy-asahi-release-tools package entry,
+# before the next [[packages]] table. Keep its current 0.2.0-1 fields unchanged.
+[[packages.development_variants]]
+version = "0.3.0-1"
+recipe = "packages/tools/cachy-asahi-release-tools-v3/PKGBUILD"
+recipe_source = "0e70f37eb35bee5f4334a3d8d45145c2cc4250df"
+selected_for_development = false
+selected_for_release = false
+archive_bytes = 77855
+archive_sha256 = "fcbf3b175fdec63f2052f05ce0152a577c146b26ed2c91d9f63e0e5316454dd5"
+host_validation = "PASS 12 focused package controls with real TEST-GPG/filesystem operations; makepkg --verifysource and cleanbuild --nodeps --nosign --noconfirm, including check(), passed; dependency resolution NOT RUN (--nodeps). Exact 28 pinned source inputs and 21 payload files/modes; actual unsigned any host archive matches the privately extracted/moved CLI-tested runtime. Five legacy commands retain exact old code."
+native_build = "NOT RUN"
+installation = "NOT RUN; private package() staging, archive extraction, moved-prefix CLI and actual-v2 upgrade/downgrade/removal file inverse only; no host package installation or ALPM lifecycle"
+hardware_validation = "NOT RUN"
+performance = "NOT MEASURED"
+release = "NOT ADMITTED"
+validation_record = "packages/tools/cachy-asahi-release-tools-v3/README.md"
+next_step = "Qualify native ARM/16K build and disposable signed ALPM lifecycle before target selection. Positive synthetic stable API tests model only the existing hardware gate; real CLI stable refusal and signed withdrawal copying do not establish M2, production trust or release acceptance."
+
 [[packages]]
 name = "cachy-asahi-recovery-tools"
 phase = "complete-port-tools"
@@ -1111,6 +1131,43 @@ hardware_validation = "NOT RUN"
 performance = "NOT MEASURED"
 release = "NOT ADMITTED"
 
+# Insert under the existing SourceTools package, after its held0.3 variant.
+# Keep current0.2/Source212 and historical0.1/0.3 evidence unchanged.
+[[packages.development_variants]]
+version = "0.4.0-1"
+recipe = "packages/tools/cachy-asahi-source-tools-v4/PKGBUILD"
+recipe_source = "6ed56a65e05edb847334cd81122d82734592237a"
+selected_for_development = false
+selected_for_release = false
+archive_bytes = 70725
+archive_sha256 = "3e2256aea93cd39e27df17068d2df55a81c90d24b3daccd105a36a2c71a6efa9"
+archive_scope = "x86_64 host build only; any package metadata is not native ARM evidence"
+private_source_sha256 = "fa9db2ee4a6f16fee53b79494d437901570c80798de9219d2cc637b9f430575a"
+source_provenance_sha256 = "28b2b8a2708bc3fece91d5560b17da358b59937d4afcebf5a42be28a1802b042"
+host_validation = "PASS39 parser/catalog/diff/context controls; exact20-file payload;33 installed moved-prefix CLI controls/four inert contexts,8 context views and file inverse. Actual host archive metadata/payload and all33 extracted/moved CLI calls pass. makepkg --nodeps --nocheck; dependency resolution, makepkg check() and checkout isolation NOT RUN."
+native_build = "NOT RUN"
+installation = "NOT RUN; ordinary staging/archive extraction/file inverse only, no ALPM lifecycle"
+hardware_validation = "NOT RUN"
+performance = "NOT MEASURED"
+release = "NOT ADMITTED"
+
+[[packages.development_variants]]
+version = "0.5.0-1"
+recipe = "packages/tools/cachy-asahi-source-tools-v5/PKGBUILD"
+recipe_source = "0f2da0986e805c13424a28dce1d872f2ec65700a"
+merged_source = "34a91a4494b54497d9f50b5bc8f59b06f07ea7c8"
+selected_for_development = false
+selected_for_release = false
+archive_bytes = 74087
+archive_sha256 = "4874cc77daa28b8b0ea831511ba97dbf0f65620b9bb95ec6b25815dcd9f145bf"
+host_validation = "PASS52 parser/catalog/diff/context/set controls, including13 new cases; exact21-file payload and46 actual installed moved-prefix CLI calls, two complete release sets/four children. Actual x86_64 host any archive metadata/payload and46 extracted/moved CLI calls pass. makepkg --nodeps --nocheck; dependency resolution, makepkg check() and checkout isolation NOT RUN."
+native_build = "NOT RUN"
+installation = "NOT RUN; private staging/archive extraction/moved-prefix file inverse only, no ALPM lifecycle"
+hardware_validation = "NOT RUN"
+performance = "NOT MEASURED"
+release = "NOT ADMITTED"
+next_step = "Qualify native ARM build pairs and disposable signed ALPM lifecycle independently before target selection; complete offline contexts remain inert and confer no source-license, builder, Asahi or M2 acceptance."
+
 [[packages]]
 name = "cachy-asahi-image-tools"
 phase = "complete-port-tools"
@@ -1153,6 +1210,30 @@ performance = "NOT MEASURED"
 release = "NOT ADMITTED"
 next_step = "Merge completed development into main; qualify separate native ARM pairs and TEST Required disposable ALPM lifecycle, then selected Asahi/M2 composition."
 # Proposal only: Root owns canonical manifests/packages.toml and selection.
+
+# Root-only unselected variant proposal; insert under cachy-asahi-desktop-tools.
+# Preserve every field of the existing0.1.0 parent. Do not add a new [[packages]]
+# entry, replace the parent, select this variant, or infer a native Source result.
+[[packages.development_variants]]
+version = "0.1.1-1"
+recipe = "packages/tools/cachy-asahi-desktop-tools2/PKGBUILD"
+selected_for_development = false
+selected_for_release = false
+source_archive_bytes = 31159
+source_archive_sha256 = "11a59ada0d99f1202694ed98adb7891594b27a7048e39a99d5590e425fc31986"
+archive_bytes = 28852
+archive_sha256 = "9dbf64815598c911d5a5ec964678460c04982eb5030426dc74c98acbe122cbb4"
+source_validation = "PASS62 desktop controls plus dependent40/33/30 controls on Python3.12.13/3.14.7; PR386 source CI70 successes, one expected cache skip, three successful workflows. Root verified PR386 merge/adoption at2561dcebee3ba70b924c9c4b42e4316b2994d832."
+host_validation = "PASS host makepkg91 checks, exact6-file payload bytes/modes, moved archive CLI0.1.1 and owned-file inverse preserving unowned files. Integration wrapper2 drivers (export20+package91) pass on Python3.12.13/3.14.7; the fixed moved-CLI shebang uses host system Python3.14.7. Archive above is the unsigned host any package, not native evidence."
+native_build = "NOT RUN"
+installation = "NOT RUN; private extraction/relocation/file inverse only, no ALPM lifecycle"
+native_generic16k = "NOT RUN"
+GUI = "NOT RUN; static desktop audit launches no applications"
+hardware_validation = "NOT RUN; neither M2 Air model qualified"
+performance = "NOT MEASURED"
+release = "NOT ADMITTED"
+next_step = "Prepare a separately reviewed current0.1.1 native constructor/build pair and signed disposable ALPM lifecycle. Keep parent0.1.0 and historical native Source200 unchanged and unrun; neither qualifies this variant. No selection is implied."
+
 [[packages]]
 name = "cachy-asahi-measurement-tools"
 phase = "measurement-workflows"
@@ -1197,13 +1278,20 @@ source = "local-original"
 recipe = "packages/tools/cachy-asahi-build-tools/PKGBUILD"
 license = "MIT"
 audit = "packages/tools/cachy-asahi-build-tools/README.md"
-candidate_version = "0.1.0-1"
+candidate_version = "0.1.1-1"
 selected_for_development = false
 selected_for_release = false
-host_package_assembly = "PASS x86_64 makepkg with seven relocated CLI controls; dependency resolution/native ALPM NOT RUN"
-host_package_bytes = 36023
-host_package_sha256 = "ff52cd1633b121eaa6eb8a486f75e8a1dc732652926d845f3c8582c41eb26c6c"
+host_package_assembly = "PASS current12 literal-parser and eight package staging/relocated CLI controls; x86_64 makepkg --nodeps --cleanbuild assembly of any archive. Dependency solving, native ARM and ALPM lifecycle NOT RUN."
+host_package_bytes = 37288
+host_package_sha256 = "eceecd2027945f043c07826700766338108b13164182287c40b5cda979402966"
 native_build = "NOT RUN"
 installation = "NOT RUN"
 hardware_validation = "NOT RUN"
 next_step = "Review the opt-in offline cache/import/preflight package; native ARM build and disposable ALPM lifecycle remain untested."
+recipe_source = "62f18ca2ba2f79c20856a7cbced374fa59d0e274"
+merged_source = "6e8e4ae02162eef31ba3dcd5d2651904db3fbcd3"
+historical_host_package_version = "0.1.0-1"
+historical_recipe_source = "001a290485439575dee208fb039042fad459bd83"
+historical_host_package_bytes = 36023
+historical_host_package_sha256 = "ff52cd1633b121eaa6eb8a486f75e8a1dc732652926d845f3c8582c41eb26c6c"
+historical_host_validation = "PASS seven relocated CLI controls and x86_64 makepkg assembly for0.1.0-1; historical archive does not validate current0.1.1-1."
