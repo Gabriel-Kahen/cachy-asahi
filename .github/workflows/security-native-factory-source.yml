@@ -64,3 +64,11 @@ jobs:
           python -I -B -Werror::ResourceWarning scripts/ci/security-maintenance-native-source/test_fd_failure_diagnostic.py \
             --baseline-source "$GITHUB_WORKSPACE/.ci-security-v7" --results "$security_fd_stage/results.json"
           python -I -B -c 'import json,sys; r=json.load(open(sys.argv[1])); assert r["status"]=="PASS_NEW_FD_FAILURE_DIAGNOSTIC_DATA_CONTROLS" and r["controls"]==16 and r["failures"]==r["errors"]==0 and r["denied_events"]==[] and r["Source_actor_imports"]==r["factory_emissions"]==r["observer_FD_payload_reads"]==0' "$security_fd_stage/results.json"
+      - name: New HOST parent-layout6 private controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          security_layout_stage=$(mktemp -d "$RUNNER_TEMP/security-layout-host.XXXXXXXX")
+          python -I -B -Werror::ResourceWarning scripts/ci/security-maintenance-native-source/test_parent_layout.py \
+            --execute-once --results "$security_layout_stage/once"
+          python -I -B -c 'import json,sys; r=json.load(open(sys.argv[1])); assert r["status"]=="PASS_NEW_HOST_PRIVATE_PROCESS_LAYOUT_CONTROLS" and r["case_count"]==6 and r["failures"]==r["errors"]==0 and all(c["passed"] for c in r["cases"]) and r["python_version"]==sys.argv[2] and r["repository_Source_imports"]==r["Source_constructor_emitter_calls"]==r["FD_payload_reads"]==r["native_C_compiler_probe_runtime_GPG_package_VM_namespace_actors"]==r["old_tests_readers_GET_POST_Git_API_primary_writes"]==0 and r["native_PID1_namespace_test"] is False and r["acceptance"] is False' "$security_layout_stage/once/result.json" '${{ matrix.python }}'
