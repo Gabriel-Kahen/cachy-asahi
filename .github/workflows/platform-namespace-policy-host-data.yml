@@ -72,6 +72,19 @@ jobs:
           factory="$GITHUB_WORKSPACE/scripts/ci/platform-namespace-policy-matrix-source"
           basis="$GITHUB_WORKSPACE/.ci-fixtures/platform-policy-parent05df"
           python3 -I -B "$factory/tests/test_bootstrap_base5_data.py" --basis "$basis"
+      - name: Isolated source-owned guest startup DATA controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          factory="$GITHUB_WORKSPACE/scripts/ci/platform-namespace-policy-matrix-source"
+          python3 -I -B "$factory/tests/test_guest_startup_data.py"
+      - name: Versioned Docker OOM default and matching-reader DATA controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          factory="$GITHUB_WORKSPACE/scripts/ci/platform-namespace-policy-matrix-source"
+          basis="$GITHUB_WORKSPACE/.ci-fixtures/platform-policy-parent05df"
+          python3 -I -B "$factory/tests/test_host_config_default_data.py" --basis "$basis"
       - name: Construct and independently join Source201 DATA only
         shell: bash
         run: |
@@ -81,6 +94,6 @@ jobs:
           python3 -I -B "$factory/prepare.py" \
             --basis "$basis" --overlay-root "$factory/payload" \
             --overlay-manifest "$factory/overlay-manifest.json" \
-            --overlay-manifest-sha256 b63f652cfa8af7de7a5c3222fc91bba731e12f0103fbbcff1932d16bfc265392 \
+            --overlay-manifest-sha256 fb7acefda97c313d7010e7f63a2a5298f1760e85d8a9ac904ffecf347ecb9bb8 \
             --output "$PLATFORM_POLICY_HOST_WORK/Source201"
           python3 -I -B "$factory/tests/check_constructed_source.py" "$PLATFORM_POLICY_HOST_WORK/Source201"
