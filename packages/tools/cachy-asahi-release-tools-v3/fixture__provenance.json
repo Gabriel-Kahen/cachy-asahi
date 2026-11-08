@@ -1,0 +1,128 @@
+{
+  "files": {
+    "test_endpoint.py": {
+      "bytes": 14035,
+      "copied_unchanged": true,
+      "sha256": "88ba2fc58b8eb291e931bda72dcea6a1efe860bb740596b2c2dc5d65b6cb01ab",
+      "source_path": "scripts/client/test_endpoint.py"
+    },
+    "test_export_repository.py": {
+      "bytes": 18750,
+      "copied_unchanged": true,
+      "sha256": "963ff98c932bf27b913c8856e668f069b0d3ac506ab0a3c26cce9d8a8ec8c0fe",
+      "source_path": "scripts/release/test_export_repository.py"
+    },
+    "test_release.py": {
+      "bytes": 43541,
+      "copied_unchanged": true,
+      "sha256": "7ee9e693d4574c6bb11dcc927937475742b9fa7a6f8e988608532c1e1bab5f2e",
+      "source_path": "scripts/release/test_release.py"
+    }
+  },
+  "legacy_v2": {
+    "archive": "legacy-v2.tar.gz",
+    "bytes": 51406,
+    "files": {
+      ".SRCINFO": {
+        "bytes": 2156,
+        "mode": "0o644",
+        "sha256": "e61b03db2633dc510db3ef8f8c5efbe142eed4cb35a06a08b861180d94a68fc3"
+      },
+      "LICENSE": {
+        "bytes": 1081,
+        "mode": "0o644",
+        "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+      },
+      "NOTICE": {
+        "bytes": 829,
+        "mode": "0o644",
+        "sha256": "0da9276c75e849a70d42edc0ac77dda021b0c595e781f88fd561dc42263e6fab"
+      },
+      "PKGBUILD": {
+        "bytes": 4030,
+        "mode": "0o644",
+        "sha256": "d39e1326af8e53bff6a989acc6d948a5a36aed91c29998b8bd9a07e9d85b73cb"
+      },
+      "README.md": {
+        "bytes": 4085,
+        "mode": "0o644",
+        "sha256": "1484d16a682b31502767c24adc78fc9b833a113ef7aa3ce9c11b59a5ae6db6d1"
+      },
+      "archive_stream.py": {
+        "bytes": 11938,
+        "mode": "0o644",
+        "sha256": "10f1a4c0ac5b98852d9ebb150af28f9ce345c800935a64fa463bc90f72fcb838"
+      },
+      "cachy-asahi-release-tools": {
+        "bytes": 6928,
+        "mode": "0o644",
+        "sha256": "e263381111012ef0da8d95b3444234f65cb229862be96c69302f0d76a6a8b786"
+      },
+      "check_package.py": {
+        "bytes": 7724,
+        "mode": "0o644",
+        "sha256": "9beb0e47cdffb34bd6ced8b79ad5b7fdf803d19f511a9e09eb276568f0a89c06"
+      },
+      "compare_sboms.py": {
+        "bytes": 19959,
+        "mode": "0o644",
+        "sha256": "219296c46902257f64203e3b3b41ece42a2e21a7d818f305bac858767aeff1b4"
+      },
+      "comparing-sboms.md": {
+        "bytes": 5919,
+        "mode": "0o644",
+        "sha256": "8e285f024605021660cc6663c5afa2a25b82274fc174afb6d804b5d7e0779791"
+      },
+      "export-v2.json": {
+        "bytes": 1644,
+        "mode": "0o644",
+        "sha256": "fda19b4b9b2bcec3d2132e442a03f5fe4a4cff8b6dd01b5a4a2979deb9b07273"
+      },
+      "package_checks.py": {
+        "bytes": 17706,
+        "mode": "0o644",
+        "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
+      },
+      "payload-map.json": {
+        "bytes": 2238,
+        "mode": "0o644",
+        "sha256": "8ed1b5ec5a6d19e2c2d615e69f65917e4101e6ecc01af489f7631e37d4ec9ec1"
+      },
+      "recipe_source_delivery.py": {
+        "bytes": 24188,
+        "mode": "0o644",
+        "sha256": "779f8147a13d3f90d11b9e5610f2d7d74fce28d0732797331fc832f0e87323be"
+      },
+      "recipe_source_delivery_v2.py": {
+        "bytes": 26264,
+        "mode": "0o644",
+        "sha256": "cbc13a6e2d604dfec9d0090cb22d279952f2c96b3d1196c2e8a18ee83ad922ae"
+      },
+      "release_sbom.py": {
+        "bytes": 31044,
+        "mode": "0o644",
+        "sha256": "1a53831128858c6c629f2449a7276a52846e52ebf426baa6f1c010aa209af486"
+      },
+      "source-provenance.json": {
+        "bytes": 4847,
+        "mode": "0o644",
+        "sha256": "36dde21707ee1b608a143c90cbcece0a4eaba87a4e5d58eb2cc1644b1403ed08"
+      },
+      "source_delivery.py": {
+        "bytes": 16456,
+        "mode": "0o644",
+        "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+      },
+      "test_package.py": {
+        "bytes": 19446,
+        "mode": "0o644",
+        "sha256": "0110cf22772a185130699f026e833becc3ba0fe00470b25a0b0c534732fcfd42"
+      }
+    },
+    "purpose": "Exact closed19file v2 source fixture for actual private package() and file inverse; no old tests replayed",
+    "sha256": "66c667ba1c8cf85e78bf2e29e6225138bdaab7ddbc5a01fb42c467142428276b",
+    "source_directory": "packages/tools/cachy-asahi-release-tools-v2"
+  },
+  "purpose": "Unchanged real GPG synthetic fixture helpers only; not a release acceptance claim",
+  "schema_version": 1
+}

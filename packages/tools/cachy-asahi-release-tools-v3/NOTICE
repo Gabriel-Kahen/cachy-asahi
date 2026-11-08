@@ -1,0 +1,15 @@
+cachy-asahi-release-tools 0.3.0-1
+
+Project launcher, packaging and tests: cachy-asahi contributors, MIT.
+The endpoint copier and its six current dependencies are retained byte-for-byte
+from the source revisions recorded in source-provenance.json, including PR382.
+The prior 0.2 launcher and seven private helper files are separately retained
+byte-for-byte with their frozen source profiles and existing copyright notices.
+The test-only fixture archive preserves the complete prior 0.2 recipe and its
+17 local sources. All retained project files are distributed under the included
+MIT LICENSE. No project-runtime license exception was found in this finite set.
+
+Python, zstd, GnuPG, libarchive and pacman are external package dependencies,
+not vendored or relicensed here. Their licenses and notices remain their own.
+TEST keys, generated fixture packages and modeled hardware observations confer
+no production trust, native execution, installation or release acceptance.
