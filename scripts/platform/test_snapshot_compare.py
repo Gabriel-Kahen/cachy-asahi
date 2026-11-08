@@ -16,6 +16,7 @@ sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import snapshot_compare as c
+from test_snapshot_source_cache import SourceCacheTests
 
 old = c.module("comparison_capture_fixture", HERE / "test_target_snapshot.py")
 

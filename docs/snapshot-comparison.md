@@ -109,3 +109,5 @@ backup completeness, protected-stack compatibility, or boot/session recovery.
 This tool does not solve a dependency transaction or replace the narrower
 `recovery_preflight.py` checks against `transaction.py`'s prepared update.
 Physical M2 testing and exercised recovery remain separate requirements.
+
+The standalone snapshot collector, recovery preflight and snapshot comparison use a private temporary source-cache namespace before importing project helpers. `-B` disables bytecode writes but permits reads; this isolation prevents a valid stale timestamp PYC from replacing the checked-out helper source. The namespace is inherited by bounded child checks and cleaned up at exit. Input bundles, existing adjacent/inherited caches, public arguments and result semantics stay unchanged; source hash fields reflect the current source. Packaged frozen runtimes retain their separate pinned versions.

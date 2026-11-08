@@ -7,6 +7,7 @@ explicit and always labeled synthetic. Neither mode establishes hardware support
 No commands, network, package operations, service changes, or directory backups.
 """
 import argparse
+import atexit
 from datetime import datetime, timezone
 import hashlib
 import importlib.util
@@ -16,9 +17,16 @@ from pathlib import Path
 import re
 import stat
 import sys
+import tempfile
 import time
 
 sys.dont_write_bytecode = True
+# -B prevents writes, but still permits stale PYC reads. Match private preparation.
+_source_cache = tempfile.TemporaryDirectory(prefix='target-snapshot-source-cache-', dir=os.environ.get('TMPDIR'))
+sys.pycache_prefix = _source_cache.name
+os.environ['PYTHONPYCACHEPREFIX'] = _source_cache.name
+os.environ['TMPDIR'] = _source_cache.name
+atexit.register(_source_cache.cleanup)
 HERE = Path(__file__).resolve().parent
 MIB = 1024**2
 LIMIT = 64 * MIB
