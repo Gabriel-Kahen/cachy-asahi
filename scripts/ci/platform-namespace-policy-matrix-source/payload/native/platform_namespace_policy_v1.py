@@ -185,6 +185,9 @@ if __name__=='__main__':
 
 # Runtime integration is additive. The frozen DATA/guest contract above is held.
 MATRIX_PARENT_TREE='7e66e27a352cee19a3d022d8c167c43b9ab72804'
+# PARENT remains the frozen historical contract/context identity.
+# Raw Git lineage is pinned separately to its exact author-rewritten parent.
+MATRIX_GIT_PARENT='639e3f9b5176bf8ebe497fc0b247182af90904e7'
 def _matrix_tree(files):
  tree={}
  for name,row in files.items():
@@ -203,7 +206,7 @@ def validate_source_proof(proof,root,expected):
  """Passive full current-body/map and actual raw-parent/tree inverse joins."""
  from common import source_bytes,verify_source
  root=Path(root);own=binding(expected['binding']);map_hash=expected['source_map_sha256'];manifest=verify_source(root,map_hash)
- need(type(proof['schema'])is int and proof['schema']==1 and proof['operation']==OPERATION and proof['binding']==own and proof['source_map_sha256']==map_hash,'actual matrix source-proof selectors')
+ need(type(proof['schema'])is int and proof['schema']==1 and proof['operation']==OPERATION and proof['binding']==own and proof['source_map_sha256']==map_hash and proof.get('git_parent')==MATRIX_GIT_PARENT and proof.get('historical_parent')==PARENT,'actual matrix source-proof selectors')
  files=proof['files'];need(len(manifest['files'])==200 and set(files)==set(manifest['files'])|{'native/source-map.json'},'complete closed current201 Source namespace')
  for name,row in files.items():
   body=source_bytes(root,name);need(pin(body)=={k:row[k]for k in('bytes','sha256')}and row['mode']==('100755'if(root/name).stat().st_mode&0o111 else'100644')
@@ -213,17 +216,17 @@ def validate_source_proof(proof,root,expected):
   value=base64.b64decode(row['raw_b64'],validate=True);need(pin(value)=={k:row[k]for k in('bytes','sha256')},'complete raw Git body pin');return value
  source,parent=raw('raw_source'),raw('raw_parent');oid=lambda b:hashlib.sha1(b'commit '+str(len(b)).encode()+b'\0'+b).hexdigest()
  headers=source.split(b'\n\n',1)[0].splitlines();ph=parent.split(b'\n\n',1)[0].splitlines()
- need(oid(source)==own['source']and oid(parent)==PARENT and proof['raw_parent']['source']==PARENT
-      and[line[7:].decode()for line in headers if line.startswith(b'parent ')]==[PARENT]
-      and[line[5:].decode()for line in headers if line.startswith(b'tree ')]==[_matrix_tree(files)],'actual raw new Source/sole-parent05df/current tree')
- before=proof['parent_files'];need(type(before)is dict and len(before)==199,'complete actual05df parent namespace')
+ need(oid(source)==own['source']and oid(parent)==MATRIX_GIT_PARENT and proof['raw_parent']['source']==MATRIX_GIT_PARENT
+      and[line[7:].decode()for line in headers if line.startswith(b'parent ')]==[MATRIX_GIT_PARENT]
+      and[line[5:].decode()for line in headers if line.startswith(b'tree ')]==[_matrix_tree(files)],'actual raw new Source/exact mapped Git parent/current tree')
+ before=proof['parent_files'];need(type(before)is dict and len(before)==199,'complete exact mapped199 parent namespace')
  for name,row in before.items():need(set(row)=={'mode','blob'}and row['mode']in('100644','100755')and hexvalue(row['blob'],40),'whole actual parent mode/blob rows')
  need([line[5:].decode()for line in ph if line.startswith(b'tree ')]==[_matrix_tree(before)]==[MATRIX_PARENT_TREE],'whole actual parent map/raw tree inverse')
  added=set(files)-set(before);need(added=={MODULE,CONTRACT}and not(set(before)-set(files)),'only two new mapped Source leaves')
  changed={n for n in before if(row:=files[n])['mode']!=before[n]['mode']or row['blob']!=before[n]['blob']}
  need(changed=={'native/owner.py','native/provision.py','native/source-map.json','.github/workflows/native-arm-build.yml','.github/workflows/native-arm-developer-workflows.yml'},'exact existing Source driver/workflow/map layer; every other parent object held')
  need(files[MODULE]['sha256']==expected['body_sha256']and files[CONTRACT]['sha256']==expected['contract_sha256'],'independent actual Source module/contract body authority')
- return dict(status='FULL_RAW_PARENT_BODY_MODE_MAP_INVERSE_VERIFIED',binding=own,source_map_sha256=map_hash,files=201,parent=PARENT,parent_files=199,
+ return dict(status='FULL_RAW_PARENT_BODY_MODE_MAP_INVERSE_VERIFIED',binding=own,source_map_sha256=map_hash,files=201,parent=MATRIX_GIT_PARENT,historical_parent=PARENT,parent_files=199,
              current_tree=_matrix_tree(files),parent_tree=_matrix_tree(before),native='NOT_ADMITTED',acceptance=False)
 
 def _matrix_ownership(row):
@@ -359,8 +362,8 @@ def owner_matrix(actor,root,args,own,context,original_dockerfile,ledger,verify_b
        and row['blob']==hashlib.sha1(b'blob '+str(len(body)).encode()+b'\0'+body).hexdigest(),'complete exact source body/mode/blob inverse')
   git=['/usr/bin/git','--no-replace-objects','--git-dir='+str(root/'.git'),'--work-tree='+str(root),'-c','protocol.allow=never','-c','core.fsmonitor=false']
   raw_source,_=call('raw-new-source',git+['cat-file','commit',own['source']],15)
-  raw_parent,_=call('raw-actual-parent',git+['cat-file','commit',PARENT],15)
-  parent_tree,_=call('full-actual-parent-tree',git+['ls-tree','-rz','--full-tree',PARENT],30)
+  raw_parent,_=call('raw-actual-parent',git+['cat-file','commit',MATRIX_GIT_PARENT],15)
+  parent_tree,_=call('full-actual-parent-tree',git+['ls-tree','-rz','--full-tree',MATRIX_GIT_PARENT],30)
   parent_files={}
   for line in parent_tree.split(b'\0'):
    if line:
@@ -368,10 +371,10 @@ def owner_matrix(actor,root,args,own,context,original_dockerfile,ledger,verify_b
     need(kind=='blob'and name not in parent_files,'complete distinct actual parent blobs');parent_files[name]=dict(mode=mode,blob=oid)
   commit_id=lambda b:hashlib.sha1(b'commit '+str(len(b)).encode()+b'\0'+b).hexdigest()
   headers=raw_source.split(b'\n\n',1)[0].splitlines()
-  need(commit_id(raw_source)==own['source']and commit_id(raw_parent)==PARENT and[line[7:].decode()for line in headers if line.startswith(b'parent ')]==[PARENT]
-       and[line[5:].decode()for line in headers if line.startswith(b'tree ')]==[_matrix_tree(files)],'actual raw sole-parent05df and complete source tree inverse')
-  source_bound=dict(schema=1,operation=OPERATION,binding=own,source_map_sha256=args.map_sha256,files=files,parent_files=parent_files,
-      raw_source=dict(pin(raw_source),raw_b64=base64.b64encode(raw_source).decode()),raw_parent=dict(pin(raw_parent),source=PARENT,raw_b64=base64.b64encode(raw_parent).decode()),
+  need(commit_id(raw_source)==own['source']and commit_id(raw_parent)==MATRIX_GIT_PARENT and[line[7:].decode()for line in headers if line.startswith(b'parent ')]==[MATRIX_GIT_PARENT]
+       and[line[5:].decode()for line in headers if line.startswith(b'tree ')]==[_matrix_tree(files)],'actual raw exact mapped sole-parent and complete source tree inverse')
+  source_bound=dict(schema=1,operation=OPERATION,binding=own,source_map_sha256=args.map_sha256,git_parent=MATRIX_GIT_PARENT,historical_parent=PARENT,files=files,parent_files=parent_files,
+      raw_source=dict(pin(raw_source),raw_b64=base64.b64encode(raw_source).decode()),raw_parent=dict(pin(raw_parent),source=MATRIX_GIT_PARENT,raw_b64=base64.b64encode(raw_parent).decode()),
       tree=_matrix_tree(files),inverse=dict(parent_tree=MATRIX_PARENT_TREE,parent_files=199,current_files=201,added=[CONTRACT,MODULE],changed_existing=['.github/workflows/native-arm-build.yml','.github/workflows/native-arm-developer-workflows.yml','native/owner.py','native/provision.py','native/source-map.json'],unlisted_held=194),status='PENDING_SOURCE_INVERSE_VERIFICATION',native='NOT_ADMITTED',acceptance=False)
   write_json('source-proof.json',source_bound)
   module_sha=manifest['files'][MODULE]['sha256'];contract_sha=manifest['files'][CONTRACT]['sha256']
@@ -516,9 +519,9 @@ def validate_runtime_evidence(owner,result,payloads,expected,source_proof):
   _,body=call(role,argv);values=body.decode().split();need(len(values)==len(set(values))and len(values)<=8,'whole actual bounded ID query');return values
  root=owner['source_root'];need(type(root)is str and root.startswith('/')and '..'not in Path(root).parts,'actual Source root path DATA')
  git=['/usr/bin/git','--no-replace-objects','--git-dir='+root+'/.git','--work-tree='+root,'-c','protocol.allow=never','-c','core.fsmonitor=false']
- raw_source=call('raw-new-source',git+['cat-file','commit',own['source']])[1];raw_parent=call('raw-actual-parent',git+['cat-file','commit',PARENT])[1]
+ raw_source=call('raw-new-source',git+['cat-file','commit',own['source']])[1];raw_parent=call('raw-actual-parent',git+['cat-file','commit',MATRIX_GIT_PARENT])[1]
  need(base64.b64decode(source_proof['raw_source']['raw_b64'],validate=True)==raw_source and base64.b64decode(source_proof['raw_parent']['raw_b64'],validate=True)==raw_parent,'actual raw commit logs and full Source proof inverse')
- parent_raw=call('full-actual-parent-tree',git+['ls-tree','-rz','--full-tree',PARENT])[1];parent={}
+ parent_raw=call('full-actual-parent-tree',git+['ls-tree','-rz','--full-tree',MATRIX_GIT_PARENT])[1];parent={}
  for line in parent_raw.split(b'\0'):
   if line:
    meta,name=line.split(b'\t',1);mode,kind,oid=meta.decode().split();name=name.decode();need(kind=='blob'and name not in parent,'actual full parent tree rows');parent[name]=dict(mode=mode,blob=oid)

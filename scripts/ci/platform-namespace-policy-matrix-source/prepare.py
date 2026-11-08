@@ -16,7 +16,8 @@ import tempfile
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 PARENT = '05df8c71ea2bcb525bb1cfbc59983452062a1e97'
-PROFILE_SHA256 = '87c87e685a77609f09c1ba19a8e27c0fa2ede60b70ee3fff27707d5653020f35'
+GIT_PARENT = '639e3f9b5176bf8ebe497fc0b247182af90904e7'
+PROFILE_SHA256 = '53fdf5afcf40d2507045203a4035b10e07ab3a07e80855a8b12c999834cf7c2f'
 MAP = 'native/source-map.json'
 MAX_SOURCE_MAPPED, MAX_SOURCE_PHYSICAL = 200, 201
 MAX_FILE, MAX_TOTAL = 32 * 1024**2, 96 * 1024**2
@@ -161,6 +162,14 @@ def parent_profile():
     need([line[5:].decode() for line in header if line.startswith(b'tree ')] == [value['parent_tree']]
          and [line[7:].decode() for line in header if line.startswith(b'parent ')] == [value['parent_sole_parent']],
          'actual05df raw tree/sole d78 parent')
+    physical, _ = read(HERE / 'tests/fixtures/raw-parent.txt', 4096)
+    header = physical.split(b'\n\n', 1)[0].splitlines()
+    need(value['physical_git_parent'] == GIT_PARENT
+         and pin(physical) == value['physical_parent_raw']
+         and oid(b'commit', physical).hex() == GIT_PARENT
+         and [line[5:].decode() for line in header if line.startswith(b'tree ')] == [value['parent_tree']]
+         and [line[7:].decode() for line in header if line.startswith(b'parent ')] == [value['physical_parent_sole_parent']],
+         'exact distinct mapped raw parent with held historical199 tree')
     return value, commit
 
 
@@ -230,7 +239,8 @@ def emit(basis, overlay_root, overlay_manifest, manifest_sha256, output):
     profile, commit, before, after, changed, selected = render(
         basis, overlay_root, overlay_manifest, manifest_sha256)
     stage = dict(status='SOURCE_ONLY_EXACT_PLATFORM_NAMESPACE_POLICY201', operation=OPERATION,
-        parent=PARENT, parent_tree=profile['parent_tree'], prospective_tree=selected['expected_tree'],
+        parent=PARENT, historical_parent=PARENT, git_parent=GIT_PARENT,
+        parent_tree=profile['parent_tree'], prospective_tree=selected['expected_tree'],
         source_map_sha256=selected['expected_map_sha256'], source_files=201, source_map_rows=200,
         concurrency_group='native-arm-platform-tools', actual=dict(source=None, ref=None, run=None),
         constructed=True, built=False, installed=False, native='NOT_RUN', namespace_probe='NOT_RUN',

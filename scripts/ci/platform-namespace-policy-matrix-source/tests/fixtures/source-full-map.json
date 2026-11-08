@@ -903,11 +903,11 @@
     "sha256": "4438b69a135ff5c6ea444e973b8a9bc886b1b6cdc8446401d1f9f5c890636703"
   },
   "native/platform_namespace_policy_v1.py": {
-    "blob": "cf851772352197ce0a6a12b8dc31a6ea022f84d0",
-    "bytes": 64924,
+    "blob": "e6bfab063b25457a661b221b5b9c6de772a64d8e",
+    "bytes": 65440,
     "git_mode": "100644",
     "mode": 420,
-    "sha256": "f4d9630e268ea7973f369d874b019c65e830bc3814b86a2f8b4cfe4516222918"
+    "sha256": "63752203523e7776e34a384905cada94410bf825b3e308b0b13c8fe2d814935d"
   },
   "native/platform_projection_v1.py": {
     "blob": "23e38385421d7e0739c0a77f5a83780b7e952b01",
@@ -987,11 +987,11 @@
     "sha256": "750b929681353a5915e5541d4bdbe167b558830e9762d6ac2da0c05146120a70"
   },
   "native/source-map.json": {
-    "blob": "1a21a3edfc4b71f164412bdfcbacf4092db1430c",
+    "blob": "825283a3f5cd1f45f899debbd4bb136e7856f625",
     "bytes": 40001,
     "git_mode": "100644",
     "mode": 420,
-    "sha256": "cc2d1aaee89bf8c8ff921b8d764572f94c29bcf76a625e501038d6413efb1cab"
+    "sha256": "09de757ff03e635b10510cc7c2cf2eb76d34c336e03e611e521e7992aacc47a8"
   },
   "native/transport_proof.py": {
     "blob": "75396a7e896c9dc975f606681d8de9d4794864f1",
