@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fetch one pinned zlib archive; no mirrors, credentials, extraction or build."""
+"""Fetch fixed zlib bytes from two official endpoints; no extraction or build."""
 import argparse
 import hashlib
 from http.client import HTTPException
@@ -14,7 +14,8 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urljoin, urlsplit
 from urllib.request import HTTPRedirectHandler, ProxyHandler, Request, build_opener
 
-URL = 'https://github.com/madler/zlib/releases/download/v1.3.2/zlib-1.3.2.tar.gz'
+URL = 'https://zlib.net/fossils/zlib-1.3.2.tar.gz'
+FALLBACK_URL = 'https://github.com/madler/zlib/releases/download/v1.3.2/zlib-1.3.2.tar.gz'
 FILENAME = 'zlib-1.3.2.tar.gz'
 SHA256 = 'bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16'
 MAX_BYTES = 2_000_000
@@ -26,6 +27,22 @@ CONTENT_TYPES = {'application/gzip', 'application/x-gzip', 'application/octet-st
 
 class Refused(Exception):
     """A fixed safe reason, never a transport exception or signed URL."""
+    def __init__(self, reason, **facts):
+        super().__init__(reason)
+        self.facts = facts
+
+
+class Unavailable(Refused):
+    """Only endpoint availability permits the other fixed official endpoint."""
+
+
+def unavailable(error, phase):
+    # Do not serialize exception strings: they may contain signed asset URLs.
+    reason = getattr(error, 'reason', error)
+    facts = dict(phase=phase, exception=type(error).__name__, cause=type(reason).__name__)
+    if type(getattr(reason, 'errno', None)) is int:
+        facts['errno'] = reason.errno
+    return Unavailable('transport', **facts)
 
 
 def need(condition, reason):
@@ -73,13 +90,17 @@ def parent_descriptor(output):
         raise
 
 
-def _fetch(output, *, expected_sha256, transport, clock=time.monotonic):
+def _fetch(output, *, expected_sha256, transport, clock=time.monotonic,
+           source_url=FALLBACK_URL, deadline=None, budget=None):
     """Internal fixture seam; the public entry point always supplies SHA256."""
-    deadline = clock() + SECONDS
+    deadline = clock() + SECONDS if deadline is None else deadline
+    budget = [0] if budget is None else budget
     parent = parent_descriptor(output)
     temporary = None
     response = None
-    current = URL
+    current = source_url
+    size = 0
+    status = None
     redirects = 0
     try:
         while True:
@@ -90,8 +111,11 @@ def _fetch(output, *, expected_sha256, transport, clock=time.monotonic):
                 response = transport.open(request, timeout=min(SOCKET_SECONDS, remaining))
             except HTTPError as error:
                 response = error
+            except (OSError, URLError, HTTPException) as error:
+                raise unavailable(error, 'open') from None
             status = response.code
             if status in (301, 302, 303, 307, 308):
+                need(source_url == FALLBACK_URL, 'primary-redirect')
                 need(redirects < MAX_REDIRECTS, 'redirect-cap')
                 target = redirect_target(current, header(response, 'Location'))
                 response.close()
@@ -99,6 +123,8 @@ def _fetch(output, *, expected_sha256, transport, clock=time.monotonic):
                 current = target
                 redirects += 1
                 continue
+            if status in (404, 408, 410, 429) or type(status) is int and 500 <= status <= 599:
+                raise Unavailable('http-status')
             need(status == 200, 'http-status')
             content_type = (header(response, 'Content-Type') or '').split(';', 1)[0].strip().lower()
             need(content_type in CONTENT_TYPES, 'content-type')
@@ -117,12 +143,16 @@ def _fetch(output, *, expected_sha256, transport, clock=time.monotonic):
                 os.fchmod(stream.fileno(), 0o600)
                 while True:
                     need(clock() < deadline, 'deadline')
-                    block = response.read(min(65536, MAX_BYTES + 1 - size))
+                    try:
+                        block = response.read(min(65536, MAX_BYTES + 1 - budget[0]))
+                    except (OSError, URLError, HTTPException) as error:
+                        raise unavailable(error, 'read') from None
                     need(clock() < deadline, 'deadline')
                     if not block:
                         break
                     size += len(block)
-                    need(size <= MAX_BYTES, 'stream-size')
+                    budget[0] += len(block)
+                    need(budget[0] <= MAX_BYTES, 'stream-size')
                     prefix.extend(block[:max(0, 2 - len(prefix))])
                     digest.update(block)
                     need(stream.write(block) == len(block), 'short-write')
@@ -145,14 +175,16 @@ def _fetch(output, *, expected_sha256, transport, clock=time.monotonic):
                 os.unlink(temporary, dir_fd=parent)
                 temporary = None
                 os.fsync(parent)
-            return dict(status='VALIDATED_FIXED_ZLIB_SOURCE', source_url=URL,
+            return dict(status='VALIDATED_FIXED_ZLIB_SOURCE', source_url=source_url,
                         final_origin='https://' + urlsplit(current).netloc,
                         filename=FILENAME, bytes=size, sha256=digest.hexdigest(),
                         content_type=content_type, http_status=200, redirects=redirects)
-    except Refused:
+    except Refused as error:
+        error.facts.update(source_url=source_url, final_origin='https://' + urlsplit(current).netloc,
+                           http_status=status, redirects=redirects, bytes=size)
         raise
     except (OSError, URLError, ValueError, HTTPException):
-        raise Refused('transport-or-filesystem') from None
+        raise Refused('filesystem', source_url=source_url, bytes=size) from None
     finally:
         if response is not None:
             response.close()
@@ -164,10 +196,29 @@ def _fetch(output, *, expected_sha256, transport, clock=time.monotonic):
         os.close(parent)
 
 
+def _fetch_sources(output, *, expected_sha256, transport, clock=time.monotonic):
+    deadline = clock() + SECONDS
+    budget = [0]
+    attempts = []
+    for source_url in (URL, FALLBACK_URL):
+        try:
+            result = _fetch(output, expected_sha256=expected_sha256, transport=transport,
+                            clock=clock, source_url=source_url, deadline=deadline, budget=budget)
+        except Refused as error:
+            attempts.append(dict(status='REFUSED', reason=str(error), **error.facts))
+            if isinstance(error, Unavailable) and source_url == URL:
+                continue
+            error.facts = dict(attempts=attempts, total_received_bytes=budget[0])
+            raise
+        result.update(attempts=attempts + [dict(result)], total_received_bytes=budget[0])
+        return result
+
+
 def fetch_source(output):
     # Ignore proxy environment and install no cookie, password or auth handler.
-    return _fetch(output, expected_sha256=SHA256,
-                  transport=build_opener(ProxyHandler({}), NoRedirect()))
+    # Two different fixed official endpoints; no retry, one shared deadline/cap.
+    return _fetch_sources(output, expected_sha256=SHA256,
+                          transport=build_opener(ProxyHandler({}), NoRedirect()))
 
 
 def main(argv=None):
@@ -195,7 +246,8 @@ def main(argv=None):
             result = fetch_source(args.output)
         except (Refused, OSError) as error:
             result = dict(status='REFUSED', reason=str(error) if isinstance(error, Refused) else 'filesystem',
-                          source_url=URL, filename=FILENAME)
+                          source_url=URL, filename=FILENAME,
+                          **(error.facts if isinstance(error, Refused) else {}))
             code = 1
         else:
             code = 0
