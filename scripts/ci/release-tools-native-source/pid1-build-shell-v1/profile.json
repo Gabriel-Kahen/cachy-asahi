@@ -1,0 +1,53 @@
+{
+  "actual": {
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "component_acceptance": false,
+  "default834_runtime9388": "UNCHANGED",
+  "kind": "EXPLICIT_SOURCE201_PID1_BUILD_SHELL_VARIANT_NOT_DEFAULT_RUNTIME",
+  "matching_reader": {
+    "bytes": 97373,
+    "sha256": "95bf321267f2a47b5a0f37073c82842d9e424890e20002237442e8a18cbd908d",
+    "target": "native/release_reader_v1.py"
+  },
+  "native_PID1_reaping": "NOT_RUN",
+  "old_diagnostic_profile": "PRESERVED_UNMODIFIED",
+  "parent_files": {
+    "bytes": 48766,
+    "sha256": "9a23db60046588bc8712319811b3732db9b5adf21a0026085f01703b4c4a54bf"
+  },
+  "parent_raw": {
+    "bytes": 342,
+    "sha256": "a560be983a61f578fa8f4930a0708abe0a61358e1b2cbd9aa283da9323dec5c9"
+  },
+  "parent_source": "d9708daa75083f85f1a182cb3aa97a728d04d695",
+  "parent_tree": "bbca15a6162870d39dc9fa178d2ecbbe2b781835",
+  "payload": {
+    "native/release_alpm_v1.py": {
+      "bytes": 24077,
+      "sha256": "cf525aa3e598bdec52c79b06d5bdcc2c1c7836c52eb7d6faa369b22b55e47957"
+    },
+    "native/release_projection_v1.py": {
+      "bytes": 10838,
+      "sha256": "9846ad8251d8021162577b4c42c014a268882767a0970a62d4f0ffb7e208983e"
+    },
+    "native/release_reader_v1.py": {
+      "bytes": 97373,
+      "sha256": "95bf321267f2a47b5a0f37073c82842d9e424890e20002237442e8a18cbd908d"
+    }
+  },
+  "privacy_fixture": {
+    "bytes": 10838,
+    "path": "fixtures/release_projection_v1.py.txt",
+    "sha256": "9846ad8251d8021162577b4c42c014a268882767a0970a62d4f0ffb7e208983e"
+  },
+  "schema": 1,
+  "source_map": {
+    "bytes": 42978,
+    "sha256": "9650f00aba97eeb6329f775b4b7a867a5253dba8983cf6a3b22d0117f3b6d74a"
+  },
+  "source_tree": "cb33c9807fcf22bab26ac838961395d580da6dd7",
+  "variant": "pid1-build-shell-v1"
+}
