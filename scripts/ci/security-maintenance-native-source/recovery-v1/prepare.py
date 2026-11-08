@@ -12,7 +12,7 @@ import stat
 import tempfile
 
 HERE = Path(__file__).resolve().parent
-PROFILE_SHA256 = '0e088421affc5c670bb6e7c6944593c29a3430acee678cf83f66cebe893928e1'
+PROFILE_SHA256 = '057e036058c3d3e070f714691b0d379c83c0470358e18daf958882610f13efd0'
 CAP = 64 * 1024**2
 FIELDS = ('st_dev', 'st_ino', 'st_mode', 'st_uid', 'st_gid', 'st_nlink',
           'st_size', 'st_mtime_ns', 'st_ctime_ns')

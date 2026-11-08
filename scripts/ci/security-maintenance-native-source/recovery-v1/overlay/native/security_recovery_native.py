@@ -45,15 +45,37 @@ def content(entry):
     return None if entry is None else {k: v for k, v in entry.items() if k not in ('dev', 'ino', 'nlink')}
 
 
-def _ordinary(path, maximum):
+def _ordinary(path, maximum, role='other'):
     path = Path(path)
     need(path == path.resolve(), 'canonical native input')
     fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC | os.O_NONBLOCK)
     try:
         before = os.fstat(fd)
-        need(stat.S_ISREG(before.st_mode) and before.st_nlink == 1
-             and before.st_uid == before.st_gid == 0 and 0 < before.st_size <= maximum,
-             'ordinary bounded root-owned native input')
+        try:
+            need(stat.S_ISREG(before.st_mode) and before.st_nlink == 1
+                 and before.st_uid == before.st_gid == 0 and 0 < before.st_size <= maximum,
+                 'ordinary bounded root-owned native input')
+        except ValueError:
+            try:
+                roles = ('scope', 'public-trust', 'test-public-armor', 'candidate-archive',
+                         'candidate-signature', 'prior-archive', 'prior-signature',
+                         'staged-candidate-archive', 'staged-candidate-signature', 'staged-config',
+                         'staged-test-public', 'staged-prior-archive', 'staged-prior-signature', 'other')
+                finite = lambda value, limit: value if type(value) is int and 0 <= value <= limit else None
+                kind = {stat.S_IFREG: 'regular', stat.S_IFDIR: 'directory', stat.S_IFLNK: 'symlink',
+                        stat.S_IFIFO: 'fifo', stat.S_IFSOCK: 'socket', stat.S_IFCHR: 'character',
+                        stat.S_IFBLK: 'block'}.get(stat.S_IFMT(before.st_mode), 'other')
+                value = dict(schema=1, role=role if type(role) is str and role in roles else 'other',
+                    kind=kind, uid=finite(before.st_uid, 2**32-1), gid=finite(before.st_gid, 2**32-1),
+                    nlink=finite(before.st_nlink, 2**64-1), size=finite(before.st_size, 2**63-1),
+                    mode=finite(before.st_mode, 65535), maximum=finite(maximum, 16*1048576),
+                    bounded=0 < before.st_size <= maximum)
+                text = json.dumps(value, sort_keys=True, separators=(',', ':'), allow_nan=False)
+                if len(text) <= 1024:
+                    print('SECURITY_RECOVERY_INPUT_REFUSED ' + text, flush=True)
+            except BaseException:
+                pass  # Diagnostic failure must preserve the original refusal.
+            raise
         chunks, left = [], before.st_size + 1
         while left:
             b = os.read(fd, min(left, 65536))
@@ -104,7 +126,7 @@ def _copy_public_trust(source, target):
             if stat.S_ISSOCK(info.st_mode): continue
             need(stat.S_ISREG(info.st_mode) and info.st_nlink == 1
                  and 'private-keys-v1.d' not in p.parts, 'public trust files only')
-            body = _ordinary(p, 1048576)
+            body = _ordinary(p, 1048576, 'public-trust')
             q = target / p.relative_to(source); q.write_bytes(body); q.chmod(0o600)
 
 
@@ -112,7 +134,7 @@ class RecoveryEpisode:
     def __init__(self, helper, commands, archive, prior, paths, prior_paths, fingerprint, public, trust, map_hash):
         self.helper, self.commands = helper, commands
         self.paths, self.prior_paths = paths, prior_paths
-        scope_raw = _ordinary(SCOPE, 16384); scope = json.loads(scope_raw)
+        scope_raw = _ordinary(SCOPE, 16384, 'scope'); scope = json.loads(scope_raw)
         self.binding = dict(scope['binding'])
         need(self.binding['map_sha256'] == map_hash, 'owner-staged same map binding')
         self.root_fd = os.open('/', os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC)
@@ -128,14 +150,17 @@ class RecoveryEpisode:
         _copy_public_trust(Path(trust), PREFIX / 'trust')
         config = ('[options]\n' + ''.join(k + ' = ' + v + '\n' for k, v in recovery.OPTIONS.items())).encode()
         (PREFIX / 'pacman.conf').write_bytes(config); (PREFIX / 'pacman.conf').chmod(0o600)
-        binary_public = decode_public_armor(_ordinary(public, 65536))
+        binary_public = decode_public_armor(_ordinary(public, 65536, 'test-public-armor'))
         (PREFIX / 'test-public.gpg').write_bytes(binary_public); (PREFIX / 'test-public.gpg').chmod(0o600)
-        for source in (Path(archive), Path(str(archive) + '.sig'), Path(prior), Path(str(prior) + '.sig')):
-            target = PREFIX / source.name; target.write_bytes(_ordinary(source, fs.LEAF_CAP)); target.chmod(0o600)
-        self.inputs = recovery.Inputs(*(recovery.Pin(**pin(_ordinary(p, fs.LEAF_CAP))) for p in
-            (PREFIX / Path(archive).name, PREFIX / (Path(archive).name + '.sig'), PREFIX / 'pacman.conf', PREFIX / 'test-public.gpg')), fingerprint)
-        self.prior_pin = recovery.Pin(**pin(_ordinary(PREFIX / Path(prior).name, fs.LEAF_CAP)))
-        self.prior_signature = recovery.Pin(**pin(_ordinary(PREFIX / (Path(prior).name + '.sig'), fs.LEAF_CAP)))
+        for role, source in (('candidate-archive', Path(archive)), ('candidate-signature', Path(str(archive) + '.sig')),
+                             ('prior-archive', Path(prior)), ('prior-signature', Path(str(prior) + '.sig'))):
+            target = PREFIX / source.name; target.write_bytes(_ordinary(source, fs.LEAF_CAP, role)); target.chmod(0o600)
+        self.inputs = recovery.Inputs(*(recovery.Pin(**pin(_ordinary(p, fs.LEAF_CAP, role))) for role, p in
+            (('staged-candidate-archive', PREFIX / Path(archive).name),
+             ('staged-candidate-signature', PREFIX / (Path(archive).name + '.sig')),
+             ('staged-config', PREFIX / 'pacman.conf'), ('staged-test-public', PREFIX / 'test-public.gpg'))), fingerprint)
+        self.prior_pin = recovery.Pin(**pin(_ordinary(PREFIX / Path(prior).name, fs.LEAF_CAP, 'staged-prior-archive')))
+        self.prior_signature = recovery.Pin(**pin(_ordinary(PREFIX / (Path(prior).name + '.sig'), fs.LEAF_CAP, 'staged-prior-signature')))
         self.journal = Journal.create(PREFIX / 'journal.jsonl', self.binding)
         self.baseline = self.snapshot()
         self.journal.append('BASELINE_RECORDED', dict(snapshot_sha256=fs.snapshot_sha256(self.baseline)))

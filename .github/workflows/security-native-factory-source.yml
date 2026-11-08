@@ -105,7 +105,7 @@ jobs:
           ref: 850368889d6dcabdc8afbe87f64f05650c44f90a
           path: .ci-security-recovery-parent
           persist-credentials: false
-      - name: Complete recovery original62 and new110 controls
+      - name: Complete recovery original62 and new119 controls
         shell: bash
         run: |
           set -euo pipefail
@@ -114,5 +114,5 @@ jobs:
           test "$(/usr/bin/git -C .ci-security-recovery-parent rev-parse --verify HEAD)" = 850368889d6dcabdc8afbe87f64f05650c44f90a
           /usr/bin/git -c tar.umask=0022 -C .ci-security-recovery-parent archive --format=tar 850368889d6dcabdc8afbe87f64f05650c44f90a | tar -xf - -C "$security_recovery_stage/parent"
           security_recovery_factory="$GITHUB_WORKSPACE/scripts/ci/security-maintenance-native-source/recovery-v1"
-          python -I -B -Werror::ResourceWarning "$security_recovery_factory/run_controls.py" --parent-source "$security_recovery_stage/parent" --results "$security_recovery_stage/all172-results.json"
-          python -I -B -c 'import json,sys; r=json.load(open(sys.argv[1])); assert r["status"]=="PASS" and r["tests"]==172 and r["original_controls"]==62 and r["new_controls"]==110 and r["cached_results_counted"] is False and all(g["status"]=="PASS" and g["retirement"]["exit"]==0 for g in r["groups"])' "$security_recovery_stage/all172-results.json"
+          python -I -B -Werror::ResourceWarning "$security_recovery_factory/run_controls.py" --parent-source "$security_recovery_stage/parent" --results "$security_recovery_stage/all181-results.json"
+          python -I -B -c 'import json,sys; r=json.load(open(sys.argv[1])); assert r["status"]=="PASS" and r["tests"]==181 and r["original_controls"]==62 and r["new_controls"]==119 and r["cached_results_counted"] is False and all(g["status"]=="PASS" and g["retirement"]["exit"]==0 for g in r["groups"])' "$security_recovery_stage/all181-results.json"

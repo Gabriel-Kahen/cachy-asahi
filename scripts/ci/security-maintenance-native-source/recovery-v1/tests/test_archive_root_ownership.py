@@ -56,7 +56,7 @@ class ArchiveRootOwnership(unittest.TestCase):
         row = dict(bytes=len(helper), sha256=hashlib.sha256(helper).hexdigest(), mode=0o644)
         self.assertEqual(profile['payload']['native/security_native_v1.py'], row)
         self.assertEqual(profile['expected']['files']['native/security_native_v1.py'], row)
-        self.assertEqual(profile['proposed_ref'], 'codex/native-security-maintenance-recovery-v12')
+        self.assertEqual(profile['proposed_ref'], 'codex/native-security-maintenance-recovery-v13')
         self.assertTrue(all(value is None for value in profile['actual'].values()))
         self.assertEqual(profile['parent']['source'], '850368889d6dcabdc8afbe87f64f05650c44f90a')
         mapping = dict(profile['source_map_metadata'])

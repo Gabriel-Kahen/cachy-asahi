@@ -54,7 +54,7 @@ backends; owned-process tests use benign host Python children only. They do not
 run real GPG, pacman, native code, compiler, network, capsule Reader or factory
 emitter. The complete original 62 controls now execute against the current
 modules, alongside all 99 new controls and four production-wiring/journal-failure
-regressions, plus seven archive-ownership controls: 172 distinct controls.
+regressions, plus seven archive-ownership and nine input-diagnostic controls: 181 distinct controls.
 Original source, tests and results remain
 separate provenance under `controls/original62/`; cached results are not counted.
 One private owned supervisor retires each worker and its descendants on failure.
@@ -73,7 +73,7 @@ python -I -B -Werror::ResourceWarning run_controls.py \
 Only Root may invoke the actual constructor. It requires a fresh output inside
 a caller-owned 0700 directory and publishes with no-replace rename. Its inputs
 are finite and pinned; it contains no package installation, network, Git,
-publication or native actor. The two additive workflow steps run all 172
+publication or native actor. The two additive workflow steps run all 181
 DATA/temporary/HOST controls under the retained Python 3.12 and 3.14 matrix.
 Those future CI executions and the changed workflow body require their own
 actual qualification; this proposal supplies no resource certificate.
