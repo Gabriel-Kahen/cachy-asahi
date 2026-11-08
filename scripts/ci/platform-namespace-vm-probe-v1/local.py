@@ -13,7 +13,7 @@ import common as C
 
 LANE = 'scripts/ci/platform-namespace-vm-probe-v1'
 CODE = {LANE + '/' + n for n in ('common.py', 'controller.py', 'guest.py', 'probe_exec.py', 'inside.py',
-        'local.py', 'local_operator.py', 'boot.py', 'dependencies.json', 'input-policy.json', 'local-input-policy.json')}
+        'local.py', 'local_operator.py', 'boot.py', 'witness.py', 'owned_command.py', 'dependencies.json', 'input-policy.json', 'local-input-policy.json')}
 CODE |= {'scripts/virtual/generic16k/fixture.py', 'scripts/virtual/generic16k/build_kernel.py',
          'scripts/ci/glibc-owned-runtime/runner.py', '.github/workflows/platform-namespace-vm-probe-v1-data.yml'}
 

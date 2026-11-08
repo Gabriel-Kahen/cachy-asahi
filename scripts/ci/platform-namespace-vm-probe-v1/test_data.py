@@ -33,6 +33,15 @@ def model_context(pid=20):
                 uid_map=[[23001, 23001, 1]], gid_map=[[23001, 23001, 1]])
 
 
+def model_witness(context, observer):
+    payload = dict(schema=1, nonce=NONCE, release=RELEASE, context=copy.deepcopy(context))
+    return dict(schema=1, transport='AF_UNIX_SEQPACKET_SCM_CREDENTIALS', payload=payload,
+                packet=C.pin(C.encoded(payload)), credentials=dict(pid=context['pid'], uid=23001, gid=23001),
+                observer=dict(uid=observer['uid'], euid=observer['euid'], gid=observer['gid'], egid=observer['egid'],
+                              user_namespace=observer['namespaces']['user'], pid_namespace=observer['namespaces']['pid']),
+                records=1, flags=0)
+
+
 def model_report():
     before = model_context()
     child = model_context(30)
@@ -41,9 +50,9 @@ def model_report():
     inside = model_context(31)
     inside['namespaces'].update({k: k + ':[200]' for k in ('user', 'mnt', 'net')})
     row = dict(argv=C.WRAPPER + [NONCE, RELEASE], time_limit=20, output_limit=65536,
-               exit_code=0, group_absence_verified=True, stderr_bytes=0, stderr_sha256=C.pin(b'')['sha256'])
+               exit_code=0, group_absence_verified=True, pass_fds=[3], close_fds=True, stderr_bytes=0, stderr_sha256=C.pin(b'')['sha256'])
     return dict(schema=1, operation=C.OPERATION, nonce=NONCE, before=before, after=copy.deepcopy(before),
-                exec_context=child, inside=inside, command=row, bwrap_argv=C.BWRAP + [NONCE, RELEASE],
+                exec_context=child, inside=inside, inner_observation=model_witness(inside, before), inner_observation_error=None, command=row, bwrap_argv=C.BWRAP + [NONCE, RELEASE],
                 bwrap=binary, stderr=C.pin(b''), stderr_preview=C.stderr_preview(b''),
                 status='OBSERVED_UNPRIVILEGED_BWRAP_SUCCESS', command_error=None,
                 cleanup=dict(group_absence_verified=True, work_removed=True), generic_emulated_16K_only=True,
@@ -214,6 +223,7 @@ class DataControls(unittest.TestCase):
                 C.validate_report(report, NONCE, RELEASE)
         report = model_report()
         report['inside']['namespaces']['user'] = report['before']['namespaces']['user']
+        report['inner_observation'] = model_witness(report['inside'], report['before'])
         with self.assertRaisesRegex(ValueError, 'actual created'):
             C.validate_report(report, NONCE, RELEASE)
 
@@ -229,17 +239,19 @@ class DataControls(unittest.TestCase):
     def test_capabilities_inside_new_user_namespace_are_observed_not_outer_privilege(self):
         report = model_report()
         report['inside']['capabilities']['CapBnd'] = 15
+        report['inner_observation'] = model_witness(report['inside'], report['before'])
         self.assertEqual(C.validate_report(report, NONCE, RELEASE)['inside']['capabilities']['CapBnd'], 15)
         report['exec_context']['capabilities']['CapBnd'] = 15
         with self.assertRaisesRegex(ValueError, 'zero-capability outer'):
             C.validate_report(report, NONCE, RELEASE)
 
-    def test_inner_identity_is_joined_through_actual_user_and_group_maps(self):
+    def test_inner_identity_requires_kernel_outer_projection_beyond_parent_map(self):
         report = model_report()
         report['inside'].update(uid=0, euid=0, gid=0, egid=0, uid_map=[[0, 23001, 1]], gid_map=[[0, 23001, 1]])
+        report['inner_observation'] = model_witness(report['inside'], report['before'])
         C.validate_report(report, NONCE, RELEASE)
-        report['inside']['uid_map'] = [[0, 0, 1]]
-        with self.assertRaisesRegex(ValueError, 'maps exactly'):
+        report['inner_observation']['credentials']['uid'] = 0
+        with self.assertRaisesRegex(ValueError, 'kernel projects'):
             C.validate_report(report, NONCE, RELEASE)
 
     def test_nonzero_is_not_numeric_errno_or_policy_cause(self):
