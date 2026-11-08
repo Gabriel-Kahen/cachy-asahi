@@ -1,0 +1,34 @@
+name: Desktop current 0.1.1 qualification source
+on:
+  pull_request:
+    paths:
+      - scripts/ci/desktop-current011-native-source/**
+      - .github/workflows/desktop-current011-native-source.yml
+  push:
+    branches: [main]
+    paths:
+      - scripts/ci/desktop-current011-native-source/**
+      - .github/workflows/desktop-current011-native-source.yml
+permissions:
+  contents: read
+jobs:
+  source-data:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Prospective constructor and producer DATA controls
+        run: python -I -B scripts/ci/desktop-current011-native-source/test_current011_data.py
+      - name: Passive reader DATA and AST controls
+        run: python -I -B scripts/ci/desktop-current011-native-source/test_current011_reader_data.py
+      - name: Current build-log function controls with actors denied
+        run: python -I -B scripts/ci/desktop-current011-native-source/test_current011_build_logs_data.py
