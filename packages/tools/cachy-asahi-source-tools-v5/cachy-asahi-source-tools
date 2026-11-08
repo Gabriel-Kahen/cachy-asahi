@@ -1,0 +1,74 @@
+#!/usr/bin/python3 -IB
+# SPDX-License-Identifier: MIT
+"""Offline exact source mirrors and inert rebuild contexts."""
+import argparse
+import importlib.util
+from pathlib import Path
+import sys
+
+RUNTIME = Path(__file__).resolve().parents[1] / 'lib/cachy-asahi/source-tools/scripts'
+COMMANDS = {
+    'mirror-export': ('release/release_source_mirror.py', 'export'),
+    'mirror-successor': ('release/release_source_mirror.py', 'update'),
+    'mirror-verify': ('release/release_source_mirror.py', 'verify'),
+    'mirror-list': ('release/source_mirror_catalog.py', 'list'),
+    'mirror-diff': ('release/source_mirror_diff.py', 'diff'),
+    'build-context': ('build/mirror_consumer.py', 'materialize'),
+    'verify-context': ('build/mirror_consumer.py', 'verify-context'),
+    'context-info': ('release/source_context_info.py', 'show'),
+    'release-context': ('release/source_release_context.py', 'materialize'),
+    'verify-release-context': ('release/source_release_context.py', 'verify'),
+}
+
+EXPORT_OPTIONS = ('--release-dir', '--release-sha256', '--output', '--retained-inputs',
+                  '--inputs-sha256', '--retained-root')
+OPTIONS = {
+    'mirror-export': EXPORT_OPTIONS,
+    'mirror-successor': EXPORT_OPTIONS + ('--previous-bundle', '--previous-sha256', '--previous-release-sha256'),
+    'mirror-verify': ('--bundle', '--sha256', '--release-sha256'),
+    'mirror-list': ('--bundle', '--sha256', '--release-sha256'),
+    'mirror-diff': ('--bundle', '--sha256', '--from-release-sha256', '--to-release-sha256'),
+    'build-context': ('--bundle', '--mirror-sha256', '--release-sha256', '--package', '--version',
+                      '--arch', '--package-sha256', '--recipe-sha256', '--srcinfo-sha256', '--output'),
+    'verify-context': ('--context', '--selection-sha256'),
+    'context-info': ('--context', '--selection-sha256'),
+    'release-context': ('--bundle', '--sha256', '--release-sha256', '--output'),
+    'verify-release-context': ('--context-set', '--manifest-sha256'),
+}
+
+
+class SingleValue(argparse.Action):
+    """Each caller pin, selector and path has exactly one spelling and value."""
+    def __call__(self, parser, namespace, values, option_string=None):
+        if hasattr(namespace, self.dest):
+            parser.error('repeated option refused: ' + option_string)
+        setattr(namespace, self.dest, values)
+
+
+def preflight(command, argv, prog):
+    parser = argparse.ArgumentParser(prog=prog + ' ' + command, add_help=False, allow_abbrev=False)
+    parser.add_argument('-h', '--help', action='store_true')
+    for option in OPTIONS[command]:
+        parser.add_argument(option, action=SingleValue, default=argparse.SUPPRESS)
+    parser.parse_args(argv)
+
+
+def main(argv=None):
+    argv = list(sys.argv[1:] if argv is None else argv)
+    parser = argparse.ArgumentParser(description=__doc__, epilog='Each command accepts --help for its exact caller-pinned inputs.')
+    parser.add_argument('--version', action='version', version='cachy-asahi-source-tools 0.5.0')
+    parser.add_argument('command', choices=COMMANDS)
+    if not argv or argv[0] not in COMMANDS:
+        parser.parse_args(argv)
+        return 2
+    preflight(argv[0], argv[1:], parser.prog)
+    path, command = COMMANDS[argv[0]]
+    spec = importlib.util.spec_from_file_location('installed_source_tools', RUNTIME / path)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module.main([command, *argv[1:]])
+
+if __name__ == '__main__':
+    sys.dont_write_bytecode = True
+    raise SystemExit(main())
