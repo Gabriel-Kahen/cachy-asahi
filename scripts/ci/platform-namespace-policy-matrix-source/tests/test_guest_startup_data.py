@@ -3,12 +3,14 @@
 """Isolated Python launch regression using newly authored inert sentinel modules."""
 import sys
 
-ALLOW_TEST_PYTHON = False
+ACTIVE_TEST_ARGV = None
+TEST_LAUNCH_EVENTS = []
 
 
 def deny(event, args):
-    if event == 'subprocess.Popen' and ALLOW_TEST_PYTHON:
-        if args[0] == sys.executable and args[1][1:3] == ['-I', '-B']:
+    if event in ('subprocess.Popen', 'os.posix_spawn') and ACTIVE_TEST_ARGV is not None:
+        if args[0] == sys.executable and tuple(args[1]) == ACTIVE_TEST_ARGV:
+            TEST_LAUNCH_EVENTS.append(event)
             return
     if event.startswith(('socket.', 'subprocess.', 'ctypes.', 'pty.')) or event in (
             'os.system', 'os.fork', 'os.forkpty', 'os.exec', 'os.posix_spawn'):
@@ -35,16 +37,18 @@ sys.addaudithook(deny)
 '''
 
 
-def launch(argv):
-    global ALLOW_TEST_PYTHON
-    ALLOW_TEST_PYTHON = True
+def launch(argv, force_spawn=False):
+    global ACTIVE_TEST_ARGV
+    ACTIVE_TEST_ARGV = (sys.executable, '-I', '-B', *argv)
+    first = len(TEST_LAUNCH_EVENTS)
     try:
-        result = subprocess.run([sys.executable, '-I', '-B', *argv],
+        result = subprocess.run(list(ACTIVE_TEST_ARGV), close_fds=not force_spawn,
                                 capture_output=True, timeout=5, check=False)
     finally:
-        ALLOW_TEST_PYTHON = False
+        ACTIVE_TEST_ARGV = None
     if len(result.stdout) + len(result.stderr) > 4096:
         raise ValueError('bounded sentinel output')
+    result.test_launch_events = TEST_LAUNCH_EVENTS[first:]
     return result
 
 
@@ -66,15 +70,42 @@ import json
 print(json.dumps(dict(marker=MARKER,args=sys.argv[1:],isolated=sys.flags.isolated,bytecode=sys.dont_write_bytecode)))
 ''')
             arguments = ['--guest', '--source', 'synthetic-new-DATA-only']
-            old = launch([str(script), *arguments])
-            self.assertEqual(old.returncode, 1)
-            self.assertIn(b"ModuleNotFoundError: No module named 'common'", old.stderr)
-            fixed = launch(['-c', CHILD_GUARD + self.module.MATRIX_GUEST_BOOTSTRAP,
-                            str(root), *arguments])
-            self.assertEqual(fixed.returncode, 0, fixed.stderr.decode())
-            self.assertEqual(json.loads(fixed.stdout), dict(marker='NEW_INERT_IMPORT_SENTINEL',
-                             args=arguments, isolated=1, bytecode=True))
+            for force_spawn in (False, True):
+                with self.subTest(force_spawn=force_spawn):
+                    old = launch([str(script), *arguments], force_spawn)
+                    self.assertEqual(old.returncode, 1)
+                    self.assertIn(b"ModuleNotFoundError: No module named 'common'", old.stderr)
+                    fixed = launch(['-c', CHILD_GUARD + self.module.MATRIX_GUEST_BOOTSTRAP,
+                                    str(root), *arguments], force_spawn)
+                    self.assertEqual(fixed.returncode, 0, fixed.stderr.decode())
+                    self.assertEqual(json.loads(fixed.stdout), dict(marker='NEW_INERT_IMPORT_SENTINEL',
+                                     args=arguments, isolated=1, bytecode=True))
+                    for result in (old, fixed):
+                        self.assertEqual(result.test_launch_events[0], 'subprocess.Popen')
+                        if force_spawn:
+                            self.assertIn('os.posix_spawn', result.test_launch_events)
             self.assertEqual({p.name for p in root.iterdir()}, {'common.py', script.name})
+
+    def test_test_actor_allowance_matches_one_exact_active_command(self):
+        global ACTIVE_TEST_ARGV
+        argv = [sys.executable, '-I', '-B', '-c', CHILD_GUARD + 'pass']
+        ACTIVE_TEST_ARGV = tuple(argv)
+        try:
+            for event in ('subprocess.Popen', 'os.posix_spawn'):
+                deny(event, (sys.executable, argv))  # Audit DATA only, no process.
+                for executable, command in (('/bin/sh', argv),
+                        (sys.executable, argv + ['unreviewed']),
+                        (sys.executable, [sys.executable, '-c', 'pass'])):
+                    with self.assertRaises(RuntimeError):
+                        deny(event, (executable, command))
+            for event in ('socket.connect', 'os.exec', 'os.fork', 'ctypes.dlopen'):
+                with self.assertRaises(RuntimeError):
+                    deny(event, ())
+        finally:
+            ACTIVE_TEST_ARGV = None
+        for event in ('subprocess.Popen', 'os.posix_spawn'):
+            with self.assertRaises(RuntimeError):
+                deny(event, (sys.executable, argv))
 
     def test_only_launcher_changes_in_all_four_exact_plans(self):
         m = self.module
