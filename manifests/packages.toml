@@ -1052,6 +1052,24 @@ release = "NOT ADMITTED"
 validation_record = "packages/tools/cachy-asahi-release-tools-v3/README.md"
 next_step = "Qualify native ARM/16K build and disposable signed ALPM lifecycle before target selection. Positive synthetic stable API tests model only the existing hardware gate; real CLI stable refusal and signed withdrawal copying do not establish M2, production trust or release acceptance."
 
+[[packages.development_variants]]
+version = "0.4.0-1"
+recipe = "packages/tools/cachy-asahi-release-tools-v4/PKGBUILD"
+recipe_source = "c393c38043bd34f2380ceab55434a59c2d3183d1"
+selected_for_development = false
+selected_for_release = false
+archive_bytes = 81480
+archive_sha256 = "4f6673ccf6170305f4c8e145a6038e77608d6be055daec3029337440eedb4be2"
+host_validation = "PASS19 focused real TEST-GPG/filesystem/moved CLI/privacy/refusal/legacy and actual-v3 private file-inverse controls; makepkg verifysource and cleanbuild --nodeps --nosign including check() PASS; exact31 local source pins/17 retained runtime files/23 installed payload files and modes. Actual unsigned any host archive inspected and relocated; two real TEST-GPG CLI withdrawal roundtrip/stable refusal controls PASS. Exact merged PR396 transport and unchanged seven helper closure; legacy commands retained."
+native_build = "NOT RUN"
+installation = "NOT RUN; private package staging, exact actual archive extraction, moved CLI and file ownership inverse only; no ALPM or installed target lifecycle"
+hardware_validation = "NOT RUN"
+performance = "NOT MEASURED"
+release = "NOT ADMITTED"
+validation_record = "packages/tools/cachy-asahi-release-tools-v4/README.md"
+next_step = "Qualify dependency resolution (host build used --nodeps), native ARM/16K and disposable signed ALPM lifecycle before target selection. Physical M2, production signing and release acceptance remain separate. Positive stable API fixtures model only the existing hardware gate; real installed CLI stable refusal remains enforced."
+
+
 [[packages]]
 name = "cachy-asahi-recovery-tools"
 phase = "complete-port-tools"
@@ -1295,3 +1313,19 @@ historical_recipe_source = "001a290485439575dee208fb039042fad459bd83"
 historical_host_package_bytes = 36023
 historical_host_package_sha256 = "ff52cd1633b121eaa6eb8a486f75e8a1dc732652926d845f3c8582c41eb26c6c"
 historical_host_validation = "PASS seven relocated CLI controls and x86_64 makepkg assembly for0.1.0-1; historical archive does not validate current0.1.1-1."
+
+[[packages.development_variants]]
+version = "0.2.0-1"
+recipe = "packages/tools/cachy-asahi-build-tools-v2/PKGBUILD"
+recipe_source = "7ef85998fbede9730355806b4e6d10649fe32d31"
+selected_for_development = false
+selected_for_release = false
+host_package_bytes = 41498
+host_package_sha256 = "9473d7180ef77e6c66fbf191870aee2c61d4550a8d9758457080925c9ee1254a"
+host_validation = "PASS11 actual package()/moved controls on Python3.14; exact12-file host archive payload and9 extracted/moved offline CLI calls. makepkg --nodeps --nocheck; dependency solving and makepkg check() NOT RUN."
+native_build = "NOT RUN"
+installation = "NOT RUN; staging/archive extraction only, no ALPM lifecycle"
+hardware_validation = "NOT RUN"
+performance = "NOT MEASURED"
+release = "NOT ADMITTED"
+
