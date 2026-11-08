@@ -1,0 +1,23 @@
+# Version4 bounded host AVC candidates
+
+The native owner explicitly selects `owner_matrix_kernel_audit_v4`. The existing four-case operation, security-option arrays, Docker user/groups, bwrap argv, guest identity checks, image/policy predicates and retirement paths stay unchanged. The frozen22423-byte core and contract3267 remain held. The upstream bubblewrap errno patch is not selected or built by this Source derivative.
+
+After each naturally stopped and retired case, the owner makes at most one unprivileged read with this fixed executable and argument shape:
+
+```
+/usr/bin/journalctl --dmesg --since=@SECONDS.MICROSECONDS --until=@SECONDS.MICROSECONDS --output=json --lines=all --output-fields=__REALTIME_TIMESTAMP,MESSAGE,_BOOT_ID --no-pager --quiet '--grep=apparmor="DENIED"'
+```
+
+Only the UTC microsecond interval changes, recorded immediately around the existing case start/inspect/retirement. Each read is limited to10seconds and2MiB; four reads stay within the original240second matrix,128 total calls and24MiB combined output budget. No remaining budget means UNKNOWN without starting an actor. The original owned-child supervisor and runner-UID-only ownership guard remain required. There is no sudo, alternate executable, dmesg fallback, retry, sysctl write, profile load, added capability or privileged container.
+
+The exact original journal output and complete supervisor receipt stay under the owned private `kernel-audit-v4-private` directory. They are never selected by the public capsule projector. Public DATA contains only private raw hashes, a closed supervisor witness, and at most8 candidate AVC records per case. It publishes no MESSAGE text, cursor, arbitrary kernel fields, paths, or full kernel log. Unexpected/malformed/excess output, inaccessible journals, missing executable, empty results and unsupported records remain UNKNOWN. An observed actor with uncertain retirement is a real failure under the original guard; it is not converted into an innocent missing-journal result.
+
+The parser accepts systemd255's implicit journal metadata privately and retains only bounded timestamps/boot ID and whitelisted AppArmor/operation/profile/PID/capability fields. A capability name and number must agree. The matching passive reader rechecks the fixed argv, limits, owner/CID inverse, supervisor witness and combined budgets, reconstructs the permitted field view, and recomputes the summary. A forged ownership, cause, summary or unfiltered raw-field marker is refused.
+
+A retained AVC host PID is **not** the journal collector's owned PID or an independently proved bwrap PID. The unchanged quick one-exec probe has no host PID/starttime chain. A comm/time/profile match is therefore always `UNKNOWN_NO_HOST_PID_STARTTIME_CHAIN`. The raw journal original is private and not transported, so the reader explicitly reports `raw_original_body_inverse=false`; its hashes do not fabricate a public original-body inverse. All candidate summaries keep namespace effect and syscall errno UNKNOWN, BuildKit equivalence NOT_PROVED, and native/ALPM/hardware acceptance false. Missing audit data cannot select an alternate sandbox policy.
+
+Actual Source290's log/ZIP/matching243 reader roles remain consumed and immutable. This is a distinct prospective Source derivative with a matching new module/provision reader, not a reclassification or replay. If the candidates cannot strongly bind the denied child, a separately pinned child-stage diagnostic binary needs a new contract and Root admission; this observational route does not authorize it.
+
+Primary basis: pinned [systemd255 journalctl documentation](https://github.com/systemd/systemd/blob/db11bab38ccf1ed257f310d29070843d4c58ea01/man/journalctl.xml) describes accessible-journal permissions, kernel/interval filters, JSON output and mandatory implicit fields. The upstream manual is LGPL-2.1-or-later; this authored implementation is MIT. [Ubuntu24.04's documented user-namespace restriction](https://documentation.ubuntu.com/release-notes/24.04/) motivates looking for a post-creation capability denial, but it does not prove a cause for this builder. The pinned source/body hashes and source-audited-only evidence are retained in the development handoff.
+
+New8 AVC controls and the held39 DATA controls pass Python3.12.13/3.14.6. The original owner suite still has12 tests,14 collections,395 synthetic calls and zero actor/network effects. These tests use newly authored inert journal records and a synthetic daemon. Actual journal access, a newly published Source, its finite native trial, BuildKit equivalence and a viable build strategy require separate evidence.

@@ -23,8 +23,8 @@ FACTORY = HERE.parent
 FIXTURES = HERE/'fixtures'
 PARENT = None
 PROFILE_SHA = '53fdf5afcf40d2507045203a4035b10e07ab3a07e80855a8b12c999834cf7c2f'
-OVERLAY_SHA = '6b8e689777d222edd221f800b8e5f042d669cbf2e68a5f8e167b3233e96cdf66'
-CATALOG_SHA = 'c795a9dafa14859efd0c7d11d3d15799fd0f19589812eb1695e0e6247a84b92c'
+OVERLAY_SHA = '066e431ecd095d2797f9df14fce8a54c108927bbe5a5d248cbe118ef20b7654f'
+CATALOG_SHA = '48eb10110e854e9f62940dca6e7ed4a4364ebe3e380150e970981ad73b1a6630'
 
 
 def authenticated(path, row):
@@ -70,9 +70,9 @@ def configure_basis(value):
     authenticated(FACTORY/'parent-commit.raw',profile['parent_raw'])
     PARENT = candidate
 VROOT = '/VIRTUAL-SOURCE-SYNTHETIC-DATA'
-SOURCE = 'eaaaa40874bcb6ad314821d84043ad9ac930c0f8'
-MAP = '3a95802874b574723ad1d0fe03d13997afd908e6215935872e812e78dcd212f3'
-MODULE_SHA = '243691777af57f5e2f5bc19f3138d2f5802ce6fb62f79617c81c04b8a7c463ec'
+SOURCE = 'a388be7995812f84a491a7ced8d61655774b703f'
+MAP = '7bc2552ef64f4d3ac2ccd3b9e9a49079b935faa431cd8ba0e1460ea32c2c83c5'
+MODULE_SHA = 'da91f51508a10022e8415b29beff2644bcbfd0f25e59158ea5a7a86c521db142'
 _ACTIVE = None
 _GUARD = False
 DENIED = []
@@ -172,7 +172,7 @@ class Supervisor:
             stdout_limit, stderr_limit):
         f = self.fixture
         assert 0 < timeout <= 600 and stdout_limit == stderr_limit
-        assert stdout_limit in (65536, 1024**2, 16*1024**2)
+        assert stdout_limit in (65536, 1024**2, 2*1024**2, 16*1024**2)
         assert allowed_uids == {os.geteuid()}
         body, rc = f.respond(argv)
         assert len(body) <= stdout_limit
