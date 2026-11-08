@@ -22,6 +22,7 @@ pkgbase = cachy-asahi-source-tools
 	source = payload-map.json
 	source = NOTICE
 	source = LICENSE
+	source = test_cli_input_refusal.py
 	sha256sums = fa9db2ee4a6f16fee53b79494d437901570c80798de9219d2cc637b9f430575a
 	sha256sums = 6e307625ad97381ec6a4efb9a0ae651ad4c38c1c88a81fc19d4e931584d468c0
 	sha256sums = c05ec4372a6c8ecf55fb673e3d3dec026865fea4250c715e91bf8fdf86bd2b26
@@ -33,5 +34,6 @@ pkgbase = cachy-asahi-source-tools
 	sha256sums = c8b986e5c090e49970f38e39d6f5b1462f9cfd924fb6f501c0a570e6649e5238
 	sha256sums = 650d77ba3fddc940807b827b88a4f8f274a2cce5048c0e3e2a785337ca6b6bfb
 	sha256sums = 51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7
+	sha256sums = b2c7fd3e6c4af5b73f60014a744a3fd535a0144b9698baac43c1f881c4387e4d
 
 pkgname = cachy-asahi-source-tools
