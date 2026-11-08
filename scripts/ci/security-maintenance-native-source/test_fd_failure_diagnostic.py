@@ -3,10 +3,10 @@
 """Focused AST-only FD-diagnostic DATA controls; no observer/FD/Source actor."""
 import argparse,ast,copy,hashlib,json,os,pathlib,stat,sys,types,unittest
 HERE=pathlib.Path(__file__).resolve().parent
-NEW='7ab431933359f983bf0c1560930c68cf1e833eba170b5ee4351ef399abc6ae80'
+NEW='f662e720612d044dabdd04d8d7f2305fc01dd7431c28acf2f6cb4d0889a2b28c'
 OLD='970793258bca73525db8e40709c845c63a76396f0fbd7b45c9c446571b77e2ef'
 OLD_MAP='f30d050072e3d9fe1ff7b61706f5b3093df34cc2df02a98441aee296debac0b6'
-NEW_PROFILE='47c61023547433156a79e498e49655fbefe7aee340e2458f8597c0a9cc4a1650'
+NEW_PROFILE='09a19bdfb0d0e2b8181b725359003684ce1135630b5f63cddb0c7ba85ec24c5f'
 OLD_PROFILE='4e74176f2804b618c53a6ae1238fc93f132b52c45dcc71f1d359fb8542e98ad1'
 PREFIX='SECURITY_OBSERVATION_FD_FAILURE_DATA '
 REFUSED='SECURITY_OBSERVATION_FD_DIAGNOSTIC_REFUSED'
@@ -139,7 +139,9 @@ class FDControls(unittest.TestCase):
   self.assertEqual(read(F/'overlay/native/security_reader_v1.py'),read(B/'native/security_reader_v1.py'))
   self.assertEqual(pin(self.contract['upgrade']['observation']['source'].encode()),dict(bytes=6175,sha256='b4f751cceeb5c2df8749025b91a8b2108704736d377b79d84abed6e573e3263c'))
  def test_entire_lifecycle_and_original_FD_transport_AST_held(self):
-  new=copy.deepcopy(self.newtree);old=self.oldtree
+  before=b"--inside-image --map-sha256 '+map_hash+'\\n'";after=b'--inside-image --map-sha256 \'+map_hash+\' & security_owner=$!; security_status=0; wait "$security_owner" || security_status=$?; exit "$security_status"\\n\''
+  self.assertEqual(self.new_raw.count(after),1);restored=self.new_raw.replace(after,before,1)
+  new=ast.parse(restored);old=self.oldtree
   new.body=[n for n in new.body if not(isinstance(n,ast.FunctionDef)and n.name=='emit_observation_fd_failure')]
   observe=function(new,'observe_real_upgrade');observe.args.args.pop();newtry=next(n for n in observe.body if isinstance(n,ast.Try));oldtry=next(n for n in function(old,'observe_real_upgrade').body if isinstance(n,ast.Try))
   i=next(i for i,n in enumerate(newtry.body)if isinstance(n,ast.Assign)and any(isinstance(t,ast.Name)and t.id=='predicates'for t in n.targets));newtry.body[i:i+3]=[copy.deepcopy(next(n for n in oldtry.body if message(n)))]
