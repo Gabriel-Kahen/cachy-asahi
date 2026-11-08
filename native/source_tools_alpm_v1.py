@@ -182,6 +182,44 @@ def retain_exception(commands,scope,step,argv,cwd,expected,error,before):
  commands.records.append(dict(step=step,argv=list(map(str,argv)),cwd=str(cwd),expected=expected,success=False,log=name,log_pin=T.data_pin(raw),supervision=None,channels='stdout+stderr combined in pipe order',exception_type=type(error).__name__,output_state='UNKNOWN_IF_SUPERVISION_DID_NOT_RETURN',exception_retention='DATA_ONLY_NO_SECOND_WAIT_OR_SIGNAL_AUTHORITY'))
  (scope/'commands.json').write_bytes(T.encoded(commands.records))
 
+def unknown_image_build_context(map_hash,reason='NO_RETAINED_CONTEXT'):
+ """Unavailable build policy stays explicit DATA; it grants no actor authority."""
+ need(type(map_hash)is str and re.fullmatch('[0-9a-f]{64}',map_hash) is not None,
+      'exact image-build context map required')
+ need(reason in ('NO_RETAINED_CONTEXT','CONTEXT_DATA_REFUSED'),'fixed image-build context absence reason')
+ return dict(schema=1,status='UNKNOWN',domain='IMAGE_BUILD_STAGE',source_map_sha256=map_hash,
+             reason=reason,evidence=None,values=None,native_acceptance='NOT_ADMITTED')
+
+
+def image_build_context(value,map_hash,command_index,log,log_pin):
+ """Copy one already captured context log; never resample the launcher or daemon."""
+ result=unknown_image_build_context(map_hash)
+ keys={'schema','status','mode','source_map_sha256','before','syscall','after','scope',
+       'namespace_acceptance','native_acceptance'}
+ need(type(value)is dict and set(value)==keys and type(value['schema'])is int and value['schema']==1
+      and value['status']=='NAMESPACE_PREREQUISITE_DATA_ONLY'and value['mode']=='context'
+      and value['source_map_sha256']==map_hash and value['syscall']is None
+      and value['scope']=='OWN_BUILD_ACTOR_SELF_ONLY_NO_CHILD_OR_GLOBAL_MUTATION'
+      and value['namespace_acceptance']=='NOT_ESTABLISHED'and value['native_acceptance']=='NOT_ADMITTED',
+      'same-map captured image-build context only')
+ context={'uid','euid','gid','egid','cwd','groups','group_count','groups_truncated','status_fields',
+          'status_state','namespaces','maps','policy','lsm','mounts','bwrap'}
+ need(type(value['before'])is dict and set(value['before'])==context and value['before']==value['after'],
+      'complete unchanged captured image-build context required')
+ need(type(command_index)is int and 0<=command_index<160 and type(log)is str
+      and re.fullmatch(r'[0-9]{3}-namespace-[ab]-context\.log',log) is not None
+      and log.startswith('%03d-'%command_index),'provided original context command/log role required')
+ need(type(log_pin)is dict and set(log_pin)=={'bytes','sha256'}and type(log_pin['bytes'])is int
+      and 0<log_pin['bytes']<=32768 and type(log_pin['sha256'])is str
+      and re.fullmatch('[0-9a-f]{64}',log_pin['sha256']) is not None,'bounded original context log pin required')
+ raw=json.dumps(value,sort_keys=True,allow_nan=False).encode()
+ need(len(raw)<=32768,'captured image-build context32KiB cap')
+ result.update(status='OBSERVED',reason=None,
+               evidence=dict(command_index=command_index,log=log,log_pin=dict(log_pin)),
+               values=json.loads(json.dumps(value['before'],sort_keys=True,allow_nan=False)))
+ return result
+
+
 NS_OBSERVATION_MODES=('context','user','mount','user_mount','user_net','user_mount_net')
 
 
@@ -210,6 +248,12 @@ def observe_namespace_failure(run,commands,scope,report,label,slot,map_hash):
     body=run(step,argv,cwd=slot);need(len(body)<=32768,'namespace observation32KiB cap');value=json.loads(body)
     need(value.get('status')=='NAMESPACE_PREREQUISITE_DATA_ONLY'and value.get('mode')==mode and value.get('source_map_sha256')==map_hash,'same-mode/map namespace DATA')
     result['observations'].append(dict(mode=mode,command_index=before,output=T.data_pin(body)))
+    if mode=='context':
+     try:
+      context_row=commands.records[before]
+      report['image_build_context']=image_build_context(value,map_hash,before,context_row['log'],context_row['log_pin'])
+     except Exception:
+      report['image_build_context']=unknown_image_build_context(map_hash,'CONTEXT_DATA_REFUSED')
    except BaseException as error:result['stopped']='OBSERVATION_UNAVAILABLE:'+type(error).__name__;break
  finally:
   commands.timeout=before_timeout
@@ -249,7 +293,7 @@ def inside(source,map_hash):
  from common import verify_source
  verify_source(source,map_hash);need(not STORE.exists(),'fresh fixed evidence store')
  scope=STORE/'journey'/'source-tools-alpm-v1';scope.mkdir(parents=True)
- report=dict(schema_version=1,operation=T.OPERATION,status='FAIL',source_map_sha256=map_hash,version=T.VERSION,contract=T.pin(source/'native/source-tools-contract-v1.json'),stages=[],inventory={},payloads={},builds={},signatures={},business={},commands=[],signature_policy=dict(SigLevel='Required',LocalFileSigLevel='Required'),native=dict(architecture=os.uname().machine,page_bytes=os.sysconf('SC_PAGE_SIZE'),execution='OWNED_IMAGE_BUILD_STAGE',physical_M2='NOT_RUN',release='NOT_ADMITTED'),first_failure=None,cleanup=dict(homes_retired=False,no_sockets=False,private_directory_absent=False,failures=['INITIALIZATION_NOT_COMPLETED']))
+ report=dict(schema_version=1,operation=T.OPERATION,status='FAIL',source_map_sha256=map_hash,version=T.VERSION,contract=T.pin(source/'native/source-tools-contract-v1.json'),stages=[],inventory={},payloads={},builds={},signatures={},business={},commands=[],signature_policy=dict(SigLevel='Required',LocalFileSigLevel='Required'),native=dict(architecture=os.uname().machine,page_bytes=os.sysconf('SC_PAGE_SIZE'),execution='OWNED_IMAGE_BUILD_STAGE',physical_M2='NOT_RUN',release='NOT_ADMITTED'),first_failure=None,image_build_context=unknown_image_build_context(map_hash),cleanup=dict(homes_retired=False,no_sockets=False,private_directory_absent=False,failures=['INITIALIZATION_NOT_COMPLETED']))
  work=None;commands=None;primary=None;pacman=None;baseline=None;baseline_reasons=None;phase='initialize'
  save_result(scope,report)
  try:
