@@ -7,7 +7,7 @@ PINS={
  'scripts/update/aux_checkpoint.py':(18456,'d51179ca24c981bafd817d7db082c0ceb3b2f5deb922004bfe97d1e2007edda7'),
  'scripts/update/measure_copy.py':(25734,'e582245bd114b0b9d83f2de4fdc81a35d2f48493ba6147879871af794476813b'),
  'scripts/ci/expanded600-installer-vm/observer600.py':(2784,'c3d804e7f2927c7889835ad187a39a3d7c618a4651700f57b0c5413c46612607'),
- 'scripts/update/full_root.py':(35970,'cece1c597b2e2eb98b0e3087cc7e7c148b54332f8a1c4f18e04e4552a71fb51d'),
+ 'scripts/update/full_root.py':(36200,'1a8a788572325ca68d29abfe34008fd5227d8fb6ff5abccdc12624e110837f8f'),
  'scripts/update/aux_copy.py':(3736,'bff93c029e21f9fce0868c80566396984443c8d3438264fac8a91c985175f05b'),
  'scripts/apps/file_capabilities.py':(13562,'498a3beec0327b9335dcd6d80ed5919fa2edebebd3284e9ee8b97770328e26a2'),
  'scripts/apps/full574_copy.py':(7799,'33d49316c28dee344e78e17d7e7ffa409c9d7ad09bb48a82651f7d44f1cb61a0')}
