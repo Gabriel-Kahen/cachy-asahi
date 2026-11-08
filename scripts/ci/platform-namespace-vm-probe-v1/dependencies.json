@@ -1,0 +1,20 @@
+{
+  "basis_source": "7ac36bbd1e4a5a4240967d8aaf0243dce7b2379e",
+  "files": {
+    "scripts/ci/glibc-owned-runtime/runner.py": {
+      "bytes": 16274,
+      "sha256": "4d9aa954d95032ab9ea9085ced784efc81a5db42e2f1f3401e679ee861c16090"
+    },
+    "scripts/virtual/generic16k/build_kernel.py": {
+      "bytes": 10781,
+      "sha256": "e94adb4474183feea30ce1e2949b55c03e4969eeb1addb4c36892e8664ba9aaa"
+    },
+    "scripts/virtual/generic16k/fixture.py": {
+      "bytes": 15118,
+      "sha256": "47d2c042319246538f8724e294b9530e079ba00de7995ef42f9a1031ca17c4ba"
+    }
+  },
+  "minimum_Python": "3.12",
+  "schema": 1,
+  "third_party_Python_dependencies": []
+}

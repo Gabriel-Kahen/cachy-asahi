@@ -1,0 +1,32 @@
+{
+  "QEMU": null,
+  "actual_ref": null,
+  "actual_run": null,
+  "actual_source": null,
+  "bounds": {
+    "CPUs": 1,
+    "UART_bytes": 1048576,
+    "VM_seconds": 180,
+    "command_output_bytes": 65536,
+    "command_seconds": 20,
+    "initramfs_bytes": 314572800,
+    "kernel_bytes": 268435456,
+    "memory_MiB": 1024,
+    "owner_seconds": 240,
+    "report_bytes": 65536,
+    "rootfs_bytes": 268435456,
+    "rootfs_files": 8192
+  },
+  "input_provenance": null,
+  "input_reviewed": null,
+  "issuer": null,
+  "kernel": null,
+  "local_id": null,
+  "native_permission": false,
+  "nonce": null,
+  "operation": "platform-namespace-vm-probe-v1",
+  "provider_manifest": null,
+  "rootfs": null,
+  "schema": 2,
+  "status": "UNBOUND_ROOT_LOCAL_INPUTS_NOT_EXECUTABLE"
+}
