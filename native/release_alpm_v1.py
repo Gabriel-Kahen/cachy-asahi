@@ -39,7 +39,10 @@ def dockerfile(base,map_hash):
     ending='USER alarm\nWORKDIR /tmp\n'
     need(base.endswith(ending) and base.count(ending)==1,'exact genuine187 image suffix; no fallback seam')
     return base[:-len(ending)]+('COPY release-alpm-v1/source/ /opt/native-release-tools-alpm-v1/source/\n'
-        'RUN /usr/bin/python3 -I -B /opt/native-release-tools-alpm-v1/source/native/release_alpm_v1.py --inside-image --map-sha256 '+map_hash+'\n'+ending)
+        'RUN '+json.dumps(['/usr/bin/bash','--noprofile','--norc','-p','-c',
+            'test "$BASHPID" -eq 1 || exit 125; '
+            '/usr/bin/python3 -I -B /opt/native-release-tools-alpm-v1/source/native/release_alpm_v1.py --inside-image --map-sha256 '+map_hash+
+            ' & release_owner=$!; release_status=0; wait "$release_owner" || release_status=$?; exit "$release_status"'])+'\n'+ending)
 
 
 def strict_signature(status,fingerprint):
@@ -119,6 +122,8 @@ def build_recipes(run,source,recipes,policy,alarm):
 
 def inside(source,map_hash):
     source=Path(source)
+    need(os.getpid()>1 and os.getppid()==1,
+         'build-stage Python must be the direct child of the fresh PID1 init shell')
     need(os.getuid()==os.geteuid()==0 and os.uname().machine=='aarch64' and source==SOURCE
          and Path('/builder-packages.lock').is_file(),'explicit owned disposable native image root only')
     from common import verify_source

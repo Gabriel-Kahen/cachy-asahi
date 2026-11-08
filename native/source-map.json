@@ -675,9 +675,9 @@
       "sha256": "aed1ecd1091744d9a4353dcdcac00266bacab24a1a2c3d2cea6cb4a47166847c"
     },
     "native/release_alpm_v1.py": {
-      "bytes": 23698,
+      "bytes": 24077,
       "mode": 420,
-      "sha256": "61cb97fc1bdc4f55e398a083b7318c9ff08895917c1066e666d8cd62b24a271f"
+      "sha256": "cf525aa3e598bdec52c79b06d5bdcc2c1c7836c52eb7d6faa369b22b55e47957"
     },
     "native/release_build_cause_v1.py": {
       "bytes": 37654,
@@ -692,12 +692,12 @@
     "native/release_projection_v1.py": {
       "bytes": 10838,
       "mode": 420,
-      "sha256": "54025eac68520a6191f6dfdf8d8ab6e9f958be2f53cc089f6143255bae7af8e7"
+      "sha256": "9846ad8251d8021162577b4c42c014a268882767a0970a62d4f0ffb7e208983e"
     },
     "native/release_reader_v1.py": {
       "bytes": 97373,
       "mode": 420,
-      "sha256": "775a6969dcc4cf933cf133d90786a58eacfb7b6dc7ef0f53d16060adbedf6a6f"
+      "sha256": "95bf321267f2a47b5a0f37073c82842d9e424890e20002237442e8a18cbd908d"
     },
     "native/release_tools_v1.py": {
       "bytes": 17450,
@@ -1073,7 +1073,7 @@
   "release_parentage_parent": "336bd49226663d659c194ef0af0b403dfe12dca5",
   "release_parentage_scope": "SAME_PRE_REAP_STAT_READ_PPID_DATA_ONLY_NO_WAIT_AUTHORITY",
   "release_parentage_subreaper": "NOT_OBSERVED",
-  "release_prior_build_retirement_parent": "9f5731377772fd9a1893ffa35619bb39d02ef05d",
+  "release_prior_build_retirement_parent": "d9708daa75083f85f1a182cb3aa97a728d04d695",
   "release_prior_build_retirement_scope": "AT_MOST_TWO_EXACT_SUCCESSFUL_SOURCE_BUILD_RETIREMENT_SUMMARIES_UNKNOWN_WHEN_UNOBSERVED_NO_ACCEPTANCE",
   "release_retirement_maintained_main": "eaf43eddc5604773d8176f319700a450bc32ccb0",
   "release_retirement_parent": "adb1f15aa0821e185218dea175b08650831549f1",
