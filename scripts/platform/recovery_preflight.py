@@ -7,15 +7,24 @@ Retained signature evidence is replayed, not freshly verified or owner trusted.
 Exit 2 is a valid blocked assessment; exit 1 refuses malformed/broken inputs.
 """
 import argparse
+import atexit
 import importlib.util
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
+import tempfile
 import tarfile
 import time
 
 sys.dont_write_bytecode = True
+# -B prevents writes, but still permits stale PYC reads. Match private preparation.
+_source_cache = tempfile.TemporaryDirectory(prefix='recovery-preflight-source-cache-', dir=os.environ.get('TMPDIR'))
+sys.pycache_prefix = _source_cache.name
+os.environ['PYTHONPYCACHEPREFIX'] = _source_cache.name
+os.environ['TMPDIR'] = _source_cache.name
+atexit.register(_source_cache.cleanup)
 
 HERE = Path(__file__).resolve().parent
 

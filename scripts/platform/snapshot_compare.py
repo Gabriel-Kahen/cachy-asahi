@@ -1,18 +1,27 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-"""Compare two retained Asahi snapshot bundles as data; print JSON, never write.
+"""Compare two retained Asahi snapshot bundles as data; print JSON, never change inputs.
 
 Exit 0 admits only the declared data comparison, 2 blocks it, 1 refuses the
 contract. No discovery, package/archive execution, transaction, or hardware test.
 """
 import argparse
+import atexit
 import hashlib
 import json
+import os
 from pathlib import Path
 import re
 import sys
+import tempfile
 
 sys.dont_write_bytecode = True
+# -B prevents writes, but still permits stale PYC reads. Match private preparation.
+_source_cache = tempfile.TemporaryDirectory(prefix='snapshot-comparison-source-cache-', dir=os.environ.get('TMPDIR'))
+sys.pycache_prefix = _source_cache.name
+os.environ['PYTHONPYCACHEPREFIX'] = _source_cache.name
+os.environ['TMPDIR'] = _source_cache.name
+atexit.register(_source_cache.cleanup)
 HERE = Path(__file__).resolve().parent
 
 
