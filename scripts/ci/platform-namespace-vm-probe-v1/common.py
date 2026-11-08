@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: MIT
 """Shared finite DATA contract; no actor or network entry points."""
+import base64
 import hashlib
 import json
 import os
@@ -20,6 +21,7 @@ BWRAP = ['/usr/bin/bwrap', '--die-with-parent', '--ro-bind', '/', '/', '--unshar
 ENV = dict(PATH='/usr/bin:/bin', HOME='/tmp', TMPDIR='/tmp', LANG='C', LC_ALL='C',
            PYTHONDONTWRITEBYTECODE='1')
 WRAPPER = ['/usr/bin/python3', '-I', '-B', '/probe/probe_exec.py']
+STDERR_PREVIEW_BYTES = 16384
 
 
 def need(value, reason):
@@ -29,6 +31,38 @@ def need(value, reason):
 
 def pin(raw):
     return dict(bytes=len(raw), sha256=hashlib.sha256(raw).hexdigest())
+
+
+def stderr_preview(raw):
+    need(type(raw) is bytes and len(raw) <= BOUNDS['command_output_bytes'], 'bounded child stderr DATA')
+    return dict(schema=1, encoding='base64', **pin(raw),
+                prefix_b64=base64.b64encode(raw[:STDERR_PREVIEW_BYTES]).decode('ascii'),
+                truncated=len(raw) > STDERR_PREVIEW_BYTES)
+
+
+def validate_stderr(value):
+    whole, preview, command = value['stderr'], value['stderr_preview'], value['command']
+    need(type(whole) is dict and set(whole) == {'bytes', 'sha256'} and
+         type(whole['bytes']) is int and 0 <= whole['bytes'] <= BOUNDS['command_output_bytes'] and
+         type(whole['sha256']) is str and re.fullmatch('[0-9a-f]{64}', whole['sha256']), 'exact child stderr whole pin')
+    need(type(command['stderr_bytes']) is int and command['stderr_bytes'] == whole['bytes'] and
+         command['stderr_sha256'] == whole['sha256'], 'same actual command stderr whole pin')
+    need(type(preview) is dict and set(preview) == {'schema', 'encoding', 'bytes', 'sha256', 'prefix_b64', 'truncated'} and
+         type(preview['schema']) is int and preview['schema'] == 1 and preview['encoding'] == 'base64' and
+         type(preview['bytes']) is int and preview['bytes'] == whole['bytes'] and preview['sha256'] == whole['sha256'] and
+         type(preview['truncated']) is bool and preview['truncated'] is (whole['bytes'] > STDERR_PREVIEW_BYTES) and
+         type(preview['prefix_b64']) is str and len(preview['prefix_b64']) <= 4 * ((STDERR_PREVIEW_BYTES + 2) // 3),
+         'exact bounded version1 child stderr prefix')
+    try:
+        raw = base64.b64decode(preview['prefix_b64'], validate=True)
+    except (ValueError, TypeError):
+        raise ValueError('canonical child stderr base64') from None
+    need(len(raw) == min(whole['bytes'], STDERR_PREVIEW_BYTES) and
+         base64.b64encode(raw).decode('ascii') == preview['prefix_b64'], 'canonical exact child stderr prefix length')
+    if not preview['truncated']:
+        need(pin(raw) == whole, 'complete child stderr whole hash')
+    # A truncated prefix cannot independently establish the unexported suffix; source/command provenance remains required.
+    return raw
 
 
 def decode(raw):
@@ -135,6 +169,7 @@ def validate_report(value, nonce, release):
     need(type(value['schema']) is int and value['schema'] == 1 and value['operation'] == OPERATION and value['nonce'] == nonce and
          value['generic_emulated_16K_only'] is True and value['hardware'] == 'NOT_RUN' and
          value['numeric_unshare_errno'] is None, 'exact guest-only report; numeric syscall errno unknown')
+    validate_stderr(value)
     context_valid(value['before'], release)
     context_valid(value['after'], release)
     need(value['before'] == value['after'], 'outer guest identity/namespaces unchanged after probe')

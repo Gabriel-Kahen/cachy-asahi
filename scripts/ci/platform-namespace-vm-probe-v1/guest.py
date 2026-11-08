@@ -91,7 +91,8 @@ def main(nonce, release):
     report = dict(schema=1, operation=C.OPERATION, nonce=nonce, bootstrap=bootstrap, before=before,
                   after=observe(), command=row, bwrap_argv=C.BWRAP + [nonce, release], exec_context=None,
                   inside=None, command_error=None if failure is None else type(failure).__name__,
-                  stderr=C.pin(err), bwrap=selection['bwrap'], numeric_unshare_errno=None, generic_emulated_16K_only=True,
+                  stderr=C.pin(err), stderr_preview=C.stderr_preview(err), bwrap=selection['bwrap'],
+                  numeric_unshare_errno=None, generic_emulated_16K_only=True,
                   hardware='NOT_RUN', namespace_cause='UNKNOWN_NOT_INFERRED_FROM_TEXT')
     report['status'] = 'PROBE_EXECUTION_OR_RETIREMENT_FAILED'
     try:
