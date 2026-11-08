@@ -1,0 +1,37 @@
+name: Package v4 native Source metadata controls
+on:
+  pull_request:
+    paths:
+      - scripts/ci/release-tools-native-source/package-v4/**
+      - .github/workflows/release-tools-v4-native-source.yml
+  push:
+    branches: [main]
+    paths:
+      - scripts/ci/release-tools-native-source/package-v4/**
+      - .github/workflows/release-tools-v4-native-source.yml
+permissions:
+  contents: read
+jobs:
+  source-data:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Validate metadata and bounded source bundle without construction
+        run: >-
+          python -I -B -Werror::ResourceWarning
+          scripts/ci/release-tools-native-source/package-v4/test_prepare.py
+          --profile-sha256 32a7b49878d1dfe244914b73ff8a4ec2f42153582d664b72b5630ad7d1d3101a
+      - name: Validate Reader DATA predicates without importing the Reader
+        run: >-
+          python -I -B -Werror::ResourceWarning
+          scripts/ci/release-tools-native-source/package-v4/test_reader_data.py
