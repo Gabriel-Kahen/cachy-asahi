@@ -1,0 +1,60 @@
+name: Source Tools retained-release diff candidate
+on:
+  pull_request:
+    paths:
+      - packages/tools/cachy-asahi-source-tools-v3/**
+      - .github/workflows/source-tools-mirror-diff.yml
+  push:
+    branches: [main]
+    paths:
+      - packages/tools/cachy-asahi-source-tools-v3/**
+      - .github/workflows/source-tools-mirror-diff.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  retained-release-diff:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.14'
+      - name: Verify candidate recipe, parser and real relocated offline workflow
+        run: |
+          python -I -B -Werror::ResourceWarning - <<'PYTHON'
+          from pathlib import Path
+          import json, shutil, subprocess, sys, tarfile, tempfile
+          recipe = Path('packages/tools/cachy-asahi-source-tools-v3').resolve()
+          def run(*args):
+              subprocess.run([sys.executable, '-I', '-B', '-Werror::ResourceWarning', *map(str, args)], check=True)
+          run(recipe / 'test_cli_input_refusal.py')
+          run(recipe / 'check_package.py', '--recipe-root', recipe)
+          with tempfile.TemporaryDirectory(prefix='source-tools-diff-') as temporary:
+              root = Path(temporary)
+              for name in ('private-source.tar.gz', 'fixtures.tar.gz'):
+                  with tarfile.open(recipe / name, 'r:gz') as archive:
+                      archive.extractall(root, filter='data')
+              for name in ('test_source_mirror_catalog.py', 'test_source_mirror_diff.py'):
+                  run(recipe / name, '--runtime-root', root / 'private/scripts', '--fixture-root', root / 'fixtures')
+              for path in recipe.iterdir():
+                  if path.is_file(): shutil.copyfile(path, root / path.name)
+              subprocess.run(['bash', '--noprofile', '--norc', '-c',
+                  'set -eu; umask 022; source "$1/PKGBUILD"; srcdir=$2; pkgdir=$3; package',
+                  'stage-diff-candidate', str(recipe), str(root), str(root / 'stage')], check=True)
+              run(recipe / 'check_package.py', '--recipe-root', recipe, '--stage', root / 'stage')
+              (root / 'stage').rename(root / 'moved')
+              run(recipe / 'multi_package_roundtrip.py', 'run', '--cli', root / 'moved/usr/bin/cachy-asahi-source-tools',
+                  '--fixtures', root / 'fixtures', '--work', root / 'workflow')
+              payload = [path for path in (root / 'moved').rglob('*') if path.is_file()]
+              foreign = root / 'moved/user-owned-keep'; foreign.write_text('preserve\n')
+              for path in payload: path.unlink()
+              assert [path for path in (root / 'moved').rglob('*') if path.is_file()] == [foreign]
+              assert foreign.read_text() == 'preserve\n'
+              assert not list(root.rglob('__pycache__'))
+              print(json.dumps(dict(status='PASS', payload_files=len(payload), moved_prefix=True,
+                  file_removal_inverse=True, checkout_hidden=False, native_build='NOT_RUN', alpm_installation='NOT_RUN')))
+          PYTHON
