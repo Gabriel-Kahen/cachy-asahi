@@ -4,7 +4,7 @@
 import hashlib,json,os,stat,sys
 from pathlib import Path
 F=Path(__file__).resolve().parents[1]
-PARENT='05df8c71ea2bcb525bb1cfbc59983452062a1e97';PTREE='7e66e27a352cee19a3d022d8c167c43b9ab72804';TREE='0d001a7d2662b96b7ae65ce299d4035bbd1d7839';MAP='09de757ff03e635b10510cc7c2cf2eb76d34c336e03e611e521e7992aacc47a8';NULL=dict(source=None,ref=None,run=None)
+PARENT='05df8c71ea2bcb525bb1cfbc59983452062a1e97';PTREE='7e66e27a352cee19a3d022d8c167c43b9ab72804';TREE='7356bafdf4be3be96c52e6354db21e687b9c775b';MAP='4c5867ae736e65ac4c9583c8547c44d64508ef1256ef702c740cd51c83808624';NULL=dict(source=None,ref=None,run=None)
 def need(ok,why):
  if not ok:raise ValueError(why)
 def pin(b):return dict(bytes=len(b),sha256=hashlib.sha256(b).hexdigest())
@@ -41,7 +41,7 @@ def tree(rows):
 def main():
  need(len(sys.argv)==2,'one constructed Source201 operand');root=Path(sys.argv[1]);need(root.is_absolute()and root.resolve(strict=True)==root and stat.S_IMODE(root.stat().st_mode)==0o700,'owned0700 constructed root')
  profile_raw=read(F/'parent-profile.json')[0];need(pin(profile_raw)['sha256']=='53fdf5afcf40d2507045203a4035b10e07ab3a07e80855a8b12c999834cf7c2f','exact parent profile');profile=document(profile_raw);parent=profile['files'];need(profile['parent']==PARENT and profile['parent_tree']==PTREE and len(parent)==199 and profile['actual']==NULL,'exact parent199')
- catalog_raw=read(F/'tests/fixtures/catalog.json')[0];need(pin(catalog_raw)['sha256']=='4bb798035c2bd19da00fba6ba25e8213b15d43c2b0289ecb389596deea8b46f8','exact finite fixture catalog');catalog=document(catalog_raw)
+ catalog_raw=read(F/'tests/fixtures/catalog.json')[0];need(pin(catalog_raw)['sha256']=='ba670df88a9ca30e04cebef06137a3d5aaf8cfb56149917c7a997c304fa89c6c','exact finite fixture catalog');catalog=document(catalog_raw)
  full_raw=read(F/'tests/fixtures/source-full-map.json')[0];need(pin(full_raw)=={k:catalog['files']['source-full-map.json'][k]for k in('bytes','sha256')},'independent full201 authority');full=document(full_raw);need(len(full)==201,'exact201')
  changed={n for n in set(parent)|set(full)if (None if n not in parent else{k:parent[n][k]for k in('bytes','sha256','mode','blob')})!=(None if n not in full else{k:full[n][k]for k in('bytes','sha256','mode','blob')})};old=changed&set(parent);need(len(changed)==7 and len(old)==5,'exactseven/five delta')
  metadata={'stage.json','source-authorization.json','source-modes.json','git-blobs.json','parent-commit.raw','parent-full-map.json','delta05df.json','selected-overlay.json'};wanted={'source/'+n for n in full}|{'before05df/'+n for n in old}|metadata
