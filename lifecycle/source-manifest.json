@@ -28,7 +28,7 @@
     },
     "emissions/cases/normal/adapter.json": {
       "bytes": 58965,
-      "sha256": "8983be3134c47dcae175377e6dd7392646693af897e89e0f3c128d0fde8cf667"
+      "sha256": "371abf428cd69cccad41be0790e3c32027d8a0ef3718a9ba69343c650b838d19"
     },
     "emissions/cases/normal/packages/tools/cachy-asahi-apps/.SRCINFO": {
       "bytes": 1775,
@@ -387,8 +387,8 @@
       "sha256": "2d3e166f3bba8fa0bf36e6645f6235f41d62c49b7474d377ca1fb1bee064bcc7"
     },
     "emissions/cases/normal/scripts/update/aux_initialize.py": {
-      "bytes": 60991,
-      "sha256": "14a6dc3a508da8a12364fedfc78cd96ff7d1784a435343d632240d0253f4699e"
+      "bytes": 62124,
+      "sha256": "9d1526f5819fe8deb0c736448658a5c1c8d7c5e25cc5eda715c208559117db5f"
     },
     "emissions/cases/normal/scripts/update/aux_runtime.py": {
       "bytes": 10032,
@@ -464,7 +464,7 @@
     },
     "emissions/cases/normal/upgrade-config.json": {
       "bytes": 14303,
-      "sha256": "c741809608fae61488db45f7fc4005d6921b8689365139db0e9813a70fdcc3c4"
+      "sha256": "9811f47c20e115b2eb2531385aa397aecab268b6e8c04b65cb8ddceb023f4975"
     },
     "emissions/cases/postcommit-exit87/adapter.json": {
       "bytes": 64434,
@@ -1379,8 +1379,8 @@
       "sha256": "be5969d6bda17e854035965391088e9ed4f4be68ceef3a3b3730f5f56c56f731"
     },
     "lifecycle_overlay.py": {
-      "bytes": 989357,
-      "sha256": "d020accef955179f12e4bb0cc101e44fd991d647e369df121250875250c68aab"
+      "bytes": 990528,
+      "sha256": "1d4e131edd15f8440ead2533e9e8527c212bab2bf9524015d0baa94cbbe44384"
     },
     "parent360/.github/workflows/native-arm-build.yml": {
       "bytes": 87381,
@@ -2824,7 +2824,7 @@
     },
     "profile.json": {
       "bytes": 695846,
-      "sha256": "40addaf3109c0343f4b0b16146b77b5a73b9715164558a2eaeebe667901b1a6d"
+      "sha256": "06342b537605208e4187987ec98454caa51a3460485079c8ea49cc0423fc5e0b"
     },
     "retain.py": {
       "bytes": 1275,
