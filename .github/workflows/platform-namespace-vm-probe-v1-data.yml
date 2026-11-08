@@ -30,3 +30,5 @@ jobs:
         run: python3 -I -B -Werror::ResourceWarning scripts/ci/platform-namespace-vm-probe-v1/test_data.py --root "$GITHUB_WORKSPACE"
       - name: Check separately versioned actor-denied local identity controls
         run: python3 -I -B -Werror::ResourceWarning scripts/ci/platform-namespace-vm-probe-v1/test_local_data.py --root "$GITHUB_WORKSPACE"
+      - name: Check actor-denied diskless Python mount bootstrap controls
+        run: python3 -I -B -Werror::ResourceWarning scripts/ci/platform-namespace-vm-probe-v1/test_boot_data.py
