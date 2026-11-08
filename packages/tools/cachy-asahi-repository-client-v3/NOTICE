@@ -1,0 +1,4 @@
+cachy-asahi repository development client v3
+Copyright (c) 2026 cachy-asahi contributors
+MIT; see LICENSE.
+This package contains maintained project Python source derived from client_v2.py. It adds a precommit state-directory identity/private-mode check. The original Runtime1 and ClientV2 packages and helper bytes are unchanged. No upstream affiliation, native/installed/hardware qualification or release admission is claimed.
