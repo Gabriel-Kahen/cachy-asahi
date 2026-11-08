@@ -1,0 +1,17 @@
+{
+  "Root_proof": {
+    "bytes": 5448,
+    "path": "artifacts/development/Root-client-v3-retained-input-carrier-20261108/Root-carrier-qualified.json",
+    "sha256": "11869b08c5d88a7788466cfb2df7e51f0fac1f2d72e9cf1430573187f8ae24e5"
+  },
+  "actual_commit": "3856733787d10820ab73f842e9f2bbf4fdb84181",
+  "actual_ref": "refs/heads/codex/retained-public-inputs-zlib-v1",
+  "complete_files": 18,
+  "historical_declared_commit": "04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd",
+  "native_permission": false,
+  "payload_files": 14,
+  "schema_version": 1,
+  "selected_by_default": false,
+  "status": "ROOT_QUALIFIED_RETAINED_DATA_CARRIER_REFERENCE_NOT_NATIVE_AUTHORITY",
+  "tree": "2c13721dbe98f520c04a18b5362669bd5000923d"
+}
