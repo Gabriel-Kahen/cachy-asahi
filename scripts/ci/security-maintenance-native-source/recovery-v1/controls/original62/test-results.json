@@ -1,0 +1,30 @@
+{
+  "actual_GPG_pacman_native_VM_Git_API_reader_callback_GET_calls": 0,
+  "command": [
+    "python",
+    "-I",
+    "-B",
+    "-Werror::ResourceWarning",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/security-interrupted-upgrade-recovery-development-20261108/tests",
+    "-p",
+    "test_recovery_*.py",
+    "-v"
+  ],
+  "elapsed_seconds": 2.989,
+  "errors": 0,
+  "exit_code": 0,
+  "failures": 0,
+  "fixtures": "UNBOUND_SYNTHETIC_DATA_AND_REAL_TEMPORARY_FILESYSTEMS_FAKE_GPG_PACMAN_ADAPTER",
+  "groups": {
+    "sequence_fake_command_adapter": 10,
+    "state": 30,
+    "temporary_filesystem": 22
+  },
+  "old55_replayed": false,
+  "status": "PASS",
+  "tests": 62
+}

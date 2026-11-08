@@ -1,0 +1,15 @@
+{
+  "basis": "Official installed libalpm package API documents install timestamp; observed local DB uses INSTALLDATE single decimal epoch. Native target reference will be captured from exact same target libalpm/package before interruption. No other field normalization.",
+  "local_desc_observation": {
+    "bytes": 501,
+    "path": "/var/lib/pacman/local/7zip-26.03-1.1/desc",
+    "sha256": "f0a06c5365071b0853fc8d256567eee031cf2154f7bf6c5be0ca2168b35fd19d"
+  },
+  "local_libalpm_man": {
+    "bytes": 5120,
+    "path": "/usr/share/man/man3/libalpm_packages.3.gz",
+    "sha256": "adb95a20bcd8ac2697b3c0cccb215d5ca5ce036f5cfa59ec393ba8d73cd30fd8"
+  },
+  "new_GET_pacman_GPG_native_calls": 0,
+  "source_binary_correspondence": "OPEN"
+}
