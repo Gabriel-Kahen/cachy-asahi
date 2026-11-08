@@ -4,6 +4,8 @@ from contextlib import ExitStack
 import copy
 import importlib.util
 import json
+import hashlib
+import tarfile
 import itertools
 from pathlib import Path
 import stat
@@ -29,6 +31,31 @@ def load(name, path):
 m = load('managed_controls_api', HERE / 'managed_session.py')
 c = load('managed_controls_contract', HERE / 'managed_contract.py')
 p = load('managed_controls_prepare', ROOT / 'scripts/ci/desktop-user-session/prepare.py')
+
+
+def fixture_source(root):
+    """Load the historical staging inputs as data, without native actors."""
+    archive = HERE / 'fixtures/pinned-combined-source-v1.tar.gz'
+    if hashlib.sha256(archive.read_bytes()).hexdigest() != '4e590e8f0fd29de4b0c83415181dd60a3838977a7ab69bba8ff477c20b410637':
+        raise ValueError('historical combined fixture archive differs')
+    pins = json.loads((HERE / 'source-pins.json').read_text())
+    root.mkdir(mode=0o700)
+    with tarfile.open(archive, 'r:gz') as frozen:
+        members = frozen.getmembers()
+        if len(members) != len(pins) or {member.name for member in members} != set(pins):
+            raise ValueError('historical combined fixture membership differs')
+        for member in members:
+            if not member.isfile() or member.size > 2 * 1024**2 or member.mode not in (0o644, 0o755):
+                raise ValueError('historical combined fixture member differs')
+            with frozen.extractfile(member) as stream:
+                data = stream.read()
+            if hashlib.sha256(data).hexdigest() != pins[member.name]:
+                raise ValueError('historical combined fixture bytes differ')
+            target = root / member.name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(data)
+            target.chmod(member.mode)
+    return root
 
 
 def row(unit, state='inactive', sub='dead', pid=0):
@@ -287,7 +314,8 @@ class TypesAndIdentity(unittest.TestCase):
 class Profile(unittest.TestCase):
     def test_stages_separate_profile_without_pam_rewrite_private_bus_or_timer_changes(self):
         with tempfile.TemporaryDirectory() as temporary:
-            out = p.prepare(ROOT, Path(temporary) / 'runner')
+            source = fixture_source(Path(temporary) / 'source')
+            out = p.prepare(source, Path(temporary) / 'runner')
             guest = (out / 'base_guest.py').read_text(); fixture = (out / 'desktop574_fixture.sh').read_text()
             self.assertNotIn('dbus-run-session', guest)
             self.assertNotIn('runuser', guest)
@@ -301,7 +329,7 @@ class Profile(unittest.TestCase):
             self.assertNotIn('nologin', fixture)
             self.assertIn('verify_result', (out / 'desktop574_runtime.py').read_text())
             for path in out.glob('*.py'): ast.parse(path.read_bytes())
-            with self.assertRaisesRegex(ValueError, 'fresh'): p.prepare(ROOT, out)
+            with self.assertRaisesRegex(ValueError, 'fresh'): p.prepare(source, out)
 
     def test_source_drift_and_transform_anchor_drift_refuse(self):
         with self.assertRaisesRegex(ValueError, 'anchor'): p.transform_guest('not the selected base')
