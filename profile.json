@@ -199,7 +199,7 @@
     },
     "emissions/cases/normal/adapter.json": {
       "bytes": 58965,
-      "sha256": "0e348926ee81dec8332044928544cf22f40dbcbd8f4598d20cbfc1342222a3f1"
+      "sha256": "8983be3134c47dcae175377e6dd7392646693af897e89e0f3c128d0fde8cf667"
     },
     "emissions/cases/normal/packages/tools/cachy-asahi-apps/.SRCINFO": {
       "bytes": 1775,
@@ -446,8 +446,8 @@
       "sha256": "dc49c28398c3fa7ccf8c065fed34da9376d41c092405037e1c9f68045f91660b"
     },
     "emissions/cases/normal/scripts/ci/full-root-upgrade-caller/persistent_scope.py": {
-      "bytes": 102210,
-      "sha256": "034af65c0a04cea476b7e270cfe875ed8e9a3ddfc7eafc7f2e29c890ce697499"
+      "bytes": 103075,
+      "sha256": "25cdb1b862cf31f6665db7374ff531354477a633c1f8af79a891f5e374786ea3"
     },
     "emissions/cases/normal/scripts/ci/full-root-upgrade-caller/run.py": {
       "bytes": 27803,
@@ -635,7 +635,7 @@
     },
     "emissions/cases/normal/upgrade-config.json": {
       "bytes": 14303,
-      "sha256": "27c9f6130d81aac8221bcd4fad6a5275e244e2d59dc6a443884acfae4f005fe5"
+      "sha256": "c741809608fae61488db45f7fc4005d6921b8689365139db0e9813a70fdcc3c4"
     },
     "emissions/cases/postcommit-exit87/adapter.json": {
       "bytes": 64434,
@@ -1550,8 +1550,8 @@
       "sha256": "be5969d6bda17e854035965391088e9ed4f4be68ceef3a3b3730f5f56c56f731"
     },
     "lifecycle_overlay.py": {
-      "bytes": 988474,
-      "sha256": "2c7b5fc82c7da070514769d918c363cddcea4723f8b456b207aeebf128df143f"
+      "bytes": 989357,
+      "sha256": "d020accef955179f12e4bb0cc101e44fd991d647e369df121250875250c68aab"
     },
     "parent360/.github/workflows/native-arm-build.yml": {
       "bytes": 87381,
@@ -2995,7 +2995,7 @@
     },
     "profile.json": {
       "bytes": 695846,
-      "sha256": "2c8ee99af4cf120f7a596db890b5aea026864ca44e1c0317b633a32a2077da43"
+      "sha256": "40addaf3109c0343f4b0b16146b77b5a73b9715164558a2eaeebe667901b1a6d"
     },
     "retain.py": {
       "bytes": 1275,
@@ -3007,7 +3007,7 @@
     },
     "source-manifest.json": {
       "bytes": 136380,
-      "sha256": "64caaa723a458d1d513fc7d13cd42f87c550b9ae78d55d3f9802e8d996d8d6c5"
+      "sha256": "d0ecddf01939f4495d5180c64d1b89fc76452b3ef6bfaba3ccb657238d97fb3c"
     },
     "test_source.py": {
       "bytes": 3132,
@@ -3022,8 +3022,8 @@
       "sha256": "45c352ba77bc29bfa44cd50d507c814da1ab8cf8e253a9268db498742fe0dcc4"
     },
     "vm/disk.py": {
-      "bytes": 12836,
-      "sha256": "d33eda29a06088251f6a4e0c5bb07d903055ca1761a83a93ed9c70b38a90017f"
+      "bytes": 14062,
+      "sha256": "f1d9fb78217151b2e3539da08bec2d41b39dc454e21305fb29446d8dc629b612"
     },
     "vm/guest.py": {
       "bytes": 26474,

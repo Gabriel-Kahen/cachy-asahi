@@ -8405,7 +8405,7 @@
     "normal": {
       "adapter.json": {
         "bytes": 58965,
-        "sha256": "0e348926ee81dec8332044928544cf22f40dbcbd8f4598d20cbfc1342222a3f1"
+        "sha256": "8983be3134c47dcae175377e6dd7392646693af897e89e0f3c128d0fde8cf667"
       },
       "packages/tools/cachy-asahi-apps/.SRCINFO": {
         "bytes": 1775,
@@ -8652,8 +8652,8 @@
         "sha256": "dc49c28398c3fa7ccf8c065fed34da9376d41c092405037e1c9f68045f91660b"
       },
       "scripts/ci/full-root-upgrade-caller/persistent_scope.py": {
-        "bytes": 102210,
-        "sha256": "034af65c0a04cea476b7e270cfe875ed8e9a3ddfc7eafc7f2e29c890ce697499"
+        "bytes": 103075,
+        "sha256": "25cdb1b862cf31f6665db7374ff531354477a633c1f8af79a891f5e374786ea3"
       },
       "scripts/ci/full-root-upgrade-caller/run.py": {
         "bytes": 27803,
@@ -8841,7 +8841,7 @@
       },
       "upgrade-config.json": {
         "bytes": 14303,
-        "sha256": "27c9f6130d81aac8221bcd4fad6a5275e244e2d59dc6a443884acfae4f005fe5"
+        "sha256": "c741809608fae61488db45f7fc4005d6921b8689365139db0e9813a70fdcc3c4"
       }
     },
     "postcommit-exit87": {

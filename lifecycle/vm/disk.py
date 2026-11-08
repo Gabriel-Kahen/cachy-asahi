@@ -45,10 +45,26 @@ def formatter_recovery_directory(image,baseline,parent):
  after=listing('/');C.need(after=={n:r for n,r in before.items()if n!='lost+found'},'exact recovery removal readback; zero debugfs exit alone is insufficient')
  C.need(identity(image.lstat())==identity(held),'same owned image after fixed removal')
 
+_NORMAL_PERSISTENT_API_PROFILE = ('NORMAL_I16K_STATX_HASH_SPLIT_V2_PERSISTENT_API_V1', (69933, 'eb2503068499399d4de60a08f82fb21f179a2a173d1d789d57a28de73eaf609f'), (36200, '1a8a788572325ca68d29abfe34008fd5227d8fb6ff5abccdc12624e110837f8f'))
+
+def disk_observation_profile(config):
+    if config['purpose']=='actual-apps6-current604-persistent-root-test':
+        if config['code_pins']['scripts/update/full_root.py']!=_NORMAL_PERSISTENT_API_PROFILE[1][1]:
+            raise ValueError('normal-v2 disk configuration/root source binding')
+        return _NORMAL_PERSISTENT_API_PROFILE
+    faults={'actual-apps6-current604-precommit-failure-disposal-test':'precommit-exit86',
+            'actual-apps6-current604-postcommit-failure-disposal-test':'postcommit-exit87'}
+    if (config['purpose']not in faults or config.get('failure',{}).get('case')!=faults[config['purpose']]
+            or config['code_pins']['scripts/update/full_root.py']!='3d8972efeb577750382c62d6801b8c507dbf612ed96e29ebde450a102c5c568e'):
+        raise ValueError('exact frozen fault-v1 disk observation selection')
+    return None
+
 def apis():
- # All updater root/copy/aux/checkpoint source bodies remain the generated exact
- # original Apps6 adapter bodies. Capability metadata is an additional roundtrip.
- scope=C.load('scope','/persistent_scope.py');roots,copier,resolver,driver=scope._apis(Path('/upgrade-code'))
+ # Standalone disk and binder embed the identical maintained versioned contract.
+ scope=C.load('scope','/persistent_scope.py');config=C.decode(C.read('/upgrade-config.json'))
+ profile=disk_observation_profile(config)
+ if profile is None:roots,copier,resolver,driver=scope._apis(Path('/upgrade-code'))
+ else:roots,copier,resolver,driver=scope._apis(Path('/upgrade-code'),observation_profile=profile)
  return scope,roots,copier,None
 
 def limits(roots,seconds):

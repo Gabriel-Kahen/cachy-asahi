@@ -86,7 +86,16 @@ def need(ok, reason):
     if not ok: raise ValueError(reason)
 
 
-def _apis(code):
+_NORMAL_PERSISTENT_API_PROFILE = ('NORMAL_I16K_STATX_HASH_SPLIT_V2_PERSISTENT_API_V1', (69933, 'eb2503068499399d4de60a08f82fb21f179a2a173d1d789d57a28de73eaf609f'), (36200, '1a8a788572325ca68d29abfe34008fd5227d8fb6ff5abccdc12624e110837f8f'))
+
+def normal_persistent_profile(observation_profile, selected):
+    if type(observation_profile)is not tuple or observation_profile!=_NORMAL_PERSISTENT_API_PROFILE:
+        raise ValueError('exact normal-v2 persistent observation profile')
+    if (len(selected),hashlib.sha256(selected).hexdigest())!=observation_profile[1]:
+        raise ValueError('whole selected normal-v2 persistent observation source')
+    return observation_profile[2]
+
+def _apis(code, *, observation_profile=_NORMAL_PERSISTENT_API_PROFILE):
     directory = Path(code) / 'scripts/update'
     sys.path.insert(0, str(directory))
     try:
@@ -101,7 +110,7 @@ def _apis(code):
          and Path(measure_copy.__file__).resolve() == (directory / 'measure_copy.py').resolve()
          and Path(root_path.__file__).resolve() == (directory / 'root_path.py').resolve(),
          'selected scope API origin differs')
-    return persistent_apis(full_root, measure_copy, root_path, driver)
+    return persistent_apis(full_root, measure_copy, root_path, driver, observation_profile=observation_profile)
 
 
 def mounts(raw):
@@ -366,9 +375,10 @@ def _mount600(original):
         return result.mnt_id
     return query
 
-def persistent_apis(roots,copier,resolver,driver):
+def persistent_apis(roots,copier,resolver,driver, *, observation_profile=_NORMAL_PERSISTENT_API_PROFILE):
     """Private APIs only; held walkers/copy/hash/check code and fresh FDs remain."""
     import types
+    expected=normal_persistent_profile(observation_profile,Path(roots.__file__).read_bytes())
     def held(module,size,digest):
         raw=Path(module.__file__).read_bytes()
         if module is roots:
@@ -383,7 +393,7 @@ def persistent_apis(roots,copier,resolver,driver):
             need(raw.count(selected)==1,'one selected604 root package limit')
             raw=raw.replace(selected,b'max_packages: int = 587',1)
         need(len(raw)==size and hashlib.sha256(raw).hexdigest()==digest,'whole persistent observation API source')
-    held(roots,35970,'cece1c597b2e2eb98b0e3087cc7e7c148b54332f8a1c4f18e04e4552a71fb51d')
+    held(roots,*expected)
     held(copier,25734,'e582245bd114b0b9d83f2de4fdc81a35d2f48493ba6147879871af794476813b')
     def clone(function,namespace):
         result=types.FunctionType(function.__code__,namespace,function.__name__,function.__defaults__,function.__closure__)

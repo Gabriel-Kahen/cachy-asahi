@@ -61,7 +61,7 @@
     "scripts/ci/full-development-composition/run.py": "f86af098fdb0fc9a57a8b78b351341395ce13f9977464783f6f8133626e85698",
     "scripts/ci/full-development-composition/setup4_inputs.py": "fb3bd6e2bb6c97fb1400fd04969ba5acd9e9f8a712d93e4ac2eaa0aa70fa5aac",
     "scripts/ci/full-root-upgrade-caller/container.py": "dc49c28398c3fa7ccf8c065fed34da9376d41c092405037e1c9f68045f91660b",
-    "scripts/ci/full-root-upgrade-caller/persistent_scope.py": "034af65c0a04cea476b7e270cfe875ed8e9a3ddfc7eafc7f2e29c890ce697499",
+    "scripts/ci/full-root-upgrade-caller/persistent_scope.py": "25cdb1b862cf31f6665db7374ff531354477a633c1f8af79a891f5e374786ea3",
     "scripts/ci/full-root-upgrade-caller/run.py": "b9840c79ffc6c45070ac12b80d469fb46c26059df63e121801d6ab223035e303",
     "scripts/ci/full-root-upgrade-caller/upgrade_hook.py": "1a3f00bbe995c1edc5b81405954037809d81383ddb42693e0d4029f1c66c7770",
     "scripts/ci/full-root-upgrade/construct_repository.py": "8e6d1e58ae8aa1b7c945eebb5d5d279800c2e26f60a4575c3f94c8f699789fec",
@@ -111,7 +111,7 @@
   "driver_seconds": 10440,
   "external_pins": {
     "/footprint.py": "78391cd0e009bdf165cffdb26ba911642f5fec81ec6bd7feab65654fcf776387",
-    "/persistent_scope.py": "034af65c0a04cea476b7e270cfe875ed8e9a3ddfc7eafc7f2e29c890ce697499",
+    "/persistent_scope.py": "25cdb1b862cf31f6665db7374ff531354477a633c1f8af79a891f5e374786ea3",
     "/setup4.py": "aa9bcc4eff8208c9724de7d7f6490055404dc9e11979f6cbae372d98fd83d379"
   },
   "purpose": "actual-apps6-current604-persistent-root-test",
