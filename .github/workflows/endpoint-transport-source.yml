@@ -1,0 +1,58 @@
+name: Portable endpoint archive controls
+on:
+  pull_request:
+    paths:
+      - scripts/release/endpoint_transport_v1/**
+      - scripts/release/endpoint_copy_v1/copy_endpoint.py
+      - scripts/client/endpoint.py
+      - scripts/client/client.py
+      - scripts/release/export_repository.py
+      - scripts/release/release.py
+      - scripts/release/source_delivery.py
+      - scripts/release/offline_kit.py
+      - .github/workflows/endpoint-transport-source.yml
+  push:
+    branches: [main]
+    paths:
+      - scripts/release/endpoint_transport_v1/**
+      - scripts/release/endpoint_copy_v1/copy_endpoint.py
+      - scripts/client/endpoint.py
+      - scripts/client/client.py
+      - scripts/release/export_repository.py
+      - scripts/release/release.py
+      - scripts/release/source_delivery.py
+      - scripts/release/offline_kit.py
+      - .github/workflows/endpoint-transport-source.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  endpoint-transport:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.14'
+      - name: Provision existing TEST-signature and archive tools on disposable runner
+        run: |
+          sudo apt-get -o APT::Update::Error-Mode=any update
+          sudo apt-get install --yes --no-install-recommends gnupg libarchive-tools pacman-package-manager makepkg
+          for tool in gpg bsdtar vercmp repo-add; do command -v "$tool"; done
+      - name: Run pinned transport round trips and hostile archive controls without skips
+        run: |
+          python -I -B -Werror::ResourceWarning - <<'PYTHON'
+          import importlib.util, sys, unittest
+          from pathlib import Path
+          path = Path('scripts/release/endpoint_transport_v1/test_transport.py').resolve()
+          spec = importlib.util.spec_from_file_location('endpoint_transport_controls', path)
+          tests = importlib.util.module_from_spec(spec)
+          sys.modules[spec.name] = tests
+          spec.loader.exec_module(tests)
+          result = unittest.TextTestRunner(verbosity=2).run(unittest.TestLoader().loadTestsFromModule(tests))
+          if not result.wasSuccessful() or result.skipped or result.testsRun < 22:
+              raise SystemExit('failures, skips, or missing controls')
+          PYTHON
