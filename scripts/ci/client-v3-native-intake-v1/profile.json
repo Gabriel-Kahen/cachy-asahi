@@ -1,0 +1,29 @@
+{
+  "Doc315_qualification": false,
+  "M2": "NOT_RUN",
+  "Root_acceptance": null,
+  "actual_Source": null,
+  "actual_run": null,
+  "allowed_physical_carrier": "3856733787d10820ab73f842e9f2bbf4fdb84181",
+  "archive_format": "XZ_ONLY_NO_ACTOR_FALLBACK",
+  "clean_builds": 4,
+  "expanded_zip_cap": 201326592,
+  "historical_carrier_declaration": "04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd",
+  "installed_inventory": 576,
+  "leaf_cap": 256,
+  "native_admission": false,
+  "operation": "CLIENT_V3_RUNTIME_FRESH_COMPONENT_V1",
+  "original_inventory": 574,
+  "original_zip_cap": 234881024,
+  "package_source_Main": "2dbe7fe5623fae9ed5940a26385400958c3ffb42",
+  "products": {
+    "client": "0.1.0-1",
+    "runtime": "0.1.0-1"
+  },
+  "release": "NOT_ADMITTED",
+  "resource_policy": "ROOT_CLASSIFICATION_REQUIRED; LEGACY_GROUP_MAY_BE_HEAVY_NON_KERNEL",
+  "runtime_inventory": 575,
+  "schema": 1,
+  "scope": "PASSIVE_DATA_NOT_NATIVE_ADMISSION",
+  "version_upgrade": "NOT_RUN"
+}
