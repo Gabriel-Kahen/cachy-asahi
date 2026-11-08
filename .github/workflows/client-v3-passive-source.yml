@@ -1,0 +1,41 @@
+name: client-v3-passive-source-data
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/client-v3-passive-source.yml'
+      - 'scripts/ci/client-v3-native-intake-v1/**'
+      - 'scripts/ci/client-v3-native/adapter.py'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/client-v3-passive-source.yml'
+      - 'scripts/ci/client-v3-native-intake-v1/**'
+      - 'scripts/ci/client-v3-native/adapter.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  passive-data:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 2dbe7fe5623fae9ed5940a26385400958c3ffb42
+          path: .ci-inputs/client-v3-passive-main2dbe
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Check NEW26 passive reader/projection MODELED DATA controls
+        run: |
+          set -euo pipefail
+          ulimit -t 60 -v 1048576 -f 4096 -n 128
+          timeout --signal=TERM --kill-after=5s 60s python3 -I -B -Werror scripts/ci/client-v3-native-intake-v1/test_intake.py --input-root "$GITHUB_WORKSPACE/.ci-inputs/client-v3-passive-main2dbe"

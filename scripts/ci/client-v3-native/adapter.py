@@ -78,6 +78,16 @@ def text(source, name):
                       "result.update(status='PASS_NATIVE_RUNTIME_CLIENT_V3_FRESH_COMPONENT',cache_cleanup='NOT_RUN',client_v3='PASS_REAL_SIGNED_CHECKPOINT_COMPONENT_ONLY',version_upgrade='NOT_RUN')")
         raw = replace(raw, "'PASS_NATIVE_UNSELECTED_APPS_RUNTIME_CACHE_CANDIDATES'", "'PASS_NATIVE_RUNTIME_CLIENT_V3_FRESH_COMPONENT'")
         raw = raw.replace('six clean native build bindings required', 'four clean native build bindings required')
+        marker = "    try:\n        C.verify_source(source);report=C.read(runtime/'report.json');C.validate_lifecycle(report['lifecycle'])\n"
+        extra = """    for role,context in [('runtime-dependency',runtime/'runtime-context'),('lifecycle',runtime/'lifecycle-inputs')]:
+        proof=C.read(context/'runner-derivations.json');C.need(proof.get('schema')==1 and proof.get('status')=='SOURCE_CLOSED_ACTUAL_RUNTIME_RUNNER_DATA' and len(proof.get('files',{}))==12,'complete actual runner forwarding required')
+        copy(context/'runner-derivations.json','emitted/'+role+'/runner-derivations.json',65536)
+        for name,row in proof['files'].items():
+            C.need(type(name)is str and not Path(name).is_absolute() and all(p not in ('','.','..') for p in name.split('/')),'ordinary runner DATA name')
+            path=context/'runner'/name;C.need(path.stat().st_size==row['bytes'] and C.digest(path)==row['sha256'],'actual runner bytes differ')
+            copy(path,'emitted/'+role+'/runner/'+name,2*1024**2)
+"""
+        raw = replace(raw, marker, extra + marker)
     else:
         raise ValueError('finite native derivative name required')
     return raw
@@ -121,4 +131,13 @@ def runner(source, context):
     fixture.mkdir()
     for name in ('test_client_v2.py', 'client_v2.py'):
         shutil.copyfile(source / 'scripts/client' / name, fixture / name)
+    rows = {}
+    for path in sorted(runner.rglob('*')):
+        if path.is_file():
+            path.chmod(0o644)
+            raw = path.read_bytes()
+            rows[path.relative_to(runner).as_posix()] = dict(bytes=len(raw), sha256=hashlib.sha256(raw).hexdigest(), mode=0o644)
+    if len(rows) != 12:
+        raise ValueError('exact complete twelve-file runtime runner required')
+    (context / 'runner-derivations.json').write_text(json.dumps(dict(schema=1, status='SOURCE_CLOSED_ACTUAL_RUNTIME_RUNNER_DATA', files=rows), sort_keys=True, indent=2) + '\n')
     return runner
