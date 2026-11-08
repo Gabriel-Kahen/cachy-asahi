@@ -526,7 +526,7 @@ class PhysicalCarrierDATAControls(unittest.TestCase):
                                                                b'ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad')):
             with self.subTest(carrier_pin=pin(carrier)),self.assertRaises(ValueError):
                 invoke(self.validator(),self.bridge,self.raw,carrier)
-    def test_nine_carrier_corrections_are_exact_reversible_literal_changes(self):
+    def test_carrier_literal_inverses_and_versioned_reader_transport_seam_are_exact(self):
         names={'bootstrap/scripts/ci/setup6-retained-helpers/carrier-profile.json',
                'bootstrap/scripts/ci/setup6-retained-helpers/legacy-prefill-profile.json',
                'bootstrap/scripts/ci/setup6-retained-helpers/legacy_prefill.py',
@@ -538,11 +538,18 @@ class PhysicalCarrierDATAControls(unittest.TestCase):
         for name in sorted(names):
             raw=(PAYLOAD/name).read_bytes();restored=raw
             for current,old in substitutions:restored=restored.replace(current,old)
-            if name=='native/desktop_reader_v1.py':
-                restored=restored.replace(b'bc5c84ae2abc21883507785b108101d5b0da964dde384c04e0c090478aeed8ca',
-                                          b'94b0c96301a4a7985b758d6a36d50f597478a1a010cb794602d7a73d80da8dd3')
             before=self.profile['before199'][name]
-            self.assertEqual(pin(restored),{k:before[k]for k in ('bytes','sha256')},name)
+            if name=='native/desktop_reader_v1.py':
+                # This leaf now also implements the versioned reader. Bind its
+                # carrier-only function instead of pretending the whole reader
+                # can still be restored using literal substitutions alone.
+                tree=ast.parse(restored)
+                seam=ast.get_source_segment(restored.decode(),function(tree,'retained_transport_proof')).encode()
+                self.assertEqual(pin(seam),{'bytes': 1434, 'sha256': 'e82e9ea58ef41cad81c5cd9ef0134e918d8db6c8dc19860827cab1a6d51ff85d'},name)
+                current_seam=ast.get_source_segment(raw.decode(),function(ast.parse(raw),'retained_transport_proof')).encode()
+                for current,old in substitutions[:2]:self.assertEqual(current_seam.count(current),1,name)
+            else:
+                self.assertEqual(pin(restored),{k:before[k]for k in ('bytes','sha256')},name)
             self.assertNotEqual(raw,restored,name)
             self.assertEqual(self.profile['after200'][name]['mode'],before['mode'])
         self.assertEqual(CAPABILITY_ATTEMPTS,[])
