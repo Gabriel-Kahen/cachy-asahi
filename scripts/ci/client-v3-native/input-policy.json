@@ -1,7 +1,7 @@
 {
   "actual_run": null,
   "base_inventory_sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
-  "candidate_source": null,
+  "candidate_source": "2dbe7fe5623fae9ed5940a26385400958c3ffb42",
   "dependency": null,
   "dependency_source": null,
   "helper_pins": {
@@ -115,7 +115,7 @@
           "sha256": "ae0f1bcc19343e3f1c4e36652511c4077850bd1e45d860bd3a12841f1d7e5f06"
         }
       },
-      "source_sha": null,
+      "source_sha": "2dbe7fe5623fae9ed5940a26385400958c3ffb42",
       "version": "0.1.0-1"
     },
     "runtime": {
@@ -205,14 +205,14 @@
           "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
         }
       },
-      "source_sha": null,
+      "source_sha": "2dbe7fe5623fae9ed5940a26385400958c3ffb42",
       "version": "0.1.0-1"
     }
   },
   "purpose": "CLIENT_V3_RUNTIME_FRESH_COMPONENT_V1",
   "resource_authority": null,
-  "retained_input_carrier": null,
+  "retained_input_carrier": "3856733787d10820ab73f842e9f2bbf4fdb84181",
   "schema_version": 1,
-  "status": "UNBOUND_CLIENT_V3_COMPONENT",
+  "status": "ROOT_BOUND_FINAL_PRODUCT_SOURCES",
   "version_upgrade": "NOT_RUN"
 }

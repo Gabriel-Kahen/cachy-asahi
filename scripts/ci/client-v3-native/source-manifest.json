@@ -1,0 +1,316 @@
+{
+  "files": {
+    "packages/tools/cachy-asahi-repository-client-v3/.SRCINFO": {
+      "bytes": 1528,
+      "sha256": "9bfc5eed3d4918eb7fd40a3fe45a7a981fd323ebd176b2a2379f9a61a47d9a1a"
+    },
+    "packages/tools/cachy-asahi-repository-client-v3/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-repository-client-v3/NOTICE": {
+      "bytes": 428,
+      "sha256": "ea4bc42028760f475c93e37e2769db77eb2bf52c3c2de8c2c687ac1fcbc6941e"
+    },
+    "packages/tools/cachy-asahi-repository-client-v3/PKGBUILD": {
+      "bytes": 2293,
+      "sha256": "7576be2613310101d10bdeb6ca0a6dc059e2e4adea74eeb6e995a5fdff9747cc"
+    },
+    "packages/tools/cachy-asahi-repository-client-v3/README.md": {
+      "bytes": 2430,
+      "sha256": "994548e7215fdd06e5e113e7c453309499b278c829116fe55b55f3db2fd4d0d8"
+    },
+    "packages/tools/cachy-asahi-repository-client-v3/cachy-asahi-repository-client": {
+      "bytes": 331,
+      "sha256": "859540def486ab1b3182f90b727056bd83004a0dc94a6d3a22a1498e500bd05f"
+    },
+    "packages/tools/cachy-asahi-repository-client-v3/check_source.py": {
+      "bytes": 4434,
+      "sha256": "6dadc5ee2f014725bf584b074bee7fa155d0f41d18133ba7829ad9ddead9b808"
+    },
+    "packages/tools/cachy-asahi-repository-client-v3/client_v3.py": {
+      "bytes": 29503,
+      "sha256": "4cf428452d08ea212d8bb92d899329f3445d15877c5b79e5ff5f138b0a696e76"
+    },
+    "packages/tools/cachy-asahi-repository-client-v3/helper-pins.json": {
+      "bytes": 790,
+      "sha256": "1ab94b176f798ef9d95f079e02dad803265995081e575070b1c53612fc9292b7"
+    },
+    "packages/tools/cachy-asahi-repository-client-v3/source-provenance.json": {
+      "bytes": 1633,
+      "sha256": "a38d0035f2adc03bf8d5556c2eb5132f29cddcfac3e56d3a79d5f086231c47d3"
+    },
+    "packages/tools/cachy-asahi-repository-client-v3/state-binding-before-v2.py.txt": {
+      "bytes": 28763,
+      "sha256": "915c2336a6515dcbde9801d7778c0aeae3a0251cf6463c4704d47590d94d1409"
+    },
+    "packages/tools/cachy-asahi-repository-client-v3/test_package.py": {
+      "bytes": 4170,
+      "sha256": "a68136adda35e18414aa6f580af2f3113c783bc6c0cb8cc8e2fc51f55cedc287"
+    },
+    "packages/tools/cachy-asahi-repository-client-v3/test_state_binding_v3.py": {
+      "bytes": 7817,
+      "sha256": "ae0f1bcc19343e3f1c4e36652511c4077850bd1e45d860bd3a12841f1d7e5f06"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/.SRCINFO": {
+      "bytes": 1269,
+      "sha256": "4677c10dcc40686877f9d2bc5b9cac88763fdb4cc395a9a7fd530b6b79db2502"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/NOTICE": {
+      "bytes": 624,
+      "sha256": "5c4ed38dd7675728134d292afb2e61f2a09342c0eefa0becf89b9bda011166df"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/PKGBUILD": {
+      "bytes": 1973,
+      "sha256": "e1f9071387ebd679e09fbbdecb31aadf2f89a59235c8ca03ac42eb2599f16f0b"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/README.md": {
+      "bytes": 1748,
+      "sha256": "faf56df41bb5783d566d5e186141b47688ef770f3b7e2baef6c62302b599d316"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/check_source.py": {
+      "bytes": 3328,
+      "sha256": "4d002bc596e29cb83426fd5b7d185b2aa30e9211c0da79fcb616cf003c11f4a7"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/client.py": {
+      "bytes": 28669,
+      "sha256": "48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/helper-pins.json": {
+      "bytes": 493,
+      "sha256": "33a5e11e6d12df984e07c437c68ee581527cc4c95f3327bc44cbc09e0e29948a"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/release.py": {
+      "bytes": 41320,
+      "sha256": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/source-provenance.json": {
+      "bytes": 1195,
+      "sha256": "09cf1f6f0a7490e5c99bd8bc5caa67ba7c3ecf7cdb55e382dbe502d7e1042972"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/source_delivery.py": {
+      "bytes": 16456,
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+    },
+    "scripts/build/build.py": {
+      "bytes": 11299,
+      "sha256": "e520b37e5dfc285914203cfab99daecc80543505fef7ded6704b3fb06f001d45"
+    },
+    "scripts/build/compare.py": {
+      "bytes": 5820,
+      "sha256": "4198864c264642b196a090a67b36185e5c194e38edc4cb928d08eb65b9f710cd"
+    },
+    "scripts/build/container-entry.sh": {
+      "bytes": 1787,
+      "sha256": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24"
+    },
+    "scripts/checks/package_checks.py": {
+      "bytes": 17706,
+      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
+    },
+    "scripts/ci/apps-cache-native/README.md": {
+      "bytes": 8590,
+      "sha256": "7f1bb7042b057b25c2ce2a2408f36df92736a7be4c7f1bad07a7ac92eadfa508"
+    },
+    "scripts/ci/apps-cache-native/catalog_fixture.py": {
+      "bytes": 3333,
+      "sha256": "0314733b88cc73f9813e488eff55bea8833e6b196d876d5a40fa7507e3ddc071"
+    },
+    "scripts/ci/apps-cache-native/contract.py": {
+      "bytes": 11912,
+      "sha256": "16c68aa997dc018c568178f7a270938b164bec6721729be1231432ef96b280c4"
+    },
+    "scripts/ci/apps-cache-native/freeze.py": {
+      "bytes": 1846,
+      "sha256": "0e2d9d882e605d5305158a868b80542822a7e66cee01ba585620ad86d1beb9f8"
+    },
+    "scripts/ci/apps-cache-native/infrastructure-pins.json": {
+      "bytes": 2934,
+      "sha256": "5f5718d243cf21de5b0a6ecff086c411bc9cc1350dcb28baa07e64dbf3d96bbd"
+    },
+    "scripts/ci/apps-cache-native/input-policy.json": {
+      "bytes": 9126,
+      "sha256": "aabd371598bc186ead840841b5ce002365986dc3c10fa10d2e09fa4aa47b5fdc"
+    },
+    "scripts/ci/apps-cache-native/installed.py": {
+      "bytes": 4441,
+      "sha256": "10d210905f770854ddf9ebb72b46002d414787aa0a878a498ba4b21b663d9d8e"
+    },
+    "scripts/ci/apps-cache-native/job.py": {
+      "bytes": 13236,
+      "sha256": "9a88aa45a16a5a6056d719828a1bae8b04a3cb3b32a2768b5aecb8167ef2adda"
+    },
+    "scripts/ci/apps-cache-native/lifecycle.py": {
+      "bytes": 16624,
+      "sha256": "971cd386da65cbe247e93f4fbbc6ce6a6c6f9e77aadbc6f6b1df6d39c049e45c"
+    },
+    "scripts/ci/apps-cache-native/run.py": {
+      "bytes": 15349,
+      "sha256": "d3cdf95b0757e1f2ebd04cb8bc56f90888ff8c17f615e9ca6e65357c4462b56e"
+    },
+    "scripts/ci/apps-cache-native/runtime_image.py": {
+      "bytes": 2057,
+      "sha256": "a682b64a5326fc7edf0d2347c37ae50805f9b7773c2683f1fbae1769c18fa023"
+    },
+    "scripts/ci/apps-cache-native/source-manifest.json": {
+      "bytes": 20060,
+      "sha256": "70856125e4e282c3b27bc5d1efeac5df00ccdfa09147d6bbcfb75634437281c5"
+    },
+    "scripts/ci/apps-cache-native/test_lane.py": {
+      "bytes": 19853,
+      "sha256": "3f03a6f2624386ac18eba42493783c475c6616559522ba3cbda225827c5a732b"
+    },
+    "scripts/ci/client-v3-native/README.md": {
+      "bytes": 3783,
+      "sha256": "2bc7db6a8c1a33fbb0ca7af1577454e912b1a0d32569189ee1c027ebf65fcdd3"
+    },
+    "scripts/ci/client-v3-native/adapter.py": {
+      "bytes": 10179,
+      "sha256": "a34033562f719882ea7d3837b42ef962e48155c5340f7638865a89c90223ace3"
+    },
+    "scripts/ci/client-v3-native/contract.py": {
+      "bytes": 380,
+      "sha256": "575e55e9dcc7e006130ff549eddde8ce2a71396efb502baca6c93ee0c87eed00"
+    },
+    "scripts/ci/client-v3-native/infrastructure-pins.json": {
+      "bytes": 5245,
+      "sha256": "1b01d55dced3ec8cc4da90daca29cbfbb1d5b08cdfabb6c92583d59a0b173154"
+    },
+    "scripts/ci/client-v3-native/input-policy.json": {
+      "bytes": 7576,
+      "sha256": "e8def63b9fc688b7f0fc6284e613926dd95694c7749f43c353e2803f2291b9f9"
+    },
+    "scripts/ci/client-v3-native/installed.py": {
+      "bytes": 4441,
+      "sha256": "10d210905f770854ddf9ebb72b46002d414787aa0a878a498ba4b21b663d9d8e"
+    },
+    "scripts/ci/client-v3-native/installed_v3.py": {
+      "bytes": 7660,
+      "sha256": "4c55cd45d2eb70a644b0d6cc5b3e5079ff8859cd13afc2b3d4cd779b27db625f"
+    },
+    "scripts/ci/client-v3-native/job.py": {
+      "bytes": 370,
+      "sha256": "6065fff6889eac2ce0123d4ea660147f51e204cce4d0b7a5d3a944d870b6c4c1"
+    },
+    "scripts/ci/client-v3-native/lifecycle.py": {
+      "bytes": 5745,
+      "sha256": "331d2ed17813cd6bd75f135e95d4a81593e6f87dea2e22583e975e3eae999c77"
+    },
+    "scripts/ci/client-v3-native/original-pins.json": {
+      "bytes": 2173,
+      "sha256": "91b0b88bd94743b0c3418e4b66db8783efe22adc4dbe742211042dc43ed96fb4"
+    },
+    "scripts/ci/client-v3-native/preflight.py": {
+      "bytes": 2083,
+      "sha256": "3e61a85c2b1ced009d96555a89410f788007255654ebdd9c39875debe60e463a"
+    },
+    "scripts/ci/client-v3-native/prepare.py": {
+      "bytes": 9151,
+      "sha256": "659a2412e036d677aa41415bfe27e00e3062d9209eaa4f8b7fe4263a839747e0"
+    },
+    "scripts/ci/client-v3-native/rename_after_real_verification.py": {
+      "bytes": 2710,
+      "sha256": "42c63b5d8b56d38f3cc4d1e6890942e71d49c0cdeb90f70c840b44b7758b01f1"
+    },
+    "scripts/ci/client-v3-native/retained-input-carrier.json": {
+      "bytes": 713,
+      "sha256": "73dfc92537396191efd1136f488e0166ddc2ab552fb1ce5f62068fe886a7006f"
+    },
+    "scripts/ci/client-v3-native/rules.py": {
+      "bytes": 4745,
+      "sha256": "dc5874f502fed52c03c8c4279d5e2018fe95f79d705f1614924dc52fd9f62f8c"
+    },
+    "scripts/ci/client-v3-native/run.py": {
+      "bytes": 370,
+      "sha256": "e11ed6953cb566e0684a72dfc62415df537478f9a2dbf873529c06ca57693880"
+    },
+    "scripts/ci/client-v3-native/runtime_image.py": {
+      "bytes": 2057,
+      "sha256": "a682b64a5326fc7edf0d2347c37ae50805f9b7773c2683f1fbae1769c18fa023"
+    },
+    "scripts/ci/client-v3-native/test_source.py": {
+      "bytes": 11706,
+      "sha256": "1bbe2d515533e787314fd98cb6eb2ddfc2ffd76c66c8d06cc2d81edca1b69369"
+    },
+    "scripts/ci/full-development-composition/run.py": {
+      "bytes": 29738,
+      "sha256": "f86af098fdb0fc9a57a8b78b351341395ce13f9977464783f6f8133626e85698"
+    },
+    "scripts/ci/full-root-upgrade/root_upgrade.py": {
+      "bytes": 23555,
+      "sha256": "fe1232ae6b510021910b4fb80016ac3b4668c6e4386cdae45e7b95196e400756"
+    },
+    "scripts/ci/maintained-desktop574-inputs.json": {
+      "bytes": 623664,
+      "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
+    },
+    "scripts/ci/maintained_desktop574.py": {
+      "bytes": 22367,
+      "sha256": "27ba4be42cf2bd41675073e07cccc917ae033f9d68b07a33cfd7f074ac27b760"
+    },
+    "scripts/ci/old_four_seed.py": {
+      "bytes": 29048,
+      "sha256": "a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7"
+    },
+    "scripts/ci/test_maintained_desktop574.py": {
+      "bytes": 19082,
+      "sha256": "e5d7dc11d1a59cf37a273e9a7103c7e55b169335b17c599990946f4e677ca974"
+    },
+    "scripts/ci/tools-native/job.py": {
+      "bytes": 13110,
+      "sha256": "67dc1b888974303e59aa5d68cc68cfd362c3d0fe730ef93585121d69ac6aab1c"
+    },
+    "scripts/ci/tools-native/run.py": {
+      "bytes": 8992,
+      "sha256": "d13738494fd6cf66cb4f243a53eb2a33b91f74f0c692f42fe5464d48acd69f48"
+    },
+    "scripts/ci/welcome-native/ci/caller.py": {
+      "bytes": 8363,
+      "sha256": "cf80f438eff180b73ae9676e2145b56ba6a358fd9a69bb219e0a7a6f53ff01df"
+    },
+    "scripts/ci/welcome-native/lifecycle.py": {
+      "bytes": 12278,
+      "sha256": "b87831eea710dbf18cb3ab3aa7bf49856d26bebbd3e684861dcab7dc1d337c74"
+    },
+    "scripts/ci/welcome-native/run.py": {
+      "bytes": 12766,
+      "sha256": "52112b49ea98b5aef131b8bcbcc188bcc59cc3a4827161091d4e86af14d2757c"
+    },
+    "scripts/client/client.py": {
+      "bytes": 28669,
+      "sha256": "48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7"
+    },
+    "scripts/client/client_v2.py": {
+      "bytes": 28763,
+      "sha256": "915c2336a6515dcbde9801d7778c0aeae3a0251cf6463c4704d47590d94d1409"
+    },
+    "scripts/client/test_client_v2.py": {
+      "bytes": 56931,
+      "sha256": "74f079c3e95fd88d50b6857b1dbfe13b97030fdacb31051564445c6d1770f410"
+    },
+    "scripts/release/release.py": {
+      "bytes": 41320,
+      "sha256": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435"
+    },
+    "scripts/release/source_delivery.py": {
+      "bytes": 16456,
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+    },
+    "scripts/release/test_release.py": {
+      "bytes": 43541,
+      "sha256": "7ee9e693d4574c6bb11dcc927937475742b9fa7a6f8e988608532c1e1bab5f2e"
+    },
+    "scripts/virtual/common.py": {
+      "bytes": 84361,
+      "sha256": "aef2b4f09a91c4cfd66dd4504e69ef18396a94214c82ae0ec0a43c2716894a03"
+    }
+  },
+  "hardware": "NOT_RUN",
+  "native": "NOT_RUN",
+  "schema_version": 1,
+  "status": "FROZEN_ROOT_FINAL_SOURCES"
+}

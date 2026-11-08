@@ -1,6 +1,0 @@
-tree ee92fee27e320016c151de1abd4ea529508255a4
-parent e459c9a0201bc09a7d32dc1b27870052b55cba8c
-author Gabriel Kahen <93809974+Gabriel-Kahen@users.noreply.github.com> 1794134977 +0000
-committer Gabriel Kahen <93809974+Gabriel-Kahen@users.noreply.github.com> 1794134977 +0000
-
-Add Source200 typed image build-policy receipt data
