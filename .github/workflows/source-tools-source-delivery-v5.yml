@@ -1,0 +1,39 @@
+name: Source Tools exact 0.5 source custody
+on:
+  pull_request:
+    paths:
+      - scripts/release/source-tools-source-profile-v5.json
+      - scripts/release/test_source_tools_source_delivery_v5.py
+      - scripts/release/source_tools_source_delivery_v1.py
+      - packages/tools/cachy-asahi-source-tools-v5/**
+      - docs/development/source-tools-source-delivery-v5.md
+      - .github/workflows/source-tools-source-delivery-v5.yml
+  push:
+    branches: [main]
+    paths:
+      - scripts/release/source-tools-source-profile-v5.json
+      - scripts/release/test_source_tools_source_delivery_v5.py
+      - scripts/release/source_tools_source_delivery_v1.py
+      - packages/tools/cachy-asahi-source-tools-v5/**
+      - docs/development/source-tools-source-delivery-v5.md
+      - .github/workflows/source-tools-source-delivery-v5.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-source-custody:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.14'
+      - name: Verify exact 22-input export, move, reimport and refusal without executing retained code
+        run: |
+          python -I -B -Werror::ResourceWarning scripts/release/test_source_tools_source_delivery_v5.py \
+            --recipe-root "$GITHUB_WORKSPACE/packages/tools/cachy-asahi-source-tools-v5" \
+            --adapter "$GITHUB_WORKSPACE/scripts/release/source_tools_source_delivery_v1.py" \
+            --profile "$GITHUB_WORKSPACE/scripts/release/source-tools-source-profile-v5.json"
