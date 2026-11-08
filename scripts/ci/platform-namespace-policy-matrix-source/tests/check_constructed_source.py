@@ -4,7 +4,7 @@
 import hashlib,json,os,stat,sys
 from pathlib import Path
 F=Path(__file__).resolve().parents[1]
-PARENT='05df8c71ea2bcb525bb1cfbc59983452062a1e97';PTREE='7e66e27a352cee19a3d022d8c167c43b9ab72804';TREE='0d001a7d2662b96b7ae65ce299d4035bbd1d7839';MAP='09de757ff03e635b10510cc7c2cf2eb76d34c336e03e611e521e7992aacc47a8';NULL=dict(source=None,ref=None,run=None)
+PARENT='05df8c71ea2bcb525bb1cfbc59983452062a1e97';PTREE='7e66e27a352cee19a3d022d8c167c43b9ab72804';TREE='7356bafdf4be3be96c52e6354db21e687b9c775b';MAP='4c5867ae736e65ac4c9583c8547c44d64508ef1256ef702c740cd51c83808624';NULL=dict(source=None,ref=None,run=None)
 def need(ok,why):
  if not ok:raise ValueError(why)
 def pin(b):return dict(bytes=len(b),sha256=hashlib.sha256(b).hexdigest())
@@ -41,7 +41,7 @@ def tree(rows):
 def main():
  need(len(sys.argv)==2,'one constructed Source201 operand');root=Path(sys.argv[1]);need(root.is_absolute()and root.resolve(strict=True)==root and stat.S_IMODE(root.stat().st_mode)==0o700,'owned0700 constructed root')
  profile_raw=read(F/'parent-profile.json')[0];need(pin(profile_raw)['sha256']=='53fdf5afcf40d2507045203a4035b10e07ab3a07e80855a8b12c999834cf7c2f','exact parent profile');profile=document(profile_raw);parent=profile['files'];need(profile['parent']==PARENT and profile['parent_tree']==PTREE and len(parent)==199 and profile['actual']==NULL,'exact parent199')
- catalog_raw=read(F/'tests/fixtures/catalog.json')[0];need(pin(catalog_raw)['sha256']=='4bb798035c2bd19da00fba6ba25e8213b15d43c2b0289ecb389596deea8b46f8','exact finite fixture catalog');catalog=document(catalog_raw)
+ catalog_raw=read(F/'tests/fixtures/catalog.json')[0];need(pin(catalog_raw)['sha256']=='fe994bb3de032301378f7093b23cf6a30e6c43304d7eed14761df1a6417ab360','exact finite fixture catalog');catalog=document(catalog_raw)
  full_raw=read(F/'tests/fixtures/source-full-map.json')[0];need(pin(full_raw)=={k:catalog['files']['source-full-map.json'][k]for k in('bytes','sha256')},'independent full201 authority');full=document(full_raw);need(len(full)==201,'exact201')
  changed={n for n in set(parent)|set(full)if (None if n not in parent else{k:parent[n][k]for k in('bytes','sha256','mode','blob')})!=(None if n not in full else{k:full[n][k]for k in('bytes','sha256','mode','blob')})};old=changed&set(parent);need(len(changed)==7 and len(old)==5,'exactseven/five delta')
  metadata={'stage.json','source-authorization.json','source-modes.json','git-blobs.json','parent-commit.raw','parent-full-map.json','delta05df.json','selected-overlay.json'};wanted={'source/'+n for n in full}|{'before05df/'+n for n in old}|metadata
@@ -63,7 +63,7 @@ def main():
  need(inverse==parent and tree(inverse)==PTREE and len(set(parent)-changed)==194,'complete199 inverse194held')
  physical=read(F/'tests/fixtures/raw-parent.txt')[0];head=physical.split(b'\n\n',1)[0].splitlines();need(profile['physical_git_parent']=='639e3f9b5176bf8ebe497fc0b247182af90904e7'and pin(physical)==profile['physical_parent_raw']and oid(b'commit',physical)==profile['physical_git_parent']and[r[5:].decode()for r in head if r.startswith(b'tree ')]==[PTREE]and[r[7:].decode()for r in head if r.startswith(b'parent ')]==[profile['physical_parent_sole_parent']],'distinct exact mapped physical raw parent/held199 tree')
  raw=files['parent-commit.raw'][0];need(raw==read(F/'parent-commit.raw')[0]and pin(raw)==profile['parent_raw']and oid(b'commit',raw)==PARENT,'actual05df rawparent');head=raw.split(b'\n\n',1)[0].splitlines();need([r[5:].decode()for r in head if r.startswith(b'tree ')]==[PTREE]and[r[7:].decode()for r in head if r.startswith(b'parent ')]==[profile['parent_sole_parent']],'raw tree/soleparent')
- selected=read(F/'overlay-manifest.json')[0];need(pin(selected)['sha256']=='67f55ed3249bab42c0a3c6f8b93e32962d5b052cf3556d0e4262aeed631c3930'and files['selected-overlay.json']==(selected,420),'exact selected overlay')
+ selected=read(F/'overlay-manifest.json')[0];need(pin(selected)['sha256']=='b63f652cfa8af7de7a5c3222fc91bba731e12f0103fbbcff1932d16bfc265392'and files['selected-overlay.json']==(selected,420),'exact selected overlay')
  delta=dict(parent=PARENT,full_parent_inverse=True,changes={n:dict(before={k:parent[n][k]for k in('bytes','sha256','mode')}if n in parent else None,after={k:full[n][k]for k in('bytes','sha256','mode')}if n in full else None)for n in sorted(changed)});need(files['delta05df.json']==(encoded(delta),420),'exactseven delta')
  stage=dict(status='SOURCE_ONLY_EXACT_PLATFORM_NAMESPACE_POLICY201',operation='platform-namespace-policy-matrix-v1',parent=PARENT,historical_parent=PARENT,git_parent='639e3f9b5176bf8ebe497fc0b247182af90904e7',parent_tree=PTREE,prospective_tree=TREE,source_map_sha256=MAP,source_files=201,source_map_rows=200,concurrency_group='native-arm-platform-tools',actual=NULL,constructed=True,built=False,installed=False,native='NOT_RUN',namespace_probe='NOT_RUN',physical_M2='NOT_RUN',release='NOT_ADMITTED',acceptance=False);need(files['stage.json']==(encoded(stage),420),'Source-only noacceptance stage')
  print(json.dumps(dict(status='PASS_CONSTRUCTED201_FULL199_INVERSE_DATA_ONLY',files=201,output_files=214,tree=TREE,map_sha256=MAP,parent=PARENT,inverse_files=199,unlisted_held=194,actual=NULL,native='NOT_RUN',acceptance=False),sort_keys=True))

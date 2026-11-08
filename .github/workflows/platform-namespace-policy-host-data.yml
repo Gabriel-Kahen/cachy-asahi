@@ -65,6 +65,13 @@ jobs:
           set -euo pipefail
           factory="$GITHUB_WORKSPACE/scripts/ci/platform-namespace-policy-matrix-source"
           python3 -I -B "$factory/tests/test_parent_bridge_data.py"
+      - name: Original base5 fetch and package512 cache-only DATA controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          factory="$GITHUB_WORKSPACE/scripts/ci/platform-namespace-policy-matrix-source"
+          basis="$GITHUB_WORKSPACE/.ci-fixtures/platform-policy-parent05df"
+          python3 -I -B "$factory/tests/test_bootstrap_base5_data.py" --basis "$basis"
       - name: Construct and independently join Source201 DATA only
         shell: bash
         run: |
@@ -74,6 +81,6 @@ jobs:
           python3 -I -B "$factory/prepare.py" \
             --basis "$basis" --overlay-root "$factory/payload" \
             --overlay-manifest "$factory/overlay-manifest.json" \
-            --overlay-manifest-sha256 67f55ed3249bab42c0a3c6f8b93e32962d5b052cf3556d0e4262aeed631c3930 \
+            --overlay-manifest-sha256 b63f652cfa8af7de7a5c3222fc91bba731e12f0103fbbcff1932d16bfc265392 \
             --output "$PLATFORM_POLICY_HOST_WORK/Source201"
           python3 -I -B "$factory/tests/check_constructed_source.py" "$PLATFORM_POLICY_HOST_WORK/Source201"
