@@ -109,9 +109,7 @@ BASELINE_PAYLOAD = {'files': {'usr/bin/cachy-asahi-source-tools': {'bytes': 1483
  'package': 'cachy-asahi-source-tools',
  'schema_version': 1,
  'self': 'usr/share/doc/cachy-asahi-source-tools/payload-map.json'}
-CURRENT_PINS = {'cachy-asahi-source-tools': 'c05ec4372a6c8ecf55fb673e3d3dec026865fea4250c715e91bf8fdf86bd2b26',
- 'README.md': 'cccd964310c3c89ce145a9411c46bbf37f75b2050d45db62e16cdc213ddf563b',
- 'payload-map.json': 'c8b986e5c090e49970f38e39d6f5b1462f9cfd924fb6f501c0a570e6649e5238'}
+CURRENT_PINS = {'cachy-asahi-source-tools': 'df7b7d7168800c888412b05a955aa70a69491ad788cf320fffe893770b2cc9dc', 'README.md': '339574fe5d1b7fc61ad80fb36439e7acfcd87eb18cc6c813a76305943c139f08', 'payload-map.json': '480110e26ef1c1976ef09f835617d32e9eb4ca02dfa70c2e28393bf252279f61'}
 HELD_PINS = {'private_runtime': 'fa9db2ee4a6f16fee53b79494d437901570c80798de9219d2cc637b9f430575a',
  'provenance': '28b2b8a2708bc3fece91d5560b17da358b59937d4afcebf5a42be28a1802b042'}
 PIN = '1' * 64
@@ -127,6 +125,8 @@ def load_launcher(path, name):
 
 
 def helper_source(path):
+    if path == 'release/source_mirror_catalog.py':
+        return (PACKAGE / 'source_mirror_catalog.py').read_bytes()
     with tarfile.open(PACKAGE / 'private-source.tar.gz', 'r:gz') as archive:
         return archive.extractfile('private/scripts/' + path).read()
 
@@ -143,7 +143,9 @@ def parse_options(raw):
         if (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
                 and node.func.attr == 'add_argument' and isinstance(node.func.value, ast.Name)
                 and node.func.value.id in parsers):
-            assert not any(kw.arg in ('action', 'nargs') for kw in node.keywords), 'non-scalar schema changed'
+            assert not any(kw.arg == 'nargs' or (kw.arg == 'action' and
+                not (isinstance(kw.value, ast.Name) and kw.value.id == 'SingleValue'))
+                for kw in node.keywords), 'non-scalar schema changed'
             kwargs = {kw.arg: ast.literal_eval(kw.value) for kw in node.keywords if kw.arg in ('required', 'choices')}
             for arg in node.args:
                 if arg.value.startswith('--'):
@@ -183,7 +185,8 @@ class CliInputRefusal(unittest.TestCase):
             with self.subTest(command=command):
                 actual = parse_options(helper_source(path))[operation]
                 self.assertEqual(set(self.after.OPTIONS[command]), set(actual))
-        self.assertEqual(self.before.COMMANDS, self.after.COMMANDS)
+        self.assertEqual(self.before.COMMANDS, {key: value for key, value in self.after.COMMANDS.items() if key != 'mirror-list'})
+        self.assertEqual(self.after.COMMANDS['mirror-list'], ('release/source_mirror_catalog.py', 'list'))
 
     def test_baseline_conflicting_successor_pin_reaches_inert_runtime(self):
         schema = parse_options(helper_source('release/release_source_mirror.py'))['update']
@@ -253,25 +256,31 @@ class CliInputRefusal(unittest.TestCase):
         sources = re.findall(r'^\s+source = (.+)$', info, re.M)
         sums = re.findall(r'^\s+sha256sums = (.+)$', info, re.M)
         self.assertEqual(len(sources), len(sums))
-        self.assertEqual(len(sources), 12)
+        self.assertEqual(len(sources), 14)
         self.assertIn('test_cli_input_refusal.py', sources)
         recipe = body('PKGBUILD').decode()
         recipe_sums = re.search(r'^sha256sums=\((.+)\)$', recipe, re.M).group(1).split()
         self.assertEqual(recipe_sums, sums)
         recipe_sources = re.search(r'^source=\((.+)\)$', recipe, re.M).group(1).split()
         self.assertEqual(recipe_sources, sources)
-        self.assertIn('pkgrel=2\n', recipe)
-        self.assertIn('\tpkgrel = 2\n', info)
+        self.assertIn('pkgver=0.2.0\n', recipe)
+        self.assertIn('pkgrel=1\n', recipe)
+        self.assertIn('\tpkgver = 0.2.0\n', info)
+        self.assertIn('\tpkgrel = 1\n', info)
         for name, checksum in zip(sources, sums):
             with self.subTest(source=name):
                 self.assertEqual(hashlib.sha256(body(name)).hexdigest(), checksum)
         before = BASELINE_PAYLOAD
         after = json.loads(body('payload-map.json'))
-        self.assertEqual(set(before['files']), set(after['files']))
+        extension = 'usr/lib/cachy-asahi/source-tools/scripts/release/source_mirror_catalog.py'
+        self.assertEqual(set(before['files']) | {extension}, set(after['files']))
         changed = {'usr/bin/cachy-asahi-source-tools': 'cachy-asahi-source-tools',
                    'usr/share/doc/cachy-asahi-source-tools/README.md': 'README.md'}
         for key, row in after['files'].items():
-            if key in changed:
+            if key == extension:
+                raw = body('source_mirror_catalog.py')
+                self.assertEqual(row, dict(bytes=len(raw), sha256=hashlib.sha256(raw).hexdigest(), mode=0o644))
+            elif key in changed:
                 raw = body(changed[key])
                 self.assertEqual(row, dict(bytes=len(raw), sha256=hashlib.sha256(raw).hexdigest(),
                                            mode=before['files'][key]['mode']))
@@ -287,7 +296,7 @@ class CliInputRefusal(unittest.TestCase):
         with contextlib.redirect_stdout(io.StringIO()) as output, self.assertRaises(SystemExit) as caught:
             self.after.main(['--version'])
         self.assertEqual(caught.exception.code, 0)
-        self.assertEqual(output.getvalue().strip(), 'cachy-asahi-source-tools 0.1.0')
+        self.assertEqual(output.getvalue().strip(), 'cachy-asahi-source-tools 0.2.0')
         self.refused_before_import(['unrecognized-command'])
 
 
