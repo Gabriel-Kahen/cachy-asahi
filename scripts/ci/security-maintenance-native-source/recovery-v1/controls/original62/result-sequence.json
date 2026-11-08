@@ -1,0 +1,8 @@
+{
+  "actual_GPG_pacman_native_Git_API_reader_callback_GET_calls": 0,
+  "errors": 0,
+  "failures": 0,
+  "fixture": "REAL_TEMP_FILESYSTEM_UNBOUND_FAKE_GPG_PACMAN_COMMAND_ADAPTER",
+  "status": "PASS",
+  "tests": 10
+}
