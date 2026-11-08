@@ -11,7 +11,7 @@
   "packages/desktop/cachy-asahi-hyprland-settings/waybar.json": "4c7adb2deb0403fefc4562d39105635cebfc44ce88e44fe84c4a90a00b2be3c0",
   "scripts/build/build.py": "e520b37e5dfc285914203cfab99daecc80543505fef7ded6704b3fb06f001d45",
   "scripts/build/container-entry.sh": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24",
-  "scripts/checks/package_checks.py": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8",
+  "scripts/checks/package_checks.py": "314e8b4a0920b3f6d93619fc74ad1d63a6210d1b17b925618451b493d2610a1a",
   "scripts/ci/desktop-user-session/prepare.py": "a70885622a36fe1ba764ea7d0846933b639ef04dc3c532598fb92ceb73ffe00b",
   "scripts/ci/desktop574_fixture.sh": "1b1fb62967ba52a165139388e38db959c5fc8827f18cb991305c1e8fb67b6cb7",
   "scripts/ci/desktop574_guest.py": "504b03489bb091904303431d22310331ecd0a6ebe470480544198e374e5daff4",

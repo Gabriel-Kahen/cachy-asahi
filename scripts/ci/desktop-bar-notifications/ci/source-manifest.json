@@ -135,8 +135,8 @@
       "sha256": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24"
     },
     "scripts/checks/package_checks.py": {
-      "bytes": 17706,
-      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
+      "bytes": 19289,
+      "sha256": "314e8b4a0920b3f6d93619fc74ad1d63a6210d1b17b925618451b493d2610a1a"
     },
     "scripts/ci/desktop-bar-notifications/capture.py": {
       "bytes": 1869,
@@ -188,7 +188,7 @@
     },
     "scripts/ci/desktop-bar-notifications/source-pins.json": {
       "bytes": 3620,
-      "sha256": "66f9fc39fbd4e4522392de399539b68b3976d5daa6eb5c3e66e16b642972bfc0"
+      "sha256": "5da94f8a6c5f59708ca84b95cd6dc8e266ab6cd78ad64f878ebc2c31e3440c09"
     },
     "scripts/ci/desktop-bar-notifications/test_boot.py": {
       "bytes": 3272,
@@ -236,7 +236,7 @@
     },
     "scripts/ci/desktop-user-session/source-pins.json": {
       "bytes": 3242,
-      "sha256": "b5e4df112c8a9ade746b6a60cafa68e5a58226a1f13280d0725b9e5175a7686d"
+      "sha256": "a118870422cde1138c0469c32c02b92f0b08321f13d1f82856fcf07df7e23ba5"
     },
     "scripts/ci/desktop574_fixture.sh": {
       "bytes": 4813,
@@ -350,7 +350,7 @@
     },
     "source-pins.json": {
       "bytes": 3620,
-      "sha256": "66f9fc39fbd4e4522392de399539b68b3976d5daa6eb5c3e66e16b642972bfc0"
+      "sha256": "5da94f8a6c5f59708ca84b95cd6dc8e266ab6cd78ad64f878ebc2c31e3440c09"
     },
     "test_desktop574_runtime.py": {
       "bytes": 12245,
