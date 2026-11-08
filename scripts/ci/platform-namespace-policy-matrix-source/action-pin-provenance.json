@@ -1,0 +1,23 @@
+{
+  "GETs": 0,
+  "checkout": {
+    "authority_path": ".github/workflows/native-tool-factories-source.yml",
+    "scope": "Existing maintained Main source-controls workflow literal; not inferred from nativeParent workflow",
+    "value": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+    "whole_body": {
+      "bytes": 2601,
+      "sha256": "59c66b7ab814d455e75c810bd0f805dc2c238278032359159a2608a4c996ab06"
+    }
+  },
+  "new_upstream_revision_selected": false,
+  "status": "HELD_EXISTING_LOCAL_WORKFLOW_ACTION_PINS_NO_NETWORK_VERIFICATION",
+  "upload": {
+    "authority_path": "git:05df8c71ea2bcb525bb1cfbc59983452062a1e97:.github/workflows/native-arm-build.yml",
+    "scope": "Frozen actual05df native workflow literal",
+    "value": "actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9",
+    "whole_body": {
+      "bytes": 13042,
+      "sha256": "64d488360a4448ca35a8475ebd8ce059580fe7f3c76d01adeb4fe1b9b1da989b"
+    }
+  }
+}

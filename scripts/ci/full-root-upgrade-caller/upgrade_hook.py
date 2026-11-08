@@ -149,13 +149,13 @@ def driver_result(row):
 
 
 _INITIALIZER_PHASES = ('WORKER_OBSERVE', 'WORKER_CHECKPOINT', 'WORKER_HELPER_PIN', 'WORKER_EXEC', 'PARENT_SOURCE_BEFORE', 'PARENT_ROOT_BEFORE', 'PARENT_ROOT_AFTER', 'PARENT_SOURCE_AFTER')
-_INITIALIZER_PROFILE = 'I16K_STATX_V1'
+_INITIALIZER_PROFILE = 'I16K_STATX_HASH_SPLIT_V2'
 _INITIALIZER_PREFIX = b'UPDATER607_INITIALIZER_TELEMETRY '
 _INITIALIZER_MAX = 2**63-1
 
 def _initializer_valid(value, nonce=None):
     if type(value) is not dict or set(value) != {'v','profile','nonce','lane','seq','phase','state','elapsed_ns','remaining_ns','ops','saturated'}:return False
-    if type(value['v'])is not int or value['v']!=1 or value['profile']!=_INITIALIZER_PROFILE:return False
+    if type(value['v'])is not int or value['v']!=2 or value['profile']!=_INITIALIZER_PROFILE:return False
     n=value['nonce']
     if type(n)is not str or len(n)!=32 or any(c not in '0123456789abcdef'for c in n)or(nonce is not None and n!=nonce):return False
     lane=value['lane']
@@ -164,7 +164,8 @@ def _initializer_valid(value, nonce=None):
     if type(value['elapsed_ns'])is not int or not 0<=value['elapsed_ns']<=_INITIALIZER_MAX:return False
     r=value['remaining_ns']
     if r is not None and(type(r)is not int or not -_INITIALIZER_MAX<=r<=_INITIALIZER_MAX):return False
-    if type(value['ops'])is not list or len(value['ops'])!=8 or any(type(x)is not int or not 0<=x<=_INITIALIZER_MAX for x in value['ops'])or type(value['saturated'])is not bool:return False
+    if type(value['ops'])is not list or len(value['ops'])!=10 or any(type(x)is not int or not 0<=x<=_INITIALIZER_MAX for x in value['ops'])or type(value['saturated'])is not bool:return False
+    if not value['saturated'] and value['ops'][8] + value['ops'][9] > value['ops'][7]:return False
     return len(_INITIALIZER_PREFIX)+len(json.dumps(value,sort_keys=True,separators=(',',':')).encode())+1<=768
 
 def _initializer_capture(raw, nonce, complete=True):
@@ -198,7 +199,7 @@ def _initializer_emit(value):
         if error.errno is None:raise
 
 def _initializer_wrapper_valid(value,nonce):
-    if type(value)is not dict or set(value)!={'v','profile','history','saturated','worker'}or type(value['v'])is not int or value['v']!=1 or value['profile']!=_INITIALIZER_PROFILE or type(value['saturated'])is not bool:return False
+    if type(value)is not dict or set(value)!={'v','profile','history','saturated','worker'}or type(value['v'])is not int or value['v']!=2 or value['profile']!=_INITIALIZER_PROFILE or type(value['saturated'])is not bool:return False
     history=value['history']
     if type(history)is not list or len(history)>8:return False
     for i,record in enumerate(history):

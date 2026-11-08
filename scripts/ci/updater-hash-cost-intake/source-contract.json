@@ -1,0 +1,179 @@
+{
+  "initializer_hash_cost_v2": {
+    "actual": null,
+    "adapter_pin": {
+      "bytes": 58965,
+      "sha256": "0e348926ee81dec8332044928544cf22f40dbcbd8f4598d20cbfc1342222a3f1"
+    },
+    "bottleneck": null,
+    "case": "normal",
+    "config_pin": {
+      "bytes": 14303,
+      "sha256": "27c9f6130d81aac8221bcd4fad6a5275e244e2d59dc6a443884acfae4f005fe5"
+    },
+    "diagnostic_mirror": "SOURCE_IMMEDIATE_LAST_PRIMARY_FINAL_LAST_EXACT_TWO_COPIES_ONE_COUNTER_RECORD",
+    "frame_cap": 768,
+    "held_clocks": {
+      "caller_verify": 600,
+      "cleanup": 300,
+      "copy": 4260,
+      "enclosing": 15840,
+      "normal_driver": 10440,
+      "parent_scale": 1200,
+      "worker_observation": 150,
+      "worker_supervision": 180
+    },
+    "history_cap": 8,
+    "integer_max": 9223372036854775807,
+    "ops": [
+      "mount_queries",
+      "statx_success",
+      "fallback",
+      "fdinfo_calls",
+      "hash_calls",
+      "hash_read_bytes",
+      "query_ns",
+      "hash_ns",
+      "hash_read_ns",
+      "hash_sha256_ns"
+    ],
+    "performance_gain_claim": false,
+    "profile": "I16K_STATX_HASH_SPLIT_V2",
+    "runtime_fit": null,
+    "source_leaf_pins": {
+      "scripts/ci/full-root-upgrade-caller/upgrade_hook.py": {
+        "bytes": 56234,
+        "sha256": "1a3f00bbe995c1edc5b81405954037809d81383ddb42693e0d4029f1c66c7770"
+      },
+      "scripts/update/aux_copy.py": {
+        "bytes": 51946,
+        "sha256": "2d3e166f3bba8fa0bf36e6645f6235f41d62c49b7474d377ca1fb1bee064bcc7"
+      },
+      "scripts/update/aux_initialize.py": {
+        "bytes": 60991,
+        "sha256": "14a6dc3a508da8a12364fedfc78cd96ff7d1784a435343d632240d0253f4699e"
+      },
+      "scripts/update/full_root.py": {
+        "bytes": 69933,
+        "sha256": "eb2503068499399d4de60a08f82fb21f179a2a173d1d789d57a28de73eaf609f"
+      }
+    },
+    "source_tree": "880dc960b2722c51aabe903a4293176e9e8a6b2f",
+    "version": 2,
+    "worker_frame_cap": 6,
+    "wrapper_cap": 8192
+  },
+  "initializer_mount_query": {
+    "actual": null,
+    "bottleneck": null,
+    "capture_scope": "ORIGINAL_SUPERVISOR_CAPTURE_MAY_BE_PARTIAL",
+    "clocks": {
+      "caller_verify": 600,
+      "parent_limits": 1200,
+      "worker_observe": 150,
+      "worker_supervision": "min(180,remaining)"
+    },
+    "fallback_records": 128,
+    "frame_cap": 768,
+    "held_clocks": {
+      "caller_verify": 600,
+      "cleanup": 300,
+      "copy": 4260,
+      "enclosing": 15840,
+      "normal_driver": 10440,
+      "parent_scale": 1200,
+      "worker_observation": 150,
+      "worker_supervision": 180
+    },
+    "history_cap": 8,
+    "integer_max": 9223372036854775807,
+    "integer_min": 0,
+    "lanes": [
+      "WORKER",
+      "PARENT"
+    ],
+    "line_bytes": 768,
+    "meaning": "CUMULATIVE_PER_PRIVATE_FACADE_SNAPSHOTS_OBSERVATION_DELTAS_NOT_ACCEPTANCE",
+    "new_named_roles": 0,
+    "ops": [
+      "mount_queries",
+      "statx_success",
+      "fallback",
+      "fdinfo_calls",
+      "hash_calls",
+      "hash_read_bytes",
+      "query_ns",
+      "hash_ns"
+    ],
+    "parent_history": 8,
+    "performance_gain_claim": false,
+    "phases": [
+      "WORKER_OBSERVE",
+      "WORKER_CHECKPOINT",
+      "WORKER_HELPER_PIN",
+      "WORKER_EXEC",
+      "PARENT_SOURCE_BEFORE",
+      "PARENT_ROOT_BEFORE",
+      "PARENT_ROOT_AFTER",
+      "PARENT_SOURCE_AFTER"
+    ],
+    "precision": "entered query/fdinfo/hash wrappers and recorded read returns; progress/refusal may omit in-flight work; missing frame is UNKNOWN",
+    "prefix": "UPDATER607_INITIALIZER_TELEMETRY ",
+    "profile": "I16K_STATX_V1",
+    "progress_interval_ns": 30000000000,
+    "record_keys": [
+      "v",
+      "profile",
+      "nonce",
+      "lane",
+      "seq",
+      "phase",
+      "state",
+      "elapsed_ns",
+      "remaining_ns",
+      "ops",
+      "saturated"
+    ],
+    "remaining_max": 9223372036854775807,
+    "remaining_min": -9223372036854775807,
+    "remaining_nullable": true,
+    "runtime_fit": null,
+    "source_leaf_pins": {
+      "scripts/ci/full-root-upgrade-caller/upgrade_hook.py": {
+        "bytes": 56123,
+        "sha256": "dc1e400ca7d1f9c185ff90c84998fb60760a296ccb85dd497b627fd6ef9d3f87"
+      },
+      "scripts/update/aux_initialize.py": {
+        "bytes": 60001,
+        "sha256": "56dc98f69bcb5a609c3f456010dd43cb4d0e8851e7107bb9b6950ee8ae321382"
+      }
+    },
+    "states": [
+      "STARTED",
+      "PROGRESS",
+      "RETURNED",
+      "REFUSED"
+    ],
+    "timing": "query_ns and hash_ns overlap elapsed_ns; saturation means lower bounds",
+    "version": 1,
+    "worker_frame_cap": 6,
+    "worker_keys": [
+      "last",
+      "records",
+      "stderr",
+      "returncode",
+      "termination",
+      "direct_child_reaped",
+      "capture_scope"
+    ],
+    "worker_records": 6,
+    "wrapper_keys": [
+      "v",
+      "profile",
+      "history",
+      "saturated",
+      "worker"
+    ]
+  },
+  "initializer_v2_source_tree": "880dc960b2722c51aabe903a4293176e9e8a6b2f"
+}
