@@ -1076,17 +1076,18 @@ source = "local-original-pinned-MIT-private-runtime"
 recipe = "packages/tools/cachy-asahi-source-tools/PKGBUILD"
 audit = "packages/tools/cachy-asahi-source-tools/README.md"
 license = "MIT"
-candidate_version = "0.1.0-1"
+candidate_version = "0.2.0-1"
 selected_for_development = false
 selected_for_release = false
-host_validation = "PASS two real same-host makepkg builds, exact17 payload/PKGINFO; transported-source offline checkout-hidden rebuild; final archive moved-prefix17 CLI controls; source14 and inherited54 held"
-host_package_bytes = 66334
-host_package_sha256 = "2a0584f8c10abc5ea30871c9d3c1442f1d7087e9be7153ec378a94416aa79f33"
+host_validation = "Current 0.2.0-1: PASS nine mirror catalog and nine CLI controls, 132 duplicate forms, staged18-file moved CLI and four inert build contexts; current archive build and ALPM NOT RUN. Historical 0.1.0-1: two makepkg builds and checkout-hidden rebuild; retained historical artifact below."
+historical_host_package_version = "0.1.0-1"
+historical_host_package_bytes = 66334
+historical_host_package_sha256 = "2a0584f8c10abc5ea30871c9d3c1442f1d7087e9be7153ec378a94416aa79f33"
 native_build = "NOT RUN"
 installation = "NOT RUN; private staging/archive extraction and file inverse only, no ALPM lifecycle"
 hardware_validation = "NOT RUN"
 performance = "NOT MEASURED"
-next_step = "Coordinator adoption, clean native ARM pair and signed disposable ALPM lifecycle; native16K, selected Asahi composition/M2 and release remain open. Existing release-tools and source profiles unchanged."
+next_step = "Build current 0.2.0-1, qualify native ARM pair and signed disposable ALPM lifecycle; native16K, selected Asahi composition/M2 and release remain open. Historical Source419 and private helper evidence do not validate the new package."
 
 # Coordinator proposal only. Do not append without canonical reconciliation.
 [[packages]]
@@ -1149,3 +1150,20 @@ hardware_validation = "NOT RUN"
 performance = "NOT MEASURED; intentional host fixture sleep difference only"
 release = "NOT ADMITTED"
 next_step = "Root adoption, clean native ARM pairs and independently scoped signed disposable ALPM lifecycle; native16K and both M2 Air qualification remain separate."
+
+# Root-only package inventory proposal; no historical entry is edited.
+[[packages]]
+name = "cachy-asahi-repository-client-v3"
+phase = "tools-experience"
+status = "candidate"
+source = "local-original-versioned-maintained-helper"
+recipe = "packages/tools/cachy-asahi-repository-client-v3/PKGBUILD"
+license = "MIT"
+candidate_version = "0.1.0-1"
+selected_for_development = false
+selected_for_release = false
+host_validation = "PASS NEW10 real-filesystem state binding controls, six package DATA controls, corrected Python3.12/3.14 CI and actual staged CLI TEST-GPG verify/apply/rebinding refusal with owned cleanup; native package build and ALPM NOT RUN"
+native_build = "NOT RUN"
+installation = "NOT RUN"
+hardware_validation = "NOT RUN"
+next_step = "Qualify native ARM build-pair and installed package lifecycle for current v3; integrated16K, selected Asahi composition and M2 remain open. Current guide/standalone command route is v3; original Runtime/v1/v2/Apps/native evidence remains frozen and gives no v3 credit."
