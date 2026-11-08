@@ -986,11 +986,14 @@ selected_for_development = false
 selected_for_release = false
 host_validation = "PASS new7 relocated CLI controls, new2 exporter controls, exact29-file host archive; original897176B snapshot verified offline via relocated extracted launcher with2444 groups/ARMUNKNOWN; zero new public requests"
 prior_results = "0.1.0-1 package8/exporter10 retained; advisory transport22 retained separately, not rerun or promoted"
-native_build = "NOT RUN"
-installation = "NOT RUN; ordinary-user staging and archive payload extraction only"
+native_build = "PASS finite native ARM component: target0.1.0-2 clean makepkg pair byte-equal; genuine prior0.1.0-1 rebuilt for this signed-upgrade/recovery episode; Source888e8f559aef40b8476573041e5448d3573e3219, run42517701971/attempt1. Upstream source/binary correspondence remains OPEN"
+installation = "PASS owned native image-stage Required/Required TEST-signed0.1.0-1 ->0.1.0-2 upgrade, signature refusals, normal precommit decline, same-version reinstall/removal and separate credentialed first-UPGRADE-zero checkpoint followed by original owned pidfd SIGKILL and exact recovery (INSTALLDATE-only normalization). Supported Asahi/M2 target installation NOT RUN"
 installed_real_network = "NOT RUN"
 hardware_validation = "NOT RUN"
-next_step = "Root canonical adoption and separately scoped native ARM pairs/disposable ALPM lifecycle; installed real-network path, native16K/M2, production trust, ARM remediation and release remain unestablished."
+native_build_commit = "888e8f559aef40b8476573041e5448d3573e3219"
+native_evidence = "docs/validation/security-native-interrupted-recovery-v13-20261108.md"
+installation_evidence = "docs/validation/security-native-interrupted-recovery-v13-20261108.md"
+next_step = "Qualify native16K and supported Asahi/M2 installation/hardware before selection. Installed real-network, production trust/signing, arbitrary interruption/power-loss recovery, ARM remediation, performance and release remain unestablished; preserve finite component evidence and prior host/transport results."
 
 # Unselected developer/release tooling candidates; host evidence only.
 [[packages]]
