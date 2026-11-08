@@ -14,6 +14,7 @@ DESKTOP = 'b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9'
 EXTRAS = {'cmake', 'cppdap', 'jsoncpp', 'libuv', 'rhash', 'meson', 'ninja', 'python-tqdm'}
 LABEL = 'org.cachy-asahi.native-developer'
 ALIASES = ('.github/workflows/native-arm-build.yml', '.github/workflows/native-arm-developer-workflows.yml')
+RECOVERY_MAP_ROWS = 208 # ROOT_COMPOSER_EXACT_MAP_ROWS
 
 
 def need(value, message):
@@ -68,7 +69,7 @@ def verify_source(root, checksum):
     raw = read(root / MAP); need(pin(raw)['sha256'] == checksum, 'whole source map differs')
     manifest = json.loads(raw)
     need(manifest['schema'] == 1 and manifest['actual'] == dict(source=None, ref=None, run=None), 'NULL unexecuted source selectors')
-    rows = manifest['files']; need(MAP not in rows and len(rows) <= 200, 'finite nonrecursive source map')
+    rows = manifest['files']; need(MAP not in rows and len(rows) == RECOVERY_MAP_ROWS, 'finite nonrecursive source map')
     actual = set(); actual_dirs = set()
     for directory, dirs, files in os.walk(root, followlinks=False):
         base = Path(directory)

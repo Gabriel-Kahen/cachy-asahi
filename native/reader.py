@@ -184,7 +184,7 @@ def retained_image_lifecycle(view, files, receipt, cleanup, binding, map_sha256)
     dockerfile = 'bootstrap-proof/overlay-Dockerfile'
     need(dockerfile in files and files[dockerfile]['kind'] == 'file'
          and pin(view.read(dockerfile)) == {k: files[dockerfile][k] for k in ('bytes', 'sha256')}
-         and view.read(dockerfile).splitlines()[:1] == [('FROM ' + aliases['base'] + (' AS security-dependencies' if receipt.get('operation') == 'security-alpm-v1' else '')).encode()],
+         and view.read(dockerfile).splitlines()[:1] == [('FROM ' + aliases['base'] + (' AS security-dependencies' if receipt.get('operation') == 'security-alpm-interrupted-recovery-v1' else '')).encode()],
          'actual overlay Dockerfile must use verified local base alias')
     need(receipt.get('bootstrap', {}).get('image') == ledger['created']['base']['image_id']
          and receipt.get('consumer', {}).get('image') == ledger['created']['tools']['image_id'],
@@ -410,8 +410,17 @@ def retained_public_projection(view, files, binding, map_sha256):
     need(type(selected) is dict and 0 < len(selected) <= 2998 and set(files) == set(selected) | {name}
          and ('receipt.json' in selected) != ('provision-diagnostic.json' in selected),
          'closed finite projection leaf set and sole authority required')
+    from public_projection import recovery_projection_pin
+    authority = view.load('receipt.json' if 'receipt.json' in selected else 'provision-diagnostic.json')
+    guest = view.load('journey/result.json') if 'journey/result.json' in selected else None
+    recovery_pin = recovery_projection_pin(authority, guest)
+    if recovery_pin is not None:
+        need('journey/recovery-evidence.json' in selected
+             and pin(view.read('journey/recovery-evidence.json')) == recovery_pin,
+             'exact result-pinned recovery sidecar must be projected')
     for target, row in selected.items():
         parts = target.split('/'); allowed = target in host or target in {'journey/result.json', 'journey/build-summary.json'}
+        allowed |= target == 'journey/recovery-evidence.json' and recovery_pin is not None
         if len(parts) == 2:
             allowed |= (parts[0] == 'actor-logs' and re.fullmatch(r'[0-9]{4}\.log', parts[1]) is not None
                         or parts[0] == 'provision-logs' and re.fullmatch(r'(?:proof\.json|input-transport-owner\.json|input-cache-owner\.json)-[0-9]{3}\.log', parts[1]) is not None
@@ -434,7 +443,6 @@ def retained_public_projection(view, files, binding, map_sha256):
                  'only exact source-pinned backend executable may bypass text scanning')
         else:
             need(not private_marker.search(view.read(target)), 'private marker in projected public DATA refused')
-    guest = view.load('journey/result.json') if 'journey/result.json' in selected else None
     for feature in reports:
         prefix = 'journey/' + feature + '/'; report_name = prefix + 'result.json'
         actual_logs = {target for target in selected if target.startswith(prefix) and re.fullmatch(log_pattern, target[len(prefix):])}
@@ -714,7 +722,7 @@ def validate(capsule_path, expected):
     need(receipt.get('binding') == binding and receipt.get('source_map_sha256') == expected['map_sha256']
          and type(receipt.get('status')) is str and type(cleanup.get('status')) is str,
          'same-source owner and explicit cleanup outcome required')
-    if receipt.get('operation') == 'security-alpm-v1':
+    if receipt.get('operation') == 'security-alpm-interrupted-recovery-v1':
         from security_reader_v1 import validate_component
         return validate_component(view, files, receipt, cleanup, binding, expected, sys.modules[__name__])
     consumer_diagnostic = retained_consumer_diagnostic(view, files, receipt, binding, expected['map_sha256'])
