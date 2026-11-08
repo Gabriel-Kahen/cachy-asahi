@@ -1,0 +1,85 @@
+{
+  "WNOWAIT": {
+    "code": "CLD_EXITED",
+    "observed": true,
+    "pid": 2614,
+    "status": 0
+  },
+  "ZIP_GETs": 1,
+  "actual": {
+    "architecture": "aarch64",
+    "attempt": 1,
+    "job": 124576960645,
+    "page_size": 4096,
+    "python": "3.14.9",
+    "run": 41214790615,
+    "workflow_id": 402771575,
+    "workflow_source": "9e7c58f51548b7d901ac90084883f41b9dba4e90"
+  },
+  "actual_Desktop_zombie1844_ownership": "UNKNOWN_UNCHANGED",
+  "actual_actor_ids": {
+    "adopted_child": 2614,
+    "reserved_leader": 2613,
+    "wait_owner": 2612
+  },
+  "authority_closed": true,
+  "fresh_final_census": "RESERVED_LEADER_ONLY",
+  "issuer": "Root",
+  "original_zip": {
+    "bytes": 20632,
+    "sha256": "1574ddde109838adcf9dffc9d9213c95abf9c624dcb8e560b7117ae8ce7af311"
+  },
+  "passive_decoder_calls": 1,
+  "raw_reap": {
+    "attempted": true,
+    "exit": 0,
+    "pid": 2614,
+    "status_matches": true
+  },
+  "raw_wait_status_integer": "NOT_EXPORTED_BY_RUNTIME_API",
+  "role_pins": {
+    "control/intent.json": {
+      "bytes": 1195,
+      "sha256": "ec58f4b5a647f88884b36fb5511bda55f8fbefe4199cc774902f534e3607484f"
+    },
+    "control/result.json": {
+      "bytes": 2131,
+      "sha256": "9a0844ba8a149c9f1a6be5e56efc37107ab74a3be9b68704cc31d6d627eb2d70"
+    },
+    "control/runtime-result.json": {
+      "bytes": 1652,
+      "sha256": "6da3c5a27fc0555ceca11936abc16c6f44ff28402085bebd81117dabf083d322"
+    },
+    "manifest.json": {
+      "bytes": 1101,
+      "sha256": "b1d0be03f51a6f8acdb7527c3d8a7294504534447e0eb58fcf744b542843c222"
+    },
+    "source-provenance.json": {
+      "bytes": 1752,
+      "sha256": "a0debc7cb58179e4b37726eadab71f190bdba23b7a9162f60ad2adacadef8b8e"
+    }
+  },
+  "root_acceptance_sha256": "1d71eb6850d6c7b636c6390dc744b3924ca2f292cf83a011022b0adf6948a6d2",
+  "runtime": {
+    "blob": "e336152d4b0185ec704661243f0c8968ed37be44",
+    "bytes": 38256,
+    "mode": 493,
+    "sha256": "9388d270d06e28fee50160b7c04dd69593e383647d791f8aaff69380032165d5"
+  },
+  "runtime_source": "3ab5da1b4a11495075a9660ad09625a4ff5f0f64",
+  "schema": 1,
+  "scope": "EXACT_NATIVE_RUNTIME_ONE_GENUINE_ADOPTED_ZERO_CHILD_BRANCH_ONLY",
+  "scope_limits": {
+    "Asahi_installed": false,
+    "Developer_migration": false,
+    "M2": false,
+    "all_runtime_branches_native_qualified": false,
+    "component_ALPM_acceptance": false,
+    "default_legacy834_migration": false,
+    "native16K": false,
+    "performance": false,
+    "production_trust": false,
+    "release": false
+  },
+  "status": "ROOT_ACCEPTED_FINITE_NATIVE_ARM4K_ADOPTED_ZERO_EXIT_CHILD_PROCESS_CONTROL"
+}
