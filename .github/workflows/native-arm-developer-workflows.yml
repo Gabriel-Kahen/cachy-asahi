@@ -13,6 +13,11 @@ on:
         required: true
         default: source184
         options: [source184, desktop-alpm-v1]
+      owned_retirement_v2:
+        description: Explicit Desktop-only reserved-leader v2 candidate
+        type: boolean
+        required: false
+        default: false
 permissions:
   contents: read
 concurrency:
@@ -32,6 +37,7 @@ jobs:
       SOURCE_SHA: ${{ inputs.source_sha }}
       SOURCE_MAP_SHA256: ${{ inputs.source_map_sha256 }}
       NATIVE_OPERATION: ${{ inputs.operation }}
+      NATIVE_OWNED_RETIREMENT_V2: ${{ inputs.owned_retirement_v2 }}
       INPUTS_SHA256: beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f
     steps:
       - name: Checkout the exact closed source
@@ -165,6 +171,12 @@ jobs:
         timeout-minutes: 77
         run: |
           set -euo pipefail
+          owned_retirement_args=()
+          case "$NATIVE_OWNED_RETIREMENT_V2" in
+            true) [[ "$NATIVE_OPERATION" == desktop-alpm-v1 ]]; owned_retirement_args+=(--desktop-owned-retirement-v2) ;;
+            false|"") ;;
+            *) exit 1 ;;
+          esac
           timeout --signal=TERM --kill-after=30s 4500s \
           env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/native-developer-work/home" LANG=C.UTF-8 TZ=UTC \
             RUNNER_TEMP="$RUNNER_TEMP" TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 \
@@ -174,7 +186,7 @@ jobs:
             RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" ImageVersion="${ImageVersion:-}" ImageOS="${ImageOS:-}" \
             python3 -I -B native/owner.py \
               --source-sha "$SOURCE_SHA" --ref "$GITHUB_REF" --run-id "$GITHUB_RUN_ID" --map-sha256 "$SOURCE_MAP_SHA256" \
-              --work "$RUNNER_TEMP/native-developer-work" --cache "$RUNNER_TEMP/alarm-cache" --carrier "$RUNNER_TEMP/pgo-hosted-retained" --execute --operation "$NATIVE_OPERATION"
+              --work "$RUNNER_TEMP/native-developer-work" --cache "$RUNNER_TEMP/alarm-cache" --carrier "$RUNNER_TEMP/pgo-hosted-retained" --execute --operation "$NATIVE_OPERATION" "${owned_retirement_args[@]}"
       - name: Retain bounded original DATA or native evidence capsule
         if: always() && steps.proof.outcome == 'success'
         timeout-minutes: 3

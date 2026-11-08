@@ -27,6 +27,26 @@
   ],
   "operations": {
     "default": "source184",
+    "desktop-alpm-owned-v2": {
+      "actual": {
+        "ref": null,
+        "run": null,
+        "source": null
+      },
+      "argv_extra": [
+        "--operation",
+        "desktop-alpm-v1",
+        "--desktop-owned-retirement-v2"
+      ],
+      "matching_reader": "native/desktop_reader_v1.py",
+      "prerequisite": "ROOT_ACTUAL_SOURCE_REF_RUN_MAP_AND_AUTHENTICATED_ARTIFACT_BINDING_REQUIRED; DATA_PROTOCOL_ONLY_NOT_NATIVE_ACCEPTANCE",
+      "reader_argv_extra": [
+        "--retirement-selection",
+        "desktop-owned-retirement-v2-reader-v1"
+      ],
+      "reader_selection": "desktop-owned-retirement-v2-reader-v1",
+      "runtime_selection": "desktop-owned-retirement-v2"
+    },
     "desktop-alpm-v1": {
       "actual": {
         "ref": null,

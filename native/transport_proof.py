@@ -10,8 +10,8 @@ MAX_PROOF=16*1024**2
 FILE_COUNT=1154
 MATERIAL_BYTES=1046432165
 PROFILE_BYTES=195440
-PROFILE_SHA='4089fd798849cafda23d03c0dd95ac896a83fd63ad21e331ae420c147535586c'
-PROFILE_SOURCE='ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad'
+PROFILE_SHA='47ea6a3f358922ad1d643bc2cbd517fe0335f5dbe1313a87af3d24396d5a39ea'
+PROFILE_SOURCE='4659076d3a1d3e5cf87c185a3ff383fbc38e734d'
 CANONICAL_SHA='9b90c423fd67c261d8be1dddd8450df5b927b6dbaba9972c4daff8c0da2836b7'
 PUBLIC='https://github.com/Gabriel-Kahen/cachy-asahi.git'
 POLICY=dict(fetch_seconds=400,transport_seconds=480,outer_seconds=500,reason='Explicit one-fetch allocation for full retained DATA; no measured latency guarantee')

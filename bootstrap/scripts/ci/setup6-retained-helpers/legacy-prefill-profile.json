@@ -16,10 +16,10 @@
       ],
       "profile": {
         "bytes": 195440,
-        "sha256": "4089fd798849cafda23d03c0dd95ac896a83fd63ad21e331ae420c147535586c"
+        "sha256": "47ea6a3f358922ad1d643bc2cbd517fe0335f5dbe1313a87af3d24396d5a39ea"
       },
       "ref": "codex/native574-complete-retained-inputs-v1",
-      "source": "ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad"
+      "source": "4659076d3a1d3e5cf87c185a3ff383fbc38e734d"
     },
     "compiler6-profile.json": {
       "files": 11,

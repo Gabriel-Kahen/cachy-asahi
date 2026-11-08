@@ -22,8 +22,8 @@ import time
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import binding, input_contract, load, need, pin, read, save, source_bytes, verify_source
 
-PROFILE = '4089fd798849cafda23d03c0dd95ac896a83fd63ad21e331ae420c147535586c'
-CARRIER_SOURCE = 'ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad'
+PROFILE = '47ea6a3f358922ad1d643bc2cbd517fe0335f5dbe1313a87af3d24396d5a39ea'
+CARRIER_SOURCE = '4659076d3a1d3e5cf87c185a3ff383fbc38e734d'
 FIELDS = ('st_dev', 'st_ino', 'st_mode', 'st_uid', 'st_gid', 'st_nlink',
           'st_size', 'st_mtime_ns', 'st_ctime_ns')
 

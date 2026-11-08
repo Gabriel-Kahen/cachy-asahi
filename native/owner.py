@@ -78,6 +78,8 @@ def run(root, args):
     own, profile, original, expected = admission(root, args, os.environ)
     operation=getattr(args,'operation','source184')
     need(operation in ('source184','desktop-alpm-v1'),'explicit finite operation')
+    owned_retirement_v2=getattr(args,'desktop_owned_retirement_v2',False)
+    need(type(owned_retirement_v2)is bool and (not owned_retirement_v2 or operation=='desktop-alpm-v1'),'desktop owned-retirement-v2 opt-in requires desktop-alpm-v1')
     need((root / '.git').is_dir() and not (root / '.git').is_symlink(), 'explicit ordinary publication Git directory')
     import provision
     proof = provision.prior_proof(root, args, own)
@@ -93,6 +95,7 @@ def run(root, args):
                   input_inventory=pin(expected), source_root=str(root), output_root=str(output),
                   native_16K='NOT_QUALIFIED', physical_M2='NOT_RUN', release='NOT_ADMITTED')
     if operation=='desktop-alpm-v1':report['operation']=operation
+    if owned_retirement_v2:report['desktop_owned_retirement_v2']=True
     pgo = module(root / 'bootstrap/scripts/ci/zlib-pgo-native-hosted/owner.py', '_sealed_pgo102')
     pgo.DOCKER = DOCKER
     actor = pgo.Actors(args.work / 'actors', 4300)
@@ -208,7 +211,11 @@ def run(root, args):
            '&& pacman -Q | LC_ALL=C sort > /builder-packages.lock\nUSER alarm\nWORKDIR /tmp\n')
         if operation=='desktop-alpm-v1':
             from desktop_alpm_v1 import prepare,dockerfile as release_dockerfile
-            prepare(root,context,args.map_sha256);dockerfile=release_dockerfile(dockerfile,args.map_sha256)
+            prepare(root,context,args.map_sha256)
+            if owned_retirement_v2:
+                dockerfile=release_dockerfile(dockerfile,args.map_sha256,owned_retirement_v2=True)
+            else:
+                dockerfile=release_dockerfile(dockerfile,args.map_sha256)
         (context / 'Dockerfile').write_text(dockerfile)
         command = [*DOCKER, 'build', '--network=none', '--pull=false', '--no-cache', '--platform=linux/arm64',
             '--tag', 'native-developer-tools:' + own['token'], '--label', LABEL + '=' + own['token'],
@@ -403,6 +410,7 @@ if __name__ == '__main__':
         parser.add_argument('--' + name, required=True)
     parser.add_argument('--execute', action='store_true')
     parser.add_argument('--operation',choices=('source184','desktop-alpm-v1'),default='source184')
+    parser.add_argument('--desktop-owned-retirement-v2',action='store_true',default=False)
     args = parser.parse_args()
     def cancel(number, frame):
         raise KeyboardInterrupt('native workflow cancellation')

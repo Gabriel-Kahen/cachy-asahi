@@ -3,7 +3,7 @@
 import hashlib,importlib.util,json,os,stat,subprocess,time
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
-PROFILE={'bytes':1510,'sha256':'9cc82d4e0947415ecad9d40094a4c0a2709d01be54513e78af8c739fd76fb696'}
+PROFILE={'bytes':1510,'sha256':'91f15e75afff88b7379eaba720f725a0efe6f642648f8dbf002bff058d11ba7c'}
 FIELDS=('st_dev','st_ino','st_mode','st_uid','st_gid','st_nlink','st_size','st_mtime_ns','st_ctime_ns')
 def need(ok,why):
  if not ok:raise ValueError(why)

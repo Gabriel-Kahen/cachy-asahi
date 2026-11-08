@@ -151,11 +151,11 @@ def owned_subprocess_run(argv,**kwargs):
     """Only the pinned full-carrier blob proof may exceed ordinary stdout caps."""
     need('stdout_limit'not in kwargs,'global subprocess callers cannot select an owned stdout cap')
     if type(argv)in(list,tuple)and len(argv)==7 and list(argv[:1])==['/usr/bin/git'] and list(argv[2:6])==['-c','protocol.allow=never','cat-file','blob'] and type(os.environ.get('RUNNER_TEMP'))is str and os.environ['RUNNER_TEMP']:
-        source='ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad'
+        source='4659076d3a1d3e5cf87c185a3ff383fbc38e734d'
         carrier=safe_path(os.environ['RUNNER_TEMP'])/'pgo-hosted-retained'
         if argv[1]=='--git-dir='+str(carrier/'.git') and type(argv[6])is str and argv[6].startswith(source+':'):
             profile_raw=read(ROOT/'scripts/ci/setup6-retained-helpers/carrier-profile.json')
-            need(sha(profile_raw)=='4089fd798849cafda23d03c0dd95ac896a83fd63ad21e331ae420c147535586c','whole full-carrier proof profile')
+            need(sha(profile_raw)=='47ea6a3f358922ad1d643bc2cbd517fe0335f5dbe1313a87af3d24396d5a39ea','whole full-carrier proof profile')
             profile=json.loads(profile_raw);name=argv[6][len(source)+1:]
             need(profile['source']==source and len(profile['files'])==1154,'fixed whole-carrier blob proof source')
             if name in profile['files']:

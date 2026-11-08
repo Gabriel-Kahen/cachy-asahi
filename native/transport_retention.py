@@ -12,8 +12,8 @@ import secrets
 import urllib.parse
 
 PUBLIC = 'https://github.com/Gabriel-Kahen/cachy-asahi.git'
-SOURCE = 'ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad'
-PROFILE = '4089fd798849cafda23d03c0dd95ac896a83fd63ad21e331ae420c147535586c'
+SOURCE = '4659076d3a1d3e5cf87c185a3ff383fbc38e734d'
+PROFILE = '47ea6a3f358922ad1d643bc2cbd517fe0335f5dbe1313a87af3d24396d5a39ea'
 NETWORK = {'metadata_fetch', 'required_blobs_fetch'}
 PHASES = NETWORK | {'setup', 'metadata_proof', 'complete_object_proof', 'all_required_materialization', 'final_namespace_proof'}
 LOG_CAP = 4*1024**2

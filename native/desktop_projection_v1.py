@@ -10,7 +10,7 @@ import capsule as C
 import privacy_diagnostics as privacy
 
 PRODUCERS = {
- 'native/desktop_alpm_v1.py': '94b0c96301a4a7985b758d6a36d50f597478a1a010cb794602d7a73d80da8dd3',
+ 'native/desktop_alpm_v1.py': 'bc5c84ae2abc21883507785b108101d5b0da964dde384c04e0c090478aeed8ca',
  'native/desktop_tools_v1.py': '88a8c5a8c188113564c8e0bf1e02176d9cc86f19998b51e19e075c5d0eaf8b62',
  'native/desktop_guest_v1.py': '2818cb5257433b290dd96dc8b1824e4c7932ac5ceff5b190004765caa1191e31',
  'native/desktop-contract-v1.json': 'f2c72aa0d24272966eb323a5a2bb11bca89569a9542330eedafe9f09cc46a894'}
@@ -23,6 +23,42 @@ REPORTS={'desktop-alpm-v1':{'result.json','commands.json'}}
 PRIVATE={'desktop-alpm-v1':{'home'}}
 LOG=re.compile(r'[0-9]{3}-[A-Za-z0-9][A-Za-z0-9_+.-]{0,127}\.log')
 PRIVATE_MARKER=re.compile(br'-----BEGIN[^\r\n]{0,100}PRIVATE KEY|BEGIN PGP PRIVATE|ssh-(?:rsa|ed25519)|ecdsa-sha2-|(?:gh[pousr]_|github_pat_)[A-Za-z0-9_]+|authorization\s*:\s*(?:bearer|token)|(?:access[_-]?token|password|secret)\s*[=:]|CACHY_(?:OLD_FOUR|RETAINED_BUBBLEWRAP)|PRIVATE_KEY|(?:_TOKEN|_SECRET|_PASSWORD)\b',re.I)
+
+
+OWNED_V2_READER_SELECTION = 'desktop-owned-retirement-v2-reader-v1'
+OWNED_V2_READER_LAYOUT = dict(schema=1,selection=OWNED_V2_READER_SELECTION,
+ public_prefix='journey/desktop-alpm-v1/',omitted_private_scopes=['journey/desktop-alpm-v1/home'],
+ private_trees_walked=False,projected_mode=0o600,payload_contract='native/desktop-contract-v1.json',payload_files=6,
+ process_layout='bash-pid1-direct-python-child-v1',
+ runtime=dict(path='native/desktop_owned_process_v2.py',bytes=38256,sha256='9388d270d06e28fee50160b7c04dd69593e383647d791f8aaff69380032165d5'))
+
+
+def owned_v2_projection_tag(report,map_sha256):
+ selected=report.get('runtime_selection') if type(report) is dict else None
+ if selected is None:return None
+ C.need(type(map_sha256) is str and re.fullmatch('[0-9a-f]{64}',map_sha256),'v2 same-map projection required')
+ expected=dict(schema=1,status=selected.get('status') if type(selected) is dict else None,
+  selection='desktop-owned-retirement-v2',explicit_opt_in=True,source_map_sha256=map_sha256,
+  source=dict(OWNED_V2_READER_LAYOUT['runtime']),operation_commands='RetirementCommands',cleanup_commands='RetirementCommands',
+  legacy_census_wrapper_installed=False,supervision_rows='UNCHANGED_BUNDLE_OUTPUT')
+ C.need(type(selected) is dict and selected==expected and type(selected['schema']) is int
+  and selected['explicit_opt_in'] is True and selected['legacy_census_wrapper_installed'] is False
+  and type(selected['source']['bytes']) is int and selected['status'] in ('SELECTING_EXACT_BUNDLE','SELECTED_EXACT_BUNDLE')
+  and report.get('source_map_sha256')==map_sha256 and report.get('operation')=='desktop-alpm-v1'
+  and type(report.get('schema_version')) is int and report['schema_version']==1
+  and report.get('status') in ('FAIL','PASS_DESKTOP_TOOLS_NATIVE_ALPM_COMPONENT')
+  and (report.get('status')!='PASS_DESKTOP_TOOLS_NATIVE_ALPM_COMPONENT' or selected['status']=='SELECTED_EXACT_BUNDLE'),
+  'v2 projection requires exact explicit runtime selection; partial selection never qualifies success')
+ layout=report.get('process_layout')
+ C.need(type(layout) is dict and set(layout)=={'schema','contract','python_pid','python_ppid','status'}
+  and type(layout['schema']) is int and layout['schema']==1
+  and layout['contract']=='bash-pid1-direct-python-child-v1'
+  and type(layout['python_pid']) is int and 1<layout['python_pid']<2**31
+  and type(layout['python_ppid']) is int and layout['python_ppid']==1
+  and layout['status']=='OBSERVED_NON_PID1_PYTHON_DIRECT_CHILD',
+  'v2 exact observed build-stage Python layout required')
+ return dict(OWNED_V2_READER_LAYOUT,runtime=dict(OWNED_V2_READER_LAYOUT['runtime']),
+  omitted_private_scopes=list(OWNED_V2_READER_LAYOUT['omitted_private_scopes']))
 
 
 def _read(root,name,optional=False):
@@ -222,6 +258,10 @@ def _project(source_root,public_root,projected_root):
   privacy='Ordinary DATA marker refusal; only exact source-bound package tar custody permits bound public source identifiers',
   archive_custody=archive_rows,
   original_output_unchanged=True,omitted_private_trees_walked=False)
+ feature_report=selected.get('journey/desktop-alpm-v1/result.json')
+ if feature_report is not None:
+  tag=owned_v2_projection_tag(C._load(feature_report),map_hash)
+  if tag is not None:receipt['owned_retirement_reader']=tag
  selected['public-projection.json']=C._json(receipt)
  manifest=dict(schema=1,binding=binding,source_map_sha256=map_hash,files={name:dict(kind='file',mode=0o600,**C.pin(raw)) for name,raw in selected.items()})
  selected['artifacts.json']=C._json(manifest)

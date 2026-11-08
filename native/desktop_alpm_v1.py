@@ -2,6 +2,7 @@
 """Owned image actor. Failure carriers persist DATA; the consumer still rejects FAIL."""
 import argparse,base64,json,os,pwd,re,shutil,signal,stat,sys,tempfile
 from pathlib import Path
+from types import SimpleNamespace
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 import desktop_tools_v1 as T
 need=T.need
@@ -12,6 +13,16 @@ PASS='PASS_DESKTOP_TOOLS_NATIVE_ALPM_COMPONENT'
 TEST_UID='TEST ONLY desktop-tools <desktop-tools@test.invalid>'
 
 CENSUS_CORE_SHA256='83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f'
+OWNED_V2_PATH='native/desktop_owned_process_v2.py'
+OWNED_V2_PIN=dict(bytes=38256,sha256='9388d270d06e28fee50160b7c04dd69593e383647d791f8aaff69380032165d5')
+
+def load_owned_retirement_v2(source):
+ """Explicit opt-in: execute only the exact held sibling bundle bytes."""
+ path=Path(source)/OWNED_V2_PATH;raw=T.ordinary(path,OWNED_V2_PIN['bytes'])
+ need(T.data_pin(raw)==OWNED_V2_PIN,'exact owned-retirement-v2 sibling bundle required')
+ namespace=dict(__name__='_desktop_owned_retirement_v2',__file__=str(path))
+ exec(compile(raw,str(path),'exec'),namespace)
+ return SimpleNamespace(Commands=namespace['RetirementCommands'])
 
 def observe_group_census(commands):
  """Retain existing post-reap scan DATA; never add a scan or change its return."""
@@ -60,10 +71,15 @@ def prepare(root,context,map_hash):
   shutil.copyfile(source,out);out.chmod(stat.S_IMODE(source.stat().st_mode))
  return target
 
-def dockerfile(base,map_hash):
+def dockerfile(base,map_hash,*,owned_retirement_v2=False):
+ need(type(owned_retirement_v2)is bool,'explicit boolean owned-retirement-v2 selection')
  need(re.fullmatch('[0-9a-f]{64}',map_hash or ''),'explicit source-map checksum')
  ending='USER alarm\nWORKDIR /tmp\n'
  need(base.endswith(ending) and base.count(ending)==1,'exact genuine191 image suffix; no fallback')
+ if owned_retirement_v2:
+  return base[:-len(ending)]+('COPY desktop-alpm-v1/source/ /opt/native-desktop-tools-alpm-v1/source/\nRUN '+json.dumps(['/usr/bin/bash','--noprofile','--norc','-p','-c',
+   'test "$$" -eq 1 || exit 125; /usr/bin/python3 -I -B /opt/native-desktop-tools-alpm-v1/source/native/desktop_alpm_v1.py --inside-image --retain-failure-image --owned-retirement-v2 --map-sha256 '+map_hash+
+   ' & desktop_owner=$!; desktop_status=0; wait "$desktop_owner" || desktop_status=$?; exit "$desktop_status"'])+'\n'+ending)
  return base[:-len(ending)]+('COPY desktop-alpm-v1/source/ /opt/native-desktop-tools-alpm-v1/source/\nRUN /usr/bin/python3 -I -B /opt/native-desktop-tools-alpm-v1/source/native/desktop_alpm_v1.py --inside-image --retain-failure-image --map-sha256 '+map_hash+'\n'+ending)
 
 def strict_signature(status,fingerprint):
@@ -218,13 +234,16 @@ def save_result(scope,report):
  (scope/'commands.json').write_bytes(T.encoded(report['commands']));(scope/'result.json').write_bytes(T.encoded(report))
  for path in scope.iterdir():path.chmod(0o644)
  for directory in (scope,scope.parent,STORE):directory.chmod(0o755)
-def inside(source,map_hash):
+def inside(source,map_hash,*,owned_retirement_v2=False):
+ need(type(owned_retirement_v2)is bool,'explicit boolean owned-retirement-v2 selection')
+ if owned_retirement_v2:need(os.getpid()>1 and os.getppid()==1,'owned-v2 Python must be the direct non-PID1 child of the fresh PID1 shell')
  source=Path(source)
  need(os.getuid()==os.geteuid()==0 and os.uname().machine=='aarch64' and source==SOURCE and Path('/builder-packages.lock').is_file(),'explicit owned disposable native image root only')
  from common import verify_source
  verify_source(source,map_hash);need(not STORE.exists(),'fresh fixed evidence store')
  scope=STORE/'journey'/'desktop-alpm-v1';scope.mkdir(parents=True)
  report=dict(schema_version=1,operation=T.OPERATION,status='FAIL',source_map_sha256=map_hash,version=T.VERSION,versions=[T.VERSION,T.UPDATE_VERSION],contract=T.pin(source/'native/desktop-contract-v1.json'),stages=[],inventory={},payloads={},builds={},signatures={},business={},commands=[],signature_policy=dict(SigLevel='Required',LocalFileSigLevel='Required'),native=dict(architecture=os.uname().machine,page_bytes=os.sysconf('SC_PAGE_SIZE'),execution='OWNED_IMAGE_BUILD_STAGE',physical_M2='NOT_RUN',release='NOT_ADMITTED'),first_failure=None,cleanup=dict(homes_retired=False,no_sockets=False,private_directory_absent=False,failures=['INITIALIZATION_NOT_COMPLETED']))
+ if owned_retirement_v2:report['process_layout']=dict(schema=1,contract='bash-pid1-direct-python-child-v1',python_pid=os.getpid(),python_ppid=os.getppid(),status='OBSERVED_NON_PID1_PYTHON_DIRECT_CHILD')
  work=None;commands=None;primary=None;pacman=None;baseline=None;baseline_reasons=None;phase='initialize'
  save_result(scope,report)
  try:
@@ -234,14 +253,23 @@ def inside(source,map_hash):
   work=Path(tempfile.mkdtemp(prefix='desktop-tools-test-',dir='/tmp'));work.chmod(0o700)
   signing,trust=work/'signing',work/'trust'
   for home in (signing,trust,work/'command-home'):home.mkdir(mode=0o700)
-  alarm=pwd.getpwnam('alarm');W=T.load_workflow(source,policy)
-  commands=W.Commands(scope,work/'command-home','/usr/bin:/bin',timeout=180,total=450,max_output=1024**2);report['commands']=commands.records;census=observe_group_census(commands)
+  alarm=pwd.getpwnam('alarm')
+  if owned_retirement_v2:
+   phase='owned-retirement-v2-selection'
+   report['runtime_selection']=dict(schema=1,status='SELECTING_EXACT_BUNDLE',selection='desktop-owned-retirement-v2',explicit_opt_in=True,source_map_sha256=map_hash,source=dict(path=OWNED_V2_PATH,**OWNED_V2_PIN),operation_commands='RetirementCommands',cleanup_commands='RetirementCommands',legacy_census_wrapper_installed=False,supervision_rows='UNCHANGED_BUNDLE_OUTPUT')
+   W=load_owned_retirement_v2(source)
+   report['runtime_selection']['status']='SELECTED_EXACT_BUNDLE'
+  else:
+   W=T.load_workflow(source,policy)
+  commands=W.Commands(scope,work/'command-home','/usr/bin:/bin',timeout=180,total=450,max_output=1024**2);report['commands']=commands.records
+  census=None if owned_retirement_v2 else observe_group_census(commands)
   def run(step,argv,expected=0,cwd=work):
    nonlocal phase
-   phase=step;before=len(commands.records);census.clear()
+   phase=step;before=len(commands.records)
+   if census is not None:census.clear()
    try:return commands.run(step,list(map(str,argv)),Path(cwd),expected)
    except BaseException as error:
-    retain_group_census(commands,before,census,scope,report)
+    if census is not None:retain_group_census(commands,before,census,scope,report)
     retain_exception(commands,scope,step,argv,cwd,expected,error,before);save_result(scope,report);raise
   def inventory(step):return b''.join(sorted(run(step,['/usr/bin/pacman','-Q']).splitlines(keepends=True)))
   def reasons(step):
@@ -323,12 +351,14 @@ def inside(source,map_hash):
   cleanup_failures=[]
   if commands is not None and work is not None:
    try:
-    cleanup_commands=W.Commands(scope,work/'command-home','/usr/bin:/bin',timeout=20,total=90,max_output=1024**2);cleanup_commands.records=commands.records;cleanup_census=observe_group_census(cleanup_commands)
+    cleanup_commands=W.Commands(scope,work/'command-home','/usr/bin:/bin',timeout=20,total=90,max_output=1024**2);cleanup_commands.records=commands.records
+    cleanup_census=None if owned_retirement_v2 else observe_group_census(cleanup_commands)
     def clean_run(step,argv,expected=0):
-     before=len(cleanup_commands.records);cleanup_census.clear()
+     before=len(cleanup_commands.records)
+     if cleanup_census is not None:cleanup_census.clear()
      try:return cleanup_commands.run(step,list(map(str,argv)),work,expected)
      except BaseException as error:
-      retain_group_census(cleanup_commands,before,cleanup_census,scope,report)
+      if cleanup_census is not None:retain_group_census(cleanup_commands,before,cleanup_census,scope,report)
       retain_exception(cleanup_commands,scope,step,argv,work,expected,error,before);raise
    except BaseException as error:
     cleanup_failures.append('cleanup-supervisor:'+type(error).__name__)
@@ -384,11 +414,15 @@ def export(output,map_hash):
 if __name__=='__main__':
  parser=argparse.ArgumentParser(description=__doc__)
  parser.add_argument('--inside-image',action='store_true');parser.add_argument('--retain-failure-image',action='store_true');parser.add_argument('--map-sha256',required=True)
+ parser.add_argument('--owned-retirement-v2',action='store_true',default=False)
  args=parser.parse_args();need(args.inside_image,'explicit owned image operation')
  def cancel(number,frame):raise KeyboardInterrupt('native image actor cancelled')
  handlers={number:signal.signal(number,cancel) for number in (signal.SIGINT,signal.SIGTERM)}
  try:
-  value=inside(Path(__file__).resolve().parents[1],args.map_sha256)
+  if args.owned_retirement_v2:
+   value=inside(Path(__file__).resolve().parents[1],args.map_sha256,owned_retirement_v2=True)
+  else:
+   value=inside(Path(__file__).resolve().parents[1],args.map_sha256)
   print(json.dumps(dict(status=value['status'],first_failure=value['first_failure'],diagnostic_carrier_only=value['status']!=PASS)),flush=True)
   # A carrier image can retain failed originals; its guest independently requires PASS.
   sys.exit(0 if args.retain_failure_image or value['status']==PASS else 1)
