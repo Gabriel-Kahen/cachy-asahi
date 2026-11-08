@@ -33,6 +33,16 @@
     "runtime_source": "3ab5da1b4a11495075a9660ad09625a4ff5f0f64",
     "scope": "EXACT_NATIVE_RUNTIME_ONE_GENUINE_ADOPTED_ZERO_CHILD_BRANCH_ONLY"
   },
+  "desktop_owned_v2_reader": {
+    "path": "native/desktop_reader_v1.py",
+    "payload_contract": "native/desktop-contract-v1.json",
+    "payload_files": 6,
+    "private_layout": "desktop-alpm-v1-public-data-v1",
+    "process_layout": "bash-pid1-direct-python-child-v1",
+    "runtime_selection": "desktop-owned-retirement-v2",
+    "scope": "FINITE_NATURAL_RETIREMENT_OPTIONAL_QUALIFIED_ZERO_CHILD",
+    "selection": "desktop-owned-retirement-v2-reader-v1"
+  },
   "files": {
     ".github/workflows/native-arm-build.yml": {
       "bytes": 13576,
@@ -625,9 +635,9 @@
       "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
     },
     "native/desktop_alpm_v1.py": {
-      "bytes": 32524,
+      "bytes": 33078,
       "mode": 420,
-      "sha256": "8651601d55ea799c57010c4a61fe8cdd40783175b38eac41d4d56855a488888e"
+      "sha256": "bc5c84ae2abc21883507785b108101d5b0da964dde384c04e0c090478aeed8ca"
     },
     "native/desktop_guest_v1.py": {
       "bytes": 3041,
@@ -640,14 +650,14 @@
       "sha256": "9388d270d06e28fee50160b7c04dd69593e383647d791f8aaff69380032165d5"
     },
     "native/desktop_projection_v1.py": {
-      "bytes": 17789,
+      "bytes": 20728,
       "mode": 420,
-      "sha256": "db717e8803cda13a7eabffffb61de10050db07e71fb953902cb03bd427d4f51f"
+      "sha256": "621598cf1408fe1414637e4d787b67aeca2c8f228e567ea7b7911ec2a05c0b5f"
     },
     "native/desktop_reader_v1.py": {
-      "bytes": 120391,
+      "bytes": 140631,
       "mode": 420,
-      "sha256": "c9160387ec37054ab96781e46a0c57c8020756983b0529aa6a749d351c039e5b"
+      "sha256": "837e3f83cc2b1433a282c3bf5edb3f3e06c1e9d18264362680d28ae97b60a24e"
     },
     "native/desktop_tools_v1.py": {
       "bytes": 26905,
@@ -680,9 +690,9 @@
       "sha256": "2c42c705654d31e639f389f9a868dada0d9df76813d865e766be7b7c08f8404c"
     },
     "native/invocation.json": {
-      "bytes": 1858,
+      "bytes": 2101,
       "mode": 420,
-      "sha256": "c4b5b0d65568a526c4545d7e3ac8f94b571d79a804aea82844e7b9cccf3a7064"
+      "sha256": "f24bb54b4fb6bef80a87b49c1fc36dae02fa441b93d744a0b5c0fe0da10c63fd"
     },
     "native/original341.lock": {
       "bytes": 6674,

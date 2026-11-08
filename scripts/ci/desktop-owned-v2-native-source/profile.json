@@ -10,7 +10,7 @@
     "source": null
   },
   "admission": {
-    "matching_reader": "HELD_V2_COMPONENT_SCHEMA_PENDING_ROOT",
+    "matching_reader": "IMPLEMENTED_V2_DATA_PROTOCOL_ROOT_ACTUAL_BINDING_PENDING",
     "native_control": "ROOT_ACCEPTED_FINITE_NATIVE_ARM4K_ADOPTED_ZERO_EXIT_CHILD_PROCESS_CONTROL",
     "producer_pins": "EXACT_SOURCE_PRODUCER_PINS_ONLY",
     "publication": "ROOT_ONLY_NOT_AUTHORIZED_HERE"
@@ -725,10 +725,10 @@
       "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
     },
     "native/desktop_alpm_v1.py": {
-      "blob": "06669f19daabe1b1956ead71980e1b99acd817e4",
-      "bytes": 32524,
+      "blob": "469c622f49c4e8610787ad19be1d2440c743050e",
+      "bytes": 33078,
       "mode": 420,
-      "sha256": "8651601d55ea799c57010c4a61fe8cdd40783175b38eac41d4d56855a488888e"
+      "sha256": "bc5c84ae2abc21883507785b108101d5b0da964dde384c04e0c090478aeed8ca"
     },
     "native/desktop_guest_v1.py": {
       "blob": "bfc36a4eff7615e250c2c32d93c152c6b97e3dfe",
@@ -743,16 +743,16 @@
       "sha256": "9388d270d06e28fee50160b7c04dd69593e383647d791f8aaff69380032165d5"
     },
     "native/desktop_projection_v1.py": {
-      "blob": "a6c7442298b2e5c2e5755d7e9dcec8149cfd5c7b",
-      "bytes": 17789,
+      "blob": "a8c31430470095e9f1869fda671c0488c88bbbab",
+      "bytes": 20728,
       "mode": 420,
-      "sha256": "db717e8803cda13a7eabffffb61de10050db07e71fb953902cb03bd427d4f51f"
+      "sha256": "621598cf1408fe1414637e4d787b67aeca2c8f228e567ea7b7911ec2a05c0b5f"
     },
     "native/desktop_reader_v1.py": {
-      "blob": "bdcf1236fee243bc37f9dd697eb5062287c683d6",
-      "bytes": 120391,
+      "blob": "4705c419a731cf0589fcfb014b8049f91272064f",
+      "bytes": 140631,
       "mode": 420,
-      "sha256": "c9160387ec37054ab96781e46a0c57c8020756983b0529aa6a749d351c039e5b"
+      "sha256": "837e3f83cc2b1433a282c3bf5edb3f3e06c1e9d18264362680d28ae97b60a24e"
     },
     "native/desktop_tools_v1.py": {
       "blob": "142dbe5f36e9bb7c62c2acb078309d72b525dd1b",
@@ -791,10 +791,10 @@
       "sha256": "2c42c705654d31e639f389f9a868dada0d9df76813d865e766be7b7c08f8404c"
     },
     "native/invocation.json": {
-      "blob": "392b688301b75e1673df189070980f0be3ce8d72",
-      "bytes": 1858,
+      "blob": "c6b556194b2b93daca734a2f8c7226b0f69e3c87",
+      "bytes": 2101,
       "mode": 420,
-      "sha256": "c4b5b0d65568a526c4545d7e3ac8f94b571d79a804aea82844e7b9cccf3a7064"
+      "sha256": "f24bb54b4fb6bef80a87b49c1fc36dae02fa441b93d744a0b5c0fe0da10c63fd"
     },
     "native/original341.lock": {
       "blob": "f1f6a51c4db661e5d7598d25796a60ac1cadecea",
@@ -857,10 +857,10 @@
       "sha256": "750b929681353a5915e5541d4bdbe167b558830e9762d6ac2da0c05146120a70"
     },
     "native/source-map.json": {
-      "blob": "a4e3072974ab48fbaee3423b2fcf00f4369f7f73",
-      "bytes": 40492,
+      "blob": "5c87cada85fc30b6e81d437425b6fc72e531854d",
+      "bytes": 40953,
       "mode": 420,
-      "sha256": "0dccb3371e6b2765aca40f97e29325a39bc90aed3228a895523030976fb53f8c"
+      "sha256": "1f3a0f0f32ba80a73ae83da6039e3eb46274eefb4fcb19c4c8bda556066dd6b8"
     },
     "native/transport_proof.py": {
       "blob": "bfc844bbbde2dc6f14b3836d0b083a31e5710185",
@@ -1927,10 +1927,10 @@
       "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
     },
     "native/desktop_alpm_v1.py": {
-      "blob": "06669f19daabe1b1956ead71980e1b99acd817e4",
-      "bytes": 32524,
+      "blob": "469c622f49c4e8610787ad19be1d2440c743050e",
+      "bytes": 33078,
       "mode": 420,
-      "sha256": "8651601d55ea799c57010c4a61fe8cdd40783175b38eac41d4d56855a488888e"
+      "sha256": "bc5c84ae2abc21883507785b108101d5b0da964dde384c04e0c090478aeed8ca"
     },
     "native/desktop_guest_v1.py": {
       "blob": "bfc36a4eff7615e250c2c32d93c152c6b97e3dfe",
@@ -1945,16 +1945,16 @@
       "sha256": "9388d270d06e28fee50160b7c04dd69593e383647d791f8aaff69380032165d5"
     },
     "native/desktop_projection_v1.py": {
-      "blob": "a6c7442298b2e5c2e5755d7e9dcec8149cfd5c7b",
-      "bytes": 17789,
+      "blob": "a8c31430470095e9f1869fda671c0488c88bbbab",
+      "bytes": 20728,
       "mode": 420,
-      "sha256": "db717e8803cda13a7eabffffb61de10050db07e71fb953902cb03bd427d4f51f"
+      "sha256": "621598cf1408fe1414637e4d787b67aeca2c8f228e567ea7b7911ec2a05c0b5f"
     },
     "native/desktop_reader_v1.py": {
-      "blob": "bdcf1236fee243bc37f9dd697eb5062287c683d6",
-      "bytes": 120391,
+      "blob": "4705c419a731cf0589fcfb014b8049f91272064f",
+      "bytes": 140631,
       "mode": 420,
-      "sha256": "c9160387ec37054ab96781e46a0c57c8020756983b0529aa6a749d351c039e5b"
+      "sha256": "837e3f83cc2b1433a282c3bf5edb3f3e06c1e9d18264362680d28ae97b60a24e"
     },
     "native/desktop_tools_v1.py": {
       "blob": "142dbe5f36e9bb7c62c2acb078309d72b525dd1b",
@@ -1993,10 +1993,10 @@
       "sha256": "2c42c705654d31e639f389f9a868dada0d9df76813d865e766be7b7c08f8404c"
     },
     "native/invocation.json": {
-      "blob": "392b688301b75e1673df189070980f0be3ce8d72",
-      "bytes": 1858,
+      "blob": "c6b556194b2b93daca734a2f8c7226b0f69e3c87",
+      "bytes": 2101,
       "mode": 420,
-      "sha256": "c4b5b0d65568a526c4545d7e3ac8f94b571d79a804aea82844e7b9cccf3a7064"
+      "sha256": "f24bb54b4fb6bef80a87b49c1fc36dae02fa441b93d744a0b5c0fe0da10c63fd"
     },
     "native/original341.lock": {
       "blob": "f1f6a51c4db661e5d7598d25796a60ac1cadecea",
@@ -2059,10 +2059,10 @@
       "sha256": "750b929681353a5915e5541d4bdbe167b558830e9762d6ac2da0c05146120a70"
     },
     "native/source-map.json": {
-      "blob": "a4e3072974ab48fbaee3423b2fcf00f4369f7f73",
-      "bytes": 40492,
+      "blob": "5c87cada85fc30b6e81d437425b6fc72e531854d",
+      "bytes": 40953,
       "mode": 420,
-      "sha256": "0dccb3371e6b2765aca40f97e29325a39bc90aed3228a895523030976fb53f8c"
+      "sha256": "1f3a0f0f32ba80a73ae83da6039e3eb46274eefb4fcb19c4c8bda556066dd6b8"
     },
     "native/transport_proof.py": {
       "blob": "bfc844bbbde2dc6f14b3836d0b083a31e5710185",
@@ -4641,10 +4641,10 @@
     },
     {
       "after": {
-        "blob": "06669f19daabe1b1956ead71980e1b99acd817e4",
-        "bytes": 32524,
+        "blob": "469c622f49c4e8610787ad19be1d2440c743050e",
+        "bytes": 33078,
         "mode": 420,
-        "sha256": "8651601d55ea799c57010c4a61fe8cdd40783175b38eac41d4d56855a488888e"
+        "sha256": "bc5c84ae2abc21883507785b108101d5b0da964dde384c04e0c090478aeed8ca"
       },
       "before": {
         "blob": "9e713461ecb45d58d3de9e07173816c0481e575b",
@@ -4668,10 +4668,10 @@
     },
     {
       "after": {
-        "blob": "a6c7442298b2e5c2e5755d7e9dcec8149cfd5c7b",
-        "bytes": 17789,
+        "blob": "a8c31430470095e9f1869fda671c0488c88bbbab",
+        "bytes": 20728,
         "mode": 420,
-        "sha256": "db717e8803cda13a7eabffffb61de10050db07e71fb953902cb03bd427d4f51f"
+        "sha256": "621598cf1408fe1414637e4d787b67aeca2c8f228e567ea7b7911ec2a05c0b5f"
       },
       "before": {
         "blob": "199c4ef4b928b86738ec1cf4cb53622b8d9a809f",
@@ -4684,10 +4684,10 @@
     },
     {
       "after": {
-        "blob": "bdcf1236fee243bc37f9dd697eb5062287c683d6",
-        "bytes": 120391,
+        "blob": "4705c419a731cf0589fcfb014b8049f91272064f",
+        "bytes": 140631,
         "mode": 420,
-        "sha256": "c9160387ec37054ab96781e46a0c57c8020756983b0529aa6a749d351c039e5b"
+        "sha256": "837e3f83cc2b1433a282c3bf5edb3f3e06c1e9d18264362680d28ae97b60a24e"
       },
       "before": {
         "blob": "3b2b0dd38a7f2fb3c8dbc2d7460841313dcaa147",
@@ -4700,10 +4700,10 @@
     },
     {
       "after": {
-        "blob": "392b688301b75e1673df189070980f0be3ce8d72",
-        "bytes": 1858,
+        "blob": "c6b556194b2b93daca734a2f8c7226b0f69e3c87",
+        "bytes": 2101,
         "mode": 420,
-        "sha256": "c4b5b0d65568a526c4545d7e3ac8f94b571d79a804aea82844e7b9cccf3a7064"
+        "sha256": "f24bb54b4fb6bef80a87b49c1fc36dae02fa441b93d744a0b5c0fe0da10c63fd"
       },
       "before": {
         "blob": "4e17c3838a3ed2c977e804ce3e524e35c18cf5a4",
@@ -4764,10 +4764,10 @@
     },
     {
       "after": {
-        "blob": "a4e3072974ab48fbaee3423b2fcf00f4369f7f73",
-        "bytes": 40492,
+        "blob": "5c87cada85fc30b6e81d437425b6fc72e531854d",
+        "bytes": 40953,
         "mode": 420,
-        "sha256": "0dccb3371e6b2765aca40f97e29325a39bc90aed3228a895523030976fb53f8c"
+        "sha256": "1f3a0f0f32ba80a73ae83da6039e3eb46274eefb4fcb19c4c8bda556066dd6b8"
       },
       "before": {
         "blob": "578f2ed3f75d45e242938463f171bc03bf1a7f4a",
@@ -4821,8 +4821,8 @@
     "sha256": "5c13a5f72bd3ce90c593d90b5df905cfaf764407e46f24f9133d6655d517f01a"
   },
   "output": {
-    "map_sha256": "0dccb3371e6b2765aca40f97e29325a39bc90aed3228a895523030976fb53f8c",
-    "tree": "e00165bc21e7d6152c414fc777b17e8df263b763"
+    "map_sha256": "1f3a0f0f32ba80a73ae83da6039e3eb46274eefb4fcb19c4c8bda556066dd6b8",
+    "tree": "54f053d477f6e5d6ef7edfdde23ce30967e90b12"
   },
   "parent": {
     "commit": "72bc639de295704b94901c03ac8acf7667ff6f9c",
@@ -4860,6 +4860,16 @@
     "path": "physical-carrier-bridge.json",
     "sha256": "08bb865d4a0f6a504db470847375d6502864c2b16dfc712e7c44d89321c18c72"
   },
+  "reader_contract": {
+    "path": "native/desktop_reader_v1.py",
+    "payload_contract": "native/desktop-contract-v1.json",
+    "payload_files": 6,
+    "private_layout": "desktop-alpm-v1-public-data-v1",
+    "process_layout": "bash-pid1-direct-python-child-v1",
+    "runtime_selection": "desktop-owned-retirement-v2",
+    "scope": "FINITE_NATURAL_RETIREMENT_OPTIONAL_QUALIFIED_ZERO_CHILD",
+    "selection": "desktop-owned-retirement-v2-reader-v1"
+  },
   "release": "NOT_ADMITTED",
   "runtime": {
     "bytes": 38256,
@@ -4871,7 +4881,7 @@
   "selection": "desktop-owned-retirement-v2",
   "source_files": 200,
   "source_map_rows": 199,
-  "source_map_sha256": "0dccb3371e6b2765aca40f97e29325a39bc90aed3228a895523030976fb53f8c",
-  "source_tree": "e00165bc21e7d6152c414fc777b17e8df263b763",
-  "total_bytes": 38792182
+  "source_map_sha256": "1f3a0f0f32ba80a73ae83da6039e3eb46274eefb4fcb19c4c8bda556066dd6b8",
+  "source_tree": "54f053d477f6e5d6ef7edfdde23ce30967e90b12",
+  "total_bytes": 38816619
 }
