@@ -1,0 +1,27 @@
+{
+  "code_tree": "UNCHANGED",
+  "current": {
+    "commit": "4659076d3a1d3e5cf87c185a3ff383fbc38e734d",
+    "raw_commit": {
+      "bytes": 287,
+      "path": "carrier-current-commit.raw",
+      "sha256": "52311786d11bd25af74a108efe9399b253a6bdad6e36c5b36f03ab70b6756e36"
+    }
+  },
+  "current_carrier_profile": {
+    "bytes": 195440,
+    "path": "payload/bootstrap/scripts/ci/setup6-retained-helpers/carrier-profile.json",
+    "sha256": "47ea6a3f358922ad1d643bc2cbd517fe0335f5dbe1313a87af3d24396d5a39ea"
+  },
+  "historical": {
+    "commit": "ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad",
+    "raw_commit": {
+      "bytes": 251,
+      "sha256": "0e3c9f82541401886b12c5dbf2fa925655dcdcd6ae966a05723a41c4dedbef86"
+    }
+  },
+  "historical_raw_header": "HISTORICAL_ONLY_NOT_CURRENT_OPERAND",
+  "original_D502": "PRESERVED_NOT_CURRENT_PHYSICAL_TRANSPORT_READY",
+  "schema": 1,
+  "tree": "e21f947bac3afdfbd67e4e65c8234b35ae42b00f"
+}
