@@ -121,6 +121,14 @@ _DESCRIPTOR_ROOT_INVERSE = ((58058, 182, '89be199fb19d4e8a542986280df83893cde6e0
 _DESCRIPTOR_ROOT_PROFILE_NAME = 'SOURCE02C_NORMAL_ROOT_DIAGNOSTIC_EXACT_INVERSE_V1'
 
 def _descriptor_root_bytes(raw, require):
+    # One exact projection-cache successor; recover the ENTIRE held diagnostic
+    # body before applying its unchanged ordered inverse spans.
+    if (len(raw), _descriptor_hashlib.sha256(raw).hexdigest()) == (69933, 'eb2503068499399d4de60a08f82fb21f179a2a173d1d789d57a28de73eaf609f'):
+        before, after = b"def _file_hash(descriptor, expected, limits):\n    need(_identity(os.fstat(descriptor)) == _identity(expected), 'file entry drift')\n    hashed, digest = 0, hashlib.sha256()\n    while True:\n        limits.tick()\n        data = os.read(descriptor, min(1024**2, expected.st_size - hashed + 1))\n        if not data:\n            break\n        hashed += len(data)\n        need(hashed <= expected.st_size, 'file grew during observation')\n        digest.update(data)\n    need(hashed == expected.st_size and _identity(os.fstat(descriptor)) == _identity(expected),\n         'file content drift')\n    return digest.hexdigest()\n", b"def _file_hash(descriptor, expected, limits):\n    # Callers supply one immutable os.stat_result snapshot. Project it once;\n    # both live fstat checks and every byte/EOF/deadline check remain mandatory.\n    expected_identity = _identity(expected)\n    expected_size = expected_identity[6]\n    need(_identity(os.fstat(descriptor)) == expected_identity, 'file entry drift')\n    hashed, digest = 0, hashlib.sha256()\n    while True:\n        limits.tick()\n        data = os.read(descriptor, min(1024**2, expected_size - hashed + 1))\n        if not data:\n            break\n        hashed += len(data)\n        need(hashed <= expected_size, 'file grew during observation')\n        digest.update(data)\n    need(hashed == expected_size and _identity(os.fstat(descriptor)) == expected_identity,\n         'file content drift')\n    return digest.hexdigest()\n"
+        require(raw.count(after) == 1, 'exact projection cache inverse function')
+        raw = raw.replace(after, before, 1)
+        require((len(raw), _descriptor_hashlib.sha256(raw).hexdigest()) == _DESCRIPTOR_ROOT_PROFILE,
+                'whole projection cache diagnostic inverse')
     # Only this exact whole diagnostic Source qualifies for the finite inverse.
     # Historical587/607 bytes still reach the original whole-source pin below.
     if (len(raw), _descriptor_hashlib.sha256(raw).hexdigest()) == _DESCRIPTOR_ROOT_PROFILE:

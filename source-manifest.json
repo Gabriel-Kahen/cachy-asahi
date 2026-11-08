@@ -47,7 +47,7 @@
     },
     "lifecycle/emissions/cases/normal/adapter.json": {
       "bytes": 58965,
-      "sha256": "0c98cd3e34e5545599259a8594407f4e068096e81702aa049575662d3ec04aed"
+      "sha256": "0e348926ee81dec8332044928544cf22f40dbcbd8f4598d20cbfc1342222a3f1"
     },
     "lifecycle/emissions/cases/normal/packages/tools/cachy-asahi-apps/.SRCINFO": {
       "bytes": 1775,
@@ -310,8 +310,8 @@
       "sha256": "b78c34f92cec146af49eb632bdb1955e3c87823bf12e6da056bffa44c2eefa0c"
     },
     "lifecycle/emissions/cases/normal/scripts/ci/full-root-upgrade-caller/upgrade_hook.py": {
-      "bytes": 56123,
-      "sha256": "dc1e400ca7d1f9c185ff90c84998fb60760a296ccb85dd497b627fd6ef9d3f87"
+      "bytes": 56234,
+      "sha256": "1a3f00bbe995c1edc5b81405954037809d81383ddb42693e0d4029f1c66c7770"
     },
     "lifecycle/emissions/cases/normal/scripts/ci/full-root-upgrade/construct_repository.py": {
       "bytes": 13960,
@@ -402,12 +402,12 @@
       "sha256": "d51179ca24c981bafd817d7db082c0ceb3b2f5deb922004bfe97d1e2007edda7"
     },
     "lifecycle/emissions/cases/normal/scripts/update/aux_copy.py": {
-      "bytes": 49847,
-      "sha256": "80a0e89755fff0503fe4823ade2c9f7333073273309a1ba5507cbc4284ef55c2"
+      "bytes": 51946,
+      "sha256": "2d3e166f3bba8fa0bf36e6645f6235f41d62c49b7474d377ca1fb1bee064bcc7"
     },
     "lifecycle/emissions/cases/normal/scripts/update/aux_initialize.py": {
-      "bytes": 60001,
-      "sha256": "56dc98f69bcb5a609c3f456010dd43cb4d0e8851e7107bb9b6950ee8ae321382"
+      "bytes": 60991,
+      "sha256": "14a6dc3a508da8a12364fedfc78cd96ff7d1784a435343d632240d0253f4699e"
     },
     "lifecycle/emissions/cases/normal/scripts/update/aux_runtime.py": {
       "bytes": 10032,
@@ -426,8 +426,8 @@
       "sha256": "f84e35a1798c4ce3fdc2b30f25105358bddc66e910ec575de9de52f6e22a31f9"
     },
     "lifecycle/emissions/cases/normal/scripts/update/full_root.py": {
-      "bytes": 69703,
-      "sha256": "61cded0826b25e251e10e72b22bbd508c045182208abecd58b15e84f5179b4d8"
+      "bytes": 69933,
+      "sha256": "eb2503068499399d4de60a08f82fb21f179a2a173d1d789d57a28de73eaf609f"
     },
     "lifecycle/emissions/cases/normal/scripts/update/generic_policy.py": {
       "bytes": 3992,
@@ -483,7 +483,7 @@
     },
     "lifecycle/emissions/cases/normal/upgrade-config.json": {
       "bytes": 14303,
-      "sha256": "888bb3c4304b012603d99899fb9f2a693c62c5049a06d0ddd1bacd6a77708ab5"
+      "sha256": "27c9f6130d81aac8221bcd4fad6a5275e244e2d59dc6a443884acfae4f005fe5"
     },
     "lifecycle/emissions/cases/postcommit-exit87/adapter.json": {
       "bytes": 64434,
@@ -1398,8 +1398,8 @@
       "sha256": "be5969d6bda17e854035965391088e9ed4f4be68ceef3a3b3730f5f56c56f731"
     },
     "lifecycle/lifecycle_overlay.py": {
-      "bytes": 984942,
-      "sha256": "50caf533770e719cc6e2946f58557ce052d4bbd4e815db8e8a838776293a1f92"
+      "bytes": 988474,
+      "sha256": "2c7b5fc82c7da070514769d918c363cddcea4723f8b456b207aeebf128df143f"
     },
     "lifecycle/parent360/.github/workflows/native-arm-build.yml": {
       "bytes": 87381,
@@ -2843,7 +2843,7 @@
     },
     "lifecycle/profile.json": {
       "bytes": 695846,
-      "sha256": "f62f6c343f8eeb3e2343dd02c1f6b29b88ac8d6b4a0fb5909fe48ef4a63a9aa0"
+      "sha256": "2c8ee99af4cf120f7a596db890b5aea026864ca44e1c0317b633a32a2077da43"
     },
     "lifecycle/retain.py": {
       "bytes": 1275,
@@ -2855,7 +2855,7 @@
     },
     "lifecycle/source-manifest.json": {
       "bytes": 136380,
-      "sha256": "416b287b50cf2090f33d40a83c8857b270ee1f2e37ee66287452ca9f83d54498"
+      "sha256": "64caaa723a458d1d513fc7d13cd42f87c550b9ae78d55d3f9802e8d996d8d6c5"
     },
     "lifecycle/test_source.py": {
       "bytes": 3132,
@@ -5731,7 +5731,7 @@
     },
     "profile.json": {
       "bytes": 278408,
-      "sha256": "e631526ff38e5e7b38548e2396269303cdb8e16d80ed6fd5be29fabf65dcb21a"
+      "sha256": "7568b3450104ab946addeea7cf892fed18bb8042ecf9924ec09fb53ae34681d4"
     },
     "retain.py": {
       "bytes": 675,

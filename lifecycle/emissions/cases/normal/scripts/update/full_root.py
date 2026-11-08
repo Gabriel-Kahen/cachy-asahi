@@ -181,17 +181,21 @@ def _identity(info):
 
 
 def _file_hash(descriptor, expected, limits):
-    need(_identity(os.fstat(descriptor)) == _identity(expected), 'file entry drift')
+    # Callers supply one immutable os.stat_result snapshot. Project it once;
+    # both live fstat checks and every byte/EOF/deadline check remain mandatory.
+    expected_identity = _identity(expected)
+    expected_size = expected_identity[6]
+    need(_identity(os.fstat(descriptor)) == expected_identity, 'file entry drift')
     hashed, digest = 0, hashlib.sha256()
     while True:
         limits.tick()
-        data = os.read(descriptor, min(1024**2, expected.st_size - hashed + 1))
+        data = os.read(descriptor, min(1024**2, expected_size - hashed + 1))
         if not data:
             break
         hashed += len(data)
-        need(hashed <= expected.st_size, 'file grew during observation')
+        need(hashed <= expected_size, 'file grew during observation')
         digest.update(data)
-    need(hashed == expected.st_size and _identity(os.fstat(descriptor)) == _identity(expected),
+    need(hashed == expected_size and _identity(os.fstat(descriptor)) == expected_identity,
          'file content drift')
     return digest.hexdigest()
 
