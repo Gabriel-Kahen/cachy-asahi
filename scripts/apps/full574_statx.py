@@ -2,6 +2,7 @@
 """Private Apps bindings of the exact proven descriptor statx/fdinfo query."""
 import functools,hashlib,json,os,re,time,types
 from contextlib import contextmanager
+from pathlib import Path
 
 PINS={
  'scripts/update/aux_checkpoint.py':(18456,'d51179ca24c981bafd817d7db082c0ceb3b2f5deb922004bfe97d1e2007edda7'),
@@ -53,7 +54,16 @@ def bind(root,roots,caps,copy_scope,aux_copy,read):
     exec(compile(raw['scripts/ci/expanded600-installer-vm/observer600.py'],str(root/'scripts/ci/expanded600-installer-vm/observer600.py'),'exec'),helper.__dict__)
     facade=types.SimpleNamespace(**vars(roots))
     facade._mount_id=helper._mount600(roots._mount_id)
-    facade.observe=traced('tree-observe')(lambda path,**kwargs:helper._observer600(roots,path,**kwargs))
+    def observe(path,**kwargs):
+        # The frozen helper's walker guard belongs to its historical root.
+        # Recheck this exact current root and clone its walker for every call.
+        data=read(Path(roots.__file__))
+        size,pin=PINS['scripts/update/full_root.py']
+        if len(data)!=size or hashlib.sha256(data).hexdigest()!=pin:
+            raise ValueError('Apps statx exact source pin differs: scripts/update/full_root.py')
+        namespace=dict(roots.observe.__globals__,_mount_id=helper._mount600(roots._mount_id))
+        return clone(roots.observe,namespace)(path,**kwargs)
+    facade.observe=traced('tree-observe')(observe)
     # Auxiliary reads previously retained the slow fdinfo query through two
     # separate namespaces. Clone the exact Reader/descriptor bodies, never
     # their observations, so every original live check and hash runs afresh.

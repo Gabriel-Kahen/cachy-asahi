@@ -34,6 +34,32 @@ class Scoped(unittest.TestCase):
  def test_wrong_source_pin_refuses_before_libc_or_observation(self):
   def changed(path):return C.source_bytes(path)+b' changed'
   with patch.object(ctypes,'CDLL',side_effect=AssertionError('query initialized before pins')),self.assertRaisesRegex(ValueError,'exact source pin'):F.bind(C.ROOT,roots,caps,proof,aux_copy,changed)
+ def test_current_root_source_guard_precedes_each_observation_query(self):
+  reads=[]
+  def read(path):
+   data=C.source_bytes(path)
+   if Path(path)==Path(roots.__file__):
+    reads.append(path)
+    if len(reads)>1:return data+b' changed'
+   return data
+  bound=F.bind(C.ROOT,roots,caps,proof,aux_copy,read)
+  with patch.object(ctypes,'CDLL',side_effect=AssertionError('query initialized before source guard')):
+   with self.assertRaisesRegex(ValueError,'exact source pin'):bound.roots.observe(None,limits=limits())
+  self.assertEqual(len(reads),2)
+ def test_current_walker_private_clone_gets_fresh_query_every_call(self):
+  reads=[]
+  def read(path):
+   if Path(path)==Path(roots.__file__):reads.append(path)
+   return C.source_bytes(path)
+  def walker(path,**kwargs):return (_mount_id,path,kwargs)
+  current=SimpleNamespace(**vars(roots));current.observe=walker
+  with patch.object(ctypes,'CDLL',return_value=SimpleNamespace()):
+   bound=F.bind(C.ROOT,current,caps,proof,aux_copy,read)
+   first=bound.roots.observe('first',limits='first-limit')
+   second=bound.roots.observe('second',limits='second-limit')
+  self.assertIsNot(first[0],second[0]);self.assertTrue(callable(first[0])and callable(second[0]))
+  self.assertEqual(first[1:],('first',{'limits':'first-limit'}));self.assertEqual(second[1:],('second',{'limits':'second-limit'}))
+  self.assertEqual(len(reads),3);self.assertNotIn('_mount_id',walker.__globals__);self.assertIs(current.observe,walker)
  def test_real_temp_complete_nodes_hashes_hardlinks_and_caps_equal(self):
   bound=binding()
   with tempfile.TemporaryDirectory() as temporary:
