@@ -28,6 +28,15 @@ PRIVATE = set('build/build_v2.py build/container-entry-v2.sh build/mirror_consum
 
 
 class CurrentDeliveryTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        # unittest discovery imports this module without entering the CLI.
+        if 'VALUE' not in globals():
+            configure(argparse.Namespace(
+                recipe_root=HERE.parents[1] / 'packages/tools/cachy-asahi-source-tools-v5',
+                adapter=HERE / 'source_tools_source_delivery_v1.py',
+                profile=HERE / 'source-tools-source-profile-v5.json'))
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix='source-tools-v5-delivery-')
         self.addCleanup(self.temp.cleanup)
@@ -252,26 +261,33 @@ class CurrentDeliveryTests(unittest.TestCase):
         self.assertEqual(marker.read_bytes(), b'owned')
 
 
-def main():
+def configure(args):
     global ARGS, D, PROFILE_RAW, ADAPTER_RAW, VALUE
-    parser = argparse.ArgumentParser(description=__doc__, allow_abbrev=False)
-    parser.add_argument('--recipe-root', type=Path, required=True)
-    parser.add_argument('--adapter', type=Path, default=HERE / 'source_tools_source_delivery_v1.py')
-    parser.add_argument('--profile', type=Path, default=HERE / 'source-tools-source-profile-v5.json')
-    ARGS = parser.parse_args()
+    ARGS = args
     ARGS.recipe_root = ARGS.recipe_root.absolute()
     ARGS.adapter = ARGS.adapter.absolute()
     import hashlib
     ADAPTER_RAW = ARGS.adapter.read_bytes()
     if hashlib.sha256(ADAPTER_RAW).hexdigest() != ADAPTER_SHA:
-        parser.error('trusted maintained v1 adapter SHA-256 differs')
+        raise ValueError('trusted maintained v1 adapter SHA-256 differs')
     spec = importlib.util.spec_from_file_location('trusted_source_tools_delivery', ARGS.adapter)
     D = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(D)
     PROFILE_RAW, _ = D.read(ARGS.profile.absolute())
     VALUE = D.profile(PROFILE_RAW, PROFILE_SHA)
     if D.scan(ARGS.recipe_root) != NAMES:
-        parser.error('current recipe exact 22-file input set differs')
+        raise ValueError('current recipe exact 22-file input set differs')
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__, allow_abbrev=False)
+    parser.add_argument('--recipe-root', type=Path, required=True)
+    parser.add_argument('--adapter', type=Path, default=HERE / 'source_tools_source_delivery_v1.py')
+    parser.add_argument('--profile', type=Path, default=HERE / 'source-tools-source-profile-v5.json')
+    try:
+        configure(parser.parse_args())
+    except (OSError, ValueError) as error:
+        parser.error(str(error))
     suite = unittest.defaultTestLoader.loadTestsFromTestCase(CurrentDeliveryTests)
     result = unittest.TextTestRunner(verbosity=2).run(suite)
     print(json.dumps(dict(status='PASS' if result.wasSuccessful() else 'FAIL', tests=result.testsRun,
