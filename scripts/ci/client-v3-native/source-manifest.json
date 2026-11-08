@@ -238,7 +238,7 @@
     },
     "scripts/ci/client-v3-native/test_entry_failures.py": {
       "bytes": 11184,
-      "sha256": "1ac5a9eb9ef0a24c905ca2ea0408003a15c60d7e194b8843f9ead79e9a6bbfa3"
+      "sha256": "8e7b8ad617a40314fa3ec2947f4dba8897f9a2d2ad265c369ef473ec2702b310"
     },
     "scripts/ci/client-v3-native/test_retained574.py": {
       "bytes": 4945,

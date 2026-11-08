@@ -56,7 +56,7 @@ class EntryFailures(unittest.TestCase):
     def shape(self,closed):
         # Deliberately only four DATA leaves; never a complete Source/emission.
         policy=dict(status='ROOT_BOUND_FINAL_PRODUCT_SOURCES' if closed else 'UNBOUND_CLIENT_V3_COMPONENT',
-                    candidate_source='2dbe7fe5623fae9ed5940a26385400958c3ffb42' if closed else None,
+                    candidate_source='438acd83fa3bcb79abe29a007ae9e8d0f784d03f' if closed else None,
                     retained_input_carrier='3856733787d10820ab73f842e9f2bbf4fdb84181' if closed else None,
                     native_source=None,actual_run=None,native_authority=None,resource_authority=None)
         write(self.here/'input-policy.json',policy)
