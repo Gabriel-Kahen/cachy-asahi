@@ -1,0 +1,33 @@
+pkgbase = cachy-asahi-repository-client-v3
+	pkgdesc = Maintained offline development client with bound private checkpoint state
+	pkgver = 0.1.0
+	pkgrel = 1
+	url = https://github.com/Gabriel-Kahen/cachy-asahi
+	arch = any
+	license = MIT
+	depends = python>=3.11
+	depends = cachy-asahi-repository-runtime=0.1.0-1
+	source = client_v3.py
+	source = cachy-asahi-repository-client
+	source = helper-pins.json
+	source = source-provenance.json
+	source = check_source.py
+	source = test_state_binding_v3.py
+	source = state-binding-before-v2.py.txt
+	source = test_package.py
+	source = README.md
+	source = NOTICE
+	source = LICENSE
+	sha256sums = 4cf428452d08ea212d8bb92d899329f3445d15877c5b79e5ff5f138b0a696e76
+	sha256sums = 859540def486ab1b3182f90b727056bd83004a0dc94a6d3a22a1498e500bd05f
+	sha256sums = 1ab94b176f798ef9d95f079e02dad803265995081e575070b1c53612fc9292b7
+	sha256sums = a38d0035f2adc03bf8d5556c2eb5132f29cddcfac3e56d3a79d5f086231c47d3
+	sha256sums = 6dadc5ee2f014725bf584b074bee7fa155d0f41d18133ba7829ad9ddead9b808
+	sha256sums = ae0f1bcc19343e3f1c4e36652511c4077850bd1e45d860bd3a12841f1d7e5f06
+	sha256sums = 915c2336a6515dcbde9801d7778c0aeae3a0251cf6463c4704d47590d94d1409
+	sha256sums = a68136adda35e18414aa6f580af2f3113c783bc6c0cb8cc8e2fc51f55cedc287
+	sha256sums = 994548e7215fdd06e5e113e7c453309499b278c829116fe55b55f3db2fd4d0d8
+	sha256sums = ea4bc42028760f475c93e37e2769db77eb2bf52c3c2de8c2c687ac1fcbc6941e
+	sha256sums = 51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7
+
+pkgname = cachy-asahi-repository-client-v3

@@ -23,5 +23,21 @@ jobs:
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
           python-version: '3.14'
-      - name: Existing nine CLI regression tests and 120 duplicate-form cases
+      - name: Nine CLI regression tests and 132 duplicate-form cases
         run: python -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-source-tools/test_cli_input_refusal.py
+      - name: Verify offline catalog and exact context pins against retained fixture history
+        run: |
+          python -I -B -Werror::ResourceWarning - <<'PYTHON'
+          from pathlib import Path
+          import subprocess, sys, tarfile, tempfile
+          recipe = Path('packages/tools/cachy-asahi-source-tools').resolve()
+          with tempfile.TemporaryDirectory(prefix='source-tools-catalog-') as temporary:
+              root = Path(temporary)
+              for name in ('private-source.tar.gz', 'fixtures.tar.gz'):
+                  with tarfile.open(recipe / name, 'r:gz') as archive:
+                      archive.extractall(root, filter='data')
+              subprocess.run([sys.executable, '-I', '-B', '-Werror::ResourceWarning',
+                  str(recipe / 'test_source_mirror_catalog.py'),
+                  '--runtime-root', str(root / 'private/scripts'),
+                  '--fixture-root', str(root / 'fixtures')], check=True)
+          PYTHON

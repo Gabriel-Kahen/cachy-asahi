@@ -14,7 +14,7 @@
     },
     "scripts/ci/generic16k-audio-userspace/dependencies.json": {
       "bytes": 4595,
-      "sha256": "278df712ed4cd8e42fe1095179ca07756e0682e544f5fc32491da7c6aa56cee1"
+      "sha256": "68930b47e1741018da3e63b4b9487f52624a35703b441f8c16b62c46f00c159e"
     },
     "scripts/ci/generic16k-audio-userspace/deps.py": {
       "bytes": 1322,
