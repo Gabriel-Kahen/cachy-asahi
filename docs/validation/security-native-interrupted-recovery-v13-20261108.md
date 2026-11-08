@@ -57,7 +57,7 @@ release are not admitted, and upstream source/binary correspondence remains
 OPEN. Development and release selection flags remain false. This evidence does
 not complete a roadmap milestone or establish boot/system recovery.
 
-The committed [evidence packet](../../packages/tools/cachy-asahi-security-maintenance/evidence/security-v13-native-42517701971-retention.tar.gz)
+The committed [evidence packet](records/security-v13-native-42517701971-retention.tar.gz)
 is **1,426,400 bytes**, SHA256
 `43729a4a5446ff3b3f592bbf9b5a648f6e9d13f2bf2c5891322081cb1db56207`.
 Its ten regular members retain the unchanged original ZIP, Source raw commit,
