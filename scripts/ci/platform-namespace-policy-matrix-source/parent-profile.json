@@ -1237,5 +1237,11 @@
   },
   "parent_sole_parent": "d78b8446f590ad44a972b0e727cd032752372bd4",
   "parent_tree": "7e66e27a352cee19a3d022d8c167c43b9ab72804",
+  "physical_git_parent": "639e3f9b5176bf8ebe497fc0b247182af90904e7",
+  "physical_parent_raw": {
+    "bytes": 345,
+    "sha256": "6628e3d02b30f865c4adb0eb70a0f8636cd8e0456b075c21163e606594a8703a"
+  },
+  "physical_parent_sole_parent": "e2c0bd988b3ca1a420fead2c1a738adc3a2ee01d",
   "schema": 1
 }

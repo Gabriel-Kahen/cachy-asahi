@@ -1,6 +1,6 @@
-tree 6225879650afde24a93fd33905819e779384c550
-parent 05df8c71ea2bcb525bb1cfbc59983452062a1e97
+tree 0d001a7d2662b96b7ae65ce299d4035bbd1d7839
+parent 639e3f9b5176bf8ebe497fc0b247182af90904e7
 author Gabriel Kahen <93809974+Gabriel-Kahen@users.noreply.github.com> 1793456720 +0000
 committer Gabriel Kahen <93809974+Gabriel-Kahen@users.noreply.github.com> 1793456720 +0000
 
-Add bounded namespace policy matrix owner and passive diagnostic route
+Synthetic DATA fixture for physical-parent bridge; never an actual publication

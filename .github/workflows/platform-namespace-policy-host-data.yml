@@ -59,6 +59,12 @@ jobs:
           set -euo pipefail
           factory="$GITHUB_WORKSPACE/scripts/ci/platform-namespace-policy-matrix-source"
           python3 -I -B "$factory/tests/test_source_directories.py"
+      - name: Verify historical and physical parent DATA bridge
+        shell: bash
+        run: |
+          set -euo pipefail
+          factory="$GITHUB_WORKSPACE/scripts/ci/platform-namespace-policy-matrix-source"
+          python3 -I -B "$factory/tests/test_parent_bridge_data.py"
       - name: Construct and independently join Source201 DATA only
         shell: bash
         run: |
@@ -68,6 +74,6 @@ jobs:
           python3 -I -B "$factory/prepare.py" \
             --basis "$basis" --overlay-root "$factory/payload" \
             --overlay-manifest "$factory/overlay-manifest.json" \
-            --overlay-manifest-sha256 844228043b016d9411812cec0ce4d7fe70240b761c4d5569978cae4aec103cda \
+            --overlay-manifest-sha256 67f55ed3249bab42c0a3c6f8b93e32962d5b052cf3556d0e4262aeed631c3930 \
             --output "$PLATFORM_POLICY_HOST_WORK/Source201"
           python3 -I -B "$factory/tests/check_constructed_source.py" "$PLATFORM_POLICY_HOST_WORK/Source201"

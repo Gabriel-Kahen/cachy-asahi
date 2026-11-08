@@ -22,9 +22,9 @@ HERE = RealPath(__file__).resolve().parent
 FACTORY = HERE.parent
 FIXTURES = HERE/'fixtures'
 PARENT = None
-PROFILE_SHA = '87c87e685a77609f09c1ba19a8e27c0fa2ede60b70ee3fff27707d5653020f35'
-OVERLAY_SHA = '844228043b016d9411812cec0ce4d7fe70240b761c4d5569978cae4aec103cda'
-CATALOG_SHA = '4e78bdb18ffab3565e6e8cca157dc604f313a78743c5ec61ecc17a1abf6bf6bf'
+PROFILE_SHA = '53fdf5afcf40d2507045203a4035b10e07ab3a07e80855a8b12c999834cf7c2f'
+OVERLAY_SHA = '67f55ed3249bab42c0a3c6f8b93e32962d5b052cf3556d0e4262aeed631c3930'
+CATALOG_SHA = '4bb798035c2bd19da00fba6ba25e8213b15d43c2b0289ecb389596deea8b46f8'
 
 
 def authenticated(path, row):
@@ -61,7 +61,7 @@ def configure_basis(value):
     catalog_raw = (FIXTURES/'catalog.json').read_bytes()
     assert hashlib.sha256(catalog_raw).hexdigest() == CATALOG_SHA
     catalog = json.loads(catalog_raw)
-    assert set(catalog['files']) == {'context.json','source-full-map.json','source-map.json','raw-source.txt'}
+    assert set(catalog['files']) == {'context.json','source-full-map.json','source-map.json','raw-source.txt','raw-parent.txt'}
     assert {p.name for p in FIXTURES.iterdir()} == set(catalog['files'])|{'catalog.json'}
     for name,row in catalog['files'].items(): authenticated(FIXTURES/name,row)
     overlay_raw = (FACTORY/'overlay-manifest.json').read_bytes()
@@ -70,9 +70,9 @@ def configure_basis(value):
     authenticated(FACTORY/'parent-commit.raw',profile['parent_raw'])
     PARENT = candidate
 VROOT = '/VIRTUAL-SOURCE-SYNTHETIC-DATA'
-SOURCE = '38601d671319dde4e9db8466b330153ca05e291a'
-MAP = 'cc2d1aaee89bf8c8ff921b8d764572f94c29bcf76a625e501038d6413efb1cab'
-MODULE_SHA = 'f4d9630e268ea7973f369d874b019c65e830bc3814b86a2f8b4cfe4516222918'
+SOURCE = '1aeadcf210c15736d0c94350a22b9c91b883ec98'
+MAP = '09de757ff03e635b10510cc7c2cf2eb76d34c336e03e611e521e7992aacc47a8'
+MODULE_SHA = '63752203523e7776e34a384905cada94410bf825b3e308b0b13c8fe2d814935d'
 _ACTIVE = None
 _GUARD = False
 DENIED = []
@@ -331,8 +331,10 @@ class Fixture:
         """Return synthetic actor bytes only; no subject decision functions here."""
         if argv[0] == '/usr/bin/git':
             if argv[-3:-1] == ['cat-file','commit']:
-                return ((FIXTURES/'raw-source.txt') if argv[-1] == SOURCE else (FACTORY/'parent-commit.raw')).read_bytes(), 0
+                assert argv[-1] in (SOURCE, '639e3f9b5176bf8ebe497fc0b247182af90904e7'), 'exact Git DATA selector'
+                return ((FIXTURES/'raw-source.txt') if argv[-1] == SOURCE else (FIXTURES/'raw-parent.txt')).read_bytes(), 0
             if argv[-4:-1] == ['ls-tree','-rz','--full-tree']:
+                assert argv[-1] == '639e3f9b5176bf8ebe497fc0b247182af90904e7', 'exact physical parent tree selector'
                 rows = load(FACTORY/'parent-profile.json')['files']
                 return b''.join((('100755' if r['mode'] == 0o755 else '100644')+' blob '+r['blob']+'\t'+n+'\0').encode() for n,r in sorted(rows.items())), 0
             raise AssertionError(('unhandled Git DATA request', argv))
