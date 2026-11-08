@@ -94,7 +94,7 @@ def emit(source, output, candidate_source=None, carrier_source=None):
             raise ValueError('exact separately Root-qualified physical carrier required')
         policy['retained_input_carrier'] = carrier_source
         git = lambda *a: subprocess.check_output(['git', '--no-replace-objects', '-C', str(source), *a], timeout=30)
-        if git('rev-parse', ORIGINAL_CARRIER + '^{tree}') != git('rev-parse', carrier_source + '^{tree}'):
+        if git('rev-parse', carrier_source + '^{tree}').decode().strip() != carrier['tree']:
             raise ValueError('physical carrier must preserve the complete original tree')
         for row in policy['products'].values():
             for name in row['source_files']:

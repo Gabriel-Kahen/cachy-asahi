@@ -137,6 +137,11 @@ class Controls(unittest.TestCase):
         self.assertEqual(carrier['actual_commit'], '3856733787d10820ab73f842e9f2bbf4fdb84181')
         self.assertEqual(carrier['Root_proof']['sha256'], '11869b08c5d88a7788466cfb2df7e51f0fac1f2d72e9cf1430573187f8ae24e5')
         self.assertFalse(carrier['selected_by_default'])
+        emitter = next(n for n in ast.parse((HERE / 'prepare.py').read_bytes()).body if isinstance(n, ast.FunctionDef) and n.name == 'emit')
+        emitter_body = ast.unparse(emitter)
+        self.assertNotIn('ORIGINAL_CARRIER', emitter_body)
+        self.assertIn("carrier['tree']", emitter_body)
+        self.assertEqual(carrier['historical_declared_commit'], '04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd')
 
     def test_all_new_derivatives_and_actor_sources_compile_without_execution(self):
         for name in ('contract.py', 'run.py', 'job.py'):
