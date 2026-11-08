@@ -1,0 +1,37 @@
+name: Release PID1 source variant DATA controls
+on:
+  pull_request:
+    paths: ['scripts/ci/release-tools-native-source/pid1-build-shell-v1/**', '.github/workflows/release-tools-pid1-source.yml']
+  push:
+    branches: [main]
+    paths: ['scripts/ci/release-tools-native-source/pid1-build-shell-v1/**', '.github/workflows/release-tools-pid1-source.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  variant-data:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Checkout immutable failed parent as DATA only
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: d9708daa75083f85f1a182cb3aa97a728d04d695
+          path: .ci-inputs/release-pid1-parent
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Run only NEW data emitter and corruption controls
+        run: >-
+          python -I -B -Werror::ResourceWarning
+          scripts/ci/release-tools-native-source/pid1-build-shell-v1/test_prepare.py
+          --parent-source "$GITHUB_WORKSPACE/.ci-inputs/release-pid1-parent"
+          --profile-sha256 31efbd7a4adb3b3fac237e212f2b7a87bf735e31fcfb644587e245078bc2dda9
