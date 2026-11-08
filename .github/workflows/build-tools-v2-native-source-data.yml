@@ -30,3 +30,8 @@ jobs:
         run: >-
           python3 -I -B -Werror::ResourceWarning
           scripts/ci/build-tools-v2-native-source/test_factory_data.py
+      - name: Check nineteen explicit PID1 shell layout DATA controls without actors
+        run: >-
+          python3 -I -B -Werror::ResourceWarning
+          scripts/ci/build-tools-v2-native-source/pid1-build-shell-v1/test_layout_data.py
+          --maintained-root .

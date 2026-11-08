@@ -1,0 +1,5 @@
+def dockerfile(base,map_hash):
+ need(re.fullmatch('[0-9a-f]{64}',map_hash or ''),'explicit source-map checksum')
+ ending='USER alarm\nWORKDIR /tmp\n'
+ need(base.endswith(ending) and base.count(ending)==1,'exact genuine191 image suffix; no fallback')
+ return base[:-len(ending)]+('COPY build-tools-alpm-v2/source/ /opt/native-build-tools-alpm-v2/source/\nRUN /usr/bin/python3 -I -B /opt/native-build-tools-alpm-v2/source/native/build_tools_alpm_v2.py --inside-image --retain-failure-image --map-sha256 '+map_hash+'\n'+ending)

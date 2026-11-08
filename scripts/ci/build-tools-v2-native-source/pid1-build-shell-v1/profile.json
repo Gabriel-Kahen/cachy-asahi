@@ -1,0 +1,57 @@
+{
+  "actual": {
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "base_factory": {
+    "bytes": 16841,
+    "sha256": "444b673fc9f2643522009a8cec0ac8c599e922011d0a9968a98728a4b6f0707e"
+  },
+  "changed": 4,
+  "component_acceptance": false,
+  "default834_runtime": "UNCHANGED",
+  "held": 196,
+  "matching_reader": {
+    "bytes": 137589,
+    "sha256": "b0e3dcf2762ce6b106ab1df4c9748456a958e8054433948bd0c08bd037b3b71d",
+    "target": "native/build_tools_reader_v2.py"
+  },
+  "native_PID1_reaping": "NOT_RUN",
+  "parent_files": {
+    "bytes": 48560,
+    "sha256": "a0d2a4280c5d6cfdf1873a910e4b46dbbe3f7282298decda97ee8931d2e7cc98"
+  },
+  "parent_raw": {
+    "bytes": 347,
+    "sha256": "17e5977c6933a4a7c5d66c7810f2a144fcb0451e54fe2b9a55788da5ccaf13ea"
+  },
+  "parent_source": "52a425ef08c5dc84ba1a7c5b53be8d21dc42f9dd",
+  "parent_source_map": {
+    "bytes": 39770,
+    "sha256": "4ff9b4b24d8b71a92c8fc8a3f217b7f9683e000a47c672be7c44d1c96aa536de"
+  },
+  "parent_tree": "5230b39c373db63e02a6fbf9f7b95d0e8662cf7e",
+  "payload": {
+    "native/build_tools_alpm_v2.py": {
+      "bytes": 31795,
+      "sha256": "8a071d7755d2dd311550d096bfc0dd8183582b288a46ad46adef20c5ede813bd"
+    },
+    "native/build_tools_projection_v2.py": {
+      "bytes": 10611,
+      "sha256": "9fe4ab4ab29a3f6e662f0ac6ee0214f58700bc9e1be5278c915e6eaf15e5c2c4"
+    },
+    "native/build_tools_reader_v2.py": {
+      "bytes": 137589,
+      "sha256": "b0e3dcf2762ce6b106ab1df4c9748456a958e8054433948bd0c08bd037b3b71d"
+    }
+  },
+  "schema": 1,
+  "source_files": 200,
+  "source_map": {
+    "bytes": 39849,
+    "sha256": "fac22275902476bd32c9aeb03778a5a97383bb6f65347ec74a7944aefc5edfaa"
+  },
+  "source_tree": "81d61d9e1f33c1638e9f67fbd7e39b158c603451",
+  "variant": "build-tools02-pid1-build-shell-v1"
+}
