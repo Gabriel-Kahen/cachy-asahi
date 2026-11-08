@@ -550,9 +550,9 @@
       "sha256": "08a8e09a1e9d6053ac595d51e4e4e94f01e8aef367cd91ac3ea796c235523a38"
     },
     "native/bootstrap_inputs.py": {
-      "bytes": 3306,
+      "bytes": 6776,
       "mode": 420,
-      "sha256": "3f30b126988c2dc2ec57bea5f62f81f6bd93b2f7f5073644a495320e7d271a5b"
+      "sha256": "344fa8728f307cc912799cbf462b45eb4f1c45036899d2eb537ae92e14390b2b"
     },
     "native/build_summary.py": {
       "bytes": 7499,
@@ -625,9 +625,9 @@
       "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
     },
     "native/owner.py": {
-      "bytes": 29186,
+      "bytes": 29295,
       "mode": 420,
-      "sha256": "0d50b3eb74a5f83107142e806cc203e78f05812fd67f7321f98ef08ce5bd0cfd"
+      "sha256": "1b8f46eb176ee4b3cfd0b84fa87831bfd0bc57e5333ba4344aff69717fb05537"
     },
     "native/predecessor-source-map.json": {
       "bytes": 27440,
@@ -1078,6 +1078,7 @@
   "release_retirement_maintained_main": "eaf43eddc5604773d8176f319700a450bc32ccb0",
   "release_retirement_parent": "adb1f15aa0821e185218dea175b08650831549f1",
   "release_retirement_profile": "reserved-terminal-v2",
+  "release_rootfs_transport_parent": "7d11efd7c15026d0480eaf58657dc3b0c1ad4bd8",
   "release_shared_workflow": "ORIGINAL531_PRESERVED",
   "schema": 1,
   "transport_basis177_map_sha256": "99d676438a247749b3e1c564943d8735452a1ebd92ec91dd78ee37817e77f36d",

@@ -176,8 +176,9 @@ def run(root, args):
         # Restore their pinned parent path only; package failures never fall back.
         from bootstrap_inputs import bind_fetch
         parent_fetch = native.fetch
+        report['rootfs_transport'] = {}
         native.fetch = bind_fetch(original, profile['additions']['rows'], args.cache,
-                                  lambda row, selected_cache: cache_file(selected_cache, row), parent_fetch)
+                                  lambda row, selected_cache: cache_file(selected_cache, row), parent_fetch, native.AcquisitionError, report['rootfs_transport'], actor.deadline)
         def native_run(argv, log=None, timeout=1800):
             nonlocal created_base_id
             command = list(map(str, argv))
