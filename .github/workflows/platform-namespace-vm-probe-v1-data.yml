@@ -28,3 +28,5 @@ jobs:
           python-version: ${{ matrix.python }}
       - name: Check actor-denied namespace VM source DATA controls
         run: python3 -I -B -Werror::ResourceWarning scripts/ci/platform-namespace-vm-probe-v1/test_data.py --root "$GITHUB_WORKSPACE"
+      - name: Check separately versioned actor-denied local identity controls
+        run: python3 -I -B -Werror::ResourceWarning scripts/ci/platform-namespace-vm-probe-v1/test_local_data.py --root "$GITHUB_WORKSPACE"

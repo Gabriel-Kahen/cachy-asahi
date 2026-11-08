@@ -108,11 +108,13 @@ exec /busybox poweroff -f
 '''.encode()
 
 
-def assemble(files, dependencies, nonce, release, generic):
+def assemble(files, dependencies, nonce, release, generic, code_files=None):
     # All paths are in-memory guest DATA; no archive extraction or collected code import.
     result = dict(files)
     for name in GUEST_FILES:
-        result['probe/' + name] = (stat.S_IFREG | 0o444, C.read(HERE / name))
+        raw = (C.pinned(HERE / name, {k: code_files['scripts/ci/platform-namespace-vm-probe-v1/' + name][k]
+               for k in ('bytes', 'sha256')}, 1048576) if code_files is not None else C.read(HERE / name))
+        result['probe/' + name] = (stat.S_IFREG | 0o444, raw)
     root = Path(dependencies['source_root'])
     runner = C.pinned(root / SUPERVISOR, dependencies['files'][SUPERVISOR], 1048576)
     result['probe/runner.py'] = (stat.S_IFREG | 0o444, runner)
@@ -126,8 +128,9 @@ def assemble(files, dependencies, nonce, release, generic):
     return image
 
 
-def qemu_argv(binary, work, nonce):
-    return [str(binary), '-nodefaults', '-machine', 'virt', '-accel', 'tcg', '-cpu', 'max',
+def qemu_argv(binary, work, nonce, firmware_dir=None):
+    return [str(binary), *([] if firmware_dir is None else ['-L', str(firmware_dir)]),
+            '-nodefaults', '-machine', 'virt', '-accel', 'tcg', '-cpu', 'max',
             '-smp', '1', '-m', str(C.BOUNDS['memory_MiB']), '-kernel', str(work / 'Image'),
             '-initrd', str(work / 'initramfs.cpio'), '-append',
             'console=ttyAMA0 rdinit=/init panic=-1 namespace_vm_probe_v1=' + nonce,
@@ -166,11 +169,17 @@ def cleanup(work, started, actor):
             'SCOPED_PRESTART_FILES_RETIRED_VM_NOT_STARTED')
 
 
-def trial(args):
+def trial(args, local=None):
     # Validate every external immutable input and helper before creating actor output paths.
     C.need(args.execute, 'explicit future Root execution required')
-    selection = C.bound(C.decode(C.pinned(args.selection, dict(bytes=args.selection.stat().st_size,
-                                                              sha256=args.selection_sha256), 1048576)))
+    selected = C.decode(C.pinned(args.selection, dict(bytes=args.selection.stat().st_size,
+                                                   sha256=args.selection_sha256), 1048576))
+    if local is None:
+        selection = C.bound(selected)  # Original hosted tuple remains strict, including genuine GitHub run.
+    else:
+        C.need(selected == local['selection'] and selected['actual_run'] is None and
+               local['lease_observation']['acquisition'] == 'EXCLUSIVE_NONBLOCKING', 'exact authorized local branch/held lease')
+        selection = selected
     dependencies = source(args.source_root)
     kernel = C.pinned(args.kernel, selection['kernel']['Image'], C.BOUNDS['kernel_bytes'])
     config = C.pinned(args.kernel_config, selection['kernel']['config'], 1048576)
@@ -199,10 +208,14 @@ def trial(args):
                         args.rootfs, args.rootfs_manifest, args.rootfs_qualification, args.qemu):
         C.need(not source_path.is_relative_to(args.work) and not source_path.is_relative_to(args.output), 'inputs outside fresh outputs')
     args.output.mkdir(mode=0o700)
-    nonce = secrets.token_hex(16)
+    nonce = secrets.token_hex(16) if local is None else selection['nonce']
     report = dict(status='VM_NOT_STARTED', nonce=nonce, selection=selection, ELF=elf,
                   generic_emulated_16K_only=True, hardware='NOT_RUN', namespace_cause='UNKNOWN',
                   performance='NOT_MEASURED', native_acceptance=None, cleanup='NOT_RUN')
+    if local is not None:
+        report['local_identity'] = dict(local_id=selection['local_id'], actual_run=None,
+                                        host=local['authority']['host'], lease=local['lease_observation'],
+                                        authority=C.pin(C.read(args.local_authority)))
     started = False
     actor = None
     work_created = False
@@ -210,17 +223,21 @@ def trial(args):
         args.work.mkdir(mode=0o700)
         work_created = True
         ramfs = assemble(files, dict(dependencies, source_root=str(args.source_root)), nonce,
-                         selection['kernel']['release'], generic)
+                         selection['kernel']['release'], generic, None if local is None else local['files'])
         (args.work / 'Image').write_bytes(kernel)
         (args.work / 'initramfs.cpio').write_bytes(ramfs)
-        argv = qemu_argv(args.qemu, args.work, nonce)
+        argv = qemu_argv(args.qemu, args.work, nonce, None if local is None else local['firmware_dir'])
         report.update(argv=argv, kernel=C.pin(kernel), config=C.pin(config), initramfs=C.pin(ramfs),
                       namespace_config={k: next((x.decode() for x in config.splitlines() if x.startswith((k + '=').encode())),
                                                 'NOT_DECLARED') for k in ('CONFIG_USER_NS', 'CONFIG_NET_NS', 'CONFIG_NAMESPACES',
                                                                         'CONFIG_UTS_NS', 'CONFIG_IPC_NS', 'CONFIG_PID_NS')})
         (args.output / 'intent.json').write_bytes(C.encoded(report))
+        if local is not None:
+            import local as local_contract
+            local_contract.revalidate(local, args)
         started = True
-        actor, out, err, failure = runner.run_command(argv, args.work, C.ENV, C.BOUNDS['VM_seconds'], C.BOUNDS['UART_bytes'])
+        environment = C.ENV if local is None else local['environment']
+        actor, out, err, failure = runner.run_command(argv, args.work, environment, C.BOUNDS['VM_seconds'], C.BOUNDS['UART_bytes'])
         report.update(actor=actor, QEMU_stderr=C.pin(err))
         (args.output / 'uart.log').write_bytes(out)
         (args.output / 'QEMU.stderr').write_bytes(err)
