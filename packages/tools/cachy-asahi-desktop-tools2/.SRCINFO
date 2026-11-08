@@ -1,0 +1,14 @@
+pkgbase = cachy-asahi-desktop-tools
+	pkgdesc = Offline staged desktop-entry checker with exact relocatable inventory bindings
+	pkgver = 0.1.1
+	pkgrel = 1
+	url = https://github.com/Gabriel-Kahen/cachy-asahi
+	arch = any
+	license = MIT
+	depends = python>=3.11
+	options = !strip
+	options = !debug
+	source = cachy-asahi-desktop-tools-0.1.1.tar.gz
+	sha256sums = 11a59ada0d99f1202694ed98adb7891594b27a7048e39a99d5590e425fc31986
+
+pkgname = cachy-asahi-desktop-tools

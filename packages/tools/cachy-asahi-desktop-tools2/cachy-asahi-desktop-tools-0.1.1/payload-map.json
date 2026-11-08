@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "files": [
+    {
+      "path": "bin/cachy-asahi-desktop-tools",
+      "bytes": 211,
+      "sha256": "97a52910cc63650ca248dd0a1ff5393df3af1f3fd5df167546e5034754268e5d",
+      "mode": 493
+    },
+    {
+      "path": "lib/cachy-asahi-desktop-tools/cli.py",
+      "bytes": 5741,
+      "sha256": "ab44cb1c461ce298287fbb3ed3aab83677fa161521c92f06dafcd71e051191bc",
+      "mode": 420
+    },
+    {
+      "path": "lib/cachy-asahi-desktop-tools/desktop_applications.py",
+      "bytes": 38009,
+      "sha256": "9b680551717b67e05741926c19e6137c9ff67278578e2c88af04462dd393d4f0",
+      "mode": 420
+    },
+    {
+      "path": "share/doc/cachy-asahi-desktop-tools/PROVENANCE.json",
+      "bytes": 2006,
+      "sha256": "4385377942ee22feb61c74643a83dd86c531191dd7d97c82482821530e7ddcb3",
+      "mode": 420
+    },
+    {
+      "path": "share/doc/cachy-asahi-desktop-tools/README.md",
+      "bytes": 6084,
+      "sha256": "58e86f66dcd75154b002b5bf1f60e59e0a3cb30abae550143ba00cf112117689",
+      "mode": 420
+    },
+    {
+      "path": "share/licenses/cachy-asahi-desktop-tools/LICENSE",
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+      "mode": 420
+    }
+  ]
+}

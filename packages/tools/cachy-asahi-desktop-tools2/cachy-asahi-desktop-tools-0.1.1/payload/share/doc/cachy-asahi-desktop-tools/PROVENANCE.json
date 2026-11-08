@@ -1,0 +1,48 @@
+{
+  "license": "MIT",
+  "notes": "Static module includes seven-line support for env --unset=NAME, with original static test methods held and eight focused controls added. Versioned CLI adds moved-prefix controls. Runtime/input/window modules were inspected but are not modified or included in executable payload. Historical 0.1.0 package and native Sources are unchanged. No application/session/native/M2 execution.",
+  "observed_head": "a314493c81cdb2fddc395b1358339612da3d8630",
+  "official_syntax_reference": "https://www.gnu.org/s/coreutils/manual/html_node/env-invocation.html",
+  "runtime_dependencies": [
+    "python>=3.11 (standard library only)"
+  ],
+  "schema": 1,
+  "source_inputs": [
+    {
+      "bytes": 38009,
+      "path": "scripts/workflows/desktop_applications.py",
+      "sha256": "9b680551717b67e05741926c19e6137c9ff67278578e2c88af04462dd393d4f0"
+    },
+    {
+      "bytes": 8690,
+      "path": "scripts/workflows/desktop_application_inputs.py",
+      "sha256": "681fbe51d7c2e1be128821852605174849a834a88ce4cd6b1e8b13851f91330b"
+    },
+    {
+      "bytes": 17456,
+      "path": "scripts/workflows/desktop_application_runtime.py",
+      "sha256": "a1652af0a829b752f2fa79a9c2e8cff7774717fffee5ec73ae65e6069f81a7c4"
+    },
+    {
+      "bytes": 22138,
+      "path": "scripts/workflows/desktop_application_window_lifecycle.py",
+      "sha256": "b399dcbf7227f313788522f10e4c37b23d49808adabc770ee755550fe9d7696d"
+    },
+    {
+      "bytes": 35504,
+      "path": "scripts/workflows/test_desktop_applications.py",
+      "sha256": "b14e49847d32c78a11823d43774d1799a80436fe7804e2befe370f1883c69a0f"
+    },
+    {
+      "bytes": 1081,
+      "path": "LICENSE",
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    {
+      "bytes": 3355,
+      "path": "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/assemble.py",
+      "sha256": "57c29b4051d7079ccf35de500402b0d4b171b71babc2029ee40e5c52c9a37000"
+    }
+  ],
+  "version": "0.1.1"
+}
