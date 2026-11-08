@@ -69,8 +69,8 @@ def load(name, path):
 
 P = load('_current011_constructor_data', HERE / 'prepare.py')
 T = load('_current011_tools_data', SUPPORT / 'payload/native/desktop_tools_v1.py')
-sys.modules['prepare'] = P
 U = load('_current011_publisher_data', HERE / 'publish.py')
+P = U.P  # Patch the explicitly loaded helper used by the publisher controls.
 
 
 class DataControls(unittest.TestCase):
