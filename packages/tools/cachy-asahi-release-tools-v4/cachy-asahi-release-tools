@@ -1,0 +1,71 @@
+#!/usr/bin/python3 -IB
+# SPDX-License-Identifier: MIT
+"""Offline release/source tools and verified endpoint copying and archives."""
+import argparse
+import hashlib
+import json
+import importlib.util
+import os
+from pathlib import Path
+import sys
+
+VERSION = '0.4.0'
+PRIVATE = Path(__file__).resolve().parents[1] / 'lib/cachy-asahi/release-tools-v4'
+LEGACY = ('sbom', 'source-export', 'recipe-pack', 'recipe-unpack', 'sbom-compare')
+
+TRANSPORT_FILES = {
+    'endpoint-current/scripts/client/client.py': (28669, '48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7'),
+    'endpoint-current/scripts/client/endpoint.py': (7620, 'e94520d9cc6ee0bb8ac007227dc51bc677de9efff7464f453ad7682eaa026e79'),
+    'endpoint-current/scripts/release/endpoint_copy_v1/copy_endpoint.py': (5417, 'c4de7e4c2eebc7a0fb510377480c19eee873bd65ab965ad6ed04ac0aa7aada79'),
+    'endpoint-current/scripts/release/endpoint_transport_v1/dependencies.json': (1492, '2b403c29fb33296a5c216031871b19f147cea04a0457f9066a13eb041466a8c6'),
+    'endpoint-current/scripts/release/endpoint_transport_v1/transport.py': (15138, '759f18f84a3c23a78ce7a5b6d02674edcce149fbcfb80ef1fc6c9454cbbe2851'),
+    'endpoint-current/scripts/release/export_repository.py': (15157, '9d07089a8855a1b11ad8a8f2ef680b00aa4ea48f7f422e05ce83a279780595ea'),
+    'endpoint-current/scripts/release/offline_kit.py': (14796, '8f9cdb4ad26525fb1c4c906a752f56e8115a3c39b8aa758dd86dca7d032f54b3'),
+    'endpoint-current/scripts/release/release.py': (41320, 'e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435'),
+    'endpoint-current/scripts/release/source_delivery.py': (16456, '8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e'),
+}
+
+
+def transport_module():
+    for name, (size, digest) in TRANSPORT_FILES.items():
+        path = PRIVATE / name
+        if path != path.resolve() or not path.is_file():
+            raise ValueError('canonical installed transport file required: ' + name)
+        with path.open('rb') as stream:
+            raw = stream.read(size + 1)
+        if len(raw) != size or hashlib.sha256(raw).hexdigest() != digest:
+            raise ValueError('installed transport file changed: ' + name)
+    path = PRIVATE / 'endpoint-current/scripts/release/endpoint_transport_v1/transport.py'
+    spec = importlib.util.spec_from_file_location('installed_release_tools_endpoint_transport', path)
+    value = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(value)
+    return value
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__,
+        epilog='endpoint-copy previews by default; add --apply to copy. Archive commands create fresh explicit outputs. Each command accepts --help.')
+    parser.add_argument('--version', action='version', version='cachy-asahi-release-tools ' + VERSION)
+    parser.add_argument('command', choices=(*LEGACY, 'endpoint-copy', 'endpoint-pack', 'endpoint-unpack'))
+    parser.add_argument('arguments', nargs=argparse.REMAINDER)
+    args = parser.parse_args()
+    if sys.version_info < (3, 14):
+        parser.error('Python >=3.14 is required by the retained release tools')
+    if args.command in LEGACY:
+        launcher = PRIVATE / 'legacy-v2/bin/cachy-asahi-release-tools'
+        os.execv(sys.executable, [sys.executable, '-I', '-B', str(launcher), args.command, *args.arguments])
+    if args.command in ('endpoint-pack', 'endpoint-unpack'):
+        try:
+            return transport_module().main([args.command.removeprefix('endpoint-'), *args.arguments])
+        except (OSError, ValueError, TypeError, KeyError) as error:
+            print(json.dumps(dict(status='endpoint-transport-refused', errors=[str(error)])), file=sys.stderr)
+            return 1
+    path = PRIVATE / 'endpoint-current/scripts/release/endpoint_copy_v1/copy_endpoint.py'
+    spec = importlib.util.spec_from_file_location('installed_release_tools_endpoint_copy', path)
+    copier = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(copier)
+    return copier.main(args.arguments)
+
+
+if __name__ == '__main__':
+    sys.exit(main())
