@@ -12,7 +12,7 @@ import stat
 import tempfile
 
 HERE = Path(__file__).resolve().parent
-PROFILE_SHA256 = '09a19bdfb0d0e2b8181b725359003684ce1135630b5f63cddb0c7ba85ec24c5f'
+PROFILE_SHA256 = 'b63a23cfc7ddd1b91a1eb598c58b9fd631f74e108e410c8433fb3a5d33c39986'
 FIELDS = ('st_dev','st_ino','st_mode','st_nlink','st_uid','st_gid','st_size','st_mtime_ns','st_ctime_ns')
 MAX_FILE = 64*1024**2
 MAX_SOURCE = 64*1024**2
@@ -144,6 +144,8 @@ def profile():
     need(value['schema']==1 and value['kind']=='security-maintenance-native-source-v1'
          and value['operation']=='security-alpm-v1' and value['upgrade_protocol']=='signed-prior-to-current-v1'
          and value['observation_protocol']=='first-real-upgrade-zero-observation-v1'
+         and value['observer_provenance_protocol']=='observer-shim-recorded-provenance-v1'
+         and value['main_checkpoint_semantics']=='HISTORICAL_FACTORY_METADATA_ONLY_NOT_CURRENT_MAIN_AUTHORITY'
          and value['target_base']=='main' and value['parent']['source']=='b6a02f11648738ded90084f7dcdcd4ea77c194fa'
          and len(value['parent']['files'])==len(value['expected']['files'])==200
          and len(value['payload'])==3 and value['producer_overlay']==PRODUCER_AFTER
@@ -193,7 +195,9 @@ def assemble(parent,output):
                prospective_tree=value['expected']['tree'],source_map_sha256=pin(bodies['native/source-map.json'])['sha256'],
                proposed_ref=value['proposed_ref'],workflow_id=381664314,target_base='main',main_checkpoint=value['main_checkpoint'],actual=value['actual'],
                native='NOT_RUN',GPG='NOT_RUN',ALPM_upgrade='NOT_RUN',ALPM_observation='NOT_RUN',
-               ALPM_interruption='NOT_RUN',ALPM_recovery='NOT_RUN',M2='NOT_RUN',release='NOT_ADMITTED')
+               ALPM_interruption='NOT_RUN',ALPM_recovery='NOT_RUN',observer_provenance='NOT_RUN',
+               observer_provenance_protocol=value['observer_provenance_protocol'],
+               main_checkpoint_semantics=value['main_checkpoint_semantics'],M2='NOT_RUN',release='NOT_ADMITTED')
     after=value['expected']['files'];changed={n:dict(before=before[n],after=after[n])for n in after if before[n]!=after[n]}
     operands={
         'stage.json':encoded(stage),
