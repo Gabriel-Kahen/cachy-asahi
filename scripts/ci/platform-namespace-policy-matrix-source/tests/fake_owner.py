@@ -23,8 +23,8 @@ FACTORY = HERE.parent
 FIXTURES = HERE/'fixtures'
 PARENT = None
 PROFILE_SHA = '53fdf5afcf40d2507045203a4035b10e07ab3a07e80855a8b12c999834cf7c2f'
-OVERLAY_SHA = 'b63f652cfa8af7de7a5c3222fc91bba731e12f0103fbbcff1932d16bfc265392'
-CATALOG_SHA = 'fe994bb3de032301378f7093b23cf6a30e6c43304d7eed14761df1a6417ab360'
+OVERLAY_SHA = 'fb7acefda97c313d7010e7f63a2a5298f1760e85d8a9ac904ffecf347ecb9bb8'
+CATALOG_SHA = 'dbd54881557db6c972ecf63c28f154a40c9c3f573d2a8b7759612f44149ae642'
 
 
 def authenticated(path, row):
@@ -70,9 +70,9 @@ def configure_basis(value):
     authenticated(FACTORY/'parent-commit.raw',profile['parent_raw'])
     PARENT = candidate
 VROOT = '/VIRTUAL-SOURCE-SYNTHETIC-DATA'
-SOURCE = '45f5aa5d19fe705fb647123e5498fb1a7db66fbc'
-MAP = '4c5867ae736e65ac4c9583c8547c44d64508ef1256ef702c740cd51c83808624'
-MODULE_SHA = '63752203523e7776e34a384905cada94410bf825b3e308b0b13c8fe2d814935d'
+SOURCE = 'd4199e9b8c73c7092a02b0f29d7656d77295c108'
+MAP = '578df5e3a220a8a374f0aebf7f7e4d83668cb41a2673b38f037eee309c2e6623'
+MODULE_SHA = '254762fc1d3b4b5605b08b671d15b0ea3b61242d110a271a1ab2391c36ec288d'
 _ACTIVE = None
 _GUARD = False
 DENIED = []
@@ -377,7 +377,7 @@ class Fixture:
             labels = dict(self.image_labels); labels.update(v.split('=',1) for v in options('--label'))
             policy = options('--security-opt')
             env = dict(e.split('=',1) for e in self.base_env); env.update(v.split('=',1) for v in options('--env'))
-            host = dict(Privileged=False, NetworkMode='none', SecurityOpt=policy, CapAdd=None, CapDrop=None, GroupAdd=['998','1001'], ReadonlyRootfs=False, Binds=None, Mounts=[], Memory=536870912, MemorySwap=536870912, NanoCpus=1000000000, PidsLimit=32, Ulimits=[dict(Name='nofile',Soft=128,Hard=128)])
+            host = dict(OomKillDisable=False, Privileged=False, NetworkMode='none', SecurityOpt=policy, CapAdd=None, CapDrop=None, GroupAdd=['998','1001'], ReadonlyRootfs=False, Binds=None, Mounts=[], Memory=536870912, MemorySwap=536870912, NanoCpus=1000000000, PidsLimit=32, Ulimits=[dict(Name='nofile',Soft=128,Hard=128)])
             if self.fault == 'policy_mismatch': host['NetworkMode'] = 'bridge'
             self.containers[cid] = dict(Id=cid, Image=self.image, Name='/'+options('--name')[0], Config=dict(User='1001:1001', Labels=labels, Entrypoint=['/usr/bin/python3'], Cmd=a[a.index(self.image)+1:], WorkingDir='/tmp', Env=[k+'='+v for k,v in sorted(env.items())]), HostConfig=host, AppArmorProfile='unconfined' if 'apparmor=unconfined' in policy else 'docker-default', State=dict(Status='created', Running=False, Dead=False, OOMKilled=False, Error='', ExitCode=0))
             self.inspect_counts[cid] = 0

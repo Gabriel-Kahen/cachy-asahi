@@ -10,15 +10,15 @@
     },
     "raw-source.txt": {
       "bytes": 353,
-      "sha256": "d6957063cf486cd60f5699995e687094fb9f5e23650a29e6cbb65160c33c219c"
+      "sha256": "3e1cf125802e82a724f2f752d9c97a3fa671fb8dbaa5c92d96acac0edab6658b"
     },
     "source-full-map.json": {
       "bytes": 53196,
-      "sha256": "2760b4e53d3e56f88a705300d30f2c139dae2d5227a0fa98b9f0b2456eabd312"
+      "sha256": "a779670147dcf1e1956b230647d8908e39b3307550c1d727067df2c0df198428"
     },
     "source-map.json": {
       "bytes": 40001,
-      "sha256": "4c5867ae736e65ac4c9583c8547c44d64508ef1256ef702c740cd51c83808624"
+      "sha256": "578df5e3a220a8a374f0aebf7f7e4d83668cb41a2673b38f037eee309c2e6623"
     }
   },
   "kind": "finite-public-synthetic-owner-DATA-fixtures",

@@ -184,6 +184,59 @@ if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('--guest',action='store_true');p.add_argument('--source',required=True);p.add_argument('--ref',required=True);p.add_argument('--run',required=True);p.add_argument('--map',required=True);p.add_argument('--case',choices=CASES,required=True);p.add_argument('--image',required=True);a=p.parse_args();need(a.guest,'explicit future guest entry only');raise SystemExit(guest(a))
 
 # Runtime integration is additive. The frozen DATA/guest contract above is held.
+MATRIX_GUEST_BOOTSTRAP="import runpy,sys;sys.path.insert(0,sys.argv.pop(1));runpy.run_module('platform_namespace_policy_v1',run_name='__main__',alter_sys=True)"
+_frozen_create_plan=create_plan
+def create_plan(image,own,map_hash,module_sha,contract_sha,c):
+ """Retain isolated Python while admitting only the exact Source native directory."""
+ plan=_frozen_create_plan(image,own,map_hash,module_sha,contract_sha,c)
+ for row in plan['cases']:
+  argv=row['create'];at=argv.index(image)+1
+  need(argv[at:at+3]==['-I','-B','/opt/native-platform-tools-alpm-v1/source/'+MODULE],'exact frozen isolated guest launcher')
+  argv[at:at+3]=['-I','-B','-c',MATRIX_GUEST_BOOTSTRAP,'/opt/native-platform-tools-alpm-v1/source/native']
+ return plan
+
+def _typed_equal(left,right):
+ if type(left)is not type(right):return False
+ if type(left)is dict:return set(left)==set(right)and all(_typed_equal(left[k],right[k])for k in left)
+ if type(left)is list:return len(left)==len(right)and all(_typed_equal(a,b)for a,b in zip(left,right))
+ return left==right
+
+def host_config_default_v1(before,after,engine):
+ """Docker28.0.4 only: create defaults false; start discards unsupported false.
+
+ Raw inspections are never altered. Every other field retains type-exact equality.
+ Primary basis: Moby v28.0.4 daemon_unix.go adaptContainerSettings and
+ verifyPlatformContainerResources; OCI runtime-spec v1.2.0 disableOOMKiller.
+ """
+ need(type(before)is dict and type(after)is dict and set(before)==set(after)and 'OomKillDisable'in before,'exact HostConfig keysets including OomKillDisable')
+ need(before['OomKillDisable']is False,'created OOM killer must remain enabled')
+ need(_typed_equal({k:v for k,v in before.items()if k!='OomKillDisable'},
+                   {k:v for k,v in after.items()if k!='OomKillDisable'}),'every other HostConfig field type-exact')
+ if after['OomKillDisable']is False:return 'EXACT_FALSE'
+ need(after['OomKillDisable']is None and type(engine)is dict and engine.get('version')=='28.0.4','only Docker28.0.4 false-to-null OOM default transition')
+ return 'DOCKER_28_0_4_FALSE_TO_NULL_DEFAULT'
+
+def host_config_comparison_v1(value):
+ transitions=[]
+ for row in value['cases']:
+  status=host_config_default_v1(row['inspect_before']['HostConfig'],row['inspect_after']['HostConfig'],value['engine'])
+  if status=='DOCKER_28_0_4_FALSE_TO_NULL_DEFAULT':transitions.append(row['id'])
+ return dict(schema=1,predicate='docker-28.0.4-oom-default-v1',status='PASS_SINGLE_FIELD_DEFAULT_TRANSITIONS'if transitions else'PASS_TYPE_EXACT_HOST_CONFIG',
+             default_transitions=transitions,raw_records_unchanged=True)
+
+_frozen_validate_result=validate_result
+def validate_result(value,c,expected=None):
+ """Internal comparison view only; retained result/raw-role joins stay untouched."""
+ need(len(encoded(value))<=c['limits']['result_bytes'],'whole original result cap')
+ comparison=host_config_comparison_v1(value);view=dict(value);view['cases']=[]
+ for row in value['cases']:
+  current=dict(row);after=dict(row['inspect_after']);host=dict(after['HostConfig'])
+  # The predicate above already proved this sole representation is equivalent.
+  host['OomKillDisable']=False;after['HostConfig']=host;current['inspect_after']=after
+  view['cases'].append(current)
+ qualified=_frozen_validate_result(view,c,expected);qualified['host_config_comparison']=comparison
+ return qualified
+
 MATRIX_PARENT_TREE='7e66e27a352cee19a3d022d8c167c43b9ab72804'
 # PARENT remains the frozen historical contract/context identity.
 # Raw Git lineage is pinned separately to its exact author-rewritten parent.
@@ -441,7 +494,8 @@ def owner_matrix(actor,root,args,own,context,original_dockerfile,ledger,verify_b
    if state['ExitCode']!=0:report.setdefault('probe_failures',[]).append(dict(case=plan['id'],container=cid,returncode=state['ExitCode'],output=pin(output),namespace_errno=row['namespace_errno'],exec_errno=exec_errno))
    snapshot()
   report['engine_after']=engine_info('engine-after',matrix_deadline);need(report['engine_after']==engine,'same actual Engine through all four cases')
-  validate_result(result,c,expected);report['candidate_interpretation']=interpret(result,c,expected);report['status']='DIAGNOSTIC_NAMESPACE_POLICY_MATRIX_COMPLETE'
+  qualified=validate_result(result,c,expected);report['host_config_comparison']=qualified['host_config_comparison']
+  report['candidate_interpretation']=interpret(result,c,expected);report['status']='DIAGNOSTIC_NAMESPACE_POLICY_MATRIX_COMPLETE'
  except BaseException as error:
   failure('matrix',error);pending=error if not isinstance(error,Exception)else None
  finally:
@@ -485,6 +539,7 @@ def owner_matrix(actor,root,args,own,context,original_dockerfile,ledger,verify_b
   diagnostic={k:report[k]for k in('schema','operation','binding','source_map_sha256','status','native','acceptance','first_failure','cleanup')}
   diagnostic.update(cases=len(report['cases']),interpretation=report.get('interpretation',dict(status='UNKNOWN',reason='incomplete or unqualified actual matrix',native='NOT_ADMITTED',acceptance=False)),
        Root_external_expected_required=True,BuildKit_policy_equivalence='NOT_PROVED',package_ALPM='NOT_RUN',probe_failures=report.get('probe_failures',[]))
+  diagnostic['host_config_comparison']=report.get('host_config_comparison')
   write_json('diagnostic.json',diagnostic);snapshot()
  if pending is not None:raise pending
  return diagnostic
@@ -579,4 +634,6 @@ def validate_runtime_evidence(owner,result,payloads,expected,source_proof):
   need(value['Id']==image and value['Config']['Labels']==image_labels and not(value.get('RepoTags')or[])and not value.get('RepoDigests'),'actual unaliased own image before removal');call('remove-prepared-image',DOCKER+['image','rm',image])
  need(ids('final-prepared-alias-absence',DOCKER+['image','ls','--no-trunc','-q','--filter','reference='+alias])==[]
       and ids('final-prepared-image-absence',DOCKER+['image','ls','--no-trunc','-q','--filter','label='+LABEL+'='+token])==[],'actual final prepared alias/image absence')
- return dict(status='VALIDATED_ACTUAL_MATRIX_RUNTIME_ROLE_BODY_OWNERSHIP_INVERSES',binding=own,calls=len(calls),logs=len(selectors),native='NOT_ADMITTED',acceptance=False)
+ comparison=host_config_comparison_v1(result)
+ need(owner.get('host_config_comparison')==comparison,'reader independently recomputed raw HostConfig predicate, not an artifact marker')
+ return dict(status='VALIDATED_ACTUAL_MATRIX_RUNTIME_ROLE_BODY_OWNERSHIP_INVERSES',binding=own,calls=len(calls),logs=len(selectors),host_config_comparison=comparison,native='NOT_ADMITTED',acceptance=False)
