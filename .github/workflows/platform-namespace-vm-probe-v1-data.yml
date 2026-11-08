@@ -34,3 +34,5 @@ jobs:
         run: python3 -I -B -Werror::ResourceWarning scripts/ci/platform-namespace-vm-probe-v1/test_boot_data.py
       - name: Check bounded child stderr diagnostic DATA controls
         run: python3 -I -B -Werror::ResourceWarning scripts/ci/platform-namespace-vm-probe-v1/test_stderr_data.py
+      - name: Check kernel outer-credential witness DATA controls
+        run: python3 -I -B -Werror::ResourceWarning scripts/ci/platform-namespace-vm-probe-v1/test_witness_data.py

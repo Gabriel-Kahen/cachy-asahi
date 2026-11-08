@@ -20,7 +20,7 @@ HERE = Path(__file__).resolve().parent
 FIXTURE = 'scripts/virtual/generic16k/fixture.py'
 SUPERVISOR = 'scripts/ci/glibc-owned-runtime/runner.py'
 KERNEL_CHECK = 'scripts/virtual/generic16k/build_kernel.py'
-GUEST_FILES = ('common.py', 'guest.py', 'probe_exec.py', 'inside.py', 'boot.py')
+GUEST_FILES = ('common.py', 'guest.py', 'probe_exec.py', 'inside.py', 'boot.py', 'witness.py', 'owned_command.py')
 REQUIRED = {'busybox', 'usr/bin/python3', 'usr/bin/bwrap'}
 RESERVED = ('probe', 'init', 'proc', 'dev', 'tmp', 'home', 'var/lib/pacman')
 

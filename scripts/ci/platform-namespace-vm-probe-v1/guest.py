@@ -2,13 +2,14 @@
 """Marked diskless guest entry; never a host namespace probe."""
 import base64
 import ctypes
-import importlib.util
 import os
 from pathlib import Path
 import re
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import common as C
+import witness as W
+import owned_command as O
 
 
 def proc(name, cap=8192):
@@ -79,18 +80,28 @@ def main(nonce, release):
     helper = Path('/probe/runner.py')
     selection = C.decode(C.read(Path('/probe/selection.json')))
     C.need(C.pin(C.read(helper)) == selection['runner'], 'exact trusted guest supervisor')
-    spec = importlib.util.spec_from_file_location('namespace_vm_owned_runner', helper)
-    runner = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(runner)
     work = Path('/tmp/namespace-vm-probe')
     drop_identity(work)
     before = observe()
     C.context_valid(before, release)
-    row, out, err, failure = runner.run_command(C.WRAPPER + [nonce, release], work, C.ENV,
-                                               C.BOUNDS['command_seconds'], C.BOUNDS['command_output_bytes'])
+    sender, receiver = W.channel()
+    observation, observation_error = None, None
+    try:
+        try:
+            row, out, err, failure = O.run_command(C.WRAPPER + [nonce, release], work, C.ENV,
+                                                  C.BOUNDS['command_seconds'], C.BOUNDS['command_output_bytes'])
+        finally:
+            sender.close()
+        try:
+            observation = W.receive(receiver)
+        except (ValueError, OSError, KeyError, TypeError) as error:
+            observation_error = type(error).__name__
+    finally:
+        sender.close()
+        receiver.close()
     report = dict(schema=1, operation=C.OPERATION, nonce=nonce, bootstrap=bootstrap, before=before,
                   after=observe(), command=row, bwrap_argv=C.BWRAP + [nonce, release], exec_context=None,
-                  inside=None, command_error=None if failure is None else type(failure).__name__,
+                  inside=None, inner_observation=observation, inner_observation_error=observation_error, command_error=None if failure is None else type(failure).__name__,
                   stderr=C.pin(err), stderr_preview=C.stderr_preview(err), bwrap=selection['bwrap'],
                   numeric_unshare_errno=None, generic_emulated_16K_only=True,
                   hardware='NOT_RUN', namespace_cause='UNKNOWN_NOT_INFERRED_FROM_TEXT')
@@ -100,7 +111,9 @@ def main(nonce, release):
         C.context_valid(report['exec_context'], release)
         if failure is None and row['group_absence_verified']:
             if row['exit_code'] == 0:
-                report['inside'] = frame(out, 'NSVM_INSIDE_V1', nonce)
+                inside = frame(out, 'NSVM_INSIDE_V1', nonce)
+                C.context_valid(inside, release, outer=False, evidence=observation, observer=before, nonce=nonce)
+                report['inside'] = inside
                 C.need(len(out.splitlines()) == 2 and out.splitlines()[0].startswith(b'NSVM_EXEC_V1 '),
                        'only exact exec then inside frames')
                 report['status'] = 'OBSERVED_UNPRIVILEGED_BWRAP_SUCCESS'
@@ -108,7 +121,7 @@ def main(nonce, release):
                 C.need(len(out.splitlines()) == 1, 'only exec frame for observed nonzero')
                 report['status'] = 'OBSERVED_BWRAP_NONZERO'
     except (ValueError, KeyError, TypeError):
-        report.update(inside=None, command_error='CHILD_FRAME_OR_IDENTITY_REFUSED')
+        report.update(inside=None, inner_observation=observation, inner_observation_error=observation_error, command_error='CHILD_FRAME_IDENTITY_OR_KERNEL_CREDENTIAL_REFUSED')
     removed = False
     if row['group_absence_verified']:
         C.need(not any(work.iterdir()), 'unexpected guest work retained')

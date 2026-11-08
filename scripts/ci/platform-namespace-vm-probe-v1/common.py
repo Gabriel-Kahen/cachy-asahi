@@ -141,7 +141,7 @@ def bound(value):
     return value
 
 
-def context_valid(value, release, outer=True):
+def context_shape(value, release, outer=True):
     need(all(type(value[k]) is int for k in ('page_size', 'uid', 'euid', 'gid', 'egid', 'NoNewPrivs', 'pid', 'pgid', 'sid')),
          'literal observed identity integers')
     need(value['machine'] == 'aarch64' and value['kernel'] == release and value['page_size'] == 16384,
@@ -160,9 +160,43 @@ def context_valid(value, release, outer=True):
              all(type(n) is int and n >= 0 for n in r) for r in value[key]), 'bounded actual namespace ID maps')
     if not outer:
         for identity, mapping in (('uid', 'uid_map'), ('gid', 'gid_map')):
-            matches = [outside + value[identity] - start for start, outside, count in value[mapping]
-                       if start <= value[identity] < start + count]
-            need(matches == [23001], 'inner identity maps exactly to unprivileged outer UID/GID23001')
+            matches = [r for r in value[mapping] if r[2] > 0 and r[0] <= value[identity] < r[0] + r[2]]
+            need(len(matches) == 1, 'one actual immediate-parent mapping for the inner identity')
+
+
+def validate_inner_packet(evidence):
+    need(type(evidence) is dict and set(evidence) == {'schema', 'transport', 'payload', 'packet', 'credentials',
+         'observer', 'records', 'flags'} and type(evidence['schema']) is int and evidence['schema'] == 1 and
+         evidence['transport'] == 'AF_UNIX_SEQPACKET_SCM_CREDENTIALS' and
+         type(evidence['records']) is int and evidence['records'] == 1 and
+         type(evidence['flags']) is int and evidence['flags'] in (0, 128), 'one untruncated kernel credential observation')
+    payload = evidence['payload']
+    need(type(payload) is dict and set(payload) == {'schema', 'nonce', 'release', 'context'} and
+         type(payload['schema']) is int and payload['schema'] == 1 and type(payload['context']) is dict,
+         'exact raw inner context envelope')
+    raw = encoded(payload)
+    need(len(raw) <= 12288 and evidence['packet'] == pin(raw), 'whole canonical inner context packet pin')
+    credentials = evidence['credentials']
+    need(type(credentials) is dict and set(credentials) == {'pid', 'uid', 'gid'} and
+         all(type(credentials[k]) is int and credentials[k] >= 0 for k in credentials) and credentials['pid'] > 1,
+         'typed kernel sending-task credentials')
+    return payload
+
+
+def context_valid(value, release, outer=True, evidence=None, observer=None, nonce=None):
+    context_shape(value, release, outer)
+    if not outer:
+        payload = validate_inner_packet(evidence)
+        need(payload['nonce'] == nonce and payload['release'] == release and payload['context'] == value,
+             'same exact nonce/release/raw context from kernel-witnessed sender')
+        need(evidence['observer'] == dict(uid=observer['uid'], euid=observer['euid'], gid=observer['gid'],
+             egid=observer['egid'], user_namespace=observer['namespaces']['user'],
+             pid_namespace=observer['namespaces']['pid']) and
+             observer['uid'] == observer['euid'] == observer['gid'] == observer['egid'] == 23001,
+             'credential observer remains in the original unprivileged outer user namespace')
+        need(evidence['credentials'] == dict(pid=value['pid'], uid=23001, gid=23001) and
+             value['namespaces']['pid'] == observer['namespaces']['pid'],
+             'kernel projects the same actual inner sender to outer UID/GID23001 and PID namespace')
 
 
 def validate_report(value, nonce, release):
@@ -170,6 +204,9 @@ def validate_report(value, nonce, release):
          value['generic_emulated_16K_only'] is True and value['hardware'] == 'NOT_RUN' and
          value['numeric_unshare_errno'] is None, 'exact guest-only report; numeric syscall errno unknown')
     validate_stderr(value)
+    if value['inner_observation'] is not None:
+        payload = validate_inner_packet(value['inner_observation'])
+        need(payload['nonce'] == nonce and payload['release'] == release, 'raw inner observation belongs to this nonce/release')
     context_valid(value['before'], release)
     context_valid(value['after'], release)
     need(value['before'] == value['after'], 'outer guest identity/namespaces unchanged after probe')
@@ -177,7 +214,9 @@ def validate_report(value, nonce, release):
     need(type(row['exit_code']) is int and type(row['group_absence_verified']) is bool, 'typed actual exit/retirement facts')
     need(row['argv'] == WRAPPER + [nonce, release] and value['bwrap_argv'] == BWRAP + [nonce, release] and
          row['time_limit'] == BOUNDS['command_seconds'] and
-         row['output_limit'] == BOUNDS['command_output_bytes'], 'one fixed finite bwrap operation')
+         row['output_limit'] == BOUNDS['command_output_bytes'] and type(row['pass_fds']) is list and
+         row['pass_fds'] == [3] and type(row['pass_fds'][0]) is int and
+         row['close_fds'] is True, 'one fixed finite bwrap operation')
     need(value['cleanup']['group_absence_verified'] is row['group_absence_verified'] and
          type(value['cleanup']['work_removed']) is bool and
          (not value['cleanup']['work_removed'] or row['group_absence_verified'] is True), 'actual guest cleanup provenance')
@@ -192,7 +231,8 @@ def validate_report(value, nonce, release):
              'natural zero bwrap and verified owned group retirement')
         need(value['exec_context'] is not None and value['cleanup']['work_removed'] is True,
              'exact bwrap exec provenance and scoped guest cleanup')
-        context_valid(value['inside'], release, outer=False)
+        context_valid(value['inside'], release, outer=False, evidence=value['inner_observation'],
+                      observer=value['before'], nonce=nonce)
         need(all(value['inside']['namespaces'][k] != value['before']['namespaces'][k] for k in ('user', 'mnt', 'net')),
              'actual created user/mount/network namespaces')
     else:
