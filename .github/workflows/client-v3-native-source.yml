@@ -38,3 +38,8 @@ jobs:
           set -euo pipefail
           ulimit -t 60 -v 1048576 -f 4096 -n 128
           timeout --signal=TERM --kill-after=5s 60s python3 -I -B -Werror scripts/ci/client-v3-native/test_source.py --root "$GITHUB_WORKSPACE/.ci-inputs/client-v3-component-main2dbe"
+      - name: Check NEW15 explicit Source shapes and cleanup failure DATA controls
+        run: |
+          set -euo pipefail
+          ulimit -t 60 -v 1048576 -f 4096 -n 128
+          timeout --signal=TERM --kill-after=5s 60s python3 -I -B -Werror scripts/ci/client-v3-native/test_entry_failures.py --root "$GITHUB_WORKSPACE/.ci-inputs/client-v3-component-main2dbe"
