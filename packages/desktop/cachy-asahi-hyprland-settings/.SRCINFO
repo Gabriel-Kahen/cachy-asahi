@@ -1,7 +1,7 @@
 pkgbase = cachy-asahi-hyprland-settings
 	pkgdesc = Opt-in Hyprland Lua configuration preserving the existing Asahi platform
 	pkgver = 0.1.0
-	pkgrel = 2
+	pkgrel = 3
 	url = https://github.com/Gabriel-Kahen/cachy-asahi
 	arch = any
 	license = MIT
@@ -35,9 +35,9 @@ pkgbase = cachy-asahi-hyprland-settings
 	sha256sums = 4c7adb2deb0403fefc4562d39105635cebfc44ce88e44fe84c4a90a00b2be3c0
 	sha256sums = a97930965a4e622adc920491c7d433a803173bb6e644c4c3c88efb79187e11d5
 	sha256sums = c6ab55ae475611bf2df2b7120b97a924eed5d65c149561d4da4f12b5b8c25504
-	sha256sums = 68fe115241e834594d8c43330b0564c4171e21f5c039dbd48f72ad27b8fbb17c
+	sha256sums = 68f112074e0366b372e3261fea77480992537a43b3341cbd2bac49eb5a651163
 	sha256sums = 0c8c331ce87a95b154e0e83c358a5cafc39bf08f2129ecc5be2438c6a97a325c
 	sha256sums = 51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7
-	sha256sums = 5a920a5dd7a40463417a9b15e64a6620acfe7b2328960bf7014c9f587c4b69a8
+	sha256sums = 7dc01c020275f2d482f326bad0592e59bde140ba9cc349849ac5916e883e7c7d
 
 pkgname = cachy-asahi-hyprland-settings
