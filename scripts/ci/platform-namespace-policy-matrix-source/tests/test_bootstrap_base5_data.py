@@ -90,7 +90,7 @@ class BootstrapBase5Data(unittest.TestCase):
         self.assertFalse(base_names & package_names)
         self.assertTrue(all(r['url'].startswith('https://') for r in base))
 
-    def test_full201_fixture_retains_explicit_git_modes(self):
+    def test_full201_fixture_retains_explicit_git_modes_and_checker_authorities(self):
         rows = json.loads((F / 'tests/fixtures/source-full-map.json').read_bytes())
         self.assertEqual(len(rows), 201)
         for name, row in rows.items():
@@ -98,6 +98,25 @@ class BootstrapBase5Data(unittest.TestCase):
                 self.assertEqual(set(row), {'bytes', 'sha256', 'mode', 'blob', 'git_mode'})
                 self.assertIn(row['mode'], (420, 493))
                 self.assertEqual(row['git_mode'], '100755' if row['mode'] == 493 else '100644')
+        checker = ast.parse((F / 'tests/check_constructed_source.py').read_bytes())
+        constants = {target.id: node.value.value for node in checker.body
+                     if isinstance(node, ast.Assign) and isinstance(node.value, ast.Constant)
+                     for target in node.targets if isinstance(target, ast.Name)}
+        profile = json.loads((F / 'parent-profile.json').read_bytes())
+        overlay = json.loads((F / 'overlay-manifest.json').read_bytes())
+        self.assertEqual({name: constants[name] for name in ('PARENT', 'PTREE', 'TREE', 'MAP')},
+                         dict(PARENT=profile['parent'], PTREE=profile['parent_tree'],
+                              TREE=overlay['expected_tree'], MAP=overlay['expected_map_sha256']))
+        for variable, relative in [('profile_raw', 'parent-profile.json'),
+                                   ('catalog_raw', 'tests/fixtures/catalog.json'),
+                                   ('selected', 'overlay-manifest.json')]:
+            expression = shape("pin(" + variable + ")['sha256']")
+            pins = [n.comparators[0].value for n in ast.walk(checker)
+                    if isinstance(n, ast.Compare) and len(n.ops) == 1
+                    and isinstance(n.ops[0], ast.Eq) and len(n.comparators) == 1
+                    and isinstance(n.comparators[0], ast.Constant)
+                    and ast.dump(n.left, include_attributes=False) == expression]
+            self.assertEqual(pins, [hashlib.sha256((F / relative).read_bytes()).hexdigest()], relative)
 
     def test_package_callback_stays_cache_only_before_unchanged_signed248_audit(self):
         calls = [n for n in ast.walk(self.owner_run) if isinstance(n, ast.Call)
