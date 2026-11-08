@@ -1,0 +1,35 @@
+#!/usr/bin/python3 -IB
+# SPDX-License-Identifier: MIT
+"""Offline release/source tools and verified repository generation copying."""
+import argparse
+import importlib.util
+import os
+from pathlib import Path
+import sys
+
+VERSION = '0.3.0'
+PRIVATE = Path(__file__).resolve().parents[1] / 'lib/cachy-asahi/release-tools-v3'
+LEGACY = ('sbom', 'source-export', 'recipe-pack', 'recipe-unpack', 'sbom-compare')
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__,
+        epilog='endpoint-copy previews by default; add --apply to copy. Each command accepts --help.')
+    parser.add_argument('--version', action='version', version='cachy-asahi-release-tools ' + VERSION)
+    parser.add_argument('command', choices=(*LEGACY, 'endpoint-copy'))
+    parser.add_argument('arguments', nargs=argparse.REMAINDER)
+    args = parser.parse_args()
+    if sys.version_info < (3, 14):
+        parser.error('Python >=3.14 is required by the retained release tools')
+    if args.command in LEGACY:
+        launcher = PRIVATE / 'legacy-v2/bin/cachy-asahi-release-tools'
+        os.execv(sys.executable, [sys.executable, '-I', '-B', str(launcher), args.command, *args.arguments])
+    path = PRIVATE / 'endpoint-current/scripts/release/endpoint_copy_v1/copy_endpoint.py'
+    spec = importlib.util.spec_from_file_location('installed_release_tools_endpoint_copy', path)
+    copier = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(copier)
+    return copier.main(args.arguments)
+
+
+if __name__ == '__main__':
+    sys.exit(main())
