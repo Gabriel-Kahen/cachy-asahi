@@ -41,10 +41,11 @@ def model_report():
     inside = model_context(31)
     inside['namespaces'].update({k: k + ':[200]' for k in ('user', 'mnt', 'net')})
     row = dict(argv=C.WRAPPER + [NONCE, RELEASE], time_limit=20, output_limit=65536,
-               exit_code=0, group_absence_verified=True)
+               exit_code=0, group_absence_verified=True, stderr_bytes=0, stderr_sha256=C.pin(b'')['sha256'])
     return dict(schema=1, operation=C.OPERATION, nonce=NONCE, before=before, after=copy.deepcopy(before),
                 exec_context=child, inside=inside, command=row, bwrap_argv=C.BWRAP + [NONCE, RELEASE],
-                bwrap=binary, status='OBSERVED_UNPRIVILEGED_BWRAP_SUCCESS', command_error=None,
+                bwrap=binary, stderr=C.pin(b''), stderr_preview=C.stderr_preview(b''),
+                status='OBSERVED_UNPRIVILEGED_BWRAP_SUCCESS', command_error=None,
                 cleanup=dict(group_absence_verified=True, work_removed=True), generic_emulated_16K_only=True,
                 hardware='NOT_RUN', numeric_unshare_errno=None)
 
