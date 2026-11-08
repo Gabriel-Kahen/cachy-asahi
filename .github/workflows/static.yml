@@ -348,6 +348,7 @@ jobs:
           timeout --signal=TERM --kill-after=5s 60s \
             python3 -I -B scripts/ci/fetch_zlib_source.py \
               --output "$c01_source_dir/zlib-1.3.2.tar.gz" \
+              --local-archive "$GITHUB_WORKSPACE/scripts/ci/source-carriers/zlib-1.3.2/zlib-1.3.2.tar.gz" \
               --receipt "$c01_source_dir/zlib-source-retrieval.json"
           printf '%s  %s\n' 'bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16' "$c01_source_dir/zlib-1.3.2.tar.gz" | sha256sum --check
           printf '%s  %s\n' 'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25' 'scripts/experiments/fixtures/c01-packages.lock' | sha256sum --check
