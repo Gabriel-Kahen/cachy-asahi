@@ -675,9 +675,9 @@
         "sha256": "8cdd968870a2a92d7006739e96dedefa14e51c40d62cfc15831f234a767a1421"
       },
       "native/security_native_v1.py": {
-        "bytes": 40182,
+        "bytes": 40292,
         "mode": 420,
-        "sha256": "7ab431933359f983bf0c1560930c68cf1e833eba170b5ee4351ef399abc6ae80"
+        "sha256": "f662e720612d044dabdd04d8d7f2305fc01dd7431c28acf2f6cb4d0889a2b28c"
       },
       "native/security_reader_v1.py": {
         "bytes": 27578,
@@ -692,7 +692,7 @@
       "native/source-map.json": {
         "bytes": 40058,
         "mode": 420,
-        "sha256": "2b5196d8bf80386e0aa8c982bab55961f3b55d58f2440b9a99e7ee0c5acc3155"
+        "sha256": "55ed5cc77825df72ce384d60064327770bc12c4410ea1c4d4dea99fce76faaa2"
       },
       "native/transport_proof.py": {
         "bytes": 16711,
@@ -1010,7 +1010,7 @@
         "sha256": "daba66fd25a9a82caa23949686e967cbb69fd056177e991650643186057adaef"
       }
     },
-    "tree": "0561df2154bae3cfaa2295c8728d2a945e9469f2"
+    "tree": "9e22ec1863feb00ed6e33dccd3dd39a7fa67eb55"
   },
   "kind": "security-maintenance-native-source-v1",
   "main_checkpoint": "5d5de45d64075c05a004d0171a8bbdbb35372c9b",
@@ -2034,9 +2034,9 @@
       "sha256": "6781cb62ed12f470c79a8a534b831878bf9a5edc150b2964ce3254e5f0c0b1f1"
     },
     "native/security_native_v1.py": {
-      "bytes": 40182,
+      "bytes": 40292,
       "mode": 420,
-      "sha256": "7ab431933359f983bf0c1560930c68cf1e833eba170b5ee4351ef399abc6ae80"
+      "sha256": "f662e720612d044dabdd04d8d7f2305fc01dd7431c28acf2f6cb4d0889a2b28c"
     },
     "native/security_reader_v1.py": {
       "bytes": 27578,
@@ -2056,7 +2056,7 @@
       "sha256": "cdb50b755f3e76d0229278bb89476752702544f3c31947e74676c82b213a8dc7"
     }
   },
-  "proposed_ref": "codex/native-security-maintenance-observation-fd-diagnostic-v8",
+  "proposed_ref": "codex/native-security-maintenance-parent-layout-v9",
   "schema": 1,
   "source_map_metadata": {
     "actual": {

@@ -12,7 +12,7 @@ import stat
 import tempfile
 
 HERE = Path(__file__).resolve().parent
-PROFILE_SHA256 = '47c61023547433156a79e498e49655fbefe7aee340e2458f8597c0a9cc4a1650'
+PROFILE_SHA256 = '09a19bdfb0d0e2b8181b725359003684ce1135630b5f63cddb0c7ba85ec24c5f'
 FIELDS = ('st_dev','st_ino','st_mode','st_nlink','st_uid','st_gid','st_size','st_mtime_ns','st_ctime_ns')
 MAX_FILE = 64*1024**2
 MAX_SOURCE = 64*1024**2
