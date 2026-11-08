@@ -12,7 +12,7 @@ on:
         type: choice
         required: true
         default: source184
-        options: [source184, platform-alpm-v1]
+        options: [source184, platform-alpm-v1, platform-namespace-policy-matrix-v1]
 permissions:
   contents: read
 concurrency:
@@ -39,6 +39,7 @@ jobs:
         timeout-minutes: 1
         with:
           ref: ${{ inputs.source_sha }}
+          fetch-depth: ${{ inputs.operation == 'platform-namespace-policy-matrix-v1' && 2 || 1 }}
           persist-credentials: false
       - name: Prove exact closed Git source before secrets
         id: proof
@@ -189,7 +190,7 @@ jobs:
             RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" ImageVersion="${ImageVersion:-}" ImageOS="${ImageOS:-}" \
             python3 -I -B native/provision.py retain \
               --source-sha "$SOURCE_SHA" --ref "$GITHUB_REF" --run-id "$GITHUB_RUN_ID" --map-sha256 "$SOURCE_MAP_SHA256" \
-              --work "$RUNNER_TEMP/native-developer-work" --cache "$RUNNER_TEMP/alarm-cache" --carrier "$RUNNER_TEMP/pgo-hosted-retained" --execute
+              --work "$RUNNER_TEMP/native-developer-work" --cache "$RUNNER_TEMP/alarm-cache" --carrier "$RUNNER_TEMP/pgo-hosted-retained" --execute --operation "$NATIVE_OPERATION"
       - name: Upload only bounded public evidence capsule
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
