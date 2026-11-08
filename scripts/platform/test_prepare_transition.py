@@ -149,10 +149,14 @@ class PrepareTests(unittest.TestCase):
         cache.parent.mkdir()
         py_compile.compile(str(poison),cfile=str(cache),doraise=True,invalidation_mode=py_compile.PycInvalidationMode.TIMESTAMP)
         env=dict(os.environ);env.pop('PYTHONPYCACHEPREFIX',None)
-        original=subprocess.run([sys.executable,'-B',str(stage/'scripts/platform/platform_transition.py'),'--help'],
+        loader="import importlib.util,sys;s=importlib.util.spec_from_file_location('new_cache_sentinel',sys.argv[1]);m=importlib.util.module_from_spec(s);s.loader.exec_module(m)"
+        original=subprocess.run([sys.executable,'-I','-B','-c',loader,str(target)],
                                 capture_output=True,text=True,timeout=10,env=env)
         self.assertNotEqual(original.returncode,0)
         self.assertIn('stale fixture bytecode',original.stderr)
+        standalone=subprocess.run([sys.executable,'-I','-B',str(stage/'scripts/platform/platform_transition.py'),'--help'],
+                                  capture_output=True,text=True,timeout=10,env=env)
+        self.assertEqual(standalone.returncode,0,standalone.stderr)
         fixed=subprocess.run([sys.executable,'-B',str(stage/'scripts/platform/prepare_transition.py'),'--help'],
                              capture_output=True,text=True,timeout=10,env=env)
         self.assertEqual(fixed.returncode,0,fixed.stderr)

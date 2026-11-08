@@ -5,17 +5,81 @@ import hashlib
 import importlib.util
 import io
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
 import tarfile
 import tempfile
+import py_compile
 import unittest
 from unittest.mock import patch
 
 spec = importlib.util.spec_from_file_location('tested_transition', Path(__file__).with_name('platform_transition.py'))
 p = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(p)
+
+
+class SourceCacheTests(unittest.TestCase):
+    SOURCES = ('scripts/platform/platform_transition.py', 'scripts/platform/transaction.py',
+               'scripts/platform/recovery_preflight.py', 'scripts/platform/tuple_audit.py',
+               'scripts/platform/recovery_inputs.py', 'scripts/platform/authenticate_missing.py',
+               'scripts/platform/archive_coverage.py', 'scripts/platform/capture.py',
+               'scripts/port/preview.py', 'scripts/port/authenticate.py', 'scripts/ci/native_arm.py',
+               'scripts/checks/package_checks.py', 'scripts/integration/lifecycle.py',
+               'scripts/release/compare_releases.py', 'scripts/release/release.py')
+
+    def check_cache(self, inherited):
+        with tempfile.TemporaryDirectory(prefix='transition-cache-fixture-') as directory:
+            root = Path(directory); stage = root / 'checkout'
+            for name in self.SOURCES:
+                path = stage / name; path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes((p.ROOT / name).read_bytes())
+            target = stage / 'scripts/platform/tuple_audit.py'
+            original = target.read_bytes(); info = target.stat()
+            sentinel = root / 'new_sentinel.py'
+            code = b"raise RuntimeError('NEW_INERT_STALE_PYC_SENTINEL')\n"
+            sentinel.write_bytes(code + b'#' * (len(original) - len(code)))
+            os.utime(sentinel, ns=(info.st_atime_ns, info.st_mtime_ns))
+            prefix = root / 'inherited-cache'; prefix.mkdir()
+            if inherited:
+                with patch.object(sys, 'pycache_prefix', str(prefix)):
+                    cache = Path(importlib.util.cache_from_source(str(target)))
+            else:
+                cache = target.parent / '__pycache__' / ('tuple_audit.' + sys.implementation.cache_tag + '.pyc')
+            cache.parent.mkdir(parents=True, exist_ok=True)
+            py_compile.compile(str(sentinel), cfile=str(cache), dfile=str(target), doraise=True,
+                               invalidation_mode=py_compile.PycInvalidationMode.TIMESTAMP)
+            held_cache = cache.read_bytes()
+            scratch = root / 'scratch'; scratch.mkdir(mode=0o700)
+            env = dict(os.environ, TMPDIR=str(scratch)); env.pop('PYTHONPYCACHEPREFIX', None)
+            if inherited:
+                env['PYTHONPYCACHEPREFIX'] = str(prefix)
+            flags = ['-B'] if inherited else ['-I', '-B']
+            loader = "import importlib.util,sys;s=importlib.util.spec_from_file_location('new_cache_sentinel',sys.argv[1]);m=importlib.util.module_from_spec(s);s.loader.exec_module(m)"
+            bare = subprocess.run([sys.executable, *flags, '-c', loader, str(target)],
+                                  env=env, capture_output=True, timeout=10)
+            self.assertNotEqual(bare.returncode, 0)
+            self.assertIn(b'NEW_INERT_STALE_PYC_SENTINEL', bare.stderr)
+            planner = str(stage / self.SOURCES[0])
+            fixed = subprocess.run([sys.executable, *flags, planner, '--help'],
+                                   env=env, capture_output=True, timeout=10)
+            self.assertEqual(fixed.returncode, 0, fixed.stderr.decode())
+            self.assertIn(b'--contract-sha256', fixed.stdout)
+            self.assertEqual(list(scratch.iterdir()), [])
+            worker = subprocess.run([sys.executable, *flags, planner, '--impact'],
+                                    env=env, input=b'{"before":[],"after":[]}', capture_output=True, timeout=10)
+            self.assertEqual(worker.returncode, 0, worker.stderr.decode())
+            self.assertEqual(json.loads(worker.stdout), p.comparison.dependency_impact([], [], [], []))
+            self.assertEqual(list(scratch.iterdir()), [])
+            self.assertEqual(target.read_bytes(), original)
+            self.assertEqual(cache.read_bytes(), held_cache)
+
+    def test_adjacent_timestamp_pyc_cannot_replace_current_helpers(self):
+        self.check_cache(False)
+
+    def test_inherited_prefix_pyc_cannot_replace_current_helpers(self):
+        self.check_cache(True)
 
 
 class TransitionTests(unittest.TestCase):
