@@ -1,0 +1,45 @@
+# SPDX-License-Identifier: MIT
+pkgname=cachy-asahi-release-tools
+pkgver=0.4.0
+pkgrel=1
+pkgdesc='Offline release tools and verified repository generation transport'
+arch=(any)
+url=https://github.com/Gabriel-Kahen/cachy-asahi
+license=(MIT)
+depends=('python>=3.14' zstd gnupg libarchive pacman)
+options=('!strip' '!debug')
+source=(LICENSE NOTICE README.md cachy-asahi-release-tools check_package.py endpoint__client.py endpoint__copy_endpoint.py endpoint__dependencies.json endpoint__endpoint.py endpoint__export_repository.py endpoint__offline_kit.py endpoint__release.py endpoint__source_delivery.py endpoint__transport.py fixture__legacy-v2.tar.gz fixture__previous-v3.tar.gz fixture__provenance.json fixture__test_endpoint.py fixture__test_export_repository.py fixture__test_release.py legacy__archive_stream.py legacy__compare_sboms.py legacy__launcher legacy__package_checks.py legacy__recipe_source_delivery.py legacy__recipe_source_delivery_v2.py legacy__release_sbom.py legacy__source_delivery.py payload-map.json source-provenance.json test_package.py)
+noextract=(fixture__legacy-v2.tar.gz fixture__previous-v3.tar.gz)
+sha256sums=(51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7 cae3426c70c67d8706fe0fb00dacc38a31e1d343526d15be27ef67aa45ec4854 4b41ef8f5492360188929cb8a13f9b6f86a684ddd55967f7f514369c6d44cb4b 9ef34a5539a6cc7cc997ee099b9787b14c889cb754d083f0bf99b03b9e4efa9f 614d2163402640008d5ca3738d1aaa4ce314fdc228563a4d80aeba0f11eccfcb 48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7 c4de7e4c2eebc7a0fb510377480c19eee873bd65ab965ad6ed04ac0aa7aada79 2b403c29fb33296a5c216031871b19f147cea04a0457f9066a13eb041466a8c6 e94520d9cc6ee0bb8ac007227dc51bc677de9efff7464f453ad7682eaa026e79 9d07089a8855a1b11ad8a8f2ef680b00aa4ea48f7f422e05ce83a279780595ea 8f9cdb4ad26525fb1c4c906a752f56e8115a3c39b8aa758dd86dca7d032f54b3 e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435 8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e 759f18f84a3c23a78ce7a5b6d02674edcce149fbcfb80ef1fc6c9454cbbe2851 66c667ba1c8cf85e78bf2e29e6225138bdaab7ddbc5a01fb42c467142428276b bbe043f8fd9734f004a4fb2dd3b6e2f36f101c2e8768ad48045d6f45f44328d0 0f8dff772df90e01d5d13bc7a92707b0c508e25faec91f273054798e7408f67f 88ba2fc58b8eb291e931bda72dcea6a1efe860bb740596b2c2dc5d65b6cb01ab 963ff98c932bf27b913c8856e668f069b0d3ac506ab0a3c26cce9d8a8ec8c0fe 7ee9e693d4574c6bb11dcc927937475742b9fa7a6f8e988608532c1e1bab5f2e 10f1a4c0ac5b98852d9ebb150af28f9ce345c800935a64fa463bc90f72fcb838 219296c46902257f64203e3b3b41ece42a2e21a7d818f305bac858767aeff1b4 e263381111012ef0da8d95b3444234f65cb229862be96c69302f0d76a6a8b786 e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8 779f8147a13d3f90d11b9e5610f2d7d74fce28d0732797331fc832f0e87323be cbc13a6e2d604dfec9d0090cb22d279952f2c96b3d1196c2e8a18ee83ad922ae 1a53831128858c6c629f2449a7276a52846e52ebf426baa6f1c010aa209af486 8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e 87f775f3461d9dfe9494969795f64289fab99d9ed60eb7b4221fcd977fe2b8e1 c476b08fa29b4a91ccad8794a5bd01c26ed61d39bd9dd38c0ae22e627787f183 4c0261d520963070d755ecf89eb38a779a7249d324d260e05902ebfc5c66df4d)
+
+check() {
+    python -I -B -Werror::ResourceWarning "$srcdir/check_package.py" --recipe-root "$startdir" || return
+    python -I -B -Werror::ResourceWarning "$srcdir/test_package.py" --recipe-root "$startdir"
+}
+
+package() {
+    [[ -n ${srcdir:-} && -n ${pkgdir:-} && $pkgdir != / && $pkgdir != "$srcdir" ]] || return 1
+    install -Dm755 "$srcdir/cachy-asahi-release-tools" "$pkgdir/usr/bin/cachy-asahi-release-tools" || return
+    install -Dm644 "$srcdir/endpoint__client.py" "$pkgdir/usr/lib/cachy-asahi/release-tools-v4/endpoint-current/scripts/client/client.py" || return
+    install -Dm644 "$srcdir/endpoint__endpoint.py" "$pkgdir/usr/lib/cachy-asahi/release-tools-v4/endpoint-current/scripts/client/endpoint.py" || return
+    install -Dm644 "$srcdir/endpoint__copy_endpoint.py" "$pkgdir/usr/lib/cachy-asahi/release-tools-v4/endpoint-current/scripts/release/endpoint_copy_v1/copy_endpoint.py" || return
+    install -Dm644 "$srcdir/endpoint__dependencies.json" "$pkgdir/usr/lib/cachy-asahi/release-tools-v4/endpoint-current/scripts/release/endpoint_transport_v1/dependencies.json" || return
+    install -Dm644 "$srcdir/endpoint__transport.py" "$pkgdir/usr/lib/cachy-asahi/release-tools-v4/endpoint-current/scripts/release/endpoint_transport_v1/transport.py" || return
+    install -Dm644 "$srcdir/endpoint__export_repository.py" "$pkgdir/usr/lib/cachy-asahi/release-tools-v4/endpoint-current/scripts/release/export_repository.py" || return
+    install -Dm644 "$srcdir/endpoint__offline_kit.py" "$pkgdir/usr/lib/cachy-asahi/release-tools-v4/endpoint-current/scripts/release/offline_kit.py" || return
+    install -Dm644 "$srcdir/endpoint__release.py" "$pkgdir/usr/lib/cachy-asahi/release-tools-v4/endpoint-current/scripts/release/release.py" || return
+    install -Dm644 "$srcdir/endpoint__source_delivery.py" "$pkgdir/usr/lib/cachy-asahi/release-tools-v4/endpoint-current/scripts/release/source_delivery.py" || return
+    install -Dm755 "$srcdir/legacy__launcher" "$pkgdir/usr/lib/cachy-asahi/release-tools-v4/legacy-v2/bin/cachy-asahi-release-tools" || return
+    install -Dm644 "$srcdir/legacy__package_checks.py" "$pkgdir/usr/lib/cachy-asahi/release-tools-v4/legacy-v2/lib/cachy-asahi/release-tools-v2/scripts/checks/package_checks.py" || return
+    install -Dm644 "$srcdir/legacy__compare_sboms.py" "$pkgdir/usr/lib/cachy-asahi/release-tools-v4/legacy-v2/lib/cachy-asahi/release-tools-v2/scripts/release/compare_sboms.py" || return
+    install -Dm644 "$srcdir/legacy__recipe_source_delivery.py" "$pkgdir/usr/lib/cachy-asahi/release-tools-v4/legacy-v2/lib/cachy-asahi/release-tools-v2/scripts/release/recipe_source_delivery.py" || return
+    install -Dm644 "$srcdir/legacy__recipe_source_delivery_v2.py" "$pkgdir/usr/lib/cachy-asahi/release-tools-v4/legacy-v2/lib/cachy-asahi/release-tools-v2/scripts/release/recipe_source_delivery_v2.py" || return
+    install -Dm644 "$srcdir/legacy__release_sbom.py" "$pkgdir/usr/lib/cachy-asahi/release-tools-v4/legacy-v2/lib/cachy-asahi/release-tools-v2/scripts/release/release_sbom.py" || return
+    install -Dm644 "$srcdir/legacy__source_delivery.py" "$pkgdir/usr/lib/cachy-asahi/release-tools-v4/legacy-v2/lib/cachy-asahi/release-tools-v2/scripts/release/source_delivery.py" || return
+    install -Dm644 "$srcdir/legacy__archive_stream.py" "$pkgdir/usr/lib/cachy-asahi/release-tools-v4/legacy-v2/lib/cachy-asahi/release-tools-v2/scripts/update/archive_stream.py" || return
+    install -Dm644 "$srcdir/README.md" "$pkgdir/usr/share/doc/cachy-asahi-release-tools/README.md" || return
+    install -Dm644 "$srcdir/payload-map.json" "$pkgdir/usr/share/doc/cachy-asahi-release-tools/payload-map.json" || return
+    install -Dm644 "$srcdir/source-provenance.json" "$pkgdir/usr/share/doc/cachy-asahi-release-tools/source-provenance.json" || return
+    install -Dm644 "$srcdir/LICENSE" "$pkgdir/usr/share/licenses/cachy-asahi-release-tools/LICENSE" || return
+    install -Dm644 "$srcdir/NOTICE" "$pkgdir/usr/share/licenses/cachy-asahi-release-tools/NOTICE" || return
+}

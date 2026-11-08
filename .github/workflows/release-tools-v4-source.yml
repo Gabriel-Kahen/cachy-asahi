@@ -1,0 +1,52 @@
+name: Installed release tools endpoint transport controls
+on:
+  pull_request:
+    paths:
+      - packages/tools/cachy-asahi-release-tools-v4/**
+      - .github/workflows/release-tools-v4-source.yml
+  push:
+    branches: [main]
+    paths:
+      - packages/tools/cachy-asahi-release-tools-v4/**
+      - .github/workflows/release-tools-v4-source.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  release-tools-v4:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.14'
+      - name: Provision existing package and TEST-signature tools on the disposable runner
+        run: |
+          sudo apt-get -o APT::Update::Error-Mode=any update
+          sudo apt-get install --yes --no-install-recommends zstd gnupg libarchive-tools pacman-package-manager makepkg
+          for tool in gpg bsdtar vercmp repo-add makepkg; do command -v "$tool"; done
+      - name: Verify all local makepkg source checksums without downloads or dependency installation
+        working-directory: packages/tools/cachy-asahi-release-tools-v4
+        run: makepkg --verifysource --nodeps --nosign --noconfirm
+      - name: Check exact source closure and relocated installed workflows without skips
+        run: |
+          python -I -B -Werror::ResourceWarning - <<'PYTHON'
+          import importlib.util, sys, unittest
+          from pathlib import Path
+          root = Path('packages/tools/cachy-asahi-release-tools-v4').resolve()
+          def load(name, leaf):
+              spec = importlib.util.spec_from_file_location(name, root / leaf)
+              value = importlib.util.module_from_spec(spec)
+              sys.modules[name] = value
+              spec.loader.exec_module(value)
+              return value
+          load('release_v4_checks', 'check_package.py').verify_sources(root)
+          tests = load('release_v4_tests', 'test_package.py')
+          tests.RECIPE_ROOT = root
+          result = unittest.TextTestRunner(verbosity=2).run(unittest.TestLoader().loadTestsFromModule(tests))
+          if not result.wasSuccessful() or result.skipped or result.testsRun != 19:
+              raise SystemExit('failures, skips, or missing controls')
+          PYTHON

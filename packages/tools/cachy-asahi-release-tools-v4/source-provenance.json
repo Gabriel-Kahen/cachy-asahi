@@ -1,0 +1,154 @@
+{
+  "external_dependencies": {
+    "gnupg": "gpg verification",
+    "libarchive": "bsdtar package metadata",
+    "pacman": "vercmp dependency semantics",
+    "python>=3.14": "interpreter; retained legacy minimum",
+    "zstd": "retained legacy archive reader"
+  },
+  "external_license_note": "External executables are not vendored or relicensed; MIT applies to these retained project source files.",
+  "files": {
+    "endpoint__client.py": {
+      "bytes": 28669,
+      "installed_path": "usr/lib/cachy-asahi/release-tools-v4/endpoint-current/scripts/client/client.py",
+      "license": "MIT",
+      "origin_commit": "f86a72d1d5524a2ef3bbd9bf7af03dd75b888b52",
+      "origin_path": "scripts/client/client.py",
+      "sha256": "48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7"
+    },
+    "endpoint__copy_endpoint.py": {
+      "bytes": 5417,
+      "installed_path": "usr/lib/cachy-asahi/release-tools-v4/endpoint-current/scripts/release/endpoint_copy_v1/copy_endpoint.py",
+      "license": "MIT",
+      "origin_commit": "761c05a12948f76c88d00a2de2acca9b04827455",
+      "origin_path": "scripts/release/endpoint_copy_v1/copy_endpoint.py",
+      "sha256": "c4de7e4c2eebc7a0fb510377480c19eee873bd65ab965ad6ed04ac0aa7aada79"
+    },
+    "endpoint__dependencies.json": {
+      "bytes": 1492,
+      "installed_path": "usr/lib/cachy-asahi/release-tools-v4/endpoint-current/scripts/release/endpoint_transport_v1/dependencies.json",
+      "license": "MIT",
+      "origin_commit": "a6a9f947f889175925b86c4e8b337d116429bd28",
+      "origin_path": "scripts/release/endpoint_transport_v1/dependencies.json",
+      "sha256": "2b403c29fb33296a5c216031871b19f147cea04a0457f9066a13eb041466a8c6"
+    },
+    "endpoint__endpoint.py": {
+      "bytes": 7620,
+      "installed_path": "usr/lib/cachy-asahi/release-tools-v4/endpoint-current/scripts/client/endpoint.py",
+      "license": "MIT",
+      "origin_commit": "f86a72d1d5524a2ef3bbd9bf7af03dd75b888b52",
+      "origin_path": "scripts/client/endpoint.py",
+      "sha256": "e94520d9cc6ee0bb8ac007227dc51bc677de9efff7464f453ad7682eaa026e79"
+    },
+    "endpoint__export_repository.py": {
+      "bytes": 15157,
+      "installed_path": "usr/lib/cachy-asahi/release-tools-v4/endpoint-current/scripts/release/export_repository.py",
+      "license": "MIT",
+      "origin_commit": "f86a72d1d5524a2ef3bbd9bf7af03dd75b888b52",
+      "origin_path": "scripts/release/export_repository.py",
+      "sha256": "9d07089a8855a1b11ad8a8f2ef680b00aa4ea48f7f422e05ce83a279780595ea"
+    },
+    "endpoint__offline_kit.py": {
+      "bytes": 14796,
+      "installed_path": "usr/lib/cachy-asahi/release-tools-v4/endpoint-current/scripts/release/offline_kit.py",
+      "license": "MIT",
+      "origin_commit": "f86a72d1d5524a2ef3bbd9bf7af03dd75b888b52",
+      "origin_path": "scripts/release/offline_kit.py",
+      "sha256": "8f9cdb4ad26525fb1c4c906a752f56e8115a3c39b8aa758dd86dca7d032f54b3"
+    },
+    "endpoint__release.py": {
+      "bytes": 41320,
+      "installed_path": "usr/lib/cachy-asahi/release-tools-v4/endpoint-current/scripts/release/release.py",
+      "license": "MIT",
+      "origin_commit": "f86a72d1d5524a2ef3bbd9bf7af03dd75b888b52",
+      "origin_path": "scripts/release/release.py",
+      "sha256": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435"
+    },
+    "endpoint__source_delivery.py": {
+      "bytes": 16456,
+      "installed_path": "usr/lib/cachy-asahi/release-tools-v4/endpoint-current/scripts/release/source_delivery.py",
+      "license": "MIT",
+      "origin_commit": "f86a72d1d5524a2ef3bbd9bf7af03dd75b888b52",
+      "origin_path": "scripts/release/source_delivery.py",
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+    },
+    "endpoint__transport.py": {
+      "bytes": 15138,
+      "installed_path": "usr/lib/cachy-asahi/release-tools-v4/endpoint-current/scripts/release/endpoint_transport_v1/transport.py",
+      "license": "MIT",
+      "origin_commit": "a6a9f947f889175925b86c4e8b337d116429bd28",
+      "origin_path": "scripts/release/endpoint_transport_v1/transport.py",
+      "sha256": "759f18f84a3c23a78ce7a5b6d02674edcce149fbcfb80ef1fc6c9454cbbe2851"
+    },
+    "legacy__archive_stream.py": {
+      "bytes": 11938,
+      "installed_path": "usr/lib/cachy-asahi/release-tools-v4/legacy-v2/lib/cachy-asahi/release-tools-v2/scripts/update/archive_stream.py",
+      "license": "MIT",
+      "origin_commit": "f86a72d1d5524a2ef3bbd9bf7af03dd75b888b52",
+      "origin_path": "packages/tools/cachy-asahi-release-tools-v2/archive_stream.py",
+      "sha256": "10f1a4c0ac5b98852d9ebb150af28f9ce345c800935a64fa463bc90f72fcb838"
+    },
+    "legacy__compare_sboms.py": {
+      "bytes": 19959,
+      "installed_path": "usr/lib/cachy-asahi/release-tools-v4/legacy-v2/lib/cachy-asahi/release-tools-v2/scripts/release/compare_sboms.py",
+      "license": "MIT",
+      "origin_commit": "f86a72d1d5524a2ef3bbd9bf7af03dd75b888b52",
+      "origin_path": "packages/tools/cachy-asahi-release-tools-v2/compare_sboms.py",
+      "sha256": "219296c46902257f64203e3b3b41ece42a2e21a7d818f305bac858767aeff1b4"
+    },
+    "legacy__launcher": {
+      "bytes": 6928,
+      "installed_path": "usr/lib/cachy-asahi/release-tools-v4/legacy-v2/bin/cachy-asahi-release-tools",
+      "license": "MIT",
+      "origin_commit": "f86a72d1d5524a2ef3bbd9bf7af03dd75b888b52",
+      "origin_path": "packages/tools/cachy-asahi-release-tools-v2/cachy-asahi-release-tools",
+      "sha256": "e263381111012ef0da8d95b3444234f65cb229862be96c69302f0d76a6a8b786"
+    },
+    "legacy__package_checks.py": {
+      "bytes": 17706,
+      "installed_path": "usr/lib/cachy-asahi/release-tools-v4/legacy-v2/lib/cachy-asahi/release-tools-v2/scripts/checks/package_checks.py",
+      "license": "MIT",
+      "origin_commit": "f86a72d1d5524a2ef3bbd9bf7af03dd75b888b52",
+      "origin_path": "packages/tools/cachy-asahi-release-tools-v2/package_checks.py",
+      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
+    },
+    "legacy__recipe_source_delivery.py": {
+      "bytes": 24188,
+      "installed_path": "usr/lib/cachy-asahi/release-tools-v4/legacy-v2/lib/cachy-asahi/release-tools-v2/scripts/release/recipe_source_delivery.py",
+      "license": "MIT",
+      "origin_commit": "f86a72d1d5524a2ef3bbd9bf7af03dd75b888b52",
+      "origin_path": "packages/tools/cachy-asahi-release-tools-v2/recipe_source_delivery.py",
+      "sha256": "779f8147a13d3f90d11b9e5610f2d7d74fce28d0732797331fc832f0e87323be"
+    },
+    "legacy__recipe_source_delivery_v2.py": {
+      "bytes": 26264,
+      "installed_path": "usr/lib/cachy-asahi/release-tools-v4/legacy-v2/lib/cachy-asahi/release-tools-v2/scripts/release/recipe_source_delivery_v2.py",
+      "license": "MIT",
+      "origin_commit": "f86a72d1d5524a2ef3bbd9bf7af03dd75b888b52",
+      "origin_path": "packages/tools/cachy-asahi-release-tools-v2/recipe_source_delivery_v2.py",
+      "sha256": "cbc13a6e2d604dfec9d0090cb22d279952f2c96b3d1196c2e8a18ee83ad922ae"
+    },
+    "legacy__release_sbom.py": {
+      "bytes": 31044,
+      "installed_path": "usr/lib/cachy-asahi/release-tools-v4/legacy-v2/lib/cachy-asahi/release-tools-v2/scripts/release/release_sbom.py",
+      "license": "MIT",
+      "origin_commit": "f86a72d1d5524a2ef3bbd9bf7af03dd75b888b52",
+      "origin_path": "packages/tools/cachy-asahi-release-tools-v2/release_sbom.py",
+      "sha256": "1a53831128858c6c629f2449a7276a52846e52ebf426baa6f1c010aa209af486"
+    },
+    "legacy__source_delivery.py": {
+      "bytes": 16456,
+      "installed_path": "usr/lib/cachy-asahi/release-tools-v4/legacy-v2/lib/cachy-asahi/release-tools-v2/scripts/release/source_delivery.py",
+      "license": "MIT",
+      "origin_commit": "f86a72d1d5524a2ef3bbd9bf7af03dd75b888b52",
+      "origin_path": "packages/tools/cachy-asahi-release-tools-v2/source_delivery.py",
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+    }
+  },
+  "license_file_sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+  "package": "cachy-asahi-release-tools",
+  "repository": "https://github.com/Gabriel-Kahen/cachy-asahi",
+  "schema_version": 1,
+  "scope": "Exact merged PR396 portable transport plus unchanged seven-file endpoint-copy closure and separately frozen legacy-v2 runtime",
+  "version": "0.4.0-1"
+}

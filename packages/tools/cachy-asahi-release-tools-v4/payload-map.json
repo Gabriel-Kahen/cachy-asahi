@@ -1,0 +1,99 @@
+{
+  "files": {
+    "usr/bin/cachy-asahi-release-tools": {
+      "mode": 493,
+      "source": "cachy-asahi-release-tools"
+    },
+    "usr/lib/cachy-asahi/release-tools-v4/endpoint-current/scripts/client/client.py": {
+      "mode": 420,
+      "source": "endpoint__client.py"
+    },
+    "usr/lib/cachy-asahi/release-tools-v4/endpoint-current/scripts/client/endpoint.py": {
+      "mode": 420,
+      "source": "endpoint__endpoint.py"
+    },
+    "usr/lib/cachy-asahi/release-tools-v4/endpoint-current/scripts/release/endpoint_copy_v1/copy_endpoint.py": {
+      "mode": 420,
+      "source": "endpoint__copy_endpoint.py"
+    },
+    "usr/lib/cachy-asahi/release-tools-v4/endpoint-current/scripts/release/endpoint_transport_v1/dependencies.json": {
+      "mode": 420,
+      "source": "endpoint__dependencies.json"
+    },
+    "usr/lib/cachy-asahi/release-tools-v4/endpoint-current/scripts/release/endpoint_transport_v1/transport.py": {
+      "mode": 420,
+      "source": "endpoint__transport.py"
+    },
+    "usr/lib/cachy-asahi/release-tools-v4/endpoint-current/scripts/release/export_repository.py": {
+      "mode": 420,
+      "source": "endpoint__export_repository.py"
+    },
+    "usr/lib/cachy-asahi/release-tools-v4/endpoint-current/scripts/release/offline_kit.py": {
+      "mode": 420,
+      "source": "endpoint__offline_kit.py"
+    },
+    "usr/lib/cachy-asahi/release-tools-v4/endpoint-current/scripts/release/release.py": {
+      "mode": 420,
+      "source": "endpoint__release.py"
+    },
+    "usr/lib/cachy-asahi/release-tools-v4/endpoint-current/scripts/release/source_delivery.py": {
+      "mode": 420,
+      "source": "endpoint__source_delivery.py"
+    },
+    "usr/lib/cachy-asahi/release-tools-v4/legacy-v2/bin/cachy-asahi-release-tools": {
+      "mode": 493,
+      "source": "legacy__launcher"
+    },
+    "usr/lib/cachy-asahi/release-tools-v4/legacy-v2/lib/cachy-asahi/release-tools-v2/scripts/checks/package_checks.py": {
+      "mode": 420,
+      "source": "legacy__package_checks.py"
+    },
+    "usr/lib/cachy-asahi/release-tools-v4/legacy-v2/lib/cachy-asahi/release-tools-v2/scripts/release/compare_sboms.py": {
+      "mode": 420,
+      "source": "legacy__compare_sboms.py"
+    },
+    "usr/lib/cachy-asahi/release-tools-v4/legacy-v2/lib/cachy-asahi/release-tools-v2/scripts/release/recipe_source_delivery.py": {
+      "mode": 420,
+      "source": "legacy__recipe_source_delivery.py"
+    },
+    "usr/lib/cachy-asahi/release-tools-v4/legacy-v2/lib/cachy-asahi/release-tools-v2/scripts/release/recipe_source_delivery_v2.py": {
+      "mode": 420,
+      "source": "legacy__recipe_source_delivery_v2.py"
+    },
+    "usr/lib/cachy-asahi/release-tools-v4/legacy-v2/lib/cachy-asahi/release-tools-v2/scripts/release/release_sbom.py": {
+      "mode": 420,
+      "source": "legacy__release_sbom.py"
+    },
+    "usr/lib/cachy-asahi/release-tools-v4/legacy-v2/lib/cachy-asahi/release-tools-v2/scripts/release/source_delivery.py": {
+      "mode": 420,
+      "source": "legacy__source_delivery.py"
+    },
+    "usr/lib/cachy-asahi/release-tools-v4/legacy-v2/lib/cachy-asahi/release-tools-v2/scripts/update/archive_stream.py": {
+      "mode": 420,
+      "source": "legacy__archive_stream.py"
+    },
+    "usr/share/doc/cachy-asahi-release-tools/README.md": {
+      "mode": 420,
+      "source": "README.md"
+    },
+    "usr/share/doc/cachy-asahi-release-tools/payload-map.json": {
+      "mode": 420,
+      "source": "payload-map.json"
+    },
+    "usr/share/doc/cachy-asahi-release-tools/source-provenance.json": {
+      "mode": 420,
+      "source": "source-provenance.json"
+    },
+    "usr/share/licenses/cachy-asahi-release-tools/LICENSE": {
+      "mode": 420,
+      "source": "LICENSE"
+    },
+    "usr/share/licenses/cachy-asahi-release-tools/NOTICE": {
+      "mode": 420,
+      "source": "NOTICE"
+    }
+  },
+  "package": "cachy-asahi-release-tools",
+  "schema_version": 1,
+  "version": "0.4.0-1"
+}

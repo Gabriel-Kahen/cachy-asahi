@@ -1,0 +1,19 @@
+cachy-asahi-release-tools 0.4.0-1
+
+Project launcher, packaging and tests: cachy-asahi contributors, MIT.
+The portable endpoint transport and dependency manifest are retained byte-for-byte
+from PR396 source head a6a9f947f889175925b86c4e8b337d116429bd28,
+merged as cb90e05e1ffbf262353a874a5b598aa1939799b3. Its seven-file
+endpoint-copy/verifier closure is unchanged. Each file's exact origin revision,
+path, size, SHA-256 and installed location is in source-provenance.json.
+The prior 0.2 launcher and seven private helper files are separately retained
+byte-for-byte with their frozen source profiles and existing copyright notices.
+Test-only archives preserve complete prior 0.2 and 0.3 recipes and local sources;
+they are excluded from the installed payload. All retained project files are
+under the included MIT LICENSE. No project-runtime license exception was found
+in this finite set.
+
+Python, zstd, GnuPG, libarchive and pacman are external package dependencies,
+not vendored or relicensed here. Their licenses and notices remain their own.
+TEST keys, generated fixture packages and modeled hardware observations confer
+no production trust, native execution, installation or release acceptance.
