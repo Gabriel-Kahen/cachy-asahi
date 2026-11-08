@@ -1,0 +1,20 @@
+{
+  "inventory_source": "scripts/ci/core622-current-desktop-source/expected607.lock",
+  "inventory_bytes": 12076,
+  "inventory_sha256": "be35402204ba5c03d78279722afa83047c9575d2da70fb5c4064f46ed15954c5",
+  "package_count": 607,
+  "classification": "tracked generic-software TEST/current607 universe; not accepted Asahi release",
+  "identities": "all607 exact package names and versions retained",
+  "arch": "any is explicitly synthetic; the source lock has no architecture field",
+  "archives": "generated inert tar bytes; not actual native package artifacts",
+  "metadata_license": "MIT is a synthetic fixture placeholder, not observed package licensing",
+  "protected_names": [
+    "mesa",
+    "asahi-audio",
+    "speakersafetyd",
+    "alsa-ucm-conf-asahi"
+  ],
+  "full_current_set_expected_status": "FAIL with all607 summaries, never STATIC_PASS or REFUSED due to count",
+  "supplemental_platform_source": "platform-identities.json records actual observed name/version/arch separately",
+  "hardware_native_installation_release_acceptance": "NOT_ESTABLISHED"
+}

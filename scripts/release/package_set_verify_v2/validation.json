@@ -1,0 +1,91 @@
+{
+  "checkout_head_at_validation": "b616011b54cfc2b5411e555c7d3ba21bd1c62616",
+  "checks": [
+    {
+      "entry": "scripts/release/package_set_verify_v2/test_verify.py",
+      "errors": 0,
+      "failures": 0,
+      "interpreter_flags": [
+        "-I",
+        "-B",
+        "-Werror::ResourceWarning"
+      ],
+      "result": "PASS (bounded test owner executed)",
+      "seconds": 42.296,
+      "skipped": 0,
+      "tests": 22
+    },
+    {
+      "command": "python -B -Werror::ResourceWarning -m unittest discover -s scripts/release/package_set_verify_v1 -p 'test_*.py' -v",
+      "exit_code": 0,
+      "skipped": 0,
+      "tests": 17
+    },
+    {
+      "command": "python -B -Werror::ResourceWarning -m unittest discover -s tests -p 'test_package_*.py' -v",
+      "exit_code": 0,
+      "skipped": 0,
+      "tests": 28
+    },
+    {
+      "directory": "scripts/release/package_set_verify_v2",
+      "kind": "unittest discovery used by dedicated workflow",
+      "tests_discovered": 22
+    }
+  ],
+  "full_count_evidence": {
+    "archive_classification": "SYNTHETIC, real retained names/versions, synthetic any architecture",
+    "basis_sha256": "be35402204ba5c03d78279722afa83047c9575d2da70fb5c4064f46ed15954c5",
+    "count": 607,
+    "observed_result": "FAIL with all607 summaries and four existing protected-name errors; cross-package collision findings retained",
+    "snapshots": "at most one per inspection, removed before next; reports released"
+  },
+  "implementation": {
+    ".github/workflows/package-set-verification-v2-source.yml": {
+      "bytes": 2607,
+      "sha256": "016a4e546feb21e6b53063abdc479cf997d19255b1e14364c1f6ff9f81e79c57"
+    },
+    "scripts/checks/package_checks.py": {
+      "bytes": 19289,
+      "sha256": "314e8b4a0920b3f6d93619fc74ad1d63a6210d1b17b925618451b493d2610a1a"
+    },
+    "scripts/release/package_set_verify_v2/README.md": {
+      "bytes": 4497,
+      "sha256": "14d9e45ef6e19bcc4d1dadfa50d237830c21ec6c68d10e9f49cd7adbcd84b1ec"
+    },
+    "scripts/release/package_set_verify_v2/test_verify.py": {
+      "bytes": 18850,
+      "sha256": "5d91f8108bb9c550e3c47cc12e0064ecff3360d0996d7725b8bc5b560f4018de"
+    },
+    "scripts/release/package_set_verify_v2/testdata/current607.lock": {
+      "bytes": 12076,
+      "sha256": "be35402204ba5c03d78279722afa83047c9575d2da70fb5c4064f46ed15954c5"
+    },
+    "scripts/release/package_set_verify_v2/testdata/platform-identities.json": {
+      "bytes": 1644,
+      "sha256": "7b71bd99c7c4b6122872746f60d130abf25646ef3f94157045d530686b79bec5"
+    },
+    "scripts/release/package_set_verify_v2/testdata/provenance.json": {
+      "bytes": 1063,
+      "sha256": "5d14b5ed073ec4986a0b593c90c1ad87389017ba07c9c0b0bcf87603f028f7d0"
+    },
+    "scripts/release/package_set_verify_v2/verify.py": {
+      "bytes": 10669,
+      "sha256": "42b7a3a64379d9a2e86aeb88c1204c3a9851d6f8800fb80a6fcedc52a297d4f4"
+    },
+    "scripts/release/package_set_verify_v2/worker.py": {
+      "bytes": 1956,
+      "sha256": "f61de1c9fd21203b912711d7f222962abe3f60c33155dcae469cc65d926a0862"
+    }
+  },
+  "integration": "New versioned v2 directory plus dedicated source-only workflow; v1/shared manifests/static.yml/current validator/historical Sources/native actors unchanged.",
+  "limits": "Host synthetic/static evidence only; actual full607 package payload set, signatures, dependencies, source/license closure, installation, native/M2 and release acceptance NOT_ESTABLISHED",
+  "schema_version": 1,
+  "scope": "package_set_verify_v2",
+  "unchanged_v1": {
+    "scripts/release/package_set_verify_v1/README.md": "acd9ef6b200b9ada468cf30ce175edfdc0d346110cfc2095e61a8b59da96e6c7",
+    "scripts/release/package_set_verify_v1/test_verify.py": "8706e3aa75df0103b69be1691d1a818f3c0cf365f047c2b55fafdff4b71f4df6",
+    "scripts/release/package_set_verify_v1/validation.json": "499c8b460cbc213582398e07ddab3c417786fce244b2676dbcb50689fe079f6a",
+    "scripts/release/package_set_verify_v1/verify.py": "2a30b10a0b89ba71b489f1b93100c51a438a2f5a335d01b0f3a9b2a917a8151e"
+  }
+}
