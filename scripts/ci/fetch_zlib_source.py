@@ -123,7 +123,9 @@ def _fetch(output, *, expected_sha256, transport, clock=time.monotonic,
                 current = target
                 redirects += 1
                 continue
-            if status in (404, 408, 410, 429) or type(status) is int and 500 <= status <= 599:
+            # A bodyless fixed GET can still be rejected by an endpoint with 415.
+            # No response bytes are trusted; only the other fixed endpoint is tried.
+            if status in (404, 408, 410, 415, 429) or type(status) is int and 500 <= status <= 599:
                 raise Unavailable('http-status')
             need(status == 200, 'http-status')
             content_type = (header(response, 'Content-Type') or '').split(';', 1)[0].strip().lower()

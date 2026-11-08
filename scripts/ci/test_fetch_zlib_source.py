@@ -260,6 +260,42 @@ class FetchTests(unittest.TestCase):
         self.assertEqual(result['attempts'][0]['http_status'], 503)
         self.assertEqual(len(transport.requests), 2)
 
+    def test_primary_415_http_error_uses_exact_fixed_fallback_without_body_read(self):
+        headers = Message()
+        headers['Content-Type'] = 'text/html'
+        body = io.BytesIO(b'PRIVATE error page')
+        error = HTTPError(F.URL, 415, 'unsupported media type', headers, body)
+        with patch.object(body, 'read', side_effect=AssertionError('error body must not be read')):
+            result, transport = self.sources(error, Response())
+        self.assertTrue(body.closed)
+        self.assertEqual([r.full_url for r, _ in transport.requests], [F.URL, F.FALLBACK_URL])
+        self.assertEqual(result['sha256'], FIXTURE_SHA)
+        self.assertEqual(result['total_received_bytes'], len(PAYLOAD))
+        self.assertEqual(result['attempts'][0]['http_status'], 415)
+        self.assertEqual(result['attempts'][0]['bytes'], 0)
+        self.assertNotIn('PRIVATE', json.dumps(result))
+        for request, _ in transport.requests:
+            self.assertEqual(request.get_method(), 'GET')
+            self.assertIsNone(request.data)
+            self.assertFalse(request.has_header('Content-Type'))
+            self.assertFalse(request.has_header('Content-Encoding'))
+            self.assertEqual(request.get_header('Accept-encoding'), 'identity')
+
+    def test_415_fallback_still_enforces_integrity_and_never_tries_a_third_endpoint(self):
+        for fallback, reason in ((Response(code=415), 'http-status'),
+                                 (Response(body=PAYLOAD + b'x'), 'sha256'),
+                                 (Response(headers={'Content-Type': 'text/html'}), 'content-type'),
+                                 (Response(code=302, headers={'Location': 'https://evil.example/archive'}), 'redirect-origin')):
+            with self.subTest(reason=reason):
+                primary = Response(code=415)
+                transport = Transport(primary, fallback)
+                with self.assertRaisesRegex(F.Refused, '^' + reason + '$'):
+                    F._fetch_sources(self.output, expected_sha256=FIXTURE_SHA, transport=transport)
+                self.assertEqual(len(transport.requests), 2)
+                self.assertEqual(primary.reads, 0)
+                self.assertTrue(primary.closed and fallback.closed)
+                self.assertEqual(list(self.directory.iterdir()), [])
+
     def test_primary_partial_read_failure_cleans_and_shares_bytes(self):
         primary = Response(body=PAYLOAD, error_after=1)
         result, transport = self.sources(primary, Response())
