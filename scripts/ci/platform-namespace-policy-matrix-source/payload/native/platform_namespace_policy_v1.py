@@ -430,7 +430,7 @@ def _matrix_ownership(row):
              pid_reserved_until_retirement=True,timeout=False,
              reservation_evidence='ORIGINAL_NATIVE_LEADER_HELD_THROUGH_GROUP_INSPECTION_THEN_DIRECT_WAITPID')
 
-def owner_matrix(actor,root,args,own,context,original_dockerfile,ledger,verify_base_callback,source_proof):
+def owner_matrix(actor,root,args,own,context,original_dockerfile,ledger,verify_base_callback,source_proof,_kernel_audit_v4=False):
  """Own a prefix-only image and four policy-only containers; no ALPM success path.
 
  The caller supplies the existing signed341/eight-addition/uv context and base
@@ -446,6 +446,9 @@ def owner_matrix(actor,root,args,own,context,original_dockerfile,ledger,verify_b
              first_failure=None,calls=[],prepared_ledger=None,cases=[],cleanup=dict(status='UNKNOWN'),
              controls=dict(build_seconds=600,matrix_seconds=240,case_seconds=30,case_output_bytes=65536),
              ownership_adapter='UNCHANGED_NATIVE_OWNED_CHILD_LEADER_RESERVATION_PROOF')
+ need(type(_kernel_audit_v4)is bool,'explicit versioned audit route')
+ if _kernel_audit_v4:
+  report['kernel_audit_v4']=dict(schema=1,kind='kernel-avc-window-candidates-v4',operation=OPERATION,binding=own,source_map_sha256=args.map_sha256,spec_sha256=digest(KERNEL_AUDIT_V4_SPEC),captures=[],summary=kernel_audit_summary_v4([]),native='NOT_ADMITTED',acceptance=False)
  result=None;expected=None;prepared=None;engine=None;pending=None;image=None;registered=False;matrix_deadline=None
  owned_containers={};removed=set();retirement_attempted=set();callback_started=False;callback_finished=False;total_logs=0
  new_alias='native-namespace-policy-prepared:'+own['token'];legacy='org.cachy-asahi.native-developer'
@@ -463,7 +466,7 @@ def owner_matrix(actor,root,args,own,context,original_dockerfile,ledger,verify_b
   """Original native supervisor, explicit caps, primary error before retention."""
   nonlocal total_logs
   now=time.monotonic();limit=min(seconds,actor.deadline-now,(deadline-now)if deadline is not None else seconds)
-  need(limit>0 and len(report['calls'])<128,'finite owned matrix call budget')
+  need(limit>0 and len(report['calls'])+len(report.get('kernel_audit_v4',{}).get('captures',[]))<128,'finite owned matrix call budget')
   argv=list(map(str,argv));log=actor.directory/('matrix-%04d.log'%len(actor.rows));need(not log.exists(),'fresh exact actor log')
   original=type(actor).run.__globals__['owned_child']();need(Path(original.__file__).resolve()==root/'bootstrap/scripts/ci/zlib-pgo-native-hosted/owned_child.py','unchanged source-owned supervisor module')
   row=dict(argv=argv,log=str(log),status='FAIL',exit=None,natural_exit=False,group_absent=False);actor.rows.append(row);child={};error=None;body=None
@@ -609,6 +612,7 @@ def owner_matrix(actor,root,args,own,context,original_dockerfile,ledger,verify_b
    raw,_=call('create-'+plan['id'],plan['create'],5,1024**2,deadline=matrix_deadline);cid=raw.decode().strip();need(hexvalue(cid,64),'actual created CID')
    need(cid not in owned_containers,'four independent CIDs');owned_containers[cid]=plan
    before=container_inspect('before-'+plan['id'],cid,plan,matrix_deadline);need(before['State']['Status']=='created'and before['State']['Running']is False,'fresh unstarted owned case')
+   audit_start_us=time.time_ns()//1000 if _kernel_audit_v4 else None
    output,start=docker('start-'+plan['id'],'start','-a',cid,seconds=30,cap=65536,allowed=tuple(range(256)),deadline=matrix_deadline)
    after=container_inspect('after-'+plan['id'],cid,plan,matrix_deadline);state=after['State'];need(state['Status']=='exited'and state['Running']is False and state['Dead']is False,'naturally stopped exact probe container')
    need(type(state['ExitCode'])is int and state['ExitCode']==start['actor']['exit'],'actual attach/container return inverse')
@@ -624,6 +628,11 @@ def owner_matrix(actor,root,args,own,context,original_dockerfile,ledger,verify_b
        namespace_errno=dict(status='UNKNOWN',reason='BWRAP_EXIT_DOES_NOT_EXPOSE_CLONE_ERRNO'),exec_errno=exec_errno,
        ownership=_matrix_ownership(start['actor']),retirement=None)
    row['retirement']=retire_container(cid,plan,matrix_deadline);result['cases'].append(row);report['cases'].append(dict(id=plan['id'],container=cid,returncode=state['ExitCode'],retired=True))
+   if _kernel_audit_v4:
+    capture=capture_kernel_audit_v4(actor,root,args,own,plan['id'],cid,[audit_start_us,time.time_ns()//1000],matrix_deadline,24*1024**2-total_logs,128-len(report['calls'])-len(report['kernel_audit_v4']['captures']))
+    if capture['private_raw_pin']is not None:total_logs+=capture['private_raw_pin']['bytes']
+    report['kernel_audit_v4']['captures'].append(capture)
+    report['kernel_audit_v4']['summary']=kernel_audit_summary_v4(report['kernel_audit_v4']['captures'])
    if state['ExitCode']!=0:report.setdefault('probe_failures',[]).append(dict(case=plan['id'],container=cid,returncode=state['ExitCode'],output=pin(output),namespace_errno=row['namespace_errno'],exec_errno=exec_errno))
    snapshot()
   report['engine_after']=engine_info('engine-after',matrix_deadline);need(report['engine_after']==engine,'same actual Engine through all four cases')
@@ -673,6 +682,9 @@ def owner_matrix(actor,root,args,own,context,original_dockerfile,ledger,verify_b
   diagnostic.update(cases=len(report['cases']),interpretation=report.get('interpretation',dict(status='UNKNOWN',reason='incomplete or unqualified actual matrix',native='NOT_ADMITTED',acceptance=False)),
        Root_external_expected_required=True,BuildKit_policy_equivalence='NOT_PROVED',package_ALPM='NOT_RUN',probe_failures=report.get('probe_failures',[]))
   diagnostic['host_config_comparison']=report.get('host_config_comparison');diagnostic['apparmor_profile_comparison']=report.get('apparmor_profile_comparison');diagnostic['guest_group_comparison']=report.get('guest_group_comparison')
+  if _kernel_audit_v4:
+   need(len(encoded(report['kernel_audit_v4']))<=65536,'bounded closed public audit fields only')
+   write_json('kernel-audit-v4.json',report['kernel_audit_v4'])
   write_json('diagnostic.json',diagnostic);snapshot()
  if pending is not None:raise pending
  return diagnostic
@@ -772,3 +784,178 @@ def validate_runtime_evidence(owner,result,payloads,expected,source_proof):
  need(owner.get('apparmor_profile_comparison')==profiles,'reader independently recomputed raw AppArmor phase predicate, not an artifact marker')
  need(owner.get('guest_group_comparison')==groups,'reader independently recomputed raw group membership predicate, not an artifact marker')
  return dict(status='VALIDATED_ACTUAL_MATRIX_RUNTIME_ROLE_BODY_OWNERSHIP_INVERSES',binding=own,calls=len(calls),logs=len(selectors),host_config_comparison=comparison,apparmor_profile_comparison=profiles,guest_group_comparison=groups,native='NOT_ADMITTED',acceptance=False)
+
+# Version4 observational kernel journal capture. No policy/ownership grant.
+KERNEL_AUDIT_V4_LEAF='namespace-policy/kernel-audit-v4.json'
+KERNEL_AUDIT_V4_SPEC=dict(version=4,command='/usr/bin/journalctl',seconds=10,raw_bytes=2*1024**2,
+                         case_window_us=60*1000000,raw_lines=4096,line_bytes=16384,matches_per_case=8,
+                         public_bytes=65536,private_raw_only=True,PID_binding='UNKNOWN_NO_HOST_PID_STARTTIME_CHAIN')
+_AVC_V4_PROFILES={'docker-default','unprivileged_userns','unconfined','bwrap','unpriv_bwrap',
+                  'bwrap//&unpriv_bwrap','docker-default//&unprivileged_userns','unconfined//&unprivileged_userns'}
+_AVC_V4_CAPS={'net_admin':12,'sys_admin':21,'setpcap':8,'setuid':7,'setgid':6,'sys_chroot':18,'sys_ptrace':19}
+
+def kernel_audit_argv_v4(window):
+ need(type(window)is list and len(window)==2 and all(type(v)is int and 10**15<=v<10**17 for v in window)
+      and 0<=window[1]-window[0]<=KERNEL_AUDIT_V4_SPEC['case_window_us'],'bounded exact case UTC microseconds')
+ stamp=lambda v:'@%d.%06d'%divmod(v,1000000)
+ return ['/usr/bin/journalctl','--dmesg','--since='+stamp(window[0]),'--until='+stamp(window[1]),
+         '--output=json','--lines=all','--output-fields=__REALTIME_TIMESTAMP,MESSAGE,_BOOT_ID','--no-pager','--quiet',
+         '--grep=apparmor="DENIED"']
+
+def kernel_avc_fields_v4(record,window):
+ """Only closed public candidate fields. PID/comm/time never prove ownership."""
+ need(type(record)is dict and set(record)<={'MESSAGE','__REALTIME_TIMESTAMP','_BOOT_ID','__CURSOR','__MONOTONIC_TIMESTAMP'}
+      and type(record.get('MESSAGE'))is str and len(record['MESSAGE'])<=4096,'closed bounded kernel journal record')
+ for key in('__CURSOR','__MONOTONIC_TIMESTAMP'):
+  if key in record:need(type(record[key])is str and len(record[key])<=2048,'bounded implicit journal metadata, private only')
+ stamp=record.get('__REALTIME_TIMESTAMP');boot=record.get('_BOOT_ID')
+ need(type(stamp)is str and re.fullmatch('[0-9]{16,17}',stamp)and type(boot)is str
+      and re.fullmatch('[0-9a-f]{32}',boot),'exact kernel journal timestamp/boot fields')
+ if not window[0]<=int(stamp)<=window[1]:return None
+ fields={}
+ for token in re.finditer(r'(?<!\S)([A-Za-z_][A-Za-z0-9_]*)=("(?:[^"\\]|\\.)*"|[^ \t]+)',record['MESSAGE']):
+  key,value=token.groups()
+  if value.startswith('"'):value=json.loads(value)
+  need(type(value)is str and key not in fields,'duplicate/nonstring AVC token refused');fields[key]=value
+ if fields.get('apparmor')!='DENIED'or fields.get('comm')!='bwrap':return None
+ if fields.get('profile')not in _AVC_V4_PROFILES or fields.get('operation')not in('capable','mount','userns_create','pivotroot'):return None
+ pid=fields.get('pid');need(type(pid)is str and re.fullmatch('[1-9][0-9]{0,9}',pid)and int(pid)<2**31,'bounded AVC host PID, not process authority')
+ public=dict(timestamp_us=stamp,boot_id=boot,apparmor='DENIED',comm='bwrap',operation=fields['operation'],profile=fields['profile'],pid=int(pid))
+ if 'capname'in fields:
+  if fields['capname']not in _AVC_V4_CAPS:return None
+  public['capname']=fields['capname']
+ if 'capability'in fields:
+  need(re.fullmatch('[0-9]{1,2}',fields['capability'])is not None,'bounded capability number')
+  cap=int(fields['capability']);need(cap in _AVC_V4_CAPS.values()and('capname'not in public or _AVC_V4_CAPS[public['capname']]==cap),'exact capability name/number pair');public['capability']=cap
+ if 'error'in fields:
+  need(re.fullmatch('-?[0-9]{1,4}',fields['error'])is not None and -4095<=int(fields['error'])<=4095,'bounded audit error field, never bwrap syscall errno');public['audit_error']=int(fields['error'])
+ return public
+
+def kernel_audit_parse_v4(raw,window,exit_code):
+ kernel_audit_argv_v4(window)
+ need(type(raw)is bytes and len(raw)<=KERNEL_AUDIT_V4_SPEC['raw_bytes']and type(exit_code)is int,'bounded original journal output')
+ result=dict(status='UNKNOWN_COMMAND_OR_PERMISSION',records=[],owned_process_binding=KERNEL_AUDIT_V4_SPEC['PID_binding'],
+             raw_body_qualification='UNKNOWN_PRIVATE_ORIGINAL_NOT_TRANSPORTED',namespace_effect='UNKNOWN',syscall_errno='UNKNOWN',acceptance=False)
+ if exit_code!=0:return result
+ try:
+  lines=raw.splitlines();need(len(lines)<=4096 and all(len(v)<=16384 for v in lines),'bounded journal line set')
+  def pairs(rows):
+   value={}
+   for k,v in rows:need(k not in value,'duplicate journal JSON key');value[k]=v
+   return value
+  records=[]
+  for line in lines:
+   record=json.loads(line,object_pairs_hook=pairs,parse_constant=lambda _:need(False,'nonfinite journal JSON'))
+   public=kernel_avc_fields_v4(record,window)
+   if public is not None:
+    need(len(records)<8,'finite matching AVC limit, no silent truncation')
+    records.append(dict(fields=public,original_line=pin(line)))
+  result.update(status='CANDIDATE_AVC_FIELDS_ONLY_NOT_OWNED_PROCESS_PROOF'if records else'UNKNOWN_NO_MATCHED_AVC_FIELDS',records=records)
+ except (ValueError,TypeError,KeyError,RecursionError):result['status']='UNKNOWN_MALFORMED_OR_EXCESS_OUTPUT'
+ return result
+
+def kernel_audit_summary_v4(captures):
+ need(type(captures)is list and len(captures)<=4,'at most four explicit audit captures')
+ return dict(status='UNKNOWN_NO_INDEPENDENT_OWNED_PROCESS_BINDING',candidate_records=sum(len(v['observation']['records'])for v in captures),
+             cases_with_candidates=[v['case']for v in captures if v['observation']['records']],
+             namespace_effect='UNKNOWN',syscall_errno='UNKNOWN',BuildKit_policy_equivalence='NOT_PROVED',acceptance=False)
+
+_KERNEL_ACTOR_FIELDS_V4=('exit','natural_exit','group_absent','leader_held_until_group_inspection','exit_observed_via_waitpid','ownership_lost','forced_cleanup','retirement','pid')
+def _kernel_actor_public_v4(row):
+ child=row['owned_child'];public={k:row.get(k)for k in _KERNEL_ACTOR_FIELDS_V4}
+ public.update(argv=row['argv'],status=row['status'],owned_child={k:child[k]for k in _KERNEL_ACTOR_FIELDS_V4 if k in child})
+ return public
+
+def capture_kernel_audit_v4(actor,root,args,own,case,cid,window,deadline,raw_budget,remaining_calls):
+ """Single unprivileged fixed read; private raw output never becomes a public log."""
+ import subprocess,time
+ from common import read,save
+ argv=kernel_audit_argv_v4(window);limit=min(10,deadline-time.monotonic(),actor.deadline-time.monotonic())
+ directory=args.work/'kernel-audit-v4-private';directory.mkdir(mode=0o700,exist_ok=True)
+ log=directory/(case+'.log');need(not log.exists(),'audit role once, no retry')
+ row=dict(argv=argv,status='NOT_STARTED',exit=None,natural_exit=False,group_absent=False,owned_child={})
+ output=dict(case=case,container=cid,window_us=window,argv=argv,seconds=max(0,limit),cap=2*1024**2,
+             private_raw_role='kernel-audit-v4-private/'+case+'.log',private_raw_pin=None,actor=None,
+             observation=dict(status='UNKNOWN_NOT_STARTED',records=[],owned_process_binding=KERNEL_AUDIT_V4_SPEC['PID_binding'],
+               raw_body_qualification='UNKNOWN_PRIVATE_ORIGINAL_NOT_TRANSPORTED',namespace_effect='UNKNOWN',syscall_errno='UNKNOWN',acceptance=False))
+ if limit<=0 or raw_budget<2*1024**2 or remaining_calls<=0:return output
+ original=type(actor).run.__globals__['owned_child']();need(Path(original.__file__).resolve()==root/'bootstrap/scripts/ci/zlib-pgo-native-hosted/owned_child.py','same unchanged owned-child supervisor')
+ private=dict(row,log=str(log));actor.rows.append(private);child={};error=None
+ try:
+  with log.open('xb')as stream:
+   completed=original.run(argv,stdin=subprocess.DEVNULL,stdout=stream,stderr=subprocess.STDOUT,
+     timeout=limit,lifecycle=child,allowed_uids={os.geteuid()},stdout_limit=2*1024**2,stderr_limit=2*1024**2)
+  need(completed.returncode==child.get('exit'),'actual journal return/owned-child inverse')
+ except BaseException as caught:error=caught
+ finally:
+  row.update({k:v for k,v in child.items()if k!='status'});row['owned_child']=dict(child)
+  private.update(row);save(actor.directory/'actors.json',actor.rows)
+  if log.is_file()and not log.is_symlink()and log.stat().st_size<=2*1024**2:
+   raw=read(log,2*1024**2);log.chmod(0o600);output['private_raw_pin']=pin(raw)
+  else:raw=None
+  output['actor']=_kernel_actor_public_v4(row)
+  save(directory/(case+'.receipt.json'),dict(public=output,original_actor=private))
+ if child.get('pid')is not None:
+  # An observed actor must retire under the original guard; timeout/ownership
+  # uncertainty is a real matrix failure, never softened into missing audit.
+  _matrix_ownership(row)
+ elif error is not None:
+  need(isinstance(error,FileNotFoundError),'unknown audit start failure');return output
+ if error is not None:raise error
+ need(raw is not None,'complete bounded private journal body')
+ row['status']='PASS';private.update(row);output['actor']=_kernel_actor_public_v4(row)
+ output['observation']=kernel_audit_parse_v4(raw,window,row['exit'])
+ save(directory/(case+'.receipt.json'),dict(public=output,original_actor=private));return output
+
+def owner_matrix_kernel_audit_v4(actor,root,args,own,context,original_dockerfile,ledger,verify_base_callback,source_proof):
+ return owner_matrix(actor,root,args,own,context,original_dockerfile,ledger,verify_base_callback,source_proof,_kernel_audit_v4=True)
+
+def validate_kernel_audit_v4(value,owner,expected):
+ """Recompute closed DATA scope; private originals confer no public body inverse."""
+ need(len(encoded(value))<=65536,'lower bounded public audit projection')
+ keys(value,('schema','kind','operation','binding','source_map_sha256','spec_sha256','captures','summary','native','acceptance'),'kernel audit v4')
+ need(type(value['schema'])is int and value['schema']==1 and value['kind']=='kernel-avc-window-candidates-v4'
+      and value['operation']==OPERATION and value['binding']==expected['binding']and value['source_map_sha256']==expected['source_map_sha256']
+      and value['spec_sha256']==digest(KERNEL_AUDIT_V4_SPEC)and value['native']=='NOT_ADMITTED'and value['acceptance']is False,'same exact Source/versioned observational scope')
+ need(owner['binding']==value['binding']and owner['source_map_sha256']==value['source_map_sha256']and owner.get('kernel_audit_v4')==value,'owner/observational projection inverse')
+ rows=value['captures'];need(type(rows)is list and len(rows)<=4 and [r['case']for r in rows]==list(CASES[:len(rows)]),'ordered distinct audit windows only')
+ calls=owner.get('calls');need(type(calls)is list and len(calls)+len(rows)<=128,'same combined original128 call budget')
+ public_bytes=0
+ for entry in calls:
+  raw_pin=entry.get('log_pin')
+  if raw_pin is not None:
+   need(type(raw_pin)is dict and type(raw_pin.get('bytes'))is int and 0<=raw_pin['bytes']<=16*1024**2,'bounded parent actor byte witness');public_bytes+=raw_pin['bytes']
+ need(public_bytes+sum(v['private_raw_pin']['bytes']for v in rows if v['private_raw_pin']is not None)<=24*1024**2,'same combined original24MiB output budget')
+ previous=None
+ for row in rows:
+  keys(row,('case','container','window_us','argv','seconds','cap','private_raw_role','private_raw_pin','actor','observation'),'audit capture')
+  need(hexvalue(row['container'],64)and row['argv']==kernel_audit_argv_v4(row['window_us'])and row['private_raw_role']=='kernel-audit-v4-private/'+row['case']+'.log'
+       and row['cap']==2*1024**2 and type(row['seconds'])in(int,float)and 0<=row['seconds']<=10,'one fixed bounded readonly journal actor')
+  need(previous is None or previous<=row['window_us'][0],'ordered nonoverlapping owned case windows');previous=row['window_us'][1]
+  cases=owner.get('cases',[]);matched=[c for c in cases if c['id']==row['case']];need(len(matched)==1 and matched[0]['container']==row['container'],'audit case/CID owner inverse, not host PID proof')
+  original=row['private_raw_pin']
+  if original is not None:need(set(original)=={'bytes','sha256'}and type(original['bytes'])is int and 0<=original['bytes']<=2*1024**2 and hexvalue(original['sha256'],64),'private raw pin only')
+  actor=row['actor']
+  if actor is not None:
+   need(set(actor)==set(_KERNEL_ACTOR_FIELDS_V4)|{'argv','status','owned_child'}and type(actor['owned_child'])is dict and set(actor['owned_child'])<=set(_KERNEL_ACTOR_FIELDS_V4),'closed public actor witness, no raw journal fields')
+  if actor is not None and actor['owned_child'].get('pid')is not None:
+   need(actor['argv']==row['argv']and actor['status']=='PASS'and type(actor['pid'])is int and 0<actor['pid']<2**31 and actor['pid']==actor['owned_child']['pid'],'audit exact actor argv/PID witness');_matrix_ownership(actor)
+  observation=row['observation'];keys(observation,('status','records','owned_process_binding','raw_body_qualification','namespace_effect','syscall_errno','acceptance'),'closed candidate observation')
+  need(observation['owned_process_binding']==KERNEL_AUDIT_V4_SPEC['PID_binding']and observation['raw_body_qualification']=='UNKNOWN_PRIVATE_ORIGINAL_NOT_TRANSPORTED'
+       and observation['namespace_effect']==observation['syscall_errno']=='UNKNOWN'and observation['acceptance']is False,'no independent PID/cause/rawbody grant')
+  need(observation['status']in('UNKNOWN_NOT_STARTED','UNKNOWN_COMMAND_OR_PERMISSION','UNKNOWN_NO_MATCHED_AVC_FIELDS','UNKNOWN_MALFORMED_OR_EXCESS_OUTPUT','CANDIDATE_AVC_FIELDS_ONLY_NOT_OWNED_PROCESS_PROOF'),'closed unknown/candidate status')
+  records=observation['records'];need(type(records)is list and len(records)<=8,'finite public candidate records')
+  if records:need(observation['status']=='CANDIDATE_AVC_FIELDS_ONLY_NOT_OWNED_PROCESS_PROOF'and original is not None and original['bytes']>0 and actor is not None and actor['status']=='PASS'and actor['exit']==0 and type(actor['pid'])is int and actor['pid']>0,'records require candidate-only status and successful actor/private pin')
+  for record in records:
+   keys(record,('fields','original_line'),'closed AVC candidate')
+   fields=record['fields'];need(set(fields)<={'timestamp_us','boot_id','apparmor','comm','operation','profile','pid','capname','capability','audit_error'}and set(fields)>={'timestamp_us','boot_id','apparmor','comm','operation','profile','pid'},'only finite closed AVC fields')
+   # Reuse the same field parser with canonical reconstruction, never trusting a
+   # precomputed profile/ownership/capability marker in the capsule.
+   reverse={'audit_error':'error','timestamp_us':None,'boot_id':None}
+   message=' '.join((reverse.get(k,k)+'='+json.dumps(str(v)))for k,v in fields.items()if reverse.get(k,k)is not None)
+   regenerated=kernel_avc_fields_v4(dict(MESSAGE=message,__REALTIME_TIMESTAMP=fields['timestamp_us'],_BOOT_ID=fields['boot_id']),row['window_us'])
+   need(regenerated==fields,'reader recomputed exact permitted AVC field/type view')
+   line=record['original_line'];need(set(line)=={'bytes','sha256'}and type(line['bytes'])is int and 0<line['bytes']<=16384 and hexvalue(line['sha256'],64),'private original line hash, not transported original')
+ summary=kernel_audit_summary_v4(rows);need(value['summary']==summary,'independently recomputed UNKNOWN candidate summary')
+ return dict(status='VALIDATED_BOUNDED_AVC_CANDIDATE_DATA_ONLY_PRIVATE_RAW_UNAVAILABLE',binding=value['binding'],captures=len(rows),summary=summary,
+             independent_owned_process_proof=False,raw_original_body_inverse=False,native='NOT_ADMITTED',acceptance=False)

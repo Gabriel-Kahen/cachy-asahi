@@ -625,9 +625,9 @@
       "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
     },
     "native/owner.py": {
-      "bytes": 29588,
+      "bytes": 29604,
       "mode": 420,
-      "sha256": "45b40b5c48749ab3d7016fbe18a32b5a9cfdfed8fd751900f8322b3d4c563e49"
+      "sha256": "bc32e263bf33bb561756406108bc8197506a4f7706826e07787e52c82160affc"
     },
     "native/platform-contract-v1.json": {
       "bytes": 24375,
@@ -660,9 +660,9 @@
       "sha256": "4438b69a135ff5c6ea444e973b8a9bc886b1b6cdc8446401d1f9f5c890636703"
     },
     "native/platform_namespace_policy_v1.py": {
-      "bytes": 79792,
+      "bytes": 96239,
       "mode": 420,
-      "sha256": "243691777af57f5e2f5bc19f3138d2f5802ce6fb62f79617c81c04b8a7c463ec"
+      "sha256": "da91f51508a10022e8415b29beff2644bcbfd0f25e59158ea5a7a86c521db142"
     },
     "native/platform_projection_v1.py": {
       "bytes": 14295,
@@ -690,9 +690,9 @@
       "sha256": "871ac3fcaa05f06d5c25dc41e365207a7e649c8c16c60b0cc9e0af8243e8e9e8"
     },
     "native/provision.py": {
-      "bytes": 46376,
+      "bytes": 46674,
       "mode": 420,
-      "sha256": "7328c58425c961168273b305b6dffc6dcdba39c3ecae78b4c843210b61c68cc4"
+      "sha256": "1e75c74e8a52218235253d05d387aad8b719a33148ab4634dbe1bfe8cbf8d6cb"
     },
     "native/public_projection.py": {
       "bytes": 12829,

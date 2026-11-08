@@ -248,7 +248,7 @@ class OwnerData(unittest.TestCase):
             f.run(); proof = source_proof(f); authority = expected(f)
             good = f.module.validate_source_proof(proof, f.root, authority)
             self.assertEqual(good['files'], 201)
-            self.assertEqual(good['current_tree'], '7bef16deabcee949b098f37907a02092e1982b21')
+            self.assertEqual(good['current_tree'], '73c6acaa6a39a6eeb2c888734fe219ca0c93d10f')
             alterations = []
             value = copy.deepcopy(proof); value['parent_files']['native/common.py']['blob'] = '0'*40
             alterations.append(('parent',value,authority))

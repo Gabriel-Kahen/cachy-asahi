@@ -100,6 +100,13 @@ jobs:
           factory="$GITHUB_WORKSPACE/scripts/ci/platform-namespace-policy-matrix-source"
           basis="$GITHUB_WORKSPACE/.ci-fixtures/platform-policy-parent05df"
           python3 -I -B "$factory/tests/test_guest_group_membership_data.py" --basis "$basis"
+      - name: Bounded kernel AVC window DATA controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          factory="$GITHUB_WORKSPACE/scripts/ci/platform-namespace-policy-matrix-source"
+          basis="$GITHUB_WORKSPACE/.ci-fixtures/platform-policy-parent05df"
+          python3 -I -B "$factory/tests/test_kernel_audit_data.py" --basis "$basis"
       - name: Construct and independently join Source201 DATA only
         shell: bash
         run: |
@@ -109,6 +116,6 @@ jobs:
           python3 -I -B "$factory/prepare.py" \
             --basis "$basis" --overlay-root "$factory/payload" \
             --overlay-manifest "$factory/overlay-manifest.json" \
-            --overlay-manifest-sha256 6b8e689777d222edd221f800b8e5f042d669cbf2e68a5f8e167b3233e96cdf66 \
+            --overlay-manifest-sha256 066e431ecd095d2797f9df14fce8a54c108927bbe5a5d248cbe118ef20b7654f \
             --output "$PLATFORM_POLICY_HOST_WORK/Source201"
           python3 -I -B "$factory/tests/check_constructed_source.py" "$PLATFORM_POLICY_HOST_WORK/Source201"

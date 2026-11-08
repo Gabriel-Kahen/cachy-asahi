@@ -355,7 +355,7 @@ def cache(root, args):
 
 MATRIX_OPERATION = 'platform-namespace-policy-matrix-v1'
 MATRIX_SCOPE = 'namespace-policy'
-MATRIX_JSON = ('result.json', 'diagnostic.json', 'owner.json', 'source-proof.json')
+MATRIX_JSON = ('result.json', 'diagnostic.json', 'owner.json', 'source-proof.json', 'kernel-audit-v4.json')
 MATRIX_ROOT_JSON = ('source-proof.json', 'receipt.json', 'cleanup.json', 'image-ledger.json', 'image-retirement.json')
 
 
@@ -653,11 +653,14 @@ def read_matrix_capsule(capsule_path, expected_binding, independent_expected):
             complete = False
             joins.append(dict(code='RUNTIME_OR_MATRIX_DATA_JOIN_UNKNOWN',type=type(error).__name__))
             interpretation = dict(status='UNKNOWN',reason=type(error).__name__+': '+str(error)[:256],native='NOT_ADMITTED',acceptance=False)
+    audit_qualification = None
+    if matrix.KERNEL_AUDIT_V4_LEAF in payloads:
+        audit_qualification=matrix.validate_kernel_audit_v4(view.load(matrix.KERNEL_AUDIT_V4_LEAF),view.load(MATRIX_SCOPE+'/owner.json'),independent_expected)
     return dict(status='VALIDATED_NAMESPACE_POLICY_MATRIX_DIAGNOSTIC_DATA_ONLY',binding=own,
         source_map_sha256=map_hash,raw_projection_status=projection['diagnostic_status'],
         projection_status='DIAGNOSTIC_NAMESPACE_POLICY_MATRIX_COMPLETE' if complete else 'DIAGNOSTIC_NAMESPACE_POLICY_MATRIX_UNKNOWN',
         raw_diagnostic=diagnostic,raw_result=raw_result,qualification=qualification,
-        source_qualification=source_qualification,runtime_qualification=runtime_qualification,
+        source_qualification=source_qualification,runtime_qualification=runtime_qualification,kernel_audit_v4=audit_qualification,
         join_refusals=joins,interpretation=interpretation,
         ALPM='NOT_RUN',native='NOT_ADMITTED',physical_M2='NOT_RUN',release='NOT_ADMITTED',acceptance=False)
 
