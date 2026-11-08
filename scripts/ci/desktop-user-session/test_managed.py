@@ -4,6 +4,8 @@ from contextlib import ExitStack
 import copy
 import importlib.util
 import json
+import hashlib
+import tarfile
 import itertools
 from pathlib import Path
 import stat
@@ -287,7 +289,27 @@ class TypesAndIdentity(unittest.TestCase):
 class Profile(unittest.TestCase):
     def test_stages_separate_profile_without_pam_rewrite_private_bus_or_timer_changes(self):
         with tempfile.TemporaryDirectory() as temporary:
-            out = p.prepare(ROOT, Path(temporary) / 'runner')
+            source = Path(temporary) / 'pinned-source'
+            source.mkdir(mode=0o700)
+            archive = HERE / 'fixtures/pinned-source-v1.tar.gz'
+            self.assertEqual(hashlib.sha256(archive.read_bytes()).hexdigest(), '4df0040add5ff560f8d395f5a3dd8243613acc2f6edb18d2d52c9e3a7b5f85c6')
+            pins = json.loads((HERE / 'source-pins.json').read_text())
+            with tarfile.open(archive, 'r:gz') as frozen:
+                members = frozen.getmembers()
+                self.assertEqual(len(members), len(pins))
+                self.assertEqual({member.name for member in members}, set(pins))
+                for member in members:
+                    self.assertTrue(member.isfile())
+                    self.assertLessEqual(member.size, 2 * 1024**2)
+                    self.assertIn(member.mode, (0o644, 0o755))
+                    with frozen.extractfile(member) as stream:
+                        data = stream.read()
+                    self.assertEqual(hashlib.sha256(data).hexdigest(), pins[member.name])
+                    target = source / member.name
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    target.write_bytes(data)
+                    target.chmod(member.mode)
+            out = p.prepare(source, Path(temporary) / 'runner')
             guest = (out / 'base_guest.py').read_text(); fixture = (out / 'desktop574_fixture.sh').read_text()
             self.assertNotIn('dbus-run-session', guest)
             self.assertNotIn('runuser', guest)
@@ -301,7 +323,7 @@ class Profile(unittest.TestCase):
             self.assertNotIn('nologin', fixture)
             self.assertIn('verify_result', (out / 'desktop574_runtime.py').read_text())
             for path in out.glob('*.py'): ast.parse(path.read_bytes())
-            with self.assertRaisesRegex(ValueError, 'fresh'): p.prepare(ROOT, out)
+            with self.assertRaisesRegex(ValueError, 'fresh'): p.prepare(source, out)
 
     def test_source_drift_and_transform_anchor_drift_refuse(self):
         with self.assertRaisesRegex(ValueError, 'anchor'): p.transform_guest('not the selected base')
