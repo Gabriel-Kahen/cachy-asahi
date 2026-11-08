@@ -223,7 +223,7 @@ def run(root, args):
                 try:phase=next(phases)
                 except StopIteration:raise ValueError('exact two base checks; no repeat')from None
                 return verify_base(actor,ledger,phase=phase)
-            diagnostic=matrix.owner_matrix_kernel_audit_v4(actor,root,args,own,context,dockerfile.encode(),ledger,matrix_base,source_proof)
+            diagnostic=matrix.owner_matrix_kernel_refusals_v5(actor,root,args,own,context,dockerfile.encode(),ledger,matrix_base,source_proof)
             need(diagnostic['schema']==1 and diagnostic['operation']==MATRIX_OPERATION
                  and diagnostic['binding']==own and diagnostic['source_map_sha256']==args.map_sha256
                  and diagnostic['native']=='NOT_ADMITTED' and diagnostic['acceptance']is False,

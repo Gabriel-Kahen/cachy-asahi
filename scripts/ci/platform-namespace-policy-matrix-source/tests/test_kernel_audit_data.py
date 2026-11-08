@@ -61,7 +61,7 @@ class KernelAuditV4Data(unittest.TestCase):
             for window in([True,WINDOW[1]],[WINDOW[1],WINDOW[0]],[WINDOW[0],WINDOW[0]+60000001],['x',WINDOW[1]],WINDOW+[1]):
                 with self.assertRaises(m.MatrixGuard):m.kernel_audit_argv_v4(window)
             text=(controls.ports.FACTORY/'payload/native/owner.py').read_text();tree=ast.parse(text)
-            self.assertEqual(sum(isinstance(n,ast.Call)and isinstance(n.func,ast.Attribute)and n.func.attr=='owner_matrix_kernel_audit_v4'for n in ast.walk(tree)),1)
+            self.assertEqual(sum(isinstance(n,ast.Call)and isinstance(n.func,ast.Attribute)and n.func.attr=='owner_matrix_kernel_refusals_v5'for n in ast.walk(tree)),1)
 
     def test_implicit_journal_fields_closed_candidates_and_private_values(self):
         with self.f.ports():
