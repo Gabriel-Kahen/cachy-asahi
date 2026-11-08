@@ -1,10 +1,10 @@
 """Finite metadata/source controls. No native packages, signing or actors."""
-import ast,copy,hashlib,importlib.util,json,subprocess,sys,tempfile,unittest
+import ast,copy,hashlib,importlib.util,json,os,subprocess,sys,tempfile,unittest
 from pathlib import Path
 from types import SimpleNamespace as NS
 from unittest.mock import patch
 HERE=Path(__file__).resolve().parent
-ROOT=next(p for p in HERE.parents if (p/'manifests/packages.toml').is_file())
+ROOT=Path(os.environ.get('CAA3_LIFECYCLE_TEST_SOURCE',next(p for p in HERE.parents if (p/'manifests/packages.toml').is_file())))
 def load(name,path):
  s=importlib.util.spec_from_file_location(name,path);m=importlib.util.module_from_spec(s);sys.modules[name]=m;s.loader.exec_module(m);return m
 A=load('caa3_adapter',HERE/'adapter.py');G=load('caa3_gate',HERE/'candidate_gate.py')
