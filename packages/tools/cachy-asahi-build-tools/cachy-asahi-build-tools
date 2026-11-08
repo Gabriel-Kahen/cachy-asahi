@@ -1,0 +1,34 @@
+#!/usr/bin/python3 -I
+# SPDX-License-Identifier: MIT
+"""Opt-in offline build DATA commands; import only adjacent packaged code."""
+import sys
+
+if not sys.flags.isolated:
+    raise SystemExit('Invoke the installed command, or use python3 -I.')
+sys.dont_write_bytecode = True
+
+
+def data_only(event, args):
+    if event.startswith(('socket.', 'subprocess.', 'os.exec', 'os.fork',
+                         'os.spawn', 'os.posix_spawn')) or event == 'os.system':
+        raise OSError('Build DATA command forbids network and process actors')
+
+
+sys.addaudithook(data_only)
+from pathlib import Path
+import runpy
+
+trusted = Path(__file__).resolve().parents[1] / 'lib/cachy-asahi-build-tools/trusted'
+commands = {
+    'cache-init': ('scripts/maintenance/source_cache.py', ['init']),
+    'cache-verify': ('scripts/maintenance/source_cache.py', ['verify']),
+    'import-local': ('scripts/build/source-cache-local-v1/import_source.py', []),
+    'source-preflight': ('scripts/build/offline-source-preflight-v1/preflight.py', []),
+}
+if len(sys.argv) < 2 or sys.argv[1] not in commands:
+    print('Usage: cachy-asahi-build-tools {' + ','.join(commands) + '} [arguments]', file=sys.stderr)
+    raise SystemExit(0 if sys.argv[1:] == ['--help'] else 2)
+path, prefix = commands[sys.argv[1]]
+entry = trusted / path
+sys.argv = [str(entry), *prefix, *sys.argv[2:]]
+runpy.run_path(str(entry), run_name='__main__')
