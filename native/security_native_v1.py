@@ -38,10 +38,10 @@ def dockerfile(base,map_hash):
     result+='FROM security-dependencies AS security-prior-build\n'
     result+='RUN /usr/bin/python3 -I -B /opt/native-security-v1/source/native/security_native_v1.py --unpack-prior --map-sha256 '+map_hash+' && echo prior > /security-prior-slot\nUSER alarm\nWORKDIR /tmp/security-prior-build\n'
     result+='RUN SOURCE_DATE_EPOCH=1793145600 PKGDEST=/tmp/security-prior-build SRCDEST=/tmp/security-prior-build BUILDDIR=/tmp/security-prior-build makepkg --check --cleanbuild --nosign --noconfirm --config /opt/native-security-v1/source/native/security-makepkg.conf\n'
-    result+='FROM security-dependencies\n'
-    result+='COPY --from=security-prior-build /tmp/security-prior-build/'+PRIOR_ARCHIVE+' /opt/native-security-v1/prior/'+PRIOR_ARCHIVE+'\nCOPY --from=security-prior-build /security-prior-slot /opt/native-security-v1/prior/stage-slot\n'
+    result+='FROM security-dependencies\nCOPY security-recovery-binding.json /opt/native-security-v1/recovery/native-scope.json\n'
+    result+='COPY --from=security-prior-build --chown=0:0 /tmp/security-prior-build/'+PRIOR_ARCHIVE+' /opt/native-security-v1/prior/'+PRIOR_ARCHIVE+'\nCOPY --from=security-prior-build /security-prior-slot /opt/native-security-v1/prior/stage-slot\n'
     for label in ('one','two'):
-        result+='COPY --from=security-build-'+label+' /tmp/security-build/'+ARCHIVE+' /opt/native-security-v1/pair/'+label+'/'+ARCHIVE+'\n'
+        result+='COPY --from=security-build-'+label+' --chown=0:0 /tmp/security-build/'+ARCHIVE+' /opt/native-security-v1/pair/'+label+'/'+ARCHIVE+'\n'
     for label in ('one','two'):
         result+='COPY --from=security-build-'+label+' /security-pair-slot /opt/native-security-v1/pair/'+label+'/stage-slot\n'
     result+='RUN /usr/bin/python3 -I -B /opt/native-security-v1/source/native/security_native_v1.py --inside-image --map-sha256 '+map_hash+' & security_owner=$!; security_status=0; wait "$security_owner" || security_status=$?; exit "$security_status"\n'
@@ -172,7 +172,7 @@ def emit_observation_fd_failure(map_hash, owner, before, after, predicates, poli
             return dict(dev=info.st_dev,inode=info.st_ino,mode=info.st_mode,
                 uid=info.st_uid,gid=info.st_gid,nlink=info.st_nlink,bytes=info.st_size)
         value=dict(schema=1,status='SECURITY_OBSERVATION_FD_FAILURE_DATA_ONLY',
-            source_map_sha256=map_hash,operation='security-alpm-v1',
+            source_map_sha256=map_hash,operation='security-alpm-interrupted-recovery-v1',
             phase='AFTER_REQUIRED_INSTALL_BEFORE_OBSERVER_RECORD_DECODE',
             owner_pid=owner,before=descriptor(before),after=descriptor(after),
             guard_predicates=predicates,record_cap=policy['record_cap'],
@@ -338,7 +338,7 @@ def cleanup_failure_data(report,map_hash,retirement):
             commands.append({key:command[key]for key in ('step','exit','stdout','stderr')})
         rows.append(dict(role=role,retired=row['retired'],error=row['error'],commands=commands))
     return dict(schema=1,status='SECURITY_INNER_CLEANUP_FAILURE_DATA_ONLY',source_map_sha256=map_hash,
-        operation='security-alpm-v1',native='NOT_ADMITTED',scope='DISPOSABLE_IMAGE_INNER_CLEANUP',
+        operation='security-alpm-interrupted-recovery-v1',native='NOT_ADMITTED',scope='DISPOSABLE_IMAGE_INNER_CLEANUP',
         flags=flags,retirement=rows)
 
 
@@ -379,7 +379,7 @@ def inside(root,map_hash):
     report=dict(schema=1,status='FAIL',source_map_sha256=map_hash,architecture=platform.machine(),page_size=os.sysconf('SC_PAGE_SIZE'),
         packages=pin(baseline),physical_M2='NOT_RUN',native_16K='NOT_QUALIFIED',release='NOT_ADMITTED',remediation='NOT_ESTABLISHED',
         execution_scope='OWNED_NATIVE_IMAGE_BUILD_STAGE; ordinary alarm workflows; consumer exports DATA',pair={},lifecycle={},workflows={},upgrade={},commands=c.records)
-    primary=None;installed=False;retired=[]
+    primary=None;installed=False;retired=[];recovery_context=None;recovery_phase=None
     archive=PREFIX/'pair/one'/ARCHIVE;second=PREFIX/'pair/two'/ARCHIVE;prior=PREFIX/'prior'/PRIOR_ARCHIVE
     def inventory(step):return b''.join(sorted(c.run(step,['/usr/bin/pacman','-Q']).splitlines(keepends=True)))
     def owned_payload(expected,label):
@@ -440,6 +440,10 @@ def inside(root,map_hash):
         status=c.run('verify-test-signature',verifier+['--status-fd=1','--verify',signature,archive]).decode();strict_signature(status,fingerprint)
         prior_wanted=b''.join(sorted(baseline.splitlines(keepends=True)+[b'cachy-asahi-security-maintenance 0.1.0-1\n']))
         wanted=b''.join(sorted(baseline.splitlines(keepends=True)+[b'cachy-asahi-security-maintenance 0.1.0-2\n']))
+        from security_recovery_native import prepare as prepare_recovery
+        recovery_phase='PREPARE_RECOVERY'
+        recovery_context=prepare_recovery(sys.modules[__name__],c,archive,prior,paths,prior_paths,fingerprint,public,trust,map_hash)
+        recovery_phase=None
         c.run('prior-required-install',pacman+['--noconfirm','--noscriptlet','-U',prior]);installed=True
         current=inventory('prior-inventory');need(current==prior_wanted,'actual prior350 inventory');upgrade_inventories['prior_installed']=pin(current);owned_payload(prior_paths,'prior');preserved()
         tampered=private/ARCHIVE;shutil.copyfile(archive,tampered);bad=bytearray(read(signature));need(len(bad)>32,'actual detached candidate TEST signature');bad[len(bad)//2]^=1;Path(str(tampered)+'.sig').write_bytes(bad)
@@ -454,6 +458,12 @@ def inside(root,map_hash):
         need(all(not os.path.lexists('/usr/'+name)for name in set(prior_paths)-set(paths)),'prior-only payload removed by real upgrade');preserved()
         c.run('repeat-current',pacman+['--noconfirm','--noscriptlet','-U',archive])
         current=inventory('repeated-inventory');need(current==wanted,'same-version reinstall preserves exact350 inventory');upgrade_inventories['repeated']=pin(current);owned_payload(paths,'repeated');preserved()
+        recovery_context.normal_completed(observation,upgrade_inventories,c.records)
+        recovery_context.episode(contract['recovery']['observation'])
+        recovery_context.close()
+        recovery_raw=read(PREFIX/'recovery-evidence.json',8*1024**2)
+        report['recovery']=dict(schema=1,protocol='security-upgrade-interruption-empty-db-v1',path='recovery-evidence.json',pin=pin(recovery_raw))
+        need(inventory('recovery-returned-inventory')==wanted,'recovery returns350 before held remaining lifecycle');preserved()
         moved=PREFIX/'moved-prefix';moved.mkdir()
         for name in paths:
             target=moved/'usr'/name;target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(Path('/usr')/name,target);target.chmod(paths[name]['mode'])
@@ -487,10 +497,13 @@ def inside(root,map_hash):
         report['test_authority']=dict(fingerprint=fingerprint,public_key=public.read_text('ascii'),signature_base64=base64.b64encode(signature.read_bytes()).decode(),signature_status=status,semantics='Required/Required; scoped ephemeral TEST ONLY')
         report['status']=STATUS
     except BaseException as error:
-        primary=error;report['failure']=dict(type=type(error).__name__,phase=c.records[-1]['step'] if c.records else 'admission')
+        primary=error;report['failure']=dict(type=type(error).__name__,phase=recovery_phase or (c.records[-1]['step'] if c.records else 'admission'))
         print('SECURITY_IMAGE_FAILURE '+json.dumps(report['failure'],sort_keys=True),flush=True)
         raise
     finally:
+        if recovery_context is not None and not recovery_context.closed:
+            try:recovery_context.close()
+            except BaseException:report['status']='FAIL';report['recovery_private_cleanup']='FAILED'
         if installed:
             try:c.run('failure-remove',['/usr/bin/pacman','--config',private/'pacman.conf','--noconfirm','--noscriptlet','-R',NAME])
             except BaseException:report['failure_removal']='UNKNOWN'
@@ -514,7 +527,7 @@ def inside(root,map_hash):
                 if output.exists():shutil.rmtree(output)
         report['lifecycle'].update(global_trust_unchanged=snapshot(Path('/etc/pacman.d/gnupg'))==protected_trust,
             global_config_unchanged=pin(read(Path('/etc/pacman.conf')))==protected_config,
-            private_homes_absent=len(retired)==2 and not private.exists() and all(not Path('/tmp/security-'+kind+'-'+label).exists() for kind in ('home','workflow') for label in ('installed','moved')))
+            private_homes_absent=len(retired)==2 and not private.exists() and not (PREFIX/'recovery').exists() and all(not Path('/tmp/security-'+kind+'-'+label).exists() for kind in ('home','workflow') for label in ('installed','moved')))
         if not all(report['lifecycle'].values()):report['status']='FAIL'
         STORE.mkdir();save(STORE/'result.json',report);(STORE/'result.json').chmod(0o644)
         if primary is None and report['status']!=STATUS:
@@ -526,6 +539,9 @@ def export(root,output,map_hash):
     raw=read(STORE/'result.json',2*1024**2);result=json.loads(raw)
     need(result['source_map_sha256']==map_hash and result['status']==STATUS,'same-source completed security DATA')
     output.mkdir(mode=0o700);(output/'result.json').write_bytes(raw)
+    reference=result['recovery'];need(reference['path']=='recovery-evidence.json','exact recovery sidecar')
+    evidence=read(PREFIX/'recovery-evidence.json',8*1024**2);need(pin(evidence)==reference['pin'],'recovery sidecar pin')
+    (output/'recovery-evidence.json').write_bytes(evidence)
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__);group=parser.add_mutually_exclusive_group(required=True)

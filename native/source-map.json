@@ -13,14 +13,14 @@
   "consumer_basis182_source": "5b2016cc842970952c03cc2cc068a9cfbea5812c",
   "files": {
     ".github/workflows/native-arm-build.yml": {
-      "bytes": 13034,
+      "bytes": 13072,
       "mode": 420,
-      "sha256": "1485515b78c7241608db97f9561a6332e9fceb467e721967aad526cc67f56a9d"
+      "sha256": "0f300a662953ff0f32bb3ffe241a03f892f1e6873d9f45baf8d12f7638733348"
     },
     ".github/workflows/native-arm-developer-workflows.yml": {
-      "bytes": 13034,
+      "bytes": 13072,
       "mode": 420,
-      "sha256": "1485515b78c7241608db97f9561a6332e9fceb467e721967aad526cc67f56a9d"
+      "sha256": "0f300a662953ff0f32bb3ffe241a03f892f1e6873d9f45baf8d12f7638733348"
     },
     "bootstrap/.github/workflows/native-arm-build.yml": {
       "bytes": 16219,
@@ -568,9 +568,9 @@
       "sha256": "70048a05f54091f24c7c34166c2ad6510c260187f01ea65646e367d2b175b828"
     },
     "native/common.py": {
-      "bytes": 8477,
+      "bytes": 8546,
       "mode": 420,
-      "sha256": "f037bca33940e764dce4a7d66dfe6d0c72fbeda07c7f417ee7e1d30629eb86f9"
+      "sha256": "c1f6bf57d10be129fefb650c60d0f36d648b953ac8e4808c8ceb1f96fb5a5c12"
     },
     "native/consumer_diagnostics.py": {
       "bytes": 3463,
@@ -613,9 +613,9 @@
       "sha256": "2c42c705654d31e639f389f9a868dada0d9df76813d865e766be7b7c08f8404c"
     },
     "native/invocation.json": {
-      "bytes": 1042,
+      "bytes": 1063,
       "mode": 420,
-      "sha256": "94ca8414b37284d4cca547aded9d8dfe044468ac1cf1063266b1df3fc0271691"
+      "sha256": "6a831f8ea048ddd64a2e31aec4f7266953f21ceb29aba4b8c0ecadb234a07084"
     },
     "native/original341.lock": {
       "bytes": 6674,
@@ -623,9 +623,9 @@
       "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
     },
     "native/owner.py": {
-      "bytes": 27043,
+      "bytes": 27480,
       "mode": 420,
-      "sha256": "9c0f49d3161ecf83c51da366027630eb689889214dbab6bdb35c6f6855c30588"
+      "sha256": "6c19143b69b7e2684e2ad6a10b25c7909af7bc3a69c7d1ed2d3adb08df3f551c"
     },
     "native/predecessor-source-map.json": {
       "bytes": 27440,
@@ -643,9 +643,9 @@
       "sha256": "4707fc0cc8a9d805d6521b330202b2fec1a0788fedc3ef432cb53c326f46c3fc"
     },
     "native/public_projection.py": {
-      "bytes": 12829,
+      "bytes": 13960,
       "mode": 420,
-      "sha256": "b6222fdc6e689fecd6b2f37446b041d93bcdd96d8eb4a7f5a6c5923cbcf1a34b"
+      "sha256": "f33ba13ed9afb223f337972dfc7df9b6f47c8a5b1d903f200c2fc6b089646f1b"
     },
     "native/python_backend.py": {
       "bytes": 6906,
@@ -653,9 +653,9 @@
       "sha256": "ef300afa53a9480dd2605ee58d0bd18df6569acb6483d55494c6b9c696a96a31"
     },
     "native/reader.py": {
-      "bytes": 66416,
+      "bytes": 67018,
       "mode": 420,
-      "sha256": "7d8461c40d28b3a425296fdfc8dc5bb2bfae0277bf37d7f26ea9e454b4f882d1"
+      "sha256": "fa1065e2d891b70ffe4642a23f490c1ec167c0f54d2f4acbe4db615e180a0522"
     },
     "native/retained_transport.py": {
       "bytes": 12375,
@@ -668,24 +668,69 @@
       "sha256": "750b929681353a5915e5541d4bdbe167b558830e9762d6ac2da0c05146120a70"
     },
     "native/security-contract-v1.json": {
-      "bytes": 616403,
+      "bytes": 632125,
       "mode": 420,
-      "sha256": "f83461f2286381ceca731766b172ebfabc444ca486f7cec68f77917053c633e3"
+      "sha256": "955dc048f354bcdddad755d65daefb62939cd0c42d5163f59237ca4ca03a5898"
     },
     "native/security-makepkg.conf": {
       "bytes": 316,
       "mode": 420,
       "sha256": "8cdd968870a2a92d7006739e96dedefa14e51c40d62cfc15831f234a767a1421"
     },
-    "native/security_native_v1.py": {
-      "bytes": 46282,
+    "native/security_interruption_owner.py": {
+      "bytes": 18695,
       "mode": 420,
-      "sha256": "be979319633f7c5811f0dbd7c41e787cf132d0f58ca46f15d1000e55a255e884"
+      "sha256": "897d1aa9c0324a7433d26fba6f13571e1eb6d18a2133283dd211815dc0371879"
+    },
+    "native/security_native_v1.py": {
+      "bytes": 47849,
+      "mode": 420,
+      "sha256": "7be3ed52dc2f32596b0cf70a158b86f0ae20fb98cf29b1000ab7ed3ff06b3e3e"
     },
     "native/security_reader_v1.py": {
-      "bytes": 38973,
+      "bytes": 46784,
       "mode": 420,
-      "sha256": "de5b24b0b7ecd09381cfc07148fbf24928eda5c0f0bca7035f45f46efe841c73"
+      "sha256": "0823de98e6daa902b0bcf14d40b03cdf38a599ebef559e599f5eb1c623b516bc"
+    },
+    "native/security_recovery.py": {
+      "bytes": 10994,
+      "mode": 420,
+      "sha256": "cbb100d4ca58ce0540913b4d0f6376a52ff084e929159ef907b86b8f3b12a5c7"
+    },
+    "native/security_recovery_adapter.py": {
+      "bytes": 12911,
+      "mode": 420,
+      "sha256": "8f021008dd7b36a37d85ed62222ea5730121c52ff1fc26948e5b70ed4382ee89"
+    },
+    "native/security_recovery_fs.py": {
+      "bytes": 12350,
+      "mode": 420,
+      "sha256": "fa05a487d782beb974cf65bba285777ea2351b8557709ca00eacc9cb2e048608"
+    },
+    "native/security_recovery_journal.py": {
+      "bytes": 7871,
+      "mode": 420,
+      "sha256": "9a84f094a1f1a4f8f56eaf2ee329f12e17c0e3cb259ca4e5ab1aed6be2879bc1"
+    },
+    "native/security_recovery_metadata.py": {
+      "bytes": 9325,
+      "mode": 420,
+      "sha256": "bb29033441f3ff615a8d88534c61f995dfae7e711ab760027a49955d936447ea"
+    },
+    "native/security_recovery_native.py": {
+      "bytes": 23246,
+      "mode": 420,
+      "sha256": "723e43edc3eca5e85ea566190a515bb32097efb10f4a7bbfe80587499f9f747a"
+    },
+    "native/security_recovery_reader.py": {
+      "bytes": 24462,
+      "mode": 420,
+      "sha256": "0f4195683ea0da45e50e2f94d2fa358f74588a357fde402aaca8900af7ea5e00"
+    },
+    "native/security_recovery_state.py": {
+      "bytes": 13234,
+      "mode": 420,
+      "sha256": "106bb99cc2d768dbfef4a4629545d044183a05197100386b65f37fb979e4890a"
     },
     "native/security_workflow_v1.py": {
       "bytes": 13659,
@@ -1015,8 +1060,11 @@
   "security_basis_v5_source": "b6a02f11648738ded90084f7dcdcd4ea77c194fa",
   "security_observation_fd_refusal": "bounded-metadata-only-v1",
   "security_observer_provenance": "observer-shim-recorded-provenance-v1",
-  "security_operation": "security-alpm-v1",
-  "security_source_factory": "security-maintenance-native-source-v1",
+  "security_operation": "security-alpm-interrupted-recovery-v1",
+  "security_recovery_parent_map_sha256": "7c4db370aa998a4daecc213e252a2ae41da2ccabd3f722686b3fc85556f899cb",
+  "security_recovery_parent_source": "850368889d6dcabdc8afbe87f64f05650c44f90a",
+  "security_recovery_protocol": "security-upgrade-interruption-empty-db-v1",
+  "security_source_factory": "security-interrupted-recovery-native-source-v1",
   "security_upgrade_observation": "first-real-upgrade-zero-observation-v1",
   "security_upgrade_protocol": "signed-prior-to-current-v1",
   "transport_basis177_map_sha256": "99d676438a247749b3e1c564943d8735452a1ebd92ec91dd78ee37817e77f36d",

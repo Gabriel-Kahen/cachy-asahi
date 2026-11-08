@@ -60,6 +60,21 @@ def _pin(row):
  return row
 
 
+def recovery_projection_pin(authority,result):
+ """Pure DATA gate for the single recovery export; no general sidecar dispatch."""
+ reference=result.get('recovery') if type(result) is dict else None
+ if reference is None:return None
+ C.need(type(authority) is dict and authority.get('operation')=='security-alpm-interrupted-recovery-v1',
+  'recovery sidecar requires exact interrupted-recovery operation')
+ C.need(type(reference) is dict and set(reference)=={'schema','protocol','path','pin'}
+  and type(reference['schema']) is int and reference['schema']==1
+  and reference['protocol']=='security-upgrade-interruption-empty-db-v1'
+  and reference['path']=='recovery-evidence.json','closed recovery sidecar reference')
+ expected=_pin(reference['pin'])
+ C.need(0<expected['bytes']<=8*1024**2,'recovery sidecar 8MiB cap')
+ return expected
+
+
 def _project(source_root,public_root,projected_root):
  source,public,dest=map(C._absolute,(source_root,public_root,projected_root))
  C.need(not dest.is_relative_to(public) and not public.is_relative_to(dest) and not dest.is_relative_to(source)
@@ -107,9 +122,12 @@ def _project(source_root,public_root,projected_root):
   with C.refusal_context('projection-select',relative):
    C.need(name=='receipt.json' or re.fullmatch(r'[0-9]{4}\.(stdout|stderr)',name),'fixed transport proof leaf required');add(relative)
  journey=_names(public,'journey')
+ result_raw=add('journey/result.json',optional=True)
+ recovery_pin=recovery_projection_pin(value,C._load(result_raw) if result_raw is not None else None)
+ allowed_journey={'result.json','build-summary.json',*REPORTS}|({'recovery-evidence.json'} if recovery_pin is not None else set())
  for name in journey:
-  with C.refusal_context('projection-select','journey/'+name):C.need(name in {'result.json','build-summary.json',*REPORTS},'unknown journey entry refused')
- add('journey/result.json',optional=True)
+  with C.refusal_context('projection-select','journey/'+name):C.need(name in allowed_journey,'unknown journey entry refused')
+ if recovery_pin is not None:add('journey/recovery-evidence.json',recovery_pin)
  add('journey/build-summary.json',optional=True)
  for feature,reports in REPORTS.items():
   prefix='journey/'+feature;names=_names(public,prefix)

@@ -38,7 +38,7 @@ def validate_cleanup_data(value, map_hash):
         'operation', 'native', 'scope', 'flags', 'retirement'}
         and type(value['schema']) is int and value['schema'] == 1
         and value['status'] == 'SECURITY_INNER_CLEANUP_FAILURE_DATA_ONLY'
-        and value['source_map_sha256'] == map_hash and value['operation'] == 'security-alpm-v1'
+        and value['source_map_sha256'] == map_hash and value['operation'] == 'security-alpm-interrupted-recovery-v1'
         and value['native'] == 'NOT_ADMITTED' and value['scope'] == 'DISPOSABLE_IMAGE_INNER_CLEANUP')
     flags = value['flags']
     _cleanup_require(type(flags) is dict and set(flags) == LIFECYCLE
@@ -476,9 +476,11 @@ def validate_component(view, files, receipt, cleanup, binding, expected, R):
              and row['leader_held_until_group_inspection'] is True and pin(view.read(name)) == row['log_pin'],
              'original direct owned actor retirement and exact retained logs required')
     guest = validate_result(view.load('journey/result.json'), map_hash, receipt['input_inventory'])
-    need(not any(name.startswith('journey/') and name != 'journey/result.json' for name in files),
-         'security export retains only the finite public result; no original private workflow trees')
-    return dict(status='VALIDATED_NATIVE_SECURITY_SIGNED_UPGRADE_WITH_CHECKPOINT_OBSERVATION_COMPONENT_EVIDENCE_ONLY', binding=binding,
+    need({name for name in files if name.startswith('journey/')}=={'journey/result.json','journey/recovery-evidence.json'},'exact normal result and bounded recovery sidecar only')
+    from security_recovery_reader import validate_recovery_sidecar
+    recovery=validate_recovery_sidecar(view.read('journey/recovery-evidence.json'),guest,binding,map_hash,load(Path(__file__).resolve().parents[1]/'native/security-contract-v1.json'),validate_recovery_observer_provenance,receipt,runner,read(Path(__file__).resolve().parents[1]/'native/expected349.lock'))
+    return dict(status='VALIDATED_NATIVE_SECURITY_SIGNED_UPGRADE_AND_INTERRUPTED_RECOVERY_COMPONENT_EVIDENCE_ONLY', binding=binding,
+                recovery=recovery,
                 observer_provenance='OBSERVER_SHIM_RECORDED_SOURCE_COMPILE_LOADED_OBJECT_BINDING',
                 upstream_source_binary_correspondence='OPEN',source_binary_semantics='NOT_CLAIMED',
                 upgrade_protocol=UPGRADE_PROTOCOL,from_version='0.1.0-1',to_version='0.1.0-2',
@@ -487,3 +489,62 @@ def validate_component(view, files, receipt, cleanup, binding, expected, R):
                 prior_scope='GENUINE_PRIOR_RECIPE_REBUILT_NOW; NOT_PREVIOUS_NATIVE_RELEASE',
                 execution_scope='DISPOSABLE_NATIVE_IMAGE_BUILD_STAGE; consumer exports finite DATA only',
                 native_16K='NOT_QUALIFIED', physical_M2='NOT_RUN', remediation='NOT_ESTABLISHED', release='NOT_ADMITTED')
+
+
+def validate_recovery_observer_provenance(value, observation, policy, baseline, commands):
+    """A recorded trusted-toolchain shim chain, not upstream binary semantics."""
+    keys={'schema','protocol','scope','manifest','manifest_pin','generated_header','object_base64','object','before','after',
+          'compiler_retirement','compile_record','inputs_after','source_binary_semantics','upstream_source_binary_correspondence'}
+    need(type(value)is dict and set(value)==keys and type(value['schema'])is int and value['schema']==1
+         and value['protocol']=='observer-shim-recorded-provenance-v1'
+         and value['scope']=='OBSERVER_SHIM_RECORDED_SOURCE_COMPILE_LOADED_OBJECT_BINDING'
+         and value['source_binary_semantics']=='NOT_CLAIMED' and value['upstream_source_binary_correspondence']=='OPEN',
+         'closed finite shim provenance; upstream correspondence remains OPEN')
+    need(len(json.dumps(value,sort_keys=True,separators=(',',':'),allow_nan=False).encode('ascii'))<=1572864,'bounded observer provenance role')
+    manifest=value['manifest'];need(type(manifest)is dict and set(manifest)=={'schema','protocol','source','header','compiler','toolchain','recipe'}
+         and type(manifest['schema'])is int and manifest['schema']==1 and manifest['protocol']==value['protocol'],'closed observer build manifest')
+    encoded=json.dumps(manifest,sort_keys=True,separators=(',',':'),allow_nan=False).encode('ascii')
+    need(0<len(encoded)<=16384 and pin(encoded)==value['manifest_pin'],'canonical bounded manifest pin')
+    need(manifest['source']==policy['source_pin']==observation['observer_source'] and manifest['header']==policy['header'],'exact reviewed source/header input pins')
+    for name in('source','header'):_cleanup_pin(manifest[name],1024**2)
+    compiler=manifest['compiler'];need(type(compiler)is dict and set(compiler)=={'path','bytes','sha256','inode','mode','uid','gid','nlink'}
+         and type(compiler['path'])is str and compiler['path']in [base+suffix for base in('/usr/bin/gcc','/usr/bin/aarch64-unknown-linux-gnu-gcc','/usr/bin/aarch64-linux-gnu-gcc')for suffix in('','-16','-16.1.1')],'resolved canonical compiler input')
+    _cleanup_pin({k:compiler[k]for k in('bytes','sha256')},16*1024**2);need(compiler['bytes']>0,'nonempty compiler input');_observer_inode(compiler['inode'])
+    need(all(type(compiler[k])is int for k in('mode','uid','gid','nlink'))and 0<=compiler['mode']<=0o777 and compiler['mode']&0o100 and not compiler['mode']&0o022 and compiler['uid']==compiler['gid']==0 and 1<=compiler['nlink']<=64,'ordinary retained root-owned nonwritable GCC driver with bounded stable hardlinks')
+    need(value['inputs_after']=={name:manifest[name]for name in('source','header','compiler')},'source/header/compiler inputs unchanged after owned compilation')
+    q=policy['provenance'];toolchain=manifest['toolchain']
+    need(type(q)is dict and type(q['schema'])is int and q['schema']==1 and q['protocol']==value['protocol']and q['scope']==value['scope']and q['section']=='.cachy_provenance'
+         and(q['manifest_cap'],q['maps_cap'],q['object_cap'],q['value_cap'])==(16384,65536,1048576,1572864)
+         and q['compiler_paths']==[base+suffix for base in('/usr/bin/gcc','/usr/bin/aarch64-unknown-linux-gnu-gcc','/usr/bin/aarch64-linux-gnu-gcc')for suffix in('','-16','-16.1.1')], 'fixed finite observer provenance policy and compiler path set')
+    need(type(baseline)is bytes and len(baseline)<=1024**2 and len(baseline.splitlines())==349,'whole retained349 compiler baseline DATA')
+    need(type(toolchain)is dict and set(toolchain)=={'inventory','packages'} and toolchain['inventory']==q['inventory']==pin(baseline),'exact retained349 toolchain inventory')
+    versions=dict(line.decode('ascii').split(' ',1)for line in baseline.splitlines())
+    wanted={name:versions[name]for name in('gcc','binutils','glibc','linux-api-headers')}
+    need(toolchain['packages']==q['package_versions']==wanted,'exact retained signed toolchain package versions')
+    recipe=manifest['recipe'];need(type(recipe)is dict and set(recipe)=={'argv','cwd','env'}and type(recipe['cwd'])is str
+         and recipe['cwd']=='/opt/native-security-v1/recovery/compiler','fixed private observer compiler directory')
+    home=recipe['cwd']
+    need(recipe['argv']==['/usr/bin/cc','-shared','-fPIC','-O2','-Wall','-Wextra','-Werror','-include',home+'/alpm-observer-provenance.h','-o',home+'/alpm-observer.so',home+'/alpm-observer.c','-ldl']
+         and recipe['env']==dict(PATH='/usr/bin:/bin',LANG='C',LC_ALL='C',PYTHONDONTWRITEBYTECODE='1',PYTHONNOUSERSITE='1'),'exact compile argv/cwd/clean environment')
+    header=('static const unsigned char cachy_observer_provenance[] __attribute__((used,section(".cachy_provenance"))) = {'+','.join(str(byte)for byte in encoded)+'};\n').encode('ascii')
+    need(pin(header)==value['generated_header'],'exact generated acyclic provenance header')
+    encoded_object=value['object_base64'];need(type(encoded_object)is str and 0<len(encoded_object)<=1398104,'bounded retained object base64')
+    try:raw=base64.b64decode(encoded_object,validate=True)
+    except (ValueError,TypeError):raise ValueError('canonical observer object DATA required')
+    need(base64.b64encode(raw).decode('ascii')==encoded_object and pin(raw)==value['object']==observation['observer_compiled'],'independent retained compiled object bytes/pin')
+    need(0<len(raw)<=1024**2,'original observer object cap')
+    before,after=value['before'],value['after'];need(type(before)is dict and set(before)=={'bytes','sha256','inode','mode','uid','gid','nlink'}and before==after,'held observer object stable before/after genuine upgrade')
+    need({k:before[k]for k in('bytes','sha256')}==value['object'] and all(type(before[k])is int for k in('mode','uid','gid','nlink'))
+         and(before['mode'],before['uid'],before['gid'],before['nlink'])==(0o500,0,0,1),'ordinary private readonly root-owned singlelink observer object')
+    _observer_inode(before['inode'])
+    need(value['compiler_retirement']==observation['compiler_retirement'],'same actual reserved compiler lifecycle')
+    compile_rows=[row for row in commands if row['step']=='compile-upgrade-observer']
+    need(len(compile_rows)==1 and value['compile_record']==compile_rows[0] and value['compile_record']['exit']==0 and set(value['compile_record'])=={'step','exit','stdout','stderr','recipe'}and value['compile_record']['recipe']==recipe,'exact successful compile record and actual captured argv/cwd/environment')
+    point=observation['records'][0];_observer_inode(point['observer_inode']);_observer_inode(point['observer_fd_inode'])
+    need(point['observer_inode']==point['observer_fd_inode']==before['inode'],'callback dladdr object and held FD join compiled object')
+    load=point['observer_load'];need(type(load)is dict and set(load)=={'base','pc','start','end','offset','dev_major','dev_minor','inode'},'closed actual kernel observer mapping')
+    for name,number in load.items():_observer_integer(number,0 if name in('offset','dev_major','dev_minor')else 1)
+    need(load['start']<=load['pc']<load['end'] and load['pc']>=load['base']
+         and load['inode']==before['inode'][1] and load['dev_major']==os.major(before['inode'][0])and load['dev_minor']==os.minor(before['inode'][0]),'actual PC mapping and exact kernel backing device/inode')
+    _observer_elf(raw,encoded,load)
+    return value
