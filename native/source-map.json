@@ -8,6 +8,7 @@
   "build_basis184_map_sha256": "58aabc90b15c13a3d31cdcd6079ace36422b1901912106516c755bd391f093cf",
   "build_basis184_source": "90d0419a134f0aa1b918199484e32fddec84ac6c",
   "build_tools_operation": "build-tools-alpm-v2",
+  "build_tools_pid1_shell_parent": "52a425ef08c5dc84ba1a7c5b53be8d21dc42f9dd",
   "cache_retirement_basis191_map_sha256": "6a9cf1b093d012c03ac3ec3de192718bb69c43e8922350869669a92bd75b614c",
   "cache_retirement_basis191_source": "4c3171a1937489badd22d350835e8287fee3c52a",
   "causal_basis178_map_sha256": "431c036641b7690a4eab23abccf1dbf71d00ec805cb589665234017e95310123",
@@ -576,9 +577,9 @@
       "sha256": "6f5bd1674b51de09ebcaa08a0097dce0cffe5999c975718c3d582bccada5589b"
     },
     "native/build_tools_alpm_v2.py": {
-      "bytes": 31227,
+      "bytes": 31795,
       "mode": 420,
-      "sha256": "1300cf9156e4f607b8838e54011f1665b4a0d21aefb8863fef6e2752c81caea5"
+      "sha256": "8a071d7755d2dd311550d096bfc0dd8183582b288a46ad46adef20c5ede813bd"
     },
     "native/build_tools_guest_v2.py": {
       "bytes": 3330,
@@ -593,12 +594,12 @@
     "native/build_tools_projection_v2.py": {
       "bytes": 10611,
       "mode": 420,
-      "sha256": "1e610b96c878db7e3a8e725c36eea20618b20c62bdad3e5f20bdd4594339482a"
+      "sha256": "9fe4ab4ab29a3f6e662f0ac6ee0214f58700bc9e1be5278c915e6eaf15e5c2c4"
     },
     "native/build_tools_reader_v2.py": {
-      "bytes": 136704,
+      "bytes": 137589,
       "mode": 420,
-      "sha256": "090a08ccd2848908baa4f760b4eb1efdd95786fcc4d2aa1aa43c8b5eeeed21a6"
+      "sha256": "b0e3dcf2762ce6b106ab1df4c9748456a958e8054433948bd0c08bd037b3b71d"
     },
     "native/build_tools_tools_v2.py": {
       "bytes": 21162,

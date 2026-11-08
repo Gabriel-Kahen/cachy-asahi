@@ -23,7 +23,12 @@ def dockerfile(base,map_hash):
  need(re.fullmatch('[0-9a-f]{64}',map_hash or ''),'explicit source-map checksum')
  ending='USER alarm\nWORKDIR /tmp\n'
  need(base.endswith(ending) and base.count(ending)==1,'exact genuine191 image suffix; no fallback')
- return base[:-len(ending)]+('COPY build-tools-alpm-v2/source/ /opt/native-build-tools-alpm-v2/source/\nRUN /usr/bin/python3 -I -B /opt/native-build-tools-alpm-v2/source/native/build_tools_alpm_v2.py --inside-image --retain-failure-image --map-sha256 '+map_hash+'\n'+ending)
+ script=('test "$BASHPID" -eq 1 || exit 125; '
+  '/usr/bin/python3 -I -B /opt/native-build-tools-alpm-v2/source/native/build_tools_alpm_v2.py '
+  '--inside-image --retain-failure-image --map-sha256 '+map_hash+
+  ' & build_tools_owner=$!; build_tools_status=0; wait "$build_tools_owner" || build_tools_status=$?; exit "$build_tools_status"')
+ return base[:-len(ending)]+('COPY build-tools-alpm-v2/source/ /opt/native-build-tools-alpm-v2/source/\n'
+  +'RUN '+json.dumps(['/usr/bin/bash','--noprofile','--norc','-p','-c',script])+'\n'+ending)
 
 def strict_signature(status,fingerprint):
     need(re.fullmatch('[0-9A-F]{40}',fingerprint or ''),'explicit TEST primary fingerprint')
@@ -240,11 +245,13 @@ def carrier_exit(report,retain_failure_image=False):
 
 def inside(source,map_hash):
  source=Path(source)
+ need(os.getpid()>1 and os.getppid()==1,'PID1-shell variant requires non-PID1 Python directly parented by namespace init')
  need(os.getuid()==os.geteuid()==0 and os.uname().machine=='aarch64' and source==SOURCE and Path('/builder-packages.lock').is_file(),'explicit owned disposable native image root only')
  from common import verify_source
  verify_source(source,map_hash);need(not STORE.exists(),'fresh fixed evidence store')
  scope=STORE/'journey'/'build-tools-alpm-v2';scope.mkdir(parents=True)
  report=dict(schema_version=1,operation=T.OPERATION,status='FAIL',source_map_sha256=map_hash,version=T.VERSION,contract=T.pin(source/'native/build-tools-contract-v2.json'),stages=[],inventory={},payloads={},builds={},signatures={},business={},commands=[],signature_policy=dict(SigLevel='Required',LocalFileSigLevel='Required'),native=dict(architecture=os.uname().machine,page_bytes=os.sysconf('SC_PAGE_SIZE'),execution='OWNED_IMAGE_BUILD_STAGE',physical_M2='NOT_RUN',release='NOT_ADMITTED'),first_failure=None,image_build_context=unknown_image_build_context(map_hash),cleanup=dict(homes_retired=False,no_sockets=False,private_directory_absent=False,failures=['INITIALIZATION_NOT_COMPLETED']))
+ report['process_layout']=dict(schema=1,contract='bash-pid1-direct-python-child-v1',python_pid=os.getpid(),python_ppid=os.getppid(),status='OBSERVED_NON_PID1_PYTHON_DIRECT_CHILD')
  work=None;commands=None;primary=None;pacman=None;baseline=None;baseline_reasons=None;phase='initialize'
  save_result(scope,report)
  try:

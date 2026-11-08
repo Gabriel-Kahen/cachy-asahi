@@ -368,7 +368,7 @@ def retained_consumer_diagnostic(view, files, receipt, binding, map_sha256, posi
                 actor_exit=row.get('exit'), container=container)
 
 
-PRODUCERS = {'native/build_tools_alpm_v2.py': '1300cf9156e4f607b8838e54011f1665b4a0d21aefb8863fef6e2752c81caea5', 'native/build_tools_tools_v2.py': '2978acabbb2dce2e075e0bfb0f8515e15dccac1e39bc9fa5c3a8e1ac316d5f84', 'native/build_tools_guest_v2.py': '3396c811551ae2272c4f0b11af3907f1efc39b8275adc2e0dc039a4e14883dd4', 'native/build_tools_probe_v2.py': 'a63de05cbd02af8c59849353dc73eaac7389a28c54c912b6bd7845fd62f29354', 'native/build-tools-contract-v2.json': '87db7214a738af7bbd30d72cc0e1e95c789c61995fd0e1397477c9694a95d91d'}
+PRODUCERS = {'native/build_tools_alpm_v2.py': '8a071d7755d2dd311550d096bfc0dd8183582b288a46ad46adef20c5ede813bd', 'native/build_tools_tools_v2.py': '2978acabbb2dce2e075e0bfb0f8515e15dccac1e39bc9fa5c3a8e1ac316d5f84', 'native/build_tools_guest_v2.py': '3396c811551ae2272c4f0b11af3907f1efc39b8275adc2e0dc039a4e14883dd4', 'native/build_tools_probe_v2.py': 'a63de05cbd02af8c59849353dc73eaac7389a28c54c912b6bd7845fd62f29354', 'native/build-tools-contract-v2.json': '87db7214a738af7bbd30d72cc0e1e95c789c61995fd0e1397477c9694a95d91d'}
 
 PASS = 'PASS_BUILD_TOOLS_NATIVE_ALPM_COMPONENT'
 OPERATION = 'build-tools-alpm-v2'
@@ -1012,6 +1012,7 @@ def build_tools_failure_data(view, files, map_sha256):
          and report.get('contract') == pin(contract_raw)
          and pin(contract_raw)['sha256'] == PRODUCERS['native/build-tools-contract-v2.json']
          and contract.get('operation') == OPERATION, 'same-map exact failure result/producer contract required')
+    result['process_layout']=build_tools_process_layout(report)
     result.update(reason='FIRST_FAILURE_UNAVAILABLE', result=pin(raw), namespace_observations=build_tools_namespace_data(view,files,report,map_sha256))
     cleanup = report.get('cleanup')
     if type(cleanup) is dict:
@@ -1075,8 +1076,22 @@ def build_tools_failure_data(view, files, map_sha256):
     return result
 
 
+def build_tools_process_layout(report):
+    """Typed observation only; it does not prove adoption, reaping or group absence."""
+    layout=report.get('process_layout') if type(report) is dict else None
+    need(type(layout) is dict and set(layout)=={'schema','contract','python_pid','python_ppid','status'}
+         and type(layout['schema']) is int and layout['schema']==1
+         and layout['contract']=='bash-pid1-direct-python-child-v1'
+         and type(layout['python_pid']) is int and 1<layout['python_pid']<2**31
+         and type(layout['python_ppid']) is int and layout['python_ppid']==1
+         and layout['status']=='OBSERVED_NON_PID1_PYTHON_DIRECT_CHILD',
+         'explicit observed non-PID1 Python directly parented by namespace init required')
+    return layout
+
+
 def build_tools_positive_state(report):
     """A persisted PASS cannot override a later observation/retention failure."""
+    build_tools_process_layout(report)
     need(type(report) is dict and report.get('retention_failures', []) == []
          and report.get('first_failure') is None and report.get('failure') is None,
          'positive source-tools evidence refuses retention or primary failure state')
