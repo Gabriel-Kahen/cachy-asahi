@@ -1,0 +1,36 @@
+{
+  "assets": {
+    "disk.py.txt": {
+      "bytes": 14062,
+      "sha256": "f1d9fb78217151b2e3539da08bec2d41b39dc454e21305fb29446d8dc629b612"
+    },
+    "normal-binder.py.txt": {
+      "bytes": 103075,
+      "sha256": "25cdb1b862cf31f6665db7374ff531354477a633c1f8af79a891f5e374786ea3"
+    },
+    "normal-config.json": {
+      "bytes": 14303,
+      "sha256": "c741809608fae61488db45f7fc4005d6921b8689365139db0e9813a70fdcc3c4"
+    },
+    "postcommit-exit87-config.json": {
+      "bytes": 14732,
+      "sha256": "23dbe11dec499d0affa282fde0a0d21a91a3404c6fbe9ab8af14a0992ad109d6"
+    },
+    "precommit-exit86-config.json": {
+      "bytes": 14702,
+      "sha256": "d477da6eb7dd35cf5fef2e2048b8b81ba4f835607c5a20c96f05b246cc91639f"
+    }
+  },
+  "kind": "MAINTAINED_NORMAL_V2_PERSISTENT_API_OPERANDS",
+  "new_Source_actual": null,
+  "normalized_Main_root": {
+    "bytes": 36200,
+    "sha256": "1a8a788572325ca68d29abfe34008fd5227d8fb6ff5abccdc12624e110837f8f"
+  },
+  "old_failed_Source": "d91ddd0673e1915678669b39dd9634277f4d044b",
+  "proposed_Source_tree": "c496fa470ee7d775433e9ddfbeebbb4afdcc584b",
+  "raw_normal_root": {
+    "bytes": 69933,
+    "sha256": "eb2503068499399d4de60a08f82fb21f179a2a173d1d789d57a28de73eaf609f"
+  }
+}
