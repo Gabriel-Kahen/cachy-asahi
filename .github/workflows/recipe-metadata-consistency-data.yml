@@ -1,0 +1,38 @@
+name: Literal recipe metadata consistency DATA controls
+on:
+  pull_request:
+    paths:
+      - 'scripts/checks/recipe_metadata_consistency.py'
+      - 'scripts/checks/test_recipe_metadata_consistency.py'
+      - '.github/workflows/recipe-metadata-consistency-data.yml'
+      - 'docs/development/recipe-metadata-consistency.md'
+      - 'packages/tools/cachy-asahi-build-tools/PKGBUILD'
+      - 'packages/tools/cachy-asahi-build-tools/.SRCINFO'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/checks/recipe_metadata_consistency.py'
+      - 'scripts/checks/test_recipe_metadata_consistency.py'
+      - '.github/workflows/recipe-metadata-consistency-data.yml'
+      - 'docs/development/recipe-metadata-consistency.md'
+      - 'packages/tools/cachy-asahi-build-tools/PKGBUILD'
+      - 'packages/tools/cachy-asahi-build-tools/.SRCINFO'
+permissions:
+  contents: read
+jobs:
+  literal-data:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Check literal metadata agreement and refusal controls
+        run: python3 -I -B -Werror::ResourceWarning scripts/checks/test_recipe_metadata_consistency.py --root "$GITHUB_WORKSPACE"
