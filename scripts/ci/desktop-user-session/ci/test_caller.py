@@ -10,6 +10,7 @@ from string import Template
 import subprocess
 import sys
 import tempfile
+import tarfile
 import unittest
 
 HERE=Path(__file__).resolve().parent
@@ -46,13 +47,41 @@ def events():
 
 
 class PinsAndPreparation(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        temporary = tempfile.TemporaryDirectory()
+        cls.addClassCleanup(temporary.cleanup)
+        cls.source = Path(temporary.name) / 'pinned-source'
+        cls.source.mkdir(mode=0o700)
+        archive = HERE / 'fixtures/pinned-caller-source-v1.tar.gz'
+        if c.sha(archive.read_bytes()) != 'e11246be5e1407bd20371e9a26b0a5df72298c78453e299319f4afd4f7f75b16':
+            raise ValueError('pinned caller fixture archive differs')
+        raw = MANIFEST.read_bytes()
+        pins = dict(json.loads(raw)['source_files'])
+        pins[c.LANE + '/ci/source-manifest.json'] = dict(bytes=len(raw), sha256=c.sha(raw))
+        with tarfile.open(archive, 'r:gz') as frozen:
+            members = frozen.getmembers()
+            if len(members) != len(pins) or {member.name for member in members} != set(pins):
+                raise ValueError('pinned caller fixture membership differs')
+            for member in members:
+                if not member.isfile() or member.size > 2 * 1024**2 or member.mode not in (0o644, 0o755):
+                    raise ValueError('pinned caller fixture member differs')
+                with frozen.extractfile(member) as stream:
+                    data = stream.read()
+                if len(data) != pins[member.name]['bytes'] or c.sha(data) != pins[member.name]['sha256']:
+                    raise ValueError('pinned caller fixture bytes differ')
+                target = cls.source / member.name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(data)
+                target.chmod(member.mode)
+
     def setUp(self):
         self.pin=c.sha(MANIFEST.read_bytes())
-        self.manifest=c.verify(SOURCE,MANIFEST,self.pin)
+        self.manifest=c.verify(self.source,MANIFEST,self.pin)
 
     def test_exact_adoption_closure_and_manifest_digest(self):
         self.assertEqual(self.manifest['lane'],'scripts/ci/desktop-user-session')
-        with self.assertRaises(ValueError):c.verify(SOURCE,MANIFEST,'0'*64)
+        with self.assertRaises(ValueError):c.verify(self.source,MANIFEST,'0'*64)
 
     def test_workflow_is_manual_separate_pinned_and_has_always_retention(self):
         path=HERE/'workflow.yml'
@@ -79,7 +108,7 @@ class PinsAndPreparation(unittest.TestCase):
         self.assertEqual(len(lines),5)
         with tempfile.TemporaryDirectory() as directory:
             trial=Path(directory)/'trial';base=Path(directory)/'base'
-            values=dict(LANE=c.LANE,GITHUB_WORKSPACE=str(SOURCE),MANIFEST_SHA256=self.pin,
+            values=dict(LANE=c.LANE,GITHUB_WORKSPACE=str(self.source),MANIFEST_SHA256=self.pin,
                         TRIAL=str(trial),BASE=str(base),SOURCE_COMMIT='a'*40)
             commands=[]
             for line in lines:
@@ -90,15 +119,15 @@ class PinsAndPreparation(unittest.TestCase):
                 commands.append(argv)
             prepare=next(argv for argv in commands if argv[4]=='prepare')
             legacy=list(prepare);legacy[legacy.index('--manifest')+1]=c.LANE+'/ci/source-manifest.json'
-            failed=subprocess.run(legacy,cwd=SOURCE,capture_output=True,text=True,timeout=20)
+            failed=subprocess.run(legacy,cwd=self.source,capture_output=True,text=True,timeout=20)
             self.assertNotEqual(failed.returncode,0)
             self.assertIn('ordinary absolute path required',failed.stderr)
             self.assertFalse(trial.exists())
-            ready=subprocess.run(prepare,cwd=SOURCE,capture_output=True,text=True,timeout=20)
+            ready=subprocess.run(prepare,cwd=self.source,capture_output=True,text=True,timeout=20)
             self.assertEqual(ready.returncode,0,ready.stderr)
             self.assertEqual(json.loads(ready.stdout)['status'],'READY_NOT_RUN')
             checked=subprocess.run(next(argv for argv in commands if argv[4]=='verify'),
-                                   cwd=SOURCE,capture_output=True,text=True,timeout=20)
+                                   cwd=self.source,capture_output=True,text=True,timeout=20)
             self.assertEqual(checked.returncode,0,checked.stderr)
             self.assertEqual(json.loads(checked.stdout)['status'],'PINNED_SOURCE_PASS')
             self.assertTrue((trial/'runner/profile.json').is_file())
@@ -110,25 +139,25 @@ class PinsAndPreparation(unittest.TestCase):
             root=Path(directory)/'source'
             for name in self.manifest['source_files']:
                 target=root/name;target.parent.mkdir(parents=True,exist_ok=True)
-                shutil.copyfile(SOURCE/name,target)
+                shutil.copyfile(self.source/name,target)
             path=root/c.LANE/'managed_session.py';path.write_text('changed source\n')
             with self.assertRaisesRegex(ValueError,'source bytes differ'):c.verify(root,MANIFEST,self.pin)
-            path.unlink();path.symlink_to(SOURCE/c.LANE/'managed_session.py')
+            path.unlink();path.symlink_to(self.source/c.LANE/'managed_session.py')
             with self.assertRaisesRegex(ValueError,'ordinary absolute'):c.verify(root,MANIFEST,self.pin)
 
     def test_preparation_and_isolated_runtime_binding_do_not_run_native_actors(self):
         with tempfile.TemporaryDirectory() as directory:
             trial=Path(directory)/'trial'
-            receipt=c.prepare(SOURCE,trial,self.manifest,'a'*40)
+            receipt=c.prepare(self.source,trial,self.manifest,'a'*40)
             self.assertEqual(receipt['status'],'READY_NOT_RUN')
             self.assertRegex(receipt['job_token'],'^[0-9a-f]{16}$')
-            argv=c.runtime_argv(SOURCE,trial,Path('/unused/base'),self.manifest)
+            argv=c.runtime_argv(self.source,trial,Path('/unused/base'),self.manifest)
             self.assertEqual(argv[1:4],['-I','-B','-c'])
             self.assertEqual(argv[4],c.ENTRY)
             self.assertEqual(argv[5],str(trial/'runner'))
             self.assertIn('--base-dir',argv)
             (trial/'runner/managed_session.py').write_text('changed')
-            with self.assertRaises(ValueError):c.runtime_argv(SOURCE,trial,Path('/unused/base'),self.manifest)
+            with self.assertRaises(ValueError):c.runtime_argv(self.source,trial,Path('/unused/base'),self.manifest)
 
 
 class Retention(unittest.TestCase):
