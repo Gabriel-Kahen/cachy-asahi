@@ -1,0 +1,118 @@
+{
+  "files": {
+    ".SRCINFO": {
+      "bytes": 2579,
+      "mode": 420,
+      "sha256": "d8fa42a01e81c19700c5d3078eaaafe5de156f4faf58c6b05aa791d310edbf86"
+    },
+    "LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "NOTICE": {
+      "bytes": 370,
+      "mode": 420,
+      "sha256": "650d77ba3fddc940807b827b88a4f8f274a2cce5048c0e3e2a785337ca6b6bfb"
+    },
+    "PKGBUILD": {
+      "bytes": 4689,
+      "mode": 420,
+      "sha256": "521e26b0f814c5d7ec0ba4907ab3be6f190be96a4dd1d5da1a59c8f34ac1c6e0"
+    },
+    "README.md": {
+      "bytes": 8884,
+      "mode": 420,
+      "sha256": "0f3a02fc9fc1d41770d30985fea99c92e7560630dc5bda83929b438da89683cf"
+    },
+    "cachy-asahi-source-tools": {
+      "bytes": 3576,
+      "mode": 493,
+      "sha256": "64dffad2ba00de6a799f50c3845942cccf7c4083fba4ae34bbe4cfe5dd442478"
+    },
+    "check_package.py": {
+      "bytes": 2780,
+      "mode": 420,
+      "sha256": "436b1cbffb58d712c499584d75da2651311c7f40da675b6e7f5f19566f5a0207"
+    },
+    "fixtures.tar.gz": {
+      "bytes": 401283,
+      "mode": 420,
+      "sha256": "6e307625ad97381ec6a4efb9a0ae651ad4c38c1c88a81fc19d4e931584d468c0"
+    },
+    "multi_package_roundtrip.py": {
+      "bytes": 16823,
+      "mode": 420,
+      "sha256": "e7a8020e5f8832c83bd0b562ea77fc087a9662b683eb420735bdc03ca25146f4"
+    },
+    "payload-map.json": {
+      "bytes": 4225,
+      "mode": 420,
+      "sha256": "6d139db16280cef5e02ff818f596a59fd9abdc649ad03e10c596ce7352be6872"
+    },
+    "private-source.tar.gz": {
+      "bytes": 53036,
+      "mode": 420,
+      "sha256": "fa9db2ee4a6f16fee53b79494d437901570c80798de9219d2cc637b9f430575a"
+    },
+    "source-provenance.json": {
+      "bytes": 2442,
+      "mode": 420,
+      "sha256": "28b2b8a2708bc3fece91d5560b17da358b59937d4afcebf5a42be28a1802b042"
+    },
+    "source_context_info.py": {
+      "bytes": 5465,
+      "mode": 420,
+      "sha256": "820020c28d497a73cb2cd278b19a6d77c08fee0415b2817ea8d2d4290065de7b"
+    },
+    "source_mirror_catalog.py": {
+      "bytes": 3923,
+      "mode": 420,
+      "sha256": "a5c2a7833af484ba3f29a732cdcdf8933bc271d94d65eebff5e430648e670716"
+    },
+    "source_mirror_diff.py": {
+      "bytes": 5299,
+      "mode": 420,
+      "sha256": "ed2b6f81fc6c287fd0d16e24a493aa53c7a7d23da18dc9062f19dab2133c1446"
+    },
+    "source_release_context.py": {
+      "bytes": 16456,
+      "mode": 420,
+      "sha256": "51f01b789c55fc9d0cd026e8addaad4e891c951a92653825c4c2646b9c54438d"
+    },
+    "test_cli_input_refusal.py": {
+      "bytes": 20960,
+      "mode": 420,
+      "sha256": "65b2e4b0862f1140b1044e295f8003c1de3d81ceaf3d2f6a93002ccf700b269b"
+    },
+    "test_package.py": {
+      "bytes": 3291,
+      "mode": 420,
+      "sha256": "43f26bb2def8a17d6df4aad13aad5e9a50c0a4316e01d789d8148d8f9c28cb7e"
+    },
+    "test_source_context_info.py": {
+      "bytes": 12218,
+      "mode": 420,
+      "sha256": "df833d8aa62ec306508bf026cb72f254956150f7bdd50299e308a2d94f0953f5"
+    },
+    "test_source_mirror_catalog.py": {
+      "bytes": 11255,
+      "mode": 420,
+      "sha256": "0aec6e155ee156b912f5af55487df4515e54186358bcc51abac784a0c36385d7"
+    },
+    "test_source_mirror_diff.py": {
+      "bytes": 11967,
+      "mode": 420,
+      "sha256": "3f01d06a9a55dca64d0827a9c2b4c4869c33123e654595d15d2279f32713573e"
+    },
+    "test_source_release_context.py": {
+      "bytes": 14815,
+      "mode": 420,
+      "sha256": "ff98cf0870fde82423baa46b61ca5f405df9bbad8be8a68f011dddb26cfea471"
+    }
+  },
+  "package": "cachy-asahi-source-tools",
+  "purpose": "source-tools-recipe-source",
+  "schema_version": 1,
+  "version": "0.5.0-1"
+}
