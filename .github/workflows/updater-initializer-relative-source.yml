@@ -1,0 +1,37 @@
+name: Updater initializer private relative DATA
+on:
+  pull_request:
+    paths:
+      - scripts/update/aux_initialize.py
+      - scripts/install/local_transaction.py
+      - scripts/ci/updater-hash-cost/**
+      - .github/workflows/updater-initializer-relative-source.yml
+  push:
+    branches: [main]
+    paths:
+      - scripts/update/aux_initialize.py
+      - scripts/install/local_transaction.py
+      - scripts/ci/updater-hash-cost/**
+      - .github/workflows/updater-initializer-relative-source.yml
+permissions:
+  contents: read
+jobs:
+  source-data:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Verify ten initializer private text and deadline DATA controls
+        run: |
+          set -euo pipefail
+          ulimit -t 60 -v 1048576 -f 4096 -n 128
+          timeout --signal=TERM --kill-after=5s 60s python3 -I -B -Werror scripts/ci/updater-hash-cost/test_initializer_relative.py -v

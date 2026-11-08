@@ -11,9 +11,9 @@
       "sha256": "2d3e166f3bba8fa0bf36e6645f6235f41d62c49b7474d377ca1fb1bee064bcc7"
     },
     "frozen/aux_initialize.py": {
-      "bytes": 60991,
+      "bytes": 62124,
       "file": "frozen-aux_initialize.py.txt",
-      "sha256": "14a6dc3a508da8a12364fedfc78cd96ff7d1784a435343d632240d0253f4699e"
+      "sha256": "9d1526f5819fe8deb0c736448658a5c1c8d7c5e25cc5eda715c208559117db5f"
     },
     "frozen/full_root.py": {
       "bytes": 69933,
@@ -51,8 +51,8 @@
       "sha256": "d5f3531f53a7f3dce02bf17bd7abba1184d0df07c76a5b5330caeeae5131bfda"
     },
     "scripts/update/aux_initialize.py": {
-      "bytes": 25863,
-      "sha256": "390456b5fc350d6b081e20ccde64c928acf820bfdb89a1364afb25603ac5874e"
+      "bytes": 26996,
+      "sha256": "39b8a0b52a17641314a73b3d921278112f70c0ab7682af64f9d367911a300b49"
     },
     "scripts/update/full_root.py": {
       "bytes": 36200,
