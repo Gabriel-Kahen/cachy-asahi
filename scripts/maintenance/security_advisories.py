@@ -96,7 +96,11 @@ def text_report(value):
  lines=['ARM advisory review: security status UNKNOWN',f"As of {value['as_of']}; packages supplied: {value['inventory_packages']}; tracker groups: {value['tracker_groups']}",f"Cache retrieved: {value['cache']['retrieved_at']}; stale: {value['cache']['cache_stale']}; tracker completeness/update time: UNKNOWN",value['cache']['action'],'']
  for row in value['packages']:
   lines.extend([f"{row['name']} {row['version']} [{row['arch']}] — {row['status']}",row['action']])
-  for finding in row['findings']:lines.extend([f"  {finding['name']} | {finding['severity']} | Arch status {finding['arch_status']} | {finding['version_relation']}",f"  Arch affected reference: {finding['arch_affected_version']}; Arch fixed reference: {finding['arch_fixed_version']}; ARM fixed: UNKNOWN",'  '+', '.join(finding['issues']),'  '+finding['url'],'  '+finding['action']])
+  for finding in row['findings']:
+   lines.extend([f"  {finding['name']} | {finding['severity']} | Arch status {finding['arch_status']} | {finding['version_relation']}",f"  Arch affected reference: {finding['arch_affected_version']}; Arch fixed reference: {finding['arch_fixed_version']}; ARM fixed: UNKNOWN"])
+   if finding['issues']:lines.append('  CVEs: '+', '.join(finding['issues']))
+   if finding['advisories']:lines.append('  Arch advisories: '+', '.join(finding['advisories']))
+   lines.extend(['  '+finding['url'],'  '+finding['action']])
   lines.append('')
  return '\n'.join(lines)+'\n'
 

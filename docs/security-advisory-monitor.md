@@ -117,6 +117,12 @@ invented into a lower bound or complete affected interval. Architecture, patches
 configuration, backports and version schemes can differ. This monitor does not
 certify exploitability or mitigation, and does not invent ALARM fixed versions.
 
+The readable `report.txt` includes both CVE and Arch advisory (ASA) references
+when supplied, preserving their order and duplicates from `report.json`. An
+ASA-only finding remains visible even when the tracker supplies no CVE IDs.
+This formatter applies to the repository CLI shown above; the separately pinned
+security-maintenance package runtime is unchanged.
+
 Version ordering uses the official
 [`vercmp` semantics](https://man.archlinux.org/man/vercmp.8.en), including epochs
 and package releases. Because pkgrel is compared only when both operands include

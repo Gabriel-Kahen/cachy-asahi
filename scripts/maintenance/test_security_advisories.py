@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-import copy,json,os,socket,subprocess,tempfile,unittest
+import copy,json,os,socket,subprocess,sys,tempfile,unittest
 from datetime import datetime,timezone
 from pathlib import Path
 from types import SimpleNamespace
@@ -24,6 +24,24 @@ class Controls(unittest.TestCase):
   v=report([dict(name='renamed-demo',version='2.0-1',arch='any',pkgbase='demo',provides=['demo']),dict(name='Demo',version='2.0-1',arch='aarch64')]);self.assertTrue(all(r['status']=='UNKNOWN_NO_TRACKER_MATCH'and r['findings']==[]for r in v['packages']))
  def test_missing_fix_unknown_status_and_duplicate_asa_preserved(self):
   g=group(fixed=None);g['status']='Unknown';g['severity']='Unknown';g['advisories']*=2;v=report(groups=[g]);f=v['packages'][0]['findings'][0];self.assertEqual(f['arch_status'],'Unknown');self.assertEqual(f['advisories'],g['advisories']);self.assertEqual(f['version_relation'],'UNKNOWN_NO_ARCH_FIXED_VERSION')
+ def test_text_report_preserves_cve_and_arch_advisory_references(self):
+  for issues,advisories in [([],['ASA-202610-1']),(['CVE-2026-12345'],['ASA-202610-1']*2),(['CVE-2026-12345'],[]),([],[])]:
+   with self.subTest(issues=issues,advisories=advisories):
+    g=dict(group(fixed=None),issues=issues,advisories=advisories);raw=M.encoded([g]);value=report(groups=[g]);value['cache']=M.provenance(meta(raw),raw,NOW,24);text=M.text_report(value)
+    self.assertEqual('  CVEs: 'in text,bool(issues));self.assertEqual('  Arch advisories: 'in text,bool(advisories))
+    for reference in issues+advisories:self.assertIn(reference,text)
+    if advisories:self.assertIn('  Arch advisories: '+', '.join(advisories),text)
+    self.assertEqual(value['packages'][0]['findings'][0]['advisories'],advisories)
+    self.assertIn('security status UNKNOWN',text)
+ def test_cli_asa_only_finding_is_visible_in_readable_report(self):
+  with tempfile.TemporaryDirectory()as td:
+   root=Path(td);groups=[dict(group(fixed=None),issues=[])];raws={'inventory.json':M.encoded([item()]),'advisories.json':M.encoded(groups)};raws['provenance.json']=M.encoded(meta(raws['advisories.json']))
+   for name,raw in raws.items():(root/name).write_bytes(raw)
+   command=[sys.executable,'-I','-B',str(HERE/'security_advisories.py'),'--inventory',str(root/'inventory.json'),'--advisories',str(root/'advisories.json'),'--provenance',str(root/'provenance.json'),'--output',str(root/'report'),'--as-of','2026-10-19T20:00:00Z']
+   result=subprocess.run(command,capture_output=True,timeout=15);self.assertEqual(result.returncode,0,result.stderr)
+   value=json.loads((root/'report/report.json').read_bytes());text=(root/'report/report.txt').read_text()
+   self.assertEqual(value['packages'][0]['findings'][0]['advisories'],['ASA-202610-1']);self.assertIn('  Arch advisories: ASA-202610-1',text);self.assertNotIn('  CVEs:',text);self.assertIn('ARM fixed: UNKNOWN',text)
+   for name,raw in raws.items():self.assertEqual((root/'report'/name).read_bytes(),raw)
  def test_incomplete_pkgrel_never_uses_vercmp_equality_as_fix(self):
   with patch.object(M,'compare',side_effect=AssertionError('no incomplete tuple ordering')):v=report([item('2.0')])
   self.assertEqual(v['packages'][0]['findings'][0]['version_relation'],'UNKNOWN_INCOMPLETE_PACKAGE_VERSION')
