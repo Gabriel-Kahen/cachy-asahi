@@ -11,7 +11,7 @@ def load_functions(path,names,constants=()):
  nodes=[n for n in ast.parse(path.read_bytes()).body if isinstance(n,ast.FunctionDef)and n.name in names or isinstance(n,ast.Assign)and any(isinstance(t,ast.Name)and t.id in constants for t in n.targets)]
  ns=dict(need=need,Path=Path,json=json,re=re,os=os,stat=__import__('stat'),digest=lambda b:pin(b)['sha256']);exec(compile(ast.Module(body=nodes,type_ignores=[]),str(path),'exec'),ns);return ns
 P=load_functions(N/'source_tools_probe_v1.py',{'namespace_observation','namespace_unshare','namespace_read','namespace_context','namespace_binary'},('NS_MODES','NS_STATUS','NS_POLICY'))
-A=load_functions(N/'source_tools_alpm_v1.py',{'observe_namespace_failure'},('NS_OBSERVATION_MODES',));A['SOURCE']=Path('/opt/native-source-tools-alpm-v1/source');A['time']=types.SimpleNamespace(monotonic=lambda:0)
+A=load_functions(N/'source_tools_alpm_v1.py',{'observe_namespace_failure','unknown_image_build_context','image_build_context'},('NS_OBSERVATION_MODES',));A['SOURCE']=Path('/opt/native-source-tools-alpm-v1/source');A['time']=types.SimpleNamespace(monotonic=lambda:0)
 R=load_functions(N/'source_tools_reader_v1.py',{'source_tools_namespace_data'});R['pin']=pin
 spec=importlib.util.spec_from_file_location('_new_namespace_factory',HERE/'assemble_source.py');FACTORY=importlib.util.module_from_spec(spec);spec.loader.exec_module(FACTORY)
 
