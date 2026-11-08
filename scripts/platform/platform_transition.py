@@ -6,15 +6,24 @@ Exit 0: data plan complete, 2: concrete blockers, 1: malformed/unbound input.
 Neither exit 0 nor an explicit policy establishes compatibility or recovery.
 """
 import argparse
+import atexit
 import hashlib
 import importlib.util
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
+import tempfile
 import time
 
 sys.dont_write_bytecode = True
+# -B prevents writes, but still permits stale PYC reads. Match private preparation.
+_source_cache = tempfile.TemporaryDirectory(prefix='platform-transition-source-cache-', dir=os.environ.get('TMPDIR'))
+sys.pycache_prefix = _source_cache.name
+os.environ['PYTHONPYCACHEPREFIX'] = _source_cache.name
+os.environ['TMPDIR'] = _source_cache.name
+atexit.register(_source_cache.cleanup)
 ROOT = next(p for p in Path(__file__).resolve().parents
             if (p / 'scripts/platform/tuple_audit.py').is_file())
 

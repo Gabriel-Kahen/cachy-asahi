@@ -1,0 +1,11 @@
+{
+  "case": "normal",
+  "inputs_sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f",
+  "integration_sha256": "",
+  "kernel_input_source": "24252ac5d5b416d4407e33725ffbfabac28e0bc8",
+  "lifecycle_mode": "normal-emulated16k-lifecycle-v1",
+  "mode": "build",
+  "page_profile": "generic16k",
+  "recipes_sha256": "a5fb287b4dda2a90bf61d4fa8cbbc5d666dad8bb450a70544d00545b091f36e3",
+  "source": "d91ddd0673e1915678669b39dd9634277f4d044b"
+}

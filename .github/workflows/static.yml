@@ -342,6 +342,7 @@ jobs:
       - name: Check isolated ARM experiment packages with pinned source on host ISA
         run: |
           python3 -I -B -Werror::ResourceWarning scripts/ci/test_fetch_zlib_source.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/test_local_zlib_source.py
           c01_source_dir="$(mktemp -d "$RUNNER_TEMP/c01-package-source.XXXXXX")"
           trap 'rm -rf -- "$c01_source_dir"' EXIT
           timeout --signal=TERM --kill-after=5s 60s \

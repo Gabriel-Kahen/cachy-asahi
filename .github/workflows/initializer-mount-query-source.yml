@@ -63,3 +63,11 @@ jobs:
           set -euo pipefail
           ulimit -t 60 -v 1048576 -f 4096 -n 128
           timeout --signal=TERM --kill-after=5s 60s python3 -I -B -Werror scripts/ci/updater-hash-cost-intake/test_intake.py
+      - name: Check NEW10 maintained normal-v2 disk persistent API DATA controls
+        timeout-minutes: 2
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          set -euo pipefail
+          ulimit -t 60 -v 1048576 -f 4096 -n 128
+          timeout --signal=TERM --kill-after=5s 60s python3 -I -B -Werror scripts/ci/updater-hash-cost/test_persistent_api.py

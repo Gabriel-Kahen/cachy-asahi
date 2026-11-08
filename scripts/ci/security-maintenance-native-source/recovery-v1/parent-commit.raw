@@ -1,0 +1,6 @@
+tree 693c61dab8e3ae2383afc971a585b5236403435c
+parent ff8241ec2c73b69d6e54b8ee15209ef30760d619
+author Gabriel Kahen <93809974+Gabriel-Kahen@users.noreply.github.com> 1794132705 -0500
+committer Gabriel Kahen <93809974+Gabriel-Kahen@users.noreply.github.com> 1794132705 -0500
+
+Record Security observer source compile and loaded object provenance

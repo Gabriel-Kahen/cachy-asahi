@@ -660,9 +660,9 @@
       "sha256": "4438b69a135ff5c6ea444e973b8a9bc886b1b6cdc8446401d1f9f5c890636703"
     },
     "native/platform_namespace_policy_v1.py": {
-      "bytes": 65440,
+      "bytes": 69181,
       "mode": 420,
-      "sha256": "63752203523e7776e34a384905cada94410bf825b3e308b0b13c8fe2d814935d"
+      "sha256": "254762fc1d3b4b5605b08b671d15b0ea3b61242d110a271a1ab2391c36ec288d"
     },
     "native/platform_projection_v1.py": {
       "bytes": 14295,

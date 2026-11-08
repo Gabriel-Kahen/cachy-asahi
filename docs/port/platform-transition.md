@@ -147,6 +147,14 @@ inputs and creates no final report. Reports always leave transaction,
 installation, fresh crypto, owner trust, hardware and recovery acceptance false.
 Both M2 Air hardware workflows remain `NOT RUN`.
 
+Before importing project helpers, the standalone planner creates a fresh private
+bytecode-cache prefix, matching `prepare_transition.py`. Python [`-B`](https://docs.python.org/3.14/using/cmdline.html#cmdoption-B) prevents
+cache writes but does not prevent reads; checkout-adjacent or inherited stale
+PYC files must not replace the source whose hashes the report records. Workers
+inherit the private [`sys.pycache_prefix`](https://docs.python.org/3.14/library/sys.html#sys.pycache_prefix), and each planner process removes its own scratch
+directory on normal exit. Public arguments, report schema, policy decisions and
+all acceptance boundaries are unchanged.
+
 Dependency witnesses retain every matching provider. Consumer impact reuses
 `compare_releases.dependency_impact`; added-only package dependencies are reported
 separately. Neither consumer paths nor successful dependency witnesses select

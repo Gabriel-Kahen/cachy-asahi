@@ -1,0 +1,43 @@
+name: Release exact rootfs transport DATA controls
+on:
+  pull_request:
+    paths: ['scripts/ci/release-tools-native-source/pid1-rootfs-transport-v1/**', '.github/workflows/release-tools-rootfs-transport-source.yml']
+  push:
+    branches: [main]
+    paths: ['scripts/ci/release-tools-native-source/pid1-rootfs-transport-v1/**', '.github/workflows/release-tools-rootfs-transport-source.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  variant-data:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Checkout immutable failed parent as DATA only
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 7d11efd7c15026d0480eaf58657dc3b0c1ad4bd8
+          path: .ci-inputs/release-rootfs-parent
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Construct exact Source201 DATA successor
+        run: >-
+          python -I -B -Werror::ResourceWarning
+          scripts/ci/release-tools-native-source/pid1-rootfs-transport-v1/prepare.py
+          --parent-source "$GITHUB_WORKSPACE/.ci-inputs/release-rootfs-parent"
+          --output "$RUNNER_TEMP/release-rootfs-source"
+          --profile-sha256 7d55c345a8639f8b7ce19e4a734b7cdfa066cc1663ff13dfede669621250dbf9
+      - name: Run thirteen NEW transport DATA controls
+        run: >-
+          python -I -B -Werror::ResourceWarning
+          scripts/ci/release-tools-native-source/pid1-rootfs-transport-v1/test_rootfs_transport.py
+          --parent-source "$GITHUB_WORKSPACE/.ci-inputs/release-rootfs-parent"

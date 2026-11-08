@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fetch fixed zlib bytes from two official endpoints; no extraction or build."""
+"""Stage fixed zlib bytes locally or from two official endpoints; no extraction or build."""
 import argparse
 import hashlib
 from http.client import HTTPException
@@ -90,13 +90,76 @@ def parent_descriptor(output):
         raise
 
 
+def _stage(output, parent, response, *, expected_sha256, deadline, budget, clock,
+           declared=None, before_publish=None, local=False):
+    """One bounded byte validator and exclusive publisher for both input routes."""
+    temporary = None
+    size = 0
+    try:
+        candidate = '.' + FILENAME + '.' + secrets.token_hex(12) + '.part'
+        descriptor = os.open(candidate, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC, 0o600, dir_fd=parent)
+        temporary = candidate
+        size = 0
+        digest = hashlib.sha256()
+        prefix = bytearray()
+        with os.fdopen(descriptor, 'wb') as stream:
+            os.fchmod(stream.fileno(), 0o600)
+            while True:
+                need(clock() < deadline, 'deadline')
+                try:
+                    block = response.read(min(65536, MAX_BYTES + 1 - budget[0]))
+                except (OSError, URLError, HTTPException) as error:
+                    if local:
+                        raise Refused('local-read') from None
+                    raise unavailable(error, 'read') from None
+                need(clock() < deadline, 'deadline')
+                if not block:
+                    break
+                size += len(block)
+                budget[0] += len(block)
+                need(budget[0] <= MAX_BYTES, 'stream-size')
+                prefix.extend(block[:max(0, 2 - len(prefix))])
+                digest.update(block)
+                need(stream.write(block) == len(block), 'short-write')
+            need(size > 0 and (declared is None or size == declared), 'body-size')
+            need(bytes(prefix) == b'\x1f\x8b', 'gzip-magic')
+            need(digest.hexdigest() == expected_sha256, 'sha256')
+            stream.flush()
+            os.fsync(stream.fileno())
+            need(clock() < deadline, 'deadline')
+            if before_publish is not None:
+                before_publish()
+            parent_path = Path(os.path.abspath(output)).parent
+            info = os.fstat(parent)
+            need(parent_path == parent_path.resolve() and not any(p.is_symlink() for p in (parent_path, *parent_path.parents))
+                 and (info.st_dev, info.st_ino) == (parent_path.stat().st_dev, parent_path.stat().st_ino), 'parent-identity')
+            # Hard-link publication is atomic and refuses an existing entry.
+            # The fully validated temporary body is never renamed over a path.
+            try:
+                os.link(temporary, FILENAME, src_dir_fd=parent, dst_dir_fd=parent, follow_symlinks=False)
+            except FileExistsError:
+                raise Refused('destination-exists') from None
+            os.unlink(temporary, dir_fd=parent)
+            temporary = None
+            os.fsync(parent)
+        return dict(bytes=size, sha256=digest.hexdigest())
+    except Refused as error:
+        error.facts.setdefault('bytes', size)
+        raise
+    finally:
+        if temporary is not None:
+            try:
+                os.unlink(temporary, dir_fd=parent)
+            except FileNotFoundError:
+                pass
+
+
 def _fetch(output, *, expected_sha256, transport, clock=time.monotonic,
            source_url=FALLBACK_URL, deadline=None, budget=None):
     """Internal fixture seam; the public entry point always supplies SHA256."""
     deadline = clock() + SECONDS if deadline is None else deadline
     budget = [0] if budget is None else budget
     parent = parent_descriptor(output)
-    temporary = None
     response = None
     current = source_url
     size = 0
@@ -135,66 +198,23 @@ def _fetch(output, *, expected_sha256, transport, clock=time.monotonic,
             if declared is not None:
                 need(declared.isascii() and declared.isdecimal() and 0 < int(declared) <= MAX_BYTES, 'advertised-size')
                 declared = int(declared)
-            candidate = '.' + FILENAME + '.' + secrets.token_hex(12) + '.part'
-            descriptor = os.open(candidate, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC, 0o600, dir_fd=parent)
-            temporary = candidate
-            size = 0
-            digest = hashlib.sha256()
-            prefix = bytearray()
-            with os.fdopen(descriptor, 'wb') as stream:
-                os.fchmod(stream.fileno(), 0o600)
-                while True:
-                    need(clock() < deadline, 'deadline')
-                    try:
-                        block = response.read(min(65536, MAX_BYTES + 1 - budget[0]))
-                    except (OSError, URLError, HTTPException) as error:
-                        raise unavailable(error, 'read') from None
-                    need(clock() < deadline, 'deadline')
-                    if not block:
-                        break
-                    size += len(block)
-                    budget[0] += len(block)
-                    need(budget[0] <= MAX_BYTES, 'stream-size')
-                    prefix.extend(block[:max(0, 2 - len(prefix))])
-                    digest.update(block)
-                    need(stream.write(block) == len(block), 'short-write')
-                need(size > 0 and (declared is None or size == declared), 'body-size')
-                need(bytes(prefix) == b'\x1f\x8b', 'gzip-magic')
-                need(digest.hexdigest() == expected_sha256, 'sha256')
-                stream.flush()
-                os.fsync(stream.fileno())
-                need(clock() < deadline, 'deadline')
-                parent_path = Path(os.path.abspath(output)).parent
-                info = os.fstat(parent)
-                need(parent_path == parent_path.resolve() and not any(p.is_symlink() for p in (parent_path, *parent_path.parents))
-                     and (info.st_dev, info.st_ino) == (parent_path.stat().st_dev, parent_path.stat().st_ino), 'parent-identity')
-                # Hard-link publication is atomic and refuses an existing entry.
-                # The fully validated temporary body is never renamed over a path.
-                try:
-                    os.link(temporary, FILENAME, src_dir_fd=parent, dst_dir_fd=parent, follow_symlinks=False)
-                except FileExistsError:
-                    raise Refused('destination-exists') from None
-                os.unlink(temporary, dir_fd=parent)
-                temporary = None
-                os.fsync(parent)
+            staged = _stage(output, parent, response, expected_sha256=expected_sha256,
+                            deadline=deadline, budget=budget, clock=clock, declared=declared)
+            size = staged['bytes']
             return dict(status='VALIDATED_FIXED_ZLIB_SOURCE', source_url=source_url,
                         final_origin='https://' + urlsplit(current).netloc,
-                        filename=FILENAME, bytes=size, sha256=digest.hexdigest(),
+                        filename=FILENAME, bytes=size, sha256=staged['sha256'],
                         content_type=content_type, http_status=200, redirects=redirects)
     except Refused as error:
+        error.facts.setdefault('bytes', size)
         error.facts.update(source_url=source_url, final_origin='https://' + urlsplit(current).netloc,
-                           http_status=status, redirects=redirects, bytes=size)
+                           http_status=status, redirects=redirects)
         raise
     except (OSError, URLError, ValueError, HTTPException):
         raise Refused('filesystem', source_url=source_url, bytes=size) from None
     finally:
         if response is not None:
             response.close()
-        if temporary is not None:
-            try:
-                os.unlink(temporary, dir_fd=parent)
-            except FileNotFoundError:
-                pass
         os.close(parent)
 
 
@@ -216,7 +236,53 @@ def _fetch_sources(output, *, expected_sha256, transport, clock=time.monotonic):
         return result
 
 
-def fetch_source(output):
+def _local_source(output, archive, *, expected_sha256, clock=time.monotonic):
+    """Stage caller-supplied bytes without headers, URL interpretation or network."""
+    deadline = clock() + SECONDS
+    budget = [0]
+    descriptor = None
+    parent = None
+    try:
+        path = Path(os.path.abspath(archive))
+        need(not any(p.is_symlink() for p in (path, *path.parents)) and path == path.resolve(), 'local-symlink')
+        identity = lambda s: tuple(getattr(s, k) for k in (
+            'st_dev', 'st_ino', 'st_uid', 'st_gid', 'st_mode', 'st_nlink',
+            'st_size', 'st_mtime_ns', 'st_ctime_ns'))
+        initial = path.lstat()
+        need(stat.S_ISREG(initial.st_mode) and initial.st_uid == os.getuid()
+             and initial.st_nlink == 1 and stat.S_IMODE(initial.st_mode) in (0o600, 0o644), 'local-file')
+        need(0 < initial.st_size <= MAX_BYTES, 'local-size')
+        descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC)
+        need(identity(initial) == identity(os.fstat(descriptor)), 'local-identity')
+        def stable():
+            need(not any(p.is_symlink() for p in (path, *path.parents)) and path == path.resolve()
+                 and identity(initial) == identity(os.fstat(stream.fileno())) == identity(path.lstat()), 'local-changed')
+        with os.fdopen(descriptor, 'rb') as stream:
+            descriptor = None
+            parent = parent_descriptor(output)
+            result = _stage(output, parent, stream, expected_sha256=expected_sha256,
+                            deadline=deadline, budget=budget, clock=clock,
+                            declared=initial.st_size, before_publish=stable, local=True)
+        result.update(status='VALIDATED_FIXED_ZLIB_SOURCE', source_kind='local_archive',
+                      source_url=None, final_origin=None, filename=FILENAME,
+                      content_type=None, http_status=None, redirects=0,
+                      total_received_bytes=budget[0])
+        return result
+    except Refused as error:
+        error.facts.update(source_kind='local_archive', total_received_bytes=budget[0])
+        raise
+    except (OSError, ValueError, RuntimeError):
+        raise Refused('local-filesystem', source_kind='local_archive', total_received_bytes=budget[0]) from None
+    finally:
+        if descriptor is not None:
+            os.close(descriptor)
+        if parent is not None:
+            os.close(parent)
+
+
+def fetch_source(output, *, local_archive=None):
+    if local_archive is not None:
+        return _local_source(output, local_archive, expected_sha256=SHA256)
     # Ignore proxy environment and install no cookie, password or auth handler.
     # Two different fixed official endpoints; no retry, one shared deadline/cap.
     return _fetch_sources(output, expected_sha256=SHA256,
@@ -226,6 +292,7 @@ def fetch_source(output):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', required=True, help='New zlib-1.3.2.tar.gz in an existing ordinary directory')
+    parser.add_argument('--local-archive', help='Optional existing fixed archive; validate and stage without network')
     parser.add_argument('--receipt', help='New zlib-source-retrieval.json beside the archive')
     args = parser.parse_args(argv)
     def expired(signum, frame):
@@ -245,11 +312,13 @@ def main(argv=None):
                     os.fchmod(receipt_fd, 0o600)
                 finally:
                     os.close(parent)
-            result = fetch_source(args.output)
+            result = fetch_source(args.output, local_archive=args.local_archive)
         except (Refused, OSError) as error:
             result = dict(status='REFUSED', reason=str(error) if isinstance(error, Refused) else 'filesystem',
-                          source_url=URL, filename=FILENAME,
+                          source_url=None if args.local_archive is not None else URL, filename=FILENAME,
                           **(error.facts if isinstance(error, Refused) else {}))
+            if args.local_archive is not None:
+                result['source_kind'] = 'local_archive'
             code = 1
         else:
             code = 0
@@ -262,7 +331,10 @@ def main(argv=None):
                     stream.flush()
                     os.fsync(stream.fileno())
             except (OSError, Refused):
-                result = dict(status='REFUSED', reason='receipt-write', source_url=URL, filename=FILENAME)
+                result = dict(status='REFUSED', reason='receipt-write',
+                              source_url=None if args.local_archive is not None else URL, filename=FILENAME)
+                if args.local_archive is not None:
+                    result['source_kind'] = 'local_archive'
                 code = 1
         print(json.dumps(result, sort_keys=True))
         return code

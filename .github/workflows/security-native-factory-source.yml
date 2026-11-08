@@ -97,3 +97,22 @@ jobs:
             --baseline-contract "$security_retained/overlay/native/security-contract-v1.json" \
             --results "$security_provenance_stage/results.json"
           python -I -B -c 'import json,sys; r=json.load(open(sys.argv[1])); assert r["status"]=="PASS" and r["controls"]==55 and r["failures"]==r["errors"]==0 and r["actor_network_FFI_denied"] is True and r["old_suite_replays"]==r["reader_validate_replays"]==r["C_callbacks"]==r["Git_API_native"]==0' "$security_provenance_stage/results.json"
+
+      - name: Checkout exact Security850 recovery parent as DATA
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 850368889d6dcabdc8afbe87f64f05650c44f90a
+          path: .ci-security-recovery-parent
+          persist-credentials: false
+      - name: Complete recovery original62 and new103 controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          security_recovery_stage=$(mktemp -d "$RUNNER_TEMP/security-recovery-controls.XXXXXXXX")
+          mkdir -m700 "$security_recovery_stage/parent"
+          test "$(/usr/bin/git -C .ci-security-recovery-parent rev-parse --verify HEAD)" = 850368889d6dcabdc8afbe87f64f05650c44f90a
+          /usr/bin/git -c tar.umask=0022 -C .ci-security-recovery-parent archive --format=tar 850368889d6dcabdc8afbe87f64f05650c44f90a | tar -xf - -C "$security_recovery_stage/parent"
+          security_recovery_factory="$GITHUB_WORKSPACE/scripts/ci/security-maintenance-native-source/recovery-v1"
+          python -I -B -Werror::ResourceWarning "$security_recovery_factory/run_controls.py" --parent-source "$security_recovery_stage/parent" --results "$security_recovery_stage/all165-results.json"
+          python -I -B -c 'import json,sys; r=json.load(open(sys.argv[1])); assert r["status"]=="PASS" and r["tests"]==165 and r["original_controls"]==62 and r["new_controls"]==103 and r["cached_results_counted"] is False and all(g["status"]=="PASS" and g["retirement"]["exit"]==0 for g in r["groups"])' "$security_recovery_stage/all165-results.json"

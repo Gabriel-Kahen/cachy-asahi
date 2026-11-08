@@ -45,7 +45,7 @@
   },
   "scripts/ci/expanded-development-composition/source-pins.json": {
     "bytes": 2784,
-    "sha256": "abc46fbd749a65ec89ce6f38f434ab3ea02b3c2e67bd82d0ef46a400378a9b07"
+    "sha256": "2ae1bcaf783d4da1121672d1437bc4a2b936c592da85722436a8bf9db83e7eab"
   },
   "scripts/ci/expanded-development-composition/test_source.py": {
     "bytes": 19854,
