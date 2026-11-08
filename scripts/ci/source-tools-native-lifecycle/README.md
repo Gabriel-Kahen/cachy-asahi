@@ -2,13 +2,13 @@
 
 Maintained source-only ARM build/lifecycle lane for the exact original MIT `cachy-asahi-source-tools`0.1.0-1 recipe. This directory is an additive main-branch development change. It owns no package directory, shared manifest, current native workflow or host integration.
 
-`overlay/` contains exactly fourteen operands against genuine retained191 Source commit `111f14d2b21b220d86912d5ead978848c7ef1cb0`: nine new source-tools components/data files and five explicit owner/invocation/workflow/source-map seams. The data-only assembler checks the retained raw parent commit, every parent byte/mode, whole Git tree, exact overlay and final closed200 map/tree. It imports or executes no operand, launches no subprocess and uses no network. Output is a fresh ordinary tree published without overwriting an existing destination. Root supplies the existing locally retained genuine parent Source; no acquisition helper is provided.
+`overlay/` contains exactly fourteen operands against physical retained191 Source commit `c5e2c80a6dc2c66b471b4ea5d5162963c08a36b8` (historical `111f14d2b21b220d86912d5ead978848c7ef1cb0` remains provenance DATA; the191-file tree is unchanged): nine new source-tools components/data files and five explicit owner/invocation/workflow/source-map seams. The data-only assembler checks the retained raw parent commit, every parent byte/mode, whole Git tree, exact overlay and final closed200 map/tree. It imports or executes no operand, launches no subprocess and uses no network. Output is a fresh ordinary tree published without overwriting an existing destination. Root supplies the existing locally retained genuine parent Source; no acquisition helper is provided.
 
 ```
 python -I -B assemble_source.py \
   --parent-source /absolute/retained-genuine191/source \
   --raw-parent-commit /absolute/this-directory/parent-commit.txt \
-  --profile-sha256 da31f43fd89d246087047c626b385b875caa64c6f50d94515dc60610b64df024 \
+  --profile-sha256 b07413e8befedb72e653a61e3099b13aa8a7f990986d6f62d71c8fe84c988a77 \
   --output /absolute/private-parent/fresh-source
 ```
 
