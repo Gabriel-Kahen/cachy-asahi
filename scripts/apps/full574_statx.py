@@ -2,12 +2,13 @@
 """Private Apps bindings of the exact proven descriptor statx/fdinfo query."""
 import functools,hashlib,json,os,re,time,types
 from contextlib import contextmanager
+from pathlib import Path
 
 PINS={
  'scripts/update/aux_checkpoint.py':(18456,'d51179ca24c981bafd817d7db082c0ceb3b2f5deb922004bfe97d1e2007edda7'),
  'scripts/update/measure_copy.py':(25734,'e582245bd114b0b9d83f2de4fdc81a35d2f48493ba6147879871af794476813b'),
  'scripts/ci/expanded600-installer-vm/observer600.py':(2784,'c3d804e7f2927c7889835ad187a39a3d7c618a4651700f57b0c5413c46612607'),
- 'scripts/update/full_root.py':(35970,'cece1c597b2e2eb98b0e3087cc7e7c148b54332f8a1c4f18e04e4552a71fb51d'),
+ 'scripts/update/full_root.py':(36200,'1a8a788572325ca68d29abfe34008fd5227d8fb6ff5abccdc12624e110837f8f'),
  'scripts/update/aux_copy.py':(3736,'bff93c029e21f9fce0868c80566396984443c8d3438264fac8a91c985175f05b'),
  'scripts/apps/file_capabilities.py':(13562,'498a3beec0327b9335dcd6d80ed5919fa2edebebd3284e9ee8b97770328e26a2'),
  'scripts/apps/full574_copy.py':(7799,'33d49316c28dee344e78e17d7e7ffa409c9d7ad09bb48a82651f7d44f1cb61a0')}
@@ -53,7 +54,16 @@ def bind(root,roots,caps,copy_scope,aux_copy,read):
     exec(compile(raw['scripts/ci/expanded600-installer-vm/observer600.py'],str(root/'scripts/ci/expanded600-installer-vm/observer600.py'),'exec'),helper.__dict__)
     facade=types.SimpleNamespace(**vars(roots))
     facade._mount_id=helper._mount600(roots._mount_id)
-    facade.observe=traced('tree-observe')(lambda path,**kwargs:helper._observer600(roots,path,**kwargs))
+    def observe(path,**kwargs):
+        # The frozen helper's walker guard belongs to its historical root.
+        # Recheck this exact current root and clone its walker for every call.
+        data=read(Path(roots.__file__))
+        size,pin=PINS['scripts/update/full_root.py']
+        if len(data)!=size or hashlib.sha256(data).hexdigest()!=pin:
+            raise ValueError('Apps statx exact source pin differs: scripts/update/full_root.py')
+        namespace=dict(roots.observe.__globals__,_mount_id=helper._mount600(roots._mount_id))
+        return clone(roots.observe,namespace)(path,**kwargs)
+    facade.observe=traced('tree-observe')(observe)
     # Auxiliary reads previously retained the slow fdinfo query through two
     # separate namespaces. Clone the exact Reader/descriptor bodies, never
     # their observations, so every original live check and hash runs afresh.
