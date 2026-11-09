@@ -44,7 +44,9 @@ Probe limits remain one CPU, 128 MiB and 32 PIDs. Commands retain 180 seconds ea
 seconds total. This new operation allocates three 450-second owned command
 windows: build/sign/install, installed journeys, and moved journeys plus removal/
 restoration. They share the original immutable command list and supervisor.
-The explicit allocation is 1,440 command seconds including cleanup; the new
+The overall operation has an actual 1,440-second monotonic deadline with 90
+seconds reserved for cleanup. Each fixed window is clamped to that deadline;
+there are no additional renewals. The new
 tools-image actor has a finite 1,800-second cap. No old-budget fit or performance
 claim follows. All original package/helper bytes and retirement rules stay held.
 Each packaged journey receives 20-second commands and a 90-second total within

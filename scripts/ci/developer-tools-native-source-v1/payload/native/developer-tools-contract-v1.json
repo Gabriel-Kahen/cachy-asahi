@@ -707,6 +707,7 @@
     "download": "FORBIDDEN",
     "git": "FROZEN574_FIVE_PACKAGE_CLOSURE_NORMAL_PACMAN_SOLVING",
     "missing_tools": "NOT_RUN",
+    "overall_monotonic_seconds": 1440,
     "scope": "FIXED_AVAILABLE_OFFLINE_JOURNEYS_ONLY",
     "uv": "/opt/native-developer-tools/uv",
     "uv_pin": {
@@ -1042,6 +1043,7 @@
       "cleanup_whole_seconds": 90,
       "one_seconds": 180,
       "output_bytes": 1048576,
+      "overall_monotonic_seconds": 1440,
       "windows_seconds": [
         450,
         450,

@@ -244,7 +244,7 @@ def carrier_exit(report,retain_failure_image=False):
 
 
 def inside(source,map_hash):
- source=Path(source)
+ source=Path(source);operation_started=time.monotonic();operation_deadline=operation_started+1440
  need(os.getpid()>1 and os.getppid()==1,'PID1-shell variant requires non-PID1 Python directly parented by namespace init')
  need(os.getuid()==os.geteuid()==0 and os.uname().machine=='aarch64' and source==SOURCE and Path('/builder-packages.lock').is_file(),'explicit owned disposable native image root only')
  from common import verify_source
@@ -263,11 +263,14 @@ def inside(source,map_hash):
   for home in (signing,trust,work/'command-home'):home.mkdir(mode=0o700)
   alarm=pwd.getpwnam('alarm');W=T.load_workflow(source,policy)
   commands=W.Commands(scope,work/'command-home','/usr/bin:/bin',timeout=180,total=450,max_output=1024**2);report['commands']=commands.records
+  commands.deadline=min(commands.deadline,operation_deadline-90)
   report['command_windows']=[dict(name='build-sign-install',start=0,end=None,seconds=450)]
   def next_window(name):
    nonlocal commands
+   need(len(report['command_windows'])in(1,2)and name==('system-journeys'if len(report['command_windows'])==1 else'moved-journeys-remove-restore'),'only two fixed budget transitions')
    report['command_windows'][-1]['end']=len(commands.records)
    replacement=W.Commands(scope,work/'command-home','/usr/bin:/bin',timeout=180,total=450,max_output=1024**2)
+   replacement.deadline=min(replacement.deadline,operation_deadline-90)
    replacement.records=commands.records;commands=replacement
    report['command_windows'].append(dict(name=name,start=len(commands.records),end=None,seconds=450))
   def run(step,argv,expected=0,cwd=work):
@@ -350,7 +353,7 @@ def inside(source,map_hash):
    if commands is not None and work is not None:
     if report.get('command_windows'):report['command_windows'][-1]['end']=len(commands.records)
     try:
-     cleanup_commands=W.Commands(scope,work/'command-home','/usr/bin:/bin',timeout=20,total=90,max_output=1024**2);cleanup_commands.records=commands.records
+     cleanup_commands=W.Commands(scope,work/'command-home','/usr/bin:/bin',timeout=20,total=90,max_output=1024**2);cleanup_commands.records=commands.records;cleanup_commands.deadline=min(cleanup_commands.deadline,operation_deadline)
      def clean_run(step,argv,expected=0):
       before=len(cleanup_commands.records)
       try:return cleanup_commands.run(step,list(map(str,argv)),work,expected)
@@ -378,6 +381,10 @@ def inside(source,map_hash):
     except BaseException as error:
      report['cleanup']['failures'].append('protected-state:'+type(error).__name__)
      if primary is None:primary=error
+   elapsed=time.monotonic()-operation_started
+   report['operation_budget']=dict(limit_seconds=1440,elapsed_seconds=elapsed,deadline_met=elapsed<1440,cleanup_reserved_seconds=90)
+   if elapsed>=1440:
+    report['cleanup']['failures'].append('overall-monotonic-deadline')
    primary=primary_failure(primary,report['cleanup'])
    if primary is None:
     report['stages'].append('cleanup')
