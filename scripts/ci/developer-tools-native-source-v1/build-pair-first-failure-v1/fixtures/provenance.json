@@ -22,13 +22,13 @@
   },
   "launcher_note": "Fixed installed launcher shebang resolves /usr/bin/python3=3.14.7 even under selected3.12 parent; no native/ARM/makepkg/ALPM/M2 credit",
   "logs": {
-    "python312-package-controls.log": {
+    "python312-package-controls.txt": {
       "bytes": 1621,
       "scope": "ACTUAL_LOCAL_DISPOSABLE_PACKAGING_CONTROLS_NOT_NATIVE_OR_MAKEPKG",
       "selected_python": "3.12.13",
       "sha256": "7610fd37fe9b90bfba060eab83373c245c91d16307c1f2ad0baa49aac45c397f"
     },
-    "python314-package-controls.log": {
+    "python314-package-controls.txt": {
       "bytes": 1621,
       "scope": "ACTUAL_LOCAL_DISPOSABLE_PACKAGING_CONTROLS_NOT_NATIVE_OR_MAKEPKG",
       "selected_python": "3.14.7",

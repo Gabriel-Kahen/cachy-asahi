@@ -31,7 +31,7 @@ PROVENANCE=json.loads((HERE/'fixtures/provenance.json').read_bytes())
 
 def transcript(label='python312'):
     # Only the boundary marker is MODELED; all unittest bytes are actual local DATA.
-    return b'==> Starting check()\n'+(HERE/'fixtures'/(label+'-package-controls.log')).read_bytes()
+    return b'==> Starting check()\n'+(HERE/'fixtures'/(label+'-package-controls.txt')).read_bytes()
 
 @contextlib.contextmanager
 def model(check=CHECK,run_error=None,rename_error=None):
@@ -81,7 +81,7 @@ class BuildPairFailureTests(unittest.TestCase):
         package=REPO/'packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0.tar.gz'
         with tarfile.open(package,mode='r:gz')as archive:self.assertEqual(archive.extractfile('cachy-asahi-developer-tools-0.1.0/test_package.py').read(),raw)
         for label in('python312','python314'):
-            fixture=(HERE/'fixtures'/(label+'-package-controls.log')).read_bytes();self.assertEqual(pin(fixture),{k:PROVENANCE['logs'][label+'-package-controls.log'][k]for k in('bytes','sha256')})
+            fixture=(HERE/'fixtures'/(label+'-package-controls.txt')).read_bytes();self.assertEqual(pin(fixture),{k:PROVENANCE['logs'][label+'-package-controls.txt'][k]for k in('bytes','sha256')})
             expected=[f'{name} (__main__.{cls.name}.{name}) ... ok'for name in names]
             self.assertEqual(fixture.decode().splitlines()[:13],expected)
             self.assertEqual(CHECK(transcript(label)),READER_CHECK(transcript(label)));self.assertEqual(CHECK(transcript(label))['names'],names)
