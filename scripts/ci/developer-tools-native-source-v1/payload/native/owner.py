@@ -305,7 +305,7 @@ def run(root, args):
             '--label', LABEL + '.source=' + own['source'], '--iidfile', str(overlay / 'image-id'), str(context)]
         before = len(actor.rows); overlay_error = None
         try:
-            actor.run(command, timeout=600)
+            actor.run(command, timeout=1800)
         except BaseException as error:
             overlay_error = error
             raise

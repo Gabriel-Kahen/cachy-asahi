@@ -154,7 +154,7 @@ class DataTests(unittest.TestCase):
         for p in HERE.rglob('*.py'):ast.parse(p.read_bytes())
     def test17_consumer_probe_and_command_caps_held(self):
         r=CONTRACT['resources'];self.assertEqual(r['consumer']['cpu'],2);self.assertEqual(r['consumer']['memory_bytes'],4*1024**3);self.assertEqual(r['consumer']['pids'],256)
-        self.assertEqual(r['commands']['one_seconds'],180);self.assertEqual(r['commands']['whole_seconds'],450);self.assertEqual(r['commands']['cleanup_whole_seconds'],90)
+        self.assertEqual(r['commands']['one_seconds'],180);self.assertEqual(r['commands']['windows_seconds'],[450,450,450]);self.assertEqual(r['commands']['allocation_including_cleanup_seconds'],1440);self.assertEqual(r['commands']['cleanup_whole_seconds'],90)
         workflow=(HERE/'payload/.github/workflows/native-arm-build.yml').read_text();self.assertIn('group: native-arm-build\n  cancel-in-progress: false\n  queue: max',workflow);self.assertIn('ubuntu-24.04-arm',workflow);self.assertIn('timeout-minutes: 135',workflow)
 
 if __name__=='__main__':unittest.main(verbosity=2)

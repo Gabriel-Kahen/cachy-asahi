@@ -593,9 +593,9 @@
       "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
     },
     "native/developer-tools-contract-v1.json": {
-      "bytes": 36444,
+      "bytes": 36689,
       "mode": 420,
-      "sha256": "00ac19a5ace024d9d3196e3246f2df0c2eed32ccc785bc8969e7903576067fbe"
+      "sha256": "ec7d54e125237c28109550e8cefda97213253541580ac393be9940f14fd81d90"
     },
     "native/developer-tools-makepkg-v1.conf": {
       "bytes": 316,
@@ -608,9 +608,9 @@
       "sha256": "53f7b0c5c06edf6d468247ec81208c141da44ea203f392583fdcaa5f1f7e1b2a"
     },
     "native/developer_tools_alpm_v1.py": {
-      "bytes": 32221,
+      "bytes": 32869,
       "mode": 420,
-      "sha256": "2d2ea1f54dd510ff22db57639d6a8b48435226b25fc7a748b05c00393d76c821"
+      "sha256": "c110f3f5efd7efca3f081923d39fcb4ba6ebe7340751ad43f722b572119234b5"
     },
     "native/developer_tools_guest_v1.py": {
       "bytes": 3358,
@@ -625,12 +625,12 @@
     "native/developer_tools_projection_v1.py": {
       "bytes": 11146,
       "mode": 420,
-      "sha256": "bd7785b9c8ce5704e977ca66bc46ff1e843557ea525abd16ba8a808015bda52e"
+      "sha256": "c2aa212b1e5aec78cdd971e011ad8b13dde32836a749c2d16fedf7f1b0e9029a"
     },
     "native/developer_tools_reader_v1.py": {
-      "bytes": 138857,
+      "bytes": 139568,
       "mode": 420,
-      "sha256": "b99301f235b692d2055b327c8d38ce45bf8da41e3562b6b1aa63ad73e4e09c8e"
+      "sha256": "d269f597b4b80d331976fc281dd9a7f53b6b5b0602309e5bff5b00d9df8dcdcd"
     },
     "native/developer_tools_tools_v1.py": {
       "bytes": 18721,
@@ -673,9 +673,9 @@
       "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
     },
     "native/owner.py": {
-      "bytes": 33925,
+      "bytes": 33926,
       "mode": 420,
-      "sha256": "467d8dcbe3aebfdcf977d9a1bbd54bfae3f6a4480ca8b644f09d39eebb7480eb"
+      "sha256": "185922b9f7537b546ebd0aff431972d615d58f7cec3065336f94e6396ef4c450"
     },
     "native/predecessor-source-map.json": {
       "bytes": 27440,

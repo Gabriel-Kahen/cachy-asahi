@@ -263,6 +263,13 @@ def inside(source,map_hash):
   for home in (signing,trust,work/'command-home'):home.mkdir(mode=0o700)
   alarm=pwd.getpwnam('alarm');W=T.load_workflow(source,policy)
   commands=W.Commands(scope,work/'command-home','/usr/bin:/bin',timeout=180,total=450,max_output=1024**2);report['commands']=commands.records
+  report['command_windows']=[dict(name='build-sign-install',start=0,end=None,seconds=450)]
+  def next_window(name):
+   nonlocal commands
+   report['command_windows'][-1]['end']=len(commands.records)
+   replacement=W.Commands(scope,work/'command-home','/usr/bin:/bin',timeout=180,total=450,max_output=1024**2)
+   replacement.records=commands.records;commands=replacement
+   report['command_windows'].append(dict(name=name,start=len(commands.records),end=None,seconds=450))
   def run(step,argv,expected=0,cwd=work):
    nonlocal phase
    phase=step;before=len(commands.records)
@@ -311,6 +318,7 @@ def inside(source,map_hash):
   actual=inventory('installed-inventory');need(actual==T.inventory_expected(base,T.VERSION),'exact355 installed inventory')
   report['inventory']['installed']=dict(**T.data_pin(actual),count=355,version=T.VERSION)
   report['payloads']['installed']=T.check_payload('/',policy,run,pacman);report['stages'].append('install')
+  next_window('system-journeys')
   report['business']['system']=T.business(run,Path('/usr/bin')/T.NAME,user/'system',alarm.pw_uid,alarm.pw_gid,'system',source,policy,report['business']);report['stages'].append('commands-system')
   moved=user/'moved-prefix';moved.mkdir()
   for name,item in policy['recipe']['payload_files'].items():
@@ -319,6 +327,7 @@ def inside(source,map_hash):
   for target in (moved,*moved.rglob('*')):
    need(not target.is_symlink(),'moved aliases refused');os.chown(target,alarm.pw_uid,alarm.pw_gid)
    if target.is_dir():target.chmod(0o755)
+  next_window('moved-journeys-remove-restore')
   report['business']['moved']=T.business(run,moved/'usr/bin'/T.NAME,user/'relocated',alarm.pw_uid,alarm.pw_gid,'moved',source,policy,report['business']);report['stages'].append('commands-moved')
   exports_before=T.snapshot(user);report['exports_before']=T.snapshot_receipt(user)
   run('remove',['/usr/bin/pacman',*pacman,'--noconfirm','--noscriptlet','-R',T.NAME])
@@ -339,6 +348,7 @@ def inside(source,map_hash):
   try:
    cleanup_failures=[]
    if commands is not None and work is not None:
+    if report.get('command_windows'):report['command_windows'][-1]['end']=len(commands.records)
     try:
      cleanup_commands=W.Commands(scope,work/'command-home','/usr/bin:/bin',timeout=20,total=90,max_output=1024**2);cleanup_commands.records=commands.records
      def clean_run(step,argv,expected=0):

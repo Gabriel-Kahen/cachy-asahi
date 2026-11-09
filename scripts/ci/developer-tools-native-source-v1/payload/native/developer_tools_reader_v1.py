@@ -368,7 +368,7 @@ def retained_consumer_diagnostic(view, files, receipt, binding, map_sha256, posi
                 actor_exit=row.get('exit'), container=container)
 
 
-PRODUCERS = {'native/developer_tools_alpm_v1.py': '2d2ea1f54dd510ff22db57639d6a8b48435226b25fc7a748b05c00393d76c821', 'native/developer_tools_tools_v1.py': '7eb66422c8bb875bf129b124d58680ac9607ef22832708cea15a121a2936aca5', 'native/developer_tools_guest_v1.py': 'cb1e01fa781bd75bf7d05f8fde34cca397a0254153fcb4f471ceb88f7ce590a1', 'native/developer_tools_probe_v1.py': '20cdd0513969ad4182c6943f638f5a713d44fa23b393619e30f13a761d2d7c08', 'native/developer-tools-contract-v1.json': '00ac19a5ace024d9d3196e3246f2df0c2eed32ccc785bc8969e7903576067fbe', 'native/common.py': '7291a7892d92c5d28498ac4029c3f9c15e745b5a833d897eb650e1b36b4fe21b', 'native/bootstrap_inputs.py': '2bb8e87dd52110bf35a490107bcd1b978afed1b5eb03263035229b82b5d30294', 'native/provision.py': 'f62b7e23c303c58ed5661c532b375bdb48c2b15fb5e9fc268425079c5ae83f76', 'native/input-profile.json': '302a2df7d592a8a241a6f6b2cc6764fdd65ce0562d522b70ddd59d600dfc7a89', 'native/expected354.lock': '194c69d58e56b4bea56d729a750acc15f336924d87555d5b250776c607ffda24'}
+PRODUCERS = {'native/developer_tools_alpm_v1.py': 'c110f3f5efd7efca3f081923d39fcb4ba6ebe7340751ad43f722b572119234b5', 'native/developer_tools_tools_v1.py': '7eb66422c8bb875bf129b124d58680ac9607ef22832708cea15a121a2936aca5', 'native/developer_tools_guest_v1.py': 'cb1e01fa781bd75bf7d05f8fde34cca397a0254153fcb4f471ceb88f7ce590a1', 'native/developer_tools_probe_v1.py': '20cdd0513969ad4182c6943f638f5a713d44fa23b393619e30f13a761d2d7c08', 'native/developer-tools-contract-v1.json': 'ec7d54e125237c28109550e8cefda97213253541580ac393be9940f14fd81d90', 'native/common.py': '7291a7892d92c5d28498ac4029c3f9c15e745b5a833d897eb650e1b36b4fe21b', 'native/bootstrap_inputs.py': '2bb8e87dd52110bf35a490107bcd1b978afed1b5eb03263035229b82b5d30294', 'native/provision.py': 'f62b7e23c303c58ed5661c532b375bdb48c2b15fb5e9fc268425079c5ae83f76', 'native/input-profile.json': '302a2df7d592a8a241a6f6b2cc6764fdd65ce0562d522b70ddd59d600dfc7a89', 'native/expected354.lock': '194c69d58e56b4bea56d729a750acc15f336924d87555d5b250776c607ffda24'}
 
 PASS = 'PASS_DEVELOPER_TOOLS_NATIVE_ALPM_COMPONENT'
 OPERATION = 'developer-tools-alpm-v1'
@@ -1197,6 +1197,12 @@ def retained_developer_tools_alpm(view, files, guest, map_sha256):
             current = pin(b''.join(sorted(raw.splitlines(keepends=True)))); need(report.get(target, {}).get(key) == current, 'reasons join original raw ALPM query'); pins.append(current)
         need(pins[0] == pins[1], 'exact original installation reasons restored')
     journeys=developer_tools_business(view, prefix, report, selected, fixed, indexes['installed'], transactions[1], contract)
+    system_index,_=selected('system-help');moved_index,_=selected('moved-help');cleanup_index,_=selected('retire-signing')
+    bounds=[0,system_index,moved_index,cleanup_index];names=['build-sign-install','system-journeys','moved-journeys-remove-restore']
+    need(report.get('command_windows')==[dict(name=name,start=bounds[i],end=bounds[i+1],seconds=450)for i,name in enumerate(names)],'three exact finite command-budget windows')
+    for start,end in zip(bounds,bounds[1:]):
+        elapsed=[row['supervision'].get('seconds')for row in commands[start:end]]
+        need(all(type(t)in(int,float)and 0<=t<180 for t in elapsed)and sum(elapsed)<450,'each owned command and window retains its explicit time cap')
     developer_tools_restoration(report)
     cleanup = report.get('cleanup')
     need(cleanup == dict(homes_retired=True, no_sockets=True, private_directory_absent=True, failures=[])

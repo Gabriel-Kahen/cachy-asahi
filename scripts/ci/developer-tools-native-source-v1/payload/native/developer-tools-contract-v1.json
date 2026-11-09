@@ -696,13 +696,18 @@
   "journey_policy": {
     "child_command": 20,
     "child_total": 90,
+    "command_allocation_including_cleanup": 1440,
+    "command_windows": [
+      450,
+      450,
+      450
+    ],
     "commands": 180,
     "daemon_build_policy": "UNKNOWN",
     "download": "FORBIDDEN",
     "git": "FROZEN574_FIVE_PACKAGE_CLOSURE_NORMAL_PACMAN_SOLVING",
     "missing_tools": "NOT_RUN",
     "scope": "FIXED_AVAILABLE_OFFLINE_JOURNEYS_ONLY",
-    "total": 450,
     "uv": "/opt/native-developer-tools/uv",
     "uv_pin": {
       "bytes": 56689472,
@@ -1032,11 +1037,16 @@
   "required_namespace": "No standalone bwrap prerequisite or namespace PASS claim. Required: existing Docker/UID/network/read-only/capability/resource/ownership/cleanup guards and original packaged owned-process retirement.",
   "resources": {
     "commands": {
+      "allocation_including_cleanup_seconds": 1440,
       "cleanup_one_seconds": 20,
       "cleanup_whole_seconds": 90,
       "one_seconds": 180,
       "output_bytes": 1048576,
-      "whole_seconds": 450
+      "windows_seconds": [
+        450,
+        450,
+        450
+      ]
     },
     "consumer": {
       "cap_drop": "ALL",
@@ -1047,7 +1057,7 @@
       "pids": 256,
       "read_only": true
     },
-    "image_build": "UNCHANGED_DAEMON_DEFAULTS_NOT_INFERRED_BOUNDED_BY_CONSUMER_LIMITS",
+    "image_build": "NEW_DEVELOPER_OPERATION_TOOLS_ACTOR_1800_SECONDS; DAEMON_RESOURCE_POLICY_UNKNOWN; CONSUMER_LIMITS_DO_NOT_BOUND_BUILD",
     "probe": {
       "cpu": 1,
       "memory_bytes": 134217728,
