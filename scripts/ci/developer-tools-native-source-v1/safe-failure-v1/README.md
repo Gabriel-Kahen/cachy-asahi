@@ -7,8 +7,8 @@ safe-diagnostic helper, matching reader and map; 196 leaves and the complete
 200-file namespace remain held. The original factory/profile, actual failed
 Source and historical evidence are unchanged.
 
-Observed run42545003228 failed when the consumer correctly rejected the
-persisted image-stage FAIL. A separate public projection refused
+Observed run42545003228 failed when the consumer rejected persisted image-stage
+component evidence; the rejected fields and inner first failure were not retained. A separate public projection refused
 `actor-logs/0025.log` under PRIVACY_07, leaving the inner original first failure
 unavailable in the retained artifact. This variant does not reconstruct those
 omitted bytes or identify the inner cause; that cause remains UNKNOWN. No
