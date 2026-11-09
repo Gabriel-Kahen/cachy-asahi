@@ -7,7 +7,7 @@
     "source": null
   },
   "main_base": "dd12e3cc59a8669f9c5e0bcc02d04171339870a3",
-  "map_sha256": "fe6f19f476e4ad2912d57e28b7cc7311a1613dbfbbbeb44b9aedcf7094b8dfa9",
+  "map_sha256": "048af04c6467e88c61409182a470a501ce52e9e0a22d809645568ab06953252a",
   "operation": "hyprland03-alpm-v1",
   "overlay": {
     ".github/workflows/native-arm-build.yml": {
@@ -46,9 +46,9 @@
       "sha256": "dbaa768423800bd4be707009ca1d3d988e279b8ddae44e1e8239aca94f378148"
     },
     "native/build_tools_reader_v2.py": {
-      "bytes": 140272,
+      "bytes": 142807,
       "mode": 420,
-      "sha256": "dea935669ae362185a7e05334b48e4a200eb8652f2bbb6f4abda58f92186f71f"
+      "sha256": "9012d6873754667eb9e565d54469bc40a70d707a89fefbb44f98d4081adf6fa0"
     },
     "native/build_tools_tools_v2.py": {
       "bytes": 17801,
@@ -1276,7 +1276,7 @@
     "sha256": "fa317050fc47a818dedd1016dabe1146e31732020534a1231789152913c7ec14"
   },
   "parent_tree": "81d61d9e1f33c1638e9f67fbd7e39b158c603451",
-  "prospective_tree": "ad063ab70f80a14e0486ee8d092dd32e376840f9",
+  "prospective_tree": "c5434c40b3cab7c8754ff1c89399e6bec6818f03",
   "purpose": "hyprland03-finite-native-source-v1",
   "schema": 1
 }

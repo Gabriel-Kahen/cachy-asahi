@@ -246,7 +246,7 @@ class DataTests(unittest.TestCase):
         tree=ast.parse((NATIVE/'build_tools_reader_v2.py').read_bytes());v=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='validate');s=ast.unparse(v)
         self.assertLess(s.index('build_tools_local_binding('),s.index('open_capsule('))
         local=ast.unparse(next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='build_tools_local_binding'))
-        self.assertIn('verify_source(',local);self.assertIn('hyprland03_operation',local);self.assertIn('native/build_tools_reader_v2.py',local)
+        self.assertIn('os.O_NOFOLLOW',local);self.assertIn('hyprland03_operation',local);self.assertIn('native/build_tools_reader_v2.py',local)
 
     def test_19_exact_signed_lifecycle_and_cleanup_scope(self):
         s=(NATIVE/'build_tools_alpm_v2.py').read_text();self.assertIn('SigLevel = Required',s);self.assertIn('LocalFileSigLevel = Required',s)
@@ -291,6 +291,21 @@ class DataTests(unittest.TestCase):
         self.assertIn("choices=('hyprland03-alpm-v1',)",source)
         value=json.loads((NATIVE/'invocation.json').read_bytes())
         self.assertEqual(value['retention']['reader'][3],'native/build_tools_reader_v2.py')
+
+    def test_23_source97_strict_local_binding_held_with_only_operation_guard(self):
+        baseline=ast.parse((HERE/'fixtures/source97-local-binding.py.txt').read_bytes()).body[0]
+        tree=ast.parse((NATIVE/'build_tools_reader_v2.py').read_bytes())
+        current=copy.deepcopy(next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='build_tools_local_binding'))
+        added=current.body.pop(-2)
+        self.assertEqual(ast.dump(added,include_attributes=False),ast.dump(ast.parse("need(manifest.get('hyprland03_operation')==OPERATION,'exact Hyprland03 operation in Root-bound local Source map')").body[0],include_attributes=False))
+        self.assertEqual(ast.dump(current,include_attributes=False),ast.dump(baseline,include_attributes=False))
+        source=ast.unparse(current)
+        for predicate in ('os.O_NOFOLLOW','os.O_NONBLOCK','os.fstat(fd)','path.lstat()',
+                          'before.st_nlink == 1','before.st_size <= cap','nodes <= 1024',
+                          'len(path.relative_to(root).parts) <= 16','len(rows) == 199',
+                          'actual_dirs == expected_dirs','total <= 128 * 1024 ** 2',
+                          "rows['native/build_tools_reader_v2.py']",'PRODUCERS.items()'):
+            self.assertIn(predicate,source)
 
 
 if __name__=='__main__':unittest.main(verbosity=2)

@@ -92,17 +92,26 @@ resource admission, Native/Original actors and actual matching Reader calls.
 All new actual identities remain NULL. Common/capsule helpers must be separately
 qualified by the offline reader caller; the reader verifies the complete local
 Source/map, self and source producers before opening artifact ingress. It
-independently checks archive framing, source-bound payload/metadata, original
+retains Source97's bounded no-follow FD reads, stable fstat/lstat identities,
+node/depth/full namespace caps and199/200/self/producer checks, adding only the
+Hyprland03 operation guard. It independently checks archive framing, source-bound payload/metadata, original
 commands and logs, source/run identity, signing, ownership, restoration, cleanup
 and first-failure DATA. No artifact-delivered code is imported.
 
-Twenty-two actor-fenced DATA controls pass locally on Python3.12.13 and3.14.7.
+Twenty-three actor-fenced DATA controls pass locally on Python3.12.13 and3.14.7.
 They cover whole virtual Git/map/inverse algebra, current recipe checksums,
 frozen dependencies, successful/malformed check logs, PID1 shape, independent
 archive parsers, modeled passive pair/reinstall joins, natural-retirement
 refusals and first-failure retention. Static Pyflakes analysis passes. These
 checks do not invoke the constructor, publisher, actual reader or native actors.
 The dedicated workflow runs these same controls on Python3.12/3.14.
+
+The first implementation head was
+`eccc1db15d83363118b60c513bf690a72bf9079b`; dedicated workflow
+`42541320789` passed both Python jobs with22 controls. That history remains
+retained separately. The correction restores the strict Source97 local binding
+body plus one operation guard and adds one regression comparing its full AST
+and bounded/stable read predicates. All actual Source/native actors remain zero.
 
 Proposed manifest outcome after implementation merge: record source controls
 and CI only. Current0.1.0-3 native builds and installation remain **NOT RUN**

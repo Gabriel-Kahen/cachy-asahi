@@ -13,7 +13,7 @@ import re
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import consumer_contract, load, need, pin, read, verify_source
+from common import consumer_contract, load, need, pin, read
 from capsule import open_capsule
 from privacy_diagnostics import validate_refusal
 from safe_diagnostic import check_consumer
@@ -1514,17 +1514,38 @@ def build_tools_build_policy_data(view, files, receipt, binding, map_hash):
     return dict(status='VALIDATED_IMAGE_BUILD_LAUNCHER_POLICY_DATA_ONLY', receipt=value, native='NOT_ADMITTED')
 
 
-def build_tools_local_binding(map_sha256):
-    root = Path(__file__).resolve().parents[1]
-    mapping = verify_source(root, map_sha256)
-    need(len(mapping['files']) == 199 and mapping.get('hyprland03_operation') == OPERATION,
-         'exact finite Hyprland03 Source200 required before ingress')
-    for name, digest in PRODUCERS.items():
-        need(mapping['files'][name]['sha256'] == digest and pin(read(root/name))['sha256'] == digest,
-             'whole local source producer binding differs')
-    need(pin(read(root/'native/build_tools_reader_v2.py')) == {k: mapping['files']['native/build_tools_reader_v2.py'][k] for k in ('bytes','sha256')},
-         'whole matching local reader binding differs')
-    return mapping
+def build_tools_local_binding(expected_map):
+    """Authenticate the exact trusted local closed200 before capsule ingress and package-probe imports."""
+    import os
+    import stat
+    root=Path(__file__).resolve().parents[1];map_path=root/'native/source-map.json'
+    def whole(path,cap):
+        need(path==path.resolve()and not any(q.is_symlink()for q in(path,*path.parents)),'trusted local Source cannot alias')
+        fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK|os.O_CLOEXEC)
+        try:
+            before=os.fstat(fd);need(stat.S_ISREG(before.st_mode)and before.st_nlink==1 and 0<before.st_size<=cap,'bounded local Source leaf')
+            with os.fdopen(os.dup(fd),'rb')as f:raw=f.read(cap+1)
+            identity=lambda q:(q.st_dev,q.st_ino,q.st_mode,q.st_nlink,q.st_size,q.st_mtime_ns,q.st_ctime_ns)
+            need(len(raw)==before.st_size and identity(before)==identity(os.fstat(fd))==identity(path.lstat()),'stable exact local Source leaf');return raw,stat.S_IMODE(before.st_mode)
+        finally:os.close(fd)
+    raw,_=whole(map_path,1024**2);need(pin(raw)['sha256']==expected_map,'Root-bound local SourceMap hash before public capsule')
+    manifest=json.loads(raw);rows=manifest['files'];need(type(rows)is dict and len(rows)==199 and 'native/source-map.json'not in rows and manifest.get('actual')==dict(source=None,ref=None,run=None),'exact nonrecursive199-row new closed200 namespace')
+    actual=set();actual_dirs=set();total=0;nodes=0
+    for path in root.rglob('*'):
+        nodes+=1;need(nodes<=1024 and len(path.relative_to(root).parts)<=16,'held local Source node/depth caps')
+        info=path.lstat();need(not path.is_symlink()and(stat.S_ISREG(info.st_mode)or stat.S_ISDIR(info.st_mode)),'ordinary complete trusted local Source')
+        if stat.S_ISREG(info.st_mode):actual.add(path.relative_to(root).as_posix())
+        else:actual_dirs.add(path.relative_to(root).as_posix())
+    expected_dirs={str(q)for n in set(rows)|{'native/source-map.json'}for q in Path(n).parents if str(q)!='.'}
+    need(actual==set(rows)|{'native/source-map.json'}and actual_dirs==expected_dirs,'complete local Source200 without unlisted nodes or empty directories')
+    for name,row in rows.items():
+        q=Path(name);need(type(name)is str and q.as_posix()==name and not q.is_absolute()and '..'not in q.parts and 0<len(q.parts)<=16,'closed local Source relative path')
+        need(type(row)is dict and set(row)=={'bytes','sha256','mode'}and type(row['bytes'])is int and 0<row['bytes']<=64*1024**2 and type(row['mode'])is int and row['mode']in(0o644,0o755),'held local Source per-file descriptor caps')
+        body,mode=whole(root/name,row['bytes']);total+=len(body);need(total<=128*1024**2 and pin(body)=={k:row[k]for k in('bytes','sha256')}and mode==row['mode'],'every local Source200 body/mode held')
+    for name,digest in PRODUCERS.items():need(rows[name]['sha256']==digest,'all package producer pins must match external Root-bound Source map')
+    need(rows['native/build_tools_reader_v2.py']['sha256']==pin(whole(Path(__file__).resolve(),1024**2)[0])['sha256'],'matching reader self joins Root-bound Source')
+    need(manifest.get('hyprland03_operation')==OPERATION,'exact Hyprland03 operation in Root-bound local Source map')
+    return manifest
 
 
 def validate(capsule_path, expected):
