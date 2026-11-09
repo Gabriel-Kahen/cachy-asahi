@@ -6,16 +6,6 @@
     "run": null,
     "source": null
   },
-  "bounds_change": {
-    "all_old_namespace_resource_and_deadline_caps": "HELD",
-    "archive_decoded": 2097152,
-    "command_output": 1048576,
-    "exact_fixture_compressed": 4194304,
-    "fixture_decoded": 8388608,
-    "payload_row": 1048576,
-    "recipe_source_row": 4194304,
-    "source_bundle": 4194304
-  },
   "build_pair": {
     "logical_build_directory": "/opt/native-source-tools-alpm-v1/build-current",
     "packager": "cachy-asahi native TEST builder",
@@ -374,103 +364,33 @@
     "zstd-1.5.7-3-aarch64"
   ],
   "bundle": {
-    "bytes": 1648640,
-    "max_bytes": 4194304,
-    "members": 16,
+    "bytes": 40960,
+    "max_bytes": 1048576,
+    "members": 9,
     "path": "native/build-tools-sources-v2.tar",
-    "sha256": "731b9dd52a53a79ec2f9c83cf2f4bd552dfddce79af707cf44bf7ce0644ea565"
+    "sha256": "4e491adce0a4f46a6d89ef9034ad22a978b8d6a82aa9daebe9624ec34af3267c"
   },
   "dependencies": {
-    "bubblewrap": "0.13.0-1",
-    "fakeroot": "1:1.37.2-3",
-    "gnupg": "2.4.9-3",
-    "pacman": "7.1.0.r9.g54d9411-2",
+    "alacritty": "0.17.0-1",
+    "brightnessctl": "0.5.1-3",
+    "hyprland": "0.56.2-4",
+    "lua": "5.5.1-1",
     "python": "3.14.8-1",
-    "util-linux": "2.42.4-1",
-    "xz": "5.8.4-1",
+    "swaylock": "1.8.6-1",
+    "wireplumber": "0.5.18-1",
+    "wofi": "1.5.3-1",
     "zstd": "1.5.7-3"
   },
-  "dispatch_prerequisite": {
-    "actual": null,
-    "all1154_data_required": true,
-    "delivery_seconds": 480,
-    "historical_source": "111f14d2b21b220d86912d5ead978848c7ef1cb0",
-    "map_sha256": "d772a91574e72c80bb92624c75a9f0a1be18949be01342f7551961761ee18139",
-    "model_seal_sha256": "7ed9b03278e149bca004798d2c5f5352793d67c9fe1428741ce389fd2e0a105c",
-    "model_source_map_sha256": "d772a91574e72c80bb92624c75a9f0a1be18949be01342f7551961761ee18139",
-    "model_tree": "f45820b0ef37b48f50bbc361a22f53b5dd309506",
-    "network_seconds": 400,
-    "ref": "refs/heads/codex/native-developer-workflows-cache-transport-retirement-v1",
-    "source": "c5e2c80a6dc2c66b471b4ea5d5162963c08a36b8",
-    "status": "PROPOSED_GENUINE191_BASE_NEW_BUILD_TOOLS_OPERATION_UNRUN_REQUIRES_ROOT_CLASSIFICATION"
+  "dependency_closure": {
+    "hyprland": "0.56.2-4",
+    "missing": [],
+    "status": "EXACT_FROZEN349_DECLARED_RUNTIME_AND_BUILD_PRESENT"
   },
   "expected349": {
     "bytes": 6800,
     "count": 349,
     "sha256": "579981195b654d8cdf142e4101dfc2bfffbc3576eed50f23796a06e90cf57453"
   },
-  "failure_retention": "IMAGE_RESULT_AND_ORIGINAL_LOGS_RETAINED_BEFORE_CONSUMER_STATUS_GUARD; NO_NATIVE_CREDIT_FROM_CARRIER_IMAGE_EXIT",
-  "fixture_files": {
-    "baseline-source-plan.json": {
-      "bytes": 712,
-      "sha256": "33ced69e523d6c4e0dca51d6806475b2ae647aeeef069525cd4d9514a8ea5c48"
-    },
-    "inputs/notices/LICENSE.zlib": {
-      "bytes": 1002,
-      "sha256": "e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2"
-    },
-    "inputs/source-inputs.json": {
-      "bytes": 752,
-      "sha256": "50979bf81eda4d1f5b23fbe05aec5fabd7827b270fe3edda22b7189944004c43"
-    },
-    "lto-source-plan.json": {
-      "bytes": 712,
-      "sha256": "41171cddbb956e8e868f6af28064149a92ee3aa043ba0d49c8670036e504636a"
-    },
-    "recipes/baseline/LICENSE.project": {
-      "bytes": 1081,
-      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
-    },
-    "recipes/baseline/PKGBUILD": {
-      "bytes": 3210,
-      "sha256": "e512ef4b02cef42fd377b0501d44831ba6fb5174c02220cb3527d6f782b77a7d"
-    },
-    "recipes/baseline/probe.c": {
-      "bytes": 2822,
-      "sha256": "b85bab88cdb9048f26d5e812cc1ad2b8c783292882cbe3ab804e54353e4dfee1"
-    },
-    "recipes/baseline/strict-gzip.c": {
-      "bytes": 2002,
-      "sha256": "369e4e0e3f7c79b5d892edf7476ade41d6647332fb78f95ad7de7d8449bbaca9"
-    },
-    "recipes/lto/LICENSE.project": {
-      "bytes": 1081,
-      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
-    },
-    "recipes/lto/PKGBUILD": {
-      "bytes": 3214,
-      "sha256": "2c5c53ed0231fd9562c54b48d3773f33b6bdbecb92a8f30daca1fac101cf8786"
-    },
-    "recipes/lto/probe.c": {
-      "bytes": 2822,
-      "sha256": "b85bab88cdb9048f26d5e812cc1ad2b8c783292882cbe3ab804e54353e4dfee1"
-    },
-    "recipes/lto/strict-gzip.c": {
-      "bytes": 2002,
-      "sha256": "369e4e0e3f7c79b5d892edf7476ade41d6647332fb78f95ad7de7d8449bbaca9"
-    },
-    "zlib-1.3.2.tar.gz": {
-      "bytes": 1502830,
-      "sha256": "bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16"
-    }
-  },
-  "frozen_host_archive": {
-    "bytes": 41498,
-    "mode": 420,
-    "sha256": "9473d7180ef77e6c66fbf191870aee2c61d4550a8d9758457080925c9ee1254a"
-  },
-  "genuine_parent": "c5e2c80a6dc2c66b471b4ea5d5162963c08a36b8",
-  "host_archive_scope": "X86_64_HOST_ASSEMBLY_ONLY_NOT_NATIVE_ARCHIVE_IDENTITY",
   "invocation": {
     "inventory_counts": [
       349,
@@ -483,7 +403,7 @@
       0
     ],
     "signature_policy": "Required/Required",
-    "source": "/opt/native-build-tools-alpm-v2/source",
+    "source": "/opt/native-hyprland03-alpm-v1/source",
     "store": "/opt/native-build-tools-alpm-v2/evidence",
     "trust": "ONLY_EXPLICIT_EPHEMERAL_TEST_PUBLIC_PRIMARY"
   },
@@ -493,312 +413,136 @@
     "path": "native/build-tools-makepkg-v2.conf",
     "sha256": "8cdd968870a2a92d7006739e96dedefa14e51c40d62cfc15831f234a767a1421"
   },
-  "native": "NOT_RUN",
-  "native_16K": "NOT_QUALIFIED",
-  "operation": "build-tools-alpm-v2",
+  "operation": "hyprland03-alpm-v1",
   "original_workflow": {
     "bytes": 29699,
     "path": "scripts/workflows/developer_workflow.py",
     "sha256": "531c124cde3fa41d46888acfc638c823196bb2f297b19ab68ab3d001b05f16ba"
   },
-  "package_dependencies": {
-    "actual_retained_native_versions": "Separate exact349 dependency inventory; no solving or availability claim from package metadata",
-    "build": [],
-    "check": [],
-    "runtime": [
-      "python>=3.12"
-    ],
-    "test_environment": [
-      "bash",
-      "coreutils install",
-      "Python stdlib"
-    ]
-  },
   "package_origin": {
-    "Main": "39af4cc7d12573ac73d13c8832b42b72be1e1174",
-    "checker": {
-      "bytes": 11328,
-      "sha256": "eb8d24c6ccadcf94f2c6594d5dd3a7de035c19bcbf85fcdc9a90ea3287f1acfd"
-    },
-    "checker_Main": "8dd2a730540693a04e148557f6971d370471ba8a",
-    "checker_head": "9a225d5bc2d60c69a7ef06094251871ef0fe3988",
-    "checker_merge_proof": {
-      "CI": "COMPLETE_FRESH_73_ALL_LATEST_STATUS_4_RUNS_ALL_JOBS_24_LITERAL_METADATA_CONTROLS_BOTH_PYTHON",
-      "Main": "8dd2a730540693a04e148557f6971d370471ba8a",
-      "PR": 394,
-      "REST_base_SHA": "METADATA_ONLY",
-      "Source_publication": false,
-      "all_unlisted_held": true,
-      "combined_config_pin_joins": 0,
-      "files": 4,
-      "full_inverse": true,
-      "head": "9a225d5bc2d60c69a7ef06094251871ef0fe3988",
-      "merge_PUTs": 1,
-      "native": "NOT_RUN",
-      "parents": [
-        "2198a5c0514451cbfbb22b883f405dfc1f2c6f5d",
-        "9a225d5bc2d60c69a7ef06094251871ef0fe3988"
-      ],
-      "previous_Main": "2198a5c0514451cbfbb22b883f405dfc1f2c6f5d",
-      "retry": false,
-      "status": "PR394_LITERAL_RECIPE_METADATA_CONSISTENCY_MAIN4_MERGED_FULL_MAP_RAW_PARENTS_AND_CLEAN_FF",
-      "tree": "b8304fc88e10973fb3a0eb20dbbc8b76c3d19cd8"
-    },
-    "head": "7ef85998fbede9730355806b4e6d10649fe32d31",
-    "license": {
-      "bytes": 1081,
-      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
-    },
-    "merge_proof": {
-      "all_unlisted_objects_modes_preserved": true,
-      "changed_from_previous_main": [
-        ".github/workflows/build-tools-v2-package-data.yml",
-        "packages/tools/cachy-asahi-build-tools-v2/.SRCINFO",
-        "packages/tools/cachy-asahi-build-tools-v2/LICENSE",
-        "packages/tools/cachy-asahi-build-tools-v2/NOTICE",
-        "packages/tools/cachy-asahi-build-tools-v2/PKGBUILD",
-        "packages/tools/cachy-asahi-build-tools-v2/README.md",
-        "packages/tools/cachy-asahi-build-tools-v2/cachy-asahi-build-tools",
-        "packages/tools/cachy-asahi-build-tools-v2/check-inputs.tar.gz",
-        "packages/tools/cachy-asahi-build-tools-v2/import_source.py",
-        "packages/tools/cachy-asahi-build-tools-v2/package_checks.py",
-        "packages/tools/cachy-asahi-build-tools-v2/preflight.py",
-        "packages/tools/cachy-asahi-build-tools-v2/recipe_metadata_consistency.py",
-        "packages/tools/cachy-asahi-build-tools-v2/source-provenance.json",
-        "packages/tools/cachy-asahi-build-tools-v2/source_cache.py",
-        "packages/tools/cachy-asahi-build-tools-v2/source_delivery.py",
-        "packages/tools/cachy-asahi-build-tools-v2/source_materials.py",
-        "packages/tools/cachy-asahi-build-tools-v2/test_package.py"
-      ],
-      "inverse_restores_actual_premerge_main": true,
-      "main": "39af4cc7d12573ac73d13c8832b42b72be1e1174",
-      "merge_PUTs": 1,
-      "no_native_installed_M2_performance_release_acceptance": true,
-      "parents": [
-        "dadc9acb4d4fdcb903c548a6c569bec02c8d1890",
-        "7ef85998fbede9730355806b4e6d10649fe32d31"
-      ],
-      "previous_main": "dadc9acb4d4fdcb903c548a6c569bec02c8d1890",
-      "retry": false,
-      "status": "PASS_EXACT_SEVENTEEN_PATH_BUILD_TOOLS_V2_PACKAGE_MERGE",
-      "tested_head": "7ef85998fbede9730355806b4e6d10649fe32d31",
-      "tracked_clean": true,
-      "tree": "96f75795409b1d8b8e7663cb9a06bef4914bd839"
-    },
-    "proof": {
-      "bytes": 1783,
-      "sha256": "fbc55c799cb9cc2dbff617bd428fa14b1083c0aa75a33768f3ed3d6f7a9eda4a"
-    },
-    "recipe_path": "packages/tools/cachy-asahi-build-tools-v2",
-    "tree": "96f75795409b1d8b8e7663cb9a06bef4914bd839"
-  },
-  "parent_tree": "f45820b0ef37b48f50bbc361a22f53b5dd309506",
-  "performance": "NOT_MEASURED",
-  "physical_M2": "NOT_RUN",
-  "probe": {
-    "commands": 6,
-    "locations": [
-      "system",
-      "moved"
-    ],
-    "namespace_claim": "NONE",
-    "observations_per_location": 9,
-    "recipe_execution": "FORBIDDEN"
+    "main": "dd12e3cc59a8669f9c5e0bcc02d04171339870a3",
+    "merge_commit": "a314493c81cdb2fddc395b1358339612da3d8630",
+    "source_commit": "2ed7d2def99287bbad4b6ec29c92f4b01f877c88"
   },
   "recipe": {
-    "archive": "cachy-asahi-build-tools-0.2.0-1-any.pkg.tar.zst",
-    "expected_test_count": 11,
-    "expected_test_names": [
-      "test_consistency_imports_adjacent_checker_and_freezes_legacy_modules",
-      "test_exact_installed_code_paths_pins_modes_and_no_hooks",
-      "test_installed_consistency_match_stale_mismatch_and_explicit_metadata",
-      "test_installed_consistency_unsupported_shell_and_missing_metadata_never_match",
-      "test_missing_and_tampered_local_archive_refuse_without_objects",
-      "test_moved_package_import_verify_and_both_real_recipe_preflights",
-      "test_only_six_offline_commands_and_isolated_invocation_are_supported",
-      "test_poisoned_object_is_preserved_without_network_repair",
-      "test_recipe_shell_code_is_read_only_data_and_drift_refuses",
-      "test_user_workspace_python_and_environment_cannot_select_trusted_code",
-      "test_versioned_recipe_check_and_preflight_use_the_packaged_parser_without_srcinfo"
+    "archive": "cachy-asahi-hyprland-settings-0.1.0-3-any.pkg.tar.zst",
+    "check_semantics": "EXACT_RECIPE_PYTHON_COMPILE_LUAC_PARSE_JSON_TOOL",
+    "depends": [
+      "hyprland>=0.56.2",
+      "hyprland<0.57.0",
+      "alacritty",
+      "wofi",
+      "swaylock",
+      "wireplumber",
+      "brightnessctl",
+      "python"
+    ],
+    "expected_test_count": 3,
+    "makedepends": [
+      "lua",
+      "python"
+    ],
+    "name": "cachy-asahi-hyprland-settings",
+    "optdepends": [
+      "waybar: optional status bar template",
+      "mako: optional notification template",
+      "noto-fonts: readable sans-serif text",
+      "xdg-desktop-portal-hyprland: base-session screencast integration",
+      "xdg-desktop-portal-gtk: base-session file chooser integration",
+      "hyprpolkitagent: authorization agent if absent from the base session",
+      "grim: optional explicit screenshot-to-file capture",
+      "slurp: optional screenshot region selection"
     ],
     "payload_files": {
-      "usr/bin/cachy-asahi-build-tools": {
-        "bytes": 1542,
+      "usr/bin/cachy-asahi-screenshot": {
+        "bytes": 11854,
         "mode": 493,
-        "sha256": "34bd565ecd27191968d00d7141c555e015240ac726c3dfdfbe05fb1d120cfde8"
+        "sha256": "7dc01c020275f2d482f326bad0592e59bde140ba9cc349849ac5916e883e7c7d"
       },
-      "usr/lib/cachy-asahi-build-tools/trusted/scripts/build/offline-source-preflight-v1/preflight.py": {
-        "bytes": 3258,
+      "usr/share/cachy-asahi/hyprland/hyprland.lua": {
+        "bytes": 2875,
         "mode": 420,
-        "sha256": "24dcd252837853796d5a94c7ec81f9d5d9c9c7e7fbc565c5c607fa3cf1040652"
+        "sha256": "f75aebb1111123dc86c7f1a85e00bff0320edef6e6f071e28370fbabd6a40a6a"
       },
-      "usr/lib/cachy-asahi-build-tools/trusted/scripts/build/source-cache-local-v1/import_source.py": {
-        "bytes": 8210,
+      "usr/share/cachy-asahi/hyprland/mako.conf": {
+        "bytes": 100,
         "mode": 420,
-        "sha256": "9b91b767f082ce41009b609517b4fa0b285e2c0c43bcfc6e27666182eae9425f"
+        "sha256": "c6ab55ae475611bf2df2b7120b97a924eed5d65c149561d4da4f12b5b8c25504"
       },
-      "usr/lib/cachy-asahi-build-tools/trusted/scripts/build/source_materials.py": {
-        "bytes": 7877,
+      "usr/share/cachy-asahi/hyprland/waybar.css": {
+        "bytes": 257,
         "mode": 420,
-        "sha256": "9b0d95d2604ae4689f081283fc671281ce13879fcb146ddf4188873b05c89e5a"
+        "sha256": "a97930965a4e622adc920491c7d433a803173bb6e644c4c3c88efb79187e11d5"
       },
-      "usr/lib/cachy-asahi-build-tools/trusted/scripts/checks/package_checks.py": {
-        "bytes": 22139,
+      "usr/share/cachy-asahi/hyprland/waybar.json": {
+        "bytes": 436,
         "mode": 420,
-        "sha256": "fe305b58881c9fbcb53b351ee05aac1cb606f9e569a49f2485dd1892ab616168"
+        "sha256": "4c7adb2deb0403fefc4562d39105635cebfc44ce88e44fe84c4a90a00b2be3c0"
       },
-      "usr/lib/cachy-asahi-build-tools/trusted/scripts/checks/recipe_metadata_consistency.py": {
-        "bytes": 11328,
+      "usr/share/doc/cachy-asahi-hyprland-settings/README.md": {
+        "bytes": 8751,
         "mode": 420,
-        "sha256": "eb8d24c6ccadcf94f2c6594d5dd3a7de035c19bcbf85fcdc9a90ea3287f1acfd"
+        "sha256": "68f112074e0366b372e3261fea77480992537a43b3341cbd2bac49eb5a651163"
       },
-      "usr/lib/cachy-asahi-build-tools/trusted/scripts/maintenance/source_cache.py": {
-        "bytes": 14253,
-        "mode": 420,
-        "sha256": "3c922b1c5ea737605d7fd39aa986fa281c50bcf6926660390032e677706e28f3"
-      },
-      "usr/lib/cachy-asahi-build-tools/trusted/scripts/release/source_delivery.py": {
-        "bytes": 16456,
-        "mode": 420,
-        "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
-      },
-      "usr/share/doc/cachy-asahi-build-tools/README.md": {
-        "bytes": 8486,
-        "mode": 420,
-        "sha256": "c9f28e641311758bd0d59df1328425417f27470fd6c78e62f39b7626bb35f8d0"
-      },
-      "usr/share/doc/cachy-asahi-build-tools/source-provenance.json": {
-        "bytes": 6958,
-        "mode": 420,
-        "sha256": "2e33377157b68063865a780cdc0626968daa35275fdf5122fda3630bb6da2582"
-      },
-      "usr/share/licenses/cachy-asahi-build-tools/LICENSE": {
+      "usr/share/licenses/cachy-asahi-hyprland-settings/LICENSE": {
         "bytes": 1081,
         "mode": 420,
         "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
       },
-      "usr/share/licenses/cachy-asahi-build-tools/NOTICE": {
-        "bytes": 717,
+      "usr/share/licenses/cachy-asahi-hyprland-settings/NOTICE": {
+        "bytes": 1406,
         "mode": 420,
-        "sha256": "da5e3c158883a2d4c59dd65562174aa01859a2dd13d21d09ff1c60bb7559cc15"
+        "sha256": "0c8c331ce87a95b154e0e83c358a5cafc39bf08f2129ecc5be2438c6a97a325c"
       }
     },
     "source_files": {
-      ".SRCINFO": {
-        "bytes": 1842,
-        "mode": 420,
-        "sha256": "284f882fec7ad62922f041be7ddd903cca133a85b331e29ddc32279c2b9b2fad"
-      },
       "LICENSE": {
         "bytes": 1081,
         "mode": 420,
         "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
       },
       "NOTICE": {
-        "bytes": 717,
+        "bytes": 1406,
         "mode": 420,
-        "sha256": "da5e3c158883a2d4c59dd65562174aa01859a2dd13d21d09ff1c60bb7559cc15"
+        "sha256": "0c8c331ce87a95b154e0e83c358a5cafc39bf08f2129ecc5be2438c6a97a325c"
       },
       "PKGBUILD": {
-        "bytes": 3299,
+        "bytes": 2486,
         "mode": 420,
-        "sha256": "c943fc4187f0850a4cf631b199f05fdc09dbe1fdbd52d3add6d9fbc992e229da"
+        "sha256": "350b2920c55b2ddd7201adb9a949947e6d083f42eb75497e878097f1411917d5"
       },
       "README.md": {
-        "bytes": 8486,
+        "bytes": 8751,
         "mode": 420,
-        "sha256": "c9f28e641311758bd0d59df1328425417f27470fd6c78e62f39b7626bb35f8d0"
+        "sha256": "68f112074e0366b372e3261fea77480992537a43b3341cbd2bac49eb5a651163"
       },
-      "cachy-asahi-build-tools": {
-        "bytes": 1542,
-        "mode": 420,
-        "sha256": "34bd565ecd27191968d00d7141c555e015240ac726c3dfdfbe05fb1d120cfde8"
+      "cachy-asahi-screenshot": {
+        "bytes": 11854,
+        "mode": 493,
+        "sha256": "7dc01c020275f2d482f326bad0592e59bde140ba9cc349849ac5916e883e7c7d"
       },
-      "check-inputs.tar.gz": {
-        "bytes": 1509703,
+      "hyprland.lua": {
+        "bytes": 2875,
         "mode": 420,
-        "sha256": "112fa3eb9c18245ad95ea874f66c4943dc2678b0927e63a6ac705ff398e6ac72"
+        "sha256": "f75aebb1111123dc86c7f1a85e00bff0320edef6e6f071e28370fbabd6a40a6a"
       },
-      "import_source.py": {
-        "bytes": 8210,
+      "mako.conf": {
+        "bytes": 100,
         "mode": 420,
-        "sha256": "9b91b767f082ce41009b609517b4fa0b285e2c0c43bcfc6e27666182eae9425f"
+        "sha256": "c6ab55ae475611bf2df2b7120b97a924eed5d65c149561d4da4f12b5b8c25504"
       },
-      "package_checks.py": {
-        "bytes": 22139,
+      "waybar.css": {
+        "bytes": 257,
         "mode": 420,
-        "sha256": "fe305b58881c9fbcb53b351ee05aac1cb606f9e569a49f2485dd1892ab616168"
+        "sha256": "a97930965a4e622adc920491c7d433a803173bb6e644c4c3c88efb79187e11d5"
       },
-      "preflight.py": {
-        "bytes": 3258,
+      "waybar.json": {
+        "bytes": 436,
         "mode": 420,
-        "sha256": "24dcd252837853796d5a94c7ec81f9d5d9c9c7e7fbc565c5c607fa3cf1040652"
-      },
-      "recipe_metadata_consistency.py": {
-        "bytes": 11328,
-        "mode": 420,
-        "sha256": "eb8d24c6ccadcf94f2c6594d5dd3a7de035c19bcbf85fcdc9a90ea3287f1acfd"
-      },
-      "source-provenance.json": {
-        "bytes": 6958,
-        "mode": 420,
-        "sha256": "2e33377157b68063865a780cdc0626968daa35275fdf5122fda3630bb6da2582"
-      },
-      "source_cache.py": {
-        "bytes": 14253,
-        "mode": 420,
-        "sha256": "3c922b1c5ea737605d7fd39aa986fa281c50bcf6926660390032e677706e28f3"
-      },
-      "source_delivery.py": {
-        "bytes": 16456,
-        "mode": 420,
-        "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
-      },
-      "source_materials.py": {
-        "bytes": 7877,
-        "mode": 420,
-        "sha256": "9b0d95d2604ae4689f081283fc671281ce13879fcb146ddf4188873b05c89e5a"
-      },
-      "test_package.py": {
-        "bytes": 13672,
-        "mode": 420,
-        "sha256": "1705e35bd725c6cbbd08d69f14b69b7e0b5359c8681d27688c2166b5187acc83"
+        "sha256": "4c7adb2deb0403fefc4562d39105635cebfc44ce88e44fe84c4a90a00b2be3c0"
       }
     },
-    "version": "0.2.0-1"
+    "version": "0.1.0-3"
   },
-  "release": "NOT_ADMITTED",
-  "required_namespace": "NO_BUILD_TOOLS_BWRAP_COVERAGE_OR_NAMESPACE_PASS_CLAIM; original SourceTools route unchanged. New package retains existing Docker/UID/network/read-only/capability/resource/ownership/cleanup contract.",
-  "resources": {
-    "commands": {
-      "cleanup_one_seconds": 20,
-      "cleanup_whole_seconds": 90,
-      "one_seconds": 180,
-      "output_bytes": 1048576,
-      "whole_seconds": 450
-    },
-    "consumer": {
-      "cap_drop": "ALL",
-      "cpu": 2,
-      "memory_bytes": 4294967296,
-      "network": "none",
-      "no_new_privileges": true,
-      "pids": 256,
-      "read_only": true
-    },
-    "image_build": "UNCHANGED_DAEMON_DEFAULTS_NOT_INFERRED_BOUNDED_BY_CONSUMER_LIMITS",
-    "probe": {
-      "cpu": 1,
-      "memory_bytes": 134217728,
-      "pids": 32
-    }
-  },
-  "schema": 1,
-  "trusted_fixture": {
-    "bytes": 1509703,
-    "max_bytes": 4194304,
-    "mode": 420,
-    "sha256": "112fa3eb9c18245ad95ea874f66c4943dc2678b0927e63a6ac705ff398e6ac72",
-    "source": "check-inputs.tar.gz"
-  }
+  "schema": 1
 }

@@ -26,8 +26,8 @@
     "$RUNNER_TEMP/pgo-hosted-retained"
   ],
   "operations": {
-    "default": "source184",
-    "build-tools-alpm-v2": {
+    "default": "hyprland03-alpm-v1",
+    "hyprland03-alpm-v1": {
       "actual": {
         "ref": null,
         "run": null,
@@ -35,7 +35,7 @@
       },
       "argv_extra": [
         "--operation",
-        "build-tools-alpm-v2"
+        "hyprland03-alpm-v1"
       ],
       "matching_reader": "native/build_tools_reader_v2.py",
       "prerequisite": "ROOT_BOUND_RETAINED_TRANSPORT_SUCCESSOR_BEFORE_DISPATCH; CURRENT_NULL_HELD"
@@ -50,7 +50,7 @@
       "/usr/bin/python3",
       "-I",
       "-B",
-      "native/reader.py",
+      "native/build_tools_reader_v2.py",
       "--capsule",
       "ROOT_AUTHENTICATED_PUBLIC_TREE_TAR",
       "--binding",

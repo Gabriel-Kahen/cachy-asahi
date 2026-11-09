@@ -5,7 +5,6 @@ No process, network, native image or retained-code actor is created on import. T
 caller supplies the unchanged owned Commands runner for every future command.
 """
 import base64
-import gzip
 import hashlib
 import importlib.util
 import io
@@ -14,20 +13,16 @@ import os
 from pathlib import Path
 import re
 import stat
-import struct
 import tarfile
 
-OPERATION = 'build-tools-alpm-v2'
-NAME = 'cachy-asahi-build-tools'
-VERSION = '0.2.0-1'
-PREFIX = Path('/opt/native-build-tools-alpm-v2')
+OPERATION = 'hyprland03-alpm-v1'
+NAME = 'cachy-asahi-hyprland-settings'
+VERSION = '0.1.0-3'
+PREFIX = Path('/opt/native-hyprland03-alpm-v1')
 SOURCE = PREFIX / 'source'
 STORE = PREFIX / 'evidence'
-STAGES = ('build-a', 'build-b', 'compare', 'sign', 'install', 'commands-system',
-          'commands-moved', 'remove', 'restore', 'cleanup')
-SOURCE_ARCHIVE = 'check-inputs.tar.gz'
-SOURCE_FILES = frozenset(('.SRCINFO', 'LICENSE', 'NOTICE', 'PKGBUILD', 'README.md', 'cachy-asahi-build-tools', 'check-inputs.tar.gz', 'import_source.py', 'package_checks.py', 'preflight.py', 'recipe_metadata_consistency.py', 'source-provenance.json', 'source_cache.py', 'source_delivery.py', 'source_materials.py', 'test_package.py'))
-SOURCE_ARCHIVE_SHA256 = '112fa3eb9c18245ad95ea874f66c4943dc2678b0927e63a6ac705ff398e6ac72'
+STAGES = ('build-a', 'build-b', 'compare', 'sign', 'install', 'remove', 'reinstall', 'remove-again', 'restore', 'cleanup')
+SOURCE_FILES = frozenset(('PKGBUILD', 'hyprland.lua', 'waybar.json', 'waybar.css', 'mako.conf', 'README.md', 'NOTICE', 'LICENSE', 'cachy-asahi-screenshot'))
 MAX_FILE = 16 * 1024**2
 MAX_TOTAL = 128 * 1024**2
 MAX_NODES = 100000
@@ -108,20 +103,18 @@ def source_policy(root):
          'unexecuted source-tools source contract identity')
     recipe = policy['recipe']
     need(recipe['archive'] == NAME + '-' + VERSION + '-any.pkg.tar.zst'
-         and recipe['expected_test_count'] == 11 and type(recipe['expected_test_count']) is int
-         and set(recipe['source_files']) == SOURCE_FILES and len(recipe['payload_files']) == 12,
+         and recipe['expected_test_count'] == 3 and type(recipe['expected_test_count']) is int
+         and set(recipe['source_files']) == SOURCE_FILES and len(recipe['payload_files']) == 8,
          'exact frozen recipe and finite payload')
     for name, item in recipe['source_files'].items():
         need(Path(name).name == name and _pin_row(item, 4*1024**2), 'flat pinned frozen recipe source')
-    need(recipe['source_files'][SOURCE_ARCHIVE]['sha256'] == SOURCE_ARCHIVE_SHA256,
-         'exact0.2.0 pinned check-inputs archive required')
     for name, item in recipe['payload_files'].items():
         need(name.startswith('usr/') and Path(name).as_posix() == name and '..' not in Path(name).parts
-             and _pin_row(item), 'pinned 17-file package payload')
+             and _pin_row(item), 'pinned eight-file package payload')
     bundle = policy['bundle']
-    need(bundle['path'] == 'native/build-tools-sources-v2.tar' and bundle['members'] == 16
+    need(bundle['path'] == 'native/build-tools-sources-v2.tar' and bundle['members'] == 9
          and type(bundle['bytes']) is int and 0 < bundle['bytes'] <= bundle['max_bytes'] <= 4*1024**2,
-         'finite 13-member source delivery')
+         'finite nine-member source delivery')
     base = ordinary(root / 'native/expected349.lock')
     need(data_pin(base) == {key: policy['expected349'][key] for key in ('bytes', 'sha256')}
          and len(base.splitlines()) == 349, 'exact genuine349 lock')
@@ -154,7 +147,7 @@ def recipe_members(root, policy):
             body = archive.extractfile(member).read()
             need(data_pin(body) == {key: item[key] for key in ('bytes', 'sha256')}, 'source member checksum')
             result[member.name] = body
-    need(set(result) == set(expected) and len(result) == 16, 'complete 13-file recipe bundle')
+    need(set(result) == set(expected) and len(result) == 9, 'complete nine-file recipe bundle')
     return result
 
 
@@ -244,8 +237,8 @@ def check_payload(root, policy, run, pacman):
     files = {name.lstrip('/') for name in listed if not name.endswith('/')}
     directories = {name.lstrip('/').rstrip('/') for name in listed if name.endswith('/')}
     ancestors = {str(parent) for name in expected for parent in Path(name).parents if str(parent) != '.'}
-    need(files == set(expected) and directories == ancestors, 'exact ALPM 17-file and ancestor directory ownership')
-    return dict(version=VERSION, count=12, verified=True, stale_absent=True,
+    need(files == set(expected) and directories == ancestors, 'exact ALPM eight-file and ancestor directory ownership')
+    return dict(version=VERSION, count=8, verified=True, stale_absent=True,
                 files={name: {key: item[key] for key in ('bytes', 'sha256', 'mode')} for name, item in expected.items()})
 
 
@@ -264,6 +257,7 @@ def _metadata(raw):
 
 def _archive_data(raw, policy):
     """Decode bounded tar DATA only; exact regular payload and metadata namespace."""
+    recipe = policy['recipe']
     need(len(raw) <= 2 * 1024**2, 'decoded package byte cap')
     expected = policy['recipe']['payload_files']
     ancestors = {str(parent) for name in expected for parent in Path(name).parents if str(parent) != '.'}
@@ -293,7 +287,7 @@ def _archive_data(raw, policy):
     pkg = _metadata(metadata['.PKGINFO']); build = _metadata(metadata['.BUILDINFO'])
     for key, expected_value in (('pkgname', NAME), ('pkgbase', NAME), ('pkgver', VERSION), ('arch', 'any')):
         need(pkg.get(key) == [expected_value], 'exact PKGINFO ' + key)
-    need(pkg.get('license') == ['MIT'] and pkg.get('depend') == ['python>=3.12'] and pkg.get('checkdepend', []) == [], 'exact package license/runtime dependency')
+    need(pkg.get('license') == ['MIT'] and pkg.get('depend') == recipe['depends'] and pkg.get('makedepend') == recipe['makedepends'] and pkg.get('optdepend') == recipe['optdepends'] and pkg.get('checkdepend', []) == [], 'exact package license/runtime dependency')
     for key, expected_value in (('format', '2'), ('pkgname', NAME), ('pkgbase', NAME), ('pkgver', VERSION), ('pkgarch', 'any'),
                                 ('pkgbuild_sha256sum', policy['recipe']['source_files']['PKGBUILD']['sha256'])):
         need(build.get(key) == [expected_value], 'exact BUILDINFO ' + key)
@@ -322,7 +316,7 @@ def compare_archives(run, archives, policy, source_map_hash):
     data = decoded['a']
     return dict(status='PASS_EXACT_NATIVE_BUILD_PAIR', archive=data_pin(archive_bodies['a']), builds=builds,
                 equality=dict(archive=True, payload=True, pkginfo=True, buildinfo=True, mtree=True),
-                payload_files=12, base_inventory_count=349, source_map_sha256=source_map_hash,
+                payload_files=8, base_inventory_count=349, source_map_sha256=source_map_hash,
                 pkgbuild_sha256=policy['recipe']['source_files']['PKGBUILD']['sha256'],
                 pkginfo_text=data['metadata']['.PKGINFO'].decode(), buildinfo_text=data['metadata']['.BUILDINFO'].decode(),
                 mtree_base64=base64.b64encode(data['metadata']['.MTREE']).decode('ascii'))
@@ -335,46 +329,3 @@ def _own_tree(root, uid, gid):
         need(stat.S_ISDIR(info.st_mode) or stat.S_ISREG(info.st_mode), 'fixture aliases/special nodes refused')
         os.chown(path, uid, gid, follow_symlinks=False)
         if stat.S_ISDIR(info.st_mode):path.chmod(0o700)
-
-
-def fixture_members(raw, policy):
-    """Exact retained check DATA, never imported or executed."""
-    want=policy['trusted_fixture']
-    need(type(raw)is bytes and data_pin(raw)=={k:want[k]for k in('bytes','sha256')}
-         and want['bytes']==1509703 and len(raw)<=4*1024**2,'exact pinned compressed fixture, explicit4MiB new-variant bound')
-    with gzip.GzipFile(fileobj=io.BytesIO(raw))as stream:decoded=stream.read(8*1024**2+1)
-    need(len(decoded)<=8*1024**2,'held decoded fixture8MiB cap')
-    expected=policy['fixture_files'];result={}
-    with tarfile.open(fileobj=io.BytesIO(decoded),mode='r:')as archive:
-        for member in archive:
-            name=member.name
-            need(name.startswith('check-inputs/')and name==Path(name).as_posix()and '..'not in Path(name).parts
-                 and member.isfile()and not member.pax_headers and member.mode==0o644
-                 and member.uid==member.gid==member.mtime==0,'exact ordinary fixture member')
-            key=name[len('check-inputs/'):]
-            need(key not in result and key in set(expected)|{'files.json'}and 0<member.size<=4*1024**2,'finite pinned source-DATA member (not installed payload)')
-            with archive.extractfile(member)as stream:body=stream.read(member.size+1)
-            need(len(body)==member.size,'whole fixture member')
-            if key=='files.json':need(json.loads(body)==expected,'complete fixture manifest')
-            else:need(data_pin(body)==expected[key],'exact fixture member hash/bytes')
-            result[key]=body
-    need(set(result)==set(expected)|{'files.json'}and len(result)==14,'complete exact14-file fixture namespace')
-    return result
-
-
-def business(run, cli, root, uid, gid, label, source=SOURCE, policy=None):
-    """Six actual offline commands; nine bounded observations, no namespace claim."""
-    from build_tools_probe_v2 import probe
-    root,source=Path(root),Path(source)
-    need(label in('system','moved')and not os.path.lexists(root),'fresh finite probe scope')
-    if policy is None:policy,_=source_policy(source)
-    members=recipe_members(source,policy);raw=members['recipe/check-inputs.tar.gz'];files=fixture_members(raw,policy)
-    root.mkdir(mode=0o700)
-    for name,body in sorted(files.items()):
-        path=root/'fixtures'/name;path.parent.mkdir(parents=True,exist_ok=True,mode=0o700);path.write_bytes(body);path.chmod(0o644)
-    work=root/'workflow';work.mkdir(mode=0o700);_own_tree(root,uid,gid)
-    def command(step,argv,expected=0,cwd=work):return run(label+'-'+step,argv,expected,cwd=cwd)
-    result=probe(Path(cli),root/'fixtures',work,command,policy)
-    need(result['controls']==9 and result['commands_covered']==6,'all six commands/nine original observations')
-    result['steps']={key:label+'-'+step for key,step in result['steps'].items()}
-    return dict(result,cli=str(cli),label=label,fixture_root=str(root/'fixtures'),work_root=str(work),source_fixture=data_pin(raw),fixture_snapshot=snapshot_receipt(root),release='NOT_ADMITTED')

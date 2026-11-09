@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 """Owned image actor. Failure carriers persist DATA; the consumer still rejects FAIL."""
-import argparse,base64,json,os,pwd,re,shutil,signal,stat,sys,tempfile,time
+import argparse,base64,json,os,pwd,re,shutil,signal,stat,sys,tempfile
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 import build_tools_tools_v2 as T
@@ -8,12 +8,12 @@ need=T.need
 PREFIX=T.PREFIX
 SOURCE=T.SOURCE
 STORE=T.STORE
-PASS='PASS_BUILD_TOOLS_NATIVE_ALPM_COMPONENT'
+PASS='PASS_HYPRLAND03_NATIVE_ALPM_COMPONENT'
 TEST_UID='TEST ONLY build-tools <build-tools@test.invalid>'
 def prepare(root,context,map_hash):
  from common import verify_source
  root,context=Path(root),Path(context);manifest=verify_source(root,map_hash)
- target=context/'build-tools-alpm-v2'/'source';target.mkdir(parents=True)
+ target=context/'hyprland03-alpm-v1'/'source';target.mkdir(parents=True)
  for name in sorted(set(manifest['files'])|{'native/source-map.json'}):
   source=root/name;out=target/name;out.parent.mkdir(parents=True,exist_ok=True)
   shutil.copyfile(source,out);out.chmod(stat.S_IMODE(source.stat().st_mode))
@@ -24,10 +24,10 @@ def dockerfile(base,map_hash):
  ending='USER alarm\nWORKDIR /tmp\n'
  need(base.endswith(ending) and base.count(ending)==1,'exact genuine191 image suffix; no fallback')
  script=('test "$BASHPID" -eq 1 || exit 125; '
-  '/usr/bin/python3 -I -B /opt/native-build-tools-alpm-v2/source/native/build_tools_alpm_v2.py '
+  '/usr/bin/python3 -I -B /opt/native-hyprland03-alpm-v1/source/native/build_tools_alpm_v2.py '
   '--inside-image --retain-failure-image --map-sha256 '+map_hash+
   ' & build_tools_owner=$!; build_tools_status=0; wait "$build_tools_owner" || build_tools_status=$?; exit "$build_tools_status"')
- return base[:-len(ending)]+('COPY build-tools-alpm-v2/source/ /opt/native-build-tools-alpm-v2/source/\n'
+ return base[:-len(ending)]+('COPY hyprland03-alpm-v1/source/ /opt/native-hyprland03-alpm-v1/source/\n'
   +'RUN '+json.dumps(['/usr/bin/bash','--noprofile','--norc','-p','-c',script])+'\n'+ending)
 
 def strict_signature(status,fingerprint):
@@ -88,18 +88,17 @@ def primary_failure(primary,cleanup):
 
 
 def check_result(raw):
-    """Source-bound actual makepkg/unittest output; no SourceTools check credit."""
-    need(type(raw)is bytes and 0<len(raw)<=1024**2 and raw.count(b'Starting check()')==1,'one actual bounded makepkg check() log')
-    text=raw.decode('utf-8','strict');rows=[]
-    for line in text.splitlines():
-        m=re.fullmatch(r'(test_[A-Za-z0-9_]+) \(__main__\.PackageTests\.(test_[A-Za-z0-9_]+)\) \.\.\. ok',line)
-        if m:
-            need(m[1]==m[2],'exact unittest method identity');rows.append(m[1])
-    expected=['test_consistency_imports_adjacent_checker_and_freezes_legacy_modules', 'test_exact_installed_code_paths_pins_modes_and_no_hooks', 'test_installed_consistency_match_stale_mismatch_and_explicit_metadata', 'test_installed_consistency_unsupported_shell_and_missing_metadata_never_match', 'test_missing_and_tampered_local_archive_refuse_without_objects', 'test_moved_package_import_verify_and_both_real_recipe_preflights', 'test_only_six_offline_commands_and_isolated_invocation_are_supported', 'test_poisoned_object_is_preserved_without_network_repair', 'test_recipe_shell_code_is_read_only_data_and_drift_refuses', 'test_user_workspace_python_and_environment_cannot_select_trusted_code', 'test_versioned_recipe_check_and_preflight_use_the_packaged_parser_without_srcinfo']
-    need(rows==expected and len(rows)==len(set(rows))==11,'all eleven actual package checks exactly once and in order')
-    need(len(re.findall(r'^Ran 11 tests in [0-9]+(?:\.[0-9]+)?s$',text,re.M))==1 and text.splitlines().count('OK')==1
-         and not any(word in text for word in('FAILED (','ERROR:','skipped=','expected failures=')),'eleven positive tests without skip/failure')
-    return dict(status='PASS_ACTUAL_BUILD_TOOLS_PACKAGE_CHECKS',tests=11,names=rows,scope='OWN_PACKAGE_STAGE_MOVED_OFFLINE_METADATA_ONLY',namespace_acceptance='NOT_ESTABLISHED')
+    """Successful owned makepkg plus exact pinned recipe proves its three check commands."""
+    need(type(raw) is bytes and 0 < len(raw) <= 1024**2 and raw.count(b'Starting check()') == 1,
+         'one complete actual makepkg check() stage required')
+    text = raw.decode('utf-8', 'strict')
+    need('Finished making: cachy-asahi-hyprland-settings 0.1.0-3' in text
+         and not any(word in text for word in ('ERROR:', 'Skipping', 'FAILED', 'Traceback', 'SyntaxError')),
+         'complete successful exact package check/build required')
+    return dict(status='PASS_EXACT_RECIPE_CHECK_STAGE', tests=3,
+                checks=['python-compile', 'luac-parse', 'json-tool'],
+                scope='PINNED_RECIPE_CHECK_ONLY', capture='NOT_RUN', GUI='NOT_RUN')
+
 
 
 def retain_first_failure(scope,report):
@@ -146,10 +145,10 @@ def build_pair(run,source,recipes,policy,alarm,report):
   item=dict(label=label,version=T.VERSION,recipe_sha256=policy['recipe']['source_files']['PKGBUILD']['sha256'],build_step='build-'+label,check_invoked=False,check_tests=0,check_policy='POSITIVE_CHECK_NO_NOCHECK',build_directory=dict(logical=str(slot),retained=str(directory),identity=dict(device=key[0],inode=key[1]),initial_files=sorted(policy['recipe']['source_files'])))
   report['builds'][label]=item;directory.rename(slot);primary=None
   try:
-   argv=['/usr/bin/runuser','-u','alarm','--','/usr/bin/env','HOME='+str(slot),'PKGDEST='+str(slot),'SRCDEST='+str(slot),'BUILDDIR='+str(slot),'SOURCE_DATE_EPOCH='+policy['build_pair']['source_date_epoch'],'PACKAGER='+policy['build_pair']['packager'],'/usr/bin/makepkg','--cleanbuild','--nodeps','--nosign','--noconfirm','--config',str(config)]
+   argv=['/usr/bin/runuser','-u','alarm','--','/usr/bin/env','HOME='+str(slot),'PKGDEST='+str(slot),'SRCDEST='+str(slot),'BUILDDIR='+str(slot),'SOURCE_DATE_EPOCH='+policy['build_pair']['source_date_epoch'],'PACKAGER='+policy['build_pair']['packager'],'/usr/bin/makepkg','--cleanbuild','--nosign','--noconfirm','--config',str(config)]
    raw=run('build-'+label,argv,cwd=slot);item['check_invoked']=b'Starting check()' in raw
    check=check_result(raw);need(item['check_invoked'],'actual positive original check() required')
-   item['check_tests']=11;item['check_result']=T.data_pin(T.encoded(check));archive=slot/policy['recipe']['archive']
+   item['check_tests']=3;item['check_result']=T.data_pin(T.encoded(check));archive=slot/policy['recipe']['archive']
    need(archive.is_file() and not archive.is_symlink(),'actual built archive')
    item['archive']=dict(filename=archive.name,**T.pin(archive));result[label]=directory/archive.name;report['stages'].append('build-'+label)
   except BaseException as error:
@@ -162,6 +161,7 @@ def build_pair(run,source,recipes,policy,alarm,report):
    except BaseException as later:
     item['source_retirement_failure']=type(later).__name__
     if primary is None:raise
+  if primary is not None:raise primary
  return result
 
 def retain_exception(commands,scope,step,argv,cwd,expected,error,before):
@@ -249,7 +249,7 @@ def inside(source,map_hash):
  need(os.getuid()==os.geteuid()==0 and os.uname().machine=='aarch64' and source==SOURCE and Path('/builder-packages.lock').is_file(),'explicit owned disposable native image root only')
  from common import verify_source
  verify_source(source,map_hash);need(not STORE.exists(),'fresh fixed evidence store')
- scope=STORE/'journey'/'build-tools-alpm-v2';scope.mkdir(parents=True)
+ scope=STORE/'journey'/'hyprland03-alpm-v1';scope.mkdir(parents=True)
  report=dict(schema_version=1,operation=T.OPERATION,status='FAIL',source_map_sha256=map_hash,version=T.VERSION,contract=T.pin(source/'native/build-tools-contract-v2.json'),stages=[],inventory={},payloads={},builds={},signatures={},business={},commands=[],signature_policy=dict(SigLevel='Required',LocalFileSigLevel='Required'),native=dict(architecture=os.uname().machine,page_bytes=os.sysconf('SC_PAGE_SIZE'),execution='OWNED_IMAGE_BUILD_STAGE',physical_M2='NOT_RUN',release='NOT_ADMITTED'),first_failure=None,image_build_context=unknown_image_build_context(map_hash),cleanup=dict(homes_retired=False,no_sockets=False,private_directory_absent=False,failures=['INITIALIZATION_NOT_COMPLETED']))
  report['process_layout']=dict(schema=1,contract='bash-pid1-direct-python-child-v1',python_pid=os.getpid(),python_ppid=os.getppid(),status='OBSERVED_NON_PID1_PYTHON_DIRECT_CHILD')
  work=None;commands=None;primary=None;pacman=None;baseline=None;baseline_reasons=None;phase='initialize'
@@ -257,7 +257,7 @@ def inside(source,map_hash):
  try:
   policy,base=T.source_policy(source)
   need(Path('/builder-packages.lock').read_bytes()==base,'exact genuine191 base349 image')
-  need(all(not os.path.lexists('/'+name) for name in policy['recipe']['payload_files']),'17 payload paths initially absent')
+  need(all(not os.path.lexists('/'+name) for name in policy['recipe']['payload_files']),'eight payload paths initially absent')
   work=Path(tempfile.mkdtemp(prefix='build-tools-test-',dir='/tmp'));work.chmod(0o700)
   signing,trust=work/'signing',work/'trust'
   for home in (signing,trust,work/'command-home'):home.mkdir(mode=0o700)
@@ -311,22 +311,24 @@ def inside(source,map_hash):
   actual=inventory('installed-inventory');need(actual==T.inventory_expected(base,T.VERSION),'exact350 installed inventory')
   report['inventory']['installed']=dict(**T.data_pin(actual),count=350,version=T.VERSION)
   report['payloads']['installed']=T.check_payload('/',policy,run,pacman);report['stages'].append('install')
-  report['business']['system']=T.business(run,Path('/usr/bin')/T.NAME,user/'system',alarm.pw_uid,alarm.pw_gid,'system',source,policy);report['stages'].append('commands-system')
-  moved=user/'moved-prefix';moved.mkdir()
-  for name,item in policy['recipe']['payload_files'].items():
-   target=moved/name;target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile('/'+name,target);target.chmod(item['mode'])
-   need(T.pin(target)=={k:item[k] for k in ('bytes','sha256')},'moved exact installed payload')
-  for target in (moved,*moved.rglob('*')):
-   need(not target.is_symlink(),'moved aliases refused');os.chown(target,alarm.pw_uid,alarm.pw_gid)
-   if target.is_dir():target.chmod(0o755)
-  report['business']['moved']=T.business(run,moved/'usr/bin'/T.NAME,user/'relocated',alarm.pw_uid,alarm.pw_gid,'moved',source,policy);report['stages'].append('commands-moved')
   exports_before=T.snapshot(user);report['exports_before']=T.snapshot_receipt(user)
   run('remove',['/usr/bin/pacman',*pacman,'--noconfirm','--noscriptlet','-R',T.NAME])
   actual=inventory('removed-inventory');need(actual==base,'exact349 final inventory')
   report['inventory']['removed']=dict(**T.data_pin(actual),count=349,version=None)
   report['payload_absent']=all(not os.path.lexists('/'+name) for name in policy['recipe']['payload_files'])
-  report['private_roots_absent']=all(not os.path.lexists(name) for name in ('/usr/lib/cachy-asahi-build-tools','/usr/share/doc/'+T.NAME,'/usr/share/licenses/'+T.NAME))
+  report['private_roots_absent']=all(not os.path.lexists(name) for name in ('/usr/share/cachy-asahi/hyprland','/usr/share/doc/'+T.NAME,'/usr/share/licenses/'+T.NAME))
   need(report['payload_absent'] and report['private_roots_absent'],'all package files/private roots removed');report['stages'].append('remove')
+  run('reinstall',['/usr/bin/pacman',*pacman,'--noconfirm','--noscriptlet','-U',str(archives['b'])])
+  actual=inventory('reinstalled-inventory');need(actual==T.inventory_expected(base,T.VERSION),'exact350 reinstalled inventory')
+  report['inventory']['reinstalled']=dict(**T.data_pin(actual),count=350,version=T.VERSION)
+  def reinstall_run(step,argv,expected=0,cwd=work):return run('reinstall-'+step,argv,expected,cwd)
+  report['payloads']['reinstalled']=T.check_payload('/',policy,reinstall_run,pacman);report['stages'].append('reinstall')
+  run('remove-again',['/usr/bin/pacman',*pacman,'--noconfirm','--noscriptlet','-R',T.NAME])
+  actual=inventory('removed-again-inventory');need(actual==base,'exact349 final inventory after reinstall')
+  report['inventory']['removed-again']=dict(**T.data_pin(actual),count=349,version=None)
+  report['final_payload_absent']=all(not os.path.lexists('/'+name) for name in policy['recipe']['payload_files'])
+  need(report['final_payload_absent'],'all eight payload files absent after final remove')
+  report['stages'].append('remove-again')
   after_reasons=reasons('restored-reasons');need(after_reasons==baseline_reasons,'exact reasons restored')
   report['install_reasons_after']={k:T.data_pin(v) for k,v in after_reasons.items()}
   need(T.snapshot(user)==exports_before and T.pin(user/'keep.txt')==sentinel,'fixture/exports preserved')
@@ -390,7 +392,7 @@ def export(output,map_hash):
  """Bounded DATA export even when the original image-stage operation failed."""
  from common import verify_source
  verify_source(Path(__file__).resolve().parents[1],map_hash)
- output=Path(output).absolute();scope=STORE/'journey'/'build-tools-alpm-v2'
+ output=Path(output).absolute();scope=STORE/'journey'/'hyprland03-alpm-v1'
  need(os.getuid()==os.geteuid()!=0 and not os.path.lexists(output) and not any(p.is_symlink() for p in output.parents),'unprivileged fresh DATA export')
  raw=T.ordinary(scope/'result.json',4*1024**2);report=json.loads(raw)
  need(report.get('schema_version')==1 and report.get('operation')==T.OPERATION and report.get('source_map_sha256')==map_hash,'same-source lifecycle DATA identity')

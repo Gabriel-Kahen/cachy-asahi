@@ -11,9 +11,9 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import input_contract, need, pin, read, save, verify_source
 
-STORE = Path('/opt/native-build-tools-alpm-v2/evidence')
-OPERATION = 'build-tools-alpm-v2'
-PASS = 'PASS_BUILD_TOOLS_NATIVE_ALPM_COMPONENT'
+STORE = Path('/opt/native-hyprland03-alpm-v1/evidence')
+OPERATION = 'hyprland03-alpm-v1'
+PASS = 'PASS_HYPRLAND03_NATIVE_ALPM_COMPONENT'
 
 
 def module(root, relative, name):
@@ -42,7 +42,7 @@ def run(root, output, map_hash):
     try:
         lifecycle = module(root, 'native/build_tools_alpm_v2.py', '_native_build_tools_alpm_v2')
         need(lifecycle.STORE == STORE, 'fixed original image-stage DATA store required')
-        result = lifecycle.export(output / 'build-tools-alpm-v2', map_hash)
+        result = lifecycle.export(output / 'hyprland03-alpm-v1', map_hash)
         report['build_tools_alpm'] = result  # Retain failed original DATA before the outer PASS guard.
         need(type(result) is dict and result.get('schema_version') == 1
              and result.get('operation') == OPERATION and result.get('source_map_sha256') == map_hash

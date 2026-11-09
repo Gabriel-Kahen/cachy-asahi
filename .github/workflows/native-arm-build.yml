@@ -11,12 +11,12 @@ on:
       operation:
         type: choice
         required: true
-        default: source184
-        options: [source184, build-tools-alpm-v2]
+        default: hyprland03-alpm-v1
+        options: [hyprland03-alpm-v1]
 permissions:
   contents: read
 concurrency:
-  group: native-arm-source-tools
+  group: native-arm-build
   cancel-in-progress: false
   queue: max
 jobs:
