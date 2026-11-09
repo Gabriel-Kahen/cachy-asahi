@@ -1,0 +1,46 @@
+{
+  "actual_methods": [
+    "test_alias_and_live_destinations_refused",
+    "test_alias_runtime_refused_before_launch",
+    "test_exact_payload_modes_and_set",
+    "test_extra_runtime_code_refused",
+    "test_isolated_interpreter_ignores_pythonpath",
+    "test_missing_fixture_refused_before_launch",
+    "test_moved_prefix_and_no_bytecode",
+    "test_nonempty_destination_preserved",
+    "test_output_cannot_write_package_or_relative_path",
+    "test_private_remove_reinstall_preserves_sibling_data",
+    "test_source_tamper_traversal_extra_file_refused",
+    "test_tampered_runner_refused_before_launch",
+    "test_version_help_and_explicit_selection"
+  ],
+  "actual_test_class": "PackageControls",
+  "independent_parser_diagnosis": {
+    "bytes": 1740,
+    "seal_sha256": "67790565d0a099dc9c6f3ed1a57722eed648fcb015e0f32c3d2bcf5f4594dd6a",
+    "sha256": "c2d9d7bfd753f0bbc8d75281b5726b2580f5c388f888d325b5d05e603c832d1b"
+  },
+  "launcher_note": "Fixed installed launcher shebang resolves /usr/bin/python3=3.14.7 even under selected3.12 parent; no native/ARM/makepkg/ALPM/M2 credit",
+  "logs": {
+    "python312-package-controls.txt": {
+      "bytes": 1621,
+      "scope": "ACTUAL_LOCAL_DISPOSABLE_PACKAGING_CONTROLS_NOT_NATIVE_OR_MAKEPKG",
+      "selected_python": "3.12.13",
+      "sha256": "7610fd37fe9b90bfba060eab83373c245c91d16307c1f2ad0baa49aac45c397f"
+    },
+    "python314-package-controls.txt": {
+      "bytes": 1621,
+      "scope": "ACTUAL_LOCAL_DISPOSABLE_PACKAGING_CONTROLS_NOT_NATIVE_OR_MAKEPKG",
+      "selected_python": "3.14.7",
+      "sha256": "218cd567e53b35a0d11832908a85b4f5b815eea0d4331f4333f6f37d2c037867"
+    }
+  },
+  "native": "NOT_RUN",
+  "original_dc36_earlier_cause": "NOT_RETAINED_UNKNOWN",
+  "package_test_source": {
+    "bytes": 6796,
+    "path": "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/test_package.py",
+    "sha256": "d25780f232e8bd9d7b8da6a19c966b93d1d071d2cb4cc62f539c8a7aba8ae774"
+  },
+  "schema": 1
+}

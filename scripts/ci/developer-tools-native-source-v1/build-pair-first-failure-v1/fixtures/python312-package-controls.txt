@@ -1,0 +1,18 @@
+test_alias_and_live_destinations_refused (__main__.PackageControls.test_alias_and_live_destinations_refused) ... ok
+test_alias_runtime_refused_before_launch (__main__.PackageControls.test_alias_runtime_refused_before_launch) ... ok
+test_exact_payload_modes_and_set (__main__.PackageControls.test_exact_payload_modes_and_set) ... ok
+test_extra_runtime_code_refused (__main__.PackageControls.test_extra_runtime_code_refused) ... ok
+test_isolated_interpreter_ignores_pythonpath (__main__.PackageControls.test_isolated_interpreter_ignores_pythonpath) ... ok
+test_missing_fixture_refused_before_launch (__main__.PackageControls.test_missing_fixture_refused_before_launch) ... ok
+test_moved_prefix_and_no_bytecode (__main__.PackageControls.test_moved_prefix_and_no_bytecode) ... ok
+test_nonempty_destination_preserved (__main__.PackageControls.test_nonempty_destination_preserved) ... ok
+test_output_cannot_write_package_or_relative_path (__main__.PackageControls.test_output_cannot_write_package_or_relative_path) ... ok
+test_private_remove_reinstall_preserves_sibling_data (__main__.PackageControls.test_private_remove_reinstall_preserves_sibling_data) ... ok
+test_source_tamper_traversal_extra_file_refused (__main__.PackageControls.test_source_tamper_traversal_extra_file_refused) ... ok
+test_tampered_runner_refused_before_launch (__main__.PackageControls.test_tampered_runner_refused_before_launch) ... ok
+test_version_help_and_explicit_selection (__main__.PackageControls.test_version_help_and_explicit_selection) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 1.041s
+
+OK

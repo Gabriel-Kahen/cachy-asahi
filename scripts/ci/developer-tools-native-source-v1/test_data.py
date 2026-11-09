@@ -160,4 +160,5 @@ class DataTests(unittest.TestCase):
 
 if __name__=='__main__':
     SafeFailureTests=runpy.run_path(str(HERE/'safe-failure-v1/test_data.py'))['SafeFailureTests']
+    BuildPairFailureTests=runpy.run_path(str(HERE/'build-pair-first-failure-v1/test_data.py'))['BuildPairFailureTests']
     unittest.main(verbosity=2)
