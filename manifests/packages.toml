@@ -1018,11 +1018,15 @@ selected_for_release = false
 source_archive_sha256 = "767ac7a1e98b35f212247ed906434c11c197ad5640ad3a13601d433c84d756c2"
 source_archive_bytes = 42901
 host_validation = "PASS13 focused packaging controls; actual x86_64 makepkg archive/private moved-prefix workflow, CMake, GDB and offline Python/uv journeys; 28 source/fixture holds preserved"
-native_build = "NOT RUN"
-installation = "NOT RUN; archive staging/private relocation is not ALPM or installed Asahi lifecycle"
+native_build = "PASS Root-qualified finite native ARM4K: two clean dependency-checked 0.1.0-1 builds,13 actual recipe checks each, identical archive/payload/PKGINFO/BUILDINFO/MTREE and354 baseline provenance; native16K/M2 remain unqualified"
+native_build_commit = "36f03557d861f6480b4c8e581d1a8025b35b4d8e"
+native_evidence = "docs/validation/developer-tools-native-20261108.md"
+native_package_bytes = 42373
+native_package_sha256 = "3c48e560c03835a6b6498c8cc3dd995fb45183ad0483a04b32264877632dd76e"
+installation = "PASS disposable owned native ARM4K image: Required TEST-signed install/remove,354/355/354 inventories,34-file ALPM ownership/restoration, system+moved7 CLI commands and fixed offline Git/C/C++/Vim/Make/Ninja/CMake/Meson/GDB/Python/uv journeys. Supported Asahi/M2 target installation NOT RUN."
 hardware_validation = "NOT RUN"
 performance = "NOT MEASURED"
-next_step = "Qualify a clean native ARM build pair, disposable ALPM lifecycle, native16K and selected target composition; preserve existing native/debugger ownership. Meson and physical M2 remain NOT RUN; release not admitted."
+next_step = "Qualify independent-machine, native16K and supported Asahi/M2 target composition before selection. Changed-version upgrade, GUI, production trust, performance, Doc315 and release remain open; preserve finite fixed offline component evidence and existing source/host history."
 
 [[packages]]
 name = "cachy-asahi-release-tools"
