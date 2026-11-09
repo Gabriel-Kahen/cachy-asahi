@@ -158,10 +158,10 @@ def retained_image_lifecycle(view, files, receipt, cleanup, binding, map_sha256)
         need(value.get('alias') == aliases[role] and re.fullmatch('sha256:[0-9a-f]{64}', value.get('image_id') or ''),
              'registered exact source-built image identity required')
         index = value.get('build_actor_index'); argv = value.get('build', {}).get('argv')
-        need(type(argv) is list and len(argv) == 16, 'exact source-owned image build argv required')
+        need(type(argv) is list and len(argv) == (16 if role == 'base' else 17), 'exact source-owned image build argv required')
         prefix = (docker + ['build', '--no-cache', '--tag', aliases[role], '--label', label+'='+binding['token'],
                   '--label', label+'.source='+binding['source'], '--network=none', '--pull=false', '--platform=linux/arm64'] if role == 'base' else
-                  docker + ['build', '--network=none', '--pull=false', '--no-cache', '--platform=linux/arm64', '--tag', aliases[role],
+                  docker + ['build', '--quiet', '--network=none', '--pull=false', '--no-cache', '--platform=linux/arm64', '--tag', aliases[role],
                   '--label', label+'='+binding['token'], '--label', label+'.source='+binding['source']])
         iid = Path(argv[-2]); directory = 'bootstrap' if role == 'base' else 'overlay'
         need(argv[:-3] == prefix and argv[-3] == '--iidfile' and iid.is_absolute() and '..' not in iid.parts

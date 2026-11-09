@@ -16,6 +16,7 @@
   "consumer_basis182_map_sha256": "778bbaaf14024d283d6aa0241c95c9caf0770bdd2346f0781e1f1ea7769552f1",
   "consumer_basis182_source": "5b2016cc842970952c03cc2cc068a9cfbea5812c",
   "developer_build_pair_first_failure_parent": "dc36f6dda0bab4a72604aad3782c2f6b5e933a38",
+  "developer_quiet_tools_build_parent": "823898408a9cdcfc9911c96b7443cd967505edce",
   "developer_safe_failure_parent": "f4bea3d30b0e33684f80d235e3d488ae7f609f91",
   "developer_tools_parent": "97a44c4c7cb206704bf76e9fd1f1afb2266278c2",
   "files": {
@@ -630,9 +631,9 @@
       "sha256": "e684718dc44efbe7242c6f812768672b103c32bba2d6ec328e49c954cb64e554"
     },
     "native/developer_tools_reader_v1.py": {
-      "bytes": 140167,
+      "bytes": 140206,
       "mode": 420,
-      "sha256": "35977fc6b8c885b480f85a1586c03b1616c77feaea2410c8bd70e5bd04768e56"
+      "sha256": "05fe3c50fb261e329b6a992ac3de9473eb24029355d43fa06bbcf8d08563fa34"
     },
     "native/developer_tools_tools_v1.py": {
       "bytes": 18721,
@@ -655,9 +656,9 @@
       "sha256": "d4c827a692d8eebdfc0c808ed4c81597f7fb78c1c700e4e52c88c463d484df0e"
     },
     "native/image_lifecycle.py": {
-      "bytes": 12996,
+      "bytes": 13034,
       "mode": 420,
-      "sha256": "db316b70634018f4c85c179cabc4abfe28143dd3d863011b18367a050f8e5340"
+      "sha256": "805fabc496f10b67425cc69bdf7793d0e703dae1fab2407d8596391c9e9c5f2b"
     },
     "native/input-profile.json": {
       "bytes": 180423,
@@ -675,9 +676,9 @@
       "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
     },
     "native/owner.py": {
-      "bytes": 34147,
+      "bytes": 34158,
       "mode": 420,
-      "sha256": "06e733b01df955282949b7b7a63e5b59474049e445c096d641cfa673b48218d2"
+      "sha256": "22c06e3d4a8997a8b9f748d1a0b60d0567d2f180080a230c13d822a254b11de6"
     },
     "native/predecessor-source-map.json": {
       "bytes": 27440,

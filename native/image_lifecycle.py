@@ -79,10 +79,10 @@ def _owned(actor, context, own):
 
 def _build(row, ledger, role):
     _need(_closed(row), 'IMAGE_BUILD_PROOF_REFUSED')
-    argv = row.get('argv'); _need(type(argv) is list and len(argv) == 16 and all(type(v) is str for v in argv), 'IMAGE_BUILD_COMMAND_REFUSED')
+    argv = row.get('argv'); _need(type(argv) is list and len(argv) == (16 if role == 'base' else 17) and all(type(v) is str for v in argv), 'IMAGE_BUILD_COMMAND_REFUSED')
     own=ledger['binding']; tag=ledger['aliases'][role]
     prefix = (DOCKER+['build','--no-cache','--tag',tag,'--label',LABEL+'='+own['token'],'--label',LABEL+'.source='+own['source'],'--network=none','--pull=false','--platform=linux/arm64'] if role=='base' else
-              DOCKER+['build','--network=none','--pull=false','--no-cache','--platform=linux/arm64','--tag',tag,'--label',LABEL+'='+own['token'],'--label',LABEL+'.source='+own['source']])
+              DOCKER+['build','--quiet','--network=none','--pull=false','--no-cache','--platform=linux/arm64','--tag',tag,'--label',LABEL+'='+own['token'],'--label',LABEL+'.source='+own['source']])
     _need(argv[:-3] == prefix and argv[-3] == '--iidfile', 'IMAGE_BUILD_COMMAND_REFUSED')
     iid,context=Path(argv[-2]),Path(argv[-1]); directory='bootstrap' if role=='base' else 'overlay'
     _need(iid.is_absolute() and '..' not in iid.parts and str(iid)==argv[-2] and iid.name=='image-id' and iid.parent.name==directory

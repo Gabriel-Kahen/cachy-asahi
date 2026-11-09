@@ -300,7 +300,7 @@ def run(root, args):
             from developer_tools_alpm_v1 import prepare,dockerfile as release_dockerfile
             prepare(root,context,args.map_sha256);dockerfile=release_dockerfile(dockerfile,args.map_sha256)
         (context / 'Dockerfile').write_text(dockerfile)
-        command = [*DOCKER, 'build', '--network=none', '--pull=false', '--no-cache', '--platform=linux/arm64',
+        command = [*DOCKER, 'build', '--quiet', '--network=none', '--pull=false', '--no-cache', '--platform=linux/arm64',
             '--tag', 'native-developer-tools:' + own['token'], '--label', LABEL + '=' + own['token'],
             '--label', LABEL + '.source=' + own['source'], '--iidfile', str(overlay / 'image-id'), str(context)]
         before = len(actor.rows); overlay_error = None
