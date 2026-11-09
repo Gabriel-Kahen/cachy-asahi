@@ -216,6 +216,7 @@ def check_developer(value,own,map_hash):
     def label(row,allowed):
         C.need(type(row)is dict and set(row)=={'label','sha256'} and row['label']in allowed|{'UNLISTED'}
             and type(row['sha256'])is str and re.fullmatch('[0-9a-f]{64}',row['sha256']),'closed source label/hash')
+        C.need(row['label']=='UNLISTED' or row['sha256']==hashlib.sha256(row['label'].encode('utf-8')).hexdigest(),'known source label/hash identity')
     first=value['first_failure'];command=value['selected_command']
     C.need(type(value['command_count'])is int and 0<=value['command_count']<=160,'held original command count')
     if first is not None:

@@ -98,7 +98,7 @@ class SafeFailureTests(unittest.TestCase):
         with self.assertRaises(ValueError):S['developer_context'](b'x'*(4*1024**2+1),own(),MAP)
     def test05_summary_validator_rejects_free_text_extra_fields_and_native_credit(self):
         S,_=scope();value=S['developer_context'](encoded(result()),own(),MAP)
-        for mutate in(lambda v:v.update(message='password:MODELED'),lambda v:v.update(native='PASS'),lambda v:v['first_failure']['phase'].update(label='unreviewed-string'),lambda v:v['first_failure']['message'].update(sha256='not-a-pin')):
+        for mutate in(lambda v:v.update(message='password:MODELED'),lambda v:v.update(native='PASS'),lambda v:v['first_failure']['phase'].update(label='unreviewed-string'),lambda v:v['first_failure']['message'].update(sha256='not-a-pin'),lambda v:v['first_failure']['phase'].update(sha256='0'*64)):
             bad=copy.deepcopy(value);mutate(bad)
             with self.assertRaises(ValueError):S['check_developer'](bad,own(),MAP)
     def test06_fixed_capture_and_fallback_survive_other_raw_privacy_refusal(self):
