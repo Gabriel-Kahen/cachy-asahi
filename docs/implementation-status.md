@@ -1,5 +1,7 @@
 # Implementation and acceptance status
 
+November 8: [Client v3 and Runtime1 pass their finite native ARM fresh component](validation/client-v3-runtime-native-20261108.md). Four distinct clean builds produce identical package pairs; the five TEST-signed install/reinstall/remove phases, two ordinary homes and real signed-apply/state-replacement refusal cases pass the matching reader. Preservation maps and retirement remain source-enforced recorded evidence; changed-version upgrade,16K, supported Asahi/M2, production trust, performance and release remain open.
+
 November 8: [Release Tools 0.4 passes its finite native ARM package lifecycle](validation/release-tools04-native-20261108.md): TEST-signed installation of 0.1, upgrade to 0.4, all eight installed and relocated commands, downgrade and removal restore the disposable baseline. There was one build per version; repeat-build reproducibility for 0.4 remains open. Production trust, native16K, supported Asahi/M2 installation, performance and release admission remain separate.
 
 November 8: [Desktop Tools 0.1.1 passes native build pairs and its finite signed lifecycle](validation/desktop-current011-native-20261108.md). Two distinct clean builds each pass 91 checks and produce identical archives. Static installed/relocated CLI and environment workflows, a TEST-only unchanged-payload pkgrel update and removal preserve protected state. GUI capture/application launch, native16K, Asahi/M2 and production release acceptance remain open.

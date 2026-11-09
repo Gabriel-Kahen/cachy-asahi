@@ -805,11 +805,15 @@ candidate_version = "0.1.0-1"
 selected_for_development = false
 selected_for_release = false
 host_validation = "PASS exact three original helpers, eight-file staging and real installed-layout planner calls in standalone25-check suite"
-native_build = "PASS native ARM pair38967303862: both 28888-byte archives/BUILDINFO byte-identical; Root original comparison replay passes"
-installation = "PASS signed dependency image575 and combined574to577/repeat/remove/reinstall/final574 lifecycle38970264456"
+native_build = "PASS native ARM pair38967303862: both 28888-byte archives/BUILDINFO byte-identical; Root original comparison replay passes; current Runtime1 pair42537753458: four distinct Runtime1/client-v3 clean builds on one native ARM4K runner, original XZ/payload/PKGINFO/BUILDINFO pair joins pass; independent machine NOT ATTESTED"
+installation = "PASS signed dependency image575 and combined574to577/repeat/remove/reinstall/final574 lifecycle38970264456; current Runtime1/client-v3 TEST-signed five-phase576/576/574/576/574 fresh component42537753458 passes matching reader; preservation and retirement SOURCE_ENFORCED_RECORDED"
 native_generic16k_helpers = "PASS generic16384 private data-staged CLI/helper cases38978464494; NOT ALPM-installed inVM; docs/validation/management-generic16k-20261016.md"
 hardware_validation = "NOT RUN"
-next_step = "Complete generic16K management integration and both M2 workflows; see docs/validation/management-native-20261016.md. Runtime helpers authenticate development inputs; release selection false."
+next_step = "Complete current Runtime1/client-v3 integrated16K, supported Asahi/M2 and production trust qualification; performance and release remain open. Historical Runtime/native evidence is preserved; development/release selection false."
+native_build_commit = "a28b081836f11c4867ec1104f29e1e91ebee68da"
+native_evidence = "docs/validation/client-v3-runtime-native-20261108.md"
+validation_record = "docs/validation/client-v3-runtime-native-20261108.md"
+version_upgrade = "NOT EXERCISED"
 
 
 [[packages]]
@@ -1292,11 +1296,16 @@ license = "MIT"
 candidate_version = "0.1.0-1"
 selected_for_development = false
 selected_for_release = false
-host_validation = "PASS NEW10 real-filesystem state binding controls, six package DATA controls, corrected Python3.12/3.14 CI and actual staged CLI TEST-GPG verify/apply/rebinding refusal with owned cleanup; native package build and ALPM NOT RUN"
-native_build = "NOT RUN"
-installation = "NOT RUN"
+host_validation = "PASS NEW10 real-filesystem state binding controls, six package DATA controls, corrected Python3.12/3.14 CI and actual staged CLI TEST-GPG verify/apply/rebinding refusal with owned cleanup; current finite native component recorded separately"
+native_build = "PASS two distinct clean v3 builds in native ARM4K run42537753458, 16936-byte original XZ/payload/PKGINFO/BUILDINFO pair joins; mandatory makepkg checks pass without skips; independent machine NOT ATTESTED"
+installation = "PASS TEST-signed fresh install576/same-version-reinstall576/remove574/reinstall576/final-remove574 with Runtime1; both ordinary homes, real signed CLI apply/idempotence and post-verification state-replacement refusal pass matching reader; preservation/retirement SOURCE_ENFORCED_RECORDED"
 hardware_validation = "NOT RUN"
-next_step = "Qualify native ARM build-pair and installed package lifecycle for current v3; integrated16K, selected Asahi composition and M2 remain open. Current guide/standalone command route is v3; original Runtime/v1/v2/Apps/native evidence remains frozen and gives no v3 credit."
+next_step = "Complete integrated16K, supported Asahi/M2, production trust and changed-version upgrade qualification; performance and release remain open. Current route is v3; historical v1/v2/Apps evidence is unchanged and gives no v3 credit; development/release selection false."
+native_build_commit = "a28b081836f11c4867ec1104f29e1e91ebee68da"
+native_evidence = "docs/validation/client-v3-runtime-native-20261108.md"
+validation_record = "docs/validation/client-v3-runtime-native-20261108.md"
+version_upgrade = "NOT EXERCISED"
+
 
 [[packages]]
 name = "cachy-asahi-build-tools"
