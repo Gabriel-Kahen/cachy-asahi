@@ -1,0 +1,271 @@
+{
+  "actual_dependency_solving": "NOT_RUN; normal signed pacman -U without --nodeps/--assume-installed/--overwrite",
+  "added_count": 5,
+  "edges": [
+    {
+      "constraint": "curl",
+      "kind": "EXACT_NAME_UNVERSIONED",
+      "package": "git",
+      "provider": "curl",
+      "source": "HELD349",
+      "version": "8.22.0-1"
+    },
+    {
+      "constraint": "expat",
+      "kind": "EXACT_NAME_UNVERSIONED",
+      "package": "git",
+      "provider": "expat",
+      "source": "HELD349",
+      "version": "2.9.0-1"
+    },
+    {
+      "constraint": "perl",
+      "kind": "EXACT_NAME_UNVERSIONED",
+      "package": "git",
+      "provider": "perl",
+      "source": "HELD349",
+      "version": "5.42.3-1"
+    },
+    {
+      "constraint": "perl-error",
+      "kind": "EXACT_NAME_UNVERSIONED",
+      "package": "git",
+      "provider": "perl-error",
+      "source": "FROZEN574_ADDITION",
+      "version": "0.17030-3"
+    },
+    {
+      "constraint": "perl-mailtools",
+      "kind": "EXACT_NAME_UNVERSIONED",
+      "package": "git",
+      "provider": "perl-mailtools",
+      "source": "FROZEN574_ADDITION",
+      "version": "2.22-3"
+    },
+    {
+      "constraint": "openssl",
+      "kind": "EXACT_NAME_UNVERSIONED",
+      "package": "git",
+      "provider": "openssl",
+      "source": "HELD349",
+      "version": "3.6.5-1"
+    },
+    {
+      "constraint": "pcre2",
+      "kind": "EXACT_NAME_UNVERSIONED",
+      "package": "git",
+      "provider": "pcre2",
+      "source": "HELD349",
+      "version": "10.49-1"
+    },
+    {
+      "constraint": "grep",
+      "kind": "EXACT_NAME_UNVERSIONED",
+      "package": "git",
+      "provider": "grep",
+      "source": "HELD349",
+      "version": "3.12-2"
+    },
+    {
+      "constraint": "shadow",
+      "kind": "EXACT_NAME_UNVERSIONED",
+      "package": "git",
+      "provider": "shadow",
+      "source": "HELD349",
+      "version": "4.20.0.arch1-1"
+    },
+    {
+      "constraint": "zlib-ng",
+      "kind": "EXACT_NAME_UNVERSIONED",
+      "package": "git",
+      "provider": "zlib-ng",
+      "source": "FROZEN574_ADDITION",
+      "version": "2.3.3-1"
+    },
+    {
+      "constraint": "perl",
+      "kind": "EXACT_NAME_UNVERSIONED",
+      "package": "perl-error",
+      "provider": "perl",
+      "source": "HELD349",
+      "version": "5.42.3-1"
+    },
+    {
+      "constraint": "perl-timedate",
+      "kind": "EXACT_NAME_UNVERSIONED",
+      "package": "perl-mailtools",
+      "provider": "perl-timedate",
+      "source": "FROZEN574_ADDITION",
+      "version": "2.35-1"
+    },
+    {
+      "constraint": "perl",
+      "kind": "EXACT_NAME_UNVERSIONED",
+      "package": "perl-timedate",
+      "provider": "perl",
+      "source": "HELD349",
+      "version": "5.42.3-1"
+    },
+    {
+      "constraint": "glibc",
+      "kind": "EXACT_NAME_UNVERSIONED",
+      "package": "zlib-ng",
+      "provider": "glibc",
+      "source": "HELD349",
+      "version": "2.43+r22+g8362e8ce10b2-2"
+    }
+  ],
+  "expected_count": 354,
+  "original_count": 349,
+  "removed": [],
+  "replaced": [],
+  "rows": [
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "curl",
+        "expat",
+        "perl",
+        "perl-error",
+        "perl-mailtools",
+        "openssl",
+        "pcre2",
+        "grep",
+        "shadow",
+        "zlib-ng"
+      ],
+      "filename": "git-2.56.0-1-aarch64.pkg.tar.xz",
+      "isize": 51321112,
+      "license": [
+        "GPL-2.0-only"
+      ],
+      "name": "git",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "b152a20edb215e98cada4b2dfbd02a9e925bda0b2de6ac1441e9e60b6698d3b5",
+      "signature_sha256": "a94f8074a7c20a8ad8327a8dfaac724069989f9aabf62c4ec0322533642c59ca",
+      "signature_size": 566,
+      "size": 8650624,
+      "source_url": [
+        "https://git-scm.com/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/git-2.56.0-1-aarch64.pkg.tar.xz",
+      "version": "2.56.0-1"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "perl"
+      ],
+      "filename": "perl-error-0.17030-3-any.pkg.tar.xz",
+      "isize": 42865,
+      "license": [
+        "PerlArtistic",
+        "GPL"
+      ],
+      "name": "perl-error",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "45e48cf1eac8c7ee4f78656e3eec0df2aae9fa75aa924367abc20c2270ec54db",
+      "signature_sha256": "b6e561ae65c2e858cb05b20007b8996595eb3c2dec15a4436d4fb7d8d8bbf16c",
+      "signature_size": 566,
+      "size": 21280,
+      "source_url": [
+        "https://search.cpan.org/dist/Error/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/perl-error-0.17030-3-any.pkg.tar.xz",
+      "version": "0.17030-3"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "perl-timedate"
+      ],
+      "filename": "perl-mailtools-2.22-3-any.pkg.tar.xz",
+      "isize": 106745,
+      "license": [
+        "PerlArtistic",
+        "GPL"
+      ],
+      "name": "perl-mailtools",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "71b6383a6dab51efe4be74d14a8ea7bcdb07a34a20da7c2c6f708c4a01257018",
+      "signature_sha256": "b769d12bd9f6ee215f8d1d4a06168d06f9ce0b6e3604cfd323f753c1f4d5f2ab",
+      "signature_size": 566,
+      "size": 59796,
+      "source_url": [
+        "https://metacpan.org/release/MailTools"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/perl-mailtools-2.22-3-any.pkg.tar.xz",
+      "version": "2.22-3"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "perl"
+      ],
+      "filename": "perl-timedate-2.35-1-any.pkg.tar.xz",
+      "isize": 157825,
+      "license": [
+        "PerlArtistic"
+      ],
+      "name": "perl-timedate",
+      "provides": [
+        "timedate"
+      ],
+      "replaces": [
+        "timedate"
+      ],
+      "repo": "extra",
+      "sha256": "d97a4a2b169a88fbb2db3dc5425eba2b31b58ab4123a1a998c2fcc718cd8251b",
+      "signature_sha256": "cf152bbe2914ca09964e68cc636328a4a9cdb99cecc7fe4779d327b7b64e6fb4",
+      "signature_size": 566,
+      "size": 61796,
+      "source_url": [
+        "https://search.cpan.org/dist/TimeDate/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/perl-timedate-2.35-1-any.pkg.tar.xz",
+      "version": "2.35-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "zlib-ng-2.3.3-1-aarch64.pkg.tar.xz",
+      "isize": 256995,
+      "license": [
+        "Zlib"
+      ],
+      "name": "zlib-ng",
+      "provides": [
+        "libz-ng.so=2-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "1ee3a19d58b27a1f63d455177be5301ca474ed20d3699ffc7f0a4f987852e930",
+      "signature_sha256": "e3d9ee5945cf6b560097a05c6cac3fbb19be26ca52b1a595930b5257802d2920",
+      "signature_size": 566,
+      "size": 90636,
+      "source_url": [
+        "https://github.com/zlib-ng/zlib-ng"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/zlib-ng-2.3.3-1-aarch64.pkg.tar.xz",
+      "version": "2.3.3-1"
+    }
+  ],
+  "source_descriptor": {
+    "bytes": 623664,
+    "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
+  },
+  "upgraded": []
+}

@@ -1,0 +1,802 @@
+{
+  ".github/workflows/native-arm-build.yml": {
+    "blob": "ee5d5fb584e9edbb2ad8b082f224c9109cffdeee",
+    "mode": 420
+  },
+  ".github/workflows/native-arm-developer-workflows.yml": {
+    "blob": "ee5d5fb584e9edbb2ad8b082f224c9109cffdeee",
+    "mode": 420
+  },
+  "bootstrap/.github/workflows/native-arm-build.yml": {
+    "blob": "05c8a0b4a4786f33fb9031f132390bcc4fb43a8b",
+    "mode": 420
+  },
+  "bootstrap/.github/workflows/native-arm-zlib-pgo.yml": {
+    "blob": "05c8a0b4a4786f33fb9031f132390bcc4fb43a8b",
+    "mode": 420
+  },
+  "bootstrap/LICENSE": {
+    "blob": "4a871664e48917bbb97e51b6d4d0eeb825772d1f",
+    "mode": 420
+  },
+  "bootstrap/docs/port/installable-arm-experiments.md": {
+    "blob": "cabe5a2cc91dbf1c4e906c316a9e6bb3e54f2375",
+    "mode": 420
+  },
+  "bootstrap/docs/port/zlib-pgo-native-hosted.md": {
+    "blob": "92c06dc90a791b7a18b059a79752cc1321719823",
+    "mode": 420
+  },
+  "bootstrap/packages/experiments/cachy-asahi-zlib-baseline/LICENSE.project": {
+    "blob": "4a871664e48917bbb97e51b6d4d0eeb825772d1f",
+    "mode": 420
+  },
+  "bootstrap/packages/experiments/cachy-asahi-zlib-baseline/PKGBUILD": {
+    "blob": "b7d188f22e0c924c24884e485cb90c32f94c3ce4",
+    "mode": 420
+  },
+  "bootstrap/packages/experiments/cachy-asahi-zlib-baseline/probe.c": {
+    "blob": "3512f4ecb4888078cf1bd30f06c1f11aad89df22",
+    "mode": 420
+  },
+  "bootstrap/packages/experiments/cachy-asahi-zlib-baseline/strict-gzip.c": {
+    "blob": "fb78531a7eb8ac4abd23340390f47715524afa5c",
+    "mode": 420
+  },
+  "bootstrap/packages/experiments/cachy-asahi-zlib-lto/LICENSE.project": {
+    "blob": "4a871664e48917bbb97e51b6d4d0eeb825772d1f",
+    "mode": 420
+  },
+  "bootstrap/packages/experiments/cachy-asahi-zlib-lto/PKGBUILD": {
+    "blob": "e19d8b4e4e13e703ff0b8d133152bdd29994b8f8",
+    "mode": 420
+  },
+  "bootstrap/packages/experiments/cachy-asahi-zlib-lto/probe.c": {
+    "blob": "3512f4ecb4888078cf1bd30f06c1f11aad89df22",
+    "mode": 420
+  },
+  "bootstrap/packages/experiments/cachy-asahi-zlib-lto/strict-gzip.c": {
+    "blob": "fb78531a7eb8ac4abd23340390f47715524afa5c",
+    "mode": 420
+  },
+  "bootstrap/pgo-source/LICENSE": {
+    "blob": "4a871664e48917bbb97e51b6d4d0eeb825772d1f",
+    "mode": 420
+  },
+  "bootstrap/pgo-source/PGO-SOURCE.json": {
+    "blob": "31fae62395209cec7dd0581321b2a940acc8a134",
+    "mode": 420
+  },
+  "bootstrap/pgo-source/docs/port/zlib-pgo-v1.md": {
+    "blob": "a54776a1d17a80778303fb84cd640d36f464e786",
+    "mode": 420
+  },
+  "bootstrap/pgo-source/inputs/cache-seed/FORMAT": {
+    "blob": "eba557e4920f8f9040a52976c4426102bfe645f9",
+    "mode": 420
+  },
+  "bootstrap/pgo-source/inputs/cache-seed/objects/bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16": {
+    "blob": "ee23da1f1cb316131c8fcb5e6fc8080f74631eb0",
+    "mode": 420
+  },
+  "bootstrap/pgo-source/inputs/cache-seed/receipts/50979bf81eda4d1f5b23fbe05aec5fabd7827b270fe3edda22b7189944004c43-zlib-1.3.2.json": {
+    "blob": "ec8eddba764c67688dea4f1f25c1767832a61b48",
+    "mode": 420
+  },
+  "bootstrap/pgo-source/inputs/notices/LICENSE.zlib": {
+    "blob": "b7a69d058e616651eae27b3f90c0b7fd36c099b2",
+    "mode": 420
+  },
+  "bootstrap/pgo-source/inputs/source-inputs.json": {
+    "blob": "ed7450b6afa839d49da1036a730db88f753ffe59",
+    "mode": 420
+  },
+  "bootstrap/pgo-source/packages/experiments/cachy-asahi-zlib-pgo-v1/LICENSE.project": {
+    "blob": "4a871664e48917bbb97e51b6d4d0eeb825772d1f",
+    "mode": 420
+  },
+  "bootstrap/pgo-source/packages/experiments/cachy-asahi-zlib-pgo-v1/PKGBUILD": {
+    "blob": "9c2a8b9051f7c38f91b34c5021c5d1e93e2358e5",
+    "mode": 420
+  },
+  "bootstrap/pgo-source/packages/experiments/cachy-asahi-zlib-pgo-v1/arm_c01.py": {
+    "blob": "778c89e154adfceda5aac503f052d5df794fda4c",
+    "mode": 420
+  },
+  "bootstrap/pgo-source/packages/experiments/cachy-asahi-zlib-pgo-v1/corpus-policy.json": {
+    "blob": "6af64ff63595fb33a9d782bf0ce9f576e70308a1",
+    "mode": 420
+  },
+  "bootstrap/pgo-source/packages/experiments/cachy-asahi-zlib-pgo-v1/corpus.py": {
+    "blob": "f9df92a51b05c5ecef838f784dc8f3ad4368a1ec",
+    "mode": 420
+  },
+  "bootstrap/pgo-source/packages/experiments/cachy-asahi-zlib-pgo-v1/corpus_controls.py": {
+    "blob": "b5779887499b6f4686e358bb05ecdb3df2f6981e",
+    "mode": 420
+  },
+  "bootstrap/pgo-source/packages/experiments/cachy-asahi-zlib-pgo-v1/pgo.py": {
+    "blob": "6d924d4a27f000d099e80d8eacdd5b5b23883dfd",
+    "mode": 420
+  },
+  "bootstrap/pgo-source/packages/experiments/cachy-asahi-zlib-pgo-v1/pipeline.py": {
+    "blob": "6301a2cf71b6e9c97020a2cd0815b266232f039f",
+    "mode": 420
+  },
+  "bootstrap/pgo-source/packages/experiments/cachy-asahi-zlib-pgo-v1/probe.c": {
+    "blob": "3512f4ecb4888078cf1bd30f06c1f11aad89df22",
+    "mode": 420
+  },
+  "bootstrap/pgo-source/packages/experiments/cachy-asahi-zlib-pgo-v1/profile_seal.py": {
+    "blob": "3e3f6da84687b7c1552d78f65b32b838a0fa8837",
+    "mode": 420
+  },
+  "bootstrap/pgo-source/packages/experiments/cachy-asahi-zlib-pgo-v1/recipe-policy.json": {
+    "blob": "2520fe93c234c18ed08a975bb08d2a7d7bd3a2cf",
+    "mode": 420
+  },
+  "bootstrap/pgo-source/packages/experiments/cachy-asahi-zlib-pgo-v1/strict-gzip.c": {
+    "blob": "fb78531a7eb8ac4abd23340390f47715524afa5c",
+    "mode": 420
+  },
+  "bootstrap/pgo-source/packages/experiments/cachy-asahi-zlib-pgo-v1/supervisor.py": {
+    "blob": "1cf5843930d2aefbc4bfb772b2126eb893ae08c7",
+    "mode": 420
+  },
+  "bootstrap/pgo-source/packages/experiments/cachy-asahi-zlib-pgo-v1/test_corpus_controls.py": {
+    "blob": "5e3ba8db16b5b4940bb371cba590a471802bf606",
+    "mode": 420
+  },
+  "bootstrap/pgo-source/packages/experiments/cachy-asahi-zlib-pgo-v1/test_pipeline.py": {
+    "blob": "45772f4fd930d697932be502c4f0be358391e7b2",
+    "mode": 420
+  },
+  "bootstrap/pgo-source/packages/experiments/cachy-asahi-zlib-pgo-v1/test_profile_seal.py": {
+    "blob": "97fc078c11e7f3e529ff18858a90abeab27586ad",
+    "mode": 420
+  },
+  "bootstrap/pgo-source/packages/experiments/cachy-asahi-zlib-pgo-v1/training.bin": {
+    "blob": "d32998bf472899c554d149bb7effef519c7f04f2",
+    "mode": 420
+  },
+  "bootstrap/pgo-source/packages/experiments/cachy-asahi-zlib-pgo-v1/validation.bin": {
+    "blob": "21fcfbb62c0d68c771ce1f5d50c88ceb2ecfc676",
+    "mode": 420
+  },
+  "bootstrap/pgo-source/provenance/accepted-c01-component.json": {
+    "blob": "8040a615a458e42923985668184ac838663bfafb",
+    "mode": 420
+  },
+  "bootstrap/pgo-source/provenance/prior-negative-experiment.json": {
+    "blob": "69fc158f23256329893cb665f102f629fa53edf4",
+    "mode": 420
+  },
+  "bootstrap/pgo-source/provenance/reuse-origins.json": {
+    "blob": "d0ddcd09a8d0d0ea3d0b6b7762e1a3d0202ebb02",
+    "mode": 420
+  },
+  "bootstrap/pgo-source/scripts/build/build_v2.py": {
+    "blob": "cd1c65c33bcf803ed3a701a380f1c34540fd0e74",
+    "mode": 420
+  },
+  "bootstrap/pgo-source/scripts/build/compare_v2.py": {
+    "blob": "e529b192b64e640e5df01beb26fabd7c35b8d4c6",
+    "mode": 420
+  },
+  "bootstrap/pgo-source/scripts/build/container-entry-v2.sh": {
+    "blob": "2f39f3ccdc18d85ff566c3f58a205b4c2c19ff84",
+    "mode": 420
+  },
+  "bootstrap/pgo-source/scripts/build/source_materials.py": {
+    "blob": "7b0e9fae2a13a173146e6f402391e57535a56306",
+    "mode": 420
+  },
+  "bootstrap/pgo-source/scripts/checks/package_checks.py": {
+    "blob": "bc839eae57e47797a09cc7671f15f7b81fff77bd",
+    "mode": 420
+  },
+  "bootstrap/pgo-source/scripts/experiments/test_zlib_pgo_guest.py": {
+    "blob": "76b46622a88f0cc0a48543cca86c7ecf64f931b7",
+    "mode": 420
+  },
+  "bootstrap/pgo-source/scripts/experiments/zlib_pgo_guest.py": {
+    "blob": "7b1699c9cd3f3d9c39a7b63786ebdd406c140258",
+    "mode": 420
+  },
+  "bootstrap/pgo-source/scripts/experiments/zlib_pgo_native_plan.py": {
+    "blob": "2ee3e59d40d6225ad33bf143a66dc71c192d184e",
+    "mode": 420
+  },
+  "bootstrap/pgo-source/scripts/maintenance/source_cache.py": {
+    "blob": "961821d957db3f31fa45436ec8c5443b1dabd3fd",
+    "mode": 420
+  },
+  "bootstrap/pgo-source/scripts/release/source_delivery.py": {
+    "blob": "c578c29c1d22aa8475590186cc646a5f29d0efe2",
+    "mode": 420
+  },
+  "bootstrap/scripts/checks/package_checks.py": {
+    "blob": "bc839eae57e47797a09cc7671f15f7b81fff77bd",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/inputs.lock.json": {
+    "blob": "bbb0af42285b22d3b82c5d9479ffabe81c689e16",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/native_arm.py": {
+    "blob": "68c66bfa9e38160e1f082e5fc78e17c1f57ca140",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/offline-source-builder-native/bootstrap-owner-basis.py": {
+    "blob": "dcf98c007cef161f88de26b5fd4bd1c2a669ed38",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/offline-source-builder-native/bootstrap-source52-map.json": {
+    "blob": "5855cd03e7075ca79678d93cbdac584cef57b318",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/offline-source-builder-native/execute_builder.py": {
+    "blob": "4686246986057a2bcd5d1a768cd59ed07cd32dc5",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/offline-source-builder-native/expected-packages.lock": {
+    "blob": "f1f6a51c4db661e5d7598d25796a60ac1cadecea",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/offline-source-builder-native/held-original-builder-files.json": {
+    "blob": "f2e97b5063cc2b1510ee0acd9bf8f3e818515ecf",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/offline-source-builder-native/notices/LICENSE.zlib": {
+    "blob": "b7a69d058e616651eae27b3f90c0b7fd36c099b2",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/offline-source-builder-native/owner.py": {
+    "blob": "e0b4cd7f2aea97075345789744c44464525dfd3f",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/offline-source-builder-native/recipe-inputs.json": {
+    "blob": "40aa44186d6120679c5b08c3a920abb5b2d9d315",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/offline-source-builder-native/required-feature-files.json": {
+    "blob": "dd559a902b4de29a2326ab940c0765ec8275592a",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/offline-source-builder-native/reviewed11.json": {
+    "blob": "1a10c7484b9924fc38a4c2924f0d4730be6a203d",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/offline-source-builder-native/source-inputs.json": {
+    "blob": "ed7450b6afa839d49da1036a730db88f753ffe59",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/offline-source-builder-native/source-map.json": {
+    "blob": "17551294f18fb34c674b788826a195560eab884c",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/offline-source-builder-native/source-plan.json": {
+    "blob": "3c47fcf159d8e5e373759c27eec88201a9fd405d",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/offline-source-builder-native/test_context.py": {
+    "blob": "1b653dfd3a1ac3849e380433d589683235448e41",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/offline-source-builder-native/workflow.yml.in": {
+    "blob": "df4ba4c163e275e7e2e33fdf7d9500f9fd5d5040",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/offline-source-builder-native/zlib-1.3.2.tar.gz": {
+    "blob": "ee23da1f1cb316131c8fcb5e6fc8080f74631eb0",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/old_four_seed.py": {
+    "blob": "747037ca44975d36249671ad7b93879a06a60a81",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/setup6-retained-helpers/carrier-profile.json": {
+    "blob": "55aa2d74452477115acaebea26145790aad26247",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/setup6-retained-helpers/legacy-prefill-profile.json": {
+    "blob": "d7bebfcaae7672dd3370426b0fd68481dbf83c7d",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/setup6-retained-helpers/legacy_prefill.py": {
+    "blob": "c26a87b5c6e579c76339fb9c616ee6a382f75bd6",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/setup6-retained-helpers/prepare.py": {
+    "blob": "8513b7f7216eadd0b850d905ffc2599bc2dddebf",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/zlib-pgo-native-hosted/bootstrap-owner-reference.py": {
+    "blob": "e0b4cd7f2aea97075345789744c44464525dfd3f",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/zlib-pgo-native-hosted/execute-builder-reference.py": {
+    "blob": "4686246986057a2bcd5d1a768cd59ed07cd32dc5",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/zlib-pgo-native-hosted/execute_builder.py": {
+    "blob": "34f07db5014583f5290142b4642bbb38cfd64a28",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/zlib-pgo-native-hosted/expected-packages.lock": {
+    "blob": "f1f6a51c4db661e5d7598d25796a60ac1cadecea",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/zlib-pgo-native-hosted/owned_child.py": {
+    "blob": "32a2255362e6f1b46b8438cc97891223fb85137d",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/zlib-pgo-native-hosted/owner.py": {
+    "blob": "b567adddf6e364d5b35e90d27949ddc33f980212",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/zlib-pgo-native-hosted/pgo-source-pins.json": {
+    "blob": "31fae62395209cec7dd0581321b2a940acc8a134",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/zlib-pgo-native-hosted/retention.py": {
+    "blob": "2ebafd6ac6b48e43410ed5c299e3c89b91859f10",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/zlib-pgo-native-hosted/reviewed11.json": {
+    "blob": "1a10c7484b9924fc38a4c2924f0d4730be6a203d",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/zlib-pgo-native-hosted/source-map.json": {
+    "blob": "793c954225e8704c98fcfad01eb94c02a26bb1e1",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/zlib-pgo-native-hosted/test_hosted.py": {
+    "blob": "62dac25699dd33ad3c30f2ceea97a68b812bae4f",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/zlib-pgo-native-hosted/test_owned_child.py": {
+    "blob": "50962e538dcc61cec71abe6b78af25a5e0769e45",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/zlib-pgo-native-hosted/test_owned_commands.py": {
+    "blob": "64246830c62b95c83a57f883436624a0a030ecd9",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/zlib-pgo-native-hosted/test_owned_failure_export.py": {
+    "blob": "e84e00751f021d35a548b5f3acdbc9116471f5c4",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/zlib-pgo-native-hosted/test_owned_host.py": {
+    "blob": "e6ab0287cefa8dbeb954a1fc2b3c9c8fd5a215ab",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/zlib-pgo-native-hosted/test_owned_receipts.py": {
+    "blob": "29ab069e7536a9bdd57717cac6d202faf317e942",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/zlib-pgo-native-hosted/test_owned_tool_identity.py": {
+    "blob": "c3ca089ccc5d9102bfdd8b665096a8b3c7d146ca",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/zlib-pgo-native-hosted/test_owned_transport.py": {
+    "blob": "599a7864963a19a04a6211aa76eadfbd4426226a",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/zlib-pgo-native-hosted/test_owned_transport_retention.py": {
+    "blob": "b46112a20bc6ad37eb796cf8b3a7951de199eebb",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/zlib-pgo-native-hosted/test_owned_workflow_transport.py": {
+    "blob": "8193bf4f25402881bc185137c5969b20606ccec9",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/zlib-pgo-native-hosted/test_retention.py": {
+    "blob": "010a19342b5281c0650dcb8e1eccbce0f2e1369a",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/zlib-pgo-native-hosted/test_workflow_contract.py": {
+    "blob": "f581ce364d2a65ef06a94d8018e71282f18a80d5",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/zlib-pgo-native-hosted/workflow.yml.in": {
+    "blob": "a71e328de90ec3a931418a4c6663aa823ba087c1",
+    "mode": 420
+  },
+  "bootstrap/scripts/ci/zlib-pgo-native-hosted/workflow_contract.py": {
+    "blob": "e544c97dc4f886a40da0119f01c160d47fc2c2b9",
+    "mode": 420
+  },
+  "bootstrap/scripts/experiments/package_variants.py": {
+    "blob": "7789f7aa36ce4479d22c988ecd80cddcc4fc5764",
+    "mode": 420
+  },
+  "bootstrap/scripts/experiments/test_package_variants.py": {
+    "blob": "52175c0fd85bce7ce075176fb6db755d3d9d9463",
+    "mode": 420
+  },
+  "inputs/uv-aarch64-unknown-linux-gnu.tar.gz": {
+    "blob": "455f93cb23593de62adc06c008b01c0997475b3f",
+    "mode": 420
+  },
+  "inputs/wheelhouse/uv_build-0.11.28-py3-none-manylinux_2_28_aarch64.whl": {
+    "blob": "38b6becdb13ec48d0e58118de57776f1da2cdfc6",
+    "mode": 420
+  },
+  "native/README.md": {
+    "blob": "51da6fd5e737a2deb3245ea48a6ba437a52b29df",
+    "mode": 420
+  },
+  "native/bootstrap_inputs.py": {
+    "blob": "129dba366edd05f7019c96b764838f651a14294f",
+    "mode": 420
+  },
+  "native/build-tools-contract-v2.json": {
+    "blob": "c3dc54b033a80c5dbfe49add1106c41dbcd56693",
+    "mode": 420
+  },
+  "native/build-tools-makepkg-v2.conf": {
+    "blob": "c43a13a499d01fea4b985e3b5baf7eba6fe96b88",
+    "mode": 420
+  },
+  "native/build-tools-sources-v2.tar": {
+    "blob": "c188a4c5b824472dfc9a0e40421e9954472ecd5a",
+    "mode": 420
+  },
+  "native/build_summary.py": {
+    "blob": "290efbac4f0c8cf9e335241642c4af0b4a35e706",
+    "mode": 420
+  },
+  "native/build_tools_alpm_v2.py": {
+    "blob": "4deb525e4c09b070cb8cef7da31b203c6ba0a1d7",
+    "mode": 420
+  },
+  "native/build_tools_guest_v2.py": {
+    "blob": "4974d7a4aa6ac0f4b6c2d3fd3acb977171ef88a4",
+    "mode": 420
+  },
+  "native/build_tools_probe_v2.py": {
+    "blob": "8176626070bc5c0292e8bd3de101f476af5a8a72",
+    "mode": 420
+  },
+  "native/build_tools_projection_v2.py": {
+    "blob": "5e2fc8e858e0c3d4b6e24965ff71ddd39aaf9ea5",
+    "mode": 420
+  },
+  "native/build_tools_reader_v2.py": {
+    "blob": "65b6b08fd0642456452291dcd32cc8e74834be2c",
+    "mode": 420
+  },
+  "native/build_tools_tools_v2.py": {
+    "blob": "b2cfe9c7ad12fad5e912d09043086c32879c98e6",
+    "mode": 420
+  },
+  "native/capsule.py": {
+    "blob": "a4aede3d20ca3e7c6224a51a011705b356d5efbd",
+    "mode": 420
+  },
+  "native/cleanup_control.py": {
+    "blob": "f022be834d347f2a13e4fdb3dbe5280ae0396703",
+    "mode": 420
+  },
+  "native/common.py": {
+    "blob": "08018da4a3c411c92f23e5c56522455de526acdc",
+    "mode": 420
+  },
+  "native/consumer_diagnostics.py": {
+    "blob": "d16153a65598ca69e67ba5973a7510eead219ab8",
+    "mode": 420
+  },
+  "native/contract.json": {
+    "blob": "6bcffdfd8b4a7eb1bf5ab231e626c4efb06dc548",
+    "mode": 420
+  },
+  "native/desktop574-inputs.lock.json": {
+    "blob": "8ce016316e2e48b4c9b376a166c4747d8520c02c",
+    "mode": 420
+  },
+  "native/expected349.lock": {
+    "blob": "f4f1c17aae202e3bb0393e8aa27be2bb9d64b1fc",
+    "mode": 420
+  },
+  "native/failure_retention.py": {
+    "blob": "3fd30433825cad8bd434164d5af9c4dd1fa399df",
+    "mode": 420
+  },
+  "native/guest.py": {
+    "blob": "883b1a6ea7e1323479789bd12497eea7d13ff7ef",
+    "mode": 420
+  },
+  "native/image_lifecycle.py": {
+    "blob": "6c9d339c9a40275447f4781ca578ad9aad9206dc",
+    "mode": 420
+  },
+  "native/input-profile.json": {
+    "blob": "dc3c032e3437ceced97c323b173b30e1d342543b",
+    "mode": 420
+  },
+  "native/invocation.json": {
+    "blob": "595cf85c0fa4ea8d225a0e9d13326e2290087bbc",
+    "mode": 420
+  },
+  "native/original341.lock": {
+    "blob": "f1f6a51c4db661e5d7598d25796a60ac1cadecea",
+    "mode": 420
+  },
+  "native/owner.py": {
+    "blob": "887bb3b887a3ccc92edcd0bee2df9a93555ac432",
+    "mode": 420
+  },
+  "native/predecessor-source-map.json": {
+    "blob": "f674346a23430242f12a55a12250927e51244f47",
+    "mode": 420
+  },
+  "native/privacy_diagnostics.py": {
+    "blob": "0f95ce268bac1f49eac2c1850b5d0830ecf2ee0b",
+    "mode": 420
+  },
+  "native/provision.py": {
+    "blob": "ea9c7e88722afb6c147cdcf69d6eabf7a0545f8a",
+    "mode": 420
+  },
+  "native/public_projection.py": {
+    "blob": "a32ea37838efd96789a3a45176583c27754fdd2e",
+    "mode": 420
+  },
+  "native/python_backend.py": {
+    "blob": "c66a6cab109d3d935ad67080201ad6ea7505be6e",
+    "mode": 420
+  },
+  "native/reader.py": {
+    "blob": "3eb5b925d23f3bdd96edcb26229f50eb113f0969",
+    "mode": 420
+  },
+  "native/retained_transport.py": {
+    "blob": "7b36c1593ebda195cc62b1cbe105b6bf436e7ee4",
+    "mode": 420
+  },
+  "native/safe_diagnostic.py": {
+    "blob": "b97fea491e0c8d92f12484d46a379c049a907d2e",
+    "mode": 420
+  },
+  "native/source-map.json": {
+    "blob": "207de79269ed51deb1bea908da7bea8182faf1d5",
+    "mode": 420
+  },
+  "native/transport_proof.py": {
+    "blob": "75396a7e896c9dc975f606681d8de9d4794864f1",
+    "mode": 420
+  },
+  "native/transport_retention.py": {
+    "blob": "bc69b920d9e478d589ac7c8654f6dbb592ff5e4e",
+    "mode": 420
+  },
+  "native/uv-inputs.json": {
+    "blob": "70ffbe19158dc9bbb741c243c18785f4a176d4b2",
+    "mode": 420
+  },
+  "scripts/checks/package_checks.py": {
+    "blob": "bc839eae57e47797a09cc7671f15f7b81fff77bd",
+    "mode": 420
+  },
+  "scripts/maintenance/retained_git_transport.py": {
+    "blob": "01573f35a1ff18f9f506759cb32f79ac5c4567e7",
+    "mode": 420
+  },
+  "scripts/virtual/owned_process.py": {
+    "blob": "4eea0bab0a1518b5379d62dc399921ce330e108a",
+    "mode": 420
+  },
+  "scripts/workflows/developer_build_systems.py": {
+    "blob": "04f28e5bbdf5346109673bcfba442c2d127f9879",
+    "mode": 420
+  },
+  "scripts/workflows/developer_workflow.py": {
+    "blob": "a321b448153aa6745f2aadef05559aa3b64b04ff",
+    "mode": 420
+  },
+  "scripts/workflows/python_development.py": {
+    "blob": "039c151cec4bf2038ff3adf6f5b5131a42995f08",
+    "mode": 420
+  },
+  "scripts/workflows/python_extension.py": {
+    "blob": "cde0bdc4b7f2d50b5ae613d0cf7e0caf6f350263",
+    "mode": 420
+  },
+  "tests/workflows/fixtures/developer/build-systems/CMakeLists.txt": {
+    "blob": "c3bb36ffe5d12ef876e73ad541810183c1bf6177",
+    "mode": 420
+  },
+  "tests/workflows/fixtures/developer/build-systems/LICENSE": {
+    "blob": "4a871664e48917bbb97e51b6d4d0eeb825772d1f",
+    "mode": 420
+  },
+  "tests/workflows/fixtures/developer/build-systems/expected.txt": {
+    "blob": "dd45ebb324c0a12b80d5f0d2785fda17e2557c34",
+    "mode": 420
+  },
+  "tests/workflows/fixtures/developer/build-systems/greeting.cpp": {
+    "blob": "4f0ca24327e6cee3783ef0f79fc4423a2826d027",
+    "mode": 420
+  },
+  "tests/workflows/fixtures/developer/build-systems/greeting.h": {
+    "blob": "ed8fcbb01a9bdd6239f677587ecef20a4017cc8f",
+    "mode": 420
+  },
+  "tests/workflows/fixtures/developer/build-systems/main.c": {
+    "blob": "43589774717470fa0dad3891fcda16b99875ca95",
+    "mode": 420
+  },
+  "tests/workflows/fixtures/developer/build-systems/meson.build": {
+    "blob": "a74af36b7a73bc7b7d2d6c29342d35bd9f8f16d4",
+    "mode": 420
+  },
+  "tests/workflows/fixtures/python-development/LICENSE": {
+    "blob": "4a871664e48917bbb97e51b6d4d0eeb825772d1f",
+    "mode": 420
+  },
+  "tests/workflows/fixtures/python-development/pyproject.toml": {
+    "blob": "f8217d6f64cba3a27390cb737c681aeab4556168",
+    "mode": 420
+  },
+  "tests/workflows/fixtures/python-development/src/cachy_python_demo/__init__.py": {
+    "blob": "9b1f21a4f109e5c13b4dfd3dbed0258f1875a9e9",
+    "mode": 420
+  },
+  "tests/workflows/fixtures/python-development/src/cachy_python_demo/__main__.py": {
+    "blob": "55c143cbaa4080db597ae68f3dc34e0b2f273797",
+    "mode": 420
+  },
+  "tests/workflows/fixtures/python-development/test_demo.py": {
+    "blob": "0edca500bacc38258f7b788ef271df7ed2c111b5",
+    "mode": 420
+  },
+  "tests/workflows/fixtures/python-extension/CMakeLists.txt": {
+    "blob": "397dc503fa936348b8335bd238d748e32aa4ad74",
+    "mode": 420
+  },
+  "tests/workflows/fixtures/python-extension/LICENSE": {
+    "blob": "4a871664e48917bbb97e51b6d4d0eeb825772d1f",
+    "mode": 420
+  },
+  "tests/workflows/fixtures/python-extension/check_extension.py": {
+    "blob": "6a262c3ddd2f0264df3ae45ca057b02c199c5c6e",
+    "mode": 420
+  },
+  "tests/workflows/fixtures/python-extension/expected.txt": {
+    "blob": "24fd5174fc6cd3c80b92d85d6313bad2e5149da3",
+    "mode": 420
+  },
+  "tests/workflows/fixtures/python-extension/extension.c": {
+    "blob": "033901679029f099460f93444a9d9eb587643f4f",
+    "mode": 420
+  },
+  "uv-provenance/UV-HANDOFF.json": {
+    "blob": "35bd2fba9409d7101d29c1c616d6a58e697febcc",
+    "mode": 420
+  },
+  "uv-provenance/archive-inspection.json": {
+    "blob": "6248b56199389bcf19f9146d5f3c5e65cc93926f",
+    "mode": 420
+  },
+  "uv-provenance/downloads/uv-aarch64-unknown-linux-gnu.tar.gz.sha256": {
+    "blob": "13b920cc8de6881872a32fc08d6670f9de3ca642",
+    "mode": 420
+  },
+  "uv-provenance/http-ledger.json": {
+    "blob": "df5ab36c039a98aede1d1ee65155bc2400ecf4b3",
+    "mode": 420
+  },
+  "uv-provenance/inspected-wheel/uv_build-0.11.28.dist-info/METADATA": {
+    "blob": "c2253a95dcdd719e8a32a6f960f7bf385d4da349",
+    "mode": 420
+  },
+  "uv-provenance/inspected-wheel/uv_build-0.11.28.dist-info/WHEEL": {
+    "blob": "3d339275dd64cebc8934b1498532f8c6a39db90b",
+    "mode": 420
+  },
+  "uv-provenance/inspected-wheel/uv_build/__init__.py": {
+    "blob": "86226f51267f9fe8b8c6167b639153b640b7577c",
+    "mode": 420
+  },
+  "uv-provenance/inspected-wheel/uv_build/__main__.py": {
+    "blob": "ce4eba2221b2dcfbe2c37aca620f151f29215375",
+    "mode": 420
+  },
+  "uv-provenance/licenses/LICENSE-APACHE": {
+    "blob": "261eeb9e9f8b2b4b0d119366dda99c6fd7d35c64",
+    "mode": 420
+  },
+  "uv-provenance/licenses/LICENSE-MIT": {
+    "blob": "014835144877ea9c926d027ece3e1a26290cf481",
+    "mode": 420
+  },
+  "uv-provenance/metadata/github-commit.json": {
+    "blob": "4e9c9129b4a1340e3b31780b10e8b06796e4ac5a",
+    "mode": 420
+  },
+  "uv-provenance/metadata/github-release.json": {
+    "blob": "04724d50e5809842e7f3223069e19cbec7976c91",
+    "mode": 420
+  },
+  "uv-provenance/metadata/github-tag-ref.json": {
+    "blob": "7fa2c1516dfcc2dd203fc45924380129afda0d08",
+    "mode": 420
+  },
+  "uv-provenance/metadata/github-tree.json": {
+    "blob": "fee0cc1dc4f054e8787c9fa3b0581d4b01f13ed2",
+    "mode": 420
+  },
+  "uv-provenance/metadata/pypi-uv-build.json": {
+    "blob": "46641912c278df01e8b56440624ba435ccb35e0d",
+    "mode": 420
+  },
+  "uv-provenance/source-joins.json": {
+    "blob": "0a5463bbcd54c8f567d00d19108cd3fa4071d2db",
+    "mode": 420
+  },
+  "uv-provenance/source/Cargo.toml": {
+    "blob": "95b5e97e82c2136fb6a705eadf9cdaa92cb05ae0",
+    "mode": 420
+  },
+  "uv-provenance/source/LICENSE-APACHE": {
+    "blob": "261eeb9e9f8b2b4b0d119366dda99c6fd7d35c64",
+    "mode": 420
+  },
+  "uv-provenance/source/LICENSE-MIT": {
+    "blob": "014835144877ea9c926d027ece3e1a26290cf481",
+    "mode": 420
+  },
+  "uv-provenance/source/crates/uv-build-backend/src/lib.rs": {
+    "blob": "c2f7c9f23632b5f8fb92f6f89357b48418414d51",
+    "mode": 420
+  },
+  "uv-provenance/source/crates/uv-build-backend/src/metadata.rs": {
+    "blob": "7b90ba01cecedd7a199482c495306f6e67c57272",
+    "mode": 420
+  },
+  "uv-provenance/source/crates/uv-build-frontend/src/lib.rs": {
+    "blob": "b642e6099c66a9766e1350efe712567861bb87dc",
+    "mode": 420
+  },
+  "uv-provenance/source/crates/uv-build/Cargo.toml": {
+    "blob": "82380682f02ece931832d5668eab9c37e1b0905a",
+    "mode": 420
+  },
+  "uv-provenance/source/crates/uv-build/pyproject.toml": {
+    "blob": "8c3c14457710d58dfeb7d8805fc3d27d1acb0d8b",
+    "mode": 420
+  },
+  "uv-provenance/source/crates/uv-build/python/uv_build/__init__.py": {
+    "blob": "86226f51267f9fe8b8c6167b639153b640b7577c",
+    "mode": 420
+  },
+  "uv-provenance/source/crates/uv-build/src/main.rs": {
+    "blob": "ceb5109a74c8d35c01ee506c2b3f2620f0dfe788",
+    "mode": 420
+  },
+  "uv-provenance/source/crates/uv-cli/src/lib.rs": {
+    "blob": "7476c4394ab5e53a780f39c8528b16b53cf1f5cc",
+    "mode": 420
+  },
+  "uv-provenance/source/crates/uv-version/Cargo.toml": {
+    "blob": "abd7688efe839089d812c27e37c97902aff421d6",
+    "mode": 420
+  },
+  "uv-provenance/source/crates/uv-version/src/lib.rs": {
+    "blob": "20a8940a121643c78223dc80da78cf1fbe2a9817",
+    "mode": 420
+  },
+  "uv-provenance/source/crates/uv/src/commands/build_backend.rs": {
+    "blob": "c9f4e2ed53a2d6c3657791ed7144c466daf378d3",
+    "mode": 420
+  },
+  "uv-provenance/source/crates/uv/src/commands/build_frontend.rs": {
+    "blob": "b4803988b8826f47abe82194fd1dbe35d6acf49e",
+    "mode": 420
+  },
+  "uv-provenance/uv_build-0.11.28.tar.gz": {
+    "blob": "1789d85725d336c9e3da735c5cc2ce09b273bcee",
+    "mode": 420
+  }
+}

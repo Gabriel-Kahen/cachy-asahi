@@ -1,0 +1,30 @@
+name: Developer-tools native source DATA controls
+on:
+  pull_request:
+    paths:
+      - 'scripts/ci/developer-tools-native-source-v1/**'
+      - '.github/workflows/developer-tools-native-source-data.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/ci/developer-tools-native-source-v1/**'
+      - '.github/workflows/developer-tools-native-source-data.yml'
+permissions:
+  contents: read
+jobs:
+  factory-data:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Check finite constructor and passive evidence DATA without actors
+        run: python3 -I -B -Werror::ResourceWarning scripts/ci/developer-tools-native-source-v1/test_data.py
