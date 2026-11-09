@@ -17,17 +17,17 @@ import stat
 import struct
 import tarfile
 
-OPERATION = 'build-tools-alpm-v2'
-NAME = 'cachy-asahi-build-tools'
-VERSION = '0.2.0-1'
-PREFIX = Path('/opt/native-build-tools-alpm-v2')
+OPERATION = 'developer-tools-alpm-v1'
+NAME = 'cachy-asahi-developer-tools'
+VERSION = '0.1.0-1'
+PREFIX = Path('/opt/native-developer-tools-alpm-v1')
 SOURCE = PREFIX / 'source'
 STORE = PREFIX / 'evidence'
 STAGES = ('build-a', 'build-b', 'compare', 'sign', 'install', 'commands-system',
           'commands-moved', 'remove', 'restore', 'cleanup')
-SOURCE_ARCHIVE = 'check-inputs.tar.gz'
-SOURCE_FILES = frozenset(('.SRCINFO', 'LICENSE', 'NOTICE', 'PKGBUILD', 'README.md', 'cachy-asahi-build-tools', 'check-inputs.tar.gz', 'import_source.py', 'package_checks.py', 'preflight.py', 'recipe_metadata_consistency.py', 'source-provenance.json', 'source_cache.py', 'source_delivery.py', 'source_materials.py', 'test_package.py'))
-SOURCE_ARCHIVE_SHA256 = '112fa3eb9c18245ad95ea874f66c4943dc2678b0927e63a6ac705ff398e6ac72'
+SOURCE_ARCHIVE = 'cachy-asahi-developer-tools-0.1.0.tar.gz'
+SOURCE_FILES = frozenset(('PKGBUILD', SOURCE_ARCHIVE))
+SOURCE_ARCHIVE_SHA256 = '767ac7a1e98b35f212247ed906434c11c197ad5640ad3a13601d433c84d756c2'
 MAX_FILE = 16 * 1024**2
 MAX_TOTAL = 128 * 1024**2
 MAX_NODES = 100000
@@ -81,7 +81,7 @@ def _pin_row(item, maximum=1024**2):
 
 
 def expected_installed(root):
-    """Derive all349 version AND architecture rows from the genuine held inputs."""
+    """Derive all354 version AND architecture rows from the genuine held inputs."""
     root = Path(root)
     original = json.loads(ordinary(root / 'bootstrap/scripts/ci/inputs.lock.json'))
     additions = json.loads(ordinary(root / 'native/input-profile.json'))['additions']['rows']
@@ -92,47 +92,47 @@ def expected_installed(root):
         versions[row['name'][0]] = (row['version'][0], row['arch'][0])
     for row in original['packages'] + additions:
         versions[row['name']] = (row['version'], row['arch'])
-    need(len(versions) == 349 and all(arch in ('any', 'aarch64') for _, arch in versions.values()),
+    need(len(versions) == 354 and all(arch in ('any', 'aarch64') for _, arch in versions.values()),
          'complete genuine349 architecture metadata')
-    lock = ordinary(root / 'native/expected349.lock')
+    lock = ordinary(root / 'native/expected354.lock')
     need(lock == ''.join(name + ' ' + version + '\n' for name, (version, _) in sorted(versions.items())).encode(),
-         'derived full349 version/architecture inventory differs')
+         'derived full354 version/architecture inventory differs')
     return sorted(name + '-' + version + '-' + arch for name, (version, arch) in versions.items())
 
 
 def source_policy(root):
     root = Path(root)
-    policy = json.loads(ordinary(root / 'native/build-tools-contract-v2.json'))
+    policy = json.loads(ordinary(root / 'native/developer-tools-contract-v1.json'))
     need(policy.get('schema') == 1 and policy.get('operation') == OPERATION
          and type(policy.get('actual')) is dict and all(value is None for value in policy['actual'].values()),
          'unexecuted source-tools source contract identity')
     recipe = policy['recipe']
     need(recipe['archive'] == NAME + '-' + VERSION + '-any.pkg.tar.zst'
-         and recipe['expected_test_count'] == 11 and type(recipe['expected_test_count']) is int
-         and set(recipe['source_files']) == SOURCE_FILES and len(recipe['payload_files']) == 12,
+         and recipe['expected_test_count'] == 13 and type(recipe['expected_test_count']) is int
+         and set(recipe['source_files']) == SOURCE_FILES and len(recipe['payload_files']) == 34,
          'exact frozen recipe and finite payload')
     for name, item in recipe['source_files'].items():
         need(Path(name).name == name and _pin_row(item, 4*1024**2), 'flat pinned frozen recipe source')
     need(recipe['source_files'][SOURCE_ARCHIVE]['sha256'] == SOURCE_ARCHIVE_SHA256,
-         'exact0.2.0 pinned check-inputs archive required')
+         'exact0.1.0 pinned check-inputs archive required')
     for name, item in recipe['payload_files'].items():
         need(name.startswith('usr/') and Path(name).as_posix() == name and '..' not in Path(name).parts
              and _pin_row(item), 'pinned 17-file package payload')
     bundle = policy['bundle']
-    need(bundle['path'] == 'native/build-tools-sources-v2.tar' and bundle['members'] == 16
+    need(bundle['path'] == 'native/developer-tools-sources-v1.tar' and bundle['members'] == 2
          and type(bundle['bytes']) is int and 0 < bundle['bytes'] <= bundle['max_bytes'] <= 4*1024**2,
          'finite 13-member source delivery')
-    base = ordinary(root / 'native/expected349.lock')
-    need(data_pin(base) == {key: policy['expected349'][key] for key in ('bytes', 'sha256')}
-         and len(base.splitlines()) == 349, 'exact genuine349 lock')
+    base = ordinary(root / 'native/expected354.lock')
+    need(data_pin(base) == {key: policy['expected354'][key] for key in ('bytes', 'sha256')}
+         and len(base.splitlines()) == 354, 'exact genuine349 lock')
     versions = dict(line.decode().split(' ', 1) for line in base.splitlines())
     need(all(versions.get(name) == version for name, version in policy['dependencies'].items())
          and versions.get('python') == '3.14.8-1' and versions.get('zstd') == '1.5.7-3'
          and versions.get('xz') == '5.8.4-1' and versions.get('bubblewrap') == '0.13.0-1',
          'exact retained native dependencies')
-    need(policy['buildinfo_installed'] == expected_installed(root), 'full349 BUILDINFO architecture/version provenance')
+    need(policy['buildinfo_installed'] == expected_installed(root), 'full354 BUILDINFO architecture/version provenance')
     config_row = policy['makepkg_config']
-    need(config_row['path'] == 'native/build-tools-makepkg-v2.conf', 'fixed makepkg configuration')
+    need(config_row['path'] == 'native/developer-tools-makepkg-v1.conf', 'fixed makepkg configuration')
     config = ordinary(root / config_row['path'])
     need(data_pin(config) == {key: config_row[key] for key in ('bytes', 'sha256')}
          and re.search(rb'^BUILDENV=\([^\n]*\bcheck\b', config, re.M) and b'!check' not in config
@@ -154,7 +154,7 @@ def recipe_members(root, policy):
             body = archive.extractfile(member).read()
             need(data_pin(body) == {key: item[key] for key in ('bytes', 'sha256')}, 'source member checksum')
             result[member.name] = body
-    need(set(result) == set(expected) and len(result) == 16, 'complete 13-file recipe bundle')
+    need(set(result) == set(expected) and len(result) == 2, 'complete 13-file recipe bundle')
     return result
 
 
@@ -176,7 +176,7 @@ def load_workflow(root, policy):
     row = policy['original_workflow']
     path = Path(root) / row['path']; raw = ordinary(path)
     need(data_pin(raw) == {key: row[key] for key in ('bytes', 'sha256')}, 'genuine owned Commands source bytes')
-    spec = importlib.util.spec_from_file_location('_build_tools_owned_workflow_v1', path)
+    spec = importlib.util.spec_from_file_location('_developer_tools_owned_workflow_v1', path)
     module = importlib.util.module_from_spec(spec)
     exec(compile(raw, str(path), 'exec'), module.__dict__)
     return module
@@ -184,8 +184,8 @@ def load_workflow(root, policy):
 
 def inventory_expected(base, version=None):
     rows = base.splitlines(keepends=True)
-    need(len(rows) == 349 and not any(line.startswith((NAME + ' ').encode()) for line in rows),
-         'project package absent from exact349 base')
+    need(len(rows) == 354 and not any(line.startswith((NAME + ' ').encode()) for line in rows),
+         'project package absent from exact354 base')
     if version is not None:
         need(version == VERSION, 'only frozen installed source-tools version')
         rows.append((NAME + ' ' + VERSION + '\n').encode())
@@ -245,7 +245,7 @@ def check_payload(root, policy, run, pacman):
     directories = {name.lstrip('/').rstrip('/') for name in listed if name.endswith('/')}
     ancestors = {str(parent) for name in expected for parent in Path(name).parents if str(parent) != '.'}
     need(files == set(expected) and directories == ancestors, 'exact ALPM 17-file and ancestor directory ownership')
-    return dict(version=VERSION, count=12, verified=True, stale_absent=True,
+    return dict(version=VERSION, count=34, verified=True, stale_absent=True,
                 files={name: {key: item[key] for key in ('bytes', 'sha256', 'mode')} for name, item in expected.items()})
 
 
@@ -293,13 +293,13 @@ def _archive_data(raw, policy):
     pkg = _metadata(metadata['.PKGINFO']); build = _metadata(metadata['.BUILDINFO'])
     for key, expected_value in (('pkgname', NAME), ('pkgbase', NAME), ('pkgver', VERSION), ('arch', 'any')):
         need(pkg.get(key) == [expected_value], 'exact PKGINFO ' + key)
-    need(pkg.get('license') == ['MIT'] and pkg.get('depend') == ['python>=3.12'] and pkg.get('checkdepend', []) == [], 'exact package license/runtime dependency')
+    need(pkg.get('license') == ['MIT'] and pkg.get('depend') == ['python>=3.11'] and pkg.get('checkdepend', []) == [], 'exact package license/runtime dependency')
     for key, expected_value in (('format', '2'), ('pkgname', NAME), ('pkgbase', NAME), ('pkgver', VERSION), ('pkgarch', 'any'),
                                 ('pkgbuild_sha256sum', policy['recipe']['source_files']['PKGBUILD']['sha256'])):
         need(build.get(key) == [expected_value], 'exact BUILDINFO ' + key)
     installed = build.get('installed', [])
-    need(len(installed) == 349 and len(set(installed)) == 349 and sorted(installed) == policy['buildinfo_installed'],
-         'all349 exact native dependency provenance rows required')
+    need(len(installed) == 354 and len(set(installed)) == 354 and sorted(installed) == policy['buildinfo_installed'],
+         'all354 exact native dependency provenance rows required')
     need('check' in build.get('buildenv', []) and '!check' not in build['buildenv'], 'actual positive buildenv check')
     return dict(metadata=metadata, payload=payload)
 
@@ -322,7 +322,7 @@ def compare_archives(run, archives, policy, source_map_hash):
     data = decoded['a']
     return dict(status='PASS_EXACT_NATIVE_BUILD_PAIR', archive=data_pin(archive_bodies['a']), builds=builds,
                 equality=dict(archive=True, payload=True, pkginfo=True, buildinfo=True, mtree=True),
-                payload_files=12, base_inventory_count=349, source_map_sha256=source_map_hash,
+                payload_files=34, base_inventory_count=354, source_map_sha256=source_map_hash,
                 pkgbuild_sha256=policy['recipe']['source_files']['PKGBUILD']['sha256'],
                 pkginfo_text=data['metadata']['.PKGINFO'].decode(), buildinfo_text=data['metadata']['.BUILDINFO'].decode(),
                 mtree_base64=base64.b64encode(data['metadata']['.MTREE']).decode('ascii'))
@@ -338,43 +338,16 @@ def _own_tree(root, uid, gid):
 
 
 def fixture_members(raw, policy):
-    """Exact retained check DATA, never imported or executed."""
-    want=policy['trusted_fixture']
-    need(type(raw)is bytes and data_pin(raw)=={k:want[k]for k in('bytes','sha256')}
-         and want['bytes']==1509703 and len(raw)<=4*1024**2,'exact pinned compressed fixture, explicit4MiB new-variant bound')
-    with gzip.GzipFile(fileobj=io.BytesIO(raw))as stream:decoded=stream.read(8*1024**2+1)
-    need(len(decoded)<=8*1024**2,'held decoded fixture8MiB cap')
-    expected=policy['fixture_files'];result={}
-    with tarfile.open(fileobj=io.BytesIO(decoded),mode='r:')as archive:
-        for member in archive:
-            name=member.name
-            need(name.startswith('check-inputs/')and name==Path(name).as_posix()and '..'not in Path(name).parts
-                 and member.isfile()and not member.pax_headers and member.mode==0o644
-                 and member.uid==member.gid==member.mtime==0,'exact ordinary fixture member')
-            key=name[len('check-inputs/'):]
-            need(key not in result and key in set(expected)|{'files.json'}and 0<member.size<=4*1024**2,'finite pinned source-DATA member (not installed payload)')
-            with archive.extractfile(member)as stream:body=stream.read(member.size+1)
-            need(len(body)==member.size,'whole fixture member')
-            if key=='files.json':need(json.loads(body)==expected,'complete fixture manifest')
-            else:need(data_pin(body)==expected[key],'exact fixture member hash/bytes')
-            result[key]=body
-    need(set(result)==set(expected)|{'files.json'}and len(result)==14,'complete exact14-file fixture namespace')
-    return result
+    raise ValueError('no external fixture archive in developer-tools; exact fixtures live in verified installed runtime')
 
 
-def business(run, cli, root, uid, gid, label, source=SOURCE, policy=None):
-    """Six actual offline commands; nine bounded observations, no namespace claim."""
-    from build_tools_probe_v2 import probe
-    root,source=Path(root),Path(source)
-    need(label in('system','moved')and not os.path.lexists(root),'fresh finite probe scope')
+def business(run, cli, root, uid, gid, label, source=SOURCE, policy=None, evidence=None):
+    from developer_tools_probe_v1 import probe
+    root=Path(root)
+    need(label in ('system','moved') and not os.path.lexists(root),'fresh fixed installed/moved journey scope')
+    root.mkdir(mode=0o700);_own_tree(root,uid,gid)
     if policy is None:policy,_=source_policy(source)
-    members=recipe_members(source,policy);raw=members['recipe/check-inputs.tar.gz'];files=fixture_members(raw,policy)
-    root.mkdir(mode=0o700)
-    for name,body in sorted(files.items()):
-        path=root/'fixtures'/name;path.parent.mkdir(parents=True,exist_ok=True,mode=0o700);path.write_bytes(body);path.chmod(0o644)
-    work=root/'workflow';work.mkdir(mode=0o700);_own_tree(root,uid,gid)
-    def command(step,argv,expected=0,cwd=work):return run(label+'-'+step,argv,expected,cwd=cwd)
-    result=probe(Path(cli),root/'fixtures',work,command,policy)
-    need(result['controls']==9 and result['commands_covered']==6,'all six commands/nine original observations')
-    result['steps']={key:label+'-'+step for key,step in result['steps'].items()}
-    return dict(result,cli=str(cli),label=label,fixture_root=str(root/'fixtures'),work_root=str(work),source_fixture=data_pin(raw),fixture_snapshot=snapshot_receipt(root),release='NOT_ADMITTED')
+    def command(step,argv,expected=0,cwd=root):return run(label+'-'+step,argv,expected,cwd=cwd)
+    need(type(evidence)is dict,'caller owns partial original journey evidence')
+    evidence[label]={}
+    return probe(cli,root,label,policy,command,evidence[label])

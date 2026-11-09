@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 
 ORIGINAL = '00aab63e0b388efa1f9c7145ba49ffc8333987322de1482e9b6cc6d2676c9166'
-EXTRAS = '3c43d8e9216cc26ea9734080ca4c1291c69bc51962ab2f7b004a54cfd9b1574d'
+EXTRAS = 'dd40a5efb9a6f23b867a052bbb488dd1ce144d228e3e4e84055833301054feb5'
 
 
 def _canonical(value):
@@ -37,7 +37,7 @@ def _cache_path(value):
 
 
 def bind_fetch(original_inputs, extras, cache, package_fetch, parent_fetch):
-    """Use the saved original fetch for base5; cache-only for package/signature512.
+    """Use the saved original fetch for base5; cache-only for package/signature522.
 
     Both callbacks accept (row, selected_cache), matching native.fetch. The owner
     authenticates the module via closed source proof and saves its original fetch
@@ -54,10 +54,10 @@ def bind_fetch(original_inputs, extras, cache, package_fetch, parent_fetch):
     package_rows = []
     for row in original['packages'] + additions:
         package_rows.extend((row, _signature(row)))
-    _need(len(base_rows) == 5 and len(package_rows) == 512, 'BOOTSTRAP_INPUT_SET_REFUSED')
+    _need(len(base_rows) == 5 and len(package_rows) == 522, 'BOOTSTRAP_INPUT_SET_REFUSED')
     base = {row['filename']: _canonical(row) for row in base_rows}
     packages = {row['filename']: _canonical(row) for row in package_rows}
-    _need(len(base) == 5 and len(packages) == 512 and not set(base) & set(packages), 'BOOTSTRAP_INPUT_SET_REFUSED')
+    _need(len(base) == 5 and len(packages) == 522 and not set(base) & set(packages), 'BOOTSTRAP_INPUT_SET_REFUSED')
 
     def fetch(row, selected_cache):
         _need(_cache_path(selected_cache) == bound_cache, 'BOOTSTRAP_CACHE_REFUSED')

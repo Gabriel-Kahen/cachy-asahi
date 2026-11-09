@@ -26,8 +26,8 @@
     "$RUNNER_TEMP/pgo-hosted-retained"
   ],
   "operations": {
-    "default": "source184",
-    "build-tools-alpm-v2": {
+    "default": "developer-tools-alpm-v1",
+    "developer-tools-alpm-v1": {
       "actual": {
         "ref": null,
         "run": null,
@@ -35,9 +35,9 @@
       },
       "argv_extra": [
         "--operation",
-        "build-tools-alpm-v2"
+        "developer-tools-alpm-v1"
       ],
-      "matching_reader": "native/build_tools_reader_v2.py",
+      "matching_reader": "native/developer_tools_reader_v1.py",
       "prerequisite": "ROOT_BOUND_RETAINED_TRANSPORT_SUCCESSOR_BEFORE_DISPATCH; CURRENT_NULL_HELD"
     }
   },
@@ -50,7 +50,7 @@
       "/usr/bin/python3",
       "-I",
       "-B",
-      "native/reader.py",
+      "native/developer_tools_reader_v1.py",
       "--capsule",
       "ROOT_AUTHENTICATED_PUBLIC_TREE_TAR",
       "--binding",

@@ -3,17 +3,17 @@
 import argparse,base64,json,os,pwd,re,shutil,signal,stat,sys,tempfile,time
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parent))
-import build_tools_tools_v2 as T
+import developer_tools_tools_v1 as T
 need=T.need
 PREFIX=T.PREFIX
 SOURCE=T.SOURCE
 STORE=T.STORE
-PASS='PASS_BUILD_TOOLS_NATIVE_ALPM_COMPONENT'
-TEST_UID='TEST ONLY build-tools <build-tools@test.invalid>'
+PASS='PASS_DEVELOPER_TOOLS_NATIVE_ALPM_COMPONENT'
+TEST_UID='TEST ONLY developer-tools <developer-tools@test.invalid>'
 def prepare(root,context,map_hash):
  from common import verify_source
  root,context=Path(root),Path(context);manifest=verify_source(root,map_hash)
- target=context/'build-tools-alpm-v2'/'source';target.mkdir(parents=True)
+ target=context/'developer-tools-alpm-v1'/'source';target.mkdir(parents=True)
  for name in sorted(set(manifest['files'])|{'native/source-map.json'}):
   source=root/name;out=target/name;out.parent.mkdir(parents=True,exist_ok=True)
   shutil.copyfile(source,out);out.chmod(stat.S_IMODE(source.stat().st_mode))
@@ -24,10 +24,10 @@ def dockerfile(base,map_hash):
  ending='USER alarm\nWORKDIR /tmp\n'
  need(base.endswith(ending) and base.count(ending)==1,'exact genuine191 image suffix; no fallback')
  script=('test "$BASHPID" -eq 1 || exit 125; '
-  '/usr/bin/python3 -I -B /opt/native-build-tools-alpm-v2/source/native/build_tools_alpm_v2.py '
+  '/usr/bin/python3 -I -B /opt/native-developer-tools-alpm-v1/source/native/developer_tools_alpm_v1.py '
   '--inside-image --retain-failure-image --map-sha256 '+map_hash+
-  ' & build_tools_owner=$!; build_tools_status=0; wait "$build_tools_owner" || build_tools_status=$?; exit "$build_tools_status"')
- return base[:-len(ending)]+('COPY build-tools-alpm-v2/source/ /opt/native-build-tools-alpm-v2/source/\n'
+  ' & developer_tools_owner=$!; developer_tools_status=0; wait "$developer_tools_owner" || developer_tools_status=$?; exit "$developer_tools_status"')
+ return base[:-len(ending)]+('COPY developer-tools-alpm-v1/source/ /opt/native-developer-tools-alpm-v1/source/\n'
   +'RUN '+json.dumps(['/usr/bin/bash','--noprofile','--norc','-p','-c',script])+'\n'+ending)
 
 def strict_signature(status,fingerprint):
@@ -43,7 +43,7 @@ def strict_signature(status,fingerprint):
 def test_config(trust):
     trust=Path(trust)
     need(trust.is_absolute() and trust.name=='trust' and trust.parent.parent==Path('/tmp')
-         and trust.parent.name.startswith('build-tools-test-'),'owned TEST trust path only')
+         and trust.parent.name.startswith('developer-tools-test-'),'owned TEST trust path only')
     return ('[options]\nArchitecture = aarch64\nSigLevel = Required\nLocalFileSigLevel = Required\n'
             'GPGDir = '+str(trust)+'\nHookDir = /builder-disabled-hooks\n')
 
@@ -52,7 +52,7 @@ def retire_homes(run,homes,work):
     """Best-effort complete cleanup; never raises over the primary failure."""
     work=Path(work);failures=[];retired=[];no_sockets=True
     try:
-        need(work.parent==Path('/tmp') and work.name.startswith('build-tools-test-') and not work.is_symlink(),'owned private cleanup directory')
+        need(work.parent==Path('/tmp') and work.name.startswith('developer-tools-test-') and not work.is_symlink(),'owned private cleanup directory')
         identity=work.stat();need(stat.S_ISDIR(identity.st_mode) and stat.S_IMODE(identity.st_mode)==0o700,'private directory identity/mode')
     except BaseException as error:
         return dict(homes_retired=False,no_sockets=False,private_directory_absent=False,failures=['ownership:'+type(error).__name__])
@@ -95,11 +95,11 @@ def check_result(raw):
         m=re.fullmatch(r'(test_[A-Za-z0-9_]+) \(__main__\.PackageTests\.(test_[A-Za-z0-9_]+)\) \.\.\. ok',line)
         if m:
             need(m[1]==m[2],'exact unittest method identity');rows.append(m[1])
-    expected=['test_consistency_imports_adjacent_checker_and_freezes_legacy_modules', 'test_exact_installed_code_paths_pins_modes_and_no_hooks', 'test_installed_consistency_match_stale_mismatch_and_explicit_metadata', 'test_installed_consistency_unsupported_shell_and_missing_metadata_never_match', 'test_missing_and_tampered_local_archive_refuse_without_objects', 'test_moved_package_import_verify_and_both_real_recipe_preflights', 'test_only_six_offline_commands_and_isolated_invocation_are_supported', 'test_poisoned_object_is_preserved_without_network_repair', 'test_recipe_shell_code_is_read_only_data_and_drift_refuses', 'test_user_workspace_python_and_environment_cannot_select_trusted_code', 'test_versioned_recipe_check_and_preflight_use_the_packaged_parser_without_srcinfo']
-    need(rows==expected and len(rows)==len(set(rows))==11,'all eleven actual package checks exactly once and in order')
-    need(len(re.findall(r'^Ran 11 tests in [0-9]+(?:\.[0-9]+)?s$',text,re.M))==1 and text.splitlines().count('OK')==1
-         and not any(word in text for word in('FAILED (','ERROR:','skipped=','expected failures=')),'eleven positive tests without skip/failure')
-    return dict(status='PASS_ACTUAL_BUILD_TOOLS_PACKAGE_CHECKS',tests=11,names=rows,scope='OWN_PACKAGE_STAGE_MOVED_OFFLINE_METADATA_ONLY',namespace_acceptance='NOT_ESTABLISHED')
+    expected=['test_alias_and_live_destinations_refused', 'test_alias_runtime_refused_before_launch', 'test_exact_payload_modes_and_set', 'test_extra_runtime_code_refused', 'test_isolated_interpreter_ignores_pythonpath', 'test_missing_fixture_refused_before_launch', 'test_moved_prefix_and_no_bytecode', 'test_nonempty_destination_preserved', 'test_output_cannot_write_package_or_relative_path', 'test_private_remove_reinstall_preserves_sibling_data', 'test_source_tamper_traversal_extra_file_refused', 'test_tampered_runner_refused_before_launch', 'test_version_help_and_explicit_selection']
+    need(rows==expected and len(rows)==len(set(rows))==13,'all thirteen actual package checks exactly once and in order')
+    need(len(re.findall(r'^Ran 13 tests in [0-9]+(?:\.[0-9]+)?s$',text,re.M))==1 and text.splitlines().count('OK')==1
+         and not any(word in text for word in('FAILED (','ERROR:','skipped=','expected failures=')),'thirteen positive tests without skip/failure')
+    return dict(status='PASS_ACTUAL_DEVELOPER_TOOLS_PACKAGE_CHECKS',tests=13,names=rows,scope='OWN_PACKAGE_STAGE_MOVED_OFFLINE_METADATA_ONLY',namespace_acceptance='NOT_ESTABLISHED')
 
 
 def retain_first_failure(scope,report):
@@ -146,10 +146,10 @@ def build_pair(run,source,recipes,policy,alarm,report):
   item=dict(label=label,version=T.VERSION,recipe_sha256=policy['recipe']['source_files']['PKGBUILD']['sha256'],build_step='build-'+label,check_invoked=False,check_tests=0,check_policy='POSITIVE_CHECK_NO_NOCHECK',build_directory=dict(logical=str(slot),retained=str(directory),identity=dict(device=key[0],inode=key[1]),initial_files=sorted(policy['recipe']['source_files'])))
   report['builds'][label]=item;directory.rename(slot);primary=None
   try:
-   argv=['/usr/bin/runuser','-u','alarm','--','/usr/bin/env','HOME='+str(slot),'PKGDEST='+str(slot),'SRCDEST='+str(slot),'BUILDDIR='+str(slot),'SOURCE_DATE_EPOCH='+policy['build_pair']['source_date_epoch'],'PACKAGER='+policy['build_pair']['packager'],'/usr/bin/makepkg','--cleanbuild','--nodeps','--nosign','--noconfirm','--config',str(config)]
+   argv=['/usr/bin/runuser','-u','alarm','--','/usr/bin/env','HOME='+str(slot),'PKGDEST='+str(slot),'SRCDEST='+str(slot),'BUILDDIR='+str(slot),'SOURCE_DATE_EPOCH='+policy['build_pair']['source_date_epoch'],'PACKAGER='+policy['build_pair']['packager'],'/usr/bin/makepkg','--cleanbuild','--nosign','--noconfirm','--config',str(config)]
    raw=run('build-'+label,argv,cwd=slot);item['check_invoked']=b'Starting check()' in raw
    check=check_result(raw);need(item['check_invoked'],'actual positive original check() required')
-   item['check_tests']=11;item['check_result']=T.data_pin(T.encoded(check));archive=slot/policy['recipe']['archive']
+   item['check_tests']=13;item['check_result']=T.data_pin(T.encoded(check));archive=slot/policy['recipe']['archive']
    need(archive.is_file() and not archive.is_symlink(),'actual built archive')
    item['archive']=dict(filename=archive.name,**T.pin(archive));result[label]=directory/archive.name;report['stages'].append('build-'+label)
   except BaseException as error:
@@ -244,13 +244,13 @@ def carrier_exit(report,retain_failure_image=False):
 
 
 def inside(source,map_hash):
- source=Path(source)
+ source=Path(source);operation_started=time.monotonic();operation_deadline=operation_started+1440
  need(os.getpid()>1 and os.getppid()==1,'PID1-shell variant requires non-PID1 Python directly parented by namespace init')
  need(os.getuid()==os.geteuid()==0 and os.uname().machine=='aarch64' and source==SOURCE and Path('/builder-packages.lock').is_file(),'explicit owned disposable native image root only')
  from common import verify_source
  verify_source(source,map_hash);need(not STORE.exists(),'fresh fixed evidence store')
- scope=STORE/'journey'/'build-tools-alpm-v2';scope.mkdir(parents=True)
- report=dict(schema_version=1,operation=T.OPERATION,status='FAIL',source_map_sha256=map_hash,version=T.VERSION,contract=T.pin(source/'native/build-tools-contract-v2.json'),stages=[],inventory={},payloads={},builds={},signatures={},business={},commands=[],signature_policy=dict(SigLevel='Required',LocalFileSigLevel='Required'),native=dict(architecture=os.uname().machine,page_bytes=os.sysconf('SC_PAGE_SIZE'),execution='OWNED_IMAGE_BUILD_STAGE',physical_M2='NOT_RUN',release='NOT_ADMITTED'),first_failure=None,image_build_context=unknown_image_build_context(map_hash),cleanup=dict(homes_retired=False,no_sockets=False,private_directory_absent=False,failures=['INITIALIZATION_NOT_COMPLETED']))
+ scope=STORE/'journey'/'developer-tools-alpm-v1';scope.mkdir(parents=True)
+ report=dict(schema_version=1,operation=T.OPERATION,status='FAIL',source_map_sha256=map_hash,version=T.VERSION,contract=T.pin(source/'native/developer-tools-contract-v1.json'),stages=[],inventory={},payloads={},builds={},signatures={},business={},commands=[],signature_policy=dict(SigLevel='Required',LocalFileSigLevel='Required'),native=dict(architecture=os.uname().machine,page_bytes=os.sysconf('SC_PAGE_SIZE'),execution='OWNED_IMAGE_BUILD_STAGE',physical_M2='NOT_RUN',release='NOT_ADMITTED'),first_failure=None,image_build_context=unknown_image_build_context(map_hash),cleanup=dict(homes_retired=False,no_sockets=False,private_directory_absent=False,failures=['INITIALIZATION_NOT_COMPLETED']))
  report['process_layout']=dict(schema=1,contract='bash-pid1-direct-python-child-v1',python_pid=os.getpid(),python_ppid=os.getppid(),status='OBSERVED_NON_PID1_PYTHON_DIRECT_CHILD')
  work=None;commands=None;primary=None;pacman=None;baseline=None;baseline_reasons=None;phase='initialize'
  save_result(scope,report)
@@ -258,11 +258,21 @@ def inside(source,map_hash):
   policy,base=T.source_policy(source)
   need(Path('/builder-packages.lock').read_bytes()==base,'exact genuine191 base349 image')
   need(all(not os.path.lexists('/'+name) for name in policy['recipe']['payload_files']),'17 payload paths initially absent')
-  work=Path(tempfile.mkdtemp(prefix='build-tools-test-',dir='/tmp'));work.chmod(0o700)
+  work=Path(tempfile.mkdtemp(prefix='developer-tools-test-',dir='/tmp'));work.chmod(0o700)
   signing,trust=work/'signing',work/'trust'
   for home in (signing,trust,work/'command-home'):home.mkdir(mode=0o700)
   alarm=pwd.getpwnam('alarm');W=T.load_workflow(source,policy)
   commands=W.Commands(scope,work/'command-home','/usr/bin:/bin',timeout=180,total=450,max_output=1024**2);report['commands']=commands.records
+  commands.deadline=min(commands.deadline,operation_deadline-90)
+  report['command_windows']=[dict(name='build-sign-install',start=0,end=None,seconds=450)]
+  def next_window(name):
+   nonlocal commands
+   need(len(report['command_windows'])in(1,2)and name==('system-journeys'if len(report['command_windows'])==1 else'moved-journeys-remove-restore'),'only two fixed budget transitions')
+   report['command_windows'][-1]['end']=len(commands.records)
+   replacement=W.Commands(scope,work/'command-home','/usr/bin:/bin',timeout=180,total=450,max_output=1024**2)
+   replacement.deadline=min(replacement.deadline,operation_deadline-90)
+   replacement.records=commands.records;commands=replacement
+   report['command_windows'].append(dict(name=name,start=len(commands.records),end=None,seconds=450))
   def run(step,argv,expected=0,cwd=work):
    nonlocal phase
    phase=step;before=len(commands.records)
@@ -273,9 +283,9 @@ def inside(source,map_hash):
   def reasons(step):
    return {key:b''.join(sorted(run(step+'-'+key,['/usr/bin/pacman',flag]).splitlines(keepends=True))) for key,flag in (('explicit','-Qqe'),('dependencies','-Qqd'))}
   baseline=protected_state();report['restore']={name:dict(before=value,after=None,unchanged=False) for name,value in baseline.items()}
-  need(inventory('baseline-inventory')==base,'actual exact349 initial inventory')
+  need(inventory('baseline-inventory')==base,'actual exact354 initial inventory')
   baseline_reasons=reasons('baseline-reasons');report['install_reasons_before']={k:T.data_pin(v) for k,v in baseline_reasons.items()}
-  report['inventory']['baseline']=dict(**T.data_pin(base),count=349,version=None)
+  report['inventory']['baseline']=dict(**T.data_pin(base),count=354,version=None)
   user=PREFIX/'user-data';user.mkdir(mode=0o755);(user/'keep.txt').write_bytes(b'SYNTHETIC user data; preserve across TEST install/remove.\n')
   T._own_tree(user,alarm.pw_uid,alarm.pw_gid);sentinel=T.pin(user/'keep.txt')
   recipes=T.extract_recipes(source,PREFIX/'build-inputs',policy)
@@ -308,10 +318,11 @@ def inside(source,map_hash):
   config=work/'pacman.conf';config.write_text(test_config(trust));report['signature_config']=T.pin(config)
   run('required-signature-config',['/usr/bin/cat',str(config)]);pacman=['--config',str(config)];report['stages'].append('sign')
   run('install',['/usr/bin/pacman',*pacman,'--noconfirm','--noscriptlet','-U',str(archives['a'])])
-  actual=inventory('installed-inventory');need(actual==T.inventory_expected(base,T.VERSION),'exact350 installed inventory')
-  report['inventory']['installed']=dict(**T.data_pin(actual),count=350,version=T.VERSION)
+  actual=inventory('installed-inventory');need(actual==T.inventory_expected(base,T.VERSION),'exact355 installed inventory')
+  report['inventory']['installed']=dict(**T.data_pin(actual),count=355,version=T.VERSION)
   report['payloads']['installed']=T.check_payload('/',policy,run,pacman);report['stages'].append('install')
-  report['business']['system']=T.business(run,Path('/usr/bin')/T.NAME,user/'system',alarm.pw_uid,alarm.pw_gid,'system',source,policy);report['stages'].append('commands-system')
+  next_window('system-journeys')
+  report['business']['system']=T.business(run,Path('/usr/bin')/T.NAME,user/'system',alarm.pw_uid,alarm.pw_gid,'system',source,policy,report['business']);report['stages'].append('commands-system')
   moved=user/'moved-prefix';moved.mkdir()
   for name,item in policy['recipe']['payload_files'].items():
    target=moved/name;target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile('/'+name,target);target.chmod(item['mode'])
@@ -319,13 +330,14 @@ def inside(source,map_hash):
   for target in (moved,*moved.rglob('*')):
    need(not target.is_symlink(),'moved aliases refused');os.chown(target,alarm.pw_uid,alarm.pw_gid)
    if target.is_dir():target.chmod(0o755)
-  report['business']['moved']=T.business(run,moved/'usr/bin'/T.NAME,user/'relocated',alarm.pw_uid,alarm.pw_gid,'moved',source,policy);report['stages'].append('commands-moved')
+  next_window('moved-journeys-remove-restore')
+  report['business']['moved']=T.business(run,moved/'usr/bin'/T.NAME,user/'relocated',alarm.pw_uid,alarm.pw_gid,'moved',source,policy,report['business']);report['stages'].append('commands-moved')
   exports_before=T.snapshot(user);report['exports_before']=T.snapshot_receipt(user)
   run('remove',['/usr/bin/pacman',*pacman,'--noconfirm','--noscriptlet','-R',T.NAME])
-  actual=inventory('removed-inventory');need(actual==base,'exact349 final inventory')
-  report['inventory']['removed']=dict(**T.data_pin(actual),count=349,version=None)
+  actual=inventory('removed-inventory');need(actual==base,'exact354 final inventory')
+  report['inventory']['removed']=dict(**T.data_pin(actual),count=354,version=None)
   report['payload_absent']=all(not os.path.lexists('/'+name) for name in policy['recipe']['payload_files'])
-  report['private_roots_absent']=all(not os.path.lexists(name) for name in ('/usr/lib/cachy-asahi-build-tools','/usr/share/doc/'+T.NAME,'/usr/share/licenses/'+T.NAME))
+  report['private_roots_absent']=all(not os.path.lexists(name) for name in ('/usr/lib/cachy-asahi-developer-tools','/usr/share/doc/'+T.NAME,'/usr/share/licenses/'+T.NAME))
   need(report['payload_absent'] and report['private_roots_absent'],'all package files/private roots removed');report['stages'].append('remove')
   after_reasons=reasons('restored-reasons');need(after_reasons==baseline_reasons,'exact reasons restored')
   report['install_reasons_after']={k:T.data_pin(v) for k,v in after_reasons.items()}
@@ -339,8 +351,9 @@ def inside(source,map_hash):
   try:
    cleanup_failures=[]
    if commands is not None and work is not None:
+    if report.get('command_windows'):report['command_windows'][-1]['end']=len(commands.records)
     try:
-     cleanup_commands=W.Commands(scope,work/'command-home','/usr/bin:/bin',timeout=20,total=90,max_output=1024**2);cleanup_commands.records=commands.records
+     cleanup_commands=W.Commands(scope,work/'command-home','/usr/bin:/bin',timeout=20,total=90,max_output=1024**2);cleanup_commands.records=commands.records;cleanup_commands.deadline=min(cleanup_commands.deadline,operation_deadline)
      def clean_run(step,argv,expected=0):
       before=len(cleanup_commands.records)
       try:return cleanup_commands.run(step,list(map(str,argv)),work,expected)
@@ -353,12 +366,12 @@ def inside(source,map_hash):
      try:
       actual=b''.join(sorted(clean_run('cleanup-inventory',['/usr/bin/pacman','-Q']).splitlines(keepends=True)))
       if any(line.startswith((T.NAME+' ').encode()) for line in actual.splitlines()):clean_run('cleanup-remove',['/usr/bin/pacman',*pacman,'--noconfirm','--noscriptlet','-R',T.NAME])
-      need(b''.join(sorted(clean_run('cleanup-restored-inventory',['/usr/bin/pacman','-Q']).splitlines(keepends=True)))==base,'failure cleanup restores349')
+      need(b''.join(sorted(clean_run('cleanup-restored-inventory',['/usr/bin/pacman','-Q']).splitlines(keepends=True)))==base,'failure cleanup restores354')
      except BaseException as error:cleanup_failures.append('ALPM-restore:'+type(error).__name__)
     cleanup=retire_homes(clean_run,(signing,trust),work);cleanup['failures']+=cleanup_failures;report['cleanup']=cleanup
    elif work is not None:
     try:
-     need(work.parent==Path('/tmp') and work.name.startswith('build-tools-test-') and not work.is_symlink(),'known unlaunched private directory')
+     need(work.parent==Path('/tmp') and work.name.startswith('developer-tools-test-') and not work.is_symlink(),'known unlaunched private directory')
      shutil.rmtree(work);report['cleanup']=dict(homes_retired=True,no_sockets=True,private_directory_absent=True,failures=[],no_child_launched=True)
     except BaseException as error:report['cleanup']['failures'].append(type(error).__name__)
    if baseline is not None:
@@ -368,6 +381,10 @@ def inside(source,map_hash):
     except BaseException as error:
      report['cleanup']['failures'].append('protected-state:'+type(error).__name__)
      if primary is None:primary=error
+   elapsed=time.monotonic()-operation_started
+   report['operation_budget']=dict(limit_seconds=1440,elapsed_seconds=elapsed,deadline_met=elapsed<1440,cleanup_reserved_seconds=90)
+   if elapsed>=1440:
+    report['cleanup']['failures'].append('overall-monotonic-deadline')
    primary=primary_failure(primary,report['cleanup'])
    if primary is None:
     report['stages'].append('cleanup')
@@ -380,6 +397,7 @@ def inside(source,map_hash):
     primary=later
     report['first_failure']=dict(phase='cleanup',type=type(later).__name__,message=str(later)[:1024],command_index=None)
   report['commands']=[] if commands is None else commands.records
+  report['journey_logs']=[row for value in report.get('business',{}).values() for row in value.get('journey_logs',[])]
   if primary is not None:
    if report['first_failure'] is None:report['first_failure']=dict(phase='cleanup',type=type(primary).__name__,message=str(primary)[:1024],command_index=None)
    report['status']='FAIL';report['failure']=dict(report['first_failure']);retain_first_failure(scope,report)
@@ -390,13 +408,17 @@ def export(output,map_hash):
  """Bounded DATA export even when the original image-stage operation failed."""
  from common import verify_source
  verify_source(Path(__file__).resolve().parents[1],map_hash)
- output=Path(output).absolute();scope=STORE/'journey'/'build-tools-alpm-v2'
+ output=Path(output).absolute();scope=STORE/'journey'/'developer-tools-alpm-v1'
  need(os.getuid()==os.geteuid()!=0 and not os.path.lexists(output) and not any(p.is_symlink() for p in output.parents),'unprivileged fresh DATA export')
  raw=T.ordinary(scope/'result.json',4*1024**2);report=json.loads(raw)
  need(report.get('schema_version')==1 and report.get('operation')==T.OPERATION and report.get('source_map_sha256')==map_hash,'same-source lifecycle DATA identity')
  commands_raw=T.ordinary(scope/'commands.json',4*1024**2);commands=json.loads(commands_raw)
  need(type(commands) is list and len(commands)<=160 and commands==report['commands'],'finite standalone command index join')
  files={'result.json':raw,'commands.json':commands_raw};total=len(raw)+len(commands_raw)
+ for row in report.get('journey_logs',[]):
+  name=row['log'];need(re.fullmatch(r'[0-9]{3}-[A-Za-z0-9._+-]{1,96}\.log',name) and name not in files,'unique fixed journey DATA leaf')
+  body=T.ordinary(scope/name,1024**2);need(T.data_pin(body)==row['log_pin'],'original nested journey DATA pin')
+  total+=len(body);need(total<=24*1024**2,'held export total cap');files[name]=body
  for row in commands:
   name=row['log'];need(re.fullmatch(r'[0-9]{3}-[A-Za-z0-9._+-]{1,96}\.log',name) and name not in files,'unique command log')
   body=T.ordinary(scope/name,1024**2);need(T.data_pin(body)==row['log_pin'],'original raw log pin')

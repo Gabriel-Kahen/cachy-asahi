@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-"""Future publication proof, public retained DATA transport and eight-input seed.
+"""Future publication proof, public retained DATA transport and thirteen-input seed.
 
 No phase invokes a compiler, GPG, ALPM or Docker. Construction never calls these
 phases. Full carrier authentication and signed native admission remain owner work.
@@ -261,7 +261,7 @@ def copy_transport_public(work, output, own, map_hash):
 
 
 def tick(deadline):
-    need(time.monotonic() < deadline, 'eight-input DATA seed deadline exhausted')
+    need(time.monotonic() < deadline, 'thirteen-input DATA seed deadline exhausted')
 
 
 def checked_file(path, row, deadline, destination=None):
@@ -305,10 +305,10 @@ def cache(root, args):
          and previous['carrier_head'] == CARRIER_SOURCE and previous['profile_sha256'] == PROFILE,
          'exact completed same-owner transport DATA required')
     transport_retired(previous, args.work, carrier_profile(root), own, args.map_sha256)
-    need(not (args.work / 'input-cache-owner.json').exists(), 'one-shot eight-input cache DATA seed; no retry')
+    need(not (args.work / 'input-cache-owner.json').exists(), 'one-shot thirteen-input cache DATA seed; no retry')
     full = carrier_profile(root)
     before = cache_inventory(args.cache, deadline)
-    report = dict(receipt_base(root, args, own), status='FAIL_EIGHT_INPUT_CACHE_DATA', budget_seconds=120,
+    report = dict(receipt_base(root, args, own), status='FAIL_THIRTEEN_INPUT_CACHE_DATA', budget_seconds=120,
         retry=False, files={}, full_carrier_proof='DEFERRED_TO_OWNER_PREPARE_NATIVE248',
         existing_metadata_before=before, existing_bytes='NO_EXISTING_FILE_WRITES_OR_REPLACEMENTS',
         authentication='EXACT_HASHED_DATA_ONLY_ORIGINAL_OWNER_PREPARE_AND_GPG_STILL_REQUIRED')
@@ -317,7 +317,7 @@ def cache(root, args):
         rows = []
         for row in profile['additions']['rows']:
             rows.extend((row, dict(filename=row['filename'] + '.sig', size=row['signature_size'], sha256=row['signature_sha256'])))
-        need(len(rows) == 16 and len({r['filename'] for r in rows}) == 16, 'exact eight archive/signature pairs')
+        need(len(rows) == 26 and len({r['filename'] for r in rows}) == 26, 'exact thirteen archive/signature pairs')
         for row in rows:
             tick(deadline); name = row['filename']
             need(re.fullmatch(r'[A-Za-z0-9._+@:~-]{1,255}', name) and name not in ('.', '..'), 'cache input filename')
@@ -342,8 +342,8 @@ def cache(root, args):
             report['files'][name] = dict(status='EXACT_DATA_ATOMIC_NO_REPLACE_COPY', **receipt)
         after = cache_inventory(args.cache, deadline)
         need(all(after.get(name) == value for name, value in before.items())
-             and set(after) == set(before) | {r['filename'] for r in rows}, 'all prior cache inode metadata preserved; only fixed16 leaves added')
-        report.update(status='PASS_EIGHT_INPUT_CACHE_DATA_ONLY', existing_metadata_after={n: after[n] for n in before},
+             and set(after) == set(before) | {r['filename'] for r in rows}, 'all prior cache inode metadata preserved; only fixed26 leaves added')
+        report.update(status='PASS_THIRTEEN_INPUT_CACHE_DATA_ONLY', existing_metadata_after={n: after[n] for n in before},
                       added=sorted(set(after) - set(before)))
     except BaseException as error:
         report['error'] = type(error).__name__ + ': ' + str(error)[:2048]

@@ -9,15 +9,15 @@ import stat
 import capsule as C
 import privacy_diagnostics as privacy
 
-PRODUCERS = {'native/build_tools_alpm_v2.py': '8a071d7755d2dd311550d096bfc0dd8183582b288a46ad46adef20c5ede813bd', 'native/build_tools_tools_v2.py': '2978acabbb2dce2e075e0bfb0f8515e15dccac1e39bc9fa5c3a8e1ac316d5f84', 'native/build_tools_guest_v2.py': '3396c811551ae2272c4f0b11af3907f1efc39b8275adc2e0dc039a4e14883dd4', 'native/build_tools_probe_v2.py': 'a63de05cbd02af8c59849353dc73eaac7389a28c54c912b6bd7845fd62f29354', 'native/build-tools-contract-v2.json': '87db7214a738af7bbd30d72cc0e1e95c789c61995fd0e1397477c9694a95d91d'}
+PRODUCERS = {'native/developer_tools_alpm_v1.py': 'd5cb64a8bf6f47b654216a1e883724ed497813aa452504fcafc63971e7c114e8', 'native/developer_tools_tools_v1.py': '7eb66422c8bb875bf129b124d58680ac9607ef22832708cea15a121a2936aca5', 'native/developer_tools_guest_v1.py': 'cb1e01fa781bd75bf7d05f8fde34cca397a0254153fcb4f471ceb88f7ce590a1', 'native/developer_tools_probe_v1.py': '20cdd0513969ad4182c6943f638f5a713d44fa23b393619e30f13a761d2d7c08', 'native/developer-tools-contract-v1.json': '67c6f290d4ae57058f8c08a5d3053d831ac7f08ca7a470c37874d901b96c5977', 'native/common.py': '7291a7892d92c5d28498ac4029c3f9c15e745b5a833d897eb650e1b36b4fe21b', 'native/bootstrap_inputs.py': '2bb8e87dd52110bf35a490107bcd1b978afed1b5eb03263035229b82b5d30294', 'native/provision.py': 'f62b7e23c303c58ed5661c532b375bdb48c2b15fb5e9fc268425079c5ae83f76', 'native/input-profile.json': '302a2df7d592a8a241a6f6b2cc6764fdd65ce0562d522b70ddd59d600dfc7a89', 'native/expected354.lock': '194c69d58e56b4bea56d729a750acc15f336924d87555d5b250776c607ffda24'}
 
 HOST={'transport-diagnostic.json','transport-proof.json','receipt.json','cleanup.json','source-proof.json','consumer-inspect.json','consumer-after.json',
  'consumer-diagnostic.json','image-ledger.json','image-retirement.json','bootstrap-failure-retention.json','provision-diagnostic.json','build-summary.json'}
 BOOTSTRAP={phase+'-'+name for phase in ('bootstrap','overlay') for name in
  ('packages.lock','signatures.json','bootstrap.json','cache-checksums.json','Dockerfile','runner.json')}|{
  'bootstrap-acquisition.json','bootstrap-key-import.log','bootstrap-bootstrap.log'}
-REPORTS={'build-tools-alpm-v2':{'result.json','commands.json'}}
-PRIVATE={'build-tools-alpm-v2':{'home'}}
+REPORTS={'developer-tools-alpm-v1':{'result.json','commands.json'}}
+PRIVATE={'developer-tools-alpm-v1':{'home'}}
 LOG=re.compile(r'[0-9]{3}-[A-Za-z0-9][A-Za-z0-9_+.-]{0,127}\.log')
 PRIVATE_MARKER=re.compile(br'-----BEGIN[^\r\n]{0,100}PRIVATE KEY|BEGIN PGP PRIVATE|ssh-(?:rsa|ed25519)|ecdsa-sha2-|(?:gh[pousr]_|github_pat_)[A-Za-z0-9_]+|authorization\s*:\s*(?:bearer|token)|(?:access[_-]?token|password|secret)\s*[=:]|CACHY_(?:OLD_FOUR|RETAINED_BUBBLEWRAP)|PRIVATE_KEY|(?:_TOKEN|_SECRET|_PASSWORD)\b',re.I)
 
@@ -109,7 +109,7 @@ def _project(source_root,public_root,projected_root):
    C.need(not any(LOG.fullmatch(n) for n in names),'command log without source report refused');continue
   with C.refusal_context('projection-select',prefix+'/result.json'):
    report=C._load(report_raw);C.need(type(report) is dict,'feature report object required');commands=report.get('commands',[]);C.need(type(commands) is list and len(commands)<=1000,'finite source command records required');wanted=set()
-   for row in commands:
+   for row in commands+report.get('journey_logs',[]):
     C.need(type(row) is dict and type(row.get('log')) is str and LOG.fullmatch(row['log']) and row['log'] not in wanted,'finite unique source command log required')
     wanted.add(row['log']);add(prefix+'/'+row['log'],_pin(row.get('log_pin')))
    actual_logs={n for n in names if LOG.fullmatch(n)}
@@ -117,9 +117,9 @@ def _project(source_root,public_root,projected_root):
     with C.refusal_context('projection-select',prefix+'/'+name):C.need(False,'source command log namespace differs')
 
  rows={name:dict(kind='file',mode=0o600,source_mode=source_modes[name],**C.pin(raw)) for name,raw in selected.items()}
- receipt=dict(schema=1,status='PASS_FINITE_BUILD_TOOLS_ALPM_PUBLIC_DATA_PROJECTION',binding=binding,source_map_sha256=map_hash,
+ receipt=dict(schema=1,status='PASS_FINITE_DEVELOPER_TOOLS_ALPM_PUBLIC_DATA_PROJECTION',binding=binding,source_map_sha256=map_hash,
   source_producers=PRODUCERS,selected=rows,omitted_private_scopes=sorted('journey/'+feature+'/'+name for feature,names in PRIVATE.items() for name in names),
-  scope='Fixed build-tools-alpm-v2 result, commands and raw referenced logs only; private home trees not retained',
+  scope='Fixed developer-tools-alpm-v1 result, commands and raw referenced logs only; private home trees not retained',
   privacy='Selected text/JSON/log ASCII private-key,SSH,token,secret-env marker refusal; no payload exemption',
   original_output_unchanged=True,omitted_private_trees_walked=False)
  selected['public-projection.json']=C._json(receipt)

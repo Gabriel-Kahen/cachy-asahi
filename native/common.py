@@ -11,7 +11,7 @@ MAP = 'native/source-map.json'
 INPUTS = 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'
 LOCK = 'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25'
 DESKTOP = 'b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9'
-EXTRAS = {'cmake', 'cppdap', 'jsoncpp', 'libuv', 'rhash', 'meson', 'ninja', 'python-tqdm'}
+EXTRAS = {'cmake', 'cppdap', 'jsoncpp', 'libuv', 'rhash', 'meson', 'ninja', 'python-tqdm', 'git', 'perl-error', 'perl-mailtools', 'perl-timedate', 'zlib-ng'}
 LABEL = 'org.cachy-asahi.native-developer'
 ALIASES = ('.github/workflows/native-arm-build.yml', '.github/workflows/native-arm-developer-workflows.yml')
 
@@ -105,8 +105,8 @@ def input_contract(root):
     desktop_raw = read(root / 'native/desktop574-inputs.lock.json')
     need(pin(desktop_raw)['sha256'] == DESKTOP, 'whole retained574 supplementary input pin')
     desktop = json.loads(desktop_raw)
-    need({r['name']: r for r in extras} == {r['name']: r for r in desktop['packages'] if r['name'] in EXTRAS}, 'exact retained8 rows and signatures differ')
-    need(len(extras) == 8 and {r['name'] for r in extras} == EXTRAS and not EXTRAS & versions.keys(), 'fixed eight package additions')
+    need({r['name']: r for r in extras} == {r['name']: r for r in desktop['packages'] if r['name'] in EXTRAS}, 'exact retained13 rows and signatures differ')
+    need(len(extras) == 13 and {r['name'] for r in extras} == EXTRAS and not EXTRAS & versions.keys(), 'fixed thirteen package additions')
     available = set(versions) | EXTRAS
     for row in extras:
         need(row['arch'] in ('aarch64', 'any') and row['filename'].endswith('.pkg.tar.xz'), 'original ARM archive format')
@@ -117,7 +117,7 @@ def input_contract(root):
         need(all(d in available for d in row['depends']), 'complete name-only retained dependency closure')
         versions[row['name']] = row['version']
     expected = ''.join(n + ' ' + v + '\n' for n, v in sorted(versions.items())).encode()
-    need(read(root / 'native/expected349.lock') == expected and len(versions) == 349, 'exact augmented349 inventory')
+    need(read(root / 'native/expected354.lock') == expected and len(versions) == 354, 'exact augmented354 inventory')
     return profile, original, expected
 
 

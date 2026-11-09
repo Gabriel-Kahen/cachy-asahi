@@ -11,9 +11,9 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import input_contract, need, pin, read, save, verify_source
 
-STORE = Path('/opt/native-build-tools-alpm-v2/evidence')
-OPERATION = 'build-tools-alpm-v2'
-PASS = 'PASS_BUILD_TOOLS_NATIVE_ALPM_COMPONENT'
+STORE = Path('/opt/native-developer-tools-alpm-v1/evidence')
+OPERATION = 'developer-tools-alpm-v1'
+PASS = 'PASS_DEVELOPER_TOOLS_NATIVE_ALPM_COMPONENT'
 
 
 def module(root, relative, name):
@@ -29,7 +29,7 @@ def run(root, output, map_hash):
          and os.getuid() == os.geteuid() != 0, 'actual unprivileged native ARM ALARM consumer required')
     verify_source(root, map_hash)
     _, _, expected = input_contract(root)
-    need(read(Path('/builder-packages.lock')) == expected, 'actual exact349 ALARM package inventory')
+    need(read(Path('/builder-packages.lock')) == expected, 'actual exact354 ALARM package inventory')
     need(sys.version_info[:3] == (3, 14, 8), 'actual retained Python3.14.8 required')
     need(not output.exists(), 'fresh consumer output required')
     output.mkdir(mode=0o700)
@@ -40,10 +40,10 @@ def run(root, output, map_hash):
     phase = 'export-image-stage-source-tools-alpm-data'
     primary = None
     try:
-        lifecycle = module(root, 'native/build_tools_alpm_v2.py', '_native_build_tools_alpm_v2')
+        lifecycle = module(root, 'native/developer_tools_alpm_v1.py', '_native_developer_tools_alpm_v1')
         need(lifecycle.STORE == STORE, 'fixed original image-stage DATA store required')
-        result = lifecycle.export(output / 'build-tools-alpm-v2', map_hash)
-        report['build_tools_alpm'] = result  # Retain failed original DATA before the outer PASS guard.
+        result = lifecycle.export(output / 'developer-tools-alpm-v1', map_hash)
+        report['developer_tools_alpm'] = result  # Retain failed original DATA before the outer PASS guard.
         need(type(result) is dict and result.get('schema_version') == 1
              and result.get('operation') == OPERATION and result.get('source_map_sha256') == map_hash
              and result.get('status') == PASS and result.get('retention_failures',[]) == []
