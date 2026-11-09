@@ -15,6 +15,7 @@
   "causal_basis178_source": "cc6dcdb86bf358e7aa72335f671216d9eca91037",
   "consumer_basis182_map_sha256": "778bbaaf14024d283d6aa0241c95c9caf0770bdd2346f0781e1f1ea7769552f1",
   "consumer_basis182_source": "5b2016cc842970952c03cc2cc068a9cfbea5812c",
+  "developer_safe_failure_parent": "f4bea3d30b0e33684f80d235e3d488ae7f609f91",
   "developer_tools_parent": "97a44c4c7cb206704bf76e9fd1f1afb2266278c2",
   "files": {
     ".github/workflows/native-arm-build.yml": {
@@ -628,9 +629,9 @@
       "sha256": "121847405141b87d24d982376b7cd14e3e70685b0485dd1e5603c36036b0301e"
     },
     "native/developer_tools_reader_v1.py": {
-      "bytes": 139988,
+      "bytes": 140164,
       "mode": 420,
-      "sha256": "707e43a665a3fc1e1763c862bc2a7ef8581f65a057a6ed4e5401f53bb0dcdb1f"
+      "sha256": "337e78316f62f39e582343cea87522fb9450fff8ac1748c97af78cdda3cb2ee1"
     },
     "native/developer_tools_tools_v1.py": {
       "bytes": 18721,
@@ -673,9 +674,9 @@
       "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
     },
     "native/owner.py": {
-      "bytes": 33926,
+      "bytes": 34147,
       "mode": 420,
-      "sha256": "185922b9f7537b546ebd0aff431972d615d58f7cec3065336f94e6396ef4c450"
+      "sha256": "06e733b01df955282949b7b7a63e5b59474049e445c096d641cfa673b48218d2"
     },
     "native/predecessor-source-map.json": {
       "bytes": 27440,
@@ -713,9 +714,9 @@
       "sha256": "46708771ccb93bbfe22c4f449f3a54052bc9494c4fb572e10b0853b5aa47bdef"
     },
     "native/safe_diagnostic.py": {
-      "bytes": 7948,
+      "bytes": 17998,
       "mode": 420,
-      "sha256": "750b929681353a5915e5541d4bdbe167b558830e9762d6ac2da0c05146120a70"
+      "sha256": "792d2800d5b34c3242a8004762b9ba4dfccf79591220763db15984576b14f85d"
     },
     "native/transport_proof.py": {
       "bytes": 16711,

@@ -339,6 +339,9 @@ def run(root, args):
         finally:
             report['consumer_diagnostic'] = retain_consumer(args.work, output, own, args.map_sha256,
                 actor.rows, consumer_index, container, consumer_error)
+            if operation=='developer-tools-alpm-v1':
+                from safe_diagnostic import retain_developer
+                report['developer_failure_context']=retain_developer(args.work,output,own,args.map_sha256)
             try:
                 from build_summary import bind as bind_build_summary
                 report['build_summary'] = bind_build_summary(output, own, args.map_sha256)

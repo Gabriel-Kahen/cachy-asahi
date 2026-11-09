@@ -16,7 +16,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import consumer_contract, load, need, pin, uv_policy, read
 from capsule import open_capsule
 from privacy_diagnostics import validate_refusal
-from safe_diagnostic import check_consumer
+from safe_diagnostic import check_consumer, check_developer
 
 
 def retained_failure_data(view, files, value, binding, map_sha256):
@@ -678,7 +678,7 @@ def retained_build_summary(view, files, binding, map_sha256, positive=False):
 
 def retained_safe_diagnostic(view, files, binding, map_sha256):
     """Explicit fresh safe DATA route; absent original bodies cannot be verified."""
-    name = 'safe-diagnostic.json'; optional = {'consumer-diagnostic.json', 'build-summary.json', 'projection-refusal.json'}
+    name = 'safe-diagnostic.json'; optional = {'consumer-diagnostic.json', 'build-summary.json', 'projection-refusal.json', 'developer-failure.json'}
     need(name in files and files[name]['kind'] == 'file' and files[name]['mode'] == 0o600,
          'safe failure authority must be ordinary private DATA')
     value = view.load(name)
@@ -704,7 +704,7 @@ def retained_safe_diagnostic(view, files, binding, map_sha256):
                  {'SOURCE_DIAGNOSTIC_UNAVAILABLE_OR_ALIASED', 'SOURCE_DIAGNOSTIC_SCHEMA_OR_PRIVACY_REFUSED'},
                  'fixed refused safe diagnostic metadata required')
             continue
-        cap = 32*1024 if target == 'projection-refusal.json' else 512*1024
+        cap = 32*1024 if target in ('projection-refusal.json','developer-failure.json') else 512*1024
         need(set(row) == {'status', 'bytes', 'sha256'} and row['status'] == 'RETAINED'
              and type(row['bytes']) is int and 0 <= row['bytes'] <= cap
              and type(row['sha256']) is str and re.fullmatch('[0-9a-f]{64}', row['sha256'])
@@ -716,6 +716,8 @@ def retained_safe_diagnostic(view, files, binding, map_sha256):
             check_consumer(document, binding, map_sha256)
         elif target == 'build-summary.json':
             bound_build_summary(document, binding, map_sha256)
+        elif target == 'developer-failure.json':
+            check_developer(document,binding,map_sha256)
         else:
             need(type(document) is dict and set(document) == {'schema', 'binding', 'source_map_sha256', 'diagnostic'}
                  and type(document['schema']) is int and document['schema'] == 1 and document['binding'] == binding
