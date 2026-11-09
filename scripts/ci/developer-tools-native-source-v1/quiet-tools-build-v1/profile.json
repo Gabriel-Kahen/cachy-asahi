@@ -1,0 +1,55 @@
+{
+  "actual": {
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "changed": 4,
+  "held": 196,
+  "helpers": {
+    "bytes": 9522,
+    "sha256": "a85f92dcaaad0a7f8621b882fdf46fe26f579bb740354b1e4aa1f005aea48a76"
+  },
+  "native": "NOT_RUN",
+  "original_8238_privacy_marker_value": "UNRETAINED_UNKNOWN",
+  "overlay": {
+    "native/developer_tools_reader_v1.py": {
+      "bytes": 140206,
+      "mode": 420,
+      "sha256": "05fe3c50fb261e329b6a992ac3de9473eb24029355d43fa06bbcf8d08563fa34"
+    },
+    "native/image_lifecycle.py": {
+      "bytes": 13034,
+      "mode": 420,
+      "sha256": "805fabc496f10b67425cc69bdf7793d0e703dae1fab2407d8596391c9e9c5f2b"
+    },
+    "native/owner.py": {
+      "bytes": 34158,
+      "mode": 420,
+      "sha256": "22c06e3d4a8997a8b9f748d1a0b60d0567d2f180080a230c13d822a254b11de6"
+    },
+    "native/source-map.json": {
+      "bytes": 40211,
+      "mode": 420,
+      "sha256": "419f3ec1383f8836121a0c34a802468f374dc03cd2e9b8a6e63efc910642badd"
+    }
+  },
+  "parent_map": {
+    "bytes": 40127,
+    "sha256": "3790a4d440d2b878e4d60768daefff4ea8672ade953b1b3cd72e2a5940b5413d"
+  },
+  "parent_raw": {
+    "bytes": 358,
+    "sha256": "9eb422d0887f478d46482fb182d68cd3d4094098a73d245fb9e7537bb6d761ea"
+  },
+  "parent_source": "823898408a9cdcfc9911c96b7443cd967505edce",
+  "parent_tree": "b52bf29bf921328cf8176f8a0dd7795b6add9159",
+  "schema": 1,
+  "source_files": 200,
+  "source_map": {
+    "bytes": 40211,
+    "sha256": "419f3ec1383f8836121a0c34a802468f374dc03cd2e9b8a6e63efc910642badd"
+  },
+  "source_tree": "df53e9a5103b691e9a5111d5c2f4e582797cc8b7",
+  "variant": "developer-quiet-tools-build-v1"
+}
