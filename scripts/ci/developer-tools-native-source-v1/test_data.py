@@ -158,4 +158,6 @@ class DataTests(unittest.TestCase):
         producer=(N/'developer_tools_alpm_v1.py').read_text();self.assertIn('operation_deadline=operation_started+1440',producer);self.assertIn('replacement.deadline=min(replacement.deadline,operation_deadline-90)',producer);self.assertIn('cleanup_commands.deadline=min(cleanup_commands.deadline,operation_deadline)',producer)
         workflow=(HERE/'payload/.github/workflows/native-arm-build.yml').read_text();self.assertIn('group: native-arm-build\n  cancel-in-progress: false\n  queue: max',workflow);self.assertIn('ubuntu-24.04-arm',workflow);self.assertIn('timeout-minutes: 135',workflow)
 
-if __name__=='__main__':unittest.main(verbosity=2)
+if __name__=='__main__':
+    SafeFailureTests=runpy.run_path(str(HERE/'safe-failure-v1/test_data.py'))['SafeFailureTests']
+    unittest.main(verbosity=2)

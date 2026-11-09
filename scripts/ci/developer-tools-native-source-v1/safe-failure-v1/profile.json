@@ -1,0 +1,55 @@
+{
+  "actual": {
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "changed": 4,
+  "held": 196,
+  "helpers": {
+    "bytes": 9522,
+    "sha256": "a85f92dcaaad0a7f8621b882fdf46fe26f579bb740354b1e4aa1f005aea48a76"
+  },
+  "native": "NOT_RUN",
+  "original_inner_cause": "UNKNOWN_NOT_RECONSTRUCTED",
+  "overlay": {
+    "native/developer_tools_reader_v1.py": {
+      "bytes": 140164,
+      "mode": 420,
+      "sha256": "337e78316f62f39e582343cea87522fb9450fff8ac1748c97af78cdda3cb2ee1"
+    },
+    "native/owner.py": {
+      "bytes": 34147,
+      "mode": 420,
+      "sha256": "06e733b01df955282949b7b7a63e5b59474049e445c096d641cfa673b48218d2"
+    },
+    "native/safe_diagnostic.py": {
+      "bytes": 17847,
+      "mode": 420,
+      "sha256": "f50c806708705d9df8c89580cd2e562a6ba7d81d5bd325274796f44319f86591"
+    },
+    "native/source-map.json": {
+      "bytes": 40036,
+      "mode": 420,
+      "sha256": "690b94b1fa8ffcddf05d7017bd4222858bbca28d554dd6639f573caf6dc0cb53"
+    }
+  },
+  "parent_map": {
+    "bytes": 39956,
+    "sha256": "876e52283c02de31b5892c5646d87dc8eca6c697e42c7c4400f923cb0338a0ac"
+  },
+  "parent_raw": {
+    "bytes": 340,
+    "sha256": "10eb18fcfe96360209f6be0fb98f944fbe840b0c852fe79b329a93f6a8846608"
+  },
+  "parent_source": "f4bea3d30b0e33684f80d235e3d488ae7f609f91",
+  "parent_tree": "0a21cbfead6fd258ed2e41200987eb9ce46be288",
+  "schema": 1,
+  "source_files": 200,
+  "source_map": {
+    "bytes": 40036,
+    "sha256": "690b94b1fa8ffcddf05d7017bd4222858bbca28d554dd6639f573caf6dc0cb53"
+  },
+  "source_tree": "49d035b29fe30c499f1406fe8b1c1a7acf1eded9",
+  "variant": "developer-safe-first-failure-v1"
+}
