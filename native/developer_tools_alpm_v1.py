@@ -92,7 +92,7 @@ def check_result(raw):
     need(type(raw)is bytes and 0<len(raw)<=1024**2 and raw.count(b'Starting check()')==1,'one actual bounded makepkg check() log')
     text=raw.decode('utf-8','strict');rows=[]
     for line in text.splitlines():
-        m=re.fullmatch(r'(test_[A-Za-z0-9_]+) \(__main__\.PackageTests\.(test_[A-Za-z0-9_]+)\) \.\.\. ok',line)
+        m=re.fullmatch(r'(test_[A-Za-z0-9_]+) \(__main__\.PackageControls\.(test_[A-Za-z0-9_]+)\) \.\.\. ok',line)
         if m:
             need(m[1]==m[2],'exact unittest method identity');rows.append(m[1])
     expected=['test_alias_and_live_destinations_refused', 'test_alias_runtime_refused_before_launch', 'test_exact_payload_modes_and_set', 'test_extra_runtime_code_refused', 'test_isolated_interpreter_ignores_pythonpath', 'test_missing_fixture_refused_before_launch', 'test_moved_prefix_and_no_bytecode', 'test_nonempty_destination_preserved', 'test_output_cannot_write_package_or_relative_path', 'test_private_remove_reinstall_preserves_sibling_data', 'test_source_tamper_traversal_extra_file_refused', 'test_tampered_runner_refused_before_launch', 'test_version_help_and_explicit_selection']
@@ -154,6 +154,7 @@ def build_pair(run,source,recipes,policy,alarm,report):
    item['archive']=dict(filename=archive.name,**T.pin(archive));result[label]=directory/archive.name;report['stages'].append('build-'+label)
   except BaseException as error:
    primary=error
+   raise
 
   finally:
    try:
