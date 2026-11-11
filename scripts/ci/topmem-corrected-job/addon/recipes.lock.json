@@ -1,0 +1,20 @@
+{
+  "current": {
+    ".SRCINFO": "fa8b8e01ce36cfe9c5b3cd0f94ae5303c6d8e6444d91831eacf9a762f7490459",
+    "LICENSE": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+    "NOTICE": "07227afce6f380bcf3deaf9b273fb286f6bcee69b5f1dddec9ebcd1dc2ecd098",
+    "PKGBUILD": "fc17b0af876ae0dfb97b00e2293bb01fb8c054702d19252804e8ab11196315d2",
+    "README.md": "90082e9119cdea843b0e060f4061a300015dffd6a25c55d12a72b0a75348cf2b",
+    "cachy-asahi-topmem": "96c1b49a92cb6e97d1fe5c51c23f452d79341f2d71cd624cd3197d33b29633b1",
+    "test_topmem.py": "207d3c924e37b3e27be2e0024dfe786716cd4464d3042125af543dfbdec6b847"
+  },
+  "upgrade-fixture": {
+    ".SRCINFO": "3e3c1f209efb5430f520c45605df6a03896fbed44054585aa42940ee22307ac1",
+    "LICENSE": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+    "NOTICE": "07227afce6f380bcf3deaf9b273fb286f6bcee69b5f1dddec9ebcd1dc2ecd098",
+    "PKGBUILD": "1bc62eee65437d0a4406cd544534239c7cc0af68ce016772b4e938dd8847cc44",
+    "README.md": "90082e9119cdea843b0e060f4061a300015dffd6a25c55d12a72b0a75348cf2b",
+    "cachy-asahi-topmem": "96c1b49a92cb6e97d1fe5c51c23f452d79341f2d71cd624cd3197d33b29633b1",
+    "test_topmem.py": "207d3c924e37b3e27be2e0024dfe786716cd4464d3042125af543dfbdec6b847"
+  }
+}

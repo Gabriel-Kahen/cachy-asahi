@@ -1,0 +1,6 @@
+Copyright (c) 2026 cachy-asahi contributors. MIT License; see LICENSE.
+
+This independently authored implementation replaces the optional process-memory
+inspection function identified in docs/port/tools-functionality.md. It contains
+no CachyOS topmem/Lua/luv source or assets and does not relicense those sources.
+Python and the supported Linux /proc interface are supplied by the selected base.

@@ -1,0 +1,27 @@
+pkgbase = cachy-asahi-setup
+	pkgdesc = Explicit per-user setup and removal of cachy-asahi configuration
+	pkgver = 0.1.0
+	pkgrel = 2
+	url = https://github.com/Gabriel-Kahen/cachy-asahi
+	arch = any
+	license = MIT
+	depends = python>=3.11
+	optdepends = cachy-asahi-hyprland-settings: optional desktop template
+	optdepends = cachy-asahi-fish-config: optional Fish template
+	optdepends = cachy-asahi-zsh-config: optional Zsh template
+	source = cachy-asahi-setup
+	source = README.md
+	source = NOTICE
+	source = LICENSE
+	source = source-provenance.json
+	source = check-sync.py
+	source = test-sync.py
+	sha256sums = a6251142b9c7e54796285c1a301fb590599d8aaa1625ea0bfebd7fc21622fdc2
+	sha256sums = 434328ca04e757a2dc8bba78bea82c6ed52da64b139e88666a3ec2db52ba0e56
+	sha256sums = 2c28b96b5e4dca86c8a71aa0df728a049820d5951812f20241be96e7000d9744
+	sha256sums = 51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7
+	sha256sums = 3466cccc33c98f675af0779ebdc150636ed3544d78bc5c1543bd8d25c09aded7
+	sha256sums = ce66c6fc4b66d358378143f585fd3d1a708fddee80942e12900d5b76b2ff009b
+	sha256sums = f2694ef9e7ccca7201f444e5cad28aa524da374faae364e8bcbb75200149e6bb
+
+pkgname = cachy-asahi-setup

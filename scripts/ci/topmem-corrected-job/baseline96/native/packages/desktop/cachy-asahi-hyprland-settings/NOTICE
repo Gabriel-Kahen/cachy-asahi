@@ -1,0 +1,13 @@
+Original cachy-asahi desktop configuration and package recipe.
+Copyright (c) 2026 cachy-asahi contributors
+Licensed under the MIT License; the complete grant is in LICENSE.
+
+No CachyOS configuration, scripts, themes, fonts, wallpapers, or license text is
+bundled. The CachyOS recipe and v1.4.4 assets were inspected, not reused.
+The upstream assets have unresolved license evidence; this grant does not
+relicense them. The original candidate is not a feature-equivalent CachyOS bundle.
+
+Hyprland v0.56.2's example and published Lua API were used as API references:
+https://github.com/hyprwm/Hyprland/tree/efb50993780079460b0cbed1363e2166a2de1d9f
+The upstream compositor is BSD-3-Clause. No compositor code is bundled here.
+Local source/package checks do not establish ARM builds or Asahi/M2 compatibility.

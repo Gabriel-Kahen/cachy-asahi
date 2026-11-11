@@ -1,0 +1,12 @@
+Original cachy-asahi setup/removal helper package.
+Copyright (c) 2026 cachy-asahi contributors
+Licensed under MIT; the complete project grant is in LICENSE.
+
+The packaged executable is a byte-identical snapshot of the canonical original
+runtime helper under scripts/setup/. source-provenance.json records its source
+path and SHA256. check-sync.py must pass against that canonical source before
+building or publishing a package from this repository.
+
+No third-party template, service, font, compiled binary or platform component is
+bundled. Optional configuration packages retain their separate package ownership.
+Installing or removing this package does not activate or remove user configuration.

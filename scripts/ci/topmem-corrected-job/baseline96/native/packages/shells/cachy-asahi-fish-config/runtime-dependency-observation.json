@@ -1,0 +1,866 @@
+{
+  "observed_at_utc": "2026-10-11T23:49:08.908048+00:00",
+  "scope": "ARM repository metadata name/provider/ABI availability and declared dependency licenses only; signatures, version constraint satisfiability, source-license clearance, and selected Asahi snapshot NOT validated",
+  "database_snapshots": [
+    {
+      "url": "https://fl.us.mirror.archlinuxarm.org/aarch64/core/core.db",
+      "sha256": "56bb9080bb5334b8a27e7c6aed58383e7bc542544b0e89335ce98669a2539ad6",
+      "signature_verification": "NOT RUN"
+    },
+    {
+      "url": "https://fl.us.mirror.archlinuxarm.org/aarch64/extra/extra.db",
+      "sha256": "ba1bdb823c22936ba7c9f700d168da139403b1d65683e115b66bd9c9a82ce069",
+      "signature_verification": "NOT RUN"
+    }
+  ],
+  "selected_runtime_closure": {
+    "coreutils": {
+      "version": "9.12-2",
+      "arch": "aarch64",
+      "repository": "core",
+      "license": [
+        "GPL-3.0-or-later",
+        "GFDL-1.3-or-later"
+      ],
+      "depends": [
+        "acl",
+        "attr",
+        "glibc",
+        "gmp",
+        "libcap",
+        "openssl"
+      ],
+      "provides": [],
+      "artifact_sha256": "855b6439cc94fe5d0a3b1428e63ca785c0fa83135e0c0d59277d704d8f4dd647"
+    },
+    "openssl": {
+      "version": "3.6.5-1",
+      "arch": "aarch64",
+      "repository": "core",
+      "license": [
+        "Apache-2.0"
+      ],
+      "depends": [
+        "brotli",
+        "glibc",
+        "zlib",
+        "zstd"
+      ],
+      "provides": [
+        "libcrypto.so=3-64",
+        "libssl.so=3-64"
+      ],
+      "artifact_sha256": "f60b3c69329784d1218ba098a46b092bb42ecc68f0424f01ce2873353a667c20"
+    },
+    "zstd": {
+      "version": "1.5.7-3",
+      "arch": "aarch64",
+      "repository": "core",
+      "license": [
+        "BSD-3-Clause",
+        "GPL-2.0-only"
+      ],
+      "depends": [
+        "glibc",
+        "libgcc",
+        "libstdc++",
+        "zlib",
+        "xz",
+        "lz4"
+      ],
+      "provides": [
+        "libzstd.so=1-64"
+      ],
+      "artifact_sha256": "c3b907c36049b338bda0c6d85260251e48d17e2be6c0e11ddc0dfd4cf9d2e89a"
+    },
+    "lz4": {
+      "version": "1:1.10.0-2",
+      "arch": "aarch64",
+      "repository": "core",
+      "license": [
+        "GPL-2.0-or-later"
+      ],
+      "depends": [
+        "glibc"
+      ],
+      "provides": [
+        "liblz4.so=1-64"
+      ],
+      "artifact_sha256": "2734da8aa931852a6d82f5a90edbc5fd4e21cdbefc8752ab49db4228959d45d0"
+    },
+    "glibc": {
+      "version": "2.43+r22+g8362e8ce10b2-2",
+      "arch": "aarch64",
+      "repository": "core",
+      "license": [
+        "GPL-2.0-or-later",
+        "LGPL-2.1-or-later"
+      ],
+      "depends": [
+        "linux-api-headers>=4.10",
+        "tzdata",
+        "filesystem"
+      ],
+      "provides": [],
+      "artifact_sha256": "8fac217e98c6e4342326726b2640ac254e8c82032f06f30bfa13ebbcc4fcb25b"
+    },
+    "filesystem": {
+      "version": "2025.10.12-1",
+      "arch": "any",
+      "repository": "core",
+      "license": [
+        "0BSD"
+      ],
+      "depends": [
+        "iana-etc"
+      ],
+      "provides": [],
+      "artifact_sha256": "228b63ef4a88501a68856231a19325a1ad31d92016a692d0a8be181edc70703f"
+    },
+    "iana-etc": {
+      "version": "20260617-1",
+      "arch": "any",
+      "repository": "core",
+      "license": [
+        "custom:none"
+      ],
+      "depends": [],
+      "provides": [],
+      "artifact_sha256": "09fced67d5a7e1e2380fe5aaf0ff257aff8a6866e87f3388f506e379c5ed01b5"
+    },
+    "tzdata": {
+      "version": "2026e-1",
+      "arch": "aarch64",
+      "repository": "core",
+      "license": [
+        "LicenseRef-tz"
+      ],
+      "depends": [],
+      "provides": [],
+      "artifact_sha256": "d7d3c754efda7194c0b931c457436f5215e1ca51835cbfac228e70c46112f22f"
+    },
+    "linux-api-headers": {
+      "version": "7.2-1",
+      "arch": "aarch64",
+      "repository": "core",
+      "license": [
+        "GPL-2.0-only"
+      ],
+      "depends": [],
+      "provides": [],
+      "artifact_sha256": "e03baabe6bbf49b65b394eb24629978bbb2094cd17b3fecd892a011041f9c24a"
+    },
+    "xz": {
+      "version": "5.8.4-1",
+      "arch": "aarch64",
+      "repository": "core",
+      "license": [
+        "GPL-2.0-or-later AND 0BSD AND LicenseRef-Public-Domain AND LGPL-2.1-or-later"
+      ],
+      "depends": [
+        "glibc",
+        "sh"
+      ],
+      "provides": [
+        "liblzma.so=5-64"
+      ],
+      "artifact_sha256": "0a72061585c62a92d1a38348bc7f160665b0b508ddc92fd289b6b2ca12785150"
+    },
+    "bash": {
+      "version": "5.3.20-1",
+      "arch": "aarch64",
+      "repository": "core",
+      "license": [
+        "GPL-3.0-or-later"
+      ],
+      "depends": [
+        "readline",
+        "libreadline.so=8-64",
+        "glibc",
+        "ncurses"
+      ],
+      "provides": [
+        "sh"
+      ],
+      "artifact_sha256": "e660aa3506d29ba0284c97467712ca6cbcf261bb5bc5917e14c96462aad186d6"
+    },
+    "ncurses": {
+      "version": "6.6-2",
+      "arch": "aarch64",
+      "repository": "core",
+      "license": [
+        "MIT-open-group"
+      ],
+      "depends": [
+        "glibc",
+        "libgcc",
+        "libstdc++"
+      ],
+      "provides": [
+        "libncurses++w.so=6-64",
+        "libformw.so=6-64",
+        "libmenuw.so=6-64",
+        "libpanelw.so=6-64",
+        "libncursesw.so=6-64"
+      ],
+      "artifact_sha256": "e7b4f3c2190e3ebb559d288b05aba70094efae63738343521a5669e64ab4bfa6"
+    },
+    "libstdc++": {
+      "version": "16.1.1+r12+g301eb08fa2c5-1",
+      "arch": "aarch64",
+      "repository": "core",
+      "license": [
+        "GPL-3.0-or-later WITH GCC-exception-3.1",
+        "GFDL-1.3-or-later"
+      ],
+      "depends": [
+        "glibc>=2.27",
+        "libgcc"
+      ],
+      "provides": [
+        "libstdc++.so=6-64"
+      ],
+      "artifact_sha256": "19832a38b2c4820695d28289f1c4f371955586d39fb893d8cbc0d8dbb09a4383"
+    },
+    "libgcc": {
+      "version": "16.1.1+r12+g301eb08fa2c5-1",
+      "arch": "aarch64",
+      "repository": "core",
+      "license": [
+        "GPL-3.0-or-later WITH GCC-exception-3.1",
+        "GFDL-1.3-or-later"
+      ],
+      "depends": [
+        "glibc>=2.27"
+      ],
+      "provides": [
+        "libgcc_s.so=1-64"
+      ],
+      "artifact_sha256": "0f98bdf94a6e2f6758b9ffe98cbc9391a109326ed23bd264cabe0a81a04d7ae4"
+    },
+    "readline": {
+      "version": "8.3.6-1",
+      "arch": "aarch64",
+      "repository": "core",
+      "license": [
+        "GPL-3.0-or-later"
+      ],
+      "depends": [
+        "glibc",
+        "libncursesw.so=6-64",
+        "ncurses"
+      ],
+      "provides": [
+        "libhistory.so=8-64",
+        "libreadline.so=8-64"
+      ],
+      "artifact_sha256": "6e81d2cf14bf0309761d4c65a0a46f181f61c5a6b83aa64928f1ab12cf6f5797"
+    },
+    "zlib": {
+      "version": "1:1.3.2-3",
+      "arch": "aarch64",
+      "repository": "core",
+      "license": [
+        "Zlib"
+      ],
+      "depends": [
+        "glibc"
+      ],
+      "provides": [
+        "libz.so=1-64"
+      ],
+      "artifact_sha256": "7e31b465e09e8e61375578b8e26ed883906e126e0c0ef1c75b7ccccfa95a58c4"
+    },
+    "brotli": {
+      "version": "1.2.0-1",
+      "arch": "aarch64",
+      "repository": "core",
+      "license": [
+        "MIT"
+      ],
+      "depends": [
+        "glibc"
+      ],
+      "provides": [
+        "libbrotlicommon.so=1-64",
+        "libbrotlidec.so=1-64",
+        "libbrotlienc.so=1-64"
+      ],
+      "artifact_sha256": "5bc65da23452fe0408341a1c626c9a322ffb0890bcf83aae9902fd6092213356"
+    },
+    "libcap": {
+      "version": "2.78-1",
+      "arch": "aarch64",
+      "repository": "core",
+      "license": [
+        "BSD-3-Clause OR GPL-2.0-only"
+      ],
+      "depends": [
+        "glibc",
+        "pam"
+      ],
+      "provides": [
+        "libcap.so=2-64",
+        "libpsx.so=2-64"
+      ],
+      "artifact_sha256": "828383fe196cb3bbd4ea0a7cb4385e8184ea8b281b8833eee613837eda507643"
+    },
+    "pam": {
+      "version": "1.7.3-1",
+      "arch": "aarch64",
+      "repository": "core",
+      "license": [
+        "GPL-2.0-only"
+      ],
+      "depends": [
+        "audit",
+        "glibc",
+        "libaudit.so=1-64",
+        "libcrypt.so=2-64",
+        "libnsl",
+        "libtirpc",
+        "libxcrypt",
+        "pambase",
+        "systemd-libs"
+      ],
+      "provides": [
+        "libpam.so=0-64",
+        "libpamc.so=0-64",
+        "libpam_misc.so=0-64"
+      ],
+      "artifact_sha256": "5170b81779f108a305025d10f1f694e8bad8e910f613f318a4965fcafcb03c79"
+    },
+    "systemd-libs": {
+      "version": "262-1",
+      "arch": "aarch64",
+      "repository": "core",
+      "license": [
+        "LGPL-2.1-or-later",
+        "CC0-1.0",
+        "GPL-2.0-or-later WITH Linux-syscall-note"
+      ],
+      "depends": [
+        "glibc",
+        "libgcc",
+        "libgcc_s.so=1-64",
+        "libgcrypt",
+        "lz4",
+        "xz",
+        "zstd"
+      ],
+      "provides": [
+        "libsystemd",
+        "libsystemd.so=0-64",
+        "libudev.so=1-64"
+      ],
+      "artifact_sha256": "8e697c8f2db7c82dfcdcdc63540f7ad265d8e10fc7aab656c60229d858fca901"
+    },
+    "libgcrypt": {
+      "version": "1.12.4-1",
+      "arch": "aarch64",
+      "repository": "core",
+      "license": [
+        "BSD-3-Clause",
+        "BSD-3-Clause OR GPL-2.0-only",
+        "GPL-2.0-or-later",
+        "LGPL-2.0-or-later",
+        "LGPL-2.1-or-later",
+        "X11",
+        "LicenseRef-scancode-public-domain",
+        "LicenseRef-OCB1"
+      ],
+      "depends": [
+        "libgpg-error",
+        "glibc"
+      ],
+      "provides": [],
+      "artifact_sha256": "f1401f6381963b666109465ccc88dace60af7aa0d912aa04ca8c905e02f57394"
+    },
+    "libgpg-error": {
+      "version": "1.61-1",
+      "arch": "aarch64",
+      "repository": "core",
+      "license": [
+        "LGPL-2.1-or-later",
+        "BSD-3-Clause OR LGPL-2.1-or-later",
+        "FSFULLR",
+        "GPL-2.0-or-later"
+      ],
+      "depends": [
+        "glibc",
+        "sh"
+      ],
+      "provides": [],
+      "artifact_sha256": "e6ea4251e2d6919f861a08ac09b2c72a6a687e208a495341893dba5839b00b5d"
+    },
+    "pambase": {
+      "version": "20260616-1",
+      "arch": "any",
+      "repository": "core",
+      "license": [
+        "GPL-3.0-or-later"
+      ],
+      "depends": [],
+      "provides": [],
+      "artifact_sha256": "8824b4ddde15770edd4a760901b4c73add68bb18f639ded8316024bc1ab0210f"
+    },
+    "libxcrypt": {
+      "version": "4.5.2-1",
+      "arch": "aarch64",
+      "repository": "core",
+      "license": [
+        "LGPL"
+      ],
+      "depends": [
+        "glibc"
+      ],
+      "provides": [
+        "libcrypt.so=2-64"
+      ],
+      "artifact_sha256": "e699156589561ac0c6bfc7da42891e3945647ecdd178b907f7742696fb01a0c5"
+    },
+    "libtirpc": {
+      "version": "1.3.8-1",
+      "arch": "aarch64",
+      "repository": "core",
+      "license": [
+        "SISSL",
+        "BSD-3-Clause"
+      ],
+      "depends": [
+        "krb5",
+        "glibc"
+      ],
+      "provides": [],
+      "artifact_sha256": "4b233a7e527e4874aa4622166333f13ba1a5da187f3a1d7a347f3895a8c360a4"
+    },
+    "krb5": {
+      "version": "1.22.2-1",
+      "arch": "aarch64",
+      "repository": "core",
+      "license": [
+        "custom"
+      ],
+      "depends": [
+        "bash",
+        "e2fsprogs",
+        "glibc",
+        "keyutils",
+        "libldap",
+        "libverto-module-base",
+        "openssl",
+        "lmdb",
+        "libcom_err.so=2-64",
+        "libkeyutils.so=1-64",
+        "libss.so=2-64",
+        "libverto.so=1-64"
+      ],
+      "provides": [
+        "libgssapi_krb5.so=2-64",
+        "libgssrpc.so=4-64",
+        "libk5crypto.so=3-64",
+        "libkadm5clnt_mit.so=12-64",
+        "libkadm5srv_mit.so=12-64",
+        "libkdb5.so=10-64",
+        "libkdb_ldap.so=1-64",
+        "libkrad.so=0-64",
+        "libkrb5.so=3-64",
+        "libkrb5support.so=0-64"
+      ],
+      "artifact_sha256": "8b4e743a45590b49ea98a16b3ce339a663908bf67eb3a3965374aabac3c69511"
+    },
+    "libverto": {
+      "version": "0.3.2-6",
+      "arch": "aarch64",
+      "repository": "core",
+      "license": [
+        "MIT"
+      ],
+      "depends": [
+        "glibc",
+        "libevent"
+      ],
+      "provides": [
+        "libverto.so=1-64",
+        "libverto-libevent.so=1-64",
+        "libverto-module-base"
+      ],
+      "artifact_sha256": "6b39f3feb66c1421dd4cfee2bbb339543db112c624a1eb8990ca9c9b36710dbc"
+    },
+    "libevent": {
+      "version": "2.1.13-2",
+      "arch": "aarch64",
+      "repository": "core",
+      "license": [
+        "BSD-3-Clause-Modification"
+      ],
+      "depends": [
+        "glibc",
+        "openssl"
+      ],
+      "provides": [
+        "libevent-2.1.so=7-64",
+        "libevent_core-2.1.so=7-64",
+        "libevent_extra-2.1.so=7-64",
+        "libevent_openssl-2.1.so=7-64",
+        "libevent_pthreads-2.1.so=7-64"
+      ],
+      "artifact_sha256": "616950e746a507c7371d6643249e7dbb96934612c0cf0df8760acedd94411183"
+    },
+    "e2fsprogs": {
+      "version": "1.47.4-1",
+      "arch": "aarch64",
+      "repository": "core",
+      "license": [
+        "GPL",
+        "LGPL",
+        "MIT"
+      ],
+      "depends": [
+        "sh",
+        "util-linux-libs"
+      ],
+      "provides": [
+        "libcom_err.so=2-64",
+        "libe2p.so=2-64",
+        "libext2fs.so=2-64",
+        "libss.so=2-64"
+      ],
+      "artifact_sha256": "153046071f8abf1caf546a0352c7d268fb07a5b0ba0abd996de382adc8692842"
+    },
+    "util-linux-libs": {
+      "version": "2.42.4-1",
+      "arch": "aarch64",
+      "repository": "core",
+      "license": [
+        "BSD-2-Clause",
+        "BSD-3-Clause",
+        "BSD-4-Clause-UC",
+        "GPL-2.0-only",
+        "GPL-2.0-or-later",
+        "GPL-3.0-or-later",
+        "ISC",
+        "LGPL-2.1-or-later",
+        "LicenseRef-PublicDomain"
+      ],
+      "depends": [
+        "glibc",
+        "sqlite"
+      ],
+      "provides": [
+        "libutil-linux",
+        "libblkid.so=1-64",
+        "libfdisk.so=1-64",
+        "libmount.so=1-64",
+        "libsmartcols.so=1-64",
+        "libuuid.so=1-64"
+      ],
+      "artifact_sha256": "fc33959229b44ee81ab4c66177783b65cae4390868552a81493dc94be0cf9c60"
+    },
+    "sqlite": {
+      "version": "3.53.4-1",
+      "arch": "aarch64",
+      "repository": "core",
+      "license": [
+        "LicenseRef-Sqlite"
+      ],
+      "depends": [
+        "readline",
+        "zlib",
+        "glibc"
+      ],
+      "provides": [
+        "sqlite3=3.53.4",
+        "libsqlite3.so=0-64"
+      ],
+      "artifact_sha256": "9512d37af4ac6910e10e2a8e6f85078ab72a2ece17a8e6b51755898f50b900ba"
+    },
+    "keyutils": {
+      "version": "1.6.3-4",
+      "arch": "aarch64",
+      "repository": "core",
+      "license": [
+        "GPL-2.0-or-later",
+        "LGPL-2.1-or-later"
+      ],
+      "depends": [
+        "glibc",
+        "sh"
+      ],
+      "provides": [
+        "libkeyutils.so=1-64"
+      ],
+      "artifact_sha256": "7ee05c67895771b838dc035219290095e79866c61ce63bd726b002df7dfbfdd5"
+    },
+    "lmdb": {
+      "version": "0.9.35-1",
+      "arch": "aarch64",
+      "repository": "extra",
+      "license": [
+        "custom:OpenLDAP"
+      ],
+      "depends": [
+        "glibc"
+      ],
+      "provides": [],
+      "artifact_sha256": "6aff3bd58fbb98dbca71a83554be4b47d39ff01b3dbe4f724ba140416aa8486e"
+    },
+    "libldap": {
+      "version": "2.7.1-1",
+      "arch": "aarch64",
+      "repository": "core",
+      "license": [
+        "custom"
+      ],
+      "depends": [
+        "libsasl"
+      ],
+      "provides": [],
+      "artifact_sha256": "09423337d9311f65e2cdd298ff7a2bbfbfdd7f5cbccfc21e42d8b82de669c737"
+    },
+    "libsasl": {
+      "version": "2.1.28-5",
+      "arch": "aarch64",
+      "repository": "core",
+      "license": [
+        "BSD-3-Clause-Attribution"
+      ],
+      "depends": [
+        "glibc",
+        "gdbm",
+        "libgdbm.so=6-64",
+        "openssl",
+        "libcrypto.so=3-64"
+      ],
+      "provides": [
+        "libsasl2.so=3-64"
+      ],
+      "artifact_sha256": "5ec2f2ec119161f9e0f93a91f0f7001f9f401d5eb6dd1d7769988ee0308f92b2"
+    },
+    "gdbm": {
+      "version": "1.26-2",
+      "arch": "aarch64",
+      "repository": "core",
+      "license": [
+        "GPL-3.0-or-later"
+      ],
+      "depends": [
+        "glibc",
+        "sh",
+        "readline",
+        "libreadline.so=8-64"
+      ],
+      "provides": [
+        "libgdbm_compat.so=4-64",
+        "libgdbm.so=6-64"
+      ],
+      "artifact_sha256": "123df7945d23eb31262dc108bdf057b74cd93f13e782b99dfe077c51daabd222"
+    },
+    "libnsl": {
+      "version": "2.0.1-2",
+      "arch": "aarch64",
+      "repository": "core",
+      "license": [
+        "LGPL-2.1-only"
+      ],
+      "depends": [
+        "glibc",
+        "libtirpc"
+      ],
+      "provides": [
+        "libnsl.so=3-64"
+      ],
+      "artifact_sha256": "4f37f2ed67a79d76458e3af7b8bcdb0fef0cf35e0ba71569b7fbb0388d592619"
+    },
+    "audit": {
+      "version": "4.2.1-1",
+      "arch": "aarch64",
+      "repository": "core",
+      "license": [
+        "GPL-2.0-or-later",
+        "LGPL-2.0-or-later"
+      ],
+      "depends": [
+        "bash",
+        "glibc",
+        "krb5",
+        "libkrb5.so=3-64",
+        "libgssapi_krb5.so=2-64",
+        "libcap-ng",
+        "libcap-ng.so=0-64"
+      ],
+      "provides": [
+        "libaudit.so=1-64",
+        "libauparse.so=0-64"
+      ],
+      "artifact_sha256": "f2535b990835b668f1c587586617f3663ef33dd495bef14a9be5d680a58bda43"
+    },
+    "libcap-ng": {
+      "version": "0.9.6-1",
+      "arch": "aarch64",
+      "repository": "core",
+      "license": [
+        "GPL-2.0-or-later",
+        "LGPL-2.1-or-later"
+      ],
+      "depends": [
+        "glibc"
+      ],
+      "provides": [
+        "libcap-ng.so=0-64",
+        "libdrop_ambient.so=0-64"
+      ],
+      "artifact_sha256": "969fcda6dd3b20850288dd7f2a26f22554e2e99dcee5bcff838f7587dc8b15cb"
+    },
+    "gmp": {
+      "version": "6.3.0-3",
+      "arch": "aarch64",
+      "repository": "core",
+      "license": [
+        "GPL-2.0-or-later",
+        "LGPL-3.0-or-later"
+      ],
+      "depends": [
+        "libgcc",
+        "libstdc++",
+        "glibc"
+      ],
+      "provides": [],
+      "artifact_sha256": "720607bed2249dd8cd0304b6cf4102884fa2ca24c21444f007bc12af542ea6c5"
+    },
+    "attr": {
+      "version": "2.6.0-1",
+      "arch": "aarch64",
+      "repository": "core",
+      "license": [
+        "LGPL-2.1-or-later AND GPL-2.0-or-later"
+      ],
+      "depends": [
+        "glibc"
+      ],
+      "provides": [
+        "libattr.so=1-64"
+      ],
+      "artifact_sha256": "7d0a27bb1761e2b5c329da6fee515af4d174869f303009283fbc6b74497d267c"
+    },
+    "acl": {
+      "version": "2.4.0-1",
+      "arch": "aarch64",
+      "repository": "core",
+      "license": [
+        "LGPL-2.1-or-later AND GPL-2.0-or-later"
+      ],
+      "depends": [
+        "glibc"
+      ],
+      "provides": [
+        "libacl.so=1-64"
+      ],
+      "artifact_sha256": "8d400d781a3fd765f0f7c98183492850f830da3d3efb05518b5927b446387350"
+    },
+    "fish": {
+      "version": "4.9.3-1",
+      "arch": "aarch64",
+      "repository": "extra",
+      "license": [
+        "GPL-2.0-only AND BSD-3-Clause AND ISC AND MIT AND PSF-2.0"
+      ],
+      "depends": [
+        "glibc",
+        "libgcc",
+        "pcre2"
+      ],
+      "provides": [],
+      "artifact_sha256": "c0fb16a8077312f6541ff1ef7208a3ecf5b9db5763269ceaefe2eeaba6dc3834"
+    },
+    "pcre2": {
+      "version": "10.49-1",
+      "arch": "aarch64",
+      "repository": "core",
+      "license": [
+        "BSD-2-Clause",
+        "BSD-3-Clause WITH PCRE2-exception"
+      ],
+      "depends": [
+        "bzip2",
+        "glibc",
+        "readline",
+        "zlib"
+      ],
+      "provides": [
+        "libpcre2-8.so=0-64",
+        "libpcre2-16.so=0-64",
+        "libpcre2-32.so=0-64",
+        "libpcre2-posix.so=3-64"
+      ],
+      "artifact_sha256": "8334385fdb4ed51807d6345cbe23c961ada160b589855d362c28127f5065a5a6"
+    },
+    "bzip2": {
+      "version": "1.0.8-6",
+      "arch": "aarch64",
+      "repository": "core",
+      "license": [
+        "BSD"
+      ],
+      "depends": [
+        "glibc",
+        "sh"
+      ],
+      "provides": [
+        "libbz2.so=1.0-64"
+      ],
+      "artifact_sha256": "b11f21c0bc3d1193dd02040644cd604d49cc89184db1b7bc76a623532fcb0dcb"
+    }
+  },
+  "virtual_dependency_providers": {
+    "sh": [
+      "bash"
+    ],
+    "libreadline.so=8-64": [
+      "readline"
+    ],
+    "libncursesw.so=6-64": [
+      "ncurses"
+    ],
+    "libaudit.so=1-64": [
+      "audit"
+    ],
+    "libcrypt.so=2-64": [
+      "libxcrypt"
+    ],
+    "libgcc_s.so=1-64": [
+      "libgcc"
+    ],
+    "libverto-module-base": [
+      "libverto"
+    ],
+    "libcom_err.so=2-64": [
+      "e2fsprogs"
+    ],
+    "libkeyutils.so=1-64": [
+      "keyutils"
+    ],
+    "libss.so=2-64": [
+      "e2fsprogs"
+    ],
+    "libverto.so=1-64": [
+      "libverto"
+    ],
+    "libgdbm.so=6-64": [
+      "gdbm"
+    ],
+    "libcrypto.so=3-64": [
+      "openssl"
+    ],
+    "libkrb5.so=3-64": [
+      "krb5"
+    ],
+    "libgssapi_krb5.so=2-64": [
+      "krb5"
+    ],
+    "libcap-ng.so=0-64": [
+      "libcap-ng"
+    ]
+  },
+  "unresolved_runtime_dependencies": []
+}
