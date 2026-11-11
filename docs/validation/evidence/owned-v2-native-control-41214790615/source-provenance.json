@@ -1,0 +1,47 @@
+{
+  "acceptance": false,
+  "architecture": "aarch64",
+  "attempt": "1",
+  "control": {
+    "bytes": 14469,
+    "mode": 493,
+    "path": "scripts/virtual/owned_process_v2_adoption_control.py",
+    "sha256": "493f52eac264d638c18bc82472a3875044dcd353d57b22ecb0b4cff0ff9e21de"
+  },
+  "event": "workflow_dispatch",
+  "fixture": {
+    "bytes": 2783,
+    "mode": 493,
+    "path": "scripts/virtual/owned_process_v2_adoption_fixture.py",
+    "sha256": "0b37f2acf0a56df100a5e98404ddc0e4765208f52d1ce76a4dce9f9f142df678"
+  },
+  "interpreter": {
+    "executable": "/opt/hostedtoolcache/Python/3.14.9/arm64/bin/python",
+    "version": "3.14.9 (main, Oct 21 2026, 14:53:03) [GCC 13.3.0]"
+  },
+  "operation": "owned-v2-adopted-zero-pre-package-v1",
+  "page_size": 4096,
+  "ref": "refs/heads/main",
+  "repository": "Gabriel-Kahen/cachy-asahi",
+  "repository_id": "1414857795",
+  "run": "41214790615",
+  "runner": {
+    "arch": "ARM64",
+    "environment": "github-hosted",
+    "name": "GitHub Actions 1000027104",
+    "os": "Linux"
+  },
+  "runtime": {
+    "bytes": 38256,
+    "mode": 493,
+    "path": ".owned-v2-runtime-source-data/scripts/virtual/owned_process_retirement_v2.py",
+    "sha256": "9388d270d06e28fee50160b7c04dd69593e383647d791f8aaff69380032165d5"
+  },
+  "runtime_source": "3ab5da1b4a11495075a9660ad09625a4ff5f0f64",
+  "schema": 1,
+  "scope": "PRE_PACKAGE_PROCESS_CONTROL_ONLY_NO_COMPONENT_ALARM_M2_16K_PERFORMANCE_RELEASE_ACCEPTANCE",
+  "status": "PASS_EXACT_SOURCE_BODY_HOST_AND_PYTHON314_GUARDS",
+  "workflow_ref": "Gabriel-Kahen/cachy-asahi/.github/workflows/native-arm-owned-process-control.yml@refs/heads/main",
+  "workflow_source": "9e7c58f51548b7d901ac90084883f41b9dba4e90",
+  "workflow_source_input": "9e7c58f51548b7d901ac90084883f41b9dba4e90"
+}

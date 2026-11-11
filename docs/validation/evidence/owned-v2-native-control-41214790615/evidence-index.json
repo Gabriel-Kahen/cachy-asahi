@@ -1,0 +1,102 @@
+{
+  "acceptance_projection": "root-acceptance-public.json",
+  "artifact": 13046844252,
+  "authority_projections": {
+    "root-acceptance-public.json": {
+      "bytes": 4090,
+      "sha256": "6b52500fbd84f62f36263d3e20ca5ad93a4a3c99cce9237d2ce80fd216fffbeb"
+    },
+    "root-qualified-result-public.json": {
+      "bytes": 3353,
+      "sha256": "49a0ece98b509593e697e15ce0d4b12090eca456dfebc68d5ed308f0843493b8"
+    }
+  },
+  "binding": {
+    "attempt": 1,
+    "job": 124576960645,
+    "job_conclusion": "success",
+    "run": 41214790615,
+    "run_conclusion": "success",
+    "runner_name": "GitHub Actions 1000027104",
+    "workflow_id": 402771575,
+    "workflow_source": "9e7c58f51548b7d901ac90084883f41b9dba4e90"
+  },
+  "claim_limits": {
+    "Asahi_installed": false,
+    "M2": false,
+    "all_runtime_branches": false,
+    "component_ALPM": false,
+    "global_legacy_migration": false,
+    "native16K": false,
+    "performance": false,
+    "release": false
+  },
+  "control_outcome": "success",
+  "data_handling": "Copied exact five JSON bodies from already retained ZIP using stdlib in-memory ZIP/tar reads; no downloaded code, runtime, qualified passive decoder or control execution",
+  "original_JSON_roles": {
+    "control/intent.json": {
+      "archive_member_mode": "0600",
+      "bytes": 1195,
+      "exact_original_bytes": true,
+      "public_git_mode": "100644",
+      "sha256": "ec58f4b5a647f88884b36fb5511bda55f8fbefe4199cc774902f534e3607484f"
+    },
+    "control/result.json": {
+      "archive_member_mode": "0600",
+      "bytes": 2131,
+      "exact_original_bytes": true,
+      "public_git_mode": "100644",
+      "sha256": "9a0844ba8a149c9f1a6be5e56efc37107ab74a3be9b68704cc31d6d627eb2d70"
+    },
+    "control/runtime-result.json": {
+      "archive_member_mode": "0600",
+      "bytes": 1652,
+      "exact_original_bytes": true,
+      "public_git_mode": "100644",
+      "sha256": "6da3c5a27fc0555ceca11936abc16c6f44ff28402085bebd81117dabf083d322"
+    },
+    "manifest.json": {
+      "archive_member_mode": "0600",
+      "bytes": 1101,
+      "exact_original_bytes": true,
+      "public_git_mode": "100644",
+      "sha256": "b1d0be03f51a6f8acdb7527c3d8a7294504534447e0eb58fcf744b542843c222"
+    },
+    "source-provenance.json": {
+      "archive_member_mode": "0600",
+      "bytes": 1752,
+      "exact_original_bytes": true,
+      "public_git_mode": "100644",
+      "sha256": "a0debc7cb58179e4b37726eadab71f190bdba23b7a9162f60ad2adacadef8b8e"
+    }
+  },
+  "original_data_acceptance_fields": "PRESERVED_FALSE; ROOT_FINITE_ACCEPTANCE_IS_SEPARATE_EXPLICIT_PROJECTION",
+  "original_tar_member": {
+    "bytes": 20480,
+    "name": "public-evidence.tar",
+    "sha256": "4bbe77af60013d32b63427183e57ae38e5845f182e0cc156fe8c864f8765a765"
+  },
+  "original_zip": {
+    "bytes": 20632,
+    "sha256": "1574ddde109838adcf9dffc9d9213c95abf9c624dcb8e560b7117ae8ce7af311"
+  },
+  "qualification_projection": "root-qualified-result-public.json",
+  "run_url": "https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/41214790615",
+  "runtime": {
+    "blob": "e336152d4b0185ec704661243f0c8968ed37be44",
+    "bytes": 38256,
+    "mode": "100755",
+    "path": "scripts/virtual/owned_process_retirement_v2.py",
+    "sha256": "9388d270d06e28fee50160b7c04dd69593e383647d791f8aaff69380032165d5",
+    "source": "3ab5da1b4a11495075a9660ad09625a4ff5f0f64"
+  },
+  "schema": 1,
+  "scope": "ONE_NATIVE_AARCH64_4096_PAGE_PYTHON3149_ADOPTED_ZERO_CHILD_CONTROL_ONLY",
+  "source_guard_outcome": "success",
+  "workflow": {
+    "bytes": 11601,
+    "path": ".github/workflows/native-arm-owned-process-control.yml",
+    "sha256": "f86d6be453fc1232ef5036d5d3f2c1e6d137fca2d703235bfb82e018a4cc757f",
+    "source": "9e7c58f51548b7d901ac90084883f41b9dba4e90"
+  }
+}

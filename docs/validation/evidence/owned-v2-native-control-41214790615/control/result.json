@@ -1,0 +1,68 @@
+{
+  "acceptance": false,
+  "architecture": "aarch64",
+  "bounds": {
+    "fixture_wait_seconds": 2,
+    "grace_seconds": 0.1,
+    "output_bytes": 4096,
+    "result_bytes": 131072,
+    "retirement_seconds": 2.0,
+    "runtime_seconds": 8.0
+  },
+  "caller_execution_context": "native-runner",
+  "cleanup_authority": "EXCLUSIVELY_SELECTED_RUNTIME; UNKNOWN_IF_ITS_RECEIPTS_REFUSE",
+  "context_provenance": "EXTERNAL; CLI does not attest native/M2 provenance",
+  "error": null,
+  "fixture": {
+    "bytes": 2783,
+    "sha256": "0b37f2acf0a56df100a5e98404ddc0e4765208f52d1ce76a4dce9f9f142df678"
+  },
+  "fixture_ledger": {
+    "child": {
+      "group": 2613,
+      "pid": 2614,
+      "ppid": 2613,
+      "session": 2613,
+      "start_ticks": 56170,
+      "state": "Z"
+    },
+    "fixture_consuming_waits": 0,
+    "fixture_forks": 1,
+    "fixture_waitid": {
+      "code": "CLD_EXITED",
+      "pid": 2614,
+      "status": 0
+    },
+    "leader": 2613,
+    "owner": 2612,
+    "schema": 1,
+    "status": "ONE_OWN_ZERO_ZOMBIE_LEFT_FOR_ADOPTION"
+  },
+  "inherited_FSIZE": [
+    536870912,
+    536870912
+  ],
+  "interpreter": {
+    "executable": "/opt/hostedtoolcache/Python/3.14.9/arm64/bin/python",
+    "implementation": "CPython",
+    "version": "3.14.9 (main, Oct 21 2026, 14:53:03) [GCC 13.3.0]"
+  },
+  "owner": 2612,
+  "page_size": 4096,
+  "process_followups_after_transfer": 0,
+  "runtime": {
+    "bytes": 38256,
+    "sha256": "9388d270d06e28fee50160b7c04dd69593e383647d791f8aaff69380032165d5"
+  },
+  "runtime_path": "/home/runner/work/cachy-asahi/cachy-asahi/.owned-v2-runtime-source-data/scripts/virtual/owned_process_retirement_v2.py",
+  "runtime_result_pin": {
+    "bytes": 1652,
+    "sha256": "6da3c5a27fc0555ceca11936abc16c6f44ff28402085bebd81117dabf083d322"
+  },
+  "scope": "CONTROL_PROCESS_ONLY; NO_NATIVE_COMPONENT_M2_PERFORMANCE_OR_RELEASE_ACCEPTANCE",
+  "seconds": 0.05748367499995766,
+  "source_label": "runtime:3ab5da1b4a11495075a9660ad09625a4ff5f0f64;workflow:9e7c58f51548b7d901ac90084883f41b9dba4e90",
+  "status": "PASS_ACTUAL_RUNTIME_ADOPTED_ZERO_EXIT_CHILD_CONTROL",
+  "subreaper_previous": 0,
+  "subreaper_restored": true
+}
