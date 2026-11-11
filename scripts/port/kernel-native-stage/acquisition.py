@@ -29,11 +29,49 @@ MAX_TOTAL = 1200 * 1024**2
 MAX_SECONDS = 1800
 CHUNK = 1024**2
 PINS = {
-    PREFIX+'dependencies.json':'cf4d6eaa80ab15f1b1359d161b7b07e187f37df6071e5f628e235cb9689a93d6',
+    PREFIX+'dependencies.json':'aa5f5580f10256f5749bbc86ec0abc0420981d935f37e84672298fa38d72cfe4',
     SOURCE+'candidate.json':'d26f691006a24f76db11f2f353e0ec10d93425ce2b6f8970a446b7bd34c98617',
     SOURCE+'harness.py':'f2d6fc62d28b0c189469ca7cf8293f10c574ecd0459c33c013bf1a271b8a5ebf',
     'scripts/ci/native_arm.py':'a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898',
 }
+
+DIAGNOSTIC_PREFIX = 'KERNEL_ACQUISITION_FAILURE_V1 '
+
+
+def diagnostic_phase(state, phase, ordinal=None):
+    if state is not None: state.update(phase=phase, input_ordinal=ordinal)
+
+
+def diagnostic_failure(state, error):
+    if state is None or state.get('failure') is not None: return
+    kind = 'DATA_REFUSAL' if type(error) is ValueError else 'TIMEOUT' if type(error) is TimeoutError else 'IO' if isinstance(error, OSError) else 'OTHER'
+    refusal = 'UNKNOWN'
+    if type(error) is ValueError and len(error.args) == 1 and type(error.args[0]) is str and len(error.args[0]) <= 1024:
+        message = error.args[0]
+        groups = {
+            'SOURCE_PIN': ('JSON pin differs', 'embedded config pin differs'),
+            'INPUT_CONTRACT': ('flat bounded input name required', 'input size/hash required', 'primary HTTPS input URL required', 'exact official package URL required', 'exact finite acquisition set required'),
+            'SIZE_HASH': ('input exceeded exact size', 'input size/hash differs', 'reuse input size/hash differs', 'reuse file changed', 'reuse file changed after copy', 'stored input hash differs'),
+            'DEADLINE': ('acquisition deadline exceeded', 'acquisition deadline exceeded during HTTP read'),
+            'BYTE_CAP': ('acquisition byte cap exceeded',),
+            'PATH': ('canonical nonsymlink path required', 'new owned ignored output required', 'owned cache required', 'new cache file required', 'symlink data path', 'bounded regular input required'),
+            'HTTP_RETURN': ('HTTP child failed without receipt',),
+            'SIGNATURE': ('pinned public-key import failed', 'signature command failed', 'signature failure status'),
+            'CONFIG': ('config copy differs',), 'PATCH': ('nonexact patch output',),
+            'STORAGE': ('final storage cap exceeded',),
+        }
+        refusal = next((name for name, messages in groups.items() if message in messages), 'UNKNOWN')
+        if message.startswith('frozen acquisition source differs: '): refusal = 'SOURCE_PIN'
+        if message.startswith('HTTP acquisition failed: '): refusal = 'HTTP_CHILD'
+    state['failure'] = {'schema_version': 1, 'purpose': 'kernel-acquisition-failure',
+        'binding_sha256': state['binding_sha256'], 'phase': state['phase'],
+        'input_ordinal': state['input_ordinal'], 'error_kind': kind, 'refusal': refusal}
+
+
+def diagnostic_secondary(first, secondary):
+    prior = first.__cause__
+    first.__cause__ = BaseExceptionGroup('acquisition diagnostic controls',
+        ([prior] if prior is not None else []) + [secondary])
 
 
 class Budget:
@@ -245,27 +283,39 @@ def signatures(root,dependencies,cache,keys,output,budget):
     return results
 
 
-def acquire(root,output,reuse_cache_paths=()):
+def acquire(root,output,reuse_cache_paths=(),diagnostic=None):
+    diagnostic_phase(diagnostic, 'ROOT_PREFLIGHT')
     root=canonical(root);output=canonical(output);owned=root/'artifacts/kernel-native-stage'
     need(output.is_relative_to(owned) and output!=owned and not output.exists(),'new owned ignored output required')
+    diagnostic_phase(diagnostic, 'SOURCE_PINS')
     for path,pin in PINS.items():
         regular(root/path);need(digest(root/path)==pin,'frozen acquisition source differs: '+path)
+    diagnostic_phase(diagnostic, 'INPUT_CONTRACT')
     dependencies=load(root/(PREFIX+'dependencies.json'),PINS[PREFIX+'dependencies.json'])
     candidate=load(root/(SOURCE+'candidate.json'),PINS[SOURCE+'candidate.json'])
     packages,archive,patch=items(dependencies,candidate)
+    diagnostic_phase(diagnostic, 'CONFIG_PIN')
     config=root/(PREFIX+'embedded-config.txt');regular(config,1024**2)
     need(config.stat().st_size==candidate['config']['bytes'] and digest(config)==candidate['config']['sha256'],'embedded config pin differs')
+    diagnostic_phase(diagnostic, 'CACHE_PREFLIGHT')
     caches=tuple(canonical(p) for p in reuse_cache_paths)
+    diagnostic_phase(diagnostic, 'OUTPUT_PREPARE')
     output.mkdir(parents=True,mode=0o700);cache=output/'packages';cache.mkdir(mode=0o700);keys=output/'keys';keys.mkdir(mode=0o700)
     budget=Budget();report={'status':'FAIL','native_execution':'NOT RUN','installation':'NOT RUN','inputs':[]}
     try:
-        for item in packages:
+        for ordinal,item in enumerate(packages):
+            diagnostic_phase(diagnostic, 'PACKAGE_FETCH', ordinal)
             report['inputs'].append(fetch(item,cache,budget,[p/item['filename'] for p in caches]))
+        diagnostic_phase(diagnostic, 'ARCHIVE_FETCH', 30)
         report['inputs'].append(fetch(archive,output,budget,[p/name for p in caches for name in ('asahi.tar.gz','linux-asahi-7.1.13-3.tar.gz','source-snapshot.tar.gz')]))
+        diagnostic_phase(diagnostic, 'PATCH_FETCH', 31)
         report['inputs'].append(fetch(patch,output,budget,[p/name for p in caches for name in ('candidate.patch','0d61333f6e03e8fa4620e33e1bac4c644a9412c6.patch')]))
-        for item in dependencies['keyring_files']:
+        for ordinal,item in enumerate(dependencies['keyring_files'], 32):
+            diagnostic_phase(diagnostic, 'KEY_FETCH', ordinal)
             report['inputs'].append(fetch(item,keys,budget,[p/item['filename'] for p in caches]))
+        diagnostic_phase(diagnostic, 'SIGNATURES')
         report['signatures']=signatures(root,dependencies,cache,keys,output,budget)
+        diagnostic_phase(diagnostic, 'CONFIG_COPY')
         config_copy=output/'embedded-config';budget.add(config.stat().st_size);shutil.copyfile(config,config_copy)
         need(digest(config_copy)==candidate['config']['sha256'] and digest(config)==candidate['config']['sha256'],'config copy differs')
         harness=module('kernel_acquisition_harness',root/(SOURCE+'harness.py'))
@@ -275,22 +325,45 @@ def acquire(root,output,reuse_cache_paths=()):
         baseline=output/'artifacts/kernel-candidates/baseline';after=output/'artifacts/kernel-candidates/candidate'
         arguments={'lock':root/(SOURCE+'candidate.json'),'lock_sha256':PINS[SOURCE+'candidate.json'],
                    'archive':output/'asahi.tar.gz','config':config_copy,'patch':output/'candidate.patch','full_source':False}
+        diagnostic_phase(diagnostic, 'BASELINE_SLICE')
         budget.check();before_report=harness.run(SimpleNamespace(**arguments,mode='baseline',output=baseline))
+        diagnostic_phase(diagnostic, 'CANDIDATE_SLICE')
         budget.check();after_report=harness.run(SimpleNamespace(**arguments,mode='apply',output=after))
+        diagnostic_phase(diagnostic, 'PATCH_LOGS')
         need(not any(re.search(rb'(?i)offset|fuzz|reject', (after/x).read_bytes()) for x in ('dry-run.log','apply.log')),'nonexact patch output')
         report['source_slices']={'baseline':before_report,'candidate':after_report}
         result={'archive':str(output/'asahi.tar.gz'),'config':str(config_copy),'patch':str(output/'candidate.patch'),
                 'bio_baseline':str(baseline/'source-slice/block/bio.c'),'bio_candidate':str(after/'source-slice/block/bio.c'),
                 'package_cache':str(cache),'key_dir':str(keys)}
+        diagnostic_phase(diagnostic, 'FINAL_BUDGET')
         need(sum(p.stat().st_size for p in output.rglob('*') if p.is_file())<=MAX_TOTAL,'final storage cap exceeded')
         budget.check();report.update(status='PASS-acquired-source-data',bytes=budget.bytes,arguments=result)
         return result
-    finally:save(output/'acquisition.json',report)
+    except Exception as first:
+        try: diagnostic_failure(diagnostic, first)
+        except BaseException as secondary: diagnostic_secondary(first, secondary)
+        raise
+    finally:
+        diagnostic_phase(diagnostic, 'RECEIPT_SAVE')
+        save(output/'acquisition.json',report)
 
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--root',type=Path,required=True)
     parser.add_argument('--output',type=Path,required=True);parser.add_argument('--reuse-cache',type=Path,action='append',default=[])
-    args=parser.parse_args();print(json.dumps(acquire(args.root,args.output,args.reuse_cache),sort_keys=True));return 0
+    parser.add_argument('--diagnostic-nonce')
+    args=parser.parse_args()
+    need(args.diagnostic_nonce is None or re.fullmatch('[0-9a-f]{32}', args.diagnostic_nonce), 'diagnostic nonce differs')
+    state = None if args.diagnostic_nonce is None else {'binding_sha256': hashlib.sha256(args.diagnostic_nonce.encode('ascii')).hexdigest(), 'phase': 'ROOT_PREFLIGHT', 'input_ordinal': None, 'failure': None}
+    try:
+        result=acquire(args.root,args.output,args.reuse_cache,state)
+    except Exception as first:
+        try:
+            diagnostic_failure(state,first)
+            if state is not None:
+                print(DIAGNOSTIC_PREFIX + json.dumps(state['failure'],sort_keys=True,separators=(',',':'),allow_nan=False),flush=True)
+        except BaseException as secondary: diagnostic_secondary(first,secondary)
+        raise
+    print(json.dumps(result,sort_keys=True));return 0
 
 if __name__=='__main__':raise SystemExit(main())

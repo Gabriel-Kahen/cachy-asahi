@@ -1,0 +1,585 @@
+"""Original 501 transport only. Root owns registration, cutoff and 249 authentication."""
+import ast
+import base64
+import hashlib
+import http.client
+import json
+import math
+import os
+from pathlib import Path
+import re
+import ssl
+import stat
+import sys
+import tempfile
+import time
+from types import FunctionType, SimpleNamespace
+import urllib.error
+import urllib.parse
+
+PINS = {'native': 'a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898', 'controller': '6d11dedad65470650e9ada0cff47f9f5a3337ddcdc390fce76742b61598f3d61', 'packet': '2233f89144232c33bea9a756a7efb9aa6f5f720ba74d2bfcb5ef1e61a2ffefc5', 'inputs': 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'}
+HOSTS = {'ca.us.mirror.archlinuxarm.org', 'raw.githubusercontent.com'}
+FIELDS = ('st_dev', 'st_ino', 'st_mode', 'st_uid', 'st_gid', 'st_nlink',
+          'st_size', 'st_mtime_ns', 'st_ctime_ns')
+
+
+def need(value, reason):
+    if not value:
+        raise ValueError(reason)
+
+
+class Guard:
+    """One original E, first observed cause, retained allocations before postcheck."""
+    def __init__(self, end, check):
+        need(type(end) in (int, float) and math.isfinite(end) and callable(check), 'intake-clock')
+        self.end, self.check, self.last, self.first = end, check, None, None
+        self.resources = {}
+        self.allocations = 0
+
+    def fail(self, error):
+        if self.first is None:
+            self.first = error
+        self.first.retained_intake_resources = self.resources
+        return self.first
+
+    def live(self):
+        if self.first is not None:
+            raise self.first
+        try:
+            self.check()
+            now = time.monotonic()
+            need(type(now) in (int, float) and math.isfinite(now)
+                 and (self.last is None or now >= self.last) and now < self.end, 'intake-deadline')
+            self.last = now
+        except BaseException as error:
+            raise self.fail(error)
+
+    def invoke(self, function, *args, **kwargs):
+        self.live()
+        name = getattr(function, '__name__', '')
+        slot = None
+        if function in (os.open, os.fdopen, tempfile.mkstemp) or name in ('open', 'urlopen', 'getresponse', 'HTTPSConnection'):
+            self.allocations += 1
+            slot = ('allocation', self.allocations)
+            self.resources[slot] = {'operation': name, 'identity': 'UNKNOWN'}
+        try:
+            value = function(*args, **kwargs)
+            # Register before a potentially failing postcondition. These are
+            # uncertainty records, never inferred absence or automatic disposal.
+            bound = getattr(function, '__self__', None)
+            if function is os.open:
+                self.resources[('fd', value)] = value
+            elif function is tempfile.mkstemp:
+                self.resources[('fd', value[0])] = value[0]
+            elif function is os.fdopen:
+                self.resources.pop(('fd', args[0]), None)
+                self.resources[('object', id(value))] = value
+            elif name in ('open', 'urlopen', 'getresponse', 'HTTPSConnection'):
+                self.resources[('object', id(value))] = value
+            elif function is os.close:
+                self.resources.pop(('fd', args[0]), None)
+            elif name in ('close', '__exit__'):
+                self.resources.pop(('object', id(bound)), None)
+            if slot is not None:
+                self.resources.pop(slot)
+            self.live()
+            if name != 'getresponse' and hasattr(value, '__enter__') and hasattr(value, '__exit__'):
+                return Context(self, value)
+            return value
+        except BaseException as error:
+            raise self.fail(error)
+
+
+class Context:
+    def __init__(self, guard, value):
+        self.guard, self.value = guard, value
+
+    def __enter__(self):
+        value = self.guard.invoke(self.value.__enter__)
+        value = value.value if isinstance(value, Context) else value
+        return StreamCalls(self.guard, value) if hasattr(value, 'write') or hasattr(value, 'read') else value
+
+    def __exit__(self, kind, error, trace):
+        if error is not None:
+            self.guard.fail(error)
+        # No late disposal. The first cause and retained object survive cutoff.
+        return self.guard.invoke(self.value.__exit__, kind, error, trace)
+
+
+class StreamCalls:
+    """Also gate writes made inside json.dump, not just its outer invocation."""
+    def __init__(self, guard, value):
+        self.guard, self.value = guard, value
+
+    def __getattr__(self, name):
+        value = getattr(self.value, name)
+        return (lambda *args, **kwargs: self.guard.invoke(value, *args, **kwargs)) if callable(value) else value
+
+
+class Calls(ast.NodeTransformer):
+    def visit_Call(self, node):
+        self.generic_visit(node)
+        return ast.copy_location(ast.Call(ast.Attribute(ast.Name('_guard', ast.Load()),
+                    'invoke', ast.Load()), [node.func, *node.args], node.keywords), node)
+
+
+def selected(raw, names, namespace, guard):
+    """Authenticate the entire source first; compile definitions only, no imports."""
+    tree = guard.invoke(ast.parse, raw)
+    nodes = [node for node in tree.body if
+             isinstance(node, (ast.FunctionDef, ast.ClassDef)) and node.name in names
+             or isinstance(node, ast.Assign) and any(isinstance(t, ast.Name)
+                 and t.id in names for t in node.targets)]
+    found = {node.name for node in nodes if isinstance(node, (ast.FunctionDef, ast.ClassDef))}
+    found.update(t.id for node in nodes if isinstance(node, ast.Assign)
+                 for t in node.targets if isinstance(t, ast.Name))
+    need(found == set(names), 'intake-definition-membership')
+    code = guard.invoke(compile, ast.fix_missing_locations(Calls().visit(
+        ast.Module(nodes, []))), '<authenticated-intake-definitions>', 'exec')
+    namespace['_guard'] = guard
+    guard.invoke(exec, code, namespace)
+
+
+class Future:
+    def __init__(self, guard, function, args):
+        self.guard, self.function, self.args = guard, function, args
+
+    def result(self):
+        return self.guard.invoke(self.function, *self.args)
+
+
+class Sequential:
+    """Original acquire futures API, no threads or concurrent namespace writers."""
+    def __init__(self, guard, max_workers):
+        need(max_workers == 4, 'intake-original-executor')
+        self.guard = guard
+
+    def __enter__(self):
+        self.guard.live()
+        return self
+
+    def __exit__(self, *args):
+        self.guard.live()
+
+    def submit(self, function, *args):
+        self.guard.live()
+        return Future(self.guard, function, args)
+
+
+class Transport:
+    """Exact selected HTTPS URLs, no proxies or redirects, each action under E."""
+    def __init__(self, guard, items):
+        self.guard = guard
+        self.urls = {row['url']: row for row in items}
+        need(len(self.urls) == len(items), 'intake-url-membership')
+        for url in self.urls:
+            parsed = guard.invoke(urllib.parse.urlsplit, url)
+            need(type(url) is str and len(url) <= 4096 and parsed.scheme == 'https'
+                 and parsed.hostname in HOSTS and parsed.port is None
+                 and parsed.username is None and parsed.password is None
+                 and not parsed.query and not parsed.fragment and parsed.path.startswith('/')
+                 and all(33 <= ord(c) < 127 for c in url), 'intake-url-policy')
+        need(not any(k in os.environ for k in ('SSL_CERT_FILE', 'SSL_CERT_DIR', 'SSLKEYLOGFILE')),
+             'intake-tls-environment')
+        self.context = guard.invoke(ssl.create_default_context)
+
+    def left(self):
+        self.guard.live()
+        left = self.guard.end - time.monotonic()
+        need(left > 0, 'intake-deadline')
+        return min(30.0, left)
+
+    def urlopen(self, url, timeout=60):
+        g = self.guard
+        g.live()
+        need(url in self.urls and type(timeout) in (int, float) and 0 < timeout <= 60,
+             'intake-url-refused')
+        parsed = g.invoke(urllib.parse.urlsplit, url)
+        connection = g.invoke(http.client.HTTPSConnection, parsed.hostname,
+                              timeout=min(timeout, self.left()), context=self.context)
+        g.invoke(connection.connect)
+        sock = connection.sock
+        need(sock is not None, 'intake-socket')
+        g.invoke(sock.settimeout, self.left())
+        g.invoke(connection.request, 'GET', parsed.path, headers={'Accept-Encoding': 'identity'})
+        g.invoke(sock.settimeout, self.left())
+        response = g.invoke(connection.getresponse)
+        g.resources[('object', id(response))] = response
+        need(response.status == 200, 'intake-http-status')
+        need(g.invoke(response.getheader, 'Content-Encoding') in (None, 'identity'), 'intake-http-encoding')
+        length = g.invoke(response.getheader, 'Content-Length')
+        need(length is None or re.fullmatch('[0-9]{1,10}', length) is not None
+             and int(length) == self.urls[url]['size'], 'intake-http-length')
+        return Response(self, response, connection, sock, url, self.urls[url]['size'])
+
+
+class Response:
+    def __init__(self, transport, response, connection, sock, url, size):
+        self.transport, self.response, self.connection, self.sock = transport, response, connection, sock
+        self.url, self.size, self.count = url, size, 0
+
+    def __enter__(self):
+        self.transport.guard.live()
+        return self
+
+    def __exit__(self, *args):
+        g = self.transport.guard
+        g.invoke(self.response.close)
+        g.invoke(self.connection.close)
+
+    def read(self, size):
+        g = self.transport.guard
+        need(type(size) is int and 0 < size <= 1024**2, 'intake-read-size')
+        g.invoke(self.sock.settimeout, self.transport.left())
+        block = g.invoke(self.response.read1, size)
+        need(type(block) is bytes, 'intake-read-type')
+        self.count += len(block)
+        need(self.count <= self.size, 'intake-read-bound')
+        return block
+
+
+def decode(raw):
+    def pairs(rows):
+        value = {}
+        for key, item in rows:
+            need(key not in value, 'intake-json-duplicate')
+            value[key] = item
+        return value
+    return json.loads(raw, object_pairs_hook=pairs,
+                      parse_constant=lambda value: need(False, 'intake-json-constant'))
+
+
+def bounded(function):
+    def run(self, *args, **kwargs):
+        try:
+            guard = getattr(self, 'guard', None)
+            if guard is not None:
+                guard.live()
+            value = function(self, *args, **kwargs)
+            self.guard.live()
+            return value
+        except BaseException as error:
+            guard = getattr(self, 'guard', None)
+            if guard is None:
+                raise
+            raise guard.fail(error)
+    return run
+
+
+def selected_rollback(raw, guard):
+    """Precompile only two pinned cleanup definitions; no actor/import namespace."""
+    tree = guard.invoke(ast.parse, raw)
+    names = {'retained_cache_identity', 'rollback_retained_private_cache'}
+    nodes = [node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name in names]
+    need(len(nodes) == 2 and {node.name for node in nodes} == names, 'intake-cleanup-definitions')
+    code = guard.invoke(compile, ast.Module(nodes, []), '<authenticated-seed-cleanup>', 'exec')
+    namespace = {'__builtins__': {}}
+    guard.invoke(exec, code, namespace)
+    return {name: namespace[name].__code__ for name in names}
+
+
+class SeedCleanup:
+    """Fixed seed-disposal authority under original check/E, never resume Guard."""
+    def __init__(self, guard, receipt, rows):
+        need(type(receipt) is dict and len(receipt) <= 16 and
+             all(type(key) is str for key in receipt), 'intake-cleanup-receipt')
+        need(type(receipt.get('owned')) is list and len(receipt['owned']) <= 6 and
+             type(receipt.get('errors')) is list and len(receipt['errors']) <= 64,
+             'intake-cleanup-receipt')
+        self.guard, self.receipt, self.end, self.last = guard, receipt, guard.end, guard.last
+        need(type(guard.resources) is dict and len(guard.resources) <= 32 and
+             all(type(key) is tuple and len(key) == 2 and type(key[0]) is str and
+                 type(key[1]) is int for key in guard.resources), 'intake-cleanup-resources')
+        self.cache, self.parent, self.directory = receipt.get('cache'), receipt.get('parent'), receipt.get('directory')
+        need(type(self.cache) is type(Path('/')) and type(self.parent) is tuple and
+             len(self.parent) == 5 and all(type(value) is int for value in self.parent),
+             'intake-cleanup-parent')
+        allowed = {row[0] for row in rows}
+        self.journal = {}
+        for row in receipt['owned']:
+            need(type(row) is tuple and len(row) == 2 and type(row[0]) is str and
+                 row[0] in allowed and row[0] not in self.journal, 'intake-cleanup-journal')
+            name, wanted = row
+            need(wanted is None or type(wanted) is tuple and len(wanted) == 5 and
+                 all(type(value) is int for value in wanted), 'intake-cleanup-journal')
+            self.journal[name] = wanted
+        self.os = SimpleNamespace(fstat=self.fstat, stat=self.stat, unlink=self.unlink,
+            close=self.close, lseek=self.lseek, listdir=self.listdir, SEEK_SET=os.SEEK_SET)
+
+    def live(self):
+        # No Guard.first reset: this is disposal, not another business operation.
+        self.guard.check()
+        now = time.monotonic()
+        need(type(now) in (int, float) and math.isfinite(now) and
+             (self.last is None or now >= self.last) and now < self.end,
+             'intake-cleanup-original-end')
+        self.last = now
+
+    def within(self, end):
+        need(type(end) in (int, float) and end == self.end, 'intake-cleanup-original-end')
+        self.live()
+
+    def identity(self, node):
+        return (node.st_dev, node.st_ino, node.st_mode, node.st_uid, node.st_gid)
+
+    def parent_fd(self, fd):
+        need(type(fd) is int and type(self.directory) is int and fd == self.directory,
+             'intake-cleanup-dirfd')
+        held = self.guard.resources.get(('fd', fd))
+        need(type(held) is int and held == fd, 'intake-cleanup-dirfd')
+        self.live()
+        node = os.fstat(fd)
+        need(self.identity(node) == self.parent and stat.S_ISDIR(node.st_mode), 'intake-cleanup-parent')
+        self.live()
+        return node
+
+    def cache_stat(self):
+        self.live()
+        node = self.cache.lstat()
+        need(self.identity(node) == self.parent and stat.S_ISDIR(node.st_mode), 'intake-cleanup-parent')
+        self.live()
+        return node
+
+    def fstat(self, fd):
+        return self.parent_fd(fd)
+
+    def stat(self, name, *, dir_fd, follow_symlinks):
+        need(type(name) is str and name in self.journal and follow_symlinks is False,
+             'intake-cleanup-name')
+        self.parent_fd(dir_fd); self.cache_stat()
+        node = os.stat(name, dir_fd=dir_fd, follow_symlinks=False)
+        self.live()
+        return node
+
+    def unlink(self, name, *, dir_fd):
+        node = self.stat(name, dir_fd=dir_fd, follow_symlinks=False)
+        wanted = self.journal[name]
+        need(wanted is not None and self.identity(node) == wanted and
+             stat.S_ISREG(node.st_mode) and stat.S_IMODE(node.st_mode) == 0o600 and node.st_nlink == 1,
+             'intake-cleanup-owner')
+        os.unlink(name, dir_fd=dir_fd)
+        self.live()
+
+    def lseek(self, fd, offset, whence):
+        need(type(offset) is int and offset == 0 and type(whence) is int and whence == os.SEEK_SET,
+             'intake-cleanup-seek')
+        self.parent_fd(fd); self.cache_stat()
+        value = os.lseek(fd, offset, whence)
+        self.live()
+        return value
+
+    def listdir(self, fd):
+        self.parent_fd(fd); self.cache_stat()
+        value = os.listdir(fd)
+        self.live()
+        return value
+
+    def close(self, fd):
+        self.parent_fd(fd); self.cache_stat()
+        os.close(fd)
+        self.guard.resources.pop(('fd', fd))
+        self.live()
+
+    def retire_descriptors(self):
+        """Close only recorded seed fds whose live identity is independently held."""
+        need(type(self.guard.resources) is dict and len(self.guard.resources) <= 32,
+             'intake-cleanup-resources')
+        for key, fd in tuple(self.guard.resources.items()):
+            need(type(key) is tuple and len(key) == 2 and type(key[0]) is str and key[0] == 'fd' and
+                 type(key[1]) is int and type(fd) is int and key == ('fd', fd),
+                 'intake-cleanup-unbound-resource')
+            if fd == self.directory:
+                continue
+            self.live()
+            node = os.fstat(fd)
+            wanted = self.identity(node)
+            parent = wanted == self.parent and stat.S_ISDIR(node.st_mode)
+            owned = wanted in tuple(value for value in self.journal.values() if value is not None)
+            owned = owned and stat.S_ISREG(node.st_mode) and stat.S_IMODE(node.st_mode) == 0o600 and node.st_nlink == 1
+            need(parent or owned, 'intake-cleanup-unbound-resource')
+            self.live()
+            os.close(fd)
+            self.guard.resources.pop(key)
+            self.live()
+
+
+class CacheIntake:
+    @bounded
+    def __init__(self, native_raw, controller_raw, packet_raw, inputs_raw, *, work_end, check):
+        self.guard = g = Guard(work_end, check)
+        for name, raw in (('native', native_raw), ('controller', controller_raw),
+                          ('packet', packet_raw), ('inputs', inputs_raw)):
+            g.live()
+            need(type(raw) is bytes and len(raw) <= 2*1024**2, 'intake-source-buffer')
+            need(g.invoke(hashlib.sha256, raw).hexdigest() == PINS[name], 'intake-source-pin')
+            g.live()
+        self.packet = g.invoke(decode, packet_raw)
+        self.inputs = g.invoke(decode, inputs_raw)
+        need(self.packet['metadata_pins']['scripts/ci/inputs.lock.json'] == PINS['inputs'],
+             'intake-packet-input')
+        need(self.packet['source_files']['scripts/ci/native_arm.py']['sha256'] == PINS['native']
+             and self.packet['source_files']['scripts/ci/development/controller.py']['sha256']
+             == PINS['controller'], 'intake-packet-source')
+        self.items = list(self.inputs['keyring_files'])
+        for row in [self.inputs['rootfs'], *self.inputs['packages']]:
+            self.items.extend([row, {'filename': row['filename']+'.sig', 'url': row['url']+'.sig',
+                                   'size': row['signature_size'], 'sha256': row['signature_sha256']}])
+        need(len(self.items) == 501 and len({r['filename'] for r in self.items}) == 501
+             and sum(r['size'] for r in self.items) <= 4*1024**3, 'intake-exact501')
+        base = dict(os=os, re=re, hashlib=hashlib, json=json, tempfile=tempfile, Path=Path,
+                    sys=sys, base64=base64, stat=stat, require=need,
+                    within=lambda end: (need(end == g.end, 'intake-original-end'), g.live()))
+        self.seed_namespace = dict(base)
+        selected(controller_raw, {'OLD_FOUR_PRIVATE_PREFIX', 'OLD_FOUR_PRIVATE_ROWS',
+                                  'seed_old_four_private_cache', 'RETAINED_BUBBLEWRAP_PRIVATE_PREFIX',
+                                  'RETAINED_BUBBLEWRAP_PRIVATE_ROWS', 'RETAINED_BUBBLEWRAP_INPUT_SHA256',
+                                  'capture_retained_private_environment', 'retained_cache_identity',
+                                  'seed_retained_private_cache', 'finish_retained_private_cache',
+                                  'rollback_retained_private_cache'}, self.seed_namespace, g)
+        self.rollback_codes = selected_rollback(controller_raw, g)
+        self.native = dict(base)
+        self.native['json'] = SimpleNamespace(dump=self.receipt_dump)
+        self.native['urllib'] = SimpleNamespace(error=urllib.error)
+        self.native['concurrent'] = SimpleNamespace(futures=SimpleNamespace(
+            ThreadPoolExecutor=lambda max_workers: Sequential(g, max_workers),
+            as_completed=lambda futures: iter(futures)))
+        selected(native_raw, {'AcquisitionError', 'input_name', 'check_pin', 'fetch', 'acquire'}, self.native, g)
+        self.native['sha'] = self.file_hash
+        self.state = 'NEW'
+        g.live()
+
+    def receipt_dump(self, value, stream, **options):
+        raw = self.guard.invoke(json.dumps, value, **options)
+        need(len(raw) <= 2*1024**2, 'intake-receipt-bound')
+        for offset in range(0, len(raw), 65536):
+            self.guard.invoke(stream.write, raw[offset:offset+65536])
+
+    def identity(self, node):
+        return tuple(getattr(node, field) for field in FIELDS)
+
+    def directory(self, path):
+        g = self.guard
+        path = Path(path)
+        need(path.is_absolute() and '..' not in path.parts, 'intake-absolute-directory')
+        uid, gid = g.invoke(os.getuid), g.invoke(os.getgid)
+        for parent in path.parents:
+            info = g.invoke(parent.lstat)
+            need(stat.S_ISDIR(info.st_mode) and info.st_uid in (0, uid)
+                 and (not info.st_mode & 0o022
+                      or parent == Path('/tmp') and info.st_uid == info.st_gid == 0
+                      and stat.S_IMODE(info.st_mode) == 0o1777), 'intake-directory-ancestor')
+        info = g.invoke(path.lstat)
+        need(stat.S_ISDIR(info.st_mode) and stat.S_IMODE(info.st_mode) == 0o700
+             and info.st_uid == uid and info.st_gid == gid, 'intake-private-directory')
+        return path, self.identity(info)
+
+    @bounded
+    def seed(self, cache, *, captured, receipt):
+        need(self.state == 'NEW', 'intake-seed-order')
+        cache, known = self.directory(cache)
+        need(not self.guard.invoke(os.listdir, cache), 'intake-fresh-cache')
+        self.retained_seed_receipt = receipt
+        self.guard.invoke(self.seed_namespace['seed_retained_private_cache'], cache, self.packet,
+                          self.guard.end, receipt, captured)
+        need(self.identity(self.guard.invoke(cache.lstat))[:6] == known[:6], 'intake-cache-directory-drift')
+        self.cache, self.cache_identity, self.state = cache, known[:6], 'SEEDED'
+
+    def finish_seed(self, receipt):
+        return self.guard.invoke(self.seed_namespace['finish_retained_private_cache'],
+                                 receipt, self.guard.end)
+
+    def rollback_seed(self, receipt, first):
+        need(receipt is self.retained_seed_receipt, 'intake-cleanup-receipt')
+        receipt['uncertain'] = True
+        if 'parent' not in receipt:
+            return
+        cleanup = SeedCleanup(self.guard, receipt,
+            self.seed_namespace['OLD_FOUR_PRIVATE_ROWS'] + self.seed_namespace['RETAINED_BUBBLEWRAP_PRIVATE_ROWS'])
+        cleanup.retire_descriptors()
+        builtins = dict(BaseException=BaseException, Exception=Exception, ValueError=ValueError,
+                        reversed=reversed, isinstance=isinstance)
+        namespace = {'__builtins__': builtins, 'os': cleanup.os, 'within': cleanup.within,
+                     'require': need, 'stat': stat}
+        for name, code in self.rollback_codes.items():
+            namespace[name] = FunctionType(code, namespace, name)
+        view = dict(receipt)
+        view['cache'] = SimpleNamespace(lstat=cleanup.cache_stat)
+        try:
+            return namespace['rollback_retained_private_cache'](view, self.guard.end, first)
+        finally:
+            for name in ('directory', 'state', 'uncertain'):
+                if name in view:receipt[name] = view[name]
+            if self.guard.resources:
+                receipt['uncertain'] = True
+
+    def file_hash(self, path):
+        g = self.guard
+        path = Path(path)
+        before = g.invoke(path.lstat)
+        fd = g.invoke(os.open, path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC)
+        opened = g.invoke(os.fstat, fd)
+        need(self.identity(before) == self.identity(opened), 'intake-open-drift')
+        digest = hashlib.sha256()
+        count = 0
+        while True:
+            block = g.invoke(os.read, fd, 1024**2)
+            if not block:
+                break
+            count += len(block)
+            need(count <= 2*1024**3, 'intake-hash-bound')
+            g.invoke(digest.update, block)
+        value = g.invoke(digest.hexdigest)
+        after = g.invoke(os.fstat, fd)
+        named = g.invoke(path.lstat)
+        need(self.identity(before) == self.identity(after) == self.identity(named), 'intake-hash-drift')
+        g.invoke(os.close, fd)
+        return value
+
+    @bounded
+    def verify(self):
+        g, cache = self.guard, self.cache
+        need(self.identity(g.invoke(cache.lstat))[:6] == self.cache_identity, 'intake-cache-directory-drift')
+        names = g.invoke(os.listdir, cache)
+        need(len(names) == 501 and set(names) == {r['filename'] for r in self.items}, 'intake-cache-membership')
+        uid, gid = g.invoke(os.getuid), g.invoke(os.getgid)
+        observed = []
+        for row in self.items:
+            path = cache / row['filename']
+            before = g.invoke(path.lstat)
+            need(stat.S_ISREG(before.st_mode) and before.st_nlink == 1
+                 and stat.S_IMODE(before.st_mode) == 0o600 and before.st_uid == uid
+                 and before.st_gid == gid and before.st_size == row['size'], 'intake-cache-file')
+            pin = self.file_hash(path)
+            after = g.invoke(path.lstat)
+            need(pin == row['sha256'] and self.identity(before) == self.identity(after), 'intake-cache-pin-drift')
+            observed.append({'filename': row['filename'], 'sha256': pin, 'bytes': row['size'],
+                             'identity': self.identity(after)})
+        after_names = g.invoke(os.listdir, cache)
+        need(len(after_names) == 501 and set(after_names) == set(names), 'intake-cache-enumeration-drift')
+        need(self.identity(g.invoke(cache.lstat))[:6] == self.cache_identity, 'intake-cache-directory-drift')
+        g.live()
+        return observed
+
+    @bounded
+    def acquire(self, cache, evidence):
+        need(self.state == 'SEEDED' and Path(cache) == self.cache, 'intake-acquire-order')
+        evidence, known = self.directory(evidence)
+        need(evidence != self.cache and not evidence.is_relative_to(self.cache)
+             and not self.cache.is_relative_to(evidence), 'intake-directory-separation')
+        need(not self.guard.invoke(os.listdir, evidence), 'intake-fresh-evidence')
+        self.state = 'ACQUIRING'
+        self.native['urllib'].request = SimpleNamespace(urlopen=Transport(self.guard, self.items).urlopen)
+        try:
+            result = self.guard.invoke(self.native['acquire'], self.items, self.cache, evidence)
+            need(result['acquisition'] == 'PASS' and result['signature_authentication'] == 'NOT RUN'
+                 and result['counts'] == {'total': 501, 'pass': 501, 'fail': 0, 'pending': 0}, 'intake-acquisition')
+            observed = self.verify()
+            need(self.identity(self.guard.invoke(evidence.lstat))[:6] == known[:6], 'intake-evidence-drift')
+            need(not self.guard.resources, 'intake-resource-uncertainty')
+            self.state = 'QUIESCENT'
+            return {'status': 'TRANSPORT_ONLY', 'signature_authentication': 'NOT RUN',
+                    'native_build': 'NOT RUN', 'objects': observed, 'work_end': self.guard.end,
+                    'counts': dict(result['counts']), 'sole_writer_required': True}
+        except BaseException as error:
+            self.state = 'FAILED'
+            raise self.guard.fail(error)

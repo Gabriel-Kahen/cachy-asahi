@@ -49,6 +49,8 @@ class PacketTests(unittest.TestCase):
                            packet.WORKFLOW: b'fixture workflow\n',
                            packet.DOCUMENT: b'fixture doc\n'}.items():
             write(name, data, 0o755 if name.endswith('.sh') else 0o644)
+        for name in packet.DONORS:
+            write(packet.PREFIX + name, b'fixture pinned donor\n')
         self.recipes = {}
         for base in sorted(packet.RECIPE_BASES):
             name = Path(base).name
@@ -69,7 +71,8 @@ class PacketTests(unittest.TestCase):
         write(packet.PREFIX + 'packet.lock.json', b'{}\n')
         self.helper_pins = {name: (packet.sha(self.contents[name]), (self.root / name).stat().st_mode & 0o777)
                             for name in ('LICENSE', 'AGENTS.md', 'scripts/setup/setup.py', 'scripts/ci/native_arm.py')}
-        self.pins = {'HELPERS': self.helper_pins, 'RECIPE_COUNT': 4, 'KERNEL_COUNT': 1, 'KERNEL_SHA': packet.sha(self.contents[packet.KERNEL + 'stage.lock.json']),
+        self.pins = {'DONORS': {name: packet.sha(self.contents[packet.PREFIX + name]) for name in packet.DONORS},
+                     'HELPERS': self.helper_pins, 'RECIPE_COUNT': 4, 'KERNEL_COUNT': 1, 'KERNEL_SHA': packet.sha(self.contents[packet.KERNEL + 'stage.lock.json']),
                      'RECIPES_SHA': packet.sha(self.contents['scripts/ci/recipes.lock.json']),
                      'INPUTS_SHA': packet.sha(self.contents['scripts/ci/inputs.lock.json'])}
         patcher = mock.patch.multiple(packet, **self.pins)

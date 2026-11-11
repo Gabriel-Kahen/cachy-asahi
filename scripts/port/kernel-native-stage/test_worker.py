@@ -197,7 +197,7 @@ class DiagnosticExecute(unittest.TestCase):
         with ExitStack() as stack:
             stack.enter_context(patch.dict(module.os.environ, {'KERNEL_STAGE_ACTION': 'baseline'}))
             for name, value in {'Path': MagicMock(), 'load': MagicMock(side_effect=[contract, {'expected_inventory': 'inert'}]),
-                'code_contract': MagicMock(), 'regular': MagicMock(), 'digest': MagicMock(return_value='d'*64),
+                'code_contract': MagicMock(), 'regular': MagicMock(), 'digest': MagicMock(return_value=hashlib.sha256(b'original').hexdigest()),
                 'Runner': MagicMock(return_value=runner), 'profile': MagicMock(side_effect=lambda *a: trace.append('profile') or {}),
                 'package_map': MagicMock(side_effect=lambda *a: trace.append('inventory') or {}),
                 'tools': MagicMock(side_effect=lambda *a: trace.append('tools') or {}), 'compile_variant': compile_one,
@@ -274,7 +274,7 @@ class DiagnosticExecute(unittest.TestCase):
                 self.assertEqual('KERNEL', row['command']); self.assertEqual('ISSUED', row['attempt'])
                 self.assertEqual('RETURNED' if business is None or type(business) is int else 'UNOBSERVED', row['natural_return']['kind'])
                 group = inner_result.capture(json.dumps(report).encode(), BINDING)
-                self.assertEqual('REFUSED' if business is None or isinstance(business, SystemExit) else 'VERIFIED', group['availability'])
+                self.assertEqual('REFUSED' if business is None else 'VERIFIED', group['availability'])
                 self.assertEqual('PASS' if business is None else 'FAIL', report['status'])
                 self.assertEqual(0 if business is None else None, result['return'])
                 if business is not None: self.assertIsNotNone(result['error'])
@@ -358,6 +358,36 @@ class DiagnosticExecute(unittest.TestCase):
                 self.assertEqual(isinstance(error, (Cancelled, KeyboardInterrupt, SystemExit)), report['cancelled'])
                 self.assertEqual('REFUSED', inner_result.capture(json.dumps(report).encode(), BINDING)['availability'])
 
+
+
+
+def relocation_fixture():
+    return {'role': 'arm64-image-reference', 'elf_type': 3, 'branch': 'NULL_LINK_RELATIVE',
+        'failed_check': 'INFO_RELATIVE', 'section': {'index': 3, 'type': 4, 'flags': 2,
+        'link': 0, 'info': 0, 'entry_index': 0}, 'offset': 4097, 'info': 1028,
+        'symbol_count': None, 'target_size': None,
+        'allocated': {'start_count': 1, 'full_count': 1, 'first_start': {'index': 1, 'address': 4096, 'size': 32}},
+        'load': {'start_count': 1, 'full_count': 1, 'first_start': {'index': 0, 'address': 4096, 'size': 32}}}
+
+
+class RelocationWorkerBoundary(unittest.TestCase):
+    def test_original_verifier_called_once_error_identity_and_cleanup_controls_held(self):
+        for invalid in (False,True):
+            row=inner_result.initial(BINDING);inner_result.phase(row,'KERNEL')
+            inner_result.issued(row,'KERNEL');inner_result.returned(row,0);inner_result.phase(row,'OUTPUTS')
+            report={'inner_diagnostic':row};error=ValueError('ELF relocation index/offset invalid')
+            error.relocation_failure={'private':'secret'} if invalid else relocation_fixture()
+            verifier=MagicMock();verifier.verify_outputs.side_effect=error
+            with self.assertRaises(ValueError) as caught:
+                worker.verify_output_structure(verifier,'build','source','config',report)
+            self.assertIs(caught.exception,error)
+            verifier.verify_outputs.assert_called_once_with('build','source','config')
+            self.assertEqual(row['first_failure'],{'phase':'OUTPUTS','command':'KERNEL','error_kind':'DATA_REFUSAL'})
+            self.assertEqual(row['natural_return'],{'kind':'RETURNED','code':0})
+            if invalid:
+                self.assertTrue(row['write_failed']);self.assertIsNone(error.__cause__)
+            else:
+                self.assertEqual(row['schema_version'],5);self.assertFalse(row['write_failed'])
 
 
 if __name__ == '__main__':

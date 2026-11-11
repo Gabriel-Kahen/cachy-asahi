@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT
 """Finite disposable hosted job using the original producer and held kernel stage."""
 import argparse
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -19,10 +20,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import packet
 import public
 import runtime
+import current_cache
 
 SETUP, PARALLEL, KERNEL_ENVELOPE, CLEANUP, GUARD = 300, 2050, 18240, 150, 20
 DEADLINE = SETUP + PARALLEL + KERNEL_ENVELOPE + CLEANUP + GUARD
-BASE_SHA = '89bdb06fea1862b5a6e02b77a4b98f6e04755b02327d875a716bd792929f3a4f'
+BASE_SHA = 'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25'
 KERNEL_API_VERSION = '1.48'
 HOST_ENV = ('GITHUB_SHA', 'GITHUB_REPOSITORY', 'GITHUB_RUN_ID', 'GITHUB_RUN_ATTEMPT',
             'RUNNER_ARCH', 'RUNNER_OS', 'ImageVersion', 'ImageOS')
@@ -60,6 +62,36 @@ def initial(args):
             'pre_identity_sha256': None, 'post_identity_sha256': None, 'preservation': 'NOT_RUN',
             'owned_absence': 'NOT_RUN', 'producer_mutation': 'NOT_STARTED',
             'legacy_build_cache': 'NOT_ESTABLISHED'}}
+
+
+def observe_parallel_first_failure(status, runner):
+    """Optional finite data only, after the original parallel call returns."""
+    try:
+        codes=getattr(runner,'parallel_first_failure',None)
+        if codes is not None:status['parallel_first_failure']=public.parallel_failure_record(codes)
+    except Exception:
+        return
+
+
+def observe_acquisition_failure(status, result, nonce):
+    """Only the exact captured acquisition process, with a fresh parent binding."""
+    group={'availability':'UNAVAILABLE','reason':'MISSING','sha256':None,'diagnostic':None}
+    try:
+        packet.need(type(nonce) is str and re.fullmatch('[0-9a-f]{32}',nonce), 'acquisition-diagnostic-binding')
+        data=result.stdout
+        packet.need(type(data) is bytes and len(data)<=runtime.MAX_OUTPUT,'acquisition-diagnostic-output')
+        marker=b'KERNEL_ACQUISITION_FAILURE_V1 '
+        found=[line[len(marker):] for line in data.splitlines() if line.startswith(marker)]
+        if found:
+            packet.need(len(found)==1 and len(found[0])<=512,'acquisition-diagnostic-record')
+            record=packet.decode(found[0]);public.acquisition_failure_record(record)
+            packet.need(record['binding_sha256']==hashlib.sha256(nonce.encode('ascii')).hexdigest(),'acquisition-diagnostic-binding')
+            canonical=json.dumps(record,sort_keys=True,separators=(',',':'),allow_nan=False).encode()
+            packet.need(found[0]==canonical,'acquisition-diagnostic-format')
+            group={'availability':'VERIFIED','reason':'OBSERVED','sha256':hashlib.sha256(canonical+b'\n').hexdigest(),'diagnostic':record}
+    except Exception:
+        group={'availability':'REFUSED','reason':'INVALID','sha256':None,'diagnostic':None}
+    status['acquisition_failure']=group
 
 
 def failure_reason(error, phase, fallback):
@@ -627,6 +659,15 @@ def work(args, terminal, start):
         context = ('source', 'SOURCE_REJECTED')
         snapshot = private / 'source'
         evidence['source'] = packet.verify(root, args.packet, args.packet_sha256, args.source_commit, setup, snapshot)
+        # Seed only the four recovered inputs under the existing SETUP endpoint.
+        try:
+            evidence['cache_seed'] = current_cache.seed(snapshot, private, setup, start,
+                                                       evidence['source']['files_map'])
+        finally:
+            observed = getattr(setup, 'current_cache_observation', None)
+            if type(observed) is dict:
+                evidence['cache_seed'] = observed
+                if observed['cancelled']: status['cancelled'] = True
         context = ('source', 'DOCKER_REJECTED')
         docker = Docker(args); evidence['daemon'] = docker.info(setup)
         context = ('source', 'DAEMON_BASELINE_UNVERIFIED')
@@ -636,8 +677,10 @@ def work(args, terminal, start):
         packet.need(DEADLINE - (time.monotonic() - start) >= PARALLEL + KERNEL_ENVELOPE + CLEANUP + GUARD, 'producer-time-reserve')
         status['phase'] = 'producer'
         context = ('parallel', 'PARALLEL_RUN_FAILED')
+        acquisition_nonce=secrets.token_hex(16)
         commands = [producer_command(snapshot, private), ['/usr/bin/python3', '-I', '-B',
-            str(snapshot / (packet.KERNEL + 'acquisition.py')), '--root', str(snapshot), '--output', str(private / 'kernel-inputs')]]
+            str(snapshot / (packet.KERNEL + 'acquisition.py')), '--root', str(snapshot),
+            '--diagnostic-nonce', acquisition_nonce, '--output', str(private / 'kernel-inputs')]]
         # Acquisition requires owned artifact placement relative to its snapshot.
         commands[1][-1] = str(snapshot / 'artifacts/kernel-native-stage/acquisition')
         phase = runtime.Runner(PARALLEL, env, private / 'phase-logs')
@@ -650,11 +693,13 @@ def work(args, terminal, start):
         packet.need(type(results) in (list, tuple) and len(results) == 2, 'parallel-results')
         exits = [public.exit_record(result.returncode) for result in results]
         status.update(producer_exit=exits[0], acquisition_exit=exits[1])
+        observe_parallel_first_failure(status, phase)
         failed = [result['code'] != 0 for result in exits]
         if any(failed):
             if failed[0]: status['producer'] = 'FAIL'
             reason = 'BOTH_CHILDREN_EXIT' if all(failed) else 'PRODUCER_EXIT' if failed[0] else 'ACQUISITION_EXIT'
             public.record_failure(status, 'parallel', reason)
+            if failed[1]: observe_acquisition_failure(status, results[1], acquisition_nonce)
         packet.need(not any(failed), 'producer-or-acquisition-failed')
         context = ('producer', 'PRODUCER_RECEIPT_REJECTED')
         status['daemon_baseline']['producer_mutation'] = 'COMPLETE_REJECTED'

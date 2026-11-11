@@ -52,6 +52,9 @@ class RuntimeTests(unittest.TestCase):
         rows = self.runner.run_many([self.command('import sys;sys.exit(7)'),
                                     self.command('import time;time.sleep(30)')], 3, [None, None])
         self.assertEqual(rows[0].returncode, 7)
+        self.assertEqual(self.runner.parallel_first_failure, (7, None))
+        self.assertEqual(self.runner.run(self.command('pass'), timeout=2).returncode, 0)
+        self.assertIsNone(self.runner.parallel_first_failure)
         self.assertLess(rows[1].returncode, 0)
 
     def test_shared_deadline_is_not_per_child(self):

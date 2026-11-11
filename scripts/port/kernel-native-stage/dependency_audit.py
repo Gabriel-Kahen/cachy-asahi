@@ -12,8 +12,8 @@ import sys
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[3]
-BASE = '3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650'
-INVENTORY = '89bdb06fea1862b5a6e02b77a4b98f6e04755b02327d875a716bd792929f3a4f'
+BASE = 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'
+INVENTORY = 'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25'
 ROOTS = ('rust', 'rust-src', 'rust-bindgen', 'pahole', 'bc', 'dtc', 'xmlto', 'clang', 'llvm')
 MAX_BYTES = 800 * 1024**2
 HELPERS = {
