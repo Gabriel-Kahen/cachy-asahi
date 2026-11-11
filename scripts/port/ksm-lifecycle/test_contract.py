@@ -18,7 +18,7 @@ import contract as c
 RECIPE = Path(__file__).resolve().parents[3] / 'packages/tools/cachy-asahi-ksmctl'
 ROOT = RECIPE.parents[2]
 LOCK = ROOT / 'scripts/port/refreshed-desktop/proposed-builder-inventory.lock'
-LOCK_SHA = '89bdb06fea1862b5a6e02b77a4b98f6e04755b02327d875a716bd792929f3a4f'
+LOCK_SHA = 'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25'
 EPOCH = 1791748800
 IMAGE = 'sha256:' + 'a' * 64
 FILENAME = f'{c.NAME}-{c.VERSION}-any.pkg.tar.xz'

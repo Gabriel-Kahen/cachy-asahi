@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Controller fixtures: no Docker daemon, native build, install, or host mutation."""
+import ast
 import copy
 from contextlib import ExitStack, contextmanager
+import io
 import json
 import os
 import signal
@@ -420,6 +422,20 @@ class StageTests(unittest.TestCase):
                 s.phase_run(ENDPOINT, 'local-daemon', IMAGE, self.source, self.out, c, report, docker=docker)
         return report['phases'][0], commands, removals
 
+    def test_contract_mode_is_exact_under_restrictive_umask(self):
+        for mask in (0o022, 0o027, 0o077):
+            with self.subTest(umask=oct(mask)):
+                path = self.source / 'inputs.json'
+                path.unlink(missing_ok=True)
+                previous = os.umask(mask)
+                try:
+                    row, _, _ = self.phase()
+                finally:
+                    os.umask(previous)
+                self.assertEqual(row['status'], 'PASS')
+                self.assertEqual(path.stat().st_mode & 0o777, 0o644)
+                self.assertEqual(json.loads(path.read_bytes()), contract())
+
     def test_phase_pass_only_after_cleanup(self):
         row, _, removals = self.phase()
         self.assertEqual((row['status'], row['container_cleanup']), ('PASS', 'PASS'))
@@ -726,6 +742,779 @@ class StageTests(unittest.TestCase):
                     s.controller(SimpleNamespace())
                 docker.assert_not_called()
                 checked.assert_not_called()
+
+
+
+class StageDiagnosticTests(unittest.TestCase):
+    """Closed observations with inert phase collaborators; no daemon or worker."""
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory(prefix='ksmd-')
+        self.addCleanup(self.tmp.cleanup)
+        self.source, self.out = [Path(self.tmp.name) / name for name in ('source', 'out')]
+        self.source.mkdir(); self.out.mkdir()
+        s.diagnostic_start(SimpleNamespace(source_commit=COMMIT, run_id='123'))
+        self.addCleanup(setattr, s, '_DIAGNOSTIC', None)
+        s.base.CANCELLED = False
+        self.addCleanup(setattr, s.base, 'CANCELLED', False)
+
+    def phase(self, *, phase='sign', code=0, worker=True, invalid_id=False,
+              cleanup=False, cancel=False, attach_error=None, contract_error=False, cleanup_cancel=False):
+        c = contract(phase)
+        obj = inspected(c, self.source, self.out)
+        report = {'phases': []}
+        def success(argv, **kwargs):
+            if argv[2:4] == ['container', 'ls']:
+                return b''
+            if argv[2] == 'create':
+                return b'invalid' if invalid_id else CID.encode()
+            if argv[2] == 'inspect':
+                return json.dumps([obj]).encode()
+            raise AssertionError(argv)
+        def bounded(argv, **kwargs):
+            if argv[2] == 'start':
+                if cancel:
+                    s.base.CANCELLED = True
+                    raise KeyboardInterrupt('PRIVATE_CANCEL_SENTINEL')
+                if attach_error is not None:
+                    raise attach_error
+                if worker:
+                    (self.out / 'worker-receipt.json').write_text(json.dumps(receipt(c)))
+                return code, b'PRIVATE_ATTACH_SENTINEL'
+            if argv[2] == 'inspect':
+                return 0, json.dumps([obj]).encode()
+            raise AssertionError(argv)
+        def remove(*args):
+            if cleanup_cancel:
+                raise KeyboardInterrupt('PRIVATE_CLEANUP_CANCEL_SENTINEL')
+            if cleanup:
+                s.need(False, 'owned-container-absence-unconfirmed')
+        docker = SimpleNamespace(endpoint=ENDPOINT, expected='local-daemon', successful=success,
+                                 bounded=bounded, remove=remove, absent=mock.Mock())
+        with ExitStack() as stack:
+            if contract_error:
+                stack.enter_context(mock.patch.object(s.os, 'open', side_effect=PermissionError('PRIVATE_PATH_SENTINEL')))
+            try:
+                s.phase_run(ENDPOINT, 'local-daemon', IMAGE, self.source, self.out, c, report, docker=docker)
+            except (ValueError, OSError, KeyboardInterrupt) as error:
+                return report, error
+        return report, None
+
+    def record(self):
+        stream = io.StringIO()
+        with mock.patch.object(s.sys, 'stdout', stream):
+            s.diagnostic_emit()
+            s.diagnostic_emit()
+        lines = stream.getvalue().splitlines()
+        self.assertEqual(len(lines), 1)
+        self.assertTrue(lines[0].startswith(s.DIAGNOSTIC_PREFIX))
+        self.assertLessEqual(len(stream.getvalue().encode()), s.DIAGNOSTIC_MAX_BYTES)
+        for sentinel in ('PRIVATE_', 'worker-receipt.json', 'Traceback'):
+            self.assertNotIn(sentinel, stream.getvalue())
+        record = json.loads(lines[0][len(s.DIAGNOSTIC_PREFIX):])
+        self.assertEqual(set(record), {'schema_version', 'source_commit', 'run_id', 'first_failure',
+                                      'cleanup_failure', 'cancelled', 'attach_return'})
+        self.assertEqual((record['source_commit'], record['run_id']), (COMMIT, '123'))
+        return record
+
+    def test_source_check_provenance_and_foreign_messages(self):
+        for factory, expected in ((lambda: ValueError('worker-phase-failed'), 'UNKNOWN'),
+                                  (lambda: KeyError('PRIVATE_PATH_SENTINEL'), 'UNKNOWN')):
+            with self.subTest(expected=expected):
+                s.diagnostic_start(SimpleNamespace(source_commit=COMMIT, run_id='123'))
+                s.diagnostic_site('WORKER_RESULT', 'SIGN')
+                s.diagnostic_failure(factory())
+                self.assertEqual(s._DIAGNOSTIC['first_failure']['check'], expected)
+        s.diagnostic_start(SimpleNamespace(source_commit=COMMIT, run_id='123'))
+        try:
+            s.need(False, 'worker-phase-failed')
+        except ValueError as error:
+            self.assertIs(type(error), ValueError)
+            self.assertEqual(error.args, ('worker-phase-failed',))
+            s.diagnostic_failure(error)
+        self.assertEqual(self.record()['first_failure']['check'], 'worker-phase-failed')
+
+    def test_forged_provenance_subclass_and_unknown_check_are_not_exported(self):
+        class Foreign(ValueError):
+            pass
+        for error in (ValueError('PRIVATE_ERROR_SENTINEL'), Foreign('worker-phase-failed')):
+            error._ksm_check = (object(), 'worker-phase-failed')
+            s.diagnostic_start(SimpleNamespace(source_commit=COMMIT, run_id='123'))
+            s.diagnostic_failure(error)
+            self.assertEqual(s._DIAGNOSTIC['first_failure']['check'], 'UNKNOWN')
+        s.diagnostic_start(SimpleNamespace(source_commit=COMMIT, run_id='123'))
+        try:
+            s.need(False, 'PRIVATE_UNKNOWN_CHECK_SENTINEL')
+        except ValueError as error:
+            s.diagnostic_failure(error)
+        self.assertEqual(self.record()['first_failure']['check'], 'UNKNOWN')
+
+    def test_first_source_failure_survives_cleanup_and_generic_mask(self):
+        report, error = self.phase(invalid_id=True, cleanup=True)
+        self.assertEqual(str(error), 'phase-or-cleanup-failed')  # Existing exception policy holds.
+        self.assertEqual(report['phases'][0]['container_cleanup'], 'FAIL')
+        record = self.record()
+        self.assertEqual(record['first_failure'], {'selector': 'SIGN', 'site': 'CREATED_ID',
+                         'check': 'invalid-created-container-id', 'category': 'VALUE_ERROR'})
+        self.assertEqual(record['cleanup_failure'], {'selector': 'SIGN', 'site': 'CLEANUP_REMOVE',
+                         'check': 'owned-container-absence-unconfirmed', 'category': 'VALUE_ERROR'})
+        self.assertEqual(record['attach_return'], {'SIGN': None, 'LIFECYCLE': None})
+
+    def test_return_zero_with_missing_receipt_is_observed_without_acceptance(self):
+        report, error = self.phase(worker=False)
+        self.assertEqual(str(error), 'phase-or-cleanup-failed')
+        self.assertNotIn('worker', report['phases'][0])
+        self.assertEqual(report['phases'][0]['status'], 'FAIL')
+        record = self.record()
+        self.assertEqual(record['attach_return']['SIGN'], 0)
+        self.assertEqual(record['first_failure'], {'selector': 'SIGN', 'site': 'RECEIPT_READ',
+                                                  'check': 'UNKNOWN', 'category': 'OS_ERROR'})
+        self.assertIsNone(record['cleanup_failure'])
+
+    def test_nonzero_return_with_missing_receipt_is_not_worker_result(self):
+        _, error = self.phase(phase='lifecycle', code=17, worker=False)
+        self.assertIsInstance(error, ValueError)
+        record = self.record()
+        self.assertEqual(record['attach_return'], {'SIGN': None, 'LIFECYCLE': 17})
+        self.assertEqual(record['first_failure']['site'], 'RECEIPT_READ')
+        self.assertEqual(record['first_failure']['check'], 'UNKNOWN')
+
+    def test_nonzero_observed_return_keeps_bound_worker_guard_distinct(self):
+        report, error = self.phase(code=17)
+        self.assertEqual(str(error), 'phase-or-cleanup-failed')
+        self.assertEqual(report['phases'][0]['worker']['status'], 'PASS')
+        record = self.record()
+        self.assertEqual(record['attach_return']['SIGN'], 17)
+        self.assertEqual(record['first_failure']['check'], 'worker-phase-failed')
+        self.assertEqual(record['first_failure']['site'], 'WORKER_RESULT')
+
+    def test_attach_exception_has_no_return_or_invented_check(self):
+        self.phase(attach_error=ValueError('PRIVATE_ATTACH_ERROR_SENTINEL'))
+        record = self.record()
+        self.assertEqual(record['attach_return'], {'SIGN': None, 'LIFECYCLE': None})
+        self.assertEqual(record['first_failure']['site'], 'ATTACH')
+        self.assertEqual(record['first_failure']['check'], 'UNKNOWN')
+
+    def test_cancellation_is_sticky_separate_and_preserves_cleanup(self):
+        report, error = self.phase(cancel=True, cleanup=True)
+        self.assertEqual(str(error), 'phase-or-cleanup-failed')
+        self.assertEqual(report['phases'][0]['status'], 'FAIL')
+        s.base.CANCELLED = False  # Observation cannot be erased by subsequent state.
+        record = self.record()
+        self.assertTrue(record['cancelled'])
+        self.assertEqual(record['first_failure']['category'], 'KEYBOARD_INTERRUPT')
+        self.assertEqual(record['first_failure']['site'], 'ATTACH')
+        self.assertEqual(record['cleanup_failure']['site'], 'CLEANUP_REMOVE')
+        self.assertIsNone(record['attach_return']['SIGN'])
+
+    def test_success_and_contract_mode_remain_unchanged(self):
+        report, error = self.phase(phase='lifecycle')
+        self.assertIsNone(error)
+        self.assertEqual(report['phases'][0]['status'], 'PASS')
+        self.assertEqual((self.source / 'inputs.json').stat().st_mode & 0o777, 0o644)
+        self.assertEqual(set(report), {'phases'})
+        self.assertEqual(set(report['phases'][0]), {'phase', 'status', 'container_cleanup',
+                         'attach_bytes', 'attach_sha256', 'worker', 'container_state'})
+        record = self.record()
+        self.assertIsNone(record['first_failure'])
+        self.assertIsNone(record['cleanup_failure'])
+        self.assertFalse(record['cancelled'])
+        self.assertEqual(record['attach_return'], {'SIGN': None, 'LIFECYCLE': 0})
+
+    def test_contract_write_site_precedes_phase_cleanup_try(self):
+        report, error = self.phase(contract_error=True)
+        self.assertIsInstance(error, PermissionError)
+        self.assertEqual(report['phases'], [])
+        # Outer handler observes the escaping exception at the retained phase site.
+        s.diagnostic_failure(error)
+        record = self.record()
+        self.assertEqual(record['first_failure']['selector'], 'SIGN')
+        self.assertEqual(record['first_failure']['site'], 'CONTRACT_WRITE')
+        self.assertIsNone(record['cleanup_failure'])
+
+    def test_transport_first_error_survives_existing_identity_finally_mask(self):
+        s.diagnostic_site('ATTACH', 'SIGN')
+        calls = []
+        def files():
+            calls.append('checked')
+            if len(calls) == 2:
+                s.need(False, 'docker-cli-read-drift')
+        boundary = SimpleNamespace(endpoint=ENDPOINT, executable='inert-fixture', check_files=files)
+        with mock.patch.object(s.base, 'bounded', side_effect=ValueError('PRIVATE_TRANSPORT_SENTINEL')):
+            with self.assertRaisesRegex(ValueError, 'docker-cli-read-drift'):
+                s.Docker.raw(boundary, s.base.docker_command(ENDPOINT, 'start', '--attach', CID))
+        record = self.record()
+        self.assertEqual(record['first_failure'], {'selector': 'SIGN', 'site': 'ATTACH',
+                                                  'check': 'UNKNOWN', 'category': 'VALUE_ERROR'})
+        self.assertIsNone(record['cleanup_failure'])
+        self.assertIsNone(record['attach_return']['SIGN'])
+
+    def test_command_first_error_survives_existing_daemon_identity_finally_mask(self):
+        s.diagnostic_site('ATTACH', 'LIFECYCLE')
+        calls = []
+        def identity():
+            calls.append('identity')
+            if len(calls) == 2:
+                s.need(False, 'local-daemon-identity-drift')
+        boundary = SimpleNamespace(identity=identity, raw=mock.Mock(side_effect=OSError('PRIVATE_COMMAND_SENTINEL')))
+        with self.assertRaisesRegex(ValueError, 'local-daemon-identity-drift'):
+            s.Docker.bounded(boundary, ['inert-fixture'])
+        record = self.record()
+        self.assertEqual(record['first_failure'], {'selector': 'LIFECYCLE', 'site': 'ATTACH',
+                                                  'check': 'UNKNOWN', 'category': 'OS_ERROR'})
+        self.assertIsNone(record['cleanup_failure'])
+        self.assertIsNone(record['attach_return']['LIFECYCLE'])
+
+    def test_return_type_and_bounds_are_closed(self):
+        for code in (True, False, -129, 256, '17', None):
+            s.diagnostic_site('ATTACH', 'SIGN')
+            s.diagnostic_attach_return(code)
+            self.assertIsNone(s._DIAGNOSTIC['attach_return']['SIGN'])
+        for code in (-128, 0, 255):
+            s.diagnostic_attach_return(code)
+            self.assertIs(type(s._DIAGNOSTIC['attach_return']['SIGN']), int)
+            self.assertEqual(s._DIAGNOSTIC['attach_return']['SIGN'], code)
+
+    def test_inactive_and_invalid_binding_emit_nothing(self):
+        for commit, run in ((COMMIT, '../private'), ('PRIVATE_SOURCE_SENTINEL', '123'),
+                            (COMMIT, '1' * 21), (COMMIT, 123)):
+            s.diagnostic_start(SimpleNamespace(source_commit=commit, run_id=run))
+            s.diagnostic_site('ATTACH', 'SIGN')
+            s.diagnostic_failure(ValueError('PRIVATE_ERROR_SENTINEL'))
+            s.diagnostic_attach_return(0)
+            with mock.patch.object(s.sys, 'stdout', io.StringIO()) as stream:
+                s.diagnostic_emit()
+            self.assertEqual(stream.getvalue(), '')
+        self.assertIsNone(s._DIAGNOSTIC)
+
+    def cli_argv(self):
+        options = ('image', 'daemon-id', 'docker-endpoint', 'docker-sha256', 'docker-socket-device',
+                   'docker-socket-inode', 'source-commit', 'run-id', 'runner', 'runner-sha256', 'bootstrap',
+                   'bootstrap-sha256', 'packages', 'current-inputs', 'source', 'stage-sha256', 'worker-sha256',
+                   'contract-source-sha256', 'approved-inputs', 'build-1', 'build-1-provenance-sha256',
+                   'build-2', 'build-2-provenance-sha256', 'output')
+        argv = ['stage.py']
+        for option in options:
+            argv += ['--' + option, COMMIT if option == 'source-commit' else '123' if option == 'run-id' else 'fixture']
+        return argv
+
+    def test_main_emits_once_for_success_and_caught_refusal(self):
+        argv = self.cli_argv()
+        for refused in (False, True):
+            with self.subTest(refused=refused), ExitStack() as stack:
+                stack.enter_context(mock.patch.object(s.sys, 'argv', argv))
+                out = stack.enter_context(mock.patch.object(s.sys, 'stdout', io.StringIO()))
+                err = stack.enter_context(mock.patch.object(s.sys, 'stderr', io.StringIO()))
+                def run(args):
+                    s.diagnostic_site('PLATFORM', 'CONTROLLER')
+                    if refused:
+                        s.need(False, 'native-nonroot-coordinator-required')
+                    return {'status': 'PASS', 'phases': []}
+                stack.enter_context(mock.patch.object(s, 'run', side_effect=run))
+                self.assertEqual(s.main(), int(refused))
+                lines = [line for line in out.getvalue().splitlines() if line.startswith(s.DIAGNOSTIC_PREFIX)]
+                self.assertEqual(len(lines), 1)
+                record = json.loads(lines[0][len(s.DIAGNOSTIC_PREFIX):])
+                self.assertEqual(record['source_commit'], COMMIT)
+                self.assertEqual(record['first_failure'] is not None, refused)
+                self.assertNotIn('PRIVATE_', out.getvalue() + err.getvalue())
+
+    def test_main_best_effort_emission_preserves_success_or_primary_refusal(self):
+        original_dumps = s.json.dumps
+        for refused in (False, True):
+            for broken in ('stream', 'encoder'):
+                with self.subTest(refused=refused, broken=broken), ExitStack() as stack:
+                    stack.enter_context(mock.patch.object(s.sys, 'argv', self.cli_argv()))
+                    out = io.StringIO()
+                    class BrokenDiagnosticStream:
+                        def write(self, data):
+                            if data.startswith(s.DIAGNOSTIC_PREFIX):
+                                raise OSError('PRIVATE_STREAM_SENTINEL')
+                            return out.write(data)
+                        def flush(self):
+                            return None
+                    stack.enter_context(mock.patch.object(s.sys, 'stdout', BrokenDiagnosticStream()))
+                    stack.enter_context(mock.patch.object(s.sys, 'stderr', io.StringIO()))
+                    def encode(value, *args, **kwargs):
+                        if broken == 'encoder' and 'attach_return' in value:
+                            raise ValueError('PRIVATE_JSON_SENTINEL')
+                        return original_dumps(value, *args, **kwargs)
+                    stack.enter_context(mock.patch.object(s.json, 'dumps', side_effect=encode))
+                    def run(args):
+                        s.diagnostic_site('PLATFORM', 'CONTROLLER')
+                        if refused:
+                            s.need(False, 'native-nonroot-coordinator-required')
+                        return {'status': 'PASS', 'phases': []}
+                    stack.enter_context(mock.patch.object(s, 'run', side_effect=run))
+                    self.assertEqual(s.main(), int(refused))
+                    if refused:
+                        self.assertEqual(s._DIAGNOSTIC['first_failure']['check'],
+                                         'native-nonroot-coordinator-required')
+                    else:
+                        self.assertIsNone(s._DIAGNOSTIC['first_failure'])
+                    self.assertNotIn('PRIVATE_', out.getvalue())
+
+    def test_emit_ordinary_write_error_preserves_primary_and_never_retries(self):
+        s.diagnostic_site('ATTACH', 'SIGN')
+        s.diagnostic_failure(ValueError('PRIVATE_ORIGINAL_SENTINEL'))
+        first = s._DIAGNOSTIC['first_failure'].copy()
+        with mock.patch('builtins.print', side_effect=OSError('PRIVATE_STREAM_SENTINEL')) as writer:
+            s.diagnostic_emit()
+            s.diagnostic_emit()
+        self.assertEqual(writer.call_count, 1)
+        self.assertEqual(s._DIAGNOSTIC['first_failure'], first)
+
+    def test_emit_serialization_error_preserves_primary_and_never_retries(self):
+        s.diagnostic_site('ATTACH', 'LIFECYCLE')
+        s.diagnostic_failure(ValueError('PRIVATE_ORIGINAL_SENTINEL'))
+        first = s._DIAGNOSTIC['first_failure'].copy()
+        with mock.patch.object(s.json, 'dumps', side_effect=ValueError('PRIVATE_JSON_SENTINEL')) as encoder, \
+                mock.patch('builtins.print') as writer:
+            s.diagnostic_emit()
+            s.diagnostic_emit()
+        self.assertEqual(encoder.call_count, 1)
+        writer.assert_not_called()
+        self.assertEqual(s._DIAGNOSTIC['first_failure'], first)
+
+    def test_emit_cancellation_is_never_swallowed_or_retried(self):
+        with mock.patch('builtins.print', side_effect=KeyboardInterrupt()) as writer:
+            with self.assertRaises(KeyboardInterrupt):
+                s.diagnostic_emit()
+            s.diagnostic_emit()
+        self.assertEqual(writer.call_count, 1)
+
+    def test_cleanup_cancellation_preserves_first_error_and_propagates(self):
+        report, error = self.phase(invalid_id=True, cleanup_cancel=True)
+        self.assertIsInstance(error, KeyboardInterrupt)
+        self.assertEqual(report['phases'][0]['container_cleanup'], 'FAIL')
+        record = self.record()
+        self.assertEqual(record['first_failure']['check'], 'invalid-created-container-id')
+        self.assertEqual(record['cleanup_failure']['category'], 'KEYBOARD_INTERRUPT')
+        self.assertEqual(record['cleanup_failure']['site'], 'CLEANUP_REMOVE')
+        self.assertTrue(record['cancelled'])
+
+    def test_cleanup_only_failure_remains_separate_from_worker_pass(self):
+        report, error = self.phase(cleanup=True)
+        self.assertEqual(str(error), 'phase-or-cleanup-failed')
+        self.assertEqual(report['phases'][0]['worker']['status'], 'PASS')
+        self.assertEqual(report['phases'][0]['status'], 'FAIL')
+        record = self.record()
+        self.assertEqual(record['first_failure'], record['cleanup_failure'])
+        self.assertEqual(record['cleanup_failure']['check'], 'owned-container-absence-unconfirmed')
+        self.assertEqual(record['attach_return']['SIGN'], 0)
+
+
+
+_BASE_CONTROLLER_SOURCE = "def controller(args):\n    uid, gid = coordinator_identity()\n    need(platform.system() == 'Linux' and platform.machine() in {'aarch64', 'arm64'},\n         'native-nonroot-coordinator-required')\n    need(re.fullmatch(r'[0-9a-f]{40}', args.source_commit) and re.fullmatch(r'[0-9]{1,20}', args.run_id)\n         and os.environ.get('GITHUB_SHA') == args.source_commit and os.environ.get('GITHUB_RUN_ID') == args.run_id,\n         'genuine-same-job-source-required')\n    need(re.fullmatch(r'sha256:[0-9a-f]{64}', args.image), 'immutable-image-required')\n    docker = Docker(args.docker_endpoint, args.daemon_id, args.docker_sha256,\n                    args.docker_socket_device, args.docker_socket_inode)\n    try:\n        return controller_inputs(args, docker, uid, gid)\n    finally:\n        if not docker.closed:\n            with base.defer_signals():\n                docker.close()"
+_BLOCKED_DIAGNOSTIC_FAILURE_SOURCE = 'def diagnostic_failure(error, *, cleanup=False):\n    """Never serialize an exception message, operands, or foreign check text."""\n    if _DIAGNOSTIC is None:\n        return\n    kind = type(error)\n    category = \'UNKNOWN\'\n    if isinstance(error, base.Cancelled):\n        category = \'CANCELLED\'\n    elif isinstance(error, KeyboardInterrupt):\n        category = \'KEYBOARD_INTERRUPT\'\n    elif kind is ValueError:\n        category = \'VALUE_ERROR\'\n    elif isinstance(error, OSError):\n        category = \'OS_ERROR\'\n    elif kind is KeyError:\n        category = \'KEY_ERROR\'\n    elif kind is TypeError:\n        category = \'TYPE_ERROR\'\n    elif isinstance(error, subprocess.SubprocessError):\n        category = \'SUBPROCESS_ERROR\'\n    if category in {\'CANCELLED\', \'KEYBOARD_INTERRUPT\'} or base.CANCELLED:\n        _DIAGNOSTIC[\'cancelled\'] = True\n    check = \'UNKNOWN\'\n    if kind is ValueError:\n        provenance = error.__dict__.get(\'_ksm_check\')\n        if type(provenance) is tuple and len(provenance) == 2 and provenance[0] is _CHECK_PROVENANCE \\\n                and type(provenance[1]) is str and provenance[1] in DIAGNOSTIC_CHECKS:\n            check = provenance[1]\n    row = {\'selector\': _DIAGNOSTIC[\'_selector\'], \'site\': _DIAGNOSTIC[\'_site\'],\n           \'check\': check, \'category\': category}\n    if _DIAGNOSTIC[\'first_failure\'] is None:\n        _DIAGNOSTIC[\'first_failure\'] = row\n    cleanup = cleanup or _DIAGNOSTIC[\'_site\'] in {\n        \'CLEANUP_INSPECT\', \'CLEANUP_OWNERSHIP\', \'CLEANUP_REMOVE\', \'CLEANUP_ABSENCE\',\n        \'PRIVATE_CLEANUP\', \'DOCKER_CLOSE\'}\n    if cleanup and _DIAGNOSTIC[\'cleanup_failure\'] is None:\n        _DIAGNOSTIC[\'cleanup_failure\'] = row.copy()'
+
+class StageDiagnosticPreservationTests(unittest.TestCase):
+    """Complete-controller AST pairs with inert constructor/body/close callbacks."""
+    def original(self, error):
+        try:
+            raise error
+        except BaseException:
+            pass
+        for name, value in (('__cause__', RuntimeError('PRIVATE_CAUSE_SENTINEL')),
+                            ('__context__', RuntimeError('PRIVATE_CONTEXT_SENTINEL')),
+                            ('__suppress_context__', True)):
+            BaseException.__dict__[name].__set__(error, value)
+        return error
+
+    def fields(self, error):
+        return {name: BaseException.__dict__[name].__get__(error) for name in
+                ('args', '__cause__', '__context__', '__traceback__', '__suppress_context__')}
+
+    def controller_pair(self, primary, *, variant='corrected', setup=None, close_error=None):
+        tree = ast.parse(Path(s.__file__).read_bytes())
+        names = {'need', 'coordinator_identity', 'controller', 'diagnostic_start', 'diagnostic_site', 'diagnostic_failure'}
+        assignments = {'DIAGNOSTIC_SELECTORS', 'DIAGNOSTIC_SITES', 'DIAGNOSTIC_CHECKS', '_CHECK_PROVENANCE', '_DIAGNOSTIC'}
+        selected = [node for node in tree.body
+                    if isinstance(node, ast.FunctionDef) and node.name in names
+                    or isinstance(node, ast.Assign) and len(node.targets) == 1
+                    and isinstance(node.targets[0], ast.Name) and node.targets[0].id in assignments]
+        if variant in {'base', 'blocked'}:
+            replacement = ast.parse(_BASE_CONTROLLER_SOURCE if variant == 'base' else
+                                    _BLOCKED_DIAGNOSTIC_FAILURE_SOURCE).body[0]
+            selected = [replacement if isinstance(node, ast.FunctionDef) and node.name == replacement.name else node
+                        for node in selected]
+        events = []
+        @contextmanager
+        def deferred():
+            events.append('defer-enter')
+            try:
+                yield
+            finally:
+                events.append('defer-exit')
+        base = SimpleNamespace(Cancelled=s.base.Cancelled, CANCELLED=False, defer_signals=deferred)
+        ns = {'base': base, 're': s.re, 'subprocess': subprocess,
+              'platform': SimpleNamespace(system=lambda: 'Linux', machine=lambda: 'aarch64'),
+              'os': SimpleNamespace(getuid=lambda: 1000, geteuid=lambda: 1000,
+                                    getgid=lambda: 1000, getegid=lambda: 1000,
+                                    environ={'GITHUB_SHA': COMMIT, 'GITHUB_RUN_ID': '123'})}
+        exec(compile(ast.Module(body=selected, type_ignores=[]), 'inert-complete-stage-controller', 'exec'), ns)
+        observed = {}
+        class InertDocker:
+            closed = False
+            def close(self):
+                events.append('close')
+                self.closed = True
+                if close_error is not None:
+                    raise close_error
+        docker = InertDocker()
+        def constructor(*args):
+            events.append('constructor')
+            return docker
+        def body(*args):
+            events.append('body')
+            try:
+                raise primary
+            except BaseException:
+                observed.update(self.fields(primary))
+                raise
+        ns.update(Docker=constructor, controller_inputs=body)
+        args = SimpleNamespace(source_commit=COMMIT, run_id='123', image=IMAGE, docker_endpoint='fixture',
+                               daemon_id='fixture', docker_sha256='fixture', docker_socket_device=1,
+                               docker_socket_inode=1)
+        ns['diagnostic_start'](args)
+        if setup is not None:
+            setup(ns, primary)
+        escaped = None
+        try:
+            ns['controller'](args)
+        except BaseException as error:
+            escaped = error
+        self.assertEqual(events, ['constructor', 'body', 'defer-enter', 'close', 'defer-exit'])
+        self.assertTrue(docker.closed)
+        self.assertIs(base.CANCELLED, False)  # Optional collection cannot alter operative signal state.
+        return ns, escaped, observed
+
+    def preserved(self, primary, escaped, before):
+        self.assertIs(escaped, primary)
+        after = self.fields(primary)
+        for name in ('args', '__cause__', '__context__', '__suppress_context__'):
+            self.assertIs(after[name], before[name])
+        chain = []
+        trace = after['__traceback__']
+        while trace is not None:
+            chain.append(trace)
+            trace = trace.tb_next
+        self.assertTrue(any(trace is before['__traceback__'] for trace in chain))
+        self.assertEqual([trace.tb_frame.f_code.co_name for trace in chain[:3]],
+                         ['controller_pair', 'controller', 'body'])
+        self.assertIs(chain[2], before['__traceback__'])
+
+    def test_two_sealed_countermodels_reproduce_and_correct_in_complete_controller(self):
+        class HostileOSError(OSError):
+            @property
+            def __class__(self):
+                raise LookupError('PRIVATE_CLASS_SENTINEL')
+        class HostileDict(dict):
+            def get(self, *args):
+                raise LookupError('PRIVATE_DICT_SENTINEL')
+        for kind in ('class', 'dictionary'):
+            for variant in ('base', 'blocked', 'corrected'):
+                with self.subTest(kind=kind, variant=variant):
+                    primary = self.original(HostileOSError('PRIMARY') if kind == 'class' else ValueError('PRIMARY'))
+                    if kind == 'dictionary':
+                        primary.__dict__ = HostileDict()
+                    ns, escaped, before = self.controller_pair(primary, variant=variant)
+                    if variant == 'blocked':
+                        self.assertIs(type(escaped), LookupError)
+                        self.assertIsNot(escaped, primary)
+                    else:
+                        self.preserved(primary, escaped, before)
+                    if variant == 'corrected':
+                        self.assertEqual(ns['_DIAGNOSTIC']['first_failure']['check'], 'UNKNOWN')
+                        self.assertEqual(ns['_DIAGNOSTIC']['first_failure']['category'],
+                                         'OS_ERROR' if kind == 'class' else 'VALUE_ERROR')
+
+    def test_exact_dictionary_foreign_collision_key_is_never_compared(self):
+        events = []
+        class Collision:
+            def __hash__(self):
+                return hash('_ksm_check')
+            def __eq__(self, other):
+                events.append('foreign-equality')
+                raise LookupError('PRIVATE_COLLISION_SENTINEL')
+        primary = self.original(ValueError('PRIMARY'))
+        primary.__dict__[Collision()] = 'PRIVATE_VALUE_SENTINEL'
+        ns, escaped, before = self.controller_pair(primary)
+        self.preserved(primary, escaped, before)
+        self.assertEqual(events, [])
+        self.assertEqual(ns['_DIAGNOSTIC']['first_failure']['check'], 'UNKNOWN')
+
+    def test_actual_lineage_bypasses_class_spoof_and_all_metaclass_hooks(self):
+        events = []
+        class HostileMeta(type):
+            def __getattribute__(cls, name):
+                if name == '__mro__':
+                    events.append('meta-attribute')
+                    raise LookupError('PRIVATE_META_ATTRIBUTE')
+                return super().__getattribute__(name)
+            @property
+            def __mro__(cls):
+                events.append('meta-property')
+                raise LookupError('PRIVATE_META_PROPERTY')
+            def __eq__(cls, other):
+                events.append('meta-equality')
+                raise LookupError('PRIVATE_META_EQUALITY')
+        class Foreign(OSError, metaclass=HostileMeta):
+            @property
+            def __class__(self):
+                events.append('class-spoof')
+                return KeyboardInterrupt
+        primary = self.original(Foreign('PRIMARY'))
+        events.clear()
+        with self.assertRaises(LookupError):
+            type.__getattribute__(type(primary), '__mro__')
+        self.assertEqual(events, ['meta-property'])
+        events.clear()
+        ns, escaped, before = self.controller_pair(primary)
+        self.preserved(primary, escaped, before)
+        self.assertEqual(events, [])
+        self.assertEqual(ns['_DIAGNOSTIC']['first_failure']['category'], 'OS_ERROR')
+        self.assertIs(ns['_DIAGNOSTIC']['cancelled'], False)
+
+    def test_collector_does_not_call_foreign_metaclass_subclasscheck(self):
+        events = []
+        class HostileMeta(type):
+            def __subclasscheck__(cls, child):
+                events.append('meta-subclass')
+                raise LookupError('PRIVATE_META_SUBCLASS')
+        class Foreign(OSError, metaclass=HostileMeta):
+            pass
+        primary = Foreign('PRIMARY')  # Raising it itself invokes interpreter subclass normalization.
+        with mock.patch.object(s, '_DIAGNOSTIC', None):
+            s.diagnostic_start(SimpleNamespace(source_commit=COMMIT, run_id='123'))
+            s.diagnostic_failure(primary)
+            self.assertEqual(s._DIAGNOSTIC['first_failure']['category'], 'OS_ERROR')
+        self.assertEqual(events, [])
+
+    def test_genuine_original_cancellation_subclasses_are_sticky_without_class_lookup(self):
+        events = []
+        class Genuine(s.base.Cancelled):
+            @property
+            def __class__(self):
+                events.append('class-property')
+                raise LookupError('PRIVATE_CANCELLATION_CLASS')
+        primary = self.original(Genuine('PRIMARY'))
+        ns, escaped, before = self.controller_pair(primary)
+        self.preserved(primary, escaped, before)
+        self.assertEqual(events, [])
+        self.assertEqual(ns['_DIAGNOSTIC']['first_failure']['category'], 'CANCELLED')
+        self.assertIs(ns['_DIAGNOSTIC']['cancelled'], True)
+
+    def test_secondary_baseexceptions_are_contained_with_independent_sticky_observation(self):
+        class Secondary(BaseException):
+            @property
+            def __class__(self):
+                raise LookupError('PRIVATE_SECONDARY_CLASS')
+        class CancelledSecondary(KeyboardInterrupt):
+            @property
+            def __class__(self):
+                raise LookupError('PRIVATE_SECONDARY_CANCEL_CLASS')
+        for secondary in (LookupError('PRIVATE_SECONDARY'), Secondary('PRIVATE_SECONDARY'),
+                          CancelledSecondary('PRIVATE_SECONDARY'), s.base.Cancelled('PRIVATE_SECONDARY')):
+            with self.subTest(kind=type.__dict__['__name__'].__get__(type(secondary))):
+                primary = self.original(ValueError('PRIMARY'))
+                def setup(ns, original):
+                    original.__dict__['_ksm_check'] = (ns['_CHECK_PROVENANCE'], 'worker-phase-failed')
+                    class ThrowingChecks:
+                        def __contains__(self, value):
+                            raise secondary
+                    ns['DIAGNOSTIC_CHECKS'] = ThrowingChecks()
+                ns, escaped, before = self.controller_pair(primary, setup=setup)
+                self.preserved(primary, escaped, before)
+                self.assertIsNone(ns['_DIAGNOSTIC']['first_failure'])
+                self.assertIs(ns['_DIAGNOSTIC']['cancelled'], any(parent is KeyboardInterrupt
+                              for parent in type.__dict__['__mro__'].__get__(type(secondary))))
+
+    def test_same_primary_collection_fault_restores_traceback_args_cause_context(self):
+        primary = self.original(ValueError('PRIMARY'))
+        def setup(ns, original):
+            original.__dict__['_ksm_check'] = (ns['_CHECK_PROVENANCE'], 'worker-phase-failed')
+            class ThrowingChecks:
+                def __contains__(self, value):
+                    original.args = ('PRIVATE_MUTATION_SENTINEL',)
+                    original.__cause__ = RuntimeError('PRIVATE_MUTATED_CAUSE')
+                    original.__context__ = RuntimeError('PRIVATE_MUTATED_CONTEXT')
+                    original.__suppress_context__ = False
+                    raise original
+            ns['DIAGNOSTIC_CHECKS'] = ThrowingChecks()
+        ns, escaped, before = self.controller_pair(primary, setup=setup)
+        self.preserved(primary, escaped, before)
+        self.assertIsNone(ns['_DIAGNOSTIC']['first_failure'])
+
+    def test_source_provenance_still_accepts_only_exact_dictionary_and_tuple(self):
+        def valid(ns, original):
+            original.__dict__['_ksm_check'] = (ns['_CHECK_PROVENANCE'], 'worker-phase-failed')
+        primary = self.original(ValueError('PRIMARY'))
+        ns, escaped, before = self.controller_pair(primary, setup=valid)
+        self.preserved(primary, escaped, before)
+        self.assertEqual(ns['_DIAGNOSTIC']['first_failure']['check'], 'worker-phase-failed')
+        class ForeignTuple(tuple):
+            def __len__(self):
+                raise LookupError('PRIVATE_TUPLE_LEN')
+        def foreign(ns, original):
+            original.__dict__['_ksm_check'] = ForeignTuple((ns['_CHECK_PROVENANCE'], 'worker-phase-failed'))
+        primary = self.original(ValueError('PRIMARY'))
+        ns, escaped, before = self.controller_pair(primary, setup=foreign)
+        self.preserved(primary, escaped, before)
+        self.assertEqual(ns['_DIAGNOSTIC']['first_failure']['check'], 'UNKNOWN')
+
+    def test_existing_cleanup_error_precedence_and_first_diagnostic_remain_separate(self):
+        for variant in ('base', 'corrected'):
+            primary = self.original(OSError('PRIMARY'))
+            cleanup = RuntimeError('PRIVATE_CLEANUP_SENTINEL')
+            ns, escaped, before = self.controller_pair(primary, variant=variant, close_error=cleanup)
+            self.assertIs(escaped, cleanup)
+            self.assertIs(self.fields(cleanup)['__context__'], primary)
+            if variant == 'corrected':
+                self.assertEqual(ns['_DIAGNOSTIC']['first_failure']['category'], 'OS_ERROR')
+                self.assertEqual(ns['_DIAGNOSTIC']['cleanup_failure']['site'], 'DOCKER_CLOSE')
+
+    def test_foreign_exact_dictionary_keys_are_rejected_before_lookup_or_write(self):
+        events = []
+        class Collision:
+            def __hash__(self):
+                return hash('_selector')
+            def __eq__(self, other):
+                events.append('foreign-state-equality')
+                raise LookupError('PRIVATE_STATE_COLLISION')
+        primary = self.original(OSError('PRIMARY'))
+        before = self.fields(primary)
+        with mock.patch.object(s, '_DIAGNOSTIC', {Collision(): 'PRIVATE_VALUE_SENTINEL'}):
+            s.diagnostic_failure(primary)
+        after = self.fields(primary)
+        self.assertTrue(all(after[name] is before[name] for name in before))
+        self.assertEqual(events, [])
+
+    def test_foreign_diagnostic_dictionary_is_not_called(self):
+        events = []
+        class ForeignState(dict):
+            def __getitem__(self, key):
+                events.append('get')
+                raise LookupError('PRIVATE_STATE_SENTINEL')
+            def __setitem__(self, key, value):
+                events.append('set')
+                raise LookupError('PRIVATE_STATE_SENTINEL')
+        primary = self.original(OSError('PRIMARY'))
+        before = self.fields(primary)
+        with mock.patch.object(s, '_DIAGNOSTIC', ForeignState()):
+            s.diagnostic_failure(primary)
+        after = self.fields(primary)
+        self.assertTrue(all(after[name] is before[name] for name in before))
+        self.assertEqual(events, [])
+
+
+class IsolationSelectorTests(unittest.TestCase):
+    """Memory-only isolation predicates; no constructor, process or daemon call."""
+    CASES = (
+        ('Config', 'User', 'other', 'user'),
+        ('HostConfig', 'ReadonlyRootfs', None, 'readonly-rootfs'),
+        ('HostConfig', 'NetworkMode', 'host', 'network-mode'),
+        ('HostConfig', 'IpcMode', 'host', 'ipc-mode'),
+        ('HostConfig', 'PidMode', 'host', 'pid-mode'),
+        ('HostConfig', 'UTSMode', 'host', 'uts-mode'),
+        ('HostConfig', 'Privileged', True, 'privileged'),
+        ('HostConfig', 'CapDrop', [], 'cap-drop'),
+        ('HostConfig', 'CapAdd', ['SYS_ADMIN'], 'cap-add'),
+        ('HostConfig', 'SecurityOpt', ['seccomp=unconfined'], 'security-opt'),
+        ('HostConfig', 'Memory', 1, 'memory-and-swap'),
+        ('HostConfig', 'NanoCpus', 1, 'nano-cpus'),
+        ('HostConfig', 'PidsLimit', 1, 'pids-limit'),
+        ('HostConfig', 'Devices', [{}], 'devices'),
+        ('HostConfig', 'DeviceRequests', [{}], 'device-requests'),
+        ('HostConfig', 'VolumesFrom', ['foreign'], 'volumes-from'),
+        ('HostConfig', 'PortBindings', {'80/tcp': []}, 'port-bindings'),
+        ('HostConfig', 'DeviceCgroupRules', ['a *:* rwm'], 'device-cgroup-rules'),
+        ('HostConfig', 'Ulimits', [], 'ulimits'),
+    )
+
+    def record(self, phase):
+        c = contract(phase)
+        return c, inspected(c, Path('/fixture-source'), Path('/fixture-out'))
+
+    def run_record(self, c, record):
+        return s.inspect_isolation(record, c, Path('/fixture-source'), Path('/fixture-out'))
+
+    def test_both_phases_accept_and_each_false_predicate_has_closed_provenance(self):
+        for phase in ('sign', 'lifecycle'):
+            c, record = self.record(phase)
+            self.run_record(c, record)
+            for section, field, value, suffix in self.CASES:
+                with self.subTest(phase=phase, field=field):
+                    bad = copy.deepcopy(record)
+                    bad[section][field] = value
+                    with self.assertRaises(ValueError) as caught:
+                        self.run_record(c, bad)
+                    code = 'sandbox-isolation-' + suffix + '-drift'
+                    self.assertEqual(caught.exception.args, (code,))
+                    provenance = caught.exception.__dict__['_ksm_check']
+                    self.assertIs(provenance[0], s._CHECK_PROVENANCE)
+                    self.assertEqual(provenance[1], code)
+                    self.assertIn(code, s.DIAGNOSTIC_CHECKS)
+
+    def test_every_two_false_predicate_pair_reports_first_in_original_order(self):
+        for phase in ('sign', 'lifecycle'):
+            c, record = self.record(phase)
+            for first, left in enumerate(self.CASES):
+                for second, right in enumerate(self.CASES):
+                    with self.subTest(phase=phase, first=first, second=second):
+                        bad = copy.deepcopy(record)
+                        for section, field, value, _ in (left, right):
+                            bad[section][field] = value
+                        with self.assertRaises(ValueError) as caught:
+                            self.run_record(c, bad)
+                        self.assertEqual(caught.exception.args,
+                            ('sandbox-isolation-' + self.CASES[min(first, second)][3] + '-drift',))
+
+    def test_later_missing_or_malformed_values_are_not_read_after_false_predicate(self):
+        for phase in ('sign', 'lifecycle'):
+            c, record = self.record(phase)
+            for section, field, value, suffix in self.CASES[:-1]:
+                bad = copy.deepcopy(record)
+                bad[section][field] = value
+                del bad['HostConfig']['Ulimits']
+                with self.subTest(phase=phase, field=field), self.assertRaises(ValueError) as caught:
+                    self.run_record(c, bad)
+                self.assertEqual(caught.exception.args, ('sandbox-isolation-' + suffix + '-drift',))
+            bad = copy.deepcopy(record)
+            bad['Config']['User'] = 'other'
+            bad['HostConfig']['CapAdd'] = [['not-hashable']]
+            with self.assertRaisesRegex(ValueError, '^sandbox-isolation-user-drift$'):
+                self.run_record(c, bad)
+
+    def test_memory_and_swap_remain_one_chained_predicate_and_no_normalization_added(self):
+        for phase in ('sign', 'lifecycle'):
+            c, record = self.record(phase)
+            for field in ('Memory', 'MemorySwap'):
+                bad = copy.deepcopy(record)
+                bad['HostConfig'][field] = 1
+                with self.assertRaisesRegex(ValueError, '^sandbox-isolation-memory-and-swap-drift$'):
+                    self.run_record(c, bad)
+            for field, value, suffix in (
+                    ('CapAdd', ['CAP_CHOWN'], 'cap-add'),
+                    ('Ulimits', record['HostConfig']['Ulimits'] + [{'Name': 'nproc', 'Soft': 1, 'Hard': 1}], 'ulimits')):
+                bad = copy.deepcopy(record)
+                bad['HostConfig'][field] = value
+                with self.assertRaisesRegex(ValueError, '^sandbox-isolation-' + suffix + '-drift$'):
+                    self.run_record(c, bad)
+
+    def test_missing_and_malformed_fields_preserve_exception_category(self):
+        for phase in ('sign', 'lifecycle'):
+            c, record = self.record(phase)
+            for section, field in (('Config', 'User'), ('HostConfig', 'NetworkMode'),
+                                   ('HostConfig', 'CapDrop'), ('HostConfig', 'Ulimits')):
+                bad = copy.deepcopy(record)
+                del bad[section][field]
+                with self.assertRaises(KeyError) as caught:
+                    self.run_record(c, bad)
+                self.assertEqual(caught.exception.args, (field,))
+            bad = copy.deepcopy(record)
+            bad['HostConfig']['CapAdd'] = [['not-hashable']]
+            with self.assertRaises(TypeError):
+                self.run_record(c, bad)
 
 
 if __name__ == '__main__':
