@@ -1,0 +1,76 @@
+{
+  "recorded_at_utc": "2026-10-11T23:52:32.692120+00:00",
+  "host_architecture": "x86_64",
+  "classification": "x86_64-host package assembly; two temporary work directories, same host/environment; not clean native aarch64 builds",
+  "fish": "fish, version 4.9.3",
+  "makepkg": "makepkg (pacman) 7.1.0",
+  "license": "MIT",
+  "project_license_sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+  "native_aarch64": "NOT RUN",
+  "installed": "NOT RUN",
+  "hardware": "NOT RUN",
+  "payload_repeat_comparison": "PASS",
+  "archive_byte_comparison": "different; package metadata/build dates not normalized",
+  "builds": [
+    {
+      "build_root": "/tmp/cachy-asahi-fish-build-n92y25ip",
+      "command": "makepkg --config /etc/makepkg.conf --noconfirm",
+      "exit_code": 0,
+      "archive": "/tmp/cachy-asahi-fish-build-n92y25ip/recipe/cachy-asahi-fish-config-0.1.0-1-any.pkg.tar.zst",
+      "archive_sha256": "05489a9fdbea83423220cc257525dea83a6d3a2ccbab5155dd64a6c68a3678c8",
+      "contents": [
+        ".BUILDINFO",
+        ".MTREE",
+        ".PKGINFO",
+        "usr/",
+        "usr/share/",
+        "usr/share/cachy-asahi/",
+        "usr/share/cachy-asahi/fish/",
+        "usr/share/cachy-asahi/fish/config.fish",
+        "usr/share/licenses/",
+        "usr/share/licenses/cachy-asahi-fish-config/",
+        "usr/share/licenses/cachy-asahi-fish-config/LICENSE",
+        "usr/share/licenses/cachy-asahi-fish-config/NOTICE"
+      ],
+      "payload_sha256": {
+        "usr/share/cachy-asahi/fish/config.fish": "223df59fe83948e1d83676f4571cd2d4ce186862adf1cc23da6d5bbd28370a1c",
+        "usr/share/licenses/cachy-asahi-fish-config/NOTICE": "19eb85ed65396056e59782ddf80fb5285ee26cad5ddf77ccb378936a2d5601c9",
+        "usr/share/licenses/cachy-asahi-fish-config/LICENSE": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+      },
+      "build_log": "/tmp/cachy-asahi-fish-build-n92y25ip/makepkg.log",
+      "retained_log": "evidence/makepkg-host-1.log",
+      "buildinfo": "evidence/host-build-1.BUILDINFO",
+      "pkginfo": "evidence/host-build-1.PKGINFO"
+    },
+    {
+      "build_root": "/tmp/cachy-asahi-fish-build-p4gkcrlc",
+      "command": "makepkg --config /etc/makepkg.conf --noconfirm",
+      "exit_code": 0,
+      "archive": "/tmp/cachy-asahi-fish-build-p4gkcrlc/recipe/cachy-asahi-fish-config-0.1.0-1-any.pkg.tar.zst",
+      "archive_sha256": "fc845e21ed1a2d506a7b8d5f570b92255c996626094b90e19e73ae66b7583461",
+      "contents": [
+        ".BUILDINFO",
+        ".MTREE",
+        ".PKGINFO",
+        "usr/",
+        "usr/share/",
+        "usr/share/cachy-asahi/",
+        "usr/share/cachy-asahi/fish/",
+        "usr/share/cachy-asahi/fish/config.fish",
+        "usr/share/licenses/",
+        "usr/share/licenses/cachy-asahi-fish-config/",
+        "usr/share/licenses/cachy-asahi-fish-config/LICENSE",
+        "usr/share/licenses/cachy-asahi-fish-config/NOTICE"
+      ],
+      "payload_sha256": {
+        "usr/share/cachy-asahi/fish/config.fish": "223df59fe83948e1d83676f4571cd2d4ce186862adf1cc23da6d5bbd28370a1c",
+        "usr/share/licenses/cachy-asahi-fish-config/NOTICE": "19eb85ed65396056e59782ddf80fb5285ee26cad5ddf77ccb378936a2d5601c9",
+        "usr/share/licenses/cachy-asahi-fish-config/LICENSE": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+      },
+      "build_log": "/tmp/cachy-asahi-fish-build-p4gkcrlc/makepkg.log",
+      "retained_log": "evidence/makepkg-host-2.log",
+      "buildinfo": "evidence/host-build-2.BUILDINFO",
+      "pkginfo": "evidence/host-build-2.PKGINFO"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "observed_date": "2026-10-11",
+  "url": "https://archlinuxarm.org/packages/aarch64/python",
+  "http_response_sha256": "0e4b87893e5c4f805816c51eccc05561637a9443f1dac55c0f276a837564c2bf",
+  "package": "python 3.14.8-1",
+  "architecture": "aarch64",
+  "observation": "published package page only; trust/signature verification, chosen Asahi snapshot and actual dependency transaction NOT RUN",
+  "runtime_dependency": "python>=3.11; interpreter stdlib, no modules/binaries bundled"
+}

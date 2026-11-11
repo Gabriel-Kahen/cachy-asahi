@@ -1,0 +1,24 @@
+{
+  "current": {
+    ".SRCINFO": "2d51a0849e341581ae89d548a81a7074b8d5acc79c143155b3991b96232c6c01",
+    "LICENSE.project": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+    "LICENSE.upstream": "14c6826a7e33a6c74194ece88b26b5f5aee8473474001946a73d0f298b69fce0",
+    "NOTICE": "0704c1ff8bcd8c94ad40888b35c5e25468ea9152b5781e7722ff0d04fb8aa879",
+    "PKGBUILD": "05a1b2cb4710cc14f62678df37d1236fee909874b5b709d82d54fe4b8dc0f93d",
+    "__history_previous_command.fish": "d34b75125a34199775eaa74dd47ae37488c4e67f95f40f71b101b6a8f6f32e50",
+    "__history_previous_command_arguments.fish": "4e72dcce435d0fe1cf332fb339ed9608f10b29295b28f85ed6e7411ef8c05b64",
+    "opt-in.fish": "d4dbd9dc123ebb31f821afd78c4b55554b4f17929d214baff35e405436e4cce7",
+    "usage.md": "37a52ff036984a5beb4f42b8837a78f3de3391081240b470177ecc0b03aa6890"
+  },
+  "upgrade-fixture": {
+    ".SRCINFO": "cc5ca4dde6760b4342f4e3f177334ea8c3c4e7324cfc22ec1263f13cc6b6c2aa",
+    "LICENSE.project": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+    "LICENSE.upstream": "14c6826a7e33a6c74194ece88b26b5f5aee8473474001946a73d0f298b69fce0",
+    "NOTICE": "0704c1ff8bcd8c94ad40888b35c5e25468ea9152b5781e7722ff0d04fb8aa879",
+    "PKGBUILD": "1b6b833ff8367d0ee6a3f78ae7df8e67fe8fe218530203baf2c9c3e75247302a",
+    "__history_previous_command.fish": "d34b75125a34199775eaa74dd47ae37488c4e67f95f40f71b101b6a8f6f32e50",
+    "__history_previous_command_arguments.fish": "4e72dcce435d0fe1cf332fb339ed9608f10b29295b28f85ed6e7411ef8c05b64",
+    "opt-in.fish": "d4dbd9dc123ebb31f821afd78c4b55554b4f17929d214baff35e405436e4cce7",
+    "usage.md": "37a52ff036984a5beb4f42b8837a78f3de3391081240b470177ecc0b03aa6890"
+  }
+}
