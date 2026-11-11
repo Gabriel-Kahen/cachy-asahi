@@ -1,0 +1,24 @@
+{
+  "GPG_allowed": false,
+  "argv": [
+    "/usr/bin/python3.12",
+    "-I",
+    "-B",
+    "-S",
+    "-"
+  ],
+  "branch": "codex/signer-native-passive-observation-20261014",
+  "compile_allowed": false,
+  "gcc_directory": "CURRENT_DEFAULT_GCC",
+  "job_name": "observe",
+  "operation": "ONE_READ_ONLY_HOSTED_ARM_TOOLCHAIN_OBSERVATION",
+  "probe_allowed": false,
+  "purpose": "SIGNER_NATIVE_PASSIVE_PUBLIC_ISSUER_V1",
+  "repository": "Gabriel-Kahen/cachy-asahi",
+  "runner_label": "ubuntu-24.04-arm",
+  "schema_version": 1,
+  "seconds": 60,
+  "signing_allowed": false,
+  "system_mutation_allowed": false,
+  "workflow": ".github/workflows/native-arm-runner-observation.yml"
+}

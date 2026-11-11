@@ -1,0 +1,36 @@
+{
+  "active_observer_rows": {
+    "adoption_entry.py": {
+      "bytes": 15721,
+      "mode": 420,
+      "sha256": "31462fd6c49f155f42410e8ebd4b287a0c9f12987953065f758001fc1c7023d9"
+    },
+    "observation_entry.py": {
+      "bytes": 12522,
+      "mode": 420,
+      "sha256": "540db1ab5a877fd2486673e86d2a1216c036dd9d8bec3953f44f467ee4966071"
+    },
+    "passive.py": {
+      "bytes": 40917,
+      "mode": 420,
+      "sha256": "b844e94ae9cf69882550526a93aed3606398e9252175472be0bf6f2888eba1c9"
+    },
+    "provenance.py": {
+      "bytes": 21330,
+      "mode": 420,
+      "sha256": "880f5a7c3079cdf8bbad2a5b7bfd8b182f2b4156f57a1a6224505c2230c6660d"
+    },
+    "retention.py": {
+      "bytes": 33661,
+      "mode": 420,
+      "sha256": "95d70a043380da8b894975a2c5341d1ca8b1f6209846a69dd64fa4049564be9e"
+    }
+  },
+  "gate_row": {
+    "bytes": 43880,
+    "mode": 420,
+    "sha256": "23f2cce0b07d55974dfef65d0e66529cfe229e0652da6d4d3a653c766993d0c6"
+  },
+  "schema_version": 1,
+  "source_packet_sha256": "37f3c52ba9300f34633be728d16f8f8f95270b8252292648d685d66fa79e6096"
+}
