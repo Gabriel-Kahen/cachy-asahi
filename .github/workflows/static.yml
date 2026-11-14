@@ -300,6 +300,11 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/port/python314-tk-host-build/test_host_build.py
           python3 -I -B -Werror::ResourceWarning scripts/port/python314-tk-host-build/test_archive_layout.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/native-build-namespace-admission-preparation/test_prepare.py
+          python3 -I -B -Werror::ResourceWarning scripts/compat/python314-consumers/test_probe.py
+          python3 -I -B -Werror::ResourceWarning scripts/install/fresh_handoff/test_handoff.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/networkmanager_candidate/test_journey.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/networkmanager_private_bus/test_private_bus.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/perl_candidate/test_run.py
       - name: Exercise planned repository key rotation without skipped controls
         env:
           PYTHONDONTWRITEBYTECODE: '1'
@@ -357,6 +362,24 @@ jobs:
               subprocess.run([sys.executable, '-I', '-B', '-Werror::ResourceWarning', str(source / 'test_package.py'),
                               '--recipe-root', str(recipe), '--srcdir', str(source),
                               '--hide-checkout', str(Path.cwd())], check=True)
+          for filename in ('test_bridge.py', 'test_delivery.py'):
+              subprocess.run([sys.executable, '-I', '-B', '-Werror::ResourceWarning',
+                              str(Path('packages/tools/cachy-asahi-first-login-ui') / filename)], check=True)
+          for package, archives in (
+              ('cachy-asahi-audio-sources', ('runtime-source.tar.gz',)),
+              ('cachy-asahi-install-handoff', ('private-source.tar.gz', 'check-source.tar.gz')),
+          ):
+              recipe = (Path('packages/tools') / package).resolve()
+              with tempfile.TemporaryDirectory(prefix=package + '-ci-') as temporary:
+                  source = Path(temporary)
+                  for path in recipe.iterdir():
+                      if path.is_file():
+                          shutil.copyfile(path, source / path.name)
+                  for archive in archives:
+                      subprocess.run(['bsdtar', '-xf', str(source / archive), '-C', str(source)], check=True)
+                  subprocess.run([sys.executable, '-I', '-B', '-Werror::ResourceWarning', str(source / 'test_package.py'),
+                                  '--recipe-root', str(recipe), '--srcdir', str(source),
+                                  '--hide-checkout', str(Path.cwd())], check=True)
           PY
       - name: Exercise release and client contracts without skipped tests
         env:

@@ -7,6 +7,7 @@ import json
 import os
 from pathlib import Path
 import stat
+from stage_commands import COMMANDS
 
 
 def need(value, message):
@@ -37,15 +38,21 @@ def inspect(root, arch):
             files[name] = dict(bytes=len(body), sha256=hashlib.sha256(body).hexdigest(), mode=mode)
     required = {'usr/bin/perl', 'usr/lib/perl5/5.42/core_perl/CORE/libperl.so',
                 'usr/lib/perl5/5.42/core_perl/Config.pm', 'usr/share/perl5/core_perl/strict.pm',
-                'usr/share/licenses/perl/Artistic', 'usr/share/licenses/perl/Copying', 'usr/share/licenses/perl/README'}
+                'usr/share/licenses/perl/Artistic', 'usr/share/licenses/perl/Copying', 'usr/share/licenses/perl/README',
+                'usr/share/perl5/core_perl/pod/perldiag.pod'}
     need(required <= set(files), 'interpreter/shared library/core configuration/dual notices required')
+    need({p.name for p in (root/'usr/bin/core_perl').iterdir()} == set(COMMANDS), 'exact pinned core command set required')
+    for command in COMMANDS:
+        name = 'usr/bin/core_perl/'+command
+        need(name in files and files[name]['mode'] == 0o755, 'ordinary executable core command required')
+        need(links.get('usr/bin/'+command) == 'core_perl/'+command, 'exact normal-PATH command link required')
     machine = {'aarch64': 183, 'x86_64': 62}[arch]
     for name in ('usr/bin/perl', 'usr/lib/perl5/5.42/core_perl/CORE/libperl.so'):
         raw = (root/name).read_bytes()
         need(raw[:6] == b'\x7fELF\x02\x01' and int.from_bytes(raw[18:20], 'little') == machine, 'actual staged ELF architecture required')
     need(not any(name.startswith('usr/local/') for name in files), 'local/site module contents are operator-owned')
     return dict(status='PASS_ORDINARY_PERL_DESTDIR_LAYOUT_ONLY', architecture=arch, files=len(files), links=len(links),
-                payload_bytes=total, native='NOT_ESTABLISHED_BY_LAYOUT', installation='NOT_RUN', hardware='NOT_RUN')
+                payload_bytes=total, command_links=len(COMMANDS), native='NOT_ESTABLISHED_BY_LAYOUT', installation='NOT_RUN', hardware='NOT_RUN')
 
 
 if __name__ == '__main__':

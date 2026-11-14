@@ -1,0 +1,63 @@
+# SPDX-License-Identifier: MIT
+pkgname=cachy-asahi-first-login-ui
+pkgver=0.1.0
+pkgrel=2
+pkgdesc='Opt-in GTK first-login settings preview, activation and recovery'
+arch=('any')
+url='https://github.com/Gabriel-Kahen/cachy-asahi'
+license=('MIT')
+depends=('python>=3.11' 'python-gobject' 'gtk4' 'cachy-asahi-first-login=0.1.0-2' 'cachy-asahi-setup=0.3.0-1')
+checkdepends=('fish' 'zsh')
+source=(
+  'LICENSE'
+  'NOTICE'
+  'README.md'
+  'bridge.py'
+  'cachy-asahi-first-login-ui'
+  'first-login-entry-fixture'
+  'first-login-fixture.py'
+  'gui.py'
+  'io.github.GabrielKahen.CachyAsahiFirstLogin.desktop'
+  'setup8-fixture.py'
+  'source-provenance.json'
+  'test_bridge.py'
+  'test_delivery.py'
+  'test_gui.py'
+  'test_support.py'
+)
+sha256sums=(
+  '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
+  'dfa0e6f1fef4442602ca136c68f6e7eb23f887c0e799a2500792df26affc3012'
+  '2dbbb64e401bf5cb9ec2fe66b48a6ffb8438a1e8e3e001a4402a6e769ac04ec6'
+  'ad3bdac0b0c056475d37294be5a40329acb4be2e5eb881026943f04975483101'
+  '0943cc4063c4a802d5c835676c056a2e3320e93732208295bfd80f0d26aa5883'
+  'a5e2b72ff58eac2763c0ad65f36c0c883a60ce20e97c38acc4bace9d30a18144'
+  '41ade792884afced7a078c6926d3f18d7a9e40fca50191c7d77d34678711921c'
+  '3ce42af22ef6f73bf5f013bb1e128aa74b25d57a7a268ec78177d6f4bebf5923'
+  'f6e3bdf2b8c0d392ea3ec1dc68023ae55203ba2a0770463fa825bebda4082c05'
+  '724a37c9832d607455aeda1d929f0ee265ce268aecb64be5e00065c1edf85cf0'
+  'f91d18de6d87dd9e3b6554c8672a9f8646efe0e331b5a594e112612b468fb2f8'
+  '07c13d9a4e7513dee8516845a3fd970a3e059b5b90bd1ccaf46b163ee3ecd4b1'
+  'a5805c0ec12428b75a91487bc1f2ae6f9f2cc89335ece0559c7b0d7c1eb075b5'
+  '92fecc34a9fbb58002387c8a79422838f717b095bc27076b81ccf790a9403686'
+  '7385480f0fa3d111bebbc2d09614f6f989cad6d31586db492be3c93b41712225'
+)
+
+check() {
+    FIRST_LOGIN_UI_RECIPE="$startdir/PKGBUILD" python -I -B -Werror::ResourceWarning "$srcdir/test_bridge.py"
+    FIRST_LOGIN_UI_RECIPE="$startdir/PKGBUILD" python -I -B -Werror::ResourceWarning "$srcdir/test_delivery.py"
+}
+
+package() {
+    install -Dm755 "$srcdir/cachy-asahi-first-login-ui" "$pkgdir/usr/bin/cachy-asahi-first-login-ui"
+    for name in bridge.py gui.py; do
+        install -Dm644 "$srcdir/$name" "$pkgdir/usr/lib/cachy-asahi/first-login-ui/$name"
+    done
+    install -Dm644 "$srcdir/io.github.GabrielKahen.CachyAsahiFirstLogin.desktop" "$pkgdir/usr/share/applications/io.github.GabrielKahen.CachyAsahiFirstLogin.desktop"
+    for name in README.md source-provenance.json; do
+        install -Dm644 "$srcdir/$name" "$pkgdir/usr/share/doc/$pkgname/$name"
+    done
+    for name in LICENSE NOTICE; do
+        install -Dm644 "$srcdir/$name" "$pkgdir/usr/share/licenses/$pkgname/$name"
+    done
+}
