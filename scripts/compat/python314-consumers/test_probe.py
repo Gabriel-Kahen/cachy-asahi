@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
 """Filesystem/real-child safety controls; consumer compilation lives in probe.py."""
+import importlib.util
 import os
 from pathlib import Path
 import subprocess
@@ -8,7 +9,10 @@ import tempfile
 import time
 import unittest
 
-import probe
+spec = importlib.util.spec_from_file_location(
+    'python314_consumer_probe', Path(__file__).resolve().with_name('probe.py'))
+probe = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(probe)
 
 
 class SafetyControls(unittest.TestCase):
