@@ -50,6 +50,13 @@ The source package includes exact check-only copies of the delivered backend
 files. They are pinned in provenance, never installed by this package, and
 exercise real project helper behavior in private homes. The GUI is independent
 of Welcome8 and includes no Welcome source or artwork.
+The recipe declares Fish and Zsh as check-only dependencies. Hyprland remains
+optional: a missing compositor is an availability hold, not a configuration
+conflict. Whole-selection conflict coverage uses the available Fish/Zsh pair.
+The optional source-hidden delivery case probes its exact bwrap profile first.
+Only positively identified namespace permission/support denial is reported as
+NOT RUN, with the command and stderr retained; other probe failures fail the
+test. The full source-hidden assertions run whenever the profile is supported.
 
 ```sh
 python3 -I -B test_bridge.py
