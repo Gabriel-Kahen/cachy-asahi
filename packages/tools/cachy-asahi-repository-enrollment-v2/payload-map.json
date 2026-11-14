@@ -5,7 +5,7 @@
       "mode": 420,
       "sha256": "dd6ef397ea47cf14bb31f6ae6f7ca388d68bdb15e7fa3d20c36eb01f901b2c98"
     },
-    "scripts/release/compare_releases.py": {
+    "scripts/release/compare_releases_v2.py": {
       "bytes": 12061,
       "mode": 420,
       "sha256": "b56c78b03dcb224ecc1b76769089099ad67d9643ecbee7d5b8d5d2d16edd7632"
@@ -16,9 +16,9 @@
       "sha256": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435"
     },
     "scripts/release/signing_transition.py": {
-      "bytes": 12203,
+      "bytes": 12206,
       "mode": 420,
-      "sha256": "ebe723054db8fcc35eb87ce7bdf021e90647035f09e512a7b6a9f89ca7e27b3c"
+      "sha256": "6c7b40aef38436e54e751c8113135bab3d462c59ff7dd6d5c31734d5d5d89a61"
     },
     "scripts/release/source_delivery.py": {
       "bytes": 16456,

@@ -54,6 +54,8 @@ def check(recipe, srcdir, hide):
         assert set(inventory) == expected and len(expected) == 14
         assert cli.stat().st_mode & 0o777 == 0o755
         assert len(provenance['files']) == len(payload['files']) == 8
+        assert 'scripts/release/compare_releases_v2.py' in payload['files']
+        assert 'scripts/release/compare_releases.py' not in payload['files']
         for name, row in provenance['files'].items():
             body = (runtime / name).read_bytes()
             assert body == (srcdir / 'private' / name).read_bytes()
