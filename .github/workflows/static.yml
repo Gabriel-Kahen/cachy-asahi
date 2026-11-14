@@ -259,12 +259,37 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/install/test_first_login.py -v
           python3 -I -B packages/tools/cachy-asahi-first-login/check-sync.py --root "$PWD"
           python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-first-login/test_delivery.py --recipe packages/tools/cachy-asahi-first-login/PKGBUILD -v
-          python3 -I -B scripts/integration/first_login_rehearsal.py --output "$RUNNER_TEMP/first-login-rehearsal" --build-and-rehearse
+          python3 -I -B scripts/integration/first_login_rehearsal.py --output "$RUNNER_TEMP/first-login-rehearsal" --build-and-rehearse --installed-guest-controls
       - name: Check explicit lock and ordered suspend without a desktop session
         run: |
           python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-session-lock/test_session_lock.py -v
           python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-session-lock/test_package.py --recipe-root packages/tools/cachy-asahi-session-lock -v
           python3 -I -B -Werror::ResourceWarning packages/desktop/cachy-asahi-hyprland-settings011/test_package.py --recipe-root packages/desktop/cachy-asahi-hyprland-settings011 -v
+      - name: Check new native source families without native actors
+        run: |
+          python3 -I -B -Werror::ResourceWarning scripts/ci/session-lock-settings-native-source/test_data.py -v
+          python3 -I -B -Werror::ResourceWarning scripts/ci/session-lock-settings-native-source/test_image_lifecycle_data.py -v
+          python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/test_pair_data.py -v
+          python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/test_image_lifecycle_data.py -v
+          python3 -I -B -Werror::ResourceWarning scripts/ci/native-build-namespace-preflight/test_preflight_data.py -v
+          python3 -I -B -Werror::ResourceWarning scripts/ci/native-build-namespace-preflight/test_image_lifecycle_data.py -v
+      - name: Check protected composition with pinned libalpm16
+        timeout-minutes: 10
+        run: |
+          set -euo pipefail
+          image="cachy-asahi-supported-composition-tests:${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          trap 'docker image rm "$image" >/dev/null 2>&1 || true' EXIT
+          docker build --pull=false \
+            -f scripts/port/supported-composition/ci-runtime/Dockerfile \
+            -t "$image" scripts/port/supported-composition/ci-runtime
+          docker run --rm --network=none --read-only --cap-drop=ALL \
+            --security-opt=no-new-privileges --pids-limit=128 --memory=512m \
+            --tmpfs /tmp:rw,nodev,nosuid,noexec,size=256m,mode=1777 \
+            --mount "type=bind,src=$PWD,dst=/work,readonly" "$image"
+      - name: Check corresponding-source data tools
+        run: |
+          python3 -I -B -Werror::ResourceWarning scripts/port/platform-audio-sources/test_intake.py -v
+          python3 -I -B -Werror::ResourceWarning scripts/port/platform-audio-vendor-audit/test_audit.py -v
       - name: Exercise planned repository key rotation without skipped controls
         env:
           PYTHONDONTWRITEBYTECODE: '1'
