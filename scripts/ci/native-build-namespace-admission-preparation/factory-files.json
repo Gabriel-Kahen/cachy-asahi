@@ -1,0 +1,68 @@
+{
+  "scripts/ci/first-login-enrollment-native-source/README.md": {
+    "bytes": 11813,
+    "mode": "100644",
+    "oid": "64513afef0099b801831fdf75c5eac4d1e0f1b9f",
+    "sha256": "b5a7c252b20851a56a12ae5ac43b8dad0a5dc1177dd0a257268d29faa08757a6"
+  },
+  "scripts/ci/first-login-enrollment-native-source/payload/native/image_lifecycle.py": {
+    "bytes": 13034,
+    "mode": "100644",
+    "oid": "5ff9656200fc88681567be84b2efa0e91c23803d",
+    "sha256": "805fabc496f10b67425cc69bdf7793d0e703dae1fab2407d8596391c9e9c5f2b"
+  },
+  "scripts/ci/first-login-enrollment-native-source/prepare.py": {
+    "bytes": 15159,
+    "mode": "100644",
+    "oid": "cf9767ff1a02d0833f73806a7dad4baa3f1d48a6",
+    "sha256": "f0c9d7aaaad08ab78130aae3fb4b3e6b1856173f6b5c8e3ee83163d8b5ede395"
+  },
+  "scripts/ci/first-login-enrollment-native-source/profile.json": {
+    "bytes": 62259,
+    "mode": "100644",
+    "oid": "bd15d68a0fb3c940022b1a8d1d7b47619641bfa0",
+    "sha256": "ad874751a48cfd7e7d94f5d38d79caa138679be067cb113ead35150f0d3c78fa"
+  },
+  "scripts/ci/first-login-enrollment-native-source/test_image_lifecycle_data.py": {
+    "bytes": 13701,
+    "mode": "100644",
+    "oid": "1a2843a4604affeac075f1888b1bf174fda2350e",
+    "sha256": "b85bd49d3ead662c1ea3fb5735c4987d6286cae910f937542a4421983a1179f1"
+  },
+  "scripts/ci/native-build-namespace-preflight/README.md": {
+    "bytes": 9371,
+    "mode": "100644",
+    "oid": "2d72e0acc53c712cdc7a0ed901d326d195c97d35",
+    "sha256": "5883d59acaa50666a9ecf304338d66b1a85713aeab936b9607904e80340c1cb4"
+  },
+  "scripts/ci/native-build-namespace-preflight/payload/native/image_lifecycle.py": {
+    "bytes": 13034,
+    "mode": "100644",
+    "oid": "5ff9656200fc88681567be84b2efa0e91c23803d",
+    "sha256": "805fabc496f10b67425cc69bdf7793d0e703dae1fab2407d8596391c9e9c5f2b"
+  },
+  "scripts/ci/native-build-namespace-preflight/prepare.py": {
+    "bytes": 14354,
+    "mode": "100644",
+    "oid": "cea651e454ee775d1a27fc7124b9914a6f449c11",
+    "sha256": "7c7b8ce846603d76da1db7de58573fa76642871aae7082fa36b32a54856585d7"
+  },
+  "scripts/ci/native-build-namespace-preflight/profile.json": {
+    "bytes": 62083,
+    "mode": "100644",
+    "oid": "a4babb726391f97796bb54451b7f20208adf20f7",
+    "sha256": "8c0dc91cbd97dcfda1353dcafa1da1f08f250e3c690a97e08f657431f29e7472"
+  },
+  "scripts/ci/native-build-namespace-preflight/test_image_lifecycle_data.py": {
+    "bytes": 13701,
+    "mode": "100644",
+    "oid": "1a2843a4604affeac075f1888b1bf174fda2350e",
+    "sha256": "b85bd49d3ead662c1ea3fb5735c4987d6286cae910f937542a4421983a1179f1"
+  },
+  "scripts/ci/native-build-namespace-preflight/test_preflight_data.py": {
+    "bytes": 25832,
+    "mode": "100644",
+    "oid": "1b29565fbcd71e1ce22af2ad5ff0319b08d5b0c7",
+    "sha256": "4c632c09e5155eda9cb8fe5c269ca8666e5e301d6099d57e07d7c7bc50cb58dd"
+  }
+}

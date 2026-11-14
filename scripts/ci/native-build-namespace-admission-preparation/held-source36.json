@@ -1,0 +1,64 @@
+{
+  "actual_role_outputs_copied": false,
+  "files": {
+    "ROOT-INDEPENDENT-PREFLIGHT.py": {
+      "bytes": 7034,
+      "sha256": "513e98ef6caa323e53f1c02bd1ac2295076f839360e81852905fc20fa2b5fcaa"
+    },
+    "ROOT-NATIVE-ONCE.py": {
+      "bytes": 28457,
+      "sha256": "446fee55a9bb4b7ef44b466f8de8b2ade0eebf40ab1f7225421be139d958c52c"
+    },
+    "RUN-PINNED-9D.py": {
+      "bytes": 4122,
+      "sha256": "790b3bbb7292875a7f753a5d24b2943d314dc497064fd3a7b5b756c5df968286"
+    },
+    "Root-authority.TEMPLATE.json": {
+      "bytes": 7949,
+      "sha256": "7c081d2efc6944848b1df439705d0404ee7ea4fe8b722f9a1091584a03978a5e"
+    },
+    "Root-current-x86-certificates.json": {
+      "bytes": 1212,
+      "sha256": "e2ae3e8a3a4997551b3a6d51d4bef0f2ec07c1a2fec4d61fd9e22b9fc10a1207"
+    },
+    "Root-eight-x86-certificates.json": {
+      "bytes": 2126,
+      "sha256": "273853a891b4101e1911b5e110779b8aa3a5d7883fb9328946cac61a1fa4fb2b"
+    },
+    "catalog-reference.py": {
+      "bytes": 3882,
+      "sha256": "278ddc0692681acbcd76af6d1cbe4f7cf947eb64cc852e838a233b1b06783ae4"
+    },
+    "ci-adapter.py": {
+      "bytes": 10040,
+      "sha256": "0f423aa3f2b177050542fc00c849819b91172a841d2d840b8ade8b02c8a93e17"
+    },
+    "descriptor-witness.raw": {
+      "bytes": 1232,
+      "sha256": "f725d774696bfdc05836baf4d259bfdef5bcffb8f3bea6dae0f55c5ded247a2e"
+    },
+    "input-seal.json": {
+      "bytes": 44585,
+      "sha256": "aadfac4d2c60cb791a6253af17cd99252c859ba473113a2552f972bf03afb953"
+    },
+    "known-terminal-runs.json": {
+      "bytes": 9783,
+      "sha256": "81deb20132a6ee5213054694db95421959cfa7fb7b0ab7da90e133b60a0bd5dd"
+    },
+    "seal.json": {
+      "bytes": 3438,
+      "sha256": "245d30b204910c55287200dd29e441c1d3ab6445a2c448ff9bf23681aae57bbe"
+    },
+    "workflow-descriptor-held.py": {
+      "bytes": 9915,
+      "sha256": "822b5fb4aeb970fb72ea09b355469a1558afdc35e6fc1b43b34efa51bee2a87a"
+    },
+    "x86-body-certificate.template.json": {
+      "bytes": 647,
+      "sha256": "254a999910c78a5423f25f2303f1e74e99cfd5284554deb850f8e4b0e8c5bb16"
+    }
+  },
+  "root": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/developer-tools-quiet-build-native-admission-preparation-20261108",
+  "schema": 1,
+  "source": "36f03557d861f6480b4c8e581d1a8025b35b4d8e"
+}
