@@ -259,6 +259,7 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/install/test_first_login.py -v
           python3 -I -B packages/tools/cachy-asahi-first-login/check-sync.py --root "$PWD"
           python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-first-login/test_delivery.py --recipe packages/tools/cachy-asahi-first-login/PKGBUILD -v
+          python3 -I -B scripts/integration/first_login_rehearsal.py --output "$RUNNER_TEMP/first-login-rehearsal" --build-and-rehearse
       - name: Check explicit lock and ordered suspend without a desktop session
         run: |
           python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-session-lock/test_session_lock.py -v
@@ -309,6 +310,18 @@ jobs:
                   result = unittest.TextTestRunner(verbosity=2).run(suite)
                   if not result.wasSuccessful() or result.skipped or result.testsRun < minimum:
                       raise SystemExit(filename + ': failures, skips, or incomplete control suite')
+
+          import shutil, subprocess, sys
+          recipe = Path('packages/tools/cachy-asahi-repository-enrollment-v2').resolve()
+          with tempfile.TemporaryDirectory(prefix='enrollment-v2-ci-source-') as temporary:
+              source = Path(temporary)
+              for name in ('test_package.py', 'test_release.py', 'cachy-asahi-repository-enrollment',
+                           'README.md', 'source-provenance.json', 'payload-map.json', 'NOTICE', 'LICENSE'):
+                  shutil.copyfile(recipe / name, source / name)
+              subprocess.run(['bsdtar', '-xf', str(recipe / 'private-source.tar.gz'), '-C', str(source)], check=True)
+              subprocess.run([sys.executable, '-I', '-B', '-Werror::ResourceWarning', str(source / 'test_package.py'),
+                              '--recipe-root', str(recipe), '--srcdir', str(source),
+                              '--hide-checkout', str(Path.cwd())], check=True)
           PY
       - name: Exercise release and client contracts without skipped tests
         env:
