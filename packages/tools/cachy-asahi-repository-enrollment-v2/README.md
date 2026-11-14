@@ -1,7 +1,7 @@
 # Repository enrollment tools 0.2.0
 
 An opt-in successor recipe for the same `cachy-asahi-repository-enrollment`
-package, version **0.2.0-1**. It retains `configure` and `rotate` and adds
+package, version **0.2.0-2**. It retains `configure` and `rotate` and adds
 `transition`, connecting an authenticated dual-signed release handoff to explicit
 local trust rotation. No manifest selection, release promotion or publication
 is implied. The separate 0.1.0 recipe and its evidence remain unchanged.
@@ -48,6 +48,10 @@ runtime identities. The deterministic private source archive preserves only
 that finite closure. No checkout discovery, whole-repository runtime or network
 source acquisition occurs. The launcher uses fixed `/usr/bin/python3 -I -B` and
 resolves its private runtime relative to its own installation prefix.
+
+This unqualified recipe revision packages `compare_releases_v2.py`; the legacy
+comparison remains byte-identical for frozen consumers. The earlier 0.2.0-1 host
+build is historical evidence only and does not establish this revised payload.
 
 Runtime dependencies are **Python >=3.11, gnupg, pacman, coreutils and libarchive**.
 Python 3.11 supplies `sys.exception`, exception notes and file hashing; all Python
