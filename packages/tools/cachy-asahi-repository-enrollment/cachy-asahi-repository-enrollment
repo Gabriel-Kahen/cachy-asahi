@@ -14,7 +14,7 @@ case "${1:-}" in
             'Preview is the default. Pass --apply to the selected command to change trust/configuration.' \
             'Use configure --help or rotate --help for command options.'
         exit 0 ;;
-    configure) shift; exec /usr/bin/python -I -B "$runtime/enroll.py" "$@" ;;
-    rotate) shift; exec /usr/bin/python -I -B "$runtime/rotate.py" "$@" ;;
+    configure) shift; exec /usr/bin/python3 -I -B "$runtime/enroll.py" "$@" ;;
+    rotate) shift; exec /usr/bin/python3 -I -B "$runtime/rotate.py" "$@" ;;
     *) printf '%s\n' 'Unknown command; use --help.' >&2; exit 2 ;;
 esac
