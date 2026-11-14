@@ -3,6 +3,7 @@
 """Finite recipe, metadata, staging and refusal controls; no install/build actors."""
 import ast
 import hashlib
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -10,9 +11,12 @@ import re
 import subprocess
 import tempfile
 import unittest
-from stage_commands import COMMANDS, deliver
 
 HERE = Path(__file__).resolve().parent
+SPEC = importlib.util.spec_from_file_location('perl_candidate_commands', HERE/'stage_commands.py')
+COMMAND_MODULE = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(COMMAND_MODULE)
+COMMANDS, deliver = COMMAND_MODULE.COMMANDS, COMMAND_MODULE.deliver
 LOCK = json.loads((HERE/'source-lock.json').read_bytes())
 
 

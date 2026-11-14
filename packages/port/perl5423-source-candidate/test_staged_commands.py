@@ -7,6 +7,7 @@ installation, dependency acquisition, service or device access is performed.
 """
 import argparse
 import hashlib
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -14,7 +15,10 @@ import shutil
 import subprocess
 import tempfile
 
-from stage_commands import COMMANDS
+SPEC = importlib.util.spec_from_file_location('perl_candidate_commands', Path(__file__).with_name('stage_commands.py'))
+COMMAND_MODULE = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(COMMAND_MODULE)
+COMMANDS = COMMAND_MODULE.COMMANDS
 
 
 def inside():
