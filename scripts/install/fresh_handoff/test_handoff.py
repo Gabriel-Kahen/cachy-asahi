@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-"""Local software tests; predecessor authentication is a labeled TEST seam.
+"""Earlier custody controls; predecessor authentication is a labeled TEST seam.
 
 The signed candidate test uses genuine fresh disposable TEST signatures. Other
 custody tests use the existing recovery suite's UNSIGNED synthetic fixtures.
@@ -44,6 +44,11 @@ class HandoffTests(unittest.TestCase):
         self.f = F.BundleTests(methodName='runTest')
         self.f.setUp()
         self.addCleanup(self.f.doCleanups)
+        # Preserve the original unsigned custody controls; the separate signed
+        # suite exercises both identities and fresh archives without these seams.
+        patch = mock.patch.object(H, 'fresh_recovery', return_value=H.R.P.OLD_COUNT)
+        patch.start()
+        self.addCleanup(patch.stop)
         self.root = self.f.root
         self.candidate = self.root / 'candidate'
         shutil.copytree(self.f.kit, self.candidate, symlinks=True)
@@ -51,7 +56,7 @@ class HandoffTests(unittest.TestCase):
         self.original_inspect = self.f.authenticated_seam
         def test_auth(args):
             if Path(args.kit).name == 'candidate':
-                H.need(args.signer == 'B' * 40 and args.namespace == 'dev.TEST-candidate', 'TEST candidate authority mismatch')
+                H.need(args.signer == 'A' * 40 and args.namespace == 'dev.TEST-candidate', 'TEST candidate authority mismatch')
                 H.need(args.kit_sha256 == H.C.digest((Path(args.kit) / 'kit.json').read_bytes()), 'TEST candidate kit pin differs')
                 return dict(release_sha256=H.C.digest((Path(args.kit) / 'release/release.json').read_bytes()))
             return self.original_inspect(args)
@@ -59,7 +64,7 @@ class HandoffTests(unittest.TestCase):
         self.commit = subprocess.check_output(['git', '-C', str(ROOT), 'rev-parse', 'HEAD'], text=True).strip()
         self.chosen = dict(schema_version=1, purpose='development-fresh-install-handoff', source_commit=self.commit,
             candidate=dict(kit_sha256=H.C.digest((self.candidate/'kit.json').read_bytes()),
-                release_sha256=self.f.chosen['release_sha256'], signer='B'*40,
+                release_sha256=self.f.chosen['release_sha256'], signer='A'*40,
                 namespace='dev.TEST-candidate', minimum_sequence=1),
             recovery=dict(receipt_sha256=self.f.result['receipt_sha256'], selection_sha256=self.f.selection_pin,
                 release_sha256=self.f.chosen['release_sha256'], signer=self.f.signer,
@@ -124,6 +129,8 @@ class HandoffTests(unittest.TestCase):
         self.chosen['candidate'].update(kit_sha256=result['kit_sha256'],
             release_sha256=result['release_sha256'], signer=signed.f.key,
             namespace=signed.args.namespace)
+        self.f.signer = signed.f.key
+        self.chosen['recovery']['signer'] = signed.f.key
         self.save()
         def independent_auth(args):
             return REAL_INSPECT(args) if Path(args.kit).name == 'candidate' else self.original_inspect(args)
