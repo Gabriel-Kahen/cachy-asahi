@@ -7,7 +7,7 @@
     "source": null
   },
   "main_base": "16bee3f50e045de952e320532171c9a8ee95ebcf",
-  "map_sha256": "97aebeb60bff422f097112b4e49604adf94fc0532c5ca7749a3e544bda2290b3",
+  "map_sha256": "f2521fb4c48f7841b79a22564f88e558b8cd8a1ba41117ccfa55ffd257c64908",
   "operation": "session-lock-settings-alpm-v1",
   "overlay": {
     ".github/workflows/native-arm-build.yml": {
@@ -46,9 +46,9 @@
       "sha256": "99fdfde046f83d69d8ae8095331ce0f8a63d321ba0ed85743334234f79bde131"
     },
     "native/build_tools_reader_v2.py": {
-      "bytes": 128522,
+      "bytes": 128550,
       "mode": 420,
-      "sha256": "881af614df6a98d047f8d1eeff4470eebb9d2f391eb2e8a0312a95c5cbc5e130"
+      "sha256": "afeec6b3ebc273e7ecbfc6a5c4530ea5d0f158d220e69c44114be4efabd173c9"
     },
     "native/build_tools_tools_v2.py": {
       "bytes": 16599,
@@ -1286,7 +1286,7 @@
     "sha256": "fa317050fc47a818dedd1016dabe1146e31732020534a1231789152913c7ec14"
   },
   "parent_tree": "81d61d9e1f33c1638e9f67fbd7e39b158c603451",
-  "prospective_tree": "439c3db9ecd2b9b534753f9c8bca548f64621a6c",
+  "prospective_tree": "0edef056655c7bc6102f537ed663848324edcec4",
   "purpose": "UNEXECUTED_SESSION_LOCK_SETTINGS_NATIVE_SOURCE_FAMILY_ONLY",
   "schema": 1
 }
