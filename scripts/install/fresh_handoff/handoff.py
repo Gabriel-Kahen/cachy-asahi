@@ -2,8 +2,9 @@
 # SPDX-License-Identifier: MIT
 """Compose existing offline kit/recovery workspaces into a held install handoff.
 
-Run from a trusted checkout. Transferred Python is data and is never executed.
-No package transaction, trust enrollment, native actor or system operation runs.
+Run from a trusted checkout or authenticated finite operator runtime. Python
+inside candidate/recovery kits is never executed. No package transaction, trust
+enrollment, native actor or system operation runs.
 """
 import argparse
 import importlib.util
@@ -22,6 +23,9 @@ spec = importlib.util.spec_from_file_location('fresh_recovery_bundle', ROOT / 's
 R = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(R)
 K, C = R.K, R.C
+spec = importlib.util.spec_from_file_location('fresh_operator_runtime', Path(__file__).with_name('runtime.py'))
+D = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(D)
 RECEIPT = 'handoff.json'
 # Owning interfaces, selected helpers/templates and inventory, not an executable
 # closure. Existing kit/recovery verification owns its own runtime/data closure.
@@ -39,6 +43,7 @@ SOURCES = (
     'packages/desktop/cachy-asahi-hyprland-settings011/hyprland.lua',
 )
 LIMITS = dict(packages_installed=False, trust_enrolled=False,
+              fresh_recovery_signature_verification=True,
               native_preflight_run=False, boot_recovery_accepted=False,
               first_graphical_login='NOT RUN', native_arm='NOT RUN',
               m2_air_13='NOT RUN', m2_air_15='NOT RUN', release_accepted=False)
@@ -72,6 +77,19 @@ def selection(raw):
 
 def source_refs(commit):
     """Refuse a dirty owning interface; bind both Git body and trusted checkout."""
+    lock = globals().get('DELIVERED_SOURCE_LOCK')
+    if lock is not None:
+        need(type(lock) is dict and set(lock) == {'schema_version', 'purpose', 'source_commit', 'source_refs'} and
+             type(lock['schema_version']) is int and lock['schema_version'] == 1 and
+             lock['purpose'] == 'fresh-handoff-owning-source-witnesses' and
+             lock['source_commit'] == commit and type(lock['source_refs']) is dict and
+             set(lock['source_refs']) == set(SOURCES), 'DELIVERED_SOURCE_LOCK_REFUSED')
+        for name, row in lock['source_refs'].items():
+            need(type(row) is dict and set(row) == {'size', 'sha256'} and type(row['size']) is int,
+                 'DELIVERED_SOURCE_REFERENCE_REFUSED')
+            raw = C.read_path(ROOT / name, C.MAX_JSON)
+            need(len(raw) == row['size'] and C.digest(raw) == row['sha256'], 'DELIVERED_SOURCE_BODY_REFUSED: ' + name)
+        return lock['source_refs']
     refs = {}
     for name in SOURCES:
         result = subprocess.run(['git', '-C', str(ROOT), 'show', commit + ':' + name],
@@ -83,16 +101,63 @@ def source_refs(commit):
     return refs
 
 
+def checked_role(label, function):
+    try:
+        return function()
+    except (C.Error, ValueError, OSError, KeyError, TypeError, subprocess.SubprocessError) as error:
+        raise C.Error(label + ': ' + str(error)) from error
+
+
+def fresh_recovery(recovery, prior):
+    """Reverify exact retained archives with the existing pinned public verifier.
+
+    Existing recovery receipts retain their historical classification. This
+    distinct check reads local bounded snapshots; no network or global keyring.
+    The maintained recovery profile remains fixed to its ALARM trust anchor.
+    """
+    rows = prior['recovery_packages']
+    need(type(rows) is list and len(rows) == R.P.OLD_COUNT, 'RECOVERY_SIGNATURE_SET_REFUSED')
+    certificate = R.read(recovery, 'recovery/inputs/certificate', R.P.MIB)
+    signer, pin = R.P.auth.KEYS['alarm']
+    need(C.digest(certificate) == pin, 'RECOVERY_CERTIFICATE_PIN_REFUSED')
+    with tempfile.TemporaryDirectory(prefix='fresh-handoff-public-verification-') as temporary:
+        root = Path(temporary)
+        public = root / 'public.gpg'
+        public.write_bytes(certificate)
+        for number, row in enumerate(rows):
+            name = row['name']
+            C.relative(name)
+            need('/' not in name, 'RECOVERY_PACKAGE_NAME_REFUSED')
+            archive_raw = R.read(recovery, 'recovery/packages/' + name + '/archive', R.P.ARCHIVE_LIMIT)
+            signature_raw = R.read(recovery, 'recovery/packages/' + name + '/signature', R.P.SIGNATURE_LIMIT)
+            need(C.digest(archive_raw) == row['archive_sha256'] and
+                 C.digest(signature_raw) == row['signature_sha256'], 'RECOVERY_SNAPSHOT_PIN_REFUSED: ' + name)
+            archive, signature = root / (str(number) + '.archive'), root / (str(number) + '.sig')
+            archive.write_bytes(archive_raw)
+            signature.write_bytes(signature_raw)
+            result, observation = checked_role('RECOVERY_SIGNATURE_REFUSED: ' + name,
+                lambda: R.P.auth.verify(root, public, archive, signature, signer))
+            need(result['fresh_verification'] is True and observation['exit'] == 0 and
+                 observation['installed_keyring_access'] is False and observation['ownertrust_modified'] is False,
+                 'RECOVERY_SIGNATURE_RESULT_REFUSED: ' + name)
+    return len(rows)
+
+
 def inspect_inputs(candidate, recovery, chosen, state):
     common = dict(state_dir=str(state))
     candidate_args = {key: chosen['candidate'][key] for key in
                       ('kit_sha256', 'signer', 'namespace', 'minimum_sequence')}
-    checked = K.inspect(argparse.Namespace(kit=str(candidate), **common, **candidate_args))
+    checked = checked_role('CANDIDATE_AUTH_REFUSED',
+        lambda: K.inspect(argparse.Namespace(kit=str(candidate), **common, **candidate_args)))
     need(checked['release_sha256'] == chosen['candidate']['release_sha256'], 'candidate release differs')
     recovery_args = {key: chosen['recovery'][key] for key in
                      ('receipt_sha256', 'selection_sha256', 'signer', 'namespace', 'minimum_sequence')}
-    prior = R.verify(argparse.Namespace(workspace=str(recovery), **common, **recovery_args))
+    prior = checked_role('PREDECESSOR_AUTH_REFUSED',
+        lambda: R.verify(argparse.Namespace(workspace=str(recovery), **common, **recovery_args)))
     need(prior['predecessor_release_sha256'] == chosen['recovery']['release_sha256'], 'predecessor release differs')
+    need(chosen['candidate']['signer'] == chosen['recovery']['signer'],
+         'SIGNER_TRANSITION_HELD: a separately reviewed signer transition is required')
+    fresh_recovery(recovery, prior)
     # This first slice preserves the platform. A coordinated platform change
     # needs a separate qualified path rather than an arbitrary predecessor.
     candidate_spec = C.decode(R.read(candidate, 'release/spec.json'))
@@ -114,7 +179,7 @@ def actions(chosen):
     return [
         dict(step=1, state='HELD', action='Start in macOS; retain backups and establish the supported Asahi base using its maintained installer.',
              hold='Independent macOS-to-Asahi journey, disk/boot prerequisites and recovery access on each exact M2 Air are NOT RUN.'),
-        dict(step=2, state='OFFLINE_CHECK', action='Verify this handoff from the trusted selected checkout with external selection/receipt pins and receiver state.',
+        dict(step=2, state='OFFLINE_CHECK', action='Verify this handoff from the authenticated finite operator runtime or matching trusted checkout with external selection/receipt/runtime pins and receiver state.',
              hold='Successful byte/signature checks authorize no installation or production trust.'),
         dict(step=3, state='RETAIN', action='Keep recovery/ and a separate externally pinned copy reachable outside the target before any target mutation.',
              hold='Offline predecessor archives are retained data; boot/session restoration is NOT RUN.'),
@@ -141,7 +206,7 @@ def instructions(chosen):
              'Candidate release SHA-256: ' + chosen['candidate']['release_sha256'],
              'Predecessor release SHA-256: ' + chosen['recovery']['release_sha256'],
              'Source commit: ' + chosen['source_commit'],
-             'This directory is portable offline DATA. Run tools from a trusted checkout.',
+             'Candidate/recovery kits are offline DATA. Run the authenticated operator runtime or matching trusted checkout.',
              'This is not a supported installer, installation result or release admission.', '']
     for row in actions(chosen):
         lines += [f"{row['step']}. [{row['state']}] {row['action']}", '   Hold: ' + row['hold']]
@@ -178,9 +243,10 @@ def copy_data(source, target):
     need(K.inventory(target) == (files, links), 'input copy differs')
 
 
-def report(chosen, pin, refs):
+def report(chosen, pin, refs, runtime_pin):
     return dict(status='HELD_DEVELOPMENT_HANDOFF', receipt_sha256=pin,
                 composer_sha256=C.digest(C.read_path(Path(__file__).resolve(), C.MAX_JSON)),
+                runtime_sha256=runtime_pin,
                 candidate_release_sha256=chosen['candidate']['release_sha256'],
                 predecessor_release_sha256=chosen['recovery']['release_sha256'],
                 source_commit=chosen['source_commit'], source_refs=refs,
@@ -198,8 +264,8 @@ def verify(args):
         os.close(fd)
     raw = R.pinned(root / RECEIPT, args.receipt_sha256)
     receipt = C.decode(raw)
-    need(set(receipt) == {'schema_version', 'purpose', 'selection_sha256', 'files', 'symlinks', 'source_refs', 'composer_sha256'} and
-         type(receipt['schema_version']) is int and receipt['schema_version'] == 1 and
+    need(set(receipt) == {'schema_version', 'purpose', 'selection_sha256', 'files', 'symlinks', 'source_refs', 'composer_sha256', 'runtime_sha256'} and
+         type(receipt['schema_version']) is int and receipt['schema_version'] == 2 and
          receipt['purpose'] == 'held-offline-fresh-install-handoff', 'unsupported handoff receipt')
     need(receipt['selection_sha256'] == args.selection_sha256, 'external selection differs')
     files, links = K.inventory(root)
@@ -208,6 +274,9 @@ def verify(args):
     chosen = selection(R.pinned(root / 'selection.json', args.selection_sha256))
     refs = source_refs(chosen['source_commit'])
     need(refs == receipt['source_refs'], 'source references differ')
+    lock = D.verify(root / 'operator', receipt['runtime_sha256'])
+    need(lock['source_commit'] == chosen['source_commit'] and lock['source_refs'] == refs,
+         'OPERATOR_SOURCE_BINDING_REFUSED')
     need(receipt['composer_sha256'] == C.digest(C.read_path(Path(__file__).resolve(), C.MAX_JSON)),
          'trusted composer differs from handoff')
     inspect_inputs(root / 'candidate', root / 'recovery', chosen, state)
@@ -215,7 +284,7 @@ def verify(args):
     after, after_links = K.inventory(root)
     need(after.pop(RECEIPT, None) == args.receipt_sha256 and after == files and after_links == links,
          'handoff changed during validation')
-    return report(chosen, args.receipt_sha256, refs)
+    return report(chosen, args.receipt_sha256, refs, receipt['runtime_sha256'])
 
 
 def prepare(args):
@@ -235,11 +304,13 @@ def prepare(args):
             created = staging.stat()
             copy_data(candidate, staging / 'candidate')
             copy_data(recovery, staging / 'recovery')
+            runtime = D.stage(ROOT, staging / 'operator', chosen['source_commit'], refs)
             R.write(staging, 'selection.json', raw)
             R.write(staging, 'ACTIONS.txt', instructions(chosen))
             files, links = K.inventory(staging)
-            receipt = dict(schema_version=1, purpose='held-offline-fresh-install-handoff',
+            receipt = dict(schema_version=2, purpose='held-offline-fresh-install-handoff',
                            selection_sha256=args.selection_sha256, source_refs=refs, files=files, symlinks=links,
+                           runtime_sha256=runtime['runtime_sha256'],
                            composer_sha256=C.digest(C.read_path(Path(__file__).resolve(), C.MAX_JSON)))
             receipt_raw = C.encoded(receipt)
             need(len(receipt_raw) <= C.MAX_JSON, 'handoff receipt too large')

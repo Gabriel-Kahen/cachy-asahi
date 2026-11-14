@@ -4,17 +4,21 @@
 recovery workspace beside one another, validates them again after copying, and
 publishes one private directory with ordered operator actions. `verify` checks
 that same directory after transport. Neither command installs packages, executes
-transferred Python, enrolls trust, runs a native actor, changes a service or
+Python from the candidate/recovery kits, enrolls trust, runs a native actor, changes a service or
 writes partitions. This implements the offline preparation part of M8. It does
 not implement or claim a macOS-to-first-login installation.
 
 The candidate receiver remains `scripts/release/offline_kit.py`; predecessor
 verification remains `scripts/release/recovery_bundle.py`. Their existing checks,
 external trust requirements, metadata expiry and fixed recovery profile are
-unchanged. In particular, recovery archive signatures remain **retained
-observations**, rehashed and metadata-reinspected by that tool; this wrapper does
-not freshly verify those signatures or broaden its recovery coverage. Retained
-assets and successful inspection do not demonstrate boot restoration.
+unchanged. Their recovery observations keep their historical classification.
+This successor adds a distinct **fresh signature verification** of all 16 local
+recovery archives using the existing `authenticate_missing.verify` API, its fixed
+ALARM certificate pin and public-only disposable GPG homes. Local archive and
+signature snapshots are bounded and rehashed before that call. No network,
+global keyring or ownertrust is used. Coverage stays within the existing fixed
+16-package profile. Retained assets and successful inspection do not demonstrate
+boot restoration.
 
 ## Prepare
 
@@ -55,6 +59,10 @@ The two signer/namespace/floor selections are independent. The sequence floor
 must reflect the receiver's actual policy; `1` above is an example, not a safe
 default. Authenticate the selection hash separately from the transported files.
 No trust identity is inferred from a certificate, package, receipt or download.
+The two kit signers must match in this slice. Two independently verified but
+different signers yield `SIGNER_TRANSITION_HELD`; a separately reviewed key
+transition remains a distinct gate. The recovery archive signer remains the
+maintained tool's fixed ALARM anchor, separate from either project-kit identity.
 
 ```sh
 python3 -I -B scripts/install/fresh_handoff/handoff.py prepare \
@@ -73,13 +81,20 @@ publication helper. Validation/copy failure leaves no published output and
 preserves input data. This is not a power-loss durability guarantee. Existing
 kit inventory size/member limits also apply to the combined directory.
 
-The result contains `candidate/`, `recovery/`, the exact `selection.json`,
+The result contains `candidate/`, `recovery/`, `operator/`, the exact `selection.json`,
 `ACTIONS.txt`, and `handoff.json`. The receipt binds every regular file/internal
 alias, exact owning-interface hashes and lengths, and the composer source hash.
 `source_commit` binds the existing interfaces and development manifest, **not**
 the candidate packages' upstream source revisions; those remain owned by the
 signed release's provenance/source associations. The interface list is not an
-executable runtime closure. Tools run from the separately trusted checkout.
+executable runtime closure. A separate finite runtime is staged under `operator/`:
+17 Python runtime files and 15 interface witnesses deduplicate into 33 regular
+files including the license, source lock and runtime receipt. No whole checkout,
+Git metadata, private signing data or test fixture is shipped. `runtime.json`
+binds the complete finite inventory. `source-lock.json` binds the selected commit
+and exact interface bodies, allowing delivered execution without Git discovery.
+The new handoff receipt is schema 2; schema-1 handoffs remain historical and must
+be regenerated for this runtime/signature path.
 
 This first slice requires identical protected platform names, versions and
 architectures in candidate and predecessor. A coordinated platform change needs
@@ -88,17 +103,29 @@ not prove unchanged firmware or actual device behavior.
 
 ## Verify and follow the actions
 
-Save the returned `receipt_sha256` externally. After moving/copying the directory,
-use the same trusted composer bytes, matching owning interfaces and external
+Save the returned `receipt_sha256` and `runtime_sha256` externally, alongside the
 selection hash. The transported directory cannot authenticate its own receipt.
+Authenticate the reviewed runtime entrypoint itself through the operator's
+trusted delivery process before executing it. Its external inventory pin checks
+transport identity; a script already running cannot authenticate itself.
+
+After moving/copying the directory, the finite runtime can run with the original
+checkout unavailable:
 
 ```sh
-python3 -I -B scripts/install/fresh_handoff/handoff.py verify \
+python3 -I -B /absolute/moved/fresh-handoff/operator/scripts/install/fresh_handoff/runtime.py \
+  --runtime-sha256 "$EXTERNAL_OPERATOR_RUNTIME_SHA256" -- verify \
   --workspace /absolute/moved/fresh-handoff \
   --receipt-sha256 "$EXTERNAL_HANDOFF_RECEIPT_SHA256" \
   --selection-sha256 "$EXTERNAL_SELECTION_SHA256" \
   --state-dir /absolute/external-receiver-state
 ```
+
+The entrypoint checks the exact finite inventory and external runtime pin before
+loading handoff helpers. Deleted, changed, foreign and aliased members are
+refused. It does not fall back to source discovery. A matching trusted checkout
+can still run `handoff.py verify` directly. Python, GPG/gpgv and archive tools
+remain preinstalled host dependencies; no dependency installation is provided.
 
 Exit zero means **offline data checks passed**. The JSON status is always
 `HELD_DEVELOPMENT_HANDOFF`, and release/install/native/hardware flags remain
@@ -121,6 +148,8 @@ set or production trust. No PC bootloader/hardware-detection path is introduced.
 
 ```sh
 python3 -I -B -Werror::ResourceWarning scripts/install/fresh_handoff/test_handoff.py -v
+python3 -I -B -Werror::ResourceWarning scripts/install/fresh_handoff/test_signed_handoff.py -v
+python3 -I -B -Werror::ResourceWarning scripts/install/fresh_handoff/test_runtime.py -v
 ```
 
 The local suite exercises actual copying, relocation after original inputs are
@@ -129,10 +158,35 @@ mismatch, missing/tampered rollback assets, interruption cleanup, no replacement
 of existing output, source drift and changed operator instructions. One integrated
 case verifies a freshly generated disposable **TEST** candidate signer and real
 release/package/metadata signatures, then refuses invalid metadata signatures.
-Predecessor cryptographic authentication is explicitly mocked using the existing
-recovery tests' **UNSIGNED TEST fixture**; its copying, pinned recovery inventory,
+The earlier custody suite retains explicitly mocked predecessor authentication
+and fresh-archive checks using the existing recovery tests' **UNSIGNED TEST fixture**;
+its copying, pinned recovery inventory,
 metadata inspection and relocation logic run for real. This does not qualify an
 actual release or independent predecessor trust.
+
+The new signed suite uses real disposable TEST keys for both complete kits and
+all 16 recovery archives. No authentication or signature verifier is mocked.
+Only the production module's fixed ALARM anchor constant is substituted in the
+TEST process with the explicit generated TEST fingerprint/certificate hash.
+Both kits use the same existing release/envelope/package verification path;
+fresh recovery checks use the maintained public verifier. Unknown candidate and
+predecessor keys, wrong predecessor release/version, missing/tampered bytes and
+invalid signatures with all transport layers repinned remain named refusals.
+A genuinely signed cross-key candidate remains held.
+
+The source-hidden test moves the handoff, hides the checkout, producer fixtures
+and private signing home, isolates the network to loopback, and poisons Python
+environment variables. The actual product CLI correctly refuses the TEST
+certificate under its unchanged production ALARM policy. A separate TEST-only
+driver verifies the runtime inventory, substitutes just the explicit TEST
+anchor, and completes the full verification without mocking any verifier or
+writing receiver state. The driver is never included in the operator runtime.
+Separate runtime controls exercise the actual relocated entrypoint and refusal
+before helper execution on changed/deleted/foreign/aliased runtime files.
+
+Prior commit `3f6c3064` passed 63 tests with the explicitly unsigned predecessor
+seam. Those results remain prior software facts; they are not retroactively
+described as cryptographic predecessor acceptance.
 
 The software journey copies the real Setup8 helper and actual Fish/Zsh package
 templates into an owned temporary root. It runs first-login preview, a genuine
