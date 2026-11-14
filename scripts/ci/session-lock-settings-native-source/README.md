@@ -33,11 +33,11 @@ The prospective tree/map identities below are virtual DATA, not proof that a
 Source was constructed or published:
 
 - Whole factory profile SHA256:
-  `1b9659195df181761df47e063768f7e5171675d85f721831fd67429efd467a11`.
+  `bd923eab0a2d36fab3f6d6f3f51ac28c9751156db38c4e66991bc1f022203315`.
 - Prospective Source tree:
-  `439c3db9ecd2b9b534753f9c8bca548f64621a6c`.
+  `0edef056655c7bc6102f537ed663848324edcec4`.
 - Prospective Source map SHA256:
-  `97aebeb60bff422f097112b4e49604adf94fc0532c5ca7749a3e544bda2290b3`.
+  `f2521fb4c48f7841b79a22564f88e558b8cd8a1ba41117ccfa55ffd257c64908`.
 
 The deterministic source tar contains both complete flat recipes, their
 `.SRCINFO` and fixed checksums, and the original offline pair verifier/profile.
@@ -133,7 +133,7 @@ Root may prepare a fresh disjoint Source using:
 ```sh
 python3 -I -B scripts/ci/session-lock-settings-native-source/prepare.py \
   --parent-source /absolute/retained-Source97/source \
-  --profile-sha256 1b9659195df181761df47e063768f7e5171675d85f721831fd67429efd467a11 \
+  --profile-sha256 bd923eab0a2d36fab3f6d6f3f51ac28c9751156db38c4e66991bc1f022203315 \
   --output /absolute/private-parent/fresh-session-lock-settings-source
 ```
 
@@ -165,3 +165,16 @@ Native ARM4K/16K builds, real ALPM/signing execution, installed help/parser,
 actual lock/suspend/GUI behavior, M2 installation or hardware tests, performance
 and release acceptance remain **NOT RUN / NOT QUALIFIED / NOT ADMITTED**. Source
 controls and earlier native components cannot satisfy those gates for this pair.
+
+The separate `test_image_lifecycle_data.py` suite adds four actor-fenced controls
+for the complete retained image lifecycle: base16/unquiet plus tools17/quiet
+passes with actual modeled raw-log pins, alias/ID/label proofs, consumer removal
+and final daemon absence. Stale tools16, altered base17, same-length unsafe
+options, tampered logs and uncertain retirement refuse. Only the isolated DATA
+function is evaluated; no full Reader or actor is invoked. The earlier
+constructed tree `439c3db9ecd2b9b534753f9c8bca548f64621a6c` remains preserved,
+unpublished and unrun; this corrected tree requires a fresh output.
+
+```sh
+python3 -B scripts/ci/session-lock-settings-native-source/test_image_lifecycle_data.py -v
+```
