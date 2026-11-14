@@ -22,7 +22,7 @@ def module(name, path):
 
 
 HERE = Path(__file__).resolve().parent
-c = module('transition_comparison', HERE / 'compare_releases.py')
+c = module('transition_comparison', HERE / 'compare_releases_v2.py')
 expiry = module('transition_expiry', HERE.parent / 'maintenance/signing_expiry.py')
 r = c.r
 FILES = {'transition.json', 'old-public.asc', 'new-public.asc', 'old.sig', 'new.sig'}
