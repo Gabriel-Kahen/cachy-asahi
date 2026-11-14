@@ -81,16 +81,21 @@ def fields(data):
     return result
 
 
-def elf(data):
+def elf(data, allow_bpf=False):
     if not data.startswith(b'\x7fELF'):
         return None
     require(len(data) >= 64 and data[4:7] == b'\x02\x01\x01', 'require ELF64 little endian v1')
     machine = struct.unpack_from('<H', data, 18)[0]
-    require(machine == 183, f"non-AArch64 ELF machine: {machine}")
+    require(machine == 183 or (allow_bpf and machine == 247), f"non-AArch64 ELF machine: {machine}")
     phoff = struct.unpack_from('<Q', data, 32)[0]
     phsize, phnum = struct.unpack_from('<HH', data, 54)
     require(phnum < 4096 and (not phnum or phsize == 56), 'unsupported ELF program headers')
     require(phoff + phsize * phnum <= len(data), 'truncated program headers')
+    if machine == 247:
+        require(struct.unpack_from('<H', data, 16)[0] == 1 and phnum == 0,
+                'BPF data must be relocatable with no program headers')
+        return {'machine': machine, 'payload_kind': 'BPF_RELOCATABLE_DATA', 'interpreter': None,
+                'needed': [], 'soname': None, 'rpath': [], 'runpath': []}
     loads, dynamic, interpreter = [], None, None
     for i in range(phnum):
         typ, flags, off, va, pa, filesz, memsz, align = struct.unpack_from('<IIQQQQQQ', data, phoff + i * phsize)
@@ -161,7 +166,13 @@ def inspect_archive(path, expected, deadline):
                 if name in ('/.PKGINFO', '/.BUILDINFO'):
                     metadata[name] = fields(data)
                 elif not name.startswith('/.'):
-                    parsed = elf(data)
+                    bpf_pin = expected.get('non_aarch64_elf_data', {}).get(name)
+                    if bpf_pin is not None:
+                        require(all(record[k] == bpf_pin[k] for k in ('bytes', 'sha256')), 'BPF data pin mismatch')
+                    parsed = elf(data, allow_bpf=bpf_pin is not None)
+                    if bpf_pin is not None:
+                        require(parsed is not None and parsed.get('payload_kind') == 'BPF_RELOCATABLE_DATA',
+                                'listed BPF input is not BPF data')
                     if parsed is not None:
                         record['elf'] = parsed
             elif member.issym() or member.islnk():
@@ -189,6 +200,9 @@ def inspect_archive(path, expected, deadline):
             require(target in entries, 'archive hardlink target missing')
             item = entries[target]
             require(item['type'] in ('file', 'hardlink'), 'hardlink target must be a regular file')
+    for path in expected.get('non_aarch64_elf_data', {}):
+        require(entries.get(path, {}).get('elf', {}).get('payload_kind') == 'BPF_RELOCATABLE_DATA',
+                'listed BPF input missing or not BPF data')
     return {'metadata': metadata, 'entries': entries, 'expanded_bytes': total, 'member_count': count}
 
 
@@ -243,7 +257,7 @@ def elf_joins(entries):
             found = next((v for candidate in choices if (v := resolve(posixpath.normpath(candidate), entries))), None)
             record = {'consumer': path, 'needed': needed, 'provider': found}
             if found:
-                require('elf' in entries[found], 'ELF dependency resolves to non-ELF')
+                require(entries[found].get('elf', {}).get('machine') == 183, 'ELF dependency resolves to non-AArch64 ELF')
                 joins.append(record)
             else:
                 missing.append(record)
@@ -319,9 +333,56 @@ def source_joins(packages, facts):
     return {'recipes': recipes, 'license_notices': licenses, 'corresponding_source_acceptance': 'NOT_ESTABLISHED'}
 
 
+def preserve_original_inputs(lock):
+    descriptor = lock['prior_inputs']
+    path = HERE / descriptor['filename']
+    pin(path, descriptor)
+    prior = json.loads(path.read_text())
+    require(len(prior['packages']) == 84, 'unexpected historical input count')
+    require(all(lock['packages'].get(n) == spec for n, spec in prior['packages'].items()),
+            'historical package descriptor changed or removed')
+    return 'EXACT_84_PACKAGE_DESCRIPTORS'
+
+
+def auxiliary_joins(lock, packages, entries, joins):
+    results = []
+    for required in lock['auxiliary_requirements']:
+        consumer, provider = required['consumer_package'], required['provider_package']
+        require(lock['packages'][provider]['version'] == required['provider_version'],
+                'auxiliary provider version differs from frozen selection')
+        if consumer not in packages or provider not in packages:
+            results.append(dict(required, status='INPUTS_MISSING'))
+            continue
+        info = packages[consumer]['metadata']['/.PKGINFO']
+        require(required['optional_dependency'] in info.get('optdepend', []),
+                'auxiliary optional-dependency association changed')
+        matched = [j for j in joins if j['consumer'] == required['consumer'] and j['needed'] == required['needed']]
+        require(len(matched) == 1 and matched[0]['provider'] == required['provider_elf'],
+                'auxiliary ELF provider path mismatch')
+        target = entries[required['provider_elf']]
+        require(target['package'] == provider and target.get('elf', {}).get('soname') == required['needed'],
+                'auxiliary ELF provider identity mismatch')
+        buildinfo = packages[consumer]['metadata'].get('/.BUILDINFO', {}).get('installed', [])
+        results.append(dict(required, status='EXACT_STRUCTURAL_JOIN',
+                            consumer_buildinfo_provider=[v for v in buildinfo if re.match(re.escape(provider) + r'-\d', v)],
+                            runtime_compatibility='NOT_RUN'))
+    return results
+
+
 def verify(lock, caches, rust_files, deadline):
     keyring = HERE / lock['public_keyring']['filename']
     pin(keyring, lock['public_keyring'])
+    preserved = preserve_original_inputs(lock)
+    supplemental_path, remaining_path = HERE / 'supplemental-inputs.json', HERE / 'remaining-inputs.json'
+    pin(supplemental_path, lock['supplemental_provenance'])
+    pin(remaining_path, lock['remaining_provider_inputs'])
+    supplemental, remaining = json.loads(supplemental_path.read_text()), json.loads(remaining_path.read_text())
+    prior = json.loads((HERE / lock['prior_inputs']['filename']).read_text())
+    require(set(supplemental['packages']) == set(lock['packages']) - set(prior['packages']),
+            'supplemental provenance coverage mismatch')
+    for name, source in supplemental['packages'].items():
+        require(all(source[key] == lock['packages'][name][key] for key in ('filename', 'version', 'archive', 'signature')),
+                'supplemental provenance descriptor mismatch')
     dependencies = package_joins(lock)
     facts_path = HERE / 'source-facts.json'
     pin(facts_path, lock['source_facts'])
@@ -358,7 +419,7 @@ def verify(lock, caches, rust_files, deadline):
                        'cc': '/usr/bin/cc', 'ld': '/usr/bin/ld', 'lld': '/usr/bin/ld.lld'}.items():
         resolved = resolve(path, entries)
         if resolved:
-            require('elf' in entries[resolved], f'required tool is not an AArch64 ELF: {role}')
+            require(entries[resolved].get('elf', {}).get('machine') == 183, f'required tool is not an AArch64 ELF: {role}')
             tools[role] = dict(path=path, resolved=resolved,
                                **{k: entries[resolved][k] for k in ('bytes', 'sha256', 'package')})
     association = 'NOT_CHECKED'
@@ -374,10 +435,14 @@ def verify(lock, caches, rust_files, deadline):
     report = {'schema': 1, 'purpose': lock['purpose'], 'packages': packages, 'missing_inputs': missing,
               'package_dependency_joins': dependencies,
               'source_observations': source_joins(packages, facts),
+              'prior_input_preservation': preserved,
+              'supplemental_provenance': lock['supplemental_provenance'],
+              'remaining_provider_inputs': remaining,
+              'auxiliary_provider_joins': auxiliary_joins(lock, packages, entries, joins),
               'required_tool_elf_files': tools,
               'elf_dependency_joins': joins, 'unresolved_elf_dependencies': unresolved,
               'rust_association': association, 'input_checks': 'PASS' if not missing else 'INCOMPLETE',
-              'structural_elf_closure': 'PASS' if not missing and not unresolved else 'INCOMPLETE',
+              'structural_elf_closure': 'PASS' if not missing and not unresolved and not remaining['candidates'] else 'INCOMPLETE',
               'native_tools_profile': 'NOT_PRODUCED', 'key_freshness': 'NOT_ESTABLISHED',
               'corresponding_source_acceptance': 'NOT_ESTABLISHED', 'native_execution': 'NOT_RUN',
               'installation': 'NOT_RUN', 'M2': 'NOT_RUN'}

@@ -5,14 +5,17 @@ This finite, data-only command verifies and optionally copies the retained
 It needs Python's standard library and the existing `/usr/bin/gpgv`. It performs
 no downloads, package installation, payload execution or native dispatch.
 
-`inputs.lock.json` fixes 84 archive/signature pairs and 307 package dependency
-joins: Rust, compiler-rt/lld/llvm-libs 23.1.1-1, the declared runtime closure,
-and `filesystem` for the real `/lib` namespace aliases. The selected GCC is
+`inputs.lock.json` fixes 271 archive/signature pairs and 1,154 package dependency
+joins: Rust, compiler-rt/lld/llvm-libs 23.1.1-1, the declared runtime dependencies,
+`filesystem` for the real `/lib` namespace aliases and recursively inspected
+auxiliary providers. The original 84 package descriptors are preserved byte for
+byte and enforced as a subset. See [the supplemental result](SUPPLEMENT.md) for
+the 187 additions and remaining whole-payload gates. The selected GCC is
 16.1.1+r12+g301eb08fa2c5-1 and glibc is 2.43+r22+g8362e8ce10b2-2. These are
 explicit retained runtime inputs, not a reconstruction of Rust's complete build
 environment. All pins and source metadata provenance are reviewable in the lock.
 Archive `.PKGINFO` dependencies take precedence over abbreviated repository
-summaries; the six summary differences are retained explicitly in the lock.
+summaries; every observed summary difference is retained explicitly in the lock.
 
 The public ALARM keyring is binary data converted from the retained armored
 public key. Its exact pin and the original armored pin are recorded. The expected
@@ -33,10 +36,11 @@ python3 -I -B scripts/port/arm-rust-toolchain-inputs/catalog.py \
   --cache "$project_artifacts/platform/baseline-acquisition-20261012/cache" \
   --cache "$project_artifacts/platform/coordinated-python-20261012-auth/cache" \
   --cache "$project_artifacts/platform/maintained-baseline-audit-actual01-20261013/private/cache" \
+  --cache work/auxiliary-cache \
   --output /private/new-rust-input-report
 ```
 
-Add `--prepare` to copy the 168 verified archive/signature files into the new
+Add `--prepare` to copy the 542 verified archive/signature files into the new
 output's `cache/`. The output parent is mode 0700, copied files are mode 0600,
 and payload directory trees are never materialized. The output also contains
 `inputs.lock.json` and a deterministic `catalog.json`. A prepared cache can be
@@ -57,9 +61,11 @@ namespace joins or associations refuse. If an error occurs while copying a
 prepared output, that partial directory is retained without a completed catalog.
 
 Exit 0 requires both exact input checks and whole-payload structural ELF joins.
-**The actual retained set exits 2**: all exact input checks pass, while two
-auxiliary ELF dependencies remain unresolved. `--prepare` deliberately allows
-this fully byte-verified set and preserves the incomplete closure in its report.
+**The actual retained set exits 2**: all 271 exact input checks pass, while
+eleven Qt dependency edges and one empty-RUNPATH policy gate remain unresolved.
+The unacquired exact Qt candidates and their unknown transitive dependencies
+are explicitly recorded in `remaining-inputs.json` and in the report.
+`--prepare` deliberately allows this fully byte-verified set and preserves the incomplete closure in its report.
 It does not create an accepted native builder profile.
 
 ## What is checked
@@ -73,7 +79,9 @@ It does not create an accepted native builder profile.
   cross-package non-directory collisions. Nothing is extracted into a root.
 - ELF64 little-endian AArch64 headers, dynamic string tables, interpreter,
   SONAME, RPATH/RUNPATH and direct NEEDED joins through actual retained links.
-  Required Cargo/Rustc/CC/GNU-LD/LLD file identities are recorded.
+  Required Cargo/Rustc/CC/GNU-LD/LLD file identities are recorded. Nine exact
+  byte-pinned V4L BPF relocatable objects are separately retained as data; they
+  cannot provide native tools or shared-library dependencies.
 - The exact 137-file Rust association copied from Bankstown worker commit
   `1a639abda4ddf3580aa2fed9466fa835adf96830`. The companion's original content
   and exact hash remain pinned; an override must have those same bytes.
@@ -90,13 +98,14 @@ file and 2 GiB expanded data. A 300-second cooperative deadline is checked
 between operations/chunks/members; each GPG process has a 20-second timeout.
 This is not a hard wall-clock sandbox for individual decompression operations.
 
-## Actual local result, 2026-11-14
+## Preserved 84-pair result, 2026-11-14
 
-Twenty-six focused controls pass, including corruption, snapshot replacement,
+At original commit `e61a895dcc0ce5376225d126b7451a9ececde4f8`, twenty-six focused
+controls passed, including corruption, snapshot replacement,
 wrong signer, unsafe archives/links, malformed ELF, dependency/provider refusal,
 missing-input preparation refusal and source-acceptance separation.
 
-The real check and archive-only preparation verify all 84 pairs: 219,962,392
+That original check and archive-only preparation verified all 84 pairs: 219,962,392
 archive bytes plus 47,544 signature bytes. All signatures verify mathematically
 under the pinned ALARM signer. There are 28,742 archive members, 1,055,299,447
 expanded file bytes and 907 AArch64 ELF records. All 307 package dependency joins
@@ -108,8 +117,11 @@ dependencies and explicitly retains these two unresolved auxiliary requirements:
 | `/usr/bin/memusagestat` from glibc | `libgd.so.3` |
 | libmount's Python 3.14 extension | `libpython3.14.so.1.0` |
 
-Neither auxiliary is silently removed or treated as a complete toolchain
-closure. No replacement compiler is selected. Preparation and rechecking from
+Both original requirements are now resolved by exact supplemental providers;
+the original lock/result remain under `history/`, and the private original
+catalog/cache are retained. The current result still has the separately listed
+Qt/RUNPATH gates. Neither auxiliary was silently removed or treated as a
+complete toolchain closure. No replacement compiler is selected. Preparation and rechecking from
 only the moved-style prepared cache produce identical catalog bytes. A separate
 read-only host `readelf` comparison confirms the NEEDED/SONAME parsing of seven
 actual compiler/library ELFs; payload data is supplied through non-executable
