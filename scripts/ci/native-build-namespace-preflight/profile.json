@@ -7,7 +7,7 @@
     "source": null
   },
   "main_base": "9ac3db62e6ed800ab3fe382362f7ab983fec2107",
-  "map_sha256": "8ac153e4ab93e8537d4dce75d65cdedac173ac0738fd1c8a0c458e759050d2a6",
+  "map_sha256": "7474683e198759876dcee6b31a036473f2129da351fce3bcc8e37770b4a70f79",
   "operation": "native-build-namespace-preflight-v1",
   "overlay": {
     ".github/workflows/native-arm-build.yml": {
@@ -49,6 +49,11 @@
       "bytes": 13174,
       "mode": 420,
       "sha256": "7a933b927c708a5dac014b391c7f75b50ef8308cc517d49759dac3976ba03906"
+    },
+    "native/image_lifecycle.py": {
+      "bytes": 13034,
+      "mode": 420,
+      "sha256": "805fabc496f10b67425cc69bdf7793d0e703dae1fab2407d8596391c9e9c5f2b"
     },
     "native/invocation.json": {
       "bytes": 1716,
@@ -1271,7 +1276,7 @@
     "sha256": "fa317050fc47a818dedd1016dabe1146e31732020534a1231789152913c7ec14"
   },
   "parent_tree": "81d61d9e1f33c1638e9f67fbd7e39b158c603451",
-  "prospective_tree": "a74e0f80feaf7b89f3193ea50293143f98bdfdd0",
+  "prospective_tree": "a825d475d248f2254070d256d23780c4ef2d0f4b",
   "purpose": "native-build-namespace-preflight-source-v1",
   "schema": 1
 }

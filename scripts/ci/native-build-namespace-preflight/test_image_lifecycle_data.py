@@ -12,6 +12,7 @@ import unittest
 HERE = Path(__file__).resolve().parent
 MAP = 'a' * 64
 BINDING = dict(source='b'*40,ref='refs/heads/codex/MODELED',run='123',attempt=1,token='c'*24)
+BINDING['token'] = hashlib.sha256((BINDING['source']+':'+BINDING['ref']+':'+BINDING['run']).encode()).hexdigest()[:24]
 DOCKER = ['/usr/bin/docker','--host=unix:///var/run/docker.sock']
 LABEL = 'org.cachy-asahi.native-developer'
 
@@ -36,6 +37,20 @@ def reader_function():
     scope = dict(need=need,pin=pin,Path=Path,re=re,json=json)
     exec(compile(ast.Module(body=[node],type_ignores=[]),'isolated retained-image DATA function','exec'),scope)
     return scope[node.name]
+
+
+def producer_functions():
+    """Only pure guard definitions from the separately pinned Source36 helper."""
+    raw = (HERE/'payload/native/image_lifecycle.py').read_text()
+    names = {'_need','_closed','_own','_aliases','_build','_ledger'}
+    constants = {'LABEL','ROLES','IMAGE','DOCKER','CLOSED','BUILD_KEYS'}
+    nodes = [n for n in ast.parse(raw).body if
+             isinstance(n,ast.FunctionDef) and n.name in names or
+             isinstance(n,ast.ClassDef) and n.name=='ImageGuard' or
+             isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id in constants for t in n.targets)]
+    scope = dict(Path=Path,re=re,json=json,hashlib=hashlib)
+    exec(compile(ast.Module(body=nodes,type_ignores=[]),'isolated producer image DATA guards','exec'),scope)
+    return scope
 
 
 class Model:
@@ -139,6 +154,9 @@ class ImageLifecycleDataTests(unittest.TestCase):
     def test_complete_source36_base16_tools17_lifecycle_passes(self):
         model = Model()
         self.assertEqual([len(model.builds[r]['argv']) for r in ('base','tools')],[16,17])
+        producer = producer_functions()
+        producer['_ledger'](model.ledger)
+        for role in ('base','tools'): producer['_build'](model.builds[role],model.ledger,role)
         reader_function()(model,model.files,model.receipt,model.cleanup,BINDING,MAP)
 
     def test_stale_tools16_and_unexpected_base17_are_refused(self):
@@ -147,12 +165,16 @@ class ImageLifecycleDataTests(unittest.TestCase):
             if role=='tools': argv.remove('--quiet')
             else: argv.insert(3,'--quiet')
             model.refresh()
+            with self.assertRaisesRegex(ValueError,'IMAGE_BUILD_COMMAND_REFUSED'):
+                producer_functions()['_build'](model.builds[role],model.ledger,role)
             with self.assertRaisesRegex(ValueError,'image build argv'):
                 reader_function()(model,model.files,model.receipt,model.cleanup,BINDING,MAP)
 
     def test_correct_length_wrong_quiet_position_or_option_is_refused(self):
         for value in ('--progress=plain','--security-opt=seccomp=unconfined'):
             model = Model();model.builds['tools']['argv'][3] = value;model.refresh()
+            with self.assertRaisesRegex(ValueError,'IMAGE_BUILD_COMMAND_REFUSED'):
+                producer_functions()['_build'](model.builds['tools'],model.ledger,'tools')
             with self.assertRaisesRegex(ValueError,'image build command'):
                 reader_function()(model,model.files,model.receipt,model.cleanup,BINDING,MAP)
 
@@ -163,6 +185,19 @@ class ImageLifecycleDataTests(unittest.TestCase):
         model = Model();model.cleanup['daemon_absence']['images']['actor']['group_absent'] = False
         with self.assertRaisesRegex(ValueError,'naturally retired actor'):
             reader_function()(model,model.files,model.receipt,model.cleanup,BINDING,MAP)
+        model = Model();model.builds['tools']['group_absent'] = False
+        with self.assertRaisesRegex(ValueError,'IMAGE_BUILD_PROOF_REFUSED'):
+            producer_functions()['_build'](model.builds['tools'],model.ledger,'tools')
+
+    def test_exact_qualified_source36_helper_and_no_source97_relabel(self):
+        raw = (HERE/'payload/native/image_lifecycle.py').read_bytes()
+        self.assertEqual(len(raw),13034)
+        self.assertEqual(pin(raw)['sha256'],'805fabc496f10b67425cc69bdf7793d0e703dae1fab2407d8596391c9e9c5f2b')
+        self.assertEqual(hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw).hexdigest(),'5ff9656200fc88681567be84b2efa0e91c23803d')
+        profile = json.loads((HERE/'profile.json').read_bytes())
+        self.assertEqual(profile['parent'],'97a44c4c7cb206704bf76e9fd1f1afb2266278c2')
+        self.assertEqual(profile['overlay']['native/image_lifecycle.py'],dict(mode=420,**pin(raw)))
+        self.assertNotEqual(profile['parent_files']['native/image_lifecycle.py']['sha256'],pin(raw)['sha256'])
 
 
 if __name__ == '__main__': unittest.main()

@@ -13,8 +13,8 @@ The constructor follows the finite BuildTools/Hyprland source-factory pattern
 and preserves the genuine Source97 parent
 `97a44c4c7cb206704bf76e9fd1f1afb2266278c2`, tree
 `81d61d9e1f33c1638e9f67fbd7e39b158c603451`. Its complete 200 body/mode/Git-blob
-map and raw commit are pinned. Eleven explicit new operands plus the regenerated
-map change twelve leaves and hold 188; the resulting namespace remains 200
+map and raw commit are pinned. Twelve explicit new operands plus the regenerated
+map change thirteen leaves and hold 187; the resulting namespace remains 200
 leaves with a nonrecursive 199-row map. Existing `build_tools_*_v2` filenames and
 the internal `build_tools_alpm` result field are finite namespace slots; this new
 operation supplies separate implementations and earns no old package credit.
@@ -156,17 +156,18 @@ quiet PID1 layout, unchanged generic owner/workflow/privacy mechanisms and NULL
 selector refusal before ingress. These are source/DATA controls, not native
 builds, actual Source construction, matching Reader execution or installation.
 
-The separate four-control image suite evaluates only the isolated passive
-`retained_image_lifecycle` DATA function against a complete modeled ledger,
+The separate five-control image suite evaluates the isolated producer
+`_ledger`/`_build` guards followed by the passive `retained_image_lifecycle` DATA
+function against a complete modeled ledger,
 retained actor logs, inspections, alias proofs, stopped consumer removal and
 final daemon absence. It admits the genuine Source36 convention: unchanged
 base16 arguments and quiet tools17 arguments. Old tools16, altered base17,
 same-length policy substitutions, missing logs and uncertain retirement refuse.
 No full Reader or actor runs. The corrected virtual Source tree is
-`092b015de93c24f4bd8ad1e140cf447d77ec8678`, map
-`f3b3aacd17dc0ce669fe6c546d99418c87b96d0cd843c3bcb37614c0404d5be7`,
+`2649b708f0acfef4f362f4ff7390ae3229c3c8cf`, map
+`c533b6ce8eccc058e6279a0f00024621e99fd2757da22b13ec7e5d90adf11ac6`,
 profile SHA-256
-`ee6191505aff5d19726bdd403883e473445c164d7142b5fb0dbdddaea473c9b5`.
+`ad874751a48cfd7e7d94f5d38d79caa138679be067cb113ead35150f0d3c78fa`.
 An earlier constructed tree `6a4716972f3116ae63447af3c5fcb42311bbe596`
 remains separate historical DATA; it must not be overwritten or relabeled.
 
@@ -174,3 +175,15 @@ Actual package builds/installed composition, namespace qualification, native
 16K, physical M2 of either size, GUI, performance, changed-version upgrades,
 production signing/distribution and full release acceptance remain NOT RUN or
 NOT QUALIFIED. Neither development nor release selection changes.
+
+The image-registration helper is now an explicit whole overlay operand, copied
+unchanged from qualified Source36 `36f03557d861f6480b4c8e581d1a8025b35b4d8e`:
+13,034 bytes, SHA256
+`805fabc496f10b67425cc69bdf7793d0e703dae1fab2407d8596391c9e9c5f2b`,
+Git blob `5ff9656200fc88681567be84b2efa0e91c23803d`. Source97's original helper
+remains the exact before-image in the complete inverse. This fixes the producer
+registration guard as well as the previously corrected Reader: an owner tools17
+build must not be rejected by a stale producer16 guard before export/retirement.
+The earlier constructed `092b015de93c24f4bd8ad1e140cf447d77ec8678` remains
+separate unmodified DATA. Root must construct a fresh corrected output; no old
+actual selector, Source publication or role is rewritten or replayed.

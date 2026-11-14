@@ -98,8 +98,8 @@ policy and Doc315 remain unqualified even if both finite operations work.
 The DATA constructor pins the genuine complete200-file Source97 parent
 `97a44c4c7cb206704bf76e9fd1f1afb2266278c2`, tree
 `81d61d9e1f33c1638e9f67fbd7e39b158c603451`, raw commit, modes and Git blobs.
-Ten explicit overlay operands plus the regenerated map replace eleven leaves,
-holding189. The finite namespace stays200 files/map199; internal
+Eleven explicit overlay operands plus the regenerated map replace twelve leaves,
+holding188. The finite namespace stays200 files/map199; internal
 `build_tools_*_v2` names are private finite namespace slots and convey no old
 package evidence. The historical unused package-source tar remains exact
 parent DATA and is never opened by the diagnostic. No shared/frozen factory,
@@ -125,7 +125,7 @@ python3 -B scripts/ci/native-build-namespace-preflight/test_preflight_data.py -v
 python3 -B scripts/ci/native-build-namespace-preflight/test_image_lifecycle_data.py -v
 ```
 
-The27 probe/source/projection controls plus four complete modeled image-lifecycle
+The27 probe/source/projection controls plus five complete modeled image-lifecycle
 controls pass under an audit fence refusing process, exec, socket and ctypes
 actors. They evaluate isolated pure DATA functions against modeled bytes;
 they do not run a Source constructor, full Reader, Docker, bwrap, unshare or
@@ -133,3 +133,23 @@ package actor. Real namespace support in the requested context remains UNKNOWN
 until a separately admitted actual observer and matching Reader are accepted.
 Native16K, physical M2, package/installed journeys, GUI, performance, production
 trust/distribution and maintained release acceptance remain separate.
+
+The producer registration helper is an explicit whole overlay operand, exact
+qualified Source36 `36f03557d861f6480b4c8e581d1a8025b35b4d8e` bytes:
+13,034 bytes, SHA256
+`805fabc496f10b67425cc69bdf7793d0e703dae1fab2407d8596391c9e9c5f2b`,
+blob `5ff9656200fc88681567be84b2efa0e91c23803d`. The five lifecycle controls
+exercise its pure `_ledger`/`_build` guards for both actual modeled role argv,
+then the complete passive Reader join. This prevents a tools17 owner build from
+hitting Source97's obsolete producer16 guard before registration/export. The
+Source97 before-image and sole-parent model remain exact; qualified old bytes
+are reused as code only and confer no new execution or acceptance credit.
+
+Corrected virtual tree `a825d475d248f2254070d256d23780c4ef2d0f4b`, map
+`7474683e198759876dcee6b31a036473f2129da351fce3bcc8e37770b4a70f79`,
+whole profile SHA256
+`8c0dc91cbd97dcfda1353dcafa1da1f08f250e3c690a97e08f657431f29e7472`.
+Root's earlier published Source `b659e3049d11ff160494dfc2d8881830c9aae7ac`,
+tree `a74e0f80feaf7b89f3193ea50293143f98bdfdd0`, remains preserved historical
+DATA with no native admission or actor. This correction requires a fresh Root
+Source construction/publication/binding; it must not overwrite or relabel b659.
