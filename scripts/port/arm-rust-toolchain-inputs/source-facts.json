@@ -1,0 +1,122 @@
+{
+  "complete_corresponding_source": "NOT_ESTABLISHED",
+  "date": "2026-11-14",
+  "legal_acceptance": false,
+  "limits": [
+    "Raw official recipe SHA256 values differ from retained package .BUILDINFO recipe hashes. No matching packaging transformation established.",
+    "No full compiler/Cargo/LLVM source archive or their complete dependencies authenticated/acquired.",
+    "Version tag/metadata and matching notices are not binary/source correspondence proof.",
+    "Additional GCC/glibc/libgit2/curl/OpenSSL and remaining runtime corresponding source closure remains missing."
+  ],
+  "recipes": [
+    {
+      "bytes": 8371,
+      "matches_retained_recipe": false,
+      "official_owner": "ALARM",
+      "package": "rust",
+      "retained_pkgbuild_sha256": "ef3fac9176e2a3698314d616e56d88b2df64d057ee7e9dfa13c98eb980a345fa",
+      "revision": "fc83842504046113895814fa55372e27775c6f5f",
+      "sha256": "ce6002be1741dafc8d8387c32ad84daf67d923010b5e263e17787571d67273fd",
+      "url": "https://raw.githubusercontent.com/archlinuxarm/PKGBUILDs/fc83842504046113895814fa55372e27775c6f5f/extra/rust/PKGBUILD"
+    },
+    {
+      "bytes": 2189,
+      "matches_retained_recipe": false,
+      "official_owner": "ALARM",
+      "package": "compiler-rt",
+      "retained_pkgbuild_sha256": "a08be2c30265ea1dcf95931d8e03f08dd5ff90e1cc1f092bd659f2687aa5d06c",
+      "revision": "c0b8ebf9d8727e0c163485488e237cc9614fafb4",
+      "sha256": "820e7b120a95403ba956cb41959aecf56c3c01ce87ae1b4c5c0855cfc32b14f0",
+      "url": "https://raw.githubusercontent.com/archlinuxarm/PKGBUILDs/c0b8ebf9d8727e0c163485488e237cc9614fafb4/extra/compiler-rt/PKGBUILD"
+    },
+    {
+      "bytes": 5201,
+      "matches_retained_recipe": false,
+      "official_owner": "ALARM",
+      "package": "llvm",
+      "retained_pkgbuild_sha256": "7c6a21c0d9b125e981011016635541c970552776caa52b58c88b61d32feee5c9",
+      "revision": "81126c646304d65bc7bbff809815f298406be0a5",
+      "sha256": "b4b2e73886574f8c24a48189e9215cab523fb0fcb7938ac6994cdb43aa70d199",
+      "url": "https://raw.githubusercontent.com/archlinuxarm/PKGBUILDs/81126c646304d65bc7bbff809815f298406be0a5/extra/llvm/PKGBUILD"
+    },
+    {
+      "bytes": 2155,
+      "matches_retained_recipe": false,
+      "official_owner": "Arch",
+      "package": "lld",
+      "retained_pkgbuild_sha256": "96344e325a4cb35f32f316a36e3e23507abb8b0c3ffe1c4b615f7f804fc9fb06",
+      "revision": "cb51de68f59f85ee4ce583e0935f3fa510d3a913",
+      "sha256": "cb78ae8d8b92d3ce50a0f5e29131b80447bb3fd765bac5c16acce1b4a06ad87f",
+      "url": "https://gitlab.archlinux.org/archlinux/packaging/packages/lld/-/raw/cb51de68f59f85ee4ce583e0935f3fa510d3a913/PKGBUILD"
+    }
+  ],
+  "schema": 1,
+  "scope": "read-only exact historical recipe archaeology; no package code execution or installation",
+  "signature_freshness": "NOT_ESTABLISHED",
+  "upstream": {
+    "llvm": {
+      "commit": "6dfe1677ab8dffbc6ec13d53a1e0215d75147689",
+      "declared_source": {
+        "sha256": "ebe9be46fe8756d58c5b198ffad0fa2a766257add81a4dc52179bfacc7888ee6",
+        "signature_authenticated": false,
+        "url": "https://github.com/llvm/llvm-project/releases/download/llvmorg-23.1.1/llvm-project-23.1.1.src.tar.xz"
+      },
+      "licenses": [
+        {
+          "bytes": 15141,
+          "path": "llvm/LICENSE.TXT",
+          "sha256": "8d85c1057d742e597985c7d4e6320b015a9139385cff4cbae06ffc0ebe89afee",
+          "url": "https://raw.githubusercontent.com/llvm/llvm-project/6dfe1677ab8dffbc6ec13d53a1e0215d75147689/llvm/LICENSE.TXT"
+        },
+        {
+          "bytes": 15138,
+          "path": "lld/LICENSE.TXT",
+          "sha256": "f7891568956e34643eb6a0db1462db30820d40d7266e2a78063f2fe233ece5a0",
+          "url": "https://raw.githubusercontent.com/llvm/llvm-project/6dfe1677ab8dffbc6ec13d53a1e0215d75147689/lld/LICENSE.TXT"
+        },
+        {
+          "bytes": 16708,
+          "path": "compiler-rt/LICENSE.TXT",
+          "sha256": "1a8f1058753f1ba890de984e48f0242a3a5c29a6a8f2ed9fd813f36985387e8d",
+          "url": "https://raw.githubusercontent.com/llvm/llvm-project/6dfe1677ab8dffbc6ec13d53a1e0215d75147689/compiler-rt/LICENSE.TXT"
+        }
+      ],
+      "official_repo": "llvm/llvm-project",
+      "source_archive_acquired": false,
+      "tag": "llvmorg-23.1.1",
+      "tag_object": "e7ce3600b55034ddf819638f395e3c475fad5be2"
+    },
+    "rust": {
+      "cargo_submodule": {
+        "commit": "5f94df4789f005f9a352888e8355ffc645b7ed0e",
+        "discovery_url": "https://api.github.com/repos/rust-lang/rust/contents/src/tools/cargo?ref=b940084d7eb6a299eb4bfeb8e34901bc051e7ac4",
+        "url": "https://github.com/rust-lang/cargo/tree/5f94df4789f005f9a352888e8355ffc645b7ed0e"
+      },
+      "commit": "b940084d7eb6a299eb4bfeb8e34901bc051e7ac4",
+      "declared_rust_source": {
+        "b2sum": "f4e2d97047c42067d11c31484d320f9daaaf881c78d22473b7f9ac2289a8f5979de6e75c277c49a0e3e33cd80f18aecace39f25ae78645976945798f3e512f16",
+        "signature_authenticated": false,
+        "signature_url": "https://static.rust-lang.org/dist/rustc-1.99.0-src.tar.xz.asc",
+        "url": "https://static.rust-lang.org/dist/rustc-1.99.0-src.tar.xz"
+      },
+      "licenses": [
+        {
+          "bytes": 1068,
+          "path": "LICENSE-MIT",
+          "sha256": "b71bd43a069ca0641a9ecfe585ca7b3c53b5cc1608f8b68321168698e28b5ea1",
+          "url": "https://raw.githubusercontent.com/rust-lang/rust/b940084d7eb6a299eb4bfeb8e34901bc051e7ac4/LICENSE-MIT"
+        },
+        {
+          "bytes": 9723,
+          "path": "LICENSE-APACHE",
+          "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a",
+          "url": "https://raw.githubusercontent.com/rust-lang/rust/b940084d7eb6a299eb4bfeb8e34901bc051e7ac4/LICENSE-APACHE"
+        }
+      ],
+      "official_repo": "rust-lang/rust",
+      "source_archive_acquired": false,
+      "tag": "1.99.0",
+      "tag_object": "daa8d75bc715f77869fa06d80b6ea1a3fe52d38e"
+    }
+  }
+}
