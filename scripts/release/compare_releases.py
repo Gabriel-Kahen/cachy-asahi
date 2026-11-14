@@ -155,10 +155,12 @@ def verified(directory, key, env):
     return manifest, release_spec, json.loads(base_raw), hashlib.sha256(manifest_raw).hexdigest()
 
 
-def compare_releases(before, after, key, env):
+def compare_releases(before, after, key, env, *, after_key=None, after_env=None):
     before, after, key = directory(before), directory(after), r.fingerprint(key)
+    after_key = r.fingerprint(after_key) if after_key is not None else key
+    after_env = env if after_env is None else after_env
     left, old_spec, old_base, old_hash = verified(before, key, env)
-    right, new_spec, new_base, new_hash = verified(after, key, env)
+    right, new_spec, new_base, new_hash = verified(after, after_key, after_env)
     def identity(manifest, release_spec, digest):
         return {"release_id": manifest["release_id"], "release_sha256": digest,
                 "source_commit": release_spec["source_commit"], "synthetic": release_spec.get("synthetic", False)}
@@ -182,10 +184,14 @@ def compare_releases(before, after, key, env):
               "files": changes(left["files"], right["files"]),
               "symlinks": changes(left["symlinks"], right["symlinks"]),
               "stable_eligibility_checked": False}
+    if after_key != key:
+        result["signers"] = {"before": key, "after": after_key}
+        result["signer"] = None
     # Refuse a source replacement/tamper during reporting. No lock file or
     # selection pointer is created or changed by this utility.
-    for path, expected, expected_spec, digest in ((before, left, old_spec, old_hash), (after, right, new_spec, new_hash)):
-        manifest, release_spec = r.verify_release(path, key, env)
+    for path, expected, expected_spec, digest, signer, verifier in (
+            (before, left, old_spec, old_hash, key, env), (after, right, new_spec, new_hash, after_key, after_env)):
+        manifest, release_spec = r.verify_release(path, signer, verifier)
         r.require(manifest == expected and release_spec == expected_spec and r.sha(path / "release.json") == digest,
                   "release changed during comparison")
     return result
