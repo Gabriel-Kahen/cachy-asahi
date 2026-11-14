@@ -7,6 +7,11 @@ both complete release bundles, exact public certificate bytes and an explicit
 overlap window. `compare` then runs the normal package/base/dependency comparison
 with the respective pinned signers.
 
+The transition imports `compare_releases_v2.py`, a separate versioned comparison
+API. The legacy `compare_releases.py` remains byte-identical to the previously
+pinned implementation; no historical native consumer or source-map pin is
+retargeted to enable this operation.
+
 This implements an offline planned-rotation artifact and rehearsal. It does not
 change pacman trust, deploy metadata or grant stable eligibility. The existing
 [`scripts/repository/rotate.py`](../../scripts/repository/rotate.py) handles

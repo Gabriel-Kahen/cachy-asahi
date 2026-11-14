@@ -105,6 +105,11 @@ class TransitionTests(unittest.TestCase):
             self.assertEqual(t.gpg(env['GNUPGHOME'], ['--with-colons', '--list-secret-keys']), b'')
 
     def test_existing_same_signer_comparison_refuses_cross_key_bundle(self):
+        # Old native-role source maps pin this exact legacy file. New transition
+        # APIs belong only in the versioned sibling, never a retargeted pin.
+        self.assertEqual(t.digest((HERE / 'compare_releases.py').read_bytes()),
+                         '27086c7b0af74a1226deae7a6a71245882b82608a1fa9d33b68e657979c7d83c')
+        self.assertEqual(Path(t.c.__file__).name, 'compare_releases_v2.py')
         with self.assertRaises(t.r.Error):
             t.c.compare_releases(self.before, self.after, self.old_key, self.old_env)
 
