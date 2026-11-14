@@ -123,6 +123,26 @@ def clean_metadata(row):
     return row
 
 
+def worker_diagnostic(stderr):
+    """Expose bounded escaped errors without printing the private input DATA."""
+    prefix = b'SUPPORTED_COMPOSITION_ERROR '
+    for line in reversed(stderr[-8192:].splitlines()):
+        if line.startswith(prefix):
+            try:
+                value = json.loads(line[len(prefix):])
+                if (set(value) == {'category', 'message'}
+                        and isinstance(value['category'], str)
+                        and re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]{0,79}', value['category'])
+                        and isinstance(value['message'], str) and len(value['message']) <= 512):
+                    return json.dumps(value, ensure_ascii=True, separators=(',', ':'))
+            except (ValueError, TypeError):
+                pass
+    # Import failures and C-library diagnostics may precede the structured
+    # handler. Escape all control/non-ASCII bytes and retain only the final tail.
+    return json.dumps({'stderr_tail': stderr[-512:].decode('utf-8', errors='backslashreplace')},
+                      ensure_ascii=True, separators=(',', ':'))
+
+
 def prepare_isolated(work, image, protected, catalogs, targets, output):
     """Contain trusted C metadata preparation; no new general process supervisor."""
     fields = set(SEMANTIC) | {'FILENAME', 'CSIZE', 'ISIZE', 'SHA256SUM'}
@@ -145,7 +165,8 @@ def prepare_isolated(work, image, protected, catalogs, targets, output):
     t.write_bytes(output / 'prepare.stdout', process.stdout)
     t.write_bytes(output / 'prepare.stderr', process.stderr)
     need(process.returncode == 0 and len(process.stdout) + len(process.stderr) <= 16 * 1024**2,
-         'private libalpm worker failed (exit ' + str(process.returncode) + '); DATA and diagnostics retained')
+         'private libalpm worker failed (exit ' + str(process.returncode) + '): '
+         + worker_diagnostic(process.stderr) + '; DATA and diagnostics retained')
     result = t.tuple_audit.load_json(process.stdout)
     need(set(result) == {'prepare', 'dependencies', 'conflicts'}, 'private worker result fields refused')
     return result

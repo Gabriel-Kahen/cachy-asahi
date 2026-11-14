@@ -42,5 +42,13 @@ def run(path):
 
 
 if __name__ == '__main__':
-    result = run(Path(sys.argv[1]))
+    try:
+        result = run(Path(sys.argv[1]))
+    except Exception as error:
+        # The caller retains stderr, but test temporary directories can disappear
+        # before a CI log is read. Emit a bounded, escaped exception for its report.
+        print('SUPPORTED_COMPOSITION_ERROR ' + json.dumps({
+            'category': type(error).__name__, 'message': str(error)[:512],
+        }, ensure_ascii=True, separators=(',', ':')), file=sys.stderr)
+        raise SystemExit(1)
     print(json.dumps(result, sort_keys=True, separators=(',', ':')))
