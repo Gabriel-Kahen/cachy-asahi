@@ -144,9 +144,10 @@ existing narrow custody treatment. Failed or incomplete evidence stays DATA.
 
 ```bash
 python3 -B scripts/ci/first-login-enrollment-native-source/test_pair_data.py -v
+python3 -B scripts/ci/first-login-enrollment-native-source/test_image_lifecycle_data.py -v
 ```
 
-The default suite has sixteen actor-fenced controls, with no external fixture or
+The pair suite has sixteen actor-fenced controls, with no external fixture or
 silent skip: full virtual map/tree/inverse, genuine dependency/recipe/helper
 pins, exact real check grammar, modeled package framing and tamper/header
 privacy, modeled successful pair and first-failure propagation, natural-reaping/
@@ -154,6 +155,20 @@ clock predicates, scoped retirement/foreign preservation, real nofollow reads,
 quiet PID1 layout, unchanged generic owner/workflow/privacy mechanisms and NULL
 selector refusal before ingress. These are source/DATA controls, not native
 builds, actual Source construction, matching Reader execution or installation.
+
+The separate four-control image suite evaluates only the isolated passive
+`retained_image_lifecycle` DATA function against a complete modeled ledger,
+retained actor logs, inspections, alias proofs, stopped consumer removal and
+final daemon absence. It admits the genuine Source36 convention: unchanged
+base16 arguments and quiet tools17 arguments. Old tools16, altered base17,
+same-length policy substitutions, missing logs and uncertain retirement refuse.
+No full Reader or actor runs. The corrected virtual Source tree is
+`092b015de93c24f4bd8ad1e140cf447d77ec8678`, map
+`f3b3aacd17dc0ce669fe6c546d99418c87b96d0cd843c3bcb37614c0404d5be7`,
+profile SHA-256
+`ee6191505aff5d19726bdd403883e473445c164d7142b5fb0dbdddaea473c9b5`.
+An earlier constructed tree `6a4716972f3116ae63447af3c5fcb42311bbe596`
+remains separate historical DATA; it must not be overwritten or relabeled.
 
 Actual package builds/installed composition, namespace qualification, native
 16K, physical M2 of either size, GUI, performance, changed-version upgrades,

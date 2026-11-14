@@ -7,7 +7,7 @@
     "source": null
   },
   "main_base": "f7a846edd132f0916e7a14dc7378274e20295852",
-  "map_sha256": "ae2e36b8552fe01eb285191fb84e03f7ede2b94f6212306a796277c76236646c",
+  "map_sha256": "f3b3aacd17dc0ce669fe6c546d99418c87b96d0cd843c3bcb37614c0404d5be7",
   "operation": "first-login-enrollment-alpm-v1",
   "overlay": {
     ".github/workflows/native-arm-build.yml": {
@@ -46,9 +46,9 @@
       "sha256": "49c1545e1c5b79214be68bf718929cd4913aaa4ee09a0178f2ea800853cc7efd"
     },
     "native/build_tools_reader_v2.py": {
-      "bytes": 115974,
+      "bytes": 116013,
       "mode": 420,
-      "sha256": "6bc36e0ddb7cbec853a4142d10f16575d3f6bba8badbb6c68e00ff1a7ba834c6"
+      "sha256": "ee3b9285f945ab87a7310d3bd1cf69a060a6996de292fe76b31d62f99ba44d6e"
     },
     "native/build_tools_tools_v2.py": {
       "bytes": 34468,
@@ -1276,7 +1276,7 @@
     "sha256": "fa317050fc47a818dedd1016dabe1146e31732020534a1231789152913c7ec14"
   },
   "parent_tree": "81d61d9e1f33c1638e9f67fbd7e39b158c603451",
-  "prospective_tree": "6a4716972f3116ae63447af3c5fcb42311bbe596",
+  "prospective_tree": "092b015de93c24f4bd8ad1e140cf447d77ec8678",
   "purpose": "first-login-enrollment-finite-native-source-v1",
   "schema": 1
 }
