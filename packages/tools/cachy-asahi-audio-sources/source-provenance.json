@@ -1,0 +1,87 @@
+{
+  "archive": {
+    "bytes": 76782,
+    "file": "runtime-source.tar.gz",
+    "format": "sorted USTAR regular files mode0644 uid/gid/mtime0; gzip mtime0",
+    "sha256": "0b2484c47601c061d547d4281206f200ba55be0886d13f367f833b8d3a7df847"
+  },
+  "files": {
+    "scripts/checks/package_checks.py": {
+      "bytes": 19289,
+      "license": "MIT",
+      "mode": 420,
+      "sha256": "314e8b4a0920b3f6d93619fc74ad1d63a6210d1b17b925618451b493d2610a1a",
+      "source_commit": "08a99f95e72e3fb57e193525e3d125d377e76e5d"
+    },
+    "scripts/port/platform-audio-registry-sources/join.py": {
+      "bytes": 15559,
+      "license": "MIT",
+      "mode": 420,
+      "sha256": "5eb6279bf5ad495d53e46771471aba0d345c7839f4354e0d2366a145ec0812eb",
+      "source_commit": "08a99f95e72e3fb57e193525e3d125d377e76e5d"
+    },
+    "scripts/port/platform-audio-registry-sources/registry-inputs.json": {
+      "bytes": 84574,
+      "license": "MIT",
+      "mode": 420,
+      "sha256": "fc8d9e9bb5c2696dce29bdddfc58e39d8cb568a5434dac47eb8ace3afc9adc94",
+      "source_commit": "08a99f95e72e3fb57e193525e3d125d377e76e5d"
+    },
+    "scripts/port/platform-audio-source-delivery/delivery-profile.json": {
+      "bytes": 427,
+      "license": "MIT",
+      "mode": 420,
+      "sha256": "776b56c2f488e3d727c67b3fc2ee6821144cef69198ebecc6b85e21e77cf3807",
+      "source_commit": "08a99f95e72e3fb57e193525e3d125d377e76e5d"
+    },
+    "scripts/port/platform-audio-source-delivery/delivery.py": {
+      "bytes": 19256,
+      "license": "MIT",
+      "mode": 420,
+      "sha256": "a40f84e14e4b73f8d5e40bc4e8102a44779cd58860360abb2f72ca712e6c85b7",
+      "source_commit": "08a99f95e72e3fb57e193525e3d125d377e76e5d"
+    },
+    "scripts/port/platform-audio-sources/intake.py": {
+      "bytes": 13644,
+      "license": "MIT",
+      "mode": 420,
+      "sha256": "be5be5ba3a47d462b70a821d1f88a54218fbe91c8341f7f03782e9ac9c6d06e8",
+      "source_commit": "08a99f95e72e3fb57e193525e3d125d377e76e5d"
+    },
+    "scripts/port/platform-audio-vendor-audit/audit.py": {
+      "bytes": 25075,
+      "license": "MIT",
+      "mode": 420,
+      "sha256": "94b1c5c9196326354ec84d11b81c3cd114a3e0b9ba4fa914802db309cdb37d37",
+      "source_commit": "08a99f95e72e3fb57e193525e3d125d377e76e5d"
+    },
+    "scripts/release/platform_audio_source_delivery.py": {
+      "bytes": 20045,
+      "license": "MIT",
+      "mode": 420,
+      "sha256": "450c8a2569c94f9a44c718527800ade79e7e37f28fb125bfbc31de023daf27f2",
+      "source_commit": "08a99f95e72e3fb57e193525e3d125d377e76e5d"
+    },
+    "scripts/release/platform_audio_source_profiles.json": {
+      "bytes": 103110,
+      "license": "MIT",
+      "mode": 420,
+      "sha256": "bea1e7ee2a5f5db78ca721348a8ae44e68bb5a0bdf495616c42eb08ca3f435da",
+      "source_commit": "08a99f95e72e3fb57e193525e3d125d377e76e5d"
+    },
+    "scripts/release/source_delivery.py": {
+      "bytes": 16456,
+      "license": "MIT",
+      "mode": 420,
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e",
+      "source_commit": "08a99f95e72e3fb57e193525e3d125d377e76e5d"
+    }
+  },
+  "kind": "original-audio-source-tool-runtime-custody",
+  "license": "MIT",
+  "license_sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+  "schema_version": 1,
+  "scope": "Only original project code/public metadata; no audio package/source/vendor/crate archives, generated source packet or private operator receipts",
+  "source_commit": "08a99f95e72e3fb57e193525e3d125d377e76e5d",
+  "source_url": "https://github.com/Gabriel-Kahen/cachy-asahi"
+}

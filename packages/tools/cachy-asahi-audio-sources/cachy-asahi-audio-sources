@@ -1,0 +1,98 @@
+#!/usr/bin/python3 -IB
+# SPDX-License-Identifier: MIT
+"""Opt-in offline finite audio source export/verify; no build or installation."""
+import argparse
+import hashlib
+import json
+import os
+from pathlib import Path
+import runpy
+import stat
+import sys
+
+sys.dont_write_bytecode = True
+RUNTIME = Path(__file__).resolve().parents[1] / 'lib/cachy-asahi/audio-sources'
+MAP_SHA = 'cea0f3d2ef40936e679a3dedda37b44e5264732e0a6a7e0149da1ce6a75c5577'
+
+
+def need(ok, reason):
+    if not ok:
+        raise ValueError(reason)
+
+
+def read(path, mode=0o644):
+    need(not any(p.is_symlink() for p in (path, *path.parents)), 'ALIASED_RUNTIME')
+    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC)
+    with os.fdopen(fd, 'rb') as stream:
+        info = os.fstat(stream.fileno())
+        need(stat.S_ISREG(info.st_mode) and info.st_nlink == 1 and stat.S_IMODE(info.st_mode) == mode
+             and 0 < info.st_size <= 1024**2, 'UNSAFE_RUNTIME_FILE')
+        raw = stream.read(1024**2 + 1)
+        need(len(raw) == info.st_size, 'RUNTIME_CHANGED_OR_OVERSIZED')
+        return raw
+
+
+def integrity():
+    raw = read(RUNTIME / 'runtime-map.json')
+    need(hashlib.sha256(raw).hexdigest() == MAP_SHA, 'RUNTIME_MAP_PIN')
+    mapping = json.loads(raw)
+    expected = mapping['files']
+    actual, directories, pending = set(), set(), [RUNTIME]
+    while pending:
+        path = pending.pop(); info = path.lstat()
+        need(len(actual) + len(directories) + len(pending) < 64, 'RUNTIME_NODE_LIMIT')
+        if stat.S_ISDIR(info.st_mode):
+            if path != RUNTIME:
+                directories.add(path.relative_to(RUNTIME).as_posix())
+            with os.scandir(path) as children:
+                for child in children:
+                    pending.append(Path(child.path))
+                    need(len(pending) < 64, 'RUNTIME_NODE_LIMIT')
+        else:
+            need(stat.S_ISREG(info.st_mode), 'RUNTIME_LINK_OR_SPECIAL')
+            actual.add(path.relative_to(RUNTIME).as_posix())
+    need(actual == set(expected) | {'runtime-map.json'}, 'RUNTIME_NAMESPACE')
+    parents = {str(p) for name in actual for p in Path(name).parents if str(p) != '.'}
+    need(directories == parents, 'RUNTIME_DIRECTORY_NAMESPACE')
+    for name, pin in expected.items():
+        raw = read(RUNTIME / name, pin['mode'])
+        need(len(raw) == pin['bytes'] and hashlib.sha256(raw).hexdigest() == pin['sha256'], 'RUNTIME_FILE_PIN')
+    return len(expected)
+
+
+def main():
+    need(sys.flags.isolated, 'ISOLATED_PYTHON_REQUIRED')
+    parser = argparse.ArgumentParser(description=__doc__, allow_abbrev=False)
+    actions = parser.add_subparsers(dest='command', required=True)
+    build = actions.add_parser('export', allow_abbrev=False)
+    for name in ('handoff', 'materials', 'wmidi', 'output'):
+        build.add_argument('--' + name, required=True)
+    verify = actions.add_parser('verify', allow_abbrev=False)
+    verify.add_argument('--packet', required=True)
+    verify.add_argument('--sha256', required=True)
+    actions.add_parser('check', allow_abbrev=False, help='Verify the exact frozen runtime without source inputs')
+    seen = set()
+    for argument in sys.argv[1:]:
+        if argument.startswith('--'):
+            key = argument.split('=', 1)[0]
+            if key in seen:
+                parser.error('duplicate option refused')
+            seen.add(key)
+    args = parser.parse_args()
+    try:
+        count = integrity()
+        if args.command == 'check':
+            print(json.dumps(dict(status='VERIFIED_FROZEN_AUDIO_SOURCE_TOOL_RUNTIME', files=count,
+                complete_corresponding_source_accepted=False, legal_acceptance=False,
+                native_build=False, physical_m2='NOT_RUN', release='NOT_ADMITTED')))
+            return 0
+        entry = RUNTIME / 'scripts/port/platform-audio-source-delivery/delivery.py'
+        sys.argv = [str(entry), '--trusted-checkout', str(RUNTIME), *sys.argv[1:]]
+        runpy.run_path(str(entry), run_name='__main__')
+    except (ValueError, OSError, KeyError, TypeError):
+        print(json.dumps(dict(status='REFUSED_AUDIO_SOURCE_TOOL_RUNTIME', code_execution=False)))
+        return 2
+
+
+if __name__ == '__main__':
+    sys.exit(main())
