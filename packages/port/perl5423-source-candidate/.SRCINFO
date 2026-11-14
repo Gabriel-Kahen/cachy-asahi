@@ -1,7 +1,7 @@
 pkgbase = perl
 	pkgdesc = Perl5.42.3 maintained source candidate; unselected for the supported base
 	pkgver = 5.42.3
-	pkgrel = 1.1
+	pkgrel = 1.2
 	url = https://www.perl.org/
 	arch = aarch64
 	arch = x86_64
@@ -20,6 +20,7 @@ pkgbase = perl
 	depends = libcrypt.so
 	depends = bzip2
 	depends = zlib
+	optdepends = perl-text-diff: ptardiff archive comparisons
 	provides = perl-archive-tar=3.12
 	provides = perl-attribute-handlers=1.03
 	provides = perl-autodie=2.37
@@ -135,6 +136,7 @@ pkgbase = perl
 	provides = perl-xsloader=0.32
 	options = !lto
 	options = !debug
+	options = !purge
 	source = perl5-bc3dab4d4f66de5ea67dda34e5feb5230a54c603.tar.gz::https://github.com/Perl/perl5/archive/bc3dab4d4f66de5ea67dda34e5feb5230a54c603.tar.gz
 	source = 568e6fd238867bb9e99fa3f47cba3169009239e0.patch
 	source = 54cf3d44cbbedd17d774e9a37921963e8fd5d0cb.patch
@@ -144,6 +146,7 @@ pkgbase = perl
 	source = provides.txt
 	source = check_config.pl
 	source = check_stage.py
+	source = stage_commands.py
 	source = LICENSE.packaging
 	sha256sums = 16b23f32e34df12709fc5fa0a7028d3df3c3cfceca21e38faada6a025edff725
 	sha256sums = b763455236629383cf720ae6e60cfa42ce01e23728693a779abb8275f90a9e40
@@ -153,7 +156,8 @@ pkgbase = perl
 	sha256sums = 8979e6dd61852041643c5c5c40ea63b2bd1b438a67d114e62cbaef808c514315
 	sha256sums = 1aac3a6889dfb04384821c797ad7c9ce46b469717e2c806561137a745def65e8
 	sha256sums = 293746b72abe59defb61442d04a5d0f7fa5acc2dc067130f97dae3faed23f802
-	sha256sums = 60e1e17187adadb46ecad000a8aae86c3d8ce208d63f0fe0e71bc5e9031ef277
+	sha256sums = e40c9771b87f839f6653b71d079a980df6ce13b713eb13453bb2087832276301
+	sha256sums = 7bcbe0bedface8f8ca35915beb7cea40a466911691b820b541f53a60899bac77
 	sha256sums = 51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7
 
 pkgname = perl
