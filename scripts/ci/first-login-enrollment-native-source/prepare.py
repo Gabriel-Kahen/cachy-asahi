@@ -28,7 +28,7 @@ OPERATION = 'first-login-enrollment-alpm-v1'
 ALLOWED = frozenset(('.github/workflows/native-arm-build.yml', '.github/workflows/native-arm-developer-workflows.yml',
     'native/build-tools-contract-v2.json', 'native/build-tools-sources-v2.tar', 'native/build_tools_alpm_v2.py',
     'native/build_tools_guest_v2.py', 'native/build_tools_projection_v2.py', 'native/build_tools_reader_v2.py',
-    'native/build_tools_tools_v2.py', 'native/invocation.json', 'native/owner.py'))
+    'native/build_tools_tools_v2.py', 'native/invocation.json', 'native/owner.py', 'native/image_lifecycle.py'))
 
 def need(ok, message):
     if not ok:
@@ -235,7 +235,7 @@ def profile(raw, checksum):
          and value['operation'] == OPERATION
          and value['actual'] == dict(source=None, ref=None, run=None, job=None, artifact=None)
          and value['main_base'] == 'f7a846edd132f0916e7a14dc7378274e20295852', 'exact unexecuted FirstLogin/Enrollment profile required')
-    for name, count in (('parent_files', 200), ('overlay', 11)):
+    for name, count in (('parent_files', 200), ('overlay', 12)):
         rows = value[name]
         need(type(rows) is dict and len(rows) == count, 'exact finite row count')
         for path, item in rows.items():

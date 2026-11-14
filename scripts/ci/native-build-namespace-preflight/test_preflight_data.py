@@ -104,7 +104,7 @@ class PreflightDataTests(unittest.TestCase):
     def test_complete_reviewed_overlay_profile_and_actual_null(self):
         overlay = {p.relative_to(HERE/'payload').as_posix():dict(**pin(p.read_bytes()),mode=p.stat().st_mode & 0o777)
                    for p in (HERE/'payload').rglob('*') if p.is_file()}
-        self.assertEqual(overlay,PROFILE['overlay']); self.assertEqual(len(overlay),10)
+        self.assertEqual(overlay,PROFILE['overlay']); self.assertEqual(len(overlay),11)
         self.assertEqual(len(PROFILE['parent_files']),200)
         self.assertEqual(PROFILE['actual'],dict(source=None,ref=None,run=None,job=None,artifact=None))
         self.assertEqual(PROFILE['operation'],OPERATION)
