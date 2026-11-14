@@ -7,6 +7,7 @@ import hashlib
 import importlib.util
 import io
 import json
+import os
 import resource
 import subprocess
 from pathlib import Path
@@ -76,6 +77,35 @@ class CompositionTests(unittest.TestCase):
         self.assertTrue(result['private_database_removed'])
         self.assertFalse(result['transaction_accepted']); self.assertFalse(result['system_mutation'])
         return result
+
+    def test_data_read_can_advance_atime_without_content_or_identity_drift(self):
+        # The host's /tmp may be mounted noatime. Linux shared-memory tmpfs
+        # provides a real read-induced atime change without faking stat fields.
+        with tempfile.TemporaryDirectory(prefix='composition-atime-', dir='/dev/shm') as scratch:
+            path = Path(scratch) / 'data'; raw = b'exact pinned bytes'; path.write_bytes(raw)
+            ref = {'path': str(path), 'size': len(raw), 'sha256': hashlib.sha256(raw).hexdigest()}
+            os.utime(path, ns=(0, path.stat().st_mtime_ns))
+            self.assertEqual(c.Reader().read(ref), raw)
+            self.assertNotEqual(path.stat().st_atime_ns, 0)
+
+    def test_data_reader_still_refuses_content_and_inode_change_during_read(self):
+        original = c.t.bound
+        for change in ('content', 'identity'):
+            with self.subTest(change=change):
+                ref = self.ref('drifting-' + change, b'exact pinned bytes')
+                path = Path(ref['path'])
+                replacement = self.root / ('replacement-' + change)
+                replacement.write_bytes(b'exact pinned bytes')
+                def drift(value):
+                    raw = original(value)
+                    if change == 'content':
+                        path.write_bytes(b'changed contents')
+                    else:
+                        replacement.replace(path)
+                    return raw
+                with mock.patch.object(c.t, 'bound', side_effect=drift):
+                    with self.assertRaisesRegex(ValueError, 'DATA changed during read'):
+                        c.Reader().read(ref)
 
     def test_current_source_metadata_joins_without_fabricating_archive_identity(self):
         result = self.execute(self.contract())
