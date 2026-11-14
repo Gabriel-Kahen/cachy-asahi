@@ -1,0 +1,32 @@
+{
+  "CI_success_claim": false,
+  "approval_scope": "EXACT_BYTES_EACH_ACTUAL_SOURCE_AND_JOBS_REJOINED",
+  "classification": "AUTOMATIC_HOSTED_X86_CI_ONLY",
+  "closed_scope": null,
+  "independently_classified": null,
+  "issuer": "Root",
+  "job_labels": [
+    "ubuntu-24.04"
+  ],
+  "native_permission": false,
+  "reviewed_git_source": {
+    "raw_commit": {
+      "bytes": null,
+      "sha256": null
+    },
+    "source": null
+  },
+  "runner_literals": [
+    "ubuntu-24.04"
+  ],
+  "schema": 1,
+  "status": null,
+  "workflow": {
+    "bytes": null,
+    "mode": "100644",
+    "oid": null,
+    "path": null,
+    "sha256": null
+  },
+  "workflow_id": null
+}

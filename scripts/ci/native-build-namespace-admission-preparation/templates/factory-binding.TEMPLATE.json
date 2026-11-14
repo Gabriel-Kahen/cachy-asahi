@@ -1,0 +1,22 @@
+{
+  "approved": null,
+  "baseline_main": "295d838936371ce7376fc5b71c47232b155bd0b3",
+  "expected_CI_checks": null,
+  "factory_CI": {
+    "bytes": null,
+    "path": null,
+    "sha256": null
+  },
+  "factory_Main": null,
+  "factory_head": null,
+  "factory_merge": {
+    "bytes": null,
+    "path": null,
+    "sha256": null
+  },
+  "issuer": "Root",
+  "pull_request": 433,
+  "reviewed_correction": "8d4ec359bf05dda455eb772077b4edf37de53002",
+  "schema": 1,
+  "status": "ROOT_MUST_BIND_PR433_FACTORY_CI_MAIN"
+}

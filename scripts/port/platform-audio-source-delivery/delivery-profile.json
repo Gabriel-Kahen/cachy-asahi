@@ -1,0 +1,16 @@
+{
+  "metadata_projection": {
+    "sha256": "3770f27ae5529599825aeeff625759d27308e752875a6d89083a476abc1930fb",
+    "size": 19279
+  },
+  "wmidi_materials": {
+    "commit.json": {
+      "sha256": "e1689cf7bb26c453562997701c5f51300dfc0e1a8439e605dac99dc1b3de6241",
+      "size": 1102
+    },
+    "source.tar.gz": {
+      "sha256": "87d9ef729f179445d2454c9fb3a48b02a6aeab146515372b6fa336a17b674c5d",
+      "size": 11153
+    }
+  }
+}

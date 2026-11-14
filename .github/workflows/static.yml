@@ -294,6 +294,12 @@ jobs:
           python3 -I -B -Werror::ResourceWarning packages/port/python3148-source-candidate/test_source.py
           python3 -I -B -Werror::ResourceWarning scripts/port/platform-audio-registry-sources/test_join.py
           python3 -I -B -Werror::ResourceWarning packages/port/perl5423-source-candidate/test_recipe.py
+          python3 -I -B -Werror::ResourceWarning packages/port/bankstown-source-candidate/test_candidate.py
+          python3 -I -B -Werror::ResourceWarning scripts/port/platform-audio-bankstown-build/test_build.py
+          python3 -I -B -Werror::ResourceWarning packages/port/networkmanager-source-candidate/test_candidate.py
+          python3 -I -B -Werror::ResourceWarning scripts/port/python314-tk-host-build/test_host_build.py
+          python3 -I -B -Werror::ResourceWarning scripts/port/python314-tk-host-build/test_archive_layout.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/native-build-namespace-admission-preparation/test_prepare.py
       - name: Exercise planned repository key rotation without skipped controls
         env:
           PYTHONDONTWRITEBYTECODE: '1'

@@ -1,0 +1,233 @@
+{
+  "new_GET_scope": "metadata only; no original bodies or replay",
+  "original_logs_artifacts_readers_consumed": "All original evidence roles remain Root-only and are never replayed. Source56 original log/meta/ZIP/matching96K reader each consumed once; older sources also held. Only fresh terminal metadata/alljobs are acquired by Root gate.",
+  "runs": [
+    {
+      "actual_directory": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/platform-native-resume-20261108/native-entry-next/actual-native",
+      "attempt": 1,
+      "conclusion": "failure",
+      "failed_steps": [
+        9
+      ],
+      "job": 128677896119,
+      "ref": "codex/native-platform-namespace-policy-matrix-parent-bridge-v1",
+      "role": "platform-eca",
+      "run": 42463582516,
+      "source": "eca39328dcff2c1c20c7f203f23be2cc20433500",
+      "tree": "0d001a7d2662b96b7ae65ce299d4035bbd1d7839",
+      "workflow_id": 381664314,
+      "workflow_path": ".github/workflows/native-arm-build.yml"
+    },
+    {
+      "actual_directory": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/platform-native-resume-20261108/native-base5-next/actual-native",
+      "attempt": 1,
+      "conclusion": "failure",
+      "failed_steps": [
+        9
+      ],
+      "job": 128698694753,
+      "ref": "codex/native-platform-namespace-policy-matrix-base5-fetch-v1",
+      "role": "platform-d7",
+      "run": 42470119515,
+      "source": "d7fadde8c9ac744e818a8120774df1fb33c060e9",
+      "tree": "7356bafdf4be3be96c52e6354db21e687b9c775b",
+      "workflow_id": 381664314,
+      "workflow_path": ".github/workflows/native-arm-build.yml"
+    },
+    {
+      "actual_directory": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/platform-native-resume-20261108/native-guest-defaults-json-successor/actual-native",
+      "attempt": 1,
+      "conclusion": "failure",
+      "failed_steps": [
+        9
+      ],
+      "job": 128739444340,
+      "ref": "codex/native-platform-namespace-policy-matrix-guest-defaults-v1",
+      "role": "platform-Source316",
+      "run": 42483215991,
+      "source": "316af71e3829af377dce2f0dc7d665d4a87fa91a",
+      "tree": "80f0afb78115749111dafb51ee74b6af94f04634",
+      "workflow_id": 381664314,
+      "workflow_path": ".github/workflows/native-arm-build.yml"
+    },
+    {
+      "actual_directory": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/updater-v2-pr340-ci-merge-20261108/native-admission-successor/actual-native",
+      "attempt": 1,
+      "conclusion": "failure",
+      "failed_steps": [
+        35
+      ],
+      "job": 128684811534,
+      "ref": "codex/updater-hash-cost-v2-source1436-20261108",
+      "role": "updater36",
+      "run": 42465768436,
+      "source": "36cff8a3c651f43717b34c3ec10c9eebadf0e88e",
+      "tree": "880dc960b2722c51aabe903a4293176e9e8a6b2f",
+      "workflow_id": 381664314,
+      "workflow_path": ".github/workflows/native-arm-build.yml"
+    },
+    {
+      "actual_directory": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/platform-native-resume-20261108/native-prestart-identity-continuation-001/actual-native",
+      "attempt": 1,
+      "conclusion": "failure",
+      "failed_steps": [
+        9
+      ],
+      "job": 128760490728,
+      "ref": "codex/native-platform-namespace-policy-matrix-prestart-identity-v2",
+      "role": "platform-d67",
+      "run": 42490128943,
+      "source": "d67f8abab1194835a0d7541df7243e16285b7219",
+      "tree": "626120a692fc65fda21244e3c16c35da6f0066fb",
+      "workflow_id": 381664314,
+      "workflow_path": ".github/workflows/native-arm-build.yml"
+    },
+    {
+      "actual_directory": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/updater-v2-pr340-ci-merge-20261108/normal-persistent-api-native-admission/actual-native",
+      "attempt": 1,
+      "conclusion": "failure",
+      "failed_steps": [
+        65
+      ],
+      "job": 128732846489,
+      "ref": "codex/updater-normal-v2-persistent-api-source1436-20261108",
+      "role": "updater-ed848",
+      "run": 42481053343,
+      "source": "ed8486c89ab4656e8da1f752b1122b7e0f75dfcd",
+      "tree": "c496fa470ee7d775433e9ddfbeebbb4afdcc584b",
+      "workflow_id": 381664314,
+      "workflow_path": ".github/workflows/native-arm-build.yml"
+    },
+    {
+      "actual_directory": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/security-recovery-current-classification-20261108/candidate/admission-json-successor/Root-entry/native-actual",
+      "attempt": 1,
+      "conclusion": "failure",
+      "failed_steps": [
+        9
+      ],
+      "job": 128767218670,
+      "ref": "codex/native-security-maintenance-recovery-v11",
+      "role": "security-8a",
+      "run": 42492333977,
+      "source": "8a9504cf0c212f1c4091e9092a11aea8ff3d67e1",
+      "tree": "d9076d6451d01738b2005161d5d91ca1adc37463",
+      "workflow_id": 381664314,
+      "workflow_path": ".github/workflows/native-arm-build.yml"
+    },
+    {
+      "actual_directory": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/platform-native-resume-20261108/native-group-membership-v3-next/actual-native",
+      "attempt": 1,
+      "conclusion": "failure",
+      "failed_steps": [
+        9
+      ],
+      "job": 128781118563,
+      "ref": "codex/native-platform-namespace-policy-matrix-group-membership-v3",
+      "role": "platform-Source290",
+      "run": 42496914038,
+      "source": "29064c4a5331c7d63893e2de0c437235e7e16142",
+      "tree": "7bef16deabcee949b098f37907a02092e1982b21",
+      "workflow_id": 381664314,
+      "workflow_path": ".github/workflows/native-arm-build.yml"
+    },
+    {
+      "actual_directory": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/updater-v2-pr340-ci-merge-20261108/client-v3-passive-intake-v1-development/native-admission-current2/actual-native",
+      "attempt": 1,
+      "conclusion": "failure",
+      "failed_steps": [
+        4,
+        10,
+        11
+      ],
+      "job": 128792081886,
+      "ref": "codex/client-v3-runtime-fresh-component-v1-20261108",
+      "role": "client-Source79",
+      "run": 42500526110,
+      "source": "5c784c26514d492648c273f921112674df36f98a",
+      "tree": "bf285a8c17aa9c8bd899149c285ba6d8bec7ba4b",
+      "workflow_id": 381664314,
+      "workflow_path": ".github/workflows/native-arm-build.yml"
+    },
+    {
+      "actual_directory": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/platform-native-resume-20261108/native-kernel-audit-v4-continuation-001/actual-native",
+      "attempt": 1,
+      "conclusion": "failure",
+      "failed_steps": [
+        9
+      ],
+      "job": 128805081951,
+      "ref": "codex/native-platform-namespace-policy-kernel-audit-v4",
+      "role": "platform-Source56",
+      "run": 42504822858,
+      "source": "56e89d29b3a1b76672b862608b4305d8fb169ed5",
+      "tree": "73c6acaa6a39a6eeb2c888734fe219ca0c93d10f",
+      "workflow_id": 381664314,
+      "workflow_path": ".github/workflows/native-arm-build.yml"
+    },
+    {
+      "actual_directory": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/build-tools-v2-native-admission-catalog-continuation-002-20261108/actual-native",
+      "attempt": 1,
+      "conclusion": "failure",
+      "failed_steps": [
+        9
+      ],
+      "job": 128875851691,
+      "ref": "codex/build-tools-v2-finite-source",
+      "role": "buildtools52-original-retirement-refusal",
+      "run": 42528022352,
+      "source": "52a425ef08c5dc84ba1a7c5b53be8d21dc42f9dd",
+      "tree": "5230b39c373db63e02a6fbf9f7b95d0e8662cf7e",
+      "workflow_id": 381664314,
+      "workflow_path": ".github/workflows/native-arm-build.yml"
+    },
+    {
+      "actual_directory": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/developer-tools-native-admission-preparation-20261108/actual-native",
+      "attempt": 1,
+      "conclusion": "failure",
+      "failed_steps": [
+        9
+      ],
+      "job": 128927976264,
+      "ref": "codex/developer-tools-finite-native-v1-20261108",
+      "role": "developer-f4bea-original-compound-rejection-unretained-inner-cause",
+      "run": 42545003228,
+      "source": "f4bea3d30b0e33684f80d235e3d488ae7f609f91",
+      "tree": "0a21cbfead6fd258ed2e41200987eb9ce46be288",
+      "workflow_id": 381664314,
+      "workflow_path": ".github/workflows/native-arm-build.yml"
+    },
+    {
+      "actual_directory": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/developer-tools-safe-failure-native-admission-preparation-20261108/actual-native",
+      "attempt": 1,
+      "conclusion": "failure",
+      "failed_steps": [
+        9
+      ],
+      "job": 128943350757,
+      "ref": "codex/developer-tools-safe-failure-native-v1-20261108",
+      "role": "developer-dc36-source-joined-later-compare-guard-earlier-cause-unretained",
+      "run": 42550041932,
+      "source": "dc36f6dda0bab4a72604aad3782c2f6b5e933a38",
+      "tree": "72daab4c387cfba649b10f08ef919072ebeda2eb",
+      "workflow_id": 381664314,
+      "workflow_path": ".github/workflows/native-arm-build.yml"
+    },
+    {
+      "actual_directory": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/developer-tools-build-pair-native-admission-preparation-20261108/actual-native",
+      "attempt": 1,
+      "conclusion": "failure",
+      "failed_steps": [
+        9
+      ],
+      "job": 128955699683,
+      "ref": "codex/developer-tools-build-pair-first-failure-v1-20261108",
+      "role": "developer-8238-consumer-summary-PASS-public-projection-privacy-refused",
+      "run": 42554048183,
+      "source": "823898408a9cdcfc9911c96b7443cd967505edce",
+      "tree": "b52bf29bf921328cf8176f8a0dd7795b6add9159",
+      "workflow_id": 381664314,
+      "workflow_path": ".github/workflows/native-arm-build.yml"
+    }
+  ],
+  "status": "GENUINE_ROOT_ONCE_FAILED_RUNS_REQUIRE_FRESH_ALL_JOB_JOINS"
+}
