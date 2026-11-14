@@ -93,6 +93,8 @@ source_validation = "PASS focused Python 3.12.13/3.14.7 controls and PR367 CI: 7
 source_validation_commit = "2ed7d2def99287bbad4b6ec29c92f4b01f877c88"
 source_merge_commit = "a314493c81cdb2fddc395b1358339612da3d8630"
 
+opt_in_session_lock_successor = { candidate_version = "0.1.1-1", recipe = "packages/desktop/cachy-asahi-hyprland-settings011/PKGBUILD", recipe_source = "76385030c78e67e17616229555843746a3da492b", selected_for_development = false, selected_for_release = false, host_package_bytes = 24747, host_package_sha256 = "a2e7f87f952bfbee67c717e4611dd97a6447f548e56d0c079b5de44aeccd0931", host_validation = "PASS five semantic/real Lua+Hyprland0.56.2 parser controls, two package controls and unsigned makepkg --nodeps assembly; nine payload files. No live session or dependency solving.", native_build = "NOT RUN", installation = "NOT RUN", hardware_validation = "NOT RUN", audit = "docs/workstreams/hyprland011-session-lock.md" }
+
 [[packages]]
 name = "cachy-asahi-fish-config"
 phase = "desktop-overlay"

@@ -10,6 +10,17 @@ recipes and their evidence remain available at their original versions.
 | Explicit locking and readiness-ordered suspend request | [`cachy-asahi-session-lock`](workstreams/session-lock.md) | Real subprocess readiness, refusal and cancellation controls; unsigned host package assembly |
 | Installed repository enrollment, disable and planned local key rotation | [`cachy-asahi-repository-enrollment`](../packages/tools/cachy-asahi-repository-enrollment/README.md) | Public-certificate verification, unchanged preview state and relocated package execution; existing disposable enrollment/rotation suite |
 | Dual-signed planned release-key handoff and cross-key comparison | [`signing_transition.py`](release/signing-transition.md) | Real disposable GPG identities and signed synthetic release bundles, tampering/replay/expiry/refusal controls |
+| Apply an authenticated handoff to local managed trust | [`transition.py`](repository-signing-transition.md) | Complete re-verification under the original pacman lock, exact certificate/current-state checks and real disposable mapped-root trust rotation |
+
+The separate [Hyprland 0.1.1 candidate](workstreams/hyprland011-session-lock.md)
+binds `Super+L` to the lock helper and `Super+Shift+L` to ordered suspend. Real
+Lua evaluation and the host Hyprland configuration parser pass. The selected
+0.1.0-3 recipe is unchanged; the successor remains unselected.
+
+The [actual shell journey](validation/first-login-actual-shells-host-20261114.md)
+uses extracted FirstLogin, Setup8, Fish and Zsh packages. Forty-one commands and
+ten actual shell startups cover activation, user edits, removal and recovery
+after process death. This is an x86 host journey in private temporary user state.
 
 Configuration activation requires explicit components and an explicit apply.
 Package installation supplies commands without activating templates, services,
