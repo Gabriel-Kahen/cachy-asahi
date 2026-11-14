@@ -1,0 +1,206 @@
+#!/usr/bin/python3 -I
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 cachy-asahi contributors.
+"""Explicit foreground locking; request suspend only after swaylock readiness."""
+import argparse
+from contextlib import contextmanager
+import fcntl
+import hashlib
+import math
+import os
+from pathlib import Path
+import selectors
+import signal
+import stat
+import subprocess
+import sys
+import time
+
+NAME = "cachy-asahi-session-lock"
+SWAYLOCK = ("/usr/bin/swaylock",)
+SYSTEMCTL = ("/usr/bin/systemctl",)
+
+
+class Refused(ValueError):
+    pass
+
+
+def session_environment(environ):
+    if os.getuid() == 0 or os.geteuid() != os.getuid():
+        raise Refused("run as the logged-in desktop user, without sudo")
+    runtime = Path(environ.get("XDG_RUNTIME_DIR", ""))
+    display = environ.get("WAYLAND_DISPLAY", "")
+    if not runtime.is_absolute() or ".." in runtime.parts:
+        raise Refused("an absolute XDG_RUNTIME_DIR is required")
+    info = runtime.lstat()
+    if (not stat.S_ISDIR(info.st_mode) or info.st_uid != os.getuid() or
+            stat.S_IMODE(info.st_mode) != 0o700):
+        raise Refused("XDG_RUNTIME_DIR must be an ordinary user-owned 0700 directory")
+    if not display or display in (".", "..") or "/" in display or "\0" in display:
+        raise Refused("WAYLAND_DISPLAY must name a socket inside XDG_RUNTIME_DIR")
+    info = (runtime / display).lstat()
+    if not stat.S_ISSOCK(info.st_mode) or info.st_uid != os.getuid():
+        raise Refused("WAYLAND_DISPLAY must be an ordinary user-owned socket")
+    # Ignore inherited alternate sockets, bus addresses, executable paths and config.
+    return {"PATH": "/usr/bin", "LC_ALL": "C.UTF-8",
+            "XDG_RUNTIME_DIR": str(runtime), "WAYLAND_DISPLAY": display}
+
+
+@contextmanager
+def session_guard(env):
+    suffix = hashlib.sha256(env["WAYLAND_DISPLAY"].encode()).hexdigest()[:16]
+    path = Path(env["XDG_RUNTIME_DIR"]) / f"{NAME}-{suffix}.lock"
+    fd = os.open(path, os.O_RDWR | os.O_CREAT | os.O_CLOEXEC | os.O_NOFOLLOW | os.O_NONBLOCK, 0o600)
+    try:
+        info = os.fstat(fd)
+        if (not stat.S_ISREG(info.st_mode) or info.st_uid != os.getuid() or
+                info.st_nlink != 1 or stat.S_IMODE(info.st_mode) != 0o600):
+            raise Refused("unsafe session guard file")
+        try:
+            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            raise Refused("this display already has an active session-lock helper") from None
+        yield
+    finally:
+        # Keep the empty file: unlinking it can create two independent flock owners.
+        os.close(fd)
+
+
+@contextmanager
+def cancellation_signals():
+    cancelled = []
+    previous = {}
+    try:
+        for sig in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP):
+            previous[sig] = signal.signal(sig, lambda number, _: cancelled.append(number))
+        yield cancelled
+    finally:
+        for sig, handler in previous.items():
+            signal.signal(sig, handler)
+
+
+def diagnostic(message):
+    print(f"{NAME}: {message}", file=sys.stderr, flush=True)
+
+
+def wait_ready(locker, fd, timeout, cancelled):
+    deadline = time.monotonic() + timeout
+    with selectors.DefaultSelector() as selector:
+        selector.register(fd, selectors.EVENT_READ)
+        while True:
+            if cancelled:
+                return "cancelled before lock readiness; suspend was not requested"
+            if locker.poll() is not None:
+                return "locker exited before readiness; suspend was not requested"
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                return "lock readiness timed out; suspend was not requested"
+            if selector.select(min(remaining, .05)):
+                data = os.read(fd, 2)
+                if data != b"\n":
+                    return "invalid or closed readiness pipe; suspend was not requested"
+                if cancelled or locker.poll() is not None:
+                    return "locker exited or request was cancelled; suspend was not requested"
+                return None
+
+
+def request_suspend(locker, env, cancelled, command, timeout):
+    if cancelled or locker.poll() is not None:
+        return "locker exited or request was cancelled; suspend was not requested"
+    process = subprocess.Popen([*command, "--no-ask-password", "--check-inhibitors=yes", "suspend"], env=env,
+                               stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                               start_new_session=True)
+    deadline = time.monotonic() + timeout
+    try:
+        while process.poll() is None:
+            if cancelled or locker.poll() is not None or time.monotonic() >= deadline:
+                return "suspend client interrupted or timed out; request outcome is unknown"
+            time.sleep(.02)
+        if process.returncode:
+            return f"suspend client failed (status {process.returncode}); locker is preserved"
+        diagnostic("suspend request queued; this does not confirm sleep or resume")
+        return None
+    finally:
+        # This group contains only the suspend client, never the independent locker.
+        if process.returncode is None:
+            # An unreaped leader retains its PID; do not signal a reaped PID's group.
+            try:
+                os.killpg(process.pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+        process.wait()
+
+
+def run_session(mode, env, cancelled, ready_timeout=10, *,
+                locker_command=SWAYLOCK, suspend_command=SYSTEMCTL, request_timeout=10):
+    if cancelled:
+        diagnostic("cancelled before locker startup; suspend was not requested")
+        return 1
+    with session_guard(env):
+        read_fd, write_fd = os.pipe2(os.O_CLOEXEC)
+        locker = None
+        error = None
+        try:
+            try:
+                locker = subprocess.Popen(
+                    [*locker_command, "--config", "/dev/null", "--color", "000000",
+                     "--ready-fd", str(write_fd)], pass_fds=(write_fd,), env=env,
+                    stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                    start_new_session=True)
+            finally:
+                os.close(write_fd)
+            try:
+                error = wait_ready(locker, read_fd, ready_timeout, cancelled)
+            except OSError as exc:
+                error = f"readiness failed: {exc.strerror}; suspend was not requested"
+            if error is None:
+                diagnostic("locker confirmed readiness")
+                if mode == "suspend":
+                    try:
+                        error = request_suspend(locker, env, cancelled, suspend_command, request_timeout)
+                    except OSError as exc:
+                        error = f"cannot start suspend client: {exc.strerror}; locker is preserved"
+            if error:
+                diagnostic(error)
+                diagnostic("waiting for locker exit; authenticate normally if a lock is visible")
+            # Never kill a locker, even without an ack: it may already own the lock.
+            # Keep its readiness reader open until exit, avoiding a late-write SIGPIPE.
+            while locker.poll() is None:
+                if cancelled and not error:
+                    error = "cancelled; locker is preserved until normal unlock"
+                    diagnostic(error)
+                time.sleep(.05)
+            if locker.returncode:
+                diagnostic(f"locker exited with status {locker.returncode}")
+            return 1 if error or locker.returncode else 0
+        finally:
+            os.close(read_fd)
+
+
+def ready_seconds(value):
+    seconds = float(value)
+    if not math.isfinite(seconds) or not 1 <= seconds <= 60:
+        raise argparse.ArgumentTypeError("ready timeout must be between 1 and 60 seconds")
+    return seconds
+
+
+def main(argv=None):
+    if not sys.flags.isolated:
+        diagnostic("Python isolated mode (-I) is required")
+        return 1
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("action", choices=("lock", "suspend"))
+    parser.add_argument("--ready-timeout", type=ready_seconds, default=10,
+                        help="seconds to await lock readiness (1-60; default: 10)")
+    args = parser.parse_args(argv)
+    try:
+        env = session_environment(os.environ)
+        with cancellation_signals() as cancelled:
+            return run_session(args.action, env, cancelled, args.ready_timeout)
+    except (OSError, Refused) as exc:
+        diagnostic(str(exc))
+        return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
