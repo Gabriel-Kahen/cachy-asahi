@@ -1,0 +1,218 @@
+{
+  "NM_bus_uid": 0,
+  "Polkit_bus_uid": 102,
+  "base_image_id": "sha256:7052baf57a6eec068371ffdb2f9670ef69bd5ce11ee3ba67f705b724dc8a53d5",
+  "diagnostic_failure": "Initial fixture omitted standard requested-reply D-Bus transport permission; exact rejected method_return retained. Fixed by deriving installed system.conf policy elements, without altering Polkit authorization policy.",
+  "focused_controls": {
+    "Python": [
+      "3.12.13",
+      "3.14.7"
+    ],
+    "passed": 2
+  },
+  "genuine_Polkit_checks_no_interaction": {
+    "org.freedesktop.NetworkManager.settings.modify.own": [
+      false,
+      true,
+      {
+        "polkit.result": "auth_self_keep",
+        "polkit.retains_authorization_after_challenge": "1"
+      }
+    ],
+    "org.freedesktop.NetworkManager.settings.modify.system": [
+      false,
+      true,
+      {
+        "polkit.result": "auth_admin_keep",
+        "polkit.retains_authorization_after_challenge": "1"
+      }
+    ]
+  },
+  "holds": [
+    "Genuine ordinary-user profile write not authorized without real logind/session/authentication-agent path",
+    "No fake session, policy allow rule, wheel/empower membership or capability grant added",
+    "No native ARM/16K/M2, real connectivity, normal sessions, authentication-agent flow or release acceptance",
+    "Root-seeded user-restricted profile was not created by ordinary user",
+    "Historical ALARM source correspondence and production trust/freshness acceptance remain unestablished"
+  ],
+  "image_id": "sha256:68e6d47aa0282f87f24b87185c96cb87d0594211d18eaffa9787012cfda81a8c",
+  "input_contract": {
+    "archives": [
+      {
+        "bytes": 1263789,
+        "name": "libnm-1.58.1-2.1-x86_64.pkg.tar.zst",
+        "sha256": "0e5c472bb17b531fe28c9d455c43e5dbf5ef709e9463f8de60e02a908158516b"
+      },
+      {
+        "bytes": 5637128,
+        "name": "networkmanager-1.58.1-2.1-x86_64.pkg.tar.zst",
+        "sha256": "cfbb9ac3fdd3efe7e11c86e6da108556a5c39993411b98eec06748b1edb7310c"
+      },
+      {
+        "bytes": 928199,
+        "name": "networkmanager-docs-1.58.1-2.1-x86_64.pkg.tar.zst",
+        "sha256": "d4ba00a9b6f141faa82979b71f903b86a7c68a890e7b264cfd6646034155d5f6"
+      },
+      {
+        "bytes": 99020,
+        "name": "nm-cloud-setup-1.58.1-2.1-x86_64.pkg.tar.zst",
+        "sha256": "cbecfca0f1bda63cb3da1ad06d8e5fd99ed1e3658467deb39717094fc40d93e1"
+      }
+    ],
+    "launcher_sha256": "0e1c09a9e0219b281c2793e5361c187fcae0ceeb2fcf229e6f16fea098f9ca81",
+    "source_pins": {
+      "fixture.py": "6b22df44196b2eb9be5e7b29f0119d2c4e673772a5a88f8ac80b615991169bcb",
+      "image_install.py": "6cf8671599437cb013391781005b05a3e7442a9ae7dd7021c7a66dd508a256de",
+      "owned_process.py": "83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f",
+      "previous_guest.py": "47d1ad8fba25b5ae2e782d9929249e2b5a24dd8705b3a23bb4580136e0bfed2a",
+      "repository.py": "fdfd3611ca8d3fab7584594ccaf627f42a9ae31898372925af1bcae173d55cd7",
+      "roles.py": "3295e07abe4f8067ad7ef0e273c734390933a215ec95ffdbbd9c273154268268"
+    }
+  },
+  "operations": [
+    {
+      "bytes_and_inventory_unchanged": true,
+      "denied": true,
+      "exit": 1,
+      "operation": "modify-system",
+      "output": "Error: Failed to modify connection 'TEST-UNEXPECTED-system-edit': Insufficient privileges\n"
+    },
+    {
+      "bytes_and_inventory_unchanged": true,
+      "denied": true,
+      "exit": 1,
+      "operation": "modify-restricted",
+      "output": "Error: Failed to modify connection 'TEST-user-edit': Insufficient privileges\n"
+    },
+    {
+      "bytes_and_inventory_unchanged": true,
+      "denied": true,
+      "exit": 4,
+      "operation": "create-own",
+      "output": "Error: Failed to add 'TEST-user-created' connection: Insufficient privileges\n"
+    },
+    {
+      "bytes_and_inventory_unchanged": true,
+      "denied": false,
+      "exit": 0,
+      "operation": "read-restricted",
+      "output": "TEST-root-seeded-user-restricted\nuser\\:builder\nno\n"
+    }
+  ],
+  "ordinary_gid": 1000,
+  "ordinary_groups": [
+    1000
+  ],
+  "ordinary_uid": 1000,
+  "ordinary_write_scope": "HOLD: no genuine authorized own-user write without session/agent",
+  "owned_container_removed": true,
+  "owned_image_tag_removed": true,
+  "policy_identity_pins": {
+    "/usr/share/dbus-1/system.d/org.freedesktop.NetworkManager.conf": "b1585b5ef00dcdb47c6fb45994c47f656ca5d78ca00d79fbe2e1a745be42bb32",
+    "/usr/share/dbus-1/system.d/org.freedesktop.PolicyKit1.conf": "28067ad27702251ba38d9794738cb81e18ce2151d26b3d103a33b4107c2f9877",
+    "/usr/share/polkit-1/actions/org.freedesktop.NetworkManager.policy": "6002ee5e8fcf3cfdd25fa5425c5dfa879dc293f8b1c69f14b4a8f9259be0b446",
+    "/usr/share/polkit-1/rules.d/50-default.rules": "4192b104907809623aa7ca4c58e1527da19710bae6278abe96f88d9f2d6430e9",
+    "/usr/share/polkit-1/rules.d/empower.rules": "d9a62ab1ec477a4be1657769dfd194c75d1a07a4357e7717aa19ad5c07c3fc26"
+  },
+  "polkit_exec_bridge_retirement": {
+    "error": null,
+    "exit": 0,
+    "group_census": "EMPTY_TWICE",
+    "output_complete": true,
+    "ownership": "REAPED",
+    "passed": true,
+    "reaped": true,
+    "seconds": 0.0687317730007635,
+    "signals": [],
+    "timeout": false
+  },
+  "private_report_root": "/home/gabe/Documents/ChatGPT/cachy-asahi-install-completion-20261114/work/networkmanager-user-auth-20261114/run2",
+  "real_Polkit_retirement": {
+    "error": null,
+    "exit": 0,
+    "group_census": "EMPTY_TWICE",
+    "output_complete": true,
+    "ownership": "REAPED",
+    "passed": true,
+    "reaped": true,
+    "seconds": 0.020635838998714462,
+    "signals": [],
+    "timeout": false
+  },
+  "real_bus_credential_checks": "Client UID/PID match self; root and user see same private bus/owners; authority PID matches held real polkitd child",
+  "recorded_utc_date": "2026-11-14",
+  "retained_report_pins": {
+    "guest/out-report.json": "0e4463dda9497bed923caf61cc130edee9fe86861f6900a0ed99be1615265656",
+    "guest/polkit-polkit.log": "460b7bd04cbb9b2af748dad6dfba10b9957a3bdac03e2cfd639791d2cb010e21",
+    "guest/polkit-report.json": "64864ddbe29bcfb1e81bf308e26a9b198def57c3ad18b5a380bb22e9b500d100",
+    "ordinary-bus-credentials-and-policy.log": "c640ce972cde1fe12aa2c709b2d76814ed15bc33117e2778a5bb048ccc14ed86",
+    "ordinary-create-own.log": "ec1b67562634cee1790d8712bf5935435a02042fd38c3cdc720efdd45bb8eff0",
+    "ordinary-modify-restricted.log": "2572582f9f2a1db606050a0090376af9ce4e80b91eb8588b5b18f7e015246b37",
+    "ordinary-modify-system.log": "cf43da9972b9e21b0837fa674f6dc3a259cf0085e0a3acb7b06d9700068a9454",
+    "ordinary-read-restricted.log": "296021270d0b529a2b46f891fec39bc2caeb61e59755105d01c15733a7df65e1",
+    "report.json": "e3a5367181bc723a7790ab97bc4707e07c2988834eb968a7fbb42e1f517b92bf"
+  },
+  "root_fixture_cleanup": "PASS_ROOT_FIXTURE_CLEANUP_ONLY",
+  "root_retirements": [
+    {
+      "result": {
+        "error": null,
+        "exit": 0,
+        "group_census": "EMPTY_TWICE",
+        "output_complete": true,
+        "ownership": "REAPED",
+        "passed": true,
+        "reaped": true,
+        "seconds": 0.02044801200099755,
+        "signals": [],
+        "timeout": false
+      },
+      "role": "nm"
+    },
+    {
+      "result": {
+        "error": null,
+        "exit": 0,
+        "group_census": "EMPTY_TWICE",
+        "output_complete": true,
+        "ownership": "REAPED",
+        "passed": true,
+        "reaped": true,
+        "seconds": 0.020413465997989988,
+        "signals": [],
+        "timeout": false
+      },
+      "role": "bus"
+    }
+  ],
+  "runtime": {
+    "CapAdd": null,
+    "CapDrop": [
+      "ALL"
+    ],
+    "Devices": [],
+    "Memory": 4294967296,
+    "NanoCpus": 2000000000,
+    "NetworkMode": "none",
+    "PidsLimit": 256,
+    "Privileged": false,
+    "ReadonlyRootfs": true,
+    "SecurityOpt": [
+      "no-new-privileges"
+    ],
+    "Tmpfs": {
+      "/etc/NetworkManager": "rw,nodev,nosuid,noexec,size=32m,mode=0700",
+      "/home/TEST": "rw,nodev,nosuid,noexec,size=32m,mode=0700",
+      "/home/UID1000": "rw,nodev,nosuid,noexec,size=32m,mode=0755,uid=1000,gid=1000",
+      "/out": "rw,nodev,nosuid,noexec,size=32m,mode=0755",
+      "/polkit": "rw,nodev,nosuid,noexec,size=32m,mode=0755,uid=102,gid=102",
+      "/run": "rw,nodev,nosuid,noexec,size=32m,mode=0755",
+      "/tmp": "rw,nodev,nosuid,noexec,size=32m,mode=1777",
+      "/var/lib/NetworkManager": "rw,nodev,nosuid,noexec,size=32m,mode=0700"
+    }
+  },
+  "schema_version": 1,
+  "scope": "actual x86 UID1000 observations against real Polkit128-1 UID102 and NM1.58.1; no session/agent simulation",
+  "standard_DBus_transport_source_sha256": "44c95f47ca606ab134bb8c7cfa1a0804960a608879d337b4a1b4356900f37302",
+  "status": "PASS_REAL_UID_AUTHORIZATION_OBSERVATIONS_WITH_SESSION_HOLD"
+}
