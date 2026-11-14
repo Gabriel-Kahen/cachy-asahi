@@ -1,0 +1,36 @@
+{
+  "certificates": [
+    {
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/Root-native-x86-body-authority-20261108/revision-002/Root-static-body-certificate.json",
+      "sha256": "b74d1948110ed10577659f1de8193c16179d8317c59cc09e83b398b700e90e91"
+    },
+    {
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/Root-native-x86-body-authority-20261108/Root-historical-inventory-body-certificate.json",
+      "sha256": "8b74c8601b79234a00f2731f626e071ad218ede20df0b7ae9d69dbbd641e0b63"
+    },
+    {
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/Root-native-x86-body-authority-20261108/revision-003/Root-static-body-certificate.json",
+      "sha256": "d3f250abfedf1323fecbb42f102598950da7da9a14278399b0218a3c0f5aefaa"
+    },
+    {
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/Root-native-x86-body-authority-20261108/revision-003/Root-full-port-workflows-body-certificate.json",
+      "sha256": "f12b5786bd238c5551b5db086b1791757e8269fe43baaf89e491abdd8a073adf"
+    },
+    {
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/Root-native-x86-body-authority-20261108/Root-release-pid1-body-certificate.json",
+      "sha256": "ba1929b058c6bb87902b8d752e1a86ad96de667070e3e7bad0d13fc0215dd9c0"
+    },
+    {
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/Root-native-x86-body-authority-20261108/Root-source-tools-body-certificate.json",
+      "sha256": "78dd0cc4a2a3f5fa5aba5cecd9f3600895a75b7763a73b36955fb6d897ae6d74"
+    },
+    {
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/Root-native-x86-body-authority-20261108/Root-security-provenance-body-certificate.json",
+      "sha256": "5f9d77dc596467ba835438fdb26d93ee20a81bd7bdcb458eebf140cef7845828"
+    },
+    {
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/Root-native-x86-body-authority-20261108/Root-platform-base5-body-certificate.json",
+      "sha256": "ccda54d451597b16cb44e00cd9e1fcb7318303d99a663f0832b1220ff486a7d0"
+    }
+  ]
+}
