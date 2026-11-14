@@ -1,0 +1,36 @@
+pkgbase = cachy-asahi-audio-sources
+	pkgdesc = Opt-in offline finite audio source delivery and verification
+	pkgver = 0.1.0
+	pkgrel = 1
+	url = https://github.com/Gabriel-Kahen/cachy-asahi
+	arch = any
+	license = MIT
+	checkdepends = bubblewrap
+	depends = python>=3.12
+	depends = xz
+	options = !strip
+	options = !debug
+	source = runtime-source.tar.gz
+	source = cachy-asahi-audio-sources
+	source = runtime-map.json
+	source = check_package.py
+	source = test_package.py
+	source = test_archive.py
+	source = README.md
+	source = source-provenance.json
+	source = payload-map.json
+	source = LICENSE
+	source = NOTICE
+	sha256sums = 0b2484c47601c061d547d4281206f200ba55be0886d13f367f833b8d3a7df847
+	sha256sums = 82d8f4235317533ad5c8b5650595bee7e34b661fd16af88a7dcdebdd688db7e8
+	sha256sums = cea0f3d2ef40936e679a3dedda37b44e5264732e0a6a7e0149da1ce6a75c5577
+	sha256sums = fd24d2ed268dbb764140b8762a29aa955c85d886deb4342c0fcdbfcafa8d4ebd
+	sha256sums = 4e7d64dbcead7ca090b24611dd6854df778d053bd1773637badf6bb66d554a42
+	sha256sums = c647b7277879feac09298e89d9e0926a9a67f6ce27b0b9f79572968e867bf486
+	sha256sums = b4588834c8913f0e2b6fd28f645068e05d11a9e5bab589135d080685092dd5f3
+	sha256sums = c8fec799f0de92559f942c98c253e8c78e7665b2ebc98b68814248c258cf9924
+	sha256sums = 567ba9cd35f2846faf7bb62ac4f6c2e74b4431d0a69ce6c998c788c002d79196
+	sha256sums = 51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7
+	sha256sums = 8d4c7f9c2a68e8e4b2480fa8adeb890ff8d2bfd3a64d40a4f8880022cdca7f25
+
+pkgname = cachy-asahi-audio-sources
