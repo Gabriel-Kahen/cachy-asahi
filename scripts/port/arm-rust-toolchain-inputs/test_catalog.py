@@ -222,6 +222,76 @@ class CatalogTests(unittest.TestCase):
         self.assertTrue(all(r['exact_match'] for r in result['license_notices']))
         self.assertEqual(result['corresponding_source_acceptance'], 'NOT_ESTABLISHED')
 
+    def test_original_descriptors_cannot_be_substituted_or_removed(self):
+        lock = json.loads((c.HERE / 'inputs.lock.json').read_text())
+        self.assertEqual(c.preserve_original_inputs(lock), 'EXACT_84_PACKAGE_DESCRIPTORS')
+        lock['packages']['rust']['version'] = '1.96.1'
+        with self.assertRaisesRegex(ValueError, 'changed or removed'):
+            c.preserve_original_inputs(lock)
+        lock = json.loads((c.HERE / 'inputs.lock.json').read_text())
+        del lock['packages']['libgit2']
+        with self.assertRaisesRegex(ValueError, 'changed or removed'):
+            c.preserve_original_inputs(lock)
+
+    def test_named_auxiliary_providers_are_joined_exactly(self):
+        lock = json.loads((c.HERE / 'inputs.lock.json').read_text())
+        packages, entries, joins = {}, {}, []
+        for required in lock['auxiliary_requirements']:
+            name, provider = required['consumer_package'], required['provider_package']
+            packages[name] = {'metadata': {'/.PKGINFO': {'optdepend': [required['optional_dependency']]},
+                                           '/.BUILDINFO': {'installed': ['python-3.14.7-1-aarch64', 'python-tqdm-4.70.1-1-any']}}}
+            packages[provider] = {}
+            entries[required['provider_elf']] = {'package': provider, 'elf': {'soname': required['needed']}}
+            joins.append({'consumer': required['consumer'], 'needed': required['needed'], 'provider': required['provider_elf']})
+        result = c.auxiliary_joins(lock, packages, entries, joins)
+        self.assertTrue(all(r['status'] == 'EXACT_STRUCTURAL_JOIN' for r in result))
+        self.assertTrue(all(r['runtime_compatibility'] == 'NOT_RUN' for r in result))
+        self.assertEqual(result[1]['consumer_buildinfo_provider'], ['python-3.14.7-1-aarch64'])
+        joins[0]['provider'] = '/usr/lib/unreviewed.so'
+        with self.assertRaisesRegex(ValueError, 'provider path'):
+            c.auxiliary_joins(lock, packages, entries, joins)
+
+    def test_repeated_metadata_dependencies_have_one_semantic_join(self):
+        lock = {'packages': {'a': {'version': '1-1', 'depends': ['b', 'b'], 'provides': []},
+                             'b': {'version': '1-1', 'depends': [], 'provides': []}},
+                'dependency_joins': [{'package': 'a', 'dependency': 'b', 'provider': 'b'}]}
+        self.assertEqual(len(c.package_joins(lock)), 1)
+        self.assertEqual(lock['packages']['a']['depends'], ['b', 'b'])
+
+    def test_bpf_data_requires_exact_path_and_bytes(self):
+        data = bytearray(tiny_elf(247))
+        struct.pack_into('<H', data, 16, 1)
+        struct.pack_into('<Q', data, 32, 0)
+        struct.pack_into('<H', data, 56, 0)
+        data = bytes(data)
+        path = '/usr/lib/udev/rc_keymaps/protocols/example.o'
+        expected = {'name': 'fixture', 'version': '1-1', 'arch': 'aarch64', 'depends': [], 'provides': [],
+                    'non_aarch64_elf_data': {path: c.digest(data)}}
+        archive = self.archive([(path.lstrip('/'), data, 'file')])
+        result = c.inspect_archive(archive, expected, time.monotonic() + 10)
+        self.assertEqual(result['entries'][path]['elf']['payload_kind'], 'BPF_RELOCATABLE_DATA')
+        with self.assertRaisesRegex(ValueError, 'non-AArch64'):
+            c.inspect_archive(archive, dict(expected, non_aarch64_elf_data={}), time.monotonic() + 10)
+        expected['non_aarch64_elf_data'][path] = c.digest(b'changed')
+        with self.assertRaisesRegex(ValueError, 'pin mismatch'):
+            c.inspect_archive(archive, expected, time.monotonic() + 10)
+
+    def test_bpf_data_cannot_provide_a_native_library(self):
+        entries = {'/usr/bin/tool': {'type': 'file', 'elf': c.elf(tiny_elf())},
+                   '/usr/lib/libc.so.6': {'type': 'file', 'elf': {'machine': 247, 'needed': [], 'interpreter': None,
+                                                                'rpath': [], 'runpath': []}}}
+        with self.assertRaisesRegex(ValueError, 'non-AArch64'):
+            c.elf_joins(entries)
+
+    def test_empty_runpath_remains_a_visible_loader_gate(self):
+        native = c.elf(tiny_elf())
+        entries = {'/usr/bin/tool': {'type': 'file', 'elf': dict(native, runpath=[''])},
+                   '/usr/lib/libc.so.6': {'type': 'file', 'elf': dict(native, needed=[])}}
+        joins, missing = c.elf_joins(entries)
+        self.assertEqual(len(joins), 1)
+        self.assertEqual(missing, [{'consumer': '/usr/bin/tool', 'search_path': [''],
+                                    'reason': 'unsupported loader search expression'}])
+
 
 if __name__ == '__main__':
     unittest.main()
