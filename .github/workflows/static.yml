@@ -252,6 +252,8 @@ jobs:
           python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-ksmctl2/test_experiment.py
           python3 -I -B packages/tools/cachy-asahi-ksmctl2/cachy-asahi-ksm-experiment --help >/dev/null
           bash -n packages/tools/cachy-asahi-ksmctl2/PKGBUILD
+      - name: Check installed repository enrollment delivery without changing trust
+        run: python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-repository-enrollment/test_package.py -v
       - name: Exercise planned repository key rotation without skipped controls
         env:
           PYTHONDONTWRITEBYTECODE: '1'

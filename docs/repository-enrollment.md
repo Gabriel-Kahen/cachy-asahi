@@ -6,6 +6,13 @@ certificate and an independently authenticated full primary-key fingerprint.
 This is a local operator tool; no production endpoint or signing identity is
 accepted by this implementation.
 
+The opt-in [repository enrollment package](../packages/tools/cachy-asahi-repository-enrollment/README.md)
+also delivers these unchanged helpers as
+`cachy-asahi-repository-enrollment configure ...` and
+`cachy-asahi-repository-enrollment rotate ...`. Its installation/removal does
+not change pacman configuration or trust; configuration changes remain explicit.
+Native ARM package and installed-target qualification are still required.
+
 Python 3.9 or later, GnuPG, and `pacman-key` must already be installed. The base
 pacman configuration and initialized keyring must already exist. The tool never
 initializes, resets, replaces, or deletes the base keyring. Setup-package delivery

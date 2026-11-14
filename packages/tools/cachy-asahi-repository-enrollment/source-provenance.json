@@ -1,0 +1,15 @@
+{
+  "license": "MIT",
+  "schema_version": 1,
+  "source_revision": "6eb5fcf4cd3d0b6b88ec1cb88622fa8f7a80f35f",
+  "sources": {
+    "enroll.py": {
+      "path": "scripts/repository/enroll.py",
+      "sha256": "38db2d45955b569a4c74c3f31d6b6c79611126238e1bbe1e5cf819f81d0fb54f"
+    },
+    "rotate.py": {
+      "path": "scripts/repository/rotate.py",
+      "sha256": "8bb7f255cdaaf02c06d6305b924f68988b3e733d0187d8b8b45164bb4761b711"
+    }
+  }
+}
