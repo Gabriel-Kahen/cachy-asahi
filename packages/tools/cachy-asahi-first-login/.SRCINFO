@@ -1,0 +1,37 @@
+pkgbase = cachy-asahi-first-login
+	pkgdesc = Opt-in first-login configuration discovery, activation and recovery
+	pkgver = 0.1.0
+	pkgrel = 1
+	url = https://github.com/Gabriel-Kahen/cachy-asahi
+	arch = any
+	license = MIT
+	depends = python>=3.11
+	depends = cachy-asahi-setup
+	optdepends = fish: Fish configuration activation
+	optdepends = zsh: Zsh configuration activation
+	optdepends = hyprland: Hyprland configuration activation
+	optdepends = cachy-asahi-fish-config: Fish template
+	optdepends = cachy-asahi-zsh-config: Zsh template
+	optdepends = cachy-asahi-hyprland-settings: Hyprland template
+	source = LICENSE
+	source = NOTICE
+	source = README.md
+	source = cachy-asahi-first-login
+	source = first_login.py
+	source = setup8-fixture.py
+	source = test_first_login.py
+	source = test_delivery.py
+	source = check-sync.py
+	source = source-provenance.json
+	sha256sums = 51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7
+	sha256sums = 1dcd710c1e689921de46112182f4fb2b9dfa3184ef2ec0fa7a05202602a00790
+	sha256sums = e1244a1af3dbae9ca0bdfb15122a89a15ba7faf74732d07f069a4e7293a004f3
+	sha256sums = a5e2b72ff58eac2763c0ad65f36c0c883a60ce20e97c38acc4bace9d30a18144
+	sha256sums = 41ade792884afced7a078c6926d3f18d7a9e40fca50191c7d77d34678711921c
+	sha256sums = 724a37c9832d607455aeda1d929f0ee265ce268aecb64be5e00065c1edf85cf0
+	sha256sums = 8c7a6a82a44012772ef17a43b94920bdce9dd538c989f89fb5f371d2b720075f
+	sha256sums = ea5aaadcbbb0f3150343d0d7cae715fe9acd06be855d67e779896bf262bd61c2
+	sha256sums = 929c60ebb939c7ea4d46d74ddedcaa219fb53285bce25c85ea8d71595d952e48
+	sha256sums = de11b33549d565c05ce6ba7549e02702884bc269fa6267be9f68610259fc47ac
+
+pkgname = cachy-asahi-first-login
