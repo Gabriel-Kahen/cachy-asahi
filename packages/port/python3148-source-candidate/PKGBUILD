@@ -1,0 +1,70 @@
+# SPDX-License-Identifier: MIT
+# Original source-authoritative candidate; never a reconstruction of ALARM -1.
+pkgname=python
+pkgver=3.14.8
+pkgrel=1.1
+pkgdesc='CPython source-authoritative maintained candidate (unqualified)'
+arch=('aarch64')
+url='https://www.python.org/'
+license=('PSF-2.0' 'MIT')
+depends=('glibc' 'bzip2' 'expat' 'gdbm' 'libffi' 'openssl' 'zlib' 'tzdata'
+         'mpdecimal' 'zstd' 'xz' 'readline' 'ncurses' 'util-linux-libs')
+makedepends=('gcc' 'make' 'pkgconf' 'patch' 'sqlite' 'tk' 'bluez-libs')
+optdepends=('sqlite: sqlite3 module' 'tk: tkinter and IDLE')
+provides=('python3' 'python-externally-managed')
+options=('!lto' '!debug')
+source=('https://www.python.org/ftp/python/3.14.8/Python-3.14.8.tar.xz'
+        'posix-2024.patch' 'CPython-LICENSE' 'LICENSE' 'EXTERNALLY-MANAGED'
+        'source-provenance.json' 'check_runtime.py' 'check_stage.py')
+sha256sums=(
+  'c2215904f02b175596dc49351585104f4bc20341e1c47378b26a2c274360ce73'
+  '76d1307b5f73ed9eb5e46b672c8f55bd93474173f4ca834a54d0ee7536fa0a7f'
+  'b0e25a78cffb43f4d92de8b61ccfa1f1f98ecbc22330b54b5251e7b6ba010231'
+  '4d263ff2b095160e3b9244a132d248234241b83eed71b849decef6a3ba3fa795'
+  'd15f1508fc398399561dacc6338739bb6b68f6f4116330dadb21e9067b1dd654'
+  '1be00c301fb307a3cbc0fec3b61005b5d26dae4b2fe3e1d1a8b4dd87ede2e385'
+  '062e00a1400613c92a9b9a552511c857e3d44d69f75499467357e2a1474b8df0'
+  'c33bd2e430685971306e77d41397d237d2330baa030d6e8e6fabc4da9240c232'
+)
+
+prepare() {
+  cd "Python-$pkgver"
+  patch --batch --forward -p1 < "$srcdir/posix-2024.patch"
+}
+
+build() {
+  cd "Python-$pkgver"
+  ./configure --prefix=/usr --enable-shared --without-lto \
+    --without-ensurepip --with-system-expat --with-system-libmpdec \
+    --with-dbmliborder=gdbm:ndbm --with-tzpath=/usr/share/zoneinfo
+  make
+}
+
+check() {
+  cd "Python-$pkgver"
+  LD_LIBRARY_PATH="$PWD" ./python -I "$srcdir/check_runtime.py"
+  LD_LIBRARY_PATH="$PWD" ./python -I -m test -j2 --timeout=120 \
+    test_hashlib test_bz2 test_lzma test_decimal test_ctypes \
+    test_sqlite3 test_gzip test_zlib test_uuid test_zoneinfo
+}
+
+package() {
+  cd "Python-$pkgver"
+  make DESTDIR="$pkgdir" COMPILEALL_OPTS=-j2 install
+  rm -rf "$pkgdir/usr/lib/python3.14/test" "$pkgdir/usr/lib/python3.14/idlelib/idle_test"
+  for name in python python-config idle pydoc; do
+    case "$name" in
+      python) target=python3 ;;
+      python-config) target=python3-config ;;
+      idle) target=idle3 ;;
+      pydoc) target=pydoc3 ;;
+    esac
+    ln -s "$target" "$pkgdir/usr/bin/$name"
+  done
+  install -m644 "$srcdir/EXTERNALLY-MANAGED" "$pkgdir/usr/lib/python3.14/EXTERNALLY-MANAGED"
+  install -Dm644 "$srcdir/CPython-LICENSE" "$pkgdir/usr/share/licenses/python/CPython-LICENSE"
+  install -Dm644 "$srcdir/LICENSE" "$pkgdir/usr/share/licenses/python/packaging-MIT"
+  install -Dm644 "$srcdir/source-provenance.json" "$pkgdir/usr/share/doc/python/source-provenance.json"
+  LD_LIBRARY_PATH="$PWD" ./python -I "$srcdir/check_stage.py" "$pkgdir"
+  LD_LIBRARY_PATH="$pkgdir/usr/lib" "$pkgdir/usr/bin/python3.14" -I "$srcdir/check_runtime.py" --prefix "$pkgdir/usr"
+}
