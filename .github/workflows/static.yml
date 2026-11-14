@@ -254,6 +254,12 @@ jobs:
           bash -n packages/tools/cachy-asahi-ksmctl2/PKGBUILD
       - name: Check installed repository enrollment delivery without changing trust
         run: python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-repository-enrollment/test_package.py -v
+      - name: Check first-login recovery and offline release signing transitions
+        run: |
+          python3 -I -B -Werror::ResourceWarning scripts/install/test_first_login.py -v
+          python3 -I -B packages/tools/cachy-asahi-first-login/check-sync.py --root "$PWD"
+          python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-first-login/test_delivery.py --recipe packages/tools/cachy-asahi-first-login/PKGBUILD -v
+          python3 -I -B -Werror::ResourceWarning scripts/release/test_signing_transition.py -v
       - name: Exercise planned repository key rotation without skipped controls
         env:
           PYTHONDONTWRITEBYTECODE: '1'
