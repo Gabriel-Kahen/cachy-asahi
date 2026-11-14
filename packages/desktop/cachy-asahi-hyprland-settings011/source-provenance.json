@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "package": "cachy-asahi-hyprland-settings",
+  "version": "0.1.1-1",
+  "source": "local-original",
+  "license": "MIT",
+  "baseline_recipe": "packages/desktop/cachy-asahi-hyprland-settings/PKGBUILD",
+  "baseline_version": "0.1.0-3",
+  "baseline_repository_commit": "6eb5fcf4cd3d0b6b88ec1cb88622fa8f7a80f35f",
+  "baseline_hyprland_sha256": "f75aebb1111123dc86c7f1a85e00bff0320edef6e6f071e28370fbabd6a40a6a",
+  "baseline_recipe_sha256": "350b2920c55b2ddd7201adb9a949947e6d083f42eb75497e878097f1411917d5",
+  "baseline_srcinfo_sha256": "5b49b6d13f829c280dea38757586a0627c9af9e81e2fdbeb8398a9e80700828a",
+  "unchanged_sources": {
+    "waybar.json": "4c7adb2deb0403fefc4562d39105635cebfc44ce88e44fe84c4a90a00b2be3c0",
+    "waybar.css": "a97930965a4e622adc920491c7d433a803173bb6e644c4c3c88efb79187e11d5",
+    "mako.conf": "c6ab55ae475611bf2df2b7120b97a924eed5d65c149561d4da4f12b5b8c25504",
+    "NOTICE": "0c8c331ce87a95b154e0e83c358a5cafc39bf08f2129ecc5be2438c6a97a325c",
+    "LICENSE": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+    "cachy-asahi-screenshot": "7dc01c020275f2d482f326bad0592e59bde140ba9cc349849ac5916e883e7c7d"
+  },
+  "hyprland_api_commit": "efb50993780079460b0cbed1363e2166a2de1d9f",
+  "hyprland_api_version": "0.56.2",
+  "session_lock_dependency": [
+    "cachy-asahi-session-lock>=0.1.0",
+    "cachy-asahi-session-lock<0.2.0"
+  ],
+  "behavior_changes": [
+    "SUPER+L invokes cachy-asahi-session-lock lock",
+    "SUPER+SHIFT+L invokes cachy-asahi-session-lock suspend"
+  ],
+  "activation": "opt-in user-owned config copy only",
+  "native_build": "NOT RUN",
+  "installation": "NOT RUN",
+  "hardware_validation": "NOT RUN",
+  "selected_for_release": false,
+  "selected_for_development": false
+}
