@@ -11,12 +11,12 @@ on:
       operation:
         type: choice
         required: true
-        default: source184
-        options: [source184, build-tools-alpm-v2]
+        default: native-build-namespace-preflight-v1
+        options: [native-build-namespace-preflight-v1]
 permissions:
   contents: read
 concurrency:
-  group: native-arm-source-tools
+  group: native-arm-build
   cancel-in-progress: false
   queue: max
 jobs:

@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: MIT
 """Finite source-defined evidence projection; omitted private trees untouched."""
 import hashlib
-import json
+import io
+import tarfile
 import os
 from pathlib import Path
 import re
@@ -9,15 +10,14 @@ import stat
 import capsule as C
 import privacy_diagnostics as privacy
 
-PRODUCERS = {'native/build_tools_alpm_v2.py': '8a071d7755d2dd311550d096bfc0dd8183582b288a46ad46adef20c5ede813bd', 'native/build_tools_tools_v2.py': '2978acabbb2dce2e075e0bfb0f8515e15dccac1e39bc9fa5c3a8e1ac316d5f84', 'native/build_tools_guest_v2.py': '3396c811551ae2272c4f0b11af3907f1efc39b8275adc2e0dc039a4e14883dd4', 'native/build_tools_probe_v2.py': 'a63de05cbd02af8c59849353dc73eaac7389a28c54c912b6bd7845fd62f29354', 'native/build-tools-contract-v2.json': '87db7214a738af7bbd30d72cc0e1e95c789c61995fd0e1397477c9694a95d91d'}
-
+PRODUCERS = {'native/build_tools_alpm_v2.py': 'bf0989ae84a273be1c85ac1193967c0d75eb9091c6a5c21a0f3b1040a2c3ec90', 'native/build_tools_tools_v2.py': '7a933b927c708a5dac014b391c7f75b50ef8308cc517d49759dac3976ba03906', 'native/build_tools_guest_v2.py': '123a5ddf1bf428a9d8ee275a5874d1fa69a70d90e7bc3d859de1719ad73f2c9a', 'native/build-tools-contract-v2.json': 'a1c13473ba072fac6d2a0418e7d12a10e531ade64291aac7a602e1422944378d'}
 HOST={'transport-diagnostic.json','transport-proof.json','receipt.json','cleanup.json','source-proof.json','consumer-inspect.json','consumer-after.json',
  'consumer-diagnostic.json','image-ledger.json','image-retirement.json','bootstrap-failure-retention.json','provision-diagnostic.json','build-summary.json'}
 BOOTSTRAP={phase+'-'+name for phase in ('bootstrap','overlay') for name in
  ('packages.lock','signatures.json','bootstrap.json','cache-checksums.json','Dockerfile','runner.json')}|{
  'bootstrap-acquisition.json','bootstrap-key-import.log','bootstrap-bootstrap.log'}
-REPORTS={'build-tools-alpm-v2':{'result.json','commands.json'}}
-PRIVATE={'build-tools-alpm-v2':{'home'}}
+REPORTS={'native-build-namespace-preflight-v1':{'result.json','commands.json'}}
+PRIVATE={'native-build-namespace-preflight-v1':{'home'}}
 LOG=re.compile(r'[0-9]{3}-[A-Za-z0-9][A-Za-z0-9_+.-]{0,127}\.log')
 PRIVATE_MARKER=re.compile(br'-----BEGIN[^\r\n]{0,100}PRIVATE KEY|BEGIN PGP PRIVATE|ssh-(?:rsa|ed25519)|ecdsa-sha2-|(?:gh[pousr]_|github_pat_)[A-Za-z0-9_]+|authorization\s*:\s*(?:bearer|token)|(?:access[_-]?token|password|secret)\s*[=:]|CACHY_(?:OLD_FOUR|RETAINED_BUBBLEWRAP)|PRIVATE_KEY|(?:_TOKEN|_SECRET|_PASSWORD)\b',re.I)
 
@@ -54,8 +54,8 @@ def _project(source_root,public_root,projected_root):
   and not source.is_relative_to(dest),'fresh disjoint projection required')
  for name,expected in PRODUCERS.items():
   with C.refusal_context('projection-source',name):C.need(C.pin(_read(source,name)[0])['sha256']==expected,'projection producer source pin differs')
- selected={};source_modes={}
- def add(name,expected=None,optional=False):
+ selected={};source_modes={};archive_rows={}
+ def add(name,expected=None,optional=False,archive_command=None,command_index=None):
   with C.refusal_context('projection-select',name):
    result=_read(public,name,optional)
    if result is None:return None
@@ -109,18 +109,20 @@ def _project(source_root,public_root,projected_root):
    C.need(not any(LOG.fullmatch(n) for n in names),'command log without source report refused');continue
   with C.refusal_context('projection-select',prefix+'/result.json'):
    report=C._load(report_raw);C.need(type(report) is dict,'feature report object required');commands=report.get('commands',[]);C.need(type(commands) is list and len(commands)<=1000,'finite source command records required');wanted=set()
-   for row in commands:
+   for index,row in enumerate(commands):
     C.need(type(row) is dict and type(row.get('log')) is str and LOG.fullmatch(row['log']) and row['log'] not in wanted,'finite unique source command log required')
-    wanted.add(row['log']);add(prefix+'/'+row['log'],_pin(row.get('log_pin')))
+    wanted.add(row['log']);add(prefix+'/'+row['log'],_pin(row.get('log_pin')),
+      archive_command=None,command_index=index)
    actual_logs={n for n in names if LOG.fullmatch(n)}
    for name in sorted(actual_logs^wanted):
     with C.refusal_context('projection-select',prefix+'/'+name):C.need(False,'source command log namespace differs')
 
  rows={name:dict(kind='file',mode=0o600,source_mode=source_modes[name],**C.pin(raw)) for name,raw in selected.items()}
- receipt=dict(schema=1,status='PASS_FINITE_BUILD_TOOLS_ALPM_PUBLIC_DATA_PROJECTION',binding=binding,source_map_sha256=map_hash,
+ receipt=dict(schema=1,status='PASS_FINITE_NAMESPACE_PREFLIGHT_PUBLIC_DATA_PROJECTION',binding=binding,source_map_sha256=map_hash,
   source_producers=PRODUCERS,selected=rows,omitted_private_scopes=sorted('journey/'+feature+'/'+name for feature,names in PRIVATE.items() for name in names),
-  scope='Fixed build-tools-alpm-v2 result, commands and raw referenced logs only; private home trees not retained',
-  privacy='Selected text/JSON/log ASCII private-key,SSH,token,secret-env marker refusal; no payload exemption',
+  scope='Fixed native-build-namespace-preflight-v1 result, commands and raw referenced logs only; private home trees not retained',
+  privacy='Ordinary DATA marker refusal; no binary or archive exceptions',
+  archive_custody=archive_rows,
   original_output_unchanged=True,omitted_private_trees_walked=False)
  selected['public-projection.json']=C._json(receipt)
  manifest=dict(schema=1,binding=binding,source_map_sha256=map_hash,files={name:dict(kind='file',mode=0o600,**C.pin(raw)) for name,raw in selected.items()})

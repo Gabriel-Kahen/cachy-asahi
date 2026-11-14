@@ -1,36 +1,20 @@
 # SPDX-License-Identifier: MIT
-"""Finite source-tools package policy, inert fixtures and provenance comparisons.
-
-No process, network, native image or retained-code actor is created on import. The
-caller supplies the unchanged owned Commands runner for every future command.
-"""
-import base64
-import gzip
+"""Fixed namespace observations. Import is inert; every exec has a held owner."""
+import argparse
 import hashlib
-import importlib.util
-import io
 import json
 import os
 from pathlib import Path
 import re
 import stat
-import struct
-import tarfile
+import sys
 
-OPERATION = 'build-tools-alpm-v2'
-NAME = 'cachy-asahi-build-tools'
-VERSION = '0.2.0-1'
-PREFIX = Path('/opt/native-build-tools-alpm-v2')
+OPERATION = 'native-build-namespace-preflight-v1'
+PREFIX = Path('/opt/native-' + OPERATION)
 SOURCE = PREFIX / 'source'
 STORE = PREFIX / 'evidence'
-STAGES = ('build-a', 'build-b', 'compare', 'sign', 'install', 'commands-system',
-          'commands-moved', 'remove', 'restore', 'cleanup')
-SOURCE_ARCHIVE = 'check-inputs.tar.gz'
-SOURCE_FILES = frozenset(('.SRCINFO', 'LICENSE', 'NOTICE', 'PKGBUILD', 'README.md', 'cachy-asahi-build-tools', 'check-inputs.tar.gz', 'import_source.py', 'package_checks.py', 'preflight.py', 'recipe_metadata_consistency.py', 'source-provenance.json', 'source_cache.py', 'source_delivery.py', 'source_materials.py', 'test_package.py'))
-SOURCE_ARCHIVE_SHA256 = '112fa3eb9c18245ad95ea874f66c4943dc2678b0927e63a6ac705ff398e6ac72'
-MAX_FILE = 16 * 1024**2
-MAX_TOTAL = 128 * 1024**2
-MAX_NODES = 100000
+CASES = ('bwrap-user-mount-net', 'unshare-mapped-root')
+FRAME = b'NATIVE_BUILD_NAMESPACE_V1 '
 
 
 def need(value, message):
@@ -39,342 +23,212 @@ def need(value, message):
 
 
 def encoded(value):
-    return (json.dumps(value, sort_keys=True, indent=2, allow_nan=False) + '\n').encode()
+    return json.dumps(value, sort_keys=True, separators=(',', ':'), allow_nan=False).encode() + b'\n'
 
 
 def data_pin(raw):
     return dict(bytes=len(raw), sha256=hashlib.sha256(raw).hexdigest())
 
 
-def ordinary(path, maximum=2 * 1024**2):
+def ordinary(path, cap=65536):
     path = Path(path)
-    need(not any(part.is_symlink() for part in (path, *path.parents)), 'ordinary nonaliased path required')
-    fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK | os.O_NOFOLLOW | os.O_CLOEXEC)
+    need(not any(p.is_symlink() for p in (path, *path.parents)), 'ordinary canonical input')
+    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC)
     try:
         before = os.fstat(fd)
-        need(stat.S_ISREG(before.st_mode) and before.st_nlink == 1 and before.st_size <= maximum,
-             'bounded ordinary source required')
-        pieces, size = [], 0
-        while True:
-            block = os.read(fd, min(65536, maximum + 1 - size))
-            if not block:
-                break
-            pieces.append(block); size += len(block)
-            need(size <= maximum, 'ordinary byte cap exceeded')
-        after = os.fstat(fd)
-        keys = ('st_dev', 'st_ino', 'st_size', 'st_mtime_ns', 'st_ctime_ns', 'st_mode', 'st_uid', 'st_gid')
-        need(all(getattr(before, key) == getattr(after, key) for key in keys) and size == after.st_size,
-             'ordinary file changed while reading')
-        return b''.join(pieces)
+        need(stat.S_ISREG(before.st_mode) and before.st_nlink == 1 and before.st_size <= cap, 'bounded ordinary input')
+        raw = os.read(fd, cap + 1)
+        identity = lambda s: (s.st_dev, s.st_ino, s.st_mode, s.st_nlink, s.st_size, s.st_mtime_ns, s.st_ctime_ns)
+        need(len(raw) == before.st_size <= cap and identity(before) == identity(os.fstat(fd)) == identity(path.lstat()), 'stable whole input')
+        return raw
     finally:
         os.close(fd)
 
 
-def pin(path):
-    return data_pin(ordinary(path, MAX_FILE))
+def selected_proc(path, cap=4096):
+    try:
+        with open(path, 'rb', buffering=0) as stream:
+            raw = stream.read(cap + 1)
+        need(len(raw) <= cap, 'proc cap')
+        return raw.decode('ascii')
+    except (OSError, UnicodeError, ValueError):
+        return None
 
 
-def _pin_row(item, maximum=1024**2):
-    return (type(item) is dict and type(item.get('bytes')) is int and 0 < item['bytes'] <= maximum
-            and type(item.get('sha256')) is str and re.fullmatch('[0-9a-f]{64}', item['sha256'])
-            and type(item.get('mode')) is int and item['mode'] in (0o644, 0o755))
+def context():
+    namespaces = {}
+    for name in ('user', 'mnt', 'net', 'pid'):
+        try:
+            value = os.readlink('/proc/self/ns/' + name)
+            namespaces[name] = value if re.fullmatch(name + r':\[[1-9][0-9]{0,19}\]', value) else None
+        except OSError:
+            namespaces[name] = None
+    maps = {}
+    for name in ('uid_map', 'gid_map'):
+        raw = selected_proc('/proc/self/' + name)
+        rows = None
+        if raw is not None:
+            parsed = [line.split() for line in raw.splitlines()]
+            if 0 < len(parsed) <= 8 and all(len(r) == 3 and all(re.fullmatch('[0-9]{1,10}', v) for v in r) for r in parsed):
+                rows = [[int(v) for v in r] for r in parsed]
+        maps[name] = rows
+    raw = selected_proc('/proc/self/status', 16384)
+    fields = {}
+    for name in ('CapInh', 'CapPrm', 'CapEff', 'CapBnd', 'CapAmb', 'NoNewPrivs', 'Seccomp', 'Seccomp_filters'):
+        rows = [] if raw is None else [line.split(':', 1)[1].strip() for line in raw.splitlines() if line.startswith(name + ':')]
+        fields[name] = rows[0] if len(rows) == 1 and re.fullmatch('[0-9a-f]{1,16}', rows[0]) else None
+    groups = os.getgroups()
+    return dict(uid=os.getuid(), euid=os.geteuid(), gid=os.getgid(), egid=os.getegid(),
+                groups=groups[:32], group_count=len(groups), groups_complete=len(groups) <= 32,
+                namespaces=namespaces, maps=maps, status=fields, cwd=os.getcwd(),
+                architecture=os.uname().machine, page_bytes=os.sysconf('SC_PAGE_SIZE'))
 
 
-def expected_installed(root):
-    """Derive all349 version AND architecture rows from the genuine held inputs."""
-    root = Path(root)
-    original = json.loads(ordinary(root / 'bootstrap/scripts/ci/inputs.lock.json'))
-    additions = json.loads(ordinary(root / 'native/input-profile.json'))['additions']['rows']
-    versions = {}
-    for row in original['rootfs_packages']:
-        need(all(type(row[key]) is list and len(row[key]) == 1 for key in ('name', 'version', 'arch')),
-             'exact rootfs package metadata')
-        versions[row['name'][0]] = (row['version'][0], row['arch'][0])
-    for row in original['packages'] + additions:
-        versions[row['name']] = (row['version'], row['arch'])
-    need(len(versions) == 349 and all(arch in ('any', 'aarch64') for _, arch in versions.values()),
-         'complete genuine349 architecture metadata')
-    lock = ordinary(root / 'native/expected349.lock')
-    need(lock == ''.join(name + ' ' + version + '\n' for name, (version, _) in sorted(versions.items())).encode(),
-         'derived full349 version/architecture inventory differs')
-    return sorted(name + '-' + version + '-' + arch for name, (version, arch) in versions.items())
+def binary(path):
+    try:
+        raw = ordinary(path, 4 * 1024**2); info = Path(path).stat()
+        return dict(**data_pin(raw), mode=stat.S_IMODE(info.st_mode), uid=info.st_uid, gid=info.st_gid)
+    except (OSError, ValueError):
+        return None
 
 
-def source_policy(root):
-    root = Path(root)
-    policy = json.loads(ordinary(root / 'native/build-tools-contract-v2.json'))
-    need(policy.get('schema') == 1 and policy.get('operation') == OPERATION
-         and type(policy.get('actual')) is dict and all(value is None for value in policy['actual'].values()),
-         'unexecuted source-tools source contract identity')
-    recipe = policy['recipe']
-    need(recipe['archive'] == NAME + '-' + VERSION + '-any.pkg.tar.zst'
-         and recipe['expected_test_count'] == 11 and type(recipe['expected_test_count']) is int
-         and set(recipe['source_files']) == SOURCE_FILES and len(recipe['payload_files']) == 12,
-         'exact frozen recipe and finite payload')
-    for name, item in recipe['source_files'].items():
-        need(Path(name).name == name and _pin_row(item, 4*1024**2), 'flat pinned frozen recipe source')
-    need(recipe['source_files'][SOURCE_ARCHIVE]['sha256'] == SOURCE_ARCHIVE_SHA256,
-         'exact0.2.0 pinned check-inputs archive required')
-    for name, item in recipe['payload_files'].items():
-        need(name.startswith('usr/') and Path(name).as_posix() == name and '..' not in Path(name).parts
-             and _pin_row(item), 'pinned 17-file package payload')
-    bundle = policy['bundle']
-    need(bundle['path'] == 'native/build-tools-sources-v2.tar' and bundle['members'] == 16
-         and type(bundle['bytes']) is int and 0 < bundle['bytes'] <= bundle['max_bytes'] <= 4*1024**2,
-         'finite 13-member source delivery')
-    base = ordinary(root / 'native/expected349.lock')
-    need(data_pin(base) == {key: policy['expected349'][key] for key in ('bytes', 'sha256')}
-         and len(base.splitlines()) == 349, 'exact genuine349 lock')
-    versions = dict(line.decode().split(' ', 1) for line in base.splitlines())
-    need(all(versions.get(name) == version for name, version in policy['dependencies'].items())
-         and versions.get('python') == '3.14.8-1' and versions.get('zstd') == '1.5.7-3'
-         and versions.get('xz') == '5.8.4-1' and versions.get('bubblewrap') == '0.13.0-1',
-         'exact retained native dependencies')
-    need(policy['buildinfo_installed'] == expected_installed(root), 'full349 BUILDINFO architecture/version provenance')
-    config_row = policy['makepkg_config']
-    need(config_row['path'] == 'native/build-tools-makepkg-v2.conf', 'fixed makepkg configuration')
-    config = ordinary(root / config_row['path'])
-    need(data_pin(config) == {key: config_row[key] for key in ('bytes', 'sha256')}
-         and re.search(rb'^BUILDENV=\([^\n]*\bcheck\b', config, re.M) and b'!check' not in config
-         and b"PKGEXT='.pkg.tar.zst'" in config, 'positive makepkg check policy')
-    return policy, base
+def arguments(case, map_hash, token):
+    need(case in CASES and re.fullmatch('[0-9a-f]{64}', map_hash or '') and re.fullmatch('[0-9a-f]{24}', token or ''), 'fixed bound namespace request')
+    inner = ['/usr/bin/python3', '-I', '-B', str(SOURCE / 'native/build_tools_tools_v2.py'),
+             '--inner', '--case', case, '--map-sha256', map_hash, '--token', token]
+    if case == CASES[0]:
+        return ['/usr/bin/bwrap', '--die-with-parent', '--unshare-net', '--ro-bind', '/', '/',
+                '--proc', '/proc', '--dev', '/dev', '--tmpfs', '/home', '--tmpfs', '/var/lib/pacman',
+                '--chdir', '/tmp', '--', *inner]
+    return ['/usr/bin/unshare', '--user', '--map-root-user', '--', *inner]
 
 
-def recipe_members(root, policy):
-    raw = ordinary(Path(root) / policy['bundle']['path'], policy['bundle']['max_bytes'])
-    need(data_pin(raw) == {key: policy['bundle'][key] for key in ('bytes', 'sha256')}, 'source bundle checksum')
-    expected = {'recipe/' + name: item for name, item in policy['recipe']['source_files'].items()}
-    result = {}
-    with tarfile.open(fileobj=io.BytesIO(raw), mode='r:') as archive:
-        for member in archive:
-            need(member.name in expected and member.name not in result and member.isfile() and not member.pax_headers
-                 and member.uid == member.gid == member.mtime == 0, 'exact regular source bundle member')
-            item = expected[member.name]
-            need(member.mode == item['mode'] and member.size == item['bytes'], 'source member size/mode')
-            body = archive.extractfile(member).read()
-            need(data_pin(body) == {key: item[key] for key in ('bytes', 'sha256')}, 'source member checksum')
-            result[member.name] = body
-    need(set(result) == set(expected) and len(result) == 16, 'complete 13-file recipe bundle')
-    return result
+def wrapper(case, map_hash, token):
+    return ['/usr/bin/python3', '-I', '-B', str(SOURCE / 'native/build_tools_tools_v2.py'),
+            '--exec-probe', '--case', case, '--map-sha256', map_hash, '--token', token]
 
 
-def extract_recipes(root, destination, policy):
-    members = recipe_members(root, policy)
-    destination = Path(destination)
-    destination.mkdir(mode=0o755)
-    for label in ('a', 'b'):
-        target = destination / label
-        target.mkdir(mode=0o755)
-        for name, item in policy['recipe']['source_files'].items():
-            with (target / name).open('xb') as stream:
-                stream.write(members['recipe/' + name])
-            (target / name).chmod(item['mode'])
-    return destination
+def emit(value):
+    raw = FRAME + encoded(value)
+    need(len(raw) <= 16384, 'bounded same-process observation frame')
+    sys.stdout.buffer.write(raw); sys.stdout.buffer.flush()
 
 
-def load_workflow(root, policy):
-    row = policy['original_workflow']
-    path = Path(root) / row['path']; raw = ordinary(path)
-    need(data_pin(raw) == {key: row[key] for key in ('bytes', 'sha256')}, 'genuine owned Commands source bytes')
-    spec = importlib.util.spec_from_file_location('_build_tools_owned_workflow_v1', path)
-    module = importlib.util.module_from_spec(spec)
-    exec(compile(raw, str(path), 'exec'), module.__dict__)
-    return module
+def execute(case, map_hash, token, inner):
+    from common import verify_source
+    verify_source(SOURCE, map_hash)
+    argv = arguments(case, map_hash, token)
+    value = dict(schema=1, phase='inner' if inner else 'exec', operation=OPERATION,
+                 case=case, source_map_sha256=map_hash, token=token, context=context())
+    if inner:
+        emit(value)
+        return
+    need(os.getuid() == os.geteuid() != 0 and os.getcwd() == '/tmp', 'unprivileged actual image RUN child')
+    value.update(argv=argv, executable=binary(argv[0]))
+    emit(value)
+    try:
+        os.execve(argv[0], argv, dict(PATH='/usr/bin:/bin', HOME='/tmp', TMPDIR='/tmp', LC_ALL='C', TZ='UTC', PYTHONDONTWRITEBYTECODE='1'))
+    except OSError as error:
+        emit(dict(schema=1, phase='exec-error', case=case, source_map_sha256=map_hash, token=token, errno=error.errno))
+        raise SystemExit(126)
 
 
-def inventory_expected(base, version=None):
-    rows = base.splitlines(keepends=True)
-    need(len(rows) == 349 and not any(line.startswith((NAME + ' ').encode()) for line in rows),
-         'project package absent from exact349 base')
-    if version is not None:
-        need(version == VERSION, 'only frozen installed source-tools version')
-        rows.append((NAME + ' ' + VERSION + '\n').encode())
-    return b''.join(sorted(rows))
+def namespace_context(value):
+    names = {'uid','euid','gid','egid','groups','group_count','groups_complete','namespaces','maps','status','cwd','architecture','page_bytes'}
+    need(type(value) is dict and set(value) == names, 'closed namespace context fields')
+    for key in ('uid','euid','gid','egid','group_count','page_bytes'):
+        need(type(value[key]) is int and 0 <= value[key] < 2**32, 'typed bounded process identity')
+    need(type(value['groups']) is list and len(value['groups']) <= 32 and all(type(x) is int and 0 <= x < 2**32 for x in value['groups']) and
+         type(value['groups_complete']) is bool and len(value['groups']) == min(value['group_count'],32) and
+         value['groups_complete'] is (value['group_count'] <= 32), 'bounded complete group observation')
+    need(value['cwd'] == '/tmp' and value['architecture'] == 'aarch64' and value['page_bytes'] in (4096,16384,65536), 'actual fixed native image probe cwd/architecture')
+    need(type(value['namespaces']) is dict and set(value['namespaces']) == {'user','mnt','net','pid'}, 'closed namespace observations')
+    for name, observed in value['namespaces'].items():
+        need(observed is None or type(observed) is str and re.fullmatch(name + r':\[[1-9][0-9]{0,19}\]', observed), 'typed namespace link or UNKNOWN')
+    need(type(value['maps']) is dict and set(value['maps']) == {'uid_map','gid_map'}, 'closed mapping observations')
+    for rows in value['maps'].values():
+        need(rows is None or type(rows) is list and 0 < len(rows) <= 8 and all(type(row) is list and len(row) == 3 and
+             all(type(x) is int and 0 <= x < 2**32 for x in row) and row[2] > 0 for row in rows), 'finite map rows or UNKNOWN')
+    fields = {'CapInh','CapPrm','CapEff','CapBnd','CapAmb','NoNewPrivs','Seccomp','Seccomp_filters'}
+    need(type(value['status']) is dict and set(value['status']) == fields and all(x is None or type(x) is str and re.fullmatch('[0-9a-f]{1,16}',x) for x in value['status'].values()), 'finite proc status or UNKNOWN')
+    return value
 
 
-def snapshot(root):
-    """Bounded quiescent tree bytes/modes/ownership; never follow symlink nodes."""
-    root = Path(root)
-    need(not any(path.is_symlink() for path in root.parents), 'snapshot ancestry alias refused')
-    if not os.path.lexists(root):
-        return {}
-    need(not root.is_symlink(), 'snapshot root alias refused')
-    result, total, count = {}, 0, 0
-    def visit(path, name, depth):
-        nonlocal total, count
-        count += 1
-        need(count <= MAX_NODES and depth <= 64, 'snapshot node/depth budget exceeded')
-        info = path.lstat()
-        item = dict(mode=stat.S_IMODE(info.st_mode), uid=info.st_uid, gid=info.st_gid)
-        if stat.S_ISDIR(info.st_mode):
-            item['kind'] = 'directory'; result[name] = item
-            for child in sorted(path.iterdir()):
-                visit(child, str(child.relative_to(root)), depth + 1)
-        elif stat.S_ISREG(info.st_mode):
-            raw = ordinary(path, min(MAX_FILE, MAX_TOTAL - total))
-            total += len(raw); item.update(kind='file', **data_pin(raw)); result[name] = item
-        elif stat.S_ISLNK(info.st_mode):
-            target = os.readlink(path)
-            need(len(target.encode()) <= 4096, 'snapshot link byte cap')
-            item.update(kind='symlink', target=target); result[name] = item
+def namespace_outcome(raw, code, case, map_hash, token):
+    need(type(raw) is bytes and len(raw) <= 65536 and type(code) is int and 0 <= code <= 255 and case in CASES, 'bounded actual namespace output/code')
+    lines = raw.splitlines(keepends=True);frames = []; tail = []
+    def pairs(rows):
+        result = {}
+        for key, value in rows:
+            need(key not in result, 'duplicate observation key')
+            result[key] = value
+        return result
+    for index,line in enumerate(lines):
+        if line.startswith(FRAME):
+            body = line[len(FRAME):]
+            need(len(line) <= 16384 and line.endswith(b'\n'), 'one complete bounded observation frame')
+            value = json.loads(body, object_pairs_hook=pairs)
+            need(encoded(value) == body and type(value) is dict and value.get('schema') == 1 and type(value.get('schema')) is int and
+                 value.get('case') == case and value.get('source_map_sha256') == map_hash and value.get('token') == token,
+                 'canonical same-source same-run namespace frame')
+            frames.append(value)
         else:
-            raise ValueError('snapshot special file refused: ' + name)
-    visit(root, '.', 0)
+            tail.append(line)
+    result = dict(outcome='UNKNOWN', reason='MISSING_SAME_PROCESS_CONTEXT', exit=code, output=data_pin(raw),
+                  namespace_errno='UNKNOWN', policy_cause='UNKNOWN', before=None, inside=None, executable=None)
+    if not frames:
+        return result
+    first = frames[0]
+    need(lines[0].startswith(FRAME) and first.get('phase') == 'exec' and
+         set(first) == {'schema','phase','operation','case','source_map_sha256','token','context','argv','executable'} and
+         first['operation'] == OPERATION and first['argv'] == arguments(case,map_hash,token), 'first exact exec frame and fixed argv')
+    before = namespace_context(first['context']); result['before'] = before; result['executable'] = first['executable']
+    executable = first['executable']
+    if executable is not None:
+        need(type(executable) is dict and set(executable) == {'bytes','sha256','mode','uid','gid'} and
+             type(executable['bytes']) is int and 0 < executable['bytes'] <= 4*1024**2 and
+             type(executable['sha256']) is str and re.fullmatch('[0-9a-f]{64}',executable['sha256']) and
+             all(type(executable[k]) is int for k in ('mode','uid','gid')), 'typed actual probe binary identity')
+    result['reason'] = 'UNVERIFIED_OUTER_IDENTITY_OR_BINARY'
+    if not (before['uid'] == before['euid'] == before['gid'] == before['egid'] == 1000 and before['groups_complete'] and
+            executable is not None and executable['mode'] == 0o755 and executable['uid'] == executable['gid'] == 0):
+        return result
+    if len(frames) == 2 and frames[1].get('phase') == 'exec-error':
+        need(set(frames[1]) == {'schema','phase','case','source_map_sha256','token','errno'} and
+             type(frames[1]['errno']) is int and 0 < frames[1]['errno'] < 4096 and code == 126, 'bounded actual exec failure')
+        result['reason'] = 'EXEC_FAILED_NOT_NAMESPACE_RESULT'
+        return result
+    if len(frames) == 1 and code > 0:
+        denied = (b'No permissions to create a new namespace' in b''.join(tail) or
+                  b'unshare failed: Operation not permitted' in b''.join(tail) or
+                  b'Creating new namespace failed: Operation not permitted' in b''.join(tail))
+        result.update(outcome='DENIED' if denied else 'UNKNOWN', reason='TOOL_REPORTED_NAMESPACE_DENIAL_NO_CAUSE_OR_ERRNO' if denied else 'NONZERO_TOOL_RESULT_NO_CAUSE_OR_ERRNO')
+        return result
+    result['reason'] = 'NO_COMPLETE_SUCCESSFUL_INNER_OBSERVATION'
+    if not (len(frames) == 2 and frames[1].get('phase') == 'inner' and code == 0 and not tail):
+        return result
+    inner = frames[1]
+    need(set(inner) == {'schema','phase','operation','case','source_map_sha256','token','context'} and inner['operation'] == OPERATION, 'closed same-process inner frame')
+    after = namespace_context(inner['context']); result['inside'] = after
+    ns0,ns1 = before['namespaces'],after['namespaces']
+    result['reason'] = 'INCOMPLETE_NAMESPACE_METADATA'
+    if not all(x is not None for x in [*ns0.values(),*ns1.values(),*before['maps'].values(),*after['maps'].values()]):
+        return result
+    common = ns0['user'] != ns1['user'] and ns0['pid'] == ns1['pid'] and after['groups_complete']
+    if case == CASES[0]:
+        supported = common and ns0['mnt'] != ns1['mnt'] and ns0['net'] != ns1['net'] and after['uid'] == after['euid'] == after['gid'] == after['egid'] == 1000
+    else:
+        supported = common and ns0['mnt'] == ns1['mnt'] and ns0['net'] == ns1['net'] and after['uid'] == after['euid'] == after['gid'] == after['egid'] == 0 and after['maps'] == dict(uid_map=[[0,1000,1]],gid_map=[[0,1000,1]])
+    result.update(outcome='SUPPORTED' if supported else 'UNKNOWN', reason='EXACT_OBSERVED_NAMESPACE_EFFECTS' if supported else 'INNER_EFFECTS_DO_NOT_ESTABLISH_REQUEST')
     return result
 
 
-def snapshot_receipt(root):
-    value = snapshot(root)
-    return dict(files=len(value), **data_pin(encoded(value)))
-
-
-def check_payload(root, policy, run, pacman):
-    expected = policy['recipe']['payload_files']
-    for name, item in expected.items():
-        path = Path(root) / name; info = path.lstat()
-        need(stat.S_ISREG(info.st_mode) and info.st_uid == info.st_gid == 0
-             and stat.S_IMODE(info.st_mode) == item['mode']
-             and pin(path) == {key: item[key] for key in ('bytes', 'sha256')},
-             'actual ALPM payload bytes/mode/root ownership: ' + name)
-        need(run('owner-' + NAME, ['/usr/bin/pacman', *pacman, '-Qoq', str(path)]).strip() == NAME.encode(),
-             'actual ALPM ownership join')
-    listed = run('owned-files-' + NAME, ['/usr/bin/pacman', *pacman, '-Qlq', NAME]).decode().splitlines()
-    need(len(listed) == len(set(listed)) and all(name.startswith('/') and '..' not in Path(name).parts
-         and name.rstrip('/') == Path(name.rstrip('/')).as_posix() for name in listed), 'canonical unique ALPM paths')
-    files = {name.lstrip('/') for name in listed if not name.endswith('/')}
-    directories = {name.lstrip('/').rstrip('/') for name in listed if name.endswith('/')}
-    ancestors = {str(parent) for name in expected for parent in Path(name).parents if str(parent) != '.'}
-    need(files == set(expected) and directories == ancestors, 'exact ALPM 17-file and ancestor directory ownership')
-    return dict(version=VERSION, count=12, verified=True, stale_absent=True,
-                files={name: {key: item[key] for key in ('bytes', 'sha256', 'mode')} for name, item in expected.items()})
-
-
-def _metadata(raw):
-    need(len(raw) <= 256 * 1024, 'metadata byte cap')
-    rows = {}
-    for line in raw.decode('utf-8').splitlines():
-        if not line or line.startswith('#'):
-            continue
-        need(' = ' in line, 'canonical makepkg metadata field')
-        key, value = line.split(' = ', 1)
-        need(re.fullmatch('[a-z][a-z0-9_]*', key) and len(value) <= 8192, 'bounded makepkg metadata field')
-        rows.setdefault(key, []).append(value)
-    return rows
-
-
-def _archive_data(raw, policy):
-    """Decode bounded tar DATA only; exact regular payload and metadata namespace."""
-    need(len(raw) <= 2 * 1024**2, 'decoded package byte cap')
-    expected = policy['recipe']['payload_files']
-    ancestors = {str(parent) for name in expected for parent in Path(name).parents if str(parent) != '.'}
-    metadata, payload, directories, seen = {}, {}, set(), set()
-    with tarfile.open(fileobj=io.BytesIO(raw), mode='r:') as archive:
-        for member in archive:
-            name = member.name.rstrip('/')
-            need(name not in seen and member.uid == member.gid == 0 and not member.pax_headers
-                 and name == Path(name).as_posix() and '..' not in Path(name).parts, 'unique canonical root-owned package members')
-            seen.add(name)
-            if member.isdir():
-                need(name in ancestors and member.mode == 0o755, 'exact package directory mode/namespace')
-                directories.add(name)
-                continue
-            need(member.isfile() and member.size <= 1024**2, 'ordinary finite package member')
-            body = archive.extractfile(member).read()
-            if name in ('.PKGINFO', '.BUILDINFO', '.MTREE'):
-                need(member.mode == 0o644, 'metadata file mode'); metadata[name] = body
-            else:
-                need(name in expected, 'unexpected package payload or install script')
-                item = expected[name]
-                need(member.mode == item['mode'] and data_pin(body) == {key: item[key] for key in ('bytes', 'sha256')},
-                     'exact package payload bytes/mode')
-                payload[name] = dict(mode=member.mode, **data_pin(body))
-    need(set(payload) == set(expected) and directories == ancestors
-         and set(metadata) == {'.PKGINFO', '.BUILDINFO', '.MTREE'}, 'complete finite package payload/metadata/directory sets')
-    pkg = _metadata(metadata['.PKGINFO']); build = _metadata(metadata['.BUILDINFO'])
-    for key, expected_value in (('pkgname', NAME), ('pkgbase', NAME), ('pkgver', VERSION), ('arch', 'any')):
-        need(pkg.get(key) == [expected_value], 'exact PKGINFO ' + key)
-    need(pkg.get('license') == ['MIT'] and pkg.get('depend') == ['python>=3.12'] and pkg.get('checkdepend', []) == [], 'exact package license/runtime dependency')
-    for key, expected_value in (('format', '2'), ('pkgname', NAME), ('pkgbase', NAME), ('pkgver', VERSION), ('pkgarch', 'any'),
-                                ('pkgbuild_sha256sum', policy['recipe']['source_files']['PKGBUILD']['sha256'])):
-        need(build.get(key) == [expected_value], 'exact BUILDINFO ' + key)
-    installed = build.get('installed', [])
-    need(len(installed) == 349 and len(set(installed)) == 349 and sorted(installed) == policy['buildinfo_installed'],
-         'all349 exact native dependency provenance rows required')
-    need('check' in build.get('buildenv', []) and '!check' not in build['buildenv'], 'actual positive buildenv check')
-    return dict(metadata=metadata, payload=payload)
-
-
-def compare_archives(run, archives, policy, source_map_hash):
-    need(set(archives) == {'a', 'b'} and re.fullmatch('[0-9a-f]{64}', source_map_hash or ''), 'exact native pair/source map')
-    decoded, builds = {}, {}
-    archive_bodies = {}
-    for label in ('a', 'b'):
-        path = Path(archives[label])
-        archive_bodies[label] = ordinary(path, 1024**2)
-        raw = run('archive-' + label, ['/usr/bin/zstd', '-dc', str(path)])
-        decoded[label] = _archive_data(raw, policy)
-        data = decoded[label]
-        builds[label] = dict(archive=data_pin(archive_bodies[label]), pkginfo=data_pin(data['metadata']['.PKGINFO']),
-                             buildinfo=data_pin(data['metadata']['.BUILDINFO']), mtree=data_pin(data['metadata']['.MTREE']),
-                             payload=data['payload'])
-    need(archive_bodies['a'] == archive_bodies['b'], 'two clean native package archive bytes differ')
-    need(decoded['a'] == decoded['b'], 'two clean native payload/metadata differ')
-    data = decoded['a']
-    return dict(status='PASS_EXACT_NATIVE_BUILD_PAIR', archive=data_pin(archive_bodies['a']), builds=builds,
-                equality=dict(archive=True, payload=True, pkginfo=True, buildinfo=True, mtree=True),
-                payload_files=12, base_inventory_count=349, source_map_sha256=source_map_hash,
-                pkgbuild_sha256=policy['recipe']['source_files']['PKGBUILD']['sha256'],
-                pkginfo_text=data['metadata']['.PKGINFO'].decode(), buildinfo_text=data['metadata']['.BUILDINFO'].decode(),
-                mtree_base64=base64.b64encode(data['metadata']['.MTREE']).decode('ascii'))
-
-
-def _own_tree(root, uid, gid):
-    root = Path(root)
-    for path in (root, *sorted(root.rglob('*'))):
-        info = path.lstat()
-        need(stat.S_ISDIR(info.st_mode) or stat.S_ISREG(info.st_mode), 'fixture aliases/special nodes refused')
-        os.chown(path, uid, gid, follow_symlinks=False)
-        if stat.S_ISDIR(info.st_mode):path.chmod(0o700)
-
-
-def fixture_members(raw, policy):
-    """Exact retained check DATA, never imported or executed."""
-    want=policy['trusted_fixture']
-    need(type(raw)is bytes and data_pin(raw)=={k:want[k]for k in('bytes','sha256')}
-         and want['bytes']==1509703 and len(raw)<=4*1024**2,'exact pinned compressed fixture, explicit4MiB new-variant bound')
-    with gzip.GzipFile(fileobj=io.BytesIO(raw))as stream:decoded=stream.read(8*1024**2+1)
-    need(len(decoded)<=8*1024**2,'held decoded fixture8MiB cap')
-    expected=policy['fixture_files'];result={}
-    with tarfile.open(fileobj=io.BytesIO(decoded),mode='r:')as archive:
-        for member in archive:
-            name=member.name
-            need(name.startswith('check-inputs/')and name==Path(name).as_posix()and '..'not in Path(name).parts
-                 and member.isfile()and not member.pax_headers and member.mode==0o644
-                 and member.uid==member.gid==member.mtime==0,'exact ordinary fixture member')
-            key=name[len('check-inputs/'):]
-            need(key not in result and key in set(expected)|{'files.json'}and 0<member.size<=4*1024**2,'finite pinned source-DATA member (not installed payload)')
-            with archive.extractfile(member)as stream:body=stream.read(member.size+1)
-            need(len(body)==member.size,'whole fixture member')
-            if key=='files.json':need(json.loads(body)==expected,'complete fixture manifest')
-            else:need(data_pin(body)==expected[key],'exact fixture member hash/bytes')
-            result[key]=body
-    need(set(result)==set(expected)|{'files.json'}and len(result)==14,'complete exact14-file fixture namespace')
-    return result
-
-
-def business(run, cli, root, uid, gid, label, source=SOURCE, policy=None):
-    """Six actual offline commands; nine bounded observations, no namespace claim."""
-    from build_tools_probe_v2 import probe
-    root,source=Path(root),Path(source)
-    need(label in('system','moved')and not os.path.lexists(root),'fresh finite probe scope')
-    if policy is None:policy,_=source_policy(source)
-    members=recipe_members(source,policy);raw=members['recipe/check-inputs.tar.gz'];files=fixture_members(raw,policy)
-    root.mkdir(mode=0o700)
-    for name,body in sorted(files.items()):
-        path=root/'fixtures'/name;path.parent.mkdir(parents=True,exist_ok=True,mode=0o700);path.write_bytes(body);path.chmod(0o644)
-    work=root/'workflow';work.mkdir(mode=0o700);_own_tree(root,uid,gid)
-    def command(step,argv,expected=0,cwd=work):return run(label+'-'+step,argv,expected,cwd=cwd)
-    result=probe(Path(cli),root/'fixtures',work,command,policy)
-    need(result['controls']==9 and result['commands_covered']==6,'all six commands/nine original observations')
-    result['steps']={key:label+'-'+step for key,step in result['steps'].items()}
-    return dict(result,cli=str(cli),label=label,fixture_root=str(root/'fixtures'),work_root=str(work),source_fixture=data_pin(raw),fixture_snapshot=snapshot_receipt(root),release='NOT_ADMITTED')
+if __name__ == '__main__':
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    parser = argparse.ArgumentParser(description=__doc__)
+    mode = parser.add_mutually_exclusive_group(required=True)
+    mode.add_argument('--exec-probe', action='store_true'); mode.add_argument('--inner', action='store_true')
+    parser.add_argument('--case', choices=CASES, required=True)
+    parser.add_argument('--map-sha256', required=True); parser.add_argument('--token', required=True)
+    args = parser.parse_args()
+    execute(args.case, args.map_sha256, args.token, args.inner)
