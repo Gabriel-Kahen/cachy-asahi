@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-"""Future native source-tools consumer; export image-stage evidence as DATA."""
+"""Future unprivileged consumer; export image RUN namespace observations as DATA."""
 import argparse
 import importlib.util
 import json
@@ -11,9 +11,9 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import input_contract, need, pin, read, save, verify_source
 
-STORE = Path('/opt/native-build-tools-alpm-v2/evidence')
-OPERATION = 'build-tools-alpm-v2'
-PASS = 'PASS_BUILD_TOOLS_NATIVE_ALPM_COMPONENT'
+STORE = Path('/opt/native-native-build-namespace-preflight-v1/evidence')
+OPERATION = 'native-build-namespace-preflight-v1'
+PASS = 'PASS_NAMESPACE_PREFLIGHT_NATIVE_DIAGNOSTIC'
 
 
 def module(root, relative, name):
@@ -36,19 +36,19 @@ def run(root, output, map_hash):
     report = dict(schema=1, operation=OPERATION, status='FAIL', source_map_sha256=map_hash,
                   architecture=platform.machine(), page_size=os.sysconf('SC_PAGE_SIZE'), packages=pin(expected),
                   native_16K='NOT_QUALIFIED', physical_M2='NOT_RUN',
-                  system_install='IMAGE_STAGE_ALPM_ONLY', performance='NOT_MEASURED', release='NOT_ADMITTED')
-    phase = 'export-image-stage-source-tools-alpm-data'
+                  system_install='NO_PACKAGE_OPERATION', performance='NOT_MEASURED', release='NOT_ADMITTED')
+    phase = 'export-image-stage-namespace-observation-data'
     primary = None
     try:
         lifecycle = module(root, 'native/build_tools_alpm_v2.py', '_native_build_tools_alpm_v2')
         need(lifecycle.STORE == STORE, 'fixed original image-stage DATA store required')
-        result = lifecycle.export(output / 'build-tools-alpm-v2', map_hash)
+        result = lifecycle.export(output / 'native-build-namespace-preflight-v1', map_hash)
         report['build_tools_alpm'] = result  # Retain failed original DATA before the outer PASS guard.
         need(type(result) is dict and result.get('schema_version') == 1
              and result.get('operation') == OPERATION and result.get('source_map_sha256') == map_hash
              and result.get('status') == PASS and result.get('retention_failures',[]) == []
              and result.get('first_failure') is None and result.get('failure') is None,
-             'actual persisted image-stage source-tools ALPM evidence required')
+             'actual persisted image-stage namespace diagnostic evidence required')
         report['status'] = PASS
     except BaseException as error:
         primary = error

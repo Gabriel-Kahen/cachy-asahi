@@ -17,14 +17,14 @@
   "consumer_basis182_source": "5b2016cc842970952c03cc2cc068a9cfbea5812c",
   "files": {
     ".github/workflows/native-arm-build.yml": {
-      "bytes": 13043,
+      "bytes": 13067,
       "mode": 420,
-      "sha256": "b40d5dc5502354b6f7daa7248062dbbd89eca6f17bc006520b4b4369d700ab00"
+      "sha256": "1902378a18714c3d86333a0555bc8943529e9360c2329bb783d65f93d270f72c"
     },
     ".github/workflows/native-arm-developer-workflows.yml": {
-      "bytes": 13043,
+      "bytes": 13067,
       "mode": 420,
-      "sha256": "b40d5dc5502354b6f7daa7248062dbbd89eca6f17bc006520b4b4369d700ab00"
+      "sha256": "1902378a18714c3d86333a0555bc8943529e9360c2329bb783d65f93d270f72c"
     },
     "bootstrap/.github/workflows/native-arm-build.yml": {
       "bytes": 16219,
@@ -557,9 +557,9 @@
       "sha256": "3f30b126988c2dc2ec57bea5f62f81f6bd93b2f7f5073644a495320e7d271a5b"
     },
     "native/build-tools-contract-v2.json": {
-      "bytes": 28998,
+      "bytes": 1240,
       "mode": 420,
-      "sha256": "87db7214a738af7bbd30d72cc0e1e95c789c61995fd0e1397477c9694a95d91d"
+      "sha256": "a1c13473ba072fac6d2a0418e7d12a10e531ade64291aac7a602e1422944378d"
     },
     "native/build-tools-makepkg-v2.conf": {
       "bytes": 316,
@@ -577,14 +577,14 @@
       "sha256": "6f5bd1674b51de09ebcaa08a0097dce0cffe5999c975718c3d582bccada5589b"
     },
     "native/build_tools_alpm_v2.py": {
-      "bytes": 31795,
+      "bytes": 8347,
       "mode": 420,
-      "sha256": "8a071d7755d2dd311550d096bfc0dd8183582b288a46ad46adef20c5ede813bd"
+      "sha256": "bf0989ae84a273be1c85ac1193967c0d75eb9091c6a5c21a0f3b1040a2c3ec90"
     },
     "native/build_tools_guest_v2.py": {
-      "bytes": 3330,
+      "bytes": 3393,
       "mode": 420,
-      "sha256": "3396c811551ae2272c4f0b11af3907f1efc39b8275adc2e0dc039a4e14883dd4"
+      "sha256": "123a5ddf1bf428a9d8ee275a5874d1fa69a70d90e7bc3d859de1719ad73f2c9a"
     },
     "native/build_tools_probe_v2.py": {
       "bytes": 8503,
@@ -592,19 +592,19 @@
       "sha256": "a63de05cbd02af8c59849353dc73eaac7389a28c54c912b6bd7845fd62f29354"
     },
     "native/build_tools_projection_v2.py": {
-      "bytes": 10611,
+      "bytes": 10688,
       "mode": 420,
-      "sha256": "9fe4ab4ab29a3f6e662f0ac6ee0214f58700bc9e1be5278c915e6eaf15e5c2c4"
+      "sha256": "2719477f6b26d197f40e50dab5dd144aa0bf5b5c4f6f61430376a8489076eac1"
     },
     "native/build_tools_reader_v2.py": {
-      "bytes": 137589,
+      "bytes": 100346,
       "mode": 420,
-      "sha256": "b0e3dcf2762ce6b106ab1df4c9748456a958e8054433948bd0c08bd037b3b71d"
+      "sha256": "2292e492bf33fea2d079525165293e47e2d817deed71495a3b80d3090a406aa5"
     },
     "native/build_tools_tools_v2.py": {
-      "bytes": 21162,
+      "bytes": 13174,
       "mode": 420,
-      "sha256": "2978acabbb2dce2e075e0bfb0f8515e15dccac1e39bc9fa5c3a8e1ac316d5f84"
+      "sha256": "7a933b927c708a5dac014b391c7f75b50ef8308cc517d49759dac3976ba03906"
     },
     "native/capsule.py": {
       "bytes": 18741,
@@ -662,9 +662,9 @@
       "sha256": "2c42c705654d31e639f389f9a868dada0d9df76813d865e766be7b7c08f8404c"
     },
     "native/invocation.json": {
-      "bytes": 1420,
+      "bytes": 1716,
       "mode": 420,
-      "sha256": "7838474a2137a19357109f342e222b25855b7fbfdee2b19c7bb9c469c9f85323"
+      "sha256": "277de383862296b6287a29f6ad20224268b647bd771dd704ac6c20f2d6b9020b"
     },
     "native/original341.lock": {
       "bytes": 6674,
@@ -672,9 +672,9 @@
       "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
     },
     "native/owner.py": {
-      "bytes": 33862,
+      "bytes": 34048,
       "mode": 420,
-      "sha256": "ecc1be0e4fc385064302a0b517d36dc919c6c622a45b00101e9cae089bed556d"
+      "sha256": "1ebfc9ca58c65a4441959ff51bdcd6eba494bfc00c2e2d62d78b72e212e85ae9"
     },
     "native/predecessor-source-map.json": {
       "bytes": 27440,
@@ -1014,6 +1014,7 @@
   },
   "image_basis180_map_sha256": "cceed4d8b72e9e73a5cb433c2c4643f5e85a0490dacd5b226514e2961aaba458",
   "image_basis180_source": "a434716cbf53085e6380e06939be6a38dd5412fc",
+  "namespace_preflight_operation": "native-build-namespace-preflight-v1",
   "schema": 1,
   "transport_basis177_map_sha256": "99d676438a247749b3e1c564943d8735452a1ebd92ec91dd78ee37817e77f36d",
   "transport_basis187_map_sha256": "b295500787e25eeb77ac16e84fb786d3d6c1e9f02f7a9ddb83d950bbe9d75c90",
