@@ -1,0 +1,31 @@
+pkgbase = cachy-asahi-repository-enrollment
+	pkgdesc = Explicit repository enrollment and planned signing-key rotation tools
+	pkgver = 0.1.0
+	pkgrel = 1
+	url = https://github.com/Gabriel-Kahen/cachy-asahi
+	arch = any
+	license = MIT
+	depends = python>=3.11
+	depends = gnupg
+	depends = pacman
+	depends = coreutils
+	options = !strip
+	options = !debug
+	source = enroll.py
+	source = rotate.py
+	source = cachy-asahi-repository-enrollment
+	source = source-provenance.json
+	source = test_package.py
+	source = README.md
+	source = NOTICE
+	source = LICENSE
+	sha256sums = 38db2d45955b569a4c74c3f31d6b6c79611126238e1bbe1e5cf819f81d0fb54f
+	sha256sums = 8bb7f255cdaaf02c06d6305b924f68988b3e733d0187d8b8b45164bb4761b711
+	sha256sums = 516bce07bae93df54631446f9162e8e878456b34eec7c4a8683e93983b061d06
+	sha256sums = da248ee1d15207ed1b1751a9dd9f528980482daf47115d5c7db609ab0d833952
+	sha256sums = aa534d77c46bda7bb57495e387fc01e9d0b22098b7288f63e878ac653e37ec04
+	sha256sums = ea7e6c2dc45506f08a6160cbf7497c04d4502a9f087388e1e4c0933634d955fe
+	sha256sums = f85e037c453f432a3b9602d81ecd60c195c327353e69c962c86c625fc4d17370
+	sha256sums = 51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7
+
+pkgname = cachy-asahi-repository-enrollment

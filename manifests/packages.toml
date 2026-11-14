@@ -93,6 +93,8 @@ source_validation = "PASS focused Python 3.12.13/3.14.7 controls and PR367 CI: 7
 source_validation_commit = "2ed7d2def99287bbad4b6ec29c92f4b01f877c88"
 source_merge_commit = "a314493c81cdb2fddc395b1358339612da3d8630"
 
+opt_in_session_lock_successor = { candidate_version = "0.1.1-1", recipe = "packages/desktop/cachy-asahi-hyprland-settings011/PKGBUILD", recipe_source = "76385030c78e67e17616229555843746a3da492b", selected_for_development = false, selected_for_release = false, host_package_bytes = 24747, host_package_sha256 = "a2e7f87f952bfbee67c717e4611dd97a6447f548e56d0c079b5de44aeccd0931", host_validation = "PASS five semantic/real Lua+Hyprland0.56.2 parser controls, two package controls and unsigned makepkg --nodeps assembly; nine payload files. No live session or dependency solving.", native_build = "NOT RUN", installation = "NOT RUN", hardware_validation = "NOT RUN", audit = "docs/workstreams/hyprland011-session-lock.md" }
+
 [[packages]]
 name = "cachy-asahi-fish-config"
 phase = "desktop-overlay"
@@ -1361,3 +1363,68 @@ hardware_validation = "NOT RUN"
 performance = "NOT MEASURED"
 release = "NOT ADMITTED"
 
+
+[[packages]]
+name = "cachy-asahi-repository-enrollment"
+phase = "repository-trust"
+status = "candidate"
+source = "local-original"
+recipe = "packages/tools/cachy-asahi-repository-enrollment-v2/PKGBUILD"
+license = "MIT"
+audit = "packages/tools/cachy-asahi-repository-enrollment-v2/README.md"
+candidate_version = "0.2.0-2"
+selected_for_development = false
+selected_for_release = false
+host_package_assembly = "PASS x86_64 makepkg --cleanbuild --nodeps with actual staged/moved signed transition preview, source-hidden loopback-only namespace, zstd/source-association verification, tamper refusal and removal inverse; dependency solving NOT RUN. Eight-file finite runtime and 14 payload files; no installation hooks or automatic trust mutation."
+host_package_bytes = 49859
+host_package_sha256 = "92fe2bb9900916131b9d75d559d4b21fda5431c8e161e1e1341ce7b9883349be"
+native_build = "NOT RUN"
+installation = "NOT RUN; relocated payload preview/refusal controls only"
+hardware_validation = "NOT RUN"
+next_step = "Native ARM build pair and signed disposable ALPM lifecycle; selected Asahi composition, authenticated production trust and both M2 Air sizes remain unaccepted."
+
+recipe_source = "929fd16674fb8b8d3df6a4eccc1157b69de1b670"
+host_evidence = "docs/validation/repository-enrollment-v2-correction-host-20261114.md"
+prior_candidate_version = "0.1.0-1"
+prior_recipe = "packages/tools/cachy-asahi-repository-enrollment/PKGBUILD"
+prior_host_package_bytes = 22791
+prior_host_package_sha256 = "d6d39b7204c869acc4bf71f89f5eb48a96ca0830fc0a6ab92fcd131fa33174c9"
+
+[[packages]]
+name = "cachy-asahi-first-login"
+phase = "first-login"
+status = "candidate"
+source = "local-original"
+recipe = "packages/tools/cachy-asahi-first-login/PKGBUILD"
+license = "MIT"
+audit = "docs/first-login.md"
+candidate_version = "0.1.0-2"
+selected_for_development = false
+selected_for_release = false
+host_package_assembly = "PASS unsigned x86_64 makepkg --nodeps with 11 real-Setup8 temporary-home and three relocated-delivery controls; dependency solving NOT RUN. Requires Setup8>=0.3.0."
+host_evidence = "docs/validation/first-login-host-20261114.md"
+host_package_bytes = 19471
+host_package_sha256 = "d4b7291afedc2af95d89f3975c77c45e417125bf23818cbfd1dc7d53fb464839"
+native_build = "NOT RUN"
+installation = "NOT RUN; extracted/moved host payload and temporary-user configuration checks only"
+hardware_validation = "NOT RUN"
+next_step = "Native ARM pair and signed disposable lifecycle; integrated target package transaction, independent first graphical login and both M2 Air sizes remain unaccepted."
+
+[[packages]]
+name = "cachy-asahi-session-lock"
+phase = "desktop-session"
+status = "candidate"
+source = "local-original"
+recipe = "packages/tools/cachy-asahi-session-lock/PKGBUILD"
+license = "MIT"
+audit = "docs/workstreams/session-lock.md"
+candidate_version = "0.1.0-1"
+selected_for_development = false
+selected_for_release = false
+host_package_assembly = "PASS unsigned x86_64 makepkg --nodeps including 24 subprocess readiness/cancellation/suspend controls and two package controls; dependency solving NOT RUN. No real compositor locking or sleep claimed."
+host_package_bytes = 18552
+host_package_sha256 = "738f361830f0586dff28acd725b2865f3a95f0c1ab0d1cbc6517ede8d750a686"
+native_build = "NOT RUN"
+installation = "NOT RUN; package staging and relocated CLI only"
+hardware_validation = "NOT RUN"
+next_step = "Native ARM pair and signed disposable lifecycle, selected settings integration, real compositor/PAM lock and suspend/resume on both M2 Air sizes; no implicit lid or idle policy."

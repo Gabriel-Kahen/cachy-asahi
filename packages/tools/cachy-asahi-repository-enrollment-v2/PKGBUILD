@@ -1,0 +1,42 @@
+# SPDX-License-Identifier: MIT
+pkgname=cachy-asahi-repository-enrollment
+pkgver=0.2.0
+pkgrel=2
+pkgdesc='Explicit repository enrollment and authenticated release signing-key transitions'
+arch=('any')
+url='https://github.com/Gabriel-Kahen/cachy-asahi'
+license=('MIT')
+depends=('python>=3.11' 'gnupg' 'pacman' 'coreutils' 'libarchive')
+checkdepends=('bubblewrap')
+options=('!strip' '!debug')
+source=('private-source.tar.gz' 'test_release.py' 'cachy-asahi-repository-enrollment' 'test_package.py' 'README.md' 'source-provenance.json' 'payload-map.json' 'NOTICE' 'LICENSE')
+sha256sums=(
+    'caac87988e949acc7155218bcc0f43e3387a16aebe4957b895b276cdf2949655'
+    '7ee9e693d4574c6bb11dcc927937475742b9fa7a6f8e988608532c1e1bab5f2e'
+    'bf149ea0c994557b7ea709e1db0a292366fa4df8c8dba30286a1a190c1103928'
+    'a327a9b687058f3b756b362f9baef046c06edf98333c2de43d055ede8732fef1'
+    'c662d6dc849b31991d5be84055af0784d79b8631ae91b1049728eff6677da0fe'
+    'd7ec69b2d93935a78c93513c2d5a9928c50054ce8c61245714093c820b495422'
+    '457cf43c19684c616d4085a4b34a8ac5a01a9ef653755bceb85e5d320314fe25'
+    'ab19c1d224d38b837f200c0926d43d65cd4aa056c8e888bf8ffa07fce8d0a15a'
+    '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
+)
+
+check() {
+    python -I -B -Werror::ResourceWarning "$srcdir/test_package.py" --recipe-root "$startdir" --srcdir "$srcdir" --hide-checkout "${REPOSITORY_ENROLLMENT_HIDE_ROOT:-$startdir}"
+}
+
+package() {
+    [[ -n ${srcdir:-} && ${pkgdir:-} = /* && $pkgdir != / && $pkgdir != "$srcdir" ]] || return 1
+    install -Dm755 "$srcdir/cachy-asahi-repository-enrollment" "$pkgdir/usr/bin/cachy-asahi-repository-enrollment" || return
+    local path leaf
+    for path in scripts/repository/enroll.py scripts/repository/rotate.py scripts/repository/transition.py scripts/release/signing_transition.py scripts/release/compare_releases_v2.py scripts/release/release.py scripts/release/source_delivery.py scripts/maintenance/signing_expiry.py; do
+        install -Dm644 "$srcdir/private/$path" "$pkgdir/usr/lib/cachy-asahi/repository-enrollment/$path" || return
+    done
+    for leaf in README.md source-provenance.json payload-map.json; do
+        install -Dm644 "$srcdir/$leaf" "$pkgdir/usr/share/doc/$pkgname/$leaf" || return
+    done
+    for leaf in LICENSE NOTICE; do
+        install -Dm644 "$srcdir/$leaf" "$pkgdir/usr/share/licenses/$pkgname/$leaf" || return
+    done
+}

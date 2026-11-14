@@ -1,0 +1,8 @@
+cachy-asahi-session-lock
+Copyright (c) 2026 cachy-asahi contributors
+
+Original implementation under the MIT license in LICENSE. No upstream code,
+configuration or assets are bundled. Swaylock and systemd are separate runtime
+dependencies; their readiness and suspend interfaces are referenced in README.md.
+
+Independent project; no CachyOS, Asahi Linux or upstream endorsement is implied.

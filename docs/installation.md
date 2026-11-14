@@ -39,6 +39,11 @@ cachy-asahi-setup activate --components fish zsh hyprland --apply
 
 The first command previews. The second applies only explicitly selected configuration changes. Existing files and user edits are preserved; conflicts stop the affected operation. Validate the copied Hyprland configuration and the base session launch route separately before login. See [setup tooling](setup-tooling.md) for path restrictions, exit codes, recovery and the conditional launcher instructions.
 
+The opt-in [first-login tool](first-login.md) discovers installed component
+prerequisites, previews the selected group before applying it, and directs pending
+setup transactions to explicit recovery. It uses the same setup ownership rules
+and preserves the effective configuration roots in follow-up commands.
+
 A package upgrade replaces templates. Fresh shell sessions use the updated templates through their guarded blocks. Repeated explicit Hyprland activation updates its copy only if that copy still matches the recorded owned checksum; edited copies are preserved.
 
 Before removal, return to the prior Hyprland configuration/session, then preview and apply configuration deactivation:

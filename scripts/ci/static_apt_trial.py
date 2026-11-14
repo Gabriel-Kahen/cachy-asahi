@@ -13,7 +13,7 @@ spec = importlib.util.spec_from_file_location('archive_cache', Path(__file__).wi
 archive_cache = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(archive_cache)
 FIELDS = ('source', 'repository', 'ref', 'run_id', 'run_attempt', 'image', 'os', 'arch', 'plan_digest', 'helper_digest', 'key')
-PACKAGES = 'bash fish zsh vim build-essential clang lld gnupg libarchive-tools pacman-package-manager makepkg e2fsprogs network-manager pkg-config libgtk-3-dev'.split()
+PACKAGES = 'bash fish zsh vim build-essential clang lld gnupg libarchive-tools pacman-package-manager makepkg fakeroot zstd bubblewrap e2fsprogs network-manager pkg-config libgtk-3-dev'.split()
 
 
 def require(condition, message):
@@ -56,6 +56,9 @@ def compare_finished(cold, warm):
 
 def main():
     mode = sys.argv[1]
+    if mode == 'packages':
+        print('\n'.join(PACKAGES))
+        return
     require(mode in ('begin', 'clock', 'identity', 'cache', 'finish', 'report'), 'invalid mode')
     root = Path(os.environ['RUNNER_TEMP'])
     path = root / 'static-apt-trial-state.json'
