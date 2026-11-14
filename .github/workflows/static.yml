@@ -316,7 +316,7 @@ jobs:
           with tempfile.TemporaryDirectory(prefix='enrollment-v3-ci-source-') as temporary:
               source = Path(temporary)
               for name in ('test_package.py', 'test_release.py', 'cachy-asahi-repository-enrollment',
-                           'README.md', 'source-provenance.json', 'payload-map.json', 'NOTICE', 'LICENSE'):
+                           'README.md', 'source-provenance.json', 'payload-map.json', 'NOTICE', 'LICENSE', 'private-source.tar.gz'):
                   shutil.copyfile(recipe / name, source / name)
               subprocess.run(['bsdtar', '-xf', str(recipe / 'private-source.tar.gz'), '-C', str(source)], check=True)
               subprocess.run([sys.executable, '-I', '-B', '-Werror::ResourceWarning', str(source / 'test_package.py'),
