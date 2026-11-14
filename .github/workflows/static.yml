@@ -265,6 +265,17 @@ jobs:
           python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-session-lock/test_session_lock.py -v
           python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-session-lock/test_package.py --recipe-root packages/tools/cachy-asahi-session-lock -v
           python3 -I -B -Werror::ResourceWarning packages/desktop/cachy-asahi-hyprland-settings011/test_package.py --recipe-root packages/desktop/cachy-asahi-hyprland-settings011 -v
+      - name: Check new native source families without native actors
+        run: |
+          python3 -I -B -Werror::ResourceWarning scripts/ci/session-lock-settings-native-source/test_data.py -v
+          python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/test_pair_data.py -v
+          python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/test_image_lifecycle_data.py -v
+      - name: Check protected composition and corresponding-source data tools
+        run: |
+          python3 -I -B -Werror::ResourceWarning scripts/port/supported-composition/test_compose.py -v
+          python3 -I -B -Werror::ResourceWarning scripts/port/supported-composition/test_maintenance.py -v
+          python3 -I -B -Werror::ResourceWarning scripts/port/platform-audio-sources/test_intake.py -v
+          python3 -I -B -Werror::ResourceWarning scripts/port/platform-audio-vendor-audit/test_audit.py -v
       - name: Exercise planned repository key rotation without skipped controls
         env:
           PYTHONDONTWRITEBYTECODE: '1'
