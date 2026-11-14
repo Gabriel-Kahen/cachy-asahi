@@ -1,0 +1,4 @@
+[externally-managed]
+Error=This Python installation is managed by the system package manager.
+ Use a virtual environment for application dependencies. Changes to the
+ system interpreter require the supported package and maintenance workflow.
