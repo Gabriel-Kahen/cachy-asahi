@@ -1,0 +1,5 @@
+cachy-asahi-first-login-ui is original MIT project software.
+It includes no source or artwork from CachyOS Welcome/Hello or project Welcome8.
+The check-only first-login and Setup8 fixture copies are MIT project software;
+see source-provenance.json for exact versions and hashes. They are not installed.
+Runtime behavior delegates to the separately installed project backend packages.
