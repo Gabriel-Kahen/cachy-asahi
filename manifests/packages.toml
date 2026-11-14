@@ -1380,3 +1380,42 @@ native_build = "NOT RUN"
 installation = "NOT RUN; relocated payload preview/refusal controls only"
 hardware_validation = "NOT RUN"
 next_step = "Native ARM build pair and signed disposable ALPM lifecycle; selected Asahi composition, authenticated production trust and both M2 Air sizes remain unaccepted."
+
+[[packages]]
+name = "cachy-asahi-first-login"
+phase = "first-login"
+status = "candidate"
+source = "local-original"
+recipe = "packages/tools/cachy-asahi-first-login/PKGBUILD"
+license = "MIT"
+audit = "docs/first-login.md"
+candidate_version = "0.1.0-2"
+selected_for_development = false
+selected_for_release = false
+host_package_assembly = "PASS unsigned x86_64 makepkg --nodeps with 11 real-Setup8 temporary-home and three relocated-delivery controls; dependency solving NOT RUN. Requires Setup8>=0.3.0."
+host_evidence = "docs/validation/first-login-host-20261114.md"
+host_package_bytes = 19471
+host_package_sha256 = "d4b7291afedc2af95d89f3975c77c45e417125bf23818cbfd1dc7d53fb464839"
+native_build = "NOT RUN"
+installation = "NOT RUN; extracted/moved host payload and temporary-user configuration checks only"
+hardware_validation = "NOT RUN"
+next_step = "Native ARM pair and signed disposable lifecycle; integrated target package transaction, independent first graphical login and both M2 Air sizes remain unaccepted."
+
+[[packages]]
+name = "cachy-asahi-session-lock"
+phase = "desktop-session"
+status = "candidate"
+source = "local-original"
+recipe = "packages/tools/cachy-asahi-session-lock/PKGBUILD"
+license = "MIT"
+audit = "docs/workstreams/session-lock.md"
+candidate_version = "0.1.0-1"
+selected_for_development = false
+selected_for_release = false
+host_package_assembly = "PASS unsigned x86_64 makepkg --nodeps including 24 subprocess readiness/cancellation/suspend controls and two package controls; dependency solving NOT RUN. No real compositor locking or sleep claimed."
+host_package_bytes = 18552
+host_package_sha256 = "738f361830f0586dff28acd725b2865f3a95f0c1ab0d1cbc6517ede8d750a686"
+native_build = "NOT RUN"
+installation = "NOT RUN; package staging and relocated CLI only"
+hardware_validation = "NOT RUN"
+next_step = "Native ARM pair and signed disposable lifecycle, selected settings integration, real compositor/PAM lock and suspend/resume on both M2 Air sizes; no implicit lid or idle policy."

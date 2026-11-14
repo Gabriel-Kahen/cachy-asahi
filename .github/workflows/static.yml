@@ -260,6 +260,10 @@ jobs:
           python3 -I -B packages/tools/cachy-asahi-first-login/check-sync.py --root "$PWD"
           python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-first-login/test_delivery.py --recipe packages/tools/cachy-asahi-first-login/PKGBUILD -v
           python3 -I -B -Werror::ResourceWarning scripts/release/test_signing_transition.py -v
+      - name: Check explicit lock and ordered suspend without a desktop session
+        run: |
+          python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-session-lock/test_session_lock.py -v
+          python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-session-lock/test_package.py --recipe-root packages/tools/cachy-asahi-session-lock -v
       - name: Exercise planned repository key rotation without skipped controls
         env:
           PYTHONDONTWRITEBYTECODE: '1'

@@ -1,0 +1,36 @@
+# November 14 development push
+
+This push connects installed user workflows and maintained release operations.
+The additions are opt-in development candidates. Previously qualified package
+recipes and their evidence remain available at their original versions.
+
+| Capability | Entry point | Current verification |
+| --- | --- | --- |
+| First-login discovery, selected configuration activation and interrupted setup recovery | [`cachy-asahi-first-login`](first-login.md) | Real Setup8 temporary-home operations; extracted/moved host package execution |
+| Explicit locking and readiness-ordered suspend request | [`cachy-asahi-session-lock`](workstreams/session-lock.md) | Real subprocess readiness, refusal and cancellation controls; unsigned host package assembly |
+| Installed repository enrollment, disable and planned local key rotation | [`cachy-asahi-repository-enrollment`](../packages/tools/cachy-asahi-repository-enrollment/README.md) | Public-certificate verification, unchanged preview state and relocated package execution; existing disposable enrollment/rotation suite |
+| Dual-signed planned release-key handoff and cross-key comparison | [`signing_transition.py`](release/signing-transition.md) | Real disposable GPG identities and signed synthetic release bundles, tampering/replay/expiry/refusal controls |
+
+Configuration activation requires explicit components and an explicit apply.
+Package installation supplies commands without activating templates, services,
+repository configuration or public trust. The first-login helper preserves
+effective HOME/XDG/ZDOTDIR roots in recovery commands. Known conflicts block the
+complete selected activation before writes begin.
+
+Lock readiness precedes an explicit suspend request. Cancellation and errors
+preserve the locker until normal unlock. A queued request does not prove sleep,
+resume or atomic exclusion of a later unlock. No automatic lid/idle policy is
+installed.
+
+The key-transition artifact binds both complete releases and both public
+certificates. It establishes a finite planned handoff between explicitly pinned
+identities. Production custody, remote revocation freshness and distribution
+remain separate operational requirements.
+
+New candidate packages remain outside development/release selections. Host
+assembly uses `makepkg --nodeps`; successful assembly does not prove dependency
+resolution, native ARM builds or ALPM lifecycle. Native ARM qualification for the
+new packages, the complete supported Asahi dependency transaction, first graphical
+login, lock/PAM and sleep/resume, macOS installation and recovery, production
+trust, measured performance and both physical M2 Air sizes remain open. The
+[roadmap](roadmap.md) and [acceptance contract](acceptance.md) remain in force.
