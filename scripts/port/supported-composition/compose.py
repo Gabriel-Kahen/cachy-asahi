@@ -40,6 +40,8 @@ def inspection(argv, *, env=None):
 # A private imported reader object; the existing source is unchanged. Its parser
 # runs only the two bounded read-only bsdtar operations above, never payloads.
 r.run = inspection
+spec = importlib.util.spec_from_file_location('supported_maintenance_proposal', Path(__file__).with_name('maintenance.py'))
+maintenance = importlib.util.module_from_spec(spec); spec.loader.exec_module(maintenance)
 
 
 def sha(raw):
@@ -149,7 +151,7 @@ def prepare_isolated(work, image, protected, catalogs, targets, output):
     return result
 
 
-def compose(contract, output, reader=None):
+def compose(contract, output, reader=None, maintenance_ref=None, contract_ref=None):
     need(set(contract) == {'schema_version', 'kind', 'workflow', 'image_inventory', 'protected_tuple', 'catalogs',
                           'candidate_srcinfo', 'roots', 'providers', 'allowed_base_changes'}
          and contract['schema_version'] == 1 and contract['kind'] == 'supported-Asahi-composition-inputs-v1'
@@ -163,7 +165,7 @@ def compose(contract, output, reader=None):
               'system_mutation': False, 'payload_execution': False, 'network_used': False,
               'native_build': 'NOT RUN', 'installation': 'NOT RUN', 'hardware': 'NOT RUN',
               'source_sha256': {str(Path(path).relative_to(ROOT)): t.preview.digest(path)
-                  for path in (__file__, Path(__file__).with_name('prepare_worker.py'), t.__file__, t.preview.__file__, t.tuple_audit.__file__, r.__file__)}}
+                  for path in (__file__, maintenance.__file__, Path(__file__).with_name('prepare_worker.py'), t.__file__, t.preview.__file__, t.tuple_audit.__file__, r.__file__)}}
     def block(code, **details):
         report['blockers'].append({'code': code, **details})
     try:
@@ -185,7 +187,7 @@ def compose(contract, output, reader=None):
         report.update(image_package_count=len(image), original_protected_count=len(original), protected_package_count=len(protected))
         for name in set(t.tuple_audit.BOOT) - image.keys():
             block('missing-Asahi-boot-anchor', package=name)
-        catalogs, provenance, diagnostics = {}, {}, []
+        catalogs, pristine_catalogs, provenance, diagnostics = {}, {}, {}, []
         refs = contract['catalogs']
         need(isinstance(refs, list) and [row.get('name') for row in refs] == ['asahi-alarm', 'core', 'extra'], 'explicit ordered Asahi/core/extra catalogs required')
         for ref in refs:
@@ -194,6 +196,7 @@ def compose(contract, output, reader=None):
             source = {key: value for key, value in ref.items() if key != 'name'}
             grouped = t.repository_records(reader.read(source), diagnostics, name)
             catalogs[name] = {}
+            pristine_catalogs[name] = {}
             need(len(grouped) <= 32768, 'catalog package count bound')
             for entry, raw in grouped.items():
                 try:
@@ -207,6 +210,8 @@ def compose(contract, output, reader=None):
                 if len(filename) != 1 or not filename[0] or Path(filename[0]).name != filename[0]:
                     diagnostics.append({'repo': name, 'entry': entry, 'reason': 'missing/unsafe real catalog archive filename; unavailable', 'selectable': False})
                     continue
+                pristine_catalogs[name][package] = metadata
+                provenance[(name, package)] = {'kind': 'retained-catalog-declaration', 'reference': source, 'entry': entry}
                 if package == 'mesa-dummy' or package in protected and metadata['VERSION'] != [protected[package]]:
                     diagnostics.append({'repo': name, 'entry': entry, 'reason': 'protected-version/mesa-dummy excluded', 'selectable': False})
                     continue
@@ -254,6 +259,7 @@ def compose(contract, output, reader=None):
             catalogs['project'][name] = metadata
             provenance[('project', name)] = {'kind': 'source-declared-candidate-with-real-archive-PKGINFO', 'reference': ref,
                 'archive_reference': archive, 'archive_scope': scope, 'signature_reference': None, **notes}
+        pristine_catalogs['project'] = dict(catalogs['project'])
         targets, by_name = [], {}
         def target(row):
             identity = pin(row)
@@ -363,6 +369,13 @@ def compose(contract, output, reader=None):
         report['status'] = 'FAIL' if report['blockers'] else 'HOLD'
         report['input_references'] = list(reader.refs.values())
         report['policy_scope'] = 'caller-supplied exact unprotected base changes only; original protected list never relaxed; compatibility NOT accepted'
+        if maintenance_ref is not None:
+            report['original_policy'] = {key: report[key] for key in
+                ('status', 'metadata_prepare_status', 'blockers', 'base_changes', 'protected_package_count', 'final_package_count')}
+            report['proposed_maintenance'] = maintenance.evaluate(maintenance_ref, contract_ref, contract, reader, output,
+                image=image, protected=protected, catalogs=pristine_catalogs, targets=targets, provenance=provenance,
+                tx=t, prepare=prepare_isolated, platform=PLATFORM)
+            report.update(status='HOLD', approval_status='UNAPPROVED', original_policy_failure_retained=bool(report['blockers']))
         reader.recheck()
     except BaseException as error:
         report.update(status='FAIL', metadata_prepare_status='FAIL', error=str(error) or type(error).__name__)
@@ -370,7 +383,7 @@ def compose(contract, output, reader=None):
     finally:
         report['input_references'] = list(reader.refs.values())
         report['elapsed_seconds'] = time.monotonic() - reader.started
-        report['private_database_removed'] = not any(output.glob('private-supported-composition-*'))
+        report['private_database_removed'] = not any(output.rglob('private-supported-composition-*'))
         raw = (json.dumps(report, indent=2, sort_keys=True, allow_nan=False) + '\n').encode()
         need(len(raw) <= 16 * 1024**2, 'composition report size bound')
         t.write_bytes(output / 'composition.json', raw)
@@ -382,13 +395,21 @@ def main():
     parser.add_argument('--contract', type=Path, required=True)
     parser.add_argument('--contract-sha256', required=True)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--maintenance-proposal', type=Path)
+    parser.add_argument('--maintenance-proposal-sha256')
     args = parser.parse_args()
     try:
         reader = Reader()
         ref = {'path': str(args.contract.absolute()), 'size': args.contract.stat().st_size, 'sha256': args.contract_sha256}
-        report = compose(reader.document(ref), args.output, reader=reader)
-        print(json.dumps({key: report[key] for key in ('status', 'metadata_prepare_status', 'image_package_count', 'final_package_count', 'added_package_count')}, sort_keys=True))
-        return 2 if report['metadata_prepare_status'] == 'PASS' else 1
+        need(bool(args.maintenance_proposal) == bool(args.maintenance_proposal_sha256), 'both maintenance proposal path and SHA256 required')
+        proposal = None if args.maintenance_proposal is None else {'path': str(args.maintenance_proposal.absolute()),
+            'size': args.maintenance_proposal.stat().st_size, 'sha256': args.maintenance_proposal_sha256}
+        report = compose(reader.document(ref), args.output, reader=reader, maintenance_ref=proposal, contract_ref=ref)
+        summary = {key: report[key] for key in ('status', 'metadata_prepare_status', 'image_package_count', 'final_package_count', 'added_package_count')}
+        proposed = report.get('proposed_maintenance')
+        if proposed: summary.update(approval_status='UNAPPROVED', proposed_metadata_prepare_status=proposed['metadata_prepare_status'])
+        print(json.dumps(summary, sort_keys=True))
+        return 2 if (proposed or report)['metadata_prepare_status'] == 'PASS' else 1
     except (ValueError, OSError, KeyError, TypeError, r.Error, subprocess.SubprocessError) as error:
         print(str(error), file=sys.stderr)
         return 1
