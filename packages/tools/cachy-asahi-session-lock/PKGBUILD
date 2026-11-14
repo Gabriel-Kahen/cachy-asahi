@@ -1,0 +1,35 @@
+# SPDX-License-Identifier: MIT
+# Original opt-in development candidate; no service activation or platform changes.
+pkgname=cachy-asahi-session-lock
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Explicit Wayland locking and readiness-ordered suspend requests'
+arch=('any')
+url='https://github.com/Gabriel-Kahen/cachy-asahi'
+license=('MIT')
+depends=('python>=3.11' 'swaylock>=1.8.6' 'systemd>=248')
+options=('!strip' '!debug')
+source=('cachy-asahi-session-lock' 'test_session_lock.py' 'test_package.py' 'README.md' 'NOTICE' 'LICENSE')
+sha256sums=(
+    '9084a6796479d68a1c0955ecdbd8395252e8289d4dbc98f6aeff3a84fe6252f6'
+    '7f235c42e12336f3bf61e3ecead4477afe67bf3af6270d6913e0f4b123ca60d2'
+    '90d398895456a554f111afe6984913b25469055b59a5073331d33b3e97e39479'
+    'c230dcdd091481257c01dbcda2206ade24e05cd315045fc2f10e13e5a64402c8'
+    '7fd19f4b37f18c0331329c50651414d0c8f44c371565e3ce3fee9e510090653c'
+    '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
+)
+
+check() {
+    python -I -B -Werror::ResourceWarning "$srcdir/test_session_lock.py" || return
+    python -I -B -Werror::ResourceWarning "$srcdir/test_package.py" --recipe-root "$startdir"
+}
+
+package() {
+    [[ -n ${pkgdir:-} && $pkgdir != / ]] || return 1
+    install -Dm755 "$srcdir/cachy-asahi-session-lock" "$pkgdir/usr/bin/$pkgname" || return
+    install -Dm644 "$srcdir/README.md" "$pkgdir/usr/share/doc/$pkgname/README.md" || return
+    local file
+    for file in NOTICE LICENSE; do
+        install -Dm644 "$srcdir/$file" "$pkgdir/usr/share/licenses/$pkgname/$file" || return
+    done
+}
