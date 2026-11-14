@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import unittest
 
 HERE = Path(__file__).resolve().parent
@@ -61,6 +62,19 @@ class DeliveryTests(unittest.TestCase):
 
     @unittest.skipUnless(shutil.which('bwrap'), 'source-hidden runtime NOT RUN: bwrap unavailable')
     def test_source_hidden_moved_runtime_and_real_backend(self):
+        probe_argv = sandbox(self.f.root, ['/usr/bin/true'])
+        probe = subprocess.run(probe_argv, cwd='/', env={'PATH': '/usr/bin:/bin'},
+                               capture_output=True, text=True, timeout=10)
+        if probe.returncode:
+            print('optional namespace probe: ' + json.dumps({'argv': probe_argv,
+                'returncode': probe.returncode, 'stdout': probe.stdout, 'stderr': probe.stderr}), file=sys.stderr)
+            denied = ('bwrap: No permissions to create a new namespace' in probe.stderr
+                or 'bwrap: Creating new namespace failed: Operation not permitted' in probe.stderr
+                or 'bwrap: Creating new namespace failed: Operation not supported' in probe.stderr
+                or 'bwrap: setting up uid map: Permission denied' in probe.stderr)
+            if denied:
+                self.skipTest('NOT RUN optional source-hidden sandbox: namespace permission/support denied; exact probe above')
+        self.assertEqual(probe.returncode, 0, probe.stderr)
         script = self.f.root / 'private-run.py'
         module = self.f.usr / 'lib/cachy-asahi/first-login-ui/bridge.py'
         script.write_text('import importlib.util,json\nfrom pathlib import Path\n'

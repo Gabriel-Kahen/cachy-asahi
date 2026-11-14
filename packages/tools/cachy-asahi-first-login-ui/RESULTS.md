@@ -1,5 +1,35 @@
 # Development host results — 2026-11-14
 
+## Check-only successor 0.1.0-2
+
+The initial 0.1.0-1 results/archive below remain historical facts. A real private
+namespace with optional Hyprland unavailable reproduced its conflict-test error:
+the real helper returned availability hold `('blocked', 1)` rather than the
+asserted configuration conflict `('blocked', 2)`. The unchanged failure is
+retained at `/tmp/first-login-ui-no-hyprland-zuo6ec1d/stderr`.
+
+The successor declares Fish/Zsh check dependencies and tests the whole-selection
+conflict using actual unowned Zsh markers plus Fish, retaining the no-partial-
+write and exact-preservation assertions. A separate controlled missing-program
+case verifies optional Hyprland is held with exit 1 and no apply invocation.
+No Hyprland dependency was added and runtime GUI/bridge code is unchanged.
+
+The optional source-hidden delivery case now probes its exact bwrap profile.
+It records command/stdout/stderr and reports NOT RUN only for positively named
+namespace permission/support denials; unexpected failures still fail. No forced
+skip switch, tool removal or capability/seccomp change is used. Supported hosts
+still run the full original source-hidden assertions. The real default Docker
+namespace-denial observation is retained separately by the integration worker.
+
+Actual successor host checks: **23 bridge + five delivery cases PASS**, including
+the supported source-hidden case; **11 actual private Xvfb GUI checks PASS** at
+`/tmp/cachy-asahi-first-login-ui-check-correction-gui-20261114`. The source-hidden
+case remains separately NOT RUN on denied profiles, never counted as passed.
+Dependency-closed image/ALPM/installed-GUI work is separate and still pending
+this check-only correction; no native/M2/release acceptance is inferred.
+
+## Initial 0.1.0-1 observations
+
 This new opt-in UI leaves Welcome8, first-login, Setup8, shared manifests and
 default selectors unchanged. Runtime backends are explicitly constrained to
 first-login 0.1.0-2 and Setup8 0.3.0-1. Their exact check-only fixture hashes are

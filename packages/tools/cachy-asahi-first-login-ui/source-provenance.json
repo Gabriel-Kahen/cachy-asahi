@@ -1,6 +1,7 @@
 {
   "backend_snapshot_commit": "0e8a901577681472b1bbce2d0fd78cff6d3f6c9e",
-  "candidate": "cachy-asahi-first-login-ui 0.1.0-1",
+  "candidate": "cachy-asahi-first-login-ui 0.1.0-2",
+  "check_correction": "Fish/Zsh declared checkdepends; actual shell conflict covers entire selection without optional Hyprland; unavailable compositor remains held1; optional namespace probe skips only positive denial with retained stderr",
   "check_only_fixtures": {
     "first-login-entry-fixture": {
       "bytes": 296,

@@ -57,13 +57,28 @@ class BridgeTests(unittest.TestCase):
         self.assertEqual(self.f.files(), {})
 
     def test_conflict_blocks_entire_selection(self):
-        target = self.f.home / '.config/cachy-asahi/hyprland.lua'
-        target.parent.mkdir(parents=True); target.write_text('-- my desktop\n')
+        target = self.f.home / '.zshrc'
+        begin, end = support.setup.markers('zsh')
+        target.write_text(begin + '\n' + end + '\n')
         before = self.f.files()
-        result, code = self.client.run('preview', ('fish', 'hyprland'))
+        result, code = self.client.run('preview', ('fish', 'zsh'))
         self.assertEqual((result['status'], code), ('blocked', 2))
         self.assertIsNone(self.client.ticket)
         self.assertEqual(self.f.files(), before)
+
+    def test_optional_hyprland_unavailable_is_not_a_configuration_conflict(self):
+        first = support.module('unavailable_hyprland', HERE / 'first-login-fixture.py')
+        args = first.parser().parse_args(['activate', '--components', 'hyprland', '--apply',
+            '--home', str(self.f.home), '--template-root', str(self.f.templates),
+            '--setup-helper', str(self.f.usr / 'bin/cachy-asahi-setup')])
+        commands = []
+        def run(command):
+            commands.append(command); return first.invoke(command)
+        report, code = first.execute(args, run=run, executable=lambda *_: False)
+        self.assertEqual((report['status'], code), ('blocked', 1))
+        self.assertFalse(report['components'][0]['available'])
+        self.assertFalse(any('--apply' in command for command in commands))
+        self.assertEqual(self.f.files(), {})
 
     def test_missing_template_blocks(self):
         (self.f.templates / 'zsh/config.zsh').unlink()
