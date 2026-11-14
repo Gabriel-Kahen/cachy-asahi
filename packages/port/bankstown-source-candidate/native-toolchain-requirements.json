@@ -1,0 +1,56 @@
+{
+  "compiler_source_correspondence": "NOT_ESTABLISHED",
+  "compiler_source_recipe_sha256": "ef3fac9176e2a3698314d616e56d88b2df64d057ee7e9dfa13c98eb980a345fa",
+  "complete_corresponding_source_accepted": false,
+  "legal_acceptance": false,
+  "local_retention": "EXACT_ARCHIVE_AND_SIGNATURE_BYTES_OBSERVED",
+  "native_linker_catalog_sha256": null,
+  "native_tool_support_catalog_sha256": null,
+  "purpose": "bankstown-1.1.0-5-native-toolchain-requirements",
+  "raw_crate_authentication": "NOT_ESTABLISHED",
+  "schema": 1,
+  "selected_native_compiler": "1.99.0",
+  "selected_native_rust": {
+    "bytes": 59807260,
+    "filename": "rust-1:1.99.0-1-aarch64.pkg.tar.xz",
+    "sha256": "337e715182a8f81bfd6df844793c5d1cb2697ff9e94ddb496dd850ba901c31d4"
+  },
+  "signature": {
+    "authentication": "NOT_PERFORMED",
+    "bytes": 566,
+    "sha256": "d7dcf2f24bca366570446a6c7228048524e1632122fa36200685a0fbe638735e"
+  },
+  "status": "NATIVE_RUNTIME_CATALOG_AND_SOURCES_REQUIRED",
+  "target": "aarch64-unknown-linux-gnu",
+  "unselected_alternative": {
+    "acquisition_inputs": {
+      "cargo": {
+        "local_bytes": "NOT_ACQUIRED",
+        "sha256": "02a4d7bf424ea28d574fe5b5d29e7ae99b0bc11a5920d8f28fa7408aa6a37992",
+        "url": "https://static.rust-lang.org/dist/2026-06-30/cargo-1.96.1-aarch64-unknown-linux-gnu.tar.xz"
+      },
+      "rust-src": {
+        "local_bytes": "NOT_ACQUIRED",
+        "sha256": "b343b6553bc772225f6a2b5be5055017f29794dcf4e08020366b27a0a40fc1c2",
+        "url": "https://static.rust-lang.org/dist/2026-06-30/rust-src-1.96.1.tar.xz"
+      },
+      "rust-std": {
+        "local_bytes": "NOT_ACQUIRED",
+        "sha256": "24bd362ff484421cae8be8c4d326fde143a086782e59e21fc7f353a5d04cd630",
+        "url": "https://static.rust-lang.org/dist/2026-06-30/rust-std-1.96.1-aarch64-unknown-linux-gnu.tar.xz"
+      },
+      "rustc": {
+        "local_bytes": "NOT_ACQUIRED",
+        "sha256": "4bc079af433c730af16aa90c96777985b86d40c4670670380160bd61626a577f",
+        "url": "https://static.rust-lang.org/dist/2026-06-30/rustc-1.96.1-aarch64-unknown-linux-gnu.tar.xz"
+      }
+    },
+    "retained_channel_manifest": {
+      "bytes": 986127,
+      "sha256": "572d1b075cd01b3bf3007f40eb495586d14b6cfa46ba60c8c05aa6b98f692dc5",
+      "signature_authentication": "NOT_PERFORMED"
+    },
+    "selected_for_native": false,
+    "version": "1.96.1"
+  }
+}
