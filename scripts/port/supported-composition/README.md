@@ -127,6 +127,16 @@ Private DB/cache/GPG/hook directories are removed. C failure or timeout produces
 FAIL with available DATA/diagnostics instead of terminating the parent adapter.
 No host package DB, trust, configuration, filesystem image or payload is mutated.
 
+Worker Python exceptions additionally expose a bounded JSON category/message in
+the parent exception and failed report, so CI diagnostics survive test-directory
+cleanup. Control/non-ASCII characters are escaped; unstructured import/C errors
+expose only an escaped 512-byte stderr tail. Full stderr remains in the output.
+This does not relax the existing engine's exact libalpm16.0.1 ABI gate. Both
+Python3.12.13 and3.14.7 pass the 14 composition and eight maintenance controls
+locally with that reviewed library; a distribution's different ABI still
+refuses and requires a separately reviewed environment/engine, not a skip or a
+version-string substitution.
+
 `proposed_final_inventory` uses the existing platform-transition inventory
 metadata envelope, including exact selected origin/version annotations. It can
 supply a candidate inventory for the existing transition/recovery planner once

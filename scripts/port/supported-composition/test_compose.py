@@ -188,6 +188,30 @@ class CompositionTests(unittest.TestCase):
         self.assertTrue((output / 'preparation-inputs.json').is_file())
         self.assertIn(b'C-worker failure', (output / 'prepare.stderr').read_bytes())
 
+    def test_worker_exception_is_visible_after_private_test_cleanup(self):
+        contract = self.contract()
+        original = c.subprocess.run
+        stderr = b'SUPPORTED_COMPOSITION_ERROR {"category":"ValueError","message":"unreviewed libalpm ABI: 13.0.2"}\n'
+        def refused(argv, **kwargs):
+            if any(str(value).endswith('prepare_worker.py') for value in argv):
+                return subprocess.CompletedProcess(argv, 1, b'', stderr)
+            return original(argv, **kwargs)
+        with mock.patch.object(c.subprocess, 'run', side_effect=refused):
+            with self.assertRaisesRegex(ValueError, 'ValueError.*unreviewed libalpm ABI: 13.0.2'):
+                c.compose(contract, self.root / 'abi-refusal')
+
+    def test_real_worker_reports_bounded_safe_exception_and_parent_escapes_fallback(self):
+        process = subprocess.run([c.sys.executable, '-I', '-B', str(Path(c.__file__).with_name('prepare_worker.py')),
+                                  str(self.root / 'wrong-name.json')], capture_output=True, timeout=10)
+        self.assertEqual(process.returncode, 1)
+        diagnostic = json.loads(c.worker_diagnostic(process.stderr))
+        self.assertEqual(diagnostic['category'], 'ValueError')
+        self.assertEqual(diagnostic['message'], 'private engine input path refused')
+        fallback = c.worker_diagnostic(b'x' * 10000 + b'\n\x1b[31m::error::unsafe\xff\n')
+        self.assertLess(len(fallback), 3200)
+        self.assertNotIn('\n', fallback); self.assertNotIn('\x1b', fallback)
+        self.assertEqual(json.loads(fallback)['stderr_tail'][-20:], '[31m::error::unsafe\\xff\n'[-20:])
+
 
 if __name__ == '__main__':
     resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
