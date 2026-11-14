@@ -48,6 +48,13 @@ def sha(raw):
     return hashlib.sha256(raw).hexdigest()
 
 
+def data_identity(row):
+    # Reading can advance atime. Identity, permissions, content times and the
+    # separately verified size/SHA remain mandatory; atime is not content custody.
+    return tuple(getattr(row, key) for key in ('st_dev', 'st_ino', 'st_mode', 'st_nlink',
+                 'st_uid', 'st_gid', 'st_size', 'st_mtime_ns', 'st_ctime_ns'))
+
+
 class Reader:
     def __init__(self):
         self.refs, self.raw = {}, {}
@@ -65,7 +72,7 @@ class Reader:
         row = path.lstat()
         need(stat.S_ISREG(row.st_mode) and row.st_nlink == 1 and not row.st_mode & 0o022, 'ordinary non-writable DATA required')
         raw = t.bound(ref)
-        need(path.lstat() == row, 'DATA changed during read')
+        need(data_identity(path.lstat()) == data_identity(row), 'DATA changed during read')
         self.refs[str(path)], self.raw[str(path)] = dict(ref), raw
         need(sum(map(len, self.raw.values())) <= 64 * 1024**2, 'aggregate DATA input bound')
         return raw
