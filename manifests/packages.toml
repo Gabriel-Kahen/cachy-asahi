@@ -1369,26 +1369,31 @@ name = "cachy-asahi-repository-enrollment"
 phase = "repository-trust"
 status = "candidate"
 source = "local-original"
-recipe = "packages/tools/cachy-asahi-repository-enrollment-v2/PKGBUILD"
+recipe = "packages/tools/cachy-asahi-repository-enrollment-v3/PKGBUILD"
 license = "MIT"
-audit = "packages/tools/cachy-asahi-repository-enrollment-v2/README.md"
-candidate_version = "0.2.0-2"
+audit = "packages/tools/cachy-asahi-repository-enrollment-v3/README.md"
+candidate_version = "0.3.0-1"
 selected_for_development = false
 selected_for_release = false
-host_package_assembly = "PASS x86_64 makepkg --cleanbuild --nodeps with actual staged/moved signed transition preview, source-hidden loopback-only namespace, zstd/source-association verification, tamper refusal and removal inverse; dependency solving NOT RUN. Eight-file finite runtime and 14 payload files; no installation hooks or automatic trust mutation."
-host_package_bytes = 49859
-host_package_sha256 = "92fe2bb9900916131b9d75d559d4b21fda5431c8e161e1e1341ce7b9883349be"
+host_package_assembly = "PASS x86_64 makepkg --cleanbuild --nodeps with actual staged/moved signed transition preview, source-hidden loopback-only namespace, zstd/source-association verification, tamper refusal and removal inverse; dependency solving NOT RUN. Nine-file finite runtime and 15 payload files; real-revocation preview and non-revoking input refusal; no installation hooks or automatic trust mutation."
+host_package_bytes = 53628
+host_package_sha256 = "59caa797e8ff247f1790fb95c7ec8552f19d3211d378bfd9ba54caccfb9b5f47"
 native_build = "NOT RUN"
 installation = "NOT RUN; relocated payload preview/refusal controls only"
 hardware_validation = "NOT RUN"
 next_step = "Native ARM build pair and signed disposable ALPM lifecycle; selected Asahi composition, authenticated production trust and both M2 Air sizes remain unaccepted."
 
-recipe_source = "929fd16674fb8b8d3df6a4eccc1157b69de1b670"
-host_evidence = "docs/validation/repository-enrollment-v2-correction-host-20261114.md"
+recipe_source = "f7a846edd132f0916e7a14dc7378274e20295852"
+host_evidence = "docs/validation/repository-enrollment-v3-host-20261114.md"
 prior_candidate_version = "0.1.0-1"
 prior_recipe = "packages/tools/cachy-asahi-repository-enrollment/PKGBUILD"
 prior_host_package_bytes = 22791
 prior_host_package_sha256 = "d6d39b7204c869acc4bf71f89f5eb48a96ca0830fc0a6ab92fcd131fa33174c9"
+
+prior_authenticated_candidate_version = "0.2.0-2"
+prior_authenticated_recipe = "packages/tools/cachy-asahi-repository-enrollment-v2/PKGBUILD"
+prior_authenticated_host_package_bytes = 49859
+prior_authenticated_host_package_sha256 = "92fe2bb9900916131b9d75d559d4b21fda5431c8e161e1e1341ce7b9883349be"
 
 [[packages]]
 name = "cachy-asahi-first-login"
