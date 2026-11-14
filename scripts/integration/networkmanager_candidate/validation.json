@@ -1,0 +1,202 @@
+{
+  "archive_leaf_counts": {
+    "libnm": 142,
+    "networkmanager": 186,
+    "networkmanager-docs": 313,
+    "nm-cloud-setup": 13
+  },
+  "base_image_id": "sha256:7052baf57a6eec068371ffdb2f9670ef69bd5ce11ee3ba67f705b724dc8a53d5",
+  "baseline_package_inventory_count": 311,
+  "caller_mounts": [],
+  "candidate_recipe_commit": "3143edcd5e46d73e60817de37401c0ada7ee2aa0",
+  "candidate_version": "1.58.1-2.1",
+  "cases": [
+    {
+      "name": "unknown-TEST-key",
+      "result": "PASS_REFUSAL_UNCHANGED"
+    },
+    {
+      "name": "archive-byte-tamper",
+      "result": "PASS_REFUSAL_UNCHANGED"
+    },
+    {
+      "edited_backup": false,
+      "name": "installed",
+      "result": "PASS_EXACT_INVENTORY_OWNERSHIP_BYTES_DEPS"
+    },
+    {
+      "name": "removed",
+      "result": "PASS_PACKAGE_LEAVES_ABSENT_BASE_AND_USER_PRESERVED"
+    },
+    {
+      "edited_backup": false,
+      "name": "reinstalled",
+      "result": "PASS_EXACT_INVENTORY_OWNERSHIP_BYTES_DEPS"
+    },
+    {
+      "edited_backup": true,
+      "name": "repeat-installed",
+      "result": "PASS_EXACT_INVENTORY_OWNERSHIP_BYTES_DEPS"
+    },
+    {
+      "name": "final-removed",
+      "result": "PASS_PACKAGE_LEAVES_ABSENT_BASE_AND_USER_PRESERVED"
+    }
+  ],
+  "commands_executed": 61,
+  "config_recovery": "pacsave verified; explicit copy recovery; repeated install preserved edit; final pacsave retained",
+  "final_package_owned_leaves_absent": true,
+  "guard": {
+    "caller_mounts": false,
+    "capabilities": [
+      "CHOWN",
+      "DAC_OVERRIDE",
+      "FOWNER",
+      "SETGID",
+      "SETUID",
+      "SYS_CHROOT"
+    ],
+    "daemon_service_execution": false,
+    "hooks": "every copied hook name masked with /dev/null",
+    "host_bus": false,
+    "network": "none/lo-only",
+    "scriptlets": false,
+    "standard_runtime_mounts": "Docker metadata, default character devices and read-only docker-init"
+  },
+  "guest_deadline_seconds": 450,
+  "holds": [
+    "Native ARM/16K, installed supported Asahi system, M2, real networking/service operation and release acceptance NOT RUN",
+    "Normal system hooks/scriptlets intentionally contained; their normal installed behavior is not qualified",
+    "Historical ALARM1.58.1-2 source/binary binding remains UNBOUND",
+    "No upstream or production trust/freshness/legal acceptance decision"
+  ],
+  "host_wait_seconds": 520,
+  "input_archives": [
+    {
+      "bytes": 1263789,
+      "name": "libnm-1.58.1-2.1-x86_64.pkg.tar.zst",
+      "sha256": "0e5c472bb17b531fe28c9d455c43e5dbf5ef709e9463f8de60e02a908158516b"
+    },
+    {
+      "bytes": 5637128,
+      "name": "networkmanager-1.58.1-2.1-x86_64.pkg.tar.zst",
+      "sha256": "cfbb9ac3fdd3efe7e11c86e6da108556a5c39993411b98eec06748b1edb7310c"
+    },
+    {
+      "bytes": 928199,
+      "name": "networkmanager-docs-1.58.1-2.1-x86_64.pkg.tar.zst",
+      "sha256": "d4ba00a9b6f141faa82979b71f903b86a7c68a890e7b264cfd6646034155d5f6"
+    },
+    {
+      "bytes": 99020,
+      "name": "nm-cloud-setup-1.58.1-2.1-x86_64.pkg.tar.zst",
+      "sha256": "cbecfca0f1bda63cb3da1ad06d8e5fd99ed1e3658467deb39717094fc40d93e1"
+    }
+  ],
+  "journey_image_id": "sha256:f140230a4458bd4599ae857507beebf4311b7e650e860b80820376e17d62dd4d",
+  "local_DATA_controls": {
+    "interpreters": [
+      "Python3.12.13",
+      "Python3.14.7"
+    ],
+    "passed": 4
+  },
+  "masked_hook_names": [
+    "10-glibc-locale-gen.hook",
+    "10-glibc-remove-locale-archive.hook",
+    "11-glibc-ldconfig.hook",
+    "11-glibc-remove-ldconfig-cache.hook",
+    "12-glibc-iconvconfig.hook",
+    "12-glibc-remove-iconvconfig-cache.hook",
+    "20-systemd-sysusers.hook",
+    "21-systemd-tmpfiles.hook",
+    "25-systemd-binfmt.hook",
+    "25-systemd-catalog.hook",
+    "25-systemd-hwdb.hook",
+    "25-systemd-sysctl.hook",
+    "30-systemd-daemon-reload-system.hook",
+    "30-systemd-daemon-reload-user.hook",
+    "30-update-mime-database.hook",
+    "35-systemd-enqueue-marked.hook",
+    "35-systemd-udev-reload.hook",
+    "35-systemd-update.hook",
+    "36-systemd-modules-load.hook",
+    "40-fontconfig-config.hook",
+    "40-update-ca-trust.hook",
+    "60-depmod.hook",
+    "dbus-reload.hook",
+    "detect-old-perl-modules.hook",
+    "fontconfig.hook",
+    "gdk-pixbuf-query-loaders.hook",
+    "gdk-pixbuf-remove-loaders-cache.hook",
+    "gio-querymodules.hook",
+    "gio-remove-module-cache.hook",
+    "glib-compile-schemas.hook",
+    "glib-remove-compiled-schemas.hook",
+    "shared-mime-info-remove-cache.hook",
+    "texinfo-install.hook",
+    "texinfo-remove.hook"
+  ],
+  "observations": [
+    "Unknown TEST DB key refusal includes a failed remote lookup inside network-none namespace; no key acquired",
+    "Tampered libnm archive rejected as invalid TEST PGP signature; no packages upgraded",
+    "No candidate recipe/source changes required"
+  ],
+  "owned_container_removed": true,
+  "owned_image_tag_removed": true,
+  "prior_adapter_failures": [
+    "Registry-style reference for local retained image could not resolve; use pre/post exact-ID and base-layer-checked local tag",
+    "Rootless Docker default character-device and readonly docker-init mount inventory needed explicit validation",
+    "Private verifier must be initialized before inherited pacman query wrapper"
+  ],
+  "private_TEST_state_removed": true,
+  "private_report_root": "/home/gabe/Documents/ChatGPT/cachy-asahi-install-completion-20261114/work/networkmanager-candidate-journey-20261114/final-pinned-runtime",
+  "recorded_utc_date": "2026-11-14",
+  "retained_public_report_pins": {
+    "guest/023-unknown-TEST-key-refused.txt": "6ab3edd8cec016a7415b1286354b058a3cd6ef55a4aaa44713a65ecce02f3f2e",
+    "guest/030-archive-byte-tamper-refused.txt": "463be2bc347fcf5ea94e0b1631cefc908d036703469f2723bc030462c636c44a",
+    "guest/after-tamper-snapshot.json": "3fe6f1858e9e95597d4c307a2e79696eac333794f61b8e73da812bc293e25125",
+    "guest/after-unknown-key-snapshot.json": "3fe6f1858e9e95597d4c307a2e79696eac333794f61b8e73da812bc293e25125",
+    "guest/before-tamper-snapshot.json": "3fe6f1858e9e95597d4c307a2e79696eac333794f61b8e73da812bc293e25125",
+    "guest/before-unknown-key-snapshot.json": "3fe6f1858e9e95597d4c307a2e79696eac333794f61b8e73da812bc293e25125",
+    "guest/pacman.log": "8fb6075653cdd0f73ac3f22ffcb95cc563bb5ab064986ccf7f49825aed4f79c5",
+    "guest/report.json": "bff7a0cbd0b94939cf619e53e3cd6e55c454edc1b374ad5e566ef536507b1cf8",
+    "report.json": "9aff0f8c61326d9fcd1d8851e436c8f946f3145aae23facc72b37be0767bf647"
+  },
+  "runtime": {
+    "CapAdd": [
+      "CAP_CHOWN",
+      "CAP_DAC_OVERRIDE",
+      "CAP_FOWNER",
+      "CAP_SETGID",
+      "CAP_SETUID",
+      "CAP_SYS_CHROOT"
+    ],
+    "CapDrop": [
+      "ALL"
+    ],
+    "Devices": [],
+    "Memory": 4294967296,
+    "NanoCpus": 2000000000,
+    "NetworkMode": "none",
+    "PidsLimit": 256,
+    "Privileged": false,
+    "SecurityOpt": [
+      "no-new-privileges"
+    ]
+  },
+  "runtime_smoke": {
+    "introspection": "NM1.58 GIR setting construction PASS; no Client/bus/daemon",
+    "nmcli_version": "nmcli tool, version 1.58.1-2.1",
+    "no_daemon_or_bus": true
+  },
+  "schema_version": 1,
+  "scope": "actual unsigned x86 candidates re-signed with private disposable TEST keys; copied-root ALPM/software only",
+  "source_pins": {
+    "journey.py": "4c57b845ecfa3aa875e884a228e2812daeb184b72b1de76b760aa0a3ecf1b27b",
+    "repository.py": "fdfd3611ca8d3fab7584594ccaf627f42a9ae31898372925af1bcae173d55cd7",
+    "run.py": "33a2aa0e72e2d8c7f3d1563dbb05e2876cec6ae7157363613664f1d27fe40fa5"
+  },
+  "status": "PASS_X86_TEST_REPOSITORY_LIFECYCLE_ONLY",
+  "user_and_unrelated_preserved": true
+}
