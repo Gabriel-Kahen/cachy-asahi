@@ -1,0 +1,270 @@
+{
+  "ELF_NEEDED": "covered by declared package deps and sibling-owned plugin/library payloads; no ELF execution on host",
+  "ELF_files_inspected_as_DATA": 21,
+  "candidate_version": "1.58.1-2.1",
+  "clean_corrected_build": {
+    "commands": [
+      {
+        "argv": [
+          "makepkg",
+          "--ignorearch",
+          "--verifysource",
+          "--noconfirm"
+        ],
+        "exit": 0,
+        "log": "command-0.log",
+        "seconds": 3.569
+      },
+      {
+        "argv": [
+          "makepkg",
+          "--ignorearch",
+          "--cleanbuild",
+          "--nosign",
+          "--noconfirm"
+        ],
+        "exit": 0,
+        "log": "command-1.log",
+        "seconds": 275.182
+      }
+    ],
+    "note": "Complete production source/profile clean build; before subsequent relative-output verifier canonicalization fix.",
+    "upstream_tests": {
+      "failed": 0,
+      "internal_skips": "retained in full testlog; no skip/filter environment added",
+      "passed": 87,
+      "top_level_skipped": 0
+    }
+  },
+  "current_recipe_followup": {
+    "commands": [
+      {
+        "argv": [
+          "makepkg",
+          "--ignorearch",
+          "--verifysource",
+          "--force",
+          "--noconfirm"
+        ],
+        "exit": 0,
+        "seconds": 3.67
+      },
+      {
+        "argv": [
+          "makepkg",
+          "--ignorearch",
+          "--noextract",
+          "--force",
+          "--nosign",
+          "--noconfirm"
+        ],
+        "exit": 0,
+        "seconds": 39.644
+      }
+    ],
+    "note": "Same completed source/build and profile; current helper metadata pinned, source verified, --noextract reruns build/check/all four package operations. No prepare/extraction repeated; production/test patch bytes unchanged. Earlier verifysource without --force refused existing package group exit13; retained in private recheck-results.",
+    "upstream_tests": {
+      "failed": 0,
+      "passed": 87
+    }
+  },
+  "diagnostics": {
+    "colliding_macro_control_O0_O2": "aborts",
+    "expected_template_unchanged": true,
+    "generated_xml_existed_before": false,
+    "generated_xml_matches_committed_template": true,
+    "preprocessed_test_sha256": "10705f48b9f1d253c635d17790035e1fb66d50b387a1c5f3461ca9ec433f3f73",
+    "production_formatter_O0_O2": "prints0",
+    "unique_local_control_O0_O2": "passes"
+  },
+  "first_full_run": {
+    "failures": [
+      "GLib2.90 g_assert_cmpstr _s1 temporary collision with upstream test local",
+      "recipe --no-rebuild omitted non-default XML test dependency"
+    ],
+    "test_skip_filters": false,
+    "upstream_tests_failed": 2,
+    "upstream_tests_passed": 85
+  },
+  "historical_ALARM_1.58.1-2_correspondence": "UNBOUND",
+  "host_archive_facts": [
+    {
+      "arch": "x86_64",
+      "archive": {
+        "bytes": 1263789,
+        "name": "libnm-1.58.1-2.1-x86_64.pkg.tar.zst",
+        "sha256": "0e5c472bb17b531fe28c9d455c43e5dbf5ef709e9463f8de60e02a908158516b"
+      },
+      "depends": [
+        "glib2",
+        "glibc",
+        "libgcc",
+        "nspr",
+        "nss",
+        "systemd-libs",
+        "util-linux-libs"
+      ],
+      "members": 159,
+      "no_INSTALL_or_forbidden_live_files": true,
+      "pkgbuild_sha256sum": "3805ed1e9a35929c3bb655444ebaa493c5b1d23435d98579346ead7e64ed9fa3",
+      "pkgname": "libnm"
+    },
+    {
+      "arch": "x86_64",
+      "archive": {
+        "bytes": 5637128,
+        "name": "networkmanager-1.58.1-2.1-x86_64.pkg.tar.zst",
+        "sha256": "cfbb9ac3fdd3efe7e11c86e6da108556a5c39993411b98eec06748b1edb7310c"
+      },
+      "depends": [
+        "audit",
+        "bash",
+        "curl",
+        "glib2",
+        "glibc",
+        "iproute2",
+        "jansson",
+        "libbpf",
+        "libgcc",
+        "libmm-glib",
+        "libndp",
+        "libnewt",
+        "libnm=1.58.1-2.1",
+        "libpsl",
+        "libteam",
+        "mobile-broadband-provider-info",
+        "nspr",
+        "nss",
+        "readline",
+        "slang",
+        "systemd-libs",
+        "wpa_supplicant"
+      ],
+      "members": 385,
+      "no_INSTALL_or_forbidden_live_files": true,
+      "pkgbuild_sha256sum": "3805ed1e9a35929c3bb655444ebaa493c5b1d23435d98579346ead7e64ed9fa3",
+      "pkgname": "networkmanager"
+    },
+    {
+      "arch": "x86_64",
+      "archive": {
+        "bytes": 928199,
+        "name": "networkmanager-docs-1.58.1-2.1-x86_64.pkg.tar.zst",
+        "sha256": "d4ba00a9b6f141faa82979b71f903b86a7c68a890e7b264cfd6646034155d5f6"
+      },
+      "depends": [],
+      "members": 327,
+      "no_INSTALL_or_forbidden_live_files": true,
+      "pkgbuild_sha256sum": "3805ed1e9a35929c3bb655444ebaa493c5b1d23435d98579346ead7e64ed9fa3",
+      "pkgname": "networkmanager-docs"
+    },
+    {
+      "arch": "x86_64",
+      "archive": {
+        "bytes": 99020,
+        "name": "nm-cloud-setup-1.58.1-2.1-x86_64.pkg.tar.zst",
+        "sha256": "cbecfca0f1bda63cb3da1ad06d8e5fd99ed1e3658467deb39717094fc40d93e1"
+      },
+      "depends": [
+        "bash",
+        "curl",
+        "glib2",
+        "glibc",
+        "jansson",
+        "libgcc",
+        "libnm=1.58.1-2.1",
+        "networkmanager=1.58.1-2.1"
+      ],
+      "members": 34,
+      "no_INSTALL_or_forbidden_live_files": true,
+      "pkgbuild_sha256sum": "3805ed1e9a35929c3bb655444ebaa493c5b1d23435d98579346ead7e64ed9fa3",
+      "pkgname": "nm-cloud-setup"
+    }
+  ],
+  "host_refusal": {
+    "exit": 8,
+    "host_installs": false,
+    "missing": [
+      "meson",
+      "dhcpcd",
+      "glib2-devel",
+      "gobject-introspection",
+      "gtk-doc",
+      "pacrunner",
+      "perl-yaml",
+      "vala"
+    ]
+  },
+  "local_DATA_tests": {
+    "command": [
+      "python",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/port/networkmanager-source-candidate",
+      "-p",
+      "test_candidate.py",
+      "-v"
+    ],
+    "passed": 7
+  },
+  "pkgbuild_sha256": "3805ed1e9a35929c3bb655444ebaa493c5b1d23435d98579346ead7e64ed9fa3",
+  "prerequisite_image": {
+    "base": "docker.io/library/archlinux:base@sha256:fcee73ea1b96e236248f53a213f71276cc9072d9025b58bce9915e32f19963ae",
+    "core_db_sha256": "aec62efbfb59d300204f936a633a59d3c89d6a7e7f94852b8f621b61a253afae",
+    "exact_input_retry": "one retry; --disable-download-timeout under outer600s; succeeded174packages354.28MiB",
+    "extra_db_sha256": "1b4caf18e4a57ba10f201c7b19892bb55a37283c2b0369b39cc6c4f6b654151d",
+    "first_attempt": "clang transfer low-speed timeout before transaction install",
+    "further_prerequisite_retries": false,
+    "package_signatures": "Required against disposable image Arch keyring; no new trust/freshness decision"
+  },
+  "private_diagnostic_root": "/home/gabe/Documents/ChatGPT/cachy-asahi-install-completion-20261114/work/networkmanager-source-candidate-20261114",
+  "recorded_utc_date": "2026-11-14",
+  "remaining_holds": [
+    "Native aarch64/16K build and execution NOT RUN",
+    "M2/full-system installed integration/release NOT RUN",
+    "Old protected transaction proposal UNAPPROVED",
+    "Historical signed binary recipe/source binding UNBOUND",
+    "Independent upstream signature/freshness and complete source/license/grant acceptance not established"
+  ],
+  "retained_log_pins": {
+    "archive-facts.json": "f8ee41f2845ea63dc5c177e6ad997ee70119615a6237492967a97031a2216952",
+    "current-results/command-0.log": "3a10c17218901e369e8f5e524da890f875f2bf7736c9fe8c10b54035f3c2e32f",
+    "current-results/command-1.log": "7eadef7951c414eca5fe6eb9bbf40866cd660ee1960bd1d24d23f67fe3fdd697",
+    "current-testlog.txt": "c6d42c98fb3fceb00621b4cf59d7a488a392308a3e80da29d5bc5aa5779af144",
+    "diagnostics/diagnostic.json": "3a1913ced0bf722f475876be65f61b9e9a3dfc2f60ae4703d1bef0d57194a2e6",
+    "elf-needed.json": "92a994806c86fe09239f5c68d625f299e8126187a40f2e51db83232af7b344e9",
+    "final-results/command-1.log": "77e22c280a09e714fd5f308e9a1d077baf20333386ad3197183209082d8a8bf9",
+    "final-results/testlog.txt": "40734a45522e5b0e12f10d0b4dc7097df8e5d77b5dac81d5b6f04ca0408e5941",
+    "host-dependency-refusal.log": "12b8652712a4f787f3188410cb66ead4d6cf694d9d59cbccb90faad46d59a419",
+    "host-package-versions.txt": "ba737aa64ec9e662d1870599cd0bbb430f4a4ecf527e5f26dbf73e22f3f5b711",
+    "image-build-retry.log": "721fa380ab67e375cfdd5fcc6899b3253cf683ffe6fa95c895431873c3e920f1",
+    "image-build.log": "180f05ea6ac32eeb118a9c09cc2de917747176044452e2b27b96ced03b372422",
+    "recheck-existing-package-refusal/command-0.log": "8ca44c3dc98dbe378d89c9b779971060054c3d8f376f24ecf6c692a78ad22048",
+    "recheck-existing-package-refusal/result.json": "e40fede82e3d4a860ca413e4cba0746838a27176fd064fa327ed7a8ee273b237"
+  },
+  "runtime": {
+    "SOURCE_DATE_EPOCH": "1794614400",
+    "cpus": 2,
+    "features_checked": 67,
+    "host_bus": false,
+    "host_mounts": false,
+    "memory_bytes": 4294967296,
+    "network": "none",
+    "pids": 256,
+    "required_feature_macros_passed": 14,
+    "scope": "x86_64 --ignorearch only; no --nodeps/no install",
+    "shared_deadline_seconds": 1500,
+    "uid": 1000
+  },
+  "schema_version": 1,
+  "source_sha256": "843306ad54a3006ef7a60ba62932a3a2015cc87d46bd438fd5ac906d952c88d6",
+  "split_pre_makepkg_tidy_leaves": {
+    "libnm": 137,
+    "networkmanager": 181,
+    "networkmanager-docs": 308,
+    "nm-cloud-setup": 8
+  },
+  "status": "PASS_X86_SOFTWARE_BUILD_STAGE_ONLY; HOLD_TARGET_ACCEPTANCE"
+}
