@@ -259,7 +259,7 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/install/test_first_login.py -v
           python3 -I -B packages/tools/cachy-asahi-first-login/check-sync.py --root "$PWD"
           python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-first-login/test_delivery.py --recipe packages/tools/cachy-asahi-first-login/PKGBUILD -v
-          python3 -I -B scripts/integration/first_login_rehearsal.py --output "$RUNNER_TEMP/first-login-rehearsal" --build-and-rehearse
+          python3 -I -B scripts/integration/first_login_rehearsal.py --output "$RUNNER_TEMP/first-login-rehearsal" --build-and-rehearse --installed-guest-controls
       - name: Check explicit lock and ordered suspend without a desktop session
         run: |
           python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-session-lock/test_session_lock.py -v

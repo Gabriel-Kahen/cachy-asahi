@@ -91,3 +91,18 @@ No frozen recipe, current v3 runtime, native constructor directory, shared
 manifest, workflow or system configuration was changed by this adapter work.
 Native ARM, M2, graphical login, physical interruption/recovery and release
 acceptance remain unqualified by these local checks.
+
+Root also repeated all three controls through the source-building rehearsal:
+
+```sh
+python3 -I -B scripts/integration/first_login_rehearsal.py \
+  --output /absolute/new-rehearsal-output \
+  --build-and-rehearse --installed-guest-controls
+```
+
+The explicit option runs the controls while the four actual freshly assembled
+archives still exist, reusing their exact selection hashes. It preserves command
+stdout/stderr in the rehearsal output and removes temporary build state afterward.
+Root observed three passing controls in 2.080 seconds and a passing complete
+rehearsal. Static CI now selects this option. The helper and its native carrier
+remain unchanged; the local callback's ordinary-user limitation still applies.

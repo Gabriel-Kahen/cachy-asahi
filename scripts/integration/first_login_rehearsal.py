@@ -101,7 +101,7 @@ def configuration(scratch):
     return config, values['PKGDEST']
 
 
-def execute(root, output):
+def execute(root, output, installed_guest_controls=False):
     journey.require(os.geteuid() != 0, 'Run as the intended ordinary user without sudo')
     journey.require(root.is_absolute() and output.is_absolute(), 'Absolute checkout and new output paths required')
     for name in ('makepkg', 'fakeroot', 'bsdtar', 'fish', 'zsh', 'python3', 'git', 'zstd'):
@@ -142,6 +142,16 @@ def execute(root, output):
             pinned = journey.selection(selection_path, journey.sha(selection_path))
             report['derived_inputs_sha256'] = journey.sha(selection_path)
             report['journey'] = journey.execute(pinned, output / 'journey')
+            if installed_guest_controls:
+                controls = root / 'scripts/integration/first_login_installed_journey_test.py'
+                runner.cwd = scratch
+                runner.run('installed-guest-controls', ['/usr/bin/python3', '-I', '-B',
+                           '-Werror::ResourceWarning', controls, '--inputs', selection_path,
+                           '--inputs-sha256', report['derived_inputs_sha256'], '-v'])
+                report['installed_guest_controls'] = {
+                    'status': 'PASS', 'entry_sha256': journey.sha(controls),
+                    'scope': 'actual extracted payloads as the current ordinary user; no root-to-alarm switch',
+                }
         report.update(status='PASS', temporary_build_state_removed=True)
     except Exception as error:
         report['error'] = str(error) if isinstance(error, journey.Failure) else type(error).__name__
@@ -157,10 +167,11 @@ def main():
     parser.add_argument('--root', type=Path, default=ROOT)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--build-and-rehearse', action='store_true', help='explicitly assemble four local recipes and execute their temporary shell journey')
+    parser.add_argument('--installed-guest-controls', action='store_true', help='also check the guest-callable workflow using the same actual temporary archives')
     args = parser.parse_args()
     try:
         journey.require(args.build_and_rehearse, 'Execution requires --build-and-rehearse')
-        report = execute(args.root, args.output)
+        report = execute(args.root, args.output, args.installed_guest_controls)
         print(json.dumps(report, indent=2, sort_keys=True))
         return 0
     except (journey.Failure, OSError, ValueError, KeyError, TypeError) as error:
