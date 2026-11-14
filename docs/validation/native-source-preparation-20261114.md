@@ -45,3 +45,14 @@ namespace prerequisite once. Independent Git verification reproduced all five
 trees. Native, Original acquisition and actual Reader calls
 for these new families remain zero. Hardware, performance and release remain
 unqualified.
+
+Root subsequently published the namespace diagnostic as Source
+`b659e3049d11ff160494dfc2d8881830c9aae7ac`, ref
+`codex/native-build-namespace-preflight-v1-20261114`, with the namespace tree
+and map above and sole physical parent Source97. A fresh bare HTTPS fetch
+independently matched the exact raw commit and all 200 body, mode, Git OID,
+byte-count and SHA-256 rows against the constructed physical tree. Publication
+performed no constructor replay, Source execution or native dispatch. Private
+publication receipts are in `namespace-source-publication/` under the retained
+directory above. Root resource admission, native run/job/artifact identities and
+the matching Reader remain pending; the two package-pair sources remain unpublished.

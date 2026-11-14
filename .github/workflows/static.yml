@@ -290,6 +290,8 @@ jobs:
         run: |
           python3 -I -B -Werror::ResourceWarning scripts/port/platform-audio-sources/test_intake.py -v
           python3 -I -B -Werror::ResourceWarning scripts/port/platform-audio-vendor-audit/test_audit.py -v
+          python3 -I -B -Werror::ResourceWarning scripts/port/platform-audio-cargo-metadata/test_replay.py
+          python3 -I -B -Werror::ResourceWarning packages/port/python3148-source-candidate/test_source.py
       - name: Exercise planned repository key rotation without skipped controls
         env:
           PYTHONDONTWRITEBYTECODE: '1'
