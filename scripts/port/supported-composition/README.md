@@ -134,3 +134,58 @@ real archive/signature indexes and exact coordinated policy are supplied.
 Per-package custody, signature authentication, installed payload/file/hook
 correspondence, source/license/grant/maintainer review and native-build limits
 remain explicit holds. This adapter never creates the missing acceptance facts.
+
+## Optional three-package maintenance DATA proposal
+
+`--maintenance-proposal /absolute/proposal.json` plus
+`--maintenance-proposal-sha256 SHA256` adds a **second** metadata preparation.
+The original contract is evaluated first, unchanged. Its top-level
+`metadata_prepare_status`, blockers, protected decisions and candidate inventory
+remain the original-policy result; `original_policy` preserves that summary.
+The optional result is under `proposed_maintenance` and overall status is HOLD
+with `approval_status: UNAPPROVED`, even when that second preparation passes.
+There is no apply, selection or approval operation.
+
+The proposal has exactly these fields:
+
+```text
+schema_version: 1
+kind: unapproved-Asahi-three-package-maintenance-v1
+approval_status: UNAPPROVED
+composition_contract: REF to the exact unchanged original composition contract
+image_inventory: exact same REF as the original contract
+protected_tuple: exact same REF as the original contract
+catalogs: exact same ordered name/REF array as the original contract
+changes: exactly these three objects, in any order:
+  {name: python, before: 3.14.7-1, after: 3.14.8-1, repo: core, reason: NONEMPTY_TEXT}
+  {name: networkmanager, before: 1.58.1-1, after: 1.58.1-2, repo: extra, reason: NONEMPTY_TEXT}
+  {name: perl, before: 5.42.2-2, after: 5.42.3-1, repo: core, reason: NONEMPTY_TEXT}
+```
+
+`REF` has the same exact `path/size/sha256` shape as other inputs. Every reason
+must be nonempty, at most1024 characters and free of control characters. This
+version is intentionally finite to the retained before/after identities above;
+other changes need a different reviewed proposal implementation.
+
+The original workflow must be `full-desktop`; all three after identities must
+already be exact explicit roots/providers in it. The proposal cannot add or
+retarget roots/providers, alter reference bindings, add another protected change,
+change kernel/Mesa/boot/audio policy, substitute another after version or flip
+its approval status. Missing before identities refuse. New after records come
+only from the same retained catalog bytes. Only the proposed Python protection
+value changes in memory for this second private run; original protected files,
+original-policy evaluation and all other protections remain unchanged.
+
+The second result checks that precisely those three baseline changes occur,
+each with the exact repository/version, and that no additional implicit baseline
+change/removal is introduced. It separately records unchanged original protected
+versions and matches against proposed expected versions. Its inventory is
+`proposed-maintenance/inventory.json`, explicitly marked unapproved. Worker
+DATA/diagnostics remain in that subdirectory; private DBs are removed.
+Custody/signature/source/license/native/hardware/recovery holds remain intact.
+
+With a proposal, exit2 means only the proposed metadata preparation passed while
+remaining unapproved; top-level original metadata may still correctly say FAIL.
+`proposed_metadata_prepare_status` in the CLI summary and
+`proposed_maintenance.metadata_prepare_status` in the report distinguish them.
+Invalid proposals or failed proposed preparation return1.
