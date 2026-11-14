@@ -1,0 +1,29 @@
+{
+  "backend_snapshot_commit": "0e8a901577681472b1bbce2d0fd78cff6d3f6c9e",
+  "candidate": "cachy-asahi-first-login-ui 0.1.0-1",
+  "check_only_fixtures": {
+    "first-login-entry-fixture": {
+      "bytes": 296,
+      "sha256": "a5e2b72ff58eac2763c0ad65f36c0c883a60ce20e97c38acc4bace9d30a18144"
+    },
+    "first-login-fixture.py": {
+      "bytes": 10384,
+      "sha256": "41ade792884afced7a078c6926d3f18d7a9e40fca50191c7d77d34678711921c"
+    },
+    "setup8-fixture.py": {
+      "bytes": 45116,
+      "sha256": "724a37c9832d607455aeda1d929f0ee265ce268aecb64be5e00065c1edf85cf0"
+    }
+  },
+  "fixture_installation": false,
+  "hardware": "NOT RUN",
+  "native_ARM": "NOT RUN",
+  "release": "NOT ADMITTED",
+  "repository": "https://github.com/Gabriel-Kahen/cachy-asahi",
+  "runtime_backends": {
+    "cachy-asahi-first-login": "0.1.0-2",
+    "cachy-asahi-setup": "0.3.0-1"
+  },
+  "schema_version": 1,
+  "source_kind": "local original GTK front end; exact backend test snapshots only"
+}
