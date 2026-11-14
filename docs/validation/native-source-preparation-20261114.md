@@ -10,8 +10,8 @@ trees. No operand or package code is executed during construction.
 | Family | Profile SHA-256 | Verified source tree | Source map SHA-256 |
 | --- | --- | --- | --- |
 | SessionLock 0.1.0-1 / Settings 0.1.1-1, corrected lifecycle reader | `bd923eab0a2d36fab3f6d6f3f51ac28c9751156db38c4e66991bc1f022203315` | `0edef056655c7bc6102f537ed663848324edcec4` | `f2521fb4c48f7841b79a22564f88e558b8cd8a1ba41117ccfa55ffd257c64908` |
-| FirstLogin 0.1.0-2 / Enrollment 0.3.0-1, corrected lifecycle reader | `ee6191505aff5d19726bdd403883e473445c164d7142b5fb0dbdddaea473c9b5` | `092b015de93c24f4bd8ad1e140cf447d77ec8678` | `f3b3aacd17dc0ce669fe6c546d99418c87b96d0cd843c3bcb37614c0404d5be7` |
-| Normal image-build namespace prerequisite | `c51cdcc9a2274d55f7534b8f3b6354b04e6660cf35e67174753fd2e280ad1734` | `a74e0f80feaf7b89f3193ea50293143f98bdfdd0` | `8ac153e4ab93e8537d4dce75d65cdedac173ac0738fd1c8a0c458e759050d2a6` |
+| FirstLogin 0.1.0-2 / Enrollment 0.3.0-1, corrected producer and reader | `ad874751a48cfd7e7d94f5d38d79caa138679be067cb113ead35150f0d3c78fa` | `2649b708f0acfef4f362f4ff7390ae3229c3c8cf` | `c533b6ce8eccc058e6279a0f00024621e99fd2757da22b13ec7e5d90adf11ac6` |
+| Normal image-build namespace prerequisite, corrected producer and reader | `8c0dc91cbd97dcfda1353dcafa1da1f08f250e3c690a97e08f657431f29e7472` | `a825d475d248f2254070d256d23780c4ef2d0f4b` | `7474683e198759876dcee6b31a036473f2129da351fce3bcc8e37770b4a70f79` |
 
 The FirstLogin constructor separately reads the retained qualified Setup8
 archive: 33,900 bytes, SHA-256
@@ -29,9 +29,21 @@ families preserve the established base16/tools17 convention, with quiet tools
 build; each adds four modeled lifecycle controls covering positive and refusal
 paths. None of these source trees was published or used for a native trial.
 
-The pair families have 28 and 20 actor-fenced source controls respectively;
-the namespace prerequisite has 31. These model role/data joins; they do not execute the actual
-capsule Reader or establish native package success. Fresh source commits/refs,
+Further preparation found the inherited Source97 producer helper also required
+16 arguments for both build roles. Before any native dispatch, both affected
+families were corrected to explicitly overlay the exact qualified Source36
+`image_lifecycle.py`: 13,034 bytes, SHA-256
+`805fabc496f10b67425cc69bdf7793d0e703dae1fab2407d8596391c9e9c5f2b`.
+The earlier FirstLogin tree `092b015de93c24f4bd8ad1e140cf447d77ec8678` and
+namespace tree `a74e0f80feaf7b89f3193ea50293143f98bdfdd0` remain superseded DATA.
+New complete lifecycle controls traverse producer ledger/build guards and
+Reader raw-log, alias, consumer and retirement joins, accepting base16/tools17
+and refusing stale or misplaced options and incomplete retirement.
+
+The pair families have 28 and 21 actor-fenced source controls respectively;
+the namespace prerequisite has 32. The 53 affected controls pass on Python
+3.12.13 and 3.14.7. These model role/data joins; they do not execute the actual
+capsule Reader or establish native package success. Package-pair publication,
 resource admission, actual runs/jobs/artifacts, matching Reader decisions and
 native qualification remain pending. The FirstLogin/Enrollment build additionally
 requires independent qualification of bubblewrap and mapped-root namespaces in
@@ -39,20 +51,23 @@ the actual normal image-build RUN context. Consumer or emulated success does not
 establish that prerequisite. No privileged, sysctl or test-skip fallback is granted.
 
 Private source trees and construction receipts are retained under
-`artifacts/development/orchestrator-resume-20261114/`. Five constructor calls
-occurred: each pair once before correction and once after correction, plus the
-namespace prerequisite once. Independent Git verification reproduced all five
+`artifacts/development/orchestrator-resume-20261114/`. Seven constructor calls
+occurred: Settings twice, FirstLogin three times and the namespace prerequisite
+twice. Independent Git verification reproduced all seven
 trees. Native, Original acquisition and actual Reader calls
 for these new families remain zero. Hardware, performance and release remain
 unqualified.
 
-Root subsequently published the namespace diagnostic as Source
-`b659e3049d11ff160494dfc2d8881830c9aae7ac`, ref
-`codex/native-build-namespace-preflight-v1-20261114`, with the namespace tree
-and map above and sole physical parent Source97. A fresh bare HTTPS fetch
+Root published the corrected namespace diagnostic as Source
+`6b5b5a8f20ad2698c2d7f14a8f59c9b0ad5da165`, ref
+`codex/native-build-namespace-preflight-v2-20261114`, with the current namespace
+tree and map above and sole physical parent Source97. A fresh bare HTTPS fetch
 independently matched the exact raw commit and all 200 body, mode, Git OID,
 byte-count and SHA-256 rows against the constructed physical tree. Publication
 performed no constructor replay, Source execution or native dispatch. Private
-publication receipts are in `namespace-source-publication/` under the retained
+publication receipts are in `namespace-source-publication-v2/` under the retained
 directory above. Root resource admission, native run/job/artifact identities and
 the matching Reader remain pending; the two package-pair sources remain unpublished.
+The earlier published Source `b659e3049d11ff160494dfc2d8881830c9aae7ac` is retained
+unchanged under its original ref and receipt directory. Its producer guard makes
+it ineligible for the planned trial; it was never dispatched.
