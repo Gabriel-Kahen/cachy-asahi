@@ -63,8 +63,8 @@ for this new tool.
 ## Development and delivery
 
 The opt-in package lives at `packages/tools/cachy-asahi-first-login`. It requires
-Python 3.11 or newer and `cachy-asahi-setup` with schema-1 status support (including
-Setup8). Fish, Zsh, Hyprland and their matching project templates are optional
+Python 3.11 or newer and `cachy-asahi-setup>=0.3.0` with schema-1 status
+support (Setup8). Fish, Zsh, Hyprland and their matching project templates are optional
 component prerequisites. The standalone implementation has no repository imports.
 The installed entry point runs isolated Python and loads its own installed
 implementation; it does not depend on the checkout or current working directory.

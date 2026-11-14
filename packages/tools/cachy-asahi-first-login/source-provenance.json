@@ -1,5 +1,5 @@
 {
-  "candidate_version": "0.1.0-1",
+  "candidate_version": "0.1.0-2",
   "canonical_sources": {
     "LICENSE": "LICENSE",
     "README.md": "docs/first-login.md",
@@ -14,8 +14,8 @@
   "implementation_repository": "https://github.com/Gabriel-Kahen/cachy-asahi",
   "input_sha256": {
     "LICENSE": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
-    "NOTICE": "1dcd710c1e689921de46112182f4fb2b9dfa3184ef2ec0fa7a05202602a00790",
-    "README.md": "e1244a1af3dbae9ca0bdfb15122a89a15ba7faf74732d07f069a4e7293a004f3",
+    "NOTICE": "6aa0a8736adb815343fe56d530df8caa77605896e1eb8984c40e3cc669d86b35",
+    "README.md": "0beaccda9b43a67183241de740498e815e41ea8d48490353935a82d17b216d4a",
     "cachy-asahi-first-login": "a5e2b72ff58eac2763c0ad65f36c0c883a60ce20e97c38acc4bace9d30a18144",
     "check-sync.py": "929c60ebb939c7ea4d46d74ddedcaa219fb53285bce25c85ea8d71595d952e48",
     "first_login.py": "41ade792884afced7a078c6926d3f18d7a9e40fca50191c7d77d34678711921c",
@@ -28,7 +28,7 @@
   "release": "NOT ADMITTED",
   "runtime_dependencies": [
     "python>=3.11",
-    "cachy-asahi-setup"
+    "cachy-asahi-setup>=0.3.0"
   ],
   "schema_version": 1,
   "source_kind": "local original project code, opt-in development package",
