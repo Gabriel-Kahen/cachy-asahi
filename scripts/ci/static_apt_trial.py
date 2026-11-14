@@ -56,6 +56,9 @@ def compare_finished(cold, warm):
 
 def main():
     mode = sys.argv[1]
+    if mode == 'packages':
+        print('\n'.join(PACKAGES))
+        return
     require(mode in ('begin', 'clock', 'identity', 'cache', 'finish', 'report'), 'invalid mode')
     root = Path(os.environ['RUNNER_TEMP'])
     path = root / 'static-apt-trial-state.json'

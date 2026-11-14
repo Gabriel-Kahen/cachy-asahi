@@ -5,6 +5,9 @@ import io
 import json
 import os
 from pathlib import Path
+import shlex
+import subprocess
+import sys
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -28,6 +31,50 @@ class TrialControls(unittest.TestCase):
 
     def test_matching_pair_accepted(self):
         trial.compare_finished(self.cold, self.warm)
+
+    def test_package_list_is_available_without_runner_state(self):
+        output = io.StringIO()
+        with patch.dict(os.environ, {}, clear=True), patch.object(trial.sys, 'argv', ['trial', 'packages']), contextlib.redirect_stdout(output):
+            trial.main()
+        self.assertEqual(output.getvalue().splitlines(), trial.PACKAGES)
+
+    def test_real_shell_plan_install_and_readback_share_one_package_list(self):
+        # Instrument external actors; execute both real shell scripts without APT.
+        root = Path(__file__).resolve().parents[2]
+        commands = self.root / 'commands'
+        commands.mkdir()
+        log = self.root / 'commands.jsonl'
+        actor = commands / 'actor'
+        actor.write_text(f'#!{sys.executable}\n' + '''import json, os, subprocess, sys
+from pathlib import Path
+name = Path(sys.argv[0]).name
+args = sys.argv[1:]
+if name in ('sudo', 'dpkg-query'):
+    with open(os.environ['ACTOR_LOG'], 'a') as stream:
+        stream.write(json.dumps(dict(name=name, args=args)) + '\\n')
+elif name == 'python3':
+    if args[-1:] == ['packages']:
+        subprocess.run([sys.executable, *args], check=True)
+    elif 'key' in args:
+        print('a' * 64)
+''')
+        actor.chmod(0o755)
+        tools = next(line for line in (root / 'scripts/ci/static_apt_install.sh').read_text().splitlines() if line.startswith('for tool in '))
+        names = shlex.split(tools.split('for tool in ', 1)[1].split(';', 1)[0])
+        for name in {*names, 'sudo', 'dpkg-query', 'python3'}:
+            (commands / name).symlink_to(actor.name)
+        env = dict(PATH=str(commands) + ':/usr/bin:/bin', RUNNER_TEMP=str(self.root),
+                   ACTOR_LOG=str(log), GITHUB_OUTPUT=str(self.root / 'output'), ImageVersion='fixture')
+        for script in ('static_apt_plan.sh', 'static_apt_install.sh'):
+            result = subprocess.run(['/bin/bash', '-e', str(root / 'scripts/ci' / script)],
+                                    cwd=root, env=env, capture_output=True, timeout=15)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+        calls = [json.loads(line) for line in log.read_text().splitlines()]
+        installs = [row['args'][row['args'].index('install') + 1:] for row in calls
+                    if row['name'] == 'sudo' and 'install' in row['args']]
+        self.assertEqual(installs, [trial.PACKAGES, trial.PACKAGES])
+        self.assertEqual([row['args'] for row in calls if row['name'] == 'dpkg-query'],
+                         [['-W', *trial.PACKAGES]])
 
     def test_every_source_scope_image_plan_or_key_mismatch_refused(self):
         for field in trial.FIELDS:
