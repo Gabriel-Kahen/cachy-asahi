@@ -1,0 +1,221 @@
+{
+  "Ctrl_C_foreground_journeys": 2,
+  "GUI_session": "NOT RUN",
+  "all_sessions_reaped_empty_twice": true,
+  "archives": {
+    "first_login": {
+      "bytes": 19471,
+      "name": "cachy-asahi-first-login",
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/host-packages/cachy-asahi-first-login-0.1.0-2-any.pkg.tar.zst",
+      "sha256": "d4b7291afedc2af95d89f3975c77c45e417125bf23818cbfd1dc7d53fb464839",
+      "version": "0.1.0-2"
+    },
+    "setup": {
+      "bytes": 33900,
+      "name": "cachy-asahi-setup",
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/native-inputs/cachy-asahi-setup-0.3.0-1-any.pkg.tar.xz",
+      "sha256": "8de3bd0cf2d9333b41925fecdef5cbfe2ec6d40c3424d90746182142e0c7dc47",
+      "version": "0.3.0-1"
+    }
+  },
+  "delivered_zsh_opt_in_prompt": true,
+  "evidence": "/home/gabe/Documents/ChatGPT/cachy-asahi-first-login-pty-20261114/work/first-login-pty-20261114/final-r11",
+  "gid": 1000,
+  "hardware_M2": "NOT RUN",
+  "host_architecture": "x86_64",
+  "native_arm": "NOT RUN",
+  "natural_EOF_exits": 7,
+  "owned_private_workspace_removed": true,
+  "package_installation": "NOT RUN",
+  "page_size": 4096,
+  "payloads": {
+    "input/prefix/usr/bin/cachy-asahi-first-login": {
+      "bytes": 296,
+      "sha256": "a5e2b72ff58eac2763c0ad65f36c0c883a60ce20e97c38acc4bace9d30a18144"
+    },
+    "input/prefix/usr/bin/cachy-asahi-setup": {
+      "bytes": 45116,
+      "sha256": "724a37c9832d607455aeda1d929f0ee265ce268aecb64be5e00065c1edf85cf0"
+    },
+    "input/prefix/usr/lib/cachy-asahi/first-login/first_login.py": {
+      "bytes": 10384,
+      "sha256": "41ade792884afced7a078c6926d3f18d7a9e40fca50191c7d77d34678711921c"
+    },
+    "input/prefix/usr/share/cachy-asahi/fish/config.fish": {
+      "bytes": 663,
+      "sha256": "223df59fe83948e1d83676f4571cd2d4ce186862adf1cc23da6d5bbd28370a1c"
+    },
+    "input/prefix/usr/share/cachy-asahi/zsh/config.zsh": {
+      "bytes": 702,
+      "sha256": "7639b938dca689c445b64cc307148e2d3f85c5399d51c8ce69072dcf835baa6f"
+    }
+  },
+  "physical_power_loss": "NOT RUN",
+  "program_pins": {
+    "basename": {
+      "bytes": 59704,
+      "mode": 493,
+      "path": "/usr/bin/basename",
+      "sha256": "cf927c656ceb24cbfadfa7244da87c514d488119e12b7b261c7604b66d6adc1e"
+    },
+    "bsdtar": {
+      "bytes": 71840,
+      "mode": 493,
+      "path": "/usr/bin/bsdtar",
+      "sha256": "3d4f952dc8b77a993fa28355ce4eb402aea1966d1c85d60bbe1db76a3a4e0afc"
+    },
+    "bwrap": {
+      "bytes": 84464,
+      "mode": 493,
+      "path": "/usr/bin/bwrap",
+      "sha256": "abda037eddc51437253932c85806f3b876948f5dd5b62f2a296289e06550ae3e"
+    },
+    "fish": {
+      "bytes": 11791504,
+      "mode": 493,
+      "path": "/usr/bin/fish",
+      "sha256": "a7f62f606704b055039e229d5a46e589b2b9c4a8699c95eedbcd656ccb876adc"
+    },
+    "ls": {
+      "bytes": 195312,
+      "mode": 493,
+      "path": "/usr/bin/ls",
+      "sha256": "67e98994b67bbe6710fc29a3b3fe0f46c494c33f66867a7d8c9603ce84a0e3f7"
+    },
+    "mkdir": {
+      "bytes": 71992,
+      "mode": 493,
+      "path": "/usr/bin/mkdir",
+      "sha256": "50706503e8160f88a54955ee8abd7033bc1b7452f21a4579580cbc7d0821fab4"
+    },
+    "python3": {
+      "bytes": 14456,
+      "mode": 493,
+      "path": "/usr/bin/python3.14",
+      "sha256": "dd65a07e8f535525443d63e2bd6dd10efbf22bf22e0b6d65e634266acc7ac976"
+    },
+    "zsh": {
+      "bytes": 1184848,
+      "mode": 493,
+      "path": "/usr/bin/zsh",
+      "sha256": "14846ff02a25534afe9a892e89e81f3676ab06aab26eccfa71869a23fb35ec27"
+    }
+  },
+  "pty_sessions": 7,
+  "release_acceptance": false,
+  "retained_files": {
+    "01-activate.json": {
+      "bytes": 2264,
+      "sha256": "d071fa03dfa73d20bf10331c400175aaed55ddd0fe192878ed18e1cfa10a604b"
+    },
+    "01-activate.pty": {
+      "bytes": 11774,
+      "sha256": "25c7e1a38c9a3e9fc2523b53256679117d8b34a2bc30efc70d8c35d0ef0150df"
+    },
+    "02-active-fish.json": {
+      "bytes": 3739,
+      "sha256": "271b5c9726f97d026af2a0f189fb70dc90fa12a5aa2579927c6a7a57c13cff77"
+    },
+    "02-active-fish.pty": {
+      "bytes": 12882,
+      "sha256": "79695c7cf002df0e42379ce3891b185048dca6c786582090095e2f36b9128fe9"
+    },
+    "03-active-zsh.json": {
+      "bytes": 3898,
+      "sha256": "93462c7f4ed42c928f4e6d53248cf4f4dbfdf49cd58e473ec8d42940310b8fc7"
+    },
+    "03-active-zsh.pty": {
+      "bytes": 2992,
+      "sha256": "b153073dd46e38e5fecf8dd4be333590045e6bc596cf51e0cb6515a56b3cd4b5"
+    },
+    "04-repeat.json": {
+      "bytes": 3058,
+      "sha256": "fd78baa83293cfbafe5e54cd0d51378b4bb1b43bff11e746641c511b159c46d4"
+    },
+    "04-repeat.pty": {
+      "bytes": 17203,
+      "sha256": "78c8af864496102bd05f0034bed00eec6f6a52d9e5255cbd6bcc743279fdeb59"
+    },
+    "05-edit-and-remove.json": {
+      "bytes": 2813,
+      "sha256": "e0f2751344a5d675abefe70d8de66e003899771e87244efb61b38377f3fe9119"
+    },
+    "05-edit-and-remove.pty": {
+      "bytes": 2816,
+      "sha256": "bc2986c50ae0deb81df6edbbb6422675d8ab74fed7aaa7ddb6b3f7016377cb6d"
+    },
+    "06-removed-fish.json": {
+      "bytes": 2036,
+      "sha256": "4464c2b8a57a5ea830db910989049d71e4c887ae848ea790f16a3f6eb2eb1578"
+    },
+    "06-removed-fish.pty": {
+      "bytes": 5958,
+      "sha256": "078c6b5bd93c2fc8043660a662add7f9c71bf0cc933c146bd925ae15a14007e1"
+    },
+    "07-removed-zsh.json": {
+      "bytes": 1936,
+      "sha256": "e042cb31d22498c995545dfaf94d278109be9497688636cb36a42d625fc8ed84"
+    },
+    "07-removed-zsh.pty": {
+      "bytes": 1297,
+      "sha256": "a026bfaacea2d8bb4740c8a5990c09b0830843e7feb35177dd13b6bef7d59dad"
+    },
+    "driver.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "driver.stdout": {
+      "bytes": 61,
+      "sha256": "0d623ec034abc229ec7ce2a189e36154864df8ce9a9bc9979fb15018d009b5e2"
+    },
+    "invocation.json": {
+      "bytes": 5931,
+      "sha256": "d3d146e6da3722f08a1d01bda464f892a3c1b392249521c5754de32c9d2de96b"
+    },
+    "result.json": {
+      "bytes": 54375,
+      "sha256": "304ee5bcc129a6f0fc7830803c4158625144cb0d899cb98ce5ec99c9678256f5"
+    }
+  },
+  "schema": 1,
+  "scope": "extracted pinned host payloads; actual controlling PTY prompts/commands; checkout/real HOME hidden",
+  "source_files": {
+    "scripts/integration/first_login_pty/journey.py": {
+      "bytes": 17354,
+      "sha256": "93c0f7bc93168f84e28cae344d87cf279fe293ae2197af992ed274c7820ab49f"
+    },
+    "scripts/integration/first_login_pty/terminal.py": {
+      "bytes": 9925,
+      "sha256": "45e4ce75958afdac4f80f961d95cc7c58a74ce7af98bb2b14914c0acb91690a7"
+    },
+    "scripts/integration/first_login_pty/test_pty.py": {
+      "bytes": 9227,
+      "sha256": "c5fabe0682c322fe79f98c5346f599cb1654582707dfd7383763d5b64a62ea05"
+    }
+  },
+  "source_hidden": true,
+  "status": "ACTUAL_HOST_PTY_SOFTWARE_JOURNEY_PASS",
+  "tests": {
+    "errors": 0,
+    "failures": 0,
+    "run": 13,
+    "skipped": 0
+  },
+  "typed_user_prompt_edits_preserved": true,
+  "uid": 1000,
+  "user_edits": {
+    ".config/fish/config.fish": {
+      "bytes": 165,
+      "sha256": "4667acb1d5285bf61ea662c0598f92cbf14ee824a0595229abab6eb804b1ab68"
+    },
+    ".zshrc": {
+      "bytes": 54,
+      "sha256": "340316cbcc1c1e3fa938cf45804d542cf52058039702fefdb4fd93c73319861a"
+    }
+  },
+  "versions": {
+    "fish": "fish, version 4.9.3",
+    "python3": "Python 3.14.7",
+    "zsh": "zsh 5.9.2 (x86_64-pc-linux-gnu)"
+  }
+}
