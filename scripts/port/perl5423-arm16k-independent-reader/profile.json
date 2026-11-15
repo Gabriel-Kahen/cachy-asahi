@@ -1,0 +1,24 @@
+{
+  "actual": {
+    "decision_time": null,
+    "issued_by": null,
+    "runtime_acceptance": null
+  },
+  "controller_imports": false,
+  "crypto_execution": false,
+  "expected_projection_elfs": 81,
+  "kind": "PERL5423_ARM16K_PASSIVE_READER_PROFILE_V1",
+  "limits": {
+    "max_file_bytes": 33554432,
+    "max_selected_files": 512,
+    "max_total_read_bytes_per_pass": 268435456,
+    "max_tree_files": 128,
+    "seconds": 60
+  },
+  "private_user_file_bodies_read": false,
+  "raw_or_qcow_reads": false,
+  "retained_installed_package_elfs": 54,
+  "schema": 1,
+  "scope": "RETAINED_DATA_CONSISTENCY_ONLY",
+  "supported_case": "Perl-absent baseline111; only db5.3 addition then exact1.3 Perl install and both removals"
+}

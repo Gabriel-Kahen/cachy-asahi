@@ -1,0 +1,14 @@
+{
+  "allow_passive_read": false,
+  "controller_source_reviewed": false,
+  "created_utc": null,
+  "expires_utc": null,
+  "issued_by": null,
+  "kind": "ROOT_PERL5423_ARM16K_PASSIVE_GRANT_V1",
+  "operation": "arm16k-perl5423-system-runtime-v1",
+  "output": null,
+  "reader_source": null,
+  "request": null,
+  "schema": 1,
+  "uid": null
+}

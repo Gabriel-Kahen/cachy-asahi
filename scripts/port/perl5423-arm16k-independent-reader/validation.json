@@ -1,0 +1,22 @@
+{
+  "actual": {
+    "decision_time": null,
+    "issued_by": null,
+    "runtime_acceptance": null
+  },
+  "not_run": [
+    "actual reader role",
+    "artifact/controller code execution",
+    "raw/QCOW/archive reads",
+    "VM/Docker/ALPM/compiler",
+    "network/crypto/quota/lease",
+    "M2/native16K/performance/release"
+  ],
+  "python": [
+    "3.12",
+    "3.14"
+  ],
+  "schema": 1,
+  "status": "SOURCE_LOCAL_FICTION_CONTROLS_ONLY",
+  "tests": 32
+}

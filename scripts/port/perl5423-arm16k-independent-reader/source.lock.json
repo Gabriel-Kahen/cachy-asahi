@@ -1,0 +1,56 @@
+{
+  "actual": {
+    "decision_time": null,
+    "issued_by": null,
+    "runtime_acceptance": null
+  },
+  "files": {
+    "LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "README.md": {
+      "bytes": 6065,
+      "mode": 420,
+      "sha256": "66ff5d2963882a3e4e7afb5d8b1508ac3ac838ae4069cad016b934b8c78dc693"
+    },
+    "grant.TEMPLATE.json": {
+      "bytes": 335,
+      "mode": 420,
+      "sha256": "65adbbdb317a8ca400752ead0498ef5a703cb6d169985be817ccb776ce5a9c09"
+    },
+    "joins.py": {
+      "bytes": 41836,
+      "mode": 420,
+      "sha256": "48fd8176e7de3ee6cfeaa57b27ddb80071ac28df1aa5053e083e7b051a7a5fbc"
+    },
+    "profile.json": {
+      "bytes": 713,
+      "mode": 420,
+      "sha256": "239a6ab8435cb9bfa009135f346118634928bd4b606f5296255e0e3175968d7c"
+    },
+    "reader.py": {
+      "bytes": 15314,
+      "mode": 420,
+      "sha256": "3971d0aab9e9adb5d980afbe94dca71d6f59b41fe4397460c95b2ba189d27940"
+    },
+    "request.TEMPLATE.json": {
+      "bytes": 570,
+      "mode": 420,
+      "sha256": "99c1315bd369bb10fe8b9943f88de2036fc4defb2f66e79fe64bce13385b586e"
+    },
+    "test_reader.py": {
+      "bytes": 35835,
+      "mode": 420,
+      "sha256": "52b629ad3ea468d541b7e705792b6b284938d06b40ac7af94b83ff2a729546ab"
+    },
+    "validation.json": {
+      "bytes": 447,
+      "mode": 420,
+      "sha256": "aa2d0a39733938e0727ca49485261a0dc397f95a0362cb626f6fb79fc712d478"
+    }
+  },
+  "kind": "PERL5423_ARM16K_PASSIVE_READER_SOURCE_V1",
+  "schema": 1
+}
