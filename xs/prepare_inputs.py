@@ -197,7 +197,7 @@ def main():
     compiler_manifest=p.pin(p.read(SOURCE/'accepted/compiler-inputs.json'))
     need(compiler_manifest==dict(bytes=11025,sha256='fa613490865d94362d4d9efe6c5860904158c09733439a9f6c5709168f88d23c'),'exact sealed compiler descriptor')
     compiler_raw=p.read(BUNDLE/'compiler-image-qualification.json');compiler=p.decode(compiler_raw)
-    need(compiler['kind']=='XS_V3_DERIVED_COMPILER_IMAGE_QUALIFICATION_V1' and compiler['status']=='QUALIFIED_COPY_ONLY_XS_NOT_RUN' and compiler['manifest']==compiler_manifest and compiler['owned_sealing_container_absent'] is True and compiler['image']!=compiler['parent_image'] and 0<compiler['image_delta_bytes']<=8*MIB,'separate actual compiler image qualification; parent not inherited')
+    need(compiler['kind']=='XS_V4_DERIVED_COMPILER_IMAGE_QUALIFICATION_V1' and compiler['status']=='QUALIFIED_COPY_ONLY_XS_NOT_RUN' and compiler['manifest']==compiler_manifest and compiler['owned_sealing_container_absent'] is True and compiler['image']!=compiler['parent_image'] and 0<compiler['image_delta_bytes']<=8*MIB,'separate actual compiler image qualification; parent not inherited')
     input_pin=emit('xs-inputs.json',inputs);info=prefix.stat();cc=tool('/usr/bin/cachy-asahi-xs-gcc')
     admission=dict(schema=1,candidate=p.CANDIDATE,target_arch='aarch64',root=dict(path=str(prefix),kind='extracted',owner_uid=info.st_uid,device=info.st_dev,inode=info.st_ino),
         archive=dict(name=ARCHIVE,**operand(archive,64*MIB)),metadata=dict(pkginfo=operand(BUNDLE/'PKGINFO',MIB),buildinfo=operand(BUNDLE/'BUILDINFO',MIB)),

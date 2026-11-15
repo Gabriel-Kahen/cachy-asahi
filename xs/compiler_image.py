@@ -4,7 +4,7 @@
 import hashlib,json,os,re,stat,sys,time
 from pathlib import Path
 MANIFEST={'bytes':11025,'sha256':'fa613490865d94362d4d9efe6c5860904158c09733439a9f6c5709168f88d23c'}
-DOCKER=['/usr/bin/docker','--host=unix:///var/run/docker.sock'];OP='perl5423-native-xs-v3'
+DOCKER=['/usr/bin/docker','--host=unix:///var/run/docker.sock'];OP='perl5423-native-xs-v4'
 SOURCE=Path('/tmp/source');TARGET=Path('/usr/bin/cachy-asahi-xs-gcc')
 def need(ok,why):
  if not ok:raise ValueError(why)
@@ -68,7 +68,7 @@ def actor(source):
  expected,_=ordinary(SOURCE/'held/original/native/expected349.lock');before_inventory=inventory();need(before_inventory==expected,'exact prior signed349 inventory')
  before,body=observation(m);copied,st=copy_driver(body,TARGET,m['payload'][m['driver_source']]);after,_=observation(m)
  need(copied==body and st.st_uid==st.st_gid==0 and stat.S_IMODE(st.st_mode)==m['payload'][m['driver_source']]['mode']and before==after and inventory()==before_inventory,'exact single-link driver copy, originals and inventory unchanged')
- print(json.dumps(dict(kind='XS_V3_SINGLE_LINK_COMPILER_COPY_V1',status='COPIED_DATA_ONLY',source=source,operation=OP,manifest=MANIFEST,path=str(TARGET),driver=dict(**pin(copied),mode=stat.S_IMODE(st.st_mode),nlink=st.st_nlink),original_payloads=before,inventory_sha256=hashlib.sha256(expected).hexdigest(),count=349,writable_domain='OWNED_CONTAINER_IMAGE_LAYER_ONLY_ROOT_UID0_CAP0',compiler_invocations=0,network='NONE',source_license_freshness_native_acceptance=False),sort_keys=True))
+ print(json.dumps(dict(kind='XS_V4_SINGLE_LINK_COMPILER_COPY_V1',status='COPIED_DATA_ONLY',source=source,operation=OP,manifest=MANIFEST,path=str(TARGET),driver=dict(**pin(copied),mode=stat.S_IMODE(st.st_mode),nlink=st.st_nlink),original_payloads=before,inventory_sha256=hashlib.sha256(expected).hexdigest(),count=349,writable_domain='OWNED_CONTAINER_IMAGE_LAYER_ONLY_ROOT_UID0_CAP0',compiler_invocations=0,network='NONE',source_license_freshness_native_acceptance=False),sort_keys=True))
 
 def create_argv(name,image,labels,source_root,source,cidfile=None):
  argv=DOCKER+['create','--name',name,'--pull=never','--user=0:0','--network=none','--cap-drop=ALL','--security-opt=no-new-privileges','--cpus=2','--memory=512m','--memory-swap=512m','--pids-limit=64','--ulimit','core=0','--init=false','--tmpfs','/tmp:rw,noexec,nosuid,nodev,size=8m','--mount','type=bind,src='+str(source_root)+',dst=/tmp/source,readonly','--workdir=/tmp','--entrypoint=/usr/bin/python3']
@@ -81,20 +81,28 @@ def confined(row,name,image,labels,source_root,source):
  mounts=row['Mounts'];need(len(mounts)==1 and mounts[0]['Type']=='bind'and mounts[0]['Source']==str(source_root)and mounts[0]['Destination']=='/tmp/source'and mounts[0]['RW']is False,'only readonly Source bind')
  h=row['HostConfig'];need(h['NetworkMode']=='none'and h['CapDrop']==['ALL']and not h['CapAdd']and not h['Privileged']and not h['ReadonlyRootfs']and not h['Devices']and not h.get('DeviceRequests')and h.get('PidMode','')==''and h.get('IpcMode','private')=='private'and h.get('UTSMode','')==''and h['Init']is False and h['SecurityOpt']==['no-new-privileges']and h['Memory']==h['MemorySwap']==512*1024**2 and h['NanoCpus']==2000000000 and h['PidsLimit']==64 and h['Tmpfs']=={'/tmp':'rw,noexec,nosuid,nodev,size=8m'},'explicit root-writable private image stage, cap0 bounds; no host/privilege fallback')
 
-def image_qualified(parent,derived,labels,tag):
+CAPTURED_CONFIG_FIELDS=('AttachStderr','AttachStdout','Hostname','Image')
+REFUSAL_DEFAULT=['/usr/bin/false']
+def expected_config(parent,labels,sealing_config):
+ # These are exact values from the inspected stopped sealing container, not
+ # ignored fields. The Source/run identity and process args were checked there.
+ need(all(k in parent['Config']and k in sealing_config for k in CAPTURED_CONFIG_FIELDS),'all four actual sealing metadata fields required')
+ need(sealing_config['Image']==parent['Id']and type(sealing_config['Hostname'])is str and re.fullmatch('[0-9a-f]{12}',sealing_config['Hostname'])and type(sealing_config['AttachStdout'])is bool and type(sealing_config['AttachStderr'])is bool,'exact native sealing Config metadata types/domain')
+ result=dict(parent['Config']);result['Labels']=labels
+ for k in CAPTURED_CONFIG_FIELDS:result[k]=sealing_config[k]
+ result['Entrypoint']=list(REFUSAL_DEFAULT);result['Cmd']=list(REFUSAL_DEFAULT)
+ return result
+
+def image_qualified(parent,derived,labels,tag,sealing_config):
  need(derived['Id']!=parent['Id']and derived['Architecture']==parent['Architecture']=='arm64'and derived['Os']==parent['Os']=='linux'and derived['RepoTags']==[tag]and derived['Config']['Labels']==labels,'distinct exact owned compiler image')
  need(derived['RootFS']['Layers'][:-1]==parent['RootFS']['Layers']and len(derived['RootFS']['Layers'])==len(parent['RootFS']['Layers'])+1 and 0<derived['Size']-parent['Size']<=8*1024**2,'one bounded additional compiler layer')
- def normalized(config):
-  d=dict(config);d.pop('Labels',None)
-  for k in ['Entrypoint','Cmd']:
-   if not d.get(k):d[k]=None
-  return d
- need(normalized(parent['Config'])==normalized(derived['Config']),'original image configuration preserved except explicit ownership labels and null/empty command encoding')
- return dict(image=derived['Id'],tag=tag,parent_image=parent['Id'],labels=labels,layer=derived['RootFS']['Layers'][-1],image_delta_bytes=derived['Size']-parent['Size'])
+ expected=expected_config(parent,labels,sealing_config)
+ need(derived['Config']==expected,'exact full derived Config: parent plus fail-closed defaults and captured sealing metadata only')
+ return dict(image=derived['Id'],tag=tag,parent_image=parent['Id'],labels=labels,layer=derived['RootFS']['Layers'][-1],image_delta_bytes=derived['Size']-parent['Size'],derived_default_argv=dict(Entrypoint=list(REFUSAL_DEFAULT),Cmd=list(REFUSAL_DEFAULT)),sealing_config_metadata={k:sealing_config[k]for k in CAPTURED_CONFIG_FIELDS})
 
 def run(common,command,work,binding,parent_image,source_root):
  """Root future role. Reuses held Commands; no new process supervisor."""
- token=hashlib.sha256((binding['source']+':'+binding['run']+':compiler-v3').encode()).hexdigest()[:24];name='perl-xs-compiler-'+token;tag='perl-xs-compiler:'+token;own={'cachy-asahi.xs-compiler':token,'cachy-asahi.xs-compiler.source':binding['source'],'cachy-asahi.xs-compiler.parent':parent_image}
+ token=hashlib.sha256((binding['source']+':'+binding['run']+':compiler-v4').encode()).hexdigest()[:24];name='perl-xs-compiler-'+token;tag='perl-xs-compiler:'+token;own={'cachy-asahi.xs-compiler':token,'cachy-asahi.xs-compiler.source':binding['source'],'cachy-asahi.xs-compiler.parent':parent_image}
  deadline,cleaning=command.deadline,command.cleaning;command.deadline=time.monotonic()+120;result=None;labels=None;submitted=False;failure=None;container_id=None;cidfile=work/'compiler-image.cid'
  def call(argv,timeout=30):
   r=command(argv,timeout=timeout);need(r.returncode==0,'compiler image command refused: '+str(argv[:4]));return r.stdout
@@ -111,11 +119,11 @@ def run(common,command,work,binding,parent_image,source_root):
   parent=common.decode(call(DOCKER+['image','inspect',parent_image]))[0];need(parent['Id']==parent_image and parent['Config']['User']=='alarm'and parent['Config']['WorkingDir']=='/tmp'and not parent['Config'].get('Entrypoint')and not parent['Config'].get('Cmd')and not parent['Config'].get('Volumes'),'exact signed349 parent defaults')
   labels=dict(parent['Config'].get('Labels')or{});labels.update(own);submitted=True;call(create_argv(name,parent_image,labels,source_root,binding['source'],cidfile))
   row=common.decode(call(DOCKER+['inspect',name]))[0];owned(row)
-  receipt=common.decode(call(DOCKER+['start','--attach',name],60));need(receipt['kind']=='XS_V3_SINGLE_LINK_COMPILER_COPY_V1'and receipt['status']=='COPIED_DATA_ONLY'and receipt['source']==binding['source']and receipt['operation']==OP and receipt['manifest']==MANIFEST and receipt['count']==349 and receipt['driver']['nlink']==1 and receipt['compiler_invocations']==0,'Source-bound exact compiler copy receipt')
+  receipt=common.decode(call(DOCKER+['start','--attach',name],60));need(receipt['kind']=='XS_V4_SINGLE_LINK_COMPILER_COPY_V1'and receipt['status']=='COPIED_DATA_ONLY'and receipt['source']==binding['source']and receipt['operation']==OP and receipt['manifest']==MANIFEST and receipt['count']==349 and receipt['driver']['nlink']==1 and receipt['compiler_invocations']==0,'Source-bound exact compiler copy receipt')
   row=common.decode(call(DOCKER+['inspect',name]))[0];owned(row);need(row['State']['Running']is False and row['State']['Pid']==0 and row['State']['ExitCode']==0 and not row['State']['OOMKilled'],'natural compiler copy actor retirement')
   diff=call(DOCKER+['diff',name]).decode().splitlines();need('A /usr/bin/cachy-asahi-xs-gcc'in diff and set(diff)<={'C /usr','C /usr/bin','A /usr/bin/cachy-asahi-xs-gcc'},'only one compiler file plus ancestor metadata may change')
-  argv=DOCKER+['commit','--pause=false','--change','USER alarm','--change','WORKDIR /tmp','--change','ENTRYPOINT []','--change','CMD []',name,tag];image=call(argv).decode().strip();need(re.fullmatch('sha256:[0-9a-f]{64}',image),'actual committed compiler image ID')
-  derived=common.decode(call(DOCKER+['image','inspect',image]))[0];result=image_qualified(parent,derived,labels,tag);result.update(kind='XS_V3_DERIVED_COMPILER_IMAGE_QUALIFICATION_V1',status='QUALIFIED_COPY_ONLY_XS_NOT_RUN',binding=binding,manifest=MANIFEST,copy_receipt=receipt,filesystem_diff=diff,compiler_invocations=0,original_inventory=349,sealing_container_id=container_id,Root_future_authority='SEPARATE_REVIEW_REQUIRED')
+  argv=DOCKER+['commit','--pause=false','--change','USER alarm','--change','WORKDIR /tmp','--change','ENTRYPOINT ["/usr/bin/false"]','--change','CMD ["/usr/bin/false"]',name,tag];image=call(argv).decode().strip();need(re.fullmatch('sha256:[0-9a-f]{64}',image),'actual committed compiler image ID')
+  derived=common.decode(call(DOCKER+['image','inspect',image]))[0];result=image_qualified(parent,derived,labels,tag,row['Config']);result.update(kind='XS_V4_DERIVED_COMPILER_IMAGE_QUALIFICATION_V1',status='QUALIFIED_COPY_ONLY_XS_NOT_RUN',binding=binding,manifest=MANIFEST,copy_receipt=receipt,filesystem_diff=diff,compiler_invocations=0,original_inventory=349,sealing_container_id=container_id,Root_future_authority='SEPARATE_REVIEW_REQUIRED')
  except BaseException as error:
   failure=error;raise
  finally:
