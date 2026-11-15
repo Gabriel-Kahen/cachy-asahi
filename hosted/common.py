@@ -10,10 +10,10 @@ import re
 import stat
 
 ROOT=Path(__file__).resolve().parents[1]
-COMPONENT_MAP='3f238d649cb649ba2aff45e7930e49b28e3a7d8891860a1a17ead850719d5dee'
+COMPONENT_MAP='5b774ea14a33314de5c1ab6af5aef4cbd5dc04718c2c6cec2f20dc97425d7c93'
 ACTUAL=dict(source=None,ref=None,run=None,job=None,reader=None,authority=None,approval=None,artifact=None,image=None)
-ALIASES=('.github/workflows/native-arm-build.yml','.github/workflows/native-arm-perl5423-v2.yml')
-OPERATION='perl5423-native-pair-v2'
+ALIASES=('.github/workflows/native-arm-build.yml','.github/workflows/native-arm-llvm23-source-reference-v1.yml')
+OPERATION='llvm23-source-reference-native-v1'
 MAX_JSON=1024**2
 
 def need(ok,why):
@@ -94,7 +94,7 @@ def verify_source(root,expected):
         p=root/name;body=read(p,64*1024**2);total+=len(body)
         need(dict(**pin(body),mode=stat.S_IMODE(p.stat().st_mode))==row,'Source byte/mode drift: '+name)
     need(total<=96*1024**2 and read(root/ALIASES[0])==read(root/ALIASES[1]),'finite Source and identical workflow aliases')
-    need(pin(read(root/'perl/source-map.json'))['sha256']==COMPONENT_MAP,'held exact Perl v2 component')
+    need(pin(read(root/'candidate-map.json'))['sha256']==COMPONENT_MAP,'exact LLVM candidate snapshot')
     return m
 
 
@@ -104,7 +104,7 @@ def context(source,map_sha,approval,env):
     need(env.get('GITHUB_SHA')==env.get('GITHUB_WORKFLOW_SHA')==source and ref.startswith('refs/heads/codex/') and re.fullmatch('[1-9][0-9]{0,19}',run),'same actual Source/ref/run')
     need(env.get('GITHUB_RUN_ATTEMPT')=='1' and env.get('GITHUB_EVENT_NAME')=='workflow_dispatch' and env.get('GITHUB_REPOSITORY')=='Gabriel-Kahen/cachy-asahi' and env.get('GITHUB_WORKFLOW_REF') in {'Gabriel-Kahen/cachy-asahi/'+name+'@'+ref for name in ALIASES},'first dedicated manual workflow only')
     need(env.get('GITHUB_ACTIONS')=='true' and env.get('RUNNER_ARCH')=='ARM64' and env.get('RUNNER_OS')=='Linux' and os.getuid()==os.geteuid()==os.getgid()==os.getegid()==1001,'actual hosted native coordinator1001 required')
-    need(env.get('PERL_OPERATION')==OPERATION and not any(k.startswith(('LD_','DOCKER_','GIT_','CACHY_OLD_FOUR_','CACHY_RETAINED_')) for k in env),'no ambient policy/loader/private-cache overrides in hosted entry')
+    need(env.get('LLVM23_OPERATION')==OPERATION and not any(k.startswith(('LD_','DOCKER_','GIT_','CACHY_OLD_FOUR_','CACHY_RETAINED_')) for k in env),'no ambient policy/loader/private-cache overrides in hosted entry')
     return dict(source=source,ref=ref,run=run,approval=approval,source_map_sha256=map_sha,component_map_sha256=COMPONENT_MAP,operation=OPERATION)
 
 
@@ -119,7 +119,7 @@ def daemon_data(info,version,host,socket,storage):
     need(storage['available_bytes']>=8*1024**3 and host['MemAvailable_bytes']>=8*1024**3,'hosted bootstrap storage/RAM admission reserve')
     rows=storage['work_filesystems'];need(type(rows) is list and len(rows)==4,'actual input/cache/carrier/work filesystem observations')
     base=Path(rows[0]['path'])
-    need(base.is_absolute() and '..' not in base.parts and [r['path'] for r in rows]==[str(p) for p in (base,base/'perl-hosted',base/'alarm-cache',base/'pgo-hosted-retained')],'exact hosted allocation paths')
+    need(base.is_absolute() and '..' not in base.parts and [r['path'] for r in rows]==[str(p) for p in (base,base/'llvm23-hosted',base/'alarm-cache',base/'pgo-hosted-retained')],'exact hosted allocation paths')
     for row in rows:
         need(row['canonical'] is row['accessible'] is True and all(type(row[k]) is int for k in ('device','available_bytes','total_inodes','available_inodes')) and row['available_bytes']>=8*1024**3 and 120000<=row['available_inodes']<=row['total_inodes'],'each actual bootstrap filesystem retains byte/inode reserve')
     return dict(schema=1,status='OBSERVED_ROOTFUL_NATIVE_LOCAL_DAEMON_PRECONDITIONS',info=info,version=version,host=host,socket=socket,storage=storage,native_acceptance=False)

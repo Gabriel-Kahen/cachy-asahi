@@ -19,7 +19,7 @@ HERE=Path(__file__).resolve().parent
 ORIGINAL_MAP='0c37bef7218caa6cb0f0e6d1b22ed5053b10a228f53e15076f5803d2fcf86b3e'
 EXPECTED349='579981195b654d8cdf142e4101dfc2bfffbc3576eed50f23796a06e90cf57453'
 DOCKER=['/usr/bin/docker','--host=unix:///var/run/docker.sock']
-LABEL='cachy-asahi.hosted-perl'
+LABEL='cachy-asahi.hosted-llvm23'
 _ACTIVE=False
 
 
@@ -54,7 +54,7 @@ def image_owner(binding):
          type(binding['ref']) is str and binding['ref'] and type(binding['run']) is str and
          re.fullmatch('[1-9][0-9]{0,19}',binding['run']),'actual Source/ref/run image owner')
     token=hashlib.sha256((binding['source']+':'+binding['ref']+':'+binding['run']).encode()).hexdigest()[:24]
-    return dict(token=token,tag='perl-native-base:'+token,source=binding['source'])
+    return dict(token=token,tag='llvm23-native-base:'+token,source=binding['source'])
 
 
 def combined_inputs(original,profile,expected):
@@ -153,7 +153,7 @@ def _docker_argv(argv,owner):
         need(command[3:]==['--rm','--pull=never','--network=none','--cap-drop=ALL',
              '--security-opt=no-new-privileges','--read-only','--entrypoint=/bin/cat',command[-2],'/builder-packages.lock'] and
              re.fullmatch('sha256:[0-9a-f]{64}',command[-2]),'only fixed held inventory metadata run allowed')
-        command[3:3]=['--name','perl-bootstrap-inventory-'+owner['token'],
+        command[3:3]=['--name','llvm23-bootstrap-inventory-'+owner['token'],
             '--label',LABEL+'='+owner['token'],'--label',LABEL+'.source='+owner['source'],
             '--cpus=1','--memory=128m','--memory-swap=128m','--pids-limit=32']
     return command
@@ -219,7 +219,7 @@ def run(root,work,binding,deadline,command):
     common=importlib.util.module_from_spec(spec);spec.loader.exec_module(common)
     common.verify_source(root,binding['source_map_sha256'])
     temp=Path(os.environ['RUNNER_TEMP'])
-    need(root.is_absolute() and root==root.resolve() and HERE==root/'hosted' and work==temp/'perl-hosted' and
+    need(root.is_absolute() and root==root.resolve() and HERE==root/'hosted' and work==temp/'llvm23-hosted' and
          work.is_dir() and work.stat().st_uid==os.getuid() and stat.S_IMODE(work.stat().st_mode)==0o700 and
          os.getuid()==os.geteuid()==os.getgid()==os.getegid()==1001,'owned fixed hosted bootstrap paths/user')
     cache=temp/'alarm-cache';carrier=temp/'pgo-hosted-retained';out=work/'bootstrap'
@@ -260,7 +260,7 @@ def run(root,work,binding,deadline,command):
                 (out/'image-inspect.json').write_bytes(common.encode(actual))
                 need(common.read(out/'packages.lock',1024**2)==expected,'actual complete349 installed inventory required')
         finally:held.native.fetch=previous_fetch
-    result=dict(image=image,tag=owner['tag'],token=owner['token'],inventory='perl-bootstrap-inventory-'+owner['token'],expected349_sha256=EXPECTED349)
+    result=dict(image=image,tag=owner['tag'],token=owner['token'],inventory='llvm23-bootstrap-inventory-'+owner['token'],expected349_sha256=EXPECTED349)
     for name,key in [('inputs.lock.json','inputs_sha256'),('acquisition.json','acquisition_sha256'),
                      ('signatures.json','signatures_sha256'),('image-inspect.json','image_inspect_sha256'),
                      ('input-data-preparation.json','preparation_sha256'),('fixed-eight-cache.json','cache_additions_sha256')]:

@@ -1,0 +1,55 @@
+{
+  "changes": [
+    {
+      "count": 1,
+      "new": "Observe the fixed Rootful container runtime; no nested namespace operation.",
+      "old": "Observe actual ordinary rootless container runtime, without nested namespaces."
+    },
+    {
+      "count": 1,
+      "new": "('/','/inputs','/source','/work','/tmp','/run')",
+      "old": "('/','/inputs','/work','/tmp','/run')"
+    },
+    {
+      "count": 1,
+      "new": "{'/','/inputs','/source','/work','/tmp','/run'}",
+      "old": "{'/','/inputs','/work','/tmp','/run'}"
+    },
+    {
+      "count": 1,
+      "new": "for name in ('/','/inputs','/source')",
+      "old": "for name in ('/','/inputs')"
+    },
+    {
+      "count": 1,
+      "new": "8589934592",
+      "old": "4294967296"
+    },
+    {
+      "count": 1,
+      "new": "'pids.max':'512'",
+      "old": "'pids.max':'256'"
+    },
+    {
+      "count": 1,
+      "new": "llvm23-native",
+      "old": "perl5423-native"
+    },
+    {
+      "count": 1,
+      "new": "/inputs/actor/entry.py",
+      "old": "/inputs/entry.py"
+    },
+    {
+      "count": 1,
+      "new": "/inputs/actor/entry.sh",
+      "old": "/inputs/entry.sh"
+    }
+  ],
+  "emitted_sha256": "6a788567f5f8c147a6d79c7ce91cdca5e0fe5bfa718a1048cec80fa115032340",
+  "execution": "NOT_RUN",
+  "inverse": "EXACT_LITERAL_INVERSE_RESTORES_WHOLE_FROZEN_RUNTIME",
+  "original_sha256": "01e84abc7bce05df42262d8ab7f279be406aa2b63671f2e6f1cb02d08681ba0b",
+  "schema": 1,
+  "source_path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-perl-hosted-source-r1/source-tree/perl/runtime.py"
+}

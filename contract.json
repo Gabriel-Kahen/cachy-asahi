@@ -1,0 +1,91 @@
+{
+  "actor_files": {
+    "container_mode.py": {
+      "bytes": 13147,
+      "mode": 420,
+      "sha256": "b5f8c08db799335f0b6ccbd0873060a429cd0bc31c826af3b929494a83394637"
+    },
+    "entry.py": {
+      "bytes": 12273,
+      "mode": 420,
+      "sha256": "abec9369a7c7dfd752a41f193f0ee6eb775bb0f3b3add994d8f620faa5a66dea"
+    },
+    "entry.sh": {
+      "bytes": 116,
+      "mode": 420,
+      "sha256": "691cfcf63d630fed508adb7841a29ded8ff31475391b42206e896d901f2f85dd"
+    },
+    "runtime-derivation.json": {
+      "bytes": 1592,
+      "mode": 420,
+      "sha256": "a65345ef056d1190bc45f1e8545a23d959d0b8e91effd1c11cda6dc26e35b2fc"
+    },
+    "runtime.py": {
+      "bytes": 6241,
+      "mode": 420,
+      "sha256": "6a788567f5f8c147a6d79c7ce91cdca5e0fe5bfa718a1048cec80fa115032340"
+    }
+  },
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "authority": null,
+    "image": null,
+    "job": null,
+    "reader": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "candidate_files": {
+    "LICENSE.packaging": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "b8f5f697f7e16eb59a3fb83868aad10d19c918e212aa196d1716c3df21ee20db"
+    },
+    "PKGBUILD": {
+      "bytes": 1451,
+      "mode": 420,
+      "sha256": "623a874d3771bfe2a95e49a5b6b814d006f1e2109c062f525319b71f815b795d"
+    },
+    "admission.example.json": {
+      "bytes": 1935,
+      "mode": 420,
+      "sha256": "c4142db99239dbb4fedec3fb48fea72ed929bb5fb868330063168511dff3db78"
+    },
+    "build.sh": {
+      "bytes": 4569,
+      "mode": 420,
+      "sha256": "6e9bc3fb515d7f39648fe530d96be8dc4347b29693f78e54c29aa3cdfebb5a65"
+    },
+    "inputs.json": {
+      "bytes": 3389,
+      "mode": 420,
+      "sha256": "7f38325ec04a12a58f78d6a9c8f4512fb7160866746dcdc47c557b393dffdc28"
+    },
+    "reference.py": {
+      "bytes": 20313,
+      "mode": 420,
+      "sha256": "e66fa8d4fe72bb6c638782136cfb054434c3e8228b1eca2904f5db1f2a62fcc2"
+    }
+  },
+  "holds": {
+    "native_16K_M2_performance_release": "NOT_RUN_OR_ADMITTED",
+    "original_binary_recipe_correspondence": "ALL_FOUR_UNRESOLVED",
+    "source_payload_license_completeness": "HELD; existing license108/source holds preserved"
+  },
+  "mode": "ROOTFUL_CONTAINER_NO_BWRAP_V1",
+  "operation": "llvm23-source-reference-native-v1",
+  "owned_child": {
+    "bytes": 10907,
+    "mode": 420,
+    "sha256": "27566581317a6807fe2d781dc51f362664d4e920ecc5646604dfbe2172f2fdc9"
+  },
+  "package_name": "cachy-asahi-llvm23-source-reference-23.1.1-1-aarch64.pkg.tar.zst",
+  "schema": 1,
+  "source": {
+    "bytes": 179168672,
+    "sha256": "ebe9be46fe8756d58c5b198ffad0fa2a766257add81a4dc52179bfacc7888ee6"
+  },
+  "source_url": "https://github.com/llvm/llvm-project/releases/download/llvmorg-23.1.1/llvm-project-23.1.1.src.tar.xz"
+}

@@ -15,22 +15,24 @@ import sys
 import time
 
 HERE=Path(__file__).resolve().parent;ROOT=HERE.parent
-spec=importlib.util.spec_from_file_location('hosted_perl_common',HERE/'common.py');c=importlib.util.module_from_spec(spec);spec.loader.exec_module(c)
+spec=importlib.util.spec_from_file_location('hosted_llvm23_common',HERE/'common.py');c=importlib.util.module_from_spec(spec);spec.loader.exec_module(c)
 DOCKER=['/usr/bin/docker','--host=unix:///var/run/docker.sock']
 
 
 class Commands:
     def __init__(self,work,deadline,scope='bootstrap'):
-        self.work=work;self.deadline=deadline;self.scope=scope;self.rows=[];self.cancelled=[False];self.cleaning=False
-        self.owned=c.load('hosted_exact_owned',ROOT/'perl/helpers/owned_child.py')
+        self.work=work;self.deadline=deadline;self.scope=scope;self.rows=[];self.cancelled=[False];self.cleaning=False;self.on_tick=None
+        self.owned=c.load('hosted_exact_owned',ROOT/'helpers/owned_child.py')
         (work/scope/'operations').mkdir(parents=True,mode=0o700,exist_ok=True)
     def save(self):(self.work/self.scope/'operations.json').write_bytes(c.encode(self.rows))
     def __call__(self,argv,log=None,timeout=60,**kwargs):
         c.need(self.cleaning or not self.cancelled[0],'Root cancellation before command')
-        cap=min(timeout,self.deadline-time.monotonic());c.need(0<cap<=3600,'finite owned phase deadline')
+        cap=min(timeout,self.deadline-time.monotonic());c.need(0<cap<=14400,'finite owned phase deadline')
         argv=list(map(str,argv));prefix=self.scope+'/operations/'+f'{len(self.rows):03d}'
         row=dict(argv=argv,stdout=prefix+'.stdout',stderr=prefix+'.stderr',stdout_pin=None,stderr_pin=None,lifecycle={},returncode=None)
-        def tick():c.need(self.cleaning or not self.cancelled[0],'Root cancellation after owned witness')
+        def tick():
+            c.need(self.cleaning or not self.cancelled[0],'Root cancellation after owned witness')
+            if self.on_tick is not None and not self.cleaning:self.on_tick()
         # Native audit uses only capture/text/check and occasional stdout=PIPE.
         c.need(set(kwargs)<= {'capture_output','text','encoding','errors','check','stdout','stderr','env','stdin'},'fixed original callback subset')
         try:
@@ -70,14 +72,20 @@ def daemon(command):
     fs=dict(path=str(storage),canonical=canonical,accessible=True,device=s.st_dev,available_bytes=v.f_bavail*v.f_frsize,total_inodes=v.f_files,available_inodes=v.f_favail)
     # Each actual device must independently retain this bootstrap reserve;
     # duplicate paths/devices share one observation, never double-count free space.
-    temp=Path(os.environ['RUNNER_TEMP']);paths=(temp,temp/'perl-hosted',temp/'alarm-cache',temp/'pgo-hosted-retained')
+    temp=Path(os.environ['RUNNER_TEMP']);paths=(temp,temp/'llvm23-hosted',temp/'alarm-cache',temp/'pgo-hosted-retained')
     fs['work_filesystems']=[storage_record(path) for path in paths]
     return c.daemon_data(data,c.decode(version.stdout),host,socket,fs)
 
 
 def base_binding(args):
     c.verify_source(ROOT,args.map_sha256)
-    return c.context(args.source_sha,args.map_sha256,args.approval_sha256,os.environ)
+    binding=c.context(args.source_sha,args.map_sha256,args.approval_sha256,os.environ)
+    raw=c.read(Path(os.environ['RUNNER_TEMP'])/'llvm23-root-admission.json')
+    c.need(c.pin(raw)['sha256']==args.approval_sha256,'external Root admission digest')
+    a=c.decode(raw);policy=c.decode(c.read(ROOT/'policy.json'))
+    c.need(a['status']=='ROOT_ADMITTED_SINGLE_NATIVE_LLVM23_ATTEMPT' and a['operation']==c.OPERATION and a['source']==binding['source'] and a['ref']==binding['ref'] and a['source_map_sha256']==args.map_sha256,'new exact Root Source/ref/operation admission')
+    c.need(a['resources']==policy and a['source_reviewed'] is a['holds_preserved'] is True and a['authority'],'Root resource/source qualification missing')
+    return binding
 
 
 def proof(args,work):
@@ -111,7 +119,7 @@ def metadata(args,work):
         def redirect_request(self,*a,**k):return None
     request=urllib.request.Request(url,headers={'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json'})
     with urllib.request.build_opener(NoRedirect).open(request,timeout=30) as response:raw=response.read(1024**2+1)
-    value=c.decode(raw);jobs=value['jobs'];c.need(value['total_count']==len(jobs)==1 and jobs[0]['name']=='perl5423-native-v2' and jobs[0]['run_id']==int(b['run']) and jobs[0]['head_sha']==b['source'],'actual unique same-run/source hosted job')
+    value=c.decode(raw);jobs=value['jobs'];c.need(value['total_count']==len(jobs)==1 and jobs[0]['name']=='llvm23-native-v1' and jobs[0]['run_id']==int(b['run']) and jobs[0]['head_sha']==b['source'],'actual unique same-run/source hosted job')
     b['job']=str(jobs[0]['id']);c.need(b['job'].isdecimal() and int(b['job'])>0,'actual numeric job ID')
     (work/'binding.json').write_bytes(c.encode(b));(work/'job-metadata.json').write_bytes(raw)
 
@@ -139,89 +147,96 @@ def inputs(args,work):
         else:sys.modules.pop('common',None)
 
 
+
 def run_native(args,work):
-    b=base_binding(args);binding=c.decode(c.read(work/'binding.json'));c.need(all(binding[k]==v for k,v in b.items()),'actual same-Source job binding')
-    c.need(args.execute,'Root actual-role authorization required')
-    oldenv=dict(os.environ);previous={s:signal.getsignal(s) for s in (signal.SIGINT,signal.SIGTERM)}
-    command=Commands(work,time.monotonic()+4500);record=dict(schema=1,status='FAIL',binding=binding,source_readback_sha256=c.pin(c.read(work/'source-readback.json'))['sha256'],daemon_identity_sha256=None,bootstrap={},pair_exit=None,cleanup=dict(image=None,image_removed=False,image_absent=False,probe_absent=False,gpg_agent_absent=False,error=None))
-    image=None
-    def requested(number,frame):command.cancelled[0]=True
+    b=base_binding(args);binding=c.decode(c.read(work/'binding.json'))
+    c.need(all(binding[k]==v for k,v in b.items()) and args.execute,'same-Source actual job and separate Root execute operand required')
+    policy=c.decode(c.read(ROOT/'policy.json'))
+    command=Commands(work,time.monotonic()+policy['native_seconds']);image=None
+    previous={s:signal.getsignal(s) for s in (signal.SIGTERM,signal.SIGINT)}
+    auth=c.decode(c.read(ROOT/'evidence/authentication.json'))['source_signatures']['llvm']
+    c.need(auth['signature_mathematics']=='PASS' and auth['archive']['sha256']=='ebe9be46fe8756d58c5b198ffad0fa2a766257add81a4dc52179bfacc7888ee6','retained upstream LLVM signature/provenance join required before actors')
+    report=dict(schema=1,status='FAIL',binding=binding,mode='ROOTFUL_CONTAINER_NO_BWRAP_V1',native_acceptance=False,cleanup={})
+    def cancel(_number,_frame):command.cancelled[0]=True
     try:
-        for s in previous:signal.signal(s,requested)
-        observed=daemon(command);(work/'daemon.json').write_bytes(c.encode(observed));record['daemon_identity_sha256']=c.pin(c.encode(observed))['sha256']
-        bootstrap=c.load('hosted_signed349',HERE/'bootstrap.py');prepared=bootstrap.run(ROOT,work,binding,command.deadline,command);image=prepared['image']
-        signatures=c.read(work/'bootstrap/signatures.json');lock=c.read(work/'bootstrap/packages.lock');c.need(lock==c.read(ROOT/'original/native/expected349.lock'),'actual signed349 lock')
-        a=c.decode(c.read(ROOT/'perl/admission.TEMPLATE.json'));q=c.decode(c.read(ROOT/'perl/qualification.TEMPLATE.json'))
-        a.update(source=dict(sha=binding['source'],ref=binding['ref'].removeprefix('refs/heads/')),run=binding['run'],job=binding['job'],approval=binding['approval'],image=image,source_map_sha256=c.COMPONENT_MAP,input_signature_audit_sha256=c.pin(signatures)['sha256'])
-        q.update(status='ROOT_ADMITTED_CONTAINER_PRECONDITIONS',source=binding['source'],run=binding['run'],job=binding['job'],image=image,source_readback_sha256=record['source_readback_sha256'],native_daemon_identity_sha256=record['daemon_identity_sha256'],input_signature_audit_sha256=a['input_signature_audit_sha256'])
-        ar,qr=c.encode(a),c.encode(q);a['qualification_sha256']=c.pin(qr)['sha256'];ar=c.encode(a)
-        ap,qp=work/'adapter-admission.json',work/'adapter-qualification.json';ap.write_bytes(ar);qp.write_bytes(qr)
-        record['bootstrap']=dict(image=image,expected349_sha256=c.pin(lock)['sha256'],acquisition_sha256=c.pin(c.read(work/'bootstrap/acquisition.json'))['sha256'],signatures_sha256=c.pin(signatures)['sha256'],operations_sha256=None)
-        producer=c.load('held_perl_v2_producer',ROOT/'perl/producer.py')
-        values=argparse.Namespace(admission=str(ap),qualification=str(qp),admission_sha256=c.pin(ar)['sha256'],qualification_sha256=c.pin(qr)['sha256'],output=str(work/'pair'),nested_namespace_diagnostic=None)
-        record['pair_exit']=producer.run(values);c.need(record['pair_exit']==0,'ordinary Perl native pair failed')
-        record['status']='PAIR_COMPLETED'
-    except BaseException as error:record['error']=type(error).__name__+': '+str(error)[:2048]
+        for s in previous:signal.signal(s,cancel)
+        observed=daemon(command);(work/'daemon.json').write_bytes(c.encode(observed))
+        # Independent reserve checks apply before bootstrap/source acquisition and actors.
+        available=int(next(s.split()[1] for s in Path('/proc/meminfo').read_text().splitlines() if s.startswith('MemAvailable:')))*1024
+        c.need(available>=12*1024**3,'8 GiB workload plus 4 GiB host memory reserve')
+        for path in (work,Path(observed['info']['DockerRootDir'])):
+            v=os.statvfs(path);c.need(v.f_bavail*v.f_frsize>=64*1024**3 and v.f_favail>=600000,'64 GiB/600k inode workload reserve')
+        source=c.load('llvm23_source_intake',ROOT/'hosted/material.py').acquire(ROOT,work,command)
+        bootstrap=c.load('llvm23_signed349',ROOT/'hosted/bootstrap.py')
+        original=bootstrap._docker_argv
+        def docker_argv(argv,owner):
+            result=original(argv,owner)
+            if result[:3]==DOCKER+['build']:
+                path=Path(result[-1])/'Dockerfile';before=path.read_bytes()
+                suffix=b'\nUSER root\nRUN mkdir -p /opt/cachy-asahi && ln -s /work/dest/opt/cachy-asahi/llvm23-source-reference /opt/cachy-asahi/llvm23-source-reference\nUSER alarm\nWORKDIR /tmp\n'
+                c.need(before.endswith(b'USER alarm\nWORKDIR /tmp\n') and b'/opt/cachy-asahi' not in before,'exact private-prefix-only bootstrap filesystem delta')
+                path.write_bytes(before+suffix)
+                (work/'bootstrap/private-prefix-delta.json').write_bytes(c.encode(dict(before=c.pin(before),after=c.pin(before+suffix),append=suffix.decode(),package_additions=[])))
+            return result
+        bootstrap._docker_argv=docker_argv
+        try:prepared=bootstrap.run(ROOT,work,binding,min(command.deadline,time.monotonic()+4500),command)
+        finally:bootstrap._docker_argv=original
+        image=prepared['image'];report['bootstrap']=prepared
+        c.need(c.read(work/'bootstrap/packages.lock')==c.read(ROOT/'expected349.lock'),'actual signed349 unchanged')
+        producer=c.load('llvm23_actual_producer',ROOT/'hosted/producer.py')
+        report['build']=producer.run(ROOT,work,binding,image,source,command)
+        c.need(report['build']['status']=='COMPLETED_EXPORTED_RETIRED','LLVM build/package/export incomplete')
+        report['status']='LLVM23_BUILD_EXPORTED_RETIRED_PENDING_INDEPENDENT_READER'
+    except BaseException as error:report['error']=type(error).__name__+': '+str(error)[:2048]
     finally:
-        command.deadline=time.monotonic()+240;command.cleaning=True
+        command.cleaning=True;command.on_tick=None;command.deadline=time.monotonic()+300
         errors=[]
         try:
-            keyhome=work/'bootstrap/gpg'
-            if keyhome.is_dir():
-                stopped=command(['gpgconf','--homedir',str(keyhome),'--kill','gpg-agent'],timeout=30)
-                c.need(stopped.returncode==0 and all(not p.exists() and not p.is_symlink() for p in [keyhome/('S.gpg-agent'+suffix) for suffix in ('','.browser','.extra','.ssh')]),'owned bootstrap host GPG agent retirement')
-            record['cleanup']['gpg_agent_absent']=True
-        except BaseException as error:errors.append('GPG: '+str(error)[:1024])
-        token=hashlib.sha256((binding['source']+':'+binding['ref']+':'+binding['run']).encode()).hexdigest()[:24]
+            home=work/'bootstrap/gpg'
+            if home.is_dir():
+                command(['gpgconf','--homedir',str(home),'--kill','gpg-agent'],timeout=30,check=True)
+                c.need(not any(home.glob('S.gpg-agent*')),'owned bootstrap GPG sockets remain')
+            report['cleanup']['gpg_agent_absent']=True
+        except BaseException as error:errors.append(str(error))
+        if image is None:
+            iid=work/'bootstrap/image-id'
+            if iid.is_file():image=c.read(iid).decode().strip()
         try:
-            if image is None:
-                iid=work/'bootstrap/image-id'
-                try:
-                    if iid.is_file():image=c.read(iid).decode().strip()
-                except (OSError,ValueError):pass
-                if image is None:
-                    found=command(DOCKER+['image','ls','--no-trunc','-q','--filter','label=cachy-asahi.hosted-perl='+token])
-                    ids=found.stdout.decode().splitlines();c.need(found.returncode==0 and len(ids)<=1,'unambiguous deterministic owned image recovery')
-                    if ids:image=ids[0]
-            if image:c.need(__import__('re').fullmatch('sha256:[0-9a-f]{64}',image),'exact owned image ID')
-        except BaseException as error:errors.append('image recovery: '+str(error)[:1024]);image=None
-        try:
-            probe='perl-bootstrap-inventory-'+token
-            probe_query=DOCKER+['container','ls','--all','--format','{{.Names}}','--filter','name=^'+probe+'$']
-            listed=command(probe_query);c.need(listed.returncode==0,'owned inventory probe list')
-            if listed.stdout.strip():
-                c.need(listed.stdout.decode().strip()==probe,'only exact named inventory probe')
-                observed=command(DOCKER+['container','inspect',probe]);item=c.decode(observed.stdout)[0]
-                c.need(observed.returncode==0 and image and item['Image']==image and item['Config']['Labels']['cachy-asahi.hosted-perl']==token and item['Config']['Labels']['cachy-asahi.hosted-perl.source']==binding['source'],'only owned inventory container may retire')
-                retired=command(DOCKER+['rm','-f',probe]);listed=command(probe_query)
-                c.need(retired.returncode==0 and listed.returncode==0 and not listed.stdout.strip(),'inventory container absence')
-                record['status']='FAIL';record['error']='inventory probe required forced retirement'
-            record['cleanup']['probe_absent']=True
-        except BaseException as error:errors.append('inventory: '+str(error)[:1024])
+            token=hashlib.sha256((binding['source']+':'+binding['ref']+':'+binding['run']).encode()).hexdigest()[:24]
+            probe='llvm23-bootstrap-inventory-'+token
+            result=command(DOCKER+['container','ls','--all','--format','{{.Names}}','--filter','name=^'+probe+'$'],timeout=30,check=True)
+            if result.stdout.strip():
+                c.need(result.stdout.decode().strip()==probe,'only exact bootstrap inventory actor')
+                item=c.decode(command(DOCKER+['container','inspect',probe],timeout=30,check=True).stdout)[0]
+                c.need(item['Config']['Labels']['cachy-asahi.hosted-llvm23']==token and item['Config']['Labels']['cachy-asahi.hosted-llvm23.source']==binding['source'],'exact owned inventory actor only')
+                command(DOCKER+['rm','-f',probe],timeout=30,check=True)
+                report['status']='FAIL';report['error']='bootstrap inventory actor needed forced retirement'
+            absent=command(DOCKER+['container','ls','--all','--format','{{.Names}}','--filter','name=^'+probe+'$'],timeout=30,check=True)
+            c.need(not absent.stdout.strip(),'bootstrap inventory absence unknown')
+            report['cleanup']['bootstrap_probe_absent']=True
+        except BaseException as error:errors.append(str(error))
         try:
             if image:
-                inspected=command(DOCKER+['image','inspect',image]);data=c.decode(inspected.stdout)[0]
-                c.need(inspected.returncode==0 and data['Id']==image and data['Config']['Labels']['cachy-asahi.hosted-perl']==token and data['Config']['Labels']['cachy-asahi.hosted-perl.source']==binding['source'] and data.get('RepoTags')==['perl-native-base:'+token],'only exact owned Source image without foreign aliases may retire')
-                removed=command(DOCKER+['image','rm',image]);absent=command(DOCKER+['image','inspect',image])
-                c.need(removed.returncode==0 and absent.returncode==1 and absent.stderr.decode().strip()=='Error response from daemon: No such image: '+image,'owned image retirement and absence')
-                record['cleanup'].update(image=image,image_removed=True,image_absent=True)
-        except BaseException as error:errors.append('image: '+str(error)[:1024])
-        if errors:record['cleanup']['error']='; '.join(errors);record['status']='FAIL'
-        if record['status']!='PAIR_COMPLETED':record['daemon_build_retirement']='UNPROVEN_ON_FAILED_OR_FORCED_BUILD;_ROOT_HOLD_REQUIRED'
-        if not record['cleanup']['image_absent']:record['status']='FAIL'
-        if command.cancelled[0]:record['status']='FAIL';record['error']='Root cancellation requested'
-        if record['bootstrap']:record['bootstrap']['operations_sha256']=c.pin(c.read(work/'bootstrap/operations.json'))['sha256']
-        (work/'hosted.json').write_bytes(c.encode(record))
+                owner=bootstrap.image_owner(binding)
+                data=c.decode(command(DOCKER+['image','inspect',image],timeout=30,check=True).stdout)[0]
+                c.need(data['Id']==image and data['Config']['Labels']['cachy-asahi.hosted-llvm23']==owner['token'] and data['Config']['Labels']['cachy-asahi.hosted-llvm23.source']==binding['source'] and data.get('RepoTags')==[owner['tag']],'exact owned image retirement only')
+                command(DOCKER+['image','rm',image],timeout=60,check=True)
+                absent=command(DOCKER+['image','inspect',image],timeout=30)
+                c.need(absent.returncode==1 and absent.stderr.decode().strip()=='Error response from daemon: No such image: '+image,'owned image absence not proven')
+                report['cleanup']['image_absent']=True
+        except BaseException as error:errors.append(str(error))
+        report['cleanup']['errors']=errors
+        if errors or not report['cleanup'].get('image_absent') or command.cancelled[0]:report['status']='FAIL'
+        (work/'hosted.json').write_bytes(c.encode(report))
         for s,handler in previous.items():signal.signal(s,handler)
-        os.environ.clear();os.environ.update(oldenv)
-    return 0 if record['status']=='PAIR_COMPLETED' else 2
+    return 0 if report['status']=='LLVM23_BUILD_EXPORTED_RETIRED_PENDING_INDEPENDENT_READER' else 2
 
 
 if __name__=='__main__':
-    c.need(sys.flags.isolated and not sys.flags.optimize,'isolated unoptimized hosted entry')
+    c.need(sys.flags.isolated and not sys.flags.optimize,'isolated unoptimized entry required')
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('phase',choices=('proof','metadata','inputs','native'))
     for key in ('source-sha','map-sha256','approval-sha256'):parser.add_argument('--'+key,required=True)
-    parser.add_argument('--execute',action='store_true');args=parser.parse_args();work=Path(os.environ['RUNNER_TEMP'])/'perl-hosted'
+    parser.add_argument('--execute',action='store_true');args=parser.parse_args();work=Path(os.environ['RUNNER_TEMP'])/'llvm23-hosted'
     if args.phase=='proof':proof(args,work)
     elif args.phase=='metadata':metadata(args,work)
     elif args.phase=='inputs':inputs(args,work)

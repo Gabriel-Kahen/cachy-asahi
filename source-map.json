@@ -12,59 +12,124 @@
   },
   "files": {
     ".github/workflows/native-arm-build.yml": {
-      "bytes": 9743,
+      "bytes": 11061,
       "mode": 420,
-      "sha256": "d438634df65f89cb43bbd654d3ad06c0b13d38d302263645df1956ab730c4019"
+      "sha256": "9998262a3a0af77a0bf5be04a1336c12cb0106af0bccb19b8e9afb38e497baca"
     },
-    ".github/workflows/native-arm-perl5423-v2.yml": {
-      "bytes": 9743,
+    ".github/workflows/native-arm-llvm23-source-reference-v1.yml": {
+      "bytes": 11061,
       "mode": 420,
-      "sha256": "d438634df65f89cb43bbd654d3ad06c0b13d38d302263645df1956ab730c4019"
+      "sha256": "9998262a3a0af77a0bf5be04a1336c12cb0106af0bccb19b8e9afb38e497baca"
+    },
+    "LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "actor/container_mode.py": {
+      "bytes": 13147,
+      "mode": 420,
+      "sha256": "b5f8c08db799335f0b6ccbd0873060a429cd0bc31c826af3b929494a83394637"
+    },
+    "actor/entry.py": {
+      "bytes": 12273,
+      "mode": 420,
+      "sha256": "abec9369a7c7dfd752a41f193f0ee6eb775bb0f3b3add994d8f620faa5a66dea"
+    },
+    "actor/entry.sh": {
+      "bytes": 116,
+      "mode": 420,
+      "sha256": "691cfcf63d630fed508adb7841a29ded8ff31475391b42206e896d901f2f85dd"
+    },
+    "actor/runtime-derivation.json": {
+      "bytes": 1592,
+      "mode": 420,
+      "sha256": "a65345ef056d1190bc45f1e8545a23d959d0b8e91effd1c11cda6dc26e35b2fc"
+    },
+    "actor/runtime.py": {
+      "bytes": 6241,
+      "mode": 420,
+      "sha256": "6a788567f5f8c147a6d79c7ce91cdca5e0fe5bfa718a1048cec80fa115032340"
+    },
+    "builder-audit.json": {
+      "bytes": 1159,
+      "mode": 420,
+      "sha256": "381c2a0b1a8d64972d392cd6990ddbafa36a6dafc4abc02e885414d7fc5f01e0"
+    },
+    "candidate-map.json": {
+      "bytes": 3647,
+      "mode": 420,
+      "sha256": "5b774ea14a33314de5c1ab6af5aef4cbd5dc04718c2c6cec2f20dc97425d7c93"
+    },
+    "contract.json": {
+      "bytes": 2760,
+      "mode": 420,
+      "sha256": "70d99777af19b85d4d886e24c4cec1cfb22933328d46ea5c42031dafad117322"
+    },
+    "derivation.json": {
+      "bytes": 2665,
+      "mode": 420,
+      "sha256": "f29dd10f3f4051b5f470c359fe74b47ac7b3a52c530b9db074d6c691536bed5a"
+    },
+    "evidence/authentication.json": {
+      "bytes": 11929,
+      "mode": 420,
+      "sha256": "90478c8b73be99318234a4252814cc60d36b6fb89803f1d85890912267b30b63"
+    },
+    "evidence/llvm.json": {
+      "bytes": 2773,
+      "mode": 420,
+      "sha256": "1ca7f4f8f69998ce8befc5069946d009b70cba943c764784cf7568a6d85cd49b"
+    },
+    "evidence/source-inputs.json": {
+      "bytes": 8940,
+      "mode": 420,
+      "sha256": "e9e76ed4a0d653f2fa90624ee3af30797cf97037bee2fa1f64a141fdefc7af11"
+    },
+    "expected349.lock": {
+      "bytes": 6800,
+      "mode": 420,
+      "sha256": "579981195b654d8cdf142e4101dfc2bfffbc3576eed50f23796a06e90cf57453"
+    },
+    "helpers/owned_child.py": {
+      "bytes": 10907,
+      "mode": 420,
+      "sha256": "27566581317a6807fe2d781dc51f362664d4e920ecc5646604dfbe2172f2fdc9"
     },
     "hosted/bootstrap.py": {
-      "bytes": 16747,
+      "bytes": 16757,
       "mode": 420,
-      "sha256": "34b3b0742587af63b1762aa2dcaf9e2e3446be9b6851b865784654c4cd6d26cd"
+      "sha256": "27e17683ba185d6959307b081ab86be4c7740ef5dbb8dff9c850670eda2ec008"
     },
     "hosted/common.py": {
-      "bytes": 8370,
+      "bytes": 8398,
       "mode": 420,
-      "sha256": "776122710442ba1541cd4d7a7d8472ad01c295d523b28282a04e7c8298286b79"
-    },
-    "hosted/contract.json": {
-      "bytes": 3176,
-      "mode": 420,
-      "sha256": "a76b3f380644d5e7e1b74932f42e73ea8000ed24bbb282e4c64c7f437f503b23"
+      "sha256": "c81b58c2df79888714745d46742ded3f34bcb30eadd6aebb39a2dab8df01be66"
     },
     "hosted/entry.py": {
-      "bytes": 18845,
+      "bytes": 18758,
       "mode": 420,
-      "sha256": "1c58f8d1226cf1a88149509b183fb61135d0f38ff75c02c729a00ed004a55cd0"
+      "sha256": "3127dcbc04774a27d1d79218310613852bc439d8a8cc144209fb59b86180dc91"
     },
-    "hosted/original-commit.raw": {
-      "bytes": 342,
+    "hosted/material.py": {
+      "bytes": 4787,
       "mode": 420,
-      "sha256": "65d8a036f08b0b5ebf25688336d6dd65b0a9105179ced4996a587a85b89c9724"
+      "sha256": "d90562d062f9826e0f6670991e682ab957ca4e56b214c4ac925e14f7b93eb8bd"
     },
-    "hosted/provenance.json": {
-      "bytes": 3373,
+    "hosted/producer.py": {
+      "bytes": 10363,
       "mode": 420,
-      "sha256": "55dabfdf3e72fcb293b600b3fe72bbe2f756a7a43e6ffe89fbd199e4837c263a"
+      "sha256": "8a239717967570e7560ef71a52ea2fd7c480b039c3eaf23c4c25d3190d902a83"
     },
     "hosted/reader.py": {
-      "bytes": 28756,
+      "bytes": 14210,
       "mode": 420,
-      "sha256": "1415ef32702c7c99a1275e40a02b8d8ae693f0c4e0eff0e32d5dd1205ecd8de2"
-    },
-    "hosted/reader_entry.py": {
-      "bytes": 1227,
-      "mode": 420,
-      "sha256": "7a4cef5c520604b404413db2af147455f40c12acbcd7cf7a84a5ce75c1537219"
+      "sha256": "fced7c16c854e625f3551165eed25ad4f2eeedb679d905ee4282efa3bec2f8d3"
     },
     "inverse.json": {
-      "bytes": 51449,
+      "bytes": 42941,
       "mode": 420,
-      "sha256": "9929dcce61c7755a258a27556cdab49817a5d8da467c405186f1de82a212d271"
+      "sha256": "22920cc8f8200eb70e85fc84ac9dad0bbb0b3a0107227e5b70ba77cea7bceb32"
     },
     "original/.github/workflows/native-arm-build.yml": {
       "bytes": 13067,
@@ -1066,307 +1131,122 @@
       "mode": 420,
       "sha256": "daba66fd25a9a82caa23949686e967cbb69fd056177e991650643186057adaef"
     },
-    "perl/admission.TEMPLATE.json": {
-      "bytes": 459,
-      "mode": 420,
-      "sha256": "83176f7e32a777564c21cec0c69bb58b32909ccf1c1682d912dd9a02e969377a"
-    },
-    "perl/common.py": {
-      "bytes": 9532,
-      "mode": 420,
-      "sha256": "97cf794d9f08bae3144c50d8b48258e37296cdcb11ba8db8dbed05ac6f7fc725"
-    },
-    "perl/contract.json": {
-      "bytes": 12068,
-      "mode": 420,
-      "sha256": "30b290821d8098bfd4897b0aef84b6d03b884ea7fb4bf7402bc1b557ec1fab1f"
-    },
-    "perl/data_export.py": {
-      "bytes": 2955,
-      "mode": 420,
-      "sha256": "ac59342608cc8279ccb0aa218da792e72d903960769ab2f4553ee8ea9b5d334e"
-    },
-    "perl/definition.json": {
-      "bytes": 2192,
-      "mode": 420,
-      "sha256": "f253ae9b58bb327fd43f61bc5efd1183ae7eacb85946408ea59dd25136806f6c"
-    },
-    "perl/domain.json": {
-      "bytes": 648,
-      "mode": 420,
-      "sha256": "6c6bdc29acf59e8ea911167f08d4d66a993777c121b2399211cec030e2a5b804"
-    },
-    "perl/entry.py": {
-      "bytes": 9415,
-      "mode": 420,
-      "sha256": "afc7516a4b5f9386588f8859f2a613de3b7a2403ab777bc8f96899831c4dc1a9"
-    },
-    "perl/entry.sh": {
-      "bytes": 110,
-      "mode": 420,
-      "sha256": "32828118ac56c6bdedf35eaccc12c3e9099784324acf180b551563e80f95e40c"
-    },
-    "perl/helper-pins.json": {
-      "bytes": 647,
-      "mode": 420,
-      "sha256": "794db49786b77cf6a1ebb042104cf8b4b1facfc0e82d11833df18e64d93b4c77"
-    },
-    "perl/helpers/archive_stream.py": {
-      "bytes": 11938,
-      "mode": 420,
-      "sha256": "10f1a4c0ac5b98852d9ebb150af28f9ce345c800935a64fa463bc90f72fcb838"
-    },
-    "perl/helpers/elf64le_aarch64.py": {
-      "bytes": 16410,
-      "mode": 420,
-      "sha256": "7c89596b854457897a6addb5b28794c2e0d9ffeffee44369a19b5a70f0a3cc53"
-    },
-    "perl/helpers/owned_child.py": {
-      "bytes": 10908,
-      "mode": 420,
-      "sha256": "eaf9a46630e4fe4ca0a8f94a6dc2de4a881a6ad7e8b4dd0810b3347c0d7038d5"
-    },
-    "perl/helpers/provenance.py": {
-      "bytes": 2399,
-      "mode": 420,
-      "sha256": "de5fcd98f24c63f72ad6a598dc8afcf043bac75d48a5c9ac6c24de790ec19d1e"
-    },
-    "perl/helpers/staged_smoke.pl": {
-      "bytes": 921,
-      "mode": 420,
-      "sha256": "58e11e367fd09e3c1ee55cf5d6da55239bc5e26533362f8d01ed025d6e43b79f"
-    },
-    "perl/inverse.json": {
-      "bytes": 7348,
-      "mode": 420,
-      "sha256": "41aa224243dd400025902236e1287fff9cbbf7d428124b0eb9ec081b983f1b32"
-    },
-    "perl/packet/NOTICE.txt": {
-      "bytes": 552,
-      "mode": 420,
-      "sha256": "24823047bbafd47ebc8ff3008e3ae5ac56664c99ed69124eaecfa209233a10bd"
-    },
-    "perl/packet/contract.json": {
-      "bytes": 3948,
-      "mode": 420,
-      "sha256": "b4c48df4a471791c4ba108949945111b31ea052c151e61196dfe59390eb6e205"
-    },
-    "perl/packet/dependencies.json": {
-      "bytes": 23852,
-      "mode": 420,
-      "sha256": "78f92913ba8101aa15ab90980a4d1086ec9a5af65e4c0fb160529e66ed571fca"
-    },
-    "perl/packet/packet-map.json": {
-      "bytes": 6420,
-      "mode": 420,
-      "sha256": "cf02013d1a06b90bf7e3c32e8471efb3a896d3e1881a492386a6d0b70fc0a1a5"
-    },
-    "perl/packet/recipe/.SRCINFO": {
-      "bytes": 5900,
-      "mode": 420,
-      "sha256": "1b30648233135214391d18f50553d545dace4bdcc40bee973646811c8a5f4410"
-    },
-    "perl/packet/recipe/54cf3d44cbbedd17d774e9a37921963e8fd5d0cb.patch": {
-      "bytes": 4229,
-      "mode": 420,
-      "sha256": "c7cc877ae64338c3a91398116d34ae9bb76c8835632f3259aa205eb70ded920a"
-    },
-    "perl/packet/recipe/568e6fd238867bb9e99fa3f47cba3169009239e0.patch": {
-      "bytes": 2924,
-      "mode": 420,
-      "sha256": "b763455236629383cf720ae6e60cfa42ce01e23728693a779abb8275f90a9e40"
-    },
-    "perl/packet/recipe/LICENSE.packaging": {
+    "packages/port/llvm23-source-reference/LICENSE.packaging": {
       "bytes": 1081,
       "mode": 420,
-      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+      "sha256": "b8f5f697f7e16eb59a3fb83868aad10d19c918e212aa196d1716c3df21ee20db"
     },
-    "perl/packet/recipe/PKGBUILD": {
-      "bytes": 9527,
+    "packages/port/llvm23-source-reference/PKGBUILD": {
+      "bytes": 1451,
       "mode": 420,
-      "sha256": "cf0df8990ac83f48a4c29978c932922108f0e01cb6d052209934da5b01af4068"
+      "sha256": "623a874d3771bfe2a95e49a5b6b814d006f1e2109c062f525319b71f815b795d"
     },
-    "perl/packet/recipe/README.md": {
-      "bytes": 4561,
+    "packages/port/llvm23-source-reference/README.md": {
+      "bytes": 5485,
       "mode": 420,
-      "sha256": "55a80b4f3d0e1991b7f2aaedf0f3d724805f3b95a46defd835c17409167ef64f"
+      "sha256": "66fba2ffd97063716d95de60dda0dc982075e844e78a61f30e0f6d49b69dbc5c"
     },
-    "perl/packet/recipe/UPSTREAM-Artistic": {
-      "bytes": 6321,
+    "packages/port/llvm23-source-reference/admission.example.json": {
+      "bytes": 1935,
       "mode": 420,
-      "sha256": "dd90d4f42e4dcadf5a7c09eea0189d93c7b37ae560c91f0f6d5233ed3b9292a2"
+      "sha256": "c4142db99239dbb4fedec3fb48fea72ed929bb5fb868330063168511dff3db78"
     },
-    "perl/packet/recipe/UPSTREAM-Copying": {
-      "bytes": 12522,
+    "packages/port/llvm23-source-reference/build.sh": {
+      "bytes": 4569,
       "mode": 420,
-      "sha256": "8979e6dd61852041643c5c5c40ea63b2bd1b438a67d114e62cbaef808c514315"
+      "sha256": "6e9bc3fb515d7f39648fe530d96be8dc4347b29693f78e54c29aa3cdfebb5a65"
     },
-    "perl/packet/recipe/UPSTREAM-README": {
-      "bytes": 5277,
+    "packages/port/llvm23-source-reference/inputs.json": {
+      "bytes": 3389,
       "mode": 420,
-      "sha256": "16381bf5fe73ad96ed26449b52eb4a85b2a32a49763c8a788d43af80f3add548"
+      "sha256": "7f38325ec04a12a58f78d6a9c8f4512fb7160866746dcdc47c557b393dffdc28"
     },
-    "perl/packet/recipe/check_config.pl": {
-      "bytes": 2336,
+    "packages/port/llvm23-source-reference/native_container/README.md": {
+      "bytes": 5662,
       "mode": 420,
-      "sha256": "9c0de002282fe85385e16ac49d4d201a66e9c42d0342627af8f650a93498d0fe"
+      "sha256": "8fa7cb8e568666fd86d73a288a4eb69ca03f567b34d4e6a0d12c4b26ca1e7d53"
     },
-    "perl/packet/recipe/check_stage.py": {
-      "bytes": 3717,
+    "packages/port/llvm23-source-reference/native_container/contract.json": {
+      "bytes": 5859,
       "mode": 420,
-      "sha256": "e40c9771b87f839f6653b71d079a980df6ce13b713eb13453bb2087832276301"
+      "sha256": "2af11bc6d617d3e61d9d595732f7acb9febe3f4dad58259ad705ad97825c2916"
     },
-    "perl/packet/recipe/provides.txt": {
-      "bytes": 2564,
+    "packages/port/llvm23-source-reference/native_container/contract.py": {
+      "bytes": 1836,
       "mode": 420,
-      "sha256": "1aac3a6889dfb04384821c797ad7c9ce46b469717e2c806561137a745def65e8"
+      "sha256": "dd49e23b91741326df5dacb2e58ff91431d7d453d41e142638cd780298bef8f0"
     },
-    "perl/packet/recipe/source-lock.json": {
-      "bytes": 4803,
+    "packages/port/llvm23-source-reference/native_container/test_contract.py": {
+      "bytes": 2934,
       "mode": 420,
-      "sha256": "3fa2586905b8ebef96ea347c09c901a8e59d1cba0868ad3138077da8ff72e2f1"
+      "sha256": "eb31e32b86299ff92e703277376bc32363150498eefa56650458965c7d6f38d8"
     },
-    "perl/packet/recipe/stage_commands.py": {
-      "bytes": 1801,
+    "packages/port/llvm23-source-reference/notices/clang-LICENSE.TXT": {
+      "bytes": 15140,
       "mode": 420,
-      "sha256": "7bcbe0bedface8f8ca35915beb7cea40a466911691b820b541f53a60899bac77"
+      "sha256": "ebcd9bbf783a73d05c53ba4d586b8d5813dcdf3bbec50265860ccc885e606f47"
     },
-    "perl/packet/recipe/test_configure_time.py": {
-      "bytes": 8175,
+    "packages/port/llvm23-source-reference/notices/libunwind-LICENSE.TXT": {
+      "bytes": 16706,
       "mode": 420,
-      "sha256": "711ba402a40209bb1e0bcbedb0299c5c70bc13f2de67327b5d20ca2b6ce2182d"
+      "sha256": "b5efebcaca80879234098e52d1725e6d9eb8fb96a19fce625d39184b705f7b6d"
     },
-    "perl/packet/recipe/test_recipe.py": {
-      "bytes": 11298,
+    "packages/port/llvm23-source-reference/notices/llvm-compiler-rt-LICENSE.TXT": {
+      "bytes": 16708,
       "mode": 420,
-      "sha256": "12a62502d6314ef8c20dca31aa1bf8f91fe37a170a216d0c7977f6cb369f47c5"
+      "sha256": "1a8f1058753f1ba890de984e48f0242a3a5c29a6a8f2ed9fd813f36985387e8d"
     },
-    "perl/packet/recipe/test_staged_commands.py": {
-      "bytes": 7203,
+    "packages/port/llvm23-source-reference/notices/llvm-lld-LICENSE.TXT": {
+      "bytes": 15138,
       "mode": 420,
-      "sha256": "401d53973012808578f1eb4efecdbf290303b3d7afd2f9b03ac9c3d5fc956ad6"
+      "sha256": "f7891568956e34643eb6a0db1462db30820d40d7266e2a78063f2fe233ece5a0"
     },
-    "perl/packet/recipe/validation.json": {
-      "bytes": 17069,
+    "packages/port/llvm23-source-reference/notices/llvm-llvm-LICENSE.TXT": {
+      "bytes": 15141,
       "mode": 420,
-      "sha256": "edf86e2a72cd1a6ad4a5105cb08cd0921cceabb7507f2425eaacf87de5260856"
+      "sha256": "8d85c1057d742e597985c7d4e6320b015a9139385cff4cbae06ffc0ebe89afee"
     },
-    "perl/packet/references/PROJECT-LICENSE.txt": {
-      "bytes": 1081,
+    "packages/port/llvm23-source-reference/notices/rust-LICENSE-APACHE": {
+      "bytes": 9723,
       "mode": 420,
-      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+      "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
     },
-    "perl/packet/references/build_v2.py.txt": {
-      "bytes": 13242,
+    "packages/port/llvm23-source-reference/notices/rust-LICENSE-MIT": {
+      "bytes": 1068,
       "mode": 420,
-      "sha256": "37242a5680c0cb587087042455782478dac0f574f977a5f696c97d29eac39b43"
+      "sha256": "b71bd43a069ca0641a9ecfe585ca7b3c53b5cc1608f8b68321168698e28b5ea1"
     },
-    "perl/packet/references/container-entry-v2.sh.txt": {
-      "bytes": 2447,
+    "packages/port/llvm23-source-reference/reference.py": {
+      "bytes": 20313,
       "mode": 420,
-      "sha256": "9be3db97efde70536a81d1c97f9ac69893a6004ab403566f8453704a2a189d2a"
+      "sha256": "e66fa8d4fe72bb6c638782136cfb054434c3e8228b1eca2904f5db1f2a62fcc2"
     },
-    "perl/packet/references/desktop574-inputs.lock.json": {
-      "bytes": 623664,
+    "packages/port/llvm23-source-reference/rust-consumer-metadata.json": {
+      "bytes": 40535,
       "mode": 420,
-      "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
+      "sha256": "08ce0717a2c9f0bb1d19d7cb8fa0ac17e9f8dde7d59b1968197132fdccb2331e"
     },
-    "perl/packet/references/expected349.lock": {
-      "bytes": 6800,
+    "packages/port/llvm23-source-reference/test_reference.py": {
+      "bytes": 16003,
       "mode": 420,
-      "sha256": "579981195b654d8cdf142e4101dfc2bfffbc3576eed50f23796a06e90cf57453"
+      "sha256": "79029a99c005a3af58156534aecaa084fb685fe80d9c086ab1512b20eebe9bb8"
     },
-    "perl/packet/references/input-profile.json": {
-      "bytes": 168201,
+    "packages/port/llvm23-source-reference/upstream-metadata.json": {
+      "bytes": 24632,
       "mode": 420,
-      "sha256": "2c42c705654d31e639f389f9a868dada0d9df76813d865e766be7b7c08f8404c"
+      "sha256": "2f6a65970b4b3faff3c6572e60429737950bd0431cdef99d1077206d7622984e"
     },
-    "perl/packet/references/namespace-commit.raw": {
-      "bytes": 342,
+    "policy.json": {
+      "bytes": 816,
       "mode": 420,
-      "sha256": "65d8a036f08b0b5ebf25688336d6dd65b0a9105179ced4996a587a85b89c9724"
+      "sha256": "46704d4b848682e82c8c910e6087688ec4a5b02015d50dbb65d41b664dc9fb99"
     },
-    "perl/packet/references/namespace-contract.json": {
-      "bytes": 1240,
+    "root-admission.TEMPLATE.json": {
+      "bytes": 1114,
       "mode": 420,
-      "sha256": "a553d3385a4d4d0005736e1a7e931eb13a6df41071c2e1337df635ea7e69f3f8"
-    },
-    "perl/packet/references/namespace-invocation.json": {
-      "bytes": 1716,
-      "mode": 420,
-      "sha256": "277de383862296b6287a29f6ad20224268b647bd771dd704ac6c20f2d6b9020b"
-    },
-    "perl/packet/references/namespace-source-map.json": {
-      "bytes": 39985,
-      "mode": 420,
-      "sha256": "0c37bef7218caa6cb0f0e6d1b22ed5053b10a228f53e15076f5803d2fcf86b3e"
-    },
-    "perl/packet/references/native_arm.py.txt": {
-      "bytes": 28877,
-      "mode": 420,
-      "sha256": "8e71ba83e7d5037c6f7772401ec3b872684ccfa8472d855d8d6d3052cb1f41ba"
-    },
-    "perl/packet/references/original-inputs.lock.json": {
-      "bytes": 328101,
-      "mode": 420,
-      "sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f"
-    },
-    "perl/packet/references/provenance.json": {
-      "bytes": 1021,
-      "mode": 420,
-      "sha256": "5cabd59676a9fbf7964951a8502dcf608ef7e53457a0c88bc39c5b03c320694a"
-    },
-    "perl/packet/root-invocation.json": {
-      "bytes": 731,
-      "mode": 420,
-      "sha256": "4a598054e0f9919657f5a780a6abb26eecb544166159a3b07d7701440fdee6d0"
-    },
-    "perl/packet/sources/perl5-bc3dab4d4f66de5ea67dda34e5feb5230a54c603.tar.gz": {
-      "bytes": 22610875,
-      "mode": 420,
-      "sha256": "16b23f32e34df12709fc5fa0a7028d3df3c3cfceca21e38faada6a025edff725"
-    },
-    "perl/producer.py": {
-      "bytes": 16969,
-      "mode": 420,
-      "sha256": "77a29971955722034ce681e6701749fe2aed66087cabf8d3c081207a42cab105"
-    },
-    "perl/provenance.json": {
-      "bytes": 3332,
-      "mode": 420,
-      "sha256": "071b4eeca42b0bc3e9b19260e2732bafd95179d35a94c7c115ccd23d6d7b152e"
-    },
-    "perl/qualification.TEMPLATE.json": {
-      "bytes": 558,
-      "mode": 420,
-      "sha256": "68bc99ef28927aa032dcae9b16f86265e5a367f34216147cfe0f069c337b3cf7"
-    },
-    "perl/reader.py": {
-      "bytes": 71381,
-      "mode": 420,
-      "sha256": "406333604f7b1ca17e986d16ac61cb1c9188f15b5f364a48323e258882f28def"
-    },
-    "perl/reader_entry.py": {
-      "bytes": 1651,
-      "mode": 420,
-      "sha256": "08354b0f906b41fbaef91cc53c9c52311641bd5c92ef61478b35eb4caeae9605"
-    },
-    "perl/runtime.py": {
-      "bytes": 6204,
-      "mode": 420,
-      "sha256": "01e84abc7bce05df42262d8ab7f279be406aa2b63671f2e6f1cb02d08681ba0b"
-    },
-    "perl/source-audit.json": {
-      "bytes": 4509,
-      "mode": 420,
-      "sha256": "34a1963b087b7213fac8674ceb59be49cca5e864e98fbc1d5765ad48f5da9e73"
-    },
-    "perl/source-map.json": {
-      "bytes": 10140,
-      "mode": 420,
-      "sha256": "3f238d649cb649ba2aff45e7930e49b28e3a7d8891860a1a17ead850719d5dee"
+      "sha256": "21f4ba794caca3ac8c81c458129ad839549556a54e78b7e7f6f7a5407e1329d4"
     }
   },
   "schema": 1,
-  "scope": "PROPOSED_CLOSED_HOSTED_PERL_SOURCE_ONLY"
+  "scope": "LLVM23_NATIVE_SOURCE_PACKET_ONLY"
 }
