@@ -52,9 +52,27 @@ installation/removal on Asahi remains NOT RUN.
 Current source revision **0.1.0-2** fixes `caa_mcd` entering a different existing
 `CDPATH` match after creating a directory locally. Real Fish 4.9.3 controls pass
 for colliding relative targets, spaces, leading dashes, a literal `-`, absolute
-paths, unchanged `CDPATH` and original mkdir failures. Package build, install and
-native ARM qualification of 0.1.0-2 are NOT RUN. The retained build records below
-and `host-validation.json` describe 0.1.0-1; they are unchanged historical evidence.
+paths, unchanged `CDPATH` and original mkdir failures. `check()` now runs both
+Fish syntax validation and the checksummed `check-config.py`; Python>=3.11 is a
+check dependency only. Runtime dependencies and the three installed paths are
+unchanged.
+
+A normal host build passed with dependency checks enabled:
+`SOURCE_DATE_EPOCH=1791748800 LC_ALL=C makepkg --cleanbuild --nosign --noconfirm`.
+The [build log](evidence/host-0.1.0-2.log) records all four source checksum checks
+and the actual semantic check. The unsigned any archive is 13,606 bytes, SHA256
+`11fc855397e900e7b3e847ac2f72e02160ce2f5a79884d4b88f37761189f61f9`.
+Static archive inspection confirmed exactly the three 0644 package files above;
+Python and the test helper are not runtime payloads. No host package was installed.
+
+A [negative build](evidence/host-0.1.0-2-old-config-negative.log) with the original
+0.1.0-1 config and its matching checksum passed source validation, then failed
+this same semantic `check()` before packaging (exit 4, no archive). This private
+fixture changes only the config/checksum to expose the original CDPATH bug.
+
+Current 0.1.0-2 native ARM, installation and hardware qualification are NOT RUN.
+The older retained build records below, `host-validation.json` and native evidence
+belong to 0.1.0-1 and remain unchanged.
 
 Run from this recipe directory, without any installation or dependency-sync flag:
 
@@ -75,8 +93,9 @@ payload checksums. Archive bytes differed; build metadata was not normalized.
 These were the same host environment, not independent clean native ARM builds.
 `host-validation.json` records actual commands, archive checksums, file lists,
 temporary artifact paths, and retained logs under `evidence/`. No package was
-installed. Native aarch64 build/rebuild, dependency resolution on the chosen
-snapshot, user configuration lifecycle on target, and M2 Air testing remain pending.
+installed. Current 0.1.0-2 native aarch64 build/rebuild, dependency resolution on
+the chosen target snapshot, user configuration lifecycle on target, and M2 Air
+testing remain pending. The inventory retains the separate 0.1.0-1 native evidence.
 
 The recipe checksums pin its original local configuration, notice and MIT grant. Upstream
 revision and archive hashes are audit evidence in `upstream-audit.json`, not build

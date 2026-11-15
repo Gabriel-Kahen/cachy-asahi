@@ -105,12 +105,21 @@ license = "MIT"
 audit = "docs/audits/tools-defaults.md"
 selected_for_development = true
 selected_for_release = false
-native_build = "PASS"
-native_build_commit = "ebd5812640b0b69f5c09a47752b739e37e338754"
-native_evidence = "docs/validation/native-arm.md"
+candidate_version = "0.1.0-2"
+native_build = "NOT RUN for current 0.1.0-2"
+prior_candidate_version = "0.1.0-1"
+prior_native_build = "PASS"
+prior_native_build_commit = "ebd5812640b0b69f5c09a47752b739e37e338754"
+prior_native_evidence = "docs/validation/native-arm.md"
+source_validation = "PASS real Fish 4.9.3 controls under Python 3.12/3.14: CDPATH collisions including spaces/leading dash/literal -, absolute paths, unchanged CDPATH and mkdir failure behavior; exact four local checksums and generated SRCINFO. Original 0.1.0-1 config fails the new semantic check()."
+host_validation = "PASS normal x86_64 makepkg 7.1.0 --cleanbuild --nosign --noconfirm with runtime/check dependencies enabled and actual semantic check(); unsigned any archive has the same three payload paths/modes and fish/coreutils runtime dependencies. No host install or ARM qualification."
+host_evidence = "packages/shells/cachy-asahi-fish-config/evidence/host-0.1.0-2.log"
+regression_evidence = "packages/shells/cachy-asahi-fish-config/evidence/host-0.1.0-2-old-config-negative.log"
+host_package_bytes = 13606
+host_package_sha256 = "11fc855397e900e7b3e847ac2f72e02160ce2f5a79884d4b88f37761189f61f9"
 installation = "NOT RUN"
 hardware_validation = "NOT RUN"
-next_step = "Native build pair passed; retain the actual Asahi target transaction and execute package/helper installation/removal on both Air sizes."
+next_step = "Qualify an exact 0.1.0-2 clean native ARM pair with the semantic check enabled; retain the separate 0.1.0-1 evidence. Then verify the supported Asahi transaction and helper installation/removal on both Air sizes."
 
 [[packages]]
 name = "cachy-asahi-zsh-config"

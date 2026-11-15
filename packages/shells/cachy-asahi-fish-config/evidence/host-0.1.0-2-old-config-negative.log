@@ -1,0 +1,32 @@
+==> Making package: cachy-asahi-fish-config 0.1.0-2 (Sun Nov 15 18:03:14 2026)
+==> Checking runtime dependencies...
+==> Checking buildtime dependencies...
+==> Retrieving sources...
+  -> Found config.fish
+  -> Found NOTICE
+  -> Found LICENSE
+  -> Found check-config.py
+==> Validating source files with sha256sums...
+    config.fish ... Passed
+    NOTICE ... Passed
+    LICENSE ... Passed
+    check-config.py ... Passed
+==> Removing existing $srcdir/ directory...
+==> Extracting sources...
+==> Starting check()...
+Traceback (most recent call last):
+  File "/tmp/cachy-asahi-fish02-negative-otj2sjuv/src/check-config.py", line 33, in <module>
+    run('source "$argv[1]"; set -gx CDPATH "$argv[2]/lookup"; '
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'caa_mcd "$argv[3]"; or exit 9; '
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'test "$PWD" = "$argv[2]/$argv[3]"; and test "$CDPATH" = "$argv[2]/lookup"',
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        arguments=(work, target))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/cachy-asahi-fish02-negative-otj2sjuv/src/check-config.py", line 21, in run
+    assert result.returncode == 0, result.stderr + result.stdout
+           ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
+==> ERROR: A failure occurred in check().
+    Aborting...
