@@ -1,0 +1,7 @@
+Original cachy-asahi repository enrollment, release handoff, finite release verification,
+primary-revocation quarantine and same-primary certificate refresh tooling; MIT.
+
+Version0.4.0-1 preserves all nine runtime bodies from0.3.0-1 and adds refresh.py.
+Exact public source context and per-file identities are in source-provenance.json.
+Bundled fixtures are check-only. No private key, package hook or production identity
+is bundled. TEST/disposable host results are not native ARM, M2 or release acceptance.
