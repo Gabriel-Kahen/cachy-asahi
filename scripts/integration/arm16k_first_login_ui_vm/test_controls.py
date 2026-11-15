@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 """Modeled Source/refusal controls only. No Gtk, guest, image or actor is run."""
-import argparse,copy,hashlib,importlib.util,io,json,os,re,shutil,subprocess,sys,tarfile,tempfile,types,unittest
+import argparse,ast,contextlib,copy,hashlib,importlib.util,io,json,os,re,shutil,subprocess,sys,tarfile,tempfile,types,unittest
 from pathlib import Path
 from unittest.mock import patch
 HERE=Path(__file__).resolve().parent
@@ -19,8 +19,13 @@ def installed():
  value={'schema_version':1,'nonce':N,'stage':'installed','inputs_sha256':'a'*64,'inventory_sha256':R.inventory_sha256(versions),'baseline_count':111,'installed_count':283,'archive_count':172,'project_file_count':24}
  value.update({k:True for k in ['trusted_ALPM_completed','exact_inventory','dependencies','ownership','project_hashes','original_policy','unrelated_user_file','filesystem_synced']});return versions,value
 
-class Controls(unittest.TestCase):
- def setUp(self):self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup);self.work=Path(self.tmp.name)
+class Fenced(unittest.TestCase):
+ def setUp(self):
+  stack=contextlib.ExitStack();self.addCleanup(stack.close)
+  for name in ['subprocess.run','subprocess.Popen','socket.socket','fcntl.flock','os.pidfd_open']:stack.enter_context(patch(name,side_effect=AssertionError('Source controls forbid actor/network/lease entry'),create=name=='os.pidfd_open'))
+
+class Controls(Fenced):
+ def setUp(self):super().setUp();self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup);self.work=Path(self.tmp.name)
  def test_null_admission_before_source_clone_or_process(self):
   file=self.work/'authority.json';v=admitted();v['tool_image_id']=None;file.write_text(json.dumps(v));args=argparse.Namespace(authority=file,authority_sha256=K.pin(file)['sha256'])
   with patch.object(K,'source',side_effect=AssertionError('source accessed too early')),patch.object(K,'references',side_effect=AssertionError('source imported too early')),patch.object(subprocess,'run',side_effect=AssertionError('process forbidden')):
@@ -61,6 +66,31 @@ class Controls(unittest.TestCase):
   self.assertIs(original.INPUT,corrected);self.assertIn(Path('/held/lower/input_seat.py'),paths)
  def test_corrected_observer_keeps_bounded_diagnostics_and_UI_gate(self):
   source=(HERE/'observer.py').read_text();self.assertIn('input_parent.census()',source);self.assertIn('os.fsync',source);self.assertIn('arm_ui_gate.wait_installed(nonce,180)',source);self.assertLess(source.index('arm_ui_gate.wait_installed'),source.index("frame('SEAT_LOGIN_READY'"))
+ def test_current_lower_archive_and_pass_report_are_exact_portable_DATA(self):
+  refs=K.read(HERE/'references.json');self.assertEqual(refs['arm_source']['source_commit'],'9508955ca3c85077257da42fe38b9c015ba2240d');self.assertEqual(refs['arm_source']['source_lock'],{'bytes':19179,'sha256':'06153a9b191aac9f0c974334e6e60ca32b0230ca3581f6d1e404f2efc99b15ad'})
+  actual=K.read(HERE/'actual-data.json')['actual_minimal155_pass']
+  for key in ['report','Root_decision']:
+   row=actual[key];K.checked(HERE/row['archived_path'],{k:row[k]for k in ['bytes','sha256']})
+  report=K.read(HERE/actual['report']['archived_path']);self.assertIs(K.minimal_seat_report(report),report)
+  decision=K.read(HERE/actual['Root_decision']['archived_path']);self.assertEqual(set(decision['independent_checks_passed']),set(report['seat']['independent_checks']))
+ def test_actual_lower_pass_requires_every_independent_check_and_retirement(self):
+  actual=K.read(HERE/'data/minimal155-r4-report.json')
+  for name in actual['seat']['independent_checks']:
+   for value in [False,1,None]:
+    changed=copy.deepcopy(actual);changed['seat']['independent_checks'][name]['passed']=value
+    with self.subTest(name=name,value=value),self.assertRaises(AssertionError):K.minimal_seat_report(changed)
+  for key in ['normal_VT_PAM_logout_observed','owned_container_absence_verified','cleanup_ownership_verified']:
+   changed=copy.deepcopy(actual);changed[key]=False
+   with self.subTest(key=key),self.assertRaises(AssertionError):K.minimal_seat_report(changed)
+ def test_exact_lower_check_helper_is_delivered_readonly_at_expected_guest_path(self):
+  prepare=load('prepare');c={'arm':Path('/held/lower'),'x86':Path('/held/x86'),'output':self.work}
+  with patch.object(prepare.K,'read',return_value={'guest_files':{}}),patch.object(prepare.K,'pin',return_value={'bytes':1,'sha256':'a'*64}):row=prepare.guest_sources(c)['observer_checks.py']
+  self.assertEqual((row['source_root'],row['source'],row['guest_path'],row['mode']),('arm','observer_checks.py','/var/lib/arm16k-virtio-seat/observer-checks.py','0600'))
+  ref=K.read(HERE/'references.json')['arm_source']['observer_checks'];self.assertEqual(ref,{'filename':'observer_checks.py','bytes':4896,'sha256':'cc73f760a80aee65a8b708fb969afdbbcbd1ac6e1ea83ab381c085b755de3508'})
+ def test_corrected_observer_uses_specialized_GPU_only_and_named_checks(self):
+  source=(HERE/'observer.py').read_text();self.assertIn("D/'observer-checks.py'",source);self.assertIn("independent('gpu-record',*checks.gpu_record(",source);self.assertIn("independent('keyboard-record',*checks.record(",source);self.assertNotIn('final_gpu==gpu',source)
+  actual=K.read(HERE/'data/minimal155-r4-report.json')['seat']['independent_checks']['gpu-record'];self.assertEqual(actual['comparison'],'GPU_TAG_SET_VALUES_ONLY_ALL_OTHER_BYTES_EXACT')
+  self.assertTrue(all(v['equal']and v['before']==v['after']==['master-of-seat','seat','uaccess']for v in actual['tag_sets'].values()))
  def test_actor_nonce_cannot_supply_extra_argv(self):
   with self.assertRaises(AssertionError):A.qemu_argv(' -nic user',1794700000)
  def test_UI_HOLD_precedes_ready_and_keeps_original_capture_groups(self):
@@ -100,12 +130,70 @@ class Controls(unittest.TestCase):
   for field,value in [('NetworkMode','host'),('CapAdd',['SYS_ADMIN']),('Init',True),('MemorySwap',6*1024**3),('PidMode','host')]:
    changed=copy.deepcopy(row);changed['HostConfig'][field]=value
    with self.subTest(field=field),self.assertRaises(AssertionError):K.preparation_confinement(changed,'owned',row['Image'],{'owner':'test'},mounts)
+ def test_cleanup_validates_stable_identity_after_both_assembly_file_loops(self):
+  previous_umask=os.umask(0o077);self.addCleanup(os.umask,previous_umask)
+  prepare=load('prepare');out=self.work/'new';base=self.work/'base';base.mkdir();kernel=self.work/'kernel';kernel.mkdir();image_id='sha256:'+'2'*64;ref={'bytes':1,'sha256':'a'*64};events=[];rows={}
+  lower=types.SimpleNamespace(lock=lambda:{'base_files':{'kernel.config':ref},'base_prepared':ref})
+  c={'authority':{'tool_image_id':image_id},'lower':lower,'base':{'nonce':'2'*32},'original_marker':ref,'kernel':{},'manifest':{},'tool':{},'tool_qualification':{},'arm':Path('/held/arm'),'x86':Path('/held/x86')}
+  class Cancel:
+   pending=[];cleaning=False
+   def __enter__(self):return self
+   def __exit__(self):pass
+  class Owned:
+   def __init__(self,name,cidfile,image,labels,base,out):self.name=name;self.cidfile=cidfile;self.submitted=False;rows['scope']=self;rows['labels']=labels
+   def listing(self,deadline):return None
+   def recover(self,deadline):self.validate(rows['container']);return rows['container']
+   def cleanup(self,report):
+    events.append(('cleanup',self.name));self.validate(rows['container']);report['owned_container_absence_verified']=True
+  class Runner:
+   def __init__(self,*args):pass
+   def run(self,argv,**kwargs):
+    if argv[1:2]==['info']:value=['name=rootless']
+    elif argv[1:3]==['image','inspect']:value=[{'Id':image_id,'Config':{'Labels':{}}}]
+    elif argv[1:2]==['create']:
+     mounts=[]
+     for i,v in enumerate(argv):
+      if v=='--mount':
+       parts=dict(x.split('=',1)for x in argv[i+1].split(',')if '='in x);mounts.append(dict(Type=parts['type'],Source=parts['source'],Destination=parts['target'],RW='readonly'not in argv[i+1].split(',')))
+     rows['container']={'Name':'/'+rows['scope'].name,'Image':image_id,'Config':{'Labels':rows['labels'],'Entrypoint':['/usr/bin/python3'],'Cmd':['-I','-B','/code/prepare_image.py']},'Mounts':mounts,'State':{'ExitCode':0,'OOMKilled':False,'Running':False},'HostConfig':{'NetworkMode':'none','ReadonlyRootfs':True,'CapDrop':['ALL'],'CapAdd':[],'Privileged':False,'Devices':[],'Init':False,'SecurityOpt':['no-new-privileges'],'Memory':3*1024**3,'MemorySwap':3*1024**3,'NanoCpus':2000000000,'PidsLimit':256}};value=None
+    else:
+     self_outer.assertEqual(argv[:3],['docker','start','-a']);(out/'assembly/prepared.json').write_text(json.dumps({'operation':K.OP,'nonce':N,'files':{'guest.raw':ref}}));value=None
+    return types.SimpleNamespace(returncode=0,stdout=json.dumps(value))
+  self_outer=self
+  def checked(path,expected):events.append(('checked',Path(path).name));return path
+  def held(name,path):return types.SimpleNamespace(Runner=Runner)if name=='UI_ARM_held_runner'else types.SimpleNamespace(OwnedContainer=Owned,Cancellation=Cancel)
+  argv=['prepare','--allow-prepare-arm16k-ui']
+  for flag in ['base','base-first-boot-report','materials','additions-manifest','kernel-bundle','qemu-metadata','tool-qualification','minimal155-report','minimal155-prepared','authority','output']:
+   value=base if flag=='base'else kernel if flag=='kernel-bundle'else out if flag=='output'else self.work/flag;argv+=['--'+flag,str(value)]
+  argv+=['--authority-sha256','a'*64]
+  mem='MemAvailable: 99999999 kB\n';read_text=Path.read_text
+  def read(path,*args,**kwargs):return mem if path==Path('/proc/meminfo')else read_text(path,*args,**kwargs)
+  with patch.object(sys,'argv',argv),patch.object(prepare.os,'geteuid',return_value=1000),patch.object(prepare.K,'preflight',return_value=c),patch.object(prepare.K,'output_path',return_value=out),patch.object(prepare.K,'load',side_effect=held),patch.object(prepare.K,'checked',side_effect=checked),patch.object(prepare.K,'pin',return_value=ref),patch.object(prepare,'stage_inputs',return_value=({},{})),patch.object(prepare,'guest_sources',return_value={}),patch.object(Path,'read_text',read),patch.object(prepare.shutil,'disk_usage',return_value=shutil._ntuple_diskusage(10*1024**3,0,10*1024**3)),contextlib.redirect_stdout(io.StringIO()):
+   self.assertEqual(prepare.main(),0)
+  report=K.read(out/'preparation.json');self.assertEqual(report['status'],'PREPARED_NOT_BOOTED');self.assertTrue(report['owned_container_absence_verified']);self.assertNotIn('cleanup_errors',report)
+  cleanup=next(i for i,event in enumerate(events)if event[0]=='cleanup');self.assertIn(('checked','guest.raw'),events[:cleanup]);self.assertIn(('checked','kernel.config'),events[:cleanup]);self.assertTrue(events[cleanup][1].startswith('cachy-arm16k-ui-prepare-'))
+  # Stable identity must still reject another container after the file loops.
+  changed=copy.deepcopy(rows['container']);changed['Name']='/kernel.config'
+  with self.assertRaises(AssertionError):rows['scope'].validate(changed)
+ def test_constructor_leaves_durable_receipt_directory_for_exclusive_writer(self):
+  # Execute only the real fixed directory-declaration loop as DATA/control code.
+  # No image edit, process, package, VM or whole constructor is invoked.
+  tree=ast.parse((HERE/'prepare_image.py').read_text());main=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='main')
+  loops=[n for n in main.body if isinstance(n,ast.For)and isinstance(n.iter,ast.Tuple)and len(n.body)==1 and isinstance(n.body[0],ast.Expr)and isinstance(n.body[0].value,ast.Call)and isinstance(n.body[0].value.func,ast.Name)and n.body[0].value.func.id=='directory'];self.assertEqual(len(loops),1)
+  directories=[];exec(compile(ast.Module(body=loops,type_ignores=[]),'<fixed-fixture-directory-control>','exec'),{'D':'/var/lib/arm16k-virtio-seat','directory':directories.append})
+  self.assertIn('/opt/ui-session/ownership',directories);self.assertNotIn(str(R.DIRECTORY),directories)
+  directory=self.work/R.DIRECTORY.relative_to('/');directory.parent.mkdir(parents=True);owner=(os.getuid(),os.getgid());writer=R.Writer(directory,N,owner)
+  self.assertEqual(R.read(directory,'stage.json',owner),{'schema_version':1,'nonce':N,'stage':'starting'})
+  # Precreation reproduces the original refusal; never make Writer reuse a dir.
+  with self.assertRaises(FileExistsError):R.Writer(directory,N,owner)
+  alias=self.work/'receipt-alias';alias.symlink_to(directory,target_is_directory=True)
+  with self.assertRaises(FileExistsError):R.Writer(alias,N,owner)
  def test_private_output_and_reserve_before_actor(self):
   with patch.object(K.shutil,'disk_usage',return_value=shutil._ntuple_diskusage(10*1024**3,0,10*1024**3)):self.assertEqual(K.output_path(self.work/'new'),self.work/'new')
   with patch.object(K.shutil,'disk_usage',return_value=shutil._ntuple_diskusage(10*1024**3,0,2*1024**3)):
    with self.assertRaises(AssertionError):K.output_path(self.work/'new')
 
-class AcceptanceControls(unittest.TestCase):
+class AcceptanceControls(Fenced):
  def value(self):
   # Modeled predicate input, never credited as GTK or guest runtime evidence.
   result=load('result');files={name:'a'*64 for name in result.FILES};props={'Id':'1','Active':True,'Seat':['seat0','/seat0'],'User':[1000,'/u'],'TTY':'tty1','Service':'login','Remote':False}
@@ -115,6 +203,14 @@ class AcceptanceControls(unittest.TestCase):
   return result,{'client':client,'root':root}
  def test_modeled_complete_UI_predicate(self):
   result,value=self.value();result.accept_ui(value)
+ def test_UI_join_requires_all_six_current_observer_checks(self):
+  result,ui=self.value();checks={name:{'passed':True}for name in ['bus-credentials','logind-session','process-vt','keyboard-record','gpu-record','seat-status']};seat={'status':'PASS_ARM16K_VIRTIO_SEAT_REFERENCE_ONLY','nonce':N,'architecture':'aarch64','pagesize':16384,'user':{'logind':{'Id':'1'},'process_session':1000},'independent_checks':checks}
+  self.assertEqual(result.join(seat,ui,N)['status'],'PASS_EMULATED_ARM16K_REAL_SEAT_FIRST_LOGIN_UI_LIFECYCLE_ONLY')
+  for name in checks:
+   changed=copy.deepcopy(seat);changed['independent_checks'][name]['passed']=False
+   with self.subTest(name=name),self.assertRaises(AssertionError):result.join(changed,ui,N)
+  changed=copy.deepcopy(seat);del changed['independent_checks']['gpu-record']
+  with self.assertRaises(AssertionError):result.join(changed,ui,N)
  def test_generic_seat_without_UI_cannot_pass(self):
   result,_=self.value()
   with self.assertRaises((KeyError,AssertionError)):result.join({'status':'PASS_ARM16K_VIRTIO_SEAT_REFERENCE_ONLY'},{},N)
@@ -135,7 +231,7 @@ class AcceptanceControls(unittest.TestCase):
   result,report=self.value();report['root']['filesystem_sync']['post-install']=False
   with self.assertRaises(AssertionError):result.accept_ui(report)
 
-class NamespaceControls(unittest.TestCase):
+class NamespaceControls(Fenced):
  def test_baseline_association_detects_forged_provides_or_files(self):
   row={'glib2':{'version':'2.88.3-1','directory':'glib2-2.88.3-1','provides':['libgio-2.0.so=0-64'],'files':['usr/lib/Gio.typelib']}};pin=K.baseline_association(row);changed=copy.deepcopy(row);changed['glib2']['provides'].append('forged');self.assertNotEqual(K.baseline_association(changed),pin);changed=copy.deepcopy(row);changed['glib2']['files'].append('usr/bin/ghost');self.assertNotEqual(K.baseline_association(changed),pin)
  def test_actual_path_alias_requires_owned_executable_target(self):

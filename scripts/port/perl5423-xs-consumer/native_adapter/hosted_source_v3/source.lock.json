@@ -1,0 +1,61 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 3919,
+      "mode": 420,
+      "sha256": "1a0b7db8f6cce3748d89c833499d96b97f7bd969c524dc4cd16550d2cf8d7cf5"
+    },
+    "actual-data.json": {
+      "bytes": 4919,
+      "mode": 420,
+      "sha256": "6acdd5d1470aac2dc23e778e0c572d19a0a48383cadbd0089c34c8bfd76f0803"
+    },
+    "compiler-inputs.json": {
+      "bytes": 11025,
+      "mode": 420,
+      "sha256": "fa613490865d94362d4d9efe6c5860904158c09733439a9f6c5709168f88d23c"
+    },
+    "inspect_archives.py": {
+      "bytes": 5167,
+      "mode": 420,
+      "sha256": "0c026b471693ea4b3a905c1c3d616e1857dea6e78c1966c5d7eabe17fbb710bc"
+    },
+    "payload/xs/compiler_image.py": {
+      "bytes": 15790,
+      "mode": 420,
+      "sha256": "bc2dbccc9453fdc77852ea7cc9fb80da433db08be589ce4ea84ceb1ce3c01299"
+    },
+    "payload/xs/entry.py": {
+      "bytes": 33173,
+      "mode": 420,
+      "sha256": "1fd697ff33315d4e6d711e6275545dde5aa16a8a54c1b86a57dde5fad43fa426"
+    },
+    "payload/xs/prepare_inputs.py": {
+      "bytes": 17054,
+      "mode": 420,
+      "sha256": "ca5516f3af98309ef571a6905ed8c96171a9d6db0ce7b7b6e749ba081e487a2a"
+    },
+    "prepare.py": {
+      "bytes": 7723,
+      "mode": 420,
+      "sha256": "e65ff7e945a2724e878a544ddb3d5e33cdc1ebdfa4b8aba22bcff49cbc0b4a8a"
+    },
+    "profile.json": {
+      "bytes": 1336,
+      "mode": 420,
+      "sha256": "8b36e55a438b851b29717481e814d51b4c67094546fd01382f1acd60d4efcc1d"
+    },
+    "test_image_models.py": {
+      "bytes": 6091,
+      "mode": 420,
+      "sha256": "a8ce0846fbdcd8bb230890747ef2ac8f11d122da25c806c8a8e483260e7b719a"
+    },
+    "test_source.py": {
+      "bytes": 8406,
+      "mode": 420,
+      "sha256": "c27a1b3190120ab15fa7ebf75bf55f2b99f559a80f2450313d71026d773b94dd"
+    }
+  },
+  "schema": 1,
+  "status": "SOURCE_DATA_ONLY_ACTUAL_V3_SELECTORS_NULL"
+}

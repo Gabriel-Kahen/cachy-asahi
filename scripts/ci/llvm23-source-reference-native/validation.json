@@ -1,0 +1,50 @@
+{
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "authority": null,
+    "image": null,
+    "job": null,
+    "reader": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "actual_builds": 0,
+  "actual_containers": 0,
+  "actual_jobs": 0,
+  "actual_leases": 0,
+  "actual_network_requests": 0,
+  "actual_operational_Readers": 0,
+  "actual_package_acquisitions": 0,
+  "actual_publication_or_dispatch": 0,
+  "actual_signing": 0,
+  "checks": {
+    "Bash_syntax": "PASS",
+    "Python_syntax": "PASS",
+    "actor_static_refusal_controls": 15,
+    "constructor_controller_DATA_controls": 10,
+    "full_YAML_parser": "UNAVAILABLE_ON_AUTHOR_HOST; no parser/package acquired",
+    "protected_0444_0555_copy_modes": "PASS_SMALL_DATA_FIXTURE_ONLY",
+    "required_profile_reconstruction": "PASS_SAME_248_FILES_BYTES_MAP_AND_PROSPECTIVE_TREE",
+    "whole_Source_membership_bytes_modes": "PASS",
+    "workflow_alias_guard_pins_and_literals": "PASS"
+  },
+  "constructed_bytes": 40788233,
+  "constructed_files": 248,
+  "constructed_source": "/home/gabe/Documents/ChatGPT/cachy-asahi-rust-submodule-closure-20261115/scripts/ci/llvm23-source-reference-native/work/source-tree-r3",
+  "constructor_profile_sha256": "855e5395952723fa387cb6d43f35076fe3becb6d26e2a150f7c22c953c236fb9",
+  "holds_preserved": true,
+  "prior_accepted_checkpoint": {
+    "bytes": 40787836,
+    "files": 248,
+    "prospective_tree": "e35e4eb0c8c4cea3fdeab8f5d04f35ee714b9f4e",
+    "source": "/home/gabe/Documents/ChatGPT/cachy-asahi-rust-submodule-closure-20261115/scripts/ci/llvm23-source-reference-native/work/source-tree-r2",
+    "source_map_sha256": "8b01d92c3b810246967f932de22046a086a08fc429a2a1c0175ad20e7aac3936"
+  },
+  "prospective_tree": "b6d4f3bcbfb7454b1760c3ff9f9910d734d8bece",
+  "resource_policy": "PROPOSED_ONLY_NOT_RESERVED_OR_APPROVED",
+  "schema": 1,
+  "source_map_sha256": "b462bebb24a5dcf18aaecb5843b75cba0f6c3f89b920c313263abff91f7e7e33",
+  "status": "PASS_SOURCE_CONSTRUCTION_STATIC_REFUSAL_ONLY"
+}

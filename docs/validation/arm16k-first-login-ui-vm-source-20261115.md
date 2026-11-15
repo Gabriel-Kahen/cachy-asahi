@@ -1,9 +1,10 @@
 # ARM16K first-login GTK VM successor — Source handoff
 
-Status: **Source/control tested; combined dependency metadata prepared; actual
-UI preparation/VM NOT RUN.** This is a new finite operation
-`arm16k-first-login-ui-vm-v1`, after Root's separate minimal155 real virtio-seat
-trial succeeds. No existing source, input, default, old failure or marker changes.
+Status: **Source/control tested; Root UI preparation r1 closed HOLD_CLEANUP;
+corrected preparation r2 succeeded; first UI boot closed HOLD at installed gate.** This is a new finite operation
+`arm16k-first-login-ui-vm-v1`. Root's separate minimal155 real virtio-seat r4
+trial has now passed. The successor below corrects constructor cleanup only;
+old Source, inputs, defaults, failure receipts and markers remain unchanged.
 
 ## Actual combined metadata
 
@@ -23,7 +24,7 @@ The unavailable21.1.25-1 archive stays held; the new root is explicit:
 `c4729aaf327fae3f19795f4fbcad8035798316d4c812c56953c32796f1cf916c`.
 
 [The new implementation](../../scripts/integration/arm16k_first_login_ui_vm/README.md)
-reuses exact lower Source pins. ARM reference/helper Source is 9fb4a0e8, tool
+reuses exact lower Source pins. ARM reference/helper Source is 9508955c, tool
 producer a3cb961e; original x86 GUI client/probe are unchanged. Own finite upper
 contracts, observer, disk geometry, actor/receipt counts and lifecycle are separate.
 No whole frozen framework is copied or generic callback/injection API introduced.
@@ -118,5 +119,122 @@ and host parser use the lower local input adapter, requiring negotiated VERSION_
 and the actual MMIO-parent DRM/genuine virtio_gpu-child association. Frozen
 ancestor predicates remain unchanged. Existing stock tags, policy, permissions,
 geometry and actual-result holds are preserved; bounded durable candidate
-observations are inherited. Thirty Source controls pass; the corrected lower
-trial and all UI preparation/VM execution remain Root-owned, not worker results.
+observations are inherited. The original correction remains in the lineage. Root alone executed the later
+minimal-seat r4; all UI preparation/VM execution remains Root-owned and NOT RUN.
+
+
+## Actual minimal155 prerequisite and narrow tag-value correction
+
+The lower Source is now `9508955ca3c85077257da42fe38b9c015ba2240d`,
+source lock 19,179 B/SHA256
+`06153a9b191aac9f0c974334e6e60ca32b0230ca3581f6d1e404f2efc99b15ad`.
+It retains modern MMIO and the corrected local input predicate. The independent
+observer compares only GPU `TAGS`/`CURRENT_TAGS` values as exact sets; all other
+property bytes and keyboard/general records stay strict. It changes no tags,
+udev rules, PAM, policy, permissions, session, input or resource geometry. The UI
+delivers and pins its unmodified `observer_checks.py` (4,896 B/SHA256
+`cc73f760a80aee65a8b708fb969afdbbcbd1ac6e1ea83ab381c085b755de3508`).
+All six named checks must pass both prior155 intake and the new UI seat join.
+
+Root's genuine r4 report is 15,418 B/SHA256
+`51bce478b33682d5f4bd01343db31882101c49aaa4973656b07a1f0e0d46422b`,
+original `/dev/shm/cachy-asahi-arm16k-virtio-seat-first-boot-root-20261115-r4/report.json`.
+The prepared descriptor is 2,304,798 B/SHA256
+`dca852180a1bb867c53ba989561565da6cbca603a22defb880aff9694195976a`,
+original `/dev/shm/cachy-asahi-arm16k-virtio-seat-preparation-root-20261115-r4/assembly/prepared.json`.
+The scoped Root decision is 1,530 B/SHA256
+`f07fbd4155f81e7683928d599d6cd0677ff6b63a3bcf0063e53bbc7fd8b5e52b`,
+canonical `artifacts/development/orchestrator-resume-20261114/Root-ARM155-boot-r4/Root-scoped-decision.ACTUAL-r1.json`.
+Only the sanitized report and decision are archived under the new UI `data/`;
+the credential-bearing prepared descriptor is referenced by pin, not copied.
+
+Actual scope: 155 installed packages, aarch64/16K, real normal tty1 PAM login,
+active seat0, ECHO-off and release acknowledgements, original stock NM/Polkit
+policy, six independently corroborated checks, normal logout, QMP quit, reaped
+QEMU with natural `EMPTY_TWICE`, verified cleanup and exact container absence.
+This closes the generic prerequisite only. Earlier r1 GPU-wait HOLD, r2 unnamed
+independent-observer assertion HOLD and r3 proven tag-order-only HOLD remain
+closed and immutable; none is treated as policy/PAM failure or replayed.
+
+35 fenced Source/DATA controls pass on Python3.12/3.14, including the actual
+archived result pins, missing/false independent-check and cleanup refusals,
+read-only helper delivery and mandatory six-check UI join. No worker actor ran.
+Fresh public UI Source, complete172 Root material admission, guest-only TEST
+trust authority and reviewed resources remain explicit/null; the Root material
+constructor is a separate task. ARM GTK/Xvfb/runtime ABI, UI preservation/removal,
+native builds, M2/physical networking and release acceptance remain unproved.
+
+
+## Preparation r1 cleanup correction
+
+Root's actual r1 preparation assembled its descriptor successfully, then closed
+`HOLD_CLEANUP` with `ownership-recovery` / `AssertionError`. The retained report is
+`/dev/shm/cachy-asahi-arm16k-ui-preparation-root-20261115-r1/preparation.json`.
+The prepared descriptor is 2,732,816 B/SHA256
+`e2e4aa2bdac1e09dacdc06622079cd02eb68cfef8cbf02fc610ca2148c865d41`,
+with 974,970,880 allocated output bytes. This is assembly evidence, not successful
+cleanup or VM acceptance; the old attempt and retained owned-container handling
+remain Root's responsibility.
+
+In admitted Source `e66c1ad7`, the nested preparation `Scope.validate` captured
+`main`'s `name` variable. Both final file-verification loops rebound that same
+variable before cleanup. Consequently recovery compared the exact container row
+against the last filename instead of its original container name. The successor
+uses `self.name`, already recorded by `OwnedContainer`, and distinct `file_name`
+loop variables. Every identity, label, image, command, nine-bind, capability,
+namespace and resource predicate remains mandatory. `boot.py` was inspected:
+its separate module-level custody class does not capture this mutable name and
+remains unchanged.
+
+36 actor/network/lease-fenced controls pass. The new regression executes the real
+preparation main path with inert modeled runner/custody inputs, reaches both
+post-assembly file loops, and calls the production confinement validator during
+modeled cleanup. It also rejects another container name afterward. Restoring the
+original three lines reproduces its expected assertion failure. These controls
+run no Docker, GPG, preparation image or VM. A resealed Source requires fresh
+public Source pins, Root admission, output, credentials and nonce before any r2;
+this correction neither reopens r1 nor establishes actual cleanup success.
+
+
+## First UI boot: successful install, receipt-directory conflict
+
+Root's first actual UI boot remains **HOLD**, with owned-container absence
+verified. Its sanitized report/serial are retained at
+`/dev/shm/cachy-asahi-arm16k-ui-first-boot-root-20261115-r1/`.
+The `UI_HOLD` frame reports `installed-gate` / `RuntimeError`; it establishes no
+GTK action, normal UI login/logout, removal or full acceptance.
+
+Separate read-only DATA extraction at canonical
+`artifacts/development/orchestrator-resume-20261114/Root-UI283-install-extract-r2/actor-output/`
+preserved the original raw/overlay hashes and completed natural tool retirement
+and container absence. All eight extracted files match their manifest pins.
+The lower `summary.env` is PASS with nonce-bound 111→283 installation,
+Required/TrustedOnly, unsuppressed hooks, NetworkManager policy ownership and
+no clock setting. Its 207 B SHA256 is
+`ef6636943051e2cfb7dd9aa15cfec2850b937e3ccd73f19f324a5aa50e093dfa`.
+The actual installed inventory has exactly 283 rows, 5,519 B/SHA256
+`e2fd7b6cf695cf3ae1f57e7fe8a2fa3c74f55404851b380c27ef8acd4f1697c5`.
+The 172-package installation and all 15 ordinary hooks completed in its real
+pacman log, 16,678 B/SHA256
+`c5b5e7e06af45fde69ddd150429ee31093f7d8217313fe2fc44ee6fe18b1db80`.
+This is actual trusted-install evidence, not successful independent UI joining.
+
+The prepared r2 descriptor explicitly records
+`/var/lib/cachy-asahi-ui-session-reference` in `fixture_paths`. The constructor
+precreated that directory, while the root fixture's first `receipts.Writer`
+requires exclusive fresh creation (`exist_ok=False`) and then fsyncs its parent.
+Those contracts conflict before the installed count/dependency/ownership checks.
+Read-only `debugfs -R cat` of the fixed five prepared observer/fixture/receipt/
+gate/install sources confirmed they exactly match the reviewed Source. The
+constructor→Writer regression reproduces the directory refusal; the closed
+runtime's exact exception text was not retained and is not claimed as observed.
+All upper installed-count contracts already require 111+172=283.
+
+The successor removes only this one directory from constructor precreation.
+Writer still owns fresh root0700 creation, exclusive files, mode/ownership checks
+and file/directory fsync; a preexisting directory or symlink still refuses. No
+ALPM, signature, hooks, clock, policy, PAM, ownership or independent seat checks
+are relaxed. 37 actor/network/lease-fenced controls pass, including the real
+fixed constructor directory loop followed by the unchanged Writer. No worker
+preparation or VM ran. Root requires fresh public Source, admission, nonce and
+output for the next actual trial; the first UI boot remains closed HOLD.

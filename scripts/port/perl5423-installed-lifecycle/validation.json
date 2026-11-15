@@ -21,6 +21,30 @@
   },
   "cli_help": "PASS_PREPARE_PRODUCER_READER_NO_ACTOR",
   "date": "2026-11-15",
+  "dependency_protected_removal": {
+    "actual_Reader": null,
+    "actual_actor": null,
+    "argv": [
+      "/usr/bin/pacman",
+      "--config",
+      "/work/pacman.conf",
+      "--noconfirm",
+      "-R",
+      "perl"
+    ],
+    "diagnostic": "dependency failure joined to original baseline ALPM consumer descriptors",
+    "expected_exit": 1,
+    "full_uninstall": "NOT_RUN",
+    "preservation": [
+      "all349 inventory",
+      "complete raw local database",
+      "baseline/candidate Perl-owned path union and hardlinks",
+      "full alarm home and fixture",
+      "accounts",
+      "trust/hooks/config"
+    ],
+    "status": "IMPLEMENTED_SOURCE_AND_FENCED_READER_CONTROLS_ONLY"
+  },
   "not_run": [
     "fresh external TEST signing",
     "combined public trust preparation",
@@ -28,6 +52,7 @@
     "Docker daemon/image/container",
     "GPG/ALPM/installed Perl actors",
     "native installed upgrade/repeat/no-op/rollback",
+    "native dependency-protected removal refusal",
     "actual Reader",
     "native16K",
     "M2",
@@ -36,11 +61,12 @@
   ],
   "schema": 1,
   "source_controls": {
-    "command": "python -I -B scripts/port/perl5423-installed-lifecycle/test_controls.py",
+    "actor_fence": "process/network/lease entry points denied",
+    "command": "python3 -I -B -Werror::ResourceWarning scripts/port/perl5423-installed-lifecycle/test_controls.py",
     "errors": 0,
     "failures": 0,
     "skipped": 0,
-    "tests": 32
+    "tests": 40
   },
   "status": "PASS_SOURCE_AND_DATA_CONTROLS_ONLY",
   "syntax": "PASS_PYTHON_AST_AND_JSON"

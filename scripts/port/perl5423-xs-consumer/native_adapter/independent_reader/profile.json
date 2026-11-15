@@ -1,0 +1,74 @@
+{
+  "actual": {
+    "Reader": null,
+    "acceptance": null,
+    "approval": null,
+    "artifact": null,
+    "job": null,
+    "run": null
+  },
+  "files": {
+    "binding.TEMPLATE.json": {
+      "bytes": 456,
+      "mode": 420,
+      "sha256": "c86122a21ce725a5cf7d78a2e3efa7095d0045bffc361a8c98816449b24c8c97"
+    },
+    "bootstrap.py": {
+      "bytes": 37497,
+      "mode": 420,
+      "sha256": "3bd3b507b4fd2148db679116c9a4eeb9f54cb780c5662608d059e223d2f6552d"
+    },
+    "consumer.py": {
+      "bytes": 25911,
+      "mode": 420,
+      "sha256": "d1dff4ae3dde90e52ce702b19a781ec717b2446de5a8b03e44b4eea2f3a93a93"
+    },
+    "data.py": {
+      "bytes": 7532,
+      "mode": 420,
+      "sha256": "7f4352e07fa13ee718ecc7009c44df8b7851e8c45a815b10c3c5808c8ca49747"
+    },
+    "reader.py": {
+      "bytes": 13503,
+      "mode": 420,
+      "sha256": "25355dbba8b6d6c4c228a0aac9a98efecc383fd04ee5a1549f2b3e9358a01a4e"
+    },
+    "support/data_export.py": {
+      "bytes": 2955,
+      "mode": 420,
+      "sha256": "ac59342608cc8279ccb0aa218da792e72d903960769ab2f4553ee8ea9b5d334e"
+    },
+    "support/helpers/archive_stream.py": {
+      "bytes": 11938,
+      "mode": 420,
+      "sha256": "10f1a4c0ac5b98852d9ebb150af28f9ce345c800935a64fa463bc90f72fcb838"
+    },
+    "support/helpers/elf64le_aarch64.py": {
+      "bytes": 16410,
+      "mode": 420,
+      "sha256": "7c89596b854457897a6addb5b28794c2e0d9ffeffee44369a19b5a70f0a3cc53"
+    },
+    "support/perl_reader.py": {
+      "bytes": 71381,
+      "mode": 420,
+      "sha256": "406333604f7b1ca17e986d16ac61cb1c9188f15b5f364a48323e258882f28def"
+    },
+    "test_bootstrap.py": {
+      "bytes": 4300,
+      "mode": 420,
+      "sha256": "08e8b0b3e6785b1733f1aa6c6743d4cbb9a9b451ad7f6f72a198ddbfb0bdee91"
+    },
+    "test_consumer.py": {
+      "bytes": 4738,
+      "mode": 420,
+      "sha256": "a7fb2f8c523188d76b0c004d18c09304a98dfbc68cd0ad2a70a251d9af58c975"
+    },
+    "test_data.py": {
+      "bytes": 4167,
+      "mode": 420,
+      "sha256": "3eb68bde6f442649de10570b2d2ca0c079cf8db17cc58309bd62aa389b4db8b0"
+    }
+  },
+  "kind": "PASSIVE_XS_READER_SOURCE_INVENTORY_NOT_AUTHORITY",
+  "schema": 1
+}

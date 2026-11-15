@@ -1,0 +1,50 @@
+{
+  "GTK_UI": "NOT RUN",
+  "M2": "NOT RUN",
+  "actual_count": 155,
+  "evidence": {
+    "host-qemu-start.json": {
+      "bytes": 108,
+      "sha256": "60514501efb1e5b7c7e69c04dd6ae493cb99be1f2d26bff2d6d2d0e61a224132"
+    },
+    "qemu-argv.json": {
+      "bytes": 1043,
+      "sha256": "b175681f85141fc18385976a3a3738cb3ceb61f1bea2b417c16f8955a235105a"
+    },
+    "qemu-retirement.json": {
+      "bytes": 251,
+      "sha256": "667ff0de667e21303b51ae90703badb30e76ab29dd246a6582cae4625ed2819f"
+    },
+    "report.json": {
+      "bytes": 15418,
+      "sha256": "51bce478b33682d5f4bd01343db31882101c49aaa4973656b07a1f0e0d46422b"
+    },
+    "serial.redacted.log": {
+      "bytes": 43931,
+      "sha256": "fe3f9e30c71431e94aa32f812f3329510b21c1c234635e91abd68d97e8203ba9"
+    }
+  },
+  "independent_checks_passed": [
+    "bus-credentials",
+    "gpu-record",
+    "keyboard-record",
+    "logind-session",
+    "process-vt",
+    "seat-status"
+  ],
+  "issued_at": "2026-11-15T11:36:14.696829+00:00",
+  "issuer": "Root",
+  "native16K": "NOT RUN",
+  "natural_QEMU_retirement": true,
+  "normal_PAM_logout": true,
+  "original_output": "/dev/shm/cachy-asahi-arm16k-virtio-seat-first-boot-root-20261115-r4",
+  "owned_container_absent": true,
+  "performance": "NOT MEASURED",
+  "release": "NOT RUN",
+  "run": "Root-ARM155-boot-r4",
+  "source_lock": {
+    "bytes": 19179,
+    "sha256": "06153a9b191aac9f0c974334e6e60ca32b0230ca3581f6d1e404f2efc99b15ad"
+  },
+  "status": "ACCEPTED_EXACT_EMULATED_ARM16K_155_PACKAGE_VIRTIO_SEAT_PAM_POLICY_TRIAL_ONLY"
+}

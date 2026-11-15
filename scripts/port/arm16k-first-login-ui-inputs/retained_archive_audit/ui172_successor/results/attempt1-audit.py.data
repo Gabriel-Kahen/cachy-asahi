@@ -1,0 +1,277 @@
+#!/usr/bin/env python3
+"""UI172 successor DATA audit. No payload execution, network, rootfs or admission."""
+import argparse
+from collections import Counter
+import gc
+import gzip
+import hashlib
+import importlib.util
+import json
+import os
+from pathlib import Path
+import resource
+import signal
+import stat
+import subprocess
+import sys
+import time
+from types import SimpleNamespace
+
+HERE = Path(__file__).resolve().parent
+
+
+def load(name, path):
+    spec = importlib.util.spec_from_file_location(name, path)
+    module = importlib.util.module_from_spec(spec); sys.modules[name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def pin(body): return {'bytes': len(body), 'sha256': hashlib.sha256(body).hexdigest()}
+
+
+def checked(ref, maximum=32*1024**2):
+    path = Path(ref['path'])
+    if path.is_symlink() or any(p.is_symlink() for p in path.parents): raise ValueError('linked input')
+    with os.fdopen(os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK), 'rb') as stream:
+        info = os.fstat(stream.fileno())
+        if not stat.S_ISREG(info.st_mode) or info.st_size != ref['bytes'] or not 0 < info.st_size <= maximum:
+            raise ValueError('input size/type/cap')
+        body = stream.read(info.st_size+1)
+        if pin(body) != {k:ref[k] for k in ('bytes','sha256')}: raise ValueError('input full pin')
+        return body
+
+
+class Source:
+    """Hash exactly the stream decoded; stable open descriptor, no archive extraction."""
+    def __init__(self, path, expected, budget, limits, snapshot=None):
+        self.path, self.expected, self.budget, self.limits = Path(path), expected, budget, limits
+        self.snapshot, self.count, self.digest = snapshot, 0, hashlib.sha256()
+        if self.path.is_symlink() or any(p.is_symlink() for p in self.path.parents): raise ValueError('linked archive')
+        if expected['bytes'] > limits['archive_object_bytes'] or budget['compressed_allowance']+expected['bytes'] > limits['compressed_archive_read_allowance']:
+            raise ValueError('archive compressed cap')
+
+    def open(self, mode):
+        if mode != 'rb': raise ValueError('read only source')
+        self.stream = os.fdopen(os.open(self.path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK), 'rb')
+        self.before = os.fstat(self.stream.fileno())
+        if not stat.S_ISREG(self.before.st_mode) or self.before.st_size != self.expected['bytes']:
+            self.stream.close(); raise ValueError('archive size/type')
+        try: self.copy = self.snapshot.open('xb') if self.snapshot else None
+        except OSError:
+            self.stream.close(); raise
+        return self
+
+    def __enter__(self): return self
+
+    def read(self, size):
+        if type(size) is not int or not 0 <= size <= 65536: raise ValueError('bounded compressed read')
+        if time.monotonic() >= self.budget['deadline']: raise TimeoutError('successor deadline')
+        remaining = self.limits['compressed_archive_read_allowance']-self.budget['compressed_allowance']
+        if size > remaining: raise ValueError('aggregate compressed read cap')
+        body = self.stream.read(size)
+        self.count += len(body); self.digest.update(body); self.budget['compressed_allowance'] += len(body)
+        if self.count > self.expected['bytes']: raise ValueError('archive growth')
+        if self.copy: self.copy.write(body)
+        return body
+
+    def __exit__(self, kind, value, trace):
+        after = os.fstat(self.stream.fileno()); self.stream.close()
+        if self.copy: self.copy.close()
+        identity = lambda s: (s.st_dev,s.st_ino,s.st_size,s.st_mtime_ns,s.st_ctime_ns)
+        self.identity = {k:getattr(after,k) for k in ('st_dev','st_ino','st_size','st_mtime_ns','st_ctime_ns')}
+        if kind is None and (identity(after) != identity(self.before) or self.count != self.expected['bytes'] or self.digest.hexdigest() != self.expected['sha256']):
+            raise ValueError('full archive SHA256/source identity')
+
+
+def decode_report(ref):
+    # Prior outputs, not package archives. Bind stored and decoded whole bytes.
+    body = gzip.decompress(checked(ref))
+    if len(body) > 24*1024**2 or pin(body) != ref['decoded']: raise ValueError('prior report decoded pin/cap')
+    return json.loads(body)
+
+
+def signature(A, config, item, snapshot, sig, output, budget, limits):
+    expected = config['project_primary'] if item['repo']=='project' else config['official_primary']
+    role = 'project' if item['repo']=='project' else 'official'
+    if budget['compressed_allowance']+item['archive']['bytes'] > limits['compressed_archive_read_allowance']:
+        raise ValueError('signature compressed allowance')
+    budget['compressed_allowance'] += item['archive']['bytes']
+    command = ['/usr/bin/prlimit','--as=33554432:33554432','--','/usr/bin/gpgv','--homedir',str(output/'empty-gpg-home'),
+        '--keyring',str(output/(role+'-public.gpg')),'--status-fd','1',str(sig),str(snapshot)]
+    resource.setrlimit(resource.RLIMIT_AS,(limits['worker_AS']-32*1024**2,limits['worker_AS']))
+    try:
+        result = subprocess.run(command,capture_output=True,timeout=10,env={'PATH':'/usr/bin','LC_ALL':'C','HOME':str(output/'empty-gpg-home')})
+    finally: resource.setrlimit(resource.RLIMIT_AS,(limits['worker_AS'],limits['worker_AS']))
+    if len(result.stdout)+len(result.stderr)>65536: raise ValueError('signature output cap')
+    text = result.stdout.decode('utf-8','strict')
+    try:
+        strict = A.signature_status(result.returncode,text,expected)
+        valid = next(line.split()[1:] for line in text.splitlines() if line.startswith('[GNUPG:] VALIDSIG '))
+        if int(valid[3]) > time.time() or int(valid[4]) and time.time() >= int(valid[4]):
+            raise ValueError('signature creation/expiry time')
+    except ValueError: strict = {'status':'HOLD_CURRENT_SIGNATURE_POLICY','expected_primary':expected}
+    return {**strict,'argv':command,'exit':result.returncode,'stdout':text,'stderr':result.stderr.decode('utf-8','replace'),
+        'observed_utc_epoch':time.time(),'natural_retirement':True}
+
+
+def worker(config, output):
+    limits = config['limits']; started = time.monotonic()
+    resource.setrlimit(resource.RLIMIT_AS,(limits['worker_AS'],limits['worker_AS']))
+    signal.alarm(595)
+    checked(config['old_reader'])
+    A = load('closed_retained_ui_reader',Path(config['old_reader']['path']))
+    base_config = json.loads(checked(config['base_contract']))
+    modules = A.modules(base_config)
+    L = load('ui172_large_elf',HERE/'large_elf.py')
+    A.bytearray = L.ELFBuffer
+    parser_sources = {name:modules[name] for name in ('elf','geometry','versions')}
+    cache = {}
+    def parse(body):
+        cache.clear(); cache.update(L.inspect(body,parser_sources,limits['elf_object_bytes']))
+        return cache['elf']
+    modules['elf'] = SimpleNamespace(parse_elf=parse)
+    modules['geometry'] = SimpleNamespace(elf_check=lambda body:cache['geometry'])
+    modules['versions'] = SimpleNamespace(parse=lambda body:cache['gnu_versions'])
+    proposal = json.loads(checked(config['proposal']))
+    if (proposal['additions'],proposal['baseline'],proposal['final']) != (172,111,283): raise ValueError('172/111/283 boundary')
+    acquisition = json.loads(checked(config['xvfb_acquisition']))
+    for ref in config['consumer_sources'].values(): checked(ref)
+    for ref in config['host_tools'].values(): checked(ref)
+    prior = {}; prior_refs = {}
+    for ref in config['prior_reports']:
+        for row in decode_report(ref)['packages']:
+            if row.get('status')=='PASS_BYTE_SIGNATURE_METADATA_SCAN': prior[row['name']]=row; prior_refs[row['name']]=ref
+    old_seat = json.loads(checked(config['seat_ledger']))
+    baseline = json.loads(checked(config['baseline111']))
+    for role in ('official','project'):
+        (output/(role+'-public.gpg')).write_bytes(checked(config[role+'_binary_keyring']))
+    (output/'empty-gpg-home').mkdir(mode=0o700)
+    materials = {r['name']:r for r in proposal['materials']}
+    if len(materials)!=172: raise ValueError('duplicate material')
+    required = config['required_namespace']
+    namespace = {p:r for p,r in old_seat['required_namespace'].items() if p in required}
+    for row in namespace.values(): row['payload'].pop('ELF',None)
+    project = {n for n,r in materials.items() if r['repo']=='project'}
+    if project != {'cachy-asahi-first-login','cachy-asahi-first-login-ui','cachy-asahi-setup'}: raise ValueError('finite TEST route')
+    selected = ({owner for path,owner in required.items() if path not in namespace} | {'llvm-libs','mesa'})
+    budget = {'compressed_allowance':0,'logical_bytes':0,'headers':0,'deadline':started+590}
+    reservation = sum(r['archive']['bytes']+r['archive']['signature_bytes'] for r in materials.values())+sum(materials[n]['archive']['bytes'] for n in project|{'xorg-server-xvfb'})+sum(r['pin']['bytes'] for r in config['templates'].values())
+    if reservation > limits['compressed_archive_read_allowance']: raise ValueError('finite all-input read reservation')
+    (output/'read-reservation.json').write_text(json.dumps({'reserved_compressed_bytes':reservation,'logical_cap':limits['logical_bytes'],
+        'note':'This actual attempt owns its full reservation even if it refuses; never restart with reset counters.'},indent=2)+'\n')
+    templates={}
+    for name,row in config['templates'].items():
+        checked({'path':row['path'],**row['pin']});budget['compressed_allowance']+=row['pin']['bytes']
+        templates[name]={'filename':row['filename'],'pin':row['pin'],'source_path':row['path'],'scope':'actual full template archive bytes; payload/installation not executed'}
+    archives = {}; rescans = []; auth = []; project_payloads = {}; elf_statuses = Counter(); elf_holds=[]
+    for name,item in sorted(materials.items()):
+        previous = prior.get(name); fresh = name=='xorg-server-xvfb'
+        if fresh:
+            if item['archive'] != proposal['changed_root_only']['archive'] or acquisition['objects'][0]['sha256'] != item['archive']['sha256']:
+                raise ValueError('current Xvfb exact acquisition')
+            archive_path = acquisition['objects'][0]['path']; signature_path = acquisition['objects'][1]['path']
+        else:
+            if not previous or previous['archive'] != item['archive'] or previous['version'] != item['version'] or previous['arch'] != item['arch']:
+                raise ValueError('exact prior archive/signature identity absent: '+name)
+            if previous['BUILDINFO_status'] != 'PASS_IDENTITY': raise ValueError('prior BUILDINFO hold: '+name)
+            archive_path = previous['bytes_authentication']['path']
+            signature_path = next(c['signature'] for c in previous['candidates'] if c['archive']==archive_path)
+        # All172 current signature files and archive bytes are freshly pinned.
+        ref = item['archive']; sigdata = checked({'path':signature_path,'bytes':ref['signature_bytes'],'sha256':ref['signature_sha256']},65536)
+        if budget['compressed_allowance']+len(sigdata)>limits['compressed_archive_read_allowance']: raise ValueError('signature byte allowance')
+        budget['compressed_allowance'] += len(sigdata)
+        verify = fresh or name in project
+        snapshot = output/'opaque-current-archive' if verify else None
+        source = Source(archive_path,ref,budget,limits,snapshot)
+        paths = {'/'+p for p,owner in required.items() if owner==name and p not in namespace}
+        if name in selected:
+            scanned,entries = A.inspect(source,item,modules,limits,budget,paths)
+            if scanned['PKGINFO_status'] != 'PASS_EXACT_PLAN' or scanned['BUILDINFO_status'] != 'PASS_IDENTITY': raise ValueError('new metadata hold: '+name)
+            metadata = scanned['metadata']['/.PKGINFO']['fields']
+            if previous and metadata != previous['metadata']['/.PKGINFO']['fields']: raise ValueError('decoded metadata changed')
+            objects=scanned['ELF_objects']
+            elf_holds.extend({'package':name,**o} for o in objects if o['status']!='PASS_STATIC_ELF')
+            rescans.append({'name':name,'archive':ref,**scanned})
+            for path in paths:
+                payload = entries[path]['payload']; payload.pop('ELF',None)
+                namespace[path[1:]] = {'owner':name,'payload':payload}
+            if name in project:
+                project_payloads.update({p:{'owner':name,**r} for p,r in entries.items() if p.startswith('/usr/') and r['type']=='file'})
+            del entries,scanned
+        else:
+            with source.open('rb') as stream:
+                while stream.read(65536): pass
+            metadata = previous['metadata']['/.PKGINFO']['fields']
+            objects=previous['ELF_objects']
+        elf_statuses.update(o['status'] for o in objects)
+        role = 'project' if name in project else 'official'
+        row = {'filename':ref['filename'],'version':item['version'],'archive':{k:ref[k] for k in ('bytes','sha256')},
+            'signature':{'bytes':ref['signature_bytes'],'sha256':ref['signature_sha256']},'metadata':metadata,
+            'signer_role':role,'expected_signer':config[role+'_primary'],'official_repository':role=='official',
+            'static_ELF_statuses':dict(Counter(o['status'] for o in objects)),
+            'source_provenance':{'archive_path':archive_path,'signature_path':signature_path,'current_descriptor_identity':source.identity,
+                'current_full_hash':{'bytes':source.count,'sha256':source.digest.hexdigest()},
+                'prior_receipt':prior_refs.get(name),'fresh_acquisition':config['xvfb_acquisition'] if fresh else None}}
+        if verify:
+            sig=output/'opaque-current-signature'; sig.write_bytes(sigdata)
+            result=signature(A,config,item,snapshot,sig,output,budget,limits)
+            row['current_signature_policy']=result; auth.append({'name':name,**result})
+            snapshot.unlink(); sig.unlink()
+        else: row['current_signature_policy']={'status':'REUSED_PRIOR_SIGNATURE_MATHEMATICS_CURRENT_TRUST_EXTERNAL','evidence':previous['signature']}
+        archives[name]=row
+        (output/'progress.json').write_text(json.dumps({'completed':list(archives),'budget':{k:v for k,v in budget.items() if k!='deadline'},
+            'reserved_compressed_bytes':reservation,'seconds':time.monotonic()-started},indent=2)+'\n')
+        gc.collect()
+    if set(namespace)!=set(required) or len(project_payloads)!=24: raise ValueError('complete12 namespace/24 project payload identities')
+    # Recheck all1319 actual ALPM selected edges using the172 actual metadata rows.
+    identities = {name:{'name':name,'version':row['version'],'provides':row['metadata'].get('provides',[])} for name,row in archives.items()}
+    identities.update({r['name']:{'name':r['name'],'version':r['version'],'provides':r['desc'].get('PROVIDES',[])} for r in baseline['packages']})
+    joins=[]
+    for edge in proposal['metadata_prepare']['dependencies']:
+        provider=identities.get(edge['provider'])
+        joins.append({**edge,'status':'PASS_METADATA_ONLY' if provider and modules['resolver'].witnesses(provider,edge['relation']) else 'HOLD_ACTUAL_PROVIDER_METADATA'})
+    if any(r['status']!='PASS_METADATA_ONLY' for r in joins): raise ValueError('actual metadata incompatibility')
+    policy=namespace['usr/share/polkit-1/actions/org.freedesktop.NetworkManager.policy']['payload']
+    if policy['sha256']!='6002ee5e8fcf3cfdd25fa5425c5dfa879dc293f8b1c69f14b4a8f9259be0b446': raise ValueError('actual NM policy differs')
+    ledger={'kind':'ARM16K_FIRST_LOGIN_UI_AUTHENTICATED_LEDGER_V1','status':'AUTHENTICATED_DATA_WITH_EXPLICIT_TRUST_HOLDS_NO_ROOT_AUTHORITY',
+        'consumer_kind':'ARM16K_FIRST_LOGIN_UI_ADDITIONS_V1','proposal':config['proposal'],'archives':archives,'required_namespace':namespace,
+        'metadata_prepare':proposal['metadata_prepare'],'actual_dependency_joins':joins,
+        'known_incompatibilities':[r for r in elf_holds if r['status']=='FAIL_GEOMETRY_OR_ARCH'],
+        'ELF_holds':elf_holds,'all172_ELF_statuses':dict(elf_statuses),
+        'trust':{'keyrings':{role:{'filename':role+'-public.gpg','pin':{k:config[role+'_binary_keyring'][k] for k in ('bytes','sha256')},
+            'primary':config[role+'_primary']} for role in ('official','project')},'valid_until_utc':None,
+            'status':'HOLD_ROOT_CURRENT_TRUST_AND_PROJECT_EXPIRY_REVIEW; never backdate or manufacture approval'},
+        'templates':templates,
+        'external_manifest_fields':['Root kind/status/issued_by','baseline_prepared','baseline_metadata/provenance','original_file_pins',
+            'two original baseline GLib/Gio required_namespace rows','current admitted trust.valid_until_utc'],
+        'NM_policy':{'source_ledger':config['seat_ledger'],'payload':policy},'project_regular_usr_payloads':project_payloads,
+        'closed_prior_reports_preserved':config['prior_reports'],'budget':{k:v for k,v in budget.items() if k!='deadline'},
+        'seconds':round(time.monotonic()-started,3),'limits':limits,'prior_budgets_carried_or_reopened':False,
+        'process_memory':{line.split(':')[0]:line.split(':')[1].strip() for line in Path('/proc/self/status').read_text().splitlines()
+                          if line.startswith(('VmPeak:','VmHWM:','VmRSS:','VmSize:'))},
+        'rusage_historical_peak_bytes':resource.getrusage(resource.RUSAGE_SELF).ru_maxrss*1024,
+        'full_symbol_ABI_runtime_build_M2_legal_release':'NOT_RUN; full baseline namespace and symbols remain external',
+        'no_network_rootfs_payload_execution_actor_install':True}
+    for filename,value in [('authenticated-ledger.json',ledger),('rescanned-ELF-metadata.json',rescans),('fresh-signature-policy.json',auth)]:
+        body=json.dumps(value,indent=2,sort_keys=True)+'\n'
+        if len(body.encode())>limits['retained_report_bytes']: raise ValueError('output cap')
+        (output/filename).write_text(body)
+    print(json.dumps({'archives':len(archives),'selected_decodes':len(rescans),'namespace':len(namespace),'edges':len(joins),'budget':ledger['budget'],'seconds':ledger['seconds'],'process_memory':ledger['process_memory']}))
+
+
+if __name__=='__main__':
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--output',type=Path,required=True);parser.add_argument('--worker',action='store_true');args=parser.parse_args()
+    if not args.output.resolve().is_relative_to(Path('/tmp')): parser.error('private new /tmp output')
+    config=json.loads((HERE/'inputs.json').read_text());output=args.output.resolve()
+    if args.worker: worker(config,output)
+    else:
+        resource.setrlimit(resource.RLIMIT_AS,(config['limits']['supervisor_AS'],config['limits']['worker_AS']))
+        output.mkdir(mode=0o700,exist_ok=False);started=time.monotonic()
+        producer={name:pin((HERE/name).read_bytes()) for name in ('audit.py','large_elf.py','inputs.json')}
+        result=subprocess.run([sys.executable,'-I','-B',str(Path(__file__).resolve()),'--worker','--output',str(output)],capture_output=True,timeout=599,
+                              env={'PATH':'/usr/bin:/bin','LC_ALL':'C','TZ':'UTC'})
+        receipt={'exit':result.returncode,'natural_retirement':True,'seconds':round(time.monotonic()-started,3),'stdout':result.stdout.decode(errors='replace'),
+            'stderr':result.stderr.decode(errors='replace')[:4000],'limits':config['limits'],'producer_pins':producer,
+            'producer_stable_during_execution':all(pin((HERE/name).read_bytes())==ref for name,ref in producer.items())}
+        (output/'execution.json').write_text(json.dumps(receipt,indent=2,sort_keys=True)+'\n');print(json.dumps(receipt))

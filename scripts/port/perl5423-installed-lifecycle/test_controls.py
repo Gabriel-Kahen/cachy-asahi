@@ -3,10 +3,16 @@
 import importlib.util
 import io
 import copy
+import contextlib
+import fcntl
+import os
 from pathlib import Path
+import socket
+import subprocess
 import tarfile
 import tempfile
 import unittest
+from unittest.mock import patch
 
 HERE = Path(__file__).resolve().parent
 
@@ -17,7 +23,7 @@ def load(name):
     return module
 
 
-C, A, P = load('common'), load('actor'), load('producer')
+C, A, P, R = load('common'), load('actor'), load('producer'), load('read_result')
 DOMAIN = C.decode(C.read(HERE / 'domain.json'))
 
 
@@ -29,6 +35,104 @@ def admitted():
 
 
 class Controls(unittest.TestCase):
+    def removal_fixture(self):
+        expected = {'pkg-%03d'%n:'1-1' for n in range(347)}
+        expected.update(perl='5.42.3-1', autoconf='2.72-1')
+        inventory = ''.join(name+' '+expected[name]+'\n' for name in sorted(expected)).encode()
+        descriptor = b'%NAME%\nautoconf\n\n%VERSION%\n2.72-1\n\n%DEPENDS%\nperl>=5.42\nm4\n\n'
+        relative = 'autoconf-2.72-1/desc'
+        database = dict(raw={relative:dict(type='file', **C.pin(descriptor))}, normalized={}, perl_install_date='1')
+        files = {'usr/bin/perl':dict(type='file', **C.pin(b'baseline interpreter'))}
+        user = {'config':dict(type='file', uid=1001, **C.pin(b'user edit'))}
+        home = {'.':dict(type='directory', uid=1001), '.perl5423-lifecycle/config':user['config']}
+        original = dict(files=files, accounts={n:C.pin(n.encode()) for n in ('passwd','group','shadow','gshadow')},
+                        trust={}, hooks={}, pacman_conf=C.pin(b'ordinary config'))
+        before = dict(inventory=C.pin(inventory), database=C.pin(C.encode(database)),
+            package_owned=C.pin(C.encode(files)), user_fixture=C.pin(C.encode(user)),
+            alarm_home=C.pin(C.encode(home)), accounts=original['accounts'],
+            trust=C.pin(C.encode({})), hooks=C.pin(C.encode({})), pacman_conf=original['pacman_conf'])
+        diagnostic = (b'error: failed to prepare transaction (could not satisfy dependencies)\n'
+                      b":: removing perl breaks dependency 'perl>=5.42' required by autoconf\n")
+        natural = dict(natural_exit=True, group_absent=True, leader_held_until_group_inspection=True,
+                       exit_observed_via_waitpid=True, ownership_lost=False, forced_cleanup=False,
+                       retirement='REAPED', exit=1)
+        steps = ['probe-baseline','inventory-before-removal-refusal','dependency-protected-removal',
+                 'inventory-after-removal-refusal','trusted-upgrade']
+        commands = [dict(step=name, argv=['/usr/bin/pacman','-Q'], expected=0, returncode=0,
+                         success=True, lifecycle={**natural,'exit':0}) for name in steps]
+        commands[2].update(argv=A.REMOVAL_ARGV[:], expected=1, returncode=1, lifecycle=natural)
+        members = {'dependency-protected-removal.stdout':b'checking dependencies...\n',
+                   'dependency-protected-removal.stderr':diagnostic,
+                   'inventory-before-removal-refusal.stdout':inventory,
+                   'inventory-after-removal-refusal.stdout':inventory}
+        witnesses = A.removal_witnesses(b'',diagnostic,expected,database['raw'],lambda name:descriptor)
+        actor = dict(commands=commands, original=original, baseline=dict(database=database,user=user),
+            removal_refusal=dict(status='PASS_DEPENDENCY_PROTECTED_REMOVAL_REFUSAL',before=before,
+                after=copy.deepcopy(before),witnesses=witnesses,alarm_home_before=home,
+                alarm_home_after=copy.deepcopy(home),baseline_payload_verified_after_refusal=True,full_uninstall='NOT_RUN'))
+        return actor, members, expected
+
+    def test_normal_removal_argv_keeps_dependency_checks_and_trusted_config(self):
+        self.assertEqual(A.REMOVAL_ARGV,
+            ['/usr/bin/pacman','--config','/work/pacman.conf','--noconfirm','-R','perl'])
+        self.assertFalse({'--nodeps','-Rdd','--force','--overwrite','--print'} & set(A.REMOVAL_ARGV))
+
+    def test_removal_needs_specific_complete_dependency_diagnostic(self):
+        actor, members, expected = self.removal_fixture()
+        raw = members['dependency-protected-removal.stderr']
+        self.assertEqual(A.removal_diagnostic(b'',raw,expected),
+                         [dict(dependency='perl>=5.42',consumer='autoconf')])
+        for bad in (b'error: database is locked\n', raw.split(b'::')[0],
+                    raw.replace(b'autoconf',b'not-in-baseline'), raw.replace(b"'perl>=5.42'",b"'python'"),
+                    raw + b":: removing perl breaks dependency 'python' required by autoconf\n"):
+            with self.assertRaises(ValueError): A.removal_diagnostic(b'',bad,expected)
+
+    def test_actor_dependency_witness_bound_to_baseline_db_and_declared_dependency(self):
+        actor, members, expected = self.removal_fixture()
+        witness = actor['removal_refusal']['witnesses'][0]
+        db = actor['baseline']['database']['raw']; raw = witness['descriptor'].encode()
+        for changed in (raw.replace(b'perl>=5.42',b'python'), raw.replace(b'2.72-1',b'2.71-1')):
+            with self.assertRaises(ValueError):
+                A.removal_witnesses(b'',members['dependency-protected-removal.stderr'],expected,db,lambda name:changed)
+
+    def test_reader_binds_original_negative_before_upgrade(self):
+        R.removal_refusal(*self.removal_fixture())
+
+    def test_reader_refuses_bypass_success_forced_retirement_order_and_uninstall_credit(self):
+        for changed in ('argv','exit','forced','order','payload','uninstall'):
+            actor, members, expected = self.removal_fixture()
+            row = actor['commands'][2]
+            if changed == 'argv': row['argv'] = row['argv'] + ['--nodeps']
+            elif changed == 'exit': row['returncode'] = row['lifecycle']['exit'] = 0
+            elif changed == 'forced': row['lifecycle']['forced_cleanup'] = True
+            elif changed == 'order': actor['commands'][2],actor['commands'][4] = actor['commands'][4],actor['commands'][2]
+            elif changed == 'payload': actor['removal_refusal']['baseline_payload_verified_after_refusal'] = False
+            else: actor['removal_refusal']['full_uninstall'] = 'PASS'
+            with self.subTest(changed=changed), self.assertRaises(ValueError): R.removal_refusal(actor,members,expected)
+
+    def test_reader_refuses_each_changed_preservation_scope(self):
+        for key in ('inventory','database','package_owned','user_fixture','alarm_home','accounts','trust','hooks','pacman_conf'):
+            actor, members, expected = self.removal_fixture()
+            actor['removal_refusal']['after'][key] = {'changed':True}
+            with self.subTest(key=key), self.assertRaises(ValueError): R.removal_refusal(actor,members,expected)
+
+    def test_reader_requires_original_stream_diagnostic_and_all349_inventory(self):
+        for changed in ('diagnostic','witness','inventory'):
+            actor, members, expected = self.removal_fixture()
+            if changed == 'diagnostic': members['dependency-protected-removal.stderr'] = b'unrelated failure'
+            elif changed == 'witness': actor['removal_refusal']['witnesses'] = []
+            else: members['inventory-after-removal-refusal.stdout'] = members['inventory-after-removal-refusal.stdout'].replace(b'perl 5.42.3-1',b'perl 5.42.3-1.3')
+            with self.subTest(changed=changed), self.assertRaises(ValueError): R.removal_refusal(actor,members,expected)
+
+    def test_reader_rejects_detached_descriptor_and_baseline_or_home_drift(self):
+        for changed in ('descriptor','baseline_db','baseline_files','home'):
+            actor, members, expected = self.removal_fixture()
+            if changed == 'descriptor': actor['removal_refusal']['witnesses'][0]['descriptor'] += '\nchanged'
+            elif changed == 'baseline_db': actor['baseline']['database']['extra'] = 'change'
+            elif changed == 'baseline_files': actor['original']['files']['usr/bin/perl']['uid'] = 9
+            else: actor['removal_refusal']['alarm_home_after']['.']['uid'] = 9
+            with self.subTest(changed=changed), self.assertRaises(ValueError): R.removal_refusal(actor,members,expected)
+
     def test_templates_refuse_authority(self):
         with self.assertRaises(ValueError):
             C.admission(C.decode(C.read(HERE / 'admission.TEMPLATE.json')), 'a'*64)
@@ -222,4 +326,12 @@ class Controls(unittest.TestCase):
         with self.assertRaises(ValueError): A.runtime(DOMAIN)
 
 
-if __name__ == '__main__': unittest.main()
+if __name__ == '__main__':
+    with contextlib.ExitStack() as stack:
+        for module, names in ((subprocess,('Popen','run','check_output')),
+                              (socket,('socket','create_connection')), (fcntl,('flock',)),
+                              (os,('system','fork','forkpty','posix_spawn','posix_spawnp','execv','execve','pidfd_open'))):
+            for name in names:
+                if hasattr(module,name):
+                    stack.enter_context(patch.object(module,name,side_effect=AssertionError('actor fenced: '+name)))
+        unittest.main()

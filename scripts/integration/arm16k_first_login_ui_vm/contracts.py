@@ -18,6 +18,7 @@ def read(path,maximum=8*1024**2):
  p=Path(path);assert p.is_file()and not p.is_symlink()and p.stat().st_size<=maximum;return json.loads(p.read_text())
 def references():
  refs=read(HERE/'references.json');arm=ROOT/refs['arm_source']['path'];checked(arm/'source.lock.json',refs['arm_source']['source_lock']);checked(arm/'contracts.py',refs['arm_source']['contracts']);A=load('UI_ARM_lower_contracts',arm/'contracts.py');A.source();local_input=refs['arm_source']['local_input'];checked(arm/local_input['filename'],{k:local_input[k]for k in ['bytes','sha256']})
+ checks=refs['arm_source']['observer_checks'];checked(arm/checks['filename'],{k:checks[k]for k in ['bytes','sha256']})
  x86=ROOT/refs['x86_source']['path']
  for n,r in refs['x86_source']['files'].items():checked(x86/n,r)
  for key in ['owned_process','elf_parser','public_packets','public_packets_dependency']:refs[key]['path']=str(ROOT/refs[key]['path'])
@@ -85,6 +86,15 @@ def validate_edges(manifest,catalog,base,arm):
    if node['type']=='5':continue
    assert path not in occupied and path not in added,'package-owned non-directory collision';added[path]=name
 
+def minimal_seat_report(value):
+ assert value['status']=='PASS_EMULATED_ARM16K_VIRTIO_SEAT_PAM_POLICY_ONLY'
+ for key in ['normal_VT_PAM_logout_observed','owned_container_absence_verified','owned_container_removed','cleanup_ownership_verified','QMP_quit_requested']:assert value[key]is True
+ assert value['cleanup_errors']==[]and value['installed_gate']['installed_count']==155
+ retired=value['QEMU_retirement'];assert retired['passed']is True and retired['reaped']is True and retired['group_census']=='EMPTY_TWICE'and not retired.get('actor_cancelled')
+ seat=value['seat'];assert seat['architecture']=='aarch64'and seat['pagesize']==16384 and seat['user']['sd_session_get_seat']=={'return':0,'seat':'seat0'}and seat['observed_stages']['password_ready_echo_off']is True
+ checks=seat['independent_checks'];assert set(checks)=={'bus-credentials','logind-session','process-vt','keyboard-record','gpu-record','seat-status'}and all(row['passed']is True for row in checks.values())
+ return value
+
 def preflight(args,phase='prepare'):
  # Null admissions are checked before source imports/material scans/output/actors.
  checked(args.authority,{'bytes':args.authority.stat().st_size,'sha256':args.authority_sha256});authority=admission(read(args.authority),phase);assert authority['source_lock']==source();refs,arm,x86,A=references()
@@ -93,8 +103,8 @@ def preflight(args,phase='prepare'):
  checked(args.tool_qualification,authority['tool_qualification']);qualification=read(args.tool_qualification);qualified_tool(tool,authority['tool_image_id'],qualification,ROOT/refs['tool_producer']['path']);assert qualification['Root_device_help_metadata']==pin(args.qemu_metadata)
  base,marker=A.baseline(args.base,args.base_first_boot_report)
  for field,path in [('minimal155_report',args.minimal155_report),('minimal155_prepared',args.minimal155_prepared)]:checked(path,authority[field])
- minimal=read(args.minimal155_report);previous=read(args.minimal155_prepared);assert minimal['status']=='PASS_EMULATED_ARM16K_VIRTIO_SEAT_PAM_POLICY_ONLY'and minimal['normal_VT_PAM_logout_observed']is True and minimal['owned_container_absence_verified']is True and minimal['QEMU_retirement']['passed']is True and previous['kernel']==kernel and previous['lineage']['base_files']['guest.raw']==A.lock()['base_files']['guest.raw']
- assert previous['operation']=='arm16k-virtio-seat-vm-v1'and len(previous['lineage']['additions']['archives'])==44 and previous['authority']['tool_image_id']==authority['tool_image_id']and minimal['image_id']==authority['tool_image_id']and minimal['installed_gate']['installed_count']==155 and minimal['seat']['architecture']=='aarch64'and minimal['seat']['pagesize']==16384 and minimal['seat']['user']['sd_session_get_seat']=={'return':0,'seat':'seat0'}and minimal['seat']['observed_stages']['password_ready_echo_off']is True and minimal['QMP_quit_requested']is True and minimal['QEMU_retirement']['reaped']is True and minimal['QEMU_retirement']['group_census']=='EMPTY_TWICE'and not minimal['QEMU_retirement'].get('actor_cancelled')
+ minimal=minimal_seat_report(read(args.minimal155_report));previous=read(args.minimal155_prepared);assert previous['kernel']==kernel and previous['lineage']['base_files']['guest.raw']==A.lock()['base_files']['guest.raw']
+ assert previous['operation']=='arm16k-virtio-seat-vm-v1'and len(previous['lineage']['additions']['archives'])==44 and previous['authority']['tool_image_id']==authority['tool_image_id']and minimal['image_id']==authority['tool_image_id']
  checked(args.additions_manifest,authority['additions_manifest']);manifest=read(args.additions_manifest);rows=manifest['archives'];assert manifest['kind']=='ARM16K_FIRST_LOGIN_UI_ADDITIONS_V1'and manifest['status']=='ROOT_REVIEWED_COMPLETE_UI283_CLOSURE'and manifest['issued_by']=='Root'and len(rows)==172 and manifest['baseline_prepared']==A.lock()['base_prepared']and not set(rows)&{r['name']for r in base['base_packages']};validate_prepare_proof(manifest['metadata_prepare'],rows)
  assert rows['xorg-server-xvfb']['version']=='21.1.26-1'and rows['xorg-server-xvfb']['archive']['sha256']=='c4729aaf327fae3f19795f4fbcad8035798316d4c812c56953c32796f1cf916c'
  deadline=time.monotonic()+180;D=load('UI283_finite_packages',HERE/'package_data.py');elf_ref=refs['elf_parser'];checked(elf_ref['path'],{k:elf_ref[k]for k in ['bytes','sha256']});E=load('UI283_existing_ELF',Path(elf_ref['path']));catalog={};compressed=decoded=0

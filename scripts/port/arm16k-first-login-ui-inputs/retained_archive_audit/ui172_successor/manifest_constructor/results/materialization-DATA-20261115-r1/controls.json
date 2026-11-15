@@ -1,0 +1,21 @@
+{
+  "controls": [
+    {
+      "passed": 12,
+      "runtime": "CPython3.12.13",
+      "seconds": 0.005
+    },
+    {
+      "passed": 12,
+      "runtime": "CPython3.14.7",
+      "seconds": 0.006
+    }
+  ],
+  "flags": [
+    "-I",
+    "-B",
+    "-W error::ResourceWarning"
+  ],
+  "original_materials_accessed_by_controls": false,
+  "postcopy_verification": "metadata-only exact348membership/modes/sizes/uid checks; no extra payload hashes"
+}

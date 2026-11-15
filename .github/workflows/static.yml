@@ -364,6 +364,13 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_first_login_ui_vm/test_controls.py
           python3 -I -B -Werror::ResourceWarning scripts/port/perl5423-xs-consumer/native_adapter/test_native.py
           python3 -I -B -Werror::ResourceWarning scripts/port/perl5423-xs-consumer/native_adapter/hosted_source/test_source.py
+          python3 -I -B -Werror::ResourceWarning scripts/port/perl5423-xs-consumer/native_adapter/hosted_source_v2/test_prepare_inputs.py
+          python3 -I -B -Werror::ResourceWarning scripts/port/perl5423-xs-consumer/native_adapter/hosted_source_v2/test_source.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/llvm23-source-reference-native/payload/actor/test_actor_data.py
+          python3 -I -B -Werror::ResourceWarning scripts/port/perl5423-xs-consumer/native_adapter/independent_reader/v2/test_v2.py
+          python3 -I -B -Werror::ResourceWarning scripts/port/arm16k-first-login-ui-inputs/retained_archive_audit/ui172_successor/manifest_constructor/test_construct.py
+          python3 -I -B -Werror::ResourceWarning scripts/port/arm16k-first-login-ui-inputs/retained_archive_audit/ui172_successor/manifest_constructor/test_materialize.py
+          python3 -I -B -Werror::ResourceWarning scripts/port/arm-rust-toolchain-inputs/source-closure/archive-inventory/checksum-successor/license-followup/compiler-notices/successor-b/test_reevaluate.py
           python3 -I -B -Werror::ResourceWarning scripts/port/perl5423-installed-lifecycle/test_controls.py
           python3 -I -B -Werror::ResourceWarning scripts/port/arm-rust-toolchain-inputs/source-closure/archive-inventory/checksum-successor/license-followup/compiler-notices/test_reevaluate.py
           python3 -I -B -Werror::ResourceWarning scripts/port/arm16k-first-login-ui-inputs/retained_archive_audit/test_audit.py

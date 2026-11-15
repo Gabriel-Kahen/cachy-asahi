@@ -2,7 +2,28 @@
   "M2_native_release": "NOT RUN",
   "actual_VM": null,
   "actual_complete172_admission": null,
-  "actual_minimal155_pass": null,
+  "actual_minimal155_pass": {
+    "Root_decision": {
+      "archived_path": "data/Root-minimal155-r4-decision.json",
+      "bytes": 1530,
+      "sha256": "f07fbd4155f81e7683928d599d6cd0677ff6b63a3bcf0063e53bbc7fd8b5e52b",
+      "source_path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-ARM155-boot-r4/Root-scoped-decision.ACTUAL-r1.json"
+    },
+    "independent_checks_passed": 6,
+    "prepared": {
+      "bytes": 2304798,
+      "sha256": "dca852180a1bb867c53ba989561565da6cbca603a22defb880aff9694195976a",
+      "source_path": "/dev/shm/cachy-asahi-arm16k-virtio-seat-preparation-root-20261115-r4/assembly/prepared.json"
+    },
+    "report": {
+      "archived_path": "data/minimal155-r4-report.json",
+      "bytes": 15418,
+      "sha256": "51bce478b33682d5f4bd01343db31882101c49aaa4973656b07a1f0e0d46422b",
+      "source_path": "/dev/shm/cachy-asahi-arm16k-virtio-seat-first-boot-root-20261115-r4/report.json"
+    },
+    "scope": "Root actual generic ARM16K real-seat PAM/stock Polkit substrate only; no GTK/UI/native/M2/release acceptance",
+    "status": "PASS_EMULATED_ARM16K_VIRTIO_SEAT_PAM_POLICY_ONLY"
+  },
   "actual_preparation": null,
   "actual_public_Source": null,
   "actual_tool_image": null,
@@ -65,6 +86,11 @@
     "installed_packages": 155,
     "status": "HOLD",
     "terminal_stage": "GPU-wait-before-LOGIN_READY"
+  },
+  "lower_minimal155_closed_r2_r3": {
+    "cause": "r2 unnamed independent-observer assertion; r3 proven GPU TAGS/CURRENT_TAGS ordering only, with identical membership and all other raw fields",
+    "correction": "9508955 exact GPU tag-set VALUES only; keyboard/general records strict; no tag/policy/session alteration",
+    "status": "HOLD_CLOSED_IMMUTABLE"
   },
   "retained_qualified_tool_DATA": {
     "UI_consumer_pure_interop": "PASS_GENUINE_RETAINED_PRODUCER_RECEIPTS_ONLY",

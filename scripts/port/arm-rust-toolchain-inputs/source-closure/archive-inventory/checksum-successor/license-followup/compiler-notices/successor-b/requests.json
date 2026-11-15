@@ -1,0 +1,188 @@
+{
+  "acquisition_closed": true,
+  "body_bytes": 336941,
+  "requests": [
+    {
+      "HTTP": 301,
+      "bytes": 260,
+      "location": "https://api.github.com/repositories/60375943/git/trees/7b1471ad430dd899046280f79066fc2d9b0fac90?recursive=1",
+      "ordinal": 1,
+      "seconds": 0.115,
+      "sha256": "b69464e028fa12d1d21ed16f0f88b131ed422e8c97bc2c4b1b69368636626255",
+      "url": "https://api.github.com/repos/tov/libffi-rs/git/trees/7b1471ad430dd899046280f79066fc2d9b0fac90?recursive=1"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 146635,
+      "file": "libffi-tree.json",
+      "ordinal": 2,
+      "seconds": 0.178,
+      "sha256": "00762b41431960e374e6acf92dc257356bb8eee0966e88a175597ce1d7647861",
+      "url": "https://api.github.com/repositories/60375943/git/trees/7b1471ad430dd899046280f79066fc2d9b0fac90?recursive=1"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 91427,
+      "file": "ui-test-tree.json",
+      "ordinal": 3,
+      "seconds": 0.267,
+      "sha256": "2a13bca5d835485ed5c7669db22ab489c145a918de031aec979777393f8de14c",
+      "url": "https://api.github.com/repos/oli-obk/ui_test/git/trees/7917d5025f381a7348d7a78dbe557c4bd64e8cbd?recursive=1"
+    },
+    {
+      "HTTP": 301,
+      "bytes": 261,
+      "location": "https://api.github.com/repositories/217554563/git/trees/378ac7461ecac29fde9e10df7b08359d1315a9ad?recursive=1",
+      "ordinal": 4,
+      "seconds": 0.112,
+      "sha256": "254d211a7466eb6ae96025de4f04931bcdc75bd382ee69abee6b443e448c4aae",
+      "url": "https://api.github.com/repos/zrzka/anes-rs/git/trees/378ac7461ecac29fde9e10df7b08359d1315a9ad?recursive=1"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 20651,
+      "file": "anes-tree.json",
+      "ordinal": 5,
+      "seconds": 0.158,
+      "sha256": "3ad09efc9eaa141ed98d597d0c29380fa503614df65b587a45340addcd2a9dc3",
+      "url": "https://api.github.com/repositories/217554563/git/trees/378ac7461ecac29fde9e10df7b08359d1315a9ad?recursive=1"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 619,
+      "file": "libffi-Cargo.toml",
+      "ordinal": 6,
+      "seconds": 0.112,
+      "sha256": "218f4217c9d56a8ef9981eae3e0ebf98d1362480e1f25961f0b38acadd830ce5",
+      "url": "https://raw.githubusercontent.com/tov/libffi-rs/7b1471ad430dd899046280f79066fc2d9b0fac90/Cargo.toml"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 1056,
+      "file": "libffi-LICENSE-MIT",
+      "ordinal": 7,
+      "seconds": 0.094,
+      "sha256": "b766d21b534e9303428c16644ef624e264668525fdcd4c2490865ed023dba842",
+      "url": "https://raw.githubusercontent.com/tov/libffi-rs/7b1471ad430dd899046280f79066fc2d9b0fac90/LICENSE-MIT"
+    },
+    {
+      "HTTP": 422,
+      "bytes": 164,
+      "file": "rsqlite-tree.json",
+      "ordinal": 8,
+      "seconds": 0.171,
+      "sha256": "9aa3b16b4ac72e8416868eea03fb74481e7c94aed7a4fd383044e5ab58c79d77",
+      "url": "https://api.github.com/repos/xmtp/sqlite-web-rs/git/trees/1bb309784f25c401ddf95131dcde4c4cdad7aee7?recursive=1"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 6133,
+      "file": "line-index-root-tree.json",
+      "ordinal": 9,
+      "seconds": 0.137,
+      "sha256": "964a29b074eae66dfdd1a33cde0835e65b93bdb6a6685a25094ec2b88f8e4df3",
+      "url": "https://api.github.com/repos/rust-lang/rust-analyzer/git/trees/3bda0cc2c07f6330b543be2c12c5e156847ba94e"
+    },
+    {
+      "HTTP": 301,
+      "bytes": 260,
+      "location": "https://api.github.com/repositories/15992970/git/trees/3ea14b2166553ad6e7b9afe7244144f5d661b6c6?recursive=1",
+      "ordinal": 10,
+      "seconds": 0.14,
+      "sha256": "d870ccd989e563cc2960a41b6dc2ecb9c06807cf8156f0b18bbd106501d36160",
+      "url": "https://api.github.com/repos/sfackler/rust-phf/git/trees/3ea14b2166553ad6e7b9afe7244144f5d661b6c6?recursive=1"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 12803,
+      "file": "phf010-tree.json",
+      "ordinal": 11,
+      "seconds": 0.176,
+      "sha256": "01efb71666739ccf48563f82137275c838673676bc862441b15c2846d3c9f284",
+      "url": "https://api.github.com/repositories/15992970/git/trees/3ea14b2166553ad6e7b9afe7244144f5d661b6c6?recursive=1"
+    },
+    {
+      "HTTP": 301,
+      "bytes": 260,
+      "location": "https://api.github.com/repositories/15992970/git/trees/bed01538ae576876f11189d541875d228acef9e8?recursive=1",
+      "ordinal": 12,
+      "seconds": 0.126,
+      "sha256": "7acb2b213938edd838b2db6790bc0115f284908b734d4ae1c415b78d4fcf5a19",
+      "url": "https://api.github.com/repos/sfackler/rust-phf/git/trees/bed01538ae576876f11189d541875d228acef9e8?recursive=1"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 13764,
+      "file": "phf0101-tree.json",
+      "ordinal": 13,
+      "seconds": 0.125,
+      "sha256": "706e8be0dc853b5729c6bc20484554831e021696a8fb8cd8cb12fbe025ee2068",
+      "url": "https://api.github.com/repositories/15992970/git/trees/bed01538ae576876f11189d541875d228acef9e8?recursive=1"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 9723,
+      "file": "line-index-LICENSE-APACHE",
+      "ordinal": 14,
+      "seconds": 0.143,
+      "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a",
+      "url": "https://raw.githubusercontent.com/rust-lang/rust-analyzer/3bda0cc2c07f6330b543be2c12c5e156847ba94e/LICENSE-APACHE"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 1086,
+      "file": "phf010-LICENSE",
+      "ordinal": 15,
+      "seconds": 0.124,
+      "sha256": "d8870d5e2ab20fc50915b711c5aa7588131c9abcc1bcb980da1efd7486522a46",
+      "url": "https://raw.githubusercontent.com/rust-phf/rust-phf/3ea14b2166553ad6e7b9afe7244144f5d661b6c6/LICENSE"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 1086,
+      "file": "phf0101-LICENSE",
+      "ordinal": 16,
+      "seconds": 0.095,
+      "sha256": "d8870d5e2ab20fc50915b711c5aa7588131c9abcc1bcb980da1efd7486522a46",
+      "url": "https://raw.githubusercontent.com/rust-phf/rust-phf/bed01538ae576876f11189d541875d228acef9e8/LICENSE"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 17227,
+      "file": "phf0112-tree.json",
+      "ordinal": 17,
+      "seconds": 0.164,
+      "sha256": "84a7c3c1366011f9507fd70f58e486aeaaf3543db3ed4ad267835696a787e5b8",
+      "url": "https://api.github.com/repos/rust-phf/rust-phf/git/trees/c9c35fd8ba3f1bc228388b0cef6e3814a02a72c0?recursive=1"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 1099,
+      "file": "phf0112-LICENSE",
+      "ordinal": 18,
+      "seconds": 0.121,
+      "sha256": "0ab4d106b6faac07fb6a051815fd1b4d862d730895e2d7d7358c2f13565e7a38",
+      "url": "https://raw.githubusercontent.com/rust-phf/rust-phf/c9c35fd8ba3f1bc228388b0cef6e3814a02a72c0/LICENSE"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 6171,
+      "file": "phf-repository.json",
+      "ordinal": 19,
+      "seconds": 0.161,
+      "sha256": "17cd8e0dce6cf7a59ca80add37fdb71082681c9d4c43a2dd2fa7344a6c290f14",
+      "url": "https://api.github.com/repos/rust-phf/rust-phf"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 6256,
+      "file": "libffi-repository.json",
+      "ordinal": 20,
+      "seconds": 0.193,
+      "sha256": "9c4d9664d0269597b05c8a84601962ae6a1f56d80b4f81820a6d3fa925a87ecd",
+      "url": "https://api.github.com/repos/libffi-rs/libffi-rs"
+    }
+  ],
+  "started_epoch": 1794741875.21101,
+  "stopped_epoch": 1794742036.2089741
+}

@@ -1,0 +1,66 @@
+{
+  "actual": {
+    "Reader": null,
+    "acceptance": null,
+    "approval": null,
+    "artifact": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "files": {
+    "adapters.py": {
+      "bytes": 3563,
+      "mode": 420,
+      "sha256": "0c30d617bbbcbd361efdf6c6c2803bbe69acba214e645398c6b67a079475c2fa"
+    },
+    "binding.TEMPLATE.json": {
+      "bytes": 349,
+      "mode": 420,
+      "sha256": "af0c42a9a87eff5222a612ecc5fec122b9766884eba6aca6bd2b58df5552f0ff"
+    },
+    "reader.py": {
+      "bytes": 14311,
+      "mode": 420,
+      "sha256": "54c6a55a5b5ff2ecdce517ccb513dc9876ab9bf96f94294bf3deadf277884b25"
+    },
+    "test_v2.py": {
+      "bytes": 3526,
+      "mode": 420,
+      "sha256": "eec31d79b9b58bded41b40a77bfb2cc46d05fb99f720dc2c01301eefa62a4dbc"
+    }
+  },
+  "inherited_passive_files": {
+    "bootstrap.py": {
+      "bytes": 37497,
+      "sha256": "3bd3b507b4fd2148db679116c9a4eeb9f54cb780c5662608d059e223d2f6552d"
+    },
+    "consumer.py": {
+      "bytes": 25911,
+      "sha256": "d1dff4ae3dde90e52ce702b19a781ec717b2446de5a8b03e44b4eea2f3a93a93"
+    },
+    "data.py": {
+      "bytes": 7532,
+      "sha256": "7f4352e07fa13ee718ecc7009c44df8b7851e8c45a815b10c3c5808c8ca49747"
+    },
+    "support/data_export.py": {
+      "bytes": 2955,
+      "sha256": "ac59342608cc8279ccb0aa218da792e72d903960769ab2f4553ee8ea9b5d334e"
+    },
+    "support/helpers/archive_stream.py": {
+      "bytes": 11938,
+      "sha256": "10f1a4c0ac5b98852d9ebb150af28f9ce345c800935a64fa463bc90f72fcb838"
+    },
+    "support/helpers/elf64le_aarch64.py": {
+      "bytes": 16410,
+      "sha256": "7c89596b854457897a6addb5b28794c2e0d9ffeffee44369a19b5a70f0a3cc53"
+    },
+    "support/perl_reader.py": {
+      "bytes": 71381,
+      "sha256": "406333604f7b1ca17e986d16ac61cb1c9188f15b5f364a48323e258882f28def"
+    }
+  },
+  "kind": "PASSIVE_XS_V2_READER_SOURCE_INVENTORY_NOT_AUTHORITY",
+  "schema": 1
+}

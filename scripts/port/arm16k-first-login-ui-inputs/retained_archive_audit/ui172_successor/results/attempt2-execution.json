@@ -1,0 +1,37 @@
+{
+  "exit": 1,
+  "limits": {
+    "archive_object_bytes": 67108864,
+    "compressed_archive_read_allowance": 268435456,
+    "decoder_memory_bytes": 67108864,
+    "elf_object_bytes": 201326592,
+    "gpgv_child_AS": 33554432,
+    "logical_bytes": 1073741824,
+    "members": 150000,
+    "metadata_object_bytes": 2097152,
+    "retained_report_bytes": 25165824,
+    "signature_phase_worker_AS": 167772160,
+    "supervisor_AS": 67108864,
+    "wall_seconds": 600,
+    "worker_AS": 738197504
+  },
+  "natural_retirement": true,
+  "producer_pins": {
+    "audit.py": {
+      "bytes": 21574,
+      "sha256": "6a07981f243a8394732768cb11e1abe8afae407af662fe7a1390acb9fad32b60"
+    },
+    "inputs.json": {
+      "bytes": 8399,
+      "sha256": "68f1b4ba10edc5c07ed433509e566bc30ae806d1ff8b37e7940b97a8b4cd6e78"
+    },
+    "large_elf.py": {
+      "bytes": 8414,
+      "sha256": "143dac237edde466ccb2ed7fa231c38f30fa2d851937c88d6f0a491f11f564f5"
+    }
+  },
+  "producer_stable_during_execution": true,
+  "seconds": 0.08,
+  "stderr": "Traceback (most recent call last):\n  File \"/home/gabe/Documents/ChatGPT/cachy-asahi-rust-inputs-parallel-20261114/scripts/port/arm16k-first-login-ui-inputs/retained_archive_audit/ui172_successor/audit.py\", line 285, in <module>\n    if args.worker: worker(config,output)\n                    ~~~~~~^^^^^^^^^^^^^^^\n  File \"/home/gabe/Documents/ChatGPT/cachy-asahi-rust-inputs-parallel-20261114/scripts/port/arm16k-first-login-ui-inputs/retained_archive_audit/ui172_successor/audit.py\", line 139, in worker\n    for ref in config['consumer_sources'].values(): checked(ref)\n                                                    ~~~~~~~^^^^^\n  File \"/home/gabe/Documents/ChatGPT/cachy-asahi-rust-inputs-parallel-20261114/scripts/port/arm16k-first-login-ui-inputs/retained_archive_audit/ui172_successor/audit.py\", line 39, in checked\n    raise ValueError('input size/type/cap')\nValueError: input size/type/cap\n",
+  "stdout": ""
+}

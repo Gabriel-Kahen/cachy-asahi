@@ -20,4 +20,5 @@ def accept_ui(value):
  assert all(root['filesystem_sync'].get(k)is True for k in ['post-install','post-remove','terminal-pass'])
 def join(seat,ui,nonce):
  accept_ui(ui);assert seat['status']=='PASS_ARM16K_VIRTIO_SEAT_REFERENCE_ONLY'and seat['nonce']==nonce and seat['architecture']=='aarch64'and seat['pagesize']==16384
+ checks=seat['independent_checks'];assert set(checks)=={'bus-credentials','logind-session','process-vt','keyboard-record','gpu-record','seat-status'}and all(row['passed']is True for row in checks.values())
  assert seat['user']['logind']['Id']==ui['root']['client_session_corroboration']['login1']['Id']and seat['user']['process_session']==ui['client']['process_session'];return {'status':'PASS_EMULATED_ARM16K_REAL_SEAT_FIRST_LOGIN_UI_LIFECYCLE_ONLY','foundation':seat,'ui_journey':ui,'native_M2_release':'NOT RUN'}

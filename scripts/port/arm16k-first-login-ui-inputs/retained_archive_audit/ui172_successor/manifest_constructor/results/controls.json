@@ -1,0 +1,23 @@
+{
+  "Root_trust_and_runtime_admission": "REFUSED_NULL_FIELDS",
+  "actor_archive_signature_keyring_rootfs_reads": 0,
+  "controls": [
+    {
+      "passed": 11,
+      "runtime": "CPython3.12.13",
+      "seconds": 1.806
+    },
+    {
+      "passed": 11,
+      "runtime": "CPython3.14.7",
+      "seconds": 1.416
+    }
+  ],
+  "deterministic_manifest_and_materials_plan_across_runtimes": true,
+  "flags": [
+    "-I",
+    "-B",
+    "-W error::ResourceWarning"
+  ],
+  "status": "PASS_PURE_DATA_SOURCE_CONTROLS_ONLY"
+}

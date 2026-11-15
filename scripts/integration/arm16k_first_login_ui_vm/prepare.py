@@ -48,6 +48,7 @@ def guest_sources(c):
  for name,row in delivery['guest_files'].items():
   if name in ['observer.py','profile.fragment']:continue
   add(name,'arm',name if name=='input_seat.py'else foundation+name,row['guest_path'],row['mode'])
+ add('observer_checks.py','arm','observer_checks.py','/var/lib/arm16k-virtio-seat/observer-checks.py','0600')
  for name,dest in [('observer.py','seat-observer.py'),('root_fixture.py','ui-root-fixture.py'),('receipts.py','ui-receipts.py'),('ownership.py','ui-ownership.py'),('result.py','ui-result.py'),('ui_observer.py','arm-ui-observer.py'),('arm_ui_gate.py','arm_ui_gate.py')]:add(name,'ui',name,'/usr/local/libexec/'+dest)
  for name,dest in [('client.py','ui-client.py'),('gui_probe.py','ui-gui-probe.py')]:add(name,'x86',name,'/usr/local/libexec/'+dest)
  add('owned','fixture','owned_process.py','/usr/local/libexec/ui-owned-process.py');add('profile','ui','profile.fragment','/home/builder/.bash_profile','0600',1000,1000,True)
@@ -70,13 +71,13 @@ def main():
   mounts=[('bind',str(a.base.resolve()/'guest.raw'),'/base.raw',False),('bind',str(a.base.resolve()/'prepared.json'),'/base-prepared.json',False),('bind',str(a.kernel_bundle.resolve()/'Image'),'/base-Image',False),('bind',str(a.kernel_bundle.resolve()/'config'),'/base-config',False),('bind',str(out/'materials'),'/materials',False),('bind',str(HERE),'/code',False),('bind',str(arm),'/arm-source',False),('bind',str(c['x86']),'/x86-source',False),('bind',str(out),'/work',True)];name='cachy-arm16k-ui-prepare-'+secrets.token_hex(12);labels=dict(image['Config'].get('Labels')or{});labels.update({'org.cachy-asahi.arm-ui-owner':str(os.getuid()),'org.cachy-asahi.arm-ui-operation':name})
   class Scope(B.OwnedContainer):
    def validate(self,row):
-    K.preparation_confinement(row,name,image_id,labels,mounts)
+    K.preparation_confinement(row,self.name,image_id,labels,mounts)
   scope=Scope(name,out/'prepare.cid',image_id,labels,a.base,out);assert scope.listing(time.monotonic()+8)is None;argv=['docker','create','--cidfile',str(scope.cidfile),'--name',name,'--init=false','--read-only','--network=none','--cap-drop=ALL','--security-opt=no-new-privileges','--cpus=2','--memory=3g','--memory-swap=3g','--pids-limit=256','--tmpfs','/tmp:rw,nodev,nosuid,noexec,size=64m']
   for k,v in labels.items():argv+=['--label',k+'='+v]
   for kind,src,dest,rw in mounts:argv+=['--mount','type='+kind+',source='+src+',target='+dest+(''if rw else',readonly')]
   argv+=['--env','CACHY_ARM16K_UI_PREPARE=1','--entrypoint','/usr/bin/python3',image_id,'-I','-B','/code/prepare_image.py'];scope.submitted=True;cmd('create',argv);scope.recover(time.monotonic()+8);cmd('offline-assembly',['docker','start','-a',name],360);terminal=scope.recover(time.monotonic()+8);assert terminal['State']['ExitCode']==0 and not terminal['State']['OOMKilled']and not terminal['State']['Running'];prepared=K.read(out/'assembly/prepared.json');assert prepared['operation']==K.OP and prepared['nonce']!=c['base']['nonce']
-  for name,ref in prepared['files'].items():K.checked(out/'assembly'/name,ref)
-  for name,ref in c['lower'].lock()['base_files'].items():K.checked(a.base/name,ref)
+  for file_name,ref in prepared['files'].items():K.checked(out/'assembly'/file_name,ref)
+  for file_name,ref in c['lower'].lock()['base_files'].items():K.checked(a.base/file_name,ref)
   assert K.pin(a.base/'arm16k-first-boot-attempt.json')==c['original_marker'];allocated=sum(p.stat().st_blocks*512 for p in out.rglob('*')if p.is_file());assert allocated<=3*1024**3 and shutil.disk_usage(out).free>=2*1024**3;report.update(status='PREPARED_NOT_BOOTED',prepared=K.pin(out/'assembly/prepared.json'),allocated_output_bytes=allocated)
  except BaseException as error:report['failure']={'category':type(error).__name__,'message':str(error)[:1024]}
  finally:

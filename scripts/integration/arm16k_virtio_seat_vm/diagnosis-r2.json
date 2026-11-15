@@ -1,0 +1,41 @@
+{
+  "evidence": {
+    "qemu-retirement.json": {
+      "bytes": 250,
+      "sha256": "d9dbb9e82bb28293a7f0c99f728bbf924aa3a9ae67fe4a4e2971640210ebcc42"
+    },
+    "report.json": {
+      "bytes": 976,
+      "sha256": "bc1a107d350902dfa7fce9adecea6bd56e11d78702834e80eb3261a219b00088"
+    },
+    "serial.redacted.log": {
+      "bytes": 36096,
+      "sha256": "24c613a5d62defe2c5566eec326afc073546da90aa17e659d3c6ad9445f27a7d"
+    }
+  },
+  "failed_independent_assertion": "NOT IDENTIFIABLE FROM RETAINED FRAME: actual root cred/props/sid/VT and device comparisons not retained before assertion",
+  "new_VM": null,
+  "new_preparation": null,
+  "no_semantic_relaxation": true,
+  "not_a_violation_by_itself": [
+    "logind Leader576 versus process SID610",
+    "UnixGroupIDs1000,1000 duplication"
+  ],
+  "observed": {
+    "ACKs": 41,
+    "ECHO_off": true,
+    "gpu_chain_stock_tag": true,
+    "installed": 155,
+    "logind": "active local seat0/c1",
+    "policy": "original NM modify.own true/false/no-interaction",
+    "profile_entered": true,
+    "three_V1_drivers": true,
+    "tty_foreground": "tty1",
+    "user_proof": "PASS_ARM16K_VIRTIO_SEAT_USER_PROOF_ONLY",
+    "user_uid_gid": 1000
+  },
+  "overall": "HOLD_AssertionError_empty_message",
+  "schema_version": 1,
+  "scope": "CLOSED_R2_PARTIAL_REAL_PROGRESS_NOT_FULL_ACCEPTANCE",
+  "source_correction": "six named unchanged predicates, bounded fsynced private preassert evidence, whitelist source/line and public category/hash diagnostics"
+}

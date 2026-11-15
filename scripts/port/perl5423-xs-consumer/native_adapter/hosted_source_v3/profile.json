@@ -1,0 +1,47 @@
+{
+  "accepted_archive": {
+    "bytes": 22071176,
+    "sha256": "647c5f1d2c6965ec2e26b37e75d29c819fafa344f16002153493e9fc62121c22"
+  },
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "authority": null,
+    "image": null,
+    "job": null,
+    "reader": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "compiler_manifest": {
+    "bytes": 11025,
+    "sha256": "fa613490865d94362d4d9efe6c5860904158c09733439a9f6c5709168f88d23c"
+  },
+  "delegated_consumer_operation": "perl5423-native-xs-v1",
+  "operation": "perl5423-native-xs-v3",
+  "parent_source": "102281ee1f584fcc7e1e612f7b8def3248cac3de",
+  "payload": {
+    "xs/compiler_image.py": {
+      "bytes": 15790,
+      "mode": 420,
+      "sha256": "bc2dbccc9453fdc77852ea7cc9fb80da433db08be589ce4ea84ceb1ce3c01299"
+    },
+    "xs/entry.py": {
+      "bytes": 33173,
+      "mode": 420,
+      "sha256": "1fd697ff33315d4e6d711e6275545dde5aa16a8a54c1b86a57dde5fad43fa426"
+    },
+    "xs/prepare_inputs.py": {
+      "bytes": 17054,
+      "mode": 420,
+      "sha256": "ca5516f3af98309ef571a6905ed8c96171a9d6db0ce7b7b6e749ba081e487a2a"
+    }
+  },
+  "proposed_ref": "refs/heads/codex/native-arm-perl5423-xs-v3-20261115",
+  "runtime_manifest": {
+    "bytes": 349767,
+    "sha256": "7004309f83344b49f0f8ca598d8cefcffbc078450944824849ab9c575f1c0cd2"
+  },
+  "schema": 1
+}

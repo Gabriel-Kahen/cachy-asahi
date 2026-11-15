@@ -160,6 +160,66 @@ class ModernMMIO(unittest.TestCase):
   with patch.object(self.I.Path,'glob',return_value=[Path('/sys/bus/virtio/devices/virtio'+str(i)) for i in range(33)]),self.assertRaises(ValueError):self.I.census()
  def test_diagnostics_before_wait_and_on_hold(self):
   text=(HERE/'observer.py').read_text();self.assertLess(text.index("persist_census('pre-device')"),text.index('gpu=wait('));self.assertIn("persist_census('terminal')",text);self.assertIn('os.fsync(f.fileno())',text);self.assertIn("'installed_gate':installed_gate",text)
+class IndependentChecks(unittest.TestCase):
+ def setUp(self):self.C=K.load('independent_model',HERE/'observer_checks.py')
+ def user(self):return {'pid':625,'process_session':610,'logind':{'Leader':576}}
+ def test_duplicate_unix_groups_not_rejected(self):self.assertTrue(self.C.bus(self.user(),{'UnixUserID':1000,'ProcessID':625,'UnixGroupIDs':[1000,1000]})[0])
+ def test_wrong_bus_pid_still_fails(self):self.assertFalse(self.C.bus(self.user(),{'UnixUserID':1000,'ProcessID':626})[0])
+ def test_wrong_bus_uid_still_fails(self):self.assertFalse(self.C.bus(self.user(),{'UnixUserID':0,'ProcessID':625})[0])
+ def test_logind_leader_need_not_equal_sid(self):self.assertTrue(self.C.process(self.user(),610,'tty1')[0])
+ def test_actual_sid_must_equal_user_sid(self):self.assertFalse(self.C.process(self.user(),576,'tty1')[0])
+ def test_foreground_vt_still_required(self):self.assertFalse(self.C.process(self.user(),610,'tty2')[0])
+ def test_record_raw_order_change_still_fails_and_is_named(self):
+  before={'properties':'A=1\nB=2\n'};after={'properties':'B=2\nA=1\n'};ok,d=self.C.record(before,after,True)
+  self.assertFalse(ok);self.assertEqual(d['changed_fields'],['properties']);self.assertEqual(d['property_changes']['properties'],[])
+ def test_record_real_property_change_captured(self):
+  ok,d=self.C.record({'properties':'A=1\n'},{'properties':'A=2\n'},True);self.assertFalse(ok);self.assertEqual(d['property_changes']['properties'],['A'])
+ def test_unchanged_record_without_identity_acceptance_fails(self):self.assertFalse(self.C.record({'x':1},{'x':1},False)[0])
+ def test_published_failure_named_durable_private(self):
+  with tempfile.TemporaryDirectory() as d:
+   public={}
+   with self.assertRaisesRegex(AssertionError,'independent-bus-credentials'):self.C.publish(Path(d),'a'*32,'bus-credentials',False,{'actual_pid':626},public)
+   p=Path(d)/'observer-check-bus-credentials.json';self.assertEqual(p.stat().st_mode&0o777,0o600);self.assertFalse(public['bus-credentials']['passed']);self.assertEqual(json.loads(p.read_text())['evidence']['actual_pid'],626)
+ def test_receipt_replay_refuses(self):
+  with tempfile.TemporaryDirectory() as d:
+   public={};self.C.publish(Path(d),'a'*32,'process-vt',True,{},public)
+   with self.assertRaises(FileExistsError):self.C.publish(Path(d),'a'*32,'process-vt',True,{},public)
+ def test_receipt_cap_refuses(self):
+  with tempfile.TemporaryDirectory() as d,self.assertRaises(ValueError):self.C.publish(Path(d),'a'*32,'process-vt',True,{'x':'y'*65536},{})
+ def test_unknown_check_refuses(self):
+  with tempfile.TemporaryDirectory() as d,self.assertRaises(ValueError):self.C.publish(Path(d),'a'*32,'arbitrary',True,{},{})
+ def test_sync_failure_cannot_pass(self):
+  with tempfile.TemporaryDirectory() as d,patch.object(self.C.os,'fsync',side_effect=OSError('model sync failure')):
+   public={}
+   with self.assertRaises(OSError):self.C.publish(Path(d),'a'*32,'process-vt',True,{},public)
+   self.assertEqual(public,{})
+ def test_all_original_independent_checks_named(self):
+  text=(HERE/'observer.py').read_text()
+  for name in self.C.NAMES:self.assertIn("independent('"+name+"'",text)
+class GPUTagSets(unittest.TestCase):
+ def setUp(self):self.C=K.load('gpu_tag_sets',HERE/'observer_checks.py')
+ def pair(self):
+  a={'virtio_driver':'/sys/bus/virtio/drivers/virtio_gpu','dev':'226:0','properties':'DEVPATH=/devices/platform/x/drm/card0\nTAGS=:seat:master-of-seat:uaccess:\nCURRENT_TAGS=:seat:master-of-seat:uaccess:\nID_SEAT=seat0\n'}
+  b=copy.deepcopy(a);b['properties']=b['properties'].replace(':seat:master-of-seat:uaccess:',':uaccess:seat:master-of-seat:');return a,b
+ def test_only_tag_order_passes_with_accepted_identity(self):
+  a,b=self.pair();ok,d=self.C.gpu_record(a,b,True);self.assertTrue(ok);self.assertTrue(all(x['equal'] for x in d['tag_sets'].values()));self.assertEqual(d['changed_fields'],['properties'])
+  actual=json.loads((HERE/'data/gpu-tag-order-r3.json').read_text());self.assertEqual(actual['receipt'],{'bytes':2466,'sha256':'d20c31f1d0a1af1fb0987be23d342a63b87a914f0770da14cac41a328bf7d5ca'});self.assertTrue(actual['all_other_raw_bytes_equal_after_only_tag_value_projection']);self.assertFalse(actual['private_properties_included']);self.assertTrue(all(v['before']==v['after']==['master-of-seat','seat','uaccess'] for v in actual['tag_sets'].values()))
+ def test_identity_acceptance_still_mandatory(self):a,b=self.pair();self.assertFalse(self.C.gpu_record(a,b,False)[0])
+ def test_changed_driver_fails(self):a,b=self.pair();b['virtio_driver']='fake';self.assertFalse(self.C.gpu_record(a,b,True)[0])
+ def test_changed_device_number_fails(self):a,b=self.pair();b['dev']='226:1';self.assertFalse(self.C.gpu_record(a,b,True)[0])
+ def test_lost_tag_fails(self):a,b=self.pair();b['properties']=b['properties'].replace(':uaccess:seat:master-of-seat:',':seat:master-of-seat:');self.assertFalse(self.C.gpu_record(a,b,True)[0])
+ def test_gained_tag_fails(self):a,b=self.pair();b['properties']=b['properties'].replace(':uaccess:seat:master-of-seat:',':uaccess:seat:master-of-seat:newtag:');self.assertFalse(self.C.gpu_record(a,b,True)[0])
+ def test_current_tag_change_fails_separately(self):a,b=self.pair();b['properties']=b['properties'].replace('CURRENT_TAGS=:uaccess:seat:master-of-seat:','CURRENT_TAGS=:seat:');self.assertFalse(self.C.gpu_record(a,b,True)[0])
+ def test_tag_case_change_fails(self):a,b=self.pair();b['properties']=b['properties'].replace(':uaccess:',':UACCESS:');self.assertFalse(self.C.gpu_record(a,b,True)[0])
+ def test_other_property_change_fails(self):a,b=self.pair();b['properties']=b['properties'].replace('ID_SEAT=seat0','ID_SEAT=seat1');self.assertFalse(self.C.gpu_record(a,b,True)[0])
+ def test_other_property_line_order_stays_exact(self):a,b=self.pair();b['properties']=b['properties'].replace('DEVPATH=/devices/platform/x/drm/card0\n','')+'DEVPATH=/devices/platform/x/drm/card0\n';self.assertFalse(self.C.gpu_record(a,b,True)[0])
+ def test_keyboard_comparator_unchanged(self):a,b=self.pair();self.assertFalse(self.C.record(a,b,True)[0])
+ def test_missing_current_tags_refuses(self):a,b=self.pair();b['properties']='TAGS=:seat:\n';self.assertFalse(self.C.gpu_record(a,b,True)[0])
+ def test_duplicate_tags_refuse(self):a,b=self.pair();b['properties']=b['properties'].replace(':uaccess:seat:master-of-seat:',':uaccess:seat:seat:master-of-seat:');self.assertFalse(self.C.gpu_record(a,b,True)[0])
+ def test_duplicate_tag_property_refuses(self):a,b=self.pair();b['properties']+='TAGS=:seat:\n';self.assertFalse(self.C.gpu_record(a,b,True)[0])
+ def test_unhandled_tag_format_refuses(self):a,b=self.pair();b['properties']=b['properties'].replace(':uaccess:seat:master-of-seat:','seat master-of-seat');self.assertFalse(self.C.gpu_record(a,b,True)[0])
+ def test_tag_bound_refuses(self):
+  with self.assertRaises(ValueError):self.C.gpu_tag_projection('TAGS=:'+':'.join('t'+str(i) for i in range(33))+':\nCURRENT_TAGS=:seat:\n')
 class Additions(unittest.TestCase):
  def setUp(self):
   self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name);self.base={'base_packages':[{'name':'glibc','version':'2.42-1','directory':'glibc-2.42-1'},{'name':'glib2','version':'2.88.3-1','directory':'glib2-2.88.3-1'}]+[{'name':'base'+str(i),'version':'1-1','directory':'base'+str(i)+'-1-1'} for i in range(109)]}
