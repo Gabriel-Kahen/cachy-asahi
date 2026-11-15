@@ -293,6 +293,79 @@ def export_join(exported):
            'versioned preentry and unchanged actor-output byte joins')
 
 
+def alpm_inventory(raw):
+    c.need(type(raw) is bytes and len(raw) <= 1024**2 and c.pin(raw)['sha256'] == INVENTORY,
+           'exact admitted signed349 inventory before local DB reads')
+    rows = raw.decode().splitlines()
+    c.need(len(rows) == 349 and rows == sorted(rows) and len(set(rows)) == 349,
+           'complete canonical349 inventory')
+    admitted = {}
+    for row in rows:
+        parts = row.split(' ')
+        c.need(len(parts) == 2 and re.fullmatch('[a-z0-9][a-z0-9@._+-]{0,127}', parts[0])
+               and re.fullmatch('(?:[0-9]+:)?[A-Za-z0-9._+~-]{1,160}', parts[1]),
+               'finite admitted package name/version including optional numeric epoch')
+        name, version = parts
+        key = name + '-' + version
+        c.need(key not in admitted and len(key) <= 240, 'unique admitted local DB directory')
+        admitted[key] = (name, version)
+    return admitted
+
+
+def read_alpm_desc(value, admitted):
+    """Only one inventory-bound fixed-root ALPM desc; never a Docker path operand."""
+    path = Path(value)
+    c.need(path.parts[:5] == ('/', 'var', 'lib', 'pacman', 'local') and len(path.parts) == 7
+           and path.name == 'desc' and path.parent.name in admitted,
+           'only admitted /var/lib/pacman/local/name-version/desc')
+    expected = admitted[path.parent.name]
+    c.need(path.parent.name == expected[0] + '-' + expected[1], 'inventory-bound directory identity')
+    flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC
+    fds = [os.open('/', flags)]
+    links = []
+    leaf = None
+    key = lambda s: (s.st_dev, s.st_ino, s.st_mode, s.st_nlink, s.st_uid, s.st_gid,
+                     s.st_size, s.st_mtime_ns, s.st_ctime_ns)
+    try:
+        for part in path.parts[1:-1]:
+            before = os.stat(part, dir_fd=fds[-1], follow_symlinks=False)
+            c.need(stat.S_ISDIR(before.st_mode), 'ordinary nonsymlink ALPM ancestry')
+            child = os.open(part, flags, dir_fd=fds[-1])
+            fds.append(child)
+            c.need(key(before) == key(os.fstat(child)), 'stable ALPM directory link/open')
+            links.append((fds[-2], part, child, before))
+        before = os.stat('desc', dir_fd=fds[-1], follow_symlinks=False)
+        leaf = os.open('desc', os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC,
+                       dir_fd=fds[-1])
+        c.need(stat.S_ISREG(before.st_mode) and before.st_nlink == 1
+               and 0 < before.st_size <= 1024**2 and key(before) == key(os.fstat(leaf)),
+               'bounded ordinary single-link ALPM descriptor')
+        body = bytearray()
+        while block := os.read(leaf, min(65536, 1024**2 + 1 - len(body))):
+            body.extend(block)
+            c.need(len(body) <= 1024**2, 'ALPM descriptor byte cap')
+        c.need(len(body) == before.st_size and key(before) == key(os.fstat(leaf))
+               == key(os.stat('desc', dir_fd=fds[-1], follow_symlinks=False)),
+               'stable complete ALPM descriptor identity')
+        for parent, name, child, previous in links:
+            c.need(key(previous) == key(os.fstat(child))
+                   == key(os.stat(name, dir_fd=parent, follow_symlinks=False)),
+                   'unchanged nonsymlink ALPM ancestry')
+        c.need(b'\0' not in body, 'ordinary ALPM text bytes')
+        rows = bytes(body).decode().splitlines()
+        for field, text in zip(('%NAME%', '%VERSION%'), expected):
+            c.need(rows.count(field) == 1, 'one ALPM name/version field')
+            index = rows.index(field)
+            c.need(index + 2 < len(rows) and rows[index + 1] == text and rows[index + 2] == '',
+                   'descriptor name/version exactly match admitted directory')
+        return expected[0] + ' ' + expected[1]
+    finally:
+        if leaf is not None:
+            os.close(leaf)
+        for fd in reversed(fds):
+            os.close(fd)
+
+
 def actor(admission_sha):
     ar = c.read('/inputs/operation.json')
     c.need(c.pin(ar)['sha256'] == admission_sha, 'external Root operation whole pin differs')
@@ -321,13 +394,14 @@ def actor(admission_sha):
     c.need(all(entry[key] == [[0, 0, 4294967295]] for key in ('uid_map', 'gid_map')),
            'actual unremapped initial user namespace required')
     # Derive the actual installed-image inventory without launching a fifth command.
+    admitted_raw = p.pinned(xs['inventory'], 1024**2)
+    admitted = alpm_inventory(admitted_raw)
     packages = []
     for desc in Path('/var/lib/pacman/local').glob('*/desc'):
         c.need(len(packages) < 400, 'finite installed image inventory')
-        rows = c.read(desc, 1024**2).decode().splitlines()
-        packages.append(rows[rows.index('%NAME%') + 1] + ' ' + rows[rows.index('%VERSION%') + 1])
+        packages.append(read_alpm_desc(desc, admitted))
     inventory = ('\n'.join(sorted(packages)) + '\n').encode()
-    c.need(c.pin(inventory)['sha256'] == INVENTORY and inventory == p.pinned(xs['inventory'], 1024**2),
+    c.need(c.pin(inventory)['sha256'] == INVENTORY and inventory == admitted_raw,
            'actual signed349 image inventory differs')
     workspace = Path('/xs-work')
     mounts = [line.split() for line in entry['mountinfo'].splitlines()]
@@ -471,14 +545,15 @@ def actor_dispatch(admission_sha):
     code = None
     try:
         try:
-            code = actor(admission_sha)  # Original actor/probe/JSON implementation is byte-identical.
+            code = actor(admission_sha)  # Explicit v6 ALPM-read seam; other runtime probes/JSON are unchanged.
         except BaseException as error:
             failure = error
         try:
             record_work_preentry(observed, fd)
         except BaseException as error:
             if failure is not None:
-                raise failure from error
+                failure.add_note('XS v6 preentry receipt unavailable: ' + type(error).__name__ + ': ' + str(error)[:512])
+                raise failure from None
             raise
         if failure is not None:
             raise failure
