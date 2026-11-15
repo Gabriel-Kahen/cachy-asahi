@@ -170,7 +170,7 @@ if [[ $dependency_mode == DB53 ]];then
  official_init
  phase=dependency_install
  mapfile -t dependencies < "$D/dependency-requires.txt"
- bounded "$run_seconds" "$S/dependency-requires.log" pacman -T "${dependencies[@]}"
+ bounded "$run_seconds" "$S/dependency-requires.log" pacman --config "$D/dependency-pacman.conf" -T "${dependencies[@]}"
  [[ ! -s $S/dependency-requires.log ]]
  bounded "$install_seconds" "$S/dependency-install.log" pacman --config "$D/dependency-pacman.conf" --noconfirm --asdeps -U "$D/db5.3-5.3.28-7-aarch64.pkg.tar.xz"
  inventory > "$S/dependencies.lock";same_bytes "$D/expected-dependencies.lock" "$S/dependencies.lock"
@@ -179,7 +179,7 @@ if [[ $dependency_mode == DB53 ]];then
  same_bytes "$D/expected-dependency.paths" "$S/dependency-added.paths"
 fi
 mapfile -t dependencies < "$D/dependencies.txt"
-bounded "$run_seconds" "$S/dependencies.log" pacman -T "${dependencies[@]}"
+bounded "$run_seconds" "$S/dependencies.log" pacman --config "$D/pacman.conf" -T "${dependencies[@]}"
 [[ ! -s $S/dependencies.log ]]
 phase=install
 bounded "$install_seconds" "$S/install.log" pacman --config "$D/pacman.conf" --noconfirm -U "$ARCHIVE"

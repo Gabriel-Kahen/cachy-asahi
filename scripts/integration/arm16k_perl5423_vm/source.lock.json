@@ -22,9 +22,9 @@
       "sha256": "7b582cc7b332147c463e606c3c3443cefacf4e7c55f4704a2ca43359656f843d"
     },
     "actor.py": {
-      "bytes": 11448,
+      "bytes": 12793,
       "mode": 420,
-      "sha256": "4afc7f90d0b789d41096fc5c1e81f73a9ba354313037ec7f1b2821b538f737f5"
+      "sha256": "487f85e659a99a417777f15eb1af98f2abfb8fca5881f79fc1b89a133430cb7b"
     },
     "adapter.py": {
       "bytes": 13473,
@@ -62,9 +62,9 @@
       "sha256": "3bfbb6e80ba44e3d561a59b67a709ccb1cf713227fc595b93950b6d2a16dbf54"
     },
     "controller.py": {
-      "bytes": 17245,
+      "bytes": 24924,
       "mode": 420,
-      "sha256": "0eb360706d7c4495b47a6a4f5b125c999184741e5c6ad04f94bfba1cdea56e00"
+      "sha256": "62278faab39d8220be63f8a7d4fca5a35bf7a91f8fe8f138f7002e4152da9d13"
     },
     "expected-payload-certificate.TEMPLATE.json": {
       "bytes": 929,
@@ -122,9 +122,9 @@
       "sha256": "a58993a2ce0b8bc94457d77db6a53276b52006e350a4f8721258272e10369357"
     },
     "guest/root.sh": {
-      "bytes": 16520,
+      "bytes": 16583,
       "mode": 420,
-      "sha256": "78f131a76adc88a2fa1506e91622bfb0c2550564bc1389ef6b08b456fc01643a"
+      "sha256": "277f80358a79f905956a2fc1690ee7b9145c47faee869b0be1bacf998f9f1302"
     },
     "guest/runtime.pl": {
       "bytes": 3548,
@@ -197,9 +197,9 @@
       "sha256": "6191753e2404e870c70f5b49e6995f671e96464c9faf2c117cff5481ed6eb385"
     },
     "protocol.py": {
-      "bytes": 8446,
+      "bytes": 9242,
       "mode": 420,
-      "sha256": "16ddacc76c7352500aa701e10da6f2b8ffd3dca03ae454320b3a9ddaebfb81a9"
+      "sha256": "3981766ebd8318f937a8d9779e4b18d8c1112e0cdbb9da23041279ab93950a82"
     },
     "restoration.py": {
       "bytes": 1024,
@@ -222,9 +222,9 @@
       "sha256": "3126ee0c8a7c02e12503b4858f90b5a70fd7f300fd6228c99532ec7eaec02e28"
     },
     "test_controls.py": {
-      "bytes": 71991,
+      "bytes": 80246,
       "mode": 420,
-      "sha256": "08e3b183790806431044b34d443996801d5af56b6d9d044525f115693a083066"
+      "sha256": "c8c0cff8b2130805ce9dc88ac5ff334d5080f03b54e4dc50c714b2c34489d819"
     },
     "test_git_roundtrip.py": {
       "bytes": 2665,
@@ -235,6 +235,11 @@
       "bytes": 5209,
       "mode": 493,
       "sha256": "5da499b97360993efa5b9039a1b8d488a84c2a43b861ceccbf9bfcf440f661da"
+    },
+    "test_local_dependency_queries.py": {
+      "bytes": 8941,
+      "mode": 420,
+      "sha256": "ee0449fb5e9172d0f24fc4130b371553f1ea27acde73980674504ce61d89fda5"
     },
     "validation.json": {
       "bytes": 2930,
