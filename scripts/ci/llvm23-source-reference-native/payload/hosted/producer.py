@@ -39,7 +39,7 @@ def run(root,work,binding,image,source,command):
     inputs=out/'inputs';inputs.mkdir(mode=0o755)
     for name in ['actor','helpers','packages']:
         shutil.copytree(root/name,inputs/name)
-    shutil.copyfile(root/'contract.json',inputs/'contract.json');shutil.copyfile(source['archive'],inputs/'archive.tar.xz')
+    shutil.copy2(root/'contract.json',inputs/'contract.json');shutil.copy2(source['archive'],inputs/'archive.tar.xz')
     candidate=c.load('llvm_candidate_pure_data',root/'packages/port/llvm23-source-reference/reference.py')
     sourcepath=Path(source['root']);source_tree=candidate.tree_digest(sourcepath)
     admission=dict(schema=1,mode='ROOTFUL_CONTAINER_NO_BWRAP_V1',operation=c.OPERATION,source=dict(sha=binding['source'],ref=binding['ref'].removeprefix('refs/heads/')),run=binding['run'],job=binding['job'],approval=binding['approval'],image=image,source_map_sha256=binding['source_map_sha256'],contract_sha256=c.pin(c.read(root/'contract.json'))['sha256'],source_tree_sha256=source_tree,expected349_sha256='579981195b654d8cdf142e4101dfc2bfffbc3576eed50f23796a06e90cf57453',input_signature_audit_sha256=c.pin(c.read(work/'bootstrap/signatures.json',8*1024**2))['sha256'],holds_preserved=True)

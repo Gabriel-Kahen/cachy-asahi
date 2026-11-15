@@ -1,0 +1,240 @@
+{
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "authority": null,
+    "image": null,
+    "job": null,
+    "reader": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "candidate_files": {
+    "LICENSE.packaging": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "b8f5f697f7e16eb59a3fb83868aad10d19c918e212aa196d1716c3df21ee20db"
+    },
+    "PKGBUILD": {
+      "bytes": 1451,
+      "mode": 420,
+      "sha256": "623a874d3771bfe2a95e49a5b6b814d006f1e2109c062f525319b71f815b795d"
+    },
+    "README.md": {
+      "bytes": 5485,
+      "mode": 420,
+      "sha256": "66fba2ffd97063716d95de60dda0dc982075e844e78a61f30e0f6d49b69dbc5c"
+    },
+    "admission.example.json": {
+      "bytes": 1935,
+      "mode": 420,
+      "sha256": "c4142db99239dbb4fedec3fb48fea72ed929bb5fb868330063168511dff3db78"
+    },
+    "build.sh": {
+      "bytes": 4569,
+      "mode": 420,
+      "sha256": "6e9bc3fb515d7f39648fe530d96be8dc4347b29693f78e54c29aa3cdfebb5a65"
+    },
+    "inputs.json": {
+      "bytes": 3389,
+      "mode": 420,
+      "sha256": "7f38325ec04a12a58f78d6a9c8f4512fb7160866746dcdc47c557b393dffdc28"
+    },
+    "native_container/README.md": {
+      "bytes": 5662,
+      "mode": 420,
+      "sha256": "8fa7cb8e568666fd86d73a288a4eb69ca03f567b34d4e6a0d12c4b26ca1e7d53"
+    },
+    "native_container/contract.json": {
+      "bytes": 5859,
+      "mode": 420,
+      "sha256": "2af11bc6d617d3e61d9d595732f7acb9febe3f4dad58259ad705ad97825c2916"
+    },
+    "native_container/contract.py": {
+      "bytes": 1836,
+      "mode": 420,
+      "sha256": "dd49e23b91741326df5dacb2e58ff91431d7d453d41e142638cd780298bef8f0"
+    },
+    "native_container/test_contract.py": {
+      "bytes": 2934,
+      "mode": 420,
+      "sha256": "eb31e32b86299ff92e703277376bc32363150498eefa56650458965c7d6f38d8"
+    },
+    "notices/clang-LICENSE.TXT": {
+      "bytes": 15140,
+      "mode": 420,
+      "sha256": "ebcd9bbf783a73d05c53ba4d586b8d5813dcdf3bbec50265860ccc885e606f47"
+    },
+    "notices/libunwind-LICENSE.TXT": {
+      "bytes": 16706,
+      "mode": 420,
+      "sha256": "b5efebcaca80879234098e52d1725e6d9eb8fb96a19fce625d39184b705f7b6d"
+    },
+    "notices/llvm-compiler-rt-LICENSE.TXT": {
+      "bytes": 16708,
+      "mode": 420,
+      "sha256": "1a8f1058753f1ba890de984e48f0242a3a5c29a6a8f2ed9fd813f36985387e8d"
+    },
+    "notices/llvm-lld-LICENSE.TXT": {
+      "bytes": 15138,
+      "mode": 420,
+      "sha256": "f7891568956e34643eb6a0db1462db30820d40d7266e2a78063f2fe233ece5a0"
+    },
+    "notices/llvm-llvm-LICENSE.TXT": {
+      "bytes": 15141,
+      "mode": 420,
+      "sha256": "8d85c1057d742e597985c7d4e6320b015a9139385cff4cbae06ffc0ebe89afee"
+    },
+    "notices/rust-LICENSE-APACHE": {
+      "bytes": 9723,
+      "mode": 420,
+      "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+    },
+    "notices/rust-LICENSE-MIT": {
+      "bytes": 1068,
+      "mode": 420,
+      "sha256": "b71bd43a069ca0641a9ecfe585ca7b3c53b5cc1608f8b68321168698e28b5ea1"
+    },
+    "reference.py": {
+      "bytes": 20313,
+      "mode": 420,
+      "sha256": "e66fa8d4fe72bb6c638782136cfb054434c3e8228b1eca2904f5db1f2a62fcc2"
+    },
+    "rust-consumer-metadata.json": {
+      "bytes": 40535,
+      "mode": 420,
+      "sha256": "08ce0717a2c9f0bb1d19d7cb8fa0ac17e9f8dde7d59b1968197132fdccb2331e"
+    },
+    "test_reference.py": {
+      "bytes": 16003,
+      "mode": 420,
+      "sha256": "79029a99c005a3af58156534aecaa084fb685fe80d9c086ab1512b20eebe9bb8"
+    },
+    "upstream-metadata.json": {
+      "bytes": 24632,
+      "mode": 420,
+      "sha256": "2f6a65970b4b3faff3c6572e60429737950bd0431cdef99d1077206d7622984e"
+    }
+  },
+  "constructor_files": {
+    "LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "builder-audit.json": {
+      "bytes": 1159,
+      "mode": 420,
+      "sha256": "381c2a0b1a8d64972d392cd6990ddbafa36a6dafc4abc02e885414d7fc5f01e0"
+    },
+    "derivation.json": {
+      "bytes": 2665,
+      "mode": 420,
+      "sha256": "f29dd10f3f4051b5f470c359fe74b47ac7b3a52c530b9db074d6c691536bed5a"
+    },
+    "expected349.lock": {
+      "bytes": 6800,
+      "mode": 420,
+      "sha256": "579981195b654d8cdf142e4101dfc2bfffbc3576eed50f23796a06e90cf57453"
+    },
+    "filesystem.py": {
+      "bytes": 14354,
+      "mode": 420,
+      "sha256": "7c7b8ce846603d76da1db7de58573fa76642871aae7082fa36b32a54856585d7"
+    },
+    "payload/actor/container_mode.py": {
+      "bytes": 13147,
+      "mode": 420,
+      "sha256": "b5f8c08db799335f0b6ccbd0873060a429cd0bc31c826af3b929494a83394637"
+    },
+    "payload/actor/entry.py": {
+      "bytes": 12273,
+      "mode": 420,
+      "sha256": "abec9369a7c7dfd752a41f193f0ee6eb775bb0f3b3add994d8f620faa5a66dea"
+    },
+    "payload/actor/entry.sh": {
+      "bytes": 116,
+      "mode": 420,
+      "sha256": "691cfcf63d630fed508adb7841a29ded8ff31475391b42206e896d901f2f85dd"
+    },
+    "payload/actor/runtime-derivation.json": {
+      "bytes": 1592,
+      "mode": 420,
+      "sha256": "a65345ef056d1190bc45f1e8545a23d959d0b8e91effd1c11cda6dc26e35b2fc"
+    },
+    "payload/actor/runtime.py": {
+      "bytes": 6241,
+      "mode": 420,
+      "sha256": "6a788567f5f8c147a6d79c7ce91cdca5e0fe5bfa718a1048cec80fa115032340"
+    },
+    "payload/helpers/owned_child.py": {
+      "bytes": 10907,
+      "mode": 420,
+      "sha256": "27566581317a6807fe2d781dc51f362664d4e920ecc5646604dfbe2172f2fdc9"
+    },
+    "payload/hosted/bootstrap.py": {
+      "bytes": 16757,
+      "mode": 420,
+      "sha256": "27e17683ba185d6959307b081ab86be4c7740ef5dbb8dff9c850670eda2ec008"
+    },
+    "payload/hosted/common.py": {
+      "bytes": 8355,
+      "mode": 420,
+      "sha256": "d4553063bffcc521a92962257b70c2f185fdfc12bc9e08912836f15a11348cb3"
+    },
+    "payload/hosted/entry.py": {
+      "bytes": 18758,
+      "mode": 420,
+      "sha256": "3127dcbc04774a27d1d79218310613852bc439d8a8cc144209fb59b86180dc91"
+    },
+    "payload/hosted/material.py": {
+      "bytes": 4787,
+      "mode": 420,
+      "sha256": "d90562d062f9826e0f6670991e682ab957ca4e56b214c4ac925e14f7b93eb8bd"
+    },
+    "payload/hosted/producer.py": {
+      "bytes": 10363,
+      "mode": 420,
+      "sha256": "8a239717967570e7560ef71a52ea2fd7c480b039c3eaf23c4c25d3190d902a83"
+    },
+    "payload/hosted/reader.py": {
+      "bytes": 14210,
+      "mode": 420,
+      "sha256": "fced7c16c854e625f3551165eed25ad4f2eeedb679d905ee4282efa3bec2f8d3"
+    },
+    "policy.json": {
+      "bytes": 816,
+      "mode": 420,
+      "sha256": "46704d4b848682e82c8c910e6087688ec4a5b02015d50dbb65d41b664dc9fb99"
+    },
+    "prepare.py": {
+      "bytes": 8521,
+      "mode": 420,
+      "sha256": "141344fa19367ac1767e6444f0aab5b18bf69c82d611d1122aee725701d8fd2a"
+    },
+    "root-admission.TEMPLATE.json": {
+      "bytes": 1114,
+      "mode": 420,
+      "sha256": "21f4ba794caca3ac8c81c458129ad839549556a54e78b7e7f6f7a5407e1329d4"
+    },
+    "workflow.yml.in": {
+      "bytes": 10960,
+      "mode": 420,
+      "sha256": "11dc90f356f71e759932c41e3e144266349e0b4ff385433ca019cc962676e063"
+    }
+  },
+  "expected_bytes": 40788233,
+  "expected_files": 248,
+  "expected_prospective_tree": "b6d4f3bcbfb7454b1760c3ff9f9910d734d8bece",
+  "expected_source_map_sha256": "b462bebb24a5dcf18aaecb5843b75cba0f6c3f89b920c313263abff91f7e7e33",
+  "frozen_source_map_sha256": "4b1de3aade5116206318570d1d44ee1063342faeab54935748b1b7c179a99e96",
+  "operands": {
+    "candidate": "/home/gabe/Documents/ChatGPT/cachy-asahi-llvm23-source-reference-20261115/packages/port/llvm23-source-reference",
+    "evidence_root": "/home/gabe/Documents/ChatGPT/cachy-asahi",
+    "frozen_source": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-perl-hosted-source-r1/source-tree"
+  },
+  "resource_policy_sha256": "46704d4b848682e82c8c910e6087688ec4a5b02015d50dbb65d41b664dc9fb99",
+  "schema": 1,
+  "scope": "SOURCE_CONSTRUCTOR_CHECKPOINT_DATA_ONLY_NOT_ROOT_AUTHORITY"
+}

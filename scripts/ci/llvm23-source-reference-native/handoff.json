@@ -1,0 +1,102 @@
+{
+  "Root_workflow_inputs": {
+    "approval_sha256": "Whole SHA-256 of exactly supplied canonical Root admission bytes",
+    "operation": "llvm23-source-reference-native-v1",
+    "root_admission_json": "Canonical external Root admission: status ROOT_ADMITTED_SINGLE_NATIVE_LLVM23_ATTEMPT; authority; actual source/ref/map; exact policy.json resources; source_reviewed=true; holds_preserved=true",
+    "source_map_sha256": "b462bebb24a5dcf18aaecb5843b75cba0f6c3f89b920c313263abff91f7e7e33",
+    "source_sha": "Root-published actual Git commit; currently NULL"
+  },
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "authority": null,
+    "image": null,
+    "job": null,
+    "reader": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "actual_new_actors": 0,
+  "construction": {
+    "operands": {
+      "candidate": "/home/gabe/Documents/ChatGPT/cachy-asahi-llvm23-source-reference-20261115/packages/port/llvm23-source-reference",
+      "evidence_root": "/home/gabe/Documents/ChatGPT/cachy-asahi",
+      "frozen_source": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-perl-hosted-source-r1/source-tree"
+    },
+    "output": "Root supplies a fresh absent output directory with an existing owned parent; preserved checkpoint is not overwritten",
+    "profile_sha256": "855e5395952723fa387cb6d43f35076fe3becb6d26e2a150f7c22c953c236fb9",
+    "program": "python -I -B scripts/ci/llvm23-source-reference-native/prepare.py"
+  },
+  "current_checkpoint": {
+    "bytes": 40788233,
+    "constructor_profile_sha256": "855e5395952723fa387cb6d43f35076fe3becb6d26e2a150f7c22c953c236fb9",
+    "files": 248,
+    "prospective_tree": "b6d4f3bcbfb7454b1760c3ff9f9910d734d8bece",
+    "source": "/home/gabe/Documents/ChatGPT/cachy-asahi-rust-submodule-closure-20261115/scripts/ci/llvm23-source-reference-native/work/source-tree-r3",
+    "source_map_sha256": "b462bebb24a5dcf18aaecb5843b75cba0f6c3f89b920c313263abff91f7e7e33"
+  },
+  "holds_preserved": true,
+  "mode_handling": {
+    "Source_filesystem_helper_scope": "0644/0755 guard is canonical Git Source input/publication policy only, not a package/runtime-protected-tree mode filter",
+    "candidate_modified": false,
+    "copies": "copy2/copytree preserve exact modes; derived PKGBUILD written before applying its admitted source mode",
+    "protected_mode_fixture": [
+      "0444 ordinary DATA",
+      "0555 ordinary executable"
+    ]
+  },
+  "operation": "llvm23-source-reference-native-v1",
+  "prior_accepted_wrapper_commit": "a5b1f382a13b19ab789c845ae9a890ad5bc34860",
+  "prior_checkpoint": {
+    "bytes": 40787836,
+    "files": 248,
+    "prospective_tree": "e35e4eb0c8c4cea3fdeab8f5d04f35ee714b9f4e",
+    "source": "/home/gabe/Documents/ChatGPT/cachy-asahi-rust-submodule-closure-20261115/scripts/ci/llvm23-source-reference-native/work/source-tree-r2",
+    "source_map_sha256": "8b01d92c3b810246967f932de22046a086a08fc429a2a1c0175ad20e7aac3936"
+  },
+  "publication": {
+    "proposed_distinct_ref": "refs/heads/codex/llvm23-source-reference-native-20261115-r3",
+    "repository": "Gabriel-Kahen/cachy-asahi",
+    "required_tree": "b6d4f3bcbfb7454b1760c3ff9f9910d734d8bece",
+    "source_map_sha256": "b462bebb24a5dcf18aaecb5843b75cba0f6c3f89b920c313263abff91f7e7e33",
+    "source_sha": null,
+    "worker_published": false,
+    "workflow_aliases": [
+      ".github/workflows/native-arm-build.yml",
+      ".github/workflows/native-arm-llvm23-source-reference-v1.yml"
+    ]
+  },
+  "resource_operands": {
+    "Root_admission_or_reservation_obtained": false,
+    "policy": {
+      "active_minimum_disk_bytes": 1073741824,
+      "active_minimum_host_memory_bytes": 4294967296,
+      "actor_cpus": 2,
+      "actor_memory_bytes": 8589934592,
+      "actor_pids": 512,
+      "actor_seconds": 14400,
+      "actor_swap_bytes": 0,
+      "bootstrap_seconds": 4500,
+      "class": "HEAVY_NON_KERNEL",
+      "cleanup_seconds": 300,
+      "export_bytes": 4294967296,
+      "job_timeout_minutes": 360,
+      "log_bytes": 67108864,
+      "minimum_available_disk_bytes_per_device": 68719476736,
+      "minimum_available_inodes_per_device": 600000,
+      "minimum_host_available_memory_bytes": 12884901888,
+      "native_seconds": 19800,
+      "package_bytes": 2147483648,
+      "schema": 1,
+      "source_archive_body_bytes": 201326592,
+      "source_archive_requests_including_redirects": 4,
+      "source_intake_seconds": 600,
+      "status": "PROPOSAL_ONLY_ROOT_EXTERNAL_ADMISSION_REQUIRED"
+    },
+    "policy_file": "policy.json",
+    "policy_sha256": "46704d4b848682e82c8c910e6087688ec4a5b02015d50dbb65d41b664dc9fb99"
+  },
+  "schema": 1,
+  "status": "SOURCE_CHECKPOINT_ONLY_NO_NEW_ACTORS"
+}

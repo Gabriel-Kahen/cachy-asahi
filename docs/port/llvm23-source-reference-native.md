@@ -32,6 +32,7 @@ These are local DATA-only commands. The frozen Source and candidate/evidence ope
 
 ```sh
 python -I -B scripts/ci/llvm23-source-reference-native/prepare.py \
+  --profile-sha256 855e5395952723fa387cb6d43f35076fe3becb6d26e2a150f7c22c953c236fb9 \
   --frozen-source /home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-perl-hosted-source-r1/source-tree \
   --candidate /home/gabe/Documents/ChatGPT/cachy-asahi-llvm23-source-reference-20261115/packages/port/llvm23-source-reference \
   --evidence-root /home/gabe/Documents/ChatGPT/cachy-asahi \
@@ -67,6 +68,30 @@ This reader checks the exact tuple, published Source/job observations,257 approv
 
 ## Actual authoring results
 
-The Source packet was actually constructed privately and its complete membership/byte/mode map checked. Nine constructor/controller/DATA controls and14 actor static/refusal controls pass; Bash/Python syntax checks pass. They exercise stale operation/attempt refusal, frozen-source tampering, exact inverses, resource create operands, PAX/tail refusal and actor input/layout controls. No CMake, compiler, makepkg, package acquisition, container, daemon, job, lease, signing, operational Reader, publication or dispatch ran.
+The Source packet was actually constructed privately and its complete membership/byte/mode map checked. Ten constructor/controller/DATA controls and15 actor static/refusal controls pass; Bash/Python syntax checks pass. They exercise stale operation/attempt refusal, frozen-source tampering, exact inverses, resource create operands, PAX/tail refusal and actor input/layout controls. No CMake, compiler, makepkg, package acquisition, container, daemon, job, lease, signing, operational Reader, publication or dispatch ran.
 
 All original-four recipe correspondence mismatches and license108/source/legal/delivery holds remain open. Native build/runtime/16KiB, both M2 Air sizes, Rust consumer linkage, performance and release conclusions remain NOT RUN/NOT ADMITTED. The next action belongs to Root: review the emitted Source and actual resource/provider premises, then admit and dispatch a distinct operation.
+
+
+## Root checkpoint and exact operands
+
+The concise machine-readable handoff is [`handoff.json`](../../scripts/ci/llvm23-source-reference-native/handoff.json); its constructor input profile is [`constructor-profile.json`](../../scripts/ci/llvm23-source-reference-native/constructor-profile.json). The CLI now requires the reviewed profile SHA and verifies constructor/payload/candidate descriptors, exact input paths and the prospective Source map/tree before publishing local DATA. This profile is a checkpoint, never Root approval.
+
+| Checkpoint | Files / bytes | Source map SHA-256 | Prospective Git tree |
+| --- | --- | --- | --- |
+| Accepted `a5b1f382` / r2 | 248 / 40,787,836 | `8b01d92c3b810246967f932de22046a086a08fc429a2a1c0175ad20e7aac3936` | `e35e4eb0c8c4cea3fdeab8f5d04f35ee714b9f4e` |
+| Mode-preserving successor / r3 | 248 / 40,788,233 | `b462bebb24a5dcf18aaecb5843b75cba0f6c3f89b920c313263abff91f7e7e33` | `b6d4f3bcbfb7454b1760c3ff9f9910d734d8bece` |
+
+Constructor profile SHA-256: `855e5395952723fa387cb6d43f35076fe3becb6d26e2a150f7c22c953c236fb9`.
+
+Exact resource-policy SHA-256: `46704d4b848682e82c8c910e6087688ec4a5b02015d50dbb65d41b664dc9fb99`. The policy is still proposed and unreserved: 2 CPUs / 8 GiB / no swap / 512 PIDs, at least 12 GiB host available memory and 64 GiB/600000 inodes per relevant device, with the deadlines and reserves already listed above. Root's external admission must carry the exact `policy.json` object; it does not mutate the proposal into proof of actual capacity.
+
+The retained successor Source is:
+
+```text
+/home/gabe/Documents/ChatGPT/cachy-asahi-rust-submodule-closure-20261115/scripts/ci/llvm23-source-reference-native/work/source-tree-r3
+```
+
+For publication, Root supplies a fresh actual Git commit in public `Gabriel-Kahen/cachy-asahi`, with the successor prospective tree above. The proposed distinct ref is `refs/heads/codex/llvm23-source-reference-native-20261115-r3`; it has not been published. Root may choose another distinct `codex/` ref, but must bind that exact ref in the new admission. The manual workflow operands are `source_sha` (actual published commit, currently NULL), `source_map_sha256` (successor hash above), `operation=llvm23-source-reference-native-v1`, canonical external `root_admission_json`, and `approval_sha256` of exactly those admission bytes. Run/job/image/artifact/Reader remain actual future observations; no old Native body or selectors substitute for them.
+
+The mode review found wrapper `copyfile` calls that could normalize admitted protected files. These now use mode-preserving copies; the derived PKGBUILD is written to a fresh destination before its original mode is applied. A fixture verifies exact 0444/0555 input modes and bytes. Existing tree-copy and package-inventory paths retain recorded ordinary modes. The filesystem helper's 0644/0755 restriction applies only to canonical Git Source publication, not runtime/package protected-tree admission. The frozen LLVM candidate is unchanged. This successor has 10 constructor/DATA and 15 actor static/refusal controls passing, with no new actors or qualification credit.

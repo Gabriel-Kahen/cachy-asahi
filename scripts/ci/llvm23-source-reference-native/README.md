@@ -17,3 +17,5 @@ bash -n scripts/ci/llvm23-source-reference-native/payload/actor/entry.sh
 ```
 
 They do not invoke Docker, CMake, a compiler, makepkg, acquisition, leases, signing, an operational Reader, publication or dispatch. All license108/source/original-four/native16K/M2/performance/release holds remain preserved.
+
+Root checkpoint/profile/publication/resource operands are recorded in `handoff.json` and `constructor-profile.json`; use the required `--profile-sha256` value from that handoff. Protected ordinary 0444/0555 modes are preserved in wrapper copies. These records grant no operational authority.

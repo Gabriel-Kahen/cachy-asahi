@@ -70,10 +70,28 @@ def render(frozen,candidate,evidence):
     return files
 
 
-def construct(frozen,candidate,evidence,output):
+def verify_profile(expected):
+    raw=(HERE/'constructor-profile.json').read_bytes()
+    fs.need(fs.pin(raw)['sha256']==expected,'Root-reviewed constructor profile SHA differs')
+    profile=json.loads(raw)
+    for name,row in profile['constructor_files'].items():
+        fs.relative(name);fs.need(desc({name:fs.read(HERE/name)})[name]==row,'constructor profile input differs: '+name)
+    for name,row in profile['candidate_files'].items():
+        fs.relative(name);path=Path(profile['operands']['candidate'])/name
+        fs.need(desc({name:fs.read(path)})[name]==row,'candidate checkpoint input differs: '+name)
+    return profile
+
+
+def construct(frozen,candidate,evidence,output,profile_sha=None):
     frozen,candidate,evidence,output=[fs.absolute(p) for p in (frozen,candidate,evidence,output)]
     fs.need(not any(output.is_relative_to(p) or p.is_relative_to(output) for p in (frozen,candidate,HERE/'payload',evidence/'packages',evidence/'scripts',evidence/'.git')),'disjoint fresh Source output required')
-    files=render(frozen,candidate,evidence);previous=fs.MAX_FILES
+    profile=verify_profile(profile_sha) if profile_sha else None
+    if profile:
+        fs.need([str(p) for p in (frozen,candidate,evidence)]==[profile['operands'][k] for k in ('frozen_source','candidate','evidence_root')],'checkpoint constructor operands differ')
+    files=render(frozen,candidate,evidence)
+    if profile:
+        fs.need(fs.pin(files['source-map.json'][0])['sha256']==profile['expected_source_map_sha256'] and fs.tree(files)==profile['expected_prospective_tree'],'constructed Source differs from reviewed checkpoint')
+    previous=fs.MAX_FILES
     try:fs.MAX_FILES=320;fs.publish(files,output)
     finally:fs.MAX_FILES=previous
     return dict(status='CONSTRUCTED_SOURCE_DATA_ONLY',files=len(files),bytes=sum(len(b) for b,_ in files.values()),map=fs.pin(files['source-map.json'][0]),prospective_tree=fs.tree(files),actual=ACTUAL,native_acceptance=False)
@@ -83,4 +101,5 @@ if __name__=='__main__':
     resource.setrlimit(resource.RLIMIT_AS,(512*1024**2,512*1024**2))
     p=argparse.ArgumentParser(description=__doc__)
     for name in ['frozen-source','candidate','evidence-root','output']:p.add_argument('--'+name,required=True,type=Path)
-    a=p.parse_args();print(json.dumps(construct(a.frozen_source,a.candidate,a.evidence_root,a.output),sort_keys=True))
+    p.add_argument('--profile-sha256',required=True)
+    a=p.parse_args();print(json.dumps(construct(a.frozen_source,a.candidate,a.evidence_root,a.output,a.profile_sha256),sort_keys=True))

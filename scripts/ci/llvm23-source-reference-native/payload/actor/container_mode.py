@@ -233,9 +233,9 @@ def action(operation, work, destination=None):
             notices = destination/PREFIX.relative_to('/')/'share/licenses/llvm23-source-reference'
             notices.mkdir(parents=True, exist_ok=True)
             for component in ('llvm', 'clang', 'lld', 'compiler-rt', 'libunwind'):
-                shutil.copyfile(Path('/source')/component/'LICENSE.TXT', notices/(component+'-LICENSE.TXT'))
+                shutil.copy2(Path('/source')/component/'LICENSE.TXT', notices/(component+'-LICENSE.TXT'))
             for name in ('LICENSE.packaging', 'inputs.json', 'build.sh'):
-                shutil.copyfile(CANDIDATE/name, notices/name)
+                shutil.copy2(CANDIDATE/name, notices/name)
             candidate.check_stage(destination)
     else:
         raise ValueError('fixed makepkg action required')

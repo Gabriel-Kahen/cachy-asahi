@@ -100,6 +100,18 @@ def output_namespace():
     return rows
 
 
+def copy_candidate_files(source, destination, names, effective_recipe):
+    """Copy exact admitted ordinary modes; derive PKGBUILD before protecting it."""
+    for name in names:
+        original, target = source/name, destination/name
+        if name == 'PKGBUILD':
+            with target.open('xb') as stream:
+                stream.write(effective_recipe)
+            target.chmod(stat.S_IMODE(original.stat().st_mode))
+        else:
+            shutil.copy2(original, target)
+
+
 def run():
     mode.need(sys.flags.isolated and not sys.flags.optimize, 'isolated unoptimized actor required')
     os.umask(0o022)
@@ -123,9 +135,7 @@ def run():
     (mode.OUT/'PKGBUILD-effective').write_bytes(effective)
     delta = dict(schema=1, mode=mode.MODE, original=mode.pin(original), effective=mode.pin(effective), old=mode.ORIGINAL_CALL, new=mode.CONTAINER_CALL, count=1, inverse='EXACT_LITERAL_REPLACEMENT_RESTORES_WHOLE_ORIGINAL', native_acceptance=False)
     (mode.OUT/'recipe-delta.json').write_bytes(mode.encode(delta))
-    for name in c['candidate_files']:
-        shutil.copyfile(mode.CANDIDATE/name, mode.WORK/'recipe'/name)
-    (mode.WORK/'recipe/PKGBUILD').write_bytes(effective)
+    copy_candidate_files(mode.CANDIDATE, mode.WORK/'recipe', c['candidate_files'], effective)
     archive = mode.INPUTS/'archive.tar.xz'
     mode.need(archive.stat().st_size == mode.ARCHIVE_BYTES and mode.digest(archive) == mode.ARCHIVE_SHA, 'exact read-only LLVM archive required')
     (mode.WORK/'recipe/llvm-project-23.1.1.src.tar.xz').symlink_to(archive)
@@ -171,7 +181,7 @@ def run():
         candidate.check_stage(mode.WORK/'dest')
         for member, name in (('.PKGINFO', 'PKGINFO'), ('.BUILDINFO', 'BUILDINFO')):
             mode.command(['/usr/bin/bsdtar', '-xOf', str(package), member], name.lower(), 60)
-            shutil.copyfile(mode.OUT/(name.lower()+'.log'), mode.OUT/name)
+            shutil.copy2(mode.OUT/(name.lower()+'.log'), mode.OUT/name)
         result.update(status='PASS_LLVM23_ACTOR_DATA', package=dict(bytes=package.stat().st_size, sha256=mode.digest(package)))
     except BaseException as error:
         failure = error

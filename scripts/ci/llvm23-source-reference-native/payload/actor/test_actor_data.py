@@ -46,6 +46,20 @@ def runtime_fixture():
 
 
 class ActorDataTests(unittest.TestCase):
+    def test_protected_candidate_modes_and_derived_recipe_are_preserved(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source, destination = Path(directory)/'input', Path(directory)/'output'
+            source.mkdir(); destination.mkdir()
+            for name, permission in [('PKGBUILD', 0o444), ('build.sh', 0o555), ('inputs.json', 0o444)]:
+                (source/name).write_bytes(b'original DATA')
+                (source/name).chmod(permission)
+            entry.copy_candidate_files(source, destination, ['PKGBUILD', 'build.sh', 'inputs.json'], b'derived DATA')
+            self.assertEqual((destination/'PKGBUILD').read_bytes(), b'derived DATA')
+            for name in ['PKGBUILD', 'build.sh', 'inputs.json']:
+                self.assertEqual((destination/name).stat().st_mode & 0o7777, (source/name).stat().st_mode & 0o7777)
+            self.assertEqual((destination/'build.sh').read_bytes(), b'original DATA')
+            self.assertEqual((destination/'inputs.json').read_bytes(), b'original DATA')
+
     def test_all_python_parses_without_running_operational_entry(self):
         for path in HERE.glob('*.py'):
             ast.parse(path.read_bytes(), filename=str(path))

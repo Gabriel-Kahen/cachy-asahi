@@ -100,6 +100,14 @@ class SourceTests(unittest.TestCase):
             env['LLVM23_OPERATION']='llvm23-source-reference-native-v1';env['GITHUB_RUN_ATTEMPT']='2'
             with self.assertRaisesRegex(ValueError,'first dedicated'):common.context(source,'b'*64,'c'*64,env)
 
+    def test_checkpoint_profile_matches_and_wrong_digest_refuses(self):
+        handoff=json.loads((HERE/'handoff.json').read_bytes())
+        expected=handoff['current_checkpoint']['constructor_profile_sha256']
+        profile=ctor.verify_profile(expected)
+        self.assertEqual(profile['expected_source_map_sha256'],handoff['current_checkpoint']['source_map_sha256'])
+        self.assertEqual(profile['expected_prospective_tree'],handoff['current_checkpoint']['prospective_tree'])
+        with self.assertRaisesRegex(ValueError,'profile SHA differs'):ctor.verify_profile('0'*64)
+
     def test_default_unadmitted_template_remains_inert(self):
         template=json.loads((HERE/'root-admission.TEMPLATE.json').read_bytes())
         self.assertEqual(template['status'],'UNADMITTED');self.assertIsNone(template['authority']);self.assertIsNone(template['source'])
