@@ -1,8 +1,9 @@
 # SPDX-License-Identifier: MIT
-import importlib.util,json,subprocess,tempfile,unittest,urllib.error
+import importlib.util,json,subprocess,sys,tempfile,unittest,urllib.error
 from pathlib import Path
 from unittest.mock import patch
-import intake as I
+spec=importlib.util.spec_from_file_location('ARM_UI_six_pair_intake',Path(__file__).resolve().with_name('intake.py'))
+I=importlib.util.module_from_spec(spec);sys.modules[spec.name]=I;spec.loader.exec_module(I)
 class Controls(unittest.TestCase):
     def setUp(self):self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup);self.root=Path(self.tmp.name)
     def test_actual_six_descriptor_is_finite(self):
