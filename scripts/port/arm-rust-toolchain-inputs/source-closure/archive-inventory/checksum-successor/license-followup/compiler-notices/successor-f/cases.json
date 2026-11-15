@@ -1,0 +1,113 @@
+{
+  "candidate_packet": {
+    "bytes": 1295494,
+    "sha256": "d79dd6913e41fd3d830a44dd6a20d1f53817dc07accf1fc3a564682327719c39"
+  },
+  "case": {
+    "commit": "2d59148f5613cc0d7de42ab21ba71bb32f8fd9d3",
+    "component": "pq-src-0.3.6+libpq-17.4",
+    "manifest_path": "pq-src/Cargo.toml",
+    "manifest_source_html": "evidence/pq-Cargo.toml.orig.html",
+    "manifest_source_url": "https://docs.rs/crate/pq-src/0.3.6+libpq-17.4/source/Cargo.toml.orig",
+    "postgres_notices": [
+      "Portions Copyright (c) 1996-2025, PostgreSQL Global Development Group",
+      "Portions Copyright (c) 1994, The Regents of the University of California"
+    ],
+    "repository": "sgrif/pq-sys",
+    "restored_manifest": "evidence/pq-Cargo.toml.orig",
+    "submodule_commit": "f8554dee417ffc4540c94cf357f7bf7d4b6e5d80",
+    "submodule_path": "pq-src/source",
+    "submodule_repository": "postgres/postgres",
+    "tree_file": "evidence/pq-root-tree.json",
+    "tree_shards": [
+      {
+        "file": "evidence/pq-package-tree.json",
+        "prefix": "pq-src"
+      }
+    ],
+    "wrapper_notice": "Copyright (c) 2015-2017 Sean Griffin"
+  },
+  "evidence_files": {
+    "../../priority-notes.json": {
+      "bytes": 65021,
+      "sha256": "60066b0fd2cb745ae73bf8104bc96af8547e38f2008e58ddc3a47d9ca0c6b638"
+    },
+    "../reevaluate.py": {
+      "bytes": 16054,
+      "sha256": "7f37366446b9d45273103d3286067276ec6a2886c1ef4c458d3a531bef15dbba"
+    },
+    "../successor-c/source_text.py": {
+      "bytes": 1004,
+      "sha256": "b4895e21553057777142cb9da95559efce7ca758de490666bc63a687a8031c36"
+    },
+    "../successor-e/reevaluate.py": {
+      "bytes": 9217,
+      "sha256": "45790e6f306a80911984b2a6384c5a91d62120dd667f6ee00cd4765dd3e62027"
+    },
+    "../successor-e/report.json": {
+      "bytes": 16998,
+      "sha256": "4e65ce4de76acb9e48b93b06d40a0b67ba196fb954b1583c0740afabea9f1325"
+    },
+    "evidence/block2-package-tree.json": {
+      "bytes": 1248,
+      "sha256": "3309be05a1f6015d9d1bdf27da426b38aa9579b0a2ec948ed608846cc117d9a8"
+    },
+    "evidence/objc-core-crates-tree.json": {
+      "bytes": 2632,
+      "sha256": "396da8ff3cd620704e1d397cd64ee01c362d957ed302a6e9391618308259e63e"
+    },
+    "evidence/objc-core-root-tree.json": {
+      "bytes": 3237,
+      "sha256": "e6449747b65666cd9c2cb7d52cf61f800ac77cd367daaa90b77fad490ae0f6dd"
+    },
+    "evidence/objc2-package-tree.json": {
+      "bytes": 2060,
+      "sha256": "ba20eeb3f7e8b30a0b20c13492835c6ef9a70e33af586ecb41601894696081fd"
+    },
+    "evidence/postgres-COPYRIGHT": {
+      "bytes": 1192,
+      "sha256": "e3822c4797fadcab31a3fc73f75c28ac20c73d72b565da91e9974cf9398ef4d2"
+    },
+    "evidence/postgres-configure.ac": {
+      "bytes": 88781,
+      "sha256": "bf4483622d4251dee8f9aec3f8c2090331ea420279435eabe52183fa27d752b9"
+    },
+    "evidence/postgres-root-tree.json": {
+      "bytes": 4972,
+      "sha256": "a51b2626bbbed6c25af3091112f911bc86e6386dde2f0cb307b326a7e0185246"
+    },
+    "evidence/pq-Cargo.toml.orig": {
+      "bytes": 8758,
+      "sha256": "b515af637371396c35e5203e2da3fa28c70a96dc3c14baf8909e1789f4b195ad"
+    },
+    "evidence/pq-Cargo.toml.orig.html": {
+      "bytes": 110711,
+      "sha256": "9679a03d9c3ee558000a878ce54b145e91a22a646374baa498d5189251c36d46"
+    },
+    "evidence/pq-README.md": {
+      "bytes": 3010,
+      "sha256": "461c5c62195e760a32d6886f03637e5922adb4dd8bdc6e8b2497b8e3c3cf96db"
+    },
+    "evidence/pq-gitmodules": {
+      "bytes": 94,
+      "sha256": "0fc511e7db8362aab46cdf232854c16daac722ef574c6ece79da143a655a6600"
+    },
+    "evidence/pq-package-tree.json": {
+      "bytes": 1533,
+      "sha256": "fd05a982401802cd3f18b23d64447d0a2b9c76e2c89a223a8f62235901d4a00d"
+    },
+    "evidence/pq-root-tree.json": {
+      "bytes": 3323,
+      "sha256": "5b2a068349fd3072fe4d382e655ebe9fcd98517cc7511a427ca350b62e6f9d11"
+    },
+    "evidence/pq-wrapper-LICENSE-MIT": {
+      "bytes": 1084,
+      "sha256": "93667a6f27c8f892907ce1d127fd2d98b1ebaacfefbcc5e8f8a830474363e8cc"
+    },
+    "requests.json": {
+      "bytes": 4825,
+      "sha256": "f28c160304cfe0df5acd36e049c5e8d4e6b00a4ef170955ce37f083fc9f1c351"
+    }
+  },
+  "schema": 1
+}

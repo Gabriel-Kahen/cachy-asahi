@@ -1,0 +1,138 @@
+{
+  "acquisition_closed": true,
+  "body_bytes": 223877,
+  "requests": [
+    {
+      "HTTP": 200,
+      "bytes": 110711,
+      "complete_body": true,
+      "file": "pq-Cargo.toml.orig.html",
+      "ordinal": 1,
+      "seconds": 0.36,
+      "sha256": "9679a03d9c3ee558000a878ce54b145e91a22a646374baa498d5189251c36d46",
+      "url": "https://docs.rs/crate/pq-src/0.3.6+libpq-17.4/source/Cargo.toml.orig"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 3237,
+      "complete_body": true,
+      "file": "objc-core-root-tree.json",
+      "ordinal": 2,
+      "seconds": 0.102,
+      "sha256": "e6449747b65666cd9c2cb7d52cf61f800ac77cd367daaa90b77fad490ae0f6dd",
+      "url": "https://api.github.com/repos/madsmtm/objc2/git/trees/b4167b582b2f75f9a1be75495c41b765344fd03c"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 2632,
+      "complete_body": true,
+      "file": "objc-core-crates-tree.json",
+      "ordinal": 3,
+      "seconds": 0.163,
+      "sha256": "396da8ff3cd620704e1d397cd64ee01c362d957ed302a6e9391618308259e63e",
+      "url": "https://api.github.com/repos/madsmtm/objc2/git/trees/62624ba851441792a2dc325a84c93a9e0d798abf"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 2060,
+      "complete_body": true,
+      "file": "objc2-package-tree.json",
+      "ordinal": 4,
+      "seconds": 0.133,
+      "sha256": "ba20eeb3f7e8b30a0b20c13492835c6ef9a70e33af586ecb41601894696081fd",
+      "url": "https://api.github.com/repos/madsmtm/objc2/git/trees/03aa29968a53060434513f85add96d7b2a2f3f21"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 1248,
+      "complete_body": true,
+      "file": "block2-package-tree.json",
+      "ordinal": 5,
+      "seconds": 0.152,
+      "sha256": "3309be05a1f6015d9d1bdf27da426b38aa9579b0a2ec948ed608846cc117d9a8",
+      "url": "https://api.github.com/repos/madsmtm/objc2/git/trees/4b2d1823ea7a4e498a048b715cfccf98b883b2e6"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 3323,
+      "complete_body": true,
+      "file": "pq-root-tree.json",
+      "ordinal": 6,
+      "seconds": 0.168,
+      "sha256": "5b2a068349fd3072fe4d382e655ebe9fcd98517cc7511a427ca350b62e6f9d11",
+      "url": "https://api.github.com/repos/sgrif/pq-sys/git/trees/2d59148f5613cc0d7de42ab21ba71bb32f8fd9d3"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 1533,
+      "complete_body": true,
+      "file": "pq-package-tree.json",
+      "ordinal": 7,
+      "seconds": 0.156,
+      "sha256": "fd05a982401802cd3f18b23d64447d0a2b9c76e2c89a223a8f62235901d4a00d",
+      "url": "https://api.github.com/repos/sgrif/pq-sys/git/trees/bc07b76d872126ddfd86c3b2448fcecd6ae3a78b"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 94,
+      "complete_body": true,
+      "file": "pq-gitmodules",
+      "ordinal": 8,
+      "seconds": 0.09,
+      "sha256": "0fc511e7db8362aab46cdf232854c16daac722ef574c6ece79da143a655a6600",
+      "url": "https://raw.githubusercontent.com/sgrif/pq-sys/2d59148f5613cc0d7de42ab21ba71bb32f8fd9d3/.gitmodules"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 3010,
+      "complete_body": true,
+      "file": "pq-README.md",
+      "ordinal": 9,
+      "seconds": 0.102,
+      "sha256": "461c5c62195e760a32d6886f03637e5922adb4dd8bdc6e8b2497b8e3c3cf96db",
+      "url": "https://raw.githubusercontent.com/sgrif/pq-sys/2d59148f5613cc0d7de42ab21ba71bb32f8fd9d3/pq-src/README.md"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 1084,
+      "complete_body": true,
+      "file": "pq-wrapper-LICENSE-MIT",
+      "ordinal": 10,
+      "seconds": 0.073,
+      "sha256": "93667a6f27c8f892907ce1d127fd2d98b1ebaacfefbcc5e8f8a830474363e8cc",
+      "url": "https://raw.githubusercontent.com/sgrif/pq-sys/2d59148f5613cc0d7de42ab21ba71bb32f8fd9d3/LICENSE-MIT"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 4972,
+      "complete_body": true,
+      "file": "postgres-root-tree.json",
+      "ordinal": 11,
+      "seconds": 0.165,
+      "sha256": "a51b2626bbbed6c25af3091112f911bc86e6386dde2f0cb307b326a7e0185246",
+      "url": "https://api.github.com/repos/postgres/postgres/git/trees/f8554dee417ffc4540c94cf357f7bf7d4b6e5d80"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 1192,
+      "complete_body": true,
+      "file": "postgres-COPYRIGHT",
+      "ordinal": 12,
+      "seconds": 0.108,
+      "sha256": "e3822c4797fadcab31a3fc73f75c28ac20c73d72b565da91e9974cf9398ef4d2",
+      "url": "https://raw.githubusercontent.com/postgres/postgres/f8554dee417ffc4540c94cf357f7bf7d4b6e5d80/COPYRIGHT"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 88781,
+      "complete_body": true,
+      "file": "postgres-configure.ac",
+      "ordinal": 13,
+      "seconds": 0.091,
+      "sha256": "bf4483622d4251dee8f9aec3f8c2090331ea420279435eabe52183fa27d752b9",
+      "url": "https://raw.githubusercontent.com/postgres/postgres/f8554dee417ffc4540c94cf357f7bf7d4b6e5d80/configure.ac"
+    }
+  ],
+  "started_epoch": 1794750940.171965,
+  "stopped_epoch": 1794751178.1214051
+}
