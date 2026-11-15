@@ -1,0 +1,155 @@
+{
+  "actual_1_3": {
+    "Configure": "NOT_RUN",
+    "archive": "NONE",
+    "byte_reproducibility": "UNPROVEN",
+    "compilation": "NOT_RUN",
+    "staged_interpreter": "NOT_RUN",
+    "upstream_harness": "NOT_RUN"
+  },
+  "actual_run": {
+    "allocated_input_snapshot": false,
+    "available_shared_filesystem_bytes": 3390976000,
+    "capacity": [
+      {
+        "MemAvailable_bytes": 19512094720,
+        "failure": "insufficient or unknown filesystem free inode count",
+        "phase": "whole-pair-before-input-allocation",
+        "required_memory_bytes": 8589934592,
+        "requirements": [
+          {
+            "available_bytes": 3390976000,
+            "available_inodes": 0,
+            "bytes": 4294967296,
+            "device": 54,
+            "inodes": 80000,
+            "path": "/home/gabe/.local/share/docker"
+          },
+          {
+            "available_bytes": 3390976000,
+            "available_inodes": 0,
+            "bytes": 603979776,
+            "device": 54,
+            "inodes": 12000,
+            "path": "/home/gabe/Documents/ChatGPT/cachy-asahi-perl-cli-parallel-20261114/work/perl-repro-host-build-20261114-r4"
+          },
+          {
+            "available_bytes": 3390976000,
+            "available_inodes": 0,
+            "bytes": 1073741824,
+            "device": 54,
+            "inodes": 10000,
+            "path": "/home/gabe/.local/share/docker"
+          }
+        ],
+        "status": "HOLD_CAPACITY"
+      }
+    ],
+    "command": [
+      "python3.14",
+      "-I",
+      "-B",
+      "scripts/port/perl5423-repro-host-build/run.py",
+      "--source",
+      "work/perl-cli-20261114/recipe/perl5-bc3dab4d4f66de5ea67dda34e5feb5230a54c603.tar.gz",
+      "--output",
+      "work/perl-repro-host-build-20261114-r4"
+    ],
+    "created_containers": 0,
+    "created_images": 0,
+    "created_volumes": 0,
+    "docker_endpoint": "unix:///run/user/1000/docker.sock",
+    "docker_root": "/home/gabe/.local/share/docker",
+    "exit": 2,
+    "inode_capacity": "Btrfs reports total/free inodes0; existing helper cannot prove future inode demand; NOT evidence of exhausted inodes",
+    "operations": [
+      {
+        "argv": [
+          "docker",
+          "context",
+          "inspect",
+          "--format",
+          "{{json .Endpoints.docker.Host}}"
+        ],
+        "returncode": 0
+      },
+      {
+        "argv": [
+          "docker",
+          "info",
+          "--format",
+          "{{.DockerRootDir}}"
+        ],
+        "returncode": 0
+      }
+    ],
+    "original_inputs_unchanged": true,
+    "required_shared_filesystem_bytes": 5972688896,
+    "shortfall_bytes": 2581712896,
+    "status": "HOLD_CAPACITY"
+  },
+  "candidate_commit": "c8e9baea97f83f652763e701143d6dec5b679f31",
+  "controller_files": {
+    "build.sh": {
+      "bytes": 1674,
+      "sha256": "871838d7224e6ecee39922b784ad46f958cd7f262204e81425cfcfbc49357f2d"
+    },
+    "inputs.json": {
+      "bytes": 4728,
+      "sha256": "a9e4511ca966edd406427f43dd853f62853dc988c08169b62ffb09a1f7044367"
+    },
+    "run.py": {
+      "bytes": 16790,
+      "sha256": "f0dd481999dd3a62e638a9f34c06d9fef801c7a478aac0a23ba9a7b89eb975d9"
+    },
+    "test_driver.py": {
+      "bytes": 9829,
+      "sha256": "6da0e5056d72e423ac010d42b0215650fd81e505c01b4b5acbd0a82f40303ad9"
+    }
+  },
+  "controls": {
+    "Bash_syntax": "PASS",
+    "Python3_12_13": {
+      "status": "PASS",
+      "tests": 9
+    },
+    "Python3_14_6": {
+      "status": "PASS",
+      "tests": 9
+    },
+    "actor_success_and_cancellation": "SIMULATED_DOCKER_ONLY_NOT_BUILD_OR_ACTUAL_CANCELLATION_EVIDENCE",
+    "additional_assertions": [
+      "Remaining image commit budget4608MiB with shared-filesystem reserve",
+      "Decoded scratch directed to private output; tempfile setting restored even when archive inspection raises OSError"
+    ],
+    "review": "Read-only peer review findings addressed; no further concrete defect reported"
+  },
+  "date": "2026-11-14",
+  "holds": [
+    "Strict byte and inode capacity contract not satisfied",
+    "Native ARM/16K/M2 both sizes NOT_RUN",
+    "Installed lifecycle/ABI/external XS not qualified",
+    "Performance/legal-policy/production trust/release not admitted"
+  ],
+  "preservation": "git diff against HEAD empty for1.2 candidate/builder and1.3 candidate; existing ignored evidence paths were read-only",
+  "private_evidence": {
+    "files": {
+      "controls-312.log": {
+        "bytes": 1436,
+        "sha256": "e46575dd305b0c96d125a17f8def774c7e498987d82b4c38cfb10b92b64f9a5e"
+      },
+      "controls-314.log": {
+        "bytes": 1436,
+        "sha256": "6e357ee6e6ab5b578a4366bff86adf9447ca2de99c6851059dbed417ede44cf2"
+      },
+      "report.json": {
+        "bytes": 7942,
+        "sha256": "0fae0b8f6bb54f5f1cc123d51d3e8491e7bc560eaa56dd7135dbd5e0361c4a04"
+      }
+    },
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi-perl-cli-parallel-20261114/work/perl-repro-host-build-20261114-r4"
+  },
+  "schema": 1,
+  "scope": "NEW_FIXED_1.3_HOST_DRIVER_ONLY_NOT_A_BUILD",
+  "status": "HOLD_CAPACITY_BEFORE_DOCKER_RESOURCES"
+}
