@@ -1,0 +1,114 @@
+{
+  "files": {
+    "LICENSE.packaging": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "README.md": {
+      "bytes": 2660,
+      "sha256": "2bb7d649640d56a0381b485fcd1992a4874221f459af6354d76be5fed7e37148"
+    },
+    "actual-data.json": {
+      "bytes": 3060,
+      "sha256": "7a542ac591e6ad81a726e815f094809fa880ef79f108bd9f6af383b38d87e2bd"
+    },
+    "additions.template.json": {
+      "bytes": 871,
+      "sha256": "4701b5daeaf34df5db455ed1546f0ec67d59f2e2bcdf722d6798432c52d1151e"
+    },
+    "arm_ui_gate.py": {
+      "bytes": 1620,
+      "sha256": "c58359846507d368235bf404cf3e05679746b73a8314f96d7e9bf263d030d62e"
+    },
+    "authority.template.json": {
+      "bytes": 594,
+      "sha256": "d714268102cf57fc76b652fc2b411047667fccb3171497c957a6636b5083f988"
+    },
+    "boot.py": {
+      "bytes": 11502,
+      "sha256": "791c478a9d0d133291f97b2ee713b256f02e82c8886dc39ab4607c33ba853a30"
+    },
+    "compose.py": {
+      "bytes": 3739,
+      "sha256": "44845652e3cda872a6443965c53e3733f2d8a1b663196fb4a887146e5b935dad"
+    },
+    "contracts.py": {
+      "bytes": 16070,
+      "sha256": "5f9cdf1c75796ad4b5f53f7bd18ec1f62f93faf2877fda2bad0f4f4d42924730"
+    },
+    "fixture.service": {
+      "bytes": 282,
+      "sha256": "ae456d3a88836f14ad999dcaae98c4c3beaa76a4c294a40d4edd063c8e13c508"
+    },
+    "guest-install.sh": {
+      "bytes": 3866,
+      "sha256": "ea592c42af269c416c1f78ff80337907a6189f0849ee044e457adef4e058492c"
+    },
+    "lineage.json": {
+      "bytes": 5919,
+      "sha256": "1cf1a31aba6cf6f4c852d4da4e32cf8e131c1ec6a5dbcc5469ecb5d87c34c0de"
+    },
+    "observer.py": {
+      "bytes": 12475,
+      "sha256": "2ac40b07397471818448b64cf68a9d5cb6c21db3626b47a52267dbb7209bc225"
+    },
+    "ownership.py": {
+      "bytes": 10755,
+      "sha256": "c0d48f91c533834dc4dfd85037877179f55fa54c98bf8836ca2711986da55e3e"
+    },
+    "package_data.py": {
+      "bytes": 1775,
+      "sha256": "1eecce0395762c9ab97aea96244de797e4c5e8b5c0c38f2b535bbddc3d171c8e"
+    },
+    "prepare.py": {
+      "bytes": 13178,
+      "sha256": "98132fa11ff22d48813d4efcb94429370222f4ec69feb3020c8759f5dddacdcd"
+    },
+    "prepare_image.py": {
+      "bytes": 8431,
+      "sha256": "8d7017270baef6ef03be85495836bc6bcc42628436ea508855d6262350f7bd61"
+    },
+    "profile.fragment": {
+      "bytes": 534,
+      "sha256": "b95b8a7ad80f1f59ef0f23f1628a6c93d56bb1315a90ba5c090d563b3a91ccf6"
+    },
+    "protocol.py": {
+      "bytes": 1667,
+      "sha256": "f9c5e62035352da257f1102ad520272d40feb71cfebc975f62eba5b250246b85"
+    },
+    "receipts.py": {
+      "bytes": 13178,
+      "sha256": "12fb8ae6b02333e037a21eacc8250d66d791d27fef8ca7cc5c4fc1a7192f4b3b"
+    },
+    "references.json": {
+      "bytes": 2400,
+      "sha256": "c9b74eb0cbeb993541ce7b6bf2520a9610c966fa0ef4ffa3b6b43ced6aab22ef"
+    },
+    "result.py": {
+      "bytes": 3196,
+      "sha256": "027f123da2e52e6bcd11ff12e183004ce14b01e6d4fbfe65241afb85b2395a43"
+    },
+    "root_fixture.py": {
+      "bytes": 12231,
+      "sha256": "f98a9baaf95704118bda8e343deac69d13f914ca6008780af98a1a63294e8152"
+    },
+    "seat_actor.py": {
+      "bytes": 4571,
+      "sha256": "ddd21bd1806ced71abc4be0e3941205ad4b2e25e3b0d484b04c627926fa59d91"
+    },
+    "test_controls.py": {
+      "bytes": 14270,
+      "sha256": "cb0dba0f454bc95d3c1584e78b1dc362589c282f4d3ccbea311213225d24d4e3"
+    },
+    "ui-observer.service": {
+      "bytes": 256,
+      "sha256": "a03a10510281894d4823d645fc6a6a15a1aa09130daa0637cb3896cb27b74b99"
+    },
+    "ui_observer.py": {
+      "bytes": 2048,
+      "sha256": "6481c344b14de0a3758ca4b2d098d03bab2251c6d9cb56488672f76a7a8f0d0d"
+    }
+  },
+  "schema_version": 1,
+  "status": "SOURCE_ONLY_UI_VM_NOT_RUN"
+}

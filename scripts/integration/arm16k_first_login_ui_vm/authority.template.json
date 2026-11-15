@@ -1,0 +1,21 @@
+{
+  "accept_unknown_runtime_ABI_for_bounded_VM": false,
+  "additions_manifest": null,
+  "allow_boot": false,
+  "allow_prepare": false,
+  "issued_by": "Root",
+  "kernel_bundle": {
+    "bytes": 9549,
+    "sha256": "c8f03dff4f98dbf24e2273442c3008875cfb8a2d595d08e28b263c8c8b3308f1"
+  },
+  "kind": "ARM16K_FIRST_LOGIN_UI_AUTHORITY_V1",
+  "minimal155_prepared": null,
+  "minimal155_report": null,
+  "operation": "arm16k-first-login-ui-vm-v1",
+  "qemu_metadata": null,
+  "resource_review": null,
+  "source_lock": null,
+  "source_public": null,
+  "tool_image_id": null,
+  "tool_qualification": null
+}

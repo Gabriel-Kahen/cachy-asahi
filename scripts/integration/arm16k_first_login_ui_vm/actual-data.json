@@ -1,0 +1,78 @@
+{
+  "M2_native_release": "NOT RUN",
+  "actual_VM": null,
+  "actual_complete172_admission": null,
+  "actual_minimal155_pass": null,
+  "actual_preparation": null,
+  "actual_public_Source": null,
+  "actual_tool_image": null,
+  "actual_tool_qualification": null,
+  "baseline_metadata_association": {
+    "method": "per-package exact version/directory plus sorted provides/owned normalized paths; derived from actual222rawmetadata joins",
+    "normalized_bytes": 1347256,
+    "sha256": "bb7deff9b41610e454244b4b6c87529a8007795703417a788d2dfbcad7d1683b",
+    "source_report": {
+      "bytes": 1704403,
+      "sha256": "082eb121e387d919fd336bda4418383d25c82d4b8013ba415d32d03d74248fb7"
+    }
+  },
+  "composition": {
+    "additions": 172,
+    "archive_bytes": 157094632,
+    "baseline": 111,
+    "bytes": 449748,
+    "conflicts": [],
+    "dependency_relations": 1319,
+    "errors": [],
+    "final": 283,
+    "metadata_status": "PASS_EXPLICIT_FINITE_METADATA_PREPARE",
+    "path": "/tmp/cachy-asahi-arm16k-UI-NM-current-Xvfb-proposal-20261115/proposal.json",
+    "questions": [],
+    "removals": [],
+    "root_change": {
+      "after": "21.1.26-1",
+      "archive": {
+        "bytes": 705736,
+        "filename": "xorg-server-xvfb-21.1.26-1-aarch64.pkg.tar.xz",
+        "sha256": "c4729aaf327fae3f19795f4fbcad8035798316d4c812c56953c32796f1cf916c",
+        "signature_bytes": 566,
+        "signature_sha256": "b897acfedc03067a68f1c28bf7ad2d62ee78365fe83a4d48a081910dc57a90e7"
+      },
+      "before": "21.1.25-1",
+      "name": "xorg-server-xvfb"
+    },
+    "sha256": "acc8eeae38de61fb0db844b621884a0d66b76f129e5a076c533d870f6e0856e6"
+  },
+  "kernel_built_only": {
+    "Image": {
+      "bytes": 9019400,
+      "sha256": "36066ded2f5721fd9bb257cebb2e4cb32084f45c3717f4d7a45430fe3cdcc494"
+    },
+    "bundle": {
+      "bytes": 9549,
+      "sha256": "c8f03dff4f98dbf24e2273442c3008875cfb8a2d595d08e28b263c8c8b3308f1"
+    },
+    "config": {
+      "bytes": 71585,
+      "sha256": "b8bc8c636ae7e58e8e338e7dba87d84a390d0555fa7307fc76217e0d56553d7f"
+    },
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-UI-seat-kernel-compile-r1/actor-output/stage/bundle"
+  },
+  "retained_qualified_tool_DATA": {
+    "UI_consumer_pure_interop": "PASS_GENUINE_RETAINED_PRODUCER_RECEIPTS_ONLY",
+    "device_metadata": {
+      "bytes": 675,
+      "repo_path": "scripts/integration/arm16k_virtio_seat_vm/data/Root-device-help-r2.json",
+      "sha256": "b2a0c65bbb2120235206b27c39ba07421a37df10fc365d99b236f9a0ae0d95c1"
+    },
+    "image_id": "sha256:52958d534193d739aeb6d3c9239ed31b97f8fb357a618e14391293068b28cd2a",
+    "qualification": {
+      "bytes": 5942,
+      "repo_path": "scripts/integration/arm16k_virtio_seat_vm/data/tool-qualification-r2.json",
+      "sha256": "8507370faf1c8aa385235ca0d01411251998b3266bf15817e568c09b71738916"
+    },
+    "scope": "genuine externally produced tool-image/device-help qualification only; UI authority still absent"
+  },
+  "schema_version": 1,
+  "status": "SOURCE_READY_ACTUAL_VM_NOT_RUN"
+}
