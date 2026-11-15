@@ -6,3 +6,4 @@ scripts/port/arm-rust-toolchain-inputs/source-closure/archive-inventory/checksum
 scripts/port/arm-rust-toolchain-inputs/source-closure/archive-inventory/checksum-successor/license-followup/compiler-notices/successor-c/evidence/object-Cargo.toml.orig.html -whitespace
 scripts/port/arm-rust-toolchain-inputs/source-closure/archive-inventory/checksum-successor/license-followup/compiler-notices/successor-c/evidence/object-vcs.html -whitespace
 scripts/port/arm-rust-toolchain-inputs/source-closure/archive-inventory/checksum-successor/license-followup/compiler-notices/successor-d/evidence/tera-LICENSE -whitespace
+scripts/port/arm-rust-toolchain-inputs/source-closure/archive-inventory/checksum-successor/license-followup/compiler-notices/successor-e/evidence/wasmtime-LICENSE -whitespace
