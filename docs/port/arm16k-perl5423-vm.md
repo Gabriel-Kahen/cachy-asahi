@@ -143,3 +143,31 @@ Actual prepare-r1 completed the actor but held in cleanup due to a rebound
 container-name closure. Scope now captures the original immutable name; strict
 identity and all other guards remain. Retained r1 remains a closed HOLD, with no
 VM/runtime acceptance. A new Source attempt requires Root's separate issuance.
+
+
+Prepare and boot now use distinct exclusive markers in the prepared directory:
+`perl5423-attempt.json` and `perl5423-boot-attempt.json`. A prepared image permits
+one separately issued boot; a repeated prepare or boot still refuses.
+
+Boot readback exports exact reviewed ordinary `results/` and `receipts/` files
+from the journal-replayed disposable verification copy. The allowlist follows
+`guest/root.sh` and `guest/official-trust.sh`, including baseline/final payload,
+metadata, xattr, ALPM database, user, cache, normal pacman-log and transaction
+receipts. Branch-specific rollback and db5.3 receipts are required only for their
+selected transaction. Unexpected names, nesting, links, unsafe modes/ownership,
+missing receipts, oversized files and stream hash/length changes refuse.
+Count is at most128 files per directory; ordinary files are at most16MiB, bounded
+command logs also obey log_bytes, and pacman-log-after obeys its reviewed baseline
+length plus log_bytes (at most24MiB). Combined exports plus a64KiB manifest reserve
+fit both existing guest_output and host logs caps. No budgets were increased.
+
+`retained-data-manifest.json` has exact fields `schema` (1), `nonce`, `case_packet`
+(byte/SHA pin), `Source_lock` (byte/SHA pin), and `files`. Files map relative
+`results/<name>` or `receipts/<name>` to `{bytes,sha256,mode}`; host mode is384
+(0600), directories0700. `preservation.json.retained_DATA` carries its `manifest`
+pin, `files` count, aggregate `bytes`, and null VM_acceptance/Root_acceptance.
+The host controller independently rechecks the manifest, membership and every
+exported byte/mode before reporting success. An independent Reader can select
+its reviewed receipt subset directly without importing Source code. The final
+sync log is created after the durable receipts copy and is intentionally absent.
+No VM, ALPM, hardware or release acceptance follows from these Source controls.

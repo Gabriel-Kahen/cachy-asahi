@@ -1,0 +1,28 @@
+{
+  "actual": {
+    "decision_time": null,
+    "issued_by": null,
+    "runtime_acceptance": null
+  },
+  "boot": null,
+  "boot_authority": null,
+  "boot_outer": null,
+  "kind": "PERL5423_ARM16K_PASSIVE_REQUEST_V1",
+  "native_pair": null,
+  "nonce": null,
+  "operation": "arm16k-perl5423-system-runtime-v1",
+  "packet": {
+    "directory": null,
+    "pin": null
+  },
+  "prepare_outer": null,
+  "prepare_provider_observation": null,
+  "prepare_report": null,
+  "prepared": null,
+  "receipts": null,
+  "schema": 1,
+  "source": {
+    "directory": null,
+    "lock": null
+  }
+}

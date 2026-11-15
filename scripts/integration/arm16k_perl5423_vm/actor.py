@@ -95,19 +95,10 @@ def boot(K,R,I,W,packet,cert,guard,deadline):
  cmd('readback-readonly-fsck',['e2fsck','-fn',str(raw)],r['cleanup_seconds'])
  before=I.scan(Path('/prepared/guest.raw'),deadline,guard);after=I.scan(raw,deadline,guard)
  preservation=I.preserve(before,after,cert['baseline_certificate']['inventory'],cert['runtime_certificate'])
- # Bounded selected DATA readback only, never a filesystem/tree export.
- results=W/'results';results.mkdir(mode=0o700)
- F=K.helper('independent_readback.py');prefix=D.lstrip('/')+'/results/'
- selected={n:row for n,row in after['nodes'].items()if n.startswith(prefix)}
- K.need(selected and all(row['type']=='file'and '/'not in n[len(prefix):]for n,row in selected.items()),'closed flat ordinary durable result set')
+ # Bounded exact ordinary DATA only, read from the disposable verification copy.
+ F=K.helper('independent_readback.py')
  with F.Ext4Reader(raw,max_nodes=150000,max_file_bytes=256*1024**2)as reader:
-  total=0
-  for name,row in sorted(selected.items()):
-   guard();total+=row['size'];K.need(total<=r['guest_output_cap_bytes'],'bounded durable readback')
-   fields,data=reader.inode(row['inode'])
-   with (results/name[len(prefix):]).open('xb')as stream:
-    for block in reader.chunks(fields,data):guard();stream.write(block)
-   (results/name[len(prefix):]).chmod(0o600);K.need(K.pin(results/name[len(prefix):])['sha256']==row['sha256'],'actual durable readback hashes')
+  preservation['retained_DATA']=module('retention').export(reader,after['nodes'],W,cert['runtime_certificate'],r,packet,K.pin(Path('/packet/case-packet.json')),guard)
  K.need(not any(n==D.lstrip('/')+'/trust' or n.startswith(D.lstrip('/')+'/trust/')for n in after['nodes']),'private TEST trust absent on disk')
  (W/'preservation.json').write_bytes(K.canonical(preservation));raw.unlink()
 

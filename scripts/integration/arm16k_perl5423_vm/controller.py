@@ -9,6 +9,15 @@ def module(n):
  s=importlib.util.spec_from_file_location('perl_controller_'+n,HERE/(n+'.py'));m=importlib.util.module_from_spec(s);s.loader.exec_module(m);return m
 
 
+def attempt_marker(phase,output,prepared,authority_sha256,nonce):
+ K=module('contracts');K.need(phase in('prepare','boot'),'exact marker phase')
+ root=K.ordinary(prepared if phase=='boot'else output)
+ name='perl5423-boot-attempt.json'if phase=='boot'else'perl5423-attempt.json'
+ path=root/name
+ with path.open('x')as stream:stream.write(K.canonical(dict(authority=authority_sha256,nonce=nonce)).decode())
+ return path
+
+
 def authority(value,phase,packet,source,output,K,resources=None):
  K.keys(value,('kind','issued_by','accepted','operation','phase','packet','source_lock','output','uid','created_utc','expires_utc','image','docker_endpoint','docker_cli','quota_device','actor_tools','kernel','credentials','prepared'),'controller authority')
  K.root_cert(value,'ROOT_PERL5423_VM_ACTOR_AUTHORITY_V1')
@@ -102,8 +111,7 @@ def main():
   for key,value in labels.items():argv+=['--label',key+'='+value]
   for _,src,dst,rw in sorted(mounts):argv+=['--mount','type=bind,source='+src+',target='+dst+(''if rw else',readonly')]
   argv+=['--env','CACHY_PERL5423_ACTOR=1','--entrypoint','/usr/bin/python3',auth['image'],'-I','-B','/code/actor.py',a.phase]
-  marker=prepared if prepared is not None else out
-  with (marker/'perl5423-attempt.json').open('x')as stream:stream.write(K.canonical(dict(authority=a.authority_sha256,nonce=packet['nonce'])).decode())
+  attempt_marker(a.phase,out,prepared,a.authority_sha256,packet['nonce'])
   scope.submitted=True;cmd('create',argv);scope.recover(time.monotonic()+8);cmd('start',['docker','start',name])
   if a.phase=='boot':
    with tempfile.TemporaryDirectory(prefix='perl5423-sockets-')as short:
@@ -139,6 +147,7 @@ def main():
    P.validate(report['restored'],module('proof').inventory_hash(base['inventory']),K.load(out/'host-epoch.json')['utc_ns']//10**9,int(time.time()),cert['runtime_certificate']['rollback']['local_database_policy'])
    report['outputs']=module('proof').outputs(out/'results',report['restored'],base['inventory'],cert['runtime_certificate'],packet['nonce'],K.load(out/'host-epoch.json')['utc_ns']//10**9,int(time.time()),r['guest_output_cap_bytes'])
    report['preservation']=K.load(out/'preservation.json');K.need(report['preservation']['status']=='PASS_COMPLETE_BASELINE_AND_USER_PRESERVATION','postboot complete preservation')
+   module('retention').verify(out,report['preservation']['retained_DATA'],cert['runtime_certificate'],packet,K.pin(packet_dir/'case-packet.json'),r)
   K.need(K.pin(authpath)['sha256']==a.authority_sha256 and A.source(a.source_lock_sha256)==source,'Source/authority stable throughout actor')
   A.baseline_inputs(baseline,base,a.baseline_ownership)
   for name,row in packet['materials'].items():K.need(K.pin(Path(row['path']))=={n:row[n]for n in('bytes','sha256')},'retained original material stable')

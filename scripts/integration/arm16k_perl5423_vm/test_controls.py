@@ -641,6 +641,59 @@ class Controls(unittest.TestCase):
        self.assertEqual(R.docker_call(args,Path(tmp),time.monotonic()+8,shared_deadline=time.monotonic()+20,defer_cancel=True),'MODELED_RETIRED');self.assertEqual(run.call_args.args[0][0],str(p));self.assertTrue(run.call_args.kwargs['defer_cancel'])
     self.assertIsNone(R.DOCKER_CLI);self.assertEqual(os.environ['DOCKER_CONTEXT'],'MODELED_UNWANTED_CONTEXT')
    self.assertEqual({k:os.environ.get(k)for k in before},before)
+ def test_prepare_first_boot_then_second_boot_exclusive_markers(self):
+  with tempfile.TemporaryDirectory()as tmp:
+   prepared=Path(tmp)/'prepare';prepared.mkdir();out=Path(tmp)/'boot';out.mkdir()
+   first=C.attempt_marker('prepare',prepared,None,'a'*64,'b'*32);before=first.read_bytes()
+   boot=C.attempt_marker('boot',out,prepared,'c'*64,'b'*32)
+   self.assertEqual(first.name,'perl5423-attempt.json');self.assertEqual(boot.name,'perl5423-boot-attempt.json');self.assertEqual(first.read_bytes(),before);self.assertFalse(list(out.iterdir()))
+   for phase,dest,prior in(('boot',out,prepared),('prepare',prepared,None)):
+    with self.assertRaises(FileExistsError):C.attempt_marker(phase,dest,prior,'d'*64,'e'*32)
+   self.assertEqual(first.read_bytes(),before);self.assertEqual(K.load(boot)['authority'],'c'*64)
+ def test_closed_retained_export_roundtrip_and_refusals(self):
+  T=module('retention');rt=modeled(dependency=True)[3];rt['restoration_allowances']['pacman_log_before']=None
+  limits=dict(log_bytes=1024**2,guest_output_cap_bytes=256*1024**2,logs_cap_bytes=64*1024**2)
+  packet=dict(nonce='a'*32,Source_lock=pin('source'));case_pin=pin('packet')
+  required,pairs,optional=T.receipt_names(rt);names={'receipts/'+n for n in required|{sorted(pair)[0]for pair in pairs}}
+  names|={'results/'+n for n in F.LOGS}|{'results/'+n for n in('outputs.sha256','summary.env','before-alpm-provider-observation.tsv')}
+  names|={'results/'+str(i)+'.elf'for i,p in enumerate(sorted(p for p in rt['elfs']if rt['files'][p]['owner']=='perl'))}
+  nodes={T.PREFIX+g:dict(type='directory',uid=0,gid=0,mode=0o700)for g in('results','receipts')};content={}
+  for i,name in enumerate(sorted(names),1):
+   body=b''if name.endswith('.absent')else ('MODEL_DATA_'+name).encode();content[i]=body
+   nodes[T.PREFIX+name]=dict(inode=i,type='file',links=1,uid=0,gid=0,mode=0o600,size=len(body),sha256=hashlib.sha256(body).hexdigest())
+  class Reader:
+   def inode(self,i):return next(dict(r)for r in nodes.values()if r.get('inode')==i),content[i]
+   def chunks(self,fields,data):yield data
+  with tempfile.TemporaryDirectory()as tmp:
+   out=Path(tmp);ref=T.export(Reader(),nodes,out,rt,limits,packet,case_pin,lambda:None)
+   manifest=T.verify(out,ref,rt,packet,case_pin,limits);self.assertEqual(set(manifest['files']),names)
+   with self.assertRaises(ValueError):T.verify(out,dict(ref,manifest=pin('wrong-manifest')),rt,packet,case_pin,limits)
+   with self.assertRaises(ValueError):T.verify(out,ref,rt,dict(packet,nonce='b'*32),case_pin,limits)
+   target=out/'receipts/base.lock';original=target.read_bytes();target.write_bytes(b'TAMPER')
+   with self.assertRaises(ValueError):T.verify(out,ref,rt,packet,case_pin,limits)
+   target.write_bytes(original);target.chmod(0o644)
+   with self.assertRaises(ValueError):T.verify(out,ref,rt,packet,case_pin,limits)
+   target.chmod(0o600);alias=out/'receipts/secret.key';alias.symlink_to(target)
+   with self.assertRaises(ValueError):T.verify(out,ref,rt,packet,case_pin,limits)
+   alias.unlink();os.link(target,alias)
+   with self.assertRaises(ValueError):T.verify(out,ref,rt,packet,case_pin,limits)
+   alias.unlink();T.verify(out,ref,rt,packet,case_pin,limits)
+  remove_names=T.receipt_names(modeled()[3])[0];rollback_names=T.receipt_names(modeled(rollback=True)[3])[0]
+  self.assertIn('remove.log',remove_names);self.assertNotIn('rollback.log',remove_names);self.assertIn('rollback.log',rollback_names);self.assertNotIn('remove.log',rollback_names)
+  key=T.PREFIX+'receipts/base.lock'
+  for change in(dict(type='symlink'),dict(links=2),dict(uid=1000),dict(mode=0o666),dict(size=T.MAX_FILE+1)):
+   bad=copy.deepcopy(nodes);bad[key].update(change)
+   with self.assertRaises(ValueError):T.select(bad,rt,limits)
+  for name in('secret.key','nested/file','failure.env'):
+   bad=copy.deepcopy(nodes);bad[T.PREFIX+'receipts/'+name]=dict(nodes[key])
+   with self.assertRaises(ValueError):T.select(bad,rt,limits)
+  bad=copy.deepcopy(nodes);del bad[key]
+  with self.assertRaises(ValueError):T.select(bad,rt,limits)
+  with self.assertRaises(ValueError):T.select(nodes,rt,dict(limits,logs_cap_bytes=65536))
+  with tempfile.TemporaryDirectory()as tmp:
+   original=content[nodes[key]['inode']];content[nodes[key]['inode']]=b'WRONG'
+   with self.assertRaises(ValueError):T.export(Reader(),nodes,Path(tmp),rt,limits,packet,case_pin,lambda:None)
+   content[nodes[key]['inode']]=original
  def test_source_syntax(self):
   for p in HERE.rglob('*.py'):ast.parse(p.read_bytes())
  def test_closed_source_lock(self):
