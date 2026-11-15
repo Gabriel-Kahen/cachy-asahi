@@ -1,7 +1,7 @@
 #!/usr/bin/env -S python3 -I -B
 # SPDX-License-Identifier: MIT
 """Explicit cap0/NNP rootless actor. No actions on import."""
-import argparse,base64,hashlib,importlib.util,json,os,resource,socket,time
+import argparse,base64,hashlib,importlib.util,json,os,resource,socket,stat,time
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
 D='/var/lib/arm16k-perl5423-vm'
@@ -18,6 +18,20 @@ def qemu_argv(m,r,epoch):
  '-drive','if=none,id=refdisk,file=/work/overlay.qcow2,format=qcow2','-device','virtio-blk-device,drive=refdisk',
  '-serial','unix:/work/serial.sock,server=on,wait=off','-qmp','unix:/work/qmp.sock,server=on,wait=off',
  '-sandbox','on,obsolete=deny,elevateprivileges=deny,spawn=deny,resourcecontrol=deny']
+
+
+def retire_guest_hold(K,R,W,nonce):
+ P=module('protocol');path=W/P.HOLD_MARKER;info=K.ordinary(path).lstat()
+ K.need(stat.S_ISREG(info.st_mode)and info.st_nlink==1 and info.st_uid==os.getuid()and info.st_gid==os.getgid()and stat.S_IMODE(info.st_mode)==0o600,'ordinary own-UID single-link private HOLD marker')
+ marker_pin=K.pin(path,4096);value=K.load(path,4096);K.keys(value,('nonce','failure'),'failure-only retirement marker');P._nonce(nonce)
+ K.need(value['nonce']==nonce,'exact case nonce in HOLD marker');P.hold_failure(value['failure'])
+ row=R.receipt(W/'qemu.json');K.need(R.natural(row)and row['argv']==K.load(W/'qemu-argv.json')['argv'],'same naturally retired QEMU command')
+ K.need(K.pin(path,4096)==marker_pin,'HOLD marker stable through retirement')
+ receipt=dict(status='HOLD_GUEST_FAILURE_QEMU_NATURALLY_RETIRED',nonce=nonce,failure=value['failure'],marker=marker_pin,qemu=K.pin(W/'qemu.json'),VM_acceptance=None,Root_acceptance=None)
+ path=W/P.HOLD_RETIRED
+ fd=os.open(path,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW|os.O_CLOEXEC,0o600)
+ with os.fdopen(fd,'wb')as stream:os.fchmod(stream.fileno(),0o600);stream.write(K.canonical(receipt))
+ return False
 
 
 def prepare(K,R,I,W,packet,cert,guard,deadline):
@@ -88,6 +102,8 @@ def boot(K,R,I,W,packet,cert,guard,deadline):
  argv=qemu_argv(m,r,epoch['utc_ns']//10**9);(W/'qemu-argv.json').write_bytes(K.canonical(dict(argv=argv)))
  cmd('qemu',argv,deadline-time.monotonic(),child_file_size_cap=r['overlay_cap_bytes'])
  row=R.receipt(W/'qemu.json');K.need(R.natural(row),'natural QEMU reap and group absence')
+ marker=W/module('protocol').HOLD_MARKER
+ if marker.exists()or marker.is_symlink():return retire_guest_hold(K,R,W,packet['nonce'])
  raw=W/'verification.raw'
  cmd('readback-convert',['qemu-img','convert','-f','qcow2','-O','raw','-S','4k','/work/overlay.qcow2',str(raw)],r['cleanup_seconds'])
  replay=cmd('journal-copy-only',['e2fsck','-p','-E','journal_only',str(raw)],r['cleanup_seconds'],check=False,completed=True)
@@ -122,6 +138,6 @@ def main():
   K.need(time.monotonic()<deadline and not(W/'STOP').exists(),'actor cancellation/deadline')
   R.component_limits(W,[(W/'guest.raw',r['clone_allocated_cap_bytes']),(W/'overlay.qcow2',r['overlay_cap_bytes']),(W/'verification.raw',r['readback_allocated_cap_bytes'])])
  R.GUARD=guard;resource.setrlimit(resource.RLIMIT_CORE,(0,0))
- (prepare if a.phase=='prepare'else boot)(K,R,I,W,packet,cert,guard,deadline)
- return 0
+ result=(prepare if a.phase=='prepare'else boot)(K,R,I,W,packet,cert,guard,deadline)
+ return 1 if result is False else 0
 if __name__=='__main__':raise SystemExit(main())

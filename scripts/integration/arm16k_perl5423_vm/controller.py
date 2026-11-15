@@ -1,7 +1,7 @@
 #!/usr/bin/env -S python3 -I -B
 # SPDX-License-Identifier: MIT
 """Root-bound image preparation or separate boot; no operation on import."""
-import argparse,importlib.util,json,os,re,secrets,socket,stat,sys,tempfile,time
+import argparse,importlib.util,json,os,re,secrets,select,socket,stat,struct,sys,tempfile,time
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
 
@@ -16,6 +16,98 @@ def attempt_marker(phase,output,prepared,authority_sha256,nonce):
  path=root/name
  with path.open('x')as stream:stream.write(K.canonical(dict(authority=authority_sha256,nonce=nonce)).decode())
  return path
+
+
+def proc_identity(pid):
+ K=module('contracts');K.need(type(pid)is int and pid>1,'positive selected process')
+ def read(name,cap):
+  fd=os.open('/proc/'+str(pid)+'/'+name,os.O_RDONLY|os.O_CLOEXEC|os.O_NOFOLLOW)
+  try:body=os.read(fd,cap+1)
+  finally:os.close(fd)
+  K.need(len(body)<=cap,'bounded selected proc identity');return body
+ raw=read('stat',4096);head,sep,tail=raw.rpartition(b')');fields=tail.split()
+ K.need(sep and b'('in head and len(fields)>=20 and int(head.split(b'(',1)[0])==pid and fields[0]not in(b'Z',b'X'),'same live selected process')
+ argv=read('cmdline',65536);K.need(argv.endswith(b'\0'),'complete selected process argv')
+ return dict(pid=pid,parent=int(fields[1]),start=int(fields[19]),argv=argv[:-1].split(b'\0'))
+
+
+class QMPPeer:
+ """Pin the original connected QEMU and its exact authenticated actor parent."""
+ def __init__(self,stream,row,argv):
+  self.stream,self.fd,self.argv=stream,stream.fileno(),list(argv);self.fds=[]
+  try:
+   self.credentials=struct.unpack('3i',stream.getsockopt(socket.SOL_SOCKET,socket.SO_PEERCRED,12));pid,uid,gid=self.credentials
+   module('contracts').need(uid==os.getuid()and gid==os.getgid()and pid>1,'own-UID original QMP peer')
+   self.actor_pid=row['State']['Pid'];self.fds=[os.pidfd_open(pid,0)]
+   self.fds.append(os.pidfd_open(self.actor_pid,0));self.qemu=proc_identity(pid);self.actor=proc_identity(self.actor_pid)
+   self.check(row)
+  except BaseException:self.close();raise
+ def check(self,row):
+  K=module('contracts');K.need(row['State']['Running']is True and not row['State']['OOMKilled']and row['State']['Pid']==self.actor_pid,'same running authenticated actor')
+  K.need(self.stream.fileno()==self.fd and struct.unpack('3i',self.stream.getsockopt(socket.SOL_SOCKET,socket.SO_PEERCRED,12))==self.credentials,'same original QMP connection')
+  for fd in self.fds:
+   poll=select.poll();poll.register(fd,select.POLLIN);K.need(not poll.poll(0),'original QMP/actor pidfd still live')
+  qemu=proc_identity(self.credentials[0]);actor=proc_identity(self.actor_pid)
+  K.need(qemu==self.qemu and actor==self.actor and qemu['parent']==self.actor_pid and qemu['argv']==[x.encode()for x in self.argv],'same QEMU argv/start and authenticated actor parent/start')
+ def close(self):
+  for fd in self.fds:os.close(fd)
+  self.fds=[]
+ def evidence(self):
+  return dict(qemu_pid=self.qemu['pid'],qemu_start=self.qemu['start'],actor_pid=self.actor_pid,actor_start=self.actor['start'],peer_uid=self.credentials[1],peer_gid=self.credentials[2],argv=module('contracts').json_pin(self.argv),original_connection=True,pidfds_live_checked=True)
+
+
+def quit_hold_qmp(peer,qfile,guard,end):
+ K=module('contracts');K.need(qfile.fileno()==peer.fd,'original QMP stream descriptor')
+ guard();K.need(time.monotonic()<end,'bounded HOLD quit deadline')
+ peer.stream.settimeout(min(2,end-time.monotonic()));request=b'{"execute":"quit","id":"guest-HOLD-retire"}\n'
+ K.need(qfile.write(request)==len(request),'complete fixed HOLD quit request')
+ total=0
+ for _ in range(16):
+  guard();K.need(time.monotonic()<end,'bounded HOLD quit reply deadline');peer.stream.settimeout(min(2,end-time.monotonic()))
+  line=qfile.readline(65537);total+=len(line);K.need(0<len(line)<=65536 and total<=65536,'bounded HOLD QMP reply')
+  row=json.loads(line)
+  if row.get('id')=='guest-HOLD-retire':K.need('return'in row and 'error'not in row,'QMP HOLD quit acknowledged');return
+ raise ValueError('QMP HOLD quit acknowledgement absent')
+
+
+def normal_hold_cleanup(scope,peer,qfile,failure,nonce,authority_sha256,out,end,guard,record):
+ K,P,R=module('contracts'),module('protocol'),module('runtime');P._nonce(nonce);P.hold_failure(failure);out=K.ordinary(out)
+ K.need(end-time.monotonic()>12,'reserved normal HOLD retirement budget')
+ K.need(scope.labels['org.cachy-asahi.perl5423-nonce']==nonce and scope.labels['org.cachy-asahi.perl5423-authority']==authority_sha256,'same case/authority owned actor')
+ row=scope.recover(min(end,time.monotonic()+8));K.need(row is not None and row['Id']==scope.cid,'exact owned CID before HOLD retirement');scope.validate(row);peer.check(row)
+ record.update(stage='AUTHENTICATED',nonce=nonce,authority=authority_sha256,container_id=scope.cid,name=scope.name,image=scope.image,peer=peer.evidence())
+ marker=out/P.HOLD_MARKER
+ fd=os.open(marker,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW|os.O_CLOEXEC,0o600)
+ with os.fdopen(fd,'wb')as stream:os.fchmod(stream.fileno(),0o600);stream.write(K.canonical(dict(nonce=nonce,failure=failure)))
+ marker_pin=K.pin(marker,4096)
+ record.update(stage='MARKER_WRITTEN',marker=marker_pin)
+ # Recheck the pinned peer and authenticated container before control traffic.
+ peer.check(row);quit_hold_qmp(peer,qfile,guard,min(end,time.monotonic()+5))
+ record.update(stage='QMP_QUIT_ACKNOWLEDGED',QMP_quit_acknowledged=True)
+ wait=scope.call(['docker','wait',scope.cid],min(end,time.monotonic()+8))
+ K.need(wait.returncode==0 and wait.stdout.strip()==b'1','natural stopped failure actor wait')
+ row=scope.recover(min(end,time.monotonic()+8));K.need(row is not None and row['Id']==scope.cid,'same stopped failure actor');scope.validate(row)
+ K.need(row['State']['Running']is False and row['State']['ExitCode']==1 and row['State']['OOMKilled']is False,'ordinary nonzero HOLD actor exit')
+ retired=K.load(out/P.HOLD_RETIRED,16384);K.keys(retired,('status','nonce','failure','marker','qemu','VM_acceptance','Root_acceptance'),'HOLD retirement receipt')
+ K.need(retired==dict(status='HOLD_GUEST_FAILURE_QEMU_NATURALLY_RETIRED',nonce=nonce,failure=failure,marker=marker_pin,qemu=K.pin(out/'qemu.json'),VM_acceptance=None,Root_acceptance=None)and K.pin(marker,4096)==marker_pin,'same nonce/failure/marker/QEMU retirement joins')
+ qemu=R.receipt(out/'qemu.json');K.need(R.natural(qemu)and qemu['argv']==peer.argv,'natural same QEMU reap/group absence')
+ record.update(stage='ACTOR_RETIRED',retirement=K.pin(out/P.HOLD_RETIRED))
+ removed=scope.call(['docker','container','rm',scope.cid],min(end,time.monotonic()+8));K.need(removed.returncode==0,'normal stopped HOLD actor removal')
+ K.need(scope.listing(min(end,time.monotonic()+8))is None,'owned HOLD container absent after normal removal')
+ record.update(stage='ABSENCE_VERIFIED',status='HOLD_FAILURE_NATURALLY_RETIRED',forced=False);return record
+
+
+def cleanup_scope(scope,peer,qfile,failure,nonce,authority_sha256,out,cleanup_end,guard,report):
+ if scope is None:return
+ if failure is not None:
+  record=report.setdefault('guest_HOLD_cleanup',dict(status='HOLD_RETIREMENT_ATTEMPT',stage='AUTHENTICATING'))
+  try:
+   module('contracts').need(peer is not None and qfile is not None,'original authenticated HOLD QMP binding available')
+   normal_hold_cleanup(scope,peer,qfile,failure,nonce,authority_sha256,out,min(cleanup_end-40,time.monotonic()+25),guard,record)
+   report.update(container_id=scope.cid,cleanup_ownership_verified=True,owned_container_removed=True,owned_container_absence_verified=True);return
+  except BaseException as error:
+   report.setdefault('cleanup_errors',[]).append(dict(step='normal-guest-HOLD-retirement',category=type(error).__name__,message=str(error)[:1024]));report['forced_owned_cleanup_fallback']=True
+ scope.cleanup(report)
 
 
 def authority(value,phase,packet,source,output,K,resources=None):
@@ -83,8 +175,8 @@ def main():
  # waits, and remains active until owned retirement is recorded.
  os.umask(0o077);out.mkdir(mode=0o700);deadline=started+r[a.phase+'_seconds'];cleanup_end=deadline+r['cleanup_seconds']
  guard=Q.Guard(out,r,auth['quota_device'],cleanup_end,R.allocated,initial=True,source=source,phase=a.phase);R.GUARD=guard;guard(True)
- B=K.helper('reference_controller.py');state=B.Cancellation();scope=serial=qmp=qfile=None
- report=dict(status='HOLD',docker_cli=auth['docker_cli'],operation=K.OP,phase=a.phase,VM_acceptance=None,Root_acceptance=None,native16K='NOT_RUN',M2='NOT_RUN',performance='NOT_MEASURED',release='NOT_ADMITTED')
+ B=K.helper('reference_controller.py');state=B.Cancellation();scope=serial=qmp=qfile=peer=None;hold_failure=None
+ report=dict(status='HOLD',docker_cli=auth['docker_cli'],operation=K.OP,phase=a.phase,cleanup_errors=[],VM_acceptance=None,Root_acceptance=None,native16K='NOT_RUN',M2='NOT_RUN',performance='NOT_MEASURED',release='NOT_ADMITTED')
  (out/'actor-envelope.json').write_bytes(K.canonical(dict(deadline_monotonic_ns=int(deadline*10**9))))
  (out/'actor-tools.json').write_bytes(K.canonical(dict(files=auth['actor_tools'])))
  (out/'host-epoch.json').write_bytes(K.canonical(dict(nonce=packet['nonce'],utc_ns=time.time_ns())))
@@ -130,7 +222,11 @@ def main():
       row=reply()
       if row.get('id')==method:K.need('error'not in row,'QMP error');return
      raise ValueError('QMP finite matching reply absent')
-    rpc('qmp_capabilities');stream=socket.socket(socket.AF_UNIX);stream.connect(str(link/'serial.sock'))
+    rpc('qmp_capabilities')
+    try:
+     peer=QMPPeer(qmp,scope.recover(min(deadline,time.monotonic()+8)),module('actor').qemu_argv(m,r,K.load(out/'host-epoch.json')['utc_ns']//10**9))
+    except Exception as error:report['guest_HOLD_binding_unavailable']=dict(category=type(error).__name__,message=str(error)[:1024])
+    stream=socket.socket(socket.AF_UNIX);stream.connect(str(link/'serial.sock'))
     class Serial(B.Serial):
      def until(self,pattern):
       # Frozen Serial's bounded recv also calls guard via this socket wrapper.
@@ -153,7 +249,9 @@ def main():
   for name,row in packet['materials'].items():K.need(K.pin(Path(row['path']))=={n:row[n]for n in('bytes','sha256')},'retained original material stable')
   if prepared is not None:K.need(K.pin(prepared/'prepared.json')==auth['prepared'] and K.pin(prepared/'guest.raw')==m['raw'],'prepared original remains unchanged')
   report['status']='PREPARED_NOT_BOOTED'if a.phase=='prepare'else'PASS_EMULATED_ARM16K_PERL5423_DATA_ONLY'
- except BaseException as error:report['failure']=dict(category=type(error).__name__,message=str(error)[:1024])
+ except BaseException as error:
+  report['failure']=dict(category=type(error).__name__,message=str(error)[:1024])
+  if isinstance(error,P.GuestHold):hold_failure=error.failure
  finally:
   state.cleaning=True;K.END=cleanup_end
   # Quota failure must never prevent owned-container recovery/removal. The
@@ -167,15 +265,15 @@ def main():
    try:
     if serial is not None:(out/'serial.redacted.log').write_bytes(bytes(serial.data).replace(secret['password'].encode(),b'[REDACTED]'))
    except BaseException as error:report.setdefault('cleanup_errors',[]).append('serial-report: '+str(error)[:1024])
-   for handle in (serial.stream if serial is not None else None,qfile,qmp):
-    try:
-     if handle is not None:handle.close()
-    except BaseException as error:report.setdefault('cleanup_errors',[]).append('close-handle: '+str(error)[:1024])
   finally:
    try:
-    if scope is not None:scope.cleanup(report)
+    cleanup_scope(scope,peer,qfile,hold_failure,packet['nonce'],a.authority_sha256,out,cleanup_end,cleanup_guard,report)
    except BaseException as error:report.setdefault('cleanup_errors',[]).append('owned-cleanup: '+str(error)[:1024])
    finally:
+    for handle in (serial.stream if serial is not None else None,qfile,qmp,peer):
+     try:
+      if handle is not None:handle.close()
+     except BaseException as error:report.setdefault('cleanup_errors',[]).append('close-handle: '+str(error)[:1024])
     if state.pending or report.get('cleanup_errors') or not report.get('owned_container_absence_verified'):report['status']='HOLD_CLEANUP_OR_CANCELLED'
     if guard.home is None:report['quota_guard_samples']=guard.samples
     else:report['storage_guard']=dict(mode='HOME_BTRFS_ENOSYS',samples=guard.samples,last_snapshot=guard.last_snapshot,own_uid_quota='UNSUPPORTED_NOT_UNLIMITED',other_quota_availability='UNCLAIMED',capacity_reservation=False)

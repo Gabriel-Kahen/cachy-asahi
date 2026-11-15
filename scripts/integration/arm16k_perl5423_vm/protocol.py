@@ -13,6 +13,23 @@ RESTORED = dict(STATUS='PASS', ARCH='aarch64', PAGESIZE='16384', PACKAGE=PACKAGE
                 RTC_DRIVER='pl031', RTC_HCTOSYS='1', RTC_CLOCK_ADVANCED='yes', CLOCK_SETTING='none')
 EPOCHS = {'HOST_BOOT_UTC', 'GUEST_BEFORE_CRYPTO_UTC', 'RTC_BEFORE_CRYPTO_UTC'}
 HASHES = {'BASE_SHA256', 'FINAL_SHA256', 'FUNCTIONAL_SHA256', 'ELF_MANIFEST_SHA256'}
+HOLD_MARKER = 'guest-HOLD-retire.json'
+HOLD_RETIRED = 'guest-HOLD-retired.json'
+
+
+def hold_failure(value):
+    if (type(value) is not dict or set(value) != {'status', 'waiting', 'frame', 'phase'}
+            or value['status'] != 'HOLD' or value['waiting'] not in {'INSTALLED', 'PROBE', 'RESTORED'}
+            or value['frame'] not in {'INSTALLED', 'PROBE', 'RESTORED'}
+            or not isinstance(value['phase'], str) or not re.fullmatch('[a-z_]{1,64}|UNREPORTED', value['phase'])):
+        raise ValueError('exact bounded guest HOLD failure required')
+    return value
+
+
+class GuestHold(ValueError):
+    def __init__(self, waiting, kind, phase):
+        self.failure = hold_failure(dict(status='HOLD', waiting=waiting, frame=kind, phase=phase))
+        super().__init__('guest explicit HOLD while waiting for ' + waiting + ': ' + kind + '/' + phase)
 
 
 def _nonce(nonce):
@@ -115,7 +132,7 @@ def wait_phase(serial, nonce, kind):
         phase = fields.get('FAILED_PHASE', 'UNREPORTED')
         if not re.fullmatch('[a-z_]{1,64}|UNREPORTED', phase):
             phase = 'UNREPORTED'
-        raise ValueError('guest explicit HOLD while waiting for ' + kind + ': ' + actual + '/' + phase)
+        raise GuestHold(kind, actual, phase)
     if fields.get('STATUS') != 'PASS':
         raise ValueError('unsupported Perl phase status while waiting for ' + kind)
     if actual != kind:

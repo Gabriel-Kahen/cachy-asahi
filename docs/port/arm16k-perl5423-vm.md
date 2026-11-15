@@ -207,3 +207,39 @@ the original nonzero status to success. Local synthetic tests exercise the
 actual trap body with a sync assertion stub, original exit preservation,
 truncation, omission, unsafe ownership/link/budget refusals and honest probe
 HOLD fields. No guest/GPG/ALPM execution or new runtime acceptance is supplied.
+
+
+A separate cleanup successor keeps explicit guest HOLD as a typed nonzero failure.
+At the original QMP connection, the controller attempts to pin both the QEMU
+peer and authenticated container actor with PIDFDs. SO_PEERCRED, process start
+times, exact QEMU argv and direct actor parentage identify that connection.
+Unavailable binding leaves ordinary operation unchanged and prevents the new
+failure-control path; it cannot authorize an alternate process.
+
+On explicit HOLD only, fresh exact container recovery verifies name/image/labels,
+nonce, authority, mounts and sandbox; live PIDFD/start/argv/parent/connection
+checks precede the exclusive0600 `guest-HOLD-retire.json` marker and fixed QMP
+quit. The marker contains exactly nonce and bounded structured HOLD failure,
+with no path or arbitrary command. QMP traffic uses the original descriptor,
+a complete fixed request, at most16 replies/64KiB and at most5 seconds. The
+normal retirement attempt has at most25 seconds and retains40 seconds before
+the shared cleanup deadline for the original fallback. Existing budgets remain.
+
+After naturally reaping QEMU, the actor validates the private ordinary single
+link own-UID marker and exact nonce/failure, writes `guest-HOLD-retired.json`
+joined to its natural QEMU receipt, and returns1 before success readback/export.
+The controller requires natural Docker wait, stopped actor exit1/no OOM, exact
+retirement/marker/QEMU joins and identity before normal unforced removal and
+filtered absence proof. Primary guest failure and overall nonzero HOLD remain;
+normal cleanup does not grant runtime, preservation, VM or Root acceptance.
+
+Missing/wrong/stale evidence, peer/identity changes, marker violations, partial
+request, timeout or forced QEMU retirement invokes the original owned forced
+cleanup with explicit fallback/error records. Progress and Source primary errors
+remain distinct. Frozen helpers, guest ALPM scripts and generic retirement/
+resource/authority guards are unchanged. Synthetic controls cover the real
+maintained cleanup/actor helpers, success ordering, no success-output creation,
+PIDFD/peer/start/argv/parent/identity changes and negative marker/QMP cases.
+No actual process query, socket, Docker, signal, lease or VM was used by controls.
+This working construction remains unsealed until the coordinator combines the
+separate offline pacman-T guest fix and regenerates the single Source lock.
