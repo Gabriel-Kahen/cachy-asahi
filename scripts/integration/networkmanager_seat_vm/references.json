@@ -1,0 +1,42 @@
+{
+  "networkmanager_session_vm/fixture.py": {
+    "scope": "read-only retained source",
+    "sha256": "2ec073ae9f239895219cc6800b0dd149f206c8b4d3bd9eccadefbcdbc77552e9"
+  },
+  "networkmanager_session_vm/fixture.service": {
+    "scope": "read-only retained source",
+    "sha256": "9c76c8cfe0a2bf4c94361c3b41a86538b7cdb2af7bb4d1c3a542bb51192c4923"
+  },
+  "systemd_tcg_seat_guest/assemble.py": {
+    "scope": "read-only retained source",
+    "sha256": "54aebae8691c6f9f9307b92a1fe27663a6db13ea0c7da912f2379186860cb093"
+  },
+  "systemd_tcg_seat_guest/boot.py": {
+    "scope": "read-only retained source",
+    "sha256": "5427fa4f6ae58734e8b9a37eac50fac6561a7593ffd318d1f92b6f13fb067d68"
+  },
+  "systemd_tcg_seat_guest/input_seat.py": {
+    "scope": "read-only retained source",
+    "sha256": "34559e846e14164ac7cb54d6879d106c1a911bf611c988252eebd46700e0c611"
+  },
+  "systemd_tcg_seat_guest/keyboard.py": {
+    "scope": "read-only retained source",
+    "sha256": "040ca60ad6cdd4534a813072f133a7291d19898e89afe26c7a0c8477188ff279"
+  },
+  "systemd_tcg_seat_guest/observer.py": {
+    "scope": "read-only retained source",
+    "sha256": "5a5fa601ca8b8732c42628241966eed57925cf181f465ab38bf427318ed584f9"
+  },
+  "systemd_tcg_seat_guest/observer.service": {
+    "scope": "read-only retained source",
+    "sha256": "f57847dfe57ea112fa484bb3bb8f67d1025275098a9eaf7949544aff63657f0c"
+  },
+  "systemd_tcg_seat_guest/user_proof.py": {
+    "scope": "read-only retained source",
+    "sha256": "01a6f6ba2e80ecd8c1b10520354fd1ad25809adcc1f5fff81cdc7a486bcae0a6"
+  },
+  "systemd_tcg_seat_guest/vm_actor.py": {
+    "scope": "read-only retained source",
+    "sha256": "38c649b56f95e62b31657ad4b773838726ef53517b13facf10bbc858791343d8"
+  }
+}

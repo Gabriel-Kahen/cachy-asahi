@@ -1,0 +1,82 @@
+{
+  "archive_bytes": 444427236,
+  "archive_limit_bytes": 1073741824,
+  "archive_opening_extraction_execution": "NOT_RUN",
+  "binary_source_correspondence": "HELD_ALL4_RECIPE_HASH_MISMATCHES",
+  "date": "2026-11-14",
+  "free_tmp_at_capture": 6578016256,
+  "initial_declared_checksums": {
+    "llvm-project-23.1.1.src.tar.xz": {
+      "blake2b": "31d0ad202f4ad38d001baaf638a756508b164229b02a6e41b9689508a33b3a7baecaa10398e20f3661cacb712663fe379eeb94e50e017e40ae546a7e7de8049d",
+      "sha256": "ebe9be46fe8756d58c5b198ffad0fa2a766257add81a4dc52179bfacc7888ee6"
+    },
+    "rustc-1.99.0-src.tar.xz": {
+      "blake2b": "f4e2d97047c42067d11c31484d320f9daaaf881c78d22473b7f9ac2289a8f5979de6e75c277c49a0e3e33cd80f18aecace39f25ae78645976945798f3e512f16",
+      "sha256": "cc41916a8c84f5d9ec4f55561b44e39f43b647b133f8a6f51be9ea13c83f7036"
+    }
+  },
+  "min_tmp_free_bytes": 3221225472,
+  "request_limit": 4,
+  "requests": [
+    {
+      "HTTP": 302,
+      "UTC": "2026-11-15T04:17:28.822093+00:00",
+      "ordinal": 1,
+      "query_redacted": false,
+      "url": "https://github.com/llvm/llvm-project/releases/download/llvmorg-23.1.1/llvm-project-23.1.1.src.tar.xz",
+      "url_sha256": "de2076ce4d8f536f9231812fff77c4c8bc624b68748f65f98b2b995f9be98523"
+    },
+    {
+      "HTTP": 200,
+      "UTC": "2026-11-15T04:17:28.973661+00:00",
+      "ordinal": 2,
+      "query_redacted": true,
+      "url": "https://release-assets.githubusercontent.com/github-production-release-asset/75821432/b6811314-c7cd-4586-858b-c418dd2c8ccc",
+      "url_sha256": "7f3ebd839c67f46823a4dafacf01ce1bd129b76643fff616ad1832b140f9cb17"
+    },
+    {
+      "HTTP": 200,
+      "UTC": "2026-11-15T04:17:37.141698+00:00",
+      "ordinal": 3,
+      "query_redacted": false,
+      "url": "https://static.rust-lang.org/dist/rustc-1.99.0-src.tar.xz",
+      "url_sha256": "af2e556f8c45e2106d216eebb430ec0e53e70def329640d6368b174e901d10c1"
+    },
+    {
+      "HTTP": 200,
+      "UTC": "2026-11-15T04:18:00.885739+00:00",
+      "ordinal": 4,
+      "query_redacted": false,
+      "url": "https://static.rust-lang.org/dist/rustc-1.99.0-src.tar.xz.asc",
+      "url_sha256": "edce9be511b6e33494a5614e8195cb468581d5c19287d5d51744aae2ebc06cbf"
+    }
+  ],
+  "requests_used": 4,
+  "retained_archives": {
+    "llvm-project-23.1.1.src.tar.xz": {
+      "archive_opening": "NOT_RUN",
+      "bytes": 179168672,
+      "checksums": {
+        "blake2b": "31d0ad202f4ad38d001baaf638a756508b164229b02a6e41b9689508a33b3a7baecaa10398e20f3661cacb712663fe379eeb94e50e017e40ae546a7e7de8049d",
+        "sha256": "ebe9be46fe8756d58c5b198ffad0fa2a766257add81a4dc52179bfacc7888ee6"
+      },
+      "status": "EXACT_DECLARED_CHECKSUM_BYTES_RETAINED"
+    },
+    "rustc-1.99.0-src.tar.xz": {
+      "archive_opening": "NOT_RUN",
+      "bytes": 265258564,
+      "checksums": {
+        "blake2b": "f4e2d97047c42067d11c31484d320f9daaaf881c78d22473b7f9ac2289a8f5979de6e75c277c49a0e3e33cd80f18aecace39f25ae78645976945798f3e512f16",
+        "sha256": "cc41916a8c84f5d9ec4f55561b44e39f43b647b133f8a6f51be9ea13c83f7036"
+      },
+      "status": "EXACT_DECLARED_CHECKSUM_BYTES_RETAINED"
+    }
+  },
+  "schema": 1,
+  "signature": {
+    "bytes": 801,
+    "filename": "rustc-1.99.0-src.tar.xz.asc",
+    "mathematics": "NOT_PERFORMED_KEY_BYTES_NOT_RETAINED",
+    "sha256": "920ab02373a564002dfbe8267a338c2d2a98e08a63bdf2dd9502864a2e0731f9"
+  }
+}

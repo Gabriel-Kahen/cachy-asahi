@@ -1,0 +1,24 @@
+{
+  "actual": {
+    "artifact": null,
+    "image": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "authority": "ROOT_ONLY",
+  "constructor": [
+    "python3",
+    "-I",
+    "-B",
+    "scripts/ci/perl5423-repro-native-source/prepare.py",
+    "--profile-sha256",
+    "ROOT_INDEPENDENTLY_REVIEWED_PROFILE_SHA256",
+    "--source-archive",
+    "ROOT_RETAINED_PINNED_UPSTREAM_ARCHIVE",
+    "--output",
+    "ROOT_OWNED_PRIVATE_PARENT/FRESH_PACKET"
+  ],
+  "downstream": "Root reviews packet-map and proposed tree, qualifies namespace and adapters, then binds this packet into the existing native builder/once-role Source route; no operational invocation is authorized or performed by this constructor"
+}

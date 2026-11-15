@@ -1,0 +1,205 @@
+{
+  "Root_only_fresh_invocation_pending": [
+    "python",
+    "/home/gabe/Documents/ChatGPT/cachy-asahi-install-completion-20261114/scripts/integration/systemd_tcg_seat_guest/boot.py",
+    "--allow-first-real-seat-reference-boot",
+    "--prepared",
+    "/tmp/cachy-asahi-tcg-seat-live-tty-preparation-20261114/prepared",
+    "--prepared-sha256",
+    "e5b0b1807c432cb098bd23b66d337e05b0f4c36c339329d1e72be3a891820561",
+    "--tool-image",
+    "cachy-tcg-real-seat:196337a5c11df127",
+    "--tool-image-id",
+    "sha256:e34f4f1c8fa36c1bc7ffa03d707f8b9eeed933163a4b10800b8cd90103fac1e6",
+    "--output",
+    "/tmp/cachy-asahi-real-seat-live-tty-first-boot-root-20261114"
+  ],
+  "actual_preparation": {
+    "COPY_only_image": "PASS same pinned base/payload; no acquisition",
+    "OOMKilled": false,
+    "assembly_exit": 0,
+    "guest_ALPM_dependencies": "PASS -Dk, no --nodeps",
+    "home_ownership": "1000/1000 via offline debugfs",
+    "new_guest_execution": "NOT RUN",
+    "offline_module_indices": "PASS",
+    "readonly_ext4_fsck": "PASS",
+    "source_payload_pins": "PASS"
+  },
+  "aggregate_memory_admission": {
+    "MemAvailable_bytes": 17389854720,
+    "assembly_cap_bytes": 3221225472,
+    "reserved_additional_bytes": 3221225472
+  },
+  "baked_runtime_pins": {
+    "seat-assemble.py": "54aebae8691c6f9f9307b92a1fe27663a6db13ea0c7da912f2379186860cb093",
+    "seat-input.py": "34559e846e14164ac7cb54d6879d106c1a911bf611c988252eebd46700e0c611",
+    "seat-keyboard.py": "040ca60ad6cdd4534a813072f133a7291d19898e89afe26c7a0c8477188ff279",
+    "seat-observer.py": "5a5fa601ca8b8732c42628241966eed57925cf181f465ab38bf427318ed584f9",
+    "seat-observer.service": "f57847dfe57ea112fa484bb3bb8f67d1025275098a9eaf7949544aff63657f0c",
+    "seat-user-proof.py": "01a6f6ba2e80ecd8c1b10520354fd1ad25809adcc1f5fff81cdc7a486bcae0a6",
+    "vm_actor.py": "38c649b56f95e62b31657ad4b773838726ef53517b13facf10bbc858791343d8"
+  },
+  "correction": {
+    "deadline": "same210s observer wait; no authentication retry",
+    "fd_lifetime": "new read-only O_NOCTTY|O_NONBLOCK|O_CLOEXEC tty1 fd per actual readiness observation; always close",
+    "only_not_ready_errno": [
+      "EIO",
+      "ENXIO"
+    ],
+    "other_errors": "refused unchanged; no credential sent",
+    "stage_evidence": "counts transient errno observations; successful actual ECHO-off still required",
+    "termios_policy_account_actor_profile_mutations": false
+  },
+  "files": {
+    "guest.raw": {
+      "bytes": 1610612736,
+      "sha256": "a6056bebf1bb00edd218c3bee12fe166b3170f4ba131ed6d0cb1d484a779ced6"
+    },
+    "initramfs.img": {
+      "bytes": 9685879,
+      "sha256": "9765fd579cee81a14092b10da1daa762e58c8e2112883a84f57a60550d1de8c9"
+    },
+    "vmlinuz": {
+      "bytes": 17248768,
+      "sha256": "b1e9eaf5700a53a31ed923edecd72b319a29da74be32c0885bff112d37ce325b"
+    }
+  },
+  "focused_controls": {
+    "Python": [
+      "3.12.13",
+      "3.14.7"
+    ],
+    "earlier_controls": "all14ack/order/refusal/parent/identity/cleanup controls retained",
+    "new_regressions": [
+      "termiosEIO oldfd closes and subsequent observation opensfreshfd/succeeds",
+      "onlyEIO/ENXIO defer; EACCES refused; no readiness on missingattrs"
+    ],
+    "passed": 16,
+    "runtime_credit": "none"
+  },
+  "fresh_credential": "private0600 fresh32hex TEST builder; no authentication retry or admin membership",
+  "fresh_nonce": "58842e22afd852dbc59f0184b17b6e78",
+  "new_once_marker": "ABSENT",
+  "old_closed_markers_preserved": {
+    "/home/gabe/Documents/ChatGPT/cachy-asahi-install-completion-20261114/work/systemd-tcg-seat-reference-20261114/prepared1/prepared/first-boot-attempt.json": "47fad30d454f7561ffbbe52d16fe9c72dc9348609f0defb7c33177fe3f3452a1",
+    "/tmp/cachy-asahi-tcg-seat-input-parent-preparation-20261114/prepared/first-boot-attempt.json": "668248114baf502342196aea01e0f5284d8d17212c9a5663849082591d314e6b",
+    "/tmp/cachy-asahi-tcg-seat-keyboard-ack-preparation-20261114/prepared/first-boot-attempt.json": "51a8da944563d4fc026077dffc048c80a68e8a5e0cc4f19620bded1abb07827d"
+  },
+  "prepared_directory": "/tmp/cachy-asahi-tcg-seat-live-tty-preparation-20261114/prepared",
+  "prepared_manifest_sha256": "e5b0b1807c432cb098bd23b66d337e05b0f4c36c339329d1e72be3a891820561",
+  "recorded_UTC": "2026-11-15T03:07:49.721437+00:00",
+  "remaining_gates": [
+    "new successful live ECHO-off observation",
+    "real password PAMlogin/full active seat0/inputparent/Polkit corroboration",
+    "complete normal logout/QEMUretirement",
+    "NM seat dependent work remains unprepared",
+    "native/M2/source/legal/production/release holds unchanged"
+  ],
+  "resource_observations": {
+    "attribution": "global free includes concurrent Root work; no per-process RAMpeak claim",
+    "disk_allocated_bytes": 803491840,
+    "free_after": 9367326720,
+    "free_before": 10198941696,
+    "global_free_delta": 831614976,
+    "logical_bytes": 1610612736
+  },
+  "retained_log_pins": {
+    "COPY-only-image.log": "b202136b244d4d2fd00ad2b8943a56cd8f069c1c87a301045c4696ebfd384cb9",
+    "assemble.log": "dfe4d3a27aa9930eb064c1ee116956cae6ebf8715f294e801e6b6e92e9907216",
+    "create.log": "c16125ef8e7e34afc50502aa3bff60998d65a0d77cbb4402f009bf75751383ab",
+    "prepared/additions.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "prepared/base.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "prepared/fsck.log": "f27dcebcc862e6c555e157afef7f9d45c3ec2db8e8334d3981387c7f11996102",
+    "prepared/guest-dependencies.log": "ada71dbc5e1ffd889548c59b1cb44406d76db21416a3864674941c8b9af1e5f0",
+    "prepared/home-ownership.log": "5174c889b1a0a73d8ae028ffb6c5ea781ffb60958539a1e82dadd24710401e41",
+    "prepared/mkfs.log": "d9ac09c098f4479cd5f836ee95c4ea5d043433ce6abfb9bdb56295e20b1f782e",
+    "prepared/offline-module-indices.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "prepared/sysusers.log": "1a7058066cf0ccad3e71d9a7740a571f77585ffa762f9b49dbd2d6b8766c8056"
+  },
+  "schema_version": 1,
+  "scope": "minimal live read-only TTY readiness descriptor correction; x86 only; ARM16K/Asahi/M2/physicalinput/display/network/suspend/release NOTRUN",
+  "source_pins": {
+    "assemble.py": "54aebae8691c6f9f9307b92a1fe27663a6db13ea0c7da912f2379186860cb093",
+    "boot.py": "5427fa4f6ae58734e8b9a37eac50fac6561a7593ffd318d1f92b6f13fb067d68",
+    "input_seat.py": "34559e846e14164ac7cb54d6879d106c1a911bf611c988252eebd46700e0c611",
+    "kernel_probe.py": "ae3f8fad3b2154a4f6961d711279d69fec04c5683d385cd40f705865c25cf59e",
+    "keyboard.py": "040ca60ad6cdd4534a813072f133a7291d19898e89afe26c7a0c8477188ff279",
+    "observer.py": "5a5fa601ca8b8732c42628241966eed57925cf181f465ab38bf427318ed584f9",
+    "observer.service": "f57847dfe57ea112fa484bb3bb8f67d1025275098a9eaf7949544aff63657f0c",
+    "prepare.py": "5d4e418d96404004c21b4f5a1db0feba8b4819f88b190ebe15debff477f28c79",
+    "test_keyboard.py": "3f115afc5e412c6fd4c896e3e4b5fca782799c787b5f0af3cc9f3006ef79abfc",
+    "test_seat.py": "6ba3a9252874af23eb5c5a519cf30eaa390698b41e087c7bc6a39389dbca6c08",
+    "user_proof.py": "01a6f6ba2e80ecd8c1b10520354fd1ad25809adcc1f5fff81cdc7a486bcae0a6",
+    "vm_actor.py": "38c649b56f95e62b31657ad4b773838726ef53517b13facf10bbc858791343d8"
+  },
+  "status": "PREPARED_NOT_BOOTED",
+  "third_actual_trial": {
+    "QEMU_retirement": {
+      "actor_cancelled": [],
+      "error": null,
+      "exit": 0,
+      "group_census": "EMPTY_TWICE",
+      "output_complete": true,
+      "ownership": "REAPED",
+      "passed": true,
+      "reaped": true,
+      "seconds": 0.03130456600047182,
+      "signals": [],
+      "timeout": false
+    },
+    "cause_boundary": "tcgetattr on retained descriptor returned EIO at getty/login transition; no QEMU/PAM defect established",
+    "early_stage_evidence": {
+      "failure": {
+        "category": "error",
+        "message": "(5, 'Input/output error')"
+      },
+      "keyboard_delivery": {
+        "event_grab": false,
+        "raw_events_or_keycodes_exported": false,
+        "release_count": 8
+      },
+      "observed_stages": {
+        "PAM_authentication_denied": false,
+        "login_ready": true,
+        "password_ready_echo_off": false,
+        "profile_entered": false
+      },
+      "schema_version": 1,
+      "status": "HOLD"
+    },
+    "exact_container_absence": true,
+    "no_PAM_outcome_inferred": true,
+    "password_delivery": "not reached: no password-ready marker; pinned host driver sends no credential before that marker",
+    "report_pins": {
+      "qemu-retirement.json": {
+        "bytes": 250,
+        "path": "/tmp/cachy-asahi-real-seat-keyboard-first-boot-root-20261114/qemu-retirement.json",
+        "sha256": "c1a55642d17bdec8f4e7fb30a875944a1765ec8b2afe903c6f933eb53a7024ff"
+      },
+      "report.json": {
+        "bytes": 936,
+        "path": "/tmp/cachy-asahi-real-seat-keyboard-first-boot-root-20261114/report.json",
+        "sha256": "3e2d9168c36cebb4d6824205a373ac1599bf288d0421496246decd097d1ce91e"
+      },
+      "serial.redacted.log": {
+        "bytes": 10731,
+        "path": "/tmp/cachy-asahi-real-seat-keyboard-first-boot-root-20261114/serial.redacted.log",
+        "sha256": "467535c1d9d964e40c9881308a8ae72148d584ed0b4291c10bec1345f19e5e3d"
+      }
+    },
+    "status": "HOLD"
+  },
+  "tool_image": "cachy-tcg-real-seat:196337a5c11df127",
+  "tool_image_bytes": 1908469390,
+  "tool_image_id": "sha256:e34f4f1c8fa36c1bc7ffa03d707f8b9eeed933163a4b10800b8cd90103fac1e6",
+  "unchanged_PAM_policy_udev_pins": {
+    "etc/pam.d/login": "ee917d55042f78b8bb03f5467e5233e3e2ddc2fe01e302bc53b218003fe22275",
+    "etc/pam.d/system-login": "7272120f0ee937cbe6ba0a6e748ea234ab6799e1e2966c83ee85f97d9f254fd9",
+    "usr/lib/pam.d/polkit-1": "a4454c54582a86fd4560321b22ffb7639485968438a07d5412fadc102d62cf49",
+    "usr/lib/udev/rules.d/71-seat.rules": "b57a64ab6c973d0b734dea808e6caf9a49b40739c7c7649784d09bd6d90c36d3",
+    "usr/share/polkit-1/actions/org.freedesktop.NetworkManager.policy": "6002ee5e8fcf3cfdd25fa5425c5dfa879dc293f8b1c69f14b4a8f9259be0b446",
+    "usr/share/polkit-1/rules.d/50-default.rules": "4192b104907809623aa7ca4c58e1527da19710bae6278abe96f88d9f2d6430e9",
+    "usr/share/polkit-1/rules.d/empower.rules": "d9a62ab1ec477a4be1657769dfd194c75d1a07a4357e7717aa19ad5c07c3fc26"
+  },
+  "unchanged_runtime_contract": "capALL0/NNP/RO/rootless/networknone/noKVM/hostbus/devices,2ownedbinds/initfalse2CPU3GiB256PID,guest1536MiB,overlay256MiB,observer210s/serial420s/actor480s/cleanup35s; real keyrelease ACK and ECHO-off remain required"
+}

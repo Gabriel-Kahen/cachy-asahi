@@ -1,0 +1,20 @@
+{
+  "parent": "69455e13bc99a2b2b6c2aca11f69d581769ae500",
+  "paths": {
+    "build_v2.py.txt": "bootstrap/pgo-source/scripts/build/build_v2.py",
+    "container-entry-v2.sh.txt": "bootstrap/pgo-source/scripts/build/container-entry-v2.sh",
+    "desktop574-inputs.lock.json": "native/desktop574-inputs.lock.json",
+    "expected349.lock": "native/expected349.lock",
+    "input-profile.json": "native/input-profile.json",
+    "namespace-commit.raw": "RAW_COMMIT",
+    "namespace-contract.json": "native/build-tools-contract-v2.json",
+    "namespace-invocation.json": "native/invocation.json",
+    "namespace-source-map.json": "native/source-map.json",
+    "native_arm.py.txt": "bootstrap/scripts/ci/native_arm.py",
+    "original-inputs.lock.json": "bootstrap/scripts/ci/inputs.lock.json"
+  },
+  "ref": "codex/native-build-namespace-alarm1001-v1-20261114",
+  "source": "3937d8b9f3210f4e9868bf19f01dfa22de64ddfe",
+  "status": "PUBLISHED_SOURCE_DATA_ONLY_NAMESPACE_NOT_RUN",
+  "tree": "f1757dbedeed1591cdb8538f6c91e493cd451966"
+}

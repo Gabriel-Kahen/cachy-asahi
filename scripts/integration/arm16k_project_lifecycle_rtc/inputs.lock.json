@@ -1,0 +1,252 @@
+{
+  "Root_signing_receipt": {
+    "bytes": 1481,
+    "created_epoch": 1794716090,
+    "expires_epoch": 1795320890,
+    "sha256": "fc30ea436c2541d626953ab221a4885a0d4041777aba1cabf216370a18ab5362",
+    "signer": "C98720061248F50811843544A8EC89D416F7A112"
+  },
+  "added_packages": {
+    "cachy-asahi-ksmctl": "0.1.0-1",
+    "mpdecimal": "4.0.1-3",
+    "python": "3.14.8-1"
+  },
+  "base_files": {
+    "Image": {
+      "bytes": 9019400,
+      "sha256": "cd8053ebdb83302015efbad97ab1cc53fcd5a2353bf3f37ba208f4e6360946ec"
+    },
+    "guest.raw": {
+      "bytes": 1610612736,
+      "sha256": "f69d74fbb0043793c96424d0f91ad2f6fb2d8cf3a72fb94024ea9cc40dae4cd3"
+    },
+    "kernel.config": {
+      "bytes": 68789,
+      "sha256": "e97d54d4852eceb6cba28c38f78d4a00aacbfdb0c1523cb96366590f7eaa915b"
+    }
+  },
+  "base_prepared": {
+    "bytes": 58179,
+    "sha256": "f7b3073f58acce8ab5e21ff61f2182779d24046e1582cda6adb0a3db66b7036e"
+  },
+  "historical_expired_signatures": {
+    "TEST-public.asc": {
+      "bytes": 429,
+      "origin": "artifacts/development/ksm2-published-components-hosted-trial-root-20261018/native-checkout/payload/TEST-signing/TEST-public.asc",
+      "sha256": "fe1694d4616ab2f515e8a28c351c4a76b9de7e275449582ed9211658963a9254"
+    },
+    "cachy-asahi-ksmctl-0.1.0-1-any.pkg.tar.xz.sig": {
+      "bytes": 119,
+      "origin": "artifacts/development/ksm2-published-components-hosted-trial-root-20261018/native-checkout/payload/TEST-signing/cachy-asahi-ksmctl-0.1.0-1-any.pkg.tar.xz.sig",
+      "sha256": "3f5dc11e2d56f4c404f2b71fc2b3a676836b45b08901cc5b1aa83be91c7af76d"
+    }
+  },
+  "legacy_source_files": {
+    "GPG-DIAGNOSTICS.md": {
+      "bytes": 4713,
+      "sha256": "d486357a371f6cf8b436b3023a9d2b8c3e2dad30f3d843391e815fabfca65f19"
+    },
+    "README.md": {
+      "bytes": 11477,
+      "sha256": "e5339514d7e365c7bb4dd2e0b3cf4c7ba3b14e56ca7056c61a742140f25a3c22"
+    },
+    "boot.py": {
+      "bytes": 5233,
+      "sha256": "93a4aabf4da3902d488eb699c1a632b138bea5c0205d0ac2a674a6674f57d341"
+    },
+    "check-probes.py": {
+      "bytes": 1053,
+      "sha256": "de66e5596c32606eb824bc0577a9a9a4fbd55881956d8828d3db435026a1b620"
+    },
+    "gpg-receipts.sh": {
+      "bytes": 8489,
+      "sha256": "98013e0bf1fba161a00c4534aa5c1297ff945a5ed6a2cd9c815c2a6191c4a25f"
+    },
+    "guest-proof.sh": {
+      "bytes": 879,
+      "sha256": "31a87a08954798992dc1f7456dbc04de7479d911222be95e731cfeb74a7251cc"
+    },
+    "guest-root.sh": {
+      "bytes": 8604,
+      "sha256": "ca85b9d9fb7e369718cb9a983fe2cf4c4abb2bcc94cadd91ff848fa44ed59733"
+    },
+    "guest-runtime.sh": {
+      "bytes": 2855,
+      "sha256": "1b3bbb16d0f12942984f26366580d18311fb132a878c66ab53d16ab7d06216dd"
+    },
+    "inputs.lock.json": {
+      "bytes": 7367,
+      "sha256": "4084f23dcbc37adc5b61e9b610bcde6b58b8193956a94a9a6b3090320ad9c64e"
+    },
+    "inputs.py": {
+      "bytes": 6438,
+      "sha256": "453910343c3e127915e456da5dcc24209c3db1ecfa02ff12ac43ac2dfb5c4d91"
+    },
+    "prepare.py": {
+      "bytes": 10152,
+      "sha256": "3b8a012a620ef42d8dbe22d00a4317af3d7e4e8eafbfe4d75721aee908c7f59b"
+    },
+    "prepare_image.py": {
+      "bytes": 8089,
+      "sha256": "5191a3c1c443d8f7ee79d790306f8e7d256082324bd85eca7749b11f83af8258"
+    },
+    "test_lifecycle.py": {
+      "bytes": 23394,
+      "sha256": "08b4ddf5a71c44fe4fa490a561a8ea980e38f0461e091abb66ea8e1734706939"
+    },
+    "tool_namespace.py": {
+      "bytes": 4092,
+      "sha256": "3e6029d7110b9237748fafcd9402c457f8a6931909552d91d59822b0e56ad0a7"
+    },
+    "tools.lock.json": {
+      "bytes": 1905,
+      "sha256": "9df503e8c6ff7b9591e4946a8c066b02ff8e6c8aa1d9ee007c78db9e86ed7230"
+    },
+    "validation.json": {
+      "bytes": 15671,
+      "sha256": "0ffa373c6b544f9f1b97054e304bb0954d07ed3a2f1ab2318cb01a71c17ba4ae"
+    }
+  },
+  "materials": {
+    "Root-acceptance.json": {
+      "bytes": 4672,
+      "origin": "artifacts/development/ksm2-published-components-hosted-trial-root-20261018/native-checkout/payload/Root-acceptance.json",
+      "sha256": "f251675c58cb4086a8885b903d2e9649ad2186526e54e50fa57364e780a13261"
+    },
+    "TEST-public.asc": {
+      "bytes": 417,
+      "origin": "artifacts/development/orchestrator-resume-20261114/ksm-new-test-signatures-r1/TEST-public.asc",
+      "sha256": "9579f5b0ffb2850db5c27c3010d60ba5d3042332d90931d21d78d5353bf53f68"
+    },
+    "archlinuxarm.gpg": {
+      "bytes": 3098,
+      "origin": "artifacts/development/maintained-desktop-auth-next-20261015/context/keys/archlinuxarm.gpg",
+      "sha256": "6ce771e853f04a38a5b533cb33e61f877b9b06b58b6db051eb8a15d737a2332f"
+    },
+    "cachy-asahi-ksmctl-0.1.0-1-any.pkg.tar.xz": {
+      "bytes": 17244,
+      "origin": "artifacts/development/ksm2-published-components-hosted-trial-root-20261018/native-checkout/payload/packages/cachy-asahi-ksmctl-a/cachy-asahi-ksmctl-0.1.0-1-any.pkg.tar.xz",
+      "sha256": "b518e711c41b8d6bcdae71364b5529aaac982d12cef600f1b2fa17f51c895a4a"
+    },
+    "cachy-asahi-ksmctl-0.1.0-1-any.pkg.tar.xz.sig": {
+      "bytes": 119,
+      "origin": "artifacts/development/orchestrator-resume-20261114/ksm-new-test-signatures-r1/cachy-asahi-ksmctl-0.1.0-1-any.pkg.tar.xz.sig",
+      "sha256": "757c93f95fef436916a1be6ecae41abdf5307bba4f60e5055e7af5fc5f68bbcb"
+    },
+    "mpdecimal-4.0.1-3-aarch64.pkg.tar.xz": {
+      "VALIDSIG": "[GNUPG:] VALIDSIG 68B3537F39A313B3E574D06777193F152BDBE6A6 2026-03-20 1774037865 0 4 0 1 10 00 68B3537F39A313B3E574D06777193F152BDBE6A6",
+      "bytes": 93808,
+      "origin": "artifacts/development/maintained-desktop-auth-next-20261015/context/deps/mpdecimal-4.0.1-3-aarch64.pkg.tar.xz",
+      "sha256": "388611eba7f9b0dddcc03adb4f28bcb8fd2c42fbd8c930ca6b9b0f9e4ece0f1e"
+    },
+    "mpdecimal-4.0.1-3-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "origin": "artifacts/development/maintained-desktop-auth-next-20261015/context/deps/mpdecimal-4.0.1-3-aarch64.pkg.tar.xz.sig",
+      "sha256": "bb0580360f8d8095b16e04723565ba16188947f51d6e42e713472a9ad8c864da"
+    },
+    "original-transport.json": {
+      "bytes": 495,
+      "origin": "artifacts/development/ksm2-published-components-hosted-trial-root-20261018/native-checkout/payload/original-transport.json",
+      "sha256": "0e1c026798f4cb2b4b5f6154816059753d824dceba27ed2545907631212cca0d"
+    },
+    "python-3.14.8-1-aarch64.pkg.tar.xz": {
+      "VALIDSIG": "[GNUPG:] VALIDSIG 68B3537F39A313B3E574D06777193F152BDBE6A6 2026-10-10 1791644569 0 4 0 1 10 00 68B3537F39A313B3E574D06777193F152BDBE6A6",
+      "bytes": 13588352,
+      "origin": "artifacts/development/maintained-desktop-auth-next-20261015/context/deps/python-3.14.8-1-aarch64.pkg.tar.xz",
+      "sha256": "5e00dbb30ab55fd160d64205e1f3418c8bcf5b295ff07bf9af7ad4ab85bc6984"
+    },
+    "python-3.14.8-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "origin": "artifacts/development/maintained-desktop-auth-next-20261015/context/deps/python-3.14.8-1-aarch64.pkg.tar.xz.sig",
+      "sha256": "ee28ca566685118f6048b859691802ddc6a1c0772581371a7d9cab2d3405c2f0"
+    },
+    "retention.json": {
+      "bytes": 17717,
+      "origin": "artifacts/development/ksm2-published-components-hosted-trial-root-20261018/native-checkout/payload/retention.json",
+      "sha256": "b0535edfde656823a02f479abd65343875e7db06639224e7060c1c074b8668a1"
+    }
+  },
+  "project": {
+    "dependencies": [
+      "python>=3.11"
+    ],
+    "name": "cachy-asahi-ksmctl",
+    "native_original_scope": "retained native ARM4K paired archive; fresh signature verification is not release trust or native16K evidence",
+    "signer": "C98720061248F50811843544A8EC89D416F7A112",
+    "version": "0.1.0-1"
+  },
+  "purpose": "Separate RTC/current-UTC/durable-receipt successor; source-only, no prepared/built/booted claims",
+  "reference_files": {
+    "README.md": {
+      "bytes": 11402,
+      "sha256": "e89ce5fae0929c3f2749292f2edbc28a45f68b1d4b9492a19705b083d4de135d"
+    },
+    "assemble.py": {
+      "bytes": 12305,
+      "sha256": "227a91500f4ba97bbf1a2d55cc6590b2757d4e1f748360ac4981e9c8d2370b86"
+    },
+    "boot.py": {
+      "bytes": 8450,
+      "sha256": "7d620226f9f68b5f7e7ee8242269f4b3361e9f68cb4340237eae30b7e3710415"
+    },
+    "frozen/command_runtime.py": {
+      "bytes": 8091,
+      "sha256": "253494be99c21c83743b384b2c06cd1627023ffaf54f0cbbd271bde80572f70a"
+    },
+    "frozen/origin.json": {
+      "bytes": 1058,
+      "sha256": "2b96f3749d7623141dac4cacffaefda396c80006c75996a524b79ddfcc044a33"
+    },
+    "frozen/owned_process.py": {
+      "bytes": 25140,
+      "sha256": "83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f"
+    },
+    "frozen/record_tool_inputs.py": {
+      "bytes": 1665,
+      "sha256": "227d29b87b13d4e914f900ea7509b20319cf573682897e701ee2ebab4d714bf4"
+    },
+    "frozen/reference_controller.py": {
+      "bytes": 14117,
+      "sha256": "e7c8935f342d4b36bb6f8f24c0b48c3b8aa04be9807f62c3f8141aeaf26819fc"
+    },
+    "guest-proof.sh": {
+      "bytes": 838,
+      "sha256": "eaf9657ba33b1d3fbe3b59b0a885bc55e8904889c97952e74168e8463848d908"
+    },
+    "inspect_inputs.py": {
+      "bytes": 4755,
+      "sha256": "1e19bd8f5e73e2e2dec32642cb146471e98839cb6e1d53ceab42a743ca066cfb"
+    },
+    "prepare.py": {
+      "bytes": 16857,
+      "sha256": "094b226b058baa69dc1dee5922d2d67a922867cf950b116631fa64ecb67ffcbb"
+    },
+    "select_guest.py": {
+      "bytes": 4671,
+      "sha256": "b6458d46d1176b3e1c5064bf5f75a71a9c93c92b6aa712d1b60e76760140a9eb"
+    },
+    "test_guest.py": {
+      "bytes": 14439,
+      "sha256": "1d5a33d3567e6e9ba01db82ef71553971474e67a13d1dbeb15f99e91730aeee8"
+    },
+    "tool_install.sh": {
+      "bytes": 784,
+      "sha256": "3d9b3fd0bfcf09fb2c19015e40dec6d19f9966935f1c6ebe84425c7cc1975958"
+    },
+    "validation.json": {
+      "bytes": 26308,
+      "sha256": "fa389918098be9355257b74055fd40918060f8f4d5c4c94d0373d7629054fbbb"
+    },
+    "vm_actor.py": {
+      "bytes": 3551,
+      "sha256": "813b93e44d961c5bb54bf91e271bdd10dcdaf4d5af60dbe5edb00f6612c321df"
+    }
+  },
+  "required_base_first_boot": {
+    "bytes": 1634,
+    "sha256": "36de34652c9d008b4edaa6e8d12e87d10d96fc62044ba9e30ea44793908efa4d",
+    "status": "PASS_EMULATED_ARM16K_SYSTEMD_SERIAL_PAM_SESSION_ONLY"
+  },
+  "schema_version": 1,
+  "tool_image_id": "sha256:ee1aa3da22a5d89dc1bc273fa818b1d996b7e62851f50d7b629144f6bba9f207"
+}

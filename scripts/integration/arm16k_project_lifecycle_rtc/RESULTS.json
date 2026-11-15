@@ -1,0 +1,73 @@
+{
+  "M2": "NOT RUN",
+  "actual_kernel_bundle": null,
+  "actual_private_host_sync_f": "PASS; binary/NUL summary preserved, both first/final sync failures refused terminal publication",
+  "derived_rtc_helper": {
+    "CONFIG_RTC_I2C_AND_SPI": "y",
+    "actual_helper_configure_boot_this_worker": "NOT RUN",
+    "additional_RTC_drivers_enabled": false,
+    "held_buses_changed": false,
+    "pinned_Kconfig": "hidden tristate, default y from held I2C=y; no select/imply",
+    "pinned_Makefile": "no helper object binding"
+  },
+  "exact_release_metadata_delta": {
+    "CONFIG_LOCALVERSION": {
+      "after": "\"-generic16k-managed-gui-rtc1\"",
+      "before": "\"-generic16k-managed-gui\""
+    },
+    "compiler_fact": false
+  },
+  "guest_boot": "NOT RUN",
+  "modeled_producer_interop": {
+    "RTC_required": 11,
+    "actor_fenced_tests": {
+      "C01_consumer_passed": 4,
+      "KSM_consumer_passed": 4
+    },
+    "compiled_kernel": null,
+    "feature_delta_symbols": 8,
+    "guest_boot": "NOT RUN",
+    "interop_controls": {
+      "bytes": 4495,
+      "sha256": "c9c001da28cd44f14dfbdf763991da1cde788012d64f183c51a81db7e102e08f"
+    },
+    "producer_contract": {
+      "bytes": 8371,
+      "sha256": "8185e10f33d7162c379358d58ac666bd11dcb66a6b23cfc747d4b0d62547cdf5"
+    },
+    "pure_requested_config": {
+      "bytes": 69128,
+      "sha256": "bfe5c82733fd9dc6a044287615f8225e593f1c54dca8e699691fea9c168318f5"
+    },
+    "semantic_inverse_exact_full_baseline": true
+  },
+  "native16K": "NOT RUN",
+  "prepared": null,
+  "read_only_fresh_signing_receipt": {
+    "actual_host_UTC_within_validity": true,
+    "bytes": 1481,
+    "sha256": "fc30ea436c2541d626953ab221a4885a0d4041777aba1cabf216370a18ab5362"
+  },
+  "release_accepted": false,
+  "resources": {
+    "actor_deadline_seconds": 480,
+    "container_CPU": 2,
+    "container_PIDs": 256,
+    "container_RAM_bytes": 3221225472,
+    "controller_deadline_seconds": 420,
+    "free_reserve_bytes": 2147483648,
+    "guest_RAM_MiB": 1536,
+    "overlay_cap_bytes": 268435456,
+    "preparation_additional_cap_bytes": 838860800
+  },
+  "rtc_sysfs_clock": "MODELED ONLY",
+  "schema_version": 1,
+  "status": "SOURCE_CONTROLS_ONLY_NOT_PREPARED",
+  "successor_controls": {
+    "passed": 43,
+    "profile": "source/model/private-host-shell; no Docker/QEMU/package payload"
+  },
+  "unchanged_legacy_controls": {
+    "passed": 46
+  }
+}

@@ -1,9 +1,12 @@
 # Fixed Perl 5.42.3-1.3 host pair
 
-Status: **concrete driver; actual pair blocked by byte capacity**. The source candidate
-at `c8e9baea97f83f652763e701143d6dec5b679f31` is pinned in `inputs.json`.
-No 1.3 compilation, upstream harness, package archive or byte reproducibility
-result exists from this driver. See `validation.json` for the actual refusal.
+Status: **actual sequential x86_64 host pair passed with byte-identical archives**.
+Driver commit `ba220c029a799f3fd311860ad59429951eed4643` built the exact 1.3
+candidate at `c8e9baea97f83f652763e701143d6dec5b679f31`. Both ordinary clean
+builds and full upstream harnesses passed; the untouched compressed archives and
+all 3,262 decoded entries match. See `RESULTS.md` and `validation.json`.
+This qualifies this host pair only; installed/native/target/release gates remain
+open. Earlier capacity refusals are retained in Git and private evidence.
 
 This successor owns only this directory and fresh private output/resources.
 It imports authenticated helpers from `../perl5423-host-build/`, the finite FDK
@@ -115,13 +118,17 @@ real statvfs availability and unchanged budgets. The memory check still requires
 
 ## Verification limits
 
-`python -I -B -Werror::ResourceWarning test_driver.py` and `test_capacity_profile.py` exercise twenty-one controls,
+`python -I -B -Werror::ResourceWarning test_driver.py` and
+`test_capacity_profile.py` exercise twenty-one controls,
 including capacity/remote-daemon refusal, final input rechecks, export identity
 and timestamp refusal, complete comparison, sequential retirement and
 cancellation cleanup. Docker success/cancellation in those tests is simulated
-and cannot qualify a build. The actual local capacity-only run established the Btrfs metadata model but
-failed the unchanged byte budget before allocating an
-input snapshot or any Docker build resources. No prior archives are reused.
+and cannot qualify a build. After Root reclaimed owner-confirmed obsolete
+resources, the actual pair
+passed all nine fresh byte/metadata/RAM gates and completed both builds. Five
+owned containers, two work volumes and the derived image were removed and
+absence verified. Raw exports and receipts were retained with matching file
+identities. No prior archives were reused.
 
 Native ARM, 16K, M2 (both Air sizes), installed lifecycle/ABI, external XS,
 performance, legal-policy, production trust and release acceptance remain open.

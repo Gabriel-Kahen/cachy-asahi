@@ -1,0 +1,16 @@
+{
+  "allow_boot": false,
+  "allow_prepare": false,
+  "approved_compiler_facts": null,
+  "clock_policy": {
+    "host_skew_seconds": 5,
+    "max_guest_elapsed_seconds": 480,
+    "max_start_delay_seconds": 30
+  },
+  "issued_by": "Root",
+  "kernel_bundle": null,
+  "kind": "ARM16K_C01_RTC_AUTHORITY_V1",
+  "ksm_pass_receipt": null,
+  "rtc_actor": null,
+  "tool_image_id": "sha256:ee1aa3da22a5d89dc1bc273fa818b1d996b7e62851f50d7b629144f6bba9f207"
+}

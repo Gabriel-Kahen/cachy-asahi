@@ -1,0 +1,46 @@
+{
+  "Root_responsibilities": [
+    "Authenticate closed published Source and admission before import",
+    "Authenticate fresh native local daemon, signed349 image and exact source bytes",
+    "Create and inspect adapter-exact actor with inputs read-only/private fresh work volume",
+    "Pass canonical admission.json and host.json plus ADAPTER_ADMISSION_SHA256",
+    "Bind actual image/create/start and natural terminal retirement/cleanup to same run/job/image",
+    "Export only DATA, authenticate original logs and independently invoke passive classifier",
+    "Qualify actual matching namespace effects and bridge canonical result into adapter admission"
+  ],
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "image": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "deadlines": {
+    "Root_actor_seconds": 75,
+    "aggregate_command_seconds": 60,
+    "per_command_seconds": 25
+  },
+  "domain_sha256": "6c6bdc29acf59e8ea911167f08d4d66a993777c121b2399211cec030e2a5b804",
+  "entry": [
+    "/usr/bin/bash",
+    "--noprofile",
+    "--norc",
+    "/inputs/entry.sh"
+  ],
+  "kind": "PROPOSED_IN_CONTAINER_NAMESPACE_DIAGNOSTIC_ONLY",
+  "limits": {
+    "frame_bytes": 262144,
+    "mountinfo_bytes": 131072,
+    "raw_log_bytes": 524288
+  },
+  "namespace_execution": null,
+  "native_acceptance": false,
+  "operation": "perl5423-native-namespace-v1",
+  "operational_Reader_execution": null,
+  "output": "/work/output",
+  "reader": "reader.classify(report, logs_by_name_bytes, host, admission)",
+  "schema": 1,
+  "source_publication": null
+}

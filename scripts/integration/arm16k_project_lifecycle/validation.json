@@ -1,0 +1,571 @@
+{
+  "M2": "NOT RUN",
+  "VM_boot": "NOT RUN",
+  "actual_signatures": {
+    "cachy-asahi-ksmctl": "[GNUPG:] VALIDSIG 7E73A80AF8FD5DA6529EF27E1AB823DC28925AA5 2026-10-18 1792336408 0 4 0 22 10 00 7E73A80AF8FD5DA6529EF27E1AB823DC28925AA5",
+    "mpdecimal": "[GNUPG:] VALIDSIG 68B3537F39A313B3E574D06777193F152BDBE6A6 2026-03-20 1774037865 0 4 0 1 10 00 68B3537F39A313B3E574D06777193F152BDBE6A6",
+    "python": "[GNUPG:] VALIDSIG 68B3537F39A313B3E574D06777193F152BDBE6A6 2026-10-10 1791644569 0 4 0 1 10 00 68B3537F39A313B3E574D06777193F152BDBE6A6"
+  },
+  "correction": "missing cmp replaced by bounded exact-byte base64/Bash equality; no added package",
+  "counts": "exact111 baseline +3 signed packages =114; exact111 after removal",
+  "current_source_state": "SOURCE_ONLY_GPG_DIAGNOSTICS_NOT_PREPARED",
+  "focused_controls": {
+    "VM_or_package_code_execution": "NOT RUN",
+    "actual_private_HOME_Bash_comparator_and_diagnostics": true,
+    "passed": 37,
+    "total": 37
+  },
+  "holds": [
+    "actual future dependency-checked ALPM transaction/install/remove/normal hooks not run",
+    "KSM CLI unavailable/status is diagnostic behavior, not KSM kernel functionality/tuning",
+    "original compiler/source/legal correspondence incomplete",
+    "not frozen349/current supported composition",
+    "native16K/M2/performance/release NOT RUN"
+  ],
+  "native16K": "NOT RUN",
+  "new_actual_preparation": {
+    "allocated_output_bytes": 640450560,
+    "cleanup_errors": [],
+    "files": {
+      "Image": {
+        "bytes": 9019400,
+        "sha256": "cd8053ebdb83302015efbad97ab1cc53fcd5a2353bf3f37ba208f4e6360946ec"
+      },
+      "guest.raw": {
+        "bytes": 1610612736,
+        "sha256": "6436e85b10f96a56197f8533241cfca707cb143eb0e21bfb1a21592eace98a75"
+      },
+      "kernel.config": {
+        "bytes": 68789,
+        "sha256": "e97d54d4852eceb6cba28c38f78d4a00aacbfdb0c1523cb96366590f7eaa915b"
+      }
+    },
+    "fixture_regular_files_read_back": 28,
+    "new_markers_absent": true,
+    "nonce": "fd2e93c68765494640b5a4c05625d8b2",
+    "prepare_container": "c31691f7bcdae265dc918cdb1cb540765f3e5b1382b248faabc2f41189e44084",
+    "prepare_container_absence_verified": true,
+    "prepared": {
+      "bytes": 68688,
+      "sha256": "719e1a9a43315076ce098cb064fd259b010054dd34581bd7b736ff4cbc83d186"
+    },
+    "report": {
+      "bytes": 13369,
+      "sha256": "b76c9b502b81c3a910015dc17c0175bf43bd1147c94948fabe9f58a6048fc727"
+    }
+  },
+  "prior_source_preparation": {
+    "allocated_output_bytes": 640434176,
+    "files": {
+      "Image": {
+        "bytes": 9019400,
+        "sha256": "cd8053ebdb83302015efbad97ab1cc53fcd5a2353bf3f37ba208f4e6360946ec"
+      },
+      "guest.raw": {
+        "bytes": 1610612736,
+        "sha256": "c9da32b6f2056d27dc8bb1b932aca350ce9a747d97870975b0520c02344b986a"
+      },
+      "kernel.config": {
+        "bytes": 68789,
+        "sha256": "e97d54d4852eceb6cba28c38f78d4a00aacbfdb0c1523cb96366590f7eaa915b"
+      }
+    },
+    "fixture_regular_files_read_back": 27,
+    "new_actor_markers_absent": true,
+    "nonce": "9875fde010a5f4a4b427240a62af9464",
+    "original_consumed_marker_unchanged": true,
+    "original_raw_and_kernel_files_unchanged": true,
+    "prepared": {
+      "bytes": 67872,
+      "sha256": "c8ba7be219ab67a39b160c8f8d6e5b5b01dc79207594c425a7153623ea8755d5"
+    },
+    "report": {
+      "bytes": 5213,
+      "sha256": "14f7691d8c9eadf83e73df5f000506b3ebc3862e1f6a98ae55e9371e0cd6b545"
+    },
+    "stock_payload_pins_unchanged": 8
+  },
+  "resource_preflight": {
+    "future_overlay_cap_bytes": 268435456,
+    "home_free_bytes": 5045465088,
+    "required_tmp_reserve_bytes": 1711276032,
+    "tmp_free_bytes": 10839789568
+  },
+  "retained_prior_actual_trial": {
+    "actual_error": "cmp: command not found, guest-root.sh line52",
+    "base_session_status": "PASS_EMULATED_ARM16K_SYSTEMD_SERIAL_PAM_SESSION_ONLY",
+    "old_inputs_markers_logs_preserved": {
+      "/tmp/cachy-asahi-arm16k-project-lifecycle-20261114-r4/assembly/Image": {
+        "bytes": 9019400,
+        "sha256": "cd8053ebdb83302015efbad97ab1cc53fcd5a2353bf3f37ba208f4e6360946ec"
+      },
+      "/tmp/cachy-asahi-arm16k-project-lifecycle-20261114-r4/assembly/arm16k-first-boot-attempt.json": {
+        "bytes": 97,
+        "sha256": "c825562be60b8d6f34eac55c0a12eaef3a345251ac76fa569d3d8fec1a59aa61"
+      },
+      "/tmp/cachy-asahi-arm16k-project-lifecycle-20261114-r4/assembly/arm16k-project-lifecycle-attempt.json": {
+        "bytes": 178,
+        "sha256": "b248b28843720e8ea6df68097ebc813856dadf1bdc246c455dc11df2059196a7"
+      },
+      "/tmp/cachy-asahi-arm16k-project-lifecycle-20261114-r4/assembly/guest.raw": {
+        "bytes": 1610612736,
+        "sha256": "c9da32b6f2056d27dc8bb1b932aca350ce9a747d97870975b0520c02344b986a"
+      },
+      "/tmp/cachy-asahi-arm16k-project-lifecycle-20261114-r4/assembly/kernel.config": {
+        "bytes": 68789,
+        "sha256": "e97d54d4852eceb6cba28c38f78d4a00aacbfdb0c1523cb96366590f7eaa915b"
+      },
+      "/tmp/cachy-asahi-arm16k-project-lifecycle-20261114-r4/assembly/prepared.json": {
+        "bytes": 67872,
+        "sha256": "c8ba7be219ab67a39b160c8f8d6e5b5b01dc79207594c425a7153623ea8755d5"
+      },
+      "/tmp/cachy-asahi-arm16k-project-lifecycle-root-20261114/project-lifecycle-report.json": {
+        "bytes": 558,
+        "sha256": "8b6b430bc5a09767219620b065635d4221c9776f676df06c5c8ae36794ac3355"
+      },
+      "/tmp/cachy-asahi-arm16k-project-lifecycle-root-20261114/report.json": {
+        "bytes": 1634,
+        "sha256": "667316cc32e60a9b21dd551f1497530d797ceabbd5ee2fac21e5c42f4867aee2"
+      },
+      "/tmp/cachy-asahi-arm16k-project-lifecycle-root-20261114/serial.redacted.log": {
+        "bytes": 30014,
+        "sha256": "cae92c653878ada6b860dde3122096ee9e3672e4274763d67e31e8d7fbf5a7e9"
+      }
+    },
+    "project": {
+      "EXIT": "127",
+      "FAILED_PHASE": "baseline",
+      "STATUS": "HOLD"
+    },
+    "sanitized_report": {
+      "bytes": 558,
+      "sha256": "8b6b430bc5a09767219620b065635d4221c9776f676df06c5c8ae36794ac3355"
+    },
+    "status": "HOLD",
+    "trust_or_package_transaction": "NOT REACHED"
+  },
+  "schema_version": 1,
+  "source_diagnostic_successor": {
+    "baseline_tools": 32,
+    "cause_of_observed_gpg_exit2": "UNKNOWN",
+    "latest_closed_actual_trial": {
+      "base_session_status": "PASS_EMULATED_ARM16K_SYSTEMD_SERIAL_PAM_SESSION_ONLY",
+      "project": {
+        "EXIT": "2",
+        "FAILED_LINE": "81",
+        "FAILED_PHASE": "trust",
+        "FAILED_SOURCE": "unknown",
+        "FAILED_TOOL": "gpg",
+        "STATUS": "HOLD"
+      },
+      "report": {
+        "bytes": 636,
+        "sha256": "5619b877acc36e4c936e65f3f17fc756096d4879d61a642756cb1419e62a1bb9"
+      },
+      "retained_sanitized_GNUPG_status_codes": 0,
+      "status": "HOLD",
+      "volatile_run_receipt_recovery": "NOT ASSUMED"
+    },
+    "new_actor": null,
+    "new_preparation": null,
+    "new_prepared_input": null,
+    "policy": "exact keys/archives,RequiredTrustedOnly,normal temporal validation and111+3 unchanged; no clock/trust bypass",
+    "post_install_tools": 2,
+    "private_receipts": "fixture disk0700 directory/0600 files; bounded GPG status/stderr, fixed operation labels only",
+    "static_namespace_audit": {
+      "bytes": 7861,
+      "sha256": "a8c6c5530fd54cd461f340a108edf5599336e089213ff6e81a9ba7f3b493a08b"
+    },
+    "test_scope": "actual private-HOME Bash/mocked bounded GPG failures plus DATA/model controls; no VM/package actor",
+    "tests_passed": 46
+  },
+  "static_tool_namespace": {
+    "baseline_packages": 111,
+    "baseline_tools": {
+      "base64": {
+        "mode": 493,
+        "owners": [
+          "coreutils=9.11-2"
+        ],
+        "path": "usr/bin/base64",
+        "resolution": [
+          "usr/bin/base64"
+        ]
+      },
+      "bash": {
+        "mode": 493,
+        "owners": [
+          "bash=5.3.15-1"
+        ],
+        "path": "usr/bin/bash",
+        "resolution": [
+          "usr/bin/bash"
+        ]
+      },
+      "cat": {
+        "mode": 493,
+        "owners": [
+          "coreutils=9.11-2"
+        ],
+        "path": "usr/bin/cat",
+        "resolution": [
+          "usr/bin/cat"
+        ]
+      },
+      "chmod": {
+        "mode": 493,
+        "owners": [
+          "coreutils=9.11-2"
+        ],
+        "path": "usr/bin/chmod",
+        "resolution": [
+          "usr/bin/chmod"
+        ]
+      },
+      "chown": {
+        "mode": 493,
+        "owners": [
+          "coreutils=9.11-2"
+        ],
+        "path": "usr/bin/chown",
+        "resolution": [
+          "usr/bin/chown"
+        ]
+      },
+      "comm": {
+        "mode": 493,
+        "owners": [
+          "coreutils=9.11-2"
+        ],
+        "path": "usr/bin/comm",
+        "resolution": [
+          "usr/bin/comm"
+        ]
+      },
+      "cp": {
+        "mode": 493,
+        "owners": [
+          "coreutils=9.11-2"
+        ],
+        "path": "usr/bin/cp",
+        "resolution": [
+          "usr/bin/cp"
+        ]
+      },
+      "cut": {
+        "mode": 493,
+        "owners": [
+          "coreutils=9.11-2"
+        ],
+        "path": "usr/bin/cut",
+        "resolution": [
+          "usr/bin/cut"
+        ]
+      },
+      "env": {
+        "mode": 493,
+        "owners": [
+          "coreutils=9.11-2"
+        ],
+        "path": "usr/bin/env",
+        "resolution": [
+          "usr/bin/env"
+        ]
+      },
+      "find": {
+        "mode": 493,
+        "owners": [
+          "findutils=4.11.0-1"
+        ],
+        "path": "usr/bin/find",
+        "resolution": [
+          "usr/bin/find"
+        ]
+      },
+      "getconf": {
+        "mode": 493,
+        "owners": [
+          "glibc=2.43+r22+g8362e8ce10b2-2"
+        ],
+        "path": "usr/bin/getconf",
+        "resolution": [
+          "usr/bin/getconf"
+        ]
+      },
+      "getfattr": {
+        "mode": 493,
+        "owners": [
+          "attr=2.6.0-1"
+        ],
+        "path": "usr/bin/getfattr",
+        "resolution": [
+          "usr/bin/getfattr"
+        ]
+      },
+      "gpg": {
+        "mode": 493,
+        "owners": [
+          "gnupg=2.4.9-2"
+        ],
+        "path": "usr/bin/gpg",
+        "resolution": [
+          "usr/bin/gpg"
+        ]
+      },
+      "gpgconf": {
+        "mode": 493,
+        "owners": [
+          "gnupg=2.4.9-2"
+        ],
+        "path": "usr/bin/gpgconf",
+        "resolution": [
+          "usr/bin/gpgconf"
+        ]
+      },
+      "grep": {
+        "mode": 493,
+        "owners": [
+          "grep=3.12-2"
+        ],
+        "path": "usr/bin/grep",
+        "resolution": [
+          "usr/bin/grep"
+        ]
+      },
+      "id": {
+        "mode": 493,
+        "owners": [
+          "coreutils=9.11-2"
+        ],
+        "path": "usr/bin/id",
+        "resolution": [
+          "usr/bin/id"
+        ]
+      },
+      "install": {
+        "mode": 493,
+        "owners": [
+          "coreutils=9.11-2"
+        ],
+        "path": "usr/bin/install",
+        "resolution": [
+          "usr/bin/install"
+        ]
+      },
+      "pacman": {
+        "mode": 493,
+        "owners": [
+          "pacman=7.1.0.r9.g54d9411-2"
+        ],
+        "path": "usr/bin/pacman",
+        "resolution": [
+          "usr/bin/pacman"
+        ]
+      },
+      "rm": {
+        "mode": 493,
+        "owners": [
+          "coreutils=9.11-2"
+        ],
+        "path": "usr/bin/rm",
+        "resolution": [
+          "usr/bin/rm"
+        ]
+      },
+      "rmdir": {
+        "mode": 493,
+        "owners": [
+          "coreutils=9.11-2"
+        ],
+        "path": "usr/bin/rmdir",
+        "resolution": [
+          "usr/bin/rmdir"
+        ]
+      },
+      "runuser": {
+        "mode": 493,
+        "owners": [
+          "util-linux=2.42.2-1"
+        ],
+        "path": "usr/bin/runuser",
+        "resolution": [
+          "usr/bin/runuser"
+        ]
+      },
+      "sha256sum": {
+        "mode": 493,
+        "owners": [
+          "coreutils=9.11-2"
+        ],
+        "path": "usr/bin/sha256sum",
+        "resolution": [
+          "usr/bin/sha256sum"
+        ]
+      },
+      "sleep": {
+        "mode": 493,
+        "owners": [
+          "coreutils=9.11-2"
+        ],
+        "path": "usr/bin/sleep",
+        "resolution": [
+          "usr/bin/sleep"
+        ]
+      },
+      "sort": {
+        "mode": 493,
+        "owners": [
+          "coreutils=9.11-2"
+        ],
+        "path": "usr/bin/sort",
+        "resolution": [
+          "usr/bin/sort"
+        ]
+      },
+      "stat": {
+        "mode": 493,
+        "owners": [
+          "coreutils=9.11-2"
+        ],
+        "path": "usr/bin/stat",
+        "resolution": [
+          "usr/bin/stat"
+        ]
+      },
+      "timeout": {
+        "mode": 493,
+        "owners": [
+          "coreutils=9.11-2"
+        ],
+        "path": "usr/bin/timeout",
+        "resolution": [
+          "usr/bin/timeout"
+        ]
+      },
+      "touch": {
+        "mode": 493,
+        "owners": [
+          "coreutils=9.11-2"
+        ],
+        "path": "usr/bin/touch",
+        "resolution": [
+          "usr/bin/touch"
+        ]
+      },
+      "tr": {
+        "mode": 493,
+        "owners": [
+          "coreutils=9.11-2"
+        ],
+        "path": "usr/bin/tr",
+        "resolution": [
+          "usr/bin/tr"
+        ]
+      },
+      "uname": {
+        "mode": 493,
+        "owners": [
+          "coreutils=9.11-2"
+        ],
+        "path": "usr/bin/uname",
+        "resolution": [
+          "usr/bin/uname"
+        ]
+      },
+      "wc": {
+        "mode": 493,
+        "owners": [
+          "coreutils=9.11-2"
+        ],
+        "path": "usr/bin/wc",
+        "resolution": [
+          "usr/bin/wc"
+        ]
+      },
+      "xargs": {
+        "mode": 493,
+        "owners": [
+          "findutils=4.11.0-1"
+        ],
+        "path": "usr/bin/xargs",
+        "resolution": [
+          "usr/bin/xargs"
+        ]
+      }
+    },
+    "builtins_and_functions": [
+      ".",
+      "[[",
+      "((",
+      "set",
+      "umask",
+      "export",
+      "read",
+      "printf",
+      "local",
+      "trap",
+      "exit",
+      "type",
+      "cd",
+      "false",
+      "return",
+      "same_bytes",
+      "failure_record",
+      "failure_fields",
+      "require_base_tools",
+      "digest",
+      "inventory",
+      "user_snapshot",
+      "assert_users",
+      "payload_snapshot",
+      "as_builder",
+      "finish",
+      "tool_label"
+    ],
+    "command_review": "manual finite command inventory, source hashes bound; builtins/functions enumerated separately",
+    "guest_execution": "NOT RUN",
+    "post_install_tools": {
+      "cachy-asahi-ksmctl": {
+        "mode": 493,
+        "owner": "cachy-asahi-ksmctl",
+        "path": "usr/bin/cachy-asahi-ksmctl",
+        "resolution": [
+          "usr/bin/cachy-asahi-ksmctl"
+        ]
+      },
+      "python3": {
+        "mode": 493,
+        "owner": "python",
+        "path": "usr/bin/python3.14",
+        "resolution": [
+          "usr/bin/python3",
+          "usr/bin/python3.14"
+        ]
+      }
+    },
+    "reviewed_source": {
+      "check-probes.py": {
+        "bytes": 1053,
+        "sha256": "de66e5596c32606eb824bc0577a9a9a4fbd55881956d8828d3db435026a1b620"
+      },
+      "guest-proof.sh": {
+        "bytes": 879,
+        "sha256": "31a87a08954798992dc1f7456dbc04de7479d911222be95e731cfeb74a7251cc"
+      },
+      "guest-root.sh": {
+        "bytes": 8812,
+        "sha256": "bf27fbee3d4bd590f4bd7a628fa5c9859ecff6af503d68057939e7282c435089"
+      },
+      "guest-runtime.sh": {
+        "bytes": 2702,
+        "sha256": "d92a6feaf8841e1615f04433c3afe7ab84718f15a59964e4c6b618d69df48b9f"
+      }
+    },
+    "rootfs": {
+      "bytes": 829367415,
+      "sha256": "42a4eeaa038994ffd31fa173256ef2f0ef511358eeb41b9ea1f8626391b9b319"
+    },
+    "schema_version": 1
+  },
+  "status": "PREPARED_NOT_BOOTED"
+}

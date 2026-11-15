@@ -1,0 +1,277 @@
+{
+  "history": {
+    "history-search/README.md": {
+      "bytes": 1376,
+      "sha256": "34515849200235171df540e8f70e1ff8d7be159df2789d6fde3c3ac72b213b87"
+    },
+    "history-search/alarm-branches.json": {
+      "bytes": 206,
+      "sha256": "cc609fdf7f00c5046b1fb3626916dd3abdc3d2519cfb71e3c3828c1933768636"
+    },
+    "history-search/alarm-compiler-rt-build-window.json": {
+      "bytes": 3310,
+      "sha256": "9cd01f42ac1117a3a085cc842ec7da3b6fc064d42518ea713bb05e0bb45b14f7"
+    },
+    "history-search/alarm-compiler-rt-exact-tree.json": {
+      "bytes": 8418,
+      "sha256": "cfd5d78f61cd619ac43245edbbd269657233f7d80263cec41285d306cff5c4fa"
+    },
+    "history-search/alarm-llvm-build-window.json": {
+      "bytes": 3303,
+      "sha256": "40a9b31cd87863c99c846ca7751aa39539bfb6e74e3a0eeae7db16007feb556d"
+    },
+    "history-search/alarm-llvm-exact-tree.json": {
+      "bytes": 6813,
+      "sha256": "33363409fa4b9dbadb8af9ce25a4cf5c47e2723c654c53c5fe376e5a3bfc78f8"
+    },
+    "history-search/alarm-rust-build-window.json": {
+      "bytes": 10033,
+      "sha256": "0e6d153b48bc1baeb5b001de4f28b75829371411bba6559791f5caf259c8a0b2"
+    },
+    "history-search/alarm-rust-exact-tree.json": {
+      "bytes": 14383,
+      "sha256": "9b2cd5927afa55ece37a5fb4cb5e708f7fcd229b6525b6a7b490781fb4d598d5"
+    },
+    "history-search/alarm-rust-package.html": {
+      "bytes": 16961,
+      "sha256": "d02a51abe2e2e50dde67dff9e99b8ad9448c615534fde66da07539c6bb589169"
+    },
+    "history-search/arch-compiler-rt-exact.PKGBUILD": {
+      "bytes": 2029,
+      "sha256": "825464ccac403e26ef5a35b06029c59809605beb751abfa832c6cff3ee9515b5"
+    },
+    "history-search/arch-compiler-rt-history.json": {
+      "bytes": 5145,
+      "sha256": "8f26cc75d7a5fb017415cfa1c4c39fbe4f68614b07746a02db5d701448c1c292"
+    },
+    "history-search/arch-devtools-1.5.0.PKGBUILD": {
+      "bytes": 1667,
+      "sha256": "90e39abd3fea0e15cf928bcc5addef8c6d7f2699df99a5607df11e6197726eaf"
+    },
+    "history-search/arch-devtools-history.json": {
+      "bytes": 3175,
+      "sha256": "1b45630e78e98808e32bf704032c6281f7d1b861581b558dbc9890e3644b9226"
+    },
+    "history-search/arch-lld-history.json": {
+      "bytes": 5435,
+      "sha256": "b51d06710594f695d9ba4d4dc53274cce52a28564f6d3b7f3d3f2584a7263d4a"
+    },
+    "history-search/arch-llvm-exact.PKGBUILD": {
+      "bytes": 4998,
+      "sha256": "4aeecc3fd02089d41049b43b338c7fc05dfadc14ee53462b3d62d721afeb873a"
+    },
+    "history-search/arch-llvm-history.json": {
+      "bytes": 5113,
+      "sha256": "4c91a7590b22350bd68e4ad900794cb8daaa08584c6c0e7868edf5dd25a4c398"
+    },
+    "history-search/arch-rust-exact.PKGBUILD": {
+      "bytes": 10953,
+      "sha256": "796c596aee9ee2b8f9dbd864366a674b566622ad3e618a580e834a25e61fab4f"
+    },
+    "history-search/arch-rust-history.json": {
+      "bytes": 5313,
+      "sha256": "455215198b2f8177930ff5334a100511095ebb4c063bfbcd5baa04ce48a96f05"
+    },
+    "history-search/core-devtools-history.json": {
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "history-search/devtools-src-archbuild.in": {
+      "bytes": 3931,
+      "sha256": "365d3ca422dd900cc2b0629e5d561c572dc5f6909eaa182348010b8a35b3614f"
+    },
+    "history-search/devtools-src-lib-build-build.sh": {
+      "bytes": 15771,
+      "sha256": "9f7a5afff593ec9f7e0b5a358699db1e3183121ee8ab474690e8060aa3fb282b"
+    },
+    "history-search/devtools-src-lib-util-pkgbuild.sh": {
+      "bytes": 2769,
+      "sha256": "b96f3473c971e3e9a42d7372c632774874d125c258c8854c7d2a5ad73e4ddef2"
+    },
+    "history-search/devtools-src-makechrootpkg.in": {
+      "bytes": 13563,
+      "sha256": "06d74545f9a30e08132116bb50cbb44ffc2cf51efb725683c376a03286a2edd4"
+    },
+    "history-search/devtools-v1.5.0-src-tree.json": {
+      "bytes": 10410,
+      "sha256": "0cf2c4d1c4a2e4e8476e81deedff9ad0dc1f71fcfd40b6b08e5ffc608d2e2552"
+    },
+    "history-search/devtools-v1.5.0-tag.json": {
+      "bytes": 3197,
+      "sha256": "2971cc40462da1ca48b59cab2cf1fa9e2cc6438c461c0f97db7638b15562518c"
+    },
+    "history-search/extra-devtools-history.json": {
+      "bytes": 2901,
+      "sha256": "0e0fa52d27030ca8331e4bea94ed1b164458efbcdac1800755bd5eea30d2e1a6"
+    },
+    "history-search/plugbuild-UI-README-blob.json": {
+      "bytes": 1890,
+      "sha256": "1a2efff44381c78d7d46d13bc3b4d1247a30fd5dd1a92b5c40d316ebe4f838a2"
+    },
+    "history-search/plugbuild-UI-README.markdown": {
+      "bytes": 1155,
+      "sha256": "9ef850e55e6b62252d864b798955727c6c89c7e2e490dac4c0890827210e8f12"
+    },
+    "history-search/plugbuild-UI-server-blob.json": {
+      "bytes": 9718,
+      "sha256": "7cdcf04c28944f79abb7f967c065e057a47740ebb074b1a66083eaff55e35e69"
+    },
+    "history-search/plugbuild-UI-server.js": {
+      "bytes": 6837,
+      "sha256": "655fdeac0079be1a9a48db5002dd53e8c9a74ec481cc3d107e42befabf5e65b3"
+    },
+    "history-search/requests.json": {
+      "bytes": 17374,
+      "sha256": "f880f3c46f5a383d2b2d7c210f2502f7a00a00904d2af862d27fac80cf9c8240"
+    },
+    "history-search/results.json": {
+      "bytes": 13576,
+      "sha256": "745295794582c4bbd70b833c4c023052149e6f0669666a8133dcd67548a7856a"
+    },
+    "history-search/starting-compiler-rt.PKGBUILD": {
+      "bytes": 2189,
+      "sha256": "820e7b120a95403ba956cb41959aecf56c3c01ce87ae1b4c5c0855cfc32b14f0"
+    },
+    "history-search/starting-lld.PKGBUILD": {
+      "bytes": 2155,
+      "sha256": "cb78ae8d8b92d3ce50a0f5e29131b80447bb3fd765bac5c16acce1b4a06ad87f"
+    },
+    "history-search/starting-llvm.PKGBUILD": {
+      "bytes": 5201,
+      "sha256": "b4b2e73886574f8c24a48189e9215cab523fb0fcb7938ac6994cdb43aa70d199"
+    },
+    "history-search/starting-rust.PKGBUILD": {
+      "bytes": 8371,
+      "sha256": "ce6002be1741dafc8d8387c32ad84daf67d923010b5e263e17787571d67273fd"
+    }
+  },
+  "limits": {
+    "Root_release_acceptance": "HELD",
+    "key_freshness_revocation_policy": "NOT_ESTABLISHED",
+    "license_materials": "original pinned five notices retained; legal/completeness acceptance HELD",
+    "native_jobs": "NOT_RUN",
+    "payload_execution": "NOT_RUN",
+    "source_archive_extraction": "NOT_RUN",
+    "source_to_binary_correspondence": "HELD_ALL_FOUR_RECIPE_HASH_MISMATCHES"
+  },
+  "materials": {
+    "materials/llvm-project-23.1.1.src.tar.xz.sig": {
+      "bytes": 466,
+      "sha256": "973fe303c2aa5bb0438d9f6762dc03b2a1e4e700a6b5480ec84b1db3fc33cec2"
+    },
+    "materials/llvm-release-keys.asc": {
+      "bytes": 13300,
+      "sha256": "f38bd19b7f2d22cafa755841e6ce9375b9a2e6d41f7b974e4953d6b084839001"
+    },
+    "materials/official-download.html": {
+      "bytes": 28162,
+      "sha256": "3691b15918717252e3ee70851e550c233afb4e58c46db62a195ac5ba45223ef0"
+    },
+    "materials/official-release-index.html": {
+      "bytes": 3610,
+      "sha256": "ab1e0281ba4810fbb61711631a384d8343461a1c8518e1d731d25a7e1b78360b"
+    },
+    "materials/pinned-HowToReleaseLLVM.rst": {
+      "bytes": 16965,
+      "sha256": "5139ca342611dbf3e6b98d65db7035ffbcf5f83d3a0963e3edac386a070e08cb"
+    },
+    "materials/pinned-ReleaseProcess.rst": {
+      "bytes": 7575,
+      "sha256": "c850e254dd730572f0ee16d138fddc47f6fa10641491ec44535a7289334b613a"
+    },
+    "materials/rust-release-key.asc": {
+      "bytes": 5326,
+      "sha256": "e54b09a439647e006b4831eec9785cbaaf3e07ab371c3a6ee6a68e1bdb9fbc6b"
+    },
+    "materials/rustc-1.99.0-src.tar.xz.asc": {
+      "bytes": 801,
+      "sha256": "920ab02373a564002dfbe8267a338c2d2a98e08a63bdf2dd9502864a2e0731f9"
+    }
+  },
+  "network": {
+    "HTTP_requests": 38,
+    "acquisition_scope": "three bounded sequential workers; main16MiB,LLVM4MiB,history8MiB; original acquisition ledger excluded and unchanged",
+    "added_total_HTTP_body_bytes": 246979,
+    "individual_limit_bytes": 8388608,
+    "maximum_possible_active_workers": 3,
+    "new_source_archives": 0,
+    "parallel_limit": 4,
+    "total_limit_bytes": 33554432
+  },
+  "original_http_ledger": {
+    "bytes": 1222,
+    "sha256": "444241bf46a27769039175d73bdf62fa67698a1dfc804e58b2400390e5b1b944"
+  },
+  "original_opaque_report": {
+    "bytes": 10469,
+    "sha256": "4a540773430605dc14e5bee6302bd6112be6703e2ab04d0d1b8efa8c6d012a2d"
+  },
+  "parent_manifest": {
+    "bytes": 8940,
+    "sha256": "e9e76ed4a0d653f2fa90624ee3af30797cf97037bee2fa1f64a141fdefc7af11"
+  },
+  "primary_chain": {
+    "llvm": {
+      "declaration": "../recipes/llvm.PKGBUILD:22-25 and lld.PKGBUILD:17-20 (data only)",
+      "documentation": "materials/pinned-HowToReleaseLLVM.rst:161-173,226-229",
+      "documentation_revision": "6dfe1677ab8dffbc6ec13d53a1e0215d75147689",
+      "expired_non_signer": "474E22316ABF4785A88C6E8EA2C794A986419D8A expires 2025-05-02; actual signer is D574BD5D1D0E98895E3BF90044F2485E45D59042",
+      "key_url": "https://releases.llvm.org/release-keys.asc",
+      "signature_url": "https://github.com/llvm/llvm-project/releases/download/llvmorg-23.1.1/llvm-project-23.1.1.src.tar.xz.sig"
+    },
+    "rust": {
+      "declaration": "../recipes/rust.PKGBUILD:99-101 and rust.SRCINFO:52 (data only)",
+      "key_url": "https://static.rust-lang.org/rust-key.gpg.ascii",
+      "signature_url": "https://static.rust-lang.org/dist/rustc-1.99.0-src.tar.xz.asc"
+    }
+  },
+  "purpose": "successor-source-signature-authentication-only",
+  "receipts": {
+    "receipts/initial-signature-results.json": {
+      "bytes": 5117,
+      "sha256": "3c36d1a11139031da21248ad1c93fbbc7db79189c0e2548f11a2ef5aef633094"
+    },
+    "receipts/key-and-signature-requests.json": {
+      "bytes": 1095,
+      "sha256": "cdc8faa6bd07ac24c2199261ef09ee2d06e0f0688c87ea7bfe43e526f4b8afa7"
+    },
+    "receipts/llvm-document-requests.json": {
+      "bytes": 2806,
+      "sha256": "8cff145a31d025bc534158f3727643c9bc7abbd838ba0f089958bf79c71e741d"
+    },
+    "receipts/llvm-key-facts.json": {
+      "bytes": 6401,
+      "sha256": "11ae20b6618ee885392b23c2778f2bf1e3b2726567c6475d498cdb3c18c6500d"
+    }
+  },
+  "schema": 1,
+  "signatures": {
+    "llvm": {
+      "allowed_primary_fingerprints": [
+        "474E22316ABF4785A88C6E8EA2C794A986419D8A",
+        "D574BD5D1D0E98895E3BF90044F2485E45D59042",
+        "FFB3368980F3E6BB5737145A316C56D064CACBA5",
+        "71046D1E9C6656BDD61171873E83BABF4A4F9E85"
+      ],
+      "archive": "llvm-project-23.1.1.src.tar.xz",
+      "archive_url": "https://github.com/llvm/llvm-project/releases/download/llvmorg-23.1.1/llvm-project-23.1.1.src.tar.xz",
+      "bytes": 179168672,
+      "expected_binary_keyring_sha256": "8c00e9c6d0f747736e83b5ee4b86349c7167d3d6cba88d41a6560c93d7b0dd1b",
+      "key": "materials/llvm-release-keys.asc",
+      "sha256": "ebe9be46fe8756d58c5b198ffad0fa2a766257add81a4dc52179bfacc7888ee6",
+      "signature": "materials/llvm-project-23.1.1.src.tar.xz.sig"
+    },
+    "rust": {
+      "allowed_primary_fingerprints": [
+        "108F66205EAEB0AAA8DD5E1C85AB96E6FA1BE5FE"
+      ],
+      "archive": "rustc-1.99.0-src.tar.xz",
+      "archive_url": "https://static.rust-lang.org/dist/rustc-1.99.0-src.tar.xz",
+      "bytes": 265258564,
+      "expected_binary_keyring_sha256": "97e694f136f8c106e8f94fdadf593d2fc10de3ff3f558536c41469aa5be7f635",
+      "key": "materials/rust-release-key.asc",
+      "sha256": "cc41916a8c84f5d9ec4f55561b44e39f43b647b133f8a6f51be9ea13c83f7036",
+      "signature": "materials/rustc-1.99.0-src.tar.xz.asc"
+    }
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "Root_preconditions": [
+    "Root independently qualifies whole Source/entry/Reader before import",
+    "Root owns closed Source integration/publication/readback/workflow/once-role and approval",
+    "Root prepares fresh signed349 native image and exact input signature audit",
+    "Producer runs on isolated native local-daemon host with visible owned DockerRootDir",
+    "Root separately admits actual resources; unknown/dynamic inode pool refuses here",
+    "Root authenticates Source-readback and actual native-daemon identity proof bound to same Source/run/job/image",
+    "Actual create/inspect and entry/init runtime proof remain mandatory before package credit"
+  ],
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "image": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "kind": "PROPOSED_PERL5423_ARM_ROOTLESS_CONTAINER_V2",
+  "native_acceptance": false,
+  "nested_namespace": {
+    "diagnostic": "Optional --nested-namespace-diagnostic PATH with exact hash descriptor in Root container admission; retained DATA only",
+    "invocation": "NOT_INVOKED",
+    "qualification": "NOT_QUALIFIED"
+  },
+  "producer": [
+    "/usr/bin/python3",
+    "-I",
+    "-B",
+    "producer.py",
+    "--admission",
+    "ROOT_QUALIFIED_CANONICAL_ADMISSION_JSON",
+    "--admission-sha256",
+    "ROOT_QUALIFIED_ADMISSION_SHA256",
+    "--qualification",
+    "ROOT_QUALIFIED_CANONICAL_NAMESPACE_JSON",
+    "--qualification-sha256",
+    "ROOT_QUALIFIED_NAMESPACE_SHA256",
+    "--output",
+    "ROOT_OWNED_FRESH_EVIDENCE_DIRECTORY"
+  ],
+  "qualification": "ROOT_CONTAINER_PRECONDITION_ADMISSION_NOT_RUN",
+  "reader": [
+    "ROOT_QUALIFIED_PYTHON314",
+    "-I",
+    "-B",
+    "reader_entry.py",
+    "--admission",
+    "ROOT_QUALIFIED_CANONICAL_ADMISSION_JSON",
+    "--admission-sha256",
+    "ROOT_QUALIFIED_ADMISSION_SHA256",
+    "--qualification",
+    "ROOT_QUALIFIED_CANONICAL_NAMESPACE_JSON",
+    "--qualification-sha256",
+    "ROOT_QUALIFIED_NAMESPACE_SHA256",
+    "--evidence",
+    "ROOT_AUTHENTICATED_ORIGINAL_EVIDENCE_DIRECTORY"
+  ],
+  "schema": 2,
+  "scope": "No compiler/namespace/native/Original/operationalReader execution during source authoring"
+}

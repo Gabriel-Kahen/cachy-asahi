@@ -1,0 +1,3 @@
+# Checksum-pinned upstream data retains its original whitespace.
+patches/*.patch -whitespace
+licenses/* -whitespace

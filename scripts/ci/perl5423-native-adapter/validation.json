@@ -1,0 +1,111 @@
+{
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "image": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "control_flags": [
+    "-I",
+    "-B",
+    "-Werror::ResourceWarning"
+  ],
+  "controls": {
+    "3.12.13": {
+      "reader": {
+        "status": "PASS_ACTOR_FENCED_DATA_ONLY",
+        "tests": 21,
+        "transcript": {
+          "bytes": 3425,
+          "path": "/tmp/perl-adapter-v2-reader312.log",
+          "sha256": "c6a470313bf4f848d0550fbe5eace6b3d1c96f265503a26f2c458339602ef61c"
+        }
+      },
+      "source": {
+        "status": "PASS_ACTOR_FENCED_DATA_ONLY",
+        "tests": 16,
+        "transcript": {
+          "bytes": 2367,
+          "path": "/tmp/perl-adapter-v2-source312.log",
+          "sha256": "a8f1de3a0bf9769f0057562ecdb044bc0ce2d7e4af75123f301f7df3cbfc7142"
+        }
+      }
+    },
+    "3.14.6": {
+      "reader": {
+        "status": "PASS_ACTOR_FENCED_DATA_ONLY",
+        "tests": 21,
+        "transcript": {
+          "bytes": 3425,
+          "path": "/tmp/perl-adapter-v2-reader314.log",
+          "sha256": "9ade5b9d20462ccf967fa482da0588ac564e4bd56e5773019a733a40f3de0aa5"
+        }
+      },
+      "source": {
+        "status": "PASS_ACTOR_FENCED_DATA_ONLY",
+        "tests": 16,
+        "transcript": {
+          "bytes": 2367,
+          "path": "/tmp/perl-adapter-v2-source314.log",
+          "sha256": "48e500645df3db6fa940bd8f903ff9612071698eb6e64bbaefe09ee1d14227b6"
+        }
+      }
+    }
+  },
+  "domain_sha256": "6c6bdc29acf59e8ea911167f08d4d66a993777c121b2399211cec030e2a5b804",
+  "filesystem_source_output": null,
+  "held_packet_files": 37,
+  "inverse": "REMOVE_EXACT_ADDITIONS_RESTORES_EVERY_HELD_BYTE_AND_MODE",
+  "limits": [
+    "Actual container/runtime/native build NOT_RUN by this revision",
+    "Root authenticates Source/publication/readback, native daemon, signed349 base and signatures, trust and resources",
+    "Root owns actual independent Reader, reproducibility acceptance, retirement and namespace diagnostic interpretation",
+    "Native16K/M2/installedABI/externalXS/performance/release unqualified"
+  ],
+  "namespace_diagnostic": "OPTIONAL_EXACT_RAW_DATA_ONLY_NO_SUPPORT_CREDIT",
+  "native_acceptance": false,
+  "nested_invocation": "NOT_INVOKED",
+  "nested_qualification": "NOT_QUALIFIED",
+  "packet_map_sha256": "cf02013d1a06b90bf7e3c32e8471efb3a896d3e1881a492386a6d0b70fc0a1a5",
+  "physical_domain_changed": false,
+  "premise_changed": "Unused nested SUPPORT gate removed; actual ordinary rootless container/runtime proof required",
+  "preservation": "Only scripts/ci/perl5423-native-adapter changed; frozen recipe/packet, original3937, separate namespace source and run43679486072, shared workflows/manifests held",
+  "profile": {
+    "bytes": 3641,
+    "sha256": "4852a72dc9d3e9f341c712d701900fd11d68a49dcebcb6b551d42f175024ea5a"
+  },
+  "proposed_source_bytes": 24177097,
+  "proposed_source_files": 60,
+  "proposed_source_map": {
+    "bytes": 10140,
+    "sha256": "3f238d649cb649ba2aff45e7930e49b28e3a7d8891860a1a17ead850719d5dee"
+  },
+  "proposed_source_tree": "10fbd6af83decec8f8d257a25937c4df1c5b021c",
+  "review": "Independent read-only review found no critical unintended weakening; Root external authentication remains mandatory",
+  "roles_executed": {
+    "Original": 0,
+    "compiler": 0,
+    "intake": 0,
+    "namespace": 0,
+    "native_actor": 0,
+    "operational_Reader": 0
+  },
+  "runtime_files": 21,
+  "schema": 2,
+  "separate_Source3937_run_actions": 0,
+  "source_audit": {
+    "bytes": 4509,
+    "file": "source-audit.json",
+    "sha256": "34a1963b087b7213fac8674ceb59be49cca5e864e98fbc1d5765ad48f5da9e73"
+  },
+  "source_publication": null,
+  "status": "PASS_STATIC_AUDIT_AND_PROPOSED_SOURCE_RENDER_NOT_NATIVE",
+  "syntax": {
+    "JSON": "PASS",
+    "Python_AST": "PASS",
+    "entry_sh_bash_n": "PASS"
+  }
+}
