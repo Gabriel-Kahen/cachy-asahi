@@ -6,6 +6,7 @@
   "filesystem": {
     "device": 54,
     "fstype": "btrfs",
+    "kernel_mount_device": "0:33",
     "root": "/home/gabe",
     "subvolid": 257,
     "subvolume": "/@home"

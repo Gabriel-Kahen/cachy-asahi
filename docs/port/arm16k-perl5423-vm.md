@@ -105,3 +105,9 @@ fixed image-tool hasher, preserving all generic single-link DATA guards. Tool
 hashes, root ownership/executable modes and stable identities remain required;
 Root's actual observation is DATA, not a phase grant. The controller has no
 unsupported Docker-start sig-proxy flag.
+
+
+HOME fstat device54 and kernel mountinfo0:33 are separately pinned identity
+domains. Held-FD mount-ID selection, before/after bracket, Btrfs/@home/subvolid257
+checks remain strict; no derived-device equality or unknown-filesystem exception
+is used. The regression covers the exact retained mount62 row plus mismatches.

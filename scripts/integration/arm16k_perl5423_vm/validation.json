@@ -1,5 +1,6 @@
 {
   "HOME_Btrfs_trial": "EXPLICIT_ROOT_HOME_DEV54_UID1000_ENOSYS38_UNSUPPORTED_NOT_UNLIMITED_INODES_UNREPORTED_NO_RESERVATION_STRICT_QUOTA_BRANCH_UNCHANGED",
+  "HOME_device_identity": "SEPARATE_ROOT_REVIEWED_FSTAT_DEV54_AND_KERNEL_MOUNTINFO_0_33_ACTUAL_FD_MOUNT_ID_BRACKET",
   "Tool529_e2fsck": "SPECIALIZED_FIXED_TOOL_HASH_ADMITS_OBSERVED_NLINK4_GENERIC_DATA_SINGLE_LINK_RULE_UNCHANGED",
   "actual": {
     "ALPM": null,
@@ -20,7 +21,7 @@
   },
   "checks": {
     "committed_Git_source_roundtrip": "PASS_COMMITTED_TRACKED_SOURCE_EXPORT_AND_FENCED_PREDICATE",
-    "python_fenced_controls": 41,
+    "python_fenced_controls": 42,
     "shell_syntax": "PASS",
     "source_membership": "PASS"
   },

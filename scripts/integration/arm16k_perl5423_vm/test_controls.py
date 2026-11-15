@@ -170,14 +170,23 @@ class Controls(unittest.TestCase):
   self.assertEqual(H.capacity(fs,r,True),'UNREPORTED');reported=dict(fs,files=100000,ffree=50000,favail=40000);self.assertEqual(H.capacity(reported,r,True),'REPORTED')
   for bad in(dict(fs,files=100),dict(fs,frsize=0),dict(fs,bavail=1),dict(fs,bfree=0),dict(reported,favail=1),dict(reported,favail=50001)):
    with self.assertRaises(ValueError):H.capacity(bad,r,True)
-  row='42 1 0:54 /@home /home rw - btrfs /dev/MODELED rw,subvolid=257,subvol=/@home\n';self.assertEqual(H.mountinfo(row,42)['subvolume'],'/@home')
-  for bad in(row.replace('btrfs','tmpfs'),row.replace('0:54','0:55'),row.replace('/@home','/@root'),row.replace('257','258'),row+row):
+  row='42 1 0:33 /@home /home rw - btrfs /dev/MODELED rw,subvolid=257,subvol=/@home\n';self.assertEqual(H.mountinfo(row,42)['subvolume'],'/@home')
+  for bad in(row.replace('btrfs','tmpfs'),row.replace('0:33','0:54'),row.replace('0:33','0:34'),row.replace('/@home','/@root'),row.replace('257','258'),row+row):
    with self.assertRaises(ValueError):H.mountinfo(bad,42)
   with self.assertRaises(ValueError):H.mountinfo(row,43)
+ def test_HOME_retained_kernel_mount_and_userspace_fstat_domains_separate(self):
+  H=module('home_btrfs');row='62 40 0:33 /@home /home rw,noatime shared:169 - btrfs /dev/nvme0n1p6 rw,compress=zstd:1,ssd,discard=async,space_cache=v2,subvolid=257,subvol=/@home'
+  with patch.object(H.os,'major',side_effect=AssertionError('must not derive kernel identity')),patch.object(H.os,'minor',side_effect=AssertionError('must not derive kernel identity')):
+   observed=H.mountinfo(row,62);self.assertEqual(observed['device'],54);self.assertEqual(observed['kernel_mount_device'],'0:33')
+  a=modeled_home();self.assertEqual(K.validate(*a)['operation'],K.OP)
+  for key,value in(('device',33),('kernel_mount_device','0:54')):
+   bad=modeled_home();bad[4]['quota_guard']['filesystem'][key]=value
+   with self.subTest(key=key),self.assertRaises(ValueError):K.validate(*reseal(bad))
+  with patch.object(H,'proc_read',side_effect=['pos:\t0\nmnt_id:\t62\nino:\t59258250\n',row]):self.assertEqual(H.mounted(17)['mount_id'],62)
  def test_HOME_sample_brackets_capacity_and_holds_every_other_error(self):
   import types
   H=module('home_btrfs');r=modeled_home()[4];q=r['quota_guard'];root=Path(q['outputs']['prepare']);st=types.SimpleNamespace(st_dev=54,st_ino=7,st_mode=0o40700,st_uid=1000,st_gid=1000);fs=dict(blocks=1000000,bfree=900000,bavail=800000,frsize=4096,files=0,ffree=0,favail=0);mount=dict(mount_id=42)
-  for kind in('valid','EPERM','EIO','supported','late-error','low-bytes','changed-inodes','unknown-fs','allocation','node-limit','expired','wrong-Source','wrong-output'):
+  for kind in('valid','EPERM','EIO','supported','late-error','low-bytes','changed-inodes','unknown-fs','wrong-fstat','allocation','node-limit','expired','wrong-Source','wrong-output'):
    seen=[];closed=[];r=modeled_home()[4];q=r['quota_guard'];source=q['source_lock'];phase='prepare';end=time.monotonic()+60
    def query(fd):
     seen.append(fd)
@@ -201,7 +210,7 @@ class Controls(unittest.TestCase):
    if kind=='expired':q['created_utc']=1;q['expires_utc']=2
    if kind=='wrong-Source':source=pin('wrong-Source')
    if kind=='wrong-output':phase='boot'
-   with patch.object(H.os,'fstat',return_value=st),patch.object(H.os,'getuid',return_value=1000),patch.object(H.os,'geteuid',return_value=1000),patch.object(H.os,'close',side_effect=closed.append),patch.object(H.Path,'lstat',return_value=st):
+   with patch.object(H.os,'fstat',return_value=types.SimpleNamespace(**dict(st.__dict__,st_dev=33))if kind=='wrong-fstat'else st),patch.object(H.os,'getuid',return_value=1000),patch.object(H.os,'geteuid',return_value=1000),patch.object(H.os,'close',side_effect=closed.append),patch.object(H.Path,'lstat',return_value=st):
     args=(root,r,source,phase,True,end,allocation);kwargs=dict(query=query,fs_query=filesystem,mount_query=mounted,opener=lambda path:10 if path=='/home/gabe'else 11)
     if kind=='valid':
      result=H.sample(*args,**kwargs);self.assertEqual(seen,[10,10]);self.assertEqual(len(samples),2);self.assertEqual(result['own_uid_quota'],'UNSUPPORTED_NOT_UNLIMITED');self.assertEqual(result['filesystem_inode_counters'],'UNREPORTED');self.assertFalse(result['capacity_reservation']);self.assertEqual(result['allocated_bytes'],1234)

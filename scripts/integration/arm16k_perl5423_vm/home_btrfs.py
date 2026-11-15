@@ -3,7 +3,7 @@
 import errno,os,platform,re,stat,time
 from pathlib import Path,PurePosixPath
 METHOD='READ_ONLY_HOME_BTRFS_ENOSYS_FSTATVFS'
-FS=dict(root='/home/gabe',device=54,fstype='btrfs',subvolume='/@home',subvolid=257)
+FS=dict(root='/home/gabe',device=54,kernel_mount_device='0:33',fstype='btrfs',subvolume='/@home',subvolid=257)
 QUERY=dict(syscall=443,command=0x80000700,uid=1000,result=-1,errno=38,status='UNSUPPORTED_NOT_UNLIMITED')
 FIELDS={'issued_by','method','whole_actor','read_only','uid','device','filesystem','quota_query','inode_counters','output_node_cap','initial_inode_headroom','live_inode_headroom','other_quota_availability','capacity_reservation','outputs','source_lock','created_utc','expires_utc','on_unknown_or_exhausted'}
 
@@ -69,14 +69,16 @@ def mountinfo(body,mount_id):
  for line in lines:
   halves=line.split(' - ');need(len(halves)==2,'mountinfo separator');a,b=halves[0].split(),halves[1].split()
   need(len(a)>=6 and len(b)==3 and a[0].isdigit() and a[1].isdigit() and re.fullmatch('[0-9]+:[0-9]+',a[2]),'mountinfo shape');i=int(a[0]);need(0<i<=2**32-1 and i not in entries,'unique mount ID');entries[i]=(a,b)
- need(mount_id in entries,'held FD mount exists');a,b=entries[mount_id];major,minor=map(int,a[2].split(':'));mountpoint=PurePosixPath(unescape(a[4]))
- need((major,minor)==(os.major(54),os.minor(54)) and b[0]=='btrfs' and unescape(a[3])=='/@home' and mountpoint.is_absolute() and (str(mountpoint)=='/home/gabe' or mountpoint in PurePosixPath('/home/gabe').parents),'held FD is on reviewed Btrfs @home mount')
+ need(mount_id in entries,'held FD mount exists');a,b=entries[mount_id];mountpoint=PurePosixPath(unescape(a[4]))
+ # fstat st_dev54 and kernel mountinfo0:33 are independently reviewed identity
+ # domains. Never derive one from os.major/minor of the other.
+ need(a[2]==FS['kernel_mount_device'] and b[0]=='btrfs' and unescape(a[3])=='/@home' and mountpoint.is_absolute() and (str(mountpoint)=='/home/gabe' or mountpoint in PurePosixPath('/home/gabe').parents),'held FD is on separately reviewed kernel Btrfs @home mount')
  options={}
  for item in b[2].split(','):
   if '='in item:
    k,v=item.split('=',1);need(k not in options,'unique mount super option');options[k]=v
  need(options.get('subvolid')=='257' and unescape(options.get('subvol',''))=='/@home','exact reviewed @home subvolume')
- return dict(mount_id=mount_id,device=54,fstype='btrfs',subvolume='/@home',subvolid=257,mountpoint=str(mountpoint))
+ return dict(mount_id=mount_id,device=54,kernel_mount_device=a[2],fstype='btrfs',subvolume='/@home',subvolid=257,mountpoint=str(mountpoint))
 
 
 def mounted(fd):

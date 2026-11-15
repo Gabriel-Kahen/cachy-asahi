@@ -388,3 +388,14 @@ size/timestamp identity and exact Root-selected bytes/SHA after alias resolution
 Generic DATA/archive/authority/host-CLI single-link guards are unchanged. No tool
 execution is used for qualification. The Perl controller already starts Docker
 with `['docker','start',name]`; the unsupported start sig-proxy flag is absent.
+
+
+## Separate HOME device identity domains
+
+The HOME profile explicitly pins both userspace `fstat st_dev=54` and kernel
+mountinfo `kernel_mount_device="0:33"`. They are independently reviewed values;
+os.major/minor of54 must not be used to derive the kernel pair. The guard still
+selects the actual held FD's mount ID, checks Btrfs/@home/subvolid257, and requires
+stable before/after mount records. Unknown pairs/filesystems remain HOLD. Update
+the closed profile's filesystem declaration and all Source bindings after this
+fix; old draft packets are not silently rewritten or granted an exception.
