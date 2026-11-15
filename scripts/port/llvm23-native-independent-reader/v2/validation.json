@@ -1,0 +1,23 @@
+{
+  "acquisition_run": false,
+  "actors_run": false,
+  "actual": {
+    "Original": null,
+    "Reader": null,
+    "approval": null,
+    "authority": null,
+    "job": null,
+    "run": null
+  },
+  "controls": {
+    "inherited_parser_runtime_package": 11,
+    "volume_inverse": 14
+  },
+  "interpreter": "Python3.14",
+  "new_parent_operand_required": true,
+  "operational_reader_run": false,
+  "schema": 1,
+  "source": "6d0243dc8f5cf4ee5b9316b8c804f14a3236ecb0",
+  "source_code_executed": false,
+  "status": "25_FENCED_DATA_CONTROLS_PASS_SOURCE_ONLY"
+}
