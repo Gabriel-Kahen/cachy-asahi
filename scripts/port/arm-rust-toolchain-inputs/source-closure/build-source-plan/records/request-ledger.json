@@ -1,0 +1,94 @@
+{
+  "max_requests": 12,
+  "max_response_bytes": 4194304,
+  "requests": [
+    {
+      "bytes": 18326,
+      "http_status": 200,
+      "method": "POST_READ_ONLY_QUERY",
+      "number": 1,
+      "query_sha256": "39370c1348904a80005ecba6ca022e82ccdda3ae5986bb503249013ff7a2f82f",
+      "sha256": "8a65abff5c1db43ad4ac061bdcd0466e3aa2228b90e077d42ee6a0fbd63d399d",
+      "started_at": "2026-11-15T07:42:55.983782+00:00",
+      "status": "RECEIVED",
+      "url": "https://api.github.com/graphql"
+    },
+    {
+      "bytes": 245970,
+      "http_status": 200,
+      "method": "POST_READ_ONLY_QUERY",
+      "number": 2,
+      "query_sha256": "22a58b15209fe8e149b59a1b4b2c2b8204fc22d1802bafe966846a415e981cf7",
+      "sha256": "c0eb915f5f4a70c7581fa13c405d731dbc1a1ec900f5efca28430c0035bbb348",
+      "started_at": "2026-11-15T07:44:06.289795+00:00",
+      "status": "RECEIVED",
+      "url": "https://api.github.com/graphql"
+    },
+    {
+      "bytes": 113809,
+      "http_status": 200,
+      "method": "POST_READ_ONLY_QUERY",
+      "number": 3,
+      "query_sha256": "79e31c8a09136746b7d427b5201c6d58285ba77b400d298c1d4159b28d29eedb",
+      "sha256": "c169e948000d31779487316ef18df7ecb08d4eca792e81bc8c447ec2818c93b4",
+      "started_at": "2026-11-15T07:44:21.003449+00:00",
+      "status": "RECEIVED",
+      "url": "https://api.github.com/graphql"
+    },
+    {
+      "bytes": 314096,
+      "http_status": 200,
+      "method": "POST_READ_ONLY_QUERY",
+      "number": 4,
+      "query_sha256": "aa52e98e782f3fefbc3ecaa7451a76e713379b5d8272f2aa595d2829acf41376",
+      "sha256": "d0a2972b6bcce83cdeeded59e45ea3f76273480787379af76aa04bdcbebe5ad9",
+      "started_at": "2026-11-15T07:44:21.387137+00:00",
+      "status": "RECEIVED",
+      "url": "https://api.github.com/graphql"
+    },
+    {
+      "bytes": 116013,
+      "http_status": 200,
+      "method": "POST_READ_ONLY_QUERY",
+      "number": 5,
+      "query_sha256": "f3464a5050ee9e2fb6b6372a24f948e9f67ecabc6e56e024eee3d31cd2a3dfbb",
+      "sha256": "18f3b5726819f521984d773a40c4013a4c6a95c595f3a7e60583cc9e1ee87e9f",
+      "started_at": "2026-11-15T07:44:21.959247+00:00",
+      "status": "RECEIVED",
+      "url": "https://api.github.com/graphql"
+    },
+    {
+      "bytes": 22312,
+      "http_status": 200,
+      "method": "POST_READ_ONLY_QUERY",
+      "number": 6,
+      "query_sha256": "97fecc331774fcf08ce1b69db1eb4d10f4f1e7f82e3e79e9d766a0096ef6e6fa",
+      "sha256": "6492938ab589f905ea5b353890c727600b936ca77a2d9fb583bee4d4f702f79b",
+      "started_at": "2026-11-15T07:47:21.402793+00:00",
+      "status": "RECEIVED",
+      "url": "https://api.github.com/graphql"
+    },
+    {
+      "bytes": 46722,
+      "http_status": 200,
+      "method": "POST_READ_ONLY_QUERY",
+      "number": 7,
+      "query_sha256": "927f83b9392b042ced8b14541b9b77201dab08dbdffbbe07238cbe962354535c",
+      "sha256": "5974e9b2d420b0fc56aece6f52a8051e1849e1df8e07cf25386a6d267d4ddc25",
+      "started_at": "2026-11-15T07:49:19.295638+00:00",
+      "status": "RECEIVED",
+      "url": "https://api.github.com/graphql"
+    },
+    {
+      "bytes": 138304,
+      "http_status": 200,
+      "method": "POST_READ_ONLY_QUERY",
+      "number": 8,
+      "query_sha256": "a44b95421dd4ad7baf77fccf73c250ab13200f7eea8154ce218e8a49bed62d23",
+      "sha256": "d3089617266d0d341961842076b21e291eaa7a81447bd8c75d8fc86da389d3ff",
+      "started_at": "2026-11-15T07:51:20.504000+00:00",
+      "status": "RECEIVED",
+      "url": "https://api.github.com/graphql"
+    }
+  ]
+}

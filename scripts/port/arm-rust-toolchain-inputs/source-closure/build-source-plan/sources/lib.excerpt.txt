@@ -1,0 +1,42 @@
+=== src/bootstrap/src/lib.rs lines 610-624 ===
+            // Make sure we update these before gathering metadata so we don't get an error about missing
+            // Cargo.toml files.
+            let rust_submodules = ["library/backtrace"];
+            for s in rust_submodules {
+                build.require_submodule(
+                    s,
+                    Some(
+                        "The submodule is required for the standard library \
+                         and the main Cargo workspace.",
+                    ),
+                );
+            }
+            // Now, update all existing submodules.
+            build.update_existing_submodules();
+
+
+=== src/bootstrap/src/lib.rs lines 662-672 ===
+            skip_all,
+            fields(submodule = submodule),
+        ),
+    )]
+    pub fn require_submodule(&self, submodule: &str, err_hint: Option<&str>) {
+        if self.rust_info().is_from_tarball() {
+            return;
+        }
+
+        if self.config.dry_run() {
+            return;
+
+=== src/bootstrap/src/lib.rs lines 699-708 ===
+    /// If any submodule has been initialized already, sync it unconditionally.
+    /// This avoids contributors checking in a submodule change by accident.
+    fn update_existing_submodules(&self) {
+        // Avoid running git when there isn't a git checkout, or the user has
+        // explicitly disabled submodules in `bootstrap.toml`.
+        if !self.config.submodules() {
+            return;
+        }
+        let output = helpers::git(Some(&self.src))
+            .args(["config", "--file"])
+=== end excerpts ===

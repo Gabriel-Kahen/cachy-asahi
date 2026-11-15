@@ -1,0 +1,5 @@
+{
+  "recipes/rust.PKGBUILD": "ce6002be1741dafc8d8387c32ad84daf67d923010b5e263e17787571d67273fd",
+  "recipes/rust.SRCINFO": "d921132c86eded6d7bec6ec6b21924d70553e641d697b1a488f99553b0197156",
+  "submodule-closure/report.json": "0f33e17e03d1de1403ab8f884882a71e99135ac01ccec0fb36b2c0431595d2c3"
+}
