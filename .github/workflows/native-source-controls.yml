@@ -146,6 +146,42 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-installed-lifecycle-native/baseline_observation/test_hosted.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-installed-lifecycle-native/baseline_observation/test_observer.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-installed-lifecycle-native/baseline_observation/test_reader_data.py
+      - name: Check Rust LLVM admission and stage0 VM DATA in fresh processes
+        run: |
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v2/test_producer.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v3/test_admission.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v3/test_source.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_rust_stage0_vm/test_controls.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_rust_stage0_vm/test_memory.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_rust_stage0_vm/test_runtime.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_rust_stage0_vm/test_stage0.py
+          python3 -I -B -Werror::ResourceWarning scripts/port/arm-rust-toolchain-inputs/source-closure/archive-inventory/checksum-successor/license-followup/compiler-notices/successor-d/test_reevaluate.py
+      - name: Check Rust volume Source against a freshly rendered pinned DATA fixture
+        run: |
+          python3 -I -B -Werror::ResourceWarning - <<'PY'
+          import importlib.util, os, unittest
+          from pathlib import Path
+          def load(name, path):
+              spec = importlib.util.spec_from_file_location(name, path)
+              module = importlib.util.module_from_spec(spec)
+              spec.loader.exec_module(module)
+              return module
+          root = Path('scripts/ci/rust199-source-reference-native')
+          constructor = load('rust277_ci_DATA_constructor', root / 'prepare.py')
+          files = constructor.render(Path(os.environ['RUNNER_TEMP']) / 'llvm23-v1-source-DATA')
+          fixture = Path(os.environ['RUNNER_TEMP']) / 'rust277-source-DATA'
+          fixture.mkdir(mode=0o700)
+          assert len(files) == 277
+          for name, (body, mode) in files.items():
+              path = fixture / name
+              path.parent.mkdir(parents=True, exist_ok=True)
+              path.write_bytes(body)
+              path.chmod(mode)
+          controls = load('rust_volume_ci_Source_controls', root / 'successor_v2/test_source.py')
+          controls.SOURCE = fixture
+          result = unittest.TextTestRunner(verbosity=2).run(unittest.defaultTestLoader.loadTestsFromModule(controls))
+          raise SystemExit(not (result.wasSuccessful() and result.testsRun == 6 and not result.skipped))
+          PY
       - name: Check out immutable XS v3 Source as DATA
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
@@ -180,6 +216,28 @@ jobs:
               joined.__unittest_skip__ = False
           result = unittest.TextTestRunner(verbosity=2).run(unittest.defaultTestLoader.loadTestsFromModule(controls))
           raise SystemExit(not (result.wasSuccessful() and result.testsRun == 12 and not result.skipped))
+          PY
+      - name: Check XS v4 exact image defaults and Source inverse DATA
+        run: |
+          python3 -I -B -Werror::ResourceWarning scripts/port/perl5423-xs-consumer/native_adapter/hosted_source_v4/test_image_models.py
+          python3 -I -B -Werror::ResourceWarning - <<'PY'
+          import importlib.util, os, unittest
+          from pathlib import Path
+          path = Path('scripts/port/perl5423-xs-consumer/native_adapter/hosted_source_v4/test_source.py')
+          spec = importlib.util.spec_from_file_location('xs_v4_ci_Source_controls', path)
+          controls = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(controls)
+          controls.ACTUAL_PARENT = Path(os.environ['RUNNER_TEMP']) / 'xs-v3-source-DATA'
+          assert controls.ACTUAL_PARENT.is_dir()
+          for name in ('test_actual_preparation_and_frozen_XS_argv_override_image_defaults',
+                       'test_actual_full305_join_v4_render_and_exact_inverse'):
+              test = getattr(controls.Controls, name)
+              if getattr(test, '__unittest_skip__', False):
+                  assert test.__unittest_skip_why__ in ('retained frozen consumer Source DATA unavailable',
+                                                      'retained exact305 Source needed; portable controls still run')
+                  test.__unittest_skip__ = False
+          result = unittest.TextTestRunner(verbosity=2).run(unittest.defaultTestLoader.loadTestsFromModule(controls))
+          raise SystemExit(not (result.wasSuccessful() and result.testsRun == 17 and not result.skipped))
           PY
       - name: Check out immutable LLVM v2 Source as DATA
         if: matrix.python == '3.14'
