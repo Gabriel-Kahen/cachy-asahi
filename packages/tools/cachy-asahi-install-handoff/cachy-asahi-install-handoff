@@ -1,6 +1,0 @@
-#!/bin/sh
-# SPDX-License-Identifier: MIT
-# Opt-in only: runtime pin and all handoff/release/trust inputs remain explicit.
-self=$(/usr/bin/readlink -f -- "$0") || exit 1
-prefix=${self%/bin/cachy-asahi-install-handoff}
-exec /usr/bin/python3 -I -B "$prefix/lib/cachy-asahi/install-handoff/scripts/install/fresh_handoff/runtime.py" "$@"

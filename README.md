@@ -1,48 +1,88 @@
-# cachy-asahi
+# Rust stage0 on the original111 ARM16K reference
 
-An experimental CachyOS package and configuration overlay for Asahi Linux on Apple Silicon.
+**SOURCE ONLY.** No archive extraction, Source construction, preparation, daemon,
+VM, Rust/Cargo invocation or new runtime qualification has run. Root owns the
+operational steps. See [the port note](../../../docs/port/arm16k-rust-stage0-vm.md)
+for inputs, preserved platform boundary, protocol, resources and limitations.
 
-Long-term goal: a complete maintained CachyOS-derived ARM distribution covering signed package builds, native performance engineering, Apple hardware integration, CachyOS tools/desktop, and the full installation/update/recovery lifecycle. The overlay is the first delivery stage; see [the five responsibilities](goal.md#five-responsibilities-of-the-complete-port).
+This adapter is independent of the existing ARM TCG, RTC and lifecycle helpers.
+`origin.json` pins exact retained DATA and unchanged frozen helper copies.
+`source.lock.json` closes this directory's complete file/byte/mode membership;
+actual Source/ref/authority/prepared/attempt/VM selectors are NULL.
+`validation.json` records only fenced controls.
 
-Initial target: an M2 MacBook Air running Asahi Arch Linux ARM and Hyprland. The 13-inch and 15-inch models require separate hardware validation.
+## Entry points
 
-## Status
+- `construct.py`: explicit isolated code/DATA Source constructor, no archive/raw
+  payloads or operational calls. Its prospective tree is the standalone copied
+  subtree, not the repository's public Git tree.
+- `prepare.py`: separately authorized Root offline preparation. Its actor
+  `prepare_image.py` checks the original image before cloning and writes only
+  `/opt/cachy-asahi/rust-stage0`, with complete readonly readback.
+- `boot.py`: separately authorized, exclusive fresh attempt, ordinary builder
+  PAM login, actual rustc/Cargo fixture, logout, natural QMP quit and complete
+  offline ownership/PAM/prefix comparison before PASS.
+- `stage0.py`: exact finite streaming member verifier/assembler. Installer
+  scripts are hashed as DATA and never executed.
+- `contracts.py`: all Root/source/material/kernel/tool/guest-input/resource
+  gates; missing qualification refuses before clone/actor/daemon use.
+- `runtime.py`: fixed local-rootless transport and supervised child custody.
+- `memory.py`: durable bounded cgroup-v2 numeric receipts; no cause inference.
+- `image.py`: streaming raw ext4 hashes and bounded ALPM records; no full exports.
+- `data/allocated-budget-v2.json`: modeled2 GiB preparation/2.5 GiB boot limits,
+  1 GiB overlay and retained prior budget; actual peaks remain unmeasured.
+- `ownership.py`, `protocol.py`: pure bounded ownership/serial checks.
 
-Implementation is underway in six coordinated workstreams: desktop packaging, shells/defaults, ARM build/validation and setup, signed releases/recovery, performance measurement, and native ARM CI. Four original configuration/setup packages, baseline capture, build inspection, release recovery and measurement tooling are implemented and locally tested. All ten selected development recipes have passed native ARM build pairs with byte-identical archives. The core package/configuration lifecycle and signed test-repository cases pass, and the 574-package upstream desktop set installs offline with an exact inventory; see [current execution and limits](docs/implementation-status.md). Target installation, a supported installer, stable release and M2 hardware validation remain unfinished. This is an independent project, not an official CachyOS or Asahi distribution.
+The executable entry points require ordinary host user, Python `-I -B`, explicit
+allow flags, fresh disjoint private outputs and digest-selected Root inputs.
+Imports do not launch operations. No public source or authority is fabricated
+by the worker. These are future Root command shapes, **not executed commands**:
 
-See [implementation status](docs/implementation-status.md) for the complete outline's execution gates and [coordination](docs/orchestration.md) for worker ownership. Candidate recipes and tools are development artifacts until their gates pass.
+```text
+python3 -I -B /ABS/construct.py --allow-source-construction \
+  --source-lock-sha256 ROOT_REVIEWED_LOCK_SHA256 --output /PRIVATE/FRESH/source
 
-## First milestone
+python3 -I -B /ABS/prepare.py --allow-prepare \
+  --base /EXACT/original111/assembly --base-first-boot-report /EXACT/report.json \
+  --materials /EXACT/official-stage0-archives --kernel-bundle /EXACT/rtc-bundle \
+  --qemu-metadata /EXACT/Root-device-help-r2.json \
+  --guest-inputs /PRIVATE/Root-guest-inputs.json --publication /PRIVATE/Root-publication.json \
+  --authority /PRIVATE/Root-prepare-authority.json --authority-sha256 ROOT_DIGEST \
+  --output /PRIVATE/FRESH/prepare
 
-Produce a small, reproducible ARM package overlay that applies selected CachyOS desktop and shell configuration to an existing Asahi installation. Preserve the Asahi boot components, firmware, kernel, Mesa integration, and audio stack.
+python3 -I -B /ABS/boot.py --allow-boot \
+  --base /EXACT/original111/assembly --base-first-boot-report /EXACT/report.json \
+  --materials /EXACT/official-stage0-archives --kernel-bundle /EXACT/rtc-bundle \
+  --qemu-metadata /EXACT/Root-device-help-r2.json \
+  --guest-inputs /PRIVATE/Root-guest-inputs.json --publication /PRIVATE/Root-publication.json \
+  --authority /PRIVATE/Root-boot-authority.json --authority-sha256 ROOT_DIGEST \
+  --prepared /PRIVATE/prepare/actor-work/assembly --prepared-sha256 ROOT_DIGEST \
+  --output /PRIVATE/FRESH/boot
+```
 
-Start with configuration packages. Audit their dependencies and licenses, pin upstream revisions, build in a clean aarch64 environment, and test installation and removal on the target MacBook.
+Root must replace templates with real evidence. The guest-input template cannot
+be filled from architecture declarations or the worker's static review: it
+requires actual readonly baseline file/CRT/ld/loader/library inspection. Private
+credentials remain outside Source, mode600, and are never printed. Boot now
+requires a 4 GiB no-swap owner plus 2 GiB host reserve (6 GiB MemAvailable); preparation
+remains 3 GiB plus 2 GiB. Root must implement/review a readonly outer own-UID quota
+guard across the whole actor and embed the completed quota-guard template in
+`resource_review.quota_guard`: initial headroom 4 GiB prepare / 4.5 GiB boot, live 2 GiB
+reserve. Check boot quota headroom afresh after retained preparation outputs
+are charged. The adapter makes no quota syscall; `df` or a startup snapshot alone
+is insufficient. Preserve
+attempt/report/log evidence; removal concerns only the newly owned clone/output.
 
-Kernel experiments and CPU-specific optimization follow a measured, working baseline. An x86 optimization result is not evidence of an M2 improvement.
+## Fenced checks
 
-## Project files
+From this directory, with no operational selectors:
 
-- [Project goal](goal.md): the long-term purpose and ambition.
-- [Roadmap](docs/roadmap.md): implementation milestones and completion criteria.
-- [Development outline](outline.md): full project sequence and dependencies.
-- [Implementation status](docs/implementation-status.md): progress, missing resources and acceptance evidence.
-- [Full-goal acceptance](docs/acceptance.md): required results for both Air sizes and the maintained final system.
-- [Execution backlog](docs/backlog.md): accountable tasks, dependencies and next actions for blockers.
-- [Baseline contract](docs/baseline.md): environment collector, protected platform and hardware test counts.
-- [Coordination](docs/orchestration.md): active workstreams, file ownership and integration responsibilities.
-- [Installation draft](docs/installation.md): candidate package/configuration ownership and unexecuted target procedure.
-- [Contributing](docs/contributing.md): source/evidence requirements, bug reports and maintenance responsibilities.
-- [Performance evidence](docs/performance.md): final-system measurement requirements and local harness.
-- [Development example](examples/development/README.md): a small terminal/editor/compiler onboarding smoke check, separate from benchmarks.
-- [Agent work plan](docs/agent-work.md): bounded parallel tasks and integration responsibilities.
-- [Hardware validation](docs/hardware-validation.md): evidence required before support claims.
-- [Source notes](docs/sources.md): starting references, checked October 11, 2026.
-- [Package candidates](manifests/packages.toml): a starting inventory, not an install list.
-- [Setup8 development](docs/setup8-development.md): selected 0.3.0-1 recipe, explicit user commands and accepted generic ARM scope.
-- [Contributor instructions](AGENTS.md): evidence and collaboration rules.
+```sh
+ulimit -v 131072
+PYTHONDONTWRITEBYTECODE=1 python3 -B -m unittest discover -v
+bash -n guest/check.sh
+```
 
-## Development boundaries
-
-The first deliverable is an overlay for an existing installation. Broader ARM repositories, applicable Cachy management tools, measured ARM tuning, maintained Asahi integration and complete installation/releases are required later milestones. A custom macOS partitioner and replacement of Asahi's hardware stack are implementation choices, not requirements for their own sake.
-
-Original project code and documentation use the [MIT license](LICENSE). Third-party material retains its own terms; audit upstream licenses and notices before redistribution. The initial original templates do not resolve the license gaps found in excluded CachyOS assets.
+These controls never invoke Root operational entry points or actual compiler,
+linker, archive payloads, container daemon, VM or network. No build/boot claim
+follows from their passing.

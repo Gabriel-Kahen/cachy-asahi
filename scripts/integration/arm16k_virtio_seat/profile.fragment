@@ -1,6 +1,0 @@
-umask 077
-printf entered > /home/builder/PROFILE_ENTERED
-/usr/bin/python3 -I -B /usr/local/libexec/seat-user-proof.py 2>/home/builder/SEAT_ERROR
-printf '%s' "$?" > /home/builder/PROOF_EXIT_STATUS
-printf ready > /home/builder/SHELL_RETURNED
-PS1='seat$ '
