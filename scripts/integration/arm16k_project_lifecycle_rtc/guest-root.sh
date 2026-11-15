@@ -61,6 +61,7 @@ user_snapshot() {
 }
 assert_users() { user_snapshot "$O/user-current";same_bytes "$O/user-before.meta" "$O/user-current.meta";same_bytes "$O/user-before.hash" "$O/user-current.hash"; }
 payload_snapshot() {
+ procfs_guard
  pacman -Qlq | sort -u | tr '\n' '\0' > "$1.paths"
  xargs -0 -r stat --printf='%n\0%f\0%u\0%g\0%h\0%N\0' < "$1.paths" > "$1.meta"
  xargs -0 -r getfattr --no-dereference --absolute-names --dump --match='.*' -- < "$1.paths" > "$1.xattr"
@@ -149,6 +150,10 @@ rm -rf -- "$D/trust"
 phase=complete
 {
  printf 'STATUS=PASS\nBASELINE_PACKAGES=111\nINSTALLED_PACKAGES=114\nFINAL_PACKAGES=111\nARCH=aarch64\nPAGESIZE=16384\nCLI_UID=1000\nCLI_HELP_EXIT=0\nCLI_VERSION_EXIT=0\nCLI_STATUS_EXIT=%s\nCLI_REPORT_EXIT=%s\nCLI_ENABLE_EXIT=%s\nCLI_DISABLE_EXIT=%s\n' "$status_rc" "$report_rc" "$enable_rc" "$disable_rc"
- for suffix in meta hash db xattr; do printf 'BASE_%s=%s\nFINAL_%s=%s\n' "$suffix" "$(digest "$O/before.$suffix")" "$suffix" "$(digest "$O/after.$suffix")";done
+ for suffix in meta hash db xattr; do
+  before=$O/before.$suffix;after=$O/after.$suffix
+  if [[ $suffix == meta ]];then before=$O/before.meta-equality;after=$O/after.meta-equality;fi
+  printf 'BASE_%s=%s\nFINAL_%s=%s\n' "$suffix" "$(digest "$before")" "$suffix" "$(digest "$after")"
+ done
  printf 'USER_BEFORE=%s\nUSER_FINAL=%s\nEXCLUSIVE_PAYLOAD_ABSENT=yes\nPRIVATE_TEST_TRUST_REMOVED=yes\nORDINARY_HOOKS_SCRIPTLETS=unsuppressed\nKSM_POLICY_ACTION=none_requested\nKSM_KERNEL_FUNCTIONALITY=not_qualified\nNATIVE16K=NOT_RUN\nM2=NOT_RUN\n' "$(digest "$O/user-before.hash")" "$(digest "$O/user-current.hash")"
 } > "$O/summary.env"

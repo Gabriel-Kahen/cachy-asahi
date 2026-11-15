@@ -97,12 +97,12 @@
       "sha256": "44801a7019e7df26d76115cbe7085f1a12786cedb98bd8fc8eea9f06f9c8a520"
     },
     "guest-root.sh": {
-      "bytes": 9113,
-      "sha256": "375ddd14d50ba0fe16ada633ad3ecab42794637428e953b225fa2a1b9214a246"
+      "bytes": 9255,
+      "sha256": "1f6d1792ca9d75f9bd17e96c0fb0fcad4e0608bea9e568b22f82bbfe915db7ac"
     },
     "guest-runtime.sh": {
-      "bytes": 7153,
-      "sha256": "d5c0cdd7df15f0bf80959354851ce5ef79738b6a40d154ae868bf4c73bf49bf2"
+      "bytes": 8870,
+      "sha256": "639257a6637923b9f6ee8486fa580b0603b662863fdcb51a2187fc7864568463"
     },
     "rtc-clock.sh": {
       "bytes": 1344,

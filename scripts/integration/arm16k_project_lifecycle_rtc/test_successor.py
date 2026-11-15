@@ -190,12 +190,52 @@ class ShellControls(unittest.TestCase):
    result=subprocess.run(['/usr/bin/bash','-n',str(HERE/name)],capture_output=True,timeout=5);self.assertEqual(result.returncode,0,result.stderr)
 
 
+class ProcfsMetadataEquality(unittest.TestCase):
+ def record(self,name=b'/proc/',mode=b'416d',uid=b'0',gid=b'0',links=b'8',quoted=b"'/proc/'"):
+  return b'\0'.join((name,mode,uid,gid,links,quoted))+b'\0'
+ def views(self,before,after):
+  with tempfile.TemporaryDirectory()as tmp:
+   o=Path(tmp);(o/'before.meta').write_bytes(before);(o/'after.meta').write_bytes(after)
+   result=shell(f'umask 077;O={o};. {HERE}/guest-runtime.sh;metadata_equality_view before || exit $?;metadata_equality_view after || exit $?;same_bytes "$O/before.meta-equality" "$O/after.meta-equality"')
+   outputs={p.name:p.read_bytes()for p in o.iterdir()if p.is_file()};return result,outputs
+ def test_live_host_procfs_guard_is_readonly(self):
+  result=shell(f'. {HERE}/guest-runtime.sh;procfs_guard');self.assertEqual(result.returncode,0,result.stderr)
+ def test_modeled_link_count_is_labeled_not_zeroed(self):
+  before=self.record();after=self.record(links=b'9');result,outputs=self.views(before,after);self.assertEqual(result.returncode,0,result.stderr);self.assertEqual(outputs['before.meta'],before);self.assertEqual(outputs['after.meta'],after);self.assertIn(b'VOLATILE_LIVE_PROCFS_NLINK',outputs['before.meta-equality']);self.assertEqual(outputs['before.meta-equality'],outputs['after.meta-equality'])
+ def test_every_nonlink_proc_field_stays_required(self):
+  for change in ({'mode':b'416c'},{'uid':b'1'},{'gid':b'1'},{'name':b'/different/'},{'quoted':b"'/different/'"}):
+   with self.subTest(change=change):self.assertNotEqual(self.views(self.record(),self.record(**change))[0].returncode,0)
+ def test_other_path_metadata_including_proc_subpaths_stays_exact(self):
+  for name in (b'/ordinary/',b'/proc/sys/',b'/sys/'):
+   before=self.record()+self.record(name=name,quoted=name,links=b'2');after=self.record(links=b'9')+self.record(name=name,quoted=name,links=b'3')
+   with self.subTest(name=name):self.assertEqual(self.views(before,after)[0].returncode,1)
+ def test_missing_duplicate_and_incomplete_proc_records_refuse(self):
+  for raw in (b'',self.record()*2,self.record()[:-1],self.record(name=b'/proc')):
+   with self.subTest(raw_len=len(raw)):self.assertNotEqual(self.views(raw,self.record())[0].returncode,0)
+ def test_missing_fake_directory_and_symlink_procfs_refuse(self):
+  source=(HERE/'guest-runtime.sh').read_text();a=source.index('procfs_guard() {');b=source.index('\n}\n',a)+3;guard=source[a:b]
+  with tempfile.TemporaryDirectory()as tmp:
+   root=Path(tmp);fake=root/'fake';fake.mkdir();link=root/'link';link.symlink_to('/proc')
+   for path in (root/'absent',fake,link):
+    candidate=root/'guard.sh';candidate.write_text(guard.replace('/proc',str(path)))
+    with self.subTest(path=path.name):self.assertNotEqual(shell(f'. {candidate};procfs_guard').returncode,0)
+ def test_claimed_magic_with_wrong_mount_identity_refuses(self):
+  source=(HERE/'guest-runtime.sh').read_text();a=source.index('procfs_guard() {');b=source.index('\n}\n',a)+3
+  with tempfile.TemporaryDirectory()as tmp:
+   root=Path(tmp);fake=root/'fake';(fake/'self').mkdir(parents=True);(fake/'self/mountinfo').write_text('1 0 0:1 / '+str(fake)+' rw - tmpfs tmpfs rw\n');candidate=root/'guard.sh';candidate.write_text(source[a:b].replace('/proc',str(fake)))
+   result=shell(f'stat(){{ printf 9fa0:proc; }};. {candidate};procfs_guard');self.assertEqual(result.returncode,2)
+ def test_raw_metadata_is_captured_and_public_hash_uses_labeled_view(self):
+  root=(HERE/'guest-root.sh').read_text();runtime=(HERE/'guest-runtime.sh').read_text();self.assertIn('procfs_guard\n',root);self.assertIn('before=$O/before.meta-equality;after=$O/after.meta-equality',root);self.assertIn('cp -- "$O/$stage.$suffix" "$file"',runtime)
+
+
 class RestorationReceipts(unittest.TestCase):
  def fixture(self,root):
   d=root/'disk';o=root/'run';d.mkdir(mode=0o700);o.mkdir(mode=0o700)
   for stage in ('before','after'):
    for suffix in ('paths','meta','hash','db','xattr'):
     p=o/(stage+'.'+suffix);p.write_bytes(b'private control\0with newline\n');p.chmod(0o600)
+  meta=b'/proc/\x00416d\x000\x000\x008\x00\'/proc/\'\x00/ordinary/\x0041ed\x000\x000\x002\x00\'/ordinary/\'\x00'
+  for stage in ('before','after'):(o/(stage+'.meta')).write_bytes(meta)
   return d,o
  def execute(self,d,o,body):
   return shell(f'umask 077;D={d};O={o};nonce={N};. {HERE}/guest-runtime.sh;. {HERE}/gpg-receipts.sh;. {HERE}/durable.sh;'+body)
@@ -212,8 +252,8 @@ class RestorationReceipts(unittest.TestCase):
  def test_each_real_difference_retains_only_fixed_category_size_digest(self):
   for suffix in ('paths','meta','hash','db','xattr'):
    with self.subTest(suffix=suffix),tempfile.TemporaryDirectory()as tmp:
-    d,o=self.fixture(Path(tmp));(o/('after.'+suffix)).write_bytes(b'SECRET DIFFERENCE\0\n');result=self.capture(d,o,'restoration_compare '+suffix)
-    self.assertEqual(result.returncode,1);text=(d/'receipts/restoration/comparison.env').read_text();fields=dict(line.split('=',1)for line in text.splitlines());self.assertEqual(fields['RESTORATION_COMPARISON'],suffix);self.assertEqual(int(fields['RESTORATION_AFTER_BYTES']),len(b'SECRET DIFFERENCE\0\n'));self.assertEqual(fields['RESTORATION_AFTER_SHA256'],I.pin(o/('after.'+suffix))['sha256']);self.assertNotIn('SECRET',text);self.assertEqual(result.stdout+result.stderr,b'')
+    d,o=self.fixture(Path(tmp));(o/('after.'+suffix)).write_bytes((o/'after.meta').read_bytes().replace(b"'/ordinary/'",b'SECRET DIFFERENCE')if suffix=='meta'else b'SECRET DIFFERENCE\0\n');result=self.capture(d,o,'restoration_compare '+suffix)
+    self.assertEqual(result.returncode,1);text=(d/'receipts/restoration/comparison.env').read_text();fields=dict(line.split('=',1)for line in text.splitlines());self.assertEqual(fields['RESTORATION_COMPARISON'],suffix);self.assertEqual(int(fields['RESTORATION_AFTER_BYTES']),(o/('after.'+suffix)).stat().st_size);self.assertEqual(fields['RESTORATION_AFTER_SHA256'],I.pin(o/('after.'+suffix))['sha256']);self.assertNotIn('SECRET',text);self.assertEqual(result.stdout+result.stderr,b'')
  def test_successful_comparison_does_not_label_a_later_unrelated_failure(self):
   with tempfile.TemporaryDirectory()as tmp:
    d,o=self.fixture(Path(tmp));result=self.capture(d,o,'restoration_compare xattr');self.assertEqual(result.returncode,0);self.assertFalse((d/'receipts/restoration/comparison.env').exists())
@@ -245,10 +285,10 @@ class RestorationReceipts(unittest.TestCase):
    d,o=self.fixture(Path(tmp));result=self.execute(d,o,'cp(){ /usr/bin/cp "$@";local target=${@: -1};printf corrupt > "$target";};restoration_capture before');self.assertEqual(result.returncode,1)
  def test_actual_durable_boundary_flushes_private_failed_comparison(self):
   with tempfile.TemporaryDirectory()as tmp:
-   d,o=self.fixture(Path(tmp));(o/'after.meta').write_bytes(b'changed\0\n');result=self.capture(d,o,'restoration_compare meta;rc=$?;[[ $rc == 1 ]] || exit 99;printf "STATUS=HOLD\\n" > "$O/summary.env";cat "$D/receipts/restoration/comparison.env" >> "$O/summary.env";durable_terminal')
-   self.assertEqual(result.returncode,0,result.stderr);self.assertEqual((o/'terminal').read_text(),N+'\n');self.assertEqual((d/'final-summary.env').read_bytes(),(o/'summary.env').read_bytes());self.assertIn(b'RESTORATION_COMPARISON=meta',(d/'final-summary.env').read_bytes());self.assertEqual((d/'receipts/restoration/after.meta').read_bytes(),b'changed\0\n')
+   d,o=self.fixture(Path(tmp));(o/'after.hash').write_bytes(b'changed\0\n');result=self.capture(d,o,'restoration_compare hash;rc=$?;[[ $rc == 1 ]] || exit 99;printf "STATUS=HOLD\\n" > "$O/summary.env";cat "$D/receipts/restoration/comparison.env" >> "$O/summary.env";durable_terminal')
+   self.assertEqual(result.returncode,0,result.stderr);self.assertEqual((o/'terminal').read_text(),N+'\n');self.assertEqual((d/'final-summary.env').read_bytes(),(o/'summary.env').read_bytes());self.assertIn(b'RESTORATION_COMPARISON=hash',(d/'final-summary.env').read_bytes());self.assertEqual((d/'receipts/restoration/after.hash').read_bytes(),b'changed\0\n')
  def test_source_orders_capture_before_original_comparisons_and_terminal(self):
-  text=(HERE/'guest-root.sh').read_text();self.assertLess(text.index('restoration_capture before'),text.index('phase=trust'));self.assertLess(text.index('restoration_capture after'),text.index('restoration_compare "$suffix"'));self.assertIn('same_bytes "$O/before.$suffix" "$O/after.$suffix"',(HERE/'guest-runtime.sh').read_text());self.assertIn('receipts/restoration/comparison.env',text);self.assertIn('durable_terminal',text)
+  text=(HERE/'guest-root.sh').read_text();self.assertLess(text.index('restoration_capture before'),text.index('phase=trust'));self.assertLess(text.index('restoration_capture after'),text.index('restoration_compare "$suffix"'));self.assertIn('same_bytes "$equality_before" "$equality_after"',(HERE/'guest-runtime.sh').read_text());self.assertIn('receipts/restoration/comparison.env',text);self.assertIn('durable_terminal',text)
 
 
 class OutputFilesystem(unittest.TestCase):

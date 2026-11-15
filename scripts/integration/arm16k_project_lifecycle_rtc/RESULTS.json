@@ -68,6 +68,21 @@
     "preparation_cap_bytes": 838860800,
     "symlink_or_prefix_fallback": false
   },
+  "procfs_metadata_correction": {
+    "actual_counts": "retained privately in raw before/after.meta; no zero-count claim",
+    "actual_prior_difference": "only /proc/ nlink; all other categories and metadata fields equal",
+    "equality_view_label": "VOLATILE_LIVE_PROCFS_NLINK",
+    "fresh_guest": "NOT RUN",
+    "kernel_source": {
+      "bytes": 11500,
+      "path": "fs/proc/root.c",
+      "revision": "94fb23346d522edf53722357c426a3e58030beea",
+      "sha256": "82e961f5994758310ee13f062c069f36047c7307003710b92d109864c6e96687"
+    },
+    "live_guard": "ordinary nonsymlink /proc, procfs magic/type, exact root proc mount",
+    "public_meta_digests": "hash of explicitly labeled equality view, same39-field parser",
+    "source_only_controls_passed": 8
+  },
   "read_only_fresh_signing_receipt": {
     "actual_host_UTC_within_validity": true,
     "bytes": 1481,
@@ -87,7 +102,8 @@
   },
   "restoration_receipt_controls": {
     "aggregate_cap_bytes": 33554432,
-    "exact_equality_unchanged": true,
+    "equality_scope": "All bytes exact except verified live exact /proc/ nlink explicitly labeled only in metadata equality view; raw snapshots unchanged",
+    "exact_equality_unchanged": false,
     "fixed_metadata_reserve_bytes": 16384,
     "fresh_VM": "NOT RUN",
     "guest_directory_owner_mode": "0:700",
@@ -114,7 +130,7 @@
   "schema_version": 1,
   "status": "SOURCE_CONTROLS_ONLY_NOT_PREPARED",
   "successor_controls": {
-    "passed": 64,
+    "passed": 72,
     "profile": "source/model/private-host-shell; no Docker/QEMU/package payload"
   },
   "unchanged_legacy_controls": {

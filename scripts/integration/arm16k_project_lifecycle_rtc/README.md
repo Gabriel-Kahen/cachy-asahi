@@ -132,7 +132,7 @@ python3 -I -B scripts/integration/arm16k_project_lifecycle_rtc/test_successor.py
 python3 -I -B scripts/integration/arm16k_project_lifecycle/test_lifecycle.py
 ```
 
-The64 successor controls include modeled bundle/clock/result/custody refusals,
+The72 successor controls include modeled bundle/clock/result/custody refusals,
 actual private-host summary byte preservation and syncfs, sync-failure terminal
 refusal, bounded mock GPG receipt/privacy checks and fresh signing date handling.
 The46 unchanged legacy controls separately pass. Modeled RTC checks do not
@@ -175,7 +175,7 @@ All seven exact preparation mounts, rootless cap0/NNP/network-none policy,
 credentials/nonce/markers, signature/RTC authority and actor bytes are unchanged.
 Root must independently verify its exact rootless daemon can read the chosen
 private bind path. This source change performed no actual preparation or boot.
-Seven output-path controls pass within the64-control source/host-shell suite;
+Seven output-path controls pass within the72-control source/host-shell suite;
 /dev/shm acceptance uses a modeled capacity value and creates no output there.
 
 
@@ -203,7 +203,9 @@ within32MiB. All sizes and targets are checked before each stage copies. The
 existing final durable boundary syncs the closed receipt files and directory
 metadata before publishing terminal state and allowing QMP quit.
 
-The five original before/after exact byte predicates remain mandatory. Before
+The paths/hash/db/xattr byte predicates remain exact. The metadata predicate
+uses the precisely scoped equality view described below; raw metadata remains
+retained unchanged. Before
 each, private comparison metadata records only its fixed category, two sizes and
 two SHA256 digests. On HOLD only, that metadata joins the nonce summary; no
 snapshot bytes, arbitrary paths or secret values are publicly printed. PASS
@@ -217,3 +219,33 @@ preparation, package transaction or VM was run by this successor task.
 Successful comparison metadata is removed, so a later user-sentinel or cleanup
 failure cannot be mislabeled as a failed snapshot category. All ten private
 snapshots and their manifest remain retained.
+
+
+The r2 passive DATA inspection established exactly one difference: the link
+count of the package-owned `/proc/` root. All path sets, regular-file hashes,
+ALPM database hashes, xattrs and every other metadata field matched. Its raw
+before/after records and actual counts remain private under
+`/dev/shm/cachy-asahi-ksm-restoration-data-root-20261115-r2/receipts/`.
+No particular process identity is inferred. The exact built-kernel source
+[proc_root_getattr](https://github.com/AsahiLinux/linux/blob/94fb23346d522edf53722357c426a3e58030beea/fs/proc/root.c#L369-L376)
+derives this link count from the proc root and live process count; source file
+11500bytes, SHA256
+`82e961f5994758310ee13f062c069f36047c7307003710b92d109864c6e96687`.
+
+This successor verifies `/proc` is an ordinary directory, not a symlink, with
+procfs magic9fa0/typeproc and an exact root `/proc` proc mount in mountinfo.
+Missing, substituted or wrong procfs refuses. Before both payload snapshots and
+metadata comparisons that guard must pass. The six-field raw metadata snapshots
+are unchanged, including actual nlink values. Only in a separate equality view
+is the exact `/proc/` nlink field replaced by `VOLATILE_LIVE_PROCFS_NLINK`.
+Path, mode, UID, GID and quoted name stay exact, as does every field of every
+other path, including other proc/sys/dev paths. Missing/duplicate proc records
+and malformed records refuse. There is no broad pseudo-filesystem exclusion.
+
+`BASE_meta`/`FINAL_meta` now hash this labeled metadata equality view; the public
+39-field result parser is unchanged. This is explicitly narrower metadata
+restoration scope, not a claim that live procfs nlink was restored or measured
+as zero. Both raw snapshots and their manifest retain actual private counts for
+passive recovery. No actual fresh guest result is claimed by this source change;
+all signature, hook, PAM, RTC, resource and remaining restoration gates stay held.
+Eight added controls cover non-nlink/other-path changes and fake/missing procfs.
