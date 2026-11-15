@@ -1,0 +1,59 @@
+{
+  "Docker": false,
+  "Original_GET": false,
+  "Root_authority": false,
+  "XS": false,
+  "actor": false,
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "authority": null,
+    "image": null,
+    "job": null,
+    "reader": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "actual_copyup": "NOT_MEASURED",
+  "budget_increase_seconds": 0,
+  "compiler": false,
+  "controls": {
+    "actual_adapter_definitions_model_and_passive_tar_parser": 10,
+    "constructor_inverse": 9
+  },
+  "lease": false,
+  "preentry_receipt": "work-preentry-v5.json",
+  "preserved": {
+    "actor_function": true,
+    "consumer_files_total": 13,
+    "consumer_files_unchanged": 12,
+    "image_preparation_bodies": true,
+    "operation_inputs_bundle_daemon_functions": true,
+    "runner_probe_runtime_ABI": true
+  },
+  "profile": {
+    "bytes": 1477,
+    "sha256": "1d2e6ca3b7822d64a22e5db04b85ee324a6100e0ee4e2731172514795687e041"
+  },
+  "prospective_tree": "d11f4f8cbe708f10d590e127cb316bb68e548d94",
+  "publication": false,
+  "raw_cap_spellings": [
+    [
+      "CHOWN"
+    ],
+    [
+      "CAP_CHOWN"
+    ]
+  ],
+  "schema": 1,
+  "source_audit_copyup_pattern_prevented": true,
+  "source_bytes": 87801470,
+  "source_construction_main": false,
+  "source_files": 316,
+  "source_map": {
+    "bytes": 61529,
+    "sha256": "465a227c13249c72bc298266a18e5720721a89de49b01e4bbe7d336ecf127111"
+  },
+  "status": "19_FENCED_SOURCE_DATA_CONTROLS_PASS_NO_ACTORS"
+}
