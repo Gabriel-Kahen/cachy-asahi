@@ -3,7 +3,8 @@
 import hashlib,importlib.util,json,os,posixpath,re,shutil,stat,sys,time
 from pathlib import Path
 HERE=Path(__file__).resolve().parent;ROOT=HERE.parents[2];OP='arm16k-first-login-ui-glib290-vm-v1'
-BOOT_RESOURCES={'memory_bytes':4*1024**3,'memory_swap_bytes':4*1024**3,'guest_memory_MiB':2048,'overlay_bytes':1024**3,'cpus':2,'pids':256,'host_minimum_bytes':6*1024**3,'host_reserve_bytes':2*1024**3}
+BOOT_RESOURCES={'memory_bytes':5*1024**3,'memory_swap_bytes':5*1024**3,'guest_memory_MiB':2048,'overlay_bytes':2*1024**3,'cpus':2,'pids':256,'host_minimum_bytes':7*1024**3,'host_reserve_bytes':2*1024**3}
+DISK_BUDGETS={'prepare_allocated_bytes':1536*1024**2,'overlay_allocated_bytes':2*1024**3,'future_diagnostic_bytes':2*1024**3,'reserve_bytes':2*1024**3,'boot_nonoverlay_bytes':32*1024**2}
 OFFICIAL='68B3537F39A313B3E574D06777193F152BDBE6A6';POLICY='6002ee5e8fcf3cfdd25fa5425c5dfa879dc293f8b1c69f14b4a8f9259be0b446'
 PROJECT={'cachy-asahi-first-login-ui':'869fb4f1dcf7fc26ff87594398eba8d15d4a8051e6feaf96d4b8fe457ccb4ea4','cachy-asahi-first-login':'d4b7291afedc2af95d89f3975c77c45e417125bf23818cbfd1dc7d53fb464839','cachy-asahi-setup':'8de3bd0cf2d9333b41925fecdef5cbfe2ec6d40c3424d90746182142e0c7dc47'}
 REQUIRED={'usr/bin/cachy-asahi-first-login-ui':'cachy-asahi-first-login-ui','usr/bin/cachy-asahi-first-login':'cachy-asahi-first-login','usr/bin/cachy-asahi-setup':'cachy-asahi-setup','usr/bin/python3':'python','usr/bin/Xvfb':'xorg-server-xvfb','usr/bin/xvfb-run':'xorg-server-xvfb','usr/bin/xauth':'xorg-xauth','usr/bin/fish':'fish','usr/bin/zsh':'zsh','usr/lib/python3.14/site-packages/gi/__init__.py':'python-gobject','usr/lib/girepository-1.0/Gtk-4.0.typelib':'gtk4','usr/share/polkit-1/actions/org.freedesktop.NetworkManager.policy':'networkmanager'}
@@ -37,7 +38,8 @@ def admission(value,phase):
  public=value['source_public']
  if public.get('repository')!='https://github.com/Gabriel-Kahen/cachy-asahi'or not re.fullmatch('[0-9a-f]{40}',public.get('commit',''))or public.get('status')!='ROOT_REVIEWED_PUBLIC_SOURCE':raise ValueError('exact reviewed public Source required')
  if value['resource_review'].get('status')!='ROOT_REVIEWED_FINITE_RESOURCES'or value['resource_review'].get('reserve_bytes',0)<2*1024**3:raise ValueError('fresh finite Root resource review required')
- if phase=='boot'and value.get('boot_resources')!=BOOT_RESOURCES:raise ValueError('explicit exact4GiB no-swap boot resources required')
+ if value.get('disk_budgets')!=DISK_BUDGETS:raise ValueError('explicit staged disk budgets required')
+ if phase=='boot'and value.get('boot_resources')!=BOOT_RESOURCES:raise ValueError('explicit exact5GiB no-swap boot resources required')
  if value.get('accept_unknown_runtime_ABI_for_bounded_VM')is not True:raise ValueError('explicit bounded runtime uncertainty scope required')
  return value
 def qualified_tool(tool,image_id,qualification,producer):
@@ -156,4 +158,4 @@ def output_path(path,phase='prepare'):
  root=next(r for r in [Path('/tmp'),Path('/dev/shm')]if r in path.parents);parent=path.parent
  while parent!=root:
   info=parent.stat();assert info.st_uid==os.getuid()and stat.S_IMODE(info.st_mode)&0o077==0,'private owned ancestors required';parent=parent.parent
- assert phase in ['prepare','boot'];allocation=(3 if phase=='prepare'else 1)*1024**3;assert shutil.disk_usage(path.parent).free>=2*1024**3+allocation,'finiteallocation plus2GiBreserve required';return path
+ assert phase in ['prepare','boot'];allocation=DISK_BUDGETS['prepare_allocated_bytes']if phase=='prepare'else DISK_BUDGETS['overlay_allocated_bytes']+DISK_BUDGETS['future_diagnostic_bytes']+DISK_BUDGETS['boot_nonoverlay_bytes'];assert shutil.disk_usage(path.parent).free>=2*1024**3+allocation,'finiteallocation plus2GiBreserve required';return path

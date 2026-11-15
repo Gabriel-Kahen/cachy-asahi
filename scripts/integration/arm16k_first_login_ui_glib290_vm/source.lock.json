@@ -9,12 +9,12 @@
       "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
     },
     "README.md": {
-      "bytes": 16739,
-      "sha256": "3a7d39dcaebad67dcdb553df1a2c0f53b0af82ca1a6504fab86f6e1513eecfb9"
+      "bytes": 22235,
+      "sha256": "b9a1f3af3a14ec7a14e371eef55e69dab6e329ba02b989fb40eebadbb0be664e"
     },
     "RESULTS.json": {
-      "bytes": 4332,
-      "sha256": "db04fee515a0df869e764d8dbef4576d43e1f4261c3ad38cf45b0653edd1c956"
+      "bytes": 5476,
+      "sha256": "a4e8f182758d1457d9fd6601f6329a45cc75b82316659bb72c8912bd5c4e9dc4"
     },
     "actual-data.json": {
       "bytes": 5093,
@@ -29,12 +29,12 @@
       "sha256": "0a7acb523996824d64996b2fd1eced2953b3dad40d9c5c496eb08a06bf5c48f0"
     },
     "authority.template.json": {
-      "bytes": 915,
-      "sha256": "b5f0ef93b52ef135146d1b93865d21ac3d9652a533beb03998cce829ec1e3c1b"
+      "bytes": 1140,
+      "sha256": "3a1a62798c7d6222ff75cb289c12c834e3c5e6f88dabda3920ae3fc3710ef82e"
     },
     "boot.py": {
-      "bytes": 13825,
-      "sha256": "5b09cbdcdfa87fc43cc5cb35eb2d925692b620c9228efc3d05de1e69d040cf09"
+      "bytes": 16955,
+      "sha256": "af849b39e87742112f48cc8271f4c08bc938ba02daa5d89307869af0694a0214"
     },
     "client.py": {
       "bytes": 4001,
@@ -49,8 +49,8 @@
       "sha256": "b9afe55d17360af989e3bcc0e3f5e3d5bae0d35465ab7e32d070de3978126840"
     },
     "contracts.py": {
-      "bytes": 20174,
-      "sha256": "5ee166ec1993c337105b52729606f10bfbe28bf0b102ebff78fed25622218f21"
+      "bytes": 20608,
+      "sha256": "a024173e70c38978f2b0f8ce0e37be69d99eb652d0a31d2caa7eb269edd28006"
     },
     "data/Root-minimal155-r4-decision.json": {
       "bytes": 1530,
@@ -117,8 +117,8 @@
       "sha256": "1eecce0395762c9ab97aea96244de797e4c5e8b5c0c38f2b535bbddc3d171c8e"
     },
     "prepare.py": {
-      "bytes": 14298,
-      "sha256": "bc21a2705232c981d0a33e0ebd67c25ac7c624f7a4bfaf1a66c3c63fba8a9f12"
+      "bytes": 14330,
+      "sha256": "05435e58ef254d2ff53019086f3bb218bfbf8f2d07cc271e5b4e79c356f93b5e"
     },
     "prepare_image.py": {
       "bytes": 8412,
@@ -149,16 +149,16 @@
       "sha256": "0a401304e96fa86bd9b2db68eb4793d012cb71abe784e86e2f75a1d8290c9990"
     },
     "test_controls.py": {
-      "bytes": 62059,
-      "sha256": "f9c535f94aa9954220993548a05a95243b0539b6ef3e9e1dc7b3d19778b7d5fe"
+      "bytes": 68167,
+      "sha256": "c706e802d48b55c6c6ff75c2f22d6f8d432dd73438e7f744dedfe0f77cd43248"
     },
     "ui-observer.service": {
       "bytes": 256,
       "sha256": "a03a10510281894d4823d645fc6a6a15a1aa09130daa0637cb3896cb27b74b99"
     },
     "ui_glib_actor.py": {
-      "bytes": 6832,
-      "sha256": "b6f540b3a75854175f1b041be247d3c74ef5f74ebe8346df05c501c756b7b8b6"
+      "bytes": 10876,
+      "sha256": "11d643cfad26a40a3ad05274e5a4c8c54d2ae85278e1217f4ace099dabfc168a"
     },
     "ui_observer.py": {
       "bytes": 3330,

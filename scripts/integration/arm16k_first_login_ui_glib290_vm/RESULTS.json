@@ -102,6 +102,25 @@
     "old_glib_rollback_restore_logout": "NOT ESTABLISHED",
     "status": "HOLD"
   },
+  "closed_GLib290_boot_r4": {
+    "actual_QEMU_log": {
+      "bytes": 76,
+      "sha256": "ca9072704259a241e682adf79f8ecde682e86d9163a23782581e010c84562b55"
+    },
+    "actual_QEMU_stop": "actor SIGTERM; not natural",
+    "actual_actor_file_limit_from_Source": 1073741824,
+    "command177": "STARTED_EXIT_NULL",
+    "diagnostic_module_errno_files": "MISSING",
+    "first_UART_write_error_seconds": 191.988165,
+    "host_write_errno": "NOT RECORDED; EFBIG INFERRED",
+    "new_resource_successor": "SOURCE_ONLY_NOT_RUN",
+    "overlay_allocated_bytes": 1073680384,
+    "overlay_file_bytes": 1073741824,
+    "remove_rollback_restore_logout": "NOT ESTABLISHED",
+    "root_stage": "trusted-remove",
+    "status": "HOLD",
+    "supervisor_exit_reaped_EMPTY_TWICE": "OBSERVED; does not count earlier actor signals"
+  },
   "native_M2_hardware_performance_release": "NOT ACCEPTED",
   "new_intake": {
     "body_bytes": 5082106,
@@ -109,6 +128,15 @@
     "max_requests": 12,
     "requests": 5,
     "stopped": true
+  },
+  "resource_successor": {
+    "boot_owner_bytes": 5368709120,
+    "fresh_boot_headroom_excluding_preparation": 6476005376,
+    "fresh_diagnostic_headroom": 4294967296,
+    "host_minimum_bytes": 7516192768,
+    "overlay_file_and_allocated_cap": 2147483648,
+    "reserve": 2147483648,
+    "staged_preparation_budget": 1610612736
   },
   "schema_version": 1,
   "source_parent": "d64569ee9034df3f72923003fd099c794fd9c8ea",
@@ -123,7 +151,7 @@
       "scripts/integration/arm16k_first_login_ui_glib290_vm/test_controls.py"
     ],
     "failed": 0,
-    "passed": 91,
+    "passed": 101,
     "profile": "actor/network/lease fenced, synthetic+actual-data controls; no guest"
   }
 }
