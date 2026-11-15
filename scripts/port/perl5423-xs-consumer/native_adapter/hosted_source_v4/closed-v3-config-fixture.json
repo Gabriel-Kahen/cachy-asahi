@@ -1,0 +1,190 @@
+{
+  "closed_v3_derived": {
+    "Architecture": "arm64",
+    "Author": "",
+    "Comment": "",
+    "Config": {
+      "AttachStderr": true,
+      "AttachStdin": false,
+      "AttachStdout": true,
+      "Cmd": [
+        "-I",
+        "-B",
+        "/tmp/source/xs/compiler_image.py",
+        "--copy-driver",
+        "5261eb22032b986cd77796a808f99779c100cfe8"
+      ],
+      "Domainname": "",
+      "Entrypoint": [
+        "/usr/bin/python3"
+      ],
+      "Env": [
+        "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+      ],
+      "Hostname": "23f7f5a6ca09",
+      "Image": "sha256:8e8945c6d6568c80b70c7e49eb57f953b93ced84de3078ff29f9b744678c880f",
+      "Labels": {
+        "cachy-asahi.hosted-perl": "3bc583eed7b86df0e5c6a0e1",
+        "cachy-asahi.hosted-perl.source": "5261eb22032b986cd77796a808f99779c100cfe8",
+        "cachy-asahi.xs-compiler": "b1cb73fa45970b7f18f0a2d8",
+        "cachy-asahi.xs-compiler.parent": "sha256:8e8945c6d6568c80b70c7e49eb57f953b93ced84de3078ff29f9b744678c880f",
+        "cachy-asahi.xs-compiler.source": "5261eb22032b986cd77796a808f99779c100cfe8"
+      },
+      "OnBuild": null,
+      "OpenStdin": false,
+      "StdinOnce": false,
+      "Tty": false,
+      "User": "alarm",
+      "Volumes": null,
+      "WorkingDir": "/tmp"
+    },
+    "Created": "2026-11-15T13:26:16.943163357Z",
+    "DockerVersion": "28.0.4",
+    "GraphDriver": {
+      "Data": {
+        "LowerDir": "/var/lib/docker/overlay2/teeqvvd6c0eptbyi8pzqy0ztr/diff:/var/lib/docker/overlay2/gfy89zbr3l4ircadxsvqwwwtb/diff:/var/lib/docker/overlay2/lfpt3bz6k7v345r54jzejoy0q/diff:/var/lib/docker/overlay2/n5c1lkwb3qejxpockq6ansmph/diff:/var/lib/docker/overlay2/maq4rcfxzt9jb11phmzawsfj4/diff:/var/lib/docker/overlay2/icaaotnkhmjkianeww2lzhl3b/diff:/var/lib/docker/overlay2/v5ninalpq1j55oc4192ttfmef/diff",
+        "MergedDir": "/var/lib/docker/overlay2/e9df9a308b8da7e370d304d5a33b865bdf160c2b7571f65969346db313d40d75/merged",
+        "UpperDir": "/var/lib/docker/overlay2/e9df9a308b8da7e370d304d5a33b865bdf160c2b7571f65969346db313d40d75/diff",
+        "WorkDir": "/var/lib/docker/overlay2/e9df9a308b8da7e370d304d5a33b865bdf160c2b7571f65969346db313d40d75/work"
+      },
+      "Name": "overlay2"
+    },
+    "Id": "sha256:f2e19352ba360732e05b3ce34798b9e9d9c6917a0ef7a51145fdf501ef0db3d7",
+    "Metadata": {
+      "LastTagTime": "2026-11-15T13:26:17.093777712Z"
+    },
+    "Os": "linux",
+    "Parent": "sha256:8e8945c6d6568c80b70c7e49eb57f953b93ced84de3078ff29f9b744678c880f",
+    "RepoDigests": [],
+    "RepoTags": [
+      "perl-xs-compiler:b1cb73fa45970b7f18f0a2d8"
+    ],
+    "RootFS": {
+      "Layers": [
+        "sha256:d1dc19a38299a7cc52af1cee921725eb46390d3e5b8655726076e6a719a083fa",
+        "sha256:09f9144e9fd26a6ac2f8fb5e873021b9c19baed33e248023f370c975334e8bc5",
+        "sha256:5502ace5a0f78b8e9a285d29f80e27957aa8516e8a48bb6adfd75c02fcff0cad",
+        "sha256:22dce4287be09244e8814ac1242ece1aba63e1606f703f60db27675a8b5a50b4",
+        "sha256:b6fd64bc6dc2e51a0927529b4e95c2ab2690bccb9f0783326947c6b700549b7d",
+        "sha256:e233abecdc4b3c0b6db887b61a993a5a634ef585dc509f2e68fffbc40fb210d6",
+        "sha256:5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef",
+        "sha256:7e8bfd9e2936e95d32891bf7a60b3ea20ad3613b4ca0755af42f459884b02487"
+      ],
+      "Type": "layers"
+    },
+    "Size": 6064337992
+  },
+  "kind": "ACTUAL_CLOSED_V3_CONFIGURATION_DATA_NOT_V4_RESULT",
+  "parent": {
+    "Architecture": "arm64",
+    "Author": "",
+    "Comment": "buildkit.dockerfile.v0",
+    "Config": {
+      "AttachStderr": false,
+      "AttachStdin": false,
+      "AttachStdout": false,
+      "Cmd": null,
+      "Domainname": "",
+      "Entrypoint": null,
+      "Env": [
+        "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+      ],
+      "Hostname": "",
+      "Image": "",
+      "Labels": {
+        "cachy-asahi.hosted-perl": "3bc583eed7b86df0e5c6a0e1",
+        "cachy-asahi.hosted-perl.source": "5261eb22032b986cd77796a808f99779c100cfe8"
+      },
+      "OnBuild": null,
+      "OpenStdin": false,
+      "StdinOnce": false,
+      "Tty": false,
+      "User": "alarm",
+      "Volumes": null,
+      "WorkingDir": "/tmp"
+    },
+    "Created": "2026-11-15T13:25:56.729188107Z",
+    "DockerVersion": "",
+    "GraphDriver": {
+      "Data": {
+        "LowerDir": "/var/lib/docker/overlay2/gfy89zbr3l4ircadxsvqwwwtb/diff:/var/lib/docker/overlay2/lfpt3bz6k7v345r54jzejoy0q/diff:/var/lib/docker/overlay2/n5c1lkwb3qejxpockq6ansmph/diff:/var/lib/docker/overlay2/maq4rcfxzt9jb11phmzawsfj4/diff:/var/lib/docker/overlay2/icaaotnkhmjkianeww2lzhl3b/diff:/var/lib/docker/overlay2/v5ninalpq1j55oc4192ttfmef/diff",
+        "MergedDir": "/var/lib/docker/overlay2/teeqvvd6c0eptbyi8pzqy0ztr/merged",
+        "UpperDir": "/var/lib/docker/overlay2/teeqvvd6c0eptbyi8pzqy0ztr/diff",
+        "WorkDir": "/var/lib/docker/overlay2/teeqvvd6c0eptbyi8pzqy0ztr/work"
+      },
+      "Name": "overlay2"
+    },
+    "Id": "sha256:8e8945c6d6568c80b70c7e49eb57f953b93ced84de3078ff29f9b744678c880f",
+    "Metadata": {
+      "LastTagTime": "2026-11-15T13:26:11.847319925Z"
+    },
+    "Os": "linux",
+    "Parent": "",
+    "RepoDigests": [],
+    "RepoTags": [
+      "perl-native-base:3bc583eed7b86df0e5c6a0e1"
+    ],
+    "RootFS": {
+      "Layers": [
+        "sha256:d1dc19a38299a7cc52af1cee921725eb46390d3e5b8655726076e6a719a083fa",
+        "sha256:09f9144e9fd26a6ac2f8fb5e873021b9c19baed33e248023f370c975334e8bc5",
+        "sha256:5502ace5a0f78b8e9a285d29f80e27957aa8516e8a48bb6adfd75c02fcff0cad",
+        "sha256:22dce4287be09244e8814ac1242ece1aba63e1606f703f60db27675a8b5a50b4",
+        "sha256:b6fd64bc6dc2e51a0927529b4e95c2ab2690bccb9f0783326947c6b700549b7d",
+        "sha256:e233abecdc4b3c0b6db887b61a993a5a634ef585dc509f2e68fffbc40fb210d6",
+        "sha256:5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef"
+      ],
+      "Type": "layers"
+    },
+    "Size": 6061972992
+  },
+  "raw_files": {
+    "268.stdout": {
+      "bytes": 2844,
+      "sha256": "afdcb757d54188165b983af74a16d8f72a2c75f2fc0e7fd9f33921eea59b7ecc"
+    },
+    "272.stdout": {
+      "bytes": 9420,
+      "sha256": "4c610c516c48630c749227bc108eeb293d795bcd43e0f3c069d8025c89262b83"
+    },
+    "275.stdout": {
+      "bytes": 3779,
+      "sha256": "f49239e306ba3b7490b4e10fcd582e2148b445fc9d0fb0c3a6716288b08e75e5"
+    }
+  },
+  "sealing_config": {
+    "AttachStderr": true,
+    "AttachStdin": false,
+    "AttachStdout": true,
+    "Cmd": [
+      "-I",
+      "-B",
+      "/tmp/source/xs/compiler_image.py",
+      "--copy-driver",
+      "5261eb22032b986cd77796a808f99779c100cfe8"
+    ],
+    "Domainname": "",
+    "Entrypoint": [
+      "/usr/bin/python3"
+    ],
+    "Env": [
+      "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+    ],
+    "Hostname": "23f7f5a6ca09",
+    "Image": "sha256:8e8945c6d6568c80b70c7e49eb57f953b93ced84de3078ff29f9b744678c880f",
+    "Labels": {
+      "cachy-asahi.hosted-perl": "3bc583eed7b86df0e5c6a0e1",
+      "cachy-asahi.hosted-perl.source": "5261eb22032b986cd77796a808f99779c100cfe8",
+      "cachy-asahi.xs-compiler": "b1cb73fa45970b7f18f0a2d8",
+      "cachy-asahi.xs-compiler.parent": "sha256:8e8945c6d6568c80b70c7e49eb57f953b93ced84de3078ff29f9b744678c880f",
+      "cachy-asahi.xs-compiler.source": "5261eb22032b986cd77796a808f99779c100cfe8"
+    },
+    "OnBuild": null,
+    "OpenStdin": false,
+    "StdinOnce": false,
+    "Tty": false,
+    "User": "0:0",
+    "Volumes": null,
+    "WorkingDir": "/tmp"
+  }
+}
