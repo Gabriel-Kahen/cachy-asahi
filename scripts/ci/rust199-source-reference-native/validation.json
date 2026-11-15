@@ -1,0 +1,64 @@
+{
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "image": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "constructor_profile_sha256": "aa83d68e268f9f3dae0980d4a67cea8c53a1c3b11adc24c204445edd9663aed0",
+  "controls_per_version": 50,
+  "cross_version_source_bytes_modes_membership_equal": true,
+  "not_run": [
+    "candidate_import",
+    "stage0",
+    "rustc",
+    "cargo",
+    "llvm",
+    "native_build",
+    "container",
+    "daemon",
+    "network_acquisition",
+    "installation",
+    "hardware",
+    "performance",
+    "release"
+  ],
+  "python_flags": [
+    "-I",
+    "-B",
+    "-Werror::ResourceWarning"
+  ],
+  "remaining": [
+    "exact_Root_accepted_LLVM_Original_package_and_public_TEST_signature",
+    "normal_isolated_image_runtime_and_readonly_subpath_qualification",
+    "actual_stage0_source_runtime_qualification",
+    "external_material_transport_and_image_provisioning",
+    "future_Root_Source_ref_run_job_approval",
+    "independent_reader_for_any_future_build"
+  ],
+  "schema": 1,
+  "source_bytes": 40990238,
+  "source_files": 277,
+  "source_map_sha256": "0ddf2db2abec15b5298ecce7f6b085f447152e3fb904f915e56738a3a8e53b1b",
+  "source_output": "/tmp/rust199-native-source-DATA-20261115-r1/source-tree",
+  "source_output_312": "/tmp/rust199-native-source-DATA-20261115-r1/source-tree-312",
+  "source_tree": "dd2a89e0ca31ca19819b8d70019013fe283446ef",
+  "status": "PASS_SOURCE_DATA_CONTROLS_ONLY",
+  "suites": {
+    "actor_entry": 8,
+    "admission": 7,
+    "hosted": 4,
+    "phase": 8,
+    "producer": 17,
+    "source": 6
+  },
+  "versions": {
+    "3.12.13": "PASS",
+    "3.14.6": "PASS"
+  },
+  "whitespace_check": "PASS_STAGED_DIFF",
+  "whole_source_gate": "PASS_DATA_ONLY"
+}

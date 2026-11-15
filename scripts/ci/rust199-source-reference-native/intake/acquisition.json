@@ -1,0 +1,70 @@
+{
+  "TLS_verification": "ssl.create_default_context; CERT_REQUIRED; hostname checking enabled",
+  "artifacts": {
+    "cargo-1.98.0-aarch64-unknown-linux-gnu.tar.xz": {
+      "bytes": 11116188,
+      "final_url": "https://static.rust-lang.org/dist/2026-08-20/cargo-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+      "origin": "FETCHED_ONCE_TLS_PIN_MATCH",
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi-rust-submodule-closure-20261115/packages/port/rust199-source-reference/stage0_intake/work/artifacts/cargo-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+      "sha256": "5784379d73ac881d15a9e67eed2882cd58c747c276221c23cdf9aff37e015ff6"
+    },
+    "rust-std-1.98.0-aarch64-unknown-linux-gnu.tar.xz": {
+      "bytes": 30768752,
+      "final_url": "https://static.rust-lang.org/dist/2026-08-20/rust-std-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+      "origin": "FETCHED_ONCE_TLS_PIN_MATCH",
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi-rust-submodule-closure-20261115/packages/port/rust199-source-reference/stage0_intake/work/artifacts/rust-std-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+      "sha256": "a36f7ac98af20ef0ba6368aace0345efabbebaef7962eba99f47190fd256162d"
+    },
+    "rustc-1.98.0-aarch64-unknown-linux-gnu.tar.xz": {
+      "bytes": 66413136,
+      "final_url": "https://static.rust-lang.org/dist/2026-08-20/rustc-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+      "origin": "FETCHED_ONCE_TLS_PIN_MATCH",
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi-rust-submodule-closure-20261115/packages/port/rust199-source-reference/stage0_intake/work/artifacts/rustc-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+      "sha256": "00590657f2356d7163ca5ef295283523974c340fa21bb94b420ce794f29b358c"
+    }
+  },
+  "available_storage_bytes_at_end": 1933299712,
+  "elapsed_seconds": 1.746,
+  "finished_at": "2026-11-15T09:21:48.488329+00:00",
+  "limits": {
+    "HTTPS_requests_including_redirects": 8,
+    "address_space_bytes": 536870912,
+    "minimum_available_storage_bytes": 1073741824,
+    "response_body_bytes": 314572800,
+    "seconds": 1200
+  },
+  "publisher_execution": 0,
+  "requests": [
+    {
+      "body_bytes": 11116188,
+      "body_sha256": "5784379d73ac881d15a9e67eed2882cd58c747c276221c23cdf9aff37e015ff6",
+      "content_length": "11116188",
+      "http_status": 200,
+      "method": "GET",
+      "status": "RECEIVED",
+      "url": "https://static.rust-lang.org/dist/2026-08-20/cargo-1.98.0-aarch64-unknown-linux-gnu.tar.xz"
+    },
+    {
+      "body_bytes": 30768752,
+      "body_sha256": "a36f7ac98af20ef0ba6368aace0345efabbebaef7962eba99f47190fd256162d",
+      "content_length": "30768752",
+      "http_status": 200,
+      "method": "GET",
+      "status": "RECEIVED",
+      "url": "https://static.rust-lang.org/dist/2026-08-20/rust-std-1.98.0-aarch64-unknown-linux-gnu.tar.xz"
+    },
+    {
+      "body_bytes": 66413136,
+      "body_sha256": "00590657f2356d7163ca5ef295283523974c340fa21bb94b420ce794f29b358c",
+      "content_length": "66413136",
+      "http_status": 200,
+      "method": "GET",
+      "status": "RECEIVED",
+      "url": "https://static.rust-lang.org/dist/2026-08-20/rustc-1.98.0-aarch64-unknown-linux-gnu.tar.xz"
+    }
+  ],
+  "response_body_bytes": 108298076,
+  "schema": 1,
+  "started_at": "2026-11-15T09:21:46.741817+00:00",
+  "status": "THREE_EXACT_ARCHIVES_RETAINED_DATA_ONLY"
+}

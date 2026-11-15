@@ -1,0 +1,49 @@
+{
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "image": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "baseline_packages": 349,
+  "cancel_in_progress": false,
+  "claims": {
+    "hardware_tested": false,
+    "installed": false,
+    "native_built": false,
+    "performance_measured": false,
+    "release_admitted": false,
+    "stage0_runtime_qualified": false
+  },
+  "class": "HEAVY_NON_KERNEL",
+  "external_image_provisioning": null,
+  "external_material_transport": null,
+  "final_image_inventory": "ROOT_ACTUAL_PRIVATE_LLVM_PACKAGE_INSTALLED_COUNT_NOT_ASSUMED_349",
+  "operation": "rust199-source-reference-native-v1",
+  "resources": {
+    "active_host_disk_reserve_bytes": 8589934592,
+    "active_host_memory_reserve_bytes": 4294967296,
+    "build_actor_seconds": 16200,
+    "cleanup_seconds": 300,
+    "cpus": 2,
+    "export_bytes": 4294967296,
+    "job_minutes": 360,
+    "log_bytes": 67108864,
+    "memory_bytes": 8589934592,
+    "memory_swap_bytes": 8589934592,
+    "minimum_host_available_inodes": 1000000,
+    "minimum_host_disk_bytes": 85899345920,
+    "minimum_host_memory_bytes": 12884901888,
+    "native_seconds": 19800,
+    "package_bytes": 2147483648,
+    "pids": 512,
+    "prepare_actor_seconds": 900,
+    "swap_bytes": 0
+  },
+  "schema": 1,
+  "shared_native_lane": "native-arm-build",
+  "status": "SOURCE_AUDIT_AND_DATA_CONTROLS_ONLY_NOT_EXECUTED"
+}
