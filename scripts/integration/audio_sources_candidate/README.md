@@ -1,5 +1,15 @@
 # Audio-source tool private-container candidate
 
+The [v2 successor contract](HOST-CONTRACT-v2.md) and pinned
+`host-contract-v2.json` are prepared for Root's requested boundary review. They
+keep `/scratch` noexec, add a separate bounded executable `/alpm` tmpfs, and
+validate the complete engine-declared protected-mask profile. No successor
+transaction has run. Twenty-four successor boundary/DATA controls pass, including
+the actual create-only engine declaration. Root review is pending before the real
+transaction. The original55aa3ae1 evidence and refusals remain below.
+
+## Retained predecessor evidence (55aa3ae1)
+
 This finite host-x86_64 journey is source-implemented and actually invoked. The
 current invocation refuses the protected-null mount contract **before TEST key
 generation, copied-root construction or pacman execution**. Installation,
@@ -129,7 +139,8 @@ completeness, security/revocation, production trust and release remain held.
 ```sh
 python3 -I -B -Werror::ResourceWarning \
   scripts/integration/audio_sources_candidate/test_candidate.py \
-  --packet /private/genuine-portable-source-packet
+  --packet /private/genuine-portable-source-packet \
+  --engine-observation /private/create-only-engine-contract-observation.json
 ```
 
 The16 controls cover exact source/profile/payload pins, private-tree relocation

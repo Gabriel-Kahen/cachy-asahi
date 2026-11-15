@@ -6,6 +6,10 @@ import importlib.util
 import json
 import os
 import sys
+import copy
+import stat
+from contextlib import contextmanager
+from types import SimpleNamespace
 from pathlib import Path
 import tempfile
 import unittest
@@ -24,11 +28,13 @@ D = load('audio_candidate_driver_tests', HERE / 'run.py')
 G = load('audio_candidate_guest_tests', HERE / 'journey.py')
 C = D.C
 P = C.profile(HERE)
+V2 = C.host_contract(HERE)
+H = G.H
 R = C.held(D.CHECKOUT / 'scripts/integration/repository.py', P['held_apis']['scripts/integration/repository.py'], 'audio_repository_control_api')
 L = C.held(D.CHECKOUT / 'scripts/integration/lifecycle.py', P['held_apis']['scripts/integration/lifecycle.py'], 'audio_lifecycle_control_api')
 
 
-def mount_fixture():
+def mount_fixture(v2=False):
     row = lambda fs, access, root='/': dict(fs=fs, options={access}, root=root)
     result = {'/': row('overlay', 'ro'), '/inputs': row('ext4', 'ro'), '/runner': row('ext4', 'ro'),
         '/out': row('ext4', 'rw'),
@@ -36,7 +42,28 @@ def mount_fixture():
         **{p: row('ext4', 'rw') for p in R.RUNTIME_FILES}}
     result.update({p: dict(fs=fs, options=set(flags), root='/null' if p in R.MASKED_NULL else
         p.removeprefix('/proc') if fs == 'proc' and p != '/proc' else '/') for p, (fs, flags) in R.STANDARD_MOUNTS.items()})
+    if v2:
+        for path in ('/scratch', '/test-home'):
+            result[path]['options'].add('noexec')
+        result['/alpm'] = dict(fs='tmpfs', root='/', options={'rw', 'nodev', 'nosuid'})
     return result
+
+
+def engine_fixture():
+    return copy.deepcopy(dict(V2['engine_host_config'], MaskedPaths=V2['engine_masked_paths'], ReadonlyPaths=V2['engine_readonly_paths']))
+
+
+def node_fixture(path):
+    identity = G.STANDARD_DEVICE_MOUNTS.get(str(path), (1, 3))
+    return type('Node', (), dict(st_mode=stat.S_IFCHR | 0o666, st_rdev=os.makedev(*identity)))()
+
+
+@contextmanager
+def synthetic_nodes():
+    with mock.patch.object(H.Path, 'exists', return_value=True), \
+         mock.patch.object(H.Path, 'is_symlink', return_value=False), \
+         mock.patch.object(H.Path, 'lstat', autospec=True, side_effect=node_fixture):
+        yield
 
 
 class CandidateBoundaries(unittest.TestCase):
@@ -99,24 +126,26 @@ class CandidateBoundaries(unittest.TestCase):
             R.validate_mounts(observed)
 
     def test_host_only_exact_standard_devices_admitted_and_other_mounts_refuse(self):
-        observed = mount_fixture()
+        observed = mount_fixture(v2=True)
         for path in G.STANDARD_DEVICE_MOUNTS:
             observed[path] = dict(fs='tmpfs', options={'rw', 'nosuid'}, root='/' + Path(path).name)
-        self.assertEqual(set(G.host_mount_guard(R, observed)), set(G.STANDARD_DEVICE_MOUNTS))
+        with synthetic_nodes():
+            admitted = H.mounts(R, observed, engine_fixture(), V2)
+        self.assertTrue(set(G.STANDARD_DEVICE_MOUNTS) <= set(admitted))
         for path in ('/dev/mem', '/inputs/private-child', '/usr'):
             bad = dict(observed); bad[path] = dict(fs='tmpfs', options={'ro'}, root='/')
-            with self.subTest(path=path), self.assertRaises((ValueError, R.Refused)):
-                G.host_mount_guard(R, bad)
+            with self.subTest(path=path), synthetic_nodes(), self.assertRaises((ValueError, R.Refused)):
+                H.mounts(R, bad, engine_fixture(), V2)
         observed['/dev/zero'] = dict(fs='tmpfs', options={'rw'}, root='/foreign')
-        with self.assertRaisesRegex(ValueError, 'STANDARD_DEVICE_MOUNT_IDENTITY'):
-            G.host_mount_guard(R, observed)
+        with synthetic_nodes(), self.assertRaisesRegex(ValueError, 'STANDARD_DEVICE_MOUNT_IDENTITY'):
+            H.mounts(R, observed, engine_fixture(), V2)
 
     def test_standard_device_alias_or_different_major_minor_refuses(self):
-        observed = mount_fixture(); observed['/dev/zero'] = dict(fs='tmpfs', options={'rw'}, root='/zero')
+        observed = mount_fixture(v2=True); observed['/dev/zero'] = dict(fs='tmpfs', options={'rw', 'nosuid'}, root='/zero')
         for mode, device in ((0o120777, os.makedev(1, 5)), (0o20666, os.makedev(1, 3))):
-            with mock.patch.object(G.Path, 'lstat', return_value=type('Node', (), dict(st_mode=mode, st_rdev=device))()):
-                with self.assertRaisesRegex(ValueError, 'STANDARD_DEVICE_NODE_IDENTITY'):
-                    G.host_mount_guard(R, observed)
+            with synthetic_nodes(), mock.patch.object(H.Path, 'lstat', return_value=type('Node', (), dict(st_mode=mode, st_rdev=device))()):
+                with self.assertRaisesRegex(ValueError, 'HOST_CHARACTER_DEVICE_IDENTITY'):
+                    H.mounts(R, observed, engine_fixture(), V2)
 
     def test_exact_capabilities_and_nnp_remain_required(self):
         status = '\n'.join(f'{name}: {R.SAFE_CAPS if name in ("CapEff", "CapPrm", "CapBnd") else 0:x}' for name in R.CAP_FIELDS) + '\nNoNewPrivs: 1\n'
@@ -126,10 +155,99 @@ class CandidateBoundaries(unittest.TestCase):
             with self.assertRaises(R.Refused): R.privileges(bad)
 
     def test_noexec_copied_root_refuses_before_any_transaction(self):
-        observed = mount_fixture(); G.executable_copied_root(observed)
-        observed['/scratch']['options'].add('noexec')
-        with self.assertRaisesRegex(ValueError, 'EXECUTABLE_PRIVATE_ALPM_ROOT_REQUIRED'):
-            G.executable_copied_root(observed)
+        observed = mount_fixture(v2=True)
+        with synthetic_nodes(): H.mounts(R, observed, engine_fixture(), V2)
+        observed['/alpm']['options'].add('noexec')
+        with synthetic_nodes(), self.assertRaisesRegex(ValueError, 'EXECUTABLE_OWNED_ALPM_VOLUME_REQUIRED'):
+            H.mounts(R, observed, engine_fixture(), V2)
+
+    def test_scratch_noexec_and_separate_work_mount_are_both_required(self):
+        for path in ('/scratch', '/test-home'):
+            observed = mount_fixture(v2=True); observed[path]['options'].remove('noexec')
+            with self.subTest(path=path), synthetic_nodes(), self.assertRaisesRegex(ValueError, 'PRIVATE_NOEXEC_DATA_VOLUME'):
+                H.mounts(R, observed, engine_fixture(), V2)
+        observed = mount_fixture(v2=True); observed['/alpm/host'] = dict(fs='ext4', root='/foreign', options={'rw'})
+        with synthetic_nodes(), self.assertRaises(R.Refused): H.mounts(R, observed, engine_fixture(), V2)
+
+    def test_complete_declared_mask_profile_and_null_identity(self):
+        observed = mount_fixture(v2=True)
+        for path in V2['null_mask_paths']:
+            observed[path]['fs'] = 'devtmpfs'
+        with synthetic_nodes(): H.mounts(R, observed, engine_fixture(), V2)
+        observed['/proc/timer_list']['root'] = '/foreign'
+        with synthetic_nodes(), self.assertRaisesRegex(ValueError, 'PROTECTED_NULL_MOUNT_IDENTITY'):
+            H.mounts(R, observed, engine_fixture(), V2)
+        observed = mount_fixture(v2=True); del observed['/proc/timer_list']
+        with synthetic_nodes(), self.assertRaisesRegex(ValueError, 'ENGINE_MASK_NOT_ACTUALLY_MOUNTED'):
+            H.mounts(R, observed, engine_fixture(), V2)
+
+    def test_changed_engine_masks_capabilities_and_seccomp_refuse(self):
+        for key, value in (('MaskedPaths', ['/proc/extra']), ('ReadonlyPaths', []),
+                           ('CapAdd', ['CAP_SYS_ADMIN']), ('SecurityOpt', ['seccomp=unconfined'])):
+            declaration = engine_fixture(); declaration[key] = value
+            with self.subTest(key=key), self.assertRaises(ValueError): H.engine(declaration, V2)
+
+    def test_parsed_bind_roots_cannot_expose_other_host_sources(self):
+        roots = {'/inputs': ('/private/copy/inputs', True), '/runner': ('/private/copy/runner', True), '/out': ('/private/copy/out', False)}
+        value = dict(Binds=None, Mounts=[dict(Type='bind', Source=source, Target=target, ReadOnly=ro)
+                                       for target, (source, ro) in roots.items()])
+        H.binds(value, roots)
+        for field, replacement in (('Source', '/host'), ('ReadOnly', False), ('Target', '/usr')):
+            bad = copy.deepcopy(value); bad['Mounts'][0][field] = replacement
+            with self.subTest(field=field), self.assertRaises(ValueError): H.binds(bad, roots)
+        value['Mounts'].append(dict(Type='bind', Source='/host', Target='/other', ReadOnly=True))
+        with self.assertRaises(ValueError): H.binds(value, roots)
+
+    def test_actual_created_only_engine_contract_observation_matches(self):
+        actual = C.decode(C.read(Path(ARGS.engine_observation), 65536))
+        self.assertFalse(actual['container_started'])
+        self.assertEqual(actual['state']['Status'], 'created')
+        H.engine(actual['contract'], V2)
+
+    def test_work_resource_size_mode_distinctness_and_freshness_refuse(self):
+        roles = {V2['work_volume']['path']: V2['work_volume'], **V2['data_volumes']}
+        for failure in (None, 'size', 'mode', 'shared-device', 'nonempty'):
+            def info(path):
+                return SimpleNamespace(st_mode=stat.S_IFDIR | (0o755 if failure == 'mode' else 0o700),
+                    st_uid=0, st_gid=0, st_dev=1 if failure == 'shared-device' else list(roles).index(str(path)) + 1)
+            def usage(path):
+                return SimpleNamespace(f_frsize=4096, f_blocks=roles[str(path)]['bytes'] // 4096 + (1 if failure == 'size' else 0))
+            with self.subTest(failure=failure), mock.patch.object(H.Path, 'lstat', autospec=True, side_effect=info), \
+                 mock.patch.object(H.os, 'statvfs', side_effect=usage), \
+                 mock.patch.object(H.Path, 'iterdir', return_value=iter([Path('foreign')] if failure == 'nonempty' else [])):
+                if failure is None:
+                    H.volumes(V2, 'a' * 32, initial=True)
+                else:
+                    with self.assertRaises(ValueError): H.volumes(V2, 'a' * 32, initial=True)
+
+    def test_work_owner_marker_is_bounded_single_link_and_nonce_bound(self):
+        roles = {V2['work_volume']['path']: V2['work_volume'], **V2['data_volumes']}
+        actual_owner = self.root / 'owner'; original_open = os.open
+        for failure in (None, 'nonce', 'symlink', 'hardlink', 'oversize'):
+            actual_owner.write_bytes((('b' if failure == 'nonce' else 'a') * 32 + '\n').encode())
+            def info(path):
+                if str(path).endswith(V2['work_volume']['owner_marker']):
+                    return SimpleNamespace(st_mode=(stat.S_IFLNK if failure == 'symlink' else stat.S_IFREG) | 0o600,
+                        st_uid=0, st_gid=0, st_nlink=2 if failure == 'hardlink' else 1, st_size=999999 if failure == 'oversize' else 33)
+                return SimpleNamespace(st_mode=stat.S_IFDIR | 0o700, st_uid=0, st_gid=0, st_dev=list(roles).index(str(path)) + 1)
+            with self.subTest(failure=failure), mock.patch.object(H.Path, 'lstat', autospec=True, side_effect=info), \
+                 mock.patch.object(H.os, 'statvfs', side_effect=lambda p: SimpleNamespace(f_frsize=4096, f_blocks=roles[str(p)]['bytes'] // 4096)), \
+                 mock.patch.object(H.os, 'open', side_effect=lambda p, flags: original_open(actual_owner, flags)) as opened:
+                if failure is None:
+                    H.volumes(V2, 'a' * 32)
+                else:
+                    with self.assertRaises(ValueError): H.volumes(V2, 'a' * 32)
+                    if failure != 'nonce': opened.assert_not_called()
+
+    def test_engine_managed_metadata_cannot_be_link_foreign_or_writable(self):
+        for kind, uid, mode in ((stat.S_IFREG, 0, 0o644), (stat.S_IFLNK, 0, 0o777),
+                                (stat.S_IFREG, 1000, 0o644), (stat.S_IFREG, 0, 0o666)):
+            with self.subTest(kind=kind, uid=uid, mode=mode), mock.patch.object(H.Path, 'lstat',
+                return_value=SimpleNamespace(st_mode=kind | mode, st_uid=uid)):
+                if kind == stat.S_IFREG and uid == 0 and mode == 0o644:
+                    H.runtime_metadata(R)
+                else:
+                    with self.assertRaises(ValueError): H.runtime_metadata(R)
 
     def test_initial_guard_refusal_prevents_copy_signer_and_pacman(self):
         journey = G.Journey(P, {}, L, R)
@@ -197,5 +315,6 @@ class CandidateBoundaries(unittest.TestCase):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(); parser.add_argument('--packet', required=True)
+    parser.add_argument('--engine-observation', required=True)
     ARGS, rest = parser.parse_known_args()
     unittest.main(argv=[sys.argv[0], *rest], verbosity=2)

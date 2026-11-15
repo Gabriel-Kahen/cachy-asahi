@@ -8,6 +8,7 @@ from pathlib import Path
 import stat
 
 PROFILE_SHA = 'a7a20c44cabd6ba05dac8096906c0c133310c1d914a099d4fcfb5aab4ed7ebf5'
+HOST_CONTRACT_SHA = 'c15bf77254ee4c857c31036004e7a663a5b3d7ec25f49e59c10a4ea3e1d942d6'
 
 
 def need(ok, message):
@@ -50,6 +51,12 @@ def read(path, maximum=32 * 1024**2):
 def profile(directory):
     raw = read(directory / 'profile.json', 65536)
     need(digest(raw) == PROFILE_SHA, 'CANDIDATE_PROFILE_PIN')
+    return decode(raw)
+
+
+def host_contract(directory):
+    raw = read(directory / 'host-contract-v2.json', 65536)
+    need(digest(raw) == HOST_CONTRACT_SHA, 'HOST_SUCCESSOR_CONTRACT_PIN')
     return decode(raw)
 
 

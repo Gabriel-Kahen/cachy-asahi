@@ -15,6 +15,8 @@ import sys
 HERE = Path(__file__).resolve().parent
 spec = importlib.util.spec_from_file_location('audio_candidate_common', HERE / 'common.py')
 C = importlib.util.module_from_spec(spec); spec.loader.exec_module(C)
+spec = importlib.util.spec_from_file_location('audio_candidate_host_contract', HERE / 'host_contract.py')
+H = importlib.util.module_from_spec(spec); spec.loader.exec_module(H)
 NAME = 'cachy-asahi-audio-sources'
 STANDARD_DEVICE_MOUNTS = {'/dev/null': (1, 3), '/dev/zero': (1, 5), '/dev/full': (1, 7),
                           '/dev/random': (1, 8), '/dev/urandom': (1, 9), '/dev/tty': (5, 0)}
@@ -36,7 +38,7 @@ def observe(repository, lifecycle):
         return raw.decode('ascii')
     table = repository.mounts(proc('mountinfo', 256 * 1024))
     selected = {}
-    for path in ('/', '/inputs', '/runner', '/out', '/scratch', '/test-home', *STANDARD_DEVICE_MOUNTS,
+    for path in ('/', '/inputs', '/runner', '/out', '/scratch', '/test-home', '/alpm', *STANDARD_DEVICE_MOUNTS,
                  *sorted(repository.MASKED_NULL)):
         if path in table:
             row = table[path]
@@ -62,32 +64,6 @@ def observe(repository, lifecycle):
         uid_map=proc('uid_map', 4096), gid_map=proc('gid_map', 4096))
 
 
-def host_mount_guard(repository, observed):
-    """Host-only six-character-device extension; inherited validator is unchanged."""
-    admitted = {}
-    for path, expected in STANDARD_DEVICE_MOUNTS.items():
-        if path not in observed:
-            continue
-        row = observed[path]
-        C.need(set(row) == {'fs', 'options', 'root'} and row['fs'] in {'tmpfs', 'devtmpfs'}
-               and isinstance(row['options'], set) and row['options'] & {'ro', 'rw'} in ({'ro'}, {'rw'})
-               and not any(a in row['options'] and b in row['options'] for a, b in
-                           (('nosuid', 'suid'), ('nodev', 'dev'), ('noexec', 'exec')))
-               and row['root'] in {path, '/' + Path(path).name}, 'STANDARD_DEVICE_MOUNT_IDENTITY')
-        node = Path(path).lstat()
-        C.need(stat.S_ISCHR(node.st_mode) and (os.major(node.st_rdev), os.minor(node.st_rdev)) == expected,
-               'STANDARD_DEVICE_NODE_IDENTITY')
-        admitted[path] = dict(fs=row['fs'], options=sorted(row['options']), major=expected[0], minor=expected[1])
-    # Only fully validated standard nodes are projected out; every other mount,
-    # including other /dev paths and nested host sources, faces the original policy.
-    repository.validate_mounts({p: row for p, row in observed.items() if p not in admitted})
-    return admitted
-
-
-def executable_copied_root(observed):
-    C.need('noexec' not in observed['/scratch']['options'], 'EXECUTABLE_PRIVATE_ALPM_ROOT_REQUIRED')
-
-
 def guard(r, contract, initial=False):
     C.need(platform.machine() == 'x86_64' and os.geteuid() == 0, 'EXPLICIT_HOST_X86_CONTAINER_ONLY')
     marker = Path('/.dockerenv')
@@ -95,8 +71,10 @@ def guard(r, contract, initial=False):
     C.need(os.environ.get('CACHY_ASAHI_AUDIO_CANDIDATE') == contract['nonce']
            and os.environ.get('CACHY_ASAHI_IMAGE_ID') == contract['image_id'], 'CONTAINER_CONTRACT_IDENTITY')
     observed = r.mounts(Path('/proc/self/mountinfo').read_text())
-    standard_devices = host_mount_guard(r, observed)
-    executable_copied_root(observed)
+    host = C.host_contract(HERE)
+    admitted_roles = H.mounts(r, observed, contract['engine_host_config'], host)
+    H.volumes(host, contract['nonce'], initial=initial)
+    H.runtime_metadata(r)
     status = Path('/proc/self/status').read_text()
     privileges = r.privileges(status)
     rows = dict(line.split(':', 1) for line in status.splitlines() if ':' in line)
@@ -112,7 +90,7 @@ def guard(r, contract, initial=False):
         C.need(all(not any(Path(p).iterdir()) for p in ('/scratch', '/test-home', '/out')), 'FRESH_PRIVATE_MOUNTS_REQUIRED')
     return dict(architecture='x86_64', uid_map=uid, gid_map=gid, privileges=privileges,
                 mounts={p: dict(fs=v['fs'], options=sorted(v['options'])) for p, v in observed.items()},
-                network_interfaces=['lo'], producer_checkout_hidden=True, standard_device_mounts=standard_devices)
+                network_interfaces=['lo'], producer_checkout_hidden=True, host_admitted_roles=admitted_roles)
 
 
 class Journey:
@@ -122,7 +100,7 @@ class Journey:
             commands=[], checks=[], package_installation='NOT_RUN', reinstallation='NOT_RUN', removal='NOT_RUN',
             native_arm='NOT_RUN', physical_m2='NOT_RUN', complete_corresponding_source_accepted=False,
             legal_acceptance=False, release='NOT_ADMITTED', publication='NOT_RUN')
-        self.base = Path('/scratch/system')
+        self.base = Path('/alpm/system')
         self.keydirs = []
 
     def command(self, label, argv, allowed=(0,), data=None, clean=False):
@@ -149,6 +127,8 @@ class Journey:
         C.need(ok, name); self.report['checks'].append(name)
 
     def pacman(self, label, options, allowed=(0,)):
+        C.need(C.digest(C.read(Path('/scratch/pacman.conf'))) == self.report['actual_pacman_config']['sha256'],
+               'ACTUAL_LOCAL_PACMAN_CONFIG_CHANGED')
         return self.command(label, ['pacman', '--config', '/scratch/pacman.conf', '--root', str(self.base),
             '--dbpath', str(self.base / 'var/lib/pacman'), '--cachedir', '/scratch/cache',
             '--gpgdir', '/test-home/verifier', '--hookdir', '/scratch/masked-hooks',
@@ -189,6 +169,9 @@ class Journey:
     def run(self):
         self.report['passive_context'] = observe(self.r, self.l)
         self.report['environment'] = guard(self.r, self.contract, initial=True)
+        host = C.host_contract(HERE)
+        H.claim(host, self.contract['nonce'])
+        self.report['host_contract_sha256'] = C.HOST_CONTRACT_SHA
         C.need(Path(__file__).resolve() == Path('/runner/journey.py'), 'FIXED_RUNNER_PATH_REQUIRED')
         for name, pin in self.contract['runner_files'].items():
             C.need(C.digest(C.read(HERE / name, 128 * 1024)) == pin, 'RUNNER_FILE_PIN')
@@ -201,11 +184,26 @@ class Journey:
         initial_packet = C.packet(Path('/inputs/packet'))
         self.check('genuine-input-packet-index', C.digest(C.read(Path('/inputs/packet/delivery.json'))) == self.profile['packet_index_sha256'])
         original_conf = C.digest(C.read(Path('/etc/pacman.conf')))
+        for name, target in host['root_symlinks'].items():
+            path = Path('/') / name
+            C.need(path.is_symlink() and os.readlink(path) == target, 'EXACT_IMAGE_ROOT_SYMLINK')
         # Reuse the unchanged copied-root mechanism and its capacity/hook masking.
         copier = self.r.Integration({'source_commit': self.profile['package']['source_commit']})
+        copier.scratch = Path('/alpm'); copier.target = self.base
+        copier.config = Path('/scratch/pacman.conf'); copier.query_config = Path('/scratch/query-pacman.conf')
         copier.copy_base()
+        for directory in ('cache', 'masked-hooks'):
+            shutil.move(str(Path('/alpm') / directory), str(Path('/scratch') / directory))
+        for name, target in host['root_symlinks'].items():
+            (self.base / name).symlink_to(target)
         self.report['copy_capacity'] = copier.result['copy_capacity']
-        Path('/scratch/pacman.conf').write_text('[options]\nArchitecture = x86_64\nSigLevel = Required TrustedOnly\nLocalFileSigLevel = Required TrustedOnly\n')
+        for leaf in ('TEST-pacman.conf', 'TEST-query-pacman.conf'):
+            (Path('/out') / leaf).rename(Path('/out') / ('UNUSED-HELD-TEMPLATE-' + leaf))
+        config = b'[options]\nArchitecture = x86_64\nSigLevel = Required TrustedOnly\nLocalFileSigLevel = Required TrustedOnly\n'
+        Path('/scratch/pacman.conf').write_bytes(config)
+        evidence = Path('/out/ACTUAL-host-pacman.conf'); evidence.write_bytes(config); evidence.chmod(0o600)
+        self.report['actual_pacman_config'] = dict(evidence='ACTUAL-host-pacman.conf', sha256=C.digest(config),
+            unused_helper_templates=['UNUSED-HELD-TEMPLATE-TEST-pacman.conf', 'UNUSED-HELD-TEMPLATE-TEST-query-pacman.conf'])
         for name in ('signing', 'verifier'):
             path = Path('/test-home') / name; path.mkdir(mode=0o700); self.keydirs.append(path)
         signer = ['gpg', '--no-options', '--batch', '--homedir', '/test-home/signing', '--no-auto-key-retrieve']

@@ -15,6 +15,8 @@ HERE = Path(__file__).resolve().parent
 CHECKOUT = HERE.parents[2]
 spec = importlib.util.spec_from_file_location('audio_candidate_common', HERE / 'common.py')
 C = importlib.util.module_from_spec(spec); spec.loader.exec_module(C)
+spec = importlib.util.spec_from_file_location('audio_driver_host_contract', HERE / 'host_contract.py')
+H = importlib.util.module_from_spec(spec); spec.loader.exec_module(H)
 
 
 def copy_packet(source, output, snapshot):
@@ -61,11 +63,13 @@ def retire(report, command, attempted, name, label, nonce, acknowledged=False):
 def execute(args):
     C.need(os.geteuid() != 0, 'HOST_ORDINARY_USER_REQUIRED')
     profile = C.profile(HERE)
+    host = C.host_contract(HERE)
     lifecycle = C.held(CHECKOUT / 'scripts/integration/lifecycle.py',
         profile['held_apis']['scripts/integration/lifecycle.py'], 'audio_host_bounded_lifecycle')
     output = args.output.absolute()
     for operand in (output, args.packet.absolute(), args.archive.absolute()):
         C.need('..' not in operand.parts and not any(p.is_symlink() for p in (operand, *operand.parents)), 'ALIASED_OPERAND')
+    C.need(',' not in str(output), 'AMBIGUOUS_DOCKER_BIND_PATH')
     C.need(output.parent.is_dir() and output.parent.resolve() == output.parent, 'EXISTING_CANONICAL_OUTPUT_PARENT_REQUIRED')
     C.need(not output.exists() and not any(p.is_symlink() for p in (output, *output.parents)), 'FRESH_UNALIASED_OUTPUT_REQUIRED')
     C.need(not output.is_relative_to(args.packet.absolute()), 'OUTPUT_OVERLAPS_PACKET')
@@ -74,6 +78,7 @@ def execute(args):
                   commands=[], host_installation=False, native_arm='NOT_RUN', physical_m2='NOT_RUN',
                   release='NOT_ADMITTED', publication='NOT_RUN', owned_container_retired=False,
                   profile_sha256=C.PROFILE_SHA)
+    report['host_contract_sha256'] = C.HOST_CONTRACT_SHA
     name = 'cachy-asahi-audio-candidate-' + secrets.token_hex(8)
     nonce = secrets.token_hex(16)
     label = 'cachy-asahi.audio-candidate=' + nonce
@@ -117,7 +122,7 @@ def execute(args):
         for path in (runner, inputs, guest):
             path.mkdir(mode=0o700)
         (runner / 'held').mkdir(mode=0o700)
-        for operand in ('common.py', 'journey.py', 'profile.json'):
+        for operand in ('common.py', 'journey.py', 'profile.json', 'host_contract.py', 'host-contract-v2.json'):
             (runner / operand).write_bytes(C.read(HERE / operand))
         for path, pin in profile['held_apis'].items():
             raw_api = C.read(CHECKOUT / path, 128 * 1024)
@@ -129,7 +134,9 @@ def execute(args):
         runner_files = {p.relative_to(runner).as_posix(): C.digest(C.read(p, 128 * 1024))
                         for p in runner.rglob('*') if p.is_file()}
         contract = dict(nonce=nonce, image_id=profile['image_id'], producer_checkout=str(CHECKOUT),
-                        host_uid=os.getuid(), host_gid=os.getgid(), runner_files=runner_files)
+                        host_uid=os.getuid(), host_gid=os.getgid(), runner_files=runner_files,
+                        engine_host_config=dict(host['engine_host_config'], MaskedPaths=host['engine_masked_paths'],
+                                                ReadonlyPaths=host['engine_readonly_paths']))
         raw_contract = C.encoded(contract); (inputs / 'contract.json').write_bytes(raw_contract)
         report.update(runner_files=runner_files, contract_sha256=C.digest(raw_contract))
         argv = ['docker', 'create', '--name', name, '--label', label, '--pull=never',
@@ -138,8 +145,9 @@ def execute(args):
         # Exactly repository.py's unchanged six-cap mask, including copied-root ldconfig.
         for cap in ('CHOWN', 'DAC_OVERRIDE', 'FOWNER', 'SETGID', 'SETUID', 'SYS_CHROOT'):
             argv += ['--cap-add=' + cap]
-        argv += ['--tmpfs', '/scratch:rw,nodev,nosuid,size=1g,mode=700',
-            '--tmpfs', '/test-home:rw,nodev,nosuid,noexec,size=64m,mode=700',
+        for path, options in host['engine_host_config']['Tmpfs'].items():
+            argv += ['--tmpfs', path + ':' + options]
+        argv += [
             '--mount', f'type=bind,src={inputs},dst=/inputs,readonly',
             '--mount', f'type=bind,src={runner},dst=/runner,readonly',
             '--mount', f'type=bind,src={guest},dst=/out',
@@ -152,6 +160,10 @@ def execute(args):
         observed = C.decode(command('created-identity', ['docker', 'inspect', name, '--format',
             '{"image":{{json .Image}},"label":{{json (index .Config.Labels "cachy-asahi.audio-candidate")}}}']))
         C.need(observed == dict(image=profile['image_id'], label=nonce), 'OWNED_CONTAINER_IDENTITY')
+        engine = C.decode(command('engine-mount-resource-contract', ['docker', 'inspect', name, '--format', '{{json .HostConfig}}']))
+        report['engine_host_config'] = H.engine(engine, host)
+        H.binds(engine, {'/inputs': (str(inputs), True), '/runner': (str(runner), True), '/out': (str(guest), False)})
+        report['exact_private_bind_sources_verified'] = True
         command('journey', ['docker', 'start', '--attach', name], allowed=(0, 1), timeout=180)
         state = C.decode(command('terminal-state', ['docker', 'inspect', name, '--format', '{{json .State}}']))
         C.need(not state['Running'] and not state['OOMKilled'] and state['ExitCode'] in (0, 1), 'TERMINAL_CONTAINER_STATE')
