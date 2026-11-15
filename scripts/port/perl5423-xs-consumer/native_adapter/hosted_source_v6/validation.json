@@ -1,0 +1,40 @@
+{
+  "DirFD_and_error_controls": 13,
+  "Docker": false,
+  "GET": false,
+  "Reader": false,
+  "Source_export": false,
+  "Source_publication": false,
+  "actor_executed": false,
+  "actor_revision": "EXPLICIT_ONE_INVENTORY_SEAM_NOT_BYTE_IDENTICAL",
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "authority": null,
+    "image": null,
+    "job": null,
+    "reader": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "compiler": false,
+  "constructor_controls": 9,
+  "global_path_guard": "BYTE_IDENTICAL",
+  "lease": false,
+  "primary_error": "PRESERVED_WITH_BOUNDED_SECONDARY_NOTE",
+  "profile": {
+    "bytes": 2023,
+    "sha256": "5d609d09f1b0eaf2f2fdb2b0560dd6c2e69514890ba7bbe2b32d433b3294f61f"
+  },
+  "prospective_tree": "23eb609e638450cab16e13666c433cca198520b6",
+  "runtime_resources_caps_work_guards": "UNCHANGED",
+  "schema": 1,
+  "source_bytes": 87959648,
+  "source_files": 321,
+  "source_map": {
+    "bytes": 62358,
+    "sha256": "2a32e63ca3eef8147ef0200cafdcaef27bc6d9653e791f727dcfbc35d878db22"
+  },
+  "status": "22_FENCED_SOURCE_DATA_CONTROLS_PASS_NO_ACTORS_OR_EXPORT"
+}

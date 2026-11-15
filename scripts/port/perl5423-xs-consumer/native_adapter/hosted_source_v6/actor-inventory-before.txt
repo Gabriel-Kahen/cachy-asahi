@@ -1,0 +1,8 @@
+    packages = []
+    for desc in Path('/var/lib/pacman/local').glob('*/desc'):
+        c.need(len(packages) < 400, 'finite installed image inventory')
+        rows = c.read(desc, 1024**2).decode().splitlines()
+        packages.append(rows[rows.index('%NAME%') + 1] + ' ' + rows[rows.index('%VERSION%') + 1])
+    inventory = ('\n'.join(sorted(packages)) + '\n').encode()
+    c.need(c.pin(inventory)['sha256'] == INVENTORY and inventory == p.pinned(xs['inventory'], 1024**2),
+           'actual signed349 image inventory differs')
