@@ -9,9 +9,16 @@ source implementation with synthetic fenced controls; no actor has run.
 It targets **perl5.42.3-1.3/aarch64** from accepted native ARM4K
 Source25dc3e65bdb6137c87a9409067fe9b2cf6e9763f, exact22,071,176B archive
 SHA647c5f1d2c6965ec2e26b37e75d29c819fafa344f16002153493e9fc62121c22.
-The published Source's `perl/packet/recipe/PKGBUILD` declares1.3. The older
-canonical top-level source candidate declares1.2; it is not substituted for the
-accepted pair. Native pair evidence is Root's retained
+The maintained [1.3 recipe and local helpers](../../packages/port/perl5423-repro-candidate/PKGBUILD)
+are already present in `packages/port/perl5423-repro-candidate/`: all 18 files match
+Source25's `perl/packet/recipe/` bytes and modes, including `.SRCINFO`, both patches,
+notices, staging helpers and controls. Its frozen README/lock describe status at
+source preparation; current bounded outcomes are recorded in the
+[native ARM4K pair](../validation/perl5423-native-arm4k-pair-20261115.md) and
+[installed lifecycle](../validation/perl5423-native-installed-lifecycle-20261115.md)
+validation records. The older `perl5423-source-candidate` remains1.2 and is not
+substituted for the accepted pair. Recipe correspondence does not select the
+candidate for the target. Native pair evidence is Root's retained
 `artifacts/development/orchestrator-resume-20261114/Root-perl-hosted-intake-r1/Root-native-component-decision.ACTUAL-r1.json`
 (5804B, SHA27803c99064198f8688abe2e4d91910eef93df5ad337ebfc7f2d8798afbf41e1).
 Installed Source445b37a9475a4e92804954f4f0e3d0ac84cd9511 now has actual Reader2
