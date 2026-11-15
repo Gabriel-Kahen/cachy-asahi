@@ -1,0 +1,40 @@
+{
+  "Source": "445b37a9475a4e92804954f4f0e3d0ac84cd9511",
+  "Source_map_sha256": "2bbf2c808562d13a158d654f7e7d3adb71c7e577444e82ea05a0aad5cf0f3c97",
+  "actual": {
+    "Reader2": null,
+    "Root_authority": null,
+    "Root_decision": null,
+    "output": null
+  },
+  "files": {
+    "README.md": {
+      "bytes": 3499,
+      "mode": 420,
+      "sha256": "f1a7900906e2234c7f7dfbd9886bcee2a06eee7e32604cc75e87d398ecea9e77"
+    },
+    "reader.py": {
+      "bytes": 6135,
+      "mode": 420,
+      "sha256": "c09d7b272848f30c583bcb11b0c1d0c902047d1075dbbdb6e8866456818be97c"
+    },
+    "test_imports.py": {
+      "bytes": 4741,
+      "mode": 420,
+      "sha256": "6e0fd7336d654cd89bf46884426a80b9a865f6e4a3746770c147d4578d4b5646"
+    },
+    "validation.json": {
+      "bytes": 481,
+      "mode": 420,
+      "sha256": "e9e4f04ff0435e9518d797252f74a6739ef3e6534c03614ebc0cd1bc64eb9474"
+    }
+  },
+  "parent_profile_sha256": "c10f724f69c4a2cd5f4a243ea5057edd9acfc628caacbc7c41c347426936f08c",
+  "parent_wrapper_commit": "9fa8a5a32fc8a34615a75d85544a58c4dd127815",
+  "preloads": [
+    "math"
+  ],
+  "revision": "RETAINED_OUTPUT_READER_V2_EXPLICIT_STDLIB_MATH_PRELOAD",
+  "schema": 1,
+  "status": "SOURCE_ONLY_NOT_AUTHORITY"
+}
