@@ -3,6 +3,16 @@
   "additions_manifest": null,
   "allow_boot": false,
   "allow_prepare": false,
+  "boot_resources": {
+    "cpus": 2,
+    "guest_memory_MiB": 2048,
+    "host_minimum_bytes": 6442450944,
+    "host_reserve_bytes": 2147483648,
+    "memory_bytes": 4294967296,
+    "memory_swap_bytes": 4294967296,
+    "overlay_bytes": 1073741824,
+    "pids": 256
+  },
   "issued_by": "Root",
   "kernel_bundle": {
     "bytes": 9549,

@@ -1,0 +1,126 @@
+{
+  "candidate_packet": {
+    "bytes": 1295494,
+    "sha256": "d79dd6913e41fd3d830a44dd6a20d1f53817dc07accf1fc3a564682327719c39"
+  },
+  "case": {
+    "commit": "d05406062d031ae96146486f58a965d87eefea5e",
+    "component": "wasmparser-0.243.0",
+    "grant_file": "evidence/wasm243-LICENSE-APACHE",
+    "grant_upstream_path": "LICENSE-APACHE",
+    "manifest_path": "crates/wasmparser/Cargo.toml",
+    "manual_named_notice": "/* Copyright 2017 Mozilla Foundation",
+    "repository": "bytecodealliance/wasm-tools",
+    "source_file": "evidence/wasm243-lib.rs",
+    "source_path": "crates/wasmparser/src/lib.rs",
+    "tree_file": "evidence/wasm243-root-tree.json",
+    "tree_shards": [
+      {
+        "file": "evidence/wasm243-crates-tree.json",
+        "prefix": "crates"
+      },
+      {
+        "file": "evidence/wasm243-parser-tree.json",
+        "prefix": "crates/wasmparser"
+      },
+      {
+        "file": "evidence/wasm243-src-tree.json",
+        "prefix": "crates/wasmparser/src"
+      }
+    ],
+    "vendor_source_path": "vendor/wasmparser-0.243.0/src/lib.rs",
+    "workspace_manifest": "evidence/wasm243-Cargo.toml"
+  },
+  "evidence_files": {
+    "../../../../reports/rust.json": {
+      "bytes": 2704405,
+      "sha256": "a0eb6bec3b63d4d4f4a937e3e1e8b42a2e87d9e49b8608b96d51762b456abc8f"
+    },
+    "../../primary-b/Rust-Cargo.lock": {
+      "bytes": 160984,
+      "sha256": "d8b190bf43e70da9ceb20c7296ac7dea9ed7abdaded3d12d0142ecc40e399dc5"
+    },
+    "../../primary-b/rustc_codegen_ssa-Cargo.toml": {
+      "bytes": 1915,
+      "sha256": "52fada0b5ba3bac1134f1a28d55a9763713902365ef22a788c3e6275b78976c7"
+    },
+    "../reevaluate.py": {
+      "bytes": 16054,
+      "sha256": "7f37366446b9d45273103d3286067276ec6a2886c1ef4c458d3a531bef15dbba"
+    },
+    "../successor-b/reevaluate.py": {
+      "bytes": 10576,
+      "sha256": "b4874bbf2d6419ab5cb8683c8ce2aaddcc2cd31d2ddca2393f4f7908bb33d653"
+    },
+    "../successor-b/report.json": {
+      "bytes": 14617,
+      "sha256": "78956483eb67480c8cb97bfa726b688f457317697463a9943e4909d79080ca6d"
+    },
+    "evidence/object-Cargo.toml": {
+      "bytes": 2823,
+      "sha256": "d4d83c3c65a6a51bb750c9bb0fe3b3fb4b908fc3e5c8ea5b43844917d976493a"
+    },
+    "evidence/object-Cargo.toml.html": {
+      "bytes": 93204,
+      "sha256": "428e5933a872c4271894cee39929b77d345392ce8fc851d1ae8873a1af14331e"
+    },
+    "evidence/object-Cargo.toml.orig": {
+      "bytes": 4817,
+      "sha256": "ef5e7128d609a926035caf4c6e5077455a9fee5966343a778ca313a1f07c9c13"
+    },
+    "evidence/object-Cargo.toml.orig.html": {
+      "bytes": 99808,
+      "sha256": "05f544f5a7d35ceec2b3eee64695fd101c753fa71100a695ec7f4853d3c7a91e"
+    },
+    "evidence/object-tree.json": {
+      "bytes": 66816,
+      "sha256": "2fc755d5e0c0a268f02508bdb63d85db6f26613a8f5735e59635bf1c6ef1ecf5"
+    },
+    "evidence/object-vcs.html": {
+      "bytes": 20170,
+      "sha256": "6c11094808e1e71b345d1762f4361b7467fa8caba32929170d481ecb24f35661"
+    },
+    "evidence/object-vcs.json": {
+      "bytes": 94,
+      "sha256": "0cfe4eb62e66b42ba8101f9739257a633b22323fed84ce6a6a6ffa70fcc9859b"
+    },
+    "evidence/wasm243-Cargo.toml": {
+      "bytes": 11361,
+      "sha256": "9a71cf631e53e37d7bdecad87a4005866e0a986e747f8ee8a33daf34907e6266"
+    },
+    "evidence/wasm243-LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "evidence/wasm243-crates-tree.json": {
+      "bytes": 4537,
+      "sha256": "f6dff53ae1049232bde7b372fe9e8f0d0fa0d36d6866fdee649c9a2ecc1a97d6"
+    },
+    "evidence/wasm243-lib.rs": {
+      "bytes": 75545,
+      "sha256": "1a3d8c79f116527f3c4dcb4e256758acfe3096e87d96f4ec27bbcbd10b587ddf"
+    },
+    "evidence/wasm243-parser-tree.json": {
+      "bytes": 1727,
+      "sha256": "4a974bc04d93a37b5810011cb38c512cfa174306ebb74ad657d4b7f6262929f9"
+    },
+    "evidence/wasm243-root-tree.json": {
+      "bytes": 5620,
+      "sha256": "86c1088eda735c003c6efa86b22641abc3e9edd6d28a69f5dfbdf2816899ea7b"
+    },
+    "evidence/wasm243-src-tree.json": {
+      "bytes": 2911,
+      "sha256": "54d764bdfdb9c2b048e4c10f4013c392bb88cbe5aede46c180c0325efc8696bd"
+    },
+    "requests.json": {
+      "bytes": 3819,
+      "sha256": "0b6030de0578eadd1034775d54e4052399acd66ee3dc1a6e37a3c7e80934638a"
+    }
+  },
+  "object_source": {
+    "commit": "faf1fa5457f74492ae0cb2030b044032c2c6b7a3",
+    "repository": "gimli-rs/object",
+    "version": "0.38.1"
+  },
+  "schema": 1
+}

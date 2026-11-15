@@ -1,0 +1,107 @@
+{
+  "acquisition_closed": true,
+  "body_bytes": 392546,
+  "requests": [
+    {
+      "HTTP": 200,
+      "bytes": 93204,
+      "file": "object-Cargo.toml.html",
+      "ordinal": 1,
+      "seconds": 0.7,
+      "sha256": "428e5933a872c4271894cee39929b77d345392ce8fc851d1ae8873a1af14331e",
+      "url": "https://docs.rs/crate/object/0.38.1/source/Cargo.toml"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 20170,
+      "file": "object-vcs.html",
+      "ordinal": 2,
+      "seconds": 0.123,
+      "sha256": "6c11094808e1e71b345d1762f4361b7467fa8caba32929170d481ecb24f35661",
+      "url": "https://docs.rs/crate/object/0.38.1/source/.cargo_vcs_info.json"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 99808,
+      "file": "object-Cargo.toml.orig.html",
+      "ordinal": 3,
+      "seconds": 0.17,
+      "sha256": "05f544f5a7d35ceec2b3eee64695fd101c753fa71100a695ec7f4853d3c7a91e",
+      "url": "https://docs.rs/crate/object/0.38.1/source/Cargo.toml.orig"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 66816,
+      "file": "object-tree.json",
+      "ordinal": 4,
+      "seconds": 0.185,
+      "sha256": "2fc755d5e0c0a268f02508bdb63d85db6f26613a8f5735e59635bf1c6ef1ecf5",
+      "url": "https://api.github.com/repos/gimli-rs/object/git/trees/faf1fa5457f74492ae0cb2030b044032c2c6b7a3?recursive=1"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 5620,
+      "file": "wasm243-root-tree.json",
+      "ordinal": 5,
+      "seconds": 0.128,
+      "sha256": "86c1088eda735c003c6efa86b22641abc3e9edd6d28a69f5dfbdf2816899ea7b",
+      "url": "https://api.github.com/repos/bytecodealliance/wasm-tools/git/trees/d05406062d031ae96146486f58a965d87eefea5e"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 11361,
+      "file": "wasm243-Cargo.toml",
+      "ordinal": 6,
+      "seconds": 0.127,
+      "sha256": "9a71cf631e53e37d7bdecad87a4005866e0a986e747f8ee8a33daf34907e6266",
+      "url": "https://raw.githubusercontent.com/bytecodealliance/wasm-tools/d05406062d031ae96146486f58a965d87eefea5e/Cargo.toml"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 10847,
+      "file": "wasm243-LICENSE-APACHE",
+      "ordinal": 7,
+      "seconds": 0.09,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2",
+      "url": "https://raw.githubusercontent.com/bytecodealliance/wasm-tools/d05406062d031ae96146486f58a965d87eefea5e/LICENSE-APACHE"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 75545,
+      "file": "wasm243-lib.rs",
+      "ordinal": 8,
+      "seconds": 0.141,
+      "sha256": "1a3d8c79f116527f3c4dcb4e256758acfe3096e87d96f4ec27bbcbd10b587ddf",
+      "url": "https://raw.githubusercontent.com/bytecodealliance/wasm-tools/d05406062d031ae96146486f58a965d87eefea5e/crates/wasmparser/src/lib.rs"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 4537,
+      "file": "wasm243-crates-tree.json",
+      "ordinal": 9,
+      "seconds": 0.144,
+      "sha256": "f6dff53ae1049232bde7b372fe9e8f0d0fa0d36d6866fdee649c9a2ecc1a97d6",
+      "url": "https://api.github.com/repos/bytecodealliance/wasm-tools/git/trees/892904d64e35eb3612a05f9e48fd39e1ef605b11"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 1727,
+      "file": "wasm243-parser-tree.json",
+      "ordinal": 10,
+      "seconds": 0.161,
+      "sha256": "4a974bc04d93a37b5810011cb38c512cfa174306ebb74ad657d4b7f6262929f9",
+      "url": "https://api.github.com/repos/bytecodealliance/wasm-tools/git/trees/83a5536ff0e675db0b1ffef2223259a9713e789c"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 2911,
+      "file": "wasm243-src-tree.json",
+      "ordinal": 11,
+      "seconds": 0.145,
+      "sha256": "54d764bdfdb9c2b048e4c10f4013c392bb88cbe5aede46c180c0325efc8696bd",
+      "url": "https://api.github.com/repos/bytecodealliance/wasm-tools/git/trees/25146a2e91b53fb39eecef503e104ecc2a542b4b"
+    }
+  ],
+  "started_epoch": 1794744718.5985627,
+  "stopped_epoch": 1794744838.419908
+}

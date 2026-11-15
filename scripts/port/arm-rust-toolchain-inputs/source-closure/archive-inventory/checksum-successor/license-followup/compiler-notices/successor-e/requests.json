@@ -1,0 +1,298 @@
+{
+  "acquisition_closed": true,
+  "body_bytes": 76018,
+  "requests": [
+    {
+      "HTTP": 200,
+      "bytes": 2731,
+      "complete_body": true,
+      "file": "jni-root-tree.json",
+      "ordinal": 1,
+      "seconds": 0.15,
+      "sha256": "fc4408237dae76700bbca7927ac3eb53e9d72fa9cacb0e011c7a7479d3ad249a",
+      "url": "https://api.github.com/repos/jni-rs/jni-rs/git/trees/5ae9458a4ec44c5318f37ddc7569c1d4ae8a69e7"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 4804,
+      "complete_body": true,
+      "file": "defmt-root-tree.json",
+      "ordinal": 2,
+      "seconds": 0.203,
+      "sha256": "3a8edee41c11ca37bec1970a712b2c9072a5d9a0ccb3d14d11affb023af25dc6",
+      "url": "https://api.github.com/repos/knurling-rs/defmt/git/trees/4a8cdb44891ed57b8ff5a023b6bec7137c48708f"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 3132,
+      "complete_body": true,
+      "file": "wasite-root-tree.json",
+      "ordinal": 3,
+      "seconds": 0.153,
+      "sha256": "95ba9eca5dfcd107e1853374126ee9bc25ecfd24a42adcba0e2fd7bf15772c01",
+      "url": "https://api.github.com/repos/ardaku/wasite/git/trees/3f7d6ad926848cd52c8d2142fdb2f43ab01ae8ec"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 1509,
+      "complete_body": true,
+      "file": "winsplit-root-tree.json",
+      "ordinal": 4,
+      "seconds": 0.177,
+      "sha256": "c4b6255c6abcbc99b17c4da8c23f5831691ab1a9ad8e4da08cfdc6d88da40297",
+      "url": "https://api.github.com/repos/chipsenkbeil/winsplit-rs/git/trees/691e800ac384bc7fc815ca55d1dd2b09b1f15d96"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 2871,
+      "complete_body": true,
+      "file": "mdbook-root-tree.json",
+      "ordinal": 5,
+      "seconds": 0.156,
+      "sha256": "e9d75871fb50ca6b51e13e3067d51efc5c19c957e703ac2ba598e3fee81f34e1",
+      "url": "https://api.github.com/repos/google/mdbook-i18n-helpers/git/trees/33be28e5924574884d6f8fe2f0b935a421038954"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 2671,
+      "complete_body": true,
+      "file": "pulldown-root-tree.json",
+      "ordinal": 6,
+      "seconds": 0.215,
+      "sha256": "ab5a5d41baf7cf9ed4904a1a6405cd1228d2a541103511f9335dea78903f7d5d",
+      "url": "https://api.github.com/repos/Byron/pulldown-cmark-to-cmark/git/trees/5f6ec453d5c44d45d09100749d1c1e2891e05bf7"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 7680,
+      "complete_body": true,
+      "file": "wasmtime-root-tree.json",
+      "ordinal": 7,
+      "seconds": 0.164,
+      "sha256": "2279a782125d119f0bf21bb01c7a87bc23c2772a8a617d1e3e8daa7cdd7373dc",
+      "url": "https://api.github.com/repos/bytecodealliance/wasmtime/git/trees/39d67168cdb6911ffdc961381314b6fed62e3c93"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 1104,
+      "complete_body": true,
+      "file": "jni-LICENSE-MIT",
+      "ordinal": 8,
+      "seconds": 0.085,
+      "sha256": "fea1d5bf3dd71605ce5d7d2ff695c1837e914c77195e523a86b5391716477960",
+      "url": "https://raw.githubusercontent.com/jni-rs/jni-rs/5ae9458a4ec44c5318f37ddc7569c1d4ae8a69e7/LICENSE-MIT"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 1053,
+      "complete_body": true,
+      "file": "defmt-LICENSE-MIT",
+      "ordinal": 9,
+      "seconds": 0.141,
+      "sha256": "2710a622a896bba67356913d4d0492cab5465f61b2ecce6d880aeb483834fb50",
+      "url": "https://raw.githubusercontent.com/knurling-rs/defmt/4a8cdb44891ed57b8ff5a023b6bec7137c48708f/LICENSE-MIT"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 1036,
+      "complete_body": true,
+      "file": "wasite-LICENSE-MIT",
+      "ordinal": 10,
+      "seconds": 0.125,
+      "sha256": "508a77d2e7b51d98adeed32648ad124b7b30241a8e70b2e72c99f92d8e5874d1",
+      "url": "https://raw.githubusercontent.com/ardaku/wasite/3f7d6ad926848cd52c8d2142fdb2f43ab01ae8ec/LICENSE_MIT.txt"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 12243,
+      "complete_body": true,
+      "file": "wasmtime-LICENSE",
+      "ordinal": 11,
+      "seconds": 0.103,
+      "sha256": "268872b9816f90fd8e85db5a28d33f8150ebb8dd016653fb39ef1f94f2686bc5",
+      "url": "https://raw.githubusercontent.com/bytecodealliance/wasmtime/39d67168cdb6911ffdc961381314b6fed62e3c93/LICENSE"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 11358,
+      "complete_body": true,
+      "file": "mdbook-LICENSE",
+      "ordinal": 12,
+      "seconds": 0.112,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "url": "https://raw.githubusercontent.com/google/mdbook-i18n-helpers/33be28e5924574884d6f8fe2f0b935a421038954/LICENSE"
+    },
+    {
+      "HTTP": 404,
+      "bytes": 110,
+      "complete_body": true,
+      "file": "syn-root-tree.json",
+      "ordinal": 13,
+      "seconds": 0.122,
+      "sha256": "8c177a38af7c68d455e9554231def022cc2bcf62c1d3dab3626aaf5c319a5e04",
+      "url": "https://api.github.com/repos/dtolnay/syn/git/trees/8db9fd0bec5f42870a478a061d49aecd76ab08ab"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 3116,
+      "complete_body": true,
+      "file": "xshell-root-tree.json",
+      "ordinal": 14,
+      "seconds": 0.167,
+      "sha256": "150e2d87ebcd2b60c416f71d8676b4e028c41c9fa57d723e5ca75d5c3f8c6c0f",
+      "url": "https://api.github.com/repos/matklad/xshell/git/trees/9a405946ecbbfe50fe4a7229bd764194154e4ce6"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 2508,
+      "complete_body": true,
+      "file": "xflags-root-tree.json",
+      "ordinal": 15,
+      "seconds": 0.17,
+      "sha256": "bdfc12da28e5ae372f08607c5899541ea1ad8c97a6eee015832223f8ec429684",
+      "url": "https://api.github.com/repos/matklad/xflags/git/trees/bc37dc0b02dd3853aff7cafff1c4f0dd4293af45"
+    },
+    {
+      "HTTP": 301,
+      "bytes": 249,
+      "complete_body": true,
+      "location": "https://api.github.com/repositories/283335420/git/trees/814f04797bbd67f224cbb1b48c7541fdd8bc3d79",
+      "ordinal": 16,
+      "seconds": 0.128,
+      "sha256": "209573e2b04dab4ef6b4ffb84501f2fca0e3b3c84a8bd0bc09745073015b072b",
+      "url": "https://api.github.com/repos/matklad/ungrammar/git/trees/814f04797bbd67f224cbb1b48c7541fdd8bc3d79"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 2171,
+      "complete_body": true,
+      "file": "ungrammar-root-tree.json",
+      "ordinal": 17,
+      "seconds": 0.223,
+      "sha256": "1194714dda1dc5fdb44b9e3b412dd2ec29736c5cbd7bfd0f736e49779a7c57c0",
+      "url": "https://api.github.com/repositories/283335420/git/trees/814f04797bbd67f224cbb1b48c7541fdd8bc3d79"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 2731,
+      "complete_body": true,
+      "file": "jni-macros-root-tree.json",
+      "ordinal": 18,
+      "seconds": 0.221,
+      "sha256": "534cad9d54c4a6f9a7cc8b8e1998e9b937e939284d8d23e2e23ed7e3ab6ef4df",
+      "url": "https://api.github.com/repos/jni-rs/jni-rs/git/trees/33045a124105c939d1e2cbdcb5a39e5d868ffa03"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 2485,
+      "complete_body": true,
+      "file": "jni-sys-root-tree.json",
+      "ordinal": 19,
+      "seconds": 0.151,
+      "sha256": "595cbad68879c555422f9c1233faa0fddfa731a0e88d90108b2e009a832ee15c",
+      "url": "https://api.github.com/repos/jni-rs/jni-sys/git/trees/64d77b7a5f119d7b55b4e2c169a4668067ff59e6"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 1104,
+      "complete_body": true,
+      "file": "jni-macros-LICENSE-MIT",
+      "ordinal": 20,
+      "seconds": 0.113,
+      "sha256": "fea1d5bf3dd71605ce5d7d2ff695c1837e914c77195e523a86b5391716477960",
+      "url": "https://raw.githubusercontent.com/jni-rs/jni-rs/33045a124105c939d1e2cbdcb5a39e5d868ffa03/LICENSE-MIT"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 1071,
+      "complete_body": true,
+      "file": "jni-sys-LICENSE-MIT",
+      "ordinal": 21,
+      "seconds": 0.078,
+      "sha256": "1d85bd754b04ceec93e98e890edd1fa3c6a22e81bcb32135806beeccefa51cd1",
+      "url": "https://raw.githubusercontent.com/jni-rs/jni-sys/64d77b7a5f119d7b55b4e2c169a4668067ff59e6/LICENSE-MIT"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 654,
+      "complete_body": true,
+      "file": "jni-Cargo.toml",
+      "ordinal": 22,
+      "seconds": 0.074,
+      "sha256": "83fb01ea19de610d7c177f50959f5b76ae1cf83571a838aff43dc4914af870bc",
+      "url": "https://raw.githubusercontent.com/jni-rs/jni-rs/5ae9458a4ec44c5318f37ddc7569c1d4ae8a69e7/Cargo.toml"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 993,
+      "complete_body": true,
+      "file": "jni-crates-tree.json",
+      "ordinal": 23,
+      "seconds": 0.163,
+      "sha256": "b53491705b03002ba8e62601431d260636ca1f682805f575fb7e52c4f67fd451",
+      "url": "https://api.github.com/repos/jni-rs/jni-rs/git/trees/1b4f653523e30d22cafc12745523b9a4d9585b9a"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 993,
+      "complete_body": true,
+      "file": "jni-macros-crates-tree.json",
+      "ordinal": 24,
+      "seconds": 0.146,
+      "sha256": "3d009f3719fa23ca2e3ef9f10549fcef6bcee6392c5a963a764dea5bb2a7b0d5",
+      "url": "https://api.github.com/repos/jni-rs/jni-rs/git/trees/4bd56121d3c1f69a379dda4747b016a2388622ab"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 805,
+      "complete_body": true,
+      "file": "jni-sys-macros-tree.json",
+      "ordinal": 25,
+      "seconds": 0.168,
+      "sha256": "9758003512133ac84b5f5d4a1788c954fad35c8498fb205d50ddf98e651e7233",
+      "url": "https://api.github.com/repos/jni-rs/jni-sys/git/trees/2ffdc0ddee0aaf2fa6804c6a97911a0019b3b225"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 819,
+      "complete_body": true,
+      "file": "defmt-parser-tree.json",
+      "ordinal": 26,
+      "seconds": 0.16,
+      "sha256": "a6abde5de164167e13df3af78a8f5ecd473ca791f8830e6d8e9dfdc79fa720ee",
+      "url": "https://api.github.com/repos/knurling-rs/defmt/git/trees/c4d309fdea861bc4d757f023f8a2dc94ced0b7e3"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 1804,
+      "complete_body": true,
+      "file": "jni-package-tree.json",
+      "ordinal": 27,
+      "seconds": 0.127,
+      "sha256": "beb332f97b6620662b50ee326dc258bda2f4b451c20427635ef386828dc445a3",
+      "url": "https://api.github.com/repos/jni-rs/jni-rs/git/trees/b6d4ae1f9889a8d6c00ef73ebcba504109bb92c0"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 1014,
+      "complete_body": true,
+      "file": "jni-macros-package-tree.json",
+      "ordinal": 28,
+      "seconds": 0.149,
+      "sha256": "738f43383436dd7c93b4b0cb8c3c54b78025c1d02c0036f71078c2bd4bb0dca3",
+      "url": "https://api.github.com/repos/jni-rs/jni-rs/git/trees/4ebeeca41380ff29bde21f2436ce6d4f30e0ec8d"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 1199,
+      "complete_body": true,
+      "file": "wasite-README.md",
+      "ordinal": 29,
+      "seconds": 0.109,
+      "sha256": "ab0b33a8c5c0f12a3ce8ea83bef620247cb6be6ed966b462f27a7772cba8ab4d",
+      "url": "https://raw.githubusercontent.com/ardaku/wasite/3f7d6ad926848cd52c8d2142fdb2f43ab01ae8ec/README.md"
+    }
+  ],
+  "started_epoch": 1794749807.0864518,
+  "stopped_epoch": 1794750011.5407
+}

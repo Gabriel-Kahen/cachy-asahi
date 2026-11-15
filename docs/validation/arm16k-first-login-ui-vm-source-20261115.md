@@ -1,7 +1,7 @@
 # ARM16K first-login GTK VM successor — Source handoff
 
 Status: **Source/control tested; Root UI preparation r1 closed HOLD_CLEANUP;
-corrected preparation r2 succeeded; first UI boot closed HOLD at installed gate.** This is a new finite operation
+corrected preparation r2 succeeded; UI boot r1/r2 remain closed HOLD.** This is a new finite operation
 `arm16k-first-login-ui-vm-v1`. Root's separate minimal155 real virtio-seat r4
 trial has now passed. The successor below corrects constructor cleanup only;
 old Source, inputs, defaults, failure receipts and markers remain unchanged.
@@ -87,7 +87,7 @@ python -I -B scripts/integration/arm16k_first_login_ui_vm/prepare.py \
   --output /tmp/new-private-arm-ui-preparation
 ```
 
-Runtime is2CPU/3GiB/256PIDs with2GiB guest RAM, a1GiB overlay cap, direct ARM
+Runtime is 2CPU/4GiB/256PIDs with 2GiB guest RAM, a 1GiB overlay cap, direct ARM
 kernel, TCG, no NIC/KVM/host buses/devices, two exact binds and fresh once-marker.
 Controller/actor windows are540/600 seconds plus independent bounded cleanup.
 Credential input remains the single real PAM login, after actual ECHO-off and
@@ -238,3 +238,53 @@ are relaxed. 37 actor/network/lease-fenced controls pass, including the real
 fixed constructor directory loop followed by the unchanged Writer. No worker
 preparation or VM ran. Root requires fresh public Source, admission, nonce and
 output for the next actual trial; the first UI boot remains closed HOLD.
+
+
+## UI boot r2: bounded headroom and diagnostic successor
+
+Root's next boot, after the exclusive Writer correction, closed HOLD at
+`/dev/shm/cachy-asahi-arm16k-ui-first-boot-root-20261115-r2/`.
+The report has `EOFError` / `real-seat observer closed`. Its retained QEMU
+retirement proves exit -9, reaped, `EMPTY_TWICE`, no supervisor signals, no actor
+cancellation and no timeout; the owned container is absent. UART still showed
+fixture/observer jobs, no UI_HOLD, and qemu.log was empty. No cgroup memory.events
+was captured: OOM is **not measured**, and the signal's cause remains unknown.
+Both earlier UI HOLDs remain closed, with no GTK/native16K/M2/release acceptance.
+
+The next Source uses an explicit **boot-only 4GiB memory / 4GiB memory+swap**
+container cap (zero extra swap), 2CPU and 256PIDs. Guest RAM stays 2GiB and the
+overlay cap stays 1GiB. Those two limits consumed the entire old 3GiB budget
+before QEMU/actor/page-cache overhead. Preparation remains 3GiB. Boot requires
+at least 6GiB MemAvailable: the new 4GiB ceiling plus 2GiB host reserve, separately
+reviewed by Root immediately before fresh admission. `boot_resources` must match
+the finite Source profile in boot authority; template allow flags remain false.
+No host/target system configuration changes follow from these declarations.
+
+Custody checks the **raw** Memory=MemorySwap=4GiB row first, then projects only
+those fields to 3GiB for the unchanged pinned legacy validator, alongside its
+existing checked actor-command projection. All actual image/labels/mounts,
+capabilities, namespaces, CPU/PID and ownership predicates remain mandatory.
+The report records the unmodified actual runtime row's resource fields, including
+MemorySwap, and the new declared profile. No 3GiB row can enter this wrapper.
+
+The actor durably records `memory-before-vm.json`, `memory-at-qemu-exit.json` and
+`memory-final.json`: only fixed cgroup-v2 numeric events (including oom/oom_kill),
+peak/current/max and swap.current/max, plus nonce/stage/UTC. Inputs are individually
+bounded at 4KiB; receipts are bounded at 16KiB, private0600, with file and parent
+fsync. Actual memory.max must be 4GiB and swap.max zero. Missing, aliased, unknown,
+non-numeric or wrong-limit data refuses and retains a bounded category/partial
+numeric receipt without raw error text. Final capture runs on ordinary failure;
+a killed actor itself cannot guarantee final capture. QEMU retirement is written
+before the post-exit memory read, so diagnostic failure cannot erase that result.
+Host report retains existing private receipts on failure and binds their hashes.
+
+47 actor/network/lease-fenced controls pass, including 3GiB/wrong-swap/capability/
+mount refusals, unchanged preparation limits, authority/argv/host-budget joining,
+actual numeric preservation, bounded diagnostics and final/fsync failure controls.
+A separate DATA-only join loaded the original pinned legacy validator
+(14,117 B/SHA256 `e7c8935f342d4b36bb6f8f24c0b48c3b8aa04be9807f62c3f8141aeaf26819fc`)
+from its exact Source lock: one modeled valid raw4GiB row and ten invalid resource,
+capability/network/mount rows passed their expected decisions. No container,
+lease, preparation, guest or daemon call ran. Root owns the next fresh public
+Source/admission/nonce and actual trial; this is a diagnostic resource successor,
+not proof that increasing the limit repairs the earlier failure.

@@ -1,0 +1,45 @@
+{
+  "actual_alpm_perl_actor": "NOT_RUN",
+  "actual_archive_parsing": "NOT_RUN",
+  "actual_input_inventory": "PASS_EXISTING_PUBLIC_NINE_FILES_SIZE_SHA256_MODE_HASHING_ONLY",
+  "actual_native_or_daemon": "NOT_RUN",
+  "actual_signing": "NOT_RUN",
+  "actual_source_constructor": "NOT_RUN_BLOCKED_ON_COMPLETE_ROOT_PREREQUISITE_RECORD",
+  "actual_source_packet": "NOT_SEALED",
+  "command": "python3 -I -B -m unittest discover -s scripts/ci/perl5423-installed-lifecycle-native -p 'test_*.py' -v",
+  "controls_log": {
+    "bytes": 7310,
+    "path": "validation-controls.txt",
+    "sha256": "848b2f90ea5ecdeabdb6fc7afe1f838b3f37fb6ca84a82e52017bd58c63eea22"
+  },
+  "date": "2026-11-15",
+  "groups": {
+    "image_metadata": 13,
+    "prerequisites": 14,
+    "reader_data_helper": 10,
+    "source_capsule": 13
+  },
+  "held_core": {
+    "actual_selected_source_byte_mode_join": "PASS_12_LEAVES",
+    "commit": "7bf0da67717ea24f0b1782f8505967c48b64b0b0"
+  },
+  "holds": "original4/source108/native16K/M2/performance/current-distribution-trust/release remain held",
+  "json": "PASS_PARSE",
+  "missing": [
+    "Root whole prerequisite record and independent digest with all public pins/effective default-directory ALPM policy review",
+    "Root-reviewed exact fresh-image configuration and complete three hook-root expectations",
+    "After sealing: new published Source/ref/map and external Root resource/RW-domain admission"
+  ],
+  "operational_reader": "NOT_RUN",
+  "reader_helper_tests": "SYNTHETIC_DATA_ONLY_NO_CRYPTOGRAPHIC_VERIFICATION",
+  "schema": 1,
+  "staged_diff_check": "PASS",
+  "status": "PASS_FENCED_SOURCE_DATA_CONTROLS_ONLY",
+  "syntax": {
+    "python_files": 13,
+    "result": "PASS_AST_PARSE"
+  },
+  "tests": 50,
+  "worker_network": "NOT_USED",
+  "workflow_lint": "NOT_RUN_ACTIONLINT_UNAVAILABLE"
+}

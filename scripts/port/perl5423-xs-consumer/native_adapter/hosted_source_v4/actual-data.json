@@ -1,0 +1,165 @@
+{
+  "actual_copy_and_cleanup": {
+    "XS_Perl_compiler_or_extension_execution": false,
+    "XS_input_preparation_started": false,
+    "XS_producer_started": false,
+    "commit_completed": true,
+    "compiler_copy_actor_created": true,
+    "compiler_copy_actor_exit": 0,
+    "compiler_copy_actor_natural": true,
+    "copy_compiler_invocations": 0,
+    "copy_inventory": 349,
+    "derived_configuration_qualified": false,
+    "derived_image": "sha256:f2e19352ba360732e05b3ce34798b9e9d9c6917a0ef7a51145fdf501ef0db3d7",
+    "driver": {
+      "bytes": 2365000,
+      "mode": 493,
+      "nlink": 1,
+      "sha256": "741ced8152a820a28ab88603dd1ceb2343245728ac784839e4b5390f2411890e"
+    },
+    "filesystem_diff": [
+      "C /usr",
+      "C /usr/bin",
+      "A /usr/bin/cachy-asahi-xs-gcc"
+    ],
+    "image_delta_bytes": 2365000,
+    "one_layer": true,
+    "original_GCC_nlink": 3,
+    "original_payload_notice_observations": 9,
+    "parent_image": "sha256:8e8945c6d6568c80b70c7e49eb57f953b93ced84de3078ff29f9b744678c880f",
+    "saved349_inventory_verified": true,
+    "signed349_bootstrap_completed": true
+  },
+  "actual_v4": {
+    "Reader": null,
+    "approval": null,
+    "artifact": null,
+    "authority": null,
+    "image": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "closed_v3": {
+    "Original": {
+      "artifact": "14163084922",
+      "bytes": 724622,
+      "faithful_decoded_bytes": 4699496,
+      "faithful_decoded_files": 603,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-perl-xs-intake-r4/Original-artifact14163084922.zip",
+      "sha256": "367986aabf7d6f3d63aada343601c76ac1971d83ac29b6e09c5ac251f48c21a0"
+    },
+    "artifact": "14163084922",
+    "job": "132825604072",
+    "run": "43718658756",
+    "source": "5261eb22032b986cd77796a808f99779c100cfe8"
+  },
+  "configuration_differences": {
+    "AttachStderr": {
+      "after": true,
+      "before": false
+    },
+    "AttachStdout": {
+      "after": true,
+      "before": false
+    },
+    "Cmd": {
+      "after": [
+        "-I",
+        "-B",
+        "/tmp/source/xs/compiler_image.py",
+        "--copy-driver",
+        "5261eb22032b986cd77796a808f99779c100cfe8"
+      ],
+      "before": null
+    },
+    "Entrypoint": {
+      "after": [
+        "/usr/bin/python3"
+      ],
+      "before": null
+    },
+    "Hostname": {
+      "after": "23f7f5a6ca09",
+      "before": ""
+    },
+    "Image": {
+      "after": "sha256:8e8945c6d6568c80b70c7e49eb57f953b93ced84de3078ff29f9b744678c880f",
+      "before": ""
+    },
+    "Labels": {
+      "after": {
+        "cachy-asahi.hosted-perl": "3bc583eed7b86df0e5c6a0e1",
+        "cachy-asahi.hosted-perl.source": "5261eb22032b986cd77796a808f99779c100cfe8",
+        "cachy-asahi.xs-compiler": "b1cb73fa45970b7f18f0a2d8",
+        "cachy-asahi.xs-compiler.parent": "sha256:8e8945c6d6568c80b70c7e49eb57f953b93ced84de3078ff29f9b744678c880f",
+        "cachy-asahi.xs-compiler.source": "5261eb22032b986cd77796a808f99779c100cfe8"
+      },
+      "before": {
+        "cachy-asahi.hosted-perl": "3bc583eed7b86df0e5c6a0e1",
+        "cachy-asahi.hosted-perl.source": "5261eb22032b986cd77796a808f99779c100cfe8"
+      }
+    }
+  },
+  "diagnosis_receipt": {
+    "bytes": 22192,
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi-install-completion-20261114/work/xs-v3-failure-diagnosis-20261115-r1/diagnosis.json",
+    "sha256": "2017e2bdf61bab13d23b49faa441a783c1c741f919589101b319f224dba43f34"
+  },
+  "first_failure": {
+    "after_operation": 275,
+    "command_exit": 0,
+    "exception": "ValueError: original image configuration preserved except explicit ownership labels and null/empty command encoding",
+    "normalized_configuration_differences": [
+      "AttachStderr",
+      "AttachStdout",
+      "Cmd",
+      "Entrypoint",
+      "Hostname",
+      "Image"
+    ],
+    "phase": "post-commit derived image configuration qualification",
+    "reason": "Docker commit completed but actual derived Config retained copy-stage executable/argv and container-specific fields despite requested ENTRYPOINT [] and CMD []; strict comparator correctly refused",
+    "source": {
+      "bytes": 15790,
+      "line": 92,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-perl-xs-source-r3/source-tree/xs/compiler_image.py",
+      "sha256": "bc2dbccc9453fdc77852ea7cc9fb80da433db08be589ce4ea84ceb1ce3c01299"
+    }
+  },
+  "schema": 1,
+  "source_controls": {
+    "XS": "NOT RUN",
+    "bytes": 87648917,
+    "compiler": "NOT RUN",
+    "files": 311,
+    "image": "NOT RUN",
+    "map": {
+      "bytes": 60699,
+      "sha256": "ed4b624d6a32359b481b6361930b0e99c3085ccf71fe493f6fa586bbfa54edec"
+    },
+    "profile": {
+      "bytes": 1564,
+      "sha256": "d048993fbff26dc316771104216416c77f48e899b3829cd826cbfaf6e09a022c"
+    },
+    "prospective_tree": "7c7308369ab757cadc6b250ad4692314ab850475",
+    "python_versions": [
+      "3.12.13",
+      "3.14.7"
+    ],
+    "scope": "actual closed-v3 metadata and Source DATA; modeled new image config/cleanup only, no actor",
+    "status": "PASS_ACTUAL_PARENT_DATA_JOIN_RENDER_INVERSE_ONLY",
+    "tests": 21
+  },
+  "status": "CLOSED_V3_FAILURE_DATA_ONLY_NEW_V4_UNRUN",
+  "worker_activity": {
+    "XS": 0,
+    "actor": 0,
+    "compiler": 0,
+    "image": 0,
+    "lease": 0,
+    "network": 0,
+    "prepare_main": 0
+  }
+}

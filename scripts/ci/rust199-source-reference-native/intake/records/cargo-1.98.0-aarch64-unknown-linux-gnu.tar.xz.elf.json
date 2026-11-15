@@ -1,0 +1,133 @@
+{
+  "cargo-1.98.0-aarch64-unknown-linux-gnu/cargo/bin/cargo": {
+    "elf_class": 64,
+    "endianness": "little",
+    "entry": 7787392,
+    "interpreter": "/lib/ld-linux-aarch64.so.1",
+    "load_segments_16k_congruence_and_alignment": true,
+    "machine": 183,
+    "needed": [
+      "libdl.so.2",
+      "libgcc_s.so.1",
+      "libpthread.so.0",
+      "libm.so.6",
+      "libc.so.6"
+    ],
+    "program_headers": [
+      {
+        "align": 8,
+        "filesz": 672,
+        "flags": 4,
+        "memsz": 672,
+        "offset": 64,
+        "type": 6,
+        "vaddr": 64
+      },
+      {
+        "align": 1,
+        "filesz": 27,
+        "flags": 4,
+        "memsz": 27,
+        "offset": 736,
+        "type": 3,
+        "vaddr": 736
+      },
+      {
+        "align": 65536,
+        "filesz": 7721828,
+        "flags": 4,
+        "memsz": 7721828,
+        "offset": 0,
+        "type": 1,
+        "vaddr": 0
+      },
+      {
+        "align": 65536,
+        "filesz": 20607264,
+        "flags": 5,
+        "memsz": 20607264,
+        "offset": 7721856,
+        "type": 1,
+        "vaddr": 7787392
+      },
+      {
+        "align": 65536,
+        "filesz": 1104712,
+        "flags": 6,
+        "memsz": 1104736,
+        "offset": 28329120,
+        "type": 1,
+        "vaddr": 28460192
+      },
+      {
+        "align": 65536,
+        "filesz": 68656,
+        "flags": 6,
+        "memsz": 92256,
+        "offset": 29433832,
+        "type": 1,
+        "vaddr": 29630440
+      },
+      {
+        "align": 8,
+        "filesz": 232,
+        "flags": 4,
+        "memsz": 680,
+        "offset": 28329120,
+        "type": 7,
+        "vaddr": 28460192
+      },
+      {
+        "align": 8,
+        "filesz": 512,
+        "flags": 6,
+        "memsz": 512,
+        "offset": 29424440,
+        "type": 2,
+        "vaddr": 29555512
+      },
+      {
+        "align": 1,
+        "filesz": 1104712,
+        "flags": 4,
+        "memsz": 1104736,
+        "offset": 28329120,
+        "type": 1685382482,
+        "vaddr": 28460192
+      },
+      {
+        "align": 4,
+        "filesz": 324268,
+        "flags": 4,
+        "memsz": 324268,
+        "offset": 5124836,
+        "type": 1685382480,
+        "vaddr": 5124836
+      },
+      {
+        "align": 0,
+        "filesz": 0,
+        "flags": 6,
+        "memsz": 0,
+        "offset": 0,
+        "type": 1685382481,
+        "vaddr": 0
+      },
+      {
+        "align": 4,
+        "filesz": 32,
+        "flags": 4,
+        "memsz": 32,
+        "offset": 764,
+        "type": 4,
+        "vaddr": 764
+      }
+    ],
+    "rpath": [],
+    "runpath": [
+      "$ORIGIN/../lib"
+    ],
+    "soname": null,
+    "type": 3
+  }
+}

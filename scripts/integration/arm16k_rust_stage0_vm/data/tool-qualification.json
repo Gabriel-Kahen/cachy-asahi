@@ -1,0 +1,174 @@
+{
+  "M2": "NOT RUN",
+  "Root_device_help_metadata": {
+    "bytes": 675,
+    "sha256": "b2a0c65bbb2120235206b27c39ba07421a37df10fc365d99b236f9a0ae0d95c1"
+  },
+  "actual_observed_utc": "2026-11-15T10:07:40.243193+00:00",
+  "cleanup": [
+    {
+      "cleanup_errors": [],
+      "cleanup_ownership_verified": true,
+      "container_id": "93111d1e4833e1a7d8dec027af3eef81aa961b35fea3e3149221095fddc1b1b4",
+      "owned_container_absence_verified": true,
+      "owned_container_removed": true
+    },
+    {
+      "cleanup_errors": [],
+      "cleanup_ownership_verified": true,
+      "container_id": "556ac78681a39df6a2318c580f513b2d6b6d8faa20859e849dc697388a0a0744",
+      "owned_container_absence_verified": true,
+      "owned_container_removed": true
+    }
+  ],
+  "device_help": {
+    "bytes": 19362,
+    "sha256": "859062181bcf46d8b1fa7682ef49bb8f63d7aa0fd57675962f71abef33bf6399"
+  },
+  "guest_boot": "NOT RUN",
+  "image_delta_bytes": 364433,
+  "image_id": "sha256:52958d534193d739aeb6d3c9239ed31b97f8fb357a618e14391293068b28cd2a",
+  "install_result": {
+    "bytes": 3682,
+    "sha256": "890b4daded84a25906001f1ce18d7b86d440ac059aed6b9e886e8bc8d8da9b8b"
+  },
+  "kind": "ARM16K_VIRTIO_TOOL_IMAGE_V1",
+  "lease": "BORROWED_EXISTING_FD_NEVER_ACQUIRED_OR_UNLOCKED",
+  "module": {
+    "bytes": 71632,
+    "needed": [
+      "libc.so.6",
+      "libpixman-1.so.0"
+    ],
+    "path": "usr/lib/qemu/hw-display-virtio-gpu.so",
+    "sha256": "389cbb38a545bacce11c4665e875bb37826acee1cd5205fe5ef99b804ca95db4",
+    "stamp": "qemu_stamp_913ef03f58f097081461725293209a4ad4cab60a"
+  },
+  "native16K": "NOT RUN",
+  "owned_containers_absent": true,
+  "package": {
+    "archive": {
+      "bytes": 38829,
+      "sha256": "e6fff868047ec766fe2d1e065db96c31bcc5ca8b15f7cc570b2e1c83e444e7ee"
+    },
+    "filename": "qemu-hw-display-virtio-gpu-11.1.3-1-x86_64.pkg.tar.zst",
+    "installed_bytes": 121232,
+    "name": "qemu-hw-display-virtio-gpu",
+    "primary_signer": "991F6E3F0765CF6295888586139B09DA5BF0D338",
+    "signature": {
+      "bytes": 119,
+      "sha256": "acaa797c7d026778d0951509ed428ad1440f9aeefb2cc0f4c00fbba20e381200"
+    },
+    "signing_key": "62CC73F884E52957B2FDD8839B7A287D9A2EC608",
+    "url": "https://archive.archlinux.org/repos/2026/11/09/extra/os/x86_64/qemu-hw-display-virtio-gpu-11.1.3-1-x86_64.pkg.tar.zst",
+    "version": "11.1.3-1"
+  },
+  "parent_image_id": "sha256:ee1aa3da22a5d89dc1bc273fa818b1d996b7e62851f50d7b629144f6bba9f207",
+  "probe_result": {
+    "bytes": 2698,
+    "sha256": "39167dceb4ad2e14e83fc8cd1387f9775e09059102d9962e44735e3569fb04cd"
+  },
+  "providers": {
+    "libc.so.6": {
+      "bytes": 2215072,
+      "package": "glibc",
+      "path": "usr/lib/libc.so.6",
+      "sha256": "02c8c3d06180beee9c7d0392aa85736c7d19f274a81e7f8f0b3d9e28e0641524",
+      "version": "2.44+r50+g1848099f063e-1"
+    },
+    "libpixman-1.so.0": {
+      "bytes": 714800,
+      "package": "pixman",
+      "path": "usr/lib/libpixman-1.so.0.46.4",
+      "sha256": "97d04f1a534e26e26cf993a350b13ddc33fa4f9741444b08c27bc04582c70fd8",
+      "version": "0.46.4-1"
+    }
+  },
+  "qemu": {
+    "bytes": 34622584,
+    "path": "usr/bin/qemu-system-aarch64",
+    "sha256": "6f16cea44da813a65a1076886f63687350a0173e188873ba227dcc06f5c16b27",
+    "version": "11.1.3"
+  },
+  "release_accepted": false,
+  "required_devices": {
+    "virtio-blk-device": true,
+    "virtio-gpu-device": true,
+    "virtio-keyboard-device": true
+  },
+  "resource_authority": {
+    "bytes": 3337,
+    "sha256": "6c9c768f0fec8459336f231fec9d14c0d198c4c0f2ee1097257d0a7c0b3eca15"
+  },
+  "source_manifest": {
+    ".gitattributes": {
+      "bytes": 133,
+      "sha256": "6f1ae6a3928077b9382f9baec896f9ef66ceda6cbefee10a4daa8468ea043f96"
+    },
+    "LICENSE.packaging": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "README.md": {
+      "bytes": 9627,
+      "sha256": "fe90fe7e330c45e7e1743ff042f4d4a970b91adf8633c425b42e7fe03616dc33"
+    },
+    "actor.py": {
+      "bytes": 5174,
+      "sha256": "e4b721efa19e91de2bc6275f189cafc18aa0490a9fdbb7c4296a825989223bd7"
+    },
+    "authority.template.json": {
+      "bytes": 855,
+      "sha256": "48ddc6d4025659533b4bfd2a78f2d81e6bc420393db9a7bc0b188d40b1718f8f"
+    },
+    "build.py": {
+      "bytes": 10599,
+      "sha256": "0c8b46fa5b5b0de9641e10d9bd5cd6bb82f769638070b475f0a793d03f590acc"
+    },
+    "contract.py": {
+      "bytes": 7825,
+      "sha256": "687a68fee99712e5f7eba2fc49e8b554a3ec271aa1783a86b3993712090f27b3"
+    },
+    "data/PKGINFO.data": {
+      "bytes": 2470,
+      "sha256": "4e9960261b17ddf22ef027eb5d48863621482ccd208ac5fe34c2fdbe50e6594b"
+    },
+    "data/official-desc.data": {
+      "bytes": 1660,
+      "sha256": "0638e5637c90c4323214962e6d0a795e734ccebf2add2cabc50e020d26f6a7d8"
+    },
+    "data/parent-packages.json": {
+      "bytes": 30634,
+      "sha256": "d0852d63468b38fd49948c7da2574838f27f58803761d3bfff62d912e85ca879"
+    },
+    "data/static-audit.json": {
+      "bytes": 2310,
+      "sha256": "1c34288629cc3949cabfc6a78984b294642d0501cb3bcca3cc179f20db7472c7"
+    },
+    "inputs.lock.json": {
+      "bytes": 6378,
+      "sha256": "8f4b111349c96d8f72e598ca18a7c13793b75ee2efa474df171bfced8d1619c3"
+    },
+    "inspect.py": {
+      "bytes": 1564,
+      "sha256": "556985242883720b9480158a11ede50488ee31785178366a7a62d248b004e81e"
+    },
+    "test_controls.py": {
+      "bytes": 5799,
+      "sha256": "6d94a49a147f3b34101a91be7be71bb831d46f98734622f1eb81d79e9a54e871"
+    },
+    "test_interop.py": {
+      "bytes": 2704,
+      "sha256": "bcfaadc77503a282cd3389b8a3ea1243657d0fc17aa5fff4c4158d3cce058cc5"
+    },
+    "test_transaction.py": {
+      "bytes": 3768,
+      "sha256": "ba954c0443b10a1d348e669b54da31c3f35ed46b1ac21ea5998ee3e27618f55d"
+    },
+    "transaction.py": {
+      "bytes": 3894,
+      "sha256": "0c399f49ba14dd00c4f5dad397f22f776afae69c5f7de8a849bcb37767d351d7"
+    }
+  },
+  "status": "TOOL_IMAGE_DEVICES_QUALIFIED_NO_GUEST"
+}

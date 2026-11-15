@@ -11,9 +11,25 @@ K=load('arm_seat_vm_contracts',HERE/'contracts.py')
 def custody_class(B):
  class OwnedContainer(B.OwnedContainer):
   def validate(self,row):
-   assert row['Config']['Cmd']==['-I','-B','/inputs/seat_actor.py']and row['HostConfig']['SecurityOpt']==['no-new-privileges']and row['HostConfig']['MemorySwap']==3*1024**3 and not row['HostConfig'].get('DeviceRequests')and row['HostConfig'].get('PidMode','')==''and row['HostConfig'].get('IpcMode','private')=='private'and row['HostConfig'].get('UTSMode','')==''
-   original=copy.deepcopy(row);original['Config']['Cmd']=['-I','-B','/opt/vm_actor.py'];super().validate(original)
+   assert row['Config']['Cmd']==['-I','-B','/inputs/seat_actor.py']and row['HostConfig']['SecurityOpt']==['no-new-privileges']and row['HostConfig']['Memory']==row['HostConfig']['MemorySwap']==K.BOOT_RESOURCES['memory_bytes'] and not row['HostConfig'].get('DeviceRequests')and row['HostConfig'].get('PidMode','')==''and row['HostConfig'].get('IpcMode','private')=='private'and row['HostConfig'].get('UTSMode','')==''
+   original=copy.deepcopy(row);original['Config']['Cmd']=['-I','-B','/opt/vm_actor.py'];original['HostConfig']['Memory']=original['HostConfig']['MemorySwap']=3*1024**3;super().validate(original)
  return OwnedContainer
+
+def memory_evidence(out,nonce):
+ result={}
+ for stage in ['before-vm','at-qemu-exit','final']:
+  path=out/('memory-'+stage+'.json')
+  if not path.exists():continue
+  info=path.lstat();assert stat.S_ISREG(info.st_mode)and info.st_uid==os.getuid()and stat.S_IMODE(info.st_mode)==0o600 and info.st_nlink==1 and info.st_size<=16384
+  value=K.read(path,16384);assert value['nonce']==nonce and value['stage']==stage and type(value['schema_version'])is int and value['schema_version']==1 and type(value['utc_ns'])is int and 0<value['utc_ns']<=2**64-1 and value['source']=='fixed cgroup-v2 numeric DATA'and value['status']in ['OBSERVED','REFUSED']
+  counters={'memory.peak','memory.current','memory.max','memory.swap.current','memory.swap.max'}
+  assert set(value)<={'schema_version','nonce','stage','utc_ns','source','status','memory.events','error_category'}|counters
+  assert all(type(value[k])is int and 0<=value[k]<=2**64-1 for k in counters&value.keys())
+  events=value.get('memory.events',{});assert isinstance(events,dict)and set(events)<={'low','high','max','oom','oom_kill','oom_group_kill','sock_throttled'}and all(type(v)is int and 0<=v<=2**64-1 for v in events.values())
+  if value['status']=='OBSERVED':assert counters<=value.keys()and value['memory.max']==K.BOOT_RESOURCES['memory_bytes']and value['memory.swap.max']==0 and {'low','high','max','oom','oom_kill'}<=events.keys()
+  else:assert value.get('error_category')in ['OSError','FileNotFoundError','PermissionError','UnicodeDecodeError','ValueError','AssertionError']
+  result[stage]={'pin':K.pin(path),'actual_numeric_cgroup':value}
+ return result
 
 def installed(proof,prepared,epoch,now):
  d=proof['installed_gate'];adds=prepared['lineage']['additions'];clock=d['clock']
@@ -60,8 +76,8 @@ def main():
   assert scope.listing(time.monotonic()+8) is None
   (out/'host-admission.json').write_text(json.dumps({'nonce':m['nonce'],'utc_ns':time.time_ns(),'monotonic_ns':time.monotonic_ns()}))
   scope.submitted=True
-  command('create',['docker','create','--cidfile',str(scope.cidfile),'--name',name,'--init=false',*[x for k,v in labels.items() for x in ('--label',k+'='+v)],'--read-only','--network=none','--cap-drop=ALL','--security-opt=no-new-privileges','--cpus=2','--memory=3g','--memory-swap=3g','--pids-limit=256','--tmpfs','/tmp:rw,nodev,nosuid,noexec,size=32m','--mount','type=bind,source='+str(source)+',target=/inputs,readonly','--mount','type=bind,source='+str(out)+',target=/work','--env','CACHY_ASAHI_ALLOW_ARM16K_UI_BOOT=1','--entrypoint','/usr/bin/python3',approval['tool_image_id'],'-I','-B','/inputs/seat_actor.py'])
-  row=scope.recover(time.monotonic()+8);assert row is not None;report['container_id']=row['Id'];report['image_id']=row['Image'];report['runtime']={k:row['HostConfig'][k] for k in ('NetworkMode','ReadonlyRootfs','CapDrop','CapAdd','Privileged','Devices','Memory','NanoCpus','PidsLimit','Init')}
+  command('create',['docker','create','--cidfile',str(scope.cidfile),'--name',name,'--init=false',*[x for k,v in labels.items() for x in ('--label',k+'='+v)],'--read-only','--network=none','--cap-drop=ALL','--security-opt=no-new-privileges','--cpus=2','--memory=4g','--memory-swap=4g','--pids-limit=256','--tmpfs','/tmp:rw,nodev,nosuid,noexec,size=32m','--mount','type=bind,source='+str(source)+',target=/inputs,readonly','--mount','type=bind,source='+str(out)+',target=/work','--env','CACHY_ASAHI_ALLOW_ARM16K_UI_BOOT=1','--entrypoint','/usr/bin/python3',approval['tool_image_id'],'-I','-B','/inputs/seat_actor.py'])
+  row=scope.recover(time.monotonic()+8);assert row is not None;report['container_id']=row['Id'];report['image_id']=row['Image'];report['boot_resources']=K.BOOT_RESOURCES;report['runtime']={k:row['HostConfig'][k] for k in ('NetworkMode','ReadonlyRootfs','CapDrop','CapAdd','Privileged','Devices','Memory','MemorySwap','NanoCpus','PidsLimit','Init')}
   command('start',['docker','start',name]);deadline=time.monotonic()+540
   with tempfile.TemporaryDirectory(prefix='arm-seat-sockets-') as short:
    link=Path(short)/'out';link.symlink_to(out,target_is_directory=True)
@@ -100,6 +116,10 @@ def main():
    scope.cleanup(report)
   except BaseException as e:report.setdefault('cleanup_errors',[]).append({'step':'cleanup','category':type(e).__name__})
   finally:
+   try:
+    report['memory_receipts']=memory_evidence(out,m['nonce'])
+    if report['status']=='PASS_EMULATED_ARM16K_REAL_SEAT_FIRST_LOGIN_UI_LIFECYCLE_ONLY':assert set(report['memory_receipts'])=={'before-vm','at-qemu-exit','final'}and all(r['actual_numeric_cgroup']['status']=='OBSERVED'for r in report['memory_receipts'].values())
+   except BaseException as e:report.setdefault('cleanup_errors',[]).append({'step':'memory-receipts','category':type(e).__name__})
    if state.pending:report.update(status='HOLD_CANCELLED',cancelled_signals=state.pending)
    if report.get('cleanup_errors'):report['status']='HOLD_CLEANUP'
    try:(out/'report.json').write_text(json.dumps(report,indent=2,sort_keys=True)+'\n')

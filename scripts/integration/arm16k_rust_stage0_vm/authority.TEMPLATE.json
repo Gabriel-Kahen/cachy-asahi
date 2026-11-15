@@ -1,0 +1,47 @@
+{
+  "allow_boot": false,
+  "allow_prepare": false,
+  "credentials": null,
+  "daemon": {
+    "host": null,
+    "socket_identity": null,
+    "status": null
+  },
+  "guest_inputs": null,
+  "issued_by": null,
+  "kernel_bundle": null,
+  "kind": "ARM16K_RUST_STAGE0_VM_AUTHORITY_V1",
+  "operation": "arm16k-rust-stage0-vm-v1",
+  "prepared": null,
+  "public_source": {
+    "ref": null,
+    "source": null,
+    "tree": null
+  },
+  "publication": null,
+  "qemu_metadata": null,
+  "resource_review": null,
+  "resources": {
+    "boot_allocated_cap": 4294967296,
+    "boot_owner_memory_bytes": 4294967296,
+    "boot_seconds": 600,
+    "cleanup_seconds": 45,
+    "guest_cpus": 2,
+    "guest_memory_bytes": 2147483648,
+    "host_memory_reserve_bytes": 2147483648,
+    "overlay_cap_bytes": 536870912,
+    "owner_cpus": 2,
+    "owner_memory_bytes": 3221225472,
+    "owner_swap_bytes": 0,
+    "pids": 256,
+    "prepare_allocated_cap": 6442450944,
+    "prepare_seconds": 600,
+    "raw_cap_bytes": 3221225472,
+    "reserve_bytes": 2147483648,
+    "work_seconds": 555
+  },
+  "schema": 1,
+  "source_lock": null,
+  "stage0_data": null,
+  "tool_image_id": null
+}

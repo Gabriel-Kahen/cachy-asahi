@@ -21,20 +21,20 @@
       "sha256": "c58359846507d368235bf404cf3e05679746b73a8314f96d7e9bf263d030d62e"
     },
     "authority.template.json": {
-      "bytes": 594,
-      "sha256": "d714268102cf57fc76b652fc2b411047667fccb3171497c957a6636b5083f988"
+      "bytes": 860,
+      "sha256": "7e0982903169de85e7ef0eed7d32f6adff79e7d714a42c757ad64ee4cf986048"
     },
     "boot.py": {
-      "bytes": 11502,
-      "sha256": "791c478a9d0d133291f97b2ee713b256f02e82c8886dc39ab4607c33ba853a30"
+      "bytes": 13765,
+      "sha256": "53622f5cca06244bd9923226f75ec52ee138b1e000a79db642a209854ce9b1d1"
     },
     "compose.py": {
       "bytes": 3739,
       "sha256": "44845652e3cda872a6443965c53e3733f2d8a1b663196fb4a887146e5b935dad"
     },
     "contracts.py": {
-      "bytes": 16603,
-      "sha256": "c50972301d3d25054b58b6840c8af3009db40782efe98ea75092eded542a6fa2"
+      "bytes": 16941,
+      "sha256": "ad9a4da3aed0153ff0d63e4b1d5c6b3a25d023f20aab6f0c0c14c1ab10c085bf"
     },
     "data/Root-minimal155-r4-decision.json": {
       "bytes": 1530,
@@ -101,12 +101,12 @@
       "sha256": "f98a9baaf95704118bda8e343deac69d13f914ca6008780af98a1a63294e8152"
     },
     "seat_actor.py": {
-      "bytes": 4614,
-      "sha256": "75f3717f34ebaef58c89cb8c3199195d6a6dc75dfa83e37e10f014d2a583d346"
+      "bytes": 6816,
+      "sha256": "09c4bc26fb5ac799c357220de70f1a642672679a11e84f253c064b5600ceab30"
     },
     "test_controls.py": {
-      "bytes": 26358,
-      "sha256": "07634c27369fde057fc63355bba14480e2e6eac0c26275814d6a284edd3ba897"
+      "bytes": 33159,
+      "sha256": "c5b743cfa19a29eb7eb1f580e9caaae80ffc166ffb0601b93b53f1d94acf88a3"
     },
     "ui-observer.service": {
       "bytes": 256,
