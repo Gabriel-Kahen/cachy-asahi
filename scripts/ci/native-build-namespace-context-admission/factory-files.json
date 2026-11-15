@@ -12,10 +12,10 @@
     "sha256": "a2694deae052150baa30089c37c59da24d2d2f8eda95aaf985519212ea00086c"
   },
   "scripts/ci/native-build-namespace-context-admission/namespace_guard.py": {
-    "bytes": 18450,
+    "bytes": 22411,
     "mode": "100644",
-    "oid": "8af83d7bf31d503f5d323b4e1a1a08311a64b504",
-    "sha256": "ab40502c156e1f33d1dbc0183f29e47561a4fc958a3c5e6e6601b4871251fcaf"
+    "oid": "7e95893a993f81681da417e5f0559ff3b97d2a72",
+    "sha256": "3ae9f5d3b77bbbddf664e02ace9293cfa5843b46bbd7161a977889522c470bdc"
   },
   "scripts/ci/native-build-namespace-context-admission/parent-full200.json": {
     "bytes": 48558,
@@ -30,10 +30,10 @@
     "sha256": "477cf444064788f7cc32f45df360f352028273dfcca837dc16ac3de456130216"
   },
   "scripts/ci/native-build-namespace-context-admission/prepare.py": {
-    "bytes": 9484,
+    "bytes": 9848,
     "mode": "100644",
-    "oid": "ae1054ca2d766912ced6d873219948a5060e1fd9",
-    "sha256": "7b994fd2f36220684eadc728a35b1706625437c388f1fe0ca253841777f76aa9"
+    "oid": "ade44a7e34048dee111349df602a7d40bc00206e",
+    "sha256": "16df589a5c43144e33463143c75424e7e9fa03cdf655f4e0a2c662e84d7db695"
   },
   "scripts/ci/native-build-namespace-context-admission/runtime54.py": {
     "bytes": 5305,
@@ -54,9 +54,9 @@
     "sha256": "65d8a036f08b0b5ebf25688336d6dd65b0a9105179ced4996a587a85b89c9724"
   },
   "scripts/ci/native-build-namespace-context-admission/test_admission_data.py": {
-    "bytes": 17247,
+    "bytes": 25829,
     "mode": "100644",
-    "oid": "5f9fa1949e2ca22dbdc6ddbc0f0c7abb9886a446",
-    "sha256": "3e57663946d8d9996abab8c0325757d6862cfd9d39278daa5fb7a7c1dbce396a"
+    "oid": "5302aa6ade355a0281d50204d9f2b0eb6623081f",
+    "sha256": "1c92188529a2cd90941123a3895e7b4131ff3115dc0b735ca1f7a80da8861fb5"
   }
 }
