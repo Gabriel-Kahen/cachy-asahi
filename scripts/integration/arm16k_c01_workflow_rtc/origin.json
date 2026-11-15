@@ -66,15 +66,15 @@
     }
   },
   "rtc_reference_base_commit": "58cc26556f613799dfd8554410ea05d53fe5dfbe",
-  "rtc_reference_correction": "RTC11 and independent ARM64 file/memory-span correction in source successor; exact per-file pins authoritative",
+  "rtc_reference_correction": "Only verified live /proc/ volatile nlink excluded through labeled metadata equality view; raw snapshots retained; exact per-file pins authoritative",
   "rtc_reference_files": {
     "README.md": {
-      "bytes": 9771,
-      "sha256": "aee9f10044a9d287cc6bc17cc5b7cf572007cee932a574411230b93f1ea290b9"
+      "bytes": 15686,
+      "sha256": "802d30a5319a469b37cf1f24fa438e9511760d9147db8dd889bd025aeaf0406d"
     },
     "RESULTS.json": {
-      "bytes": 2363,
-      "sha256": "e84a038286157160b328e1990bde2789c59960680d12f7c5a7cf86b1a3a5f4be"
+      "bytes": 4983,
+      "sha256": "4fd0c053fdec1ae4f152ed3ba9298b16d56de387dee2e523bca2c0f921d3b316"
     },
     "authority.template.json": {
       "bytes": 422,
@@ -105,12 +105,12 @@
       "sha256": "44801a7019e7df26d76115cbe7085f1a12786cedb98bd8fc8eea9f06f9c8a520"
     },
     "guest-root.sh": {
-      "bytes": 8868,
-      "sha256": "d0ec114f595b5c4aa988c4661d5813028c020cc7897ec3ffeb4eae8af6d5dbcd"
+      "bytes": 9255,
+      "sha256": "1f6d1792ca9d75f9bd17e96c0fb0fcad4e0608bea9e568b22f82bbfe915db7ac"
     },
     "guest-runtime.sh": {
-      "bytes": 2967,
-      "sha256": "220fffc02e2d375b48a625071340c024f4c89dcde0690edab45d33ef32be031e"
+      "bytes": 8870,
+      "sha256": "639257a6637923b9f6ee8486fa580b0603b662863fdcb51a2187fc7864568463"
     },
     "inputs.lock.json": {
       "bytes": 10257,
@@ -125,8 +125,8 @@
       "sha256": "b8fd5b92bd74cdd2a09887c9d7db5dabbe1fb47c705d3bc20d2fced10a66bd82"
     },
     "prepare.py": {
-      "bytes": 11338,
-      "sha256": "a93ab2e3dca70a04c47d01c5d58fe67cb7ba7db4325ee6e60ba1ecbc65f45e40"
+      "bytes": 12279,
+      "sha256": "b2f0a4ac14d8de39a8575f2f0e0bb1490ea86148e0c466eb92ebb408935ec045"
     },
     "prepare_image.py": {
       "bytes": 8528,
@@ -141,8 +141,8 @@
       "sha256": "eb347660a25e80efaf9666ee6e551abd92ae0267b9acdd89560f62e8b62c9b1a"
     },
     "test_successor.py": {
-      "bytes": 20122,
-      "sha256": "b82f76bc4c89572aaab9241761139fc5a915e83539bd6f170cc68e2ae04bafd6"
+      "bytes": 33539,
+      "sha256": "2f7f07ccdbfabd23bb230df4b9b1b812d9b00242569308c989bfcb838933eb55"
     },
     "tool_namespace.py": {
       "bytes": 4092,
@@ -150,7 +150,7 @@
     },
     "tools.lock.json": {
       "bytes": 2228,
-      "sha256": "6325c9ad071977e11132e3c503b39cb9458d728d9deee4d0bb029af9c94cb979"
+      "sha256": "5ec7ff0f0083eebcca0c8646f81fac345eb118bb69f65f377ca90b3cf2174128"
     }
   }
 }

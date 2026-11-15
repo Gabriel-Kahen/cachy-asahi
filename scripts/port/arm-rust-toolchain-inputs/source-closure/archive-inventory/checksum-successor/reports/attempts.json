@@ -1,0 +1,76 @@
+{
+  "attempts": [
+    {
+      "attempt": 1,
+      "checksums_report": {
+        "bytes": 161091,
+        "path": "/tmp/cachy-checksum-successor-20261115-01/checksums.json",
+        "sha256": "00b319635f9afa3dce8f86cf9db147885457ba57b915975d1d2921e5d8cc2db5"
+      },
+      "components_pass": 0,
+      "components_total": 1900,
+      "logical_bytes_read": 1639080939,
+      "matched_files": 0,
+      "peak_RSS_bytes": 184823808,
+      "physical_headers": 174351,
+      "runtime_report": {
+        "bytes": 696,
+        "path": "/tmp/cachy-checksum-successor-20261115-01/run.json",
+        "sha256": "8e40ebf72a66a0cc6b1f7ffeb38fd710fa1fdb132cf498ad623cd896759a24b2"
+      },
+      "seconds": 6.337,
+      "source_pin_verified": false,
+      "status": "PARTIAL",
+      "stop_reason": "BoundError: invalid checksum map schema"
+    },
+    {
+      "attempt": 2,
+      "checksums_report": {
+        "bytes": 586639,
+        "path": "/tmp/cachy-checksum-successor-20261115-02/checksums.json",
+        "sha256": "865d32177f4ea979cbfbe0b162d2e6cf963fc496eb9143532c1124060ddea79f"
+      },
+      "components_pass": 0,
+      "components_total": 1900,
+      "logical_bytes_read": 4077516800,
+      "matched_files": 0,
+      "peak_RSS_bytes": 208912384,
+      "physical_headers": 413568,
+      "runtime_report": {
+        "bytes": 698,
+        "path": "/tmp/cachy-checksum-successor-20261115-02/run.json",
+        "sha256": "6c116c5ad232a60e06ad6da1391b102cb72ffb3c48700ad9a667618dc316de73"
+      },
+      "seconds": 15.731,
+      "source_pin_verified": true,
+      "status": "COMPLETE_STREAM",
+      "stop_reason": null
+    },
+    {
+      "attempt": 3,
+      "checksums_report": {
+        "bytes": 1637103,
+        "path": "/tmp/cachy-checksum-successor-20261115-03/checksums.json",
+        "sha256": "de475639d3e4d961be442c4f054f775cc56ea9f1b82f04f46244580546fa3ad0"
+      },
+      "components_pass": 1900,
+      "components_total": 1900,
+      "logical_bytes_read": 4077516800,
+      "matched_files": 117695,
+      "peak_RSS_bytes": 233562112,
+      "physical_headers": 413568,
+      "runtime_report": {
+        "bytes": 698,
+        "path": "/tmp/cachy-checksum-successor-20261115-03/run.json",
+        "sha256": "9b8103c007b42cb48f452f5d6636e3af1fd665fe11578498e408b299bd279f89"
+      },
+      "seconds": 15.393,
+      "source_pin_verified": true,
+      "status": "COMPLETE_STREAM",
+      "stop_reason": null
+    }
+  ],
+  "limits_apply_to_each_bounded_scan_invocation": true,
+  "prior_attempts_retained_privately": true,
+  "success_does_not_rewrite_earlier_results": true
+}

@@ -1,0 +1,1 @@
+query { gcc: repository(owner: "rust-lang", name: "gcc") { databaseId nameWithOwner object(oid: "6f155cc3f5a2dff33afe6cc3ed6c2e0e605ae6a3") { oid ... on Commit { tree { oid entries { name mode type oid object { ... on Blob { byteSize } } } } } } } }

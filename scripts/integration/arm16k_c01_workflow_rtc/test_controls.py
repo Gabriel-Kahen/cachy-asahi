@@ -1,7 +1,7 @@
 #!/usr/bin/env -S python3 -I
 # SPDX-License-Identifier: MIT
 """Actor-fenced DATA controls only. Modeled receipts never become admission DATA."""
-import ast,contextlib,copy,ctypes,gzip,hashlib,importlib.util,inspect,json,os,socket,struct,subprocess,tempfile,unittest
+import ast,contextlib,copy,ctypes,gzip,hashlib,importlib.util,inspect,json,os,socket,struct,subprocess,tempfile,unittest,sys,types
 from pathlib import Path
 from unittest.mock import patch
 HERE=Path(__file__).resolve().parent
@@ -145,7 +145,85 @@ class CustodyAndData(unittest.TestCase):
   load('rtc_actor');load('boot')
   for path in HERE.rglob('*.py'):ast.parse(path.read_text(),filename=str(path))
 
+class ProcfsSourceBinding(unittest.TestCase):
+ def test_exact_ksm_helpers_and_only_meta_comparison_view_are_selected(self):
+  marker='# Only this live procfs root'
+  self.assertEqual((HERE/'guest-runtime.sh').read_text().split(marker,1)[1],(HERE.parent/'arm16k_project_lifecycle_rtc/guest-runtime.sh').read_text().split(marker,1)[1])
+  text=(HERE/'guest-root.sh').read_text();self.assertIn('procfs_guard\n',text);self.assertIn('metadata_equality_view before;metadata_equality_view after',text);self.assertIn('before=$O/before.meta-equality;after=$O/after.meta-equality',text);self.assertIn('same_bytes "$before" "$after"',text)
+
+
+class OutputFilesystem(unittest.TestCase):
+ def usage(self,free=3*1024**3):return type('Usage',(),{'free':free})()
+ def test_fresh_private_tmp_leaf_checks_parent_without_creation(self):
+  self.assertEqual(inspect.getsource(P.output_path),inspect.getsource(RTC.P.output_path))
+  with tempfile.TemporaryDirectory(prefix='rtc-path-control-')as tmp:
+   path=Path(tmp)/'fresh'
+   with patch.object(P.shutil,'disk_usage',return_value=self.usage())as usage:self.assertEqual(P.output_path(path),path)
+   usage.assert_called_once_with(path.parent);self.assertFalse(path.exists())
+ def test_explicit_dev_shm_leaf_checks_that_filesystem(self):
+  path=Path('/dev/shm/rtc-source-path-control-fresh-8d128ef4')
+  with patch.object(P.shutil,'disk_usage',return_value=self.usage())as usage:self.assertEqual(P.output_path(path),path)
+  usage.assert_called_once_with(Path('/dev/shm'));self.assertFalse(path.exists())
+ def test_other_roots_prefix_fakes_relative_and_parent_escape_refuse(self):
+  with patch.object(P.shutil,'disk_usage',side_effect=AssertionError('must refuse before capacity query')):
+   for path in ('/tmpx/fresh','/dev/shm-other/fresh','/home/operator/fresh','relative/fresh','/tmp','/dev/shm','/tmp/allowed/../escape','/tmp/bad name'):
+    with self.subTest(path=path),self.assertRaises(ValueError):P.output_path(Path(path))
+ def test_symlink_ancestor_and_dangling_leaf_refuse(self):
+  with tempfile.TemporaryDirectory(prefix='rtc-path-control-')as tmp:
+   root=Path(tmp);(root/'real').mkdir(mode=0o700);(root/'link').symlink_to(root/'real');(root/'dangling').symlink_to(root/'absent')
+   for path in (root/'link/fresh',root/'dangling'):
+    with self.assertRaisesRegex(ValueError,'symlink'):P.output_path(path)
+ def test_existing_file_directory_and_missing_parent_refuse(self):
+  with tempfile.TemporaryDirectory(prefix='rtc-path-control-')as tmp:
+   root=Path(tmp);(root/'file').write_text('control');(root/'dir').mkdir(mode=0o700)
+   for path in (root/'file',root/'dir',root/'absent/fresh'):
+    with self.assertRaises(ValueError):P.output_path(path)
+ def test_nonprivate_or_wrong_owner_ancestor_refuses(self):
+  with tempfile.TemporaryDirectory(prefix='rtc-path-control-')as tmp:
+   root=Path(tmp);public=root/'public';public.mkdir(mode=0o755);public.chmod(0o755)
+   with self.assertRaisesRegex(ValueError,'private'):P.output_path(public/'fresh')
+   with patch.object(P.os,'getuid',return_value=os.getuid()+1),self.assertRaisesRegex(ValueError,'user-owned'):P.output_path(root/'fresh')
+ def test_full3gib_boundary_holds_on_actual_parent(self):
+  with tempfile.TemporaryDirectory(prefix='rtc-path-control-')as tmp:
+   path=Path(tmp)/'fresh'
+   with patch.object(P.shutil,'disk_usage',return_value=self.usage(3*1024**3-1)),self.assertRaisesRegex(ValueError,'actual output filesystem'):P.output_path(path)
+   with patch.object(P.shutil,'disk_usage',return_value=self.usage(3*1024**3)):self.assertEqual(P.output_path(path),path)
+
+
+class HeldPreparationGate(unittest.TestCase):
+ def test_ksm_hold_refuses_before_path_capacity_or_creation(self):
+  with tempfile.TemporaryDirectory(prefix='c01-output-gate-control-')as tmp:
+   root=Path(tmp);hold=root/'hold.json';hold.write_text('{"status":"HOLD"}');output=root/'must-not-create'
+   fake=types.SimpleNamespace(authority=lambda *args:{'allow_prepare':True,'ksm_pass_receipt':I.pin(hold)})
+   def choose(name,path):
+    if path.name=='inputs.py':return I
+    if path.name=='contracts.py':return fake
+    raise AssertionError('must not reach another phase')
+   argv=['prepare.py','--allow-prepare-project-lifecycle']
+   for option in ('authority','authority-sha256','kernel-bundle','signing-receipt','materials','rootfs','base','base-first-boot-report'):argv+=['--'+option,'/not-used']
+   argv+=['--trust-prerequisite',str(hold),'--trust-prerequisite-sha256',I.pin(hold)['sha256'],'--output',str(output)]
+   previous=os.umask(0o077)
+   try:
+    with patch.object(sys,'argv',argv),patch.object(P,'load',side_effect=choose),patch.object(P,'output_path',side_effect=AssertionError('KSM HOLD must refuse before output')):
+     with self.assertRaisesRegex(ValueError,'HOLD'):P.main()
+   finally:os.umask(previous)
+   self.assertFalse(output.exists())
+
 if __name__=='__main__':
+ if sys.argv[1:]==['--procfs-helper-controls']:
+  # Separate private-host shell profile; the ordinary full suite stays fenced.
+  previous=RTC.HERE;RTC.HERE=HERE
+  class C01ProcfsControls(RTC.ProcfsMetadataEquality):
+   def test_raw_metadata_is_captured_and_public_hash_uses_labeled_view(self):
+    text=(HERE/'guest-root.sh').read_text()
+    self.assertIn("stat --printf='%n\\0%f\\0%u\\0%g\\0%h\\0%N\\0'",text)
+    self.assertIn('before=$O/before.meta-equality;after=$O/after.meta-equality',text)
+    before=self.record();after=self.record(links=b'9');result,outputs=self.views(before,after)
+    self.assertEqual(result.returncode,0);self.assertEqual(outputs['before.meta'],before);self.assertEqual(outputs['after.meta'],after)
+  try:
+   result=unittest.TextTestRunner().run(unittest.defaultTestLoader.loadTestsFromTestCase(C01ProcfsControls))
+  finally:RTC.HERE=previous
+  raise SystemExit(0 if result.wasSuccessful()else 1)
  with contextlib.ExitStack()as stack:
   for module,names in ((subprocess,('Popen',)),(socket,('socket','create_connection')),(ctypes,('CDLL',)),(os,('system','fork','forkpty','posix_spawn','posix_spawnp','execv','execve','execvp','execvpe'))):
    for name in names:

@@ -94,17 +94,17 @@ python3 -I -B scripts/integration/arm16k_project_lifecycle_rtc/prepare.py \
   --authority /path/to/Root-prepare-authority.json --authority-sha256 ACTUAL_SHA256 \
   --base /tmp/cachy-asahi-arm16k-preparation-20261114-r5/assembly \
   --base-first-boot-report /tmp/cachy-asahi-arm16k-first-boot-root-20261114/report.json \
-  --output /tmp/NEW-rtc-lifecycle-preparation
+  --output /dev/shm/NEW-rtc-lifecycle-preparation
 
 python3 -I -B scripts/integration/arm16k_project_lifecycle_rtc/boot.py \
   --allow-first-arm16k-rtc-project-lifecycle \
-  --prepared /tmp/NEW-rtc-lifecycle-preparation/assembly \
+  --prepared /dev/shm/NEW-rtc-lifecycle-preparation/assembly \
   --prepared-sha256 ACTUAL_PREPARED_SHA256 \
   --authority /path/to/Root-boot-authority.json --authority-sha256 ACTUAL_SHA256 \
   --kernel-bundle /path/to/actual-built-rtc-bundle \
   --baseline-config /tmp/cachy-asahi-arm16k-preparation-20261114-r5/assembly/kernel.config \
   --signing-receipt /path/to/ksm-new-test-signatures-r1/Root-signing-receipt.json \
-  --output /tmp/NEW-rtc-lifecycle-root-run
+  --output /dev/shm/NEW-rtc-lifecycle-root-run
 ```
 
 Preparation stages fresh public signing materials in its own directory and
@@ -121,7 +121,7 @@ overlay256MiB. Preparation Runner600seconds, assembly360seconds. Additional
 preparation cap800MiB (sparse clone,14MiB materials and logs); future overlay is
 separate. Require≥3GiB free before preparation and preserve≥2GiB free; boot
 requires2GiB plus its256MiB overlay reserve. Root must review live aggregate RAM,
-/tmp capacity, the actual built kernel and fresh actor contract before admission.
+selected output filesystem capacity, the actual built kernel and fresh actor contract before admission.
 No preparation, kernel compile, image build, VM launch or package payload ran
 in this source task. Prepared/kernel/guest result fields remain null or NOT RUN.
 
@@ -132,7 +132,7 @@ python3 -I -B scripts/integration/arm16k_project_lifecycle_rtc/test_successor.py
 python3 -I -B scripts/integration/arm16k_project_lifecycle/test_lifecycle.py
 ```
 
-The43 successor controls include modeled bundle/clock/result/custody refusals,
+The72 successor controls include modeled bundle/clock/result/custody refusals,
 actual private-host summary byte preservation and syncfs, sync-failure terminal
 refusal, bounded mock GPG receipt/privacy checks and fresh signing date handling.
 The46 unchanged legacy controls separately pass. Modeled RTC checks do not
@@ -160,3 +160,92 @@ extra archive field refusal, omitted LOCALVERSION refusal and wrong compiler
 before-value refusal. A separate pure construction check restores the exact full
 baseline bytes through the producer inverse. Synthetic temporary Image headers
 are model DATA only; no actual built kernel or admission receipt is produced.
+
+
+Preparation accepts an explicit fresh private output leaf below exactly `/tmp`
+or `/dev/shm`. It does not resolve symlink aliases, create missing parent trees,
+select a fallback filesystem, write under `/home`, or remove old inputs. Nested
+parents must already be ordinary user-owned private directories; a direct leaf
+under either shared storage root is created0700 with the existing077 umask.
+Relative paths, `..`, prefix lookalikes, symlink ancestors/leaves and existing
+outputs refuse. Capacity is measured on the actual existing output parent:
+require at least3GiB before creation, retain the2GiB reserve and800MiB owned
+preparation cap. The separate512MiB /home reserve still protects Docker storage.
+All seven exact preparation mounts, rootless cap0/NNP/network-none policy,
+credentials/nonce/markers, signature/RTC authority and actor bytes are unchanged.
+Root must independently verify its exact rootless daemon can read the chosen
+private bind path. This source change performed no actual preparation or boot.
+Seven output-path controls pass within the72-control source/host-shell suite;
+/dev/shm acceptance uses a modeled capacity value and creates no output there.
+
+
+The first actual RTC guest reached restoration and held on an exact byte
+inequality at same_bytes, guest-runtime.sh line24. Its report is locally retained
+at `/dev/shm/cachy-asahi-ksm-rtc-first-boot-root-20261115-r1/report.json`,2083bytes,
+SHA256 `61b7686866ace554004eb91ac395e1f2aa7698146b9fbd3f397b87de1205dfc3`.
+RTC/current-time proof and normal session/retirement passed; full restoration
+and subsequent TEST-trust removal did not. The failed category/content remains
+unknown because before/after snapshots lived only in volatile /run. That closed
+HOLD is preserved and this diagnostic successor does not claim a causal fix.
+
+Before crypto, the five before snapshots are now copied into the fixed private
+`/var/lib/arm16k-project-lifecycle/receipts/restoration/` directory. The after
+snapshots are copied before restoration comparisons. Names are exactly
+`before.{paths,meta,hash,db,xattr}` and `after.{paths,meta,hash,db,xattr}`. The
+fixture nonce binds the capture; a replay or wrong nonce refuses. In the actual
+root oneshot, directory ownership/mode is0:0700 and receipt files0:0600. Symlinks,
+nonregular/nonprivate source files, unknown names and preexisting stage outputs
+refuse. Exact readback compares every copy with its original.
+
+Each snapshot is at most16MiB. The snapshot sum reserves16KiB below32MiB for
+fixed nonce/manifest/comparison metadata, so total retained receipt bytes remain
+within32MiB. All sizes and targets are checked before each stage copies. The
+existing final durable boundary syncs the closed receipt files and directory
+metadata before publishing terminal state and allowing QMP quit.
+
+The paths/hash/db/xattr byte predicates remain exact. The metadata predicate
+uses the precisely scoped equality view described below; raw metadata remains
+retained unchanged. Before
+each, private comparison metadata records only its fixed category, two sizes and
+two SHA256 digests. On HOLD only, that metadata joins the nonce summary; no
+snapshot bytes, arbitrary paths or secret values are publicly printed. PASS
+fields and acceptance predicates are unchanged. The original33-tool namespace
+is unchanged; only the two reviewed source hashes in tools.lock.json change.
+Eleven new private-host controls exercise binary copies, each real difference,
+per-file/aggregate caps, nonce/replay/symlink/mode refusal, copy corruption and
+actual sync-f terminal ordering. These are source/helper controls; no fresh
+preparation, package transaction or VM was run by this successor task.
+
+Successful comparison metadata is removed, so a later user-sentinel or cleanup
+failure cannot be mislabeled as a failed snapshot category. All ten private
+snapshots and their manifest remain retained.
+
+
+The r2 passive DATA inspection established exactly one difference: the link
+count of the package-owned `/proc/` root. All path sets, regular-file hashes,
+ALPM database hashes, xattrs and every other metadata field matched. Its raw
+before/after records and actual counts remain private under
+`/dev/shm/cachy-asahi-ksm-restoration-data-root-20261115-r2/receipts/`.
+No particular process identity is inferred. The exact built-kernel source
+[proc_root_getattr](https://github.com/AsahiLinux/linux/blob/94fb23346d522edf53722357c426a3e58030beea/fs/proc/root.c#L369-L376)
+derives this link count from the proc root and live process count; source file
+11500bytes, SHA256
+`82e961f5994758310ee13f062c069f36047c7307003710b92d109864c6e96687`.
+
+This successor verifies `/proc` is an ordinary directory, not a symlink, with
+procfs magic9fa0/typeproc and an exact root `/proc` proc mount in mountinfo.
+Missing, substituted or wrong procfs refuses. Before both payload snapshots and
+metadata comparisons that guard must pass. The six-field raw metadata snapshots
+are unchanged, including actual nlink values. Only in a separate equality view
+is the exact `/proc/` nlink field replaced by `VOLATILE_LIVE_PROCFS_NLINK`.
+Path, mode, UID, GID and quoted name stay exact, as does every field of every
+other path, including other proc/sys/dev paths. Missing/duplicate proc records
+and malformed records refuse. There is no broad pseudo-filesystem exclusion.
+
+`BASE_meta`/`FINAL_meta` now hash this labeled metadata equality view; the public
+39-field result parser is unchanged. This is explicitly narrower metadata
+restoration scope, not a claim that live procfs nlink was restored or measured
+as zero. Both raw snapshots and their manifest retain actual private counts for
+passive recovery. No actual fresh guest result is claimed by this source change;
+all signature, hook, PAM, RTC, resource and remaining restoration gates stay held.
+Eight added controls cover non-nlink/other-path changes and fake/missing procfs.

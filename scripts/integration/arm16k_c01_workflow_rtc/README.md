@@ -97,12 +97,11 @@ Actual source verification:
 python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_c01_workflow_rtc/test_controls.py
 ```
 
-29 actor-fenced DATA/model controls pass. `RESULTS.json` preserves the earlier
-28-control c20b58ec profile; this helper correction is recorded here and in the
-current test output. Subprocess, socket, CDLL, fork and exec
+40 actor-fenced DATA/model controls pass. `RESULTS.json` records this source
+profile and keeps the earlier control counts as historical profiles. Subprocess, socket, CDLL, fork and exec
 actors are blocked during this suite. Bash syntax checks pass separately. Tests
 use ephemeral modeled receipts only and publish no actual admission receipt.
-The43 RTC KSM controls remain a separately reported source/host-shell profile.
+RTC KSM controls remain a separately reported source/host-shell profile.
 
 Future commands below are **Root-only and NOT RUN**. Supply actual independently
 reviewed pins and a genuine completed KSM RTC receipt; pending template values
@@ -120,7 +119,7 @@ python3 -I -B scripts/integration/arm16k_c01_workflow_rtc/prepare.py \
   --rootfs /tmp/cachy-asahi-arm16k-inputs-20261114/rootfs.tar.gz \
   --base /tmp/cachy-asahi-arm16k-preparation-20261114-r5/assembly \
   --base-first-boot-report /tmp/cachy-asahi-arm16k-first-boot-root-20261114/report.json \
-  --output /tmp/NEW-C01-RTC-PREPARATION
+  --output /dev/shm/NEW-C01-RTC-PREPARATION
 
 python3 -I -B scripts/integration/arm16k_c01_workflow_rtc/boot.py \
   --allow-first-arm16k-c01-rtc-workflow \
@@ -130,14 +129,14 @@ python3 -I -B scripts/integration/arm16k_c01_workflow_rtc/boot.py \
   --signing-receipt /path/to/c01-new-test-signatures-r1/Root-signing-receipt.json \
   --trust-prerequisite /path/to/actual-Root-RTC-KSM/report.json \
   --trust-prerequisite-sha256 ACTUAL_KSM_RECEIPT_SHA \
-  --prepared /tmp/NEW-C01-RTC-PREPARATION/assembly --prepared-sha256 ACTUAL_SHA \
-  --output /tmp/NEW-C01-RTC-ROOT-RUN
+  --prepared /dev/shm/NEW-C01-RTC-PREPARATION/assembly --prepared-sha256 ACTUAL_SHA \
+  --output /dev/shm/NEW-C01-RTC-ROOT-RUN
 ```
 
 Resource proposal is unchanged: rootless cap0/NNP/read-only/network-none host
 container2CPU/3GiB/256PIDs; virt/TCG2CPU1536MiB guest;600s preparation Runner,
 360s assembly,420s controller/480s actor;800MiB preparation cap and256MiB overlay.
-Require≥3GiB /tmp free before preparation,≥2GiB reserve afterward and2GiB plus
+Require≥3GiB free on the explicit output parent filesystem before preparation,≥2GiB reserve afterward and2GiB plus
 overlay reserve before boot. No NIC/KVM/host services/devices or host trust
 mutation. Originals are read-only; nonce/password/machine ID/filesystem UUID and
 attempt marker are fresh. Root owns aggregate resource and actual actor admission.
@@ -158,3 +157,55 @@ extra archive field refusal, omitted LOCALVERSION refusal and wrong compiler
 before-value refusal. A separate pure construction check restores the exact full
 baseline bytes through the producer inverse. Synthetic temporary Image headers
 are model DATA only; no actual built kernel or admission receipt is produced.
+
+
+Preparation accepts an explicit fresh private leaf under exactly `/tmp` or
+`/dev/shm`, using the established RTC KSM path/capacity helper unchanged. It does
+not choose a fallback root or create missing parent trees. Existing outputs,
+relative paths, `..`, prefix lookalikes, symlink ancestors/leaves and nonprivate
+or wrong-owner nested parents refuse. The leaf is created0700 under the existing
+077 umask; nested parent directories must already be user-owned and private.
+The3GiB gate measures the actual existing output parent filesystem, preserving
+the2GiB reserve,800MiB preparation cap and separate512MiB /home Docker reserve.
+Root must verify its exact rootless daemon can read the selected private bind.
+
+The genuine RTC KSM PASS prerequisite still runs before output validation or
+creation; a new actor-fenced HOLD control proves that ordering. Built bundle,
+current UTC/signing/Source gates, all seven exact mounts, resource limits,
+credentials/nonces/markers and actor bytes are unchanged. No output directory,
+raw image, preparation or VM was produced in `/dev/shm` by this source task.
+The destination remains Root's explicit choice and actual preparation/boot still
+requires separate genuine Root admission.
+
+
+C01 now reuses the exact source-proven RTC KSM `procfs_guard` and
+`metadata_equality_view` helpers. Before each snapshot, `/proc` must be an
+ordinary nonsymlink directory with procfs magic/type and the exact root proc
+mount. Metadata equality then labels only exact `/proc/` nlink as
+`VOLATILE_LIVE_PROCFS_NLINK`; path, mode, UID, GID, quoted name and every field of
+every other path remain exact. Wrong/missing/fake procfs or malformed/duplicate
+proc records refuse. No other pseudo-filesystem exception is introduced.
+
+The raw six-field before/after metadata and actual numeric nlink counts remain
+unchanged in the guest's private `/run` snapshots. This port does not add a new
+durable snapshot collector. `BASE_meta`/`FINAL_meta` hash the labeled comparison
+view; the existing37-field public C01 result parser stays unchanged. This is an
+explicitly narrower equality scope, not a claim that a live procfs link count is
+restored or zero. The pinned kernel source justification is recorded by the KSM
+successor; no process identity is inferred.
+
+Forty actor-fenced DATA controls pass separately from eight private-host helper
+controls. The latter reuse the KSM cases against C01's exact helper bodies and
+cover changed non-nlink/other-path metadata, malformed records and fake/missing
+procfs. Run that separate source/helper profile with:
+
+```sh
+python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_c01_workflow_rtc/test_controls.py --procfs-helper-controls
+```
+
+The ordinary full DATA suite remains actor-fenced. The35-tool namespace is
+unchanged; tools.lock.json changes only the two reviewed source hashes. Genuine
+KSM RTC PASS, signatures, clocks, workload/correctness counts, package hooks,
+normal PAM, resource/custody and all remaining restoration gates stay mandatory.
+No actual C01 preparation, guest, package workload or native actor ran in this
+source correction.

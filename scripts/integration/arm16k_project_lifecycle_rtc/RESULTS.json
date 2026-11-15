@@ -43,6 +43,46 @@
   },
   "native16K": "NOT RUN",
   "prepared": null,
+  "preserved_prior_RTC_trial": {
+    "causal_fix_claimed": false,
+    "line": 24,
+    "phase": "restoration",
+    "reason": "exact byte inequality; failed category/content unknown",
+    "report_bytes": 2083,
+    "report_path": "/dev/shm/cachy-asahi-ksm-rtc-first-boot-root-20261115-r1/report.json",
+    "report_sha256": "61b7686866ace554004eb91ac395e1f2aa7698146b9fbd3f397b87de1205dfc3",
+    "source": "guest-runtime.sh",
+    "status": "HOLD"
+  },
+  "private_output_filesystem_controls": {
+    "actual_preparation": "NOT RUN",
+    "allowed_explicit_roots": [
+      "/tmp",
+      "/dev/shm"
+    ],
+    "capacity_source": "actual existing output parent filesystem",
+    "dev_shm_test": "modeled capacity, no output created",
+    "free_reserve_bytes": 2147483648,
+    "minimum_before_creation_bytes": 3221225472,
+    "passed": 7,
+    "preparation_cap_bytes": 838860800,
+    "symlink_or_prefix_fallback": false
+  },
+  "procfs_metadata_correction": {
+    "actual_counts": "retained privately in raw before/after.meta; no zero-count claim",
+    "actual_prior_difference": "only /proc/ nlink; all other categories and metadata fields equal",
+    "equality_view_label": "VOLATILE_LIVE_PROCFS_NLINK",
+    "fresh_guest": "NOT RUN",
+    "kernel_source": {
+      "bytes": 11500,
+      "path": "fs/proc/root.c",
+      "revision": "94fb23346d522edf53722357c426a3e58030beea",
+      "sha256": "82e961f5994758310ee13f062c069f36047c7307003710b92d109864c6e96687"
+    },
+    "live_guard": "ordinary nonsymlink /proc, procfs magic/type, exact root proc mount",
+    "public_meta_digests": "hash of explicitly labeled equality view, same39-field parser",
+    "source_only_controls_passed": 8
+  },
   "read_only_fresh_signing_receipt": {
     "actual_host_UTC_within_validity": true,
     "bytes": 1481,
@@ -60,11 +100,37 @@
     "overlay_cap_bytes": 268435456,
     "preparation_additional_cap_bytes": 838860800
   },
+  "restoration_receipt_controls": {
+    "aggregate_cap_bytes": 33554432,
+    "equality_scope": "All bytes exact except verified live exact /proc/ nlink explicitly labeled only in metadata equality view; raw snapshots unchanged",
+    "exact_equality_unchanged": false,
+    "fixed_metadata_reserve_bytes": 16384,
+    "fresh_VM": "NOT RUN",
+    "guest_directory_owner_mode": "0:700",
+    "guest_file_owner_mode": "0:600",
+    "individual_cap_bytes": 16777216,
+    "passed": 11,
+    "public_failure_fields": "fixed comparison category, sizes, SHA256 digests only",
+    "scope": "private-host shell helpers and source ordering, no guest/actor",
+    "snapshot_names": [
+      "before.paths",
+      "before.meta",
+      "before.hash",
+      "before.db",
+      "before.xattr",
+      "after.paths",
+      "after.meta",
+      "after.hash",
+      "after.db",
+      "after.xattr"
+    ],
+    "successful_comparison_does_not_mislabel_later_failure": true
+  },
   "rtc_sysfs_clock": "MODELED ONLY",
   "schema_version": 1,
   "status": "SOURCE_CONTROLS_ONLY_NOT_PREPARED",
   "successor_controls": {
-    "passed": 43,
+    "passed": 72,
     "profile": "source/model/private-host-shell; no Docker/QEMU/package payload"
   },
   "unchanged_legacy_controls": {

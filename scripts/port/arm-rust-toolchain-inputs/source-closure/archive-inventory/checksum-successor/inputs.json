@@ -1,0 +1,22 @@
+{
+  "gap_report": {
+    "bytes": 51696,
+    "sha256": "8d72901a1817835d78063e53f881e8ca919d6b5c5656ac38b8ba27fc436e63d3"
+  },
+  "no_network": true,
+  "parser": {
+    "bytes": 23050,
+    "sha256": "f8be83a642f812ca688fcf9f548905a286276a6b8c0f0bad77d9c5fc98829ffa"
+  },
+  "prior_inputs": {
+    "bytes": 1418,
+    "sha256": "d79bbc83e9cd6ecb3c4c9bfde262cefe6b6b0c8e6b94a0a89cf3a28c4b50d13d"
+  },
+  "purpose": "actual vendor per-file checksum and119content-review successor; previous reports unchanged",
+  "rust_report": {
+    "bytes": 2704405,
+    "sha256": "a0eb6bec3b63d4d4f4a937e3e1e8b42a2e87d9e49b8608b96d51762b456abc8f"
+  },
+  "schema": 1,
+  "scope": "Rust root-vendor checksum maps and119Rustvendor license cases; LLVM earlier report has zero root-vendor component records and is not rescanned; no LLVM-wide checksum-discovery claim"
+}

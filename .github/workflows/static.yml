@@ -310,6 +310,9 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-native-adapter/test_reader.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-native-namespace/test_source.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-native-namespace/test_reader.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-native-hosted-source/test_bootstrap.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-native-hosted-source/test_reader.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-native-hosted-source/test_source.py
           python3 -I -B -Werror::ResourceWarning scripts/compat/python314-consumers/test_probe.py
           python3 -I -B -Werror::ResourceWarning scripts/install/fresh_handoff/test_handoff.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/install_handoff_candidate/test_contract.py
@@ -337,6 +340,8 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/port/arm-rust-toolchain-inputs/source-closure/authentication/test_authenticate.py
           python3 -I -B -Werror::ResourceWarning scripts/port/arm-rust-toolchain-inputs/source-closure/archive-inventory/test_inventory.py
           python3 -I -B -Werror::ResourceWarning scripts/port/arm-rust-toolchain-inputs/source-closure/archive-inventory/test_analyze.py
+          python3 -I -B -Werror::ResourceWarning scripts/port/arm-rust-toolchain-inputs/source-closure/archive-inventory/checksum-successor/test_verify.py
+          python3 -I -B -Werror::ResourceWarning scripts/port/arm-rust-toolchain-inputs/source-closure/submodule-closure/test_verify.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_c01_workflow/test_controls.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_c01_workflow_rtc/test_controls.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_rtc_kernel/test_controls.py

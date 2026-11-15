@@ -1,13 +1,31 @@
 #!/usr/bin/env -S python3 -I
 # SPDX-License-Identifier: MIT
 """Prepare a new exact C01 two-package TEST successor. Never launch a VM."""
-import argparse,importlib.util,json,os,re,secrets,shutil,sys,time,traceback
+import argparse,importlib.util,json,os,re,secrets,shutil,sys,time,traceback,stat
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
 
 
 def load(name,path):
  spec=importlib.util.spec_from_file_location(name,path);module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);return module
+
+
+def output_path(path):
+ """Check a fresh ordinary private leaf and its actual parent filesystem."""
+ if not path.is_absolute()or '..'in path.parts or not re.fullmatch('[A-Za-z0-9_/.:-]+',str(path)):raise ValueError('ordinary absolute output path required')
+ roots=(Path('/tmp'),Path('/dev/shm'))
+ root=next((root for root in roots if root in path.parents),None)
+ if root is None:raise ValueError('output must be below exact /tmp or /dev/shm root')
+ if any(parent.is_symlink()for parent in (path,*path.parents)):raise ValueError('output and ancestors must not be symlinks')
+ if path.exists():raise ValueError('fresh output leaf required')
+ if not path.parent.is_dir():raise ValueError('existing output parent required')
+ parent=path.parent
+ while parent!=root:
+  info=parent.stat()
+  if info.st_uid!=os.getuid()or stat.S_IMODE(info.st_mode)&0o077:raise ValueError('nested output ancestors must be user-owned private directories')
+  parent=parent.parent
+ if shutil.disk_usage(path.parent).free<3*1024**3:raise ValueError('preparation cap plus2GiB reserve required on actual output filesystem')
+ return path
 
 
 def main():
@@ -18,8 +36,7 @@ def main():
  assert approval.get('allow_prepare')is True,'fresh Root preparation authority required'
  trust=I.trust_prerequisite(args.trust_prerequisite,args.trust_prerequisite_sha256,approval)
  bundle=K.kernel(args.kernel_bundle,approval,args.base/'kernel.config');fresh=K.signing(args.signing_receipt,lock)
- assert shutil.disk_usage('/tmp').free>=3*1024**3,'preparation cap plus2GiB reserve required'
- out=args.output.resolve();assert str(out).startswith('/tmp/')and re.fullmatch('[A-Za-z0-9_/.:-]+',str(out));out.mkdir(mode=0o700,parents=True,exist_ok=False)
+ out=output_path(args.output);out.mkdir(mode=0o700,parents=False,exist_ok=False)
  C=load('arm16k_project_command_runtime',reference/'frozen/command_runtime.py');runner=C.Runner(600,dict(os.environ),out);state=B.Cancellation();state.__enter__();scope=None
  report={'schema_version':1,'status':'HOLD','operation':'arm16k-c01-baseline-lto-rtc-v1','VM_boot':'NOT RUN','native16K':'NOT RUN','M2':'NOT RUN'}
  def cmd(label,argv,timeout=60):
