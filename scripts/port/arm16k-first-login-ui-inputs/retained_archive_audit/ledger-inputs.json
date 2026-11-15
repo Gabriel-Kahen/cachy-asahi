@@ -1,0 +1,30 @@
+{
+  "contract": {
+    "bytes": 3917,
+    "path": "/tmp/cachy-asahi-arm16k-systemd-tcg-20261114/scripts/integration/arm16k_virtio_seat_vm/additions-contract.json",
+    "sha256": "94f3f323544ec754d1fb15c920ff07e2d1ec268e78b2e28fbd38a4db30535ced"
+  },
+  "execution": {
+    "bytes": 598,
+    "path": "/tmp/cachy-arm-seat44-retained-audit-20261115-01/execution.json",
+    "sha256": "1dba33d45a329a9bf7c375d3717e8cc65f585d810aa2c1ad336149ad04b244cd"
+  },
+  "policy": {
+    "bytes": 188810,
+    "path": "/tmp/cachy-arm-seat44-retained-audit-20261115-01/networkmanager-original-policy.data",
+    "sha256": "6002ee5e8fcf3cfdd25fa5425c5dfa879dc293f8b1c69f14b4a8f9259be0b446"
+  },
+  "read_accounting": "One new full compressed read per four required-path packages, hash/decode same stream; prior report reserves 3 reads per archive. No signature repeat.",
+  "report": {
+    "bytes": 2583283,
+    "path": "/tmp/cachy-arm-seat44-retained-audit-20261115-01/report.json",
+    "sha256": "995a24078b3e447b0abf481dc8f51efe56e5361258b64dd77d5cc09c4d72ebd5"
+  },
+  "required_addition_paths": {
+    "usr/bin/pkaction": "polkit",
+    "usr/bin/python3": "python",
+    "usr/lib/python3.14/site-packages/gi/__init__.py": "python-gobject",
+    "usr/share/polkit-1/actions/org.freedesktop.NetworkManager.policy": "networkmanager"
+  },
+  "schema": 1
+}

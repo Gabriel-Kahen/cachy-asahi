@@ -1,0 +1,101 @@
+{
+  "host_tools": {
+    "gpgv": {
+      "bytes": 384088,
+      "path": "/usr/bin/gpgv",
+      "sha256": "eb634c812e900c111bd33adb104f7781d736077b4afd6b0e202c650d24c3c59f"
+    },
+    "prlimit": {
+      "bytes": 27320,
+      "path": "/usr/bin/prlimit",
+      "sha256": "84643075132b361f03d41228856d26e354e700eda4afe411428d366e256fa8a6"
+    }
+  },
+  "inputs": {
+    "baseline111": {
+      "bytes": 143492,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi-install-completion-20261114/scripts/port/arm16k-first-login-ui-inputs/baseline111.json",
+      "sha256": "7a57dce67a65f58e5d1ece471879424ef819ee2bd6226a42452aeccb4a899f6e"
+    },
+    "intake_contract": {
+      "bytes": 9029,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi-install-completion-20261114/scripts/port/arm16k-first-login-ui-inputs/six_pair_intake/inputs.json",
+      "sha256": "281b9df371b580635af2ff16282f690a48c1c7ac5a491b263c822f705527e854"
+    },
+    "intake_receipt": {
+      "bytes": 22292,
+      "path": "/tmp/cachy-asahi-arm16k-ui-six-pair-intake-20261115/receipt.json",
+      "sha256": "b6ed01047226b0e89d22d0aaa13bcb7becb3e97d43ac6ce2f996db9ac2a55d7b"
+    },
+    "plan": {
+      "bytes": 1031521,
+      "path": "/tmp/cachy-asahi-arm16k-ui-plan-20261115-handoff/plan.json",
+      "sha256": "893ee5ed2cba013af2751ee1582b84120348c5cb8e10608dc5ef1447a83201ac"
+    }
+  },
+  "limits": {
+    "archive_object_bytes": 67108864,
+    "compressed_archive_read_allowance": 536870912,
+    "decoder_memory_bytes": 67108864,
+    "elf_object_bytes": 50331648,
+    "gpgv_child_AS": 33554432,
+    "logical_bytes": 2147483648,
+    "members": 250000,
+    "metadata_object_bytes": 2097152,
+    "retained_report_bytes": 25165824,
+    "signature_phase_worker_AS": 167772160,
+    "supervisor_AS": 67108864,
+    "wall_seconds": 900,
+    "worker_AS": 201326592
+  },
+  "official_armored_key": {
+    "bytes": 3098,
+    "path": "/tmp/cachy-asahi-arm16k-project-lifecycle-inputs-20261114/archlinuxarm.gpg",
+    "sha256": "6ce771e853f04a38a5b533cb33e61f877b9b06b58b6db051eb8a15d737a2332f"
+  },
+  "official_binary_keyring": {
+    "bytes": 2228,
+    "path": "/tmp/cachy-asahi-arm16k-project-lifecycle-inputs-20261114/archlinuxarm.gpg.binary",
+    "sha256": "9403f923eed777ba0896a0b225e1522d3a7625234694c753ae26b27c29672aae"
+  },
+  "official_primary": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+  "planner_commit": "15220d620f9305558a45dbbec98d5ca616fd33e2",
+  "project_binary_keyring_sha256": "2729c52fee2286b90a69459cd3d882be87ce8ce823131b6bf9c7f02f2a0f36c8",
+  "project_primary": "18E721CE9D7928221AD3163BA91B1AFC7142F94E",
+  "project_public_certificate": {
+    "authentication_or_freshness": "NOT RUN; public bytes only, no import/trust change",
+    "bytes": 981,
+    "path": "/tmp/cachy-asahi-first-login-ui-candidate-final-20261114/public-lifecycle/TEST-public.asc",
+    "sha256": "c0204e8ec1268827fb8576e9a0a259443b508eb2e7ee85df44d9dddec8bc435d"
+  },
+  "reader_sources": {
+    "scripts/checks/package_checks.py": {
+      "bytes": 19289,
+      "sha256": "314e8b4a0920b3f6d93619fc74ad1d63a6210d1b17b925618451b493d2610a1a"
+    },
+    "scripts/platform/elf_audit.py": {
+      "bytes": 26531,
+      "sha256": "72ec18c7d8580094164b3ea4c11fcff2583519b4cd861e5c436ec9d7a779401b"
+    },
+    "scripts/port/arm-rust-toolchain-inputs/catalog.py": {
+      "bytes": 28837,
+      "sha256": "d11fd6ec64d2622f23b31e86f9ea80493dfffa0d9558ec85cb7543feefae41f6"
+    },
+    "scripts/port/arm-rust-toolchain-inputs/qtbase-successor/elf_versions.py": {
+      "bytes": 4685,
+      "sha256": "6cf4a17b22dd6df28ace686ca1b3f4d6f5ed9248910a0f7f787ad65046e73285"
+    },
+    "scripts/port/platform-residual-closure/resolve.py": {
+      "bytes": 36995,
+      "sha256": "df71e3166025849785f1bdd4543f36938d7fd191dc8d407aa420a1b61968548e"
+    },
+    "scripts/update/archive_stream.py": {
+      "bytes": 11938,
+      "sha256": "10f1a4c0ac5b98852d9ebb150af28f9ce345c800935a64fa463bc90f72fcb838"
+    }
+  },
+  "schema": 1,
+  "scope": "successor bounded audit of145exact UI additions; old139retained observations immutable",
+  "six_pair_archive_root": "/tmp/cachy-asahi-arm16k-ui-six-pair-intake-20261115/archives",
+  "six_pair_commit": "9751c334c8c386135a68612556c848525530e548"
+}
