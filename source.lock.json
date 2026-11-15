@@ -20,9 +20,9 @@
       "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
     },
     "README.md": {
-      "bytes": 8026,
+      "bytes": 9494,
       "mode": 420,
-      "sha256": "981015a32cb5041fa1e518b652be3457da1f40c99a98bb6f9a2b1ed74fdad540"
+      "sha256": "58e79e2d81c4e43a24eed16f09a4a27ca885cbb49f510b9efda8984385da9cdc"
     },
     "authority.TEMPLATE.json": {
       "bytes": 1314,
@@ -40,9 +40,9 @@
       "sha256": "aa20d7a569a96a28ba7039c100057ece2e27a081447e2526db93b47445a58eb9"
     },
     "contracts.py": {
-      "bytes": 14667,
+      "bytes": 17021,
       "mode": 420,
-      "sha256": "32754421a758c2751bbb1e5eec696da0885de9784af4ef9a0164052bde3a6648"
+      "sha256": "eb4e479826e4fb05613c2064f4ff4ae570376eb57cc30ac1418e69f0c3a3b0dd"
     },
     "data/allocated-budget-v2.json": {
       "bytes": 1788,
@@ -279,6 +279,11 @@
       "mode": 420,
       "sha256": "f7df647b4e223fc8f80e8b1c4ee403530279b88adbe240e5fcd46d0c066ee78f"
     },
+    "quota-guard-home-btrfs.TEMPLATE.json": {
+      "bytes": 619,
+      "mode": 420,
+      "sha256": "0b9845298d1c824e995668c2890a4ef5339f1f675ada414448d3051ba68d8fcd"
+    },
     "quota-guard.TEMPLATE.json": {
       "bytes": 278,
       "mode": 420,
@@ -314,6 +319,11 @@
       "mode": 420,
       "sha256": "4925fea5b318dc926474bd1bb57dd20eefcb36d5b16c1b0fde9c1f66d3024d15"
     },
+    "test_home_guard.py": {
+      "bytes": 6607,
+      "mode": 420,
+      "sha256": "272bfc33cfdbd531371a5bc1b00b7c38a9d7adfa07f50ba5aec09b792ae15907"
+    },
     "test_image.py": {
       "bytes": 10827,
       "mode": 420,
@@ -335,9 +345,9 @@
       "sha256": "084e5957a435cf8f281ff8a60fe0afffd534ee9a71ed47677c9c4ae1715934b5"
     },
     "validation.json": {
-      "bytes": 1318,
+      "bytes": 816,
       "mode": 420,
-      "sha256": "9df32302aea417397ea1e0235753c4c841c8da731b745b37f23888ac3b3213c5"
+      "sha256": "582f666bab3f51bb80dcf31c8807936993757c90b64cb89c60f07d11fde2800f"
     },
     "vm_actor.py": {
       "bytes": 7232,

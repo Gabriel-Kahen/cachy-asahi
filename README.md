@@ -134,3 +134,27 @@ including any available receipt on failure. Missing receipts forceFAIL. Their
 pre-exec status never asserts a successful link. Root must treat quoted argv
 as DATA, never eval it. No frozen serial/parser limit is increased. The wrapper
 uses the existing certificate-required /usr/bin/bash, not guest Python.
+
+## HOME/Btrfs capacity-guard successor
+
+This Source-only contract extension retains the strict READ_ONLY_Q_GETQUOTA
+branch and adds only an explicit Root-reviewed HOME/Btrfs guard declaration.
+The new mode requires /home/gabe, UID1000, device54, Btrfs /@home/subvolid257,
+repeated ENOSYS38 ownUID quota observations, live fstatvfs and the same finite
+output/reserve/phase limits. Zero inode counters mean NOT_REPORTED; the bounded
+15000-node output census still applies. No positive quota/inode capacity is
+invented, other quota/qgroup constraints remain UNCLAIMED, and capacity is not
+reserved. EPERM/EINVAL/other errors, unknown filesystem identity, allocation/
+inode/ENOSPC failures or monitor loss HOLD with the existing cleanup policy.
+
+The new quota-guard-home-btrfs template is wholly unissued. Root must separately
+review the profile and monitor, publish/read back this new Source, and supply
+its genuine authority. Source68, all frozen helpers, guest linker/probes, PAM,
+39-row V2 certificate kind/consumer and baseline111 checks remain unchanged.
+The genuine39-row Root certificate produced from Source68 observations remains
+baseline evidence with that original provenance; this filesystem-only Source
+delta does not require new debugfs extraction or relabel that producer.
+
+No actual ownUID quota/Btrfs query, actor, VM, linker, compiler, lease, network
+or publication is performed by the worker. Future public Source/grants/runtime
+selectors remainNULL.
