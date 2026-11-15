@@ -17,14 +17,9 @@
       "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
     },
     "README.md": {
-      "bytes": 14235,
+      "bytes": 14968,
       "mode": 420,
-      "sha256": "d79bba670bc75bba880943b05ae211c07b1c8e1ac04b44e2111af071e6e834b1"
-    },
-    "__pycache__/contracts.cpython-314.pyc": {
-      "bytes": 47637,
-      "mode": 420,
-      "sha256": "87c8f1dad9c120c29d2b2826746323472061871431cff1bf855e1ced5fec7699"
+      "sha256": "53b97915c6389f057257bd7b843a7e2689ac5b160db59702e9ae5dc7ee9faefd"
     },
     "actor.py": {
       "bytes": 11512,
@@ -128,7 +123,7 @@
     },
     "known/installed-Reader.json": {
       "bytes": 3797,
-      "mode": 384,
+      "mode": 420,
       "sha256": "96138206dedec2d49f16475ba7daa5200ff8ab401ccb720f764685e63853d205"
     },
     "known/installed-decision.json": {
@@ -156,15 +151,25 @@
       "mode": 420,
       "sha256": "e63d41c5ed834a7ffbcd01a51fc6b59e5571b24be27247a83ebbb9f507da71a1"
     },
+    "seal.py": {
+      "bytes": 2674,
+      "mode": 420,
+      "sha256": "1455ca06c7a47a5c23a0798dd8dc02bbf96874abf434c98fed5db795d4e4b68f"
+    },
     "test_controls.py": {
       "bytes": 25334,
       "mode": 420,
       "sha256": "f6bee79bdfcc99edfc087a4e1d31209b0420bb5e38fff88ea675b14df640d882"
     },
-    "validation.json": {
-      "bytes": 1455,
+    "test_git_roundtrip.py": {
+      "bytes": 2258,
       "mode": 420,
-      "sha256": "058fb1ceaa1957b84e0fb2bfd2784dbd70a54c371cd203317f1435a7ebc0e8bb"
+      "sha256": "8cb2d31aad8fc21cbe78cfef7cc1ed3226df039625cc1b1a915ca077ac879b00"
+    },
+    "validation.json": {
+      "bytes": 1535,
+      "mode": 420,
+      "sha256": "54c73d2667da5ba11db7345d9f3353b6666bfe7504b4f408ef9693f1604a3454"
     }
   },
   "kind": "ARM16K_PERL5423_CASE_SOURCE_LOCK_V1",

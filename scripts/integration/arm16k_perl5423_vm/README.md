@@ -208,3 +208,15 @@ facts and independently accept them. No actual Docker, VM, debugfs, ALPM, GPG,
 compiler, Reader, lease, acquisition/publication, image/archive copy or signing
 was performed in this source task. Generic emulated16K runtime remains NOT RUN;
 native16K hardware, M2, performance and release remain NOT RUN/unaccepted.
+
+## Source seal authoring and Git regression
+
+Stage all ordinary source leaves first, with Git0644/0755 modes. Run
+`python3 -I -B scripts/integration/arm16k_perl5423_vm/seal.py --seal-staged-source`,
+then stage the regenerated source.lock.json and commit. The sealer reads the Git
+index, requires exact staged/worktree bytes and Git modes, and refuses ignored,
+untracked or special leaves. It never seals __pycache__ or private0600 modes.
+Run `python3 -I -B scripts/integration/arm16k_perl5423_vm/test_git_roundtrip.py`
+after commit. It exports only the committed source family to a fresh temporary
+directory with actual Git modes and runs the strict Source predicate under an
+operation fence. No package/image export or actor runs.

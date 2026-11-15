@@ -17,6 +17,7 @@
     "release": null
   },
   "checks": {
+    "committed_Git_source_roundtrip": "REQUIRED_SEPARATE_DATA_ONLY_REGRESSION",
     "python_fenced_controls": 22,
     "shell_syntax": "PASS",
     "source_membership": "PASS"
