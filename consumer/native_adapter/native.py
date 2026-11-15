@@ -436,7 +436,7 @@ def actor(admission_sha):
     failure = None
     report = None
     try:
-        report = runner.execute('/inputs/xs-plan.json', a['plan_sha256'], sandbox_path,
+        report = runner.execute('/inputs/xs-plan.json', a['plan_sha256'], str(sandbox_path),
                                 c.pin(p.encode(sandbox))['sha256'])
     except BaseException as error:
         failure = type(error).__name__ + ': ' + str(error)

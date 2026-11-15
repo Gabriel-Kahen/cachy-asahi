@@ -1,0 +1,127 @@
+{
+  "XS_acceptance": false,
+  "accepted_archive": {
+    "bytes": 22071176,
+    "sha256": "647c5f1d2c6965ec2e26b37e75d29c819fafa344f16002153493e9fc62121c22"
+  },
+  "actor_revision": {
+    "after": {
+      "bytes": 6409,
+      "sha256": "361b6da0830528fc9c2b764635a734f5e0c00795f0c16213bf167cc0b584ca40"
+    },
+    "before": {
+      "bytes": 6434,
+      "sha256": "d451a1c8ef7c4301db94a1fd5263249415d99cf9e100536494c2d9edbaa3645c"
+    },
+    "bound_to_exact349_inventory": true,
+    "fixed_ALPM_root": "/var/lib/pacman/local",
+    "global_path_guard": "UNCHANGED",
+    "inventory_delta": {
+      "actor-inventory-after.txt": {
+        "bytes": 505,
+        "sha256": "7bff8fac3fc9e0bda505641c3dc08594b47ebcfd8b790a579e4c3f029c17a60a"
+      },
+      "actor-inventory-before.txt": {
+        "bytes": 530,
+        "sha256": "0f5d88edf1882002e0cc906be4dcdcbda6d16b6fac6cd02343e6ade608101f3f"
+      }
+    },
+    "kind": "EXPLICIT_FIXED_ROOT_INVENTORY_BOUND_ALPM_DESC_READER_NOT_BYTE_IDENTICAL",
+    "primary_error_policy": "PRESERVE_PRIMARY_WITH_BOUNDED_SECONDARY_NOTE_NO_EARLY_SUCCESS"
+  },
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "authority": null,
+    "image": null,
+    "job": null,
+    "reader": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "cap_add_raw_encodings": [
+    [
+      "CHOWN"
+    ],
+    [
+      "CAP_CHOWN"
+    ]
+  ],
+  "captured_config_fields": [
+    "AttachStderr",
+    "AttachStdout",
+    "Hostname",
+    "Image"
+  ],
+  "closed_failed_artifact": "14168654559",
+  "closed_failed_job": "132871372912",
+  "closed_failed_run": "43733645464",
+  "closed_failure": "GLOBAL_ORDINARY_PATH_GUARD_REJECTED_UNLOGGED_ALPM_DESC_OPERAND_EPOCH_COLON_CAUSE_INFERRED",
+  "compiler_manifest": {
+    "bytes": 11025,
+    "sha256": "fa613490865d94362d4d9efe6c5860904158c09733439a9f6c5709168f88d23c"
+  },
+  "constructor_profile_sha256": "5d609d09f1b0eaf2f2fdb2b0560dd6c2e69514890ba7bbe2b32d433b3294f61f",
+  "delegated_consumer_operation": "perl5423-native-xs-v1",
+  "delegated_image_seal_operation": "perl5423-native-xs-v4",
+  "derived_default_argv": {
+    "Cmd": [
+      "/usr/bin/false"
+    ],
+    "Entrypoint": [
+      "/usr/bin/false"
+    ]
+  },
+  "native_acceptance": false,
+  "native_adapter_revision": {
+    "archived_body": "previous-v5/native.py",
+    "consumer_files": 13,
+    "frozen_functions": {
+      "bundle_check": {
+        "bytes": 1287,
+        "sha256": "9aa04e053fb848d9d79f27d21b7ee8c4a8453a987d15a33427e7579df6693a22"
+      },
+      "daemon_join": {
+        "bytes": 1790,
+        "sha256": "c6d22291d5caef7981b6292517a855257e6353a6a3ae46136c5b8c3c6cea8506"
+      },
+      "inputs": {
+        "bytes": 6923,
+        "sha256": "6412755b42062f2cd2f0eb41f61dd2f9857762d9364e7b7e2a24a8a8ea11d7c8"
+      },
+      "operation": {
+        "bytes": 1975,
+        "sha256": "52492df912d15b48bf864fac5aca8d31fbe77586f413ee815e1b1207b286c221"
+      }
+    },
+    "new_body": {
+      "bytes": 48295,
+      "sha256": "c492eb1b7175407d20a78305d8d1d499c67960d3b295aeea5ae206b9222d04cd"
+    },
+    "old_body": {
+      "bytes": 44312,
+      "sha256": "1db474ed81295c3604212998617bb44c1ed0339c224d63f61b06768cef6bde4f"
+    },
+    "path": "consumer/native_adapter/native.py",
+    "unchanged_consumer_files": 12
+  },
+  "operation": "perl5423-native-xs-v6",
+  "parent_map_sha256": "465a227c13249c72bc298266a18e5720721a89de49b01e4bbe7d336ecf127111",
+  "parent_source": "ac06bdbe5093e73fe7c67ad75cd830255f897c3b",
+  "parent_tree": "d11f4f8cbe708f10d590e127cb316bb68e548d94",
+  "runtime_manifest": {
+    "bytes": 349767,
+    "sha256": "7004309f83344b49f0f8ca598d8cefcffbc078450944824849ab9c575f1c0cd2"
+  },
+  "schema": 1,
+  "work_volume_policy": {
+    "both_created_before_initializer_start": true,
+    "budget_increase_seconds": 0,
+    "existing_actor_stdout_and_JSON_ABI_unchanged": true,
+    "nocopy_both": true,
+    "preentry_before_any_work_write": true,
+    "preentry_receipt": "work-preentry-v5.json",
+    "preentry_receipt_domain": "ALREADY_CREATED_PRIVATE_ACTOR_OUTPUT"
+  }
+}
