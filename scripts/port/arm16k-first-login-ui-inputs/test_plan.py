@@ -1,9 +1,10 @@
 # SPDX-License-Identifier: MIT
 """Focused DATA/refusal controls; no downloads, daemon, guest or installation."""
-import hashlib,io,json,os,resource,tarfile,tempfile,unittest
+import hashlib,importlib.util,io,json,os,resource,sys,tarfile,tempfile,unittest
 from pathlib import Path
-import plan as P
 HERE=Path(__file__).resolve().parent
+spec=importlib.util.spec_from_file_location('ARM_UI_input_plan',HERE/'plan.py')
+P=importlib.util.module_from_spec(spec);sys.modules[spec.name]=P;spec.loader.exec_module(P)
 BASE=json.loads((HERE/'baseline111.json').read_text());CONTRACT=json.loads((HERE/'inputs.json').read_text())
 def reference(path):return {'path':str(path),'bytes':path.stat().st_size,'sha256':P.sha(path)}
 class Controls(unittest.TestCase):

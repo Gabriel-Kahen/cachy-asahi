@@ -344,6 +344,7 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/port/arm-rust-toolchain-inputs/source-closure/submodule-closure/test_verify.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_c01_workflow/test_controls.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_c01_workflow_rtc/test_controls.py
+          python3 -I -B -Werror::ResourceWarning scripts/port/arm16k-first-login-ui-inputs/test_plan.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_rtc_kernel/test_controls.py
           python3 -I -B scripts/integration/arm16k_rtc_kernel/test_interop.py --consumer "$PWD/scripts/integration/arm16k_project_lifecycle_rtc/contracts.py"
           python3 -I -B -Werror::ResourceWarning -m unittest discover -s scripts/integration/first_login_ui_session_vm -p 'test_*.py' -v
