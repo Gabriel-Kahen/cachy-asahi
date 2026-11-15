@@ -1,0 +1,159 @@
+{
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "authority": null,
+    "container": null,
+    "image": null,
+    "job": null,
+    "reader": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "adapter_revision": {
+    "kernel_actor": "EXACT_UNCHANGED_PARENT_BYTES",
+    "kind": "PERL_INSTALLED_DOCKER_CAPABILITY_NAMES_V2",
+    "new_producer": {
+      "bytes": 14879,
+      "sha256": "4c6db02555123c1878da8610fdf807e4f82ad6b8a3cf20257dc11aec73a01c24"
+    },
+    "old_core_claim": "HISTORICAL_PARENT_NOT_ALL12_UNCHANGED",
+    "old_core_commit": "7bf0da67717ea24f0b1782f8505967c48b64b0b0",
+    "old_producer": {
+      "bytes": 14274,
+      "sha256": "9d4c681100328f2db7abefdc0ff894a569d3670667cf369613dd3d8ffb222b87"
+    },
+    "parent_source": "71246ca38e58f9f410d1f3eea15f5ddf174bb1bf",
+    "parent_tree": "119da3d2e86d305ba517a7f567c98333aeb9f872",
+    "raw_inspect": "PRESERVED_WITHOUT_NORMALIZATION",
+    "revised_core_files": [
+      "producer.py"
+    ],
+    "runtime_grant": false,
+    "unchanged_old_core_files": 11
+  },
+  "baseline_review_join": {
+    "baseline_review": {
+      "bytes": 2600,
+      "sha256": "cc3ac3191cef6f91f4c89b94f5f0635f2d03aec25431d03d86bd351bee49fdb6"
+    },
+    "image_runtime_qualification": "NOT_ISSUED_BY_THIS_CHECK",
+    "root_review_status": "ROOT_REVIEWED_PREREQUISITES_FOR_SINGLE_NATIVE_LIFECYCLE",
+    "status": "EXACT_CAPSULE_REVIEW_DATA_JOINED"
+  },
+  "capsule": {
+    "bytes": 40366080,
+    "members": {
+      "actor.py": {
+        "bytes": 24697,
+        "mode": 292,
+        "sha256": "ce920ce825f28f0d175576b00fbb2ebd4529f92f6aabdc32ce2124e8a1f69058"
+      },
+      "baseline-inputs.lock.json": {
+        "bytes": 623664,
+        "mode": 292,
+        "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
+      },
+      "baseline-payload.json": {
+        "bytes": 767438,
+        "mode": 292,
+        "sha256": "cbb6e485e988279c737a8a43144eb235fb223ba92a04e62c4841513ee18a7aff"
+      },
+      "baseline-review.json": {
+        "bytes": 2600,
+        "mode": 292,
+        "sha256": "cc3ac3191cef6f91f4c89b94f5f0635f2d03aec25431d03d86bd351bee49fdb6"
+      },
+      "candidate-payload.json": {
+        "bytes": 772301,
+        "mode": 292,
+        "sha256": "e9873bafc4ea979a428a06be9d2cea20e8125a07070975bf559cca26e1255b8b"
+      },
+      "common.py": {
+        "bytes": 6390,
+        "mode": 292,
+        "sha256": "bf3868cdc89665c5ee79bad9eee260a21737abc70b55b31d6eedc16bee131ba6"
+      },
+      "domain.json": {
+        "bytes": 733,
+        "mode": 292,
+        "sha256": "4f55c9ec32f4a4d9d6668dbf9da53a154a9bf0725cfec491c6049840f68083da"
+      },
+      "expected349.lock": {
+        "bytes": 6800,
+        "mode": 292,
+        "sha256": "579981195b654d8cdf142e4101dfc2bfffbc3576eed50f23796a06e90cf57453"
+      },
+      "helpers/owned_child.py": {
+        "bytes": 10908,
+        "mode": 292,
+        "sha256": "eaf9a46630e4fe4ca0a8f94a6dc2de4a881a6ad7e8b4dd0810b3347c0d7038d5"
+      },
+      "perl-5.42.3-1-aarch64.pkg.tar.xz": {
+        "bytes": 16017184,
+        "mode": 292,
+        "sha256": "f0e47c42ec91985898af2ce7355ef4eead50457108706add1f8c1650bca19b8f"
+      },
+      "perl-5.42.3-1-aarch64.pkg.tar.xz.sig": {
+        "bytes": 566,
+        "mode": 292,
+        "sha256": "f40e70ac18f61c8b706c7642bac2cfef7b4fcb9d96bd30da3fc41c48a6667dca"
+      },
+      "perl-5.42.3-1.3-aarch64.pkg.tar.zst": {
+        "bytes": 22071176,
+        "mode": 292,
+        "sha256": "647c5f1d2c6965ec2e26b37e75d29c819fafa344f16002153493e9fc62121c22"
+      },
+      "perl-5.42.3-1.3-aarch64.pkg.tar.zst.sig": {
+        "bytes": 119,
+        "mode": 292,
+        "sha256": "c860013b12243cd560ba99229045e983346c363936b642ba188b5042d860a993"
+      },
+      "probe.pl": {
+        "bytes": 1596,
+        "mode": 292,
+        "sha256": "8ca7fe071ca16e99c79c7329833ef530e701e54fd90366be90792e6bccf43a43"
+      },
+      "producer.py": {
+        "bytes": 14879,
+        "mode": 292,
+        "sha256": "4c6db02555123c1878da8610fdf807e4f82ad6b8a3cf20257dc11aec73a01c24"
+      },
+      "read_result.py": {
+        "bytes": 10990,
+        "mode": 292,
+        "sha256": "2dff5d7be09239bfede23acc5d04d29b6eb67dafacfe26df10140d2757079086"
+      },
+      "source-map.json": {
+        "bytes": 2962,
+        "mode": 292,
+        "sha256": "bbf6257ba00e6a8bf52d2100cb03549bf9d9107b9637b76da39eed3b8de6cbab"
+      },
+      "test-public.asc": {
+        "bytes": 461,
+        "mode": 292,
+        "sha256": "afc1336af3ca67e130de313594cd9836aa700ed84abc7270a9c687969bc555d6"
+      },
+      "trust/pubring.gpg": {
+        "bytes": 2510,
+        "mode": 292,
+        "sha256": "836f37531bb595157139a8acd74adbbbf483ebda1dfbba3a3c1a86280bad98f3"
+      },
+      "trust/trustdb.gpg": {
+        "bytes": 1360,
+        "mode": 292,
+        "sha256": "0a27c175c9bb9507c6490028831cfcdf8532e6a241664285c43aa486dd7dd7d1"
+      }
+    },
+    "sha256": "a0527ea4cd1b84944c92ec1fe3849218a1c826100d3437c5276bbf0fa913b494",
+    "source_map_sha256": "bbf6257ba00e6a8bf52d2100cb03549bf9d9107b9637b76da39eed3b8de6cbab"
+  },
+  "held_code_commit": "7bf0da67717ea24f0b1782f8505967c48b64b0b0",
+  "holds_preserved": true,
+  "inner_operation": "perl5423-installed-lifecycle-v1",
+  "input_review_sha256": "31aeecaa5ef5bdae8c001940587641cd2a32acb7ed5c5c93ed0609e8eb0acc1e",
+  "operation": "perl5423-installed-lifecycle-native-v1",
+  "schema": 1,
+  "signing": "NO_SECRET_SIGNING_MATERIAL_OR_SIGNER_CREATION; Root external TEST signature/public bundle required"
+}

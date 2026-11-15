@@ -15,12 +15,12 @@
     ".github/workflows/native-arm-build.yml": {
       "bytes": 10866,
       "mode": 420,
-      "sha256": "a17bd44aca6687cfe86a75a3e68a63cc29cb64a44534be06273d4b297b97caaf"
+      "sha256": "e4b3137d8669b2a36ed2cc687e5758536cffe10c7ad1da03a6cc7c619242e0a2"
     },
     ".github/workflows/native-arm-perl5423-installed-lifecycle-v1.yml": {
       "bytes": 10866,
       "mode": 420,
-      "sha256": "a17bd44aca6687cfe86a75a3e68a63cc29cb64a44534be06273d4b297b97caaf"
+      "sha256": "e4b3137d8669b2a36ed2cc687e5758536cffe10c7ad1da03a6cc7c619242e0a2"
     },
     "LICENSE": {
       "bytes": 1081,
@@ -28,9 +28,9 @@
       "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
     },
     "contract.json": {
-      "bytes": 5499,
+      "bytes": 7421,
       "mode": 420,
-      "sha256": "d4cfd92ff473b88f9e75f366ced6fc6b3aea435c179d837e40bb567312bd0ebc"
+      "sha256": "297a31ff838e684b7896f59580c819b871008058ba8b0e5ff034e1d2142ce8bb"
     },
     "expected349.lock": {
       "bytes": 6800,
@@ -55,7 +55,7 @@
     "hosted/common.py": {
       "bytes": 8458,
       "mode": 420,
-      "sha256": "2b1927c98329d5cfbdd70cf4c6e6857e3b67c91dc53d77bbaca332ee4aa2b146"
+      "sha256": "bd45167f147fc6bf2b40fc878c5253b2bfe2d4b23fe74c322e838fc24f8957ee"
     },
     "hosted/entry.py": {
       "bytes": 23929,
@@ -78,24 +78,24 @@
       "sha256": "31aeecaa5ef5bdae8c001940587641cd2a32acb7ed5c5c93ed0609e8eb0acc1e"
     },
     "inverse.json": {
-      "bytes": 42128,
+      "bytes": 42526,
       "mode": 420,
-      "sha256": "c1e97525b80caa688880a4a0f8ee0fa34e4c7e924c5b6bf02ebd807d7dde1b41"
+      "sha256": "fe79bf80fd260923a5958d5a59b931b14eb5b83739d7a7043f751a3d616a602f"
     },
     "lifecycle-capsule.tar": {
       "bytes": 40366080,
       "mode": 420,
-      "sha256": "a0527ea4cd1b84944c92ec1fe3849218a1c826100d3437c5276bbf0fa913b494"
+      "sha256": "64921dc8625c54c1a0502d811f7e32e608eb407541d824659e18117d70a979c1"
     },
     "lifecycle-code-map.json": {
       "bytes": 2121,
       "mode": 420,
-      "sha256": "197e86768fbc80622977315af1030eec45b176559072894405767984adbe88c4"
+      "sha256": "470636d400a9c72086ba61e4d60376ca1a09c2158db68fdaf0bc9b776bf866a0"
     },
     "lifecycle-code/actor.py": {
-      "bytes": 24697,
+      "bytes": 25836,
       "mode": 420,
-      "sha256": "ce920ce825f28f0d175576b00fbb2ebd4529f92f6aabdc32ce2124e8a1f69058"
+      "sha256": "7d8a4bf6d990579bd27b2d9744b3771cb197566bfcbb8c810d91188f35ed6ac3"
     },
     "lifecycle-code/admission.TEMPLATE.json": {
       "bytes": 288,
@@ -138,9 +138,9 @@
       "sha256": "8ca7fe071ca16e99c79c7329833ef530e701e54fd90366be90792e6bccf43a43"
     },
     "lifecycle-code/producer.py": {
-      "bytes": 14879,
+      "bytes": 15229,
       "mode": 420,
-      "sha256": "4c6db02555123c1878da8610fdf807e4f82ad6b8a3cf20257dc11aec73a01c24"
+      "sha256": "123feb39856cf531ab67b42d09c98c01eb16816b2264821bd7ad563374887ce2"
     },
     "lifecycle-code/qualification.TEMPLATE.json": {
       "bytes": 486,
@@ -1202,6 +1202,56 @@
       "mode": 420,
       "sha256": "a4de8847d219ba3efd87294e783ef10ebf1405702a201a22a1d24cac75d515b4"
     },
+    "previous-v2/capsule-source-map.json": {
+      "bytes": 2962,
+      "mode": 420,
+      "sha256": "bbf6257ba00e6a8bf52d2100cb03549bf9d9107b9637b76da39eed3b8de6cbab"
+    },
+    "previous-v2/contract.json": {
+      "bytes": 5499,
+      "mode": 420,
+      "sha256": "d4cfd92ff473b88f9e75f366ced6fc6b3aea435c179d837e40bb567312bd0ebc"
+    },
+    "previous-v2/hosted-common.py": {
+      "bytes": 8458,
+      "mode": 420,
+      "sha256": "2b1927c98329d5cfbdd70cf4c6e6857e3b67c91dc53d77bbaca332ee4aa2b146"
+    },
+    "previous-v2/inverse.json": {
+      "bytes": 42128,
+      "mode": 420,
+      "sha256": "c1e97525b80caa688880a4a0f8ee0fa34e4c7e924c5b6bf02ebd807d7dde1b41"
+    },
+    "previous-v2/lifecycle-code-actor.py": {
+      "bytes": 24697,
+      "mode": 420,
+      "sha256": "ce920ce825f28f0d175576b00fbb2ebd4529f92f6aabdc32ce2124e8a1f69058"
+    },
+    "previous-v2/lifecycle-code-map.json": {
+      "bytes": 2121,
+      "mode": 420,
+      "sha256": "197e86768fbc80622977315af1030eec45b176559072894405767984adbe88c4"
+    },
+    "previous-v2/lifecycle-code-producer.py": {
+      "bytes": 14879,
+      "mode": 420,
+      "sha256": "4c6db02555123c1878da8610fdf807e4f82ad6b8a3cf20257dc11aec73a01c24"
+    },
+    "previous-v2/source-map.json": {
+      "bytes": 47304,
+      "mode": 420,
+      "sha256": "34d0b92316fd3c3aac69fb947b3b31ef14474d0128d10f7a0b1684495cc14175"
+    },
+    "previous-v2/workflow.yml": {
+      "bytes": 10866,
+      "mode": 420,
+      "sha256": "a17bd44aca6687cfe86a75a3e68a63cc29cb64a44534be06273d4b297b97caaf"
+    },
+    "result-retention-v3.json": {
+      "bytes": 768,
+      "mode": 420,
+      "sha256": "933fe999717f5acfd731c4eb8807b725cefe852eb8155b989e4375753592a463"
+    },
     "root-admission.TEMPLATE.json": {
       "bytes": 1251,
       "mode": 420,
@@ -1211,6 +1261,11 @@
       "bytes": 46728,
       "mode": 420,
       "sha256": "54239bfafb0e1b2efd6f2b97598bbc4a9613b775454e3b25131555abda55ecb4"
+    },
+    "v3-inverse.json": {
+      "bytes": 48282,
+      "mode": 420,
+      "sha256": "6bd2574274d6678c3e19a53140316ab81516483728a2e8e9d297f160ebf0d639"
     }
   },
   "schema": 1,

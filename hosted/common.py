@@ -10,7 +10,7 @@ import re
 import stat
 
 ROOT=Path(__file__).resolve().parents[1]
-COMPONENT_MAP='197e86768fbc80622977315af1030eec45b176559072894405767984adbe88c4'
+COMPONENT_MAP='470636d400a9c72086ba61e4d60376ca1a09c2158db68fdaf0bc9b776bf866a0'
 ACTUAL=dict(source=None,ref=None,run=None,job=None,reader=None,authority=None,approval=None,artifact=None,image=None,container=None)
 ALIASES=('.github/workflows/native-arm-build.yml','.github/workflows/native-arm-perl5423-installed-lifecycle-v1.yml')
 OPERATION='perl5423-installed-lifecycle-native-v1'

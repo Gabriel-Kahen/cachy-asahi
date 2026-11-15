@@ -50,9 +50,20 @@
     "previous-v1/lifecycle-code-producer.py",
     "previous-v1/source-map.json",
     "previous-v1/workflow.yml",
+    "previous-v2/capsule-source-map.json",
+    "previous-v2/contract.json",
+    "previous-v2/hosted-common.py",
+    "previous-v2/inverse.json",
+    "previous-v2/lifecycle-code-actor.py",
+    "previous-v2/lifecycle-code-map.json",
+    "previous-v2/lifecycle-code-producer.py",
+    "previous-v2/source-map.json",
+    "previous-v2/workflow.yml",
+    "result-retention-v3.json",
     "root-admission.TEMPLATE.json",
     "source-map.json",
-    "v2-inverse.json"
+    "v2-inverse.json",
+    "v3-inverse.json"
   ],
   "before_tree": "83ae6693a6d43465f249eb843eae3ada9c855e5a",
   "held": {

@@ -1,0 +1,86 @@
+{
+  "build_source": "25dc3e65bdb6137c87a9409067fe9b2cf6e9763f",
+  "files": {
+    "actor.py": {
+      "bytes": 24697,
+      "sha256": "ce920ce825f28f0d175576b00fbb2ebd4529f92f6aabdc32ce2124e8a1f69058"
+    },
+    "baseline-inputs.lock.json": {
+      "bytes": 623664,
+      "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
+    },
+    "baseline-payload.json": {
+      "bytes": 767438,
+      "sha256": "cbb6e485e988279c737a8a43144eb235fb223ba92a04e62c4841513ee18a7aff"
+    },
+    "baseline-review.json": {
+      "bytes": 2600,
+      "sha256": "cc3ac3191cef6f91f4c89b94f5f0635f2d03aec25431d03d86bd351bee49fdb6"
+    },
+    "candidate-payload.json": {
+      "bytes": 772301,
+      "sha256": "e9873bafc4ea979a428a06be9d2cea20e8125a07070975bf559cca26e1255b8b"
+    },
+    "common.py": {
+      "bytes": 6390,
+      "sha256": "bf3868cdc89665c5ee79bad9eee260a21737abc70b55b31d6eedc16bee131ba6"
+    },
+    "domain.json": {
+      "bytes": 733,
+      "sha256": "4f55c9ec32f4a4d9d6668dbf9da53a154a9bf0725cfec491c6049840f68083da"
+    },
+    "expected349.lock": {
+      "bytes": 6800,
+      "sha256": "579981195b654d8cdf142e4101dfc2bfffbc3576eed50f23796a06e90cf57453"
+    },
+    "helpers/owned_child.py": {
+      "bytes": 10908,
+      "sha256": "eaf9a46630e4fe4ca0a8f94a6dc2de4a881a6ad7e8b4dd0810b3347c0d7038d5"
+    },
+    "perl-5.42.3-1-aarch64.pkg.tar.xz": {
+      "bytes": 16017184,
+      "sha256": "f0e47c42ec91985898af2ce7355ef4eead50457108706add1f8c1650bca19b8f"
+    },
+    "perl-5.42.3-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "f40e70ac18f61c8b706c7642bac2cfef7b4fcb9d96bd30da3fc41c48a6667dca"
+    },
+    "perl-5.42.3-1.3-aarch64.pkg.tar.zst": {
+      "bytes": 22071176,
+      "sha256": "647c5f1d2c6965ec2e26b37e75d29c819fafa344f16002153493e9fc62121c22"
+    },
+    "perl-5.42.3-1.3-aarch64.pkg.tar.zst.sig": {
+      "bytes": 119,
+      "sha256": "c860013b12243cd560ba99229045e983346c363936b642ba188b5042d860a993"
+    },
+    "probe.pl": {
+      "bytes": 1596,
+      "sha256": "8ca7fe071ca16e99c79c7329833ef530e701e54fd90366be90792e6bccf43a43"
+    },
+    "producer.py": {
+      "bytes": 14879,
+      "sha256": "4c6db02555123c1878da8610fdf807e4f82ad6b8a3cf20257dc11aec73a01c24"
+    },
+    "read_result.py": {
+      "bytes": 10990,
+      "sha256": "2dff5d7be09239bfede23acc5d04d29b6eb67dafacfe26df10140d2757079086"
+    },
+    "test-public.asc": {
+      "bytes": 461,
+      "sha256": "afc1336af3ca67e130de313594cd9836aa700ed84abc7270a9c687969bc555d6"
+    },
+    "trust/pubring.gpg": {
+      "bytes": 2510,
+      "sha256": "836f37531bb595157139a8acd74adbbbf483ebda1dfbba3a3c1a86280bad98f3"
+    },
+    "trust/trustdb.gpg": {
+      "bytes": 1360,
+      "sha256": "0a27c175c9bb9507c6490028831cfcdf8532e6a241664285c43aa486dd7dd7d1"
+    }
+  },
+  "installation": "NOT_RUN",
+  "native_build_run": "43692477455",
+  "operation": "perl5423-installed-lifecycle-v1",
+  "schema": 1,
+  "trust": "ROOT_EXTERNAL_TEST_AND_BASELINE_PUBLIC_ONLY"
+}

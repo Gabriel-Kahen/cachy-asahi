@@ -171,14 +171,18 @@ def execute(args):
         C.need(row['State']['Running'] is False and row['State']['Status'] == 'exited'
                and row['State'].get('OOMKilled') is False and not row['State'].get('Error'), 'naturally exited non-OOM owned container')
         terminal = True
-        data = command('export', DOCKER + ['cp',container_id + ':/work/result','-'], cap=64*1024**2)
+        data = command('export', DOCKER + ['cp',container_id + ':/cachy-asahi-perl-lifecycle/result','-'], cap=64*1024**2)
         unpack(data.stdout, output / 'data')
         actor = C.decode(C.read(output / 'data/report.json',16*1024**2))
         C.need(run.returncode == row['State']['ExitCode'] == 0 and actor['first_failure'] is None
                and actor['status'] == 'PASS_FINITE_NATIVE_ARM4K_PERL_INSTALLED_LIFECYCLE'
                and actor['source_map_sha256'] == args.source_map_sha256
                and actor['admission_sha256'] == args.admission_sha256
-               and actor['cleanup']['failures'] == [], 'complete same-Source successful actual lifecycle')
+               and actor['cleanup']['failures'] == []
+               and actor['retained_output'] == dict(parent='/cachy-asahi-perl-lifecycle',
+                   path='/cachy-asahi-perl-lifecycle/result', uid=0, gid=0, mode=0o700,
+                   storage='OWNED_CONTAINER_WRITABLE_LAYER', parent_absent_before_entry=True,
+                   same_filesystem_as_parent_root=True), 'complete same-Source successful actual lifecycle')
         report.update(status='PASS_PRODUCED_PERL_INSTALLED_LIFECYCLE_DATA_REQUIRES_INDEPENDENT_ROOT_REVIEW',
                       actor_report=C.pin(C.read(output / 'data/report.json',16*1024**2)))
     except BaseException as error:

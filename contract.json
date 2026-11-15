@@ -12,26 +12,60 @@
     "source": null
   },
   "adapter_revision": {
-    "kernel_actor": "EXACT_UNCHANGED_PARENT_BYTES",
-    "kind": "PERL_INSTALLED_DOCKER_CAPABILITY_NAMES_V2",
-    "new_producer": {
-      "bytes": 14879,
-      "sha256": "4c6db02555123c1878da8610fdf807e4f82ad6b8a3cf20257dc11aec73a01c24"
+    "kind": "PERL_INSTALLED_RETAINED_RESULT_LAYER_V3",
+    "new_bodies": {
+      "actor.py": {
+        "bytes": 25836,
+        "sha256": "7d8a4bf6d990579bd27b2d9744b3771cb197566bfcbb8c810d91188f35ed6ac3"
+      },
+      "producer.py": {
+        "bytes": 15229,
+        "sha256": "123feb39856cf531ab67b42d09c98c01eb16816b2264821bd7ad563374887ce2"
+      }
     },
-    "old_core_claim": "HISTORICAL_PARENT_NOT_ALL12_UNCHANGED",
-    "old_core_commit": "7bf0da67717ea24f0b1782f8505967c48b64b0b0",
-    "old_producer": {
-      "bytes": 14274,
-      "sha256": "9d4c681100328f2db7abefdc0ff894a569d3670667cf369613dd3d8ffb222b87"
+    "old_bodies": {
+      "actor.py": {
+        "bytes": 24697,
+        "sha256": "ce920ce825f28f0d175576b00fbb2ebd4529f92f6aabdc32ce2124e8a1f69058"
+      },
+      "producer.py": {
+        "bytes": 14879,
+        "sha256": "4c6db02555123c1878da8610fdf807e4f82ad6b8a3cf20257dc11aec73a01c24"
+      }
     },
-    "parent_source": "71246ca38e58f9f410d1f3eea15f5ddf174bb1bf",
-    "parent_tree": "119da3d2e86d305ba517a7f567c98333aeb9f872",
-    "raw_inspect": "PRESERVED_WITHOUT_NORMALIZATION",
+    "parent_source": "b4079a8a478afb0df8e634b555b3d2955a97bb9b",
+    "parent_tree": "2267627b5dd03ac09e71ce8819e76bce160faf65",
+    "retention": {
+      "capabilities_added": 0,
+      "export_after_natural_exit": true,
+      "export_bytes": 67108864,
+      "gid": 0,
+      "host_mounts_added": 0,
+      "kind": "OWNED_CONTAINER_LAYER_RESULT_V3",
+      "max_result_members_exclusive": 160,
+      "parent": "/cachy-asahi-perl-lifecycle",
+      "parent_absent_before_entry": true,
+      "parent_mode": 448,
+      "path": "/cachy-asahi-perl-lifecycle/result",
+      "report_bytes": 16777216,
+      "report_field": "retained_output",
+      "result_mode": 448,
+      "retirement": "REMOVED_ONLY_WITH_EXACT_OWNED_CONTAINER",
+      "schema": 1,
+      "scope": "DECLARED_SOURCE_DOMAIN_NOT_RUNTIME_QUALIFICATION",
+      "scratch": "/work",
+      "scratch_tmpfs_unchanged": true,
+      "storage": "EXISTING_OWNED_WRITABLE_CONTAINER_LAYER_NOT_TMPFS_OR_HOST_BIND",
+      "tar_basename": "result",
+      "uid": 0
+    },
     "revised_core_files": [
+      "actor.py",
       "producer.py"
     ],
     "runtime_grant": false,
-    "unchanged_old_core_files": 11
+    "transaction_hooks_trust_resources": "EXACT_UNCHANGED_PARENT_POLICY",
+    "unchanged_parent_core_files": 10
   },
   "baseline_review_join": {
     "baseline_review": {
@@ -46,9 +80,9 @@
     "bytes": 40366080,
     "members": {
       "actor.py": {
-        "bytes": 24697,
+        "bytes": 25836,
         "mode": 292,
-        "sha256": "ce920ce825f28f0d175576b00fbb2ebd4529f92f6aabdc32ce2124e8a1f69058"
+        "sha256": "7d8a4bf6d990579bd27b2d9744b3771cb197566bfcbb8c810d91188f35ed6ac3"
       },
       "baseline-inputs.lock.json": {
         "bytes": 623664,
@@ -116,9 +150,9 @@
         "sha256": "8ca7fe071ca16e99c79c7329833ef530e701e54fd90366be90792e6bccf43a43"
       },
       "producer.py": {
-        "bytes": 14879,
+        "bytes": 15229,
         "mode": 292,
-        "sha256": "4c6db02555123c1878da8610fdf807e4f82ad6b8a3cf20257dc11aec73a01c24"
+        "sha256": "123feb39856cf531ab67b42d09c98c01eb16816b2264821bd7ad563374887ce2"
       },
       "read_result.py": {
         "bytes": 10990,
@@ -128,7 +162,7 @@
       "source-map.json": {
         "bytes": 2962,
         "mode": 292,
-        "sha256": "bbf6257ba00e6a8bf52d2100cb03549bf9d9107b9637b76da39eed3b8de6cbab"
+        "sha256": "c785461555e1e2833de5f42d7718c9186d8d1717d60cc810269bb07d82ba0cef"
       },
       "test-public.asc": {
         "bytes": 461,
@@ -146,14 +180,36 @@
         "sha256": "0a27c175c9bb9507c6490028831cfcdf8532e6a241664285c43aa486dd7dd7d1"
       }
     },
-    "sha256": "a0527ea4cd1b84944c92ec1fe3849218a1c826100d3437c5276bbf0fa913b494",
-    "source_map_sha256": "bbf6257ba00e6a8bf52d2100cb03549bf9d9107b9637b76da39eed3b8de6cbab"
+    "sha256": "64921dc8625c54c1a0502d811f7e32e608eb407541d824659e18117d70a979c1",
+    "source_map_sha256": "c785461555e1e2833de5f42d7718c9186d8d1717d60cc810269bb07d82ba0cef"
   },
   "held_code_commit": "7bf0da67717ea24f0b1782f8505967c48b64b0b0",
   "holds_preserved": true,
   "inner_operation": "perl5423-installed-lifecycle-v1",
   "input_review_sha256": "31aeecaa5ef5bdae8c001940587641cd2a32acb7ed5c5c93ed0609e8eb0acc1e",
   "operation": "perl5423-installed-lifecycle-native-v1",
+  "prior_adapter_revision_v2": {
+    "kernel_actor": "EXACT_UNCHANGED_PARENT_BYTES",
+    "kind": "PERL_INSTALLED_DOCKER_CAPABILITY_NAMES_V2",
+    "new_producer": {
+      "bytes": 14879,
+      "sha256": "4c6db02555123c1878da8610fdf807e4f82ad6b8a3cf20257dc11aec73a01c24"
+    },
+    "old_core_claim": "HISTORICAL_PARENT_NOT_ALL12_UNCHANGED",
+    "old_core_commit": "7bf0da67717ea24f0b1782f8505967c48b64b0b0",
+    "old_producer": {
+      "bytes": 14274,
+      "sha256": "9d4c681100328f2db7abefdc0ff894a569d3670667cf369613dd3d8ffb222b87"
+    },
+    "parent_source": "71246ca38e58f9f410d1f3eea15f5ddf174bb1bf",
+    "parent_tree": "119da3d2e86d305ba517a7f567c98333aeb9f872",
+    "raw_inspect": "PRESERVED_WITHOUT_NORMALIZATION",
+    "revised_core_files": [
+      "producer.py"
+    ],
+    "runtime_grant": false,
+    "unchanged_old_core_files": 11
+  },
   "schema": 1,
   "signing": "NO_SECRET_SIGNING_MATERIAL_OR_SIGNER_CREATION; Root external TEST signature/public bundle required"
 }

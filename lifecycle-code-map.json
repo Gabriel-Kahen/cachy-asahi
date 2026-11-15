@@ -13,9 +13,9 @@
   },
   "files": {
     "actor.py": {
-      "bytes": 24697,
+      "bytes": 25836,
       "mode": 420,
-      "sha256": "ce920ce825f28f0d175576b00fbb2ebd4529f92f6aabdc32ce2124e8a1f69058"
+      "sha256": "7d8a4bf6d990579bd27b2d9744b3771cb197566bfcbb8c810d91188f35ed6ac3"
     },
     "admission.TEMPLATE.json": {
       "bytes": 288,
@@ -58,9 +58,9 @@
       "sha256": "8ca7fe071ca16e99c79c7329833ef530e701e54fd90366be90792e6bccf43a43"
     },
     "producer.py": {
-      "bytes": 14879,
+      "bytes": 15229,
       "mode": 420,
-      "sha256": "4c6db02555123c1878da8610fdf807e4f82ad6b8a3cf20257dc11aec73a01c24"
+      "sha256": "123feb39856cf531ab67b42d09c98c01eb16816b2264821bd7ad563374887ce2"
     },
     "qualification.TEMPLATE.json": {
       "bytes": 486,

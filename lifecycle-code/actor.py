@@ -177,6 +177,23 @@ def runtime(domain):
                 cgroup_membership=Path('/proc/self/cgroup').read_text(), mountinfo=mounts)
 
 
+def retained_result(parent, uid, gid):
+    # Native caller supplies the fixed root-level path and exact Root identity.
+    C.need(parent.is_absolute() and parent.name == 'cachy-asahi-perl-lifecycle'
+           and parent.parent == parent.parent.resolve(), 'ordinary fixed output root name')
+    C.need(not os.path.lexists(parent), 'retained output root must be absent before entry')
+    parent.mkdir(mode=0o700)  # Atomic refusal if anything appeared after the absence check.
+    out = parent / 'result'
+    out.mkdir(mode=0o700)
+    device = parent.parent.stat().st_dev
+    for path in (parent, out):
+        info = path.lstat()
+        C.need(stat.S_ISDIR(info.st_mode) and stat.S_IMODE(info.st_mode) == 0o700
+               and info.st_uid == uid and info.st_gid == gid and info.st_dev == device,
+               'private owned result on the containing writable filesystem')
+    return out
+
+
 def execute(args):
     C.need(HERE == Path('/inputs'), 'fixed capsule mount only')
     raw = os.environ.get('LIFECYCLE_ADMISSION_JSON', '').encode()
@@ -187,7 +204,10 @@ def execute(args):
     report = dict(schema=1, operation=C.OPERATION, status='FAIL', installation='NOT_ACCEPTED',
                   source_map_sha256=args.source_map_sha256, admission_sha256=args.admission_sha256,
                   commands=[], stages=[], first_failure=None, cleanup=None)
-    out = Path('/work/result'); out.mkdir(mode=0o700)
+    out = retained_result(Path('/cachy-asahi-perl-lifecycle'), 0, 0)
+    report['retained_output'] = dict(parent=str(out.parent), path=str(out), uid=0, gid=0,
+        mode=0o700, storage='OWNED_CONTAINER_WRITABLE_LAYER', parent_absent_before_entry=True,
+        same_filesystem_as_parent_root=True)
     def save(): (out / 'report.json').write_bytes(C.encode(report))
     deadline = time.monotonic() + 480
     cancelled = []
