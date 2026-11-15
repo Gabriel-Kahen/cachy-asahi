@@ -1,0 +1,37 @@
+{
+  "archives": {
+    "llvm": {
+      "bytes": 179168672,
+      "filename": "llvm-project-23.1.1.src.tar.xz",
+      "name": "llvm",
+      "root": "llvm-project-23.1.1.src",
+      "sha256": "ebe9be46fe8756d58c5b198ffad0fa2a766257add81a4dc52179bfacc7888ee6",
+      "upstream_url": "https://github.com/llvm/llvm-project/releases/download/llvmorg-23.1.1/llvm-project-23.1.1.src.tar.xz"
+    },
+    "rust": {
+      "bytes": 265258564,
+      "filename": "rustc-1.99.0-src.tar.xz",
+      "name": "rust",
+      "root": "rustc-1.99.0-src",
+      "sha256": "cc41916a8c84f5d9ec4f55561b44e39f43b647b133f8a6f51be9ea13c83f7036",
+      "upstream_url": "https://static.rust-lang.org/dist/rustc-1.99.0-src.tar.xz"
+    }
+  },
+  "authentication_report": "authentication/stages/pre-redaction-evidence.json",
+  "prior_evidence": {
+    "authentication/stages/pre-redaction-evidence.json": {
+      "bytes": 9458,
+      "sha256": "c601746fbbc88048a5321016813ee618ef81bae8e6ee849ab61df19fcc50b129"
+    },
+    "authentication/stages/pre-redaction-manifest.json": {
+      "bytes": 11309,
+      "sha256": "1c2a5d5eef06aec2b7196316c893894a34f91ad62f38e9d169a3d3b3c18f9483"
+    },
+    "source-inputs.json": {
+      "bytes": 8940,
+      "sha256": "e9e76ed4a0d653f2fa90624ee3af30797cf97037bee2fa1f64a141fdefc7af11"
+    }
+  },
+  "purpose": "bounded metadata successor; previous opaque/authentication reports remain original snapshots",
+  "schema": 1
+}
