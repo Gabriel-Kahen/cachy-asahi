@@ -182,3 +182,17 @@ mount identity fix and failure-only recovery fix are separate runtime changes.
 Source70, all frozen helpers, input contracts, V2/39-file semantics, linker,
 HOME/strict capacity modes, resource budgets and PAM/functional probes remain
 preserved. No raw scan/Reader/actor/compiler/VM/Docker/lease/network ran here.
+
+## Finite XZ decoder memory successor
+
+Source71's actual prepare passed the baseline namespace scan, then its128MiB
+XZ decoder cap refused the pinned rustc/rust-std archives. Their first-block
+LZMA2 property1e requests a128MiB dictionary; the measured first-byte decoder
+minimum here is134283928 bytes (dictionary plus66200-byte decoder overhead).
+Cargo property1b requests48MiB. A bounded65536-byte/one-output-byte probe
+passes all three at160MiB. The new finite cap is160MiB; owner3GiB, streaming
+chunk/output/archive/member/census/deadline bounds are unchanged. The actual
+probe is not archive extraction or compiler/link/runtime qualification.
+Source71 and the closed Root r3 attempt are retained. Root r2's missing path
+metadata was a separate Root-input issue, not a Source defect. All other
+Source/certificate/linker/HOME/custody semantics remain unchanged.

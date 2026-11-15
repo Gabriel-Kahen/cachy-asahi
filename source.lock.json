@@ -20,9 +20,9 @@
       "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
     },
     "README.md": {
-      "bytes": 10952,
+      "bytes": 11818,
       "mode": 420,
-      "sha256": "22a092af1d88687e76e141c4f4cc9bbf72b085753af9583e747957cc4424e239"
+      "sha256": "198ac489d961e3451332c27548f70a89ac1c2e541bfbf03e9eb7544c3793a299"
     },
     "authority.TEMPLATE.json": {
       "bytes": 1314,
@@ -68,6 +68,11 @@
       "bytes": 563,
       "mode": 420,
       "sha256": "634ea8fd05d7d476a74c1cecc84d52c5c718d0153642faaace8abc117e7a3b3d"
+    },
+    "data/lzma-memory-profile.json": {
+      "bytes": 4317,
+      "mode": 420,
+      "sha256": "b6d75c9ae025aa73db9e352cd4459589af885d8e971ca13ac8779b005670cc9e"
     },
     "data/qemu-metadata.json": {
       "bytes": 675,
@@ -295,9 +300,9 @@
       "sha256": "b01ae41db9852b9b48faae0588f0e83fd340d1eb9eae9767275efbc83f9d46c8"
     },
     "stage0.py": {
-      "bytes": 20976,
+      "bytes": 21016,
       "mode": 420,
-      "sha256": "1f3917f343e1c271c0dc74c67f0cb303721fe94df1b189f3240fcedc51d9e881"
+      "sha256": "5a916cd3bfa8e00fd851c0cbedf17c1d66a191212245b7e04f101e0aa5fcf0b3"
     },
     "test_budget.py": {
       "bytes": 2657,
@@ -329,6 +334,11 @@
       "mode": 420,
       "sha256": "1ec83401e005e66fd5d3a163d05d8cb6841cecbdc9be2d656d29988cb8a083f3"
     },
+    "test_lzma_memory.py": {
+      "bytes": 2776,
+      "mode": 420,
+      "sha256": "1b83d6895890ebfd155062e17a4aee616e5a88f7ec361220dcafe343aec0cc96"
+    },
     "test_memory.py": {
       "bytes": 4721,
       "mode": 420,
@@ -350,9 +360,9 @@
       "sha256": "084e5957a435cf8f281ff8a60fe0afffd534ee9a71ed47677c9c4ae1715934b5"
     },
     "validation.json": {
-      "bytes": 548,
+      "bytes": 492,
       "mode": 420,
-      "sha256": "175a8fb5b2d0c10b64f3f31f794c256fce50ea0eb3acf2d415fc307498d3559c"
+      "sha256": "0ce6fd5d493ab4fc1c86117aedfe9ecbe0ade80f980f2c92d85f421dfd1fcec8"
     },
     "vm_actor.py": {
       "bytes": 7232,

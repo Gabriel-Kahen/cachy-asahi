@@ -8,14 +8,13 @@
     "publication": null,
     "ref": null
   },
+  "actual_probe": "65536-byte prefixes/max_length1 only,512MiBAS/10sCPU; no archive extraction",
   "address_space_limit_bytes": 134217728,
-  "external_retained_regression": "222 actual retained ALPM bodies verified by pin/dump; synthetic namespace only, no image observation",
   "not_run": [
-    "raw scan/Reader/actor",
-    "compiler/linker/VM/Docker",
+    "fullarchive extraction",
+    "actor/compiler/VM/Docker",
     "lease/network/publication"
   ],
-  "schema": 1,
-  "status": "PASS_91_FENCED_SOURCE_CONTROLS_ONLY",
-  "tests": 91
+  "status": "PASS_94_FENCED_SOURCE_CONTROLS_ONLY",
+  "tests": 94
 }
