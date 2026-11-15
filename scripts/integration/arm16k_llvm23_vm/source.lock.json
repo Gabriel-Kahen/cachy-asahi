@@ -12,14 +12,14 @@
   },
   "files": {
     "README.md": {
-      "bytes": 15027,
+      "bytes": 18004,
       "mode": 420,
-      "sha256": "f0746d8888709ae6f803eebdd70b94209268ffe3a89dfd796e0118ae0402f690"
+      "sha256": "1fc9663f9a01d6a1b9f17441292712f78d10749422aff1cb518cc2301e0a2ad7"
     },
     "adapter.py": {
-      "bytes": 9219,
+      "bytes": 9306,
       "mode": 420,
-      "sha256": "3493fac9f32e49db6043c3d4fef3d02227c07f112e2e74a0ffe27a8faa172f43"
+      "sha256": "7170abeddcf67347bc02e0343fd8ca34183226a12495a88e31179b16e8590c9b"
     },
     "authority.TEMPLATE.json": {
       "bytes": 597,
@@ -37,9 +37,9 @@
       "sha256": "d30ca4e996380e2cb0aedd0b100f704f23b762965c339c16031b099702aa3ce7"
     },
     "contracts.py": {
-      "bytes": 27484,
+      "bytes": 31138,
       "mode": 420,
-      "sha256": "8c134adb3be9bc39ea88b4c783aec031e795465198c7ad1c95def2dd64c22b4b"
+      "sha256": "0f16fe09aa69380914a8114518b65c6858a4f7c2b79830dfd00f4fe1c7d1c663"
     },
     "data/baseline111.json": {
       "bytes": 20047,
@@ -92,14 +92,14 @@
       "sha256": "b3f4727110fefb9429ca3944e758189cac8ecddfc53332f4ce2c40b64ca35028"
     },
     "guest/case.sh": {
-      "bytes": 1846,
+      "bytes": 2743,
       "mode": 420,
-      "sha256": "05fffb7e097229240c25cec85bf58f35a26e0e3df86204a7ccefb4fe20cf43bf"
+      "sha256": "c7767d8c30b91be55fa4628519c2b4bf8765b8eab646e2825609c070aece6e00"
     },
     "guest/probe.sh": {
-      "bytes": 3421,
+      "bytes": 3874,
       "mode": 420,
-      "sha256": "344b0f4dcc98fea123d18795c354878f7ea2bce922c557256a758a1bb887f525"
+      "sha256": "d962eb366fe9f485f3a6d25525d1083872f2818f8e3d79023bb0a9712a626d45"
     },
     "guest/root.sh": {
       "bytes": 10547,
@@ -107,14 +107,14 @@
       "sha256": "f8d9d337dcb1b1cd70840bd56360f337762b27bba6ce93171c6733319fb88063"
     },
     "guest/smoke.c": {
-      "bytes": 105,
+      "bytes": 369,
       "mode": 420,
-      "sha256": "b9c5873e7d233fbb8e38d8e2e3a96d84e0f3cef7937229cb0802f165315827f7"
+      "sha256": "1462772bc544b8c35d86b7abc77ba55346806fe445f7b49e66bf9d6ab3e6f52e"
     },
     "guest/unwind.cpp": {
-      "bytes": 178,
+      "bytes": 552,
       "mode": 420,
-      "sha256": "4799195c3925cbcbdbda56de1e8e248839024133c6b2795e41945f15fbcd8b4d"
+      "sha256": "1cd2da1bd98114dc2ddc58615cb77534f7bfa59da46eecd95ea5b4437d3bba2e"
     },
     "helper-origin.json": {
       "bytes": 4917,
@@ -177,9 +177,9 @@
       "sha256": "85e93d6c3e074e0fe5dee81d5e99a38df2704ebf7128fa1dad30cbb05db897c0"
     },
     "test_contracts.py": {
-      "bytes": 14705,
+      "bytes": 15806,
       "mode": 420,
-      "sha256": "92569c0cdd7cc05aa4f176d18a792f5b84233320c57d908da1c968d5b9c81d19"
+      "sha256": "dd00b4d9b68b705d1ed04e44fa6faf20c21b4dab968a33a153b024ad5455bb26"
     },
     "test_docker.py": {
       "bytes": 13691,
@@ -201,15 +201,20 @@
       "mode": 420,
       "sha256": "218b4d86d62ba954f855e1ef6fd445d5ef1f73cb87d8d2905d452647b856b05c"
     },
+    "test_probe.py": {
+      "bytes": 5963,
+      "mode": 420,
+      "sha256": "a73dba04df4ca08df16f070c19372476d2edd13906cc6a8f904d5e4b1a559349"
+    },
     "test_protocol.py": {
       "bytes": 7513,
       "mode": 420,
       "sha256": "129ef9d43af0230880de327f75c1aee0227389628874847eb466ada6eac08fd8"
     },
     "validation.json": {
-      "bytes": 2988,
+      "bytes": 3753,
       "mode": 420,
-      "sha256": "d0a6c64e1493d8056993339f1b0d81780fa3bd19a43a4921a0fbe1a26e906fb2"
+      "sha256": "a75f3dfe8fd63404056fd5924fef7829400ded1a707de571ceaafe66b290a881"
     },
     "vm_actor.py": {
       "bytes": 8774,

@@ -216,6 +216,47 @@ def baseline(value):
     return inv
 
 
+PROBE_MODE = 'EXPLICIT_COMPILER_RT_BASELINE_SONAMES'
+PROBE_CRT = ['/usr/lib/Scrt1.o', '/usr/lib/crti.o', '/usr/lib/crtn.o']
+PROBE_LIBS = ['/usr/lib/'+n for n in ('libc.so.6', 'libm.so.6', 'libstdc++.so.6', 'libgcc_s.so.1')]
+BUILTINS = PREFIX+'/lib/clang/23/lib/linux/libclang_rt.builtins-aarch64.a'
+
+
+def probe_inputs(value):
+    """Exact no-header/no-default-startfile link mode; facts must be Root-certified."""
+    selected = value['gcc_driver_selection']; files = value['files']; ns = value['candidate_namespace']
+    keys(selected, ('mode', 'gcc_prefix', 'headers', 'libraries', 'startfiles', 'builtins', 'builtins_symbols', 'baseline_elfs'), 'explicit compiler-rt probe selection')
+    need(selected['mode'] == PROBE_MODE and selected['gcc_prefix'] is None and selected['headers'] == [] and
+         selected['libraries'] == PROBE_LIBS and selected['startfiles'] == PROBE_CRT,
+         'headerless explicit baseline SONAME/CRT mode, no GCC development search')
+    need(selected['builtins'] == BUILTINS and selected['builtins_symbols'] == ['__udivti3'], 'actual compiler-rt builtins archive/export required')
+    archive = ns.get(BUILTINS, {})
+    need(archive.get('kind') == 'f' and positive(archive.get('bytes')) and archive.get('mode', 0) & 0o004,
+         'actual readable candidate compiler-rt archive required')
+    need(set(PROBE_CRT) <= set(value['crt']) and set(PROBE_LIBS) <= set(value['runtime']), 'selected CRT/runtime roles explicitly certified')
+    paths = [value['loader'], *PROBE_CRT, *PROBE_LIBS]
+    need(all(guest_path(p) in files and positive(files[p]['bytes']) for p in paths), 'every explicit probe input certified')
+    need(all(files[p]['owner'] == ('libstdc++' if p.endswith('libstdc++.so.6') else 'libgcc' if p.endswith('libgcc_s.so.1') else 'glibc') for p in paths), 'actual baseline runtime/CRT ownership')
+    elfs = selected['baseline_elfs']; elf_paths = [value['loader'], *PROBE_LIBS]
+    need(type(elfs) is dict and set(elfs) == set(elf_paths), 'complete selected baseline ELF facts required')
+    providers = {Path(p).name: p for p in elf_paths}
+    for path, elf in elfs.items():
+        keys(elf, ('sha256', 'class', 'machine', 'static_16k_geometry', 'soname', 'needed', 'version_needs', 'version_definitions', 'defined_symbols'), 'baseline probe ELF facts')
+        need(elf['sha256'] == files[path]['sha256'] and elf['soname'] == Path(path).name and elf['class'] == 64 and elf['machine'] == 183 and elf['static_16k_geometry'] is True, 'baseline ELF exact pin, ARM16K facts and SONAME')
+        for field in ('needed', 'version_definitions', 'defined_symbols'):
+            rows = elf[field]
+            need(type(rows) is list and all(type(n) is str and re.fullmatch('[A-Za-z0-9_.$@+-]+', n) for n in rows) and len(rows) == len(set(rows)), 'literal unique baseline ELF facts')
+        need(set(elf['needed']) <= set(providers) and type(elf['version_needs']) is dict and set(elf['version_needs']) <= set(elf['needed']), 'closed baseline probe DT_NEEDED providers')
+        for soname, required in elf['version_needs'].items():
+            need(type(required) is list and all(type(n) is str for n in required) and set(required) <= set(elfs[providers[soname]]['version_definitions']), 'baseline probe GNU versions satisfied')
+    need({'__cxa_allocate_exception', '__cxa_throw', '__cxa_begin_catch', '__cxa_end_catch', '__gxx_personality_v0', '_ZTIi'} <= set(elfs['/usr/lib/libstdc++.so.6']['defined_symbols']), 'actual baseline C++ exception/personality/typeinfo exports')
+    need({'_Unwind_RaiseException', '_Unwind_Resume'} <= set(elfs['/usr/lib/libgcc_s.so.1']['defined_symbols']), 'actual baseline libgcc unwind exports')
+    return dict(link_mode=PROBE_MODE, crt_start=files[PROBE_CRT[0]]['resolved'], crt_init=files[PROBE_CRT[1]]['resolved'],
+                crt_fini=files[PROBE_CRT[2]]['resolved'], lib_c=files[PROBE_LIBS[0]]['resolved'], lib_m=files[PROBE_LIBS[1]]['resolved'],
+                lib_cxx=files[PROBE_LIBS[2]]['resolved'], lib_unwind=files[PROBE_LIBS[3]]['resolved'], builtins=BUILTINS,
+                loader=value['loader'], linker=PREFIX+'/bin/ld.lld')
+
+
 def runtime(value, case, base):
     root_cert(value, 'ROOT_REVIEWED_LLVM23_VM_RUNTIME_V1')
     keys(value, ('kind', 'issued_by', 'accepted', 'baseline_certificate', 'package', 'namespace_coverage', 'candidate_namespace',
@@ -254,12 +295,9 @@ def runtime(value, case, base):
     need(type(value['tools']) is list and len(value['tools']) == len(set(value['tools'])) and
          {'/usr/bin/' + n for n in TOOLS} <= set(value['tools']), 'complete explicit baseline tool closure')
     selected = value['gcc_driver_selection']
-    keys(selected, ('mode', 'gcc_prefix', 'headers', 'libraries', 'startfiles'), 'actual GCC/development selection')
-    need(selected['mode'] in ('EXPLICIT_GCC', 'EXPLICIT_COMPILER_RT') and selected['headers'] and selected['libraries'] and selected['startfiles'], 'actual development inputs, no guessed GCC headers')
-    if selected['mode'] == 'EXPLICIT_GCC': guest_path(selected['gcc_prefix'])
-    else: need(selected['gcc_prefix'] is None, 'no implicit GCC selection')
+    probe_inputs(value)
     paths = [value['loader']]
-    for group in [value['tools'], value['crt'], value['runtime'], selected['headers'], selected['libraries'], selected['startfiles']]:
+    for group in [value['tools'], value['crt'], value['runtime'], selected['libraries'], selected['startfiles']]:
         need(type(group) is list and group and all(type(p) is str for p in group), 'nonempty explicit file role'); paths += group
     need(all(guest_path(p) in files for p in paths), 'every tool/CRT/loader/runtime/development path certified')
     need(all(files[p]['mode'] & 0o004 for p in paths), 'ordinary guest can read certified runtime/development files')

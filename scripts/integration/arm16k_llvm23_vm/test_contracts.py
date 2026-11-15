@@ -56,14 +56,19 @@ def modeled():
     for n, target in [('clang++', 'clang'), ('llvm-ranlib', 'llvm-ar')]:
         ns[K.PREFIX+'/bin/'+n] = dict(kind='l', mode=0o777, uid=0, gid=0, link_target=target)
     ns[K.PREFIX+'/empty'] = dict(kind='f', mode=0o644, uid=0, gid=0, bytes=0, sha256=hashlib.sha256(b'').hexdigest())
+    ns[K.BUILTINS] = dict(kind='f', mode=0o644, uid=0, gid=0, **p('MODELED-builtins'))
     files = {}
     def file(path, owner='glibc', mode=0o644, size=32, resolved=None):
         row = p(path, size); row.update(mode=mode, owner=owner, version=inv[owner], resolved=resolved or path); files[path] = row
     tools = ['/usr/bin/'+n for n in K.TOOLS]
     for path in tools: file(path, 'base-tools', 0o755)
     loader = '/lib/ld-linux-aarch64.so.1'; file(loader, mode=0o755, resolved='/usr/lib/ld-linux-aarch64.so.1')
-    crt = '/usr/lib/Scrt1.o'; file(crt)
-    libc = '/usr/lib/libc.so.6'; file(libc)
+    crt = list(K.PROBE_CRT)
+    for path in crt: file(path)
+    libc = '/usr/lib/libc.so.6'
+    for path in K.PROBE_LIBS:
+        owner = 'libstdc++' if path.endswith('libstdc++.so.6') else 'libgcc' if path.endswith('libgcc_s.so.1') else 'glibc'
+        file(path, owner, resolved=path+'.MODEL' if owner=='libstdc++' else None)
     header = '/usr/include/empty-model.h'; file(header, size=0); files[header]['sha256'] = hashlib.sha256(b'').hexdigest()
     elfs = {}
     for path, row in ns.items():
@@ -71,14 +76,17 @@ def modeled():
             elfs[path] = dict(sha256=row['sha256'], **{'class': 64}, byte_order='little', machine=183, interpreter=loader,
                               needed=['libc.so.6'], version_needs={'libc.so.6': ['GLIBC_MODEL']},
                               providers={'libc.so.6': dict(path=libc, version_definitions=['GLIBC_MODEL'])}, static_16k_geometry=True)
+    baseline_elfs = {path: dict(sha256=files[path]['sha256'], **{'class':64}, machine=183, static_16k_geometry=True, soname=Path(path).name, needed=[], version_needs={}, version_definitions=['MODEL_VERSION'], defined_symbols=[]) for path in [loader, *K.PROBE_LIBS]}
+    baseline_elfs['/usr/lib/libstdc++.so.6'].update(needed=['libc.so.6', 'libm.so.6', 'ld-linux-aarch64.so.1', 'libgcc_s.so.1'], version_needs={'libgcc_s.so.1':['MODEL_VERSION']}, defined_symbols=['__cxa_allocate_exception','__cxa_throw','__cxa_begin_catch','__cxa_end_catch','__gxx_personality_v0','_ZTIi'])
+    baseline_elfs['/usr/lib/libgcc_s.so.1']['defined_symbols'] = ['_Unwind_RaiseException','_Unwind_Resume']
     runtime = dict(kind='ROOT_REVIEWED_LLVM23_VM_RUNTIME_V1', issued_by='Root', accepted=True, baseline_certificate=None, package=None,
                    namespace_coverage='ALL_PACKAGE_OWNED_PATHS', candidate_namespace=ns, elf_inventory=p('full-ELF-inventory'),
-                   full_payload_elf_coverage=True, elfs=elfs, files=files, tools=tools, crt=[crt], loader=loader, runtime=[libc],
-                   gcc_driver_selection=dict(mode='EXPLICIT_COMPILER_RT', gcc_prefix=None, headers=[header], libraries=[libc], startfiles=[crt]),
+                   full_payload_elf_coverage=True, elfs=elfs, files=files, tools=tools, crt=crt, loader=loader, runtime=list(K.PROBE_LIBS),
+                   gcc_driver_selection=dict(mode=K.PROBE_MODE, gcc_prefix=None, headers=[], libraries=list(K.PROBE_LIBS), startfiles=crt, builtins=K.BUILTINS, builtins_symbols=['__udivti3'], baseline_elfs=baseline_elfs),
                    dependency_versions={n: inv[n] for n in K.PACKAGE['depends']})
     resources = {n: 1 for n in K.LIMITS}
     resources.update(kind='ROOT_REVIEWED_LLVM23_VM_RESOURCES_V1', issued_by='Root', accepted=True, baseline_certificate=None, package=None,
-        package_expanded_bytes=128, case_staging_bytes=512, fixture_source_bytes=128, baseline_raw_bytes=1024, baseline_allocated_bytes=256,
+        package_expanded_bytes=160, case_staging_bytes=512, fixture_source_bytes=128, baseline_raw_bytes=1024, baseline_allocated_bytes=256,
         prepared_raw_bytes=8192, guest_filesystem_free_bytes=4096, guest_output_cap_bytes=128, clone_allocated_cap_bytes=2048,
         overlay_cap_bytes=512, readback_allocated_cap_bytes=2048, logs_cap_bytes=1024, reserve_bytes=1024, physical_free_bytes=8192,
         quota_initial_headroom_bytes=8192, quota_live_reserve_bytes=1024, guest_memory_bytes=1024, owner_memory_bytes=4096,
