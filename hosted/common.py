@@ -13,7 +13,7 @@ ROOT=Path(__file__).resolve().parents[1]
 COMPONENT_MAP='5b774ea14a33314de5c1ab6af5aef4cbd5dc04718c2c6cec2f20dc97425d7c93'
 ACTUAL=dict(source=None,ref=None,run=None,job=None,reader=None,authority=None,approval=None,artifact=None,image=None)
 ALIASES=('.github/workflows/native-arm-build.yml','.github/workflows/native-arm-llvm23-source-reference-v1.yml')
-OPERATION='llvm23-source-reference-native-v1'
+OPERATION='llvm23-source-reference-native-v2'
 MAX_JSON=1024**2
 
 def need(ok,why):

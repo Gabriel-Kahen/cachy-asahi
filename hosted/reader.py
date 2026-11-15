@@ -105,10 +105,23 @@ def package_inventory(path):
     return result
 
 
+def check_volume(evidence,producer,b,domain,actual):
+    spec=importlib.util.spec_from_file_location('llvm_reader_volume',ROOT/'hosted/volume.py');v=importlib.util.module_from_spec(spec);spec.loader.exec_module(v)
+    owner=v.owner(dict(b,operation=v.OP));need(producer['volume_owner']==owner and producer['inner_operation']==v.INNER,'explicit v2 owner and unchanged v1 actor delegation')
+    need((producer['actor'],producer['init'],producer['volume'])==(owner['actor'],owner['init'],owner['volume']),'same exact owned namespaces')
+    base=evidence/'llvm-build';initialized=load(base/'volume-initialization.json');v.receipt(initialized,owner)
+    need(initialized==producer['volume_initialization']==load(base/'inputs/volume-initialization.json'),'whole actual initializer receipt joins')
+    admission=load(base/'inputs/volume-admission.json');need(admission==v.admission(owner) and sha(base/'inputs/volume-admission.json')==producer['volume_admission_sha256'],'exact nonroot volume pre-entry admission')
+    v.volume_identity(load(base/'volume-before.json'),owner)
+    v.inspect_init(load(base/'initializer-before.json'),owner,b['image']);finished=load(base/'initializer-after.json');v.inspect_init(finished,owner,b['image'])
+    need(finished['State']['Status']=='exited' and finished['State']['ExitCode']==0 and not finished['State']['Running'] and finished['State']['Pid']==0 and not finished['State']['OOMKilled'],'natural bounded initializer exit')
+    domain.inspect_actor(actual,producer['actor'],producer['volume'],b['image'],Path(producer['inputs_path']),Path(producer['source_intake']['root']),owner,producer['volume_admission_sha256'])
+
+
 def read(binding,binding_sha,evidence,output):
     need(sha(binding)==binding_sha and not output.exists(),'external Root binding digest and fresh DATA output required')
     b=load(binding,1024**2)
-    need(b['scope']=='ROOT_AUTHENTICATED_LLVM23_DATA_READER_ONLY' and b['operation']=='llvm23-source-reference-native-v1','independent Root Reader scope')
+    need(b['scope']=='ROOT_AUTHENTICATED_LLVM23_DATA_READER_ONLY' and b['operation']=='llvm23-source-reference-native-v2','independent Root Reader scope')
     spec=importlib.util.spec_from_file_location('llvm_reader_source_guards',ROOT/'hosted/common.py');c=importlib.util.module_from_spec(spec);spec.loader.exec_module(c)
     c.verify_source(ROOT,b['source_map_sha256'])
     h=load(evidence/'hosted.json');producer=load(evidence/'llvm-build/producer.json')
@@ -116,7 +129,7 @@ def read(binding,binding_sha,evidence,output):
         need(h['binding'][key]==producer['binding'][key]==b[key],'same externally authenticated Source/ref/run/job/approval')
     readback=load(evidence/'source-readback.json');job=load(evidence/'job-metadata.json')
     need(all(readback['binding'][k]==b[k] for k in ['source','ref','run','approval','source_map_sha256']) and readback['status']=='PASS_EXACT_HOSTED_SOURCE_READBACK','published Source readback join')
-    need(job['total_count']==len(job['jobs'])==1 and str(job['jobs'][0]['id'])==b['job'] and str(job['jobs'][0]['run_id'])==b['run'] and job['jobs'][0]['head_sha']==b['source'] and job['jobs'][0]['name']=='llvm23-native-v1','actual provider job/source join')
+    need(job['total_count']==len(job['jobs'])==1 and str(job['jobs'][0]['id'])==b['job'] and str(job['jobs'][0]['run_id'])==b['run'] and job['jobs'][0]['head_sha']==b['source'] and job['jobs'][0]['name']=='llvm23-native-v2','actual provider job/source join')
     need(h['status']=='LLVM23_BUILD_EXPORTED_RETIRED_PENDING_INDEPENDENT_READER' and h['cleanup']['image_absent'] and h['cleanup']['gpg_agent_absent'] and not h['cleanup']['errors'],'hosted result/retirement incomplete')
     need(producer['status']=='COMPLETED_EXPORTED_RETIRED' and producer['image']==b['image'] and producer['owned_resources_absent'] and not producer.get('cleanup_errors'),'owned producer result/absence incomplete')
     need(sha(evidence/'llvm-build/export.tar')==producer['export']['sha256']==b['export_sha256'],'whole exported DATA blob differs')
@@ -153,7 +166,7 @@ def read(binding,binding_sha,evidence,output):
     source_input=load(data/'source-input.json')
     need(source_input['candidate_files']==contract['candidate_files'] and source_input['actor_files']==contract['actor_files'] and source_input['owned_child']==contract['owned_child'] and source_input['archive']==contract['source'] and source_input['source_tree_sha256']==admission['source_tree_sha256'],'whole source and helper input joins')
     producer_spec=importlib.util.spec_from_file_location('llvm_reader_domain',ROOT/'hosted/producer.py');domain=importlib.util.module_from_spec(producer_spec);producer_spec.loader.exec_module(domain)
-    domain.inspect_actor(actual,producer['actor'],producer['volume'],b['image'],Path(producer['inputs_path']),Path(producer['source_intake']['root']))
+    check_volume(evidence,producer,b,domain,actual)
     original=(data/'PKGBUILD-original').read_bytes();effective=(data/'PKGBUILD-effective').read_bytes();delta=load(data/'recipe-delta.json')
     old='  python -I "$startdir/reference.py" "$1" --work "$srcdir" "${@:2}"'
     new='  python -I -B /inputs/actor/container_mode.py "$1" --work "$srcdir" "${@:2}"'

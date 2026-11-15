@@ -11,9 +11,9 @@
       "sha256": "abec9369a7c7dfd752a41f193f0ee6eb775bb0f3b3add994d8f620faa5a66dea"
     },
     "entry.sh": {
-      "bytes": 116,
+      "bytes": 167,
       "mode": 420,
-      "sha256": "691cfcf63d630fed508adb7841a29ded8ff31475391b42206e896d901f2f85dd"
+      "sha256": "974c3b081b0d400737cb23711e45ee16ec3381bb22965a5b929f40964f7ba1e1"
     },
     "runtime-derivation.json": {
       "bytes": 1592,
@@ -24,6 +24,11 @@
       "bytes": 6241,
       "mode": 420,
       "sha256": "6a788567f5f8c147a6d79c7ce91cdca5e0fe5bfa718a1048cec80fa115032340"
+    },
+    "work_check.py": {
+      "bytes": 2147,
+      "mode": 420,
+      "sha256": "994a968dc41dd7f37766837d6ec4e45da8f79a0c68d0d909bcbe64756439d0c5"
     }
   },
   "actual": {
@@ -76,6 +81,12 @@
   },
   "mode": "ROOTFUL_CONTAINER_NO_BWRAP_V1",
   "operation": "llvm23-source-reference-native-v1",
+  "outer_delegation": {
+    "frozen_python_actor": true,
+    "inner_operation": "llvm23-source-reference-native-v1",
+    "operation": "llvm23-source-reference-native-v2",
+    "volume_preentry": "EXACT_NONMUTATING_WORK_ROOT_CHECK"
+  },
   "owned_child": {
     "bytes": 10907,
     "mode": 420,

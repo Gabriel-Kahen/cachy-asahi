@@ -1,4 +1,4 @@
-name: native-arm-llvm23-source-reference-v1
+name: native-arm-llvm23-source-reference-v2
 on:
   workflow_dispatch:
     inputs:
@@ -9,8 +9,8 @@ on:
       operation:
         type: choice
         required: true
-        default: llvm23-source-reference-native-v1
-        options: [llvm23-source-reference-native-v1]
+        default: llvm23-source-reference-native-v2
+        options: [llvm23-source-reference-native-v2]
 permissions:
   contents: read
   actions: read
@@ -20,7 +20,7 @@ concurrency:
   queue: max
 jobs:
   native:
-    name: llvm23-native-v1
+    name: llvm23-native-v2
     if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 360
@@ -46,8 +46,8 @@ jobs:
         timeout-minutes: 3
         run: |
           set -euo pipefail
-          printf '%s  %s\n' 'c81b58c2df79888714745d46742ded3f34bcb30eadd6aebb39a2dab8df01be66' hosted/common.py '3127dcbc04774a27d1d79218310613852bc439d8a8cc144209fb59b86180dc91' hosted/entry.py | sha256sum --check
-          cmp --silent .github/workflows/native-arm-build.yml .github/workflows/native-arm-llvm23-source-reference-v1.yml
+          printf '%s  %s\n' '3d5260429a1471c05318b570653985f5fff70d8007a9ed47d4e0d368612f6338' hosted/common.py '3c3234eb85918ef3d4e44379f8c321abe8d89499d712c8fa2078532f623b0fd6' hosted/entry.py | sha256sum --check
+          cmp --silent .github/workflows/native-arm-build.yml .github/workflows/native-arm-llvm23-source-reference-v2.yml
           python3 -I -B - <<'PYROOT'
           import os
           from pathlib import Path
@@ -141,16 +141,16 @@ jobs:
           set -euo pipefail
           timeout --signal=TERM --kill-after=30s 500s python3 -I -B hosted/entry.py inputs --source-sha "$SOURCE_SHA" --map-sha256 "$SOURCE_MAP_SHA256" --approval-sha256 "$ROOT_APPROVAL_SHA256"
       - name: Signed349 bootstrap and one private native LLVM source reference
-        timeout-minutes: 330
+        timeout-minutes: 332
         run: |
           set -euo pipefail
-          timeout --signal=TERM --kill-after=300s 19500s python3 -I -B hosted/entry.py native --source-sha "$SOURCE_SHA" --map-sha256 "$SOURCE_MAP_SHA256" --approval-sha256 "$ROOT_APPROVAL_SHA256" --execute
+          timeout --signal=TERM --kill-after=300s 19620s python3 -I -B hosted/entry.py native --source-sha "$SOURCE_SHA" --map-sha256 "$SOURCE_MAP_SHA256" --approval-sha256 "$ROOT_APPROVAL_SHA256" --execute
       - name: Retain candidate build DATA for Root-controlled independent review
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         timeout-minutes: 3
         with:
-          name: llvm23-native-v1-${{ github.run_id }}-${{ github.run_attempt }}
+          name: llvm23-native-v2-${{ github.run_id }}-${{ github.run_attempt }}
           if-no-files-found: ignore
           include-hidden-files: true
           retention-days: 3
@@ -179,6 +179,12 @@ jobs:
             ${{ runner.temp }}/llvm23-hosted/llvm-build/export-stderr.log
             ${{ runner.temp }}/llvm23-hosted/llvm-build/producer.json
             ${{ runner.temp }}/llvm23-hosted/llvm-build/actor-inspect.json
+            ${{ runner.temp }}/llvm23-hosted/llvm-build/volume-before.json
+            ${{ runner.temp }}/llvm23-hosted/llvm-build/initializer-before.json
+            ${{ runner.temp }}/llvm23-hosted/llvm-build/initializer-after.json
+            ${{ runner.temp }}/llvm23-hosted/llvm-build/volume-initialization.json
+            ${{ runner.temp }}/llvm23-hosted/llvm-build/inputs/volume-admission.json
+            ${{ runner.temp }}/llvm23-hosted/llvm-build/inputs/volume-initialization.json
             ${{ runner.temp }}/llvm23-hosted/llvm-build/actor-finished.json
             ${{ runner.temp }}/llvm23-hosted/llvm-build/inputs/admission.json
             ${{ runner.temp }}/llvm23-hosted/bootstrap/image-inspect.json

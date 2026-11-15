@@ -1,7 +1,7 @@
 {
   "authority": null,
   "holds_preserved": true,
-  "operation": "llvm23-source-reference-native-v1",
+  "operation": "llvm23-source-reference-native-v2",
   "ref": null,
   "resources": {
     "active_minimum_disk_bytes": 1073741824,
@@ -20,13 +20,27 @@
     "minimum_available_disk_bytes_per_device": 68719476736,
     "minimum_available_inodes_per_device": 600000,
     "minimum_host_available_memory_bytes": 12884901888,
-    "native_seconds": 19800,
+    "native_seconds": 19920,
     "package_bytes": 2147483648,
     "schema": 1,
     "source_archive_body_bytes": 201326592,
     "source_archive_requests_including_redirects": 4,
     "source_intake_seconds": 600,
-    "status": "PROPOSAL_ONLY_ROOT_EXTERNAL_ADMISSION_REQUIRED"
+    "status": "PROPOSAL_ONLY_ROOT_EXTERNAL_ADMISSION_REQUIRED",
+    "work_volume_initialization": {
+      "cap_add": [
+        "CHOWN"
+      ],
+      "cpus": 1,
+      "memory_bytes": 536870912,
+      "mounts": "ONLY_EXACT_OWNED_WORK_VOLUME_NOCOPY",
+      "network": "none",
+      "pids": 64,
+      "recursive": false,
+      "seconds": 120,
+      "swap_bytes": 0,
+      "user": "0:0"
+    }
   },
   "schema": 1,
   "source": null,
