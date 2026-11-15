@@ -1,0 +1,10 @@
+FROM sha256:78387bc3881b8273120a12ebe6c1ab22b018ccc2c9adf565ae1ac9b536e184ea
+LABEL org.cachy-asahi.namespace-context-reference="x86-account1000-v1"
+RUN groupadd -g 1001 alarm && useradd -u 1001 -g alarm -M -s /bin/bash alarm
+USER alarm
+WORKDIR /tmp
+RUN ["/bin/bash", "--noprofile", "--norc", "-p", "-c", "test \"$BASHPID\" -eq 1 || exit 125; /usr/local/bin/python3 -I -B -c 'import json,os,pwd; a=pwd.getpwnam(\"alarm\"); v=dict(reference=\"HOST_X86_CLASSIC_DOCKER_RUN_ONLY\",phase='\"'\"'before-normalization'\"'\"',machine=os.uname().machine,uid=os.getuid(),euid=os.geteuid(),gid=os.getgid(),egid=os.getegid(),alarm_uid=a.pw_uid,alarm_gid=a.pw_gid,pid=os.getpid(),ppid=os.getppid(),cwd=os.getcwd()); print(json.dumps(v,sort_keys=True),flush=True); assert v[\"machine\"]==\"x86_64\" and all(v[k]==1001 for k in (\"uid\",\"euid\",\"gid\",\"egid\",\"alarm_uid\",\"alarm_gid\")) and v[\"pid\"]>1 and v[\"ppid\"]==1 and v[\"cwd\"]==\"/tmp\"' & context_owner=$!; context_status=0; wait \"$context_owner\" || context_status=$?; exit \"$context_status\""]
+USER root
+RUN groupmod -g 1000 alarm && usermod -u 1000 -g alarm alarm
+USER alarm
+RUN ["/bin/bash", "--noprofile", "--norc", "-p", "-c", "test \"$BASHPID\" -eq 1 || exit 125; /usr/local/bin/python3 -I -B -c 'import json,os,pwd; a=pwd.getpwnam(\"alarm\"); v=dict(reference=\"HOST_X86_CLASSIC_DOCKER_RUN_ONLY\",phase='\"'\"'after-normalization'\"'\"',machine=os.uname().machine,uid=os.getuid(),euid=os.geteuid(),gid=os.getgid(),egid=os.getegid(),alarm_uid=a.pw_uid,alarm_gid=a.pw_gid,pid=os.getpid(),ppid=os.getppid(),cwd=os.getcwd()); print(json.dumps(v,sort_keys=True),flush=True); assert v[\"machine\"]==\"x86_64\" and all(v[k]==1000 for k in (\"uid\",\"euid\",\"gid\",\"egid\",\"alarm_uid\",\"alarm_gid\")) and v[\"pid\"]>1 and v[\"ppid\"]==1 and v[\"cwd\"]==\"/tmp\"' & context_owner=$!; context_status=0; wait \"$context_owner\" || context_status=$?; exit \"$context_status\""]
