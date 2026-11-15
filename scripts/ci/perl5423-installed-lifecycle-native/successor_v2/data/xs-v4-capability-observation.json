@@ -1,0 +1,19 @@
+{
+  "actual_CapAdd": [
+    "CAP_CHOWN"
+  ],
+  "create_cap_add": [
+    "CHOWN"
+  ],
+  "job": "132840063834",
+  "raw_inspect": {
+    "bytes": 8584,
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-perl-xs-intake-r5/Decoded-ZIP-r1/xs/command-007.log",
+    "sha256": "39eb911a102ce8969f32bece90c13d8c98cf49b20b752f35fdbf4991fbc63cab"
+  },
+  "run": "43723410450",
+  "schema": 1,
+  "scope": "ACTUAL_SINGLE_CAP_SERIALIZATION_DATA_NOT_INSTALLED7CAP_RUNTIME",
+  "seven_cap_fixture_scope": "MODELED_USING_ACTUAL_SINGLE_CAP_SPELLING_ONLY",
+  "source": "c23a24a0cff3ce102e2f3240cc86a890b2ad4b0b"
+}
