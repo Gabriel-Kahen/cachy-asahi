@@ -193,6 +193,63 @@ class Controls(Fenced):
   with patch.object(K.shutil,'disk_usage',return_value=shutil._ntuple_diskusage(10*1024**3,0,2*1024**3)):
    with self.assertRaises(AssertionError):K.output_path(self.work/'new')
 
+class BootMemoryControls(Fenced):
+ def setUp(self):
+  super().setUp();self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup);self.work=Path(self.tmp.name);self.cg=self.work/'cgroup';self.cg.mkdir();self.out=self.work/'out';self.out.mkdir()
+  for name,value in {'memory.events':'low 0\nhigh 0\nmax 2\noom 1\noom_kill 1\noom_group_kill 0\n','memory.peak':str(3*1024**3),'memory.current':'12345','memory.max':str(4*1024**3),'memory.swap.current':'0','memory.swap.max':'0'}.items():(self.cg/name).write_text(value)
+ def test_explicit_boot_admission_requires_exact4G_no_swap(self):
+  value=admitted();value['allow_boot']=True;self.assertEqual(K.admission(value,'boot')['boot_resources'],K.BOOT_RESOURCES)
+  for field,value in [('memory_bytes',3*1024**3),('memory_swap_bytes',5*1024**3),('cpus',3),('guest_memory_MiB',3072),('host_reserve_bytes',0)]:
+   changed=admitted();changed['allow_boot']=True;changed['boot_resources'][field]=value
+   with self.subTest(field=field),self.assertRaises(ValueError):K.admission(changed,'boot')
+ def test_static_actual_boot_source_policy_join(self):
+  boot=(HERE/'boot.py').read_text();prepare=(HERE/'prepare.py').read_text();self.assertIn("'--memory=4g','--memory-swap=4g'",boot);self.assertIn("'--memory=3g','--memory-swap=3g'",prepare);self.assertEqual(K.BOOT_RESOURCES['host_minimum_bytes'],K.BOOT_RESOURCES['memory_bytes']+K.BOOT_RESOURCES['host_reserve_bytes']);self.assertIn('>=6*1024**3',boot)
+  argv=A.qemu_argv(N,1794700000);self.assertEqual(int(argv[argv.index('-m')+1]),K.BOOT_RESOURCES['guest_memory_MiB']);self.assertIn('1024*1024**2,1024*1024**2',(HERE/'seat_actor.py').read_text())
+ def test_wrapper_projects_only_prechecked_memory_and_existing_command(self):
+  boot=load('boot');seen=[]
+  class Legacy:
+   def validate(self,row):
+    seen.append(copy.deepcopy(row));self_outer.assertEqual(row['HostConfig']['Memory'],3*1024**3);self_outer.assertEqual(row['HostConfig']['MemorySwap'],3*1024**3)
+    assert row['Name']=='/owned'and row['Mounts']==[{'Source':'/inputs','RW':False},{'Source':'/work','RW':True}]and row['HostConfig']['CapDrop']==['ALL']and row['HostConfig']['CapAdd']==[]and row['HostConfig']['NanoCpus']==2000000000 and row['HostConfig']['PidsLimit']==256
+  self_outer=self;scope=boot.custody_class(types.SimpleNamespace(OwnedContainer=Legacy))();row={'Name':'/owned','Config':{'Cmd':['-I','-B','/inputs/seat_actor.py']},'Mounts':[{'Source':'/inputs','RW':False},{'Source':'/work','RW':True}],'HostConfig':{'Memory':4*1024**3,'MemorySwap':4*1024**3,'SecurityOpt':['no-new-privileges'],'CapDrop':['ALL'],'CapAdd':[],'NanoCpus':2000000000,'PidsLimit':256}}
+  original=copy.deepcopy(row);scope.validate(row);self.assertEqual(row,original);expected=copy.deepcopy(row);expected['Config']['Cmd']=['-I','-B','/opt/vm_actor.py'];expected['HostConfig']['Memory']=expected['HostConfig']['MemorySwap']=3*1024**3;self.assertEqual(seen,[expected])
+  for field,value in [('Memory',3*1024**3),('MemorySwap',3*1024**3),('MemorySwap',5*1024**3),('CapAdd',['SYS_ADMIN']),('NanoCpus',3000000000),('PidsLimit',512),('SecurityOpt',[]),('PidMode','host')]:
+   changed=copy.deepcopy(row);changed['HostConfig'][field]=value
+   with self.subTest(field=field,value=value),self.assertRaises(AssertionError):scope.validate(changed)
+  changed=copy.deepcopy(row);changed['Mounts'][0]['RW']=True
+  with self.assertRaises(AssertionError):scope.validate(changed)
+ def test_memory_snapshot_preserves_actual_numeric_counters_and_private_durability(self):
+  calls=[];fsync=os.fsync
+  with patch.object(A.os,'fsync',side_effect=lambda fd:(calls.append(fd),fsync(fd))[1]):value=A.memory_snapshot(self.out,N,'before-vm',self.cg)
+  self.assertEqual(value['memory.events']['oom_kill'],1);self.assertEqual(value['memory.max'],4*1024**3);self.assertEqual(len(calls),2);path=self.out/'memory-before-vm.json';self.assertEqual(path.stat().st_mode&0o777,0o600);self.assertLess(path.stat().st_size,16384);self.assertEqual(json.loads(path.read_text()),value)
+  boot=load('boot');self.assertEqual(boot.memory_evidence(self.out,N)['before-vm']['actual_numeric_cgroup'],value)
+ def test_memory_host_export_refuses_foreign_nonce_or_unbound_fields(self):
+  A.memory_snapshot(self.out,N,'before-vm',self.cg);path=self.out/'memory-before-vm.json';original=json.loads(path.read_text());boot=load('boot')
+  for field,value in [('nonce','2'*32),('raw_private_text','not exported'),('memory.max',3*1024**3)]:
+   changed=copy.deepcopy(original);changed[field]=value;path.write_text(json.dumps(changed));path.chmod(0o600)
+   with self.subTest(field=field),self.assertRaises(AssertionError):boot.memory_evidence(self.out,N)
+ def test_memory_refusals_keep_bounded_receipt(self):
+  for name,value in [('memory.max',str(3*1024**3)),('memory.swap.max','1'),('memory.peak','max'),('memory.current','-1'),('memory.events','secret arbitrary text\n'),('memory.events','x'*4097)]:
+   original=(self.cg/name).read_bytes();(self.cg/name).write_text(value);out=self.work/('refusal'+str(len(list(self.work.iterdir()))));out.mkdir()
+   with self.subTest(name=name),self.assertRaises((AssertionError,ValueError)):A.memory_snapshot(out,N,'before-vm',self.cg)
+   receipt=json.loads((out/'memory-before-vm.json').read_text());self.assertEqual(receipt['status'],'REFUSED');self.assertNotIn('arbitrary',json.dumps(receipt));(self.cg/name).write_bytes(original)
+ def test_memory_missing_or_alias_refuses_without_raw_error_export(self):
+  path=self.cg/'memory.peak';path.unlink();path.symlink_to(self.cg/'memory.current')
+  with self.assertRaises(OSError):A.memory_snapshot(self.out,N,'before-vm',self.cg)
+  value=json.loads((self.out/'memory-before-vm.json').read_text());self.assertEqual(value['status'],'REFUSED');self.assertEqual(value['error_category'],'OSError')
+ def test_memory_final_is_captured_on_failure(self):
+  stages=[]
+  real=A.memory_snapshot
+  with patch.object(A,'memory_snapshot',side_effect=lambda work,nonce,stage: (stages.append(stage),real(work,nonce,stage,self.cg))[1]):
+   with self.assertRaisesRegex(RuntimeError,'inert failure'):
+    with A.memory_receipts(self.out,N):raise RuntimeError('inert failure')
+  self.assertEqual(stages,['before-vm','final']);self.assertTrue((self.out/'memory-final.json').is_file())
+ def test_memory_fsync_refusal_never_yields_VM_permission(self):
+  with patch.object(A.os,'fsync',side_effect=OSError('inert fsync refusal')):
+   with self.assertRaises(OSError):A.memory_snapshot(self.out,N,'before-vm',self.cg)
+ def test_at_exit_snapshot_and_retirement_receipt_precede_final(self):
+  source=(HERE/'seat_actor.py').read_text();self.assertLess(source.index("(W/'qemu-retirement.json').write_text(json.dumps(result"),source.index("memory_snapshot(W,manifest['nonce'],'at-qemu-exit')"));self.assertIn("finally:memory_snapshot(work,nonce,'final')",source)
+
 class AcceptanceControls(Fenced):
  def value(self):
   # Modeled predicate input, never credited as GTK or guest runtime evidence.
