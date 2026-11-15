@@ -280,3 +280,46 @@ HOME and XDG_RUNTIME_DIR are passed for Docker calls; DOCKER_CONTEXT is cleared.
 A Root wrapper's broader PATH therefore cannot redirect the command or repair a
 missing binding. The ordinary actor's finite PATH and all image/mount/capability,
 resource/custody/cancellation/retirement checks remain in force.
+
+
+## Literal ALPM ownership DATA and separate baseline observation
+
+ALPM ownership keys have a separate bounded parser from command/runtime paths.
+It accepts punctuation such as `usr/bin/[`, comma and literal backslash text
+without unescaping or normalizing it. It rejects absolute paths, empty/dot/dotdot
+components, controls, duplicates and missing exact namespace keys. Exact empty
+`files` bytes mean no owned paths (observed retained ca-certificates/dbus-units
+metadata packages); nonempty malformed records and empty descriptions refuse.
+The portable retained-r8 regression contains selected exact keys plus provenance;
+the namespace in that test is synthetic, not a new raw observation.
+
+Original111 lacks `ownership.json`. Both adapter and controller now accept
+`--baseline-ownership /PRIVATE/NEW/ownership.json` with the same exact baseline
+certificate byte/hash requirement, leaving the original raw/prepared directory
+unchanged. Omitting it retains the legacy colocated path and fails if absent.
+No image/archive copy, hardlink or symlink is needed to satisfy a layout.
+
+`baseline_observer.py` provides a separately Root-authorized **read-only** scan
+using the frozen `Ext4Reader` and the actual `image.owners` parser. On import it
+does nothing. Its template leaves every Root grant NULL; a fresh, exact,
+accepted `ROOT_PERL5423_READONLY_BASELINE_AUTHORITY_V1` is required. Root must run
+it under generic CUSL/S supervision and whole-process memory/CPU/PID/quota/output
+controls; the program only enforces read, walltime, input identity/hash and
+aggregate output bounds. It imports no artifact code, launches no subprocess,
+and performs no mount, debugfs, ALPM, network, lock or quota operation.
+
+A future Root invocation is:
+
+```sh
+/usr/bin/python3 -I -B /EXACT/SOURCE/baseline_observer.py \
+  --observe-readonly-root-bound --authority /PRIVATE/ISSUED/observer.json \
+  --authority-sha256 ROOT_AUTHORITY_SHA --source-lock-sha256 ROOT_SOURCE_SHA \
+  --output /PRIVATE/FRESH/readonly-baseline-DATA
+```
+
+It opens the exact original raw read-only, joins its prepared package inventory,
+retains `ownership.json`, complete `namespace.json`, raw `alpm-records.json`, and
+`observation.json`, then rechecks original inputs. Its report and all Root/runtime
+acceptance fields stay NULL. It neither issues a baseline certificate nor
+supplies PAM or filesystem-integrity acceptance. Worker verification uses only
+synthetic DATA and retained ALPM record bytes; no actual raw scanner ran here.

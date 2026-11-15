@@ -149,9 +149,62 @@ class Controls(unittest.TestCase):
   after=copy.deepcopy(scan);after['nodes']['usr/bin/x']['sha256']='b'*64
   with self.assertRaises(ValueError):I.preserve(scan,after,{'x':'1'},modeled()[3])
  def test_no_actions_on_import_and_operational_fence(self):
-  for n in('actor','runtime','controller','budget','image'):module(n)
+  for n in('actor','runtime','controller','budget','image','baseline_observer'):module(n)
   for event in('subprocess.Popen','socket.__new__','ctypes.dlopen','fcntl.flock'):
    with self.assertRaises(RuntimeError):sys.audit(event)
+ def test_retained_alpm_literal_ownership_keys_and_exact_empty_records(self):
+  cases=K.load(HERE/'known/alpm-ownership-cases.json')['cases'];records={};nodes={};inventory={}
+  for row in cases:
+   inventory[row['name']]=row['version'];base='var/lib/pacman/local/'+row['name']+'-'+row['version']+'/'
+   records[base+'desc']='%NAME%\n'+row['name']+'\n\n%VERSION%\n'+row['version']+'\n';records[base+'files']=row['files']
+   self.assertEqual(I.owned_paths(row['files']),row['selected_keys'])
+   for p in row['selected_keys']:nodes[p]=dict(type='file',mode=0o644,uid=0,gid=0,sha256='a'*64)
+  scan=dict(nodes=nodes,records=records);owned=I.owners(scan,inventory);self.assertEqual(set(owned),set(nodes))
+  self.assertIn('usr/bin/[',owned);self.assertIn('usr/lib/systemd/system/system-systemd\\x2dcryptsetup.slice',owned)
+  self.assertEqual(I.owned_paths(''),[])
+  for raw in(' ','\n','%FILES%\n','%OTHER%\nx\n','%FILES%\nusr/bin/x\r\n','%FILES%\nusr/bin/x\nusr/bin/x/\n'):
+   with self.subTest(raw=raw),self.assertRaises(ValueError):I.owned_paths(raw)
+  for key in('/usr/bin/x','../x','usr/../x','usr//x','usr/./x','usr/bin/x//','usr/bin/x\t','usr/bin/x\0'):
+   with self.subTest(key=key),self.assertRaises(ValueError):I.ownership_key(key)
+  for kind in('missing','alias','empty-desc','orphan'):
+   bad=copy.deepcopy(scan)
+   if kind in('missing','alias'):
+    del bad['nodes']['usr/bin/[']
+    if kind=='alias':bad['nodes']['usr/bin/alias']=nodes['usr/bin/[']
+   elif kind=='empty-desc':bad['records'][next(p for p in records if p.endswith('/desc'))]=''
+   else:bad['records']['var/lib/pacman/local/orphan/files']=''
+   with self.subTest(kind=kind),self.assertRaises(ValueError):I.owners(bad,inventory)
+  # Command/runtime operands retain their stricter grammar.
+  with self.assertRaises(ValueError):K.guest_path('/usr/bin/[')
+ def test_readonly_observer_renders_only_synthetic_data_and_refuses_unissued_authority(self):
+  O=module('baseline_observer');scan=dict(nodes={'usr/bin/x':dict(type='file',mode=0o755,uid=0,gid=0,sha256='a'*64)},records={'var/lib/pacman/local/x-1/desc':'%NAME%\nx\n\n%VERSION%\n1\n','var/lib/pacman/local/x-1/files':'%FILES%\nusr/bin/x\n'})
+  rows=O.render(scan,{'x':'1'});self.assertEqual(set(rows),{'ownership.json','namespace.json','alpm-records.json'});self.assertEqual(json.loads(rows['ownership.json'])['usr/bin/x']['owners'],['x'])
+  with self.assertRaises(ValueError):O.authority(K.load(HERE/'baseline-observer-authority.TEMPLATE.json'),pin('Source'),Path('/MODEL'),K)
+  for event in('subprocess.Popen','socket.__new__','ctypes.dlopen','fcntl.flock'):
+   with self.assertRaises(RuntimeError):O.fence(event,())
+ def test_explicit_separate_baseline_ownership_pin_without_image_copy(self):
+  with tempfile.TemporaryDirectory()as tmp:
+   root=Path(tmp);base=root/'original';base.mkdir();(base/'guest.raw').write_bytes(b'MODEL_RAW');(base/'prepared.json').write_bytes(b'MODEL_PREPARED');ownership=root/'ownership.json';ownership.write_bytes(b'MODEL_OWNERS')
+   expected=dict(raw=K.pin(base/'guest.raw'),prepared=K.pin(base/'prepared.json'),ownership=K.pin(ownership))
+   self.assertEqual(A.baseline_inputs(base,expected,ownership)['ownership'],ownership);self.assertFalse((base/'ownership.json').exists())
+   with self.assertRaises(FileNotFoundError):A.baseline_inputs(base,expected)
+   ownership.write_bytes(b'WRONG')
+   with self.assertRaises(ValueError):A.baseline_inputs(base,expected,ownership)
+ def test_readonly_observer_synthetic_scan_joins_pins_and_bounds_output(self):
+  O=module('baseline_observer');scan=dict(nodes={'usr/bin/x':dict(type='file',mode=0o755,uid=0,gid=0,sha256='a'*64)},records={'var/lib/pacman/local/x-1/desc':'%NAME%\nx\n\n%VERSION%\n1\n','var/lib/pacman/local/x-1/files':'%FILES%\nusr/bin/x\n'},filesystem_free_bytes=4096,log_data_b64=None)
+  for kind in('valid','wrong-raw','output-cap'):
+   with tempfile.TemporaryDirectory()as tmp:
+    root=Path(tmp);raw=root/'raw';raw.write_bytes(b'SYNTHETIC_NOT_EXT4');prep=root/'prepared';prep.write_bytes(K.canonical(dict(base_packages=[dict(name='x',version='1')],files={'guest.raw':K.pin(raw)})));out=root/'fresh';now=int(time.time());source=pin('synthetic-source')
+    auth=dict(kind='ROOT_PERL5423_READONLY_BASELINE_AUTHORITY_V1',issued_by='Root',accepted=True,operation=K.OP,source_lock=source,raw=dict(path=str(raw),**K.pin(raw)),prepared=dict(path=str(prep),**K.pin(prep)),output=str(out),uid=os.getuid(),created_utc=now-1,expires_utc=now+60,scan_seconds=10,output_cap_bytes=1 if kind=='output-cap'else 1024**2,external_resource_enforcement='ROOT_CUSLS_WHOLE_PROCESS_MEMORY_CPU_PID_QUOTA_AND_OUTPUT_GUARD')
+    authpath=root/'authority';authpath.write_bytes(K.canonical(auth))
+    if kind=='wrong-raw':raw.write_bytes(b'WRONG')
+    modules=dict(contracts=O.module('contracts'),adapter=type('A',(),{'source':staticmethod(lambda sha:source)}),image=type('I',(),{'scan':staticmethod(lambda *args:copy.deepcopy(scan)),'owners':staticmethod(I.owners)}))
+    with patch.object(O,'module',side_effect=lambda n:modules[n]):
+     if kind=='valid':
+      result=O.observe(authpath,K.pin(authpath)['sha256'],'MODEL_SHA',out);self.assertEqual(set(result),{'ownership.json','namespace.json','alpm-records.json','observation.json'});obs=K.load(out/'observation.json');self.assertIsNone(obs['Root_baseline_certificate']);self.assertTrue(obs['original_raw_and_prepared_unchanged'])
+     else:
+      with self.assertRaises(ValueError):O.observe(authpath,K.pin(authpath)['sha256'],'MODEL_SHA',out)
+      self.assertFalse(out.exists())
  def test_durable_actual_ELF_bytes_and_functional_receipt_joins(self):
   raw=bytearray(120);raw[:6]=b'\x7fELF\x02\x01';struct.pack_into('<HH',raw,16,2,183);struct.pack_into('<Q',raw,32,64);struct.pack_into('<HH',raw,54,56,1);struct.pack_into('<IIQQQQQQ',raw,64,1,5,0,0x400000,0,120,120,16384);raw=bytes(raw)
   for kind in('valid','functional','ELF','receipt','extra'):

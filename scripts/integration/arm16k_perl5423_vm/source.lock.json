@@ -17,9 +17,9 @@
       "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
     },
     "README.md": {
-      "bytes": 18926,
+      "bytes": 21416,
       "mode": 420,
-      "sha256": "4f2433f0cf2aeb04f95a04cdd4df636c3f3030386fc12ecbf688036f1b9c1054"
+      "sha256": "aef885c1e8a1953e4a9bb34fc617e0cf6aea5b89098e7f0fe0a5234b065a2c0c"
     },
     "actor.py": {
       "bytes": 11858,
@@ -27,14 +27,24 @@
       "sha256": "6f9be44cf16561850d74ac49e0758712bc14a283a0e21fc6842f7d912372bbd3"
     },
     "adapter.py": {
-      "bytes": 12786,
+      "bytes": 13169,
       "mode": 420,
-      "sha256": "982fc0a72f68589646b3a13bea08d94659201aae81ab7768514ae57798f2aea7"
+      "sha256": "8636e7f8e5b3225a6bc1d0a7cf3922fb6c7557709868dbc8eebdebb6f2017636"
     },
     "authority.TEMPLATE.json": {
       "bytes": 684,
       "mode": 420,
       "sha256": "7f19cf45b9b720a3c193e914fa4a748d14cfe5a90939fd7aa17e88af2b0373c1"
+    },
+    "baseline-observer-authority.TEMPLATE.json": {
+      "bytes": 386,
+      "mode": 420,
+      "sha256": "ca134947d551a966b0602852de98df92bc19f1e16b3a743db11e8688a7a43934"
+    },
+    "baseline_observer.py": {
+      "bytes": 6079,
+      "mode": 420,
+      "sha256": "f96192356b6b0d9885927a37b8bb715b894b4da25f2b398da06ca7a9985acd16"
     },
     "budget.py": {
       "bytes": 2912,
@@ -52,9 +62,9 @@
       "sha256": "23fbeb914fed112e2fb07ef7a2e482b21d7231e1140f97b316e9da3ff4cabf14"
     },
     "controller.py": {
-      "bytes": 16138,
+      "bytes": 16092,
       "mode": 420,
-      "sha256": "b2ee2544c6d7269701d3ec4c38feb836907f3c6d2bb6c7662d45a2fa9bc844c8"
+      "sha256": "27bf9bf6810e227ec8e05f8e724c6d1f11b0c6a21b879fa24db5689d41638c7e"
     },
     "expected-payload-certificate.TEMPLATE.json": {
       "bytes": 929,
@@ -127,9 +137,14 @@
       "sha256": "75c8fe2567e7fdc613137ecd93c61dda694e4af250b73862b438cf8b5fab237f"
     },
     "image.py": {
-      "bytes": 7640,
+      "bytes": 8995,
       "mode": 420,
-      "sha256": "b7c9a45b3259fcfea495683023dd34aaf7dc7e88ca8ca83ba546e1c7ff32aaa7"
+      "sha256": "89abe4d5d11250ed7412edc9859f49ce3c4a87b8b1195d4f3967011ae8536ff5"
+    },
+    "known/alpm-ownership-cases.json": {
+      "bytes": 2544,
+      "mode": 420,
+      "sha256": "d90b068b573677d7e9164d2e10ac87c688830807586a2ada222aa5c1d4a9ff73"
     },
     "known/expected-payload-inputs.json": {
       "bytes": 50945,
@@ -172,9 +187,9 @@
       "sha256": "3126ee0c8a7c02e12503b4858f90b5a70fd7f300fd6228c99532ec7eaec02e28"
     },
     "test_controls.py": {
-      "bytes": 35446,
+      "bytes": 40985,
       "mode": 420,
-      "sha256": "77fdc26c23de6b1163d73478ddf2ffcb2d177a4f2f292a3699c8dc516c77950d"
+      "sha256": "14b3ba6f333199443c222d75a03836d6846742775700df2628c766fd12ace4bf"
     },
     "test_git_roundtrip.py": {
       "bytes": 2665,

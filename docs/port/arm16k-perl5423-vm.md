@@ -72,3 +72,12 @@ The Source sealer now uses only ordinary staged Git leaves and0644/0755 modes.
 A separate committed-tree export regression runs the strict Source predicate in
 a fresh directory under an operation fence. Ignored bytecode and private0600
 metadata modes are refused instead of being sealed.
+
+
+Ownership parsing now distinguishes literal ALPM keys from command operands,
+including retained bracket/comma/literal-backslash names and exact empty files
+records. A separately pinned `--baseline-ownership` operand avoids modifying
+Original111. A new Root-only, finite read-only observer can emit genuine full
+namespace/ownership DATA through the frozen ext4 reader after Root grants and
+external CUSL/S resource supervision. Its NULL template and synthetic/retained
+record checks provide no actual raw-scan or guest/runtime credit.

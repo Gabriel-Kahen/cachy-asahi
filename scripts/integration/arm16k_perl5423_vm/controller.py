@@ -28,7 +28,7 @@ def main():
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('phase',choices=['prepare','boot']);p.add_argument('--execute-root-bound-actor',action='store_true')
  for n in('packet','baseline','kernel','authority','output'):p.add_argument('--'+n,type=Path,required=True)
  for n in('authority-sha256','source-lock-sha256'):p.add_argument('--'+n,required=True)
- p.add_argument('--prepared',type=Path);p.add_argument('--credentials',type=Path);a=p.parse_args()
+ p.add_argument('--prepared',type=Path);p.add_argument('--credentials',type=Path);p.add_argument('--baseline-ownership',type=Path);a=p.parse_args()
  K,A,R,B,P,Q=module('contracts'),module('adapter'),module('runtime'),None,module('protocol'),module('budget')
  K.need(a.execute_root_bound_actor and sys.flags.isolated and sys.dont_write_bytecode and __debug__ and os.getuid()==os.geteuid()!=0,'explicit isolated ordinary-user Root actor entry')
  source=A.source(a.source_lock_sha256);packet_dir=K.ordinary(a.packet);packet=K.load(packet_dir/'case-packet.json');case=K.load(packet_dir/'case-inputs.json')
@@ -45,7 +45,8 @@ def main():
  authority(auth,a.phase,K.pin(packet_dir/'case-packet.json'),source,out,K)
  R.checked_docker_cli(auth['docker_cli'])
  base=cert['baseline_certificate'];r=cert['resource_certificate']
- for name,key in [('guest.raw','raw'),('prepared.json','prepared'),('ownership.json','ownership')]:K.need(K.pin(baseline/name)==base[key],'actual retained baseline '+name)
+ baseline_paths=A.baseline_inputs(baseline,base,a.baseline_ownership)
+ K.need(all(path!=out and out not in path.parents for path in baseline_paths.values()),'baseline operands outside actor output')
  for name,pin in auth['kernel'].items():K.need(K.pin(kernel/name)==pin,'actual qualified RTC kernel')
  cfg=K.helper('rtc_contract.py').values((kernel/'config').read_bytes())
  required={'CONFIG_ARM64':'y','CONFIG_ARM64_16K_PAGES':'y','CONFIG_RTC_CLASS':'y','CONFIG_RTC_DRV_PL031':'y','CONFIG_RTC_HCTOSYS':'y','CONFIG_RTC_HCTOSYS_DEVICE':'"rtc0"','CONFIG_RTC_SYSTOHC':'n','CONFIG_VIRTIO_BLK':'y','CONFIG_EXT4_FS':'y'}
@@ -135,7 +136,7 @@ def main():
    report['outputs']=module('proof').outputs(out/'results',report['restored'],base['inventory'],cert['runtime_certificate'],packet['nonce'],K.load(out/'host-epoch.json')['utc_ns']//10**9,int(time.time()),r['guest_output_cap_bytes'])
    report['preservation']=K.load(out/'preservation.json');K.need(report['preservation']['status']=='PASS_COMPLETE_BASELINE_AND_USER_PRESERVATION','postboot complete preservation')
   K.need(K.pin(authpath)['sha256']==a.authority_sha256 and A.source(a.source_lock_sha256)==source,'Source/authority stable throughout actor')
-  for name,key in [('guest.raw','raw'),('prepared.json','prepared'),('ownership.json','ownership')]:K.need(K.pin(baseline/name)==base[key],'readonly original baseline retained')
+  A.baseline_inputs(baseline,base,a.baseline_ownership)
   for name,row in packet['materials'].items():K.need(K.pin(Path(row['path']))=={n:row[n]for n in('bytes','sha256')},'retained original material stable')
   if prepared is not None:K.need(K.pin(prepared/'prepared.json')==auth['prepared'] and K.pin(prepared/'guest.raw')==m['raw'],'prepared original remains unchanged')
   report['status']='PREPARED_NOT_BOOTED'if a.phase=='prepare'else'PASS_EMULATED_ARM16K_PERL5423_DATA_ONLY'

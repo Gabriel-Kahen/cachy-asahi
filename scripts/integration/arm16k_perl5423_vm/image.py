@@ -39,8 +39,9 @@ def stable(row):
 
 
 def fields(raw):
+ if type(raw)is not str or any(ord(c)<32 and c not in '\n\t' or ord(c)==127 for c in raw):raise ValueError('literal LF ALPM text required')
  result={};key=None
- for line in raw.splitlines():
+ for line in raw.split('\n'):
   if line.startswith('%') and line.endswith('%'):
    key=line[1:-1]
    if key in result:raise ValueError('duplicate ALPM field')
@@ -51,15 +52,35 @@ def fields(raw):
  return result
 
 
+def ownership_key(value):
+ # ALPM DATA keys are not shell/command operands. Preserve punctuation and
+ # literal backslashes; never unescape, normalize, resolve aliases or execute.
+ if not(type(value)is str and 0<len(value.encode())<=4096 and not any(ord(c)<32 or ord(c)==127 for c in value)):raise ValueError('bounded literal ALPM ownership key')
+ path=value[:-1]if value.endswith('/')else value
+ if path.startswith('/') or not all(p not in('','.','..')for p in path.split('/')):raise ValueError('relative ALPM ownership key without traversal or empty components')
+ return path
+
+
+def owned_paths(raw):
+ if raw=='':return [] # Exact byte-empty metadata package: no owned paths.
+ value=fields(raw)
+ module('contracts').need('FILES'in value and bool(value['FILES']),'nonempty ALPM files record requires FILES paths')
+ paths=[ownership_key(p)for p in value['FILES']]
+ module('contracts').need(len(paths)==len(set(paths)),'unique literal ownership keys per package')
+ return paths
+
+
 def owners(scan,inventory):
  K=module('contracts');found={};owned={};records=scan['records'];nodes=scan['nodes']
  for path,text in records.items():
   if not path.endswith('/desc'):continue
-  desc=fields(text);name,version=desc['NAME'],desc['VERSION'];K.need(len(name)==len(version)==1 and name[0] not in found,'unique ALPM package')
+  desc=fields(text);name,version=desc.get('NAME',[]),desc.get('VERSION',[]);K.need(len(name)==len(version)==1 and name[0] not in found,'unique nonempty ALPM package description')
   found[name[0]]=version[0]
-  for p in fields(records[path[:-4]+'files'])['FILES']:
-   p=p.rstrip('/');K.guest_path('/'+p);K.need(p in nodes,'owned path exists')
+  K.need(path[:-4]+'files'in records,'actual ALPM files record exists')
+  for p in owned_paths(records[path[:-4]+'files']):
+   K.need(p in nodes,'literal owned path exists without alias substitution')
    owned.setdefault(p,[]).append(name[0])
+ K.need(set(records)=={p[:-4]+n for p in records if p.endswith('/desc')for n in('desc','files')},'complete paired actual ALPM records')
  K.need(found==inventory,'exact actual complete baseline ALPM inventory')
  return {p:dict(owners=sorted(v),inode=stable(nodes[p]))for p,v in sorted(owned.items())}
 

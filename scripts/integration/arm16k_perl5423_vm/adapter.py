@@ -29,7 +29,15 @@ def material_paths(operand):
  value=K.load(operand);K.keys(value,NAMES,'retained material reference map')
  return {n:K.ordinary(path)for n,path in value.items()}
 
-def preflight(case_path,case_sha256,materials,source_sha256,baseline,baseline_report):
+def baseline_inputs(baseline,expected,ownership=None):
+ base=K.ordinary(baseline)
+ paths={n:base/name for name,n in [('guest.raw','raw'),('prepared.json','prepared')]}
+ paths['ownership']=K.ordinary(ownership)if ownership is not None else base/'ownership.json'
+ for key,path in paths.items():K.need(K.pin(path,expected[key]['bytes'])==expected[key],'exact actual readonly baseline '+key)
+ return paths
+
+
+def preflight(case_path,case_sha256,materials,source_sha256,baseline,baseline_report,baseline_ownership=None):
  lock=source(source_sha256);case_path=K.ordinary(case_path);K.need(K.pin(case_path)['sha256']==case_sha256,'external Root-selected actual case bytes')
  case=K.load(case_path);paths=material_paths(materials)
  observed={name:K.pin(path,2*1024**3 if name=='archive' else 4*1024**2)for name,path in paths.items()}
@@ -47,8 +55,7 @@ def preflight(case_path,case_sha256,materials,source_sha256,baseline,baseline_re
   group,name=role.split('_');expected=(rollback if group=='rollback'else dependency)[name]
   K.need(K.pin(K.ordinary(extras[role]))==expected,'actual exact '+role)
  base=K.ordinary(baseline);report=K.ordinary(baseline_report);expected=cert['baseline_certificate']
- for name,key in [('guest.raw','raw'),('prepared.json','prepared'),('ownership.json','ownership')]:
-  K.need(K.pin(base/name,expected[key]['bytes'])==expected[key],'exact actual readonly baseline file: '+name)
+ baseline_inputs(base,expected,baseline_ownership)
  K.need(K.pin(report,expected['report']['bytes'])==expected['report'],'exact accepted baseline PAM report bytes')
  return validated,cert,observed,lock,paths,extras
 
@@ -107,8 +114,8 @@ def contents(case,cert,lock,nonce):
  for n in K.EVIDENCE:put(n+'.json',K.canonical(cert[n]))
  put('case-inputs.json',K.canonical(case));put('source-lock-selection.json',K.canonical(lock));return files
 
-def prepare(case_path,case_sha256,materials,source_sha256,nonce,output,baseline,baseline_report):
- case,cert,observed,lock,paths,extras=preflight(case_path,case_sha256,materials,source_sha256,baseline,baseline_report)
+def prepare(case_path,case_sha256,materials,source_sha256,nonce,output,baseline,baseline_report,baseline_ownership=None):
+ case,cert,observed,lock,paths,extras=preflight(case_path,case_sha256,materials,source_sha256,baseline,baseline_report,baseline_ownership)
  out=K.ordinary(output);K.need(not out.exists()and out.parent.is_dir()and out.parent.stat().st_uid==os.getuid()and not out.parent.stat().st_mode&0o022,'fresh private owned case output')
  K.need(not any(out==p or out in p.parents or p in out.parents for p in(HERE,materials,K.ordinary(case_path))),'case output disjoint from Source/materials')
  rows=contents(case,cert,lock,nonce);fixture_bytes=sum(len(b)for b,_ in rows.values());K.need(fixture_bytes<=cert['resource_certificate']['fixture_source_bytes'],'actual generated fixture must fit the Root-reviewed physical staging plan')
@@ -134,6 +141,7 @@ def main():
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('--prepare-case-packet',action='store_true')
  for n in('case','materials','output','baseline','baseline-report'):p.add_argument('--'+n,type=Path,required=True)
  for n in('case-sha256','source-lock-sha256','nonce'):p.add_argument('--'+n,required=True)
+ p.add_argument('--baseline-ownership',type=Path)
  a=p.parse_args();K.need(a.prepare_case_packet and sys.flags.isolated and sys.dont_write_bytecode and __debug__ and os.getuid()==os.geteuid()!=0,'explicit ordinary isolated case preparation')
- print(json.dumps(prepare(a.case,a.case_sha256,a.materials,a.source_lock_sha256,a.nonce,a.output,a.baseline,a.baseline_report),sort_keys=True))
+ print(json.dumps(prepare(a.case,a.case_sha256,a.materials,a.source_lock_sha256,a.nonce,a.output,a.baseline,a.baseline_report,a.baseline_ownership),sort_keys=True))
 if __name__=='__main__':main()
