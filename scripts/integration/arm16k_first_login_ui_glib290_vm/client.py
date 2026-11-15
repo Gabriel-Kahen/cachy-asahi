@@ -7,6 +7,10 @@ H = Path('/home/builder'); R = Path('/run/ui-session')
 def accept_retirement(retirement):
     assert retirement['passed'] and retirement['group_census']=='EMPTY_TWICE' and retirement['signals']==[], 'real installed GTK process/retirement refused'
 
+def user_files():
+    home=H/'UI-profile'
+    return {str(p.relative_to(home)):hashlib.sha256(p.read_bytes()).hexdigest() for p in home.rglob('*') if p.is_file()}
+
 def main():
     assert __debug__ and sys.flags.isolated and os.geteuid() == 1000 and os.ttyname(0) == '/dev/tty1'
     os.umask(0o077); deadline = time.monotonic() + 280
@@ -33,12 +37,18 @@ def main():
         if lifecycle.exists():report['session_lifecycle_receipt']={'bytes':lifecycle.stat().st_size,'sha256':hashlib.sha256(lifecycle.read_bytes()).hexdigest()}
         accept_retirement(retirement)
         report['gui'] = json.loads(output); assert report['gui']['status'] == 'PASS_REAL_INSTALLED_GTK_CONTROLS'
+        assert user_files()==report['gui']['user_files'], 'pre-removal user settings differ'
         (H/'UI_READY_FOR_REMOVAL.json').write_text(json.dumps(report, sort_keys=True)+'\n')
         wait(R/'removed.json')
-        observed = {str(p.relative_to(H/'UI-profile')):hashlib.sha256(p.read_bytes()).hexdigest() for p in (H/'UI-profile').rglob('*') if p.is_file()}
+        observed = user_files()
         assert observed == report['gui']['user_files'], 'package removal changed private user settings'
         report.update(status='PASS_REAL_SEAT_UI_CLIENT', removal_preserved_user_files=True, private_X_server_and_session_bus_retired=True)
-    except BaseException as e: report['failure'] = {'category':type(e).__name__,'message':str(e)[:1024]}
+    except BaseException as e:
+        module=getattr(e,'name',None)
+        if not isinstance(module,str)or len(module)>96 or not all(v.isidentifier()for v in module.split('.')):module=None
+        number=getattr(e,'errno',None)
+        if type(number)is not int or not 0<=number<=4095:number=None
+        report['failure'] = {'category':type(e).__name__,'message':str(e)[:1024],'missing_module':module,'errno':number}
     (H/'UI_CLIENT_REPORT.json').write_text(json.dumps(report,sort_keys=True,indent=2)+'\n')
     return 0 if report['status'].startswith('PASS_') else 1
 if __name__ == '__main__': raise SystemExit(main())

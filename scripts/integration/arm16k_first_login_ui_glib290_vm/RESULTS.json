@@ -73,6 +73,35 @@
     ],
     "status": "HOLD"
   },
+  "closed_GLib290_boot_r3": {
+    "actual_GTK_controls": "PASS_REAL_INSTALLED_GTK_CONTROLS",
+    "actual_GUI_outer_retirement": {
+      "exit": 0,
+      "group_census": "EMPTY_TWICE",
+      "passed": true,
+      "signals": []
+    },
+    "actual_GUI_stdout": {
+      "bytes": 839,
+      "sha256": "eb0c01adec92a390d8d3256d58a1409085d12437382e64bf20aa6a68c8f20ecb"
+    },
+    "actual_READY": {
+      "bytes": 1403,
+      "sha256": "802b1b856a0b5dd4d0b29d495570dbe41e5952b6d7330fa4a4b643b787016771"
+    },
+    "actual_UART_failure": "ModuleNotFoundError",
+    "actual_missing_module": "NOT RETAINED",
+    "actual_post_remove_sync": "syncfs-refusal",
+    "actual_session_lifecycle": {
+      "bytes": 1091,
+      "sha256": "f410d75e9574cd477719fe5396a06a9d29623e7b62d6b6405b693d83db1dccf3"
+    },
+    "actual_sync_errno": "NOT RETAINED",
+    "actual_trusted_remove172_exit": 0,
+    "new_postremoval_runtime_successor": "SOURCE_ONLY_NOT_RUN",
+    "old_glib_rollback_restore_logout": "NOT ESTABLISHED",
+    "status": "HOLD"
+  },
   "native_M2_hardware_performance_release": "NOT ACCEPTED",
   "new_intake": {
     "body_bytes": 5082106,
@@ -94,7 +123,7 @@
       "scripts/integration/arm16k_first_login_ui_glib290_vm/test_controls.py"
     ],
     "failed": 0,
-    "passed": 82,
+    "passed": 91,
     "profile": "actor/network/lease fenced, synthetic+actual-data controls; no guest"
   }
 }

@@ -505,4 +505,68 @@ class NaturalSessionControls(Fenced):
   source=(HERE/'gui_session.py').read_text();self.assertIn('group=False',source);self.assertIn("result['signals'] == []",source);self.assertNotIn('os.kill',source);self.assertNotIn('os.wait',source);self.assertNotIn('start_new_session=True',source)
   client=(HERE/'client.py').read_text();self.assertIn('start_new_session=True',client);self.assertIn("retirement=3,grace=.5",client);self.assertLess(client.index("private/'gui.stdout'"),client.index('accept_retirement(retirement)',client.index('def main')))
 
+class PostRemovalRuntimeControls(Fenced):
+ def test_syncfs_binding_cached_and_exact_real_primitive_used_after_imports_unavailable(self):
+  calls=[]
+  class Sync:
+   def __call__(self,fd):calls.append(fd);return 0
+  sync=Sync();local=load('ownership')
+  with patch.object(local.ctypes,'CDLL',return_value=types.SimpleNamespace(syncfs=sync))as loader:
+   local.prepare_syncfs();local.prepare_syncfs();self.assertEqual(loader.call_count,1)
+  import builtins
+  with patch.object(builtins,'__import__',side_effect=ModuleNotFoundError('post-removal imports unavailable')),patch.object(local.ctypes,'CDLL',side_effect=AssertionError('no late dlopen')):
+   local._syncfs(77)
+  self.assertEqual(calls,[77]);self.assertEqual(sync.argtypes,[local.ctypes.c_int]);self.assertIs(sync.restype,local.ctypes.c_int)
+ def test_unprepared_sync_or_actual_errno_is_never_treated_as_synced(self):
+  local=load('ownership')
+  with self.assertRaises(OSError)as cold:local._syncfs(77)
+  self.assertEqual(cold.exception.errno,38)
+  local._SYNCFS=lambda fd:-1
+  with patch.object(local.ctypes,'get_errno',return_value=5):
+   with self.assertRaises(OSError)as failed:local._syncfs(77)
+  self.assertEqual(failed.exception.errno,5)
+ def test_primed_user_walk_hashes_same_files_with_all_imports_blocked(self):
+  client=load('client');import builtins
+  with tempfile.TemporaryDirectory()as d,patch.object(client,'H',Path(d)):
+   home=Path(d)/'UI-profile';home.mkdir();(home/'.zshrc').write_bytes(b'private settings')
+   before=client.user_files()
+   with patch.object(builtins,'__import__',side_effect=ModuleNotFoundError('post-removal import refused')):after=client.user_files()
+   self.assertEqual(before,after)
+   (home/'.zshrc').write_bytes(b'edited');self.assertNotEqual(client.user_files(),before)
+ def test_observer_loads_only_two_exact_validators_before_wait_or_failure_path(self):
+  observer=load('ui_observer');seen=[];modules=[R,load('result')]
+  def spec(label,path):seen.append(path);return types.SimpleNamespace(loader=types.SimpleNamespace(exec_module=lambda m:None))
+  with patch.object(observer.importlib.util,'spec_from_file_location',side_effect=spec),patch.object(observer.importlib.util,'module_from_spec',side_effect=modules):self.assertEqual(observer.validators(),modules)
+  self.assertEqual(seen,['/usr/local/libexec/ui-receipts.py','/usr/local/libexec/ui-result.py'])
+  source=(HERE/'ui_observer.py').read_text();self.assertLess(source.index('schema,result=validators()'),source.index('while time.monotonic()<until'))
+  loop=source[source.index('while time.monotonic()<until'):]
+  self.assertNotIn('exec_module',loop);self.assertNotIn('spec_from_file_location',loop)
+ def test_preloaded_failure_validation_and_full_acceptance_work_without_imports(self):
+  import builtins
+  result,value=AcceptanceControls.value(self)
+  failure={'schema_version':1,'nonce':N,'stage':'trusted-remove','error_label':'syncfs-refusal','status':'HOLD'}
+  with patch.object(builtins,'__import__',side_effect=ModuleNotFoundError('all new imports blocked')):
+   R.validate('failure.json',failure,N);result.accept_ui(value)
+ def test_runtime_error_receipt_preserves_only_actual_module_and_errno_no_error_text(self):
+  with tempfile.TemporaryDirectory()as d:
+   writer=R.Writer(Path(d)/'receipts',N,(os.getuid(),os.getgid()));writer.phase('trusted-remove')
+   writer.exception(ModuleNotFoundError('raw secret text',name='hashlib'),'root-stage')
+   file=writer.path/'runtime-error-root-stage.json';value=json.loads(file.read_text());self.assertEqual(value['missing_module'],'hashlib');self.assertNotIn('secret',file.read_text());self.assertEqual(file.stat().st_mode&0o777,0o600)
+   writer.exception(OSError(5,'raw error text'),'sync-post-remove');value=json.loads((writer.path/'runtime-error-sync-post-remove.json').read_text());self.assertEqual(value['errno'],5)
+ def test_runtime_receipt_rejects_extra_text_path_operation_invalid_errno_or_module(self):
+  value={'schema_version':1,'nonce':N,'stage':'trusted-remove','operation':'root-stage',**R.exception_data(OSError(5,'ignored'))}
+  for changed in [{**value,'raw':'secret'},{**value,'errno':True},{**value,'errno':4096},{**value,'missing_module':'../secret'},{**value,'operation':'arbitrary-command'}]:
+   with self.assertRaises(ValueError):R.validate('runtime-error-root-stage.json',changed,N)
+  self.assertIsNone(R.exception_data(ModuleNotFoundError('ignored',name='/private/secret'))['missing_module'])
+ def test_existing_failure_and_sync_gate_still_refuse(self):
+  value={'schema_version':1,'nonce':N,'stage':'trusted-remove','error_label':'syncfs-refusal','status':'HOLD'};R.validate('failure.json',value,N)
+  with self.assertRaises(ValueError):R.validate('failure.json',{**value,'status':'PASS'},N)
+  called=[]
+  with self.assertRaises(OSError):O.signal_after_sync(lambda:(_ for _ in()).throw(OSError(5,'actual sync error')),lambda:called.append('PASS'))
+  self.assertEqual(called,[])
+ def test_fixed_postremoval_source_operations_are_prepared_and_no_dependency_relaxation(self):
+  root=(HERE/'root_fixture.py').read_text();self.assertLess(root.index('ownership.prepare_syncfs()'),root.index("call('trusted-remove'"));self.assertIn("writer.exception(error,'sync-'+label)",root)
+  client=(HERE/'client.py').read_text();self.assertLess(client.index("assert user_files()==report['gui']['user_files']"),client.index("(H/'UI_READY_FOR_REMOVAL.json').write_text"));self.assertIn('observed = user_files()',client)
+  self.assertIn("call('trusted-rollback',closure.rollback_argv",root);self.assertNotIn('--nodeps',root);self.assertIn("sync('post-rollback')",root)
+
 if __name__=='__main__':unittest.main()

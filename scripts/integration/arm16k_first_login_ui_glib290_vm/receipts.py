@@ -6,6 +6,16 @@ DIRECTORY=Path('/var/lib/cachy-asahi-ui-session-reference')
 STAGES={'starting','baseline-check','public-trust','archive-input-check','trusted-install','installed-check','installed','waiting-user','session-check','trusted-remove','trusted-rollback','restored-check','restored','failed'}
 COMMANDS={'baseline','public-import','TEST-public-ownertrust','no-secret-keys','trusted-install','installed-inventory','installed-dependencies','installed-ownership','package-files','trusted-remove','trusted-rollback','rollback-ownership','restored-inventory','restored-dependencies','sync-post-install','sync-post-remove','sync-post-rollback','sync-terminal-pass','sync-terminal-hold'}
 ERRORS={'command-failed','command-timeout','command-not-found','signature-refusal','dependency-refusal','permission-refusal','output-bound-refusal','state-refusal','unexpected-error','syncfs-refusal','ownership-refusal'}
+RUNTIME_OPERATIONS={'root-stage','observer-stage'}|{v for v in COMMANDS if v.startswith('sync-')}
+
+def exception_data(error):
+    category=type(error).__name__
+    if category not in {'ModuleNotFoundError','ImportError','OSError','FileNotFoundError','PermissionError','TimeoutError','AssertionError','ValueError','RuntimeError','FixtureFailure'}:category='OtherException'
+    module=getattr(error,'name',None)
+    if not isinstance(module,str)or re.fullmatch(r'[A-Za-z_][A-Za-z0-9_.]{0,95}',module)is None:module=None
+    number=getattr(error,'errno',None)
+    if type(number)is not int or not 0<=number<=4095:number=None
+    return {'exception_category':category,'missing_module':module,'errno':number}
 
 def inventory_sha256(versions):
     return hashlib.sha256(json.dumps(versions,sort_keys=True,separators=(',',':')).encode()).hexdigest()
@@ -93,6 +103,13 @@ def validate(name,value,nonce):
         if any(not isinstance(value.get(k),str)or re.fullmatch('[0-9a-f]{64}',value[k])is None for k in ['inputs_sha256','inventory_sha256']):raise ValueError('invalid-installed-pin')
     elif name.startswith('ownership-'):
         validate_ownership(name,value,base);return
+    elif name.startswith('runtime-error-'):
+        keys=base|{'operation','exception_category','missing_module','errno'}
+        if value.get('operation')not in RUNTIME_OPERATIONS or name!='runtime-error-'+value['operation']+'.json':raise ValueError('runtime-operation-schema')
+        if value.get('exception_category')not in {'ModuleNotFoundError','ImportError','OSError','FileNotFoundError','PermissionError','TimeoutError','AssertionError','ValueError','RuntimeError','FixtureFailure','OtherException'}:raise ValueError('runtime-category-schema')
+        module=value.get('missing_module');number=value.get('errno')
+        if module is not None and(not isinstance(module,str)or re.fullmatch(r'[A-Za-z_][A-Za-z0-9_.]{0,95}',module)is None):raise ValueError('runtime-module-schema')
+        if number is not None and(type(number)is not int or not 0<=number<=4095):raise ValueError('runtime-errno-schema')
     elif name=='restored.json':
         flags={'inventory_restored','dependencies','package_owned_paths_absent','original_policy','user_files_preserved'};keys=base|flags|{'baseline_count'}
         if value['stage']!='restored' or value.get('baseline_count')!=111 or any(value.get(k)is not True for k in flags):raise ValueError('invalid-restored-checks')
@@ -136,7 +153,7 @@ class Writer:
         finally:os.close(fd)
         self.phase('starting')
     def write(self,name,value):
-        assert re.fullmatch(r'(stage|installed|failure|restored|command-[0-9]{3}|ownership-summary|ownership-(warning|unknown)-[0-9]{3})\.json',name)
+        assert re.fullmatch(r'(stage|installed|failure|restored|command-[0-9]{3}|ownership-summary|ownership-(warning|unknown)-[0-9]{3}|runtime-error-[a-z-]+)\.json',name)
         validate(name,value,self.nonce)
         assert len(json.dumps(value))<=4096
         directory=_directory(self.path,self.owner);temporary='.'+name+'.pending'
@@ -168,3 +185,6 @@ class Writer:
         assert error in ERRORS
         value={'schema_version':1,'nonce':self.nonce,'stage':self.stage,'error_label':error,'status':'HOLD'}
         self.write('failure.json',value);return value
+    def exception(self,error,operation):
+        value={'schema_version':1,'nonce':self.nonce,'stage':self.stage,'operation':operation,**exception_data(error)}
+        self.write('runtime-error-'+operation+'.json',value)
