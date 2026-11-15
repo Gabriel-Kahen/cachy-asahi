@@ -133,12 +133,12 @@ class Controls(unittest.TestCase):
    elif mode=='mode':(root/'hosted.json').chmod(0o600)
    else:(root/'extra').write_bytes(b'changed')
    with self.subTest(mode=mode),self.assertRaises(ValueError):P.original(env,root,b)
- def test_unknown_future_binding_and_exact_modeled_success(self):
-  v=json.loads((HERE/'binding.TEMPLATE.json').read_bytes());b=v['binding'];b.update(source='a'*40,ref='refs/heads/codex/MODELED-r3',run='1',job='2',approval='b'*64,image='sha256:'+'c'*64,producer_report_sha256='d'*64)
-  with patch.object(P,'SOURCE','a'*40),patch.object(P,'REF',b['ref']):self.assertEqual(P.binding(v),b)
-  for key,val in [('source','f'*40),('ref','refs/heads/codex/old'),('source_map_sha256','e'*64),('operation','different'),('job',None)]:
+ def test_actual_published_binding_exact_positive_and_wrong_Source_ref_negatives(self):
+  v=json.loads((HERE/'binding.TEMPLATE.json').read_bytes());b=v['binding'];self.assertEqual(b['source'],P.SOURCE);self.assertEqual(b['ref'],P.REF);b.update(run='1',job='2',approval='b'*64,image='sha256:'+'c'*64,producer_report_sha256='d'*64)
+  self.assertEqual(P.binding(v),b)
+  for key,val in [('source','f'*40),('source','b4079a8a478afb0df8e634b555b3d2955a97bb9b'),('source','71246ca38e58f9f410d1f3eea15f5ddf174bb1bf'),('ref','refs/heads/codex/native-arm-perl5423-installed-lifecycle-v1-20261115-r2'),('source_map_sha256','e'*64),('operation','different'),('job',None)]:
    bad=copy.deepcopy(v);bad['binding'][key]=val
-   with patch.object(P,'SOURCE','a'*40),patch.object(P,'REF',b['ref']),self.subTest(key=key),self.assertRaises(ValueError):P.binding(bad)
+   with self.subTest(key=key,value=val),self.assertRaises(ValueError):P.binding(bad)
 
  def test_pinned_loader_real_API_avoids_bytecode_and_denies_changed_compile(self):
   with tempfile.TemporaryDirectory()as tmp:

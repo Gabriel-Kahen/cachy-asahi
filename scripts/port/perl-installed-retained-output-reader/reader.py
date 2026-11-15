@@ -8,7 +8,7 @@ HERE=Path(__file__).resolve().parent
 def local(name):
  s=importlib.util.spec_from_file_location('retained_reader_'+name,HERE/(name+'.py'));m=importlib.util.module_from_spec(s);s.loader.exec_module(m);return m
 S=local('source');R=local('retention');F=local('fence');D=S.D
-SOURCE=None;REF=None
+SOURCE='445b37a9475a4e92804954f4f0e3d0ac84cd9511';REF='refs/heads/codex/native-arm-perl5423-installed-lifecycle-v1-20261115-r3'
 OP='perl5423-installed-lifecycle-native-v1'
 PASSIVE={'hosted/reader.py':'c25379514eb494c4a1541aebb102e47c3897b6c27183b69d7bfa210ad07e8be2','hosted/capsule.py':'354ce106cc89bba186f4d9f62fddb10c55b86632a07ebd53a63ea22784d99b34','hosted/image_probe.py':'a8962c92041a5beb7b6adfd27a6bad64d15d3e62bbb9cad3f6e8ed6940fd55ba'}
 

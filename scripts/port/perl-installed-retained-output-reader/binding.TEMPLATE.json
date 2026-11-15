@@ -15,10 +15,10 @@
     "job": null,
     "operation": "perl5423-installed-lifecycle-native-v1",
     "producer_report_sha256": null,
-    "ref": null,
+    "ref": "refs/heads/codex/native-arm-perl5423-installed-lifecycle-v1-20261115-r3",
     "run": null,
     "scope": "ROOT_AUTHENTICATED_PERL_INSTALLED_LIFECYCLE_DATA_READER_ONLY",
-    "source": null,
+    "source": "445b37a9475a4e92804954f4f0e3d0ac84cd9511",
     "source_map_sha256": "2bbf2c808562d13a158d654f7e7d3adb71c7e577444e82ea05a0aad5cf0f3c97"
   },
   "materialization": {
