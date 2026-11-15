@@ -1,0 +1,73 @@
+{
+  "Native_POSTs": 0,
+  "Original_GETs": 0,
+  "Reader_calls": 0,
+  "Root_resource_authority": null,
+  "Source_actor_imports": 0,
+  "Source_publications": 0,
+  "acceptance": false,
+  "actual_job": null,
+  "actual_run": null,
+  "artifact": null,
+  "body": null,
+  "controls": {
+    "ResourceWarning": "ERROR",
+    "actors_fenced": true,
+    "failures": 0,
+    "historical_data_callbacks": "MODELED_ONLY",
+    "new_source_scan": "COMPLETE_REAL_200_NO_GIT_NOT_MOCKED",
+    "python_versions": [
+      "3.12.13",
+      "3.14.7"
+    ],
+    "skipped": 0,
+    "tests": 10
+  },
+  "factory_binding": null,
+  "factory_manifest": {
+    "bytes": 2595,
+    "sha256": "ba334a801ca174ee5e61f83751a524c5cb6fd069f0c69b1e5190860cc00c8d9f"
+  },
+  "factory_subset_files": 10,
+  "held_committed_operands_verified": 40,
+  "held_main": "ab6b6e1887c8d7609ba387c9401dc9f970bb3a13",
+  "lease_entries": 0,
+  "map_sha256": "0c37bef7218caa6cb0f0e6d1b22ed5053b10a228f53e15076f5803d2fcf86b3e",
+  "packet": {
+    "all_pins_independently_rejoined": true,
+    "input_rows": 224,
+    "input_seal": {
+      "bytes": 58234,
+      "sha256": "9586661cd0047403806fac27ea0320c6a644bfee86d0e4cecbf79eaa8bb0b48b"
+    },
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi-native-lock-runtime54-20261114/scripts/ci/native-build-namespace-context-admission/work/pending-r2",
+    "regular_files": 32,
+    "seal": {
+      "bytes": 4455,
+      "sha256": "7de7f1ee1b83d942c3f6d02208dd45e1bf19cadf579a0449b8ce583808b61672"
+    },
+    "sealed_operands": 30
+  },
+  "parent": "69455e13bc99a2b2b6c2aca11f69d581769ae500",
+  "reader": {
+    "bytes": 106215,
+    "path": "native/build_tools_reader_v2.py",
+    "sha256": "58b258fde9c49aca7f8d4e8b7e61358f175da8650547df64dc96891c2e33b5cf"
+  },
+  "runtime54_profile": null,
+  "schema": 1,
+  "source": "3937d8b9f3210f4e9868bf19f01dfa22de64ddfe",
+  "source_bytes": 40287605,
+  "source_delta": {
+    "changed": 6,
+    "held": 194,
+    "inverse_to": "69455e13bc99a2b2b6c2aca11f69d581769ae500"
+  },
+  "source_files": 200,
+  "status": "SOURCE3937_PENDING_DATA_PACKET_COMPLETE_NO_ROLES",
+  "superseded_packet": {
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi-native-lock-runtime54-20261114/scripts/ci/native-build-namespace-context-admission/work/pending-r1",
+    "status": "UNENTERED_UNISSUED_DATA_SUPERSEDED_DO_NOT_REUSE"
+  },
+  "worker_roles_entered": 0
+}
