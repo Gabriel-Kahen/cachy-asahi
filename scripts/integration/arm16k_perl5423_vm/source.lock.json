@@ -212,9 +212,9 @@
       "sha256": "3126ee0c8a7c02e12503b4858f90b5a70fd7f300fd6228c99532ec7eaec02e28"
     },
     "test_controls.py": {
-      "bytes": 62381,
+      "bytes": 62877,
       "mode": 420,
-      "sha256": "d66e2cc6f47232aba423453d9280a29fab26e5bb91f8338c4076405468d3e27c"
+      "sha256": "8c1e81111d99b4eddf14d293f2baf8fb4ea3b3c1f461faf48bafd05ca2489534"
     },
     "test_git_roundtrip.py": {
       "bytes": 2665,

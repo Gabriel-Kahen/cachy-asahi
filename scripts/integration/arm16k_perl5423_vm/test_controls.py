@@ -287,10 +287,14 @@ class Controls(unittest.TestCase):
  def test_HOME_guard_preserves_memory_deadline_and_prepare_boot_bindings(self):
   r=modeled_home()[4];q=r['quota_guard'];root=Path(q['outputs']['prepare']);source=q['source_lock'];st=type('S',(),dict(st_dev=54))
   guard=Q.Guard(root,r,None,time.monotonic()+60,lambda *a,**k:0,initial=True,source=source,phase='prepare');guard.home.sample=lambda *a,**k:dict(status='PASS_FILESYSTEM_CAPACITY_ONLY')
-  with patch.object(Q.Path,'stat',return_value=st),patch.object(Q.Path,'read_text',return_value='MemAvailable: 100000000 kB\n'):
+  with patch.object(Q.os,'getuid',return_value=1000),patch.object(Q.Path,'stat',return_value=st),patch.object(Q.Path,'read_text',return_value='MemAvailable: 100000000 kB\n'):
    guard(True);self.assertEqual(guard.samples,1)
-  with patch.object(Q.Path,'stat',return_value=st),patch.object(Q.Path,'read_text',return_value='MemAvailable: 1 kB\n'):
-   with self.assertRaises(ValueError):guard(True)
+  with patch.object(Q.os,'getuid',return_value=1000),patch.object(Q.Path,'stat',return_value=st),patch.object(Q.Path,'read_text',return_value='MemAvailable: 1 kB\n'):
+   with self.assertRaisesRegex(ValueError,'host RAM reserve exhausted'):guard(True)
+  for uid,device in((1001,54),(1000,55)):
+   with patch.object(Q.os,'getuid',return_value=uid),patch.object(Q.Path,'stat',return_value=type('S',(),dict(st_dev=device))),patch.object(guard.home,'sample')as sample:
+    with self.subTest(uid=uid,device=device),self.assertRaisesRegex(ValueError,'actual quota UID/device differs'):guard(True)
+    sample.assert_not_called()
   guard.deadline=time.monotonic()-1
   with self.assertRaises(TimeoutError):guard(True)
   for phase in('prepare','boot'):Q.Guard(Path(q['outputs'][phase]),r,None,time.monotonic()+60,lambda *a,**k:0,source=source,phase=phase)
