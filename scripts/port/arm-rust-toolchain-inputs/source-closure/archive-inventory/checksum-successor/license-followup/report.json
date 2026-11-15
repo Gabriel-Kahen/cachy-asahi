@@ -1,0 +1,454 @@
+{
+  "archives_checkout_payload_execution": "NOT_RUN",
+  "batch_reviewed": 6,
+  "cases": [
+    {
+      "all_file_license_and_legal_acceptance": "HELD",
+      "cfg_features_and_target_selection_evaluated": false,
+      "commit": "7fdc590466ea63ca2367ac10fb1b881fe561f1a8",
+      "compiler_lock_dependency_path": [
+        [
+          "rustc-main",
+          "0.0.0",
+          ""
+        ],
+        [
+          "rustc_codegen_ssa",
+          "0.0.0",
+          ""
+        ],
+        [
+          "rustc_macros",
+          "0.0.0",
+          ""
+        ],
+        [
+          "fluent-bundle",
+          "0.16.0",
+          "registry+https://github.com/rust-lang/crates.io-index"
+        ],
+        [
+          "fluent-langneg",
+          "0.13.1",
+          "registry+https://github.com/rust-lang/crates.io-index"
+        ]
+      ],
+      "component": "fluent-langneg-0.13.1",
+      "full_vendor_projection_to_Git": "NOT_PERFORMED",
+      "grant_file": "primary-a/licenses/fluent-LICENSE-MIT.txt",
+      "grant_git_blob_sha1": "00ec7a238dcd2fb765a6abc64ae43d80f0514140",
+      "grant_text_bound": true,
+      "manifest_bytes": 1062,
+      "manifest_git_blob_sha1": "2864013b20b94b6f0e41f6df6741f7ae6f414ef8",
+      "manifest_path": "Cargo.toml",
+      "manifest_sha256": "259f89a8d41e9c905c80edffe2e904b073d89e675f561d918424df67618a12c7",
+      "name": "fluent-langneg",
+      "named_notice": "Copyright Mozilla Foundation",
+      "repository": "projectfluent/fluent-langneg-rs",
+      "source_not_marked_dirty": true,
+      "status": "UPSTREAM_ROOT_GRANT_AND_NOTICE_EVIDENCE_COMPLETE",
+      "version": "0.13.1"
+    },
+    {
+      "all_file_license_and_legal_acceptance": "HELD",
+      "cfg_features_and_target_selection_evaluated": false,
+      "commit": "d0715d5b7cca72e228d6e6c4de154bd30dfdd06a",
+      "compiler_lock_dependency_path": [
+        [
+          "rustc-main",
+          "0.0.0",
+          ""
+        ],
+        [
+          "rustc_codegen_ssa",
+          "0.0.0",
+          ""
+        ],
+        [
+          "rustc_macros",
+          "0.0.0",
+          ""
+        ],
+        [
+          "fluent-bundle",
+          "0.16.0",
+          "registry+https://github.com/rust-lang/crates.io-index"
+        ],
+        [
+          "intl_pluralrules",
+          "7.0.2",
+          "registry+https://github.com/rust-lang/crates.io-index"
+        ]
+      ],
+      "component": "intl_pluralrules-7.0.2",
+      "full_vendor_projection_to_Git": "NOT_PERFORMED",
+      "grant_file": "primary-a/licenses/plural-LICENSE-MIT.txt",
+      "grant_git_blob_sha1": "31aa79387f27e730e33d871925e152e35e428031",
+      "grant_text_bound": true,
+      "manifest_bytes": 944,
+      "manifest_git_blob_sha1": "3bf3b8e2fccfc007a1f741203882047bd8e6063c",
+      "manifest_path": "intl_pluralrules/Cargo.toml",
+      "manifest_sha256": "e361470b666d4609c301b2c45e8822c36623684b6bbbd490186fc45ebfb7f360",
+      "name": "intl_pluralrules",
+      "named_notice": null,
+      "repository": "zbraniecki/pluralrules",
+      "source_not_marked_dirty": true,
+      "status": "UNRESOLVED_ATTRIBUTION",
+      "version": "7.0.2"
+    },
+    {
+      "all_file_license_and_legal_acceptance": "HELD",
+      "cfg_features_and_target_selection_evaluated": false,
+      "commit": "741e6095fe50f468982d4d253e842eb7d12ed9d3",
+      "compiler_lock_dependency_path": [
+        [
+          "rustc-main",
+          "0.0.0",
+          ""
+        ],
+        [
+          "rustc_codegen_ssa",
+          "0.0.0",
+          ""
+        ],
+        [
+          "rustc_middle",
+          "0.0.0",
+          ""
+        ],
+        [
+          "polonius-engine",
+          "0.13.0",
+          "registry+https://github.com/rust-lang/crates.io-index"
+        ]
+      ],
+      "component": "polonius-engine-0.13.0",
+      "full_vendor_projection_to_Git": "NOT_PERFORMED",
+      "grant_file": "primary-a/licenses/polonius-LICENSE-MIT.txt",
+      "grant_git_blob_sha1": "31aa79387f27e730e33d871925e152e35e428031",
+      "grant_text_bound": true,
+      "manifest_bytes": 403,
+      "manifest_git_blob_sha1": "a975e91b9c77c77b759535e6078a73e5dd6caf3b",
+      "manifest_path": "polonius-engine/Cargo.toml",
+      "manifest_sha256": "c1a606e9f2795c8dc3c49a7f3d151c3980d2074849180c4e62ece170b2776a2b",
+      "name": "polonius-engine",
+      "named_notice": null,
+      "repository": "rust-lang/polonius",
+      "source_not_marked_dirty": true,
+      "status": "UNRESOLVED_ATTRIBUTION",
+      "version": "0.13.0"
+    },
+    {
+      "all_file_license_and_legal_acceptance": "HELD",
+      "cfg_features_and_target_selection_evaluated": false,
+      "commit": "fcc40ba1bc766ba38eca852cb64550c827d7068d",
+      "compiler_lock_dependency_path": [
+        [
+          "rustc-main",
+          "0.0.0",
+          ""
+        ],
+        [
+          "rustc_codegen_ssa",
+          "0.0.0",
+          ""
+        ],
+        [
+          "object",
+          "0.38.1",
+          "registry+https://github.com/rust-lang/crates.io-index"
+        ],
+        [
+          "ruzstd",
+          "0.8.2",
+          "registry+https://github.com/rust-lang/crates.io-index"
+        ]
+      ],
+      "component": "ruzstd-0.8.2",
+      "full_vendor_projection_to_Git": "NOT_PERFORMED",
+      "grant_file": "primary-b/ruzstd-LICENSE",
+      "grant_git_blob_sha1": "486a3351baf6325158c9ce6d84d782fda5d4520b",
+      "grant_text_bound": true,
+      "manifest_bytes": 1498,
+      "manifest_git_blob_sha1": "ffc726650bde1af15a55905ba5b438c939bdb800",
+      "manifest_path": "ruzstd/Cargo.toml",
+      "manifest_sha256": "99ff9d6b13e2bc808282c3a20be8326db0c461e77c46d1f5725ab7f5c0688f1c",
+      "name": "ruzstd",
+      "named_notice": "Copyright (c) 2019 Moritz Borcherding",
+      "repository": "KillingSpark/zstd-rs",
+      "source_not_marked_dirty": true,
+      "status": "UPSTREAM_ROOT_GRANT_AND_NOTICE_EVIDENCE_COMPLETE",
+      "version": "0.8.2"
+    },
+    {
+      "all_file_license_and_legal_acceptance": "HELD",
+      "cfg_features_and_target_selection_evaluated": false,
+      "commit": "89f541df648437083c40241e1c0e6bd93e308ce0",
+      "compiler_lock_dependency_path": [
+        [
+          "rustc-main",
+          "0.0.0",
+          ""
+        ],
+        [
+          "rustc_codegen_ssa",
+          "0.0.0",
+          ""
+        ],
+        [
+          "thorin-dwp",
+          "0.10.0",
+          "registry+https://github.com/rust-lang/crates.io-index"
+        ]
+      ],
+      "component": "thorin-dwp-0.10.0",
+      "full_vendor_projection_to_Git": "NOT_PERFORMED",
+      "grant_file": "primary-b/thorin-LICENSE-MIT",
+      "grant_git_blob_sha1": "24e3250029b04246a6cf5b5610c383cd40a93881",
+      "grant_text_bound": true,
+      "manifest_bytes": 901,
+      "manifest_git_blob_sha1": "41a64a976150b0c2b76e6d2d472392adf2ae8718",
+      "manifest_path": "thorin/Cargo.toml",
+      "manifest_sha256": "10808b3640f1f58cf19a4a2fdecb771db6d62ea2bf7b593c0b2d0109a8a0fd40",
+      "name": "thorin-dwp",
+      "named_notice": "Copyright (c) 2021 The Rust Project Developers",
+      "repository": "rust-lang/thorin",
+      "source_not_marked_dirty": true,
+      "status": "UPSTREAM_ROOT_GRANT_AND_NOTICE_EVIDENCE_COMPLETE",
+      "version": "0.10.0"
+    },
+    {
+      "all_file_license_and_legal_acceptance": "HELD",
+      "cfg_features_and_target_selection_evaluated": false,
+      "commit": "6218ac1912aa2210b46713d5c5c51ddb4be805f5",
+      "compiler_lock_dependency_path": [
+        [
+          "rustc-main",
+          "0.0.0",
+          ""
+        ],
+        [
+          "rustc_codegen_ssa",
+          "0.0.0",
+          ""
+        ],
+        [
+          "rustc_data_structures",
+          "0.0.0",
+          ""
+        ],
+        [
+          "measureme",
+          "12.0.3",
+          "registry+https://github.com/rust-lang/crates.io-index"
+        ],
+        [
+          "perf-event-open-sys",
+          "3.0.0",
+          "registry+https://github.com/rust-lang/crates.io-index"
+        ]
+      ],
+      "component": "perf-event-open-sys-3.0.0",
+      "full_vendor_projection_to_Git": "NOT_PERFORMED",
+      "grant_file": "primary-b/perf-LICENSE-MIT",
+      "grant_git_blob_sha1": "31aa79387f27e730e33d871925e152e35e428031",
+      "grant_text_bound": true,
+      "manifest_bytes": 602,
+      "manifest_git_blob_sha1": "42ca0f4c75a2fdffc39d92e2b40b97c26f2ca3ab",
+      "manifest_path": "perf-event-open-sys/Cargo.toml",
+      "manifest_sha256": "43556c605a8a7a84626c612e659992a3f0c2e9646099a7b8110fbd0dc7548135",
+      "name": "perf-event-open-sys",
+      "named_notice": null,
+      "repository": "jimblandy/perf-event",
+      "source_not_marked_dirty": true,
+      "status": "UNRESOLVED_ATTRIBUTION",
+      "version": "3.0.0"
+    }
+  ],
+  "closure_scope": "Exact package-version/commit plus actual upstream root grant and named notice; not all-file coverage or legal acceptance",
+  "direct_compiler_priority_evidence": [
+    {
+      "body_pin": {
+        "bytes": 1915,
+        "sha256": "52fada0b5ba3bac1134f1a28d55a9763713902365ef22a788c3e6275b78976c7"
+      },
+      "dependencies": [
+        "thorin-dwp",
+        "object"
+      ],
+      "file": "primary-b/rustc_codegen_ssa-Cargo.toml",
+      "normal_dependency_declarations": {
+        "object": {
+          "default-features": false,
+          "features": [
+            "read_core",
+            "elf",
+            "macho",
+            "pe",
+            "xcoff",
+            "unaligned",
+            "archive",
+            "write",
+            "wasm"
+          ],
+          "version": "0.38.1"
+        },
+        "thorin-dwp": "0.10"
+      },
+      "package": "rustc_codegen_ssa"
+    },
+    {
+      "body_pin": {
+        "bytes": 326,
+        "sha256": "568c0b96ca13c7dffeb32ea63f23af94b165824dd19dac429446608b50980417"
+      },
+      "dependencies": [
+        "fluent-bundle"
+      ],
+      "file": "primary-b/rustc_macros-Cargo.toml",
+      "normal_dependency_declarations": {
+        "fluent-bundle": "0.16"
+      },
+      "package": "rustc_macros"
+    },
+    {
+      "body_pin": {
+        "bytes": 1626,
+        "sha256": "bebaab856eab541afaecbfe76eeacac1e8c95d6dfb6b20fd36d8b14dfc62fc6f"
+      },
+      "dependencies": [
+        "measureme"
+      ],
+      "file": "primary-b/rustc_data_structures-Cargo.toml",
+      "normal_dependency_declarations": {
+        "measureme": "12.0.1"
+      },
+      "package": "rustc_data_structures"
+    }
+  ],
+  "exact_version_commit_grant_bindings": 6,
+  "grant_found_but_attribution_unresolved": 3,
+  "initial_unresolved": 111,
+  "network": {
+    "HTTP_requests": 20,
+    "response_body_bytes": 592376
+  },
+  "new_scoped_notice_cases_closed": 3,
+  "original_crate_binary_source_legal_native_acceptance": "HELD",
+  "original_recipe_hashes_resolved": 0,
+  "prior_reports_unchanged": true,
+  "priority": "All six are reachable from rustc-main/rustc_driver in exact authenticated lock graph; direct compiler normal dependencies corroborated; target/cfg/feature resolution not run",
+  "remaining_components": [
+    "alloc-stdlib-0.2.4",
+    "anes-0.1.6",
+    "block2-0.6.2",
+    "comma-1.0.0",
+    "cranelift-assembler-x64-0.134.0",
+    "cranelift-assembler-x64-meta-0.134.0",
+    "cranelift-bitset-0.134.0",
+    "cranelift-isle-0.134.0",
+    "cranelift-srcgen-0.134.0",
+    "dateparser-0.2.1",
+    "defmt-parser-1.0.0",
+    "difflib-0.4.0",
+    "dispatch2-0.3.1",
+    "fortanix-sgx-abi-0.6.1",
+    "fxhash-0.2.1",
+    "hifijson-0.5.0",
+    "intl_pluralrules-7.0.2",
+    "jaq-core-3.1.0",
+    "jaq-json-2.0.1",
+    "jaq-std-3.0.1",
+    "jni-0.22.4",
+    "jni-macros-0.22.4",
+    "jni-sys-macros-0.4.1",
+    "la-arena-0.3.1",
+    "levenshtein-1.0.5",
+    "libffi-5.1.0",
+    "line-index-0.1.2",
+    "mac-0.1.1",
+    "mdbook-i18n-helpers-0.4.0",
+    "objc2-0.6.3",
+    "objc2-0.6.4",
+    "objc2-cloud-kit-0.3.2",
+    "objc2-core-data-0.3.2",
+    "objc2-core-foundation-0.3.2",
+    "objc2-core-graphics-0.3.2",
+    "objc2-core-image-0.3.2",
+    "objc2-core-location-0.3.2",
+    "objc2-core-text-0.3.2",
+    "objc2-encode-4.1.0",
+    "objc2-io-kit-0.3.2",
+    "objc2-io-surface-0.3.2",
+    "objc2-quartz-core-0.3.2",
+    "objc2-system-configuration-0.3.2",
+    "objc2-ui-kit-0.3.2",
+    "objc2-user-notifications-0.3.2",
+    "perf-event-0.4.8",
+    "perf-event-0.4.9",
+    "perf-event-open-sys-3.0.0",
+    "perf-event-open-sys-4.0.0",
+    "perf-event-open-sys-6.0.0",
+    "phf-0.10.1",
+    "phf_codegen-0.10.0",
+    "phf_generator-0.10.0",
+    "phf_macros-0.11.2",
+    "phf_shared-0.10.0",
+    "polonius-engine-0.13.0",
+    "pq-src-0.3.6+libpq-17.4",
+    "pulldown-cmark-to-cmark-10.0.4",
+    "quine-mc_cluskey-0.2.4",
+    "ra-ap-rustc_abi-0.166.0",
+    "ra-ap-rustc_ast_ir-0.166.0",
+    "ra-ap-rustc_hashes-0.166.0",
+    "ra-ap-rustc_index-0.166.0",
+    "ra-ap-rustc_index_macros-0.166.0",
+    "ra-ap-rustc_lexer-0.166.0",
+    "ra-ap-rustc_next_trait_solver-0.166.0",
+    "ra-ap-rustc_parse_format-0.166.0",
+    "ra-ap-rustc_pattern_analysis-0.166.0",
+    "ra-ap-rustc_type_ir-0.166.0",
+    "ra-ap-rustc_type_ir_macros-0.166.0",
+    "rsqlite-vfs-0.1.1",
+    "rustls-platform-verifier-android-0.1.1",
+    "selectors-0.25.0",
+    "self_cell-1.2.1",
+    "servo_arc-0.3.0",
+    "spanned-0.4.1",
+    "syn-test-suite-0.0.0+test",
+    "tenthash-1.1.0",
+    "tera-2.0.0",
+    "ui_test-0.30.7",
+    "ungrammar-1.16.1",
+    "valuable-0.1.0",
+    "valuable-0.1.1",
+    "vex-sdk-0.27.1",
+    "wasi-preview1-component-adapter-provider-46.0.1",
+    "wasip1-1.0.0",
+    "wasip2-1.0.2+wasi-0.2.9",
+    "wasip3-0.4.0+wasi-0.3.0-rc-2026-01-06",
+    "wasite-1.0.2",
+    "wasm-encoder-0.219.2",
+    "wasm-encoder-0.244.0",
+    "wasmparser-0.219.2",
+    "wasmparser-0.235.0",
+    "wasmparser-0.243.0",
+    "wasmparser-0.244.0",
+    "wasmprinter-0.235.0",
+    "wasmtime-internal-core-47.0.0",
+    "wasmtime-internal-jit-icache-coherence-47.0.0",
+    "winapi-i686-pc-windows-gnu-0.4.0",
+    "winapi-x86_64-pc-windows-gnu-0.4.0",
+    "winsplit-0.1.0",
+    "wit-bindgen-rt-0.33.0",
+    "wit-bindgen-rt-0.39.0",
+    "wit-component-0.244.0",
+    "wit-parser-0.244.0",
+    "xflags-0.3.2",
+    "xflags-macros-0.3.2",
+    "xshell-macros-0.2.7"
+  ],
+  "remaining_unresolved": 108,
+  "ruzstd_feature_scope": "Compiler object dependency disables default features and does not explicitly select compression; ruzstd active-feature selection remains unproved",
+  "schema": 1
+}

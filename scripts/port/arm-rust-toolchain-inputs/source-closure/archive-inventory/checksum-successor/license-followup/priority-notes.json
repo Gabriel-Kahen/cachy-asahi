@@ -1,0 +1,1724 @@
+{
+  "all_case_membership_and_proof_availability": [
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "alloc-stdlib-0.2.4",
+      "declared_commit": "ae42d22078b98549e987d2f03d12df7b984fde47",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "alloc-stdlib"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "anes-0.1.6",
+      "declared_commit": "378ac7461ecac29fde9e10df7b08359d1315a9ad",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": true
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": null
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "block2-0.6.2",
+      "declared_commit": "b4167b582b2f75f9a1be75495c41b765344fd03c",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": true,
+        "src/tools/cargo/Cargo.lock": true
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "crates/block2"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "comma-1.0.0",
+      "declared_commit": "01828e71a20d81acdbecbbf5df36ba8e3d302eba",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": true,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": null
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "cranelift-assembler-x64-0.134.0",
+      "declared_commit": "39d67168cdb6911ffdc961381314b6fed62e3c93",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "cranelift/assembler-x64"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "cranelift-assembler-x64-meta-0.134.0",
+      "declared_commit": "39d67168cdb6911ffdc961381314b6fed62e3c93",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "cranelift/assembler-x64/meta"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "cranelift-bitset-0.134.0",
+      "declared_commit": "39d67168cdb6911ffdc961381314b6fed62e3c93",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "cranelift/bitset"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "cranelift-isle-0.134.0",
+      "declared_commit": "39d67168cdb6911ffdc961381314b6fed62e3c93",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "cranelift/isle/isle"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "cranelift-srcgen-0.134.0",
+      "declared_commit": "39d67168cdb6911ffdc961381314b6fed62e3c93",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "cranelift/srcgen"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "dateparser-0.2.1",
+      "declared_commit": "4b652ea390f6e33b402d7ac834e23f05f845eed1",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "dateparser"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "defmt-parser-1.0.0",
+      "declared_commit": "4a8cdb44891ed57b8ff5a023b6bec7137c48708f",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": true
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "parser"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": false,
+      "component": "difflib-0.4.0",
+      "declared_commit": null,
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": true,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": null
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "dispatch2-0.3.1",
+      "declared_commit": "8852b424193ca41602281b3d7540d7c8ed51e49a",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": true,
+        "src/tools/cargo/Cargo.lock": true
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "crates/dispatch2"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "fluent-langneg-0.13.1",
+      "declared_commit": "7fdc590466ea63ca2367ac10fb1b881fe561f1a8",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": true,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": ""
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "fortanix-sgx-abi-0.6.1",
+      "declared_commit": "adcc6cdb981bcf2101437edbd3ef6144246621d3",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "intel-sgx/fortanix-sgx-abi"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": false,
+      "component": "fxhash-0.2.1",
+      "declared_commit": null,
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": null
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "hifijson-0.5.0",
+      "declared_commit": "fcd2b9ae489d962fb245063649e497bebb571cc2",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": true,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": ""
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "intl_pluralrules-7.0.2",
+      "declared_commit": "d0715d5b7cca72e228d6e6c4de154bd30dfdd06a",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": true,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "intl_pluralrules"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "jaq-core-3.1.0",
+      "declared_commit": "ebd9d94b182fb8a38b8d8eb1e57d1319889201b9",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": true,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "jaq-core"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "jaq-json-2.0.1",
+      "declared_commit": "ebd9d94b182fb8a38b8d8eb1e57d1319889201b9",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": true,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "jaq-json"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "jaq-std-3.0.1",
+      "declared_commit": "ebd9d94b182fb8a38b8d8eb1e57d1319889201b9",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": true,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "jaq-std"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "jni-0.22.4",
+      "declared_commit": "5ae9458a4ec44c5318f37ddc7569c1d4ae8a69e7",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "crates/jni"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "jni-macros-0.22.4",
+      "declared_commit": "33045a124105c939d1e2cbdcb5a39e5d868ffa03",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "crates/jni-macros"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "jni-sys-macros-0.4.1",
+      "declared_commit": "64d77b7a5f119d7b55b4e2c169a4668067ff59e6",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "jni-sys-macros"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": false,
+      "component": "la-arena-0.3.1",
+      "declared_commit": null,
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": null
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "levenshtein-1.0.5",
+      "declared_commit": "1b1132a97498e9f1bb34a7f461e042fc5cd50603",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": true,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": null
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "libffi-5.1.0",
+      "declared_commit": "7b1471ad430dd899046280f79066fc2d9b0fac90",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": true,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "libffi-rs"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "line-index-0.1.2",
+      "declared_commit": "3bda0cc2c07f6330b543be2c12c5e156847ba94e",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "lib/line-index"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": false,
+      "complete_vcs_metadata": false,
+      "component": "mac-0.1.1",
+      "declared_commit": null,
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": false,
+      "path_in_vcs": null
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "mdbook-i18n-helpers-0.4.0",
+      "declared_commit": "33be28e5924574884d6f8fe2f0b935a421038954",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "i18n-helpers"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "objc2-0.6.3",
+      "declared_commit": "b4167b582b2f75f9a1be75495c41b765344fd03c",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": true,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "crates/objc2"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "objc2-0.6.4",
+      "declared_commit": "8852b424193ca41602281b3d7540d7c8ed51e49a",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": true
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "crates/objc2"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": false,
+      "complete_vcs_metadata": true,
+      "component": "objc2-cloud-kit-0.3.2",
+      "declared_commit": "7b1abfd750a2cacaea71d6a56ecfb83cb7de560b",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": true
+      },
+      "orig_name_version_literal_match": false,
+      "path_in_vcs": "framework-crates/objc2-cloud-kit"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": false,
+      "complete_vcs_metadata": true,
+      "component": "objc2-core-data-0.3.2",
+      "declared_commit": "7b1abfd750a2cacaea71d6a56ecfb83cb7de560b",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": true
+      },
+      "orig_name_version_literal_match": false,
+      "path_in_vcs": "framework-crates/objc2-core-data"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "objc2-core-foundation-0.3.2",
+      "declared_commit": "7b1abfd750a2cacaea71d6a56ecfb83cb7de560b",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": true,
+        "src/tools/cargo/Cargo.lock": true
+      },
+      "orig_name_version_literal_match": false,
+      "path_in_vcs": "framework-crates/objc2-core-foundation"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "objc2-core-graphics-0.3.2",
+      "declared_commit": "7b1abfd750a2cacaea71d6a56ecfb83cb7de560b",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": true
+      },
+      "orig_name_version_literal_match": false,
+      "path_in_vcs": "framework-crates/objc2-core-graphics"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "objc2-core-image-0.3.2",
+      "declared_commit": "7b1abfd750a2cacaea71d6a56ecfb83cb7de560b",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": true
+      },
+      "orig_name_version_literal_match": false,
+      "path_in_vcs": "framework-crates/objc2-core-image"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "objc2-core-location-0.3.2",
+      "declared_commit": "7b1abfd750a2cacaea71d6a56ecfb83cb7de560b",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": true
+      },
+      "orig_name_version_literal_match": false,
+      "path_in_vcs": "framework-crates/objc2-core-location"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "objc2-core-text-0.3.2",
+      "declared_commit": "7b1abfd750a2cacaea71d6a56ecfb83cb7de560b",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": true
+      },
+      "orig_name_version_literal_match": false,
+      "path_in_vcs": "framework-crates/objc2-core-text"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "objc2-encode-4.1.0",
+      "declared_commit": "8d214f5477365ffcbcbb7de058c86ed9a518efb7",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": true,
+        "src/tools/cargo/Cargo.lock": true
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "crates/objc2-encode"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "objc2-io-kit-0.3.2",
+      "declared_commit": "7b1abfd750a2cacaea71d6a56ecfb83cb7de560b",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": true,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": false,
+      "path_in_vcs": "framework-crates/objc2-io-kit"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "objc2-io-surface-0.3.2",
+      "declared_commit": "7b1abfd750a2cacaea71d6a56ecfb83cb7de560b",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": true
+      },
+      "orig_name_version_literal_match": false,
+      "path_in_vcs": "framework-crates/objc2-io-surface"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "objc2-quartz-core-0.3.2",
+      "declared_commit": "7b1abfd750a2cacaea71d6a56ecfb83cb7de560b",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": true
+      },
+      "orig_name_version_literal_match": false,
+      "path_in_vcs": "framework-crates/objc2-quartz-core"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "objc2-system-configuration-0.3.2",
+      "declared_commit": "7b1abfd750a2cacaea71d6a56ecfb83cb7de560b",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": false,
+      "path_in_vcs": "framework-crates/objc2-system-configuration"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": false,
+      "complete_vcs_metadata": true,
+      "component": "objc2-ui-kit-0.3.2",
+      "declared_commit": "7b1abfd750a2cacaea71d6a56ecfb83cb7de560b",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": true
+      },
+      "orig_name_version_literal_match": false,
+      "path_in_vcs": "framework-crates/objc2-ui-kit"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "objc2-user-notifications-0.3.2",
+      "declared_commit": "7b1abfd750a2cacaea71d6a56ecfb83cb7de560b",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": true
+      },
+      "orig_name_version_literal_match": false,
+      "path_in_vcs": "framework-crates/objc2-user-notifications"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "perf-event-0.4.8",
+      "declared_commit": "fdfcd6eab9de3e40b2ecbcc01a1be3b1bd15405b",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "perf-event"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "perf-event-0.4.9",
+      "declared_commit": "b17c656dcf0791fcc2491f96567bd3b4246b8eac",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "perf-event"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "perf-event-open-sys-3.0.0",
+      "declared_commit": "6218ac1912aa2210b46713d5c5c51ddb4be805f5",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": true,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "perf-event-open-sys"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "perf-event-open-sys-4.0.0",
+      "declared_commit": "3aecf09156daa67b5579cc7742168cc95dcbe063",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "perf-event-open-sys"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "perf-event-open-sys-6.0.0",
+      "declared_commit": "b17c656dcf0791fcc2491f96567bd3b4246b8eac",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "perf-event-open-sys"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "phf-0.10.1",
+      "declared_commit": "bed01538ae576876f11189d541875d228acef9e8",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "phf"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "phf_codegen-0.10.0",
+      "declared_commit": "3ea14b2166553ad6e7b9afe7244144f5d661b6c6",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": null
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "phf_generator-0.10.0",
+      "declared_commit": "3ea14b2166553ad6e7b9afe7244144f5d661b6c6",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": null
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "phf_macros-0.11.2",
+      "declared_commit": "c9c35fd8ba3f1bc228388b0cef6e3814a02a72c0",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "phf_macros"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "phf_shared-0.10.0",
+      "declared_commit": "3ea14b2166553ad6e7b9afe7244144f5d661b6c6",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": null
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "polonius-engine-0.13.0",
+      "declared_commit": "741e6095fe50f468982d4d253e842eb7d12ed9d3",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": true,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": null
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": false,
+      "complete_vcs_metadata": true,
+      "component": "pq-src-0.3.6+libpq-17.4",
+      "declared_commit": "2d59148f5613cc0d7de42ab21ba71bb32f8fd9d3",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": false,
+      "path_in_vcs": "pq-src"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "pulldown-cmark-to-cmark-10.0.4",
+      "declared_commit": "5f6ec453d5c44d45d09100749d1c1e2891e05bf7",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": ""
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": false,
+      "complete_vcs_metadata": false,
+      "component": "quine-mc_cluskey-0.2.4",
+      "declared_commit": null,
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": true,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": false,
+      "path_in_vcs": null
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": false,
+      "component": "ra-ap-rustc_abi-0.166.0",
+      "declared_commit": null,
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": null
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": false,
+      "component": "ra-ap-rustc_ast_ir-0.166.0",
+      "declared_commit": null,
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": null
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": false,
+      "component": "ra-ap-rustc_hashes-0.166.0",
+      "declared_commit": null,
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": null
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": false,
+      "component": "ra-ap-rustc_index-0.166.0",
+      "declared_commit": null,
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": null
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": false,
+      "component": "ra-ap-rustc_index_macros-0.166.0",
+      "declared_commit": null,
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": null
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": false,
+      "component": "ra-ap-rustc_lexer-0.166.0",
+      "declared_commit": null,
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": null
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": false,
+      "component": "ra-ap-rustc_next_trait_solver-0.166.0",
+      "declared_commit": null,
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": null
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": false,
+      "component": "ra-ap-rustc_parse_format-0.166.0",
+      "declared_commit": null,
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": null
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": false,
+      "component": "ra-ap-rustc_pattern_analysis-0.166.0",
+      "declared_commit": null,
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": null
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": false,
+      "component": "ra-ap-rustc_type_ir-0.166.0",
+      "declared_commit": null,
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": null
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": false,
+      "component": "ra-ap-rustc_type_ir_macros-0.166.0",
+      "declared_commit": null,
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": null
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "rsqlite-vfs-0.1.1",
+      "declared_commit": "1bb309784f25c401ddf95131dcde4c4cdad7aee7",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": true
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "crates/rsqlite-vfs"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": false,
+      "component": "rustls-platform-verifier-android-0.1.1",
+      "declared_commit": null,
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": null
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "ruzstd-0.8.2",
+      "declared_commit": "fcc40ba1bc766ba38eca852cb64550c827d7068d",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": true,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "ruzstd"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "selectors-0.25.0",
+      "declared_commit": "91ae9eb83291f249c4455909834732a6a806c799",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "servo/components/selectors"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "self_cell-1.2.1",
+      "declared_commit": "7b98b472a3948bc5f678b9fdea4a80935368611b",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": true,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": ""
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "servo_arc-0.3.0",
+      "declared_commit": "518560b4e06ad9aa1a407d9f27293a2d20dcd804",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "servo/components/servo_arc"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "spanned-0.4.1",
+      "declared_commit": "0cfa375d4776141228097ba5b5b44f7fa3484c98",
+      "dirty_annotation": true,
+      "lock_membership": {
+        "Cargo.lock": true,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": ""
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "syn-test-suite-0.0.0+test",
+      "declared_commit": "8db9fd0bec5f42870a478a061d49aecd76ab08ab",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": null
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "tenthash-1.1.0",
+      "declared_commit": "d420ce80cfbf9a9cbbc41a55efb620ca9ed72efa",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "tenthash-rust"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "tera-2.0.0",
+      "declared_commit": "f60395cfc85be847714961ea139c82dd31481e75",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "tera"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "thorin-dwp-0.10.0",
+      "declared_commit": "89f541df648437083c40241e1c0e6bd93e308ce0",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": true,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "thorin"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "ui_test-0.30.7",
+      "declared_commit": "7917d5025f381a7348d7a78dbe557c4bd64e8cbd",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": true,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": ""
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "ungrammar-1.16.1",
+      "declared_commit": "814f04797bbd67f224cbb1b48c7541fdd8bc3d79",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": ""
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": false,
+      "component": "valuable-0.1.0",
+      "declared_commit": null,
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": null
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "valuable-0.1.1",
+      "declared_commit": "9efc29b6e58cef28f6566a47aa7e142a55fead77",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": true,
+        "src/tools/cargo/Cargo.lock": true
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "valuable"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "vex-sdk-0.27.1",
+      "declared_commit": "6c0b83d35b6fc31a7607efe456e387df45476314",
+      "dirty_annotation": true,
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "packages/vex-sdk"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": false,
+      "component": "wasi-preview1-component-adapter-provider-46.0.1",
+      "declared_commit": null,
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": true,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": false,
+      "path_in_vcs": null
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "wasip1-1.0.0",
+      "declared_commit": "e55b3b02fcda2a016f5df14573ff05c5b1e313d6",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "crates/wasip1"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "wasip2-1.0.2+wasi-0.2.9",
+      "declared_commit": "06ce201370fcde0d1b0d47cac8ecb1b0b312c9f9",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "crates/wasip2"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "wasip3-0.4.0+wasi-0.3.0-rc-2026-01-06",
+      "declared_commit": "06ce201370fcde0d1b0d47cac8ecb1b0b312c9f9",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": true,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "crates/wasip3"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "wasite-1.0.2",
+      "declared_commit": "3f7d6ad926848cd52c8d2142fdb2f43ab01ae8ec",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": ""
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "wasm-encoder-0.219.2",
+      "declared_commit": "3a7d60de4be52c24e4392548af16c4bd5075bff3",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": true,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": false,
+      "path_in_vcs": "crates/wasm-encoder"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "wasm-encoder-0.244.0",
+      "declared_commit": "d4e317f22c3bace76cb3205003bcc34b4929037d",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": true,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": false,
+      "path_in_vcs": "crates/wasm-encoder"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "wasmparser-0.219.2",
+      "declared_commit": "3a7d60de4be52c24e4392548af16c4bd5075bff3",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": true,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": false,
+      "path_in_vcs": "crates/wasmparser"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "wasmparser-0.235.0",
+      "declared_commit": "e26d5ebea0b8dbfdadaafc13bd4ee3814a7d01dd",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": false,
+      "path_in_vcs": "crates/wasmparser"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "wasmparser-0.243.0",
+      "declared_commit": "d05406062d031ae96146486f58a965d87eefea5e",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": true,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": false,
+      "path_in_vcs": "crates/wasmparser"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "wasmparser-0.244.0",
+      "declared_commit": "d4e317f22c3bace76cb3205003bcc34b4929037d",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": true,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": false,
+      "path_in_vcs": "crates/wasmparser"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "wasmprinter-0.235.0",
+      "declared_commit": "e26d5ebea0b8dbfdadaafc13bd4ee3814a7d01dd",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": false,
+      "path_in_vcs": "crates/wasmprinter"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "wasmtime-internal-core-47.0.0",
+      "declared_commit": "39d67168cdb6911ffdc961381314b6fed62e3c93",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": false,
+      "path_in_vcs": "crates/core"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "wasmtime-internal-jit-icache-coherence-47.0.0",
+      "declared_commit": "39d67168cdb6911ffdc961381314b6fed62e3c93",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": false,
+      "path_in_vcs": "crates/jit-icache-coherence"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": false,
+      "component": "winapi-i686-pc-windows-gnu-0.4.0",
+      "declared_commit": null,
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": true
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": null
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": false,
+      "component": "winapi-x86_64-pc-windows-gnu-0.4.0",
+      "declared_commit": null,
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": true
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": null
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "winsplit-0.1.0",
+      "declared_commit": "691e800ac384bc7fc815ca55d1dd2b09b1f15d96",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": true,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": ""
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "wit-bindgen-rt-0.33.0",
+      "declared_commit": "66bfda38bee488df27692311e364d79a3cd301a7",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": false,
+      "path_in_vcs": "crates/guest-rust/rt"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "wit-bindgen-rt-0.39.0",
+      "declared_commit": "f2393e6e98fa5f9236cac580db8a3fc9de6a4b70",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": true,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": false,
+      "path_in_vcs": "crates/guest-rust/rt"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "wit-component-0.244.0",
+      "declared_commit": "d4e317f22c3bace76cb3205003bcc34b4929037d",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": true,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": false,
+      "path_in_vcs": "crates/wit-component"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "wit-parser-0.244.0",
+      "declared_commit": "d4e317f22c3bace76cb3205003bcc34b4929037d",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": true,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": false,
+      "path_in_vcs": "crates/wit-parser"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "xflags-0.3.2",
+      "declared_commit": "bc37dc0b02dd3853aff7cafff1c4f0dd4293af45",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": false,
+      "path_in_vcs": "crates/xflags"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "xflags-macros-0.3.2",
+      "declared_commit": "bc37dc0b02dd3853aff7cafff1c4f0dd4293af45",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": false,
+      "path_in_vcs": "crates/xflags-macros"
+    },
+    {
+      "actual_resolution_or_platform_use": "NOT_EXECUTED_OR_PROVED",
+      "complete_orig_manifest": true,
+      "complete_vcs_metadata": true,
+      "component": "xshell-macros-0.2.7",
+      "declared_commit": "9a405946ecbbfe50fe4a7229bd764194154e4ce6",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "orig_name_version_literal_match": true,
+      "path_in_vcs": "xshell-macros"
+    }
+  ],
+  "inputs": {
+    "candidate_packet": {
+      "bytes": 1295494,
+      "complete_packet_publicly_copied": false,
+      "path": "/tmp/cachy-checksum-successor-20261115-03/private-license-candidates.json",
+      "sha256": "d79dd6913e41fd3d830a44dd6a20d1f53817dc07accf1fc3a564682327719c39",
+      "source_pin_verified": true
+    },
+    "review": {
+      "bytes": 394394,
+      "path": "scripts/port/arm-rust-toolchain-inputs/source-closure/archive-inventory/checksum-successor/license-review/review.json",
+      "sha256": "c2e782a07a13a965e5a85243b4a74bec1da0fe0a34fde3f15455aa0ed852208f"
+    }
+  },
+  "network_requests": 0,
+  "new_archive_reads": 0,
+  "new_notice_cases_closed_by_this_note": 0,
+  "proof_constraints": [
+    "Use exact declared repository/commit/path, and compare Git tree Cargo.toml blob SHA1 with the complete authenticated Cargo.toml.orig Git-blob SHA1 retained here; a SHA256 file digest is not a Git blob ID.",
+    "Require nontruncated/unmodified complete manifest for this local Git-blob proof. A captured prefix alone cannot establish the full Git blob, even though its full archive-member SHA256 is known.",
+    "All3 selected VCS records omit dirty rather than explicitlyfalse; describe them as not marked dirty unless pinned Cargo producer semantics are separately established. Dirtytrue, unknown inherited versions or mismatched manifest/tree stay UNRESOLVED.",
+    "Same-commit root license files must contain actual complete grants/conditions/disclaimers and applicable attribution, agree with declared SPDX and cover the named subcrate without contrary local exceptions; retain exact path/bytes/SHA256 and Git-tree identity.",
+    "A scoped missing-notice association does not prove every crate file equals that upstream tree, original.crate authenticity, all-files coverage, compiler/binary correspondence, legal/relinking acceptance or release eligibility.",
+    "All3 targets occur in root Cargo.lock and none in the Cargo-tool lock; locks/purpose descriptions establish declared source membership only. Dependency edges,target cfg,features and actual Linux host/build selection were not resolved or executed.",
+    "Absence from the two captured lock declarations is not proof of an unused component: other workspace/tool locks were not evaluated. Linux-specific API descriptions do not establish AArch64/M2 compatibility or execution."
+  ],
+  "recipe_or_payload_execution": false,
+  "schema": 1,
+  "scope": "Existing111unresolved cases and authenticated private candidatepacket03; no network, no new archive reads or Cargo resolution",
+  "selected_target_proofs": [
+    {
+      "Cargo_toml_orig": {
+        "bytes": 1498,
+        "complete_unmodified_capture": true,
+        "git_blob_sha1": "ffc726650bde1af15a55905ba5b438c939bdb800",
+        "path": "vendor/ruzstd-0.8.2/Cargo.toml.orig",
+        "sha256": "99ff9d6b13e2bc808282c3a20be8326db0c461e77c46d1f5725ab7f5c0688f1c"
+      },
+      "VCS_metadata": {
+        "bytes": 100,
+        "complete_unmodified_capture": true,
+        "git_blob_sha1": "bae8ca5a31927866312032fc74a05e2b169f2b2c",
+        "path": "vendor/ruzstd-0.8.2/.cargo_vcs_info.json",
+        "sha256": "80d49bf6bf0b4bfad69349b73ce0a2eca9652daa78d5421383e171df9667e8ec"
+      },
+      "component": "ruzstd-0.8.2",
+      "declared_commit": "fcc40ba1bc766ba38eca852cb64550c827d7068d",
+      "declared_package_checksum_matches_root_lock": true,
+      "declared_repository": "KillingSpark/zstd-rs",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "expected_tree_manifest_path": "ruzstd/Cargo.toml",
+      "lock_membership": {
+        "Cargo.lock": true,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "manifest_package": {
+        "categories": [
+          "compression"
+        ],
+        "description": "A decoder for the zstd compression format",
+        "license": "MIT",
+        "name": "ruzstd",
+        "repository": "https://github.com/KillingSpark/zstd-rs",
+        "version": "0.8.2"
+      },
+      "path_in_vcs": "ruzstd",
+      "priority_basis": "Architecture-neutral Zstandard support; optional rustc-dep-of-std feature is declared. Candidate host/build relevance only, not a proven selected Linux dependency.",
+      "root_lock_package_checksum": "e5ff0cc5e135c8870a775d3320910cd9b564ec036b4dc0b8741629020be63f01",
+      "status": "LOCAL_VERSION_MANIFEST_PROOF_AVAILABLE_REMOTE_TREE_AND_GRANT_NOT_CHECKED"
+    },
+    {
+      "Cargo_toml_orig": {
+        "bytes": 901,
+        "complete_unmodified_capture": true,
+        "git_blob_sha1": "41a64a976150b0c2b76e6d2d472392adf2ae8718",
+        "path": "vendor/thorin-dwp-0.10.0/Cargo.toml.orig",
+        "sha256": "10808b3640f1f58cf19a4a2fdecb771db6d62ea2bf7b593c0b2d0109a8a0fd40"
+      },
+      "VCS_metadata": {
+        "bytes": 100,
+        "complete_unmodified_capture": true,
+        "git_blob_sha1": "bbf9e53e2f7555b237ad192eab70da1bfe75ac40",
+        "path": "vendor/thorin-dwp-0.10.0/.cargo_vcs_info.json",
+        "sha256": "3518820b48bd5e0da2628cc1b89072cf75f2a497066d03446cdf748d4915c27a"
+      },
+      "component": "thorin-dwp-0.10.0",
+      "declared_commit": "89f541df648437083c40241e1c0e6bd93e308ce0",
+      "declared_package_checksum_matches_root_lock": true,
+      "declared_repository": "rust-lang/thorin",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "expected_tree_manifest_path": "thorin/Cargo.toml",
+      "lock_membership": {
+        "Cargo.lock": true,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "manifest_package": {
+        "categories": [
+          "development-tools::debugging"
+        ],
+        "description": "Library for building DWARF packages from input DWARF objects and packages",
+        "license": "MIT OR Apache-2.0",
+        "name": "thorin-dwp",
+        "repository": "https://github.com/rust-lang/thorin",
+        "version": "0.10.0"
+      },
+      "path_in_vcs": "thorin",
+      "priority_basis": "DWARF object/package construction library; candidate compiler/debug-tool host path, with no selected-target proof.",
+      "root_lock_package_checksum": "6ce6b46108e50803d2c10216929e49fa3eda07ee3dc246310c18c4a1e3b1fa58",
+      "status": "LOCAL_VERSION_MANIFEST_PROOF_AVAILABLE_REMOTE_TREE_AND_GRANT_NOT_CHECKED"
+    },
+    {
+      "Cargo_toml_orig": {
+        "bytes": 602,
+        "complete_unmodified_capture": true,
+        "git_blob_sha1": "42ca0f4c75a2fdffc39d92e2b40b97c26f2ca3ab",
+        "path": "vendor/perf-event-open-sys-3.0.0/Cargo.toml.orig",
+        "sha256": "43556c605a8a7a84626c612e659992a3f0c2e9646099a7b8110fbd0dc7548135"
+      },
+      "VCS_metadata": {
+        "bytes": 113,
+        "complete_unmodified_capture": true,
+        "git_blob_sha1": "f7a2244b506d9d21f32a407d75e70408aebfea27",
+        "path": "vendor/perf-event-open-sys-3.0.0/.cargo_vcs_info.json",
+        "sha256": "7a85f42ff1b045049ff15ae6913f094dfd19f65ec518f9802e1eae551cc68ba5"
+      },
+      "component": "perf-event-open-sys-3.0.0",
+      "declared_commit": "6218ac1912aa2210b46713d5c5c51ddb4be805f5",
+      "declared_package_checksum_matches_root_lock": true,
+      "declared_repository": "jimblandy/perf-event-open-sys",
+      "dirty_annotation": "ABSENT_NOT_MARKED_DIRTY",
+      "expected_tree_manifest_path": "perf-event-open-sys/Cargo.toml",
+      "lock_membership": {
+        "Cargo.lock": true,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "manifest_package": {
+        "categories": [
+          "external-ffi-bindings",
+          "development-tools::profiling",
+          "hardware-support",
+          "os::linux-apis"
+        ],
+        "description": "Unsafe, direct bindings for Linux's perf_event_open system call, with associated\ntypes and constants.\n",
+        "license": "MIT OR Apache-2.0",
+        "name": "perf-event-open-sys",
+        "repository": "https://github.com/jimblandy/perf-event-open-sys.git",
+        "version": "3.0.0"
+      },
+      "path_in_vcs": "perf-event-open-sys",
+      "priority_basis": "Explicit Linux profiling/syscall API; Linux-specific purpose is supported, but membership does not prove this compiler build selects profiling support.",
+      "root_lock_package_checksum": "b29be2ba35c12c6939f6bc73187f728bba82c3c062ecdc5fa90ea739282a1f58",
+      "status": "LOCAL_VERSION_MANIFEST_PROOF_AVAILABLE_REMOTE_TREE_AND_GRANT_NOT_CHECKED"
+    }
+  ],
+  "summary": {
+    "cargo_tool_Cargo_lock_members": 21,
+    "complete_orig_manifest": 105,
+    "complete_vcs_metadata": 90,
+    "explicit_dirty_true": [
+      "spanned-0.4.1",
+      "vex-sdk-0.27.1"
+    ],
+    "literal_orig_name_version_matches": 79,
+    "root_Cargo_lock_members": 36,
+    "unresolved_cases": 111
+  }
+}

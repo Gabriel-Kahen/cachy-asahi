@@ -1,0 +1,377 @@
+{
+  "archives_downloaded_or_read": 0,
+  "authenticated_source_archive": {
+    "bytes": 265258564,
+    "filename": "rustc-1.99.0-src.tar.xz",
+    "name": "rust",
+    "root": "rustc-1.99.0-src",
+    "sha256": "cc41916a8c84f5d9ec4f55561b44e39f43b647b133f8a6f51be9ea13c83f7036",
+    "upstream_url": "https://static.rust-lang.org/dist/rustc-1.99.0-src.tar.xz"
+  },
+  "checkout": false,
+  "components": [
+    {
+      "all_file_license_scope_and_notice_completeness": "HELD",
+      "component": "fluent-langneg-0.13.1",
+      "copyright_attribution_found_in_retained_text": true,
+      "copyright_attribution_inferred_from_equal_license_text": false,
+      "copyright_observation": "LICENSE-MIT explicitly retains Copyright Mozilla Foundation.",
+      "existing_vendor_checksum": {
+        "actual_regular_files_excluding_marker": 10,
+        "checksum_marker": {
+          "bytes": 1108,
+          "package_checksum": "7eebbe59450baee8282d71676f3bfed5689aeab00b27545e83e5f14b1195e8b0",
+          "sha256": "9eb9d5706f9bb8854e3a91eb03a567d5b7248d2954586bb097b9ebd80169f1a5"
+        },
+        "comparison_digest_sha256": "117fc8b4313a285f9c984f2e97522425e4e6f7b7abe0ef54923cbe6311a85073",
+        "expected_files": 10,
+        "issues": {
+          "aliases": 0,
+          "changed": 0,
+          "extra": 0,
+          "missing": 0,
+          "refused_nonregular": 0
+        },
+        "marker_matches_prior_authenticated_inventory": true,
+        "matched_files": 10,
+        "samples": {
+          "aliases": [],
+          "changed": [],
+          "extra": [],
+          "missing": [],
+          "refused_nonregular": []
+        },
+        "status": "PASS"
+      },
+      "full_vendor_to_git_file_projection": "NOT_PERFORMED",
+      "grant_text_found": true,
+      "legal_or_release_acceptance": "HELD",
+      "manifest_binding": {
+        "authenticated_vendor_member": "rustc-1.99.0-src/vendor/fluent-langneg-0.13.1/Cargo.toml.orig",
+        "bytes": 1062,
+        "declaration_alone_used_as_grant": false,
+        "exact_bytes_match": true,
+        "expected_upstream_git_blob_sha1": "2864013b20b94b6f0e41f6df6741f7ae6f414ef8",
+        "git_blob_sha1": "2864013b20b94b6f0e41f6df6741f7ae6f414ef8",
+        "license_declaration": "Apache-2.0 OR MIT",
+        "name": "fluent-langneg",
+        "sha256": "259f89a8d41e9c905c80edffe2e904b073d89e675f561d918424df67618a12c7",
+        "upstream_manifest_path": "Cargo.toml",
+        "version": "0.13.1"
+      },
+      "notice_complete_case_closure": "NOT_ASSERTED_COORDINATOR_REEVALUATOR_OWNED",
+      "original_crate_archive_authenticity": "HELD",
+      "other_notice_named_tree_paths": [],
+      "repository": "projectfluent/fluent-langneg-rs",
+      "retained_license_bindings": [
+        {
+          "bytes": 1053,
+          "exact_tree_blob_matches_retained_license": true,
+          "fetched_url": "https://raw.githubusercontent.com/projectfluent/fluent-langneg-rs/7fdc590466ea63ca2367ac10fb1b881fe561f1a8/LICENSE-MIT",
+          "file": "licenses/fluent-LICENSE-MIT.txt",
+          "git_blob_sha1": "00ec7a238dcd2fb765a6abc64ae43d80f0514140",
+          "modified": false,
+          "sha256": "016fcc02048817d628b04b140c54db290fd9d29a5e8a55b77871194e810716ac",
+          "tree_git_blob_sha1": "00ec7a238dcd2fb765a6abc64ae43d80f0514140",
+          "upstream_path": "LICENSE-MIT",
+          "upstream_revision": "7fdc590466ea63ca2367ac10fb1b881fe561f1a8"
+        },
+        {
+          "bytes": 11357,
+          "exact_tree_blob_matches_retained_license": true,
+          "fetched_url": "https://raw.githubusercontent.com/projectfluent/fluent-langneg-rs/7fdc590466ea63ca2367ac10fb1b881fe561f1a8/LICENSE-APACHE",
+          "file": "licenses/fluent-LICENSE-APACHE.txt",
+          "git_blob_sha1": "8dada3edaf50dbc082c9a125058f25def75e625a",
+          "modified": false,
+          "sha256": "b40930bbcf80744c86c46a12bc9da056641d722716c378f5659b9e555ef833e1",
+          "tree_git_blob_sha1": "8dada3edaf50dbc082c9a125058f25def75e625a",
+          "upstream_path": "LICENSE-APACHE",
+          "upstream_revision": "7fdc590466ea63ca2367ac10fb1b881fe561f1a8"
+        }
+      ],
+      "scope_attribution_binding": "License grant files are in the same exact upstream project revision as the byte-identical package manifest, at repository root or package directory as listed. Per-file exceptions and complete source projection are not inferred.",
+      "source_repository_declaration": "projectfluent/fluent-langneg-rs",
+      "status": "EXACT_MANIFEST_BOUND_UPSTREAM_LICENSE_GRANTS_PRESENT",
+      "tree_evidence": {
+        "bytes": 10867,
+        "complete": true,
+        "file": "fluent-tree.json",
+        "git_blob_sha1": "d4ef2a320246a6587a40b3754f3937a81a83f724",
+        "sha256": "7fe03d9901d8e6af69d2d17e407e112bc5704ed01f2f2134bb5c9a8d924b7476",
+        "source_url": "https://api.github.com/repos/projectfluent/fluent-langneg-rs/git/trees/7fdc590466ea63ca2367ac10fb1b881fe561f1a8?recursive=1"
+      },
+      "vcs_metadata": {
+        "archive_member": "rustc-1.99.0-src/vendor/fluent-langneg-0.13.1/.cargo_vcs_info.json",
+        "bytes": 94,
+        "declared_path_in_vcs": "",
+        "git_blob_sha1": "5a608191e5a922a9c414b216ff9cefa6dc0d3324",
+        "path_missing_was_not_guessed": false,
+        "sha256": "fb990f6cb3fce781aa344a021c02ee55c301a8f699a7ab2ad32aa7596dc60ea6"
+      },
+      "vcs_revision": "7fdc590466ea63ca2367ac10fb1b881fe561f1a8"
+    },
+    {
+      "all_file_license_scope_and_notice_completeness": "HELD",
+      "component": "intl_pluralrules-7.0.2",
+      "copyright_attribution_found_in_retained_text": false,
+      "copyright_attribution_inferred_from_equal_license_text": false,
+      "copyright_observation": "Actual LICENSE-MIT contains the full grant/conditions/disclaimer but no named copyright holder. Apache appendix placeholders are not actual copyright notices. No holder was invented from Cargo authors.",
+      "existing_vendor_checksum": {
+        "actual_regular_files_excluding_marker": 8,
+        "checksum_marker": {
+          "bytes": 911,
+          "package_checksum": "078ea7b7c29a2b4df841a7f6ac8775ff6074020c6776d48491ce2268e068f972",
+          "sha256": "f454431bfa580468fd36873cc3f6d87a98b92629a18247f3fe9f0a75c2568dce"
+        },
+        "comparison_digest_sha256": "47653b08a60123b92dddcf5dc1f90b4959f7dad614b47f97ad909cbf64ff3be1",
+        "expected_files": 8,
+        "issues": {
+          "aliases": 0,
+          "changed": 0,
+          "extra": 0,
+          "missing": 0,
+          "refused_nonregular": 0
+        },
+        "marker_matches_prior_authenticated_inventory": true,
+        "matched_files": 8,
+        "samples": {
+          "aliases": [],
+          "changed": [],
+          "extra": [],
+          "missing": [],
+          "refused_nonregular": []
+        },
+        "status": "PASS"
+      },
+      "full_vendor_to_git_file_projection": "NOT_PERFORMED",
+      "grant_text_found": true,
+      "legal_or_release_acceptance": "HELD",
+      "manifest_binding": {
+        "authenticated_vendor_member": "rustc-1.99.0-src/vendor/intl_pluralrules-7.0.2/Cargo.toml.orig",
+        "bytes": 944,
+        "declaration_alone_used_as_grant": false,
+        "exact_bytes_match": true,
+        "expected_upstream_git_blob_sha1": "3bf3b8e2fccfc007a1f741203882047bd8e6063c",
+        "git_blob_sha1": "3bf3b8e2fccfc007a1f741203882047bd8e6063c",
+        "license_declaration": "Apache-2.0/MIT",
+        "name": "intl_pluralrules",
+        "sha256": "e361470b666d4609c301b2c45e8822c36623684b6bbbd490186fc45ebfb7f360",
+        "upstream_manifest_path": "intl_pluralrules/Cargo.toml",
+        "version": "7.0.2"
+      },
+      "notice_complete_case_closure": "NOT_ASSERTED_COORDINATOR_REEVALUATOR_OWNED",
+      "original_crate_archive_authenticity": "HELD",
+      "other_notice_named_tree_paths": [],
+      "repository": "zbraniecki/pluralrules",
+      "retained_license_bindings": [
+        {
+          "bytes": 1023,
+          "exact_tree_blob_matches_retained_license": true,
+          "fetched_url": "https://raw.githubusercontent.com/zbraniecki/pluralrules/d0715d5b7cca72e228d6e6c4de154bd30dfdd06a/intl_pluralrules/LICENSE-MIT",
+          "file": "licenses/plural-LICENSE-MIT.txt",
+          "git_blob_sha1": "31aa79387f27e730e33d871925e152e35e428031",
+          "independent_component_scoped_copy": true,
+          "modified": false,
+          "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3",
+          "tree_git_blob_sha1": "31aa79387f27e730e33d871925e152e35e428031",
+          "upstream_path": "intl_pluralrules/LICENSE-MIT",
+          "upstream_revision": "d0715d5b7cca72e228d6e6c4de154bd30dfdd06a"
+        },
+        {
+          "bytes": 9723,
+          "exact_tree_blob_matches_retained_license": true,
+          "fetched_url": "https://raw.githubusercontent.com/zbraniecki/pluralrules/d0715d5b7cca72e228d6e6c4de154bd30dfdd06a/intl_pluralrules/LICENSE-APACHE",
+          "file": "licenses/plural-LICENSE-APACHE.txt",
+          "git_blob_sha1": "1b5ec8b78e237b5c3b3d812a7c0a6589d0f7161d",
+          "modified": false,
+          "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a",
+          "tree_git_blob_sha1": "1b5ec8b78e237b5c3b3d812a7c0a6589d0f7161d",
+          "upstream_path": "intl_pluralrules/LICENSE-APACHE",
+          "upstream_revision": "d0715d5b7cca72e228d6e6c4de154bd30dfdd06a"
+        }
+      ],
+      "scope_attribution_binding": "License grant files are in the same exact upstream project revision as the byte-identical package manifest, at repository root or package directory as listed. Per-file exceptions and complete source projection are not inferred.",
+      "source_repository_declaration": "zbraniecki/pluralrules",
+      "status": "EXACT_MANIFEST_BOUND_UPSTREAM_LICENSE_GRANTS_PRESENT",
+      "tree_evidence": {
+        "bytes": 14992,
+        "complete": true,
+        "file": "plural-tree.json",
+        "git_blob_sha1": "b0d03512086b4412dfca44757d0eddef98fe3b8d",
+        "sha256": "f400c592ce28d16378c3f8c62ef2b05ee0b3ca2a8e945ad8b28dbae62badb3b0",
+        "source_url": "https://api.github.com/repos/zbraniecki/pluralrules/git/trees/d0715d5b7cca72e228d6e6c4de154bd30dfdd06a?recursive=1"
+      },
+      "vcs_metadata": {
+        "archive_member": "rustc-1.99.0-src/vendor/intl_pluralrules-7.0.2/.cargo_vcs_info.json",
+        "bytes": 110,
+        "declared_path_in_vcs": "intl_pluralrules",
+        "git_blob_sha1": "e67b351ed1a824ac0e7b5486e2d895d587edd288",
+        "path_missing_was_not_guessed": false,
+        "sha256": "eccc6457f87a5ddb8d614a21dfacd1aa68f66113f6a15a619df111699de1f1b0"
+      },
+      "vcs_revision": "d0715d5b7cca72e228d6e6c4de154bd30dfdd06a"
+    },
+    {
+      "all_file_license_scope_and_notice_completeness": "HELD",
+      "component": "polonius-engine-0.13.0",
+      "copyright_attribution_found_in_retained_text": false,
+      "copyright_attribution_inferred_from_equal_license_text": false,
+      "copyright_observation": "Actual LICENSE-MIT contains the full grant/conditions/disclaimer but no named copyright holder. Apache appendix placeholders are not actual copyright notices. No holder was invented from Cargo authors.",
+      "existing_vendor_checksum": {
+        "actual_regular_files_excluding_marker": 12,
+        "checksum_marker": {
+          "bytes": 1300,
+          "package_checksum": "c4e8e505342045d397d0b6674dcb82d6faf5cf40484d30eeb88fc82ef14e903f",
+          "sha256": "13f461a700d7d61832261d0b048562c959a0a0aadaac455420d8d2b19837105e"
+        },
+        "comparison_digest_sha256": "5d1938378377f5852facfbdea084ab71b536f9705da86f2cef22faeb923d4a54",
+        "expected_files": 12,
+        "issues": {
+          "aliases": 0,
+          "changed": 0,
+          "extra": 0,
+          "missing": 0,
+          "refused_nonregular": 0
+        },
+        "marker_matches_prior_authenticated_inventory": true,
+        "matched_files": 12,
+        "samples": {
+          "aliases": [],
+          "changed": [],
+          "extra": [],
+          "missing": [],
+          "refused_nonregular": []
+        },
+        "status": "PASS"
+      },
+      "full_vendor_to_git_file_projection": "NOT_PERFORMED",
+      "grant_text_found": true,
+      "legal_or_release_acceptance": "HELD",
+      "manifest_binding": {
+        "authenticated_vendor_member": "rustc-1.99.0-src/vendor/polonius-engine-0.13.0/Cargo.toml.orig",
+        "bytes": 403,
+        "declaration_alone_used_as_grant": false,
+        "exact_bytes_match": true,
+        "expected_upstream_git_blob_sha1": "a975e91b9c77c77b759535e6078a73e5dd6caf3b",
+        "git_blob_sha1": "a975e91b9c77c77b759535e6078a73e5dd6caf3b",
+        "license_declaration": "Apache-2.0/MIT",
+        "name": "polonius-engine",
+        "sha256": "c1a606e9f2795c8dc3c49a7f3d151c3980d2074849180c4e62ece170b2776a2b",
+        "upstream_manifest_path": "polonius-engine/Cargo.toml",
+        "version": "0.13.0"
+      },
+      "notice_complete_case_closure": "NOT_ASSERTED_COORDINATOR_REEVALUATOR_OWNED",
+      "original_crate_archive_authenticity": "HELD",
+      "other_notice_named_tree_paths": [],
+      "repository": "rust-lang/polonius",
+      "retained_license_bindings": [
+        {
+          "bytes": 1023,
+          "exact_tree_blob_matches_retained_license": true,
+          "fetched_url": "https://raw.githubusercontent.com/zbraniecki/pluralrules/d0715d5b7cca72e228d6e6c4de154bd30dfdd06a/intl_pluralrules/LICENSE-MIT",
+          "file": "licenses/polonius-LICENSE-MIT.txt",
+          "git_blob_sha1": "31aa79387f27e730e33d871925e152e35e428031",
+          "independent_component_scoped_copy": true,
+          "modified": false,
+          "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3",
+          "tree_git_blob_sha1": "31aa79387f27e730e33d871925e152e35e428031",
+          "upstream_path": "LICENSE-MIT",
+          "upstream_revision": "741e6095fe50f468982d4d253e842eb7d12ed9d3"
+        },
+        {
+          "bytes": 10847,
+          "exact_tree_blob_matches_retained_license": true,
+          "fetched_url": "https://raw.githubusercontent.com/rust-lang/polonius/741e6095fe50f468982d4d253e842eb7d12ed9d3/LICENSE-APACHE",
+          "file": "licenses/polonius-LICENSE-APACHE.txt",
+          "git_blob_sha1": "16fe87b06e802f094b3fbb0894b137bca2b16ef1",
+          "modified": false,
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2",
+          "tree_git_blob_sha1": "16fe87b06e802f094b3fbb0894b137bca2b16ef1",
+          "upstream_path": "LICENSE-APACHE",
+          "upstream_revision": "741e6095fe50f468982d4d253e842eb7d12ed9d3"
+        }
+      ],
+      "scope_attribution_binding": "License grant files are in the same exact upstream project revision as the byte-identical package manifest, at repository root or package directory as listed. Per-file exceptions and complete source projection are not inferred.",
+      "source_repository_declaration": "rust-lang-nursery/polonius",
+      "status": "EXACT_MANIFEST_BOUND_UPSTREAM_LICENSE_GRANTS_PRESENT",
+      "tree_evidence": {
+        "bytes": 136843,
+        "complete": true,
+        "file": "polonius-canonical-tree.json",
+        "git_blob_sha1": "0bdf15fc917d5efad26aff9a6f0245254086190f",
+        "sha256": "5c91f4d12cd6873c61c3a631a0869164f17de665c9f20f3e0464c973ee5195c1",
+        "source_url": "https://api.github.com/repositories/131730961/git/trees/741e6095fe50f468982d4d253e842eb7d12ed9d3?recursive=1"
+      },
+      "vcs_metadata": {
+        "archive_member": "rustc-1.99.0-src/vendor/polonius-engine-0.13.0/.cargo_vcs_info.json",
+        "bytes": 74,
+        "declared_path_in_vcs": null,
+        "git_blob_sha1": "4537c3212d7639b2555822e6ee0b075a2037691b",
+        "path_missing_was_not_guessed": true,
+        "sha256": "785c4d02ae38549eb5245cd220c9fcd05f5377f7b0ecf284d741391791618fce"
+      },
+      "vcs_revision": "741e6095fe50f468982d4d253e842eb7d12ed9d3"
+    }
+  ],
+  "date": "2026-11-15",
+  "license_only_byte_identity_evidence": {
+    "bytes": 1023,
+    "common_copyright_or_attribution_group_created": false,
+    "git_blob_sha1": "31aa79387f27e730e33d871925e152e35e428031",
+    "independent_scoped_copies": [
+      "licenses/plural-LICENSE-MIT.txt",
+      "licenses/polonius-LICENSE-MIT.txt"
+    ],
+    "proof": "Only exact license-text byte identity is established. This does not establish common copyright ownership, common attribution or notice-complete grouping.",
+    "retained_file": "licenses/plural-LICENSE-MIT.txt",
+    "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3",
+    "upstream_bindings": [
+      {
+        "component": "intl_pluralrules-7.0.2",
+        "git_blob_sha1": "31aa79387f27e730e33d871925e152e35e428031",
+        "path": "intl_pluralrules/LICENSE-MIT",
+        "revision": "d0715d5b7cca72e228d6e6c4de154bd30dfdd06a"
+      },
+      {
+        "component": "polonius-engine-0.13.0",
+        "git_blob_sha1": "31aa79387f27e730e33d871925e152e35e428031",
+        "path": "LICENSE-MIT",
+        "revision": "741e6095fe50f468982d4d253e842eb7d12ed9d3"
+      }
+    ]
+  },
+  "network": {
+    "limits": {
+      "requests": 9,
+      "response_bytes": 1048576,
+      "socket_seconds": 20,
+      "total_body_bytes": 3145728,
+      "transfer_seconds": 60
+    },
+    "redirect_requests_counted": true,
+    "requests": 9,
+    "requests_sequential": true,
+    "response_body_bytes": 196966,
+    "stopped_at_cap": true
+  },
+  "original_reports_changed": false,
+  "outcome": {
+    "actual_license_paths_bound": 6,
+    "component_scoped_license_files_retained": 6,
+    "exact_manifest_bindings": 3,
+    "notice_complete_case_closures_claimed": 0,
+    "remaining_notice_or_all_file_scope": "HELD for all3; no claim of complete attribution/per-file compatibility, original compiler/source or raw crate correspondence, build consumption or release acceptance.",
+    "targets": 3,
+    "unique_license_bodies_fetched_and_retained": 5,
+    "unresolved_target_manifest_or_grant": 0
+  },
+  "schema": 1,
+  "scope": "Three Linux/compiler-priority vendor license gaps; primary upstream grants after exact manifest-byte Git-tree binding",
+  "source_or_payload_execution": false,
+  "source_packet": {
+    "bytes": 1295494,
+    "private_path": "/tmp/cachy-checksum-successor-20261115-03/private-license-candidates.json",
+    "public_payload_copy": false,
+    "sha256": "d79dd6913e41fd3d830a44dd6a20d1f53817dc07accf1fc3a564682327719c39"
+  }
+}
