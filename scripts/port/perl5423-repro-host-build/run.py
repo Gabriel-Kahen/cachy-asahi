@@ -38,6 +38,7 @@ old=load('perl12_readonly',OLD/'run.py')
 capacity=load('perl_capacity',ROOT/'scripts/update/capacity.py')
 runtime=load('perl_runtime',ROOT/'scripts/port/fdk-native-stage/runtime.py')
 inspector=load('perl_inspector',OLD/'inspect_archive.py')
+profile=load('perl_capacity_profile',HERE/'capacity_profile.py')
 need=old.need
 
 
@@ -47,7 +48,7 @@ def verify(recipe,source):
     need(old.identity(source)=={k:PINS['source'][k] for k in ('bytes','sha256')},'source archive changed')
 
 
-def guard(docker_root,output,phase,*,prepared=False,committing=False,work=False,inputs=False,exports=2,statvfs=None,meminfo=None):
+def guard(docker_root,output,phase,*,prepared=False,committing=False,work=False,inputs=False,exports=2,statvfs=None,meminfo=None,probe=None):
     """Remaining demand plus one reserve per filesystem, aggregated by st_dev."""
     rows=[dict(path=docker_root,bytes=((0 if prepared else 1024 if committing else 2048)+(0 if work else 2048))*MIB,inodes=80000),
           dict(path=output,bytes=((0 if inputs else 64)+256*exports)*MIB,inodes=12000)]
@@ -59,16 +60,50 @@ def guard(docker_root,output,phase,*,prepared=False,committing=False,work=False,
     for row in rows:
         s=(statvfs or os.statvfs)(row['path'])
         observations.append({**row,'path':str(row['path']),'device':Path(row['path']).stat().st_dev,
-            'available_bytes':s.f_bavail*s.f_frsize,'available_inodes':s.f_favail})
+            'available_bytes':s.f_bavail*s.f_frsize,'available_inodes':s.f_favail,'total_inodes':s.f_files,'f_fsid':s.f_fsid})
     mem=meminfo if meminfo is not None else Path('/proc/meminfo').read_text()
     available=int(next(line.split()[1] for line in mem.splitlines() if line.startswith('MemAvailable:')))*1024
     record=dict(phase=phase,requirements=observations,MemAvailable_bytes=available,required_memory_bytes=8192*MIB)
-    try:
-        capacity.check(rows,statvfs=statvfs)
-        need(available>=8192*MIB,'4 GiB actor plus 4 GiB host memory reserve required')
-    except ValueError as error:
-        record.update(status='HOLD_CAPACITY',failure=str(error));return record
+    failures=[];proofs={};models={};pools={};record['filesystems']=[]
+    for device,path in devices.items():
+        try:
+            need(probe is not None,'filesystem resource probe required')
+            proof=probe(path,device);proofs[device]=proof
+            if proof['filesystem']=='btrfs':
+                for key in [('UUID',proof['mount']['uuid']),('statfs',proof['f_fsid'])]:
+                    need(key not in pools or pools[key]==device,'shared Btrfs pool crosses device groups; combined pool capacity unproven')
+                    pools[key]=device
+            nodes=sum(r['inodes'] for r in observations if r['device']==device)
+            observation=next(r for r in observations if r['device']==device)
+            model=profile.inode_model(proof,observation,nodes);models[device]=model
+            record['filesystems'].append(dict(**proof,inode_model=model,node_budget=nodes,status='PASS'))
+        except (ValueError,OSError,KeyError,TypeError) as error:
+            record['filesystems'].append(dict(device=device,path=str(path),status='HOLD',failure=str(error)))
+            failures.append('filesystem resource model: '+str(error))
+    # Verify every path against its device proof, including shared-device aliases.
+    for observation in observations:
+        try:
+            profile.counters(observation['total_inodes'],observation['available_inodes'],models.get(observation['device']))
+            proof=proofs.get(observation['device'])
+            if proof is not None:
+                need(Path(observation['path']).stat().st_dev==proof['device'] and observation['f_fsid']==proof['f_fsid'],'cross-device capacity alias')
+        except ValueError as error:failures.append(str(error))
+    def checked_space(path):
+        value=(statvfs or os.statvfs)(path);device=Path(path).stat().st_dev
+        profile.counters(value.f_files,value.f_favail,models.get(device))
+        if device in proofs:need(value.f_fsid==proofs[device]['f_fsid'],'capacity filesystem identity changed')
+        return value
+    byte_rows=[dict(r,inodes=0) for r in rows]
+    try:capacity.check(byte_rows,statvfs=checked_space)
+    except ValueError as error:failures.append('bytes: '+str(error))
+    if len(models)==len(devices):
+        inode_rows=[dict(r,bytes=0,inodes=0 if models[Path(r['path']).stat().st_dev]=='UNREPORTED_DYNAMIC' else r['inodes']) for r in rows]
+        try:capacity.check(inode_rows,statvfs=checked_space)
+        except ValueError as error:failures.append('fixed inodes: '+str(error))
+    if available<8192*MIB:failures.append('4 GiB actor plus 4 GiB host memory reserve required')
+    if failures:return {**record,'status':'HOLD_CAPACITY','failure':'; '.join(failures)}
     return {**record,'status':'PASS'}
+
 
 
 @contextmanager
@@ -123,7 +158,7 @@ def main():
     token=uuid.uuid4().hex[:16];provision='perl13-provision-'+token;image='cachy-asahi-perl13:'+token
     items=[dict(name=f'perl13-build-{token}-{i}',init=f'perl13-init-{token}-{i}',volume=f'perl13-work-{token}-{i}') for i in (1,2)]
     report=dict(schema=1,status='HOLD',inputs=PINS,operations=[],capacity=[],builds=[],retired=[],cleanup=[],
-        controller_files={name:old.identity(HERE/name) for name in ('run.py','build.sh','inputs.json','test_driver.py')},
+        controller_files={name:old.identity(HERE/name) for name in ('run.py','build.sh','inputs.json','test_driver.py','capacity_profile.py','test_capacity_profile.py')},
         planned_resources=dict(provision=provision,image=image,builds=items),
         limits=['host x86_64 only; native ARM/16K/M2 NOT RUN','No installation, external XS, performance, legal-policy or release acceptance'])
     def save():(out/'report.json').write_text(json.dumps(report,sort_keys=True,indent=2)+'\n')
@@ -136,7 +171,7 @@ def main():
         need(not check or result.returncode==0,'command failed; see retained operations')
         return result
     def admission(phase,**kwargs):
-        row=guard(docker_root,out,phase,**kwargs);report['capacity'].append(row);save()
+        row=guard(docker_root,out,phase,probe=lambda path,device:profile.measure(command,path,device),**kwargs);report['capacity'].append(row);save()
         need(row['status']=='PASS','capacity admission refused: '+phase)
     def absence(command,containers,volumes,images=()):
         for kind,names,argv in [('containers',containers,['docker','container','ls','--all','--format','{{.Names}}']),

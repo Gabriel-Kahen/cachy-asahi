@@ -1,6 +1,6 @@
 # Fixed Perl 5.42.3-1.3 host pair
 
-Status: **concrete driver; actual pair blocked by capacity**. The source candidate
+Status: **concrete driver; actual pair blocked by byte capacity**. The source candidate
 at `c8e9baea97f83f652763e701143d6dec5b679f31` is pinned in `inputs.json`.
 No 1.3 compilation, upstream harness, package archive or byte reproducibility
 result exists from this driver. See `validation.json` for the actual refusal.
@@ -17,7 +17,7 @@ Run from the repository with host Python 3.14 (`compression.zstd` is required):
 ```sh
 python3.14 -I -B scripts/port/perl5423-repro-host-build/run.py \
   --source /absolute/path/perl5-bc3dab4d4f66de5ea67dda34e5feb5230a54c603.tar.gz \
-  --output /absolute/path/to/fresh-private-output
+  --output /tmp/perl-repro-host-pair-fresh
 ```
 
 The output parent must exist. `--capacity-only` performs the authenticated input
@@ -77,20 +77,50 @@ filesystem is covered by the export allowance. Before commit, only the remaining
 1024 MiB image allowance is requested because the provision layer already exists.
 No alternative tmpfs work-volume profile is silently selected.
 
-Initial inode demand is 80,000 for Docker work, 12,000 for exports and 10,000
-reserve per device. The existing capacity helper refuses unknown/free inode
-counts of zero. Btrfs on this host reports zero total/free inodes; that means this
-contract cannot prove inode capacity, **not that Btrfs has exhausted its inodes**.
-Freeing bytes alone therefore does not satisfy the current strict guard.
-The memory check requires 8 GiB MemAvailable: the 4 GiB actor plus 4 GiB reserve.
+With the explicitly supported output under `/tmp`, Docker/home requires the
+unchanged **5120 MiB (5 GiB)** image/work/reserve budget. The separate tmpfs
+requires **1600 MiB** for source snapshot, both exports/scratch and its own 1 GiB
+reserve. These amounts are added when paths share a device. No allowance is
+removed by choosing a different output filesystem.
+
+The filesystem-specific model in `capacity_profile.py` authenticates the exact
+path and mount before and after each measurement. It joins GNU stat filesystem
+type/magic/ID, actual path and mount-target `st_dev`, statvfs ID, findmnt's
+UUID/source and the exact kernel mountinfo device/target/source/type entry.
+Btrfs mount device numbers and subvolume `st_dev` are recorded separately.
+Shared Btrfs UUID/statfs identities across distinct device groups are refused;
+the shared capacity helper cannot safely aggregate that layout.
+
+[Btrfs creates inodes dynamically](https://btrfs.readthedocs.io/en/latest/Administration.html#filesystem-limits).
+For authenticated Btrfs only, actual `f_files=f_favail=0` is recorded as
+`UNREPORTED_DYNAMIC`. No positive free-inode count is invented. One raw
+`Metadata,DUP` and global-reserve record must be parsed from a successful
+read-only `btrfs filesystem usage -b EXACT_PATH` query. The model subtracts the
+entire global reserve from allocated-but-unused metadata, requires its used
+count to be zero, then requires **512 MiB workload headroom plus 512 MiB retained
+metadata reserve** for at most **102,000 nodes per device**. These are explicit
+bounded engineering budgets, not a universal bytes-per-inode guarantee. The
+[global reserve belongs to metadata](https://btrfs.readthedocs.io/en/latest/btrfs-filesystem.html#subcommand).
+Failed/malformed queries, mixed/unsupported profiles, low headroom, inconsistent
+counters and mismatched/changing filesystem identities refuse admission.
+
+Ext2/3/4, XFS and tmpfs retain the exact reported free-inode checks, including
+refusal of a real zero pool. Unknown filesystems refuse admission. Original
+inode demand is 80,000 for Docker work, 12,000 for exports and 10,000 reserve per
+device. Only the proven Btrfs dynamic case uses a zero **inode demand** in the
+shared helper, with the metadata check replacing that inapplicable fixed-pool
+check; original counters/demand remain in the receipt. Byte checks always use
+real statvfs availability and unchanged budgets. The memory check still requires
+8 GiB MemAvailable: the 4 GiB actor plus 4 GiB reserve.
 
 ## Verification limits
 
-`python -I -B -Werror::ResourceWarning test_driver.py` exercises nine controls,
+`python -I -B -Werror::ResourceWarning test_driver.py` and `test_capacity_profile.py` exercise twenty-one controls,
 including capacity/remote-daemon refusal, final input rechecks, export identity
 and timestamp refusal, complete comparison, sequential retirement and
 cancellation cleanup. Docker success/cancellation in those tests is simulated
-and cannot qualify a build. The actual local run stopped before allocating an
+and cannot qualify a build. The actual local capacity-only run established the Btrfs metadata model but
+failed the unchanged byte budget before allocating an
 input snapshot or any Docker build resources. No prior archives are reused.
 
 Native ARM, 16K, M2 (both Air sizes), installed lifecycle/ABI, external XS,

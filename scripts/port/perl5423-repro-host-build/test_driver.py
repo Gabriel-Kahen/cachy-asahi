@@ -19,18 +19,20 @@ api=importlib.util.module_from_spec(spec);spec.loader.exec_module(api)
 
 class Controls(unittest.TestCase):
     def test_capacity_shared_filesystem_peak_and_reserve(self):
+        def guard(*args,**kwargs):
+            return api.guard(*args,probe=lambda path,device:dict(path=str(Path(path).resolve()),device=device,f_fsid=7,filesystem='tmpfs'),**kwargs)
         with tempfile.TemporaryDirectory() as tmp:
-            def space(path):return types.SimpleNamespace(f_bavail=20*1024, f_frsize=api.MIB, f_favail=200000)
-            row=api.guard(Path(tmp),Path(tmp),'test',statvfs=space,meminfo='MemAvailable: 16777216 kB\n')
+            def space(path):return types.SimpleNamespace(f_bavail=20*1024, f_frsize=api.MIB, f_favail=200000,f_files=300000,f_fsid=7)
+            row=guard(Path(tmp),Path(tmp),'test',statvfs=space,meminfo='MemAvailable: 16777216 kB\n')
             self.assertEqual(row['status'],'PASS')
-            commit=api.guard(Path(tmp),Path(tmp),'commit',committing=True,inputs=True,statvfs=space,meminfo='MemAvailable: 16777216 kB\n')
+            commit=guard(Path(tmp),Path(tmp),'commit',committing=True,inputs=True,statvfs=space,meminfo='MemAvailable: 16777216 kB\n')
             self.assertEqual(sum(r['bytes'] for r in commit['requirements']),4608*api.MIB)
             self.assertEqual(sum(r['bytes'] for r in row['requirements']),5696*api.MIB)
-            def tight(path):return types.SimpleNamespace(f_bavail=5695, f_frsize=api.MIB, f_favail=200000)
-            self.assertEqual(api.guard(Path(tmp),Path(tmp),'test',statvfs=tight,meminfo='MemAvailable: 16777216 kB\n')['status'],'HOLD_CAPACITY')
-            self.assertEqual(api.guard(Path(tmp),Path(tmp),'test',statvfs=space,meminfo='MemAvailable: 8388607 kB\n')['status'],'HOLD_CAPACITY')
-            def no_inodes(path):return types.SimpleNamespace(f_bavail=20000,f_frsize=api.MIB,f_favail=0)
-            self.assertEqual(api.guard(Path(tmp),Path(tmp),'test',statvfs=no_inodes,meminfo='MemAvailable: 16777216 kB\n')['status'],'HOLD_CAPACITY')
+            def tight(path):return types.SimpleNamespace(f_bavail=5695, f_frsize=api.MIB, f_favail=200000,f_files=300000,f_fsid=7)
+            self.assertEqual(guard(Path(tmp),Path(tmp),'test',statvfs=tight,meminfo='MemAvailable: 16777216 kB\n')['status'],'HOLD_CAPACITY')
+            self.assertEqual(guard(Path(tmp),Path(tmp),'test',statvfs=space,meminfo='MemAvailable: 8388607 kB\n')['status'],'HOLD_CAPACITY')
+            def no_inodes(path):return types.SimpleNamespace(f_bavail=20000,f_frsize=api.MIB,f_favail=0,f_files=300000,f_fsid=7)
+            self.assertEqual(guard(Path(tmp),Path(tmp),'test',statvfs=no_inodes,meminfo='MemAvailable: 16777216 kB\n')['status'],'HOLD_CAPACITY')
 
     def test_comparison_checks_entire_archive_and_all_entries(self):
         with tempfile.TemporaryDirectory() as tmp:
