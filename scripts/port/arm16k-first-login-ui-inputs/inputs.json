@@ -1,0 +1,167 @@
+{
+  "baseline": {
+    "bytes": 143492,
+    "filename": "baseline111.json",
+    "sha256": "7a57dce67a65f58e5d1ece471879424ef819ee2bd6226a42452aeccb4a899f6e"
+  },
+  "cache_directories": [
+    "/tmp/cachy-asahi-arm16k-project-lifecycle-inputs-20261114",
+    "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/maintained-desktop-auth-next-20261015/context/deps"
+  ],
+  "catalogs": [
+    {
+      "bytes": 256696,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/platform/target-metadata-20261012/core.db",
+      "repo": "core",
+      "sha256": "5f184763bad034ac02662ee37d87edad8124244c8609f4a441947da1855b0b08"
+    },
+    {
+      "bytes": 10613897,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/platform/target-metadata-20261012/extra.db",
+      "repo": "extra",
+      "sha256": "66cfbeae024c325e19ba7334afcb0ff2ab892ba4f0789216b358648f7647b480"
+    }
+  ],
+  "engine_sources": {
+    "scripts/platform/transaction.py": {
+      "bytes": 29649,
+      "sha256": "1e4776bd89c436af526ed132d75df32fbc15cf2349dd3cf7cf13ecf874238694"
+    },
+    "scripts/port/platform-residual-closure/resolve.py": {
+      "bytes": 36995,
+      "sha256": "df71e3166025849785f1bdd4543f36938d7fd191dc8d407aa420a1b61968548e"
+    },
+    "scripts/port/preview.py": {
+      "bytes": 19736,
+      "sha256": "d737c51474e05cc2c4db2e87fc021f50328eea7744983dd4076d44751fce7383"
+    },
+    "scripts/port/supported-composition/compose.py": {
+      "bytes": 29614,
+      "sha256": "9278bbe2365a0371b13c2fa52eacd9a89cd58fb24003e200e452908391db2aae"
+    }
+  },
+  "explicit_reference_providers": {
+    "font": "adwaita-fonts",
+    "libgl/libegl": "libglvnd",
+    "opengl-driver": "mesa"
+  },
+  "kernel_config": {
+    "bytes": 68789,
+    "path": "/tmp/cachy-asahi-arm16k-inputs-20261114/kernel.config",
+    "sha256": "e97d54d4852eceb6cba28c38f78d4a00aacbfdb0c1523cb96366590f7eaa915b"
+  },
+  "memory_limit_bytes": 268435456,
+  "project": [
+    {
+      "archive": {
+        "bytes": 16905,
+        "path": "/tmp/cachy-asahi-first-login-ui-candidate-final-20261114/build/cachy-asahi-first-login-ui-0.1.0-2-any.pkg.tar.zst",
+        "sha256": "869fb4f1dcf7fc26ff87594398eba8d15d4a8051e6feaf96d4b8fe457ccb4ea4"
+      },
+      "scope": "host-assembled-any; ARM build not established",
+      "signature": {
+        "bytes": 310,
+        "path": "/tmp/cachy-asahi-first-login-ui-candidate-final-20261114/public-lifecycle/cachy-asahi-first-login-ui-0.1.0-2-any.pkg.tar.zst.sig",
+        "sha256": "5b1567d5b23f37fe40eaf161e8041f0b1af8121e95d7ca8af04814f7020067ca"
+      },
+      "srcinfo": {
+        "bytes": 2051,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/packages/tools/cachy-asahi-first-login-ui/.SRCINFO",
+        "sha256": "3fa4e2a43280a23f00cb7b091163c162bb7a964fac145bae241445de23ff89ca"
+      }
+    },
+    {
+      "archive": {
+        "bytes": 19471,
+        "path": "/tmp/cachy-asahi-first-login-ui-candidate-final-20261114/inputs/materials/cachy-asahi-first-login-0.1.0-2-any.pkg.tar.zst",
+        "sha256": "d4b7291afedc2af95d89f3975c77c45e417125bf23818cbfd1dc7d53fb464839"
+      },
+      "scope": "host-assembled-any; ARM build not established",
+      "signature": {
+        "bytes": 310,
+        "path": "/tmp/cachy-asahi-first-login-ui-candidate-final-20261114/public-lifecycle/cachy-asahi-first-login-0.1.0-2-any.pkg.tar.zst.sig",
+        "sha256": "5ebb96292992563107844d11aa2b15ff72361eba0be1dd8b09590cbb5eefc4a9"
+      },
+      "srcinfo": {
+        "bytes": 1684,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/packages/tools/cachy-asahi-first-login/.SRCINFO",
+        "sha256": "ab9af569b6353478973f3083c3f6ea01f1679c0f91cfd05ddc5b530eea848be3"
+      }
+    },
+    {
+      "archive": {
+        "bytes": 33900,
+        "path": "/tmp/cachy-asahi-first-login-ui-candidate-final-20261114/inputs/materials/cachy-asahi-setup-0.3.0-1-any.pkg.tar.xz",
+        "sha256": "8de3bd0cf2d9333b41925fecdef5cbfe2ec6d40c3424d90746182142e0c7dc47"
+      },
+      "retention": {
+        "bytes": 779,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/native-inputs/setup8-retention.json",
+        "sha256": "5bc6abbcac8ad196dbebdfe4fb397292faced64ee82017fb4997f9c24cd347b3"
+      },
+      "scope": "retained prior native component",
+      "signature": {
+        "bytes": 310,
+        "path": "/tmp/cachy-asahi-first-login-ui-candidate-final-20261114/public-lifecycle/cachy-asahi-setup-0.3.0-1-any.pkg.tar.xz.sig",
+        "sha256": "d82266c6662c2ae748e75e646752a457618c33af920784087f53f6972eaa6b23"
+      },
+      "srcinfo": {
+        "bytes": 2951,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/packages/tools/cachy-asahi-setup8/.SRCINFO",
+        "sha256": "d65fe637aeb05ea6b9113d392b596507fe2b92f500707500311195c665c988ae"
+      }
+    }
+  ],
+  "public_key_material": [
+    {
+      "bytes": 3098,
+      "path": "/tmp/cachy-asahi-arm16k-project-lifecycle-inputs-20261114/archlinuxarm.gpg",
+      "sha256": "6ce771e853f04a38a5b533cb33e61f877b9b06b58b6db051eb8a15d737a2332f"
+    },
+    {
+      "bytes": 981,
+      "path": "/tmp/cachy-asahi-first-login-ui-candidate-final-20261114/public-lifecycle/TEST-public.asc",
+      "sha256": "c0204e8ec1268827fb8576e9a0a259443b508eb2e7ee85df44d9dddec8bc435d"
+    }
+  ],
+  "reference_prepared": {
+    "bytes": 58179,
+    "path": "/tmp/cachy-asahi-arm16k-preparation-20261114-r5/assembly/prepared.json",
+    "sha256": "f7b3073f58acce8ab5e21ff61f2182779d24046e1582cda6adb0a3db66b7036e"
+  },
+  "root_names": [
+    "cachy-asahi-first-login-ui",
+    "cachy-asahi-first-login",
+    "cachy-asahi-setup",
+    "gtk4",
+    "python-gobject",
+    "polkit",
+    "fish",
+    "zsh",
+    "xorg-server-xvfb",
+    "xorg-xauth",
+    "adwaita-fonts",
+    "mesa",
+    "libglvnd"
+  ],
+  "rootfs_input_manifest": {
+    "bytes": 36166,
+    "path": "/tmp/cachy-asahi-arm16k-inputs-20261114/input-manifest.json",
+    "sha256": "e3296603ac0a9ffe26c706ef8b46552400e036d52d7b4566dbb0c6d60bcd1117"
+  },
+  "schema_version": 1,
+  "scope": "finite ARM111 reference first-login UI metadata only; no download/daemon/guest/install",
+  "small_archive_rehash_limit": 1048576,
+  "template_data": [
+    {
+      "bytes": 13518,
+      "path": "/tmp/cachy-asahi-first-login-ui-candidate-final-20261114/inputs/materials/cachy-asahi-fish-config-0.1.0-1-any.pkg.tar.zst",
+      "sha256": "21f4ca0ab90c66b131673f2cb2c6caf85b72e2872777481d8118d9264b3d0c02"
+    },
+    {
+      "bytes": 14474,
+      "path": "/tmp/cachy-asahi-first-login-ui-candidate-final-20261114/inputs/materials/cachy-asahi-zsh-config-0.1.0-1-any.pkg.tar.zst",
+      "sha256": "0e88f366d93de023007a290678e38c37dda64d2c10036f763e4ee0c4de4cc9c0"
+    }
+  ]
+}

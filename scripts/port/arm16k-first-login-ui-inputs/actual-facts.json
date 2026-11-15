@@ -1,0 +1,259 @@
+{
+  "counts": {
+    "aarch64_additions": 129,
+    "additions": 145,
+    "any_additions": 16,
+    "baseline": 111,
+    "conflicts": 0,
+    "declared_addition_archive_bytes": 142336088,
+    "dependency_relations": 1196,
+    "final": 256,
+    "missing": 6,
+    "missing_archive_bytes": 1312620,
+    "official_additions": 142,
+    "prepare_errors": 0,
+    "preserved": 111,
+    "removals": 0,
+    "retained_identities_pending_authentication": 139
+  },
+  "graph_blockers": [
+    {
+      "code": "invalid-catalog-package",
+      "package": "nextcloud-app-spreed",
+      "reason": "invalid-directive",
+      "scope": "catalog"
+    },
+    {
+      "code": "invalid-catalog-package",
+      "package": "texlive-fontsextra",
+      "reason": "invalid-package-relations",
+      "scope": "catalog"
+    },
+    {
+      "code": "invalid-catalog-package",
+      "package": "texlive-latexextra",
+      "reason": "invalid-package-relations",
+      "scope": "catalog"
+    },
+    {
+      "code": "invalid-catalog-package",
+      "package": "texlive-mathscience",
+      "reason": "invalid-package-relations",
+      "scope": "catalog"
+    },
+    {
+      "code": "invalid-catalog-package",
+      "package": "texlive-pictures",
+      "reason": "invalid-package-relations",
+      "scope": "catalog"
+    },
+    {
+      "code": "invalid-catalog-package",
+      "package": "texlive-publishers",
+      "reason": "invalid-package-relations",
+      "scope": "catalog"
+    },
+    {
+      "alternatives": [
+        {
+          "effective_version": "20240618-1",
+          "name": "ca-certificates",
+          "repo": "signed-rootfs111",
+          "version": "20240618-1",
+          "via": "name"
+        },
+        {
+          "effective_version": null,
+          "name": "ca-certificates-utils",
+          "repo": "signed-rootfs111",
+          "version": "20240618-1",
+          "via": "ca-certificates"
+        }
+      ],
+      "code": "ambiguous-provider",
+      "package": "curl",
+      "requirement": "ca-certificates",
+      "scope": "graph"
+    },
+    {
+      "alternatives": [
+        {
+          "effective_version": null,
+          "name": "dbus-broker-units",
+          "repo": "signed-rootfs111",
+          "version": "37-3",
+          "via": "dbus-units"
+        },
+        {
+          "effective_version": "37-3",
+          "name": "dbus-units",
+          "repo": "signed-rootfs111",
+          "version": "37-3",
+          "via": "name"
+        }
+      ],
+      "code": "ambiguous-provider",
+      "package": "systemd",
+      "requirement": "dbus-units",
+      "scope": "graph"
+    }
+  ],
+  "graph_status": "FAIL",
+  "holds": [
+    "metadata-only plan, not a complete accepted transaction",
+    "all111 baseline versions frozen; no coordinated update authorized",
+    "full archive/signature checks pending for retained large inputs; no acquisition",
+    "every new ELF16K geometry/dynamic ABI/runtime/source/license review remains held",
+    "payload ownership/file-conflict/scriptlet/normal-hook inspection NOT RUN by metadata preparation",
+    "generic Mesa here is only a TCG reference dependency, not an Asahi/M2 selection",
+    "Xvfb GUI/stock DBus/Polkit/session tools require separately admitted actual ARM execution",
+    "current production trust/freshness/native16K/M2/release NOT RUN"
+  ],
+  "kernel_declarations": {
+    "CONFIG_DRM_VIRTIO_GPU": true,
+    "CONFIG_INPUT_EVDEV": true,
+    "CONFIG_VIRTIO_INPUT": false,
+    "CONFIG_VT": true,
+    "CONFIG_VT_CONSOLE": true
+  },
+  "libalpm_version": "16.0.1",
+  "memory_budget_phases": {
+    "concurrent_parent_AS_bytes": 167772160,
+    "prepare_child_AS_bytes": 100663296,
+    "serial_parent_AS_bytes": 268435456
+  },
+  "missing_archives": [
+    {
+      "bytes": 30644,
+      "filename": "gobject-introspection-runtime-1.86.0-2-aarch64.pkg.tar.xz",
+      "sha256": "fe0d6a936340bf8b6752d96f198f130ad0fdbc39521dd71257346f297a0287ae",
+      "signature_bytes": 566,
+      "signature_sha256": "1005c1451e791578a49d6873cb333d678d1f30b94c3e74847018a4315f0b16c7"
+    },
+    {
+      "bytes": 178880,
+      "filename": "libgirepository-1.86.0-2-aarch64.pkg.tar.xz",
+      "sha256": "c9c9715f03a1b4bbbd9e03c203275f4571a4c8b6bd1e5307eafc02ebf1789fed",
+      "signature_bytes": 566,
+      "signature_sha256": "b5dbda31283ec1f96e64172e429f9c29295bf84ae074d3d642970edf6c18259d"
+    },
+    {
+      "bytes": 72980,
+      "filename": "libxmu-1.3.1-1-aarch64.pkg.tar.xz",
+      "sha256": "598e2e2422a1136171264744c54dd0d1e884a2c6c86d6850611c2128dc976362",
+      "signature_bytes": 566,
+      "signature_sha256": "3b3194ac3ad4ad6d21302e4c1c0b21b025b56cb8d30d3930c3e6d74a690c9860"
+    },
+    {
+      "bytes": 300132,
+      "filename": "python-gobject-3.58.1-1-aarch64.pkg.tar.xz",
+      "sha256": "49b8991906522d676aafc7588c6a1760dfe5b2316e3c4168ac8a62ea01bf7d1f",
+      "signature_bytes": 566,
+      "signature_sha256": "fda744068c82534c0879b3f02bc5c378f0c57d4e7cc7648252f75e618f197d80"
+    },
+    {
+      "bytes": 705376,
+      "filename": "xorg-server-xvfb-21.1.25-1-aarch64.pkg.tar.xz",
+      "sha256": "9799e250607b6ebe1b143138fe7cf64366fc94127bb5fbaea6c456c68c2bf715",
+      "signature_bytes": 566,
+      "signature_sha256": "62b1b083753f451ae512b37ee0478e47db63ef9f6dc10c5ef3e722d0f8ad4958"
+    },
+    {
+      "bytes": 24608,
+      "filename": "xorg-xauth-1.1.5-1-aarch64.pkg.tar.xz",
+      "sha256": "0384b75f97e0b659e85366698ced6028b13aa2964f6d7f1117548b942a062ac7",
+      "signature_bytes": 566,
+      "signature_sha256": "7068c984054f13fe13121fcf659acb77a5ced1afda01e75f560604ee4dfa197b"
+    }
+  ],
+  "proc_child": {
+    "VmHWM": 30957568,
+    "VmPeak": 89714688
+  },
+  "proc_parent": {
+    "VmHWM": 161480704,
+    "VmPeak": 177201152,
+    "VmRSS": 132186112,
+    "VmSize": 156401664
+  },
+  "proposal_dependency_status": "PASS_EXPLICIT_FINITE_METADATA_PREPARE",
+  "report": {
+    "bytes": 1031521,
+    "path": "/tmp/cachy-asahi-arm16k-ui-plan-20261115-handoff/plan.json",
+    "sha256": "893ee5ed2cba013af2751ee1582b84120348c5cb8e10608dc5ef1447a83201ac"
+  },
+  "roots": [
+    {
+      "name": "cachy-asahi-first-login-ui",
+      "repo": "project",
+      "version": "0.1.0-2"
+    },
+    {
+      "name": "cachy-asahi-first-login",
+      "repo": "project",
+      "version": "0.1.0-2"
+    },
+    {
+      "name": "cachy-asahi-setup",
+      "repo": "project",
+      "version": "0.3.0-1"
+    },
+    {
+      "name": "gtk4",
+      "repo": "extra",
+      "version": "1:4.24.1-1"
+    },
+    {
+      "name": "python-gobject",
+      "repo": "extra",
+      "version": "3.58.1-1"
+    },
+    {
+      "name": "polkit",
+      "repo": "extra",
+      "version": "127-3"
+    },
+    {
+      "name": "fish",
+      "repo": "extra",
+      "version": "4.9.3-1"
+    },
+    {
+      "name": "zsh",
+      "repo": "extra",
+      "version": "5.9.2-1"
+    },
+    {
+      "name": "xorg-server-xvfb",
+      "repo": "extra",
+      "version": "21.1.25-1"
+    },
+    {
+      "name": "xorg-xauth",
+      "repo": "extra",
+      "version": "1.1.5-1"
+    },
+    {
+      "name": "adwaita-fonts",
+      "repo": "extra",
+      "version": "51.0-2"
+    },
+    {
+      "name": "mesa",
+      "repo": "extra",
+      "version": "1:26.2.4-1"
+    },
+    {
+      "name": "libglvnd",
+      "repo": "extra",
+      "version": "1.7.0-3"
+    }
+  ],
+  "schema_version": 1,
+  "scope": "actual retained ARM111 DATA, metadata preparation only; no acquisition/install/guest",
+  "status": "HOLD_METADATA_PLAN_ONLY",
+  "tool_and_ABI_gaps": [
+    "actual archive/signature/ELF16K ABI/runtime acceptance remains pending",
+    "current kernel lacks virtio-input declaration; x86 ATkbd/seat0 proof does not transfer"
+  ]
+}
