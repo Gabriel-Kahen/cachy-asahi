@@ -257,8 +257,12 @@ jobs:
       - name: Check first-login recovery and installed delivery
         run: |
           python3 -I -B -Werror::ResourceWarning scripts/install/test_first_login.py -v
-          python3 -I -B packages/tools/cachy-asahi-first-login/check-sync.py --root "$PWD"
+          python3 -I -B packages/tools/cachy-asahi-first-login/check-sync.py
+          python3 -I -B packages/tools/cachy-asahi-first-login-v3/check-sync.py --root "$PWD"
           python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-first-login/test_delivery.py --recipe packages/tools/cachy-asahi-first-login/PKGBUILD -v
+          python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-first-login-v3/test_first_login.py -v
+          python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-first-login-v3/test_delivery.py --recipe packages/tools/cachy-asahi-first-login-v3/PKGBUILD -v
+          python3 -I -B -Werror::ResourceWarning scripts/integration/test_first_login_rehearsal_sources.py -v
           python3 -I -B scripts/integration/first_login_rehearsal.py --output "$RUNNER_TEMP/first-login-rehearsal" --build-and-rehearse --installed-guest-controls
       - name: Check explicit lock and ordered suspend without a desktop session
         run: |

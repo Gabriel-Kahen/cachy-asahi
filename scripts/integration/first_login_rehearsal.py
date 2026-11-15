@@ -76,11 +76,15 @@ def prepare_sources(root, workspace, runner):
             journey.require(journey.sha(target / filename) == expected, 'Source changed during private copy')
             receipt['sources'][filename] = expected
         receipts[name] = receipt
-    # These existing checkers verify canonical implementation/doc/test copies in
-    # addition to the recipe's retained local input pins. They do not run check().
+    # This finite rehearsal intentionally retains FirstLogin02. Its local source
+    # pins remain authoritative; maintained code now belongs to the opt-in03
+    # candidate checked separately. Setup8 still matches its canonical sources.
     for name in ('first_login', 'setup'):
         checker = workspace / name / 'check-sync.py'
-        runner.run(name + '-canonical-source', ['/usr/bin/python3', '-I', '-B', checker, '--root', root])
+        command = ['/usr/bin/python3', '-I', '-B', checker]
+        if name == 'setup':
+            command += ['--root', root]
+        runner.run(name + '-canonical-source', command)
     return receipts
 
 
