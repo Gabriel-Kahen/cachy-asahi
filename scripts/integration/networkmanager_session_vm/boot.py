@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-"""Root-reviewed next VM invocation using the unchanged completed substrate."""
+"""Root-reviewed challenge-aware serial extension over fixed process custody."""
 import argparse,hashlib,importlib.util,json,os,sys
 from pathlib import Path
 HERE=Path(__file__).resolve().parent;SUB=HERE.parent/'systemd_tcg_guest'
@@ -31,14 +31,23 @@ def main():
  assert hashlib.sha256((SUB/'boot.py').read_bytes()).hexdigest()==EXPECTED_BOOT,'completed controller drift refused'
  # The fixed controller owns all process/container/signal/once/serial cleanup.
  # Its source and original once marker are never edited or reset here.
+ prepared=json.loads((a.prepared/'prepared.json').read_text());assert hashlib.sha256((a.prepared/'prepared.json').read_bytes()).hexdigest()==a.prepared_sha256
+ export=json.loads((a.prepared/'package-export.json').read_text());assert hashlib.sha256((a.prepared/'package-export.json').read_bytes()).hexdigest()==prepared['package_export_sha256']
+ credentials=a.prepared/'credentials.json';assert credentials.stat().st_uid==os.getuid()and credentials.stat().st_mode&0o777==0o600 and not credentials.is_symlink();secret=json.loads(credentials.read_text())['password'].encode()
  spec=importlib.util.spec_from_file_location('nm_session_fixed_controller',SUB/'boot.py');controller=importlib.util.module_from_spec(spec);spec.loader.exec_module(controller)
+ serial_spec=importlib.util.spec_from_file_location('nm_session_serial_extension',HERE/'serial_driver.py');serial_module=importlib.util.module_from_spec(serial_spec);serial_spec.loader.exec_module(serial_module);serial_instances=[]
+ controller.Serial=serial_module.extension(controller.Serial,prepared['nonce'],secret,export['file_pins']['usr/bin/pkttyagent']['sha256'],serial_instances)
  original=sys.argv;sys.argv=[str(SUB/'boot.py'),'--allow-first-x86-reference-boot','--prepared',str(a.prepared),'--prepared-sha256',a.prepared_sha256,'--tool-image',a.tool_image,'--tool-image-id',a.tool_image_id,'--output',str(a.output)]
  try:code=controller.main()
  finally:sys.argv=original
- out=a.output.resolve();result={'schema_version':1,'status':'HOLD','scope':'x86 full-system real-login NM own-profile and denial software only','ARM_M2_release':'NOT RUN','substrate_report':str(out/'report.json'),'password_policy':'Own writes allowed for active users by unchanged upstream policy; genuine password verification is serial PAM login; no forced own-write challenge'}
+ out=a.output.resolve();result={'schema_version':1,'status':'HOLD','scope':'x86 full-system real-login NM own-profile and denial software only','ARM_M2_release':'NOT RUN','substrate_report':str(out/'report.json'),'password_policy':'Follow genuine policy; additional TEST credential only after exact nonce-bound own-action + builder TTY prompt; never for admin/unknown identity','serial_extension_sha256':hashlib.sha256((HERE/'serial_driver.py').read_bytes()).hexdigest()}
  try:
-  substrate=json.loads((out/'report.json').read_text());assert code==0 and substrate['status']=='PASS_X86_REFERENCE_SERIAL_PAM_SESSION_ONLY'
-  prepared=json.loads((a.prepared/'prepared.json').read_text());journey=parse_journey((out/'serial.redacted.log').read_bytes(),prepared['nonce']);result['journey']=journey;accept(journey)
+  substrate=json.loads((out/'report.json').read_text());result['substrate_status']=substrate['status'];result['substrate_failure']=substrate.get('failure')
+  result['credential_gate']=serial_instances[0].gate.report()if serial_instances else None
+  journey=parse_journey((out/'serial.redacted.log').read_bytes(),prepared['nonce']);result['journey']=journey
+  if journey['status']!='PASS_X86_REAL_LOGIN_OWN_PROFILE_AND_DENIALS_ONLY':raise serial_module.JourneyHold(str(journey.get('failure',{})))
+  assert code==0 and substrate['status']=='PASS_X86_REFERENCE_SERIAL_PAM_SESSION_ONLY';accept(journey)
+  assert result['credential_gate']['responses']>=1,'genuine own-action credential challenge not established'
   result['status']='PASS_X86_REAL_LOGIN_OWN_PROFILE_AND_DENIALS_ONLY'
  except BaseException as e:result['failure']={'category':type(e).__name__,'message':str(e)[:2048]}
  (out/'journey.json').write_text(json.dumps(result,sort_keys=True,indent=2)+'\n');print(json.dumps({'status':result['status'],'report':str(out/'journey.json'),'failure':result.get('failure')}));return 0 if result['status'].startswith('PASS_')else 1
