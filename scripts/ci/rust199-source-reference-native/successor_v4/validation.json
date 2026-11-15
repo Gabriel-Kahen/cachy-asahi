@@ -1,0 +1,198 @@
+{
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "image": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "constructors": [
+    "3.12.13",
+    "3.14.6"
+  ],
+  "holds": [
+    "native16K",
+    "M2",
+    "performance",
+    "source_and_license_completeness",
+    "production_trust",
+    "release"
+  ],
+  "identical_source_outputs": true,
+  "llvm253_input_recovery": {
+    "map_sha256": "5c19a2699856e081712d159c551ce496919938bd456f2182c0c905f03cbd2ef0",
+    "native": "NOT_RUN",
+    "retained_in": "/home/gabe/Documents/ChatGPT/cachy-asahi-llvm-source-fix-20261115/work/llvm256-Source-and-once-20261115-r1/source-tree",
+    "status": "RECOVERED_EXACT_RETIRED253_DATA_ONLY",
+    "tree": "2f90eaaaa532d14574c0ce1f1c93b02310f44d91"
+  },
+  "original9d_sha256": "9d014a2c5405f2ba5a478143545629cd5499eda2218a7306ca20cd4f24d5f94f",
+  "pending": "LLVM253_SUPERSEDED_CAPFIX_SOURCE_REJOIN_REQUIRED_BEFORE_PUBLICATION_OR_RUN",
+  "physical_data_root": "/tmp/rust199-v4-checkpoint-DATA-20261115-r1",
+  "profile_sha256": "90c8193a83296a8acb4b10776fe3436f2e3109bc9fbed5dc01da3a8e9f775a3e",
+  "protected_parent_leaves": 270,
+  "python_tests": [
+    {
+      "controls": [
+        {
+          "returncode": 0,
+          "script": "test_actor_binding.py",
+          "tests": 2
+        },
+        {
+          "returncode": 0,
+          "script": "test_admission.py",
+          "tests": 8
+        },
+        {
+          "returncode": 0,
+          "script": "test_binding.py",
+          "tests": 7
+        },
+        {
+          "returncode": 0,
+          "script": "test_bootstrap.py",
+          "tests": 10
+        },
+        {
+          "returncode": 0,
+          "script": "test_caps.py",
+          "tests": 3
+        },
+        {
+          "returncode": 0,
+          "script": "test_materials.py",
+          "tests": 11
+        },
+        {
+          "returncode": 0,
+          "script": "test_orchestration.py",
+          "tests": 4
+        },
+        {
+          "returncode": 0,
+          "script": "test_qualification.py",
+          "tests": 7
+        },
+        {
+          "returncode": 0,
+          "script": "test_resources.py",
+          "tests": 3
+        },
+        {
+          "returncode": 0,
+          "script": "test_six.py",
+          "tests": 7
+        },
+        {
+          "returncode": 0,
+          "script": "test_source.py",
+          "tests": 6
+        },
+        {
+          "returncode": 0,
+          "script": "test_transfer.py",
+          "tests": 9
+        }
+      ],
+      "python": "3.12.13",
+      "status": "PASS",
+      "tests": 77
+    },
+    {
+      "controls": [
+        {
+          "returncode": 0,
+          "script": "test_actor_binding.py",
+          "tests": 2
+        },
+        {
+          "returncode": 0,
+          "script": "test_admission.py",
+          "tests": 8
+        },
+        {
+          "returncode": 0,
+          "script": "test_binding.py",
+          "tests": 7
+        },
+        {
+          "returncode": 0,
+          "script": "test_bootstrap.py",
+          "tests": 10
+        },
+        {
+          "returncode": 0,
+          "script": "test_caps.py",
+          "tests": 3
+        },
+        {
+          "returncode": 0,
+          "script": "test_materials.py",
+          "tests": 11
+        },
+        {
+          "returncode": 0,
+          "script": "test_orchestration.py",
+          "tests": 4
+        },
+        {
+          "returncode": 0,
+          "script": "test_qualification.py",
+          "tests": 7
+        },
+        {
+          "returncode": 0,
+          "script": "test_resources.py",
+          "tests": 3
+        },
+        {
+          "returncode": 0,
+          "script": "test_six.py",
+          "tests": 7
+        },
+        {
+          "returncode": 0,
+          "script": "test_source.py",
+          "tests": 6
+        },
+        {
+          "returncode": 0,
+          "script": "test_transfer.py",
+          "tests": 9
+        }
+      ],
+      "python": "3.14.6",
+      "status": "PASS",
+      "tests": 77
+    }
+  ],
+  "roles": {
+    "GET": "NOT_RUN",
+    "Reader": "NOT_RUN",
+    "actor": "NOT_RUN",
+    "compiler": "NOT_RUN",
+    "container": "NOT_RUN",
+    "dispatch": "NOT_RUN",
+    "lease": "NOT_RUN",
+    "native_job": "NOT_RUN",
+    "publication": "NOT_RUN",
+    "stage0_execution": "NOT_RUN"
+  },
+  "schema": 4,
+  "source": {
+    "bytes": 41419617,
+    "files": 298,
+    "map_sha256": "233a863c73b1ef051fae047a16486a86a7efaffadc8d06d2bcf034e22f7c831e",
+    "tree": "b85b1c6f22a378c1518bfffb25330c509666b57a"
+  },
+  "source_guard": {
+    "forbidden_role_events": [],
+    "reason": "Source checkpoint pending: corrected LLVM/Reader static rejoin required before any role",
+    "status": "REFUSED_BEFORE_ROLE"
+  },
+  "status": "PASS_LOCAL_DATA_CHECKPOINT_ONLY",
+  "whole_inverse_286": true
+}
