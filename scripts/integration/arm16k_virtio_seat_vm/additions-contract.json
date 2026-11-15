@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "kind": "ARM16K_VIRTIO_SEAT_ADDITIONS_CONTRACT_V1",
+  "consumer_kind": "ARM16K_VIRTIO_SEAT_ADDITIONS_V1",
+  "required_status": "ROOT_REVIEWED_COMPLETE_MINIMAL_SEAT_CLOSURE",
+  "required_issued_by": "Root",
+  "note": "Contract DATA only, not an admitted manifest. Missing values and unreviewed/proposal status refuse before raw/actor. Root independently joins archive audit, original111 baseline namespace and actual ALPM metadata preparation.",
+  "manifest_fields": {
+    "kind": "ARM16K_VIRTIO_SEAT_ADDITIONS_V1",
+    "status": "ROOT_REVIEWED_COMPLETE_MINIMAL_SEAT_CLOSURE",
+    "issued_by": "Root",
+    "baseline_prepared": {"bytes": 58179, "sha256": "f7b3073f58acce8ab5e21ff61f2182779d24046e1582cda6adb0a3db66b7036e"},
+    "archives": "object keyed package name; sorted key iteration; exactly the proposed minimal additions, no111 replacement",
+    "keyring": {"filename": "archlinuxarm.gpg", "pin": "{bytes,sha256} of retained original PUBLIC binary keyring"},
+    "baseline_metadata": "object keyed exact111 name; row {version,directory,provides:[expressions],files:[relative package-owned paths]}",
+    "baseline_metadata_provenance": "nonempty object with exact prepared/raw/rootfs-index/selection pins and original signed ownership/provides association method",
+    "metadata_prepare": "unchanged actual proposal.metadata_prepare object (libalpm16.0.1 PASS,111 protected, no errors/removals/questions/conflicts); includes dependencies rows {package,provider,relation}",
+    "original_file_pins": "absolute baseline path -> SHA256; required four PAM files, stock71-seat.rules and every required namespace leaf supplied by baseline",
+    "required_namespace": "relative guest path -> {owner:package,payload:<actual package payload record>}"
+  },
+  "archive_row": {
+    "filename": "original NAME-VERSION-ARCH.pkg.tar.xz (no path components)",
+    "archive": "{bytes,sha256}",
+    "signature": "{bytes,sha256} for filename+'.sig'",
+    "expected_signer": "40 uppercase hex actual original VALIDSIG primary signing fingerprint",
+    "version": "exact PKGINFO pkgver",
+    "official_repository": true,
+    "source_provenance": "nonempty original catalog/source/audit association object; never self-created approval",
+    "metadata": "FULL actual .PKGINFO multimap string->list[string]; preserves field/dependency order, metadata must equal independent archive parse"
+  },
+  "payload_record": {
+    "type": "tar type as ASCII string (regular '0', symlink '2')",
+    "mode": "integer permission bits",
+    "uid": "integer",
+    "gid": "integer",
+    "bytes": "integer",
+    "sha256": "hex for regular files, null for links/directories",
+    "link": "original linkname, empty string for regular files",
+    "ELF": "include exact elf_geometry projection for ELF leaves: machine:aarch64, LOAD records or relocatable fields. Existing package_data.py constructs this projection; it never executes an ELF."
+  },
+  "required_namespace": {
+    "usr/bin/python3": "owner python (may be original symlink payload record)",
+    "usr/bin/pkaction": "owner polkit",
+    "usr/share/polkit-1/actions/org.freedesktop.NetworkManager.policy": "owner networkmanager, ordinary regular file SHA2566002ee5e8fcf3cfdd25fa5425c5dfa879dc293f8b1c69f14b4a8f9259be0b446",
+    "usr/lib/python3.14/site-packages/gi/__init__.py": "actual addition owner python-gobject",
+    "usr/lib/girepository-1.0/Gio-2.0.typelib": "actual regular provider, baseline allowed with baseline owned-files+hash association",
+    "usr/lib/girepository-1.0/GLib-2.0.typelib": "actual regular provider, baseline allowed with baseline owned-files+hash association"
+  },
+  "required_original_file_pins": [
+    "/etc/pam.d/login",
+    "/etc/pam.d/system-login",
+    "/etc/pam.d/system-local-login",
+    "/etc/pam.d/system-auth",
+    "/usr/lib/udev/rules.d/71-seat.rules"
+  ],
+  "actual_additions_manifest": null,
+  "actual_Root_authority": null
+}

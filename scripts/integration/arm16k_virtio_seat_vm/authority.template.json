@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "kind": "ARM16K_VIRTIO_SEAT_VM_AUTHORITY_V1",
+  "issued_by": "PENDING_NOT_ROOT_AUTHORITY",
+  "operation": "arm16k-virtio-seat-vm-v1",
+  "allow_prepare": false,
+  "allow_boot": false,
+  "source_lock": null,
+  "actor": null,
+  "kernel_bundle": null,
+  "additions_manifest": null,
+  "qemu_metadata": null,
+  "tool_image_id": "sha256:ee1aa3da22a5d89dc1bc273fa818b1d996b7e62851f50d7b629144f6bba9f207",
+  "resource_review": null
+}

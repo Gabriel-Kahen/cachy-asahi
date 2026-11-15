@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "kind": "ROOT_OBSERVED_ARM_QEMU_DEVICE_HELP_V1",
+  "issued_by": "PENDING_NOT_ROOT_AUTHORITY",
+  "status": "NOT_RUN",
+  "image_id": "sha256:ee1aa3da22a5d89dc1bc273fa818b1d996b7e62851f50d7b629144f6bba9f207",
+  "qemu_path": "/usr/bin/qemu-system-aarch64",
+  "devices": ["virtio-blk-device", "virtio-keyboard-device", "virtio-gpu-device"],
+  "actual_tool_pin": null,
+  "actual_help_pin": null,
+  "actual_observed_utc": null
+}
