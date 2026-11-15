@@ -1,0 +1,90 @@
+{
+  "filesystem_helper_sha256": "7c7b8ce846603d76da1db7de58573fa76642871aae7082fa36b32a54856585d7",
+  "frozen_source": "25dc signed349 Source designated by Root; no prior actual role invocation reused",
+  "frozen_source_map_sha256": "4b1de3aade5116206318570d1d44ee1063342faeab54935748b1b7c179a99e96",
+  "reused_files": {
+    "helpers/owned_child.py": {
+      "replacements": [
+        {
+          "after": "0<timeout<=14400",
+          "before": "0<timeout<=3600",
+          "count": 1
+        },
+        {
+          "after": "4*1024**3",
+          "before": "512*1024**2",
+          "count": 1
+        }
+      ],
+      "source": "perl/helpers/owned_child.py",
+      "source_sha256": "eaf9a46630e4fe4ca0a8f94a6dc2de4a881a6ad7e8b4dd0810b3347c0d7038d5"
+    },
+    "hosted/bootstrap.py": {
+      "replacements": [
+        {
+          "after": "llvm23-hosted",
+          "before": "perl-hosted",
+          "count": 1
+        },
+        {
+          "after": "hosted-llvm23",
+          "before": "hosted-perl",
+          "count": 1
+        },
+        {
+          "after": "llvm23-native-base",
+          "before": "perl-native-base",
+          "count": 1
+        },
+        {
+          "after": "llvm23-bootstrap-inventory",
+          "before": "perl-bootstrap-inventory",
+          "count": 2
+        }
+      ],
+      "source": "hosted/bootstrap.py",
+      "source_sha256": "34b3b0742587af63b1762aa2dcaf9e2e3446be9b6851b865784654c4cd6d26cd"
+    },
+    "hosted/common.py": {
+      "replacements": [
+        {
+          "after": "COMPONENT_MAP='__CANDIDATE_MAP_SHA__'",
+          "before": "COMPONENT_MAP='3f238d649cb649ba2aff45e7930e49b28e3a7d8891860a1a17ead850719d5dee'",
+          "count": 1
+        },
+        {
+          "after": "native-arm-llvm23-source-reference-v1.yml",
+          "before": "native-arm-perl5423-v2.yml",
+          "count": 1
+        },
+        {
+          "after": "llvm23-source-reference-native-v1",
+          "before": "perl5423-native-pair-v2",
+          "count": 1
+        },
+        {
+          "after": "root/'candidate-map.json'",
+          "before": "root/'perl/source-map.json'",
+          "count": 1
+        },
+        {
+          "after": "exact LLVM candidate snapshot",
+          "before": "held exact Perl v2 component",
+          "count": 1
+        },
+        {
+          "after": "LLVM23_OPERATION",
+          "before": "PERL_OPERATION",
+          "count": 1
+        },
+        {
+          "after": "llvm23-hosted",
+          "before": "perl-hosted",
+          "count": 1
+        }
+      ],
+      "source": "hosted/common.py",
+      "source_sha256": "776122710442ba1541cd4d7a7d8472ad01c295d523b28282a04e7c8298286b79"
+    }
+  }
+}
