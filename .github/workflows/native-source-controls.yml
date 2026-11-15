@@ -174,8 +174,15 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v2/test_producer.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v3/test_admission.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v3/test_source.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_rust_stage0_vm/test_budget.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_rust_stage0_vm/test_controls.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_rust_stage0_vm/test_dynamic_inputs.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_rust_stage0_vm/test_guest_link.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_rust_stage0_vm/test_home_guard.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_rust_stage0_vm/test_image.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_rust_stage0_vm/test_lzma_memory.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_rust_stage0_vm/test_memory.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_rust_stage0_vm/test_passive_namespace.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_rust_stage0_vm/test_runtime.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_rust_stage0_vm/test_stage0.py
       - name: Check current capability adapters and GUI frame DATA
