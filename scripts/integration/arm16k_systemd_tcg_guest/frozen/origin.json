@@ -1,0 +1,26 @@
+{
+  "command_runtime.py": {
+    "bytes": 8091,
+    "sha256": "253494be99c21c83743b384b2c06cd1627023ffaf54f0cbbd271bde80572f70a",
+    "source_commit": "e5bee33395fe2c96d3506af33e5f918d2752b8d2",
+    "source_path": "scripts/port/fdk-native-stage/runtime.py"
+  },
+  "owned_process.py": {
+    "bytes": 25140,
+    "sha256": "83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f",
+    "source_commit": "f7aaff34f5099948d29e805ae8c529602c77a03b",
+    "source_path": "scripts/virtual/owned_process.py"
+  },
+  "record_tool_inputs.py": {
+    "bytes": 1665,
+    "sha256": "227d29b87b13d4e914f900ea7509b20319cf573682897e701ee2ebab4d714bf4",
+    "source_commit": "f7aaff34f5099948d29e805ae8c529602c77a03b",
+    "source_path": "scripts/integration/systemd_tcg_guest/record_inputs.py"
+  },
+  "reference_controller.py": {
+    "bytes": 14117,
+    "sha256": "e7c8935f342d4b36bb6f8f24c0b48c3b8aa04be9807f62c3f8141aeaf26819fc",
+    "source_commit": "f7aaff34f5099948d29e805ae8c529602c77a03b",
+    "source_path": "scripts/integration/systemd_tcg_guest/boot.py"
+  }
+}
