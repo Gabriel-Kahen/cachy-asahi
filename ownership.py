@@ -102,6 +102,10 @@ def resolve(root,guest):
     raise ValueError('guest link bound')
 
 
+def link_candidates(name):
+    return ('/usr/lib/libgcc_s.so.1',) if name=='gcc_s' else ('/usr/lib/lib'+name+'.so','/usr/lib/lib'+name+'.a')
+
+
 def qualify(root,certificate,owned):
     result = {}
     for name,row in certificate['files'].items():
@@ -111,9 +115,10 @@ def qualify(root,certificate,owned):
         need(row['owner'] in owned.get(key,owned.get(final,{})).get('owners',[]), 'actual ALPM file ownership differs')
         result[name] = row
     for name,path in certificate['link_inputs'].items():
-        candidates = ['/usr/lib/lib'+name+'.so','/usr/lib/lib'+name+'.a']
+        candidates = link_candidates(name)
         chosen = next((n for n in candidates if os.path.lexists(root/n.lstrip('/'))),None)
         need(chosen == path,'actual direct GNU ld search choice differs')
+        if name=='gcc_s':need(path in result,'dynamic libgcc payload must pass byte/link/owner qualification')
     return result
 
 
@@ -143,8 +148,9 @@ def qualify_nodes(certificate,owned,nodes):
         key=name.lstrip('/');final=resolved.lstrip('/')
         need(row['owner'] in owned.get(key,owned.get(final,{})).get('owners',[]),'actual ALPM file ownership differs');result[name]=row
     for name,path in certificate['link_inputs'].items():
-        chosen=next((n for n in ('/usr/lib/lib'+name+'.so','/usr/lib/lib'+name+'.a') if n.lstrip('/') in nodes),None)
+        chosen=next((n for n in link_candidates(name) if n.lstrip('/') in nodes),None)
         need(chosen==path,'actual direct GNU ld search choice differs')
+        if name=='gcc_s':need(path in result,'dynamic libgcc payload must pass byte/link/owner qualification')
     return result
 
 

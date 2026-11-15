@@ -52,7 +52,7 @@ def main():
     raw=A/'guest.raw';cmd('sparse-clone',['cp','--sparse=always','--reflink=never','/base/guest.raw',str(raw)],180)
     prefix=W/'prefix';spec=K.load(HERE/'data/stage0.json');model=S.assemble(Path('/materials'),prefix,HERE/'data',spec,guard=guard)
     fixture=prefix/'fixture';fixture.mkdir(mode=0o755);fixture.chmod(0o755)
-    for name in ('check.sh','Cargo.toml','Cargo.lock','main.rs'):shutil.copy2(HERE/'guest'/name,fixture/name);(fixture/name).chmod(0o755 if name=='check.sh' else 0o644)
+    for name in ('check.sh','link-stage0.sh','Cargo.toml','Cargo.lock','main.rs'):shutil.copy2(HERE/'guest'/name,fixture/name);(fixture/name).chmod(0o755 if name in ('check.sh','link-stage0.sh') else 0o644)
     shutil.copy2(HERE/'frozen/rtc-clock.sh',fixture/'rtc-clock.sh');(fixture/'rtc-clock.sh').chmod(0o644)
     shutil.copy2(HERE/'data/expected111.lock',fixture/'expected111.lock');(fixture/'expected111.lock').chmod(0o644)
     readable = O.readable(owned,nodes)

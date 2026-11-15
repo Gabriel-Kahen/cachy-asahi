@@ -3,7 +3,9 @@
     "VM_boot": null,
     "attempt": null,
     "authority": null,
+    "certificate": null,
     "prepared": null,
+    "publication": null,
     "ref": null,
     "source": null,
     "tree": null
@@ -11,44 +13,33 @@
   "address_space_limit_bytes": 134217728,
   "bash_syntax": {
     "frozen/rtc-clock.sh": "PASS",
-    "guest/check.sh": "PASS"
+    "guest/check.sh": "PASS",
+    "guest/link-stage0.sh": "PASS"
   },
   "date": "2026-11-15",
   "kind": "ARM16K_RUST_STAGE0_FENCED_CONTROLS_V1",
   "not_run": [
-    "actual archive reads or extraction",
-    "Source constructor",
-    "Root authority or guest-input certification",
+    "actual official archives or extraction",
+    "construct.py entry",
+    "Root authority/guest-input certification/publication",
     "prepare/boot actor",
-    "container daemon or lease",
+    "Docker/container daemon/canonical lease",
+    "debugfs/ALPM/GPG/Reader",
     "network",
-    "Perl/rustc/cargo/linker",
+    "rustc/cargo/ld",
     "native16K/M2 hardware",
-    "performance",
-    "release admission",
-    "actual cgroup diagnostics",
-    "actual quota query or change",
-    "external Root whole-actor quota monitor",
-    "complete actual baseline or prepared-image inventory"
+    "performance or release admission",
+    "actual quota/cgroup operations",
+    "complete actual baseline/prepared readback"
   ],
   "passive_JSON": "PASS",
-  "passive_baseline_observation": {
-    "allocated_bytes": 617082880,
-    "block_bytes": 4096,
-    "bytes_read": 1024,
-    "incompat": "0x22c2",
-    "inode_bytes": 256,
-    "logical_bytes": 1610612736,
-    "rocompat": "0x46b",
-    "scope": "FIXED_SUPERBLOCK_AND_STAT_ONLY"
-  },
   "passive_python_syntax": "PASS",
   "schema": 1,
   "status": "PASS_FENCED_CONTROLS_ONLY",
   "unittest": {
-    "command": "PYTHONDONTWRITEBYTECODE=1 python3 -B -m unittest discover -s scripts/integration/arm16k_rust_stage0_vm -v",
+    "command": "python3 -I -B -m unittest discover -s source-tree -v",
     "failed": 0,
-    "passed": 59,
-    "scope": "tiny synthetic archives/DATA/cgroup trees, mocked ext4 inventory, nonce frames/mocked children; no operational child spawn"
+    "passed": 72,
+    "scope": "Original59 plus7 dynamic-input DATA/refusal controls and6 finite Bash argv/receipt controls; real Bash only, no actual compiler/linker or operational entry"
   }
 }

@@ -86,3 +86,51 @@ bash -n guest/check.sh
 These controls never invoke Root operational entry points or actual compiler,
 linker, archive payloads, container daemon, VM or network. No build/boot claim
 follows from their passing.
+
+## Proposed direct dynamic libgcc selection successor
+
+This unbuilt successor requires a new Root certificate kind
+ARM16K_RUST_STAGE0_BASE111_DYNAMIC_GCC_INPUTS_V2. Its gcc_s input is exactly
+/usr/lib/libgcc_s.so.1, already among the fixed required runtime paths. The
+other six direct-ld library searches and their independent closure checks remain
+required. The resulting path union has39 rows (33 fixed plus6 distinct selected
+paths), rather than Source65's40. Source65 and its failed r6 evidence are retained.
+
+The r6 retained 132-byte libgcc_s.so script contains
+GROUP ( libgcc_s.so.1 -lgcc ). The retained .so.1 is a133352-byte AArch64 ELF,
+SHA256 ac598673a4bf67c0295b6609e46b1fafd0d4adf3f80a513d61ac49ecff772e48,
+owned by libgcc16.1.1+r12+g301eb08fa2c5-1. These are expected future input pins,
+not a Root-issued certificate or completed guest/closure qualification.
+
+Both rustc and Cargo select fixture/link-stage0.sh with unchanged ld flavor.
+This fixed Bash adapter replaces exactly one dynamic -lgcc_s token with the
+absolute ELF path before one exec of /usr/bin/ld. It preserves other argument
+bytes/order, refuses a missing/duplicate selection, static gcc operands, static
+gcc_s context and response files, and limits argv to512 entries/131072 bytes.
+Appending .so.1 alone would leave the original script selection possible.
+
+This deliberately bypasses the script's static libgcc contribution. If the
+fixture needs symbols unavailable from .so.1/Rust's existing compiler builtins,
+the future link must fail and remain HOLD; no library, dependency or compiler
+is installed and no failed symbol is silently ignored. The command/data tests
+do not establish that the real Rust fixture will link or run.
+
+Official stage0 archives are reused by path and pin without copying payloads.
+PAM login, builder identity, original nonce/marker, ordinary-user direct and
+offline Cargo thread/arithmetic/file probes,16K checks, full111 preservation,
+clock protocol, all resource budgets and frozen helpers are unchanged. Root
+must independently review/publish this Source, obtain a fresh complete39-row
+certificate plus ELF/remaining-script/archive closure, then authorize any run.
+All future actual Root publication/certificate/authority/VM fields remainNULL.
+
+Each real linker invocation must create a fresh private direct-ld.receipt or
+cargo-ld.receipt (mode0600, no overwrite). It records original/replaced argv
+with Bash %q quoting, counts and fixed /usr/bin/ld operand before exec. Bounded
+refused vectors also get a REFUSED_BEFORE_EXEC receipt with original argv and
+zero executed/replacement arguments, so unexpected static defaults stay visible. Receipt
+size is capped at65536 bytes each. finish emits both nonce/phase-delimited
+receipts outside the unchanged Rust result frame into the retained serial log,
+including any available receipt on failure. Missing receipts forceFAIL. Their
+pre-exec status never asserts a successful link. Root must treat quoted argv
+as DATA, never eval it. No frozen serial/parser limit is increased. The wrapper
+uses the existing certificate-required /usr/bin/bash, not guest Python.

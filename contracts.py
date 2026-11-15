@@ -18,6 +18,9 @@ GIB = 1024**3
 END = None
 RESOURCES = dict(guest_cpus=2,guest_memory_bytes=2*GIB,owner_cpus=2,owner_memory_bytes=3*GIB,boot_owner_memory_bytes=4*GIB,owner_swap_bytes=0,pids=256,raw_cap_bytes=3*GIB,prepare_allocated_cap=2*GIB,boot_allocated_cap=2560*1024**2,overlay_cap_bytes=GIB,base_raw_allocated_cap=640*1024**2,prefix_allocated_cap=512*1024**2,extended_raw_allocated_cap=1280*1024**2,output_metadata_allocated_cap=128*1024**2,reserve_bytes=2*GIB,host_memory_reserve_bytes=2*GIB,prepare_seconds=600,boot_seconds=600,work_seconds=555,cleanup_seconds=45)
 TOOLS = ('bash','uname','id','getconf','pacman','sort','sha256sum','readlink','cat','mkdir','grep','head','sed','stat','timeout','env','date','sleep','sync','cp','rm','ld')
+GUEST_INPUT_KIND = 'ARM16K_RUST_STAGE0_BASE111_DYNAMIC_GCC_INPUTS_V2'
+GCC_S_PATH = '/usr/lib/libgcc_s.so.1'
+GCC_S_PIN = dict(bytes=133352,sha256='ac598673a4bf67c0295b6609e46b1fafd0d4adf3f80a513d61ac49ecff772e48',owner='libgcc',version='16.1.1+r12+g301eb08fa2c5-1',resolved=GCC_S_PATH)
 REQUIRED_PATHS = ['/usr/bin/'+name for name in TOOLS]+['/usr/lib/Scrt1.o','/usr/lib/crti.o','/usr/lib/crtn.o','/lib/ld-linux-aarch64.so.1','/usr/lib/libc.so.6','/usr/lib/libdl.so.2','/usr/lib/libgcc_s.so.1','/usr/lib/libm.so.6','/usr/lib/libpthread.so.0','/usr/lib/librt.so.1','/usr/lib/libz.so.1']
 
 
@@ -134,12 +137,13 @@ def materials(directory,a):
 
 def guest_inputs(path,a,base):
     checked(path,a['guest_inputs']);g = load(path)
-    need(g['kind'] == 'ARM16K_RUST_STAGE0_BASE111_INPUTS_V1' and g['issued_by'] == 'Root' and g['status'] == 'ROOT_REVIEWED_READONLY_BASE111_INPUTS' and g['base_raw'] == base['files']['guest.raw'] and g['expected111'] == pin(HERE/'data/expected111.lock'), 'Root readonly guest input inspection required before actor/clone')
+    need(g['kind'] == GUEST_INPUT_KIND and g['issued_by'] == 'Root' and g['status'] == 'ROOT_REVIEWED_READONLY_BASE111_INPUTS' and g['base_raw'] == base['files']['guest.raw'] and g['expected111'] == pin(HERE/'data/expected111.lock'), 'Root readonly dynamic-gcc guest input inspection required before actor/clone')
     need(set(g['link_inputs']) == {'gcc_s','util','rt','pthread','m','dl','c'}, 'finite direct-ld library inputs incomplete')
     required = set(REQUIRED_PATHS)|set(g['link_inputs'].values())
     need(set(g['files']) == required, 'complete explicit linker/CRT/loader/tool file binding required')
     versions = {r['name']:r['version'] for r in base['base_packages']}
-    for name,chosen in g['link_inputs'].items():need(chosen in ('/usr/lib/lib'+name+'.so','/usr/lib/lib'+name+'.a'), 'direct GNU ld search selection differs')
+    for name,chosen in g['link_inputs'].items():need(chosen in ((GCC_S_PATH,) if name=='gcc_s' else ('/usr/lib/lib'+name+'.so','/usr/lib/lib'+name+'.a')), 'direct GNU ld search selection differs')
+    need(g['files'][GCC_S_PATH] == GCC_S_PIN,'exact retained dynamic libgcc payload/owner/version pin required')
     for path,row in g['files'].items():
         need(path.startswith('/') and '..' not in Path(path).parts and set(row) == {'bytes','sha256','owner','version','resolved'} and type(row['bytes']) is int and row['bytes'] > 0 and re.fullmatch('[0-9a-f]{64}',row['sha256'] or '') and row['owner'] in versions and row['version'] == versions[row['owner']] and row['resolved'].startswith('/usr/'), 'genuine complete base111 file/owner pins required')
     return g
