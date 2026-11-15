@@ -1,0 +1,79 @@
+{
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "image": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "ci_routing": "ci-routing.json",
+  "constructor_profile_sha256": "1702cde18560918351c2ac4edce176ee6fffffb5f326a7169a871a644220c0a2",
+  "controls_per_version": 17,
+  "cross_version_source_equal": true,
+  "full_279_parent_inverse": true,
+  "llvm": {
+    "bytes": 40807998,
+    "files": 251,
+    "map_sha256": "809f57839dfd574b7abf0c65535321aeac08c58608d4f9597f936a7af78fb3a2",
+    "operation": "llvm23-source-reference-native-v2",
+    "profile_sha256": "587145a6935726e7efe898963f126da1fe399dbde157930f83a1826e5e513e4b",
+    "ref": "refs/heads/codex/llvm23-source-reference-native-v2-20261115",
+    "sha": "6d0243dc8f5cf4ee5b9316b8c804f14a3236ecb0",
+    "tree": "87f5aa3537474c2dd33a02c50e869ea5fb25e7b4"
+  },
+  "llvm_runtime": {
+    "job": null,
+    "original": null,
+    "package": null,
+    "reader": null,
+    "root_acceptance": null,
+    "run": null
+  },
+  "not_run": [
+    "LLVM_Reader",
+    "Root_operational_role",
+    "worker_actor",
+    "stage0",
+    "compiler",
+    "candidate_import",
+    "daemon",
+    "network",
+    "lease",
+    "native_job",
+    "installation",
+    "hardware",
+    "performance",
+    "release"
+  ],
+  "null_template_refuses_without_external_reads": true,
+  "portable_suites": {
+    "admission": 10,
+    "source": 7
+  },
+  "previous_277_and_279_profiles_unchanged": true,
+  "published_llvm_251_source_capture": "PASS_COMPLETE_BYTES_MODES_MEMBERSHIP_TREE_MAP",
+  "remaining": [
+    "actual_v2_run_job_Original_package_Reader_Root_acceptance",
+    "normal_Rust_image_stage0_qualification",
+    "finite_external_material_transport",
+    "future_exact_Rust_Source_ref_run_job_admission"
+  ],
+  "revision": 3,
+  "schema": 1,
+  "separate_processes_required": true,
+  "source_bytes": 41158325,
+  "source_files": 286,
+  "source_map_sha256": "6169aa50524527f00b4829bf34b882a5abb2912bbc1eabe5562ddc76f20509cd",
+  "source_output": "/tmp/rust199-native-source-DATA-20261115-llvm-v2-r3/source-tree",
+  "source_output_312": "/tmp/rust199-native-source-DATA-20261115-llvm-v2-r3/source-tree-312",
+  "source_tree": "9baf15a44fd60792299d2260d7c0d0473319b31e",
+  "status": "PASS_DATA_ONLY_NO_OPERATIONAL_ROLES",
+  "versions": {
+    "3.12.13": "PASS",
+    "3.14.6": "PASS"
+  },
+  "whitespace_check": "PASS_STAGED_DIFF",
+  "whole_source_gate": "PASS_DATA_ONLY"
+}

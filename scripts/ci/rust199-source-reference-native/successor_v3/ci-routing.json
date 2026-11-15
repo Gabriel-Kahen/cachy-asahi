@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "owner": "CI worker through Root coordinator",
+  "kind": "DEDICATED_DATA_CONTROLS_ONLY",
+  "isolation": "ONE_PYTHON_PROCESS_PER_SCRIPT",
+  "runtimes": ["3.12", "3.14"],
+  "base_test_changes": [],
+  "shared_ci_files_changed": [],
+  "relax_permanent_audit_fence": false,
+  "commands": [
+    "python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v3/test_admission.py",
+    "python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v3/test_source.py"
+  ],
+  "notes": [
+    "Admission controls install a permanent audit fence; do not import constructor tests into that process.",
+    "Portable commands require only the committed subtree, not local temporary Source outputs.",
+    "Whole 279/251 Source closure and inverse are additional local DATA constructor checks recorded in validation.json.",
+    "No Reader invocation, Root operational role, package/stage0 execution, daemon, network or lease is authorized by these controls."
+  ]
+}
