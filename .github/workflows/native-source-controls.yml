@@ -433,6 +433,37 @@ jobs:
           test "$(git -C .xs-v6-data-repository rev-parse HEAD^{tree})" = 23eb609e638450cab16e13666c433cca198520b6
           git -C .xs-v6-data-repository -c tar.umask=0022 archive --format=tar HEAD | tar -xf - -C "$xs_source"
           python3 -I -B -Werror::ResourceWarning scripts/port/perl-xs-native-independent-reader/v6/test_v6.py --v6-source "$xs_source"
+      - name: Check portable XS v7 Source controls and construct exact XS326 DATA
+        if: matrix.python == '3.14'
+        run: |
+          python3 -I -B -Werror::ResourceWarning - <<'PY'
+          import hashlib, importlib.util, os, unittest
+          from pathlib import Path
+          root = Path('scripts/ci/perl5423-native-xs-v7')
+          spec = importlib.util.spec_from_file_location('xs_v7_ci_source_controls', root / 'test_source.py')
+          controls = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(controls)
+          controls.PARENT = Path(os.environ['RUNNER_TEMP']) / 'xs-v6-source-DATA'
+          assert controls.PARENT.is_dir()
+          # These two tests replay Root's undistributed failed Original; no substitute fixture.
+          private = {'test_actual_path_object_failure_reproduced_before_sandbox_or_work',
+                     'test_string_argument_passes_strict_external_paths_only_until_fenced_sandbox'}
+          names = unittest.defaultTestLoader.getTestCaseNames(controls.Controls)
+          assert len(names) == 13 and private <= set(names)
+          suite = unittest.TestSuite(controls.Controls(name) for name in names if name not in private)
+          result = unittest.TextTestRunner(verbosity=2).run(suite)
+          assert result.wasSuccessful() and result.testsRun == 11 and not result.skipped
+          digest = hashlib.sha256((root / 'profile.json').read_bytes()).hexdigest()
+          output = Path(os.environ['RUNNER_TEMP']) / 'xs-v7-source-DATA'
+          frame = controls.P.construct(controls.PARENT, digest, output)
+          assert frame['files'] == 326 and frame['bytes'] == 88117546
+          assert frame['map'] == {'bytes': 63172, 'sha256': '89493dbeeb686f9606c03337aa6a824a756bc312cdc7b1e3a0e7ce96827cd43d'}
+          assert frame['prospective_tree'] == 'cb3684c7583c499f4f90f759314c7e03b9a0d428'
+          PY
+      - name: Check all forty-two independent XS326 Reader7 DATA controls
+        if: matrix.python == '3.14'
+        run: |
+          python3 -I -B -Werror::ResourceWarning scripts/port/perl-xs-native-independent-reader/v7/test_v7.py --v7-source "${RUNNER_TEMP}/xs-v7-source-DATA"
       - name: Check out immutable installed252 Source as DATA
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
