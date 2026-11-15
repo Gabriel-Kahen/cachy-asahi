@@ -352,6 +352,7 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/port/perl5423-xs-consumer/test_preflight.py
           python3 -I -B -Werror::ResourceWarning scripts/port/perl5423-xs-consumer/runner/test_runner.py
           python3 -I -B -Werror::ResourceWarning scripts/port/arm16k-first-login-ui-inputs/seat_proposals/test_proposals.py
+          python3 -I -B -Werror::ResourceWarning scripts/port/arm16k-first-login-ui-inputs/baseline_namespace/test_audit.py
           python3 -I -B -Werror::ResourceWarning scripts/port/arm16k-first-login-ui-inputs/current_xvfb/test_current.py
           python3 -I -B -Werror::ResourceWarning packages/port/rust199-source-reference/test_reference.py
           bash -n packages/port/rust199-source-reference/PKGBUILD
