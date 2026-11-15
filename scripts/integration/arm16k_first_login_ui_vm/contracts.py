@@ -17,7 +17,7 @@ def checked(path,ref):
 def read(path,maximum=8*1024**2):
  p=Path(path);assert p.is_file()and not p.is_symlink()and p.stat().st_size<=maximum;return json.loads(p.read_text())
 def references():
- refs=read(HERE/'references.json');arm=ROOT/refs['arm_source']['path'];checked(arm/'source.lock.json',refs['arm_source']['source_lock']);checked(arm/'contracts.py',refs['arm_source']['contracts']);A=load('UI_ARM_lower_contracts',arm/'contracts.py');A.source()
+ refs=read(HERE/'references.json');arm=ROOT/refs['arm_source']['path'];checked(arm/'source.lock.json',refs['arm_source']['source_lock']);checked(arm/'contracts.py',refs['arm_source']['contracts']);A=load('UI_ARM_lower_contracts',arm/'contracts.py');A.source();local_input=refs['arm_source']['local_input'];checked(arm/local_input['filename'],{k:local_input[k]for k in ['bytes','sha256']})
  x86=ROOT/refs['x86_source']['path']
  for n,r in refs['x86_source']['files'].items():checked(x86/n,r)
  for key in ['owned_process','elf_parser','public_packets','public_packets_dependency']:refs[key]['path']=str(ROOT/refs[key]['path'])

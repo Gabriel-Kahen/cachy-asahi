@@ -4,11 +4,16 @@
       "bytes": 16099,
       "sha256": "c01beae63007a758d233a01df5d8721baeefee2c6d34294cfe76deedbd76c627"
     },
+    "local_input": {
+      "bytes": 9745,
+      "filename": "input_seat.py",
+      "sha256": "08942504d90019d2f4f5433a74b9ab43f4c1d74c1c048a836c333c734e6b192b"
+    },
     "path": "scripts/integration/arm16k_virtio_seat_vm",
-    "source_commit": "c4bfcf259c36c1c28014ddcb9c421e909afff1d8",
+    "source_commit": "9fb4a0e81d5a416b46bfe97c4780b6ecd944452a",
     "source_lock": {
-      "bytes": 18205,
-      "sha256": "f96529f865ca46ee3ab10aad7469b575e8f9e32fcbaa81024d4792958e0f4bdc"
+      "bytes": 18617,
+      "sha256": "799eaf543f247b6b08360a3e2c7d8612b4aba6411d452e5aebaa69e9a4a8d107"
     }
   },
   "elf_parser": {

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 """Modeled Source/refusal controls only. No Gtk, guest, image or actor is run."""
-import argparse,copy,hashlib,importlib.util,io,json,os,re,shutil,subprocess,sys,tarfile,tempfile,unittest
+import argparse,copy,hashlib,importlib.util,io,json,os,re,shutil,subprocess,sys,tarfile,tempfile,types,unittest
 from pathlib import Path
 from unittest.mock import patch
 HERE=Path(__file__).resolve().parent
@@ -45,7 +45,22 @@ class Controls(unittest.TestCase):
  def test_actual_metadata_is_distinct_283_proposal(self):
   d=json.loads((HERE/'actual-data.json').read_text());p=d['composition'];self.assertEqual((p['baseline'],p['additions'],p['final']),(111,172,283));self.assertEqual(p['archive_bytes'],157094632);self.assertEqual(p['root_change']['after'],'21.1.26-1');self.assertEqual(p['metadata_status'],'PASS_EXPLICIT_FINITE_METADATA_PREPARE');self.assertIsNone(d['actual_VM']);self.assertIsNone(d['actual_tool_image'])
  def test_finite_ARM_argv_has_no_PC_or_host_network_fallback(self):
-  argv=A.qemu_argv(N,1794700000);self.assertEqual(argv[argv.index('-machine')+1],'virt');self.assertEqual(argv[argv.index('-nic')+1],'none');self.assertEqual(argv[argv.index('-m')+1],'2048');self.assertNotIn('-enable-kvm',argv);self.assertEqual([argv[i+1]for i,v in enumerate(argv)if v=='-device'],['virtio-blk-device,drive=refdisk','virtio-keyboard-device','virtio-gpu-device']);self.assertIn('arm16k_virtio_seat_nonce='+N,argv[argv.index('-append')+1])
+  argv=A.qemu_argv(N,1794700000);self.assertEqual(argv[argv.index('-machine')+1],'virt');self.assertEqual(argv[argv.index('-global')+1],'virtio-mmio.force-legacy=false');self.assertEqual(argv[argv.index('-nic')+1],'none');self.assertEqual(argv[argv.index('-m')+1],'2048');self.assertNotIn('-enable-kvm',argv);self.assertEqual([argv[i+1]for i,v in enumerate(argv)if v=='-device'],['virtio-blk-device,drive=refdisk','virtio-keyboard-device','virtio-gpu-device']);self.assertIn('arm16k_virtio_seat_nonce='+N,argv[argv.index('-append')+1])
+ def test_guest_delivers_corrected_local_input_not_frozen_ancestor(self):
+  prepare=load('prepare');c={'arm':Path('/held/lower'),'x86':Path('/held/x86'),'output':self.work};delivery={'guest_files':{'input_seat.py':{'guest_path':'/usr/local/libexec/seat-input.py','mode':'0755'}}}
+  with patch.object(prepare.K,'read',return_value=delivery),patch.object(prepare.K,'pin',return_value={'bytes':1,'sha256':'a'*64}):records=prepare.guest_sources(c)
+  row=records['input_seat.py'];self.assertEqual(row['source_root'],'arm');self.assertEqual(row['source'],'input_seat.py');self.assertEqual(row['guest_path'],'/usr/local/libexec/seat-input.py')
+ def test_host_parser_uses_same_corrected_local_adapter(self):
+  original=types.SimpleNamespace(Serial=type('Serial',(),{}),redact_serial=lambda *a:None);corrected=object();paths=[]
+  def held(name,path):
+   paths.append(path)
+   if name=='UI_original_ARM_protocol':return original
+   if name=='UI_corrected_modern_input':return corrected
+   return types.SimpleNamespace()
+  with patch.object(P,'load',side_effect=held):P.bind(Path('/held/lower'))
+  self.assertIs(original.INPUT,corrected);self.assertIn(Path('/held/lower/input_seat.py'),paths)
+ def test_corrected_observer_keeps_bounded_diagnostics_and_UI_gate(self):
+  source=(HERE/'observer.py').read_text();self.assertIn('input_parent.census()',source);self.assertIn('os.fsync',source);self.assertIn('arm_ui_gate.wait_installed(nonce,180)',source);self.assertLess(source.index('arm_ui_gate.wait_installed'),source.index("frame('SEAT_LOGIN_READY'"))
  def test_actor_nonce_cannot_supply_extra_argv(self):
   with self.assertRaises(AssertionError):A.qemu_argv(' -nic user',1794700000)
  def test_UI_HOLD_precedes_ready_and_keeps_original_capture_groups(self):

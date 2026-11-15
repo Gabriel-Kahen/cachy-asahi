@@ -58,6 +58,14 @@
     },
     "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-UI-seat-kernel-compile-r1/actor-output/stage/bundle"
   },
+  "lower_minimal155_closed_r1": {
+    "PAM_or_seat_acceptance": false,
+    "Source_correction": "explicit modern MMIO; VERSION_1 negotiation and MMIO-parent DRM/genuine virtio_gpu-child checks",
+    "corrected_trial": "NOT RUN by worker; Root owns fresh trial",
+    "installed_packages": 155,
+    "status": "HOLD",
+    "terminal_stage": "GPU-wait-before-LOGIN_READY"
+  },
   "retained_qualified_tool_DATA": {
     "UI_consumer_pure_interop": "PASS_GENUINE_RETAINED_PRODUCER_RECEIPTS_ONLY",
     "device_metadata": {

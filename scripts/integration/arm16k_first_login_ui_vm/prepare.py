@@ -47,7 +47,7 @@ def guest_sources(c):
   prefix={'ui':HERE,'arm':arm,'x86':c['x86'],'fixture':Path(c['output'])/'fixture-data'}[root];records[name]={'source_root':root,'source':source,'pin':K.pin(prefix/source),'guest_path':path,'mode':mode,'uid':uid,'gid':gid,'replace':replace}
  for name,row in delivery['guest_files'].items():
   if name in ['observer.py','profile.fragment']:continue
-  add(name,'arm',foundation+name,row['guest_path'],row['mode'])
+  add(name,'arm',name if name=='input_seat.py'else foundation+name,row['guest_path'],row['mode'])
  for name,dest in [('observer.py','seat-observer.py'),('root_fixture.py','ui-root-fixture.py'),('receipts.py','ui-receipts.py'),('ownership.py','ui-ownership.py'),('result.py','ui-result.py'),('ui_observer.py','arm-ui-observer.py'),('arm_ui_gate.py','arm_ui_gate.py')]:add(name,'ui',name,'/usr/local/libexec/'+dest)
  for name,dest in [('client.py','ui-client.py'),('gui_probe.py','ui-gui-probe.py')]:add(name,'x86',name,'/usr/local/libexec/'+dest)
  add('owned','fixture','owned_process.py','/usr/local/libexec/ui-owned-process.py');add('profile','ui','profile.fragment','/home/builder/.bash_profile','0600',1000,1000,True)

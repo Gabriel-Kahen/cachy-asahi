@@ -10,7 +10,7 @@ It does not expand or retag the minimal155 constructor.
 explain the remaining admissions. `actual-data.json` keeps them null; the separate
 built kernel and genuine tool qualification are DATA, not a UI guest result.
 `references.json` uses repository-relative Source paths and exact pins. Integrate
-the pinned ARM lower source c4bfcf25 and tool producer a3cb961e before invoking a
+the pinned ARM lower source 9fb4a0e8 and tool producer a3cb961e before invoking a
 real constructor. `lineage.json` records the finite derived upper files; unchanged
 GUI client/probe and owned-process code are checked and delivered from Source.
 
@@ -32,7 +32,7 @@ python -I -B -m unittest discover \
   -s scripts/integration/arm16k_first_login_ui_vm -p 'test_*.py' -v
 ```
 
-27 controls pass on Python3.12/3.14; Bash syntax and Python compilation pass.
+30 controls pass on Python3.12/3.14; Bash syntax and Python compilation pass.
 They cover missing admissions before any process/clone, distinct roles, genuine
 three-device tool qualification shape, private resource/mount fences, exact
 namespace ownership/aliases, public-only packets, durable172/283 receipt matching,
@@ -40,3 +40,11 @@ strict ownership/sync failures, UI HOLD framing and mandatory GTK/four-file join
 No actual guest, container, image build, download or package process was run by
 this worker. Only the allowed metadata solver/local public-signature checks and
 pure retained tool-receipt validation were performed.
+
+
+The corrected lower Source now requires explicit modern virtio MMIO and negotiated
+VERSION_1. Guest delivery and host parsing both select its local `input_seat.py`,
+which validates the DRM card on the MMIO parent and the genuine sibling virtio_gpu
+child with original stock tags/drivers. Bounded durable candidate diagnostics are
+retained. Closed lower r1 installed155 but held at GPU wait before LOGIN_READY;
+no PAM/seat or UI success is inferred, and no corrected worker trial ran.

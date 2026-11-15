@@ -11,7 +11,7 @@ def parse_ui(data,nonce):
 def guard_pattern(nonce,pattern):
  assert re.fullmatch('[0-9a-f]{32}',nonce);return rb'(?m:^UI_HOLD '+nonce.encode()+rb' \{[^\r\n]{0,4096}\}\r?\n)|(?:'+pattern+b')'
 def bind(arm):
- original=load('UI_original_ARM_protocol',arm/'frozen/arm16k_virtio_seat/protocol.py');result=load('UI_upper_result',HERE/'result.py')
+ original=load('UI_original_ARM_protocol',arm/'frozen/arm16k_virtio_seat/protocol.py');original.INPUT=load('UI_corrected_modern_input',arm/'input_seat.py');result=load('UI_upper_result',HERE/'result.py')
  class Serial(original.Serial):
   def until(self,pattern):
    match=super().until(guard_pattern(self.nonce,pattern))

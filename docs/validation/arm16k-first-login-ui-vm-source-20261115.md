@@ -23,7 +23,7 @@ The unavailable21.1.25-1 archive stays held; the new root is explicit:
 `c4729aaf327fae3f19795f4fbcad8035798316d4c812c56953c32796f1cf916c`.
 
 [The new implementation](../../scripts/integration/arm16k_first_login_ui_vm/README.md)
-reuses exact lower Source pins. ARM reference/helper Source is c4bfcf25, tool
+reuses exact lower Source pins. ARM reference/helper Source is 9fb4a0e8, tool
 producer a3cb961e; original x86 GUI client/probe are unchanged. Own finite upper
 contracts, observer, disk geometry, actor/receipt counts and lifecycle are separate.
 No whole frozen framework is copied or generic callback/injection API introduced.
@@ -107,3 +107,16 @@ The full independent ARM seat parser, same-session UI join, natural PAM logout,
 QMP quit, owned QEMU retirement and exact container absence remain mandatory.
 No full-system shutdown, native ARM build, physical M2/desktop/networking,
 performance or release acceptance follows from Source or metadata preparation.
+
+
+## Narrow modern-MMIO source correction
+
+Closed minimal-seat r1 installed155, then held waiting for GPU before
+LOGIN_READY/PAM/seat acceptance. The corrected lower Source9fb4a0e8 and this UI
+actor explicitly set `-global virtio-mmio.force-legacy=false`. Both guest delivery
+and host parser use the lower local input adapter, requiring negotiated VERSION_1
+and the actual MMIO-parent DRM/genuine virtio_gpu-child association. Frozen
+ancestor predicates remain unchanged. Existing stock tags, policy, permissions,
+geometry and actual-result holds are preserved; bounded durable candidate
+observations are inherited. Thirty Source controls pass; the corrected lower
+trial and all UI preparation/VM execution remain Root-owned, not worker results.
