@@ -99,6 +99,30 @@ def _session(session):
         raise ValueError('actual finite logind identity required')
 
 
+def wait_phase(serial, nonce, kind):
+    """Consume one complete ordered frame, including explicit early failures."""
+    _nonce(nonce)
+    if kind not in {'INSTALLED', 'PROBE', 'RESTORED'}:
+        raise ValueError('fixed Perl phase required')
+    marker = nonce.encode()
+    pattern = (rb'(?:^|\r?\n)PERL5423_(INSTALLED|PROBE|RESTORED)_BEGIN ' + marker
+               + rb'\r?\n(?:[^\r\n]{0,321}\r?\n){0,65}?PERL5423_\1_END '
+               + marker + rb'(?=\r?\n|$)')
+    match = serial.until(pattern)
+    actual = match.group(1).decode('ascii')
+    fields = frame(bytes(serial.data[match.start():match.end()]), nonce, actual)
+    if fields.get('STATUS') == 'HOLD':
+        phase = fields.get('FAILED_PHASE', 'UNREPORTED')
+        if not re.fullmatch('[a-z_]{1,64}|UNREPORTED', phase):
+            phase = 'UNREPORTED'
+        raise ValueError('guest explicit HOLD while waiting for ' + kind + ': ' + actual + '/' + phase)
+    if fields.get('STATUS') != 'PASS':
+        raise ValueError('unsupported Perl phase status while waiting for ' + kind)
+    if actual != kind:
+        raise ValueError('out-of-order Perl phase while waiting for ' + kind + ': ' + actual)
+    return fields
+
+
 def journey(serial, password, baseline_nonce, nonce, parse_frame):
     """Use one normal PAM login; all waits inherit the driver's finite deadline."""
     _nonce(baseline_nonce)
@@ -121,16 +145,16 @@ def journey(serial, password, baseline_nonce, nonce, parse_frame):
                'PATH=/usr/bin:/bin LC_ALL=C TZ=UTC /usr/bin/bash --noprofile --norc '
                '/var/lib/arm16k-perl5423-vm/probe.sh ' + nonce)
     serial.send((command + '\n').encode())
-    serial.until(('PERL5423_INSTALLED_END ' + nonce).encode())
-    installed = frame(bytes(serial.data), nonce, 'INSTALLED')
-    serial.until(('PERL5423_PROBE_END ' + nonce).encode())
-    probe = frame(bytes(serial.data), nonce)
+    installed = wait_phase(serial, nonce, 'INSTALLED')
+    _exact(installed, INSTALLED)
+    probe = wait_phase(serial, nonce, 'PROBE')
+    validate_probe(probe)
     serial.send((command + ' restored\n').encode())
-    serial.until(('PERL5423_RESTORED_END ' + nonce).encode())
-    restored = frame(bytes(serial.data), nonce, 'RESTORED')
+    restored = wait_phase(serial, nonce, 'RESTORED')
     serial.send(b'exit\n')
     serial.until(rb'login:\s*')
-    _exact(installed, INSTALLED)
-    validate_probe(probe)
+    # Preserve the existing whole-transcript duplicate-frame refusal.
+    for kind, expected in (('INSTALLED', installed), ('PROBE', probe), ('RESTORED', restored)):
+        _exact(frame(bytes(serial.data), nonce, kind), expected)
     return dict(session=session, installed=installed, probe=probe, restored=restored,
                 normal_PAM_logout_observed=True)

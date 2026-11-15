@@ -12,7 +12,11 @@ nonce=INVALID
 finish() {
  local rc=$?
  trap - EXIT
- printf '\nPERL5423_PROBE_BEGIN %s\nSTATUS=%s\nARCH=aarch64\nPAGESIZE=16384\nUID=1000\nGID=1000\nPERL_VERSION=5.42.3\nFUNCTIONAL=PASS\nCOMMANDS=PASS\nELF_GEOMETRY=HOST_CHECK_REQUIRED\nPERL5423_PROBE_END %s\n' "$nonce" "$status" "$nonce"
+ printf '\nPERL5423_PROBE_BEGIN %s\nSTATUS=%s\n' "$nonce" "$status"
+ if [[ $status == PASS ]];then
+  printf 'ARCH=aarch64\nPAGESIZE=16384\nUID=1000\nGID=1000\nPERL_VERSION=5.42.3\nFUNCTIONAL=PASS\nCOMMANDS=PASS\nELF_GEOMETRY=HOST_CHECK_REQUIRED\n'
+ else printf 'EXIT_STATUS=%s\n' "$rc";fi
+ printf 'PERL5423_PROBE_END %s\n' "$nonce"
  exit "$rc"
 }
 [[ ( $# == 1 || ( $# == 2 && $2 == restored ) ) && $1 =~ ^[0-9a-f]{32}$ ]]
