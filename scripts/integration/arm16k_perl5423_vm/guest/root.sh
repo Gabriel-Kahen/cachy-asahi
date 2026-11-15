@@ -19,7 +19,10 @@ finish() {
    printf 'PERL5423_RESTORED_BEGIN %s\nSTATUS=HOLD\nFAILED_PHASE=%s\nPERL5423_RESTORED_END %s\n' "$nonce" "$phase" "$nonce" > "$S/failure.env"
    cp -- "$S/failure.env" "$O/summary.env";chmod 644 "$O/summary.env"
    cp -- "$S/failure.env" "$D/failure.env"
-   if [[ -d $D/trust && ! -L $D/trust ]];then timeout --signal=KILL "${gpg_seconds:-5}" gpgconf --homedir "$D/trust" --kill all || :;rm -rf -- "$D/trust";fi
+   local trust_home
+   for trust_home in "$D/trust" "$O/official-import" "$O/official-trust";do
+    if [[ -d $trust_home && ! -L $trust_home ]];then timeout --signal=KILL "${gpg_seconds:-5}" gpgconf --homedir "$trust_home" --kill all || :;rm -rf -- "$trust_home";fi
+   done
    sync -f "$D" || :
   fi
  fi
@@ -29,8 +32,9 @@ trap finish EXIT
 [[ $# == 0 && $EUID == 0 && ! -e $O && ! -L $O ]]
 install -d -m755 "$O"
 install -d -m700 "$S"
-. "$D/case.sh"
 . "$D/frozen/guest-runtime.sh"
+. "$D/case.sh"
+. "$D/official-trust.sh"
 . "$D/frozen/rtc-clock.sh"
 case_data
 [[ $(uname -m) == aarch64 && $(getconf PAGESIZE) == 16384 && $(cat /proc/1/comm) == systemd ]]
@@ -124,7 +128,7 @@ for path in /etc/ld.so.cache /var/cache/ldconfig/aux-cache; do
 done
 [[ -d /var/cache/ldconfig ]] || touch "$S/ldconfig-directory.absent"
 [[ ! -L /var/log/pacman.log ]]
-if [[ -f /var/log/pacman.log ]];then cp -a -- /var/log/pacman.log "$S/pacman-log-before";else [[ ! -e /var/log/pacman.log ]];: > "$S/pacman-log-before";fi
+if [[ -f /var/log/pacman.log ]];then cp -a -- /var/log/pacman.log "$S/pacman-log-before";else [[ ! -e /var/log/pacman.log ]];: > "$S/pacman-log-before";touch "$S/pacman-log-before.absent";fi
 phase=trust
 ( cd "$D";sha256sum --check --strict --status "$D/materials.sha256" )
 [[ -d $D/trust && ! -L $D/trust && $(stat -c '%u:%g:%a' "$D/trust") == 0:0:700 ]]
@@ -159,6 +163,9 @@ if [[ $recovery_mode == SIGNED_EXACT_OLD_PACKAGE ]];then
 fi
 phase=dependency_install
 if [[ $dependency_mode == DB53 ]];then
+ phase=official_trust
+ official_init
+ phase=dependency_install
  mapfile -t dependencies < "$D/dependency-requires.txt"
  bounded "$run_seconds" "$S/dependency-requires.log" pacman -T "${dependencies[@]}"
  [[ ! -s $S/dependency-requires.log ]]
@@ -255,9 +262,16 @@ assert_users
 before_log_bytes=$(stat -c '%s' "$S/pacman-log-before")
 head -c "$before_log_bytes" /var/log/pacman.log > "$S/pacman-log-prefix"
 same_bytes "$S/pacman-log-before" "$S/pacman-log-prefix"
+[[ -f /var/log/pacman.log && ! -L /var/log/pacman.log && $(stat -c '%u:%g' /var/log/pacman.log) == 0:0 ]]
+after_log_bytes=$(stat -c '%s' /var/log/pacman.log)
+(( after_log_bytes >= before_log_bytes && after_log_bytes-before_log_bytes <= log_bytes ))
+cp -- /var/log/pacman.log "$S/pacman-log-after"
+chmod 600 "$S/pacman-log-after"
+if [[ -f $S/pacman-log-before.absent ]];then rm -- /var/log/pacman.log;[[ ! -e /var/log/pacman.log && ! -L /var/log/pacman.log ]];fi
 if [[ $recovery_mode == REMOVE ]];then db_policy=EXACT;else db_policy=NORMAL_INSTALLDATE_AND_TRANSACTION_TIMESTAMPS;fi
 bounded "$gpg_seconds" "$S/gpg-stop.log" gpgconf --homedir "$D/trust" --kill all
 rm -rf -- "$D/trust"
+if [[ $dependency_mode == DB53 ]];then official_finish;fi
 bounded "$sync_seconds" "$S/sync.log" sync -f "$D"
 {
  printf 'PERL5423_RESTORED_BEGIN %s\nSTATUS=PASS\nARCH=aarch64\nPAGESIZE=16384\nPACKAGE=%s\nVERSION=5.42.3-1.3\n' "$nonce" "$PACKAGE"

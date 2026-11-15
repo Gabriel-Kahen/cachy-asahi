@@ -31,6 +31,7 @@ def modeled(rollback=False, dependency=False):
  now=int(time.time());c['trust']=dict(fingerprint='A'*40,created_utc=now-1,expires_utc=now+3500,evaluated_utc=now,public_only=True,signature_valid=True,revoked=False)
  inv={n:'MODEL-1'for n in ('glibc','gdbm','db5.3','libxcrypt','bzip2','zlib','base-tools')}
  if dependency:inv.pop('db5.3')
+ if dependency:inv['archlinuxarm-keyring']='MODEL-1'
  if rollback:inv['perl']='5.42.3-1'
  b=dict(kind='ROOT_ACCEPTED_ARM16K_PAM_BASELINE_V1',issued_by='Root',accepted=True,architecture='aarch64',page_bytes=16384,raw=pin('raw',1024**3),prepared=pin('prepared'),inventory=inv,ownership=pin('ownership'),report=pin('PAM'),normal_PAM_logout_observed=True,owned_container_absence_verified=True,baseline_count=len(inv))
  ns={};files={};baseline_files={};tools=['/usr/bin/'+n for n in K.TOOLS]
@@ -63,8 +64,10 @@ def modeled(rollback=False, dependency=False):
  recovery=dict(mode='SIGNED_EXACT_OLD_PACKAGE'if rollback else'REMOVE',version=inv.get('perl'),archive=pin('old')if rollback else None,signature=pin('old-sig')if rollback else None,reason='explicit'if rollback else None,exact_payload_verified=True,local_database_policy='NORMAL_INSTALLDATE_AND_TRANSACTION_TIMESTAMPS'if rollback else'EXACT')
  rt=dict(kind='ROOT_REVIEWED_PERL5423_VM_RUNTIME_V1',issued_by='Root',accepted=True,baseline_certificate=None,package=None,namespace_coverage='ALL_PACKAGE_OWNED_PATHS',candidate_namespace=ns,baseline_namespace=old,baseline_files=baseline_files,hardlinks=K.HARDLINKS,dependency_transaction={},elf_inventory=pin('elf-inventory'),full_payload_elf_coverage=True,elfs=elfs,files=files,tools=tools,loader=loader,alpm_dependencies=requires,PKGINFO=dict(bytes=4483,sha256='31461fa035ad9f3761775dc412f3966c1c451c817e51eb5a2412808027133edc'),effective_hook_policy=dict(baseline_configuration='/etc/pacman.conf',transaction_same_effective_policy=True,hook_directories=['/usr/share/libalpm/hooks','/etc/pacman.d/hooks'],namespace_pin=pin('actual-complete-hooks'),scriptlets_enabled=True,suppression_added=False),dependency_resolution=deps,reverse_dependencies=[],rollback=recovery,probe_qualification=dict(commands=['/usr/bin/'+n for n in K.COMMANDS],modules=['Config','JSON::PP','Digest::SHA','DB_File','GDBM_File','Compress::Raw::Zlib','Compress::Raw::Bzip2','threads'],network=False,CPAN=False,compiler=False,actual_paths_verified=True),baseline_namespace_pin=pin('complete-baseline-namespace'),restoration_allowances=dict(install_date_path='/var/lib/pacman/local/perl-'+inv['perl']+'/desc'if rollback else None,database_timestamp_paths=['/var/lib/pacman/local']+(['/var/lib/pacman/local/perl-'+inv['perl'], '/var/lib/pacman/local/perl-'+inv['perl']+'/desc','/var/lib/pacman/local/perl-'+inv['perl']+'/files']if rollback else[]),payload_directory_timestamps=True,normal_pacman_log='/var/log/pacman.log',pacman_log_before=pin('MODEL_original_pacman_log'),cache_directory_timestamps=['/var/cache','/var/cache/ldconfig']))
  if dependency:
+  public_files={p:entry(p,'archlinuxarm-keyring',0o644)for p in K.ALARM_FILES};files.update(public_files);baseline_files.update(copy.deepcopy(public_files))
+  official=dict(kind='ROOT_REVIEWED_SCRATCH_ALARM_PUBLIC_TRUST_V1',signer=K.ALARM_SIGNER,files=public_files,trusted_policy_reviewed=True,revoked_signer_absent=True,ownertrust_policy='ROOT_ADMITTED_SIGNER_ONLY_NO_BULK_OWNERTRUST_IMPORT',scratch_home='/run/arm16k-perl5423-vm/official-trust',baseline_global_gpgdir='ABSENT')
   db=providers['db5.3'];row=files[db];nsdep={'/usr':dict(kind='d',mode=0o755,uid=0,gid=0),'/usr/lib':dict(kind='d',mode=0o755,uid=0,gid=0),db:dict(kind='f',mode=row['mode'],uid=0,gid=0,bytes=row['bytes'],sha256=row['sha256'])}
-  rt['dependency_transaction']=dict(K.DB53,namespace=nsdep,files={db:row},elf_paths=[db],full_ELF_coverage=True,requires=['libgcc','libstdc++','sh'],resolution={n:dict(owner='base-tools',version=inv['base-tools'],satisfied=True,providers=['/usr/bin/bash'])for n in('libgcc','libstdc++','sh')},baseline_public_trust=pin('actual-public-official-trust-namespace'),signature_authenticated=True,current_trust_reviewed=True,recovery='NORMAL_REMOVE_AFTER_PERL_RECOVERY')
+  rt['dependency_transaction']=dict(K.DB53,namespace=nsdep,files={db:row},elf_paths=[db],full_ELF_coverage=True,requires=['libgcc','libstdc++','sh'],resolution={n:dict(owner='base-tools',version=inv['base-tools'],satisfied=True,providers=['/usr/bin/bash'])for n in('libgcc','libstdc++','sh')},baseline_public_trust=pin('actual-public-official-trust-namespace'),official_trust=official,signature_authenticated=True,current_trust_reviewed=True,recovery='NORMAL_REMOVE_AFTER_PERL_RECOVERY')
  r={n:1 for n in K.LIMITS};r.update(kind='ROOT_REVIEWED_PERL5423_VM_RESOURCES_V1',issued_by='Root',accepted=True,baseline_certificate=None,package=None,package_expanded_bytes=sum(v.get('bytes',0)for v in ns.values())+(sum(v.get('bytes',0)for v in rt['dependency_transaction']['namespace'].values())if dependency else 0),fixture_source_bytes=1024**2,case_staging_bytes=24*1024**2,baseline_raw_bytes=1024**3,prepared_raw_bytes=1024**3,baseline_allocated_bytes=1024**2,guest_filesystem_free_bytes=100*1024**2,guest_output_cap_bytes=1024**2,clone_allocated_cap_bytes=40*1024**2,readback_allocated_cap_bytes=40*1024**2,overlay_cap_bytes=10*1024**2,logs_cap_bytes=10*1024**2,reserve_bytes=1024**2,physical_free_bytes=200*1024**2,quota_initial_headroom_bytes=200*1024**2,quota_live_reserve_bytes=1024**2,guest_memory_bytes=128*1024**2,owner_memory_bytes=256*1024**2,host_reserve_bytes=1024**2,host_MemAvailable_bytes=512*1024**2,cpus=2,pids=128,prepare_seconds=120,boot_seconds=600,cleanup_seconds=60,boot_overhead_seconds=30,output_device=1,host_uid=os.getuid(),gpg_seconds=5,install_seconds=20,probe_wait_seconds=180,remove_seconds=20,run_seconds=10,sync_seconds=5,log_bytes=1024**2)
  # Resources require a positive ordinary UID; synthetic host may be root, never actor.
  r['host_uid']=1000
@@ -82,6 +85,43 @@ def modeled_home():
  return reseal(a)
 
 class Controls(unittest.TestCase):
+ def test_official_scratch_trust_certificate_packet_and_finite_gpg_envelope(self):
+  a=modeled(dependency=True);K.validate(*a);rows=A.contents(a[0],dict(zip(K.EVIDENCE,a[2:])),pin('source'),'a'*32)
+  conf=rows['dependency-pacman.conf'][0];self.assertIn(b'GPGDir = /run/arm16k-perl5423-vm/official-trust',conf);self.assertNotIn(b'GPGDir = /etc/pacman.d/gnupg',conf);self.assertIn(b'Required TrustedOnly',conf);self.assertEqual(len(rows['official-public-files.tsv'][0].splitlines()),3);self.assertEqual(rows['official-signer'][0],(K.ALARM_SIGNER+'\n').encode());self.assertIn('official-trust.sh',rows)
+  for kind in('signer','review','revoked','bulk','global','home','missing-file','file-mode'):
+   b=modeled(dependency=True);trust=b[3]['dependency_transaction']['official_trust']
+   if kind=='signer':trust['signer']='A'*40
+   if kind=='review':trust['trusted_policy_reviewed']=False
+   if kind=='revoked':trust['revoked_signer_absent']=False
+   if kind=='bulk':trust['ownertrust_policy']='IMPORT_ALL_TRUSTED'
+   if kind=='global':trust['baseline_global_gpgdir']='PRESENT'
+   if kind=='home':trust['scratch_home']='/etc/pacman.d/gnupg'
+   if kind=='missing-file':del trust['files'][K.ALARM_FILES[-1]]
+   if kind=='file-mode':trust['files'][K.ALARM_FILES[0]]['mode']=0o600
+   with self.subTest(kind=kind),self.assertRaises(ValueError):K.validate(*reseal(b))
+  a[4].update(gpg_seconds=15,install_seconds=60,remove_seconds=60,run_seconds=10,sync_seconds=10,cleanup_seconds=90,boot_overhead_seconds=120,probe_wait_seconds=240,boot_seconds=900)
+  with self.assertRaises(ValueError):K.validate(*reseal(a))
+  a[4]['boot_seconds']=1200;K.validate(*reseal(a))
+  self.assertNotIn('cmp',K.TOOLS)
+  for p in(HERE/'guest').glob('*.sh'):self.assertNotIn('cmp --',p.read_text())
+ def test_absent_pacman_log_restored_with_retained_transaction_log_only(self):
+  import base64
+  rt=modeled()[3];rt['restoration_allowances']['pacman_log_before']=None
+  desc='%NAME%\nx\n\n%VERSION%\n1\n';files='%FILES%\nusr/bin/x\nvar/log/\n';h=lambda b:hashlib.sha256(b).hexdigest();data=b'normal ALPM transaction log\n';receipt='var/lib/arm16k-perl5423-vm/receipts/pacman-log-after'
+  nodes={'usr/bin/x':dict(type='file',mode=0o755,uid=0,gid=0,sha256='a'*64),'var/log':dict(type='directory',mode=0o755,uid=0,gid=0,mtime=1,mtime_ns=0)};records={'var/lib/pacman/local/x-1/desc':desc,'var/lib/pacman/local/x-1/files':files}
+  for p,text in records.items():nodes[p]=dict(type='file',mode=0o644,uid=0,gid=0,sha256=h(text.encode()))
+  before=dict(nodes=nodes,records=records,log_data_b64=None);valid=copy.deepcopy(before);valid['nodes']['var/log']['mtime']=2;valid['nodes'][receipt]=dict(type='file',mode=0o600,uid=0,gid=0,size=len(data),sha256=h(data));valid['retained_log_data_b64']=base64.b64encode(data).decode()
+  for kind in('valid','left-log','missing-receipt','owner','mode','hash','extra-log'):
+   after=copy.deepcopy(valid)
+   if kind=='left-log':after['nodes']['var/log/pacman.log']=after['nodes'][receipt]
+   if kind=='missing-receipt':after['retained_log_data_b64']=None
+   if kind=='owner':after['nodes'][receipt]['uid']=1000
+   if kind=='mode':after['nodes'][receipt]['mode']=0o644
+   if kind=='hash':after['nodes'][receipt]['sha256']='b'*64
+   if kind=='extra-log':after['nodes']['var/log/unrelated']=after['nodes'][receipt]
+   if kind=='valid':self.assertEqual(I.preserve(before,after,{'x':'1'},rt)['pacman_log'],'ABSENCE_RESTORED_WITH_RETAINED_NORMAL_TRANSACTION_LOG')
+   else:
+    with self.subTest(kind=kind),self.assertRaises(ValueError):I.preserve(before,after,{'x':'1'},rt)
  def test_Tool529_e2fsck_four_links_only_and_generic_DATA_stays_single_link(self):
   import types
   R=module('runtime')

@@ -399,3 +399,53 @@ selects the actual held FD's mount ID, checks Btrfs/@home/subvolid257, and requi
 stable before/after mount records. Unknown pairs/filesystems remain HOLD. Update
 the closed profile's filesystem declaration and all Source bindings after this
 fix; old draft packets are not silently rewritten or granted an exception.
+
+
+## Absent global trust, isolated official db trust
+
+Original111 has no `/etc/pacman.d/gnupg`. An admitted db5.3 transaction now requires
+`dependency_transaction.official_trust` matching `official-trust.TEMPLATE.json`:
+exact three baseline `/usr/share/pacman/keyrings/archlinuxarm.gpg`, `-trusted`,
+`-revoked` rows, the sole signer68B3537F39A313B3E574D06777193F152BDBE6A6, Root
+policy review, revoked-signer absence and explicit scratch/global-absence policy.
+Each file row equals baseline_files/files with its actual bytes/SHA/mode644,
+resolved path and archlinuxarm-keyring owner/version. Empty revoked DATA is valid.
+`baseline_public_trust` is the canonical JSON pin of exactly those three **relative
+path → image.stable(actual_node)** rows; it no longer means an assumed global
+GPG directory. The actor compares actual raw hash/metadata/ALPM ownership and
+absence before preparation. Root still admits signatures/current trust separately.
+
+Guest checks the same three actual files, normal trusted/revoked text and ALPM
+owners before import. It imports only the unchanged public ring into bounded
+volatile scratch, exports the sole admitted primary, and imports just that key
+into a separate `/run/arm16k-perl5423-vm/official-trust`. It rejects secret keys,
+requires one exact primary, sets ownertrust only for that Root-admitted signer,
+and verifies the exact db archive/signature with one matching VALIDSIG and
+TRUST_ULTIMATE. No bulk ownertrust, signing key, global GNUPG directory or changed
+Required/TrustedOnly policy is used. Normal db install/remove use explicit scratch
+GPGDir. All import/export/list/trust/verify/retirement calls are time/log bounded;
+public-only GPG calls disable autostart and key retrieval, writes are capped,
+success and failure retire/remove scratch homes. Nine extra GPG/retirement slots
+are charged when db is added: full envelope16*gpg_seconds + existing transaction,
+probe, overhead and cleanup bounds. With prior15/60/240/90/120 timings that is
+1010s;900s refuses, e.g. boot1200s needs a freshly reviewed corresponding outer cap.
+No actual GPG/ALPM/guest operation ran in this increment.
+
+## Original log absence and hash comparison prerequisites
+
+When the certified baseline pacman.log is absent, normal ALPM still writes its
+normal log. Guest retains that bounded complete log in durable receipts, then
+removes only that newly created unowned log to restore absence. Readback requires
+actual absence and exact safe retained receipt hash/size/ownership. Only `/var/log`
+parent mtime from this normal create/remove is additionally allowed; unrelated log
+residue refuses. An existing baseline log retains its original-prefix/append-only
+policy. User/database/payload/global-trust preservation gates stay in force.
+
+`cmp` is no longer a prerequisite or guest command. Both guest entry points use
+the reviewed `same_bytes` API implemented as bounded regular-file lengths plus
+SHA256, propagating stat/hash failures. This is cryptographic hash equality,
+not a new literal-byte comparison claim; no Python/Perl is needed for recovery.
+The local `test_guest_data.sh` regression covers literal binary/empty/equal/
+different/missing/symlink operands and command failures, plus trusted/revoked
+policy DATA, without GPG/ALPM/VM execution. Frozen helper bytes remain unchanged;
+Root sources the reviewed comparison override after the frozen helpers.

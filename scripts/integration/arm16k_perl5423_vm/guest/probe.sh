@@ -41,11 +41,11 @@ clock_valid
 verify_paths
 cd "$U"
 inventory > before.lock
-cmp -- "$D/expected-installed.lock" before.lock
+same_bytes "$D/expected-installed.lock" before.lock
 bounded "$run_seconds" version.log /usr/bin/perl -e 'print "$^V\n"'
-printf 'v5.42.3\n' | cmp -- - version.log
+printf 'v5.42.3\n' > expected-version; same_bytes expected-version version.log
 bounded "$run_seconds" functional.log /usr/bin/perl "$D/runtime.pl"
-printf 'PERL5423_FUNCTIONAL_OK\nDB_FILE=ROUNDTRIP\nGDBM=ROUNDTRIP\nZLIB=ROUNDTRIP\nBZIP2=ROUNDTRIP\nTHREADS=JOIN_SHARED\nLIBPERL=SHARED\n' | cmp -- - functional.log
+printf 'PERL5423_FUNCTIONAL_OK\nDB_FILE=ROUNDTRIP\nGDBM=ROUNDTRIP\nZLIB=ROUNDTRIP\nBZIP2=ROUNDTRIP\nTHREADS=JOIN_SHARED\nLIBPERL=SHARED\n' > expected-functional; same_bytes expected-functional functional.log
 bounded "$run_seconds" corelist.log /usr/bin/corelist -v 5.42.3
 grep -F '5.42.3' corelist.log
 printf '{"answer":42}\n' > input.json
@@ -62,14 +62,14 @@ bounded "$run_seconds" prove.log /usr/bin/prove "$D/smoke.t"
 grep -F 'Result: PASS' prove.log
 printf 'abc' > digest-input
 bounded "$run_seconds" sha.log /usr/bin/shasum -a 256 digest-input
-printf 'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad  digest-input\n' | cmp -- - sha.log
+printf 'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad  digest-input\n' > expected-sha; same_bytes expected-sha sha.log
 printf 'Use of uninitialized value $x in print at runtime.pl line 1.\n' > diagnostic
 bounded "$run_seconds" splain.log /usr/bin/splain < diagnostic
 grep -F 'undefined value' splain.log
 bounded "$run_seconds" paths.log /usr/bin/perl -MConfig -e 'print "$Config{archlib}/CORE/$Config{libperl}\n"'
-printf '/usr/lib/perl5/5.42/core_perl/CORE/libperl.so\n' | cmp -- - paths.log
+printf '/usr/lib/perl5/5.42/core_perl/CORE/libperl.so\n' > expected-paths; same_bytes expected-paths paths.log
 inventory > after.lock
-cmp -- before.lock after.lock
+same_bytes before.lock after.lock
 verify_paths
 clock_valid
 sha256sum -- *.log > probe-outputs.sha256

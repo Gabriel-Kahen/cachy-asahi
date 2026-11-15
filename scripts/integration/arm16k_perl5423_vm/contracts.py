@@ -21,11 +21,13 @@ INSTALLED_SOURCE = '445b37a9475a4e92804954f4f0e3d0ac84cd9511'
 PACKAGE = dict(name='perl', version='5.42.3-1.3', arch='aarch64',
                depends=['glibc', 'gdbm>=1.17', 'db5.3', 'libxcrypt', 'libcrypt.so', 'bzip2', 'zlib'])
 DB53 = dict(name='db5.3',version='5.3.28-7',archive=dict(bytes=1044852,sha256='0a787f952c0f7dd1493db437ab0dc3ffda6053cb6affa4ebf91caff185e586b4'),signature=dict(bytes=566,sha256='e17a6fdad268459de144b828f33a8b63fd9b7f05a2c1ea2c1dc02b4670b8bdab'))
+ALARM_SIGNER = '68B3537F39A313B3E574D06777193F152BDBE6A6'
+ALARM_FILES = tuple('/usr/share/pacman/keyrings/archlinuxarm'+suffix for suffix in('.gpg','-trusted','-revoked'))
 HARDLINKS = {'/usr/bin/core_perl/perlthanks':'/usr/bin/core_perl/perlbug', '/usr/share/man/man1/perlthanks.1perl.gz':'/usr/share/man/man1/perlbug.1perl.gz'}
 ALPM_DEPENDS = ['glibc','gdbm>=1.17','db5.3','libxcrypt','libcrypt.so=2-64','bzip2','zlib']
 MATERIALS = ('archive', 'signature', 'public_TEST_certificate', 'signing_receipt')
 EVIDENCE = ('baseline_certificate', 'runtime_certificate', 'resource_certificate', 'Root_decision', 'installed_Reader', 'installed_component_decision')
-TOOLS = tuple('base64 bash cat chmod chown cmp comm cp cut date env find getconf getfattr gpg gpgconf grep head id install mkdir pacman readlink rm rmdir sed sha256sum sleep sort stat sync timeout touch tr uname wc xargs'.split())
+TOOLS = tuple('base64 bash cat chmod chown comm cp cut date env find getconf getfattr gpg gpgconf grep head id install mkdir pacman readlink rm rmdir sed sha256sum sleep sort stat sync timeout touch tr uname wc xargs'.split())
 COMMANDS = tuple('corelist json_pp perldoc pod2text podchecker prove shasum splain'.split())
 PERL_ELFS = ('/usr/bin/perl', '/usr/lib/perl5/5.42/core_perl/CORE/libperl.so',
  '/usr/lib/perl5/5.42/core_perl/auto/DB_File/DB_File.so',
@@ -195,9 +197,14 @@ def runtime(value, case, base):
     dep = value['dependency_transaction']; added = {}
     need(type(dep) is dict, 'explicit dependency transaction map; no silent packages')
     if dep:
-        keys(dep, ('name','version','archive','signature','namespace','files','elf_paths','full_ELF_coverage','requires','resolution','baseline_public_trust','signature_authenticated','current_trust_reviewed','recovery'), 'explicit db5.3 addition')
+        keys(dep, ('name','version','archive','signature','namespace','files','elf_paths','full_ELF_coverage','requires','resolution','baseline_public_trust','official_trust','signature_authenticated','current_trust_reviewed','recovery'), 'explicit db5.3 addition')
         need(all(dep[n] == DB53[n] for n in DB53) and 'db5.3' not in base and dep['requires'] == ['libgcc','libstdc++','sh'] and dep['recovery'] == 'NORMAL_REMOVE_AFTER_PERL_RECOVERY' and dep['signature_authenticated'] is dep['current_trust_reviewed'] is dep['full_ELF_coverage'] is True, 'only exact separately admitted cached official db5.3 addition')
         pin_shape(dep['baseline_public_trust']); expanded += namespace(dep['namespace']); added['db5.3'] = dep['version']
+        trust=dep['official_trust'];keys(trust,('kind','signer','files','trusted_policy_reviewed','revoked_signer_absent','ownertrust_policy','scratch_home','baseline_global_gpgdir'),'explicit scratch official trust')
+        need(trust['kind']=='ROOT_REVIEWED_SCRATCH_ALARM_PUBLIC_TRUST_V1' and trust['signer']==ALARM_SIGNER and trust['trusted_policy_reviewed']is trust['revoked_signer_absent']is True and trust['ownertrust_policy']=='ROOT_ADMITTED_SIGNER_ONLY_NO_BULK_OWNERTRUST_IMPORT' and trust['scratch_home']=='/run/arm16k-perl5423-vm/official-trust' and trust['baseline_global_gpgdir']=='ABSENT','one Root-admitted official signer and isolated scratch policy')
+        need(type(trust['files'])is dict and set(trust['files'])==set(ALARM_FILES),'exact baseline ALARM public/trusted/revoked files')
+        for path,row in trust['files'].items():
+            need(type(row)is dict and row==value['baseline_files'].get(path)==value['files'].get(path) and row.get('resolved')==path and row.get('mode')==0o644 and row.get('owner')=='archlinuxarm-keyring' and row.get('version')==base.get('archlinuxarm-keyring') and type(row.get('bytes'))is int and 0<=row['bytes']<=4*1024**2 and (path!=ALARM_FILES[0]or row['bytes']>0),'observed bounded baseline public trust byte/mode/ALPM owner/version join')
         need(type(dep['files']) is dict and dep['files'] and type(dep['elf_paths']) is list and dep['elf_paths'] and set(dep['resolution']) == set(dep['requires']), 'complete dependency namespace, ELF and ALPM provider inputs')
         for constraint,row in dep['resolution'].items():
             keys(row, ('owner','version','satisfied','providers'), 'db5.3 dependency provider')
@@ -306,9 +313,10 @@ def resources(value, case, base, expanded, rollback, dependency):
     # wait encloses these calls, so the outer envelope counts that wait once.
     probe = 12*value['run_seconds'] + value['sync_seconds']
     need(value['probe_wait_seconds'] >= probe, 'probe wait covers twelve runtime commands and sync')
-    # Root: five gpg calls plus gpgconf retirement; two database checks and two
-    # durable syncs. Root separately supplies nondefault boot/PAM/snapshot overhead.
-    phase = (7*value['gpg_seconds'] + 2*value['install_seconds'] + value['probe_wait_seconds'] + 2*value['remove_seconds'] +
+    # TEST: five gpg calls, optional rollback, retirement; official scratch adds
+    # nine import/export/list/trust/verify/retirement operations when db is added.
+    # Two database checks/syncs; explicit boot/PAM/snapshot overhead stays separate.
+    phase = ((7+(9 if dependency else 0))*value['gpg_seconds'] + 2*value['install_seconds'] + value['probe_wait_seconds'] + 2*value['remove_seconds'] +
              6*value['run_seconds'] + 2*value['sync_seconds'] + value['cleanup_seconds'] + value['boot_overhead_seconds'])
     need(value['boot_seconds'] >= phase and value['prepare_seconds'] > value['cleanup_seconds'] and value['logs_cap_bytes'] >= value['log_bytes'], 'finite guest/cleanup/log envelopes')
     need(value['prepared_raw_bytes'] == value['baseline_raw_bytes'] <= 4*1024**3 and value['overlay_cap_bytes'] <= 4*1024**3 and value['guest_memory_bytes'] % 1024**2 == 0 and value['cpus'] <= 64 and value['pids'] <= 4096, 'supported fixed raw/overlay/guest geometry and finite actor controls')

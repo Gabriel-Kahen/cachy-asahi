@@ -111,3 +111,15 @@ HOME fstat device54 and kernel mountinfo0:33 are separately pinned identity
 domains. Held-FD mount-ID selection, before/after bracket, Btrfs/@home/subvolid257
 checks remain strict; no derived-device equality or unknown-filesystem exception
 is used. The regression covers the exact retained mount62 row plus mismatches.
+
+
+The first baseline has no global GNUPG directory or pacman.log. Exact observed
+ALARM public/trusted/revoked files now feed a separate bounded volatile public-only
+scratch trust, admitting only the Root-reviewed official signer for normal
+Required/TrustedOnly db5.3 install/remove. No global trust is created. All scratch
+GPG operations and cleanup are charged in the finite phase envelope; Root must
+refresh certificates and timing grants. An absent normal log is restored absent
+with the bounded transaction log retained in receipts. Existing logs remain
+append-only. `cmp` was removed: bounded stat+SHA256 equality now serves both guest
+paths and propagates failures, without post-removal language-runtime assumptions.
+These are source/control results; no guest/GPG/ALPM acceptance is supplied.

@@ -20,16 +20,19 @@ def scan(path,deadline,guard):
  with Reader(K.ordinary(path),max_nodes=150000,max_file_bytes=256*1024**2)as r:
   sb=r.read(1024,1024);free_blocks=F.u32(sb,12)|(F.u32(sb,344)<<32 if r.incompat&0x80 else 0)
   free_bytes=free_blocks*4096
-  nodes=r.inventory()['nodes'];records={};log_data=None
+  nodes=r.inventory()['nodes'];records={};log_data=None;retained_log=None
   for name,row in nodes.items():
    if name=='var/log/pacman.log':
     K.need(row['type']=='file' and row['size']<=8*1024**2,'bounded ordinary pacman log')
     f,d=r.inode(row['inode']);log_data=base64.b64encode(b''.join(r.chunks(f,d))).decode()
+   if name=='var/lib/arm16k-perl5423-vm/receipts/pacman-log-after':
+    K.need(row['type']=='file' and row['size']<=24*1024**2,'bounded retained normal transaction log')
+    f,d=r.inode(row['inode']);body=b''.join(r.chunks(f,d));K.need(hashlib.sha256(body).hexdigest()==row['sha256'],'retained transaction log hash');retained_log=base64.b64encode(body).decode()
    if name.startswith('var/lib/pacman/local/') and name.rsplit('/',1)[-1] in ('desc','files'):
     K.need(row['type']=='file' and row['size']<=4*1024**2,'bounded ordinary ALPM text')
     fields,data=r.inode(row['inode']);raw=b''.join(r.chunks(fields,data));K.need(hashlib.sha256(raw).hexdigest()==row['sha256'],'ALPM text hash')
     records[name]=raw.decode()
- return dict(nodes=nodes,records=records,filesystem_free_bytes=free_bytes,log_data_b64=log_data)
+ return dict(nodes=nodes,records=records,filesystem_free_bytes=free_bytes,log_data_b64=log_data,retained_log_data_b64=retained_log)
 
 
 def stable(row):
@@ -114,10 +117,17 @@ def preserve(before,after,inventory,runtime):
  dates=N.comparison(before['records'][date_path].encode(),after['records'][date_path].encode())if date_path else None
  log=allow['normal_pacman_log'].lstrip('/')
  original=base64.b64decode(before['log_data_b64'],validate=True)if before.get('log_data_b64')is not None else None
- if allow['pacman_log_before'] is None:K.need(original is None,'certified absent baseline pacman log')
- else:K.need(original is not None and dict(bytes=len(original),sha256=hashlib.sha256(original).hexdigest())==allow['pacman_log_before'],'certified actual baseline log bytes')
- K.need(after.get('log_data_b64') is not None and after['nodes'].get(log,{}).get('type')=='file' and after['nodes'][log]['uid']==after['nodes'][log]['gid']==0 and not after['nodes'][log]['mode']&0o6002,'actual safe ordinary final pacman log')
- K.need(base64.b64decode(after['log_data_b64'],validate=True).startswith(original or b''),'normal pacman log append-only preservation')
+ if allow['pacman_log_before'] is None:
+  allowed_dirs.add('var/log') # Only the parent mtime from create/remove of the certified absent normal log.
+  K.need(original is None and log not in before['nodes'] and log not in after['nodes'] and after.get('log_data_b64')is None,'certified baseline pacman log absence restored')
+  receipt='var/lib/arm16k-perl5423-vm/receipts/pacman-log-after';row=after['nodes'].get(receipt,{})
+  K.need(after.get('retained_log_data_b64')is not None and row.get('type')=='file' and row.get('mode')==0o600 and row.get('uid')==row.get('gid')==0,'actual safe retained transaction log for absent baseline log')
+  retained=base64.b64decode(after['retained_log_data_b64'],validate=True)
+  K.need(retained and len(retained)==row.get('size') and hashlib.sha256(retained).hexdigest()==row.get('sha256'),'actual retained normal transaction log bytes/hash')
+ else:
+  K.need(original is not None and dict(bytes=len(original),sha256=hashlib.sha256(original).hexdigest())==allow['pacman_log_before'],'certified actual baseline log bytes')
+  K.need(after.get('log_data_b64')is not None and after['nodes'].get(log,{}).get('type')=='file' and after['nodes'][log]['uid']==after['nodes'][log]['gid']==0 and not after['nodes'][log]['mode']&0o6002,'actual safe ordinary final pacman log')
+  K.need(base64.b64decode(after['log_data_b64'],validate=True).startswith(original),'normal pacman log append-only preservation')
  def normalized(scan,path):
   row=stable(scan['nodes'].get(path,{}))
   if path==date_path:
@@ -142,5 +152,5 @@ def preserve(before,after,inventory,runtime):
    K.need(path in allowed_times or path==log or row['type']=='directory' and (path in allowed_dirs or path.startswith('var/lib/arm16k-perl5423-vm/')),'unrelated baseline timestamp drift: '+path)
    changed_times.append(path)
  for path in after['nodes'].keys()-before['nodes'].keys():
-  K.need(not path.startswith(('root/','home/builder/','usr/','etc/','var/lib/pacman/local/')),'unreviewed user/payload/database residue')
- return dict(status='PASS_COMPLETE_BASELINE_AND_USER_PRESERVATION',packages=len(inventory),owned_paths=len(a),normal_install_date=dates,normal_timestamp_differences=changed_times,pacman_log='ORIGINAL_BYTES_PLUS_APPEND_ONLY',account_user_residuals=[])
+  K.need(not path.startswith(('root/','home/builder/','usr/','etc/','var/lib/pacman/local/','var/log/')),'unreviewed user/payload/database/log residue')
+ return dict(status='PASS_COMPLETE_BASELINE_AND_USER_PRESERVATION',packages=len(inventory),owned_paths=len(a),normal_install_date=dates,normal_timestamp_differences=changed_times,pacman_log='ABSENCE_RESTORED_WITH_RETAINED_NORMAL_TRANSACTION_LOG'if original is None else'ORIGINAL_BYTES_PLUS_APPEND_ONLY',account_user_residuals=[])

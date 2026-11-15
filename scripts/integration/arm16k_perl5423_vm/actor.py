@@ -29,8 +29,9 @@ def prepare(K,R,I,W,packet,cert,guard,deadline):
  hooks={n:I.stable(v)for n,v in scan['nodes'].items()if any(n==q.lstrip('/') or n.startswith(q.lstrip('/')+'/')for q in rt['effective_hook_policy']['hook_directories'])}
  K.need(hooks and K.json_pin(hooks)==rt['effective_hook_policy']['namespace_pin'],'actual complete preserved effective default hook namespace')
  if rt['dependency_transaction']:
-  trust={n:I.stable(v)for n,v in scan['nodes'].items()if n=='etc/pacman.d/gnupg' or n.startswith('etc/pacman.d/gnupg/')}
-  K.need(trust and K.json_pin(trust)==rt['dependency_transaction']['baseline_public_trust'],'actual unchanged complete official public trust namespace')
+  K.need(not any(n=='etc/pacman.d/gnupg' or n.startswith('etc/pacman.d/gnupg/')for n in scan['nodes']),'Root-reviewed absent global GPG directory')
+  trust={p.lstrip('/'):I.stable(scan['nodes'][p.lstrip('/')])for p in K.ALARM_FILES}
+  K.need(K.json_pin(trust)==rt['dependency_transaction']['baseline_public_trust'] and all(scan['nodes'][p]['type']=='file' and scan['nodes'][p]['uid']==scan['nodes'][p]['gid']==0 for p in trust),'actual unchanged exact three ALARM public files')
  if rt['kind']=='ROOT_REVIEWED_PERL5423_VM_EXPECTED_PAYLOAD_INPUTS_V1':
   observed=module('expected_payload').observe(rt['expected_payload'],scan,base['inventory']);observed.update(baseline_certificate=K.pin(Path('/packet/baseline_certificate.json')),raw=base['raw'])
   (W/'baseline-provider-observation.json').write_bytes(K.canonical(observed))
