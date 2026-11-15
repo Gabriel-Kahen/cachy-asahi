@@ -1,0 +1,64 @@
+{
+  "actual_Root_authority": null,
+  "actual_Source": null,
+  "actual_VM": null,
+  "actual_actor_expectedCmd": null,
+  "actual_device_enumeration": null,
+  "actual_kernel_bundle": null,
+  "actual_original_PAM_pins": null,
+  "actual_prepared_manifest": null,
+  "actual_ref": null,
+  "autologin": false,
+  "fixed_nonce_cmdline": "arm16k_virtio_seat_nonce=",
+  "fixed_nonce_path": "/etc/arm16k-virtio-seat-nonce",
+  "fresh_private_builder_only": true,
+  "guest_files": {
+    "input_seat.py": {
+      "bytes": 7245,
+      "guest_path": "/usr/local/libexec/seat-input.py",
+      "mode": "0755",
+      "sha256": "5fe14185c0cc8545d6e77498d825146ee369aff3c6e4a6693b8990fa3c1976d4"
+    },
+    "keyboard.py": {
+      "bytes": 1661,
+      "guest_path": "/usr/local/libexec/seat-keyboard.py",
+      "mode": "0755",
+      "sha256": "040ca60ad6cdd4534a813072f133a7291d19898e89afe26c7a0c8477188ff279"
+    },
+    "observer.py": {
+      "bytes": 9853,
+      "guest_path": "/usr/local/libexec/seat-observer.py",
+      "mode": "0755",
+      "sha256": "a8efc7a5e935b372ba5a61676a08a0d37ff73f356deeaa5ccff3b282a4f33411"
+    },
+    "observer.service": {
+      "bytes": 446,
+      "guest_path": "/etc/systemd/system/arm16k-virtio-seat-observer.service",
+      "mode": "0644",
+      "sha256": "539842658e23b011c762fd1c43d4ffb6a0b60e6dd47ef10db03731274860f59a"
+    },
+    "profile.fragment": {
+      "bytes": 253,
+      "guest_path": "/home/builder/.bash_profile",
+      "mode": "0600",
+      "sha256": "21a2384f9fbeb22d255f7000530178e8f068d21bca67241a8509368294cfc3dd"
+    },
+    "user_proof.py": {
+      "bytes": 4911,
+      "guest_path": "/usr/local/libexec/seat-user-proof.py",
+      "mode": "0755",
+      "sha256": "b44bf0459757516509250ef85a1cdf7c1f91a4006809a418bf26050b648a61ef"
+    }
+  },
+  "host_input_passthrough": false,
+  "kind": "ARM16K_VIRTIO_SEAT_SOURCE_DELIVERY_V1",
+  "mask_serial_getty_only": "serial-getty@ttyAMA0.service",
+  "observer_serial": "/dev/ttyAMA0",
+  "original_NM_policy_sha256": "6002ee5e8fcf3cfdd25fa5425c5dfa879dc293f8b1c69f14b4a8f9259be0b446",
+  "original_udev_seat_rule_sha256": "b57a64ab6c973d0b734dea808e6caf9a49b40739c7c7649784d09bd6d90c36d3",
+  "policy_override": false,
+  "schema_version": 1,
+  "status": "READY_SOURCE_ONLY",
+  "stock_getty": "getty@tty1.service",
+  "tty_login": "/dev/tty1"
+}

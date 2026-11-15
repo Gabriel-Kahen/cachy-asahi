@@ -1,0 +1,20 @@
+{
+  "locks": {
+    "bootlock": {
+      "archive_membership_of_new_git_lock": "NOT_VERIFIED",
+      "per_file_checksum_validation": "NOT_PERFORMED",
+      "registry_packages": 120,
+      "unmatched_vendor_package_declarations": []
+    },
+    "librarylock": {
+      "archive_membership_of_new_git_lock": "NOT_VERIFIED",
+      "per_file_checksum_validation": "NOT_PERFORMED",
+      "registry_packages": 30,
+      "unmatched_vendor_package_declarations": []
+    }
+  },
+  "scope": "Compare new pinned Git lock package declarations to previously retained archive vendor declarations; no payload equality, archive lock membership, Cargo resolution or license acceptance.",
+  "source_report_git_commit": "3c76059f0031b2433f25bd1e0fd1400a0a8bfcb5",
+  "source_report_repository_path": "scripts/port/arm-rust-toolchain-inputs/source-closure/archive-inventory/reports/rust.json",
+  "source_report_sha256": "a0eb6bec3b63d4d4f4a937e3e1e8b42a2e87d9e49b8608b96d51762b456abc8f"
+}
