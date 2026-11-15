@@ -1,9 +1,9 @@
 {
   "actor_files": {
     "container_mode.py": {
-      "bytes": 13147,
+      "bytes": 13191,
       "mode": 420,
-      "sha256": "b5f8c08db799335f0b6ccbd0873060a429cd0bc31c826af3b929494a83394637"
+      "sha256": "34155e20633c96219da11f155272cbcaf1fc6de77cf522b1624d9b0dd9580b55"
     },
     "entry.py": {
       "bytes": 12273,
@@ -82,7 +82,7 @@
   "mode": "ROOTFUL_CONTAINER_NO_BWRAP_V1",
   "operation": "llvm23-source-reference-native-v1",
   "outer_delegation": {
-    "frozen_python_actor": true,
+    "frozen_python_actor": false,
     "inner_operation": "llvm23-source-reference-native-v1",
     "operation": "llvm23-source-reference-native-v2",
     "volume_preentry": "EXACT_NONMUTATING_WORK_ROOT_CHECK"

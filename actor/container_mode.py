@@ -157,6 +157,7 @@ def remaining():
 
 def command(argv, name, seconds):
     need(re.fullmatch('[a-z0-9-]+', name), 'fixed command log name')
+    if name in STAGES: name = 'stage-'+name
     row = dict(argv=argv, log=name+'.log', log_pin=None, requested_seconds=seconds, timeout_seconds=None, lifecycle={}, returncode=None, success=False)
     timeout = min(seconds, remaining()-60)
     need(timeout > 2, 'actor metadata/retirement reserve exhausted')
