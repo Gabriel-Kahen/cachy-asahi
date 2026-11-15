@@ -69,6 +69,7 @@ def main():
             edits += ['mkdir '+directory,'set_inode_field '+directory+' mode 040755','set_inode_field '+directory+' uid 0','set_inode_field '+directory+' gid 0']
         else:K.need(nodes[directory.lstrip('/')]['kind']=='dir' and nodes[directory.lstrip('/')]['mode'] & 0o005 == 0o005,'existing private-prefix ancestor is not ordinary-user accessible')
     for name,row in sorted(payload.items(),key=lambda x:(x[0].count('/'),x[0])):
+        O.safe(name)  # Active debugfs script operands retain the original strict grammar.
         guest=K.PREFIX+'/'+name
         if row['kind']=='dir':edits += ['mkdir '+guest,'set_inode_field '+guest+' mode 0'+format(0o040000|row['mode'],'o'),'set_inode_field '+guest+' uid 0','set_inode_field '+guest+' gid 0']
         else:

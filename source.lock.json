@@ -20,9 +20,9 @@
       "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
     },
     "README.md": {
-      "bytes": 9494,
+      "bytes": 10952,
       "mode": 420,
-      "sha256": "58e79e2d81c4e43a24eed16f09a4a27ca885cbb49f510b9efda8984385da9cdc"
+      "sha256": "22a092af1d88687e76e141c4f4cc9bbf72b085753af9583e747957cc4424e239"
     },
     "authority.TEMPLATE.json": {
       "bytes": 1314,
@@ -240,9 +240,9 @@
       "sha256": "bf51e301630f7b3f78b2253225f9e2049c13214782846ef26c46717ac369334c"
     },
     "image.py": {
-      "bytes": 5850,
+      "bytes": 5853,
       "mode": 420,
-      "sha256": "e692852a2ab2ae1dd74b9f18f31bf35e6e3f669e8982cea5d8639cf04042dab9"
+      "sha256": "beff575a54ec6b8dc079c5a20379c48c7ba3fe4ece86527451684cfe594ce03a"
     },
     "memory.py": {
       "bytes": 4661,
@@ -255,9 +255,9 @@
       "sha256": "03841e6c987b8dc5999e250907dd18f0eb37fe72a3744443167532fc4c65fb57"
     },
     "ownership.py": {
-      "bytes": 11669,
+      "bytes": 12883,
       "mode": 420,
-      "sha256": "3bfa8f82e1a0dc350d3cdd5b7b9f0c6167bf0060fa2af58dea60d62bf5977a47"
+      "sha256": "1b6c7bf88a062a2d8c6f257811e38122e9803ac635d4602a2db53307769b320e"
     },
     "prepare.py": {
       "bytes": 7138,
@@ -265,9 +265,9 @@
       "sha256": "00cfbe0ebf38cf5f92167a72ad5a3fe517ef49315eca6b8e82f6553d483aa02f"
     },
     "prepare_image.py": {
-      "bytes": 9126,
+      "bytes": 9217,
       "mode": 420,
-      "sha256": "0e09cfe60d4164f72a34f4117fe844eea460740779aa7895be1dc68256f1c4ac"
+      "sha256": "94e2476eef00067ded7517bdf8bf45bb9518d84bd8b9e2bf9e4974856884ef5d"
     },
     "protocol.py": {
       "bytes": 3346,
@@ -334,6 +334,11 @@
       "mode": 420,
       "sha256": "7bd30a4f58afeb1a52e082515d29ddca02caf32921fe83a8107aceb6e3c8626b"
     },
+    "test_passive_namespace.py": {
+      "bytes": 9386,
+      "mode": 420,
+      "sha256": "8528c18833dab28cb72f35e1489113fe6ec54d6fd01f8032d7de2d413796bdc9"
+    },
     "test_runtime.py": {
       "bytes": 13055,
       "mode": 420,
@@ -345,9 +350,9 @@
       "sha256": "084e5957a435cf8f281ff8a60fe0afffd534ee9a71ed47677c9c4ae1715934b5"
     },
     "validation.json": {
-      "bytes": 816,
+      "bytes": 548,
       "mode": 420,
-      "sha256": "582f666bab3f51bb80dcf31c8807936993757c90b64cb89c60f07d11fde2800f"
+      "sha256": "175a8fb5b2d0c10b64f3f31f794c256fce50ea0eb3acf2d415fc307498d3559c"
     },
     "vm_actor.py": {
       "bytes": 7232,

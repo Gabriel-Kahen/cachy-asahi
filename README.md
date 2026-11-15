@@ -158,3 +158,27 @@ delta does not require new debugfs extraction or relabel that producer.
 No actual ownUID quota/Btrfs query, actor, VM, linker, compiler, lease, network
 or publication is performed by the worker. Future public Source/grants/runtime
 selectors remainNULL.
+
+## Passive namespace/ALPM successor
+
+The actual Source70 prepare attempt stopped before cloning because an image
+DATA key was passed to the strict active-command path validator. This successor
+adds a distinct bounded literal relative namespace/ALPM-key validator. It
+preserves punctuation, commas, brackets, literal backslashes and Unicode
+separators without unescaping or normalization. Empty components, traversal,
+absolute names, C0/DEL controls and overlong keys still refuse. The original
+strict command validator is unchanged and explicitly guards debugfs payload
+operands before active script construction.
+
+Exact byte-empty ALPM files records mean no owned paths. Nonempty records
+require nonempty FILES, paired records and exact byte/hash/version/111-package
+joins; duplicate per-package keys refuse. LF-only text splitting retains
+literal Unicode separators. All image keys use the passive validator.
+
+91 fenced Source controls and a separate real222 retained ALPM-body regression
+with a synthetic namespace pass. The latter does not claim actual image inode
+types, modes, content hashes or an image observation. The Root r5 executor
+mount identity fix and failure-only recovery fix are separate runtime changes.
+Source70, all frozen helpers, input contracts, V2/39-file semantics, linker,
+HOME/strict capacity modes, resource budgets and PAM/functional probes remain
+preserved. No raw scan/Reader/actor/compiler/VM/Docker/lease/network ran here.

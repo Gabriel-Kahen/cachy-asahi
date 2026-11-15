@@ -1,26 +1,21 @@
 {
   "actual": {
     "VM_boot": null,
-    "attempt": null,
     "authority": null,
-    "prepared": null,
+    "nonce": null,
+    "output": null,
+    "public_source": null,
     "publication": null,
-    "ref": null,
-    "source": null,
-    "tree": null
+    "ref": null
   },
   "address_space_limit_bytes": 134217728,
-  "certificate_consumer": "guest_inputs AST IDENTICAL; genuine39 V2 baseline DATA accepted without provenance relabel",
-  "controls_scope": "Source68 original72 plus9 HOME guard DATA/mocks; finite Bash argv tests only, no actual compiler/linker/syscall/actor",
-  "kind": "ARM16K_RUST_STAGE0_FENCED_CONTROLS_V1",
+  "external_retained_regression": "222 actual retained ALPM bodies verified by pin/dump; synthetic namespace only, no image observation",
   "not_run": [
-    "Source constructor entry",
-    "quota/Btrfs syscall",
-    "Reader/debugfs/ALPM/GPG",
-    "actor/compiler/linker/VM/Docker",
-    "lease/network/publication/Root grants"
+    "raw scan/Reader/actor",
+    "compiler/linker/VM/Docker",
+    "lease/network/publication"
   ],
   "schema": 1,
-  "status": "PASS_81_FENCED_SOURCE_CONTROLS_ONLY",
-  "tests": 81
+  "status": "PASS_91_FENCED_SOURCE_CONTROLS_ONLY",
+  "tests": 91
 }

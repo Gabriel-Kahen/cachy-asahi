@@ -58,7 +58,7 @@ def scan(raw,deadline,guard=None):
         for name,row in rows.items():
             tick()
             if name=='.':continue
-            O.safe(name);mode=row['mode'];K.need(type(mode) is int and 0<=mode<=0o7777,'image inode mode bound')
+            O.passive(name);mode=row['mode'];K.need(type(mode) is int and 0<=mode<=0o7777,'image inode mode bound')
             kind=row['type']
             if kind=='directory':node=dict(kind='dir',mode=mode)
             elif kind=='file':
