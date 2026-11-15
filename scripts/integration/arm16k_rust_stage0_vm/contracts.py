@@ -16,7 +16,7 @@ PREFIX = '/opt/cachy-asahi/rust-stage0'
 IMAGE = 'sha256:52958d534193d739aeb6d3c9239ed31b97f8fb357a618e14391293068b28cd2a'
 GIB = 1024**3
 END = None
-RESOURCES = dict(guest_cpus=2,guest_memory_bytes=2*GIB,owner_cpus=2,owner_memory_bytes=3*GIB,owner_swap_bytes=0,pids=256,raw_cap_bytes=3*GIB,prepare_allocated_cap=6*GIB,boot_allocated_cap=4*GIB,overlay_cap_bytes=512*1024**2,reserve_bytes=2*GIB,host_memory_reserve_bytes=2*GIB,prepare_seconds=600,boot_seconds=600,work_seconds=555,cleanup_seconds=45)
+RESOURCES = dict(guest_cpus=2,guest_memory_bytes=2*GIB,owner_cpus=2,owner_memory_bytes=3*GIB,boot_owner_memory_bytes=4*GIB,owner_swap_bytes=0,pids=256,raw_cap_bytes=3*GIB,prepare_allocated_cap=6*GIB,boot_allocated_cap=4*GIB,overlay_cap_bytes=512*1024**2,reserve_bytes=2*GIB,host_memory_reserve_bytes=2*GIB,prepare_seconds=600,boot_seconds=600,work_seconds=555,cleanup_seconds=45)
 TOOLS = ('bash','uname','id','getconf','pacman','sort','sha256sum','readlink','cat','mkdir','grep','head','sed','stat','timeout','env','date','sleep','sync','cp','rm','ld')
 REQUIRED_PATHS = ['/usr/bin/'+name for name in TOOLS]+['/usr/lib/Scrt1.o','/usr/lib/crti.o','/usr/lib/crtn.o','/lib/ld-linux-aarch64.so.1','/usr/lib/libc.so.6','/usr/lib/libdl.so.2','/usr/lib/libgcc_s.so.1','/usr/lib/libm.so.6','/usr/lib/libpthread.so.0','/usr/lib/librt.so.1','/usr/lib/libz.so.1']
 
@@ -145,12 +145,26 @@ def guest_inputs(path,a,base):
     return g
 
 
-def capacity(parent, allocated):
+def quota_guard(auth,parent,phase):
+    """Require Root's outer host-UID monitor, covering the entire actor lifetime.
+
+    A static quota snapshot or df alone cannot reserve headroom. This adapter
+    performs no quota syscall; Root owns the separate readonly host guard.
+    """
+    q=auth['resource_review'].get('quota_guard');parent=ordinary(parent)
+    cap=RESOURCES['prepare_allocated_cap'] if phase=='prepare' else RESOURCES['boot_allocated_cap']
+    need(type(q) is dict and q.get('issued_by')=='Root' and q.get('status')=='ROOT_REVIEWED_OWN_UID_QUOTA_GUARD_FOR_ENTIRE_ACTOR','Root whole-actor own-UID quota guard required; df-only or startup-only check insufficient')
+    need(q.get('uid')==os.getuid() and q.get('output_parent')==str(parent) and q.get('device')==parent.stat().st_dev and q.get('phase')==phase,'exact host UID/output filesystem/phase quota guard required')
+    need(q.get('operation')==OP and q.get('source_lock')==auth['source_lock'] and q.get('initial_headroom_bytes')==cap+RESOURCES['reserve_bytes'] and q.get('live_reserve_bytes')==RESOURCES['reserve_bytes'] and q.get('method')=='READ_ONLY_Q_GETQUOTA' and q.get('on_unknown_or_exhausted')=='HOLD_AND_OWNED_CLEANUP','exact phase quota headroom/live reserve/Source contract required')
+    return q
+
+
+def capacity(parent, allocated, owner_memory=None):
     parent = ordinary(parent);need(parent.is_dir() and parent.stat().st_uid == os.getuid() and not parent.stat().st_mode & 0o022, 'owned private output parent required')
     space = os.statvfs(parent)
     need(space.f_bavail*space.f_frsize >= allocated+RESOURCES['reserve_bytes'], 'finite sparse allocation plus disk reserve unavailable')
     text = Path('/proc/meminfo').read_text();available = int(next(s.split()[1] for s in text.splitlines() if s.startswith('MemAvailable:')))*1024
-    need(available >= RESOURCES['owner_memory_bytes']+RESOURCES['host_memory_reserve_bytes'], '3GiB owner plus 2GiB host reserve unavailable')
+    need(available >= (RESOURCES['owner_memory_bytes'] if owner_memory is None else owner_memory)+RESOURCES['host_memory_reserve_bytes'], 'phase owner memory plus 2GiB host reserve unavailable')
 
 
 def endpoint(authority):
@@ -164,12 +178,13 @@ def endpoint(authority):
 def preflight(a,phase):
     need(__debug__ and os.geteuid() == os.getuid() != 0, 'ordinary unoptimized Root-controlled host user required')
     auth = authority(a.authority,a.authority_sha256,phase,a.publication)
+    quota_guard(auth,ordinary(a.output).parent,phase)
     base,reference = baseline(a.base,a.base_first_boot_report);k = kernel(a.kernel_bundle,auth);q = tools(a.qemu_metadata,auth);s = materials(a.materials,auth);g = guest_inputs(a.guest_inputs,auth,base)
     checked(a.base/'credentials.json',auth['credentials'])
     st = (a.base/'credentials.json').stat();need(st.st_uid == os.getuid() and stat.S_IMODE(st.st_mode) == 0o600, 'private original PAM credentials required')
     out = ordinary(a.output);need(not out.exists(), 'fresh separate output required')
     for protected in (a.base,a.kernel_bundle,a.materials,HERE):
         p = ordinary(protected);need(p != out and p not in out.parents and out not in p.parents, 'disjoint immutable input/output paths required')
-    capacity(out.parent,RESOURCES['prepare_allocated_cap'] if phase == 'prepare' else RESOURCES['boot_allocated_cap'])
+    capacity(out.parent,RESOURCES['prepare_allocated_cap'] if phase == 'prepare' else RESOURCES['boot_allocated_cap'],RESOURCES['owner_memory_bytes'] if phase=='prepare' else RESOURCES['boot_owner_memory_bytes'])
     endpoint(auth)
     return auth,base,reference,k,q,s,g

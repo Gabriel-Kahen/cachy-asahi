@@ -27,6 +27,7 @@ actual Source/ref/authority/prepared/attempt/VM selectors are NULL.
 - `contracts.py`: all Root/source/material/kernel/tool/guest-input/resource
   gates; missing qualification refuses before clone/actor/daemon use.
 - `runtime.py`: fixed local-rootless transport and supervised child custody.
+- `memory.py`: durable bounded cgroup-v2 numeric receipts; no cause inference.
 - `ownership.py`, `protocol.py`: pure bounded ownership/serial checks.
 
 The executable entry points require ordinary host user, Python `-I -B`, explicit
@@ -59,7 +60,13 @@ python3 -I -B /ABS/boot.py --allow-boot \
 Root must replace templates with real evidence. The guest-input template cannot
 be filled from architecture declarations or the worker's static review: it
 requires actual readonly baseline file/CRT/ld/loader/library inspection. Private
-credentials remain outside Source, mode600, and are never printed. Preserve
+credentials remain outside Source, mode600, and are never printed. Boot now
+requires a 4 GiB no-swap owner plus 2 GiB host reserve (6 GiB MemAvailable); preparation
+remains 3 GiB plus 2 GiB. Root must implement/review a readonly outer own-UID quota
+guard across the whole actor and embed the completed quota-guard template in
+`resource_review.quota_guard`: initial headroom 8 GiB prepare / 6 GiB boot, live 2 GiB
+reserve. The adapter makes no quota syscall; `df` or a startup snapshot alone
+is insufficient. Preserve
 attempt/report/log evidence; removal concerns only the newly owned clone/output.
 
 ## Fenced checks

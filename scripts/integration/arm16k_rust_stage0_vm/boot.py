@@ -25,7 +25,7 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__);module('prepare').arguments(parser)
     parser.add_argument('--prepared',type=Path,required=True);parser.add_argument('--prepared-sha256',required=True);parser.add_argument('--allow-boot',action='store_true');a=parser.parse_args()
     if not(a.allow_boot and sys.flags.isolated and sys.dont_write_bytecode and not sys.flags.optimize):parser.error('explicit Root boot with python -I -B required')
-    started=time.monotonic();K,R,P=module('contracts'),module('runtime'),module('protocol');K.END=started+555
+    started=time.monotonic();K,R,P,M=module('contracts'),module('runtime'),module('protocol'),module('memory');K.END=started+555
     auth,base,reference,kernel,tool,spec,guest=K.preflight(a,'boot')
     source=K.ordinary(a.prepared);K.need(source!=a.output and source not in a.output.parents and a.output not in source.parents,'prepared inputs and output must be disjoint');K.need(K.pin(source/'prepared.json')['sha256']==a.prepared_sha256 and auth['prepared']==K.pin(source/'prepared.json'),'Root must select exact new prepared clone')
     m=K.load(source/'prepared.json')
@@ -56,10 +56,10 @@ def main():
             def validate(self,row):
                 K.need(row['Name']=='/'+name and row['Image']==K.IMAGE and row['Config']['Labels']==labels and row['Config']['Entrypoint']==['/usr/bin/python3'] and row['Config']['Cmd']==['-I','-B','/code/vm_actor.py'],'exact new Rust VM actor identity')
                 K.need(len(row['Mounts'])==3 and {(x['Type'],x['Source'],x['Destination'],x['RW']) for x in row['Mounts']}==mounts,'exact Rust VM actor mounts')
-                h=row['HostConfig'];K.need(h['ReadonlyRootfs'] is True and h['NetworkMode']=='none' and h['CapDrop']==['ALL'] and not h.get('CapAdd') and not h['Privileged'] and not h['Devices'] and h['Init'] is False and h['SecurityOpt']==['no-new-privileges'] and h['Memory']==h['MemorySwap']==3*K.GIB and h['NanoCpus']==2000000000 and h['PidsLimit']==256,'actual finite software-VM domain required')
+                h=row['HostConfig'];K.need(h['ReadonlyRootfs'] is True and h['NetworkMode']=='none' and h['CapDrop']==['ALL'] and not h.get('CapAdd') and not h['Privileged'] and not h['Devices'] and h['Init'] is False and h['SecurityOpt']==['no-new-privileges'] and h['Memory']==h['MemorySwap']==K.RESOURCES['boot_owner_memory_bytes'] and h['NanoCpus']==2000000000 and h['PidsLimit']==256,'actual finite software-VM domain required')
         scope=Scope(name,out/'container.cid',K.IMAGE,labels,source,out);K.need(scope.listing(time.monotonic()+8) is None,'fresh owned boot name required')
         (out/'host-epoch.json').write_text(json.dumps(dict(nonce=m['nonce'],utc_ns=time.time_ns(),monotonic_ns=time.monotonic_ns(),deadline_monotonic=started+555))+'\n')
-        argv=['docker','create','--cidfile',str(scope.cidfile),'--name',name,'--init=false','--pull=never','--read-only','--network=none','--cap-drop=ALL','--security-opt=no-new-privileges','--cpus=2','--memory=3g','--memory-swap=3g','--pids-limit=256','--tmpfs','/tmp:rw,nodev,nosuid,noexec,size=32m']
+        argv=['docker','create','--cidfile',str(scope.cidfile),'--name',name,'--init=false','--pull=never','--read-only','--network=none','--cap-drop=ALL','--security-opt=no-new-privileges','--cpus=2','--memory=4g','--memory-swap=4g','--pids-limit=256','--tmpfs','/tmp:rw,nodev,nosuid,noexec,size=32m']
         for key,value in labels.items():argv+=['--label',key+'='+value]
         for kind,src,target,rw in sorted(mounts):argv+=['--mount','type='+kind+',source='+src+',target='+target+('' if rw else ',readonly')]
         argv+=['--env','CACHY_RUST_STAGE0_BOOT=1','--entrypoint','/usr/bin/python3',K.IMAGE,'-I','-B','/code/vm_actor.py']
@@ -111,6 +111,10 @@ def main():
                 if scope is not None:scope.cleanup(report)
             except BaseException as error:report.setdefault('cleanup_errors',[]).append(dict(step='owned-container-cleanup',category=type(error).__name__,message=str(error)[:1024]))
             finally:
+                try:
+                    report['memory_receipts']=M.collect(out,m['nonce'],K.RESOURCES['boot_owner_memory_bytes'])
+                    if report['status']=='PASS_EMULATED_ARM16K_RUST_STAGE0_FIXTURE_ONLY':K.need(set(report['memory_receipts'])==set(M.STAGES) and all(v['status']=='OBSERVED' for v in report['memory_receipts'].values()),'complete observed cgroup memory diagnostics required')
+                except BaseException as error:report.setdefault('cleanup_errors',[]).append(dict(step='memory-receipts',category=type(error).__name__,message=str(error)[:1024]))
                 if state.pending or report.get('cleanup_errors') or not report.get('owned_container_absence_verified'):report['status']='HOLD_CLEANUP_OR_CANCELLED'
                 try:(out/'report.json').write_text(json.dumps(report,indent=2,sort_keys=True)+'\n')
                 finally:

@@ -20,19 +20,19 @@
       "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
     },
     "README.md": {
-      "bytes": 4065,
+      "bytes": 4585,
       "mode": 420,
-      "sha256": "d926d9915f319a116526ae8ba07f2780824947d083d7b1e8b183047b6d446a04"
+      "sha256": "170c65b2e84277f427d37be4e036b2a935a3695df85cfcebfb74f64810ee4fb7"
     },
     "authority.TEMPLATE.json": {
-      "bytes": 1096,
+      "bytes": 1139,
       "mode": 420,
-      "sha256": "34f8f0d49b523bbc8e79cea2567e15491bd58827ef26932323117a2d20139009"
+      "sha256": "3d1ef335b0ac081adde2f1dca02446bd88e6e53793cf7ee540c3160bbd3a56fd"
     },
     "boot.py": {
-      "bytes": 11531,
+      "bytes": 12166,
       "mode": 420,
-      "sha256": "bd4fa2765dc2a60ea4f518078ac34e05f977df44d4722b55fcaaea2fa488822d"
+      "sha256": "435d2ee1fc96311c9d16d6eeec89b79db14ce50189c5009624bc091686850411"
     },
     "construct.py": {
       "bytes": 3413,
@@ -40,9 +40,9 @@
       "sha256": "aa20d7a569a96a28ba7039c100057ece2e27a081447e2526db93b47445a58eb9"
     },
     "contracts.py": {
-      "bytes": 12565,
+      "bytes": 14092,
       "mode": 420,
-      "sha256": "8b8f1082868c0185bbbc42df4083329fb801a5f9cd4fa3ede408e58a675e6375"
+      "sha256": "2b9f0e45af823673ae8454864702a75fb0f8cc8504a768a84a17dd3c638ae8b7"
     },
     "data/base.json": {
       "bytes": 20047,
@@ -219,6 +219,11 @@
       "mode": 420,
       "sha256": "bf51e301630f7b3f78b2253225f9e2049c13214782846ef26c46717ac369334c"
     },
+    "memory.py": {
+      "bytes": 4661,
+      "mode": 420,
+      "sha256": "6f8297afdbce1abbef36a7639c648d58ae87b07c8de9e167b58201356a9d50c4"
+    },
     "origin.json": {
       "bytes": 9874,
       "mode": 420,
@@ -249,6 +254,11 @@
       "mode": 420,
       "sha256": "f7df647b4e223fc8f80e8b1c4ee403530279b88adbe240e5fcd46d0c066ee78f"
     },
+    "quota-guard.TEMPLATE.json": {
+      "bytes": 278,
+      "mode": 420,
+      "sha256": "76e10c2c65438e64cfd0df276e762f58f31debf711f20ae43b803ae238abc640"
+    },
     "runtime.py": {
       "bytes": 12744,
       "mode": 420,
@@ -264,6 +274,11 @@
       "mode": 420,
       "sha256": "440d58cc4663d871923728ecf4b8e6a622c8736363624371eb191b7e8958b718"
     },
+    "test_memory.py": {
+      "bytes": 4718,
+      "mode": 420,
+      "sha256": "f3b7062d1292f0e9e04af379002ba1b6b2e5728ab821a8cd886f821c8b1417d7"
+    },
     "test_runtime.py": {
       "bytes": 12295,
       "mode": 420,
@@ -275,14 +290,14 @@
       "sha256": "7939c7444db185d6c9a42ec634500f3bd281abfde471cc643fd275eeb07ce622"
     },
     "validation.json": {
-      "bytes": 1088,
+      "bytes": 1211,
       "mode": 420,
-      "sha256": "42db35c5121ab3dbaba67d52102b19c95a69b5daab8f930b642d04d49136d6e5"
+      "sha256": "b85e9cfeb9ab085f045935a47925b8d376d211930275a5180cd05d86717017dc"
     },
     "vm_actor.py": {
-      "bytes": 6483,
+      "bytes": 6735,
       "mode": 420,
-      "sha256": "07509033f125c4310bca912135ffebe9b214ee899ed6a73dfaeb328bb705d62e"
+      "sha256": "1a98f5d7bdf5666188f899f3a601122d438028d675a2e5ff95c6c919c2f62ba1"
     }
   },
   "kind": "ARM16K_RUST_STAGE0_SOURCE_LOCK_V1",

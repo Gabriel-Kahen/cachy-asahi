@@ -50,7 +50,7 @@ def postboot(K,R,O,inputs,work,prepared,deadline):
 
 
 def main():
-    K,R=module('contracts'),module('runtime')
+    K,R,M=module('contracts'),module('runtime'),module('memory')
     K.need(sys.flags.isolated and sys.dont_write_bytecode and __debug__ and os.environ.get('CACHY_RUST_STAGE0_BOOT')=='1' and Path('/.dockerenv').is_file(),'explicit Root-owned VM entry required')
     status=dict(line.split(':',1) for line in Path('/proc/self/status').read_text().splitlines() if ':' in line)
     K.need(all(int(status[n].strip(),16)==0 for n in ('CapEff','CapPrm','CapBnd','CapInh','CapAmb')) and status['NoNewPrivs'].strip()=='1' and {n for _,n in socket.if_nameindex()}=={'lo'} and not Path('/dev/kvm').exists(),'actual no-device cap0/NNP/software-only domain')
@@ -63,23 +63,25 @@ def main():
     deadline=epoch['deadline_monotonic']-5;K.need(5<deadline-time.monotonic()<=550,'finite assigned VM work budget');K.END=deadline
     R.command(['qemu-img','create','-f','qcow2','-F','raw','-b','/inputs/guest.raw','/work/overlay.qcow2'],W,'overlay-create',10,deadline)
     resource.setrlimit(resource.RLIMIT_CORE,(0,0))
-    argv=qemu_argv(m,epoch['utc_ns']//10**9);(W/'qemu-argv.json').write_text(json.dumps(argv,indent=2)+'\n')
-    (W/'host-qemu-start.json').write_text(json.dumps(dict(nonce=m['nonce'],utc_ns=time.time_ns(),monotonic_ns=time.monotonic_ns()))+'\n')
-    failed=False
-    try:R.command(argv,W,'qemu',seconds=max(5,deadline-time.monotonic()),deadline=deadline,child_file_size_cap=K.RESOURCES['overlay_cap_bytes'],watched_tree=(W,K.RESOURCES['boot_allocated_cap'],K.RESOURCES['reserve_bytes']))
-    except BaseException:failed=True
-    finally:
-        receipt=W/'qemu.json'
-        if receipt.is_file():
-            row=K.load(receipt);row['actor_cancelled']=row.get('command_cancelled',[])
-            (W/'qemu-retirement.json').write_text(json.dumps(row,indent=2,sort_keys=True)+'\n')
-        else:row={}
-    if failed or not R.natural(row):return 1
-    try:postboot(K,R,module('ownership'),I,W,m,deadline)
-    except BaseException as error:
-        (W/'postboot-preservation.json').write_text(json.dumps(dict(status='HOLD_POSTBOOT_PRESERVATION',nonce=m['nonce'],failure=dict(category=type(error).__name__,message=str(error)[:1024])),indent=2,sort_keys=True)+'\n')
-        return 1
-    return 0
+    with M.receipts(W,m['nonce'],K.RESOURCES['boot_owner_memory_bytes']):
+        argv=qemu_argv(m,epoch['utc_ns']//10**9);(W/'qemu-argv.json').write_text(json.dumps(argv,indent=2)+'\n')
+        (W/'host-qemu-start.json').write_text(json.dumps(dict(nonce=m['nonce'],utc_ns=time.time_ns(),monotonic_ns=time.monotonic_ns()))+'\n')
+        failed=False
+        try:R.command(argv,W,'qemu',seconds=max(5,deadline-time.monotonic()),deadline=deadline,child_file_size_cap=K.RESOURCES['overlay_cap_bytes'],watched_tree=(W,K.RESOURCES['boot_allocated_cap'],K.RESOURCES['reserve_bytes']))
+        except BaseException:failed=True
+        finally:
+            receipt=W/'qemu.json'
+            if receipt.is_file():
+                row=K.load(receipt);row['actor_cancelled']=row.get('command_cancelled',[])
+                (W/'qemu-retirement.json').write_text(json.dumps(row,indent=2,sort_keys=True)+'\n')
+            else:row={}
+            M.snapshot(W,m['nonce'],'at-qemu-exit',K.RESOURCES['boot_owner_memory_bytes'])
+        if failed or not R.natural(row):return 1
+        try:postboot(K,R,module('ownership'),I,W,m,deadline)
+        except BaseException as error:
+            (W/'postboot-preservation.json').write_text(json.dumps(dict(status='HOLD_POSTBOOT_PRESERVATION',nonce=m['nonce'],failure=dict(category=type(error).__name__,message=str(error)[:1024])),indent=2,sort_keys=True)+'\n')
+            return 1
+        return 0
 
 
 

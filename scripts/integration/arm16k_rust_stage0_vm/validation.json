@@ -25,7 +25,10 @@
     "Perl/rustc/cargo/linker",
     "native16K/M2 hardware",
     "performance",
-    "release admission"
+    "release admission",
+    "actual cgroup diagnostics",
+    "actual quota query or change",
+    "external Root whole-actor quota monitor"
   ],
   "passive_JSON": "PASS",
   "passive_python_syntax": "PASS",
@@ -34,7 +37,7 @@
   "unittest": {
     "command": "PYTHONDONTWRITEBYTECODE=1 python3 -B -m unittest discover -s scripts/integration/arm16k_rust_stage0_vm -v",
     "failed": 0,
-    "passed": 37,
-    "scope": "tiny synthetic archives/DATA trees/nonce frames/mocked children; no operational child spawn"
+    "passed": 42,
+    "scope": "tiny synthetic archives/DATA/cgroup trees/nonce frames/mocked children; no operational child spawn"
   }
 }

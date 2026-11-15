@@ -94,7 +94,8 @@ Root boots only a new selected clone, with a separate Rust nonce and exclusive
 attempt marker. The original PAM nonce and consumed first-boot marker remain
 unchanged. The guest is software-emulated TCG with two CPUs, 2 GiB RAM, no NIC,
 no KVM or other host device, and the exact 16K/RTC kernel. The owner container
-has two CPUs, 3 GiB memory with no additional swap, 256 PIDs, no capabilities,
+has two CPUs, 3 GiB memory for preparation and **4 GiB for boot**, with no
+additional swap, 256 PIDs, no capabilities,
 no-new-privileges, a readonly root and no network. No GUI/performance result is
 claimed.
 
@@ -136,13 +137,58 @@ host deadlines can refuse later phases. Raw logical size is at most 3 GiB
 (the original geometry is retained), overlay file size at most 512 MiB,
 preparation allocated output at most 6 GiB, boot allocated output at most
 4 GiB, with at least 2 GiB free disk and 2 GiB host memory reserve beyond the
-3 GiB owner requirement. Watched subprocesses stop on output/allocation/reserve
+phase owner requirement (5 GiB minimum host MemAvailable for preparation,
+6 GiB for boot). Watched subprocesses stop on output/allocation/reserve
 violations. Cleanup Docker calls stop by second597, reserving the final three
 seconds for reporting and retirement. If a child is still held after its local
 budget expires, exactly one bounded 0.5-second emergency handoff retains
 custody; its overrun flags force HOLD even if it exits zero. This never renews
 passing work. These limits are proposed
 and source-checked, not demonstrated runtime capacity.
+
+The earlier 3 GiB boot owner allowed only 1 GiB beyond the 2 GiB guest for
+QEMU, the actor and charged file cache. The new 4 GiB proposal adds 1 GiB of
+headroom; its adequacy remains unmeasured. Root reported a different UI283 VM
+exited -9 under a 3 GiB owner without memory.events evidence. That cause is
+**UNKNOWN**; this source change neither diagnoses OOM nor proves a fix.
+
+`memory.py` reads only fixed cgroup-v2 numeric files: memory.events, peak,
+current, max, swap.current and swap.max. It creates exclusive mode600 receipts
+before the VM, after QEMU retirement and finally after verification, flushing
+each file and its parent directory. Each read is at most 4096 bytes and each
+receipt at most 16384 bytes. It requires actual 4 GiB/no-swap cgroup limits before
+launch; missing/unbounded/invalid data records REFUSED and blocks success.
+The host retains available receipts on failure and requires all three observed
+stages for PASS. Events are observations, not an automatic cause classifier.
+A killed actor can leave exit/final receipts missing; absence is not OOM proof.
+Only the small numeric-reader pattern was implemented here; no desktop adapter
+or executable Root wrapper is copied or imported.
+
+Filesystem free space is not the host UID's quota headroom. Root reported a
+12.5 GiB own-UID shared-memory quota; the worker did not query it or change it.
+Preparation still reserves **6 GiB allocated plus 2 GiB reserve = 8 GiB initial
+headroom**; boot reserves **4 GiB plus 2 GiB = 6 GiB**. These are additional free
+headroom requirements at phase admission, after retained inputs/other outputs
+have already consumed their charges. UI wrapper thresholds of 1500/1152 MiB
+cannot be reused. No additional disk allocation was requested by this update.
+
+Root authority now requires `resource_review.quota_guard` matching
+`quota-guard.TEMPLATE.json`: actual host UID, output parent/device, phase,
+operation, current Source-lock pin, initial headroom threshold and live 2 GiB
+reserve, with status `ROOT_REVIEWED_OWN_UID_QUOTA_GUARD_FOR_ENTIRE_ACTOR`, method
+`READ_ONLY_Q_GETQUOTA`, and unknown/exhausted handling `HOLD_AND_OWNED_CLEANUP`.
+Root must supply the actual outer host guard, covering Python assembly and
+all actor work, including intervals outside command watchers. The guard must
+account for applicable soft/hard/grace and inode constraints, and stop safely
+when required quota evidence becomes unavailable. The adapter deliberately
+performs no quota syscall and does not duplicate a host-ABI-specific wrapper.
+Its certificate gate is an explicit Root review boundary, **not proof that an
+external monitor is running or a reservation of quota**. Root must implement
+and review that outer monitor before issuing the certificate or launching;
+a startup-only quota check does not satisfy this contract. Per-tree allocated
+bytes and `df` checks remain independent supplementary checks. Disk-backed
+scratch avoids treating shared-memory files as cost-free host RAM; Root must
+account for the actual output filesystem in its memory review.
 
 Frozen baseline process/ownership/RTC helpers remain byte-identical. Thin
 adapters retain child custody across launch/cancellation, defer cancellation
