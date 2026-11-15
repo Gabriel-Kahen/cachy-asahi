@@ -1,0 +1,31 @@
+{
+  "approved": null,
+  "archive": {
+    "bytes": 38829,
+    "sha256": "e6fff868047ec766fe2d1e065db96c31bcc5ca8b15f7cc570b2e1c83e444e7ee"
+  },
+  "issued_at": null,
+  "issuer": "Root",
+  "once": true,
+  "operation": "arm16k-virtio-tool-image-v1",
+  "output": null,
+  "parent_image_id": "sha256:ee1aa3da22a5d89dc1bc273fa818b1d996b7e62851f50d7b629144f6bba9f207",
+  "resources": {
+    "additional_disk_bytes": 268435456,
+    "cpus": 1,
+    "host_reserve_bytes": 1073741824,
+    "image_delta_bytes": 33554432,
+    "memory_bytes": 536870912,
+    "memory_host_reserve_bytes": 1073741824,
+    "output_bytes": 8388608,
+    "per_command_seconds": 180,
+    "pids": 64,
+    "whole_seconds": 360
+  },
+  "retry": false,
+  "signature": {
+    "bytes": 119,
+    "sha256": "acaa797c7d026778d0951509ed428ad1440f9aeefb2cc0f4c00fbba20e381200"
+  },
+  "source_manifest": null
+}

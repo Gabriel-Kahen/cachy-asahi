@@ -1,0 +1,209 @@
+{
+  "actual": {
+    "M2": "NOT RUN",
+    "device_help": null,
+    "guest_boot": "NOT RUN",
+    "image_id": null,
+    "release_accepted": false
+  },
+  "catalog": {
+    "bytes": 9018593,
+    "sha256": "1b4caf18e4a57ba10f201c7b19892bb55a37283c2b0369b39cc6c4f6b654151d",
+    "snapshot": "2026/11/09"
+  },
+  "data": {
+    "data/PKGINFO.data": {
+      "bytes": 2470,
+      "sha256": "4e9960261b17ddf22ef027eb5d48863621482ccd208ac5fe34c2fdbe50e6594b"
+    },
+    "data/official-desc.data": {
+      "bytes": 1660,
+      "sha256": "0638e5637c90c4323214962e6d0a795e734ccebf2add2cabc50e020d26f6a7d8"
+    },
+    "data/parent-packages.json": {
+      "bytes": 30634,
+      "sha256": "d0852d63468b38fd49948c7da2574838f27f58803761d3bfff62d912e85ca879"
+    }
+  },
+  "members": {
+    ".BUILDINFO": {
+      "bytes": 14702,
+      "kind": "file",
+      "mode": 420,
+      "sha256": "c9294ca04d40cac6ee0eb3b0da19abf6566bd00cc613c9c5be1f0819fc26eac8"
+    },
+    ".MTREE": {
+      "bytes": 743,
+      "kind": "file",
+      "mode": 420,
+      "sha256": "9a5446bfb026e6003986e89ff0aa613fbcdfc6c92f301fe8b44de6fda60f9af5"
+    },
+    ".PKGINFO": {
+      "bytes": 2470,
+      "kind": "file",
+      "mode": 420,
+      "sha256": "4e9960261b17ddf22ef027eb5d48863621482ccd208ac5fe34c2fdbe50e6594b"
+    },
+    "usr": {
+      "bytes": 0,
+      "kind": "directory",
+      "mode": 493
+    },
+    "usr/lib": {
+      "bytes": 0,
+      "kind": "directory",
+      "mode": 493
+    },
+    "usr/lib/qemu": {
+      "bytes": 0,
+      "kind": "directory",
+      "mode": 493
+    },
+    "usr/lib/qemu/hw-display-virtio-gpu.so": {
+      "bytes": 71632,
+      "kind": "file",
+      "mode": 493,
+      "sha256": "389cbb38a545bacce11c4665e875bb37826acee1cd5205fe5ef99b804ca95db4"
+    },
+    "usr/share": {
+      "bytes": 0,
+      "kind": "directory",
+      "mode": 493
+    },
+    "usr/share/licenses": {
+      "bytes": 0,
+      "kind": "directory",
+      "mode": 493
+    },
+    "usr/share/licenses/qemu-hw-display-virtio-gpu": {
+      "bytes": 0,
+      "kind": "directory",
+      "mode": 493
+    },
+    "usr/share/licenses/qemu-hw-display-virtio-gpu/BSD-2-Clause.txt": {
+      "bytes": 1403,
+      "kind": "file",
+      "mode": 420,
+      "sha256": "075489a49d7837af8225dde644936d7d171a17e8e4a339cde3a0808b7ea19614"
+    },
+    "usr/share/licenses/qemu-hw-display-virtio-gpu/LICENSE": {
+      "bytes": 1177,
+      "kind": "file",
+      "mode": 420,
+      "sha256": "139c64b7a9ae62858ff969aae622ecfcf4f1519655bd92d2e70a1a2fb615690e"
+    },
+    "usr/share/licenses/qemu-hw-display-virtio-gpu/audio.LICENSE.ISC.txt": {
+      "bytes": 92,
+      "kind": "file",
+      "mode": 420,
+      "sha256": "88ca06adfbe0d3c245514dfde29e9ecb439704c5b20b606d29cf9886947757cb"
+    },
+    "usr/share/licenses/qemu-hw-display-virtio-gpu/edk2-licenses.txt": {
+      "bytes": 42903,
+      "kind": "file",
+      "mode": 420,
+      "sha256": "1ddeaed2e7d2e9ecb960bdfc1b8ee45387aff70d056d985d145949af3951657c"
+    },
+    "usr/share/licenses/qemu-hw-display-virtio-gpu/fuse.LICENSE.BSD-2-Clause.txt": {
+      "bytes": 1687,
+      "kind": "file",
+      "mode": 420,
+      "sha256": "38a8a232f9e8838e7bc7a06e03295ddfacd4b438bdef6a2e6503a1e7db6fec1d"
+    },
+    "usr/share/licenses/qemu-hw-display-virtio-gpu/tcg.LICENSE.MIT.txt": {
+      "bytes": 1181,
+      "kind": "file",
+      "mode": 420,
+      "sha256": "5c3dc2e9b8c2acc535dcc327ed26ef13d00eebf9afee486dbc9b7ab930480120"
+    },
+    "usr/share/licenses/qemu-hw-display-virtio-gpu/tci.LICENSE.MIT.txt": {
+      "bytes": 1157,
+      "kind": "file",
+      "mode": 420,
+      "sha256": "24e917f42016056f9ed5f9402845f8826957d49f540dab9c1dd0ccd680737911"
+    }
+  },
+  "module": {
+    "bytes": 71632,
+    "needed": [
+      "libc.so.6",
+      "libpixman-1.so.0"
+    ],
+    "path": "usr/lib/qemu/hw-display-virtio-gpu.so",
+    "sha256": "389cbb38a545bacce11c4665e875bb37826acee1cd5205fe5ef99b804ca95db4",
+    "stamp": "qemu_stamp_913ef03f58f097081461725293209a4ad4cab60a"
+  },
+  "operation": "arm16k-virtio-tool-image-v1",
+  "package": {
+    "archive": {
+      "bytes": 38829,
+      "sha256": "e6fff868047ec766fe2d1e065db96c31bcc5ca8b15f7cc570b2e1c83e444e7ee"
+    },
+    "filename": "qemu-hw-display-virtio-gpu-11.1.3-1-x86_64.pkg.tar.zst",
+    "installed_bytes": 121232,
+    "name": "qemu-hw-display-virtio-gpu",
+    "primary_signer": "991F6E3F0765CF6295888586139B09DA5BF0D338",
+    "signature": {
+      "bytes": 119,
+      "sha256": "acaa797c7d026778d0951509ed428ad1440f9aeefb2cc0f4c00fbba20e381200"
+    },
+    "signing_key": "62CC73F884E52957B2FDD8839B7A287D9A2EC608",
+    "url": "https://archive.archlinux.org/repos/2026/11/09/extra/os/x86_64/qemu-hw-display-virtio-gpu-11.1.3-1-x86_64.pkg.tar.zst",
+    "version": "11.1.3-1"
+  },
+  "parent_image_id": "sha256:ee1aa3da22a5d89dc1bc273fa818b1d996b7e62851f50d7b629144f6bba9f207",
+  "providers": {
+    "libc.so.6": {
+      "bytes": 2215072,
+      "package": "glibc",
+      "path": "usr/lib/libc.so.6",
+      "sha256": "02c8c3d06180beee9c7d0392aa85736c7d19f274a81e7f8f0b3d9e28e0641524",
+      "version": "2.44+r50+g1848099f063e-1"
+    },
+    "libpixman-1.so.0": {
+      "bytes": 714800,
+      "package": "pixman",
+      "path": "usr/lib/libpixman-1.so.0.46.4",
+      "sha256": "97d04f1a534e26e26cf993a350b13ddc33fa4f9741444b08c27bc04582c70fd8",
+      "version": "0.46.4-1"
+    }
+  },
+  "qemu": {
+    "bytes": 34622584,
+    "path": "usr/bin/qemu-system-aarch64",
+    "sha256": "6f16cea44da813a65a1076886f63687350a0173e188873ba227dcc06f5c16b27",
+    "version": "11.1.3"
+  },
+  "required_devices": [
+    "virtio-blk-device",
+    "virtio-keyboard-device",
+    "virtio-gpu-device"
+  ],
+  "resources": {
+    "additional_disk_bytes": 268435456,
+    "cpus": 1,
+    "host_reserve_bytes": 1073741824,
+    "image_delta_bytes": 33554432,
+    "memory_bytes": 536870912,
+    "memory_host_reserve_bytes": 1073741824,
+    "output_bytes": 8388608,
+    "per_command_seconds": 180,
+    "pids": 64,
+    "whole_seconds": 360
+  },
+  "runtime": {
+    "command_runtime.py": {
+      "bytes": 8091,
+      "sha256": "253494be99c21c83743b384b2c06cd1627023ffaf54f0cbbd271bde80572f70a"
+    },
+    "owned_process.py": {
+      "bytes": 25140,
+      "sha256": "83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f"
+    },
+    "reference_controller.py": {
+      "bytes": 14117,
+      "sha256": "e7c8935f342d4b36bb6f8f24c0b48c3b8aa04be9807f62c3f8141aeaf26819fc"
+    }
+  },
+  "schema": 1
+}

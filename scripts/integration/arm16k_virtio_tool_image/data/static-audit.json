@@ -1,0 +1,67 @@
+{
+  "acquisition": {
+    "archive": {
+      "bytes": 38829,
+      "sha256": "e6fff868047ec766fe2d1e065db96c31bcc5ca8b15f7cc570b2e1c83e444e7ee"
+    },
+    "primary_https_status": 200,
+    "redirects": 0,
+    "retry": false,
+    "signature": {
+      "bytes": 119,
+      "sha256": "acaa797c7d026778d0951509ed428ad1440f9aeefb2cc0f4c00fbba20e381200"
+    },
+    "status_lines": 1
+  },
+  "actual_candidate_image_id": null,
+  "actual_device_help": null,
+  "additional_container_copy_failure": "second copy in first never-started container failed with Docker overlay mount error; no module-directory observation claimed",
+  "additional_installed_bytes": 121232,
+  "additional_packages": 1,
+  "ascii_official_keyring": {
+    "bytes": 1811508,
+    "sha256": "6e5e9373e4684d646f2274e2df54d7fea5f79bc0df981ad8cd7851d1d2454ba3"
+  },
+  "binary_public_keyring": {
+    "bytes": 1337669,
+    "sha256": "f7af717a90821803e5c366032f3135c236c4100962716b3c1ed352f8b9330f51"
+  },
+  "guest_boot": "NOT RUN",
+  "module": {
+    "bytes": 71632,
+    "needed": [
+      "libc.so.6",
+      "libpixman-1.so.0"
+    ],
+    "path": "usr/lib/qemu/hw-display-virtio-gpu.so",
+    "sha256": "389cbb38a545bacce11c4665e875bb37826acee1cd5205fe5ef99b804ca95db4",
+    "stamp": "qemu_stamp_913ef03f58f097081461725293209a4ad4cab60a"
+  },
+  "never_started_containers": 3,
+  "owned_containers_absent": true,
+  "parent_QEMU": {
+    "bytes": 34622584,
+    "path": "usr/bin/qemu-system-aarch64",
+    "sha256": "6f16cea44da813a65a1076886f63687350a0173e188873ba227dcc06f5c16b27",
+    "version": "11.1.3"
+  },
+  "parent_package_count": 178,
+  "providers": {
+    "libc.so.6": {
+      "bytes": 2215072,
+      "package": "glibc",
+      "path": "usr/lib/libc.so.6",
+      "sha256": "02c8c3d06180beee9c7d0392aa85736c7d19f274a81e7f8f0b3d9e28e0641524",
+      "version": "2.44+r50+g1848099f063e-1"
+    },
+    "libpixman-1.so.0": {
+      "bytes": 714800,
+      "package": "pixman",
+      "path": "usr/lib/libpixman-1.so.0.46.4",
+      "sha256": "97d04f1a534e26e26cf993a350b13ddc33fa4f9741444b08c27bc04582c70fd8",
+      "version": "0.46.4-1"
+    }
+  },
+  "signature_validsig": "[GNUPG:] VALIDSIG 62CC73F884E52957B2FDD8839B7A287D9A2EC608 2026-10-29 1793278254 0 4 0 22 10 00 991F6E3F0765CF6295888586139B09DA5BF0D338",
+  "status": "STATIC_DATA_VERIFIED_NO_PAYLOAD_EXECUTION"
+}
