@@ -1,11 +1,17 @@
 {
-  "cases": {},
   "domain_sha256": "6c6bdc29acf59e8ea911167f08d4d66a993777c121b2399211cec030e2a5b804",
+  "expected349_sha256": "579981195b654d8cdf142e4101dfc2bfffbc3576eed50f23796a06e90cf57453",
   "image": null,
+  "input_signature_audit_sha256": null,
   "job": null,
-  "reader_sha256": null,
+  "kind": "ROOT_NATIVE_CONTAINER_ADMISSION_V2",
+  "native_daemon_identity_sha256": null,
+  "nested_diagnostic": null,
+  "nested_invocation": "NOT_INVOKED",
+  "nested_qualification": "NOT_QUALIFIED",
   "run": null,
-  "schema": 1,
+  "schema": 2,
   "source": null,
+  "source_readback_sha256": null,
   "status": "NOT_RUN"
 }

@@ -126,27 +126,44 @@ def natural(code=0):
 
 
 def operands():
-    """Invented identities and namespace links, never operational qualification."""
+    """Invented Root container preconditions; no nested support or authority."""
     c = json.loads((HERE/'contract.json').read_bytes())
-    a = dict(schema=1,operation=c['operation'],approval='1'*64,
+    a = dict(schema=2,operation=c['operation'],approval='1'*64,
              source=dict(sha='2'*40,ref='codex/MODELED-NEVER-ADMITTED'),
              source_map_sha256='3'*64,run='123',job='456',image='sha256:'+'4'*64,
              domain_sha256=c['domain_sha256'],expected349_sha256=c['expected349_sha256'],
              input_signature_audit_sha256='5'*64)
-    before = dict(uid=1001,gid=1001,namespaces={name:name+':['+str(index)+']' for index,name in enumerate(('user','mnt','net','pid'),1)},
-                  uid_map=[[0,0,4294967295]],gid_map=[[0,0,4294967295]])
-    cases = {}
-    for kind in ('bwrap-user-mount-net','unshare-mapped-root'):
-        after = copy.deepcopy(before)
-        for name in (('user','mnt','net') if kind.startswith('bwrap') else ('user',)):
-            after['namespaces'][name]=name+':[100]'
-        if kind.startswith('unshare'):
-            after.update(uid=0,gid=0,uid_map=[[0,1001,1]],gid_map=[[0,1001,1]])
-        cases[kind]=dict(exit_code=0,outcome='SUPPORTED',before=copy.deepcopy(before),after=after,retirement=natural())
-    q = dict(schema=1,status='PASS_NAMESPACE_EFFECTS',source='6'*40,run=a['run'],job=a['job'],
-             image=a['image'],domain_sha256=c['domain_sha256'],reader_sha256='7'*64,cases=cases)
+    q = dict(schema=2,kind='ROOT_NATIVE_CONTAINER_ADMISSION_V2',status='ROOT_ADMITTED_CONTAINER_PRECONDITIONS',
+             source=a['source']['sha'],run=a['run'],job=a['job'],image=a['image'],domain_sha256=c['domain_sha256'],
+             source_readback_sha256='6'*64,native_daemon_identity_sha256='7'*64,
+             input_signature_audit_sha256=a['input_signature_audit_sha256'],expected349_sha256=a['expected349_sha256'],
+             nested_invocation='NOT_INVOKED',nested_qualification='NOT_QUALIFIED',nested_diagnostic=None)
     a['qualification_sha256']=r.pin(r.encoded(q))['sha256']
     return c,a,q
+
+
+MODELED_MOUNTS="""1 0 0:1 / / ro,relatime - overlay overlay rw
+2 1 0:2 /MODELED /inputs ro,relatime - ext4 /MODELED rw
+3 1 0:2 /MODELED-volume /work rw,relatime - ext4 /MODELED rw
+4 1 0:4 / /tmp rw,nosuid,nodev,noexec,relatime - tmpfs tmpfs rw,size=65536k,uid=1001,gid=1001
+5 1 0:5 / /run rw,nosuid,nodev,noexec,relatime - tmpfs tmpfs rw,size=8192k,uid=1001,gid=1001
+"""
+
+
+def runtime_fixture(c,a):
+    """Synthetic /proc context DATA, never observations of this host."""
+    entry=dict(pid=7,ppid=1,pgrp=7,session=7,starttime=107,uid=1001,euid=1001,gid=1001,egid=1001,groups=[1001],
+        architecture='aarch64',page_bytes=4096,cwd='/work/recipe',exe='/usr/bin/python3.14',
+        cmdline=['/usr/bin/python3','-I','-B','/inputs/entry.py'],
+        namespaces={key:key+':['+str(n)+']' for n,key in enumerate(('user','mnt','net','pid'),10)},
+        uid_map=[[0,0,4294967295]],gid_map=[[0,0,4294967295]],
+        status={**{key:'0000000000000000' for key in ('CapInh','CapPrm','CapEff','CapBnd','CapAmb')},
+                'NoNewPrivs':'1','Seccomp':'2','Seccomp_filters':'1'},limits=dict(r.RUNTIME_LIMITS),
+        cgroup='0::/MODELED\n',mountinfo=MODELED_MOUNTS,interfaces=['lo'],hostname='perl5423-native')
+    parent=copy.deepcopy(entry);parent.update(pid=1,ppid=0,pgrp=1,session=1,starttime=101,cwd='/',exe='/sbin/docker-init',
+        cmdline=['/sbin/docker-init','--','/usr/bin/bash','--noprofile','--norc','/inputs/entry.sh'])
+    return dict(schema=1,admission_sha256=r.pin(r.encoded(a))['sha256'],source_map_sha256=a['source_map_sha256'],
+                domain_sha256=c['domain_sha256'],entry=entry,parent=parent)
 
 
 def actor_fixture(item,c,a,inputs):
@@ -275,7 +292,7 @@ def build_fixture():
             files['usr/share/licenses/perl/'+installed]=(root/'packages/port/perl5423-repro-candidate'/source).read_bytes()
         for extension,needed in [('Compress/Raw/Zlib/Zlib.so','libz.so.1'),('Compress/Raw/Bzip2/Bzip2.so','libbz2.so.1.0')]:
             files['usr/lib/perl5/5.42/core_perl/auto/'+extension]=elf(needed=[needed])
-    data={r.ARCHIVE:package(change=change),'makepkg-exit.txt':b'0\n','packages.txt':lock,'PKGINFO':pkginfo,'BUILDINFO':buildinfo,
+    data={'runtime.json':r.encoded(runtime_fixture(c,a)),r.ARCHIVE:package(change=change),'makepkg-exit.txt':b'0\n','packages.txt':lock,'PKGINFO':pkginfo,'BUILDINFO':buildinfo,
           'recipe-input-map.json':r.encoded({name:dict(type='file',**row) for name,row in c['recipe_files'].items()}),
           'source-input.json':r.encoded(dict(source=dict(bytes=c['source_bytes'],sha256=c['source_sha256']),
               packet_map_sha256=c['packet_map_sha256'],expected349_sha256=c['expected349_sha256'],adapter_source_map_sha256=a['source_map_sha256'],recipe_sha256=c['recipe_sha256'])),
@@ -392,24 +409,65 @@ PASS selected shared threaded Perl5.42.3 paths,113 core providers and five C ext
             with self.assertRaises(ValueError):r.read(root,'../data',32)
             with self.assertRaises(ValueError):r.read(root,'data',1)
 
-    def test_namespace_qualification_requires_separate_real_effects_and_bindings(self):
+    def test_v2_root_container_preconditions_preserve_real_admission_without_nested_support(self):
         c,a,q=operands();r.qualified(c,a,q)
-        def ignored_effect(value):value['cases']['bwrap-user-mount-net']['after']['namespaces']['net']=value['cases']['bwrap-user-mount-net']['before']['namespaces']['net']
-        def wrong_map(value):value['cases']['unshare-mapped-root']['after']['uid_map']=[[0,0,1]]
-        def wrong_bwrap_map(value):value['cases']['bwrap-user-mount-net']['after']['gid_map']=[[1001,0,1]]
-        def forced(value):value['cases']['bwrap-user-mount-net']['retirement']['forced_cleanup']=True
-        for change in (ignored_effect,wrong_map,wrong_bwrap_map,forced,lambda value:value.update(source=c['namespace']['Source3937']),
-                       lambda value:value.update(run='999'),lambda value:value.update(status='NOT_RUN')):
-            changed=copy.deepcopy(q);change(changed)
-            admission=dict(a,qualification_sha256=r.pin(r.encoded(changed))['sha256'])
-            with self.subTest(change=change),self.assertRaises(ValueError):r.qualified(c,admission,changed)
+        for key,value in [('source','9'*40),('run','999'),('status','NOT_RUN'),('source_readback_sha256',None),
+                          ('native_daemon_identity_sha256',None),('input_signature_audit_sha256','9'*64),
+                          ('expected349_sha256','9'*64),('nested_invocation','INVOKED'),('nested_qualification','SUPPORTED')]:
+            changed=dict(q,**{key:value});admitted=dict(a,qualification_sha256=r.pin(r.encoded(changed))['sha256'])
+            with self.subTest(key=key),self.assertRaises(ValueError):r.qualified(c,admitted,changed)
+        for change in ({'schema':1},{'status':'PASS_NAMESPACE_EFFECTS'},{'cases':{'MODELED':'SUPPORTED'}},{'reader_sha256':'9'*64}):
+            changed=dict(q,**change);admitted=dict(a,qualification_sha256=r.pin(r.encoded(changed))['sha256'])
+            with self.subTest(old_shape=change),self.assertRaises(ValueError):r.qualified(c,admitted,changed)
         with self.assertRaises(ValueError):r.qualified(c,dict(a,approval=None),q)
         with self.assertRaises(ValueError):r.qualified(c,dict(a,qualification_sha256='0'*64),q)
+        old=dict(q,source=c['namespace']['Source3937']);claimed=dict(a,source=dict(a['source'],sha=old['source']),qualification_sha256=r.pin(r.encoded(old))['sha256'])
+        with self.assertRaises(ValueError):r.qualified(c,claimed,old)
+
+    def test_optional_denied_unknown_diagnostic_is_exact_data_without_support_credit(self):
+        c,a,q=operands()
+        for status in ('DENIED','UNKNOWN','MODELED_UNRECOGNIZED_DATA'):
+            raw=r.encoded(dict(status=status,reason='MODELED observation only'))
+            data={'nested-namespace-diagnostic.json':raw}
+            changed=dict(q,nested_diagnostic=r.pin(raw));admitted=dict(a,qualification_sha256=r.pin(r.encoded(changed))['sha256'])
+            r.qualified(c,admitted,changed);self.assertEqual(r.nested_diagnostic(lambda n,cap:data[n],changed),r.pin(raw))
+            with self.assertRaises(ValueError):r.nested_diagnostic(lambda n,cap:raw+b' ',changed)
+            malformed=b'{"status":1,"status":2}'
+            with self.assertRaises(ValueError):r.nested_diagnostic(lambda n,cap:malformed,dict(changed,nested_diagnostic=r.pin(malformed)))
+        with self.assertRaises(ValueError):r.nested_diagnostic(lambda n,cap:b'{}',q)
+        def absent(name,cap):raise FileNotFoundError(name)
+        self.assertIsNone(r.nested_diagnostic(absent,q))
+        for descriptor in ({'bytes':0,'sha256':'1'*64},{'bytes':True,'sha256':'1'*64},{'bytes':65537,'sha256':'1'*64}):
+            with self.assertRaises(ValueError):r.nested_descriptor(descriptor)
+
+    def test_runtime_entry_init_proof_requires_actual_domain_and_lineage(self):
+        c,a,q=operands();value=runtime_fixture(c,a)
+        result=r.runtime_data(value,c,a);self.assertEqual(result['status'],'OBSERVED_EXACT_CONTAINER_DOMAIN')
+        self.assertEqual(result['nested_invocation'],'NOT_INVOKED');self.assertEqual(result['nested_qualification'],'NOT_QUALIFIED')
+        changes=[lambda v:v.update(admission_sha256='0'*64),lambda v:v.update(source_map_sha256='0'*64),
+                 lambda v:v['entry'].update(ppid=2),lambda v:v['parent'].update(pid=2),
+                 lambda v:v['entry'].update(exe='/bin/sh'),lambda v:v['parent'].update(exe='/bin/sh'),
+                 lambda v:v['parent'].update(starttime=200),lambda v:v['entry'].update(architecture='x86_64'),
+                 lambda v:v['entry'].update(uid=0),lambda v:v['entry']['status'].update(CapBnd='1'),
+                 lambda v:v['entry']['status'].update(NoNewPrivs='0'),lambda v:v['entry'].update(interfaces=['lo','eth0']),
+                 lambda v:v['entry']['limits'].update(**{'memory.swap.max':'max'}),
+                 lambda v:v['parent']['namespaces'].update(user='user:[999]'),
+                 lambda v:v['entry'].update(uid_map=[[0,0,4],[2,4,4]]),
+                 lambda v:v['entry'].update(gid_map=[[0,0,2],[2,1,2]]),
+                 lambda v:v['entry'].update(mountinfo=MODELED_MOUNTS.replace(' /inputs ro,',' /inputs rw,')),
+                 lambda v:v['entry'].update(mountinfo=MODELED_MOUNTS.replace('size=65536k','size=65537k')),
+                 lambda v:v['entry'].update(mountinfo=MODELED_MOUNTS.replace('uid=1001','uid=0')),
+                 lambda v:v['entry'].update(mountinfo=MODELED_MOUNTS.replace('nodev,noexec','nodev,exec'))]
+        for change in changes:
+            value=runtime_fixture(c,a);change(value)
+            with self.subTest(change=change),self.assertRaises(ValueError):r.runtime_data(value,c,a)
 
     def test_unqualified_operand_refuses_before_any_evidence_read(self):
         c,a,q=operands()
         with patch.object(r,'read',side_effect=AssertionError('must refuse before artifact reads')):
             with self.assertRaises(ValueError):r.validate_pair('/MODELED/absent',c,dict(a,approval=None),q)
+            old=dict(q,schema=1,status='PASS_NAMESPACE_EFFECTS',cases={'MODELED':'SUPPORTED'})
+            with self.assertRaises(ValueError):r.validate_pair('/MODELED/absent',c,dict(a,qualification_sha256=r.pin(r.encoded(old))['sha256']),old)
 
     def test_exact_actual_actor_domain_refuses_profile_weakening(self):
         c,a,q=operands();item=dict(name='MODELED',volume='MODELED-work')
@@ -545,6 +603,7 @@ PASS selected shared threaded Perl5.42.3 paths,113 core providers and five C ext
             self.assertEqual(result['harness']['files'],2920)
             self.assertEqual(result['provider']['soname'],'libcrypt.so.2')
             self.assertEqual(result['archive'],r.pin(data[r.ARCHIVE]))
+            self.assertEqual(result['runtime']['nested_invocation'],'NOT_INVOKED')
             for name,body in [('staged-cf-time.txt',b'WRONG TIME\n'),('makepkg-exit.txt',b'1\n'),
                               ('packages.txt',data['packages.txt']+b'MODELED extra package\n'),
                               ('source-config.sh',data['source-config.sh']+b"cf_time='WRONG'\n"),
@@ -560,6 +619,19 @@ PASS selected shared threaded Perl5.42.3 paths,113 core providers and five C ext
             environment=json.loads(data['environment.json']);environment['status']=environment['status'].replace('NoNewPrivs:\t1','NoNewPrivs:\t0')
             data['environment.json']=r.encoded(environment)
             with self.assertRaisesRegex(ValueError,'capability/NNP'):r.build_data(get,c,a)
+
+    def test_actual_runtime_proof_is_required_before_any_package_credit(self):
+        c,a,q=operands()
+        def absent(name,cap):
+            self.assertEqual(name,'runtime.json');raise FileNotFoundError(name)
+        with self.assertRaises(FileNotFoundError):r.build_data(absent,c,a)
+        for change in (lambda value:value.update(source_map_sha256='0'*64),
+                       lambda value:value['entry']['status'].update(NoNewPrivs='0'),
+                       lambda value:value['parent']['namespaces'].update(net='net:[999]')):
+            value=runtime_fixture(c,a);change(value)
+            def invalid(name,cap):
+                self.assertEqual(name,'runtime.json');return r.encoded(value)
+            with self.subTest(change=change),self.assertRaises(ValueError):r.build_data(invalid,c,a)
 
     def test_entry_requires_actual_full_makepkg_and_natural_retirement(self):
         c,a,data,get=build_fixture();path=json.loads(data['provider.json'])['path']

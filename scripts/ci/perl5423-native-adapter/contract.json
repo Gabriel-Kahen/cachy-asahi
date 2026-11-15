@@ -71,16 +71,16 @@
     "Source3937": "3937d8b9f3210f4e9868bf19f01dfa22de64ddfe",
     "Source3937_equivalent": false,
     "Source3937_execution": "NORMAL_DOCKER_IMAGE_BUILD_RUN_USER_ALARM",
-    "actual_run": null,
-    "matching_reader": null,
-    "qualification_source": null,
-    "required_domain": "PERL_ARM_CAP0_NNP_RO_CONTAINER_V1",
-    "status": "SEPARATE_MATCHING_QUALIFICATION_REQUIRED"
+    "build_requires_nested_namespaces": false,
+    "nested_invocation": "NOT_INVOKED",
+    "nested_qualification": "NOT_QUALIFIED",
+    "premise": "ORDINARY_ROOTLESS_CONTAINER_NO_NESTED_NAMESPACE_PRECONDITION",
+    "required_domain": "PERL_ARM_CAP0_NNP_RO_CONTAINER_V1"
   },
   "native_acceptance": false,
-  "operation": "perl5423-native-pair-v1",
+  "operation": "perl5423-native-pair-v2",
   "packet_map_sha256": "cf02013d1a06b90bf7e3c32e8471efb3a896d3e1881a492386a6d0b70fc0a1a5",
-  "qualification": "PROPOSED_SOURCE_ONLY_NOT_RUN",
+  "qualification": "ROOT_CONTAINER_PRECONDITION_ADMISSION_NOT_RUN",
   "queue": "max",
   "recipe_files": {
     ".SRCINFO": {
@@ -387,7 +387,7 @@
     "pair_seconds": 6000,
     "source_input_bytes": 67108864
   },
-  "schema": 1,
+  "schema": 2,
   "source_bytes": 22610875,
   "source_name": "perl5-bc3dab4d4f66de5ea67dda34e5feb5230a54c603.tar.gz",
   "source_sha256": "16b23f32e34df12709fc5fa0a7028d3df3c3cfceca21e38faada6a025edff725",

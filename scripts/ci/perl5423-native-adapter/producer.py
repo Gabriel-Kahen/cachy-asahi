@@ -42,6 +42,7 @@ def _run(args,cancelled):
     common.need(common.encode(a)==ar and common.encode(q)==qr,'canonical Root admission/qualification DATA required')
     common.need(a['qualification_sha256']==args.qualification_sha256,'Root qualification binding')
     common.admission(a,q,c);source_map=common.source(ROOT,a['source_map_sha256'])
+    diagnostic=common.diagnostic(q,getattr(args,'nested_namespace_diagnostic',None))
     out=common.path(args.output)
     common.need(not out.exists() and not out.is_relative_to(ROOT) and not ROOT.is_relative_to(out),'fresh disjoint output')
     common.need(out.parent.stat().st_uid==os.getuid() and not stat.S_IMODE(out.parent.stat().st_mode)&0o022,'owned private output parent')
@@ -133,12 +134,13 @@ def _run(args,cancelled):
         monitor=watch
         capacity('before-input-snapshot')
         inputs=out/'inputs';inputs.mkdir(mode=0o755);report['inputs']=str(inputs)
-        for name in ('common.py','entry.py','entry.sh','contract.json','helper-pins.json'):
+        for name in ('common.py','runtime.py','entry.py','entry.sh','contract.json','helper-pins.json'):
             shutil.copyfile(ROOT/name,inputs/name)
         shutil.copytree(ROOT/'helpers',inputs/'helpers');shutil.copytree(ROOT/'packet/recipe',inputs/'recipe')
         shutil.copyfile(ROOT/'packet/sources'/c['source_name'],inputs/c['source_name'])
         shutil.copyfile(ROOT/'packet/packet-map.json',inputs/'packet-map.json')
         (inputs/'admission.json').write_bytes(ar);(inputs/'qualification.json').write_bytes(qr)
+        if diagnostic is not None:(inputs/'nested-namespace-diagnostic.json').write_bytes(diagnostic)
         (inputs/'adapter-source-map.json').write_bytes(common.read(ROOT/'source-map.json'))
         for i,item in enumerate(items,1):
             common.need(len(report['retired'])==i-1,'previous volume retirement required')
@@ -213,4 +215,5 @@ if __name__=='__main__':
     common.need(sys.flags.isolated and not sys.flags.optimize,'isolated unoptimized Root entry required')
     p=argparse.ArgumentParser(description=__doc__)
     for name in ('admission','admission-sha256','qualification','qualification-sha256','output'):p.add_argument('--'+name,required=True)
+    p.add_argument('--nested-namespace-diagnostic')
     raise SystemExit(run(p.parse_args()))

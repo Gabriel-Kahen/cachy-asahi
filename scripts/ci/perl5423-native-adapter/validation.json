@@ -8,7 +8,6 @@
     "run": null,
     "source": null
   },
-  "bytes": 24157085,
   "control_flags": [
     "-I",
     "-B",
@@ -16,86 +15,94 @@
   ],
   "controls": {
     "3.12.13": {
-      "Source_producer": {
-        "status": "PASS",
-        "tests": 15,
+      "reader": {
+        "status": "PASS_ACTOR_FENCED_DATA_ONLY",
+        "tests": 21,
         "transcript": {
-          "bytes": 2224,
-          "file": "Source_producer-312.log",
-          "sha256": "864d4d10a4a87aa5d246a874fa2b12152eff54512750da639d66d4f68a151b9b"
+          "bytes": 3425,
+          "path": "/tmp/perl-adapter-v2-reader312.log",
+          "sha256": "c6a470313bf4f848d0550fbe5eace6b3d1c96f265503a26f2c458339602ef61c"
         }
       },
-      "passive_Reader": {
-        "status": "PASS",
-        "tests": 18,
+      "source": {
+        "status": "PASS_ACTOR_FENCED_DATA_ONLY",
+        "tests": 16,
         "transcript": {
-          "bytes": 2901,
-          "file": "passive_Reader-312.log",
-          "sha256": "cc012076831a8de6590dd3d1e27960493fee2b5dca7feed26066d48bcd8e34b7"
+          "bytes": 2367,
+          "path": "/tmp/perl-adapter-v2-source312.log",
+          "sha256": "a8f1de3a0bf9769f0057562ecdb044bc0ce2d7e4af75123f301f7df3cbfc7142"
         }
       }
     },
     "3.14.6": {
-      "Source_producer": {
-        "status": "PASS",
-        "tests": 15,
+      "reader": {
+        "status": "PASS_ACTOR_FENCED_DATA_ONLY",
+        "tests": 21,
         "transcript": {
-          "bytes": 2224,
-          "file": "Source_producer-314.log",
-          "sha256": "a4c4c31a1424125da7b43baf82cacedeb6131b07f5d42a4cb546a72a1a2d4b6d"
+          "bytes": 3425,
+          "path": "/tmp/perl-adapter-v2-reader314.log",
+          "sha256": "9ade5b9d20462ccf967fa482da0588ac564e4bd56e5773019a733a40f3de0aa5"
         }
       },
-      "passive_Reader": {
-        "status": "PASS",
-        "tests": 18,
+      "source": {
+        "status": "PASS_ACTOR_FENCED_DATA_ONLY",
+        "tests": 16,
         "transcript": {
-          "bytes": 2901,
-          "file": "passive_Reader-314.log",
-          "sha256": "63a2ec75a6341bc3c2e240545b243a1ea4f49e0b3ca49f69789020efd516b931"
+          "bytes": 2367,
+          "path": "/tmp/perl-adapter-v2-source314.log",
+          "sha256": "48e500645df3db6fa940bd8f903ff9612071698eb6e64bbaefe09ee1d14227b6"
         }
       }
     }
   },
-  "controls_scope": "Actor-fenced pure DATA, synthetic models; no operational/native qualification",
-  "files": 58,
+  "domain_sha256": "6c6bdc29acf59e8ea911167f08d4d66a993777c121b2399211cec030e2a5b804",
   "filesystem_source_output": null,
   "held_packet_files": 37,
   "inverse": "REMOVE_EXACT_ADDITIONS_RESTORES_EVERY_HELD_BYTE_AND_MODE",
-  "limitations": [
-    "Actual namespace qualification NOT_RUN",
-    "Native ARM/16K/M2 NOT_RUN",
-    "Installed ABI and external XS NOT_RUN",
-    "Source publication, Original, operational Reader and intake NOT_RUN",
-    "Root authenticates and admits operands, Source, daemon, image, signatures, workflow and actual resources"
+  "limits": [
+    "Actual container/runtime/native build NOT_RUN by this revision",
+    "Root authenticates Source/publication/readback, native daemon, signed349 base and signatures, trust and resources",
+    "Root owns actual independent Reader, reproducibility acceptance, retirement and namespace diagnostic interpretation",
+    "Native16K/M2/installedABI/externalXS/performance/release unqualified"
   ],
-  "namespace_qualification": "NOT_RUN",
+  "namespace_diagnostic": "OPTIONAL_EXACT_RAW_DATA_ONLY_NO_SUPPORT_CREDIT",
   "native_acceptance": false,
+  "nested_invocation": "NOT_INVOKED",
+  "nested_qualification": "NOT_QUALIFIED",
   "packet_map_sha256": "cf02013d1a06b90bf7e3c32e8471efb3a896d3e1881a492386a6d0b70fc0a1a5",
-  "preservation": {
-    "only_new_directory": "scripts/ci/perl5423-native-adapter/",
-    "tracked_predecessor_diff": "EMPTY"
-  },
+  "physical_domain_changed": false,
+  "premise_changed": "Unused nested SUPPORT gate removed; actual ordinary rootless container/runtime proof required",
+  "preservation": "Only scripts/ci/perl5423-native-adapter changed; frozen recipe/packet, original3937, separate namespace source and run43679486072, shared workflows/manifests held",
   "profile": {
-    "bytes": 3316,
-    "sha256": "97b6e3f633fa6e4d76dc9e46951df893fa85121e107d4730e3522430efafd21d"
+    "bytes": 3641,
+    "sha256": "4852a72dc9d3e9f341c712d701900fd11d68a49dcebcb6b551d42f175024ea5a"
   },
+  "proposed_source_bytes": 24177097,
+  "proposed_source_files": 60,
   "proposed_source_map": {
-    "bytes": 9834,
-    "sha256": "c6fc60aff2f57351aa6243abbc219ffd4d02ead39ef7727343022e7e8bc7cc43"
+    "bytes": 10140,
+    "sha256": "3f238d649cb649ba2aff45e7930e49b28e3a7d8891860a1a17ead850719d5dee"
   },
-  "proposed_source_tree": "a4da05070e53c291a81c2304a10de11552802f41",
+  "proposed_source_tree": "10fbd6af83decec8f8d257a25937c4df1c5b021c",
+  "review": "Independent read-only review found no critical unintended weakening; Root external authentication remains mandatory",
   "roles_executed": {
     "Original": 0,
     "compiler": 0,
-    "entry": 0,
     "intake": 0,
     "namespace": 0,
-    "native_producer": 0,
+    "native_actor": 0,
     "operational_Reader": 0
   },
-  "schema": 1,
+  "runtime_files": 21,
+  "schema": 2,
+  "separate_Source3937_run_actions": 0,
+  "source_audit": {
+    "bytes": 4509,
+    "file": "source-audit.json",
+    "sha256": "34a1963b087b7213fac8674ceb59be49cca5e864e98fbc1d5765ad48f5da9e73"
+  },
   "source_publication": null,
-  "status": "PASS_REAL_PACKET_IN_MEMORY_SOURCE_RENDER_AND_EXACT_INVERSE",
+  "status": "PASS_STATIC_AUDIT_AND_PROPOSED_SOURCE_RENDER_NOT_NATIVE",
   "syntax": {
     "JSON": "PASS",
     "Python_AST": "PASS",

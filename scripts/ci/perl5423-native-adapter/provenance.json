@@ -11,8 +11,10 @@
   "candidate_commit": "c8e9baea97f83f652763e701143d6dec5b679f31",
   "domain_comparison": {
     "Source3937": "3937d8b9f3210f4e9868bf19f01dfa22de64ddfe",
-    "actual_matching_qualification": null,
+    "actual_container_admission": null,
+    "changed_premise": "Physical container domain unchanged. Nested namespace support was an unused build prerequisite; v2 requires actual ordinary rootless container/runtime proof and Root precondition admission.",
     "equivalent": false,
+    "nested_namespace_qualification": "NOT_QUALIFIED",
     "old": "NORMAL_DOCKER_IMAGE_BUILD_RUN_USER_ALARM1001",
     "proposed": "PERL_ARM_CAP0_NNP_RO_CONTAINER_V1"
   },
@@ -25,21 +27,33 @@
     "automatic_alias": false,
     "held_packet": "perl5423-repro-native-pair-v1",
     "lane_exemption": false,
-    "proposed_adapter": "perl5423-native-pair-v1"
+    "proposed_adapter": "perl5423-native-pair-v2"
   },
   "packet_constructor_commit": "b3e5ccdea3fa18eb9feabbe2b4c5caf6bd57593a",
   "packet_map_sha256": "cf02013d1a06b90bf7e3c32e8471efb3a896d3e1881a492386a6d0b70fc0a1a5",
   "packet_profile_sha256": "624bcc976f1101cedb387c7fa5998cd9b4088f2ab7d4c38f972c1aed857a4941",
-  "schema": 1,
+  "runtime_collector_origin": {
+    "commit": "8a222264dbd632ba90f228f1fe5143c462ac2793",
+    "path": "scripts/ci/perl5423-native-namespace/observe.py",
+    "reuse": "Read-only proc observer context, adapted module docstring plus new local baseline validator; original file held"
+  },
+  "schema": 2,
   "scope": "ADDITIONS_ONLY_NEW_DIRECTORY; ALL_PREDECESSOR_FILES_HELD",
   "seams": {
     "bounded_export": "producer.py inherited 256MiB soft RLIMIT_FSIZE on docker cp tar stdout, raw and decoded 512MiB forecast; producer and Reader independently parse DATA envelope",
     "cancellation": "scoped SIGINT/SIGTERM flag observed after owned-child witness; cleanup defers repeated cancellation; cancelled run cannot pass",
     "checks": "reader.py independently decodes raw package, ELF, metadata, logs, full349, Source pins and ordered operations",
     "epoch_marker_full_checks": "entry.py: epoch1785628800, CACHY_ASAHI_PERL_BUILD=1, full makepkg checks; retained base config plus exact invertible package-format suffix",
-    "isolation": "producer.py exactDockercreate +observedinspect,entryactualcgroups/procstatus",
+    "isolation": "producer exact create/inspect; runtime.py actual entry/init UID/cap0/NNP/cgroups/mounts/network/namespace continuity; independent Reader recomputes",
     "libcrypt": "entry.py actualALPMowner/DB, bothsymlinkchains, nativeELF andrawreadelf; reader independentjoin",
+    "nested_namespace": "NOT_INVOKED/NOT_QUALIFIED; optional independent diagnostic/denial retained as exact inert DATA",
     "retirement": "unaltered Source3937 owned_child.py naturaldirectwaitpid evidence",
     "target_membership": "reader.py exact actualaarch64 in dualarch reviewed metadata"
-  }
+  },
+  "separate_namespace_run": {
+    "actions_by_this_revision": 0,
+    "relationship": "SEPARATE_DATA_ONLY_NOT_PERL_QUALIFICATION",
+    "run": "43679486072"
+  },
+  "source_audit": "source-audit.json exact candidate/upstream call-chain audit"
 }

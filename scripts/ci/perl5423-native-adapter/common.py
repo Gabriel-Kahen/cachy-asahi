@@ -105,46 +105,37 @@ def check_cancelled(cancelled):
     if cancelled[0]:raise Cancelled('Root cancellation requested')
 
 
-def namespace_state(frame):
-    need(type(frame) is dict and set(frame)=={'uid','gid','namespaces','uid_map','gid_map'},'exact namespace state')
-    need(type(frame['uid']) is int and type(frame['gid']) is int,'numeric namespace identity')
-    need(type(frame['namespaces']) is dict and set(frame['namespaces'])=={'user','mnt','net','pid'},'complete namespaces')
-    for key,value in frame['namespaces'].items():need(type(value) is str and re.fullmatch(key+r':\[[1-9][0-9]{0,19}\]',value),'literal namespace link')
-    for name in ('uid_map','gid_map'):
-        rows=frame[name];need(type(rows) is list and 0<len(rows)<=8,'bounded namespace maps')
-        for row in rows:
-            need(type(row) is list and len(row)==3 and all(type(n) is int and 0<=n<2**32 for n in row) and row[2]>0 and row[0]+row[2]<=2**32 and row[1]+row[2]<=2**32,'nonoverflowing namespace map')
-        for left,right in zip(sorted(rows),sorted(rows)[1:]):need(left[0]+left[2]<=right[0],'overlapping namespace maps')
-
-
 def qualification(q,a,c):
-    need(q['schema']==1 and q['status']=='PASS_NAMESPACE_EFFECTS' and sha(q['source'],40)
-        and q['source']!=c['namespace']['Source3937'] and sha(q['reader_sha256']),'separate actual namespace/Reader qualification mandatory')
-    need(all(q[k]==a[k] for k in ('run','job','image','domain_sha256')),'qualification domain/run/job/image mismatch')
-    need(set(q['cases'])=={'bwrap-user-mount-net','unshare-mapped-root'},'both namespace effects required')
-    for case,row in q['cases'].items():
-        need(row['outcome']=='SUPPORTED' and type(row['exit_code']) is int and row['exit_code']==0 and natural(row['retirement']),'natural zero-exit namespace support required')
-        before,after=row['before'],row['after']
-        need(before['uid']==before['gid']==1001,'outer alarm1001 qualification identity')
-        for frame in (before,after):namespace_state(frame)
-        changed={key for key in before['namespaces'] if before['namespaces'][key]!=after['namespaces'][key]}
-        if case=='bwrap-user-mount-net':
-            need(changed=={'user','mnt','net'} and after['uid']==after['gid']==1001,'bwrap actual namespace/identity effects')
-            for key in ('uid_map','gid_map'):
-                mapped=[outside+1001-inside for inside,outside,count in after[key] if inside<=1001<inside+count]
-                need(mapped==[1001],'bwrap actual outer credential mapping')
-        else:
-            need(changed=={'user'} and after['uid']==after['gid']==0 and after['uid_map']==after['gid_map']==[[0,1001,1]],'mapped-root actual namespace/map effects')
+    keys={'schema','kind','status','source','run','job','image','domain_sha256','source_readback_sha256','native_daemon_identity_sha256','input_signature_audit_sha256','expected349_sha256','nested_invocation','nested_qualification','nested_diagnostic'}
+    need(type(q) is dict and set(q)==keys and type(q['schema']) is int and q['schema']==2
+        and q['kind']=='ROOT_NATIVE_CONTAINER_ADMISSION_V2' and q['status']=='ROOT_ADMITTED_CONTAINER_PRECONDITIONS','actual Root container precondition admission required')
+    need(q['source']==a['source']['sha'] and q['source']!=c['namespace']['Source3937'],'same fresh Root-published adapter Source required')
+    need(all(q[k]==a[k] for k in ('run','job','image','domain_sha256','input_signature_audit_sha256','expected349_sha256')),'container precondition binding mismatch')
+    need(all(sha(q[k]) for k in ('source_readback_sha256','native_daemon_identity_sha256')),'Root Source readback and actual daemon identity proofs required')
+    need(q['nested_invocation']=='NOT_INVOKED' and q['nested_qualification']=='NOT_QUALIFIED','unused nested namespace feature remains unqualified')
+    row=q['nested_diagnostic']
+    need(row is None or type(row) is dict and set(row)=={'bytes','sha256'} and type(row['bytes']) is int and 0<row['bytes']<=65536 and sha(row['sha256']),'bounded separate diagnostic DATA descriptor')
 
 
 def admission(a,q,c):
-    need(a['schema']==1 and a['operation']==c['operation'] and sha(a['source']['sha'],40)
+    need(c['schema']==2 and c['operation']=='perl5423-native-pair-v2' and c['namespace']['build_requires_nested_namespaces'] is False
+        and c['namespace']['nested_invocation']=='NOT_INVOKED' and c['namespace']['nested_qualification']=='NOT_QUALIFIED','ordinary rootless container premise v2 required')
+    need(a['schema']==2 and a['operation']==c['operation'] and sha(a['source']['sha'],40)
         and type(a['source']['ref']) is str and re.fullmatch(r'codex/[A-Za-z0-9._/-]+',a['source']['ref']),'actual Root Source binding required')
     need(all(type(a[k]) is str and re.fullmatch('[1-9][0-9]{0,19}',a[k]) for k in ('run','job')),'actual run/job binding required')
-    need(all(sha(a[k]) for k in ('approval','source_map_sha256','qualification_sha256','input_signature_audit_sha256')),'Root approval/map/signature/qualification bindings required')
+    need(all(sha(a[k]) for k in ('approval','source_map_sha256','qualification_sha256','input_signature_audit_sha256')),'Root approval/map/signature/container-admission bindings required')
     need(type(a['image']) is str and re.fullmatch('sha256:[0-9a-f]{64}',a['image']),'fresh immutable native image binding')
     need(a['domain_sha256']==c['domain_sha256']==pin(encode(c['domain']))['sha256'] and a['expected349_sha256']==c['expected349_sha256'],'fixed native domain/inventory binding')
     qualification(q,a,c)
+
+
+def diagnostic(q,filename):
+    row=q['nested_diagnostic']
+    need((filename is None)==(row is None),'separate diagnostic operand/descriptor mismatch')
+    if row is None:return None
+    raw=read(filename,65536)
+    need(pin(raw)==row and type(decode(raw)) is dict,'whole bounded separate namespace diagnostic DATA')
+    return raw
 
 
 def source(root,expected):

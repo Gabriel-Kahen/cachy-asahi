@@ -32,30 +32,40 @@ sys.addaudithook(deny)
 
 def fixtures():
     c=common.decode(common.read(HERE/'contract.json'))
-    natural=dict(natural_exit=True,forced_cleanup=False,retirement='REAPED',group_absent=True,leader_held_until_group_inspection=True,ownership_lost=False,exit_observed_via_waitpid=True,exit=0)
-    before=dict(uid=1001,gid=1001,namespaces={k:k+':['+str(i)+']' for i,k in enumerate(('user','mnt','net','pid'),1)},uid_map=[[0,0,4294967295]],gid_map=[[0,0,4294967295]])
-    bwrap=copy.deepcopy(before);bwrap['namespaces'].update(user='user:[11]',mnt='mnt:[12]',net='net:[13]');bwrap['uid_map']=bwrap['gid_map']=[[1001,1001,1]]
-    unshare=copy.deepcopy(before);unshare.update(uid=0,gid=0,uid_map=[[0,1001,1]],gid_map=[[0,1001,1]]);unshare['namespaces']['user']='user:[14]'
-    q=dict(schema=1,status='PASS_NAMESPACE_EFFECTS',source='2'*40,run='123',job='456',image='sha256:'+'4'*64,domain_sha256=c['domain_sha256'],reader_sha256='5'*64,cases={name:dict(exit_code=0,outcome='SUPPORTED',before=copy.deepcopy(before),after=after,retirement=copy.deepcopy(natural)) for name,after in [('bwrap-user-mount-net',bwrap),('unshare-mapped-root',unshare)]})
-    a=dict(schema=1,operation=c['operation'],source=dict(sha='1'*40,ref='codex/MODELED-ONLY'),source_map_sha256='6'*64,run='123',job='456',approval='7'*64,image=q['image'],domain_sha256=c['domain_sha256'],qualification_sha256=common.pin(common.encode(q))['sha256'],expected349_sha256=c['expected349_sha256'],input_signature_audit_sha256='8'*64)
+    a=dict(schema=2,operation=c['operation'],source=dict(sha='1'*40,ref='codex/MODELED-ONLY'),source_map_sha256='6'*64,run='123',job='456',approval='7'*64,image='sha256:'+'4'*64,domain_sha256=c['domain_sha256'],expected349_sha256=c['expected349_sha256'],input_signature_audit_sha256='8'*64)
+    q=dict(schema=2,kind='ROOT_NATIVE_CONTAINER_ADMISSION_V2',status='ROOT_ADMITTED_CONTAINER_PRECONDITIONS',source=a['source']['sha'],run=a['run'],job=a['job'],image=a['image'],domain_sha256=c['domain_sha256'],source_readback_sha256='2'*64,native_daemon_identity_sha256='3'*64,input_signature_audit_sha256=a['input_signature_audit_sha256'],expected349_sha256=c['expected349_sha256'],nested_invocation='NOT_INVOKED',nested_qualification='NOT_QUALIFIED',nested_diagnostic=None)
+    a['qualification_sha256']=common.pin(common.encode(q))['sha256']
     return c,a,q
 
 
+def modeled_runtime():
+    mounts='1 0 0:1 / / ro - overlay overlay rw\n2 1 0:2 / /inputs ro - ext4 MODELED rw\n3 1 0:2 / /work rw - ext4 MODELED rw\n4 1 0:3 / /tmp rw,noexec,nosuid,nodev - tmpfs tmpfs rw,size=65536k,uid=1001,gid=1001\n5 1 0:4 / /run rw,noexec,nosuid,nodev - tmpfs tmpfs rw,size=8192k,uid=1001,gid=1001\n'
+    entry=dict(pid=7,ppid=1,starttime=100,uid=1001,euid=1001,gid=1001,egid=1001,architecture='aarch64',page_bytes=4096,cwd='/work/recipe',exe='/usr/bin/python3.14',cmdline=['/usr/bin/python3','-I','-B','/inputs/entry.py'],limits={'cpu.max':'200000 100000','memory.max':'4294967296','memory.swap.max':'0','pids.max':'256'},interfaces=['lo'],hostname='perl5423-native',status={**{k:'0' for k in ('CapInh','CapPrm','CapEff','CapBnd','CapAmb')},'NoNewPrivs':'1'},namespaces={k:k+':[10]' for k in ('user','mnt','net','pid')},uid_map=[[0,0,4294967295]],gid_map=[[0,0,4294967295]],groups=[1001],cgroup='0::/MODELED',mountinfo=mounts)
+    parent=copy.deepcopy(entry);parent.update(pid=1,ppid=0,starttime=50,exe='/sbin/docker-init',cmdline=['/sbin/docker-init','--','/usr/bin/bash','--noprofile','--norc','/inputs/entry.sh'])
+    return entry,parent
+
+
 class SourceControls(unittest.TestCase):
-    def test_separate_domain_modeled_positive_and_3937_refusal(self):
+    def test_container_preconditions_without_nested_feature_claim(self):
         c,a,q=fixtures();common.admission(a,q,c)
+        self.assertFalse(c['namespace']['build_requires_nested_namespaces'])
+        self.assertEqual((q['nested_invocation'],q['nested_qualification']),('NOT_INVOKED','NOT_QUALIFIED'))
         q['source']=c['namespace']['Source3937']
-        with self.assertRaisesRegex(ValueError,'separate'):common.admission(a,q,c)
-    def test_missing_effect_denial_wrong_mapping_forced_retirement_refuse(self):
+        with self.assertRaises(ValueError):common.admission(a,q,c)
+    def test_actual_root_container_preconditions_cannot_be_waived(self):
         c,a,original=fixtures()
-        for kind in ('denied','no-change','wrong-map','forced','wrong-image'):
-            q=copy.deepcopy(original);row=q['cases']['bwrap-user-mount-net']
-            if kind=='denied':row['outcome']='DENIED'
-            if kind=='no-change':row['after']['namespaces']=row['before']['namespaces']
-            if kind=='wrong-map':row['after']['uid_map']=[[1001,0,1]]
-            if kind=='forced':row['retirement']['forced_cleanup']=True
-            if kind=='wrong-image':q['image']='sha256:'+'9'*64
-            with self.subTest(kind=kind),self.assertRaises(ValueError):common.admission(a,q,c)
+        for key,value in [('source_readback_sha256',None),('native_daemon_identity_sha256',None),('image','sha256:'+'9'*64),('nested_qualification','QUALIFIED'),('schema',1),('status','PASS_NAMESPACE_EFFECTS')]:
+            q=copy.deepcopy(original);q[key]=value
+            with self.subTest(key=key),self.assertRaises(ValueError):common.admission(a,q,c)
+    def test_separate_denial_remains_exact_data_without_build_authority(self):
+        c,a,q=fixtures();raw=b'{"status":"DENIED","policy_cause":"UNKNOWN"}\n'
+        with tempfile.TemporaryDirectory() as tmp:
+            file=Path(tmp)/'diagnostic.json';file.write_bytes(raw);q['nested_diagnostic']=common.pin(raw)
+            common.admission(a,q,c);self.assertEqual(common.diagnostic(q,file),raw)
+            with self.assertRaises(ValueError):common.diagnostic(q,None)
+            file.write_bytes(raw+b' ')
+            with self.assertRaises(ValueError):common.diagnostic(q,file)
+        self.assertIsNone(common.diagnostic(fixtures()[2],None))
     def test_all_actual_selectors_null_templates_fail(self):
         c=common.decode(common.read(HERE/'contract.json'));a=common.decode(common.read(HERE/'admission.TEMPLATE.json'));q=common.decode(common.read(HERE/'qualification.TEMPLATE.json'))
         self.assertTrue(all(v is None for v in c['actual'].values()))
@@ -114,11 +124,11 @@ class SourceControls(unittest.TestCase):
         _,a,_=fixtures();row=dict(Id=a['image'],Architecture='arm64',Os='linux',Config={'Volumes':{}})
         producer.image_identity(row,a['image']);row['Config']['Volumes']={'/untracked':{}}
         with self.assertRaisesRegex(ValueError,'anonymous'):producer.image_identity(row,a['image'])
-    def test_namespace_malformed_map_refuses_before_actors(self):
-        c,a,original=fixtures()
-        for maps in [[[0,0,2**32]],[[0,0,10],[5,10,5]],[[i,i,1] for i in range(9)]]:
-            q=copy.deepcopy(original);q['cases']['bwrap-user-mount-net']['before']['uid_map']=maps
-            with self.assertRaises(ValueError):common.admission(a,q,c)
+    def test_actual_runtime_domain_proof_refuses_drift(self):
+        runtime=module('adapter_runtime_controls',HERE/'runtime.py');entry,parent=modeled_runtime();runtime.validate(entry,parent)
+        for key,value in [('uid',0),('ppid',2),('interfaces',['lo','eth0']),('limits',{**entry['limits'],'memory.swap.max':'max'}),('status',{**entry['status'],'CapAmb':'1'}),('mountinfo',entry['mountinfo'].replace('/inputs ro','/inputs rw')),('uid_map',[[0,0,2**32]])]:
+            bad=copy.deepcopy(entry);bad[key]=value
+            with self.subTest(key=key),self.assertRaises(ValueError):runtime.validate(bad,parent)
     def test_export_data_tar_boundaries_and_inert_bytes(self):
         def make(*,link=False,escape=False,root=True,root_mode=0o700,root_pax=None):
             stream=io.BytesIO()
@@ -136,7 +146,7 @@ class SourceControls(unittest.TestCase):
     def test_strict_json_and_natural_retirement_refusals(self):
         for raw in [b'{"x":1,"x":2}',b'{"x":NaN}',b'{"x":1e999}']:
             with self.assertRaises(ValueError):common.decode(raw)
-        _,_,q=fixtures();row=q['cases']['bwrap-user-mount-net']['retirement'];self.assertTrue(common.natural(row))
+        row=dict(natural_exit=True,forced_cleanup=False,retirement='REAPED',group_absent=True,leader_held_until_group_inspection=True,ownership_lost=False,exit_observed_via_waitpid=True,exit=0);self.assertTrue(common.natural(row))
         for key,value in [('forced_cleanup',True),('ownership_lost',True),('group_absent',False),('exit_observed_via_waitpid',False)]:self.assertFalse(common.natural(dict(row,**{key:value})))
 
 

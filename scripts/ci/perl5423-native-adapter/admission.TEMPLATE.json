@@ -5,10 +5,10 @@
   "image": null,
   "input_signature_audit_sha256": null,
   "job": null,
-  "operation": "perl5423-native-pair-v1",
+  "operation": "perl5423-native-pair-v2",
   "qualification_sha256": null,
   "run": null,
-  "schema": 1,
+  "schema": 2,
   "source": {
     "ref": null,
     "sha": null

@@ -374,7 +374,7 @@ def digest(value, length=64):
 
 
 def contract_data(c):
-    need(c['schema'] == 1 and c['operation'] == 'perl5423-native-pair-v1' and
+    need(type(c['schema']) is int and c['schema'] == 2 and c['operation'] == 'perl5423-native-pair-v2' and
          c['target'] == 'aarch64' and c['version'] == '5.42.3-1.3' and c['epoch'] == EPOCH and
          c['cf_time'] == CF_TIME and c['native_acceptance'] is False, 'fixed unadmitted Perl ARM contract required')
     need(c['recipe_sha256'] == 'cf0df8990ac83f48a4c29978c932922108f0e01cb6d052209934da5b01af4068' and
@@ -393,7 +393,10 @@ def contract_data(c):
     need(c['domain_sha256'] == pin(encoded(c['domain']))['sha256'] ==
          '6c6bdc29acf59e8ea911167f08d4d66a993777c121b2399211cec030e2a5b804' and
          c['domain']['kind'] == DOMAIN and c['namespace']['Source3937_equivalent'] is False and
-         c['namespace']['required_domain'] == DOMAIN, 'separate exact consumer namespace domain required')
+         c['namespace']['required_domain'] == DOMAIN and c['namespace']['build_requires_nested_namespaces'] is False and
+         c['namespace']['nested_invocation']=='NOT_INVOKED' and c['namespace']['nested_qualification']=='NOT_QUALIFIED' and
+         c['namespace']['premise']=='ORDINARY_ROOTLESS_CONTAINER_NO_NESTED_NAMESPACE_PRECONDITION',
+         'exact ordinary container domain without a nested namespace build precondition required')
     need('aarch64' in c['recipe_metadata']['arch'] and c['recipe_files']['PKGBUILD']['sha256'] == c['recipe_sha256'] and
          len(c['recipe_files']) == 18 and len(c['recipe_metadata']['provides']) == 113,
          'complete pinned dual-architecture recipe metadata required')
@@ -414,9 +417,9 @@ def retirement(row, *, actual=False, code=0):
 
 
 def namespace_state(value):
-    need(type(value) is dict and set(value) == {'uid','gid','namespaces','uid_map','gid_map'}, 'exact namespace effect state required')
+    need(type(value) is dict and set(value) == {'uid','gid','namespaces','uid_map','gid_map'}, 'exact container namespace state required')
     need(type(value['uid']) is int and type(value['gid']) is int, 'numeric namespace identity required')
-    need(type(value['namespaces']) is dict and set(value['namespaces']) == {'user','mnt','net','pid'}, 'complete namespace effects required')
+    need(type(value['namespaces']) is dict and set(value['namespaces']) == {'user','mnt','net','pid'}, 'complete container namespace observations required')
     for kind, name in value['namespaces'].items():
         need(type(name) is str and re.fullmatch(kind+r':\[[1-9][0-9]{0,19}\]', name), 'literal namespace identity required')
     for key in ('uid_map','gid_map'):
@@ -425,51 +428,147 @@ def namespace_state(value):
         for row in rows:
             need(type(row) is list and len(row) == 3 and all(type(n) is int and 0 <= n <= 2**32-1 for n in row) and
                  row[2] > 0 and row[0]+row[2] <= 2**32 and row[1]+row[2] <= 2**32, 'literal nonoverflowing ID map required')
-        for left, right in zip(sorted(rows), sorted(rows)[1:]):
-            need(left[0]+left[2] <= right[0], 'overlapping namespace ID maps')
+        for index in (0,1):
+            ordered=sorted(rows,key=lambda row:row[index])
+            for left,right in zip(ordered,ordered[1:]):
+                need(left[index]+left[2]<=right[index], 'overlapping namespace ID maps')
 
 
 def qualified(c, admission, qualification):
-    """Operands must be independently authenticated by the Root once caller."""
+    """Root authenticates actual container prerequisites; nested support is unused."""
     contract_data(c)
-    need(admission['schema'] == 1 and admission['operation'] == c['operation'] and digest(admission['approval']),
-         'independent non-NULL Root admission required')
+    need(type(admission['schema']) is int and admission['schema'] == 2 and
+         admission['operation'] == c['operation'] and digest(admission['approval']),
+         'independent non-NULL Root v2 admission required')
     need(type(admission['source']) is dict and set(admission['source']) == {'sha','ref'} and
          digest(admission['source']['sha'],40) and type(admission['source']['ref']) is str and
          re.fullmatch(r'codex/[A-Za-z0-9._/-]+', admission['source']['ref']), 'actual Root Source/ref binding required')
     for key in ('source_map_sha256','qualification_sha256','expected349_sha256','input_signature_audit_sha256'):
         need(digest(admission[key]), 'independent Root pin required: ' + key)
     for key in ('run','job'):
-        need(type(admission[key]) is str and re.fullmatch(r'[1-9][0-9]{0,19}', admission[key]) and
-             type(qualification[key]) is str and qualification[key] == admission[key], 'same actual run/job qualification required')
+        need(type(admission[key]) is str and re.fullmatch(r'[1-9][0-9]{0,19}', admission[key]), 'actual run/job required')
     need(re.fullmatch(r'sha256:[0-9a-f]{64}', admission['image'] or '') and
-         qualification['image'] == admission['image'] and admission['domain_sha256'] ==
-         qualification['domain_sha256'] == c['domain_sha256'] and
-         admission['expected349_sha256'] == c['expected349_sha256'], 'same immutable image/domain/baseline required')
-    need(pin(encoded(qualification))['sha256'] == admission['qualification_sha256'] and
-         qualification['schema'] == 1 and qualification['status'] == 'PASS_NAMESPACE_EFFECTS' and
-         digest(qualification['source'],40) and qualification['source'] != '3937d8b9f3210f4e9868bf19f01dfa22de64ddfe' and
-         digest(qualification['reader_sha256']), 'independent matching qualification cannot reuse Source3937')
-    cases = qualification['cases']
-    need(type(cases) is dict and set(cases) == {'bwrap-user-mount-net','unshare-mapped-root'}, 'both namespace cases required')
-    for kind, case in cases.items():
-        need(case['exit_code'] == 0 and type(case['exit_code']) is int and case['outcome'] == 'SUPPORTED', 'actual supported namespace effects required')
-        retirement(case['retirement'])
-        need(type(case['retirement'].get('exit')) is int and case['retirement']['exit'] == 0 and
-             case['retirement'].get('ownership_lost') is False and
-             case['retirement'].get('exit_observed_via_waitpid') is True, 'direct namespace command retirement required')
-        before, after = case['before'], case['after']
-        namespace_state(before); namespace_state(after)
-        need(before['uid'] == before['gid'] == 1001 and before['namespaces']['pid'] == after['namespaces']['pid'], 'qualification preserves actual outer identity/PID namespace')
-        changed = {key for key in before['namespaces'] if before['namespaces'][key] != after['namespaces'][key]}
-        if kind == 'bwrap-user-mount-net':
-            need(changed == {'user','mnt','net'} and after['uid'] == after['gid'] == 1001, 'actual bubblewrap user/mount/net effects required')
-            for key in ('uid_map','gid_map'):
-                owners = [outside+1001-inside for inside,outside,count in after[key] if inside<=1001<inside+count]
-                need(owners==[1001], 'bubblewrap actual1001 identity must map to outer1001')
-        else:
-            need(changed == {'user'} and after['uid'] == after['gid'] == 0 and
-                 after['uid_map'] == after['gid_map'] == [[0,1001,1]], 'actual mapped-root user namespace effects required')
+         admission['domain_sha256'] == c['domain_sha256'] and admission['expected349_sha256'] == c['expected349_sha256'],
+         'same immutable image/domain/baseline required')
+    q = qualification
+    need(type(q) is dict and set(q)=={'schema','kind','status','source','run','job','image','domain_sha256',
+         'source_readback_sha256','native_daemon_identity_sha256','input_signature_audit_sha256',
+         'expected349_sha256','nested_invocation','nested_qualification','nested_diagnostic'},
+         'exact Root native container precondition receipt required')
+    need(type(q['schema']) is int and q['schema']==2 and q['kind']=='ROOT_NATIVE_CONTAINER_ADMISSION_V2' and
+         q['status']=='ROOT_ADMITTED_CONTAINER_PRECONDITIONS' and q['source']==admission['source']['sha'] and
+         q['source']!=c['namespace']['Source3937'] and
+         pin(encoded(q))['sha256']==admission['qualification_sha256'], 'whole same-Source Root precondition binding required')
+    need(all(q[key]==admission[key] for key in ('run','job','image','domain_sha256','input_signature_audit_sha256','expected349_sha256')) and
+         all(digest(q[key]) for key in ('source_readback_sha256','native_daemon_identity_sha256')),
+         'actual same-run/job/image/349/signature/readback/native-daemon preconditions required')
+    need(q['nested_invocation']=='NOT_INVOKED' and q['nested_qualification']=='NOT_QUALIFIED',
+         'nested namespace support is neither invoked nor qualified by this build')
+    nested_descriptor(q['nested_diagnostic'])
+
+
+def nested_descriptor(value):
+    if value is None:return
+    need(type(value) is dict and set(value)=={'bytes','sha256'} and
+         type(value['bytes']) is int and 0<value['bytes']<=65536 and digest(value['sha256']),
+         'bounded optional diagnostic DATA pin required')
+
+
+def nested_diagnostic(get, qualification):
+    """Preserve an optional observation byte-for-byte; it confers no support."""
+    expected=qualification['nested_diagnostic'];nested_descriptor(expected)
+    if expected is None:
+        try:get('nested-namespace-diagnostic.json',65536)
+        except FileNotFoundError:return None
+        raise ValueError('unadmitted nested diagnostic DATA present')
+    raw=get('nested-namespace-diagnostic.json',65536)
+    need(pin(raw)==expected, 'optional nested diagnostic raw bytes differ')
+    object_data(raw,65536)
+    return expected
+
+
+RUNTIME_LIMITS={'cpu.max':'200000 100000','memory.max':'4294967296','memory.swap.max':'0','pids.max':'256'}
+
+
+def runtime_mounts(raw):
+    need(type(raw) is str and 0<len(raw.encode())<=128*1024, 'bounded complete actual mountinfo required')
+    selected={}
+    for line in raw.splitlines():
+        sides=line.split(' - ');need(len(sides)==2, 'literal mountinfo separator required')
+        left,right=sides[0].split(),sides[1].split()
+        need(len(left)>=6 and len(right)==3, 'literal mountinfo fields required')
+        target=left[4]
+        if target not in ('/','/inputs','/work','/tmp','/run'):continue
+        need(target not in selected, 'unique actual required mount')
+        selected[target]=(set(left[5].split(',')),right[0],set(right[2].split(',')))
+    need(set(selected)=={'/','/inputs','/work','/tmp','/run'}, 'all actual required mounts')
+    for name in ('/','/inputs'):
+        need('ro' in selected[name][0] and 'rw' not in selected[name][0], 'actual readonly mount required')
+    need('rw' in selected['/work'][0] and 'ro' not in selected['/work'][0], 'actual writable work mount required')
+    for name,size in [('/tmp',64*MIB),('/run',8*MIB)]:
+        opts,kind,sup=selected[name]
+        need(kind=='tmpfs' and {'rw','noexec','nosuid','nodev'}<=opts and 'ro' not in opts and
+             {'uid=1001','gid=1001'}<=sup, 'actual safe bounded tmpfs ownership/options required')
+        values=[x[5:] for x in sup if x.startswith('size=')]
+        need(len(values)==1, 'actual exact tmpfs size required')
+        match=re.fullmatch('([1-9][0-9]*)([kKmMgG]?)',values[0])
+        need(match and int(match[1])*{'':1,'k':1024,'m':MIB,'g':1024*MIB}[match[2].lower()]==size,
+             'actual exact tmpfs byte size required')
+
+
+def runtime_context(value):
+    keys={'pid','ppid','pgrp','session','starttime','uid','euid','gid','egid','groups','architecture','page_bytes',
+          'cwd','exe','cmdline','namespaces','uid_map','gid_map','status','limits','cgroup','mountinfo','interfaces','hostname'}
+    need(type(value) is dict and set(value)==keys, 'exact actual runtime context required')
+    for key in ('pid','ppid','pgrp','session','uid','euid','gid','egid'):
+        need(type(value[key]) is int and 0<=value[key]<2**31, 'numeric actual runtime identity required')
+    need(value['pid']>0 and value['pgrp']>0 and value['session']>0 and
+         type(value['starttime']) is int and 0<value['starttime']<2**64, 'live process/starttime identity required')
+    need(all(value[key]==1001 for key in ('uid','euid','gid','egid')) and value['architecture']=='aarch64' and
+         type(value['page_bytes']) is int and value['page_bytes'] in (4096,16384), 'actual native alarm1001 identity required')
+    groups=value['groups']
+    need(type(groups) is list and len(groups)<=32 and len(groups)==len(set(groups)) and
+         all(type(x) is int and 0<=x<2**32 for x in groups), 'complete bounded actual runtime groups required')
+    for key in ('cwd','exe'):
+        need(type(value[key]) is str and value[key].startswith('/') and len(value[key])<=4096,
+             'literal actual runtime path required')
+    cmd=value['cmdline']
+    need(type(cmd) is list and 0<len(cmd)<=32 and all(type(x) is str and '\0' not in x for x in cmd) and
+         sum(len(x.encode())+1 for x in cmd)<=8192, 'complete bounded actual runtime argv required')
+    namespace_state({key:value[key] for key in ('uid','gid','namespaces','uid_map','gid_map')})
+    security=value['status']
+    need(type(security) is dict and set(security)=={'CapInh','CapPrm','CapEff','CapBnd','CapAmb','NoNewPrivs','Seccomp','Seccomp_filters'},
+         'complete actual runtime security status required')
+    for key in ('CapInh','CapPrm','CapEff','CapBnd','CapAmb'):
+        need(type(security[key]) is str and re.fullmatch('[0-9a-f]{1,16}',security[key]) and int(security[key],16)==0,
+             'actual runtime cap0 required')
+    need(security['NoNewPrivs']=='1' and security['Seccomp'] in ('0','1','2') and
+         type(security['Seccomp_filters']) is str and re.fullmatch('[0-9]{1,4}',security['Seccomp_filters']),
+         'actual runtime NNP and observed seccomp fields required')
+    need(value['limits']==RUNTIME_LIMITS and type(value['cgroup']) is str and 0<len(value['cgroup'])<=4096,
+         'actual runtime resource limits/cgroup required')
+    need(value['interfaces']==['lo'] and value['hostname']=='perl5423-native', 'actual runtime network/hostname domain required')
+    runtime_mounts(value['mountinfo'])
+
+
+def runtime_data(value,c,admission):
+    """Actual entry/init proof of the ordinary container; no nested probe credit."""
+    need(type(value) is dict and set(value)=={'schema','admission_sha256','source_map_sha256','domain_sha256','entry','parent'} and
+         type(value['schema']) is int and value['schema']==1 and
+         value['admission_sha256']==pin(encoded(admission))['sha256'] and
+         value['source_map_sha256']==admission['source_map_sha256'] and value['domain_sha256']==c['domain_sha256'],
+         'whole actual runtime/Source/admission binding required')
+    entry,parent=value['entry'],value['parent'];runtime_context(entry);runtime_context(parent)
+    need(entry['pid']>1 and entry['ppid']==parent['pid']==1 and parent['starttime']<=entry['starttime'] and
+         entry['cwd']=='/work/recipe' and re.fullmatch(r'/usr/bin/python3(?:\.[0-9]{1,2})?',entry['exe']) and
+         entry['cmdline']==['/usr/bin/python3','-I','-B','/inputs/entry.py'], 'actual entry directly parented by runtime init required')
+    need(Path(parent['exe']).name in ('docker-init','tini') and
+         parent['cmdline'][-5:]==['--','/usr/bin/bash','--noprofile','--norc','/inputs/entry.sh'], 'actual injected init and entry command required')
+    for key in ('namespaces','uid_map','gid_map','groups','cgroup','page_bytes'):
+        need(entry[key]==parent[key], 'actual entry/init runtime continuity required')
+    return dict(status='OBSERVED_EXACT_CONTAINER_DOMAIN',entry_pid=entry['pid'],parent_pid=1,
+                page_bytes=entry['page_bytes'],namespaces=entry['namespaces'],uid_map=entry['uid_map'],gid_map=entry['gid_map'],
+                nested_invocation='NOT_INVOKED',nested_qualification='NOT_QUALIFIED')
 
 
 def actor(row, record, c, admission):
@@ -504,6 +603,7 @@ def actor(row, record, c, admission):
 
 def build_data(get, c, admission):
     """get(name, cap) reads one already-bound build export; never executes it."""
+    runtime = runtime_data(object_data(get('runtime.json',MIB)),c,admission)
     need(get('makepkg-exit.txt',64) == b'0\n', 'ordinary full makepkg must exit zero')
     packages = get('packages.txt',MIB)
     need(pin(packages)['sha256'] == c['expected349_sha256'], 'actual exact349 ALPM inventory differs')
@@ -583,7 +683,7 @@ def build_data(get, c, admission):
     need('libcrypt.so.2' in needed, 'actual Perl package crypt dependency must join observed provider')
     clocks = entry_operations(get,c,binary['path'])
     need(checked['seconds'] <= clocks['makepkg_seconds']+1, 'full harness clock exceeds actual makepkg retirement clock')
-    return dict(archive=parsed['identity'],nodes=parsed['nodes'],harness=checked,provider=binary,
+    return dict(archive=parsed['identity'],nodes=parsed['nodes'],harness=checked,provider=binary,runtime=runtime,
                 page_bytes=environment['page_bytes'],ELF_files=len(parsed['elfs']),commands=clocks,makepkg_configs=configs,
                 warnings=dict(fakeroot_preload=log.count(b"ERROR: ld.so: object 'libfakeroot.so'"),
                               source_directory=b'WARNING: Package contains reference to $srcdir' in log))
@@ -745,6 +845,7 @@ def input_snapshot(get, c, admission, qualification):
     """Check retained readonly inputs against independently supplied pins."""
     need(get('contract.json',MIB) == encoded(c) and get('admission.json',MIB) == encoded(admission) and
          get('qualification.json',MIB) == encoded(qualification), 'exact canonical readonly contract operands required')
+    nested_diagnostic(get,qualification)
     raw_map = get('adapter-source-map.json',MIB)
     need(pin(raw_map)['sha256'] == admission['source_map_sha256'], 'Root authenticated adapter Source map differs')
     source_map = object_data(raw_map)
@@ -753,7 +854,7 @@ def input_snapshot(get, c, admission, qualification):
     pins = object_data(get('helper-pins.json',MIB))
     need(1 <= len(pins) <= 8 and all(name in pins and pins[name]['sha256']==sha for name,sha in HELPERS.items()),
          'independent passive helper pins differ')
-    for name in ['common.py','entry.py','entry.sh','contract.json','helper-pins.json',*['helpers/'+name for name in pins]]:
+    for name in ['common.py','entry.py','entry.sh','runtime.py','contract.json','helper-pins.json',*['helpers/'+name for name in pins]]:
         relative(name)
         expected = source_map['files'][name]
         need(pin(get(name,MIB)) == {key:expected[key] for key in ('bytes','sha256')}, 'retained actual actor Source leaf differs: '+name)
@@ -959,9 +1060,11 @@ def validate_pair(evidence_root, contract, admission, qualification):
          'base/effective makepkg configurations differ across pair')
     need(get('build-1/'+ARCHIVE,64*MIB)==get('build-2/'+ARCHIVE,64*MIB), 'raw pair archive byte comparison differs')
     lifecycle['export_files']=[len(row) for row in lifecycle.pop('exports')]
-    return dict(schema=1,status='PASS_NATIVE_PAIR_DATA',native_acceptance=False,domain=DOMAIN,
+    return dict(schema=2,status='PASS_NATIVE_PAIR_DATA',native_acceptance=False,domain=DOMAIN,
+                nested_invocation='NOT_INVOKED',nested_qualification='NOT_QUALIFIED',
+                nested_diagnostic=qualification['nested_diagnostic'],
                 archive=results[0]['archive'],entries=len(results[0]['nodes']),
                 payload_identical=True,raw_bytes_identical=True,lifecycle=lifecycle,
                 builds=[{key:value for key,value in result.items() if key!='nodes'} for result in results],
-                limits=['Root must independently authenticate Source, approval, image/bootstrap signature audit and qualification operands',
+                limits=['Root must independently authenticate Source, approval, readback, native daemon, image/349/signatures and v2 precondition operands',
                         'No install/removal, external XS, target ABI, native 16K, M2, performance or release acceptance'])

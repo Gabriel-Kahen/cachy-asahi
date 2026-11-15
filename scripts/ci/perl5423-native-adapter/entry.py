@@ -25,9 +25,10 @@ def _run(cancelled):
     common.need(common.encode(a)==admission_raw and common.encode(q)==qraw,'canonical Root operands')
     common.need(common.pin(qraw)['sha256']==a['qualification_sha256'],'Root qualification operand hash')
     common.admission(a,q,c)
+    common.diagnostic(q,ROOT/'nested-namespace-diagnostic.json' if q['nested_diagnostic'] is not None else None)
     source_map=common.decode(common.read(ROOT/'adapter-source-map.json'))
     common.need(common.pin(common.read(ROOT/'adapter-source-map.json'))['sha256']==a['source_map_sha256'],'Root Source map binding')
-    for name in ['common.py','entry.py','entry.sh','contract.json','helper-pins.json',*['helpers/'+n for n in common.decode(common.read(ROOT/'helper-pins.json'))]]:
+    for name in ['common.py','runtime.py','entry.py','entry.sh','contract.json','helper-pins.json',*['helpers/'+n for n in common.decode(common.read(ROOT/'helper-pins.json'))]]:
         expected=source_map['files'][name]
         common.need(common.pin(common.read(ROOT/name,1024**2))=={k:expected[k] for k in ('bytes','sha256')},'actual readonly entry/helper source pin')
     common.need(platform.machine()=='aarch64' and os.getuid()==os.getgid()==1001,'actual native alarm1001 actor required')
@@ -37,6 +38,11 @@ def _run(cancelled):
     for key,value in [('CapEff','0000000000000000'),('CapBnd','0000000000000000'),('NoNewPrivs','1')]:
         common.need(next(line.split()[1] for line in status.splitlines() if line.startswith(key+':'))==value,'actual capability/NNP domain')
     for p in (WORK/'home',WORK/'tmp',WORK/'recipe',OUT):p.mkdir(mode=0o700)
+    runtime=common.load('perl_actual_rootless_runtime',ROOT/'runtime.py')
+    os.chdir(WORK/'recipe')
+    observed=dict(schema=1,admission_sha256=common.pin(admission_raw)['sha256'],source_map_sha256=a['source_map_sha256'],domain_sha256=c['domain_sha256'],entry=runtime.context(),parent=runtime.context(1))
+    (OUT/'runtime.json').write_bytes(common.encode(observed))
+    runtime.validate(observed['entry'],observed['parent'])
     shutil.copytree(ROOT/'recipe',WORK/'recipe',dirs_exist_ok=True)
     source=common.read(ROOT/c['source_name'],32*1024**2)
     common.need(common.pin(source)==dict(bytes=c['source_bytes'],sha256=c['source_sha256']),'actual upstream source bytes')
