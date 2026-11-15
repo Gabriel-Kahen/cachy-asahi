@@ -43,6 +43,20 @@
   },
   "native16K": "NOT RUN",
   "prepared": null,
+  "private_output_filesystem_controls": {
+    "actual_preparation": "NOT RUN",
+    "allowed_explicit_roots": [
+      "/tmp",
+      "/dev/shm"
+    ],
+    "capacity_source": "actual existing output parent filesystem",
+    "dev_shm_test": "modeled capacity, no output created",
+    "free_reserve_bytes": 2147483648,
+    "minimum_before_creation_bytes": 3221225472,
+    "passed": 7,
+    "preparation_cap_bytes": 838860800,
+    "symlink_or_prefix_fallback": false
+  },
   "read_only_fresh_signing_receipt": {
     "actual_host_UTC_within_validity": true,
     "bytes": 1481,
@@ -64,7 +78,7 @@
   "schema_version": 1,
   "status": "SOURCE_CONTROLS_ONLY_NOT_PREPARED",
   "successor_controls": {
-    "passed": 43,
+    "passed": 53,
     "profile": "source/model/private-host-shell; no Docker/QEMU/package payload"
   },
   "unchanged_legacy_controls": {

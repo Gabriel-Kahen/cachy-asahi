@@ -66,15 +66,15 @@
     }
   },
   "rtc_reference_base_commit": "58cc26556f613799dfd8554410ea05d53fe5dfbe",
-  "rtc_reference_correction": "RTC11 and independent ARM64 file/memory-span correction in source successor; exact per-file pins authoritative",
+  "rtc_reference_correction": "RTC11, independent ARM64 memory span and explicit private output-filesystem successor; exact per-file pins authoritative",
   "rtc_reference_files": {
     "README.md": {
-      "bytes": 9771,
-      "sha256": "aee9f10044a9d287cc6bc17cc5b7cf572007cee932a574411230b93f1ea290b9"
+      "bytes": 10984,
+      "sha256": "6f4807d4e1ba84efc3a75bf246f9a9850f0f2e3e65a288caf9114399d127afd2"
     },
     "RESULTS.json": {
-      "bytes": 2363,
-      "sha256": "e84a038286157160b328e1990bde2789c59960680d12f7c5a7cf86b1a3a5f4be"
+      "bytes": 2827,
+      "sha256": "90581f5eef77aacf23ef3803a2b75b90f171ce2855d1d7511ca7910353a304f0"
     },
     "authority.template.json": {
       "bytes": 422,
@@ -125,8 +125,8 @@
       "sha256": "b8fd5b92bd74cdd2a09887c9d7db5dabbe1fb47c705d3bc20d2fced10a66bd82"
     },
     "prepare.py": {
-      "bytes": 11338,
-      "sha256": "a93ab2e3dca70a04c47d01c5d58fe67cb7ba7db4325ee6e60ba1ecbc65f45e40"
+      "bytes": 12279,
+      "sha256": "b2f0a4ac14d8de39a8575f2f0e0bb1490ea86148e0c466eb92ebb408935ec045"
     },
     "prepare_image.py": {
       "bytes": 8528,
@@ -141,8 +141,8 @@
       "sha256": "eb347660a25e80efaf9666ee6e551abd92ae0267b9acdd89560f62e8b62c9b1a"
     },
     "test_successor.py": {
-      "bytes": 20122,
-      "sha256": "b82f76bc4c89572aaab9241761139fc5a915e83539bd6f170cc68e2ae04bafd6"
+      "bytes": 22943,
+      "sha256": "c66fc0b780db9bb3ad7c5d74c6e2e3e9fe4275bb733f4de4e8d1190a4ab6595d"
     },
     "tool_namespace.py": {
       "bytes": 4092,

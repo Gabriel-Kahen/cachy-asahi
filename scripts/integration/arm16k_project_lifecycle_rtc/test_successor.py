@@ -190,6 +190,43 @@ class ShellControls(unittest.TestCase):
    result=subprocess.run(['/usr/bin/bash','-n',str(HERE/name)],capture_output=True,timeout=5);self.assertEqual(result.returncode,0,result.stderr)
 
 
+class OutputFilesystem(unittest.TestCase):
+ def usage(self,free=3*1024**3):return type('Usage',(),{'free':free})()
+ def test_fresh_private_tmp_leaf_checks_parent_without_creation(self):
+  with tempfile.TemporaryDirectory(prefix='rtc-path-control-')as tmp:
+   path=Path(tmp)/'fresh'
+   with patch.object(P.shutil,'disk_usage',return_value=self.usage())as usage:self.assertEqual(P.output_path(path),path)
+   usage.assert_called_once_with(path.parent);self.assertFalse(path.exists())
+ def test_explicit_dev_shm_leaf_checks_that_filesystem(self):
+  path=Path('/dev/shm/rtc-source-path-control-fresh-8d128ef4')
+  with patch.object(P.shutil,'disk_usage',return_value=self.usage())as usage:self.assertEqual(P.output_path(path),path)
+  usage.assert_called_once_with(Path('/dev/shm'));self.assertFalse(path.exists())
+ def test_other_roots_prefix_fakes_relative_and_parent_escape_refuse(self):
+  with patch.object(P.shutil,'disk_usage',side_effect=AssertionError('must refuse before capacity query')):
+   for path in ('/tmpx/fresh','/dev/shm-other/fresh','/home/operator/fresh','relative/fresh','/tmp','/dev/shm','/tmp/allowed/../escape','/tmp/bad name'):
+    with self.subTest(path=path),self.assertRaises(ValueError):P.output_path(Path(path))
+ def test_symlink_ancestor_and_dangling_leaf_refuse(self):
+  with tempfile.TemporaryDirectory(prefix='rtc-path-control-')as tmp:
+   root=Path(tmp);(root/'real').mkdir(mode=0o700);(root/'link').symlink_to(root/'real');(root/'dangling').symlink_to(root/'absent')
+   for path in (root/'link/fresh',root/'dangling'):
+    with self.assertRaisesRegex(ValueError,'symlink'):P.output_path(path)
+ def test_existing_file_directory_and_missing_parent_refuse(self):
+  with tempfile.TemporaryDirectory(prefix='rtc-path-control-')as tmp:
+   root=Path(tmp);(root/'file').write_text('control');(root/'dir').mkdir(mode=0o700)
+   for path in (root/'file',root/'dir',root/'absent/fresh'):
+    with self.assertRaises(ValueError):P.output_path(path)
+ def test_nonprivate_or_wrong_owner_ancestor_refuses(self):
+  with tempfile.TemporaryDirectory(prefix='rtc-path-control-')as tmp:
+   root=Path(tmp);public=root/'public';public.mkdir(mode=0o755)
+   with self.assertRaisesRegex(ValueError,'private'):P.output_path(public/'fresh')
+   with patch.object(P.os,'getuid',return_value=os.getuid()+1),self.assertRaisesRegex(ValueError,'user-owned'):P.output_path(root/'fresh')
+ def test_full3gib_boundary_holds_on_actual_parent(self):
+  with tempfile.TemporaryDirectory(prefix='rtc-path-control-')as tmp:
+   path=Path(tmp)/'fresh'
+   with patch.object(P.shutil,'disk_usage',return_value=self.usage(3*1024**3-1)),self.assertRaisesRegex(ValueError,'actual output filesystem'):P.output_path(path)
+   with patch.object(P.shutil,'disk_usage',return_value=self.usage(3*1024**3)):self.assertEqual(P.output_path(path),path)
+
+
 class NewGpgReceipts(unittest.TestCase):
  # Exercise the new source with retained finite failure/privacy controls.
  fixture=LEGACY.GpgReceipts.fixture

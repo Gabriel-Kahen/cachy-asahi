@@ -94,17 +94,17 @@ python3 -I -B scripts/integration/arm16k_project_lifecycle_rtc/prepare.py \
   --authority /path/to/Root-prepare-authority.json --authority-sha256 ACTUAL_SHA256 \
   --base /tmp/cachy-asahi-arm16k-preparation-20261114-r5/assembly \
   --base-first-boot-report /tmp/cachy-asahi-arm16k-first-boot-root-20261114/report.json \
-  --output /tmp/NEW-rtc-lifecycle-preparation
+  --output /dev/shm/NEW-rtc-lifecycle-preparation
 
 python3 -I -B scripts/integration/arm16k_project_lifecycle_rtc/boot.py \
   --allow-first-arm16k-rtc-project-lifecycle \
-  --prepared /tmp/NEW-rtc-lifecycle-preparation/assembly \
+  --prepared /dev/shm/NEW-rtc-lifecycle-preparation/assembly \
   --prepared-sha256 ACTUAL_PREPARED_SHA256 \
   --authority /path/to/Root-boot-authority.json --authority-sha256 ACTUAL_SHA256 \
   --kernel-bundle /path/to/actual-built-rtc-bundle \
   --baseline-config /tmp/cachy-asahi-arm16k-preparation-20261114-r5/assembly/kernel.config \
   --signing-receipt /path/to/ksm-new-test-signatures-r1/Root-signing-receipt.json \
-  --output /tmp/NEW-rtc-lifecycle-root-run
+  --output /dev/shm/NEW-rtc-lifecycle-root-run
 ```
 
 Preparation stages fresh public signing materials in its own directory and
@@ -121,7 +121,7 @@ overlay256MiB. Preparation Runner600seconds, assembly360seconds. Additional
 preparation cap800MiB (sparse clone,14MiB materials and logs); future overlay is
 separate. Require≥3GiB free before preparation and preserve≥2GiB free; boot
 requires2GiB plus its256MiB overlay reserve. Root must review live aggregate RAM,
-/tmp capacity, the actual built kernel and fresh actor contract before admission.
+selected output filesystem capacity, the actual built kernel and fresh actor contract before admission.
 No preparation, kernel compile, image build, VM launch or package payload ran
 in this source task. Prepared/kernel/guest result fields remain null or NOT RUN.
 
@@ -132,7 +132,7 @@ python3 -I -B scripts/integration/arm16k_project_lifecycle_rtc/test_successor.py
 python3 -I -B scripts/integration/arm16k_project_lifecycle/test_lifecycle.py
 ```
 
-The43 successor controls include modeled bundle/clock/result/custody refusals,
+The53 successor controls include modeled bundle/clock/result/custody refusals,
 actual private-host summary byte preservation and syncfs, sync-failure terminal
 refusal, bounded mock GPG receipt/privacy checks and fresh signing date handling.
 The46 unchanged legacy controls separately pass. Modeled RTC checks do not
@@ -160,3 +160,20 @@ extra archive field refusal, omitted LOCALVERSION refusal and wrong compiler
 before-value refusal. A separate pure construction check restores the exact full
 baseline bytes through the producer inverse. Synthetic temporary Image headers
 are model DATA only; no actual built kernel or admission receipt is produced.
+
+
+Preparation accepts an explicit fresh private output leaf below exactly `/tmp`
+or `/dev/shm`. It does not resolve symlink aliases, create missing parent trees,
+select a fallback filesystem, write under `/home`, or remove old inputs. Nested
+parents must already be ordinary user-owned private directories; a direct leaf
+under either shared storage root is created0700 with the existing077 umask.
+Relative paths, `..`, prefix lookalikes, symlink ancestors/leaves and existing
+outputs refuse. Capacity is measured on the actual existing output parent:
+require at least3GiB before creation, retain the2GiB reserve and800MiB owned
+preparation cap. The separate512MiB /home reserve still protects Docker storage.
+All seven exact preparation mounts, rootless cap0/NNP/network-none policy,
+credentials/nonce/markers, signature/RTC authority and actor bytes are unchanged.
+Root must independently verify its exact rootless daemon can read the chosen
+private bind path. This source change performed no actual preparation or boot.
+Seven output-path controls pass within the53-control source/host-shell suite;
+/dev/shm acceptance uses a modeled capacity value and creates no output there.
