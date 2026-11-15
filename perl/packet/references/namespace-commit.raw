@@ -1,0 +1,6 @@
+tree f1757dbedeed1591cdb8538f6c91e493cd451966
+parent 69455e13bc99a2b2b6c2aca11f69d581769ae500
+author Gabriel Kahen <93809974+Gabriel-Kahen@users.noreply.github.com> 1794708790 -0500
+committer Gabriel Kahen <93809974+Gabriel-Kahen@users.noreply.github.com> 1794708790 -0500
+
+Preserve original alarm1001 context in bounded namespace diagnostic

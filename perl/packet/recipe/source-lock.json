@@ -1,0 +1,116 @@
+{
+  "compression_policy": {
+    "control_basis": "Selected upstream cpan/Compress-Raw-Zlib and Compress-Raw-Bzip2 Makefile.PL environment parsing; check() requires actual readelf DT_NEEDED before full harness",
+    "required_dynamic_dependencies": [
+      "libz.so.1",
+      "libbz2.so.1.0"
+    ],
+    "source_controls": [
+      "BUILD_ZLIB=0",
+      "BUILD_BZIP2=0",
+      "ZLIB_INCLUDE=/usr/include",
+      "ZLIB_LIB=/usr/lib",
+      "BZIP2_INCLUDE=/usr/include",
+      "BZIP2_LIB=/usr/lib"
+    ]
+  },
+  "configure_time_policy": {
+    "SOURCE_DATE_EPOCH": 1785628800,
+    "archive_normalization": false,
+    "assignment": "cf_time='Sun Aug  2 00:00:00 UTC 2026'\n",
+    "epoch_guard": "Exact declared epoch required; missing/different value refuses before source mutation",
+    "existing_override_policy": "Refuse symlinks/nonregular/unexpected content; accept exact generated body on retry",
+    "expected_cf_time": "Sun Aug  2 00:00:00 UTC 2026",
+    "full_build_status": "NOT_RUN_ROOT_ADMISSION_PENDING",
+    "generated_config_over": {
+      "bytes": 39,
+      "sha256": "2eecda6703b11fd4be86d29e69573fa1ce8ab9a39d532dfeca55a718509979d6"
+    },
+    "host_time_changed": false,
+    "mechanism": "Pinned upstream supported config.over, loaded after wall-clock assignment and before config.sh emission",
+    "pre_make_check": "Exact effective cf_time assignment required in generated config.sh",
+    "reproducibility": "NOT_PROVEN_NO_NEW_ARCHIVES",
+    "source_built_check": "check_config.pl requires canonical $Config{cf_time}"
+  },
+  "hardware": "NOT_RUN",
+  "historical_binary": {
+    "architecture": "aarch64",
+    "observed_hook": {
+      "bytes": 229,
+      "candidate_copy": false,
+      "path": "usr/share/libalpm/hooks/detect-old-perl-modules.hook",
+      "sha256": "c96c0b5ea4874f8ef6a1582d3389ad5ce566bc316de411e14bf2fb870510507f"
+    },
+    "observed_paths": 3231,
+    "recipe_correspondence": "UNRESOLVED_NOT_CLAIMED",
+    "version": "5.42.3-1"
+  },
+  "name": "perl",
+  "native_build": "NOT_RUN",
+  "notices": {
+    "Artistic": {
+      "bytes": 6321,
+      "sha256": "dd90d4f42e4dcadf5a7c09eea0189d93c7b37ae560c91f0f6d5233ed3b9292a2"
+    },
+    "Copying": {
+      "bytes": 12522,
+      "sha256": "8979e6dd61852041643c5c5c40ea63b2bd1b438a67d114e62cbaef808c514315"
+    },
+    "README": {
+      "bytes": 5277,
+      "sha256": "16381bf5fe73ad96ed26449b52eb4a85b2a32a49763c8a788d43af80f3add548"
+    }
+  },
+  "packaging_license": "MIT",
+  "parent_candidate": {
+    "path": "packages/port/perl5423-source-candidate",
+    "preserved_unchanged": true,
+    "successor_scope": "cf_time metadata only; same upstream snapshot, upstream patches, flags, modules and full test target",
+    "version": "5.42.3-1.2"
+  },
+  "patches": [
+    {
+      "bytes": 2924,
+      "commit": "568e6fd238867bb9e99fa3f47cba3169009239e0",
+      "path": "568e6fd238867bb9e99fa3f47cba3169009239e0.patch",
+      "sha256": "b763455236629383cf720ae6e60cfa42ce01e23728693a779abb8275f90a9e40",
+      "url": "https://github.com/Perl/perl5/commit/568e6fd238867bb9e99fa3f47cba3169009239e0.patch"
+    },
+    {
+      "bytes": 4229,
+      "commit": "54cf3d44cbbedd17d774e9a37921963e8fd5d0cb",
+      "path": "54cf3d44cbbedd17d774e9a37921963e8fd5d0cb.patch",
+      "sha256": "c7cc877ae64338c3a91398116d34ae9bb76c8835632f3259aa205eb70ded920a",
+      "url": "https://github.com/Perl/perl5/commit/54cf3d44cbbedd17d774e9a37921963e8fd5d0cb.patch"
+    }
+  ],
+  "performance": "NOT_MEASURED",
+  "provider_reconciliation": {
+    "candidate_claim": "perl-scalar-list-utils=1.69",
+    "historical_pkginfo_claim": "1.68_01",
+    "module": "Scalar::List::Utils",
+    "pod_man": "Source v6.0.2 normalized only to dotted package version6.0.2",
+    "selected_source_version": "1.69"
+  },
+  "provides_basis": "Selected-source Module::CoreList5.042003, checked by source-built Perl; observed historical facts are reconciled rather than treated as source authority",
+  "release": "NOT_ADMITTED",
+  "schema": 1,
+  "selected_for_development": false,
+  "selected_for_release": false,
+  "source": {
+    "bytes": 22610875,
+    "commit": "bc3dab4d4f66de5ea67dda34e5feb5230a54c603",
+    "path": "perl5-bc3dab4d4f66de5ea67dda34e5feb5230a54c603.tar.gz",
+    "sha256": "16b23f32e34df12709fc5fa0a7028d3df3c3cfceca21e38faada6a025edff725",
+    "tag": "v5.42.3",
+    "tag_object": "bfedb80da3c7c928c3acc902747d12b7c910948c",
+    "url": "https://github.com/Perl/perl5/archive/bc3dab4d4f66de5ea67dda34e5feb5230a54c603.tar.gz"
+  },
+  "source_verification": "Retained immutable official-repository HTTP snapshot and patch byte pins; not an upstream release signature or historical ALARM source correspondence",
+  "status": "UNSELECTED_SOURCE_AUTHORITATIVE_CANDIDATE",
+  "upstream_license": [
+    "Artistic-1.0-Perl",
+    "GPL-1.0-or-later"
+  ],
+  "version": "5.42.3-1.3"
+}

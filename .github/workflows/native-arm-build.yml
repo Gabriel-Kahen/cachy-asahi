@@ -1,29 +1,28 @@
-name: native-arm-developer-workflows
+name: native-arm-perl5423-v2
 on:
   workflow_dispatch:
     inputs:
-      source_sha:
-        type: string
-        required: true
-      source_map_sha256:
-        type: string
-        required: true
+      source_sha: {type: string, required: true}
+      source_map_sha256: {type: string, required: true}
+      approval_sha256: {type: string, required: true}
       operation:
         type: choice
         required: true
-        default: native-build-namespace-preflight-v1
-        options: [native-build-namespace-preflight-v1]
+        default: perl5423-native-pair-v2
+        options: [perl5423-native-pair-v2]
 permissions:
   contents: read
+  actions: read
 concurrency:
   group: native-arm-build
   cancel-in-progress: false
   queue: max
 jobs:
   native:
+    name: perl5423-native-v2
     if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
     runs-on: ubuntu-24.04-arm
-    timeout-minutes: 135
+    timeout-minutes: 225
     defaults:
       run:
         shell: bash
@@ -31,32 +30,23 @@ jobs:
       PYTHONDONTWRITEBYTECODE: '1'
       SOURCE_SHA: ${{ inputs.source_sha }}
       SOURCE_MAP_SHA256: ${{ inputs.source_map_sha256 }}
-      NATIVE_OPERATION: ${{ inputs.operation }}
+      ROOT_APPROVAL_SHA256: ${{ inputs.approval_sha256 }}
+      PERL_OPERATION: ${{ inputs.operation }}
       INPUTS_SHA256: beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f
     steps:
-      - name: Checkout the exact closed source
+      - name: Checkout exact Root-published closed Source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        timeout-minutes: 1
+        timeout-minutes: 2
         with:
           ref: ${{ inputs.source_sha }}
           persist-credentials: false
-      - name: Prove exact closed Git source before secrets
-        id: proof
+      - name: Verify complete Source before existing secrets
         timeout-minutes: 3
         run: |
           set -euo pipefail
-          printf '%s  %s\n' 'f037bca33940e764dce4a7d66dfe6d0c72fbeda07c7f417ee7e1d30629eb86f9' native/common.py | sha256sum --check
-          cmp --silent .github/workflows/native-arm-build.yml .github/workflows/native-arm-developer-workflows.yml
-          timeout --signal=TERM --kill-after=30s 150s \
-          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/native-developer-work/home" LANG=C.UTF-8 TZ=UTC \
-            RUNNER_TEMP="$RUNNER_TEMP" TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 \
-            GITHUB_SHA="$GITHUB_SHA" GITHUB_WORKFLOW_SHA="$GITHUB_WORKFLOW_SHA" GITHUB_REF="$GITHUB_REF" \
-            GITHUB_REPOSITORY="$GITHUB_REPOSITORY" GITHUB_RUN_ID="$GITHUB_RUN_ID" GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" \
-            GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" GITHUB_EVENT_NAME="$GITHUB_EVENT_NAME" GITHUB_ACTIONS="$GITHUB_ACTIONS" \
-            RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" ImageVersion="${ImageVersion:-}" ImageOS="${ImageOS:-}" \
-            python3 -I -B native/provision.py proof \
-              --source-sha "$SOURCE_SHA" --ref "$GITHUB_REF" --run-id "$GITHUB_RUN_ID" --map-sha256 "$SOURCE_MAP_SHA256" \
-              --work "$RUNNER_TEMP/native-developer-work" --cache "$RUNNER_TEMP/alarm-cache" --carrier "$RUNNER_TEMP/pgo-hosted-retained" --execute
+          printf '%s  %s\n' '776122710442ba1541cd4d7a7d8472ad01c295d523b28282a04e7c8298286b79' hosted/common.py '1c58f8d1226cf1a88149509b183fb61135d0f38ff75c02c729a00ed004a55cd0' hosted/entry.py | sha256sum --check
+          cmp --silent .github/workflows/native-arm-build.yml .github/workflows/native-arm-perl5423-v2.yml
+          timeout --signal=TERM --kill-after=30s 170s python3 -I -B hosted/entry.py proof --source-sha "$SOURCE_SHA" --map-sha256 "$SOURCE_MAP_SHA256" --approval-sha256 "$ROOT_APPROVAL_SHA256"
       - name: Seed the six exact retained inputs using existing secrets only
         timeout-minutes: 2
         env:
@@ -87,17 +77,17 @@ jobs:
         run: |
           set -euo pipefail
           test "$INPUTS_SHA256" = beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f
-          printf '%s  %s\n' "$INPUTS_SHA256" bootstrap/scripts/ci/inputs.lock.json | sha256sum --check
+          printf '%s  %s\n' "$INPUTS_SHA256" original/bootstrap/scripts/ci/inputs.lock.json | sha256sum --check
           timeout --signal=TERM --kill-after=5s 75s python3 -B - <<'PYSEED'
           import hashlib
           import os
           from pathlib import Path
           import sys
-          sys.path.insert(0, 'bootstrap/scripts/ci')
+          sys.path.insert(0, 'original/bootstrap/scripts/ci')
           from old_four_seed import (OLD_FOUR_PRIVATE_ROWS, RETAINED_BUBBLEWRAP_PRIVATE_ROWS,
                                      seed_current_build_cache)
           pin = 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'
-          if hashlib.sha256(Path('bootstrap/scripts/ci/inputs.lock.json').read_bytes()).hexdigest() != pin:
+          if hashlib.sha256(Path('original/bootstrap/scripts/ci/inputs.lock.json').read_bytes()).hexdigest() != pin:
               raise SystemExit('private-cache-input-binding-refused')
           names = {'CACHY_OLD_FOUR_' + f'{tag}_{i:02d}'
                    for _, _, _, tag, count in OLD_FOUR_PRIVATE_ROWS for i in range(1, count + 1)}
@@ -131,72 +121,51 @@ jobs:
             python3 -I -B "$GITHUB_WORKSPACE/source-public14/seed.py" --cache "$RUNNER_TEMP/alarm-cache"
           test ! -e "$RUNNER_TEMP/native-developer-public14"
           mv -- "$GITHUB_WORKSPACE/source-public14" "$RUNNER_TEMP/native-developer-public14"
-      - name: Transport complete original retained DATA once
-        id: transport
+      - name: Read actual job binding with existing Actions token
+        timeout-minutes: 1
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 -I -B hosted/entry.py metadata --source-sha "$SOURCE_SHA" --map-sha256 "$SOURCE_MAP_SHA256" --approval-sha256 "$ROOT_APPROVAL_SHA256"
+      - name: Transport exact original retained DATA once
         timeout-minutes: 9
         run: |
           set -euo pipefail
-          timeout --signal=TERM --kill-after=30s 500s \
-          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/native-developer-work/home" LANG=C.UTF-8 TZ=UTC \
-            RUNNER_TEMP="$RUNNER_TEMP" TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 \
-            GITHUB_SHA="$GITHUB_SHA" GITHUB_WORKFLOW_SHA="$GITHUB_WORKFLOW_SHA" GITHUB_REF="$GITHUB_REF" \
-            GITHUB_REPOSITORY="$GITHUB_REPOSITORY" GITHUB_RUN_ID="$GITHUB_RUN_ID" GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" \
-            GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" GITHUB_EVENT_NAME="$GITHUB_EVENT_NAME" GITHUB_ACTIONS="$GITHUB_ACTIONS" \
-            RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" ImageVersion="${ImageVersion:-}" ImageOS="${ImageOS:-}" \
-            python3 -I -B native/provision.py transport \
-              --source-sha "$SOURCE_SHA" --ref "$GITHUB_REF" --run-id "$GITHUB_RUN_ID" --map-sha256 "$SOURCE_MAP_SHA256" \
-              --work "$RUNNER_TEMP/native-developer-work" --cache "$RUNNER_TEMP/alarm-cache" --carrier "$RUNNER_TEMP/pgo-hosted-retained" --execute
-      - name: Seed exact eight archive and signature pairs
-        id: cache
-        timeout-minutes: 3
+          timeout --signal=TERM --kill-after=30s 500s python3 -I -B hosted/entry.py inputs --source-sha "$SOURCE_SHA" --map-sha256 "$SOURCE_MAP_SHA256" --approval-sha256 "$ROOT_APPROVAL_SHA256"
+      - name: Signed349 bootstrap and full ordinary native Perl pair
+        timeout-minutes: 185
         run: |
           set -euo pipefail
-          timeout --signal=TERM --kill-after=30s 150s \
-          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/native-developer-work/home" LANG=C.UTF-8 TZ=UTC \
-            RUNNER_TEMP="$RUNNER_TEMP" TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 \
-            GITHUB_SHA="$GITHUB_SHA" GITHUB_WORKFLOW_SHA="$GITHUB_WORKFLOW_SHA" GITHUB_REF="$GITHUB_REF" \
-            GITHUB_REPOSITORY="$GITHUB_REPOSITORY" GITHUB_RUN_ID="$GITHUB_RUN_ID" GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" \
-            GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" GITHUB_EVENT_NAME="$GITHUB_EVENT_NAME" GITHUB_ACTIONS="$GITHUB_ACTIONS" \
-            RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" ImageVersion="${ImageVersion:-}" ImageOS="${ImageOS:-}" \
-            python3 -I -B native/provision.py cache \
-              --source-sha "$SOURCE_SHA" --ref "$GITHUB_REF" --run-id "$GITHUB_RUN_ID" --map-sha256 "$SOURCE_MAP_SHA256" \
-              --work "$RUNNER_TEMP/native-developer-work" --cache "$RUNNER_TEMP/alarm-cache" --carrier "$RUNNER_TEMP/pgo-hosted-retained" --execute
-      - name: Execute exact ALARM developer component journeys
-        timeout-minutes: 77
-        run: |
-          set -euo pipefail
-          timeout --signal=TERM --kill-after=30s 4500s \
-          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/native-developer-work/home" LANG=C.UTF-8 TZ=UTC \
-            RUNNER_TEMP="$RUNNER_TEMP" TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 \
-            GITHUB_SHA="$GITHUB_SHA" GITHUB_WORKFLOW_SHA="$GITHUB_WORKFLOW_SHA" GITHUB_REF="$GITHUB_REF" \
-            GITHUB_REPOSITORY="$GITHUB_REPOSITORY" GITHUB_RUN_ID="$GITHUB_RUN_ID" GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" \
-            GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" GITHUB_EVENT_NAME="$GITHUB_EVENT_NAME" GITHUB_ACTIONS="$GITHUB_ACTIONS" \
-            RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" ImageVersion="${ImageVersion:-}" ImageOS="${ImageOS:-}" \
-            python3 -I -B native/owner.py \
-              --source-sha "$SOURCE_SHA" --ref "$GITHUB_REF" --run-id "$GITHUB_RUN_ID" --map-sha256 "$SOURCE_MAP_SHA256" \
-              --work "$RUNNER_TEMP/native-developer-work" --cache "$RUNNER_TEMP/alarm-cache" --carrier "$RUNNER_TEMP/pgo-hosted-retained" --execute --operation "$NATIVE_OPERATION"
-      - name: Retain bounded original DATA or native evidence capsule
-        if: always() && steps.proof.outcome == 'success'
-        timeout-minutes: 3
-        run: |
-          set -euo pipefail
-          timeout --signal=TERM --kill-after=30s 150s \
-          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/native-developer-work/home" LANG=C.UTF-8 TZ=UTC \
-            RUNNER_TEMP="$RUNNER_TEMP" TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 \
-            GITHUB_SHA="$GITHUB_SHA" GITHUB_WORKFLOW_SHA="$GITHUB_WORKFLOW_SHA" GITHUB_REF="$GITHUB_REF" \
-            GITHUB_REPOSITORY="$GITHUB_REPOSITORY" GITHUB_RUN_ID="$GITHUB_RUN_ID" GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" \
-            GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" GITHUB_EVENT_NAME="$GITHUB_EVENT_NAME" GITHUB_ACTIONS="$GITHUB_ACTIONS" \
-            RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" ImageVersion="${ImageVersion:-}" ImageOS="${ImageOS:-}" \
-            python3 -I -B native/provision.py retain \
-              --source-sha "$SOURCE_SHA" --ref "$GITHUB_REF" --run-id "$GITHUB_RUN_ID" --map-sha256 "$SOURCE_MAP_SHA256" \
-              --work "$RUNNER_TEMP/native-developer-work" --cache "$RUNNER_TEMP/alarm-cache" --carrier "$RUNNER_TEMP/pgo-hosted-retained" --execute
-      - name: Upload only bounded public evidence capsule
+          timeout --signal=TERM --kill-after=210s 10800s python3 -I -B hosted/entry.py native --source-sha "$SOURCE_SHA" --map-sha256 "$SOURCE_MAP_SHA256" --approval-sha256 "$ROOT_APPROVAL_SHA256" --execute
+      - name: Retain only public audit and pair DATA
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
-        timeout-minutes: 2
+        timeout-minutes: 3
         with:
-          name: native-developer-workflows-${{ github.run_id }}-${{ github.run_attempt }}
-          include-hidden-files: true
+          name: perl5423-native-v2-${{ github.run_id }}-${{ github.run_attempt }}
           if-no-files-found: ignore
+          include-hidden-files: true
           retention-days: 3
-          path: ${{ runner.temp }}/native-developer-work/upload/public-tree.tar
+          path: |
+            ${{ runner.temp }}/perl-hosted/hosted.json
+            ${{ runner.temp }}/perl-hosted/source-readback.json
+            ${{ runner.temp }}/perl-hosted/daemon.json
+            ${{ runner.temp }}/perl-hosted/binding.json
+            ${{ runner.temp }}/perl-hosted/job-metadata.json
+            ${{ runner.temp }}/perl-hosted/input-transport.json
+            ${{ runner.temp }}/perl-hosted/adapter-admission.json
+            ${{ runner.temp }}/perl-hosted/adapter-qualification.json
+            ${{ runner.temp }}/perl-hosted/proof/operations*
+            ${{ runner.temp }}/perl-hosted/proof/operations/**
+            ${{ runner.temp }}/perl-hosted/bootstrap/inputs.lock.json
+            ${{ runner.temp }}/perl-hosted/bootstrap/acquisition.json
+            ${{ runner.temp }}/perl-hosted/bootstrap/signatures.json
+            ${{ runner.temp }}/perl-hosted/bootstrap/packages.lock
+            ${{ runner.temp }}/perl-hosted/bootstrap/bootstrap.json
+            ${{ runner.temp }}/perl-hosted/bootstrap/proof.json
+            ${{ runner.temp }}/perl-hosted/bootstrap/input-data-preparation.json
+            ${{ runner.temp }}/perl-hosted/bootstrap/fixed-eight-cache.json
+            ${{ runner.temp }}/perl-hosted/bootstrap/operations.json
+            ${{ runner.temp }}/perl-hosted/bootstrap/operations/**
+            ${{ runner.temp }}/perl-hosted/pair/**

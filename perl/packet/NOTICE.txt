@@ -1,0 +1,3 @@
+Perl 5.42.3-1.3 source packet; independent unselected candidate.
+Upstream Artistic-1.0-Perl OR GPL-1.0-or-later notices are retained verbatim in recipe/UPSTREAM-Artistic and recipe/UPSTREAM-Copying; README and MIT packaging license are retained. Component source notices remain in the unchanged upstream archive. Dependency license/source metadata is retained as provenance, not new legal-policy or distribution approval.
+No source operand is executable authority. Native/installed/ARM16K/M2/ABI/performance/release acceptance: NOT RUN / NOT ADMITTED.
