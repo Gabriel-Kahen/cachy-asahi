@@ -1,0 +1,250 @@
+{
+  "base_raw": null,
+  "expected111": null,
+  "files": {
+    "/lib/ld-linux-aarch64.so.1": {
+      "bytes": null,
+      "owner": null,
+      "resolved": null,
+      "sha256": null,
+      "version": null
+    },
+    "/usr/bin/bash": {
+      "bytes": null,
+      "owner": null,
+      "resolved": null,
+      "sha256": null,
+      "version": null
+    },
+    "/usr/bin/cat": {
+      "bytes": null,
+      "owner": null,
+      "resolved": null,
+      "sha256": null,
+      "version": null
+    },
+    "/usr/bin/cp": {
+      "bytes": null,
+      "owner": null,
+      "resolved": null,
+      "sha256": null,
+      "version": null
+    },
+    "/usr/bin/date": {
+      "bytes": null,
+      "owner": null,
+      "resolved": null,
+      "sha256": null,
+      "version": null
+    },
+    "/usr/bin/env": {
+      "bytes": null,
+      "owner": null,
+      "resolved": null,
+      "sha256": null,
+      "version": null
+    },
+    "/usr/bin/getconf": {
+      "bytes": null,
+      "owner": null,
+      "resolved": null,
+      "sha256": null,
+      "version": null
+    },
+    "/usr/bin/grep": {
+      "bytes": null,
+      "owner": null,
+      "resolved": null,
+      "sha256": null,
+      "version": null
+    },
+    "/usr/bin/head": {
+      "bytes": null,
+      "owner": null,
+      "resolved": null,
+      "sha256": null,
+      "version": null
+    },
+    "/usr/bin/id": {
+      "bytes": null,
+      "owner": null,
+      "resolved": null,
+      "sha256": null,
+      "version": null
+    },
+    "/usr/bin/ld": {
+      "bytes": null,
+      "owner": null,
+      "resolved": null,
+      "sha256": null,
+      "version": null
+    },
+    "/usr/bin/mkdir": {
+      "bytes": null,
+      "owner": null,
+      "resolved": null,
+      "sha256": null,
+      "version": null
+    },
+    "/usr/bin/pacman": {
+      "bytes": null,
+      "owner": null,
+      "resolved": null,
+      "sha256": null,
+      "version": null
+    },
+    "/usr/bin/readlink": {
+      "bytes": null,
+      "owner": null,
+      "resolved": null,
+      "sha256": null,
+      "version": null
+    },
+    "/usr/bin/rm": {
+      "bytes": null,
+      "owner": null,
+      "resolved": null,
+      "sha256": null,
+      "version": null
+    },
+    "/usr/bin/sed": {
+      "bytes": null,
+      "owner": null,
+      "resolved": null,
+      "sha256": null,
+      "version": null
+    },
+    "/usr/bin/sha256sum": {
+      "bytes": null,
+      "owner": null,
+      "resolved": null,
+      "sha256": null,
+      "version": null
+    },
+    "/usr/bin/sleep": {
+      "bytes": null,
+      "owner": null,
+      "resolved": null,
+      "sha256": null,
+      "version": null
+    },
+    "/usr/bin/sort": {
+      "bytes": null,
+      "owner": null,
+      "resolved": null,
+      "sha256": null,
+      "version": null
+    },
+    "/usr/bin/stat": {
+      "bytes": null,
+      "owner": null,
+      "resolved": null,
+      "sha256": null,
+      "version": null
+    },
+    "/usr/bin/sync": {
+      "bytes": null,
+      "owner": null,
+      "resolved": null,
+      "sha256": null,
+      "version": null
+    },
+    "/usr/bin/timeout": {
+      "bytes": null,
+      "owner": null,
+      "resolved": null,
+      "sha256": null,
+      "version": null
+    },
+    "/usr/bin/uname": {
+      "bytes": null,
+      "owner": null,
+      "resolved": null,
+      "sha256": null,
+      "version": null
+    },
+    "/usr/lib/Scrt1.o": {
+      "bytes": null,
+      "owner": null,
+      "resolved": null,
+      "sha256": null,
+      "version": null
+    },
+    "/usr/lib/crti.o": {
+      "bytes": null,
+      "owner": null,
+      "resolved": null,
+      "sha256": null,
+      "version": null
+    },
+    "/usr/lib/crtn.o": {
+      "bytes": null,
+      "owner": null,
+      "resolved": null,
+      "sha256": null,
+      "version": null
+    },
+    "/usr/lib/libc.so.6": {
+      "bytes": null,
+      "owner": null,
+      "resolved": null,
+      "sha256": null,
+      "version": null
+    },
+    "/usr/lib/libdl.so.2": {
+      "bytes": null,
+      "owner": null,
+      "resolved": null,
+      "sha256": null,
+      "version": null
+    },
+    "/usr/lib/libgcc_s.so.1": {
+      "bytes": null,
+      "owner": null,
+      "resolved": null,
+      "sha256": null,
+      "version": null
+    },
+    "/usr/lib/libm.so.6": {
+      "bytes": null,
+      "owner": null,
+      "resolved": null,
+      "sha256": null,
+      "version": null
+    },
+    "/usr/lib/libpthread.so.0": {
+      "bytes": null,
+      "owner": null,
+      "resolved": null,
+      "sha256": null,
+      "version": null
+    },
+    "/usr/lib/librt.so.1": {
+      "bytes": null,
+      "owner": null,
+      "resolved": null,
+      "sha256": null,
+      "version": null
+    },
+    "/usr/lib/libz.so.1": {
+      "bytes": null,
+      "owner": null,
+      "resolved": null,
+      "sha256": null,
+      "version": null
+    }
+  },
+  "issued_by": null,
+  "kind": "ARM16K_RUST_STAGE0_BASE111_INPUTS_V1",
+  "link_inputs": {
+    "c": null,
+    "dl": null,
+    "gcc_s": null,
+    "m": null,
+    "pthread": null,
+    "rt": null,
+    "util": null
+  },
+  "scope": "Root must supply actual readonly111 CRT/loader/linker/tool observations; this template is not qualification",
+  "status": "UNQUALIFIED"
+}

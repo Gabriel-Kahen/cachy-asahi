@@ -1,0 +1,40 @@
+{
+  "actual": {
+    "VM_boot": null,
+    "attempt": null,
+    "authority": null,
+    "prepared": null,
+    "ref": null,
+    "source": null,
+    "tree": null
+  },
+  "address_space_limit_bytes": 134217728,
+  "bash_syntax": {
+    "frozen/rtc-clock.sh": "PASS",
+    "guest/check.sh": "PASS"
+  },
+  "date": "2026-11-15",
+  "kind": "ARM16K_RUST_STAGE0_FENCED_CONTROLS_V1",
+  "not_run": [
+    "actual archive reads or extraction",
+    "Source constructor",
+    "Root authority or guest-input certification",
+    "prepare/boot actor",
+    "container daemon or lease",
+    "network",
+    "Perl/rustc/cargo/linker",
+    "native16K/M2 hardware",
+    "performance",
+    "release admission"
+  ],
+  "passive_JSON": "PASS",
+  "passive_python_syntax": "PASS",
+  "schema": 1,
+  "status": "PASS_FENCED_CONTROLS_ONLY",
+  "unittest": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 python3 -B -m unittest discover -s scripts/integration/arm16k_rust_stage0_vm -v",
+    "failed": 0,
+    "passed": 37,
+    "scope": "tiny synthetic archives/DATA trees/nonce frames/mocked children; no operational child spawn"
+  }
+}

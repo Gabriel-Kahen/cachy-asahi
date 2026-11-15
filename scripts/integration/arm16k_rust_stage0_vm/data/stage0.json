@@ -1,0 +1,101 @@
+{
+  "archives": {
+    "cargo-1.98.0-aarch64-unknown-linux-gnu.tar.xz": {
+      "bytes": 11116188,
+      "component": "cargo",
+      "elf": "records/cargo-1.98.0-aarch64-unknown-linux-gnu.tar.xz.elf.json",
+      "inventory": "records/cargo-1.98.0-aarch64-unknown-linux-gnu.tar.xz.inventory.json",
+      "root": "cargo-1.98.0-aarch64-unknown-linux-gnu",
+      "sha256": "5784379d73ac881d15a9e67eed2882cd58c747c276221c23cdf9aff37e015ff6"
+    },
+    "rust-std-1.98.0-aarch64-unknown-linux-gnu.tar.xz": {
+      "bytes": 30768752,
+      "component": "rust-std-aarch64-unknown-linux-gnu",
+      "elf": "records/rust-std-1.98.0-aarch64-unknown-linux-gnu.tar.xz.elf.json",
+      "inventory": "records/rust-std-1.98.0-aarch64-unknown-linux-gnu.tar.xz.inventory.json",
+      "root": "rust-std-1.98.0-aarch64-unknown-linux-gnu",
+      "sha256": "a36f7ac98af20ef0ba6368aace0345efabbebaef7962eba99f47190fd256162d"
+    },
+    "rustc-1.98.0-aarch64-unknown-linux-gnu.tar.xz": {
+      "bytes": 66413136,
+      "component": "rustc",
+      "elf": "records/rustc-1.98.0-aarch64-unknown-linux-gnu.tar.xz.elf.json",
+      "inventory": "records/rustc-1.98.0-aarch64-unknown-linux-gnu.tar.xz.inventory.json",
+      "root": "rustc-1.98.0-aarch64-unknown-linux-gnu",
+      "sha256": "00590657f2356d7163ca5ef295283523974c340fa21bb94b420ce794f29b358c"
+    }
+  },
+  "compatibility": "UNQUALIFIED",
+  "installer_execution": false,
+  "model": {
+    "file": "records/component-prefix-model.json",
+    "file_bytes": 511504024,
+    "files": 145,
+    "nodes": 166,
+    "tree_sha256": "2590be106242f89885ec057b9ce907afae5a3264c393f38003c5b58cc10906e4"
+  },
+  "notices": {
+    "records/notices/cargo-1.98.0-aarch64-unknown-linux-gnu/LICENSE-APACHE": {
+      "bytes": 10860,
+      "sha256": "8ada45cd9f843acf64e4722ae262c622a2b3b3007c7310ef36ac1061a30f6adb",
+      "target": "share/licenses/retained-stage0/cargo-1.98.0-aarch64-unknown-linux-gnu/LICENSE-APACHE"
+    },
+    "records/notices/cargo-1.98.0-aarch64-unknown-linux-gnu/LICENSE-MIT": {
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3",
+      "target": "share/licenses/retained-stage0/cargo-1.98.0-aarch64-unknown-linux-gnu/LICENSE-MIT"
+    },
+    "records/notices/cargo-1.98.0-aarch64-unknown-linux-gnu/LICENSE-THIRD-PARTY": {
+      "bytes": 68430,
+      "sha256": "cbc759b1f17a2ac38fe3eb9e9563b1a08ba0f900611c49faaf68b46907b6d898",
+      "target": "share/licenses/retained-stage0/cargo-1.98.0-aarch64-unknown-linux-gnu/LICENSE-THIRD-PARTY"
+    },
+    "records/notices/cargo-1.98.0-aarch64-unknown-linux-gnu/cargo/share/doc/cargo/LICENSE-APACHE": {
+      "bytes": 10860,
+      "sha256": "8ada45cd9f843acf64e4722ae262c622a2b3b3007c7310ef36ac1061a30f6adb",
+      "target": "share/licenses/retained-stage0/cargo-1.98.0-aarch64-unknown-linux-gnu/cargo/share/doc/cargo/LICENSE-APACHE"
+    },
+    "records/notices/cargo-1.98.0-aarch64-unknown-linux-gnu/cargo/share/doc/cargo/LICENSE-MIT": {
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3",
+      "target": "share/licenses/retained-stage0/cargo-1.98.0-aarch64-unknown-linux-gnu/cargo/share/doc/cargo/LICENSE-MIT"
+    },
+    "records/notices/cargo-1.98.0-aarch64-unknown-linux-gnu/cargo/share/doc/cargo/LICENSE-THIRD-PARTY": {
+      "bytes": 68430,
+      "sha256": "cbc759b1f17a2ac38fe3eb9e9563b1a08ba0f900611c49faaf68b46907b6d898",
+      "target": "share/licenses/retained-stage0/cargo-1.98.0-aarch64-unknown-linux-gnu/cargo/share/doc/cargo/LICENSE-THIRD-PARTY"
+    },
+    "records/notices/rust-std-1.98.0-aarch64-unknown-linux-gnu/COPYRIGHT": {
+      "bytes": 1571,
+      "sha256": "172020dbfd5b53a226dfde77616190a48dcff519b0bc0e6deb91a8450782c4af",
+      "target": "share/licenses/retained-stage0/rust-std-1.98.0-aarch64-unknown-linux-gnu/COPYRIGHT"
+    },
+    "records/notices/rust-std-1.98.0-aarch64-unknown-linux-gnu/LICENSE-APACHE": {
+      "bytes": 9723,
+      "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a",
+      "target": "share/licenses/retained-stage0/rust-std-1.98.0-aarch64-unknown-linux-gnu/LICENSE-APACHE"
+    },
+    "records/notices/rust-std-1.98.0-aarch64-unknown-linux-gnu/LICENSE-MIT": {
+      "bytes": 1068,
+      "sha256": "b71bd43a069ca0641a9ecfe585ca7b3c53b5cc1608f8b68321168698e28b5ea1",
+      "target": "share/licenses/retained-stage0/rust-std-1.98.0-aarch64-unknown-linux-gnu/LICENSE-MIT"
+    },
+    "records/notices/rustc-1.98.0-aarch64-unknown-linux-gnu/COPYRIGHT": {
+      "bytes": 1571,
+      "sha256": "172020dbfd5b53a226dfde77616190a48dcff519b0bc0e6deb91a8450782c4af",
+      "target": "share/licenses/retained-stage0/rustc-1.98.0-aarch64-unknown-linux-gnu/COPYRIGHT"
+    },
+    "records/notices/rustc-1.98.0-aarch64-unknown-linux-gnu/LICENSE-APACHE": {
+      "bytes": 9723,
+      "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a",
+      "target": "share/licenses/retained-stage0/rustc-1.98.0-aarch64-unknown-linux-gnu/LICENSE-APACHE"
+    },
+    "records/notices/rustc-1.98.0-aarch64-unknown-linux-gnu/LICENSE-MIT": {
+      "bytes": 1068,
+      "sha256": "b71bd43a069ca0641a9ecfe585ca7b3c53b5cc1608f8b68321168698e28b5ea1",
+      "target": "share/licenses/retained-stage0/rustc-1.98.0-aarch64-unknown-linux-gnu/LICENSE-MIT"
+    }
+  },
+  "schema": 1,
+  "static_elf_count": 14
+}

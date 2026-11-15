@@ -1,0 +1,292 @@
+{
+  "actual": {
+    "VM_boot": null,
+    "attempt": null,
+    "authority": null,
+    "prepared": null,
+    "ref": null,
+    "source": null,
+    "tree": null
+  },
+  "files": {
+    ".gitattributes": {
+      "bytes": 49,
+      "mode": 420,
+      "sha256": "5c542217e64930612ddce6f9afb1398af0b815cf2e937cb49aafed2ea943c248"
+    },
+    "LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "README.md": {
+      "bytes": 4065,
+      "mode": 420,
+      "sha256": "d926d9915f319a116526ae8ba07f2780824947d083d7b1e8b183047b6d446a04"
+    },
+    "authority.TEMPLATE.json": {
+      "bytes": 1096,
+      "mode": 420,
+      "sha256": "34f8f0d49b523bbc8e79cea2567e15491bd58827ef26932323117a2d20139009"
+    },
+    "boot.py": {
+      "bytes": 11531,
+      "mode": 420,
+      "sha256": "bd4fa2765dc2a60ea4f518078ac34e05f977df44d4722b55fcaaea2fa488822d"
+    },
+    "construct.py": {
+      "bytes": 3413,
+      "mode": 420,
+      "sha256": "aa20d7a569a96a28ba7039c100057ece2e27a081447e2526db93b47445a58eb9"
+    },
+    "contracts.py": {
+      "bytes": 12565,
+      "mode": 420,
+      "sha256": "8b8f1082868c0185bbbc42df4083329fb801a5f9cd4fa3ede408e58a675e6375"
+    },
+    "data/base.json": {
+      "bytes": 20047,
+      "mode": 420,
+      "sha256": "2c61f1ecaf3a0ee9d6c8fc951be06edbb1140efd6847a0db808979227591f8af"
+    },
+    "data/expected111.lock": {
+      "bytes": 1996,
+      "mode": 420,
+      "sha256": "dcc7bbdfeb3c242ffad6ead9378a75e4a2355d5e67c659ba887d7baa20583b66"
+    },
+    "data/kernel.json": {
+      "bytes": 563,
+      "mode": 420,
+      "sha256": "634ea8fd05d7d476a74c1cecc84d52c5c718d0153642faaace8abc117e7a3b3d"
+    },
+    "data/qemu-metadata.json": {
+      "bytes": 675,
+      "mode": 420,
+      "sha256": "b2a0c65bbb2120235206b27c39ba07421a37df10fc365d99b236f9a0ae0d95c1"
+    },
+    "data/records/cargo-1.98.0-aarch64-unknown-linux-gnu.tar.xz.elf.json": {
+      "bytes": 2638,
+      "mode": 420,
+      "sha256": "0da95000698543c9755057315fca64fa38660132af4a287aa2a8bfd9fc7508ff"
+    },
+    "data/records/cargo-1.98.0-aarch64-unknown-linux-gnu.tar.xz.inventory.json": {
+      "bytes": 15690,
+      "mode": 420,
+      "sha256": "aa2335eeeea5a9dff965fe38c246366bdc0b8486ea69293dd1c8c82f6e4f3cd3"
+    },
+    "data/records/component-prefix-model.json": {
+      "bytes": 28331,
+      "mode": 420,
+      "sha256": "c1fca476887a5005eb11ead2fcca672c1dd88d22d6794c57d29aef499d6dc07f"
+    },
+    "data/records/notices/cargo-1.98.0-aarch64-unknown-linux-gnu/LICENSE-APACHE": {
+      "bytes": 10860,
+      "mode": 420,
+      "sha256": "8ada45cd9f843acf64e4722ae262c622a2b3b3007c7310ef36ac1061a30f6adb"
+    },
+    "data/records/notices/cargo-1.98.0-aarch64-unknown-linux-gnu/LICENSE-MIT": {
+      "bytes": 1023,
+      "mode": 420,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "data/records/notices/cargo-1.98.0-aarch64-unknown-linux-gnu/LICENSE-THIRD-PARTY": {
+      "bytes": 68430,
+      "mode": 420,
+      "sha256": "cbc759b1f17a2ac38fe3eb9e9563b1a08ba0f900611c49faaf68b46907b6d898"
+    },
+    "data/records/notices/cargo-1.98.0-aarch64-unknown-linux-gnu/cargo/share/doc/cargo/LICENSE-APACHE": {
+      "bytes": 10860,
+      "mode": 420,
+      "sha256": "8ada45cd9f843acf64e4722ae262c622a2b3b3007c7310ef36ac1061a30f6adb"
+    },
+    "data/records/notices/cargo-1.98.0-aarch64-unknown-linux-gnu/cargo/share/doc/cargo/LICENSE-MIT": {
+      "bytes": 1023,
+      "mode": 420,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "data/records/notices/cargo-1.98.0-aarch64-unknown-linux-gnu/cargo/share/doc/cargo/LICENSE-THIRD-PARTY": {
+      "bytes": 68430,
+      "mode": 420,
+      "sha256": "cbc759b1f17a2ac38fe3eb9e9563b1a08ba0f900611c49faaf68b46907b6d898"
+    },
+    "data/records/notices/rust-std-1.98.0-aarch64-unknown-linux-gnu/COPYRIGHT": {
+      "bytes": 1571,
+      "mode": 420,
+      "sha256": "172020dbfd5b53a226dfde77616190a48dcff519b0bc0e6deb91a8450782c4af"
+    },
+    "data/records/notices/rust-std-1.98.0-aarch64-unknown-linux-gnu/LICENSE-APACHE": {
+      "bytes": 9723,
+      "mode": 420,
+      "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+    },
+    "data/records/notices/rust-std-1.98.0-aarch64-unknown-linux-gnu/LICENSE-MIT": {
+      "bytes": 1068,
+      "mode": 420,
+      "sha256": "b71bd43a069ca0641a9ecfe585ca7b3c53b5cc1608f8b68321168698e28b5ea1"
+    },
+    "data/records/notices/rustc-1.98.0-aarch64-unknown-linux-gnu/COPYRIGHT": {
+      "bytes": 1571,
+      "mode": 420,
+      "sha256": "172020dbfd5b53a226dfde77616190a48dcff519b0bc0e6deb91a8450782c4af"
+    },
+    "data/records/notices/rustc-1.98.0-aarch64-unknown-linux-gnu/LICENSE-APACHE": {
+      "bytes": 9723,
+      "mode": 420,
+      "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+    },
+    "data/records/notices/rustc-1.98.0-aarch64-unknown-linux-gnu/LICENSE-MIT": {
+      "bytes": 1068,
+      "mode": 420,
+      "sha256": "b71bd43a069ca0641a9ecfe585ca7b3c53b5cc1608f8b68321168698e28b5ea1"
+    },
+    "data/records/rust-std-1.98.0-aarch64-unknown-linux-gnu.tar.xz.elf.json": {
+      "bytes": 2345,
+      "mode": 420,
+      "sha256": "b7e124de42fadc761b61c19decfc3f58345d579f5469b0c55287caa430c669a2"
+    },
+    "data/records/rust-std-1.98.0-aarch64-unknown-linux-gnu.tar.xz.inventory.json": {
+      "bytes": 27417,
+      "mode": 420,
+      "sha256": "61346195122bbdd6c1d391a1083698d25ad38ea203286e7150558429e34030cf"
+    },
+    "data/records/rustc-1.98.0-aarch64-unknown-linux-gnu.tar.xz.elf.json": {
+      "bytes": 30804,
+      "mode": 420,
+      "sha256": "03047e63766b26ef35ade4be273219ec4da26c35d4ddea564e9d8ecea7ec4877"
+    },
+    "data/records/rustc-1.98.0-aarch64-unknown-linux-gnu.tar.xz.inventory.json": {
+      "bytes": 15386,
+      "mode": 420,
+      "sha256": "9ee82f38a01909e6072e74000f9f9771f89f3bd69b5ea49b362039b7cdd31360"
+    },
+    "data/retained-acquisition.json": {
+      "bytes": 3328,
+      "mode": 420,
+      "sha256": "92b58363898e7e5fa9296152e0d083147a34ea4fce9483be003c718d3676aca8"
+    },
+    "data/stage0.json": {
+      "bytes": 5340,
+      "mode": 420,
+      "sha256": "d64bd4e3c37a246fcc2b40321c6a430a794fc9fb7856c507e9bd95dcba8f2d0f"
+    },
+    "data/tool-qualification.json": {
+      "bytes": 5942,
+      "mode": 420,
+      "sha256": "8507370faf1c8aa385235ca0d01411251998b3266bf15817e568c09b71738916"
+    },
+    "frozen/owned_process.py": {
+      "bytes": 25140,
+      "mode": 420,
+      "sha256": "83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f"
+    },
+    "frozen/reference_controller.py": {
+      "bytes": 14117,
+      "mode": 420,
+      "sha256": "e7c8935f342d4b36bb6f8f24c0b48c3b8aa04be9807f62c3f8141aeaf26819fc"
+    },
+    "frozen/rtc-clock.sh": {
+      "bytes": 1344,
+      "mode": 420,
+      "sha256": "fed8c8eabe89ad8cb979994c35dc44ad3e8704f5481c3dd00560192018c504fa"
+    },
+    "frozen/rtc_contract.py": {
+      "bytes": 9806,
+      "mode": 420,
+      "sha256": "b3f4727110fefb9429ca3944e758189cac8ecddfc53332f4ce2c40b64ca35028"
+    },
+    "guest-inputs.TEMPLATE.json": {
+      "bytes": 5122,
+      "mode": 420,
+      "sha256": "27321ce754c7fefe79edc97410a32ba01f26869f8c8232206f26454158a6bfee"
+    },
+    "guest/Cargo.lock": {
+      "bytes": 168,
+      "mode": 420,
+      "sha256": "755a5181d8015d778358d51067cb91ffbfd7c3aebfcada96becb4f62c20cd9f0"
+    },
+    "guest/Cargo.toml": {
+      "bytes": 171,
+      "mode": 420,
+      "sha256": "f85c29af825424b467b013203a376e566056d16822dd974359bf36af15e9f99c"
+    },
+    "guest/check.sh": {
+      "bytes": 7914,
+      "mode": 420,
+      "sha256": "0982fdf3afa91433033b665894e376de2e8da622f13ea70d6641b6db601457fb"
+    },
+    "guest/main.rs": {
+      "bytes": 1896,
+      "mode": 420,
+      "sha256": "bf51e301630f7b3f78b2253225f9e2049c13214782846ef26c46717ac369334c"
+    },
+    "origin.json": {
+      "bytes": 9874,
+      "mode": 420,
+      "sha256": "adde568823dbd3fdcafaab2a3516317e809d6d6b875b9b9a463bdfb9e80c0b8a"
+    },
+    "ownership.py": {
+      "bytes": 6597,
+      "mode": 420,
+      "sha256": "23e73ae0d466d08d981f944da35cac36cf57eb34bb5c93101c8fa34eb7f20b1c"
+    },
+    "prepare.py": {
+      "bytes": 7138,
+      "mode": 420,
+      "sha256": "00cfbe0ebf38cf5f92167a72ad5a3fe517ef49315eca6b8e82f6553d483aa02f"
+    },
+    "prepare_image.py": {
+      "bytes": 8261,
+      "mode": 420,
+      "sha256": "fd4c17b6d6d54ddac53192dd22905771d39494f20aa242f90c593de602221ed1"
+    },
+    "protocol.py": {
+      "bytes": 3346,
+      "mode": 420,
+      "sha256": "ec13290cf6a3aa2fa862aecfe6d97edfcc5e46d43f1eb24863683a4c8a80310a"
+    },
+    "publication.TEMPLATE.json": {
+      "bytes": 203,
+      "mode": 420,
+      "sha256": "f7df647b4e223fc8f80e8b1c4ee403530279b88adbe240e5fcd46d0c066ee78f"
+    },
+    "runtime.py": {
+      "bytes": 12744,
+      "mode": 420,
+      "sha256": "c0a90a0985b71d959bb08a672fe04166930025b325afd1098e6d02c636396a30"
+    },
+    "stage0.py": {
+      "bytes": 20647,
+      "mode": 420,
+      "sha256": "46a8b746802428bba158bcf7e52fedd273d7d7131e2b747453b2fe1404cb2687"
+    },
+    "test_controls.py": {
+      "bytes": 14023,
+      "mode": 420,
+      "sha256": "440d58cc4663d871923728ecf4b8e6a622c8736363624371eb191b7e8958b718"
+    },
+    "test_runtime.py": {
+      "bytes": 12295,
+      "mode": 420,
+      "sha256": "4ebf1519efd48f136ea8e73bd1babd366a0cb22557941c4807fcfbc878ac2350"
+    },
+    "test_stage0.py": {
+      "bytes": 12911,
+      "mode": 420,
+      "sha256": "7939c7444db185d6c9a42ec634500f3bd281abfde471cc643fd275eeb07ce622"
+    },
+    "validation.json": {
+      "bytes": 1088,
+      "mode": 420,
+      "sha256": "42db35c5121ab3dbaba67d52102b19c95a69b5daab8f930b642d04d49136d6e5"
+    },
+    "vm_actor.py": {
+      "bytes": 6483,
+      "mode": 420,
+      "sha256": "07509033f125c4310bca912135ffebe9b214ee899ed6a73dfaeb328bb705d62e"
+    }
+  },
+  "kind": "ARM16K_RUST_STAGE0_SOURCE_LOCK_V1",
+  "operation": "arm16k-rust-stage0-vm-v1",
+  "schema": 1,
+  "status": "SOURCE_ONLY_NOT_CONSTRUCTED_OR_PUBLISHED"
+}

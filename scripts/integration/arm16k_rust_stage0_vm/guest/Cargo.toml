@@ -1,0 +1,10 @@
+[package]
+name = "arm16k-rust-stage0-check"
+version = "0.0.0"
+edition = "2021"
+publish = false
+autobins = false
+
+[[bin]]
+name = "rust-stage0-correctness"
+path = "main.rs"
