@@ -1,7 +1,19 @@
 {
   "ARM_M2_release": "NOT RUN",
-  "VM": "r1 PAM HOLD; r2 installed-ownership exit1 before login; latest source VM NOT RUN",
-  "constructor": "r1/r2 historical preparations passed; latest diagnostic/syncfs source preparation NOT RUN",
+  "VM": "historical r1 PAM HOLD/r2 ownership-stage HOLD; r3 CLI option refusal before actual Qkk/login; corrected one-flag source VM NOT RUN",
+  "cli_option_correction": {
+    "PAM_repair": "NOT CLAIMED",
+    "bytes": 39,
+    "latest_preparation_VM": "NOT RUN",
+    "live_summary": "exit1,known warnings0,file summaries0,unknown stderr1",
+    "ownership_warning_bypass": false,
+    "package_ownership_defect": "NOT ESTABLISHED; actual Qkk rejected at option validation",
+    "public_error_line_without_newline": "error: invalid option '--noprogressbar'",
+    "query_removal_regression": "actual trusted source argv expressions preserve config/noconfirm/Qkk/R",
+    "sha256": "275533864d05feef2d8c970a5d26028226b6b43977daff2f90d84d0598e35ce6",
+    "source_change": "remove only --noprogressbar from common pacman argv"
+  },
+  "constructor": "historical r1/r2/r3 preparations only; latest one-flag source preparation NOT RUN",
   "downloaded_archive_bytes": 126484897,
   "downloaded_official_archives": 108,
   "evidence": {
@@ -70,6 +82,10 @@
       "bytes": 3061,
       "sha256": "535e51965e79ae7fb1f3101cc2676b38f5b3def98690df8b2740544d91ee9488"
     },
+    "cli-error-fixture.json": {
+      "bytes": 920,
+      "sha256": "5fd4e44bfe94e30302dd32fe479a8a7163cdd8530e6fdead6d9bd1f420319e73"
+    },
     "observer.py": {
       "bytes": 12496,
       "sha256": "29d9f7e1286674071958b616182ffa892c80ecb2f9fe850262c075196f3e3afa"
@@ -95,8 +111,8 @@
       "sha256": "19e73b380d4a8173494c551497dd25b9ead31ff50684ed7115aa43de226f97b0"
     },
     "root_fixture.py": {
-      "bytes": 13479,
-      "sha256": "ac2925eaf2e6231b25acb5f3d79f76d3e34e449a9c77ee6db66bd7fa2fd8adb6"
+      "bytes": 13461,
+      "sha256": "b81b5115d9e509c016c6c863dbe9fd5e2691a1a36061e0bc0fedae1b49c56a46"
     }
   },
   "official_archive_bytes": 141176555,
@@ -200,6 +216,24 @@
       "sha256": "2c948fbfe2751ab39684f78e22296b1d8aa995c3062668f83c901af3e6c8dd0d"
     }
   },
+  "preserved_r3_typed_receipt_evidence": {
+    "/tmp/cachy-asahi-ui-r3-live-receipts-94fd4d92ea21e67a5da0/parent.json": {
+      "bytes": 3545,
+      "sha256": "3f2160eba46cf8c7acaa32ed130780fcf228dd8c71eac43cbfc6f7d7a2f9e088"
+    },
+    "/tmp/cachy-asahi-ui-r3-live-receipts-94fd4d92ea21e67a5da0/reader.json": {
+      "bytes": 636,
+      "sha256": "d51a739c685bbd0fb4ca35aa266d5298ec647e678dc03a4cbc7604fda2e79f19"
+    },
+    "/tmp/cachy-asahi-ui-r3-live-receipts-94fd4d92ea21e67a5da0/receipts/ownership-summary.json": {
+      "bytes": 244,
+      "sha256": "544b5cae85476d91be2ee758cf23e37c622ed5bbe8ade91749d1d281d9dfbb20"
+    },
+    "/tmp/cachy-asahi-ui-r3-live-receipts-94fd4d92ea21e67a5da0/receipts/ownership-unknown-000.json": {
+      "bytes": 195,
+      "sha256": "74cf96762b5e3ceebbc497d628df23ab74062f18d1c1021fed445b2e0c19b0f6"
+    }
+  },
   "retained_official_archives": 17,
   "schema_version": 1,
   "sequencing_durability_correction": {
@@ -213,6 +247,6 @@
     "new_preparation_or_launch": "NOT RUN",
     "normal_signature_import_trust_policy_unchanged": true
   },
-  "source_controls": "29 PASS Python3.12/3.14; source controls only; live ownership/PAM cause NOT ESTABLISHED",
-  "status": "R2_STRICT_OWNERSHIP_HOLD_LIVE_DIAGNOSTIC_SYNCFS_SOURCE_NOT_PREPARED"
+  "source_controls": "31 PASS Python3.12/3.14; exact live public CLI-error hash corroborated; no subsequent runtime credit",
+  "status": "R3_CLI_OPTION_REFUSAL_ONE_FLAG_CORRECTION_SOURCE_NOT_PREPARED"
 }

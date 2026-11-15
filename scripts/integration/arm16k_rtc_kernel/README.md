@@ -61,6 +61,27 @@ tool. Explicit pahole/openssl/pkg-config executable, library and ALPM source
 pins now join the pre/post guard. No installation or tool execution by this
 worker was needed; Root must still capture/review fresh configure output.
 
+## ARM64 file and memory-span bounds
+
+The pinned upstream `data/arm64-image.h:64` defines header image_size as
+`_end - _text`. `data/arm64-vmlinux.lds.S` places `_edata` before BSS and
+`_end` after zero-init/page tables/early stack. The exact boot protocol in
+`data/arm64-booting.rst:83,142` calls this effective Image size and requires
+that amount of free memory. It can exceed objcopy file length. Independently
+bound the file to64MiB and the nonzero effective memory span to128MiB, within
+the planned1536MiB guest; magic, little-endian and16K flags remain required.
+
+Root's closed compile r1 naturally completed both make commands, then held
+at the incorrect prior file-length comparison. Its actual64-byte header and
+Image were not retained, so no specific rejected field or measured cause is
+claimed. The corrected source first retains `observed-Image`, raw
+`image-header.bin` and decoded `image-header.json` before post-build checks.
+The existing64MiB total output budget remains enforced; if full Image retention
+would exceed it, header diagnostics survive and the stage holds. Successful
+validation moves the same retained Image into the bundle without a second
+copy. Failed validation never emits an accepted bundle manifest. This is
+source-only correction; no new configure, compile or VM was run by the worker.
+
 ## Small isolated host-/usr route
 
 `actor-proposal.json` fixes the proposed domain. Reuse retained rootless image
@@ -117,12 +138,12 @@ python3 -I -B scripts/integration/arm16k_rtc_kernel/test_interop.py \
   --consumer /absolute/corrected/arm16k_c01_workflow_rtc/contracts.py
 ```
 
-Actual40 actor-fenced controls and eight producer-to-corrected-consumer modeled
+Actual47 actor-fenced controls and twelve producer-to-corrected-consumer modeled
 joins pass. The model's synthetic Image is test DATA, never a compiled artifact.
-The corrected consumer body is pinned at7464 bytes,
-SHA256 `e7d3d8f0ecc6e4991ffaf3e2459a2034acf46609de6416376a74573477143fe2`;
-the C01 counterpart is8015 bytes,
-SHA256 `c78861dbf1b1cde14484a7c335468174f78547399034022cffc5a4a97e458ebb`.
+The corrected consumer body is pinned at7579 bytes,
+SHA256 `232196f59c3672a3f91c776e00a8eb7801add928ee8cacc9e37ea627d281f343`;
+the C01 counterpart is8130 bytes,
+SHA256 `cbf53a1529836496897dfb7958839e2e1fd28119bfba5c389e3f78e3645a26d1`.
 
 Root's actual configure r1 subsequently closed **HOLD**: source extraction
 completed100117 members/1589202874 logical bytes, but the original wrapper

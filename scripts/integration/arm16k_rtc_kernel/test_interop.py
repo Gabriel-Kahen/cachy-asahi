@@ -5,7 +5,7 @@ import argparse,contextlib,ctypes,hashlib,importlib.util,json,os,socket,struct,s
 from pathlib import Path
 from unittest.mock import patch
 HERE=Path(__file__).resolve().parent
-CONSUMER_SHAS={'e7d3d8f0ecc6e4991ffaf3e2459a2034acf46609de6416376a74573477143fe2','c78861dbf1b1cde14484a7c335468174f78547399034022cffc5a4a97e458ebb'}
+CONSUMER_SHAS={'232196f59c3672a3f91c776e00a8eb7801add928ee8cacc9e37ea627d281f343','cbf53a1529836496897dfb7958839e2e1fd28119bfba5c389e3f78e3645a26d1'}
 
 
 def load(name,path):
@@ -23,7 +23,7 @@ def main():
   C=load('rtc_interop_producer',HERE/'contract.py')
   class Interop(unittest.TestCase):
    def model(self,root):
-    image=root/'Image';raw=bytearray(256);raw[56:60]=b'ARM\x64';struct.pack_into('<Q',raw,16,256);struct.pack_into('<Q',raw,24,4);image.write_bytes(raw)
+    image=root/'Image';raw=bytearray(256);raw[56:60]=b'ARM\x64';struct.pack_into('<Q',raw,16,128*1024**2);struct.pack_into('<Q',raw,24,4);image.write_bytes(raw)
     facts=json.loads((HERE/'data/configure-r2-facts.json').read_text())['genuine_compiler_auxiliary_facts'];lines=[];seen=set()
     for line in C.construct(C.data()).decode().splitlines():
      row=C.values((line+'\n').encode());key=next(iter(row),None)
@@ -47,6 +47,23 @@ def main():
     with tempfile.TemporaryDirectory() as tmp:
      root=Path(tmp);bundle,approved=self.model(root);del bundle['config_proof']['feature_delta']['CONFIG_LOCALVERSION'];(root/'bundle.json').write_text(json.dumps(bundle));approved['kernel_bundle']=C.pin(root/'bundle.json')
      with self.assertRaises(ValueError):K.kernel(root,approved,HERE/'data/baseline.config')
+   def test_invalid_effective_memory_spans_refuse(self):
+    for span in (0,128*1024**2+1):
+     with tempfile.TemporaryDirectory() as tmp:
+      root=Path(tmp);bundle,approved=self.model(root);image=root/'Image';raw=bytearray(image.read_bytes());struct.pack_into('<Q',raw,16,span);image.write_bytes(raw);bundle['files']['Image']=C.pin(image);(root/'bundle.json').write_text(json.dumps(bundle));approved['kernel_bundle']=C.pin(root/'bundle.json')
+      with self.subTest(span=span),self.assertRaises(ValueError):K.kernel(root,approved,HERE/'data/baseline.config')
+   def test_filecap_and_wrong_header_flags_refuse(self):
+    for invalid in ('large-file','magic','endian','pages'):
+     with tempfile.TemporaryDirectory() as tmp:
+      root=Path(tmp);bundle,approved=self.model(root);image=root/'Image';raw=bytearray(image.read_bytes())
+      if invalid=='magic':raw[56:60]=bytes(4)
+      elif invalid=='endian':struct.pack_into('<Q',raw,24,5)
+      elif invalid=='pages':struct.pack_into('<Q',raw,24,2)
+      image.write_bytes(raw)
+      if invalid=='large-file':
+       with image.open('ab') as stream:stream.truncate(C.IMAGE_FILE_CAP+1)
+      bundle['files']['Image']=C.pin(image);(root/'bundle.json').write_text(json.dumps(bundle));approved['kernel_bundle']=C.pin(root/'bundle.json')
+      with self.subTest(invalid=invalid),self.assertRaises(ValueError):K.kernel(root,approved,HERE/'data/baseline.config')
    def test_compiler_before_not_original_refuses(self):
     with tempfile.TemporaryDirectory() as tmp:
      root=Path(tmp);bundle,approved=self.model(root);facts=bundle['config_proof']['compiler_facts'];facts['CONFIG_CLANG_VERSION']={'before':'220108','after':'220108'};approved['approved_compiler_facts']=facts;(root/'bundle.json').write_text(json.dumps(bundle));approved['kernel_bundle']=C.pin(root/'bundle.json')

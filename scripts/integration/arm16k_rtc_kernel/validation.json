@@ -3,6 +3,16 @@
   "M2": "NOT RUN",
   "Native_Source_Reader_dispatch": "NOT RUN",
   "RTC_options": 11,
+  "Root_actual_compile_r1": {
+    "accepted_bundle": false,
+    "actual_Image_header": "NOT RETAINED; actual failed field remains unmeasured",
+    "closed_outputs": "preserved unchanged",
+    "host_pre_post_guard": "Root PASS",
+    "make_Image": "Root actual exit0; natural REAPED EMPTY_TWICE;294.0392693459944seconds",
+    "owned_container_absent": true,
+    "source_bug": "effective in-memory image_size incorrectly constrained to file length; exact upstream evidence now retained",
+    "status": "CLOSED_HOLD_POST_BUILD_HEADER_VALIDATION"
+  },
   "Root_actual_compiler_facts": null,
   "Root_actual_configure_r1": {
     "closed_outputs": "preserved unchanged",
@@ -76,14 +86,20 @@
     "runtime_domain": "HOST_USR_READONLY_BIND_V1",
     "tools_including_bc": 18
   },
+  "image_bounds": {
+    "effective_memory_span_max_bytes": 134217728,
+    "effective_memory_span_min_bytes": 1,
+    "file_max_bytes": 67108864,
+    "total_persistent_output_max_bytes": 67108864
+  },
   "interop_consumers": {
     "C01": {
-      "bytes": 8015,
-      "sha256": "c78861dbf1b1cde14484a7c335468174f78547399034022cffc5a4a97e458ebb"
+      "bytes": 8130,
+      "sha256": "cbf53a1529836496897dfb7958839e2e1fd28119bfba5c389e3f78e3645a26d1"
     },
     "KSM": {
-      "bytes": 7464,
-      "sha256": "e7d3d8f0ecc6e4991ffaf3e2459a2034acf46609de6416376a74573477143fe2"
+      "bytes": 7579,
+      "sha256": "232196f59c3672a3f91c776e00a8eb7801add928ee8cacc9e37ea627d281f343"
     }
   },
   "interop_image": "SYNTHETIC_TEMPORARY_DATA_ONLY_NEVER_COMPILED",
@@ -101,8 +117,8 @@
   "not_run_scope": "Worker execution only; historical Root configure r1/r2 records are explicitly separate",
   "operation": "arm16k-rtc-reference-kernel-v1",
   "performance": "NOT MEASURED",
-  "producer_to_corrected_consumer_controls": 8,
-  "pure_actor_fenced_controls": 40,
+  "producer_to_corrected_consumer_controls": 12,
+  "pure_actor_fenced_controls": 47,
   "python": "3.14.7",
   "raw_preparation": "NOT RUN",
   "release_accepted": false,

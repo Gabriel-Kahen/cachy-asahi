@@ -50,6 +50,16 @@ def owned_command(O,argv,*,cap,max_output,env=None,preexec_fn=None,retirement=2,
   raise OwnedCommandError(error,recovery) from error
 
 
+def retain_image(C,image,out):
+ # Preserve first-failure DATA before any release/config/header validation.
+ raw,fields=C.header_fields(image);(out/'image-header.bin').write_bytes(raw)
+ (out/'image-header.json').write_text(json.dumps(fields,indent=2,sort_keys=True)+'\n')
+ retained=sum(p.stat().st_size for p in out.rglob('*') if p.is_file())
+ if fields['file_bytes']>C.IMAGE_FILE_CAP or retained+fields['file_bytes']+1024**2>C.IMAGE_FILE_CAP:raise ValueError('64MiB total persistent output budget prevents Image retention; header retained')
+ target=out/'observed-Image';shutil.copyfile(image,target)
+ return target,fields
+
+
 def main():
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('--allow-kernel-source-execution',action='store_true');p.add_argument('--stage',choices=['configure','compile'],required=True);p.add_argument('--archive',type=Path,required=True);p.add_argument('--tool-profile',type=Path,required=True);p.add_argument('--tool-profile-sha256',required=True);p.add_argument('--owned-process',type=Path,required=True);p.add_argument('--configured-result',type=Path);p.add_argument('--approved-config',type=Path);p.add_argument('--output',type=Path,required=True);a=p.parse_args()
  if not(a.allow_kernel_source_execution and __debug__ and sys.flags.isolated):p.error('explicit separately admitted isolated kernel-source execution required')
@@ -101,13 +111,13 @@ def main():
   else:
    if C.pin(build/'.config')!=configured['config'] or facts!=profile['compiler_facts']:raise ValueError('fresh compile-stage configure changed the exact approved config/facts')
    proof=C.final_config(raw,profile['compiler_facts']);command('Image',argv+['-j2','Image'])
+   image,report['observed_image_header']=retain_image(C,build/'arch/arm64/boot/Image',out);report['observed_image']=C.pin(image)
    if (build/'include/config/kernel.release').read_text().strip()!=C.lock()['kernel_release']:raise ValueError('distinct RTC kernel release differs')
    if C.pin(build/'.config')!=configured['config']:raise ValueError('compile altered approved configuration')
-   image=build/'arch/arm64/boot/Image';report['image_header']=C.header(image)
-   retained=sum(p.stat().st_size for p in out.rglob('*') if p.is_file())
-   if retained+image.stat().st_size+(build/'.config').stat().st_size+1024**2>64*1024**2:raise ValueError('64MiB persistent output budget exceeded')
-   bundle=out/'bundle';bundle.mkdir();shutil.copyfile(image,bundle/'Image');shutil.copyfile(build/'.config',bundle/'config')
-   metadata=C.bundle(bundle/'Image',bundle/'config',profile,a.tool_profile_sha256,tools,report['commands'],report['actual_started_utc'],utc());(bundle/'bundle.json').write_text(json.dumps(metadata,indent=2,sort_keys=True)+'\n');report.update(status=metadata['status'],kernel_compile='PASS',bundle=C.pin(bundle/'bundle.json'))
+   report['image_header']=C.header(image)
+   metadata=C.bundle(image,build/'.config',profile,a.tool_profile_sha256,tools,report['commands'],report['actual_started_utc'],utc())
+   bundle=out/'bundle';bundle.mkdir();image.rename(bundle/'Image');shutil.copyfile(build/'.config',bundle/'config')
+   (bundle/'bundle.json').write_text(json.dumps(metadata,indent=2,sort_keys=True)+'\n');report.update(status=metadata['status'],kernel_compile='PASS',bundle=C.pin(bundle/'bundle.json'))
  except BaseException as e:report['failure']={'category':type(e).__name__,'message':str(e)[:2048]}
  finally:
   report['actual_finished_utc']=utc();(out/'build-report.json').write_text(json.dumps(report,indent=2,sort_keys=True)+'\n')

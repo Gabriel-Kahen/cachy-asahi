@@ -85,7 +85,7 @@ def main():
             assert row['name'] not in baseline
             archives.append(str(p))
         ownership_index=ownership.load_index(I/'ownership',contract['ownership_metadata'],{r['name']for r in rows})
-        pacman=['pacman','--config',str(conf),'--noconfirm','--noprogressbar']
+        pacman=['pacman','--config',str(conf),'--noconfirm']
         writer.phase('trusted-install')
         call('trusted-install',pacman+['-U',*archives],150);sync('post-install')
         writer.phase('installed-check')

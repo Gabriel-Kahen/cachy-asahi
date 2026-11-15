@@ -66,7 +66,7 @@
     }
   },
   "rtc_reference_base_commit": "58cc26556f613799dfd8554410ea05d53fe5dfbe",
-  "rtc_reference_correction": "RTC11 derived helper correction in same source commit; exact per-file pins authoritative",
+  "rtc_reference_correction": "RTC11 and independent ARM64 file/memory-span correction in source successor; exact per-file pins authoritative",
   "rtc_reference_files": {
     "README.md": {
       "bytes": 9771,
@@ -89,8 +89,8 @@
       "sha256": "de66e5596c32606eb824bc0577a9a9a4fbd55881956d8828d3db435026a1b620"
     },
     "contracts.py": {
-      "bytes": 7464,
-      "sha256": "e7d3d8f0ecc6e4991ffaf3e2459a2034acf46609de6416376a74573477143fe2"
+      "bytes": 7579,
+      "sha256": "232196f59c3672a3f91c776e00a8eb7801add928ee8cacc9e37ea627d281f343"
     },
     "durable.sh": {
       "bytes": 1143,
@@ -141,8 +141,8 @@
       "sha256": "eb347660a25e80efaf9666ee6e551abd92ae0267b9acdd89560f62e8b62c9b1a"
     },
     "test_successor.py": {
-      "bytes": 19304,
-      "sha256": "37c6850fafdebe7df0cdcf9c6ddee02bf214794c345f1eca561696f4e2210df8"
+      "bytes": 20122,
+      "sha256": "b82f76bc4c89572aaab9241761139fc5a915e83539bd6f170cc68e2ae04bafd6"
     },
     "tool_namespace.py": {
       "bytes": 4092,

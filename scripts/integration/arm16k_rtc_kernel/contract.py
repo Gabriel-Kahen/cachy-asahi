@@ -124,12 +124,25 @@ def final_config(raw,compiler_facts):
  return {'baseline':pin(HERE/'data/baseline.config'),'requested':{'bytes':len(requested),'sha256':hashlib.sha256(requested).hexdigest()},'feature_delta':delta(original,requested),'compiler_facts':compiler_facts,'rtc_required':RTC,'non_rtc_features_unchanged':True}
 
 
+IMAGE_FILE_CAP=64*1024**2
+IMAGE_MEMORY_CAP=128*1024**2
+
+
+def header_fields(path):
+ path=Path(path)
+ with path.open('rb') as f:raw=f.read(64)
+ fields={'header_bytes':len(raw),'file_bytes':path.stat().st_size,'header_sha256':hashlib.sha256(raw).hexdigest(),'magic_hex':raw[56:60].hex()}
+ if len(raw)==64:fields.update(text_offset=struct.unpack_from('<Q',raw,8)[0],effective_image_size=struct.unpack_from('<Q',raw,16)[0],flags=struct.unpack_from('<Q',raw,24)[0])
+ return raw,fields
+
+
 def header(path):
- with Path(path).open('rb') as f:raw=f.read(64)
+ raw,fields=header_fields(path)
  if len(raw)!=64 or raw[56:60]!=b'ARM\x64':raise ValueError('ARM64 Image header required')
- flags=struct.unpack_from('<Q',raw,24)[0]
- if flags&1 or (flags>>1)&3!=2 or not 0<struct.unpack_from('<Q',raw,16)[0]<=Path(path).stat().st_size:raise ValueError('little-endian16K Image with valid size required')
- return {'bytes':64,'sha256':hashlib.sha256(raw).hexdigest(),'page_size':16384}
+ flags=fields['flags']
+ if flags&1 or (flags>>1)&3!=2:raise ValueError('little-endian16K Image required')
+ if not 64<=fields['file_bytes']<=IMAGE_FILE_CAP or not 0<fields['effective_image_size']<=IMAGE_MEMORY_CAP:raise ValueError('64MiB file/128MiB effective memory span bounds required')
+ return {'bytes':64,'sha256':fields['header_sha256'],'page_size':16384,'file_bytes':fields['file_bytes'],'effective_image_size':fields['effective_image_size']}
 
 
 def bundle(image,config,profile,profile_sha256,actual_tools,commands,started,finished):

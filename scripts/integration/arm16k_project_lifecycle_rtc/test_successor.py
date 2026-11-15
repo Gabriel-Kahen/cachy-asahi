@@ -69,6 +69,17 @@ class Bundle(unittest.TestCase):
    old=(self.dir/name).read_bytes();(self.dir/name).write_bytes(old+b'X')
    with self.assertRaises(ValueError):self.verify()
    (self.dir/name).write_bytes(old)
+ def test_bss_memory_span_can_exceed_file_bytes_up_to128mib(self):
+  for span in (1048576,134217728):
+   head=bytearray((self.dir/'Image').read_bytes());struct.pack_into('<Q',head,16,span);(self.dir/'Image').write_bytes(head);self.seal();self.verify()
+  self.assertEqual((self.dir/'Image').stat().st_size,64)
+ def test_zero_or_over128mib_memory_span_refuses(self):
+  for span in (0,134217729):
+   head=bytearray((self.dir/'Image').read_bytes());struct.pack_into('<Q',head,16,span);(self.dir/'Image').write_bytes(head);self.seal()
+   with self.assertRaisesRegex(ValueError,'16K ARM64'):self.verify()
+ def test_over64mib_file_refuses_independent_of_valid_memory_span(self):
+  with (self.dir/'Image').open('r+b')as stream:stream.truncate(67108865)
+  with self.assertRaisesRegex(ValueError,'bound exceeded'):self.verify()
  def test_bad_arch_page_size_and_endian_refuse(self):
   for flag in (0,2,5,6):
    head=bytearray((self.dir/'Image').read_bytes());struct.pack_into('<Q',head,24,flag);(self.dir/'Image').write_bytes(head);self.seal()
