@@ -1,0 +1,217 @@
+{
+  "bind_mounts": {
+    "/inputs": "private copied exact inputs; readonly",
+    "/out": "fresh private evidence only; writable",
+    "/runner": "finite source-pinned runner; readonly"
+  },
+  "commands": {
+    "pacman_base": [
+      "pacman",
+      "--config",
+      "/scratch/pacman.conf",
+      "--root",
+      "/alpm/system",
+      "--dbpath",
+      "/alpm/system/var/lib/pacman",
+      "--cachedir",
+      "/scratch/cache",
+      "--gpgdir",
+      "/test-home/verifier",
+      "--hookdir",
+      "/scratch/masked-hooks",
+      "--logfile",
+      "/out/pacman.log",
+      "--noconfirm",
+      "--color",
+      "never"
+    ],
+    "sequence": [
+      "exact unsigned -U --noscriptlet must refuse without inventory change",
+      "ephemeral TEST Ed25519 one-day key signs exact pinned archive with SHA256; separate private verifier validates full fingerprint",
+      "-U --noscriptlet /scratch/cachy-asahi-audio-sources-0.1.0-1-any.pkg.tar.zst",
+      "-Q, -Qkk cachy-asahi-audio-sources, -Dk, -Qql cachy-asahi-audio-sources; exact17-file payload ownership/hashes/modes",
+      "/alpm/system/usr/bin/cachy-asahi-audio-sources check",
+      "/alpm/system/usr/bin/cachy-asahi-audio-sources verify --packet /scratch/caller/packet --sha256 78ff30f1d9dceaa568a4c2b92df0d2e054eb7166762fba18588fc2ac2a37fc63",
+      "repeat same signed -U and installed checks",
+      "-R --noscriptlet cachy-asahi-audio-sources; exact original inventory/all package files absent/caller packet preserved",
+      "private agent/key retirement; exact container label/name removal and confirmed absence"
+    ]
+  },
+  "data_volumes": {
+    "/scratch": {
+      "bytes": 1073741824,
+      "mode": 448,
+      "options_required": [
+        "rw",
+        "nodev",
+        "nosuid",
+        "noexec"
+      ]
+    },
+    "/test-home": {
+      "bytes": 67108864,
+      "mode": 448,
+      "options_required": [
+        "rw",
+        "nodev",
+        "nosuid",
+        "noexec"
+      ]
+    }
+  },
+  "directory_mask_paths": [
+    "/proc/acpi",
+    "/proc/asound",
+    "/proc/scsi",
+    "/sys/devices/virtual/powercap",
+    "/sys/firmware"
+  ],
+  "engine_host_config": {
+    "CapAdd": [
+      "CAP_CHOWN",
+      "CAP_DAC_OVERRIDE",
+      "CAP_FOWNER",
+      "CAP_SETGID",
+      "CAP_SETUID",
+      "CAP_SYS_CHROOT"
+    ],
+    "CapDrop": [
+      "ALL"
+    ],
+    "Memory": 2147483648,
+    "NanoCpus": 2000000000,
+    "NetworkMode": "none",
+    "PidsLimit": 128,
+    "ReadonlyRootfs": true,
+    "SecurityOpt": [
+      "no-new-privileges"
+    ],
+    "Tmpfs": {
+      "/alpm": "rw,nodev,nosuid,exec,size=1g,mode=700",
+      "/scratch": "rw,nodev,nosuid,noexec,size=1g,mode=700",
+      "/test-home": "rw,nodev,nosuid,noexec,size=64m,mode=700"
+    }
+  },
+  "engine_masked_paths": [
+    "/proc/acpi",
+    "/proc/asound",
+    "/proc/interrupts",
+    "/proc/kcore",
+    "/proc/keys",
+    "/proc/latency_stats",
+    "/proc/sched_debug",
+    "/proc/scsi",
+    "/proc/timer_list",
+    "/proc/timer_stats",
+    "/sys/devices/virtual/powercap",
+    "/sys/firmware"
+  ],
+  "engine_readonly_paths": [
+    "/proc/bus",
+    "/proc/fs",
+    "/proc/irq",
+    "/proc/sys",
+    "/proc/sysrq-trigger"
+  ],
+  "image_id": "sha256:30cfe09952ef8d9bfabd64224185c97021b260d47bb83941fec5bae7bdd16145",
+  "kind": "audio-source-host-container-contract-successor",
+  "null_mask_identity": {
+    "existing_declared_paths_must_be_mounted": true,
+    "filesystems": [
+      "tmpfs",
+      "devtmpfs"
+    ],
+    "major": 1,
+    "minor": 3,
+    "must_be_engine_declared": true,
+    "required_options": [
+      "rw",
+      "nosuid"
+    ],
+    "root": "/null",
+    "type": "nonsymlink-character"
+  },
+  "null_mask_paths": [
+    "/proc/interrupts",
+    "/proc/kcore",
+    "/proc/keys",
+    "/proc/latency_stats",
+    "/proc/sched_debug",
+    "/proc/timer_list",
+    "/proc/timer_stats"
+  ],
+  "package_sha256": "9c5332015a0dca27469021fdfe7cda135ba2de62f7a60e1b969be03ab0ad6ec8",
+  "packet_index_sha256": "78ff30f1d9dceaa568a4c2b92df0d2e054eb7166762fba18588fc2ac2a37fc63",
+  "predecessor_commit": "55aa3ae15cfb5c21cb768f4ec66a9027414ed37a",
+  "preserved_constraints": [
+    "original six-cap mask0x400cb",
+    "NNP1",
+    "active default seccomp filters",
+    "loopback-only network",
+    "rootless UID/GID maps",
+    "no producer checkout/host system/Docker socket/hardware mounts",
+    "unchanged inherited ARM/common guard/module/package/runtime/verifier bytes",
+    "all source/legal/native/M2/release holds"
+  ],
+  "process_bounds": {
+    "guest_command_seconds": 60,
+    "guest_stderr_bytes": 262144,
+    "guest_stdout_bytes": 2097152,
+    "outer_actor_seconds": 180,
+    "pids": 128
+  },
+  "root_symlinks": {
+    "bin": "usr/bin",
+    "lib": "usr/lib",
+    "lib64": "usr/lib",
+    "sbin": "usr/bin"
+  },
+  "schema": 2,
+  "scope": "host-x86_64-rootless-docker-copied-ALPM-root-only",
+  "standard_device_mounts": {
+    "/dev/full": [
+      1,
+      7
+    ],
+    "/dev/null": [
+      1,
+      3
+    ],
+    "/dev/random": [
+      1,
+      8
+    ],
+    "/dev/tty": [
+      5,
+      0
+    ],
+    "/dev/urandom": [
+      1,
+      9
+    ],
+    "/dev/zero": [
+      1,
+      5
+    ]
+  },
+  "work_volume": {
+    "bytes": 1073741824,
+    "copied_root": "/alpm/system",
+    "filesystem": "tmpfs",
+    "fresh_empty": true,
+    "gid": 0,
+    "lifetime": "unique labeled container only; no persistent Docker volumes",
+    "mode": 448,
+    "noexec": false,
+    "options_required": [
+      "rw",
+      "nodev",
+      "nosuid"
+    ],
+    "owner_marker": ".audio-candidate-owner",
+    "owner_value": "exact per-run nonce",
+    "path": "/alpm",
+    "root": "/",
+    "uid": 0
+  }
+}
