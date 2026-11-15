@@ -1,0 +1,287 @@
+name: native-arm-rust199-source-reference-v4
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha: {type: string, required: true}
+      source_map_sha256: {type: string, required: true}
+      approval_sha256: {type: string, required: true}
+      root_admission_sha256: {type: string, required: true}
+      root_admission_json: {type: string, required: true}
+      operation:
+        type: choice
+        required: true
+        default: rust199-source-reference-native-v1
+        options: [rust199-source-reference-native-v1]
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: native-arm-build
+  cancel-in-progress: false
+  queue: max
+jobs:
+  bootstrap:
+    name: rust199-bootstrap-v4
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 246
+    outputs:
+      artifact_id: ${{ steps.carrier.outputs.artifact-id }}
+      artifact_sha256: ${{ steps.carrier.outputs.artifact-digest }}
+      manifest_sha256: ${{ steps.native.outputs.manifest_sha256 }}
+      bootstrap_job_id: ${{ steps.native.outputs.bootstrap_job_id }}
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      SOURCE_SHA: ${{ inputs.source_sha }}
+      SOURCE_MAP_SHA256: ${{ inputs.source_map_sha256 }}
+      ROOT_APPROVAL_SHA256: ${{ inputs.approval_sha256 }}
+      ROOT_ADMISSION_SHA256: ${{ inputs.root_admission_sha256 }}
+      ROOT_ADMISSION_JSON: ${{ inputs.root_admission_json }}
+      RUST199_OPERATION: ${{ inputs.operation }}
+      INPUTS_SHA256: beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f
+    steps:
+      - name: Checkout exact Root-published closed Rust Source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: ${{ inputs.source_sha }}
+          persist-credentials: false
+      - name: Verify full Source and predispatch grant before secrets
+        timeout-minutes: 3
+        run: |
+          set -euo pipefail
+          printf '%s  %s\n' '0c7d75ebe67d5cb1e79bc0c8e7146418015e6e8a473f32b19e1dab99f256393a' hosted/entry.py | sha256sum --check
+          cmp --silent .github/workflows/native-arm-build.yml .github/workflows/native-arm-rust199-source-reference-v1.yml
+          python3 -I -B - <<'PYROOT'
+          import os
+          from pathlib import Path
+          p=Path(os.environ['RUNNER_TEMP'],'rust199-root-admission.json')
+          with p.open('xb') as f:f.write(os.environ['ROOT_ADMISSION_JSON'].encode())
+          p.chmod(0o444)
+          PYROOT
+          python3 -I -B hosted/entry.py --phase bootstrap --check-only \
+            --admission "$RUNNER_TEMP/rust199-root-admission.json" \
+            --admission-sha256 "$ROOT_ADMISSION_SHA256" \
+            --approval-sha256 "$ROOT_APPROVAL_SHA256" --map-sha256 "$SOURCE_MAP_SHA256"
+      - name: Seed the six exact retained inputs using existing secrets only
+        timeout-minutes: 2
+        env:
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01 }}
+          CACHY_OLD_FOUR_SCHEMA: '1'
+          CACHY_OLD_FOUR_SOURCE_EPOCH: '1791748800'
+          CACHY_OLD_FOUR_JBIGKIT_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_01 }}
+          CACHY_OLD_FOUR_JBIGKIT_02: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_02 }}
+          CACHY_OLD_FOUR_JBIGKIT_SIG_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_SIG_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_02: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_02 }}
+          CACHY_OLD_FOUR_LIBTIFF_03: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_03 }}
+          CACHY_OLD_FOUR_LIBTIFF_04: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_04 }}
+          CACHY_OLD_FOUR_LIBTIFF_05: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_05 }}
+          CACHY_OLD_FOUR_LIBTIFF_06: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_06 }}
+          CACHY_OLD_FOUR_LIBTIFF_07: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_07 }}
+          CACHY_OLD_FOUR_LIBTIFF_08: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_08 }}
+          CACHY_OLD_FOUR_LIBTIFF_09: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_09 }}
+          CACHY_OLD_FOUR_LIBTIFF_10: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_10 }}
+          CACHY_OLD_FOUR_LIBTIFF_11: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_11 }}
+          CACHY_OLD_FOUR_LIBTIFF_12: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_12 }}
+          CACHY_OLD_FOUR_LIBTIFF_13: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_13 }}
+          CACHY_OLD_FOUR_LIBTIFF_14: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_14 }}
+          CACHY_OLD_FOUR_LIBTIFF_15: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_15 }}
+          CACHY_OLD_FOUR_LIBTIFF_SIG_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_SIG_01 }}
+        run: |
+          set -euo pipefail
+          test "$INPUTS_SHA256" = beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f
+          printf '%s  %s\n' "$INPUTS_SHA256" original/bootstrap/scripts/ci/inputs.lock.json | sha256sum --check
+          timeout --signal=TERM --kill-after=5s 75s python3 -B - <<'PYSEED'
+          import hashlib
+          import os
+          from pathlib import Path
+          import sys
+          sys.path.insert(0, 'original/bootstrap/scripts/ci')
+          from old_four_seed import (OLD_FOUR_PRIVATE_ROWS, RETAINED_BUBBLEWRAP_PRIVATE_ROWS,
+                                     seed_current_build_cache)
+          pin = 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'
+          if hashlib.sha256(Path('original/bootstrap/scripts/ci/inputs.lock.json').read_bytes()).hexdigest() != pin:
+              raise SystemExit('private-cache-input-binding-refused')
+          names = {'CACHY_OLD_FOUR_' + f'{tag}_{i:02d}'
+                   for _, _, _, tag, count in OLD_FOUR_PRIVATE_ROWS for i in range(1, count + 1)}
+          retained = {'CACHY_RETAINED_BUBBLEWRAP_V1_' + f'{tag}_{i:02d}'
+                      for _, _, _, tag, sizes in RETAINED_BUBBLEWRAP_PRIVATE_ROWS
+                      for i in range(1, len(sizes) + 1)}
+          names |= retained
+          if len(names) != 22 or len(retained) != 3 or not all(os.environ.get(name) for name in names):
+              raise SystemExit('private-cache-required-secrets-missing')
+          cache = Path(os.environ['RUNNER_TEMP']) / 'alarm-cache'
+          cache.mkdir(mode=0o700)
+          keep = names | {'CACHY_OLD_FOUR_SCHEMA', 'CACHY_OLD_FOUR_SOURCE_EPOCH'}
+          for name in tuple(os.environ):
+              if name not in keep:
+                  os.environ.pop(name)
+          seed_current_build_cache(cache, pin)
+          PYSEED
+      - name: Checkout the exact fourteen public input source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 1
+        with:
+          ref: 04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd
+          path: source-public14
+          persist-credentials: false
+      - name: Seed all fourteen exact public input files into the existing cache
+        timeout-minutes: 1
+        run: |
+          set -euo pipefail
+          printf '%s  %s\n' 'a7857658af224984065e575f6ffed8308ea85027d46eace8bda146d9033e93b3' source-public14/seed.py 'a388c8c8ba8e06cb92fd2be598b86e433c4e403b6e71a0f15b1eaec381bb7300' source-public14/index.json | sha256sum --check
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/native-developer-work/home" LANG=C.UTF-8 TZ=UTC TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 \
+            python3 -I -B "$GITHUB_WORKSPACE/source-public14/seed.py" --cache "$RUNNER_TEMP/alarm-cache"
+          test ! -e "$RUNNER_TEMP/native-developer-public14"
+          mv -- "$GITHUB_WORKSPACE/source-public14" "$RUNNER_TEMP/native-developer-public14"
+      - name: Deliver reviewed materials and qualify the normal native image
+        id: native
+        timeout-minutes: 212
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          timeout --signal=TERM --kill-after=60s 12530s python3 -I -B hosted/entry.py --phase bootstrap --execute \
+            --admission "$RUNNER_TEMP/rust199-root-admission.json" \
+            --admission-sha256 "$ROOT_ADMISSION_SHA256" \
+            --approval-sha256 "$ROOT_APPROVAL_SHA256" --map-sha256 "$SOURCE_MAP_SHA256"
+      - name: Retain qualified transfer DATA for this workflow build job
+        id: carrier
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        timeout-minutes: 15
+        with:
+          name: rust199-qualified-transfer-v4-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/rust199-hosted/phase-transfer/bundle/**
+          retention-days: 3
+          if-no-files-found: error
+          include-hidden-files: true
+          compression-level: 0
+      - name: Retain finite bootstrap observations for independent Root review
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        timeout-minutes: 10
+        with:
+          name: rust199-bootstrap-v4-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 3
+          if-no-files-found: ignore
+          include-hidden-files: true
+          compression-level: 0
+          path: |
+            ${{ runner.temp }}/rust199-hosted/hosted.json
+            ${{ runner.temp }}/rust199-hosted/dispatch-admission.json
+            ${{ runner.temp }}/rust199-hosted/source-readback.json
+            ${{ runner.temp }}/rust199-hosted/job-metadata.json
+            ${{ runner.temp }}/rust199-hosted/provider-binding.json
+            ${{ runner.temp }}/rust199-hosted/daemon.json
+            ${{ runner.temp }}/rust199-hosted/operations.json
+            ${{ runner.temp }}/rust199-hosted/operations/**
+            ${{ runner.temp }}/rust199-hosted/image-retirement.json
+            ${{ runner.temp }}/rust199-hosted/operational-admission.json
+            ${{ runner.temp }}/rust199-hosted/operational-admission/*.json
+            ${{ runner.temp }}/rust199-hosted/phase-import/*.json
+            ${{ runner.temp }}/rust199-hosted/phase-import/bundle/manifest.json
+            ${{ runner.temp }}/rust199-hosted/material-delivery/acquisition.json
+            ${{ runner.temp }}/rust199-hosted/bootstrap/*.json
+            ${{ runner.temp }}/rust199-hosted/normal-image/*.json
+            ${{ runner.temp }}/rust199-hosted/qualification/*.json
+            ${{ runner.temp }}/rust199-hosted/qualification/data/**
+            ${{ runner.temp }}/rust199-hosted/rust-build/producer.json
+            ${{ runner.temp }}/rust199-hosted/rust-build/*inspect*.json
+            ${{ runner.temp }}/rust199-hosted/rust-build/*finished*.json
+            ${{ runner.temp }}/rust199-hosted/rust-build/inputs/*.json
+            ${{ runner.temp }}/rust199-hosted/rust-build/inputs/*.lock
+            ${{ runner.temp }}/rust199-hosted/rust-build/export.tar
+  build:
+    name: rust199-build-v4
+    needs: bootstrap
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 360
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      SOURCE_SHA: ${{ inputs.source_sha }}
+      SOURCE_MAP_SHA256: ${{ inputs.source_map_sha256 }}
+      ROOT_APPROVAL_SHA256: ${{ inputs.approval_sha256 }}
+      ROOT_ADMISSION_SHA256: ${{ inputs.root_admission_sha256 }}
+      ROOT_ADMISSION_JSON: ${{ inputs.root_admission_json }}
+      RUST199_OPERATION: ${{ inputs.operation }}
+      INPUTS_SHA256: beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f
+    steps:
+      - name: Checkout exact Root-published closed Rust Source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: ${{ inputs.source_sha }}
+          persist-credentials: false
+      - name: Verify full Source and predispatch grant before secrets
+        timeout-minutes: 3
+        run: |
+          set -euo pipefail
+          printf '%s  %s\n' '0c7d75ebe67d5cb1e79bc0c8e7146418015e6e8a473f32b19e1dab99f256393a' hosted/entry.py | sha256sum --check
+          cmp --silent .github/workflows/native-arm-build.yml .github/workflows/native-arm-rust199-source-reference-v1.yml
+          python3 -I -B - <<'PYROOT'
+          import os
+          from pathlib import Path
+          p=Path(os.environ['RUNNER_TEMP'],'rust199-root-admission.json')
+          with p.open('xb') as f:f.write(os.environ['ROOT_ADMISSION_JSON'].encode())
+          p.chmod(0o444)
+          PYROOT
+          python3 -I -B hosted/entry.py --phase build --check-only \
+            --admission "$RUNNER_TEMP/rust199-root-admission.json" \
+            --admission-sha256 "$ROOT_ADMISSION_SHA256" \
+            --approval-sha256 "$ROOT_APPROVAL_SHA256" --map-sha256 "$SOURCE_MAP_SHA256"
+      - name: Import this workflow's qualified image and build Rust once
+        timeout-minutes: 350
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BOOTSTRAP_ARTIFACT_ID: ${{ needs.bootstrap.outputs.artifact_id }}
+          BOOTSTRAP_ARTIFACT_SHA256: ${{ needs.bootstrap.outputs.artifact_sha256 }}
+          BOOTSTRAP_JOB_ID: ${{ needs.bootstrap.outputs.bootstrap_job_id }}
+          BOOTSTRAP_MANIFEST_SHA256: ${{ needs.bootstrap.outputs.manifest_sha256 }}
+        run: |
+          set -euo pipefail
+          timeout --signal=TERM --kill-after=60s 20730s python3 -I -B hosted/entry.py --phase build --execute \
+            --admission "$RUNNER_TEMP/rust199-root-admission.json" \
+            --admission-sha256 "$ROOT_ADMISSION_SHA256" \
+            --approval-sha256 "$ROOT_APPROVAL_SHA256" --map-sha256 "$SOURCE_MAP_SHA256" \
+            --bootstrap-artifact-id "$BOOTSTRAP_ARTIFACT_ID" \
+            --bootstrap-artifact-sha256 "$BOOTSTRAP_ARTIFACT_SHA256" \
+            --bootstrap-job-id "$BOOTSTRAP_JOB_ID" \
+            --bootstrap-manifest-sha256 "$BOOTSTRAP_MANIFEST_SHA256"
+      - name: Retain finite build observations for independent Root review
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        timeout-minutes: 5
+        with:
+          name: rust199-build-v4-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 3
+          if-no-files-found: ignore
+          include-hidden-files: true
+          compression-level: 0
+          path: |
+            ${{ runner.temp }}/rust199-hosted/hosted.json
+            ${{ runner.temp }}/rust199-hosted/dispatch-admission.json
+            ${{ runner.temp }}/rust199-hosted/source-readback.json
+            ${{ runner.temp }}/rust199-hosted/job-metadata.json
+            ${{ runner.temp }}/rust199-hosted/provider-binding.json
+            ${{ runner.temp }}/rust199-hosted/daemon.json
+            ${{ runner.temp }}/rust199-hosted/operations.json
+            ${{ runner.temp }}/rust199-hosted/operations/**
+            ${{ runner.temp }}/rust199-hosted/image-retirement.json
+            ${{ runner.temp }}/rust199-hosted/operational-admission.json
+            ${{ runner.temp }}/rust199-hosted/operational-admission/*.json
+            ${{ runner.temp }}/rust199-hosted/phase-import/*.json
+            ${{ runner.temp }}/rust199-hosted/phase-import/bundle/manifest.json
+            ${{ runner.temp }}/rust199-hosted/material-delivery/acquisition.json
+            ${{ runner.temp }}/rust199-hosted/bootstrap/*.json
+            ${{ runner.temp }}/rust199-hosted/normal-image/*.json
+            ${{ runner.temp }}/rust199-hosted/qualification/*.json
+            ${{ runner.temp }}/rust199-hosted/qualification/data/**
+            ${{ runner.temp }}/rust199-hosted/rust-build/producer.json
+            ${{ runner.temp }}/rust199-hosted/rust-build/*inspect*.json
+            ${{ runner.temp }}/rust199-hosted/rust-build/*finished*.json
+            ${{ runner.temp }}/rust199-hosted/rust-build/inputs/*.json
+            ${{ runner.temp }}/rust199-hosted/rust-build/inputs/*.lock
+            ${{ runner.temp }}/rust199-hosted/rust-build/export.tar

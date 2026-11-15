@@ -1,6 +1,0 @@
-tree 0850f8b2d8e3098a4e65f6cda6ba44698d3381a0
-parent 6b5b5a8f20ad2698c2d7f14a8f59c9b0ad5da165
-author Gabriel Kahen <93809974+Gabriel-Kahen@users.noreply.github.com> 1794702159 -0500
-committer Gabriel Kahen <93809974+Gabriel-Kahen@users.noreply.github.com> 1794702159 -0500
-
-Retain full namespace image-build diagnostics

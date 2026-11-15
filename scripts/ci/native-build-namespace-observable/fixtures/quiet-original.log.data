@@ -1,8 +1,0 @@
-Dockerfile:11
---------------------
-   9 |     USER alarm
-  10 |     WORKDIR /tmp
-  11 | >>> RUN ["/usr/bin/bash", "--noprofile", "--norc", "-p", "-c", "test \"$BASHPID\" -eq 1 || exit 125; /usr/bin/python3 -I -B /opt/native-native-build-namespace-preflight-v1/source/native/build_tools_alpm_v2.py --inside-image --map-sha256 7474683e198759876dcee6b31a036473f2129da351fce3bcc8e37770b4a70f79 --token 1fc206ad50dae6cf477c3290 & namespace_owner=$!; namespace_status=0; wait \"$namespace_owner\" || namespace_status=$?; exit \"$namespace_status\""]
-  12 |     
---------------------
-ERROR: failed to build: failed to solve: process "/usr/bin/bash --noprofile --norc -p -c test \"$BASHPID\" -eq 1 || exit 125; /usr/bin/python3 -I -B /opt/native-native-build-namespace-preflight-v1/source/native/build_tools_alpm_v2.py --inside-image --map-sha256 7474683e198759876dcee6b31a036473f2129da351fce3bcc8e37770b4a70f79 --token 1fc206ad50dae6cf477c3290 & namespace_owner=$!; namespace_status=0; wait \"$namespace_owner\" || namespace_status=$?; exit \"$namespace_status\"" did not complete successfully: exit code: 1

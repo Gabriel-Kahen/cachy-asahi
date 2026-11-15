@@ -1,6 +1,0 @@
-tree f45820b0ef37b48f50bbc361a22f53b5dd309506
-parent d9505abb24833a1b65f6d112ddadbd2bd9c6f2fb
-author Gabriel Kahen <93809974+Gabriel-Kahen@users.noreply.github.com> 1793212797 -0400
-committer Gabriel Kahen <93809974+Gabriel-Kahen@users.noreply.github.com> 1793212797 -0400
-
-Validate canonical transport ownership before native cache seeding

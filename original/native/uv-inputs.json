@@ -1,0 +1,250 @@
+{
+  "artifacts": [
+    {
+      "bytes": 24689886,
+      "member": {
+        "bytes": 56689472,
+        "elf": {
+          "M2": "NOT_RUN",
+          "bytes": 56689472,
+          "class_bits": 64,
+          "elf_type": 3,
+          "endian": "little",
+          "interpreter": "/lib/ld-linux-aarch64.so.1",
+          "load_segments": [
+            {
+              "align": 65536,
+              "filesz": 55512428,
+              "flags": 5,
+              "memsz": 55512428,
+              "offset": 0,
+              "vaddr": 0
+            },
+            {
+              "align": 65536,
+              "filesz": 1165300,
+              "flags": 6,
+              "memsz": 1753272,
+              "offset": 55512824,
+              "vaddr": 55578360
+            }
+          ],
+          "machine": 183,
+          "machine_name": "AArch64",
+          "native_16k": "NOT_RUN",
+          "native_execution": "NOT_RUN",
+          "needed": [
+            "libgcc_s.so.1",
+            "libpthread.so.0",
+            "libm.so.6",
+            "libdl.so.2",
+            "libc.so.6"
+          ],
+          "needed_symbol_versions": [
+            "GCC_3.0",
+            "GCC_3.3",
+            "GCC_4.2.0",
+            "GLIBC_2.17",
+            "GLIBC_2.18",
+            "GLIBC_2.25",
+            "GLIBC_2.27",
+            "GLIBC_2.28"
+          ],
+          "sha256": "b9f74e398b6b15826a4b68b5a83d039036d47df64013e7faf1a9974ec199c144",
+          "structural_16k": true
+        },
+        "name": "uv-aarch64-unknown-linux-gnu/uv",
+        "sha256": "b9f74e398b6b15826a4b68b5a83d039036d47df64013e7faf1a9974ec199c144"
+      },
+      "path": "inputs/uv-aarch64-unknown-linux-gnu.tar.gz",
+      "role": "frontend",
+      "sha256": "03e9fe0a81b0718d0bc84625de3885df6cc3f89a8b6af6121d6b9f6113fb6533",
+      "url": "https://github.com/astral-sh/uv/releases/download/0.11.28/uv-aarch64-unknown-linux-gnu.tar.gz"
+    },
+    {
+      "bytes": 1616098,
+      "metadata": {
+        "license": "MIT OR Apache-2.0",
+        "name": "uv-build",
+        "requires_dist": [],
+        "requires_python": ">=3.8",
+        "version": "0.11.28"
+      },
+      "path": "inputs/wheelhouse/uv_build-0.11.28-py3-none-manylinux_2_28_aarch64.whl",
+      "role": "backend",
+      "sha256": "d99cb38411412134781140cc64dc7d296dbc383fa1e81ddc13ecb6863852ecf5",
+      "url": "https://files.pythonhosted.org/packages/fd/52/3c09ef5991657d4ddedbf0c3854561f9a7f6d1d4205fb4b28500f01afb7d/uv_build-0.11.28-py3-none-manylinux_2_28_aarch64.whl",
+      "verified_members": [
+        {
+          "bytes": 4803,
+          "name": "uv_build/__init__.py",
+          "sha256": "6fbe0020d04fa78db8fecc53bab420065e2ca0bdb8bcc4f9b0996d24a22a7465"
+        },
+        {
+          "bytes": 449,
+          "name": "uv_build/__main__.py",
+          "sha256": "44d3061ee13523b399a218c08923e6e92de0fbef8caa4780730855d790a1f43c"
+        },
+        {
+          "bytes": 3310128,
+          "name": "uv_build-0.11.28.data/scripts/uv-build",
+          "sha256": "82cf8b50be166cf5aab7eddddd0c27535b59cf9b34c4abc9443acacb1256f10c"
+        }
+      ]
+    }
+  ],
+  "authority": "PRIMARY_METADATA_TLS_SHA256_NOT_GPG_OR_ATTESTATION",
+  "behavior": {
+    "direct_fast_path": "Genuine uv Rust backend built into uv; matching project can build without separately importing/installing uv_build Python package.",
+    "evidence": [
+      {
+        "lines": [
+          250,
+          333
+        ],
+        "meaning": "Direct-build checker requires uv_build backend and one uv-build requirement compatible with compiled uv version; exact==0.11.28 matches exact uv0.11.28.",
+        "path": "source/crates/uv-build-backend/src/metadata.rs",
+        "primary_url": "https://github.com/astral-sh/uv/blob/ebf0f43d7c4267876fc256f5fce75982c33f4399/crates/uv-build-backend/src/metadata.rs#L250-L333"
+      },
+      {
+        "lines": [
+          681,
+          711
+        ],
+        "meaning": "force_pep517 selects PEP517; otherwise eligible project selects DirectBuild.",
+        "path": "source/crates/uv/src/commands/build_frontend.rs",
+        "primary_url": "https://github.com/astral-sh/uv/blob/ebf0f43d7c4267876fc256f5fce75982c33f4399/crates/uv/src/commands/build_frontend.rs#L681-L711"
+      },
+      {
+        "lines": [
+          1090,
+          1114
+        ],
+        "meaning": "DirectBuild calls Rust uv_build_backend::build_wheel inside uv; it does not import the Python uv_build shim.",
+        "path": "source/crates/uv/src/commands/build_frontend.rs",
+        "primary_url": "https://github.com/astral-sh/uv/blob/ebf0f43d7c4267876fc256f5fce75982c33f4399/crates/uv/src/commands/build_frontend.rs#L1090-L1114"
+      },
+      {
+        "lines": [
+          1126,
+          1158
+        ],
+        "meaning": "PEP517 route sets up a build environment and invokes the selected backend through frontend setup/build.",
+        "path": "source/crates/uv/src/commands/build_frontend.rs",
+        "primary_url": "https://github.com/astral-sh/uv/blob/ebf0f43d7c4267876fc256f5fce75982c33f4399/crates/uv/src/commands/build_frontend.rs#L1126-L1158"
+      },
+      {
+        "lines": [
+          26,
+          67
+        ],
+        "meaning": "Original shim defaults USE_UV_EXECUTABLE=False, finds uv-build on PATH and launches it; uv executable alone is not an importable uv_build package.",
+        "path": "source/crates/uv-build/python/uv_build/__init__.py",
+        "primary_url": "https://github.com/astral-sh/uv/blob/ebf0f43d7c4267876fc256f5fce75982c33f4399/crates/uv-build/python/uv_build/__init__.py#L26-L67"
+      },
+      {
+        "lines": [
+          79,
+          115
+        ],
+        "meaning": "Python PEP517 wheel hook calls standalone backend; extra build requirements hook returns an empty list.",
+        "path": "source/crates/uv-build/python/uv_build/__init__.py",
+        "primary_url": "https://github.com/astral-sh/uv/blob/ebf0f43d7c4267876fc256f5fce75982c33f4399/crates/uv-build/python/uv_build/__init__.py#L79-L115"
+      },
+      {
+        "lines": [
+          368,
+          415
+        ],
+        "meaning": "Without isolation a supplied shared environment is used and build requirements installation is skipped; isolated mode resolves/installs requirements.",
+        "path": "source/crates/uv-build-frontend/src/lib.rs",
+        "primary_url": "https://github.com/astral-sh/uv/blob/ebf0f43d7c4267876fc256f5fce75982c33f4399/crates/uv-build-frontend/src/lib.rs#L368-L415"
+      },
+      {
+        "lines": [
+          2995,
+          3002
+        ],
+        "meaning": "--force-pep517 disables direct fast path.",
+        "path": "source/crates/uv-cli/src/lib.rs",
+        "primary_url": "https://github.com/astral-sh/uv/blob/ebf0f43d7c4267876fc256f5fce75982c33f4399/crates/uv-cli/src/lib.rs#L2995-L3002"
+      },
+      {
+        "lines": [
+          6344,
+          6354
+        ],
+        "meaning": "--no-build-isolation assumes declared backend dependencies are already installed.",
+        "path": "source/crates/uv-cli/src/lib.rs",
+        "primary_url": "https://github.com/astral-sh/uv/blob/ebf0f43d7c4267876fc256f5fce75982c33f4399/crates/uv-cli/src/lib.rs#L6344-L6354"
+      },
+      {
+        "lines": [
+          1,
+          44
+        ],
+        "meaning": "uv-build Python package0.11.28 is MIT OR Apache-2.0 and Python>=3.8; source building requires maturin rather than providing an already closed Rust rebuild.",
+        "path": "source/crates/uv-build/pyproject.toml",
+        "primary_url": "https://github.com/astral-sh/uv/blob/ebf0f43d7c4267876fc256f5fce75982c33f4399/crates/uv-build/pyproject.toml#L1-L44"
+      },
+      {
+        "lines": [
+          1,
+          4
+        ],
+        "meaning": "Exact tag application-version crate is0.11.28.",
+        "path": "source/crates/uv-version/Cargo.toml",
+        "primary_url": "https://github.com/astral-sh/uv/blob/ebf0f43d7c4267876fc256f5fce75982c33f4399/crates/uv-version/Cargo.toml#L1-L4"
+      },
+      {
+        "lines": [
+          1,
+          4
+        ],
+        "meaning": "Exact tag standalone backend crate is0.11.28.",
+        "path": "source/crates/uv-build/Cargo.toml",
+        "primary_url": "https://github.com/astral-sh/uv/blob/ebf0f43d7c4267876fc256f5fce75982c33f4399/crates/uv-build/Cargo.toml#L1-L4"
+      }
+    ],
+    "no_importability_inference": true,
+    "pep517": "Original uv_build shim is a separate importable Python package; default calls separate uv-build binary shipped inside the pinned backend wheel. uv release tar contains only uv and uvx.",
+    "status": "SOURCE_AUDITED_NOT_RUNTIME_EXECUTED"
+  },
+  "boundaries": {
+    "GPG": "NOT_RUN",
+    "PEP517_build": "NOT_RUN",
+    "backend_import": "NOT_RUN",
+    "binary_execution": "NOT_RUN",
+    "binary_version_probe": "NOT_RUN",
+    "direct_build": "NOT_RUN",
+    "installation": "NOT_RUN",
+    "native_16k": "NOT_RUN",
+    "native_ARM": "NOT_RUN",
+    "performance": "NOT_MEASURED",
+    "physical_M2": "NOT_RUN",
+    "release": "NOT_ADMITTED"
+  },
+  "license": "MIT OR Apache-2.0",
+  "protocol": "FORCE_PEP517_WITH_PINNED_PRIVATE_BACKEND_WHEEL_AND_UV_BUILD_BINARY",
+  "schema": 1,
+  "source": {
+    "commit": "ebf0f43d7c4267876fc256f5fce75982c33f4399",
+    "note": "15 raw exact-commit files joined by Git blob SHA1/primary tree size; actual SHA256 recorded. Primary source file SHA256 is not published by GitHub tree API.",
+    "ref": "refs/tags/0.11.28",
+    "release_id": 350619820,
+    "release_target_commitish": "ebf0f43d7c4267876fc256f5fce75982c33f4399",
+    "repository": "https://github.com/astral-sh/uv",
+    "source_file_joins": {
+      "bytes": 8402,
+      "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/source-joins.json",
+      "sha256": "6f771108086f80eda9bff83180b6cd98595d1e5f8ee62d1e94f777a070b18c5b"
+    },
+    "tag": "0.11.28",
+    "tag_object_type": "commit"
+  },
+  "source_audit_pin": {
+    "bytes": 40434,
+    "sha256": "93b6a2d64065b8579fc052f9470cbde1d6aa6fc56de17c1b0370af90633a5204"
+  },
+  "version": "0.11.28"
+}

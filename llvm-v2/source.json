@@ -1,0 +1,117 @@
+{
+  "actual": {
+    "job": null,
+    "original": null,
+    "package": null,
+    "publication": {
+      "bytes": 498,
+      "sha256": "c881f0e992148888d2dff11fcc40db03a736e87e1ab7c008f59a06b870391b47"
+    },
+    "reader": null,
+    "root_acceptance": null,
+    "run": null
+  },
+  "candidate_map_pin": {
+    "bytes": 3647,
+    "sha256": "5b774ea14a33314de5c1ab6af5aef4cbd5dc04718c2c6cec2f20dc97425d7c93"
+  },
+  "contract_pin": {
+    "bytes": 3148,
+    "sha256": "40e01661102dee517c5f535696c4625b6c57aa68c3985a89014f9475643da469"
+  },
+  "identity": {
+    "bytes": 40919517,
+    "files": 256,
+    "map_sha256": "22f6f8a9d3eabf4de16c853cf67183b67beca4e702e26c5b492066e94194735c",
+    "operation": "llvm23-source-reference-native-v2",
+    "profile_sha256": "78d4decc97c57dc0e75d7e4ac097b4f32699fd4ae0fb15d1e35e0a45a566ae7d",
+    "ref": "refs/heads/codex/llvm23-source-reference-native-v2-20261115-r2",
+    "sha": "365a763bc515a1b3550cc804536ddbf66353aac8",
+    "tree": "f251f3b7c7e152943ce85bc012f97305934e8fd8"
+  },
+  "independent_reader": {
+    "base": {
+      "bytes": 9366,
+      "sha256": "d879c2716c1035d85ce601eb1d0c469fdbf7ce9d4d20881d1e6785d02c75fb65"
+    },
+    "bytes": 10422,
+    "path": "scripts/port/llvm23-native-independent-reader/v4/reader.py",
+    "pins": {
+      "bytes": 7420,
+      "sha256": "7c45abc5ef57898cdd725c55cc1d4e39df1b59f480d131331e0b4114a4f6aa43"
+    },
+    "profile": {
+      "bytes": 5650,
+      "sha256": "5c7c99dffe553edbc7878549717bc1c08c40ea0257be44109408c80a6b7a317c"
+    },
+    "sha256": "c4c738fd3260990babe0a814b597c1930c203aeaf7994b3d70d9738bf00431bf"
+  },
+  "pending": null,
+  "policy": {
+    "active_minimum_disk_bytes": 1073741824,
+    "active_minimum_host_memory_bytes": 4294967296,
+    "actor_cpus": 2,
+    "actor_memory_bytes": 8589934592,
+    "actor_pids": 512,
+    "actor_seconds": 14400,
+    "actor_swap_bytes": 0,
+    "bootstrap_seconds": 4500,
+    "class": "HEAVY_NON_KERNEL",
+    "cleanup_seconds": 300,
+    "export_bytes": 4294967296,
+    "job_timeout_minutes": 360,
+    "log_bytes": 67108864,
+    "minimum_available_disk_bytes_per_device": 68719476736,
+    "minimum_available_inodes_per_device": 600000,
+    "minimum_host_available_memory_bytes": 12884901888,
+    "native_seconds": 19920,
+    "package_bytes": 2147483648,
+    "schema": 1,
+    "source_archive_body_bytes": 201326592,
+    "source_archive_requests_including_redirects": 4,
+    "source_intake_seconds": 600,
+    "status": "PROPOSAL_ONLY_ROOT_EXTERNAL_ADMISSION_REQUIRED",
+    "work_volume_initialization": {
+      "cap_add": [
+        "CHOWN"
+      ],
+      "cpus": 1,
+      "memory_bytes": 536870912,
+      "mounts": "ONLY_EXACT_OWNED_WORK_VOLUME_NOCOPY",
+      "network": "none",
+      "pids": 64,
+      "recursive": false,
+      "seconds": 120,
+      "swap_bytes": 0,
+      "user": "0:0"
+    }
+  },
+  "policy_pin": {
+    "bytes": 1114,
+    "sha256": "e69b47708f171a63b7fcdcc413d6b53070f047e7240723f06115c02049c8b544"
+  },
+  "publication": {
+    "M2": "NOT RUN",
+    "actual_observed_utc": "2026-11-15T15:11:03.368412+00:00",
+    "bytes": 40919517,
+    "files": 256,
+    "issuer": "Root",
+    "native": "NOT RUN",
+    "ref": "refs/heads/codex/llvm23-source-reference-native-v2-20261115-r2",
+    "source": "365a763bc515a1b3550cc804536ddbf66353aac8",
+    "source_map_sha256": "22f6f8a9d3eabf4de16c853cf67183b67beca4e702e26c5b492066e94194735c",
+    "status": "PASS_COMPLETE_PUBLIC_GIT_READBACK_DATA_ONLY",
+    "tree": "f251f3b7c7e152943ce85bc012f97305934e8fd8"
+  },
+  "publication_pin": {
+    "bytes": 498,
+    "sha256": "c881f0e992148888d2dff11fcc40db03a736e87e1ab7c008f59a06b870391b47"
+  },
+  "reader_development_commit": "8f116d744126c1c87e6c030fde27d591ac921a54",
+  "reader_program": {
+    "bytes": 15764,
+    "path": "hosted/reader.py",
+    "sha256": "b939343e3607b985e79c70c8f420e1a26dadf8433242d17df11b8b5be21eacb1"
+  },
+  "schema": 1
+}

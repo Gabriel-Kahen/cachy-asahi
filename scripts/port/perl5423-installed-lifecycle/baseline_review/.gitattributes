@@ -1,3 +1,0 @@
-# Preserve exact upstream DATA bytes, including their final blank line.
-actual/texts/03-etc_profile.d_perlbin.sh.data whitespace=-blank-at-eof
-actual/texts/05-usr_share_libalpm_scripts_detect-old-perl-modules.sh.data whitespace=-blank-at-eof
