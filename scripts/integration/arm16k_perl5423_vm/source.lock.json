@@ -17,9 +17,9 @@
       "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
     },
     "README.md": {
-      "bytes": 11917,
+      "bytes": 14235,
       "mode": 420,
-      "sha256": "01ab7eff7ad57bd6801bf2744559e4a1d4e2bb3292b81d5315486f19f001d951"
+      "sha256": "d79bba670bc75bba880943b05ae211c07b1c8e1ac04b44e2111af071e6e834b1"
     },
     "__pycache__/contracts.cpython-314.pyc": {
       "bytes": 47637,
@@ -27,14 +27,14 @@
       "sha256": "87c8f1dad9c120c29d2b2826746323472061871431cff1bf855e1ced5fec7699"
     },
     "actor.py": {
-      "bytes": 10498,
+      "bytes": 11512,
       "mode": 420,
-      "sha256": "b9b5e4af41a2a030c079a3af00a900e5b6f7de3a2e7062bdeb238c47a98ef2e8"
+      "sha256": "2df4ead1b88c420b694bf688095530ca9e00524e641391d956968b61d9697d0a"
     },
     "adapter.py": {
-      "bytes": 10362,
+      "bytes": 12018,
       "mode": 420,
-      "sha256": "e189a3280125096e12b7c6a8e21b11701d0f65acd75ad6ff5e82a9d2f10402fd"
+      "sha256": "eb2958b975052f78a3a9c465c258057d9edc3eddfbd770815079028d175ec462"
     },
     "authority.TEMPLATE.json": {
       "bytes": 662,
@@ -52,14 +52,14 @@
       "sha256": "740179889d78da7d275f3d6067d72e3d935c8af6c42ec224bbf759fae08c16e6"
     },
     "contracts.py": {
-      "bytes": 26947,
+      "bytes": 31537,
       "mode": 420,
-      "sha256": "98ea5845dc6fad99fcfc602fcd6887f3ac9738a65135f974e616d5514902350e"
+      "sha256": "addebd12197caceef49a38d4fa36abc1dbcacb5266d3aacb596719f24ab7dcb3"
     },
     "controller.py": {
-      "bytes": 15140,
+      "bytes": 16037,
       "mode": 420,
-      "sha256": "181377d1256819ffdd7d76996128bf1f9027147c507e7407e5dbb2d316978175"
+      "sha256": "56596e37eb8f92726554b2bad10e688f3c78d21903e584e2835409ab3706f794"
     },
     "frozen/guest-runtime.sh": {
       "bytes": 8870,
@@ -92,9 +92,9 @@
       "sha256": "b3f4727110fefb9429ca3944e758189cac8ecddfc53332f4ce2c40b64ca35028"
     },
     "guest/case.sh": {
-      "bytes": 1917,
+      "bytes": 2653,
       "mode": 420,
-      "sha256": "7a34959f1b69edaa769736c3346572cf7b6fdf44b5b2909c714486b27da19a33"
+      "sha256": "c27a5191ae3e414fae3663a6e6f925e3cd215fe1040631c11be279c8518ba1d8"
     },
     "guest/probe.sh": {
       "bytes": 3886,
@@ -102,14 +102,14 @@
       "sha256": "73a59b9b9e9da1caee01ffaed0fddd52dcb54d360ce28969f14458af3ab12097"
     },
     "guest/root.sh": {
-      "bytes": 12037,
+      "bytes": 14110,
       "mode": 420,
-      "sha256": "0f8a37cf2e86b5eac74d2e18115b06dd7ca0b494873937b9ffc30d539c3a4731"
+      "sha256": "c35fc215826aa3a25b44c2430cb118798028aae91a1237662f1f18a7364fd0a5"
     },
     "guest/runtime.pl": {
-      "bytes": 2645,
+      "bytes": 3548,
       "mode": 420,
-      "sha256": "c0ed322866ed0b267412155a2212edf53c640badf471347c68d14c6a6c6820c5"
+      "sha256": "4d6d4cff57e0f5cec2dd30e960ecc74270648d822cbdfbcd3933f82478903ce2"
     },
     "guest/smoke.t": {
       "bytes": 129,
@@ -122,9 +122,9 @@
       "sha256": "75c8fe2567e7fdc613137ecd93c61dda694e4af250b73862b438cf8b5fab237f"
     },
     "image.py": {
-      "bytes": 4554,
+      "bytes": 7640,
       "mode": 420,
-      "sha256": "10cd673a9c167db8408bdeae05cd3183793a0093fe3366040fae4ef19eaae5e7"
+      "sha256": "b7c9a45b3259fcfea495683023dd34aaf7dc7e88ca8ca83ba546e1c7ff32aaa7"
     },
     "known/installed-Reader.json": {
       "bytes": 3797,
@@ -137,14 +137,19 @@
       "sha256": "084794319bf849ed1cc2a2387f502acf8cc82dec3fad11b00e3dc8cfc4096535"
     },
     "proof.py": {
-      "bytes": 3695,
+      "bytes": 3765,
       "mode": 420,
-      "sha256": "f9bdb58887cc9f93be149a66fb2a7e70ea425b58b4804d97e7ff75b053c9cb55"
+      "sha256": "df4791a8c8795906bfa345d987c88a2b2aa213cb816f463bcc5396ec0597f0f9"
     },
     "protocol.py": {
-      "bytes": 6999,
+      "bytes": 7225,
       "mode": 420,
-      "sha256": "24ac98742c1a8b8858b5684614112c704927fef06eba7bc2e3412d0e5d859547"
+      "sha256": "283be7fd136f044849b83d58444fde8ff7254870c2436ff3226f0fdfd46604e5"
+    },
+    "restoration.py": {
+      "bytes": 1024,
+      "mode": 420,
+      "sha256": "7a2031f5852bd7e8dbbb5c17ad1a71d83b7094bc0a9f16789ee590813e088fbc"
     },
     "runtime.py": {
       "bytes": 13867,
@@ -152,14 +157,14 @@
       "sha256": "e63d41c5ed834a7ffbcd01a51fc6b59e5571b24be27247a83ebbb9f507da71a1"
     },
     "test_controls.py": {
-      "bytes": 18715,
+      "bytes": 25334,
       "mode": 420,
-      "sha256": "d3512817e66b42946301b9b9c70d177ca99194013ec2d5761a16dd18419efdc6"
+      "sha256": "f6bee79bdfcc99edfc087a4e1d31209b0420bb5e38fff88ea675b14df640d882"
     },
     "validation.json": {
-      "bytes": 1363,
+      "bytes": 1455,
       "mode": 420,
-      "sha256": "75a5661bf9cdbbfcf025eaa46d4a4e565965d9cc5b5c26babd3b5d82f41b7b21"
+      "sha256": "058fb1ceaa1957b84e0fb2bfd2784dbd70a54c371cd203317f1435a7ebc0e8bb"
     }
   },
   "kind": "ARM16K_PERL5423_CASE_SOURCE_LOCK_V1",

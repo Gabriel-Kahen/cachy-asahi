@@ -17,7 +17,7 @@
     "release": null
   },
   "checks": {
-    "python_fenced_controls": 18,
+    "python_fenced_controls": 22,
     "shell_syntax": "PASS",
     "source_membership": "PASS"
   },
@@ -27,12 +27,13 @@
     "native_pair_source": "25dc3e65bdb6137c87a9409067fe9b2cf6e9763f",
     "version": "5.42.3-1.3"
   },
+  "optional_dependency": "EXACT_CACHED_DB53_NORMAL_SIGNED_INSTALL_AND_REMOVE_REQUIRES_FUTURE_ROOT_CERTIFICATION",
   "schema": 1,
   "scope": "SOURCE_IMPLEMENTATION_AND_FENCED_SYNTHETIC_DATA_CONTROLS_ONLY",
+  "source_implemented_recovery": "NORMAL_ALPM_ROLLBACK_WITH_ONLY_CERTIFIED_SOURCE445B_INSTALLDATE_TIMESTAMP_AND_APPEND_LOG_VARIANCE",
   "unfinished": [
     "Root supplies future16K baseline/runtime/trust/resource certificates and fresh exact controller authorities",
     "actual prepared actor, PAM/QMP/ownership/ELF/functional/resource retirement qualification NOT_RUN",
-    "Perl-bearing baseline exact DB-byte restoration may HOLD on normal ALPM INSTALLDATE differences; no timestamp normalization or DB rewrite is claimed",
     "new roundtrip Perl API and exact paths remain unexecuted on candidate; require genuine Root probe qualification"
   ]
 }

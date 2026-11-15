@@ -1,7 +1,7 @@
 # Generic emulated ARM16K Perl5.42.3 runtime journey
 
-**Source implementation and fenced synthetic controls only. Actual preparation,
-VM, ALPM, trust, runtime Reader/Root acceptance: NOT RUN / unissued.**
+**Source implementation and fenced synthetic controls only. This family's actual
+preparation, VM, ALPM, trust and generic16K Reader/Root acceptance: NOT RUN / unissued.**
 
 This separately owned family targets the Root-retained **perl5.42.3-1.3/aarch64**
 archive: 22,071,176 bytes,
@@ -47,8 +47,7 @@ runtime/resource certificates remain NULL in `case.TEMPLATE.json`.
    baseline runtime hashes, checks actual free/allocated bytes, sparse-clones the
    raw image, and adds only case storage, a oneshot and its enablement link using
    debugfs. It verifies exact added namespace and unchanged baseline file bytes,
-   modes, ownership and xattrs, then readonly fsck. No preboot ALPM or dependency
-   bootstrap occurs; existing hooks, PAM, credentials and platform files stay.
+   modes, ownership and xattrs, then readonly fsck. No preboot ALPM occurs; existing hooks, PAM, credentials and platform files stay.
 3. `controller.py boot --execute-root-bound-actor` is a distinct, separately
    Root-authorized invocation selecting the exact `prepared.json` and private
    original builder credentials. One attempt marker prevents accidental repeats.
@@ -91,6 +90,7 @@ The command selections are evidenced by Source25's
 relative links to `core_perl/`, `prove` invoking normal `/usr/bin/perl`,
 `perldoc -T -t -f print` using packaged core POD and `splain` using perldiag.
 `runtime.pl` additionally requires exact Config paths and shared/threaded5.42.3;
+exact loaded module/XS paths and actual `/proc/self/maps` shared-libperl mapping;
 DB_File and GDBM real create/close/reopen/read; real zlib/bzip2 compress/decompress;
 thread join/shared state; JSON and known SHA. These new roundtrips are source
 implemented, not yet executed on candidate Perl. Their exact paths/API behavior
@@ -102,13 +102,20 @@ all11 command/functional logs are durably retained before package recovery.
 `guest/root.sh` uses normal `pacman -T`, `-U`, `-Dk`, ownership and complete payload
 checks. Private public-only TEST trust uses a single exact primary fingerprint,
 valid nonrevoked current signature and `Required TrustedOnly` for global/local
-files. No repository, signature bypass, `--nodeps`, `--dbonly`, `--overwrite`,
-`--noscriptlet`, fake pacman, suppressed hook or runtime dependency install exists.
+files. The sole optional addition is the separately admitted, exact cached official
+`db5.3`5.3.28-7 pair from the materials DATA audit, installed normally with the
+unchanged baseline public trust and then normally removed after Perl recovery.
+Its full namespace/ELF/ALPM closure, actual libgcc/libstdc++/sh baseline providers,
+current signature/public trust and simultaneous staging/expanded/output budgets
+are required. Empty `dependency_transaction` means no additions; no other package
+is allowed.
+No repository, signature bypass, `--nodeps`, `--dbonly`, `--overwrite`,
+`--noscriptlet`, fake pacman, suppressed hook or unadmitted runtime dependency install exists.
 The runtime certificate also requires independently observed baseline/transaction
 effective hook equivalence and the complete two-default-directory hook namespace.
 A baseline with additional or disabled alternate HookDir policy is held until a
 new reviewed case can preserve it; merely preserving pacman.conf bytes is insufficient.
-The ALPM baseline payload, modes/UID/GID, xattrs, local DB bytes/metadata, users,
+The ALPM baseline payload, modes/UID/GID, xattrs, normalized local DB bytes/metadata, users,
 protected platform state and known unowned ldconfig caches must restore exactly.
 Private TEST trust is retired and removed on success and on handled guest failure.
 A forced VM/container failure retains HOLD and permits disposal only of owned
@@ -120,12 +127,27 @@ Recovery is selected from actual certified inventory:
   inventory and exclusive-path absence.
 - Baseline Perl: require the genuine exact old archive, detached signature and
   original install reason; normal Required/TrustedOnly `pacman -U --asexplicit`
-  or `--asdeps`. Recheck baseline payload, users and **exact original DB bytes**.
-  Normal ALPM rollback often changes INSTALLDATE/other bookkeeping. This currently
-  yields HOLD if different. The implementation does not rewrite the local DB,
-  erase timestamps, weaken equality or claim a successful exact restoration.
-  Root must resolve this with actual baseline/recovery evidence before choosing
-  a Perl-bearing baseline. A rollback HOLD is unfinished work, not acceptance.
+  or `--asdeps`. Restore the complete old inventory/payload and users. The
+  certificate permits **only** Source445b's observed normal variance: one integer
+  `%INSTALLDATE%` value in that exact old Perl `desc`; timestamp changes in the
+  database root and old Perl directory/desc/files; transaction payload directory
+  timestamps; known unowned ldconfig cache-directory timestamps; and append-only
+  `/var/log/pacman.log` (or normal first creation from certified absence). Everything else, including REASON and all other DB bytes,
+  modes/UID/GID/xattrs, unrelated file/database timestamps, accounts and user state
+  remains exact. `restoration.py` implements the same single-field normalization
+  read in Source445b `lifecycle-code/{actor.py,read_result.py}` and Root's actual
+  `rollback_comparison`. Raw original/final desc records and raw DB manifests
+  remain durable alongside normalized hashes; the host reports actual differing
+  timestamp paths and original/final install dates. The normalizer is DATA only;
+  it never writes the ALPM database or changes package files to make a pass.
+
+The known two candidate hardlinks are explicitly certified and checked by device/
+inode identity after installation. Actual PKGINFO4,483B/SHA31461fa035ad9f3761775dc412f3966c1c451c817e51eb5a2412808027133edc
+and all seven expanded dependency literals are fixed from the Root-provided
+materials DATA packet, whose seal is
+cf921ed04c387beda254af1d50492ce94e7813ccf7736f80d6779dcf4f4c0456.
+No new package/provider/symbol or signature acceptance comes from that passive
+geometry/ownership audit.
 
 ## Resource, cancellation and recovery contract
 
@@ -153,7 +175,7 @@ inspection; scripts do not recursively delete arbitrary outputs or input trees.
 ```text
 python3 -I -B scripts/integration/arm16k_perl5423_vm/adapter.py --prepare-case-packet
   --source-lock-sha256 ROOT_SOURCE_LOCK_SHA256 --case /PRIVATE/Root-case.json
-  --case-sha256 ROOT_CASE_SHA256 --materials /EXACT/retained-inputs
+  --case-sha256 ROOT_CASE_SHA256 --materials /PRIVATE/material-paths.json
   --baseline /EXACT/accepted-base --baseline-report /EXACT/first-PAM.json
   --nonce FRESH_32_HEX --output /PRIVATE/FRESH/packet
 
@@ -170,6 +192,15 @@ python3 -I -B scripts/integration/arm16k_perl5423_vm/controller.py boot
   --authority /PRIVATE/Root-boot-authority.json --authority-sha256 EXACT_SHA
   --source-lock-sha256 ROOT_SOURCE_LOCK_SHA256 --output /PRIVATE/FRESH/boot
 ```
+
+`--materials` accepts a canonical JSON map of every `adapter.NAMES` role to an
+existing absolute original path, or a legacy single directory. A sibling
+`extra-materials.json` maps exactly the needed `dependency_archive`,
+`dependency_signature`, `rollback_archive`, `rollback_signature` roles to their
+existing original paths. No extra roles are allowed. Controller mounts each
+original file read-only at its fixed guest name; candidate archive, signature,
+public certificate and decisions can live in different retained directories.
+This avoids making new host archive/signature copies to satisfy staging layout.
 
 `authority()` defines exact closed authority fields; unissued
 `authority.TEMPLATE.json` is only a field guide. Root must supply current genuine

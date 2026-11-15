@@ -48,7 +48,14 @@ def main():
  cfg=K.helper('rtc_contract.py').values((kernel/'config').read_bytes())
  required={'CONFIG_ARM64':'y','CONFIG_ARM64_16K_PAGES':'y','CONFIG_RTC_CLASS':'y','CONFIG_RTC_DRV_PL031':'y','CONFIG_RTC_HCTOSYS':'y','CONFIG_RTC_HCTOSYS_DEVICE':'"rtc0"','CONFIG_RTC_SYSTOHC':'n','CONFIG_VIRTIO_BLK':'y','CONFIG_EXT4_FS':'y'}
  K.need(all(cfg.get(n,'n')==v for n,v in required.items()),'exact builtin 16K/PL031/RTC boot kernel configuration')
- material_paths={Path(row['path']).parent for row in packet['materials'].values()};K.need(len(material_paths)==1,'one immutable retained materials directory');materials=material_paths.pop()
+ retained=[]
+ for group in ('materials','rollback_materials','dependency_materials'):
+  for name,row in packet[group].items():
+   if group=='materials'and name not in K.MATERIALS:continue
+   K.need(re.fullmatch('[A-Za-z0-9._+-]+',row['guest_name'])is not None,'fixed guest retained material name')
+   K.need(K.pin(Path(row['path']))=={n:row[n]for n in('bytes','sha256')},'exact retained material before actor')
+   retained.append((str(K.ordinary(row['path'])),'/materials/'+row['guest_name']))
+ K.need(len({dst for _,dst in retained})==len(retained),'unique exact retained file bind destinations')
  prepared=None;secret=None
  if a.phase=='boot':
   K.need(a.prepared is not None and a.credentials is not None,'exact boot prepared input/private PAM credentials')
@@ -73,7 +80,8 @@ def main():
   K.need('name=rootless'in json.loads(cmd('rootless',['docker','info','--format','{{json .SecurityOptions}}'])),'actual local rootless daemon')
   image=json.loads(cmd('image',['docker','image','inspect',auth['image']]))[0];K.need(image['Id']==auth['image'],'exact tool image ID')
   labels=dict(image['Config'].get('Labels')or{});labels.update({'org.cachy-asahi.perl5423-owner':str(os.getuid()),'org.cachy-asahi.perl5423-nonce':packet['nonce'],'org.cachy-asahi.perl5423-authority':a.authority_sha256})
-  mounts={('bind',str(HERE),'/code',False),('bind',str(packet_dir),'/packet',False),('bind',str(materials),'/materials',False),('bind',str(baseline),'/base',False),('bind',str(kernel),'/kernel',False),('bind',str(out),'/work',True)}
+  mounts={('bind',str(HERE),'/code',False),('bind',str(packet_dir),'/packet',False),('bind',str(baseline),'/base',False),('bind',str(kernel),'/kernel',False),('bind',str(out),'/work',True)}
+  mounts.update(('bind',src,dst,False)for src,dst in retained)
   if prepared is not None:mounts.add(('bind',str(prepared),'/prepared',False))
   name='cachy-perl5423-'+secrets.token_hex(12)
   class Scope(B.OwnedContainer):
@@ -121,7 +129,7 @@ def main():
   K.need(finished['State']['ExitCode']==0 and not finished['State']['Running'] and not finished['State']['OOMKilled'],'natural actor completion')
   if a.phase=='boot':
    K.need(R.natural(R.receipt(out/'qemu.json')),'natural QEMU group reap')
-   P.validate(report['restored'],module('proof').inventory_hash(base['inventory']),K.load(out/'host-epoch.json')['utc_ns']//10**9,int(time.time()))
+   P.validate(report['restored'],module('proof').inventory_hash(base['inventory']),K.load(out/'host-epoch.json')['utc_ns']//10**9,int(time.time()),cert['runtime_certificate']['rollback']['local_database_policy'])
    report['outputs']=module('proof').outputs(out/'results',report['restored'],base['inventory'],cert['runtime_certificate'],packet['nonce'],K.load(out/'host-epoch.json')['utc_ns']//10**9,int(time.time()),r['guest_output_cap_bytes'])
    report['preservation']=K.load(out/'preservation.json');K.need(report['preservation']['status']=='PASS_COMPLETE_BASELINE_AND_USER_PRESERVATION','postboot complete preservation')
   K.need(K.pin(authpath)['sha256']==a.authority_sha256 and A.source(a.source_lock_sha256)==source,'Source/authority stable throughout actor')
@@ -134,19 +142,30 @@ def main():
   state.cleaning=True;K.END=cleanup_end
   # Quota failure must never prevent owned-container recovery/removal. The
   # read-only guard remains sampled separately; cleanup has its reserved tail.
-  try:guard(True)
-  except BaseException as e:report['budget_failure']=str(e)[:1024];report['status']='HOLD';R.GUARD=None
+  def cleanup_guard():
+   try:guard(True)
+   except BaseException as e:
+    report['budget_failure']=str(e)[:1024];report['status']='HOLD';R.GUARD=None
+  R.GUARD=cleanup_guard;cleanup_guard()
   try:
-   if serial is not None:(out/'serial.redacted.log').write_bytes(bytes(serial.data).replace(secret['password'].encode(),b'[REDACTED]'))
+   try:
+    if serial is not None:(out/'serial.redacted.log').write_bytes(bytes(serial.data).replace(secret['password'].encode(),b'[REDACTED]'))
+   except BaseException as error:report.setdefault('cleanup_errors',[]).append('serial-report: '+str(error)[:1024])
    for handle in (serial.stream if serial is not None else None,qfile,qmp):
-    if handle is not None:handle.close()
-   if scope is not None:scope.cleanup(report)
-  except BaseException as error:report.setdefault('cleanup_errors',[]).append(str(error)[:1024])
+    try:
+     if handle is not None:handle.close()
+    except BaseException as error:report.setdefault('cleanup_errors',[]).append('close-handle: '+str(error)[:1024])
   finally:
-   if state.pending or report.get('cleanup_errors') or not report.get('owned_container_absence_verified'):report['status']='HOLD_CLEANUP_OR_CANCELLED'
-   report['quota_guard_samples']=guard.samples
-   (out/'report.json').write_bytes(K.canonical(report))
-   if entered:route.__exit__(None,None,None)
-   state.__exit__()
+   try:
+    if scope is not None:scope.cleanup(report)
+   except BaseException as error:report.setdefault('cleanup_errors',[]).append('owned-cleanup: '+str(error)[:1024])
+   finally:
+    if state.pending or report.get('cleanup_errors') or not report.get('owned_container_absence_verified'):report['status']='HOLD_CLEANUP_OR_CANCELLED'
+    report['quota_guard_samples']=guard.samples
+    try:(out/'report.json').write_bytes(K.canonical(report))
+    finally:
+     try:
+      if entered:route.__exit__(None,None,None)
+     finally:state.__exit__()
  return 0 if report['status']in('PREPARED_NOT_BOOTED','PASS_EMULATED_ARM16K_PERL5423_DATA_ONLY')else 1
 if __name__=='__main__':raise SystemExit(main())

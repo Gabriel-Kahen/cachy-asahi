@@ -25,15 +25,21 @@ Perl replaces `/usr` system paths, so the runtime certificate must explicitly
 establish actual baseline Perl presence/absence, complete dependency/provider and
 ALPM ownership closure and a recovery branch. No Perl-bearing baseline can pass
 without its exact old signed archive, original install reason, normal rollback
-and exact payload/user/database restoration. Normal rollback may change ALPM
-bookkeeping and therefore cause HOLD; no DB rewriting/normalization is used.
+and exact payload/user restoration and Source445b
+normalization of only its integer INSTALLDATE plus explicitly certified normal
+transaction timestamps and append-only pacman log. Raw old/final records remain
+durable. Other database bytes, payload metadata, accounts and users remain exact;
+no DB or package rewriting is used.
 A baseline without Perl instead requires ordinary removal and no reverse
 Perl dependencies. Neither Source111 nor155 is assumed to meet these gates.
 
 Probes use normal package-owned `/usr/bin` commands and real DB_File/GDBM,
 zlib+bzip2 roundtrips, shared libperl/thread/JSON/SHA behavior and packaged POD.
 The future preparation delta only adds private case storage and one service/link,
-keeps original PAM/password/platform state, and installs dependencies nowhere.
+keeps original PAM/password/platform state, and stages no unadmitted dependency.
+The optional db5.3-5.3.28-7 addition is separately certificate-admitted and uses
+the exact already cached official archive/signature, actual baseline public
+trust and explicit normal install/removal. No other extra package is allowed.
 The actor uses normal Required/TrustedOnly `pacman -U/-R` with existing hooks.
 Every selected package ELF and command log survives under durable results before
 recovery. Host readback checks actual16K ELF geometry and complete preservation.
@@ -45,7 +51,7 @@ RTC kernel and fresh prepare/boot authority. These remain NULL in templates.
 The preparer/controller are executable source, not qualified actors: Root must
 review the closed Source lock and finite physical/quota/memory/time/CPU/PID/log/
 output/cancellation/recovery plan before any actual run. Full invocation and
-certificate details, including explicit rollback limitations, are in the family
+certificate details, including narrow transaction-variance rules and individual retained-file references, are in the family
 README. No shared manifests/workflows or existing VM families changed.
 
 Generic emulated ARM16K, native16K hardware, M2, performance and release remain

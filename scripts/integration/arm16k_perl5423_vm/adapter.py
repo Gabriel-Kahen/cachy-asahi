@@ -23,22 +23,34 @@ def source(expected):
  expected_dirs={p.as_posix()for n in lock['files']for p in Path(n).parents if p.as_posix()!='.'}
  K.need(found==lock['files']and directories==expected_dirs,'complete adapter Source bytes/modes/membership');return dict(bytes=len(raw),sha256=expected)
 
+def material_paths(operand):
+ operand=K.ordinary(operand)
+ if operand.is_dir():return {n:operand/name for n,name in NAMES.items()}
+ value=K.load(operand);K.keys(value,NAMES,'retained material reference map')
+ return {n:K.ordinary(path)for n,path in value.items()}
+
 def preflight(case_path,case_sha256,materials,source_sha256,baseline,baseline_report):
  lock=source(source_sha256);case_path=K.ordinary(case_path);K.need(K.pin(case_path)['sha256']==case_sha256,'external Root-selected actual case bytes')
- case=K.load(case_path);materials=K.ordinary(materials);K.need(materials.is_dir(),'ordinary retained materials directory')
- observed={name:K.pin(materials/path,2*1024**3 if name=='archive' else 4*1024**2)for name,path in NAMES.items()}
- cert={name:K.load(materials/NAMES[name])for name in K.EVIDENCE}
- validated=K.validate(case,observed,**cert)
- rollback=cert['runtime_certificate']['rollback']
- if rollback['mode']=='SIGNED_EXACT_OLD_PACKAGE':
-  for name,operand in [('archive','rollback.pkg.tar.zst'),('signature','rollback.pkg.tar.zst.sig')]:
-   K.need(K.pin(materials/operand)==rollback[name],'actual retained exact old package/signature')
+ case=K.load(case_path);paths=material_paths(materials)
+ observed={name:K.pin(path,2*1024**3 if name=='archive' else 4*1024**2)for name,path in paths.items()}
+ cert={name:K.load(paths[name])for name in K.EVIDENCE};validated=K.validate(case,observed,**cert)
+ # Extra operands are selected by a separate small path map. No archive copies.
+ extra=K.ordinary(materials)
+ extra_file=(extra if extra.is_dir()else extra.parent)/'extra-materials.json'
+ extras=K.load(extra_file)if extra_file.exists() else {}
+ rollback=cert['runtime_certificate']['rollback'];dependency=cert['runtime_certificate']['dependency_transaction']
+ needed=set()
+ if rollback['mode']=='SIGNED_EXACT_OLD_PACKAGE':needed|={'rollback_archive','rollback_signature'}
+ if dependency:needed|={'dependency_archive','dependency_signature'}
+ K.keys(extras,needed,'exact extra retained original archive references')
+ for role in needed:
+  group,name=role.split('_');expected=(rollback if group=='rollback'else dependency)[name]
+  K.need(K.pin(K.ordinary(extras[role]))==expected,'actual exact '+role)
  base=K.ordinary(baseline);report=K.ordinary(baseline_report);expected=cert['baseline_certificate']
  for name,key in [('guest.raw','raw'),('prepared.json','prepared'),('ownership.json','ownership')]:
   K.need(K.pin(base/name,expected[key]['bytes'])==expected[key],'exact actual readonly baseline file: '+name)
  K.need(K.pin(report,expected['report']['bytes'])==expected['report'],'exact accepted baseline PAM report bytes')
- # This gate selects Root's actual inputs; it does not turn a certificate into a run.
- return validated,cert,observed,lock
+ return validated,cert,observed,lock,paths,extras
 
 def contents(case,cert,lock,nonce):
  K.need(type(nonce)is str and len(nonce)==32 and all(c in'0123456789abcdef'for c in nonce),'fresh literal case nonce')
@@ -47,10 +59,10 @@ def contents(case,cert,lock,nonce):
  def put(name,raw,mode=0o644):files[name]=(raw.encode()if isinstance(raw,str)else raw,mode)
  for name in('root.sh','probe.sh','case.sh','runtime.pl','smoke.t'):put(name,(HERE/'guest'/name).read_bytes())
  for name in('rtc-clock.sh','guest-runtime.sh'):put('frozen/'+name,(HERE/'frozen'/name).read_bytes())
- inventory=dict(base['inventory']);installed=dict(inventory,**{K.PACKAGE['name']:K.PACKAGE['version']})
+ inventory=dict(base['inventory']);deps=dict(inventory,**({'db5.3':runtime['dependency_transaction']['version']}if runtime['dependency_transaction']else{}));installed=dict(deps,**{K.PACKAGE['name']:K.PACKAGE['version']})
  def inv(rows):return ''.join(n+' '+v+'\n'for n,v in sorted(rows.items()))
- put('expected-base.lock',inv(inventory));put('expected-installed.lock',inv(installed))
- env=dict(recovery_mode=runtime['rollback']['mode'],nonce=nonce,signer_fingerprint=trust['fingerprint'],cert_not_before=trust['created_utc'],cert_not_after=trust['expires_utc'],**{n:limits[n]for n in CAPS})
+ put('expected-base.lock',inv(inventory));put('expected-dependencies.lock',inv(deps));put('expected-installed.lock',inv(installed))
+ env=dict(baseline_perl_version=inventory.get('perl','NONE'),dependency_mode='DB53'if runtime['dependency_transaction']else'NONE',recovery_mode=runtime['rollback']['mode'],nonce=nonce,signer_fingerprint=trust['fingerprint'],cert_not_before=trust['created_utc'],cert_not_after=trust['expires_utc'],**{n:limits[n]for n in CAPS})
  put('case.env',''.join(n+'='+str(v)+'\n'for n,v in env.items()))
  paths={}
  for row in runtime['files'].values():
@@ -61,24 +73,33 @@ def contents(case,cert,lock,nonce):
  payload=runtime['candidate_namespace'];put('payload.sha256',''.join(r['sha256']+'  '+p+'\n'for p,r in sorted(payload.items())if r['kind']=='f'))
  put('payload-metadata.tsv',''.join('\t'.join((r['kind'],format(r['mode'],'o'),str(r['uid']),str(r['gid']),p,r.get('link_target','-')))+'\n'for p,r in sorted(payload.items())))
  put('expected-payload.paths',''.join(p+'\n'for p in sorted(payload)))
+ put('hardlinks.tsv',''.join(p+'\t'+t+'\n'for p,t in sorted(runtime['hardlinks'].items())))
  put('dependencies.txt',''.join(n+'\n'for n in runtime['alpm_dependencies']))
  elfs=[p for p in sorted(runtime['elfs']) if runtime['files'][p]['owner']=='perl']
  put('elf-paths.tsv',''.join(str(i)+'.elf\t'+p+'\t'+runtime['files'][p]['sha256']+'\n' for i,p in enumerate(elfs)))
+ dependency=runtime['dependency_transaction']
+ if dependency:
+  put('dependency-requires.txt',''.join(p+'\n'for p in dependency['requires']))
+  put('dependency-payload.sha256',''.join(r['sha256']+'  '+p+'\n'for p,r in sorted(dependency['namespace'].items())if r['kind']=='f'))
+  put('expected-dependency.paths',''.join(p+'\n'for p in sorted(dependency['namespace'])))
  material_rows={NAMES[n]:case['package'][n]['sha256'] for n in K.MATERIALS}
  rollback=runtime['rollback']
  if rollback['mode']=='SIGNED_EXACT_OLD_PACKAGE':
   for n,name in [('archive','rollback.pkg.tar.zst'),('signature','rollback.pkg.tar.zst.sig')]:material_rows[name]=rollback[n]['sha256']
+ if dependency:
+  for n,name in [('archive','db5.3-5.3.28-7-aarch64.pkg.tar.xz'),('signature','db5.3-5.3.28-7-aarch64.pkg.tar.xz.sig')]:material_rows[name]=dependency[n]['sha256']
  put('materials.sha256',''.join(h+'  '+n+'\n'for n,h in sorted(material_rows.items())))
  put('recovery-reason',str(rollback['reason'])+'\n')
  d='/var/lib/arm16k-perl5423-vm';o='/run/arm16k-perl5423-vm'
- put('pacman.conf','[options]\nArchitecture = aarch64\nSigLevel = Required TrustedOnly\nLocalFileSigLevel = Required TrustedOnly\nGPGDir = '+d+'/trust\nCacheDir = '+d+'/cache\nLogFile = '+o+'/root/pacman.log\n')
+ put('dependency-pacman.conf','[options]\nArchitecture = aarch64\nSigLevel = Required TrustedOnly\nLocalFileSigLevel = Required TrustedOnly\nGPGDir = /etc/pacman.d/gnupg\nCacheDir = '+d+'/cache\nLogFile = /var/log/pacman.log\n')
+ put('pacman.conf','[options]\nArchitecture = aarch64\nSigLevel = Required TrustedOnly\nLocalFileSigLevel = Required TrustedOnly\nGPGDir = '+d+'/trust\nCacheDir = '+d+'/cache\nLogFile = /var/log/pacman.log\n')
  unit='[Unit]\nDescription=Disposable Root-bound PERL5423 system-perl case\nAfter=local-fs.target\nBefore=multi-user.target\nConditionPathExists='+d+'/case.env\n[Service]\nType=oneshot\nUser=root\nExecStart=/usr/bin/bash --noprofile --norc '+d+'/root.sh\nTimeoutStartSec='+str(limits['boot_seconds'])+'\n[Install]\nWantedBy=multi-user.target\n'
  put('arm16k-perl5423-vm.service',unit)
  for n in K.EVIDENCE:put(n+'.json',K.canonical(cert[n]))
  put('case-inputs.json',K.canonical(case));put('source-lock-selection.json',K.canonical(lock));return files
 
 def prepare(case_path,case_sha256,materials,source_sha256,nonce,output,baseline,baseline_report):
- case,cert,observed,lock=preflight(case_path,case_sha256,materials,source_sha256,baseline,baseline_report)
+ case,cert,observed,lock,paths,extras=preflight(case_path,case_sha256,materials,source_sha256,baseline,baseline_report)
  out=K.ordinary(output);K.need(not out.exists()and out.parent.is_dir()and out.parent.stat().st_uid==os.getuid()and not out.parent.stat().st_mode&0o022,'fresh private owned case output')
  K.need(not any(out==p or out in p.parents or p in out.parents for p in(HERE,materials,K.ordinary(case_path))),'case output disjoint from Source/materials')
  rows=contents(case,cert,lock,nonce);fixture_bytes=sum(len(b)for b,_ in rows.values());K.need(fixture_bytes<=cert['resource_certificate']['fixture_source_bytes'],'actual generated fixture must fit the Root-reviewed physical staging plan')
@@ -87,7 +108,17 @@ def prepare(case_path,case_sha256,materials,source_sha256,nonce,output,baseline,
   p=out/name;p.parent.mkdir(parents=True,exist_ok=True)
   with p.open('xb')as stream:stream.write(raw)
   p.chmod(mode)
- report=dict(schema=1,status='PREPARED_CASE_PACKET_NOT_INSTALLED_OR_BOOTED',operation=K.OP,nonce=nonce,Source_lock=lock,case=K.pin(case_path),materials={n:dict(path=str(materials/NAMES[n]),**observed[n])for n in NAMES},rollback_materials=({n:dict(path=str(materials/operand),**cert['runtime_certificate']['rollback'][n])for n,operand in [('archive','rollback.pkg.tar.zst'),('signature','rollback.pkg.tar.zst.sig')]}if cert['runtime_certificate']['rollback']['mode']=='SIGNED_EXACT_OLD_PACKAGE'else {}),files={n:dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest(),mode=mode)for n,(raw,mode)in rows.items()},staging_target='/var/lib/arm16k-perl5423-vm',root_service='arm16k-perl5423-vm.service',kernel_nonce='arm16k_perl5423_vm_nonce='+nonce,guest_PAM_command='/usr/bin/env -i HOME=/home/builder USER=builder LOGNAME=builder PATH=/usr/bin LC_ALL=C /usr/bin/bash --noprofile --norc /var/lib/arm16k-perl5423-vm/probe.sh '+nonce,host_VM_binding=dict(entry='controller.py',authority=None,prepared=None),actual=dict(prepare=None,VM=None,ALPM=None,runtime=None,Reader=None,Root_acceptance=None),missing_before_VM=['Root-issued fresh controller authority, exact tool/kernel pins and private original PAM credentials','actual preparation/readback, ordinary PAM runtime, QMP retirement and complete preservation'])
+ def rows_for(group,names):
+  spec=cert['runtime_certificate'][group]
+  if not spec or group=='rollback'and spec['mode']=='REMOVE':return {}
+  return {n:dict(path=extras[('rollback'if group=='rollback'else'dependency')+'_'+n],guest_name=name,**spec[n])for n,name in names}
+ report=dict(schema=1,status='PREPARED_CASE_PACKET_NOT_INSTALLED_OR_BOOTED',operation=K.OP,nonce=nonce,Source_lock=lock,case=K.pin(case_path),
+ materials={n:dict(path=str(paths[n]),guest_name=NAMES[n],**observed[n])for n in NAMES},
+ rollback_materials=rows_for('rollback',[('archive','rollback.pkg.tar.zst'),('signature','rollback.pkg.tar.zst.sig')]),
+ dependency_materials=rows_for('dependency_transaction',[('archive','db5.3-5.3.28-7-aarch64.pkg.tar.xz'),('signature','db5.3-5.3.28-7-aarch64.pkg.tar.xz.sig')]),
+ files={n:dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest(),mode=mode)for n,(raw,mode)in rows.items()},staging_target='/var/lib/arm16k-perl5423-vm',
+ root_service='arm16k-perl5423-vm.service',kernel_nonce='arm16k_perl5423_vm_nonce='+nonce,
+ host_VM_binding=dict(entry='controller.py',authority=None,prepared=None),actual=dict(prepare=None,VM=None,ALPM=None,runtime=None,Reader=None,Root_acceptance=None))
  (out/'case-packet.json').write_bytes(K.canonical(report));return report
 
 def main():

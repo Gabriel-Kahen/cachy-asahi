@@ -20,6 +20,9 @@ NATIVE_ARCHIVE = dict(bytes=22071176, sha256='647c5f1d2c6965ec2e26b37e75d29c819f
 INSTALLED_SOURCE = '445b37a9475a4e92804954f4f0e3d0ac84cd9511'
 PACKAGE = dict(name='perl', version='5.42.3-1.3', arch='aarch64',
                depends=['glibc', 'gdbm>=1.17', 'db5.3', 'libxcrypt', 'libcrypt.so', 'bzip2', 'zlib'])
+DB53 = dict(name='db5.3',version='5.3.28-7',archive=dict(bytes=1044852,sha256='0a787f952c0f7dd1493db437ab0dc3ffda6053cb6affa4ebf91caff185e586b4'),signature=dict(bytes=566,sha256='e17a6fdad268459de144b828f33a8b63fd9b7f05a2c1ea2c1dc02b4670b8bdab'))
+HARDLINKS = {'/usr/bin/core_perl/perlthanks':'/usr/bin/core_perl/perlbug', '/usr/share/man/man1/perlthanks.1perl.gz':'/usr/share/man/man1/perlbug.1perl.gz'}
+ALPM_DEPENDS = ['glibc','gdbm>=1.17','db5.3','libxcrypt','libcrypt.so=2-64','bzip2','zlib']
 MATERIALS = ('archive', 'signature', 'public_TEST_certificate', 'signing_receipt')
 EVIDENCE = ('baseline_certificate', 'runtime_certificate', 'resource_certificate', 'Root_decision', 'installed_Reader', 'installed_component_decision')
 TOOLS = tuple('base64 bash cat chmod chown cmp comm cp cut date env find getconf getfattr gpg gpgconf grep head id install mkdir pacman readlink rm rmdir sed sha256sum sleep sort stat sync timeout touch tr uname wc xargs'.split())
@@ -121,7 +124,7 @@ def root_cert(value, kind):
 def candidate_target(namespace, path):
     seen = set()
     for _ in range(32):
-        need(path.startswith('/usr/'), 'candidate alias contained in prefix')
+        need(path.startswith('/usr/') or path == '/etc/profile.d/perlbin.sh', 'reviewed candidate/baseline alias domain')
         need(path not in seen, 'candidate alias cycle'); seen.add(path)
         parts = path.split('/')[1:]; changed = False
         for i in range(1, len(parts) + 1):
@@ -152,7 +155,7 @@ def baseline(value):
     return inv
 
 
-def namespace(ns):
+def namespace(ns, baseline=False):
     need(type(ns) is dict and ns, 'complete package namespace required')
     expanded = 0
     for path, row in ns.items():
@@ -161,7 +164,7 @@ def namespace(ns):
         keys(row, {'kind', 'mode', 'uid', 'gid'} | ({'bytes', 'sha256'} if kind == 'f' else {'link_target'} if kind == 'l' else set()), 'inode')
         need(type(row['mode']) is int and 0 <= row['mode'] <= 0o7777 and not row['mode'] & 0o6000 and
              (kind == 'l' or not row['mode'] & 0o002) and type(row['uid']) is type(row['gid']) is int and row['uid'] == row['gid'] == 0, 'safe root-owned inode')
-        need((path.startswith('/usr/') or path == '/usr' and kind == 'd') and not path.startswith('/usr/local/') and '/..' not in path, 'system Perl payload confined to /usr excluding site modules')
+        need((path.startswith('/usr/') or path == '/usr' and kind == 'd' or baseline and (path in ('/etc','/etc/profile.d') and kind == 'd' or path == '/etc/profile.d/perlbin.sh' and kind == 'f')) and not path.startswith('/usr/local/') and '/..' not in path, 'system Perl payload confined to /usr excluding site modules')
         if kind == 'f':
             need(type(row['bytes']) is int and 0 <= row['bytes'] < 2**63 and sha(row['sha256']), 'file pin'); expanded += row['bytes']
         elif kind == 'l':
@@ -173,21 +176,43 @@ def namespace(ns):
 def runtime(value, case, base):
     root_cert(value, 'ROOT_REVIEWED_PERL5423_VM_RUNTIME_V1')
     keys(value, ('kind', 'issued_by', 'accepted', 'baseline_certificate', 'package', 'namespace_coverage', 'candidate_namespace',
-                 'baseline_namespace', 'baseline_files', 'elf_inventory', 'full_payload_elf_coverage', 'elfs', 'files', 'tools', 'loader',
-                 'alpm_dependencies', 'PKGINFO', 'effective_hook_policy', 'dependency_resolution', 'reverse_dependencies', 'rollback', 'probe_qualification', 'baseline_namespace_pin'), 'runtime certificate')
+                 'baseline_namespace', 'baseline_files', 'hardlinks', 'dependency_transaction', 'elf_inventory', 'full_payload_elf_coverage', 'elfs', 'files', 'tools', 'loader',
+                 'alpm_dependencies', 'PKGINFO', 'effective_hook_policy', 'dependency_resolution', 'reverse_dependencies', 'rollback', 'probe_qualification', 'baseline_namespace_pin', 'restoration_allowances'), 'runtime certificate')
     need(value['baseline_certificate'] == case['evidence']['baseline_certificate'] and value['package'] == case['package']['archive'], 'exact runtime joins')
     pin_shape(value['baseline_namespace_pin']); pin_shape(value['elf_inventory'])
     need(value['full_payload_elf_coverage'] is True and value['namespace_coverage'] == 'ALL_PACKAGE_OWNED_PATHS', 'full ELF/ownership coverage')
     expanded = namespace(value['candidate_namespace'])
+    need(value['hardlinks'] == HARDLINKS, 'two actual accepted archive hardlink associations')
+    for path, target in value['hardlinks'].items():
+        a,b = value['candidate_namespace'].get(path,{}),value['candidate_namespace'].get(target,{})
+        need(a.get('kind') == b.get('kind') == 'f' and a == b, 'hardlinks join equal regular target bytes/mode/ownership')
+    dep = value['dependency_transaction']; added = {}
+    need(type(dep) is dict, 'explicit dependency transaction map; no silent packages')
+    if dep:
+        keys(dep, ('name','version','archive','signature','namespace','files','elf_paths','full_ELF_coverage','requires','resolution','baseline_public_trust','signature_authenticated','current_trust_reviewed','recovery'), 'explicit db5.3 addition')
+        need(all(dep[n] == DB53[n] for n in DB53) and 'db5.3' not in base and dep['requires'] == ['libgcc','libstdc++','sh'] and dep['recovery'] == 'NORMAL_REMOVE_AFTER_PERL_RECOVERY' and dep['signature_authenticated'] is dep['current_trust_reviewed'] is dep['full_ELF_coverage'] is True, 'only exact separately admitted cached official db5.3 addition')
+        pin_shape(dep['baseline_public_trust']); expanded += namespace(dep['namespace']); added['db5.3'] = dep['version']
+        need(type(dep['files']) is dict and dep['files'] and type(dep['elf_paths']) is list and dep['elf_paths'] and set(dep['resolution']) == set(dep['requires']), 'complete dependency namespace, ELF and ALPM provider inputs')
+        for constraint,row in dep['resolution'].items():
+            keys(row, ('owner','version','satisfied','providers'), 'db5.3 dependency provider')
+            need(base.get(row['owner']) == row['version'] and row['satisfied'] is True and type(row['providers']) is list and row['providers'] and all(p in value['baseline_files'] and value['baseline_files'][p]['owner'] == row['owner'] for p in row['providers']), 'db5.3 own dependencies resolve in unchanged actual baseline')
+        for path,row in dep['files'].items():
+            need(path in value['files'] and row == value['files'][path] and row['owner'] == 'db5.3' and row['version'] == dep['version'], 'exact actual added dependency file closure')
+        for path in dep['elf_paths']: need(path in dep['files'] and path in value['elfs'], 'complete dependency-owned ELF inventory')
+    dependency_base = dict(base, **added)
+
     before = value['baseline_namespace']; need(type(before) is dict, 'actual complete baseline Perl namespace or empty map')
-    if before: namespace(before)
+    if before: namespace(before, baseline=True)
     need(bool(before) == ('perl' in base), 'baseline presence cannot be assumed')
-    for label, files, owners in [('baseline', value['baseline_files'], base), ('candidate', value['files'], dict(base, perl=PACKAGE['version']))]:
+    for label, files, owners in [('baseline', value['baseline_files'], base), ('candidate', value['files'], dict(dependency_base, perl=PACKAGE['version']))]:
         need(type(files) is dict and files, 'complete ' + label + ' runtime file closure')
         for path, row in files.items():
             guest_path(path); keys(row, ('bytes', 'sha256', 'mode', 'owner', 'version', 'resolved'), label + ' runtime inode')
             guest_path(row['resolved']); need(type(row['bytes']) is int and row['bytes'] >= 0 and sha(row['sha256']) and
                 type(row['mode']) is int and 0 <= row['mode'] <= 0o7777 and not row['mode'] & 0o6002 and owners.get(row['owner']) == row['version'], 'file bytes/mode/ALPM owner version')
+            if row['owner'] == 'db5.3' and dep and label == 'candidate':
+                actual = dep['namespace'].get(row['resolved'],{})
+                need(actual.get('kind') == 'f' and all(row[n] == actual[n] for n in ('bytes','sha256','mode')), 'actual added dependency file namespace')
             if row['owner'] == 'perl':
                 ns = before if label == 'baseline' else value['candidate_namespace']
                 resolved = candidate_target(ns, path); actual = ns[resolved]
@@ -195,8 +220,9 @@ def runtime(value, case, base):
     need(value['tools'] == ['/usr/bin/' + n for n in TOOLS], 'exact runtime helper vectors')
     for path in value['tools']:
         need(path in value['baseline_files'] and path in value['files'] and value['baseline_files'][path] == value['files'][path] and value['files'][path]['mode'] & 0o005 == 0o005, 'preserved executable baseline helper')
-    pin_shape(value['PKGINFO'])
+    need(value['PKGINFO'] == dict(bytes=4483,sha256='31461fa035ad9f3761775dc412f3966c1c451c817e51eb5a2412808027133edc'), 'actual accepted package metadata bytes')
     requires = value['alpm_dependencies']
+    need(requires == ALPM_DEPENDS, 'exact actual accepted1.3 PKGINFO constraints')
     need(type(requires) is list and len(requires) == len(set(requires)) and all(type(n) is str and re.fullmatch('[A-Za-z0-9@+_.<>=:-]+', n) for n in requires), 'complete actual PKGINFO dependency literals')
     need(set(PACKAGE['depends']) - {'libcrypt.so'} <= set(requires) and any(re.fullmatch(r'libcrypt[.]so=[0-9]+-64', n) for n in requires), 'actual makepkg-expanded64-bit libcrypt SONAME and all recipe constraints')
     hooks = value['effective_hook_policy']
@@ -208,7 +234,7 @@ def runtime(value, case, base):
     deps = value['dependency_resolution']; need(type(deps) is dict and set(deps) == set(requires), 'every actual ALPM constraint including expanded SONAME')
     for constraint, row in deps.items():
         keys(row, ('owner', 'version', 'satisfied', 'providers'), 'ALPM dependency resolution')
-        need(base.get(row['owner']) == row['version'] and row['satisfied'] is True and type(row['providers']) is list and row['providers'], 'actual baseline satisfies dependency')
+        need(dependency_base.get(row['owner']) == row['version'] and row['satisfied'] is True and type(row['providers']) is list and row['providers'], 'actual baseline plus explicit admitted dependency satisfies candidate')
         need(all(path in value['files'] and value['files'][path]['owner'] == row['owner'] for path in row['providers']), 'dependency bytes and actual owner')
     need(type(value['reverse_dependencies']) is list and all(n in base and n != 'perl' for n in value['reverse_dependencies']), 'actual reverse dependency census')
     rollback = value['rollback']
@@ -216,10 +242,16 @@ def runtime(value, case, base):
     if 'perl' in base:
         need(rollback['mode'] == 'SIGNED_EXACT_OLD_PACKAGE' and rollback['version'] == base['perl'] and
              rollback['reason'] in ('explicit', 'dependency') and rollback['exact_payload_verified'] is True and
-             rollback['local_database_policy'] == 'EXACT_OR_HOLD', 'reviewed old package rollback; DB differences cannot be relabeled preserved')
+             rollback['local_database_policy'] == 'NORMAL_INSTALLDATE_AND_TRANSACTION_TIMESTAMPS', 'reviewed old package rollback; DB differences cannot be relabeled preserved')
         pin_shape(rollback['archive']); pin_shape(rollback['signature'])
     else:
-        need(rollback == dict(mode='REMOVE', version=None, archive=None, signature=None, reason=None, exact_payload_verified=True, local_database_policy='EXACT_OR_HOLD') and not value['reverse_dependencies'], 'normal removable package with no baseline Perl dependents')
+        need(rollback == dict(mode='REMOVE', version=None, archive=None, signature=None, reason=None, exact_payload_verified=True, local_database_policy='EXACT') and not value['reverse_dependencies'], 'normal removable package with no baseline Perl dependents')
+    allowance = value['restoration_allowances']
+    old = '/var/lib/pacman/local/perl-' + base['perl'] if 'perl' in base else None
+    expected = dict(install_date_path=old+'/desc' if old else None, database_timestamp_paths=['/var/lib/pacman/local']+([old,old+'/desc',old+'/files'] if old else []),
+                    payload_directory_timestamps=True, normal_pacman_log='/var/log/pacman.log', pacman_log_before=allowance.get('pacman_log_before'), cache_directory_timestamps=['/var/cache','/var/cache/ldconfig'])
+    if allowance.get('pacman_log_before') is not None: pin_shape(allowance['pacman_log_before'])
+    need(allowance == expected, 'exact certificate-described normal transaction variance; no unrelated file/database/user waiver')
     qualification = value['probe_qualification']
     keys(qualification, ('commands', 'modules', 'network', 'CPAN', 'compiler', 'actual_paths_verified'), 'exact probe qualification')
     need(qualification == dict(commands=['/usr/bin/' + n for n in COMMANDS], modules=['Config', 'JSON::PP', 'Digest::SHA', 'DB_File', 'GDBM_File', 'Compress::Raw::Zlib', 'Compress::Raw::Bzip2', 'threads'],
@@ -243,7 +275,7 @@ def runtime(value, case, base):
     return expanded
 
 
-def resources(value, case, base, expanded, rollback):
+def resources(value, case, base, expanded, rollback, dependency):
     root_cert(value, 'ROOT_REVIEWED_PERL5423_VM_RESOURCES_V1')
     keys(value, {'kind', 'issued_by', 'accepted', 'baseline_certificate', 'package', 'quota_guard'} | set(LIMITS), 'resource certificate')
     need(value['baseline_certificate'] == case['evidence']['baseline_certificate'] and value['package'] == case['package']['archive'], 'resource baseline/candidate joins')
@@ -252,7 +284,7 @@ def resources(value, case, base, expanded, rollback):
          'run_seconds', 'sync_seconds', 'guest_output_cap_bytes')) and 1024 <= value['log_bytes'] <= 16777216,
          'exact guest case.env scalar grammar')
     need(value['baseline_raw_bytes'] == base['raw']['bytes'] and value['package_expanded_bytes'] == expanded and value['prepared_raw_bytes'] >= value['baseline_raw_bytes'], 'actual candidate-expanded/raw geometry')
-    need(value['case_staging_bytes'] >= sum(case['package'][n]['bytes'] for n in MATERIALS) + sum(rollback[n]['bytes'] for n in ('archive','signature') if rollback[n] is not None) + value['fixture_source_bytes'], 'staging includes compressed archive/signature/certificate/receipt and reviewed fixture Source')
+    need(value['case_staging_bytes'] >= sum(case['package'][n]['bytes'] for n in MATERIALS) + sum(rollback[n]['bytes'] for n in ('archive','signature') if rollback[n] is not None) + sum(dependency[n]['bytes'] for n in ('archive','signature') if dependency) + value['fixture_source_bytes'], 'staging includes compressed archive/signature/certificate/receipt and reviewed fixture Source')
     writes = value['baseline_allocated_bytes'] + value['case_staging_bytes'] + expanded + value['guest_output_cap_bytes']
     need(value['clone_allocated_cap_bytes'] >= writes and value['readback_allocated_cap_bytes'] >= writes and
          value['guest_filesystem_free_bytes'] >= value['case_staging_bytes'] + expanded + value['guest_output_cap_bytes'] and value['prepared_raw_bytes'] >= writes, 'clone/readback/raw/guest capacity includes staged and expanded candidate and output')
@@ -261,12 +293,12 @@ def resources(value, case, base, expanded, rollback):
     need(value['owner_memory_bytes'] >= value['guest_memory_bytes'] and value['host_MemAvailable_bytes'] >= value['owner_memory_bytes'] + value['host_reserve_bytes'], 'actual host RAM reserve')
     # Twelve fixed runtime operations and sync; no compiler or XS build. Root's
     # wait encloses these calls, so the outer envelope counts that wait once.
-    probe = 14*value['run_seconds'] + value['sync_seconds']
+    probe = 16*value['run_seconds'] + value['sync_seconds']
     need(value['probe_wait_seconds'] >= probe, 'probe wait covers twelve runtime commands and sync')
     # Root: five gpg calls plus gpgconf retirement; two database checks and two
     # durable syncs. Root separately supplies nondefault boot/PAM/snapshot overhead.
-    phase = (7*value['gpg_seconds'] + value['install_seconds'] + value['probe_wait_seconds'] + value['remove_seconds'] +
-             4*value['run_seconds'] + 2*value['sync_seconds'] + value['cleanup_seconds'] + value['boot_overhead_seconds'])
+    phase = (7*value['gpg_seconds'] + 2*value['install_seconds'] + value['probe_wait_seconds'] + 2*value['remove_seconds'] +
+             6*value['run_seconds'] + 2*value['sync_seconds'] + value['cleanup_seconds'] + value['boot_overhead_seconds'])
     need(value['boot_seconds'] >= phase and value['prepare_seconds'] > value['cleanup_seconds'] and value['logs_cap_bytes'] >= value['log_bytes'], 'finite guest/cleanup/log envelopes')
     need(value['prepared_raw_bytes'] == value['baseline_raw_bytes'] <= 4*1024**3 and value['overlay_cap_bytes'] <= 4*1024**3 and value['guest_memory_bytes'] % 1024**2 == 0 and value['cpus'] <= 64 and value['pids'] <= 4096, 'supported fixed raw/overlay/guest geometry and finite actor controls')
     need(value['cleanup_seconds'] >= 45 and all(value[n] >= 5 for n in ('gpg_seconds','install_seconds','remove_seconds','run_seconds','sync_seconds')), 'frozen owned cleanup and command retirement minimum envelopes')
@@ -309,7 +341,7 @@ def validate(case, observed_materials, baseline_certificate, runtime_certificate
     need(decision['operation'] == OP and decision['accepted_for_vm_input'] is decision['package_signature_authenticated'] is True and decision['source'] == SOURCE and decision['native'] == case['native'] and decision['package'] == case['package'] and decision['trust'] == trust and decision['evidence'] == {n: case['evidence'][n] for n in EVIDENCE if n != 'Root_decision'}, 'explicit Root acceptance and all evidence joins')
     inventory = baseline(baseline_certificate)
     expanded = runtime(runtime_certificate, case, inventory)
-    resources(resource_certificate, case, baseline_certificate, expanded, runtime_certificate['rollback'])
+    resources(resource_certificate, case, baseline_certificate, expanded, runtime_certificate['rollback'], runtime_certificate['dependency_transaction'])
     return json.loads(canonical(case))
 
 

@@ -23,6 +23,14 @@ def qemu_argv(m,r,epoch):
 def prepare(K,R,I,W,packet,cert,guard,deadline):
  r=cert['resource_certificate'];base=cert['baseline_certificate'];rt=cert['runtime_certificate']
  scan=I.scan(Path('/base/guest.raw'),deadline,guard);K.need(scan['filesystem_free_bytes']==r['guest_filesystem_free_bytes'],'actual baseline ext4 free bytes');owned=I.owners(scan,base['inventory']);I.qualify(scan,rt['baseline_files'],owned)
+ log=base64.b64decode(scan['log_data_b64'],validate=True)if scan['log_data_b64']is not None else None
+ actual_log=dict(bytes=len(log),sha256=hashlib.sha256(log).hexdigest())if log is not None else None
+ K.need(actual_log==rt['restoration_allowances']['pacman_log_before'],'actual baseline normal pacman log presence/pin')
+ hooks={n:I.stable(v)for n,v in scan['nodes'].items()if any(n==q.lstrip('/') or n.startswith(q.lstrip('/')+'/')for q in rt['effective_hook_policy']['hook_directories'])}
+ K.need(hooks and K.json_pin(hooks)==rt['effective_hook_policy']['namespace_pin'],'actual complete preserved effective default hook namespace')
+ if rt['dependency_transaction']:
+  trust={n:I.stable(v)for n,v in scan['nodes'].items()if n=='etc/pacman.d/gnupg' or n.startswith('etc/pacman.d/gnupg/')}
+  K.need(trust and K.json_pin(trust)==rt['dependency_transaction']['baseline_public_trust'],'actual unchanged complete official public trust namespace')
  K.need(K.json_pin({n:I.stable(v)for n,v in scan['nodes'].items()})==rt['baseline_namespace_pin'],'Root-selected complete readonly baseline namespace')
  K.need(Path('/base/guest.raw').stat().st_size==r['prepared_raw_bytes']==r['baseline_raw_bytes'],'fixed raw geometry; resizing is outside this actor')
  K.need(Path('/base/guest.raw').stat().st_blocks*512<=r['baseline_allocated_bytes'],'actual baseline allocated-block envelope')
@@ -47,10 +55,10 @@ def prepare(K,R,I,W,packet,cert,guard,deadline):
   path=D+'/'+name
   if name==UNIT:path='/etc/systemd/system/'+UNIT
   file(path,Path('/packet')/name,row,row['mode'])
- for group in ('materials','rollback_materials'):
+ for group in ('materials','rollback_materials','dependency_materials'):
   for name,row in packet[group].items():
    if group=='materials' and name not in K.MATERIALS:continue
-   source=Path('/materials')/Path(row['path']).name;file(D+'/'+source.name,source,row,0o644)
+   source=Path('/materials')/row['guest_name'];file(D+'/'+row['guest_name'],source,row,0o644)
  directory(D+'/trust',0o700);directory(D+'/cache',0o700)
  link='/etc/systemd/system/multi-user.target.wants/'+UNIT;directory(link.rsplit('/',1)[0]);K.need(link.lstrip('/') not in nodes,'fresh case enablement link')
  edits.append('symlink '+link+' /etc/systemd/system/'+UNIT)
@@ -82,7 +90,7 @@ def boot(K,R,I,W,packet,cert,guard,deadline):
  K.need(replay.returncode in (0,1),'verification-copy journal replay')
  cmd('readback-readonly-fsck',['e2fsck','-fn',str(raw)],r['cleanup_seconds'])
  before=I.scan(Path('/prepared/guest.raw'),deadline,guard);after=I.scan(raw,deadline,guard)
- preservation=I.preserve(before,after,cert['baseline_certificate']['inventory'])
+ preservation=I.preserve(before,after,cert['baseline_certificate']['inventory'],cert['runtime_certificate'])
  # Bounded selected DATA readback only, never a filesystem/tree export.
  results=W/'results';results.mkdir(mode=0o700)
  F=K.helper('independent_readback.py');prefix=D.lstrip('/')+'/results/'
@@ -108,10 +116,10 @@ def main():
  packet=K.load(Path('/packet/case-packet.json'));cert={n:K.load(Path('/packet')/(n+'.json'))for n in K.EVIDENCE}
  for name,row in packet['files'].items():K.need(K.pin(Path('/packet')/name)=={k:row[k]for k in('bytes','sha256')},'complete packet file pin')
  for name,row in K.load(Path('/work/actor-tools.json'))['files'].items():K.need(K.pin(Path(name).resolve(strict=True))==row,'Root-qualified actual tool image binary')
- for group in ('materials','rollback_materials'):
+ for group in ('materials','rollback_materials','dependency_materials'):
   for name,row in packet[group].items():
    if group=='materials'and name not in K.MATERIALS:continue
-   K.need(K.pin(Path('/materials')/Path(row['path']).name)=={k:row[k]for k in('bytes','sha256')},'actual retained actor material')
+   K.need(K.pin(Path('/materials')/row['guest_name'])=={k:row[k]for k in('bytes','sha256')},'actual retained actor material')
  r=cert['resource_certificate'];W=Path('/work');deadline=K.load(W/'actor-envelope.json')['deadline_monotonic_ns']/10**9
  K.END=deadline
  K.need(0<deadline-time.monotonic()<=r[a.phase+'_seconds'],'finite Root assigned actor envelope')

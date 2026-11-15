@@ -11,6 +11,8 @@ case_data() {
   [[ ! ${seen[$key]+yes} ]] || return 2
   case "$key" in
    nonce) [[ $value =~ ^[0-9a-f]{32}$ ]] || return 2;;
+   dependency_mode) [[ $value == NONE || $value == DB53 ]] || return 2;;
+   baseline_perl_version) [[ $value =~ ^[A-Za-z0-9@+_.:-]{1,128}$ ]] || return 2;;
    recovery_mode) [[ $value == REMOVE || $value == SIGNED_EXACT_OLD_PACKAGE ]] || return 2;;
    signer_fingerprint) [[ $value =~ ^[0-9A-F]{40}$ ]] || return 2;;
    cert_not_before|cert_not_after) [[ $value =~ ^[1-9][0-9]{8,11}$ ]] || return 2;;
@@ -20,7 +22,7 @@ case_data() {
   esac
   seen[$key]=1;printf -v "$key" '%s' "$value";count=$((count+1))
  done < "$D/case.env"
- [[ $count == 13 && $log_bytes -ge 1024 && $log_bytes -le 16777216 ]] || return 2
+ [[ $count == 15 && $log_bytes -ge 1024 && $log_bytes -le 16777216 ]] || return 2
  (( cert_not_before < cert_not_after ))
 }
 file_sha() { local value;value=$(sha256sum -- "$1") || return;printf '%s' "${value%% *}"; }
@@ -39,3 +41,19 @@ bounded() {
 }
 verify_paths() { sha256sum --check --strict --status "$D/runtime-paths.sha256"; }
 inventory() { pacman -Q | sort; }
+
+# The sole mutable ALPM record field accepted by Root's installed lifecycle.
+# Keep the raw record and raw DB manifest separately for durable review.
+normalized_desc() {
+ local source=$1 target=$2 line pending=0 seen=0
+ : > "$target"
+ while IFS= read -r line || [[ -n $line ]];do
+  if [[ $pending == 1 ]];then
+   [[ $line =~ ^[0-9]+$ ]];printf '<NORMAL_ALPM_TRANSACTION_TIME>\n' >> "$target";pending=0
+  else
+   printf '%s\n' "$line" >> "$target"
+   if [[ $line == '%INSTALLDATE%' ]];then seen=$((seen+1));pending=1;fi
+  fi
+ done < "$source"
+ [[ $seen == 1 && $pending == 0 ]]
+}

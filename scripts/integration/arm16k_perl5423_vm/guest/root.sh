@@ -45,9 +45,7 @@ inventory > "$S/base.lock"
 same_bytes "$D/expected-base.lock" "$S/base.lock"
 if [[ $recovery_mode == REMOVE ]];then ! pacman -Q "$PACKAGE" > /dev/null 2>&1;else pacman -Q "$PACKAGE" > "$S/old-perl.lock";fi
 sha256sum --check --strict --status "$D/baseline-paths.sha256"
-mapfile -t dependencies < "$D/dependencies.txt"
-bounded "$run_seconds" "$S/dependencies.log" pacman -T "${dependencies[@]}"
-[[ ! -s $S/dependencies.log ]]
+
 
 user_snapshot() (
  ulimit -f 16384
@@ -70,6 +68,16 @@ payload_snapshot() (
  xargs -0 -r getfattr --no-dereference --absolute-names --dump --match='.*' -- < "$S/$stage.paths" > "$S/$stage.xattr"
  find -P -files0-from "$S/$stage.paths" -maxdepth 0 -type f -print0 | sort -z | xargs -0 -r sha256sum -b -z > "$S/$stage.hash"
  find /var/lib/pacman/local -type f -print0 | sort -z | xargs -0 -r sha256sum -b -z > "$S/$stage.db"
+ if [[ $recovery_mode == SIGNED_EXACT_OLD_PACKAGE ]];then
+  local desc=/var/lib/pacman/local/perl-$baseline_perl_version/desc path hash
+  normalized_desc "$desc" "$S/$stage.perl-desc.normalized"
+  cp -a -- "$desc" "$S/$stage.perl-desc.raw"
+  : > "$S/$stage.db-normalized"
+  while IFS= read -r -d '' path;do
+   if [[ $path == "$desc" ]];then hash=$(file_sha "$S/$stage.perl-desc.normalized");else hash=$(file_sha "$path");fi
+   printf '%s *%s\0' "$hash" "$path" >> "$S/$stage.db-normalized"
+  done < <(find /var/lib/pacman/local -type f -print0 | sort -z)
+ else cp -- "$S/$stage.db" "$S/$stage.db-normalized";fi
  find /var/lib/pacman/local -print0 | sort -z | xargs -0 -r stat --printf='%n\0%f\0%u\0%g\0%h\0%N\0' > "$S/$stage.dbmeta"
  find /var/lib/pacman/local -print0 | sort -z | xargs -0 -r getfattr --no-dereference --absolute-names --dump --match='.*' -- > "$S/$stage.dbxattr"
  for suffix in paths meta hash db xattr dbmeta dbxattr; do
@@ -89,11 +97,7 @@ cache_snapshot() (
   else printf 'ABSENT %s\n' "$path";fi
  done
 )
-phase=sentinels
-[[ ! -e /home/builder/.arm16k-perl5423-sentinel && ! -L /home/builder/.arm16k-perl5423-sentinel && ! -e /root/.arm16k-perl5423-sentinel && ! -L /root/.arm16k-perl5423-sentinel ]]
-printf 'USER %s\n' "$nonce" > /home/builder/.arm16k-perl5423-sentinel
-chown 1000:1000 /home/builder/.arm16k-perl5423-sentinel
-printf 'ROOT %s\n' "$nonce" > /root/.arm16k-perl5423-sentinel
+phase=users
 user_snapshot "$S/user-before"
 phase=baseline
 payload_snapshot before
@@ -104,6 +108,8 @@ for path in /etc/ld.so.cache /var/cache/ldconfig/aux-cache; do
  if [[ -f $path ]]; then cp -a -- "$path" "$S/$name.saved";else [[ ! -e $path ]];touch "$S/$name.absent";fi
 done
 [[ -d /var/cache/ldconfig ]] || touch "$S/ldconfig-directory.absent"
+[[ ! -L /var/log/pacman.log ]]
+if [[ -f /var/log/pacman.log ]];then cp -a -- /var/log/pacman.log "$S/pacman-log-before";else [[ ! -e /var/log/pacman.log ]];: > "$S/pacman-log-before";fi
 phase=trust
 ( cd "$D";sha256sum --check --strict --status "$D/materials.sha256" )
 [[ -d $D/trust && ! -L $D/trust && $(stat -c '%u:%g:%a' "$D/trust") == 0:0:700 ]]
@@ -136,6 +142,20 @@ done < "$S/signature.log"
 if [[ $recovery_mode == SIGNED_EXACT_OLD_PACKAGE ]];then
  gpg_fixed rollback-signature --verify "$D/rollback.pkg.tar.zst.sig" "$D/rollback.pkg.tar.zst"
 fi
+phase=dependency_install
+if [[ $dependency_mode == DB53 ]];then
+ mapfile -t dependencies < "$D/dependency-requires.txt"
+ bounded "$run_seconds" "$S/dependency-requires.log" pacman -T "${dependencies[@]}"
+ [[ ! -s $S/dependency-requires.log ]]
+ bounded "$install_seconds" "$S/dependency-install.log" pacman --config "$D/dependency-pacman.conf" --noconfirm --asdeps -U "$D/db5.3-5.3.28-7-aarch64.pkg.tar.xz"
+ inventory > "$S/dependencies.lock";same_bytes "$D/expected-dependencies.lock" "$S/dependencies.lock"
+ sha256sum --check --strict --status "$D/dependency-payload.sha256"
+ pacman -Qlq db5.3 | sed 's:/$::' | sort -u > "$S/dependency-added.paths"
+ same_bytes "$D/expected-dependency.paths" "$S/dependency-added.paths"
+fi
+mapfile -t dependencies < "$D/dependencies.txt"
+bounded "$run_seconds" "$S/dependencies.log" pacman -T "${dependencies[@]}"
+[[ ! -s $S/dependencies.log ]]
 phase=install
 bounded "$install_seconds" "$S/install.log" pacman --config "$D/pacman.conf" --noconfirm -U "$ARCHIVE"
 inventory > "$S/installed.lock"
@@ -151,6 +171,10 @@ while IFS=$'\t' read -r kind mode uid gid path target extra; do
  case "$kind" in f) [[ -f $path && ! -L $path && $target == - ]];;d) [[ -d $path && ! -L $path && $target == - ]];;l) [[ -L $path && $(readlink -- "$path") == "$target" && $(readlink -f -- "$path") == /usr/* ]];;*) false;;esac
  pacman -Qoq -- "$path" | grep -qx perl
 done < "$D/payload-metadata.tsv"
+while IFS=$'\t' read -r path target extra;do
+ [[ -z $extra && -f $path && ! -L $path && -f $target && ! -L $target ]]
+ [[ $(stat -c '%d:%i' -- "$path") == "$(stat -c '%d:%i' -- "$target")" && $(stat -c '%h' -- "$path") -ge 2 ]]
+done < "$D/hardlinks.tsv"
 pacman -Qlq "$PACKAGE" | sed 's:/$::' | sort -u > "$S/added.paths"
 same_bytes "$D/expected-payload.paths" "$S/added.paths"
 assert_users
@@ -190,6 +214,11 @@ else
  bounded "$remove_seconds" "$S/rollback.log" pacman --config "$D/pacman.conf" --noconfirm "$reason_arg" -U "$D/rollback.pkg.tar.zst"
  pacman -Q "$PACKAGE" > "$S/recovered-perl.lock";same_bytes "$S/old-perl.lock" "$S/recovered-perl.lock"
 fi
+if [[ $dependency_mode == DB53 ]];then
+ bounded "$remove_seconds" "$S/dependency-remove.log" pacman --config "$D/dependency-pacman.conf" --noconfirm -R db5.3
+ comm -23 "$S/dependency-added.paths" <(tr '\0' '\n' < "$S/before.paths" | sed 's:/$::' | sort -u) > "$S/dependency-exclusive.paths"
+ while IFS= read -r path;do [[ ! -e $path && ! -L $path ]];done < "$S/dependency-exclusive.paths"
+fi
 inventory > "$S/final.lock";same_bytes "$S/base.lock" "$S/final.lock"
 bounded "$run_seconds" "$S/database-final.log" pacman -Dk
 sha256sum --check --strict --status "$D/baseline-paths.sha256"
@@ -204,16 +233,20 @@ if [[ -e $S/ldconfig-directory.absent && -d /var/cache/ldconfig ]];then rmdir /v
 cache_snapshot > "$S/after.cache";same_bytes "$S/before.cache" "$S/after.cache"
 phase=restoration
 payload_snapshot after
-for suffix in paths hash db xattr dbmeta dbxattr;do same_bytes "$S/before.$suffix" "$S/after.$suffix";done
+for suffix in paths hash db-normalized xattr dbmeta dbxattr;do same_bytes "$S/before.$suffix" "$S/after.$suffix";done
 same_bytes "$S/before.meta-equality" "$S/after.meta-equality"
 assert_users
-rm -- /home/builder/.arm16k-perl5423-sentinel /root/.arm16k-perl5423-sentinel
+before_log_bytes=$(stat -c '%s' "$S/pacman-log-before")
+head -c "$before_log_bytes" /var/log/pacman.log > "$S/pacman-log-prefix"
+same_bytes "$S/pacman-log-before" "$S/pacman-log-prefix"
+if [[ $recovery_mode == REMOVE ]];then db_policy=EXACT;else db_policy=NORMAL_INSTALLDATE_AND_TRANSACTION_TIMESTAMPS;fi
 bounded "$gpg_seconds" "$S/gpg-stop.log" gpgconf --homedir "$D/trust" --kill all
 rm -rf -- "$D/trust"
 bounded "$sync_seconds" "$S/sync.log" sync -f "$D"
 {
  printf 'PERL5423_RESTORED_BEGIN %s\nSTATUS=PASS\nARCH=aarch64\nPAGESIZE=16384\nPACKAGE=%s\nVERSION=5.42.3-1.3\n' "$nonce" "$PACKAGE"
  printf 'BASE_SHA256=%s\nFINAL_SHA256=%s\n' "$(file_sha "$S/base.lock")" "$(file_sha "$S/final.lock")"
+ printf 'DB_POLICY=%s\n' "$db_policy"
  printf 'FUNCTIONAL_SHA256=%s\nELF_MANIFEST_SHA256=%s\n' "$functional_sha" "$elf_manifest_sha"
  printf 'BASE_PAYLOAD=RESTORED\nBASE_METADATA=RESTORED\nBASE_XATTR=RESTORED\nLOCAL_DB=RESTORED\nUSERS=RESTORED\nUNOWNED_LDCACHE=RESTORED\nPERL_BASELINE=RESTORED\nPRIVATE_TRUST=REMOVED\nHOOKS_SCRIPTLETS=UNSUPPRESSED\nGUEST_SYNC=PASS\nELF_GEOMETRY=HOST_CHECK_REQUIRED\n'
  cat "$D/rtc-clock.env"

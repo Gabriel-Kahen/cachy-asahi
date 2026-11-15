@@ -11,6 +11,19 @@ use Compress::Raw::Zlib;
 use Compress::Raw::Bzip2;
 use threads;
 use threads::shared;
+use DynaLoader;
+my $arch='/usr/lib/perl5/5.42/core_perl';
+for my $module (qw(Config.pm DB_File.pm GDBM_File.pm Compress/Raw/Zlib.pm Compress/Raw/Bzip2.pm threads.pm threads/shared.pm)) {
+    die "foreign module $module" unless ($INC{$module}//'') eq "$arch/$module";
+}
+my %loaded=map { $_=>1 } @DynaLoader::dl_shared_objects;
+for my $object (qw(auto/DB_File/DB_File.so auto/GDBM_File/GDBM_File.so auto/Compress/Raw/Zlib/Zlib.so auto/Compress/Raw/Bzip2/Bzip2.so auto/threads/threads.so)) {
+    die "missing actual candidate XS $object" unless $loaded{"$arch/$object"};
+}
+for my $object (keys %loaded) { die "foreign XS $object" unless index($object,"$arch/")==0; }
+open my $maps,'<','/proc/self/maps' or die "actual libperl maps: $!";
+my @libperl=grep { m{ /usr/lib/perl5/5[.]42/core_perl/CORE/libperl[.]so$} } <$maps>;
+close $maps or die $!;die 'actual shared libperl mapping required' unless @libperl;
 die 'version' unless "$^V" eq 'v5.42.3';
 die 'shared/threaded' unless $Config{useshrplib} eq 'true' && $Config{useithreads} eq 'define';
 my %paths = (prefix=>'/usr', privlib=>'/usr/share/perl5/core_perl', archlib=>'/usr/lib/perl5/5.42/core_perl',

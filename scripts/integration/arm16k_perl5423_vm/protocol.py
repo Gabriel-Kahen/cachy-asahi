@@ -57,12 +57,14 @@ def validate_probe(fields):
     return _exact(fields, PROBE)
 
 
-def validate(fields, expected_base, epoch, now):
+def validate(fields, expected_base, epoch, now, policy='EXACT'):
     """Validate Root receipt DATA; this does not grant ELF or runtime authority."""
     if not isinstance(expected_base, str) or not re.fullmatch('[0-9a-f]{64}', expected_base):
         raise ValueError('exact expected baseline hash required')
-    if set(fields) != set(RESTORED) | HASHES | EPOCHS:
+    if set(fields) != set(RESTORED) | HASHES | EPOCHS | {'DB_POLICY'}:
         raise ValueError('complete exact Root restoration fields required')
+    if policy not in ('EXACT','NORMAL_INSTALLDATE_AND_TRANSACTION_TIMESTAMPS') or fields['DB_POLICY'] != policy:
+        raise ValueError('exact certified database transaction policy required')
     for key, value in RESTORED.items():
         if fields[key] != value:
             raise ValueError('Root restoration result differs: ' + key)

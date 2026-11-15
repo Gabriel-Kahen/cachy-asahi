@@ -18,12 +18,12 @@ def elf(raw):
  offset=struct.unpack_from('<Q',raw,32)[0];width,count=struct.unpack_from('<HH',raw,54)
  K.need(width==56 and 0<count<=1024 and offset+width*count<=len(raw),'ELF program header bound')
  segments=[struct.unpack_from('<IIQQQQQQ',raw,offset+i*width)for i in range(count)];loads=[r for r in segments if r[0]==1]
- K.need(loads and all(r[2]+r[5]<=len(raw) and r[5]<=r[6] and r[7]>=16384 and r[7]&(r[7]-1)==0 and r[2]%16384==r[3]%16384 for r in loads),'actual 16K load geometry')
+ K.need(loads and all(r[2]+r[5]<=len(raw) and r[5]<=r[6] and r[7]>=16384 and r[7]&(r[7]-1)==0 and r[2]%16384==r[3]%16384 and r[2]%r[7]==r[3]%r[7] for r in loads),'actual 16K load geometry')
  return dict(machine=183,LOAD_segments=len(loads),minimum_alignment=min(r[7]for r in loads))
 
 
 def outputs(directory,fields,inventory,runtime,nonce,epoch,now,byte_cap):
- K=module('contracts');P=module('protocol');P.validate(fields,inventory_hash(inventory),epoch,now)
+ K=module('contracts');P=module('protocol');P.validate(fields,inventory_hash(inventory),epoch,now,runtime['rollback']['local_database_policy'])
  root=K.ordinary(directory);elf_paths=[p for p in sorted(runtime['elfs'])if runtime['files'][p]['owner']=='perl']
  expected_elf={str(i)+'.elf':p for i,p in enumerate(elf_paths)}
  names=set(LOGS)|set(expected_elf)|{'outputs.sha256','summary.env'}
