@@ -18,6 +18,9 @@ GIB = 1024**3
 END = None
 RESOURCES = dict(guest_cpus=2,guest_memory_bytes=2*GIB,owner_cpus=2,owner_memory_bytes=3*GIB,boot_owner_memory_bytes=4*GIB,owner_swap_bytes=0,pids=256,raw_cap_bytes=3*GIB,prepare_allocated_cap=2*GIB,boot_allocated_cap=2560*1024**2,overlay_cap_bytes=GIB,base_raw_allocated_cap=640*1024**2,prefix_allocated_cap=512*1024**2,extended_raw_allocated_cap=1280*1024**2,output_metadata_allocated_cap=128*1024**2,reserve_bytes=2*GIB,host_memory_reserve_bytes=2*GIB,prepare_seconds=600,boot_seconds=600,work_seconds=555,cleanup_seconds=45)
 TOOLS = ('bash','uname','id','getconf','pacman','sort','sha256sum','readlink','cat','mkdir','grep','head','sed','stat','timeout','env','date','sleep','sync','cp','rm','ld')
+GUEST_INPUT_KIND = 'ARM16K_RUST_STAGE0_BASE111_DYNAMIC_GCC_INPUTS_V2'
+GCC_S_PATH = '/usr/lib/libgcc_s.so.1'
+GCC_S_PIN = dict(bytes=133352,sha256='ac598673a4bf67c0295b6609e46b1fafd0d4adf3f80a513d61ac49ecff772e48',owner='libgcc',version='16.1.1+r12+g301eb08fa2c5-1',resolved=GCC_S_PATH)
 REQUIRED_PATHS = ['/usr/bin/'+name for name in TOOLS]+['/usr/lib/Scrt1.o','/usr/lib/crti.o','/usr/lib/crtn.o','/lib/ld-linux-aarch64.so.1','/usr/lib/libc.so.6','/usr/lib/libdl.so.2','/usr/lib/libgcc_s.so.1','/usr/lib/libm.so.6','/usr/lib/libpthread.so.0','/usr/lib/librt.so.1','/usr/lib/libz.so.1']
 
 
@@ -134,12 +137,13 @@ def materials(directory,a):
 
 def guest_inputs(path,a,base):
     checked(path,a['guest_inputs']);g = load(path)
-    need(g['kind'] == 'ARM16K_RUST_STAGE0_BASE111_INPUTS_V1' and g['issued_by'] == 'Root' and g['status'] == 'ROOT_REVIEWED_READONLY_BASE111_INPUTS' and g['base_raw'] == base['files']['guest.raw'] and g['expected111'] == pin(HERE/'data/expected111.lock'), 'Root readonly guest input inspection required before actor/clone')
+    need(g['kind'] == GUEST_INPUT_KIND and g['issued_by'] == 'Root' and g['status'] == 'ROOT_REVIEWED_READONLY_BASE111_INPUTS' and g['base_raw'] == base['files']['guest.raw'] and g['expected111'] == pin(HERE/'data/expected111.lock'), 'Root readonly dynamic-gcc guest input inspection required before actor/clone')
     need(set(g['link_inputs']) == {'gcc_s','util','rt','pthread','m','dl','c'}, 'finite direct-ld library inputs incomplete')
     required = set(REQUIRED_PATHS)|set(g['link_inputs'].values())
     need(set(g['files']) == required, 'complete explicit linker/CRT/loader/tool file binding required')
     versions = {r['name']:r['version'] for r in base['base_packages']}
-    for name,chosen in g['link_inputs'].items():need(chosen in ('/usr/lib/lib'+name+'.so','/usr/lib/lib'+name+'.a'), 'direct GNU ld search selection differs')
+    for name,chosen in g['link_inputs'].items():need(chosen in ((GCC_S_PATH,) if name=='gcc_s' else ('/usr/lib/lib'+name+'.so','/usr/lib/lib'+name+'.a')), 'direct GNU ld search selection differs')
+    need(g['files'][GCC_S_PATH] == GCC_S_PIN,'exact retained dynamic libgcc payload/owner/version pin required')
     for path,row in g['files'].items():
         need(path.startswith('/') and '..' not in Path(path).parts and set(row) == {'bytes','sha256','owner','version','resolved'} and type(row['bytes']) is int and row['bytes'] > 0 and re.fullmatch('[0-9a-f]{64}',row['sha256'] or '') and row['owner'] in versions and row['version'] == versions[row['owner']] and row['resolved'].startswith('/usr/'), 'genuine complete base111 file/owner pins required')
     return g
@@ -153,6 +157,16 @@ def quota_guard(auth,parent,phase):
     """
     q=auth['resource_review'].get('quota_guard');parent=ordinary(parent)
     cap=RESOURCES['prepare_allocated_cap'] if phase=='prepare' else RESOURCES['boot_allocated_cap']
+    if type(q) is dict and q.get('status')=='ROOT_REVIEWED_HOME_BTRFS_ENOSYS_CAPACITY_GUARD_FOR_ENTIRE_ACTOR':
+        fields={'issued_by','status','uid','output_parent','device','phase','operation','source_lock','initial_headroom_bytes','live_reserve_bytes','method','on_unknown_or_exhausted','filesystem','unsupported_own_uid_quota','inode_counters','output_node_cap','other_quota_availability','capacity_reservation'}
+        need(set(q)==fields and q.get('issued_by')=='Root' and q.get('method')=='READ_ONLY_Q_GETQUOTA_ENOSYS_AND_LIVE_FSTATVFS','explicit Root home-Btrfs whole-actor capacity guard required')
+        need(type(q.get('uid')) is int and q['uid']==os.getuid()==1000 and type(q.get('device')) is int and q['device']==parent.stat().st_dev==54 and parent!=Path('/home/gabe') and parent.is_relative_to(Path('/home/gabe')) and q.get('output_parent')==str(parent) and phase in ('prepare','boot') and q.get('phase')==phase,'exact home-Btrfs host UID/device/descendant/phase whitelist required')
+        filesystem=dict(root='/home/gabe',device=54,fstype='btrfs',subvolume='/@home',subvolid=257)
+        unsupported=dict(query='Q_GETQUOTA',errno=38,status='UNSUPPORTED_OWN_UID_QUOTA')
+        need(type(q.get('filesystem')) is dict and json.dumps(q['filesystem'],sort_keys=True,allow_nan=False)==json.dumps(filesystem,sort_keys=True) and type(q.get('unsupported_own_uid_quota')) is dict and json.dumps(q['unsupported_own_uid_quota'],sort_keys=True,allow_nan=False)==json.dumps(unsupported,sort_keys=True),'exact home-Btrfs filesystem and ENOSYS own-UID quota observation required')
+        need(q.get('inode_counters')=='ZERO_MEANS_NOT_REPORTED' and type(q.get('output_node_cap')) is int and q['output_node_cap']==15000 and q.get('other_quota_availability')=='UNCLAIMED' and q.get('capacity_reservation') is False,'honest unreported inode/other-quota and non-reservation capacity scope required')
+        need(q.get('operation')==OP and q.get('source_lock')==auth['source_lock'] and type(q.get('initial_headroom_bytes')) is int and q['initial_headroom_bytes']==cap+RESOURCES['reserve_bytes'] and type(q.get('live_reserve_bytes')) is int and q['live_reserve_bytes']==RESOURCES['reserve_bytes'] and q.get('on_unknown_or_exhausted')=='HOLD_AND_OWNED_CLEANUP','exact phase capacity headroom/live reserve/Source contract required')
+        return q
     need(type(q) is dict and q.get('issued_by')=='Root' and q.get('status')=='ROOT_REVIEWED_OWN_UID_QUOTA_GUARD_FOR_ENTIRE_ACTOR','Root whole-actor own-UID quota guard required; df-only or startup-only check insufficient')
     need(q.get('uid')==os.getuid() and q.get('output_parent')==str(parent) and q.get('device')==parent.stat().st_dev and q.get('phase')==phase,'exact host UID/output filesystem/phase quota guard required')
     need(q.get('operation')==OP and q.get('source_lock')==auth['source_lock'] and q.get('initial_headroom_bytes')==cap+RESOURCES['reserve_bytes'] and q.get('live_reserve_bytes')==RESOURCES['reserve_bytes'] and q.get('method')=='READ_ONLY_Q_GETQUOTA' and q.get('on_unknown_or_exhausted')=='HOLD_AND_OWNED_CLEANUP','exact phase quota headroom/live reserve/Source contract required')

@@ -235,7 +235,7 @@
     }
   },
   "issued_by": null,
-  "kind": "ARM16K_RUST_STAGE0_BASE111_INPUTS_V1",
+  "kind": "ARM16K_RUST_STAGE0_BASE111_DYNAMIC_GCC_INPUTS_V2",
   "link_inputs": {
     "c": null,
     "dl": null,
@@ -245,6 +245,6 @@
     "rt": null,
     "util": null
   },
-  "scope": "Root must supply actual readonly111 CRT/loader/linker/tool observations; this template is not qualification",
+  "scope": "Root must supply actual readonly111 CRT/loader/linker/tool observations and the exact retained dynamic libgcc_s.so.1 payload pin; this template is not qualification",
   "status": "UNQUALIFIED"
 }
