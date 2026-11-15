@@ -1,0 +1,46 @@
+pkgbase = cachy-asahi-first-login-ui
+	pkgdesc = Opt-in GTK first-login settings preview, activation, removal and recovery
+	pkgver = 0.2.0
+	pkgrel = 1
+	url = https://github.com/Gabriel-Kahen/cachy-asahi
+	arch = any
+	license = MIT
+	checkdepends = fish
+	checkdepends = zsh
+	depends = python>=3.11
+	depends = python-gobject
+	depends = gtk4
+	depends = cachy-asahi-first-login=0.1.0-2
+	depends = cachy-asahi-setup=0.3.0-1
+	source = LICENSE
+	source = NOTICE
+	source = README.md
+	source = bridge.py
+	source = cachy-asahi-first-login-ui
+	source = first-login-entry-fixture
+	source = first-login-fixture.py
+	source = gui.py
+	source = io.github.GabrielKahen.CachyAsahiFirstLogin.desktop
+	source = setup8-fixture.py
+	source = source-provenance.json
+	source = test_bridge.py
+	source = test_delivery.py
+	source = test_gui.py
+	source = test_support.py
+	sha256sums = 51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7
+	sha256sums = dfa0e6f1fef4442602ca136c68f6e7eb23f887c0e799a2500792df26affc3012
+	sha256sums = f28364e4405b685159a6116c2e641d5051f3de2f2b425badc7fa5c174799c0df
+	sha256sums = 91c565b0a525343c12e5563c4d126a571232a56c536806d4ccca07050392a2db
+	sha256sums = 0943cc4063c4a802d5c835676c056a2e3320e93732208295bfd80f0d26aa5883
+	sha256sums = a5e2b72ff58eac2763c0ad65f36c0c883a60ce20e97c38acc4bace9d30a18144
+	sha256sums = 41ade792884afced7a078c6926d3f18d7a9e40fca50191c7d77d34678711921c
+	sha256sums = 4065166093f380a186ca45b29298ffb61ce10d57fb31e05ba2c201d6628aece5
+	sha256sums = c21993e58240c62ac724c8310ab70c10db72d95abd94f4ecdfb3af3e82716f30
+	sha256sums = 724a37c9832d607455aeda1d929f0ee265ce268aecb64be5e00065c1edf85cf0
+	sha256sums = 8b03bad54b93eb3989ff93bb8faab655b7cb2640151d551b8fd4f0961dc7ca04
+	sha256sums = b730cbe9b2d27d08b6354eab591ad09d3592a9e8d4a10744cb96a4cf519f9009
+	sha256sums = a0757d0a5180881a40c57dd2f061723981374d17bb2f603f14a2b90560440b5e
+	sha256sums = 0cf676397194a9615db973f4328d4bf60714b9dc8874aeb2d598942b5a395981
+	sha256sums = 7385480f0fa3d111bebbc2d09614f6f989cad6d31586db492be3c93b41712225
+
+pkgname = cachy-asahi-first-login-ui
