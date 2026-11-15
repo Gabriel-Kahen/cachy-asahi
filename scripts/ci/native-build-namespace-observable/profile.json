@@ -1,0 +1,97 @@
+{
+  "Reader": "NOT_RUN",
+  "acceptance": false,
+  "actual": {
+    "artifact": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "changes": {
+    "native/build_tools_reader_v2.py": {
+      "after": {
+        "bytes": 106215,
+        "mode": 420,
+        "oid": "3b3e217f07026e40f59c68fbdb0c47d2504b3962",
+        "sha256": "3426a340d1cd95a88280e84c8eee3debcba638abdb84d72dc5f46d05b22511cb"
+      },
+      "before": {
+        "bytes": 100346,
+        "mode": 420,
+        "oid": "c54e94175326f14407a08042826cbad03d3a4ba3",
+        "sha256": "2292e492bf33fea2d079525165293e47e2d817deed71495a3b80d3090a406aa5"
+      }
+    },
+    "native/image_lifecycle.py": {
+      "after": {
+        "bytes": 12996,
+        "mode": 420,
+        "oid": "6c9d339c9a40275447f4781ca578ad9aad9206dc",
+        "sha256": "db316b70634018f4c85c179cabc4abfe28143dd3d863011b18367a050f8e5340"
+      },
+      "before": {
+        "bytes": 13034,
+        "mode": 420,
+        "oid": "5ff9656200fc88681567be84b2efa0e91c23803d",
+        "sha256": "805fabc496f10b67425cc69bdf7793d0e703dae1fab2407d8596391c9e9c5f2b"
+      }
+    },
+    "native/owner.py": {
+      "after": {
+        "bytes": 34037,
+        "mode": 420,
+        "oid": "db7f6fe1dbab6c8d257a3b7aee69de369a37410a",
+        "sha256": "69438adb40bc6d1f8ad624d6c91069a27fcef0c24f03bbdc0005db7037211bfe"
+      },
+      "before": {
+        "bytes": 34048,
+        "mode": 420,
+        "oid": "2cdd06b90bb2defaffb8c13765b24109fc805eba",
+        "sha256": "1ebfc9ca58c65a4441959ff51bdcd6eba494bfc00c2e2d62d78b72e212e85ae9"
+      }
+    },
+    "native/source-map.json": {
+      "after": {
+        "bytes": 39985,
+        "mode": 420,
+        "oid": "d0b71b3aa7d32bce259a4d4604562857ee61210a",
+        "sha256": "bf6d956b671b4c3df38aa579277319c1f4030a9e5efd14778fd9db528072a726"
+      },
+      "before": {
+        "bytes": 39921,
+        "mode": 420,
+        "oid": "dc64e5e7bdbc99c8593f2db8a444ffd1857b5013",
+        "sha256": "7474683e198759876dcee6b31a036473f2129da351fce3bcc8e37770b4a70f79"
+      }
+    }
+  },
+  "factory_inputs": {
+    "bytes": 2810,
+    "sha256": "3d588010e92b058c06bac0d5b2f0229a097ed0d7e0ac2b99eb2743577e8823c2"
+  },
+  "map_rows": 199,
+  "map_sha256": "bf6d956b671b4c3df38aa579277319c1f4030a9e5efd14778fd9db528072a726",
+  "namespace_policy_cause": "UNKNOWN",
+  "native": "NOT_RUN",
+  "operation": "native-build-namespace-preflight-v1",
+  "parent": "6b5b5a8f20ad2698c2d7f14a8f59c9b0ad5da165",
+  "parent_map_sha256": "7474683e198759876dcee6b31a036473f2129da351fce3bcc8e37770b4a70f79",
+  "parent_raw": {
+    "bytes": 396,
+    "sha256": "fe1d2e20d5c67be035a4f3657c11f356bf05a928dec357f788a2940680b1b519"
+  },
+  "parent_tree": "a825d475d248f2254070d256d23780c4ef2d0f4b",
+  "physical_M2": "NOT_RUN",
+  "prospective_tree": "0850f8b2d8e3098a4e65f6cda6ba44698d3381a0",
+  "purpose": "native-build-namespace-observable-source-v1",
+  "reader_helper": {
+    "bytes": 5581,
+    "sha256": "3c39007bea2eb46c08daa4c1d4e94ad43c2ec4036713ccb4839a4fb5305431a1"
+  },
+  "release": "NOT_ADMITTED",
+  "schema": 1,
+  "source_files": 200,
+  "unchanged_files": 196,
+  "visibility": "UNQUIET_TOOLS_IIDFILE_V1"
+}
