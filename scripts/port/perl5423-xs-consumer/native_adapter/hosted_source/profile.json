@@ -1,0 +1,121 @@
+{
+  "accepted": {
+    "BUILDINFO": {
+      "bytes": 14135,
+      "sha256": "2e2c0c86902db7f7dc4890cf2fc4df048da72e0c7a9429ecb13b1122f7271f55"
+    },
+    "PKGINFO": {
+      "bytes": 4483,
+      "sha256": "31461fa035ad9f3761775dc412f3966c1c451c817e51eb5a2412808027133edc"
+    },
+    "Root-decision.json": {
+      "bytes": 5804,
+      "sha256": "27803c99064198f8688abe2e4d91910eef93df5ad337ebfc7f2d8798afbf41e1"
+    },
+    "packages.txt": {
+      "bytes": 6800,
+      "sha256": "579981195b654d8cdf142e4101dfc2bfffbc3576eed50f23796a06e90cf57453"
+    },
+    "perl-5.42.3-1.3-aarch64.pkg.tar.zst": {
+      "bytes": 22071176,
+      "sha256": "647c5f1d2c6965ec2e26b37e75d29c819fafa344f16002153493e9fc62121c22"
+    }
+  },
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "authority": null,
+    "image": null,
+    "job": null,
+    "reader": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "consumer": {
+    "Consumer.xs": {
+      "bytes": 1406,
+      "mode": 420,
+      "sha256": "bcf502b93bb8b6e8196b977a328c5242c56b1c8adb02062e1037c396b8cee5ee"
+    },
+    "Makefile.PL": {
+      "bytes": 1892,
+      "mode": 420,
+      "sha256": "5706dab03e22e73ad8d91a7e75430263603a2a6560bc01559c2d56121addac0e"
+    },
+    "lib/CachyAsahi/Perl5423/Consumer.pm": {
+      "bytes": 181,
+      "mode": 420,
+      "sha256": "9b422015bde54964a1b73f35691192f2a036466ed3904c639dbd7952780df64f"
+    },
+    "native_adapter/native.py": {
+      "bytes": 37003,
+      "mode": 420,
+      "sha256": "40c048fbbb6599bdb61ed8b105708b2d21db8ea2b2732258e1225a48c635d146"
+    },
+    "native_adapter/operation.TEMPLATE.json": {
+      "bytes": 920,
+      "mode": 420,
+      "sha256": "da479e6f241bba07eadcd46c008730119202d59ccc9600e0916a602b6d5c7169"
+    },
+    "native_adapter/support/common.py": {
+      "bytes": 9532,
+      "mode": 420,
+      "sha256": "97cf794d9f08bae3144c50d8b48258e37296cdcb11ba8db8dbed05ac6f7fc725"
+    },
+    "native_adapter/support/data_export.py": {
+      "bytes": 2955,
+      "mode": 420,
+      "sha256": "ac59342608cc8279ccb0aa218da792e72d903960769ab2f4553ee8ea9b5d334e"
+    },
+    "native_adapter/support/runtime.py": {
+      "bytes": 6204,
+      "mode": 420,
+      "sha256": "01e84abc7bce05df42262d8ab7f279be406aa2b63671f2e6f1cb02d08681ba0b"
+    },
+    "preflight.py": {
+      "bytes": 9347,
+      "mode": 420,
+      "sha256": "9e881d5144c49cfa6b4a9abe5bc5172f0d4f00038d94e52426dc88b05473bc0d"
+    },
+    "provenance.pl": {
+      "bytes": 9357,
+      "mode": 420,
+      "sha256": "ae9b547198fdb2313defa89a83589d98f7228c3418b5031c3f9c6fd5088b87eb"
+    },
+    "runner/helpers/owned_child.py": {
+      "bytes": 10908,
+      "mode": 420,
+      "sha256": "eaf9a46630e4fe4ca0a8f94a6dc2de4a881a6ad7e8b4dd0810b3347c0d7038d5"
+    },
+    "runner/run.py": {
+      "bytes": 17549,
+      "mode": 420,
+      "sha256": "bf2903fd1f72fe5c33a71bd00a15f71e7a4ae153d13522682af4f71d660e580e"
+    },
+    "t/roundtrip.t": {
+      "bytes": 1908,
+      "mode": 420,
+      "sha256": "fad9c6668f28f0a584e8b9c56d583d5d763869b8b9dbebbe3e1829435f0fc1ab"
+    }
+  },
+  "license": {
+    "bytes": 1081,
+    "mode": 420,
+    "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+  },
+  "operation": "perl5423-native-xs-v1",
+  "payload": {
+    "xs/entry.py": {
+      "bytes": 31872,
+      "mode": 420,
+      "sha256": "8508b925c9d38a0721e3b1434e16c8386ac9b25838190f8550506883df4d2397"
+    },
+    "xs/prepare_inputs.py": {
+      "bytes": 13338,
+      "mode": 420,
+      "sha256": "b2ceabcd8927caa2bd6bbfc8e5a61e46af0e4a5760faf4dd1efe6daae666a32a"
+    }
+  },
+  "schema": 1
+}

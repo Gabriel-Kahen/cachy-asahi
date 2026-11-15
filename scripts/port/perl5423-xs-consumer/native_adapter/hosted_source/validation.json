@@ -1,0 +1,46 @@
+{
+  "schema": 1,
+  "status": "SOURCE_CONSTRUCTED_AND_ACTOR_FENCED_DATA_JOINS_ONLY",
+  "native_acceptance": false,
+  "XS_acceptance": false,
+  "qualification": "NOT_GRANTED",
+  "actual": {"source": null, "ref": null, "run": null, "job": null, "reader": null, "authority": null, "approval": null, "artifact": null, "image": null},
+  "basis": {
+    "native_adapter_commit": "d08054ab27f4ea0105834ecaee73f028a3a1f4a8",
+    "held_source": "25dc3e65bdb6137c87a9409067fe9b2cf6e9763f",
+    "held_files": 272,
+    "held_map_sha256": "4b1de3aade5116206318570d1d44ee1063342faeab54935748b1b7c179a99e96",
+    "held_tree": "43dfa9d6370abd1424bd5586c5524a6f4b4e1556",
+    "constructor_profile_sha256": "d00345edda901a3c5ce8afd14aae3f837035e0111dea07ffe6de35ba1f01621a",
+    "accepted_package": {"bytes": 22071176, "sha256": "647c5f1d2c6965ec2e26b37e75d29c819fafa344f16002153493e9fc62121c22"},
+    "Root_accepted_pair_decision": {"bytes": 5804, "sha256": "27803c99064198f8688abe2e4d91910eef93df5ad337ebfc7f2d8798afbf41e1"}
+  },
+  "controls": {
+    "3.12.13": {"tests": 4, "status": "PASS_ACTOR_FENCED", "Source_DATA_join": "PASS", "payload_AST": "PASS"},
+    "3.14.6": {"tests": 4, "status": "PASS_ACTOR_FENCED", "Source_DATA_join": "PASS", "payload_AST": "PASS"}
+  },
+  "flags": ["-I", "-B", "-Werror::ResourceWarning"],
+  "constructed_DATA": {
+    "path": "/tmp/perl5423-xs-hosted-source-DATA-20261115-r2/source-tree",
+    "files": 297,
+    "bytes": 87006934,
+    "map": {"bytes": 58348, "sha256": "674cc3d18e954dd1f3f351b357f746e3b9ab1b7580370666061fcb9deeb15efc"},
+    "prospective_tree": "6a1c29b7aa1655943b54de71a89f3900ff1671c9",
+    "publication": "NOT_RUN",
+    "supersedes": "Private DATA r1 only; no Source publication or operational run occurred"
+  },
+  "roles_executed": {
+    "network": 0, "Git_publication": 0, "bootstrap": 0, "Docker_or_daemon": 0,
+    "package_extraction_or_installation": 0, "Perl_or_Perl_syntax_check": 0,
+    "make": 0, "compiler": 0, "XS_load": 0, "Reader": 0, "native_job": 0, "lease": 0
+  },
+  "preservation": "Held272 bytes/modes unchanged inside emitted held/; tracked changes ONLY NEW hosted_source subtree and NEW doc; frozen fixture/runner/native adapter and all shared manifests/workflows unchanged",
+  "limits": [
+    "Separate Root publication/readback/ref/workflow/authority and actual ARM seat remain future roles",
+    "Root accepted exact ARM4K Perl package pair; no external XS result exists yet",
+    "Current DATA joins verify complete bytes/modes and guarded imports, not daemon/preparation/consumer operation",
+    "Future bounded preparation materializes only candidate runtime/header prefix in a disposable owned bundle and launches no Perl/compiler/XS",
+    "New runtime/input identity hashes are delegated observations under Source authority, not independent Root approval",
+    "No target ABI, provider lifecycle, native16K/M2, performance or release qualification"
+  ]
+}
