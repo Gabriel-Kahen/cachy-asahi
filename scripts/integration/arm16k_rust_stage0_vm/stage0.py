@@ -11,6 +11,7 @@ import os
 from pathlib import Path, PurePosixPath
 import stat
 import tarfile
+import time
 
 MIB = 1024**2
 CHUNK = 65536
@@ -256,19 +257,25 @@ def _parents(destination, target):
     return selected
 
 
-def assemble(materials, destination, data_root, spec):
+def assemble(materials, destination, data_root, spec, *, guard=None):
     """Future Root-only streamed DATA assembly into a fresh absent directory.
 
     Complete compressed identities and reviewed inventories are checked, including
     all skipped metadata/installers. No automatic cleanup hides a failed attempt.
     Success returns component/full-tree summaries, never runtime qualification.
     """
+    last=[0.0]
+    def checkpoint(force=False):
+        now=time.monotonic()
+        if guard is not None and (force or now-last[0]>=.5):guard();last[0]=now
+    checkpoint(True)
     materials,destination,data_root = ordinary(materials),ordinary(destination),ordinary(data_root)
     checked = verify_specs(data_root,spec)
     need(materials.is_dir() and not destination.exists() and destination.parent.is_dir(), 'fresh absent private prefix required')
     need(destination.parent.stat().st_uid == os.geteuid() and not destination.parent.stat().st_mode & 0o022 and materials != destination and materials not in destination.parents and destination not in materials.parents and data_root != destination and data_root not in destination.parents and destination not in data_root.parents, 'owned disjoint private prefix parent required')
     # Refuse absent/changed archive bytes before allocating any prefix.
     for archive,plan in checked['archives'].items():
+        checkpoint()
         expected = plan['pin'];need(pin(materials/archive) == {k:expected[k] for k in ('bytes','sha256')}, 'exact local archive identity required: '+archive)
     destination.mkdir(mode=0o700);written = {}
     for archive,plan in checked['archives'].items():
@@ -278,6 +285,7 @@ def assemble(materials, destination, data_root, spec):
             reader = _XZStream(source,expected);info,state = _tar_info();seen = set()
             with tarfile.open(fileobj=reader,mode='r|',tarinfo=info,bufsize=CHUNK) as stream:
                 for item in stream:
+                    checkpoint()
                     member = name(item.name)
                     need(member not in seen and member in indexed and not item.sparse and not any(k.startswith('GNU.sparse') for k in item.pax_headers), 'duplicate/extra/sparse archive member refused')
                     seen.add(member);row = indexed[member]
@@ -299,6 +307,7 @@ def assemble(materials, destination, data_root, spec):
                             h = hashlib.sha256();size = 0
                             with stream.extractfile(item) as payload:
                                 while block := payload.read(CHUNK):
+                                    checkpoint()
                                     size += len(block);need(size <= row['bytes'], 'member expanded byte bound');h.update(block)
                                     if output is not None:output.write(block)
                             need(size == row['bytes'] and h.hexdigest() == row['sha256'], 'complete reviewed member checksum differs')
@@ -330,4 +339,5 @@ def assemble(materials, destination, data_root, spec):
             if p.relative_to(destination).as_posix() not in checked['model']:p.chmod(0o755)
     destination.chmod(0o755)
     full = tree_inventory(destination)
+    checkpoint(True)
     return {'schema':1,'scope':'PRIVATE_PREFIX_DATA_ASSEMBLY_ONLY','component':checked['summary'],'notice_files':len(checked['notices']),'full_tree_sha256':tree_digest(full),'full_nodes':len(full),'installer_execution':False,'compatibility':'UNQUALIFIED'}

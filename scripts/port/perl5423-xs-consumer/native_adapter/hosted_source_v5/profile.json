@@ -1,0 +1,57 @@
+{
+  "accepted_archive": {
+    "bytes": 22071176,
+    "sha256": "647c5f1d2c6965ec2e26b37e75d29c819fafa344f16002153493e9fc62121c22"
+  },
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "authority": null,
+    "image": null,
+    "job": null,
+    "reader": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "captured_config_fields": [
+    "AttachStderr",
+    "AttachStdout",
+    "Hostname",
+    "Image"
+  ],
+  "compiler_manifest": {
+    "bytes": 11025,
+    "sha256": "fa613490865d94362d4d9efe6c5860904158c09733439a9f6c5709168f88d23c"
+  },
+  "delegated_consumer_operation": "perl5423-native-xs-v1",
+  "delegated_image_seal_operation": "perl5423-native-xs-v4",
+  "derived_default_argv": {
+    "Cmd": [
+      "/usr/bin/false"
+    ],
+    "Entrypoint": [
+      "/usr/bin/false"
+    ]
+  },
+  "operation": "perl5423-native-xs-v5",
+  "parent_source": "c23a24a0cff3ce102e2f3240cc86a890b2ad4b0b",
+  "payload": {
+    "consumer/native_adapter/native.py": {
+      "bytes": 44312,
+      "mode": 420,
+      "sha256": "1db474ed81295c3604212998617bb44c1ed0339c224d63f61b06768cef6bde4f"
+    },
+    "xs/entry.py": {
+      "bytes": 33187,
+      "mode": 420,
+      "sha256": "966733f5c20c7168d4d0eb1ffc0b0d08cb8485fbfbe620a7079197a92301e718"
+    }
+  },
+  "proposed_ref": "refs/heads/codex/native-arm-perl5423-xs-v5-20261115",
+  "runtime_manifest": {
+    "bytes": 349767,
+    "sha256": "7004309f83344b49f0f8ca598d8cefcffbc078450944824849ab9c575f1c0cd2"
+  },
+  "schema": 1
+}

@@ -1,0 +1,36 @@
+{
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "attempt": null,
+    "authority": null,
+    "image": null,
+    "job": null,
+    "reader": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "export_sha256": null,
+  "full_original_decode": {
+    "bytes": null,
+    "files": null,
+    "map_sha256": null
+  },
+  "holds_preserved": true,
+  "operation": "llvm23-source-reference-native-v2",
+  "original_archive": {
+    "bytes": null,
+    "sha256": null
+  },
+  "package_sha256": null,
+  "pins_sha256": null,
+  "policy_sha256": "e69b47708f171a63b7fcdcc413d6b53070f047e7240723f06115c02049c8b544",
+  "provider_sha256": null,
+  "reader_sha256": null,
+  "schema": 1,
+  "scope": "ROOT_BOUND_LLVM23_INDEPENDENT_READER_V3",
+  "source_commit_sha256": null,
+  "source_map_sha256": "5c19a2699856e081712d159c551ce496919938bd456f2182c0c905f03cbd2ef0",
+  "source_tree": "2f90eaaaa532d14574c0ce1f1c93b02310f44d91"
+}

@@ -1,0 +1,113 @@
+{
+  "actual_chain": "253->251 self-contained plus actualfrozenv2constructor251->248 canonicalr3/r2 inverse DATA verified",
+  "all_actual_selectors": {
+    "approval": null,
+    "artifact": null,
+    "authority": null,
+    "image": null,
+    "job": null,
+    "reader": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "blocked_external": [
+    "fresh Root Source/ref/map/admission",
+    "separate reviewed newSource Reader binding/projection"
+  ],
+  "changed_existing_operational_leaves": [
+    ".github/workflows/native-arm-build.yml",
+    ".github/workflows/native-arm-llvm23-source-reference-v2.yml",
+    "hosted/common.py"
+  ],
+  "common": {
+    "bytes": 8398,
+    "sha256": "67bdf69692f0014ae4b81e4507a205a9c0d598c2691c7723bbc1a782bc40df5d"
+  },
+  "controls": {
+    "Python3.12.13": {
+      "constructor": 11,
+      "hosted_guard": 11,
+      "seconds": [
+        1.578,
+        0.127
+      ]
+    },
+    "Python3.14.7": {
+      "constructor": 11,
+      "hosted_guard": 11,
+      "seconds": [
+        1.583,
+        0.133
+      ]
+    }
+  },
+  "four_python_actors_frozen": {
+    "actor/container_mode.py": {
+      "bytes": 13147,
+      "mode": 420,
+      "sha256": "b5f8c08db799335f0b6ccbd0873060a429cd0bc31c826af3b929494a83394637"
+    },
+    "actor/entry.py": {
+      "bytes": 12273,
+      "mode": 420,
+      "sha256": "abec9369a7c7dfd752a41f193f0ee6eb775bb0f3b3add994d8f620faa5a66dea"
+    },
+    "actor/runtime.py": {
+      "bytes": 6241,
+      "mode": 420,
+      "sha256": "6a788567f5f8c147a6d79c7ce91cdca5e0fe5bfa718a1048cec80fa115032340"
+    },
+    "actor/work_check.py": {
+      "bytes": 2147,
+      "mode": 420,
+      "sha256": "994a968dc41dd7f37766837d6ec4e45da8f79a0c68d0d909bcbe64756439d0c5"
+    }
+  },
+  "hosted_entry_frozen": {
+    "bytes": 18758,
+    "sha256": "3c3234eb85918ef3d4e44379f8c321abe8d89499d712c8fa2078532f623b0fd6"
+  },
+  "new_leaves": [
+    "previous-v2/source-map.json",
+    "successor-v3.json"
+  ],
+  "not_run": [
+    "actual253 Source construction/publication",
+    "Git hosted Sourceproof",
+    "Source/ref/admission issuance",
+    "GET",
+    "lease",
+    "actor",
+    "native",
+    "M2",
+    "performance",
+    "release"
+  ],
+  "parent": {
+    "bytes": 40807998,
+    "files": 251,
+    "map_sha256": "809f57839dfd574b7abf0c65535321aeac08c58608d4f9597f936a7af78fb3a2",
+    "source": "6d0243dc8f5cf4ee5b9316b8c804f14a3236ecb0",
+    "tree": "87f5aa3537474c2dd33a02c50e869ea5fb25e7b4"
+  },
+  "profile": {
+    "bytes": 1835,
+    "sha256": "aa5e19a9df3da4dbead98ca975a2f791c7a1995cbad398ec76be5231999b6d35"
+  },
+  "profile_gate": "actual exactSHA PASS; wrongSHA REFUSED; CLI publication NOT_RUN",
+  "prospective": {
+    "bytes": 40862047,
+    "files": 253,
+    "map": {
+      "bytes": 49842,
+      "sha256": "5c19a2699856e081712d159c551ce496919938bd456f2182c0c905f03cbd2ef0"
+    },
+    "tree": "2f90eaaaa532d14574c0ce1f1c93b02310f44d91"
+  },
+  "status": "PASS_RENDERED_SOURCE_AND_FENCED_GUARD_DATA_ONLY",
+  "workflow": {
+    "bytes": 11553,
+    "sha256": "26dd9bd9fbae37985e96ba5c6c87105a8531e5ba47a08a602f4914c227fb9615"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "Original_GETs": 0,
+  "Source_or_artifact_code_executed": false,
+  "XS": 0,
+  "actual": {
+    "Reader": null,
+    "acceptance": null,
+    "approval": null,
+    "artifact": null,
+    "authority": null,
+    "image": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "runtime": null,
+    "source": null
+  },
+  "actual_source311_inverse": true,
+  "compiler": 0,
+  "daemon": 0,
+  "image": 0,
+  "lease": 0,
+  "modeled_image_stage": true,
+  "operational_reader_calls": 0,
+  "python": "3.14",
+  "schema": 1,
+  "status": "19_FENCED_DATA_CONTROLS_PASS_SOURCE_ONLY"
+}

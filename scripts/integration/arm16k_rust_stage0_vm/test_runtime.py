@@ -207,5 +207,14 @@ class RuntimeControls(unittest.TestCase):
             h.owned.supervise.assert_called_once()
             self.assertTrue((h.out/'watch-live.json').exists())
 
+    def test_component_growth_during_child_keeps_frozen_retirement(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            h=Harness(Path(tmp));h.clock.step=.2;raw=h.out/'verification-DATA'
+            h.during_spawn=lambda:raw.write_bytes(b'FENCED'*1024)
+            with h.enter(),patch.object(r.os,'waitid',return_value=None),patch.object(r,'allocated',return_value=0),patch.object(r.shutil,'disk_usage',return_value=types.SimpleNamespace(free=1000)),self.assertRaisesRegex(ValueError,'allocated-byte'):
+                r.command(['FENCED-tool'],h.out,'component-live',watched_tree=(h.out,100,10),watched_paths=((raw,1),))
+            h.owned.supervise.assert_called_once()
+            self.assertTrue((h.out/'component-live.json').exists())
+
 
 if __name__=='__main__':unittest.main()

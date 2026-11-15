@@ -1,0 +1,7 @@
+# Corrected253 independent LLVM Reader source
+
+The new `scripts/port/llvm23-native-independent-reader/v3/` targets the 253-file hosted-alias correction (map `5c19a2699856e081712d159c551ce496919938bd456f2182c0c905f03cbd2ef0`, tree `2f90eaaaa532d14574c0ce1f1c93b02310f44d91`). Source/ref and runtime/Root binding/Original selectors remain NULL until genuinely issued. The outer operation stays v2; the old Reader and pre-bootstrap failure 43720263251 remain unchanged and unqualified.
+
+The passive adapter checks the full 253→251→248 inverse against retained parent/ancestor DATA and the exact changed common/workflow operands. A reversible projection affects only historical file reads. Actual new Source/ref/run/job/map are preserved throughout canonical approval, provider, artifact and complete current Source-proof joins; no actual head is projected to 6d. Existing initialization, cap0 runtime, raw retirement, package, ELF and tool checks remain.
+
+Ten fenced control groups passed on Python 3.14 using an exact temporary 253 DATA render plus retained 251/248 inputs and bounded models. Old-head/map/common/proof substitutions and changed inverse metadata refuse. No operational Reader, Original GET, lease, daemon or Source/package actor ran. Publication, a genuine successful new attempt/Original, external Root authority and scoped decision remain required; native 16K, M2, performance and release remain held.

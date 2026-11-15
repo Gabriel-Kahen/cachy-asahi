@@ -67,7 +67,8 @@ The baseline has GNU binutils and glibc, but no GCC. Root must independently
 inspect and certify the existing loader, GNU ld, CRT objects, runtime libraries,
 link-time library selections and fixture tools, with actual hashes, resolved
 paths and ALPM ownership/version, before preparation. The offline actor repeats
-that check against a readonly dump of the original image **before cloning it**.
+that check against a bounded readonly streaming inventory of the original image **before
+cloning it**.
 It must not install dependencies to make this pass.
 
 The archive assembler prehashes all three compressed inputs before creating its
@@ -123,7 +124,7 @@ logout precedes QMP quit. After signal-free natural QEMU exit, final reap and
 empty process group, the same owner converts only the disposable overlay to
 private verification scratch. Because QMP quit is not a shutdown, it replays
 only committed ext4 journal records on that new verification copy and requires
-a separate readonly filesystem check before dumping it. It never replays or
+a separate readonly filesystem check before streaming its inventory. It never replays or
 repairs the selected base or the disposable boot overlay. An offline complete
 all111 ownership comparison,
 protected original PAM/boot/profile/nonce comparison and exact private-prefix
@@ -134,9 +135,9 @@ Each preparation and boot operation has a total 600-second ceiling: 555 seconds
 of work, then at most 45 seconds for cleanup/reporting. Guest compiler commands
 have individual limits and a 360-second combined compiler budget. Remaining
 host deadlines can refuse later phases. Raw logical size is at most 3 GiB
-(the original geometry is retained), overlay file size at most 512 MiB,
-preparation allocated output at most 6 GiB, boot allocated output at most
-4 GiB, with at least 2 GiB free disk and 2 GiB host memory reserve beyond the
+(the original geometry is retained), overlay file size at most **1 GiB**,
+preparation allocated output at most **2 GiB**, boot allocated output at most
+**2.5 GiB**, with at least 2 GiB free disk and 2 GiB host memory reserve beyond the
 phase owner requirement (5 GiB minimum host MemAvailable for preparation,
 6 GiB for boot). Watched subprocesses stop on output/allocation/reserve
 violations. Cleanup Docker calls stop by second597, reserving the final three
@@ -166,11 +167,15 @@ or executable Root wrapper is copied or imported.
 
 Filesystem free space is not the host UID's quota headroom. Root reported a
 12.5 GiB own-UID shared-memory quota; the worker did not query it or change it.
-Preparation still reserves **6 GiB allocated plus 2 GiB reserve = 8 GiB initial
-headroom**; boot reserves **4 GiB plus 2 GiB = 6 GiB**. These are additional free
+Preparation reserves **2 GiB allocated plus 2 GiB reserve = 4 GiB initial
+headroom**; boot reserves **2.5 GiB plus 2 GiB = 4.5 GiB**. These are additional free
 headroom requirements at phase admission, after retained inputs/other outputs
 have already consumed their charges. UI wrapper thresholds of 1500/1152 MiB
-cannot be reused. No additional disk allocation was requested by this update.
+cannot be reused. Measure boot headroom afresh **after retaining preparation outputs**; these
+are separate phase thresholds. Reserving both worst cases simultaneously would
+need 6.5 GiB headroom. The earlier budgets are retained in
+`data/budget-history-d8c10ee2.json`; its 6 GiB preparation allowance was an
+allocated-byte cap, while the logical raw cap was 3 GiB.
 
 Root authority now requires `resource_review.quota_guard` matching
 `quota-guard.TEMPLATE.json`: actual host UID, output parent/device, phase,
@@ -189,6 +194,58 @@ a startup-only quota check does not satisfy this contract. Per-tree allocated
 bytes and `df` checks remain independent supplementary checks. Disk-backed
 scratch avoids treating shared-memory files as cost-free host RAM; Root must
 account for the actual output filesystem in its memory review.
+
+## Physical-budget successor
+
+`data/allocated-budget-v2.json` records the facts, component caps and peak
+model. The original prepared descriptor records 603,406,725 regular bytes and
+31,097 nodes. Its sparse raw is 1,610,612,736 logical bytes and 617,082,880
+allocated bytes. The worker also read only the fixed 1024-byte superblock and
+file stat as passive DATA: 4096-byte ext4 blocks, incompat 0x22c2, rocompat 0x46b,
+inode size 256. No complete baseline scan, export, tool or actor ran.
+
+The previous preparation retained a baseline dump, raw clone, staged prefix
+and complete readback dump together. Even deleting the first dump leaves a
+complete prepared export of about 1.115 GB beside about 1.14 GB of allocated raw;
+that already exceeds 2 GiB before other files. The successor exports no baseline
+or readback bodies. It copies the existing independent ext4 reader unchanged,
+with a thin deadline/identity/profile wrapper that hashes file bodies in place
+and captures only bounded ALPM text (4 MiB per record,16 MiB total). It permits
+256 MiB leaves for the 160,121,840-byte LLVM file, 150k nodes and2 GiB of total reader
+I/O. Unsupported profiles, missing entries, changed hashes, incomplete111 joins
+and unknown ownership still refuse. Readonly e2fsck remains required; the raw
+parser does not establish filesystem checksum/allocation integrity itself.
+
+| Concurrent physical component | Preparation | Boot verification |
+| --- | ---: | ---: |
+| Extended or verification raw, allocated blocks | 1280 MiB | 1280 MiB |
+| Private staged prefix | 512 MiB | 0 |
+| QCOW2 overlay | 0 | 1024 MiB |
+| Output manifests, kernel copies, logs and directory overhead | 128 MiB | 128 MiB |
+| Modeled peak envelope | **1920 MiB** | **2432 MiB** |
+| Enforced total cap | **2048 MiB** | **2560 MiB** |
+
+The input base must fit 640 MiB allocated. Stage0 has 511,504,024 regular bytes
+plus 185,350 notice bytes; the 512 MiB prefix cap also covers fixture files,
+ownership manifests and block/directory rounding. No compressed archives are
+copied: all 108,298,076 input bytes are read from the readonly material mount.
+Only one private prefix is assembled, then deleted after insertion before final
+readback. Node/hash maps live in bounded RAM rather than exported trees.
+The2 GiB envelope covers even the raw+prefix overlap during debugfs insertion.
+Raw logical geometry stays the original 1.5 GiB, below the 3 GiB logical cap;
+logical file length is never charged as physical allocation in this model.
+
+Every component allowance is an **admission/refusal cap, not a measured peak**.
+Preparation checks actual st_blocks for raw, prefix and metadata; streaming
+assembly and inventory loops call periodic finite guards. Command watchers
+retain allocated-total and live-disk-reserve checks. Boot conversion additionally
+watches verification.raw allocated blocks during the child lifetime. Sparse
+conversion can preserve nonzero deleted blocks or journal contents, so live
+payload sums do not prove it will fit 1280 MiB; an excess refuses. Python inventory
+checks retain the same guard/deadline, and all111/PAM/prefix comparisons remain
+complete. This change removes material duplication; it does not relax package,
+Source, natural-retirement, quota-monitor or hardware acceptance requirements.
+Root must record actual peaks when running this new revision.
 
 Frozen baseline process/ownership/RTC helpers remain byte-identical. Thin
 adapters retain child custody across launch/cancellation, defer cancellation

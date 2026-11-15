@@ -70,11 +70,11 @@ class MemoryControls(unittest.TestCase):
         with tempfile.TemporaryDirectory() as t:
             parent=Path(t);auth={'source_lock':{'FENCED':'DATA'},'resource_review':{}}
             with self.assertRaisesRegex(ValueError,'whole-actor'):K.quota_guard(auth,parent,'prepare')
-            q=dict(issued_by='Root',status='ROOT_REVIEWED_OWN_UID_QUOTA_GUARD_FOR_ENTIRE_ACTOR',uid=K.os.getuid(),output_parent=str(parent),device=parent.stat().st_dev,phase='prepare',operation=K.OP,source_lock=auth['source_lock'],initial_headroom_bytes=8*1024**3,live_reserve_bytes=2*1024**3,method='READ_ONLY_Q_GETQUOTA',on_unknown_or_exhausted='HOLD_AND_OWNED_CLEANUP');auth['resource_review']['quota_guard']=q
+            q=dict(issued_by='Root',status='ROOT_REVIEWED_OWN_UID_QUOTA_GUARD_FOR_ENTIRE_ACTOR',uid=K.os.getuid(),output_parent=str(parent),device=parent.stat().st_dev,phase='prepare',operation=K.OP,source_lock=auth['source_lock'],initial_headroom_bytes=4*1024**3,live_reserve_bytes=2*1024**3,method='READ_ONLY_Q_GETQUOTA',on_unknown_or_exhausted='HOLD_AND_OWNED_CLEANUP');auth['resource_review']['quota_guard']=q
             self.assertEqual(K.quota_guard(auth,parent,'prepare'),q)
             q['initial_headroom_bytes']=1500*1024**2
             with self.assertRaisesRegex(ValueError,'headroom'):K.quota_guard(auth,parent,'prepare')
-            q.update(phase='boot',initial_headroom_bytes=6*1024**3)
+            q.update(phase='boot',initial_headroom_bytes=4608*1024**2)
             self.assertEqual(K.quota_guard(auth,parent,'boot'),q)
 
 

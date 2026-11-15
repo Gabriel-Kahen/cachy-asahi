@@ -1,0 +1,230 @@
+{
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "image": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "bytes": 41419617,
+  "constructor_files": {
+    "README.md": {
+      "bytes": 5575,
+      "mode": 420,
+      "sha256": "66d88ffc229c56fa1118109bfa7ecfaa43e88b4b85e39d2f17729f6ee9e59e38"
+    },
+    "ci-routing.json": {
+      "bytes": 1718,
+      "mode": 420,
+      "sha256": "178534cb00eaec7d5383b89d71af8728e72b4515f52268ee3c0d17d893e3c642"
+    },
+    "operator/dispatch_six.py": {
+      "bytes": 7121,
+      "mode": 420,
+      "sha256": "7289722cb5125d4cd67f0fbd2f34e9e9bddd1bf063378cbacf1133dcbc47c292"
+    },
+    "payload/actor/entry.py": {
+      "bytes": 21100,
+      "mode": 420,
+      "sha256": "f40651ac157f81e5124c7c1346cf85b151c4c24ab6ffcadb70c8111b1070a93c"
+    },
+    "payload/actor/qualify.py": {
+      "bytes": 11655,
+      "mode": 420,
+      "sha256": "5c6724fd1872ffac424108dae9fee5a4862d9db5c63bc1a9fcd86ae39c9b3b1a"
+    },
+    "payload/admission.py": {
+      "bytes": 27180,
+      "mode": 420,
+      "sha256": "5d38b340e5027de6cf1196c19152143c6876718a55cf9506dc9ac315160eb588"
+    },
+    "payload/frozen/bootstrap349.py": {
+      "bytes": 16757,
+      "mode": 420,
+      "sha256": "27e17683ba185d6959307b081ab86be4c7740ef5dbb8dff9c850670eda2ec008"
+    },
+    "payload/frozen/rust199-admission-v1.py": {
+      "bytes": 20757,
+      "mode": 420,
+      "sha256": "a548f56b0759ae2ecd90ee79fed8c1e254a032dbaa0726f15e673e139b946c30"
+    },
+    "payload/hosted/bootstrap.py": {
+      "bytes": 29148,
+      "mode": 420,
+      "sha256": "b18e4aaaf137a976f065a55ca219b8f7a9b055ea4356aeda2fd8aacf43662d67"
+    },
+    "payload/hosted/entry.py": {
+      "bytes": 19080,
+      "mode": 420,
+      "sha256": "db9e5dedbcc0467eebac75c4d0e9536eb2857236ad4bf39ed8576669a4de827d"
+    },
+    "payload/hosted/materials.py": {
+      "bytes": 22664,
+      "mode": 420,
+      "sha256": "f822722db59fc398e32378060a9c72775c3cd0e74dfbf947dc4e9d59e79d8728"
+    },
+    "payload/hosted/phase_transfer.py": {
+      "bytes": 23980,
+      "mode": 420,
+      "sha256": "68889170688b672b67cf27af71501c859c54e19aa438260c21e0dcfa2c2a9522"
+    },
+    "payload/hosted/producer.py": {
+      "bytes": 32146,
+      "mode": 420,
+      "sha256": "f7f042c992a6d7bd2c2f22b34c8b5095b17eb6a63ee8605e6dce76a9bae4650c"
+    },
+    "payload/hosted/qualification.py": {
+      "bytes": 18320,
+      "mode": 420,
+      "sha256": "fbb39f006a261526afc3507f52d3c2b81fa6ad452d6aba52dd9b8daafc3af063"
+    },
+    "payload/llvm-v2/candidate-map.json": {
+      "bytes": 3647,
+      "mode": 420,
+      "sha256": "5b774ea14a33314de5c1ab6af5aef4cbd5dc04718c2c6cec2f20dc97425d7c93"
+    },
+    "payload/llvm-v2/contract.json": {
+      "bytes": 3148,
+      "mode": 420,
+      "sha256": "40e01661102dee517c5f535696c4625b6c57aa68c3985a89014f9475643da469"
+    },
+    "payload/llvm-v2/independent-reader-v3/base.py": {
+      "bytes": 2593,
+      "mode": 420,
+      "sha256": "6d6d6c00d686ea97e6cd9702b61c545d630418be1f18ac3fe9b1ff7da82cd610"
+    },
+    "payload/llvm-v2/independent-reader-v3/pins.json": {
+      "bytes": 6486,
+      "mode": 420,
+      "sha256": "3adab3af82327142762aa4d366993aa9695e9d25a012f0b72c07cb611f926439"
+    },
+    "payload/llvm-v2/independent-reader-v3/profile.json": {
+      "bytes": 3048,
+      "mode": 420,
+      "sha256": "8860534587527cb6f9d010d54f635934bc273b6ee32b451a6476ffc47c171a86"
+    },
+    "payload/llvm-v2/independent-reader-v3/reader.py": {
+      "bytes": 9442,
+      "mode": 420,
+      "sha256": "1edb14485c8df4b880750e0d783fe4f732e88ed9d17119ef491fb7cfe65cd8c6"
+    },
+    "payload/llvm-v2/policy.json": {
+      "bytes": 1114,
+      "mode": 420,
+      "sha256": "e69b47708f171a63b7fcdcc413d6b53070f047e7240723f06115c02049c8b544"
+    },
+    "payload/llvm-v2/reader.py": {
+      "bytes": 15764,
+      "mode": 420,
+      "sha256": "b939343e3607b985e79c70c8f420e1a26dadf8433242d17df11b8b5be21eacb1"
+    },
+    "payload/llvm-v2/source.json": {
+      "bytes": 2892,
+      "mode": 420,
+      "sha256": "883e1eba00457207666402f9adab4d3c9d0a514e4c05c71f744c437228d20460"
+    },
+    "payload/resource-policy.json": {
+      "bytes": 1615,
+      "mode": 420,
+      "sha256": "43d6dd01534530dede9d3e58e78bf296e625d7ada2804b3c1e06adf2823dbb3b"
+    },
+    "prepare.py": {
+      "bytes": 10105,
+      "mode": 420,
+      "sha256": "6288839dd329a6e5b126a385ccd3be384344a5ee9b4559546038849cf0cb37c8"
+    },
+    "test_actor_binding.py": {
+      "bytes": 1955,
+      "mode": 420,
+      "sha256": "98a774196405be06e17a444afa579bb86b20a9586fca49b4283563be8b1258cb"
+    },
+    "test_admission.py": {
+      "bytes": 3556,
+      "mode": 420,
+      "sha256": "ebd741ea8a936d355e048be80c9e73751db29e8bf8879c0d2502744701ec5423"
+    },
+    "test_binding.py": {
+      "bytes": 6059,
+      "mode": 420,
+      "sha256": "0c1e25e060ea06bbfe29f16967ad9df1671661b9ab7b16f9f7f3c19d093ec3e9"
+    },
+    "test_bootstrap.py": {
+      "bytes": 10808,
+      "mode": 420,
+      "sha256": "95696aa7b90d0bf0b797fa7cbb62421c2c71864985b90421fc15845294c58346"
+    },
+    "test_caps.py": {
+      "bytes": 1551,
+      "mode": 420,
+      "sha256": "5d4370685a53732350a5766ba0c93f66227996142694fed5772f5c6209f65213"
+    },
+    "test_materials.py": {
+      "bytes": 12005,
+      "mode": 420,
+      "sha256": "a24ab0ebba433e08a794e4435e5673e0130d44854f4679340e0bcc0b428f89e3"
+    },
+    "test_orchestration.py": {
+      "bytes": 8194,
+      "mode": 420,
+      "sha256": "442578a87b99b83295237a4a510fd6b2a09a01cdcc5f8f310ff23f745899d47a"
+    },
+    "test_qualification.py": {
+      "bytes": 6723,
+      "mode": 420,
+      "sha256": "c6dcfef3fd688dd0206085e563a4a2d7f2c55b60dde2caae3175a65e1c109095"
+    },
+    "test_resources.py": {
+      "bytes": 2521,
+      "mode": 420,
+      "sha256": "d59b612da708a7b57aa4ccdc6c98966734542e4bc21fcb998ac8675f1aa2e371"
+    },
+    "test_six.py": {
+      "bytes": 6548,
+      "mode": 420,
+      "sha256": "cd308cd63d7bd4d88929991f07d873bc62c4fb96991c6aceb77d740c319c077a"
+    },
+    "test_source.py": {
+      "bytes": 3623,
+      "mode": 420,
+      "sha256": "edf39aed86125cf14a13ebb9585015572298777367455a76ab96872cc2711dfc"
+    },
+    "test_transfer.py": {
+      "bytes": 14526,
+      "mode": 420,
+      "sha256": "33a93be71d10145a41e59d6ede6d8c66def727f91d48ce350852da59b42e62a6"
+    },
+    "workflow.yml.in": {
+      "bytes": 15883,
+      "mode": 420,
+      "sha256": "7f3284e81fb439e35a3317371794639f37fd106169b9a58f962bb62e9f57f9ac"
+    }
+  },
+  "files": 298,
+  "llvm": {
+    "bytes": 40862047,
+    "files": 253,
+    "map_sha256": "5c19a2699856e081712d159c551ce496919938bd456f2182c0c905f03cbd2ef0",
+    "operation": "llvm23-source-reference-native-v2",
+    "profile_sha256": "aa5e19a9df3da4dbead98ca975a2f791c7a1995cbad398ec76be5231999b6d35",
+    "ref": null,
+    "sha": null,
+    "tree": "2f90eaaaa532d14574c0ce1f1c93b02310f44d91"
+  },
+  "map_sha256": "233a863c73b1ef051fae047a16486a86a7efaffadc8d06d2bcf034e22f7c831e",
+  "native": "NOT_RUN",
+  "original9d_sha256": "9d014a2c5405f2ba5a478143545629cd5499eda2218a7306ca20cd4f24d5f94f",
+  "parent": {
+    "bytes": 41158325,
+    "development_commit": "2682c9b62a362836690e28bbfbb443f9c240e54d",
+    "files": 286,
+    "map_sha256": "6169aa50524527f00b4829bf34b882a5abb2912bbc1eabe5562ddc76f20509cd",
+    "profile_sha256": "1702cde18560918351c2ac4edce176ee6fffffb5f326a7169a871a644220c0a2",
+    "tree": "9baf15a44fd60792299d2260d7c0d0473319b31e"
+  },
+  "pending": "LLVM253_SUPERSEDED_CAPFIX_SOURCE_REJOIN_REQUIRED_BEFORE_PUBLICATION_OR_RUN",
+  "schema": 4,
+  "status": "REVIEWABLE_DATA_CHECKPOINT_NOT_RUNNABLE",
+  "tree": "b85b1c6f22a378c1518bfffb25330c509666b57a"
+}

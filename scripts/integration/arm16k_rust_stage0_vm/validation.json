@@ -28,16 +28,27 @@
     "release admission",
     "actual cgroup diagnostics",
     "actual quota query or change",
-    "external Root whole-actor quota monitor"
+    "external Root whole-actor quota monitor",
+    "complete actual baseline or prepared-image inventory"
   ],
   "passive_JSON": "PASS",
+  "passive_baseline_observation": {
+    "allocated_bytes": 617082880,
+    "block_bytes": 4096,
+    "bytes_read": 1024,
+    "incompat": "0x22c2",
+    "inode_bytes": 256,
+    "logical_bytes": 1610612736,
+    "rocompat": "0x46b",
+    "scope": "FIXED_SUPERBLOCK_AND_STAT_ONLY"
+  },
   "passive_python_syntax": "PASS",
   "schema": 1,
   "status": "PASS_FENCED_CONTROLS_ONLY",
   "unittest": {
     "command": "PYTHONDONTWRITEBYTECODE=1 python3 -B -m unittest discover -s scripts/integration/arm16k_rust_stage0_vm -v",
     "failed": 0,
-    "passed": 42,
-    "scope": "tiny synthetic archives/DATA/cgroup trees/nonce frames/mocked children; no operational child spawn"
+    "passed": 59,
+    "scope": "tiny synthetic archives/DATA/cgroup trees, mocked ext4 inventory, nonce frames/mocked children; no operational child spawn"
   }
 }

@@ -1,0 +1,26 @@
+{
+  "base_test_changes": [],
+  "commands": [
+    "python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v4/test_actor_binding.py",
+    "python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v4/test_admission.py",
+    "python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v4/test_binding.py",
+    "python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v4/test_bootstrap.py",
+    "python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v4/test_caps.py",
+    "python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v4/test_materials.py",
+    "python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v4/test_orchestration.py",
+    "python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v4/test_qualification.py",
+    "python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v4/test_resources.py",
+    "python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v4/test_six.py",
+    "python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v4/test_source.py",
+    "python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v4/test_transfer.py"
+  ],
+  "isolation": "ONE_PYTHON_PROCESS_PER_SCRIPT",
+  "native_roles": "NOT_RUN",
+  "python_versions": [
+    "3.12",
+    "3.14"
+  ],
+  "relax_permanent_audit_fence": false,
+  "schema": 1,
+  "status": "PORTABLE_FENCED_DATA_CONTROLS_ONLY"
+}
