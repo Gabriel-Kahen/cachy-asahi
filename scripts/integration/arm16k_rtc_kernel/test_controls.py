@@ -77,6 +77,37 @@ class Controls(unittest.TestCase):
    for flags in (2,5):
     raw=bytearray(64);raw[56:60]=b'ARM\x64';struct.pack_into('<Q',raw,24,flags);p.write_bytes(raw)
     with self.assertRaises(ValueError):C.header(p)
+ def test_bss_effective_span_larger_than_file_is_valid(self):
+  with tempfile.TemporaryDirectory() as tmp:
+   p=Path(tmp)/'Image';raw=bytearray(64);raw[56:60]=b'ARM\x64';struct.pack_into('<Q',raw,24,4);struct.pack_into('<Q',raw,16,128*1024**2);p.write_bytes(raw);self.assertEqual(C.header(p)['effective_image_size'],128*1024**2)
+ def test_zero_and_over_cap_effective_span_refused(self):
+  with tempfile.TemporaryDirectory() as tmp:
+   p=Path(tmp)/'Image'
+   for span in (0,128*1024**2+1):
+    raw=bytearray(64);raw[56:60]=b'ARM\x64';struct.pack_into('<Q',raw,24,4);struct.pack_into('<Q',raw,16,span);p.write_bytes(raw)
+    with self.subTest(span=span),self.assertRaises(ValueError):C.header(p)
+ def test_wrong_magic_refused(self):
+  with tempfile.TemporaryDirectory() as tmp:
+   p=Path(tmp)/'Image';p.write_bytes(bytes(64))
+   with self.assertRaises(ValueError):C.header(p)
+ def test_over_cap_image_file_refused(self):
+  with tempfile.TemporaryDirectory() as tmp:
+   p=Path(tmp)/'Image';raw=bytearray(64);raw[56:60]=b'ARM\x64';struct.pack_into('<Q',raw,24,4);struct.pack_into('<Q',raw,16,64);p.write_bytes(raw)
+   with p.open('ab') as stream:stream.truncate(C.IMAGE_FILE_CAP+1)
+   with self.assertRaises(ValueError):C.header(p)
+ def test_rejected_image_and_raw_decoded_header_retained_before_validation(self):
+  with tempfile.TemporaryDirectory() as tmp:
+   root=Path(tmp);image=root/'Image';image.write_bytes(bytes(64));out=root/'output';out.mkdir();retained,fields=B.retain_image(C,image,out)
+   with self.assertRaises(ValueError):C.header(retained)
+   self.assertEqual(retained.read_bytes(),image.read_bytes());self.assertEqual((out/'image-header.bin').read_bytes(),bytes(64));self.assertEqual(json.loads((out/'image-header.json').read_text()),fields);self.assertFalse((out/'bundle').exists())
+ def test_total_output_budget_refuses_copy_but_retains_header(self):
+  with tempfile.TemporaryDirectory() as tmp:
+   root=Path(tmp);image=root/'Image';image.write_bytes(bytes(64));out=root/'output';out.mkdir()
+   with (out/'other').open('wb') as stream:stream.truncate(C.IMAGE_FILE_CAP)
+   with self.assertRaises(ValueError):B.retain_image(C,image,out)
+   self.assertTrue((out/'image-header.bin').is_file());self.assertTrue((out/'image-header.json').is_file());self.assertFalse((out/'observed-Image').exists())
+ def test_exact_upstream_effective_memory_span_evidence(self):
+  self.assertIn('_kernel_size_le, _end - _text',(HERE/'data/arm64-image.h').read_text());lds=(HERE/'data/arm64-vmlinux.lds.S').read_text();self.assertLess(lds.index('_edata = .;'),lds.index('BSS_SECTION(SBSS_ALIGN'));self.assertLess(lds.index('BSS_SECTION(SBSS_ALIGN'),lds.index('\n\t_end = .;'));self.assertIn('Effective Image size',(HERE/'data/arm64-booting.rst').read_text())
  def test_pending_tool_profile_refused(self):
   p=HERE/'tool-profile.template.json'
   with self.assertRaisesRegex(ValueError,'pending'):T.profile(p,C.pin(p)['sha256'],C)

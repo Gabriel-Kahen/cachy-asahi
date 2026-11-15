@@ -26,6 +26,11 @@
     "config"
   ],
   "guest_boot": "NOT RUN",
+  "image_effective_memory_span_bytes": {
+    "max": 134217728,
+    "min": 1
+  },
+  "image_file_bytes_max": 67108864,
   "kernel_release": "7.1.13-generic16k-managed-gui-rtc1",
   "kind": "ARM16K_RTC_REFERENCE_KERNEL_BUNDLE_V1",
   "native16K": "NOT RUN",

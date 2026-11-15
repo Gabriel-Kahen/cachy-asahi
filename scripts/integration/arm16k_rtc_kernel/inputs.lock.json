@@ -30,6 +30,18 @@
       "bytes": 18600,
       "sha256": "8780e78a1a737e127f25a65f6d95269bffd36158dc261114de7859b490bfc5aa"
     },
+    "arm64-booting.rst": {
+      "bytes": 22716,
+      "sha256": "4312d0ef56380dfedd0e2ed0f4375d158e006affbba269877347b0b1b0b55ea0"
+    },
+    "arm64-image.h": {
+      "bytes": 2075,
+      "sha256": "38250b439a9f562a38c590755237d4557768cabc8b803d186d9c618feeebebfa"
+    },
+    "arm64-vmlinux.lds.S": {
+      "bytes": 10339,
+      "sha256": "5b3f7c0af1f2b88fbdb2e25768a6da070b7009271c63c1c85cba5f80324b7899"
+    },
     "baseline.config": {
       "bytes": 68789,
       "sha256": "e97d54d4852eceb6cba28c38f78d4a00aacbfdb0c1523cb96366590f7eaa915b"
