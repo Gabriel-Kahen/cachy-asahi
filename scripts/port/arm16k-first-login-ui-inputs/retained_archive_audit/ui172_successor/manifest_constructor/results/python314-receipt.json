@@ -1,0 +1,52 @@
+{
+  "archives": 172,
+  "baseline": 111,
+  "fixed_baseline_leaves": 7,
+  "inputs": {
+    "baseline": {
+      "bytes": 1704403,
+      "path": "/tmp/cachy-asahi-arm16k-baseline-namespace-20261115-v2/baseline-namespace.json",
+      "sha256": "082eb121e387d919fd336bda4418383d25c82d4b8013ba415d32d03d74248fb7"
+    },
+    "contract": {
+      "bytes": 5444,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi-rust-inputs-parallel-20261114/scripts/port/arm16k-first-login-ui-inputs/retained_archive_audit/ui172_successor/manifest_constructor/contract.json",
+      "sha256": "6753e1c0dbbf9538aa4ec2022944790759aa2e9cedcd91b3b2a561da866600fd"
+    },
+    "ledger": {
+      "bytes": 1342322,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi-rust-inputs-parallel-20261114/scripts/port/arm16k-first-login-ui-inputs/retained_archive_audit/ui172_successor/results/authenticated-ledger.json",
+      "sha256": "14ce01ec52de1d1eff40b4644df0c300a5a5f5735362afce332464aa2f00e524"
+    },
+    "lower155": {
+      "bytes": 2001071,
+      "path": "/dev/shm/cachy-asahi-arm16k-virtio-seat-materials-root-20261115-r1/Root-additions-manifest.ACTUAL-r1.json",
+      "sha256": "3934cbe28637d3dd88bb1f32e6db617055d09e84d5d8c12547dfa0573fcece24"
+    },
+    "proposal": {
+      "bytes": 449748,
+      "path": "/tmp/cachy-asahi-arm16k-UI-NM-current-Xvfb-proposal-20261115/proposal.json",
+      "sha256": "acc8eeae38de61fb0db844b621884a0d66b76f129e5a076c533d870f6e0856e6"
+    }
+  },
+  "limits": {
+    "address_space_bytes": 268435456,
+    "file_input_bytes": 8388608,
+    "output_bytes": 8388608,
+    "total_input_bytes": 16777216,
+    "wall_seconds": 30
+  },
+  "metadata_bytes_read": 5519187,
+  "metadata_edges": 1319,
+  "namespace": 14,
+  "official": 169,
+  "package_archive_signature_keyring_rootfs_reads": 0,
+  "producer": {
+    "bytes": 16652,
+    "sha256": "530abb3dd8df3703a113a9073aa5ed4ab3fbd3317099b4c956d2d61be4e43b69"
+  },
+  "project_TEST": 3,
+  "runtime_admission": "REFUSED_NULL_ROOT_FIELDS",
+  "seconds": 0.088,
+  "status": "PASS_PURE_DATA_JOIN_ROOT_ADMISSION_HELD"
+}

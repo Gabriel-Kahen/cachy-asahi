@@ -1,0 +1,163 @@
+{
+  "baseline_metadata_association": {
+    "method": "per-package exact version/directory plus sorted provides/owned normalized paths; derived from actual222rawmetadata joins",
+    "normalized_bytes": 1347256,
+    "sha256": "bb7deff9b41610e454244b4b6c87529a8007795703417a788d2dfbcad7d1683b",
+    "source_report": {
+      "bytes": 1704403,
+      "sha256": "082eb121e387d919fd336bda4418383d25c82d4b8013ba415d32d03d74248fb7"
+    }
+  },
+  "composition": {
+    "additions": 172,
+    "archive_bytes": 157094632,
+    "baseline": 111,
+    "bytes": 449748,
+    "conflicts": [],
+    "dependency_relations": 1319,
+    "errors": [],
+    "final": 283,
+    "metadata_status": "PASS_EXPLICIT_FINITE_METADATA_PREPARE",
+    "path": "/tmp/cachy-asahi-arm16k-UI-NM-current-Xvfb-proposal-20261115/proposal.json",
+    "questions": [],
+    "removals": [],
+    "root_change": {
+      "after": "21.1.26-1",
+      "archive": {
+        "bytes": 705736,
+        "filename": "xorg-server-xvfb-21.1.26-1-aarch64.pkg.tar.xz",
+        "sha256": "c4729aaf327fae3f19795f4fbcad8035798316d4c812c56953c32796f1cf916c",
+        "signature_bytes": 566,
+        "signature_sha256": "b897acfedc03067a68f1c28bf7ad2d62ee78365fe83a4d48a081910dc57a90e7"
+      },
+      "before": "21.1.25-1",
+      "name": "xorg-server-xvfb"
+    },
+    "sha256": "acc8eeae38de61fb0db844b621884a0d66b76f129e5a076c533d870f6e0856e6"
+  },
+  "constants": {
+    "OFFICIAL": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+    "POLICY": "6002ee5e8fcf3cfdd25fa5425c5dfa879dc293f8b1c69f14b4a8f9259be0b446",
+    "PROJECT": {
+      "cachy-asahi-first-login": "d4b7291afedc2af95d89f3975c77c45e417125bf23818cbfd1dc7d53fb464839",
+      "cachy-asahi-first-login-ui": "869fb4f1dcf7fc26ff87594398eba8d15d4a8051e6feaf96d4b8fe457ccb4ea4",
+      "cachy-asahi-setup": "8de3bd0cf2d9333b41925fecdef5cbfe2ec6d40c3424d90746182142e0c7dc47"
+    },
+    "REQUIRED": {
+      "usr/bin/Xvfb": "xorg-server-xvfb",
+      "usr/bin/cachy-asahi-first-login": "cachy-asahi-first-login",
+      "usr/bin/cachy-asahi-first-login-ui": "cachy-asahi-first-login-ui",
+      "usr/bin/cachy-asahi-setup": "cachy-asahi-setup",
+      "usr/bin/fish": "fish",
+      "usr/bin/python3": "python",
+      "usr/bin/xauth": "xorg-xauth",
+      "usr/bin/xvfb-run": "xorg-server-xvfb",
+      "usr/bin/zsh": "zsh",
+      "usr/lib/girepository-1.0/Gtk-4.0.typelib": "gtk4",
+      "usr/lib/python3.14/site-packages/gi/__init__.py": "python-gobject",
+      "usr/share/polkit-1/actions/org.freedesktop.NetworkManager.policy": "networkmanager"
+    }
+  },
+  "consumer_source": {
+    "bytes": 16199,
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi-rust-inputs-parallel-20261114/scripts/port/arm16k-first-login-ui-inputs/retained_archive_audit/ui172_successor/manifest_constructor/consumer-contract.py.data",
+    "sha256": "a8fba60239d3ee5edfa32380e9d63db3dda422186c479ff6924761eabbbc385d"
+  },
+  "fixed_NM_policy": {
+    "bytes": 188810,
+    "gid": 0,
+    "link": "",
+    "mode": 420,
+    "sha256": "6002ee5e8fcf3cfdd25fa5425c5dfa879dc293f8b1c69f14b4a8f9259be0b446",
+    "type": "0",
+    "uid": 0
+  },
+  "fixed_baseline_namespace": {
+    "etc/pam.d/login": {
+      "owner": "util-linux",
+      "payload": {
+        "bytes": 222,
+        "gid": 0,
+        "link": "",
+        "mode": 420,
+        "sha256": "ee917d55042f78b8bb03f5467e5233e3e2ddc2fe01e302bc53b218003fe22275",
+        "type": "0",
+        "uid": 0
+      }
+    },
+    "etc/pam.d/system-auth": {
+      "owner": "pambase",
+      "payload": {
+        "bytes": 1317,
+        "gid": 0,
+        "link": "",
+        "mode": 420,
+        "sha256": "2bb19ead55a7b9014d107eec63cc015426c39d93ddc8af3322649ff5f8b45d5b",
+        "type": "0",
+        "uid": 0
+      }
+    },
+    "etc/pam.d/system-local-login": {
+      "owner": "pambase",
+      "payload": {
+        "bytes": 143,
+        "gid": 0,
+        "link": "",
+        "mode": 420,
+        "sha256": "005736b9bd650ff5e5d82a7e288853776d5bb8c90185d5774c07231c1e1c64a9",
+        "type": "0",
+        "uid": 0
+      }
+    },
+    "etc/pam.d/system-login": {
+      "owner": "pambase",
+      "payload": {
+        "bytes": 657,
+        "gid": 0,
+        "link": "",
+        "mode": 420,
+        "sha256": "7272120f0ee937cbe6ba0a6e748ea234ab6799e1e2966c83ee85f97d9f254fd9",
+        "type": "0",
+        "uid": 0
+      }
+    },
+    "usr/lib/girepository-1.0/GLib-2.0.typelib": {
+      "owner": "glib2",
+      "payload": {
+        "bytes": 229356,
+        "gid": 0,
+        "link": "",
+        "mode": 420,
+        "sha256": "a5e6d5cddf5db68d9f720d8645e9eab85f7f64dcde986d153fc764656b64d2d1",
+        "type": "0",
+        "uid": 0
+      }
+    },
+    "usr/lib/girepository-1.0/Gio-2.0.typelib": {
+      "owner": "glib2",
+      "payload": {
+        "bytes": 361660,
+        "gid": 0,
+        "link": "",
+        "mode": 420,
+        "sha256": "c2bd4915bed0427d1900834cc11f55d026030326f8773c9900528b6b54c5af95",
+        "type": "0",
+        "uid": 0
+      }
+    },
+    "usr/lib/udev/rules.d/71-seat.rules": {
+      "owner": "systemd",
+      "payload": {
+        "bytes": 3870,
+        "gid": 0,
+        "link": "",
+        "mode": 420,
+        "sha256": "b57a64ab6c973d0b734dea808e6caf9a49b40739c7c7649784d09bd6d90c36d3",
+        "type": "0",
+        "uid": 0
+      }
+    }
+  },
+  "kind": "UI172_CONSUMER_DATA_SCHEMA_V1",
+  "source_observed_path": "/home/gabe/Documents/ChatGPT/cachy-asahi-install-completion-20261114/scripts/integration/arm16k_first_login_ui_vm/contracts.py"
+}
