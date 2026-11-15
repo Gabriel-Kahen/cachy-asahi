@@ -1,0 +1,323 @@
+{
+  "INSTALL_present": false,
+  "Perl_build_install_service_network_GPG": "NOT RUN",
+  "Root_authority": null,
+  "archive": {
+    "bytes": 16017184,
+    "sha256": "f0e47c42ec91985898af2ce7355ef4eead50457108706add1f8c1650bca19b8f"
+  },
+  "authentication": "NOT RUN; signature pin equality is not signature authentication",
+  "backup_paths": [],
+  "core_interface": "baseline-review.json matches exact prepare.py:61 output shape/status/selection/note; remains ROOT_ARCHIVE_REVIEW_REQUIRED_BEFORE_ADMISSION",
+  "counts": {
+    "ELF_headers": 54,
+    "hardlinks": 2,
+    "nodes": 3234,
+    "types": {
+      "directory": 364,
+      "file": 2868,
+      "hardlink": 2
+    }
+  },
+  "elapsed_seconds": 1.22,
+  "files": {
+    "baseline-review.json": {
+      "bytes": 2600,
+      "sha256": "cc3ac3191cef6f91f4c89b94f5f0635f2d03aec25431d03d86bd351bee49fdb6"
+    },
+    "payload.json": {
+      "bytes": 767438,
+      "sha256": "cbb6e485e988279c737a8a43144eb235fb223ba92a04e62c4841513ee18a7aff"
+    },
+    "texts/00-BUILDINFO.data": {
+      "bytes": 6671,
+      "sha256": "d02812d62fc7038b713246b0334a056a94729f54dcf2b900cd44ff4117f2dfcc"
+    },
+    "texts/01-PKGINFO.data": {
+      "bytes": 4371,
+      "sha256": "4afcd5bdec5f1de85922f3cb6250556c5ffa80d3444d572bf2e8b60d34fe8fe7"
+    },
+    "texts/02-etc_profile.d_perlbin.csh.data": {
+      "bytes": 468,
+      "sha256": "3834ddced7051fd6e2d189db48c9266efe21bad467d2c6700c9c232830f6bfd9"
+    },
+    "texts/03-etc_profile.d_perlbin.sh.data": {
+      "bytes": 464,
+      "sha256": "35491e903f0d93df995cda3c11a900a7e96df699d53f5ba49e1379150aaf0fbb"
+    },
+    "texts/04-usr_share_libalpm_hooks_detect-old-perl-modules.hook.data": {
+      "bytes": 229,
+      "sha256": "c96c0b5ea4874f8ef6a1582d3389ad5ce566bc316de411e14bf2fb870510507f"
+    },
+    "texts/05-usr_share_libalpm_scripts_detect-old-perl-modules.sh.data": {
+      "bytes": 1346,
+      "sha256": "c5db3dcd1db71724fa4df5db34586688aa8db92ac6ffcbddaaa213c71cceff20"
+    }
+  },
+  "hardlinks": {
+    "usr/bin/core_perl/perlthanks": {
+      "bytes": 45589,
+      "gid": 0,
+      "mode": 493,
+      "mtime": 1791763295,
+      "sha256": "baf726dd61c5b6833cd1ca206250dc8d74a8c3fb6ceb6009d2c9c50de53494b5",
+      "target": "usr/bin/core_perl/perlbug",
+      "type": "hardlink",
+      "uid": 0
+    },
+    "usr/share/man/man1/perlthanks.1perl.gz": {
+      "bytes": 5522,
+      "gid": 0,
+      "mode": 420,
+      "mtime": 1791763295,
+      "sha256": "19eccd5c04465d6c3044473a72af291ab8aba27d0cb72716a0f5c3704131bd49",
+      "target": "usr/share/man/man1/perlbug.1perl.gz",
+      "type": "hardlink",
+      "uid": 0
+    }
+  },
+  "inputs_after": {
+    "archive": {
+      "bytes": 16017184,
+      "sha256": "f0e47c42ec91985898af2ce7355ef4eead50457108706add1f8c1650bca19b8f"
+    },
+    "signature": {
+      "bytes": 566,
+      "sha256": "f40e70ac18f61c8b706c7642bac2cfef7b4fcb9d96bd30da3fc41c48a6667dca"
+    }
+  },
+  "inputs_before": {
+    "archive": {
+      "bytes": 16017184,
+      "sha256": "f0e47c42ec91985898af2ce7355ef4eead50457108706add1f8c1650bca19b8f"
+    },
+    "signature": {
+      "bytes": 566,
+      "sha256": "f40e70ac18f61c8b706c7642bac2cfef7b4fcb9d96bd30da3fc41c48a6667dca"
+    }
+  },
+  "metadata": {
+    "arch": [
+      "aarch64"
+    ],
+    "builddate": [
+      "1791763295"
+    ],
+    "checkdepend": [
+      "procps-ng"
+    ],
+    "depend": [
+      "gdbm>=1.17",
+      "db5.3",
+      "glibc",
+      "libxcrypt",
+      "libcrypt.so=2-64"
+    ],
+    "license": [
+      "Artistic-1.0-Perl",
+      "GPL-1.0-or-later"
+    ],
+    "makedepend": [
+      "git",
+      "patchutils"
+    ],
+    "packager": [
+      "Arch Linux ARM Build System <builder+seattle@archlinuxarm.org>"
+    ],
+    "pkgbase": [
+      "perl"
+    ],
+    "pkgdesc": [
+      "A highly capable, feature-rich programming language"
+    ],
+    "pkgname": [
+      "perl"
+    ],
+    "pkgver": [
+      "5.42.3-1"
+    ],
+    "provides": [
+      "perl-archive-tar=3.12",
+      "perl-attribute-handlers=1.03",
+      "perl-autodie=2.37",
+      "perl-autoloader=5.74",
+      "perl-autouse=1.11",
+      "perl-base=2.27",
+      "perl-bignum=0.67",
+      "perl-carp=1.54",
+      "perl-compress-raw-bzip2=2.218",
+      "perl-compress-raw-zlib=2.222",
+      "perl-config-perl-v=0.38",
+      "perl-constant=1.33",
+      "perl-cpan-meta-requirements=2.143",
+      "perl-cpan-meta-yaml=0.020",
+      "perl-cpan-meta=2.150010",
+      "perl-cpan=2.38",
+      "perl-data-dumper=2.192",
+      "perl-db_file=1.859",
+      "perl-devel-ppport=3.73",
+      "perl-devel-selfstubber=1.06",
+      "perl-digest-md5=2.59",
+      "perl-digest-sha=6.04",
+      "perl-digest=1.20",
+      "perl-dumpvalue=1.21",
+      "perl-encode=3.21",
+      "perl-encoding-warnings=0.14",
+      "perl-env=1.06",
+      "perl-experimental=0.035",
+      "perl-exporter=5.79",
+      "perl-extutils-cbuilder=0.280242",
+      "perl-extutils-constant=0.25",
+      "perl-extutils-install=2.22",
+      "perl-extutils-makemaker=7.76",
+      "perl-extutils-manifest=1.75",
+      "perl-extutils-parsexs=3.57",
+      "perl-extutils-pl2bat=0.005",
+      "perl-file-fetch=1.04",
+      "perl-file-path=2.18",
+      "perl-file-temp=0.2311",
+      "perl-filter-simple=0.96",
+      "perl-filter-util-call=1.64",
+      "perl-findbin=1.54",
+      "perl-getopt-long=2.58",
+      "perl-http-tiny=0.096",
+      "perl-i18n-collate=1.02",
+      "perl-i18n-langtags=0.45",
+      "perl-if=0.0610",
+      "perl-io-compress=2.223",
+      "perl-io-socket-ip=0.43",
+      "perl-io-zlib=1.15",
+      "perl-io=1.55",
+      "perl-ipc-cmd=1.04",
+      "perl-ipc-sysv=2.09",
+      "perl-json-pp=4.16",
+      "perl-lib=0.65",
+      "perl-libnet=3.15",
+      "perl-locale-maketext-simple=0.21_01",
+      "perl-locale-maketext=1.33",
+      "perl-math-bigint-fastcalc=0.5020",
+      "perl-math-bigint=2.005002",
+      "perl-math-complex=1.63",
+      "perl-memoize=1.17",
+      "perl-mime-base64=3.16_01",
+      "perl-module-corelist=5.20260802_42",
+      "perl-module-load-conditional=0.74",
+      "perl-module-load=0.36",
+      "perl-module-loaded=0.08",
+      "perl-module-metadata=1.000038",
+      "perl-net-ping=2.76",
+      "perl-params-check=0.38",
+      "perl-parent=0.244",
+      "perl-pathtools=3.94",
+      "perl-perl-ostype=1.010",
+      "perl-perlfaq=5.20250619",
+      "perl-perlio-via-quotedprint=0.10",
+      "perl-pod-checker=1.77",
+      "perl-pod-escapes=1.07",
+      "perl-pod-perldoc=3.2801",
+      "perl-pod-simple=3.45",
+      "perl-pod-usage=2.05",
+      "perl-podlators=6.0.2",
+      "perl-safe=2.47",
+      "perl-scalar-list-utils=1.68_01",
+      "perl-search-dict=1.08",
+      "perl-selfloader=1.28",
+      "perl-socket=2.041",
+      "perl-storable=3.37_01",
+      "perl-sys-syslog=0.36",
+      "perl-term-ansicolor=5.01",
+      "perl-term-cap=1.18",
+      "perl-term-complete=1.403",
+      "perl-term-readline=1.17",
+      "perl-term-table=0.024",
+      "perl-test-harness=3.50",
+      "perl-test-simple=1.302210",
+      "perl-test=1.31",
+      "perl-text-abbrev=1.02",
+      "perl-text-balanced=2.06",
+      "perl-text-parsewords=3.31",
+      "perl-text-tabs=2024.001",
+      "perl-thread-queue=3.14",
+      "perl-thread-semaphore=2.13",
+      "perl-threads-shared=1.70",
+      "perl-threads=2.43",
+      "perl-tie-file=1.10",
+      "perl-tie-refhash=1.41",
+      "perl-time-hires=1.9778",
+      "perl-time-local=1.35",
+      "perl-time-piece=1.36",
+      "perl-unicode-collate=1.31",
+      "perl-unicode-normalize=1.32",
+      "perl-version=0.9933",
+      "perl-xsloader=0.32"
+    ],
+    "size": [
+      "65996659"
+    ],
+    "url": [
+      "https://www.perl.org"
+    ],
+    "xdata": [
+      "pkgtype=pkg"
+    ]
+  },
+  "metadata_config_hook_paths": [
+    ".BUILDINFO",
+    ".MTREE",
+    ".PKGINFO",
+    "etc/profile.d",
+    "etc/profile.d/perlbin.csh",
+    "etc/profile.d/perlbin.sh",
+    "usr/share/libalpm/hooks",
+    "usr/share/libalpm/hooks/detect-old-perl-modules.hook",
+    "usr/share/libalpm/scripts",
+    "usr/share/libalpm/scripts/detect-old-perl-modules.sh"
+  ],
+  "native16K_M2_performance_release": "NOT ACCEPTED",
+  "originals_unchanged": true,
+  "package_code": "NOT EXECUTED",
+  "raw_texts": {
+    ".BUILDINFO": {
+      "bytes": 6671,
+      "file": "texts/00-BUILDINFO.data",
+      "scope": "RAW_DATA_NOT_EXECUTED",
+      "sha256": "d02812d62fc7038b713246b0334a056a94729f54dcf2b900cd44ff4117f2dfcc"
+    },
+    ".PKGINFO": {
+      "bytes": 4371,
+      "file": "texts/01-PKGINFO.data",
+      "scope": "RAW_DATA_NOT_EXECUTED",
+      "sha256": "4afcd5bdec5f1de85922f3cb6250556c5ffa80d3444d572bf2e8b60d34fe8fe7"
+    },
+    "etc/profile.d/perlbin.csh": {
+      "bytes": 468,
+      "file": "texts/02-etc_profile.d_perlbin.csh.data",
+      "scope": "RAW_DATA_NOT_EXECUTED",
+      "sha256": "3834ddced7051fd6e2d189db48c9266efe21bad467d2c6700c9c232830f6bfd9"
+    },
+    "etc/profile.d/perlbin.sh": {
+      "bytes": 464,
+      "file": "texts/03-etc_profile.d_perlbin.sh.data",
+      "scope": "RAW_DATA_NOT_EXECUTED",
+      "sha256": "35491e903f0d93df995cda3c11a900a7e96df699d53f5ba49e1379150aaf0fbb"
+    },
+    "usr/share/libalpm/hooks/detect-old-perl-modules.hook": {
+      "bytes": 229,
+      "file": "texts/04-usr_share_libalpm_hooks_detect-old-perl-modules.hook.data",
+      "scope": "RAW_DATA_NOT_EXECUTED",
+      "sha256": "c96c0b5ea4874f8ef6a1582d3389ad5ce566bc316de411e14bf2fb870510507f"
+    },
+    "usr/share/libalpm/scripts/detect-old-perl-modules.sh": {
+      "bytes": 1346,
+      "file": "texts/05-usr_share_libalpm_scripts_detect-old-perl-modules.sh.data",
+      "scope": "RAW_DATA_NOT_EXECUTED",
+      "sha256": "c5db3dcd1db71724fa4df5db34586688aa8db92ac6ffcbddaaa213c71cceff20"
+    }
+  },
+  "schema_version": 1,
+  "signature": {
+    "bytes": 566,
+    "sha256": "f40e70ac18f61c8b706c7642bac2cfef7b4fcb9d96bd30da3fc41c48a6667dca"
+  },
+  "status": "DATA_REVIEW_COMPLETE_AUTHENTICATION_AND_ROOT_ADMISSION_PENDING"
+}

@@ -1,0 +1,63 @@
+{
+  "GPG_network_lease_daemon_Perl_build_install": "NOT RUN",
+  "Root_authority": null,
+  "actual_reader": {
+    "archive": {
+      "bytes": 16017184,
+      "sha256": "f0e47c42ec91985898af2ce7355ef4eead50457108706add1f8c1650bca19b8f"
+    },
+    "baseline_review": {
+      "bytes": 2600,
+      "sha256": "cc3ac3191cef6f91f4c89b94f5f0635f2d03aec25431d03d86bd351bee49fdb6"
+    },
+    "original_hashes_before_after": "EQUAL",
+    "package_code": "NOT EXECUTED",
+    "payload": {
+      "bytes": 767438,
+      "sha256": "cbb6e485e988279c737a8a43144eb235fb223ba92a04e62c4841513ee18a7aff"
+    },
+    "review": {
+      "bytes": 9822,
+      "sha256": "58f329f0a782e045e4f6ba1e4d335e79f363371f4c88aa2b5e7eb0f0ac8d1705"
+    },
+    "seconds": 1.22,
+    "signature": {
+      "bytes": 566,
+      "sha256": "f40e70ac18f61c8b706c7642bac2cfef7b4fcb9d96bd30da3fc41c48a6667dca"
+    }
+  },
+  "authentication": "NOT RUN",
+  "native_M2_performance_release": "NOT ACCEPTED",
+  "schema_version": 1,
+  "source_pins": {
+    "README.md": {
+      "bytes": 5147,
+      "sha256": "589afa19dbe712cd87568e21bca9e8121027337648143793cee3f83fa2b8d090"
+    },
+    "origin.json": {
+      "bytes": 892,
+      "sha256": "7decd1b3a606bd0a7f5a0e276dcb1cc49a06e885e4cb485f65a14bdf3d6d4a9a"
+    },
+    "review.py": {
+      "bytes": 8128,
+      "sha256": "a5ce2a4d559a4ea71c72e61df88a80b8b593a7440b6bb30544cd4e9fc1b89543"
+    },
+    "test_controls.py": {
+      "bytes": 7505,
+      "sha256": "feeb770857a5a61dee605a381bb856dc9659a2b2c778b91771589bf9db2234c9"
+    }
+  },
+  "status": "DATA_REVIEW_COMPLETE_AUTHENTICATION_PENDING",
+  "tests": {
+    "argv": [
+      "python3",
+      "-I",
+      "-B",
+      "-Werror",
+      "scripts/port/perl5423-installed-lifecycle/baseline_review/test_controls.py"
+    ],
+    "failed": 0,
+    "passed": 26,
+    "profile": "process/socket/fork/exec/CDLL fenced synthetic archives and actual output hashes"
+  }
+}
