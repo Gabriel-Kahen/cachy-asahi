@@ -10,6 +10,7 @@ import stat
 import time
 
 HERE = Path(__file__).resolve().parent
+END = None
 OP = 'arm16k-llvm23-private-prefix-vm-v1'
 PREFIX = '/opt/cachy-asahi/llvm23-source-reference'
 PACKAGE = dict(name='cachy-asahi-llvm23-source-reference', version='23.1.1-1', arch='aarch64', prefix=PREFIX,
@@ -21,7 +22,7 @@ EVIDENCE = ('baseline_certificate', 'runtime_certificate', 'resource_certificate
 TOOLS = ('base64', 'bash', 'cat', 'chmod', 'chown', 'cmp', 'comm', 'cp', 'cut', 'date', 'env', 'find', 'getconf', 'getfattr',
          'gpg', 'gpgconf', 'grep', 'head', 'id', 'install', 'mkdir', 'pacman', 'readlink', 'rm', 'rmdir', 'runuser', 'sed',
          'sha256sum', 'sleep', 'sort', 'stat', 'sync', 'timeout', 'touch', 'tr', 'uname', 'wc', 'xargs')
-LIMITS = ('package_expanded_bytes', 'case_staging_bytes', 'fixture_source_bytes', 'baseline_raw_bytes', 'baseline_allocated_bytes', 'prepared_raw_bytes',
+LIMITS = ('image_scan_passes', 'package_expanded_bytes', 'case_staging_bytes', 'fixture_source_bytes', 'baseline_raw_bytes', 'baseline_allocated_bytes', 'prepared_raw_bytes',
           'guest_filesystem_free_bytes', 'guest_output_cap_bytes', 'clone_allocated_cap_bytes', 'overlay_cap_bytes',
           'readback_allocated_cap_bytes', 'logs_cap_bytes', 'reserve_bytes', 'physical_free_bytes',
           'quota_initial_headroom_bytes', 'quota_live_reserve_bytes', 'guest_memory_bytes', 'owner_memory_bytes',
@@ -31,6 +32,8 @@ LIMITS = ('package_expanded_bytes', 'case_staging_bytes', 'fixture_source_bytes'
 
 
 def need(ok, why):
+    if END is not None and time.monotonic() >= END:
+        raise TimeoutError('original Root phase deadline exhausted')
     if not ok:
         raise ValueError(why)
 
@@ -266,3 +269,24 @@ def validate(case, observed_materials, baseline_certificate, runtime_certificate
     expanded = runtime(runtime_certificate, case, inventory)
     resources(resource_certificate, case, baseline_certificate, expanded)
     return json.loads(canonical(case))
+
+
+def helper(name):
+    """Only the closed Source's copied reviewed helper closure is importable."""
+    need(type(name) is str and re.fullmatch('[A-Za-z0-9_.-]+', name), 'literal copied helper name')
+    import importlib.util
+    origin = load(HERE/'helper-origin.json')['files']
+    key = 'frozen/'+name if 'frozen/'+name in origin else name
+    need(key in origin, 'reviewed helper provenance required')
+    file = HERE/'frozen'/name
+    need(pin(file) == {k:origin[key][k] for k in ('bytes','sha256')}, 'whole copied helper pin')
+    spec = importlib.util.spec_from_file_location('llvm_vm_frozen_'+name.replace('.', '_'), file)
+    result = importlib.util.module_from_spec(spec);spec.loader.exec_module(result);return result
+
+
+def endpoint(authority):
+    daemon=authority['daemon'];host=daemon['host']
+    need(daemon['status']=='ROOT_REVIEWED_LOCAL_ROOTLESS_ENDPOINT' and type(host)is str and host.startswith('unix:///') and not any(c in host.removeprefix('unix://') for c in '\n\r,:'),'explicit local rootless endpoint')
+    socket=ordinary(host.removeprefix('unix://'));info=socket.lstat()
+    need(stat.S_ISSOCK(info.st_mode) and info.st_uid==os.getuid() and {k:getattr(info,'st_'+k) for k in('uid','gid','dev','ino')}==daemon['socket_identity'],'actual selected rootless socket identity')
+    return host
