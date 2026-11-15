@@ -1,0 +1,11 @@
+# LLVM23 Docker capability spelling correction (DATA only)
+
+This new constructor preserves the unpublished exact253 Source and all existing constructors. It changes one predicate in `hosted/volume.py`: the initializer inspect `CapAdd` must be exactly `['CHOWN']` or `['CAP_CHOWN']`. Root reported Docker28's actual inspect spelling as `CAP_CHOWN`; all other domain predicates remain unchanged. No capability is added. Extra, duplicate, mixed and unknown lists fail.
+
+The generated256-file packet archives the entire old volume body/mode and253 map, plus explicit inverse metadata. Its self-contained inverse restores every253 byte/mode. The existing253→251→248 DATA inverse remains required. Only the volume predicate and regenerated map change among existing leaves. Actors, compiled code, initializer code, kernel CapPrm/CapEff/CapBnd==1, CapInh/CapAmb==0, CapDrop ALL, identities, mounts/nocopy, policy and resource budgets, common and workflow hashes are frozen. Outer operation remains v2 and inner actor remains v1.
+
+Source/ref and all operational selectors are NULL. The253 parent has never been published, so its parent identity is DATA count/bytes/map/tree, without an invented Git commit. This constructor does not publish, acquire inputs, take a lease, run Docker or execute any actor. A later Root-authorized export must not leave permanent duplicate40MB trees; preserve the original253 export until its corrected replacement and inverse are verified. Constructor profile pins the complete constructor/control files and prospective Source count/bytes/map/tree.
+
+Controls select reviewed volume guards as AST DATA and run them against inspect fixtures under an irreversible process/network/FFI/lease fence. They never execute `INIT_CODE`. Constructor controls verify the full256→253→251→248 inverse and recomputed-map tampering. The existing22 v3 constructor/hosted guards remain mandatory regression controls. Synthetic fixture fields and actual retained evidence are distinguished in the controls.
+
+No native, independent Reader, M2, performance or release acceptance follows from these DATA controls. A newly bound passive independent Reader and once packet require the new Source's future Root public Git proof; old253 proposal and closed6d run remain unentered/non-reusable.
