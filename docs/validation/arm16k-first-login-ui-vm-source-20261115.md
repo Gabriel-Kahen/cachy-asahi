@@ -1,7 +1,7 @@
 # ARM16K first-login GTK VM successor — Source handoff
 
-Status: **Source/control tested; actual Root UI preparation r1 assembled but
-closed HOLD_CLEANUP; UI VM NOT RUN.** This is a new finite operation
+Status: **Source/control tested; Root UI preparation r1 closed HOLD_CLEANUP;
+corrected preparation r2 succeeded; first UI boot closed HOLD at installed gate.** This is a new finite operation
 `arm16k-first-login-ui-vm-v1`. Root's separate minimal155 real virtio-seat r4
 trial has now passed. The successor below corrects constructor cleanup only;
 old Source, inputs, defaults, failure receipts and markers remain unchanged.
@@ -194,3 +194,47 @@ original three lines reproduces its expected assertion failure. These controls
 run no Docker, GPG, preparation image or VM. A resealed Source requires fresh
 public Source pins, Root admission, output, credentials and nonce before any r2;
 this correction neither reopens r1 nor establishes actual cleanup success.
+
+
+## First UI boot: successful install, receipt-directory conflict
+
+Root's first actual UI boot remains **HOLD**, with owned-container absence
+verified. Its sanitized report/serial are retained at
+`/dev/shm/cachy-asahi-arm16k-ui-first-boot-root-20261115-r1/`.
+The `UI_HOLD` frame reports `installed-gate` / `RuntimeError`; it establishes no
+GTK action, normal UI login/logout, removal or full acceptance.
+
+Separate read-only DATA extraction at canonical
+`artifacts/development/orchestrator-resume-20261114/Root-UI283-install-extract-r2/actor-output/`
+preserved the original raw/overlay hashes and completed natural tool retirement
+and container absence. All eight extracted files match their manifest pins.
+The lower `summary.env` is PASS with nonce-bound 111→283 installation,
+Required/TrustedOnly, unsuppressed hooks, NetworkManager policy ownership and
+no clock setting. Its 207 B SHA256 is
+`ef6636943051e2cfb7dd9aa15cfec2850b937e3ccd73f19f324a5aa50e093dfa`.
+The actual installed inventory has exactly 283 rows, 5,519 B/SHA256
+`e2fd7b6cf695cf3ae1f57e7fe8a2fa3c74f55404851b380c27ef8acd4f1697c5`.
+The 172-package installation and all 15 ordinary hooks completed in its real
+pacman log, 16,678 B/SHA256
+`c5b5e7e06af45fde69ddd150429ee31093f7d8217313fe2fc44ee6fe18b1db80`.
+This is actual trusted-install evidence, not successful independent UI joining.
+
+The prepared r2 descriptor explicitly records
+`/var/lib/cachy-asahi-ui-session-reference` in `fixture_paths`. The constructor
+precreated that directory, while the root fixture's first `receipts.Writer`
+requires exclusive fresh creation (`exist_ok=False`) and then fsyncs its parent.
+Those contracts conflict before the installed count/dependency/ownership checks.
+Read-only `debugfs -R cat` of the fixed five prepared observer/fixture/receipt/
+gate/install sources confirmed they exactly match the reviewed Source. The
+constructor→Writer regression reproduces the directory refusal; the closed
+runtime's exact exception text was not retained and is not claimed as observed.
+All upper installed-count contracts already require 111+172=283.
+
+The successor removes only this one directory from constructor precreation.
+Writer still owns fresh root0700 creation, exclusive files, mode/ownership checks
+and file/directory fsync; a preexisting directory or symlink still refuses. No
+ALPM, signature, hooks, clock, policy, PAM, ownership or independent seat checks
+are relaxed. 37 actor/network/lease-fenced controls pass, including the real
+fixed constructor directory loop followed by the unchanged Writer. No worker
+preparation or VM ran. Root requires fresh public Source, admission, nonce and
+output for the next actual trial; the first UI boot remains closed HOLD.

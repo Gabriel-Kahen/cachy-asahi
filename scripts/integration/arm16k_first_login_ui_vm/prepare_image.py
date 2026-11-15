@@ -39,7 +39,7 @@ def main():
   edits.extend(['write '+str(source)+' '+destination,'set_inode_field '+destination+' mode 0'+format(0o100000|mode,'o'),'set_inode_field '+destination+' uid '+str(uid),'set_inode_field '+destination+' gid '+str(gid)])
   written[destination]=Path(source);attrs[destination]=(mode,uid,gid)
  def link(path,target):edits.append('symlink '+path+' '+target);links[path]=target
- for p in (D,D+'/materials','/etc/systemd/system/multi-user.target.wants','/etc/systemd/system/getty.target.wants','/etc/systemd/system/arm16k-virtio-seat-observer.service.d','/etc/systemd/system/getty@tty1.service.d','/opt/ui-session','/opt/ui-session/packages','/opt/ui-session/templates','/opt/ui-session/templates/fish','/opt/ui-session/templates/zsh','/opt/ui-session/ownership','/var/lib/cachy-asahi-ui-session-reference'):directory(p)
+ for p in (D,D+'/materials','/etc/systemd/system/multi-user.target.wants','/etc/systemd/system/getty.target.wants','/etc/systemd/system/arm16k-virtio-seat-observer.service.d','/etc/systemd/system/getty@tty1.service.d','/opt/ui-session','/opt/ui-session/packages','/opt/ui-session/templates','/opt/ui-session/templates/fish','/opt/ui-session/templates/zsh','/opt/ui-session/ownership'):directory(p)
  # These fixed fresh-fixture files are reviewed independently of package payload.
  write(T/'shadow','/etc/shadow',0o600,replace=True);write(T/'nonce','/etc/machine-id',replace=True);write(T/'nonce','/etc/arm16k-systemd-nonce',replace=True);write(T/'nonce','/etc/arm16k-virtio-seat-nonce')
  files=m['guest_files']

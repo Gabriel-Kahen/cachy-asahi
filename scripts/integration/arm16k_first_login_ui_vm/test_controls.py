@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 """Modeled Source/refusal controls only. No Gtk, guest, image or actor is run."""
-import argparse,contextlib,copy,hashlib,importlib.util,io,json,os,re,shutil,subprocess,sys,tarfile,tempfile,types,unittest
+import argparse,ast,contextlib,copy,hashlib,importlib.util,io,json,os,re,shutil,subprocess,sys,tarfile,tempfile,types,unittest
 from pathlib import Path
 from unittest.mock import patch
 HERE=Path(__file__).resolve().parent
@@ -175,6 +175,19 @@ class Controls(Fenced):
   # Stable identity must still reject another container after the file loops.
   changed=copy.deepcopy(rows['container']);changed['Name']='/kernel.config'
   with self.assertRaises(AssertionError):rows['scope'].validate(changed)
+ def test_constructor_leaves_durable_receipt_directory_for_exclusive_writer(self):
+  # Execute only the real fixed directory-declaration loop as DATA/control code.
+  # No image edit, process, package, VM or whole constructor is invoked.
+  tree=ast.parse((HERE/'prepare_image.py').read_text());main=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='main')
+  loops=[n for n in main.body if isinstance(n,ast.For)and isinstance(n.iter,ast.Tuple)and len(n.body)==1 and isinstance(n.body[0],ast.Expr)and isinstance(n.body[0].value,ast.Call)and isinstance(n.body[0].value.func,ast.Name)and n.body[0].value.func.id=='directory'];self.assertEqual(len(loops),1)
+  directories=[];exec(compile(ast.Module(body=loops,type_ignores=[]),'<fixed-fixture-directory-control>','exec'),{'D':'/var/lib/arm16k-virtio-seat','directory':directories.append})
+  self.assertIn('/opt/ui-session/ownership',directories);self.assertNotIn(str(R.DIRECTORY),directories)
+  directory=self.work/R.DIRECTORY.relative_to('/');directory.parent.mkdir(parents=True);owner=(os.getuid(),os.getgid());writer=R.Writer(directory,N,owner)
+  self.assertEqual(R.read(directory,'stage.json',owner),{'schema_version':1,'nonce':N,'stage':'starting'})
+  # Precreation reproduces the original refusal; never make Writer reuse a dir.
+  with self.assertRaises(FileExistsError):R.Writer(directory,N,owner)
+  alias=self.work/'receipt-alias';alias.symlink_to(directory,target_is_directory=True)
+  with self.assertRaises(FileExistsError):R.Writer(alias,N,owner)
  def test_private_output_and_reserve_before_actor(self):
   with patch.object(K.shutil,'disk_usage',return_value=shutil._ntuple_diskusage(10*1024**3,0,10*1024**3)):self.assertEqual(K.output_path(self.work/'new'),self.work/'new')
   with patch.object(K.shutil,'disk_usage',return_value=shutil._ntuple_diskusage(10*1024**3,0,2*1024**3)):
