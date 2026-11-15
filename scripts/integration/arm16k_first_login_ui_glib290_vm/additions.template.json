@@ -1,0 +1,28 @@
+{
+  "Root_review": null,
+  "archives": null,
+  "baseline_metadata": null,
+  "baseline_metadata_provenance": null,
+  "baseline_prepared": {
+    "bytes": 58179,
+    "sha256": "f7b3073f58acce8ab5e21ff61f2182779d24046e1582cda6adb0a3db66b7036e"
+  },
+  "glib_material_contract": null,
+  "issued_at": null,
+  "issued_by": null,
+  "kind": "ARM16K_FIRST_LOGIN_UI_GLIB290_ADDITIONS_V1",
+  "known_incompatibilities": null,
+  "metadata_prepare": null,
+  "note": "exact unchanged172 additions plus signedglib2:2.88.3-1->2.90.1-1 upgrade; exactoldpair required for normalrollback; no Root admission or unknownABI PASS fabricated",
+  "original_file_pins": null,
+  "required_namespace": null,
+  "rollback": null,
+  "status": "PENDING173_TOUCHED_GLIB_UPGRADE_ROLLBACK_ADMISSION",
+  "templates": null,
+  "trust": null,
+  "unchanged_172_descriptor_historical": {
+    "bytes": 449748,
+    "path": "/tmp/cachy-asahi-arm16k-UI-NM-current-Xvfb-proposal-20261115/proposal.json",
+    "sha256": "acc8eeae38de61fb0db844b621884a0d66b76f129e5a076c533d870f6e0856e6"
+  }
+}
