@@ -1,0 +1,3972 @@
+{
+  "bankstown_rust_association": {
+    "bytes": 25105,
+    "commit": "1a639abda4ddf3580aa2fed9466fa835adf96830",
+    "path": "packages/port/bankstown-source-candidate/native-rust-inputs.json",
+    "sha256": "65c0857c6278d82cc30afaff91a424dd753ba4435b6ac60ea377b3a0d6c9c1bc"
+  },
+  "dependency_joins": [
+    {
+      "dependency": "glibc",
+      "package": "acl",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "glibc",
+      "package": "attr",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "bash",
+      "package": "audit",
+      "provider": "bash"
+    },
+    {
+      "dependency": "glibc",
+      "package": "audit",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "krb5",
+      "package": "audit",
+      "provider": "krb5"
+    },
+    {
+      "dependency": "libcap-ng",
+      "package": "audit",
+      "provider": "libcap-ng"
+    },
+    {
+      "dependency": "libcap-ng.so=0-64",
+      "package": "audit",
+      "provider": "libcap-ng"
+    },
+    {
+      "dependency": "libgssapi_krb5.so=2-64",
+      "package": "audit",
+      "provider": "krb5"
+    },
+    {
+      "dependency": "libkrb5.so=3-64",
+      "package": "audit",
+      "provider": "krb5"
+    },
+    {
+      "dependency": "glibc",
+      "package": "bash",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libreadline.so=8-64",
+      "package": "bash",
+      "provider": "readline"
+    },
+    {
+      "dependency": "ncurses",
+      "package": "bash",
+      "provider": "ncurses"
+    },
+    {
+      "dependency": "readline",
+      "package": "bash",
+      "provider": "readline"
+    },
+    {
+      "dependency": "glibc",
+      "package": "binutils",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "jansson",
+      "package": "binutils",
+      "provider": "jansson"
+    },
+    {
+      "dependency": "libelf",
+      "package": "binutils",
+      "provider": "libelf"
+    },
+    {
+      "dependency": "libgcc",
+      "package": "binutils",
+      "provider": "libgcc"
+    },
+    {
+      "dependency": "libstdc++",
+      "package": "binutils",
+      "provider": "libstdc++"
+    },
+    {
+      "dependency": "zlib",
+      "package": "binutils",
+      "provider": "zlib"
+    },
+    {
+      "dependency": "zstd",
+      "package": "binutils",
+      "provider": "zstd"
+    },
+    {
+      "dependency": "glibc",
+      "package": "brotli",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "glibc",
+      "package": "bzip2",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "sh",
+      "package": "bzip2",
+      "provider": "bash"
+    },
+    {
+      "dependency": "ca-certificates-mozilla",
+      "package": "ca-certificates",
+      "provider": "ca-certificates-mozilla"
+    },
+    {
+      "dependency": "ca-certificates-utils>=20181109-3",
+      "package": "ca-certificates-mozilla",
+      "provider": "ca-certificates-utils"
+    },
+    {
+      "dependency": "bash",
+      "package": "ca-certificates-utils",
+      "provider": "bash"
+    },
+    {
+      "dependency": "coreutils",
+      "package": "ca-certificates-utils",
+      "provider": "coreutils"
+    },
+    {
+      "dependency": "findutils",
+      "package": "ca-certificates-utils",
+      "provider": "findutils"
+    },
+    {
+      "dependency": "p11-kit",
+      "package": "ca-certificates-utils",
+      "provider": "p11-kit"
+    },
+    {
+      "dependency": "glibc",
+      "package": "compiler-rt",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libgcc",
+      "package": "compiler-rt",
+      "provider": "libgcc"
+    },
+    {
+      "dependency": "libstdc++",
+      "package": "compiler-rt",
+      "provider": "libstdc++"
+    },
+    {
+      "dependency": "acl",
+      "package": "coreutils",
+      "provider": "acl"
+    },
+    {
+      "dependency": "attr",
+      "package": "coreutils",
+      "provider": "attr"
+    },
+    {
+      "dependency": "glibc",
+      "package": "coreutils",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "gmp",
+      "package": "coreutils",
+      "provider": "gmp"
+    },
+    {
+      "dependency": "libcap",
+      "package": "coreutils",
+      "provider": "libcap"
+    },
+    {
+      "dependency": "openssl",
+      "package": "coreutils",
+      "provider": "openssl"
+    },
+    {
+      "dependency": "brotli",
+      "package": "curl",
+      "provider": "brotli"
+    },
+    {
+      "dependency": "ca-certificates",
+      "package": "curl",
+      "provider": "ca-certificates"
+    },
+    {
+      "dependency": "krb5",
+      "package": "curl",
+      "provider": "krb5"
+    },
+    {
+      "dependency": "libbrotlidec.so=1-64",
+      "package": "curl",
+      "provider": "brotli"
+    },
+    {
+      "dependency": "libcrypto.so=3-64",
+      "package": "curl",
+      "provider": "openssl"
+    },
+    {
+      "dependency": "libgssapi_krb5.so=2-64",
+      "package": "curl",
+      "provider": "krb5"
+    },
+    {
+      "dependency": "libidn2",
+      "package": "curl",
+      "provider": "libidn2"
+    },
+    {
+      "dependency": "libidn2.so=0-64",
+      "package": "curl",
+      "provider": "libidn2"
+    },
+    {
+      "dependency": "libnghttp2",
+      "package": "curl",
+      "provider": "libnghttp2"
+    },
+    {
+      "dependency": "libnghttp2.so=14-64",
+      "package": "curl",
+      "provider": "libnghttp2"
+    },
+    {
+      "dependency": "libnghttp3",
+      "package": "curl",
+      "provider": "libnghttp3"
+    },
+    {
+      "dependency": "libnghttp3.so=9-64",
+      "package": "curl",
+      "provider": "libnghttp3"
+    },
+    {
+      "dependency": "libngtcp2",
+      "package": "curl",
+      "provider": "libngtcp2"
+    },
+    {
+      "dependency": "libngtcp2.so=16-64",
+      "package": "curl",
+      "provider": "libngtcp2"
+    },
+    {
+      "dependency": "libpsl",
+      "package": "curl",
+      "provider": "libpsl"
+    },
+    {
+      "dependency": "libpsl.so=5-64",
+      "package": "curl",
+      "provider": "libpsl"
+    },
+    {
+      "dependency": "libssh2",
+      "package": "curl",
+      "provider": "libssh2"
+    },
+    {
+      "dependency": "libssh2.so=1-64",
+      "package": "curl",
+      "provider": "libssh2"
+    },
+    {
+      "dependency": "libssl.so=3-64",
+      "package": "curl",
+      "provider": "openssl"
+    },
+    {
+      "dependency": "libz.so=1-64",
+      "package": "curl",
+      "provider": "zlib"
+    },
+    {
+      "dependency": "libzstd.so=1-64",
+      "package": "curl",
+      "provider": "zstd"
+    },
+    {
+      "dependency": "openssl",
+      "package": "curl",
+      "provider": "openssl"
+    },
+    {
+      "dependency": "zlib",
+      "package": "curl",
+      "provider": "zlib"
+    },
+    {
+      "dependency": "zstd",
+      "package": "curl",
+      "provider": "zstd"
+    },
+    {
+      "dependency": "sh",
+      "package": "e2fsprogs",
+      "provider": "bash"
+    },
+    {
+      "dependency": "util-linux-libs",
+      "package": "e2fsprogs",
+      "provider": "util-linux-libs"
+    },
+    {
+      "dependency": "iana-etc",
+      "package": "filesystem",
+      "provider": "iana-etc"
+    },
+    {
+      "dependency": "glibc",
+      "package": "findutils",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "binutils>=2.28",
+      "package": "gcc",
+      "provider": "binutils"
+    },
+    {
+      "dependency": "glibc>=2.27",
+      "package": "gcc",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "gmp",
+      "package": "gcc",
+      "provider": "gmp"
+    },
+    {
+      "dependency": "libasan=16.1.1+r12+g301eb08fa2c5-1",
+      "package": "gcc",
+      "provider": "libasan"
+    },
+    {
+      "dependency": "libgcc=16.1.1+r12+g301eb08fa2c5-1",
+      "package": "gcc",
+      "provider": "libgcc"
+    },
+    {
+      "dependency": "libisl.so=23-64",
+      "package": "gcc",
+      "provider": "libisl"
+    },
+    {
+      "dependency": "liblsan=16.1.1+r12+g301eb08fa2c5-1",
+      "package": "gcc",
+      "provider": "liblsan"
+    },
+    {
+      "dependency": "libmpc",
+      "package": "gcc",
+      "provider": "libmpc"
+    },
+    {
+      "dependency": "libstdc++=16.1.1+r12+g301eb08fa2c5-1",
+      "package": "gcc",
+      "provider": "libstdc++"
+    },
+    {
+      "dependency": "libtsan=16.1.1+r12+g301eb08fa2c5-1",
+      "package": "gcc",
+      "provider": "libtsan"
+    },
+    {
+      "dependency": "libubsan=16.1.1+r12+g301eb08fa2c5-1",
+      "package": "gcc",
+      "provider": "libubsan"
+    },
+    {
+      "dependency": "mpfr",
+      "package": "gcc",
+      "provider": "mpfr"
+    },
+    {
+      "dependency": "zlib",
+      "package": "gcc",
+      "provider": "zlib"
+    },
+    {
+      "dependency": "zstd",
+      "package": "gcc",
+      "provider": "zstd"
+    },
+    {
+      "dependency": "glibc",
+      "package": "gdbm",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libreadline.so=8-64",
+      "package": "gdbm",
+      "provider": "readline"
+    },
+    {
+      "dependency": "readline",
+      "package": "gdbm",
+      "provider": "readline"
+    },
+    {
+      "dependency": "sh",
+      "package": "gdbm",
+      "provider": "bash"
+    },
+    {
+      "dependency": "filesystem",
+      "package": "glibc",
+      "provider": "filesystem"
+    },
+    {
+      "dependency": "linux-api-headers>=4.10",
+      "package": "glibc",
+      "provider": "linux-api-headers"
+    },
+    {
+      "dependency": "tzdata",
+      "package": "glibc",
+      "provider": "tzdata"
+    },
+    {
+      "dependency": "glibc",
+      "package": "gmp",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libgcc",
+      "package": "gmp",
+      "provider": "libgcc"
+    },
+    {
+      "dependency": "libstdc++",
+      "package": "gmp",
+      "provider": "libstdc++"
+    },
+    {
+      "dependency": "brotli",
+      "package": "gnutls",
+      "provider": "brotli"
+    },
+    {
+      "dependency": "glibc",
+      "package": "gnutls",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "gmp",
+      "package": "gnutls",
+      "provider": "gmp"
+    },
+    {
+      "dependency": "leancrypto",
+      "package": "gnutls",
+      "provider": "leancrypto"
+    },
+    {
+      "dependency": "libgcc",
+      "package": "gnutls",
+      "provider": "libgcc"
+    },
+    {
+      "dependency": "libidn2",
+      "package": "gnutls",
+      "provider": "libidn2"
+    },
+    {
+      "dependency": "libidn2.so=0-64",
+      "package": "gnutls",
+      "provider": "libidn2"
+    },
+    {
+      "dependency": "libp11-kit",
+      "package": "gnutls",
+      "provider": "libp11-kit"
+    },
+    {
+      "dependency": "libstdc++",
+      "package": "gnutls",
+      "provider": "libstdc++"
+    },
+    {
+      "dependency": "libtasn1",
+      "package": "gnutls",
+      "provider": "libtasn1"
+    },
+    {
+      "dependency": "libunistring",
+      "package": "gnutls",
+      "provider": "libunistring"
+    },
+    {
+      "dependency": "nettle",
+      "package": "gnutls",
+      "provider": "nettle"
+    },
+    {
+      "dependency": "zlib",
+      "package": "gnutls",
+      "provider": "zlib"
+    },
+    {
+      "dependency": "zstd",
+      "package": "gnutls",
+      "provider": "zstd"
+    },
+    {
+      "dependency": "glibc",
+      "package": "icu",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libgcc",
+      "package": "icu",
+      "provider": "libgcc"
+    },
+    {
+      "dependency": "libstdc++",
+      "package": "icu",
+      "provider": "libstdc++"
+    },
+    {
+      "dependency": "sh",
+      "package": "icu",
+      "provider": "bash"
+    },
+    {
+      "dependency": "glibc",
+      "package": "jansson",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "glibc",
+      "package": "json-c",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "glibc",
+      "package": "keyutils",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "sh",
+      "package": "keyutils",
+      "provider": "bash"
+    },
+    {
+      "dependency": "bash",
+      "package": "krb5",
+      "provider": "bash"
+    },
+    {
+      "dependency": "e2fsprogs",
+      "package": "krb5",
+      "provider": "e2fsprogs"
+    },
+    {
+      "dependency": "glibc",
+      "package": "krb5",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "keyutils",
+      "package": "krb5",
+      "provider": "keyutils"
+    },
+    {
+      "dependency": "libcom_err.so=2-64",
+      "package": "krb5",
+      "provider": "e2fsprogs"
+    },
+    {
+      "dependency": "libkeyutils.so=1-64",
+      "package": "krb5",
+      "provider": "keyutils"
+    },
+    {
+      "dependency": "libldap",
+      "package": "krb5",
+      "provider": "libldap"
+    },
+    {
+      "dependency": "libss.so=2-64",
+      "package": "krb5",
+      "provider": "e2fsprogs"
+    },
+    {
+      "dependency": "libverto-module-base",
+      "package": "krb5",
+      "provider": "libverto"
+    },
+    {
+      "dependency": "libverto.so=1-64",
+      "package": "krb5",
+      "provider": "libverto"
+    },
+    {
+      "dependency": "lmdb",
+      "package": "krb5",
+      "provider": "lmdb"
+    },
+    {
+      "dependency": "openssl",
+      "package": "krb5",
+      "provider": "openssl"
+    },
+    {
+      "dependency": "glibc",
+      "package": "leancrypto",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "glibc>=2.27",
+      "package": "libasan",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libgcc",
+      "package": "libasan",
+      "provider": "libgcc"
+    },
+    {
+      "dependency": "libstdc++",
+      "package": "libasan",
+      "provider": "libstdc++"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libcap",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "pam",
+      "package": "libcap",
+      "provider": "pam"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libcap-ng",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libedit",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libncursesw.so=6-64",
+      "package": "libedit",
+      "provider": "ncurses"
+    },
+    {
+      "dependency": "ncurses",
+      "package": "libedit",
+      "provider": "ncurses"
+    },
+    {
+      "dependency": "bzip2",
+      "package": "libelf",
+      "provider": "bzip2"
+    },
+    {
+      "dependency": "curl",
+      "package": "libelf",
+      "provider": "curl"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libelf",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "json-c",
+      "package": "libelf",
+      "provider": "json-c"
+    },
+    {
+      "dependency": "libbz2.so=1.0-64",
+      "package": "libelf",
+      "provider": "bzip2"
+    },
+    {
+      "dependency": "libcurl.so=4-64",
+      "package": "libelf",
+      "provider": "curl"
+    },
+    {
+      "dependency": "liblzma.so=5-64",
+      "package": "libelf",
+      "provider": "xz"
+    },
+    {
+      "dependency": "libzstd.so=1-64",
+      "package": "libelf",
+      "provider": "zstd"
+    },
+    {
+      "dependency": "xz",
+      "package": "libelf",
+      "provider": "xz"
+    },
+    {
+      "dependency": "zlib",
+      "package": "libelf",
+      "provider": "zlib"
+    },
+    {
+      "dependency": "zstd",
+      "package": "libelf",
+      "provider": "zstd"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libevent",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "openssl",
+      "package": "libevent",
+      "provider": "openssl"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libffi",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "glibc>=2.27",
+      "package": "libgcc",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libgcrypt",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libgpg-error",
+      "package": "libgcrypt",
+      "provider": "libgpg-error"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libgit2",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libcrypto.so=3-64",
+      "package": "libgit2",
+      "provider": "openssl"
+    },
+    {
+      "dependency": "libgcc",
+      "package": "libgit2",
+      "provider": "libgcc"
+    },
+    {
+      "dependency": "libpcre2-8.so=0-64",
+      "package": "libgit2",
+      "provider": "pcre2"
+    },
+    {
+      "dependency": "libssh2",
+      "package": "libgit2",
+      "provider": "libssh2"
+    },
+    {
+      "dependency": "libssh2.so=1-64",
+      "package": "libgit2",
+      "provider": "libssh2"
+    },
+    {
+      "dependency": "libssl.so=3-64",
+      "package": "libgit2",
+      "provider": "openssl"
+    },
+    {
+      "dependency": "llhttp",
+      "package": "libgit2",
+      "provider": "llhttp"
+    },
+    {
+      "dependency": "openssl",
+      "package": "libgit2",
+      "provider": "openssl"
+    },
+    {
+      "dependency": "pcre2",
+      "package": "libgit2",
+      "provider": "pcre2"
+    },
+    {
+      "dependency": "zlib",
+      "package": "libgit2",
+      "provider": "zlib"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libgpg-error",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "sh",
+      "package": "libgpg-error",
+      "provider": "bash"
+    },
+    {
+      "dependency": "libunistring",
+      "package": "libidn2",
+      "provider": "libunistring"
+    },
+    {
+      "dependency": "libunistring.so=5-64",
+      "package": "libidn2",
+      "provider": "libunistring"
+    },
+    {
+      "dependency": "gmp",
+      "package": "libisl",
+      "provider": "gmp"
+    },
+    {
+      "dependency": "libsasl",
+      "package": "libldap",
+      "provider": "libsasl"
+    },
+    {
+      "dependency": "glibc>=2.27",
+      "package": "liblsan",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libgcc",
+      "package": "liblsan",
+      "provider": "libgcc"
+    },
+    {
+      "dependency": "libstdc++",
+      "package": "liblsan",
+      "provider": "libstdc++"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libmpc",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "gmp",
+      "package": "libmpc",
+      "provider": "gmp"
+    },
+    {
+      "dependency": "mpfr",
+      "package": "libmpc",
+      "provider": "mpfr"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libnghttp2",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libnghttp3",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libngtcp2",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "gnutls",
+      "package": "libngtcp2",
+      "provider": "gnutls"
+    },
+    {
+      "dependency": "libssl.so=3-64",
+      "package": "libngtcp2",
+      "provider": "openssl"
+    },
+    {
+      "dependency": "openssl",
+      "package": "libngtcp2",
+      "provider": "openssl"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libnsl",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libtirpc",
+      "package": "libnsl",
+      "provider": "libtirpc"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libp11-kit",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libffi",
+      "package": "libp11-kit",
+      "provider": "libffi"
+    },
+    {
+      "dependency": "libtasn1",
+      "package": "libp11-kit",
+      "provider": "libtasn1"
+    },
+    {
+      "dependency": "libidn2",
+      "package": "libpsl",
+      "provider": "libidn2"
+    },
+    {
+      "dependency": "libidn2.so=0-64",
+      "package": "libpsl",
+      "provider": "libidn2"
+    },
+    {
+      "dependency": "libunistring",
+      "package": "libpsl",
+      "provider": "libunistring"
+    },
+    {
+      "dependency": "libunistring.so=5-64",
+      "package": "libpsl",
+      "provider": "libunistring"
+    },
+    {
+      "dependency": "gdbm",
+      "package": "libsasl",
+      "provider": "gdbm"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libsasl",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libcrypto.so=3-64",
+      "package": "libsasl",
+      "provider": "openssl"
+    },
+    {
+      "dependency": "libgdbm.so=6-64",
+      "package": "libsasl",
+      "provider": "gdbm"
+    },
+    {
+      "dependency": "openssl",
+      "package": "libsasl",
+      "provider": "openssl"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libssh2",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "openssl",
+      "package": "libssh2",
+      "provider": "openssl"
+    },
+    {
+      "dependency": "zlib",
+      "package": "libssh2",
+      "provider": "zlib"
+    },
+    {
+      "dependency": "glibc>=2.27",
+      "package": "libstdc++",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libgcc",
+      "package": "libstdc++",
+      "provider": "libgcc"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libtasn1",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libtirpc",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "krb5",
+      "package": "libtirpc",
+      "provider": "krb5"
+    },
+    {
+      "dependency": "glibc>=2.27",
+      "package": "libtsan",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libgcc",
+      "package": "libtsan",
+      "provider": "libgcc"
+    },
+    {
+      "dependency": "libstdc++",
+      "package": "libtsan",
+      "provider": "libstdc++"
+    },
+    {
+      "dependency": "glibc>=2.27",
+      "package": "libubsan",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libgcc",
+      "package": "libubsan",
+      "provider": "libgcc"
+    },
+    {
+      "dependency": "libstdc++",
+      "package": "libubsan",
+      "provider": "libstdc++"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libunistring",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libverto",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libevent",
+      "package": "libverto",
+      "provider": "libevent"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libxcrypt",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "bash",
+      "package": "libxml2",
+      "provider": "bash"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libxml2",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "icu",
+      "package": "libxml2",
+      "provider": "icu"
+    },
+    {
+      "dependency": "libicuuc.so=78-64",
+      "package": "libxml2",
+      "provider": "icu"
+    },
+    {
+      "dependency": "readline",
+      "package": "libxml2",
+      "provider": "readline"
+    },
+    {
+      "dependency": "zlib",
+      "package": "libxml2",
+      "provider": "zlib"
+    },
+    {
+      "dependency": "glibc",
+      "package": "lld",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libstdc++",
+      "package": "lld",
+      "provider": "libstdc++"
+    },
+    {
+      "dependency": "llvm-libs",
+      "package": "lld",
+      "provider": "llvm-libs"
+    },
+    {
+      "dependency": "zlib",
+      "package": "lld",
+      "provider": "zlib"
+    },
+    {
+      "dependency": "zstd",
+      "package": "lld",
+      "provider": "zstd"
+    },
+    {
+      "dependency": "glibc",
+      "package": "llhttp",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "glibc",
+      "package": "llvm-libs",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libedit",
+      "package": "llvm-libs",
+      "provider": "libedit"
+    },
+    {
+      "dependency": "libffi",
+      "package": "llvm-libs",
+      "provider": "libffi"
+    },
+    {
+      "dependency": "libgcc",
+      "package": "llvm-libs",
+      "provider": "libgcc"
+    },
+    {
+      "dependency": "libstdc++",
+      "package": "llvm-libs",
+      "provider": "libstdc++"
+    },
+    {
+      "dependency": "libxml2",
+      "package": "llvm-libs",
+      "provider": "libxml2"
+    },
+    {
+      "dependency": "zlib",
+      "package": "llvm-libs",
+      "provider": "zlib"
+    },
+    {
+      "dependency": "zstd",
+      "package": "llvm-libs",
+      "provider": "zstd"
+    },
+    {
+      "dependency": "glibc",
+      "package": "lmdb",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "glibc",
+      "package": "lz4",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "glibc",
+      "package": "mpfr",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "gmp",
+      "package": "mpfr",
+      "provider": "gmp"
+    },
+    {
+      "dependency": "glibc",
+      "package": "ncurses",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libgcc",
+      "package": "ncurses",
+      "provider": "libgcc"
+    },
+    {
+      "dependency": "libstdc++",
+      "package": "ncurses",
+      "provider": "libstdc++"
+    },
+    {
+      "dependency": "glibc",
+      "package": "nettle",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "gmp",
+      "package": "nettle",
+      "provider": "gmp"
+    },
+    {
+      "dependency": "brotli",
+      "package": "openssl",
+      "provider": "brotli"
+    },
+    {
+      "dependency": "glibc",
+      "package": "openssl",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "zlib",
+      "package": "openssl",
+      "provider": "zlib"
+    },
+    {
+      "dependency": "zstd",
+      "package": "openssl",
+      "provider": "zstd"
+    },
+    {
+      "dependency": "coreutils",
+      "package": "p11-kit",
+      "provider": "coreutils"
+    },
+    {
+      "dependency": "glibc",
+      "package": "p11-kit",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libp11-kit.so=0-64",
+      "package": "p11-kit",
+      "provider": "libp11-kit"
+    },
+    {
+      "dependency": "libp11-kit=0.26.5-1",
+      "package": "p11-kit",
+      "provider": "libp11-kit"
+    },
+    {
+      "dependency": "libtasn1",
+      "package": "p11-kit",
+      "provider": "libtasn1"
+    },
+    {
+      "dependency": "audit",
+      "package": "pam",
+      "provider": "audit"
+    },
+    {
+      "dependency": "glibc",
+      "package": "pam",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libaudit.so=1-64",
+      "package": "pam",
+      "provider": "audit"
+    },
+    {
+      "dependency": "libcrypt.so=2-64",
+      "package": "pam",
+      "provider": "libxcrypt"
+    },
+    {
+      "dependency": "libnsl",
+      "package": "pam",
+      "provider": "libnsl"
+    },
+    {
+      "dependency": "libtirpc",
+      "package": "pam",
+      "provider": "libtirpc"
+    },
+    {
+      "dependency": "libxcrypt",
+      "package": "pam",
+      "provider": "libxcrypt"
+    },
+    {
+      "dependency": "pambase",
+      "package": "pam",
+      "provider": "pambase"
+    },
+    {
+      "dependency": "systemd-libs",
+      "package": "pam",
+      "provider": "systemd-libs"
+    },
+    {
+      "dependency": "bzip2",
+      "package": "pcre2",
+      "provider": "bzip2"
+    },
+    {
+      "dependency": "glibc",
+      "package": "pcre2",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "readline",
+      "package": "pcre2",
+      "provider": "readline"
+    },
+    {
+      "dependency": "zlib",
+      "package": "pcre2",
+      "provider": "zlib"
+    },
+    {
+      "dependency": "glibc",
+      "package": "readline",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libncursesw.so=6-64",
+      "package": "readline",
+      "provider": "ncurses"
+    },
+    {
+      "dependency": "ncurses",
+      "package": "readline",
+      "provider": "ncurses"
+    },
+    {
+      "dependency": "bash",
+      "package": "rust",
+      "provider": "bash"
+    },
+    {
+      "dependency": "compiler-rt=23.1.1",
+      "package": "rust",
+      "provider": "compiler-rt"
+    },
+    {
+      "dependency": "curl",
+      "package": "rust",
+      "provider": "curl"
+    },
+    {
+      "dependency": "gcc",
+      "package": "rust",
+      "provider": "gcc"
+    },
+    {
+      "dependency": "glibc",
+      "package": "rust",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libcurl.so=4-64",
+      "package": "rust",
+      "provider": "curl"
+    },
+    {
+      "dependency": "libgcc",
+      "package": "rust",
+      "provider": "libgcc"
+    },
+    {
+      "dependency": "libgcc_s.so=1-64",
+      "package": "rust",
+      "provider": "libgcc"
+    },
+    {
+      "dependency": "libgit2",
+      "package": "rust",
+      "provider": "libgit2"
+    },
+    {
+      "dependency": "libgit2.so=1.9-64",
+      "package": "rust",
+      "provider": "libgit2"
+    },
+    {
+      "dependency": "libsqlite3.so=0-64",
+      "package": "rust",
+      "provider": "sqlite"
+    },
+    {
+      "dependency": "libssh2",
+      "package": "rust",
+      "provider": "libssh2"
+    },
+    {
+      "dependency": "libssh2.so=1-64",
+      "package": "rust",
+      "provider": "libssh2"
+    },
+    {
+      "dependency": "libssl.so=3-64",
+      "package": "rust",
+      "provider": "openssl"
+    },
+    {
+      "dependency": "libstdc++",
+      "package": "rust",
+      "provider": "libstdc++"
+    },
+    {
+      "dependency": "lld=23.1.1",
+      "package": "rust",
+      "provider": "lld"
+    },
+    {
+      "dependency": "llvm-libs=23.1.1",
+      "package": "rust",
+      "provider": "llvm-libs"
+    },
+    {
+      "dependency": "openssl",
+      "package": "rust",
+      "provider": "openssl"
+    },
+    {
+      "dependency": "sqlite",
+      "package": "rust",
+      "provider": "sqlite"
+    },
+    {
+      "dependency": "zlib",
+      "package": "rust",
+      "provider": "zlib"
+    },
+    {
+      "dependency": "glibc",
+      "package": "sqlite",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "readline",
+      "package": "sqlite",
+      "provider": "readline"
+    },
+    {
+      "dependency": "zlib",
+      "package": "sqlite",
+      "provider": "zlib"
+    },
+    {
+      "dependency": "glibc",
+      "package": "systemd-libs",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libgcc",
+      "package": "systemd-libs",
+      "provider": "libgcc"
+    },
+    {
+      "dependency": "libgcc_s.so=1-64",
+      "package": "systemd-libs",
+      "provider": "libgcc"
+    },
+    {
+      "dependency": "libgcrypt",
+      "package": "systemd-libs",
+      "provider": "libgcrypt"
+    },
+    {
+      "dependency": "lz4",
+      "package": "systemd-libs",
+      "provider": "lz4"
+    },
+    {
+      "dependency": "xz",
+      "package": "systemd-libs",
+      "provider": "xz"
+    },
+    {
+      "dependency": "zstd",
+      "package": "systemd-libs",
+      "provider": "zstd"
+    },
+    {
+      "dependency": "glibc",
+      "package": "util-linux-libs",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "sqlite",
+      "package": "util-linux-libs",
+      "provider": "sqlite"
+    },
+    {
+      "dependency": "glibc",
+      "package": "xz",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "sh",
+      "package": "xz",
+      "provider": "bash"
+    },
+    {
+      "dependency": "glibc",
+      "package": "zlib",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "glibc",
+      "package": "zstd",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libgcc",
+      "package": "zstd",
+      "provider": "libgcc"
+    },
+    {
+      "dependency": "libstdc++",
+      "package": "zstd",
+      "provider": "libstdc++"
+    },
+    {
+      "dependency": "lz4",
+      "package": "zstd",
+      "provider": "lz4"
+    },
+    {
+      "dependency": "xz",
+      "package": "zstd",
+      "provider": "xz"
+    },
+    {
+      "dependency": "zlib",
+      "package": "zstd",
+      "provider": "zlib"
+    }
+  ],
+  "key_freshness": "NOT_ESTABLISHED",
+  "metadata_provenance": [
+    {
+      "bytes": 604327,
+      "path": "artifacts/platform/baseline-acquisition-20261012/exact-download-plan.json",
+      "sha256": "75379976eb6f5bde1fccbc462b19f38779de3039554528a3914474d292b6dc39"
+    },
+    {
+      "bytes": 16010,
+      "path": "artifacts/development/asahi-audio-rust-builder-20261015/metadata/selected-catalog-records.json",
+      "sha256": "414de5b7a8dd32762453ef8426be30147b93bc6e69adacbd913e107d93c09ef2"
+    },
+    {
+      "bytes": 256696,
+      "path": "artifacts/platform/target-metadata-20261012/core.db",
+      "sha256": "5f184763bad034ac02662ee37d87edad8124244c8609f4a441947da1855b0b08"
+    },
+    {
+      "bytes": 10613897,
+      "path": "artifacts/platform/target-metadata-20261012/extra.db",
+      "sha256": "66cfbeae024c325e19ba7334afcb0ff2ab892ba4f0789216b358648f7647b480"
+    }
+  ],
+  "native_tools_profile": "NOT_PRODUCED",
+  "packages": {
+    "acl": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 143708,
+        "sha256": "8d400d781a3fd765f0f7c98183492850f830da3d3efb05518b5927b446387350"
+      },
+      "depends": [
+        "glibc"
+      ],
+      "filename": "acl-2.4.0-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "LGPL-2.1-or-later AND GPL-2.0-or-later"
+      ],
+      "provides": [
+        "libacl.so=1-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "f32a36149697857cc1ee8d9db2119c701246f94db3cef61cd73864b84c5473d9"
+      },
+      "url": [
+        "https://savannah.nongnu.org/projects/acl"
+      ],
+      "version": "2.4.0-1"
+    },
+    "attr": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 69708,
+        "sha256": "7d0a27bb1761e2b5c329da6fee515af4d174869f303009283fbc6b74497d267c"
+      },
+      "depends": [
+        "glibc"
+      ],
+      "filename": "attr-2.6.0-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "LGPL-2.1-or-later AND GPL-2.0-or-later"
+      ],
+      "provides": [
+        "libattr.so=1-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "fc48ba723a840696fa6e5e0faa61e68cbb9b17fe2edf159af659a0357ebb9e10"
+      },
+      "url": [
+        "https://savannah.nongnu.org/projects/attr"
+      ],
+      "version": "2.6.0-1"
+    },
+    "audit": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 382336,
+        "sha256": "f2535b990835b668f1c587586617f3663ef33dd495bef14a9be5d680a58bda43"
+      },
+      "depends": [
+        "bash",
+        "glibc",
+        "krb5",
+        "libkrb5.so=3-64",
+        "libgssapi_krb5.so=2-64",
+        "libcap-ng",
+        "libcap-ng.so=0-64"
+      ],
+      "filename": "audit-4.2.1-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-2.0-or-later",
+        "LGPL-2.0-or-later"
+      ],
+      "provides": [
+        "libaudit.so=1-64",
+        "libauparse.so=0-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "b10c229c54ad783a1a93a1e69d4dd69565e801f60ec63f5f90d87d9ed6510cf7"
+      },
+      "url": [
+        "https://github.com/linux-audit/audit-userspace"
+      ],
+      "version": "4.2.1-1"
+    },
+    "bash": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 1825508,
+        "sha256": "e660aa3506d29ba0284c97467712ca6cbcf261bb5bc5917e14c96462aad186d6"
+      },
+      "depends": [
+        "readline",
+        "libreadline.so=8-64",
+        "glibc",
+        "ncurses"
+      ],
+      "filename": "bash-5.3.20-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-3.0-or-later"
+      ],
+      "provides": [
+        "sh"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "6e7462b2e4f5c70a33221e21f152b026f38dd1e2a73fbcac30da852c71a7688d"
+      },
+      "url": [
+        "https://www.gnu.org/software/bash/bash.html"
+      ],
+      "version": "5.3.20-1"
+    },
+    "binutils": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 7845808,
+        "sha256": "1acb6074f546ee662f29937897ab80bd87b0dcdd66c714381e8488d79cd53fcc"
+      },
+      "depends": [
+        "glibc",
+        "jansson",
+        "libelf",
+        "libgcc",
+        "libstdc++",
+        "zlib",
+        "zstd"
+      ],
+      "filename": "binutils-2.46+r70+g155188ea10a7-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-2.0-or-later",
+        "GPL-3.0-or-later",
+        "LGPL-2.0-or-later",
+        "LGPL-3.0-or-later",
+        "GFDL-1.3",
+        "FSFAP"
+      ],
+      "provides": [
+        "libctf.so=0-64",
+        "libgprofng.so=0-64",
+        "libsframe.so=3-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "0b9331d39529b34f3b0d15f7ea6f1949fa027b7dba9ea504be1621aa3ba429b9"
+      },
+      "url": [
+        "https://www.gnu.org/software/binutils/"
+      ],
+      "version": "2.46+r70+g155188ea10a7-1"
+    },
+    "brotli": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 392180,
+        "sha256": "5bc65da23452fe0408341a1c626c9a322ffb0890bcf83aae9902fd6092213356"
+      },
+      "depends": [
+        "glibc"
+      ],
+      "filename": "brotli-1.2.0-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "MIT"
+      ],
+      "provides": [
+        "libbrotlicommon.so=1-64",
+        "libbrotlidec.so=1-64",
+        "libbrotlienc.so=1-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "44e4a6c08e0f791d39282c804d94485d7abe0b17a920c90a8e322fa57a7adef9"
+      },
+      "url": [
+        "https://github.com/google/brotli"
+      ],
+      "version": "1.2.0-1"
+    },
+    "bzip2": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 56252,
+        "sha256": "b11f21c0bc3d1193dd02040644cd604d49cc89184db1b7bc76a623532fcb0dcb"
+      },
+      "depends": [
+        "glibc",
+        "sh"
+      ],
+      "filename": "bzip2-1.0.8-6-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "BSD"
+      ],
+      "provides": [
+        "libbz2.so=1.0-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "9c158bb7e6a276bdb7754a372c6e81363f191db912b653dca55f0c74b39125eb"
+      },
+      "url": [
+        "https://sourceware.org/bzip2/"
+      ],
+      "version": "1.0.8-6"
+    },
+    "ca-certificates": {
+      "arch": "any",
+      "archive": {
+        "bytes": 2152,
+        "sha256": "09cfa7af79ca8120572e737c34080580ddc50c5e33a03a686c5c55032f02b575"
+      },
+      "depends": [
+        "ca-certificates-mozilla"
+      ],
+      "filename": "ca-certificates-20240618-1-any.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-2.0-or-later"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "d5bd19f2f64cbc35cb347e68c5538ff6d3e2b5c16327edfd82cb09db480dcc80"
+      },
+      "url": [
+        "https://src.fedoraproject.org/rpms/ca-certificates"
+      ],
+      "version": "20240618-1"
+    },
+    "ca-certificates-mozilla": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 380492,
+        "sha256": "9703baef3672ee4c44edca301c4e2524414bef82e81ac30345e2f1751ae5672d"
+      },
+      "depends": [
+        "ca-certificates-utils>=20181109-3"
+      ],
+      "filename": "ca-certificates-mozilla-3.131-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "MPL-2.0"
+      ],
+      "provides": [],
+      "repository_summary_depends": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "9f751d2b54b949b270fc2d3e41d0f5423df2ff81f23da3724da2d52b313425bd"
+      },
+      "url": [
+        "https://firefox-source-docs.mozilla.org/security/nss/index.html"
+      ],
+      "version": "3.131-1"
+    },
+    "ca-certificates-utils": {
+      "arch": "any",
+      "archive": {
+        "bytes": 10884,
+        "sha256": "c60483cb5fb3002acfe4cbee8966e9c13936ea9bff3db9db360d8d638f013c8b"
+      },
+      "depends": [
+        "bash",
+        "coreutils",
+        "findutils",
+        "p11-kit"
+      ],
+      "filename": "ca-certificates-utils-20240618-1-any.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-2.0-or-later"
+      ],
+      "provides": [
+        "ca-certificates",
+        "ca-certificates-java"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "d4a92a084a1feb16c523ac4b02117f5a9be5fe4997deba74470e3cf5442552ed"
+      },
+      "url": [
+        "https://src.fedoraproject.org/rpms/ca-certificates"
+      ],
+      "version": "20240618-1"
+    },
+    "compiler-rt": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 2906236,
+        "sha256": "7bb647047b1c7cc3e6f7f15626b03e748b177b8ea5fcab117e6641b5b6ea4093"
+      },
+      "depends": [
+        "glibc",
+        "libgcc",
+        "libstdc++"
+      ],
+      "filename": "compiler-rt-23.1.1-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "Apache-2.0 WITH LLVM-exception"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "1a92715f8a987c82c90949be0bcf60ca7a29b37d1d5b02439ae167883fc2775a"
+      },
+      "url": [
+        "https://compiler-rt.llvm.org/"
+      ],
+      "version": "23.1.1-1"
+    },
+    "coreutils": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 2854560,
+        "sha256": "855b6439cc94fe5d0a3b1428e63ca785c0fa83135e0c0d59277d704d8f4dd647"
+      },
+      "depends": [
+        "acl",
+        "attr",
+        "glibc",
+        "gmp",
+        "libcap",
+        "openssl"
+      ],
+      "filename": "coreutils-9.12-2-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-3.0-or-later",
+        "GFDL-1.3-or-later"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "f1e348bfb3c5dfc01681ecfc43df3c2a984bc9cd33cc0ea5d83e4b32ea05ee61"
+      },
+      "url": [
+        "https://www.gnu.org/software/coreutils/"
+      ],
+      "version": "9.12-2"
+    },
+    "curl": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 1281188,
+        "sha256": "5461bb97fca88b237d17db833622789eedca390634a6d2fb2e3b71287e52acb2"
+      },
+      "depends": [
+        "ca-certificates",
+        "brotli",
+        "libbrotlidec.so=1-64",
+        "krb5",
+        "libgssapi_krb5.so=2-64",
+        "libidn2",
+        "libidn2.so=0-64",
+        "libnghttp2",
+        "libnghttp2.so=14-64",
+        "libnghttp3",
+        "libnghttp3.so=9-64",
+        "libngtcp2",
+        "libngtcp2.so=16-64",
+        "libpsl",
+        "libpsl.so=5-64",
+        "libssh2",
+        "libssh2.so=1-64",
+        "openssl",
+        "libcrypto.so=3-64",
+        "libssl.so=3-64",
+        "zlib",
+        "libz.so=1-64",
+        "zstd",
+        "libzstd.so=1-64"
+      ],
+      "filename": "curl-8.22.0-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "curl"
+      ],
+      "provides": [
+        "libcurl.so=4-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "2523ff1b88dfc1ed910ad90d44c04387a86c397bf8043b518cad1c33dd9524e8"
+      },
+      "url": [
+        "https://curl.se/"
+      ],
+      "version": "8.22.0-1"
+    },
+    "e2fsprogs": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 1195448,
+        "sha256": "153046071f8abf1caf546a0352c7d268fb07a5b0ba0abd996de382adc8692842"
+      },
+      "depends": [
+        "sh",
+        "util-linux-libs"
+      ],
+      "filename": "e2fsprogs-1.47.4-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL",
+        "LGPL",
+        "MIT"
+      ],
+      "provides": [
+        "libcom_err.so=2-64",
+        "libe2p.so=2-64",
+        "libext2fs.so=2-64",
+        "libss.so=2-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "018eba506dfd3743fbba1bc40ce290bacc01a8e5d8977e7df174f911a3d1fc52"
+      },
+      "url": [
+        "http://e2fsprogs.sourceforge.net"
+      ],
+      "version": "1.47.4-1"
+    },
+    "filesystem": {
+      "arch": "any",
+      "archive": {
+        "bytes": 14864,
+        "sha256": "228b63ef4a88501a68856231a19325a1ad31d92016a692d0a8be181edc70703f"
+      },
+      "depends": [
+        "iana-etc"
+      ],
+      "filename": "filesystem-2025.10.12-1-any.pkg.tar.xz",
+      "licenses_declared": [
+        "0BSD"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "6296ed0b98138a8e3859c4dbb9d679403908b2ab498fc2f9a9bcab2dea6dbb91"
+      },
+      "url": [
+        "https://archlinux.org"
+      ],
+      "version": "2025.10.12-1"
+    },
+    "findutils": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 509248,
+        "sha256": "83bacaa55d1b28e5d800adf969221458695f0eb5cf7d300e2cb26a7b78f9c321"
+      },
+      "depends": [
+        "glibc"
+      ],
+      "filename": "findutils-4.11.0-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-3.0-or-later"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "6998fe43f0b6db1281424245e5c2e82179a0f1ec9fbbe31b5a9d602048114484"
+      },
+      "url": [
+        "https://www.gnu.org/software/findutils/"
+      ],
+      "version": "4.11.0-1"
+    },
+    "gcc": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 46558316,
+        "sha256": "067a2aa64f5c7e626e3910fed6fd1f173a1fd9eb6bebaebdd7a7f5be58e170c4"
+      },
+      "depends": [
+        "libasan=16.1.1+r12+g301eb08fa2c5-1",
+        "libgcc=16.1.1+r12+g301eb08fa2c5-1",
+        "liblsan=16.1.1+r12+g301eb08fa2c5-1",
+        "libstdc++=16.1.1+r12+g301eb08fa2c5-1",
+        "libtsan=16.1.1+r12+g301eb08fa2c5-1",
+        "libubsan=16.1.1+r12+g301eb08fa2c5-1",
+        "binutils>=2.28",
+        "glibc>=2.27",
+        "gmp",
+        "libisl.so=23-64",
+        "libmpc",
+        "mpfr",
+        "zlib",
+        "zstd"
+      ],
+      "filename": "gcc-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-3.0-or-later WITH GCC-exception-3.1",
+        "GFDL-1.3-or-later"
+      ],
+      "provides": [],
+      "repository_summary_depends": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "9cd5a11f7c87273ada4fd3ceb8e16b83bd04c9af71bee0eb5055c1be207c958b"
+      },
+      "url": [
+        "https://gcc.gnu.org"
+      ],
+      "version": "16.1.1+r12+g301eb08fa2c5-1"
+    },
+    "gdbm": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 246820,
+        "sha256": "123df7945d23eb31262dc108bdf057b74cd93f13e782b99dfe077c51daabd222"
+      },
+      "depends": [
+        "glibc",
+        "sh",
+        "readline",
+        "libreadline.so=8-64"
+      ],
+      "filename": "gdbm-1.26-2-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-3.0-or-later"
+      ],
+      "provides": [
+        "libgdbm_compat.so=4-64",
+        "libgdbm.so=6-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "a74caf962e7ad3b671a1d4496fc66e587a76819d7fab053172cf16bed356e87d"
+      },
+      "url": [
+        "https://www.gnu.org/software/gdbm/gdbm.html"
+      ],
+      "version": "1.26-2"
+    },
+    "glibc": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 9676568,
+        "sha256": "8fac217e98c6e4342326726b2640ac254e8c82032f06f30bfa13ebbcc4fcb25b"
+      },
+      "depends": [
+        "linux-api-headers>=4.10",
+        "tzdata",
+        "filesystem"
+      ],
+      "filename": "glibc-2.43+r22+g8362e8ce10b2-2-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-2.0-or-later",
+        "LGPL-2.1-or-later"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "82501115482ffeb93cce58cbc36372d917159f9dd60e3b98fd465e94e16c2103"
+      },
+      "url": [
+        "https://www.gnu.org/software/libc"
+      ],
+      "version": "2.43+r22+g8362e8ce10b2-2"
+    },
+    "gmp": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 380364,
+        "sha256": "720607bed2249dd8cd0304b6cf4102884fa2ca24c21444f007bc12af542ea6c5"
+      },
+      "depends": [
+        "libgcc",
+        "libstdc++",
+        "glibc"
+      ],
+      "filename": "gmp-6.3.0-3-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-2.0-or-later",
+        "LGPL-3.0-or-later"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "aa38f8c53d59e5477994f90f9f386e46ecd4e2ad4992fdd73846b37d0d709c9a"
+      },
+      "url": [
+        "https://gmplib.org/"
+      ],
+      "version": "6.3.0-3"
+    },
+    "gnutls": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 1727672,
+        "sha256": "aa74e78dc3f954e2b5399e1da8f89e926190aa64ffd57cf30006b3c1e2e037b1"
+      },
+      "depends": [
+        "glibc",
+        "gmp",
+        "libtasn1",
+        "zlib",
+        "nettle",
+        "leancrypto",
+        "libstdc++",
+        "libgcc",
+        "libp11-kit",
+        "libidn2",
+        "zstd",
+        "libidn2.so=0-64",
+        "libunistring",
+        "brotli"
+      ],
+      "filename": "gnutls-3.8.13-3-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-3.0-or-later AND LGPL-2.1-or-later"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "c729036267d65111cb7ae759046198bfd8b23ca89164011312bf2a5a33ee182e"
+      },
+      "url": [
+        "https://www.gnutls.org/"
+      ],
+      "version": "3.8.13-3"
+    },
+    "iana-etc": {
+      "arch": "any",
+      "archive": {
+        "bytes": 394152,
+        "sha256": "09fced67d5a7e1e2380fe5aaf0ff257aff8a6866e87f3388f506e379c5ed01b5"
+      },
+      "depends": [],
+      "filename": "iana-etc-20260617-1-any.pkg.tar.xz",
+      "licenses_declared": [
+        "custom:none"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "68a0e3a0305776a64d862d7a51704a40dba724bc5c18aecc9b1f080d537b3351"
+      },
+      "url": [
+        "https://www.iana.org/protocols"
+      ],
+      "version": "20260617-1"
+    },
+    "icu": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 10800876,
+        "sha256": "314cb2fecde9fd2a64ca9b6652c4c0e517bec0dceeafaf7e6a0cd578c607357f"
+      },
+      "depends": [
+        "glibc",
+        "libstdc++",
+        "libgcc",
+        "sh"
+      ],
+      "filename": "icu-78.3-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "LicenseRef-Unicode-3.0",
+        "BSD-2-Clause",
+        "BSD-3-Clause",
+        "NAIST-2003"
+      ],
+      "provides": [
+        "libicudata.so=78-64",
+        "libicui18n.so=78-64",
+        "libicuio.so=78-64",
+        "libicutest.so=78-64",
+        "libicutu.so=78-64",
+        "libicuuc.so=78-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "bf9b97d0633e5640e7e235686300853be2cef5d0eaf87762fda46ab618845221"
+      },
+      "url": [
+        "https://icu.unicode.org"
+      ],
+      "version": "78.3-1"
+    },
+    "jansson": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 77460,
+        "sha256": "bffe44d5a784c7cac0a478cfb6caefe065fb59c907c1d182f60750d2873f261f"
+      },
+      "depends": [
+        "glibc"
+      ],
+      "filename": "jansson-2.15.1-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "MIT"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "1f68fded983857c13a16c097b5e8f7b97bb3a1c8af9b8daf9ae9dfafdba407f2"
+      },
+      "url": [
+        "https://www.digip.org/jansson/"
+      ],
+      "version": "2.15.1-1"
+    },
+    "json-c": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 58664,
+        "sha256": "233dd80f44789cd2581ea7879593d230b5a322559cdde43ce73c9719cd7e19c6"
+      },
+      "depends": [
+        "glibc"
+      ],
+      "filename": "json-c-0.19-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "MIT"
+      ],
+      "provides": [
+        "libjson-c.so=5-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "b2d91a6a21afb54344972318830d704e3b23813f71ea93b5c65af5179db019ce"
+      },
+      "url": [
+        "https://github.com/json-c/json-c/wiki"
+      ],
+      "version": "0.19-1"
+    },
+    "keyutils": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 102664,
+        "sha256": "7ee05c67895771b838dc035219290095e79866c61ce63bd726b002df7dfbfdd5"
+      },
+      "depends": [
+        "glibc",
+        "sh"
+      ],
+      "filename": "keyutils-1.6.3-4-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-2.0-or-later",
+        "LGPL-2.1-or-later"
+      ],
+      "provides": [
+        "libkeyutils.so=1-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "7b1ba95d717c7b683b80053e0ae399239a0e36ff4d8eabe7863b34f4f5ddde87"
+      },
+      "url": [
+        "https://www.kernel.org/"
+      ],
+      "version": "1.6.3-4"
+    },
+    "krb5": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 1257028,
+        "sha256": "8b4e743a45590b49ea98a16b3ce339a663908bf67eb3a3965374aabac3c69511"
+      },
+      "depends": [
+        "bash",
+        "e2fsprogs",
+        "glibc",
+        "keyutils",
+        "libldap",
+        "libverto-module-base",
+        "openssl",
+        "lmdb",
+        "libcom_err.so=2-64",
+        "libkeyutils.so=1-64",
+        "libss.so=2-64",
+        "libverto.so=1-64"
+      ],
+      "filename": "krb5-1.22.2-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "custom"
+      ],
+      "provides": [
+        "libgssapi_krb5.so=2-64",
+        "libgssrpc.so=4-64",
+        "libk5crypto.so=3-64",
+        "libkadm5clnt_mit.so=12-64",
+        "libkadm5srv_mit.so=12-64",
+        "libkdb5.so=10-64",
+        "libkdb_ldap.so=1-64",
+        "libkrad.so=0-64",
+        "libkrb5.so=3-64",
+        "libkrb5support.so=0-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "c552292960a9c96be89800a39843e8d03c3aad17c6a4efc8ad01fc4ab7e09a1d"
+      },
+      "url": [
+        "https://web.mit.edu/kerberos/"
+      ],
+      "version": "1.22.2-1"
+    },
+    "leancrypto": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 1391096,
+        "sha256": "dff917183d2a2149c6a698ca3bbf6f645accdcf632b404159ff85d4e4a711fbb"
+      },
+      "depends": [
+        "glibc"
+      ],
+      "filename": "leancrypto-1.9.1-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-2.0-or-later",
+        "LicenseRef-BSDvariant",
+        "LicenseRef-leancrypto"
+      ],
+      "provides": [],
+      "repository_summary_depends": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "74b67f085cc6047ac3cda0aff42fe98d533f5bff12ed40880755c1de3360bc34"
+      },
+      "url": [
+        "https://leancrypto.org"
+      ],
+      "version": "1.9.1-1"
+    },
+    "libasan": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 408016,
+        "sha256": "246617f4696ca770e4b36c7ceac2849517a68e19b5d5875a11d6844e212a1b83"
+      },
+      "depends": [
+        "glibc>=2.27",
+        "libgcc",
+        "libstdc++"
+      ],
+      "filename": "libasan-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-3.0-or-later WITH GCC-exception-3.1",
+        "GFDL-1.3-or-later"
+      ],
+      "provides": [
+        "libasan.so=8-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "e0ee820ec28111b0cac810b9713405e1d37f0c5f2d820783fdc5f733938df5df"
+      },
+      "url": [
+        "https://gcc.gnu.org"
+      ],
+      "version": "16.1.1+r12+g301eb08fa2c5-1"
+    },
+    "libcap": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 715424,
+        "sha256": "828383fe196cb3bbd4ea0a7cb4385e8184ea8b281b8833eee613837eda507643"
+      },
+      "depends": [
+        "glibc",
+        "pam"
+      ],
+      "filename": "libcap-2.78-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "BSD-3-Clause OR GPL-2.0-only"
+      ],
+      "provides": [
+        "libcap.so=2-64",
+        "libpsx.so=2-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "cb1f9b73122fd8b4d454709743fecec29944497d5947b670a30b956b9fc6bbfb"
+      },
+      "url": [
+        "https://sites.google.com/site/fullycapable/"
+      ],
+      "version": "2.78-1"
+    },
+    "libcap-ng": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 68624,
+        "sha256": "969fcda6dd3b20850288dd7f2a26f22554e2e99dcee5bcff838f7587dc8b15cb"
+      },
+      "depends": [
+        "glibc"
+      ],
+      "filename": "libcap-ng-0.9.6-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-2.0-or-later",
+        "LGPL-2.1-or-later"
+      ],
+      "provides": [
+        "libcap-ng.so=0-64",
+        "libdrop_ambient.so=0-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "c8966135bd5697ca37e0af74437d2afa688994814cb3d5bd8c44ee7094ca03a5"
+      },
+      "url": [
+        "https://people.redhat.com/sgrubb/libcap-ng/"
+      ],
+      "version": "0.9.6-1"
+    },
+    "libedit": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 107492,
+        "sha256": "9900ef2ce4c8bddc1066a89951ff0e0dead005f168a9ac402ac487047961f2e5"
+      },
+      "depends": [
+        "glibc",
+        "libncursesw.so=6-64",
+        "ncurses"
+      ],
+      "filename": "libedit-20260512_3.1-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "BSD-3-Clause"
+      ],
+      "provides": [
+        "libedit.so=0-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "0f736bfee5003703dc6791ba117ee8c40830dc6281c9dcb103d5dcf542b68e83"
+      },
+      "url": [
+        "https://thrysoee.dk/editline/"
+      ],
+      "version": "20260512_3.1-1"
+    },
+    "libelf": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 577236,
+        "sha256": "a8f417d24a297384b27935381a0a4f892b121956066c09a3c9cd1e3a47c6d214"
+      },
+      "depends": [
+        "bzip2",
+        "libbz2.so=1.0-64",
+        "curl",
+        "libcurl.so=4-64",
+        "glibc",
+        "json-c",
+        "xz",
+        "liblzma.so=5-64",
+        "zlib",
+        "zstd",
+        "libzstd.so=1-64"
+      ],
+      "filename": "libelf-0.196-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-2.0-or-later OR LGPL-3.0-or-later"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "c8f2b924f3156afdb845ef83bfab9176b883b475c17f199e66deac8064acfafe"
+      },
+      "url": [
+        "https://sourceware.org/elfutils/"
+      ],
+      "version": "0.196-1"
+    },
+    "libevent": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 245152,
+        "sha256": "616950e746a507c7371d6643249e7dbb96934612c0cf0df8760acedd94411183"
+      },
+      "depends": [
+        "glibc",
+        "openssl"
+      ],
+      "filename": "libevent-2.1.13-2-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "BSD-3-Clause-Modification"
+      ],
+      "provides": [
+        "libevent-2.1.so=7-64",
+        "libevent_core-2.1.so=7-64",
+        "libevent_extra-2.1.so=7-64",
+        "libevent_openssl-2.1.so=7-64",
+        "libevent_pthreads-2.1.so=7-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "08434cc21c49558e72fca58bb1b57c4d32653175db5da72af10b214fbfa1f9b9"
+      },
+      "url": [
+        "https://libevent.org/"
+      ],
+      "version": "2.1.13-2"
+    },
+    "libffi": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 51464,
+        "sha256": "dfece459e053d53a5a7fdfbb2caf1b0fa662470220f86615a7789eba8571c0ff"
+      },
+      "depends": [
+        "glibc"
+      ],
+      "filename": "libffi-3.8.0-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "MIT"
+      ],
+      "provides": [
+        "libffi.so=8-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "3772033208e24a494fa9602f66d063978ecbccd4f4f99132048e2213f91355b8"
+      },
+      "url": [
+        "https://sourceware.org/libffi/"
+      ],
+      "version": "3.8.0-1"
+    },
+    "libgcc": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 55204,
+        "sha256": "0f98bdf94a6e2f6758b9ffe98cbc9391a109326ed23bd264cabe0a81a04d7ae4"
+      },
+      "depends": [
+        "glibc>=2.27"
+      ],
+      "filename": "libgcc-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-3.0-or-later WITH GCC-exception-3.1",
+        "GFDL-1.3-or-later"
+      ],
+      "provides": [
+        "libgcc_s.so=1-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "2e0a80f6d65b5820520c126aa0508f5c9159e2df8c45c5559745d07019e08f44"
+      },
+      "url": [
+        "https://gcc.gnu.org"
+      ],
+      "version": "16.1.1+r12+g301eb08fa2c5-1"
+    },
+    "libgcrypt": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 598400,
+        "sha256": "f1401f6381963b666109465ccc88dace60af7aa0d912aa04ca8c905e02f57394"
+      },
+      "depends": [
+        "libgpg-error",
+        "glibc"
+      ],
+      "filename": "libgcrypt-1.12.4-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "BSD-3-Clause",
+        "BSD-3-Clause OR GPL-2.0-only",
+        "GPL-2.0-or-later",
+        "LGPL-2.0-or-later",
+        "LGPL-2.1-or-later",
+        "X11",
+        "LicenseRef-scancode-public-domain",
+        "LicenseRef-OCB1"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "a32b39ecbd48df19936f28af74c629ec75a0749bdac26fffb16340aa7cae42c1"
+      },
+      "url": [
+        "https://www.gnupg.org"
+      ],
+      "version": "1.12.4-1"
+    },
+    "libgit2": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 768812,
+        "sha256": "cacbf38f50e09c1fa4a8a94bb5dae5d7719dc4b7a4262a8a8e94f9d001bc0842"
+      },
+      "depends": [
+        "libgcc",
+        "glibc",
+        "llhttp",
+        "zlib",
+        "libssh2",
+        "libssh2.so=1-64",
+        "openssl",
+        "libcrypto.so=3-64",
+        "libssl.so=3-64",
+        "pcre2",
+        "libpcre2-8.so=0-64"
+      ],
+      "filename": "libgit2-1:1.9.7-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "LicenseRef-GPL-2.0-only-with-linking-exception"
+      ],
+      "provides": [
+        "libgit2.so=1.9-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "2d4e15982858794428446596475c285c54aa1d3fc7cccb27b57d5e310153729b"
+      },
+      "url": [
+        "https://github.com/libgit2/libgit2"
+      ],
+      "version": "1:1.9.7-1"
+    },
+    "libgpg-error": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 254104,
+        "sha256": "e6ea4251e2d6919f861a08ac09b2c72a6a687e208a495341893dba5839b00b5d"
+      },
+      "depends": [
+        "glibc",
+        "sh"
+      ],
+      "filename": "libgpg-error-1.61-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "LGPL-2.1-or-later",
+        "BSD-3-Clause OR LGPL-2.1-or-later",
+        "FSFULLR",
+        "GPL-2.0-or-later"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "ed4c33f28a551061ec980fd9efaced6e08f58953b944b32ffadb10d62780037c"
+      },
+      "url": [
+        "https://www.gnupg.org"
+      ],
+      "version": "1.61-1"
+    },
+    "libidn2": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 146036,
+        "sha256": "43224d721d0afb6bc99af5c7a546dd0c7cff44b597224fc5f5f8d6c5a7c14d89"
+      },
+      "depends": [
+        "libunistring",
+        "libunistring.so=5-64"
+      ],
+      "filename": "libidn2-2.3.8-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL2",
+        "LGPL3"
+      ],
+      "provides": [
+        "libidn2.so=0-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "441136335459adb7c9c821b252592d4975eca93c4e628514c269c666b9f01a04"
+      },
+      "url": [
+        "https://www.gnu.org/software/libidn/#libidn2"
+      ],
+      "version": "2.3.8-1"
+    },
+    "libisl": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 1625616,
+        "sha256": "09fbdc36a162be970ca6a2bdf95e778b998eeaacfc1655a8d73ae262ad1f9298"
+      },
+      "depends": [
+        "gmp"
+      ],
+      "filename": "libisl-0.28-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "MIT"
+      ],
+      "provides": [
+        "isl",
+        "libisl.so=23-64"
+      ],
+      "repository_summary_depends": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "97cb63d41e1bc6d8d9d0eb8c4b90725a169dc31dcf4b199c4b8cc29c78755618"
+      },
+      "url": [
+        "https://libisl.sourceforge.io"
+      ],
+      "version": "0.28-1"
+    },
+    "libldap": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 263796,
+        "sha256": "09423337d9311f65e2cdd298ff7a2bbfbfdd7f5cbccfc21e42d8b82de669c737"
+      },
+      "depends": [
+        "libsasl"
+      ],
+      "filename": "libldap-2.7.1-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "custom"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "24a5a0bb5f5ce2a47f13ecdd676c5c6935c2fe3a7a39557acf9ce994b8eca823"
+      },
+      "url": [
+        "https://www.openldap.org/"
+      ],
+      "version": "2.7.1-1"
+    },
+    "liblsan": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 193756,
+        "sha256": "4e109ab2ab62d922bd3453593f5c8824cadbdf445c4a37000c2636f272e05c78"
+      },
+      "depends": [
+        "glibc>=2.27",
+        "libgcc",
+        "libstdc++"
+      ],
+      "filename": "liblsan-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-3.0-or-later WITH GCC-exception-3.1",
+        "GFDL-1.3-or-later"
+      ],
+      "provides": [
+        "liblsan.so=0-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "0d440dbf7b5c6461e52b9b5756c0d3be01bf927d316f37ca9c659525ef8f0a1b"
+      },
+      "url": [
+        "https://gcc.gnu.org"
+      ],
+      "version": "16.1.1+r12+g301eb08fa2c5-1"
+    },
+    "libmpc": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 91352,
+        "sha256": "91c23ad752247d9784bbd2c3da96f379efd6360a5a88c2316d458bb2ecda093c"
+      },
+      "depends": [
+        "glibc",
+        "gmp",
+        "mpfr"
+      ],
+      "filename": "libmpc-1.4.1-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "LGPL-3.0-only"
+      ],
+      "provides": [],
+      "repository_summary_depends": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "b0e2e1074ec92dd2e7f0db0ba7a851fbf91d928a62a821d3dbe2b85b670ea6cb"
+      },
+      "url": [
+        "http://www.multiprecision.org/"
+      ],
+      "version": "1.4.1-1"
+    },
+    "libnghttp2": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 95812,
+        "sha256": "4d7fdbd963e5ff7a293079e35750cbd535ad846581e1a7926035b34968b40c0e"
+      },
+      "depends": [
+        "glibc"
+      ],
+      "filename": "libnghttp2-1.70.0-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "MIT"
+      ],
+      "provides": [
+        "libnghttp2.so=14-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "2a802dddc0fa822dcd9f373343c3bbd1aef1ca1aa294314cc9f495c64404a79c"
+      },
+      "url": [
+        "https://nghttp2.org/"
+      ],
+      "version": "1.70.0-1"
+    },
+    "libnghttp3": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 79488,
+        "sha256": "b5eb225b96c3c3fcb33c8715b9987b9eaff742214964662befbc88df4d5bea65"
+      },
+      "depends": [
+        "glibc"
+      ],
+      "filename": "libnghttp3-1.18.0-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "MIT"
+      ],
+      "provides": [
+        "libnghttp3.so=9-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "4d3e4b27a8bfa5c1b8732f858c7ace9184f7a505c6fd25976b0f2adbfe214099"
+      },
+      "url": [
+        "https://github.com/ngtcp2/nghttp3"
+      ],
+      "version": "1.18.0-1"
+    },
+    "libngtcp2": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 185240,
+        "sha256": "f69a124bd047616904c7e6bb980b8d3fec0a3550b5e35f1b7097b7645dfc5116"
+      },
+      "depends": [
+        "glibc",
+        "openssl",
+        "libssl.so=3-64",
+        "gnutls"
+      ],
+      "filename": "libngtcp2-1.25.0-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "MIT"
+      ],
+      "provides": [
+        "libngtcp2.so=16-64",
+        "libngtcp2_crypto_gnutls.so=8-64",
+        "libngtcp2_crypto_ossl.so=0-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "813008d3b2aae31e0e773aa87063a9bb45312aec391146205c784224065ac297"
+      },
+      "url": [
+        "https://github.com/ngtcp2/ngtcp2"
+      ],
+      "version": "1.25.0-1"
+    },
+    "libnsl": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 21044,
+        "sha256": "4f37f2ed67a79d76458e3af7b8bcdb0fef0cf35e0ba71569b7fbb0388d592619"
+      },
+      "depends": [
+        "glibc",
+        "libtirpc"
+      ],
+      "filename": "libnsl-2.0.1-2-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "LGPL-2.1-only"
+      ],
+      "provides": [
+        "libnsl.so=3-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "387d094f8c65f037c35549e4ee503a468cc55d14b1d75351fff9c977a0664c72"
+      },
+      "url": [
+        "https://github.com/thkukuk/libnsl"
+      ],
+      "version": "2.0.1-2"
+    },
+    "libp11-kit": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 416988,
+        "sha256": "0d8da62f6e0fb213858619d928b4b25afb9e783b8285dfdfbef54339584b35ef"
+      },
+      "depends": [
+        "glibc",
+        "libffi",
+        "libtasn1"
+      ],
+      "filename": "libp11-kit-0.26.5-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "BSD-3-Clause"
+      ],
+      "provides": [
+        "libp11-kit.so=0-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "615bb78eeac92f3526cebb5626fb6954abb109330acd0cd11569a7e1d109f1fc"
+      },
+      "url": [
+        "https://p11-glue.freedesktop.org"
+      ],
+      "version": "0.26.5-1"
+    },
+    "libpsl": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 84892,
+        "sha256": "8b565fcb0128be8c4c16ab82b3f9379348db6aeeffc3c639937eeedbe00fa500"
+      },
+      "depends": [
+        "libidn2",
+        "libunistring",
+        "libidn2.so=0-64",
+        "libunistring.so=5-64"
+      ],
+      "filename": "libpsl-0.21.5-2-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "MIT"
+      ],
+      "provides": [
+        "libpsl.so=5-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "366a16f00c231acbdb3f162d08b6e29d94e9a1b0641d49664bf1003cb853a753"
+      },
+      "url": [
+        "https://github.com/rockdaboot/libpsl"
+      ],
+      "version": "0.21.5-2"
+    },
+    "libsasl": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 139992,
+        "sha256": "5ec2f2ec119161f9e0f93a91f0f7001f9f401d5eb6dd1d7769988ee0308f92b2"
+      },
+      "depends": [
+        "glibc",
+        "gdbm",
+        "libgdbm.so=6-64",
+        "openssl",
+        "libcrypto.so=3-64"
+      ],
+      "filename": "libsasl-2.1.28-5-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "BSD-3-Clause-Attribution"
+      ],
+      "provides": [
+        "libsasl2.so=3-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "c092e129c50bd9a36537650540f6176efa7ff931f9b2891c00e8c07f43c61f2e"
+      },
+      "url": [
+        "https://www.cyrusimap.org/sasl/"
+      ],
+      "version": "2.1.28-5"
+    },
+    "libssh2": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 242204,
+        "sha256": "cea0b5138a28b5b4d8eff76e2cc1665f030f109074d88c3962d19aa09921f3b3"
+      },
+      "depends": [
+        "glibc",
+        "openssl",
+        "zlib"
+      ],
+      "filename": "libssh2-1.11.1-7-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "BSD-3-Clause"
+      ],
+      "provides": [
+        "libssh2.so=1-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "31d5aa7a82b9198f2d1fbf8a7fc14f20523d2efe1fa69ccce5a6417b8e161e05"
+      },
+      "url": [
+        "https://www.libssh2.org/"
+      ],
+      "version": "1.11.1-7"
+    },
+    "libstdc++": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 694148,
+        "sha256": "19832a38b2c4820695d28289f1c4f371955586d39fb893d8cbc0d8dbb09a4383"
+      },
+      "depends": [
+        "glibc>=2.27",
+        "libgcc"
+      ],
+      "filename": "libstdc++-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-3.0-or-later WITH GCC-exception-3.1",
+        "GFDL-1.3-or-later"
+      ],
+      "provides": [
+        "libstdc++.so=6-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "c6b2fff6cfab7404c071f3a2478626ff81d4fb24c55f424d52a978958928747f"
+      },
+      "url": [
+        "https://gcc.gnu.org"
+      ],
+      "version": "16.1.1+r12+g301eb08fa2c5-1"
+    },
+    "libtasn1": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 132184,
+        "sha256": "96ef7088790462586eec0b5ba2aacdcbd1fc71bfd2a6dbe8bd7c20b03ed298a8"
+      },
+      "depends": [
+        "glibc"
+      ],
+      "filename": "libtasn1-4.21.0-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-3.0-or-later",
+        "LGPL-2.1-or-later",
+        "GFDL-1.3-or-later"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "ab5e8cc870b8ba2ab5c8a904880487b7de0b6f80eff32dc37a502192074f2765"
+      },
+      "url": [
+        "https://www.gnu.org/software/libtasn1/"
+      ],
+      "version": "4.21.0-1"
+    },
+    "libtirpc": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 171572,
+        "sha256": "4b233a7e527e4874aa4622166333f13ba1a5da187f3a1d7a347f3895a8c360a4"
+      },
+      "depends": [
+        "krb5",
+        "glibc"
+      ],
+      "filename": "libtirpc-1.3.8-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "SISSL",
+        "BSD-3-Clause"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "cac2e97a1c7cbbca545aecb64f949429b62f81186acdcd5d831a211a832c1c96"
+      },
+      "url": [
+        "http://git.linux-nfs.org/?p=steved/libtirpc.git;a=summary"
+      ],
+      "version": "1.3.8-1"
+    },
+    "libtsan": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 380256,
+        "sha256": "8ac217aab99e465455309957031c4b058f37560be337a1fe1f2dac3ab9e0218d"
+      },
+      "depends": [
+        "glibc>=2.27",
+        "libgcc",
+        "libstdc++"
+      ],
+      "filename": "libtsan-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-3.0-or-later WITH GCC-exception-3.1",
+        "GFDL-1.3-or-later"
+      ],
+      "provides": [
+        "libtsan.so=2-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "13814e16417376f95f510cf65eaa4d7defb83f59129810281186be3e4cf61999"
+      },
+      "url": [
+        "https://gcc.gnu.org"
+      ],
+      "version": "16.1.1+r12+g301eb08fa2c5-1"
+    },
+    "libubsan": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 176464,
+        "sha256": "6b0f5501898077d3f9533edf75aded85072890f85c1713fde79ed99230d8e5bb"
+      },
+      "depends": [
+        "glibc>=2.27",
+        "libgcc",
+        "libstdc++"
+      ],
+      "filename": "libubsan-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-3.0-or-later WITH GCC-exception-3.1",
+        "GFDL-1.3-or-later"
+      ],
+      "provides": [
+        "libubsan.so=1-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "e7a8a92e147a3bfcf9951fb61f38d0709b3ae9aad3f72935e07d0465c415eb39"
+      },
+      "url": [
+        "https://gcc.gnu.org"
+      ],
+      "version": "16.1.1+r12+g301eb08fa2c5-1"
+    },
+    "libunistring": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 595644,
+        "sha256": "106ac7728ff2cc498ffa49d7623e64cf9002eea15c5026ec54fab8cd6a294134"
+      },
+      "depends": [
+        "glibc"
+      ],
+      "filename": "libunistring-1.4.2-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-2.0-or-later",
+        "LGPL-3.0-or-later"
+      ],
+      "provides": [
+        "libunistring.so=5-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "7f401a61724c36e8bd987dd723386a7073a80e1f395c963b86ae3b186cbf8adb"
+      },
+      "url": [
+        "https://www.gnu.org/software/libunistring/"
+      ],
+      "version": "1.4.2-1"
+    },
+    "libverto": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 18160,
+        "sha256": "6b39f3feb66c1421dd4cfee2bbb339543db112c624a1eb8990ca9c9b36710dbc"
+      },
+      "depends": [
+        "glibc",
+        "libevent"
+      ],
+      "filename": "libverto-0.3.2-6-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "MIT"
+      ],
+      "provides": [
+        "libverto.so=1-64",
+        "libverto-libevent.so=1-64",
+        "libverto-module-base"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "41a43efc01134eb8694c5168ed59d16d779f2b6c1d3d115aab8c9db106eeb32a"
+      },
+      "url": [
+        "https://github.com/latchset/libverto"
+      ],
+      "version": "0.3.2-6"
+    },
+    "libxcrypt": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 89676,
+        "sha256": "e699156589561ac0c6bfc7da42891e3945647ecdd178b907f7742696fb01a0c5"
+      },
+      "depends": [
+        "glibc"
+      ],
+      "filename": "libxcrypt-4.5.2-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "LGPL"
+      ],
+      "provides": [
+        "libcrypt.so=2-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "f43f32f8e8ac5f68ae71510b3aa307dc4b669eb2fbf893cf219e5f91df24a42b"
+      },
+      "url": [
+        "https://github.com/besser82/libxcrypt/"
+      ],
+      "version": "4.5.2-1"
+    },
+    "libxml2": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 694244,
+        "sha256": "c86239f383dc47736c4f6851063fb034edcda5ed59c7cafbe694e5f65e2d0da0"
+      },
+      "depends": [
+        "bash",
+        "glibc",
+        "icu",
+        "readline",
+        "zlib",
+        "libicuuc.so=78-64"
+      ],
+      "filename": "libxml2-2.15.4-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "MIT"
+      ],
+      "provides": [
+        "libxml2.so=16-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "f56b0f773fde05adf9ee795554d1a79b8abdbe1a0f99b6165910c27a80f57556"
+      },
+      "url": [
+        "https://gitlab.gnome.org/GNOME/libxml2/-/wikis/home"
+      ],
+      "version": "2.15.4-1"
+    },
+    "linux-api-headers": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 1509724,
+        "sha256": "e03baabe6bbf49b65b394eb24629978bbb2094cd17b3fecd892a011041f9c24a"
+      },
+      "depends": [],
+      "filename": "linux-api-headers-7.2-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-2.0-only"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "9c6974b7625ed33396a3f896af1689449614573c86496b914af67fa476984fad"
+      },
+      "url": [
+        "https://www.gnu.org/software/libc"
+      ],
+      "version": "7.2-1"
+    },
+    "lld": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 1923368,
+        "sha256": "8caa2b84af777a4e719b59696d181dd63e7d953b8bd17b7b2b6b56d93ea4f8bf"
+      },
+      "depends": [
+        "llvm-libs",
+        "libstdc++",
+        "glibc",
+        "zlib",
+        "zstd"
+      ],
+      "filename": "lld-23.1.1-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "Apache-2.0 WITH LLVM-exception"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "e92fc9f8173beef5666385d40ed15cf37345fb0147bfd92c8f6c87f31551e302"
+      },
+      "url": [
+        "https://lld.llvm.org/"
+      ],
+      "version": "23.1.1-1"
+    },
+    "llhttp": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 28604,
+        "sha256": "ffcd28cd2f93b1c5e6676ff9e842d6f6e3d54e6290a57cab0f8447f77459026a"
+      },
+      "depends": [
+        "glibc"
+      ],
+      "filename": "llhttp-9.3.1-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "MIT"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "b721df9fe91b661aad949ba19925968aa3265639399d65d766cbaf27ee87eb65"
+      },
+      "url": [
+        "https://llhttp.org"
+      ],
+      "version": "9.3.1-1"
+    },
+    "llvm-libs": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 37588856,
+        "sha256": "d890dc562274f6e2ec59d5b2ceb21ddeabee89c0563ead27a550ee11810cdff4"
+      },
+      "depends": [
+        "libgcc",
+        "glibc",
+        "libstdc++",
+        "zlib",
+        "zstd",
+        "libffi",
+        "libedit",
+        "libxml2"
+      ],
+      "filename": "llvm-libs-23.1.1-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "Apache-2.0 WITH LLVM-exception"
+      ],
+      "provides": [
+        "libLLVM.so=23.1-64",
+        "libLTO.so=23.1-64",
+        "libRemarks.so=23.1-64"
+      ],
+      "repository_summary_depends": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "b06b35cb4e524be09461b4ae825c2a00d92733c59d4a4364c2a59d3060c4ece8"
+      },
+      "url": [
+        "https://llvm.org/"
+      ],
+      "version": "23.1.1-1"
+    },
+    "lmdb": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 86632,
+        "sha256": "6aff3bd58fbb98dbca71a83554be4b47d39ff01b3dbe4f724ba140416aa8486e"
+      },
+      "depends": [
+        "glibc"
+      ],
+      "filename": "lmdb-0.9.35-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "custom:OpenLDAP"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "342c24d44e0aa0ebdb5b73aec200d5e2e891756833d9ace2d152313f327a85ae"
+      },
+      "url": [
+        "https://symas.com/lmdb"
+      ],
+      "version": "0.9.35-1"
+    },
+    "lz4": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 128668,
+        "sha256": "2734da8aa931852a6d82f5a90edbc5fd4e21cdbefc8752ab49db4228959d45d0"
+      },
+      "depends": [
+        "glibc"
+      ],
+      "filename": "lz4-1:1.10.0-2-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-2.0-or-later"
+      ],
+      "provides": [
+        "liblz4.so=1-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "47c965018d9623039079a7accf80898c0f2ed0ba96ed8bc3473bfa6de5f046f4"
+      },
+      "url": [
+        "https://lz4.github.io/lz4/"
+      ],
+      "version": "1:1.10.0-2"
+    },
+    "mpfr": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 392596,
+        "sha256": "6ae04b170fe6aed89519f0b2cba2f60a34e8a8ea74963e8f3619b12ddefc5117"
+      },
+      "depends": [
+        "glibc",
+        "gmp"
+      ],
+      "filename": "mpfr-4.2.2-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-3.0-or-later",
+        "LGPL-3.0-or-later"
+      ],
+      "provides": [
+        "libmpfr.so=6-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "b51d1826324165185ab18d8e837922c8ce9040e93f53594aa02844927f9eff7b"
+      },
+      "url": [
+        "https://www.mpfr.org/"
+      ],
+      "version": "4.2.2-1"
+    },
+    "ncurses": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 1423256,
+        "sha256": "e7b4f3c2190e3ebb559d288b05aba70094efae63738343521a5669e64ab4bfa6"
+      },
+      "depends": [
+        "glibc",
+        "libgcc",
+        "libstdc++"
+      ],
+      "filename": "ncurses-6.6-2-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "MIT-open-group"
+      ],
+      "provides": [
+        "libncurses++w.so=6-64",
+        "libformw.so=6-64",
+        "libmenuw.so=6-64",
+        "libpanelw.so=6-64",
+        "libncursesw.so=6-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "562abee2f8d99799ac2b338fbcf2b51dd948f380b1f28d9e27894fe78d2fd09b"
+      },
+      "url": [
+        "https://invisible-island.net/ncurses/ncurses.html"
+      ],
+      "version": "6.6-2"
+    },
+    "nettle": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 450528,
+        "sha256": "0912dee3f6f20361e607e7101f39345af7ca9fe7bc51a4ba34620468f8949300"
+      },
+      "depends": [
+        "glibc",
+        "gmp"
+      ],
+      "filename": "nettle-4.0-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "LGPL-3.0-or-later OR GPL-2.0-or-later"
+      ],
+      "provides": [
+        "libnettle.so=9-64",
+        "libhogweed.so=7-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "7997c704dd94c86f17e09159b944eb28d622248a8b270a0d530f5d314333930a"
+      },
+      "url": [
+        "https://www.lysator.liu.se/~nisse/nettle"
+      ],
+      "version": "4.0-1"
+    },
+    "openssl": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 5895660,
+        "sha256": "f60b3c69329784d1218ba098a46b092bb42ecc68f0424f01ce2873353a667c20"
+      },
+      "depends": [
+        "brotli",
+        "glibc",
+        "zlib",
+        "zstd"
+      ],
+      "filename": "openssl-3.6.5-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "Apache-2.0"
+      ],
+      "provides": [
+        "libcrypto.so=3-64",
+        "libssl.so=3-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "de6c9c6fc49a0f8d1ef87baab5ccc3acd481652b4b8244119f54a818e80c6354"
+      },
+      "url": [
+        "https://www.openssl.org"
+      ],
+      "version": "3.6.5-1"
+    },
+    "p11-kit": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 249124,
+        "sha256": "7e5c2facac3abd9b51709e081e8720dc7ccc0f27d6c9b49bcb3d188fa91e75f1"
+      },
+      "depends": [
+        "coreutils",
+        "glibc",
+        "libtasn1",
+        "libp11-kit=0.26.5-1",
+        "libp11-kit.so=0-64"
+      ],
+      "filename": "p11-kit-0.26.5-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "BSD-3-Clause"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "1cb5b9640a044a32be18c730033bd50f9922374e7c27101471549765676c5b8b"
+      },
+      "url": [
+        "https://p11-glue.freedesktop.org"
+      ],
+      "version": "0.26.5-1"
+    },
+    "pam": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 593028,
+        "sha256": "5170b81779f108a305025d10f1f694e8bad8e910f613f318a4965fcafcb03c79"
+      },
+      "depends": [
+        "audit",
+        "glibc",
+        "libaudit.so=1-64",
+        "libcrypt.so=2-64",
+        "libnsl",
+        "libtirpc",
+        "libxcrypt",
+        "pambase",
+        "systemd-libs"
+      ],
+      "filename": "pam-1.7.3-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-2.0-only"
+      ],
+      "provides": [
+        "libpam.so=0-64",
+        "libpamc.so=0-64",
+        "libpam_misc.so=0-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "72546d9ddd5b190d2a09ffc8e8d29f11cbe0bea1faf1d902d1286b510235041e"
+      },
+      "url": [
+        "http://linux-pam.org"
+      ],
+      "version": "1.7.3-1"
+    },
+    "pambase": {
+      "arch": "any",
+      "archive": {
+        "bytes": 3360,
+        "sha256": "8824b4ddde15770edd4a760901b4c73add68bb18f639ded8316024bc1ab0210f"
+      },
+      "depends": [],
+      "filename": "pambase-20260616-1-any.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-3.0-or-later"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "6dabc64fcd7d5c1888079d3ce73ea6a26894f4b153b7d1658f2aa99a3a342b32"
+      },
+      "url": [
+        "https://www.archlinux.org"
+      ],
+      "version": "20260616-1"
+    },
+    "pcre2": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 1260636,
+        "sha256": "8334385fdb4ed51807d6345cbe23c961ada160b589855d362c28127f5065a5a6"
+      },
+      "depends": [
+        "bzip2",
+        "glibc",
+        "readline",
+        "zlib"
+      ],
+      "filename": "pcre2-10.49-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "BSD-2-Clause",
+        "BSD-3-Clause WITH PCRE2-exception"
+      ],
+      "provides": [
+        "libpcre2-8.so=0-64",
+        "libpcre2-16.so=0-64",
+        "libpcre2-32.so=0-64",
+        "libpcre2-posix.so=3-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "b8b36174408920d182d4e41b609d27f4ec80a3fde8e15aac732f5d0192d228d7"
+      },
+      "url": [
+        "https://github.com/PCRE2Project/pcre2"
+      ],
+      "version": "10.49-1"
+    },
+    "readline": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 400496,
+        "sha256": "6e81d2cf14bf0309761d4c65a0a46f181f61c5a6b83aa64928f1ab12cf6f5797"
+      },
+      "depends": [
+        "glibc",
+        "libncursesw.so=6-64",
+        "ncurses"
+      ],
+      "filename": "readline-8.3.6-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-3.0-or-later"
+      ],
+      "provides": [
+        "libhistory.so=8-64",
+        "libreadline.so=8-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "28f1926bfb2d309e2dd6f4dca4dd352fbcec8805deb818d07cbb8631b48725e1"
+      },
+      "url": [
+        "https://tiswww.case.edu/php/chet/readline/rltop.html"
+      ],
+      "version": "8.3.6-1"
+    },
+    "rust": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 59807260,
+        "sha256": "337e715182a8f81bfd6df844793c5d1cb2697ff9e94ddb496dd850ba901c31d4"
+      },
+      "depends": [
+        "compiler-rt=23.1.1",
+        "lld=23.1.1",
+        "llvm-libs=23.1.1",
+        "bash",
+        "curl",
+        "gcc",
+        "glibc",
+        "libgcc",
+        "libgit2",
+        "libssh2",
+        "libstdc++",
+        "openssl",
+        "sqlite",
+        "zlib",
+        "libcurl.so=4-64",
+        "libgcc_s.so=1-64",
+        "libgit2.so=1.9-64",
+        "libsqlite3.so=0-64",
+        "libssh2.so=1-64",
+        "libssl.so=3-64"
+      ],
+      "filename": "rust-1:1.99.0-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "Apache-2.0 OR MIT"
+      ],
+      "provides": [
+        "cargo",
+        "rustfmt"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "d7dcf2f24bca366570446a6c7228048524e1632122fa36200685a0fbe638735e"
+      },
+      "url": [
+        "https://www.rust-lang.org/"
+      ],
+      "version": "1:1.99.0-1"
+    },
+    "sqlite": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 1850368,
+        "sha256": "9512d37af4ac6910e10e2a8e6f85078ab72a2ece17a8e6b51755898f50b900ba"
+      },
+      "depends": [
+        "readline",
+        "zlib",
+        "glibc"
+      ],
+      "filename": "sqlite-3.53.4-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "LicenseRef-Sqlite"
+      ],
+      "provides": [
+        "sqlite3=3.53.4",
+        "libsqlite3.so=0-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "3ebd5713a768e6de587faf3869485fb2563346d2570afc9cdf6d3549ce28a762"
+      },
+      "url": [
+        "https://www.sqlite.org/"
+      ],
+      "version": "3.53.4-1"
+    },
+    "systemd-libs": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 1303288,
+        "sha256": "8e697c8f2db7c82dfcdcdc63540f7ad265d8e10fc7aab656c60229d858fca901"
+      },
+      "depends": [
+        "glibc",
+        "libgcc",
+        "libgcc_s.so=1-64",
+        "libgcrypt",
+        "lz4",
+        "xz",
+        "zstd"
+      ],
+      "filename": "systemd-libs-262-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "LGPL-2.1-or-later",
+        "CC0-1.0",
+        "GPL-2.0-or-later WITH Linux-syscall-note"
+      ],
+      "provides": [
+        "libsystemd",
+        "libsystemd.so=0-64",
+        "libudev.so=1-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "1188b1b93ba1f79069a36c8d33555713b41746c981d246f5e3ffc726c4633de7"
+      },
+      "url": [
+        "https://www.github.com/systemd/systemd"
+      ],
+      "version": "262-1"
+    },
+    "tzdata": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 293780,
+        "sha256": "d7d3c754efda7194c0b931c457436f5215e1ca51835cbfac228e70c46112f22f"
+      },
+      "depends": [],
+      "filename": "tzdata-2026e-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "LicenseRef-tz"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "6625904c3bccff17143fa2c978582fd2cc1175629517c8cd0f635ab30e5ff2b5"
+      },
+      "url": [
+        "https://www.iana.org/time-zones"
+      ],
+      "version": "2026e-1"
+    },
+    "util-linux-libs": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 505908,
+        "sha256": "fc33959229b44ee81ab4c66177783b65cae4390868552a81493dc94be0cf9c60"
+      },
+      "depends": [
+        "glibc",
+        "sqlite"
+      ],
+      "filename": "util-linux-libs-2.42.4-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "BSD-2-Clause",
+        "BSD-3-Clause",
+        "BSD-4-Clause-UC",
+        "GPL-2.0-only",
+        "GPL-2.0-or-later",
+        "GPL-3.0-or-later",
+        "ISC",
+        "LGPL-2.1-or-later",
+        "LicenseRef-PublicDomain"
+      ],
+      "provides": [
+        "libutil-linux",
+        "libblkid.so=1-64",
+        "libfdisk.so=1-64",
+        "libmount.so=1-64",
+        "libsmartcols.so=1-64",
+        "libuuid.so=1-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "b62f849fce0b35cb1891db98d6d0894688db8020ea5eae2bc30ec6d15eebfa7d"
+      },
+      "url": [
+        "https://github.com/util-linux/util-linux"
+      ],
+      "version": "2.42.4-1"
+    },
+    "xz": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 822656,
+        "sha256": "0a72061585c62a92d1a38348bc7f160665b0b508ddc92fd289b6b2ca12785150"
+      },
+      "depends": [
+        "glibc",
+        "sh"
+      ],
+      "filename": "xz-5.8.4-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-2.0-or-later AND 0BSD AND LicenseRef-Public-Domain AND LGPL-2.1-or-later"
+      ],
+      "provides": [
+        "liblzma.so=5-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "9269d197982a0e46e35a76f450ffe2c361abfaf64f598bc46eacf43632ceb4fc"
+      },
+      "url": [
+        "https://tukaani.org/xz/"
+      ],
+      "version": "5.8.4-1"
+    },
+    "zlib": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 77320,
+        "sha256": "7e31b465e09e8e61375578b8e26ed883906e126e0c0ef1c75b7ccccfa95a58c4"
+      },
+      "depends": [
+        "glibc"
+      ],
+      "filename": "zlib-1:1.3.2-3-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "Zlib"
+      ],
+      "provides": [
+        "libz.so=1-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "ec8d454359ded82cd5dfe368de1cb16303e88ca2b180fba9bcb44ba75a6a7e9d"
+      },
+      "url": [
+        "https://www.zlib.net/"
+      ],
+      "version": "1:1.3.2-3"
+    },
+    "zstd": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 436532,
+        "sha256": "c3b907c36049b338bda0c6d85260251e48d17e2be6c0e11ddc0dfd4cf9d2e89a"
+      },
+      "depends": [
+        "glibc",
+        "libgcc",
+        "libstdc++",
+        "zlib",
+        "xz",
+        "lz4"
+      ],
+      "filename": "zstd-1.5.7-3-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "BSD-3-Clause",
+        "GPL-2.0-only"
+      ],
+      "provides": [
+        "libzstd.so=1-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "26b15a5f3e277d74a6ce12462b7971ef6ac25ebc19e5348fa7c1da5bba0d0ed0"
+      },
+      "url": [
+        "https://facebook.github.io/zstd/"
+      ],
+      "version": "1.5.7-3"
+    }
+  },
+  "public_keyring": {
+    "bytes": 2228,
+    "filename": "alarm-public.gpg",
+    "origin_armored_bytes": 3098,
+    "origin_armored_sha256": "6ce771e853f04a38a5b533cb33e61f877b9b06b58b6db051eb8a15d737a2332f",
+    "sha256": "9403f923eed777ba0896a0b225e1522d3a7625234694c753ae26b27c29672aae"
+  },
+  "purpose": "bankstown-alarm-rust-1.99.0-offline-inputs",
+  "roots": [
+    "rust",
+    "filesystem"
+  ],
+  "schema": 1,
+  "signer_primary": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+  "source_acceptance": "NOT_ESTABLISHED",
+  "source_facts": {
+    "bytes": 5934,
+    "sha256": "5ce3c53a44afab2b905ca7f01669f3f323f3bad2d06b8849b2c2bc66c5931c2c"
+  }
+}

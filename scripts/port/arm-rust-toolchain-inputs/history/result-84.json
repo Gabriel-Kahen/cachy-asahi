@@ -1,0 +1,32 @@
+{
+  "archive_count": 84,
+  "catalog": {
+    "bytes": 7818725,
+    "sha256": "1d855462a905226202651f6dd19f19f73780c4fef40788050e79c908b4ab36d5"
+  },
+  "commit": "e61a895dcc0ce5376225d126b7451a9ececde4f8",
+  "input_checks": "PASS",
+  "native_execution": "NOT_RUN",
+  "prepared_files": 168,
+  "prepared_total_bytes": 220009936,
+  "preserved_lock": {
+    "bytes": 94299,
+    "filename": "history/inputs-84.lock.json",
+    "sha256": "56f015387f08888f924aff4f0271c342a5303644f13515c7a3743fa9af9650f2"
+  },
+  "schema": 1,
+  "source_acceptance": "NOT_ESTABLISHED",
+  "structural_elf_closure": "INCOMPLETE",
+  "unresolved_elf_dependencies": [
+    {
+      "consumer": "/usr/bin/memusagestat",
+      "needed": "libgd.so.3",
+      "provider": null
+    },
+    {
+      "consumer": "/usr/lib/python3.14/site-packages/libmount/pylibmount.cpython-314-aarch64-linux-gnu.so",
+      "needed": "libpython3.14.so.1.0",
+      "provider": null
+    }
+  ]
+}
