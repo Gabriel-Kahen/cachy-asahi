@@ -2,6 +2,7 @@
 """One exact namespace diagnostic's DATA joins; import has no actor authority."""
 import hashlib
 import json
+from datetime import datetime, timedelta
 from pathlib import Path
 import re
 from types import SimpleNamespace
@@ -22,6 +23,7 @@ HELPER = dict(path='native/image_lifecycle.py',bytes=12996,
 STEP = 'Check original alarm1001 namespace admission DATA without actors'
 SOURCE_STEP = 'Check original alarm1001 source controls without actors'
 BASELINE_MAIN = 'ab6b6e1887c8d7609ba387c9401dc9f970bb3a13'
+REPOSITORY = 'Gabriel-Kahen/cachy-asahi'
 FACTORY_PATHS = {'scripts/ci/native-build-namespace-context-admission/' + name for name in ('prepare.py','namespace_guard.py','test_admission_data.py','held-inputs.json','Root-published-source-full200.json','parent-full200.json','source-profile.json','source.raw','parent.raw','runtime54.py')}
 
 
@@ -83,11 +85,67 @@ def factory(value):
     return value
 
 
-def factory_proofs(binding, merge, ci):
+def proof_row(row):
+    need(type(row) is dict and set(row)=={'path','bytes','sha256'} and
+         type(row['path']) is str and Path(row['path']).is_absolute() and
+         type(row['bytes']) is int and 0<row['bytes']<=4*1024**2 and
+         type(row['sha256']) is str and re.fullmatch('[0-9a-f]{64}',row['sha256']),
+         'closed bounded external Root evidence pin')
+    return row
+
+
+def recorded_merge(binding, merge, proof):
+    """Join Root's recorded CLI invocation and pre/post PR DATA, not HTTP counts."""
+    need(type(merge) is dict, 'actual external merge receipt')
+    journal=proof(proof_row(merge.get('merge_action_journal')))
+    need(type(journal) is dict and set(journal)=={'schema','issuer','scope','complete_for_pr_head','before','actions','after'} and
+         type(journal['schema']) is int and journal['schema']==1 and journal['issuer']=='Root' and
+         journal['scope']=='RECORDED_MERGE_INVOCATIONS_FOR_FACTORY_PR_HEAD' and journal['complete_for_pr_head'] is True,
+         'Root journal attests complete recorded merge invocations for this PR/head')
+    observations=[]
+    for key in ('before','after'):
+        row=journal[key]
+        need(type(row) is dict and set(row)=={'observed_at','pull_request_raw'}, 'pinned contemporaneous pre/post PR observation')
+        observations.append(proof(proof_row(row['pull_request_raw'])))
+    actions=journal['actions']
+    need(type(actions) is list and len(actions)==1 and type(actions[0]) is dict and
+         set(actions[0])=={'kind','argv','started_at','finished_at','exit_code'}, 'exactly one closed recorded merge invocation')
+    action=actions[0]
+    need(action['kind']=='gh-pr-merge' and action['argv']==[
+         'gh','pr','merge',str(binding['pull_request']),'--repo',REPOSITORY,'--merge','--match-head-commit',binding['factory_head']] and
+         type(action['exit_code']) is int and action['exit_code']==0, 'one exact successful matched-head CLI invocation')
+    before,after=observations
+    for pr in observations:
+        need(type(pr) is dict and type(pr.get('id')) is int and pr['id']>0 and
+             type(pr.get('number')) is int and pr['number']==binding['pull_request'], 'same actual positive PR identity')
+        for key in ('base','head'):
+            row=pr.get(key)
+            need(type(row) is dict and type(row.get('repo')) is dict and row['repo'].get('full_name')==REPOSITORY,
+                 'actual PR base/head repository provenance')
+        need(pr['base'].get('ref')=='main' and pr['head'].get('sha')==binding['factory_head'], 'actual PR base and matched tested head')
+    need(before['id']==after['id'] and before.get('state')=='open' and before.get('merged') is False and
+         before.get('merged_at') is None and before['base'].get('sha')==merge.get('premerge_main') and
+         after.get('state')=='closed' and after.get('merged') is True and after.get('merge_commit_sha')==binding['factory_Main'],
+         'observed OPEN/unmerged pre-state and matching merged post-state; exit0 alone cannot qualify')
+    def stamp(value):
+        need(type(value) is str and len(value)<=40, 'bounded UTC evidence timestamp')
+        try: parsed=datetime.fromisoformat(value)
+        except ValueError: raise ValueError('valid UTC evidence timestamp') from None
+        need(parsed.utcoffset()==timedelta(0), 'timezone-aware UTC evidence timestamp')
+        return parsed
+    observed_before,started,finished,observed_after=map(stamp,(
+        journal['before']['observed_at'],action['started_at'],action['finished_at'],journal['after']['observed_at']))
+    need(observed_before<=started<=finished<=observed_after and
+         started-timedelta(seconds=1)<=stamp(after.get('merged_at'))<=finished+timedelta(seconds=1),
+         'ordered pre/action/post observations and contemporaneous merge timestamp (API second precision)')
+
+
+def factory_proofs(binding, merge, ci, proof):
     factory(binding)
+    recorded_merge(binding,merge,proof)
     need(merge.get('main')==binding['factory_Main'] and merge.get('tested_head')==binding['factory_head'] and
-         merge.get('merge_PUTs')==1 and merge.get('all_unlisted_objects_modes_preserved') is True and
-         merge.get('inverse_restores_actual_premerge_main') is True, 'genuine one-merge and exact correction inverse proof')
+         merge.get('all_unlisted_objects_modes_preserved') is True and
+         merge.get('inverse_restores_actual_premerge_main') is True, 'genuine recorded merge and exact correction inverse proof')
     need(type(merge.get('premerge_main')) is str and re.fullmatch('[0-9a-f]{40}',merge['premerge_main']) and
          type(merge.get('reviewed_changes')) is dict and 10<=len(merge['reviewed_changes'])<=256 and
          type(merge.get('correction_paths')) is list and len(set(merge['correction_paths']))==10,
@@ -170,8 +228,9 @@ def qualify(namespace):
     need(pin(o.U.read(o.T/'source-profile.json'))['sha256']==PROFILE, 'exact reviewed observable source profile')
     need(o.entries(o.git('parent-full-map','ls-tree','-r','-z','--full-tree',PARENT))=={n:dict(mode=r['mode'],blob=r['oid'])for n,r in parent_rows.items()}, 'actual complete parent69455 Git map')
     def proof(row):
+        proof_row(row)
         body=o.U.read(Path(row['path']));need(pin(body)=={k:row[k] for k in ('bytes','sha256')}, 'Root external factory proof pin');return o.U.obj(body)
-    merge=proof(binding['factory_merge']);factory_proofs(binding,merge,proof(binding['factory_CI']))
+    merge=proof(binding['factory_merge']);factory_proofs(binding,merge,proof(binding['factory_CI']),proof)
     live=o.main_guard();o.git('factory-ancestor','merge-base','--is-ancestor',binding['factory_Main'],live)
     o.git('factory-head-ancestor','merge-base','--is-ancestor',binding['factory_head'],binding['factory_Main'])
     o.git('baseline-main-ancestor','merge-base','--is-ancestor',binding['baseline_main'],binding['factory_Main'])

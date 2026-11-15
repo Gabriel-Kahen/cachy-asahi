@@ -83,6 +83,8 @@ def inputs(A,root,factory=None,factory_sha=None,runtime=None,runtime_sha=None,ex
       ("B.read(HERE/'parent.raw')==data['templates']['source.raw']","B.read(HERE/'parent.raw')==B.read(HELD_ROOT/'source.raw')"),
       ("B.encoded(data['rows'])","B.encoded(parent_rows)"),
       ("proofs=[]","need(binding['factory_files_sha256']==FACTORY_SHA,'exact Root-bound new factory manifest');proofs=[]"),
+      ("G.factory_proofs(binding,*proofs)",
+       "def merge_proof(row):\n            G.proof_row(row);raw=B.read(Path(row['path']))\n            need(G.pin(raw)=={k:row[k]for k in('bytes','sha256')},'actual Root merge-action evidence pin')\n            external[row['path']]=G.pin(raw);return B.obj(raw)\n        G.factory_proofs(binding,*proofs,merge_proof)"),
       ("authority['scope']+=' Observable family changes exactly four leaves, retains196 and uses tools16/unquiet with iidfile. Full diagnostic output remains subject to unchanged ordinary privacy refusal; no namespace outcome is guaranteed or inferred.'",
        "authority['scope']+=' Original alarm1001 family changes six leaves, retains194, preserves the original USER alarm/PID1/argv/baseline domain without account mutation. Tools16/unquiet with iidfile, ordinary privacy refusal and no inferred namespace outcome remain exact.'"),
       ("'exact_Source69455_parent6b_four_leaf_inverse196_complete200_map199'","'exact_Source3937_parent69455_six_leaf_inverse194_complete200_map199_original_alarm1001'"),

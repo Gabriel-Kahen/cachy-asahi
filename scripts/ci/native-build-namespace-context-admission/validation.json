@@ -21,20 +21,34 @@
       "3.14.7"
     ],
     "skipped": 0,
-    "tests": 10
+    "tests": 13
   },
   "factory_binding": null,
   "factory_manifest": {
     "bytes": 2595,
-    "sha256": "ba334a801ca174ee5e61f83751a524c5cb6fd069f0c69b1e5190860cc00c8d9f"
+    "sha256": "f69019d1b12ccd4b3828dda0e15981b28ca0e63801b8e1bc1ef12a95de994d2e"
   },
   "factory_subset_files": 10,
   "held_committed_operands_verified": 40,
   "held_main": "ab6b6e1887c8d7609ba387c9401dc9f970bb3a13",
   "lease_entries": 0,
   "map_sha256": "0c37bef7218caa6cb0f0e6d1b22ed5053b10a228f53e15076f5803d2fcf86b3e",
+  "merge_action_contract": {
+    "PR440_candidate_evidence": "IMMUTABLE_OLD_GUARD_DATA_NOT_QUALIFIED",
+    "all_three_external_evidence_files": "WHOLE_PINNED_AND_INPUT_SEALED",
+    "historical_HTTP_verbs_counts": "UNKNOWN_NOT_INFERRED",
+    "new_factory_PR_CI_Main_and_Root_journal_required": true,
+    "post_merge_PR": "PINNED_RAW_MATCHING_MERGED_PR_HEAD_MAIN",
+    "pre_merge_PR": "PINNED_RAW_OPEN_UNMERGED_HEAD_BASE",
+    "required_recorded_CLI_invocations": 1,
+    "schema": 1
+  },
   "packet": {
     "all_pins_independently_rejoined": true,
+    "factory_manifest_at_construction": {
+      "bytes": 2595,
+      "sha256": "ba334a801ca174ee5e61f83751a524c5cb6fd069f0c69b1e5190860cc00c8d9f"
+    },
     "input_rows": 224,
     "input_seal": {
       "bytes": 58234,
@@ -46,7 +60,8 @@
       "bytes": 4455,
       "sha256": "7de7f1ee1b83d942c3f6d02208dd45e1bf19cadf579a0449b8ce583808b61672"
     },
-    "sealed_operands": 30
+    "sealed_operands": 30,
+    "status": "UNISSUED_PRE_CORRECTION_DATA_DO_NOT_REUSE_REBUILD_AFTER_NEW_FACTORY_BINDING"
   },
   "parent": "69455e13bc99a2b2b6c2aca11f69d581769ae500",
   "reader": {
@@ -64,7 +79,7 @@
     "inverse_to": "69455e13bc99a2b2b6c2aca11f69d581769ae500"
   },
   "source_files": 200,
-  "status": "SOURCE3937_PENDING_DATA_PACKET_COMPLETE_NO_ROLES",
+  "status": "SOURCE3937_MERGE_ACTION_CONTRACT_LOCAL_DATA_CONTROLS_NO_ROLES",
   "superseded_packet": {
     "path": "/home/gabe/Documents/ChatGPT/cachy-asahi-native-lock-runtime54-20261114/scripts/ci/native-build-namespace-context-admission/work/pending-r1",
     "status": "UNENTERED_UNISSUED_DATA_SUPERSEDED_DO_NOT_REUSE"

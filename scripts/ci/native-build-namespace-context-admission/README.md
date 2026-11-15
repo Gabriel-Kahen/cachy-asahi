@@ -81,6 +81,37 @@ live Main, proves reviewed→tested ancestry, complete reviewed integration-batc
 changes/additions/removals and inverse, actual two-parent merge and Main ancestry.
 The integration batch need not contain only those ten files.
 
+The merge receipt must also pin `merge_action_journal` with the same external
+`{path,bytes,sha256}` row shape. Its closed journal schema is:
+
+- `schema`: integer1; `issuer`: `Root`;
+  `scope`: `RECORDED_MERGE_INVOCATIONS_FOR_FACTORY_PR_HEAD`;
+  `complete_for_pr_head`: true.
+- `before` and `after`: each exactly `{observed_at,pull_request_raw}`, with a UTC
+  ISO timestamp and an external whole-pinned raw GitHub PR response.
+- `actions`: exactly one `{kind,argv,started_at,finished_at,exit_code}` object.
+  Kind is `gh-pr-merge`, exit code is integer0, timestamps are UTC ISO, and the
+  exact tokenized argv is the following, with the externally bound PR/head:
+
+```sh
+gh pr merge PR --repo Gabriel-Kahen/cachy-asahi --merge --match-head-commit HEAD
+```
+
+Root records the raw **OPEN/unmerged** PR/head/base snapshot before invoking that
+command and the matching closed/merged PR snapshot afterward. Repository, PR
+number/ID, tested head, premerge base and resulting Main must join. Observation
+times must bracket the command; the API merge timestamp must fall within its
+interval, allowing one second for API precision. CLI exit0 alone cannot qualify
+an already-merged PR. This attests one recorded CLI invocation, not an HTTP verb
+or request count; `merge_PUTs` is not a qualification premise.
+The composer independently reads and verifies all three external evidence files
+and adds their whole pins to `input-seal.json`; runtime rejoins the same pins.
+
+The corrected factory needs its own reviewed PR, CI, Main and actual Root journal.
+Existing PR440 candidate evidence and pending-r2 remain immutable historical
+DATA; neither supplies these new evidence requirements or authority. Root alone
+supplies the actual external journal and approval.
+
 Root's actual CI receipt must reconcile **all** checks/jobs to the exact bound
 count, with no failures/nonterminal and distinct successful jobs
 `Image lifecycle source controls (3.12)` and `(3.14)` in the same run/attempt/head.
@@ -125,7 +156,7 @@ python3 -I -B -Werror::ResourceWarning \
   --source-root /absolute/no-Git-Source3937-export
 ```
 
-Ten actor-fenced controls pass on Python3.12.13 and3.14.7. They perform the real
+Thirteen actor-fenced controls pass on Python3.12.13 and3.14.7. They perform the real
 complete explicit new Source scan; only historical retained DATA and runtime Git
 callbacks are modeled. Controls cover full publication/profile/parent joins,
 reviewed/tested/current-Main bodies, genuine factory/CI schema, all refusal cases,
@@ -133,11 +164,12 @@ stale/missing runtime, UID1001 vs lock UID1000, pending-before-output refusal,
 seal closure, no-Git/extra namespace refusal, fresh output/reuse and held guard
 ASTs. No modeled receipt is presented as actual CI or authority.
 
-`work/pending-r2` is the concrete fresh **unissued** packet:32 files,30 sealed
+`work/pending-r2` is the original pre-correction **unissued** packet:32 files,30 sealed
 operands,224 input rows. All pins were independently reread. Seal4455B/SHA256
 `7de7f1ee1b83d942c3f6d02208dd45e1bf19cadf579a0449b8ce583808b61672`.
 `validation.json` and private `work/handoff.json` record exact pins and holds.
-The superseded pending-r1 remains unentered and must not be reused.
-No preflight/receipt/actual-native outputs exist; no lease, GET, POST, Source
-publication or actual Reader entry occurred. M2/native16K, namespace support/
+Both pending-r1 and pending-r2 remain unentered and must not be reused after this
+contract correction; Root must compose a fresh packet after the new binding.
+No preflight/receipt/actual-native outputs exist; no lease, Original GET, Native
+POST, Source publication or actual Reader entry occurred. M2/native16K, namespace support/
 cause, Doc315, package, performance and release acceptance remain unestablished.
