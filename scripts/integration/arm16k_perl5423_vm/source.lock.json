@@ -1,0 +1,168 @@
+{
+  "actual": {
+    "ALPM": null,
+    "Root_acceptance": null,
+    "VM": null,
+    "authority": null,
+    "case_prepared": null,
+    "image_prepared": null,
+    "ref": null,
+    "runtime": null,
+    "source": null
+  },
+  "files": {
+    "LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "README.md": {
+      "bytes": 11917,
+      "mode": 420,
+      "sha256": "01ab7eff7ad57bd6801bf2744559e4a1d4e2bb3292b81d5315486f19f001d951"
+    },
+    "__pycache__/contracts.cpython-314.pyc": {
+      "bytes": 47637,
+      "mode": 420,
+      "sha256": "87c8f1dad9c120c29d2b2826746323472061871431cff1bf855e1ced5fec7699"
+    },
+    "actor.py": {
+      "bytes": 10498,
+      "mode": 420,
+      "sha256": "b9b5e4af41a2a030c079a3af00a900e5b6f7de3a2e7062bdeb238c47a98ef2e8"
+    },
+    "adapter.py": {
+      "bytes": 10362,
+      "mode": 420,
+      "sha256": "e189a3280125096e12b7c6a8e21b11701d0f65acd75ad6ff5e82a9d2f10402fd"
+    },
+    "authority.TEMPLATE.json": {
+      "bytes": 662,
+      "mode": 420,
+      "sha256": "5c445dec54f7277b547e7235912cc3b64baea16f29bec1bbf88c211b8099f85d"
+    },
+    "budget.py": {
+      "bytes": 2912,
+      "mode": 420,
+      "sha256": "7972bacca71606301cb3971b18a9318409518bed4b607a8dd17d7af032f864bf"
+    },
+    "case.TEMPLATE.json": {
+      "bytes": 1123,
+      "mode": 420,
+      "sha256": "740179889d78da7d275f3d6067d72e3d935c8af6c42ec224bbf759fae08c16e6"
+    },
+    "contracts.py": {
+      "bytes": 26947,
+      "mode": 420,
+      "sha256": "98ea5845dc6fad99fcfc602fcd6887f3ac9738a65135f974e616d5514902350e"
+    },
+    "controller.py": {
+      "bytes": 15140,
+      "mode": 420,
+      "sha256": "181377d1256819ffdd7d76996128bf1f9027147c507e7407e5dbb2d316978175"
+    },
+    "frozen/guest-runtime.sh": {
+      "bytes": 8870,
+      "mode": 420,
+      "sha256": "639257a6637923b9f6ee8486fa580b0603b662863fdcb51a2187fc7864568463"
+    },
+    "frozen/independent_readback.py": {
+      "bytes": 13913,
+      "mode": 420,
+      "sha256": "8fb8c2c32dc5a40998bf31cc5727768f88ce51e423b7090cfb702116bdc9b5d3"
+    },
+    "frozen/owned_process.py": {
+      "bytes": 25140,
+      "mode": 420,
+      "sha256": "83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f"
+    },
+    "frozen/reference_controller.py": {
+      "bytes": 14117,
+      "mode": 420,
+      "sha256": "e7c8935f342d4b36bb6f8f24c0b48c3b8aa04be9807f62c3f8141aeaf26819fc"
+    },
+    "frozen/rtc-clock.sh": {
+      "bytes": 1344,
+      "mode": 420,
+      "sha256": "fed8c8eabe89ad8cb979994c35dc44ad3e8704f5481c3dd00560192018c504fa"
+    },
+    "frozen/rtc_contract.py": {
+      "bytes": 9806,
+      "mode": 420,
+      "sha256": "b3f4727110fefb9429ca3944e758189cac8ecddfc53332f4ce2c40b64ca35028"
+    },
+    "guest/case.sh": {
+      "bytes": 1917,
+      "mode": 420,
+      "sha256": "7a34959f1b69edaa769736c3346572cf7b6fdf44b5b2909c714486b27da19a33"
+    },
+    "guest/probe.sh": {
+      "bytes": 3886,
+      "mode": 420,
+      "sha256": "73a59b9b9e9da1caee01ffaed0fddd52dcb54d360ce28969f14458af3ab12097"
+    },
+    "guest/root.sh": {
+      "bytes": 12037,
+      "mode": 420,
+      "sha256": "0f8a37cf2e86b5eac74d2e18115b06dd7ca0b494873937b9ffc30d539c3a4731"
+    },
+    "guest/runtime.pl": {
+      "bytes": 2645,
+      "mode": 420,
+      "sha256": "c0ed322866ed0b267412155a2212edf53c640badf471347c68d14c6a6c6820c5"
+    },
+    "guest/smoke.t": {
+      "bytes": 129,
+      "mode": 420,
+      "sha256": "7243b7744cf5d54d25c4d1be8bdf87886170b155f78b72f389755b932a7dbb75"
+    },
+    "helper-origin.json": {
+      "bytes": 1830,
+      "mode": 420,
+      "sha256": "75c8fe2567e7fdc613137ecd93c61dda694e4af250b73862b438cf8b5fab237f"
+    },
+    "image.py": {
+      "bytes": 4554,
+      "mode": 420,
+      "sha256": "10cd673a9c167db8408bdeae05cd3183793a0093fe3366040fae4ef19eaae5e7"
+    },
+    "known/installed-Reader.json": {
+      "bytes": 3797,
+      "mode": 384,
+      "sha256": "96138206dedec2d49f16475ba7daa5200ff8ab401ccb720f764685e63853d205"
+    },
+    "known/installed-decision.json": {
+      "bytes": 6168,
+      "mode": 420,
+      "sha256": "084794319bf849ed1cc2a2387f502acf8cc82dec3fad11b00e3dc8cfc4096535"
+    },
+    "proof.py": {
+      "bytes": 3695,
+      "mode": 420,
+      "sha256": "f9bdb58887cc9f93be149a66fb2a7e70ea425b58b4804d97e7ff75b053c9cb55"
+    },
+    "protocol.py": {
+      "bytes": 6999,
+      "mode": 420,
+      "sha256": "24ac98742c1a8b8858b5684614112c704927fef06eba7bc2e3412d0e5d859547"
+    },
+    "runtime.py": {
+      "bytes": 13867,
+      "mode": 420,
+      "sha256": "e63d41c5ed834a7ffbcd01a51fc6b59e5571b24be27247a83ebbb9f507da71a1"
+    },
+    "test_controls.py": {
+      "bytes": 18715,
+      "mode": 420,
+      "sha256": "d3512817e66b42946301b9b9c70d177ca99194013ec2d5761a16dd18419efdc6"
+    },
+    "validation.json": {
+      "bytes": 1363,
+      "mode": 420,
+      "sha256": "75a5661bf9cdbbfcf025eaa46d4a4e565965d9cc5b5c26babd3b5d82f41b7b21"
+    }
+  },
+  "kind": "ARM16K_PERL5423_CASE_SOURCE_LOCK_V1",
+  "operation": "arm16k-perl5423-system-runtime-v1",
+  "schema": 1
+}
