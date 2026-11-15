@@ -1,0 +1,46 @@
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            BuildKit is currently disabled; enable it by removing the DOCKER_BUILDKIT=0
+            environment-variable.
+
+Sending build context to Docker daemon  4.608kB
+Step 1/10 : FROM sha256:78387bc3881b8273120a12ebe6c1ab22b018ccc2c9adf565ae1ac9b536e184ea
+ ---> 78387bc3881b
+Step 2/10 : LABEL org.cachy-asahi.namespace-context-reference="x86-account1000-v1"
+ ---> Running in 900b30fb4795
+ ---> Removed intermediate container 900b30fb4795
+ ---> 6a73aecff45e
+Step 3/10 : RUN groupadd -g 1001 alarm && useradd -u 1001 -g alarm -M -s /bin/bash alarm
+ ---> Running in c597855c3b76
+ ---> Removed intermediate container c597855c3b76
+ ---> a4eefaca583c
+Step 4/10 : USER alarm
+ ---> Running in 345d06a4f8f6
+ ---> Removed intermediate container 345d06a4f8f6
+ ---> 5bd0b1160bac
+Step 5/10 : WORKDIR /tmp
+ ---> Running in 7c0de3cd415c
+ ---> Removed intermediate container 7c0de3cd415c
+ ---> 3601fba1f2c4
+Step 6/10 : RUN ["/bin/bash", "--noprofile", "--norc", "-p", "-c", "test \"$BASHPID\" -eq 1 || exit 125; /usr/local/bin/python3 -I -B -c 'import json,os,pwd; a=pwd.getpwnam(\"alarm\"); v=dict(reference=\"HOST_X86_CLASSIC_DOCKER_RUN_ONLY\",phase='\"'\"'before-normalization'\"'\"',machine=os.uname().machine,uid=os.getuid(),euid=os.geteuid(),gid=os.getgid(),egid=os.getegid(),alarm_uid=a.pw_uid,alarm_gid=a.pw_gid,pid=os.getpid(),ppid=os.getppid(),cwd=os.getcwd()); print(json.dumps(v,sort_keys=True),flush=True); assert v[\"machine\"]==\"x86_64\" and all(v[k]==1001 for k in (\"uid\",\"euid\",\"gid\",\"egid\",\"alarm_uid\",\"alarm_gid\")) and v[\"pid\"]>1 and v[\"ppid\"]==1 and v[\"cwd\"]==\"/tmp\"' & context_owner=$!; context_status=0; wait \"$context_owner\" || context_status=$?; exit \"$context_status\""]
+ ---> Running in 5d239ccdeb28
+{"alarm_gid": 1001, "alarm_uid": 1001, "cwd": "/tmp", "egid": 1001, "euid": 1001, "gid": 1001, "machine": "x86_64", "phase": "before-normalization", "pid": 7, "ppid": 1, "reference": "HOST_X86_CLASSIC_DOCKER_RUN_ONLY", "uid": 1001}
+ ---> Removed intermediate container 5d239ccdeb28
+ ---> 58412108f89d
+Step 7/10 : USER root
+ ---> Running in cb758130737c
+ ---> Removed intermediate container cb758130737c
+ ---> 737e0602a847
+Step 8/10 : RUN groupmod -g 1000 alarm && usermod -u 1000 -g alarm alarm
+ ---> Running in f50c31a9c1db
+ ---> Removed intermediate container f50c31a9c1db
+ ---> f32fa9ab9485
+Step 9/10 : USER alarm
+ ---> Running in f6528c7bf51b
+ ---> Removed intermediate container f6528c7bf51b
+ ---> 251c06290540
+Step 10/10 : RUN ["/bin/bash", "--noprofile", "--norc", "-p", "-c", "test \"$BASHPID\" -eq 1 || exit 125; /usr/local/bin/python3 -I -B -c 'import json,os,pwd; a=pwd.getpwnam(\"alarm\"); v=dict(reference=\"HOST_X86_CLASSIC_DOCKER_RUN_ONLY\",phase='\"'\"'after-normalization'\"'\"',machine=os.uname().machine,uid=os.getuid(),euid=os.geteuid(),gid=os.getgid(),egid=os.getegid(),alarm_uid=a.pw_uid,alarm_gid=a.pw_gid,pid=os.getpid(),ppid=os.getppid(),cwd=os.getcwd()); print(json.dumps(v,sort_keys=True),flush=True); assert v[\"machine\"]==\"x86_64\" and all(v[k]==1000 for k in (\"uid\",\"euid\",\"gid\",\"egid\",\"alarm_uid\",\"alarm_gid\")) and v[\"pid\"]>1 and v[\"ppid\"]==1 and v[\"cwd\"]==\"/tmp\"' & context_owner=$!; context_status=0; wait \"$context_owner\" || context_status=$?; exit \"$context_status\""]
+ ---> Running in 534d9e1281a9
+{"alarm_gid": 1000, "alarm_uid": 1000, "cwd": "/tmp", "egid": 1000, "euid": 1000, "gid": 1000, "machine": "x86_64", "phase": "after-normalization", "pid": 7, "ppid": 1, "reference": "HOST_X86_CLASSIC_DOCKER_RUN_ONLY", "uid": 1000}
+ ---> Removed intermediate container 534d9e1281a9
+ ---> bbc706737c74
+Successfully built bbc706737c74

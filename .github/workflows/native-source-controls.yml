@@ -45,3 +45,20 @@ jobs:
       - name: Check observable namespace source controls without actors
         run: |
           python3 -I -B -Werror::ResourceWarning scripts/ci/native-build-namespace-observable/test_observable_data.py --parent-source "${RUNNER_TEMP}/observable-parent-source"
+      - name: Check out original-alarm context parent as data
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 69455e13bc99a2b2b6c2aca11f69d581769ae500
+          path: .context-parent-repository
+          persist-credentials: false
+      - name: Export original-alarm context parent without executing it
+        run: |
+          umask 022
+          parent="${RUNNER_TEMP}/context-parent-source"
+          test ! -e "$parent"
+          mkdir -m 700 "$parent"
+          test "$(git -C .context-parent-repository rev-parse HEAD)" = 69455e13bc99a2b2b6c2aca11f69d581769ae500
+          git -C .context-parent-repository -c tar.umask=0022 archive --format=tar HEAD | tar -xf - -C "$parent"
+      - name: Check original-alarm context source controls without actors
+        run: |
+          python3 -I -B -Werror::ResourceWarning scripts/ci/native-build-namespace-context/test_context_data.py --parent-source "${RUNNER_TEMP}/context-parent-source"

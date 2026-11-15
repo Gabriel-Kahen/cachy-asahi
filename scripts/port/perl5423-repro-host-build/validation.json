@@ -1,0 +1,416 @@
+{
+  "actual_1_3": {
+    "Configure": "NOT_RUN",
+    "archive": "NONE",
+    "byte_reproducibility": "UNPROVEN",
+    "compilation": "NOT_RUN",
+    "upstream_harness": "NOT_RUN"
+  },
+  "actual_run": {
+    "allocated_input_snapshot": false,
+    "capacity": {
+      "MemAvailable_bytes": 17899511808,
+      "failure": "bytes: insufficient future transaction bytes/inodes",
+      "filesystems": [
+        {
+          "device": 54,
+          "f_fsid": 13229447289903499487,
+          "filesystem": "btrfs",
+          "inode_model": "UNREPORTED_DYNAMIC",
+          "kernel_mount": {
+            "filesystem": "btrfs",
+            "mount_device": "0:33",
+            "mount_id": 62,
+            "source": "/dev/nvme0n1p6",
+            "target": "/home"
+          },
+          "magic": "9123683e",
+          "metadata": {
+            "global_reserve_bytes": 536870912,
+            "global_reserve_used_bytes": 0,
+            "headroom_after_global_reserve_bytes": 2895265792,
+            "required_headroom_bytes": 1073741824,
+            "retained_metadata_reserve_bytes": 536870912,
+            "total_bytes": 20407386112,
+            "used_bytes": 16975249408,
+            "workload_budget_bytes": 536870912
+          },
+          "mount": {
+            "fstype": "btrfs",
+            "maj:min": "0:33",
+            "source": "/dev/nvme0n1p6[/@home]",
+            "target": "/home",
+            "uuid": "1383d536-02c6-42ac-a2f0-1de9b55f309c"
+          },
+          "node_budget": 90000,
+          "path": "/home/gabe/.local/share/docker",
+          "statfs_id": "b173c8dfb7987037",
+          "status": "PASS",
+          "usage_query_path": "/home/gabe/.local/share/docker"
+        },
+        {
+          "device": 38,
+          "f_fsid": 3936363134675426878,
+          "filesystem": "tmpfs",
+          "inode_model": "REPORTED_FIXED",
+          "kernel_mount": {
+            "filesystem": "tmpfs",
+            "mount_device": "0:38",
+            "mount_id": 52,
+            "source": "tmpfs",
+            "target": "/tmp"
+          },
+          "magic": "1021994",
+          "mount": {
+            "fstype": "tmpfs",
+            "maj:min": "0:38",
+            "source": "tmpfs",
+            "target": "/tmp",
+            "uuid": null
+          },
+          "node_budget": 22000,
+          "path": "/tmp/perl-repro-capacity-btrfs-20261114-r3",
+          "statfs_id": "4d459e3e36a0c56a",
+          "status": "PASS"
+        }
+      ],
+      "phase": "whole-pair-before-input-allocation",
+      "required_memory_bytes": 8589934592,
+      "requirements": [
+        {
+          "available_bytes": 4289105920,
+          "available_inodes": 0,
+          "bytes": 4294967296,
+          "device": 54,
+          "f_fsid": 13229447289903499487,
+          "inodes": 80000,
+          "path": "/home/gabe/.local/share/docker",
+          "total_inodes": 0
+        },
+        {
+          "available_bytes": 13474078720,
+          "available_inodes": 4082972,
+          "bytes": 603979776,
+          "device": 38,
+          "f_fsid": 3936363134675426878,
+          "inodes": 12000,
+          "path": "/tmp/perl-repro-capacity-btrfs-20261114-r3",
+          "total_inodes": 4096828
+        },
+        {
+          "available_bytes": 4289105920,
+          "available_inodes": 0,
+          "bytes": 1073741824,
+          "device": 54,
+          "f_fsid": 13229447289903499487,
+          "inodes": 10000,
+          "path": "/home/gabe/.local/share/docker",
+          "total_inodes": 0
+        },
+        {
+          "available_bytes": 13474078720,
+          "available_inodes": 4082972,
+          "bytes": 1073741824,
+          "device": 38,
+          "f_fsid": 3936363134675426878,
+          "inodes": 10000,
+          "path": "/tmp/perl-repro-capacity-btrfs-20261114-r3",
+          "total_inodes": 4096828
+        }
+      ],
+      "status": "HOLD_CAPACITY"
+    },
+    "command": [
+      "python3.14",
+      "-I",
+      "-B",
+      "scripts/port/perl5423-repro-host-build/run.py",
+      "--capacity-only",
+      "--source",
+      "work/perl-cli-20261114/recipe/perl5-bc3dab4d4f66de5ea67dda34e5feb5230a54c603.tar.gz",
+      "--output",
+      "/tmp/perl-repro-capacity-btrfs-20261114-r3"
+    ],
+    "created_containers": 0,
+    "created_images": 0,
+    "created_volumes": 0,
+    "devices": {
+      "38": {
+        "available_bytes": 13474078720,
+        "paths": [
+          "/tmp/perl-repro-capacity-btrfs-20261114-r3",
+          "/tmp/perl-repro-capacity-btrfs-20261114-r3"
+        ],
+        "required_bytes": 1677721600,
+        "shortfall_bytes": 0
+      },
+      "54": {
+        "available_bytes": 4289105920,
+        "paths": [
+          "/home/gabe/.local/share/docker",
+          "/home/gabe/.local/share/docker"
+        ],
+        "required_bytes": 5368709120,
+        "shortfall_bytes": 1079603200
+      }
+    },
+    "docker_endpoint": "unix:///run/user/1000/docker.sock",
+    "exit": 2,
+    "operations": [
+      {
+        "argv": [
+          "docker",
+          "context",
+          "inspect",
+          "--format",
+          "{{json .Endpoints.docker.Host}}"
+        ],
+        "returncode": 0
+      },
+      {
+        "argv": [
+          "docker",
+          "info",
+          "--format",
+          "{{.DockerRootDir}}"
+        ],
+        "returncode": 0
+      },
+      {
+        "argv": [
+          "stat",
+          "--file-system",
+          "--format=%T %t %i",
+          "--",
+          "/home/gabe/.local/share/docker"
+        ],
+        "returncode": 0
+      },
+      {
+        "argv": [
+          "findmnt",
+          "--json",
+          "--target",
+          "/home/gabe/.local/share/docker",
+          "--output",
+          "TARGET,SOURCE,FSTYPE,UUID,MAJ:MIN"
+        ],
+        "returncode": 0
+      },
+      {
+        "argv": [
+          "btrfs",
+          "filesystem",
+          "usage",
+          "-b",
+          "/home/gabe/.local/share/docker"
+        ],
+        "returncode": 0
+      },
+      {
+        "argv": [
+          "stat",
+          "--file-system",
+          "--format=%T %t %i",
+          "--",
+          "/home/gabe/.local/share/docker"
+        ],
+        "returncode": 0
+      },
+      {
+        "argv": [
+          "findmnt",
+          "--json",
+          "--target",
+          "/home/gabe/.local/share/docker",
+          "--output",
+          "TARGET,SOURCE,FSTYPE,UUID,MAJ:MIN"
+        ],
+        "returncode": 0
+      },
+      {
+        "argv": [
+          "stat",
+          "--file-system",
+          "--format=%T %t %i",
+          "--",
+          "/tmp/perl-repro-capacity-btrfs-20261114-r3"
+        ],
+        "returncode": 0
+      },
+      {
+        "argv": [
+          "findmnt",
+          "--json",
+          "--target",
+          "/tmp/perl-repro-capacity-btrfs-20261114-r3",
+          "--output",
+          "TARGET,SOURCE,FSTYPE,UUID,MAJ:MIN"
+        ],
+        "returncode": 0
+      },
+      {
+        "argv": [
+          "stat",
+          "--file-system",
+          "--format=%T %t %i",
+          "--",
+          "/tmp/perl-repro-capacity-btrfs-20261114-r3"
+        ],
+        "returncode": 0
+      },
+      {
+        "argv": [
+          "findmnt",
+          "--json",
+          "--target",
+          "/tmp/perl-repro-capacity-btrfs-20261114-r3",
+          "--output",
+          "TARGET,SOURCE,FSTYPE,UUID,MAJ:MIN"
+        ],
+        "returncode": 0
+      }
+    ],
+    "original_inputs_unchanged": true,
+    "status": "HOLD_CAPACITY"
+  },
+  "candidate_commit": "c8e9baea97f83f652763e701143d6dec5b679f31",
+  "controller_files": {
+    "build.sh": {
+      "bytes": 1674,
+      "sha256": "871838d7224e6ecee39922b784ad46f958cd7f262204e81425cfcfbc49357f2d"
+    },
+    "capacity_profile.py": {
+      "bytes": 6729,
+      "sha256": "9bb76ae959e98e1585ddb58ad5697c43c5b58ec9074fdf51ef325f435e9a5ad3"
+    },
+    "inputs.json": {
+      "bytes": 4728,
+      "sha256": "a9e4511ca966edd406427f43dd853f62853dc988c08169b62ffb09a1f7044367"
+    },
+    "run.py": {
+      "bytes": 19469,
+      "sha256": "7f3f5d69f7cbb26f24cb43b324904deca31e3661a1c65426612cb34d86f692af"
+    },
+    "test_capacity_profile.py": {
+      "bytes": 8680,
+      "sha256": "46dd44d376884c888b9c889c154f45a2c8bf6597a48e528b8cb9599ed5a08bc9"
+    },
+    "test_driver.py": {
+      "bytes": 10065,
+      "sha256": "2d825d866ee79d14c369a62b3eeec13914b698ca54463c0e985c19f4ebcbc8f4"
+    }
+  },
+  "controls": {
+    "Bash_syntax": "PASS",
+    "Python3_12_13": {
+      "driver": 9,
+      "filesystem_capacity": 12,
+      "status": "PASS"
+    },
+    "Python3_14_6": {
+      "driver": 9,
+      "filesystem_capacity": 12,
+      "status": "PASS"
+    },
+    "actor_success_and_cancellation": "SIMULATED_ONLY_NOT_ACTUAL_BUILD_EVIDENCE",
+    "review": "Counter consistency, duplicate pool and alias/later-counter findings corrected with refusal controls"
+  },
+  "date": "2026-11-14",
+  "holds": [
+    "Home byte budget5GiB remains unmet",
+    "NativeARM/16K/M2 bothsizes NOT_RUN",
+    "Installedlifecycle/ABI/externalXS notqualified",
+    "Performance/legal-policy/productiontrust/release notadmitted"
+  ],
+  "next": "Wait forRoot actual reclamation/capacity report, then fresh/tmp output and all unchanged byte+metadata+RAM guards must pass before pair",
+  "preserved": "Sharedcapacity.py, old1.2 helpers/candidate and1.3candidate unchanged againstHEAD",
+  "previous_validation_commit": "7d5f8280f32000270dca32103b13620f5ec05877",
+  "private_evidence": {
+    "files": {
+      "capacity-312.log": {
+        "bytes": 1903,
+        "sha256": "d7dcd88ee827b26c0f77f2910747721aebf6bb0cb5c2fcf0baa6030ed2f0369b"
+      },
+      "capacity-314.log": {
+        "bytes": 1903,
+        "sha256": "d7dcd88ee827b26c0f77f2910747721aebf6bb0cb5c2fcf0baa6030ed2f0369b"
+      },
+      "driver-312.log": {
+        "bytes": 1436,
+        "sha256": "e1f931a1b70cf7d8f4cf5f426453340f924a26bfd563356c3e7b852a15d43f34"
+      },
+      "driver-314.log": {
+        "bytes": 1436,
+        "sha256": "704a8f34bf28d3b202ff524a89888900183d083ba0ba205cd320e95c8cea56f3"
+      },
+      "logs/00.log": {
+        "bytes": 36,
+        "sha256": "084662abf489afabb8ea76cb6fedf2f2260eacd504800ae8217c9f52fc97ac13"
+      },
+      "logs/01.log": {
+        "bytes": 31,
+        "sha256": "ad4311283729c325f48c8e467bebd3232919a530081e3968ca2be9a9fea86f18"
+      },
+      "logs/02.log": {
+        "bytes": 32,
+        "sha256": "779f62344aaf0fc30ead915d2eefb8e8ad60b7ba4fdabed2eae253a3ba7d39ca"
+      },
+      "logs/03.log": {
+        "bytes": 230,
+        "sha256": "c4bc5ec3f9b15ad16978c56e3f9f361ae647a7a64d16a04be370b1d6c417bcfb"
+      },
+      "logs/04.log": {
+        "bytes": 770,
+        "sha256": "c8a36081624f1ba25a39ac9bb7c461ce64d817706e00a78667e860505cdf5b4b"
+      },
+      "logs/05.log": {
+        "bytes": 32,
+        "sha256": "779f62344aaf0fc30ead915d2eefb8e8ad60b7ba4fdabed2eae253a3ba7d39ca"
+      },
+      "logs/06.log": {
+        "bytes": 230,
+        "sha256": "c4bc5ec3f9b15ad16978c56e3f9f361ae647a7a64d16a04be370b1d6c417bcfb"
+      },
+      "logs/07.log": {
+        "bytes": 31,
+        "sha256": "1f5c56ef081e69eeeec941bb91234072ed42e74de3ef5a08c6e7554e92cfa263"
+      },
+      "logs/08.log": {
+        "bytes": 178,
+        "sha256": "51b24d044b2aad336024a5fa72fa1ac2d42b4759f54ef6d55a46e7afa1bdecde"
+      },
+      "logs/09.log": {
+        "bytes": 31,
+        "sha256": "1f5c56ef081e69eeeec941bb91234072ed42e74de3ef5a08c6e7554e92cfa263"
+      },
+      "logs/10.log": {
+        "bytes": 178,
+        "sha256": "51b24d044b2aad336024a5fa72fa1ac2d42b4759f54ef6d55a46e7afa1bdecde"
+      },
+      "report.json": {
+        "bytes": 12620,
+        "sha256": "cfa69c57e96a97f9bacef9aaaea7b2eac1421b51c3f73eece79d0370256df56a"
+      }
+    },
+    "original": "/tmp/perl-repro-capacity-btrfs-20261114-r3",
+    "retained_copy": "/home/gabe/Documents/ChatGPT/cachy-asahi-perl-cli-parallel-20261114/work/perl-repro-btrfs-capacity-20261114"
+  },
+  "resource_model": {
+    "Btrfs": "UNREPORTED_DYNAMIC only for authenticated0/0 inode counts; exact-path measured metadata replaces fixed inode demand; no fabricated free inode numbers",
+    "device_identity": "Stable path+mount target st_dev/statfsID plus UUID and exact kernel mountinfo source/type/target/device; sharedBtrfsUUID/statfsID across distinctst_dev refuses",
+    "fixed_filesystems": "ext2/3/4, xfs, tmpfs: consistent real counters and exact f_favail demand checks",
+    "global_reserve": "Entire measured reserve subtracted; nonzero usage refuses",
+    "maximum_nodes_per_device": 102000,
+    "metadata_retained_reserve_bytes": 536870912,
+    "metadata_workload_bytes": 536870912,
+    "unknown_filesystems": "REFUSE"
+  },
+  "schema": 2,
+  "scope": "NEW1.3_DRIVER_BTRFS_CAPACITY_SOURCE_ONLY",
+  "sources": [
+    "https://btrfs.readthedocs.io/en/latest/Administration.html#filesystem-limits",
+    "https://btrfs.readthedocs.io/en/latest/btrfs-filesystem.html#subcommand"
+  ],
+  "status": "BTRFS_METADATA_MODEL_ESTABLISHED_ACTUAL_HOLD_BYTES_NO_BUILD"
+}
