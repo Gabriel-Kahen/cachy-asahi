@@ -21,9 +21,10 @@
     "performance": null,
     "release": null
   },
+  "actual_prepare_r1": "CLOSED_HOLD_CLEANUP_NAME_CAPTURE_DEFECT_REPRODUCED_BY_ACTUAL_SCOPE_AST_REGRESSION_NO_NEW_ACTOR",
   "checks": {
     "committed_Git_source_roundtrip": "PASS_COMMITTED_TRACKED_SOURCE_EXPORT_AND_FENCED_PREDICATE",
-    "python_fenced_controls": 45,
+    "python_fenced_controls": 46,
     "shell_syntax": "PASS",
     "source_membership": "PASS",
     "synthetic_guest_shell_data": "PASS_BINARY_EMPTY_LENGTH_SHA256_AND_OFFICIAL_POLICY_NO_GPG_ALPM"

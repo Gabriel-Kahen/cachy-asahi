@@ -137,3 +137,9 @@ loader uses /lib. Source admits that pair only with identical baseline loader
 bytes/size/mode/owner/version/resolved target and the exact filesystem-owned
 /lib alias. Literal ELF facts and all raw/pre-ALPM alias checks remain unchanged;
 arbitrary, missing-alias and mismatched loader inputs refuse.
+
+
+Actual prepare-r1 completed the actor but held in cleanup due to a rebound
+container-name closure. Scope now captures the original immutable name; strict
+identity and all other guards remain. Retained r1 remains a closed HOLD, with no
+VM/runtime acceptance. A new Source attempt requires Root's separate issuance.

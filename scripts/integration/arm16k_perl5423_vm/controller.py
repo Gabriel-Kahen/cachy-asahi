@@ -92,8 +92,9 @@ def main():
   name='cachy-perl5423-'+secrets.token_hex(12)
   class Scope(B.OwnedContainer):
    def call(self,argv,limit):return R.docker_call(argv,out,limit,shared_deadline=cleanup_end if state.cleaning else deadline,defer_cancel=state.cleaning)
-   def validate(self,row):
-    K.need(row['Name']=='/'+name and row['Image']==auth['image'] and row['Config']['Labels']==labels and row['Config']['Entrypoint']==['/usr/bin/python3'] and row['Config']['Cmd']==['-I','-B','/code/actor.py',a.phase],'exact owned actor identity')
+   def validate(self,row,expected_name=name):
+    # Capture this immutable string now; later material loops reuse "name".
+    K.need(row['Name']=='/'+expected_name and row['Image']==auth['image'] and row['Config']['Labels']==labels and row['Config']['Entrypoint']==['/usr/bin/python3'] and row['Config']['Cmd']==['-I','-B','/code/actor.py',a.phase],'exact owned actor identity')
     K.need(len(row['Mounts'])==len(mounts) and {(x['Type'],x['Source'],x['Destination'],x['RW'])for x in row['Mounts']}==mounts,'exact readonly inputs/single writable output')
     h=row['HostConfig'];K.need(h['ReadonlyRootfs']is True and h['NetworkMode']=='none' and h['CapDrop']==['ALL'] and not h.get('CapAdd') and not h['Privileged'] and not h['Devices'] and h['Init']is False and h['SecurityOpt']==['no-new-privileges'] and h['Memory']==h['MemorySwap']==r['owner_memory_bytes'] and h['NanoCpus']==r['cpus']*10**9 and h['PidsLimit']==r['pids'],'finite cap0 NNP no-network no-device actor')
   scope=Scope(name,out/'container.cid',auth['image'],labels,baseline,out);K.need(scope.listing(time.monotonic()+8)is None,'fresh owned name')

@@ -17,9 +17,9 @@
       "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
     },
     "README.md": {
-      "bytes": 30204,
+      "bytes": 30955,
       "mode": 420,
-      "sha256": "7d4cda012371964ab8a51b018e5dfab5a8d08dbce30220dc540d6d27bf6d46e7"
+      "sha256": "7b582cc7b332147c463e606c3c3443cefacf4e7c55f4704a2ca43359656f843d"
     },
     "actor.py": {
       "bytes": 12047,
@@ -62,9 +62,9 @@
       "sha256": "3bfbb6e80ba44e3d561a59b67a709ccb1cf713227fc595b93950b6d2a16dbf54"
     },
     "controller.py": {
-      "bytes": 16701,
+      "bytes": 16805,
       "mode": 420,
-      "sha256": "e0376af3955da296d60f34625bb64b71f7a26f796e462b2fddc331e135b590b3"
+      "sha256": "99db74956ccf9333302c72406c0877b9fdaec8362d7cf2b9bd42270245f36be5"
     },
     "expected-payload-certificate.TEMPLATE.json": {
       "bytes": 929,
@@ -156,6 +156,11 @@
       "mode": 420,
       "sha256": "628792b5e5c41c1cc737606b237607294bfd530875cfc22295ec30ebeb940622"
     },
+    "known/actual-prepare-cleanup-r1-reproducer.json": {
+      "bytes": 2023,
+      "mode": 420,
+      "sha256": "a98ddde7d673b6bf8f6aeb3102e9857639ae4a8e29833d6e8b81979edaf74f52"
+    },
     "known/alpm-ownership-cases.json": {
       "bytes": 2544,
       "mode": 420,
@@ -207,9 +212,9 @@
       "sha256": "3126ee0c8a7c02e12503b4858f90b5a70fd7f300fd6228c99532ec7eaec02e28"
     },
     "test_controls.py": {
-      "bytes": 60984,
+      "bytes": 62381,
       "mode": 420,
-      "sha256": "c3274f0daffb5f3bcb2f495beb1e576ccedff9a24a20b299e5082399a29ffd65"
+      "sha256": "d66e2cc6f47232aba423453d9280a29fab26e5bb91f8338c4076405468d3e27c"
     },
     "test_git_roundtrip.py": {
       "bytes": 2665,
@@ -222,9 +227,9 @@
       "sha256": "4de41379a28f85de5c1285c9a555af504faf29c177b697c03b864fc82b65b206"
     },
     "validation.json": {
-      "bytes": 2809,
+      "bytes": 2930,
       "mode": 420,
-      "sha256": "ef925ca3f6babbb85ea9d17ff6f96abe645eabbb79364692c474f23e87fb1f35"
+      "sha256": "039297d3ab9b57a54cf56a1987c442977fbf6af5dafc9e39fdfd81d5e3174b97"
     }
   },
   "kind": "ARM16K_PERL5423_CASE_SOURCE_LOCK_V1",

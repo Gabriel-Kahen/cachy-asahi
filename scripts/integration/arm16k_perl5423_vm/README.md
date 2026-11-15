@@ -462,3 +462,16 @@ its observed baseline version/root metadata; ordinary raw and guest alias checks
 remain mandatory. Missing/wrong alias, differing target/hash/metadata or arbitrary
 paths refuse. ELF interpreter facts are preserved; no double-slash normalization
 or relaxed general guest-path grammar is introduced.
+
+
+## Actual prepare-r1 cleanup name capture
+
+Actual Root prepare-r1 produced prepared DATA and actor exit0, then the controller
+held during cleanup because a later material loop rebound the closure variable
+`name`. Scope.validate now captures the immutable original name as a definition-
+time default. All image/label/mount/cap/resource checks remain unchanged; wrong
+names still refuse. The actual retained report references and closed-HOLD scope
+are in known/actual-prepare-cleanup-r1-reproducer.json. No r1 Source, packet, actor
+output or Root cleanup was edited. A regression compiles the actual Scope class,
+rebinds the material-loop name and requires original identity acceptance and
+wrong-name/image refusals. No actor runs in that regression.

@@ -85,6 +85,15 @@ def modeled_home():
  return reseal(a)
 
 class Controls(unittest.TestCase):
+ def test_actual_scope_name_capture_survives_material_loop_name_rebinding(self):
+  import types
+  source=ast.parse((HERE/'controller.py').read_bytes());node=next(n for n in ast.walk(source)if isinstance(n,ast.ClassDef)and n.name=='Scope');name='cachy-perl5423-a9b3e6c2974deadcf05ed9a5';labels={'MODEL':'LABEL'};mounts={('bind','/MODEL','/work',True)};r=modeled()[4]
+  ns=dict(B=types.SimpleNamespace(OwnedContainer=object),K=K,name=name,auth=dict(image='sha256:'+'a'*64),labels=labels,mounts=mounts,r=r,a=types.SimpleNamespace(phase='prepare'))
+  exec(compile(ast.Module(body=[node],type_ignores=[]),'<actual-Scope-source>','exec'),ns);scope=ns['Scope']()
+  row=dict(Name='/'+name,Image=ns['auth']['image'],Config=dict(Labels=labels,Entrypoint=['/usr/bin/python3'],Cmd=['-I','-B','/code/actor.py','prepare']),Mounts=[dict(Type='bind',Source='/MODEL',Destination='/work',RW=True)],HostConfig=dict(ReadonlyRootfs=True,NetworkMode='none',CapDrop=['ALL'],CapAdd=[],Privileged=False,Devices=[],Init=False,SecurityOpt=['no-new-privileges'],Memory=r['owner_memory_bytes'],MemorySwap=r['owner_memory_bytes'],NanoCpus=r['cpus']*10**9,PidsLimit=r['pids']))
+  scope.validate(row);ns['name']='signing_receipt';scope.validate(row)
+  for bad in(dict(row,Name='/signing_receipt'),dict(row,Name='/cachy-perl5423-WRONG'),dict(row,Image='sha256:'+'b'*64)):
+   with self.assertRaises(ValueError):scope.validate(bad)
  def test_actual_PT_INTERP_alias_pair_requires_same_loader_and_observed_alias(self):
   canonical='/usr/lib/ld-linux-aarch64.so.1';alias='/lib/ld-linux-aarch64.so.1';baseline={'glibc':'ACTUAL-VERSION-MODEL','filesystem':'ACTUAL-FS-MODEL'};row=dict(bytes=201832,sha256='a'*64,mode=0o755,owner='glibc',version=baseline['glibc'],resolved=canonical)
   value=dict(loader=alias,files={alias:copy.deepcopy(row),canonical:copy.deepcopy(row)},baseline_files={alias:copy.deepcopy(row),canonical:copy.deepcopy(row)},expected_payload=dict(aliases={'/lib':dict(target='usr/lib',owner='filesystem',version=baseline['filesystem'],mode=0o777,uid=0,gid=0)}))
