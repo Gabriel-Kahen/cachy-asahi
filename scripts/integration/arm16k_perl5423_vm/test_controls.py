@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 """Fenced synthetic DATA only. Never Docker, VM, GPG, ALPM, compiler or network."""
-import ast,copy,hashlib,importlib.util,json,os,struct,sys,tempfile,time,unittest
+import ast,copy,ctypes,hashlib,importlib.util,json,os,struct,sys,tempfile,time,unittest
 from pathlib import Path
 from unittest.mock import patch
 HERE=Path(__file__).resolve().parent
@@ -82,6 +82,46 @@ def modeled_home():
  return reseal(a)
 
 class Controls(unittest.TestCase):
+ def test_strict_SHM_syscall443_FD_backend_and_unchanged_headroom_policy(self):
+  import types
+  for kind in('valid','hard-only','soft-only','exhausted','no-limits','invalid-mask','ENOSYS','EPERM','ENOTBLK'):
+   calls=[];number={'ENOSYS':38,'EPERM':1,'ENOTBLK':15}.get(kind,0);saved_errno={}
+   def syscall(*args):
+    calls.append(tuple(v.value for v in args[:4]));q=args[4]._obj;self.assertEqual(ctypes.sizeof(q),72);self.assertEqual(type(q).valid.offset,64)
+    q.bhard=0 if kind in('soft-only','no-limits')else 100;q.bsoft=0 if kind in('hard-only','no-limits')else 80;q.curspace=90*1024 if kind=='exhausted'else 1024;q.valid=1 if kind=='invalid-mask'else 63
+    ctypes.set_errno(number);return -1 if number else 0
+   class Fake:
+    def __call__(self,*args):return syscall(*args)
+   native=types.SimpleNamespace(syscall=Fake())
+   with patch.object(ctypes,'CDLL',return_value=native)as loader,patch.object(ctypes,'set_errno',side_effect=lambda n:saved_errno.update(value=n)),patch.object(ctypes,'get_errno',side_effect=lambda:saved_errno['value']),patch.object(Q.os,'fstat',return_value=types.SimpleNamespace(st_mode=0o40700)),patch.object(Q.os,'getuid',return_value=1000),patch.object(Q.platform,'system',return_value='Linux'),patch.object(Q.platform,'machine',return_value='x86_64'):
+    if number:
+     with self.assertRaises(OSError)as error:Q.quota_fd(23,1000)
+     self.assertEqual(error.exception.errno,number)
+    elif kind in('no-limits','invalid-mask'):
+     with self.assertRaises(ValueError):Q.quota_fd(23,1000)
+    else:self.assertEqual(Q.quota_fd(23,1000),0 if kind=='exhausted'else (100 if kind=='hard-only'else 80)*1024-1024)
+    loader.assert_called_once_with(None,use_errno=True)
+   self.assertEqual(calls,[(443,23,0x80000700,1000)])
+  with patch.object(ctypes,'CDLL')as loader,patch.object(Q.os,'getuid',return_value=1000),patch.object(Q.os,'fstat',return_value=types.SimpleNamespace(st_mode=0o40700)),patch.object(Q.platform,'machine',return_value='aarch64'):
+   with self.assertRaises(ValueError):Q.quota_fd(23,1000)
+   with self.assertRaises(ValueError):Q.quota_fd(23,1001)
+   loader.assert_not_called()
+ def test_strict_SHM_mount_directory_FD_walk_close_and_no_legacy_query(self):
+  opened=[];closed=[]
+  def open_fd(path,flags,**kw):opened.append((path,flags,kw));return 10+len(opened)
+  with patch.object(Q.os,'open',side_effect=open_fd),patch.object(Q.os,'close',side_effect=closed.append),patch.object(Q,'quota_fd',return_value=12345)as query:
+   self.assertEqual(Q.quota('/dev/shm',1000),12345);query.assert_called_once_with(13,1000)
+  flags=os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC;self.assertEqual(opened,[('/',flags,{}),('dev',flags,dict(dir_fd=11)),('shm',flags,dict(dir_fd=12))]);self.assertEqual(closed,[11,12,13])
+  for number in(1,15,38):
+   closed=[]
+   with patch.object(Q.os,'open',side_effect=[11,12,13]),patch.object(Q.os,'close',side_effect=closed.append),patch.object(Q,'quota_fd',side_effect=OSError(number,'MODELED backend HOLD')):
+    with self.assertRaises(OSError):Q.quota('/dev/shm',1000)
+   self.assertEqual(closed,[11,12,13])
+  for path in('/dev/../shm','/dev//shm','/dev/shm/','relative','/dev/shm\0'):
+   with patch.object(Q.os,'open')as opening:
+    with self.assertRaises(ValueError):Q.quota(path,1000)
+    opening.assert_not_called()
+  self.assertNotIn('.quotactl(', (HERE/'budget.py').read_text());self.assertIn('ctypes.c_long(443)',(HERE/'home_btrfs.py').read_text());self.assertNotIn('.quotactl(', (HERE/'home_btrfs.py').read_text())
  def test_HOME_explicit_profile_acceptance_and_SHM_branch_unchanged(self):
   H=module('home_btrfs');a=modeled_home();self.assertEqual(K.validate(*a)['operation'],K.OP)
   for old in(False,True):self.assertEqual(K.validate(*modeled(old))['operation'],K.OP)

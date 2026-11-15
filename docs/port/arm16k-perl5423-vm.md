@@ -91,3 +91,10 @@ keeps byte/reserve/RAM/CPU/PID/time/cancel/recovery and Perl pre-ALPM/provider g
 and claims no quota availability or reservation. The original strict SHM/quota
 branch is unchanged; errors and unknown filesystems hold. No live query or actor
 was run by the worker; fresh Root profile/resource/phase grants remain required.
+
+
+The strict SHM quota observer now uses readonly mount-directory FD syscall443
+Q_GETQUOTA with the72-byte if_dqblk ABI, fixing actual legacy ENOTBLK compatibility.
+Finite hard/soft/headroom/valid checks and error-HOLD semantics are unchanged.
+HOME already uses an FD syscall; no worker query or phase ran, and frozen Root
+observer Source was not modified.

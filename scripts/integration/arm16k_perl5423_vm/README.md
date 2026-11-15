@@ -356,3 +356,23 @@ capacity_reservation=false. This opt-in mode is a guarded first-trial path, not 
 global fallback for missing quotas or an observation that storage is unlimited.
 No worker HOME filesystem/quota query or actor ran; controls use synthetic FD,
 mount, syscall-return and fstatvfs DATA only. Root owns fresh admission and runs.
+
+
+## Strict SHM quota backend compatibility
+
+The strict `READ_ONLY_Q_GETQUOTA` branch now opens the selected `/dev/shm` mount
+directory with `O_RDONLY|O_DIRECTORY|O_NOFOLLOW|O_CLOEXEC` (all components walked by
+FD) and calls Linux x86_64 `quotactl_fd` syscall443, command0x80000700, own UID,
+with the72-byte if_dqblk layout/valid offset64. It closes the directory FD on
+success and failure. Legacy libc.quotactl expected a block device and returned
+ENOTBLK for this actual mount-directory operand; it is no longer called.
+
+Only the backend changes: the existing block-limit/used-space valid mask,
+conservative minimum nonzero hard/soft byte limit, finite-limit requirement,
+zero-clamped remaining headroom and live reserve checks remain. ENOSYS/EPERM/
+ENOTBLK and every other unsuccessful strict query HOLD. There is no fallback to
+HOME semantics. HOME already used its separate actual FD syscall443 query and
+continues to admit only exact ENOSYS38 within its explicit Root profile.
+Synthetic controls exercise the actual ctypes argument/layout construction with
+CDLL/syscall mocked, verify FD flags/cleanup and errors, and perform no real quota
+query. Frozen Root observer Source0acdb...4886 is untouched by this increment.

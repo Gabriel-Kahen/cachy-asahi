@@ -19,7 +19,7 @@
   },
   "checks": {
     "committed_Git_source_roundtrip": "PASS_COMMITTED_TRACKED_SOURCE_EXPORT_AND_FENCED_PREDICATE",
-    "python_fenced_controls": 38,
+    "python_fenced_controls": 40,
     "shell_syntax": "PASS",
     "source_membership": "PASS"
   },
@@ -35,6 +35,7 @@
   "schema": 1,
   "scope": "SOURCE_IMPLEMENTATION_AND_FENCED_SYNTHETIC_DATA_CONTROLS_ONLY",
   "source_implemented_recovery": "NORMAL_ALPM_ROLLBACK_WITH_ONLY_CERTIFIED_SOURCE445B_INSTALLDATE_TIMESTAMP_AND_APPEND_LOG_VARIANCE",
+  "strict_SHM_quota_backend": "READONLY_MOUNT_DIRECTORY_FD_SYSCALL443_Q_GETQUOTA_IF_DQBLK72_VALID_OFFSET64_EXISTING_FINITE_HEADROOM_POLICY",
   "unfinished": [
     "Root supplies future16K baseline/runtime/trust/resource certificates and fresh exact controller authorities",
     "actual prepared actor, PAM/QMP/ownership/ELF/functional/resource retirement qualification NOT_RUN",

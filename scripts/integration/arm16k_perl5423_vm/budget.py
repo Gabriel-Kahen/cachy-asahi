@@ -1,24 +1,40 @@
 # SPDX-License-Identifier: MIT
 """Readonly own-UID Linux quota and sparse allocation guards. No quota writes."""
 import os
+import platform
 from pathlib import Path
 import shutil
+import stat
 import time
 
 
-def quota(device, uid):
+def quota_fd(fd, uid):
     import ctypes
     class Dqblk(ctypes.Structure):
         _fields_=[(n,ctypes.c_uint64)for n in ('bhard','bsoft','curspace','ihard','isoft','curinodes','btime','itime')]+[('valid',ctypes.c_uint32)]
-    if uid != os.getuid() or not device.startswith('/dev/') or '\0' in device: raise ValueError('readonly own-UID quota device required')
+    if type(uid)is not int or uid!=os.getuid() or not 0<=uid<2**32 or not stat.S_ISDIR(os.fstat(fd).st_mode):raise ValueError('readonly own-UID quota directory FD required')
+    if not(platform.system()=='Linux' and platform.machine()=='x86_64' and ctypes.sizeof(ctypes.c_long)==ctypes.sizeof(ctypes.c_void_p)==8 and ctypes.sizeof(Dqblk)==72 and Dqblk.valid.offset==64 and all(getattr(Dqblk,n).offset==i*8 for i,(n,_)in enumerate(Dqblk._fields_[:-1]))):raise ValueError('reviewed Linux x86_64 syscall443 if_dqblk ABI required')
     libc=ctypes.CDLL(None,use_errno=True);q=Dqblk()
-    libc.quotactl.argtypes=[ctypes.c_int,ctypes.c_char_p,ctypes.c_int,ctypes.c_void_p]
-    if libc.quotactl((0x800007<<8)|0,os.fsencode(device),uid,ctypes.byref(q)):
-        raise OSError(ctypes.get_errno(),'readonly Q_GETQUOTA unavailable; HOLD')
+    libc.syscall.restype=ctypes.c_long
+    ctypes.set_errno(0)
+    if libc.syscall(ctypes.c_long(443),ctypes.c_int(fd),ctypes.c_uint(0x80000700),ctypes.c_uint(uid),ctypes.byref(q))!=0:
+        raise OSError(ctypes.get_errno()or 5,'readonly quotactl_fd Q_GETQUOTA unavailable; HOLD')
     # Both finite limits matter. Refuse unknown/infinite-only quota state.
     limits=[n*1024 for n in (q.bhard,q.bsoft) if n]
     if q.valid & 3 != 3 or not limits: raise ValueError('finite observed block quota/headroom required')
     return max(0,min(limits)-q.curspace)
+
+
+def quota(device, uid):
+    # A mount directory (not a block-device special file), as required by
+    # quotactl_fd. Walk every component read-only without following aliases.
+    if type(device)is not str or not device.startswith('/dev/') or '\0'in device or any(p in('','.','..')for p in device[1:].split('/')):raise ValueError('literal quota mount directory under /dev required')
+    flags=os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC;fd=os.open('/',flags)
+    try:
+        for part in device[1:].split('/'):
+            child=os.open(part,flags,dir_fd=fd);os.close(fd);fd=child
+        return quota_fd(fd,uid)
+    finally:os.close(fd)
 
 
 class Guard:

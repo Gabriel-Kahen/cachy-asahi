@@ -17,9 +17,9 @@
       "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
     },
     "README.md": {
-      "bytes": 23574,
+      "bytes": 24799,
       "mode": 420,
-      "sha256": "bfde222bb078733a9e343f8fed049c85341e7431f9e72a80f698f90bf70350bc"
+      "sha256": "13619d4f599efc1c0b1ca82a1a76f16dc9f5da9e75eee5c3b943658c0c45a986"
     },
     "actor.py": {
       "bytes": 11858,
@@ -47,9 +47,9 @@
       "sha256": "f96192356b6b0d9885927a37b8bb715b894b4da25f2b398da06ca7a9985acd16"
     },
     "budget.py": {
-      "bytes": 3900,
+      "bytes": 5001,
       "mode": 420,
-      "sha256": "7021fc99ac0823322ca4a1c4c32549109432c86088fa292da1a6df3db8e1cc3e"
+      "sha256": "0787bd8eb1123ad1729959dc96a744e8fa36354cabc155dc9dc21ce6e758e918"
     },
     "case.TEMPLATE.json": {
       "bytes": 1123,
@@ -197,9 +197,9 @@
       "sha256": "3126ee0c8a7c02e12503b4858f90b5a70fd7f300fd6228c99532ec7eaec02e28"
     },
     "test_controls.py": {
-      "bytes": 48278,
+      "bytes": 51795,
       "mode": 420,
-      "sha256": "73e34109a392dc6f29c3502d671bc1e66941b41afba04f2bb5b9669ff3c91b00"
+      "sha256": "485fb70ace0aca0b0cbae6f451cdc6a89647429801023e1cead2c6ace284a70b"
     },
     "test_git_roundtrip.py": {
       "bytes": 2665,
@@ -207,9 +207,9 @@
       "sha256": "92afb295df6a3376f2da96fb94df5ba456944a14c6765fa5841acf5ce31f7b54"
     },
     "validation.json": {
-      "bytes": 1898,
+      "bytes": 2039,
       "mode": 420,
-      "sha256": "a17ff8251b29f85d54e0f9b6370847feb2bd56709b1777502985e9db8d9c7db7"
+      "sha256": "3636af93fb489a6c48f0d3cf65eb1d70b8383bc8de007aa17452d0f4ac6a7072"
     }
   },
   "kind": "ARM16K_PERL5423_CASE_SOURCE_LOCK_V1",
