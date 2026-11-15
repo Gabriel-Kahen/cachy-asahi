@@ -28,6 +28,9 @@ actual Source/ref/authority/prepared/attempt/VM selectors are NULL.
   gates; missing qualification refuses before clone/actor/daemon use.
 - `runtime.py`: fixed local-rootless transport and supervised child custody.
 - `memory.py`: durable bounded cgroup-v2 numeric receipts; no cause inference.
+- `image.py`: streaming raw ext4 hashes and bounded ALPM records; no full exports.
+- `data/allocated-budget-v2.json`: modeled2 GiB preparation/2.5 GiB boot limits,
+  1 GiB overlay and retained prior budget; actual peaks remain unmeasured.
 - `ownership.py`, `protocol.py`: pure bounded ownership/serial checks.
 
 The executable entry points require ordinary host user, Python `-I -B`, explicit
@@ -64,8 +67,9 @@ credentials remain outside Source, mode600, and are never printed. Boot now
 requires a 4 GiB no-swap owner plus 2 GiB host reserve (6 GiB MemAvailable); preparation
 remains 3 GiB plus 2 GiB. Root must implement/review a readonly outer own-UID quota
 guard across the whole actor and embed the completed quota-guard template in
-`resource_review.quota_guard`: initial headroom 8 GiB prepare / 6 GiB boot, live 2 GiB
-reserve. The adapter makes no quota syscall; `df` or a startup snapshot alone
+`resource_review.quota_guard`: initial headroom 4 GiB prepare / 4.5 GiB boot, live 2 GiB
+reserve. Check boot quota headroom afresh after retained preparation outputs
+are charged. The adapter makes no quota syscall; `df` or a startup snapshot alone
 is insufficient. Preserve
 attempt/report/log evidence; removal concerns only the newly owned clone/output.
 

@@ -16,7 +16,7 @@ PREFIX = '/opt/cachy-asahi/rust-stage0'
 IMAGE = 'sha256:52958d534193d739aeb6d3c9239ed31b97f8fb357a618e14391293068b28cd2a'
 GIB = 1024**3
 END = None
-RESOURCES = dict(guest_cpus=2,guest_memory_bytes=2*GIB,owner_cpus=2,owner_memory_bytes=3*GIB,boot_owner_memory_bytes=4*GIB,owner_swap_bytes=0,pids=256,raw_cap_bytes=3*GIB,prepare_allocated_cap=6*GIB,boot_allocated_cap=4*GIB,overlay_cap_bytes=512*1024**2,reserve_bytes=2*GIB,host_memory_reserve_bytes=2*GIB,prepare_seconds=600,boot_seconds=600,work_seconds=555,cleanup_seconds=45)
+RESOURCES = dict(guest_cpus=2,guest_memory_bytes=2*GIB,owner_cpus=2,owner_memory_bytes=3*GIB,boot_owner_memory_bytes=4*GIB,owner_swap_bytes=0,pids=256,raw_cap_bytes=3*GIB,prepare_allocated_cap=2*GIB,boot_allocated_cap=2560*1024**2,overlay_cap_bytes=GIB,base_raw_allocated_cap=640*1024**2,prefix_allocated_cap=512*1024**2,extended_raw_allocated_cap=1280*1024**2,output_metadata_allocated_cap=128*1024**2,reserve_bytes=2*GIB,host_memory_reserve_bytes=2*GIB,prepare_seconds=600,boot_seconds=600,work_seconds=555,cleanup_seconds=45)
 TOOLS = ('bash','uname','id','getconf','pacman','sort','sha256sum','readlink','cat','mkdir','grep','head','sed','stat','timeout','env','date','sleep','sync','cp','rm','ld')
 REQUIRED_PATHS = ['/usr/bin/'+name for name in TOOLS]+['/usr/lib/Scrt1.o','/usr/lib/crti.o','/usr/lib/crtn.o','/lib/ld-linux-aarch64.so.1','/usr/lib/libc.so.6','/usr/lib/libdl.so.2','/usr/lib/libgcc_s.so.1','/usr/lib/libm.so.6','/usr/lib/libpthread.so.0','/usr/lib/librt.so.1','/usr/lib/libz.so.1']
 

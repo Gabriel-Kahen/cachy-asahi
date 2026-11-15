@@ -55,6 +55,17 @@ def allocated(root,deadline=None):
     return total
 
 
+def component_limits(root,rows):
+    """Allocated blocks, never logical length, for fixed new scratch files."""
+    root=Path(root)
+    for path,bound in rows:
+        path=Path(path)
+        if type(bound) is not int or bound<=0 or not path.is_absolute() or root not in path.parents or any(p.is_symlink() for p in (path,*path.parents)):raise ValueError('contained fixed allocated-file limit required')
+        try:info=path.lstat()
+        except FileNotFoundError:continue
+        if not stat.S_ISREG(info.st_mode) or info.st_blocks*512>bound:raise ValueError('scratch file allocated-byte limit exceeded')
+
+
 def _cleaning_handlers(previous):
     """Deferred signals are permitted only through the active cleanup owner."""
     for handler in previous.values():
@@ -68,7 +79,7 @@ def _retired(row,defer_cancel=False):
     return type(code) is int and 0<=code<=255 and row.get('passed') is (code==0) and row.get('reaped') is True and row.get('ownership')=='REAPED' and row.get('group_census')=='EMPTY_TWICE' and row.get('output_complete') is True and row.get('signals')==[] and row.get('timeout') is False and row.get('error') is None and not row.get('command_timed_out') and not row.get('original_budget_overrun') and not row.get('emergency_retirement') and (defer_cancel or not row.get('command_cancelled'))
 
 
-def command(argv,out,label,seconds=30,deadline=None,input_file=None,*,child_file_size_cap=None,watched_tree=None,defer_cancel=False,check=True,completed=False):
+def command(argv,out,label,seconds=30,deadline=None,input_file=None,*,child_file_size_cap=None,watched_tree=None,watched_paths=(),defer_cancel=False,check=True,completed=False):
     """Fixed child with watched files/tree; WNOWAIT never reaps.
 
     Default return remains combined stdout/stderr bytes. completed=True returns
@@ -85,12 +96,13 @@ def command(argv,out,label,seconds=30,deadline=None,input_file=None,*,child_file
     K.need(type(argv) in (list,tuple) and argv and all(type(x) is str and '\0' not in x for x in argv),'literal argv required')
     K.need(type(label) is str and label and all(c.isalnum() or c in '-_' for c in label),'literal command receipt label required')
     if child_file_size_cap is not None:
-        K.need(argv[0]=='/usr/bin/qemu-system-aarch64' and type(child_file_size_cap) is int and 0<child_file_size_cap<=512*1024**2,'file-size cap is only for the fixed QEMU overlay writer')
+        K.need(argv[0]=='/usr/bin/qemu-system-aarch64' and type(child_file_size_cap) is int and 0<child_file_size_cap<=1024**3,'file-size cap is only for the fixed QEMU overlay writer')
     watch=None
     if watched_tree is not None:
         K.need(type(watched_tree) in (tuple,list) and len(watched_tree)==3,'fixed watched allocation tuple required')
         root,bound,reserve=watched_tree
         K.need(type(bound) is type(reserve) is int and bound>0 and reserve>=0,'finite watched allocation/reserve required');watch=(Path(root),bound,reserve)
+    K.need(not watched_paths or watch is not None,'component limits require owned watched tree')
     signals={signal.SIGINT,signal.SIGTERM};previous={n:signal.getsignal(n) for n in signals};pending=[];child=None;failure=None;row={};data=b'';stdout_data=stderr_data=b'';last_watch=[None]
     if defer_cancel:_cleaning_handlers(previous)
     def census(force=False):
@@ -98,7 +110,7 @@ def command(argv,out,label,seconds=30,deadline=None,input_file=None,*,child_file
         now=time.monotonic()
         if force or last_watch[0] is None or now-last_watch[0]>=.5:
             root,bound,reserve=watch
-            size=allocated(root,deadline=work_end)
+            size=allocated(root,deadline=work_end);component_limits(root,watched_paths)
             K.need(size<=bound,'watched allocated-byte cap exceeded')
             K.need(shutil.disk_usage(root).free>=reserve,'watched disk reserve exhausted')
             last_watch[0]=time.monotonic()
@@ -149,7 +161,7 @@ def command(argv,out,label,seconds=30,deadline=None,input_file=None,*,child_file
         stdout_data=stdout.read_bytes();stderr_data=stderr.read_bytes();data=stdout_data+stderr_data
         # Once the child is reaped, this is a final DATA-only allocation census.
         if watch is not None and failure is None:
-            root,bound,reserve=watch
+            root,bound,reserve=watch;component_limits(root,watched_paths)
             K.need(allocated(root,deadline=end)<=bound and shutil.disk_usage(root).free>=reserve,'final watched allocation/reserve failed')
         row.update(command_cancelled=list(pending),command_timed_out=time.monotonic()>=end,operation_seconds=time.monotonic()-started,operation_cap_seconds=cap,child_file_size_cap=child_file_size_cap)
         (out/(label+'.log')).write_bytes(data)

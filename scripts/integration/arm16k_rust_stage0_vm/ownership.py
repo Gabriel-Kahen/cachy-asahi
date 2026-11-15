@@ -38,8 +38,13 @@ def namespace(root):
 
 
 def fields(path):
+    return fields_text(path.read_text())
+
+
+def fields_text(text):
+    need(type(text) is str and '\0' not in text,'literal ALPM text required')
     result = {};key = None
-    for line in path.read_text().splitlines():
+    for line in text.splitlines():
         if line.startswith('%') and line.endswith('%'):key = line.strip('%');need(key not in result,'duplicate ALPM field');result[key] = []
         elif line:
             need(key is not None,'ALPM value without key');result[key].append(line)
@@ -58,6 +63,26 @@ def all_owned(root,expected,nodes):
             path = safe(path.rstrip('/'));need(path in nodes,'owned node missing in complete dump')
             owners.setdefault(path,[]).append(name[0])
     need(packages == expected and len(packages) == 111,'exact complete original111 ALPM inventory')
+    return {name:dict(owners=sorted(group),**nodes[name]) for name,group in sorted(owners.items())}
+
+
+def all_owned_records(records,expected,nodes):
+    """Join captured raw ALPM text to the complete independently hashed tree."""
+    db='var/lib/pacman/local';packages={};owners={}
+    need(nodes.get(db,{}).get('kind')=='dir','actual local ALPM directory required')
+    directories={name[len(db)+1:] for name in nodes if name.startswith(db+'/') and '/' not in name[len(db)+1:] and name!=db+'/ALPM_DB_VERSION'}
+    need(type(records) is dict and set(records)==directories,'complete captured ALPM directories required')
+    for directory,record in sorted(records.items()):
+        safe(directory);need('/' not in directory and nodes[db+'/'+directory]['kind']=='dir' and type(record) is dict and set(record)=={'desc','files'},'ordinary complete ALPM package record')
+        for kind,text in record.items():
+            need(type(text) is str,'literal ALPM text required');body=text.encode('utf-8');node=nodes.get(db+'/'+directory+'/'+kind,{})
+            need(node.get('kind')=='file' and node['bytes']==len(body) and node['sha256']==hashlib.sha256(body).hexdigest(),'captured ALPM text differs from namespace')
+        desc=fields_text(record['desc']);name,version=desc['NAME'],desc['VERSION']
+        need(len(name)==len(version)==1 and name[0] not in packages,'unique actual ALPM package');packages[name[0]]=version[0]
+        for path in fields_text(record['files'])['FILES']:
+            path=safe(path.rstrip('/'));need(path in nodes,'owned node missing in complete image')
+            owners.setdefault(path,[]).append(name[0])
+    need(packages==expected and len(packages)==111,'exact complete original111 ALPM inventory')
     return {name:dict(owners=sorted(group),**nodes[name]) for name,group in sorted(owners.items())}
 
 
@@ -92,6 +117,37 @@ def qualify(root,certificate,owned):
     return result
 
 
+def resolve_nodes(nodes,guest):
+    """Resolve guest links inside the captured namespace, never the host tree."""
+    current=guest;seen=set()
+    for _ in range(32):
+        need(type(current) is str and current.startswith('/') and current not in seen and not any(c in current for c in '\0\n\r\t'),'guest link cycle/absolute namespace');seen.add(current)
+        parts=current.lstrip('/').split('/');prefix='/';changed=False
+        need(all(part not in ('','.','..') for part in parts),'normalized absolute guest path required')
+        for index,part in enumerate(parts):
+            prefix=posixpath.join(prefix,part);node=nodes.get(prefix.lstrip('/'))
+            need(node is not None,'guest path missing from image namespace')
+            if node['kind']=='link':
+                target=node['target'];prefix=target if target.startswith('/') else posixpath.join(posixpath.dirname(prefix),target)
+                current=posixpath.normpath(posixpath.join(prefix,*parts[index+1:]));changed=True;break
+            need(node['kind']==('file' if index==len(parts)-1 else 'dir'),'qualified guest path is not a regular file')
+        if not changed:return current,node
+    raise ValueError('guest link bound')
+
+
+def qualify_nodes(certificate,owned,nodes):
+    result={}
+    for name,row in certificate['files'].items():
+        resolved,node=resolve_nodes(nodes,name)
+        need(resolved==row['resolved'] and {key:node[key] for key in ('bytes','sha256')}=={key:row[key] for key in ('bytes','sha256')},'actual guest input bytes/link resolution differ')
+        key=name.lstrip('/');final=resolved.lstrip('/')
+        need(row['owner'] in owned.get(key,owned.get(final,{})).get('owners',[]),'actual ALPM file ownership differs');result[name]=row
+    for name,path in certificate['link_inputs'].items():
+        chosen=next((n for n in ('/usr/lib/lib'+name+'.so','/usr/lib/lib'+name+'.a') if n.lstrip('/') in nodes),None)
+        need(chosen==path,'actual direct GNU ld search choice differs')
+    return result
+
+
 PROTECTED = ('etc/passwd','etc/group','etc/shadow','etc/hostname','etc/hosts',
              'etc/resolv.conf','etc/machine-id','etc/locale.conf','etc/fstab',
              'etc/arm16k-systemd-nonce','home/builder/.bash_profile',
@@ -122,3 +178,13 @@ def preservation(root,baseline,payload,prefix):
     return dict(scope='ALL111_OWNED_CONTENT_TYPE_MODE_PLUS_PROTECTED_PAM_BOOT_AND_PRIVATE_PREFIX',
                 packages=111,owned_paths=len(baseline['owned']),protected_paths=len(baseline['protected']),
                 prefix_nodes=len(payload),all111_unchanged=True,PAM_boot_unchanged=True,prefix_unchanged=True)
+
+
+def preservation_nodes(nodes,records,baseline,payload,prefix):
+    """The same complete ownership/protected/prefix gates over raw observations."""
+    need(all_owned_records(records,baseline['packages'],nodes)==baseline['owned'],'postboot all111 owned content/type/mode differs')
+    need(all(nodes.get(name)==row for name,row in baseline['protected'].items()),'postboot PAM/boot/reference identity differs')
+    private=prefix.lstrip('/')+'/'
+    actual={name[len(private):]:row for name,row in nodes.items() if name.startswith(private)}
+    need(actual==payload,'postboot complete private prefix differs')
+    return dict(scope='ALL111_OWNED_CONTENT_TYPE_MODE_PLUS_PROTECTED_PAM_BOOT_AND_PRIVATE_PREFIX',packages=111,owned_paths=len(baseline['owned']),protected_paths=len(baseline['protected']),prefix_nodes=len(payload),all111_unchanged=True,PAM_boot_unchanged=True,prefix_unchanged=True)

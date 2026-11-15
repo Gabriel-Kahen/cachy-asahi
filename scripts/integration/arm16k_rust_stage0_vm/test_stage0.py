@@ -117,6 +117,17 @@ class FencedDataControls(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'fresh absent'):
                 s.assemble(f.materials,destination,f.data,f.spec)
 
+    def test_source_guard_refuses_before_prefix_and_wraps_completed_assembly(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            f=Fixture(Path(tmp));destination=f.root/'prefix'
+            def refuse():raise ValueError('FENCED reserve exhausted')
+            with self.assertRaisesRegex(ValueError,'reserve exhausted'):
+                s.assemble(f.materials,destination,f.data,f.spec,guard=refuse)
+            self.assertFalse(destination.exists())
+            calls=[]
+            s.assemble(f.materials,destination,f.data,f.spec,guard=lambda:calls.append(True))
+            self.assertGreaterEqual(len(calls),2)
+
     def test_changed_material_refuses_before_destination_allocation(self):
         with tempfile.TemporaryDirectory() as tmp:
             f = Fixture(Path(tmp));archive = next(iter(f.entries))

@@ -22,15 +22,15 @@ def qemu_argv(prepared,epoch):
     return ['/usr/bin/qemu-system-aarch64','-machine','virt','-accel','tcg,thread=multi','-rtc','base=utc,clock=host','-cpu','max','-smp','2','-m','2048','-nodefaults','-no-user-config','-display','none','-monitor','none','-nic','none','-no-reboot','-kernel','/inputs/Image','-append','root=/dev/vda rootfstype=ext4 rw console=ttyAMA0,115200n8 rootwait init=/usr/lib/systemd/systemd systemd.unit=multi-user.target arm16k_systemd_nonce='+prepared['baseline_nonce']+' arm16k_rust_stage0_nonce='+prepared['nonce']+' arm16k_rtc_host_epoch='+str(epoch),'-drive','if=none,id=refdisk,file=/work/overlay.qcow2,format=qcow2','-device','virtio-blk-device,drive=refdisk','-serial','unix:/work/serial.sock,server=on,wait=off','-qmp','unix:/work/qmp.sock,server=on,wait=off','-sandbox','on,obsolete=deny,elevateprivileges=deny,spawn=deny,resourcecontrol=deny']
 
 
-def postboot(K,R,O,inputs,work,prepared,deadline):
+def postboot(K,R,O,inputs,work,prepared,deadline,reader=None):
     """Read the disposable overlay only after a natural, signal-free QEMU reap."""
     K.checked(inputs/'ownership.json',prepared['ownership'])
     baseline=K.load(inputs/'ownership.json',64*1024**2)
-    raw=work/'verification.raw';view=work/'verification-view'
-    K.need(not raw.exists() and not view.exists(),'fresh owned postboot scratch required')
+    raw=work/'verification.raw'
+    K.need(not raw.exists(),'fresh owned postboot scratch required')
     budget=(work,K.RESOURCES['boot_allocated_cap'],K.RESOURCES['reserve_bytes'])
     def cmd(label,argv,cap,**options):
-        return R.command(argv,work,label,cap,deadline,**options,watched_tree=budget)
+        return R.command(argv,work,label,cap,deadline,**options,watched_tree=budget,watched_paths=((raw,K.RESOURCES['extended_raw_allocated_cap']),))
     cmd('postboot-convert',['qemu-img','convert','-f','qcow2','-O','raw','-S','4k',str(work/'overlay.qcow2'),str(raw)],75)
     K.need(raw.stat().st_size==prepared['files']['guest.raw']['bytes'] and raw.stat().st_size<=K.RESOURCES['raw_cap_bytes'],'postboot raw geometry differs')
     # QMP quit is not shutdown. Replay committed ext4 journal records only on
@@ -38,12 +38,17 @@ def postboot(K,R,O,inputs,work,prepared,deadline):
     replay=cmd('postboot-journal',['e2fsck','-p','-E','journal_only',str(raw)],35,completed=True,check=False)
     K.need(replay.returncode in (0,1),'verification-copy journal replay failed')
     cmd('postboot-ext4-readonly',['e2fsck','-fn',str(raw)],45)
-    view.mkdir(mode=0o700)
-    cmd('postboot-rdump',['debugfs','-R','rdump / '+str(view),str(raw)],90)
-    proof=O.preservation(view,baseline,prepared['fixture_payload'],K.PREFIX)
+    # Hash file bodies in place; no exported verification tree or second payload.
+    def guard():
+        K.need(time.monotonic()<deadline,'finite postboot readback budget')
+        R.component_limits(work,((raw,K.RESOURCES['extended_raw_allocated_cap']),))
+        K.need(R.allocated(work,deadline)<=K.RESOURCES['boot_allocated_cap'] and shutil.disk_usage(work).free>=K.RESOURCES['reserve_bytes'],'postboot allocated budget/reserve')
+    scan=(module('image') if reader is None else reader).scan(raw,deadline,guard)
+    proof=O.preservation_nodes(scan['nodes'],scan['records'],baseline,prepared['fixture_payload'],K.PREFIX)
+    proof['readback_profile']=scan['profile']
     proof.update(status='PASS_COMPLETE_POSTBOOT_PRESERVATION',nonce=prepared['nonce'],source_lock=prepared['source_lock'],ownership=prepared['ownership'],guest_sync='REQUIRED_BY_HOST_PROTOCOL',journal_replay='VERIFICATION_COPY_ONLY',readonly_ext4_check='PASS')
     # Delete only these fixed new scratch objects after a complete comparison.
-    shutil.rmtree(view);raw.unlink()
+    raw.unlink()
     proof['retained_allocated_bytes']=R.allocated(work)
     K.need(proof['retained_allocated_bytes']<=K.RESOURCES['boot_allocated_cap'] and shutil.disk_usage(work).free>=K.RESOURCES['reserve_bytes'],'postboot allocation/reserve differs')
     (work/'postboot-preservation.json').write_text(json.dumps(proof,indent=2,sort_keys=True)+'\n')
