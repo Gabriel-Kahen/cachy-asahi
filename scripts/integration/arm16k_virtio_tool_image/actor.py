@@ -30,8 +30,11 @@ def main():
      target=mask/hook.name
      if not target.exists()and not target.is_symlink():target.symlink_to('/dev/null')
    config=Path('/tmp/install.conf');config.write_text('[options]\nArchitecture = x86_64\nSigLevel = Required TrustedOnly\nLocalFileSigLevel = Required TrustedOnly\n')
-   command('install',['pacman','--config',str(config),'--hookdir',str(mask),'--noscriptlet','--noconfirm','-U',str(p)])
-   C.successor(C.local('/var/lib/pacman/local'));C.checked('/'+v['module']['path'],v['module']);command('agent-retirement',['gpgconf','--homedir','/etc/pacman.d/gnupg','--kill','gpg-agent'])
+   try:command('install',['/usr/bin/python3','-I','-B','/recipe/transaction.py'])
+   finally:
+    if (out/'transaction-result.json').exists():report['transaction']=json.loads(C.read(out/'transaction-result.json',65536))
+   transaction=report['transaction'];need(transaction['status']=='NORMAL_TRANSACTION_AND_PRIVATE_AGENT_REAPED'and transaction['empty_children_twice']and transaction['signals_sent']==transaction['received_signals']==[],'normal private verification-agent shutdown and complete natural reap')
+   C.successor(C.local('/var/lib/pacman/local'));C.checked('/'+v['module']['path'],v['module'])
    report['status']='EXACT_OFFLINE_ONE_PACKAGE_INSTALLED'
   else:
    C.successor(C.local('/var/lib/pacman/local'));module=C.checked('/'+v['module']['path'],v['module']);need(C.elf(module)==dict(needed=v['module']['needed'],stamps=[v['module']['stamp']]),'installed module ABI')

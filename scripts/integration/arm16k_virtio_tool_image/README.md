@@ -2,7 +2,11 @@
 
 READY SOURCE ONLY. The exact official package was acquired and statically
 verified; no Docker start/build/install, guest, lease or candidate-device probe
-ran in this task. The actual successor image ID and device-help fields remain
+ran by the source worker. Root subsequently entered build r1: real trusted
+signature, dependency check and normal pacman install passed, then strict
+retirement refused PRESENT_OR_REUSED. That attempt is closed HOLD, its owned
+container absent and no image committed. The correction below is for a fresh
+separately admitted r2; r1 is never replayed. The actual successor image ID and device-help fields remain
 NULL. The old ee1 image and every historical guest/result remain unchanged.
 
 Root's actual device-help r2 established that ee1 contains virtio-blk-device and
@@ -92,7 +96,15 @@ is writable; package/source/reaper binds are read-only and receipts are the only
 host write bind. It requires the exact 178-package parent, verifies the real
 signature, runs dependency-checked `pacman -T` and normal signature-required
 `pacman -U`, masks hooks and refuses scriptlets. Only the one audited split
-package may be added. It verifies the unchanged parent ALPM plus that package,
+package may be added. A finite transaction wrapper becomes a private subreaper
+before launching pacman, always requests normal gpgconf shutdown for the exact
+container-local /etc/pacman.d/gnupg, naturally reaps its adopted children and
+requires child absence twice before successful exit. It sends no process
+signals and never accesses a host agent or relaxes EMPTY_TWICE. Transaction,
+shutdown exit/refusal and reaped-child statuses are durably retained even when
+installation fails. The unchanged outer supervisor owns the whole wrapper
+operation, including the verification agent, rather than accepting pacman
+before that agent retires. It verifies the unchanged parent ALPM plus that package,
 module and QEMU bytes. The archive has no scriptlet or hook members.
 
 After natural install completion, a unique new image is committed, preserving
@@ -124,6 +136,18 @@ actual_observed_utc sampled immediately after the real help command. It is
 created only after successful probe and owned-container retirement. Root must retain
 and externally pin the whole receipt plus actual new image ID for a new guest
 consumer. No default selector is edited and no old consumer silently accepts it.
+
+The additional real test runs only an ordinary private Python fixture, two
+forks/setsid and a file-based normal shutdown signal, under the pinned exact
+supervisor: all three cases finish within five seconds, zero process signals
+and EMPTY_TWICE. Success, failed transaction and failed shutdown all naturally
+reap the detached fixture children; the two failures remain HOLD. It executes
+no GPG, pacman, Docker, lease, existing service or guest. Run it with:
+
+```sh
+python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_virtio_tool_image/test_transaction.py \
+ --owned-process /ROOT/REVIEWED/arm16k_systemd_tcg_guest/frozen/owned_process.py
+```
 
 Actual guest MMIO enumeration, framebuffer, keyboard/evdev delivery, tty/PAM/
 seat/UI, native ARM, M2, performance and release acceptance all remain NOT RUN.

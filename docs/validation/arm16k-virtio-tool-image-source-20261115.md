@@ -60,3 +60,16 @@ with 1 GiB disk and RAM reserves. No raw guest disk is prepared. The task ran
 actual passive archive/ELF/signature checks. Models establish no GPU availability.
 Image installation/build/probe, guest MMIO/seat/PAM/UI, native ARM/M2,
 performance and release qualification remain unrun by this task.
+
+Root's subsequent first image-build attempt remains closed HOLD: trusted
+signature and dependency checks passed, and normal pacman installed the exact
+one package with exit 0. Strict process retirement then observed
+`PRESENT_OR_REUSED`, so no image was committed. Owned-container absence was
+verified. The narrow successor source wraps pacman and its private verification
+agent in one subreaper-owned operation: always request normal container-local
+gpgconf shutdown, naturally reap children, then require empty twice. No broad
+kill, host-agent access or supervisor waiver is added. Three actual isolated
+Python-fixture controls pass in under five seconds, with zero process signals
+and `EMPTY_TWICE`; failure cases retain HOLD. Root must issue fresh r2 authority
+for the changed source manifest; the original attempt and its authority remain
+unchanged. No actual corrected package/image operation was run by the worker.
