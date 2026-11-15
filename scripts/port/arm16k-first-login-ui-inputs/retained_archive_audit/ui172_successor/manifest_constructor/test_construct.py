@@ -16,12 +16,17 @@ C = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(C)
 
 
+def fixture_reference(stored):
+    # stored.path is historical provenance; test bytes travel with the checkout.
+    return {**stored,'path':str(HERE/'control-inputs.json.gz')}
+
+
 class ConstructControls(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.config = C.parse((HERE/'inputs.json').read_bytes())
         pins = C.parse((HERE/'control-inputs.pin.json').read_bytes())
-        stored = C.read_pinned(pins['stored'], {'remaining': 1024**2}, 1024**2)
+        stored = C.read_pinned(fixture_reference(pins['stored']), {'remaining': 1024**2}, 1024**2)
         with gzip.GzipFile(fileobj=io.BytesIO(stored)) as stream:
             decoded = stream.read(8*1024**2+1)
         if len(decoded)>8*1024**2 or C.digest(decoded)!=pins['decoded']:
@@ -33,6 +38,15 @@ class ConstructControls(unittest.TestCase):
 
     def build(self):
         return C.build(self.data, self.config['documents'], self.config['keyring_sources'])
+
+    def test_fixture_locator_uses_checkout_without_changing_capture_pin(self):
+        captured=C.parse((HERE/'control-inputs.pin.json').read_bytes())['stored']
+        stored={**captured,'path':'/unavailable/historical-capture/control-inputs.json.gz'}
+        original=stored.copy();local=fixture_reference(stored)
+        self.assertEqual(local,{**stored,'path':str(HERE/'control-inputs.json.gz')})
+        self.assertEqual(stored,original)
+        body=C.read_pinned(local,{'remaining':1024**2},1024**2)
+        self.assertEqual(C.digest(body),{k:stored[k] for k in ('bytes','sha256')})
 
     def test_valid_exact_counts_roles_full_metadata_and_proof(self):
         manifest, plan = self.build()
@@ -168,7 +182,7 @@ class ConstructControls(unittest.TestCase):
         for body in [b'{"x":1,"x":2}', b'{"nested":{"x":1,"x":2}}', b'{"x":NaN}', b'{"x":Infinity}']:
             with self.subTest(body=body),self.assertRaises(C.Refused):
                 C.parse(body)
-        ref = C.parse((HERE/'control-inputs.pin.json').read_bytes())['stored']
+        ref = fixture_reference(C.parse((HERE/'control-inputs.pin.json').read_bytes())['stored'])
         with self.assertRaisesRegex(C.Refused, 'byte cap'):
             C.read_pinned(ref,{'remaining':ref['bytes']-1},1024**2)
         wrong = {**ref,'sha256':'0'*64}

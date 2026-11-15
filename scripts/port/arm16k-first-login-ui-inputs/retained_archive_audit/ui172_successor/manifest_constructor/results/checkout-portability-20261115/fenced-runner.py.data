@@ -1,0 +1,35 @@
+import builtins, importlib.util, io, json, os, sys, time, unittest
+from pathlib import Path
+suite_dir=Path(sys.argv[1]); captured=sys.argv[2]; report=Path(sys.argv[3])
+prefixes=('/home/gabe/Documents/ChatGPT','/dev/shm','/tmp/cachy-')
+blocked=[]
+def gate(path,dir_fd=None):
+    if isinstance(path,int): return
+    value=os.fsdecode(os.fspath(path))
+    if not os.path.isabs(value):
+        anchor=os.readlink('/proc/self/fd/'+str(dir_fd)) if dir_fd is not None else os.getcwd()
+        value=os.path.join(anchor,value)
+    value=os.path.normpath(value)
+    if any(value==p or value.startswith(p+'/') or p.endswith('-') and value.startswith(p) for p in prefixes):
+        blocked.append(value); raise PermissionError('original private capture path fenced: '+value)
+def audit(event,args):
+    if event=='open':gate(args[0])
+sys.addaudithook(audit)
+raw_builtin,raw_io,raw_os=builtins.open,io.open,os.open
+def builtin_open(path,*args,**kwargs):gate(path);return raw_builtin(path,*args,**kwargs)
+def io_open(path,*args,**kwargs):gate(path);return raw_io(path,*args,**kwargs)
+def os_open(path,*args,**kwargs):gate(path,kwargs.get('dir_fd'));return raw_os(path,*args,**kwargs)
+builtins.open=builtin_open;io.open=io_open;os.open=os_open
+try:raw_os(captured,os.O_RDONLY)
+except PermissionError:pass
+else:raise AssertionError('audit open fence probe did not refuse')
+probe_count=len(blocked);assert probe_count==1
+suite=unittest.TestSuite();started=time.monotonic()
+for name in ('test_construct','test_materialize'):
+    spec=importlib.util.spec_from_file_location('exported_'+name,suite_dir/(name+'.py'))
+    module=importlib.util.module_from_spec(spec);sys.modules[spec.name]=module;spec.loader.exec_module(module)
+    suite.addTests(unittest.TestLoader().loadTestsFromModule(module))
+result=unittest.TextTestRunner(verbosity=2).run(suite)
+data={'python':sys.version,'suite_root':str(suite_dir),'tests':result.testsRun,'failures':len(result.failures),'errors':len(result.errors),'skipped':len(result.skipped),'seconds':round(time.monotonic()-started,3),'fence_probe_refusals':probe_count,'test_private_open_attempts':blocked[probe_count:],'fenced_prefixes':prefixes,'dir_fd_opens_resolved_through_proc':True,'status':'PASS' if result.wasSuccessful() and len(blocked)==probe_count else 'FAIL'}
+report.write_text(json.dumps(data,indent=2,sort_keys=True)+chr(10))
+raise SystemExit(0 if data['status']=='PASS' else 1)
