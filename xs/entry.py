@@ -29,8 +29,8 @@ ARCHIVE_PIN = {'bytes': 22071176, 'sha256': '647c5f1d2c6965ec2e26b37e75d29c819fa
 DECISION_PIN = {'bytes': 5804, 'sha256': '27803c99064198f8688abe2e4d91910eef93df5ad337ebfc7f2d8798afbf41e1'}
 PAIR = {'source': '25dc3e65bdb6137c87a9409067fe9b2cf6e9763f', 'run': '43692477455', 'job': '132745843566'}
 ACTUAL = dict.fromkeys(('source', 'ref', 'run', 'job', 'reader', 'authority', 'approval', 'artifact', 'image'))
-ALIASES = ('.github/workflows/native-arm-build.yml', '.github/workflows/native-arm-perl5423-xs-v2.yml')
-OPERATION = 'perl5423-native-xs-v2'
+ALIASES = ('.github/workflows/native-arm-build.yml', '.github/workflows/native-arm-perl5423-xs-v3.yml')
+OPERATION = 'perl5423-native-xs-v3'
 RUNTIME_MANIFEST = dict(bytes=349767, sha256='7004309f83344b49f0f8ca598d8cefcffbc078450944824849ab9c575f1c0cd2')
 DOCKER = ['/usr/bin/docker', '--host=unix:///var/run/docker.sock']
 PREP_TMPFS = {'/run': 'rw,noexec,nosuid,nodev,size=8m,uid=1001,gid=1001',
@@ -356,6 +356,7 @@ def native(args, work, common, held):
         qualification='NOT_GRANTED', source_readback_sha256=pin(raw(work / 'source-readback.json'))['sha256'],
         daemon_identity_sha256=None, bootstrap={}, preparation={}, producer_exit=None, cleanup={})
     image, prep_name, delegation_sha = None, None, None
+    parent_image, compiler_seal, compiler_stage = None, None, None
     old_env = dict(os.environ)
     handlers = {s: signal.getsignal(s) for s in (signal.SIGINT, signal.SIGTERM)}
     def requested(number, frame):
@@ -373,7 +374,13 @@ def native(args, work, common, held):
         image = record['bootstrap']['image']
         lock = raw(work / 'bootstrap/packages.lock')
         need(lock == raw(HELD / 'original/native/expected349.lock'), 'actual complete signed349 image inventory')
+        parent_image = image
+        compiler_stage = load('xs_v3_explicit_compiler_image', ROOT / 'xs/compiler_image.py', manifest['files']['xs/compiler_image.py']['sha256'])
+        compiler_seal = compiler_stage.run(common, command, work, full, parent_image, ROOT)
+        image = compiler_seal['image']
+        record['compiler_image'] = compiler_seal
         bundle = make_bundle(common, manifest, work, daemon)
+        (bundle / 'compiler-image-qualification.json').write_bytes(raw(work / 'compiler-image-qualification.json'))
         command.deadline = time.monotonic() + 600
         prep_name = 'perl-xs-prep-' + full['run'] + '-' + uuid.uuid4().hex[:12]
         delegation = dict(schema=1, authorization='ROOT_ADMITTED_NATIVE_XS_DATA_PREPARATION', binding=full,
@@ -405,6 +412,7 @@ def native(args, work, common, held):
         need(preparation['schema'] == 1 and preparation['status'] == 'PREPARED_NATIVE_XS_DATA_ONLY' and
              preparation['native_acceptance'] is False and preparation['XS_acceptance'] is False and
              preparation['runtime_manifest'] == RUNTIME_MANIFEST and
+             preparation['compiler_image'] == dict(manifest=compiler_stage.MANIFEST, qualification=pin(raw(work / 'compiler-image-qualification.json')), image=image) and
              preparation['planning_stage_removed'] is True and
              all(type(preparation[k]) is int and preparation[k] == 0 for k in
                  ('Perl_invocations', 'compiler_invocations', 'XS_loads')) and
@@ -461,9 +469,9 @@ def native(args, work, common, held):
         except BaseException as error:
             errors.append('image recovery: ' + str(error)[:1024])
             image = None
-        for name, labels in [(prep_name, {'cachy-asahi.operation': OPERATION, 'cachy-asahi.admission': delegation_sha,
+        for name, expected_image, labels in [(prep_name, image, {'cachy-asahi.operation': OPERATION, 'cachy-asahi.admission': delegation_sha,
                                         'cachy-asahi.hosted-perl.source': full['source']}),
-                             ('perl-bootstrap-inventory-' + token, {'cachy-asahi.hosted-perl': token,
+                             ('perl-bootstrap-inventory-' + token, parent_image or image, {'cachy-asahi.hosted-perl': token,
                               'cachy-asahi.hosted-perl.source': full['source']})]:
             if name is None:
                 continue
@@ -476,7 +484,7 @@ def native(args, work, common, held):
                     need(result.stdout.decode().strip() == name, 'only exact owned container may retire')
                     result = checked(command, DOCKER + ['container', 'inspect', name])
                     row = common.decode(result.stdout)[0]
-                    need(image and row['Image'] == image and all(row['Config']['Labels'].get(k) == v
+                    need(expected_image and row['Image'] == expected_image and all(row['Config']['Labels'].get(k) == v
                          for k, v in labels.items()), 'owned container image/labels before retirement')
                     if row['State']['Running']:
                         checked(command, DOCKER + ['stop', '--time=1', name], 10)
@@ -488,6 +496,13 @@ def native(args, work, common, held):
                 record['cleanup'][name] = 'ABSENT'
             except BaseException as error:
                 errors.append(name + ': ' + str(error)[:1024])
+        if compiler_seal is not None:
+            try:
+                record['cleanup']['compiler_image'] = compiler_stage.retire(common, command, compiler_seal)
+            except BaseException as error:
+                errors.append('compiler image: ' + str(error)[:1024])
+        if parent_image is not None:
+            image = parent_image
         try:
             if image:
                 inspected = checked(command, DOCKER + ['image', 'inspect', image])

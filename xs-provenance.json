@@ -15,17 +15,31 @@
     "run": null,
     "source": null
   },
-  "closed_failed_job": "132784130584",
-  "closed_failed_run": "43705018149",
-  "closed_failure": "PREPARATION_MODE_GUARD_BEFORE_XS_PRODUCER",
-  "constructor_profile_sha256": "c633adbfba721687a3158466e42a4e68307f27b64f9b87b94aded9da209bd719",
-  "correction": "PRESERVE_EXACT_0444_0555_0644_0755_ARCHIVED_BYTES_AND_MODES_WITH_FULL_MAP",
+  "closed_failed_artifact": "14160304074",
+  "closed_failed_job": "132802844378",
+  "closed_failed_run": "43711176509",
+  "closed_failure": "FROZEN_SINGLE_LINK_GCC_INPUT_GUARD_BEFORE_XS",
+  "compiler_manifest": {
+    "bytes": 11025,
+    "sha256": "fa613490865d94362d4d9efe6c5860904158c09733439a9f6c5709168f88d23c"
+  },
+  "constructor_profile_sha256": "8b36e55a438b851b29717481e814d51b4c67094546fd01382f1acd60d4efcc1d",
+  "correction": "ONE_EXACT_SINGLE_LINK_DRIVER_IN_DISTINCT_QUALIFIED_OWNED_IMAGE_NO_CONSUMER_WAIVER",
   "delegated_consumer_operation": "perl5423-native-xs-v1",
+  "image_seal_resources": {
+    "cpus": 2,
+    "max_image_delta_bytes": 8388608,
+    "memory_bytes": 536870912,
+    "pids": 64,
+    "seconds": 120,
+    "swap_bytes": 0
+  },
   "native_acceptance": false,
-  "operation": "perl5423-native-xs-v2",
-  "parent_map_sha256": "674cc3d18e954dd1f3f351b357f746e3b9ab1b7580370666061fcb9deeb15efc",
-  "parent_source": "0885f89ab7a4301bbdf9c4b180620fb447d9a41a",
-  "parent_tree": "6a1c29b7aa1655943b54de71a89f3900ff1671c9",
+  "operation": "perl5423-native-xs-v3",
+  "original_runtime_inode_link_count": "NOT_RETAINED; exact package hardlink group observed as DATA",
+  "parent_map_sha256": "9255e7853758069a4ed23eb89872a162fdb116b6a86fc7e3c03914a8df9c0c03",
+  "parent_source": "102281ee1f584fcc7e1e612f7b8def3248cac3de",
+  "parent_tree": "38e123007884b0c237c16479574145f433939e6a",
   "runtime_manifest": {
     "bytes": 349767,
     "sha256": "7004309f83344b49f0f8ca598d8cefcffbc078450944824849ab9c575f1c0cd2"

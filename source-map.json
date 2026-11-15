@@ -12,14 +12,14 @@
   },
   "files": {
     ".github/workflows/native-arm-build.yml": {
-      "bytes": 10259,
+      "bytes": 10323,
       "mode": 420,
-      "sha256": "a69a4fa6d66084604a725fd3a9268a048214ff71ec9fddb9809753b462b9a814"
+      "sha256": "7e8683141e18524e2ac72db86bff0a5a3af9817ae7119a64f84d7423dd13fc18"
     },
-    ".github/workflows/native-arm-perl5423-xs-v2.yml": {
-      "bytes": 10259,
+    ".github/workflows/native-arm-perl5423-xs-v3.yml": {
+      "bytes": 10323,
       "mode": 420,
-      "sha256": "a69a4fa6d66084604a725fd3a9268a048214ff71ec9fddb9809753b462b9a814"
+      "sha256": "7e8683141e18524e2ac72db86bff0a5a3af9817ae7119a64f84d7423dd13fc18"
     },
     "LICENSE": {
       "bytes": 1081,
@@ -40,6 +40,11 @@
       "bytes": 5804,
       "mode": 420,
       "sha256": "27803c99064198f8688abe2e4d91910eef93df5ad337ebfc7f2d8798afbf41e1"
+    },
+    "accepted/compiler-inputs.json": {
+      "bytes": 11025,
+      "mode": 420,
+      "sha256": "fa613490865d94362d4d9efe6c5860904158c09733439a9f6c5709168f88d23c"
     },
     "accepted/packages.txt": {
       "bytes": 6800,
@@ -1481,22 +1486,52 @@
       "mode": 420,
       "sha256": "4b1de3aade5116206318570d1d44ee1063342faeab54935748b1b7c179a99e96"
     },
-    "xs-provenance.json": {
-      "bytes": 1182,
-      "mode": 420,
-      "sha256": "4273b200ad3f894245e9e1aa888d014642014725739a39e08a96cbdf4d31e9b9"
-    },
-    "xs/entry.py": {
+    "previous-v2/entry.py": {
       "bytes": 32054,
       "mode": 420,
       "sha256": "9bbea95463ebe997826ee67d603a5aeec59989266a03471c0f743bf76d8bfb5a"
     },
-    "xs/prepare_inputs.py": {
+    "previous-v2/prepare_inputs.py": {
       "bytes": 16209,
       "mode": 420,
       "sha256": "93ad9feaa8a851c6df539123416aa2c6e1c2c0f451582b20754559e61b6748fe"
+    },
+    "previous-v2/provenance.json": {
+      "bytes": 1182,
+      "mode": 420,
+      "sha256": "4273b200ad3f894245e9e1aa888d014642014725739a39e08a96cbdf4d31e9b9"
+    },
+    "previous-v2/source-map.json": {
+      "bytes": 58527,
+      "mode": 420,
+      "sha256": "9255e7853758069a4ed23eb89872a162fdb116b6a86fc7e3c03914a8df9c0c03"
+    },
+    "previous-v2/workflow.yml": {
+      "bytes": 10259,
+      "mode": 420,
+      "sha256": "a69a4fa6d66084604a725fd3a9268a048214ff71ec9fddb9809753b462b9a814"
+    },
+    "xs-provenance.json": {
+      "bytes": 1642,
+      "mode": 420,
+      "sha256": "6ea40c520046b2282228c9bfc28a44afc3c21c553d3119a5021b3dfe5a4a9166"
+    },
+    "xs/compiler_image.py": {
+      "bytes": 15790,
+      "mode": 420,
+      "sha256": "bc2dbccc9453fdc77852ea7cc9fb80da433db08be589ce4ea84ceb1ce3c01299"
+    },
+    "xs/entry.py": {
+      "bytes": 33173,
+      "mode": 420,
+      "sha256": "1fd697ff33315d4e6d711e6275545dde5aa16a8a54c1b86a57dde5fad43fa426"
+    },
+    "xs/prepare_inputs.py": {
+      "bytes": 17054,
+      "mode": 420,
+      "sha256": "ca5516f3af98309ef571a6905ed8c96171a9d6db0ce7b7b6e749ba081e487a2a"
     }
   },
   "schema": 1,
-  "scope": "PROPOSED_SEPARATE_NATIVE_XS_V2_EXACT_RUNTIME_MODES"
+  "scope": "PROPOSED_SEPARATE_NATIVE_XS_V3_PRIVATE_SINGLE_LINK_COMPILER_IMAGE"
 }

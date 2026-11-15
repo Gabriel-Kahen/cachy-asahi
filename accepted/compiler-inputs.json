@@ -1,0 +1,396 @@
+{
+  "archives": {
+    "binutils": {
+      "PKGINFO": {
+        "bytes": 961,
+        "sha256": "cc01559fae9be3cd44816664d2d74280d444ae4c473d98f9ef799eabdc2be920"
+      },
+      "archive": {
+        "bytes": 7845808,
+        "filename": "binutils-2.46+r70+g155188ea10a7-1-aarch64.pkg.tar.xz",
+        "sha256": "1acb6074f546ee662f29937897ab80bd87b0dcdd66c714381e8488d79cd53fcc"
+      },
+      "decoded_member_bytes": 54006859,
+      "headers": 717,
+      "license_payloads": {
+        "usr/share/licenses/binutils/FSFAP": {
+          "bytes": 230,
+          "mode": 420,
+          "sha256": "00a2391dad1c20694855314451e52ee942486485ed5ff49c7105d941e7cb451c"
+        }
+      },
+      "metadata": {
+        "arch": [
+          "aarch64"
+        ],
+        "backup": [
+          "etc/gprofng.rc"
+        ],
+        "builddate": [
+          "1777810620"
+        ],
+        "checkdepend": [
+          "bc",
+          "dejagnu",
+          "debuginfod"
+        ],
+        "depend": [
+          "glibc",
+          "jansson",
+          "libelf",
+          "libgcc",
+          "libstdc++",
+          "zlib",
+          "zstd"
+        ],
+        "license": [
+          "GPL-2.0-or-later",
+          "GPL-3.0-or-later",
+          "LGPL-2.0-or-later",
+          "LGPL-3.0-or-later",
+          "GFDL-1.3",
+          "FSFAP"
+        ],
+        "makedepend": [
+          "git"
+        ],
+        "optdepend": [
+          "debuginfod: for debuginfod server/client functionality",
+          "perl: for gprofng-display-html"
+        ],
+        "packager": [
+          "Arch Linux ARM Build System <builder+seattle@archlinuxarm.org>"
+        ],
+        "pkgbase": [
+          "binutils"
+        ],
+        "pkgdesc": [
+          "A set of programs to assemble and manipulate binary and object files"
+        ],
+        "pkgname": [
+          "binutils"
+        ],
+        "pkgver": [
+          "2.46+r70+g155188ea10a7-1"
+        ],
+        "provides": [
+          "libctf.so=0-64",
+          "libgprofng.so=0-64",
+          "libsframe.so=3-64"
+        ],
+        "size": [
+          "53968435"
+        ],
+        "url": [
+          "https://www.gnu.org/software/binutils/"
+        ],
+        "xdata": [
+          "pkgtype=pkg"
+        ]
+      },
+      "payload": {
+        "usr/bin/as": {
+          "aliases": [
+            "/usr/bin/as"
+          ],
+          "bytes": 660992,
+          "mode": 493,
+          "sha256": "ff23e1813fd9b31af1113d13fe580c61a76b4978dbe64a29b0dd11424c04fe0e"
+        },
+        "usr/bin/ld": {
+          "aliases": [
+            "/usr/bin/ld",
+            "/usr/bin/ld.bfd"
+          ],
+          "bytes": 2500416,
+          "mode": 493,
+          "sha256": "b07b094ae88efa267dda9314058a805a0e05a6133c6f5a88fd524dbe37e32dac"
+        }
+      },
+      "signature": {
+        "bytes": 566,
+        "sha256": "0b9331d39529b34f3b0d15f7ea6f1949fa027b7dba9ea504be1621aa3ba429b9"
+      },
+      "symlinks": {}
+    },
+    "gcc": {
+      "PKGINFO": {
+        "bytes": 1135,
+        "sha256": "56802bce100ccff46ea6a02ec84eb0a61bb69ddef5aeebc6df3d36d8c032e2af"
+      },
+      "archive": {
+        "bytes": 46558316,
+        "filename": "gcc-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz",
+        "sha256": "067a2aa64f5c7e626e3910fed6fd1f173a1fd9eb6bebaebdd7a7f5be58e170c4"
+      },
+      "decoded_member_bytes": 198068649,
+      "headers": 2677,
+      "license_payloads": {
+        "usr/share/licenses/gcc/RUNTIME.LIBRARY.EXCEPTION": {
+          "bytes": 3324,
+          "mode": 420,
+          "sha256": "9d6b43ce4d8de0c878bf16b54d8e7a10d9bd42b75178153e3af6a815bdc90f74"
+        }
+      },
+      "metadata": {
+        "arch": [
+          "aarch64"
+        ],
+        "builddate": [
+          "1777811145"
+        ],
+        "checkdepend": [
+          "dejagnu",
+          "expect",
+          "inetutils",
+          "python-pytest",
+          "tcl"
+        ],
+        "depend": [
+          "libasan=16.1.1+r12+g301eb08fa2c5-1",
+          "libgcc=16.1.1+r12+g301eb08fa2c5-1",
+          "liblsan=16.1.1+r12+g301eb08fa2c5-1",
+          "libstdc++=16.1.1+r12+g301eb08fa2c5-1",
+          "libtsan=16.1.1+r12+g301eb08fa2c5-1",
+          "libubsan=16.1.1+r12+g301eb08fa2c5-1",
+          "binutils>=2.28",
+          "glibc>=2.27",
+          "gmp",
+          "libisl.so=23-64",
+          "libmpc",
+          "mpfr",
+          "zlib",
+          "zstd"
+        ],
+        "license": [
+          "GPL-3.0-or-later WITH GCC-exception-3.1",
+          "GFDL-1.3-or-later"
+        ],
+        "makedepend": [
+          "binutils",
+          "doxygen",
+          "gcc-d",
+          "git",
+          "libisl",
+          "libmpc",
+          "python",
+          "rust",
+          "zstd"
+        ],
+        "packager": [
+          "Arch Linux ARM Build System <builder+seattle@archlinuxarm.org>"
+        ],
+        "pkgbase": [
+          "gcc"
+        ],
+        "pkgdesc": [
+          "The GNU Compiler Collection - C and C++ frontends"
+        ],
+        "pkgname": [
+          "gcc"
+        ],
+        "pkgver": [
+          "16.1.1+r12+g301eb08fa2c5-1"
+        ],
+        "size": [
+          "197928515"
+        ],
+        "url": [
+          "https://gcc.gnu.org"
+        ],
+        "xdata": [
+          "pkgtype=split"
+        ]
+      },
+      "payload": {
+        "usr/bin/aarch64-unknown-linux-gnu-gcc": {
+          "aliases": [
+            "/usr/bin/aarch64-unknown-linux-gnu-gcc",
+            "/usr/bin/aarch64-unknown-linux-gnu-gcc-16.1.1",
+            "/usr/bin/gcc"
+          ],
+          "bytes": 2365000,
+          "mode": 493,
+          "sha256": "741ced8152a820a28ab88603dd1ceb2343245728ac784839e4b5390f2411890e"
+        },
+        "usr/lib/gcc/aarch64-unknown-linux-gnu/16.1.1/cc1": {
+          "aliases": [
+            "/usr/lib/gcc/aarch64-unknown-linux-gnu/16.1.1/cc1"
+          ],
+          "bytes": 39473352,
+          "mode": 493,
+          "sha256": "01be12f35423d142ca7d54518108ad265c422eff61213308f39d480dfca8d897"
+        },
+        "usr/lib/gcc/aarch64-unknown-linux-gnu/16.1.1/collect2": {
+          "aliases": [
+            "/usr/lib/gcc/aarch64-unknown-linux-gnu/16.1.1/collect2"
+          ],
+          "bytes": 1444840,
+          "mode": 493,
+          "sha256": "340d42346cbd6f6b5bb36ff8c04605290d4e1b9d3a17712eea1b07adc16548df"
+        },
+        "usr/lib/gcc/aarch64-unknown-linux-gnu/16.1.1/lto-wrapper": {
+          "aliases": [
+            "/usr/lib/gcc/aarch64-unknown-linux-gnu/16.1.1/lto-wrapper"
+          ],
+          "bytes": 2296880,
+          "mode": 493,
+          "sha256": "a2adcf0cede679949751f10488c34b6dec34a9d1bc48aeef9746e4bd6dadd183"
+        }
+      },
+      "signature": {
+        "bytes": 566,
+        "sha256": "9cd5a11f7c87273ada4fd3ceb8e16b83bd04c9af71bee0eb5055c1be207c958b"
+      },
+      "symlinks": {
+        "usr/bin/aarch64-linux-gnu-gcc": "/usr/bin/gcc",
+        "usr/bin/cc": "gcc"
+      }
+    },
+    "make": {
+      "PKGINFO": {
+        "bytes": 398,
+        "sha256": "fdf0da5b3ee0ae8c14f9617dda297b3a14e497a4a42fe4fd5e86f87bf96af33d"
+      },
+      "archive": {
+        "bytes": 497124,
+        "filename": "make-4.4.1-3-aarch64.pkg.tar.xz",
+        "sha256": "c5c8b56bfbacd875d72823f10c910747714730c4180994d94a176c89ecea1e06"
+      },
+      "decoded_member_bytes": 1803659,
+      "headers": 108,
+      "license_payloads": {},
+      "metadata": {
+        "arch": [
+          "aarch64"
+        ],
+        "builddate": [
+          "1775999269"
+        ],
+        "depend": [
+          "glibc",
+          "guile"
+        ],
+        "license": [
+          "GPL3"
+        ],
+        "packager": [
+          "Arch Linux ARM Build System <builder+seattle@archlinuxarm.org>"
+        ],
+        "pkgbase": [
+          "make"
+        ],
+        "pkgdesc": [
+          "GNU make utility to maintain groups of programs"
+        ],
+        "pkgname": [
+          "make"
+        ],
+        "pkgver": [
+          "4.4.1-3"
+        ],
+        "size": [
+          "1794707"
+        ],
+        "url": [
+          "https://www.gnu.org/software/make"
+        ],
+        "xdata": [
+          "pkgtype=pkg"
+        ]
+      },
+      "payload": {
+        "usr/bin/make": {
+          "aliases": [
+            "/usr/bin/make"
+          ],
+          "bytes": 335688,
+          "mode": 493,
+          "sha256": "710d136a4d85822d8019a964c89a26e4b99bd3cb6ada125db6f2360bb19c7787"
+        }
+      },
+      "signature": {
+        "bytes": 566,
+        "sha256": "bcb341f5a70946b44ecd7693a2ec8dd01f28bf941f5ca409df95460ed7ad6f2a"
+      },
+      "symlinks": {}
+    }
+  },
+  "authority": "DATA pins only; future fresh signed349 bootstrap/signature checks and distinct Root image qualification required",
+  "driver_source": "/usr/bin/aarch64-unknown-linux-gnu-gcc",
+  "driver_target": "/usr/bin/cachy-asahi-xs-gcc",
+  "helper_prefix": "/usr/lib/gcc/aarch64-unknown-linux-gnu/16.1.1/",
+  "kind": "EXACT_SIGNED349_GCC_PRIVATE_DRIVER_V3",
+  "payload": {
+    "/usr/bin/aarch64-unknown-linux-gnu-gcc": {
+      "aliases": [
+        "/usr/bin/aarch64-unknown-linux-gnu-gcc",
+        "/usr/bin/aarch64-unknown-linux-gnu-gcc-16.1.1",
+        "/usr/bin/gcc"
+      ],
+      "bytes": 2365000,
+      "mode": 493,
+      "sha256": "741ced8152a820a28ab88603dd1ceb2343245728ac784839e4b5390f2411890e"
+    },
+    "/usr/bin/as": {
+      "aliases": [
+        "/usr/bin/as"
+      ],
+      "bytes": 660992,
+      "mode": 493,
+      "sha256": "ff23e1813fd9b31af1113d13fe580c61a76b4978dbe64a29b0dd11424c04fe0e"
+    },
+    "/usr/bin/ld": {
+      "aliases": [
+        "/usr/bin/ld",
+        "/usr/bin/ld.bfd"
+      ],
+      "bytes": 2500416,
+      "mode": 493,
+      "sha256": "b07b094ae88efa267dda9314058a805a0e05a6133c6f5a88fd524dbe37e32dac"
+    },
+    "/usr/bin/make": {
+      "aliases": [
+        "/usr/bin/make"
+      ],
+      "bytes": 335688,
+      "mode": 493,
+      "sha256": "710d136a4d85822d8019a964c89a26e4b99bd3cb6ada125db6f2360bb19c7787"
+    },
+    "/usr/lib/gcc/aarch64-unknown-linux-gnu/16.1.1/cc1": {
+      "aliases": [
+        "/usr/lib/gcc/aarch64-unknown-linux-gnu/16.1.1/cc1"
+      ],
+      "bytes": 39473352,
+      "mode": 493,
+      "sha256": "01be12f35423d142ca7d54518108ad265c422eff61213308f39d480dfca8d897"
+    },
+    "/usr/lib/gcc/aarch64-unknown-linux-gnu/16.1.1/collect2": {
+      "aliases": [
+        "/usr/lib/gcc/aarch64-unknown-linux-gnu/16.1.1/collect2"
+      ],
+      "bytes": 1444840,
+      "mode": 493,
+      "sha256": "340d42346cbd6f6b5bb36ff8c04605290d4e1b9d3a17712eea1b07adc16548df"
+    },
+    "/usr/lib/gcc/aarch64-unknown-linux-gnu/16.1.1/lto-wrapper": {
+      "aliases": [
+        "/usr/lib/gcc/aarch64-unknown-linux-gnu/16.1.1/lto-wrapper"
+      ],
+      "bytes": 2296880,
+      "mode": 493,
+      "sha256": "a2adcf0cede679949751f10488c34b6dec34a9d1bc48aeef9746e4bd6dadd183"
+    }
+  },
+  "schema": 1,
+  "source_legal_freshness_native_M2_release": "NOT ACCEPTED",
+  "symlinks": {
+    "/usr/bin/aarch64-linux-gnu-gcc": "/usr/bin/gcc",
+    "/usr/bin/cc": "gcc"
+  },
+  "toolchain_paths": {
+    "cc": "/usr/bin/cachy-asahi-xs-gcc",
+    "ld": "/usr/bin/cachy-asahi-xs-gcc",
+    "make": "/usr/bin/make"
+  }
+}

@@ -194,7 +194,11 @@ def main():
     def tool(path):
         actual=Path(path).resolve(strict=True);need(actual.parent==Path('/usr/bin') and os.access(actual,os.X_OK),'actual explicit native image tool')
         return operand(actual,16*MIB)
-    input_pin=emit('xs-inputs.json',inputs);info=prefix.stat();cc=tool('/usr/bin/gcc')
+    compiler_manifest=p.pin(p.read(SOURCE/'accepted/compiler-inputs.json'))
+    need(compiler_manifest==dict(bytes=11025,sha256='fa613490865d94362d4d9efe6c5860904158c09733439a9f6c5709168f88d23c'),'exact sealed compiler descriptor')
+    compiler_raw=p.read(BUNDLE/'compiler-image-qualification.json');compiler=p.decode(compiler_raw)
+    need(compiler['kind']=='XS_V3_DERIVED_COMPILER_IMAGE_QUALIFICATION_V1' and compiler['status']=='QUALIFIED_COPY_ONLY_XS_NOT_RUN' and compiler['manifest']==compiler_manifest and compiler['owned_sealing_container_absent'] is True and compiler['image']!=compiler['parent_image'] and 0<compiler['image_delta_bytes']<=8*MIB,'separate actual compiler image qualification; parent not inherited')
+    input_pin=emit('xs-inputs.json',inputs);info=prefix.stat();cc=tool('/usr/bin/cachy-asahi-xs-gcc')
     admission=dict(schema=1,candidate=p.CANDIDATE,target_arch='aarch64',root=dict(path=str(prefix),kind='extracted',owner_uid=info.st_uid,device=info.st_dev,inode=info.st_ino),
         archive=dict(name=ARCHIVE,**operand(archive,64*MIB)),metadata=dict(pkginfo=operand(BUNDLE/'PKGINFO',MIB),buildinfo=operand(BUNDLE/'BUILDINFO',MIB)),
         inventory=operand(BUNDLE/'packages.txt',MIB),inputs_sha256=input_pin['sha256'],toolchain=dict(cc=cc,ld=dict(cc),make=tool('/usr/bin/make')),
@@ -213,7 +217,7 @@ def main():
     need(time.monotonic()<deadline,'fixed90-second preparation deadline')
     result=dict(schema=1,status='PREPARED_NATIVE_XS_DATA_ONLY',archive=operand(archive,64*MIB),accepted_reader=operand(decision,65536),root=admission['root'],
         inputs=input_pin,admission=admission_pin,plan=plan_pin,files=files,runtime_manifest=p.pin(manifest_raw),extraction=dict(first_pass=first,copy_pass=second,selected_aliases='REFUSED',ignored_hardlinks='PRIOR_REGULAR_TARGETS_ONLY'),
-        runtime=observed,planning_stage_removed=True,native_acceptance=False,XS_acceptance=False,Perl_invocations=0,compiler_invocations=0,XS_loads=0)
+        runtime=observed,compiler_image=dict(manifest=compiler_manifest,qualification=p.pin(compiler_raw),image=compiler['image']),planning_stage_removed=True,native_acceptance=False,XS_acceptance=False,Perl_invocations=0,compiler_invocations=0,XS_loads=0)
     need(time.monotonic()<deadline,'fixed90-second preparation deadline')
     emit('preparation.json',result);print(p.encode(result).decode(),end='')
 
