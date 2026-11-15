@@ -8,6 +8,11 @@
     "socket_identity": null,
     "status": null
   },
+  "docker_cli": {
+    "bytes": null,
+    "path": null,
+    "sha256": null
+  },
   "issued_by": null,
   "kernel_bundle": null,
   "kind": "ROOT_ARM16K_LLVM23_VM_AUTHORITY_V1",

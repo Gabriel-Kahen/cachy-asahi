@@ -163,7 +163,7 @@ class HostModel:
             def recover(self,*a):self.validate(owner.row);return owner.row
             def cleanup(self,report):owner.cleaned=True;self.validate(owner.row);report['owned_container_absence_verified']=True
         self.B=SimpleNamespace(Cancellation=Cancel,OwnedContainer=Owned)
-        self.R=SimpleNamespace(transport=lambda a:nullcontext(),command=self.command,docker_call=self.docker,LIVE_GUARD=None)
+        self.R=SimpleNamespace(transport=lambda a,**kw:nullcontext(),command=self.command,docker_call=self.docker,LIVE_GUARD=None)
         self.T=SimpleNamespace(preflight=lambda a,phase:m.ctx,modules=lambda:(K,self.R,self.B,O,D),guard=lambda c,o:self.guard,
                                load=lambda name:P if name=='prepare_image'else BOOT,recheck=lambda c:True)
     def guard(self):self.guard_calls+=1

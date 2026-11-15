@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT
 """Thin fixed-operation adapter; unchanged frozen primitive owns the final reap."""
 from contextlib import contextmanager
+import copy
 import importlib.util
 import json
 import math
@@ -16,6 +17,7 @@ import time
 HERE=Path(__file__).resolve().parent
 _DOCKER_SEQUENCE=0
 LIVE_GUARD=None  # Case-local cooperative live quota/reserve callback; no threads.
+_DOCKER_AUTHORITY=None  # Active explicit Root selection; never a PATH/default CLI.
 
 
 def module(name):
@@ -23,16 +25,42 @@ def module(name):
 
 
 @contextmanager
-def transport(authority):
-    K=module('contracts');endpoint=K.endpoint(authority)
+def transport(authority, *, deadline=None):
+    global _DOCKER_AUTHORITY
+    K=module('contracts');endpoint=K.endpoint(authority);K.docker_cli(authority,deadline=deadline,check=LIVE_GUARD)
+    selected=copy.deepcopy({k:authority[k] for k in ('daemon','docker_cli')})
+    prior_authority=_DOCKER_AUTHORITY
     previous={k:os.environ.get(k) for k in ('DOCKER_HOST','DOCKER_CONTEXT')}
     try:
+        _DOCKER_AUTHORITY=selected
         os.environ['DOCKER_HOST']=endpoint;os.environ.pop('DOCKER_CONTEXT',None)
         yield
     finally:
+        _DOCKER_AUTHORITY=prior_authority
         for key,value in previous.items():
             if value is None:os.environ.pop(key,None)
             else:os.environ[key]=value
+
+
+def docker_operand(argv):
+    return argv[0]=='docker' or Path(argv[0]).name=='docker' or (
+        _DOCKER_AUTHORITY is not None and argv[0]==_DOCKER_AUTHORITY['docker_cli']['path'])
+
+
+def docker_selection(argv):
+    K=module('contracts');K.need(_DOCKER_AUTHORITY is not None,'explicit Root Docker CLI authority required')
+    row=_DOCKER_AUTHORITY['docker_cli'];endpoint=K.endpoint(_DOCKER_AUTHORITY)
+    K.need(argv[0] in ('docker',row['path']),'unreviewed Docker CLI alias refused')
+    K.need(os.environ.get('DOCKER_HOST')==endpoint and not os.environ.get('DOCKER_CONTEXT'),'explicit Root local rootless transport required')
+    return [row['path'],*argv[1:]]
+
+
+@contextmanager
+def docker_launch(argv, *, deadline=None, check=None):
+    """All host and recovery Docker calls exec sealed whole-pinned ELF bytes."""
+    selected=docker_selection(argv);K=module('contracts')
+    with K.open_docker_cli(_DOCKER_AUTHORITY,deadline=deadline,check=check,snapshot=True) as fd:
+        yield selected,dict(executable='/proc/self/fd/'+str(fd),pass_fds=(fd,))
 
 
 def natural(row):
@@ -117,8 +145,9 @@ def command(argv,out,label,seconds=30,deadline=None,input_file=None,*,child_file
                 K.need(shutil.disk_usage(root).free>=reserve,'watched disk reserve exhausted')
             last_watch[0]=time.monotonic()
     env={'PATH':'/usr/bin:/bin','LC_ALL':'C','TZ':'UTC'}
-    if argv[0] in ('docker','/usr/bin/docker'):
-        K.need(os.environ.get('DOCKER_HOST','').startswith('unix:///') and not os.environ.get('DOCKER_CONTEXT'),'explicit Root local rootless transport required')
+    is_docker=docker_operand(argv)
+    if is_docker:
+        argv=docker_selection(argv);K.docker_cli(_DOCKER_AUTHORITY,deadline=work_end,check=LIVE_GUARD)
         env.update({key:os.environ[key] for key in ('HOME','XDG_RUNTIME_DIR','DOCKER_HOST') if key in os.environ})
     out=Path(out);stdout=out/(label+'.stdout');stderr=out/(label+'.stderr')
     mask=signal.pthread_sigmask(signal.SIG_BLOCK,signals)
@@ -132,6 +161,7 @@ def command(argv,out,label,seconds=30,deadline=None,input_file=None,*,child_file
                 spawn_mask=signal.pthread_sigmask(signal.SIG_BLOCK,signals)
                 try:
                     if not defer_cancel and (pending or signal.sigpending() & signals):raise KeyboardInterrupt('cancelled before child launch')
+                    K.need(time.monotonic()<work_end,'original command work budget exhausted before launch')
                     O.prepare()
                     def child_setup():
                         if child_file_size_cap is not None:
@@ -139,7 +169,16 @@ def command(argv,out,label,seconds=30,deadline=None,input_file=None,*,child_file
                             bound=child_file_size_cap if hard==resource.RLIM_INFINITY else min(child_file_size_cap,hard)
                             resource.setrlimit(resource.RLIMIT_FSIZE,(bound,bound))
                         signal.pthread_sigmask(signal.SIG_SETMASK,spawn_mask)
-                    child=subprocess.Popen(argv,stdin=subprocess.DEVNULL if input_file is None else input_file,stdout=so,stderr=se,start_new_session=True,env=env,preexec_fn=child_setup)
+                    kwargs=dict(stdin=subprocess.DEVNULL if input_file is None else input_file,stdout=so,stderr=se,start_new_session=True,env=env,preexec_fn=child_setup)
+                    if is_docker:
+                        def pin_check():
+                            if LIVE_GUARD is not None:LIVE_GUARD()
+                            if not defer_cancel and (pending or signal.sigpending() & signals):raise KeyboardInterrupt('cancelled while pinning CLI')
+                        with docker_launch(argv,deadline=work_end,check=pin_check) as (selected,launch):
+                            K.need(time.monotonic()<work_end,'original command work budget exhausted while pinning CLI')
+                            if not defer_cancel and (pending or signal.sigpending() & signals):raise KeyboardInterrupt('cancelled while pinning CLI')
+                            child=subprocess.Popen(selected,**kwargs,**launch)
+                    else:child=subprocess.Popen(argv,**kwargs)
                 finally:signal.pthread_sigmask(signal.SIG_SETMASK,spawn_mask)
                 while time.monotonic()<work_end and (defer_cancel or not pending):
                     if os.waitid(os.P_PID,child.pid,os.WEXITED|os.WNOWAIT|os.WNOHANG) is not None:break

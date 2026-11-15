@@ -1,5 +1,8 @@
 # SPDX-License-Identifier: MIT
 """Case-specific offline gates. Never prepares, launches, authenticates or accepts a VM."""
+from contextlib import contextmanager, ExitStack
+import ctypes
+import fcntl
 import hashlib
 import json
 import os
@@ -100,6 +103,72 @@ def load(path, cap=4*1024**2):
     value = json.loads(raw, object_pairs_hook=unique, parse_float=invalid, parse_constant=invalid)
     need(type(value) is dict and raw == canonical(value), 'canonical JSON object required')
     return value
+
+
+def executable_memfd():
+    """Linux DATA-only allocation; some Python builds omit the os wrapper."""
+    flags = 0x0001 | 0x0002 | 0x0010  # MFD_CLOEXEC | MFD_ALLOW_SEALING | MFD_EXEC
+    if hasattr(os, 'memfd_create'):
+        return os.memfd_create('Root-reviewed-Docker-CLI', flags)
+    lib = ctypes.CDLL(None, use_errno=True)
+    need(hasattr(lib, 'memfd_create'), 'Linux executable memfd unavailable')
+    fn = lib.memfd_create; fn.argtypes = [ctypes.c_char_p, ctypes.c_uint]; fn.restype = ctypes.c_int
+    fd = fn(b'Root-reviewed-Docker-CLI', flags)
+    if fd < 0: raise OSError(ctypes.get_errno(), 'executable memfd refused')
+    return fd
+
+
+@contextmanager
+def open_docker_cli(authority, *, deadline=None, check=None, snapshot=False):
+    """Check bounded host ELF DATA; optionally yield a sealed executable snapshot."""
+    def tick():
+        need(deadline is None or type(deadline) in (int, float) and 0 < deadline < 2**63 and time.monotonic() < deadline,
+             'original Docker CLI work budget exhausted while pinning')
+        if check is not None: check()
+    tick()
+    row = authority.get('docker_cli')
+    keys(row, ('path', 'bytes', 'sha256'), 'Root Docker CLI descriptor')
+    need(type(row['path']) is str, 'nonnull Root Docker CLI path')
+    path = ordinary(row['path'])
+    need(str(path) == row['path'], 'canonical Root Docker CLI operand')
+    pin_shape({k: row[k] for k in ('bytes', 'sha256')})
+    need(64 <= row['bytes'] <= 128*1024**2, 'bounded Docker CLI ELF')
+    with ExitStack() as stack:
+        stream = stack.enter_context(os.fdopen(os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC), 'rb'))
+        a = os.fstat(stream.fileno())
+        need(stat.S_ISREG(a.st_mode) and a.st_nlink == 1 and a.st_size == row['bytes'] and
+             a.st_uid in (0, os.getuid()) and not a.st_mode & 0o6022 and
+             a.st_mode & (0o100 if a.st_uid == os.geteuid() else 0o001), 'ordinary executable nonwritable Docker CLI')
+        head = stream.read(64)
+        machine = {'x86_64': 62, 'aarch64': 183}.get(os.uname().machine)
+        need(machine is not None and len(head) == 64 and head[:7] == b'\x7fELF\x02\x01\x01' and
+             int.from_bytes(head[16:18], 'little') in (2, 3) and
+             int.from_bytes(head[18:20], 'little') == machine, 'selected Docker CLI host ELF64')
+        copy = None
+        if snapshot:
+            fd = executable_memfd()
+            copy = stack.enter_context(os.fdopen(fd, 'w+b')); os.fchmod(fd, 0o500); copy.write(head)
+        h = hashlib.sha256(head); total = len(head); tick()
+        while block := stream.read(65536):
+            total += len(block); need(total <= row['bytes'], 'Docker CLI byte cap'); h.update(block)
+            if copy is not None: copy.write(block)
+            tick()
+        identity = lambda s: (s.st_dev, s.st_ino, s.st_size, s.st_mode, s.st_uid, s.st_gid, s.st_nlink, s.st_mtime_ns, s.st_ctime_ns)
+        need(identity(a) == identity(os.fstat(stream.fileno())) == identity(path.lstat()) and
+             total == row['bytes'] and h.hexdigest() == row['sha256'], 'whole Root Docker CLI pin changed')
+        tick()
+        if copy is not None:
+            copy.flush()
+            # Stable Linux UAPI values from linux/fcntl.h; older Python omits names.
+            seals = 0x0008 | 0x0004 | 0x0002 | 0x0001
+            fcntl.fcntl(copy.fileno(), 1033, seals)  # F_ADD_SEALS
+            need(fcntl.fcntl(copy.fileno(), 1034) == seals, 'immutable Docker CLI snapshot required')  # F_GET_SEALS
+        yield stream.fileno() if copy is None else copy.fileno()
+
+
+def docker_cli(authority, **kwargs):
+    with open_docker_cli(authority, **kwargs):
+        return dict(authority['docker_cli'])
 
 
 def guest_path(value):

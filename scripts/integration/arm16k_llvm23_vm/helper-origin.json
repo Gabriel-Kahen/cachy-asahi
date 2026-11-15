@@ -79,10 +79,10 @@
       "source": "/home/gabe/Documents/ChatGPT/cachy-asahi/scripts/integration/arm16k_rust_stage0_vm/frozen/rtc_contract.py"
     },
     "runtime.py": {
-      "bytes": 13690,
-      "derivation": "Case-local LIVE_GUARD cooperative callback in the unchanged child poll; no threads or new process primitive",
+      "bytes": 15989,
+      "derivation": "Case-local LIVE_GUARD cooperative callback plus explicit Root canonical whole-pinned host Docker ELF dispatch through sealed memfd with original-deadline/live/cancellation checks, including recovery; no PATH lookup, threads or new process primitive",
       "mode": 420,
-      "sha256": "96b71732f03b64e3ce682689f3722964325ecf7c97df577428d5dc0b04b7ed45",
+      "sha256": "b4c958b4f42adaae4f23a1ceede8cb99d5d0748e0534905dd34d3bf95139887f",
       "source": "/home/gabe/Documents/ChatGPT/cachy-asahi/scripts/integration/arm16k_rust_stage0_vm/runtime.py",
       "source_bytes": 13538,
       "source_sha256": "b01ae41db9852b9b48faae0588f0e83fd340d1eb9eae9767275efbc83f9d46c8"

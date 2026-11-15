@@ -76,7 +76,7 @@ def preflight(a,phase):
  inputs=[HERE,K.ordinary(a.base),K.ordinary(a.materials),K.ordinary(a.packet),K.ordinary(a.kernel_bundle)]
  K.need(all(out!=p and p not in out.parents and out not in p.parents for p in inputs),'disjoint controller output')
  K.need(limits['host_uid']==os.getuid()and limits['output_device']==out.parent.stat().st_dev,'actual own UID/output filesystem')
- K.endpoint(authority)
+ K.endpoint(authority);K.docker_cli(authority)
  policy=authority['postboot_policy'];K.keys(policy,('mutable_unowned_paths','new_unowned_paths'),'finite Root postboot policy')
  for group in policy.values():
   K.need(type(group)is list and len(group)<=256 and len(set(group))==len(group),'finite unique postboot paths')
@@ -118,6 +118,7 @@ def guard(ctx,out):return Guard(ctx,out)
 def recheck(ctx):
  K=load('contracts');p=ctx['paths'];load('adapter').source(ctx['source_lock']['sha256'])
  K.need(K.pin(Path(p['authority']))==ctx['authority_pin'],'authority unchanged')
+ K.endpoint(ctx['authority']);K.docker_cli(ctx['authority'])
  for n,row in ctx['baseline']['files'].items():K.need(K.pin(Path(p['base'])/n,row['bytes'])==row,'immutable original baseline after actor')
  K.need(K.pin(Path(p['base'])/'prepared.json')==ctx['baseline']['prepared']and K.pin(Path(p['baseline_report']))==ctx['baseline']['first_boot_report']and K.pin(Path(p['base'])/'arm16k-first-boot-attempt.json')==ctx['baseline']['original_marker'],'original prepared/PAM report/consumed marker unchanged')
  for n,path in load('adapter').NAMES.items():

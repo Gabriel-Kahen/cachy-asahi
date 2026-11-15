@@ -81,8 +81,9 @@ with exact provenance. It reports DATA-only review and keeps VM/Root/native
 acceptance null/false. It is not a substitute for actual PAM/QMP/owned-process and
 whole-image preservation evidence.
 
-Reviewed helpers are copied unchanged and pinned in `helper-origin.json` and the
-closed Source lock: Rust-stage0 supervision/controller/RTC helpers and the RTC
+Reviewed helpers are pinned in `helper-origin.json` and the closed Source lock;
+the case-local runtime derivations retain their original byte/SHA provenance.
+Unchanged copies include Rust-stage0 supervision/controller/RTC helpers and the RTC
 lifecycle snapshot helpers. Rust's prefix assembler never performs ALPM, so it
 is not retagged as this journey. Its hardcoded111 ownership functions are not
 used to relabel a155 baseline. The new certificate uses the actual inventory
@@ -99,6 +100,28 @@ The immutable Source111 raw/prepared/first-PAM/consumed-marker and111 inventory
 are pinned in `data/baseline111.json`; the accepted155 family is never selected
 or relabeled. Independent baseline ownership evidence is a separate operand;
 no ownership file or credential is written into the original assembly.
+
+The Root authority must also issue `docker_cli` with the canonical absolute
+`path`, positive `bytes` and whole-file `sha256` of the host Docker ELF. These
+fields are NULL in the template. There is no user-path default or PATH discovery.
+Preflight, retained-input recheck and every Docker dispatch verify this operand:
+ordinary single-link executable host ELF64, root/current-UID owner, no symlink
+components, SUID/SGID or group/world writes, bounded size and stable whole pin.
+The runtime translates its internal `docker` marker to this exact path, records
+the canonical argv and executes a whole-pinned sealed executable `memfd` copy
+via Linux `/proc/self/fd` with `pass_fds`. Write/grow/shrink/further-seal changes
+are prohibited; pathname replacement and in-place changes to the original
+cannot change the selected executable bytes. This requires Linux `MFD_EXEC`
+and file seals; unavailable support refuses without fallback. The temporary
+snapshot uses at most the reviewed CLI bytes (hard cap128MiB) in host memory.
+Hash/copy loops check original deadlines, live resource guards and pending
+cancellation before launch; copying cannot renew the work/cleanup envelope.
+Recovery/list/inspect/wait/remove use this same boundary;
+an unavailable or altered CLI holds cleanup rather than choosing a fallback.
+The explicit Root-reviewed local rootless socket is checked again per dispatch.
+Child PATH remains `/usr/bin:/bin`; endpoint, image, custody, cancellation,
+quota and original cleanup deadlines still apply. This is host-only dispatch;
+the guest actor receives no host CLI mount or inherited broad PATH.
 
 The host preparation controller starts only the selected qualified rootless
 cap0/NNP/read-only/network-none tool actor. `prepare_image.py` streams the actual

@@ -300,7 +300,7 @@ def run(args, ctx, ops):
                   guest_shutdown='NOT_QUALIFIED_QMP_QUIT_ONLY', nonce=prepared['nonce'])
     scope = serial = qmp_socket = qfile = stream = None
     state = B.Cancellation()
-    route = R.transport(ctx['authority'])
+    route = R.transport(ctx['authority'], deadline=ctx['deadline'])
     entered = False
     sequence = 0
     watcher = LiveGuard(ops.guard(ctx, out))
