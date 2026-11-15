@@ -1,0 +1,37 @@
+{
+  "Docker": 0,
+  "GET": 0,
+  "Source_actors": 0,
+  "actual": {
+    "Original": null,
+    "Reader": null,
+    "Root_acceptance": null,
+    "admission": null,
+    "authority": null,
+    "image": null,
+    "job": null,
+    "ref": "refs/heads/codex/native-arm-perl5423-xs-v6-20261115",
+    "run": null,
+    "runtime": null,
+    "source": "898554db64007b7b6071e7d94cfcbbb06d906145"
+  },
+  "actual_Original_openings": 0,
+  "controls": 37,
+  "inverse_chain": [
+    321,
+    316,
+    311,
+    305,
+    298,
+    272
+  ],
+  "lease": 0,
+  "modeled_producer_commands": 23,
+  "operational_Reader": 0,
+  "original_files": 200,
+  "publication": 0,
+  "python": "3.14",
+  "schema": 1,
+  "source_files": 321,
+  "status": "37_FENCED_SOURCE_DATA_MODEL_CONTROLS_PASS_NO_OPERATIONAL_READER"
+}

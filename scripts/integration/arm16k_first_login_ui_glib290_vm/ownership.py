@@ -132,9 +132,18 @@ def persist(writer,value):
     for i,row in enumerate(value['unknown']):writer.write('ownership-unknown-'+str(i).zfill(3)+'.json',{'schema_version':1,'nonce':writer.nonce,'stage':writer.stage,**row})
     summary={k:v for k,v in value.items()if k not in ['warnings','unknown']};writer.write('ownership-summary.json',{'schema_version':1,'nonce':writer.nonce,'stage':writer.stage,**summary})
 
+_SYNCFS=None
+def prepare_syncfs():
+    """Bind while the installed Python/ctypes runtime is still present."""
+    global _SYNCFS
+    if _SYNCFS is None:
+        libc=ctypes.CDLL(None,use_errno=True);function=libc.syncfs
+        function.argtypes=[ctypes.c_int];function.restype=ctypes.c_int
+        _SYNCFS=function
+
 def _syncfs(fd):
-    libc=ctypes.CDLL(None,use_errno=True);function=libc.syncfs;function.argtypes=[ctypes.c_int];function.restype=ctypes.c_int
-    if function(fd)!=0:raise OSError(ctypes.get_errno(),'owned-filesystem-syncfs-refusal')
+    if _SYNCFS is None:raise OSError(errno.ENOSYS,'syncfs-not-prepared-before-removal')
+    if _SYNCFS(fd)!=0:raise OSError(ctypes.get_errno(),'owned-filesystem-syncfs-refusal')
 
 def sync_filesystem(root=Path('/'),primitive=None):
     fd=os.open(root,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC)

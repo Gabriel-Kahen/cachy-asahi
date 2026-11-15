@@ -1,0 +1,22 @@
+{
+  "Source_copies": 0,
+  "actor_calls": 0,
+  "actual_Reader_calls": 0,
+  "closed_Reader1_stdout": {
+    "bytes": 174,
+    "sha256": "8185bf1b1e2a969050275fc69ef28f763fce498c62d3445745437e3702cfc7f5"
+  },
+  "controls": 10,
+  "lease_entries": 0,
+  "network_calls": 0,
+  "original_Source_unchanged": true,
+  "preloads": [
+    "math"
+  ],
+  "runtimes": [
+    "3.12.13",
+    "3.14"
+  ],
+  "schema": 1,
+  "status": "PASS_10_FENCED_SOURCE_IMPORT_CONTROLS_EACH_PYTHON312_314_NO_READER"
+}

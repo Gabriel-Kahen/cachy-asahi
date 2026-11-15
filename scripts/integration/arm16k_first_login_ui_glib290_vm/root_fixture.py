@@ -31,7 +31,8 @@ def main():
     def sync(label):
         if writer is not None:writer.command('sync-'+label,'started')
         try:ownership.sync_filesystem()
-        except OSError:
+        except OSError as error:
+            if writer is not None:writer.exception(error,'sync-'+label)
             if writer is not None:writer.command('sync-'+label,'failed',error='syncfs-refusal')
             raise FixtureFailure('syncfs-refusal')from None
         if writer is not None:writer.command('sync-'+label,'passed',0)
@@ -74,7 +75,7 @@ def main():
         configuration=conf.read_text();assert 'Architecture = aarch64' in configuration and 'LocalFileSigLevel = Required TrustedOnly' in configuration
         report['trust']={'configuration':configuration,'explicit_TEST_primary_ownertrust':contract['trusted_primaries'],'private_keys':False,'freshness_or_production_acceptance':False}
         ownership_index=ownership.load_index(I/'ownership',contract['ownership_metadata'],{r['name']for r in rows})
-        sync('post-install')
+        ownership.prepare_syncfs();sync('post-install')
         writer.phase('installed-check')
         after=call('installed-inventory',['pacman','-Q']).decode(); actual={l.split()[0]:l.split()[1] for l in after.splitlines()}
         assert actual=={**baseline,**{r['name']:r['version'] for r in rows}},'exact installed inventory mismatch'
@@ -134,6 +135,7 @@ def main():
         ownership.signal_after_sync(lambda:sync('terminal-pass'),lambda:publish('removed.json',report))
         return 0
     except BaseException as e:
+        if writer is not None and not isinstance(e,FixtureFailure):writer.exception(e,'root-stage')
         label=str(e)if isinstance(e,FixtureFailure)else 'state-refusal'if isinstance(e,(AssertionError,ValueError))else 'unexpected-error'
         assert label in receipts.ERRORS
         failure=writer.failure(label)if writer is not None else {'schema_version':1,'nonce':nonce,'stage':'starting','error_label':label,'status':'HOLD'}

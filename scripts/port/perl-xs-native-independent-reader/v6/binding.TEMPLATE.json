@@ -1,0 +1,18 @@
+{
+  "artifact": {
+    "bytes": null,
+    "id": null,
+    "metadata_sha256": null,
+    "sha256": null
+  },
+  "binding": {
+    "approval": null,
+    "job": null,
+    "operation": "perl5423-native-xs-v6",
+    "ref": "refs/heads/codex/native-arm-perl5423-xs-v6-20261115",
+    "run": null,
+    "source": "898554db64007b7b6071e7d94cfcbbb06d906145",
+    "source_map_sha256": "2a32e63ca3eef8147ef0200cafdcaef27bc6d9653e791f727dcfbc35d878db22"
+  },
+  "schema": 1
+}
