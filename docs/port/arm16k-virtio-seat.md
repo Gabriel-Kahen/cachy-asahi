@@ -35,3 +35,12 @@ was invoked. Root owns the later actual kernel/tool/package/policy/resource and
 new actor/expectedCmd admission. The installation worker owns ARM UI package
 closure; this source does not close missing archives or claim full ARM UI, native
 16K, Apple/M2 hardware, performance or release acceptance.
+
+The ARM111 baseline has no NetworkManager, and the initial145-addition UI plan
+does not establish its provider. The genuine own-profile Polkit action remains
+mandatory: a distinct externally audited signed official `networkmanager`
+archive/dependency closure must own the exact installed policy XML. The delivery
+map/verifier explicitly names this prerequisite and Python/GIR/pkaction namespace.
+Missing provider holds before preparation; copying/injecting XML, inventing an
+action or weakening the authorization check is forbidden. No NM daemon or
+connection modification is requested by this policy reference.

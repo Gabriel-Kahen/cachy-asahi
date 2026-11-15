@@ -124,3 +124,12 @@ performance and release acceptance remain unestablished.
 
 Project adapters are MIT. Retained Linux/QEMU operands retain their original
 SPDX/license notices; copied upstream bytes are pinned DATA, never executed here.
+
+The ARM111 baseline has no NetworkManager, and the initial145-addition UI plan
+does not establish its provider. The genuine own-profile Polkit action remains
+mandatory: a distinct externally audited signed official `networkmanager`
+archive/dependency closure must own the exact installed policy XML. The delivery
+map/verifier explicitly names this prerequisite and Python/GIR/pkaction namespace.
+Missing provider holds before preparation; copying/injecting XML, inventing an
+action or weakening the authorization check is forbidden. No NM daemon or
+connection modification is requested by this policy reference.

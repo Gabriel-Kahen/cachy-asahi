@@ -34,6 +34,7 @@
       "status": "READY_SOURCE_ONLY"
     }
   ],
+  "namespace_prerequisite": "Official networkmanager archive/dependency closure must supply exact original NM action/policy; ARM111 and initial145-addition UI plan do not establish this. Source XML injection or policy weakening forbidden.",
   "native16K": "NOT RUN",
   "package_closure": "owned separately by installation worker; not asserted complete",
   "performance": "NOT MEASURED",
@@ -47,12 +48,12 @@
       "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
     },
     "README.md": {
-      "bytes": 7971,
-      "sha256": "56791c89d1424c1cf28f4295a8d2b4acbda953842c18f13cae26dd3451f04ee1"
+      "bytes": 8584,
+      "sha256": "dae26d0ab91036b51ecab9edb5e3efaa664a9d49d40e08ad2840575bb0a40a0b"
     },
     "delivery.lock.json": {
-      "bytes": 2311,
-      "sha256": "58fd2d5126cfb9336b99e33bc2a717a8f0625b2644e8674356fdc8d4e3bcdded"
+      "bytes": 3279,
+      "sha256": "5c26519bbeda89a309f50d00c0fd975a6ff5d651667d6c039d3a9d119e16622b"
     },
     "input_seat.py": {
       "bytes": 7245,
@@ -91,8 +92,8 @@
       "sha256": "b44bf0459757516509250ef85a1cdf7c1f91a4006809a418bf26050b648a61ef"
     },
     "verify_source.py": {
-      "bytes": 2761,
-      "sha256": "f02863122b6e166d895969f5f5254110c20dc2fcd24cf3ab0c5b45bb68d5867c"
+      "bytes": 3384,
+      "sha256": "350d839541d651b5847bc60159f3e5e5a9efda6aaeedd1ebc3bc7c47c93a5624"
     }
   },
   "status": "READY_SOURCE_ONLY"
