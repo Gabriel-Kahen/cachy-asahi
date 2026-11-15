@@ -161,10 +161,10 @@ def retained_image_lifecycle(view, files, receipt, cleanup, binding, map_sha256)
         need(value.get('alias') == aliases[role] and re.fullmatch('sha256:[0-9a-f]{64}', value.get('image_id') or ''),
              'registered exact source-built image identity required')
         index = value.get('build_actor_index'); argv = value.get('build', {}).get('argv')
-        need(type(argv) is list and len(argv) == (16 if role == 'base' else 17), 'exact source-owned image build argv required')
+        need(type(argv) is list and len(argv) == 16, 'exact source-owned image build argv required')
         prefix = (docker + ['build', '--no-cache', '--tag', aliases[role], '--label', label+'='+binding['token'],
                   '--label', label+'.source='+binding['source'], '--network=none', '--pull=false', '--platform=linux/arm64'] if role == 'base' else
-                  docker + ['build', '--quiet', '--network=none', '--pull=false', '--no-cache', '--platform=linux/arm64', '--tag', aliases[role],
+                  docker + ['build', '--network=none', '--pull=false', '--no-cache', '--platform=linux/arm64', '--tag', aliases[role],
                   '--label', label+'='+binding['token'], '--label', label+'.source='+binding['source']])
         iid = Path(argv[-2]); directory = 'bootstrap' if role == 'base' else 'overlay'
         need(argv[:-3] == prefix and argv[-3] == '--iidfile' and iid.is_absolute() and '..' not in iid.parts
@@ -969,6 +969,7 @@ def build_tools_local_binding(expected_map):
     for name,digest in PRODUCERS.items():need(rows[name]['sha256']==digest,'all package producer pins must match external Root-bound Source map')
     need(rows['native/build_tools_reader_v2.py']['sha256']==pin(whole(Path(__file__).resolve(),1024**2)[0])['sha256'],'matching reader self joins Root-bound Source')
     need(manifest.get('namespace_preflight_operation')==OPERATION,'exact Hyprland03 operation in Root-bound local Source map')
+    need(manifest.get('namespace_build_log_visibility') == 'UNQUIET_TOOLS_IIDFILE_V1', 'exact unquiet diagnostic Source family')
     return manifest
 
 
@@ -1017,13 +1018,14 @@ def validate(capsule_path, expected):
     consumer_diagnostic = retained_consumer_diagnostic(view, files, receipt, binding, expected['map_sha256'])
     build_summary = retained_build_summary(view, files, binding, expected['map_sha256'])
     image_build_policy = build_tools_build_policy_data(view, files, receipt, binding, expected['map_sha256'])
+    build_log_visibility = retained_namespace_build_log(view, files, receipt, cleanup, binding, expected['map_sha256'])
     failed = (receipt['status'] != PASS or cleanup['status'] != 'PASS_EXACT_OWNED_RESOURCES_RETIRED')
     need(failed or consumer_diagnostic['status'] != 'ABSENT_CONSUMER_DIAGNOSTIC_DATA_ONLY',
          'successful release owner cannot omit original consumer diagnostic')
     if failed or not consumer_diagnostic['positive_candidate']:
         return dict(status='VALIDATED_NATIVE_FAILURE_DATA_ONLY', binding=binding,
                     owner_status=receipt['status'], cleanup_status=cleanup['status'],
-                    consumer_diagnostic=consumer_diagnostic, build_summary=build_summary, image_build_policy=image_build_policy,
+                    consumer_diagnostic=consumer_diagnostic, build_summary=build_summary, image_build_policy=image_build_policy, build_log_visibility=build_log_visibility,
                     component_failure=build_tools_failure_data(view, files, expected['map_sha256']),
                     native='NOT_ADMITTED', physical_M2='NOT_RUN', release='NOT_ADMITTED')
     retained_consumer_diagnostic(view, files, receipt, binding, expected['map_sha256'], positive=True)
@@ -1066,7 +1068,7 @@ def validate(capsule_path, expected):
          'selected release operation and no target/release inference required')
     component = retained_build_tools_alpm(view, files, guest, expected['map_sha256'], binding)
     return dict(status='VALIDATED_NATIVE_BUILD_NAMESPACE_PREFLIGHT_DIAGNOSTIC_ONLY', binding=binding,
-                build_tools=component, image_build_policy=image_build_policy, native='NOT_ADMITTED', native_16K='NOT_QUALIFIED',
+                build_tools=component, image_build_policy=image_build_policy, build_log_visibility=build_log_visibility, native='NOT_ADMITTED', native_16K='NOT_QUALIFIED',
                 physical_M2='NOT_RUN', release='NOT_ADMITTED')
 
 
@@ -1271,15 +1273,81 @@ def retained_build_tools_alpm(view, files, guest, map_hash, binding):
     operations = view.load('cleanup.json')['build_operations']
     tools = [row for row in operations if row.get('role') == 'tools']
     need(len(tools) == 1 and tools[0]['terminal'] is True and
-         tools[0]['actor']['argv'] == ['/usr/bin/docker','--host=unix:///var/run/docker.sock','build','--quiet',
+         tools[0]['actor']['argv'] == ['/usr/bin/docker','--host=unix:///var/run/docker.sock','build',
           '--network=none','--pull=false','--no-cache','--platform=linux/arm64','--tag','native-developer-tools:' + binding['token'],
           '--label','org.cachy-asahi.native-developer=' + binding['token'],'--label','org.cachy-asahi.native-developer.source=' + binding['source'],
           '--iidfile',receipt['output_root'].removesuffix('/public') + '/overlay/image-id',
           receipt['output_root'].removesuffix('/public') + '/overlay/context'],
-         'exact normal quiet build argv without privilege/sysctl/seccomp bypass')
+         'exact normal unquiet build argv without privilege/sysctl/seccomp bypass')
     return dict(status='VALIDATED_ACTUAL_IMAGE_BUILD_NAMESPACE_OBSERVATIONS_ONLY', outcomes=outcomes,
                 requested_effects_observed=all(row['outcome'] == 'SUPPORTED' for row in outcomes.values()),
                 namespace_policy_cause='UNKNOWN', Doc315='NOT_ESTABLISHED', native='NOT_ADMITTED')
+
+
+def retained_namespace_build_log(view, files, receipt, cleanup, binding, map_hash):
+    """Exact unquiet tools actor/log, including natural nonzero failure DATA only."""
+    private_marker = re.compile(br'-----BEGIN[^\r\n]{0,100}PRIVATE KEY|BEGIN PGP PRIVATE|ssh-(?:rsa|ed25519)|ecdsa-sha2-|(?:gh[pousr]_|github_pat_)[A-Za-z0-9_]+|authorization\s*:\s*(?:bearer|token)|(?:access[_-]?token|password|secret)\s*[=:]|CACHY_(?:OLD_FOUR|RETAINED_BUBBLEWRAP)|PRIVATE_KEY|(?:_TOKEN|_SECRET|_PASSWORD)\b', re.I)
+    need(receipt.get('binding') == binding and receipt.get('source_map_sha256') == map_hash
+         and receipt.get('operation') == OPERATION, 'same-source diagnostic build visibility')
+    actors = receipt.get('actors'); operations = cleanup.get('build_operations')
+    need(type(actors) is list and len(actors) <= 1000 and all(type(row) is dict for row in actors)
+         and type(operations) is list and len(operations) <= 2
+         and all(type(row) is dict and row.get('role') in ('base','tools') for row in operations)
+         and len({row['role'] for row in operations}) == len(operations), 'finite unique original build operations')
+    tools = [row for row in operations if row['role'] == 'tools']
+    tag = 'native-developer-tools:' + binding['token']
+    build_indexes = [index for index,row in enumerate(actors) if type(row.get('argv')) is list
+                     and row['argv'][:3] == ['/usr/bin/docker','--host=unix:///var/run/docker.sock','build'] and tag in row['argv']]
+    if not tools:
+        need(not build_indexes,
+             'tools actor cannot be omitted from original build operations')
+        return dict(status='TOOLS_BUILD_NOT_REACHED_DATA_ONLY', namespace_policy_cause='UNKNOWN', native='NOT_ADMITTED')
+    operation = tools[0]; row = operation.get('actor')
+    need(operation.get('terminal') is True and type(row) is dict, 'natural terminal tools build required')
+    indexes = [index for index,item in enumerate(actors) if item == row]
+    need(len(indexes) == 1 and indexes == build_indexes, 'one exact original owner tools build, never a hidden retry')
+    code = row.get('exit')
+    need(type(code) is int and 0 <= code <= 255 and row.get('status') == ('PASS' if code == 0 else 'FAIL')
+         and all(row.get(key) is value for key,value in
+             (('natural_exit',True),('group_absent',True),('exit_observed_via_waitpid',True),
+              ('leader_held_until_group_inspection',True),('ownership_lost',False),('forced_cleanup',False)))
+         and row.get('retirement') == 'REAPED', 'complete natural direct-wait tools retirement, never timeout/forcing')
+    output = receipt.get('output_root')
+    need(type(output) is str and Path(output).is_absolute() and '..' not in Path(output).parts
+         and str(Path(output)) == output and Path(output).name == 'public', 'canonical original public output root')
+    overlay = Path(output).parent / 'overlay'
+    expected = ['/usr/bin/docker','--host=unix:///var/run/docker.sock','build',
+        '--network=none','--pull=false','--no-cache','--platform=linux/arm64','--tag',tag,
+        '--label','org.cachy-asahi.native-developer=' + binding['token'],
+        '--label','org.cachy-asahi.native-developer.source=' + binding['source'],
+        '--iidfile',str(overlay/'image-id'),str(overlay/'context')]
+    need(row.get('argv') == expected, 'exact unquiet tools16 iidfile command; no policy or output-mode substitution')
+    name = row.get('public_log'); declared = row.get('log_pin')
+    need(type(name) is str and re.fullmatch(r'actor-logs/[0-9]{4}\.log',name)
+         and type(row.get('log')) is str and 0 < len(row['log']) <= 4096
+         and type(declared) is dict and set(declared) == {'bytes','sha256'}
+         and type(declared['bytes']) is int and 0 <= declared['bytes'] <= 16*1024**2
+         and type(declared['sha256']) is str and re.fullmatch('[0-9a-f]{64}',declared['sha256']), 'bounded original tools raw-log reference')
+    others = cleanup.get('actors')
+    need(type(others) is list and len(others) <= 1000 and all(type(item) is dict for item in others)
+         and [index for index,item in enumerate(actors) if item.get('public_log') == name] == indexes
+         and not any(item.get('public_log') == name for item in others), 'unique public tools log owner')
+    projection = view.load('public-projection.json')
+    need(type(projection) is dict and projection.get('binding') == binding and projection.get('source_map_sha256') == map_hash
+         and type(projection.get('selected')) is dict, 'same-source finite raw-log projection')
+    selected = projection['selected'].get(name); manifest = files.get(name)
+    need(type(selected) is dict and type(manifest) is dict
+         and selected.get('kind') == manifest.get('kind') == 'file'
+         and selected.get('mode') == manifest.get('mode') == 0o600
+         and type(selected.get('source_mode')) is int
+         and {key:selected.get(key) for key in ('bytes','sha256')} == declared
+         and {key:manifest.get(key) for key in ('bytes','sha256')} == declared, 'original tools log must join projection and manifest')
+    raw = view.read(name)
+    need(type(raw) is bytes and len(raw) <= 16*1024**2 and pin(raw) == declared
+         and not private_marker.search(raw), 'whole original tools failure output and unchanged privacy predicate')
+    return dict(status='VALIDATED_UNQUIET_TOOLS_BUILD_LOG_DATA_ONLY', actor_index=indexes[0],
+                exit=code, actor_status=row['status'], public_log=name, log_pin=declared,
+                namespace_policy_cause='UNKNOWN', native='NOT_ADMITTED')
 
 
 if __name__ == '__main__':

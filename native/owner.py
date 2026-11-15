@@ -299,7 +299,7 @@ def run(root, args):
             from build_tools_alpm_v2 import prepare,dockerfile as release_dockerfile
             prepare(root,context,args.map_sha256,own);dockerfile=release_dockerfile(dockerfile,args.map_sha256,own)
         (context / 'Dockerfile').write_text(dockerfile)
-        command = [*DOCKER, 'build', '--quiet', '--network=none', '--pull=false', '--no-cache', '--platform=linux/arm64',
+        command = [*DOCKER, 'build', '--network=none', '--pull=false', '--no-cache', '--platform=linux/arm64',
             '--tag', 'native-developer-tools:' + own['token'], '--label', LABEL + '=' + own['token'],
             '--label', LABEL + '.source=' + own['source'], '--iidfile', str(overlay / 'image-id'), str(context)]
         before = len(actor.rows); overlay_error = None

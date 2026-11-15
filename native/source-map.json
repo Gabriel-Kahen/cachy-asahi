@@ -597,9 +597,9 @@
       "sha256": "2719477f6b26d197f40e50dab5dd144aa0bf5b5c4f6f61430376a8489076eac1"
     },
     "native/build_tools_reader_v2.py": {
-      "bytes": 100346,
+      "bytes": 106215,
       "mode": 420,
-      "sha256": "2292e492bf33fea2d079525165293e47e2d817deed71495a3b80d3090a406aa5"
+      "sha256": "3426a340d1cd95a88280e84c8eee3debcba638abdb84d72dc5f46d05b22511cb"
     },
     "native/build_tools_tools_v2.py": {
       "bytes": 13174,
@@ -652,9 +652,9 @@
       "sha256": "d4c827a692d8eebdfc0c808ed4c81597f7fb78c1c700e4e52c88c463d484df0e"
     },
     "native/image_lifecycle.py": {
-      "bytes": 13034,
+      "bytes": 12996,
       "mode": 420,
-      "sha256": "805fabc496f10b67425cc69bdf7793d0e703dae1fab2407d8596391c9e9c5f2b"
+      "sha256": "db316b70634018f4c85c179cabc4abfe28143dd3d863011b18367a050f8e5340"
     },
     "native/input-profile.json": {
       "bytes": 168201,
@@ -672,9 +672,9 @@
       "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
     },
     "native/owner.py": {
-      "bytes": 34048,
+      "bytes": 34037,
       "mode": 420,
-      "sha256": "1ebfc9ca58c65a4441959ff51bdcd6eba494bfc00c2e2d62d78b72e212e85ae9"
+      "sha256": "69438adb40bc6d1f8ad624d6c91069a27fcef0c24f03bbdc0005db7037211bfe"
     },
     "native/predecessor-source-map.json": {
       "bytes": 27440,
@@ -1014,6 +1014,7 @@
   },
   "image_basis180_map_sha256": "cceed4d8b72e9e73a5cb433c2c4643f5e85a0490dacd5b226514e2961aaba458",
   "image_basis180_source": "a434716cbf53085e6380e06939be6a38dd5412fc",
+  "namespace_build_log_visibility": "UNQUIET_TOOLS_IIDFILE_V1",
   "namespace_preflight_operation": "native-build-namespace-preflight-v1",
   "schema": 1,
   "transport_basis177_map_sha256": "99d676438a247749b3e1c564943d8735452a1ebd92ec91dd78ee37817e77f36d",
