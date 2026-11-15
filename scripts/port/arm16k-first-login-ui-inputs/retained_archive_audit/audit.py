@@ -24,6 +24,25 @@ ROOT = HERE.parents[3]
 BAD = {'EXPSIG', 'EXPKEYSIG', 'REVKEYSIG', 'BADSIG', 'ERRSIG', 'NO_PUBKEY', 'FAILURE', 'ERROR', 'NODATA', 'BADARMOR'}
 
 
+class CurrentMemberTarFile(tarfile.TarFile):
+    """Forward-only current-member reads without retaining TarInfo history (3.12+)."""
+    def next(self):
+        try:
+            self.current_member = super().next()
+            return self.current_member
+        finally:
+            self.members.clear()
+
+    def __iter__(self):
+        while (member := self.next()) is not None:
+            yield member
+
+    def extractfile(self, member):
+        if member is not self.current_member or not isinstance(member, tarfile.TarInfo) or not member.isfile():
+            raise tarfile.StreamError('only the current regular member can be read')
+        return super().extractfile(member)
+
+
 def sha(data):
     return hashlib.sha256(data).hexdigest()
 
@@ -122,6 +141,11 @@ def inspect(path, item, m, limits, budget, payload_paths=()):
 
     class TarInfo(tarfile.TarInfo):
         @classmethod
+        def fromtarfile(cls, archive):
+            # 3.12 and its PAX/GNU readers use this public entry point.
+            return cls._fromtarfile(archive)
+
+        @classmethod
         def _fromtarfile(cls, archive, *, dircheck=True):
             nonlocal headers, ended
             A.tick(spec)
@@ -130,7 +154,9 @@ def inspect(path, item, m, limits, budget, payload_paths=()):
             else:
                 headers += 1
                 A.need(budget['headers'] + headers <= limits['members'], 'aggregate raw tar header cap')
-            member = cls._frombuf(raw, archive.encoding, archive.errors, dircheck=dircheck)
+            # 3.14 extension readers also call this helper with dircheck=False.
+            member = (cls._frombuf(raw, archive.encoding, archive.errors, dircheck=dircheck)
+                      if hasattr(cls, '_frombuf') else cls.frombuf(raw, archive.encoding, archive.errors))
             member.offset = archive.fileobj.tell() - 512
             return member._proc_member(archive)
 
@@ -155,7 +181,7 @@ def inspect(path, item, m, limits, budget, payload_paths=()):
     with path.open('rb') as raw:
         decoded = Decoded(raw, spec, budget['logical_bytes'])
         try:
-            with tarfile.open(fileobj=decoded, mode='r|', bufsize=65536, tarinfo=TarInfo, stream=True) as archive:
+            with CurrentMemberTarFile.open(fileobj=decoded, mode='r|', bufsize=65536, tarinfo=TarInfo) as archive:
                 for member in archive:
                     A.tick(spec)
                     if member.name in ('.', './') and member.isdir(): continue

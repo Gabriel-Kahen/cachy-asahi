@@ -10,6 +10,7 @@ import tarfile
 import tempfile
 import time
 import unittest
+from unittest.mock import patch
 
 HERE = Path(__file__).resolve().parent
 SPEC = importlib.util.spec_from_file_location('retained_ui_audit_under_test', HERE / 'audit.py')
@@ -166,6 +167,33 @@ class AuditControls(unittest.TestCase):
         self.assertEqual(set(entries), {'/.PKGINFO', '/.BUILDINFO'})
         self.assertEqual(row['logical_bytes'], self.budget['logical_bytes'])
         self.assertEqual(row['raw_headers'], self.budget['headers'])
+
+    def test_many_extended_members_never_accumulate_tarinfo_cache(self):
+        reader = audit.CurrentMemberTarFile
+        for format in (tarfile.PAX_FORMAT, tarfile.GNU_FORMAT):
+            with self.subTest(format=format):
+                observed = []
+                class ObservedReader(reader):
+                    def next(self):
+                        member = super().next()
+                        observed.append(len(self.members))
+                        return member
+                path = self.root / ('extended-%d.tar.xz' % format)
+                with tarfile.open(path, 'w:xz', format=format, preset=0) as archive:
+                    members = [('.PKGINFO', self.pkginfo), ('.BUILDINFO', self.buildinfo)]
+                    members += [('usr/share/' + 'long-name-' * 20 + str(i), b'x') for i in range(2048)]
+                    for name, body in members:
+                        member = tarfile.TarInfo(name); member.size = len(body)
+                        archive.addfile(member, io.BytesIO(body))
+                before = self.budget['headers']
+                with patch.object(audit, 'CurrentMemberTarFile', ObservedReader):
+                    row, entries = audit.inspect(path, self.item, self.modules, self.limits, self.budget)
+                self.assertEqual(row['PKGINFO_status'], 'PASS_EXACT_PLAN')
+                self.assertEqual(row['members'], 2050)
+                self.assertEqual(self.budget['headers'] - before, 4098)
+                self.assertEqual(entries['/' + members[-1][0]]['sha256'], audit.sha(b'x'))
+                self.assertGreaterEqual(len(observed), 2051)
+                self.assertEqual(max(observed), 0)
 
     def test_pkginfo_wrong_or_duplicate_identity_fails(self):
         for body in [self.pkginfo.replace(b'pkgver = 1-1', b'pkgver = 2-1'),
