@@ -5,19 +5,33 @@ a full-system session test. It leaves the completed TCG substrate, its first-boo
 marker, and all earlier no-session container sources/results unchanged. Root's
 separate initial boot actually established a builder UID1000 serial password PAM
 login, systemd PID1, active logind tty session, D-Bus, normal logout and owned
-QEMU/container retirement. That result is substrate evidence only. **This new NM
+QEMU/container retirement. That result is substrate evidence only. **The initial NM experiment reached a terminal HOLD; the new challenge-aware
 experiment is prepared, not booted.** ARM/16K, Asahi/M2, physical networking,
 suspend, production trust and release acceptance remain NOT RUN/HOLD.
 
-The unchanged upstream NM action policy allows `settings.modify.own` for active
-and inactive sessions (`yes`), while system changes require `auth_admin_keep`.
-The experiment follows those defaults: it expects an active ordinary builder to
-create/edit/persist/remove its own non-autoconnecting profile without an extra
-password challenge. Genuine password verification comes from the serial PAM
-login. It registers real `pkttyagent` for the actual client PID/start time on the
-real login tty, records any standard admin challenge and normally cancels a
-pending admin request by retiring the agent. It never invents a challenge,
-session, admin membership, authorization rule, policy change or alternate helper.
+The unchanged installed NM policy has `settings.modify.own` defaults
+`allow_any=auth_self_keep`, `allow_inactive=yes`, `allow_active=yes`, exactly as
+the source template. Root's initial NM boot nevertheless produced a genuine
+own-action builder password prompt; no second credential was supplied and the
+request timed out. Real login/logind/services/agent registration succeeded, but
+own-profile creation remained HOLD. Cleanup and container absence passed. The
+initial once marker, raw disk, source commit and reports remain unchanged.
+
+The earlier expectation incorrectly equated logind Active/Remote with Polkit's
+local-session classification. Official [Polkit128 session-monitor source](https://github.com/polkit-org/polkit/blob/128/src/polkitbackend/polkitbackendsessionmonitor-systemd.c)
+requires successful `sd_session_get_seat`; its [authority implementation](https://github.com/polkit-org/polkit/blob/128/src/polkitbackend/polkitbackendinteractiveauthority.c)
+uses `allow_any` when a session is not local. The initial report omitted Seat, so
+seatless-serial classification is an inference, not a retrospective measurement.
+The new client records actual logind Seat, `sd_session_get_seat` result and loaded
+`pkaction` defaults. No policy, session, seat or authorization rule is changed.
+
+An additional adapter error omitted COPY of the current completed source probe:
+the initial NM image inherited an obsolete ordinary-user `/proc/1/exe` readlink
+check, while Root's working original reference raw had that corrected offline.
+This stopped the fixed proof before its frame and left the outer driver waiting.
+The new image explicitly copies the current PID1 `/proc/1/comm` source probe into
+a separate NM-specific path; assembly requires exact source pins for that file
+and the NM fixture/client/unit/assembler. Existing completed source is unchanged.
 
 ## Prepare without booting
 
@@ -67,8 +81,31 @@ local ALPM dependency checks. No daemon, VM or guest program runs in preparation
 
 ## Root-reviewed invocation
 
-`boot.py` is a thin explicit adapter over the hash-pinned, unchanged completed
-controller. It takes the new prepared manifest/image pins and fresh output:
+`boot.py` now explicitly extends the completed controller's **Serial driver**;
+the complete controller is not claimed unchanged in behavior. The hash-pinned
+process/container/signal/once/custody/cleanup helpers and QEMU actor are reused
+read-only. The extension interleaves an additional TEST credential only after a
+nonce-bound real client/agent identity and fixed own-operation marker, the exact
+standard `settings.modify.own` authentication header, the exact real builder
+identity, and its password prompt. It supplies at most one response per fixed own
+operation, never retries a failed prompt and never supplies credentials to admin,
+foreign or unknown action/identity prompts. The normal serial PAM login remains
+separate. Captured credential bytes are redacted by the existing controller.
+A complete NM HOLD frame immediately aborts the serial wait and enters the fixed
+cleanup, retaining the parsed failure instead of waiting for a TCG success frame.
+
+Prepare fresh nonce/password/raw/once state by reusing only the already verified
+exact payload image (COPY-only runtime refresh, no package/source acquisition):
+
+```sh
+python scripts/integration/networkmanager_session_vm/prepare_next.py \
+  --allow-prepare-challenge-vm \
+  --output work/networkmanager-session-vm-20261114/new-challenge-preparation
+```
+
+It pins previous payload image
+`sha256:064b5cbbbdabe0c51ad6dd72c3f5bf33642168714690a1468f552b7488b2096b`;
+no old raw or once marker is reset. Root receives a new exact invocation:
 
 ```sh
 python scripts/integration/networkmanager_session_vm/boot.py \
@@ -105,7 +142,8 @@ state and restored original profile inventory after own-profile cleanup. Its
 root-owned report remains readable until the owned guest retires; the user cannot
 supply the observer's result. Both observer and client have fixed phase deadlines.
 The new adapter accepts only the exact nonce-framed report, real identity checks,
-actual persistence, two denials, restoration, agent retirement and the original
+actual persistence, two denials, restoration, a genuinely observed own-action
+credential response, agent retirement and the original
 controller's real session/logout/QEMU cleanup result. `report.json` retains the
 substrate result; `journey.json` records the distinct NM result. A successful
 substrate login cannot become a successful NM journey without those checks.
@@ -127,14 +165,20 @@ The disk allocates about791MiB, with1280MiB private extraction tmpfs under3GiB
 assembly RAM. Global observed new disk use remains below3GiB, including failed
 image-build cache/concurrent activity; no per-process peak RAM claim is made.
 Private raw disks/passwords are not committed. Validation/source/input pins and
-actual final paths are recorded in `validation.json`. The new boot, stock daemon,
-agent registration, own writes, admin denials and persistence runtime remain
-**NOT RUN** pending Root's reviewed invocation. No prior HOLD is rewritten.
+actual final paths are recorded in `validation.json`. The initial boot actually established real PAM/login/logind, all four stock
+services, own bus/daemon identities and real TTY agent registration, then held at
+the genuine own-action password prompt. The additional-credential journey, own
+writes, admin denials and persistence remain **NOT RUN** pending Root's new
+reviewed invocation. `validation.json` retains initial preparation facts;
+`challenge-validation.json` records the distinct new inputs and held results.
+No prior HOLD is rewritten.
 
 ```sh
-python -m unittest discover -s scripts/integration/networkmanager_session_vm -p test_session.py -v
+python -m unittest discover -s scripts/integration/networkmanager_session_vm -p 'test_*.py' -v
 ```
 
-Three focused host controls check nonce/size framing, refusal of false identity,
-persistence/denial/preservation claims, and the exact frozen-controller pin.
-They do not run QEMU or claim runtime authorization coverage.
+Eight focused host controls check nonce/size framing, false identity/persistence/
+denial/preservation refusal, exact frozen-controller pin, fragmented observed
+authentication prompts, admin/unknown credential refusal, duplicate/retry refusal
+and immediate complete-HOLD interruption over a real Unix socket pair. They do
+not run QEMU or claim runtime authorization/PAM coverage.

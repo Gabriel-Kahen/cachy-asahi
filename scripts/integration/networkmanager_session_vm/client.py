@@ -13,7 +13,7 @@ def wait(name,seconds=20):
   time.sleep(.1)
  raise TimeoutError('root observer '+name)
 def main():
- report={'schema_version':1,'status':'HOLD','scope':'ordinary real-login x86 guest NM/Polkit only','password_challenge_for_own_write':'not required by unchanged active-session upstream policy','native_ARM_M2_release':'NOT RUN'};child=None;notify=None;log=None
+ report={'schema_version':1,'status':'HOLD','scope':'ordinary real-login x86 guest NM/Polkit only','password_challenge_for_own_write':'follow genuine authority/TTY challenge; only exact own-action builder credential may be supplied','native_ARM_M2_release':'NOT RUN'};child=None;notify=None;log=None
  try:
   assert __debug__ and os.geteuid()==os.getegid()==1000 and pwd.getpwuid(1000).pw_name=='builder'
   assert Path('/proc/1/comm').read_text().strip()=='systemd'and not Path('/.dockerenv').exists()
@@ -42,7 +42,11 @@ def main():
   session=call('org.freedesktop.login1','/org/freedesktop/login1','org.freedesktop.login1.Manager','GetSessionByPID',GLib.Variant('(u)',(os.getpid(),)),'(o)').unpack()[0]
   properties=call('org.freedesktop.login1',session,'org.freedesktop.DBus.Properties','GetAll',GLib.Variant('(s)',('org.freedesktop.login1.Session',)),'(a{sv})').unpack()[0]
   for k,v in {'Name':'builder','Active':True,'Class':'user','Type':'tty','Remote':False,'Service':'login'}.items():assert properties[k]==v,(k,properties[k])
-  assert properties['Id']==os.environ['XDG_SESSION_ID'];report['logind']={k:properties[k]for k in ['Id','Name','User','Active','Class','Type','Remote','Service']}
+  assert properties['Id']==os.environ['XDG_SESSION_ID'];report['logind']={k:properties[k]for k in ['Id','Name','User','Active','Class','Type','Remote','Service','Seat']}
+  sd=ctypes.CDLL('libsystemd.so.0');sd.sd_session_get_seat.argtypes=[ctypes.c_char_p,ctypes.POINTER(ctypes.c_void_p)];sd.sd_session_get_seat.restype=ctypes.c_int;seat=ctypes.c_void_p();rc=sd.sd_session_get_seat(properties['Id'].encode(),ctypes.byref(seat));seat_name=ctypes.string_at(seat).decode()if rc>=0 else None
+  if seat.value:libc.free.argtypes=[ctypes.c_void_p];libc.free(seat)
+  report['Polkit_local_session_input']={'sd_session_get_seat_return':rc,'seat':seat_name,'meaning':'stock Polkit128 considers session local only if this API succeeds; no session/seat changes'}
+  report['loaded_own_action']=subprocess.check_output(['pkaction','--action-id','org.freedesktop.NetworkManager.settings.modify.own','--verbose'],timeout=10).decode()
   ready=wait('ready');assert ready['nonce']==NONCE
   # This agent shares the genuine login's controlling TTY/session; no fake PTY,
   # setsid, session claims, allow rules or alternative helper are introduced.
@@ -52,19 +56,25 @@ def main():
   os.close(wfd);assert select.select([rfd],[],[],8)[0]and os.read(rfd,1)==b''and child.poll()is None,'real TTY agent registration failed'
   assert os.getsid(child.pid)==os.getsid(0);report['agent']={'registered':True,'pid':child.pid,'process_subject_pid':os.getpid(),'start_time':start,'same_real_login_session':True,'program_sha256':hashlib.sha256(Path('/usr/bin/pkttyagent').read_bytes()).hexdigest()}
   client=NM.Client.new(None);assert client.get_nm_running();report['NM_version']=client.get_version()
+  auth_identity={'uid':1000,'gid':1000,'tty':tty,'pid':os.getpid(),'bus_pid':identity['ProcessID'],'start_time':start,'agent_pid':child.pid,'agent_registered':True,'agent_sha256':report['agent']['program_sha256'],'session_id':properties['Id'],'session_active':properties['Active']}
+  print('\nNM_AUTH_READY '+NONCE+' '+json.dumps(auth_identity,sort_keys=True),flush=True)
+  def operation(name):print('\nNM_AUTH_OPERATION '+NONCE+' '+name,flush=True)
   own=NM.SimpleConnection.new();setting=NM.SettingConnection.new()
   for k,v in [('id','TEST-session-own'),('uuid','e3140000-0000-4000-8000-000000000023'),('type','802-3-ethernet'),('interface-name','cachy-absent0'),('autoconnect',False)]:setting.set_property(k,v)
   assert setting.add_permission('user','builder',None);own.add_setting(setting);own.add_setting(NM.SettingWired.new())
   for cls in [NM.SettingIP4Config,NM.SettingIP6Config]:s=cls.new();s.set_property('method','disabled');own.add_setting(s)
   params=GLib.Variant.new_tuple(own.to_dbus(NM.ConnectionSerializationFlags.ALL),GLib.Variant('u',int(NM.SettingsAddConnection2Flags.TO_DISK)),GLib.Variant('a{sv}',{}))
-  result=call('org.freedesktop.NetworkManager','/org/freedesktop/NetworkManager/Settings','org.freedesktop.NetworkManager.Settings','AddConnection2',params,'(oa{sv})');path=result.unpack()[0];report['own_create']={'success':True,'path':path}
+  operation('own-create')
+  result=call('org.freedesktop.NetworkManager','/org/freedesktop/NetworkManager/Settings','org.freedesktop.NetworkManager.Settings','AddConnection2',params,'(oa{sv})',25000);path=result.unpack()[0];report['own_create']={'success':True,'path':path}
   setting.set_property('id','TEST-session-own-edited')
+  operation('own-edit')
   call('org.freedesktop.NetworkManager',path,'org.freedesktop.NetworkManager.Settings.Connection','Update2',GLib.Variant.new_tuple(own.to_dbus(NM.ConnectionSerializationFlags.ALL),GLib.Variant('u',int(NM.SettingsUpdate2Flags.TO_DISK)),GLib.Variant('a{sv}',{})),'(a{sv})');report['own_edit']={'success':True}
   (H/'PERSISTENCE_READY').touch();report['persistence']=wait('persisted');assert report['persistence']['passed']
   # No user-interaction flag is added to Update2/Delete. If NM/Polkit initiates
   # a standard admin challenge anyway, cancel the real agent normally at4s.
   denials=[]
   for label in ['foreign','system']:
+   operation(label+'-delete')
    import threading
    done=threading.Event();row={'name':label+'-delete'}
    def request():
@@ -79,6 +89,7 @@ def main():
    assert row.get('remote_error')in {'org.freedesktop.NetworkManager.Settings.PermissionDenied','org.freedesktop.NetworkManager.Settings.InvalidConnection','org.freedesktop.DBus.Error.AccessDenied'},row
    denials.append(row)
   report['denials']=denials;(H/'DENIALS_DONE').touch();report['denied_state']=wait('denials');assert report['denied_state']['passed']
+  operation('own-cleanup')
   call('org.freedesktop.NetworkManager',path,'org.freedesktop.NetworkManager.Settings.Connection','Delete',None,'()');report['own_cleanup']={'success':True};(H/'SESSION_DONE').touch()
   report['root_observer']=wait('final');assert report['root_observer']['status']=='PASS_X86_ROOT_OBSERVATION_ONLY'
   report['status']='PASS_X86_REAL_LOGIN_OWN_PROFILE_AND_DENIALS_ONLY'

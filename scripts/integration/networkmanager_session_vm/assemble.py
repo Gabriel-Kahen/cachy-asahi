@@ -13,6 +13,8 @@ def command(label,args,timeout=120):
  assert p.returncode==0,(label,p.returncode)
 def sha(p):
  with p.open('rb')as f:return hashlib.file_digest(f,'sha256').hexdigest()
+source_contract=json.loads((I/'nm-session-inputs.json').read_text())
+for relative,ref in source_contract['runtime_sources'].items():assert sha(I/relative)==ref,relative
 R.mkdir();command('base',['bsdtar','-xpf',str(I/'guest-base.tar.zst'),'-C',str(R)]);command('additions',['bsdtar','-xpf',str(I/'nm-session-additions.tar.zst'),'-C',str(R)])
 export=json.loads((I/'nm-session-export.json').read_text())
 for rel,ref in export['file_pins'].items():
@@ -38,7 +40,7 @@ for rel,target in [('default.target','/usr/lib/systemd/system/multi-user.target'
  assert not p.exists();p.symlink_to(target)
 for name in ['fixture.py','client.py']:
  shutil.copyfile(I/('nm-session-'+name),R/'usr/local/libexec'/('nm-session-'+name));(R/'usr/local/libexec'/('nm-session-'+name)).chmod(0o755)
-shutil.copyfile(I/'guest-proof.sh',R/'usr/local/libexec/tcg-reference-session-proof');(R/'usr/local/libexec/tcg-reference-session-proof').chmod(0o755)
+shutil.copyfile(I/'nm-session-session-proof.sh',R/'usr/local/libexec/tcg-reference-session-proof');(R/'usr/local/libexec/tcg-reference-session-proof').chmod(0o755)
 (R/'usr/local/libexec/tcg-login-proof').write_text('#!/usr/bin/bash\n/usr/bin/python3 -I -B /usr/local/libexec/nm-session-client.py\nexec /usr/local/libexec/tcg-reference-session-proof\n');(R/'usr/local/libexec/tcg-login-proof').chmod(0o755)
 shutil.copyfile(I/'nm-session-fixture.service',R/'etc/systemd/system/nm-session-fixture.service')
 for name,uuid,permission in [('system','e3140000-0000-4000-8000-000000000021',''),('foreign','e3140000-0000-4000-8000-000000000022','user:fixture:;')]:
@@ -55,7 +57,7 @@ command('guest-dependencies',['pacman','--root',str(R),'-Dk'])
 protected=['etc/pam.d/login','etc/pam.d/system-login','usr/lib/pam.d/polkit-1','usr/share/polkit-1/actions/org.freedesktop.NetworkManager.policy','usr/share/polkit-1/rules.d/50-default.rules','usr/lib/systemd/system/NetworkManager.service','usr/lib/systemd/system/polkit.service']
 assert all((R/p).is_file()for p in protected)
 credentials=W/'credentials.json';credentials.write_text(json.dumps({'username':'builder','password':password.decode()})+'\n');credentials.chmod(0o600)
-report={'schema_version':1,'status':'PREPARED_NOT_BOOTED','VM_boot':'NOT RUN','scope':'fresh x86 full-system NM/session fixture; ARM/M2/release NOT RUN','nonce':nonce,'guest_user':'builder','guest_user_uid':1000,'files':{p.name:{'bytes':p.stat().st_size,'sha256':sha(p)}for p in [image,W/'vmlinuz',W/'initramfs.img']},'fixed_policy_PAM_unit_pins':{p:sha(R/p)for p in protected},'package_export_sha256':sha(I/'nm-session-export.json'),'base_tar_sha256':sha(I/'guest-base.tar.zst'),'guest_dependency_check':'PASS pacman --root <owned offline root> -Dk','guest_code_execution':'NOT RUN','disk_allocated_bytes':image.stat().st_blocks*512}
+report={'schema_version':1,'status':'PREPARED_NOT_BOOTED','VM_boot':'NOT RUN','scope':'fresh x86 full-system NM/session fixture; ARM/M2/release NOT RUN','nonce':nonce,'guest_user':'builder','guest_user_uid':1000,'files':{p.name:{'bytes':p.stat().st_size,'sha256':sha(p)}for p in [image,W/'vmlinuz',W/'initramfs.img']},'fixed_policy_PAM_unit_pins':{p:sha(R/p)for p in protected},'runtime_source_pins':source_contract['runtime_sources'],'package_export_sha256':sha(I/'nm-session-export.json'),'base_tar_sha256':sha(I/'guest-base.tar.zst'),'guest_dependency_check':'PASS pacman --root <owned offline root> -Dk','guest_code_execution':'NOT RUN','disk_allocated_bytes':image.stat().st_blocks*512}
 shutil.copyfile(I/'nm-session-export.json',W/'package-export.json');(W/'prepared.json').write_text(json.dumps(report,sort_keys=True,indent=2)+'\n')
 for p in [image,W/'vmlinuz',W/'initramfs.img',W/'prepared.json']:p.chmod(0o600)
 shutil.rmtree(R);print(json.dumps(report),flush=True)
