@@ -191,7 +191,7 @@ def create_argv(name, volume, image, bundle, admission_sha):
         '--security-opt=no-new-privileges', '--user=1001:1001', '--ulimit=nofile=1024:1024',
         '--ulimit=core=0:0', *['--tmpfs=' + key + ':' + value for key, value in TMPFS.items()],
         '--mount', 'type=bind,src=' + str(bundle) + ',dst=/inputs,readonly',
-        '--mount', 'type=volume,src=' + volume + ',dst=/work', '--workdir=/work',
+        '--mount', 'type=volume,src=' + volume + ',dst=/work,volume-nocopy', '--workdir=/work',
         '--entrypoint=/usr/bin/python3', image, '-I', '-B',
         '/inputs/consumer/native_adapter/native.py', 'actor', '--admission-sha256', admission_sha]
 
@@ -211,6 +211,9 @@ def inspect_actor(row, a, name, volume, bundle, admission_sha):
            mounts['/inputs']['Type'] == 'bind' and not mounts['/inputs']['RW'] and
            mounts['/inputs']['Source'] == str(bundle) and mounts['/work']['Type'] == 'volume'
            and mounts['/work']['Name'] == volume and mounts['/work']['RW'], 'actual exact input/work mounts')
+    declared = [m for m in h['Mounts'] if m['Target'] == '/work']
+    c.need(len(declared) == 1 and declared[0]['Type'] == 'volume' and declared[0]['Source'] == volume
+           and declared[0]['VolumeOptions']['NoCopy'] is True, 'explicit owned consumer volume-nocopy')
     c.need(x['Entrypoint'] == ['/usr/bin/python3'] and x['WorkingDir'] == '/work' and
            x['Cmd'] == ['-I', '-B', '/inputs/consumer/native_adapter/native.py', 'actor',
                         '--admission-sha256', admission_sha], 'actual fixed actor argv')
@@ -220,12 +223,16 @@ def inspect_init(row, a, name, volume):
     h, x = row['HostConfig'], row['Config']
     c.need(row['Name'] == '/' + name and row['Image'] == a['image'] and not row['State']['Running']
            and x['User'] == '0:0' and x['Entrypoint'] == ['/usr/bin/chown'] and
-           x['Cmd'] == ['1001:1001', '/work'] and h['CapDrop'] == ['ALL'] and h['CapAdd'] == ['CHOWN']
+           x['Cmd'] == ['1001:1001', '/work'] and h['CapDrop'] == ['ALL'] and h['CapAdd'] in (['CHOWN'], ['CAP_CHOWN'])
            and h['SecurityOpt'] == ['no-new-privileges'] and h['ReadonlyRootfs'] is True
            and h['NetworkMode'] == 'none' and not h['Privileged'] and not h.get('Devices')
            and not h.get('DeviceRequests') and h['NanoCpus'] == 2000000000
            and h['Memory'] == h['MemorySwap'] == 4294967296 and h['PidsLimit'] == 256,
            'actual bounded volume-owner initializer differs')
+    declared = h['Mounts']
+    c.need(len(declared) == 1 and declared[0]['Type'] == 'volume' and declared[0]['Source'] == volume
+           and declared[0]['Target'] == '/work' and declared[0]['VolumeOptions']['NoCopy'] is True,
+           'explicit owned initializer volume-nocopy')
     c.need(len(row['Mounts']) == 1 and row['Mounts'][0]['Destination'] == '/work'
            and row['Mounts'][0]['Type'] == 'volume' and row['Mounts'][0]['Name'] == volume
            and row['Mounts'][0]['RW'], 'initializer touches only the owned work volume')
@@ -258,7 +265,7 @@ def export_join(exported):
     rows = c.decode(exported['evidence-map.json'][0])
     c.need(type(rows) is dict and 1 <= len(rows) <= 50, 'nonempty bounded complete evidence map required')
     found = {'evidence-map.json', 'actor-result.json', 'runtime-observation.json',
-             'actual-packages.txt', 'operation.json', 'accepted-reader.json'}
+             'actual-packages.txt', 'operation.json', 'accepted-reader.json', 'work-preentry-v5.json'}
     for relative, row in rows.items():
         c.need(re.fullmatch('[A-Za-z0-9._+/-]+', relative) and all(part not in ('', '.', '..') for part in relative.split('/'))
                and re.fullmatch(r'evidence-[0-9]{3}\.data', row['file']) and row['file'] not in found,
@@ -267,6 +274,23 @@ def export_join(exported):
                'exported evidence leaf differs from actual map')
         found.add(row['file'])
     c.need(found == set(exported), 'complete mapped export namespace differs')
+    c.need(len(exported['work-preentry-v5.json'][0]) <= 16384, 'bounded versioned preentry channel')
+    receipt = c.decode(exported['work-preentry-v5.json'][0])
+    operation_body = c.decode(exported['operation.json'][0])
+    runtime_body = c.decode(exported['runtime-observation.json'][0])
+    c.need(all(receipt[k] == operation_body[k] for k in ('source', 'run', 'job', 'image'))
+           and receipt['native_adapter_sha256'] == operation_body['runtime_identity_generator_sha256']
+           == runtime_body['generator_sha256'], 'preentry actual tuple and generator joins')
+    c.need(receipt['schema'] == 1 and receipt['kind'] == 'XS_WORK_VOLUME_PREENTRY_V5'
+           and receipt['phase'] == 'OBSERVED_BEFORE_ANY_WORK_WRITE'
+           and receipt['operation_sha256'] == c.pin(exported['operation.json'][0])['sha256']
+           and receipt['runtime_observation'] == c.pin(exported['runtime-observation.json'][0])
+           and receipt['actor_result'] == c.pin(exported['actor-result.json'][0])
+           and receipt['work_root']['empty'] is receipt['work_root']['writable'] is True
+           and receipt['work_root']['uid'] == receipt['work_root']['gid'] == 1001
+           and receipt['work_root']['mode'] in (0o700, 0o755)
+           and receipt['native_acceptance'] is receipt['XS_acceptance'] is False,
+           'versioned preentry and unchanged actor-output byte joins')
 
 
 def actor(admission_sha):
@@ -364,6 +388,103 @@ def actor(admission_sha):
                   qualification='NOT_GRANTED', nested_invocation='NOT_INVOKED', nested_qualification='NOT_QUALIFIED')
     (output / 'actor-result.json').write_bytes(c.encode(result))
     return 0 if result['status'] == 'RUNNER_COMPLETED' else 2
+
+
+def work_preentry(admission_sha):
+    """Capture before ANY work write. No stdout, file creation or policy mutation."""
+    raw = c.read('/inputs/operation.json')
+    c.need(c.pin(raw)['sha256'] == admission_sha, 'exact preentry operation pin')
+    a = c.decode(raw)
+    operation(a)
+    c.need(os.getuid() == os.geteuid() == os.getgid() == os.getegid() == 1001,
+           'ordinary1001 preentry credentials')
+    work = Path('/work')
+    fd = os.open(work, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC)
+    try:
+        s = os.fstat(fd)
+        c.need(stat.S_ISDIR(s.st_mode) and s.st_uid == s.st_gid == 1001
+               and stat.S_IMODE(s.st_mode) in (0o700, 0o755), 'owned safe work-root mode')
+        with os.scandir(fd) as entries:
+            c.need(next(entries, None) is None, 'fresh empty work root before writes')
+        c.need(Path.cwd() == work and os.access(work, os.W_OK | os.X_OK, effective_ids=True)
+               and not os.statvfs(work).f_flag & os.ST_RDONLY, 'actual writable work-root access')
+        current = work.lstat()
+        c.need((s.st_dev, s.st_ino, s.st_uid, s.st_gid, s.st_mode) ==
+               (current.st_dev, current.st_ino, current.st_uid, current.st_gid, current.st_mode),
+               'same ordinary work-root identity')
+        result = dict(schema=1, kind='XS_WORK_VOLUME_PREENTRY_V5',
+                      phase='OBSERVED_BEFORE_ANY_WORK_WRITE', operation_sha256=admission_sha,
+                      source=a['source'], run=a['run'], job=a['job'], image=a['image'],
+                      native_adapter_sha256=a['runtime_identity_generator_sha256'],
+                      work_root=dict(device=s.st_dev, inode=s.st_ino, uid=s.st_uid, gid=s.st_gid,
+                                     mode=stat.S_IMODE(s.st_mode), empty=True, writable=True),
+                      native_acceptance=False, XS_acceptance=False)
+        return result, fd
+    except BaseException:
+        os.close(fd)
+        raise
+
+
+def record_work_preentry(value, fd):
+    """Write only into the already-created original private actor output domain."""
+    s = os.fstat(fd)
+    old = value['work_root']
+    c.need((s.st_dev, s.st_ino, s.st_uid, s.st_gid, stat.S_IMODE(s.st_mode)) ==
+           tuple(old[k] for k in ('device', 'inode', 'uid', 'gid', 'mode')),
+           'held work-root identity unchanged after actor')
+    out = os.open('output', os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC, dir_fd=fd)
+    try:
+        info = os.fstat(out)
+        c.need(stat.S_ISDIR(info.st_mode) and info.st_uid == info.st_gid == 1001
+               and stat.S_IMODE(info.st_mode) == 0o700 and info.st_dev == s.st_dev,
+               'existing private actor output, never an alternate receipt path')
+        result = dict(value)
+        for field, name in [('runtime_observation', 'runtime-observation.json'), ('actor_result', 'actor-result.json')]:
+            leaf = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC, dir_fd=out)
+            try:
+                before = os.fstat(leaf)
+                c.need(stat.S_ISREG(before.st_mode) and before.st_nlink == 1 and 0 <= before.st_size <= 2 * 1024**2,
+                       'bounded original actor receipt')
+                with os.fdopen(os.dup(leaf), 'rb') as stream:
+                    body = stream.read(2 * 1024**2 + 1)
+                after = os.fstat(leaf)
+                c.need(len(body) == before.st_size and
+                       (before.st_dev, before.st_ino, before.st_size, before.st_mtime_ns, before.st_ctime_ns) ==
+                       (after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns, after.st_ctime_ns),
+                       'original actor receipt stable while joined')
+                result[field] = c.pin(body)
+            finally:
+                os.close(leaf)
+        body = c.encode(result)
+        c.need(len(body) <= 16384, 'finite versioned preentry receipt')
+        receipt = os.open('work-preentry-v5.json', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC,
+                          0o600, dir_fd=out)
+        with os.fdopen(receipt, 'wb') as stream:
+            stream.write(body)
+    finally:
+        os.close(out)
+
+
+def actor_dispatch(admission_sha):
+    observed, fd = work_preentry(admission_sha)
+    failure = None
+    code = None
+    try:
+        try:
+            code = actor(admission_sha)  # Original actor/probe/JSON implementation is byte-identical.
+        except BaseException as error:
+            failure = error
+        try:
+            record_work_preentry(observed, fd)
+        except BaseException as error:
+            if failure is not None:
+                raise failure from error
+            raise
+        if failure is not None:
+            raise failure
+        return code
+    finally:
+        os.close(fd)
 
 
 def producer(bundle, admission_sha, output):
@@ -472,17 +593,24 @@ def producer(bundle, admission_sha, output):
         command(DOCKER + ['create', '--name', init, '--label', label, '--cpus=2', '--memory=4g',
             '--memory-swap=4g', '--pids-limit=256', '--network=none', '--read-only', '--user=0:0',
             '--cap-drop=ALL', '--cap-add=CHOWN', '--security-opt=no-new-privileges',
-            '--mount', 'type=volume,src=' + volume + ',dst=/work', '--entrypoint=/usr/bin/chown',
+            '--mount', 'type=volume,src=' + volume + ',dst=/work,volume-nocopy', '--entrypoint=/usr/bin/chown',
             a['image'], '1001:1001', '/work'])
         raw, _ = command(DOCKER + ['inspect', init])
         inspect_init(c.decode(raw)[0], a, init, volume)
         (output / 'init-before.json').write_bytes(raw)
-        command(DOCKER + ['start', '--attach', init])
         argv = create_argv(token, volume, a['image'], bundle, admission_sha)
         command(argv)
         raw, _ = command(DOCKER + ['inspect', token])
         inspect_actor(c.decode(raw)[0], a, token, volume, bundle, admission_sha)
         (output / 'actor-before.json').write_bytes(raw)
+        command(DOCKER + ['start', '--attach', init])
+        raw, _ = command(DOCKER + ['inspect', init])
+        final_init = c.decode(raw)[0]
+        inspect_init(final_init, a, init, volume)
+        c.need(final_init['State']['Status'] == 'exited' and final_init['State']['Pid'] == 0
+               and final_init['State']['ExitCode'] == 0 and not final_init['State']['OOMKilled'],
+               'natural initializer completion before consumer start')
+        (output / 'init-after.json').write_bytes(raw)
         try:
             command(DOCKER + ['start', '--attach', token], seconds=300)
             actor_ok = True
@@ -562,4 +690,4 @@ if __name__ == '__main__':
         c.need(args.bundle is not None and args.output is not None, 'external Root bundle and output required')
         raise SystemExit(producer(args.bundle, args.admission_sha256, args.output))
     c.need(args.bundle is None and args.output is None, 'fixed actor operands')
-    raise SystemExit(actor(args.admission_sha256))
+    raise SystemExit(actor_dispatch(args.admission_sha256))

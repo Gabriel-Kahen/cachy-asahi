@@ -15,23 +15,31 @@
     "run": null,
     "source": null
   },
+  "cap_add_raw_encodings": [
+    [
+      "CHOWN"
+    ],
+    [
+      "CAP_CHOWN"
+    ]
+  ],
   "captured_config_fields": [
     "AttachStderr",
     "AttachStdout",
     "Hostname",
     "Image"
   ],
-  "closed_failed_artifact": "14163084922",
-  "closed_failed_job": "132825604072",
-  "closed_failed_run": "43718658756",
-  "closed_failure": "POST_COMMIT_DERIVED_CONFIG_DEFAULTS_AND_CONTAINER_METADATA_GUARD",
+  "closed_failed_artifact": "14165811876",
+  "closed_failed_job": "132840063834",
+  "closed_failed_run": "43723410450",
+  "closed_failure": "EXACT_CHOWN_CAPABILITY_API_SPELLING_GUARD_BEFORE_INITIALIZER_START",
   "compiler_manifest": {
     "bytes": 11025,
     "sha256": "fa613490865d94362d4d9efe6c5860904158c09733439a9f6c5709168f88d23c"
   },
-  "constructor_profile_sha256": "d048993fbff26dc316771104216416c77f48e899b3829cd826cbfaf6e09a022c",
-  "correction": "EXPLICIT_NONEMPTY_FALSE_DEFAULTS_AND_EXACT_SEALING_CONFIG_METADATA_NO_IGNORED_FIELDS",
+  "constructor_profile_sha256": "1d2e6ca3b7822d64a22e5db04b85ee324a6100e0ee4e2731172514795687e041",
   "delegated_consumer_operation": "perl5423-native-xs-v1",
+  "delegated_image_seal_operation": "perl5423-native-xs-v4",
   "derived_default_argv": {
     "Cmd": [
       "/usr/bin/false"
@@ -40,23 +48,59 @@
       "/usr/bin/false"
     ]
   },
-  "image_seal_resources": {
-    "cpus": 2,
-    "max_image_delta_bytes": 8388608,
-    "memory_bytes": 536870912,
-    "pids": 64,
-    "seconds": 120,
-    "swap_bytes": 0
-  },
   "native_acceptance": false,
-  "operation": "perl5423-native-xs-v4",
-  "original_runtime_inode_link_count": "OBSERVED_V3: exact GCC group nlink3; copied driver nlink1",
-  "parent_map_sha256": "22ecc198c9ca8187c08093860a3c4513c8a2d0c7b44a7542e9aa8504fadaa185",
-  "parent_source": "5261eb22032b986cd77796a808f99779c100cfe8",
-  "parent_tree": "4efb18d7e2ce796bb4feb48a700908da20bd95ac",
+  "native_adapter_revision": {
+    "archived_body": "previous-v4/native.py",
+    "consumer_files": 13,
+    "frozen_functions": {
+      "actor": {
+        "bytes": 6434,
+        "sha256": "d451a1c8ef7c4301db94a1fd5263249415d99cf9e100536494c2d9edbaa3645c"
+      },
+      "bundle_check": {
+        "bytes": 1287,
+        "sha256": "9aa04e053fb848d9d79f27d21b7ee8c4a8453a987d15a33427e7579df6693a22"
+      },
+      "daemon_join": {
+        "bytes": 1790,
+        "sha256": "c6d22291d5caef7981b6292517a855257e6353a6a3ae46136c5b8c3c6cea8506"
+      },
+      "inputs": {
+        "bytes": 6923,
+        "sha256": "6412755b42062f2cd2f0eb41f61dd2f9857762d9364e7b7e2a24a8a8ea11d7c8"
+      },
+      "operation": {
+        "bytes": 1975,
+        "sha256": "52492df912d15b48bf864fac5aca8d31fbe77586f413ee815e1b1207b286c221"
+      }
+    },
+    "new_body": {
+      "bytes": 44312,
+      "sha256": "1db474ed81295c3604212998617bb44c1ed0339c224d63f61b06768cef6bde4f"
+    },
+    "old_body": {
+      "bytes": 37003,
+      "sha256": "40c048fbbb6599bdb61ed8b105708b2d21db8ea2b2732258e1225a48c635d146"
+    },
+    "path": "consumer/native_adapter/native.py",
+    "unchanged_consumer_files": 12
+  },
+  "operation": "perl5423-native-xs-v5",
+  "parent_map_sha256": "ed4b624d6a32359b481b6361930b0e99c3085ccf71fe493f6fa586bbfa54edec",
+  "parent_source": "c23a24a0cff3ce102e2f3240cc86a890b2ad4b0b",
+  "parent_tree": "7c7308369ab757cadc6b250ad4692314ab850475",
   "runtime_manifest": {
     "bytes": 349767,
     "sha256": "7004309f83344b49f0f8ca598d8cefcffbc078450944824849ab9c575f1c0cd2"
   },
-  "schema": 1
+  "schema": 1,
+  "work_volume_policy": {
+    "both_created_before_initializer_start": true,
+    "budget_increase_seconds": 0,
+    "existing_actor_stdout_and_JSON_ABI_unchanged": true,
+    "nocopy_both": true,
+    "preentry_before_any_work_write": true,
+    "preentry_receipt": "work-preentry-v5.json",
+    "preentry_receipt_domain": "ALREADY_CREATED_PRIVATE_ACTOR_OUTPUT"
+  }
 }

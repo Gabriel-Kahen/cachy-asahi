@@ -1,0 +1,62 @@
+{
+  "XS_acceptance": false,
+  "accepted_archive": {
+    "bytes": 22071176,
+    "sha256": "647c5f1d2c6965ec2e26b37e75d29c819fafa344f16002153493e9fc62121c22"
+  },
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "authority": null,
+    "image": null,
+    "job": null,
+    "reader": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "captured_config_fields": [
+    "AttachStderr",
+    "AttachStdout",
+    "Hostname",
+    "Image"
+  ],
+  "closed_failed_artifact": "14163084922",
+  "closed_failed_job": "132825604072",
+  "closed_failed_run": "43718658756",
+  "closed_failure": "POST_COMMIT_DERIVED_CONFIG_DEFAULTS_AND_CONTAINER_METADATA_GUARD",
+  "compiler_manifest": {
+    "bytes": 11025,
+    "sha256": "fa613490865d94362d4d9efe6c5860904158c09733439a9f6c5709168f88d23c"
+  },
+  "constructor_profile_sha256": "d048993fbff26dc316771104216416c77f48e899b3829cd826cbfaf6e09a022c",
+  "correction": "EXPLICIT_NONEMPTY_FALSE_DEFAULTS_AND_EXACT_SEALING_CONFIG_METADATA_NO_IGNORED_FIELDS",
+  "delegated_consumer_operation": "perl5423-native-xs-v1",
+  "derived_default_argv": {
+    "Cmd": [
+      "/usr/bin/false"
+    ],
+    "Entrypoint": [
+      "/usr/bin/false"
+    ]
+  },
+  "image_seal_resources": {
+    "cpus": 2,
+    "max_image_delta_bytes": 8388608,
+    "memory_bytes": 536870912,
+    "pids": 64,
+    "seconds": 120,
+    "swap_bytes": 0
+  },
+  "native_acceptance": false,
+  "operation": "perl5423-native-xs-v4",
+  "original_runtime_inode_link_count": "OBSERVED_V3: exact GCC group nlink3; copied driver nlink1",
+  "parent_map_sha256": "22ecc198c9ca8187c08093860a3c4513c8a2d0c7b44a7542e9aa8504fadaa185",
+  "parent_source": "5261eb22032b986cd77796a808f99779c100cfe8",
+  "parent_tree": "4efb18d7e2ce796bb4feb48a700908da20bd95ac",
+  "runtime_manifest": {
+    "bytes": 349767,
+    "sha256": "7004309f83344b49f0f8ca598d8cefcffbc078450944824849ab9c575f1c0cd2"
+  },
+  "schema": 1
+}

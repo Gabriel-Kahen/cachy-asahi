@@ -23,14 +23,14 @@ HELD_MAP = '4b1de3aade5116206318570d1d44ee1063342faeab54935748b1b7c179a99e96'
 PINS = {'common.py': '776122710442ba1541cd4d7a7d8472ad01c295d523b28282a04e7c8298286b79',
         'entry.py': '1c58f8d1226cf1a88149509b183fb61135d0f38ff75c02c729a00ed004a55cd0',
         'bootstrap.py': '34b3b0742587af63b1762aa2dcaf9e2e3446be9b6851b865784654c4cd6d26cd'}
-NATIVE_SHA = '40c048fbbb6599bdb61ed8b105708b2d21db8ea2b2732258e1225a48c635d146'
+NATIVE_SHA = '1db474ed81295c3604212998617bb44c1ed0339c224d63f61b06768cef6bde4f'
 ARCHIVE = 'perl-5.42.3-1.3-aarch64.pkg.tar.zst'
 ARCHIVE_PIN = {'bytes': 22071176, 'sha256': '647c5f1d2c6965ec2e26b37e75d29c819fafa344f16002153493e9fc62121c22'}
 DECISION_PIN = {'bytes': 5804, 'sha256': '27803c99064198f8688abe2e4d91910eef93df5ad337ebfc7f2d8798afbf41e1'}
 PAIR = {'source': '25dc3e65bdb6137c87a9409067fe9b2cf6e9763f', 'run': '43692477455', 'job': '132745843566'}
 ACTUAL = dict.fromkeys(('source', 'ref', 'run', 'job', 'reader', 'authority', 'approval', 'artifact', 'image'))
-ALIASES = ('.github/workflows/native-arm-build.yml', '.github/workflows/native-arm-perl5423-xs-v4.yml')
-OPERATION = 'perl5423-native-xs-v4'
+ALIASES = ('.github/workflows/native-arm-build.yml', '.github/workflows/native-arm-perl5423-xs-v5.yml')
+OPERATION = 'perl5423-native-xs-v5'
 RUNTIME_MANIFEST = dict(bytes=349767, sha256='7004309f83344b49f0f8ca598d8cefcffbc078450944824849ab9c575f1c0cd2')
 DOCKER = ['/usr/bin/docker', '--host=unix:///var/run/docker.sock']
 PREP_TMPFS = {'/run': 'rw,noexec,nosuid,nodev,size=8m,uid=1001,gid=1001',
@@ -125,7 +125,7 @@ def source(common, expected):
          'finite Source and identical dedicated aliases')
     need(pin(raw(HELD / 'source-map.json'))['sha256'] == HELD_MAP and
          pin(raw(ROOT / 'consumer/native_adapter/native.py'))['sha256'] == NATIVE_SHA,
-         'unchanged held Source and frozen native adapter')
+         'unchanged held Source and explicitly versioned native adapter')
     common.verify_source(HELD, HELD_MAP)
     return manifest
 
