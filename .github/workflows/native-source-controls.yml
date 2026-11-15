@@ -386,6 +386,24 @@ jobs:
         run: |
           python3 -I -B -Werror::ResourceWarning scripts/port/perl5423-xs-consumer/native_adapter/hosted_source_v6/test_source.py --previous-xs-source "${RUNNER_TEMP}/xs-v5-source-DATA"
           python3 -I -B -Werror::ResourceWarning scripts/port/perl5423-xs-consumer/native_adapter/hosted_source_v6/test_alpm.py --inventory "${RUNNER_TEMP}/xs-v5-source-DATA/accepted/packages.txt"
+      - name: Check out immutable XS321 Source as DATA
+        if: matrix.python == '3.14'
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 898554db64007b7b6071e7d94cfcbbb06d906145
+          path: .xs-v6-data-repository
+          persist-credentials: false
+      - name: Check independent XS321 Reader succession on Python 3.14
+        if: matrix.python == '3.14'
+        run: |
+          umask 022
+          xs_source="${RUNNER_TEMP}/xs-v6-source-DATA"
+          test ! -e "$xs_source"
+          mkdir -m 700 "$xs_source"
+          test "$(git -C .xs-v6-data-repository rev-parse HEAD)" = 898554db64007b7b6071e7d94cfcbbb06d906145
+          test "$(git -C .xs-v6-data-repository rev-parse HEAD^{tree})" = 23eb609e638450cab16e13666c433cca198520b6
+          git -C .xs-v6-data-repository -c tar.umask=0022 archive --format=tar HEAD | tar -xf - -C "$xs_source"
+          python3 -I -B -Werror::ResourceWarning scripts/port/perl-xs-native-independent-reader/v6/test_v6.py --v6-source "$xs_source"
       - name: Check out immutable installed252 Source as DATA
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
