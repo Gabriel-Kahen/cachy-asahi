@@ -24,7 +24,7 @@ natural QEMU retirement and owned-container absence/cleanup gate success.
 A real disposable trial may resolve unmeasured symbol/runtime behavior; unknowns
 are labeled NOT RUN, while concrete dependency/16K incompatibilities refuse.
 
-97 actor-fenced source/model controls and shell syntax checks passed. A read-only
+112 actor-fenced source/model controls and shell syntax checks passed. A read-only
 consumer check matched Root's actual built UI-seat bundle; no constructor,
 preparation, daemon, VM, Reader/native actor or authority ran in this task. All
 actual selection/admission fields remain pending. Root owns the separate750s
@@ -96,7 +96,7 @@ actual virtio IDs/driver categories/VERSION_1 negotiation and DRM acceptance/tag
 categories. They contain no typed input or credentials. Each is≤64KiB, private
 root0600, fsynced, then its directory crosses sync-f. The HOLD frame also retains
 the already-verified installed gate. New diagnostics do not convert HOLD to PASS.
-The97 actor-fenced controls include legacy-feature refusal, corrected/incorrect
+The112 actor-fenced controls include legacy-feature refusal, corrected/incorrect
 DRM parent graphs, wrong driver/device/tag, host-parser agreement, explicit modern
 argv and bounded census cases. No corrected guest has been prepared or booted by
 this worker. Real stock DRM/input/seat0/tty1/PAM/Polkit and cleanup remain for
@@ -106,3 +106,47 @@ Source operands: [QEMU MMIO](https://github.com/qemu/qemu/blob/v11.1.3/hw/virtio
 [Linux GPU initialization](https://github.com/AsahiLinux/linux/blob/94fb23346d522edf53722357c426a3e58030beea/drivers/gpu/drm/virtio/virtgpu_kms.c),
 and [DRM parent allocation](https://github.com/AsahiLinux/linux/blob/94fb23346d522edf53722357c426a3e58030beea/drivers/gpu/drm/virtio/virtgpu_drv.c).
 Exact retained bytes/hashes and evidence limits are recorded in diagnosis-r1.json.
+
+## Closed r2 partial progress and independent-check diagnostics
+
+The corrected Root r2 genuinely reached155 installed packages, accepted actual
+card0/MMIO GPU/stock seat tag, VERSION_1 on all three virtio drivers, LOGIN_READY,
+41 real-release ACKs, ECHO-off password readiness and ordinary profile entry.
+The retained USER_PROOF is PASS: aarch64/16384, UID/GID1000, controlling/foreground
+tty1, active local logind seat0/c1, original NM policy and no-interaction Polkit
+result true/false. Overall r2 nevertheless closed HOLD with an empty-message
+AssertionError; there was no full independent observer/seat/logout acceptance.
+Source/evidence pins and precise limits are retained in diagnosis-r2.json.
+
+The exact failed independent assertion is **not identifiable** from that retained
+frame. Root credentials, session properties, actual getsid/VT and before/after
+record comparisons were only attached to the success report after every assert.
+The failure frame lacks them, and caught assertions emitted no traceback/line.
+Logind Leader576 versus process_session610 is not itself a failure: the code
+never compares those values. Duplicate UnixGroupIDs1000,1000 are also not tested.
+No claim about which remaining predicate failed is inferred from those numbers.
+
+This successor fixes the uninformative diagnostic boundary, not an unproven
+session/device predicate. The same six checks are individually named:
+bus-credentials, logind-session, process-vt, keyboard-record, gpu-record and
+seat-status. Immediately before assertion each records actual selected root
+metadata, or changed device fields/property-key differences plus full before/
+after records privately. Root-owned0600 receipts are≤64KiB each, at most six
+(384KiB), written once with nofollow/exclusive creation and file/directory fsync.
+Public HOLD metadata contains only safe actual UID/PID/session/VT fields,
+check names, changed field/key names and receipt sizes/hashes; no credentials,
+typed keycodes or raw private device-property text is exported. Failure also
+includes a whitelisted source label and numeric traceback line.
+
+All original independent comparisons remain mandatory, including exact raw
+device-record equality. Even a pure property-order change still fails and is
+reported; there is no normalization until actual evidence justifies one. Named
+checks preserve actual bus ownership, local active tty1 seat0, process session,
+foreground VT, strict modern-MMIO driver/capability/stock-tag identity and logout.
+The112 actor-fenced controls include unchanged-predicate cases, the nonviolating
+Leader/GID examples, real changes versus property-order-only diagnostics, receipt
+bounds/replay/privacy and fsync refusal. No new preparation, disk/data actor,
+boot or source publication was run by this worker. A fresh Root diagnostic trial
+is required to identify the actual failed root check; old r2 files/marker remain
+closed and unchanged. This partial real progress is not full seat/UI/native16K/
+M2/performance/release acceptance.

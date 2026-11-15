@@ -9,7 +9,7 @@
       "scripts/integration/arm16k_virtio_seat_vm/test_controls.py"
     ],
     "failed": 0,
-    "passed": 97
+    "passed": 112
   },
   "actual_Root_authority": null,
   "actual_UI": null,
@@ -54,6 +54,18 @@
     ],
     "status": "HOLD_BEFORE_LOGIN_READY"
   },
+  "closed_second_boot": {
+    "diagnosis": {
+      "bytes": 1490,
+      "sha256": "8527230693a45a06dbce62958824fa55d1a7d39818295ddff9f50f62dc5ca9f8"
+    },
+    "full_observer_seat_logout": "NOT ACCEPTED",
+    "new_VM": null,
+    "new_preparation": null,
+    "overall": "HOLD_EMPTY_ASSERTION_NOT_IDENTIFIABLE_FROM_FRAME",
+    "partial_actual": "installed155/modernGPU+stocktag/41ACK/ECHOoff/userproofPASS",
+    "semantic_predicate_relaxation": "NONE"
+  },
   "historical_parent_tool_hold": {
     "actual_root_report": {
       "bytes": 2402,
@@ -71,10 +83,10 @@
   "schema_version": 1,
   "shell_syntax": "PASS",
   "source_lock": {
-    "bytes": 18617,
-    "sha256": "799eaf543f247b6b08360a3e2c7d8612b4aba6411d452e5aebaa69e9a4a8d107"
+    "bytes": 18894,
+    "sha256": "9b8d9e4d0b0674e447eff60f49f828fc5c28f74f538fae3bbadc3879ea86d050"
   },
-  "status": "READY_SOURCE_ONLY_MODERN_MMIO_SUCCESSOR_CLOSED_R1_HOLD",
+  "status": "READY_SOURCE_ONLY_NAMED_DIAGNOSTIC_SUCCESSOR_CLOSED_R2_HOLD",
   "tool_eligibility": {
     "device_metadata": {
       "bytes": 675,

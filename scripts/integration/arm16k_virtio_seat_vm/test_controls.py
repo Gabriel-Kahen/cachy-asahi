@@ -160,6 +160,42 @@ class ModernMMIO(unittest.TestCase):
   with patch.object(self.I.Path,'glob',return_value=[Path('/sys/bus/virtio/devices/virtio'+str(i)) for i in range(33)]),self.assertRaises(ValueError):self.I.census()
  def test_diagnostics_before_wait_and_on_hold(self):
   text=(HERE/'observer.py').read_text();self.assertLess(text.index("persist_census('pre-device')"),text.index('gpu=wait('));self.assertIn("persist_census('terminal')",text);self.assertIn('os.fsync(f.fileno())',text);self.assertIn("'installed_gate':installed_gate",text)
+class IndependentChecks(unittest.TestCase):
+ def setUp(self):self.C=K.load('independent_model',HERE/'observer_checks.py')
+ def user(self):return {'pid':625,'process_session':610,'logind':{'Leader':576}}
+ def test_duplicate_unix_groups_not_rejected(self):self.assertTrue(self.C.bus(self.user(),{'UnixUserID':1000,'ProcessID':625,'UnixGroupIDs':[1000,1000]})[0])
+ def test_wrong_bus_pid_still_fails(self):self.assertFalse(self.C.bus(self.user(),{'UnixUserID':1000,'ProcessID':626})[0])
+ def test_wrong_bus_uid_still_fails(self):self.assertFalse(self.C.bus(self.user(),{'UnixUserID':0,'ProcessID':625})[0])
+ def test_logind_leader_need_not_equal_sid(self):self.assertTrue(self.C.process(self.user(),610,'tty1')[0])
+ def test_actual_sid_must_equal_user_sid(self):self.assertFalse(self.C.process(self.user(),576,'tty1')[0])
+ def test_foreground_vt_still_required(self):self.assertFalse(self.C.process(self.user(),610,'tty2')[0])
+ def test_record_raw_order_change_still_fails_and_is_named(self):
+  before={'properties':'A=1\nB=2\n'};after={'properties':'B=2\nA=1\n'};ok,d=self.C.record(before,after,True)
+  self.assertFalse(ok);self.assertEqual(d['changed_fields'],['properties']);self.assertEqual(d['property_changes']['properties'],[])
+ def test_record_real_property_change_captured(self):
+  ok,d=self.C.record({'properties':'A=1\n'},{'properties':'A=2\n'},True);self.assertFalse(ok);self.assertEqual(d['property_changes']['properties'],['A'])
+ def test_unchanged_record_without_identity_acceptance_fails(self):self.assertFalse(self.C.record({'x':1},{'x':1},False)[0])
+ def test_published_failure_named_durable_private(self):
+  with tempfile.TemporaryDirectory() as d:
+   public={}
+   with self.assertRaisesRegex(AssertionError,'independent-bus-credentials'):self.C.publish(Path(d),'a'*32,'bus-credentials',False,{'actual_pid':626},public)
+   p=Path(d)/'observer-check-bus-credentials.json';self.assertEqual(p.stat().st_mode&0o777,0o600);self.assertFalse(public['bus-credentials']['passed']);self.assertEqual(json.loads(p.read_text())['evidence']['actual_pid'],626)
+ def test_receipt_replay_refuses(self):
+  with tempfile.TemporaryDirectory() as d:
+   public={};self.C.publish(Path(d),'a'*32,'process-vt',True,{},public)
+   with self.assertRaises(FileExistsError):self.C.publish(Path(d),'a'*32,'process-vt',True,{},public)
+ def test_receipt_cap_refuses(self):
+  with tempfile.TemporaryDirectory() as d,self.assertRaises(ValueError):self.C.publish(Path(d),'a'*32,'process-vt',True,{'x':'y'*65536},{})
+ def test_unknown_check_refuses(self):
+  with tempfile.TemporaryDirectory() as d,self.assertRaises(ValueError):self.C.publish(Path(d),'a'*32,'arbitrary',True,{},{})
+ def test_sync_failure_cannot_pass(self):
+  with tempfile.TemporaryDirectory() as d,patch.object(self.C.os,'fsync',side_effect=OSError('model sync failure')):
+   public={}
+   with self.assertRaises(OSError):self.C.publish(Path(d),'a'*32,'process-vt',True,{},public)
+   self.assertEqual(public,{})
+ def test_all_original_independent_checks_named(self):
+  text=(HERE/'observer.py').read_text()
+  for name in self.C.NAMES:self.assertIn("independent('"+name+"'",text)
 class Additions(unittest.TestCase):
  def setUp(self):
   self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name);self.base={'base_packages':[{'name':'glibc','version':'2.42-1','directory':'glibc-2.42-1'},{'name':'glib2','version':'2.88.3-1','directory':'glib2-2.88.3-1'}]+[{'name':'base'+str(i),'version':'1-1','directory':'base'+str(i)+'-1-1'} for i in range(109)]}

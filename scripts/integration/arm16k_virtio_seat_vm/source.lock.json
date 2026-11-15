@@ -5,8 +5,8 @@
       "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
     },
     "README.md": {
-      "bytes": 17917,
-      "sha256": "a8e18456dfc1b8b605e91f400ae1e7a906cf41df8d10e95203e13caba7ada71b"
+      "bytes": 20927,
+      "sha256": "6fb6b5c7883c8a79257dc212bb68af60f614031c8a7890d6407e33f74feb8b5a"
     },
     "additions-contract.json": {
       "bytes": 3917,
@@ -43,6 +43,10 @@
     "diagnosis-r1.json": {
       "bytes": 2611,
       "sha256": "51320278d4d3147ed569a98ac3c4cedefeacb76cabd9b67db984d2fb76f20fb5"
+    },
+    "diagnosis-r2.json": {
+      "bytes": 1490,
+      "sha256": "8527230693a45a06dbce62958824fa55d1a7d39818295ddff9f50f62dc5ca9f8"
     },
     "frozen/alpm_versions.py": {
       "bytes": 4671,
@@ -429,16 +433,20 @@
       "sha256": "071044e3b1eeab3b13b53d6fd00840e31e549dcdedf0c08fcc96836cfc9d188e"
     },
     "observer.py": {
-      "bytes": 13005,
-      "sha256": "2213cb9865fe12c762b24c8c39c4db2f2e8abc035cff763d994f44b3cdb65cc1"
+      "bytes": 13866,
+      "sha256": "616bd59d76b36f4648e5a5b214f8d14e676bed256f23818e1865539d7e313cc6"
+    },
+    "observer_checks.py": {
+      "bytes": 3071,
+      "sha256": "e38469f55e0f76f193b4035d00f20cf77f4a533bc583d25dd6c2474d0acad138"
     },
     "origin.json": {
       "bytes": 15273,
       "sha256": "99095d52734eb3f666de16caf27c99a4da71d1b1f757f654803130c09d45b3b7"
     },
     "prepare.py": {
-      "bytes": 10728,
-      "sha256": "81c45bb60373c2ec1d5181ce15a8f7508305ee462e003fe2679d858c45ee2b4a"
+      "bytes": 10807,
+      "sha256": "c8c8c7439b77344ff7982cd9744944613d1652a8ce29c55e2876cbaedf3d7b66"
     },
     "prepare_image.py": {
       "bytes": 7132,
@@ -457,8 +465,8 @@
       "sha256": "c23d0bb57e90d237652b6518db0ba41c24c5dfa2496078fe92dc385dd6ae714c"
     },
     "test_controls.py": {
-      "bytes": 22762,
-      "sha256": "acee8e02c600f71b27f98c55276d7690c1f221149f5fa707a3af9b059a87a27e"
+      "bytes": 25887,
+      "sha256": "1a01a6c408e587dd7d940dff52958ff71722ee7fa7d7ed0e10cc91d85f00914a"
     }
   },
   "kind": "ARM16K_VIRTIO_SEAT_SOURCE_LOCK_V1",
