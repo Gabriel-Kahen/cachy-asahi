@@ -23,15 +23,17 @@ def source(expected):
  expected_dirs={p.as_posix()for n in lock['files']for p in Path(n).parents if p.as_posix()!='.'}
  K.need(found==lock['files']and directories==expected_dirs,'complete adapter Source bytes/modes/membership');return dict(bytes=len(raw),sha256=expected)
 
-def preflight(case_path,case_sha256,materials,source_sha256,baseline,baseline_report):
+def preflight(case_path,case_sha256,materials,source_sha256,baseline,baseline_report,baseline_ownership=None):
  lock=source(source_sha256);case_path=K.ordinary(case_path);K.need(K.pin(case_path)['sha256']==case_sha256,'external Root-selected actual case bytes')
  case=K.load(case_path);materials=K.ordinary(materials);K.need(materials.is_dir(),'ordinary retained materials directory')
  observed={name:K.pin(materials/path,2*1024**3 if name=='archive' else 4*1024**2)for name,path in NAMES.items()}
  cert={name:K.load(materials/NAMES[name])for name in K.EVIDENCE}
  validated=K.validate(case,observed,**cert)
  base=K.ordinary(baseline);report=K.ordinary(baseline_report);expected=cert['baseline_certificate']
- for name,key in [('guest.raw','raw'),('prepared.json','prepared'),('ownership.json','ownership')]:
+ for name,key in [('guest.raw','raw'),('prepared.json','prepared')]:
   K.need(K.pin(base/name,expected[key]['bytes'])==expected[key],'exact actual readonly baseline file: '+name)
+ ownership=K.ordinary(baseline_ownership)if baseline_ownership is not None else base/'ownership.json'
+ K.need(K.pin(ownership,expected['ownership']['bytes'])==expected['ownership'],'exact independent readonly baseline ownership certificate')
  K.need(K.pin(report,expected['report']['bytes'])==expected['report'],'exact accepted baseline PAM report bytes')
  # This gate selects Root's actual inputs; it does not turn a certificate into a run.
  return validated,cert,observed,lock
@@ -62,8 +64,8 @@ def contents(case,cert,lock,nonce):
  put('arm16k-llvm23-vm.service',unit)
  put('case-inputs.json',K.canonical(case));put('source-lock-selection.json',K.canonical(lock));return files
 
-def prepare(case_path,case_sha256,materials,source_sha256,nonce,output,baseline,baseline_report):
- case,cert,observed,lock=preflight(case_path,case_sha256,materials,source_sha256,baseline,baseline_report)
+def prepare(case_path,case_sha256,materials,source_sha256,nonce,output,baseline,baseline_report,baseline_ownership=None):
+ case,cert,observed,lock=preflight(case_path,case_sha256,materials,source_sha256,baseline,baseline_report,baseline_ownership)
  out=K.ordinary(output);K.need(not out.exists()and out.parent.is_dir()and out.parent.stat().st_uid==os.getuid()and not out.parent.stat().st_mode&0o022,'fresh private owned case output')
  K.need(not any(out==p or out in p.parents or p in out.parents for p in(HERE,materials,K.ordinary(case_path))),'case output disjoint from Source/materials')
  rows=contents(case,cert,lock,nonce);fixture_bytes=sum(len(b)for b,_ in rows.values());K.need(fixture_bytes<=cert['resource_certificate']['fixture_source_bytes'],'actual generated fixture must fit the Root-reviewed physical staging plan')
@@ -77,8 +79,8 @@ def prepare(case_path,case_sha256,materials,source_sha256,nonce,output,baseline,
 
 def main():
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('--prepare-case-packet',action='store_true')
- for n in('case','materials','output','baseline','baseline-report'):p.add_argument('--'+n,type=Path,required=True)
+ for n in('case','materials','output','baseline','baseline-report','baseline-ownership'):p.add_argument('--'+n,type=Path,required=True)
  for n in('case-sha256','source-lock-sha256','nonce'):p.add_argument('--'+n,required=True)
  a=p.parse_args();K.need(a.prepare_case_packet and sys.flags.isolated and sys.dont_write_bytecode and __debug__ and os.getuid()==os.geteuid()!=0,'explicit ordinary isolated case preparation')
- print(json.dumps(prepare(a.case,a.case_sha256,a.materials,a.source_lock_sha256,a.nonce,a.output,a.baseline,a.baseline_report),sort_keys=True))
+ print(json.dumps(prepare(a.case,a.case_sha256,a.materials,a.source_lock_sha256,a.nonce,a.output,a.baseline,a.baseline_report,a.baseline_ownership),sort_keys=True))
 if __name__=='__main__':main()

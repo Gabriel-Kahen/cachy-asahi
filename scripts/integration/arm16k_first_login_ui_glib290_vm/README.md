@@ -17,8 +17,8 @@ independent real-seat checks, but GTK import failed: libgtk-4.so.1 required
 marks that function available since2.90. Actual ELF DATA also found missing
 `g_markup_parse_context_get_attribute_position`. No observer or policy waiver
 repairs this mismatch. That trial remains HOLD; GTK actions/logout/removal were
-not accepted. Its counters measured no OOM and its QEMU retired naturally; this
-does not explain an earlier trial's unmeasured SIGKILL.
+not accepted. Its counters measured no OOM; clean owned-helper reaping alone
+does not establish natural QEMU closure or explain an earlier unmeasured SIGKILL.
 
 A bounded retained lookup plus official intake found both real archives:
 
@@ -58,8 +58,9 @@ fields used by the existing planner. No shared libalpm/helper policy changed.
 `origin.json` pins parent d64569ee and every initial Source file. This is a
 separate finite upper adapter; the lower reference/custody/kernel/tool inputs
 remain pinned. No generic callback/process framework is introduced. It preserves
-9 exact preparation binds, 3GiB preparation cap, 4GiB/no-extra-swap boot cap,
-2GiB guest,1GiB overlay,2CPU/256PIDs,6GiB minimum host availability/2GiB reserve,
+9 exact preparation binds,3GiB preparation memory and1.5GiB preparation physical cap,
+5GiB/no-extra-swap boot memory,2GiB guest,2GiB overlay,2CPU/256PIDs,
+7GiB minimum boot host availability/2GiB reserve,
 RTC/current-UTC proof, public-only TEST trust, unsuppressed hooks, ordinary PAM/
 active seat0/foregroundVT/real keyboard ACKs, GUI/edit preservation and natural
 owned process retirement. Memory diagnostics and all6 independent checks remain
@@ -132,8 +133,9 @@ Lines746/750 delimit one nonce-bound SEAT_SESSION; line747 contains a complete
 The old decoder treated that diagnostic as JSON trailing data. All six seat checks
 and283 installed packages were present, but NO UI_SESSION frame was retained.
 GTK actions, normal removal, original-GLib rollback and normal logout are therefore
-NOT ESTABLISHED. Natural QEMU exit0/reaping/EMPTY_TWICE and owned-container absence
-are separate retirement facts, not a whole-trial PASS.
+NOT ESTABLISHED. The old owned supervisor reported exit0/reaping/EMPTY_TWICE,
+but retained QEMU stderr proves actor-issued SIGTERM; it was not a natural QEMU
+closure. Owned-container absence remains a real separate cleanup fact.
 
 The new adapter recognizes only line-boundary start-job diagnostics: finite red
 SGR/reset/cursor sequences, six-character star indicator, at most2 jobs, bounded
@@ -179,3 +181,24 @@ Finite post-removal operation audit: root subprocess.run/timeout, JSON/writer, P
 New bounded durable root diagnostics runtime-error-{sync-post-install,sync-post-remove,sync-post-rollback,sync-terminal-pass,sync-terminal-hold,root-stage}.json use the existing0700/0600/fsync Writer; they contain only nonce/stage/fixed operation/exception category/validated module identifier/numeric errno. They never include exception text, traceback, key/user/file contents or arbitrary paths. Root observer independently writes /var/lib/arm16k-virtio-seat/receipts/ui-observer-error.json with the same sanitized schema on failure; failed diagnostic persistence still cannot turn HOLD into PASS. Client failure metadata also retains a bounded module identifier/errno. These paths can be included in a future Root DATA-only receipt recovery if needed.
 
 Source verification includes blocked-all-fresh-import controls for cached sync binding, preloaded failure/final semantic validators and primed user-file walk; real errno/unprepared binding/altered user files/failure-schema/refusal controls remain strict. Tests do not perform actual syncfs, installation, removal, foreign code execution or VM work. Root alone may admit fresh Source/public pins/authority/preparation/nonce and a new trial.
+
+
+Closed r4 write-cap diagnosis and explicit resource successor
+
+Root's r4 remains HOLD. Its inner report, not the outer wrapper's failed natural-exit assertion, supplies actual cleanup/seat facts. Root's32path DATA extraction passed originals-unchanged/owned-container-absence; new runtime diagnostics, final client/failure/restored receipts were absent. Its root stage is trusted-remove; command177 is only STARTED/exitnull (187B/24ea38d3f5d18256c816cd9100df2c21e8399571d3de6a25d3e2ff1b69ae1af7). Do not transfer r3's successful command177 exit0 to r4. GUI/session natural close remains separately established; full removal/rollback/restoration/logout did not pass.
+
+The actual r4 UART first reports vda WRITE I/O errors and EXT4 warnings at191.988s (normalized line813), then additional failed writes. Its overlay file is exactly1073741824B, allocated1073680384B. The Source actor explicitly set RLIMIT_FSIZE soft=hard1GiB immediately before QEMU Popen, inherited by QEMU. Docker had no --ulimit override; the frozen command runtime's64MiB limit affects Docker CLI children, not the daemon-created actor. This reached binding and actual guest write errors establish an inadequate actor disk limit. The host write errno was not recorded; EFBIG is an inference, not a measured errno or sole quantified cause. Retained report3773B/ac51d70f7ac99f56aa54c5193d6a77711eb92fbbe482993412518775d2562ce5 and UART145056B/22fd1506fff07251884d01a0e4b7bfad63beb3b5ad4e13e8a117f2d10c7e0f78 remain unchanged.
+
+All four closed GLib290 QEMU logs are76B/ca9072704259a241e682adf79f8ecde682e86d9163a23782581e010c84562b55 and state termination on signal15 frompid1(/usr/bin/python3). The actor sent SIGTERM on STOP/deadline before transferring wait ownership to the pinned supervisor. Therefore the old helper signals=[]/exit0/EMPTY_TWICE do not prove QEMU received no signals or exited naturally. Earlier wording implying natural actual-QEMU closure is withdrawn; reaping/owned-container absence remain valid. Frozen old code/results/trials are not rewritten.
+
+The new local actor applies exactly2GiB RLIMIT_FSIZE (never raises an inherited lower hard limit), records actual actor limits and reserved child's /proc limits/start identity/SigIgn, and records QCOW file/allocated sizes under2GiB. New0600/fsynced actor-file-limits.json,qemu-file-limits.json,overlay-at-qemu-exit.json are bounded16KiB each. The Source keeps3GiB virtual raw geometry unchanged. File-offset limiting and final physical allocation checks are distinct; an oversize or missing proof refuses acceptance. The planned2GiB budget is not a claim that a new guest has completed it.
+
+Every actor-issued SIGTERM attempt now records STOP/deadline/actor-cancel reason separately from supervisor signals. Such a signal or a child-diagnostic error makes natural_without_actor_signal=false and passed=false even if the unchanged helper later reports exit0/EMPTY_TWICE. The actor always transfers exclusive retirement ownership, including diagnostic refusal. Host reports retain these facts on HOLD and start guest_shutdown=NOT ESTABLISHED; only an actual QMP request after proved normal PAM logout gets that narrower description. No actual guest-poweroff or hardware claim follows.
+
+Root approved5GiB memory=swap(no extra swap) for the boot owner:2GiB guest+2GiB tmpfs overlay+1GiB overhead, with hostMemAvailable>=7GiB including2GiB reserve. The new custody adapter verifies raw5GiB first and projects only memory/memory-swap plus the already reviewed actor Cmd into the unchanged frozen3GiB guard. All network/capability/mount/domain/CPU/PID/policy checks remain. Preparation memory remains3GiB.
+
+Storage admission is staged, not a fictitious whole worst-case reservation: fresh preparation requires1.5GiB physical budget+2GiB reserve. After its actual physical bytes are known, fresh boot requires NEW available quota AND filesystem headroom>=6GiB+32MiB, excluding already charged preparation:2GiB overlay+2GiB future DATA conversion+2GiB reserve+32MiB non-overlay output slack. Root wrappers check ownUID quota; constructors enforce filesystem floors and measured output caps. If a full1.5GiB preparation leaves insufficient headroom, stop before boot. Before any later diagnosis Root independently re-admits2GiB conversion+2GiB reserve; no automatic conversion actor is launched.
+
+Docker CLI log files are independently limited1MiB in their child process, QEMU output remains1MiB, and existing UART/frame bounds remain. Boot non-overlay allocated output is capped32MiB including a reserved512KiB final report. Preparation total allocated files are capped1.5GiB; all immutable materials/original111/accepted155/platform/PAM/kernel/trust/GUI/ordinaryALPM rollback predicates remain. Root's actual r4 preparation was996036608B including raw797597696B; these are observations, not new limits. Root may retain closed failed disks on HOME with whole hashes; no accepted reference retirement or worker deletion is assumed.
+
+Tests model the actual1GiB boundary and unrecorded SIGTERM regression, bounded physical-file fixtures, exact2GiB actor/child limit proofs, staged admission, old4GiB/wrongswap refusal and log caps. No actual resource limits, guest/daemon/process actor, lease or network were used. New actor/source/authority/nonce/preparation/VM remain NOT RUN until Root's fresh admission.

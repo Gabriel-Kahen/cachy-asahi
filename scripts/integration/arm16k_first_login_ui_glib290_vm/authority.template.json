@@ -7,12 +7,19 @@
   "boot_resources": {
     "cpus": 2,
     "guest_memory_MiB": 2048,
-    "host_minimum_bytes": 6442450944,
+    "host_minimum_bytes": 7516192768,
     "host_reserve_bytes": 2147483648,
-    "memory_bytes": 4294967296,
-    "memory_swap_bytes": 4294967296,
-    "overlay_bytes": 1073741824,
+    "memory_bytes": 5368709120,
+    "memory_swap_bytes": 5368709120,
+    "overlay_bytes": 2147483648,
     "pids": 256
+  },
+  "disk_budgets": {
+    "boot_nonoverlay_bytes": 33554432,
+    "future_diagnostic_bytes": 2147483648,
+    "overlay_allocated_bytes": 2147483648,
+    "prepare_allocated_bytes": 1610612736,
+    "reserve_bytes": 2147483648
   },
   "issued_by": "Root",
   "kernel_bundle": {

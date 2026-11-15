@@ -1,0 +1,208 @@
+{
+  "actual": {
+    "ALPM": null,
+    "Root_acceptance": null,
+    "VM": null,
+    "authority": null,
+    "case_prepared": null,
+    "image_prepared": null,
+    "ref": null,
+    "runtime": null,
+    "source": null
+  },
+  "files": {
+    "LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "README.md": {
+      "bytes": 21416,
+      "mode": 420,
+      "sha256": "aef885c1e8a1953e4a9bb34fc617e0cf6aea5b89098e7f0fe0a5234b065a2c0c"
+    },
+    "actor.py": {
+      "bytes": 11858,
+      "mode": 420,
+      "sha256": "6f9be44cf16561850d74ac49e0758712bc14a283a0e21fc6842f7d912372bbd3"
+    },
+    "adapter.py": {
+      "bytes": 13169,
+      "mode": 420,
+      "sha256": "8636e7f8e5b3225a6bc1d0a7cf3922fb6c7557709868dbc8eebdebb6f2017636"
+    },
+    "authority.TEMPLATE.json": {
+      "bytes": 684,
+      "mode": 420,
+      "sha256": "7f19cf45b9b720a3c193e914fa4a748d14cfe5a90939fd7aa17e88af2b0373c1"
+    },
+    "baseline-observer-authority.TEMPLATE.json": {
+      "bytes": 386,
+      "mode": 420,
+      "sha256": "ca134947d551a966b0602852de98df92bc19f1e16b3a743db11e8688a7a43934"
+    },
+    "baseline_observer.py": {
+      "bytes": 6079,
+      "mode": 420,
+      "sha256": "f96192356b6b0d9885927a37b8bb715b894b4da25f2b398da06ca7a9985acd16"
+    },
+    "budget.py": {
+      "bytes": 2912,
+      "mode": 420,
+      "sha256": "7972bacca71606301cb3971b18a9318409518bed4b607a8dd17d7af032f864bf"
+    },
+    "case.TEMPLATE.json": {
+      "bytes": 1123,
+      "mode": 420,
+      "sha256": "740179889d78da7d275f3d6067d72e3d935c8af6c42ec224bbf759fae08c16e6"
+    },
+    "contracts.py": {
+      "bytes": 32675,
+      "mode": 420,
+      "sha256": "23fbeb914fed112e2fb07ef7a2e482b21d7231e1140f97b316e9da3ff4cabf14"
+    },
+    "controller.py": {
+      "bytes": 16092,
+      "mode": 420,
+      "sha256": "27bf9bf6810e227ec8e05f8e724c6d1f11b0c6a21b879fa24db5689d41638c7e"
+    },
+    "expected-payload-certificate.TEMPLATE.json": {
+      "bytes": 929,
+      "mode": 420,
+      "sha256": "415e27c075e71ec91f72d26c9c462fdeb2a65fb163257caef7c52ebd6a062dc9"
+    },
+    "expected_payload.py": {
+      "bytes": 8177,
+      "mode": 420,
+      "sha256": "7b9c88133bef26b772eb599752d149a3674c6aa0ebc502d8d176d73de9ee9cb4"
+    },
+    "frozen/guest-runtime.sh": {
+      "bytes": 8870,
+      "mode": 420,
+      "sha256": "639257a6637923b9f6ee8486fa580b0603b662863fdcb51a2187fc7864568463"
+    },
+    "frozen/independent_readback.py": {
+      "bytes": 13913,
+      "mode": 420,
+      "sha256": "8fb8c2c32dc5a40998bf31cc5727768f88ce51e423b7090cfb702116bdc9b5d3"
+    },
+    "frozen/owned_process.py": {
+      "bytes": 25140,
+      "mode": 420,
+      "sha256": "83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f"
+    },
+    "frozen/reference_controller.py": {
+      "bytes": 14117,
+      "mode": 420,
+      "sha256": "e7c8935f342d4b36bb6f8f24c0b48c3b8aa04be9807f62c3f8141aeaf26819fc"
+    },
+    "frozen/rtc-clock.sh": {
+      "bytes": 1344,
+      "mode": 420,
+      "sha256": "fed8c8eabe89ad8cb979994c35dc44ad3e8704f5481c3dd00560192018c504fa"
+    },
+    "frozen/rtc_contract.py": {
+      "bytes": 9806,
+      "mode": 420,
+      "sha256": "b3f4727110fefb9429ca3944e758189cac8ecddfc53332f4ce2c40b64ca35028"
+    },
+    "guest/case.sh": {
+      "bytes": 2653,
+      "mode": 420,
+      "sha256": "c27a5191ae3e414fae3663a6e6f925e3cd215fe1040631c11be279c8518ba1d8"
+    },
+    "guest/probe.sh": {
+      "bytes": 3886,
+      "mode": 420,
+      "sha256": "73a59b9b9e9da1caee01ffaed0fddd52dcb54d360ce28969f14458af3ab12097"
+    },
+    "guest/root.sh": {
+      "bytes": 15461,
+      "mode": 420,
+      "sha256": "db460c7c678f66feceb852daed90bc204c1f62cea3e831470a21573aeb846e5f"
+    },
+    "guest/runtime.pl": {
+      "bytes": 3548,
+      "mode": 420,
+      "sha256": "4d6d4cff57e0f5cec2dd30e960ecc74270648d822cbdfbcd3933f82478903ce2"
+    },
+    "guest/smoke.t": {
+      "bytes": 129,
+      "mode": 420,
+      "sha256": "7243b7744cf5d54d25c4d1be8bdf87886170b155f78b72f389755b932a7dbb75"
+    },
+    "helper-origin.json": {
+      "bytes": 1830,
+      "mode": 420,
+      "sha256": "75c8fe2567e7fdc613137ecd93c61dda694e4af250b73862b438cf8b5fab237f"
+    },
+    "image.py": {
+      "bytes": 8995,
+      "mode": 420,
+      "sha256": "89abe4d5d11250ed7412edc9859f49ce3c4a87b8b1195d4f3967011ae8536ff5"
+    },
+    "known/alpm-ownership-cases.json": {
+      "bytes": 2544,
+      "mode": 420,
+      "sha256": "d90b068b573677d7e9164d2e10ac87c688830807586a2ada222aa5c1d4a9ff73"
+    },
+    "known/expected-payload-inputs.json": {
+      "bytes": 50945,
+      "mode": 420,
+      "sha256": "31051fb1994b1432b3a7e4b62638ab86bafd1e92f8b91c402603b1c0da4877f7"
+    },
+    "known/installed-Reader.json": {
+      "bytes": 3797,
+      "mode": 420,
+      "sha256": "96138206dedec2d49f16475ba7daa5200ff8ab401ccb720f764685e63853d205"
+    },
+    "known/installed-decision.json": {
+      "bytes": 6168,
+      "mode": 420,
+      "sha256": "084794319bf849ed1cc2a2387f502acf8cc82dec3fad11b00e3dc8cfc4096535"
+    },
+    "proof.py": {
+      "bytes": 4577,
+      "mode": 420,
+      "sha256": "6191753e2404e870c70f5b49e6995f671e96464c9faf2c117cff5481ed6eb385"
+    },
+    "protocol.py": {
+      "bytes": 7225,
+      "mode": 420,
+      "sha256": "283be7fd136f044849b83d58444fde8ff7254870c2436ff3226f0fdfd46604e5"
+    },
+    "restoration.py": {
+      "bytes": 1024,
+      "mode": 420,
+      "sha256": "7a2031f5852bd7e8dbbb5c17ad1a71d83b7094bc0a9f16789ee590813e088fbc"
+    },
+    "runtime.py": {
+      "bytes": 16628,
+      "mode": 420,
+      "sha256": "c3004e296da00378f08821d00a0184e7a8a795cfb3c5120029c2a00488311606"
+    },
+    "seal.py": {
+      "bytes": 3011,
+      "mode": 420,
+      "sha256": "3126ee0c8a7c02e12503b4858f90b5a70fd7f300fd6228c99532ec7eaec02e28"
+    },
+    "test_controls.py": {
+      "bytes": 40985,
+      "mode": 420,
+      "sha256": "14b3ba6f333199443c222d75a03836d6846742775700df2628c766fd12ace4bf"
+    },
+    "test_git_roundtrip.py": {
+      "bytes": 2665,
+      "mode": 420,
+      "sha256": "92afb295df6a3376f2da96fb94df5ba456944a14c6765fa5841acf5ce31f7b54"
+    },
+    "validation.json": {
+      "bytes": 1742,
+      "mode": 420,
+      "sha256": "02b254d0e8977a1c9b424bb0deaaa0f9aa98f0e2214a19c3c20ec360f0c46df8"
+    }
+  },
+  "kind": "ARM16K_PERL5423_CASE_SOURCE_LOCK_V1",
+  "operation": "arm16k-perl5423-system-runtime-v1",
+  "schema": 1
+}

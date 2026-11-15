@@ -196,24 +196,24 @@ class Controls(Fenced):
 class BootMemoryControls(Fenced):
  def setUp(self):
   super().setUp();self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup);self.work=Path(self.tmp.name);self.cg=self.work/'cgroup';self.cg.mkdir();self.out=self.work/'out';self.out.mkdir()
-  for name,value in {'memory.events':'low 0\nhigh 0\nmax 2\noom 1\noom_kill 1\noom_group_kill 0\n','memory.peak':str(3*1024**3),'memory.current':'12345','memory.max':str(4*1024**3),'memory.swap.current':'0','memory.swap.max':'0'}.items():(self.cg/name).write_text(value)
- def test_explicit_boot_admission_requires_exact4G_no_swap(self):
+  for name,value in {'memory.events':'low 0\nhigh 0\nmax 2\noom 1\noom_kill 1\noom_group_kill 0\n','memory.peak':str(3*1024**3),'memory.current':'12345','memory.max':str(5*1024**3),'memory.swap.current':'0','memory.swap.max':'0'}.items():(self.cg/name).write_text(value)
+ def test_explicit_boot_admission_requires_exact5G_no_swap(self):
   value=admitted();value['allow_boot']=True;self.assertEqual(K.admission(value,'boot')['boot_resources'],K.BOOT_RESOURCES)
-  for field,value in [('memory_bytes',3*1024**3),('memory_swap_bytes',5*1024**3),('cpus',3),('guest_memory_MiB',3072),('host_reserve_bytes',0)]:
+  for field,value in [('memory_bytes',3*1024**3),('memory_bytes',4*1024**3),('memory_swap_bytes',4*1024**3),('memory_swap_bytes',6*1024**3),('cpus',3),('guest_memory_MiB',3072),('host_reserve_bytes',0)]:
    changed=admitted();changed['allow_boot']=True;changed['boot_resources'][field]=value
    with self.subTest(field=field),self.assertRaises(ValueError):K.admission(changed,'boot')
  def test_static_actual_boot_source_policy_join(self):
-  boot=(HERE/'boot.py').read_text();prepare=(HERE/'prepare.py').read_text();self.assertIn("'--memory=4g','--memory-swap=4g'",boot);self.assertIn("'--memory=3g','--memory-swap=3g'",prepare);self.assertEqual(K.BOOT_RESOURCES['host_minimum_bytes'],K.BOOT_RESOURCES['memory_bytes']+K.BOOT_RESOURCES['host_reserve_bytes']);self.assertIn('>=6*1024**3',boot)
-  argv=A.qemu_argv(N,1794700000);self.assertEqual(int(argv[argv.index('-m')+1]),K.BOOT_RESOURCES['guest_memory_MiB']);self.assertIn('1024*1024**2,1024*1024**2',(HERE/'ui_glib_actor.py').read_text())
+  boot=(HERE/'boot.py').read_text();prepare=(HERE/'prepare.py').read_text();self.assertIn("'--memory=5g','--memory-swap=5g'",boot);self.assertIn("'--memory=3g','--memory-swap=3g'",prepare);self.assertEqual(K.BOOT_RESOURCES['host_minimum_bytes'],K.BOOT_RESOURCES['memory_bytes']+K.BOOT_RESOURCES['host_reserve_bytes']);self.assertIn('>=7*1024**3',boot)
+  argv=A.qemu_argv(N,1794700000);self.assertEqual(int(argv[argv.index('-m')+1]),K.BOOT_RESOURCES['guest_memory_MiB']);self.assertEqual(A.OVERLAY_CAP,K.BOOT_RESOURCES['overlay_bytes'])
  def test_wrapper_projects_only_prechecked_memory_and_existing_command(self):
   boot=load('boot');seen=[]
   class Legacy:
    def validate(self,row):
     seen.append(copy.deepcopy(row));self_outer.assertEqual(row['HostConfig']['Memory'],3*1024**3);self_outer.assertEqual(row['HostConfig']['MemorySwap'],3*1024**3)
     assert row['Name']=='/owned'and row['Mounts']==[{'Source':'/inputs','RW':False},{'Source':'/work','RW':True}]and row['HostConfig']['CapDrop']==['ALL']and row['HostConfig']['CapAdd']==[]and row['HostConfig']['NanoCpus']==2000000000 and row['HostConfig']['PidsLimit']==256
-  self_outer=self;scope=boot.custody_class(types.SimpleNamespace(OwnedContainer=Legacy))();row={'Name':'/owned','Config':{'Cmd':['-I','-B','/inputs/ui_glib_actor.py']},'Mounts':[{'Source':'/inputs','RW':False},{'Source':'/work','RW':True}],'HostConfig':{'Memory':4*1024**3,'MemorySwap':4*1024**3,'SecurityOpt':['no-new-privileges'],'CapDrop':['ALL'],'CapAdd':[],'NanoCpus':2000000000,'PidsLimit':256}}
+  self_outer=self;scope=boot.custody_class(types.SimpleNamespace(OwnedContainer=Legacy))();row={'Name':'/owned','Config':{'Cmd':['-I','-B','/inputs/ui_glib_actor.py']},'Mounts':[{'Source':'/inputs','RW':False},{'Source':'/work','RW':True}],'HostConfig':{'Memory':5*1024**3,'MemorySwap':5*1024**3,'SecurityOpt':['no-new-privileges'],'CapDrop':['ALL'],'CapAdd':[],'NanoCpus':2000000000,'PidsLimit':256}}
   original=copy.deepcopy(row);scope.validate(row);self.assertEqual(row,original);expected=copy.deepcopy(row);expected['Config']['Cmd']=['-I','-B','/opt/vm_actor.py'];expected['HostConfig']['Memory']=expected['HostConfig']['MemorySwap']=3*1024**3;self.assertEqual(seen,[expected])
-  for field,value in [('Memory',3*1024**3),('MemorySwap',3*1024**3),('MemorySwap',5*1024**3),('CapAdd',['SYS_ADMIN']),('NanoCpus',3000000000),('PidsLimit',512),('SecurityOpt',[]),('PidMode','host')]:
+  for field,value in [('Memory',3*1024**3),('Memory',4*1024**3),('MemorySwap',4*1024**3),('MemorySwap',3*1024**3),('MemorySwap',6*1024**3),('CapAdd',['SYS_ADMIN']),('NanoCpus',3000000000),('PidsLimit',512),('SecurityOpt',[]),('PidMode','host')]:
    changed=copy.deepcopy(row);changed['HostConfig'][field]=value
    with self.subTest(field=field,value=value),self.assertRaises(AssertionError):scope.validate(changed)
   changed=copy.deepcopy(row);changed['Mounts'][0]['RW']=True
@@ -221,7 +221,7 @@ class BootMemoryControls(Fenced):
  def test_memory_snapshot_preserves_actual_numeric_counters_and_private_durability(self):
   calls=[];fsync=os.fsync
   with patch.object(A.os,'fsync',side_effect=lambda fd:(calls.append(fd),fsync(fd))[1]):value=A.memory_snapshot(self.out,N,'before-vm',self.cg)
-  self.assertEqual(value['memory.events']['oom_kill'],1);self.assertEqual(value['memory.max'],4*1024**3);self.assertEqual(len(calls),2);path=self.out/'memory-before-vm.json';self.assertEqual(path.stat().st_mode&0o777,0o600);self.assertLess(path.stat().st_size,16384);self.assertEqual(json.loads(path.read_text()),value)
+  self.assertEqual(value['memory.events']['oom_kill'],1);self.assertEqual(value['memory.max'],5*1024**3);self.assertEqual(len(calls),2);path=self.out/'memory-before-vm.json';self.assertEqual(path.stat().st_mode&0o777,0o600);self.assertLess(path.stat().st_size,16384);self.assertEqual(json.loads(path.read_text()),value)
   boot=load('boot');self.assertEqual(boot.memory_evidence(self.out,N)['before-vm']['actual_numeric_cgroup'],value)
  def test_memory_host_export_refuses_foreign_nonce_or_unbound_fields(self):
   A.memory_snapshot(self.out,N,'before-vm',self.cg);path=self.out/'memory-before-vm.json';original=json.loads(path.read_text());boot=load('boot')
@@ -568,5 +568,71 @@ class PostRemovalRuntimeControls(Fenced):
   root=(HERE/'root_fixture.py').read_text();self.assertLess(root.index('ownership.prepare_syncfs()'),root.index("call('trusted-remove'"));self.assertIn("writer.exception(error,'sync-'+label)",root)
   client=(HERE/'client.py').read_text();self.assertLess(client.index("assert user_files()==report['gui']['user_files']"),client.index("(H/'UI_READY_FOR_REMOVAL.json').write_text"));self.assertIn('observed = user_files()',client)
   self.assertIn("call('trusted-rollback',closure.rollback_argv",root);self.assertNotIn('--nodeps',root);self.assertIn("sync('post-rollback')",root)
+
+class OverlayBudgetControls(Fenced):
+ def test_exact2GiB_file_limit_is_applied_without_increasing_existing_hard_limit(self):
+  cap=2*1024**3
+  with patch.object(A.resource,'getrlimit',side_effect=[(A.resource.RLIM_INFINITY,A.resource.RLIM_INFINITY),(cap,cap)]),patch.object(A.resource,'setrlimit')as setter:A.set_file_limit()
+  setter.assert_called_once_with(A.resource.RLIMIT_FSIZE,(cap,cap))
+  with patch.object(A.resource,'getrlimit',return_value=(1024**3,1024**3)),patch.object(A.resource,'setrlimit')as setter:
+   with self.assertRaises(AssertionError):A.set_file_limit()
+  setter.assert_not_called()
+ def test_small_physical_file_and_modeled_oversized_offsets_or_allocation(self):
+  with tempfile.TemporaryDirectory()as d:
+   p=Path(d)/'overlay';p.write_bytes(b'small DATA fixture');self.assertTrue(A.overlay_stats(p)['within_budget'])
+   p.unlink();p.symlink_to('/never/read')
+   with self.assertRaises(AssertionError):A.overlay_stats(p)
+  for size,allocated,good in [(1024**3,1024**3,True),(2*1024**3,2*1024**3,True),(2*1024**3+1,4096,False),(4096,2*1024**3+512,False)]:
+   fake=types.SimpleNamespace(lstat=lambda:types.SimpleNamespace(st_mode=0o100600,st_uid=os.getuid(),st_nlink=1,st_size=size,st_blocks=allocated//512))
+   self.assertIs(A.overlay_stats(fake)['within_budget'],good)
+ def test_actual_unrecorded_r4_actor_TERM_must_not_be_natural_PASS(self):
+  actual={'passed':True,'exit':0,'reaped':True,'ownership':'REAPED','signals':[],'group_census':'EMPTY_TWICE','error':None,'timeout':False}
+  for reason in ['STOP','deadline','actor-cancel']:
+   fixed=A.classify_retirement(actual,[{'signal':'SIGTERM','reason':reason}],reason)
+   self.assertFalse(fixed['passed']);self.assertFalse(fixed['natural_without_actor_signal']);self.assertTrue(fixed['supervisor_passed']);self.assertEqual(fixed['actor_stop_reason'],reason);self.assertEqual(actual['signals'],[])
+ def test_only_true_natural_supervisor_retirement_without_actor_errors_passes(self):
+  actual={'passed':True,'signals':[]};self.assertTrue(A.classify_retirement(actual,[],None)['passed'])
+  for original,reason,error in [({'passed':False},None,None),(actual,'deadline',None),(actual,None,{'category':'AssertionError'})]:self.assertFalse(A.classify_retirement(original,[],reason,error)['passed'])
+ def test_actual_child_rlimit_snapshot_and_changed_or_old_limit_refuse(self):
+  with tempfile.TemporaryDirectory()as d:
+   root=Path(d);out=root/'out';out.mkdir();proc=root/'proc';p=proc/'41';p.mkdir(parents=True);(p/'status').write_text('SigIgn:\t0000000000001000\n')
+   held=(41,b'S',41,41,700);owned=types.SimpleNamespace(_stat=lambda pid:held)
+   (p/'limits').write_text('Max file size             2147483648           2147483648           bytes\n')
+   self.assertEqual(A.child_limits(out,N,41,owned,proc),(41,41,41,700));receipt=out/'qemu-file-limits.json';value=json.loads(receipt.read_text());self.assertEqual(value['actual_RLIMIT_FSIZE'],[2*1024**3]*2);self.assertEqual(receipt.stat().st_mode&0o777,0o600)
+   (p/'limits').write_text('Max file size             1073741824           1073741824           bytes\n')
+   with self.assertRaises(AssertionError):A.child_limits(out,N,41,owned,proc)
+   owned=types.SimpleNamespace(_stat=lambda pid:next(states));states=iter([held,(41,b'S',41,41,701)])
+   with self.assertRaises(AssertionError):A.child_limits(out,N,41,owned,proc)
+ def test_disk_receipt_output_and_source_resource_join_remain_exact(self):
+  boot=load('boot')
+  with tempfile.TemporaryDirectory()as d:
+   root=Path(d);p=root/'overlay.qcow2';p.write_bytes(b'bounded overlay DATA');row=A.overlay_stats(p)
+   for name in ['actor-file-limits.json','overlay-at-qemu-exit.json']:
+    value={'schema_version':1,'nonce':N,'overlay':row}
+    if name=='actor-file-limits.json':value['actor_RLIMIT_FSIZE']=[2*1024**3]*2
+    A.write_receipt(root,name,value)
+   A.write_receipt(root,'qemu-file-limits.json',{'schema_version':1,'nonce':N,'pid':41,'start_ticks':700,'actual_RLIMIT_FSIZE':[2*1024**3]*2,'actual_SigIgn_hex':'0'})
+   self.assertEqual(len(boot.disk_evidence(root,N)),3)
+   p=root/'qemu-file-limits.json';v=json.loads(p.read_text());v['actual_RLIMIT_FSIZE']=[1024**3]*2;p.write_text(json.dumps(v));p.chmod(0o600)
+   with self.assertRaises(AssertionError):boot.disk_evidence(root,N)
+ def test_staged_disk_floor_includes_future_diagnostic_and_output_slack(self):
+  required=6*1024**3+32*1024**2
+  with tempfile.TemporaryDirectory()as d:
+   path=Path(d)/'fresh'
+   with patch.object(K.shutil,'disk_usage',return_value=shutil._ntuple_diskusage(required,0,required-1)):
+    with self.assertRaises(AssertionError):K.output_path(path,'boot')
+   with patch.object(K.shutil,'disk_usage',return_value=shutil._ntuple_diskusage(required,0,required)):self.assertEqual(K.output_path(path,'boot'),path)
+  self.assertEqual(K.DISK_BUDGETS['prepare_allocated_bytes'],1536*1024**2)
+ def test_disk_budgets_are_explicit_authority_not_implicit_old1G(self):
+  value=admitted();value['disk_budgets']['overlay_allocated_bytes']=1024**3
+  with self.assertRaises(ValueError):K.admission(value,'prepare')
+ def test_Docker_CLI_logs_get_independent1MiB_limit_without_worker_limit_mutation(self):
+  boot=load('boot')
+  with patch.object(boot.resource,'getrlimit',return_value=(512*1024**2,512*1024**2)),patch.object(boot.resource,'setrlimit')as setter:boot.limit_command_log()
+  setter.assert_called_once_with(boot.resource.RLIMIT_FSIZE,(1024**2,1024**2))
+ def test_actor_always_hands_off_after_child_diagnostic_refusal_and_reports_shutdown_honestly(self):
+  source=(HERE/'ui_glib_actor.py').read_text();self.assertIn("except BaseException as error:actor_error=",source);self.assertLess(source.index('actor_error='),source.index('result=O.supervise'))
+  tail=source[source.index('result=O.supervise'):];self.assertNotIn('os.kill(',tail);self.assertNotIn('os.waitid(',tail)
+  boot=(HERE/'boot.py').read_text();self.assertIn("'guest_shutdown':'NOT ESTABLISHED'",boot);self.assertIn("retirement['actor_signals']==[]",boot);self.assertIn("preexec_fn=limit_command_log",boot)
 
 if __name__=='__main__':unittest.main()

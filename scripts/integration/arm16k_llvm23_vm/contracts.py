@@ -1,5 +1,8 @@
 # SPDX-License-Identifier: MIT
 """Case-specific offline gates. Never prepares, launches, authenticates or accepts a VM."""
+from contextlib import contextmanager, ExitStack
+import ctypes
+import fcntl
 import hashlib
 import json
 import os
@@ -10,6 +13,7 @@ import stat
 import time
 
 HERE = Path(__file__).resolve().parent
+END = None
 OP = 'arm16k-llvm23-private-prefix-vm-v1'
 PREFIX = '/opt/cachy-asahi/llvm23-source-reference'
 PACKAGE = dict(name='cachy-asahi-llvm23-source-reference', version='23.1.1-1', arch='aarch64', prefix=PREFIX,
@@ -21,7 +25,7 @@ EVIDENCE = ('baseline_certificate', 'runtime_certificate', 'resource_certificate
 TOOLS = ('base64', 'bash', 'cat', 'chmod', 'chown', 'cmp', 'comm', 'cp', 'cut', 'date', 'env', 'find', 'getconf', 'getfattr',
          'gpg', 'gpgconf', 'grep', 'head', 'id', 'install', 'mkdir', 'pacman', 'readlink', 'rm', 'rmdir', 'runuser', 'sed',
          'sha256sum', 'sleep', 'sort', 'stat', 'sync', 'timeout', 'touch', 'tr', 'uname', 'wc', 'xargs')
-LIMITS = ('package_expanded_bytes', 'case_staging_bytes', 'fixture_source_bytes', 'baseline_raw_bytes', 'baseline_allocated_bytes', 'prepared_raw_bytes',
+LIMITS = ('image_scan_passes', 'package_expanded_bytes', 'case_staging_bytes', 'fixture_source_bytes', 'baseline_raw_bytes', 'baseline_allocated_bytes', 'prepared_raw_bytes',
           'guest_filesystem_free_bytes', 'guest_output_cap_bytes', 'clone_allocated_cap_bytes', 'overlay_cap_bytes',
           'readback_allocated_cap_bytes', 'logs_cap_bytes', 'reserve_bytes', 'physical_free_bytes',
           'quota_initial_headroom_bytes', 'quota_live_reserve_bytes', 'guest_memory_bytes', 'owner_memory_bytes',
@@ -31,6 +35,8 @@ LIMITS = ('package_expanded_bytes', 'case_staging_bytes', 'fixture_source_bytes'
 
 
 def need(ok, why):
+    if END is not None and time.monotonic() >= END:
+        raise TimeoutError('original Root phase deadline exhausted')
     if not ok:
         raise ValueError(why)
 
@@ -97,6 +103,72 @@ def load(path, cap=4*1024**2):
     value = json.loads(raw, object_pairs_hook=unique, parse_float=invalid, parse_constant=invalid)
     need(type(value) is dict and raw == canonical(value), 'canonical JSON object required')
     return value
+
+
+def executable_memfd():
+    """Linux DATA-only allocation; some Python builds omit the os wrapper."""
+    flags = 0x0001 | 0x0002 | 0x0010  # MFD_CLOEXEC | MFD_ALLOW_SEALING | MFD_EXEC
+    if hasattr(os, 'memfd_create'):
+        return os.memfd_create('Root-reviewed-Docker-CLI', flags)
+    lib = ctypes.CDLL(None, use_errno=True)
+    need(hasattr(lib, 'memfd_create'), 'Linux executable memfd unavailable')
+    fn = lib.memfd_create; fn.argtypes = [ctypes.c_char_p, ctypes.c_uint]; fn.restype = ctypes.c_int
+    fd = fn(b'Root-reviewed-Docker-CLI', flags)
+    if fd < 0: raise OSError(ctypes.get_errno(), 'executable memfd refused')
+    return fd
+
+
+@contextmanager
+def open_docker_cli(authority, *, deadline=None, check=None, snapshot=False):
+    """Check bounded host ELF DATA; optionally yield a sealed executable snapshot."""
+    def tick():
+        need(deadline is None or type(deadline) in (int, float) and 0 < deadline < 2**63 and time.monotonic() < deadline,
+             'original Docker CLI work budget exhausted while pinning')
+        if check is not None: check()
+    tick()
+    row = authority.get('docker_cli')
+    keys(row, ('path', 'bytes', 'sha256'), 'Root Docker CLI descriptor')
+    need(type(row['path']) is str, 'nonnull Root Docker CLI path')
+    path = ordinary(row['path'])
+    need(str(path) == row['path'], 'canonical Root Docker CLI operand')
+    pin_shape({k: row[k] for k in ('bytes', 'sha256')})
+    need(64 <= row['bytes'] <= 128*1024**2, 'bounded Docker CLI ELF')
+    with ExitStack() as stack:
+        stream = stack.enter_context(os.fdopen(os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC), 'rb'))
+        a = os.fstat(stream.fileno())
+        need(stat.S_ISREG(a.st_mode) and a.st_nlink == 1 and a.st_size == row['bytes'] and
+             a.st_uid in (0, os.getuid()) and not a.st_mode & 0o6022 and
+             a.st_mode & (0o100 if a.st_uid == os.geteuid() else 0o001), 'ordinary executable nonwritable Docker CLI')
+        head = stream.read(64)
+        machine = {'x86_64': 62, 'aarch64': 183}.get(os.uname().machine)
+        need(machine is not None and len(head) == 64 and head[:7] == b'\x7fELF\x02\x01\x01' and
+             int.from_bytes(head[16:18], 'little') in (2, 3) and
+             int.from_bytes(head[18:20], 'little') == machine, 'selected Docker CLI host ELF64')
+        copy = None
+        if snapshot:
+            fd = executable_memfd()
+            copy = stack.enter_context(os.fdopen(fd, 'w+b')); os.fchmod(fd, 0o500); copy.write(head)
+        h = hashlib.sha256(head); total = len(head); tick()
+        while block := stream.read(65536):
+            total += len(block); need(total <= row['bytes'], 'Docker CLI byte cap'); h.update(block)
+            if copy is not None: copy.write(block)
+            tick()
+        identity = lambda s: (s.st_dev, s.st_ino, s.st_size, s.st_mode, s.st_uid, s.st_gid, s.st_nlink, s.st_mtime_ns, s.st_ctime_ns)
+        need(identity(a) == identity(os.fstat(stream.fileno())) == identity(path.lstat()) and
+             total == row['bytes'] and h.hexdigest() == row['sha256'], 'whole Root Docker CLI pin changed')
+        tick()
+        if copy is not None:
+            copy.flush()
+            # Stable Linux UAPI values from linux/fcntl.h; older Python omits names.
+            seals = 0x0008 | 0x0004 | 0x0002 | 0x0001
+            fcntl.fcntl(copy.fileno(), 1033, seals)  # F_ADD_SEALS
+            need(fcntl.fcntl(copy.fileno(), 1034) == seals, 'immutable Docker CLI snapshot required')  # F_GET_SEALS
+        yield stream.fileno() if copy is None else copy.fileno()
+
+
+def docker_cli(authority, **kwargs):
+    with open_docker_cli(authority, **kwargs):
+        return dict(authority['docker_cli'])
 
 
 def guest_path(value):
@@ -266,3 +338,24 @@ def validate(case, observed_materials, baseline_certificate, runtime_certificate
     expanded = runtime(runtime_certificate, case, inventory)
     resources(resource_certificate, case, baseline_certificate, expanded)
     return json.loads(canonical(case))
+
+
+def helper(name):
+    """Only the closed Source's copied reviewed helper closure is importable."""
+    need(type(name) is str and re.fullmatch('[A-Za-z0-9_.-]+', name), 'literal copied helper name')
+    import importlib.util
+    origin = load(HERE/'helper-origin.json')['files']
+    key = 'frozen/'+name if 'frozen/'+name in origin else name
+    need(key in origin, 'reviewed helper provenance required')
+    file = HERE/'frozen'/name
+    need(pin(file) == {k:origin[key][k] for k in ('bytes','sha256')}, 'whole copied helper pin')
+    spec = importlib.util.spec_from_file_location('llvm_vm_frozen_'+name.replace('.', '_'), file)
+    result = importlib.util.module_from_spec(spec);spec.loader.exec_module(result);return result
+
+
+def endpoint(authority):
+    daemon=authority['daemon'];host=daemon['host']
+    need(daemon['status']=='ROOT_REVIEWED_LOCAL_ROOTLESS_ENDPOINT' and type(host)is str and host.startswith('unix:///') and not any(c in host.removeprefix('unix://') for c in '\n\r,:'),'explicit local rootless endpoint')
+    socket=ordinary(host.removeprefix('unix://'));info=socket.lstat()
+    need(stat.S_ISSOCK(info.st_mode) and info.st_uid==os.getuid() and {k:getattr(info,'st_'+k) for k in('uid','gid','dev','ino')}==daemon['socket_identity'],'actual selected rootless socket identity')
+    return host

@@ -1,16 +1,42 @@
 {
   "files": {
+    "data/baseline111.json": {
+      "bytes": 20047,
+      "mode": 420,
+      "sha256": "2c61f1ecaf3a0ee9d6c8fc951be06edbb1140efd6847a0db808979227591f8af",
+      "source": "/home/gabe/Documents/ChatGPT/cachy-asahi/scripts/integration/arm16k_rust_stage0_vm/data/base.json"
+    },
+    "data/tool-metadata.json": {
+      "bytes": 675,
+      "mode": 420,
+      "sha256": "b2a0c65bbb2120235206b27c39ba07421a37df10fc365d99b236f9a0ae0d95c1",
+      "source": "/home/gabe/Documents/ChatGPT/cachy-asahi/scripts/integration/arm16k_rust_stage0_vm/data/qemu-metadata.json"
+    },
     "durable.sh": {
       "bytes": 1143,
       "mode": 420,
       "sha256": "b8f10339505788b1074cd9c2acce81f8992620aa3c83ffde04a1c6c75ddc2d33",
       "source": "/home/gabe/Documents/ChatGPT/cachy-asahi/scripts/integration/arm16k_project_lifecycle_rtc/durable.sh"
     },
+    "frozen/independent_readback.py": {
+      "bytes": 13913,
+      "mode": 420,
+      "sha256": "8fb8c2c32dc5a40998bf31cc5727768f88ce51e423b7090cfb702116bdc9b5d3",
+      "source": "/home/gabe/Documents/ChatGPT/cachy-asahi/scripts/integration/arm16k_rust_stage0_vm/frozen/independent_readback.py"
+    },
     "guest-runtime.sh": {
       "bytes": 8870,
       "mode": 420,
       "sha256": "639257a6637923b9f6ee8486fa580b0603b662863fdcb51a2187fc7864568463",
       "source": "/home/gabe/Documents/ChatGPT/cachy-asahi/scripts/integration/arm16k_project_lifecycle_rtc/guest-runtime.sh"
+    },
+    "image.py": {
+      "bytes": 6434,
+      "derivation": "Case-local explicit scan bounds; unchanged frozen ext4 parser",
+      "mode": 420,
+      "sha256": "929ce37c368eaf5361d32e3699a06b6d0fbec6b6691f8f032cc4886ae13fe975",
+      "source": "/home/gabe/Documents/ChatGPT/cachy-asahi/scripts/integration/arm16k_rust_stage0_vm/image.py",
+      "source_sha256": "e692852a2ab2ae1dd74b9f18f31bf35e6e3f669e8982cea5d8639cf04042dab9"
     },
     "llvm_elf.py": {
       "bytes": 3220,
@@ -27,6 +53,15 @@
       "mode": 420,
       "sha256": "83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f",
       "source": "/home/gabe/Documents/ChatGPT/cachy-asahi/scripts/integration/arm16k_rust_stage0_vm/frozen/owned_process.py"
+    },
+    "ownership.py": {
+      "bytes": 13947,
+      "derivation": "Case-local bounded passive UTF8 namespace keys separate from unchanged strict command paths; exact-byteempty or strict nonempty ALPM FILES/BACKUP records; original111 inventory and captured byte/hash joins retained",
+      "mode": 420,
+      "sha256": "89d8761925d3137dfe9fd6c9f4b6b64fad4846530389bdc7ec9393aa9327f1c8",
+      "source": "/home/gabe/Documents/ChatGPT/cachy-asahi/scripts/integration/arm16k_rust_stage0_vm/ownership.py",
+      "source_bytes": 11366,
+      "source_sha256": "1a1c7a36c44bade028191510bc893306299949651a1da8a913b15177d6b06b98"
     },
     "reference_controller.py": {
       "bytes": 14117,
@@ -45,6 +80,15 @@
       "mode": 420,
       "sha256": "b3f4727110fefb9429ca3944e758189cac8ecddfc53332f4ce2c40b64ca35028",
       "source": "/home/gabe/Documents/ChatGPT/cachy-asahi/scripts/integration/arm16k_rust_stage0_vm/frozen/rtc_contract.py"
+    },
+    "runtime.py": {
+      "bytes": 15989,
+      "derivation": "Case-local LIVE_GUARD cooperative callback plus explicit Root canonical whole-pinned host Docker ELF dispatch through sealed memfd with original-deadline/live/cancellation checks, including recovery; no PATH lookup, threads or new process primitive",
+      "mode": 420,
+      "sha256": "b4c958b4f42adaae4f23a1ceede8cb99d5d0748e0534905dd34d3bf95139887f",
+      "source": "/home/gabe/Documents/ChatGPT/cachy-asahi/scripts/integration/arm16k_rust_stage0_vm/runtime.py",
+      "source_bytes": 13538,
+      "source_sha256": "b01ae41db9852b9b48faae0588f0e83fd340d1eb9eae9767275efbc83f9d46c8"
     }
   },
   "schema": 1,

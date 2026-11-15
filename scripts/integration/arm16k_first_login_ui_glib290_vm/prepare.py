@@ -80,7 +80,7 @@ def main():
   argv+=['--env','CACHY_ARM16K_UI_GLIB290_PREPARE=1','--entrypoint','/usr/bin/python3',image_id,'-I','-B','/code/prepare_image.py'];scope.submitted=True;cmd('create',argv);scope.recover(time.monotonic()+8);cmd('offline-assembly',['docker','start','-a',name],360);terminal=scope.recover(time.monotonic()+8);assert terminal['State']['ExitCode']==0 and not terminal['State']['OOMKilled']and not terminal['State']['Running'];prepared=K.read(out/'assembly/prepared.json');assert prepared['operation']==K.OP and prepared['nonce']!=c['base']['nonce']
   for file_name,ref in prepared['files'].items():K.checked(out/'assembly'/file_name,ref)
   for file_name,ref in c['lower'].lock()['base_files'].items():K.checked(a.base/file_name,ref)
-  assert K.pin(a.base/'arm16k-first-boot-attempt.json')==c['original_marker'];allocated=sum(p.stat().st_blocks*512 for p in out.rglob('*')if p.is_file());assert allocated<=3*1024**3 and shutil.disk_usage(out).free>=2*1024**3;report.update(status='PREPARED_NOT_BOOTED',prepared=K.pin(out/'assembly/prepared.json'),allocated_output_bytes=allocated)
+  assert K.pin(a.base/'arm16k-first-boot-attempt.json')==c['original_marker'];allocated=sum(p.stat().st_blocks*512 for p in out.rglob('*')if p.is_file());assert allocated<=K.DISK_BUDGETS['prepare_allocated_bytes'] and shutil.disk_usage(out).free>=2*1024**3;report.update(status='PREPARED_NOT_BOOTED',prepared=K.pin(out/'assembly/prepared.json'),allocated_output_bytes=allocated)
  except BaseException as error:report['failure']={'category':type(error).__name__,'message':str(error)[:1024]}
  finally:
   cancel.cleaning=True
