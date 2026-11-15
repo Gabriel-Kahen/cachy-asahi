@@ -641,6 +641,56 @@ class Controls(unittest.TestCase):
        self.assertEqual(R.docker_call(args,Path(tmp),time.monotonic()+8,shared_deadline=time.monotonic()+20,defer_cancel=True),'MODELED_RETIRED');self.assertEqual(run.call_args.args[0][0],str(p));self.assertTrue(run.call_args.kwargs['defer_cancel'])
     self.assertIsNone(R.DOCKER_CLI);self.assertEqual(os.environ['DOCKER_CONTEXT'],'MODELED_UNWANTED_CONTEXT')
    self.assertEqual({k:os.environ.get(k)for k in before},before)
+ def test_serial_phase_wait_observes_early_HOLD_and_ordered_chunked_success(self):
+  B=K.helper('reference_controller.py');nonce='a'*32;other='b'*32
+  def wire(kind,fields,n=nonce):return ('PERL5423_'+kind+'_BEGIN '+n+'\n'+''.join(k+'='+v+'\n'for k,v in fields.items())+'PERL5423_'+kind+'_END '+n+'\n').encode()
+  class Stream:
+   def __init__(self,data):self.chunks=[data[i:i+7]for i in range(0,len(data),7)];self.reads=0
+   def settimeout(self,n):pass
+   def recv(self,n):
+    self.reads+=1
+    if not self.chunks:raise AssertionError('wait exhausted explicit synthetic evidence')
+    return self.chunks.pop(0)
+  def serial(data):return B.Serial(Stream(data),time.monotonic()+5)
+  actual=K.load(HERE/'known/serial-early-hold-r3.json')
+  with self.assertRaisesRegex(ValueError,'guest explicit HOLD while waiting for INSTALLED'):P.wait_phase(serial(actual['frame'].encode()),actual['case_nonce'],'INSTALLED')
+  for waiting in('INSTALLED','PROBE','RESTORED'):
+   for failed in('INSTALLED','PROBE','RESTORED'):
+    data=wire(failed,dict(STATUS='HOLD',FAILED_PHASE='baseline'))+b'NEVER_READ'
+    row=serial(data)
+    with self.subTest(waiting=waiting,failed=failed),self.assertRaisesRegex(ValueError,'guest explicit HOLD while waiting for '+waiting):P.wait_phase(row,nonce,waiting)
+    self.assertLess(row.stream.reads,(len(data)+6)//7)
+  row=serial(wire('INSTALLED',P.INSTALLED)+wire('PROBE',P.PROBE)+wire('RESTORED',dict(STATUS='PASS')))
+  self.assertEqual(P.wait_phase(row,nonce,'INSTALLED'),P.INSTALLED);self.assertEqual(P.wait_phase(row,nonce,'PROBE'),P.PROBE);self.assertEqual(P.wait_phase(row,nonce,'RESTORED'),dict(STATUS='PASS'))
+  row=serial(wire('PROBE',dict(STATUS='HOLD'),other)+wire('INSTALLED',P.INSTALLED))
+  self.assertEqual(P.wait_phase(row,nonce,'INSTALLED'),P.INSTALLED)
+  for data in(wire('PROBE',P.PROBE),wire('RESTORED',dict(STATUS='PASS'))):
+   with self.assertRaisesRegex(ValueError,'out-of-order'):P.wait_phase(serial(data),nonce,'INSTALLED')
+  malformed=wire('PROBE',dict(STATUS='HOLD')).replace(b'STATUS=HOLD',b'STATUS=HOLD\nSTATUS=PASS')
+  with self.assertRaisesRegex(ValueError,'unique ASCII'):P.wait_phase(serial(malformed),nonce,'INSTALLED')
+  with self.assertRaisesRegex(ValueError,'unsupported Perl phase status'):P.wait_phase(serial(wire('INSTALLED',dict(STATUS='UNKNOWN'))),nonce,'INSTALLED')
+  row=serial(wire('INSTALLED',P.INSTALLED).replace(b'\n',b'\r\n'));self.assertEqual(P.wait_phase(row,nonce,'INSTALLED'),P.INSTALLED)
+  with self.assertRaises(AssertionError):P.wait_phase(serial(wire('PROBE',dict(STATUS='HOLD'))[:-8]),nonce,'INSTALLED')
+ def test_actual_journey_early_HOLD_does_not_send_restored_or_logout(self):
+  B=K.helper('reference_controller.py');nonce='a'*32;base='b'*32
+  session=dict(ARCH='aarch64',PAGESIZE='16384',UID='1000',USERNAME='builder',PID1='systemd',Name='builder',User='1000',Class='user',Type='tty',Service='login',Remote='no',LOGIND='active',DBUS='active',Id='c1',XDG_SESSION_ID='c1',Leader='142',State='active')
+  wire=b'login: Password: ARM16K_SHELL_READY '+base.encode()+b'\nTCG_LOGIN_END '+base.encode()+b'\nPERL5423_PROBE_BEGIN '+nonce.encode()+b'\nSTATUS=HOLD\nEXIT_STATUS=1\nPERL5423_PROBE_END '+nonce.encode()+b'\n'
+  class Stream:
+   def __init__(self):self.data=wire;self.sent=[]
+   def settimeout(self,n):pass
+   def recv(self,n):data=self.data;self.data=b'';return data
+   def sendall(self,data):self.sent.append(data)
+  stream=Stream();row=B.Serial(stream,time.monotonic()+5)
+  with self.assertRaisesRegex(ValueError,'guest explicit HOLD while waiting for INSTALLED'):P.journey(row,'SYNTHETIC_PASSWORD',base,nonce,lambda data,n:session)
+  self.assertEqual(len(stream.sent),4);self.assertNotIn(b'exit\n',stream.sent);self.assertFalse(any(b' restored' in s for s in stream.sent))
+  def phase(kind,fields):return ('PERL5423_'+kind+'_BEGIN '+nonce+'\n'+''.join(k+'='+v+'\n'for k,v in fields.items())+'PERL5423_'+kind+'_END '+nonce+'\n').encode()
+  prefix=wire[:wire.index(b'PERL5423_PROBE_BEGIN')]
+  restored=dict(P.RESTORED,DB_POLICY='EXACT',**{k:'c'*64 for k in P.HASHES},**{k:'1794779396'for k in P.EPOCHS})
+  wire=prefix+phase('INSTALLED',P.INSTALLED)+phase('PROBE',P.PROBE)+phase('RESTORED',restored)+b'login: '
+  stream=Stream();result=P.journey(B.Serial(stream,time.monotonic()+5),'SYNTHETIC_PASSWORD',base,nonce,lambda data,n:session)
+  self.assertTrue(result['normal_PAM_logout_observed']);self.assertEqual(result['restored'],restored);self.assertEqual(len(stream.sent),6);self.assertEqual(stream.sent[-1],b'exit\n')
+  wire=prefix+phase('INSTALLED',P.INSTALLED)*2+phase('PROBE',P.PROBE)
+  with self.assertRaisesRegex(ValueError,'out-of-order'):P.journey(B.Serial(Stream(),time.monotonic()+5),'SYNTHETIC_PASSWORD',base,nonce,lambda data,n:session)
  def test_prepare_first_boot_then_second_boot_exclusive_markers(self):
   with tempfile.TemporaryDirectory()as tmp:
    prepared=Path(tmp)/'prepare';prepared.mkdir();out=Path(tmp)/'boot';out.mkdir()

@@ -16,14 +16,17 @@ finish() {
  trap - EXIT
  if (( rc != 0 )); then
   if [[ -d $S && ! -L $S ]]; then
-   printf 'PERL5423_RESTORED_BEGIN %s\nSTATUS=HOLD\nFAILED_PHASE=%s\nPERL5423_RESTORED_END %s\n' "$nonce" "$phase" "$nonce" > "$S/failure.env"
-   cp -- "$S/failure.env" "$O/summary.env";chmod 644 "$O/summary.env"
-   cp -- "$S/failure.env" "$D/failure.env"
+   local failure_rc=$rc
+   printf 'PERL5423_RESTORED_BEGIN %s\nSTATUS=HOLD\nFAILED_PHASE=%s\nEXIT_STATUS=%s\nPERL5423_RESTORED_END %s\n' "$nonce" "$phase" "$rc" "$nonce" > "$S/failure.env" || :
+   cp -- "$S/failure.env" "$D/failure.env" && chmod 600 "$D/failure.env" || :
+   if declare -F retain_failure_data > /dev/null;then retain_failure_data || :;fi
    local trust_home
    for trust_home in "$D/trust" "$O/official-import" "$O/official-trust";do
     if [[ -d $trust_home && ! -L $trust_home ]];then timeout --signal=KILL "${gpg_seconds:-5}" gpgconf --homedir "$trust_home" --kill all || :;rm -rf -- "$trust_home";fi
    done
-   sync -f "$D" || :
+   timeout --signal=KILL "${sync_seconds:-5}" sync -f "$D" || :
+   # Publish failure to the ordinary probe only after bounded durable capture.
+   cp -- "$S/failure.env" "$O/summary.env" && chmod 644 "$O/summary.env" || :
   fi
  fi
  exit "$rc"

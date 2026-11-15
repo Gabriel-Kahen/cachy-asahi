@@ -171,3 +171,39 @@ exported byte/mode before reporting success. An independent Reader can select
 its reviewed receipt subset directly without importing Source code. The final
 sync log is created after the durable receipts copy and is intentionally absent.
 No VM, ALPM, hardware or release acceptance follows from these Source controls.
+
+
+Closed case-r3 reached an ordinary ARM16K builder PAM/logind session, then
+emitted a PROBE HOLD before any INSTALLED frame. Source46 ignored that complete
+early failure while waiting for INSTALLED_END and eventually hit the serial
+deadline. Its cleanup report also records a bounded-wait error; the outer's
+empty cleanup_errors array does not supersede Source errors. Owned container
+absence and close-only custody are separate observed results. The underlying
+guest failure was narrowed by Root's separate read-only failure.env observation
+to dependency_install; the exact failing command remains unknown.
+
+The successor protocol waits for one complete bounded nonce-specific phase frame
+at a time, rejects explicit HOLD immediately in every phase, and refuses
+out-of-order, malformed or duplicate frames. Only ordered PASS frames proceed;
+all existing field, output, preservation, resource and authority checks remain.
+Failed ordinary-probe frames now report HOLD and exit status without unearned
+functional/command PASS fields. Fenced tests include the exact retained failed
+frame, chunk boundaries, early failure in each wait, wrong nonces, ordered
+success and malformed/out-of-order refusal. These are protocol controls only.
+
+Root's guest EXIT path retains failure.env with phase/exit status and a fixed
+allowlist of public command logs under D/failure-diagnostics. No trust directory,
+credential, environment dump or arbitrary tree is selected. A manifest records
+original/retained byte counts, SHA256 and COMPLETE/TRUNCATED/OMITTED for each
+present selected log. Prefixes are at most64KiB; total log bytes fit both
+log_bytes and1MiB, with32KiB reserved for summary/manifest within the existing
+guest output cap after counting any existing bounded results. Ordinary root
+ownership, single links,0600 files,0700 directories and exclusive destination
+are required. A missing manifest end marker denotes incomplete capture.
+
+The EXIT path requests bounded sync after capture, then publishes the public
+failure summary to the ordinary probe. Capture or sync failure never converts
+the original nonzero status to success. Local synthetic tests exercise the
+actual trap body with a sync assertion stub, original exit preservation,
+truncation, omission, unsafe ownership/link/budget refusals and honest probe
+HOLD fields. No guest/GPG/ALPM execution or new runtime acceptance is supplied.
