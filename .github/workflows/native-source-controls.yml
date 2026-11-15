@@ -84,3 +84,122 @@ jobs:
       - name: Check original alarm1001 namespace admission DATA without actors
         run: |
           python3 -I -B -Werror::ResourceWarning scripts/ci/native-build-namespace-context-admission/test_admission_data.py --held-admission-root "$GITHUB_WORKSPACE/scripts/ci/native-build-namespace-observable-admission" --source-root "${RUNNER_TEMP}/context-admission-source"
+  # Updated UI controls and identical Rust recipe/intake controls already run in static.yml.
+  adapter-data:
+    name: Native adapter DATA controls (${{ matrix.python }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Check out immutable LLVM v1 Source as DATA
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 4ceaa1c6958349451197b19acdb084a2a5be216b
+          path: .llvm23-v1-data-repository
+          persist-credentials: false
+      - name: Export exact LLVM parent without executing its payloads
+        run: |
+          umask 022
+          llvm_parent="${RUNNER_TEMP}/llvm23-v1-source-DATA"
+          test ! -e "$llvm_parent"
+          mkdir -m 700 "$llvm_parent"
+          test "$(git -C .llvm23-v1-data-repository rev-parse HEAD)" = 4ceaa1c6958349451197b19acdb084a2a5be216b
+          test "$(git -C .llvm23-v1-data-repository rev-parse HEAD^{tree})" = b6d4f3bcbfb7454b1760c3ff9f9910d734d8bece
+          git -C .llvm23-v1-data-repository -c tar.umask=0022 archive --format=tar HEAD | tar -xf - -C "$llvm_parent"
+      - name: Check Rust adapter DATA in fresh processes for permanent audit fences
+        run: |
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/test_admission.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/test_hosted.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/payload/hosted/test_producer.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/payload/actor/test_entry.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/payload/actor/test_phase.py
+      - name: Check Rust whole-source DATA against its immutable exported basis
+        run: |
+          python3 -I -B -Werror::ResourceWarning - <<'PY'
+          import importlib.util, os, unittest
+          from pathlib import Path
+          path = Path('scripts/ci/rust199-source-reference-native/test_source.py')
+          spec = importlib.util.spec_from_file_location('rust199_ci_source_controls', path)
+          controls = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(controls)
+          # Only the test fixture operand changes; render still checks the whole map/tree.
+          controls.FROZEN = Path(os.environ['RUNNER_TEMP']) / 'llvm23-v1-source-DATA'
+          result = unittest.TextTestRunner(verbosity=2).run(unittest.defaultTestLoader.loadTestsFromModule(controls))
+          raise SystemExit(not (result.wasSuccessful() and result.testsRun == 6 and not result.skipped))
+          PY
+      - name: Check installed Perl lifecycle and observation DATA in fresh processes
+        run: |
+          python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-installed-lifecycle-native/test_prerequisites.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-installed-lifecycle-native/test_source.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-installed-lifecycle-native/test_image_probe.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-installed-lifecycle-native/test_reader_data.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-installed-lifecycle-native/baseline_observation/test_source.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-installed-lifecycle-native/baseline_observation/test_hosted.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-installed-lifecycle-native/baseline_observation/test_observer.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-installed-lifecycle-native/baseline_observation/test_reader_data.py
+      - name: Check out immutable XS v3 Source as DATA
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 5261eb22032b986cd77796a808f99779c100cfe8
+          path: .xs-v3-data-repository
+          persist-credentials: false
+      - name: Export exact XS v3 without executing its payloads
+        run: |
+          umask 022
+          xs_source="${RUNNER_TEMP}/xs-v3-source-DATA"
+          test ! -e "$xs_source"
+          mkdir -m 700 "$xs_source"
+          test "$(git -C .xs-v3-data-repository rev-parse HEAD)" = 5261eb22032b986cd77796a808f99779c100cfe8
+          test "$(git -C .xs-v3-data-repository rev-parse HEAD^{tree})" = 4efb18d7e2ce796bb4feb48a700908da20bd95ac
+          git -C .xs-v3-data-repository -c tar.umask=0022 archive --format=tar HEAD | tar -xf - -C "$xs_source"
+      - name: Check all XS v3 passive DATA controls with a transported Source fixture
+        run: |
+          python3 -I -B -Werror::ResourceWarning - <<'PY'
+          import importlib.util, os, unittest
+          from pathlib import Path
+          path = Path('scripts/port/perl5423-xs-consumer/native_adapter/independent_reader/v3/test_v3.py')
+          spec = importlib.util.spec_from_file_location('xs_v3_ci_data_controls', path)
+          controls = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(controls)
+          controls.ROOT_SOURCE = Path(os.environ['RUNNER_TEMP']) / 'xs-v3-source-DATA'
+          assert controls.ROOT_SOURCE.is_dir()
+          # The presence-derived decorator saw the private capture path at import.
+          # Its replacement is the pinned public export; require this join, never skip it.
+          joined = controls.Controls.test_actual305_full_inverse_and_runtime_Source_DATA_only
+          if getattr(joined, '__unittest_skip__', False):
+              assert joined.__unittest_skip_why__ == 'retained Source DATA unavailable; no actual Reader role implied'
+              joined.__unittest_skip__ = False
+          result = unittest.TextTestRunner(verbosity=2).run(unittest.defaultTestLoader.loadTestsFromModule(controls))
+          raise SystemExit(not (result.wasSuccessful() and result.testsRun == 12 and not result.skipped))
+          PY
+      - name: Check out immutable LLVM v2 Source as DATA
+        if: matrix.python == '3.14'
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 6d0243dc8f5cf4ee5b9316b8c804f14a3236ecb0
+          path: .llvm23-v2-data-repository
+          persist-credentials: false
+      - name: Export exact LLVM v2 without executing its payloads
+        if: matrix.python == '3.14'
+        run: |
+          umask 022
+          llvm_source="${RUNNER_TEMP}/llvm23-v2-source-DATA"
+          test ! -e "$llvm_source"
+          mkdir -m 700 "$llvm_source"
+          test "$(git -C .llvm23-v2-data-repository rev-parse HEAD)" = 6d0243dc8f5cf4ee5b9316b8c804f14a3236ecb0
+          test "$(git -C .llvm23-v2-data-repository rev-parse HEAD^{tree})" = 87f5aa3537474c2dd33a02c50e869ea5fb25e7b4
+          git -C .llvm23-v2-data-repository -c tar.umask=0022 archive --format=tar HEAD | tar -xf - -C "$llvm_source"
+      - name: Check LLVM v2 archive and lifecycle DATA on Python 3.14
+        if: matrix.python == '3.14'
+        run: |
+          python3 -I -B -Werror::ResourceWarning scripts/port/llvm23-native-independent-reader/v2/test_reader.py
+          python3 -I -B -Werror::ResourceWarning scripts/port/llvm23-native-independent-reader/v2/test_volume.py --source-root "${RUNNER_TEMP}/llvm23-v2-source-DATA" --parent-source "${RUNNER_TEMP}/llvm23-v1-source-DATA"
