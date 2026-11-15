@@ -1,0 +1,18 @@
+{
+  "actual_alias": ".github/workflows/native-arm-llvm23-source-reference-v2.yml",
+  "artifact": null,
+  "failure": "base_binding -> common.verify_source -> absent v1 alias; context named-alias gate has same literal defect",
+  "job": "132830512686",
+  "log": {
+    "bytes": 33286,
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-llvm23-intake-r3/Original-job132830512686.log",
+    "sha256": "9a6c98cdf8e1118b63e94416b9d3e0ee6d7002a51223d25c8717b7cfce3a2680"
+  },
+  "missing_path": ".github/workflows/native-arm-llvm23-source-reference-v1.yml",
+  "permission_for_replay": false,
+  "run": "43720263251",
+  "schema": 1,
+  "secret_input_bootstrap_native_started": false,
+  "source": "6d0243dc8f5cf4ee5b9316b8c804f14a3236ecb0",
+  "status": "CLOSED_SOURCE_GUARD_FAILURE_NOT_NATIVE_EVIDENCE"
+}
