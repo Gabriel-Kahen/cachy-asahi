@@ -22,6 +22,12 @@ jobs:
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
           python-version: ${{ matrix.python }}
+      - name: Check LLVM23 ARM16K case contracts without actors
+        run: |
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_llvm23_vm/test_case.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_llvm23_vm/test_contracts.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_llvm23_vm/test_protocol.py
+          bash -n scripts/integration/arm16k_llvm23_vm/guest/root.sh scripts/integration/arm16k_llvm23_vm/guest/probe.sh scripts/integration/arm16k_llvm23_vm/guest/case.sh
       - name: Check image lifecycle producer and Reader DATA without actors
         run: |
           python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/test_pair_data.py -v
@@ -146,6 +152,10 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-installed-lifecycle-native/baseline_observation/test_hosted.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-installed-lifecycle-native/baseline_observation/test_observer.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-installed-lifecycle-native/baseline_observation/test_reader_data.py
+      - name: Check all twelve retained installed-result DATA controls
+        run: |
+          python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-installed-lifecycle-native/successor_v3/test_retention.py
+          python3 -I -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/perl5423-installed-lifecycle-native/successor_v3 -p test_reader_seam.py -v
       - name: Check Rust LLVM admission and stage0 VM DATA in fresh processes
         run: |
           python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v2/test_producer.py
@@ -175,6 +185,11 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v4/test_six.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v4/test_source.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v4/test_transfer.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v5/test_actor_binding.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v5/test_admission.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v5/test_binding.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v5/test_orchestration.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v5/test_source.py
       - name: Check eight portable notice controls; private capture replay remains Root-local
         run: |
           python3 -I -B -Werror::ResourceWarning - <<'PY'
@@ -191,6 +206,28 @@ jobs:
           suite = unittest.TestSuite(controls.Controls(name) for name in names if name != local_only)
           result = unittest.TextTestRunner(verbosity=2).run(suite)
           raise SystemExit(not (result.wasSuccessful() and result.testsRun == 8 and not result.skipped))
+          PY
+      - name: Check eight portable controls each for notice G and H; private replays remain Root-local
+        run: |
+          python3 -I -B -Werror::ResourceWarning - <<'PY'
+          import importlib.util, resource, signal, unittest
+          from pathlib import Path
+          resource.setrlimit(resource.RLIMIT_AS, (256 * 1024**2, 256 * 1024**2))
+          signal.alarm(30)
+          root = Path('scripts/port/arm-rust-toolchain-inputs/source-closure/archive-inventory/checksum-successor/license-followup/compiler-notices')
+          cases = [('g', 'test_reevaluate.py', 'test_real_zero_credit_replay_preserves_every_remaining_case'),
+                   ('h', 'test_requirements.py', 'test_complete_offline_routing_regeneration')]
+          for successor, filename, local_only in cases:
+              spec = importlib.util.spec_from_file_location('notice_' + successor + '_portable_controls', root / ('successor-' + successor) / filename)
+              controls = importlib.util.module_from_spec(spec)
+              spec.loader.exec_module(controls)
+              # Each ninth test requires an undistributed private source packet.
+              # No fabricated fixture, public transport or claimed private replay.
+              names = unittest.defaultTestLoader.getTestCaseNames(controls.Controls)
+              assert len(names) == 9 and local_only in names
+              suite = unittest.TestSuite(controls.Controls(name) for name in names if name != local_only)
+              result = unittest.TextTestRunner(verbosity=2).run(suite)
+              assert result.wasSuccessful() and result.testsRun == 8 and not result.skipped
           PY
       - name: Check Rust volume Source against a freshly rendered pinned DATA fixture
         run: |
@@ -298,3 +335,70 @@ jobs:
         run: |
           python3 -I -B -Werror::ResourceWarning scripts/port/llvm23-native-independent-reader/v2/test_reader.py
           python3 -I -B -Werror::ResourceWarning scripts/port/llvm23-native-independent-reader/v2/test_volume.py --source-root "${RUNNER_TEMP}/llvm23-v2-source-DATA" --parent-source "${RUNNER_TEMP}/llvm23-v1-source-DATA"
+      - name: Render exact LLVM256 DATA from the pinned LLVM251 fixture
+        if: matrix.python == '3.14'
+        run: |
+          python3 -I -B -Werror::ResourceWarning - <<'PY'
+          import importlib.util, os
+          from pathlib import Path
+          root = Path('scripts/ci/llvm23-source-reference-native')
+          def load(name, path):
+              spec = importlib.util.spec_from_file_location(name, path)
+              module = importlib.util.module_from_spec(spec)
+              spec.loader.exec_module(module)
+              return module
+          previous = load('LLVM253_CI_DATA', root / 'successor_v3/prepare.py')
+          current = load('LLVM256_CI_DATA', root / 'successor_v4/prepare.py')
+          rows = current.render(previous.render(previous.parent(Path(os.environ['RUNNER_TEMP']) / 'llvm23-v2-source-DATA')))
+          assert len(rows) == 256 and sum(len(body) for body, _ in rows.values()) == 40919517
+          assert current.fs.tree(rows) == 'f251f3b7c7e152943ce85bc012f97305934e8fd8'
+          output = Path(os.environ['RUNNER_TEMP']) / 'llvm23-v4-source-DATA'
+          output.mkdir(mode=0o700)
+          for name, (body, mode) in rows.items():
+              assert not Path(name).is_absolute() and '..' not in Path(name).parts
+              path = output / name
+              path.parent.mkdir(parents=True, exist_ok=True)
+              path.write_bytes(body)
+              path.chmod(mode)
+          PY
+      - name: Check independent LLVM256 Source and volume DATA on Python 3.14
+        if: matrix.python == '3.14'
+        run: |
+          python3 -I -B -Werror::ResourceWarning scripts/port/llvm23-native-independent-reader/v4/test_v4.py --source-root "${RUNNER_TEMP}/llvm23-v4-source-DATA" --parent-source "${RUNNER_TEMP}/llvm23-v2-source-DATA" --ancestor-source "${RUNNER_TEMP}/llvm23-v1-source-DATA"
+          python3 -I -B -Werror::ResourceWarning scripts/port/llvm23-native-independent-reader/v4/test_volume.py --source-root "${RUNNER_TEMP}/llvm23-v4-source-DATA"
+      - name: Check out immutable XS316 Source as DATA
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: ac06bdbe5093e73fe7c67ad75cd830255f897c3b
+          path: .xs-v5-data-repository
+          persist-credentials: false
+      - name: Export exact XS316 and check all independent v5 DATA controls
+        run: |
+          umask 022
+          xs_source="${RUNNER_TEMP}/xs-v5-source-DATA"
+          test ! -e "$xs_source"
+          mkdir -m 700 "$xs_source"
+          test "$(git -C .xs-v5-data-repository rev-parse HEAD)" = ac06bdbe5093e73fe7c67ad75cd830255f897c3b
+          test "$(git -C .xs-v5-data-repository rev-parse HEAD^{tree})" = d11f4f8cbe708f10d590e127cb316bb68e548d94
+          git -C .xs-v5-data-repository -c tar.umask=0022 archive --format=tar HEAD | tar -xf - -C "$xs_source"
+          python3 -I -B -Werror::ResourceWarning scripts/port/perl5423-xs-consumer/native_adapter/independent_reader/v5/test_v5.py --v5-source "$xs_source"
+      - name: Check all twenty-two XS v6 fixed ALPM inventory DATA controls
+        run: |
+          python3 -I -B -Werror::ResourceWarning scripts/port/perl5423-xs-consumer/native_adapter/hosted_source_v6/test_source.py --previous-xs-source "${RUNNER_TEMP}/xs-v5-source-DATA"
+          python3 -I -B -Werror::ResourceWarning scripts/port/perl5423-xs-consumer/native_adapter/hosted_source_v6/test_alpm.py --inventory "${RUNNER_TEMP}/xs-v5-source-DATA/accepted/packages.txt"
+      - name: Check out immutable installed252 Source as DATA
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 445b37a9475a4e92804954f4f0e3d0ac84cd9511
+          path: .installed252-data-repository
+          persist-credentials: false
+      - name: Export exact installed252 and check nineteen retained-output Reader DATA controls
+        run: |
+          umask 022
+          installed_source="${RUNNER_TEMP}/installed252-source-DATA"
+          test ! -e "$installed_source"
+          mkdir -m 700 "$installed_source"
+          test "$(git -C .installed252-data-repository rev-parse HEAD)" = 445b37a9475a4e92804954f4f0e3d0ac84cd9511
+          test "$(git -C .installed252-data-repository rev-parse HEAD^{tree})" = f8bbb62a4adbe9157b98c13bb8d5b9148bfc12f0
+          git -C .installed252-data-repository -c tar.umask=0022 archive --format=tar HEAD | tar -xf - -C "$installed_source"
+          python3 -I -B -Werror::ResourceWarning scripts/port/perl-installed-retained-output-reader/test_reader.py --source "$installed_source"

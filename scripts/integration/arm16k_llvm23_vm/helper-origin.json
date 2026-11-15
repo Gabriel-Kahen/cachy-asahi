@@ -1,0 +1,52 @@
+{
+  "files": {
+    "durable.sh": {
+      "bytes": 1143,
+      "mode": 420,
+      "sha256": "b8f10339505788b1074cd9c2acce81f8992620aa3c83ffde04a1c6c75ddc2d33",
+      "source": "/home/gabe/Documents/ChatGPT/cachy-asahi/scripts/integration/arm16k_project_lifecycle_rtc/durable.sh"
+    },
+    "guest-runtime.sh": {
+      "bytes": 8870,
+      "mode": 420,
+      "sha256": "639257a6637923b9f6ee8486fa580b0603b662863fdcb51a2187fc7864568463",
+      "source": "/home/gabe/Documents/ChatGPT/cachy-asahi/scripts/integration/arm16k_project_lifecycle_rtc/guest-runtime.sh"
+    },
+    "llvm_elf.py": {
+      "bytes": 3220,
+      "function": "elf",
+      "function_bytes": 2971,
+      "function_sha256": "5d4a5331cc96a30b3edf8f65f8a539bc36c37a1e0f4fd1bbb631c59d34cd8f7a",
+      "mode": 420,
+      "sha256": "1d3b95c015004de1093101672fea7d2fef87d404b602a7d745da40e00c3cab78",
+      "source": "/home/gabe/Documents/ChatGPT/cachy-asahi-llvm-reader-v3-20261115/scripts/port/llvm23-native-independent-reader/v2/reader.py",
+      "source_sha256": "e3fed71e01be989b5c84cd0e33124ca096e452eda380f4840b45786cb385335c"
+    },
+    "owned_process.py": {
+      "bytes": 25140,
+      "mode": 420,
+      "sha256": "83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f",
+      "source": "/home/gabe/Documents/ChatGPT/cachy-asahi/scripts/integration/arm16k_rust_stage0_vm/frozen/owned_process.py"
+    },
+    "reference_controller.py": {
+      "bytes": 14117,
+      "mode": 420,
+      "sha256": "e7c8935f342d4b36bb6f8f24c0b48c3b8aa04be9807f62c3f8141aeaf26819fc",
+      "source": "/home/gabe/Documents/ChatGPT/cachy-asahi/scripts/integration/arm16k_rust_stage0_vm/frozen/reference_controller.py"
+    },
+    "rtc-clock.sh": {
+      "bytes": 1344,
+      "mode": 420,
+      "sha256": "fed8c8eabe89ad8cb979994c35dc44ad3e8704f5481c3dd00560192018c504fa",
+      "source": "/home/gabe/Documents/ChatGPT/cachy-asahi/scripts/integration/arm16k_rust_stage0_vm/frozen/rtc-clock.sh"
+    },
+    "rtc_contract.py": {
+      "bytes": 9806,
+      "mode": 420,
+      "sha256": "b3f4727110fefb9429ca3944e758189cac8ecddfc53332f4ce2c40b64ca35028",
+      "source": "/home/gabe/Documents/ChatGPT/cachy-asahi/scripts/integration/arm16k_rust_stage0_vm/frozen/rtc_contract.py"
+    }
+  },
+  "schema": 1,
+  "scope": "REVIEWED_PASSIVE_AND_SUPERVISION_HELPERS_NOT_A_NEW_VM_RESULT"
+}

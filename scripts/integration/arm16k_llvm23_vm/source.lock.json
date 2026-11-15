@@ -1,0 +1,133 @@
+{
+  "actual": {
+    "ALPM": null,
+    "Root_acceptance": null,
+    "VM": null,
+    "authority": null,
+    "case_prepared": null,
+    "compiler": null,
+    "image_prepared": null,
+    "ref": null,
+    "source": null
+  },
+  "files": {
+    "README.md": {
+      "bytes": 7910,
+      "mode": 420,
+      "sha256": "7e93c3bbbda1e3b9f1a370ee27b3bd986d92add9b935365580eec4d571052a1d"
+    },
+    "adapter.py": {
+      "bytes": 8899,
+      "mode": 420,
+      "sha256": "e8a488b59b820bdefd626f9660c8f92cb0afe563a60ea88642a70999b3857163"
+    },
+    "case.TEMPLATE.json": {
+      "bytes": 1196,
+      "mode": 420,
+      "sha256": "d30ca4e996380e2cb0aedd0b100f704f23b762965c339c16031b099702aa3ce7"
+    },
+    "contracts.py": {
+      "bytes": 22221,
+      "mode": 420,
+      "sha256": "3246f21fd672d77665c6ec9caee98b2a70409af986a8a3c59755ef9c8471dbef"
+    },
+    "frozen/durable.sh": {
+      "bytes": 1143,
+      "mode": 420,
+      "sha256": "b8f10339505788b1074cd9c2acce81f8992620aa3c83ffde04a1c6c75ddc2d33"
+    },
+    "frozen/guest-runtime.sh": {
+      "bytes": 8870,
+      "mode": 420,
+      "sha256": "639257a6637923b9f6ee8486fa580b0603b662863fdcb51a2187fc7864568463"
+    },
+    "frozen/llvm_elf.py": {
+      "bytes": 3220,
+      "mode": 420,
+      "sha256": "1d3b95c015004de1093101672fea7d2fef87d404b602a7d745da40e00c3cab78"
+    },
+    "frozen/owned_process.py": {
+      "bytes": 25140,
+      "mode": 420,
+      "sha256": "83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f"
+    },
+    "frozen/reference_controller.py": {
+      "bytes": 14117,
+      "mode": 420,
+      "sha256": "e7c8935f342d4b36bb6f8f24c0b48c3b8aa04be9807f62c3f8141aeaf26819fc"
+    },
+    "frozen/rtc-clock.sh": {
+      "bytes": 1344,
+      "mode": 420,
+      "sha256": "fed8c8eabe89ad8cb979994c35dc44ad3e8704f5481c3dd00560192018c504fa"
+    },
+    "frozen/rtc_contract.py": {
+      "bytes": 9806,
+      "mode": 420,
+      "sha256": "b3f4727110fefb9429ca3944e758189cac8ecddfc53332f4ce2c40b64ca35028"
+    },
+    "guest/case.sh": {
+      "bytes": 1846,
+      "mode": 420,
+      "sha256": "05fffb7e097229240c25cec85bf58f35a26e0e3df86204a7ccefb4fe20cf43bf"
+    },
+    "guest/probe.sh": {
+      "bytes": 3421,
+      "mode": 420,
+      "sha256": "344b0f4dcc98fea123d18795c354878f7ea2bce922c557256a758a1bb887f525"
+    },
+    "guest/root.sh": {
+      "bytes": 10547,
+      "mode": 420,
+      "sha256": "f8d9d337dcb1b1cd70840bd56360f337762b27bba6ce93171c6733319fb88063"
+    },
+    "guest/smoke.c": {
+      "bytes": 105,
+      "mode": 420,
+      "sha256": "b9c5873e7d233fbb8e38d8e2e3a96d84e0f3cef7937229cb0802f165315827f7"
+    },
+    "guest/unwind.cpp": {
+      "bytes": 178,
+      "mode": 420,
+      "sha256": "4799195c3925cbcbdbda56de1e8e248839024133c6b2795e41945f15fbcd8b4d"
+    },
+    "helper-origin.json": {
+      "bytes": 2329,
+      "mode": 420,
+      "sha256": "4f808ca44b71ab45a8cefa89c250c6b927af124861e05b725e52c1ff87dfd36c"
+    },
+    "proof.py": {
+      "bytes": 2457,
+      "mode": 420,
+      "sha256": "d8747ad0ecce065385ed769be6a9ba67d39d0fe89deac96d9080ca4c73b4c088"
+    },
+    "protocol.py": {
+      "bytes": 7200,
+      "mode": 420,
+      "sha256": "69ab4e7d2c5bd09214f6c4d61b2cc79e9adf0d3988ef8812746f083da23e271b"
+    },
+    "test_case.py": {
+      "bytes": 5985,
+      "mode": 420,
+      "sha256": "85e93d6c3e074e0fe5dee81d5e99a38df2704ebf7128fa1dad30cbb05db897c0"
+    },
+    "test_contracts.py": {
+      "bytes": 14705,
+      "mode": 420,
+      "sha256": "92569c0cdd7cc05aa4f176d18a792f5b84233320c57d908da1c968d5b9c81d19"
+    },
+    "test_protocol.py": {
+      "bytes": 7513,
+      "mode": 420,
+      "sha256": "129ef9d43af0230880de327f75c1aee0227389628874847eb466ada6eac08fd8"
+    },
+    "validation.json": {
+      "bytes": 1413,
+      "mode": 420,
+      "sha256": "c3d9b591e12c3b3da345f335fefaf048275a244bff2a41100371ef140919dcef"
+    }
+  },
+  "kind": "ARM16K_LLVM23_CASE_SOURCE_LOCK_V1",
+  "operation": "arm16k-llvm23-private-prefix-vm-v1",
+  "schema": 1
+}

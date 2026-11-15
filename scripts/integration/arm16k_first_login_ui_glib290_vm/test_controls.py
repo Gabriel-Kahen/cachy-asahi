@@ -443,4 +443,66 @@ class ConsoleFrameControls(Fenced):
   with self.assertRaisesRegex(ValueError,'frozen semantic refusal'):original.parse(data,info['nonce'])
   self.assertEqual(seen,[(P.frame_bytes(data,info['nonce'],'SEAT_SESSION'),info['nonce'])])
 
+class NaturalSessionControls(Fenced):
+ def setUp(self):
+  super().setUp();self.session=load('gui_session');self.client=load('client')
+ def test_actual_closed_r2_signaled_retirement_is_still_refused(self):
+  actual={'error':None,'exit':0,'group_census':'EMPTY_TWICE','output_complete':True,'ownership':'REAPED','passed':False,'reaped':True,'seconds':28.798928082000003,'signals':['SIGTERM'],'timeout':False}
+  with self.assertRaisesRegex(AssertionError,'retirement refused'):self.client.accept_retirement(actual)
+  actual['passed']=True
+  with self.assertRaisesRegex(AssertionError,'retirement refused'):self.client.accept_retirement(actual)
+ def test_strict_outer_empty_twice_no_signals_required(self):
+  good={'passed':True,'group_census':'EMPTY_TWICE','signals':[]};self.client.accept_retirement(good)
+  for key,value in [('passed',False),('group_census','EMPTY_ONCE'),('signals',['SIGKILL'])]:
+   changed={**good,key:value}
+   with self.subTest(key=key),self.assertRaises(AssertionError):self.client.accept_retirement(changed)
+ def test_session_keeps_exact_frozen_GUI_argv(self):
+  self.assertEqual(self.session.argv(),['/usr/bin/dbus-run-session','--','/usr/bin/xvfb-run','-a','-e','/home/builder/UI-runtime/xvfb.log','-s','-screen 0 1024x768x24 -nolisten tcp -extension GLX','/usr/bin/python3','-I','-B','/usr/local/libexec/ui-gui-probe.py'])
+ def test_natural_delayed_descendant_exits_without_signal_or_wait(self):
+  mine=(41,200,b'S');other=(42,201,b'S');observations=[]
+  owned=types.SimpleNamespace(_members=lambda *a:next(rows));rows=iter([{mine,other},{mine},{mine}])
+  with patch.object(self.session.time,'monotonic',return_value=0),patch.object(self.session.time,'sleep'):
+   self.session.settle(owned,41,3,observations)
+  self.assertEqual([len(s['members'])for s in observations],[2,1,1])
+ def test_remaining_live_or_zombie_member_never_counts_as_empty(self):
+  for state in [b'S',b'Z']:
+   owned=types.SimpleNamespace(_members=lambda *a:{(41,200,b'S'),(42,201,state)})
+   with patch.object(self.session.time,'monotonic',side_effect=[0,0,4]),patch.object(self.session.time,'sleep'):
+    with self.assertRaises(TimeoutError):self.session.settle(owned,41,3,[])
+ def test_missing_or_reused_reserved_leader_refuses(self):
+  for members in [{(42,201,b'S')},{(41,201,b'S')}]:
+   seen=[{'leader_start_ticks':200,'members':[]}]
+   owned=types.SimpleNamespace(_members=lambda *a:members)
+   with patch.object(self.session.time,'monotonic',return_value=0):
+    with self.assertRaises(AssertionError):self.session.settle(owned,41,3,seen)
+ def test_receipts_exclusive_private_synced_and_size_bounded(self):
+  with tempfile.TemporaryDirectory()as d,patch.object(self.session,'PRIVATE',Path(d)):
+   self.session.save('session.stdout',b'actual child output')
+   self.assertEqual((Path(d)/'session.stdout').stat().st_mode&0o777,0o600)
+   with self.assertRaises(FileExistsError):self.session.save('session.stdout',b'replace')
+   with self.assertRaises(AssertionError):self.session.save('session-lifecycle.json',b'x'*(128*1024+1))
+   with self.assertRaises(AssertionError):self.session.save('../other',b'x')
+ def test_constructor_delivers_new_client_and_session_but_original_probe(self):
+  prepare=load('prepare');c={'arm':Path('/held/lower'),'x86':Path('/held/x86'),'output':Path('/held/output')}
+  with patch.object(prepare.K,'read',return_value={'guest_files':{}}),patch.object(prepare.K,'pin',return_value={'bytes':1,'sha256':'a'*64}):rows=prepare.guest_sources(c)
+  for name in ['client.py','gui_session.py']:self.assertEqual(rows[name]['source_root'],'ui')
+  self.assertEqual(rows['gui_probe.py']['source_root'],'x86')
+  self.assertEqual(rows['gui_session.py']['guest_path'],'/usr/local/libexec/ui-gui-session.py')
+ def test_wrapper_launcher_failure_keeps_raw_output_and_never_settles_or_emits_PASS(self):
+  retirement={'passed':False,'signals':['SIGTERM'],'exit':0,'output':b'actual complete output'};saved={};owned=types.SimpleNamespace(prepare=lambda:None,supervise=lambda *a,**kw:dict(retirement))
+  spec=types.SimpleNamespace(loader=types.SimpleNamespace(exec_module=lambda m:None))
+  with patch.object(self.session.os,'geteuid',return_value=1000),patch.object(self.session.os,'getpid',return_value=41),patch.object(self.session.os,'getpgrp',return_value=41),patch.object(self.session.os,'getsid',return_value=41),patch.object(self.session.importlib.util,'spec_from_file_location',return_value=spec),patch.object(self.session.importlib.util,'module_from_spec',return_value=owned),patch.object(self.session.subprocess,'Popen',return_value=types.SimpleNamespace(pid=42)),patch.object(self.session,'remaining',return_value=[{'pid':43,'comm':'diagnostic only'}]),patch.object(self.session,'save',side_effect=lambda k,v:saved.update({k:v})),patch.object(self.session,'settle',side_effect=AssertionError('must refuse before settle')):
+   self.assertEqual(self.session.main(),1)
+  self.assertEqual(saved['session.stdout'],retirement['output']);report=json.loads(saved['session-lifecycle.json']);self.assertEqual(report['status'],'HOLD');self.assertEqual(report['launcher_retirement']['signals'],['SIGTERM']);self.assertEqual(report['members_after_launcher_retirement'][0]['pid'],43)
+ def test_wrapper_holds_leader_through_settle_then_emits_exact_output(self):
+  saved={};out=io.BytesIO();kwargs={};events=[]
+  def supervise(*a,**kw):kwargs.update(kw);return {'passed':True,'signals':[],'exit':0,'output':b'original GTK JSON'}
+  owned=types.SimpleNamespace(prepare=lambda:None,supervise=supervise);spec=types.SimpleNamespace(loader=types.SimpleNamespace(exec_module=lambda m:None))
+  with patch.object(self.session.os,'geteuid',return_value=1000),patch.object(self.session.os,'getpid',return_value=41),patch.object(self.session.os,'getpgrp',return_value=41),patch.object(self.session.os,'getsid',return_value=41),patch.object(self.session.importlib.util,'spec_from_file_location',return_value=spec),patch.object(self.session.importlib.util,'module_from_spec',return_value=owned),patch.object(self.session.subprocess,'Popen',return_value=types.SimpleNamespace(pid=42))as spawn,patch.object(self.session,'remaining',return_value=[]),patch.object(self.session,'save',side_effect=lambda k,v:saved.update({k:v})),patch.object(self.session,'settle',side_effect=lambda *a:events.append('settled')),patch.object(self.session.sys,'stdout',types.SimpleNamespace(buffer=out)):
+   self.assertEqual(self.session.main(),0)
+  self.assertEqual(events,['settled']);self.assertFalse(kwargs['group']);self.assertEqual(kwargs['cap'],82);self.assertNotIn('start_new_session',spawn.call_args.kwargs);self.assertEqual(out.getvalue(),b'original GTK JSON');self.assertEqual(json.loads(saved['session-lifecycle.json'])['status'],'PASS_NATURAL_PRIVATE_GUI_SESSION_CLOSE')
+ def test_session_uses_pinned_direct_supervisor_without_accepting_signals(self):
+  source=(HERE/'gui_session.py').read_text();self.assertIn('group=False',source);self.assertIn("result['signals'] == []",source);self.assertNotIn('os.kill',source);self.assertNotIn('os.wait',source);self.assertNotIn('start_new_session=True',source)
+  client=(HERE/'client.py').read_text();self.assertIn('start_new_session=True',client);self.assertIn("retirement=3,grace=.5",client);self.assertLess(client.index("private/'gui.stdout'"),client.index('accept_retirement(retirement)',client.index('def main')))
+
 if __name__=='__main__':unittest.main()

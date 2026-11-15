@@ -9,12 +9,12 @@
       "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
     },
     "README.md": {
-      "bytes": 9871,
-      "sha256": "0fad36c50f25857fb51ada428149990bf640494955e93c2a161b871c85f74fbe"
+      "bytes": 12400,
+      "sha256": "be994b26bf4761f0fbb374215f4a4c64d568a4a4ce542fe523530d6fb60ee60b"
     },
     "RESULTS.json": {
-      "bytes": 2664,
-      "sha256": "2dc57b00160e028232682b6b2d199623a4f8b2af48804ec2185c4ae0dd749ddb"
+      "bytes": 3310,
+      "sha256": "b8ff1d8e1c436285e9511f11783bf39793837e46e70288c007c84ab397a6b393"
     },
     "actual-data.json": {
       "bytes": 5093,
@@ -35,6 +35,10 @@
     "boot.py": {
       "bytes": 13825,
       "sha256": "5b09cbdcdfa87fc43cc5cb35eb2d925692b620c9228efc3d05de1e69d040cf09"
+    },
+    "client.py": {
+      "bytes": 3548,
+      "sha256": "a08fcbc79a1148883e273a724e030bed1aaa586e777f8be622ca7bc01cad5dc0"
     },
     "closure.py": {
       "bytes": 4023,
@@ -88,6 +92,10 @@
       "bytes": 3866,
       "sha256": "647ec69e7b17a4e9a1a28b83d30e45ead46126f0d9acf9981ab078da85b7d92b"
     },
+    "gui_session.py": {
+      "bytes": 5240,
+      "sha256": "c6da3dbfba760767b22809212ae9caf0c3e8ff7563f90de4bf4f72bed49d897f"
+    },
     "lineage.json": {
       "bytes": 7004,
       "sha256": "02c07865c9d2d2a41d6f78f73b5560a499504528d22c9879ccab0c0383b0c99c"
@@ -109,8 +117,8 @@
       "sha256": "1eecce0395762c9ab97aea96244de797e4c5e8b5c0c38f2b535bbddc3d171c8e"
     },
     "prepare.py": {
-      "bytes": 14216,
-      "sha256": "1855cd5bd514984dc5ffaef1db14a7dff52732037b2964c30d12af5faa01f4fb"
+      "bytes": 14298,
+      "sha256": "bc21a2705232c981d0a33e0ebd67c25ac7c624f7a4bfaf1a66c3c63fba8a9f12"
     },
     "prepare_image.py": {
       "bytes": 8412,
@@ -141,8 +149,8 @@
       "sha256": "eebf2c89f4cf4600a9867ea58fee85f5fc87e16f7cf0da58a10f46323cab076e"
     },
     "test_controls.py": {
-      "bytes": 49146,
-      "sha256": "f94be8fb7cac613dab4d22c562651f91b0def5e0692e1b9d02f8875933012438"
+      "bytes": 56479,
+      "sha256": "a657031115252537279808d700c2b896d450c2f4c9a6fb3aab3215c549889c53"
     },
     "ui-observer.service": {
       "bytes": 256,

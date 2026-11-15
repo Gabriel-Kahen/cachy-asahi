@@ -153,3 +153,14 @@ number71. A separate actual76105B UART DATA check passed the unchanged lower
 validator after reconstruction and confirmed the original JSON bytes/hash match.
 This is a codec check over a closed HOLD, not a replay or fresh guest success.
 A new Source lock/publication/authority/nonce/preparation is still Root's scope.
+
+
+Closed GLib290 r2 and natural private-session closure successor
+
+Root's closed r2 remains HOLD. Actual client receipt522B SHA71fe9bb575c58189e9e3526a8e0adf643bb59f64c942f8ea6d187deb78565bf4 records launcher exit0/REAPED/EMPTY_TWICE/output-complete/no timeout but passed=false/signals=[SIGTERM]. GTK stderr and Xvfb log are empty. These facts do not establish GTK controls, removal, old-GLib rollback or full guest acceptance. Root's read-only extraction preserved originals; the initial conversion succeeded but its1.5GiB allocation postcheck held at1,764,077,568B. Root later read-only reused/compared that derivative without conversion replay.
+
+The pinned supervisor begins retirement at leader terminal status, immediately signals a still-live original group/session member, and requires no signals for PASS. The retained receipt cannot identify which descendant was live. Do not attribute it to a particular daemon or claim the new adapter has repaired an actual guest.
+
+The new local client launches a fresh reserved Python session leader, which starts exactly the original dbus-run-session/xvfb-run/GTK argv without a new session. The unchanged pinned helper owns that direct launcher through raw reap/output drain with an82s cap; any forced cleanup remains HOLD. The wrapper then read-only observes the reserved original group/session until leader-only twice, bounded by one3s deadline, without sending signals or reaping arbitrary children. Only then does it emit the original GTK stdout and exit naturally. Its outer unchanged90s group supervisor still must prove passed=true/signals=[]/EMPTY_TWICE. GTK probe/window.close(), policy, all controls, signed ALPM and rollback predicates are unchanged. No global or escaped-descendant absence is claimed.
+
+New private0600/fsynced receipts are /home/builder/UI-runtime/{session-lifecycle.json,session.stdout,gui.stdout}. Lifecycle records the exact fixed argv, launcher retirement, remaining members with numeric identities and bounded process names, and bounded changed/final censuses. Each receipt<=128KiB; no environment, credentials, keys, pixels or user file contents are recorded. Existing UI_CLIENT_REPORT.json references raw stdout/lifecycle hashes, preserving output before any retirement assertion. Root may recover these fixed paths after a closed HOLD; private process properties should not be published. New constructor/source/authority/nonce preparation is required. Worker ran actor-fenced source controls only; actual successor GUI/session remains NOT RUN.

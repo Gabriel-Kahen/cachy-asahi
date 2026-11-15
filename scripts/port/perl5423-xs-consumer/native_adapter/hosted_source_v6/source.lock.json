@@ -1,0 +1,61 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 4448,
+      "mode": 420,
+      "sha256": "52059f72e004d523d7fcf445e788bd5d8eaec4953a21d2c7f14496031e60bd98"
+    },
+    "actor-inventory-after.txt": {
+      "bytes": 505,
+      "mode": 420,
+      "sha256": "7bff8fac3fc9e0bda505641c3dc08594b47ebcfd8b790a579e4c3f029c17a60a"
+    },
+    "actor-inventory-before.txt": {
+      "bytes": 530,
+      "mode": 420,
+      "sha256": "0f5d88edf1882002e0cc906be4dcdcbda6d16b6fac6cd02343e6ade608101f3f"
+    },
+    "observed-failure.json": {
+      "bytes": 1592,
+      "mode": 420,
+      "sha256": "aa6ed8ade15ddbcb75f8ae47727e646bc6f44c063f61e25c84bea352be8cfd80"
+    },
+    "payload/consumer/native_adapter/native.py": {
+      "bytes": 48295,
+      "mode": 420,
+      "sha256": "c492eb1b7175407d20a78305d8d1d499c67960d3b295aeea5ae206b9222d04cd"
+    },
+    "payload/xs/entry.py": {
+      "bytes": 33187,
+      "mode": 420,
+      "sha256": "f72018b1094f4349c075c75127ba841654d920ab681714a85a952e8507a3abfd"
+    },
+    "prepare.py": {
+      "bytes": 12389,
+      "mode": 420,
+      "sha256": "dfa2f1eed62b926dd8de8728a8911445569086a81a39a8d895355b3bdea5141b"
+    },
+    "profile.json": {
+      "bytes": 2023,
+      "mode": 420,
+      "sha256": "5d609d09f1b0eaf2f2fdb2b0560dd6c2e69514890ba7bbe2b32d433b3294f61f"
+    },
+    "test_alpm.py": {
+      "bytes": 8311,
+      "mode": 420,
+      "sha256": "3324f39927c4d77d0d9ed01aa038daadbd9673302da820ffe3eb798a36d8dab8"
+    },
+    "test_source.py": {
+      "bytes": 7285,
+      "mode": 420,
+      "sha256": "9c82eac884a4e1bbf32877c42b913a98a9bc0d3fdfd5eb764758ff2273f0d320"
+    },
+    "validation.json": {
+      "bytes": 1109,
+      "mode": 420,
+      "sha256": "60d094c1ee3cdc82c74e7778f847531060dfe86e42dddc55f3d304fa9d1b1452"
+    }
+  },
+  "schema": 1,
+  "status": "SOURCE_DATA_ONLY_NO_AUTHORITY_OR_EXPORT"
+}

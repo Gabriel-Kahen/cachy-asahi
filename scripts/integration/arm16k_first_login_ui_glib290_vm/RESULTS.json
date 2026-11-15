@@ -55,6 +55,24 @@
     "seat_JSON_sha256": "84c45d1e2aec93f12e8497ece8a22dd40be91ba8301273c1af3750b75ed78071",
     "status": "HOLD"
   },
+  "closed_GLib290_boot_r2": {
+    "GTK_controls_remove_rollback": "NOT ESTABLISHED",
+    "Root_readonly_extraction": "PASS_ORIGINALS_UNCHANGED",
+    "actual_live_descendant_identity": "UNKNOWN",
+    "client_receipt": {
+      "bytes": 522,
+      "sha256": "71fe9bb575c58189e9e3526a8e0adf643bb59f64c942f8ea6d187deb78565bf4"
+    },
+    "first_conversion_allocation_postcheck": "HOLD actual1764077568B; subsequent DATA reuse/compare no convert replay",
+    "launcher_exit": 0,
+    "new_session_adapter": "SOURCE_ONLY_NOT_RUN",
+    "passed": false,
+    "retired_group": "EMPTY_TWICE",
+    "signals": [
+      "SIGTERM"
+    ],
+    "status": "HOLD"
+  },
   "native_M2_hardware_performance_release": "NOT ACCEPTED",
   "new_intake": {
     "body_bytes": 5082106,
@@ -76,7 +94,7 @@
       "scripts/integration/arm16k_first_login_ui_glib290_vm/test_controls.py"
     ],
     "failed": 0,
-    "passed": 71,
+    "passed": 82,
     "profile": "actor/network/lease fenced, synthetic+actual-data controls; no guest"
   }
 }

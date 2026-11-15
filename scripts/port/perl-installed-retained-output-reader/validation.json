@@ -1,0 +1,33 @@
+{
+  "Docker": 0,
+  "GET": 0,
+  "Source_actors": 0,
+  "actual": {
+    "Original": null,
+    "Reader": null,
+    "Root_authority": null,
+    "Root_decision": null,
+    "admission": null,
+    "job": null,
+    "ref": "refs/heads/codex/native-arm-perl5423-installed-lifecycle-v1-20261115-r3",
+    "run": null,
+    "source": "445b37a9475a4e92804954f4f0e3d0ac84cd9511"
+  },
+  "actual_Original_openings": 0,
+  "controls": 19,
+  "inverse_chain": [
+    252,
+    241,
+    232
+  ],
+  "lease": 0,
+  "model_ZIP": "SYNTHETIC_PRIVATE_DATA_ONLY",
+  "operational_Reader": 0,
+  "original_files": 200,
+  "proof_boundary": "SOURCE_MEDIATED_BOOLEAN_ASSERTION_NOT_RAW_LSTAT",
+  "publication_scope": "ROOT_REPORTED_COMPLETE_PUBLIC_GIT_READBACK_DATA_ONLY_NO_ROLE_AUTHORITY",
+  "python": "3.14",
+  "schema": 1,
+  "source_files": 252,
+  "status": "19_FENCED_SOURCE_DATA_MODEL_CONTROLS_PASS_NO_OPERATIONAL_ROLES"
+}

@@ -1,0 +1,79 @@
+{
+  "Root_authentication": false,
+  "Root_decision": null,
+  "actual": {
+    "Original": null,
+    "Reader": null,
+    "Root_authority": null,
+    "Root_decision": null,
+    "admission": null,
+    "job": null,
+    "ref": "refs/heads/codex/native-arm-perl5423-installed-lifecycle-v1-20261115-r3",
+    "run": null,
+    "source": "445b37a9475a4e92804954f4f0e3d0ac84cd9511"
+  },
+  "factory_commit": "b17b04e1683199d3d562271ce4caf27bd494235f",
+  "files": {
+    "README.md": {
+      "bytes": 6019,
+      "mode": 420,
+      "sha256": "e18682f9c604f0955252b05fa558a28bbe27284ba24756fe93f01171d017b50f"
+    },
+    "binding.TEMPLATE.json": {
+      "bytes": 925,
+      "mode": 420,
+      "sha256": "2398338dcea643810e4865fb9c9ba8f15dfb4c2e72f78257ee4917471bdc615d"
+    },
+    "data.py": {
+      "bytes": 2947,
+      "mode": 420,
+      "sha256": "93edfcccfa554af1869d4a1d7591236bf8d740b76a265327736c5068b4a22980"
+    },
+    "fence.py": {
+      "bytes": 3347,
+      "mode": 420,
+      "sha256": "7f6b7627370907a1a1c538aadf01613fe0b9fa279245757363d6e02e66385cac"
+    },
+    "reader.py": {
+      "bytes": 10184,
+      "mode": 420,
+      "sha256": "37812eb906ca5712b643e3374d4a3a5b529dea6c5de1d047ae96e05f22c916b9"
+    },
+    "retention.py": {
+      "bytes": 8469,
+      "mode": 420,
+      "sha256": "5afc3ec72698f9b53ef8618a0cccd554f8eac8ca69ae284fa8310dabddae66cb"
+    },
+    "source.py": {
+      "bytes": 5742,
+      "mode": 420,
+      "sha256": "f3773d84c4827e9f5d452f6fd95ce88caf5844d4fec689aaf2fad4f969cc20e8"
+    },
+    "test_reader.py": {
+      "bytes": 14584,
+      "mode": 420,
+      "sha256": "f868eceebb3be90bca6d89d03bdd3775efec1905feab0998f920c919e4626728"
+    },
+    "validation.json": {
+      "bytes": 887,
+      "mode": 420,
+      "sha256": "fad6a58c35f4eabfeb2edfec8a1b08bf503dab1b7adb25317dee8c21c7625447"
+    }
+  },
+  "passive_delegation": "EXACT_SOURCE_PINNED_HOSTED_READER_AND_CAPSULE_READ_RESULT_COMMON_ONLY",
+  "schema": 1,
+  "source": {
+    "Root_public_readback": {
+      "actual_observed_utc": "2026-11-15T16:10:05.801890+00:00",
+      "bytes": 507,
+      "sha256": "06664ef2822ba684aab964ab408e7887fa2877c96819d1d3c94f0ceda6969c2d"
+    },
+    "bytes": 81364853,
+    "files": 252,
+    "map_sha256": "2bbf2c808562d13a158d654f7e7d3adb71c7e577444e82ea05a0aad5cf0f3c97",
+    "ref": "refs/heads/codex/native-arm-perl5423-installed-lifecycle-v1-20261115-r3",
+    "source": "445b37a9475a4e92804954f4f0e3d0ac84cd9511",
+    "tree": "f8bbb62a4adbe9157b98c13bb8d5b9148bfc12f0"
+  },
+  "status": "SOURCE_ONLY_NOT_AUTHORITY"
+}

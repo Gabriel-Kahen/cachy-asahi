@@ -1,0 +1,156 @@
+{
+  "Root_public_readback": {
+    "bytes": 498,
+    "mode": 420,
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-llvm23-source-r4/Root-public-readback.json",
+    "sha256": "c881f0e992148888d2dff11fcc40db03a736e87e1ab7c008f59a06b870391b47"
+  },
+  "actual": {
+    "Original": null,
+    "Reader": null,
+    "Root_acceptance": null,
+    "approval": null,
+    "artifact": null,
+    "authority": null,
+    "job": null,
+    "ref": "refs/heads/codex/llvm23-source-reference-native-v2-20261115-r2",
+    "run": null,
+    "runtime": null,
+    "source": "365a763bc515a1b3550cc804536ddbf66353aac8"
+  },
+  "constructor_commit": "524439af2034e4e6a8c2e815268a8112453a63f9",
+  "constructor_profile_sha256": "78d4decc97c57dc0e75d7e4ac097b4f32699fd4ae0fb15d1e35e0a45a566ae7d",
+  "external_Root_operands_required": {
+    "Reader_authority": null,
+    "new_Original": null,
+    "resource_authority": null,
+    "runtime_identity": null,
+    "source_approval": null,
+    "source_commit_bytes": null,
+    "successful_provider": null
+  },
+  "files": {
+    "README.md": {
+      "bytes": 5996,
+      "mode": 420,
+      "sha256": "ce287e4298ad2061d87d5d7c4ead23721c60f9141a0e497081cf92017ce2c214"
+    },
+    "base.py": {
+      "bytes": 9366,
+      "mode": 420,
+      "sha256": "d879c2716c1035d85ce601eb1d0c469fdbf7ce9d4d20881d1e6785d02c75fb65"
+    },
+    "binding.TEMPLATE.json": {
+      "bytes": 1023,
+      "mode": 420,
+      "sha256": "36571c9896c2c655d09a567dc54bc37e92d30f21eee64d03aeea615f37f24340"
+    },
+    "pins.json": {
+      "bytes": 7420,
+      "mode": 420,
+      "sha256": "7c45abc5ef57898cdd725c55cc1d4e39df1b59f480d131331e0b4114a4f6aa43"
+    },
+    "reader.py": {
+      "bytes": 10422,
+      "mode": 420,
+      "sha256": "c4c738fd3260990babe0a814b597c1930c203aeaf7994b3d70d9738bf00431bf"
+    },
+    "test_v4.py": {
+      "bytes": 10416,
+      "mode": 420,
+      "sha256": "b1d4bd56961b795035af05a29def39b15e7a132db8864ed3c3ab17542859e69b"
+    },
+    "test_volume.py": {
+      "bytes": 13922,
+      "mode": 420,
+      "sha256": "05c536a411ed57c365c248255551932819552515d8370ac64b335507615f7fe6"
+    },
+    "validation.json": {
+      "bytes": 978,
+      "mode": 420,
+      "sha256": "eebf836acb59f2502de7e290c7774bbe10cdd1bdd15fedf9071b2ed5d3802ed3"
+    }
+  },
+  "frozen_closure": {
+    "v2/pins.json": {
+      "bytes": 5658,
+      "mode": 420,
+      "sha256": "c9a1013cac557e992ab2ad824821ad868c87d73c2b9da60e860d05a70742a328"
+    },
+    "v2/reader.py": {
+      "bytes": 64910,
+      "mode": 420,
+      "sha256": "e3fed71e01be989b5c84cd0e33124ca096e452eda380f4840b45786cb385335c"
+    },
+    "v3/base.py": {
+      "bytes": 2593,
+      "mode": 420,
+      "sha256": "6d6d6c00d686ea97e6cd9702b61c545d630418be1f18ac3fe9b1ff7da82cd610"
+    },
+    "v3/pins.json": {
+      "bytes": 6486,
+      "mode": 420,
+      "sha256": "3adab3af82327142762aa4d366993aa9695e9d25a012f0b72c07cb611f926439"
+    },
+    "v3/reader.py": {
+      "bytes": 9442,
+      "mode": 420,
+      "sha256": "1edb14485c8df4b880750e0d783fe4f732e88ed9d17119ef491fb7cfe65cd8c6"
+    }
+  },
+  "frozen_fixture": {
+    "bytes": 13007,
+    "mode": 420,
+    "sha256": "cab012cc06c3687cf314c11dec66fd9456d6c42e5fd9a7ec45160fc5a524bf8c"
+  },
+  "kind": "LLVM23_PUBLISHED256_INDEPENDENT_PASSIVE_READER_INVENTORY_NOT_AUTHORITY",
+  "projections": {
+    "actual_Source_ref_run_job_map_changes": false,
+    "closure_sha256": {
+      "v2/pins.json": "c9a1013cac557e992ab2ad824821ad868c87d73c2b9da60e860d05a70742a328",
+      "v2/reader.py": "e3fed71e01be989b5c84cd0e33124ca096e452eda380f4840b45786cb385335c",
+      "v3/base.py": "6d6d6c00d686ea97e6cd9702b61c545d630418be1f18ac3fe9b1ff7da82cd610",
+      "v3/pins.json": "3adab3af82327142762aa4d366993aa9695e9d25a012f0b72c07cb611f926439",
+      "v3/reader.py": "1edb14485c8df4b880750e0d783fe4f732e88ed9d17119ef491fb7cfe65cd8c6"
+    },
+    "historical251": {
+      "actual_Source_ref_run_job_map_changes": false,
+      "after_sha256": "458b0adc0c6854cbb17b542d0b3503cd7e99c494cf948d75e442f391646d5f47",
+      "before_sha256": "e876668f1aeafed771dd738e4b96420ae4b2775943c714708ee58276cd3c085f",
+      "inverse": "EXACT_FUNCTION_BYTES",
+      "seams": 6
+    },
+    "historical253": {
+      "after_sha256": "6a108ff4a2b9fd3382baec71cfc4b850db13b774da0dc092627d3f27b7f3f7b6",
+      "before_sha256": "267bda3a5807b04b031bc25203ac1aae19d487ef446da4fb54f66899fb97de2b",
+      "inverse": "EXACT_FUNCTION_BYTES",
+      "seams": 4
+    },
+    "initializer": {
+      "actual_Source_ref_run_job_map_changes": false,
+      "after_sha256": "3b7d6497faa0de14abdc12f54cdb9b78a05b943aacd8bc577ee66bdc1490aa3c",
+      "before_sha256": "b7ada9a03205cd0fb011423fd30cebc5cc5b78458a42d5637cdf011996932adb",
+      "changed_function": "initializer",
+      "cloned_namespace": true,
+      "inverse": "EXACT_FUNCTION_BYTES",
+      "module_sha256": "e3fed71e01be989b5c84cd0e33124ca096e452eda380f4840b45786cb385335c",
+      "seams": 1
+    },
+    "trusted_base_wiring": {
+      "after_sha256": "ec992b87f1aa718111cc963aa3d0ba30ed2ccd9dd351994997fba5c1e450ec4d",
+      "before_sha256": "1edb14485c8df4b880750e0d783fe4f732e88ed9d17119ef491fb7cfe65cd8c6",
+      "inverse": "EXACT_MODULE_BYTES",
+      "seams": 1
+    }
+  },
+  "schema": 1,
+  "source": {
+    "bytes": 40919517,
+    "files": 256,
+    "map_sha256": "22f6f8a9d3eabf4de16c853cf67183b67beca4e702e26c5b492066e94194735c",
+    "published_git_parent": "6d0243dc8f5cf4ee5b9316b8c804f14a3236ecb0",
+    "ref": "refs/heads/codex/llvm23-source-reference-native-v2-20261115-r2",
+    "source": "365a763bc515a1b3550cc804536ddbf66353aac8",
+    "tree": "f251f3b7c7e152943ce85bc012f97305934e8fd8"
+  }
+}

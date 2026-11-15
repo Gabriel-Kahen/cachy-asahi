@@ -1,0 +1,24 @@
+{
+  "ALPM": "NOT_RUN",
+  "GPG": "NOT_RUN",
+  "M2": "NOT_RUN",
+  "Reader": "NOT_RUN",
+  "actor": "NOT_RUN",
+  "actual_Source_export": "NOT_WRITTEN",
+  "actual_parent_report": {
+    "bytes": 1924,
+    "sha256": "9dcdf8279b8a3c39921afb557e8daa5b3d72b936c2a6a2bf5a2a575794b00abf"
+  },
+  "full241_and232_original200_inverses": "PASS_IDENTICAL_BOTH_INTERPRETERS",
+  "interpreters": [
+    "CPython3.12.13",
+    "CPython3.14.7"
+  ],
+  "native": "NOT_RUN",
+  "parent_Source": "b4079a8a478afb0df8e634b555b3d2955a97bb9b",
+  "reader_seam": "PASS_SELECTED_UNCHANGED_PREDICATES_ON_SYNTHETIC_DATA_ONLY_NOT_READER_ROLE",
+  "release": false,
+  "schema": 1,
+  "status": "PASS_RETENTION_SOURCE_AND_RETAINED_PARENT_DATA_ONLY",
+  "tests_per_interpreter": 12
+}
