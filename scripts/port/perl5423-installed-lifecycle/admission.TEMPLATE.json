@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "operation": "perl5423-installed-lifecycle-v1",
+  "run": null,
+  "source_map_sha256": null,
+  "image": null,
+  "base_labels": null,
+  "container": null,
+  "inputs": null,
+  "test_fingerprint": null,
+  "baseline_fingerprint": null,
+  "root_qualification_sha256": null
+}
