@@ -241,5 +241,22 @@ resource/authority guards are unchanged. Synthetic controls cover the real
 maintained cleanup/actor helpers, success ordering, no success-output creation,
 PIDFD/peer/start/argv/parent/identity changes and negative marker/QMP cases.
 No actual process query, socket, Docker, signal, lease or VM was used by controls.
-This working construction remains unsealed until the coordinator combines the
-separate offline pacman-T guest fix and regenerates the single Source lock.
+The combined successor is sealed together with the separate offline pacman-T
+guest fix; the coordinator selects its fresh Source/case/authority bindings.
+
+
+Source47 case-r4's durable dependency-requires.log contained the exact293-byte
+missing core/extra/alarm/aur sync-database warning set, despite no missing local
+dependency output. The successor uses the already closed transaction-specific
+local-only configs for both pacman -T calls: dependency-pacman.conf for db5.3
+requirements and pacman.conf for Perl requirements. Exit status and complete
+combined log remain strict; warnings are neither filtered nor ignored. No repo
+refresh, network, extra package or signature-policy change was added.
+
+Five portable controls execute the actual query guards with fixture tools and
+run in the existing Python3.12/3.14 CI matrix. Three additional explicitly selected
+local controls use host pacman only against a private synthetic read-only ALPM
+database, reproducing the retained warning hash and proving missing/versioned
+dependencies still exit127. They do not access the host package database or
+install/remove packages. These tests are local/control evidence; the combined
+cleanup and guest fix still require a separately issued Root attempt.

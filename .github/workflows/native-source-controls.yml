@@ -46,6 +46,7 @@ jobs:
         run: |
           python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/test_pair_data.py -v
           python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/test_image_lifecycle_data.py -v
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_perl5423_vm/test_local_dependency_queries.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/native-build-namespace-preflight/test_preflight_data.py -v
           python3 -I -B -Werror::ResourceWarning scripts/ci/native-build-namespace-preflight/test_image_lifecycle_data.py -v
       - name: Check bounded native package readers on their Python 3.14 runtime
