@@ -1,0 +1,56 @@
+{
+  "scripts/ci/native-build-namespace-observable/README.md": {
+    "bytes": 8261,
+    "mode": "100644",
+    "oid": "02ba5c0f1bb6bf3c6362657943205302a0112b78",
+    "sha256": "2b9e432e53d96e2f60e7ab5fb6ce519b3bd8c9b83c74f2c4cb13829b2ec6e8b1"
+  },
+  "scripts/ci/native-build-namespace-observable/factory-inputs.json": {
+    "bytes": 2810,
+    "mode": "100644",
+    "oid": "ae69a4515832598439d55fe6c02813b80bcfcf55",
+    "sha256": "3d588010e92b058c06bac0d5b2f0229a097ed0d7e0ac2b99eb2743577e8823c2"
+  },
+  "scripts/ci/native-build-namespace-observable/fixtures/quiet-original.log.data": {
+    "bytes": 1101,
+    "mode": "100644",
+    "oid": "0b3058a11471b6b41ced552d04d87600ddd84b9f",
+    "sha256": "9b122c663e510018ee5cfeb3a31d1b1efe4eda0ffded497127e1fb3f16ce13a5"
+  },
+  "scripts/ci/native-build-namespace-observable/observed-failure.json": {
+    "bytes": 2720,
+    "mode": "100644",
+    "oid": "2fb0edf90413f21f8401c6463b207371d29b09c5",
+    "sha256": "c27c4c286c2b4a82aee8f40bc08c1d53aa5d97437c2b190a74c92a335a58db4f"
+  },
+  "scripts/ci/native-build-namespace-observable/parent.raw": {
+    "bytes": 396,
+    "mode": "100644",
+    "oid": "ab1c2041f8b841dfa5436ae412a665e1386eaa71",
+    "sha256": "fe1d2e20d5c67be035a4f3657c11f356bf05a928dec357f788a2940680b1b519"
+  },
+  "scripts/ci/native-build-namespace-observable/prepare.py": {
+    "bytes": 10008,
+    "mode": "100644",
+    "oid": "a5d8736f82b10847d9e3fb766f1ef7e1f306e0ed",
+    "sha256": "caed20e2e34a872526958035cc2325b5f98a125e26cc2858f865562586a6847b"
+  },
+  "scripts/ci/native-build-namespace-observable/profile.json": {
+    "bytes": 3155,
+    "mode": "100644",
+    "oid": "4eb7ccaa1440169c04d6d96c2c73724944db3048",
+    "sha256": "6c1592dc2cb9d9e2dca0f01f02ebaaae6b1e1936daf6307d05d7536da262a0e5"
+  },
+  "scripts/ci/native-build-namespace-observable/reader_visibility.py.in": {
+    "bytes": 5581,
+    "mode": "100644",
+    "oid": "7235d1313b39cab1198dc9ba970e6db804bb2228",
+    "sha256": "3c39007bea2eb46c08daa4c1d4e94ad43c2ec4036713ccb4839a4fb5305431a1"
+  },
+  "scripts/ci/native-build-namespace-observable/test_observable_data.py": {
+    "bytes": 19409,
+    "mode": "100644",
+    "oid": "e6c3742fef83716fbe59bf59a72b417a3b371f3c",
+    "sha256": "d3ea8ca5b0c0572249e80aa84499477fbb64d903d8303e4e9f0314e29bd37837"
+  }
+}
