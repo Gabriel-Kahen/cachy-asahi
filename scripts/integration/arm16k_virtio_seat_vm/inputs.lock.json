@@ -31,6 +31,7 @@
   "native16K": "NOT RUN",
   "operation": "arm16k-virtio-seat-vm-v1",
   "overlay_cap": 536870912,
+  "parent_tool_image_id": "sha256:ee1aa3da22a5d89dc1bc273fa818b1d996b7e62851f50d7b629144f6bba9f207",
   "prep_allocated_cap": 1342177280,
   "required_base_first_boot": {
     "bytes": 1634,
@@ -39,5 +40,24 @@
   },
   "reserve_bytes": 2147483648,
   "schema_version": 1,
-  "tool_image_id": "sha256:ee1aa3da22a5d89dc1bc273fa818b1d996b7e62851f50d7b629144f6bba9f207"
+  "tool_image_id": "sha256:52958d534193d739aeb6d3c9239ed31b97f8fb357a618e14391293068b28cd2a",
+  "tool_qualification": {
+    "device_metadata_file": "data/Root-device-help-r2.json",
+    "device_metadata_pin": {
+      "bytes": 675,
+      "sha256": "b2a0c65bbb2120235206b27c39ba07421a37df10fc365d99b236f9a0ae0d95c1"
+    },
+    "file": "data/tool-qualification-r2.json",
+    "historical_parent_hold_report": {
+      "bytes": 2402,
+      "sha256": "adf2be19889fff8dedf47fe9b4e1c0c3dfa9f91bc0e187a9b1741ed5d3ae0179"
+    },
+    "origin": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-virtio-tool-build-r2/actor-output/result.json",
+    "original_source_commit": "1cb4eb9b16236ecce1c61196af457de78c4e7c99",
+    "pin": {
+      "bytes": 5942,
+      "sha256": "8507370faf1c8aa385235ca0d01411251998b3266bf15817e568c09b71738916"
+    },
+    "scope": "Actual Root trusted one-package derived tool qualification and device help only; guest NOT RUN"
+  }
 }

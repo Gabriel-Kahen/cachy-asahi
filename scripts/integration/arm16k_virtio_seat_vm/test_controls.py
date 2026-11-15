@@ -59,6 +59,23 @@ class Guards(unittest.TestCase):
   with tempfile.TemporaryDirectory() as d:
    with self.assertRaises(ValueError):K.output_path(Path(d))
  def test_original_controller_frozen_pin(self):self.assertEqual(K.pin(HERE/'frozen/reference_controller.py')['sha256'],'e7c8935f342d4b36bb6f8f24c0b48c3b8aa04be9807f62c3f8141aeaf26819fc')
+class DerivedTool(unittest.TestCase):
+ def receipt(self):return json.loads((HERE/'data/tool-qualification-r2.json').read_text())
+ def test_whole_actual_qualification_data(self):self.assertEqual(K.tool_qualification()['image_id'],K.IMAGE)
+ def test_actual_device_help_data(self):
+  p=HERE/'data/Root-device-help-r2.json';self.assertEqual(K.tool_metadata(p,{'qemu_metadata':K.pin(p)})['image_id'],K.IMAGE)
+ def test_parent_image_not_retagged(self):self.assertNotEqual(K.PARENT_IMAGE,K.IMAGE);self.assertEqual(K.lock()['parent_tool_image_id'],K.PARENT_IMAGE)
+ def test_parent_as_derived_refuses(self):d=self.receipt();d['image_id']=K.PARENT_IMAGE;self.refuses(d)
+ def test_changed_parent_refuses(self):d=self.receipt();d['parent_image_id']='sha256:'+'0'*64;self.refuses(d)
+ def test_missing_gpu_refuses(self):d=self.receipt();d['required_devices']['virtio-gpu-device']=False;self.refuses(d)
+ def test_missing_absence_refuses(self):d=self.receipt();d['owned_containers_absent']=False;self.refuses(d)
+ def test_failed_cleanup_refuses(self):d=self.receipt();d['cleanup'][0]['cleanup_errors']=['failed'];self.refuses(d)
+ def test_guest_claim_refuses(self):d=self.receipt();d['guest_boot']='PASS';self.refuses(d)
+ def test_other_package_refuses(self):d=self.receipt();d['package']['name']='other';self.refuses(d)
+ def test_no_geometry_permissions_change(self):
+  d=K.lock();self.assertEqual((d['baseline_packages'],d['max_additions'],d['prep_allocated_cap'],d['overlay_cap']),(111,96,1280*1024**2,512*1024**2))
+ def refuses(self,d):
+  with self.assertRaises(ValueError):K.qualification_value(d)
 class Custody(unittest.TestCase):
  def row(self):
   return {'Id':'a'*64,'Name':'/owned','Image':K.IMAGE,'Config':{'Entrypoint':['/usr/bin/python3'],'Cmd':['-I','-B','/inputs/seat_actor.py'],'Labels':{}},'Mounts':[{'Type':'bind','Source':'/fresh/in','Destination':'/inputs','RW':False},{'Type':'bind','Source':'/fresh/out','Destination':'/work','RW':True}],'HostConfig':{'ReadonlyRootfs':True,'NetworkMode':'none','CapDrop':['ALL'],'CapAdd':None,'Privileged':False,'Devices':[],'Init':False,'SecurityOpt':['no-new-privileges'],'Memory':3*1024**3,'NanoCpus':2_000_000_000,'PidsLimit':256}}

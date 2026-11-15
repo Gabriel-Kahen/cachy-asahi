@@ -69,8 +69,8 @@ tool, including head; missing programs refuse before actor/clone.
 The constructor freezes the established ARM sparse raw clone/debugfs/readback,
 private credentials, nonce, filesystem UUID and machine-id pattern. It uses
 exactly seven mounts in the same rootless cap0/NNP/read-only/network-none
-2CPU/3GiB/256PID domain and unchanged tools image
-`sha256:ee1aa3da22a5d89dc1bc273fa818b1d996b7e62851f50d7b629144f6bba9f207`.
+2CPU/3GiB/256PID domain and explicit separately qualified derived tools image
+`sha256:52958d534193d739aeb6d3c9239ed31b97f8fb357a618e14391293068b28cd2a`.
 Original raw/descriptor and newly selected kernel/config/materials/code are RO;
 only the owned output is RW. No ARM program or ALPM runs during offline edits.
 Every injected regular file is byte/mode/owner read back; symlink targets are
@@ -172,7 +172,7 @@ bash -n scripts/integration/arm16k_virtio_seat_vm/guest-install.sh \
   scripts/integration/arm16k_virtio_seat_vm/bytes.sh
 ```
 
-69 actor-fenced source/DATA controls pass, including missing/null/unreviewed
+80 actor-fenced source/DATA controls pass, including missing/null/unreviewed
 inputs, ordinary output capacity/path guards, explicit new actor/custody and
 mount/cap/NNP refusals, complete modeled four-provider closure and baseline/GIR/
 policy ownership, signatures/archives/metadata/ALPM failure refusals, installed
@@ -189,12 +189,12 @@ no kernel for a guest. No44 archive authentication was duplicated by this worker
 Native16K, Apple hardware, GTK/runtime completeness, source/legal closure,
 performance, normal guest shutdown and release acceptance remain separate.
 
-Current actual tool hold: Root's exact-image device-help r2 found block and
+Historical source1cb4eb9b tool hold: Root's exact-image device-help r2 found block and
 keyboard but **no virtio-gpu-device** in EE1. Its closed report is
 `/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-qemu-device-help-r2/Root-result.json`,2402bytes,
 SHA256 `adf2be19889fff8dedf47fe9b4e1c0c3dfa9f91bc0e187a9b1741ed5d3ae0179`.
-The container was absent and no VM ran. Consequently this exact source/image
-combination is not eligible for actual seat preparation/boot. No retag, fallback
+The container was absent and no VM ran. Consequently that previous exact source/image
+combination was not eligible for actual seat preparation/boot. No retag, fallback
 GPU, fake device metadata or capability waiver is supported; a separately
 reviewed successor tool/source/authority contract is needed.
 
@@ -205,3 +205,25 @@ SHA256 `3934cbe28637d3dd88bb1f32e6db617055d09e84d5d8c12547dfa0573fcece24`:
 policy namespace joins passed. This did not run GPG again, prepare a raw, issue
 Root authority or overcome the real tool hold. Local volatile proof paths are
 not public-durability claims.
+
+## Qualified derived tool successor
+
+This source now binds actual derived image
+`sha256:52958d534193d739aeb6d3c9239ed31b97f8fb357a618e14391293068b28cd2a`.
+The original EE1 parent is retained byte-for-byte and remains historical; no tag
+alias or fallback changes its absent-GPU result. Root's actual tool build r2
+normally installed exactly official signed qemu-hw-display-virtio-gpu11.1.3-1,
+qualified all three real device declarations, strict owned retirement and
+container absence. This is tool qualification, not guest/seat/UI acceptance.
+
+The WHOLE actual result and device metadata are preserved byte-for-byte under
+`data/tool-qualification-r2.json` and `data/Root-device-help-r2.json`, with original
+paths/bytes/SHA pins in inputs.lock.json. The contract validates parent/derived
+identity, matching package, all three devices, both clean ownership/absence
+receipts and built-tool/no-guest scope. Authority must additionally bind the whole
+`tool_qualification` receipt pin and new source_lock; old EE1 authorities refuse.
+The actual external device-help metadata must match this exact qualified receipt.
+No new tool image, daemon, lease or actor was invoked by this worker.
+All frozen ancestors, kernel/addition contracts,155 geometry and permissions
+remain unchanged. The80 controls include eleven narrow derived-tool positive/
+refusal cases. Guest authority/preparation/boot results remain null/NOT RUN.

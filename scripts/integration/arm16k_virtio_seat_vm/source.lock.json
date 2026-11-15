@@ -5,16 +5,16 @@
       "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
     },
     "README.md": {
-      "bytes": 12987,
-      "sha256": "f229fcea0ca91f62bdcdb8725e047d056e1557a27fc04a03c5edb101c7b7c7c6"
+      "bytes": 14449,
+      "sha256": "e696959f136799f3cea6e3e974a0eacc023ee10a285486a859e5bcdf77670005"
     },
     "additions-contract.json": {
       "bytes": 3917,
       "sha256": "94f3f323544ec754d1fb15c920ff07e2d1ec268e78b2e28fbd38a4db30535ced"
     },
     "authority.template.json": {
-      "bytes": 452,
-      "sha256": "d0126d6ef8e39d65367403d2778d6f389444588a178ac606ce6d8b8ae2872275"
+      "bytes": 482,
+      "sha256": "2c41c1e809e7c4a9d3d8934953a22be14f87f1205f18397d6659cd99d00add8e"
     },
     "boot.py": {
       "bytes": 10170,
@@ -25,8 +25,16 @@
       "sha256": "a6548a0e73efa045358dda15f7c5310e9878a109ecc1ae94159f54477accca76"
     },
     "contracts.py": {
-      "bytes": 14152,
-      "sha256": "f2adc28f06dea8d168d102786acc02830ea3d0f9d26ca1be67377203022e74d0"
+      "bytes": 16099,
+      "sha256": "c01beae63007a758d233a01df5d8721baeefee2c6d34294cfe76deedbd76c627"
+    },
+    "data/Root-device-help-r2.json": {
+      "bytes": 675,
+      "sha256": "b2a0c65bbb2120235206b27c39ba07421a37df10fc365d99b236f9a0ae0d95c1"
+    },
+    "data/tool-qualification-r2.json": {
+      "bytes": 5942,
+      "sha256": "8507370faf1c8aa385235ca0d01411251998b3266bf15817e568c09b71738916"
     },
     "frozen/alpm_versions.py": {
       "bytes": 4671,
@@ -397,8 +405,8 @@
       "sha256": "bdc20192185761df81026007d5c4791968c81df072d945118cd16ccda1d32698"
     },
     "inputs.lock.json": {
-      "bytes": 1392,
-      "sha256": "56901d29e94fda28ca8f782369bfdf9b245d3dae7c44ade1e8264ec0147436d3"
+      "bytes": 2389,
+      "sha256": "e5aab88ee22fb06d9ffe14f7158350cbc9a22a6ca63da6a8e6c803922fdadd61"
     },
     "namespace-check.py": {
       "bytes": 1698,
@@ -425,8 +433,8 @@
       "sha256": "a713cd570b74ab3394c99f97729c34dc12b2212f30d79474d1f25db09890654c"
     },
     "qemu-metadata.template.json": {
-      "bytes": 449,
-      "sha256": "da1d19baeb21d40ddc72740c5e59d5ecff2f286fecbb6e8851796b60ef852342"
+      "bytes": 465,
+      "sha256": "ba029275b5de56401ea8b1a294b7e7deec4eb9a083e42bb94b427898ab766462"
     },
     "seat-install.service": {
       "bytes": 401,
@@ -437,8 +445,8 @@
       "sha256": "d0e747970a247213323f2861e5df28e24a3b2fc338e12d8ae9ae66b2ad18902e"
     },
     "test_controls.py": {
-      "bytes": 17503,
-      "sha256": "b894f58e15cc8953e99925a3fcb07b5599a6e94cb1430bbd28d19c0fb574bb69"
+      "bytes": 19090,
+      "sha256": "e1d0c72452c870224fbe99967b6c2ec6c9b3e6682d8246e96370528b53167829"
     }
   },
   "kind": "ARM16K_VIRTIO_SEAT_SOURCE_LOCK_V1",
