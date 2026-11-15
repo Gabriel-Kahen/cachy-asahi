@@ -3,7 +3,8 @@
 Source implementation only. Docker, namespace probes, native builds and policy
 qualification are **NOT RUN**. No actual run/output, Root resource grant, pinned
 builder image or future server observation is supplied. Existing v2 builders,
-comparators, container entries, frozen Sources and active workflows are unchanged.
+comparators, container entries and frozen Sources are unchanged. The maintained
+source-control workflow runs only the portable DATA checks below.
 
 `../build_v3.py` is a finite reversible derivation of the public v2 builder at
 `522e7cc8d2446416849dc5c1f84642cc46f82a06`. Without both opt-in arguments, its
@@ -11,6 +12,20 @@ Docker argv and default policy are unchanged. `derivation.json` records exact
 before/after edits; portable controls invert both new scripts to the complete
 unchanged v2 bodies. Default records explicitly bind `nested_namespaces=null`.
 No old Source/package qualification or dispatch authority is inherited.
+
+## Required integration base
+
+This feature is explicitly stacked on [PR459](https://github.com/Gabriel-Kahen/cachy-asahi/pull/459),
+public integration commit `522e7cc8d2446416849dc5c1f84642cc46f82a06` or its
+integrated descendant. Main before that prerequisite lacks the V4 recipe and is
+not a valid standalone base for this feature. The portable controls intentionally
+require the exact eleven-file V4 join; absence or drift fails, never skips or
+silently substitutes another candidate. Adopt the prerequisite package/CI change
+first, or keep this feature stacked until PR459 merges.
+
+The existing `Native adapter DATA controls` job runs these17 actor-fenced checks
+on Python3.12 and3.14 in separate processes. It performs no Docker/Engine probe
+and does not grant namespace or native execution authority.
 
 ## Why this distinct policy exists
 
