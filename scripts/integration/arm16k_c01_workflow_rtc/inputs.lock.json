@@ -1,0 +1,140 @@
+{
+  "added_packages": {
+    "cachy-asahi-zlib-baseline": "1.3.2-1",
+    "cachy-asahi-zlib-lto": "1.3.2-1"
+  },
+  "base_files": {
+    "Image": {
+      "bytes": 9019400,
+      "sha256": "cd8053ebdb83302015efbad97ab1cc53fcd5a2353bf3f37ba208f4e6360946ec"
+    },
+    "guest.raw": {
+      "bytes": 1610612736,
+      "sha256": "f69d74fbb0043793c96424d0f91ad2f6fb2d8cf3a72fb94024ea9cc40dae4cd3"
+    },
+    "kernel.config": {
+      "bytes": 68789,
+      "sha256": "e97d54d4852eceb6cba28c38f78d4a00aacbfdb0c1523cb96366590f7eaa915b"
+    }
+  },
+  "base_package_count": 111,
+  "base_prepared": {
+    "bytes": 58179,
+    "sha256": "f7b3073f58acce8ab5e21ff61f2182779d24046e1582cda6adb0a3db66b7036e"
+  },
+  "current_key": {
+    "created_epoch": 1794713061,
+    "expires_epoch": 1795317861,
+    "signer": "28883796E039C3CC08603F3EFD56E30AF1115613",
+    "source": "exact pinned public certificate; trusted host gpg --import-options show-only --dry-run, DATA only"
+  },
+  "derived_rtc_helper_source": {
+    "RTC_required_count": 11,
+    "actual_feature_delta_symbols": 8,
+    "existing_buses_held": {
+      "CONFIG_I2C": "y",
+      "CONFIG_SPI": "n"
+    },
+    "required": "y",
+    "rtc.Kconfig": {
+      "bytes": 63685,
+      "sha256": "de2295831bb5dace08e2823d136cf2e4995c499332e4f95dcd8a7e7fb161f403"
+    },
+    "rtc.Makefile": {
+      "bytes": 8845,
+      "sha256": "b4da20cbc38022dbd55356311867624b11564c7c96d8df4252471a4e3528dce0"
+    },
+    "source_proof": "hidden tristate default y with existing I2C; no select/imply or helper Makefile object; no new bus/RTC driver",
+    "symbol": "CONFIG_RTC_I2C_AND_SPI"
+  },
+  "installed_package_count": 113,
+  "materials": {
+    "TEST-public.asc": {
+      "bytes": 417,
+      "sha256": "a25d7ef0316cafbae6911935c9658c3c5ffa6fa7a6e1cd1e2fd64deb0abd3fd1"
+    },
+    "cachy-asahi-zlib-baseline-1.3.2-1-aarch64.pkg.tar.xz": {
+      "bytes": 1730592,
+      "sha256": "30a5de643b71603d1158982163a0560841fda50c2bd68f7cbbfea81403451924"
+    },
+    "cachy-asahi-zlib-baseline-1.3.2-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 119,
+      "sha256": "9c89d96b41effc0c6075279c5afe338f00886bbbd425cf0e43eb75421ea9443c"
+    },
+    "cachy-asahi-zlib-lto-1.3.2-1-aarch64.pkg.tar.xz": {
+      "bytes": 2136328,
+      "sha256": "0bf11d89052f419546ea43d922b1d5eb36ca2f2e6612971750442f77ff57a084"
+    },
+    "cachy-asahi-zlib-lto-1.3.2-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 119,
+      "sha256": "337f36639be23adabbd074c4b212bc8e57100d91acdf7e557179484ab0dcd254"
+    }
+  },
+  "operation": "arm16k-c01-baseline-lto-rtc-v1",
+  "original_artifact": {
+    "artifact": 12717726584,
+    "attempt": 1,
+    "bytes": 17509492,
+    "job": 122068774084,
+    "run": 40468241048,
+    "selected_members": {
+      "cachy-asahi-zlib-baseline": "package-output/baseline-r1-1.pkg.tar.xz",
+      "cachy-asahi-zlib-lto": "package-output/lto-r1-1.pkg.tar.xz"
+    },
+    "sha256": "b6e0803e7b7b4e79ce678480ffff506ec221b682473a0137b1c5f3247976292a"
+  },
+  "original_native_run": 40468241048,
+  "original_native_source": "d33e595a10acf2d148752ea382ae607283fc0b73",
+  "original_project_signing": "UNSIGNED: BUILDENV !sign and SigLevel Never; new signatures are separate Root TEST successor only",
+  "reference_files": {
+    "boot.py": {
+      "bytes": 8450,
+      "sha256": "7d620226f9f68b5f7e7ee8242269f4b3361e9f68cb4340237eae30b7e3710415"
+    },
+    "frozen/command_runtime.py": {
+      "bytes": 8091,
+      "sha256": "253494be99c21c83743b384b2c06cd1627023ffaf54f0cbbd271bde80572f70a"
+    },
+    "frozen/owned_process.py": {
+      "bytes": 25140,
+      "sha256": "83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f"
+    },
+    "frozen/record_tool_inputs.py": {
+      "bytes": 1665,
+      "sha256": "227d29b87b13d4e914f900ea7509b20319cf573682897e701ee2ebab4d714bf4"
+    },
+    "frozen/reference_controller.py": {
+      "bytes": 14117,
+      "sha256": "e7c8935f342d4b36bb6f8f24c0b48c3b8aa04be9807f62c3f8141aeaf26819fc"
+    },
+    "guest-proof.sh": {
+      "bytes": 838,
+      "sha256": "eaf9657ba33b1d3fbe3b59b0a885bc55e8904889c97952e74168e8463848d908"
+    },
+    "inspect_inputs.py": {
+      "bytes": 4755,
+      "sha256": "1e19bd8f5e73e2e2dec32642cb146471e98839cb6e1d53ceab42a743ca066cfb"
+    },
+    "select_guest.py": {
+      "bytes": 4671,
+      "sha256": "b6458d46d1176b3e1c5064bf5f75a71a9c93c92b6aa712d1b60e76760140a9eb"
+    },
+    "vm_actor.py": {
+      "bytes": 3551,
+      "sha256": "813b93e44d961c5bb54bf91e271bdd10dcdaf4d5af60dbe5edb00f6612c321df"
+    }
+  },
+  "required_base_first_boot": {
+    "bytes": 1634,
+    "sha256": "36de34652c9d008b4edaa6e8d12e87d10d96fc62044ba9e30ea44793908efa4d",
+    "status": "PASS_EMULATED_ARM16K_SYSTEMD_SERIAL_PAM_SESSION_ONLY"
+  },
+  "root_signing_receipt": {
+    "bytes": 2169,
+    "sha256": "f9a815180eb224972fcf8a331cba29455d80b8093ee54b5663690f47ddeaf600"
+  },
+  "schema": 1,
+  "signer": "28883796E039C3CC08603F3EFD56E30AF1115613",
+  "tool_image_id": "sha256:ee1aa3da22a5d89dc1bc273fa818b1d996b7e62851f50d7b629144f6bba9f207",
+  "trust_prerequisite": "Genuine Root RTC KSM signed install/remove PASS required, exact external Root authority pin; no such actual receipt supplied during source task"
+}

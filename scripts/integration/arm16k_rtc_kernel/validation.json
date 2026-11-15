@@ -1,0 +1,115 @@
+{
+  "Linux_configure": "NOT RUN",
+  "M2": "NOT RUN",
+  "Native_Source_Reader_dispatch": "NOT RUN",
+  "RTC_options": 11,
+  "Root_actual_compiler_facts": null,
+  "Root_actual_configure_r1": {
+    "closed_outputs": "preserved unchanged",
+    "configuration_accepted": false,
+    "host_pre_post_guard": "Root PASS",
+    "natural_child_retirement_accepted": false,
+    "owned_container_absent": "Root verified",
+    "retry": "NOT RUN; fresh Root admission required",
+    "source_extracted_logical_bytes": 1589202874,
+    "source_extracted_members": 100117,
+    "status": "CLOSED_HOLD_HELPER_LOG_FD_REFUSAL_AFTER_POPEN"
+  },
+  "Root_actual_configure_r2": {
+    "closed_outputs": "preserved unchanged",
+    "configuration_accepted": false,
+    "host_pre_post_guard": "Root PASS for prior115/15/61 tuple",
+    "makeolddefconfig": "Root PASS natural owned retirement",
+    "owned_container_absent": "Root verified",
+    "retry": "NOT RUN; new source/profile and fresh Root admission required",
+    "source_classification": "15 genuine exact probes + two prompted original-off + one hiddenRTC dependency helper",
+    "status": "CLOSED_HOLD_OBSERVED18_CONFIG_DELTAS"
+  },
+  "Root_actual_kernel_bundle": null,
+  "Root_reviewed_tool_profile": null,
+  "authorized_benign_host_helper_smoke": {
+    "benign_children": 2,
+    "bound_bytes": 65536,
+    "bound_seconds": 5,
+    "bytes": 1142,
+    "combined_captured_bytes": 34,
+    "elapsed_seconds": 0.13678441500087501,
+    "final_body_result": {
+      "bytes": 1142,
+      "sha256": "edd24b23f1a12e609cf4d45250718c7fd341258582298922207b5a18bdbb0fef"
+    },
+    "final_elapsed_seconds": 0.13067313300416572,
+    "invocations": 2,
+    "kernel_package_configure_VM_execution": "NOT RUN",
+    "sha256": "1ec0cc06550da00183032f7be90116b670cef2691bbd5974236615d4124a3b2a",
+    "total_benign_children": 4,
+    "total_captured_bytes": 68
+  },
+  "candidate_profile": {
+    "bytes": 164715,
+    "sha256": "3495765c6b23b761ae170b91719f3c1b5c7e1b563f9472225cb224089572b78d"
+  },
+  "candidate_profile_r3": {
+    "bytes": 169139,
+    "sha256": "4317a72cf16d34060646f6d56c3b0ee3be5ed0b0a6e844c2af727a63a352e7a1"
+  },
+  "compiler_execution": "NOT RUN",
+  "correction": "Pinned helper log_fd=None, bounded returned bytes written after supervision; prevalidate launch inputs and retire same child on pre-transfer refusal; no reentry after ownership release; RTC11 hidden helper closure, exact two prompted off-seeds, 15 finite compiler/aux facts and three explicit auxiliary tool pins",
+  "exact_inverse": "PASS original bytes",
+  "exact_requested_config_effective_changes": 8,
+  "guest_boot": "NOT RUN",
+  "host_guard_data_check": {
+    "bytes": 144050,
+    "sha256": "c25146a1bb261d8e7d77dbe400f7f78f556d8f8d4deeecc1a6051f60e9052b1e"
+  },
+  "host_guard_data_check_r3": {
+    "bytes": 144880,
+    "sha256": "a1696ca7a790fb065d537bf5005bab08704200bdb0999a778f1cb89576c34398"
+  },
+  "host_usr_candidate": {
+    "ALPM_source_records": 116,
+    "ELF_runtime_files": 72,
+    "cached_LLVM_signature_math_checks": 5,
+    "image_builds": 0,
+    "mode": "HOST_CROSS_ARM64",
+    "package_installations": 0,
+    "runtime_domain": "HOST_USR_READONLY_BIND_V1",
+    "tools_including_bc": 18
+  },
+  "interop_consumers": {
+    "C01": {
+      "bytes": 8015,
+      "sha256": "c78861dbf1b1cde14484a7c335468174f78547399034022cffc5a4a97e458ebb"
+    },
+    "KSM": {
+      "bytes": 7464,
+      "sha256": "e7d3d8f0ecc6e4991ffaf3e2459a2034acf46609de6416376a74573477143fe2"
+    }
+  },
+  "interop_image": "SYNTHETIC_TEMPORARY_DATA_ONLY_NEVER_COMPILED",
+  "kernel_compile": "NOT RUN",
+  "modeled_compiler_facts": 15,
+  "native16K": "NOT RUN",
+  "new_bc_acquisition": {
+    "GETs": 2,
+    "archive_bytes": 94205,
+    "binary_execution": "NOT RUN",
+    "retries": 0,
+    "signature_bytes": 119,
+    "signature_math": "PASS real gpgv"
+  },
+  "not_run_scope": "Worker execution only; historical Root configure r1/r2 records are explicitly separate",
+  "operation": "arm16k-rtc-reference-kernel-v1",
+  "performance": "NOT MEASURED",
+  "producer_to_corrected_consumer_controls": 8,
+  "pure_actor_fenced_controls": 40,
+  "python": "3.14.7",
+  "raw_preparation": "NOT RUN",
+  "release_accepted": false,
+  "remaining": "Root independently reviews precise host-/usr bind and resource/custody tuple; fresh pre/post host guards, separate configure admission, exact compiler-fact review, separate compile admission, then actual UTC/RTC guest qualification.",
+  "resource_authority": null,
+  "schema_version": 1,
+  "source_Kconfig_closure": "PASS retained exact GPL DATA",
+  "source_archive_extraction_for_build": "NOT RUN",
+  "status": "SOURCE_AND_DATA_CONTROLS_PASS_ACTORS_NOT_ADMITTED"
+}

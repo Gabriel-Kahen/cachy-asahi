@@ -1,0 +1,13 @@
+{
+  "manifest": {
+    "bytes": 3013,
+    "sha256": "4bcfa94aba6526546dd8424f81ab9ab1f523baf3432c8ee96f5505908f8bd021"
+  },
+  "profile": "GNU_GENERIC16K_IMMUTABLE_SOURCE_BOOTSTRAP_V1",
+  "ref": "codex/gnu-verity-kernel-config-domain-v1",
+  "run_attempt": "1",
+  "run_id": "39156901928",
+  "source_sha": "4056e2505ed7081674e949e0460258672cce14ff",
+  "status": "SOURCE_PROOF_PASS_BUILD_ONLY",
+  "workflow_sha": "4056e2505ed7081674e949e0460258672cce14ff"
+}

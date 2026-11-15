@@ -305,6 +305,11 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/port/perl5423-repro-host-build/test_capacity_profile.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/native-build-namespace-admission-preparation/test_prepare.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/native-build-namespace-observable-admission/test_admission_data.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-repro-native-source/test_data.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-native-adapter/test_adapter.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-native-adapter/test_reader.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-native-namespace/test_source.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-native-namespace/test_reader.py
           python3 -I -B -Werror::ResourceWarning scripts/compat/python314-consumers/test_probe.py
           python3 -I -B -Werror::ResourceWarning scripts/install/fresh_handoff/test_handoff.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/install_handoff_candidate/test_contract.py
@@ -319,10 +324,22 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/integration/python314_upgrade/test_upgrade.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/python314_desktop/test_desktop.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/systemd_tcg_guest/test_controller.py
+          python3 -I -B -Werror::ResourceWarning -m unittest discover -s scripts/integration/systemd_tcg_seat_guest -p 'test_*.py' -v
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_systemd_tcg_guest/test_guest.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_project_lifecycle/test_lifecycle.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_project_lifecycle_rtc/test_successor.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/networkmanager_session_vm/test_session.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/networkmanager_session_vm/test_serial_driver.py
+          python3 -I -B -Werror::ResourceWarning -m unittest discover -s scripts/integration/networkmanager_seat_vm -p 'test_*.py' -v
           python3 -I -B -Werror::ResourceWarning scripts/port/arm-rust-toolchain-inputs/test_catalog.py
+          python3 -I -B -Werror::ResourceWarning scripts/port/arm-rust-toolchain-inputs/qtbase-successor/test_candidate.py
+          python3 -I -B -Werror::ResourceWarning scripts/port/arm-rust-toolchain-inputs/source-closure/test_collect.py
+          python3 -I -B -Werror::ResourceWarning scripts/port/arm-rust-toolchain-inputs/source-closure/authentication/test_authenticate.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_c01_workflow/test_controls.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_c01_workflow_rtc/test_controls.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_rtc_kernel/test_controls.py
+          python3 -I -B scripts/integration/arm16k_rtc_kernel/test_interop.py --consumer "$PWD/scripts/integration/arm16k_project_lifecycle_rtc/contracts.py"
+          python3 -I -B -Werror::ResourceWarning -m unittest discover -s scripts/integration/first_login_ui_session_vm -p 'test_*.py' -v
       - name: Exercise planned repository key rotation without skipped controls
         env:
           PYTHONDONTWRITEBYTECODE: '1'

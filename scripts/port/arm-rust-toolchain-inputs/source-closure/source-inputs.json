@@ -1,0 +1,165 @@
+{
+  "archives": {
+    "llvm-project-23.1.1.src.tar.xz": {
+      "bytes": 179168672,
+      "checksums": {
+        "blake2b": "31d0ad202f4ad38d001baaf638a756508b164229b02a6e41b9689508a33b3a7baecaa10398e20f3661cacb712663fe379eeb94e50e017e40ae546a7e7de8049d",
+        "sha256": "ebe9be46fe8756d58c5b198ffad0fa2a766257add81a4dc52179bfacc7888ee6"
+      },
+      "declaration": "all3 raw LLVM-family recipes plus Rust checksum; binary correspondence unresolved",
+      "expected_upstream_commit": "6dfe1677ab8dffbc6ec13d53a1e0215d75147689",
+      "max_bytes": 536870912,
+      "url": "https://github.com/llvm/llvm-project/releases/download/llvmorg-23.1.1/llvm-project-23.1.1.src.tar.xz"
+    },
+    "rustc-1.99.0-src.tar.xz": {
+      "bytes": 265258564,
+      "checksums": {
+        "blake2b": "f4e2d97047c42067d11c31484d320f9daaaf881c78d22473b7f9ac2289a8f5979de6e75c277c49a0e3e33cd80f18aecace39f25ae78645976945798f3e512f16",
+        "sha256": "cc41916a8c84f5d9ec4f55561b44e39f43b647b133f8a6f51be9ea13c83f7036"
+      },
+      "declaration": "recipes/rust.PKGBUILD; not proven corresponding to binary",
+      "expected_upstream_commit": "b940084d7eb6a299eb4bfeb8e34901bc051e7ac4",
+      "max_bytes": 805306368,
+      "url": "https://static.rust-lang.org/dist/rustc-1.99.0-src.tar.xz"
+    }
+  },
+  "budgets": {
+    "min_tmp_free_bytes": 3221225472,
+    "new_archive_bytes": 1073741824,
+    "socket_timeout_seconds": 20,
+    "total_HTTP_requests": 4,
+    "transfer_deadline_seconds": 180
+  },
+  "git_facts": {
+    "Cargo_submodule": {
+      "commit": "5f94df4789f005f9a352888e8355ffc645b7ed0e",
+      "discovery_url": "https://api.github.com/repos/rust-lang/rust/contents/src/tools/cargo?ref=b940084d7eb6a299eb4bfeb8e34901bc051e7ac4",
+      "url": "https://github.com/rust-lang/cargo/tree/5f94df4789f005f9a352888e8355ffc645b7ed0e"
+    },
+    "LLVM_commit": "6dfe1677ab8dffbc6ec13d53a1e0215d75147689",
+    "rust_commit": "b940084d7eb6a299eb4bfeb8e34901bc051e7ac4",
+    "status": "PRIMARY_UPSTREAM_REFERENCES_ONLY; NO_SUBMODULE/CRATE_COMPLETENESS_INFERRED_FROM_OPAQUE_ARCHIVES"
+  },
+  "materials": {
+    "licenses/llvm-compiler-rt-LICENSE.TXT": {
+      "bytes": 16708,
+      "sha256": "1a8f1058753f1ba890de984e48f0242a3a5c29a6a8f2ed9fd813f36985387e8d",
+      "url": "https://raw.githubusercontent.com/llvm/llvm-project/6dfe1677ab8dffbc6ec13d53a1e0215d75147689/compiler-rt/LICENSE.TXT"
+    },
+    "licenses/llvm-lld-LICENSE.TXT": {
+      "bytes": 15138,
+      "sha256": "f7891568956e34643eb6a0db1462db30820d40d7266e2a78063f2fe233ece5a0",
+      "url": "https://raw.githubusercontent.com/llvm/llvm-project/6dfe1677ab8dffbc6ec13d53a1e0215d75147689/lld/LICENSE.TXT"
+    },
+    "licenses/llvm-llvm-LICENSE.TXT": {
+      "bytes": 15141,
+      "sha256": "8d85c1057d742e597985c7d4e6320b015a9139385cff4cbae06ffc0ebe89afee",
+      "url": "https://raw.githubusercontent.com/llvm/llvm-project/6dfe1677ab8dffbc6ec13d53a1e0215d75147689/llvm/LICENSE.TXT"
+    },
+    "licenses/rust-LICENSE-APACHE": {
+      "bytes": 9723,
+      "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a",
+      "url": "https://raw.githubusercontent.com/rust-lang/rust/b940084d7eb6a299eb4bfeb8e34901bc051e7ac4/LICENSE-APACHE"
+    },
+    "licenses/rust-LICENSE-MIT": {
+      "bytes": 1068,
+      "sha256": "b71bd43a069ca0641a9ecfe585ca7b3c53b5cc1608f8b68321168698e28b5ea1",
+      "url": "https://raw.githubusercontent.com/rust-lang/rust/b940084d7eb6a299eb4bfeb8e34901bc051e7ac4/LICENSE-MIT"
+    },
+    "patches/compiler-rt-0001-libcxx-chrono-fix-years-months-period.patch": {
+      "bytes": 2397,
+      "declared_in": "recipes/compiler-rt.PKGBUILD",
+      "sha256": "e6b4c72058966ab2af0c255cad22172ff89c04a4433de5b22b16923a94936b2a",
+      "status": "EXACT_RAW_RECIPE_DECLARED_PATCH_BYTES; BINARY_CORRESPONDENCE_HELD"
+    },
+    "patches/rust-0001-bootstrap-Change-libexec-dir.patch": {
+      "blake2b": "3736aa3f6f891cb94dbe549d5b2c74bc56e9d484a1598c2a446fbfd4db10a90a34f2e371c65743cf01e1266470fd6fe2fc52cbc365564c62ba61e20ea11c8e22",
+      "bytes": 1765,
+      "declared_in": "recipes/rust.PKGBUILD",
+      "sha256": "ee4d57f16d804ed64c9aab89658fffb64bde79cb975436329467e830f1a99cae",
+      "status": "EXACT_RAW_RECIPE_DECLARED_PATCH_BYTES; BINARY_CORRESPONDENCE_HELD"
+    },
+    "patches/rust-0002-bootstrap-Change-bash-completion-dir.patch": {
+      "blake2b": "eb57683802be1114452d0864bdabd1f2a42f83c0c45532ff968c693cb98dd5cf61342880bd75e731e91fde318b0f61cc30183374348a56db883ba32c900a4949",
+      "bytes": 985,
+      "declared_in": "recipes/rust.PKGBUILD",
+      "sha256": "6191d3a7c2fe99ed8db4015b6b676dc5275470a0965eaf54a19554985394e632",
+      "status": "EXACT_RAW_RECIPE_DECLARED_PATCH_BYTES; BINARY_CORRESPONDENCE_HELD"
+    },
+    "patches/rust-0003-bootstrap-Workaround-for-system-stage0.patch": {
+      "blake2b": "d39a31a9260ba1e60e34f2481a4ef19ce18178736539450e57df19b9a3364a35f23b9055eecb36175de0e01a154b04f86c2645cffc7d637aab8b38dbf2eb0832",
+      "bytes": 1177,
+      "declared_in": "recipes/rust.PKGBUILD",
+      "sha256": "8af29fa66d43ef1b2e26ef82f4423f0c53977ad3173fe08c20a710bcc4245fb8",
+      "status": "EXACT_RAW_RECIPE_DECLARED_PATCH_BYTES; BINARY_CORRESPONDENCE_HELD"
+    },
+    "patches/rust-0004-compiler-Change-LLVM-targets.patch": {
+      "blake2b": "8a5238d5807673d498ca330b8d1d7c3c14d12be1bd0dec361613b09fd04527060a7f661acd9205f6a03586e2ea4a650c890d2549eed2e207fc03cce3bdb1cf03",
+      "bytes": 3317,
+      "declared_in": "recipes/rust.PKGBUILD",
+      "sha256": "7f38b2bf7ef6838ba20dacb6246a8adcc4392b8caf90c0387a7a613b5d47c3cc",
+      "status": "EXACT_RAW_RECIPE_DECLARED_PATCH_BYTES; BINARY_CORRESPONDENCE_HELD"
+    },
+    "patches/rust-0005-compiler-Use-ld.lld-by-default.patch": {
+      "blake2b": "d36a29127349f02fdd3327a36ebfe57b1ce7f64bb24de2bb85369b377e362ee389662b5a5f281bc2a82b7fca2eee234ca6de5a923f5030e3570ab1203653fdb2",
+      "bytes": 1235,
+      "declared_in": "recipes/rust.PKGBUILD",
+      "sha256": "e5c51fa5ff7b7c3c760d2fee600a7194a3cbaa233f551683ae63c4c7f9ab73e3",
+      "status": "EXACT_RAW_RECIPE_DECLARED_PATCH_BYTES; BINARY_CORRESPONDENCE_HELD"
+    },
+    "patches/rust-0008-compiler-Swap-primary-and-secondary-lib-dirs.patch": {
+      "blake2b": "d5fcda00c46e1e1ea9ed1d269d3ef549d4ad96148d7d0744acd673de802b3bf3747ceec1fa506d3e7c128cdff742410b1e69218d59ef20a5f246755c1bd02694",
+      "bytes": 1653,
+      "declared_in": "recipes/rust.PKGBUILD",
+      "sha256": "2b409e7b8ad9dce9332d8046efeecb0300851f450a2cec1074942c2cb237d50a",
+      "status": "EXACT_RAW_RECIPE_DECLARED_PATCH_BYTES; BINARY_CORRESPONDENCE_HELD"
+    },
+    "recipes/compiler-rt.PKGBUILD": {
+      "bytes": 2189,
+      "execution": "FORBIDDEN_DATA_ONLY",
+      "revision": "c0b8ebf9d8727e0c163485488e237cc9614fafb4",
+      "sha256": "820e7b120a95403ba956cb41959aecf56c3c01ce87ae1b4c5c0855cfc32b14f0",
+      "source_url": "https://raw.githubusercontent.com/archlinuxarm/PKGBUILDs/c0b8ebf9d8727e0c163485488e237cc9614fafb4/extra/compiler-rt/PKGBUILD"
+    },
+    "recipes/lld.PKGBUILD": {
+      "bytes": 2155,
+      "execution": "FORBIDDEN_DATA_ONLY",
+      "revision": "cb51de68f59f85ee4ce583e0935f3fa510d3a913",
+      "sha256": "cb78ae8d8b92d3ce50a0f5e29131b80447bb3fd765bac5c16acce1b4a06ad87f",
+      "source_url": "https://gitlab.archlinux.org/archlinux/packaging/packages/lld/-/raw/cb51de68f59f85ee4ce583e0935f3fa510d3a913/PKGBUILD"
+    },
+    "recipes/llvm.PKGBUILD": {
+      "bytes": 5201,
+      "execution": "FORBIDDEN_DATA_ONLY",
+      "revision": "81126c646304d65bc7bbff809815f298406be0a5",
+      "sha256": "b4b2e73886574f8c24a48189e9215cab523fb0fcb7938ac6994cdb43aa70d199",
+      "source_url": "https://raw.githubusercontent.com/archlinuxarm/PKGBUILDs/81126c646304d65bc7bbff809815f298406be0a5/extra/llvm/PKGBUILD"
+    },
+    "recipes/rust.PKGBUILD": {
+      "bytes": 8371,
+      "execution": "FORBIDDEN_DATA_ONLY",
+      "revision": "fc83842504046113895814fa55372e27775c6f5f",
+      "sha256": "ce6002be1741dafc8d8387c32ad84daf67d923010b5e263e17787571d67273fd",
+      "source_url": "https://raw.githubusercontent.com/archlinuxarm/PKGBUILDs/fc83842504046113895814fa55372e27775c6f5f/extra/rust/PKGBUILD"
+    },
+    "recipes/rust.SRCINFO": {
+      "bytes": 5875,
+      "sha256": "d921132c86eded6d7bec6ec6b21924d70553e641d697b1a488f99553b0197156",
+      "status": "RETAINED_SEPARATE_METADATA; NOT_EVALUATED; NOT_PROVEN_BUILD_RECIPE"
+    }
+  },
+  "optional_signature": {
+    "bytes": 801,
+    "checksums": {
+      "sha256": "920ab02373a564002dfbe8267a338c2d2a98e08a63bdf2dd9502864a2e0731f9"
+    },
+    "declared_release_key_fingerprint": "108F66205EAEB0AAA8DD5E1C85AB96E6FA1BE5FE",
+    "filename": "rustc-1.99.0-src.tar.xz.asc",
+    "max_bytes": 32768,
+    "url": "https://static.rust-lang.org/dist/rustc-1.99.0-src.tar.xz.asc",
+    "verification": "NO_UPSTREAM_RELEASE_KEY_BYTES_RETAINED; MATHEMATICS_HELD"
+  },
+  "purpose": "bounded-opaque-Rust1.99.0-LLVM23.1.1-source-availability",
+  "schema": 1,
+  "source_legal_binary_acceptance": "HELD"
+}

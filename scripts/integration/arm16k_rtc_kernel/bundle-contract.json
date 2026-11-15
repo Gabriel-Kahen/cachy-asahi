@@ -1,0 +1,89 @@
+{
+  "M2": "NOT RUN",
+  "authority": "Separate Root-pinned bundle.json bytes/SHA and exact compiler-facts/profile approval; this schema is DATA, not actual artifact or resource permission",
+  "build_keys": [
+    "commands",
+    "actual_started_utc",
+    "actual_finished_utc"
+  ],
+  "compiler_facts_shape": "CONFIG_symbol -> {before,after}; exact independent Root approval, never prefix-wide acceptance",
+  "config_proof_keys": [
+    "baseline",
+    "requested",
+    "feature_delta",
+    "compiler_facts",
+    "rtc_required",
+    "non_rtc_features_unchanged"
+  ],
+  "directory_files": [
+    "Image",
+    "config",
+    "bundle.json"
+  ],
+  "feature_delta_shape": "CONFIG_symbol -> {before,after}; original config to requested RTC/localversion only",
+  "files_keys": [
+    "Image",
+    "config"
+  ],
+  "guest_boot": "NOT RUN",
+  "kernel_release": "7.1.13-generic16k-managed-gui-rtc1",
+  "kind": "ARM16K_RTC_REFERENCE_KERNEL_BUNDLE_V1",
+  "native16K": "NOT RUN",
+  "non_rtc_features_unchanged": true,
+  "original_run": 39156901928,
+  "original_source": "4056e2505ed7081674e949e0460258672cce14ff",
+  "pin_shape": {
+    "bytes": "nonnegative integer",
+    "sha256": "64 lowercase hex"
+  },
+  "release_accepted": false,
+  "rtc_required": {
+    "CONFIG_RTC_CLASS": "y",
+    "CONFIG_RTC_DRV_PL031": "y",
+    "CONFIG_RTC_HCTOSYS": "y",
+    "CONFIG_RTC_HCTOSYS_DEVICE": "\"rtc0\"",
+    "CONFIG_RTC_I2C_AND_SPI": "y",
+    "CONFIG_RTC_INTF_DEV": "n",
+    "CONFIG_RTC_INTF_PROC": "n",
+    "CONFIG_RTC_INTF_SYSFS": "y",
+    "CONFIG_RTC_LIB": "y",
+    "CONFIG_RTC_NVMEM": "n",
+    "CONFIG_RTC_SYSTOHC": "n"
+  },
+  "same_toolchain": false,
+  "schema_version": 1,
+  "source_keys": [
+    "revision",
+    "archive",
+    "original_source",
+    "original_run"
+  ],
+  "source_revision": "94fb23346d522edf53722357c426a3e58030beea",
+  "status": "BUILT_ONLY_RTC_BOOT_NOT_RUN",
+  "toolchain_keys": [
+    "mode",
+    "profile_sha256",
+    "actual_tools",
+    "original_receipt",
+    "same_toolchain"
+  ],
+  "toolchain_modes": [
+    "HOST_CROSS_ARM64",
+    "NATIVE_ARM64"
+  ],
+  "top_level_keys": [
+    "schema_version",
+    "kind",
+    "status",
+    "kernel_release",
+    "files",
+    "source",
+    "config_proof",
+    "toolchain",
+    "build",
+    "guest_boot",
+    "native16K",
+    "M2",
+    "release_accepted"
+  ]
+}

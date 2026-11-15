@@ -1,0 +1,48 @@
+{
+  "M2": "NOT RUN",
+  "actor_fenced_controls": {
+    "actors_denied": [
+      "subprocess",
+      "socket",
+      "CDLL",
+      "fork",
+      "exec"
+    ],
+    "passed": 28
+  },
+  "actual_RTC_kernel_bundle": null,
+  "actual_compiler_facts": null,
+  "actual_ksm_PASS_receipt": null,
+  "bash_syntax": "PASS",
+  "guest_boot": "NOT RUN",
+  "native16K": "NOT RUN",
+  "performance": "NOT MEASURED",
+  "prepared": null,
+  "public_certificate_DATA": {
+    "created_epoch": 1794713061,
+    "expires_epoch": 1795317861,
+    "method": "trusted host gpg show-only/dry-run in fresh private keyring; no private keys or trust mutation",
+    "signer": "28883796E039C3CC08603F3EFD56E30AF1115613"
+  },
+  "read_only_actual_materials": {
+    "base_packages": 111,
+    "count": 5,
+    "dependency": "existing glibc2.43+r22+g8362e8ce10b2-2 only",
+    "installed_packages": 113,
+    "regular_payload_files": 28,
+    "runtime_ELF": 6
+  },
+  "read_only_actual_signing_receipt": {
+    "actual_hostUTC_within_key_validity": true,
+    "bytes": 2169,
+    "sha256": "f9a815180eb224972fcf8a331cba29455d80b8093ee54b5663690f47ddeaf600",
+    "signature_authentication_this_task": "NOT RUN"
+  },
+  "release_accepted": false,
+  "rtc_ksm_source_controls": {
+    "passed": 41,
+    "separate_profile": true
+  },
+  "schema_version": 1,
+  "status": "SOURCE_DATA_CONTROLS_ONLY_NOT_PREPARED"
+}

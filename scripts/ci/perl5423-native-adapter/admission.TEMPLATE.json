@@ -1,0 +1,17 @@
+{
+  "approval": null,
+  "domain_sha256": "6c6bdc29acf59e8ea911167f08d4d66a993777c121b2399211cec030e2a5b804",
+  "expected349_sha256": "579981195b654d8cdf142e4101dfc2bfffbc3576eed50f23796a06e90cf57453",
+  "image": null,
+  "input_signature_audit_sha256": null,
+  "job": null,
+  "operation": "perl5423-native-pair-v1",
+  "qualification_sha256": null,
+  "run": null,
+  "schema": 1,
+  "source": {
+    "ref": null,
+    "sha": null
+  },
+  "source_map_sha256": null
+}

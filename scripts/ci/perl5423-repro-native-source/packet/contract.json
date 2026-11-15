@@ -1,0 +1,124 @@
+{
+  "actual": {
+    "artifact": null,
+    "image": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "builds": 2,
+  "candidate_commit": "c8e9baea97f83f652763e701143d6dec5b679f31",
+  "cf_time": "Sun Aug  2 00:00:00 UTC 2026",
+  "comparison": [
+    "raw_archive_bytes",
+    "every_payload_entry",
+    ".PKGINFO",
+    ".BUILDINFO",
+    ".MTREE"
+  ],
+  "forbidden": [
+    "nodeps",
+    "nocheck",
+    "ignorearch",
+    "test_filters",
+    "privileged_fallback",
+    "security_policy_bypass",
+    "clock_shim",
+    "postbuild_normalization",
+    "host_installation"
+  ],
+  "full_upstream_target": "TEST_JOBS=2 make test_harness",
+  "holds": [
+    "Source3937 namespace qualification NOT_RUN",
+    "Current generic builder incompatible without listed Root adapters",
+    "No native build/install/ABI/16K/M2/performance/release acceptance"
+  ],
+  "host_evidence": {
+    "archive_bytes": 26913892,
+    "archive_sha256": "d0bbbc273dc9f60becc936536a0f2f6544cecc1d72379c76ddcea0e6375e2829",
+    "driver_commit": "ba220c029a799f3fd311860ad59429951eed4643",
+    "results_commit": "12991a53314ccbdeeec19346a1b790daa4c42415",
+    "scope": "X86_64_4K_ONLY_NOT_A_PREDICTED_ARM_HASH"
+  },
+  "kind": "PERL5423_REPRO_NATIVE_SOURCE_PACKET_V1",
+  "makepkg_argv": [
+    "makepkg",
+    "--cleanbuild",
+    "--nosign",
+    "--noconfirm",
+    "--log"
+  ],
+  "namespace_prerequisite": {
+    "actual_matching_reader": null,
+    "actual_run": null,
+    "cases": [
+      "bwrap-user-mount-net",
+      "unshare-mapped-root"
+    ],
+    "execution": "NORMAL_DOCKER_IMAGE_BUILD_RUN_USER_ALARM",
+    "gid": 1001,
+    "ref": "codex/native-build-namespace-alarm1001-v1-20261114",
+    "required": "Root must bind actual run and matching Reader demonstrating both required effects in exact domain; diagnostic collection PASS alone is insufficient",
+    "source": "3937d8b9f3210f4e9868bf19f01dfa22de64ddfe",
+    "status": "PUBLISHED_NOT_RUN",
+    "tree": "f1757dbedeed1591cdb8538f6c91e493cd451966",
+    "uid": 1001
+  },
+  "native_acceptance": false,
+  "operation": "perl5423-repro-native-pair-v1",
+  "purpose": "ROOT_REVIEW_AND_ONCE_ROUTE_INTAKE_DATA_ONLY",
+  "qualification": "PACKET_ONLY_NATIVE_NOT_RUN",
+  "required_Root_adapters": [
+    "required_environment_into_actual_builder",
+    "aarch64_membership_for_dual_arch_recipe",
+    "resolved_libcrypt.so_SONAME_binding",
+    "exact_requested_resources_and_actual_inspection",
+    "full_build_deadlines_not_old180_450_second_windows",
+    "fresh_signed349_inventory_image_and_offline_source_cache",
+    "actual_namespace_Source3937_run_and_matching_Reader",
+    "closed_Source_publication_workflow_once_role_and_strict_reader_bindings"
+  ],
+  "required_environment": {
+    "CACHY_ASAHI_PERL_BUILD": "1",
+    "LC_ALL": "C",
+    "MAKEFLAGS": "-j2",
+    "SOURCE_DATE_EPOCH": "1785628800",
+    "TZ": "UTC"
+  },
+  "resources": {
+    "actor": {
+      "cap_drop": [
+        "ALL"
+      ],
+      "cpus": 2,
+      "gid": 1001,
+      "memory_bytes": 4294967296,
+      "memory_swap_total_bytes": 4294967296,
+      "network": "none",
+      "no_new_privileges": true,
+      "pids": 256,
+      "readonly_root": true,
+      "uid": 1001
+    },
+    "archive_compressed_bytes": 67108864,
+    "archive_decoded_bytes": 167772160,
+    "build_log_bytes": 67108864,
+    "cancel_in_progress": false,
+    "cleanup_reserved_seconds": 180,
+    "concurrency_group": "native-arm-build",
+    "export_pin_retire_before_second": true,
+    "full_build_seconds": 2400,
+    "job_seconds": 8100,
+    "namespace_and_image_build_policy": "Root must qualify exact enforcement separately; consumer limits do not bound image-build daemon",
+    "one_work_volume_at_a_time": true,
+    "pair_seconds": 6000,
+    "queue": "max",
+    "resource_class": "HEAVY_NON_KERNEL",
+    "status": "FIXED_PROPOSAL_ROOT_ADMISSION_AND_ENFORCEMENT_NOT_RUN"
+  },
+  "schema": 1,
+  "source_date_epoch": 1785628800,
+  "target": "aarch64",
+  "version": "5.42.3-1.3"
+}

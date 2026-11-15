@@ -1,0 +1,35 @@
+{
+  "Root_authorized_GETs": 2,
+  "binary": {
+    "bytes": 88760,
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi-namespace-admission-preparation-20261114/work/arm16k-rtc-bc-input-20261114/bc",
+    "sha256": "47b8f03536b5da0f5d5bf15d572ada3842b0e217a82eeb4bb0315cf7aef57dd9"
+  },
+  "binary_execution": "NOT RUN",
+  "materials": [
+    {
+      "bytes": 94205,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi-namespace-admission-preparation-20261114/work/arm16k-rtc-bc-input-20261114/bc-1.08.2-1-x86_64.pkg.tar.zst",
+      "sha256": "b9e5f0d61a674c9be1a0608f3fcab766d989d9a002c37e55a74ccfc8e87027ab",
+      "url": "https://archive.archlinux.org/packages/b/bc/bc-1.08.2-1-x86_64.pkg.tar.zst"
+    },
+    {
+      "bytes": 119,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi-namespace-admission-preparation-20261114/work/arm16k-rtc-bc-input-20261114/bc-1.08.2-1-x86_64.pkg.tar.zst.sig",
+      "sha256": "6c2271ba6dcf69c016d9b83fbc19944590c287ee34c5bc6c4accd0a39afbc2e7",
+      "url": "https://archive.archlinux.org/packages/b/bc/bc-1.08.2-1-x86_64.pkg.tar.zst.sig"
+    }
+  ],
+  "package_installation": "NOT RUN",
+  "public_keyring": {
+    "bytes": 1811508,
+    "path": "/usr/share/pacman/keyrings/archlinux.gpg",
+    "sha256": "6e5e9373e4684d646f2274e2df54d7fea5f79bc0df981ad8cd7851d1d2454ba3"
+  },
+  "retries": 0,
+  "schema_version": 1,
+  "signature_statuses": [
+    "[GNUPG:] VALIDSIG E75CD4814A77AD943C7AB5A3E0959FEA8B550539 2025-05-27 1748307003 0 4 0 22 10 00 034D823DA2055BEE6A6BF0BB25EA6900D9EA5EBC"
+  ],
+  "status": "EXACT_ARCHIVE_SIGNATURE_AND_BINARY_DATA_VERIFIED"
+}

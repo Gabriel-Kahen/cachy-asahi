@@ -1,0 +1,72 @@
+{
+  "files": [
+    {
+      "bytes": 6837,
+      "coordinator_action": "Exclude full payload from proposed successor and every public ancestor; keep only factual descriptor/pins.",
+      "file": "../plugbuild-UI-server.js",
+      "git_blob_sha1": "fa96de743c6806092284a2069f2aa4c01234d200",
+      "grant": "NO_REDISTRIBUTION_GRANT_FOUND_IN_INSPECTED_EXACT_REVISION",
+      "primary_url": "https://raw.githubusercontent.com/archlinuxarm/plugbuild-UI/853e993eba55285abbd09db082f38edb5fef83ad/server.js",
+      "repository_path": "scripts/port/arm-rust-toolchain-inputs/source-closure/history-search/plugbuild-UI-server.js",
+      "representation": "decoded complete source file",
+      "sha256": "655fdeac0079be1a9a48db5002dd53e8c9a74ec481cc3d107e42befabf5e65b3",
+      "source_or_base64_payload_retained_in_descriptor": false,
+      "upstream_git_blob_sha1": "fa96de743c6806092284a2069f2aa4c01234d200",
+      "upstream_path": "server.js",
+      "upstream_revision": "853e993eba55285abbd09db082f38edb5fef83ad"
+    },
+    {
+      "bytes": 1155,
+      "coordinator_action": "Exclude full payload from proposed successor and every public ancestor; keep only factual descriptor/pins.",
+      "file": "../plugbuild-UI-README.markdown",
+      "git_blob_sha1": "15d272e7a4647495ecf98c1afc36e62477b0eb74",
+      "grant": "NO_REDISTRIBUTION_GRANT_FOUND_IN_INSPECTED_EXACT_REVISION",
+      "primary_url": "https://raw.githubusercontent.com/archlinuxarm/plugbuild-UI/853e993eba55285abbd09db082f38edb5fef83ad/README.markdown",
+      "repository_path": "scripts/port/arm-rust-toolchain-inputs/source-closure/history-search/plugbuild-UI-README.markdown",
+      "representation": "decoded complete source file",
+      "sha256": "9ef850e55e6b62252d864b798955727c6c89c7e2e490dac4c0890827210e8f12",
+      "source_or_base64_payload_retained_in_descriptor": false,
+      "upstream_git_blob_sha1": "15d272e7a4647495ecf98c1afc36e62477b0eb74",
+      "upstream_path": "README.markdown",
+      "upstream_revision": "853e993eba55285abbd09db082f38edb5fef83ad"
+    },
+    {
+      "bytes": 9718,
+      "coordinator_action": "Exclude full payload from proposed successor and every public ancestor; keep only factual descriptor/pins.",
+      "file": "../plugbuild-UI-server-blob.json",
+      "git_blob_sha1": "e1c763a74f7db48aba5e2c57757abc79233c8543",
+      "grant": "NO_REDISTRIBUTION_GRANT_FOUND_IN_INSPECTED_EXACT_REVISION",
+      "primary_url": "https://api.github.com/repos/archlinuxarm/plugbuild-UI/git/blobs/fa96de743c6806092284a2069f2aa4c01234d200",
+      "repository_path": "scripts/port/arm-rust-toolchain-inputs/source-closure/history-search/plugbuild-UI-server-blob.json",
+      "representation": "GitHub JSON wrapper embeds full base64 source",
+      "sha256": "7cdcf04c28944f79abb7f967c065e057a47740ebb074b1a66083eaff55e35e69",
+      "source_or_base64_payload_retained_in_descriptor": false,
+      "upstream_git_blob_sha1": "fa96de743c6806092284a2069f2aa4c01234d200",
+      "upstream_path": "server.js",
+      "upstream_revision": "853e993eba55285abbd09db082f38edb5fef83ad"
+    },
+    {
+      "bytes": 1890,
+      "coordinator_action": "Exclude full payload from proposed successor and every public ancestor; keep only factual descriptor/pins.",
+      "file": "../plugbuild-UI-README-blob.json",
+      "git_blob_sha1": "fd2755ce0d8972b69f32b2412d80180b36aac377",
+      "grant": "NO_REDISTRIBUTION_GRANT_FOUND_IN_INSPECTED_EXACT_REVISION",
+      "primary_url": "https://api.github.com/repos/archlinuxarm/plugbuild-UI/git/blobs/15d272e7a4647495ecf98c1afc36e62477b0eb74",
+      "repository_path": "scripts/port/arm-rust-toolchain-inputs/source-closure/history-search/plugbuild-UI-README-blob.json",
+      "representation": "GitHub JSON wrapper embeds full base64 source",
+      "sha256": "1a2efff44381c78d7d46d13bc3b4d1247a30fd5dd1a92b5c40d316ebe4f838a2",
+      "source_or_base64_payload_retained_in_descriptor": false,
+      "upstream_git_blob_sha1": "15d272e7a4647495ecf98c1afc36e62477b0eb74",
+      "upstream_path": "README.markdown",
+      "upstream_revision": "853e993eba55285abbd09db082f38edb5fef83ad"
+    }
+  ],
+  "grant_limits": "No grant was found in the inspected exact files or complete exact repository tree; this is a bounded evidence result, not proof that no private grant can exist.",
+  "owner": "coordinator",
+  "performed": false,
+  "preserve": "Original historical request/results JSON facts and pins; do not rewrite old evidence as if these files had never been copied.",
+  "public_ancestry_requirement": "Exclude the four forbidden payload Git blobs from PUBLIC ANCESTOR HISTORY too. A deletion commit alone leaves earlier Git objects reachable and does not satisfy exclusion.",
+  "purpose": "narrow-four-file-PlugBuild-UI-redaction-plan",
+  "replay_consequence": "Old original replay intentionally fails missing-file pins after coordinator removes these four payloads.",
+  "schema": 1
+}

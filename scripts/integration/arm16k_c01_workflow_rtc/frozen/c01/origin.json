@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "upstream": "MIT cachy-asahi arm16k_project_lifecycle finite fixture implementation",
+  "files": {
+    "prepare.py": {
+      "bytes": 9922,
+      "sha256": "c0dd00a04ec096f8baf17021f9750a6470dc04857abad213a93878f5d083c604"
+    },
+    "prepare_image.py": {
+      "bytes": 8007,
+      "sha256": "6df8a28d23d2e18feec14f540af97486a42c40b7c3fef013352e69a01a424e41"
+    },
+    "guest-root.sh": {
+      "bytes": 8812,
+      "sha256": "bf27fbee3d4bd590f4bd7a628fa5c9859ecff6af503d68057939e7282c435089"
+    },
+    "guest-runtime.sh": {
+      "bytes": 2855,
+      "sha256": "1b3bbb16d0f12942984f26366580d18311fb132a878c66ab53d16ab7d06216dd"
+    },
+    "guest-proof.sh": {
+      "bytes": 879,
+      "sha256": "31a87a08954798992dc1f7456dbc04de7479d911222be95e731cfeb74a7251cc"
+    },
+    "boot.py": {
+      "bytes": 5215,
+      "sha256": "c0a9e84810065eca681bdc8f048757156065a47c41905c7a2a531a220d9569c7"
+    }
+  },
+  "custody": "Existing arm16k_systemd_tcg_guest controller and frozen process primitives are imported unchanged; none copied into this family."
+}

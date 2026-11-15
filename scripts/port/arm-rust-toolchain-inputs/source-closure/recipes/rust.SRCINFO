@@ -1,0 +1,157 @@
+pkgbase = rust
+	pkgdesc = Systems programming language focused on safety, speed and concurrency
+	pkgver = 1.99.0
+	pkgrel = 1
+	epoch = 1
+	url = https://www.rust-lang.org/
+	arch = aarch64
+	arch = loong64
+	arch = riscv64
+	arch = x86_64
+	license = Apache-2.0 OR MIT
+	checkdepends = gdb
+	checkdepends = procps-ng
+	makedepends = clang=23.1.1
+	makedepends = llvm=23.1.1
+	makedepends = cmake
+	makedepends = libffi
+	makedepends = musl
+	makedepends = ninja
+	makedepends = perl
+	makedepends = python
+	makedepends = rust
+	makedepends = wasi-libc
+	makedepends = wasm-component-ld
+	depends = compiler-rt=23.1.1
+	depends = lld=23.1.1
+	depends = llvm-libs=23.1.1
+	depends = bash
+	depends = curl
+	depends = gcc
+	depends = glibc
+	depends = libgcc
+	depends = libgit2
+	depends = libssh2
+	depends = libstdc++
+	depends = openssl
+	depends = sqlite
+	depends = zlib
+	options = !emptydirs
+	options = !lto
+	source = https://static.rust-lang.org/dist/rustc-1.99.0-src.tar.xz
+	source = https://static.rust-lang.org/dist/rustc-1.99.0-src.tar.xz.asc
+	source = https://github.com/llvm/llvm-project/releases/download/llvmorg-23.1.1/llvm-project-23.1.1.src.tar.xz
+	source = 0001-bootstrap-Change-libexec-dir.patch
+	source = 0002-bootstrap-Change-bash-completion-dir.patch
+	source = 0003-bootstrap-Workaround-for-system-stage0.patch
+	source = 0004-compiler-Change-LLVM-targets.patch
+	source = 0005-compiler-Use-ld.lld-by-default.patch
+	source = 0006-compiler-Use-target-specific-GCC-linkers.patch
+	source = 0007-compiler-Link-riscv64-musl-statically.patch
+	source = 0008-compiler-Swap-primary-and-secondary-lib-dirs.patch
+	validpgpkeys = 108F66205EAEB0AAA8DD5E1C85AB96E6FA1BE5FE
+	b2sums = f4e2d97047c42067d11c31484d320f9daaaf881c78d22473b7f9ac2289a8f5979de6e75c277c49a0e3e33cd80f18aecace39f25ae78645976945798f3e512f16
+	b2sums = SKIP
+	b2sums = 31d0ad202f4ad38d001baaf638a756508b164229b02a6e41b9689508a33b3a7baecaa10398e20f3661cacb712663fe379eeb94e50e017e40ae546a7e7de8049d
+	b2sums = 3736aa3f6f891cb94dbe549d5b2c74bc56e9d484a1598c2a446fbfd4db10a90a34f2e371c65743cf01e1266470fd6fe2fc52cbc365564c62ba61e20ea11c8e22
+	b2sums = eb57683802be1114452d0864bdabd1f2a42f83c0c45532ff968c693cb98dd5cf61342880bd75e731e91fde318b0f61cc30183374348a56db883ba32c900a4949
+	b2sums = d39a31a9260ba1e60e34f2481a4ef19ce18178736539450e57df19b9a3364a35f23b9055eecb36175de0e01a154b04f86c2645cffc7d637aab8b38dbf2eb0832
+	b2sums = 8a5238d5807673d498ca330b8d1d7c3c14d12be1bd0dec361613b09fd04527060a7f661acd9205f6a03586e2ea4a650c890d2549eed2e207fc03cce3bdb1cf03
+	b2sums = d36a29127349f02fdd3327a36ebfe57b1ce7f64bb24de2bb85369b377e362ee389662b5a5f281bc2a82b7fca2eee234ca6de5a923f5030e3570ab1203653fdb2
+	b2sums = 859806770bed41dca2c48e7ac01f0fe31b9c4811e76eab173a9cac254a8cdfda0c85ae4a01dd7238fa0018d06721bf3bda5d74348e5c296a19ec534c1b8763c9
+	b2sums = 9e51e3442da85211165afce6c6eef3a89e5ce8d2b026d373a19c533b3ad99efdb7cc60668580536c2e52e8dc58c1a96cd8d2733ffa6f1b438db5df8d495042b6
+	b2sums = d5fcda00c46e1e1ea9ed1d269d3ef549d4ad96148d7d0744acd673de802b3bf3747ceec1fa506d3e7c128cdff742410b1e69218d59ef20a5f246755c1bd02694
+	source_aarch64 = bootstrap.aarch64.toml
+	b2sums_aarch64 = f5af2c5dfaf46968544f96e729a30f66fd37284ca11ed81b198b146040078c564326917a563e0a5478ab9d43dec5c2b952e8b8497e23b0194fa08b47565b6160
+	source_loong64 = bootstrap.loong64.toml
+	makedepends_loong64 = aarch64-linux-gnu-gcc
+	makedepends_loong64 = aarch64-linux-gnu-glibc
+	makedepends_loong64 = musl-aarch64
+	makedepends_loong64 = musl-x86_64
+	b2sums_loong64 = a96f553d5939457b7bcead77b849ebab3228107eb98b79a3714603442c71b6ec3e021e40ce0ffe80e95ffa30c10c336cdf07345d06178d56febc5affcaead0d4
+	source_riscv64 = bootstrap.riscv64.toml
+	makedepends_riscv64 = aarch64-linux-gnu-gcc
+	makedepends_riscv64 = aarch64-linux-gnu-glibc
+	makedepends_riscv64 = musl-aarch64
+	makedepends_riscv64 = musl-x86_64
+	b2sums_riscv64 = c3770ab4ace070790829e54a436e43edec2cacf489d17912c82049d509d168fee1bd6bece758b805692edad10381233525035c8738a4253cb5f1a969e2d191a2
+	source_x86_64 = bootstrap.x86_64.toml
+	makedepends_x86_64 = aarch64-linux-gnu-gcc
+	makedepends_x86_64 = aarch64-linux-gnu-glibc
+	makedepends_x86_64 = lib32-gcc-libs
+	makedepends_x86_64 = lib32-glibc
+	makedepends_x86_64 = musl-aarch64
+	b2sums_x86_64 = b696e650765ada0a54a83fca558b24cc2b9c9aeef18c1a9f2888ad9771051543de377b59b519c1545d3b353edd065024bebce282b622b1bfe4b1d679ba3398c1
+
+pkgname = rust
+	depends = compiler-rt=23.1.1
+	depends = lld=23.1.1
+	depends = llvm-libs=23.1.1
+	depends = bash
+	depends = curl
+	depends = gcc
+	depends = glibc
+	depends = libgcc
+	depends = libgit2
+	depends = libssh2
+	depends = libstdc++
+	depends = openssl
+	depends = sqlite
+	depends = zlib
+	depends = libcurl.so
+	depends = libgcc_s.so
+	depends = libgit2.so
+	depends = libsqlite3.so
+	depends = libssh2.so
+	depends = libssl.so
+	optdepends = gdb: rust-gdb script
+	optdepends = lldb: rust-lldb script
+	provides = cargo
+	provides = rustfmt
+	conflicts = cargo
+	conflicts = rust-docs<1:1.56.1-3
+	conflicts = rustfmt
+	replaces = cargo
+	replaces = cargo-tree
+	replaces = rust-docs<1:1.56.1-3
+	replaces = rustfmt
+
+pkgname = rust-musl
+	pkgdesc = Musl target for Rust
+	depends = rust
+
+pkgname = rust-src
+	pkgdesc = Source code for the Rust standard library
+	depends = rust
+
+pkgname = rust-wasm
+	pkgdesc = WebAssembly targets for Rust
+	depends = rust
+	depends = wasm-component-ld
+
+pkgname = lib32-rust-libs
+	pkgdesc = 32-bit target and libraries for Rust
+	arch = x86_64
+	depends = lib32-gcc-libs
+	depends = lib32-glibc
+	depends = rust
+	provides = lib32-rust
+	conflicts = lib32-rust
+	replaces = lib32-rust
+
+pkgname = rust-aarch64-gnu
+	pkgdesc = AArch64 GNU target for Rust
+	arch = loong64
+	arch = riscv64
+	arch = x86_64
+	depends = aarch64-linux-gnu-gcc
+	depends = aarch64-linux-gnu-glibc
+	depends = rust
+
+pkgname = rust-aarch64-musl
+	pkgdesc = AArch64 Musl target for Rust
+	arch = loong64
+	arch = riscv64
+	arch = x86_64
+	depends = aarch64-linux-gnu-gcc
+	depends = rust

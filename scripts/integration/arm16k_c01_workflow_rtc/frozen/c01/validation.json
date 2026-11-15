@@ -1,0 +1,45 @@
+{
+  "C01_payload_execution": "NOT RUN",
+  "M2": "NOT RUN",
+  "Root_boot_review": null,
+  "Root_preparation_review": null,
+  "VM_boot": "NOT RUN",
+  "actual_controls": {
+    "actors_fenced": true,
+    "bash_syntax": "PASS",
+    "python": "3.14.7",
+    "python_AST": "PASS",
+    "result": "PASS",
+    "unittest_methods": 20
+  },
+  "actual_public_signatures_and_closure": {
+    "bytes": 1334,
+    "sha256": "236a8f75c50a33a0ffbbf234ffc593071ace93882b2f210714669c3de1c22167"
+  },
+  "actual_selected_baseline_tool_audit": {
+    "baseline_tools": 34,
+    "bytes": 7628,
+    "guest_execution": "NOT RUN",
+    "sha256": "92752a806a0f0efd6d5245aaf98d5dc5ec9240d339bff45c159b20fefc8ee05c",
+    "source_review": "final guest-root/runtime/workload pins joined"
+  },
+  "added_packages": 2,
+  "base_packages": 111,
+  "installed_packages": 113,
+  "native16K": "NOT RUN",
+  "native_ARM": "NOT RUN",
+  "new_TEST_signatures": "Root-issued over unchanged bytes, both independently gpgv verified",
+  "operation": "arm16k-c01-baseline-lto-v1",
+  "original_native_project_packages": "unsigned; preserved",
+  "performance": "NOT MEASURED",
+  "private_signing_key_access": false,
+  "project_regular_payload_files": 28,
+  "raw_preparation": "NOT RUN",
+  "release_accepted": false,
+  "remaining_gate": "Actual KSM GPG/trust HOLD must be resolved; preparation and boot require SHA-pinned successful Root signed install/remove receipt plus independent Root resource/admission review.",
+  "required_KSM_trust_result": null,
+  "resource_authority": null,
+  "runtime_ELFs": 6,
+  "schema": 1,
+  "status": "HELD_SOURCE_AND_DATA_VERIFIED_NOT_PREPARED"
+}

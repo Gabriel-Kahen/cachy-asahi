@@ -1,0 +1,104 @@
+{
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "image": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "bytes": 24157085,
+  "control_flags": [
+    "-I",
+    "-B",
+    "-Werror::ResourceWarning"
+  ],
+  "controls": {
+    "3.12.13": {
+      "Source_producer": {
+        "status": "PASS",
+        "tests": 15,
+        "transcript": {
+          "bytes": 2224,
+          "file": "Source_producer-312.log",
+          "sha256": "864d4d10a4a87aa5d246a874fa2b12152eff54512750da639d66d4f68a151b9b"
+        }
+      },
+      "passive_Reader": {
+        "status": "PASS",
+        "tests": 18,
+        "transcript": {
+          "bytes": 2901,
+          "file": "passive_Reader-312.log",
+          "sha256": "cc012076831a8de6590dd3d1e27960493fee2b5dca7feed26066d48bcd8e34b7"
+        }
+      }
+    },
+    "3.14.6": {
+      "Source_producer": {
+        "status": "PASS",
+        "tests": 15,
+        "transcript": {
+          "bytes": 2224,
+          "file": "Source_producer-314.log",
+          "sha256": "a4c4c31a1424125da7b43baf82cacedeb6131b07f5d42a4cb546a72a1a2d4b6d"
+        }
+      },
+      "passive_Reader": {
+        "status": "PASS",
+        "tests": 18,
+        "transcript": {
+          "bytes": 2901,
+          "file": "passive_Reader-314.log",
+          "sha256": "63a2ec75a6341bc3c2e240545b243a1ea4f49e0b3ca49f69789020efd516b931"
+        }
+      }
+    }
+  },
+  "controls_scope": "Actor-fenced pure DATA, synthetic models; no operational/native qualification",
+  "files": 58,
+  "filesystem_source_output": null,
+  "held_packet_files": 37,
+  "inverse": "REMOVE_EXACT_ADDITIONS_RESTORES_EVERY_HELD_BYTE_AND_MODE",
+  "limitations": [
+    "Actual namespace qualification NOT_RUN",
+    "Native ARM/16K/M2 NOT_RUN",
+    "Installed ABI and external XS NOT_RUN",
+    "Source publication, Original, operational Reader and intake NOT_RUN",
+    "Root authenticates and admits operands, Source, daemon, image, signatures, workflow and actual resources"
+  ],
+  "namespace_qualification": "NOT_RUN",
+  "native_acceptance": false,
+  "packet_map_sha256": "cf02013d1a06b90bf7e3c32e8471efb3a896d3e1881a492386a6d0b70fc0a1a5",
+  "preservation": {
+    "only_new_directory": "scripts/ci/perl5423-native-adapter/",
+    "tracked_predecessor_diff": "EMPTY"
+  },
+  "profile": {
+    "bytes": 3316,
+    "sha256": "97b6e3f633fa6e4d76dc9e46951df893fa85121e107d4730e3522430efafd21d"
+  },
+  "proposed_source_map": {
+    "bytes": 9834,
+    "sha256": "c6fc60aff2f57351aa6243abbc219ffd4d02ead39ef7727343022e7e8bc7cc43"
+  },
+  "proposed_source_tree": "a4da05070e53c291a81c2304a10de11552802f41",
+  "roles_executed": {
+    "Original": 0,
+    "compiler": 0,
+    "entry": 0,
+    "intake": 0,
+    "namespace": 0,
+    "native_producer": 0,
+    "operational_Reader": 0
+  },
+  "schema": 1,
+  "source_publication": null,
+  "status": "PASS_REAL_PACKET_IN_MEMORY_SOURCE_RENDER_AND_EXACT_INVERSE",
+  "syntax": {
+    "JSON": "PASS",
+    "Python_AST": "PASS",
+    "entry_sh_bash_n": "PASS"
+  }
+}

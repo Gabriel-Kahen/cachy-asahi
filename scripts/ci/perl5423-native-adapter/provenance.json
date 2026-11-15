@@ -1,0 +1,45 @@
+{
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "image": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "candidate_commit": "c8e9baea97f83f652763e701143d6dec5b679f31",
+  "domain_comparison": {
+    "Source3937": "3937d8b9f3210f4e9868bf19f01dfa22de64ddfe",
+    "actual_matching_qualification": null,
+    "equivalent": false,
+    "old": "NORMAL_DOCKER_IMAGE_BUILD_RUN_USER_ALARM1001",
+    "proposed": "PERL_ARM_CAP0_NNP_RO_CONTAINER_V1"
+  },
+  "held_generic": {
+    "bootstrap": "8e71ba83e7d5037c6f7772401ec3b872684ccfa8472d855d8d6d3052cb1f41ba",
+    "builder": "37242a5680c0cb587087042455782478dac0f574f977a5f696c97d29eac39b43",
+    "entry": "9be3db97efde70536a81d1c97f9ac69893a6004ab403566f8453704a2a189d2a"
+  },
+  "operation_comparison": {
+    "automatic_alias": false,
+    "held_packet": "perl5423-repro-native-pair-v1",
+    "lane_exemption": false,
+    "proposed_adapter": "perl5423-native-pair-v1"
+  },
+  "packet_constructor_commit": "b3e5ccdea3fa18eb9feabbe2b4c5caf6bd57593a",
+  "packet_map_sha256": "cf02013d1a06b90bf7e3c32e8471efb3a896d3e1881a492386a6d0b70fc0a1a5",
+  "packet_profile_sha256": "624bcc976f1101cedb387c7fa5998cd9b4088f2ab7d4c38f972c1aed857a4941",
+  "schema": 1,
+  "scope": "ADDITIONS_ONLY_NEW_DIRECTORY; ALL_PREDECESSOR_FILES_HELD",
+  "seams": {
+    "bounded_export": "producer.py inherited 256MiB soft RLIMIT_FSIZE on docker cp tar stdout, raw and decoded 512MiB forecast; producer and Reader independently parse DATA envelope",
+    "cancellation": "scoped SIGINT/SIGTERM flag observed after owned-child witness; cleanup defers repeated cancellation; cancelled run cannot pass",
+    "checks": "reader.py independently decodes raw package, ELF, metadata, logs, full349, Source pins and ordered operations",
+    "epoch_marker_full_checks": "entry.py: epoch1785628800, CACHY_ASAHI_PERL_BUILD=1, full makepkg checks; retained base config plus exact invertible package-format suffix",
+    "isolation": "producer.py exactDockercreate +observedinspect,entryactualcgroups/procstatus",
+    "libcrypt": "entry.py actualALPMowner/DB, bothsymlinkchains, nativeELF andrawreadelf; reader independentjoin",
+    "retirement": "unaltered Source3937 owned_child.py naturaldirectwaitpid evidence",
+    "target_membership": "reader.py exact actualaarch64 in dualarch reviewed metadata"
+  }
+}

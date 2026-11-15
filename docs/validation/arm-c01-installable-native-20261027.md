@@ -20,8 +20,13 @@ Docker mount records compared by unique destination. The old refusals remain.
 Each reviewed invalid fixture still exits2 and matches114688 output bytes/hash;
 raw stdout streams are not independently retained/replayed.
 
-Signature, installed behavior and ordered final consumer/image retirement are
-source-bound receipt/log joins, without a new live GPG/daemon/installed recheck.
+Signature joins here cover the upstream bootstrap archives. The produced C01
+packages are unsigned: the delivered source uses `BUILDENV=(!distcc !color
+!ccache check !sign)` and `SigLevel=Never`/`LocalFileSigLevel=Never` for their
+installation. Installed behavior and ordered final consumer/image retirement
+are source-bound receipt/log joins, without a new live GPG/daemon/installed
+recheck. Fresh Root TEST signatures created on 2026-11-14 for a separate
+emulated16K successor do not change this original qualification.
 Guest helper group absence means no live members, not zombie absence. Loader
 ownership is not independently reconstructed from the retained248 package audits.
 

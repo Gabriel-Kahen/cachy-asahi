@@ -1,0 +1,30 @@
+{
+  "architecture": "aarch64",
+  "cap_add": [],
+  "cap_drop": [
+    "ALL"
+  ],
+  "cpus": 2,
+  "gid": 1001,
+  "hostname": "perl5423-native",
+  "init": true,
+  "kind": "PERL_ARM_CAP0_NNP_RO_CONTAINER_V1",
+  "memory": 4294967296,
+  "memory_swap": 4294967296,
+  "mounts": {
+    "/inputs": "exact-readonly-bind",
+    "/work": "one-private-named-volume"
+  },
+  "network": "none",
+  "pids": 256,
+  "readonly_root": true,
+  "security_opt": [
+    "no-new-privileges"
+  ],
+  "tmpfs": {
+    "/run": "rw,noexec,nosuid,nodev,size=8m,uid=1001,gid=1001",
+    "/tmp": "rw,noexec,nosuid,nodev,size=64m,uid=1001,gid=1001"
+  },
+  "uid": 1001,
+  "user": "1001:1001"
+}

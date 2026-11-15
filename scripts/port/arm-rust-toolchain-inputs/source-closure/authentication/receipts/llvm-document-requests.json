@@ -1,0 +1,65 @@
+{
+  "request_limit": 16,
+  "requests": [
+    {
+      "UTC": "2026-11-15T04:48:47.941875+00:00",
+      "bytes": 13300,
+      "content_type": "application/octet-stream",
+      "final_url": "https://releases.llvm.org/release-keys.asc",
+      "limit_bytes": 2097152,
+      "path": "/tmp/llvm-release-key-material-srljsuqm/release-keys.asc",
+      "sha256": "f38bd19b7f2d22cafa755841e6ce9375b9a2e6d41f7b974e4953d6b084839001",
+      "status": 200,
+      "timeout_seconds": 20,
+      "url": "https://releases.llvm.org/release-keys.asc"
+    },
+    {
+      "UTC": "2026-11-15T04:49:55.021530+00:00",
+      "bytes": 16965,
+      "content_type": "text/plain; charset=utf-8",
+      "final_url": "https://raw.githubusercontent.com/llvm/llvm-project/6dfe1677ab8dffbc6ec13d53a1e0215d75147689/llvm/docs/HowToReleaseLLVM.rst",
+      "limit_bytes": 2097152,
+      "path": "/tmp/llvm-release-key-material-srljsuqm/pinned-HowToReleaseLLVM.rst",
+      "sha256": "5139ca342611dbf3e6b98d65db7035ffbcf5f83d3a0963e3edac386a070e08cb",
+      "status": 200,
+      "timeout_seconds": 20,
+      "url": "https://raw.githubusercontent.com/llvm/llvm-project/6dfe1677ab8dffbc6ec13d53a1e0215d75147689/llvm/docs/HowToReleaseLLVM.rst"
+    },
+    {
+      "UTC": "2026-11-15T04:49:55.174858+00:00",
+      "bytes": 7575,
+      "content_type": "text/plain; charset=utf-8",
+      "final_url": "https://raw.githubusercontent.com/llvm/llvm-project/6dfe1677ab8dffbc6ec13d53a1e0215d75147689/llvm/docs/ReleaseProcess.rst",
+      "limit_bytes": 2097152,
+      "path": "/tmp/llvm-release-key-material-srljsuqm/pinned-ReleaseProcess.rst",
+      "sha256": "c850e254dd730572f0ee16d138fddc47f6fa10641491ec44535a7289334b613a",
+      "status": 200,
+      "timeout_seconds": 20,
+      "url": "https://raw.githubusercontent.com/llvm/llvm-project/6dfe1677ab8dffbc6ec13d53a1e0215d75147689/llvm/docs/ReleaseProcess.rst"
+    },
+    {
+      "UTC": "2026-11-15T04:49:55.265057+00:00",
+      "bytes": 28162,
+      "content_type": "text/html",
+      "final_url": "https://releases.llvm.org/download.html",
+      "limit_bytes": 2097152,
+      "path": "/tmp/llvm-release-key-material-srljsuqm/official-download.html",
+      "sha256": "3691b15918717252e3ee70851e550c233afb4e58c46db62a195ac5ba45223ef0",
+      "status": 200,
+      "timeout_seconds": 20,
+      "url": "https://releases.llvm.org/download.html"
+    },
+    {
+      "UTC": "2026-11-15T04:50:45.751116+00:00",
+      "bytes": 3610,
+      "final_url": "https://releases.llvm.org/",
+      "limit_bytes": 2097152,
+      "path": "/tmp/llvm-release-key-material-srljsuqm/official-release-index.html",
+      "sha256": "ab1e0281ba4810fbb61711631a384d8343461a1c8518e1d731d25a7e1b78360b",
+      "status": 200,
+      "timeout_seconds": 20,
+      "url": "https://releases.llvm.org/"
+    }
+  ],
+  "total_byte_limit": 4194304
+}
