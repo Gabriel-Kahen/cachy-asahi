@@ -1,7 +1,7 @@
 #!/usr/bin/env -S python3 -I
 # SPDX-License-Identifier: MIT
 """Actor-fenced DATA controls only. Modeled receipts never become admission DATA."""
-import ast,contextlib,copy,ctypes,gzip,hashlib,importlib.util,inspect,json,os,socket,subprocess,tempfile,unittest
+import ast,contextlib,copy,ctypes,gzip,hashlib,importlib.util,inspect,json,os,socket,struct,subprocess,tempfile,unittest
 from pathlib import Path
 from unittest.mock import patch
 HERE=Path(__file__).resolve().parent
@@ -99,6 +99,17 @@ class SigningAndKernel(unittest.TestCase):
    with self.assertRaises(ValueError):K.authority(path,I.pin(path)['sha256'],HERE/'rtc_actor.py')
  def test_helper_is_exact11th_required_state_with_bound_producer_source(self):
   lock=json.loads((HERE/'inputs.lock.json').read_text());proof=lock['derived_rtc_helper_source'];self.assertEqual(len(K.RTC),11);self.assertEqual(K.RTC['CONFIG_RTC_I2C_AND_SPI'],'y');self.assertEqual(proof['actual_feature_delta_symbols'],8);self.assertEqual(proof['existing_buses_held'],{'CONFIG_I2C':'y','CONFIG_SPI':'n'})
+ def test_bss_memory_span_uses_independent_positive128mib_limit(self):
+  fixture=RTC.Bundle();fixture.setUp();self.addCleanup(fixture.doCleanups)
+  head=bytearray((fixture.dir/'Image').read_bytes());struct.pack_into('<Q',head,16,134217728);(fixture.dir/'Image').write_bytes(head);fixture.seal();K.kernel(fixture.dir,fixture.approval,fixture.base)
+  self.assertEqual((fixture.dir/'Image').stat().st_size,64)
+ def test_zero_overmemory_and_overfile_caps_refuse(self):
+  fixture=RTC.Bundle();fixture.setUp();self.addCleanup(fixture.doCleanups)
+  for span in (0,134217729):
+   head=bytearray((fixture.dir/'Image').read_bytes());struct.pack_into('<Q',head,16,span);(fixture.dir/'Image').write_bytes(head);fixture.seal()
+   with self.assertRaisesRegex(ValueError,'16K ARM64'):K.kernel(fixture.dir,fixture.approval,fixture.base)
+  with (fixture.dir/'Image').open('r+b')as stream:stream.truncate(67108865)
+  with self.assertRaisesRegex(ValueError,'bound exceeded'):K.kernel(fixture.dir,fixture.approval,fixture.base)
  def test_kernel_and_rtc_clock_contracts_are_exact_reviewed_source(self):
   self.assertEqual(inspect.getsource(K.kernel),inspect.getsource(RTC.K.kernel));self.assertEqual(K.RTC,RTC.K.RTC)
   for name in ('rtc-clock.sh','durable.sh'):self.assertEqual((HERE/name).read_bytes(),(HERE.parent/'arm16k_project_lifecycle_rtc'/name).read_bytes())

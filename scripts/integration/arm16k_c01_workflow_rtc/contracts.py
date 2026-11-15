@@ -47,8 +47,10 @@ def kernel(directory,approved,baseline):
  if bundle.get('kernel_release')!='7.1.13-generic16k-managed-gui-rtc1':raise ValueError('RTC release differs')
  for name in ('Image','config'):
   if pin(directory/name)!=bundle['files'][name]:raise ValueError('RTC payload differs')
+ # image_size is the effective memory span (_end-_text), including BSS;
+ # it is independent of the separately enforced64MiB file-byte cap.
  with (directory/'Image').open('rb')as stream:head=stream.read(64)
- if len(head)!=64 or head[56:60]!=b'ARM\x64'or struct.unpack_from('<Q',head,24)[0]&1 or(struct.unpack_from('<Q',head,24)[0]>>1)&3!=2 or not 0<struct.unpack_from('<Q',head,16)[0]<=(directory/'Image').stat().st_size:raise ValueError('16K ARM64 Image required')
+ if len(head)!=64 or head[56:60]!=b'ARM\x64'or struct.unpack_from('<Q',head,24)[0]&1 or(struct.unpack_from('<Q',head,24)[0]>>1)&3!=2 or not 0<struct.unpack_from('<Q',head,16)[0]<=134217728:raise ValueError('16K ARM64 Image required')
  old=config(baseline.read_text());new=config((directory/'config').read_text())
  for key,value in RTC.items():
   if new.get(key,'n')!=value:raise ValueError('RTC prerequisite differs: '+key)
