@@ -1,0 +1,134 @@
+[
+  {
+    "argv": [
+      "/usr/bin/prlimit",
+      "--as=33554432:33554432",
+      "--",
+      "/usr/bin/gpgv",
+      "--homedir",
+      "/tmp/cachy-arm-ui172-successor-audit-20261115-03/empty-gpg-home",
+      "--keyring",
+      "/tmp/cachy-arm-ui172-successor-audit-20261115-03/project-public.gpg",
+      "--status-fd",
+      "1",
+      "/tmp/cachy-arm-ui172-successor-audit-20261115-03/opaque-current-signature",
+      "/tmp/cachy-arm-ui172-successor-audit-20261115-03/opaque-current-archive"
+    ],
+    "exit": 0,
+    "freshness_external_trust_native_build": "HOLD",
+    "name": "cachy-asahi-first-login",
+    "natural_retirement": true,
+    "observed_utc_epoch": 1794737076.4033284,
+    "primary": "18E721CE9D7928221AD3163BA91B1AFC7142F94E",
+    "signature_date": "2026-11-15",
+    "status": "PASS_SIGNATURE_MATHEMATICS",
+    "status_lines": [
+      "[GNUPG:] NEWSIG",
+      "[GNUPG:] KEY_CONSIDERED 18E721CE9D7928221AD3163BA91B1AFC7142F94E 0",
+      "[GNUPG:] SIG_ID tXYv7cQvL52t3IPPkoyXDQvUpoA 2026-11-15 1794701213",
+      "[GNUPG:] GOODSIG A91B1AFC7142F94E Cachy-Asahi UI disposable TEST <ui-test@invalid>",
+      "[GNUPG:] VALIDSIG 18E721CE9D7928221AD3163BA91B1AFC7142F94E 2026-11-15 1794701213 0 4 0 1 10 00 18E721CE9D7928221AD3163BA91B1AFC7142F94E"
+    ],
+    "stderr": "gpgv: Signature made Sat Nov 14 19:06:53 2026 EST\ngpgv:                using RSA key 18E721CE9D7928221AD3163BA91B1AFC7142F94E\ngpgv: Good signature from \"Cachy-Asahi UI disposable TEST <ui-test@invalid>\"\n",
+    "stdout": "[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED 18E721CE9D7928221AD3163BA91B1AFC7142F94E 0\n[GNUPG:] SIG_ID tXYv7cQvL52t3IPPkoyXDQvUpoA 2026-11-15 1794701213\n[GNUPG:] GOODSIG A91B1AFC7142F94E Cachy-Asahi UI disposable TEST <ui-test@invalid>\n[GNUPG:] VALIDSIG 18E721CE9D7928221AD3163BA91B1AFC7142F94E 2026-11-15 1794701213 0 4 0 1 10 00 18E721CE9D7928221AD3163BA91B1AFC7142F94E\n"
+  },
+  {
+    "argv": [
+      "/usr/bin/prlimit",
+      "--as=33554432:33554432",
+      "--",
+      "/usr/bin/gpgv",
+      "--homedir",
+      "/tmp/cachy-arm-ui172-successor-audit-20261115-03/empty-gpg-home",
+      "--keyring",
+      "/tmp/cachy-arm-ui172-successor-audit-20261115-03/project-public.gpg",
+      "--status-fd",
+      "1",
+      "/tmp/cachy-arm-ui172-successor-audit-20261115-03/opaque-current-signature",
+      "/tmp/cachy-arm-ui172-successor-audit-20261115-03/opaque-current-archive"
+    ],
+    "exit": 0,
+    "freshness_external_trust_native_build": "HOLD",
+    "name": "cachy-asahi-first-login-ui",
+    "natural_retirement": true,
+    "observed_utc_epoch": 1794737076.413119,
+    "primary": "18E721CE9D7928221AD3163BA91B1AFC7142F94E",
+    "signature_date": "2026-11-15",
+    "status": "PASS_SIGNATURE_MATHEMATICS",
+    "status_lines": [
+      "[GNUPG:] NEWSIG",
+      "[GNUPG:] KEY_CONSIDERED 18E721CE9D7928221AD3163BA91B1AFC7142F94E 0",
+      "[GNUPG:] SIG_ID ffOLI6WK5A7mRmnoiwBlRvgaiKc 2026-11-15 1794701224",
+      "[GNUPG:] GOODSIG A91B1AFC7142F94E Cachy-Asahi UI disposable TEST <ui-test@invalid>",
+      "[GNUPG:] VALIDSIG 18E721CE9D7928221AD3163BA91B1AFC7142F94E 2026-11-15 1794701224 0 4 0 1 10 00 18E721CE9D7928221AD3163BA91B1AFC7142F94E"
+    ],
+    "stderr": "gpgv: Signature made Sat Nov 14 19:07:04 2026 EST\ngpgv:                using RSA key 18E721CE9D7928221AD3163BA91B1AFC7142F94E\ngpgv: Good signature from \"Cachy-Asahi UI disposable TEST <ui-test@invalid>\"\n",
+    "stdout": "[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED 18E721CE9D7928221AD3163BA91B1AFC7142F94E 0\n[GNUPG:] SIG_ID ffOLI6WK5A7mRmnoiwBlRvgaiKc 2026-11-15 1794701224\n[GNUPG:] GOODSIG A91B1AFC7142F94E Cachy-Asahi UI disposable TEST <ui-test@invalid>\n[GNUPG:] VALIDSIG 18E721CE9D7928221AD3163BA91B1AFC7142F94E 2026-11-15 1794701224 0 4 0 1 10 00 18E721CE9D7928221AD3163BA91B1AFC7142F94E\n"
+  },
+  {
+    "argv": [
+      "/usr/bin/prlimit",
+      "--as=33554432:33554432",
+      "--",
+      "/usr/bin/gpgv",
+      "--homedir",
+      "/tmp/cachy-arm-ui172-successor-audit-20261115-03/empty-gpg-home",
+      "--keyring",
+      "/tmp/cachy-arm-ui172-successor-audit-20261115-03/project-public.gpg",
+      "--status-fd",
+      "1",
+      "/tmp/cachy-arm-ui172-successor-audit-20261115-03/opaque-current-signature",
+      "/tmp/cachy-arm-ui172-successor-audit-20261115-03/opaque-current-archive"
+    ],
+    "exit": 0,
+    "freshness_external_trust_native_build": "HOLD",
+    "name": "cachy-asahi-setup",
+    "natural_retirement": true,
+    "observed_utc_epoch": 1794737076.423709,
+    "primary": "18E721CE9D7928221AD3163BA91B1AFC7142F94E",
+    "signature_date": "2026-11-15",
+    "status": "PASS_SIGNATURE_MATHEMATICS",
+    "status_lines": [
+      "[GNUPG:] NEWSIG",
+      "[GNUPG:] KEY_CONSIDERED 18E721CE9D7928221AD3163BA91B1AFC7142F94E 0",
+      "[GNUPG:] SIG_ID QmseN0B6wEAIEYhZYKmRMm/PZhQ 2026-11-15 1794701213",
+      "[GNUPG:] GOODSIG A91B1AFC7142F94E Cachy-Asahi UI disposable TEST <ui-test@invalid>",
+      "[GNUPG:] VALIDSIG 18E721CE9D7928221AD3163BA91B1AFC7142F94E 2026-11-15 1794701213 0 4 0 1 10 00 18E721CE9D7928221AD3163BA91B1AFC7142F94E"
+    ],
+    "stderr": "gpgv: Signature made Sat Nov 14 19:06:53 2026 EST\ngpgv:                using RSA key 18E721CE9D7928221AD3163BA91B1AFC7142F94E\ngpgv: Good signature from \"Cachy-Asahi UI disposable TEST <ui-test@invalid>\"\n",
+    "stdout": "[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED 18E721CE9D7928221AD3163BA91B1AFC7142F94E 0\n[GNUPG:] SIG_ID QmseN0B6wEAIEYhZYKmRMm/PZhQ 2026-11-15 1794701213\n[GNUPG:] GOODSIG A91B1AFC7142F94E Cachy-Asahi UI disposable TEST <ui-test@invalid>\n[GNUPG:] VALIDSIG 18E721CE9D7928221AD3163BA91B1AFC7142F94E 2026-11-15 1794701213 0 4 0 1 10 00 18E721CE9D7928221AD3163BA91B1AFC7142F94E\n"
+  },
+  {
+    "argv": [
+      "/usr/bin/prlimit",
+      "--as=33554432:33554432",
+      "--",
+      "/usr/bin/gpgv",
+      "--homedir",
+      "/tmp/cachy-arm-ui172-successor-audit-20261115-03/empty-gpg-home",
+      "--keyring",
+      "/tmp/cachy-arm-ui172-successor-audit-20261115-03/official-public.gpg",
+      "--status-fd",
+      "1",
+      "/tmp/cachy-arm-ui172-successor-audit-20261115-03/opaque-current-signature",
+      "/tmp/cachy-arm-ui172-successor-audit-20261115-03/opaque-current-archive"
+    ],
+    "exit": 0,
+    "freshness_external_trust_native_build": "HOLD",
+    "name": "xorg-server-xvfb",
+    "natural_retirement": true,
+    "observed_utc_epoch": 1794737080.0076296,
+    "primary": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+    "signature_date": "2026-11-11",
+    "status": "PASS_SIGNATURE_MATHEMATICS",
+    "status_lines": [
+      "[GNUPG:] NEWSIG",
+      "[GNUPG:] KEY_CONSIDERED 68B3537F39A313B3E574D06777193F152BDBE6A6 0",
+      "[GNUPG:] SIG_ID UiuMOY89UV4HXAgeWv2kgK/+J/E 2026-11-11 1794357662",
+      "[GNUPG:] GOODSIG 77193F152BDBE6A6 Arch Linux ARM Build System <builder@archlinuxarm.org>",
+      "[GNUPG:] VALIDSIG 68B3537F39A313B3E574D06777193F152BDBE6A6 2026-11-11 1794357662 0 4 0 1 10 00 68B3537F39A313B3E574D06777193F152BDBE6A6"
+    ],
+    "stderr": "gpgv: Signature made Tue Nov 10 19:41:02 2026 EST\ngpgv:                using RSA key 68B3537F39A313B3E574D06777193F152BDBE6A6\ngpgv: Good signature from \"Arch Linux ARM Build System <builder@archlinuxarm.org>\"\n",
+    "stdout": "[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED 68B3537F39A313B3E574D06777193F152BDBE6A6 0\n[GNUPG:] SIG_ID UiuMOY89UV4HXAgeWv2kgK/+J/E 2026-11-11 1794357662\n[GNUPG:] GOODSIG 77193F152BDBE6A6 Arch Linux ARM Build System <builder@archlinuxarm.org>\n[GNUPG:] VALIDSIG 68B3537F39A313B3E574D06777193F152BDBE6A6 2026-11-11 1794357662 0 4 0 1 10 00 68B3537F39A313B3E574D06777193F152BDBE6A6\n"
+  }
+]
