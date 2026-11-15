@@ -1,0 +1,204 @@
+{
+  "DB_signatures": "Not established; metadata hash-bound, official Arch DatabaseOptional resolver policy; package/signature validation remains Required TrustedOnly",
+  "VM_boot": "NOT RUN",
+  "actual_signature_checks": 40,
+  "assembly_results": {
+    "OOMKilled": false,
+    "QEMU_execution": "--version metadata only; no VM launched",
+    "ext4_fsck_readonly": "PASS",
+    "guest_code_execution": "NOT RUN",
+    "guest_home_UID_GID": "1000/1000 verified offline debugfs",
+    "image_assembly_exit": 0,
+    "initramfs": "explicit virtio_pci/virtio_blk/ext4; no host autodetect",
+    "kernel_header": "x86 HdrS verified",
+    "refresh": "COPY-only tool runtime; offline PID1 comm probe update + fsck; artifact pins checked after cleanup changes",
+    "required_systemd_logind_DBus_PAM_files": "present/pinned; execution NOT RUN",
+    "superseded_unbooted_raw": "deleted within owned in-progress preparation for disk budget; manifest retained"
+  },
+  "base_OCI": "docker.io/library/archlinux:base@sha256:fcee73ea1b96e236248f53a213f71276cc9072d9025b58bce9915e32f19963ae",
+  "catalog_pins": {
+    "core.db": "aec62efbfb59d300204f936a633a59d3c89d6a7e7f94852b8f621b61a253afae",
+    "extra.db": "1b4caf18e4a57ba10f201c7b19892bb55a37283c2b0369b39cc6c4f6b654151d"
+  },
+  "cleanup_controls": {
+    "Python": [
+      "3.12.13",
+      "3.14.7"
+    ],
+    "cases": [
+      "SIGINT/SIGTERM cancellation controlled and cleanup deferral",
+      "SIGTERM during ambiguous create recovers exact labeled name contract",
+      "missing CID receipt exact-contract recovery",
+      "wait timeout still forces removal and writes original error",
+      "foreign labels refused removal",
+      "CID/name mismatch refused removal",
+      "serial exact-session nonce/byte-bound controls"
+    ],
+    "passed": 7
+  },
+  "keyring_sha256": "6e5e9373e4684d646f2274e2df54d7fea5f79bc0df981ad8cd7851d1d2454ba3",
+  "no_Docker_init_injection": true,
+  "package_source_scope": "Actual BUILDINFO recipe digests and official metadata retained; source recipe/rebuild correspondence and full source/license delivery not established",
+  "prepared_directory": "/home/gabe/Documents/ChatGPT/cachy-asahi-install-completion-20261114/work/systemd-tcg-reference-20261114/prepared3/final-assembly",
+  "prepared_input_pins": {
+    "guest.raw": {
+      "bytes": 1610612736,
+      "sha256": "a1b00d00042ea869213db35430cdc69d7f59b7af9d3477571032f346f277b3f8"
+    },
+    "initramfs.img": {
+      "bytes": 9685879,
+      "sha256": "9765fd579cee81a14092b10da1daa762e58c8e2112883a84f57a60550d1de8c9"
+    },
+    "vmlinuz": {
+      "bytes": 17248768,
+      "sha256": "b1e9eaf5700a53a31ed923edecd72b319a29da74be32c0885bff112d37ce325b"
+    }
+  },
+  "prepared_manifest_sha256": "ea5fdb0c0ffa79403c5e4e1e88108d379e33e8c8d17dbe7e36182facf6f61097",
+  "private_preparation_root": "/home/gabe/Documents/ChatGPT/cachy-asahi-install-completion-20261114/work/systemd-tcg-reference-20261114/prepared3",
+  "recorded_utc_date": "2026-11-15",
+  "reference_machine": "q35",
+  "remaining_gates": [
+    "Root first actual VM boot NOT RUN",
+    "Real serial PAM login and logind session NOT RUN",
+    "Normal guest shutdown NOT QUALIFIED; planned logout + QMP quit",
+    "NM/Polkit login-session integration NOT RUN",
+    "Native ARM/16K,Asahi/M2,physicalnetwork,suspend,release NOT RUN"
+  ],
+  "resource_observations": {
+    "assembly_memory_cap_bytes": 3221225472,
+    "attribution": "global delta includes builder cache and concurrent activity; no per-process prep RAM peak claimed",
+    "disk_allocated_bytes": 666660864,
+    "disk_logical_bytes": 1610612736,
+    "first_observed_home_free": 10495561728,
+    "global_free_delta_bytes": 3194212352,
+    "observed_home_free_after_preparation": 7301349376,
+    "runtime_overlay_file_cap_bytes": 268435456,
+    "temporary_extracted_root_tmpfs_bytes": 1073741824
+  },
+  "retained_report_pins": {
+    "assemble.log": "d43cdc600c5152b6e5a981a232374f1161478f2280cd8dc74feee38f7aaaf308",
+    "cleanup-refresh.log": "274000f415310641e07efff70761ef1d6d8176980a816e8a27cca85f20284fde",
+    "final-assemble.log": "c1913dd57ae148029261d8935997fb69b4fa6d2a51db8f090f739b42b2acedf8",
+    "final-fsck.log": "cf4a5a2fef625da888b9fa135649788a21315eac4c6bdabda1fa7a257c7259b3",
+    "final-proof-patch.log": "10395ebe1d0836cd56ae0d0f13af1db5c31c9b44ef9439f94078b35377ed0ad2",
+    "preparation.json": "37b6a3a52f9cdc365fc151c99c9f5d1c729f2a1bc11536e9d8181675fa30b4a9"
+  },
+  "runtime_contract": {
+    "KVM": false,
+    "accelerator": "tcg,thread=multi",
+    "caller_mounts": "owned prepared input RO and fresh owned output RW only",
+    "cleanup": "SIGINT/SIGTERM controlled; independent35s cleanup, exact labeled CID/name recovery, timeout cannot skip removal/report",
+    "container_RAM_bytes": 3221225472,
+    "container_pids": 256,
+    "docker_init_injection": false,
+    "guest_RAM_MiB": 1536,
+    "guest_shutdown": "not qualified; normal PAM logout followed by QMP quit",
+    "machine": "q35",
+    "network": "none; guest NIC none",
+    "overlay_max_file_bytes": 268435456,
+    "owned_QEMU_actor_deadline_seconds": 480,
+    "serial_deadline_seconds": 420,
+    "vcpus": 2
+  },
+  "schema_version": 1,
+  "scope": "x86 reference software constructor/controller only; no ARM/Asahi/M2/realnetwork/release qualification",
+  "selected_package_pins": {
+    "e2fsprogs": {
+      "VALIDSIG": "[GNUPG:] VALIDSIG 0429897DE5F3BDAC537A30696D42BDD116E0068F 2026-03-07 1772899629 0 4 0 22 10 00 02FD1C7A934E614545849F19A6234074498E9CEE",
+      "bytes": 1296838,
+      "filename": "e2fsprogs-1.47.4-1-x86_64.pkg.tar.zst",
+      "sha256": "a78971bbbe0ae89d15a0cbbc952e64462edc5a6f991c1bb9cefd0539ca548bd4",
+      "signature_sha256": "32ea0aa46f7f3e822d0ef6533e6a3d13bdfbd935a678cd2b46f38b97ce49d1ec",
+      "url": "https://archive.archlinux.org/repos/2026/11/09/core/os/x86_64/e2fsprogs-1.47.4-1-x86_64.pkg.tar.zst",
+      "version": "1.47.4-1"
+    },
+    "fakeroot": {
+      "VALIDSIG": "[GNUPG:] VALIDSIG 0429897DE5F3BDAC537A30696D42BDD116E0068F 2026-11-01 1793541183 0 4 0 22 10 00 02FD1C7A934E614545849F19A6234074498E9CEE",
+      "bytes": 80561,
+      "filename": "fakeroot-1:2.1.4-1-x86_64.pkg.tar.zst",
+      "sha256": "f3be2058ec3b0096dd5daf1de033779976e11887137ffab98f51037c6f2d9d14",
+      "signature_sha256": "e3966621311f83cb313686910f99df42efa916219c857c418f44cb1c85745934",
+      "url": "https://archive.archlinux.org/repos/2026/11/09/core/os/x86_64/fakeroot-1:2.1.4-1-x86_64.pkg.tar.zst",
+      "version": "1:2.1.4-1"
+    },
+    "linux": {
+      "VALIDSIG": "[GNUPG:] VALIDSIG 83BC8889351B5DEBBB68416EB8AC08600F108CDF 2026-10-30 1793374120 0 4 0 22 10 00 83BC8889351B5DEBBB68416EB8AC08600F108CDF",
+      "bytes": 168986327,
+      "filename": "linux-7.2.14.arch1-1-x86_64.pkg.tar.zst",
+      "sha256": "e5c8674514d6ec198b24ebc26bd282a44afa2ce445662d8958fbdc7717bf3bb7",
+      "signature_sha256": "86054da747c79f1cbd0f430426e85493c7224139a7ac2ae56725bb28e18e2734",
+      "url": "https://archive.archlinux.org/repos/2026/11/09/core/os/x86_64/linux-7.2.14.arch1-1-x86_64.pkg.tar.zst",
+      "version": "7.2.14.arch1-1"
+    },
+    "mkinitcpio": {
+      "VALIDSIG": "[GNUPG:] VALIDSIG 2E36D8620221482FC45CB7F2A91764759326B440 2026-10-01 1790864190 0 4 0 1 10 00 2E36D8620221482FC45CB7F2A91764759326B440",
+      "bytes": 70844,
+      "filename": "mkinitcpio-42.2-1-any.pkg.tar.zst",
+      "sha256": "7c412bc5f45a145e11794d85d0c7945f038452a29655af4d4d433db1ae9db972",
+      "signature_sha256": "a9b32c08423a64cfa0fc3945a05512fd6d3641748255b5b9f167ab31f2b3482a",
+      "url": "https://archive.archlinux.org/repos/2026/11/09/core/os/x86_64/mkinitcpio-42.2-1-any.pkg.tar.zst",
+      "version": "42.2-1"
+    },
+    "python": {
+      "VALIDSIG": "[GNUPG:] VALIDSIG E499C79F53C96A54E572FEE1C06086337C50773E 2026-10-25 1792940415 0 4 0 1 10 00 E499C79F53C96A54E572FEE1C06086337C50773E",
+      "bytes": 14222022,
+      "filename": "python-3.14.9-1-x86_64.pkg.tar.zst",
+      "sha256": "e7b28e851f8f94bc4083774c4931741c5cf35573875e31d6ac52c2649da12c55",
+      "signature_sha256": "9261278f2a855d6ae8f7b148ef84300030a120d11ddcf66e93835f705656925d",
+      "url": "https://archive.archlinux.org/repos/2026/11/09/core/os/x86_64/python-3.14.9-1-x86_64.pkg.tar.zst",
+      "version": "3.14.9-1"
+    },
+    "qemu-common": {
+      "VALIDSIG": "[GNUPG:] VALIDSIG 62CC73F884E52957B2FDD8839B7A287D9A2EC608 2026-10-29 1793278234 0 4 0 22 10 00 991F6E3F0765CF6295888586139B09DA5BF0D338",
+      "bytes": 1989770,
+      "filename": "qemu-common-11.1.3-1-x86_64.pkg.tar.zst",
+      "sha256": "719ea022c1db83636af1cf836107bac0d25e4558f1eb35c98d8169ca3dde7678",
+      "signature_sha256": "ec26c8a302412d437615d0f9c6e809f2dc0db184e5dfd64dac5badfe20fc7840",
+      "url": "https://archive.archlinux.org/repos/2026/11/09/extra/os/x86_64/qemu-common-11.1.3-1-x86_64.pkg.tar.zst",
+      "version": "11.1.3-1"
+    },
+    "qemu-img": {
+      "VALIDSIG": "[GNUPG:] VALIDSIG 62CC73F884E52957B2FDD8839B7A287D9A2EC608 2026-10-29 1793278269 0 4 0 22 10 00 991F6E3F0765CF6295888586139B09DA5BF0D338",
+      "bytes": 2315428,
+      "filename": "qemu-img-11.1.3-1-x86_64.pkg.tar.zst",
+      "sha256": "6f42b8a886bfc1d44c7d68678309f6249cdc4fa2ccdaa8db6649062375ced794",
+      "signature_sha256": "f6c43d6335180b3462d4ba7e2946cc74f4142b44a3b852059744955cdef6be70",
+      "url": "https://archive.archlinux.org/repos/2026/11/09/extra/os/x86_64/qemu-img-11.1.3-1-x86_64.pkg.tar.zst",
+      "version": "11.1.3-1"
+    },
+    "qemu-system-x86": {
+      "VALIDSIG": "[GNUPG:] VALIDSIG 62CC73F884E52957B2FDD8839B7A287D9A2EC608 2026-10-29 1793278291 0 4 0 22 10 00 991F6E3F0765CF6295888586139B09DA5BF0D338",
+      "bytes": 6810962,
+      "filename": "qemu-system-x86-11.1.3-1-x86_64.pkg.tar.zst",
+      "sha256": "e8af5129dc126f7ea4773e7c8c0038af308018bef8b04d32eda10d4d8aba5091",
+      "signature_sha256": "e19d4c05f8cee23dfc8f23617ffb014214d591dfec3e16533e834cd2e7f79f12",
+      "url": "https://archive.archlinux.org/repos/2026/11/09/extra/os/x86_64/qemu-system-x86-11.1.3-1-x86_64.pkg.tar.zst",
+      "version": "11.1.3-1"
+    },
+    "qemu-system-x86-firmware": {
+      "VALIDSIG": "[GNUPG:] VALIDSIG 62CC73F884E52957B2FDD8839B7A287D9A2EC608 2026-10-29 1793278302 0 4 0 22 10 00 991F6E3F0765CF6295888586139B09DA5BF0D338",
+      "bytes": 25909,
+      "filename": "qemu-system-x86-firmware-11.1.3-1-x86_64.pkg.tar.zst",
+      "sha256": "415990ddb279a77233be7537d0ae801514a1002dafca8bd78b025678ca0e39f4",
+      "signature_sha256": "e552ddae11b03f4c621d94321c0136df4347f26706733ca4afd2f1198086f57d",
+      "url": "https://archive.archlinux.org/repos/2026/11/09/extra/os/x86_64/qemu-system-x86-firmware-11.1.3-1-x86_64.pkg.tar.zst",
+      "version": "11.1.3-1"
+    }
+  },
+  "source_pins": {
+    "Dockerfile": "70e7657d78dcae3cf0f708a8516fc4c32814bea1235483779203f022bf788717",
+    "assemble.py": "5a060d8a08181f6255ce7970f055babb935826655d92e747ff505d63d900c645",
+    "boot.py": "e7c8935f342d4b36bb6f8f24c0b48c3b8aa04be9807f62c3f8141aeaf26819fc",
+    "guest-proof.sh": "3872af781f624804ad9612dc60f9a2bd0edcdb0de28b6b81217af8f0c76de3b1",
+    "prepare.py": "75e9724d3a7cafa10468803007eb49d9c6a0884fd730f6e8c9cd846577e306af",
+    "record_inputs.py": "227d29b87b13d4e914f900ea7509b20319cf573682897e701ee2ebab4d714bf4",
+    "test_controller.py": "7070cdd5e5d199abb2a6b005b067ed224bbac730449b6477517d1d94002e29e1",
+    "vm_actor.py": "16e372eb849004e44d6af3e1616b746d33dab5902431a414b311634e67dfffea"
+  },
+  "status": "PREPARED_NOT_BOOTED",
+  "tool_image": "cachy-tcg-tools:reference-reviewed",
+  "tool_image_bytes": 1641362060,
+  "tool_image_id": "sha256:c6bd2d0ed8c437a74b3e1713b7bfcb023b7446f1abe3c0d27a6a5b4fd734f925",
+  "tool_provenance_sha256": "2a64368782cf1a6bb7fb2e26e61b3e586bb3217508e5befc1d144d4c0f927604"
+}
