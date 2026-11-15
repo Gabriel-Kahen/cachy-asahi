@@ -1,0 +1,63 @@
+{
+  "archive": {
+    "bytes": null,
+    "name": null,
+    "path": null,
+    "sha256": null
+  },
+  "artifact": {
+    "job": null,
+    "kind": null,
+    "run": null,
+    "source": null
+  },
+  "candidate": {
+    "commit": "c8e9baea97f83f652763e701143d6dec5b679f31",
+    "recipe_sha256": "cf0df8990ac83f48a4c29978c932922108f0e01cb6d052209934da5b01af4068",
+    "source_sha256": "16b23f32e34df12709fc5fa0a7028d3df3c3cfceca21e38faada6a025edff725"
+  },
+  "inputs_sha256": null,
+  "inventory": {
+    "bytes": null,
+    "path": null,
+    "sha256": null
+  },
+  "metadata": {
+    "buildinfo": {
+      "bytes": null,
+      "path": null,
+      "sha256": null
+    },
+    "pkginfo": {
+      "bytes": null,
+      "path": null,
+      "sha256": null
+    }
+  },
+  "root": {
+    "device": null,
+    "inode": null,
+    "kind": null,
+    "owner_uid": null,
+    "path": null
+  },
+  "schema": 1,
+  "target_arch": null,
+  "toolchain": {
+    "cc": {
+      "bytes": null,
+      "path": null,
+      "sha256": null
+    },
+    "ld": {
+      "bytes": null,
+      "path": null,
+      "sha256": null
+    },
+    "make": {
+      "bytes": null,
+      "path": null,
+      "sha256": null
+    }
+  }
+}
