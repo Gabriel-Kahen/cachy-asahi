@@ -196,6 +196,30 @@ class IndependentChecks(unittest.TestCase):
  def test_all_original_independent_checks_named(self):
   text=(HERE/'observer.py').read_text()
   for name in self.C.NAMES:self.assertIn("independent('"+name+"'",text)
+class GPUTagSets(unittest.TestCase):
+ def setUp(self):self.C=K.load('gpu_tag_sets',HERE/'observer_checks.py')
+ def pair(self):
+  a={'virtio_driver':'/sys/bus/virtio/drivers/virtio_gpu','dev':'226:0','properties':'DEVPATH=/devices/platform/x/drm/card0\nTAGS=:seat:master-of-seat:uaccess:\nCURRENT_TAGS=:seat:master-of-seat:uaccess:\nID_SEAT=seat0\n'}
+  b=copy.deepcopy(a);b['properties']=b['properties'].replace(':seat:master-of-seat:uaccess:',':uaccess:seat:master-of-seat:');return a,b
+ def test_only_tag_order_passes_with_accepted_identity(self):
+  a,b=self.pair();ok,d=self.C.gpu_record(a,b,True);self.assertTrue(ok);self.assertTrue(all(x['equal'] for x in d['tag_sets'].values()));self.assertEqual(d['changed_fields'],['properties'])
+  actual=json.loads((HERE/'data/gpu-tag-order-r3.json').read_text());self.assertEqual(actual['receipt'],{'bytes':2466,'sha256':'d20c31f1d0a1af1fb0987be23d342a63b87a914f0770da14cac41a328bf7d5ca'});self.assertTrue(actual['all_other_raw_bytes_equal_after_only_tag_value_projection']);self.assertFalse(actual['private_properties_included']);self.assertTrue(all(v['before']==v['after']==['master-of-seat','seat','uaccess'] for v in actual['tag_sets'].values()))
+ def test_identity_acceptance_still_mandatory(self):a,b=self.pair();self.assertFalse(self.C.gpu_record(a,b,False)[0])
+ def test_changed_driver_fails(self):a,b=self.pair();b['virtio_driver']='fake';self.assertFalse(self.C.gpu_record(a,b,True)[0])
+ def test_changed_device_number_fails(self):a,b=self.pair();b['dev']='226:1';self.assertFalse(self.C.gpu_record(a,b,True)[0])
+ def test_lost_tag_fails(self):a,b=self.pair();b['properties']=b['properties'].replace(':uaccess:seat:master-of-seat:',':seat:master-of-seat:');self.assertFalse(self.C.gpu_record(a,b,True)[0])
+ def test_gained_tag_fails(self):a,b=self.pair();b['properties']=b['properties'].replace(':uaccess:seat:master-of-seat:',':uaccess:seat:master-of-seat:newtag:');self.assertFalse(self.C.gpu_record(a,b,True)[0])
+ def test_current_tag_change_fails_separately(self):a,b=self.pair();b['properties']=b['properties'].replace('CURRENT_TAGS=:uaccess:seat:master-of-seat:','CURRENT_TAGS=:seat:');self.assertFalse(self.C.gpu_record(a,b,True)[0])
+ def test_tag_case_change_fails(self):a,b=self.pair();b['properties']=b['properties'].replace(':uaccess:',':UACCESS:');self.assertFalse(self.C.gpu_record(a,b,True)[0])
+ def test_other_property_change_fails(self):a,b=self.pair();b['properties']=b['properties'].replace('ID_SEAT=seat0','ID_SEAT=seat1');self.assertFalse(self.C.gpu_record(a,b,True)[0])
+ def test_other_property_line_order_stays_exact(self):a,b=self.pair();b['properties']=b['properties'].replace('DEVPATH=/devices/platform/x/drm/card0\n','')+'DEVPATH=/devices/platform/x/drm/card0\n';self.assertFalse(self.C.gpu_record(a,b,True)[0])
+ def test_keyboard_comparator_unchanged(self):a,b=self.pair();self.assertFalse(self.C.record(a,b,True)[0])
+ def test_missing_current_tags_refuses(self):a,b=self.pair();b['properties']='TAGS=:seat:\n';self.assertFalse(self.C.gpu_record(a,b,True)[0])
+ def test_duplicate_tags_refuse(self):a,b=self.pair();b['properties']=b['properties'].replace(':uaccess:seat:master-of-seat:',':uaccess:seat:seat:master-of-seat:');self.assertFalse(self.C.gpu_record(a,b,True)[0])
+ def test_duplicate_tag_property_refuses(self):a,b=self.pair();b['properties']+='TAGS=:seat:\n';self.assertFalse(self.C.gpu_record(a,b,True)[0])
+ def test_unhandled_tag_format_refuses(self):a,b=self.pair();b['properties']=b['properties'].replace(':uaccess:seat:master-of-seat:','seat master-of-seat');self.assertFalse(self.C.gpu_record(a,b,True)[0])
+ def test_tag_bound_refuses(self):
+  with self.assertRaises(ValueError):self.C.gpu_tag_projection('TAGS=:'+':'.join('t'+str(i) for i in range(33))+':\nCURRENT_TAGS=:seat:\n')
 class Additions(unittest.TestCase):
  def setUp(self):
   self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name);self.base={'base_packages':[{'name':'glibc','version':'2.42-1','directory':'glibc-2.42-1'},{'name':'glib2','version':'2.88.3-1','directory':'glib2-2.88.3-1'}]+[{'name':'base'+str(i),'version':'1-1','directory':'base'+str(i)+'-1-1'} for i in range(109)]}

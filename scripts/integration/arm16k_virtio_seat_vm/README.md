@@ -172,7 +172,7 @@ bash -n scripts/integration/arm16k_virtio_seat_vm/guest-install.sh \
   scripts/integration/arm16k_virtio_seat_vm/bytes.sh
 ```
 
-112 actor-fenced source/DATA controls pass, including missing/null/unreviewed
+128 actor-fenced source/DATA controls pass, including missing/null/unreviewed
 inputs, ordinary output capacity/path guards, explicit new actor/custody and
 mount/cap/NNP refusals, complete modeled four-provider closure and baseline/GIR/
 policy ownership, signatures/archives/metadata/ALPM failure refusals, installed
@@ -265,7 +265,7 @@ actual virtio IDs/driver categories/VERSION_1 negotiation and DRM acceptance/tag
 categories. They contain no typed input or credentials. Each is≤64KiB, private
 root0600, fsynced, then its directory crosses sync-f. The HOLD frame also retains
 the already-verified installed gate. New diagnostics do not convert HOLD to PASS.
-The112 actor-fenced controls include legacy-feature refusal, corrected/incorrect
+The128 actor-fenced controls include legacy-feature refusal, corrected/incorrect
 DRM parent graphs, wrong driver/device/tag, host-parser agreement, explicit modern
 argv and bounded census cases. No corrected guest has been prepared or booted by
 this worker. Real stock DRM/input/seat0/tty1/PAM/Polkit and cleanup remain for
@@ -307,15 +307,53 @@ check names, changed field/key names and receipt sizes/hashes; no credentials,
 typed keycodes or raw private device-property text is exported. Failure also
 includes a whitelisted source label and numeric traceback line.
 
-All original independent comparisons remain mandatory, including exact raw
-device-record equality. Even a pure property-order change still fails and is
-reported; there is no normalization until actual evidence justifies one. Named
+That r2 diagnostic source preserved all independent comparisons, including raw
+device-record equality, pending actual evidence. The subsequent r3 evidence and
+precise GPU tag-value comparison correction are recorded below. Named
 checks preserve actual bus ownership, local active tty1 seat0, process session,
 foreground VT, strict modern-MMIO driver/capability/stock-tag identity and logout.
-The112 actor-fenced controls include unchanged-predicate cases, the nonviolating
+The128 actor-fenced controls include unchanged-predicate cases, the nonviolating
 Leader/GID examples, real changes versus property-order-only diagnostics, receipt
 bounds/replay/privacy and fsync refusal. No new preparation, disk/data actor,
 boot or source publication was run by this worker. A fresh Root diagnostic trial
 is required to identify the actual failed root check; old r2 files/marker remain
 closed and unchanged. This partial real progress is not full seat/UI/native16K/
 M2/performance/release acceptance.
+
+## Exact r3 GPU tag-order cause and correction
+
+Root r3 closed HOLD at **independent-gpu-record**. Actual named checks confirmed
+root bus UID/PID, active local logind tty1/seat0, process session/foreground VT
+and unchanged accepted keyboard record. The recollected GPU was still accepted:
+modern MMIO/driver/device/card identity and stock seat tag passed. Only properties
+changed, with semantic property keys TAGS and CURRENT_TAGS.
+
+Root separately recovered the private2466-byte preassert receipt as read-only
+DATA, SHA256 `d20c31f1d0a1af1fb0987be23d342a63b87a914f0770da14cac41a328bf7d5ca`.
+This worker verified that pin and compared its complete before/after records.
+Both tag properties contained exactly the same membership
+`{master-of-seat, seat, uaccess}`; only the order of seat/uaccess differed.
+Every other record field and property byte remained equal after projecting ONLY
+those two tag values. This identifies the actual false comparison, rather than
+inferring it from PIDs or ignoring an unknown identity change.
+
+The correction is dedicated to the GPU: TAGS and CURRENT_TAGS values are compared
+as **separate exact sets**. No tag is dropped, added, case-folded or granted;
+all other property lines, ordering and record fields remain byte-exact, and
+strict current GPU identity/stock-seat acceptance is still mandatory. Keyboard
+comparison is unchanged. Malformed/duplicate/unknown tag encodings refuse.
+Public diagnostics now expose the bounded validated tag memberships and their
+comparison; exact private original records/receipt hashes remain retained.
+No private property text is copied into source. data/gpu-tag-order-r3.json is a
+small regression projection with only the receipt pin/tag sets/comparison facts.
+
+128 actor-fenced controls pass, including order-only success, added/lost/case-
+changed/current-tag membership refusals, unchanged driver/device/seat requirements,
+other-property/line-order refusals and malformed/bounded tag checks. The separate
+actual DATA check passed over the complete private r3 receipt. No source task
+actor, daemon, network, lease, preparation or VM ran; old r3 roles/inputs/marker
+remain closed and unchanged. The kernel, tool image, addition schema, geometry,
+permissions, actor and genuine PAM/logind/Polkit/ownership checks are unchanged.
+A fresh Root-authorized guest must still establish full seat/logout/cleanup
+acceptance; r3 remains partial real progress with overall HOLD. No M2/native16K,
+UI, performance or release credit is claimed.

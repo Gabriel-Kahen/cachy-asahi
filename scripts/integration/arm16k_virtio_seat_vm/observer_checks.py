@@ -40,7 +40,37 @@ def publish(directory,nonce,name,passed,evidence,public):
  try:os.fsync(fd)
  finally:os.close(fd)
  summary={'passed':bool(passed),'receipt_bytes':len(raw),'receipt_sha256':hashlib.sha256(raw).hexdigest()}
- if 'changed_fields' in evidence:summary.update(changed_fields=evidence['changed_fields'],property_changes=evidence['property_changes'],accepted=evidence['accepted'])
+ if 'changed_fields' in evidence:
+  summary.update(changed_fields=evidence['changed_fields'],property_changes=evidence['property_changes'],accepted=evidence['accepted'])
+  if 'tag_sets' in evidence:summary.update(tag_sets=evidence['tag_sets'],comparison=evidence['comparison'])
+  if 'tag_format' in evidence:summary['tag_format']=evidence['tag_format']
  else:summary['actual']=evidence
  public[name]=summary
  if not passed:raise AssertionError('independent-'+name)
+
+def gpu_tag_projection(text):
+ """Canonicalize only the two colon-delimited tag values; keep other bytes."""
+ if not isinstance(text,str) or len(text)>65536:raise ValueError('bounded GPU properties required')
+ result=[];tags={}
+ for line in text.splitlines(keepends=True):
+  body=line[:-1] if line.endswith('\n') else line;ending='\n' if line.endswith('\n') else ''
+  key,sep,value=body.partition('=')
+  if key in ('TAGS','CURRENT_TAGS'):
+   if not sep or key in tags or not value.startswith(':') or not value.endswith(':'):raise ValueError('exact GPU tag list format required')
+   members=value[1:-1].split(':') if value!=':' else []
+   if len(members)>32 or len(members)!=len(set(members)) or any(not re.fullmatch('[A-Za-z0-9_-]{1,64}',x) for x in members):raise ValueError('bounded unique literal GPU tags required')
+   tags[key]=sorted(members);body=key+'=:'+':'.join(tags[key])+(':' if members else '')
+  result.append(body+ending)
+ if set(tags)!={'TAGS','CURRENT_TAGS'}:raise ValueError('both GPU tag properties required')
+ return ''.join(result),tags
+
+def gpu_record(before,after,accepted):
+ _,details=record(before,after,accepted)
+ try:
+  left,lt=gpu_tag_projection(before.get('properties'));right,rt=gpu_tag_projection(after.get('properties'))
+ except ValueError:
+  details['tag_format']='UNHANDLED_REFUSED';return False,details
+ a,b=dict(before),dict(after);a['properties']=left;b['properties']=right
+ details['tag_sets']={key:{'before':lt[key],'after':rt[key],'equal':lt[key]==rt[key]} for key in ('TAGS','CURRENT_TAGS')}
+ details['comparison']='GPU_TAG_SET_VALUES_ONLY_ALL_OTHER_BYTES_EXACT'
+ return a==b and accepted,details

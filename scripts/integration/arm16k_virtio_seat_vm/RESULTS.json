@@ -9,7 +9,7 @@
       "scripts/integration/arm16k_virtio_seat_vm/test_controls.py"
     ],
     "failed": 0,
-    "passed": 112
+    "passed": 128
   },
   "actual_Root_authority": null,
   "actual_UI": null,
@@ -66,6 +66,22 @@
     "partial_actual": "installed155/modernGPU+stocktag/41ACK/ECHOoff/userproofPASS",
     "semantic_predicate_relaxation": "NONE"
   },
+  "closed_third_boot": {
+    "actual_private_receipt_consumer": "PASS complete records after only two GPU tag-value projections",
+    "diagnosis": {
+      "bytes": 1219,
+      "sha256": "7be78585eefc62e214f160c0dc7cca1ea2e2f37e8e0091d7ff629dce255d2e21"
+    },
+    "membership_preserved": [
+      "master-of-seat",
+      "seat",
+      "uaccess"
+    ],
+    "new_VM": null,
+    "new_preparation": null,
+    "other_record_and_property_bytes": "EXACT",
+    "overall": "HOLD_independent-gpu-record"
+  },
   "historical_parent_tool_hold": {
     "actual_root_report": {
       "bytes": 2402,
@@ -83,10 +99,10 @@
   "schema_version": 1,
   "shell_syntax": "PASS",
   "source_lock": {
-    "bytes": 18894,
-    "sha256": "9b8d9e4d0b0674e447eff60f49f828fc5c28f74f538fae3bbadc3879ea86d050"
+    "bytes": 19179,
+    "sha256": "06153a9b191aac9f0c974334e6e60ca32b0230ca3581f6d1e404f2efc99b15ad"
   },
-  "status": "READY_SOURCE_ONLY_NAMED_DIAGNOSTIC_SUCCESSOR_CLOSED_R2_HOLD",
+  "status": "READY_SOURCE_ONLY_GPU_TAG_SET_SUCCESSOR_CLOSED_R3_HOLD",
   "tool_eligibility": {
     "device_metadata": {
       "bytes": 675,

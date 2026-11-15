@@ -131,7 +131,7 @@ def main():
    final_input=input_parent.keyboard_record(event)
    independent('keyboard-record',*checks.record(input_record,final_input,input_parent.is_seat_keyboard(final_input)))
    final_gpu=input_parent.choose_gpu()
-   independent('gpu-record',*checks.record(gpu,final_gpu or {},input_parent.is_seat_gpu(final_gpu or {})))
+   independent('gpu-record',*checks.gpu_record(gpu,final_gpu or {},input_parent.is_seat_gpu(final_gpu or {})))
    inputs={event.name:final_input};cards=[final_gpu['sysfs_path']]
    status=subprocess.check_output(['loginctl','seat-status','seat0','--no-pager'],timeout=10).decode()
    independent('seat-status','seat0' in status,{'contains_seat0':'seat0' in status,'bytes':len(status.encode()),'sha256':hashlib.sha256(status.encode()).hexdigest()})
