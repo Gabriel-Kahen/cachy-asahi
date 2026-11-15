@@ -10,9 +10,19 @@ import re
 TARGETS=('filesystem','bash','coreutils','systemd','pambase','dbus-broker-units','util-linux',
          'shadow','pacman','archlinuxarm-keyring','procps-ng','e2fsprogs','gnupg','curl',
          'ca-certificates','tar','gzip','zstd','xz','sed','grep','findutils')
-ALPM=ctypes.CDLL('libalpm.so.16')
-ALPM.alpm_pkg_vercmp.argtypes=[ctypes.c_char_p,ctypes.c_char_p]
-ALPM.alpm_pkg_vercmp.restype=ctypes.c_int
+ALPM=None
+
+
+def version_compare(version,wanted):
+    # Pure DATA imports work on non-Arch hosts; actual selection still requires
+    # the original ALPM16 comparator and has no replacement/version fallback.
+    global ALPM
+    if ALPM is None:
+        library=ctypes.CDLL('libalpm.so.16')
+        library.alpm_pkg_vercmp.argtypes=[ctypes.c_char_p,ctypes.c_char_p]
+        library.alpm_pkg_vercmp.restype=ctypes.c_int
+        ALPM=library
+    return ALPM.alpm_pkg_vercmp(version.encode(),wanted.encode())
 
 
 def atom(value):
@@ -24,7 +34,7 @@ def atom(value):
 def satisfies(version,operator,wanted):
     if not operator:return True
     if version is None:return False
-    compared=ALPM.alpm_pkg_vercmp(version.encode(),wanted.encode())
+    compared=version_compare(version,wanted)
     return {'=':compared==0,'>=':compared>=0,'<=':compared<=0,'>':compared>0,'<':compared<0}[operator]
 
 

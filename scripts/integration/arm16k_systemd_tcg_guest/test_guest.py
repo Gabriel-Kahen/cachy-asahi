@@ -3,7 +3,7 @@
 """Data/control tests. Never invoke Docker, QEMU or guest executables."""
 import base64,contextlib,copy,hashlib,importlib.util,io,json,os,signal,socket,subprocess,sys,tarfile,tempfile,time,unittest
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import Mock,patch
 HERE=Path(__file__).resolve().parent
 
 
@@ -67,9 +67,28 @@ class Data(unittest.TestCase):
   with patch.object(s,'TARGETS',('demo',)),self.assertRaisesRegex(ValueError,'payload absent'):s.select(index)
  def test_missing_provider_never_invented(self):
   with patch.object(s,'TARGETS',('absent>=1',)),self.assertRaisesRegex(ValueError,'missing/ambiguous'):s.select({'nodes':{},'packages':{}})
- def test_versioned_provides_use_alpm_version_semantics(self):
-  self.assertTrue(s.satisfies('1:1.0-1','>=','9.0-1'));self.assertFalse(s.satisfies(None,'=','1'))
+ def test_versioned_provides_forward_versions_to_alpm(self):
+  # Modeled ABI result only; actual ALPM16 selection was exercised in assembly.
+  with patch.object(s,'version_compare',return_value=1)as compare:
+   self.assertTrue(s.satisfies('1:1.0-1','>=','9.0-1'))
+   compare.assert_called_once_with('1:1.0-1','9.0-1')
+  with patch.object(s,'version_compare',side_effect=AssertionError('no version comparison')):
+   self.assertFalse(s.satisfies(None,'=','1'));self.assertTrue(s.satisfies('1',None,None))
   with self.assertRaisesRegex(ValueError,'unsupported dependency'):s.atom('bad dependency || foo')
+ def test_data_import_does_not_load_host_alpm(self):
+  with patch.object(s.ctypes,'CDLL',side_effect=AssertionError('DATA import cannot require Arch library')):
+   self.assertIsNone(load('select_guest').ALPM)
+ def test_real_selection_requires_exact_alpm16_without_fallback(self):
+  library=Mock();library.alpm_pkg_vercmp.side_effect=[1,-1]
+  with patch.object(s,'ALPM',None),patch.object(s.ctypes,'CDLL',return_value=library)as load_library:
+   self.assertEqual(s.version_compare('1:1.0-1','9.0-1'),1)
+   self.assertEqual(s.version_compare('2','3'),-1)
+   load_library.assert_called_once_with('libalpm.so.16')
+   self.assertEqual(library.alpm_pkg_vercmp.call_args_list[0].args,(b'1:1.0-1',b'9.0-1'))
+   self.assertEqual(library.alpm_pkg_vercmp.argtypes,[s.ctypes.c_char_p,s.ctypes.c_char_p])
+   self.assertIs(library.alpm_pkg_vercmp.restype,s.ctypes.c_int)
+  with patch.object(s,'ALPM',None),patch.object(s.ctypes,'CDLL',side_effect=OSError('missing ALPM16')):
+   with self.assertRaisesRegex(OSError,'missing ALPM16'):s.version_compare('1','2')
  def test_budget_includes_input_checkout_output_scratch_and_new_image(self):
   fake=type('Usage',(),{'free':8*p.LIMIT})()
   with patch.object(p,'allocated',return_value=1),patch.object(p.shutil,'disk_usage',return_value=fake):

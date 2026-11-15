@@ -121,10 +121,14 @@ Run controls without Docker or any guest execution:
 python3 -I -B scripts/integration/arm16k_systemd_tcg_guest/test_guest.py
 ```
 
-Actual24 controls pass. They cover material tampering/missing providers, metadata
+Actual26 controls pass. They cover material tampering/missing providers, metadata
 preservation, unsafe ancestors, resource accounting, architecture/page-size and
 PAM/session refusals, serial bounds, ambiguous create, foreign-name/CID rejection
 and SIGTERM cleanup. These are source/modeled controls, not a boot result.
+Actual dependency selection requires the exact `libalpm.so.16` comparator; it
+is loaded only when a version comparison is needed. Portable controls model
+the ABI handoff and reject a missing library, with no substitute version
+algorithm. The recorded offline assembly used real ALPM16 comparisons.
 
 The actual preparation used the commands below, plus `--prior-output` for each
 retained r1–r4 attempt. Inputs live in a private0700 directory and comprise the
