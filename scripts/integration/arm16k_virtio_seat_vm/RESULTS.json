@@ -9,7 +9,7 @@
       "scripts/integration/arm16k_virtio_seat_vm/test_controls.py"
     ],
     "failed": 0,
-    "passed": 80
+    "passed": 97
   },
   "actual_Root_authority": null,
   "actual_UI": null,
@@ -39,6 +39,21 @@
     "bytes": 3917,
     "sha256": "94f3f323544ec754d1fb15c920ff07e2d1ec268e78b2e28fbd38a4db30535ced"
   },
+  "closed_first_boot": {
+    "corrected_VM": null,
+    "corrected_preparation": null,
+    "diagnosis": {
+      "bytes": 2611,
+      "sha256": "51320278d4d3147ed569a98ac3c4cedefeacb76cabd9b67db984d2fb76f20fb5"
+    },
+    "offline_data_actor": "NOT NEEDED/NOT RUN",
+    "runtime_feature_bits_from_old_trial": "NOT RETAINED; no direct register measurement claimed",
+    "source_derived_corrections": [
+      "explicit modern MMIO",
+      "DRM allocated on MMIO parent with genuine sibling GPU child"
+    ],
+    "status": "HOLD_BEFORE_LOGIN_READY"
+  },
   "historical_parent_tool_hold": {
     "actual_root_report": {
       "bytes": 2402,
@@ -56,10 +71,10 @@
   "schema_version": 1,
   "shell_syntax": "PASS",
   "source_lock": {
-    "bytes": 18205,
-    "sha256": "f96529f865ca46ee3ab10aad7469b575e8f9e32fcbaa81024d4792958e0f4bdc"
+    "bytes": 18617,
+    "sha256": "799eaf543f247b6b08360a3e2c7d8612b4aba6411d452e5aebaa69e9a4a8d107"
   },
-  "status": "READY_SOURCE_ONLY_DERIVED_TOOL_QUALIFIED_NO_GUEST",
+  "status": "READY_SOURCE_ONLY_MODERN_MMIO_SUCCESSOR_CLOSED_R1_HOLD",
   "tool_eligibility": {
     "device_metadata": {
       "bytes": 675,

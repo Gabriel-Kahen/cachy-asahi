@@ -55,7 +55,7 @@ def main():
   (fixture/'pacman.conf').write_text('[options]\nArchitecture = aarch64\nSigLevel = Required TrustedOnly\nLocalFileSigLevel = Required TrustedOnly\nGPGDir = /var/lib/arm16k-virtio-seat/trust\nCacheDir = /var/lib/arm16k-virtio-seat/cache\n')
   foundation='frozen/arm16k_virtio_seat/';delivery=K.read_json(HERE/foundation/'delivery.lock.json');guest={}
   for name,row in delivery['guest_files'].items():
-   if name=='observer.py':source='observer.py'
+   if name in ('observer.py','input_seat.py'):source=name
    else:source=foundation+name
    guest[name]={**row,**K.pin(HERE/source),'source':source,'replace':name=='profile.fragment','uid':1000 if name=='profile.fragment' else 0,'gid':1000 if name=='profile.fragment' else 0}
   for name,path,mode in [('guest-install.sh','/usr/local/libexec/arm16k-seat-install','0755'),('bytes.sh','/var/lib/arm16k-virtio-seat/bytes.sh','0600'),('namespace-check.py','/var/lib/arm16k-virtio-seat/namespace-check.py','0600'),('frozen/rtc-clock.sh','/var/lib/arm16k-virtio-seat/rtc-clock.sh','0600'),('seat-install.service','/etc/systemd/system/arm16k-seat-install.service','0644'),('observer-install.conf','/etc/systemd/system/arm16k-virtio-seat-observer.service.d/10-install.conf','0644'),('getty-install.conf','/etc/systemd/system/getty@tty1.service.d/10-install.conf','0644')]:guest[name]={**K.pin(HERE/name),'source':name,'guest_path':path,'mode':mode}

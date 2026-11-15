@@ -5,8 +5,8 @@
       "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
     },
     "README.md": {
-      "bytes": 14449,
-      "sha256": "e696959f136799f3cea6e3e974a0eacc023ee10a285486a859e5bcdf77670005"
+      "bytes": 17917,
+      "sha256": "a8e18456dfc1b8b605e91f400ae1e7a906cf41df8d10e95203e13caba7ada71b"
     },
     "additions-contract.json": {
       "bytes": 3917,
@@ -17,8 +17,8 @@
       "sha256": "2c41c1e809e7c4a9d3d8934953a22be14f87f1205f18397d6659cd99d00add8e"
     },
     "boot.py": {
-      "bytes": 10170,
-      "sha256": "8c3ede73959991e51435c335d389cf1c678d09a755e19f522f276bad8ff96cef"
+      "bytes": 10229,
+      "sha256": "8197c35ac69cafb56ea3f9de756ed7d33206923307a82785207a3517e98403c9"
     },
     "bytes.sh": {
       "bytes": 556,
@@ -35,6 +35,14 @@
     "data/tool-qualification-r2.json": {
       "bytes": 5942,
       "sha256": "8507370faf1c8aa385235ca0d01411251998b3266bf15817e568c09b71738916"
+    },
+    "data/virtgpu_kms.c": {
+      "bytes": 10424,
+      "sha256": "c3d622d6dd75cbd2471c5323919075579e4bbd3963b1309c64ff2012ba0635a0"
+    },
+    "diagnosis-r1.json": {
+      "bytes": 2611,
+      "sha256": "51320278d4d3147ed569a98ac3c4cedefeacb76cabd9b67db984d2fb76f20fb5"
     },
     "frozen/alpm_versions.py": {
       "bytes": 4671,
@@ -404,6 +412,10 @@
       "bytes": 4174,
       "sha256": "bdc20192185761df81026007d5c4791968c81df072d945118cd16ccda1d32698"
     },
+    "input_seat.py": {
+      "bytes": 9745,
+      "sha256": "08942504d90019d2f4f5433a74b9ab43f4c1d74c1c048a836c333c734e6b192b"
+    },
     "inputs.lock.json": {
       "bytes": 2389,
       "sha256": "e5aab88ee22fb06d9ffe14f7158350cbc9a22a6ca63da6a8e6c803922fdadd61"
@@ -417,16 +429,16 @@
       "sha256": "071044e3b1eeab3b13b53d6fd00840e31e549dcdedf0c08fcc96836cfc9d188e"
     },
     "observer.py": {
-      "bytes": 12150,
-      "sha256": "2268c564e04d7268057612714c7893f2abf02eec58fc3d7757801470b5032bb0"
+      "bytes": 13005,
+      "sha256": "2213cb9865fe12c762b24c8c39c4db2f2e8abc035cff763d994f44b3cdb65cc1"
     },
     "origin.json": {
       "bytes": 15273,
       "sha256": "99095d52734eb3f666de16caf27c99a4da71d1b1f757f654803130c09d45b3b7"
     },
     "prepare.py": {
-      "bytes": 10717,
-      "sha256": "050d9a2402b73f8bc3893f39ec195872a7fb94f86a388901e29b1c23760d6e47"
+      "bytes": 10728,
+      "sha256": "81c45bb60373c2ec1d5181ce15a8f7508305ee462e003fe2679d858c45ee2b4a"
     },
     "prepare_image.py": {
       "bytes": 7132,
@@ -441,12 +453,12 @@
       "sha256": "3407ea399e5e3b681e99900c0eaad3d517413ed8b4071e3ee46111c2554d13fe"
     },
     "seat_actor.py": {
-      "bytes": 4355,
-      "sha256": "d0e747970a247213323f2861e5df28e24a3b2fc338e12d8ae9ae66b2ad18902e"
+      "bytes": 4398,
+      "sha256": "c23d0bb57e90d237652b6518db0ba41c24c5dfa2496078fe92dc385dd6ae714c"
     },
     "test_controls.py": {
-      "bytes": 19090,
-      "sha256": "e1d0c72452c870224fbe99967b6c2ec6c9b3e6682d8246e96370528b53167829"
+      "bytes": 22762,
+      "sha256": "acee8e02c600f71b27f98c55276d7690c1f221149f5fa707a3af9b059a87a27e"
     }
   },
   "kind": "ARM16K_VIRTIO_SEAT_SOURCE_LOCK_V1",
