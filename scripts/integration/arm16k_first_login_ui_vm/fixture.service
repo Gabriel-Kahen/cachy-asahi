@@ -1,0 +1,9 @@
+[Unit]
+Description=Owned ARM16K trusted UI lifecycle after package bootstrap
+Requires=arm16k-seat-install.service
+After=arm16k-seat-install.service
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 -I -B /usr/local/libexec/ui-root-fixture.py
+TimeoutStartSec=360
+RemainAfterExit=yes

@@ -59,6 +59,23 @@ class Guards(unittest.TestCase):
   with tempfile.TemporaryDirectory() as d:
    with self.assertRaises(ValueError):K.output_path(Path(d))
  def test_original_controller_frozen_pin(self):self.assertEqual(K.pin(HERE/'frozen/reference_controller.py')['sha256'],'e7c8935f342d4b36bb6f8f24c0b48c3b8aa04be9807f62c3f8141aeaf26819fc')
+class DerivedTool(unittest.TestCase):
+ def receipt(self):return json.loads((HERE/'data/tool-qualification-r2.json').read_text())
+ def test_whole_actual_qualification_data(self):self.assertEqual(K.tool_qualification()['image_id'],K.IMAGE)
+ def test_actual_device_help_data(self):
+  p=HERE/'data/Root-device-help-r2.json';self.assertEqual(K.tool_metadata(p,{'qemu_metadata':K.pin(p)})['image_id'],K.IMAGE)
+ def test_parent_image_not_retagged(self):self.assertNotEqual(K.PARENT_IMAGE,K.IMAGE);self.assertEqual(K.lock()['parent_tool_image_id'],K.PARENT_IMAGE)
+ def test_parent_as_derived_refuses(self):d=self.receipt();d['image_id']=K.PARENT_IMAGE;self.refuses(d)
+ def test_changed_parent_refuses(self):d=self.receipt();d['parent_image_id']='sha256:'+'0'*64;self.refuses(d)
+ def test_missing_gpu_refuses(self):d=self.receipt();d['required_devices']['virtio-gpu-device']=False;self.refuses(d)
+ def test_missing_absence_refuses(self):d=self.receipt();d['owned_containers_absent']=False;self.refuses(d)
+ def test_failed_cleanup_refuses(self):d=self.receipt();d['cleanup'][0]['cleanup_errors']=['failed'];self.refuses(d)
+ def test_guest_claim_refuses(self):d=self.receipt();d['guest_boot']='PASS';self.refuses(d)
+ def test_other_package_refuses(self):d=self.receipt();d['package']['name']='other';self.refuses(d)
+ def test_no_geometry_permissions_change(self):
+  d=K.lock();self.assertEqual((d['baseline_packages'],d['max_additions'],d['prep_allocated_cap'],d['overlay_cap']),(111,96,1280*1024**2,512*1024**2))
+ def refuses(self,d):
+  with self.assertRaises(ValueError):K.qualification_value(d)
 class Custody(unittest.TestCase):
  def row(self):
   return {'Id':'a'*64,'Name':'/owned','Image':K.IMAGE,'Config':{'Entrypoint':['/usr/bin/python3'],'Cmd':['-I','-B','/inputs/seat_actor.py'],'Labels':{}},'Mounts':[{'Type':'bind','Source':'/fresh/in','Destination':'/inputs','RW':False},{'Type':'bind','Source':'/fresh/out','Destination':'/work','RW':True}],'HostConfig':{'ReadonlyRootfs':True,'NetworkMode':'none','CapDrop':['ALL'],'CapAdd':None,'Privileged':False,'Devices':[],'Init':False,'SecurityOpt':['no-new-privileges'],'Memory':3*1024**3,'NanoCpus':2_000_000_000,'PidsLimit':256}}
@@ -110,6 +127,39 @@ class InstalledProof(unittest.TestCase):
  def bad(self,k,v):
   p,m=self.case();p['installed_gate'][k]=v
   with self.assertRaises(AssertionError):B.installed(p,m,1794728851,1794728900)
+class ModernMMIO(unittest.TestCase):
+ def setUp(self):
+  self.I=B.P.INPUT
+  self.F=K.load('frozen_seat_model',HERE/'frozen/arm16k_virtio_seat/test_controls.py')
+ def keyboard(self):
+  d=self.F.keyboard();d['virtio_features']='0'*32+'1'+'0'*31;return d
+ def gpu(self):
+  d=self.F.gpu();d['virtio_features']='0'*32+'1'+'0'*31;old=d['sysfs_path'];d['sysfs_path']=d['transport_path']+'/drm/card0';d['drm_device_path']=d['transport_path'];d['properties']=d['properties'].replace(old[4:],d['sysfs_path'][4:]);return d
+ def test_complete_modern_keyboard(self):self.assertTrue(self.I.is_seat_keyboard(self.keyboard()))
+ def test_complete_correct_drm_parent(self):self.assertTrue(self.I.is_seat_gpu(self.gpu()))
+ def test_legacy_input_refused(self):d=self.keyboard();d['virtio_features']='0'*64;self.assertFalse(self.I.is_seat_keyboard(d))
+ def test_legacy_gpu_refused(self):d=self.gpu();d['virtio_features']='0'*64;self.assertFalse(self.I.is_seat_gpu(d))
+ def test_missing_features_refused(self):d=self.gpu();d.pop('virtio_features');self.assertFalse(self.I.is_seat_gpu(d))
+ def test_wrong_bit_direction_refused(self):self.assertFalse(self.I.modern_features('1'+'0'*63))
+ def test_old_wrong_gpu_graph_refused(self):d=self.gpu();d['sysfs_path']=d['virtio_path']+'/drm/card0';self.assertFalse(self.I.is_seat_gpu(d))
+ def test_other_mmio_parent_refused(self):d=self.gpu();d['drm_device_path']='/sys/devices/platform/a000000.virtio_mmio';self.assertFalse(self.I.is_seat_gpu(d))
+ def test_wrong_child_driver_refused(self):d=self.gpu();d['virtio_driver']=self.I.INPUT_DRIVER;self.assertFalse(self.I.is_seat_gpu(d))
+ def test_wrong_gpu_id_refused(self):d=self.gpu();d['virtio_device']='0x0012';self.assertFalse(self.I.is_seat_gpu(d))
+ def test_stock_seat_still_required(self):d=self.gpu();d['properties']=d['properties'].replace('TAGS=:seat:master-of-seat:','TAGS=:uaccess:');self.assertFalse(self.I.is_seat_gpu(d))
+ def test_protocol_uses_new_strict_predicate(self):
+  p=self.F.proof();p['virtio_GPU']=self.gpu();p['DRM_cards']=[p['virtio_GPU']['sysfs_path']];p['kernel_input_devices']={'event3':self.keyboard()};self.assertEqual(B.P.parse(self.F.frame(p),self.F.NONCE)['pagesize'],16384)
+ def test_pinned_source_v1_and_parent_proofs(self):
+  gpu=(HERE/'data/virtgpu_kms.c').read_text();mmio=(HERE/'frozen/arm16k_ui_seat_kernel/data/qemu-virtio-mmio.c').read_text();drv=(HERE/'frozen/arm16k_virtio_seat/data/virtgpu_drv.c').read_text()
+  self.assertIn('if (!virtio_has_feature(vdev, VIRTIO_F_VERSION_1))',gpu);self.assertIn('return -ENODEV;',gpu);self.assertIn('legacy, true)',mmio);self.assertIn('if (!proxy->legacy)',mmio);self.assertIn('drm_dev_alloc(&driver, vdev->dev.parent)',drv)
+ def test_actor_explicit_modern_global_once(self):
+  text=(HERE/'seat_actor.py').read_text();self.assertEqual(text.count('virtio-mmio.force-legacy=false'),1);self.assertNotIn('force-legacy=true',text)
+ def test_empty_census_is_diagnostic_not_pass(self):
+  with patch.object(self.I.Path,'glob',return_value=[]):d=self.I.census()
+  self.assertEqual((d['virtio_count'],d['drm_card_count']),(0,0));self.assertFalse(d['typed_keys_exported']);self.assertNotIn('status',d)
+ def test_census_count_bound_refuses(self):
+  with patch.object(self.I.Path,'glob',return_value=[Path('/sys/bus/virtio/devices/virtio'+str(i)) for i in range(33)]),self.assertRaises(ValueError):self.I.census()
+ def test_diagnostics_before_wait_and_on_hold(self):
+  text=(HERE/'observer.py').read_text();self.assertLess(text.index("persist_census('pre-device')"),text.index('gpu=wait('));self.assertIn("persist_census('terminal')",text);self.assertIn('os.fsync(f.fileno())',text);self.assertIn("'installed_gate':installed_gate",text)
 class Additions(unittest.TestCase):
  def setUp(self):
   self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name);self.base={'base_packages':[{'name':'glibc','version':'2.42-1','directory':'glibc-2.42-1'},{'name':'glib2','version':'2.88.3-1','directory':'glib2-2.88.3-1'}]+[{'name':'base'+str(i),'version':'1-1','directory':'base'+str(i)+'-1-1'} for i in range(109)]}

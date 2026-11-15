@@ -1,0 +1,924 @@
+{
+  "archives_checkouts_downloads_builds_system_mutation": "NOT_RUN",
+  "baseline_unresolved": 108,
+  "cases": [
+    {
+      "Linux_aarch64_cfg_features_resolved": false,
+      "all_file_license_and_legal_acceptance": "HELD",
+      "commit": "d0715d5b7cca72e228d6e6c4de154bd30dfdd06a",
+      "component": "intl_pluralrules-7.0.2",
+      "examined_primary_files": [
+        {
+          "body_pin": {
+            "bytes": 7813,
+            "sha256": "054fd83f1e8b42ef7866ec681c59617952cad48f578ca338e945d2a99178ea7d"
+          },
+          "file": "evidence/plural-lib.rs",
+          "git_blob_sha1": "84a2fd635301577fb0682af2fa91e3d8aa79b43a",
+          "origin_url": "https://raw.githubusercontent.com/zbraniecki/pluralrules/d0715d5b7cca72e228d6e6c4de154bd30dfdd06a/intl_pluralrules/src/lib.rs",
+          "path": "intl_pluralrules/src/lib.rs"
+        },
+        {
+          "body_pin": {
+            "bytes": 1567,
+            "sha256": "7516007e35aa847bf81b8b94f45181f532bdc0aad3e389efd14691fa3aace3f0"
+          },
+          "file": "evidence/plural-README.md",
+          "git_blob_sha1": "50191d962ac181fda2be50624b318a6fcf3fba2c",
+          "origin_url": "https://raw.githubusercontent.com/zbraniecki/pluralrules/d0715d5b7cca72e228d6e6c4de154bd30dfdd06a/intl_pluralrules/README.md",
+          "path": "intl_pluralrules/README.md"
+        },
+        {
+          "body_pin": {
+            "bytes": 89022,
+            "sha256": "7b3f0c12e0722401efbdb54873e8545f943bf4a34cba9f894ead9dc955112aaf"
+          },
+          "file": "evidence/plural-rules.rs",
+          "git_blob_sha1": "35984b64edba9c55202f12bc7ebf676f6b767aa6",
+          "origin_url": "https://raw.githubusercontent.com/zbraniecki/pluralrules/d0715d5b7cca72e228d6e6c4de154bd30dfdd06a/intl_pluralrules/src/rules.rs",
+          "path": "intl_pluralrules/src/rules.rs"
+        }
+      ],
+      "grant_file": "../primary-a/licenses/plural-LICENSE-MIT.txt",
+      "grant_git_blob_sha1": "31aa79387f27e730e33d871925e152e35e428031",
+      "grant_kind": "MIT",
+      "grant_origin_url": "https://raw.githubusercontent.com/zbraniecki/pluralrules/d0715d5b7cca72e228d6e6c4de154bd30dfdd06a/intl_pluralrules/LICENSE-MIT",
+      "grant_pin": {
+        "bytes": 1023,
+        "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+      },
+      "grant_upstream_path": "intl_pluralrules/LICENSE-MIT",
+      "manifest_git_blob_sha1": "3bf3b8e2fccfc007a1f741203882047bd8e6063c",
+      "manifest_path": "intl_pluralrules/Cargo.toml",
+      "manifest_pin": {
+        "bytes": 944,
+        "sha256": "e361470b666d4609c301b2c45e8822c36623684b6bbbd490186fc45ebfb7f360"
+      },
+      "name": "intl_pluralrules",
+      "named_root_notice": null,
+      "repository": "zbraniecki/pluralrules",
+      "source_not_marked_dirty": true,
+      "static_compiler_lock_path": [
+        [
+          "rustc-main",
+          "0.0.0",
+          ""
+        ],
+        [
+          "rustc_codegen_ssa",
+          "0.0.0",
+          ""
+        ],
+        [
+          "rustc_macros",
+          "0.0.0",
+          ""
+        ],
+        [
+          "fluent-bundle",
+          "0.16.0",
+          "registry+https://github.com/rust-lang/crates.io-index"
+        ],
+        [
+          "intl_pluralrules",
+          "7.0.2",
+          "registry+https://github.com/rust-lang/crates.io-index"
+        ]
+      ],
+      "static_tool_lock_path": null,
+      "status": "UNRESOLVED_ATTRIBUTION",
+      "version": "7.0.2",
+      "whole_source_tree_clean": "NOT_PROVED",
+      "workspace_version_resolved": false
+    },
+    {
+      "Linux_aarch64_cfg_features_resolved": false,
+      "all_file_license_and_legal_acceptance": "HELD",
+      "commit": "741e6095fe50f468982d4d253e842eb7d12ed9d3",
+      "component": "polonius-engine-0.13.0",
+      "examined_primary_files": [
+        {
+          "body_pin": {
+            "bytes": 381,
+            "sha256": "19ef0fd2d054b3a48c11ff4007734b7940ca739d3a9d5083d3a03b4d982cdb99"
+          },
+          "file": "evidence/polonius-lib.rs",
+          "git_blob_sha1": "0926be8f5933988ed52f76e9c81daaf950b8cd3e",
+          "origin_url": "https://raw.githubusercontent.com/rust-lang/polonius/741e6095fe50f468982d4d253e842eb7d12ed9d3/polonius-engine/src/lib.rs",
+          "path": "polonius-engine/src/lib.rs"
+        },
+        {
+          "body_pin": {
+            "bytes": 373,
+            "sha256": "fc6752d50a57acbf3d65581c0d2f3d0da8c5fef5735a12857660c9e9687751d0"
+          },
+          "file": "evidence/polonius-README.md",
+          "git_blob_sha1": "d88295e715f6fcab1fd4d36020da627fee07f4a5",
+          "origin_url": "https://raw.githubusercontent.com/rust-lang/polonius/741e6095fe50f468982d4d253e842eb7d12ed9d3/polonius-engine/README.md",
+          "path": "polonius-engine/README.md"
+        },
+        {
+          "body_pin": {
+            "bytes": 5914,
+            "sha256": "9fad471b6ba5f63b8a1367002fee2b27fc3b3b893680eca390bc2616718f8915"
+          },
+          "file": "evidence/polonius-facts.rs",
+          "git_blob_sha1": "442ba186cc61f94d497b5df99210aea5375c847f",
+          "origin_url": "https://raw.githubusercontent.com/rust-lang/polonius/741e6095fe50f468982d4d253e842eb7d12ed9d3/polonius-engine/src/facts.rs",
+          "path": "polonius-engine/src/facts.rs"
+        }
+      ],
+      "grant_file": "../primary-a/licenses/polonius-LICENSE-MIT.txt",
+      "grant_git_blob_sha1": "31aa79387f27e730e33d871925e152e35e428031",
+      "grant_kind": "MIT",
+      "grant_origin_url": "https://raw.githubusercontent.com/rust-lang/polonius/741e6095fe50f468982d4d253e842eb7d12ed9d3/LICENSE-MIT",
+      "grant_pin": {
+        "bytes": 1023,
+        "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+      },
+      "grant_upstream_path": "LICENSE-MIT",
+      "manifest_git_blob_sha1": "a975e91b9c77c77b759535e6078a73e5dd6caf3b",
+      "manifest_path": "polonius-engine/Cargo.toml",
+      "manifest_pin": {
+        "bytes": 403,
+        "sha256": "c1a606e9f2795c8dc3c49a7f3d151c3980d2074849180c4e62ece170b2776a2b"
+      },
+      "name": "polonius-engine",
+      "named_root_notice": null,
+      "repository": "rust-lang/polonius",
+      "source_not_marked_dirty": true,
+      "static_compiler_lock_path": [
+        [
+          "rustc-main",
+          "0.0.0",
+          ""
+        ],
+        [
+          "rustc_codegen_ssa",
+          "0.0.0",
+          ""
+        ],
+        [
+          "rustc_middle",
+          "0.0.0",
+          ""
+        ],
+        [
+          "polonius-engine",
+          "0.13.0",
+          "registry+https://github.com/rust-lang/crates.io-index"
+        ]
+      ],
+      "static_tool_lock_path": null,
+      "status": "UNRESOLVED_ATTRIBUTION",
+      "version": "0.13.0",
+      "whole_source_tree_clean": "NOT_PROVED",
+      "workspace_version_resolved": false
+    },
+    {
+      "Linux_aarch64_cfg_features_resolved": false,
+      "all_file_license_and_legal_acceptance": "HELD",
+      "commit": "6218ac1912aa2210b46713d5c5c51ddb4be805f5",
+      "component": "perf-event-open-sys-3.0.0",
+      "examined_primary_files": [
+        {
+          "body_pin": {
+            "bytes": 11472,
+            "sha256": "e037f0b9cf8ab64eaf9dcacaf1141e4974a42fe17a048967aee9e1fad4752e20"
+          },
+          "file": "evidence/perf-lib.rs",
+          "git_blob_sha1": "d426dccfea774b89ba3eaedf69adf8acfcd24a6b",
+          "origin_url": "https://raw.githubusercontent.com/jimblandy/perf-event/6218ac1912aa2210b46713d5c5c51ddb4be805f5/perf-event-open-sys/src/lib.rs",
+          "path": "perf-event-open-sys/src/lib.rs"
+        },
+        {
+          "body_pin": {
+            "bytes": 2250,
+            "sha256": "5cf51531089e12cc2005c94c531b9af8937255241a18dd80b18cb52e65065c5d"
+          },
+          "file": "evidence/perf-README.md",
+          "git_blob_sha1": "3d2a207212598cab87b8784f3a0d8e3e7c5dd994",
+          "origin_url": "https://raw.githubusercontent.com/jimblandy/perf-event/6218ac1912aa2210b46713d5c5c51ddb4be805f5/perf-event-open-sys/README.md",
+          "path": "perf-event-open-sys/README.md"
+        },
+        {
+          "body_pin": {
+            "bytes": 112196,
+            "sha256": "cf2d58efa7db6b610e54a8de1db391b49e4e35f364f5037ec4ae0f45df49effd"
+          },
+          "file": "evidence/perf-bindings.rs",
+          "git_blob_sha1": "012e5afe6add8220899ce3dd223275a03c98c922",
+          "origin_url": "https://raw.githubusercontent.com/jimblandy/perf-event/6218ac1912aa2210b46713d5c5c51ddb4be805f5/perf-event-open-sys/src/bindings.rs",
+          "path": "perf-event-open-sys/src/bindings.rs"
+        }
+      ],
+      "grant_file": "../primary-b/perf-LICENSE-MIT",
+      "grant_git_blob_sha1": "31aa79387f27e730e33d871925e152e35e428031",
+      "grant_kind": "MIT",
+      "grant_origin_url": "https://raw.githubusercontent.com/jimblandy/perf-event/6218ac1912aa2210b46713d5c5c51ddb4be805f5/LICENSE-MIT",
+      "grant_pin": {
+        "bytes": 1023,
+        "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+      },
+      "grant_upstream_path": "LICENSE-MIT",
+      "manifest_git_blob_sha1": "42ca0f4c75a2fdffc39d92e2b40b97c26f2ca3ab",
+      "manifest_path": "perf-event-open-sys/Cargo.toml",
+      "manifest_pin": {
+        "bytes": 602,
+        "sha256": "43556c605a8a7a84626c612e659992a3f0c2e9646099a7b8110fbd0dc7548135"
+      },
+      "name": "perf-event-open-sys",
+      "named_root_notice": null,
+      "repository": "jimblandy/perf-event",
+      "source_not_marked_dirty": true,
+      "static_compiler_lock_path": [
+        [
+          "rustc-main",
+          "0.0.0",
+          ""
+        ],
+        [
+          "rustc_codegen_ssa",
+          "0.0.0",
+          ""
+        ],
+        [
+          "rustc_data_structures",
+          "0.0.0",
+          ""
+        ],
+        [
+          "measureme",
+          "12.0.3",
+          "registry+https://github.com/rust-lang/crates.io-index"
+        ],
+        [
+          "perf-event-open-sys",
+          "3.0.0",
+          "registry+https://github.com/rust-lang/crates.io-index"
+        ]
+      ],
+      "static_tool_lock_path": null,
+      "status": "UNRESOLVED_ATTRIBUTION",
+      "version": "3.0.0",
+      "whole_source_tree_clean": "NOT_PROVED",
+      "workspace_version_resolved": false
+    },
+    {
+      "Linux_aarch64_cfg_features_resolved": false,
+      "all_file_license_and_legal_acceptance": "HELD",
+      "commit": "9efc29b6e58cef28f6566a47aa7e142a55fead77",
+      "component": "valuable-0.1.1",
+      "examined_primary_files": [],
+      "grant_file": "evidence/valuable-LICENSE",
+      "grant_git_blob_sha1": "4ca822a5cb54142a14070f5be388e60497781615",
+      "grant_kind": "MIT",
+      "grant_origin_url": "https://raw.githubusercontent.com/tokio-rs/valuable/9efc29b6e58cef28f6566a47aa7e142a55fead77/LICENSE",
+      "grant_pin": {
+        "bytes": 1065,
+        "sha256": "ed60d479b8fd1f64e9cbc3de449a16a53ac1b3d1b6aeb9bf9d190a8e93061b44"
+      },
+      "grant_upstream_path": "LICENSE",
+      "manifest_git_blob_sha1": "93c37acb38ae2085704f8f60d1fca6c016ba8d4a",
+      "manifest_path": "valuable/Cargo.toml",
+      "manifest_pin": {
+        "bytes": 977,
+        "sha256": "15a6fb7f15c0ea638610e791d6c5c3e5db5c84d73944f36c46c25bebd0001b63"
+      },
+      "name": "valuable",
+      "named_root_notice": "Copyright (c) 2021 Valuable Contributors",
+      "repository": "tokio-rs/valuable",
+      "source_not_marked_dirty": true,
+      "static_compiler_lock_path": [
+        [
+          "rustc-main",
+          "0.0.0",
+          ""
+        ],
+        [
+          "rustc_codegen_ssa",
+          "0.0.0",
+          ""
+        ],
+        [
+          "tracing",
+          "0.1.44",
+          "registry+https://github.com/rust-lang/crates.io-index"
+        ],
+        [
+          "tracing-core",
+          "0.1.36",
+          "registry+https://github.com/rust-lang/crates.io-index"
+        ],
+        [
+          "valuable",
+          "0.1.1",
+          "registry+https://github.com/rust-lang/crates.io-index"
+        ]
+      ],
+      "static_tool_lock_path": null,
+      "status": "UPSTREAM_ROOT_GRANT_AND_NOTICE_EVIDENCE_COMPLETE",
+      "version": "0.1.1",
+      "whole_source_tree_clean": "NOT_PROVED",
+      "workspace_version_resolved": false
+    },
+    {
+      "Linux_aarch64_cfg_features_resolved": false,
+      "all_file_license_and_legal_acceptance": "HELD",
+      "commit": "7b98b472a3948bc5f678b9fdea4a80935368611b",
+      "component": "self_cell-1.2.1",
+      "examined_primary_files": [
+        {
+          "body_pin": {
+            "bytes": 30717,
+            "sha256": "9ea7c19b33483e1eaf55e263d1c4a05167f59c2605a1e9d341f7f0d6982f8e69"
+          },
+          "file": "evidence/self-cell-lib.rs",
+          "git_blob_sha1": "87128a30782ed2d419f77863de3d0fa0c7a44652",
+          "origin_url": "https://raw.githubusercontent.com/Voultapher/self_cell/7b98b472a3948bc5f678b9fdea4a80935368611b/src/lib.rs",
+          "path": "src/lib.rs"
+        },
+        {
+          "body_pin": {
+            "bytes": 7713,
+            "sha256": "0ea57214d1eeb576539fbb2f4542e605d79e6e61f9e6eee7709391466b4ac5cb"
+          },
+          "file": "evidence/self-cell-README.md",
+          "git_blob_sha1": "8e97dd4e4321c1a8d6618900ddd2a2c8afe89381",
+          "origin_url": "https://raw.githubusercontent.com/Voultapher/self_cell/7b98b472a3948bc5f678b9fdea4a80935368611b/README.md",
+          "path": "README.md"
+        }
+      ],
+      "grant_file": "evidence/self-cell-LICENSE-APACHE",
+      "grant_git_blob_sha1": "261eeb9e9f8b2b4b0d119366dda99c6fd7d35c64",
+      "grant_kind": "Apache-2.0",
+      "grant_origin_url": "https://raw.githubusercontent.com/Voultapher/self_cell/7b98b472a3948bc5f678b9fdea4a80935368611b/LICENSE-APACHE",
+      "grant_pin": {
+        "bytes": 11357,
+        "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+      },
+      "grant_upstream_path": "LICENSE-APACHE",
+      "manifest_git_blob_sha1": "3721f00ae2812c2ae6849bd752f555ca06824d5c",
+      "manifest_path": "Cargo.toml",
+      "manifest_pin": {
+        "bytes": 952,
+        "sha256": "3b23b49e79a988c6032c7f9fb207a7267a99e3137cd82cd3e46a2b8ef550b732"
+      },
+      "name": "self_cell",
+      "named_root_notice": null,
+      "repository": "Voultapher/self_cell",
+      "source_not_marked_dirty": true,
+      "static_compiler_lock_path": [
+        [
+          "rustc-main",
+          "0.0.0",
+          ""
+        ],
+        [
+          "rustc_codegen_ssa",
+          "0.0.0",
+          ""
+        ],
+        [
+          "rustc_macros",
+          "0.0.0",
+          ""
+        ],
+        [
+          "fluent-bundle",
+          "0.16.0",
+          "registry+https://github.com/rust-lang/crates.io-index"
+        ],
+        [
+          "self_cell",
+          "1.2.1",
+          "registry+https://github.com/rust-lang/crates.io-index"
+        ]
+      ],
+      "static_tool_lock_path": null,
+      "status": "UNRESOLVED_ATTRIBUTION",
+      "version": "1.2.1",
+      "whole_source_tree_clean": "NOT_PROVED",
+      "workspace_version_resolved": false
+    },
+    {
+      "Linux_aarch64_cfg_features_resolved": false,
+      "all_file_license_and_legal_acceptance": "HELD",
+      "commit": "1b1132a97498e9f1bb34a7f461e042fc5cd50603",
+      "component": "levenshtein-1.0.5",
+      "examined_primary_files": [],
+      "grant_file": "evidence/levenshtein-license",
+      "grant_git_blob_sha1": "8d8660d36ef2eced1f9cce91e17ae0290261734c",
+      "grant_kind": "MIT",
+      "grant_origin_url": "https://raw.githubusercontent.com/wooorm/levenshtein-rs/1b1132a97498e9f1bb34a7f461e042fc5cd50603/license",
+      "grant_pin": {
+        "bytes": 1099,
+        "sha256": "ca4662cb5d1b738fbe5350c0d5485ba11773b4b7208974082ae6e129a52d631d"
+      },
+      "grant_upstream_path": "license",
+      "manifest_git_blob_sha1": "75c1274f781535107068134e5e589351abfd802a",
+      "manifest_path": "Cargo.toml",
+      "manifest_pin": {
+        "bytes": 392,
+        "sha256": "2dd3be4416555b40c79d8eb909f72136d295294a1cd33ed58e37310e722a3cf6"
+      },
+      "name": "levenshtein",
+      "named_root_notice": "Copyright (c) 2016 Titus Wormer <tituswormer@gmail.com>",
+      "repository": "wooorm/levenshtein-rs",
+      "source_not_marked_dirty": true,
+      "static_compiler_lock_path": null,
+      "static_tool_lock_path": [
+        [
+          "clippy",
+          "0.1.99",
+          ""
+        ],
+        [
+          "ui_test",
+          "0.30.7",
+          "registry+https://github.com/rust-lang/crates.io-index"
+        ],
+        [
+          "levenshtein",
+          "1.0.5",
+          "registry+https://github.com/rust-lang/crates.io-index"
+        ]
+      ],
+      "status": "UPSTREAM_ROOT_GRANT_AND_NOTICE_EVIDENCE_COMPLETE",
+      "version": "1.0.5",
+      "whole_source_tree_clean": "NOT_PROVED",
+      "workspace_version_resolved": false
+    },
+    {
+      "Linux_aarch64_cfg_features_resolved": false,
+      "all_file_license_and_legal_acceptance": "HELD",
+      "commit": "01828e71a20d81acdbecbbf5df36ba8e3d302eba",
+      "component": "comma-1.0.0",
+      "examined_primary_files": [
+        {
+          "body_pin": {
+            "bytes": 2871,
+            "sha256": "4beb857981727fbdd3142301bb2f945e88437320296da6d39b266aeaddbfdb22"
+          },
+          "file": "evidence/comma-lib.rs",
+          "git_blob_sha1": "d82154e483a59da31f687b7e46d28c7e9dbd9d05",
+          "origin_url": "https://raw.githubusercontent.com/emctague/comma/01828e71a20d81acdbecbbf5df36ba8e3d302eba/src/lib.rs",
+          "path": "src/lib.rs"
+        },
+        {
+          "body_pin": {
+            "bytes": 842,
+            "sha256": "04da7267815159c07eae7f9802697cde66c49c8f2cca190c7f657841eb1dc0a8"
+          },
+          "file": "evidence/comma-README.md",
+          "git_blob_sha1": "a6d9f5f60e889380339f1fd44606b6ac680e854e",
+          "origin_url": "https://raw.githubusercontent.com/emctague/comma/01828e71a20d81acdbecbbf5df36ba8e3d302eba/README.md",
+          "path": "README.md"
+        }
+      ],
+      "manifest_git_blob_sha1": "77c2893642ad4ac183ef11d4108b34b9f3bbec59",
+      "manifest_path": "Cargo.toml",
+      "manifest_pin": {
+        "bytes": 481,
+        "sha256": "f86ded7e2527bf8f171e340e953e6aecae7fc6b93cc9c0fa883482922f7ce9b8"
+      },
+      "name": "comma",
+      "named_root_notice": null,
+      "repository": "emctague/comma",
+      "source_not_marked_dirty": true,
+      "static_compiler_lock_path": null,
+      "static_tool_lock_path": [
+        [
+          "clippy",
+          "0.1.99",
+          ""
+        ],
+        [
+          "ui_test",
+          "0.30.7",
+          "registry+https://github.com/rust-lang/crates.io-index"
+        ],
+        [
+          "comma",
+          "1.0.0",
+          "registry+https://github.com/rust-lang/crates.io-index"
+        ]
+      ],
+      "status": "UNRESOLVED_GRANT",
+      "version": "1.0.0",
+      "whole_source_tree_clean": "NOT_PROVED",
+      "workspace_version_resolved": false
+    },
+    {
+      "Linux_aarch64_cfg_features_resolved": false,
+      "all_file_license_and_legal_acceptance": "HELD",
+      "commit": "ebd9d94b182fb8a38b8d8eb1e57d1319889201b9",
+      "component": "jaq-core-3.1.0",
+      "examined_primary_files": [],
+      "grant_file": "evidence/jaq-LICENSE-MIT",
+      "grant_git_blob_sha1": "31aa79387f27e730e33d871925e152e35e428031",
+      "grant_kind": "MIT",
+      "grant_origin_url": "https://raw.githubusercontent.com/01mf02/jaq/ebd9d94b182fb8a38b8d8eb1e57d1319889201b9/LICENSE-MIT",
+      "grant_pin": {
+        "bytes": 1023,
+        "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+      },
+      "grant_upstream_path": "LICENSE-MIT",
+      "manifest_git_blob_sha1": "dbec55ab5722588dea650bd71d7d3cc7c93cb123",
+      "manifest_path": "jaq-core/Cargo.toml",
+      "manifest_pin": {
+        "bytes": 663,
+        "sha256": "a2047b0c0e02d4cceb4855989073eb8f3dbcdd9dd58080af47b2d5b5191d689e"
+      },
+      "name": "jaq-core",
+      "named_root_notice": null,
+      "repository": "01mf02/jaq",
+      "source_not_marked_dirty": true,
+      "static_compiler_lock_path": null,
+      "static_tool_lock_path": [
+        [
+          "jsondocck",
+          "0.1.0",
+          ""
+        ],
+        [
+          "jaq-core",
+          "3.1.0",
+          "registry+https://github.com/rust-lang/crates.io-index"
+        ]
+      ],
+      "status": "UNRESOLVED_ATTRIBUTION",
+      "version": "3.1.0",
+      "whole_source_tree_clean": "NOT_PROVED",
+      "workspace_version_resolved": false
+    },
+    {
+      "Linux_aarch64_cfg_features_resolved": false,
+      "all_file_license_and_legal_acceptance": "HELD",
+      "commit": "ebd9d94b182fb8a38b8d8eb1e57d1319889201b9",
+      "component": "jaq-json-2.0.1",
+      "examined_primary_files": [],
+      "grant_file": "evidence/jaq-LICENSE-MIT",
+      "grant_git_blob_sha1": "31aa79387f27e730e33d871925e152e35e428031",
+      "grant_kind": "MIT",
+      "grant_origin_url": "https://raw.githubusercontent.com/01mf02/jaq/ebd9d94b182fb8a38b8d8eb1e57d1319889201b9/LICENSE-MIT",
+      "grant_pin": {
+        "bytes": 1023,
+        "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+      },
+      "grant_upstream_path": "LICENSE-MIT",
+      "manifest_git_blob_sha1": "7199d96b7c097770ebc907d7fcb7259d27aafc19",
+      "manifest_path": "jaq-json/Cargo.toml",
+      "manifest_pin": {
+        "bytes": 1016,
+        "sha256": "aad0f74943646c409605247194a8b8ab87ec4a41c526c855da9dfc71bdccafd0"
+      },
+      "name": "jaq-json",
+      "named_root_notice": null,
+      "repository": "01mf02/jaq",
+      "source_not_marked_dirty": true,
+      "static_compiler_lock_path": null,
+      "static_tool_lock_path": [
+        [
+          "jsondocck",
+          "0.1.0",
+          ""
+        ],
+        [
+          "jaq-json",
+          "2.0.1",
+          "registry+https://github.com/rust-lang/crates.io-index"
+        ]
+      ],
+      "status": "UNRESOLVED_ATTRIBUTION",
+      "version": "2.0.1",
+      "whole_source_tree_clean": "NOT_PROVED",
+      "workspace_version_resolved": false
+    },
+    {
+      "Linux_aarch64_cfg_features_resolved": false,
+      "all_file_license_and_legal_acceptance": "HELD",
+      "commit": "ebd9d94b182fb8a38b8d8eb1e57d1319889201b9",
+      "component": "jaq-std-3.0.1",
+      "examined_primary_files": [],
+      "grant_file": "evidence/jaq-LICENSE-MIT",
+      "grant_git_blob_sha1": "31aa79387f27e730e33d871925e152e35e428031",
+      "grant_kind": "MIT",
+      "grant_origin_url": "https://raw.githubusercontent.com/01mf02/jaq/ebd9d94b182fb8a38b8d8eb1e57d1319889201b9/LICENSE-MIT",
+      "grant_pin": {
+        "bytes": 1023,
+        "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+      },
+      "grant_upstream_path": "LICENSE-MIT",
+      "manifest_git_blob_sha1": "400225ae4994b4f7ac39f2c84a46b11a36fe71b0",
+      "manifest_path": "jaq-std/Cargo.toml",
+      "manifest_pin": {
+        "bytes": 991,
+        "sha256": "051ef285d15d34cdb16b65b1cb43e5666be3b01e51bfae8401d98b116386c17d"
+      },
+      "name": "jaq-std",
+      "named_root_notice": null,
+      "repository": "01mf02/jaq",
+      "source_not_marked_dirty": true,
+      "static_compiler_lock_path": null,
+      "static_tool_lock_path": [
+        [
+          "jsondocck",
+          "0.1.0",
+          ""
+        ],
+        [
+          "jaq-std",
+          "3.0.1",
+          "registry+https://github.com/rust-lang/crates.io-index"
+        ]
+      ],
+      "status": "UNRESOLVED_ATTRIBUTION",
+      "version": "3.0.1",
+      "whole_source_tree_clean": "NOT_PROVED",
+      "workspace_version_resolved": false
+    },
+    {
+      "Linux_aarch64_cfg_features_resolved": false,
+      "all_file_license_and_legal_acceptance": "HELD",
+      "commit": "3a7d60de4be52c24e4392548af16c4bd5075bff3",
+      "component": "wasm-encoder-0.219.2",
+      "examined_primary_files": [
+        {
+          "body_pin": {
+            "bytes": 5528,
+            "sha256": "83b4079a6e57edb76a72f9f3fbebc34ec1e35e5b786dbca2db4f91ed777d9cce"
+          },
+          "file": "evidence/wasm219-wasm-encoder-lib.rs",
+          "git_blob_sha1": "5b436b3f8b4642cba2d2d44817b1ebd45af7dd8b",
+          "origin_url": "https://raw.githubusercontent.com/bytecodealliance/wasm-tools/3a7d60de4be52c24e4392548af16c4bd5075bff3/crates/wasm-encoder/src/lib.rs",
+          "path": "crates/wasm-encoder/src/lib.rs"
+        }
+      ],
+      "grant_file": "evidence/wasm219-LICENSE-MIT",
+      "grant_git_blob_sha1": "31aa79387f27e730e33d871925e152e35e428031",
+      "grant_kind": "MIT",
+      "grant_origin_url": "https://raw.githubusercontent.com/bytecodealliance/wasm-tools/3a7d60de4be52c24e4392548af16c4bd5075bff3/LICENSE-MIT",
+      "grant_pin": {
+        "bytes": 1023,
+        "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+      },
+      "grant_upstream_path": "LICENSE-MIT",
+      "manifest_git_blob_sha1": "f547e9ae19247f7014a322e509ee029d7d1ba4cb",
+      "manifest_path": "crates/wasm-encoder/Cargo.toml",
+      "manifest_pin": {
+        "bytes": 1091,
+        "sha256": "3e43249bd20d9e5f56fee0c71da2a62f2b4736bdb6eb380b88b9d545900a3e57"
+      },
+      "name": "wasm-encoder",
+      "named_root_notice": null,
+      "repository": "bytecodealliance/wasm-tools",
+      "source_not_marked_dirty": true,
+      "static_compiler_lock_path": [
+        [
+          "rustc-main",
+          "0.0.0",
+          ""
+        ],
+        [
+          "rustc_codegen_ssa",
+          "0.0.0",
+          ""
+        ],
+        [
+          "wasm-encoder",
+          "0.219.2",
+          "registry+https://github.com/rust-lang/crates.io-index"
+        ]
+      ],
+      "static_tool_lock_path": null,
+      "status": "UNRESOLVED_ATTRIBUTION",
+      "version": "0.219.2",
+      "whole_source_tree_clean": "NOT_PROVED",
+      "workspace_version_resolved": true
+    },
+    {
+      "Linux_aarch64_cfg_features_resolved": false,
+      "all_file_license_and_legal_acceptance": "HELD",
+      "commit": "3a7d60de4be52c24e4392548af16c4bd5075bff3",
+      "component": "wasmparser-0.219.2",
+      "examined_primary_files": [
+        {
+          "body_pin": {
+            "bytes": 62736,
+            "sha256": "34687c18d37925c6f4e0722419c3be98099e41a410980d4739941bfeb6d863c4"
+          },
+          "file": "evidence/wasm219-wasmparser-lib.rs",
+          "git_blob_sha1": "0fa70dea2d696c679bcca384930d65d92d3a0fbd",
+          "origin_url": "https://raw.githubusercontent.com/bytecodealliance/wasm-tools/3a7d60de4be52c24e4392548af16c4bd5075bff3/crates/wasmparser/src/lib.rs",
+          "path": "crates/wasmparser/src/lib.rs"
+        }
+      ],
+      "file_scoped_notice": {
+        "file": "evidence/wasm219-wasmparser-lib.rs",
+        "grant_file": "evidence/wasm219-LICENSE-APACHE",
+        "grant_origin_url": "https://raw.githubusercontent.com/bytecodealliance/wasm-tools/3a7d60de4be52c24e4392548af16c4bd5075bff3/LICENSE-APACHE",
+        "grant_pin": {
+          "bytes": 10847,
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+        },
+        "grant_upstream_path": "LICENSE-APACHE",
+        "literal": "/* Copyright 2017 Mozilla Foundation",
+        "notice_git_blob_sha1": "0fa70dea2d696c679bcca384930d65d92d3a0fbd",
+        "notice_origin_url": "https://raw.githubusercontent.com/bytecodealliance/wasm-tools/3a7d60de4be52c24e4392548af16c4bd5075bff3/crates/wasmparser/src/lib.rs",
+        "notice_pin": {
+          "bytes": 62736,
+          "sha256": "34687c18d37925c6f4e0722419c3be98099e41a410980d4739941bfeb6d863c4"
+        },
+        "path": "crates/wasmparser/src/lib.rs",
+        "scope": "crates/wasmparser/src/lib.rs ONLY; package attribution remains unresolved"
+      },
+      "grant_file": "evidence/wasm219-LICENSE-MIT",
+      "grant_git_blob_sha1": "31aa79387f27e730e33d871925e152e35e428031",
+      "grant_kind": "MIT",
+      "grant_origin_url": "https://raw.githubusercontent.com/bytecodealliance/wasm-tools/3a7d60de4be52c24e4392548af16c4bd5075bff3/LICENSE-MIT",
+      "grant_pin": {
+        "bytes": 1023,
+        "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+      },
+      "grant_upstream_path": "LICENSE-MIT",
+      "manifest_git_blob_sha1": "3dc34d2cbbc72dd49c40d1809ee5a5d121209d41",
+      "manifest_path": "crates/wasmparser/Cargo.toml",
+      "manifest_pin": {
+        "bytes": 2847,
+        "sha256": "4d9b14949ae86a3dc6f4571ef3d51f7289713184ab3ac50c6a6b5093f340cf8a"
+      },
+      "name": "wasmparser",
+      "named_root_notice": null,
+      "repository": "bytecodealliance/wasm-tools",
+      "source_not_marked_dirty": true,
+      "static_compiler_lock_path": [
+        [
+          "rustc-main",
+          "0.0.0",
+          ""
+        ],
+        [
+          "rustc_codegen_ssa",
+          "0.0.0",
+          ""
+        ],
+        [
+          "wasm-encoder",
+          "0.219.2",
+          "registry+https://github.com/rust-lang/crates.io-index"
+        ],
+        [
+          "wasmparser",
+          "0.219.2",
+          "registry+https://github.com/rust-lang/crates.io-index"
+        ]
+      ],
+      "static_tool_lock_path": null,
+      "status": "UNRESOLVED_ATTRIBUTION",
+      "version": "0.219.2",
+      "whole_source_tree_clean": "NOT_PROVED",
+      "workspace_version_resolved": true
+    }
+  ],
+  "closed_components": [
+    "levenshtein-1.0.5",
+    "valuable-0.1.1"
+  ],
+  "closure_scope": "Exact package/version/commit plus ancestor grant and named root-license notice only; no all-file/legal/release/binary/native acceptance",
+  "direct_compiler_normal_dependency_evidence": {
+    "wasm-encoder": "0.219"
+  },
+  "exact_version_commit_bindings": 12,
+  "file_scoped_notices_retained_without_package_closure": 1,
+  "held_primary_request": {
+    "component": "hifijson-0.5.0",
+    "request_ordinal": 17,
+    "status": "UNRESOLVED_PRIMARY_COMMIT_HTTP_422"
+  },
+  "network": {
+    "failed_or_incomplete_requests": [
+      17,
+      24
+    ],
+    "new_actual_HTTP_requests": 35,
+    "new_response_body_bytes": 2585627,
+    "replay_HTTP_requests": 0
+  },
+  "new_exact_version_commit_bindings": 9,
+  "new_scoped_notice_cases_closed": 2,
+  "prior_dirty_missing_version_and_other_scope_holds": "PRESERVED; remaining_components is complete",
+  "rechecked_prior_partial_bindings": 3,
+  "remaining_components": [
+    "alloc-stdlib-0.2.4",
+    "anes-0.1.6",
+    "block2-0.6.2",
+    "comma-1.0.0",
+    "cranelift-assembler-x64-0.134.0",
+    "cranelift-assembler-x64-meta-0.134.0",
+    "cranelift-bitset-0.134.0",
+    "cranelift-isle-0.134.0",
+    "cranelift-srcgen-0.134.0",
+    "dateparser-0.2.1",
+    "defmt-parser-1.0.0",
+    "difflib-0.4.0",
+    "dispatch2-0.3.1",
+    "fortanix-sgx-abi-0.6.1",
+    "fxhash-0.2.1",
+    "hifijson-0.5.0",
+    "intl_pluralrules-7.0.2",
+    "jaq-core-3.1.0",
+    "jaq-json-2.0.1",
+    "jaq-std-3.0.1",
+    "jni-0.22.4",
+    "jni-macros-0.22.4",
+    "jni-sys-macros-0.4.1",
+    "la-arena-0.3.1",
+    "libffi-5.1.0",
+    "line-index-0.1.2",
+    "mac-0.1.1",
+    "mdbook-i18n-helpers-0.4.0",
+    "objc2-0.6.3",
+    "objc2-0.6.4",
+    "objc2-cloud-kit-0.3.2",
+    "objc2-core-data-0.3.2",
+    "objc2-core-foundation-0.3.2",
+    "objc2-core-graphics-0.3.2",
+    "objc2-core-image-0.3.2",
+    "objc2-core-location-0.3.2",
+    "objc2-core-text-0.3.2",
+    "objc2-encode-4.1.0",
+    "objc2-io-kit-0.3.2",
+    "objc2-io-surface-0.3.2",
+    "objc2-quartz-core-0.3.2",
+    "objc2-system-configuration-0.3.2",
+    "objc2-ui-kit-0.3.2",
+    "objc2-user-notifications-0.3.2",
+    "perf-event-0.4.8",
+    "perf-event-0.4.9",
+    "perf-event-open-sys-3.0.0",
+    "perf-event-open-sys-4.0.0",
+    "perf-event-open-sys-6.0.0",
+    "phf-0.10.1",
+    "phf_codegen-0.10.0",
+    "phf_generator-0.10.0",
+    "phf_macros-0.11.2",
+    "phf_shared-0.10.0",
+    "polonius-engine-0.13.0",
+    "pq-src-0.3.6+libpq-17.4",
+    "pulldown-cmark-to-cmark-10.0.4",
+    "quine-mc_cluskey-0.2.4",
+    "ra-ap-rustc_abi-0.166.0",
+    "ra-ap-rustc_ast_ir-0.166.0",
+    "ra-ap-rustc_hashes-0.166.0",
+    "ra-ap-rustc_index-0.166.0",
+    "ra-ap-rustc_index_macros-0.166.0",
+    "ra-ap-rustc_lexer-0.166.0",
+    "ra-ap-rustc_next_trait_solver-0.166.0",
+    "ra-ap-rustc_parse_format-0.166.0",
+    "ra-ap-rustc_pattern_analysis-0.166.0",
+    "ra-ap-rustc_type_ir-0.166.0",
+    "ra-ap-rustc_type_ir_macros-0.166.0",
+    "rsqlite-vfs-0.1.1",
+    "rustls-platform-verifier-android-0.1.1",
+    "selectors-0.25.0",
+    "self_cell-1.2.1",
+    "servo_arc-0.3.0",
+    "spanned-0.4.1",
+    "syn-test-suite-0.0.0+test",
+    "tenthash-1.1.0",
+    "tera-2.0.0",
+    "ui_test-0.30.7",
+    "ungrammar-1.16.1",
+    "valuable-0.1.0",
+    "vex-sdk-0.27.1",
+    "wasi-preview1-component-adapter-provider-46.0.1",
+    "wasip1-1.0.0",
+    "wasip2-1.0.2+wasi-0.2.9",
+    "wasip3-0.4.0+wasi-0.3.0-rc-2026-01-06",
+    "wasite-1.0.2",
+    "wasm-encoder-0.219.2",
+    "wasm-encoder-0.244.0",
+    "wasmparser-0.219.2",
+    "wasmparser-0.235.0",
+    "wasmparser-0.243.0",
+    "wasmparser-0.244.0",
+    "wasmprinter-0.235.0",
+    "wasmtime-internal-core-47.0.0",
+    "wasmtime-internal-jit-icache-coherence-47.0.0",
+    "winapi-i686-pc-windows-gnu-0.4.0",
+    "winapi-x86_64-pc-windows-gnu-0.4.0",
+    "winsplit-0.1.0",
+    "wit-bindgen-rt-0.33.0",
+    "wit-bindgen-rt-0.39.0",
+    "wit-component-0.244.0",
+    "wit-parser-0.244.0",
+    "xflags-0.3.2",
+    "xflags-macros-0.3.2",
+    "xshell-macros-0.2.7"
+  ],
+  "remaining_unresolved": 106,
+  "schema": 1,
+  "selection_limits": "Lock paths are static. self_cell and valuable incoming cfg/features unresolved; wasmparser0.219 is optional in encoder; other tool roots are not compiler roots.",
+  "workspace_version_holds_resolved": 2
+}

@@ -69,8 +69,8 @@ tool, including head; missing programs refuse before actor/clone.
 The constructor freezes the established ARM sparse raw clone/debugfs/readback,
 private credentials, nonce, filesystem UUID and machine-id pattern. It uses
 exactly seven mounts in the same rootless cap0/NNP/read-only/network-none
-2CPU/3GiB/256PID domain and unchanged tools image
-`sha256:ee1aa3da22a5d89dc1bc273fa818b1d996b7e62851f50d7b629144f6bba9f207`.
+2CPU/3GiB/256PID domain and explicit separately qualified derived tools image
+`sha256:52958d534193d739aeb6d3c9239ed31b97f8fb357a618e14391293068b28cd2a`.
 Original raw/descriptor and newly selected kernel/config/materials/code are RO;
 only the owned output is RW. No ARM program or ALPM runs during offline edits.
 Every injected regular file is byte/mode/owner read back; symlink targets are
@@ -172,7 +172,7 @@ bash -n scripts/integration/arm16k_virtio_seat_vm/guest-install.sh \
   scripts/integration/arm16k_virtio_seat_vm/bytes.sh
 ```
 
-69 actor-fenced source/DATA controls pass, including missing/null/unreviewed
+97 actor-fenced source/DATA controls pass, including missing/null/unreviewed
 inputs, ordinary output capacity/path guards, explicit new actor/custody and
 mount/cap/NNP refusals, complete modeled four-provider closure and baseline/GIR/
 policy ownership, signatures/archives/metadata/ALPM failure refusals, installed
@@ -189,12 +189,12 @@ no kernel for a guest. No44 archive authentication was duplicated by this worker
 Native16K, Apple hardware, GTK/runtime completeness, source/legal closure,
 performance, normal guest shutdown and release acceptance remain separate.
 
-Current actual tool hold: Root's exact-image device-help r2 found block and
+Historical source1cb4eb9b tool hold: Root's exact-image device-help r2 found block and
 keyboard but **no virtio-gpu-device** in EE1. Its closed report is
 `/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-qemu-device-help-r2/Root-result.json`,2402bytes,
 SHA256 `adf2be19889fff8dedf47fe9b4e1c0c3dfa9f91bc0e187a9b1741ed5d3ae0179`.
-The container was absent and no VM ran. Consequently this exact source/image
-combination is not eligible for actual seat preparation/boot. No retag, fallback
+The container was absent and no VM ran. Consequently that previous exact source/image
+combination was not eligible for actual seat preparation/boot. No retag, fallback
 GPU, fake device metadata or capability waiver is supported; a separately
 reviewed successor tool/source/authority contract is needed.
 
@@ -205,3 +205,73 @@ SHA256 `3934cbe28637d3dd88bb1f32e6db617055d09e84d5d8c12547dfa0573fcece24`:
 policy namespace joins passed. This did not run GPG again, prepare a raw, issue
 Root authority or overcome the real tool hold. Local volatile proof paths are
 not public-durability claims.
+
+## Qualified derived tool successor
+
+This source now binds actual derived image
+`sha256:52958d534193d739aeb6d3c9239ed31b97f8fb357a618e14391293068b28cd2a`.
+The original EE1 parent is retained byte-for-byte and remains historical; no tag
+alias or fallback changes its absent-GPU result. Root's actual tool build r2
+normally installed exactly official signed qemu-hw-display-virtio-gpu11.1.3-1,
+qualified all three real device declarations, strict owned retirement and
+container absence. This is tool qualification, not guest/seat/UI acceptance.
+
+The WHOLE actual result and device metadata are preserved byte-for-byte under
+`data/tool-qualification-r2.json` and `data/Root-device-help-r2.json`, with original
+paths/bytes/SHA pins in inputs.lock.json. The contract validates parent/derived
+identity, matching package, all three devices, both clean ownership/absence
+receipts and built-tool/no-guest scope. Authority must additionally bind the whole
+`tool_qualification` receipt pin and new source_lock; old EE1 authorities refuse.
+The actual external device-help metadata must match this exact qualified receipt.
+No new tool image, daemon, lease or actor was invoked by this worker.
+All frozen ancestors, kernel/addition contracts,155 geometry and permissions
+remain unchanged. The previous80 controls included eleven narrow derived-tool positive/
+refusal cases. Guest authority/preparation/boot results remain null/NOT RUN.
+
+## Closed first ARM155 boot and modern-MMIO correction
+
+Root's fresh r1 closed HOLD before LOGIN_READY/password/PAM: the observer timed
+out waiting for an accepted actual virtio-MMIO GPU. The installation unit had
+finished. The pinned observer reached that wait only after its exact155 current
+inventory, successful install-unit, namespace/policy and RTC summary checks;
+those checks progressed, but the policy action/login/seat acceptance did not.
+The closed report/UART/argv/retirement pins are retained in diagnosis-r1.json;
+original prepared/raw/overlay/attempt files remain untouched. QEMU logged signal15
+from its owned actor during failure cleanup; no normal PAM/QMP success is claimed.
+No offline conversion/journal actor was necessary or run for this diagnosis.
+
+The recorded argv omitted explicit modern MMIO. Pinned QEMU11.1.3 sets
+force-legacy=true by default and advertises VIRTIO_F_VERSION_1 only when false.
+The exact Linux virtio-input probe and virtgpu_kms initialization both return
+ENODEV without VERSION_1. This is a concrete source-derived missing prerequisite,
+consistent with absent input/DRM initialization on UART. Original runtime feature
+bits/MMIO registers were not retained; they were not directly measured here.
+The successor actor explicitly adds `-global virtio-mmio.force-legacy=false`.
+Its actor/source pins change and require a fresh Root authority/raw/nonce; this
+is not an unchanged-argv replay or a kernel/tool/policy change.
+
+A separate source-proven graph error also needed correction: virtgpu_drv.c
+calls drm_dev_alloc on vdev->dev.parent (the MMIO platform device). Its card is
+under that MMIO parent's drm directory, not under the bound virtioN child.
+The new local input adapter requires that actual DRM parent plus exactly one
+sibling virtio_gpu-bound child ID0x0010, modern negotiated feature32, genuine
+virtio/MMIO subsystems/drivers, card major/minor and the SAME stock seat tag.
+Keyboard identity likewise requires actual negotiated VERSION_1. The host parser
+uses the same corrected local adapter. No guessed tag, relaxed driver identity,
+name-only fallback or fabricated session is accepted; frozen ancestors stay intact.
+
+Before device waiting and on HOLD, fixed bounded census receipts record only
+actual virtio IDs/driver categories/VERSION_1 negotiation and DRM acceptance/tag
+categories. They contain no typed input or credentials. Each is≤64KiB, private
+root0600, fsynced, then its directory crosses sync-f. The HOLD frame also retains
+the already-verified installed gate. New diagnostics do not convert HOLD to PASS.
+The97 actor-fenced controls include legacy-feature refusal, corrected/incorrect
+DRM parent graphs, wrong driver/device/tag, host-parser agreement, explicit modern
+argv and bounded census cases. No corrected guest has been prepared or booted by
+this worker. Real stock DRM/input/seat0/tty1/PAM/Polkit and cleanup remain for
+Root's separately authorized fresh trial; no M2/native/performance acceptance.
+
+Source operands: [QEMU MMIO](https://github.com/qemu/qemu/blob/v11.1.3/hw/virtio/virtio-mmio.c),
+[Linux GPU initialization](https://github.com/AsahiLinux/linux/blob/94fb23346d522edf53722357c426a3e58030beea/drivers/gpu/drm/virtio/virtgpu_kms.c),
+and [DRM parent allocation](https://github.com/AsahiLinux/linux/blob/94fb23346d522edf53722357c426a3e58030beea/drivers/gpu/drm/virtio/virtgpu_drv.c).
+Exact retained bytes/hashes and evidence limits are recorded in diagnosis-r1.json.

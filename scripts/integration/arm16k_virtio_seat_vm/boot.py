@@ -10,6 +10,7 @@ def load(name,path):
 K=load('arm_seat_vm_contracts',HERE/'contracts.py')
 B=load('arm_seat_original_custody',HERE/'frozen/reference_controller.py')
 P=load('arm_seat_protocol',HERE/'frozen/arm16k_virtio_seat/protocol.py')
+P.INPUT=load('arm_seat_modern_input',HERE/'input_seat.py')
 class OwnedContainer(B.OwnedContainer):
  def validate(self,row):
   assert row['Config']['Cmd']==['-I','-B','/inputs/seat_actor.py'],'new ARM virtio actor identity required'

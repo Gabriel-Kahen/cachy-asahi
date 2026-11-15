@@ -1,0 +1,21 @@
+{
+  "actual_help_pin": {
+    "bytes": 19362,
+    "sha256": "859062181bcf46d8b1fa7682ef49bb8f63d7aa0fd57675962f71abef33bf6399"
+  },
+  "actual_observed_utc": "2026-11-15T10:07:40.243193+00:00",
+  "actual_tool_pin": {
+    "bytes": 34622584,
+    "sha256": "6f16cea44da813a65a1076886f63687350a0173e188873ba227dcc06f5c16b27"
+  },
+  "devices": [
+    "virtio-blk-device",
+    "virtio-keyboard-device",
+    "virtio-gpu-device"
+  ],
+  "image_id": "sha256:52958d534193d739aeb6d3c9239ed31b97f8fb357a618e14391293068b28cd2a",
+  "issued_by": "Root",
+  "kind": "ROOT_OBSERVED_ARM_QEMU_DEVICE_HELP_V1",
+  "qemu_path": "/usr/bin/qemu-system-aarch64",
+  "status": "OBSERVED_DEVICE_HELP_ONLY"
+}

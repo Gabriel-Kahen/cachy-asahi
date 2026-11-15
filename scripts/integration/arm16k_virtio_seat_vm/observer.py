@@ -29,7 +29,7 @@ def main():
  installed_gate={'status':'PASS','nonce':nonce,'baseline_count':111,'installed_count':int(install['INSTALLED_PACKAGES']),'trusted_ALPM_completed':True,'ordinary_hooks_scriptlets':True,'policy_owner':'networkmanager','additions_sha256':input_hash,'actual_inventory_sha256':hashlib.sha256(expected).hexdigest(),'clock':clock,'durability':'successful install service after sync-f boundary'}
  with open('/dev/ttyAMA0','w',buffering=1)as serial:
   def frame(label,value=None):serial.write('\n'+label+' '+nonce+(' '+json.dumps(value,sort_keys=True)if value is not None else'')+'\n')
-  deadline=time.monotonic()+210;report={'schema_version':1,'status':'HOLD'};screens=[];keyboard_fd=None;counter=None;password_observed=False;logout_keys_allowed=False;last_journal=0;stages={'login_ready':False,'password_ready_echo_off':False,'profile_entered':False,'PAM_authentication_denied':False}
+  deadline=time.monotonic()+210;report={'schema_version':1,'status':'HOLD','installed_gate':installed_gate};screens=[];keyboard_fd=None;counter=None;password_observed=False;logout_keys_allowed=False;last_journal=0;stages={'login_ready':False,'password_ready_echo_off':False,'profile_entered':False,'PAM_authentication_denied':False}
   def wait(check,label):
    while time.monotonic()<deadline:
     observe_progress()
@@ -73,13 +73,23 @@ def main():
      for line in r.stdout.splitlines():
       message=json.loads(line).get('MESSAGE','');message=message if isinstance(message,str)else''
       if'authentication failure'in message:stages['PAM_authentication_denied']=True;raise PermissionError('journal confirms PAM authentication failure; no authentication retry')
+  def persist_census(stage):
+   value={'schema_version':1,'nonce':nonce,'stage':stage,'diagnostics':input_parent.census()}
+   raw=(json.dumps(value,sort_keys=True)+'\n').encode();assert len(raw)<=65536
+   destination=D/'receipts'/('device-census-'+stage+'.json')
+   fd=os.open(destination,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)
+   with os.fdopen(fd,'wb') as f:f.write(raw);f.flush();os.fsync(f.fileno())
+   result=subprocess.run(['/usr/bin/sync','-f',str(destination.parent)],capture_output=True,timeout=5);assert result.returncode==0
+   report['device_diagnostics']=value['diagnostics']
   try:
    spec=importlib.util.spec_from_file_location('real_input_parent','/usr/local/libexec/seat-input.py');input_parent=importlib.util.module_from_spec(spec);spec.loader.exec_module(input_parent)
    kspec=importlib.util.spec_from_file_location('passive_keyboard','/usr/local/libexec/seat-keyboard.py');keyboard=importlib.util.module_from_spec(kspec);kspec.loader.exec_module(keyboard)
    rule=Path('/usr/lib/udev/rules.d/71-seat.rules');assert hashlib.sha256(rule.read_bytes()).hexdigest()==input_parent.RULE_SHA256
    # Observe the kernel VT text cells, not a synthetic login/prompt/session.
+   persist_census('pre-device')
    gpu=wait(input_parent.choose_gpu,'actual virtio-MMIO GPU with stock seat tag')
    wait(lambda:subprocess.run(['loginctl','show-seat','seat0','--property=CanTTY','--value'],stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,timeout=5).stdout.strip()==b'yes','real seat0 VT capability')
+   persist_census('initial')
    event,input_record=wait(input_parent.choose_keyboard,'actual virtio-MMIO keyboard identity/capabilities/seat parent')
    keyboard_fd=input_parent.open_verified_keyboard(event,input_record)
    # No grab/ioctl: drain pre-protocol input without retaining/exporting values.
@@ -126,6 +136,8 @@ def main():
     return r.returncode!=0
    wait(lambda:counter.count==46 and gone(),'normal VT PAM logout/session removal');text=wait(lambda:(s if'login:'in(s:=screen())else''),'getty after logout');frame('SEAT_LOGOUT_COMPLETE',{'login1_session_removed':True,'new_getty_prompt':True,'release_count':counter.count})
   except BaseException as e:
+   try:persist_census('terminal')
+   except BaseException as diagnostic_error:report['device_diagnostic_failure']={'category':type(diagnostic_error).__name__}
    report.update(status='HOLD',observed_stages=stages,keyboard_delivery=counter.report()if counter else None,failure={'category':type(e).__name__,'message':str(e)[:2048]});frame('SEAT_HOLD',report)
   finally:
    if keyboard_fd is not None:os.close(keyboard_fd)

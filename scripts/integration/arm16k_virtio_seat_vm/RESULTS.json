@@ -9,7 +9,7 @@
       "scripts/integration/arm16k_virtio_seat_vm/test_controls.py"
     ],
     "failed": 0,
-    "passed": 69
+    "passed": 97
   },
   "actual_Root_authority": null,
   "actual_UI": null,
@@ -39,18 +39,22 @@
     "bytes": 3917,
     "sha256": "94f3f323544ec754d1fb15c920ff07e2d1ec268e78b2e28fbd38a4db30535ced"
   },
-  "native16K": "NOT RUN",
-  "operation": "arm16k-virtio-seat-vm-v1",
-  "performance": "NOT MEASURED",
-  "release": false,
-  "schema_version": 1,
-  "shell_syntax": "PASS",
-  "source_lock": {
-    "bytes": 17904,
-    "sha256": "9a7927d5c726b34fe2653bb02771fba0b364b4bc9a7ca8f195da56c86e6f0366"
+  "closed_first_boot": {
+    "corrected_VM": null,
+    "corrected_preparation": null,
+    "diagnosis": {
+      "bytes": 2611,
+      "sha256": "51320278d4d3147ed569a98ac3c4cedefeacb76cabd9b67db984d2fb76f20fb5"
+    },
+    "offline_data_actor": "NOT NEEDED/NOT RUN",
+    "runtime_feature_bits_from_old_trial": "NOT RETAINED; no direct register measurement claimed",
+    "source_derived_corrections": [
+      "explicit modern MMIO",
+      "DRM allocated on MMIO parent with genuine sibling GPU child"
+    ],
+    "status": "HOLD_BEFORE_LOGIN_READY"
   },
-  "status": "READY_SOURCE_ONLY_TOOL_ELIGIBILITY_HOLD",
-  "tool_eligibility": {
+  "historical_parent_tool_hold": {
     "actual_root_report": {
       "bytes": 2402,
       "sha256": "adf2be19889fff8dedf47fe9b4e1c0c3dfa9f91bc0e187a9b1741ed5d3ae0179"
@@ -59,5 +63,30 @@
     "fallback": "FORBIDDEN; separate reviewed successor required",
     "missing_device": "virtio-gpu-device",
     "status": "HOLD"
+  },
+  "native16K": "NOT RUN",
+  "operation": "arm16k-virtio-seat-vm-v1",
+  "performance": "NOT MEASURED",
+  "release": false,
+  "schema_version": 1,
+  "shell_syntax": "PASS",
+  "source_lock": {
+    "bytes": 18617,
+    "sha256": "799eaf543f247b6b08360a3e2c7d8612b4aba6411d452e5aebaa69e9a4a8d107"
+  },
+  "status": "READY_SOURCE_ONLY_MODERN_MMIO_SUCCESSOR_CLOSED_R1_HOLD",
+  "tool_eligibility": {
+    "device_metadata": {
+      "bytes": 675,
+      "sha256": "b2a0c65bbb2120235206b27c39ba07421a37df10fc365d99b236f9a0ae0d95c1"
+    },
+    "guest_boot": "NOT RUN",
+    "image_id": "sha256:52958d534193d739aeb6d3c9239ed31b97f8fb357a618e14391293068b28cd2a",
+    "parent_image_id": "sha256:ee1aa3da22a5d89dc1bc273fa818b1d996b7e62851f50d7b629144f6bba9f207",
+    "qualification": {
+      "bytes": 5942,
+      "sha256": "8507370faf1c8aa385235ca0d01411251998b3266bf15817e568c09b71738916"
+    },
+    "status": "QUALIFIED_TOOL_INPUT_ONLY"
   }
 }

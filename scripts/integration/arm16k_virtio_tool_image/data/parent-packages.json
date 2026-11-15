@@ -1,0 +1,1248 @@
+{
+  "acl": {
+    "desc": {
+      "bytes": 427,
+      "sha256": "c0dd818bd8b071c739fbba6cae744fc140dce4cf84d165942faa0e077b7d5e4f"
+    },
+    "version": "2.4.0-1"
+  },
+  "archlinux-keyring": {
+    "desc": {
+      "bytes": 397,
+      "sha256": "92376e02c9ab4f3f96020ebda3da71316a51402483ddfee16405024d52fbfb90"
+    },
+    "version": "20260909-1"
+  },
+  "attr": {
+    "desc": {
+      "bytes": 429,
+      "sha256": "858c0739bc8cf11ea475d862c123791240430d73067bfe1bc1f78ff1a23dd4ff"
+    },
+    "version": "2.6.0-1"
+  },
+  "audit": {
+    "desc": {
+      "bytes": 647,
+      "sha256": "f4669891c8af27edca22b494883facafd7e59302f73699ea846514317e15c25a"
+    },
+    "version": "4.2.1-1"
+  },
+  "base": {
+    "desc": {
+      "bytes": 596,
+      "sha256": "506dea8a4c0b4b2f2295d5bcb66ab6e4a8ea2871aeb1392d9080a0af8da8de94"
+    },
+    "version": "3-3"
+  },
+  "bash": {
+    "desc": {
+      "bytes": 464,
+      "sha256": "c8ee61048422bf581f649524f5979d54423aa33706ef3b8b86bca432fbb385b1"
+    },
+    "version": "5.3.20-1"
+  },
+  "binutils": {
+    "desc": {
+      "bytes": 743,
+      "sha256": "31de3fbf50e035df6d1ed3a19138f876273c964bc5cbd5a162411ca21ef0e4bc"
+    },
+    "version": "2.47-4"
+  },
+  "brotli": {
+    "desc": {
+      "bytes": 438,
+      "sha256": "c35f7a9e8016f4126426ab8e6caf11d104320f89eff4d64e1ccfca366959320a"
+    },
+    "version": "1.2.1-1"
+  },
+  "bzip2": {
+    "desc": {
+      "bytes": 377,
+      "sha256": "5ce93ad4641e761b20c3ada11fc58f341248a53c0ab29c12b0e9e8d6855bd010"
+    },
+    "version": "1.0.8-6"
+  },
+  "ca-certificates": {
+    "desc": {
+      "bytes": 519,
+      "sha256": "1feb954b10db1c4f6a0d0ae6889bccf8af17d0a05e47bd9305b0043195a84941"
+    },
+    "version": "20240618-1"
+  },
+  "ca-certificates-mozilla": {
+    "desc": {
+      "bytes": 448,
+      "sha256": "023839c1131044119c496554f6001e9a06d0ae32a3d51351052d4ab808b00cb8"
+    },
+    "version": "3.133-1"
+  },
+  "ca-certificates-utils": {
+    "desc": {
+      "bytes": 561,
+      "sha256": "fca749c34d71ca788980c3eecc23455c46faa3926c7828a2ba1d1480185fcf29"
+    },
+    "version": "20240618-1"
+  },
+  "capstone": {
+    "desc": {
+      "bytes": 428,
+      "sha256": "aa100bcf784f3b08064f9e3cba3cbdddad6e49d5d88b26e69041da90882d3fd4"
+    },
+    "version": "5.0.9-1"
+  },
+  "coreutils": {
+    "desc": {
+      "bytes": 467,
+      "sha256": "f7b1d6829b3feb56247cf9623900d915cf69b8f41af2e63482b8951a3d01a931"
+    },
+    "version": "9.12-2"
+  },
+  "cryptsetup": {
+    "desc": {
+      "bytes": 628,
+      "sha256": "426e1e182348bc32c245347290384ae7447aa0609081d153849509a64975af85"
+    },
+    "version": "2.8.8-1"
+  },
+  "curl": {
+    "desc": {
+      "bytes": 737,
+      "sha256": "e96d53aae68751b24d830a663b1dd1cbffede08099940f7ef7c22ad607c0bd17"
+    },
+    "version": "8.23.0-1"
+  },
+  "db5.3": {
+    "desc": {
+      "bytes": 407,
+      "sha256": "46f164f23f4e823c311f0e4bf6f482a1bfc60fd30fc577533379e963bd69f773"
+    },
+    "version": "5.3.28-7"
+  },
+  "dbus": {
+    "desc": {
+      "bytes": 586,
+      "sha256": "dd95daf9af0f2b653397bc364b85c6bee69307ddc56c746cea1b685ef769a5e4"
+    },
+    "version": "1.16.2-2"
+  },
+  "dbus-broker": {
+    "desc": {
+      "bytes": 491,
+      "sha256": "81f9db071b47dafa3a2f55d790b4d318a299db149b0b979ee678cbe7d67a4db2"
+    },
+    "version": "37-3"
+  },
+  "dbus-broker-units": {
+    "desc": {
+      "bytes": 450,
+      "sha256": "e4d14d4e8eb294e8bd1dbe5c6707972174882099ac647291de1beee8d3b5ed3d"
+    },
+    "version": "37-3"
+  },
+  "dbus-units": {
+    "desc": {
+      "bytes": 383,
+      "sha256": "dcb05b784e23b71630f814a206b6ba3ffe33abdf72c494a9d612a03e561b3b4e"
+    },
+    "version": "37-3"
+  },
+  "device-mapper": {
+    "desc": {
+      "bytes": 496,
+      "sha256": "1594a5a0c23480be817720e187d35e1c4d84a5577fdae58513d5052593752be6"
+    },
+    "version": "2.03.44-1"
+  },
+  "diffutils": {
+    "desc": {
+      "bytes": 375,
+      "sha256": "3957392fa66dae36391f4cd3ebc8f05bf5896c327b29a27158f032a03835111c"
+    },
+    "version": "3.12-2"
+  },
+  "dtc": {
+    "desc": {
+      "bytes": 407,
+      "sha256": "b5a907d3b6d97b719166a124db09d5520a53fbb031fea90af07f8ebe09b2e07c"
+    },
+    "version": "1:1.8.1-1"
+  },
+  "e2fsprogs": {
+    "desc": {
+      "bytes": 546,
+      "sha256": "8895a885e45a2aa8e7775465c5ebcbec131a273d81eaf745cc098bc93f6550a8"
+    },
+    "version": "1.47.4-1"
+  },
+  "edk2-aarch64": {
+    "desc": {
+      "bytes": 477,
+      "sha256": "1cfc0d52564ac64aff2109d2110283c61ad25fdfd64ecf3b2b63d7d30bee6bd4"
+    },
+    "version": "202608-1"
+  },
+  "edk2-ovmf": {
+    "desc": {
+      "bytes": 444,
+      "sha256": "f3bbe65d851fa39df0dd6082826eac42190662521b61502ac342a530ba46764c"
+    },
+    "version": "202608-1"
+  },
+  "expat": {
+    "desc": {
+      "bytes": 351,
+      "sha256": "aa8788a902a5c98eba1fe889366452613f70c3245d2718db91932129e60abb0b"
+    },
+    "version": "2.10.0-1"
+  },
+  "fakeroot": {
+    "desc": {
+      "bytes": 394,
+      "sha256": "3d6272e53ab573a6dc6b7e798747ba58b56b1c07f4e5d185b9eaa5fa19d1fe7a"
+    },
+    "version": "1:2.1.4-1"
+  },
+  "file": {
+    "desc": {
+      "bytes": 495,
+      "sha256": "7857422042f437db11aec25e7eeb5a9319b950558e4a1aa3aa51f9bbbe5c110b"
+    },
+    "version": "5.48-1"
+  },
+  "filesystem": {
+    "desc": {
+      "bytes": 330,
+      "sha256": "2e4ca555c6eb6fbd7cf081d2f462b12c215b6846f553eaad2c0712c80b092b6c"
+    },
+    "version": "2025.10.12-1"
+  },
+  "findutils": {
+    "desc": {
+      "bytes": 370,
+      "sha256": "9146982a0378ba1ce3bd269e75e6443f74017dd3991c043c507fe51edbe72edd"
+    },
+    "version": "4.11.0-1"
+  },
+  "fuse-common": {
+    "desc": {
+      "bytes": 326,
+      "sha256": "381e50226fde33477e1141132376a9d8a3ebe1ca2bd33af6fc4add7d2c8094cd"
+    },
+    "version": "3.18.3-1"
+  },
+  "fuse3": {
+    "desc": {
+      "bytes": 458,
+      "sha256": "0a21c6d81800b63dbb4a9233f95904a438d474b26bf2a71e41757981acff3b5c"
+    },
+    "version": "3.18.3-1"
+  },
+  "gawk": {
+    "desc": {
+      "bytes": 367,
+      "sha256": "e54fc87141d7a0601ee0522d474f15d125f184df69feb8f4afdd926f771b0d66"
+    },
+    "version": "5.4.1-1"
+  },
+  "gcc-libs": {
+    "desc": {
+      "bytes": 536,
+      "sha256": "788719ff12a30575b4d143440976f6fcf2058fc90c5a09f112ae980e39f91052"
+    },
+    "version": "16.2.1+r23+gd564253eb6c8-1"
+  },
+  "gdbm": {
+    "desc": {
+      "bytes": 429,
+      "sha256": "23075a3a53eab6c9cf00b0d2c1a3d7242cd8664c4fb3b6069cacf4beffd26a60"
+    },
+    "version": "1.26-2"
+  },
+  "gettext": {
+    "desc": {
+      "bytes": 585,
+      "sha256": "16f4cb681f747529ee8ff100e53db289bd90d6c30babac09a5193fa94bae4936"
+    },
+    "version": "1.0-2"
+  },
+  "glib2": {
+    "desc": {
+      "bytes": 715,
+      "sha256": "36950720c58649da1016f365b657d4390591b66b29d6265405f6cb50a9a3ee56"
+    },
+    "version": "2.90.1-1"
+  },
+  "glibc": {
+    "desc": {
+      "bytes": 464,
+      "sha256": "6e2a931d1166dd7db3f7da6ccbab8b8b529afd969435c11ad01abd97d906bf2d"
+    },
+    "version": "2.44+r50+g1848099f063e-1"
+  },
+  "gmp": {
+    "desc": {
+      "bytes": 392,
+      "sha256": "bf5befceba3d97c1be5b715f2116aa6fd0557c1470d577dd1c9e72cbe608126b"
+    },
+    "version": "6.3.0-3"
+  },
+  "gnulib-l10n": {
+    "desc": {
+      "bytes": 348,
+      "sha256": "2c085f15d793e8c3b7701c293c9b8eca81dcb39012accd7a13261b8631a3377a"
+    },
+    "version": "20241231-1"
+  },
+  "gnupg": {
+    "desc": {
+      "bytes": 772,
+      "sha256": "cb5f0152d07f9747535b71d956023b635c22c8067114fb3ff101eab4b063c9f0"
+    },
+    "version": "2.4.9-4"
+  },
+  "gnutls": {
+    "desc": {
+      "bytes": 577,
+      "sha256": "1f5d72aa6066302efade32cf96ecaabc4fd47ae38d7e9563a9becebed173eadf"
+    },
+    "version": "3.8.13-3"
+  },
+  "gpgme": {
+    "desc": {
+      "bytes": 482,
+      "sha256": "00dc806d82dfdbfdab486da90e5bbc240614a2a09e2b2c1bea0da73b88871030"
+    },
+    "version": "2.2.0-1"
+  },
+  "grep": {
+    "desc": {
+      "bytes": 338,
+      "sha256": "f203ef8420ea24a68bca79bf9183b36d194a14fdc33b3dcf8a113f433c0667f8"
+    },
+    "version": "3.12-2"
+  },
+  "gzip": {
+    "desc": {
+      "bytes": 492,
+      "sha256": "a1a088359026bddb3915d52585147633e040419110a88619e70781853b225897"
+    },
+    "version": "1.15-1"
+  },
+  "hicolor-icon-theme": {
+    "desc": {
+      "bytes": 386,
+      "sha256": "07029742c05b9b52f66befcf03531586ddabea99ece131fbf4bbe1f86f5b5606"
+    },
+    "version": "0.18-1"
+  },
+  "hwdata": {
+    "desc": {
+      "bytes": 361,
+      "sha256": "74838adcb30c4a345523d7faa9f6c961b380da0ac319fe97eff3401c085fc65f"
+    },
+    "version": "0.412-1"
+  },
+  "iana-etc": {
+    "desc": {
+      "bytes": 356,
+      "sha256": "1ec618a2550369bfdfb804464be24593b465544f00f9621c0a02e8e39043557d"
+    },
+    "version": "20260617-1"
+  },
+  "icu": {
+    "desc": {
+      "bytes": 543,
+      "sha256": "e3178755cdb9bdb8d7613e690cddd18569e1e634348c4d494ba8d1bf72168742"
+    },
+    "version": "78.3-1"
+  },
+  "iniparser": {
+    "desc": {
+      "bytes": 412,
+      "sha256": "b9895373cdc7b9a1fa35ff90f1325c83edafdae37b8780027fa3423fbe400d3d"
+    },
+    "version": "4.3.2-1"
+  },
+  "iproute2": {
+    "desc": {
+      "bytes": 549,
+      "sha256": "558049089234c48adb00b4219a225431f2112426436128dd5c3b30599daa13d6"
+    },
+    "version": "7.3.0-1"
+  },
+  "iptables": {
+    "desc": {
+      "bytes": 650,
+      "sha256": "3932b0fc0efead72528e8d690df0423de951f6dad8d75e0be2f619ea614d8959"
+    },
+    "version": "1:1.8.13-1"
+  },
+  "iputils": {
+    "desc": {
+      "bytes": 451,
+      "sha256": "271a8655de10e08fe9084a17a307ac9c278c4f400acedfa970270fda9c45f9c6"
+    },
+    "version": "20250605-1"
+  },
+  "jansson": {
+    "desc": {
+      "bytes": 372,
+      "sha256": "a4a653226ae787159deb2e0fcfe5e43e6f5c2175a39eddd360083a517190877c"
+    },
+    "version": "2.15.1-1"
+  },
+  "json-c": {
+    "desc": {
+      "bytes": 386,
+      "sha256": "31520169c1d537c6adc84c4152996a8fd6bc12d85d5a2a620a294538ed2e84f3"
+    },
+    "version": "0.19-1"
+  },
+  "kbd": {
+    "desc": {
+      "bytes": 417,
+      "sha256": "3bf748c90d5057c53cf6b928ca0625756a23018ad5d1a5a357eab76194684268"
+    },
+    "version": "2.10.0-1"
+  },
+  "keyutils": {
+    "desc": {
+      "bytes": 402,
+      "sha256": "f95b02f96ea391011253f4b14493f965b5cd01b84c68196f8fed7841561ceabf"
+    },
+    "version": "1.6.3-4"
+  },
+  "kmod": {
+    "desc": {
+      "bytes": 459,
+      "sha256": "90baf29e15526850f91143113a9925c1f6daa77965ecd14c860846e4c1a5f244"
+    },
+    "version": "34.3-1"
+  },
+  "krb5": {
+    "desc": {
+      "bytes": 705,
+      "sha256": "65851f06e0103c8c547645394f80a4dfec70fd06474e0ce70ec323f237b1e0c3"
+    },
+    "version": "1.22.2-1"
+  },
+  "leancrypto": {
+    "desc": {
+      "bytes": 433,
+      "sha256": "feed72dc669c908bfaaa8c3536409588d86dbd0a80a1a67aac5cfe2faaf64f74"
+    },
+    "version": "1.9.1-1"
+  },
+  "libaio": {
+    "desc": {
+      "bytes": 395,
+      "sha256": "5de353a9777e6c36b858cef385af43db7213af1c4d136e9d415da5812b5b56b7"
+    },
+    "version": "0.3.113-5"
+  },
+  "libarchive": {
+    "desc": {
+      "bytes": 601,
+      "sha256": "2b129f40db19ff38cd89d38e4fa65b1cb1e9e11681274b842e5433787adc942e"
+    },
+    "version": "3.8.11-1"
+  },
+  "libasan": {
+    "desc": {
+      "bytes": 472,
+      "sha256": "29089cb90fd82a256702ea1e0557bddfee30bd45fdeaa63223d51559baf0abbb"
+    },
+    "version": "16.2.1+r23+gd564253eb6c8-1"
+  },
+  "libassuan": {
+    "desc": {
+      "bytes": 462,
+      "sha256": "0ad927cc37f705bd085c6a3dc3e7367858419543549b5a609b48ef596e8f7c0a"
+    },
+    "version": "3.0.0-1"
+  },
+  "libatomic": {
+    "desc": {
+      "bytes": 442,
+      "sha256": "e85bef0674137d33e1705fe3b029b0c1cdc5e9e44bf65c8909e6911b4c88a170"
+    },
+    "version": "16.2.1+r23+gd564253eb6c8-1"
+  },
+  "libbpf": {
+    "desc": {
+      "bytes": 487,
+      "sha256": "6586cacacbfc3e342f724291512d8072ab8083850973b4dc7159454dafc2ed64"
+    },
+    "version": "1.7.0-1"
+  },
+  "libcap": {
+    "desc": {
+      "bytes": 419,
+      "sha256": "85de056f0047304ca219f55be302fb1e460abe2a51ab18c57f7771e70f85df01"
+    },
+    "version": "2.78-1"
+  },
+  "libcap-ng": {
+    "desc": {
+      "bytes": 471,
+      "sha256": "a6415e551303edf0619a0cad110d645d681cf02c3aa95e1bd9cd985382ca66f1"
+    },
+    "version": "0.9.6-1"
+  },
+  "libcbor": {
+    "desc": {
+      "bytes": 423,
+      "sha256": "8b27eb9dbe265549e3ee34dda9d383df3d714a3aa93110c326c4eb75989174b4"
+    },
+    "version": "0.14.0-1"
+  },
+  "libelf": {
+    "desc": {
+      "bytes": 518,
+      "sha256": "0202a70af92355dc7156d464fa6dcb359ce9706eb5b915ec3e99a09af6c6830f"
+    },
+    "version": "0.197-1"
+  },
+  "libevent": {
+    "desc": {
+      "bytes": 547,
+      "sha256": "c0e6ce9db404593ef36b8cb189fa146601bf4ccbb66b6e7d3366f1a0a4fc6eb0"
+    },
+    "version": "2.1.13-2"
+  },
+  "libffi": {
+    "desc": {
+      "bytes": 375,
+      "sha256": "947f5e47e20869b1c07e08766b09e38e53d745ccb9ba5a31f4912da96cea388a"
+    },
+    "version": "3.8.0-1"
+  },
+  "libgcc": {
+    "desc": {
+      "bytes": 446,
+      "sha256": "48473122296e94550b070cd50f0300fd4b6a69c82e46a90b8ebb1b42ef107bef"
+    },
+    "version": "16.2.1+r23+gd564253eb6c8-1"
+  },
+  "libgcrypt": {
+    "desc": {
+      "bytes": 532,
+      "sha256": "ed73c8be89a8f0d58f07a98b18893a6f399836195c30a3c073c6196886a45643"
+    },
+    "version": "1.12.4-1"
+  },
+  "libgfortran": {
+    "desc": {
+      "bytes": 454,
+      "sha256": "ccb17764813075d9bcdf0bbbc60db168affc2bf78f84b04bbe51ea90710b34f7"
+    },
+    "version": "16.2.1+r23+gd564253eb6c8-1"
+  },
+  "libgomp": {
+    "desc": {
+      "bytes": 435,
+      "sha256": "ff14c6b20d36009e27c5665f19691f7e4ea4fd08cda0564ad6eeeaa98ff76617"
+    },
+    "version": "16.2.1+r23+gd564253eb6c8-1"
+  },
+  "libgpg-error": {
+    "desc": {
+      "bytes": 417,
+      "sha256": "b026946cc81476a34110d0dad327e3edafe01deb582a01e308c22fc108bdf13d"
+    },
+    "version": "1.61-1"
+  },
+  "libhwasan": {
+    "desc": {
+      "bytes": 493,
+      "sha256": "491eddc996e30cf735cfe7727775612427aca72f191f6f7c8bbb1aadf7160552"
+    },
+    "version": "16.2.1+r23+gd564253eb6c8-1"
+  },
+  "libidn2": {
+    "desc": {
+      "bytes": 447,
+      "sha256": "ead97f3e5957a6c7b7d83c4cf0e328aa88575fc8ce77d46558c90bbec2977fdd"
+    },
+    "version": "2.3.8-1"
+  },
+  "libjpeg-turbo": {
+    "desc": {
+      "bytes": 438,
+      "sha256": "2fe1eba6c22c3e72917aea1f0665ecb7f67ecf756c35ce7c05a674c66784f76b"
+    },
+    "version": "3.2.1-1"
+  },
+  "libksba": {
+    "desc": {
+      "bytes": 457,
+      "sha256": "c292dd47627c35a895e2e569bc327dea59f8c92ebb7ac1a615bb9dbe127400b5"
+    },
+    "version": "1.8.1-1"
+  },
+  "libldap": {
+    "desc": {
+      "bytes": 428,
+      "sha256": "7bc698bf69a66916e4b631356065821d08440124e8e11e6f2e8867c9f626abbc"
+    },
+    "version": "2.7.2-2"
+  },
+  "liblsan": {
+    "desc": {
+      "bytes": 468,
+      "sha256": "dc6805f84e9574f6891815f4de55e00af1f3e72230b04e2e582f6225f8a2a6c7"
+    },
+    "version": "16.2.1+r23+gd564253eb6c8-1"
+  },
+  "libmakepkg-dropins": {
+    "desc": {
+      "bytes": 483,
+      "sha256": "fecb68ee931db8c62b90f3ea1df3a19b34f8e05e19fdf45ec73a4cd7c4ebb077"
+    },
+    "version": "20-2"
+  },
+  "libmnl": {
+    "desc": {
+      "bytes": 387,
+      "sha256": "f7129bb9f43f97a279d298d102c815f0c73c21936bfbdbb91eb1dca994b8c919"
+    },
+    "version": "1.0.5-2"
+  },
+  "libnetfilter_conntrack": {
+    "desc": {
+      "bytes": 481,
+      "sha256": "5540c590eb880bf0acf295930b93dfaf2ced2f88cda694016276b3c4826d70f5"
+    },
+    "version": "1.1.1-1"
+  },
+  "libnfnetlink": {
+    "desc": {
+      "bytes": 408,
+      "sha256": "7c4b7ae4a12fc0a2d411574ceec9cf90c00b9a0bf171e62b10599c45a1f2390e"
+    },
+    "version": "1.0.2-2"
+  },
+  "libnftnl": {
+    "desc": {
+      "bytes": 407,
+      "sha256": "c99ba83fb6e77e6a0be2812e1b0b7376e54595c462e31ef2f39c5cbbf15f3f8e"
+    },
+    "version": "1.3.2-1"
+  },
+  "libnghttp2": {
+    "desc": {
+      "bytes": 432,
+      "sha256": "cff5e0043aaa1f28f5d8c0fb7305e30f054f8cb9bdcc77a35c36c305a71869ab"
+    },
+    "version": "1.71.0-1"
+  },
+  "libnghttp3": {
+    "desc": {
+      "bytes": 379,
+      "sha256": "3b5ba26de212d24ca2253e3c7fec877654d6da1a35404db6d2341dcd4b242b6e"
+    },
+    "version": "1.19.0-1"
+  },
+  "libngtcp2": {
+    "desc": {
+      "bytes": 477,
+      "sha256": "3c0d9848ea91384826679e78a96a89fc620187be7e9da5420bdfb3635b56ee09"
+    },
+    "version": "1.26.0-1"
+  },
+  "libnl": {
+    "desc": {
+      "bytes": 551,
+      "sha256": "3d7873adb11dc8bae61ef879aead85f3d048e01c84777ffe759a376cf16724b1"
+    },
+    "version": "3.12.0-1"
+  },
+  "libnsl": {
+    "desc": {
+      "bytes": 396,
+      "sha256": "616a084f472249a7f643329698b81bada9657911b3ed51f90d3a98bb0c773236"
+    },
+    "version": "2.0.1-2"
+  },
+  "libobjc": {
+    "desc": {
+      "bytes": 455,
+      "sha256": "850495f3d879700201865894d4800e7ab98f496faf4365b1cd59ce5aa1e15c39"
+    },
+    "version": "16.2.1+r23+gd564253eb6c8-1"
+  },
+  "libp11-kit": {
+    "desc": {
+      "bytes": 439,
+      "sha256": "3260dae940bc0af616c8cf7a605b547790d70c96c616ff26931c6b956f79c9f5"
+    },
+    "version": "0.26.5-1"
+  },
+  "libpcap": {
+    "desc": {
+      "bytes": 426,
+      "sha256": "4cd2382b547444d18d38f3b2265083da0826d2f1768674b32b36410cd2d14f6a"
+    },
+    "version": "1.11.0-1"
+  },
+  "libpng": {
+    "desc": {
+      "bytes": 413,
+      "sha256": "8d5888562e5f093ce3e037d1b4a51d0fd777adee7a47dbe7af5a1142b301ca40"
+    },
+    "version": "1.6.59-1"
+  },
+  "libpsl": {
+    "desc": {
+      "bytes": 423,
+      "sha256": "6e2c71b265a1f51121f21cf84dbd2850782e04851b796646281ed0ccdeb0dfdf"
+    },
+    "version": "0.21.5-2"
+  },
+  "libquadmath": {
+    "desc": {
+      "bytes": 443,
+      "sha256": "903e175a40993c5ebff1ec37ebf7d14c649420ce4cef41608b0a9dcddde68aeb"
+    },
+    "version": "16.2.1+r23+gd564253eb6c8-1"
+  },
+  "libsasl": {
+    "desc": {
+      "bytes": 462,
+      "sha256": "9c98c9aa36880b2ea8115ade966e10c381feb1b5086ddc5b4085bd9d7784e4ad"
+    },
+    "version": "2.1.28-5"
+  },
+  "libseccomp": {
+    "desc": {
+      "bytes": 393,
+      "sha256": "5d438b8913127c851c4aba77fbf889cbf066b51b562d9f91101566c0628d8a87"
+    },
+    "version": "2.6.0-1"
+  },
+  "libsecret": {
+    "desc": {
+      "bytes": 550,
+      "sha256": "1267d43e5bcad9b15debce42b01d7fc3c4b7a2f31a56b7e030fcba4b7fec67e3"
+    },
+    "version": "0.21.8.2-1"
+  },
+  "libslirp": {
+    "desc": {
+      "bytes": 381,
+      "sha256": "14647de3ffc783658fcfb95f2adefa88a5ba2051ed0be82473c5718f722779fb"
+    },
+    "version": "4.9.7-1"
+  },
+  "libssh2": {
+    "desc": {
+      "bytes": 426,
+      "sha256": "46b1545628b6160da790674e8c4aa27d24a7f9d0e8905f3f65eaa15885ad9032"
+    },
+    "version": "1.11.1-7"
+  },
+  "libstdc++": {
+    "desc": {
+      "bytes": 454,
+      "sha256": "dede1ab01e980007d8895ccb8016dcebcc7c61faeb6b5b597bbe3f6b8c82d6a4"
+    },
+    "version": "16.2.1+r23+gd564253eb6c8-1"
+  },
+  "libsysprof-capture": {
+    "desc": {
+      "bytes": 380,
+      "sha256": "e26c773bc9ed2700621a98b96934cda6e75d28e2fa4edc295454737dd0d60343"
+    },
+    "version": "51.0-1"
+  },
+  "libtasn1": {
+    "desc": {
+      "bytes": 403,
+      "sha256": "c76a572250b2b84284c5ae92e68db4b4aa5c0fd662f7fc31207042ded8afb04f"
+    },
+    "version": "4.21.0-1"
+  },
+  "libtirpc": {
+    "desc": {
+      "bytes": 414,
+      "sha256": "56a70b464840e643eda85fd6bb54bfd135535425696a266918e539b3780d50b7"
+    },
+    "version": "1.3.8-1"
+  },
+  "libtraceevent": {
+    "desc": {
+      "bytes": 491,
+      "sha256": "38bf77772e4724878c0529f226804fd5db45dc44dfad1d5b33205348079b88a8"
+    },
+    "version": "1:1.9.1-1"
+  },
+  "libtracefs": {
+    "desc": {
+      "bytes": 516,
+      "sha256": "52ec83e54d8f9420aa22a71bd400d4ed5bd074c265799b91295fb72e8d9358fc"
+    },
+    "version": "1.8.4-1"
+  },
+  "libtsan": {
+    "desc": {
+      "bytes": 471,
+      "sha256": "c93e980cc142fea00be9444f8a7e21797958f5b48185b6b6f6c14941c1851cb6"
+    },
+    "version": "16.2.1+r23+gd564253eb6c8-1"
+  },
+  "libubsan": {
+    "desc": {
+      "bytes": 484,
+      "sha256": "2a02be4ef16103dba4fd4f1e5a59ec3ff766776a7adfe6a8e7a2b39b2e29413e"
+    },
+    "version": "16.2.1+r23+gd564253eb6c8-1"
+  },
+  "libunistring": {
+    "desc": {
+      "bytes": 452,
+      "sha256": "994f56a92a19e34e54ffd075bac3b31c17c6b680a2c161cc0502273d48a1717e"
+    },
+    "version": "1.4.2-1"
+  },
+  "liburing": {
+    "desc": {
+      "bytes": 434,
+      "sha256": "e2056ac827c96540055ba99c7662913b38aad3edfeefcd5bc37ffdcc74acbf5e"
+    },
+    "version": "2.15-1"
+  },
+  "libusb": {
+    "desc": {
+      "bytes": 421,
+      "sha256": "8886779e4897a56722e9bd8b1242e8d8a2f2312d456921e2d869d23187813f53"
+    },
+    "version": "1.0.30-1"
+  },
+  "libverto": {
+    "desc": {
+      "bytes": 529,
+      "sha256": "f6842b1d08fe0d1dace13cbc3a646ad37ffe08b84950711eb72a99b843c5ce66"
+    },
+    "version": "0.3.2-6"
+  },
+  "libxcrypt": {
+    "desc": {
+      "bytes": 402,
+      "sha256": "23c838ffe4ac8e420152a601a2c5bb69238e4e38ea517295d749fba21bc55e33"
+    },
+    "version": "4.5.2-1"
+  },
+  "libxdp": {
+    "desc": {
+      "bytes": 449,
+      "sha256": "7a9f4c35a4c4c4a24168781f2d64520c2d8041f7e0c267182506e5639d6bb169"
+    },
+    "version": "1.6.3-2"
+  },
+  "libxml2": {
+    "desc": {
+      "bytes": 485,
+      "sha256": "18dce444ba2ad23cca92bbbe52fb458808c093b5f0792fc118cbd3ec79b5f71c"
+    },
+    "version": "2.15.4-1"
+  },
+  "libyaml": {
+    "desc": {
+      "bytes": 318,
+      "sha256": "e898db931697723e206a3322f402bfb7f62b6f0bf9ca574669f8936e7f2752d9"
+    },
+    "version": "0.2.5-3"
+  },
+  "licenses": {
+    "desc": {
+      "bytes": 330,
+      "sha256": "2673ffbcdbdaf58ba4ff23c0113e198d90385b1d9e9b288dce24a0d13232152c"
+    },
+    "version": "20240728-1"
+  },
+  "linux": {
+    "desc": {
+      "bytes": 757,
+      "sha256": "c4629f3f6f901459027a433551cb62272ce0fe5be3bbacdb18d34b3b5601a6a9"
+    },
+    "version": "7.2.14.arch1-1"
+  },
+  "linux-api-headers": {
+    "desc": {
+      "bytes": 371,
+      "sha256": "013d5a446507eadbbf5a69aa39bedd658cafc531d542f7fd0a683dc69bbde618"
+    },
+    "version": "7.3-1"
+  },
+  "lmdb": {
+    "desc": {
+      "bytes": 348,
+      "sha256": "7fa61c0ce08c0ef3632a53384e5b3e1de069f8f20bf805d0af96cbe97acd942a"
+    },
+    "version": "0.9.35-1"
+  },
+  "lz4": {
+    "desc": {
+      "bytes": 379,
+      "sha256": "7afb21f0cef448ce080be4be132fbc69f99dbb169143d15f504dcc89fa59882e"
+    },
+    "version": "1:1.11.0-1"
+  },
+  "lzo": {
+    "desc": {
+      "bytes": 368,
+      "sha256": "197d19af8e9bddfe1529bab1ab4b27b903797e438fbbbc9b63113f42fcbfc2b9"
+    },
+    "version": "2.10-5"
+  },
+  "mkinitcpio": {
+    "desc": {
+      "bytes": 848,
+      "sha256": "0038c8c56466cbca3f436e8dcfbba2db0638dd40731afc4ccb689943bb4a52de"
+    },
+    "version": "42.2-1"
+  },
+  "mkinitcpio-busybox": {
+    "desc": {
+      "bytes": 334,
+      "sha256": "b7f96ab28b2780e2128f52c4c8592f704d14e6930c3ab57679fc338f397ac9d5"
+    },
+    "version": "1.36.1-1"
+  },
+  "mpdecimal": {
+    "desc": {
+      "bytes": 429,
+      "sha256": "432007a3201b06875a53821524b4dae3067b00894f04fe50d93845fa6d9ad336"
+    },
+    "version": "4.0.1-3"
+  },
+  "mpfr": {
+    "desc": {
+      "bytes": 400,
+      "sha256": "2fe571245146687d95673d8ddcaee64fa1f71559e83d507408f40757c5a7306a"
+    },
+    "version": "4.2.2-1"
+  },
+  "ncurses": {
+    "desc": {
+      "bytes": 606,
+      "sha256": "4533241cccbf75ce1fbc7c28986419fb61f14ae06a48b495a9e3bf6f186f1a7f"
+    },
+    "version": "6.6-2"
+  },
+  "ndctl": {
+    "desc": {
+      "bytes": 508,
+      "sha256": "4bbdd06b6b4441742615f3fe8f5a8ea68f7b93201d4f5ef20c534cb7be07690b"
+    },
+    "version": "85-1"
+  },
+  "nettle": {
+    "desc": {
+      "bytes": 438,
+      "sha256": "7b7a3c14c50195e9f4b9b7850ebccf49a1d408a6496654a55143f1f6fb869129"
+    },
+    "version": "4.0-1"
+  },
+  "nftables": {
+    "desc": {
+      "bytes": 477,
+      "sha256": "8aa512f9e03847d8d5df4977b378501dd5f082bdb9e265f0ee3490e1cd0f18a2"
+    },
+    "version": "1:1.1.7-3"
+  },
+  "npth": {
+    "desc": {
+      "bytes": 395,
+      "sha256": "a1d49a9c6f9a0d0a8ca3d6fe31f668ae76ebdd677eabae4ff5ce7861b8e97655"
+    },
+    "version": "1.8-1"
+  },
+  "numactl": {
+    "desc": {
+      "bytes": 377,
+      "sha256": "b914c2660e9db232c242ec49e1778564148e503c4588c0c6f2ebc8b432755a0f"
+    },
+    "version": "2.0.19-1"
+  },
+  "openssl": {
+    "desc": {
+      "bytes": 516,
+      "sha256": "c62c6df48573aabe373298f1a4474716a03ff3622ce658385629ce8a2d5b31d9"
+    },
+    "version": "3.6.5-1"
+  },
+  "p11-kit": {
+    "desc": {
+      "bytes": 437,
+      "sha256": "8ed46bcd01397361f01c4e5d9d7e2eeb54ec3d92921ccb9a369807cd83f0bf10"
+    },
+    "version": "0.26.5-1"
+  },
+  "pacman": {
+    "desc": {
+      "bytes": 719,
+      "sha256": "0ee6e4c981f717be73dea1a9311ad7a947a2a6929060b2250a0f70342d093c58"
+    },
+    "version": "7.1.0.r9.g54d9411-3"
+  },
+  "pacman-mirrorlist": {
+    "desc": {
+      "bytes": 375,
+      "sha256": "d6dc56a45b01ea1bc63abab5578ddefa73c86785eb4128b872d321e4311d97f4"
+    },
+    "version": "20260610-1"
+  },
+  "pam": {
+    "desc": {
+      "bytes": 501,
+      "sha256": "6d53c61fe773a2b500ebc8b5997db0ef7846cf477b5b70588603b5757157d563"
+    },
+    "version": "1.7.3-1"
+  },
+  "pambase": {
+    "desc": {
+      "bytes": 337,
+      "sha256": "d3075a795434faf1344e5751d49d575c6c00ebaeea156ce9272f1947d9c0eb4b"
+    },
+    "version": "20260616-1"
+  },
+  "pciutils": {
+    "desc": {
+      "bytes": 489,
+      "sha256": "f64970031d1f9570f2478d305f1dfec31e2648dbbcd84c99a29af2bf3781b338"
+    },
+    "version": "3.15.0-1"
+  },
+  "pcre2": {
+    "desc": {
+      "bytes": 574,
+      "sha256": "95eb62934058ed53ef4e63b13a27fa85595e6c74096ac398b0f345459e3254b7"
+    },
+    "version": "10.49-1"
+  },
+  "perl": {
+    "desc": {
+      "bytes": 2981,
+      "sha256": "aa9a59f470a53e1be7aec056592bae76884677166fafb0a8a28f2a9c6a2d6ab0"
+    },
+    "version": "5.44.0-1"
+  },
+  "pinentry": {
+    "desc": {
+      "bytes": 614,
+      "sha256": "5f031783f4797f18fb09e4cb9747b9156583b0a6a5ce8b24367492037ede8faa"
+    },
+    "version": "1.3.3-1"
+  },
+  "pixman": {
+    "desc": {
+      "bytes": 390,
+      "sha256": "aeaf332dbc96b20400f5a5fb3ef4723605447c2cfad250a06a9a450a59c5ccff"
+    },
+    "version": "0.46.4-1"
+  },
+  "popt": {
+    "desc": {
+      "bytes": 350,
+      "sha256": "f26f4c7e9e15382d91523e30b64b7d51c5ed5e1081f11b5986f94bf1eca172b0"
+    },
+    "version": "1.19-2"
+  },
+  "procps-ng": {
+    "desc": {
+      "bytes": 541,
+      "sha256": "31a5c2e5922eb9284c6950aa5c228ca4316bb2e1b52e6d8ea6cc67073024e9a0"
+    },
+    "version": "4.0.7-1"
+  },
+  "psmisc": {
+    "desc": {
+      "bytes": 338,
+      "sha256": "a8a16e6e4942bc327d77efb0ee009cf6855cc7278c4682f66615310942168875"
+    },
+    "version": "23.7-2"
+  },
+  "python": {
+    "desc": {
+      "bytes": 842,
+      "sha256": "92506cc5be352b4cdff59662367a15d7718e471a6193e1698942e3b222a683a1"
+    },
+    "version": "3.14.9-1"
+  },
+  "qemu-common": {
+    "desc": {
+      "bytes": 938,
+      "sha256": "22349a6367a424e149b0559e6c14e9a6c778aa20ab812334c859c81cc78e3131"
+    },
+    "version": "11.1.3-1"
+  },
+  "qemu-img": {
+    "desc": {
+      "bytes": 920,
+      "sha256": "0898bebeb502f5510bba5d4d8d27f86a3fac84beb9513b4077859322bbd60145"
+    },
+    "version": "11.1.3-1"
+  },
+  "qemu-system-aarch64": {
+    "desc": {
+      "bytes": 1237,
+      "sha256": "46794e658359963ad60ec73bc6f743d52d5e9e8b3fd71b3c0db3e6ac7f9d92a2"
+    },
+    "version": "11.1.3-1"
+  },
+  "qemu-system-x86": {
+    "desc": {
+      "bytes": 1295,
+      "sha256": "5283fe5effbc1ddb11397cd1f00625607e6171f857b9ce509c42a75b173159a6"
+    },
+    "version": "11.1.3-1"
+  },
+  "qemu-system-x86-firmware": {
+    "desc": {
+      "bytes": 746,
+      "sha256": "ddce8f4695731d7ed2644da8a33fe61948f5fd654f3e37540eeb80ab2e9231c5"
+    },
+    "version": "11.1.3-1"
+  },
+  "rdma-core": {
+    "desc": {
+      "bytes": 1214,
+      "sha256": "04c93e26a9e3fae158b6cb59104a5c2bce616e8cf176fca6e489c8071048a847"
+    },
+    "version": "65.0-1"
+  },
+  "readline": {
+    "desc": {
+      "bytes": 450,
+      "sha256": "57cd830aa82fa62b8cba58b90e92a4d16fd1a75304ab0d6367820caa0423244b"
+    },
+    "version": "8.3.6-1"
+  },
+  "seabios": {
+    "desc": {
+      "bytes": 436,
+      "sha256": "b55177fa894a0a3cfa22671a3990f108d7f021387f09b62e1a58a5ae9dc0fc66"
+    },
+    "version": "1.17.0-2"
+  },
+  "sed": {
+    "desc": {
+      "bytes": 344,
+      "sha256": "3b41749b5bddb16e2c97a0d18dd1406b792d0e8aa4979092b7bc4421bcc03621"
+    },
+    "version": "4.10-2"
+  },
+  "shadow": {
+    "desc": {
+      "bytes": 523,
+      "sha256": "0583328ccf953e820ba25cf0298195500c5563aed184d88d4016f63b92473dbf"
+    },
+    "version": "4.20.0.arch1-1"
+  },
+  "snappy": {
+    "desc": {
+      "bytes": 385,
+      "sha256": "acfddb7392d1574f34e4af8b8fedf9bc8c756465eeca8babbf044882ae877933"
+    },
+    "version": "1.3.1-1"
+  },
+  "sqlite": {
+    "desc": {
+      "bytes": 451,
+      "sha256": "8e73549b7debd9fa4b63b7d5f15d2a533b12354696339b55b57303b9d5231118"
+    },
+    "version": "3.54.1-1"
+  },
+  "systemd": {
+    "desc": {
+      "bytes": 1493,
+      "sha256": "40337a50c8d3bdbf0a55705e9f5efccfc7c34b9ab3e6f9a2cab5c833bf257c04"
+    },
+    "version": "262.1-1"
+  },
+  "systemd-libs": {
+    "desc": {
+      "bytes": 565,
+      "sha256": "dfdfb0cb2deb22e1120aa58a0037cf1c653131ba4fceb104606b8b56741f434b"
+    },
+    "version": "262.1-1"
+  },
+  "systemd-sysvcompat": {
+    "desc": {
+      "bytes": 401,
+      "sha256": "73780cbac8138545350a1216da01ba9dc2d0ca971f9268f732b98c955f43953a"
+    },
+    "version": "262.1-1"
+  },
+  "tar": {
+    "desc": {
+      "bytes": 380,
+      "sha256": "0b8bc7d10f1334715febe3fd31ea97a5c769df3bfb4c3472dda3005b62996671"
+    },
+    "version": "1.35-5"
+  },
+  "tpm2-tss": {
+    "desc": {
+      "bytes": 621,
+      "sha256": "2578bcf1b49e911af2ef02bc29715b1e61d4a55ea2d3ba8e1e4b50e0969571fd"
+    },
+    "version": "4.2.0-2"
+  },
+  "tzdata": {
+    "desc": {
+      "bytes": 410,
+      "sha256": "7ac25881bc7b887c0b565b22bcf872d1aedaf2c6797146e4fe3e6e235d96f9af"
+    },
+    "version": "2026f-1"
+  },
+  "util-linux": {
+    "desc": {
+      "bytes": 854,
+      "sha256": "1b6b7bd2b81e1cc6490d9e673f46fe133123eddca42e0f96a8d5fb5c00852ec7"
+    },
+    "version": "2.42.4-1"
+  },
+  "util-linux-libs": {
+    "desc": {
+      "bytes": 719,
+      "sha256": "187338f4a30a5860a2aae58706d139668ee0bda0dabcc46b81ea522986728b56"
+    },
+    "version": "2.42.4-1"
+  },
+  "vde2": {
+    "desc": {
+      "bytes": 521,
+      "sha256": "3291c81a3fb0471739c9bca4508b229d644239394ec1858c817eb63ef9740211"
+    },
+    "version": "2.3.3-10"
+  },
+  "wolfssl": {
+    "desc": {
+      "bytes": 390,
+      "sha256": "3792f3d6e4fa2222ef28bec38192b695b83eb8b42dfd7bea166ad8bb02e755b2"
+    },
+    "version": "5.9.4-1"
+  },
+  "xz": {
+    "desc": {
+      "bytes": 462,
+      "sha256": "333d424a9c0278c2aba7aa78d57ef0f748f9162df318c69d77b5ca520e500299"
+    },
+    "version": "5.8.4-1"
+  },
+  "zlib": {
+    "desc": {
+      "bytes": 409,
+      "sha256": "39b3777bb9f59205ba1bbf2d81ac4bb95ac7fd24a13d1f9e15f8c56223e7a077"
+    },
+    "version": "1:1.3.2-4"
+  },
+  "zstd": {
+    "desc": {
+      "bytes": 437,
+      "sha256": "4f6d6724879fac46385f827504525a09bd0015514984f137140e45b3f3218362"
+    },
+    "version": "1.5.7-3"
+  }
+}

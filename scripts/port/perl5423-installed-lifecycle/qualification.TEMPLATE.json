@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "operation": "perl5423-installed-lifecycle-v1",
+  "source_map_sha256": null,
+  "image": null,
+  "base_labels": null,
+  "baseline_source": "25dc3e65bdb6137c87a9409067fe9b2cf6e9763f",
+  "baseline_inventory_sha256": "579981195b654d8cdf142e4101dfc2bfffbc3576eed50f23796a06e90cf57453",
+  "native": null,
+  "page_bytes": null,
+  "runtime_domain": null,
+  "test_fingerprint": null,
+  "baseline_fingerprint": null,
+  "signing_credentials": null,
+  "status": "NOT_ADMITTED"
+}

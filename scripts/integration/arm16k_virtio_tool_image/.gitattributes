@@ -1,0 +1,2 @@
+# Preserve the exact official catalog descriptor, including its terminal separator.
+data/official-desc.data whitespace=-blank-at-eof

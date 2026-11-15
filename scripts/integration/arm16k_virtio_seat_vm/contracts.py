@@ -5,7 +5,8 @@ import hashlib,importlib.util,json,os,re,shutil,stat,time
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
 OP='arm16k-virtio-seat-vm-v1'
-IMAGE='sha256:ee1aa3da22a5d89dc1bc273fa818b1d996b7e62851f50d7b629144f6bba9f207'
+PARENT_IMAGE='sha256:ee1aa3da22a5d89dc1bc273fa818b1d996b7e62851f50d7b629144f6bba9f207'
+IMAGE='sha256:52958d534193d739aeb6d3c9239ed31b97f8fb357a618e14391293068b28cd2a'
 POLICY='6002ee5e8fcf3cfdd25fa5425c5dfa879dc293f8b1c69f14b4a8f9259be0b446'
 RULE='b57a64ab6c973d0b734dea808e6caf9a49b40739c7c7649784d09bd6d90c36d3'
 PAM=('/etc/pam.d/login','/etc/pam.d/system-login','/etc/pam.d/system-local-login','/etc/pam.d/system-auth')
@@ -36,10 +37,27 @@ def source():
  expected={str(p.relative_to(HERE)) for p in HERE.rglob('*') if p.is_file() and p not in (HERE/'source.lock.json',HERE/'RESULTS.json')}
  if sealed.get('kind')!='ARM16K_VIRTIO_SEAT_SOURCE_LOCK_V1' or set(sealed.get('files',{}))!=expected:raise ValueError('complete exact new source namespace required')
  for n,r in sealed['files'].items():checked(HERE/n,r)
+ tool_qualification()
  return pin(HERE/'source.lock.json')
+def qualification_value(d):
+ if d.get('kind')!='ARM16K_VIRTIO_TOOL_IMAGE_V1' or d.get('status')!='TOOL_IMAGE_DEVICES_QUALIFIED_NO_GUEST' or d.get('image_id')!=IMAGE or d.get('parent_image_id')!=PARENT_IMAGE or d.get('guest_boot')!='NOT RUN' or d.get('release_accepted') is not False or d.get('owned_containers_absent') is not True:raise ValueError('actual separately qualified derived image required')
+ if d.get('required_devices')!={'virtio-blk-device':True,'virtio-keyboard-device':True,'virtio-gpu-device':True}:raise ValueError('all three actual device declarations required')
+ cleanup=d.get('cleanup',[])
+ if len(cleanup)!=2 or any(row.get('cleanup_errors')!=[] or not all(row.get(k) is True for k in ('cleanup_ownership_verified','owned_container_absence_verified','owned_container_removed')) for row in cleanup):raise ValueError('actual qualified tool ownership/absence required')
+ package=d.get('package',{})
+ if package.get('name')!='qemu-hw-display-virtio-gpu' or package.get('version')!='11.1.3-1' or package.get('filename')!='qemu-hw-display-virtio-gpu-11.1.3-1-x86_64.pkg.tar.zst':raise ValueError('single matching official GPU module package required')
+ return d
+
+def tool_qualification():
+ ref=lock()['tool_qualification'];checked(HERE/ref['file'],ref['pin']);d=qualification_value(read_json(HERE/ref['file']))
+ checked(HERE/ref['device_metadata_file'],ref['device_metadata_pin'])
+ if d['Root_device_help_metadata']!=ref['device_metadata_pin']:raise ValueError('whole qualification/device help join differs')
+ return d
+
 def authority(path,sha,phase):
  checked(path,{'bytes':Path(path).stat().st_size,'sha256':sha});a=read_json(path)
  if a.get('kind')!='ARM16K_VIRTIO_SEAT_VM_AUTHORITY_V1' or a.get('issued_by')!='Root' or a.get('operation')!=OP or a.get('tool_image_id')!=IMAGE or a.get('allow_'+phase) is not True:raise ValueError('fresh explicit Root operation authority required')
+ if a.get('tool_qualification')!=lock()['tool_qualification']['pin']:raise ValueError('whole actual derived-tool qualification pin required')
  if a.get('source_lock')!=source() or a.get('actor')!=pin(HERE/'seat_actor.py') or not isinstance(a.get('resource_review'),dict) or a['resource_review'].get('status')!='ROOT_REVIEWED_FINITE_RESOURCES':raise ValueError('source/actor/resource authority incomplete')
  for k in ('kernel_bundle','additions_manifest','qemu_metadata'):
   if not reference_pin(a.get(k)):raise ValueError('actual nonnull kernel/addition/tool pins required')
@@ -60,7 +78,9 @@ def kernel(directory,a):
  return b
 
 def tool_metadata(path,a):
+ tool_qualification()
  checked(path,a['qemu_metadata']);d=read_json(path)
+ if pin(path)!=lock()['tool_qualification']['device_metadata_pin']:raise ValueError('exact actual derived-image device metadata required')
  if d.get('kind')!='ROOT_OBSERVED_ARM_QEMU_DEVICE_HELP_V1' or d.get('issued_by')!='Root' or d.get('status')!='OBSERVED_DEVICE_HELP_ONLY' or d.get('image_id')!=IMAGE or d.get('qemu_path')!='/usr/bin/qemu-system-aarch64' or d.get('devices')!=['virtio-blk-device','virtio-keyboard-device','virtio-gpu-device'] or not reference_pin(d.get('actual_tool_pin')) or not reference_pin(d.get('actual_help_pin')) or not isinstance(d.get('actual_observed_utc'),str):raise ValueError('actual pinned ARM device-help metadata required')
  return d
 
