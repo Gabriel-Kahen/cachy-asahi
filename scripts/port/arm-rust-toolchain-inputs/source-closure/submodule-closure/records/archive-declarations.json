@@ -1,0 +1,166 @@
+{
+  "archive": {
+    "bytes": 265258564,
+    "filename": "rustc-1.99.0-src.tar.xz",
+    "name": "rust",
+    "root": "rustc-1.99.0-src",
+    "sha256": "cc41916a8c84f5d9ec4f55561b44e39f43b647b133f8a6f51be9ea13c83f7036",
+    "upstream_url": "https://static.rust-lang.org/dist/rustc-1.99.0-src.tar.xz"
+  },
+  "archive_scan_status": "COMPLETE_BOUNDED_SCAN",
+  "authenticated_source_pin_verified": true,
+  "does_not_establish_payload_or_license_completeness": true,
+  "gitmodules": {
+    "bytes": 1508,
+    "declarations": {
+      "submodules": [
+        {
+          "path": "src/doc/nomicon",
+          "url": "https://github.com/rust-lang/nomicon.git"
+        },
+        {
+          "path": "src/tools/cargo",
+          "url": "https://github.com/rust-lang/cargo.git"
+        },
+        {
+          "path": "src/doc/reference",
+          "url": "https://github.com/rust-lang/reference.git"
+        },
+        {
+          "path": "src/doc/book",
+          "url": "https://github.com/rust-lang/book.git"
+        },
+        {
+          "path": "src/doc/rust-by-example",
+          "url": "https://github.com/rust-lang/rust-by-example.git"
+        },
+        {
+          "path": "src/doc/edition-guide",
+          "url": "https://github.com/rust-lang/edition-guide.git"
+        },
+        {
+          "branch": "rustc/23.1-2026-07-22",
+          "path": "src/llvm-project",
+          "url": "https://github.com/rust-lang/llvm-project.git"
+        },
+        {
+          "path": "src/doc/embedded-book",
+          "url": "https://github.com/rust-embedded/book.git"
+        },
+        {
+          "path": "library/backtrace",
+          "url": "https://github.com/rust-lang/backtrace-rs.git"
+        },
+        {
+          "path": "src/tools/rustc-perf",
+          "url": "https://github.com/rust-lang/rustc-perf.git"
+        },
+        {
+          "path": "src/tools/enzyme",
+          "url": "https://github.com/rust-lang/enzyme.git"
+        },
+        {
+          "path": "src/gcc",
+          "url": "https://github.com/rust-lang/gcc.git"
+        }
+      ]
+    },
+    "path": ".gitmodules",
+    "sha256": "0f9d35b4321ab622a83b40ea3ac792b75ff746e7e8b4cc6a1869ce219177276b"
+  },
+  "report": {
+    "bytes": 2704405,
+    "owning_worker_commit": "3c76059f0031b2433f25bd1e0fd1400a0a8bfcb5",
+    "path": "scripts/port/arm-rust-toolchain-inputs/source-closure/archive-inventory/reports/rust.json",
+    "sha256": "a0eb6bec3b63d4d4f4a937e3e1e8b42a2e87d9e49b8608b96d51762b456abc8f"
+  },
+  "schema": 1,
+  "status": "RETAINED_ARCHIVE_SCAN_DECLARATIONS_ONLY",
+  "submodule_declarations": [
+    {
+      "archive_relative_path": "src/doc/nomicon",
+      "path": "src/doc/nomicon",
+      "presence_is_not_revision_or_completeness_proof": true,
+      "regular_members_under_path": 72,
+      "url": "https://github.com/rust-lang/nomicon.git"
+    },
+    {
+      "archive_relative_path": "src/tools/cargo",
+      "path": "src/tools/cargo",
+      "presence_is_not_revision_or_completeness_proof": true,
+      "regular_members_under_path": 2949,
+      "url": "https://github.com/rust-lang/cargo.git"
+    },
+    {
+      "archive_relative_path": "src/doc/reference",
+      "path": "src/doc/reference",
+      "presence_is_not_revision_or_completeness_proof": true,
+      "regular_members_under_path": 188,
+      "url": "https://github.com/rust-lang/reference.git"
+    },
+    {
+      "archive_relative_path": "src/doc/book",
+      "path": "src/doc/book",
+      "presence_is_not_revision_or_completeness_proof": true,
+      "regular_members_under_path": 2650,
+      "url": "https://github.com/rust-lang/book.git"
+    },
+    {
+      "archive_relative_path": "src/doc/rust-by-example",
+      "path": "src/doc/rust-by-example",
+      "presence_is_not_revision_or_completeness_proof": true,
+      "regular_members_under_path": 215,
+      "url": "https://github.com/rust-lang/rust-by-example.git"
+    },
+    {
+      "archive_relative_path": "src/doc/edition-guide",
+      "path": "src/doc/edition-guide",
+      "presence_is_not_revision_or_completeness_proof": true,
+      "regular_members_under_path": 62,
+      "url": "https://github.com/rust-lang/edition-guide.git"
+    },
+    {
+      "archive_relative_path": "src/llvm-project",
+      "branch": "rustc/23.1-2026-07-22",
+      "path": "src/llvm-project",
+      "presence_is_not_revision_or_completeness_proof": true,
+      "regular_members_under_path": 104380,
+      "url": "https://github.com/rust-lang/llvm-project.git"
+    },
+    {
+      "archive_relative_path": "src/doc/embedded-book",
+      "path": "src/doc/embedded-book",
+      "presence_is_not_revision_or_completeness_proof": true,
+      "regular_members_under_path": 61,
+      "url": "https://github.com/rust-embedded/book.git"
+    },
+    {
+      "archive_relative_path": "library/backtrace",
+      "path": "library/backtrace",
+      "presence_is_not_revision_or_completeness_proof": true,
+      "regular_members_under_path": 101,
+      "url": "https://github.com/rust-lang/backtrace-rs.git"
+    },
+    {
+      "archive_relative_path": "src/tools/rustc-perf",
+      "path": "src/tools/rustc-perf",
+      "presence_is_not_revision_or_completeness_proof": true,
+      "regular_members_under_path": 14313,
+      "url": "https://github.com/rust-lang/rustc-perf.git"
+    },
+    {
+      "archive_relative_path": "src/tools/enzyme",
+      "path": "src/tools/enzyme",
+      "presence_is_not_revision_or_completeness_proof": true,
+      "regular_members_under_path": 1889,
+      "url": "https://github.com/rust-lang/enzyme.git"
+    },
+    {
+      "archive_relative_path": "src/gcc",
+      "path": "src/gcc",
+      "presence_is_not_revision_or_completeness_proof": true,
+      "regular_members_under_path": 1,
+      "url": "https://github.com/rust-lang/gcc.git"
+    }
+  ]
+}
