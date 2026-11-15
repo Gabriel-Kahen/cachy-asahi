@@ -1,0 +1,55 @@
+{
+  "Original": {
+    "bytes": 1846657,
+    "sha256": "2e7f5356be8afd40009a1d18d91dcbb5d1a7fd638abc8914021d04b9a4dec7bf"
+  },
+  "Root_acceptance": null,
+  "Root_reported_terminal": "FAIL",
+  "artifact_review": "BOUNDED_EXACT_TAR_MEMBER_READS_ONLY_NO_EXTRACTALL_OR_ARTIFACT_CODE_EXECUTION",
+  "export_tar": {
+    "bytes": 2249216,
+    "sha256": "3f32b8684ca6a2c4f572f8b0da1e32f55724c0aa0fa26c0629dff802166ae903"
+  },
+  "failed_attempt": "CLOSED_NEVER_REPLAY_OR_REUSE_AS_SUCCESS",
+  "job": "132880178350",
+  "native_package": null,
+  "new_source_actual": {
+    "approval": null,
+    "artifact": null,
+    "authority": null,
+    "image": null,
+    "job": null,
+    "reader": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "observations": {
+    "output/cachy-asahi-llvm23-source-reference-23.1.1-1-aarch64-build.log": {
+      "bytes": 887,
+      "failure": "container_mode.command finally refuses existing tools.json after tools command retirement",
+      "sha256": "a0ce030a0794e319d9849ac28d58171aae9fc2fc40b3a0d7a00216e837298aaa"
+    },
+    "output/runtime.json": {
+      "bytes": 11014,
+      "kind": "INITIAL_ADMISSION_PARENT_RUNTIME_FACTS_NOT_BUILD_RECEIPT",
+      "sha256": "b4f0806c82c0d7c97939769fe813c31d4036f0dbc17257c3eb8f77fa52eb87ce"
+    },
+    "output/tools.json": {
+      "bytes": 7720,
+      "kind": "INITIAL_NATIVE_TOOL_BYTES_AND_ALPM_FACTS_NOT_COMMAND_RECEIPT",
+      "sha256": "7d0591227160f21d3876b281b087b0fd3af9ef4a8385a2a9ee0dcb88bf8307f9"
+    },
+    "output/tools.log": {
+      "bytes": 1062763,
+      "sha256": "f874f039353720fb015f40f1f2937e7a3fc9436de0cfadbed20c0aec2fe4a733",
+      "tail": "LLVM tools install records; no runtimes stage entered"
+    }
+  },
+  "ref": "refs/heads/codex/llvm23-source-reference-native-v2-20261115-r2",
+  "run": "43736506496",
+  "runtime_qualification": null,
+  "schema": 1,
+  "scope": "ACTUAL_FAILED_NATIVE_ORIGINAL_DATA_ONLY_NO_REPLAY",
+  "source": "365a763bc515a1b3550cc804536ddbf66353aac8"
+}
