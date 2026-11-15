@@ -1,0 +1,329 @@
+{
+  "candidate_packet": {
+    "bytes": 1295494,
+    "sha256": "d79dd6913e41fd3d830a44dd6a20d1f53817dc07accf1fc3a564682327719c39"
+  },
+  "cases": [
+    {
+      "commit": "5ae9458a4ec44c5318f37ddc7569c1d4ae8a69e7",
+      "component": "jni-0.22.4",
+      "grant_file": "evidence/jni-LICENSE-MIT",
+      "grant_upstream_path": "LICENSE-MIT",
+      "manifest_path": "crates/jni/Cargo.toml",
+      "manual_named_notice": "Copyright (c) 2016 Prevoty, Inc. and jni-rs contributors",
+      "notice_file": "evidence/jni-LICENSE-MIT",
+      "notice_upstream_path": "LICENSE-MIT",
+      "repository": "jni-rs/jni-rs",
+      "tree_file": "evidence/jni-root-tree.json",
+      "tree_shards": [
+        {
+          "file": "evidence/jni-crates-tree.json",
+          "prefix": "crates"
+        },
+        {
+          "file": "evidence/jni-package-tree.json",
+          "prefix": "crates/jni"
+        }
+      ],
+      "workspace_manifest": "evidence/jni-Cargo.toml"
+    },
+    {
+      "commit": "33045a124105c939d1e2cbdcb5a39e5d868ffa03",
+      "component": "jni-macros-0.22.4",
+      "grant_file": "evidence/jni-macros-LICENSE-MIT",
+      "grant_upstream_path": "LICENSE-MIT",
+      "manifest_path": "crates/jni-macros/Cargo.toml",
+      "manual_named_notice": "Copyright (c) 2016 Prevoty, Inc. and jni-rs contributors",
+      "notice_file": "evidence/jni-macros-LICENSE-MIT",
+      "notice_upstream_path": "LICENSE-MIT",
+      "repository": "jni-rs/jni-rs",
+      "tree_file": "evidence/jni-macros-root-tree.json",
+      "tree_shards": [
+        {
+          "file": "evidence/jni-macros-crates-tree.json",
+          "prefix": "crates"
+        },
+        {
+          "file": "evidence/jni-macros-package-tree.json",
+          "prefix": "crates/jni-macros"
+        }
+      ]
+    },
+    {
+      "commit": "64d77b7a5f119d7b55b4e2c169a4668067ff59e6",
+      "component": "jni-sys-macros-0.4.1",
+      "grant_file": "evidence/jni-sys-LICENSE-MIT",
+      "grant_upstream_path": "LICENSE-MIT",
+      "manifest_path": "jni-sys-macros/Cargo.toml",
+      "manual_named_notice": "Copyright (c) 2015 The rust-jni-sys Developers",
+      "notice_file": "evidence/jni-sys-LICENSE-MIT",
+      "notice_upstream_path": "LICENSE-MIT",
+      "repository": "jni-rs/jni-sys",
+      "tree_file": "evidence/jni-sys-root-tree.json",
+      "tree_shards": [
+        {
+          "file": "evidence/jni-sys-macros-tree.json",
+          "prefix": "jni-sys-macros"
+        }
+      ]
+    },
+    {
+      "commit": "4a8cdb44891ed57b8ff5a023b6bec7137c48708f",
+      "component": "defmt-parser-1.0.0",
+      "grant_file": "evidence/defmt-LICENSE-MIT",
+      "grant_upstream_path": "LICENSE-MIT",
+      "manifest_path": "parser/Cargo.toml",
+      "manual_named_notice": "Copyright (c) Ferrous Systems",
+      "notice_file": "evidence/defmt-LICENSE-MIT",
+      "notice_upstream_path": "LICENSE-MIT",
+      "repository": "knurling-rs/defmt",
+      "tree_file": "evidence/defmt-root-tree.json",
+      "tree_shards": [
+        {
+          "file": "evidence/defmt-parser-tree.json",
+          "prefix": "parser"
+        }
+      ]
+    },
+    {
+      "commit": "3f7d6ad926848cd52c8d2142fdb2f43ab01ae8ec",
+      "component": "wasite-1.0.2",
+      "grant_file": "evidence/wasite-LICENSE-MIT",
+      "grant_upstream_path": "LICENSE_MIT.txt",
+      "manifest_path": "Cargo.toml",
+      "manual_named_notice": "Copyright \u00a9 2022-2026 The Wasite Contributors.",
+      "notice_file": "evidence/wasite-README.md",
+      "notice_upstream_path": "README.md",
+      "repository": "ardaku/wasite",
+      "tree_file": "evidence/wasite-root-tree.json",
+      "tree_shards": []
+    }
+  ],
+  "evidence_files": {
+    "../../priority-notes.json": {
+      "bytes": 65021,
+      "sha256": "60066b0fd2cb745ae73bf8104bc96af8547e38f2008e58ddc3a47d9ca0c6b638"
+    },
+    "../reevaluate.py": {
+      "bytes": 16054,
+      "sha256": "7f37366446b9d45273103d3286067276ec6a2886c1ef4c458d3a531bef15dbba"
+    },
+    "../successor-d/reevaluate.py": {
+      "bytes": 10311,
+      "sha256": "32268fc4b051251ac01d42b7f7f690f3b75583fa4e5231eef9f6b560c3fb3192"
+    },
+    "../successor-d/report.json": {
+      "bytes": 10955,
+      "sha256": "d36bb3e09e99c6b7fa50b316ffdf3909f9068e105fd6d79bca8fdc456db56b90"
+    },
+    "evidence/defmt-LICENSE-MIT": {
+      "bytes": 1053,
+      "sha256": "2710a622a896bba67356913d4d0492cab5465f61b2ecce6d880aeb483834fb50"
+    },
+    "evidence/defmt-parser-tree.json": {
+      "bytes": 819,
+      "sha256": "a6abde5de164167e13df3af78a8f5ecd473ca791f8830e6d8e9dfdc79fa720ee"
+    },
+    "evidence/defmt-root-tree.json": {
+      "bytes": 4804,
+      "sha256": "3a8edee41c11ca37bec1970a712b2c9072a5d9a0ccb3d14d11affb023af25dc6"
+    },
+    "evidence/jni-Cargo.toml": {
+      "bytes": 654,
+      "sha256": "83fb01ea19de610d7c177f50959f5b76ae1cf83571a838aff43dc4914af870bc"
+    },
+    "evidence/jni-LICENSE-MIT": {
+      "bytes": 1104,
+      "sha256": "fea1d5bf3dd71605ce5d7d2ff695c1837e914c77195e523a86b5391716477960"
+    },
+    "evidence/jni-crates-tree.json": {
+      "bytes": 993,
+      "sha256": "b53491705b03002ba8e62601431d260636ca1f682805f575fb7e52c4f67fd451"
+    },
+    "evidence/jni-macros-LICENSE-MIT": {
+      "bytes": 1104,
+      "sha256": "fea1d5bf3dd71605ce5d7d2ff695c1837e914c77195e523a86b5391716477960"
+    },
+    "evidence/jni-macros-crates-tree.json": {
+      "bytes": 993,
+      "sha256": "3d009f3719fa23ca2e3ef9f10549fcef6bcee6392c5a963a764dea5bb2a7b0d5"
+    },
+    "evidence/jni-macros-package-tree.json": {
+      "bytes": 1014,
+      "sha256": "738f43383436dd7c93b4b0cb8c3c54b78025c1d02c0036f71078c2bd4bb0dca3"
+    },
+    "evidence/jni-macros-root-tree.json": {
+      "bytes": 2731,
+      "sha256": "534cad9d54c4a6f9a7cc8b8e1998e9b937e939284d8d23e2e23ed7e3ab6ef4df"
+    },
+    "evidence/jni-package-tree.json": {
+      "bytes": 1804,
+      "sha256": "beb332f97b6620662b50ee326dc258bda2f4b451c20427635ef386828dc445a3"
+    },
+    "evidence/jni-root-tree.json": {
+      "bytes": 2731,
+      "sha256": "fc4408237dae76700bbca7927ac3eb53e9d72fa9cacb0e011c7a7479d3ad249a"
+    },
+    "evidence/jni-sys-LICENSE-MIT": {
+      "bytes": 1071,
+      "sha256": "1d85bd754b04ceec93e98e890edd1fa3c6a22e81bcb32135806beeccefa51cd1"
+    },
+    "evidence/jni-sys-macros-tree.json": {
+      "bytes": 805,
+      "sha256": "9758003512133ac84b5f5d4a1788c954fad35c8498fb205d50ddf98e651e7233"
+    },
+    "evidence/jni-sys-root-tree.json": {
+      "bytes": 2485,
+      "sha256": "595cbad68879c555422f9c1233faa0fddfa731a0e88d90108b2e009a832ee15c"
+    },
+    "evidence/mdbook-LICENSE": {
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    "evidence/mdbook-root-tree.json": {
+      "bytes": 2871,
+      "sha256": "e9d75871fb50ca6b51e13e3067d51efc5c19c957e703ac2ba598e3fee81f34e1"
+    },
+    "evidence/pulldown-root-tree.json": {
+      "bytes": 2671,
+      "sha256": "ab5a5d41baf7cf9ed4904a1a6405cd1228d2a541103511f9335dea78903f7d5d"
+    },
+    "evidence/syn-root-tree.json": {
+      "bytes": 110,
+      "sha256": "8c177a38af7c68d455e9554231def022cc2bcf62c1d3dab3626aaf5c319a5e04"
+    },
+    "evidence/ungrammar-root-tree.json": {
+      "bytes": 2171,
+      "sha256": "1194714dda1dc5fdb44b9e3b412dd2ec29736c5cbd7bfd0f736e49779a7c57c0"
+    },
+    "evidence/wasite-LICENSE-MIT": {
+      "bytes": 1036,
+      "sha256": "508a77d2e7b51d98adeed32648ad124b7b30241a8e70b2e72c99f92d8e5874d1"
+    },
+    "evidence/wasite-README.md": {
+      "bytes": 1199,
+      "sha256": "ab0b33a8c5c0f12a3ce8ea83bef620247cb6be6ed966b462f27a7772cba8ab4d"
+    },
+    "evidence/wasite-root-tree.json": {
+      "bytes": 3132,
+      "sha256": "95ba9eca5dfcd107e1853374126ee9bc25ecfd24a42adcba0e2fd7bf15772c01"
+    },
+    "evidence/wasmtime-LICENSE": {
+      "bytes": 12243,
+      "sha256": "268872b9816f90fd8e85db5a28d33f8150ebb8dd016653fb39ef1f94f2686bc5"
+    },
+    "evidence/wasmtime-root-tree.json": {
+      "bytes": 7680,
+      "sha256": "2279a782125d119f0bf21bb01c7a87bc23c2772a8a617d1e3e8daa7cdd7373dc"
+    },
+    "evidence/winsplit-root-tree.json": {
+      "bytes": 1509,
+      "sha256": "c4b6255c6abcbc99b17c4da8c23f5831691ab1a9ad8e4da08cfdc6d88da40297"
+    },
+    "evidence/xflags-root-tree.json": {
+      "bytes": 2508,
+      "sha256": "bdfc12da28e5ae372f08607c5899541ea1ad8c97a6eee015832223f8ec429684"
+    },
+    "evidence/xshell-root-tree.json": {
+      "bytes": 3116,
+      "sha256": "150e2d87ebcd2b60c416f71d8676b4e028c41c9fa57d723e5ca75d5c3f8c6c0f"
+    },
+    "requests.json": {
+      "bytes": 10764,
+      "sha256": "3a45329247a241dd8502810e507d1ddd9dd2d2021504e2e90d5eef6935f5e20e"
+    }
+  },
+  "schema": 1,
+  "unresolved_attempts": [
+    {
+      "closure_credit": 0,
+      "component": "winsplit-0.1.0",
+      "hold": "NO_COMPLETE_ROOT_GRANT_ESTABLISHED",
+      "root_metadata_file": "evidence/winsplit-root-tree.json"
+    },
+    {
+      "closure_credit": 0,
+      "component": "pulldown-cmark-to-cmark-10.0.4",
+      "hold": "NO_COMPLETE_ROOT_GRANT_ESTABLISHED",
+      "root_metadata_file": "evidence/pulldown-root-tree.json"
+    },
+    {
+      "closure_credit": 0,
+      "component": "mdbook-i18n-helpers-0.4.0",
+      "hold": "APACHE_APPENDIX_PLACEHOLDER_NOT_NAMED_NOTICE",
+      "root_metadata_file": "evidence/mdbook-root-tree.json"
+    },
+    {
+      "closure_credit": 0,
+      "component": "syn-test-suite-0.0.0+test",
+      "hold": "RECORDED_REVISION_HTTP_404",
+      "root_metadata_file": "evidence/syn-root-tree.json"
+    },
+    {
+      "closure_credit": 0,
+      "component": "xshell-macros-0.2.7",
+      "hold": "ROOT_MIT_BLOB_MATCHES_PRIOR_NO_OWNER_BODY_NO_NEW_NOTICE",
+      "root_metadata_file": "evidence/xshell-root-tree.json"
+    },
+    {
+      "closure_credit": 0,
+      "component": "xflags-0.3.2",
+      "hold": "ROOT_MIT_BLOB_MATCHES_PRIOR_NO_OWNER_BODY_NO_NEW_NOTICE",
+      "root_metadata_file": "evidence/xflags-root-tree.json"
+    },
+    {
+      "closure_credit": 0,
+      "component": "xflags-macros-0.3.2",
+      "hold": "ROOT_MIT_BLOB_MATCHES_PRIOR_NO_OWNER_BODY_NO_NEW_NOTICE",
+      "root_metadata_file": "evidence/xflags-root-tree.json"
+    },
+    {
+      "closure_credit": 0,
+      "component": "ungrammar-1.16.1",
+      "hold": "NO_COMPLETE_ROOT_GRANT_ESTABLISHED",
+      "root_metadata_file": "evidence/ungrammar-root-tree.json"
+    },
+    {
+      "closure_credit": 0,
+      "component": "cranelift-assembler-x64-0.134.0",
+      "hold": "APACHE_LLVM_COMPLETE_GRANT_BUT_APPENDIX_PLACEHOLDER_NOT_NAMED_NOTICE",
+      "root_metadata_file": "evidence/wasmtime-root-tree.json"
+    },
+    {
+      "closure_credit": 0,
+      "component": "cranelift-assembler-x64-meta-0.134.0",
+      "hold": "APACHE_LLVM_COMPLETE_GRANT_BUT_APPENDIX_PLACEHOLDER_NOT_NAMED_NOTICE",
+      "root_metadata_file": "evidence/wasmtime-root-tree.json"
+    },
+    {
+      "closure_credit": 0,
+      "component": "cranelift-bitset-0.134.0",
+      "hold": "APACHE_LLVM_COMPLETE_GRANT_BUT_APPENDIX_PLACEHOLDER_NOT_NAMED_NOTICE",
+      "root_metadata_file": "evidence/wasmtime-root-tree.json"
+    },
+    {
+      "closure_credit": 0,
+      "component": "cranelift-isle-0.134.0",
+      "hold": "APACHE_LLVM_COMPLETE_GRANT_BUT_APPENDIX_PLACEHOLDER_NOT_NAMED_NOTICE",
+      "root_metadata_file": "evidence/wasmtime-root-tree.json"
+    },
+    {
+      "closure_credit": 0,
+      "component": "cranelift-srcgen-0.134.0",
+      "hold": "APACHE_LLVM_COMPLETE_GRANT_BUT_APPENDIX_PLACEHOLDER_NOT_NAMED_NOTICE",
+      "root_metadata_file": "evidence/wasmtime-root-tree.json"
+    },
+    {
+      "closure_credit": 0,
+      "component": "wasmtime-internal-core-47.0.0",
+      "hold": "APACHE_LLVM_COMPLETE_GRANT_BUT_APPENDIX_PLACEHOLDER_NOT_NAMED_NOTICE",
+      "root_metadata_file": "evidence/wasmtime-root-tree.json"
+    },
+    {
+      "closure_credit": 0,
+      "component": "wasmtime-internal-jit-icache-coherence-47.0.0",
+      "hold": "APACHE_LLVM_COMPLETE_GRANT_BUT_APPENDIX_PLACEHOLDER_NOT_NAMED_NOTICE",
+      "root_metadata_file": "evidence/wasmtime-root-tree.json"
+    }
+  ]
+}
