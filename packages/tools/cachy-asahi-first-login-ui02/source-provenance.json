@@ -4,13 +4,25 @@
     "archive_sha256": "c07583ae4af92d960a544249aa376cf89326508668165da9eb8a46d0be4cd6ed",
     "kind": "exact payload extracted from local unsigned host03 archive; no authentication/native claim"
   },
+  "backend_local_construction": {
+    "commit": "4856cfe93d57eaa54c521aa5d451db8ab62f8aab",
+    "scope": "local implementation/construction context only; no public revision claim"
+  },
+  "backend_public_source": {
+    "archive_publication": "local unsigned 03 archive only; no public archive/signature claim",
+    "commit": "cfc423d3dc425be2ce1013c21074eca2087c631f",
+    "recipe_tree": "07741a8aaf044310e0e08c13a14d78d1e8379a93",
+    "ref": "refs/heads/codex/first-login-isolation-integrated-20261115",
+    "repository": "https://github.com/Gabriel-Kahen/cachy-asahi",
+    "verification": "origin ref matched exact commit; all 13 recipe files and all 3 check-only fixtures byte-compared with commit objects"
+  },
   "backend_recipe": {
     ".SRCINFO_sha256": "be5253a32d7444065ea876455c0bb99ea1ffc47759bce864431abaf07018a2f7",
     "PKGBUILD_sha256": "1d605572877a82a94aae8acf9fc56decc24be4c2dd3df2d331da1979643c78a5",
     "path": "packages/tools/cachy-asahi-first-login-v3",
     "version": "0.1.0-3"
   },
-  "backend_snapshot_commit": "4856cfe93d57eaa54c521aa5d451db8ab62f8aab",
+  "backend_snapshot_commit": "cfc423d3dc425be2ce1013c21074eca2087c631f",
   "candidate": "cachy-asahi-first-login-ui 0.2.0-2",
   "candidate_selection": "UNSELECTED",
   "check_correction": "Fish/Zsh declared checkdepends; actual shell conflict covers entire selection without optional Hyprland; unavailable compositor remains held1; optional namespace probe skips only positive denial with retained stderr",

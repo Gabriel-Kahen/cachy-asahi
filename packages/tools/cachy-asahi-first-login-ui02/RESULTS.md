@@ -1,5 +1,22 @@
 # UI 0.2.0-2 with FirstLogin 0.1.0-3 — 2026-11-15
 
+Public-source provenance follow-up: the genuine origin ref
+`refs/heads/codex/first-login-isolation-integrated-20261115` resolves to
+`cfc423d3dc425be2ce1013c21074eca2087c631f`. All 13 referenced backend recipe
+files and all three backend fixtures match that commit byte-for-byte. Provenance
+records this public integration separately from local construction commit
+`4856cfe93d57eaa54c521aa5d451db8ab62f8aab`, which is not presented as public.
+
+Only provenance and its recipe/SRCINFO pins changed. Existing runtime/test bytes
+are unchanged; the 44 portable and 16 private GTK checks below were not repeated.
+A fresh unsigned metadata reassembly with `makepkg --nodeps --nocheck --force
+--noconfirm` exits 0: **26,928 bytes**, SHA-256
+`d47b247ec10f1bfb6a6c9f96c675ea88e41f6cc9e5ef5ae563c15ce387a4f84d`.
+The installed provenance bytes and exact dependencies were independently checked.
+The prior 26,692-byte assembly below remains the pre-public-provenance record.
+New local output is `work/first-login-ui02-public-provenance-20261115-r1/`.
+No dependency, signature, native, hardware or release gate is newly established.
+
 This unselected packaging successor changes the exact backend dependency to
 `cachy-asahi-first-login=0.1.0-3` and replaces its check-only implementation with
 the genuine 03 archive payload. The archive/recipe/commit and fixture byte pins
@@ -14,7 +31,7 @@ confirmation and removal of exactly eight UI payload files while retaining HOME.
 Exact runtime/helper/test byte comparisons bind that run to the final candidate.
 No user desktop or host dependency installation was used.
 
-A fresh final recipe copy also passed all **44 checks** during unsigned
+Before this provenance follow-up, a fresh recipe copy also passed all **44 checks** during unsigned
 `makepkg --nodeps --force --noconfirm` assembly. Its archive is **26,692 bytes**,
 SHA-256 `bd3efa1e04752b2ea8380010f7325b333bf347b7a7379b20de0289e763f9aa16`.
 Independent archive inspection confirmed exactly eight regular root:root payload
