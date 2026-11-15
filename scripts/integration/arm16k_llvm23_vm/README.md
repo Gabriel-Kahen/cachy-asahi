@@ -101,6 +101,19 @@ are pinned in `data/baseline111.json`; the accepted155 family is never selected
 or relabeled. Independent baseline ownership evidence is a separate operand;
 no ownership file or credential is written into the original assembly.
 
+Complete-image ownership keys use a separate bounded passive validator. It
+preserves literal printable UTF-8 names such as `usr/bin/[`, comma-containing
+paths and systemd names containing the literal `\x2d` spelling; it does not
+decode escapes or relax executable command paths. Absolute/traversing paths,
+empty/dot components, controls and oversized names still refuse. An ALPM
+`files` record with exactly zero bytes means no owned paths. Every nonempty
+record must have a valid explicit `%FILES%` section, optional valid `%BACKUP%`,
+and bounded unique normalized ownership keys. Whitespace-only, missing/duplicate
+or unknown sections and malformed entries refuse. The captured record bodies
+still join by byte length/SHA to the independent complete namespace, and all111
+package names/versions must match. Portable synthetic controls cover these
+classes; this change did not reread the retained222 ALPM dumps or scan a raw image.
+
 The Root authority must also issue `docker_cli` with the canonical absolute
 `path`, positive `bytes` and whole-file `sha256` of the host Docker ELF. These
 fields are NULL in the template. There is no user-path default or PATH discovery.

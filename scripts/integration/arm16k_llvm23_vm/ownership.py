@@ -16,6 +16,52 @@ def safe(name):
     need(re.fullmatch('[A-Za-z0-9._+/@:~-]+',name) and not name.startswith('/') and all(p not in ('','.','..') for p in name.split('/')), 'literal normalized guest path required');return name
 
 
+def passive_key(name):
+    r"""Bound a literal POSIX inventory key; never quote, decode or execute it.
+
+    This DATA validator is deliberately separate from ``safe`` command paths.
+    Backslashes (including the literal spelling \\x2d), brackets, commas and
+    spaces remain ordinary filename characters, not escape syntax.
+    """
+    need(type(name) is str and 0<len(name)<=4095 and all(c.isprintable() for c in name), 'printable bounded passive ownership key required')
+    parts=name.split('/')
+    need(not name.startswith('/') and all(p not in ('','.','..') for p in parts), 'normalized relative passive ownership key required')
+    need(len(name.encode('utf-8'))<=4095 and all(len(p.encode('utf-8'))<=255 for p in parts), 'bounded passive ownership key required')
+    return name
+
+
+def files_text(text):
+    """Parse bounded local ALPM files DATA, including a byteempty record.
+
+    A nonempty record must explicitly declare FILES. BACKUP, when present,
+    contains owned paths and literal MD5 values, not additional owned entries.
+    """
+    need(type(text) is str, 'literal ALPM files text required')
+    if text=='':return []
+    need(len(text)<=4*1024**2 and all(c.isprintable() or c in '\n\t' for c in text) and len(text.encode('utf-8'))<=4*1024**2, 'bounded literal ALPM files text required')
+    sections={};section=None
+    lines=text.split('\n');need(len(lines)<=150004, 'bounded ALPM files lines required')
+    for line in lines:
+        if not line:continue
+        if line.startswith('%'):
+            need(line in ('%FILES%','%BACKUP%'), 'unknown or malformed ALPM files field')
+            section=line[1:-1]
+            need(section not in sections and (section=='FILES' and not sections or section=='BACKUP' and list(sections)==['FILES']), 'ordered unique ALPM files fields required')
+            sections[section]=[]
+        else:
+            need(section is not None, 'ALPM files value without field');sections[section].append(line)
+    need('FILES' in sections, 'nonempty ALPM files record requires FILES field')
+    paths=[];seen=set()
+    for line in sections['FILES']:
+        path=passive_key(line[:-1] if line.endswith('/') else line)
+        need(path not in seen, 'duplicate ALPM owned path');seen.add(path);paths.append(path)
+    backups=set()
+    for line in sections.get('BACKUP',[]):
+        pair=line.split('\t');need(len(pair)==2 and re.fullmatch('[0-9a-f]{32}',pair[1]), 'literal ALPM backup path and MD5 required')
+        path=passive_key(pair[0]);need(path in seen and path not in backups, 'unique owned ALPM backup path required');backups.add(path)
+    return paths
+
+
 def pin(path):
     with path.open('rb') as stream:return dict(bytes=path.stat().st_size,sha256=hashlib.file_digest(stream,'sha256').hexdigest())
 
@@ -25,7 +71,7 @@ def namespace(root):
     for current,dirs,files in os.walk(root,followlinks=False):
         dirs.sort()
         for name in sorted(dirs+files):
-            p = Path(current)/name;relative = p.relative_to(root).as_posix();safe(relative);mode = p.lstat().st_mode
+            p = Path(current)/name;relative = p.relative_to(root).as_posix();passive_key(relative);mode = p.lstat().st_mode
             if stat.S_ISLNK(mode):
                 target=os.readlink(p);need(not any(c in target for c in '\n\r\t'),'literal single-line guest symlink target required')
                 row = dict(kind='link',mode=stat.S_IMODE(mode),target=target)
@@ -59,8 +105,8 @@ def all_owned(root,expected,nodes):
         desc = fields(directory/'desc');name,version = desc['NAME'],desc['VERSION']
         need(len(name) == len(version) == 1 and name[0] not in packages,'unique actual ALPM package')
         packages[name[0]] = version[0]
-        for path in fields(directory/'files')['FILES']:
-            path = safe(path.rstrip('/'));need(path in nodes,'owned node missing in complete dump')
+        for path in files_text((directory/'files').read_bytes().decode('utf-8')):
+            need(path in nodes,'owned node missing in complete dump')
             owners.setdefault(path,[]).append(name[0])
     need(packages == expected and len(packages) == 111,'exact complete original111 ALPM inventory')
     return {name:dict(owners=sorted(group),**nodes[name]) for name,group in sorted(owners.items())}
@@ -79,8 +125,8 @@ def all_owned_records(records,expected,nodes):
             need(node.get('kind')=='file' and node['bytes']==len(body) and node['sha256']==hashlib.sha256(body).hexdigest(),'captured ALPM text differs from namespace')
         desc=fields_text(record['desc']);name,version=desc['NAME'],desc['VERSION']
         need(len(name)==len(version)==1 and name[0] not in packages,'unique actual ALPM package');packages[name[0]]=version[0]
-        for path in fields_text(record['files'])['FILES']:
-            path=safe(path.rstrip('/'));need(path in nodes,'owned node missing in complete image')
+        for path in files_text(record['files']):
+            need(path in nodes,'owned node missing in complete image')
             owners.setdefault(path,[]).append(name[0])
     need(packages==expected and len(packages)==111,'exact complete original111 ALPM inventory')
     return {name:dict(owners=sorted(group),**nodes[name]) for name,group in sorted(owners.items())}

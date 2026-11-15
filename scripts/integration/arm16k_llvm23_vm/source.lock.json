@@ -12,9 +12,9 @@
   },
   "files": {
     "README.md": {
-      "bytes": 14094,
+      "bytes": 15027,
       "mode": 420,
-      "sha256": "f64afd6ab67a960838e33c271bd0485d431481cc957d4442ae88e22868c8e2c1"
+      "sha256": "f0746d8888709ae6f803eebdd70b94209268ffe3a89dfd796e0118ae0402f690"
     },
     "adapter.py": {
       "bytes": 9219,
@@ -117,14 +117,14 @@
       "sha256": "4799195c3925cbcbdbda56de1e8e248839024133c6b2795e41945f15fbcd8b4d"
     },
     "helper-origin.json": {
-      "bytes": 4559,
+      "bytes": 4917,
       "mode": 420,
-      "sha256": "854bd2a216c55f8284d11772c80eed148819504903b1f3e34ed3637b3281ef8b"
+      "sha256": "bd96ac332ebf1fdc3e3296a4b42ff4a4d2734c5a1e9faef1d9112c49430671d6"
     },
     "image.py": {
-      "bytes": 6434,
+      "bytes": 6441,
       "mode": 420,
-      "sha256": "929ce37c368eaf5361d32e3699a06b6d0fbec6b6691f8f032cc4886ae13fe975"
+      "sha256": "41f054734c6f2e94c1fb704f0930b3d889ac9622fdf51141ef11bcec0ea897f7"
     },
     "ops.py": {
       "bytes": 17463,
@@ -132,9 +132,9 @@
       "sha256": "ba453ae0320a70fd791f4d1f44e998da2c3ee89571c4da8d0ce3a86bec28925c"
     },
     "ownership.py": {
-      "bytes": 11366,
+      "bytes": 13947,
       "mode": 420,
-      "sha256": "1a1c7a36c44bade028191510bc893306299949651a1da8a913b15177d6b06b98"
+      "sha256": "89d8761925d3137dfe9fd6c9f4b6b64fad4846530389bdc7ec9393aa9327f1c8"
     },
     "prepare.py": {
       "bytes": 9424,
@@ -191,10 +191,15 @@
       "mode": 420,
       "sha256": "d161ddd41256f5d2b5fe431260c7ed42c42bd3a4aecec72a7c1346b401b96ac4"
     },
-    "test_prepare.py": {
-      "bytes": 20917,
+    "test_ownership.py": {
+      "bytes": 6714,
       "mode": 420,
-      "sha256": "e97be03b83911c559a0a105cf436b2262b5c8b6050dc565691324ee1975ec406"
+      "sha256": "fc39900a76c2bb73f7c479fa67fd27b7abf66a82d22ae08ea51a0a6326d1be12"
+    },
+    "test_prepare.py": {
+      "bytes": 21879,
+      "mode": 420,
+      "sha256": "218b4d86d62ba954f855e1ef6fd445d5ef1f73cb87d8d2905d452647b856b05c"
     },
     "test_protocol.py": {
       "bytes": 7513,
@@ -202,9 +207,9 @@
       "sha256": "129ef9d43af0230880de327f75c1aee0227389628874847eb466ada6eac08fd8"
     },
     "validation.json": {
-      "bytes": 2588,
+      "bytes": 2988,
       "mode": 420,
-      "sha256": "51b8824651a7c5ea2ac6b6626ea3e779c9e4dc621b54710c19c1b9e266878666"
+      "sha256": "d0a6c64e1493d8056993339f1b0d81780fa3bd19a43a4921a0fbe1a26e906fb2"
     },
     "vm_actor.py": {
       "bytes": 8774,

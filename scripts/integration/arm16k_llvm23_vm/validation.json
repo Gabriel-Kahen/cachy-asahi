@@ -1,6 +1,6 @@
 {
   "HOME_floor": 1000000000,
-  "HOME_free_snapshot": 97817960448,
+  "HOME_free_snapshot": 97811111936,
   "M2": "UNQUALIFIED",
   "Python31213": {
     "boot_tests": 20,
@@ -10,7 +10,8 @@
     "errors": 0,
     "failures": 0,
     "ops_quota_tests": 10,
-    "preparation_tests": 13,
+    "ownership_tests": 14,
+    "preparation_tests": 14,
     "protocol_tests": 18,
     "skips": 0
   },
@@ -22,7 +23,8 @@
     "errors": 0,
     "failures": 0,
     "ops_quota_tests": 10,
-    "preparation_tests": 13,
+    "ownership_tests": 14,
+    "preparation_tests": 14,
     "protocol_tests": 18,
     "skips": 0
   },
@@ -42,7 +44,8 @@
     "signature": null,
     "trust": null
   },
-  "controls_per_runtime": 101,
+  "complete33948_ownership_entries": "ROOT_METADATA_ONLY_NOT_FULL_IMAGE_OBSERVED_BY_WORKER",
+  "controls_per_runtime": 116,
   "cooperative_monitor": "CHILD_POLL_SERIAL_QMP_CLEANUP_NO_THREADS",
   "docker_cli": "ROOT_CANONICAL_PATH_BYTES_SHA256_HOST_ELF_SEALED_MEMFD_ALL_HOST_AND_RECOVERY_CALLS_ORIGINAL_DEADLINE_LIVE_CANCEL_CHECKS_NO_PATH_LOOKUP_NOT_EXECUTED",
   "fixtures": "MODELED_ONLY_NO_GENUINE_NATIVE_PACKAGE_OR_RUNTIME_ACCEPTANCE",
@@ -55,7 +58,7 @@
     "Docker CLI requires Linux MFD_EXEC, file seals and /proc/self/fd; reviewed host ELF64 LE x86_64/aarch64, 64B..128MiB; transient sealed snapshot consumes at most CLI bytes in guarded host memory"
   ],
   "live_resource_control": "IMPLEMENTED_READONLY_OWN_UID_Q_GETQUOTA_PLUS_SPARSE_BLOCKS_MEMORY_AND_ORIGINAL_DEADLINES_NOT_EXECUTED",
-  "local_allocated_bytes_before_final_metadata": 475136,
+  "local_allocated_bytes_before_final_metadata": 487424,
   "local_new_code_cap": 1048576,
   "native16K": "UNQUALIFIED",
   "new_controllers": [
@@ -77,9 +80,11 @@
     "Reader",
     "publication"
   ],
+  "passive_ownership": "LITERAL_BOUNDED_PRINTABLE_UTF8_KEYS_PLUS_EXACT_BYTEEMPTY_OR_STRICT_FILES_BACKUP_GRAMMAR_NO_COMMAND_PATH_RELAXATION",
   "performance": "NOT MEASURED",
   "release": "UNQUALIFIED",
+  "retained222_ALPM_dumps": "NOT_REREAD; PORTABLE_SYNTHETIC111_RECORD_FIXTURES_ONLY",
   "schema": 1,
   "shell_syntax": "PASS_BASH_N",
-  "status": "PASS_FENCED_ROOT_PINNED_HOST_DOCKER_CLI_BINDING_SOURCE_ONLY"
+  "status": "PASS_FENCED_ROOT_PINNED_DOCKER_CLI_AND_SOURCE111_PASSIVE_OWNERSHIP_PARSER_SOURCE_ONLY"
 }

@@ -225,8 +225,8 @@ class HostControls(unittest.TestCase):
 
 
 class ScannerControls(unittest.TestCase):
-    def fake(self,raw,size=1,change=None):
-        text='%NAME%\nMODEL\n\n%VERSION%\n1\n';files='%FILES%\nlarge\n';bodies={'var/lib/pacman/local/MODEL-1/desc':text.encode(),'var/lib/pacman/local/MODEL-1/files':files.encode()}
+    def fake(self,raw,size=1,change=None,files='%FILES%\nlarge\n'):
+        text='%NAME%\nMODEL\n\n%VERSION%\n1\n';bodies={'var/lib/pacman/local/MODEL-1/desc':text.encode(),'var/lib/pacman/local/MODEL-1/files':files.encode()}
         rows={'.':dict(type='directory',mode=0o755,inode=2)}
         for p in('var','var/lib','var/lib/pacman','var/lib/pacman/local','var/lib/pacman/local/MODEL-1'):rows[p]=dict(type='directory',mode=0o755,inode=len(rows)+2)
         for p,body in bodies.items():rows[p]=dict(type='file',mode=0o644,inode=len(rows)+2,size=len(body),sha256=hashlib.sha256(body).hexdigest())
@@ -262,6 +262,18 @@ class ScannerControls(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError,'inventory'):D.scan(raw,time.monotonic()+10)
                 def guard():raise ValueError('MODELED quota exhausted')
                 with self.assertRaisesRegex(ValueError,'quota'):D.scan(raw,time.monotonic()+10,guard)
+
+    def test_passive_image_keys_and_byteempty_ALPM_files_are_preserved_exactly(self):
+        names = ['usr/bin/[', 'usr/share/doc/example,1', r'usr/lib/systemd/system/dev-disk-by\x2duuid.service']
+        def add(rows):
+            for name in names: rows[name]=dict(type='file',mode=0o644,inode=100+len(rows),size=0,sha256=hashlib.sha256(b'').hexdigest())
+        with tempfile.TemporaryDirectory(prefix='llvm-scan-MODEL-')as tmp:
+            raw=Path(tmp)/'raw';raw.write_bytes(b'x'*4096);frozen=self.fake(raw,change=add,files='')
+            with patch.object(D,'module',side_effect=lambda n:K if n=='contracts'else O if n=='ownership'else SimpleNamespace(load=lambda x:frozen)):
+                observed=D.scan(raw,time.monotonic()+10)
+            for name in names:self.assertIn(name,observed['nodes'])
+            self.assertEqual(observed['records']['MODEL-1']['files'],'')
+            self.assertNotIn(names[-1].replace(r'\x2d','-'),observed['nodes'])
 
 
 if __name__=='__main__':unittest.main(verbosity=2)

@@ -55,10 +55,13 @@
       "source": "/home/gabe/Documents/ChatGPT/cachy-asahi/scripts/integration/arm16k_rust_stage0_vm/frozen/owned_process.py"
     },
     "ownership.py": {
-      "bytes": 11366,
+      "bytes": 13947,
+      "derivation": "Case-local bounded passive UTF8 namespace keys separate from unchanged strict command paths; exact-byteempty or strict nonempty ALPM FILES/BACKUP records; original111 inventory and captured byte/hash joins retained",
       "mode": 420,
-      "sha256": "1a1c7a36c44bade028191510bc893306299949651a1da8a913b15177d6b06b98",
-      "source": "/home/gabe/Documents/ChatGPT/cachy-asahi/scripts/integration/arm16k_rust_stage0_vm/ownership.py"
+      "sha256": "89d8761925d3137dfe9fd6c9f4b6b64fad4846530389bdc7ec9393aa9327f1c8",
+      "source": "/home/gabe/Documents/ChatGPT/cachy-asahi/scripts/integration/arm16k_rust_stage0_vm/ownership.py",
+      "source_bytes": 11366,
+      "source_sha256": "1a1c7a36c44bade028191510bc893306299949651a1da8a913b15177d6b06b98"
     },
     "reference_controller.py": {
       "bytes": 14117,
