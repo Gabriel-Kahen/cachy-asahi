@@ -1,0 +1,41 @@
+{
+  "limits": {
+    "address_space": 536870912,
+    "headers": 500000,
+    "logical": 8589934592,
+    "metadata": 33554432,
+    "path_bytes": 16384,
+    "pax_records": 512,
+    "prefix_records": 100000,
+    "retained": 16777216,
+    "seconds": 300,
+    "supervisor_address_space": 67108864,
+    "vendor_records": 10000,
+    "worker_address_space": 469762048,
+    "xz_decoder_memory": 335544320
+  },
+  "native_Source_Reader_jobs": "NOT_RUN",
+  "network_requests": 0,
+  "payload_extraction_evaluation_import_execution": "NOT_RUN",
+  "prior_evidence_unchanged": true,
+  "results": {
+    "llvm": {
+      "authenticated_source_pin_verified": true,
+      "report": {
+        "bytes": 2773,
+        "sha256": "1ca7f4f8f69998ce8befc5069946d009b70cba943c764784cf7568a6d85cd49b"
+      },
+      "status": "COMPLETE_BOUNDED_SCAN",
+      "stop_reason": null
+    },
+    "rust": {
+      "authenticated_source_pin_verified": true,
+      "report": {
+        "bytes": 2704405,
+        "sha256": "a0eb6bec3b63d4d4f4a937e3e1e8b42a2e87d9e49b8608b96d51762b456abc8f"
+      },
+      "status": "COMPLETE_BOUNDED_SCAN",
+      "stop_reason": null
+    }
+  }
+}

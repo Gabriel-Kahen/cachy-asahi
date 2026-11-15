@@ -1,0 +1,76 @@
+{
+  "actual_archive_scans": [
+    {
+      "archive": "rust",
+      "elapsed_seconds": 14.596,
+      "headers": 413568,
+      "largest_selected_metadata_bytes": 394766,
+      "logical_bytes": 4077516800,
+      "member_payload_bytes_written": 0,
+      "peak_RSS_bytes": 169861120
+    },
+    {
+      "archive": "llvm",
+      "elapsed_seconds": 8.195,
+      "headers": 197181,
+      "largest_selected_metadata_bytes": 16708,
+      "logical_bytes": 2393804800,
+      "member_payload_bytes_written": 0,
+      "peak_RSS_bytes": 33398784
+    }
+  ],
+  "actual_attempts": 2,
+  "combined_effective_AS_soft_ceiling_bytes": 536870912,
+  "complete_original_private_snapshot_replay": "2 signatures PASS; original 80-file packet retained",
+  "declaration_controls_passed": 2,
+  "earlier_source_authentication_snapshots_byte_exact": true,
+  "final_attempt": "both COMPLETE_BOUNDED_SCAN under same Root outer limits",
+  "first_attempt": "both PARTIAL, retained unmodified; stricter internal decoder/prefix limits hit",
+  "inventory_network_requests": 0,
+  "no_member_files_materialized": true,
+  "no_new_source_archives": true,
+  "notice_audit_HTTP_body_bytes": 169231,
+  "notice_audit_HTTP_requests": 7,
+  "original_history_replay_after_approved_redactions": "CURRENT_PUBLIC_SUCCESSOR_PASS; original full private packet retained separately",
+  "parser_controls_passed": 12,
+  "public_ancestor_history_redaction": "ROOT_REQUIRED; current-tree deletion does not purge prior Git objects",
+  "public_authentication_controls_passed": 12,
+  "reports": {
+    "reports/attempt01/llvm.json": {
+      "bytes": 2628,
+      "sha256": "e0b7d14bd0d6c9a7830e5f822a49131b67603d441d0a28d43f0ad507b56fa3b1"
+    },
+    "reports/attempt01/rust.json": {
+      "bytes": 1422,
+      "sha256": "b0a8dbf3a5d623b537bedc0369a0266bb1276880e3406c990aa18202643b975e"
+    },
+    "reports/attempt01/summary.json": {
+      "bytes": 1176,
+      "sha256": "29071572a88910d324d081bc51092f0b4f75b6eb46d42445ad6ec67efa475c70"
+    },
+    "reports/llvm.json": {
+      "bytes": 2773,
+      "sha256": "1ca7f4f8f69998ce8befc5069946d009b70cba943c764784cf7568a6d85cd49b"
+    },
+    "reports/offline-gaps.json": {
+      "bytes": 51696,
+      "sha256": "8d72901a1817835d78063e53f881e8ca919d6b5c5656ac38b8ba27fc436e63d3"
+    },
+    "reports/rust.json": {
+      "bytes": 2704405,
+      "sha256": "a0eb6bec3b63d4d4f4a937e3e1e8b42a2e87d9e49b8608b96d51762b456abc8f"
+    },
+    "reports/summary.json": {
+      "bytes": 1132,
+      "sha256": "6dfefd47fbf8fec17731426d34934a2f60c65ff6717a278a36459ee7714f7942"
+    }
+  },
+  "retained_archive_metadata_bytes_across_private_runs_and_committed_copies": 5583692,
+  "retained_limit_bytes": 16777216,
+  "retention_accounting_scope": "report files in both private run directories and committed reports/ copies; tool code and fixed policy files excluded",
+  "schema": 1,
+  "supervisor_AS_soft_bytes": 67108864,
+  "supervisor_inherited_worker_hard_bytes": 469762048,
+  "watchdog_seconds_per_archive": 300,
+  "worker_AS_soft_and_hard_bytes": 469762048
+}
