@@ -1,0 +1,7 @@
+# Independent XS316/v5 Reader source
+
+The new `native_adapter/independent_reader/v5/` targets Source `ac06bdbe5093e73fe7c67ad75cd830255f897c3b`, map `465a227c13249c72bc298266a18e5720721a89de49b01e4bbe7d336ecf127111`, with complete316→311→305→298→272 inverse and original200 checks. Old Readers, Source bodies and the closed v4 run remain unchanged. Future run/job/Original/Root approval/decision remain unissued.
+
+Independent producer predicates require the exact raw CHOWN/CAP_CHOWN pair, NoCopy on both mounts, both containers created before initialization, same naturally exited initializer before consumer start, and the bounded private preentry receipt joined to original operation/runtime/result bytes. Existing stdout/JSON ABI, consumer confinement and four-command XS predicates remain active. V4 image/preparation delegation preserves full Config/defaults/driver/package/copy/retirement checks; accepted package input and clean resources alone cannot establish XS execution.
+
+Thirty-one fenced DATA controls passed, including actual Source closure, complete modeled23-command evidence and the real bounded TAR parser, receipt/order/cap/mount/cleanup negatives and inherited image/config controls. This is source/model verification only: no operational Reader, actor, GET, lease, Docker, compiler or XS ran. Root must separately supply genuine new terminal/Original/binding/custody operands and adjudicate any future scoped result; native16K/M2/performance/release remain unqualified.

@@ -1,0 +1,245 @@
+{
+  "actual": {
+    "Reader": null,
+    "acceptance": null,
+    "approval": null,
+    "artifact": null,
+    "authority": null,
+    "decision": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "runtime": null,
+    "source": null
+  },
+  "budget_increase_seconds": 0,
+  "closed_failed_v4": {
+    "Original": "14165811876",
+    "acceptance": false,
+    "job": "132840063834",
+    "original_zip": {
+      "bytes": 1236155,
+      "sha256": "7355bb9cbf375b95fc529dd22094cdb84939696181c27a62c3238d4362c7f352"
+    },
+    "run": "43723410450",
+    "source": "c23a24a0cff3ce102e2f3240cc86a890b2ad4b0b"
+  },
+  "constructor_profile": {
+    "bytes": 1477,
+    "sha256": "1d2e6ca3b7822d64a22e5db04b85ee324a6100e0ee4e2731172514795687e041"
+  },
+  "delegated_consumer_operation": "perl5423-native-xs-v1",
+  "delegated_image_seal_operation": "perl5423-native-xs-v4",
+  "expected_public_source": {
+    "bytes": 87801470,
+    "files": 316,
+    "map_sha256": "465a227c13249c72bc298266a18e5720721a89de49b01e4bbe7d336ecf127111",
+    "ref": "refs/heads/codex/native-arm-perl5423-xs-v5-20261115",
+    "source": "ac06bdbe5093e73fe7c67ad75cd830255f897c3b",
+    "tree": "d11f4f8cbe708f10d590e127cb316bb68e548d94"
+  },
+  "factory_commit": "80467536f24161c7a704c95a6b20ff876cfa2f40",
+  "files": {
+    "README.md": {
+      "bytes": 5193,
+      "mode": 420,
+      "sha256": "4024ade768457c324640427ce1586c8443386cc8473bb0245bac4d082c2af2b7"
+    },
+    "adapters.py": {
+      "bytes": 5074,
+      "mode": 420,
+      "sha256": "989107860241f03d344c87e8cd4bbb2fb893f669d78da24eced4b93d360411c9"
+    },
+    "base.py": {
+      "bytes": 2955,
+      "mode": 420,
+      "sha256": "a85e90180c4cc92eba4e44382252ac06a54d8f55171583709a6d45c21788b231"
+    },
+    "binding.TEMPLATE.json": {
+      "bytes": 369,
+      "mode": 420,
+      "sha256": "de3646bfa705b060a03ce20481dbcf93397781e84583158c1d11d8dbf2e656e2"
+    },
+    "producer.py": {
+      "bytes": 16563,
+      "mode": 420,
+      "sha256": "b97fa01c240ddec838334c585543908f904e5ccf7305d1730e3d17207e69e50c"
+    },
+    "producer_fixture.py": {
+      "bytes": 8068,
+      "mode": 420,
+      "sha256": "143d9fef5efdc1ffdaee180d9e1c1155db6ef9eb7a6cbe6bee39c870e036e25f"
+    },
+    "reader.py": {
+      "bytes": 8675,
+      "mode": 420,
+      "sha256": "af07f6cfbbc192821818c9ed7f33db320e3ea7a929ae67ef604422ea969703d9"
+    },
+    "test_v5.py": {
+      "bytes": 22474,
+      "mode": 420,
+      "sha256": "f4297681a643582537c67ebe0f74e698756d4dfd319bc2946b2a697689a56e32"
+    },
+    "validation.json": {
+      "bytes": 990,
+      "mode": 420,
+      "sha256": "5020b34ed13ba3d81f8303fa1e8d514ade479a2567cbbdd9296f03e40f7cfdd6"
+    }
+  },
+  "full_config_contract": {
+    "captured_keys": [
+      "AttachStderr",
+      "AttachStdout",
+      "Hostname",
+      "Image"
+    ],
+    "captured_values": "EXACT_ACTUAL_STOPPED_SEALING_CONTAINER_CONFIG",
+    "derived_default_argv": {
+      "Cmd": [
+        "/usr/bin/false"
+      ],
+      "Entrypoint": [
+        "/usr/bin/false"
+      ]
+    },
+    "labels": "EXACT_SOURCE_PARENT_TOKEN_OWNERSHIP",
+    "other_keys": "EXACT_PARENT_CONFIG_NO_NORMALIZATION_OR_IGNORED_FIELDS"
+  },
+  "inherited_passive_files": {
+    "bootstrap.py": {
+      "bytes": 37497,
+      "mode": 420,
+      "sha256": "3bd3b507b4fd2148db679116c9a4eeb9f54cb780c5662608d059e223d2f6552d"
+    },
+    "consumer.py": {
+      "bytes": 25911,
+      "mode": 420,
+      "sha256": "d1dff4ae3dde90e52ce702b19a781ec717b2446de5a8b03e44b4eea2f3a93a93"
+    },
+    "data.py": {
+      "bytes": 7532,
+      "mode": 420,
+      "sha256": "7f4352e07fa13ee718ecc7009c44df8b7851e8c45a815b10c3c5808c8ca49747"
+    },
+    "reader.py": {
+      "bytes": 13503,
+      "mode": 420,
+      "sha256": "25355dbba8b6d6c4c228a0aac9a98efecc383fd04ee5a1549f2b3e9358a01a4e"
+    },
+    "support/data_export.py": {
+      "bytes": 2955,
+      "mode": 420,
+      "sha256": "ac59342608cc8279ccb0aa218da792e72d903960769ab2f4553ee8ea9b5d334e"
+    },
+    "support/helpers/archive_stream.py": {
+      "bytes": 11938,
+      "mode": 420,
+      "sha256": "10f1a4c0ac5b98852d9ebb150af28f9ce345c800935a64fa463bc90f72fcb838"
+    },
+    "support/helpers/elf64le_aarch64.py": {
+      "bytes": 16410,
+      "mode": 420,
+      "sha256": "7c89596b854457897a6addb5b28794c2e0d9ffeffee44369a19b5a70f0a3cc53"
+    },
+    "support/perl_reader.py": {
+      "bytes": 71381,
+      "mode": 420,
+      "sha256": "406333604f7b1ca17e986d16ac61cb1c9188f15b5f364a48323e258882f28def"
+    },
+    "v2/adapters.py": {
+      "bytes": 3563,
+      "mode": 420,
+      "sha256": "0c30d617bbbcbd361efdf6c6c2803bbe69acba214e645398c6b67a079475c2fa"
+    },
+    "v2/reader.py": {
+      "bytes": 14311,
+      "mode": 420,
+      "sha256": "54c6a55a5b5ff2ecdce517ccb513dc9876ab9bf96f94294bf3deadf277884b25"
+    },
+    "v3/adapters.py": {
+      "bytes": 4817,
+      "mode": 420,
+      "sha256": "3cfc17f7ef76cbd5a48973a350a0c45aa486b07c0c0496ee498e98fed47b49e6"
+    },
+    "v3/base.py": {
+      "bytes": 2131,
+      "mode": 420,
+      "sha256": "fd03989b283137dfa1d10a703ba6593ecf743dba859c24baa8e2deb7b7687403"
+    },
+    "v3/compiler.py": {
+      "bytes": 10951,
+      "mode": 420,
+      "sha256": "6d2541919c5c9dfd2d573b7f3544d62c1f4d04a567b82e8e561ce51672515438"
+    },
+    "v3/profile.json": {
+      "bytes": 3229,
+      "mode": 420,
+      "sha256": "c98b4c2e9e239b72fe80aaaef5924b2f4886aafac84fc2b263b876f739e0e366"
+    },
+    "v3/reader.py": {
+      "bytes": 7475,
+      "mode": 420,
+      "sha256": "474c55dab21f9fcc178e2bbb04d3bf02d8b2fbe8f7d21d56ee60b6033a866ee0"
+    },
+    "v4/adapters.py": {
+      "bytes": 4816,
+      "mode": 420,
+      "sha256": "9e2af339d95c32e7a3b0fd01fd95564dd7fa0d7eb0aaec40bdcae425d321eba6"
+    },
+    "v4/base.py": {
+      "bytes": 4505,
+      "mode": 420,
+      "sha256": "87234b41005f79230d93b9c312393e68176c280ab98c231b37ea0d5b90c3c725"
+    },
+    "v4/compiler.py": {
+      "bytes": 11740,
+      "mode": 420,
+      "sha256": "e2e732d684268ac5d453750599fd8dd7b5a615aa184b5ccba70432edf527f292"
+    },
+    "v4/daemon.py": {
+      "bytes": 3120,
+      "mode": 420,
+      "sha256": "d3ef121cda81481343e8df2ee899c2b7453d23970fe1f4945b4e6e61ed1618bf"
+    },
+    "v4/reader.py": {
+      "bytes": 7706,
+      "mode": 420,
+      "sha256": "c911f7251b49a61348ae47f78416988101b74dd291d902aea8539105e4d09bc9"
+    }
+  },
+  "inverse_chain": [
+    316,
+    311,
+    305,
+    298,
+    272
+  ],
+  "kind": "PASSIVE_XS_V5_READER_SOURCE_INVENTORY_NOT_AUTHORITY",
+  "native_adapter": {
+    "frozen_functions": [
+      "actor",
+      "operation",
+      "inputs",
+      "bundle_check",
+      "daemon_join"
+    ],
+    "new_native_sha256": "1db474ed81295c3604212998617bb44c1ed0339c224d63f61b06768cef6bde4f",
+    "total_consumer_files": 13,
+    "unchanged_consumer_files": 12
+  },
+  "original_files": 200,
+  "required_external_Root_operands": {
+    "Original_ZIP": null,
+    "Reader_authority": null,
+    "actual_job": null,
+    "actual_run": null,
+    "artifact_metadata": null,
+    "binding_sha256": null,
+    "decision": null,
+    "resource_authority": null,
+    "runtime_identity": null,
+    "source_approval": null
+  },
+  "schema": 1,
+  "source_actor_imports": false
+}
