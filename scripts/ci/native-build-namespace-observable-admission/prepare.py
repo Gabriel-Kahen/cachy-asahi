@@ -14,7 +14,6 @@ from types import SimpleNamespace
 
 HERE=Path(__file__).resolve().parent
 BASE=HERE.parent/'native-build-namespace-admission-preparation'
-SOURCE_ROOT=Path('/home/gabe/Documents/ChatGPT/cachy-asahi-namespace-observable-source-20261114')
 PINNED={'prepare.py':'c5d7de8c4c3c02485767c57b9057d6fc74caeea0d208cb939c5f997d157b8cac',
         'namespace_guard.py':'9d1b8eb0ba155511f47ee34974f7a7ff7199b6c9341e9d099b6410d08833b599'}
 
@@ -46,6 +45,12 @@ def swap(raw):
     return text.encode()
 
 
+def closed_source_tree(root,rows,helper):
+    # The runtime closure admits only declared Source entries, never Git metadata.
+    need(not os.path.lexists(Path(root)/'.git'),'complete declared Source namespace: .git is not an admitted Source entry')
+    return helper.source_tree(root,rows)
+
+
 def inputs(root,factory=None,factory_sha=None,runtime=None,runtime_sha=None,extras=None,extras_sha=None):
     B=base();data=B.inputs(B.SOURCE_ROOT)
     publication=B.obj(B.read(HERE/'Root-published-source-full200.json'))
@@ -55,7 +60,7 @@ def inputs(root,factory=None,factory_sha=None,runtime=None,runtime_sha=None,extr
     profile=B.obj(B.read(HERE/'source-profile.json'));need(G.pin(B.read(HERE/'source-profile.json'))['sha256']==G.PROFILE,'exact reviewed source profile')
     G.source_delta(profile,data['rows'],rows)
     need(B.read(HERE/'parent.raw')==data['templates']['source.raw'],'genuine published parent6b raw bytes')
-    total=B.source_tree(root,rows)
+    total=closed_source_tree(root,rows,B)
     templates={n:swap(raw)for n,raw in data['templates'].items()}
     templates.update({'source-publication.ACTUAL.json':B.read(HERE/'Root-published-source-full200.json'),'source-full200.json':B.encoded(rows),'source.raw':B.read(HERE/'source.raw'),'parent-full200.json':B.encoded(data['rows']),'source-profile.json':B.read(HERE/'source-profile.json'),'runtime54.py':B.read(HERE/'runtime54.py')})
     external=data['external'];binding=None;runtime_binding=None
@@ -128,10 +133,14 @@ def render(data,output):
     return scope['render'](data,output)
 
 
-if __name__=='__main__':
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--source-root',type=Path,default=SOURCE_ROOT);p.add_argument('--output',type=Path)
+def parser():
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--source-root',type=Path,required=True);p.add_argument('--output',type=Path)
     for name in ('factory-binding','runtime54-profile','x86-extras'):
         p.add_argument('--'+name,type=Path);p.add_argument('--'+name+'-sha256')
-    a=p.parse_args();data=inputs(a.source_root,a.factory_binding,a.factory_binding_sha256,a.runtime54_profile,a.runtime54_profile_sha256,a.x86_extras,a.x86_extras_sha256)
+    return p
+
+
+if __name__=='__main__':
+    a=parser().parse_args();data=inputs(a.source_root,a.factory_binding,a.factory_binding_sha256,a.runtime54_profile,a.runtime54_profile_sha256,a.x86_extras,a.x86_extras_sha256)
     if a.output:base().publish(render(data,a.output),a.output)
     print(json.dumps(dict(status='OBSERVABLE_ADMISSION_SOURCE_DATA_ONLY',source=G.SOURCE,source_files=200,source_bytes=data['source_bytes'],factory_CI_Main_pending=data['binding']is None,runtime54_pending=data['runtime54_profile']is None,resource_authority=None,Native_POSTs=0,Original_GETs=0,Reader_calls=0,packet_written=a.output is not None),sort_keys=True))

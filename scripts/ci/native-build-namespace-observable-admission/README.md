@@ -46,11 +46,14 @@ Native/log/list/body roles. No old actual role output is copied or reopened.
 Using Root's retained canonical physical Source and the held external DATA:
 
 ```sh
-python3 -I -B scripts/ci/native-build-namespace-observable-admission/prepare.py
+python3 -I -B scripts/ci/native-build-namespace-observable-admission/prepare.py \
+  --source-root /absolute/no-Git-Source69455-export
 ```
 
-The default validates DATA and writes nothing. Optional
-`--source-root /absolute/complete-Source69455` selects an exact physical copy.
+An explicit `--source-root` is required. It must be a complete no-Git export;
+a Git worktree (including a `.git` file, directory or broken symlink) refuses
+before packet creation. Every other extra physical entry also refuses.
+Without `--output`, the command validates DATA and writes nothing.
 `--output /absolute/owned-safe-parent/fresh-name` writes a private packet with
 atomic no-replace acquisition, exclusive files, a finite input seal and complete
 external packet seal. Existing or partial outputs remain untouched. The packet
@@ -66,7 +69,7 @@ python3 -I -B -Werror::ResourceWarning \
   scripts/ci/native-build-namespace-observable-admission/test_admission_data.py
 ```
 
-Ten controls pass on Python3.12.13 and3.14.7. They exercise complete modeled
+Twelve controls pass on Python3.12.13 and3.14.7. They exercise complete modeled
 Source→parent/map/profile→whole reviewed batch/inverse→factory subset→matching
 Reader qualification, old family/helper/Reader/change refusals, actual two-Python
 step/count identity, missing/stale runtime, pending-before-bootstrap refusal,
@@ -131,6 +134,7 @@ Root can provide the first four DATA operands while rendering a fresh packet:
 
 ```sh
 python3 -I -B scripts/ci/native-build-namespace-observable-admission/prepare.py \
+  --source-root /absolute/no-Git-Source69455-export \
   --factory-binding /absolute/Root-factory-binding.json \
   --factory-binding-sha256 WHOLE_SHA256 \
   --runtime54-profile /absolute/Root-runtime54-profile.json \
@@ -149,3 +153,13 @@ NULL until Root separately issues the actual packet-specific resource authority.
 Actual run/job/artifact/body, Reader/image-engine authority and acceptance remain
 unissued. M2/native16K, Doc315, policy attribution, performance, package and
 release acceptance are not established by this admission preparation.
+
+
+The initial Root preflight `Root-namespace-observable-once-r2` is closed HOLD:
+its source-root was a Git worktree accepted by the reused constructor helper,
+while runtime custody correctly rejected that undeclared namespace before
+external metadata or Native/Original/Reader activity. This correction makes
+preparation reject the same `.git` entry and removes the unsafe implicit root.
+Its regression controls cover Git files, directories, broken symlinks and other
+extra files/directories. The failed packet and its consumed preflight index are
+preserved; any continuation requires a fresh DATA packet and fresh Root role.
