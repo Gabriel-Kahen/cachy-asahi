@@ -52,3 +52,24 @@ actor filename/Cmd, marker and success status are distinct. Public Source,
 materialization, fresh trust/runtime admission and actual guest results remain
 null. Root owns any next construction/boot. No native16K, physical hardware/M2,
 performance or release acceptance is claimed.
+
+
+## First GLib290 boot: closed parser HOLD
+
+Root's first trial of this family closed HOLD with JSONDecodeError Extra data
+at char10191. Exact UART76105B SHA256
+`a37a0673696c226e1b1dbf78f9e6a517e7b1d45d71841bb950c3957d4821290e`
+contains a complete10190B seat JSON followed by an actual systemd start-job
+console line before SEAT_SESSION_END. The six independent seat checks and283
+inventory are present. No UI frame was retained; GTK/removal/rollback/normal
+logout are NOT ESTABLISHED. Original report/marker/logs remain closed and unchanged.
+
+The Source successor filters only bounded line-boundary systemd status grammar
+for the two known fixture unit descriptions, preserves exact JSON bytes and
+invokes the frozen lower seat validator unchanged. Other trailing JSON/text,
+unknown ANSI/unit text, duplicate/foreign/truncated/nested frames and interior
+injection refuse. The sanitized minimum fixture retains the exact console status
+line and private-original hash reference; it contains no credentials/properties.
+71 fenced controls pass. Actual closed UART DATA passes the corrected codec and
+unchanged validator, without any VM/lease/daemon/actor or acceptance claim. Root
+owns fresh Source/publication/admission/preparation and any next trial.

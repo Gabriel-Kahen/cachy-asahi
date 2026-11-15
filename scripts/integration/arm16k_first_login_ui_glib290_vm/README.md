@@ -120,3 +120,36 @@ Source DATA audit actually passed on old/new/GTK retained bytes; real four-file
 pin/metadata gates passed. No new actor, daemon, lease, image, guest install,
 preparation or boot ran. Normal ALPM upgrade/removal/rollback, full GTK journey,
 native16K, M2/hardware/performance and release acceptance remain Root gates.
+
+
+## Closed first GLib290 trial and console-frame successor
+
+Root's first trial remains HOLD: JSONDecodeError Extra data at line2/column1,
+char10191. The exact private UART is76105B SHA256
+`a37a0673696c226e1b1dbf78f9e6a517e7b1d45d71841bb950c3957d4821290e`.
+Lines746/750 delimit one nonce-bound SEAT_SESSION; line747 contains a complete
+10190B JSON object, and line748 is an ANSI-prefixed systemd start-job status line.
+The old decoder treated that diagnostic as JSON trailing data. All six seat checks
+and283 installed packages were present, but NO UI_SESSION frame was retained.
+GTK actions, normal removal, original-GLib rollback and normal logout are therefore
+NOT ESTABLISHED. Natural QEMU exit0/reaping/EMPTY_TWICE and owned-container absence
+are separate retirement facts, not a whole-trial PASS.
+
+The new adapter recognizes only line-boundary start-job diagnostics: finite red
+SGR/reset/cursor sequences, six-character star indicator, at most2 jobs, bounded
+minute/second timers and exact names or bounded ellipsized suffixes of the two
+fixed UI fixture/observer unit descriptions. At most16 such lines fit one bounded
+frame. Arbitrary text/ANSI/units, additional JSON, foreign/duplicate markers,
+truncated payloads, nested/interleaved frames and interior-line injection refuse.
+JSON bytes are not edited; a strict reconstructed seat frame goes through the
+UNCHANGED frozen lower validator. The same syntax gate applies to the UI frame.
+No semantic seat, policy, trust, rollback or acceptance predicate is waived.
+
+`data/console-status-minimum.data` preserves only the exact observed118B status
+line (including its cursor-return CR), marker nonce and a synthetic non-acceptance
+JSON object. Its origin JSON pins the private original and exact10190B payload
+hash; no private properties or credential data are committed. Source controls now
+number71. A separate actual76105B UART DATA check passed the unchanged lower
+validator after reconstruction and confirmed the original JSON bytes/hash match.
+This is a codec check over a closed HOLD, not a replay or fresh guest success.
+A new Source lock/publication/authority/nonce/preparation is still Root's scope.

@@ -40,6 +40,21 @@
     "old": 0,
     "production_trust": "NOT ACCEPTED"
   },
+  "closed_GLib290_boot_r1": {
+    "UART": {
+      "bytes": 76105,
+      "sha256": "a37a0673696c226e1b1dbf78f9e6a517e7b1d45d71841bb950c3957d4821290e"
+    },
+    "UI_GTK_remove_rollback_logout": "NOT ESTABLISHED",
+    "actual_corrected_codec_then_unchanged_frozen_parser": "PASS_DATA_ONLY",
+    "all_six_seat_checks": "observed in originalframe; no wholetrialacceptance",
+    "cause": "exact systemd console start-job status line between completeJSON and endmarker",
+    "failure": "JSONDecodeError Extra data line2column1 char10191",
+    "new_guest": "NOT RUN",
+    "seat_JSON_bytes": 10190,
+    "seat_JSON_sha256": "84c45d1e2aec93f12e8497ece8a22dd40be91ba8301273c1af3750b75ed78071",
+    "status": "HOLD"
+  },
   "native_M2_hardware_performance_release": "NOT ACCEPTED",
   "new_intake": {
     "body_bytes": 5082106,
@@ -61,7 +76,7 @@
       "scripts/integration/arm16k_first_login_ui_glib290_vm/test_controls.py"
     ],
     "failed": 0,
-    "passed": 61,
+    "passed": 71,
     "profile": "actor/network/lease fenced, synthetic+actual-data controls; no guest"
   }
 }

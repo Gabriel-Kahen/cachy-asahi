@@ -1,16 +1,20 @@
 {
   "files": {
+    ".gitattributes": {
+      "bytes": 106,
+      "sha256": "69fbd9472eeefba5dbefd7538a66ebf90fce35e1584e163e534fdbaf8eb0b894"
+    },
     "LICENSE.packaging": {
       "bytes": 1081,
       "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
     },
     "README.md": {
-      "bytes": 7707,
-      "sha256": "4862f85e83c5ede69d5696d8f5f2caaf5242c9e652af4c6f023ca1037226a874"
+      "bytes": 9871,
+      "sha256": "0fad36c50f25857fb51ada428149990bf640494955e93c2a161b871c85f74fbe"
     },
     "RESULTS.json": {
-      "bytes": 1955,
-      "sha256": "31d1e425730521ba1a0d99eed2fc82ef0f3d9d6695fd79e69c7fa31f2578febd"
+      "bytes": 2664,
+      "sha256": "2dc57b00160e028232682b6b2d199623a4f8b2af48804ec2185c4ae0dd749ddb"
     },
     "actual-data.json": {
       "bytes": 5093,
@@ -55,6 +59,14 @@
     "data/baseline-relations.json": {
       "bytes": 16445,
       "sha256": "beafc8154cc23fb1d02c8bb2610fcf79cd35b04868453b5941d464a18a9910c3"
+    },
+    "data/console-status-minimum.data": {
+      "bytes": 286,
+      "sha256": "3e72ea40cf956612bde5d63014a00509b8fa70b356d4738f2152eed9c0ccd410"
+    },
+    "data/console-status-origin.json": {
+      "bytes": 1455,
+      "sha256": "be81f3ad3d046e9ada67258d073f8e5c3b8deb57a8dedc086eac5b6e4b08f896"
     },
     "data/glib-materials.json": {
       "bytes": 1189035,
@@ -109,8 +121,8 @@
       "sha256": "b95b8a7ad80f1f59ef0f23f1628a6c93d56bb1315a90ba5c090d563b3a91ccf6"
     },
     "protocol.py": {
-      "bytes": 1736,
-      "sha256": "19057603da62b9672d9c3f22d71fd1331b27e155a6ceeaa2729d24a87138fb9f"
+      "bytes": 4893,
+      "sha256": "c7ccc3a98fbe40f22a5864093033a015c094749b9301b3fb6c126d4a324f0d6b"
     },
     "receipts.py": {
       "bytes": 13258,
@@ -129,8 +141,8 @@
       "sha256": "eebf2c89f4cf4600a9867ea58fee85f5fc87e16f7cf0da58a10f46323cab076e"
     },
     "test_controls.py": {
-      "bytes": 44211,
-      "sha256": "ca4893fb03966b97ae74589b2b5e7d4631c029d1f761a3802bf7acd2f39f4b92"
+      "bytes": 49146,
+      "sha256": "f94be8fb7cac613dab4d22c562651f91b0def5e0692e1b9d02f8875933012438"
     },
     "ui-observer.service": {
       "bytes": 256,

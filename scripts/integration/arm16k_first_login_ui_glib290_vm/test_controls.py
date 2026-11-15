@@ -56,7 +56,7 @@ class Controls(Fenced):
   with patch.object(prepare.K,'read',return_value=delivery),patch.object(prepare.K,'pin',return_value={'bytes':1,'sha256':'a'*64}):records=prepare.guest_sources(c)
   row=records['input_seat.py'];self.assertEqual(row['source_root'],'arm');self.assertEqual(row['source'],'input_seat.py');self.assertEqual(row['guest_path'],'/usr/local/libexec/seat-input.py')
  def test_host_parser_uses_same_corrected_local_adapter(self):
-  original=types.SimpleNamespace(Serial=type('Serial',(),{}),redact_serial=lambda *a:None);corrected=object();paths=[]
+  original=types.SimpleNamespace(Serial=type('Serial',(),{}),redact_serial=lambda *a:None,parse=lambda *a:None);corrected=object();paths=[]
   def held(name,path):
    paths.append(path)
    if name=='UI_original_ARM_protocol':return original
@@ -390,5 +390,57 @@ class GLibELFControls(Fenced):
    with self.assertRaises(AssertionError):G.scan(path,{'bytes':1,'sha256':'0'*64},None)
    source=root/'file';source.write_bytes(b'x');path.symlink_to(source)
    with self.assertRaises(AssertionError):G.scan(path,{'bytes':1,'sha256':hashlib.sha256(b'x').hexdigest()},None)
+
+class ConsoleFrameControls(Fenced):
+ def fixture(self):
+  info=K.read(HERE/'data/console-status-origin.json');data=(HERE/'data/console-status-minimum.data').read_bytes();self.assertEqual({'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()},info['projected_fixture']);return data,info
+ def frame(self,payload=b'{"value":1}',extra=b'',label='SEAT_SESSION',nonce=N):return(label+'_BEGIN '+nonce+'\n').encode()+payload+b'\n'+extra+(label+'_END '+nonce+'\n').encode()
+ def test_actual_status_minimum_and_exact_JSON_preservation(self):
+  data,info=self.fixture();nonce=info['nonce'];payload=data.split(b'\n')[1].rstrip(b'\r');strict=P.frame_bytes(data,nonce,'SEAT_SESSION');self.assertEqual(strict.split(b'\n')[1],payload);self.assertEqual(json.loads(payload)['status'],'DATA_ONLY_SANITIZED_FRAME_NOT_SEAT_ACCEPTANCE')
+  old_body=data.decode().replace('\r','').split('\n',1)[1].split('SEAT_SESSION_END',1)[0].strip()
+  with self.assertRaises(json.JSONDecodeError):json.loads(old_body)
+  line=data.split(b'\n')[2].rstrip(b'\r');self.assertEqual({'bytes':len(line),'sha256':hashlib.sha256(line).hexdigest()},info['actual_status_line']);self.assertTrue(P.systemd_status_line(line))
+ def test_status_at_line_boundaries_before_after_JSON_for_both_labels(self):
+  data,info=self.fixture();line=data.split(b'\n')[2].rstrip(b'\r');payload=b'{ "value" : "exact bytes" }'
+  for label in ['SEAT_SESSION','UI_SESSION']:
+   frame=(label+'_BEGIN '+N+'\n').encode()+line+b'\n'+payload+b'\n'+line+b'\n'+(label+'_END '+N+'\n').encode();strict=P.frame_bytes(frame,N,label);self.assertEqual(strict.split(b'\n')[1],payload)
+   if label=='UI_SESSION':self.assertEqual(P.parse_ui(frame,N),{'value':'exact bytes'})
+ def test_extra_JSON_or_arbitrary_trailing_frame_body_refused(self):
+  for extra in [b'{}\n',b'[]\n',b'true\n',b'arbitrary trailing text\n',b'{"other":2}\n']:
+   with self.subTest(extra=extra),self.assertRaises((AssertionError,ValueError)):P.frame_bytes(self.frame(extra=extra),N,'SEAT_SESSION')
+  for extra in [b'{}\n',b'[]\n']:
+   with self.assertRaises(ValueError):P.frame_bytes(self.frame()+extra,N,'SEAT_SESSION')
+  for payload in [b'{} {}',b'{"value":',b'{"value":1']:
+   with self.assertRaises(json.JSONDecodeError):P.frame_bytes(self.frame(payload=payload),N,'SEAT_SESSION')
+ def test_interior_line_injection_not_repaired(self):
+  data,_=self.fixture();line=data.split(b'\n')[2].rstrip(b'\r')
+  for payload in [b'{"value":'+line+b'1}',b'{"value":1'+b'\n'+line+b'\n'+b'}']:
+   with self.assertRaises((ValueError,AssertionError)):P.frame_bytes(self.frame(payload),N,'SEAT_SESSION')
+ def test_unknown_ANSI_unit_text_and_malformed_status_refused(self):
+  data,_=self.fixture();line=data.split(b'\n')[2].rstrip(b'\r')
+  for bad in [b'\x1b]0;title\x07'+line,line.replace(b'\x1b[0;31m',b'\x1b[35m'),line.replace('…ge bootstrap'.encode(),b'unknown unit'),line.replace(b'1 of 2',b'2 of 1'),line+b'{}',line.replace(b'42s',b'99s')]:
+   self.assertFalse(P.systemd_status_line(bad))
+   with self.assertRaises(ValueError):P.frame_bytes(self.frame(extra=bad+b'\n'),N,'SEAT_SESSION')
+ def test_duplicate_foreign_missing_reversed_frames_refused(self):
+  data=self.frame()
+  for bad in [data+data,data.replace(N.encode(),b'2'*32,1),data.replace(b'SEAT_SESSION_END',b'MISSING_END'),data.splitlines()[-1]+b'\n'+data.splitlines()[0]+b'\n',data+self.frame(label='UI_SESSION',nonce='2'*32)]:
+   with self.assertRaises(AssertionError):P.frame_bytes(bad,N,'SEAT_SESSION')
+ def test_interleaved_other_frame_is_not_console_noise(self):
+  nested=self.frame(extra=self.frame(label='UI_SESSION'))
+  with self.assertRaises(ValueError):P.frame_bytes(nested,N,'SEAT_SESSION')
+ def test_status_count_and_payload_and_total_bounds_remain(self):
+  data,_=self.fixture();line=data.split(b'\n')[2].rstrip(b'\r')
+  for bad in [self.frame(extra=(line+b'\n')*17),self.frame(payload=b'{"x":"'+b'x'*131072+b'"}'),b'x'*(1024**2+1)]:
+   with self.assertRaises(AssertionError):P.frame_bytes(bad,N,'SEAT_SESSION')
+ def test_separate_complete_frames_same_nonce_allowed(self):
+  data=self.frame()+self.frame(label='UI_SESSION');self.assertEqual(P.parse_ui(data,N),{'value':1});self.assertEqual(json.loads(P.frame_bytes(data,N,'SEAT_SESSION').split(b'\n')[1]),{'value':1})
+ def test_bind_runs_frozen_validator_and_propagates_semantic_refusal(self):
+  data,info=self.fixture();seen=[]
+  def frozen(raw,nonce):seen.append((raw,nonce));raise ValueError('inert frozen semantic refusal')
+  original=types.SimpleNamespace(Serial=type('Serial',(),{}),redact_serial=lambda *a:None,parse=frozen)
+  def held(name,path):return original if name=='UI_original_ARM_protocol'else types.SimpleNamespace()
+  with patch.object(P,'load',side_effect=held):P.bind(Path('/held/lower'))
+  with self.assertRaisesRegex(ValueError,'frozen semantic refusal'):original.parse(data,info['nonce'])
+  self.assertEqual(seen,[(P.frame_bytes(data,info['nonce'],'SEAT_SESSION'),info['nonce'])])
 
 if __name__=='__main__':unittest.main()
