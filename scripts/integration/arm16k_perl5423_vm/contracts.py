@@ -286,7 +286,10 @@ def resources(value, case, base, expanded, rollback, dependency):
     root_cert(value, 'ROOT_REVIEWED_PERL5423_VM_RESOURCES_V1')
     keys(value, {'kind', 'issued_by', 'accepted', 'baseline_certificate', 'package', 'quota_guard'} | set(LIMITS), 'resource certificate')
     need(value['baseline_certificate'] == case['evidence']['baseline_certificate'] and value['package'] == case['package']['archive'], 'resource baseline/candidate joins')
-    need(all(positive(value[n]) for n in LIMITS), 'all physical/resource/guest-phase numbers explicit positive integers')
+    home = type(value['quota_guard']) is dict and value['quota_guard'].get('method') == 'READ_ONLY_HOME_BTRFS_ENOSYS_FSTATVFS'
+    quota_fields = ('quota_initial_headroom_bytes','quota_live_reserve_bytes')
+    need(all(positive(value[n]) for n in LIMITS if not home or n not in quota_fields), 'all physical/resource/guest-phase numbers explicit positive integers')
+    if home: need(all(value[n] is None for n in quota_fields), 'unsupported HOME quota never supplies headroom')
     need(all(value[n] <= 999999999 for n in ('gpg_seconds', 'install_seconds', 'probe_wait_seconds', 'remove_seconds',
          'run_seconds', 'sync_seconds', 'guest_output_cap_bytes')) and 1024 <= value['log_bytes'] <= 16777216,
          'exact guest case.env scalar grammar')
@@ -296,7 +299,8 @@ def resources(value, case, base, expanded, rollback, dependency):
     need(value['clone_allocated_cap_bytes'] >= writes and value['readback_allocated_cap_bytes'] >= writes and
          value['guest_filesystem_free_bytes'] >= value['case_staging_bytes'] + expanded + value['guest_output_cap_bytes'] and value['prepared_raw_bytes'] >= writes, 'clone/readback/raw/guest capacity includes staged and expanded candidate and output')
     peak = sum(value[n] for n in ('clone_allocated_cap_bytes', 'overlay_cap_bytes', 'readback_allocated_cap_bytes', 'logs_cap_bytes', 'reserve_bytes'))
-    need(value['physical_free_bytes'] >= peak and value['quota_initial_headroom_bytes'] >= peak and value['quota_live_reserve_bytes'] >= value['reserve_bytes'], 'simultaneous physical/quota clone+overlay+readback+logs+reserve')
+    need(value['physical_free_bytes'] >= peak, 'simultaneous physical clone+overlay+readback+logs+reserve')
+    if not home: need(value['quota_initial_headroom_bytes'] >= peak and value['quota_live_reserve_bytes'] >= value['reserve_bytes'], 'simultaneous own-UID quota clone+overlay+readback+logs+reserve')
     need(value['owner_memory_bytes'] >= value['guest_memory_bytes'] and value['host_MemAvailable_bytes'] >= value['owner_memory_bytes'] + value['host_reserve_bytes'], 'actual host RAM reserve')
     # Twelve fixed runtime operations and sync; no compiler or XS build. Root's
     # wait encloses these calls, so the outer envelope counts that wait once.
@@ -309,8 +313,14 @@ def resources(value, case, base, expanded, rollback, dependency):
     need(value['boot_seconds'] >= phase and value['prepare_seconds'] > value['cleanup_seconds'] and value['logs_cap_bytes'] >= value['log_bytes'], 'finite guest/cleanup/log envelopes')
     need(value['prepared_raw_bytes'] == value['baseline_raw_bytes'] <= 4*1024**3 and value['overlay_cap_bytes'] <= 4*1024**3 and value['guest_memory_bytes'] % 1024**2 == 0 and value['cpus'] <= 64 and value['pids'] <= 4096, 'supported fixed raw/overlay/guest geometry and finite actor controls')
     need(value['cleanup_seconds'] >= 45 and all(value[n] >= 5 for n in ('gpg_seconds','install_seconds','remove_seconds','run_seconds','sync_seconds')), 'frozen owned cleanup and command retirement minimum envelopes')
-    q = value['quota_guard']; keys(q, ('issued_by', 'method', 'whole_actor', 'read_only', 'uid', 'device', 'initial_headroom_bytes', 'live_reserve_bytes', 'on_unknown_or_exhausted'), 'quota guard')
-    need(q == dict(issued_by='Root', method='READ_ONLY_Q_GETQUOTA', whole_actor=True, read_only=True, uid=value['host_uid'], device=value['output_device'], initial_headroom_bytes=value['quota_initial_headroom_bytes'], live_reserve_bytes=value['quota_live_reserve_bytes'], on_unknown_or_exhausted='HOLD_AND_OWNED_CLEANUP'), 'actual readonly own-UID whole-actor quota guard')
+    q = value['quota_guard']
+    if home:
+        import importlib.util
+        spec=importlib.util.spec_from_file_location('perl_resource_home',HERE/'home_btrfs.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+        m.profile(q,value,now=int(time.time()))
+    else:
+        keys(q, ('issued_by', 'method', 'whole_actor', 'read_only', 'uid', 'device', 'initial_headroom_bytes', 'live_reserve_bytes', 'on_unknown_or_exhausted'), 'quota guard')
+        need(q == dict(issued_by='Root', method='READ_ONLY_Q_GETQUOTA', whole_actor=True, read_only=True, uid=value['host_uid'], device=value['output_device'], initial_headroom_bytes=value['quota_initial_headroom_bytes'], live_reserve_bytes=value['quota_live_reserve_bytes'], on_unknown_or_exhausted='HOLD_AND_OWNED_CLEANUP'), 'actual readonly own-UID whole-actor quota guard')
 
 
 def validate(case, observed_materials, baseline_certificate, runtime_certificate, resource_certificate, Root_decision, installed_Reader, installed_component_decision):

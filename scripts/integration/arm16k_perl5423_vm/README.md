@@ -323,3 +323,36 @@ retains `ownership.json`, complete `namespace.json`, raw `alpm-records.json`, an
 acceptance fields stay NULL. It neither issues a baseline certificate nor
 supplies PAM or filesystem-integrity acceptance. Worker verification uses only
 synthetic DATA and retained ALPM record bytes; no actual raw scanner ran here.
+
+
+## Explicit HOME Btrfs trial mode
+
+The original `READ_ONLY_Q_GETQUOTA` resource branch remains strict: finite
+observed quota headroom is mandatory and every error holds. A separate
+`READ_ONLY_HOME_BTRFS_ENOSYS_FSTATVFS` branch is available only through an exact
+Root-issued resource certificate and matching phase/packet/controller authority.
+It is restricted to `/home/gabe`, UID1000, device54, Btrfs `/@home` subvolid257.
+`home-storage-guard.TEMPLATE.json` declares the shape; phase outputs, exact closed
+Source lock and fresh finite validity are NULL until Root issues them. HOME
+controller authority `quota_device` and resource quota headroom fields must be
+NULL: this branch makes no quota headroom, other-quota or reservation claim.
+
+The whole-actor guard walks directory FDs without following aliases and selects
+the held FD's actual mount ID from bounded kernel metadata. Before and after the
+allocation census it repeats readonly own-UID `quotactl_fd`, Linux x86_64 syscall
+443 / Q_GETQUOTA, and fstatvfs. Only `result=-1, errno=ENOSYS38` is admitted and
+reported as `UNSUPPORTED_NOT_UNLIMITED`. EPERM, other errors, success, an unknown
+filesystem, changed mount or expired profile hold. Live f_bavail*f_frsize must
+cover the initial complete physical plan and then the same finite live reserve.
+All-zero files/ffree/favail means `UNREPORTED`; no inode headroom is invented.
+Reported inode counters must be consistent and cover16384 initially/4096 live.
+The existing150000-node allocation census and allocated-byte/component caps stay
+in force. Memory, CPU/PID, time, cancellation, owned cleanup/recovery and all
+Perl expected-provider/pre-ALPM checks are unchanged.
+
+HOME reports use `storage_guard` / filesystem-capacity scope, never quota PASS.
+They explicitly retain unsupported own-UID quota, other quota UNCLAIMED and
+capacity_reservation=false. This opt-in mode is a guarded first-trial path, not a
+global fallback for missing quotas or an observation that storage is unlimited.
+No worker HOME filesystem/quota query or actor ran; controls use synthetic FD,
+mount, syscall-return and fstatvfs DATA only. Root owns fresh admission and runs.

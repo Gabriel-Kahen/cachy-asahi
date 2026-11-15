@@ -81,3 +81,13 @@ Original111. A new Root-only, finite read-only observer can emit genuine full
 namespace/ownership DATA through the frozen ext4 reader after Root grants and
 external CUSL/S resource supervision. Its NULL template and synthetic/retained
 record checks provide no actual raw-scan or guest/runtime credit.
+
+
+A separate Root opt-in HOME/Btrfs first-trial mode handles only the exact
+UID1000/device54/@home/subvolid257 syscall443 ENOSYS38 result as
+UNSUPPORTED_NOT_UNLIMITED, and all-zero inode counters as UNREPORTED. It brackets
+the same finite allocation/node census with fresh held-FD mount/capacity checks,
+keeps byte/reserve/RAM/CPU/PID/time/cancel/recovery and Perl pre-ALPM/provider gates,
+and claims no quota availability or reservation. The original strict SHM/quota
+branch is unchanged; errors and unknown filesystems hold. No live query or actor
+was run by the worker; fresh Root profile/resource/phase grants remain required.

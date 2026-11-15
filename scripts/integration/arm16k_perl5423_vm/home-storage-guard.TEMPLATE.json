@@ -1,0 +1,37 @@
+{
+  "capacity_reservation": false,
+  "created_utc": null,
+  "device": 54,
+  "expires_utc": null,
+  "filesystem": {
+    "device": 54,
+    "fstype": "btrfs",
+    "root": "/home/gabe",
+    "subvolid": 257,
+    "subvolume": "/@home"
+  },
+  "initial_inode_headroom": 16384,
+  "inode_counters": "ZERO_FILES_FFREE_FAVAIL_MEANS_UNREPORTED",
+  "issued_by": "Root",
+  "live_inode_headroom": 4096,
+  "method": "READ_ONLY_HOME_BTRFS_ENOSYS_FSTATVFS",
+  "on_unknown_or_exhausted": "HOLD_AND_OWNED_CLEANUP",
+  "other_quota_availability": "UNCLAIMED",
+  "output_node_cap": 150000,
+  "outputs": {
+    "boot": null,
+    "prepare": null
+  },
+  "quota_query": {
+    "command": 2147485440,
+    "errno": 38,
+    "result": -1,
+    "status": "UNSUPPORTED_NOT_UNLIMITED",
+    "syscall": 443,
+    "uid": 1000
+  },
+  "read_only": true,
+  "source_lock": null,
+  "uid": 1000,
+  "whole_actor": true
+}

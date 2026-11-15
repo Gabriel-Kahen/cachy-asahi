@@ -22,22 +22,32 @@ def quota(device, uid):
 
 
 class Guard:
-    def __init__(self, root, resources, device, deadline, allocation, initial=False, query=quota):
+    def __init__(self, root, resources, device, deadline, allocation, initial=False, query=quota, source=None, phase=None):
         self.root,self.r,self.device,self.deadline,self.allocation,self.query=Path(root),resources,device,deadline,allocation,query
         self.last=0;self.initial=initial;self.samples=0
+        self.home=None;self.last_snapshot=None;self.source,self.phase=source,phase
+        if resources['quota_guard']['method']=='READ_ONLY_HOME_BTRFS_ENOSYS_FSTATVFS':
+            import importlib.util
+            spec=importlib.util.spec_from_file_location('perl_budget_home',Path(__file__).resolve().parent/'home_btrfs.py');self.home=importlib.util.module_from_spec(spec);spec.loader.exec_module(self.home)
+            if source is None or phase not in('prepare','boot'):raise ValueError('explicit HOME controller Source and phase required')
+            self.home.profile(resources['quota_guard'],resources,source,phase,self.root,int(time.time()))
+            if device is not None:raise ValueError('HOME FD syscall mode has no device-path quota operand')
     def __call__(self, force=False):
         now=time.monotonic()
         if now>=self.deadline: raise TimeoutError('whole actor deadline')
         if not force and now-self.last<.5:return
         r=self.r
         if self.root.stat().st_dev!=r['output_device'] or os.getuid()!=r['host_uid']:raise ValueError('actual quota UID/device differs')
-        reserve=r['quota_initial_headroom_bytes'] if self.initial else r['quota_live_reserve_bytes']
-        if self.query(self.device,os.getuid())<reserve:raise ValueError('own-UID quota reserve exhausted')
-        free=shutil.disk_usage(self.root).free
-        if self.initial and free<r['physical_free_bytes']:raise ValueError('initial actual free bytes below Root physical plan')
-        if free<r['reserve_bytes']:raise ValueError('physical free reserve exhausted')
-        cap=sum(r[n] for n in ('clone_allocated_cap_bytes','overlay_cap_bytes','readback_allocated_cap_bytes','logs_cap_bytes'))
-        if self.allocation(self.root,deadline=self.deadline)>cap:raise ValueError('simultaneous allocated blocks exceed budget')
+        if self.home is not None:
+            self.last_snapshot=self.home.sample(self.root,r,self.source,self.phase,self.initial,self.deadline,self.allocation)
+        else:
+            reserve=r['quota_initial_headroom_bytes'] if self.initial else r['quota_live_reserve_bytes']
+            if self.query(self.device,os.getuid())<reserve:raise ValueError('own-UID quota reserve exhausted')
+            free=shutil.disk_usage(self.root).free
+            if self.initial and free<r['physical_free_bytes']:raise ValueError('initial actual free bytes below Root physical plan')
+            if free<r['reserve_bytes']:raise ValueError('physical free reserve exhausted')
+            cap=sum(r[n] for n in ('clone_allocated_cap_bytes','overlay_cap_bytes','readback_allocated_cap_bytes','logs_cap_bytes'))
+            if self.allocation(self.root,deadline=self.deadline)>cap:raise ValueError('simultaneous allocated blocks exceed budget')
         mem={row.split(':')[0]:int(row.split()[1])*1024 for row in Path('/proc/meminfo').read_text().splitlines()}
         if self.initial and mem['MemAvailable']<r['owner_memory_bytes']+r['host_reserve_bytes']:raise ValueError('initial actor plus host RAM reserve')
         if mem['MemAvailable']<r['host_reserve_bytes']:raise ValueError('host RAM reserve exhausted')

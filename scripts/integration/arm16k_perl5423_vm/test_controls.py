@@ -75,7 +75,90 @@ def modeled(rollback=False, dependency=False):
 
 def reseal(a):return seal(a[0],*a[2:])
 
+def modeled_home():
+ a=modeled();r=a[4];q=K.load(HERE/'home-storage-guard.TEMPLATE.json');now=int(time.time())
+ q.update(outputs=dict(prepare='/home/gabe/MODEL/prepare',boot='/home/gabe/MODEL/boot'),source_lock=pin('modeled-controller-source'),created_utc=now-1,expires_utc=now+300)
+ r.update(host_uid=1000,output_device=54,quota_initial_headroom_bytes=None,quota_live_reserve_bytes=None,quota_guard=q)
+ return reseal(a)
+
 class Controls(unittest.TestCase):
+ def test_HOME_explicit_profile_acceptance_and_SHM_branch_unchanged(self):
+  H=module('home_btrfs');a=modeled_home();self.assertEqual(K.validate(*a)['operation'],K.OP)
+  for old in(False,True):self.assertEqual(K.validate(*modeled(old))['operation'],K.OP)
+  for kind in('numeric-quota','EPERM','other-fs','other-device','other-uid','unlimited','reservation','source','expired','mode','inode-model','node-cap','physical','RAM'):
+   b=modeled_home();r=b[4];q=r['quota_guard']
+   if kind=='numeric-quota':r['quota_initial_headroom_bytes']=1
+   if kind=='EPERM':q['quota_query']['errno']=1
+   if kind=='other-fs':q['filesystem']['fstype']='tmpfs'
+   if kind=='other-device':q['device']=55
+   if kind=='other-uid':q['uid']=1001
+   if kind=='unlimited':q['quota_query']['status']='UNLIMITED'
+   if kind=='reservation':q['capacity_reservation']=True
+   if kind=='source':q['source_lock']=None
+   if kind=='expired':q['created_utc']=1;q['expires_utc']=2
+   if kind=='mode':q['method']='UNKNOWN'
+   if kind=='inode-model':q['inode_counters']='UNLIMITED'
+   if kind=='node-cap':q['output_node_cap']=150001
+   if kind=='physical':r['physical_free_bytes']=1
+   if kind=='RAM':r['host_MemAvailable_bytes']=1
+   with self.subTest(kind=kind),self.assertRaises(ValueError):K.validate(*reseal(b))
+  strict=modeled();strict[4]['quota_initial_headroom_bytes']=strict[4]['quota_live_reserve_bytes']=None
+  with self.assertRaises(ValueError):K.validate(*reseal(strict))
+ def test_HOME_capacity_ENOSYS_inode_and_mount_semantics_pure(self):
+  H=module('home_btrfs');r=modeled_home()[4];fs=dict(blocks=1000000,bfree=900000,bavail=800000,frsize=4096,files=0,ffree=0,favail=0)
+  self.assertEqual(H.capacity(fs,r,True),'UNREPORTED');reported=dict(fs,files=100000,ffree=50000,favail=40000);self.assertEqual(H.capacity(reported,r,True),'REPORTED')
+  for bad in(dict(fs,files=100),dict(fs,frsize=0),dict(fs,bavail=1),dict(fs,bfree=0),dict(reported,favail=1),dict(reported,favail=50001)):
+   with self.assertRaises(ValueError):H.capacity(bad,r,True)
+  row='42 1 0:54 /@home /home rw - btrfs /dev/MODELED rw,subvolid=257,subvol=/@home\n';self.assertEqual(H.mountinfo(row,42)['subvolume'],'/@home')
+  for bad in(row.replace('btrfs','tmpfs'),row.replace('0:54','0:55'),row.replace('/@home','/@root'),row.replace('257','258'),row+row):
+   with self.assertRaises(ValueError):H.mountinfo(bad,42)
+  with self.assertRaises(ValueError):H.mountinfo(row,43)
+ def test_HOME_sample_brackets_capacity_and_holds_every_other_error(self):
+  import types
+  H=module('home_btrfs');r=modeled_home()[4];q=r['quota_guard'];root=Path(q['outputs']['prepare']);st=types.SimpleNamespace(st_dev=54,st_ino=7,st_mode=0o40700,st_uid=1000,st_gid=1000);fs=dict(blocks=1000000,bfree=900000,bavail=800000,frsize=4096,files=0,ffree=0,favail=0);mount=dict(mount_id=42)
+  for kind in('valid','EPERM','EIO','supported','late-error','low-bytes','changed-inodes','unknown-fs','allocation','node-limit','expired','wrong-Source','wrong-output'):
+   seen=[];closed=[];r=modeled_home()[4];q=r['quota_guard'];source=q['source_lock'];phase='prepare';end=time.monotonic()+60
+   def query(fd):
+    seen.append(fd)
+    if kind=='EPERM':return -1,1
+    if kind=='EIO':raise OSError(5,'MODELED unknown query')
+    if kind=='supported':return 0,0
+    if kind=='late-error'and len(seen)>1:return -1,1
+    return -1,38
+   samples=[]
+   def filesystem(fd):
+    samples.append(fd)
+    if kind=='low-bytes':return dict(fs,bavail=1)
+    if kind=='changed-inodes'and len(samples)>1:return dict(fs,files=100000,ffree=50000,favail=40000)
+    return dict(fs)
+   def allocation(*args,**kw):
+    if kind=='node-limit':raise ValueError('MODELED actual runtime census node bound')
+    return 2**63 if kind=='allocation'else 1234
+   def mounted(fd):
+    if kind=='unknown-fs':raise ValueError('MODELED unknown mount')
+    return mount
+   if kind=='expired':q['created_utc']=1;q['expires_utc']=2
+   if kind=='wrong-Source':source=pin('wrong-Source')
+   if kind=='wrong-output':phase='boot'
+   with patch.object(H.os,'fstat',return_value=st),patch.object(H.os,'getuid',return_value=1000),patch.object(H.os,'geteuid',return_value=1000),patch.object(H.os,'close',side_effect=closed.append),patch.object(H.Path,'lstat',return_value=st):
+    args=(root,r,source,phase,True,end,allocation);kwargs=dict(query=query,fs_query=filesystem,mount_query=mounted,opener=lambda path:10 if path=='/home/gabe'else 11)
+    if kind=='valid':
+     result=H.sample(*args,**kwargs);self.assertEqual(seen,[10,10]);self.assertEqual(len(samples),2);self.assertEqual(result['own_uid_quota'],'UNSUPPORTED_NOT_UNLIMITED');self.assertEqual(result['filesystem_inode_counters'],'UNREPORTED');self.assertFalse(result['capacity_reservation']);self.assertEqual(result['allocated_bytes'],1234)
+    else:
+     with self.subTest(kind=kind),self.assertRaises((ValueError,OSError)):H.sample(*args,**kwargs)
+   if seen:self.assertEqual(closed,[11,10])
+ def test_HOME_guard_preserves_memory_deadline_and_prepare_boot_bindings(self):
+  r=modeled_home()[4];q=r['quota_guard'];root=Path(q['outputs']['prepare']);source=q['source_lock'];st=type('S',(),dict(st_dev=54))
+  guard=Q.Guard(root,r,None,time.monotonic()+60,lambda *a,**k:0,initial=True,source=source,phase='prepare');guard.home.sample=lambda *a,**k:dict(status='PASS_FILESYSTEM_CAPACITY_ONLY')
+  with patch.object(Q.Path,'stat',return_value=st),patch.object(Q.Path,'read_text',return_value='MemAvailable: 100000000 kB\n'):
+   guard(True);self.assertEqual(guard.samples,1)
+  with patch.object(Q.Path,'stat',return_value=st),patch.object(Q.Path,'read_text',return_value='MemAvailable: 1 kB\n'):
+   with self.assertRaises(ValueError):guard(True)
+  guard.deadline=time.monotonic()-1
+  with self.assertRaises(TimeoutError):guard(True)
+  for phase in('prepare','boot'):Q.Guard(Path(q['outputs'][phase]),r,None,time.monotonic()+60,lambda *a,**k:0,source=source,phase=phase)
+  with self.assertRaises(ValueError):Q.Guard(root,r,'/dev/MODELED',time.monotonic()+60,lambda *a,**k:0,source=source,phase='prepare')
+  with self.assertRaises(ValueError):Q.Guard(root,r,None,time.monotonic()+60,lambda *a,**k:0,source=source,phase='boot')
  def test_null_template_refuses(self):
   with self.assertRaises(ValueError):K.validate(K.load(HERE/'case.TEMPLATE.json'),{},None,None,None,None,None,None)
  def test_modeled_remove_and_rollback(self):
@@ -149,7 +232,7 @@ class Controls(unittest.TestCase):
   after=copy.deepcopy(scan);after['nodes']['usr/bin/x']['sha256']='b'*64
   with self.assertRaises(ValueError):I.preserve(scan,after,{'x':'1'},modeled()[3])
  def test_no_actions_on_import_and_operational_fence(self):
-  for n in('actor','runtime','controller','budget','image','baseline_observer'):module(n)
+  for n in('actor','runtime','controller','budget','image','baseline_observer','home_btrfs'):module(n)
   for event in('subprocess.Popen','socket.__new__','ctypes.dlopen','fcntl.flock'):
    with self.assertRaises(RuntimeError):sys.audit(event)
  def test_retained_alpm_literal_ownership_keys_and_exact_empty_records(self):
@@ -233,7 +316,9 @@ class Controls(unittest.TestCase):
    root=Path(tmp);r=modeled()[4];r.update(host_uid=os.getuid(),output_device=root.stat().st_dev,physical_free_bytes=1,host_reserve_bytes=1,host_MemAvailable_bytes=1,owner_memory_bytes=1)
    seen=[]
    def query(device,uid):seen.append((device,uid));return 10**12
-   guard=Q.Guard(root,r,'/dev/MODELED',time.monotonic()+60,lambda *args,**kw:0,initial=True,query=query);guard(True);self.assertEqual(seen,[('/dev/MODELED',os.getuid())]);self.assertEqual(guard.samples,1)
+   guard=Q.Guard(root,r,'/dev/MODELED',time.monotonic()+60,lambda *args,**kw:0,initial=True,query=query)
+   with patch.object(Q.shutil,'disk_usage',return_value=type('D',(),dict(free=2**40))),patch.object(Q.Path,'read_text',return_value='MemAvailable: 100000000 kB\n'):guard(True)
+   self.assertEqual(seen,[('/dev/MODELED',os.getuid())]);self.assertEqual(guard.samples,1)
    guard.query=lambda d,u:0
    with self.assertRaises(ValueError):guard(True)
    guard.query=lambda d,u:(_ for _ in ()).throw(OSError('MODELED quota unknown'))
@@ -245,6 +330,12 @@ class Controls(unittest.TestCase):
   auth=dict(kind='ROOT_PERL5423_VM_ACTOR_AUTHORITY_V1',issued_by='Root',accepted=True,operation=K.OP,phase='prepare',packet=pp,source_lock=sp,output=str(out),uid=1000,created_utc=now,expires_utc=now+100,image='sha256:'+'a'*64,docker_endpoint='unix:///run/user/1000/docker.sock',docker_cli=dict(path='/MODEL/Root-selected/docker',bytes=44217952,sha256='e966e0e6ea215b74fdbee17fbe7ed8bff15b65930bfc8e131652ceae4ed0210e',uid=1000,gid=1000,mode=0o755,device=1,inode=1,nlink=1),quota_device='/dev/MODELED',actor_tools={p:pin(p)for p in('/usr/bin/python3','/usr/bin/cp','/usr/bin/debugfs','/usr/bin/e2fsck','/usr/bin/qemu-img','/usr/bin/qemu-system-aarch64')},kernel={n:pin(n)for n in('Image','config')},credentials=None,prepared=None)
   with patch.object(C.os,'getuid',return_value=1000):
    C.authority(auth,'prepare',pp,sp,out,K)
+   home=modeled_home()[4];home['quota_guard']['source_lock']=sp
+   for phase in('prepare','boot'):
+    target=Path(home['quota_guard']['outputs'][phase]);trial=dict(auth,phase=phase,output=str(target),quota_device=None,prepared=pin('prepared')if phase=='boot'else None,credentials=pin('credentials')if phase=='boot'else None)
+    C.authority(trial,phase,pp,sp,target,K,home)
+    for bad in(dict(trial,quota_device='/dev/MODELED'),dict(trial,output=str(target)+'-wrong')):
+     with self.assertRaises(ValueError):C.authority(bad,phase,pp,sp,target,K,home)
    for n,value in [('accepted',False),('phase','boot'),('expires_utc',now-1),('docker_endpoint','tcp://remote:2375'),('uid',1001)]:
     bad=copy.deepcopy(auth);bad[n]=value
     with self.subTest(n=n),self.assertRaises(ValueError):C.authority(bad,'prepare',pp,sp,out,K)
