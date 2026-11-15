@@ -58,9 +58,9 @@
       "sha256": "8ca7fe071ca16e99c79c7329833ef530e701e54fd90366be90792e6bccf43a43"
     },
     "producer.py": {
-      "bytes": 14274,
+      "bytes": 14879,
       "mode": 420,
-      "sha256": "9d4c681100328f2db7abefdc0ff894a569d3670667cf369613dd3d8ffb222b87"
+      "sha256": "4c6db02555123c1878da8610fdf807e4f82ad6b8a3cf20257dc11aec73a01c24"
     },
     "qualification.TEMPLATE.json": {
       "bytes": 486,

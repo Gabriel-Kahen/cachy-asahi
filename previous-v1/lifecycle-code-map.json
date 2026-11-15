@@ -1,0 +1,77 @@
+{
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "authority": null,
+    "container": null,
+    "image": null,
+    "job": null,
+    "reader": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "files": {
+    "actor.py": {
+      "bytes": 24697,
+      "mode": 420,
+      "sha256": "ce920ce825f28f0d175576b00fbb2ebd4529f92f6aabdc32ce2124e8a1f69058"
+    },
+    "admission.TEMPLATE.json": {
+      "bytes": 288,
+      "mode": 420,
+      "sha256": "85f05c71b2f4448e549d70af059f47a5b4a8629eeb269b415dbc2e795bfc8c59"
+    },
+    "common.py": {
+      "bytes": 6390,
+      "mode": 420,
+      "sha256": "bf3868cdc89665c5ee79bad9eee260a21737abc70b55b31d6eedc16bee131ba6"
+    },
+    "domain.json": {
+      "bytes": 733,
+      "mode": 420,
+      "sha256": "4f55c9ec32f4a4d9d6668dbf9da53a154a9bf0725cfec491c6049840f68083da"
+    },
+    "helpers/archive.py": {
+      "bytes": 5086,
+      "mode": 420,
+      "sha256": "0e554065fbcf1554ff99b932fa75e0129ef56660f62e9cf49b639d6575e91c97"
+    },
+    "helpers/archive_stream.py": {
+      "bytes": 11938,
+      "mode": 420,
+      "sha256": "10f1a4c0ac5b98852d9ebb150af28f9ce345c800935a64fa463bc90f72fcb838"
+    },
+    "helpers/owned_child.py": {
+      "bytes": 10908,
+      "mode": 420,
+      "sha256": "eaf9a46630e4fe4ca0a8f94a6dc2de4a881a6ad7e8b4dd0810b3347c0d7038d5"
+    },
+    "prepare.py": {
+      "bytes": 6273,
+      "mode": 420,
+      "sha256": "94a07736d8b0d2c512a059f168768814a9e5934aa0cbff74f380ad3ad4911dec"
+    },
+    "probe.pl": {
+      "bytes": 1596,
+      "mode": 420,
+      "sha256": "8ca7fe071ca16e99c79c7329833ef530e701e54fd90366be90792e6bccf43a43"
+    },
+    "producer.py": {
+      "bytes": 14274,
+      "mode": 420,
+      "sha256": "9d4c681100328f2db7abefdc0ff894a569d3670667cf369613dd3d8ffb222b87"
+    },
+    "qualification.TEMPLATE.json": {
+      "bytes": 486,
+      "mode": 420,
+      "sha256": "bb21b2abc6d105d4a406314228a295919126074f3ae4a0325830712bf58c9133"
+    },
+    "read_result.py": {
+      "bytes": 10990,
+      "mode": 420,
+      "sha256": "2dff5d7be09239bfede23acc5d04d29b6eb67dafacfe26df10140d2757079086"
+    }
+  },
+  "schema": 1
+}

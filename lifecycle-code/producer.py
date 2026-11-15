@@ -43,6 +43,17 @@ def options(a, admission_raw, admission_sha, domain):
         '--admission-sha256',admission_sha,'--source-map-sha256',a['source_map_sha256']]
 
 
+def capability_names(values):
+    known = {'CHOWN', 'DAC_OVERRIDE', 'FOWNER', 'SETGID', 'SETUID', 'SETFCAP', 'SYS_CHROOT'}
+    C.need(type(values) is list and len(values) == 7
+           and all(type(value) is str for value in values), 'exact seven capability strings')
+    C.need(len(set(values)) == 7, 'unique raw capability names')
+    names = [value[4:] if value.startswith('CAP_') else value for value in values]
+    C.need(len(set(names)) == 7 and set(names) == known,
+           'exact unique reviewed capabilities; one optional CAP_ prefix only')
+    return set(names)
+
+
 def inspect(row, a, sha, domain, container_id=None):
     C.need(row['Image'] == a['image'] and row['Name'] == '/' + a['container'], 'same immutable image/exact name')
     if container_id is not None: C.need(row['Id'] == container_id, 'owned container ID unchanged')
@@ -52,7 +63,7 @@ def inspect(row, a, sha, domain, container_id=None):
     C.need(host['NetworkMode'] == 'none' and host['ReadonlyRootfs'] is False and host['Privileged'] is False
            and host['Init'] is True and host['Memory'] == domain['memory'] and host['MemorySwap'] == domain['memory_swap']
            and host['NanoCpus'] == 2 * 10**9 and host['PidsLimit'] == 128
-           and host['CapDrop'] == ['ALL'] and set(host['CapAdd']) == set(domain['cap_add'])
+           and host['CapDrop'] == ['ALL'] and capability_names(host['CapAdd']) == capability_names(domain['cap_add'])
            and host['SecurityOpt'] == ['no-new-privileges'], 'actual reviewed separate writable ALPM domain')
     C.need(host['Tmpfs'] == domain['tmpfs'] and not host.get('Binds') and not host.get('Devices')
            and not host.get('DeviceRequests') and not host.get('PublishAllPorts')

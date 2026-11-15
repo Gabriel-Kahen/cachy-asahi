@@ -42,8 +42,17 @@
     "lifecycle-code/read_result.py",
     "policy.json",
     "prerequisites.TEMPLATE.json",
+    "previous-v1/capsule-source-map.json",
+    "previous-v1/contract.json",
+    "previous-v1/hosted-common.py",
+    "previous-v1/inverse.json",
+    "previous-v1/lifecycle-code-map.json",
+    "previous-v1/lifecycle-code-producer.py",
+    "previous-v1/source-map.json",
+    "previous-v1/workflow.yml",
     "root-admission.TEMPLATE.json",
-    "source-map.json"
+    "source-map.json",
+    "v2-inverse.json"
   ],
   "before_tree": "83ae6693a6d43465f249eb843eae3ada9c855e5a",
   "held": {

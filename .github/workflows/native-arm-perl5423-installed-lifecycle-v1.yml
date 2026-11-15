@@ -46,7 +46,7 @@ jobs:
         timeout-minutes: 3
         run: |
           set -euo pipefail
-          printf '%s  %s\n' 'c0caf9ad99b7497b333a70796163e4e84337aae49d76c7666d6bb57dd3f8b32e' hosted/common.py '17018fec0eeb07e475e3b1201f9271baac21192452b82687c4c518108b49da45' hosted/entry.py | sha256sum --check
+          printf '%s  %s\n' '2b1927c98329d5cfbdd70cf4c6e6857e3b67c91dc53d77bbaca332ee4aa2b146' hosted/common.py '17018fec0eeb07e475e3b1201f9271baac21192452b82687c4c518108b49da45' hosted/entry.py | sha256sum --check
           cmp --silent .github/workflows/native-arm-build.yml .github/workflows/native-arm-perl5423-installed-lifecycle-v1.yml
           python3 -I -B - <<'PYROOT'
           import os
