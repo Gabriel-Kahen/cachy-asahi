@@ -8,3 +8,5 @@ scripts/port/arm-rust-toolchain-inputs/source-closure/archive-inventory/checksum
 scripts/port/arm-rust-toolchain-inputs/source-closure/archive-inventory/checksum-successor/license-followup/compiler-notices/successor-d/evidence/tera-LICENSE -whitespace
 scripts/port/arm-rust-toolchain-inputs/source-closure/archive-inventory/checksum-successor/license-followup/compiler-notices/successor-e/evidence/wasmtime-LICENSE -whitespace
 scripts/port/arm-rust-toolchain-inputs/source-closure/archive-inventory/checksum-successor/license-followup/compiler-notices/successor-f/evidence/pq-Cargo.toml.orig.html -whitespace
+scripts/port/arm-rust-toolchain-inputs/source-closure/archive-inventory/checksum-successor/license-followup/compiler-notices/successor-g/evidence/wit039-README.md -whitespace
+scripts/port/arm-rust-toolchain-inputs/source-closure/archive-inventory/checksum-successor/license-followup/compiler-notices/successor-h/evidence/fortanix-LICENSE -whitespace
