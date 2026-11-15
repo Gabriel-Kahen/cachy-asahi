@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import platform
 import pwd
+import re
 import shutil
 import signal
 import stat
@@ -103,6 +104,45 @@ def config(trust):
             'GPGDir = ' + trust + '\nLogFile = /var/log/pacman.log\n')
 
 
+REMOVAL_ARGV = ['/usr/bin/pacman','--config','/work/pacman.conf','--noconfirm','-R','perl']
+
+
+def removal_diagnostic(stdout, stderr, expected):
+    text = (stdout + b'\n' + stderr).decode()
+    C.need('failed to prepare transaction' in text and 'could not satisfy dependencies' in text,
+           'ordinary dependency-protection transaction refusal required')
+    rows = re.findall(r"^:: removing perl breaks dependency '(perl(?:[<>=]+[A-Za-z0-9._+:-]+)?)' required by ([A-Za-z0-9@._+:-]+)$",
+                      text, re.MULTILINE)
+    C.need(rows and len(rows) <= 349 and len(rows) == len(set(rows))
+           and len(rows) == sum(line.startswith(':: removing perl breaks dependency ') for line in text.splitlines())
+           and all(name in expected and name != 'perl' for _, name in rows),
+           'specific Perl dependency consumers in the exact baseline required')
+    return [dict(dependency=dependency, consumer=name) for dependency, name in rows]
+
+
+def removal_witnesses(stdout, stderr, expected, raw_database, read_desc):
+    witnesses = []; total = 0
+    for row in removal_diagnostic(stdout, stderr, expected):
+        name = row['consumer']; found = []
+        for relative in raw_database:
+            parts = Path(relative).parts
+            if len(parts) != 2 or parts[1] != 'desc' or not parts[0].startswith(name+'-'): continue
+            raw = read_desc(relative)
+            desc = {p.splitlines()[0].strip('%'): p.splitlines()[1:]
+                    for p in raw.decode().split('\n\n') if p.startswith('%')}
+            if desc.get('NAME') == [name] and desc.get('VERSION') == [expected[name]]:
+                found.append((relative, raw, desc))
+        C.need(len(found) == 1, 'unique actual dependent baseline descriptor')
+        relative, raw, desc = found[0]; total += len(raw)
+        C.need(total <= 1024**2 and row['dependency'] in desc.get('DEPENDS', []),
+               'bounded actual declared Perl dependency required')
+        node = raw_database[relative]
+        C.need(node['type'] == 'file' and C.pin(raw) == {k: node[k] for k in ('bytes','sha256')},
+               'dependency witness bound to unchanged baseline local database')
+        witnesses.append(dict(**row, desc_path=relative, descriptor=raw.decode()))
+    return witnesses
+
+
 def signature(raw, expected):
     rows = [line.split()[1:] for line in raw.decode().splitlines() if line.startswith('[GNUPG:] ')]
     bad = {'BADSIG','ERRSIG','NO_PUBKEY','EXPKEYSIG','EXPSIG','REVKEYSIG','KEYEXPIRED',
@@ -182,8 +222,8 @@ def execute(args):
         candidate = C.decode(C.read(HERE / 'candidate-payload.json'))
         baseline = C.decode(C.read(HERE / 'baseline-payload.json'))
         union = {**baseline, **candidate}
-        def installed(version):
-            raw, _ = run('inventory-' + str(len(report['commands'])), ['/usr/bin/pacman','-Q'])
+        def installed(version, step=None):
+            raw, _ = run(step or 'inventory-' + str(len(report['commands'])), ['/usr/bin/pacman','-Q'])
             target = dict(expected, perl=version)
             C.need(C.inventory(raw, version) == target, 'all349 exact package versions; only Perl substitution')
             return C.pin(raw)
@@ -258,6 +298,28 @@ def execute(args):
                 'exit(CachyAsahiLifecycle::value() == 42 ? 0 : 1)'])
             save()
         validate('baseline', '5.42.3-1', baseline)
+        def removal_state(step):
+            return dict(inventory=installed('5.42.3-1', step),
+                database=C.pin(C.encode(database())), package_owned=C.pin(C.encode(package_view(union))),
+                user_fixture=C.pin(C.encode(snapshot(user))), alarm_home=C.pin(C.encode(snapshot('/home/alarm'))),
+                accounts={name:C.pin(C.read('/etc/'+name)) for name in accounts},
+                trust=C.pin(C.encode(snapshot('/etc/pacman.d/gnupg'))),
+                hooks=C.pin(C.encode(snapshot('/etc/pacman.d/hooks'))),
+                pacman_conf=C.pin(C.read('/etc/pacman.conf')))
+        removal = dict(status='PENDING', before=removal_state('inventory-before-removal-refusal'),
+                       alarm_home_before=snapshot('/home/alarm'), full_uninstall='NOT_RUN')
+        report['removal_refusal'] = removal; save()
+        raw, err = run('dependency-protected-removal', REMOVAL_ARGV, expected=1)
+        removal['witnesses'] = removal_witnesses(raw, err, expected, report['baseline']['database']['raw'],
+            lambda name: C.read(Path('/var/lib/pacman/local') / name, 131072))
+        removal['after'] = removal_state('inventory-after-removal-refusal')
+        removal['alarm_home_after'] = snapshot('/home/alarm')
+        C.need(removal['before'] == removal['after']
+               and removal['alarm_home_before'] == removal['alarm_home_after'],
+               'dependency refusal changed inventory/raw database/Perl-owned/user/trust/config state')
+        check_payload(baseline, package_view(union))
+        removal['baseline_payload_verified_after_refusal'] = True
+        removal['status'] = 'PASS_DEPENDENCY_PROTECTED_REMOVAL_REFUSAL'; save()
         run('trusted-upgrade', pacman + ['-U','/inputs/' + C.CANDIDATE])
         validate('upgrade', '5.42.3-1.3', candidate)
         (out / 'upgraded-handoff.json').write_bytes(C.encode(dict(schema=1, kind='READONLY_UPGRADED_PROBE_DATA_ONLY',

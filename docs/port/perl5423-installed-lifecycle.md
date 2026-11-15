@@ -4,7 +4,7 @@ This finite adapter upgrades the exact signed Frozen272 baseline Perl in a **sep
 
 ## Current evidence
 
-- Implementation/refusal controls: 32 Python controls pass on the authoring host; no Docker, ALPM, GPG or Perl actor is invoked by these controls.
+- Implementation/refusal controls: 40 actor-fenced Python controls pass on the authoring host; no Docker, ALPM, GPG or Perl actor is invoked by these controls.
 - Candidate archive DATA inspection: 22,071,176 bytes, SHA256 `647c5f1d2c6965ec2e26b37e75d29c819fafa344f16002153493e9fc62121c22`; 3,262 entries, including three metadata entries, and 54 ARM64 ELFs. No `.INSTALL` is present. DATA inspection does not execute the package.
 - Accepted build provenance supplied by Root: Source `25dc3e65bdb6137c87a9409067fe9b2cf6e9763f`, native pair run `43692477455`; both full harnesses passed. Root component decision: `artifacts/development/orchestrator-resume-20261114/Root-perl-hosted-intake-r1/Root-native-component-decision.ACTUAL-r1.json`, 5,804 bytes, SHA256 `27803c99064198f8688abe2e4d91910eef93df5ad337ebfc7f2d8798afbf41e1`.
 - This adapter's actual signing, image admission, container execution, Reader execution and installation/rollback: **NOT RUN**. All actual selectors remain null in the templates.
@@ -56,7 +56,11 @@ The actor checks actual ARM64/4096-byte pages, root credentials, capability mask
 
 The actor first checks all 349 package names/versions and the archive-derived baseline Perl payload. It preserves existing account files and baseline public trust/config/hooks. It creates ordinary `alarm`-owned site-module and configuration edits under a fresh `/home/alarm/.perl5423-lifecycle` fixture, and verifies them after every transition, including a real ordinary-user module load.
 
-Both the candidate TEST signature and original baseline signature receive normal trusted verification. Two refusal transactions precede the upgrade: the candidate under a private copy of baseline-only public trust, and an altered detached signature under combined trusted public keys. Each must fail for the expected trust/signature reason with unchanged package bytes/database/inventory. Original global trust is never used as a mutable actor GPG home.
+Both the candidate TEST signature and original baseline signature receive normal trusted verification. Three refusal transactions precede the upgrade: the candidate under a private copy of baseline-only public trust, an altered detached signature under combined trusted public keys, and normal dependency-protected Perl removal. The first two must fail for the expected trust/signature reason with unchanged package bytes/database/inventory. Original global trust is never used as a mutable actor GPG home.
+
+After the baseline probes, normal `/usr/bin/pacman --config /work/pacman.conf --noconfirm -R perl` must naturally exit 1 with the actual dependency-protection diagnostic. Every reported Perl dependency and consumer is joined to its exact baseline package version and original local ALPM descriptor, including its declared dependency and whole descriptor hash. An unrelated error, successful removal, altered command, dependency bypass or forced retirement refuses. This checks the genuine baseline's dependency protection; it performs no successful uninstall.
+
+Immediate before/after `pacman -Q` outputs must retain all 349 versions. The complete raw local-database snapshot, union of baseline/candidate Perl-owned paths, user fixture, full `alarm` home, account files and original trust/hooks/config must remain unchanged. This negative permits no database timestamp normalization. Afterward the archive-derived baseline payload, including real hardlink relationships, is checked again. Original stdout/stderr, natural retirement, dependency descriptors and state fingerprints remain in the exported evidence. The Reader requires this refusal exactly once before upgrade, checks the original diagnostic/inventories and baseline-bound preservation data, and refuses full-uninstall credit.
 
 The five observed stages are:
 
@@ -72,7 +76,7 @@ Rollback compares the union of old/new package paths against the original snapsh
 
 The ordinary-user fixture is preserved through transactions and removed only by its recorded directory identity in cleanup. No user is added or removed; passwd/group/shadow/gshadow hashes must match. The ordinary user's home-directory mtime changes when this temporary fixture is created/removed; raw before/final metadata records this residual. Private trust, temporary package copies and tmpfs work disappear with the owned container. This does not claim bit-identical whole-root restoration: ordinary hook caches/logs and container filesystem allocation are outside the package-owned comparison.
 
-Normal frozen bootstrap hook masks remain visible in the pinned baseline lock and retained hook snapshot. This adapter adds no hook mask or `HookDir` override; it does not qualify unmasked supported-target hook behavior. Baseline Perl is a required dependency, so the adapter does not attempt full uninstall or use dependency bypasses such as `-Rdd`, `--nodeps` or forced overwrite. Dependency-protected removal refusal is not exercised by this finite adapter.
+Normal frozen bootstrap hook masks remain visible in the pinned baseline lock and retained hook snapshot. This adapter adds no hook mask or `HookDir` override; it does not qualify unmasked supported-target hook behavior. Baseline Perl is a required dependency, so normal removal is exercised only as an expected dependency-protection refusal. Full uninstall is not performed, and no dependency bypass, forced overwrite or dry-run substitute is used. The new refusal remains Source-tested only until Root separately executes and reviews the admitted trial.
 
 `upgraded-handoff.json` contains actual readonly upgraded payload/probe DATA. Its image/container selectors remain null: the container continues to rollback. Root may separately prepare/admit a readonly upgraded image for the XS worker. This handoff alone is not an executable XS environment or external XS acceptance.
 
