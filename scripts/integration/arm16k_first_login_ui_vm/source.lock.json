@@ -69,8 +69,8 @@
       "sha256": "1eecce0395762c9ab97aea96244de797e4c5e8b5c0c38f2b535bbddc3d171c8e"
     },
     "prepare.py": {
-      "bytes": 13322,
-      "sha256": "2a75345222aa26c9ab897c029345ed50557eba48529dea7f1596a447de5b194b"
+      "bytes": 13347,
+      "sha256": "b24ba1b8cef219222b75aa97677d3739466587e14d82233320dad04710636b61"
     },
     "prepare_image.py": {
       "bytes": 8431,
@@ -105,8 +105,8 @@
       "sha256": "75f3717f34ebaef58c89cb8c3199195d6a6dc75dfa83e37e10f014d2a583d346"
     },
     "test_controls.py": {
-      "bytes": 20070,
-      "sha256": "b16bde82342f75b4524b65df94cc629aaee496616e518023a2d9fbd1509107a3"
+      "bytes": 24831,
+      "sha256": "725fbf13f892d9cc6cca2d42350118faeb42e15e5f832646d300840245eeb462"
     },
     "ui-observer.service": {
       "bytes": 256,

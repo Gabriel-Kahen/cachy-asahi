@@ -130,6 +130,51 @@ class Controls(Fenced):
   for field,value in [('NetworkMode','host'),('CapAdd',['SYS_ADMIN']),('Init',True),('MemorySwap',6*1024**3),('PidMode','host')]:
    changed=copy.deepcopy(row);changed['HostConfig'][field]=value
    with self.subTest(field=field),self.assertRaises(AssertionError):K.preparation_confinement(changed,'owned',row['Image'],{'owner':'test'},mounts)
+ def test_cleanup_validates_stable_identity_after_both_assembly_file_loops(self):
+  previous_umask=os.umask(0o077);self.addCleanup(os.umask,previous_umask)
+  prepare=load('prepare');out=self.work/'new';base=self.work/'base';base.mkdir();kernel=self.work/'kernel';kernel.mkdir();image_id='sha256:'+'2'*64;ref={'bytes':1,'sha256':'a'*64};events=[];rows={}
+  lower=types.SimpleNamespace(lock=lambda:{'base_files':{'kernel.config':ref},'base_prepared':ref})
+  c={'authority':{'tool_image_id':image_id},'lower':lower,'base':{'nonce':'2'*32},'original_marker':ref,'kernel':{},'manifest':{},'tool':{},'tool_qualification':{},'arm':Path('/held/arm'),'x86':Path('/held/x86')}
+  class Cancel:
+   pending=[];cleaning=False
+   def __enter__(self):return self
+   def __exit__(self):pass
+  class Owned:
+   def __init__(self,name,cidfile,image,labels,base,out):self.name=name;self.cidfile=cidfile;self.submitted=False;rows['scope']=self;rows['labels']=labels
+   def listing(self,deadline):return None
+   def recover(self,deadline):self.validate(rows['container']);return rows['container']
+   def cleanup(self,report):
+    events.append(('cleanup',self.name));self.validate(rows['container']);report['owned_container_absence_verified']=True
+  class Runner:
+   def __init__(self,*args):pass
+   def run(self,argv,**kwargs):
+    if argv[1:2]==['info']:value=['name=rootless']
+    elif argv[1:3]==['image','inspect']:value=[{'Id':image_id,'Config':{'Labels':{}}}]
+    elif argv[1:2]==['create']:
+     mounts=[]
+     for i,v in enumerate(argv):
+      if v=='--mount':
+       parts=dict(x.split('=',1)for x in argv[i+1].split(',')if '='in x);mounts.append(dict(Type=parts['type'],Source=parts['source'],Destination=parts['target'],RW='readonly'not in argv[i+1].split(',')))
+     rows['container']={'Name':'/'+rows['scope'].name,'Image':image_id,'Config':{'Labels':rows['labels'],'Entrypoint':['/usr/bin/python3'],'Cmd':['-I','-B','/code/prepare_image.py']},'Mounts':mounts,'State':{'ExitCode':0,'OOMKilled':False,'Running':False},'HostConfig':{'NetworkMode':'none','ReadonlyRootfs':True,'CapDrop':['ALL'],'CapAdd':[],'Privileged':False,'Devices':[],'Init':False,'SecurityOpt':['no-new-privileges'],'Memory':3*1024**3,'MemorySwap':3*1024**3,'NanoCpus':2000000000,'PidsLimit':256}};value=None
+    else:
+     self_outer.assertEqual(argv[:3],['docker','start','-a']);(out/'assembly/prepared.json').write_text(json.dumps({'operation':K.OP,'nonce':N,'files':{'guest.raw':ref}}));value=None
+    return types.SimpleNamespace(returncode=0,stdout=json.dumps(value))
+  self_outer=self
+  def checked(path,expected):events.append(('checked',Path(path).name));return path
+  def held(name,path):return types.SimpleNamespace(Runner=Runner)if name=='UI_ARM_held_runner'else types.SimpleNamespace(OwnedContainer=Owned,Cancellation=Cancel)
+  argv=['prepare','--allow-prepare-arm16k-ui']
+  for flag in ['base','base-first-boot-report','materials','additions-manifest','kernel-bundle','qemu-metadata','tool-qualification','minimal155-report','minimal155-prepared','authority','output']:
+   value=base if flag=='base'else kernel if flag=='kernel-bundle'else out if flag=='output'else self.work/flag;argv+=['--'+flag,str(value)]
+  argv+=['--authority-sha256','a'*64]
+  mem='MemAvailable: 99999999 kB\n';read_text=Path.read_text
+  def read(path,*args,**kwargs):return mem if path==Path('/proc/meminfo')else read_text(path,*args,**kwargs)
+  with patch.object(sys,'argv',argv),patch.object(prepare.os,'geteuid',return_value=1000),patch.object(prepare.K,'preflight',return_value=c),patch.object(prepare.K,'output_path',return_value=out),patch.object(prepare.K,'load',side_effect=held),patch.object(prepare.K,'checked',side_effect=checked),patch.object(prepare.K,'pin',return_value=ref),patch.object(prepare,'stage_inputs',return_value=({},{})),patch.object(prepare,'guest_sources',return_value={}),patch.object(Path,'read_text',read),patch.object(prepare.shutil,'disk_usage',return_value=shutil._ntuple_diskusage(10*1024**3,0,10*1024**3)),contextlib.redirect_stdout(io.StringIO()):
+   self.assertEqual(prepare.main(),0)
+  report=K.read(out/'preparation.json');self.assertEqual(report['status'],'PREPARED_NOT_BOOTED');self.assertTrue(report['owned_container_absence_verified']);self.assertNotIn('cleanup_errors',report)
+  cleanup=next(i for i,event in enumerate(events)if event[0]=='cleanup');self.assertIn(('checked','guest.raw'),events[:cleanup]);self.assertIn(('checked','kernel.config'),events[:cleanup]);self.assertTrue(events[cleanup][1].startswith('cachy-arm16k-ui-prepare-'))
+  # Stable identity must still reject another container after the file loops.
+  changed=copy.deepcopy(rows['container']);changed['Name']='/kernel.config'
+  with self.assertRaises(AssertionError):rows['scope'].validate(changed)
  def test_private_output_and_reserve_before_actor(self):
   with patch.object(K.shutil,'disk_usage',return_value=shutil._ntuple_diskusage(10*1024**3,0,10*1024**3)):self.assertEqual(K.output_path(self.work/'new'),self.work/'new')
   with patch.object(K.shutil,'disk_usage',return_value=shutil._ntuple_diskusage(10*1024**3,0,2*1024**3)):

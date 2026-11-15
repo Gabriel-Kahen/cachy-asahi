@@ -1,9 +1,10 @@
 # ARM16K first-login GTK VM successor — Source handoff
 
-Status: **Source/control tested; combined dependency metadata prepared; actual
-UI preparation/VM NOT RUN.** This is a new finite operation
+Status: **Source/control tested; actual Root UI preparation r1 assembled but
+closed HOLD_CLEANUP; UI VM NOT RUN.** This is a new finite operation
 `arm16k-first-login-ui-vm-v1`. Root's separate minimal155 real virtio-seat r4
-trial has now passed; the upper UI experiment is still unprepared/unrun. No existing source, input, default, old failure or marker changes.
+trial has now passed. The successor below corrects constructor cleanup only;
+old Source, inputs, defaults, failure receipts and markers remain unchanged.
 
 ## Actual combined metadata
 
@@ -162,3 +163,34 @@ Fresh public UI Source, complete172 Root material admission, guest-only TEST
 trust authority and reviewed resources remain explicit/null; the Root material
 constructor is a separate task. ARM GTK/Xvfb/runtime ABI, UI preservation/removal,
 native builds, M2/physical networking and release acceptance remain unproved.
+
+
+## Preparation r1 cleanup correction
+
+Root's actual r1 preparation assembled its descriptor successfully, then closed
+`HOLD_CLEANUP` with `ownership-recovery` / `AssertionError`. The retained report is
+`/dev/shm/cachy-asahi-arm16k-ui-preparation-root-20261115-r1/preparation.json`.
+The prepared descriptor is 2,732,816 B/SHA256
+`e2e4aa2bdac1e09dacdc06622079cd02eb68cfef8cbf02fc610ca2148c865d41`,
+with 974,970,880 allocated output bytes. This is assembly evidence, not successful
+cleanup or VM acceptance; the old attempt and retained owned-container handling
+remain Root's responsibility.
+
+In admitted Source `e66c1ad7`, the nested preparation `Scope.validate` captured
+`main`'s `name` variable. Both final file-verification loops rebound that same
+variable before cleanup. Consequently recovery compared the exact container row
+against the last filename instead of its original container name. The successor
+uses `self.name`, already recorded by `OwnedContainer`, and distinct `file_name`
+loop variables. Every identity, label, image, command, nine-bind, capability,
+namespace and resource predicate remains mandatory. `boot.py` was inspected:
+its separate module-level custody class does not capture this mutable name and
+remains unchanged.
+
+36 actor/network/lease-fenced controls pass. The new regression executes the real
+preparation main path with inert modeled runner/custody inputs, reaches both
+post-assembly file loops, and calls the production confinement validator during
+modeled cleanup. It also rejects another container name afterward. Restoring the
+original three lines reproduces its expected assertion failure. These controls
+run no Docker, GPG, preparation image or VM. A resealed Source requires fresh
+public Source pins, Root admission, output, credentials and nonce before any r2;
+this correction neither reopens r1 nor establishes actual cleanup success.
