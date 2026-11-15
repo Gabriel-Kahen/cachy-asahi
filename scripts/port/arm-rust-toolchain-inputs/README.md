@@ -5,17 +5,12 @@ This finite, data-only command verifies and optionally copies the retained
 It needs Python's standard library and the existing `/usr/bin/gpgv`. It performs
 no downloads, package installation, payload execution or native dispatch.
 
-`inputs.lock.json` fixes 271 archive/signature pairs and 1,154 package dependency
-joins: Rust, compiler-rt/lld/llvm-libs 23.1.1-1, the declared runtime dependencies,
-`filesystem` for the real `/lib` namespace aliases and recursively inspected
-auxiliary providers. The original 84 package descriptors are preserved byte for
-byte and enforced as a subset. See [the supplemental result](SUPPLEMENT.md) for
-the 187 additions and remaining whole-payload gates. The selected GCC is
-16.1.1+r12+g301eb08fa2c5-1 and glibc is 2.43+r22+g8362e8ce10b2-2. These are
-explicit retained runtime inputs, not a reconstruction of Rust's complete build
-environment. All pins and source metadata provenance are reviewable in the lock.
-Archive `.PKGINFO` dependencies take precedence over abbreviated repository
-summaries; every observed summary difference is retained explicitly in the lock.
+The current lock preserves all original 84 and 271 input descriptors and adds
+four authenticated Qt inputs plus one explicitly missing/uninspected Qt-base
+input. See [the current closure result](CLOSURE.md) for exact source, signature,
+resource and loader-model evidence. The complete input set is still blocked by
+exact Qt-base 6.12.0-2; another release is never substituted. The unchanged
+271-pair result and the earlier 84-pair result remain under `history/`.
 
 The public ALARM keyring is binary data converted from the retained armored
 public key. Its exact pin and the original armored pin are recorded. The expected
@@ -37,11 +32,13 @@ python3 -I -B scripts/port/arm-rust-toolchain-inputs/catalog.py \
   --cache "$project_artifacts/platform/coordinated-python-20261012-auth/cache" \
   --cache "$project_artifacts/platform/maintained-baseline-audit-actual01-20261013/private/cache" \
   --cache work/auxiliary-cache \
+  --cache /tmp/owned-rust-qt/cache \
   --output /private/new-rust-input-report
 ```
 
-Add `--prepare` to copy the 542 verified archive/signature files into the new
-output's `cache/`. The output parent is mode 0700, copied files are mode 0600,
+`--prepare` refuses while the exact Qt-base input and real metadata are missing.
+Once every input is reconciled, it copies verified archive/signature files into
+the new output's `cache/`. The output parent is mode 0700, copied files are mode 0600,
 and payload directory trees are never materialized. The output also contains
 `inputs.lock.json` and a deterministic `catalog.json`. A prepared cache can be
 moved and checked with the same committed command:
@@ -60,13 +57,11 @@ specified cache, refuse rather than fall back. Invalid metadata, signatures,
 namespace joins or associations refuse. If an error occurs while copying a
 prepared output, that partial directory is retained without a completed catalog.
 
-Exit 0 requires both exact input checks and whole-payload structural ELF joins.
-**The actual retained set exits 2**: all 271 exact input checks pass, while
-eleven Qt dependency edges and one empty-RUNPATH policy gate remain unresolved.
-The unacquired exact Qt candidates and their unknown transitive dependencies
-are explicitly recorded in `remaining-inputs.json` and in the report.
-`--prepare` deliberately allows this fully byte-verified set and preserves the incomplete closure in its report.
-It does not create an accepted native builder profile.
+Exit 0 requires exact input checks and whole-payload structural ELF joins.
+The current command exits 2: Qt-base archive/signature and real metadata are
+missing, and all dependent ELF edges remain explicit. The preserved native
+profile purpose/schema is not promoted. The wholly empty VapourSynth RUNPATH
+is now modeled correctly using pinned loader source, without changing ELF bytes.
 
 ## What is checked
 

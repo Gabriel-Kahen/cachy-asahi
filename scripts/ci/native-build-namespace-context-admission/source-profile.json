@@ -1,0 +1,132 @@
+{
+  "Reader": "NOT_RUN",
+  "acceptance": false,
+  "actual": {
+    "artifact": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "alarm_identity": {
+    "account_mutation": false,
+    "gid": 1001,
+    "old_1000_contract": "INCORRECT",
+    "other_guards": "UNCHANGED",
+    "scope": "ORIGINAL_349_IMAGE_BUILD_RUN_USER_ALARM",
+    "uid": 1001
+  },
+  "changes": {
+    "native/build-tools-contract-v2.json": {
+      "after": {
+        "bytes": 1240,
+        "mode": 420,
+        "oid": "f5abee4ba8594de9ec667413b83f64129bed1a6d",
+        "sha256": "a553d3385a4d4d0005736e1a7e931eb13a6df41071c2e1337df635ea7e69f3f8"
+      },
+      "before": {
+        "bytes": 1240,
+        "mode": 420,
+        "oid": "5a9647fa9e7b4cc1f608a32b27a3ae2af6ba016f",
+        "sha256": "a1c13473ba072fac6d2a0418e7d12a10e531ade64291aac7a602e1422944378d"
+      }
+    },
+    "native/build_tools_alpm_v2.py": {
+      "after": {
+        "bytes": 8347,
+        "mode": 420,
+        "oid": "a619668186348c21720b6eff9dc9312818c19a40",
+        "sha256": "44b85879cef378827d1b14cacd1cf43a4eb05f434bc56506b9aedb9402b6931e"
+      },
+      "before": {
+        "bytes": 8347,
+        "mode": 420,
+        "oid": "cc38822502691ed07a57ca38e785262d3d9463d7",
+        "sha256": "bf0989ae84a273be1c85ac1193967c0d75eb9091c6a5c21a0f3b1040a2c3ec90"
+      }
+    },
+    "native/build_tools_projection_v2.py": {
+      "after": {
+        "bytes": 10688,
+        "mode": 420,
+        "oid": "532391c950288043a82e331ff1080fe7fcd9b739",
+        "sha256": "7c5fb5bf656134918b1c6d69f9a9e4ef8492406137840f31121af0eac1356b9d"
+      },
+      "before": {
+        "bytes": 10688,
+        "mode": 420,
+        "oid": "c9feeab04caff7daaf81fab845bb5534d5a17903",
+        "sha256": "2719477f6b26d197f40e50dab5dd144aa0bf5b5c4f6f61430376a8489076eac1"
+      }
+    },
+    "native/build_tools_reader_v2.py": {
+      "after": {
+        "bytes": 106215,
+        "mode": 420,
+        "oid": "9318252eca648cded87fb000f00e1f94515b98f5",
+        "sha256": "58b258fde9c49aca7f8d4e8b7e61358f175da8650547df64dc96891c2e33b5cf"
+      },
+      "before": {
+        "bytes": 106215,
+        "mode": 420,
+        "oid": "3b3e217f07026e40f59c68fbdb0c47d2504b3962",
+        "sha256": "3426a340d1cd95a88280e84c8eee3debcba638abdb84d72dc5f46d05b22511cb"
+      }
+    },
+    "native/build_tools_tools_v2.py": {
+      "after": {
+        "bytes": 13174,
+        "mode": 420,
+        "oid": "8564e47a6861bd72a2db9016b6eea6f01b63deff",
+        "sha256": "e2e3a497d6cdf7758470d64c1f6ec2f41372d8fe038e93530ca9152a074225ed"
+      },
+      "before": {
+        "bytes": 13174,
+        "mode": 420,
+        "oid": "51afcb18cd3814961322dd2929ded9e4af92a17b",
+        "sha256": "7a933b927c708a5dac014b391c7f75b50ef8308cc517d49759dac3976ba03906"
+      }
+    },
+    "native/source-map.json": {
+      "after": {
+        "bytes": 39985,
+        "mode": 420,
+        "oid": "d2698211125913240731fab16c595cd4510b3270",
+        "sha256": "0c37bef7218caa6cb0f0e6d1b22ed5053b10a228f53e15076f5803d2fcf86b3e"
+      },
+      "before": {
+        "bytes": 39985,
+        "mode": 420,
+        "oid": "d0b71b3aa7d32bce259a4d4604562857ee61210a",
+        "sha256": "bf6d956b671b4c3df38aa579277319c1f4030a9e5efd14778fd9db528072a726"
+      }
+    }
+  },
+  "constructor_inputs": {
+    "bytes": 939,
+    "sha256": "f6bacffed4149718e87b4f35a177b43da553406c93dcff74b4b463dabd09a574"
+  },
+  "map_rows": 199,
+  "map_sha256": "0c37bef7218caa6cb0f0e6d1b22ed5053b10a228f53e15076f5803d2fcf86b3e",
+  "namespace_policy_cause": "UNKNOWN",
+  "native": "NOT_RUN",
+  "operation": "native-build-namespace-preflight-v1",
+  "parent": "69455e13bc99a2b2b6c2aca11f69d581769ae500",
+  "parent_map_sha256": "bf6d956b671b4c3df38aa579277319c1f4030a9e5efd14778fd9db528072a726",
+  "parent_raw": {
+    "bytes": 320,
+    "sha256": "477cf444064788f7cc32f45df360f352028273dfcca837dc16ac3de456130216"
+  },
+  "parent_tree": "0850f8b2d8e3098a4e65f6cda6ba44698d3381a0",
+  "physical_M2": "NOT_RUN",
+  "prospective_tree": "f1757dbedeed1591cdb8538f6c91e493cd451966",
+  "purpose": "native-build-namespace-original-alarm1001-source-v1",
+  "release": "NOT_ADMITTED",
+  "retained_mismatch_evidence": {
+    "bytes": 1831,
+    "sha256": "be88555a75a6307acee3c146492fefe02b6adb9994a0cbc08f47f45659c7556b"
+  },
+  "schema": 1,
+  "source_files": 200,
+  "unchanged_files": 194
+}

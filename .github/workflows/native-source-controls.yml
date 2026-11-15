@@ -59,6 +59,23 @@ jobs:
           mkdir -m 700 "$parent"
           test "$(git -C .context-parent-repository rev-parse HEAD)" = 69455e13bc99a2b2b6c2aca11f69d581769ae500
           git -C .context-parent-repository -c tar.umask=0022 archive --format=tar HEAD | tar -xf - -C "$parent"
-      - name: Check original-alarm context source controls without actors
+      - name: Check original alarm1001 source controls without actors
         run: |
           python3 -I -B -Werror::ResourceWarning scripts/ci/native-build-namespace-context/test_context_data.py --parent-source "${RUNNER_TEMP}/context-parent-source"
+      - name: Check out fixed-account source as data
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 3937d8b9f3210f4e9868bf19f01dfa22de64ddfe
+          path: .context-source-repository
+          persist-credentials: false
+      - name: Export fixed-account source without executing it
+        run: |
+          umask 022
+          source="${RUNNER_TEMP}/context-admission-source"
+          test ! -e "$source"
+          mkdir -m 700 "$source"
+          test "$(git -C .context-source-repository rev-parse HEAD)" = 3937d8b9f3210f4e9868bf19f01dfa22de64ddfe
+          git -C .context-source-repository -c tar.umask=0022 archive --format=tar HEAD | tar -xf - -C "$source"
+      - name: Check original alarm1001 namespace admission DATA without actors
+        run: |
+          python3 -I -B -Werror::ResourceWarning scripts/ci/native-build-namespace-context-admission/test_admission_data.py --held-admission-root "$GITHUB_WORKSPACE/scripts/ci/native-build-namespace-observable-admission" --source-root "${RUNNER_TEMP}/context-admission-source"

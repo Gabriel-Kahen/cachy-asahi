@@ -1,0 +1,102 @@
+{
+  "actual_elf": {
+    "archive_member": "usr/lib/python3.14/site-packages/vapoursynth/libvapoursynth.so.4",
+    "bytes": 3284304,
+    "machine": 183,
+    "needed": [
+      "libzimg.so.2",
+      "libstdc++.so.6",
+      "libm.so.6",
+      "libgcc_s.so.1",
+      "libc.so.6",
+      "ld-linux-aarch64.so.1"
+    ],
+    "runpath_string": "",
+    "runpath_tag_present": true,
+    "sha256": "d946d71543f23536392e568268f59f5e1f83f7a2767bb2fc1bcbf7c192973111",
+    "soname": "libvapoursynth.so.4"
+  },
+  "candidate_decision": "Correct catalog model; do not remove tags or rewrite the authenticated ELF. Removing a tag changes RPATH precedence.",
+  "execution": "NOT_RUN",
+  "glibc_package_version": "2.43+r22+g8362e8ce10b2-2",
+  "license": {
+    "bytes": 26419,
+    "filename": "loader-source/COPYING.LIB",
+    "sha256": "20e50fe7aae3e56378ebf0417d9de904f55a0e61e4df315333e632a4d3555d95",
+    "url": "https://sourceware.org/git/?p=glibc.git;a=blob_plain;f=COPYING.LESSERv2;hb=8362e8ce10b24068bacc19552c128dd10e082fd9"
+  },
+  "meson_python": {
+    "commit": "d034a7349d967ec4b3ebaabe6e647f82dc571ea7",
+    "init_sha256": "7c4523a259069a2b64609576afa732e60720a2ad0f883607530257d3d97fc45e",
+    "init_url": "https://raw.githubusercontent.com/mesonbuild/meson-python/d034a7349d967ec4b3ebaabe6e647f82dc571ea7/mesonpy/__init__.py",
+    "mechanism": "RPATH.fix_rpath strips build/empty/padding paths; _ELF.set_rpath always uses patchelf --set-rpath with colon-joined list, so empty new list produces --set-rpath empty argument. _WheelBuilder._install_path calls fix_rpath for internal libraries or install/build rpath.",
+    "original_build_cause": "NOT_PROVEN: no original build log/wheel intermediates; exact ALARM recipe not recovered",
+    "rpath_sha256": "7809a1005fd95bd4e69b3038b6c854b90fa0fca13eb0ebe45fe981cb5e0c8d8a",
+    "rpath_url": "https://raw.githubusercontent.com/mesonbuild/meson-python/d034a7349d967ec4b3ebaabe6e647f82dc571ea7/mesonpy/_rpath.py",
+    "tag": "0.22.0"
+  },
+  "package": {
+    "arch": "aarch64",
+    "build_tools": [
+      "meson-python-0.22.0-1-any",
+      "meson-1.12.1-1-any",
+      "patchelf-0.19.2-1-aarch64"
+    ],
+    "builddate": 1790901221,
+    "builddate_utc": "2026-10-02T00:33:41+00:00",
+    "name": "vapoursynth",
+    "pkgbuild_sha256": "aa556861a0e24b5f4de42895434180d42cb1ed4f120e4d1db554874552aefa0c",
+    "source_correspondence": "NOT_ESTABLISHED: raw Arch recipe differs recorded ALARM .BUILDINFO recipe hash",
+    "version": "80-1"
+  },
+  "rules": {
+    "RUNPATH_tag_presence": "SUPPRESSES_RPATH_EVEN_WHEN_EMPTY",
+    "empty_component_in_nonempty_list": "CURRENT_DIRECTORY_SEARCH_REQUIRES_HOLD",
+    "wholly_empty_RPATH_RUNPATH": "IGNORED"
+  },
+  "schema": 1,
+  "source": {
+    "bytes": 68674,
+    "empty_component_nonempty_list": "fillin_rpath lines448-455,479-528 retains empty component as zero-length relative directory, interpreted as current directory",
+    "filename": "loader-source/dl-load.c",
+    "revision": "8362e8ce10b24068bacc19552c128dd10e082fd9",
+    "sha256": "d4e96705a45a1f120f8a8a27e23778a976e9c055fabeeed87cdc8f6888e71109",
+    "source_lines": {
+      "ancestor_rpath": [
+        1986,
+        2013
+      ],
+      "empty_path": [
+        595,
+        600
+      ],
+      "relative_directory": [
+        521,
+        528
+      ],
+      "runpath_rpath_precedence": [
+        763,
+        777
+      ],
+      "split_components": [
+        448,
+        455
+      ]
+    },
+    "tag_presence": "DT_RUNPATH presence suppresses DT_RPATH regardless of empty string; preserve presence separately from parsed directory list",
+    "url": "https://sourceware.org/git/?p=glibc.git;a=blob_plain;f=elf/dl-load.c;hb=8362e8ce10b24068bacc19552c128dd10e082fd9",
+    "whole_empty_tag": "decompose_rpath lines595-600 explicitly ignores entirely empty RPATH/RUNPATH"
+  },
+  "source_binary_correspondence": "NOT_ESTABLISHED",
+  "upstream_vapoursynth": {
+    "arch_recipe_revision": "f3045f0c956c1b783b40960c158d6351fca567d8",
+    "arch_recipe_sha256": "14fc7f3c9020a3cfa263c5b1d4ac212df5a53a0da1c5dfa0b55665d3a25dc36c",
+    "arch_recipe_url": "https://gitlab.archlinux.org/archlinux/packaging/packages/vapoursynth/-/raw/f3045f0c956c1b783b40960c158d6351fca567d8/PKGBUILD",
+    "commit": "732845793a1caf5838d4f7b94f6ce668a19c908e",
+    "core_target": "meson.build262-293 installs libvapoursynth in Python package dir without explicit install_rpath",
+    "extension_target": "meson.build303-311 explicit install_rpath=$ORIGIN",
+    "meson_build_sha256": "4e9b29b6a0cffce8fc0225c08e7461de35a4992ae5b3bfce02c56e5bc975c446",
+    "meson_build_url": "https://raw.githubusercontent.com/vapoursynth/vapoursynth/732845793a1caf5838d4f7b94f6ce668a19c908e/meson.build",
+    "tag": "R80"
+  }
+}
