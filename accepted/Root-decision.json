@@ -1,0 +1,163 @@
+{
+  "ELF_files_each": 54,
+  "M2": "NOT RUN",
+  "accepted": true,
+  "archive": {
+    "bytes": 22071176,
+    "sha256": "647c5f1d2c6965ec2e26b37e75d29c819fafa344f16002153493e9fc62121c22"
+  },
+  "authenticated_original_artifact": 14153417247,
+  "binding": {
+    "approval": "2b32a9fc084bf22658b396e361c19e1906af7f2f61646fda35a2b2820a9039c3",
+    "component_map_sha256": "3f238d649cb649ba2aff45e7930e49b28e3a7d8891860a1a17ead850719d5dee",
+    "job": "132745843566",
+    "operation": "perl5423-native-pair-v2",
+    "ref": "refs/heads/codex/native-arm-perl5423-v2-20261115",
+    "run": "43692477455",
+    "source": "25dc3e65bdb6137c87a9409067fe9b2cf6e9763f",
+    "source_map_sha256": "4b1de3aade5116206318570d1d44ee1063342faeab54935748b1b7c179a99e96"
+  },
+  "bootstrap": {
+    "image": "sha256:19685890f72bbf80379bb964630b99930b3fa55c46d3328ad69abe187d8ae6e3",
+    "image_absence_verified": true,
+    "input_files": 517,
+    "operations": 271,
+    "packages": 349,
+    "signed_payloads": 257
+  },
+  "closed_prior_reader_roles": [
+    "r1_implicit_CLOEXEC_guard_refusal",
+    "r2_absent_optional_operand_guard_refusal"
+  ],
+  "external_XS": "NOT RUN",
+  "harness": [
+    {
+      "TODO_passed": [
+        "  TODO passed:   3-4"
+      ],
+      "files": 2920,
+      "log": {
+        "bytes": 308024,
+        "sha256": "f7a1f8e261a7458dbcac5a534f83a264832f8aa239b97228f0798a6af0897f91"
+      },
+      "seconds": 386,
+      "tests": 1351601,
+      "whole_file_skips": 157
+    },
+    {
+      "TODO_passed": [
+        "  TODO passed:   3-4"
+      ],
+      "files": 2920,
+      "log": {
+        "bytes": 308024,
+        "sha256": "7a20ec76fa8f40d63bfcc735f4d9c8748bbbd5e871c0df2858b52dbcc76eeb92"
+      },
+      "seconds": 383,
+      "tests": 1351626,
+      "whole_file_skips": 157
+    }
+  ],
+  "issued_at": "2026-11-15T09:29:02.601868+00:00",
+  "issuer": "Root",
+  "native16K": "NOT RUN",
+  "native_install_removal": "NOT RUN",
+  "nested_namespace": "NOT_INVOKED_NOT_QUALIFIED",
+  "new_original_GETs": 0,
+  "page_bytes": 4096,
+  "payload_entries": 3262,
+  "payload_identical": true,
+  "performance": "NOT MEASURED",
+  "raw_bytes_identical": true,
+  "references": {
+    "Original_ZIP": {
+      "bytes": 114747714,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-perl-hosted-intake-r1/retained-opaque/Original-artifact14153417247.zip",
+      "sha256": "75323ce74aabe9b64d250486c18ce5c58809726a8ba9f76b618d6bc9abf35c77"
+    },
+    "adapter_admission": {
+      "bytes": 868,
+      "path": "/dev/shm/cachy-asahi-perl-intake-root-20261115-r1/Decoded-ZIP-r1/adapter-admission.json",
+      "sha256": "34d8f8031455806a8558775e4793f4006a3d524ec8fa5207ad002fd6332833b4"
+    },
+    "adapter_qualification": {
+      "bytes": 900,
+      "path": "/dev/shm/cachy-asahi-perl-intake-root-20261115-r1/Decoded-ZIP-r1/adapter-qualification.json",
+      "sha256": "a23043eea77fa7e74dc4f4b55c97a0ed76c18cfca99077bff5c67e67931c8785"
+    },
+    "bootstrap_signatures": {
+      "bytes": 351561,
+      "path": "/dev/shm/cachy-asahi-perl-intake-root-20261115-r1/Decoded-ZIP-r1/bootstrap/signatures.json",
+      "sha256": "14089ab15baf7c74da45faf1ac04dfee9775ee2a12da36f6934d72df3b133d1d"
+    },
+    "daemon": {
+      "bytes": 14733,
+      "path": "/dev/shm/cachy-asahi-perl-intake-root-20261115-r1/Decoded-ZIP-r1/daemon.json",
+      "sha256": "153b5773e2485527e91d7caf6aaa2a732b06ae11407cda5c3c1fa411139852f5"
+    },
+    "native_source_readback": {
+      "bytes": 71643,
+      "path": "/dev/shm/cachy-asahi-perl-intake-root-20261115-r1/Decoded-ZIP-r1/source-readback.json",
+      "sha256": "9106ea70c5d9c275dc15d03e50f9ab0b75864aae79ee6fa0eaee5b369be26724"
+    },
+    "public_source_readback": {
+      "bytes": 402,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-perl-hosted-source-r1/Root-public-readback.json",
+      "sha256": "f7e2c9b28b59a2381a8eb23b90838e03a699b040c30ac80695b61696eaed8fed"
+    },
+    "reader": {
+      "bytes": 10992,
+      "path": "/dev/shm/cachy-asahi-perl-intake-root-20261115-r1/Root-Reader-once-r3/reader-result.json",
+      "sha256": "b4df9cfe90aa3a23bd8aefc43e006d0e2ca0265b9070e3188a67beaf733169ce"
+    },
+    "reader_execution": {
+      "bytes": 1035,
+      "path": "/dev/shm/cachy-asahi-perl-intake-root-20261115-r1/Root-Reader-once-r3/execution-result.json",
+      "sha256": "269d83dd21a668332aab834f32f7c65cbbd55c1f7f9363dd3be2d58614674542"
+    },
+    "reader_retirement": {
+      "bytes": 217,
+      "path": "/dev/shm/cachy-asahi-perl-intake-root-20261115-r1/Root-Reader-once-r3/worker-retirement.json",
+      "sha256": "8c4da236bebfafc84df0ba6788462a8bd35f308d2dec09f12e2237fd524173c1"
+    },
+    "source_approval": {
+      "bytes": 1302,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-perl-hosted-dispatch-r1/Root-source-approval.ACTUAL.json",
+      "sha256": "2b32a9fc084bf22658b396e361c19e1906af7f2f61646fda35a2b2820a9039c3"
+    }
+  },
+  "release_accepted": false,
+  "retirement": {
+    "actor_seconds": [
+      599.035975509,
+      597.173181051
+    ],
+    "capacity": {
+      "active_samples": 1192,
+      "fixed_inode_only": true,
+      "phases": 7
+    },
+    "count": 37,
+    "export_files": [
+      33,
+      33
+    ],
+    "final_absence": true,
+    "retired_volumes": 2
+  },
+  "run_url": "https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/43692477455",
+  "runtime_domain": "PERL_ARM_CAP0_NNP_RO_CONTAINER_V1",
+  "schema": 1,
+  "status": "ACCEPTED_EXACT_PERL5423_NATIVE_ARM4K_BUILD_PAIR_ONLY",
+  "target_ABI": "NOT QUALIFIED",
+  "warnings": [
+    {
+      "fakeroot_preload": 1700,
+      "source_directory": true
+    },
+    {
+      "fakeroot_preload": 1700,
+      "source_directory": true
+    }
+  ]
+}

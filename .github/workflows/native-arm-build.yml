@@ -1,4 +1,4 @@
-name: native-arm-perl5423-v2
+name: native-arm-perl5423-xs-v1
 on:
   workflow_dispatch:
     inputs:
@@ -8,8 +8,8 @@ on:
       operation:
         type: choice
         required: true
-        default: perl5423-native-pair-v2
-        options: [perl5423-native-pair-v2]
+        default: perl5423-native-xs-v1
+        options: [perl5423-native-xs-v1]
 permissions:
   contents: read
   actions: read
@@ -19,7 +19,7 @@ concurrency:
   queue: max
 jobs:
   native:
-    name: perl5423-native-v2
+    name: perl5423-native-xs-v1
     if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 225
@@ -44,9 +44,9 @@ jobs:
         timeout-minutes: 3
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '776122710442ba1541cd4d7a7d8472ad01c295d523b28282a04e7c8298286b79' hosted/common.py '1c58f8d1226cf1a88149509b183fb61135d0f38ff75c02c729a00ed004a55cd0' hosted/entry.py | sha256sum --check
-          cmp --silent .github/workflows/native-arm-build.yml .github/workflows/native-arm-perl5423-v2.yml
-          timeout --signal=TERM --kill-after=30s 170s python3 -I -B hosted/entry.py proof --source-sha "$SOURCE_SHA" --map-sha256 "$SOURCE_MAP_SHA256" --approval-sha256 "$ROOT_APPROVAL_SHA256"
+          printf '%s  %s\n' '776122710442ba1541cd4d7a7d8472ad01c295d523b28282a04e7c8298286b79' held/hosted/common.py '8508b925c9d38a0721e3b1434e16c8386ac9b25838190f8550506883df4d2397' xs/entry.py | sha256sum --check
+          cmp --silent .github/workflows/native-arm-build.yml .github/workflows/native-arm-perl5423-xs-v1.yml
+          timeout --signal=TERM --kill-after=30s 170s python3 -I -B xs/entry.py proof --source-sha "$SOURCE_SHA" --map-sha256 "$SOURCE_MAP_SHA256" --approval-sha256 "$ROOT_APPROVAL_SHA256"
       - name: Seed the six exact retained inputs using existing secrets only
         timeout-minutes: 2
         env:
@@ -77,17 +77,17 @@ jobs:
         run: |
           set -euo pipefail
           test "$INPUTS_SHA256" = beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f
-          printf '%s  %s\n' "$INPUTS_SHA256" original/bootstrap/scripts/ci/inputs.lock.json | sha256sum --check
+          printf '%s  %s\n' "$INPUTS_SHA256" held/original/bootstrap/scripts/ci/inputs.lock.json | sha256sum --check
           timeout --signal=TERM --kill-after=5s 75s python3 -B - <<'PYSEED'
           import hashlib
           import os
           from pathlib import Path
           import sys
-          sys.path.insert(0, 'original/bootstrap/scripts/ci')
+          sys.path.insert(0, 'held/original/bootstrap/scripts/ci')
           from old_four_seed import (OLD_FOUR_PRIVATE_ROWS, RETAINED_BUBBLEWRAP_PRIVATE_ROWS,
                                      seed_current_build_cache)
           pin = 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'
-          if hashlib.sha256(Path('original/bootstrap/scripts/ci/inputs.lock.json').read_bytes()).hexdigest() != pin:
+          if hashlib.sha256(Path('held/original/bootstrap/scripts/ci/inputs.lock.json').read_bytes()).hexdigest() != pin:
               raise SystemExit('private-cache-input-binding-refused')
           names = {'CACHY_OLD_FOUR_' + f'{tag}_{i:02d}'
                    for _, _, _, tag, count in OLD_FOUR_PRIVATE_ROWS for i in range(1, count + 1)}
@@ -127,28 +127,28 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          python3 -I -B hosted/entry.py metadata --source-sha "$SOURCE_SHA" --map-sha256 "$SOURCE_MAP_SHA256" --approval-sha256 "$ROOT_APPROVAL_SHA256"
+          python3 -I -B xs/entry.py metadata --source-sha "$SOURCE_SHA" --map-sha256 "$SOURCE_MAP_SHA256" --approval-sha256 "$ROOT_APPROVAL_SHA256"
       - name: Transport exact original retained DATA once
         timeout-minutes: 9
         run: |
           set -euo pipefail
-          timeout --signal=TERM --kill-after=30s 500s python3 -I -B hosted/entry.py inputs --source-sha "$SOURCE_SHA" --map-sha256 "$SOURCE_MAP_SHA256" --approval-sha256 "$ROOT_APPROVAL_SHA256"
-      - name: Signed349 bootstrap and full ordinary native Perl pair
+          timeout --signal=TERM --kill-after=30s 500s python3 -I -B xs/entry.py inputs --source-sha "$SOURCE_SHA" --map-sha256 "$SOURCE_MAP_SHA256" --approval-sha256 "$ROOT_APPROVAL_SHA256"
+      - name: Signed349 bootstrap and separate native XS consumer
         timeout-minutes: 185
         run: |
           set -euo pipefail
-          timeout --signal=TERM --kill-after=210s 10800s python3 -I -B hosted/entry.py native --source-sha "$SOURCE_SHA" --map-sha256 "$SOURCE_MAP_SHA256" --approval-sha256 "$ROOT_APPROVAL_SHA256" --execute
-      - name: Retain only public audit and pair DATA
+          timeout --signal=TERM --kill-after=210s 10800s python3 -I -B xs/entry.py native --source-sha "$SOURCE_SHA" --map-sha256 "$SOURCE_MAP_SHA256" --approval-sha256 "$ROOT_APPROVAL_SHA256" --execute
+      - name: Retain public bootstrap and XS DATA
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         timeout-minutes: 3
         with:
-          name: perl5423-native-v2-${{ github.run_id }}-${{ github.run_attempt }}
+          name: perl5423-native-xs-v1-${{ github.run_id }}-${{ github.run_attempt }}
           if-no-files-found: ignore
           include-hidden-files: true
           retention-days: 3
           path: |
-            ${{ runner.temp }}/perl-hosted/hosted.json
+            ${{ runner.temp }}/perl-hosted/hosted-xs.json
             ${{ runner.temp }}/perl-hosted/source-readback.json
             ${{ runner.temp }}/perl-hosted/daemon.json
             ${{ runner.temp }}/perl-hosted/binding.json
@@ -168,4 +168,12 @@ jobs:
             ${{ runner.temp }}/perl-hosted/bootstrap/fixed-eight-cache.json
             ${{ runner.temp }}/perl-hosted/bootstrap/operations.json
             ${{ runner.temp }}/perl-hosted/bootstrap/operations/**
-            ${{ runner.temp }}/perl-hosted/pair/**
+            ${{ runner.temp }}/perl-hosted/xs/**
+            ${{ runner.temp }}/perl-hosted/preparation/**
+            ${{ runner.temp }}/perl-hosted/preparation*.json
+            ${{ runner.temp }}/perl-hosted/bundle/preparation.json
+            ${{ runner.temp }}/perl-hosted/bundle/operation.json
+            ${{ runner.temp }}/perl-hosted/bundle/bundle-map.json
+            ${{ runner.temp }}/perl-hosted/bundle/xs-admission.json
+            ${{ runner.temp }}/perl-hosted/bundle/xs-inputs.json
+            ${{ runner.temp }}/perl-hosted/bundle/xs-plan.json

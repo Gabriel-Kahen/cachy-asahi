@@ -1,0 +1,30 @@
+{
+  "XS_acceptance": false,
+  "accepted_package": {
+    "bytes": 22071176,
+    "sha256": "647c5f1d2c6965ec2e26b37e75d29c819fafa344f16002153493e9fc62121c22"
+  },
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "authority": null,
+    "image": null,
+    "job": null,
+    "reader": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "constructor_profile_sha256": "d00345edda901a3c5ce8afd14aae3f837035e0111dea07ffe6de35ba1f01621a",
+  "held_map_sha256": "4b1de3aade5116206318570d1d44ee1063342faeab54935748b1b7c179a99e96",
+  "held_source": "25dc3e65bdb6137c87a9409067fe9b2cf6e9763f",
+  "held_tree": "43dfa9d6370abd1424bd5586c5524a6f4b4e1556",
+  "native_acceptance": false,
+  "operation": "perl5423-native-xs-v1",
+  "root_decision": {
+    "bytes": 5804,
+    "sha256": "27803c99064198f8688abe2e4d91910eef93df5ad337ebfc7f2d8798afbf41e1"
+  },
+  "schema": 1,
+  "scope": "SOURCE_DATA_ONLY_NO_BOOTSTRAP_EXTRACTION_CONSUMER_READER_OR_PUBLICATION_ROLE"
+}
