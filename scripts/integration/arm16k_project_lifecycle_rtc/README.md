@@ -132,7 +132,7 @@ python3 -I -B scripts/integration/arm16k_project_lifecycle_rtc/test_successor.py
 python3 -I -B scripts/integration/arm16k_project_lifecycle/test_lifecycle.py
 ```
 
-The53 successor controls include modeled bundle/clock/result/custody refusals,
+The64 successor controls include modeled bundle/clock/result/custody refusals,
 actual private-host summary byte preservation and syncfs, sync-failure terminal
 refusal, bounded mock GPG receipt/privacy checks and fresh signing date handling.
 The46 unchanged legacy controls separately pass. Modeled RTC checks do not
@@ -175,5 +175,45 @@ All seven exact preparation mounts, rootless cap0/NNP/network-none policy,
 credentials/nonce/markers, signature/RTC authority and actor bytes are unchanged.
 Root must independently verify its exact rootless daemon can read the chosen
 private bind path. This source change performed no actual preparation or boot.
-Seven output-path controls pass within the53-control source/host-shell suite;
+Seven output-path controls pass within the64-control source/host-shell suite;
 /dev/shm acceptance uses a modeled capacity value and creates no output there.
+
+
+The first actual RTC guest reached restoration and held on an exact byte
+inequality at same_bytes, guest-runtime.sh line24. Its report is locally retained
+at `/dev/shm/cachy-asahi-ksm-rtc-first-boot-root-20261115-r1/report.json`,2083bytes,
+SHA256 `61b7686866ace554004eb91ac395e1f2aa7698146b9fbd3f397b87de1205dfc3`.
+RTC/current-time proof and normal session/retirement passed; full restoration
+and subsequent TEST-trust removal did not. The failed category/content remains
+unknown because before/after snapshots lived only in volatile /run. That closed
+HOLD is preserved and this diagnostic successor does not claim a causal fix.
+
+Before crypto, the five before snapshots are now copied into the fixed private
+`/var/lib/arm16k-project-lifecycle/receipts/restoration/` directory. The after
+snapshots are copied before restoration comparisons. Names are exactly
+`before.{paths,meta,hash,db,xattr}` and `after.{paths,meta,hash,db,xattr}`. The
+fixture nonce binds the capture; a replay or wrong nonce refuses. In the actual
+root oneshot, directory ownership/mode is0:0700 and receipt files0:0600. Symlinks,
+nonregular/nonprivate source files, unknown names and preexisting stage outputs
+refuse. Exact readback compares every copy with its original.
+
+Each snapshot is at most16MiB. The snapshot sum reserves16KiB below32MiB for
+fixed nonce/manifest/comparison metadata, so total retained receipt bytes remain
+within32MiB. All sizes and targets are checked before each stage copies. The
+existing final durable boundary syncs the closed receipt files and directory
+metadata before publishing terminal state and allowing QMP quit.
+
+The five original before/after exact byte predicates remain mandatory. Before
+each, private comparison metadata records only its fixed category, two sizes and
+two SHA256 digests. On HOLD only, that metadata joins the nonce summary; no
+snapshot bytes, arbitrary paths or secret values are publicly printed. PASS
+fields and acceptance predicates are unchanged. The original33-tool namespace
+is unchanged; only the two reviewed source hashes in tools.lock.json change.
+Eleven new private-host controls exercise binary copies, each real difference,
+per-file/aggregate caps, nonce/replay/symlink/mode refusal, copy corruption and
+actual sync-f terminal ordering. These are source/helper controls; no fresh
+preparation, package transaction or VM was run by this successor task.
+
+Successful comparison metadata is removed, so a later user-sentinel or cleanup
+failure cannot be mislabeled as a failed snapshot category. All ten private
+snapshots and their manifest remain retained.

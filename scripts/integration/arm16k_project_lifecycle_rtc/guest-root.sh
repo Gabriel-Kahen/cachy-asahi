@@ -21,6 +21,10 @@ finish() {
   # print BASH_COMMAND, arguments, file contents, environment or credentials.
   failure_fields "$rc" >&2
   if [[ -d $O ]];then failure_fields "$rc" > "$O/summary.env";fi
+  if receipt_file "$D/receipts/restoration/comparison.env";then
+   cat "$D/receipts/restoration/comparison.env" >&2
+   if [[ -d $O ]];then cat "$D/receipts/restoration/comparison.env" >> "$O/summary.env";fi
+  fi
   if receipt_file "$D/receipts/gpg-failure.env";then
    cat "$D/receipts/gpg-failure.env" >&2
    if [[ -d $O ]];then cat "$D/receipts/gpg-failure.env" >> "$O/summary.env";fi
@@ -77,6 +81,7 @@ phase=baseline
 inventory > "$O/baseline.lock";same_bytes "$D/expected111.lock" "$O/baseline.lock"
 [[ $(wc -l < "$O/baseline.lock") == 111 ]]
 payload_snapshot "$O/before"
+restoration_capture before
 for path in /etc/ld.so.cache /var/cache/ldconfig/aux-cache; do
  name=${path//\//_}
  [[ ! -L $path ]]
@@ -136,7 +141,8 @@ done
 if [[ -e "$O/ldconfig-directory.absent" && -d /var/cache/ldconfig ]];then rmdir /var/cache/ldconfig;fi
 phase=restoration
 payload_snapshot "$O/after"
-for suffix in paths meta hash db xattr; do same_bytes "$O/before.$suffix" "$O/after.$suffix";done
+restoration_capture after
+for suffix in paths meta hash db xattr; do restoration_compare "$suffix";done
 assert_users
 gpgconf --homedir "$D/trust" --kill all
 rm -rf -- "$D/trust"

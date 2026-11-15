@@ -66,15 +66,15 @@
     }
   },
   "rtc_reference_base_commit": "58cc26556f613799dfd8554410ea05d53fe5dfbe",
-  "rtc_reference_correction": "RTC11, independent ARM64 memory span and explicit private output-filesystem successor; exact per-file pins authoritative",
+  "rtc_reference_correction": "RTC source successor with bounded private restoration comparison receipts; exact per-file pins authoritative",
   "rtc_reference_files": {
     "README.md": {
-      "bytes": 10984,
-      "sha256": "6f4807d4e1ba84efc3a75bf246f9a9850f0f2e3e65a288caf9114399d127afd2"
+      "bytes": 13583,
+      "sha256": "839f8cc1f4a42ac182f03815c50d7d1bfac15d09b0a6278e958d83932654f14b"
     },
     "RESULTS.json": {
-      "bytes": 2827,
-      "sha256": "90581f5eef77aacf23ef3803a2b75b90f171ce2855d1d7511ca7910353a304f0"
+      "bytes": 4064,
+      "sha256": "2d88b88f058f6642cd21524be49a9d176ff51e499a4f4c27781f762c0da22df3"
     },
     "authority.template.json": {
       "bytes": 422,
@@ -105,12 +105,12 @@
       "sha256": "44801a7019e7df26d76115cbe7085f1a12786cedb98bd8fc8eea9f06f9c8a520"
     },
     "guest-root.sh": {
-      "bytes": 8868,
-      "sha256": "d0ec114f595b5c4aa988c4661d5813028c020cc7897ec3ffeb4eae8af6d5dbcd"
+      "bytes": 9113,
+      "sha256": "375ddd14d50ba0fe16ada633ad3ecab42794637428e953b225fa2a1b9214a246"
     },
     "guest-runtime.sh": {
-      "bytes": 2967,
-      "sha256": "220fffc02e2d375b48a625071340c024f4c89dcde0690edab45d33ef32be031e"
+      "bytes": 7153,
+      "sha256": "d5c0cdd7df15f0bf80959354851ce5ef79738b6a40d154ae868bf4c73bf49bf2"
     },
     "inputs.lock.json": {
       "bytes": 10257,
@@ -141,8 +141,8 @@
       "sha256": "eb347660a25e80efaf9666ee6e551abd92ae0267b9acdd89560f62e8b62c9b1a"
     },
     "test_successor.py": {
-      "bytes": 22943,
-      "sha256": "c66fc0b780db9bb3ad7c5d74c6e2e3e9fe4275bb733f4de4e8d1190a4ab6595d"
+      "bytes": 29575,
+      "sha256": "60dd12f1bbbc91d7eb124b95c1182030a89211024a978dde64bb47f77bbd6483"
     },
     "tool_namespace.py": {
       "bytes": 4092,
@@ -150,7 +150,7 @@
     },
     "tools.lock.json": {
       "bytes": 2228,
-      "sha256": "6325c9ad071977e11132e3c503b39cb9458d728d9deee4d0bb029af9c94cb979"
+      "sha256": "3dd2965a81654a6ed80b34eef825dcbecc2966afcf65cde9aa63ad88b26b7f69"
     }
   }
 }
