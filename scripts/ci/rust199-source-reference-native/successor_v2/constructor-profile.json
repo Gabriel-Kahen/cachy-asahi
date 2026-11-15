@@ -1,0 +1,58 @@
+{
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "image": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "bytes": 41059447,
+  "constructor_files": {
+    "README.md": {
+      "bytes": 3941,
+      "mode": 420,
+      "sha256": "8ba17b13adfde35c31413154ed54200394f96d2b208b98ed1a793a8e7364651d"
+    },
+    "payload/hosted/producer.py": {
+      "bytes": 31843,
+      "mode": 420,
+      "sha256": "e1a12e48469bb32c6a5753929195ea95a2a537300d1779d84fde400cced49d97"
+    },
+    "payload/hosted/volume.py": {
+      "bytes": 5039,
+      "mode": 420,
+      "sha256": "6ec0d36b7241b42162dedec3771f81f33fa2e47ca8f4cbbed82b969c671fa59f"
+    },
+    "prepare.py": {
+      "bytes": 10713,
+      "mode": 420,
+      "sha256": "559bbc6365cf7ad2b9c2ad6c651208d2bb649925cf6800aecb8336581c25b3ef"
+    },
+    "test_producer.py": {
+      "bytes": 14983,
+      "mode": 420,
+      "sha256": "7f7653b02654c59d68d407752507ab558558959d3d706fcb5c7711a86fcb2129"
+    },
+    "test_source.py": {
+      "bytes": 4261,
+      "mode": 420,
+      "sha256": "248e628ad55ad00982787b883e44d2dd405bd92679f9d440cb9b815ff7171cbf"
+    }
+  },
+  "files": 279,
+  "map_sha256": "f322975e18491a9c5b528da32be310bebef38d76a26c5b5a3097a4d8a4ae9fb1",
+  "parent": {
+    "bytes": 40990238,
+    "development_commit": "0e89be82c192640f036adee2c52f93d6861219cf",
+    "files": 277,
+    "map_sha256": "0ddf2db2abec15b5298ecce7f6b085f447152e3fb904f915e56738a3a8e53b1b",
+    "profile_sha256": "aa83d68e268f9f3dae0980d4a67cea8c53a1c3b11adc24c204445edd9663aed0",
+    "tree": "dd2a89e0ca31ca19819b8d70019013fe283446ef"
+  },
+  "revision": 2,
+  "schema": 1,
+  "status": "SOURCE_DATA_ONLY",
+  "tree": "bf13742624519979a44de9806e721df607b0033a"
+}

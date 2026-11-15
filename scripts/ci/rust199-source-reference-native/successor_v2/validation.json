@@ -1,0 +1,79 @@
+{
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "image": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "budget": {
+    "additional_actors": 0,
+    "additional_seconds": 0,
+    "cap_add": [
+      "CHOWN"
+    ],
+    "cpus": 2,
+    "memory_bytes": 134217728,
+    "pids": 32,
+    "recursive": false,
+    "seconds": 60,
+    "swap_bytes": 0,
+    "user": "0:0"
+  },
+  "controls": {
+    "modeled_producer_end_to_end_refusals": 10,
+    "source_inverse_preentry_and_pin_inheritance": 6
+  },
+  "controls_per_version": 16,
+  "copy_up_cause": "UNPROVEN",
+  "cross_version_bytes_modes_membership_equal": true,
+  "map_sha256": "f322975e18491a9c5b528da32be310bebef38d76a26c5b5a3097a4d8a4ae9fb1",
+  "not_run": [
+    "worker_actor",
+    "initializer",
+    "compiler",
+    "candidate_import",
+    "stage0",
+    "daemon",
+    "network",
+    "lease",
+    "native_job",
+    "installation",
+    "hardware",
+    "performance",
+    "release"
+  ],
+  "parent_checkpoint": {
+    "bytes": 40990238,
+    "development_commit": "0e89be82c192640f036adee2c52f93d6861219cf",
+    "files": 277,
+    "map_sha256": "0ddf2db2abec15b5298ecce7f6b085f447152e3fb904f915e56738a3a8e53b1b",
+    "profile_sha256": "aa83d68e268f9f3dae0980d4a67cea8c53a1c3b11adc24c204445edd9663aed0",
+    "tree": "dd2a89e0ca31ca19819b8d70019013fe283446ef"
+  },
+  "parent_constructor_inputs_unchanged": true,
+  "parent_whole_inverse": true,
+  "profile_sha256": "6802e3138a6cb2e362df0ea2759424c4f03895122778f183179bd241293ec2ad",
+  "remaining": [
+    "Root-accepted LLVM material and explicit future Source-pin reconciliation",
+    "actual image/stage0 qualification",
+    "external finite material transport and provisioning",
+    "future exact Root Source/ref/run/job admission"
+  ],
+  "revision": 2,
+  "schema": 1,
+  "source_bytes": 41059447,
+  "source_files": 279,
+  "source_output": "/tmp/rust199-native-source-DATA-20261115-volume-r2/source-tree",
+  "source_output_312": "/tmp/rust199-native-source-DATA-20261115-volume-r2/source-tree-312",
+  "status": "PASS_DATA_ONLY_NO_ACTORS",
+  "tree": "bf13742624519979a44de9806e721df607b0033a",
+  "versions": {
+    "3.12.13": "PASS",
+    "3.14.6": "PASS"
+  },
+  "whitespace_check": "PASS_STAGED_DIFF",
+  "whole_source_gate": "PASS_DATA_ONLY"
+}
