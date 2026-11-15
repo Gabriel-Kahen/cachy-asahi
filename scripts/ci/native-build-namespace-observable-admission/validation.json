@@ -6,6 +6,48 @@
   "artifact": null,
   "body": null,
   "changed_source_files": 4,
+  "current_source_pins": {
+    "README.md": {
+      "bytes": 9997,
+      "sha256": "c5c350ad37b78a5765d2854bee03628aac8291cac2ea31b84f51a7cb82bb6308"
+    },
+    "Root-published-source-full200.json": {
+      "bytes": 51826,
+      "sha256": "5e9f5b219da9c6c3a713a650916fbad4dcc18a0823bd40dceb664da52142b466"
+    },
+    "factory-files.json": {
+      "bytes": 2278,
+      "sha256": "5352fa29e0c5885162110af535f125e6cef438945da9ebb34a54e6c313e6b15f"
+    },
+    "namespace_guard.py": {
+      "bytes": 15868,
+      "sha256": "99ab76f86659d456a576f23e51073901e4d6db5c3d7f094dff500598dd585fe2"
+    },
+    "parent.raw": {
+      "bytes": 396,
+      "sha256": "fe1d2e20d5c67be035a4f3657c11f356bf05a928dec357f788a2940680b1b519"
+    },
+    "prepare.py": {
+      "bytes": 12352,
+      "sha256": "9a8684a0cc69c12f593da578d339514e02b750fbdd314323b4d47e24096c7160"
+    },
+    "runtime54.py": {
+      "bytes": 5305,
+      "sha256": "3cb8ba4facff0fefddd6270e28033324e778ede000fd769bc6db6b379f26f245"
+    },
+    "source-profile.json": {
+      "bytes": 3155,
+      "sha256": "6c1592dc2cb9d9e2dca0f01f02ebaaae6b1e1936daf6307d05d7536da262a0e5"
+    },
+    "source.raw": {
+      "bytes": 320,
+      "sha256": "477cf444064788f7cc32f45df360f352028273dfcca837dc16ac3de456130216"
+    },
+    "test_admission_data.py": {
+      "bytes": 15513,
+      "sha256": "0c292afe86c47dc1f849c51be8ed373f54540121d26eb89cdec06b9a5d88e7cb"
+    }
+  },
   "factory_CI": null,
   "factory_Main": null,
   "factory_reviewed_revision": "d6b86264d2fb6243e0ccde4a95e2a7f50804420e",
@@ -43,6 +85,50 @@
   "source": "69455e13bc99a2b2b6c2aca11f69d581769ae500",
   "source_bytes": 40287605,
   "source_files": 200,
+  "source_namespace_correction": {
+    "Root_metadata_source_root": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/observable-source-family-r2/source-tree",
+    "closed_Root_preflight": "Root-namespace-observable-once-r2/Root-preflight-000",
+    "explicit_source_root_required": true,
+    "new_packet": {
+      "Native_POSTs": 0,
+      "Original_GETs": 0,
+      "Reader_calls": 0,
+      "actual_job": null,
+      "actual_run": null,
+      "factory_Main": "e5bee33395fe2c96d3506af33e5f918d2752b8d2",
+      "input_rows": 191,
+      "input_seal": {
+        "bytes": 50561,
+        "sha256": "6704220dc53e6945830cd3e6b9dc1c1fb65d16231da460c5f72539435a062dbe"
+      },
+      "packet": "/home/gabe/Documents/ChatGPT/cachy-asahi-namespace-admission-preparation-20261114/work/namespace-observable-admission-20261114/no-git-r3",
+      "preflight_entries": 0,
+      "regular_files": 31,
+      "resource_authority": null,
+      "runtime54_profile": {
+        "bytes": 582,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-runtime54-profile.ACTUAL-r3.json",
+        "sha256": "e7e207e2f8cdf9c651aceca2343d994263fb605474f89bd98e896f43a6c5cccf"
+      },
+      "seal": {
+        "bytes": 4302,
+        "sha256": "16991f273eab84a7043a455b658a1a660423f6f7619733f1aa1ee059de617e91"
+      },
+      "sealed_operands": 29,
+      "status": "DATA_ONLY_FRESH_NO_GIT_PACKET_VERIFIED_NO_ROLE_ENTERED"
+    },
+    "old_closed_packets_unchanged": true,
+    "reason": "Git worktree metadata previously admitted by preparation but correctly refused by runtime",
+    "regression_controls": {
+      "failures": 0,
+      "python_versions": [
+        "3.12.13",
+        "3.14.7"
+      ],
+      "skipped": 0,
+      "tests": 12
+    }
+  },
   "source_physical_inspection": "PASS",
   "source_pins": {
     "README.md": {

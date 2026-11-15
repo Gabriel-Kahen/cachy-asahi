@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: MIT
 """Observable admission DATA joins only; no Source/role import or actual gate entry."""
 import ast
+import contextlib
+import io
 from copy import deepcopy
 from datetime import datetime,timezone,timedelta
 import hashlib
@@ -158,6 +160,32 @@ class ObservableAdmissionData(unittest.TestCase):
         self.assertTrue(view['ref'].startswith('codex/'));self.assertFalse(original['ref'].startswith('codex/'))
         wrong=deepcopy(PUB);wrong['ref']='refs/heads/codex/closed-parent'
         with self.assertRaises(ValueError):G.dispatch_view(wrong)
+
+    def test_explicit_source_root_is_required(self):
+        self.assertFalse(hasattr(P,'SOURCE_ROOT'))
+        with contextlib.redirect_stderr(io.StringIO()),self.assertRaises(SystemExit)as caught:P.parser().parse_args([])
+        self.assertEqual(caught.exception.code,2)
+        self.assertEqual(P.parser().parse_args(['--source-root','/MODELED/export']).source_root,Path('/MODELED/export'))
+
+    def test_physical_namespace_rejects_Git_file_directory_and_symlink(self):
+        with tempfile.TemporaryDirectory()as temporary:
+            root=Path(temporary);file=root/'declared';file.write_bytes(b'owned Source DATA\n');file.chmod(0o644)
+            rows={'declared':dict(**G.pin(file.read_bytes()),mode='100644',oid=G.oid('blob',file.read_bytes()))}
+            self.assertEqual(P.closed_source_tree(root,rows,B),len(file.read_bytes()))
+            git=root/'.git'
+            for kind in('file','directory','symlink'):
+                if kind=='file':git.write_bytes(b'gitdir: /MODELED/metadata\n')
+                elif kind=='directory':git.mkdir()
+                else:git.symlink_to(root/'missing-metadata')
+                with self.subTest(kind=kind),self.assertRaisesRegex(ValueError,'complete declared Source namespace'):
+                    P.closed_source_tree(root,rows,B)
+                self.assertTrue(os.path.lexists(git))
+                if kind=='directory':git.rmdir()
+                else:git.unlink()
+            extra=root/'unexpected';extra.write_bytes(b'extra')
+            with self.assertRaises(ValueError):P.closed_source_tree(root,rows,B)
+            extra.unlink();extra.mkdir()
+            with self.assertRaises(ValueError):P.closed_source_tree(root,rows,B)
 
     def test_runtime_profile_stale_or_unissued_refuses_without_lock_open(self):
         runtime=P.module('observable_runtime_model',HERE/'runtime54.py')
