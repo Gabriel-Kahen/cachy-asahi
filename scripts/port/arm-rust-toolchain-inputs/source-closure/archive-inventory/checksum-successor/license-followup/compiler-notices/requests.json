@@ -1,0 +1,323 @@
+{
+  "acquisition_closed": true,
+  "body_bytes": 2585627,
+  "requests": [
+    {
+      "HTTP": 200,
+      "bytes": 7813,
+      "file": "plural-lib.rs",
+      "ordinal": 1,
+      "seconds": 0.082,
+      "sha256": "054fd83f1e8b42ef7866ec681c59617952cad48f578ca338e945d2a99178ea7d",
+      "url": "https://raw.githubusercontent.com/zbraniecki/pluralrules/d0715d5b7cca72e228d6e6c4de154bd30dfdd06a/intl_pluralrules/src/lib.rs"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 381,
+      "file": "polonius-lib.rs",
+      "ordinal": 2,
+      "seconds": 0.145,
+      "sha256": "19ef0fd2d054b3a48c11ff4007734b7940ca739d3a9d5083d3a03b4d982cdb99",
+      "url": "https://raw.githubusercontent.com/rust-lang/polonius/741e6095fe50f468982d4d253e842eb7d12ed9d3/polonius-engine/src/lib.rs"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 11472,
+      "file": "perf-lib.rs",
+      "ordinal": 3,
+      "seconds": 0.083,
+      "sha256": "e037f0b9cf8ab64eaf9dcacaf1141e4974a42fe17a048967aee9e1fad4752e20",
+      "url": "https://raw.githubusercontent.com/jimblandy/perf-event/6218ac1912aa2210b46713d5c5c51ddb4be805f5/perf-event-open-sys/src/lib.rs"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 1567,
+      "file": "plural-README.md",
+      "ordinal": 4,
+      "seconds": 0.104,
+      "sha256": "7516007e35aa847bf81b8b94f45181f532bdc0aad3e389efd14691fa3aace3f0",
+      "url": "https://raw.githubusercontent.com/zbraniecki/pluralrules/d0715d5b7cca72e228d6e6c4de154bd30dfdd06a/intl_pluralrules/README.md"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 89022,
+      "file": "plural-rules.rs",
+      "ordinal": 5,
+      "seconds": 0.114,
+      "sha256": "7b3f0c12e0722401efbdb54873e8545f943bf4a34cba9f894ead9dc955112aaf",
+      "url": "https://raw.githubusercontent.com/zbraniecki/pluralrules/d0715d5b7cca72e228d6e6c4de154bd30dfdd06a/intl_pluralrules/src/rules.rs"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 373,
+      "file": "polonius-README.md",
+      "ordinal": 6,
+      "seconds": 0.094,
+      "sha256": "fc6752d50a57acbf3d65581c0d2f3d0da8c5fef5735a12857660c9e9687751d0",
+      "url": "https://raw.githubusercontent.com/rust-lang/polonius/741e6095fe50f468982d4d253e842eb7d12ed9d3/polonius-engine/README.md"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 5914,
+      "file": "polonius-facts.rs",
+      "ordinal": 7,
+      "seconds": 0.096,
+      "sha256": "9fad471b6ba5f63b8a1367002fee2b27fc3b3b893680eca390bc2616718f8915",
+      "url": "https://raw.githubusercontent.com/rust-lang/polonius/741e6095fe50f468982d4d253e842eb7d12ed9d3/polonius-engine/src/facts.rs"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 2250,
+      "file": "perf-README.md",
+      "ordinal": 8,
+      "seconds": 0.093,
+      "sha256": "5cf51531089e12cc2005c94c531b9af8937255241a18dd80b18cb52e65065c5d",
+      "url": "https://raw.githubusercontent.com/jimblandy/perf-event/6218ac1912aa2210b46713d5c5c51ddb4be805f5/perf-event-open-sys/README.md"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 112196,
+      "file": "perf-bindings.rs",
+      "ordinal": 9,
+      "seconds": 0.082,
+      "sha256": "cf2d58efa7db6b610e54a8de1db391b49e4e35f364f5037ec4ae0f45df49effd",
+      "url": "https://raw.githubusercontent.com/jimblandy/perf-event/6218ac1912aa2210b46713d5c5c51ddb4be805f5/perf-event-open-sys/src/bindings.rs"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 22849,
+      "file": "self-cell-tree.json",
+      "ordinal": 10,
+      "seconds": 0.149,
+      "sha256": "2a21a5a112e823a5b0b0944bd3b7ede1be5bd572c48b0c0758d62818f95c788e",
+      "url": "https://api.github.com/repos/Voultapher/self_cell/git/trees/7b98b472a3948bc5f678b9fdea4a80935368611b?recursive=1"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 16049,
+      "file": "valuable-tree.json",
+      "ordinal": 11,
+      "seconds": 0.157,
+      "sha256": "1ad6b621e514de8efc7f0232b34bd59e22e78140fda22e0666358a62db36bb31",
+      "url": "https://api.github.com/repos/tokio-rs/valuable/git/trees/9efc29b6e58cef28f6566a47aa7e142a55fead77?recursive=1"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 11357,
+      "file": "self-cell-LICENSE-APACHE",
+      "ordinal": 12,
+      "seconds": 0.102,
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+      "url": "https://raw.githubusercontent.com/Voultapher/self_cell/7b98b472a3948bc5f678b9fdea4a80935368611b/LICENSE-APACHE"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 7713,
+      "file": "self-cell-README.md",
+      "ordinal": 13,
+      "seconds": 0.096,
+      "sha256": "0ea57214d1eeb576539fbb2f4542e605d79e6e61f9e6eee7709391466b4ac5cb",
+      "url": "https://raw.githubusercontent.com/Voultapher/self_cell/7b98b472a3948bc5f678b9fdea4a80935368611b/README.md"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 1065,
+      "file": "valuable-LICENSE",
+      "ordinal": 14,
+      "seconds": 0.091,
+      "sha256": "ed60d479b8fd1f64e9cbc3de449a16a53ac1b3d1b6aeb9bf9d190a8e93061b44",
+      "url": "https://raw.githubusercontent.com/tokio-rs/valuable/9efc29b6e58cef28f6566a47aa7e142a55fead77/LICENSE"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 30717,
+      "file": "self-cell-lib.rs",
+      "ordinal": 15,
+      "seconds": 0.11,
+      "sha256": "9ea7c19b33483e1eaf55e263d1c4a05167f59c2605a1e9d341f7f0d6982f8e69",
+      "url": "https://raw.githubusercontent.com/Voultapher/self_cell/7b98b472a3948bc5f678b9fdea4a80935368611b/src/lib.rs"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 2750,
+      "file": "comma-tree.json",
+      "ordinal": 16,
+      "seconds": 0.196,
+      "sha256": "db9f06bd3b70f03129e92e2bc743a7d85dacee3d9e865a364c71e355eadc064f",
+      "url": "https://api.github.com/repos/emctague/comma/git/trees/01828e71a20d81acdbecbbf5df36ba8e3d302eba?recursive=1"
+    },
+    {
+      "HTTP": 422,
+      "bytes": 164,
+      "file": "hifijson-tree.json",
+      "ordinal": 17,
+      "seconds": 0.164,
+      "sha256": "9aa3b16b4ac72e8416868eea03fb74481e7c94aed7a4fd383044e5ab58c79d77",
+      "url": "https://api.github.com/repos/01mf02/hifijson/git/trees/fcd2b9ae489d962fb245063649e497bebb571cc2?recursive=1"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 50554,
+      "file": "jaq-tree.json",
+      "ordinal": 18,
+      "seconds": 1.012,
+      "sha256": "888694cebe8e49302837620757e46e7474718a083132d1ae8af202f21f76ebaf",
+      "url": "https://api.github.com/repos/01mf02/jaq/git/trees/ebd9d94b182fb8a38b8d8eb1e57d1319889201b9?recursive=1"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 3477,
+      "file": "levenshtein-tree.json",
+      "ordinal": 19,
+      "seconds": 0.206,
+      "sha256": "350acb141446f2b9ebb905b3e36a2d398cc82f719a828e3a8451284f70fcb72a",
+      "url": "https://api.github.com/repos/wooorm/levenshtein-rs/git/trees/1b1132a97498e9f1bb34a7f461e042fc5cd50603?recursive=1"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 1023,
+      "file": "jaq-LICENSE-MIT",
+      "ordinal": 20,
+      "seconds": 0.108,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3",
+      "url": "https://raw.githubusercontent.com/01mf02/jaq/ebd9d94b182fb8a38b8d8eb1e57d1319889201b9/LICENSE-MIT"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 1099,
+      "file": "levenshtein-license",
+      "ordinal": 21,
+      "seconds": 0.108,
+      "sha256": "ca4662cb5d1b738fbe5350c0d5485ba11773b4b7208974082ae6e129a52d631d",
+      "url": "https://raw.githubusercontent.com/wooorm/levenshtein-rs/1b1132a97498e9f1bb34a7f461e042fc5cd50603/license"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 842,
+      "file": "comma-README.md",
+      "ordinal": 22,
+      "seconds": 0.118,
+      "sha256": "04da7267815159c07eae7f9802697cde66c49c8f2cca190c7f657841eb1dc0a8",
+      "url": "https://raw.githubusercontent.com/emctague/comma/01828e71a20d81acdbecbbf5df36ba8e3d302eba/README.md"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 2871,
+      "file": "comma-lib.rs",
+      "ordinal": 23,
+      "seconds": 0.069,
+      "sha256": "4beb857981727fbdd3142301bb2f945e88437320296da6d39b266aeaddbfdb22",
+      "url": "https://raw.githubusercontent.com/emctague/comma/01828e71a20d81acdbecbbf5df36ba8e3d302eba/src/lib.rs"
+    },
+    {
+      "HTTP": null,
+      "body_not_retained": true,
+      "bytes": 2097152,
+      "error": "finite HTTP body cap reached before EOF",
+      "ordinal": 24,
+      "response_status_not_captured_by_predecessor_fetcher": true,
+      "url": "https://api.github.com/repos/bytecodealliance/wasm-tools/git/trees/3a7d60de4be52c24e4392548af16c4bd5075bff3?recursive=1"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 5160,
+      "file": "wasm219-root-tree.json",
+      "ordinal": 25,
+      "seconds": 0.147,
+      "sha256": "91ea597d9f6782088c98126593b07ec08cd91d4834d4bd70cd298236fe1a4e35",
+      "url": "https://api.github.com/repos/bytecodealliance/wasm-tools/git/trees/3a7d60de4be52c24e4392548af16c4bd5075bff3"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 8319,
+      "file": "wasm219-Cargo.toml",
+      "ordinal": 26,
+      "seconds": 0.081,
+      "sha256": "77fcdae29667a08b8970ddbd40c2cde15ba1ab8f1bed206c4b089dc960227e15",
+      "url": "https://raw.githubusercontent.com/bytecodealliance/wasm-tools/3a7d60de4be52c24e4392548af16c4bd5075bff3/Cargo.toml"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 1023,
+      "file": "wasm219-LICENSE-MIT",
+      "ordinal": 27,
+      "seconds": 0.09,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3",
+      "url": "https://raw.githubusercontent.com/bytecodealliance/wasm-tools/3a7d60de4be52c24e4392548af16c4bd5075bff3/LICENSE-MIT"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 4100,
+      "file": "wasm219-crates-tree.json",
+      "ordinal": 28,
+      "seconds": 0.126,
+      "sha256": "ff470c1f7687f8b2ccb6eb04f4783763060396624ba372b218d86a631c081594",
+      "url": "https://api.github.com/repos/bytecodealliance/wasm-tools/git/trees/d689b0295462b4d8e305e5be548a8caf0dd7b907"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 860,
+      "file": "wasm219-wasm-encoder-tree.json",
+      "ordinal": 29,
+      "seconds": 0.16,
+      "sha256": "a4427bc01512197c83e9d2a4e242db32fac319e8908a36c1d60fffb3049bd608",
+      "url": "https://api.github.com/repos/bytecodealliance/wasm-tools/git/trees/ae6317a8957be7dcb596dbc38fc1d58775292919"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 1501,
+      "file": "wasm219-wasmparser-tree.json",
+      "ordinal": 30,
+      "seconds": 0.13,
+      "sha256": "41fe8776203fdec6f39d3f76933d406bce24010af43e1aade1826d24b336acc4",
+      "url": "https://api.github.com/repos/bytecodealliance/wasm-tools/git/trees/c68c05f590af91e47d5c69915eed6e82e9c260ba"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 1972,
+      "file": "wasm219-wasm-encoder-src-tree.json",
+      "ordinal": 31,
+      "seconds": 0.162,
+      "sha256": "02c35aa12056474c1ff533ab201cf9c51a16ca21632ec0d9726bc1d6df56c463",
+      "url": "https://api.github.com/repos/bytecodealliance/wasm-tools/git/trees/4c2d01507b6c8baa82d4c539df1712a485fa8f67"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 5528,
+      "file": "wasm219-wasm-encoder-lib.rs",
+      "ordinal": 32,
+      "seconds": 0.095,
+      "sha256": "83b4079a6e57edb76a72f9f3fbebc34ec1e35e5b786dbca2db4f91ed777d9cce",
+      "url": "https://raw.githubusercontent.com/bytecodealliance/wasm-tools/3a7d60de4be52c24e4392548af16c4bd5075bff3/crates/wasm-encoder/src/lib.rs"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 2911,
+      "file": "wasm219-wasmparser-src-tree.json",
+      "ordinal": 33,
+      "seconds": 0.168,
+      "sha256": "b0201b706a5c5966906d873fc0cc452cae99f544008693b32ae09033593d802a",
+      "url": "https://api.github.com/repos/bytecodealliance/wasm-tools/git/trees/c9e4bcced48207544bd40e739db16236be59a1eb"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 62736,
+      "file": "wasm219-wasmparser-lib.rs",
+      "ordinal": 34,
+      "seconds": 0.087,
+      "sha256": "34687c18d37925c6f4e0722419c3be98099e41a410980d4739941bfeb6d863c4",
+      "url": "https://raw.githubusercontent.com/bytecodealliance/wasm-tools/3a7d60de4be52c24e4392548af16c4bd5075bff3/crates/wasmparser/src/lib.rs"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 10847,
+      "file": "wasm219-LICENSE-APACHE",
+      "ordinal": 35,
+      "seconds": 0.09,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2",
+      "url": "https://raw.githubusercontent.com/bytecodealliance/wasm-tools/3a7d60de4be52c24e4392548af16c4bd5075bff3/LICENSE-APACHE"
+    }
+  ],
+  "started_epoch": 1794734528.895833,
+  "stopped_epoch": 1794734957.239914
+}

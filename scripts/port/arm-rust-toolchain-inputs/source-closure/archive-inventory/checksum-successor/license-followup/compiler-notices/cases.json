@@ -1,0 +1,478 @@
+{
+  "baseline_report": {
+    "bytes": 14225,
+    "sha256": "0483d2169b8fa3157772242a853c4f682456ef09413b94e9d20bac61120c4f31"
+  },
+  "candidate_packet": {
+    "bytes": 1295494,
+    "sha256": "d79dd6913e41fd3d830a44dd6a20d1f53817dc07accf1fc3a564682327719c39"
+  },
+  "cases": [
+    {
+      "commit": "d0715d5b7cca72e228d6e6c4de154bd30dfdd06a",
+      "component": "intl_pluralrules-7.0.2",
+      "examined_files": [
+        {
+          "file": "evidence/plural-lib.rs",
+          "path": "intl_pluralrules/src/lib.rs"
+        },
+        {
+          "file": "evidence/plural-README.md",
+          "path": "intl_pluralrules/README.md"
+        },
+        {
+          "file": "evidence/plural-rules.rs",
+          "path": "intl_pluralrules/src/rules.rs"
+        }
+      ],
+      "grant_file": "../primary-a/licenses/plural-LICENSE-MIT.txt",
+      "grant_kind": "MIT",
+      "grant_upstream_path": "intl_pluralrules/LICENSE-MIT",
+      "manifest_path": "intl_pluralrules/Cargo.toml",
+      "manual_grant_kind": "MIT complete actual grant/conditions/disclaimer",
+      "manual_named_notice": null,
+      "named_notice_ownership_inferred_from_authors_or_identical_bytes": false,
+      "notice_file": null,
+      "repository": "zbraniecki/pluralrules",
+      "tree_file": "../primary-a/plural-tree.json"
+    },
+    {
+      "commit": "741e6095fe50f468982d4d253e842eb7d12ed9d3",
+      "component": "polonius-engine-0.13.0",
+      "examined_files": [
+        {
+          "file": "evidence/polonius-lib.rs",
+          "path": "polonius-engine/src/lib.rs"
+        },
+        {
+          "file": "evidence/polonius-README.md",
+          "path": "polonius-engine/README.md"
+        },
+        {
+          "file": "evidence/polonius-facts.rs",
+          "path": "polonius-engine/src/facts.rs"
+        }
+      ],
+      "grant_file": "../primary-a/licenses/polonius-LICENSE-MIT.txt",
+      "grant_kind": "MIT",
+      "grant_upstream_path": "LICENSE-MIT",
+      "manifest_path": "polonius-engine/Cargo.toml",
+      "manual_grant_kind": "MIT complete actual grant/conditions/disclaimer",
+      "manual_named_notice": null,
+      "named_notice_ownership_inferred_from_authors_or_identical_bytes": false,
+      "notice_file": null,
+      "repository": "rust-lang/polonius",
+      "tree_file": "../primary-a/polonius-canonical-tree.json"
+    },
+    {
+      "commit": "6218ac1912aa2210b46713d5c5c51ddb4be805f5",
+      "component": "perf-event-open-sys-3.0.0",
+      "examined_files": [
+        {
+          "file": "evidence/perf-lib.rs",
+          "path": "perf-event-open-sys/src/lib.rs"
+        },
+        {
+          "file": "evidence/perf-README.md",
+          "path": "perf-event-open-sys/README.md"
+        },
+        {
+          "file": "evidence/perf-bindings.rs",
+          "path": "perf-event-open-sys/src/bindings.rs"
+        }
+      ],
+      "grant_file": "../primary-b/perf-LICENSE-MIT",
+      "grant_kind": "MIT",
+      "grant_upstream_path": "LICENSE-MIT",
+      "manifest_path": "perf-event-open-sys/Cargo.toml",
+      "manual_grant_kind": "MIT complete actual grant/conditions/disclaimer",
+      "manual_named_notice": null,
+      "named_notice_ownership_inferred_from_authors_or_identical_bytes": false,
+      "notice_file": null,
+      "repository": "jimblandy/perf-event",
+      "tree_file": "../primary-b/perf-monorepo-tree.json"
+    },
+    {
+      "commit": "9efc29b6e58cef28f6566a47aa7e142a55fead77",
+      "component": "valuable-0.1.1",
+      "examined_files": [],
+      "grant_file": "evidence/valuable-LICENSE",
+      "grant_kind": "MIT",
+      "grant_upstream_path": "LICENSE",
+      "manifest_path": "valuable/Cargo.toml",
+      "manual_named_notice": "Copyright (c) 2021 Valuable Contributors",
+      "repository": "tokio-rs/valuable",
+      "tree_file": "evidence/valuable-tree.json"
+    },
+    {
+      "commit": "7b98b472a3948bc5f678b9fdea4a80935368611b",
+      "component": "self_cell-1.2.1",
+      "examined_files": [
+        {
+          "file": "evidence/self-cell-lib.rs",
+          "path": "src/lib.rs"
+        },
+        {
+          "file": "evidence/self-cell-README.md",
+          "path": "README.md"
+        }
+      ],
+      "grant_file": "evidence/self-cell-LICENSE-APACHE",
+      "grant_kind": "Apache-2.0",
+      "grant_upstream_path": "LICENSE-APACHE",
+      "manifest_path": "Cargo.toml",
+      "manual_named_notice": null,
+      "repository": "Voultapher/self_cell",
+      "tree_file": "evidence/self-cell-tree.json"
+    },
+    {
+      "commit": "1b1132a97498e9f1bb34a7f461e042fc5cd50603",
+      "component": "levenshtein-1.0.5",
+      "examined_files": [],
+      "grant_file": "evidence/levenshtein-license",
+      "grant_kind": "MIT",
+      "grant_upstream_path": "license",
+      "manifest_path": "Cargo.toml",
+      "manual_named_notice": "Copyright (c) 2016 Titus Wormer <tituswormer@gmail.com>",
+      "repository": "wooorm/levenshtein-rs",
+      "tree_file": "evidence/levenshtein-tree.json"
+    },
+    {
+      "commit": "01828e71a20d81acdbecbbf5df36ba8e3d302eba",
+      "component": "comma-1.0.0",
+      "examined_files": [
+        {
+          "file": "evidence/comma-lib.rs",
+          "path": "src/lib.rs"
+        },
+        {
+          "file": "evidence/comma-README.md",
+          "path": "README.md"
+        }
+      ],
+      "grant_file": null,
+      "grant_kind": null,
+      "grant_upstream_path": null,
+      "manifest_path": "Cargo.toml",
+      "manual_named_notice": null,
+      "repository": "emctague/comma",
+      "tree_file": "evidence/comma-tree.json"
+    },
+    {
+      "commit": "ebd9d94b182fb8a38b8d8eb1e57d1319889201b9",
+      "component": "jaq-core-3.1.0",
+      "examined_files": [],
+      "grant_file": "evidence/jaq-LICENSE-MIT",
+      "grant_kind": "MIT",
+      "grant_upstream_path": "LICENSE-MIT",
+      "manifest_path": "jaq-core/Cargo.toml",
+      "manual_named_notice": null,
+      "repository": "01mf02/jaq",
+      "tree_file": "evidence/jaq-tree.json"
+    },
+    {
+      "commit": "ebd9d94b182fb8a38b8d8eb1e57d1319889201b9",
+      "component": "jaq-json-2.0.1",
+      "examined_files": [],
+      "grant_file": "evidence/jaq-LICENSE-MIT",
+      "grant_kind": "MIT",
+      "grant_upstream_path": "LICENSE-MIT",
+      "manifest_path": "jaq-json/Cargo.toml",
+      "manual_named_notice": null,
+      "repository": "01mf02/jaq",
+      "tree_file": "evidence/jaq-tree.json"
+    },
+    {
+      "commit": "ebd9d94b182fb8a38b8d8eb1e57d1319889201b9",
+      "component": "jaq-std-3.0.1",
+      "examined_files": [],
+      "grant_file": "evidence/jaq-LICENSE-MIT",
+      "grant_kind": "MIT",
+      "grant_upstream_path": "LICENSE-MIT",
+      "manifest_path": "jaq-std/Cargo.toml",
+      "manual_named_notice": null,
+      "repository": "01mf02/jaq",
+      "tree_file": "evidence/jaq-tree.json"
+    },
+    {
+      "commit": "3a7d60de4be52c24e4392548af16c4bd5075bff3",
+      "component": "wasm-encoder-0.219.2",
+      "examined_files": [
+        {
+          "file": "evidence/wasm219-wasm-encoder-lib.rs",
+          "path": "crates/wasm-encoder/src/lib.rs"
+        }
+      ],
+      "grant_file": "evidence/wasm219-LICENSE-MIT",
+      "grant_kind": "MIT",
+      "grant_upstream_path": "LICENSE-MIT",
+      "manifest_path": "crates/wasm-encoder/Cargo.toml",
+      "manual_named_notice": null,
+      "repository": "bytecodealliance/wasm-tools",
+      "tree_file": "evidence/wasm219-root-tree.json",
+      "tree_shards": [
+        {
+          "file": "evidence/wasm219-crates-tree.json",
+          "prefix": "crates"
+        },
+        {
+          "file": "evidence/wasm219-wasm-encoder-tree.json",
+          "prefix": "crates/wasm-encoder"
+        },
+        {
+          "file": "evidence/wasm219-wasm-encoder-src-tree.json",
+          "prefix": "crates/wasm-encoder/src"
+        }
+      ],
+      "workspace_manifest": "evidence/wasm219-Cargo.toml"
+    },
+    {
+      "commit": "3a7d60de4be52c24e4392548af16c4bd5075bff3",
+      "component": "wasmparser-0.219.2",
+      "examined_files": [
+        {
+          "file": "evidence/wasm219-wasmparser-lib.rs",
+          "path": "crates/wasmparser/src/lib.rs"
+        }
+      ],
+      "file_scoped_notice": {
+        "file": "evidence/wasm219-wasmparser-lib.rs",
+        "grant_file": "evidence/wasm219-LICENSE-APACHE",
+        "grant_upstream_path": "LICENSE-APACHE",
+        "literal": "/* Copyright 2017 Mozilla Foundation",
+        "path": "crates/wasmparser/src/lib.rs"
+      },
+      "grant_file": "evidence/wasm219-LICENSE-MIT",
+      "grant_kind": "MIT",
+      "grant_upstream_path": "LICENSE-MIT",
+      "manifest_path": "crates/wasmparser/Cargo.toml",
+      "manual_named_notice": null,
+      "repository": "bytecodealliance/wasm-tools",
+      "tree_file": "evidence/wasm219-root-tree.json",
+      "tree_shards": [
+        {
+          "file": "evidence/wasm219-crates-tree.json",
+          "prefix": "crates"
+        },
+        {
+          "file": "evidence/wasm219-wasmparser-tree.json",
+          "prefix": "crates/wasmparser"
+        },
+        {
+          "file": "evidence/wasm219-wasmparser-src-tree.json",
+          "prefix": "crates/wasmparser/src"
+        }
+      ],
+      "workspace_manifest": "evidence/wasm219-Cargo.toml"
+    }
+  ],
+  "evidence_files": {
+    "../cases.json": {
+      "bytes": 9125,
+      "sha256": "4bb9e89f8a556c41280b603b65a903d945ac2471c676b1c6729edf4a90fb7dfa"
+    },
+    "../fetch.py": {
+      "bytes": 3643,
+      "sha256": "0291e9458452936b9c8be274f1618aeabddac186bd66b00db86c8bb74ccf75ef"
+    },
+    "../primary-a/licenses/plural-LICENSE-MIT.txt": {
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "../primary-a/licenses/polonius-LICENSE-MIT.txt": {
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "../primary-a/plural-tree.json": {
+      "bytes": 14992,
+      "sha256": "f400c592ce28d16378c3f8c62ef2b05ee0b3ca2a8e945ad8b28dbae62badb3b0"
+    },
+    "../primary-a/polonius-canonical-tree.json": {
+      "bytes": 136843,
+      "sha256": "5c91f4d12cd6873c61c3a631a0869164f17de665c9f20f3e0464c973ee5195c1"
+    },
+    "../primary-a/requests.json": {
+      "bytes": 5454,
+      "sha256": "e543243f73548cde555548772b9ecd7a4b4cb56d05463d24e4d44ad0e4c7cc8a"
+    },
+    "../primary-b/Rust-Cargo.lock": {
+      "bytes": 160984,
+      "sha256": "d8b190bf43e70da9ceb20c7296ac7dea9ed7abdaded3d12d0142ecc40e399dc5"
+    },
+    "../primary-b/perf-LICENSE-MIT": {
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "../primary-b/perf-monorepo-tree.json": {
+      "bytes": 7591,
+      "sha256": "7b89e14ffe805b0b3b18c2a519886fc5a2e62c2e38837641884a827a130ae8de"
+    },
+    "../primary-b/requests.json": {
+      "bytes": 3895,
+      "sha256": "8393665baa509afe73b1b919f37d59e0fd3a171dcfa03cdea8e94a8b2b09f5e9"
+    },
+    "../primary-b/rustc_codegen_ssa-Cargo.toml": {
+      "bytes": 1915,
+      "sha256": "52fada0b5ba3bac1134f1a28d55a9763713902365ef22a788c3e6275b78976c7"
+    },
+    "../priority-notes.json": {
+      "bytes": 65021,
+      "sha256": "60066b0fd2cb745ae73bf8104bc96af8547e38f2008e58ddc3a47d9ca0c6b638"
+    },
+    "../reevaluate.py": {
+      "bytes": 11784,
+      "sha256": "2dc8d1789431693a887f5355d572796acb2db5c6fd30780edb5428cb6f54da69"
+    },
+    "../report.json": {
+      "bytes": 14225,
+      "sha256": "0483d2169b8fa3157772242a853c4f682456ef09413b94e9d20bac61120c4f31"
+    },
+    "evidence/comma-README.md": {
+      "bytes": 842,
+      "sha256": "04da7267815159c07eae7f9802697cde66c49c8f2cca190c7f657841eb1dc0a8"
+    },
+    "evidence/comma-lib.rs": {
+      "bytes": 2871,
+      "sha256": "4beb857981727fbdd3142301bb2f945e88437320296da6d39b266aeaddbfdb22"
+    },
+    "evidence/comma-tree.json": {
+      "bytes": 2750,
+      "sha256": "db9f06bd3b70f03129e92e2bc743a7d85dacee3d9e865a364c71e355eadc064f"
+    },
+    "evidence/hifijson-tree.json": {
+      "bytes": 164,
+      "sha256": "9aa3b16b4ac72e8416868eea03fb74481e7c94aed7a4fd383044e5ab58c79d77"
+    },
+    "evidence/jaq-LICENSE-MIT": {
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "evidence/jaq-tree.json": {
+      "bytes": 50554,
+      "sha256": "888694cebe8e49302837620757e46e7474718a083132d1ae8af202f21f76ebaf"
+    },
+    "evidence/levenshtein-license": {
+      "bytes": 1099,
+      "sha256": "ca4662cb5d1b738fbe5350c0d5485ba11773b4b7208974082ae6e129a52d631d"
+    },
+    "evidence/levenshtein-tree.json": {
+      "bytes": 3477,
+      "sha256": "350acb141446f2b9ebb905b3e36a2d398cc82f719a828e3a8451284f70fcb72a"
+    },
+    "evidence/perf-README.md": {
+      "bytes": 2250,
+      "sha256": "5cf51531089e12cc2005c94c531b9af8937255241a18dd80b18cb52e65065c5d"
+    },
+    "evidence/perf-bindings.rs": {
+      "bytes": 112196,
+      "sha256": "cf2d58efa7db6b610e54a8de1db391b49e4e35f364f5037ec4ae0f45df49effd"
+    },
+    "evidence/perf-lib.rs": {
+      "bytes": 11472,
+      "sha256": "e037f0b9cf8ab64eaf9dcacaf1141e4974a42fe17a048967aee9e1fad4752e20"
+    },
+    "evidence/plural-README.md": {
+      "bytes": 1567,
+      "sha256": "7516007e35aa847bf81b8b94f45181f532bdc0aad3e389efd14691fa3aace3f0"
+    },
+    "evidence/plural-lib.rs": {
+      "bytes": 7813,
+      "sha256": "054fd83f1e8b42ef7866ec681c59617952cad48f578ca338e945d2a99178ea7d"
+    },
+    "evidence/plural-rules.rs": {
+      "bytes": 89022,
+      "sha256": "7b3f0c12e0722401efbdb54873e8545f943bf4a34cba9f894ead9dc955112aaf"
+    },
+    "evidence/polonius-README.md": {
+      "bytes": 373,
+      "sha256": "fc6752d50a57acbf3d65581c0d2f3d0da8c5fef5735a12857660c9e9687751d0"
+    },
+    "evidence/polonius-facts.rs": {
+      "bytes": 5914,
+      "sha256": "9fad471b6ba5f63b8a1367002fee2b27fc3b3b893680eca390bc2616718f8915"
+    },
+    "evidence/polonius-lib.rs": {
+      "bytes": 381,
+      "sha256": "19ef0fd2d054b3a48c11ff4007734b7940ca739d3a9d5083d3a03b4d982cdb99"
+    },
+    "evidence/self-cell-LICENSE-APACHE": {
+      "bytes": 11357,
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+    },
+    "evidence/self-cell-README.md": {
+      "bytes": 7713,
+      "sha256": "0ea57214d1eeb576539fbb2f4542e605d79e6e61f9e6eee7709391466b4ac5cb"
+    },
+    "evidence/self-cell-lib.rs": {
+      "bytes": 30717,
+      "sha256": "9ea7c19b33483e1eaf55e263d1c4a05167f59c2605a1e9d341f7f0d6982f8e69"
+    },
+    "evidence/self-cell-tree.json": {
+      "bytes": 22849,
+      "sha256": "2a21a5a112e823a5b0b0944bd3b7ede1be5bd572c48b0c0758d62818f95c788e"
+    },
+    "evidence/valuable-LICENSE": {
+      "bytes": 1065,
+      "sha256": "ed60d479b8fd1f64e9cbc3de449a16a53ac1b3d1b6aeb9bf9d190a8e93061b44"
+    },
+    "evidence/valuable-tree.json": {
+      "bytes": 16049,
+      "sha256": "1ad6b621e514de8efc7f0232b34bd59e22e78140fda22e0666358a62db36bb31"
+    },
+    "evidence/wasm219-Cargo.toml": {
+      "bytes": 8319,
+      "sha256": "77fcdae29667a08b8970ddbd40c2cde15ba1ab8f1bed206c4b089dc960227e15"
+    },
+    "evidence/wasm219-LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "evidence/wasm219-LICENSE-MIT": {
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "evidence/wasm219-crates-tree.json": {
+      "bytes": 4100,
+      "sha256": "ff470c1f7687f8b2ccb6eb04f4783763060396624ba372b218d86a631c081594"
+    },
+    "evidence/wasm219-root-tree.json": {
+      "bytes": 5160,
+      "sha256": "91ea597d9f6782088c98126593b07ec08cd91d4834d4bd70cd298236fe1a4e35"
+    },
+    "evidence/wasm219-wasm-encoder-lib.rs": {
+      "bytes": 5528,
+      "sha256": "83b4079a6e57edb76a72f9f3fbebc34ec1e35e5b786dbca2db4f91ed777d9cce"
+    },
+    "evidence/wasm219-wasm-encoder-src-tree.json": {
+      "bytes": 1972,
+      "sha256": "02c35aa12056474c1ff533ab201cf9c51a16ca21632ec0d9726bc1d6df56c463"
+    },
+    "evidence/wasm219-wasm-encoder-tree.json": {
+      "bytes": 860,
+      "sha256": "a4427bc01512197c83e9d2a4e242db32fac319e8908a36c1d60fffb3049bd608"
+    },
+    "evidence/wasm219-wasmparser-lib.rs": {
+      "bytes": 62736,
+      "sha256": "34687c18d37925c6f4e0722419c3be98099e41a410980d4739941bfeb6d863c4"
+    },
+    "evidence/wasm219-wasmparser-src-tree.json": {
+      "bytes": 2911,
+      "sha256": "b0201b706a5c5966906d873fc0cc452cae99f544008693b32ae09033593d802a"
+    },
+    "evidence/wasm219-wasmparser-tree.json": {
+      "bytes": 1501,
+      "sha256": "41fe8776203fdec6f39d3f76933d406bce24010af43e1aade1826d24b336acc4"
+    },
+    "requests.json": {
+      "bytes": 12356,
+      "sha256": "c28857c996294fe9d0ca0a91e3fcbe6f6fc16267cdc3c9d3e43a3b81568c353f"
+    }
+  },
+  "held_request": {
+    "component": "hifijson-0.5.0",
+    "request_ordinal": 17,
+    "status": "UNRESOLVED_PRIMARY_COMMIT_HTTP_422"
+  },
+  "schema": 1,
+  "source_selection": "Static exact root lock; no Linux/aarch64 cfg or feature resolution executed"
+}
