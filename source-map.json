@@ -14,12 +14,12 @@
     ".github/workflows/native-arm-build.yml": {
       "bytes": 11553,
       "mode": 420,
-      "sha256": "4ae62a7f6c423c02c5c3c9ad3cc6870a5a5831dd3d2c3dcdaf65ebb086d57ad9"
+      "sha256": "26dd9bd9fbae37985e96ba5c6c87105a8531e5ba47a08a602f4914c227fb9615"
     },
     ".github/workflows/native-arm-llvm23-source-reference-v2.yml": {
       "bytes": 11553,
       "mode": 420,
-      "sha256": "4ae62a7f6c423c02c5c3c9ad3cc6870a5a5831dd3d2c3dcdaf65ebb086d57ad9"
+      "sha256": "26dd9bd9fbae37985e96ba5c6c87105a8531e5ba47a08a602f4914c227fb9615"
     },
     "LICENSE": {
       "bytes": 1081,
@@ -109,7 +109,7 @@
     "hosted/common.py": {
       "bytes": 8398,
       "mode": 420,
-      "sha256": "3d5260429a1471c05318b570653985f5fff70d8007a9ed47d4e0d368612f6338"
+      "sha256": "67bdf69692f0014ae4b81e4507a205a9c0d598c2691c7723bbc1a782bc40df5d"
     },
     "hosted/entry.py": {
       "bytes": 18758,
@@ -132,9 +132,9 @@
       "sha256": "b939343e3607b985e79c70c8f420e1a26dadf8433242d17df11b8b5be21eacb1"
     },
     "hosted/volume.py": {
-      "bytes": 5818,
+      "bytes": 5834,
       "mode": 420,
-      "sha256": "5403e74515cf11aacb05fbd719d5e129549aa565b913b84d86d2b1ed608426bd"
+      "sha256": "0804a28d689fc73fd05474196cb8b443562493eef9392cc8786968d6911e504e"
     },
     "inverse.json": {
       "bytes": 42941,
@@ -1251,6 +1251,21 @@
       "mode": 420,
       "sha256": "e69b47708f171a63b7fcdcc413d6b53070f047e7240723f06115c02049c8b544"
     },
+    "previous-v2/source-map.json": {
+      "bytes": 49500,
+      "mode": 420,
+      "sha256": "809f57839dfd574b7abf0c65535321aeac08c58608d4f9597f936a7af78fb3a2"
+    },
+    "previous-v3/hosted-volume.py": {
+      "bytes": 5818,
+      "mode": 420,
+      "sha256": "5403e74515cf11aacb05fbd719d5e129549aa565b913b84d86d2b1ed608426bd"
+    },
+    "previous-v3/source-map.json": {
+      "bytes": 49842,
+      "mode": 420,
+      "sha256": "5c19a2699856e081712d159c551ce496919938bd456f2182c0c905f03cbd2ef0"
+    },
     "root-admission.TEMPLATE.json": {
       "bytes": 1440,
       "mode": 420,
@@ -1260,8 +1275,18 @@
       "bytes": 5424,
       "mode": 420,
       "sha256": "e1faaa1762c753375e8060a354d80cff5b6b8c3f43d6b61ebc6f35f84978a116"
+    },
+    "successor-v3.json": {
+      "bytes": 4207,
+      "mode": 420,
+      "sha256": "3d402e1d02288dd4e482d027952b7708ac6358b1d140fb2de8600075dd163595"
+    },
+    "successor-v4.json": {
+      "bytes": 1298,
+      "mode": 420,
+      "sha256": "e3a6e7b31f403cab2661f267bf737ea5addb80acf5fc1b430a9e1861b5d05535"
     }
   },
   "schema": 1,
-  "scope": "LLVM23_NATIVE_V2_SOURCE_PACKET_ONLY"
+  "scope": "LLVM23_NATIVE_V2_CAPABILITY_SPELLING_SOURCE_PACKET_ONLY"
 }

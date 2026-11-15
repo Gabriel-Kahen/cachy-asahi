@@ -1,0 +1,124 @@
+{
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "authority": null,
+    "image": null,
+    "job": null,
+    "reader": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "candidate_original_actor_policy_unchanged": true,
+  "changed": {
+    ".github/workflows/native-arm-build.yml": {
+      "after": {
+        "bytes": 11553,
+        "mode": 420,
+        "sha256": "26dd9bd9fbae37985e96ba5c6c87105a8531e5ba47a08a602f4914c227fb9615"
+      },
+      "before": {
+        "bytes": 11553,
+        "mode": 420,
+        "sha256": "4ae62a7f6c423c02c5c3c9ad3cc6870a5a5831dd3d2c3dcdaf65ebb086d57ad9"
+      },
+      "inverse": {
+        "count": 1,
+        "new": "67bdf69692f0014ae4b81e4507a205a9c0d598c2691c7723bbc1a782bc40df5d",
+        "old": "3d5260429a1471c05318b570653985f5fff70d8007a9ed47d4e0d368612f6338"
+      }
+    },
+    ".github/workflows/native-arm-llvm23-source-reference-v2.yml": {
+      "after": {
+        "bytes": 11553,
+        "mode": 420,
+        "sha256": "26dd9bd9fbae37985e96ba5c6c87105a8531e5ba47a08a602f4914c227fb9615"
+      },
+      "before": {
+        "bytes": 11553,
+        "mode": 420,
+        "sha256": "4ae62a7f6c423c02c5c3c9ad3cc6870a5a5831dd3d2c3dcdaf65ebb086d57ad9"
+      },
+      "inverse": {
+        "count": 1,
+        "new": "67bdf69692f0014ae4b81e4507a205a9c0d598c2691c7723bbc1a782bc40df5d",
+        "old": "3d5260429a1471c05318b570653985f5fff70d8007a9ed47d4e0d368612f6338"
+      }
+    },
+    "hosted/common.py": {
+      "after": {
+        "bytes": 8398,
+        "mode": 420,
+        "sha256": "67bdf69692f0014ae4b81e4507a205a9c0d598c2691c7723bbc1a782bc40df5d"
+      },
+      "before": {
+        "bytes": 8398,
+        "mode": 420,
+        "sha256": "3d5260429a1471c05318b570653985f5fff70d8007a9ed47d4e0d368612f6338"
+      },
+      "inverse": {
+        "count": 1,
+        "new": ".github/workflows/native-arm-llvm23-source-reference-v2.yml",
+        "old": ".github/workflows/native-arm-llvm23-source-reference-v1.yml"
+      }
+    }
+  },
+  "closed_failure": {
+    "actual_alias": ".github/workflows/native-arm-llvm23-source-reference-v2.yml",
+    "artifact": null,
+    "failure": "base_binding -> common.verify_source -> absent v1 alias; context named-alias gate has same literal defect",
+    "job": "132830512686",
+    "log": {
+      "bytes": 33286,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-llvm23-intake-r3/Original-job132830512686.log",
+      "sha256": "9a6c98cdf8e1118b63e94416b9d3e0ee6d7002a51223d25c8717b7cfce3a2680"
+    },
+    "missing_path": ".github/workflows/native-arm-llvm23-source-reference-v1.yml",
+    "permission_for_replay": false,
+    "run": "43720263251",
+    "schema": 1,
+    "secret_input_bootstrap_native_started": false,
+    "source": "6d0243dc8f5cf4ee5b9316b8c804f14a3236ecb0",
+    "status": "CLOSED_SOURCE_GUARD_FAILURE_NOT_NATIVE_EVIDENCE"
+  },
+  "frozen_entry": {
+    "bytes": 18758,
+    "mode": 420,
+    "sha256": "3c3234eb85918ef3d4e44379f8c321abe8d89499d712c8fa2078532f623b0fd6"
+  },
+  "frozen_python": {
+    "actor/container_mode.py": {
+      "bytes": 13147,
+      "mode": 420,
+      "sha256": "b5f8c08db799335f0b6ccbd0873060a429cd0bc31c826af3b929494a83394637"
+    },
+    "actor/entry.py": {
+      "bytes": 12273,
+      "mode": 420,
+      "sha256": "abec9369a7c7dfd752a41f193f0ee6eb775bb0f3b3add994d8f620faa5a66dea"
+    },
+    "actor/runtime.py": {
+      "bytes": 6241,
+      "mode": 420,
+      "sha256": "6a788567f5f8c147a6d79c7ce91cdca5e0fe5bfa718a1048cec80fa115032340"
+    },
+    "actor/work_check.py": {
+      "bytes": 2147,
+      "mode": 420,
+      "sha256": "994a968dc41dd7f37766837d6ec4e45da8f79a0c68d0d909bcbe64756439d0c5"
+    }
+  },
+  "inner_operation": "llvm23-source-reference-native-v1",
+  "outer_operation": "llvm23-source-reference-native-v2",
+  "parent": {
+    "bytes": 40807998,
+    "files": 251,
+    "map_sha256": "809f57839dfd574b7abf0c65535321aeac08c58608d4f9597f936a7af78fb3a2",
+    "source": "6d0243dc8f5cf4ee5b9316b8c804f14a3236ecb0",
+    "tree": "87f5aa3537474c2dd33a02c50e869ea5fb25e7b4"
+  },
+  "saved_parent_map": "previous-v2/source-map.json",
+  "schema": 1,
+  "scope": "HOSTED_ALIAS_CORRECTION_SOURCE_ONLY_NOT_REPLAY"
+}

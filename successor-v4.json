@@ -1,0 +1,47 @@
+{
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "authority": null,
+    "image": null,
+    "job": null,
+    "reader": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "all_other_parent_leaves_unchanged": true,
+  "changed": {
+    "hosted/volume.py": {
+      "after": {
+        "bytes": 5834,
+        "mode": 420,
+        "sha256": "0804a28d689fc73fd05474196cb8b443562493eef9392cc8786968d6911e504e"
+      },
+      "before": {
+        "bytes": 5818,
+        "mode": 420,
+        "sha256": "5403e74515cf11aacb05fbd719d5e129549aa565b913b84d86d2b1ed608426bd"
+      },
+      "inverse": {
+        "count": 1,
+        "new": "h['CapAdd']in(['CHOWN'],['CAP_CHOWN'])",
+        "old": "h['CapAdd']==['CHOWN']"
+      }
+    }
+  },
+  "inner_operation": "llvm23-source-reference-native-v1",
+  "outer_operation": "llvm23-source-reference-native-v2",
+  "parent": {
+    "bytes": 40862047,
+    "files": 253,
+    "map_sha256": "5c19a2699856e081712d159c551ce496919938bd456f2182c0c905f03cbd2ef0",
+    "ref": null,
+    "source": null,
+    "tree": "2f90eaaaa532d14574c0ce1f1c93b02310f44d91"
+  },
+  "saved_parent_map": "previous-v3/source-map.json",
+  "saved_parent_volume": "previous-v3/hosted-volume.py",
+  "schema": 1,
+  "scope": "INITIALIZER_CAPABILITY_SPELLING_SOURCE_ONLY_NOT_REPLAY"
+}
