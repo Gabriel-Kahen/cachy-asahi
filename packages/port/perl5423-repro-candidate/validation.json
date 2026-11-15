@@ -1,0 +1,451 @@
+{
+  "actual_source_preparation": {
+    "actual_prepare_exit": 0,
+    "clean_build": "NOT_RUN_ROOT_ADMISSION_PENDING",
+    "makepkg_command": [
+      "bwrap",
+      "--unshare-net",
+      "--die-with-parent",
+      "--ro-bind",
+      "/",
+      "/",
+      "--bind",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi-perl-cli-parallel-20261114/work/perl-repro-candidate-20261114",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi-perl-cli-parallel-20261114/work/perl-repro-candidate-20261114",
+      "--tmpfs",
+      "/tmp",
+      "--tmpfs",
+      "/run",
+      "--proc",
+      "/proc",
+      "--dev",
+      "/dev",
+      "--clearenv",
+      "--setenv",
+      "PATH",
+      "/usr/bin:/bin",
+      "--setenv",
+      "HOME",
+      "/tmp",
+      "--setenv",
+      "LC_ALL",
+      "C",
+      "--setenv",
+      "SOURCE_DATE_EPOCH",
+      "1785628800",
+      "--chdir",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi-perl-cli-parallel-20261114/work/perl-repro-candidate-20261114/recipe",
+      "/usr/bin/makepkg",
+      "--verifysource",
+      "--noconfirm"
+    ],
+    "makepkg_verifysource_exit": 0,
+    "network": "bubblewrap unshare-net",
+    "patched_source_sha256": {
+      "regexec.c": "67b595175cf83d6d5caf87f3bfa903b8c301dfe1cd1b3b6487eecb58b9d22a93",
+      "regexp.h": "c04d9133b7ea03dfbf6f0f7838c7392d4fc32e2e4d3a7832f438bd0997b45083"
+    },
+    "prepare_command": [
+      "bwrap",
+      "--unshare-net",
+      "--die-with-parent",
+      "--ro-bind",
+      "/",
+      "/",
+      "--bind",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi-perl-cli-parallel-20261114/work/perl-repro-candidate-20261114",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi-perl-cli-parallel-20261114/work/perl-repro-candidate-20261114",
+      "--tmpfs",
+      "/tmp",
+      "--tmpfs",
+      "/run",
+      "--proc",
+      "/proc",
+      "--dev",
+      "/dev",
+      "--clearenv",
+      "--setenv",
+      "PATH",
+      "/usr/bin:/bin",
+      "--setenv",
+      "HOME",
+      "/tmp",
+      "--setenv",
+      "LC_ALL",
+      "C",
+      "--setenv",
+      "SOURCE_DATE_EPOCH",
+      "1785628800",
+      "--setenv",
+      "CACHY_ASAHI_PERL_BUILD",
+      "1",
+      "--setenv",
+      "srcdir",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi-perl-cli-parallel-20261114/work/perl-repro-candidate-20261114/prepare-only",
+      "--chdir",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi-perl-cli-parallel-20261114/work/perl-repro-candidate-20261114/prepare-only",
+      "/usr/bin/bash",
+      "--noprofile",
+      "--norc",
+      "-c",
+      "source \"$1\"; prepare",
+      "prepare-only",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi-perl-cli-parallel-20261114/work/perl-repro-candidate-20261114/recipe/PKGBUILD"
+    ],
+    "root": "read-only / bind",
+    "scope": "SOURCE_INTEGRITY_AND_ACTUAL_PREPARE_ONLY_NO_CONFIGURE_COMPILATION_OR_BUILD",
+    "writes": "private work only"
+  },
+  "admission": {
+    "actual_staging_installation": "NOT_RUN_FOR1.3",
+    "clean_build": "NOT_RUN_WAIT_ROOT_REVIEW_AND_EXISTING_CAPACITY_RESOURCE_GUARD",
+    "compilation": "NOT_RUN",
+    "disk_snapshot_available_bytes": {
+      "/home/gabe/Documents/ChatGPT/cachy-asahi-perl-cli-parallel-20261114": 10585284608,
+      "/tmp": 16405917696
+    },
+    "free_space_is_build_admission": false,
+    "full_Configure": "NOT_RUN",
+    "new_archive": "NONE",
+    "owner": "Root orchestrator",
+    "repeated_archive_comparison": "NOT_RUN",
+    "upstream_harness": "NOT_RUN_FOR1.3"
+  },
+  "change": {
+    "SOURCE_DATE_EPOCH": 1785628800,
+    "cf_time": "Sun Aug  2 00:00:00 UTC 2026",
+    "guards": [
+      "exact declared epoch before actions",
+      "canonical real GNUdate UTC conversion",
+      "refuse custom/nonregular/symlink override",
+      "exact generated override retry does not rewrite",
+      "effective config.sh assignment required before make",
+      "actual new source-built Config assertion added but NOT RUN"
+    ],
+    "mechanism": "Pinned upstream supported config.over; no upstream patch",
+    "scope": "Only configure-time metadata; no compiler/runtime flag, dependency, module/provider, test-target or installed-layout change"
+  },
+  "controls": {
+    "Python3.12.13": {
+      "flags": "-I -B -Werror::ResourceWarning",
+      "inherited_recipe_staging_controls": 13,
+      "status": "PASS",
+      "timestamp_controls": 8
+    },
+    "Python3.14.7": {
+      "flags": "-I -B -Werror::ResourceWarning",
+      "inherited_recipe_staging_controls": 13,
+      "status": "PASS",
+      "timestamp_controls": 8
+    },
+    "modeled_integration": "Configure/make callbacks only; unchanged full argument vector compared to1.2; no compiler/Configure/make actor launched",
+    "real_upstream_fragment_execution": "Exact pinned myread generation and config.over loading blocks executed in /bin/sh; only cf_time changed; not fullConfigure",
+    "syntax": {
+      "Bash": "PASS",
+      "Perl_check_config_compile_only": "PASS_HOST_PERL_SYNTAX_ONLY_NOT_NEW_BINARY_RUNTIME"
+    }
+  },
+  "date": "2026-11-14",
+  "holds": [
+    "Bit reproducibility unproven until admitted actual clean pair",
+    "Native ARM/16K and both M2 Air sizes NOT RUN",
+    "External XS/actual target ABI and installation not qualified",
+    "Historical ALARM recipe correspondence unresolved",
+    "Performance/legal-policy/production trust/release not admitted"
+  ],
+  "inspected_upstream_members": {
+    "Configure": {
+      "bytes": 614588,
+      "sha256": "5ff0a71fca5b4e3c2be340c408c67aa0922a2e79031efe7da59f82efd1a4536d"
+    },
+    "INSTALL": {
+      "bytes": 114324,
+      "sha256": "4f90232277e21ed3d3cea7486280ded6313f4347ce14cbe8591fcac8e3548818"
+    },
+    "Porting/Glossary": {
+      "bytes": 234782,
+      "sha256": "ee8dc49bd43fd15de8f46e6cd82345945b4e0bd5c2fac8fee02724be71d6e3a3"
+    },
+    "config_h.SH": {
+      "bytes": 173497,
+      "sha256": "4baa3dea3b7c70957ba26a9bf2426c243bdda30a1f00550fad6d73e6014c9581"
+    },
+    "utils/perlbug.PL": {
+      "bytes": 47286,
+      "sha256": "ad1137ea133fb827f0530cfdf1de65aa64b651080952df1f395c8cf909882df3"
+    }
+  },
+  "new_input_pins": {
+    ".SRCINFO": {
+      "bytes": 5900,
+      "sha256": "1b30648233135214391d18f50553d545dace4bdcc40bee973646811c8a5f4410"
+    },
+    "54cf3d44cbbedd17d774e9a37921963e8fd5d0cb.patch": {
+      "bytes": 4229,
+      "sha256": "c7cc877ae64338c3a91398116d34ae9bb76c8835632f3259aa205eb70ded920a"
+    },
+    "568e6fd238867bb9e99fa3f47cba3169009239e0.patch": {
+      "bytes": 2924,
+      "sha256": "b763455236629383cf720ae6e60cfa42ce01e23728693a779abb8275f90a9e40"
+    },
+    "LICENSE.packaging": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "PKGBUILD": {
+      "bytes": 9527,
+      "sha256": "cf0df8990ac83f48a4c29978c932922108f0e01cb6d052209934da5b01af4068"
+    },
+    "README.md": {
+      "bytes": 4561,
+      "sha256": "55a80b4f3d0e1991b7f2aaedf0f3d724805f3b95a46defd835c17409167ef64f"
+    },
+    "UPSTREAM-Artistic": {
+      "bytes": 6321,
+      "sha256": "dd90d4f42e4dcadf5a7c09eea0189d93c7b37ae560c91f0f6d5233ed3b9292a2"
+    },
+    "UPSTREAM-Copying": {
+      "bytes": 12522,
+      "sha256": "8979e6dd61852041643c5c5c40ea63b2bd1b438a67d114e62cbaef808c514315"
+    },
+    "UPSTREAM-README": {
+      "bytes": 5277,
+      "sha256": "16381bf5fe73ad96ed26449b52eb4a85b2a32a49763c8a788d43af80f3add548"
+    },
+    "check_config.pl": {
+      "bytes": 2336,
+      "sha256": "9c0de002282fe85385e16ac49d4d201a66e9c42d0342627af8f650a93498d0fe"
+    },
+    "check_stage.py": {
+      "bytes": 3717,
+      "sha256": "e40c9771b87f839f6653b71d079a980df6ce13b713eb13453bb2087832276301"
+    },
+    "provides.txt": {
+      "bytes": 2564,
+      "sha256": "1aac3a6889dfb04384821c797ad7c9ce46b469717e2c806561137a745def65e8"
+    },
+    "source-lock.json": {
+      "bytes": 4803,
+      "sha256": "3fa2586905b8ebef96ea347c09c901a8e59d1cba0868ad3138077da8ff72e2f1"
+    },
+    "stage_commands.py": {
+      "bytes": 1801,
+      "sha256": "7bcbe0bedface8f8ca35915beb7cea40a466911691b820b541f53a60899bac77"
+    },
+    "test_configure_time.py": {
+      "bytes": 8175,
+      "sha256": "711ba402a40209bb1e0bcbedb0299c5c70bc13f2de67327b5d20ca2b6ce2182d"
+    },
+    "test_recipe.py": {
+      "bytes": 11298,
+      "sha256": "12a62502d6314ef8c20dca31aa1bf8f91fe37a170a216d0c7977f6cb369f47c5"
+    },
+    "test_staged_commands.py": {
+      "bytes": 7203,
+      "sha256": "401d53973012808578f1eb4efecdbf290303b3d7afd2f9b03ac9c3d5fc956ad6"
+    }
+  },
+  "preserved_material": {
+    "identical_successor_copies": [
+      "54cf3d44cbbedd17d774e9a37921963e8fd5d0cb.patch",
+      "568e6fd238867bb9e99fa3f47cba3169009239e0.patch",
+      "LICENSE.packaging",
+      "UPSTREAM-Artistic",
+      "UPSTREAM-Copying",
+      "UPSTREAM-README",
+      "check_stage.py",
+      "provides.txt",
+      "stage_commands.py",
+      "test_staged_commands.py"
+    ],
+    "old1.2_builds_repack_lifecycle_evidence": "Untouched; no new actors or writes admitted to their paths",
+    "parent_and_builder_git_files": {
+      "packages/port/perl5423-source-candidate/.SRCINFO": {
+        "bytes": 5905,
+        "sha256": "4ea755a728e857665ae49ffd3b6aa7575dc48f5893c9abac6b93e31028c727cb"
+      },
+      "packages/port/perl5423-source-candidate/54cf3d44cbbedd17d774e9a37921963e8fd5d0cb.patch": {
+        "bytes": 4229,
+        "sha256": "c7cc877ae64338c3a91398116d34ae9bb76c8835632f3259aa205eb70ded920a"
+      },
+      "packages/port/perl5423-source-candidate/568e6fd238867bb9e99fa3f47cba3169009239e0.patch": {
+        "bytes": 2924,
+        "sha256": "b763455236629383cf720ae6e60cfa42ce01e23728693a779abb8275f90a9e40"
+      },
+      "packages/port/perl5423-source-candidate/LICENSE.packaging": {
+        "bytes": 1081,
+        "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+      },
+      "packages/port/perl5423-source-candidate/PKGBUILD": {
+        "bytes": 8762,
+        "sha256": "dcc51c6c5762f367b77e9a2bb76ae4d4642ded8edc26789bdb3b4066c65de9ab"
+      },
+      "packages/port/perl5423-source-candidate/README.md": {
+        "bytes": 12384,
+        "sha256": "5128d66d7aac528e9002669cfe1fb3f4aeaa1279a69deab71b0a22499969bc63"
+      },
+      "packages/port/perl5423-source-candidate/UPSTREAM-Artistic": {
+        "bytes": 6321,
+        "sha256": "dd90d4f42e4dcadf5a7c09eea0189d93c7b37ae560c91f0f6d5233ed3b9292a2"
+      },
+      "packages/port/perl5423-source-candidate/UPSTREAM-Copying": {
+        "bytes": 12522,
+        "sha256": "8979e6dd61852041643c5c5c40ea63b2bd1b438a67d114e62cbaef808c514315"
+      },
+      "packages/port/perl5423-source-candidate/UPSTREAM-README": {
+        "bytes": 5277,
+        "sha256": "16381bf5fe73ad96ed26449b52eb4a85b2a32a49763c8a788d43af80f3add548"
+      },
+      "packages/port/perl5423-source-candidate/check_config.pl": {
+        "bytes": 2232,
+        "sha256": "293746b72abe59defb61442d04a5d0f7fa5acc2dc067130f97dae3faed23f802"
+      },
+      "packages/port/perl5423-source-candidate/check_stage.py": {
+        "bytes": 3717,
+        "sha256": "e40c9771b87f839f6653b71d079a980df6ce13b713eb13453bb2087832276301"
+      },
+      "packages/port/perl5423-source-candidate/command-validation.json": {
+        "bytes": 8136,
+        "sha256": "f6d0ee2089d051a8ef98aa3ec8f7879060d54e488331ca38f805fc1576501310"
+      },
+      "packages/port/perl5423-source-candidate/isolated-test-validation.json": {
+        "bytes": 1703,
+        "sha256": "0d5cfc4c47666eda2384dcb6dc08d3c8f1c06686c131c86bd3305b2cd61ab4d8"
+      },
+      "packages/port/perl5423-source-candidate/provides.txt": {
+        "bytes": 2564,
+        "sha256": "1aac3a6889dfb04384821c797ad7c9ce46b469717e2c806561137a745def65e8"
+      },
+      "packages/port/perl5423-source-candidate/source-lock.json": {
+        "bytes": 3429,
+        "sha256": "e54433c3b44e3953a2ec1c17baa9043edeaf54cfe7c103390a2012776ee005de"
+      },
+      "packages/port/perl5423-source-candidate/stage_commands.py": {
+        "bytes": 1801,
+        "sha256": "7bcbe0bedface8f8ca35915beb7cea40a466911691b820b541f53a60899bac77"
+      },
+      "packages/port/perl5423-source-candidate/test_recipe.py": {
+        "bytes": 11298,
+        "sha256": "a355baaf55c7b4f1a3a55785bb612ef00c56c3d91247cca716c9d956c2f5ee2f"
+      },
+      "packages/port/perl5423-source-candidate/test_staged_commands.py": {
+        "bytes": 7203,
+        "sha256": "401d53973012808578f1eb4efecdbf290303b3d7afd2f9b03ac9c3d5fc956ad6"
+      },
+      "packages/port/perl5423-source-candidate/validation.json": {
+        "bytes": 10502,
+        "sha256": "72fc018806545b703eae0086ded0202fefe445602cc644998baed1f1d03bb0e4"
+      },
+      "scripts/port/perl5423-host-build/README.md": {
+        "bytes": 5443,
+        "sha256": "428d3ebde534029b800ddb456e17bf09b1fc49cf480d5f155440be5f9ca569c0"
+      },
+      "scripts/port/perl5423-host-build/RESULTS.md": {
+        "bytes": 4915,
+        "sha256": "e7334718c8051091cd0703b7221c8bbbe42c1eb50d3a917d6067d41a13ce27dc"
+      },
+      "scripts/port/perl5423-host-build/build.sh": {
+        "bytes": 1363,
+        "sha256": "8a2d9f5d40118d839887010c3c23d175f2051164456dd82064aed3c6007bc7e5"
+      },
+      "scripts/port/perl5423-host-build/inputs.json": {
+        "bytes": 3387,
+        "sha256": "60792224be01ce8df0a5720584496b2f2b9339b200a4899d2d48cc64604a0f33"
+      },
+      "scripts/port/perl5423-host-build/inspect_archive.py": {
+        "bytes": 7808,
+        "sha256": "48b4875a1ecb0fe940a072e639e2ebb1eff8adadeb32e2864f1cc0c9751fa1ec"
+      },
+      "scripts/port/perl5423-host-build/provenance.py": {
+        "bytes": 2399,
+        "sha256": "de5fcd98f24c63f72ad6a598dc8afcf043bac75d48a5c9ac6c24de790ec19d1e"
+      },
+      "scripts/port/perl5423-host-build/provision.sh": {
+        "bytes": 1708,
+        "sha256": "0224a0f8830e054d7cf327792a2cd59103e194db7807ff3413ec0f89dbd63c84"
+      },
+      "scripts/port/perl5423-host-build/run.py": {
+        "bytes": 16307,
+        "sha256": "ac5b7094d7a320497a6d137591c1835bb6b3cd6bba19131b0105e60db7429a49"
+      },
+      "scripts/port/perl5423-host-build/staged_smoke.pl": {
+        "bytes": 921,
+        "sha256": "58e11e367fd09e3c1ee55cf5d6da55239bc5e26533362f8d01ed025d6e43b79f"
+      },
+      "scripts/port/perl5423-host-build/test_actual_archive.py": {
+        "bytes": 2233,
+        "sha256": "4ad7fc0c3e9665b467fccb533bbe7f867d523d69e2bf6868302adff381c7cafb"
+      },
+      "scripts/port/perl5423-host-build/test_host_build.py": {
+        "bytes": 9388,
+        "sha256": "491a3dd0dce095015714b90031d7cd07e136c80e3016a71c0ebff8e3b7572fe7"
+      },
+      "scripts/port/perl5423-host-build/validation.json": {
+        "bytes": 28315,
+        "sha256": "a205c0f163dd78acee32a28055e4abd055899932f85f196747c27fcd2163e22b"
+      }
+    }
+  },
+  "private_evidence": {
+    "earlier_test_edit": "Initial focused assertion used quoted Config-key spelling; corrected to exact pinned Perl consumer syntax. No source/package failure or build occurred.",
+    "files": {
+      "configure-time-312.log": {
+        "bytes": 1280,
+        "sha256": "bfa3ca7166aa901f02b4ba555883decf025751a1cb92c3227cc1ebcbb14d0b30"
+      },
+      "configure-time-314.log": {
+        "bytes": 1280,
+        "sha256": "121bca6b67d1b948c4c66afa422a3f4416d5558dce59edb62bb679ea8e473767"
+      },
+      "prepare-only.log": {
+        "bytes": 300,
+        "sha256": "e6f8711a4c2dbbde00ca8fd8762b22c0d1b14ea5e134e4c31261a5a7e74eca1d"
+      },
+      "recipe-312.log": {
+        "bytes": 2027,
+        "sha256": "603d4ea6f7a13b770a8a8d1fd8cf6a0d7d88c766edf05f39037caafd9d75b32c"
+      },
+      "recipe-314.log": {
+        "bytes": 2027,
+        "sha256": "252c1c6b5c6cceb6418590d796ada7a781ec5b630b067bca634d789945c8bd25"
+      },
+      "source-integrity.log": {
+        "bytes": 980,
+        "sha256": "17b3e88194342c08b6343df9a554b6d12630fa288b8dd7fafa24508f0726dcb7"
+      },
+      "source-preparation.json": {
+        "bytes": 2624,
+        "sha256": "ace97b35a21989ba74d0a685c63f419a3718826675b40422b72afb5a4c3d993b"
+      }
+    },
+    "work": "/home/gabe/Documents/ChatGPT/cachy-asahi-perl-cli-parallel-20261114/work/perl-repro-candidate-20261114"
+  },
+  "schema": 1,
+  "selected_for_development": false,
+  "selected_for_release": false,
+  "source": {
+    "bytes": 22610875,
+    "commit": "bc3dab4d4f66de5ea67dda34e5feb5230a54c603",
+    "path": "perl5-bc3dab4d4f66de5ea67dda34e5feb5230a54c603.tar.gz",
+    "sha256": "16b23f32e34df12709fc5fa0a7028d3df3c3cfceca21e38faada6a025edff725",
+    "tag": "v5.42.3",
+    "tag_object": "bfedb80da3c7c928c3acc902747d12b7c910948c",
+    "url": "https://github.com/Perl/perl5/archive/bc3dab4d4f66de5ea67dda34e5feb5230a54c603.tar.gz"
+  },
+  "status": "PASS_SOURCE_AUDIT_INTEGRITY_PREPARATION_AND_FOCUSED_CONTROLS_ONLY",
+  "upstream_evidence": {
+    "Configure_late_override_lines": [
+      24819,
+      24830
+    ],
+    "Configure_wallclock_assignment_line": 3920,
+    "Dcf_time_alone": "Overwritten unconditionally before supported late override",
+    "INSTALL_supported_override_lines": [
+      1497,
+      1508
+    ],
+    "config_h_consumer_line": 47,
+    "des_default": "Actual generated myread fragment with fastread=yes accepts dflt=y without input"
+  },
+  "version": "5.42.3-1.3"
+}
