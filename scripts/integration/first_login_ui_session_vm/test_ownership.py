@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 """Actual r4 DATA fixtures plus bounded source controls; no VM/host syncfs."""
-import gzip,hashlib,io,json,os,tarfile,tempfile,unittest
+import ast,gzip,hashlib,io,json,os,tarfile,tempfile,unittest
 from pathlib import Path
 import ownership as O
 import receipts as R
@@ -66,6 +66,25 @@ class OwnershipControls(unittest.TestCase):
         self.assertEqual(signals,[])
         with self.assertRaises(OSError):os.fstat(closed[0])
         O.signal_after_sync(lambda:O.sync_filesystem(self.root,primitive=lambda _:None),lambda:signals.append('PASS'));self.assertEqual(signals,['PASS'])
+    def test_actual_query_and_removal_argv_omit_download_only_option(self):
+        # Evaluate only the actual trusted source's assignment/argv expressions.
+        tree=ast.parse((HERE/'root_fixture.py').read_text())
+        assignment=next(n for n in ast.walk(tree)if isinstance(n,ast.Assign)and any(isinstance(t,ast.Name)and t.id=='pacman'for t in n.targets))
+        namespace={'conf':Path('/private/pacman.conf'),'rows':[{'name':'fixture'}]}
+        exec(compile(ast.Module(body=[assignment],type_ignores=[]),'actual-ALPM-argv','exec'),namespace)
+        for label,operation in [('installed-ownership','-Qkk'),('trusted-remove','-R')]:
+            call=next(n for n in ast.walk(tree)if isinstance(n,ast.Call)and isinstance(n.func,ast.Name)and n.func.id=='call'and n.args and isinstance(n.args[0],ast.Constant)and n.args[0].value==label)
+            argv=eval(compile(ast.Expression(call.args[1]),'actual-ALPM-argv','eval'),namespace)
+            self.assertEqual(argv,['pacman','--config','/private/pacman.conf','--noconfirm',operation,'fixture'])
+            self.assertNotIn('--noprogressbar',argv)
+    def test_live_unknown_hash_is_exact_public_cli_error_and_still_holds(self):
+        fixture=json.loads((HERE/'cli-error-fixture.json').read_text());line=fixture['public_error_line_without_newline'].encode()
+        self.assertEqual(len(line),39);self.assertEqual(hashlib.sha256(line).hexdigest(),fixture['sha256']);self.assertFalse(line.endswith(b'\n'))
+        self.assertEqual(fixture['live_summary']['exit'],1);self.assertEqual(fixture['live_summary']['warning_count'],0);self.assertEqual(fixture['live_summary']['summary_count'],0)
+        # Recognizing the source bug does not whitelist failed Qkk output.
+        diagnostic=O.analyze(b'',line+b'\n',1,self.index,self.root)
+        self.assertTrue(diagnostic['HOLD']);self.assertEqual(diagnostic['unknown_count'],1)
+
     def test_latest_runtime_pins_match(self):
         pins=json.loads((HERE/'validation.json').read_text())['latest_source_pins']
         for name,pin in pins.items():

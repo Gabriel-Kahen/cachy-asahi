@@ -1,7 +1,8 @@
 # First-login GTK in a real seat session — proposed x86 experiment
 
-Status: **r1 held at PAM; r2 held at the strict ownership check before login.
-Latest live-diagnostic/syncfs source passes controls; latest preparation/VM NOT RUN**.
+Status: **r1 held at PAM; r2 held at the ownership stage; r3 identified a CLI
+option refusal before package checking/login. Latest one-flag correction is
+source/control tested; latest preparation/VM NOT RUN**.
 Only this new directory is changed. The passed generic seat and NM actors, raw
 inputs, reports and once-markers remain unchanged. This does not qualify ARM,
 M2, physical displays/input, networking, suspend, performance or a release.
@@ -143,7 +144,7 @@ Bounded user/root HOLDs stop the serial controller promptly. Runtime GTK/ALPM,
 normal-hook residuals, full lifecycle timing and resources remain unverified until
 that fresh Root actor executes.
 
-Twenty-nine focused controls pass on Python3.12/3.14:
+Thirty-one focused controls pass on Python3.12/3.14:
 
 ```sh
 python -m unittest discover -s scripts/integration/first_login_ui_session_vm -p 'test_*.py' -v
@@ -270,9 +271,55 @@ retry. Original policies/accounts/credentials/keyboard and all guest/controller
 resource/deadline limits remain unchanged. Extra metadata/receipts fit within the
 existing input/image budget; no new archives were acquired.
 
-The new helper/source pins are recorded in `validation.json`. Twenty-nine controls
+The new helper/source pins are recorded in `validation.json`. Thirty-one controls
 pass on Python3.12/3.14, including real retained metadata, strict known/unknown
 warning refusal, protected path/symlink refusal, pinned index drift, post-flush
 failure signaling, and syncfs failure preventing terminal PASS. Tests never call
 host syncfs. No latest constructor/VM has run; Root must review fresh source,
 image/input pins, storage and admission before another separate trial.
+
+
+## Exact live r3 CLI refusal and the one-flag correction
+
+Root's r3 trial at `/tmp/cachy-asahi-ui-seat-first-boot-root-20261115-r3/`
+closed before login with the strict gate held. It used image
+`sha256:c36c6353dd4efd330eb6674d96372e1283e805a71e068fe36245de29d3f580d7`,
+raw `e7fd0954b8a79ac0eb774a109e0fc93d34cbd03a5bd31978be631e985c7d4a15`.
+The original overlay hash is
+`d42cb5ad74ff0df4943f917c8f3342de5c1defcad61128c43cd35b0b83992572`.
+
+One Root-reviewed two-filesystem passive reconstruction retrieved only2,522 bytes
+of live typed receipts. Btrfs reflink/allocated-cluster commit and journal replay
+changed only owned copies; no full base clone, guest launch, payload execution,
+host filesystem mount or credential access occurred. The reviewed headroom was
+**128MiB**, not the earlier256MiB proposal. A25ms free-space watcher did not trip;
+minimum free bytes were HOME2,915,897,344/TMP2,388,828,160, above2GiB+32MiB.
+The clone had774,578,176 exclusive data bytes plus984,834,048 shared base bytes;
+TMP copy occupied774,438,912 bytes. Reader/container/copies retired in61.76seconds,
+and original raw/overlay byte hashes remained unchanged. Records remain at
+`/tmp/cachy-asahi-ui-r3-live-receipts-94fd4d92ea21e67a5da0/`.
+
+The live summary is **exit1, zero known warnings, zero file summaries, one unknown
+stderr line**. Its39-byte hash
+`275533864d05feef2d8c970a5d26028226b6b43977daff2f90d84d0598e35ce6`
+exactly equals the public string (without a final newline):
+
+`error: invalid option '--noprogressbar'`
+
+This directly identifies an argument-validation error. Package checking did not
+run; neither an ownership defect nor a PAM repair is established. Both
+post-install and terminal-HOLD syncfs command receipts passed. The committed
+`cli-error-fixture.json` binds that exact live unknown record/summary and public
+hash comparison. Raw arbitrary stderr was not retrieved or published.
+
+The shared root ALPM argument list now omits **only** the download-only
+`--noprogressbar`. Configuration, `--noconfirm`, normal `-U`/`-R`/`-Qkk`, signature
+trust, normal hooks, dependency/ownership checks, strict known/unknown-warning
+HOLD, syncfs and all PAM/keyboard/resource guards are unchanged. No special-case
+acceptance of the public error was added. Regressions evaluate the actual source's
+query/removal argument expressions and require the preserved flags with no
+`--noprogressbar`; the exact public error still produces diagnostic HOLD.
+
+Thirty-one focused controls pass on Python3.12/3.14. This is source-only correction;
+no subsequent preparation, VM or authentication retry has run. Root owns fresh
+storage/resource admission, image/input review and any next trial.

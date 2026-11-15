@@ -1,0 +1,26 @@
+{
+  "bytes": 39,
+  "live_summary": {
+    "HOLD": true,
+    "altered_file_count": 0,
+    "exit": 1,
+    "nonce": "aeea1afb75a4afa30e2e81d06ccbf582",
+    "schema_version": 1,
+    "stage": "installed-check",
+    "summary_count": 0,
+    "truncated_unknown_count": 0,
+    "truncated_warning_count": 0,
+    "unknown_count": 1,
+    "warning_count": 0
+  },
+  "public_error_line_without_newline": "error: invalid option '--noprogressbar'",
+  "schema_version": 1,
+  "scope": "exact live unknown-line hash equals known public CLI error; no package ownership defect or PAM repair established",
+  "sha256": "275533864d05feef2d8c970a5d26028226b6b43977daff2f90d84d0598e35ce6",
+  "source_receipt": {
+    "bytes": 195,
+    "path": "/tmp/cachy-asahi-ui-r3-live-receipts-94fd4d92ea21e67a5da0/receipts/ownership-unknown-000.json",
+    "sha256": "74cf96762b5e3ceebbc497d628df23ab74062f18d1c1021fed445b2e0c19b0f6"
+  },
+  "stream": "stderr"
+}
