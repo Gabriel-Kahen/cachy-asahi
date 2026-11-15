@@ -317,6 +317,7 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/integration/python314_desktop/test_desktop.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/systemd_tcg_guest/test_controller.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/networkmanager_session_vm/test_session.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/networkmanager_session_vm/test_serial_driver.py
           python3 -I -B -Werror::ResourceWarning scripts/port/arm-rust-toolchain-inputs/test_catalog.py
       - name: Exercise planned repository key rotation without skipped controls
         env:
