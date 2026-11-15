@@ -1,0 +1,31 @@
+{
+  "Original_GETs": 0,
+  "actor_imports": 0,
+  "actual": {
+    "Original": null,
+    "Reader": null,
+    "acceptance": null,
+    "approval": null,
+    "artifact": null,
+    "authority": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "runtime": null,
+    "source": null
+  },
+  "corrected_source_input": "EXACT_TEMPORARY_CONSTRUCTOR_DATA_RENDER",
+  "current_observation_tuple_projected": false,
+  "daemon": 0,
+  "inverse": [
+    253,
+    251,
+    248
+  ],
+  "lease": 0,
+  "native_actor": 0,
+  "operational_reader": 0,
+  "python": "3.14",
+  "schema": 1,
+  "status": "TEN_FENCED_DATA_CONTROL_GROUPS_PASS_SOURCE_ONLY"
+}
