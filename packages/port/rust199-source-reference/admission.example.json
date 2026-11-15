@@ -1,0 +1,27 @@
+{
+  "environment": {
+    "llvm_version": "23.1.1",
+    "native_target": "aarch64-unknown-linux-gnu",
+    "root": null,
+    "tree_sha256": null
+  },
+  "holds_preserved": true,
+  "inputs_sha256": "e076667af98fc3b3cf6fdceb2ff1518f43453ac235fac0cc555744eda0eaa6b5",
+  "qualification_evidence": null,
+  "schema": 1,
+  "scope": "PRIVATE_SOURCE_REFERENCE_INPUT_QUALIFICATION_ONLY",
+  "source_audit": {
+    "compiler_rt_libunwind_members_and_notices_reviewed": false,
+    "consumed_git_dependencies_and_paths_reviewed": false,
+    "library_cargo_config_sha256": null,
+    "retained_source_authentication_rejoined": false,
+    "status": "UNQUALIFIED"
+  },
+  "stage0": {
+    "assembled_tree_sha256": null,
+    "compatibility": "UNQUALIFIED",
+    "native_target": "aarch64-unknown-linux-gnu",
+    "version": "1.98.0"
+  },
+  "status": "UNQUALIFIED"
+}

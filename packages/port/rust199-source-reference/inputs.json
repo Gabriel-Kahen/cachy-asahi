@@ -1,0 +1,95 @@
+{
+  "archives": {
+    "cargo-1.98.0-aarch64-unknown-linux-gnu.tar.xz": {
+      "archive_root": "cargo-1.98.0-aarch64-unknown-linux-gnu",
+      "bytes": null,
+      "component": "cargo",
+      "filename": "cargo-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+      "role": "stage0",
+      "sha256": "5784379d73ac881d15a9e67eed2882cd58c747c276221c23cdf9aff37e015ff6",
+      "status": "PINNED_DECLARATION_ONLY_NOT_ACQUIRED_OR_QUALIFIED",
+      "url": "https://static.rust-lang.org/dist/2026-08-20/cargo-1.98.0-aarch64-unknown-linux-gnu.tar.xz"
+    },
+    "llvm-project-23.1.1.src.tar.xz": {
+      "bytes": 179168672,
+      "commit": "6dfe1677ab8dffbc6ec13d53a1e0215d75147689",
+      "filename": "llvm-project-23.1.1.src.tar.xz",
+      "role": "source",
+      "sha256": "ebe9be46fe8756d58c5b198ffad0fa2a766257add81a4dc52179bfacc7888ee6",
+      "url": "https://github.com/llvm/llvm-project/releases/download/llvmorg-23.1.1/llvm-project-23.1.1.src.tar.xz"
+    },
+    "rust-std-1.98.0-aarch64-unknown-linux-gnu.tar.xz": {
+      "archive_root": "rust-std-1.98.0-aarch64-unknown-linux-gnu",
+      "bytes": null,
+      "component": "rust-std-aarch64-unknown-linux-gnu",
+      "filename": "rust-std-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+      "role": "stage0",
+      "sha256": "a36f7ac98af20ef0ba6368aace0345efabbebaef7962eba99f47190fd256162d",
+      "status": "PINNED_DECLARATION_ONLY_NOT_ACQUIRED_OR_QUALIFIED",
+      "url": "https://static.rust-lang.org/dist/2026-08-20/rust-std-1.98.0-aarch64-unknown-linux-gnu.tar.xz"
+    },
+    "rustc-1.98.0-aarch64-unknown-linux-gnu.tar.xz": {
+      "archive_root": "rustc-1.98.0-aarch64-unknown-linux-gnu",
+      "bytes": null,
+      "component": "rustc",
+      "filename": "rustc-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+      "role": "stage0",
+      "sha256": "00590657f2356d7163ca5ef295283523974c340fa21bb94b420ce794f29b358c",
+      "status": "PINNED_DECLARATION_ONLY_NOT_ACQUIRED_OR_QUALIFIED",
+      "url": "https://static.rust-lang.org/dist/2026-08-20/rustc-1.98.0-aarch64-unknown-linux-gnu.tar.xz"
+    },
+    "rustc-1.99.0-src.tar.xz": {
+      "bytes": 265258564,
+      "commit": "b940084d7eb6a299eb4bfeb8e34901bc051e7ac4",
+      "filename": "rustc-1.99.0-src.tar.xz",
+      "role": "source",
+      "sha256": "cc41916a8c84f5d9ec4f55561b44e39f43b647b133f8a6f51be9ea13c83f7036",
+      "url": "https://static.rust-lang.org/dist/rustc-1.99.0-src.tar.xz"
+    }
+  },
+  "bootstrap_config_sha256": "0b159237f6cf598eafe901d8665a4fcf33983c1c181df0d67fd1e8c09d241bb8",
+  "historical_recipe_patches_applied": [],
+  "holds": {
+    "ARM_M2_16K_performance_release": "NOT_TESTED_OR_ADMITTED",
+    "original_binary_recipe_correspondence": {
+      "compiler-rt": {
+        "original_sha256": "a08be2c30265ea1dcf95931d8e03f08dd5ff90e1cc1f092bd659f2687aa5d06c",
+        "status": "UNRESOLVED"
+      },
+      "lld": {
+        "original_sha256": "96344e325a4cb35f32f316a36e3e23507abb8b0c3ffe1c4b615f7f804fc9fb06",
+        "status": "UNRESOLVED"
+      },
+      "llvm/llvm-libs": {
+        "original_sha256": "7c6a21c0d9b125e981011016635541c970552776caa52b58c88b61d32feee5c9",
+        "status": "UNRESOLVED"
+      },
+      "rust": {
+        "original_sha256": "ef3fac9176e2a3698314d616e56d88b2df64d057ee7e9dfa13c98eb980a345fa",
+        "status": "UNRESOLVED"
+      }
+    },
+    "source_payload_license_completeness": "HELD; all existing license108 and related holds preserved"
+  },
+  "llvm_commit": "6dfe1677ab8dffbc6ec13d53a1e0215d75147689",
+  "llvm_version": "23.1.1",
+  "name": "cachy-asahi-rust199-source-reference",
+  "native_target": "aarch64-unknown-linux-gnu",
+  "prefix": "/opt/cachy-asahi/rust199-source-reference",
+  "provenance": {
+    "source_inputs_sha256": "e9e76ed4a0d653f2fa90624ee3af30797cf97037bee2fa1f64a141fdefc7af11",
+    "source_plan_commit": "b8b385688764502553152d89874974ba19107ed2",
+    "stage0_metadata_sha256": "759b73eca37a7b589b1ecc0fea77d94a1f8ca36cddb94f1401c72343e0dc1d4e"
+  },
+  "rust_commit": "b940084d7eb6a299eb4bfeb8e34901bc051e7ac4",
+  "schema": 1,
+  "source_member_sha256": {
+    ".cargo/config.toml": "ecf2837d1575dac89787a8ca9bf2a714072752faa56a034a417d81e02f6db569",
+    "Cargo.lock": "d8b190bf43e70da9ceb20c7296ac7dea9ed7abdaded3d12d0142ecc40e399dc5",
+    "library/Cargo.lock": "53d9ccff0c906de434b65af90d5c30063894b940fc839261f1fb06ef2e69e3d3",
+    "src/bootstrap/Cargo.lock": "37c7172844e7d8c4823106cd95a808a045dcc746f08616b773bccc153294ad08",
+    "src/tools/cargo/Cargo.lock": "b8dee6ceec201b2031561cac7d44318f45e618e18bfa1be511370a97dfdf52df"
+  },
+  "stage0_version": "1.98.0",
+  "version": "1.99.0"
+}
