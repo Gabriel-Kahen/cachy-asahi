@@ -310,6 +310,9 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-native-adapter/test_reader.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-native-namespace/test_source.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-native-namespace/test_reader.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-native-hosted-source/test_bootstrap.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-native-hosted-source/test_reader.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-native-hosted-source/test_source.py
           python3 -I -B -Werror::ResourceWarning scripts/compat/python314-consumers/test_probe.py
           python3 -I -B -Werror::ResourceWarning scripts/install/fresh_handoff/test_handoff.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/install_handoff_candidate/test_contract.py
