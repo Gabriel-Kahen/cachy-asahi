@@ -15,6 +15,7 @@ import tomllib
 
 HERE = Path(__file__).resolve().parent
 PREFIX = Path('/opt/cachy-asahi/rust199-source-reference')
+LLVM_PREFIX = Path('/opt/cachy-asahi/llvm23-source-reference')
 TARGET = 'aarch64-unknown-linux-gnu'
 
 
@@ -68,6 +69,7 @@ def admission(path, expected, inputs):
     require(a['status'] == 'QUALIFIED_FOR_PRIVATE_BUILD_ONLY' and a['holds_preserved'] is True, 'inputs are unqualified; existing holds must remain')
     require(a['inputs_sha256'] == digest(inputs), 'admission is for different source inputs')
     require(a['environment']['native_target'] == TARGET and a['environment']['llvm_version'] == '23.1.1', 'wrong native LLVM environment')
+    require(a['environment'].get('llvm_prefix') == str(LLVM_PREFIX), 'qualified private LLVM prefix required')
     require(a['stage0']['native_target'] == TARGET and a['stage0']['version'] == '1.98.0' and a['stage0']['compatibility'] == 'QUALIFIED_FOR_THIS_SOURCE', 'unqualified stage0 compatibility')
     for field in [a['environment']['tree_sha256'], a['stage0']['assembled_tree_sha256'], a['source_audit']['library_cargo_config_sha256']]:
         require(is_digest(field), 'missing fixed material digest')
@@ -103,8 +105,10 @@ def preflight(work, admission_path, expected, allow_fakeroot=False):
     require(not os.path.lexists(image / '.cargo') and not os.path.lexists(work / '.cargo'), 'ambient ancestor Cargo config forbidden')
     for name in ['work', 'stage0', 'proc', 'dev', 'tmp', 'usr/bin']:
         require((image / name).is_dir() and not (image / name).is_symlink(), f'image mount directory missing: {name}')
-    for name in ['python', 'gcc', 'g++', 'gcc-ar', 'gcc-ranlib', 'llvm-config', 'clang', 'ld.lld', 'cmake', 'ninja', 'make', 'pkg-config', 'perl', 'bash']:
+    for name in ['python', 'gcc', 'g++', 'gcc-ar', 'gcc-ranlib', 'cmake', 'ninja', 'make', 'pkg-config', 'perl', 'bash']:
         require(os.path.lexists(image / 'usr/bin' / name), f'qualified image tool missing: {name}')
+    for name in ['llvm-config', 'clang', 'ld.lld']:
+        require(os.path.lexists(image / LLVM_PREFIX.relative_to('/') / 'bin' / name), f'qualified private LLVM tool missing: {name}')
     require(tree_digest(image) == a['environment']['tree_sha256'], 'environment tree inventory changed')
     for name, pin in m['archives'].items():
         path = work / name
@@ -227,7 +231,7 @@ def prepare(work, m, a):
 
 
 def sandbox_command(work, image, command):
-    return ['/usr/bin/bwrap', '--unshare-all', '--die-with-parent', '--new-session', '--ro-bind', str(image), '/', '--bind', str(work), '/work', '--ro-bind', str(work / 'stage0'), '/stage0', '--ro-bind', str(work / 'stage0'), '/work/stage0', '--proc', '/proc', '--dev', '/dev', '--tmpfs', '/tmp', '--clearenv', '--setenv', 'PATH', '/stage0/bin:/usr/bin:/bin', '--setenv', 'HOME', '/work/home', '--setenv', 'CARGO_HOME', '/work/cargo-home', '--setenv', 'LIBGIT2_NO_VENDOR', '1', '--setenv', 'LIBSSH2_SYS_USE_PKG_CONFIG', '1', '--setenv', 'LIBSQLITE3_SYS_USE_PKG_CONFIG', '1', '--setenv', 'CARGO_NET_OFFLINE', 'true', '--setenv', 'CACHY_ASAHI_RUST199_STAGE0_SHA256', tree_digest(work / 'stage0'), '--setenv', 'LC_ALL', 'C', '--setenv', 'TZ', 'UTC', '--setenv', 'DESTDIR', '/work/dest', '--chdir', '/work/rustc-1.99.0-src', '--', *command]
+    return ['/usr/bin/bwrap', '--unshare-all', '--die-with-parent', '--new-session', '--ro-bind', str(image), '/', '--bind', str(work), '/work', '--ro-bind', str(work / 'stage0'), '/stage0', '--ro-bind', str(work / 'stage0'), '/work/stage0', '--proc', '/proc', '--dev', '/dev', '--tmpfs', '/tmp', '--clearenv', '--setenv', 'PATH', f'/stage0/bin:{LLVM_PREFIX}/bin:/usr/bin:/bin', '--setenv', 'HOME', '/work/home', '--setenv', 'CARGO_HOME', '/work/cargo-home', '--setenv', 'LIBGIT2_NO_VENDOR', '1', '--setenv', 'LIBSSH2_SYS_USE_PKG_CONFIG', '1', '--setenv', 'LIBSQLITE3_SYS_USE_PKG_CONFIG', '1', '--setenv', 'CARGO_NET_OFFLINE', 'true', '--setenv', 'CACHY_ASAHI_RUST199_STAGE0_SHA256', tree_digest(work / 'stage0'), '--setenv', 'LC_ALL', 'C', '--setenv', 'TZ', 'UTC', '--setenv', 'DESTDIR', '/work/dest', '--chdir', '/work/rustc-1.99.0-src', '--', *command]
 
 
 def probe():
@@ -239,11 +243,11 @@ def probe():
     require(output(['/stage0/bin/rustc', '--print', 'sysroot']) == '/stage0', 'stage0 sysroot differs')
     require(output(['/stage0/bin/cargo', '--version']).startswith('cargo 1.98.0 '), 'initial Cargo version differs')
     require(output(['/stage0/bin/rustdoc', '--version']).startswith('rustdoc 1.98.0 '), 'initial rustdoc version differs')
-    require(output(['/usr/bin/llvm-config', '--version']) == '23.1.1', 'external LLVM version differs')
-    require('AArch64' in output(['/usr/bin/llvm-config', '--targets-built']).split(), 'LLVM lacks AArch64 target')
+    require(output([str(LLVM_PREFIX / 'bin/llvm-config'), '--version']) == '23.1.1', 'external LLVM version differs')
+    require('AArch64' in output([str(LLVM_PREFIX / 'bin/llvm-config'), '--targets-built']).split(), 'LLVM lacks AArch64 target')
     gcc = output(['/usr/bin/gcc', '-dumpmachine'])
     require(gcc.startswith('aarch64-') and gcc.endswith('linux-gnu'), 'native GCC target differs')
-    require('23.1.1' in output(['/usr/bin/ld.lld', '--version']), 'external LLD version differs')
+    require('23.1.1' in output([str(LLVM_PREFIX / 'bin/ld.lld'), '--version']), 'external LLD version differs')
 
 
 def build(work, m, a, image):
