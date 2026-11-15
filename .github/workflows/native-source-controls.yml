@@ -27,7 +27,14 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_llvm23_vm/test_case.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_llvm23_vm/test_contracts.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_llvm23_vm/test_protocol.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_llvm23_vm/test_prepare.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_llvm23_vm/test_ops.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_llvm23_vm/test_boot.py
           bash -n scripts/integration/arm16k_llvm23_vm/guest/root.sh scripts/integration/arm16k_llvm23_vm/guest/probe.sh scripts/integration/arm16k_llvm23_vm/guest/case.sh
+      - name: Check Perl ARM16K lifecycle contracts without actors
+        run: |
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_perl5423_vm/test_controls.py
+          bash -n scripts/integration/arm16k_perl5423_vm/guest/root.sh scripts/integration/arm16k_perl5423_vm/guest/probe.sh scripts/integration/arm16k_perl5423_vm/guest/case.sh
       - name: Check image lifecycle producer and Reader DATA without actors
         run: |
           python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/test_pair_data.py -v
