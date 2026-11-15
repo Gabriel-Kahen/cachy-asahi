@@ -371,7 +371,7 @@ def retained_consumer_diagnostic(view, files, receipt, binding, map_sha256, posi
                 actor_exit=row.get('exit'), container=container)
 
 
-PRODUCERS = {'native/build_tools_alpm_v2.py': 'bf0989ae84a273be1c85ac1193967c0d75eb9091c6a5c21a0f3b1040a2c3ec90', 'native/build_tools_tools_v2.py': '7a933b927c708a5dac014b391c7f75b50ef8308cc517d49759dac3976ba03906', 'native/build_tools_guest_v2.py': '123a5ddf1bf428a9d8ee275a5874d1fa69a70d90e7bc3d859de1719ad73f2c9a', 'native/build-tools-contract-v2.json': 'a1c13473ba072fac6d2a0418e7d12a10e531ade64291aac7a602e1422944378d'}
+PRODUCERS = {'native/build_tools_alpm_v2.py': '44b85879cef378827d1b14cacd1cf43a4eb05f434bc56506b9aedb9402b6931e', 'native/build_tools_tools_v2.py': 'e2e3a497d6cdf7758470d64c1f6ec2f41372d8fe038e93530ca9152a074225ed', 'native/build_tools_guest_v2.py': '123a5ddf1bf428a9d8ee275a5874d1fa69a70d90e7bc3d859de1719ad73f2c9a', 'native/build-tools-contract-v2.json': 'a553d3385a4d4d0005736e1a7e931eb13a6df41071c2e1337df635ea7e69f3f8'}
 
 PASS = 'PASS_NAMESPACE_PREFLIGHT_NATIVE_DIAGNOSTIC'
 OPERATION = 'native-build-namespace-preflight-v1'
@@ -1155,7 +1155,7 @@ def namespace_outcome(raw, code, case, map_hash, token):
              type(executable['sha256']) is str and re.fullmatch('[0-9a-f]{64}',executable['sha256']) and
              all(type(executable[k]) is int for k in ('mode','uid','gid')), 'typed actual probe binary identity')
     result['reason'] = 'UNVERIFIED_OUTER_IDENTITY_OR_BINARY'
-    if not (before['uid'] == before['euid'] == before['gid'] == before['egid'] == 1000 and before['groups_complete'] and
+    if not (before['uid'] == before['euid'] == before['gid'] == before['egid'] == 1001 and before['groups_complete'] and
             executable is not None and executable['mode'] == 0o755 and executable['uid'] == executable['gid'] == 0):
         return result
     if len(frames) == 2 and frames[1].get('phase') == 'exec-error':
@@ -1181,9 +1181,9 @@ def namespace_outcome(raw, code, case, map_hash, token):
         return result
     common = ns0['user'] != ns1['user'] and ns0['pid'] == ns1['pid'] and after['groups_complete']
     if case == CASES[0]:
-        supported = common and ns0['mnt'] != ns1['mnt'] and ns0['net'] != ns1['net'] and after['uid'] == after['euid'] == after['gid'] == after['egid'] == 1000
+        supported = common and ns0['mnt'] != ns1['mnt'] and ns0['net'] != ns1['net'] and after['uid'] == after['euid'] == after['gid'] == after['egid'] == 1001
     else:
-        supported = common and ns0['mnt'] == ns1['mnt'] and ns0['net'] == ns1['net'] and after['uid'] == after['euid'] == after['gid'] == after['egid'] == 0 and after['maps'] == dict(uid_map=[[0,1000,1]],gid_map=[[0,1000,1]])
+        supported = common and ns0['mnt'] == ns1['mnt'] and ns0['net'] == ns1['net'] and after['uid'] == after['euid'] == after['gid'] == after['egid'] == 0 and after['maps'] == dict(uid_map=[[0,1001,1]],gid_map=[[0,1001,1]])
     result.update(outcome='SUPPORTED' if supported else 'UNKNOWN', reason='EXACT_OBSERVED_NAMESPACE_EFFECTS' if supported else 'INNER_EFFECTS_DO_NOT_ESTABLISH_REQUEST')
     return result
 

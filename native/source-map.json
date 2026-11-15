@@ -559,7 +559,7 @@
     "native/build-tools-contract-v2.json": {
       "bytes": 1240,
       "mode": 420,
-      "sha256": "a1c13473ba072fac6d2a0418e7d12a10e531ade64291aac7a602e1422944378d"
+      "sha256": "a553d3385a4d4d0005736e1a7e931eb13a6df41071c2e1337df635ea7e69f3f8"
     },
     "native/build-tools-makepkg-v2.conf": {
       "bytes": 316,
@@ -579,7 +579,7 @@
     "native/build_tools_alpm_v2.py": {
       "bytes": 8347,
       "mode": 420,
-      "sha256": "bf0989ae84a273be1c85ac1193967c0d75eb9091c6a5c21a0f3b1040a2c3ec90"
+      "sha256": "44b85879cef378827d1b14cacd1cf43a4eb05f434bc56506b9aedb9402b6931e"
     },
     "native/build_tools_guest_v2.py": {
       "bytes": 3393,
@@ -594,17 +594,17 @@
     "native/build_tools_projection_v2.py": {
       "bytes": 10688,
       "mode": 420,
-      "sha256": "2719477f6b26d197f40e50dab5dd144aa0bf5b5c4f6f61430376a8489076eac1"
+      "sha256": "7c5fb5bf656134918b1c6d69f9a9e4ef8492406137840f31121af0eac1356b9d"
     },
     "native/build_tools_reader_v2.py": {
       "bytes": 106215,
       "mode": 420,
-      "sha256": "3426a340d1cd95a88280e84c8eee3debcba638abdb84d72dc5f46d05b22511cb"
+      "sha256": "58b258fde9c49aca7f8d4e8b7e61358f175da8650547df64dc96891c2e33b5cf"
     },
     "native/build_tools_tools_v2.py": {
       "bytes": 13174,
       "mode": 420,
-      "sha256": "7a933b927c708a5dac014b391c7f75b50ef8308cc517d49759dac3976ba03906"
+      "sha256": "e2e3a497d6cdf7758470d64c1f6ec2f41372d8fe038e93530ca9152a074225ed"
     },
     "native/capsule.py": {
       "bytes": 18741,

@@ -10,7 +10,7 @@ import stat
 import capsule as C
 import privacy_diagnostics as privacy
 
-PRODUCERS = {'native/build_tools_alpm_v2.py': 'bf0989ae84a273be1c85ac1193967c0d75eb9091c6a5c21a0f3b1040a2c3ec90', 'native/build_tools_tools_v2.py': '7a933b927c708a5dac014b391c7f75b50ef8308cc517d49759dac3976ba03906', 'native/build_tools_guest_v2.py': '123a5ddf1bf428a9d8ee275a5874d1fa69a70d90e7bc3d859de1719ad73f2c9a', 'native/build-tools-contract-v2.json': 'a1c13473ba072fac6d2a0418e7d12a10e531ade64291aac7a602e1422944378d'}
+PRODUCERS = {'native/build_tools_alpm_v2.py': '44b85879cef378827d1b14cacd1cf43a4eb05f434bc56506b9aedb9402b6931e', 'native/build_tools_tools_v2.py': 'e2e3a497d6cdf7758470d64c1f6ec2f41372d8fe038e93530ca9152a074225ed', 'native/build_tools_guest_v2.py': '123a5ddf1bf428a9d8ee275a5874d1fa69a70d90e7bc3d859de1719ad73f2c9a', 'native/build-tools-contract-v2.json': 'a553d3385a4d4d0005736e1a7e931eb13a6df41071c2e1337df635ea7e69f3f8'}
 HOST={'transport-diagnostic.json','transport-proof.json','receipt.json','cleanup.json','source-proof.json','consumer-inspect.json','consumer-after.json',
  'consumer-diagnostic.json','image-ledger.json','image-retirement.json','bootstrap-failure-retention.json','provision-diagnostic.json','build-summary.json'}
 BOOTSTRAP={phase+'-'+name for phase in ('bootstrap','overlay') for name in

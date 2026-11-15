@@ -190,7 +190,7 @@ def namespace_outcome(raw, code, case, map_hash, token):
              type(executable['sha256']) is str and re.fullmatch('[0-9a-f]{64}',executable['sha256']) and
              all(type(executable[k]) is int for k in ('mode','uid','gid')), 'typed actual probe binary identity')
     result['reason'] = 'UNVERIFIED_OUTER_IDENTITY_OR_BINARY'
-    if not (before['uid'] == before['euid'] == before['gid'] == before['egid'] == 1000 and before['groups_complete'] and
+    if not (before['uid'] == before['euid'] == before['gid'] == before['egid'] == 1001 and before['groups_complete'] and
             executable is not None and executable['mode'] == 0o755 and executable['uid'] == executable['gid'] == 0):
         return result
     if len(frames) == 2 and frames[1].get('phase') == 'exec-error':
@@ -216,9 +216,9 @@ def namespace_outcome(raw, code, case, map_hash, token):
         return result
     common = ns0['user'] != ns1['user'] and ns0['pid'] == ns1['pid'] and after['groups_complete']
     if case == CASES[0]:
-        supported = common and ns0['mnt'] != ns1['mnt'] and ns0['net'] != ns1['net'] and after['uid'] == after['euid'] == after['gid'] == after['egid'] == 1000
+        supported = common and ns0['mnt'] != ns1['mnt'] and ns0['net'] != ns1['net'] and after['uid'] == after['euid'] == after['gid'] == after['egid'] == 1001
     else:
-        supported = common and ns0['mnt'] == ns1['mnt'] and ns0['net'] == ns1['net'] and after['uid'] == after['euid'] == after['gid'] == after['egid'] == 0 and after['maps'] == dict(uid_map=[[0,1000,1]],gid_map=[[0,1000,1]])
+        supported = common and ns0['mnt'] == ns1['mnt'] and ns0['net'] == ns1['net'] and after['uid'] == after['euid'] == after['gid'] == after['egid'] == 0 and after['maps'] == dict(uid_map=[[0,1001,1]],gid_map=[[0,1001,1]])
     result.update(outcome='SUPPORTED' if supported else 'UNKNOWN', reason='EXACT_OBSERVED_NAMESPACE_EFFECTS' if supported else 'INNER_EFFECTS_DO_NOT_ESTABLISH_REQUEST')
     return result
 

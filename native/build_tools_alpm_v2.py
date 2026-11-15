@@ -65,8 +65,8 @@ def inside(map_hash, token):
     verify_source(SOURCE, map_hash)
     _, _, baseline = input_contract(SOURCE)
     alarm = pwd.getpwnam('alarm')
-    need(os.uname().machine == 'aarch64' and os.getuid() == os.geteuid() == alarm.pw_uid == 1000 and
-         os.getgid() == os.getegid() == alarm.pw_gid == 1000 and os.getpid() > 1 and os.getppid() == 1 and
+    need(os.uname().machine == 'aarch64' and os.getuid() == os.geteuid() == alarm.pw_uid == 1001 and
+         os.getgid() == os.getegid() == alarm.pw_gid == 1001 and os.getpid() > 1 and os.getppid() == 1 and
          Path.cwd() == Path('/tmp') and T.ordinary('/builder-packages.lock') == baseline,
          'native original349 USER alarm RUN direct child of Bash PID1')
     scope = STORE / 'journey' / T.OPERATION
@@ -111,7 +111,7 @@ def inside(map_hash, token):
         report['first_failure'] = dict(type=type(error).__name__, message=str(error)[:1024])
     finally:
         try:
-            need(not home.is_symlink() and home.stat().st_uid == 1000 and stat.S_IMODE(home.stat().st_mode) == 0o700,
+            need(not home.is_symlink() and home.stat().st_uid == 1001 and stat.S_IMODE(home.stat().st_mode) == 0o700,
                  'exact own diagnostic home')
             home.rmdir()
             report['cleanup'] = dict(home_absent=True)

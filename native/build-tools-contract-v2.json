@@ -29,7 +29,7 @@
   ],
   "concurrency_group": "native-arm-build",
   "execution": "NORMAL_DOCKER_IMAGE_BUILD_RUN_USER_ALARM",
-  "gid": 1000,
+  "gid": 1001,
   "host_policy_changes": false,
   "kind": "native-build-namespace-preflight-contract-v1",
   "namespace_policy_cause": "UNKNOWN",
@@ -45,7 +45,7 @@
   "resource_class": "HEAVY_NON_KERNEL",
   "schema": 1,
   "services": false,
-  "uid": 1000,
+  "uid": 1001,
   "versions": {
     "bubblewrap": "0.13.0-1",
     "python": "3.14.8-1"
