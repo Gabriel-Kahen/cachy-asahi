@@ -1,0 +1,7 @@
+# Independent retained-output installed-Perl Reader source
+
+The new `scripts/port/perl-installed-retained-output-reader/` verifies the exact252 Source (map`2bbf2c808562d13a158d654f7e7d3adb71c7e577444e82ea05a0aad5cf0f3c97`) and deterministic252→241→232 capsule inverses plus original200. Existing factories and Readers remain unchanged. Actual Source/ref/role/Root decision operands are unissued.
+
+The new evidence gate requires the fixed fresh0700 Root-owned layer result assertion, unchanged root-device relation asserted by the pinned actor, matching raw actor report/TAR and the exact after-stopped persistent export with natural owned cleanup. The device proof is Source-mediated boolean DATA, not independently retained numeric lstat. Old241 exit zero/lost tmpfs results cannot substitute. The existing pinned passive hosted/capsule Reader then retains all bootstrap/trust/normal-ALPM/refusal/rollback/preservation checks.
+
+The only writable Reader domain is fresh private output containing the exact protected40MB Source capsule and result JSON; Original/Source/evidence remain read-only and artifact code/process/network are denied. Root separately owns once authority, custody and supervision. Nineteen fenced DATA/model controls passed; no operational Reader, actor, GET, Docker or lease ran. Installation acceptance, full uninstall, native16K, M2, performance and release remain unqualified.

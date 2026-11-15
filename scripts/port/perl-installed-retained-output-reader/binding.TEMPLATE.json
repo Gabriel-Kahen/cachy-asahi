@@ -1,0 +1,36 @@
+{
+  "Original": {
+    "bytes": null,
+    "path": null,
+    "sha256": null
+  },
+  "artifact_metadata": {
+    "bytes": null,
+    "path": null,
+    "sha256": null
+  },
+  "binding": {
+    "approval": null,
+    "image": null,
+    "job": null,
+    "operation": "perl5423-installed-lifecycle-native-v1",
+    "producer_report_sha256": null,
+    "ref": null,
+    "run": null,
+    "scope": "ROOT_AUTHENTICATED_PERL_INSTALLED_LIFECYCLE_DATA_READER_ONLY",
+    "source": null,
+    "source_map_sha256": "2bbf2c808562d13a158d654f7e7d3adb71c7e577444e82ea05a0aad5cf0f3c97"
+  },
+  "materialization": {
+    "bytes": null,
+    "path": null,
+    "sha256": null
+  },
+  "root_admission": {
+    "bytes": null,
+    "path": null,
+    "sha256": null
+  },
+  "schema": 1,
+  "scope": "ROOT_AUTHENTICATED_RETAINED_PERL_INSTALLED_OUTPUT_DATA_ONLY"
+}

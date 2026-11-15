@@ -1,0 +1,72 @@
+{
+  "Root_authentication": false,
+  "Root_decision": null,
+  "actual": {
+    "Original": null,
+    "Reader": null,
+    "Root_authority": null,
+    "Root_decision": null,
+    "admission": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "factory_commit": "b17b04e1683199d3d562271ce4caf27bd494235f",
+  "files": {
+    "README.md": {
+      "bytes": 5840,
+      "mode": 420,
+      "sha256": "087f77a41b9c659fa3590acc544f36eec717daa5b3acd679f9d6b2a0bc7fe9f9"
+    },
+    "binding.TEMPLATE.json": {
+      "bytes": 818,
+      "mode": 420,
+      "sha256": "28a606420ff640e75bba4d0d265bb37193c618e21a5fa492a92b746cebc27a5d"
+    },
+    "data.py": {
+      "bytes": 2947,
+      "mode": 420,
+      "sha256": "93edfcccfa554af1869d4a1d7591236bf8d740b76a265327736c5068b4a22980"
+    },
+    "fence.py": {
+      "bytes": 3347,
+      "mode": 420,
+      "sha256": "7f6b7627370907a1a1c538aadf01613fe0b9fa279245757363d6e02e66385cac"
+    },
+    "reader.py": {
+      "bytes": 10077,
+      "mode": 420,
+      "sha256": "f348f2d0dec7ff67f0b5ca0a4d83379a45439d433e1da64104895368b640e4e5"
+    },
+    "retention.py": {
+      "bytes": 8469,
+      "mode": 420,
+      "sha256": "5afc3ec72698f9b53ef8618a0cccd554f8eac8ca69ae284fa8310dabddae66cb"
+    },
+    "source.py": {
+      "bytes": 5742,
+      "mode": 420,
+      "sha256": "f3773d84c4827e9f5d452f6fd95ce88caf5844d4fec689aaf2fad4f969cc20e8"
+    },
+    "test_reader.py": {
+      "bytes": 14500,
+      "mode": 420,
+      "sha256": "2cfd4e951332467c967d0abff6fa6d1e2a47c9ea7584c5613a5995d375df7f24"
+    },
+    "validation.json": {
+      "bytes": 683,
+      "mode": 420,
+      "sha256": "0c7b92f8d88c9613979ddf3131fc6ec35130ae2a95bb88de1dc06b727d6e065c"
+    }
+  },
+  "passive_delegation": "EXACT_SOURCE_PINNED_HOSTED_READER_AND_CAPSULE_READ_RESULT_COMMON_ONLY",
+  "schema": 1,
+  "source": {
+    "bytes": 81364853,
+    "files": 252,
+    "map_sha256": "2bbf2c808562d13a158d654f7e7d3adb71c7e577444e82ea05a0aad5cf0f3c97",
+    "tree": "f8bbb62a4adbe9157b98c13bb8d5b9148bfc12f0"
+  },
+  "status": "SOURCE_ONLY_NOT_AUTHORITY"
+}
