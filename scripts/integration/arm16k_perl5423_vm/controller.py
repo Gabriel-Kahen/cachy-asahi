@@ -10,11 +10,12 @@ def module(n):
 
 
 def authority(value,phase,packet,source,output,K):
- K.keys(value,('kind','issued_by','accepted','operation','phase','packet','source_lock','output','uid','created_utc','expires_utc','image','docker_endpoint','quota_device','actor_tools','kernel','credentials','prepared'),'controller authority')
+ K.keys(value,('kind','issued_by','accepted','operation','phase','packet','source_lock','output','uid','created_utc','expires_utc','image','docker_endpoint','docker_cli','quota_device','actor_tools','kernel','credentials','prepared'),'controller authority')
  K.root_cert(value,'ROOT_PERL5423_VM_ACTOR_AUTHORITY_V1')
  K.need(value['phase']==phase and value['operation']==K.OP and value['packet']==packet and value['source_lock']==source and value['output']==str(output) and value['uid']==os.getuid()!=0,'exact Root phase/packet/Source/output/UID')
  now=int(time.time());K.need(type(value['created_utc'])is type(value['expires_utc'])is int and 0<=now-value['created_utc']<=3600 and now<value['expires_utc']<=value['created_utc']+3600,'fresh finite authority')
  K.need(re.fullmatch('sha256:[0-9a-f]{64}',value['image']or'') and re.fullmatch('unix:///run/user/'+str(os.getuid())+'/[A-Za-z0-9_./-]+',value['docker_endpoint']or'') and '..'not in value['docker_endpoint'],'exact local own-UID rootless endpoint/image')
+ module('runtime').docker_cli_shape(value['docker_cli'])
  K.need(type(value['quota_device'])is str and re.fullmatch('/dev/[A-Za-z0-9_/-]+',value['quota_device']),'explicit readonly quota device')
  K.need(set(value['actor_tools'])=={'/usr/bin/python3','/usr/bin/cp','/usr/bin/debugfs','/usr/bin/e2fsck','/usr/bin/qemu-img','/usr/bin/qemu-system-aarch64'},'complete fixed tool image pins')
  for pin in list(value['actor_tools'].values())+list(value['kernel'].values()):K.pin_shape(pin)
@@ -42,6 +43,7 @@ def main():
  K.need(all(out!=q and q not in out.parents and out not in q.parents for q in (HERE,packet_dir,baseline,kernel)),'disjoint Source/packet/baseline/kernel/output')
  authpath=K.ordinary(a.authority);K.need(K.pin(authpath)['sha256']==a.authority_sha256,'external Root exact authority bytes');auth=K.load(authpath)
  authority(auth,a.phase,K.pin(packet_dir/'case-packet.json'),source,out,K)
+ R.checked_docker_cli(auth['docker_cli'])
  base=cert['baseline_certificate'];r=cert['resource_certificate']
  for name,key in [('guest.raw','raw'),('prepared.json','prepared'),('ownership.json','ownership')]:K.need(K.pin(baseline/name)==base[key],'actual retained baseline '+name)
  for name,pin in auth['kernel'].items():K.need(K.pin(kernel/name)==pin,'actual qualified RTC kernel')
@@ -69,12 +71,12 @@ def main():
  os.umask(0o077);out.mkdir(mode=0o700);deadline=started+r[a.phase+'_seconds'];cleanup_end=deadline+r['cleanup_seconds']
  guard=Q.Guard(out,r,auth['quota_device'],cleanup_end,R.allocated,initial=True);R.GUARD=guard;guard(True)
  B=K.helper('reference_controller.py');state=B.Cancellation();scope=serial=qmp=qfile=None
- report=dict(status='HOLD',operation=K.OP,phase=a.phase,VM_acceptance=None,Root_acceptance=None,native16K='NOT_RUN',M2='NOT_RUN',performance='NOT_MEASURED',release='NOT_ADMITTED')
+ report=dict(status='HOLD',docker_cli=auth['docker_cli'],operation=K.OP,phase=a.phase,VM_acceptance=None,Root_acceptance=None,native16K='NOT_RUN',M2='NOT_RUN',performance='NOT_MEASURED',release='NOT_ADMITTED')
  (out/'actor-envelope.json').write_bytes(K.canonical(dict(deadline_monotonic_ns=int(deadline*10**9))))
  (out/'actor-tools.json').write_bytes(K.canonical(dict(files=auth['actor_tools'])))
  (out/'host-epoch.json').write_bytes(K.canonical(dict(nonce=packet['nonce'],utc_ns=time.time_ns())))
  def cmd(label,argv,seconds=15):return R.command(argv,out,label,seconds,cleanup_end if state.cleaning else deadline)
- state.__enter__();route=R.transport(dict(docker_endpoint=auth['docker_endpoint']));entered=False
+ state.__enter__();route=R.transport(auth);entered=False
  try:
   route.__enter__();entered=True
   K.need('name=rootless'in json.loads(cmd('rootless',['docker','info','--format','{{json .SecurityOptions}}'])),'actual local rootless daemon')

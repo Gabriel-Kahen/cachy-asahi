@@ -189,7 +189,7 @@ class Controls(unittest.TestCase):
    with self.assertRaises(TimeoutError):guard(True)
  def test_closed_fresh_root_authority_and_no_network_QEMU(self):
   now=int(time.time());sp=pin('Source');pp=pin('packet');out=Path('/PRIVATE/MODELED/output')
-  auth=dict(kind='ROOT_PERL5423_VM_ACTOR_AUTHORITY_V1',issued_by='Root',accepted=True,operation=K.OP,phase='prepare',packet=pp,source_lock=sp,output=str(out),uid=1000,created_utc=now,expires_utc=now+100,image='sha256:'+'a'*64,docker_endpoint='unix:///run/user/1000/docker.sock',quota_device='/dev/MODELED',actor_tools={p:pin(p)for p in('/usr/bin/python3','/usr/bin/cp','/usr/bin/debugfs','/usr/bin/e2fsck','/usr/bin/qemu-img','/usr/bin/qemu-system-aarch64')},kernel={n:pin(n)for n in('Image','config')},credentials=None,prepared=None)
+  auth=dict(kind='ROOT_PERL5423_VM_ACTOR_AUTHORITY_V1',issued_by='Root',accepted=True,operation=K.OP,phase='prepare',packet=pp,source_lock=sp,output=str(out),uid=1000,created_utc=now,expires_utc=now+100,image='sha256:'+'a'*64,docker_endpoint='unix:///run/user/1000/docker.sock',docker_cli=dict(path='/MODEL/Root-selected/docker',bytes=44217952,sha256='e966e0e6ea215b74fdbee17fbe7ed8bff15b65930bfc8e131652ceae4ed0210e',uid=1000,gid=1000,mode=0o755,device=1,inode=1,nlink=1),quota_device='/dev/MODELED',actor_tools={p:pin(p)for p in('/usr/bin/python3','/usr/bin/cp','/usr/bin/debugfs','/usr/bin/e2fsck','/usr/bin/qemu-img','/usr/bin/qemu-system-aarch64')},kernel={n:pin(n)for n in('Image','config')},credentials=None,prepared=None)
   with patch.object(C.os,'getuid',return_value=1000):
    C.authority(auth,'prepare',pp,sp,out,K)
    for n,value in [('accepted',False),('phase','boot'),('expires_utc',now-1),('docker_endpoint','tcp://remote:2375'),('uid',1001)]:
@@ -326,6 +326,36 @@ class Controls(unittest.TestCase):
    result=E.observe(v,dict(nodes=nodes),inventory);self.assertEqual(len(result['files']),27)
    nodes['usr/lib/libdb-5.3.so']['sha256']='0'*64
    with self.assertRaises(ValueError):E.observe(v,dict(nodes=nodes),inventory)
+ def test_explicit_Docker_binding_shape_and_no_missing_or_unbound_fallback(self):
+  R=module('runtime');known=dict(path='/home/gabe/bin/docker',bytes=44217952,sha256='e966e0e6ea215b74fdbee17fbe7ed8bff15b65930bfc8e131652ceae4ed0210e',uid=os.getuid(),gid=os.getgid(),mode=0o755,device=1,inode=1,nlink=1)
+  self.assertEqual(R.docker_cli_shape(known),known)
+  for bad in(None,dict(known,path='docker'),dict(known,mode=0o777),dict(known,nlink=2),dict(known,sha256=None)):
+   with self.subTest(value=bad),self.assertRaises(ValueError):R.docker_cli_shape(bad)
+  for argv in(['docker','info'],['/usr/bin/docker','info']):
+   with self.assertRaises(ValueError):R.bound_command(argv)
+ def test_Docker_binding_positive_metadata_and_tamper_alias_identity_refusals(self):
+  R=module('runtime')
+  with tempfile.TemporaryDirectory()as tmp:
+   p=Path(tmp)/'owned-cli';p.write_bytes(b'MODELED_NOT_EXECUTED_DOCKER');p.chmod(0o755);st=p.stat();d=dict(path=str(p),**K.pin(p),uid=st.st_uid,gid=st.st_gid,mode=0o755,device=st.st_dev,inode=st.st_ino,nlink=1)
+   self.assertEqual(R.checked_docker_cli(d),str(p))
+   alias=Path(tmp)/'alias';alias.symlink_to(p)
+   for bad in(dict(d,path=str(alias)),dict(d,inode=d['inode']+1),dict(d,sha256='0'*64)):
+    with self.assertRaises(ValueError):R.checked_docker_cli(bad)
+   p.write_bytes(b'MODELED_CHANGED')
+   with self.assertRaises(ValueError):R.checked_docker_cli(d)
+ def test_Docker_PATH_regression_and_cleanup_use_same_absolute_operand(self):
+  R=module('runtime')
+  with tempfile.TemporaryDirectory()as tmp:
+   p=Path(tmp)/'owned-cli';p.write_bytes(b'MODELED_CLI_NO_EXECUTION');p.chmod(0o755);st=p.stat();d=dict(path=str(p),**K.pin(p),uid=st.st_uid,gid=st.st_gid,mode=0o755,device=st.st_dev,inode=st.st_ino,nlink=1);endpoint='unix:///run/user/'+str(os.getuid())+'/docker.sock'
+   before={k:os.environ.get(k)for k in('DOCKER_HOST','DOCKER_CONTEXT')}
+   with patch.dict(os.environ,{'PATH':'/MODEL/POISON_PATH','DOCKER_CONTEXT':'MODELED_UNWANTED_CONTEXT'}):
+    with R.transport(dict(docker_cli=d,docker_endpoint=endpoint)):
+     argv,env=R.bound_command(['docker','info']);self.assertEqual(argv[0],str(p));self.assertEqual(env['PATH'],'/usr/bin:/bin');self.assertEqual(env['DOCKER_HOST'],endpoint);self.assertNotIn('DOCKER_CONTEXT',env)
+     for args in(['docker','container','inspect','MODEL'],['docker','container','rm','--force','MODEL']):
+      with patch.object(R,'command',return_value='MODELED_RETIRED')as run:
+       self.assertEqual(R.docker_call(args,Path(tmp),time.monotonic()+8,shared_deadline=time.monotonic()+20,defer_cancel=True),'MODELED_RETIRED');self.assertEqual(run.call_args.args[0][0],str(p));self.assertTrue(run.call_args.kwargs['defer_cancel'])
+    self.assertIsNone(R.DOCKER_CLI);self.assertEqual(os.environ['DOCKER_CONTEXT'],'MODELED_UNWANTED_CONTEXT')
+   self.assertEqual({k:os.environ.get(k)for k in before},before)
  def test_source_syntax(self):
   for p in HERE.rglob('*.py'):ast.parse(p.read_bytes())
  def test_closed_source_lock(self):

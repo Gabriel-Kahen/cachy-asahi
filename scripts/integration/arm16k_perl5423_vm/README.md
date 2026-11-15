@@ -262,3 +262,21 @@ All54 Perl and17 db5.3 roots plus10 reachable inherited provider ELFs remain
 expected static ABI inputs until their actual phase runs. Current signatures,
 ALPM dependencies and normal rollback remain independent gates. No actual raw
 observer, VM, ALPM, GPG, compiler, Reader or quota actor ran in this increment.
+
+## Exact host Docker CLI binding
+
+Every prepare/boot authority must contain `docker_cli` with the absolute resolved
+path, bytes/SHA256, UID/GID, mode, device, inode and nlink. There is no default
+path. The caller must select an ordinary nonsymlink single-link executable owned
+by root or the current UID, with no group/world write or set-id bits. The
+controller checks its current identity and hash before output/actor entry;
+runtime rechecks and rewrites every fixed `docker` vector to that exact absolute
+operand, including CID recovery, wait and removal during cleanup. The same
+binding remains active until cleanup ends. A missing, replaced, aliased or
+hash-mismatching CLI refuses; no alternate executable or PATH fallback is used.
+
+Child PATH remains `/usr/bin:/bin`. Only explicit own-UID rootless DOCKER_HOST,
+HOME and XDG_RUNTIME_DIR are passed for Docker calls; DOCKER_CONTEXT is cleared.
+A Root wrapper's broader PATH therefore cannot redirect the command or repair a
+missing binding. The ordinary actor's finite PATH and all image/mount/capability,
+resource/custody/cancellation/retirement checks remain in force.

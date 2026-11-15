@@ -16,23 +16,64 @@ import time
 HERE=Path(__file__).resolve().parent
 _DOCKER_SEQUENCE=0
 GUARD=None
+DOCKER_CLI=None
 
 
 def module(name):
     spec=importlib.util.spec_from_file_location('perl_vm_'+name,HERE/(name+'.py'));m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);return m
 
 
+def docker_cli_shape(value):
+    K=module('contracts');K.keys(value,('path','bytes','sha256','uid','gid','mode','device','inode','nlink'),'Root host Docker CLI descriptor')
+    path=Path(value['path']) if type(value['path'])is str else Path('.')
+    K.need(path.is_absolute()and '..'not in path.parts and str(path)==value['path'] and not any(c in str(path)for c in '\0\n\r'), 'explicit normalized absolute host Docker CLI; no default')
+    K.pin_shape({k:value[k]for k in('bytes','sha256')})
+    K.need(all(type(value[n])is int and value[n]>=0 for n in('uid','gid','mode','device','inode','nlink')) and value['uid']in(0,os.getuid()) and value['inode']>0 and value['device']>0 and value['nlink']==1 and value['mode']<=0o777 and value['mode']&0o111 and not value['mode']&0o022,'ordinary executable Root/own-UID single-link non-writable CLI identity')
+    return value
+
+
+def checked_docker_cli(value):
+    K=module('contracts');docker_cli_shape(value);p=K.ordinary(value['path']);a=p.lstat()
+    expected=(value['device'],value['inode'],value['uid'],value['gid'],value['mode'],value['nlink'],value['bytes'])
+    identity=lambda st:(st.st_dev,st.st_ino,st.st_uid,st.st_gid,stat.S_IMODE(st.st_mode),st.st_nlink,st.st_size)
+    K.need(stat.S_ISREG(a.st_mode)and identity(a)==expected,'exact current ordinary nonsymlink host Docker CLI identity')
+    K.need(K.pin(p,128*1024**2)=={k:value[k]for k in('bytes','sha256')} and identity(p.lstat())==expected,'exact current reviewed host Docker CLI bytes')
+    return str(p)
+
+
 @contextmanager
 def transport(authority):
+    global DOCKER_CLI
     K=module('contracts');endpoint=authority['docker_endpoint']
+    import re
+    K.need(type(endpoint)is str and re.fullmatch('unix:///run/user/'+str(os.getuid())+'/[A-Za-z0-9_./-]+',endpoint)and '..'not in endpoint,'explicit current own-UID rootless Unix endpoint')
+    checked_docker_cli(authority['docker_cli']);previous_cli=DOCKER_CLI;DOCKER_CLI=dict(authority['docker_cli'])
     previous={k:os.environ.get(k) for k in ('DOCKER_HOST','DOCKER_CONTEXT')}
     try:
         os.environ['DOCKER_HOST']=endpoint;os.environ.pop('DOCKER_CONTEXT',None)
         yield
     finally:
+        DOCKER_CLI=previous_cli
         for key,value in previous.items():
             if value is None:os.environ.pop(key,None)
             else:os.environ[key]=value
+
+
+def bound_command(argv):
+    """Resolve every Docker call, including cleanup, to its reviewed absolute CLI."""
+    K=module('contracts');K.need(type(argv)in(list,tuple)and argv and all(type(x)is str and '\0'not in x for x in argv),'literal child argv')
+    argv=list(argv);selected=DOCKER_CLI['path']if DOCKER_CLI is not None else None
+    docker=argv[0]=='docker'or selected is not None and argv[0]==selected
+    K.need(docker or Path(argv[0]).name!='docker','unbound alternate Docker path forbidden')
+    env={'PATH':'/usr/bin:/bin','LC_ALL':'C','TZ':'UTC'}
+    if docker:
+        K.need(DOCKER_CLI is not None,'Root host Docker CLI binding required before any Docker command')
+        argv[0]=checked_docker_cli(DOCKER_CLI)
+        import re
+        endpoint=os.environ.get('DOCKER_HOST','')
+        K.need(re.fullmatch('unix:///run/user/'+str(os.getuid())+'/[A-Za-z0-9_./-]+',endpoint)and '..'not in endpoint and not os.environ.get('DOCKER_CONTEXT'),'explicit bound current own-UID rootless transport')
+        env.update({key:os.environ[key]for key in('HOME','XDG_RUNTIME_DIR','DOCKER_HOST')if key in os.environ})
+    return argv,env
 
 
 def natural(row):
@@ -116,10 +157,7 @@ def command(argv,out,label,seconds=30,deadline=None,input_file=None,*,child_file
             K.need(size<=bound,'watched allocated-byte cap exceeded')
             K.need(shutil.disk_usage(root).free>=reserve,'watched disk reserve exhausted')
             last_watch[0]=time.monotonic()
-    env={'PATH':'/usr/bin:/bin','LC_ALL':'C','TZ':'UTC'}
-    if argv[0] in ('docker','/usr/bin/docker'):
-        K.need(os.environ.get('DOCKER_HOST','').startswith('unix:///') and not os.environ.get('DOCKER_CONTEXT'),'explicit Root local rootless transport required')
-        env.update({key:os.environ[key] for key in ('HOME','XDG_RUNTIME_DIR','DOCKER_HOST') if key in os.environ})
+    argv,env=bound_command(argv)
     out=Path(out);stdout=out/(label+'.stdout');stderr=out/(label+'.stderr')
     mask=signal.pthread_sigmask(signal.SIG_BLOCK,signals)
     try:
@@ -200,7 +238,8 @@ def docker_call(argv,out,deadline,*,shared_deadline,defer_cancel=False):
     daemon is selected, and naturally reaped nonzero results remain caller DATA.
     """
     global _DOCKER_SEQUENCE
-    if not argv or argv[0] not in ('docker','/usr/bin/docker'):raise ValueError('fixed Docker CLI required')
+    if not argv or argv[0]!='docker'and (DOCKER_CLI is None or argv[0]!=DOCKER_CLI['path']):raise ValueError('fixed reviewed Docker CLI required')
+    argv,_=bound_command(argv)
     if any(type(v) not in (int,float) or not math.isfinite(v) for v in (deadline,shared_deadline)):raise ValueError('finite shared Docker deadline required')
     out=Path(out)
     for _ in range(4096):

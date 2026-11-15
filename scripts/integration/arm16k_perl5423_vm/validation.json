@@ -18,11 +18,12 @@
   },
   "checks": {
     "committed_Git_source_roundtrip": "PASS_COMMITTED_TRACKED_SOURCE_EXPORT_AND_FENCED_PREDICATE",
-    "python_fenced_controls": 27,
+    "python_fenced_controls": 30,
     "shell_syntax": "PASS",
     "source_membership": "PASS"
   },
   "expected_ABI_intake": "EXACT81_ROWS_SEPARATE_INPUT_KIND_ACTUAL_GUEST_FIELDS_NULL_NO_RUNTIME_CREDIT",
+  "host_Docker_CLI": "EXPLICIT_ROOT_DESCRIPTOR_NO_PATH_FALLBACK_INCLUDING_CLEANUP",
   "known_prerequisites": {
     "installed_component_scope": "FINITE_ARM4K_ONLY_NO_FULL_UNINSTALL",
     "installed_source": "445b37a9475a4e92804954f4f0e3d0ac84cd9511",

@@ -10,6 +10,7 @@
   },
   "created_utc": null,
   "credentials": null,
+  "docker_cli": null,
   "docker_endpoint": null,
   "expires_utc": null,
   "image": null,
