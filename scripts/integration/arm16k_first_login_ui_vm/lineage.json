@@ -1,5 +1,24 @@
 {
-  "current_lower_source_commit": "9fb4a0e81d5a416b46bfe97c4780b6ecd944452a",
+  "archived_lower_sources": [
+    {
+      "contracts": {
+        "bytes": 16099,
+        "sha256": "c01beae63007a758d233a01df5d8721baeefee2c6d34294cfe76deedbd76c627"
+      },
+      "local_input": {
+        "bytes": 9745,
+        "filename": "input_seat.py",
+        "sha256": "08942504d90019d2f4f5433a74b9ab43f4c1d74c1c048a836c333c734e6b192b"
+      },
+      "path": "scripts/integration/arm16k_virtio_seat_vm",
+      "source_commit": "9fb4a0e81d5a416b46bfe97c4780b6ecd944452a",
+      "source_lock": {
+        "bytes": 18617,
+        "sha256": "799eaf543f247b6b08360a3e2c7d8612b4aba6411d452e5aebaa69e9a4a8d107"
+      }
+    }
+  ],
+  "current_lower_source_commit": "9508955ca3c85077257da42fe38b9c015ba2240d",
   "derived_files": {
     "boot.py": {
       "changes": "ownUIauthority/bounds/marker and joinedUI frame; unchanged pinned lower custody and ARM keyboard journey",
@@ -10,10 +29,10 @@
       "source": "/tmp/cachy-asahi-arm16k-systemd-tcg-20261114/scripts/integration/arm16k_virtio_seat_vm/boot.py"
     },
     "observer.py": {
-      "changes": "existing durable UI gate/360s bound on corrected lower observer, including bounded durable candidate diagnostics; original PAM/ECHO/ACK/stock tags preserved",
+      "changes": "existing durable UI gate/360s bound on current lower six independent checks and exact GPU tag-set value projection; all other properties/keyboard bytes, stock PAM/policy/input/seat checks unchanged",
       "pin": {
-        "bytes": 13005,
-        "sha256": "2213cb9865fe12c762b24c8c39c4db2f2e8abc035cff763d994f44b3cdb65cc1"
+        "bytes": 13870,
+        "sha256": "89032a2e7ff868bb95167fdfc5f1f699f1e7e7f0cc1a6d6d60ed699aca21d2c6"
       },
       "source": "/tmp/cachy-asahi-arm16k-systemd-tcg-20261114/scripts/integration/arm16k_virtio_seat_vm/observer.py"
     },
@@ -72,11 +91,16 @@
         "filename": "input_seat.py",
         "sha256": "08942504d90019d2f4f5433a74b9ab43f4c1d74c1c048a836c333c734e6b192b"
       },
+      "observer_checks": {
+        "bytes": 4896,
+        "filename": "observer_checks.py",
+        "sha256": "cc73f760a80aee65a8b708fb969afdbbcbd1ac6e1ea83ab381c085b755de3508"
+      },
       "path": "scripts/integration/arm16k_virtio_seat_vm",
-      "source_commit": "9fb4a0e81d5a416b46bfe97c4780b6ecd944452a",
+      "source_commit": "9508955ca3c85077257da42fe38b9c015ba2240d",
       "source_lock": {
-        "bytes": 18617,
-        "sha256": "799eaf543f247b6b08360a3e2c7d8612b4aba6411d452e5aebaa69e9a4a8d107"
+        "bytes": 19179,
+        "sha256": "06153a9b191aac9f0c974334e6e60ca32b0230ca3581f6d1e404f2efc99b15ad"
       }
     },
     "elf_parser": {

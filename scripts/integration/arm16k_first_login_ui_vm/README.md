@@ -7,10 +7,10 @@ kernel/RTC, serial/virtio-input/PAM proof and public-package helpers read-only.
 It does not expand or retag the minimal155 constructor.
 
 [Source contract, actual metadata result and Root-only invocation](../../../docs/validation/arm16k-first-login-ui-vm-source-20261115.md)
-explain the remaining admissions. `actual-data.json` keeps them null; the separate
-built kernel and genuine tool qualification are DATA, not a UI guest result.
+explain the remaining admissions. UI Source/trust/material/actor authority stays
+null; `actual-data.json` separately records Root's minimal155 r4 PASS, not a UI result.
 `references.json` uses repository-relative Source paths and exact pins. Integrate
-the pinned ARM lower source 9fb4a0e8 and tool producer a3cb961e before invoking a
+the pinned ARM lower source 9508955c and tool producer a3cb961e before invoking a
 real constructor. `lineage.json` records the finite derived upper files; unchanged
 GUI client/probe and owned-process code are checked and delivered from Source.
 
@@ -32,7 +32,7 @@ python -I -B -m unittest discover \
   -s scripts/integration/arm16k_first_login_ui_vm -p 'test_*.py' -v
 ```
 
-30 controls pass on Python3.12/3.14; Bash syntax and Python compilation pass.
+35 fenced controls pass on Python3.12/3.14; Bash syntax and Python compilation pass.
 They cover missing admissions before any process/clone, distinct roles, genuine
 three-device tool qualification shape, private resource/mount fences, exact
 namespace ownership/aliases, public-only packets, durable172/283 receipt matching,
@@ -47,4 +47,10 @@ VERSION_1. Guest delivery and host parsing both select its local `input_seat.py`
 which validates the DRM card on the MMIO parent and the genuine sibling virtio_gpu
 child with original stock tags/drivers. Bounded durable candidate diagnostics are
 retained. Closed lower r1 installed155 but held at GPU wait before LOGIN_READY;
-no PAM/seat or UI success is inferred, and no corrected worker trial ran.
+the closed failure is preserved. Root's separate r4 now passes real PAM/seat0 and
+all six independent checks with natural retirement; no worker trial ran. The
+current lower GPU comparison canonicalizes only TAGS/CURRENT_TAGS values as
+sets. All other GPU bytes and keyboard records remain exact. The unchanged
+lower helper is pinned, delivered read-only and required by the UI observer.
+Archived sanitized r4 report/Root decision support portable DATA controls; UI
+preparation, GTK execution and fresh Source/trust authority remain absent.

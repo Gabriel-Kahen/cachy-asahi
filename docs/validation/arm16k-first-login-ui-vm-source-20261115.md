@@ -2,8 +2,8 @@
 
 Status: **Source/control tested; combined dependency metadata prepared; actual
 UI preparation/VM NOT RUN.** This is a new finite operation
-`arm16k-first-login-ui-vm-v1`, after Root's separate minimal155 real virtio-seat
-trial succeeds. No existing source, input, default, old failure or marker changes.
+`arm16k-first-login-ui-vm-v1`. Root's separate minimal155 real virtio-seat r4
+trial has now passed; the upper UI experiment is still unprepared/unrun. No existing source, input, default, old failure or marker changes.
 
 ## Actual combined metadata
 
@@ -23,7 +23,7 @@ The unavailable21.1.25-1 archive stays held; the new root is explicit:
 `c4729aaf327fae3f19795f4fbcad8035798316d4c812c56953c32796f1cf916c`.
 
 [The new implementation](../../scripts/integration/arm16k_first_login_ui_vm/README.md)
-reuses exact lower Source pins. ARM reference/helper Source is 9fb4a0e8, tool
+reuses exact lower Source pins. ARM reference/helper Source is 9508955c, tool
 producer a3cb961e; original x86 GUI client/probe are unchanged. Own finite upper
 contracts, observer, disk geometry, actor/receipt counts and lifecycle are separate.
 No whole frozen framework is copied or generic callback/injection API introduced.
@@ -118,5 +118,47 @@ and host parser use the lower local input adapter, requiring negotiated VERSION_
 and the actual MMIO-parent DRM/genuine virtio_gpu-child association. Frozen
 ancestor predicates remain unchanged. Existing stock tags, policy, permissions,
 geometry and actual-result holds are preserved; bounded durable candidate
-observations are inherited. Thirty Source controls pass; the corrected lower
-trial and all UI preparation/VM execution remain Root-owned, not worker results.
+observations are inherited. The original correction remains in the lineage. Root alone executed the later
+minimal-seat r4; all UI preparation/VM execution remains Root-owned and NOT RUN.
+
+
+## Actual minimal155 prerequisite and narrow tag-value correction
+
+The lower Source is now `9508955ca3c85077257da42fe38b9c015ba2240d`,
+source lock 19,179 B/SHA256
+`06153a9b191aac9f0c974334e6e60ca32b0230ca3581f6d1e404f2efc99b15ad`.
+It retains modern MMIO and the corrected local input predicate. The independent
+observer compares only GPU `TAGS`/`CURRENT_TAGS` values as exact sets; all other
+property bytes and keyboard/general records stay strict. It changes no tags,
+udev rules, PAM, policy, permissions, session, input or resource geometry. The UI
+delivers and pins its unmodified `observer_checks.py` (4,896 B/SHA256
+`cc73f760a80aee65a8b708fb969afdbbcbd1ac6e1ea83ab381c085b755de3508`).
+All six named checks must pass both prior155 intake and the new UI seat join.
+
+Root's genuine r4 report is 15,418 B/SHA256
+`51bce478b33682d5f4bd01343db31882101c49aaa4973656b07a1f0e0d46422b`,
+original `/dev/shm/cachy-asahi-arm16k-virtio-seat-first-boot-root-20261115-r4/report.json`.
+The prepared descriptor is 2,304,798 B/SHA256
+`dca852180a1bb867c53ba989561565da6cbca603a22defb880aff9694195976a`,
+original `/dev/shm/cachy-asahi-arm16k-virtio-seat-preparation-root-20261115-r4/assembly/prepared.json`.
+The scoped Root decision is 1,530 B/SHA256
+`f07fbd4155f81e7683928d599d6cd0677ff6b63a3bcf0063e53bbc7fd8b5e52b`,
+canonical `artifacts/development/orchestrator-resume-20261114/Root-ARM155-boot-r4/Root-scoped-decision.ACTUAL-r1.json`.
+Only the sanitized report and decision are archived under the new UI `data/`;
+the credential-bearing prepared descriptor is referenced by pin, not copied.
+
+Actual scope: 155 installed packages, aarch64/16K, real normal tty1 PAM login,
+active seat0, ECHO-off and release acknowledgements, original stock NM/Polkit
+policy, six independently corroborated checks, normal logout, QMP quit, reaped
+QEMU with natural `EMPTY_TWICE`, verified cleanup and exact container absence.
+This closes the generic prerequisite only. Earlier r1 GPU-wait HOLD, r2 unnamed
+independent-observer assertion HOLD and r3 proven tag-order-only HOLD remain
+closed and immutable; none is treated as policy/PAM failure or replayed.
+
+35 fenced Source/DATA controls pass on Python3.12/3.14, including the actual
+archived result pins, missing/false independent-check and cleanup refusals,
+read-only helper delivery and mandatory six-check UI join. No worker actor ran.
+Fresh public UI Source, complete172 Root material admission, guest-only TEST
+trust authority and reviewed resources remain explicit/null; the Root material
+constructor is a separate task. ARM GTK/Xvfb/runtime ABI, UI preservation/removal,
+native builds, M2/physical networking and release acceptance remain unproved.

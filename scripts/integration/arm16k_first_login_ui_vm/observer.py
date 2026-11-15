@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
 """Read-only root observation of real VT pixels/session/device custody."""
-import ctypes,hashlib,importlib.util,json,os,socket,subprocess,termios,time
+import ctypes,hashlib,importlib.util,json,os,socket,subprocess,termios,time,traceback
 from pathlib import Path
 H=Path('/home/builder');R=Path('/run/arm16k-virtio-seat');nonce=Path('/etc/arm16k-virtio-seat-nonce').read_text().strip()
 
@@ -80,6 +80,9 @@ def main():
      for line in r.stdout.splitlines():
       message=json.loads(line).get('MESSAGE','');message=message if isinstance(message,str)else''
       if'authentication failure'in message:stages['PAM_authentication_denied']=True;raise PermissionError('journal confirms PAM authentication failure; no authentication retry')
+  def independent(name,passed,evidence):
+   report['last_attempted_independent_check']=name
+   checks.publish(D/'receipts',nonce,name,passed,evidence,report.setdefault('independent_checks',{}))
   def persist_census(stage):
    value={'schema_version':1,'nonce':nonce,'stage':stage,'diagnostics':input_parent.census()}
    raw=(json.dumps(value,sort_keys=True)+'\n').encode();assert len(raw)<=65536
@@ -91,6 +94,7 @@ def main():
   try:
    spec=importlib.util.spec_from_file_location('real_input_parent','/usr/local/libexec/seat-input.py');input_parent=importlib.util.module_from_spec(spec);spec.loader.exec_module(input_parent)
    kspec=importlib.util.spec_from_file_location('passive_keyboard','/usr/local/libexec/seat-keyboard.py');keyboard=importlib.util.module_from_spec(kspec);kspec.loader.exec_module(keyboard)
+   check_spec=importlib.util.spec_from_file_location('arm_seat_independent_checks',D/'observer-checks.py');checks=importlib.util.module_from_spec(check_spec);check_spec.loader.exec_module(checks)
    rule=Path('/usr/lib/udev/rules.d/71-seat.rules');assert hashlib.sha256(rule.read_bytes()).hexdigest()==input_parent.RULE_SHA256
    # Observe the kernel VT text cells, not a synthetic login/prompt/session.
    persist_census('pre-device')
@@ -124,17 +128,20 @@ def main():
    from gi.repository import Gio,GLib
    bus=Gio.bus_get_sync(Gio.BusType.SYSTEM,None)
    def call(dest,path,interface,method,args,out):return bus.call_sync(dest,path,interface,method,args,GLib.VariantType(out),Gio.DBusCallFlags.NONE,5000,None).unpack()
-   cred=call('org.freedesktop.DBus','/org/freedesktop/DBus','org.freedesktop.DBus','GetConnectionCredentials',GLib.Variant('(s)',(user['bus_unique_name'],)),'(a{sv})')[0];assert cred['UnixUserID']==1000 and cred['ProcessID']==user['pid']
+   cred=call('org.freedesktop.DBus','/org/freedesktop/DBus','org.freedesktop.DBus','GetConnectionCredentials',GLib.Variant('(s)',(user['bus_unique_name'],)),'(a{sv})')[0]
+   independent('bus-credentials',*checks.bus(user,cred))
    session=call('org.freedesktop.login1','/org/freedesktop/login1','org.freedesktop.login1.Manager','GetSessionByPID',GLib.Variant('(u)',(user['pid'],)),'(o)')[0]
    props=call('org.freedesktop.login1',session,'org.freedesktop.DBus.Properties','GetAll',GLib.Variant('(s)',('org.freedesktop.login1.Session',)),'(a{sv})')[0]
-   assert props['Seat'][0]=='seat0'and props['Active']is True and props['Name']=='builder'and props['TTY']=='tty1'and props['User'][0]==1000
-   assert os.getsid(user['pid'])==user['process_session']and Path('/sys/class/tty/tty0/active').read_text().strip()=='tty1'
+   independent('logind-session',*checks.session(props))
+   independent('process-vt',*checks.process(user,os.getsid(user['pid']),Path('/sys/class/tty/tty0/active').read_text().strip()))
    # Recollect the SAME actual descriptor identity after authentication.
    final_input=input_parent.keyboard_record(event)
-   assert final_input==input_record and input_parent.is_seat_keyboard(final_input)
-   final_gpu=input_parent.choose_gpu();assert final_gpu==gpu and input_parent.is_seat_gpu(final_gpu)
+   independent('keyboard-record',*checks.record(input_record,final_input,input_parent.is_seat_keyboard(final_input)))
+   final_gpu=input_parent.choose_gpu()
+   independent('gpu-record',*checks.gpu_record(gpu,final_gpu or {},input_parent.is_seat_gpu(final_gpu or {})))
    inputs={event.name:final_input};cards=[final_gpu['sysfs_path']]
-   status=subprocess.check_output(['loginctl','seat-status','seat0','--no-pager'],timeout=10).decode();assert 'seat0'in status
+   status=subprocess.check_output(['loginctl','seat-status','seat0','--no-pager'],timeout=10).decode()
+   independent('seat-status','seat0' in status,{'contains_seat0':'seat0' in status,'bytes':len(status.encode()),'sha256':hashlib.sha256(status.encode()).hexdigest()})
    report.update(installed_gate=installed_gate,architecture='aarch64',pagesize=16384,virtio_GPU=final_gpu,status='PASS_ARM16K_VIRTIO_SEAT_REFERENCE_ONLY',nonce=nonce,user_bus_credentials_corroborated=cred,real_session_corroborated={k:props[k]for k in ['Id','Name','User','Active','Class','Type','Remote','Service','TTY','Seat','Leader']},kernel_input_devices=inputs,stock_udev_seat_rule_sha256=input_parent.RULE_SHA256,DRM_cards=cards,seat_status=status,VT_screen_pins=screens,keyboard_delivery=counter.report(),observed_stages=stages)
    (R/'REPORT_VERIFIED').touch();frame('SEAT_SESSION_BEGIN');serial.write(json.dumps(report,sort_keys=True)+'\n');frame('SEAT_SESSION_END')
    wait(lambda:(H/'SHELL_RETURNED').exists(),'proof return to real interactive shell');logout_keys_allowed=True;frame('SEAT_SHELL_RETURNED')
@@ -145,6 +152,8 @@ def main():
   except BaseException as e:
    try:persist_census('terminal')
    except BaseException as diagnostic_error:report['device_diagnostic_failure']={'category':type(diagnostic_error).__name__}
+   trace=traceback.extract_tb(e.__traceback__)[-1]
+   report['failed_source']={'label':'observer.py' if Path(trace.filename).name=='seat-observer.py' else 'observer_checks.py' if Path(trace.filename).name=='observer-checks.py' else 'input_seat.py' if Path(trace.filename).name=='seat-input.py' else 'other','line':trace.lineno}
    report.update(status='HOLD',observed_stages=stages,keyboard_delivery=counter.report()if counter else None,failure={'category':type(e).__name__,'message':str(e)[:2048]});frame('SEAT_HOLD',report)
   finally:
    if keyboard_fd is not None:os.close(keyboard_fd)
