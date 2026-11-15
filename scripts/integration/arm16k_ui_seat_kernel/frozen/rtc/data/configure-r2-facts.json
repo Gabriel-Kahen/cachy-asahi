@@ -1,0 +1,363 @@
+{
+  "approval": "Observed/source-classified DATA only. Root must review actual NEW configure output before compile; this is not compiler-fact approval.",
+  "archive_sha256": "874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad",
+  "auxiliary_tools_to_pin": [
+    "pahole",
+    "openssl",
+    "pkg-config"
+  ],
+  "definitions": {
+    "CONFIG_ARM64_LSUI": {
+      "file": "arch/arm64/Kconfig",
+      "text": "config ARM64_LSUI\n\tbool \"Support Unprivileged Load Store Instructions (LSUI)\"\n\tdefault y\n\tdepends on AS_HAS_LSUI && !CPU_BIG_ENDIAN\n\thelp\n\t  The Unprivileged Load Store Instructions (LSUI) provides\n\t  variants load/store instructions that access user-space memory\n\t  from the kernel without clearing PSTATE.PAN bit.\n\n\t  This feature is supported by LLVM 20+ and binutils 2.45+.\n"
+    },
+    "CONFIG_AS_HAS_LSUI": {
+      "file": "arch/arm64/Kconfig",
+      "text": "config AS_HAS_LSUI\n\tdef_bool $(as-instr,.arch_extension lsui)\n\thelp\n\t  Supported by LLVM 20+ and binutils 2.45+.\n"
+    },
+    "CONFIG_AS_VERSION": {
+      "file": "init/Kconfig",
+      "text": "config AS_VERSION\n\tint\n\t# Use clang version if this is the integrated assembler\n\tdefault CLANG_VERSION if AS_IS_LLVM\n\tdefault $(as-version)\n"
+    },
+    "CONFIG_CC_CAN_LINK": {
+      "file": "init/Kconfig",
+      "text": "config CC_CAN_LINK\n\tbool\n\tdefault ARCH_CC_CAN_LINK if ARCH_HAS_CC_CAN_LINK\n\tdefault $(cc_can_link_user,$(m64-flag)) if 64BIT\n\tdefault $(cc_can_link_user,$(m32-flag))\n\n# Fixed in GCC 14, 13.3, 12.4 and 11.5\n# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=113921\n"
+    },
+    "CONFIG_CC_HAS_ASSUME": {
+      "file": "init/Kconfig",
+      "text": "config CC_HAS_ASSUME\n\tbool\n\t# clang needs to be at least 19.1.0 since the meaning of the assume\n\t# attribute changed:\n\t# https://github.com/llvm/llvm-project/commit/c44fa3e8a9a44c2e9a575768a3c185354b9f6c17\n\tdefault y if CC_IS_CLANG && CLANG_VERSION >= 190100\n\t# supported since gcc 13.1.0\n\t# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=106654\n\tdefault y if CC_IS_GCC && GCC_VERSION >= 130100\n"
+    },
+    "CONFIG_CC_HAS_BROKEN_COUNTED_BY_REF": {
+      "file": "init/Kconfig",
+      "text": "config CC_HAS_BROKEN_COUNTED_BY_REF\n\tbool\n\t# https://github.com/llvm/llvm-project/issues/182575\n\tdefault y if CC_IS_CLANG && CLANG_VERSION < 220100\n"
+    },
+    "CONFIG_CC_HAS_COUNTED_BY": {
+      "file": "init/Kconfig",
+      "text": "config CC_HAS_COUNTED_BY\n\tbool\n\t# clang needs to be at least 20.1.0 to avoid potential crashes\n\t# when building structures that contain __counted_by\n\t# https://github.com/ClangBuiltLinux/linux/issues/2114\n\t# https://github.com/llvm/llvm-project/commit/160fb1121cdf703c3ef5e61fb26c5659eb581489\n\tdefault y if CC_IS_CLANG && CLANG_VERSION >= 200100\n\t# supported since gcc 15.1.0\n\t# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=108896\n\tdefault y if CC_IS_GCC && GCC_VERSION >= 150100\n"
+    },
+    "CONFIG_CC_HAS_COUNTED_BY_PTR": {
+      "file": "init/Kconfig",
+      "text": "config CC_HAS_COUNTED_BY_PTR\n\tbool\n\t# supported since clang 22\n\tdefault y if CC_IS_CLANG && CLANG_VERSION >= 220100\n\t# supported since gcc 16.0.0\n\tdefault y if CC_IS_GCC && GCC_VERSION >= 160000\n"
+    },
+    "CONFIG_CC_HAS_MULTIDIMENSIONAL_NONSTRING": {
+      "file": "init/Kconfig",
+      "text": "config CC_HAS_MULTIDIMENSIONAL_NONSTRING\n\tdef_bool $(success,echo 'char tag[][4] __attribute__((__nonstring__)) = { };' | $(CC) $(CLANG_FLAGS) -x c - -c -o /dev/null -Werror)\n"
+    },
+    "CONFIG_CC_HAS_SANCOV_STACK_DEPTH_CALLBACK": {
+      "file": "security/Kconfig.hardening",
+      "text": "config CC_HAS_SANCOV_STACK_DEPTH_CALLBACK\n\tdef_bool $(cc-option,-fsanitize-coverage-stack-depth-callback-min=1)\n"
+    },
+    "CONFIG_CC_VERSION_TEXT": {
+      "file": "init/Kconfig",
+      "text": "config CC_VERSION_TEXT\n\tstring\n\tdefault \"$(CC_VERSION_TEXT)\"\n\thelp\n\t  This is used in unclear ways:\n\n\t  - Re-run Kconfig when the compiler is updated\n\t    The 'default' property references the environment variable,\n\t    CC_VERSION_TEXT so it is recorded in include/config/auto.conf.cmd.\n\t    When the compiler is updated, Kconfig will be invoked.\n\n\t  - Ensure full rebuild when the compiler is updated\n\t    include/linux/compiler-version.h contains this option in the comment\n\t    line so fixdep adds include/config/CC_VERSION_TEXT into the\n\t    auto-generated dependency. When the compiler is updated, syncconfig\n\t    will touch it and then every file will be rebuilt.\n"
+    },
+    "CONFIG_CLANG_VERSION": {
+      "file": "init/Kconfig",
+      "text": "config CLANG_VERSION\n\tint\n\tdefault $(cc-version) if CC_IS_CLANG\n\tdefault 0\n"
+    },
+    "CONFIG_LD_CAN_USE_KEEP_IN_OVERLAY": {
+      "file": "init/Kconfig",
+      "text": "config LD_CAN_USE_KEEP_IN_OVERLAY\n\t# ld.lld prior to 21.0.0 did not support KEEP within an overlay description\n\t# https://github.com/llvm/llvm-project/pull/130661\n\tdef_bool LD_IS_BFD || LLD_VERSION >= 210000\n"
+    },
+    "CONFIG_LLD_VERSION": {
+      "file": "init/Kconfig",
+      "text": "config LLD_VERSION\n\tint\n\tdefault $(ld-version) if LD_IS_LLD\n\tdefault 0\n"
+    },
+    "CONFIG_OPENSSL_SUPPORTS_ML_DSA": {
+      "file": "certs/Kconfig",
+      "text": "config OPENSSL_SUPPORTS_ML_DSA\n\tdef_bool $(success, openssl list -key-managers | grep -q ML-DSA-87)\n\thelp\n\t  Support for ML-DSA-44/65/87 was added in openssl-3.5, so as long\n\t  as older versions are supported, the key types may only be\n\t  set after testing the installed binary for support.\n"
+    },
+    "CONFIG_PAHOLE_VERSION": {
+      "file": "init/Kconfig",
+      "text": "config PAHOLE_VERSION\n\tint\n\tdefault \"$(PAHOLE_VERSION)\"\n"
+    },
+    "CONFIG_RTC_I2C_AND_SPI": {
+      "file": "drivers/rtc/Kconfig",
+      "text": "config RTC_I2C_AND_SPI\n\ttristate\n\tdefault m if I2C=m\n\tdefault y if I2C=y\n\tdefault y if SPI_MASTER=y\n\ncomment \"SPI and I2C RTC drivers\"\n"
+    },
+    "CONFIG_WARN_CONTEXT_ANALYSIS": {
+      "file": "lib/Kconfig.debug",
+      "text": "config WARN_CONTEXT_ANALYSIS\n\tbool \"Compiler context-analysis warnings\"\n\tdepends on CC_IS_CLANG && CLANG_VERSION >= 220100\n\t# Branch profiling re-defines \"if\", which messes with the compiler's\n\t# ability to analyze __cond_acquires(..), resulting in false positives.\n\tdepends on !TRACE_BRANCH_PROFILING\n\tdefault y\n\thelp\n\t  Context Analysis is a language extension, which enables statically\n\t  checking that required contexts are active (or inactive) by acquiring\n\t  and releasing user-definable \"context locks\".\n\n\t  Clang's name of the feature is \"Thread Safety Analysis\". Requires\n\t  Clang 22.1.0 or later.\n\n\t  Produces warnings by default. Select CONFIG_WERROR if you wish to\n\t  turn these warnings into errors.\n\n\t  For more details, see Documentation/dev-tools/context-analysis.rst.\n"
+    }
+  },
+  "derived_RTC_helper": {
+    "Makefile_object_binding": false,
+    "actual_r2_enabled_RTC_drivers": [
+      "CONFIG_RTC_DRV_PL031"
+    ],
+    "held_I2C_SPI": {
+      "CONFIG_I2C": "y",
+      "CONFIG_SPI": "n",
+      "CONFIG_SPI_MASTER": "n"
+    },
+    "prompt": false,
+    "required": "y",
+    "selects_or_implies": [],
+    "symbol": "CONFIG_RTC_I2C_AND_SPI"
+  },
+  "genuine_compiler_auxiliary_facts": {
+    "CONFIG_AS_HAS_LSUI": {
+      "after": "y",
+      "before": "n"
+    },
+    "CONFIG_AS_VERSION": {
+      "after": "220108",
+      "before": "180103"
+    },
+    "CONFIG_CC_CAN_LINK": {
+      "after": "n",
+      "before": "y"
+    },
+    "CONFIG_CC_HAS_ASSUME": {
+      "after": "y",
+      "before": "n"
+    },
+    "CONFIG_CC_HAS_BROKEN_COUNTED_BY_REF": {
+      "after": "n",
+      "before": "y"
+    },
+    "CONFIG_CC_HAS_COUNTED_BY": {
+      "after": "y",
+      "before": "n"
+    },
+    "CONFIG_CC_HAS_COUNTED_BY_PTR": {
+      "after": "y",
+      "before": "n"
+    },
+    "CONFIG_CC_HAS_MULTIDIMENSIONAL_NONSTRING": {
+      "after": "y",
+      "before": "n"
+    },
+    "CONFIG_CC_HAS_SANCOV_STACK_DEPTH_CALLBACK": {
+      "after": "y",
+      "before": "n"
+    },
+    "CONFIG_CC_VERSION_TEXT": {
+      "after": "\"clang version 22.1.8\"",
+      "before": "\"Ubuntu clang version 18.1.3 (1ubuntu1)\""
+    },
+    "CONFIG_CLANG_VERSION": {
+      "after": "220108",
+      "before": "180103"
+    },
+    "CONFIG_LD_CAN_USE_KEEP_IN_OVERLAY": {
+      "after": "y",
+      "before": "n"
+    },
+    "CONFIG_LLD_VERSION": {
+      "after": "220108",
+      "before": "180103"
+    },
+    "CONFIG_OPENSSL_SUPPORTS_ML_DSA": {
+      "after": "y",
+      "before": "n"
+    },
+    "CONFIG_PAHOLE_VERSION": {
+      "after": "132",
+      "before": "0"
+    }
+  },
+  "kind": "RTC_R2_FINITE_CONFIGURE_FACT_CLASSIFICATION_DATA",
+  "license": "GPL-2.0-only upstream source excerpts; MIT classification metadata",
+  "observed_delta": {
+    "CONFIG_ARM64_LSUI": {
+      "after": "y",
+      "before": "n"
+    },
+    "CONFIG_AS_HAS_LSUI": {
+      "after": "y",
+      "before": "n"
+    },
+    "CONFIG_AS_VERSION": {
+      "after": "220108",
+      "before": "180103"
+    },
+    "CONFIG_CC_CAN_LINK": {
+      "after": "n",
+      "before": "y"
+    },
+    "CONFIG_CC_HAS_ASSUME": {
+      "after": "y",
+      "before": "n"
+    },
+    "CONFIG_CC_HAS_BROKEN_COUNTED_BY_REF": {
+      "after": "n",
+      "before": "y"
+    },
+    "CONFIG_CC_HAS_COUNTED_BY": {
+      "after": "y",
+      "before": "n"
+    },
+    "CONFIG_CC_HAS_COUNTED_BY_PTR": {
+      "after": "y",
+      "before": "n"
+    },
+    "CONFIG_CC_HAS_MULTIDIMENSIONAL_NONSTRING": {
+      "after": "y",
+      "before": "n"
+    },
+    "CONFIG_CC_HAS_SANCOV_STACK_DEPTH_CALLBACK": {
+      "after": "y",
+      "before": "n"
+    },
+    "CONFIG_CC_VERSION_TEXT": {
+      "after": "\"clang version 22.1.8\"",
+      "before": "\"Ubuntu clang version 18.1.3 (1ubuntu1)\""
+    },
+    "CONFIG_CLANG_VERSION": {
+      "after": "220108",
+      "before": "180103"
+    },
+    "CONFIG_LD_CAN_USE_KEEP_IN_OVERLAY": {
+      "after": "y",
+      "before": "n"
+    },
+    "CONFIG_LLD_VERSION": {
+      "after": "220108",
+      "before": "180103"
+    },
+    "CONFIG_OPENSSL_SUPPORTS_ML_DSA": {
+      "after": "y",
+      "before": "n"
+    },
+    "CONFIG_PAHOLE_VERSION": {
+      "after": "132",
+      "before": "0"
+    },
+    "CONFIG_RTC_I2C_AND_SPI": {
+      "after": "y",
+      "before": "n"
+    },
+    "CONFIG_WARN_CONTEXT_ANALYSIS": {
+      "after": "y",
+      "before": "n"
+    }
+  },
+  "original_root_observed_report": {
+    "bytes": 3027,
+    "sha256": "a0ac3237ec3a78c4ede06d30b5255d539373dbcb0b8cb6a88303641d60f8b973"
+  },
+  "prompted_original_off": [
+    "CONFIG_ARM64_LSUI",
+    "CONFIG_WARN_CONTEXT_ANALYSIS"
+  ],
+  "schema_version": 1,
+  "scripts_and_tool_probe_context": {
+    "Makefile": [
+      {
+        "line": 462,
+        "text": "endif\nHOSTRUSTC = rustc\nHOSTPKG_CONFIG\t= pkg-config\n\n# the KERNELDOC macro needs to be exported, as scripts/Makefile.build"
+      },
+      {
+        "line": 641,
+        "text": "export CLIPPY_CONF_DIR := $(srctree)\n\nexport ARCH SRCARCH CONFIG_SHELL BASH HOSTCC KBUILD_HOSTCFLAGS CROSS_COMPILE LD CC HOSTPKG_CONFIG\nexport RUSTC RUSTDOC RUSTFMT RUSTC_OR_CLIPPY_QUIET RUSTC_OR_CLIPPY BINDGEN LLVM_LINK\nexport HOSTRUSTC KBUILD_HOSTRUSTFLAGS"
+      },
+      {
+        "line": 729,
+        "text": "# The expansion should be delayed until arch/$(SRCARCH)/Makefile is included.\n# Some architectures define CROSS_COMPILE in arch/$(SRCARCH)/Makefile.\n# CC_VERSION_TEXT, RUSTC_VERSION_TEXT and PAHOLE_VERSION are referenced from\n# Kconfig (so they need export), and from include/config/auto.conf.cmd to\n# detect the version changes between builds."
+      },
+      {
+        "line": 734,
+        "text": "CC_VERSION_TEXT = $(subst $(pound),,$(shell LC_ALL=C $(CC) --version 2>/dev/null | head -n 1))\nRUSTC_VERSION_TEXT = $(subst $(pound),,$(shell $(RUSTC) --version 2>/dev/null))\nPAHOLE_VERSION = $(shell $(srctree)/scripts/pahole-version.sh $(PAHOLE))\n\nifneq ($(findstring clang,$(CC_VERSION_TEXT)),)"
+      },
+      {
+        "line": 755,
+        "text": "# used for 'make defconfig'\ninclude $(srctree)/arch/$(SRCARCH)/Makefile\nexport KBUILD_DEFCONFIG KBUILD_KCONFIG CC_VERSION_TEXT RUSTC_VERSION_TEXT PAHOLE_VERSION\n\nconfig: outputmakefile scripts_basic FORCE"
+      },
+      {
+        "line": 2029,
+        "text": "# now expand this into a simple variable to reduce the cost of shell evaluations\nprepare: CC_VERSION_TEXT := $(CC_VERSION_TEXT)\nprepare: PAHOLE_VERSION := $(PAHOLE_VERSION)\nprepare:\n\t@if [ \"$(CC_VERSION_TEXT)\" != \"$(CONFIG_CC_VERSION_TEXT)\" ]; then \\"
+      },
+      {
+        "line": 2036,
+        "text": "\t\techo >&2 \"  You are using:           $(CC_VERSION_TEXT)\"; \\\n\tfi\n\t@if [ \"$(PAHOLE_VERSION)\" != \"$(CONFIG_PAHOLE_VERSION)\" ]; then \\\n\t\techo >&2 \"warning: pahole version differs from the one used to build the kernel\"; \\\n\t\techo >&2 \"  The kernel was built with: $(CONFIG_PAHOLE_VERSION)\"; \\"
+      },
+      {
+        "line": 2038,
+        "text": "\t@if [ \"$(PAHOLE_VERSION)\" != \"$(CONFIG_PAHOLE_VERSION)\" ]; then \\\n\t\techo >&2 \"warning: pahole version differs from the one used to build the kernel\"; \\\n\t\techo >&2 \"  The kernel was built with: $(CONFIG_PAHOLE_VERSION)\"; \\\n\t\techo >&2 \"  You are using:             $(PAHOLE_VERSION)\"; \\\n\tfi"
+      },
+      {
+        "line": 2039,
+        "text": "\t\techo >&2 \"warning: pahole version differs from the one used to build the kernel\"; \\\n\t\techo >&2 \"  The kernel was built with: $(CONFIG_PAHOLE_VERSION)\"; \\\n\t\techo >&2 \"  You are using:             $(PAHOLE_VERSION)\"; \\\n\tfi\n"
+      }
+    ],
+    "scripts/Kconfig.include": [
+      {
+        "line": 69,
+        "text": "\n# Test whether the compiler can link userspace applications\ncc_can_link_user = $(success,$(srctree)/scripts/cc-can-link.sh $(CC) $(CLANG_FLAGS) $(USERCFLAGS) $(USERLDFLAGS) $(1))\n\nrustc-version := $(shell,$(srctree)/scripts/rustc-version.sh $(RUSTC))"
+      }
+    ],
+    "scripts/cc-can-link.sh": "#!/bin/sh\n# SPDX-License-Identifier: GPL-2.0\n\ncat << \"END\" | $@ -Werror -Wl,--fatal-warnings -x c - -o /dev/null >/dev/null 2>&1\n#include <stdio.h>\nint main(void)\n{\n\tprintf(\"\\n\");\n\treturn 0;\n}\nEND\n",
+    "scripts/cc-version.sh": "#!/bin/sh\n# SPDX-License-Identifier: GPL-2.0\n#\n# Print the C compiler name and its version in a 5 or 6-digit form.\n# Also, perform the minimum version check.\n\nset -e\n\n# Print the C compiler name and some version components.\nget_c_compiler_info()\n{\n\tcat <<- EOF | \"$@\" -E -P -x c - 2>/dev/null\n\t#if defined(__clang__)\n\tClang\t__clang_major__  __clang_minor__  __clang_patchlevel__\n\t#elif defined(__GNUC__)\n\tGCC\t__GNUC__  __GNUC_MINOR__  __GNUC_PATCHLEVEL__\n\t#else\n\tunknown\n\t#endif\n\tEOF\n}\n\n# Convert the version string x.y.z to a canonical 5 or 6-digit form.\nget_canonical_version()\n{\n\tIFS=.\n\tset -- $1\n\techo $((10000 * $1 + 100 * $2 + $3))\n}\n\n# $@ instead of $1 because multiple words might be given, e.g. CC=\"ccache gcc\".\norig_args=\"$@\"\nset -- $(get_c_compiler_info \"$@\")\n\nname=$1\n\nmin_tool_version=$(dirname $0)/min-tool-version.sh\n\ncase \"$name\" in\nGCC)\n\tversion=$2.$3.$4\n\tmin_version=$($min_tool_version gcc)\n\t;;\nClang)\n\tversion=$2.$3.$4\n\tmin_version=$($min_tool_version llvm)\n\t;;\n*)\n\techo \"$orig_args: unknown C compiler\" >&2\n\texit 1\n\t;;\nesac\n\ncversion=$(get_canonical_version $version)\nmin_cversion=$(get_canonical_version $min_version)\n\nif [ \"$cversion\" -lt \"$min_cversion\" ]; then\n\techo >&2 \"***\"\n\techo >&2 \"*** C compiler is too old.\"\n\techo >&2 \"***   Your $name version:    $version\"\n\techo >&2 \"***   Minimum $name version: $min_version\"\n\techo >&2 \"***\"\n\texit 1\nfi\n\necho $name $cversion\n",
+    "scripts/ld-version.sh": "#!/bin/sh\n# SPDX-License-Identifier: GPL-2.0\n#\n# Print the linker name and its version in a 5 or 6-digit form.\n# Also, perform the minimum version check.\n\nset -e\n\n# Convert the version string x.y.z to a canonical 5 or 6-digit form.\nget_canonical_version()\n{\n\tIFS=.\n\tset -- $1\n\n\t# If the 2nd or 3rd field is missing, fill it with a zero.\n\t#\n\t# The 4th field, if present, is ignored.\n\t# This occurs in development snapshots as in 2.35.1.20201116\n\techo $((10000 * $1 + 100 * ${2:-0} + ${3:-0}))\n}\n\norig_args=\"$@\"\n\n# Get the first line of the --version output.\nIFS='\n'\nset -- $(LC_ALL=C \"$@\" --version)\n\n# Split the line on spaces.\nIFS=' '\nset -- $1\n\nmin_tool_version=$(dirname $0)/min-tool-version.sh\n\nif [ \"$1\" = GNU -a \"$2\" = ld ]; then\n\tshift $(($# - 1))\n\tversion=$1\n\tmin_version=$($min_tool_version binutils)\n\tname=BFD\n\tdisp_name=\"GNU ld\"\nelif [ \"$1\" = GNU -a \"$2\" = gold ]; then\n\techo \"gold linker is not supported as it is not capable of linking the kernel proper.\" >&2\n\texit 1\nelse\n\twhile [ $# -gt 1 -a \"$1\" != \"LLD\" ]; do\n\t\tshift\n\tdone\n\n\tif [ \"$1\" = LLD ]; then\n\t\tversion=$2\n\t\tmin_version=$($min_tool_version llvm)\n\t\tname=LLD\n\t\tdisp_name=LLD\n\telse\n\t\techo \"$orig_args: unknown linker\" >&2\n\t\texit 1\n\tfi\nfi\n\n# There may be something after the version, such as a distribution's package\n# release number (like Fedora's \"2.34-4.fc32\") or punctuation (like LLD briefly\n# added before the \"compatible with GNU linkers\" string), so remove everything\n# after just numbers and periods.\nversion=${version%%[!0-9.]*}\n\ncversion=$(get_canonical_version $version)\nmin_cversion=$(get_canonical_version $min_version)\n\nif [ \"$cversion\" -lt \"$min_cversion\" ]; then\n\techo >&2 \"***\"\n\techo >&2 \"*** Linker is too old.\"\n\techo >&2 \"***   Your $disp_name version:    $version\"\n\techo >&2 \"***   Minimum $disp_name version: $min_version\"\n\techo >&2 \"***\"\n\texit 1\nfi\n\necho $name $cversion\n",
+    "scripts/pahole-version.sh": "#!/bin/sh\n# SPDX-License-Identifier: GPL-2.0\n#\n# Usage: $ ./pahole-version.sh pahole\n#\n# Prints pahole's version in a 3-digit form, such as 119 for v1.19.\n\nif [ ! -x \"$(command -v \"$@\")\" ]; then\n\techo 0\n\texit 1\nfi\n\n\"$@\" --version | sed -E 's/v([0-9]+)\\.([0-9]+)/\\1\\2/'\n"
+  },
+  "source_files": {
+    "Makefile": {
+      "bytes": 77124,
+      "sha256": "8565c2fa8574b1cb2f4ae32acdcfcef4b946397df990fa50d26a75617fe6388d"
+    },
+    "arch/Kconfig": {
+      "bytes": 56150,
+      "sha256": "8686c966521137e20feeebbc47ffde7575bf2a5a6e45d6908b9182331793032e"
+    },
+    "arch/arm64/Kconfig": {
+      "bytes": 88260,
+      "sha256": "eb68af2f4d189ff950a5b9ce392afef8dc8e068636c19a851798fac09fd63124"
+    },
+    "certs/Kconfig": {
+      "bytes": 7760,
+      "sha256": "6a8f0dfe9e3ac972b088c74ece1d9fb9d8db1af24dde7fc935fadf1568b126e8"
+    },
+    "drivers/rtc/Kconfig": {
+      "bytes": 63685,
+      "sha256": "de2295831bb5dace08e2823d136cf2e4995c499332e4f95dcd8a7e7fb161f403"
+    },
+    "drivers/rtc/Makefile": {
+      "bytes": 8845,
+      "sha256": "b4da20cbc38022dbd55356311867624b11564c7c96d8df4252471a4e3528dce0"
+    },
+    "init/Kconfig": {
+      "bytes": 73817,
+      "sha256": "b3965ccb8bd5099fef8c9b6295676ff815df66ed4fad87990cf202f0f40f3089"
+    },
+    "lib/Kconfig.debug": {
+      "bytes": 121406,
+      "sha256": "e2374332c4c299d509394e2f1d1109e7ffad8a011db1b46cf7d83c141369e8c3"
+    },
+    "scripts/Kconfig.include": {
+      "bytes": 3426,
+      "sha256": "84603d5e4f9ddf68e9d19747597b8b758b9c0a47ffb1e288da64e64a8cfdad79"
+    },
+    "scripts/Makefile.compiler": {
+      "bytes": 3615,
+      "sha256": "3de828ba8ace97964d3b6ceec8a98d570c6a1c5738d52344199a78add66e01be"
+    },
+    "scripts/cc-can-link.sh": {
+      "bytes": 197,
+      "sha256": "15d4a43559eb0be77fc23ddc4144f4b041417bbc19c5b009312558d7068d5f7d"
+    },
+    "scripts/cc-version.sh": {
+      "bytes": 1394,
+      "sha256": "2e7a69d846a36a3aa79db0e3d4910a38d1d1d4627bd69f7498b446b52069ca73"
+    },
+    "scripts/kconfig/symbol.c": {
+      "bytes": 29701,
+      "sha256": "85dc34a5d0d23792bbe032a67f348e9d2bb08fcdf4fe0090789ba133606ff031"
+    },
+    "scripts/ld-version.sh": {
+      "bytes": 1864,
+      "sha256": "2760ed371a6465b365a0a251a879c14d5de21451d6fe99c6090be69845c23c8a"
+    },
+    "scripts/pahole-version.sh": {
+      "bytes": 269,
+      "sha256": "7640978c9f22186f8305f7574c5713a731ce5ad9dca6dc2e762f214208208ecc"
+    },
+    "security/Kconfig.hardening": {
+      "bytes": 14055,
+      "sha256": "2fc96f57ac07f7ebd14a2bff51622e44a4073f8ac3d58340e636cd8ae03fa0fd"
+    }
+  },
+  "upstream_code_execution": "NOT RUN",
+  "upstream_revision": "94fb23346d522edf53722357c426a3e58030beea"
+}
