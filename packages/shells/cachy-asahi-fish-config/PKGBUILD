@@ -2,13 +2,13 @@
 # Original opt-in alternative; no upstream CachyOS assets included.
 pkgname=cachy-asahi-fish-config
 pkgver=0.1.0
-pkgrel=1
+pkgrel=2
 pkgdesc='Explicitly enabled Fish helpers for the cachy-asahi overlay'
 arch=('any')
 license=('MIT')
 depends=('fish' 'coreutils')
 source=('config.fish' 'NOTICE' 'LICENSE')
-sha256sums=('223df59fe83948e1d83676f4571cd2d4ce186862adf1cc23da6d5bbd28370a1c'
+sha256sums=('d26d8826c8a7e096a55d0a4b3eee8e67013d6c9b201971e89ca32e273c0847aa'
             '19eb85ed65396056e59782ddf80fb5285ee26cad5ddf77ccb378936a2d5601c9'
             '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7')
 

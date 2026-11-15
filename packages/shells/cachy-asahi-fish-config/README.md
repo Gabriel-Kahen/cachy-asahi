@@ -35,7 +35,9 @@ end
 ```
 
 Interactive shells gain `caa_ll` (detailed file listing) and `caa_mcd DIRECTORY`
-(create one directory, then enter it). Existing functions with those names win.
+(create one directory, then enter it). Relative targets resolve from the current
+directory even when `CDPATH` contains another match; the helper preserves `CDPATH`.
+Existing functions with those names win.
 These commands only act when invoked. Noninteractive sourcing returns immediately.
 
 Removal through pacman deletes the three package files. The user-authored guarded
@@ -46,6 +48,13 @@ Reinstall provides the same helpers through the existing block. Actual package
 installation/removal on Asahi remains NOT RUN.
 
 ## Development verification
+
+Current source revision **0.1.0-2** fixes `caa_mcd` entering a different existing
+`CDPATH` match after creating a directory locally. Real Fish 4.9.3 controls pass
+for colliding relative targets, spaces, leading dashes, a literal `-`, absolute
+paths, unchanged `CDPATH` and original mkdir failures. Package build, install and
+native ARM qualification of 0.1.0-2 are NOT RUN. The retained build records below
+and `host-validation.json` describe 0.1.0-1; they are unchanged historical evidence.
 
 Run from this recipe directory, without any installation or dependency-sync flag:
 
