@@ -21,6 +21,8 @@ def verify():
  delivery=json.loads((HERE/'delivery.lock.json').read_text())
  for name,row in delivery['guest_files'].items():
   if pin(HERE/name)!={k:row[k] for k in ('bytes','sha256')}:raise ValueError('guest delivery source differs')
+ required=delivery['required_guest_namespace']
+ if required['required_official_provider']!='networkmanager' or required['project_policy_action']!='org.freedesktop.NetworkManager.settings.modify.own' or required['policy_path']!='/usr/share/polkit-1/actions/org.freedesktop.NetworkManager.policy' or required['policy_sha256']!=delivery['original_NM_policy_sha256'] or required['source_xml_copy_or_injection_allowed'] is not False or required['authorization_policy_override_allowed'] is not False or required['actual_provider_closure'] is not None:raise ValueError('genuine official NM provider/action prerequisite required')
  for name,value in delivery.items():
   if name.startswith('actual_') and value is not None:raise ValueError('source delivery must not fabricate actual fields')
  return {'status':'READY_SOURCE_ONLY','kernel_bundle':None,'enumeration':None,'Source':None,'ref':None,'actor_selectors':None,'actual_VM':'NOT RUN','native16K':'NOT RUN','M2':'NOT RUN'}
