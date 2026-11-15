@@ -155,6 +155,26 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_rust_stage0_vm/test_memory.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_rust_stage0_vm/test_runtime.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_rust_stage0_vm/test_stage0.py
+      - name: Check current capability adapters and GUI frame DATA
+        run: |
+          python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-installed-lifecycle-native/successor_v2/test_successor.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/llvm23-source-reference-native/successor_v4/test_volume_guard.py
+          python3 -I -B -Werror::ResourceWarning scripts/port/perl5423-xs-consumer/native_adapter/hosted_source_v5/test_model.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_first_login_ui_glib290_vm/test_controls.py
+      - name: Check Rust native delivery and transfer DATA in fresh processes
+        run: |
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v4/test_actor_binding.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v4/test_admission.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v4/test_binding.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v4/test_bootstrap.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v4/test_caps.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v4/test_materials.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v4/test_orchestration.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v4/test_qualification.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v4/test_resources.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v4/test_six.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v4/test_source.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v4/test_transfer.py
       - name: Check eight portable notice controls; private capture replay remains Root-local
         run: |
           python3 -I -B -Werror::ResourceWarning - <<'PY'
