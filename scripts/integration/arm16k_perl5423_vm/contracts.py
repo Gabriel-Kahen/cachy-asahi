@@ -174,10 +174,16 @@ def namespace(ns, baseline=False):
 
 
 def runtime(value, case, base):
-    root_cert(value, 'ROOT_REVIEWED_PERL5423_VM_RUNTIME_V1')
+    expected_kind = 'ROOT_REVIEWED_PERL5423_VM_EXPECTED_PAYLOAD_INPUTS_V1'
+    expected_input = type(value) is dict and value.get('kind') == expected_kind
+    root_cert(value, expected_kind if expected_input else 'ROOT_REVIEWED_PERL5423_VM_RUNTIME_V1')
     keys(value, ('kind', 'issued_by', 'accepted', 'baseline_certificate', 'package', 'namespace_coverage', 'candidate_namespace',
                  'baseline_namespace', 'baseline_files', 'hardlinks', 'dependency_transaction', 'elf_inventory', 'full_payload_elf_coverage', 'elfs', 'files', 'tools', 'loader',
-                 'alpm_dependencies', 'PKGINFO', 'effective_hook_policy', 'dependency_resolution', 'reverse_dependencies', 'rollback', 'probe_qualification', 'baseline_namespace_pin', 'restoration_allowances'), 'runtime certificate')
+                 'alpm_dependencies', 'PKGINFO', 'effective_hook_policy', 'dependency_resolution', 'reverse_dependencies', 'rollback', 'probe_qualification', 'baseline_namespace_pin', 'restoration_allowances') + (('expected_payload','actual_guest_hashes','actual_guest_ALPM_ownership','actual_guest_namespace','Root_runtime_certificate','runtime_acceptance') if expected_input else ()), 'runtime input certificate')
+    if expected_input:
+        need(all(value[n] is None for n in ('actual_guest_hashes','actual_guest_ALPM_ownership','actual_guest_namespace','Root_runtime_certificate')) and value['runtime_acceptance'] is False, 'expected payload inputs never claim installed guest or runtime acceptance')
+        import importlib.util
+        spec=importlib.util.spec_from_file_location('perl_expected_inputs',HERE/'expected_payload.py');E=importlib.util.module_from_spec(spec);spec.loader.exec_module(E);E.join_runtime(value['expected_payload'],value,base)
     need(value['baseline_certificate'] == case['evidence']['baseline_certificate'] and value['package'] == case['package']['archive'], 'exact runtime joins')
     pin_shape(value['baseline_namespace_pin']); pin_shape(value['elf_inventory'])
     need(value['full_payload_elf_coverage'] is True and value['namespace_coverage'] == 'ALL_PACKAGE_OWNED_PATHS', 'full ELF/ownership coverage')
@@ -253,15 +259,16 @@ def runtime(value, case, base):
     if allowance.get('pacman_log_before') is not None: pin_shape(allowance['pacman_log_before'])
     need(allowance == expected, 'exact certificate-described normal transaction variance; no unrelated file/database/user waiver')
     qualification = value['probe_qualification']
-    keys(qualification, ('commands', 'modules', 'network', 'CPAN', 'compiler', 'actual_paths_verified'), 'exact probe qualification')
+    path_evidence = 'expected_paths_source_verified' if expected_input else 'actual_paths_verified'
+    keys(qualification, ('commands', 'modules', 'network', 'CPAN', 'compiler', path_evidence), 'exact probe input qualification')
     need(qualification == dict(commands=['/usr/bin/' + n for n in COMMANDS], modules=['Config', 'JSON::PP', 'Digest::SHA', 'DB_File', 'GDBM_File', 'Compress::Raw::Zlib', 'Compress::Raw::Bzip2', 'threads'],
-         network=False, CPAN=False, compiler=False, actual_paths_verified=True), 'runtime probes require no CPAN or development assumptions')
+         network=False, CPAN=False, compiler=False, **{path_evidence: True}), 'runtime probes require no CPAN or development assumptions')
     for path in ['/usr/bin/perl'] + qualification['commands']:
         need(path in value['files'] and value['files'][path]['owner'] == 'perl' and value['files'][path]['mode'] & 0o005 == 0o005, 'qualified package-owned runtime command')
     files = value['files']; need(value['loader'] in files, 'exact actual ELF loader')
     elfs = value['elfs']; need(type(elfs) is dict and set(PERL_ELFS) <= set(elfs), 'interpreter, shared libperl and all required real XS extensions')
     for path, elf in elfs.items():
-        need(path in files and files[path]['sha256'] == elf.get('sha256'), 'ELF joins actual file closure')
+        need(path in files and files[path]['sha256'] == elf.get('sha256') and files[path]['mode'] & 0o004, 'ELF joins ordinary-user readable file input closure')
         keys(elf, ('sha256', 'class', 'byte_order', 'machine', 'interpreter', 'needed', 'version_needs', 'providers', 'static_16k_geometry'), 'ELF facts')
         need(elf['class'] == 64 and elf['byte_order'] == 'little' and elf['machine'] == 183 and elf['static_16k_geometry'] is True and
              (elf['interpreter'] is None or elf['interpreter'] == value['loader']), 'actual ARM16K ELF facts')
@@ -293,7 +300,7 @@ def resources(value, case, base, expanded, rollback, dependency):
     need(value['owner_memory_bytes'] >= value['guest_memory_bytes'] and value['host_MemAvailable_bytes'] >= value['owner_memory_bytes'] + value['host_reserve_bytes'], 'actual host RAM reserve')
     # Twelve fixed runtime operations and sync; no compiler or XS build. Root's
     # wait encloses these calls, so the outer envelope counts that wait once.
-    probe = 16*value['run_seconds'] + value['sync_seconds']
+    probe = 12*value['run_seconds'] + value['sync_seconds']
     need(value['probe_wait_seconds'] >= probe, 'probe wait covers twelve runtime commands and sync')
     # Root: five gpg calls plus gpgconf retirement; two database checks and two
     # durable syncs. Root separately supplies nondefault boot/PAM/snapshot overhead.
@@ -337,8 +344,8 @@ def validate(case, observed_materials, baseline_certificate, runtime_certificate
          installed['binding']['run'] == '43734696338' and installed['binding']['job'] == '132874611601' and
          installed['references']['reader_result']['sha256'] == json_pin(report)['sha256'], 'actual installed component/Reader/archive tuple and limited scope')
     decision = Root_decision; root_cert(decision, 'ROOT_ACCEPTED_PERL5423_INPUT_FOR_VM_V1')
-    keys(decision, ('kind', 'issued_by', 'accepted', 'operation', 'accepted_for_vm_input', 'source', 'native', 'package', 'trust', 'evidence', 'package_signature_authenticated'), 'Root decision')
-    need(decision['operation'] == OP and decision['accepted_for_vm_input'] is decision['package_signature_authenticated'] is True and decision['source'] == SOURCE and decision['native'] == case['native'] and decision['package'] == case['package'] and decision['trust'] == trust and decision['evidence'] == {n: case['evidence'][n] for n in EVIDENCE if n != 'Root_decision'}, 'explicit Root acceptance and all evidence joins')
+    keys(decision, ('kind', 'issued_by', 'accepted', 'operation', 'accepted_for_vm_input', 'source', 'native', 'package', 'trust', 'evidence', 'package_signature_authenticated', 'input_kind'), 'Root decision')
+    need(decision['input_kind'] == runtime_certificate['kind'] and decision['operation'] == OP and decision['accepted_for_vm_input'] is decision['package_signature_authenticated'] is True and decision['source'] == SOURCE and decision['native'] == case['native'] and decision['package'] == case['package'] and decision['trust'] == trust and decision['evidence'] == {n: case['evidence'][n] for n in EVIDENCE if n != 'Root_decision'}, 'explicit Root acceptance and all evidence joins')
     inventory = baseline(baseline_certificate)
     expanded = runtime(runtime_certificate, case, inventory)
     resources(resource_certificate, case, baseline_certificate, expanded, runtime_certificate['rollback'], runtime_certificate['dependency_transaction'])

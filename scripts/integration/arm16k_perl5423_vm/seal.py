@@ -26,8 +26,15 @@ def seal():
   K.need(stat.S_ISREG(info.st_mode)and info.st_nlink==1 and stat.S_IMODE(info.st_mode)==expected_mode,'ordinary single-link source with exact Git-representable mode: '+relative)
   blob=git('cat-file','blob',oid);K.need(path.read_bytes()==blob,'stage complete source bytes before sealing: '+relative)
   files[relative]=dict(bytes=len(blob),sha256=hashlib.sha256(blob).hexdigest(),mode=expected_mode)
- actual={p.relative_to(HERE).as_posix()for p in HERE.rglob('*')if not p.is_dir() and p.name!='source.lock.json'}
- K.need(actual==set(files),'untracked/ignored/special source leaves must be removed; never sealed')
+ actual=set();directories=set()
+ for path in HERE.rglob('*'):
+  name=path.relative_to(HERE).as_posix();K.ordinary(path);info=path.lstat()
+  if stat.S_ISDIR(info.st_mode):directories.add(name)
+  else:
+   K.need(stat.S_ISREG(info.st_mode),'special source node')
+   if name!='source.lock.json':actual.add(name)
+ expected_dirs={p.as_posix()for name in files for p in Path(name).parents if p.as_posix()!='.'}
+ K.need(actual==set(files) and directories==expected_dirs,'untracked/ignored/special source leaves or directories must be removed; never sealed')
  lock=dict(schema=1,kind='ARM16K_PERL5423_CASE_SOURCE_LOCK_V1',operation=K.OP,files=files,actual={n:None for n in('source','ref','authority','case_prepared','image_prepared','VM','ALPM','runtime','Root_acceptance')})
  (HERE/'source.lock.json').write_bytes(K.canonical(lock));(HERE/'source.lock.json').chmod(0o644)
  return K.pin(HERE/'source.lock.json')

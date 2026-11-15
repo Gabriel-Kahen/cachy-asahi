@@ -56,3 +56,19 @@ README. No shared manifests/workflows or existing VM families changed.
 
 Generic emulated ARM16K, native16K hardware, M2, performance and release remain
 NOT RUN/unaccepted. Synthetic controls cannot advance any of those gates.
+
+
+An explicit `ROOT_REVIEWED_PERL5423_VM_EXPECTED_PAYLOAD_INPUTS_V1` path now
+consumes the final81-row expected ABI DATA, preserving its NULL actual guest and
+Root/runtime acceptance fields. Root must explicitly admit this input kind;
+all existing genuine native/installed, baseline PAM/raw, trust/resource and actor
+authority gates remain. Actual readonly raw provider/alias/ALPM comparisons occur
+before preparation, then actual running-guest byte/mode/owner/version checks
+occur before the first mutating ALPM transaction. Their nonce-journey durable
+receipt is checked separately from the expected archive projection. This source
+increment ran no actual actor and grants no new runtime acceptance.
+
+The Source sealer now uses only ordinary staged Git leaves and0644/0755 modes.
+A separate committed-tree export regression runs the strict Source predicate in
+a fresh directory under an operation fence. Ignored bytecode and private0600
+metadata modes are refused instead of being sealed.

@@ -26,7 +26,7 @@ def outputs(directory,fields,inventory,runtime,nonce,epoch,now,byte_cap):
  K=module('contracts');P=module('protocol');P.validate(fields,inventory_hash(inventory),epoch,now,runtime['rollback']['local_database_policy'])
  root=K.ordinary(directory);elf_paths=[p for p in sorted(runtime['elfs'])if runtime['files'][p]['owner']=='perl']
  expected_elf={str(i)+'.elf':p for i,p in enumerate(elf_paths)}
- names=set(LOGS)|set(expected_elf)|{'outputs.sha256','summary.env'}
+ names=set(LOGS)|set(expected_elf)|{'outputs.sha256','summary.env','before-alpm-provider-observation.tsv'}
  K.need({p.name for p in root.iterdir()}==names,'complete durable ELF/log/restoration set')
  total=0;observed={}
  for name in sorted(names):
@@ -41,7 +41,14 @@ def outputs(directory,fields,inventory,runtime,nonce,epoch,now,byte_cap):
   K.need(observed[name]['sha256']==runtime['files'][path]['sha256'],'retained installed ELF bytes join complete certificate')
   elfs[path]=elf((root/name).read_bytes())
  # GNU sha256sum sorts each glob independently: *.elf before *.log.
- expected=''.join(observed[n]['sha256']+'  '+n+'\n'for n in sorted(expected_elf)+sorted(LOGS)).encode()
+ expected=''.join(observed[n]['sha256']+'  '+n+'\n'for n in sorted(expected_elf)+sorted(LOGS)+['before-alpm-provider-observation.tsv']).encode()
  K.need((root/'outputs.sha256').read_bytes()==expected,'exact Root durable hash set')
+ pre=[]
+ if runtime['kind']=='ROOT_REVIEWED_PERL5423_VM_EXPECTED_PAYLOAD_INPUTS_V1':
+  for r in runtime['expected_payload']['rows']:
+   if r['expected_package']!='perl'and r['expected_package']in inventory:pre.append('\t'.join((r['expected_path'],str(r['expected_member_bytes']),r['expected_member_sha256'],r['expected_package'],r['expected_package_version']))+'\n')
+  for p,r in sorted(runtime['expected_payload']['aliases'].items()):
+   if r['owner']!='perl'and r['owner']in inventory:pre.append('\t'.join((p,r['target'],r['owner'],r['version']))+'\n')
+ K.need((root/'before-alpm-provider-observation.tsv').read_bytes()==''.join(pre).encode(),'durable actual pre-ALPM provider/alias receipt differs from explicit expected phase')
  K.need(P.frame((root/'summary.env').read_bytes(),nonce,'RESTORED')==fields,'serial/disk restoration receipt join')
  return dict(status='PASS_DURABLE_PERL5423_DATA_ONLY',files=observed,ELF16K=elfs,VM_acceptance=None,Root_acceptance=None,native_acceptance=False)

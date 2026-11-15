@@ -220,3 +220,45 @@ Run `python3 -I -B scripts/integration/arm16k_perl5423_vm/test_git_roundtrip.py`
 after commit. It exports only the committed source family to a fresh temporary
 directory with actual Git modes and runs the strict Source predicate under an
 operation fence. No package/image export or actor runs.
+
+## Explicit expected-package-payload input path
+
+`ROOT_REVIEWED_PERL5423_VM_EXPECTED_PAYLOAD_INPUTS_V1` is a separate input kind,
+never an installed-guest/runtime certificate. Root must explicitly select it in
+`Root_decision.input_kind`; there is no fallback from the original actual-runtime
+input kind. Native/installed Root decisions, accepted baseline16K ordinary-PAM/
+raw/prepared/ownership proof, fresh public trust, explicit db5.3 admission,
+resources and separate prepare/boot authorities are still mandatory. The new
+kind retains NULL actual guest hash/owner/namespace and Root runtime-certificate
+fields, and runtime_acceptance=false. Probe path evidence is named
+`expected_paths_source_verified`; it makes no installed-path claim before ALPM.
+
+`expected_payload.from_packet(directory)` reads only the exact final ABI DATA:
+seal2621B/SHA bef60067b67633c64e9eab447b9de7bae0dc21c7d4f9b3265c592a15a7987e24,
+expected-runtime-providers40826B/SHA
+35de58576441fbd5857f21cbbafdeb72b98dd6b8daee86d42aa4ceeaf33da75d,
+and pinned namespace/packages JSON. It imports none of that packet's Python code.
+The small `known/expected-payload-inputs.json` projection retains all81 exact
+rows, original pins, seven required symlink associations and all NULL/false
+acceptance fields. It is expected input DATA. It does not attest actual guest
+files, fresh signatures, runtime symbol scope, dlopen/NSS/PAM or static linking.
+Root may embed it in the explicit expected-input certificate after independent
+review; `expected-payload-certificate.TEMPLATE.json` leaves that issuance NULL.
+
+The new input kind joins each expected byte/hash/package/version to the correct
+baseline, db5.3 or Perl phase. Before cloning, the actor compares actual raw
+baseline hashes, sizes, UID/GID and complete ALPM owners against those expectations,
+including the exact filesystem `/lib -> usr/lib` chain. It retains a separate
+`baseline-provider-observation.json` DATA report with Root/runtime acceptance NULL.
+Inside the fresh VM, before the first **mutating** ALPM transaction, root checks
+all baseline provider bytes/modes/UID/GID, package versions and ownership (including
+all17 db5.3 ELFs if db5.3 is already in that baseline), and
+checks exact alias targets and package ownership using readonly ALPM queries.
+The raw observed receipt is retained in receipts and durable results and joined
+by the passive output proof. A wrong byte, alias, owner or version refuses before
+`pacman -U`; matching archive inputs alone cannot supply this observation.
+
+All54 Perl and17 db5.3 roots plus10 reachable inherited provider ELFs remain
+expected static ABI inputs until their actual phase runs. Current signatures,
+ALPM dependencies and normal rollback remain independent gates. No actual raw
+observer, VM, ALPM, GPG, compiler, Reader or quota actor ran in this increment.

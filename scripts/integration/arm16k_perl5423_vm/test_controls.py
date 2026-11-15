@@ -19,7 +19,7 @@ def seal(c,b,rt,r,d,reader,installed):
  c['evidence']['baseline_certificate']=K.json_pin(b)
  for v in(rt,r):v.update(baseline_certificate=c['evidence']['baseline_certificate'],package=c['package']['archive'])
  for n,v in [('runtime_certificate',rt),('resource_certificate',r),('installed_Reader',reader),('installed_component_decision',installed)]:c['evidence'][n]=K.json_pin(v)
- d.update(source=c['source'],native=c['native'],package=c['package'],trust=c['trust'],evidence={n:c['evidence'][n]for n in K.EVIDENCE if n!='Root_decision'})
+ d.update(input_kind=rt['kind'],source=c['source'],native=c['native'],package=c['package'],trust=c['trust'],evidence={n:c['evidence'][n]for n in K.EVIDENCE if n!='Root_decision'})
  c['evidence']['Root_decision']=K.json_pin(d)
  obs={n:c['package'][n]if n in K.MATERIALS else c['evidence'][n]for n in K.MATERIALS+K.EVIDENCE}
  return c,obs,b,rt,r,d,reader,installed
@@ -161,7 +161,8 @@ class Controls(unittest.TestCase):
    data.update({n:b'MODELED_COMMAND_OUTPUT\n'for n in F.LOGS});data['version.log']=b'v5.42.3\n';data['paths.log']=b'/usr/lib/perl5/5.42/core_perl/CORE/libperl.so\n';data['functional.log']=F.FUNCTIONAL
    manifest=''.join(str(i)+'.elf\t'+p+'\t'+rt['files'][p]['sha256']+'\n'for i,p in enumerate(paths)).encode()
    fields=dict(P.RESTORED,DB_POLICY='EXACT',BASE_SHA256=F.inventory_hash(inv),FINAL_SHA256=F.inventory_hash(inv),FUNCTIONAL_SHA256=hashlib.sha256(F.FUNCTIONAL).hexdigest(),ELF_MANIFEST_SHA256=hashlib.sha256(manifest).hexdigest(),HOST_BOOT_UTC='1794750000',GUEST_BEFORE_CRYPTO_UTC='1794750001',RTC_BEFORE_CRYPTO_UTC='1794750001')
-   data['outputs.sha256']=''.join(hashlib.sha256(data[n]).hexdigest()+'  '+n+'\n'for n in sorted(n for n in data if n.endswith('.elf'))+sorted(F.LOGS)).encode()
+   data['before-alpm-provider-observation.tsv']=b''
+   data['outputs.sha256']=''.join(hashlib.sha256(data[n]).hexdigest()+'  '+n+'\n'for n in sorted(n for n in data if n.endswith('.elf'))+sorted(F.LOGS)+['before-alpm-provider-observation.tsv']).encode()
    data['summary.env']=('PERL5423_RESTORED_BEGIN '+'a'*32+'\n'+''.join(k+'='+v+'\n'for k,v in fields.items())+'PERL5423_RESTORED_END '+'a'*32+'\n').encode()
    if kind=='functional':data['functional.log']=b'PASS_FAKE\n'
    if kind=='ELF':data['0.elf']=b'not an ELF'
@@ -248,6 +249,83 @@ class Controls(unittest.TestCase):
    self.assertEqual({n:str(p)for n,p in A.material_paths(path).items()},mapping)
    mapping['unapproved']='https://network.invalid/archive';path.write_bytes(K.canonical(mapping))
    with self.assertRaises(ValueError):A.material_paths(path)
+ def test_expected_payload_plan_keeps_actual_fields_null_and_exact81rows(self):
+  E=module('expected_payload');v=K.load(HERE/'known/expected-payload-inputs.json');E.validate(v);self.assertEqual(len(v['rows']),81);self.assertIsNone(v['Root_runtime_certificate']);self.assertFalse(v['runtime_acceptance'])
+  for kind in('guest','row-hash','alias','runtime'):
+   bad=copy.deepcopy(v)
+   if kind=='guest':bad['actual_guest_hashes']={}
+   if kind=='row-hash':bad['rows'][0]['expected_member_sha256']='0'*64
+   if kind=='alias':bad['aliases']['/lib']['target']='usr/lib/escape'
+   if kind=='runtime':bad['runtime_acceptance']=True
+   with self.subTest(kind=kind),self.assertRaises(ValueError):E.validate(bad)
+ def test_expected_provider_actual_raw_observation_refuses_hash_owner_alias_drift(self):
+  import base64,types
+  E=module('expected_payload');v=K.load(HERE/'known/expected-payload-inputs.json');nodes={};inventory={};owned={}
+  for row in v['rows']:
+   if row['expected_package']in('perl','db5.3'):continue
+   p=row['expected_path'].lstrip('/');owner=row['expected_package'];inventory[owner]=row['expected_package_version'];owned[p]=dict(owners=[owner]);nodes[p]=dict(type='file',size=row['expected_member_bytes'],sha256=row['expected_member_sha256'],mode=0o755,uid=0,gid=0)
+  for path,row in v['aliases'].items():
+   if row['owner']in('perl','db5.3'):continue
+   p=path.lstrip('/');inventory[row['owner']]=row['version'];owned[p]=dict(owners=[row['owner']]);nodes[p]=dict(type='symlink',target_b64=base64.b64encode(row['target'].encode()).decode(),mode=row['mode'],uid=0,gid=0)
+  original=E.module
+  for kind in('valid','hash','owner','alias'):
+   actual=copy.deepcopy(nodes);ownership=copy.deepcopy(owned)
+   if kind=='hash':next(n for n in actual.values()if n['type']=='file')['sha256']='0'*64
+   if kind=='owner':next(iter(ownership.values()))['owners']=[]
+   if kind=='alias':actual['lib']['target_b64']=base64.b64encode(b'usr/elsewhere').decode()
+   fake=types.SimpleNamespace(owners=lambda scan,inv:ownership)
+   with patch.object(E,'module',side_effect=lambda n:fake if n=='image'else original(n)):
+    if kind=='valid':
+     report=E.observe(v,dict(nodes=actual),inventory);self.assertFalse(report['runtime_acceptance']);self.assertIsNone(report['Root_runtime_certificate']);self.assertIsNone(report['VM'])
+    else:
+     with self.subTest(kind=kind),self.assertRaises(ValueError):E.observe(v,dict(nodes=actual),inventory)
+ def test_expected_certificate_cannot_relabel_actual_or_bypass_explicit_admission(self):
+  a=modeled();a[3]['kind']='ROOT_REVIEWED_PERL5423_VM_EXPECTED_PAYLOAD_INPUTS_V1';a[3]['actual_guest_hashes']={}
+  with self.assertRaises(ValueError):K.validate(*reseal(a))
+  a=modeled();a[5]['input_kind']='ROOT_REVIEWED_PERL5423_VM_EXPECTED_PAYLOAD_INPUTS_V1';a[0]['evidence']['Root_decision']=K.json_pin(a[5]);a[1]['Root_decision']=a[0]['evidence']['Root_decision']
+  with self.assertRaises(ValueError):K.validate(*a)
+ def test_modeled_expected_input_kind_requires_own_Root_admission_and_emits_preALPM_vectors(self):
+  # Shape/phase control only: synthetic certificates remain operation-fenced.
+  E=module('expected_payload');a=modeled(dependency=True);rt=a[3];base=a[2];v=K.load(HERE/'known/expected-payload-inputs.json')
+  rt.update(kind=E.KIND,expected_payload=v,actual_guest_hashes=None,actual_guest_ALPM_ownership=None,actual_guest_namespace=None,Root_runtime_certificate=None,runtime_acceptance=False)
+  rt['probe_qualification'].pop('actual_paths_verified');rt['probe_qualification']['expected_paths_source_verified']=True
+  dep=rt['dependency_transaction'];dep['elf_paths']=[]
+  for row in v['rows']:
+   p=row['expected_path'];owner=row['expected_package'];version=row['expected_package_version']
+   f=dict(bytes=row['expected_member_bytes'],sha256=row['expected_member_sha256'],mode=0o755,owner=owner,version=version,resolved=p);rt['files'][p]=f
+   if owner not in('perl','db5.3'):base['inventory'][owner]=version;rt['baseline_files'][p]=copy.deepcopy(f)
+   else:
+    ns=rt['candidate_namespace']if owner=='perl'else dep['namespace']
+    for parent in reversed(Path(p).parents):
+     if str(parent)!='/':ns[str(parent)]=dict(kind='d',mode=0o755,uid=0,gid=0)
+    ns[p]=dict(kind='f',mode=0o755,uid=0,gid=0,bytes=f['bytes'],sha256=f['sha256'])
+    if owner=='db5.3':dep['files'][p]=f;dep['elf_paths'].append(p)
+   if p in rt['elfs']:rt['elfs'][p]['sha256']=f['sha256']
+   else:rt['elfs'][p]=dict(sha256=f['sha256'],**{'class':64},byte_order='little',machine=183,interpreter=None,needed=[],version_needs={},providers={},static_16k_geometry=True)
+  for alias in v['aliases'].values():base['inventory'][alias['owner']]=alias['version']
+  for fs in(rt['baseline_files'],rt['files']):
+   for row in fs.values():
+    if row['owner']in base['inventory']:row['version']=base['inventory'][row['owner']]
+  for row in rt['dependency_resolution'].values():
+   if row['owner']in base['inventory']:row['version']=base['inventory'][row['owner']]
+  base['baseline_count']=len(base['inventory']);a[4]['package_expanded_bytes']=sum(r.get('bytes',0)for ns in(rt['candidate_namespace'],dep['namespace'])for r in ns.values())
+  a[4].update(clone_allocated_cap_bytes=128*1024**2,readback_allocated_cap_bytes=128*1024**2,physical_free_bytes=512*1024**2,quota_initial_headroom_bytes=512*1024**2,guest_filesystem_free_bytes=256*1024**2);a[4]['quota_guard']['initial_headroom_bytes']=a[4]['quota_initial_headroom_bytes']
+  a=reseal(a);K.validate(*a);rows=A.contents(a[0],dict(zip(K.EVIDENCE,a[2:])),pin('source'),'a'*32)
+  self.assertEqual(len(rows['expected-before-alpm-providers.tsv'][0].splitlines()),10);self.assertIn(b'/lib\tusr/lib',rows['expected-before-alpm-aliases.tsv'][0]);self.assertEqual(a[5]['input_kind'],E.KIND)
+ def test_expected_db_already_in_baseline_is_checked_before_ALPM(self):
+  import base64,types
+  E=module('expected_payload');v=K.load(HERE/'known/expected-payload-inputs.json');nodes={};inventory={};owned={}
+  for r in v['rows']:
+   if r['expected_package']=='perl':continue
+   p=r['expected_path'].lstrip('/');owner=r['expected_package'];inventory[owner]=r['expected_package_version'];owned[p]=dict(owners=[owner]);nodes[p]=dict(type='file',size=r['expected_member_bytes'],sha256=r['expected_member_sha256'],mode=0o755,uid=0,gid=0)
+  for p,r in v['aliases'].items():
+   if r['owner']=='perl':continue
+   inventory[r['owner']]=r['version'];owned[p.lstrip('/')]=dict(owners=[r['owner']]);nodes[p.lstrip('/')]=dict(type='symlink',target_b64=base64.b64encode(r['target'].encode()).decode(),mode=r['mode'],uid=0,gid=0)
+  original=E.module;fake=types.SimpleNamespace(owners=lambda scan,inv:owned)
+  with patch.object(E,'module',side_effect=lambda n:fake if n=='image'else original(n)):
+   result=E.observe(v,dict(nodes=nodes),inventory);self.assertEqual(len(result['files']),27)
+   nodes['usr/lib/libdb-5.3.so']['sha256']='0'*64
+   with self.assertRaises(ValueError):E.observe(v,dict(nodes=nodes),inventory)
  def test_source_syntax(self):
   for p in HERE.rglob('*.py'):ast.parse(p.read_bytes())
  def test_closed_source_lock(self):

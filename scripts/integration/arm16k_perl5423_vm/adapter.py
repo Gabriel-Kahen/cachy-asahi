@@ -69,6 +69,15 @@ def contents(case,cert,lock,nonce):
   path=row['resolved'];K.need(path not in paths or paths[path]==row['sha256'],'aliases resolving to one runtime file must have one actual hash');paths[path]=row['sha256']
  K.need(all(not any(c.isspace()for c in p)for p in paths),'literal runtime paths')
  put('runtime-paths.sha256',''.join(h+'  '+p+'\n'for p,h in sorted(paths.items())))
+ before=[];aliases=[]
+ if runtime['kind']=='ROOT_REVIEWED_PERL5423_VM_EXPECTED_PAYLOAD_INPUTS_V1':
+  for r in runtime['expected_payload']['rows']:
+   if r['expected_package']=='perl' or r['expected_package']not in inventory:continue
+   p=r['expected_path'];f=runtime['baseline_files'][p]
+   before.append('\t'.join((p,str(r['expected_member_bytes']),r['expected_member_sha256'],format(f['mode'],'o'),r['expected_package'],r['expected_package_version']))+'\n')
+  for p,r in sorted(runtime['expected_payload']['aliases'].items()):
+   if r['owner']!='perl'and r['owner']in inventory:aliases.append('\t'.join((p,r['target'],r['owner'],r['version']))+'\n')
+ put('expected-before-alpm-providers.tsv',''.join(before));put('expected-before-alpm-aliases.tsv',''.join(aliases))
  put('baseline-paths.sha256',''.join(r['sha256']+'  '+r['resolved']+'\n'for p,r in sorted(runtime['baseline_files'].items())))
  payload=runtime['candidate_namespace'];put('payload.sha256',''.join(r['sha256']+'  '+p+'\n'for p,r in sorted(payload.items())if r['kind']=='f'))
  put('payload-metadata.tsv',''.join('\t'.join((r['kind'],format(r['mode'],'o'),str(r['uid']),str(r['gid']),p,r.get('link_target','-')))+'\n'for p,r in sorted(payload.items())))

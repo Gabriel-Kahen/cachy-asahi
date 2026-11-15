@@ -31,6 +31,9 @@ def prepare(K,R,I,W,packet,cert,guard,deadline):
  if rt['dependency_transaction']:
   trust={n:I.stable(v)for n,v in scan['nodes'].items()if n=='etc/pacman.d/gnupg' or n.startswith('etc/pacman.d/gnupg/')}
   K.need(trust and K.json_pin(trust)==rt['dependency_transaction']['baseline_public_trust'],'actual unchanged complete official public trust namespace')
+ if rt['kind']=='ROOT_REVIEWED_PERL5423_VM_EXPECTED_PAYLOAD_INPUTS_V1':
+  observed=module('expected_payload').observe(rt['expected_payload'],scan,base['inventory']);observed.update(baseline_certificate=K.pin(Path('/packet/baseline_certificate.json')),raw=base['raw'])
+  (W/'baseline-provider-observation.json').write_bytes(K.canonical(observed))
  K.need(K.json_pin({n:I.stable(v)for n,v in scan['nodes'].items()})==rt['baseline_namespace_pin'],'Root-selected complete readonly baseline namespace')
  K.need(Path('/base/guest.raw').stat().st_size==r['prepared_raw_bytes']==r['baseline_raw_bytes'],'fixed raw geometry; resizing is outside this actor')
  K.need(Path('/base/guest.raw').stat().st_blocks*512<=r['baseline_allocated_bytes'],'actual baseline allocated-block envelope')

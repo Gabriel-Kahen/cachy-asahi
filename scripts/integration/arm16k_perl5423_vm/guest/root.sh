@@ -45,6 +45,21 @@ inventory > "$S/base.lock"
 same_bytes "$D/expected-base.lock" "$S/base.lock"
 if [[ $recovery_mode == REMOVE ]];then ! pacman -Q "$PACKAGE" > /dev/null 2>&1;else pacman -Q "$PACKAGE" > "$S/old-perl.lock";fi
 sha256sum --check --strict --status "$D/baseline-paths.sha256"
+# Expected archive facts are checked against this fresh running guest before
+# the first mutating ALPM transaction. Readonly -Q ownership queries are allowed.
+: > "$S/before-alpm-provider-observation.tsv"
+while IFS=$'\t' read -r path bytes hash mode owner version extra;do
+ [[ -z $extra && $path == /usr/* && $bytes =~ ^[1-9][0-9]*$ && $hash =~ ^[0-9a-f]{64}$ && $mode =~ ^[0-7]{3,4}$ ]]
+ [[ -f $path && ! -L $path && $(readlink -f -- "$path") == "$path" && $(stat -c '%s:%a:%u:%g' -- "$path") == "$bytes:$mode:0:0" && $(file_sha "$path") == "$hash" ]]
+ [[ $(pacman -Qoq -- "$path") == "$owner" && $(pacman -Q "$owner") == "$owner $version" ]]
+ printf '%s\t%s\t%s\t%s\t%s\n' "$path" "$bytes" "$hash" "$owner" "$version" >> "$S/before-alpm-provider-observation.tsv"
+done < "$D/expected-before-alpm-providers.tsv"
+while IFS=$'\t' read -r path target owner version extra;do
+ [[ -z $extra && -L $path && $(readlink -- "$path") == "$target" && $(stat -c '%a:%u:%g' -- "$path") == 777:0:0 ]]
+ [[ $(pacman -Q "$owner") == "$owner $version" ]]
+ pacman -Qlq "$owner" | grep -Fx -- "$path" > /dev/null
+ printf '%s\t%s\t%s\t%s\n' "$path" "$target" "$owner" "$version" >> "$S/before-alpm-provider-observation.tsv"
+done < "$D/expected-before-alpm-aliases.tsv"
 
 
 user_snapshot() (
@@ -203,7 +218,8 @@ while IFS=$'\t' read -r name path hash extra;do
  [[ -f $path && ! -L $path && $(file_sha "$path") == "$hash" ]]
  cp -- "$path" "$D/results/$name"
 done < "$D/elf-paths.tsv"
-(cd "$D/results";sha256sum -- *.elf *.log > outputs.sha256)
+cp -- "$S/before-alpm-provider-observation.tsv" "$D/results/before-alpm-provider-observation.tsv"
+(cd "$D/results";sha256sum -- *.elf *.log *.tsv > outputs.sha256)
 functional_sha=$(file_sha "$D/results/functional.log");elf_manifest_sha=$(file_sha "$D/elf-paths.tsv")
 phase=recovery
 if [[ $recovery_mode == REMOVE ]];then

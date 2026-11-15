@@ -13,6 +13,14 @@ def fence(event,args):
 sys.addaudithook(fence)
 s=importlib.util.spec_from_file_location('committed_perl_source',p/'adapter.py');m=importlib.util.module_from_spec(s);s.loader.exec_module(m)
 m.source(sys.argv[2])
+def refuses():
+ try:m.source(sys.argv[2])
+ except ValueError:return
+ raise AssertionError('strict Source guard accepted extra leaf/directory/mode')
+extra=p/'ignored.pyc';extra.write_bytes(b'MODELED_IGNORED_BYTECODE');refuses();extra.unlink()
+extra=p/'__pycache__';extra.mkdir();refuses();extra.rmdir()
+leaf=p/'known/installed-Reader.json';leaf.chmod(0o600);refuses();leaf.chmod(0o644)
+m.source(sys.argv[2])
 print('PASS_COMMITTED_GIT_SOURCE_ROUNDTRIP_DATA_ONLY')
 '''
 
