@@ -95,12 +95,12 @@
       "sha256": "d11bb7c20f1c2018e041b382a73eaae59a7ce556394178d08f497f9460bc09e7"
     },
     "guest-root.sh": {
-      "bytes": 7736,
-      "sha256": "7e11a8a16ad2fc1964f3bea093545713abf8b165ec130952f46f81c185fe0f7f"
+      "bytes": 8066,
+      "sha256": "7965e25b33f165ef4ceabee13e309d36d8a52ced37c2be8dd89a1f437554d212"
     },
     "guest-runtime.sh": {
-      "bytes": 2991,
-      "sha256": "31ed87dd879a411170b8c8b6badc4eb8128af71d157a95c617f69a37e69985d8"
+      "bytes": 4406,
+      "sha256": "d027ba0967707d295e547ca0a32e4c3ac0144fb58fe26670c0436bdd278aeeb3"
     },
     "guest-workload.sh": {
       "bytes": 2086,

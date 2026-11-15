@@ -97,7 +97,7 @@ Actual source verification:
 python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_c01_workflow_rtc/test_controls.py
 ```
 
-39 actor-fenced DATA/model controls pass. `RESULTS.json` records this source
+40 actor-fenced DATA/model controls pass. `RESULTS.json` records this source
 profile and keeps the earlier control counts as historical profiles. Subprocess, socket, CDLL, fork and exec
 actors are blocked during this suite. Bash syntax checks pass separately. Tests
 use ephemeral modeled receipts only and publish no actual admission receipt.
@@ -176,3 +176,36 @@ credentials/nonces/markers and actor bytes are unchanged. No output directory,
 raw image, preparation or VM was produced in `/dev/shm` by this source task.
 The destination remains Root's explicit choice and actual preparation/boot still
 requires separate genuine Root admission.
+
+
+C01 now reuses the exact source-proven RTC KSM `procfs_guard` and
+`metadata_equality_view` helpers. Before each snapshot, `/proc` must be an
+ordinary nonsymlink directory with procfs magic/type and the exact root proc
+mount. Metadata equality then labels only exact `/proc/` nlink as
+`VOLATILE_LIVE_PROCFS_NLINK`; path, mode, UID, GID, quoted name and every field of
+every other path remain exact. Wrong/missing/fake procfs or malformed/duplicate
+proc records refuse. No other pseudo-filesystem exception is introduced.
+
+The raw six-field before/after metadata and actual numeric nlink counts remain
+unchanged in the guest's private `/run` snapshots. This port does not add a new
+durable snapshot collector. `BASE_meta`/`FINAL_meta` hash the labeled comparison
+view; the existing37-field public C01 result parser stays unchanged. This is an
+explicitly narrower equality scope, not a claim that a live procfs link count is
+restored or zero. The pinned kernel source justification is recorded by the KSM
+successor; no process identity is inferred.
+
+Forty actor-fenced DATA controls pass separately from eight private-host helper
+controls. The latter reuse the KSM cases against C01's exact helper bodies and
+cover changed non-nlink/other-path metadata, malformed records and fake/missing
+procfs. Run that separate source/helper profile with:
+
+```sh
+python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_c01_workflow_rtc/test_controls.py --procfs-helper-controls
+```
+
+The ordinary full DATA suite remains actor-fenced. The35-tool namespace is
+unchanged; tools.lock.json changes only the two reviewed source hashes. Genuine
+KSM RTC PASS, signatures, clocks, workload/correctness counts, package hooks,
+normal PAM, resource/custody and all remaining restoration gates stay mandatory.
+No actual C01 preparation, guest, package workload or native actor ran in this
+source correction.

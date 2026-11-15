@@ -57,6 +57,7 @@ user_snapshot() {
 }
 assert_users() { user_snapshot "$O/user-current";same_bytes "$O/user-before.meta" "$O/user-current.meta";same_bytes "$O/user-before.hash" "$O/user-current.hash"; }
 payload_snapshot() {
+ procfs_guard
  pacman -Qlq | sort -u | tr '\n' '\0' > "$1.paths"
  xargs -0 -r stat --printf='%n\0%f\0%u\0%g\0%h\0%N\0' < "$1.paths" > "$1.meta"
  xargs -0 -r getfattr --no-dereference --absolute-names --dump --match='.*' -- < "$1.paths" > "$1.xattr"
@@ -123,7 +124,14 @@ done
 if [[ -e "$O/ldconfig-directory.absent" && -d /var/cache/ldconfig ]];then rmdir /var/cache/ldconfig;fi
 phase=restoration
 payload_snapshot "$O/after"
-for suffix in paths meta hash db xattr; do same_bytes "$O/before.$suffix" "$O/after.$suffix";done
+for suffix in paths meta hash db xattr; do
+ before=$O/before.$suffix;after=$O/after.$suffix
+ if [[ $suffix == meta ]];then
+  metadata_equality_view before;metadata_equality_view after
+  before=$O/before.meta-equality;after=$O/after.meta-equality
+ fi
+ same_bytes "$before" "$after"
+done
 assert_users
 gpgconf --homedir "$D/trust" --kill all
 rm -rf -- "$D/trust"
@@ -131,6 +139,10 @@ phase=complete
 {
  printf 'STATUS=PASS\nBASELINE_PACKAGES=111\nINSTALLED_PACKAGES=113\nFINAL_PACKAGES=111\nARCH=aarch64\nPAGESIZE=16384\n'
  cat "$O/workload.env"
- for suffix in meta hash db xattr; do printf 'BASE_%s=%s\nFINAL_%s=%s\n' "$suffix" "$(digest "$O/before.$suffix")" "$suffix" "$(digest "$O/after.$suffix")";done
+ for suffix in meta hash db xattr; do
+  before=$O/before.$suffix;after=$O/after.$suffix
+  if [[ $suffix == meta ]];then before=$O/before.meta-equality;after=$O/after.meta-equality;fi
+  printf 'BASE_%s=%s\nFINAL_%s=%s\n' "$suffix" "$(digest "$before")" "$suffix" "$(digest "$after")"
+ done
  printf 'USER_BEFORE=%s\nUSER_FINAL=%s\nEXCLUSIVE_PAYLOAD_ABSENT=yes\nPRIVATE_TEST_TRUST_REMOVED=yes\nORDINARY_HOOKS_SCRIPTLETS=unsuppressed\nPERFORMANCE=NOT_MEASURED\nNATIVE16K=NOT_RUN\nM2=NOT_RUN\n' "$(digest "$O/user-before.hash")" "$(digest "$O/user-current.hash")"
 } > "$O/summary.env"

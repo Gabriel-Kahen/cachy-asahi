@@ -8,7 +8,7 @@
       "fork",
       "exec"
     ],
-    "passed": 39
+    "passed": 40
   },
   "actual_RTC_kernel_bundle": null,
   "actual_compiler_facts": null,
@@ -18,7 +18,8 @@
   "historical_actor_fenced_profiles": {
     "RTC11_helper": 29,
     "c20b58ec": 28,
-    "independent_ARM64_memory_span": 31
+    "independent_ARM64_memory_span": 31,
+    "private_output_parent_filesystem": 39
   },
   "native16K": "NOT RUN",
   "performance": "NOT MEASURED",
@@ -37,6 +38,17 @@
     "path_filesystem_controls": 7,
     "preparation_cap_bytes": 838860800,
     "prerequisite_ordering_controls": 1
+  },
+  "procfs_helper_controls": {
+    "fresh_guest": "NOT RUN",
+    "helpers": "byte-identical RTC KSM procfs_guard and metadata_equality_view",
+    "live_procfs_required": true,
+    "only_exception": "exact /proc/ volatile nlink in separate labeled comparison view",
+    "passed": 8,
+    "profile": "separate private-host shell/source helper tests, not the actor-fenced DATA suite",
+    "public_metadata_digests": "hash labeled view; existing37-field parser unchanged",
+    "raw_metadata_and_actual_counts": "unchanged, retained privately within guest snapshots",
+    "tool_namespace": 35
   },
   "public_certificate_DATA": {
     "created_epoch": 1794713061,
@@ -67,16 +79,24 @@
   "schema_version": 1,
   "source_pins_this_profile": {
     "README.md": {
-      "bytes": 10802,
-      "sha256": "5a3bd845d4e66b30675edc482e638e3992b27635ece80706c63364e268fef0e9"
+      "bytes": 12693,
+      "sha256": "30569dc6fd1ecc16ee980505664118e46799767d5240e9bb193babf53e4b5208"
+    },
+    "guest-root.sh": {
+      "bytes": 8066,
+      "sha256": "7965e25b33f165ef4ceabee13e309d36d8a52ced37c2be8dd89a1f437554d212"
+    },
+    "guest-runtime.sh": {
+      "bytes": 4406,
+      "sha256": "d027ba0967707d295e547ca0a32e4c3ac0144fb58fe26670c0436bdd278aeeb3"
     },
     "prepare.py": {
       "bytes": 12170,
       "sha256": "62385e8f180ddb3bc8315a47115308a4b28fb1451ace0f1dd0e33b61cfa22ddc"
     },
     "test_controls.py": {
-      "bytes": 17739,
-      "sha256": "6b497578ce8e29278854ceaaea43c3c8f166c19f6d2481e6a008cfe3d939e8aa"
+      "bytes": 19295,
+      "sha256": "f7b10306f1c4f48049bf91e014ff3397eff4299c2812614ea2e527753cc1b49f"
     }
   },
   "status": "SOURCE_DATA_CONTROLS_ONLY_NOT_PREPARED"

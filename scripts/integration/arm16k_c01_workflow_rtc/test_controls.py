@@ -145,6 +145,13 @@ class CustodyAndData(unittest.TestCase):
   load('rtc_actor');load('boot')
   for path in HERE.rglob('*.py'):ast.parse(path.read_text(),filename=str(path))
 
+class ProcfsSourceBinding(unittest.TestCase):
+ def test_exact_ksm_helpers_and_only_meta_comparison_view_are_selected(self):
+  marker='# Only this live procfs root'
+  self.assertEqual((HERE/'guest-runtime.sh').read_text().split(marker,1)[1],(HERE.parent/'arm16k_project_lifecycle_rtc/guest-runtime.sh').read_text().split(marker,1)[1])
+  text=(HERE/'guest-root.sh').read_text();self.assertIn('procfs_guard\n',text);self.assertIn('metadata_equality_view before;metadata_equality_view after',text);self.assertIn('before=$O/before.meta-equality;after=$O/after.meta-equality',text);self.assertIn('same_bytes "$before" "$after"',text)
+
+
 class OutputFilesystem(unittest.TestCase):
  def usage(self,free=3*1024**3):return type('Usage',(),{'free':free})()
  def test_fresh_private_tmp_leaf_checks_parent_without_creation(self):
@@ -203,6 +210,20 @@ class HeldPreparationGate(unittest.TestCase):
    self.assertFalse(output.exists())
 
 if __name__=='__main__':
+ if sys.argv[1:]==['--procfs-helper-controls']:
+  # Separate private-host shell profile; the ordinary full suite stays fenced.
+  previous=RTC.HERE;RTC.HERE=HERE
+  class C01ProcfsControls(RTC.ProcfsMetadataEquality):
+   def test_raw_metadata_is_captured_and_public_hash_uses_labeled_view(self):
+    text=(HERE/'guest-root.sh').read_text()
+    self.assertIn("stat --printf='%n\\0%f\\0%u\\0%g\\0%h\\0%N\\0'",text)
+    self.assertIn('before=$O/before.meta-equality;after=$O/after.meta-equality',text)
+    before=self.record();after=self.record(links=b'9');result,outputs=self.views(before,after)
+    self.assertEqual(result.returncode,0);self.assertEqual(outputs['before.meta'],before);self.assertEqual(outputs['after.meta'],after)
+  try:
+   result=unittest.TextTestRunner().run(unittest.defaultTestLoader.loadTestsFromTestCase(C01ProcfsControls))
+  finally:RTC.HERE=previous
+  raise SystemExit(0 if result.wasSuccessful()else 1)
  with contextlib.ExitStack()as stack:
   for module,names in ((subprocess,('Popen',)),(socket,('socket','create_connection')),(ctypes,('CDLL',)),(os,('system','fork','forkpty','posix_spawn','posix_spawnp','execv','execve','execvp','execvpe'))):
    for name in names:

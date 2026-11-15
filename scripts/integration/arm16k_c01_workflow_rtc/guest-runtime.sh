@@ -53,3 +53,32 @@ failure_fields() {
  safe_exit=$1;[[ $safe_exit =~ ^[0-9]+$ ]] || safe_exit=1
  printf 'STATUS=HOLD\nFAILED_PHASE=%s\nFAILED_LINE=%s\nFAILED_TOOL=%s\nFAILED_SOURCE=%s\nEXIT=%s\n' "$safe_phase" "$safe_line" "$(tool_label "${failed_tool:-unknown}")" "$safe_source" "$safe_exit"
 }
+
+# Only this live procfs root's process-dependent nlink is outside equality.
+procfs_guard() {
+ [[ $# == 0 && -d /proc && ! -L /proc ]] || return 2
+ [[ $(stat -f --printf='%t:%T' -- /proc/) == 9fa0:proc ]] || return 2
+ grep -Eq '^[0-9]+ [0-9]+ [0-9]+:[0-9]+ / /proc [^ ]+( [^ ]+)* - proc proc [^ ]+$' /proc/self/mountinfo || return 2
+}
+
+metadata_equality_view() {
+ local stage=${1:-} source target name mode uid gid links quoted count=0 size
+ [[ $# == 1 && ( $stage == before || $stage == after ) ]] || return 2
+ procfs_guard || return
+ source=$O/$stage.meta;target=$O/$stage.meta-equality
+ [[ -f $source && ! -L $source && ! -e $target && ! -L $target ]] || return 2
+ size=$(stat --printf='%s' -- "$source") || return
+ [[ $size =~ ^[0-9]+$ && $size -le 16777216 ]] || return 2
+ umask 077
+ (set -o noclobber;: > "$target") || return
+ while IFS= read -r -d '' name;do
+  IFS= read -r -d '' mode && IFS= read -r -d '' uid && IFS= read -r -d '' gid && IFS= read -r -d '' links && IFS= read -r -d '' quoted || return 2
+  [[ $mode =~ ^[0-9a-fA-F]+$ && $uid =~ ^[0-9]+$ && $gid =~ ^[0-9]+$ && $links =~ ^[0-9]+$ ]] || return 2
+  if [[ $name == /proc/ ]];then
+   count=$((count+1));[[ $count == 1 ]] || return 2
+   links=VOLATILE_LIVE_PROCFS_NLINK
+  fi
+  printf '%s\0%s\0%s\0%s\0%s\0%s\0' "$name" "$mode" "$uid" "$gid" "$links" "$quoted" >> "$target" || return
+ done < "$source"
+ [[ -z $name && $count == 1 ]] || return 2
+}
