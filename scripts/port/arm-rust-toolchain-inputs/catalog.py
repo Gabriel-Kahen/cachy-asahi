@@ -95,7 +95,8 @@ def elf(data, allow_bpf=False):
         require(struct.unpack_from('<H', data, 16)[0] == 1 and phnum == 0,
                 'BPF data must be relocatable with no program headers')
         return {'machine': machine, 'payload_kind': 'BPF_RELOCATABLE_DATA', 'interpreter': None,
-                'needed': [], 'soname': None, 'rpath': [], 'runpath': []}
+                'needed': [], 'soname': None, 'rpath': [], 'runpath': [],
+                'rpath_present': False, 'runpath_present': False}
     loads, dynamic, interpreter = [], None, None
     for i in range(phnum):
         typ, flags, off, va, pa, filesz, memsz, align = struct.unpack_from('<IIQQQQQQ', data, phoff + i * phsize)
@@ -109,7 +110,7 @@ def elf(data, allow_bpf=False):
             require(raw.endswith(b'\0') and b'\0' not in raw[:-1], 'malformed interpreter')
             interpreter = raw[:-1].decode('ascii')
     result = {'machine': machine, 'interpreter': interpreter, 'needed': [], 'soname': None,
-              'rpath': [], 'runpath': []}
+              'rpath': [], 'runpath': [], 'rpath_present': False, 'runpath_present': False}
     if dynamic:
         off, size = dynamic
         require(size % 16 == 0, 'malformed dynamic segment')
@@ -140,7 +141,8 @@ def elf(data, allow_bpf=False):
                 elif tag == 14:
                     result['soname'] = value
                 else:
-                    result['rpath' if tag == 15 else 'runpath'] = value.split(':')
+                    kind = 'rpath' if tag == 15 else 'runpath'
+                    result[kind], result[kind + '_present'] = value.split(':'), True
     return result
 
 
@@ -247,7 +249,12 @@ def elf_joins(entries):
         if not obj:
             continue
         # This is a direct structural join, not a complete dynamic-loader simulation.
-        search = obj['runpath'] or obj['rpath']
+        # dl-load.c at the pinned glibc revision ignores an entirely empty tag.
+        # DT_RUNPATH presence still suppresses DT_RPATH; ':' and '/dir:' retain
+        # their unsafe empty components and are not normalized away.
+        search = obj['runpath'] if obj.get('runpath_present', bool(obj['runpath'])) else obj['rpath']
+        if search == ['']:
+            search = []
         dirs = [d.replace('${ORIGIN}', posixpath.dirname(path)).replace('$ORIGIN', posixpath.dirname(path)) for d in search]
         unsupported = any(not d.startswith('/') or '$' in d for d in dirs)
         dirs += ['/usr/lib', '/lib']
@@ -344,6 +351,20 @@ def preserve_original_inputs(lock):
     return 'EXACT_84_PACKAGE_DESCRIPTORS'
 
 
+def preserve_271_inputs(lock):
+    descriptor = lock['prior271_inputs']
+    path = HERE / descriptor['filename']
+    pin(path, descriptor)
+    prior = json.loads(path.read_text())
+    require(len(prior['packages']) == 271, 'unexpected271 input count')
+    require(all(lock['packages'].get(n) == spec for n, spec in prior['packages'].items()),
+            '271 package descriptor changed or removed')
+    old = {(r['package'], r['dependency'], r['provider']) for r in prior['dependency_joins']}
+    new = {(r['package'], r['dependency'], r['provider']) for r in lock['dependency_joins']}
+    require(old <= new, '271 dependency join changed or removed')
+    return 'EXACT_271_PACKAGE_DESCRIPTORS_AND_1154_JOINS'
+
+
 def auxiliary_joins(lock, packages, entries, joins):
     results = []
     for required in lock['auxiliary_requirements']:
@@ -373,6 +394,13 @@ def verify(lock, caches, rust_files, deadline):
     keyring = HERE / lock['public_keyring']['filename']
     pin(keyring, lock['public_keyring'])
     preserved = preserve_original_inputs(lock)
+    preserved271 = preserve_271_inputs(lock)
+    model_path = HERE / 'loader-semantics.json'
+    pin(model_path, lock['loader_semantics'])
+    model = json.loads(model_path.read_text())
+    require(model['glibc_package_version'] == lock['packages']['glibc']['version'], 'loader model/version mismatch')
+    pin(HERE / model['source']['filename'], model['source'])
+    pin(HERE / model['license']['filename'], model['license'])
     supplemental_path, remaining_path = HERE / 'supplemental-inputs.json', HERE / 'remaining-inputs.json'
     pin(supplemental_path, lock['supplemental_provenance'])
     pin(remaining_path, lock['remaining_provider_inputs'])
@@ -396,6 +424,8 @@ def verify(lock, caches, rust_files, deadline):
         if archive is None or signature is None:
             missing.append({'package': name, 'archive_missing': archive is None, 'signature_missing': signature is None})
             continue
+        require(spec.get('archive_metadata') != 'NOT_ACQUIRED_OR_INSPECTED',
+                f"exact bytes found but real PKGINFO/dependency reconciliation still required: {name}")
         # A cache may be concurrently modified. Bind GPG and payload inspection
         # to identical byte-pinned private snapshots, never separate mutable opens.
         with tempfile.TemporaryDirectory(prefix='rust-input-data-') as temporary:
@@ -436,6 +466,9 @@ def verify(lock, caches, rust_files, deadline):
               'package_dependency_joins': dependencies,
               'source_observations': source_joins(packages, facts),
               'prior_input_preservation': preserved,
+              'prior271_input_preservation': preserved271,
+              'loader_model': {'source': model['source'], 'rules': model['rules'],
+                               'source_binary_correspondence': model['source_binary_correspondence']},
               'supplemental_provenance': lock['supplemental_provenance'],
               'remaining_provider_inputs': remaining,
               'auxiliary_provider_joins': auxiliary_joins(lock, packages, entries, joins),

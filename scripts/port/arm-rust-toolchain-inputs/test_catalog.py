@@ -283,14 +283,69 @@ class CatalogTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'non-AArch64'):
             c.elf_joins(entries)
 
-    def test_empty_runpath_remains_a_visible_loader_gate(self):
+    def test_wholly_empty_runpath_is_ignored(self):
         native = c.elf(tiny_elf())
-        entries = {'/usr/bin/tool': {'type': 'file', 'elf': dict(native, runpath=[''])},
+        entries = {'/usr/bin/tool': {'type': 'file', 'elf': dict(native, runpath=[''], runpath_present=True)},
                    '/usr/lib/libc.so.6': {'type': 'file', 'elf': dict(native, needed=[])}}
         joins, missing = c.elf_joins(entries)
         self.assertEqual(len(joins), 1)
-        self.assertEqual(missing, [{'consumer': '/usr/bin/tool', 'search_path': [''],
-                                    'reason': 'unsupported loader search expression'}])
+        self.assertEqual(missing, [])
+
+    def test_empty_runpath_still_suppresses_rpath(self):
+        native = c.elf(tiny_elf())
+        tool = dict(native, runpath=[''], runpath_present=True, rpath=['/rpath-only'], rpath_present=True)
+        entries = {'/usr/bin/tool': {'type': 'file', 'elf': tool},
+                   '/rpath-only/libc.so.6': {'type': 'file', 'elf': dict(native, needed=[])}}
+        self.assertIsNone(c.elf_joins(entries)[1][0]['provider'])
+        tool['runpath_present'] = False
+        self.assertEqual(c.elf_joins(entries)[1], [])
+
+    def test_empty_component_in_nonempty_path_remains_held(self):
+        for search in (['', ''], ['/usr/lib', '']):
+            native = c.elf(tiny_elf())
+            entries = {'/usr/bin/tool': {'type': 'file', 'elf': dict(native, runpath=search, runpath_present=True)},
+                       '/usr/lib/libc.so.6': {'type': 'file', 'elf': dict(native, needed=[])}}
+            self.assertEqual(c.elf_joins(entries)[1][0]['reason'], 'unsupported loader search expression')
+
+    def test_parser_retains_wholly_empty_tag_presence(self):
+        data = bytearray(tiny_elf())
+        struct.pack_into('<qQ', data, 384, 29, 0)
+        struct.pack_into('<qQ', data, 400, 0, 0)
+        struct.pack_into('<Q', data, 152, 96)
+        struct.pack_into('<Q', data, 160, 96)
+        parsed = c.elf(bytes(data))
+        self.assertTrue(parsed['runpath_present'])
+        self.assertEqual(parsed['runpath'], [''])
+        self.assertFalse(parsed['rpath_present'])
+
+    def test_all271_inputs_and_joins_remain_frozen(self):
+        lock = json.loads((c.HERE / 'inputs.lock.json').read_text())
+        self.assertEqual(c.preserve_271_inputs(lock), 'EXACT_271_PACKAGE_DESCRIPTORS_AND_1154_JOINS')
+        del lock['packages']['gd']
+        with self.assertRaisesRegex(ValueError, '271 package descriptor'):
+            c.preserve_271_inputs(lock)
+
+    def test_pending_raw_bytes_do_not_skip_metadata_reconciliation(self):
+        lock = json.loads((c.HERE / 'inputs.lock.json').read_text())
+        filename = lock['packages']['qt6-base']['filename']
+        with patch.object(c, 'find_input', side_effect=lambda name, *args: self.root / name if name.startswith(filename) else None), \
+                patch.object(c, 'signatures') as signature:
+            with self.assertRaisesRegex(ValueError, 'PKGINFO/dependency reconciliation'):
+                c.verify(lock, [], c.HERE / 'rust-137-files.json', time.monotonic() + 10)
+        signature.assert_not_called()
+
+    def test_qt_acquisition_is_tmp_only_and_refuses_linked_cache_nodes(self):
+        module = importlib.util.spec_from_file_location('acquire_qt', c.HERE / 'acquire_qt.py')
+        qt = importlib.util.module_from_spec(module)
+        module.loader.exec_module(qt)
+        self.assertEqual(qt.tmp_path(self.root / 'cache'), self.root / 'cache')
+        with self.assertRaisesRegex(ValueError, 'below /tmp'):
+            qt.tmp_path(Path('/home/forbidden-qt-cache'))
+        cache = self.root / 'cache'
+        cache.mkdir()
+        (cache / 'linked.pkg.tar.xz').symlink_to(self.root)
+        with self.assertRaisesRegex(ValueError, 'nonregular'):
+            qt.cache_bytes(cache)
 
 
 if __name__ == '__main__':

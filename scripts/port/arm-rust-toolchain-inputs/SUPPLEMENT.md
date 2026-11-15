@@ -1,4 +1,8 @@
-# Exact auxiliary-provider result, 2026-11-14
+# Preserved auxiliary-provider result, 2026-11-14
+
+This records `5f3e3457`. See [the current closure work](CLOSURE.md) for the
+source-pinned RUNPATH model correction and exact Qt input additions. The original
+raw catalog and cache evidence remain unchanged.
 
 The two original missing providers are now joined as data:
 

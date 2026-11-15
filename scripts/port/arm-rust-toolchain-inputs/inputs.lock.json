@@ -4753,6 +4753,91 @@
     },
     {
       "dependency": "glibc",
+      "package": "qt6-5compat",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "icu",
+      "package": "qt6-5compat",
+      "provider": "icu"
+    },
+    {
+      "dependency": "libstdc++",
+      "package": "qt6-5compat",
+      "provider": "libstdc++"
+    },
+    {
+      "dependency": "qt6-base",
+      "package": "qt6-5compat",
+      "provider": "qt6-base"
+    },
+    {
+      "dependency": "qt6-shadertools",
+      "package": "qt6-5compat",
+      "provider": "qt6-shadertools"
+    },
+    {
+      "dependency": "glibc",
+      "package": "qt6-declarative",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libgcc",
+      "package": "qt6-declarative",
+      "provider": "libgcc"
+    },
+    {
+      "dependency": "libstdc++",
+      "package": "qt6-declarative",
+      "provider": "libstdc++"
+    },
+    {
+      "dependency": "qt6-base",
+      "package": "qt6-declarative",
+      "provider": "qt6-base"
+    },
+    {
+      "dependency": "glibc",
+      "package": "qt6-shadertools",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libgcc",
+      "package": "qt6-shadertools",
+      "provider": "libgcc"
+    },
+    {
+      "dependency": "libstdc++",
+      "package": "qt6-shadertools",
+      "provider": "libstdc++"
+    },
+    {
+      "dependency": "qt6-base",
+      "package": "qt6-shadertools",
+      "provider": "qt6-base"
+    },
+    {
+      "dependency": "glibc",
+      "package": "qt6-svg",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libstdc++",
+      "package": "qt6-svg",
+      "provider": "libstdc++"
+    },
+    {
+      "dependency": "qt6-base",
+      "package": "qt6-svg",
+      "provider": "qt6-base"
+    },
+    {
+      "dependency": "zlib",
+      "package": "qt6-svg",
+      "provider": "zlib"
+    },
+    {
+      "dependency": "glibc",
       "package": "rav1e",
       "provider": "glibc"
     },
@@ -5798,6 +5883,11 @@
     }
   ],
   "key_freshness": "NOT_ESTABLISHED",
+  "loader_semantics": {
+    "bytes": 4710,
+    "filename": "loader-semantics.json",
+    "sha256": "7540d47831d1398789107340483173642cd92c8d9b9d65793dcd8c6c428ae13c"
+  },
   "metadata_provenance": [
     {
       "bytes": 604327,
@@ -12234,6 +12324,148 @@
       ],
       "version": "3.14.8-1"
     },
+    "qt6-5compat": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 521852,
+        "sha256": "4ddd2d43878105265fa546cde58495a87c09a62a600ad6ca6ab95a29f3850fa8"
+      },
+      "depends": [
+        "glibc",
+        "icu",
+        "libstdc++",
+        "qt6-base",
+        "qt6-shadertools"
+      ],
+      "filename": "qt6-5compat-6.12.0-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-3.0-only",
+        "LGPL-3.0-only",
+        "LicenseRef-Qt-Commercial",
+        "Qt-GPL-exception-1.0"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "e0b8403cc2d4b013a1fdfe763bba548e12b5426b7a9ba3b78b4ae65b332adf46"
+      },
+      "url": [
+        "https://www.qt.io"
+      ],
+      "version": "6.12.0-1"
+    },
+    "qt6-base": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 15176004,
+        "sha256": "70f2bbce49fa82dee86074a7c96dcc1e43f54a1f82407bb8d855708932323abd"
+      },
+      "archive_metadata": "NOT_ACQUIRED_OR_INSPECTED",
+      "depends": [],
+      "filename": "qt6-base-6.12.0-2-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-3.0-only",
+        "LGPL-3.0-only",
+        "LicenseRef-Qt-Commercial",
+        "Qt-GPL-exception-1.0"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "8e08983add68384863e86df8795ad5906bbd50a159af9bfe43b2894f16a87e41"
+      },
+      "url": [
+        "https://www.qt.io/"
+      ],
+      "version": "6.12.0-2"
+    },
+    "qt6-declarative": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 20090780,
+        "sha256": "410a29bc88fb004f4c1b5c8d2b08bf6d2d27c5028ebd13447e7ff67134c94940"
+      },
+      "depends": [
+        "glibc",
+        "libgcc",
+        "libstdc++",
+        "qt6-base"
+      ],
+      "filename": "qt6-declarative-6.12.0-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-3.0-only",
+        "LGPL-3.0-only",
+        "LicenseRef-Qt-Commercial",
+        "Qt-GPL-exception-1.0"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "fdfcb06a1ec49a27b0c8a6a99c6034c94bce2234f896f5a27ffd337538b14f6d"
+      },
+      "url": [
+        "https://www.qt.io"
+      ],
+      "version": "6.12.0-1"
+    },
+    "qt6-shadertools": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 1621928,
+        "sha256": "d06d62e5e98e7d16f062387b17176962df5b09941f7f11f3cfc4a99150578bc8"
+      },
+      "depends": [
+        "glibc",
+        "libgcc",
+        "libstdc++",
+        "qt6-base"
+      ],
+      "filename": "qt6-shadertools-6.12.0-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-3.0-only",
+        "LGPL-3.0-only",
+        "LicenseRef-Qt-Commercial",
+        "Qt-GPL-exception-1.0"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "7d7f7148825d128ba6fda8296194d4e6d342ec238f84c81bbeaf8b01667d2de6"
+      },
+      "url": [
+        "https://www.qt.io"
+      ],
+      "version": "6.12.0-1"
+    },
+    "qt6-svg": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 266844,
+        "sha256": "cd03acc2075a19cbfae8ae982954fcc92846855cb9e30ed04e90523f7fcc7cb3"
+      },
+      "depends": [
+        "glibc",
+        "libstdc++",
+        "qt6-base",
+        "zlib"
+      ],
+      "filename": "qt6-svg-6.12.0-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-3.0-only",
+        "LGPL-3.0-only",
+        "LicenseRef-Qt-Commercial",
+        "Qt-GPL-exception-1.0"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "d031a46cef33b4556b066475495f21fae83a0f254d2e6685a64638934b245227"
+      },
+      "url": [
+        "https://www.qt.io"
+      ],
+      "version": "6.12.0-1"
+    },
     "rav1e": {
       "arch": "aarch64",
       "archive": {
@@ -13797,6 +14029,12 @@
       "version": "1.5.7-3"
     }
   },
+  "prior271_inputs": {
+    "bytes": 328165,
+    "commit": "5f3e34579c77c68245616950f182d6dae8a5d747",
+    "filename": "history/inputs-271.lock.json",
+    "sha256": "7d0b4ba9f6b707a3afba8d8087d8229d5b52ca105476602ac55086eab167c6f5"
+  },
   "prior_inputs": {
     "bytes": 94299,
     "commit": "e61a895dcc0ce5376225d126b7451a9ececde4f8",
@@ -13811,10 +14049,15 @@
     "sha256": "9403f923eed777ba0896a0b225e1522d3a7625234694c753ae26b27c29672aae"
   },
   "purpose": "bankstown-alarm-rust-1.99.0-offline-inputs",
+  "qt_frozen_inputs": {
+    "bytes": 7326,
+    "filename": "qt-frozen-inputs.json",
+    "sha256": "cf66e1390dbe87b64c44a51f45ecd4fc786c26cdeabd8efa8ad560f7843d9d88"
+  },
   "remaining_provider_inputs": {
-    "bytes": 4969,
+    "bytes": 36362,
     "filename": "remaining-inputs.json",
-    "sha256": "8df69e68381a19f88c3f7fa7d0fc667b142747af82aacb0ff063df456418ccdc"
+    "sha256": "91f92ac9a38310b1b7292c2d16a66c6c0d1d3634b181d3e8a1379567ba5fd508"
   },
   "roots": [
     "rust",
@@ -13830,7 +14073,12 @@
     "rrdtool",
     "freeglut",
     "lua51",
-    "ruby"
+    "ruby",
+    "qt6-5compat",
+    "qt6-base",
+    "qt6-declarative",
+    "qt6-shadertools",
+    "qt6-svg"
   ],
   "schema": 1,
   "signer_primary": "68B3537F39A313B3E574D06777193F152BDBE6A6",
@@ -13840,8 +14088,8 @@
     "sha256": "5ce3c53a44afab2b905ca7f01669f3f323f3bad2d06b8849b2c2bc66c5931c2c"
   },
   "supplemental_provenance": {
-    "bytes": 213179,
+    "bytes": 223199,
     "filename": "supplemental-inputs.json",
-    "sha256": "1bc62b0a50f4b95a2ef4c68f4ce3ce36bc647974a7852e4a6eb52d4cf208e130"
+    "sha256": "c93cd72d6954c2513208f13fcf6555aa0bb1cce2bbd5a0c183bab9e8bbdd6183"
   }
 }
