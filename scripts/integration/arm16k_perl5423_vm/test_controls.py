@@ -82,6 +82,27 @@ def modeled_home():
  return reseal(a)
 
 class Controls(unittest.TestCase):
+ def test_Tool529_e2fsck_four_links_only_and_generic_DATA_stays_single_link(self):
+  import types
+  R=module('runtime')
+  with tempfile.TemporaryDirectory()as tmp:
+   p=Path(tmp)/'synthetic-tool';p.write_bytes(b'MODELED_TOOL_BYTES_NOT_EXECUTED');actual=p.lstat();base={n:getattr(actual,n)for n in('st_dev','st_ino','st_size','st_mtime_ns','st_ctime_ns')};base.update(st_mode=0o100755,st_uid=0,st_gid=0,st_nlink=4);fakeK=types.SimpleNamespace(ordinary=lambda p:p,need=K.need,END=None)
+   for kind in('e2fsck-four','e2fsck-one','python-one','other-four','wrong-owner','wrong-mode','wrong-type','changed'):
+    values=dict(base);name='/usr/bin/e2fsck'
+    if kind in('e2fsck-one','python-one'):values['st_nlink']=1
+    if kind=='python-one':name='/usr/bin/python3'
+    if kind=='other-four':name='/usr/bin/cp'
+    if kind=='wrong-owner':values['st_uid']=1000
+    if kind=='wrong-mode':values['st_mode']=0o100777
+    if kind=='wrong-type':values['st_mode']=0o120755
+    first=types.SimpleNamespace(**values);last=types.SimpleNamespace(**dict(values,st_ino=values['st_ino']+1))if kind=='changed'else first
+    with patch.object(R,'module',return_value=fakeK),patch.object(R.Path,'resolve',return_value=p),patch.object(R.Path,'lstat',return_value=first),patch.object(R.os,'fstat',side_effect=[first,last]):
+     if kind in('e2fsck-four','e2fsck-one','python-one'):self.assertEqual(R.image_tool_pin(name),dict(bytes=len(b'MODELED_TOOL_BYTES_NOT_EXECUTED'),sha256=hashlib.sha256(b'MODELED_TOOL_BYTES_NOT_EXECUTED').hexdigest()))
+     else:
+      with self.subTest(kind=kind),self.assertRaises(ValueError):R.image_tool_pin(name)
+   link=p.with_name('hardlink');os.link(p,link)
+   with self.assertRaises(ValueError):K.pin(p)
+  self.assertNotIn('--sig-proxy=false',(HERE/'controller.py').read_text())
  def test_strict_SHM_syscall443_FD_backend_and_unchanged_headroom_policy(self):
   import types
   for kind in('valid','hard-only','soft-only','exhausted','no-limits','invalid-mask','ENOSYS','EPERM','ENOTBLK'):

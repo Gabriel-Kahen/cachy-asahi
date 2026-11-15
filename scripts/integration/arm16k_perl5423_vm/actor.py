@@ -118,7 +118,7 @@ def main():
  K.need(all(int(status[n],16)==0 for n in ('CapEff','CapPrm','CapInh','CapAmb','CapBnd')) and status['NoNewPrivs'].strip()=='1' and {n for _,n in socket.if_nameindex()}=={'lo'} and not Path('/dev/kvm').exists(),'cap0 NNP network-none software-only actor')
  packet=K.load(Path('/packet/case-packet.json'));cert={n:K.load(Path('/packet')/(n+'.json'))for n in K.EVIDENCE}
  for name,row in packet['files'].items():K.need(K.pin(Path('/packet')/name)=={k:row[k]for k in('bytes','sha256')},'complete packet file pin')
- for name,row in K.load(Path('/work/actor-tools.json'))['files'].items():K.need(K.pin(Path(name).resolve(strict=True))==row,'Root-qualified actual tool image binary')
+ for name,row in K.load(Path('/work/actor-tools.json'))['files'].items():K.need(R.image_tool_pin(name)==row,'Root-qualified actual tool image binary')
  for group in ('materials','rollback_materials','dependency_materials'):
   for name,row in packet[group].items():
    if group=='materials'and name not in K.MATERIALS:continue

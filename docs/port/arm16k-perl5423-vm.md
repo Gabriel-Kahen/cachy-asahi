@@ -98,3 +98,10 @@ Q_GETQUOTA with the72-byte if_dqblk ABI, fixing actual legacy ENOTBLK compatibil
 Finite hard/soft/headroom/valid checks and error-HOLD semantics are unchanged.
 HOME already uses an FD syscall; no worker query or phase ran, and frozen Root
 observer Source was not modified.
+
+
+The actual Tool529 e2fsck four-hardlink layout is admitted only by a dedicated
+fixed image-tool hasher, preserving all generic single-link DATA guards. Tool
+hashes, root ownership/executable modes and stable identities remain required;
+Root's actual observation is DATA, not a phase grant. The controller has no
+unsupported Docker-start sig-proxy flag.

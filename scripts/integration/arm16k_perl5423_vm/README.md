@@ -376,3 +376,15 @@ continues to admit only exact ENOSYS38 within its explicit Root profile.
 Synthetic controls exercise the actual ctypes argument/layout construction with
 CDLL/syscall mocked, verify FD flags/cleanup and errors, and perform no real quota
 query. Frozen Root observer Source0acdb...4886 is untouched by this increment.
+
+
+## Observed Tool529 e2fsck hardlinks
+
+Root's actual six-binary Tool529 DATA records e2fsck nlink4. A dedicated image-tool
+hasher now admits that exact four-link e2fsck layout (or its ordinary one-link
+layout), while all five other fixed tools require one link. All six must be
+regular root:root0755 files, within64MiB, with stable device/inode/mode/owner/link/
+size/timestamp identity and exact Root-selected bytes/SHA after alias resolution.
+Generic DATA/archive/authority/host-CLI single-link guards are unchanged. No tool
+execution is used for qualification. The Perl controller already starts Docker
+with `['docker','start',name]`; the unsupported start sig-proxy flag is absent.
