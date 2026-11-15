@@ -414,7 +414,7 @@ jobs:
 
           if os.getuid() == 0 or os.geteuid() == 0:
               raise SystemExit('repository fixtures require an ordinary non-root runner')
-          for filename, minimum in (('test_rotate.py', 24), ('test_transition.py', 13), ('test_revoke.py', 12)):
+          for filename, minimum in (('test_rotate.py', 24), ('test_transition.py', 13), ('test_revoke.py', 12), ('test_refresh.py', 15)):
               spec = importlib.util.spec_from_file_location('rotation_controls', Path('scripts/repository') / filename)
               module = importlib.util.module_from_spec(spec)
               spec.loader.exec_module(module)
@@ -428,16 +428,17 @@ jobs:
                       raise SystemExit(filename + ': failures, skips, or incomplete control suite')
 
           import shutil, subprocess, sys
-          recipe = Path('packages/tools/cachy-asahi-repository-enrollment-v3').resolve()
-          with tempfile.TemporaryDirectory(prefix='enrollment-v3-ci-source-') as temporary:
-              source = Path(temporary)
-              for name in ('test_package.py', 'test_release.py', 'cachy-asahi-repository-enrollment',
-                           'README.md', 'source-provenance.json', 'payload-map.json', 'NOTICE', 'LICENSE', 'private-source.tar.gz'):
-                  shutil.copyfile(recipe / name, source / name)
-              subprocess.run(['bsdtar', '-xf', str(recipe / 'private-source.tar.gz'), '-C', str(source)], check=True)
-              subprocess.run([sys.executable, '-I', '-B', '-Werror::ResourceWarning', str(source / 'test_package.py'),
-                              '--recipe-root', str(recipe), '--srcdir', str(source),
-                              '--hide-checkout', str(Path.cwd())], check=True)
+          for version in ('v3', 'v4'):
+              recipe = Path('packages/tools/cachy-asahi-repository-enrollment-' + version).resolve()
+              with tempfile.TemporaryDirectory(prefix='enrollment-' + version + '-ci-source-') as temporary:
+                  source = Path(temporary)
+                  for name in ('test_package.py', 'test_release.py', 'cachy-asahi-repository-enrollment',
+                               'README.md', 'source-provenance.json', 'payload-map.json', 'NOTICE', 'LICENSE', 'private-source.tar.gz'):
+                      shutil.copyfile(recipe / name, source / name)
+                  subprocess.run(['bsdtar', '-xf', str(recipe / 'private-source.tar.gz'), '-C', str(source)], check=True)
+                  subprocess.run([sys.executable, '-I', '-B', '-Werror::ResourceWarning', str(source / 'test_package.py'),
+                                  '--recipe-root', str(recipe), '--srcdir', str(source),
+                                  '--hide-checkout', str(Path.cwd())], check=True)
           for filename in ('test_bridge.py', 'test_delivery.py'):
               subprocess.run([sys.executable, '-I', '-B', '-Werror::ResourceWarning',
                               str(Path('packages/tools/cachy-asahi-first-login-ui') / filename)], check=True)
