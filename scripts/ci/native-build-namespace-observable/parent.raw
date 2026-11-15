@@ -1,0 +1,8 @@
+tree a825d475d248f2254070d256d23780c4ef2d0f4b
+parent 97a44c4c7cb206704bf76e9fd1f1afb2266278c2
+author Gabriel Kahen <93809974+Gabriel-Kahen@users.noreply.github.com> 1794692499 -0500
+committer Gabriel Kahen <93809974+Gabriel-Kahen@users.noreply.github.com> 1794692499 -0500
+
+Preserve qualified image lifecycle for namespace observation
+
+Diagnostic Source only; no native or package qualification.
