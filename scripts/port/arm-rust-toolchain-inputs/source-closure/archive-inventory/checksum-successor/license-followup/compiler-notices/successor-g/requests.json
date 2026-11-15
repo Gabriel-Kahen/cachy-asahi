@@ -1,0 +1,268 @@
+{
+  "acquisition_closed": true,
+  "body_bytes": 82053,
+  "requests": [
+    {
+      "HTTP": 200,
+      "bytes": 2151,
+      "complete_body": true,
+      "file": "perf048-root-tree.json",
+      "ordinal": 1,
+      "seconds": 0.197,
+      "sha256": "0af4a574a7b0be8147b262e08ab0578496f012324861b65461a8c015765b1c6d",
+      "url": "https://api.github.com/repos/jimblandy/perf-event/git/trees/fdfcd6eab9de3e40b2ecbcc01a1be3b1bd15405b"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 2151,
+      "complete_body": true,
+      "file": "perf049-root-tree.json",
+      "ordinal": 2,
+      "seconds": 0.185,
+      "sha256": "72b742dbebbb9ab8880503a58389a556e03a030794c091cb94e62263c6251430",
+      "url": "https://api.github.com/repos/jimblandy/perf-event/git/trees/b17c656dcf0791fcc2491f96567bd3b4246b8eac"
+    },
+    {
+      "HTTP": 404,
+      "bytes": 110,
+      "complete_body": true,
+      "file": "sys4-legacy-root-tree.json",
+      "ordinal": 3,
+      "seconds": 0.188,
+      "sha256": "8c177a38af7c68d455e9554231def022cc2bcf62c1d3dab3626aaf5c319a5e04",
+      "url": "https://api.github.com/repos/jimblandy/perf-event-open-sys/git/trees/3aecf09156daa67b5579cc7742168cc95dcbe063"
+    },
+    {
+      "HTTP": 301,
+      "bytes": 249,
+      "complete_body": true,
+      "location": "https://api.github.com/repositories/196445196/git/trees/e55b3b02fcda2a016f5df14573ff05c5b1e313d6",
+      "ordinal": 4,
+      "seconds": 0.15,
+      "sha256": "f63add60e89f58829d9f43cac1bc9c545ead2d0092363d30e637a7d2fcf0395a",
+      "url": "https://api.github.com/repos/bytecodealliance/wasi/git/trees/e55b3b02fcda2a016f5df14573ff05c5b1e313d6"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 3782,
+      "complete_body": true,
+      "file": "wasip1-root-tree.json",
+      "ordinal": 5,
+      "seconds": 0.204,
+      "sha256": "ce36c657a125d267081f8916315728e7994569255df6d3955930d818c3a52420",
+      "url": "https://api.github.com/repositories/196445196/git/trees/e55b3b02fcda2a016f5df14573ff05c5b1e313d6"
+    },
+    {
+      "HTTP": 301,
+      "bytes": 249,
+      "complete_body": true,
+      "location": "https://api.github.com/repositories/196445196/git/trees/06ce201370fcde0d1b0d47cac8ecb1b0b312c9f9",
+      "ordinal": 6,
+      "seconds": 0.16,
+      "sha256": "2225e2b2cf1ca953a1200b6ba95c0047c173e35a90ddd2a3f4c390dc617a9f31",
+      "url": "https://api.github.com/repos/bytecodealliance/wasi/git/trees/06ce201370fcde0d1b0d47cac8ecb1b0b312c9f9"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 3782,
+      "complete_body": true,
+      "file": "wasip23-root-tree.json",
+      "ordinal": 7,
+      "seconds": 0.185,
+      "sha256": "93cdfdcad3f8a390f6287984dff4f3a6b389227ca47174ccfc33c1770964d744",
+      "url": "https://api.github.com/repositories/196445196/git/trees/06ce201370fcde0d1b0d47cac8ecb1b0b312c9f9"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 3807,
+      "complete_body": true,
+      "file": "wit033-root-tree.json",
+      "ordinal": 8,
+      "seconds": 0.196,
+      "sha256": "f6153842cb6563344b9952e30eae35072068228e63e0f43098afe1f7e8d9ab36",
+      "url": "https://api.github.com/repos/bytecodealliance/wit-bindgen/git/trees/66bfda38bee488df27692311e364d79a3cd301a7"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 3807,
+      "complete_body": true,
+      "file": "wit039-root-tree.json",
+      "ordinal": 9,
+      "seconds": 0.164,
+      "sha256": "a17e90edc6e6cfa0e9f101511af91cc1f669efc7c009ff8d92ac2a6f11846e3d",
+      "url": "https://api.github.com/repos/bytecodealliance/wit-bindgen/git/trees/f2393e6e98fa5f9236cac580db8a3fc9de6a4b70"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 2151,
+      "complete_body": true,
+      "file": "sys4-monorepo-root-tree.json",
+      "ordinal": 10,
+      "seconds": 0.173,
+      "sha256": "6ab152fe600d53cbc12ebf86350008e3eba69fe7475de052f1d6ca21cae4dce0",
+      "url": "https://api.github.com/repos/jimblandy/perf-event/git/trees/3aecf09156daa67b5579cc7742168cc95dcbe063"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 1023,
+      "complete_body": true,
+      "file": "perf048-LICENSE-MIT",
+      "ordinal": 11,
+      "seconds": 0.173,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3",
+      "url": "https://raw.githubusercontent.com/jimblandy/perf-event/fdfcd6eab9de3e40b2ecbcc01a1be3b1bd15405b/LICENSE-MIT"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 908,
+      "complete_body": true,
+      "file": "perf048-README.md",
+      "ordinal": 12,
+      "seconds": 0.147,
+      "sha256": "1f40c0df42e99e02f85a6d93e0f6b708313d7e916cedfa0e408505713d6c2059",
+      "url": "https://raw.githubusercontent.com/jimblandy/perf-event/fdfcd6eab9de3e40b2ecbcc01a1be3b1bd15405b/README.md"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 1023,
+      "complete_body": true,
+      "file": "perf049-LICENSE-MIT",
+      "ordinal": 13,
+      "seconds": 0.176,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3",
+      "url": "https://raw.githubusercontent.com/jimblandy/perf-event/b17c656dcf0791fcc2491f96567bd3b4246b8eac/LICENSE-MIT"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 908,
+      "complete_body": true,
+      "file": "perf049-README.md",
+      "ordinal": 14,
+      "seconds": 0.156,
+      "sha256": "1f40c0df42e99e02f85a6d93e0f6b708313d7e916cedfa0e408505713d6c2059",
+      "url": "https://raw.githubusercontent.com/jimblandy/perf-event/b17c656dcf0791fcc2491f96567bd3b4246b8eac/README.md"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 1023,
+      "complete_body": true,
+      "file": "sys4-monorepo-LICENSE-MIT",
+      "ordinal": 15,
+      "seconds": 0.147,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3",
+      "url": "https://raw.githubusercontent.com/jimblandy/perf-event/3aecf09156daa67b5579cc7742168cc95dcbe063/LICENSE-MIT"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 908,
+      "complete_body": true,
+      "file": "sys4-monorepo-README.md",
+      "ordinal": 16,
+      "seconds": 0.132,
+      "sha256": "1f40c0df42e99e02f85a6d93e0f6b708313d7e916cedfa0e408505713d6c2059",
+      "url": "https://raw.githubusercontent.com/jimblandy/perf-event/3aecf09156daa67b5579cc7742168cc95dcbe063/README.md"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 1023,
+      "complete_body": true,
+      "file": "wasip1-LICENSE-MIT",
+      "ordinal": 17,
+      "seconds": 0.173,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3",
+      "url": "https://raw.githubusercontent.com/bytecodealliance/wasi/e55b3b02fcda2a016f5df14573ff05c5b1e313d6/LICENSE-MIT"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 4279,
+      "complete_body": true,
+      "file": "wasip1-README.md",
+      "ordinal": 18,
+      "seconds": 0.19,
+      "sha256": "7a2f20fc21d361d9380431499267f3c65581ddf64214d4333a6a0ad67fd7e52e",
+      "url": "https://raw.githubusercontent.com/bytecodealliance/wasi/e55b3b02fcda2a016f5df14573ff05c5b1e313d6/README.md"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 1023,
+      "complete_body": true,
+      "file": "wasip23-LICENSE-MIT",
+      "ordinal": 19,
+      "seconds": 0.149,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3",
+      "url": "https://raw.githubusercontent.com/bytecodealliance/wasi/06ce201370fcde0d1b0d47cac8ecb1b0b312c9f9/LICENSE-MIT"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 4279,
+      "complete_body": true,
+      "file": "wasip23-README.md",
+      "ordinal": 20,
+      "seconds": 0.137,
+      "sha256": "7a2f20fc21d361d9380431499267f3c65581ddf64214d4333a6a0ad67fd7e52e",
+      "url": "https://raw.githubusercontent.com/bytecodealliance/wasi/06ce201370fcde0d1b0d47cac8ecb1b0b312c9f9/README.md"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 1023,
+      "complete_body": true,
+      "file": "wit033-LICENSE-MIT",
+      "ordinal": 21,
+      "seconds": 0.173,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3",
+      "url": "https://raw.githubusercontent.com/bytecodealliance/wit-bindgen/66bfda38bee488df27692311e364d79a3cd301a7/LICENSE-MIT"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 19212,
+      "complete_body": true,
+      "file": "wit033-README.md",
+      "ordinal": 22,
+      "seconds": 0.15,
+      "sha256": "380c17318bae6c088f7972b281795ff8c9d4ef20909d4076d17055078e57a9ea",
+      "url": "https://raw.githubusercontent.com/bytecodealliance/wit-bindgen/66bfda38bee488df27692311e364d79a3cd301a7/README.md"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 1023,
+      "complete_body": true,
+      "file": "wit039-LICENSE-MIT",
+      "ordinal": 23,
+      "seconds": 0.143,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3",
+      "url": "https://raw.githubusercontent.com/bytecodealliance/wit-bindgen/f2393e6e98fa5f9236cac580db8a3fc9de6a4b70/LICENSE-MIT"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 19946,
+      "complete_body": true,
+      "file": "wit039-README.md",
+      "ordinal": 24,
+      "seconds": 0.141,
+      "sha256": "4b926ae5dabb51c9072497f38ae710e5d08ddcd929d39110cacd672435cb8b7b",
+      "url": "https://raw.githubusercontent.com/bytecodealliance/wit-bindgen/f2393e6e98fa5f9236cac580db8a3fc9de6a4b70/README.md"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 1028,
+      "complete_body": true,
+      "file": "xflags-README.md",
+      "ordinal": 25,
+      "seconds": 0.134,
+      "sha256": "eb290e07d477c6aa9d4dc4e63b7b89a62fd02aa2ca8f1d8b91e5e0e0c77d4690",
+      "url": "https://raw.githubusercontent.com/matklad/xflags/bc37dc0b02dd3853aff7cafff1c4f0dd4293af45/README.md"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 1185,
+      "complete_body": true,
+      "file": "xshell-README.md",
+      "ordinal": 26,
+      "seconds": 0.133,
+      "sha256": "3df68e6ba2c5f0390a982ca58a9a0912f28d8a97c9aa2b72458f6d344b0fcc23",
+      "url": "https://raw.githubusercontent.com/matklad/xshell/9a405946ecbbfe50fe4a7229bd764194154e4ce6/README.md"
+    }
+  ],
+  "started_epoch": 1794753643.430994,
+  "stopped_epoch": 1794753910.715169
+}
