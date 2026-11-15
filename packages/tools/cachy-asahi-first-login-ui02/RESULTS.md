@@ -1,3 +1,42 @@
+# UI 0.2.0-2 with FirstLogin 0.1.0-3 — 2026-11-15
+
+This unselected packaging successor changes the exact backend dependency to
+`cachy-asahi-first-login=0.1.0-3` and replaces its check-only implementation with
+the genuine 03 archive payload. The archive/recipe/commit and fixture byte pins
+are recorded in provenance. The launcher fixture, UI bridge/GUI, all test code,
+Setup8 fixture and runtime ownership/operation predicates are unchanged.
+
+Before changing the candidate, a private copy with the real archived 03 backend
+passed **38 bridge + 6 delivery checks, zero skips**, plus **16 actual private
+Xvfb GTK window/button checks**. These include moved-prefix/checkout-hidden
+activation and removal, pending recovery, edit preservation, explicit removal
+confirmation and removal of exactly eight UI payload files while retaining HOME.
+Exact runtime/helper/test byte comparisons bind that run to the final candidate.
+No user desktop or host dependency installation was used.
+
+A fresh final recipe copy also passed all **44 checks** during unsigned
+`makepkg --nodeps --force --noconfirm` assembly. Its archive is **26,692 bytes**,
+SHA-256 `bd3efa1e04752b2ea8380010f7325b333bf347b7a7379b20de0289e763f9aa16`.
+Independent archive inspection confirmed exactly eight regular root:root payload
+files (entry 0755, other payload 0644), exact source bytes, and the genuine exact
+03/Setup8 dependencies in `.PKGINFO`. Source SHA-256 pins and generated `.SRCINFO`
+match. Neither fixtures nor hooks/autostart/services are installed.
+
+Ordinary `makepkg --nobuild --noconfirm` exits 8 because neither exact
+`cachy-asahi-first-login=0.1.0-3` nor `cachy-asahi-setup=0.3.0-1` is ALPM-installed
+on this host. Dependency-closed build and signed ALPM install/remove remain
+NOT RUN. Private filesystem payload removal is not ALPM uninstall. Native ARM,
+M2, real graphical login, production trust and release remain unqualified.
+
+Fresh local receipts, GUI JSON/images and both build logs are under
+`work/first-login-ui02-backend03-20261115-r1/` in the implementation worktree;
+the archive is in `final-recipe/`. They are not claimed as publicly durable.
+
+The historical 0.2.0-1 record below is retained verbatim. Its earlier archive and
+local receipts remain unchanged; none of those results are relabeled as 0.2.0-2.
+
+---
+
 # UI 0.2.0-1 development checks — 2026-11-15
 
 This separate unselected successor adds reviewed settings removal. The prior

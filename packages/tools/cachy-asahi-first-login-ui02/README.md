@@ -61,7 +61,7 @@ Closing a busy window requests cancellation and waits for worker/process-group
 cleanup. Interrupting an apply can leave a journal; inspect on the next open.
 
 Runtime closure is the three installed UI files plus declared Python,
-PyGObject/GTK4, exact first-login `0.1.0-2` and Setup8 `0.3.0-1` dependencies.
+PyGObject/GTK4, exact first-login `0.1.0-3` and Setup8 `0.3.0-1` dependencies.
 It has no checkout imports. The launcher uses isolated Python and derives
 runtime/backend paths from its installation prefix, including moved prefixes.
 `--help` needs no display. Optional `--home`, `--template-root`, `--config-home`,
@@ -103,6 +103,11 @@ GTK uses the official [Gtk.Application](https://docs.gtk.org/gtk4/class.Applicat
 and [main-loop callback](https://docs.gtk.org/glib/func.idle_add.html) interfaces.
 
 This separate `packages/tools/cachy-asahi-first-login-ui02` recipe builds
-`cachy-asahi-first-login-ui 0.2.0-1`. The previous 0.1.0-2 directory and all of its
+`cachy-asahi-first-login-ui 0.2.0-2`. The previous 0.1.0-2 directory and all of its
 recorded evidence remain unchanged. The successor is unselected; inherited
 native/VM results are not qualification of these new bytes.
+
+The 0.2.0-2 packaging successor binds the fixed FirstLogin 0.1.0-3 backend,
+including helper environment/cwd isolation and isolated printed follow-ups.
+The UI bridge, GUI and Setup8 fixture are unchanged. The earlier 0.2.0-1
+results remain historical and are not relabeled as this candidate's evidence.

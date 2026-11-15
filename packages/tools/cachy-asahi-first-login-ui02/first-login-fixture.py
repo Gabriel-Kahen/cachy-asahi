@@ -54,7 +54,9 @@ def helper_command(args, operation, components=(), apply=False):
 
 def invoke(command):
     try:
-        process = subprocess.run(command, capture_output=True, text=True, check=False)
+        process = subprocess.run(command, capture_output=True, text=True, check=False, cwd='/',
+            env={'PATH': '/usr/bin:/bin', 'LC_ALL': 'C.UTF-8',
+                 'PYTHONNOUSERSITE': '1', 'PYTHONSAFEPATH': '1'})
     except OSError:
         raise Error('Setup helper unavailable; install the reviewed setup package or select its executable explicitly.') from None
     try:
@@ -67,7 +69,7 @@ def invoke(command):
 
 
 def followup(args, operation, components=(), apply=False):
-    command = [sys.executable, str(Path(__file__).resolve()), operation,
+    command = [sys.executable, '-I', '-B', str(Path(__file__).resolve()), operation,
                '--setup-helper', str(args.setup_helper)]
     if components:
         command += ['--components', *components]
