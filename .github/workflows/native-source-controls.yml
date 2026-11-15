@@ -30,11 +30,17 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_llvm23_vm/test_prepare.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_llvm23_vm/test_ops.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_llvm23_vm/test_boot.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_llvm23_vm/test_docker.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_llvm23_vm/test_ownership.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_llvm23_vm/test_probe.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/llvm23-source-reference-native/successor_v5/test_stage_receipts.py
           bash -n scripts/integration/arm16k_llvm23_vm/guest/root.sh scripts/integration/arm16k_llvm23_vm/guest/probe.sh scripts/integration/arm16k_llvm23_vm/guest/case.sh
       - name: Check Perl ARM16K lifecycle contracts without actors
         run: |
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_perl5423_vm/test_controls.py
-          bash -n scripts/integration/arm16k_perl5423_vm/guest/root.sh scripts/integration/arm16k_perl5423_vm/guest/probe.sh scripts/integration/arm16k_perl5423_vm/guest/case.sh
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_perl5423_vm/test_git_roundtrip.py
+          bash scripts/integration/arm16k_perl5423_vm/test_guest_data.sh
+          bash -n scripts/integration/arm16k_perl5423_vm/guest/root.sh scripts/integration/arm16k_perl5423_vm/guest/probe.sh scripts/integration/arm16k_perl5423_vm/guest/case.sh scripts/integration/arm16k_perl5423_vm/guest/official-trust.sh
       - name: Check image lifecycle producer and Reader DATA without actors
         run: |
           python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/test_pair_data.py -v
@@ -373,6 +379,22 @@ jobs:
         run: |
           python3 -I -B -Werror::ResourceWarning scripts/port/llvm23-native-independent-reader/v4/test_v4.py --source-root "${RUNNER_TEMP}/llvm23-v4-source-DATA" --parent-source "${RUNNER_TEMP}/llvm23-v2-source-DATA" --ancestor-source "${RUNNER_TEMP}/llvm23-v1-source-DATA"
           python3 -I -B -Werror::ResourceWarning scripts/port/llvm23-native-independent-reader/v4/test_volume.py --source-root "${RUNNER_TEMP}/llvm23-v4-source-DATA"
+      - name: Render and check stage-isolated LLVM260 Source DATA
+        if: matrix.python == '3.14'
+        run: |
+          python3 -I -B -Werror::ResourceWarning scripts/ci/llvm23-source-reference-native/successor_v5/test_constructor.py --parent-source "${RUNNER_TEMP}/llvm23-v4-source-DATA" --ancestor-source "${RUNNER_TEMP}/llvm23-v1-source-DATA"
+          python3 -I -B -Werror::ResourceWarning - <<'PY'
+          import hashlib, importlib.util, os
+          from pathlib import Path
+          root = Path('scripts/ci/llvm23-source-reference-native/successor_v5')
+          spec = importlib.util.spec_from_file_location('LLVM260_CI_DATA', root / 'prepare.py')
+          constructor = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(constructor)
+          digest = hashlib.sha256((root / 'constructor-profile.json').read_bytes()).hexdigest()
+          constructor.construct(Path(os.environ['RUNNER_TEMP']) / 'llvm23-v4-source-DATA',
+                                Path(os.environ['RUNNER_TEMP']) / 'llvm23-v5-source-DATA', digest)
+          PY
+          python3 -I -B -Werror::ResourceWarning scripts/port/llvm23-native-independent-reader/v5/test_v5.py --parent-source "${RUNNER_TEMP}/llvm23-v4-source-DATA" --historical-source "${RUNNER_TEMP}/llvm23-v2-source-DATA" --ancestor-source "${RUNNER_TEMP}/llvm23-v1-source-DATA" --successor-source "${RUNNER_TEMP}/llvm23-v5-source-DATA"
       - name: Check out immutable XS316 Source as DATA
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
