@@ -87,8 +87,15 @@ Actual Source/ref/run/job/artifact selectors are NULL. These are in-memory
 source-family facts, not a published Source SHA or a native result.
 
 ```sh
-python3 -I -B scripts/ci/native-build-namespace-observable/test_observable_data.py
+python3 -I -B scripts/ci/native-build-namespace-observable/test_observable_data.py \
+  --parent-source /absolute/ordinary-complete-Source6b
 ```
+
+The parent input is required; there is no private-path fallback. CI must stage
+the exact published6b commit as raw DATA from its separately pinned checkout or
+archive. Complete200-file body/mode/blob/tree/profile checks remain mandatory.
+All50 controls also pass with the old private input path poisoned; an omitted
+argument or nonexistent explicit input refuses.
 
 Actual local result: **50 controls pass on Python3.14.7**:18 focused controls
 and all32 unchanged preflight/image-lifecycle controls. The fence denies
