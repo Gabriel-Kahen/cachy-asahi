@@ -1,0 +1,159 @@
+{
+  "address_space_limit_bytes": 536870912,
+  "archives": {
+    "cargo-1.98.0-aarch64-unknown-linux-gnu.tar.xz": {
+      "archive_expected_pin": {
+        "bytes": 11116188,
+        "sha256": "5784379d73ac881d15a9e67eed2882cd58c747c276221c23cdf9aff37e015ff6"
+      },
+      "block_header_hex": "020021011b000000a9f78f51",
+      "filters": [
+        {
+          "decoded": {
+            "dict_size": 50331648,
+            "id": 33
+          },
+          "id": 33,
+          "properties_hex": "1b"
+        }
+      ],
+      "probes": [
+        {
+          "memlimit": 67108864,
+          "output_bytes": 1,
+          "status": "PASS_FIRST_BYTE_ONLY"
+        },
+        {
+          "memlimit": 134217728,
+          "output_bytes": 1,
+          "status": "PASS_FIRST_BYTE_ONLY"
+        },
+        {
+          "memlimit": 167772160,
+          "output_bytes": 1,
+          "status": "PASS_FIRST_BYTE_ONLY"
+        },
+        {
+          "memlimit": 201326592,
+          "output_bytes": 1,
+          "status": "PASS_FIRST_BYTE_ONLY"
+        },
+        {
+          "memlimit": 268435456,
+          "output_bytes": 1,
+          "status": "PASS_FIRST_BYTE_ONLY"
+        }
+      ],
+      "xz_header_hex": "fd377a585a000000ff12d941"
+    },
+    "rust-std-1.98.0-aarch64-unknown-linux-gnu.tar.xz": {
+      "archive_expected_pin": {
+        "bytes": 30768752,
+        "sha256": "a36f7ac98af20ef0ba6368aace0345efabbebaef7962eba99f47190fd256162d"
+      },
+      "block_header_hex": "020021011e0000009b075166",
+      "filters": [
+        {
+          "decoded": {
+            "dict_size": 134217728,
+            "id": 33
+          },
+          "id": 33,
+          "properties_hex": "1e"
+        }
+      ],
+      "probes": [
+        {
+          "error": "Memory usage limit exceeded",
+          "memlimit": 67108864,
+          "status": "REFUSED"
+        },
+        {
+          "error": "Memory usage limit exceeded",
+          "memlimit": 134217728,
+          "status": "REFUSED"
+        },
+        {
+          "memlimit": 167772160,
+          "output_bytes": 1,
+          "status": "PASS_FIRST_BYTE_ONLY"
+        },
+        {
+          "memlimit": 201326592,
+          "output_bytes": 1,
+          "status": "PASS_FIRST_BYTE_ONLY"
+        },
+        {
+          "memlimit": 268435456,
+          "output_bytes": 1,
+          "status": "PASS_FIRST_BYTE_ONLY"
+        }
+      ],
+      "xz_header_hex": "fd377a585a000000ff12d941"
+    },
+    "rustc-1.98.0-aarch64-unknown-linux-gnu.tar.xz": {
+      "archive_expected_pin": {
+        "bytes": 66413136,
+        "sha256": "00590657f2356d7163ca5ef295283523974c340fa21bb94b420ce794f29b358c"
+      },
+      "block_header_hex": "020021011e0000009b075166",
+      "filters": [
+        {
+          "decoded": {
+            "dict_size": 134217728,
+            "id": 33
+          },
+          "id": 33,
+          "properties_hex": "1e"
+        }
+      ],
+      "probes": [
+        {
+          "error": "Memory usage limit exceeded",
+          "memlimit": 67108864,
+          "status": "REFUSED"
+        },
+        {
+          "error": "Memory usage limit exceeded",
+          "memlimit": 134217728,
+          "status": "REFUSED"
+        },
+        {
+          "memlimit": 167772160,
+          "output_bytes": 1,
+          "status": "PASS_FIRST_BYTE_ONLY"
+        },
+        {
+          "memlimit": 201326592,
+          "output_bytes": 1,
+          "status": "PASS_FIRST_BYTE_ONLY"
+        },
+        {
+          "memlimit": 268435456,
+          "output_bytes": 1,
+          "status": "PASS_FIRST_BYTE_ONLY"
+        }
+      ],
+      "xz_header_hex": "fd377a585a000000ff12d941"
+    }
+  },
+  "cpu_limit_seconds": 10,
+  "full_archive_extraction": false,
+  "max_input_per_archive": 65536,
+  "max_output_per_probe": 1,
+  "measured_first_byte_minimum": {
+    "archive": "rustc-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+    "decoder_overhead_bytes": 66200,
+    "dict_bytes": 134217728,
+    "largest_refused_bytes": 134283927,
+    "scope": "Current Python/liblzma XZ decoder max_length1, not full extraction",
+    "search_probes": 25,
+    "smallest_accepted_bytes": 134283928
+  },
+  "owner_bounds_changed": false,
+  "owner_memory_bytes": 3221225472,
+  "predecessor_memlimit_bytes": 134217728,
+  "schema": 1,
+  "selected_memlimit_bytes": 167772160,
+  "status": "ACTUAL_HEADER_MAX_LENGTH_1_ONLY_NOT_EXTRACTION"
+}

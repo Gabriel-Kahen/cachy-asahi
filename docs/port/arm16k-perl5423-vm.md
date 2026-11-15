@@ -9,9 +9,16 @@ source implementation with synthetic fenced controls; no actor has run.
 It targets **perl5.42.3-1.3/aarch64** from accepted native ARM4K
 Source25dc3e65bdb6137c87a9409067fe9b2cf6e9763f, exact22,071,176B archive
 SHA647c5f1d2c6965ec2e26b37e75d29c819fafa344f16002153493e9fc62121c22.
-The published Source's `perl/packet/recipe/PKGBUILD` declares1.3. The older
-canonical top-level source candidate declares1.2; it is not substituted for the
-accepted pair. Native pair evidence is Root's retained
+The maintained [1.3 recipe and local helpers](../../packages/port/perl5423-repro-candidate/PKGBUILD)
+are already present in `packages/port/perl5423-repro-candidate/`: all 18 files match
+Source25's `perl/packet/recipe/` bytes and modes, including `.SRCINFO`, both patches,
+notices, staging helpers and controls. Its frozen README/lock describe status at
+source preparation; current bounded outcomes are recorded in the
+[native ARM4K pair](../validation/perl5423-native-arm4k-pair-20261115.md) and
+[installed lifecycle](../validation/perl5423-native-installed-lifecycle-20261115.md)
+validation records. The older `perl5423-source-candidate` remains1.2 and is not
+substituted for the accepted pair. Recipe correspondence does not select the
+candidate for the target. Native pair evidence is Root's retained
 `artifacts/development/orchestrator-resume-20261114/Root-perl-hosted-intake-r1/Root-native-component-decision.ACTUAL-r1.json`
 (5804B, SHA27803c99064198f8688abe2e4d91910eef93df5ad337ebfc7f2d8798afbf41e1).
 Installed Source445b37a9475a4e92804954f4f0e3d0ac84cd9511 now has actual Reader2
@@ -81,3 +88,58 @@ Original111. A new Root-only, finite read-only observer can emit genuine full
 namespace/ownership DATA through the frozen ext4 reader after Root grants and
 external CUSL/S resource supervision. Its NULL template and synthetic/retained
 record checks provide no actual raw-scan or guest/runtime credit.
+
+
+A separate Root opt-in HOME/Btrfs first-trial mode handles only the exact
+UID1000/device54/@home/subvolid257 syscall443 ENOSYS38 result as
+UNSUPPORTED_NOT_UNLIMITED, and all-zero inode counters as UNREPORTED. It brackets
+the same finite allocation/node census with fresh held-FD mount/capacity checks,
+keeps byte/reserve/RAM/CPU/PID/time/cancel/recovery and Perl pre-ALPM/provider gates,
+and claims no quota availability or reservation. The original strict SHM/quota
+branch is unchanged; errors and unknown filesystems hold. No live query or actor
+was run by the worker; fresh Root profile/resource/phase grants remain required.
+
+
+The strict SHM quota observer now uses readonly mount-directory FD syscall443
+Q_GETQUOTA with the72-byte if_dqblk ABI, fixing actual legacy ENOTBLK compatibility.
+Finite hard/soft/headroom/valid checks and error-HOLD semantics are unchanged.
+HOME already uses an FD syscall; no worker query or phase ran, and frozen Root
+observer Source was not modified.
+
+
+The actual Tool529 e2fsck four-hardlink layout is admitted only by a dedicated
+fixed image-tool hasher, preserving all generic single-link DATA guards. Tool
+hashes, root ownership/executable modes and stable identities remain required;
+Root's actual observation is DATA, not a phase grant. The controller has no
+unsupported Docker-start sig-proxy flag.
+
+
+HOME fstat device54 and kernel mountinfo0:33 are separately pinned identity
+domains. Held-FD mount-ID selection, before/after bracket, Btrfs/@home/subvolid257
+checks remain strict; no derived-device equality or unknown-filesystem exception
+is used. The regression covers the exact retained mount62 row plus mismatches.
+
+
+The first baseline has no global GNUPG directory or pacman.log. Exact observed
+ALARM public/trusted/revoked files now feed a separate bounded volatile public-only
+scratch trust, admitting only the Root-reviewed official signer for normal
+Required/TrustedOnly db5.3 install/remove. No global trust is created. All scratch
+GPG operations and cleanup are charged in the finite phase envelope; Root must
+refresh certificates and timing grants. An absent normal log is restored absent
+with the bounded transaction log retained in receipts. Existing logs remain
+append-only. `cmp` was removed: bounded stat+SHA256 equality now serves both guest
+paths and propagates failures, without post-removal language-runtime assumptions.
+These are source/control results; no guest/GPG/ALPM acceptance is supplied.
+
+
+The actual libc PT_INTERP uses the canonical /usr/lib loader while the selected
+loader uses /lib. Source admits that pair only with identical baseline loader
+bytes/size/mode/owner/version/resolved target and the exact filesystem-owned
+/lib alias. Literal ELF facts and all raw/pre-ALPM alias checks remain unchanged;
+arbitrary, missing-alias and mismatched loader inputs refuse.
+
+
+Actual prepare-r1 completed the actor but held in cleanup due to a rebound
+container-name closure. Scope now captures the original immutable name; strict
+identity and all other guards remain. Retained r1 remains a closed HOLD, with no
+VM/runtime acceptance. A new Source attempt requires Root's separate issuance.

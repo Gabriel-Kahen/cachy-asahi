@@ -64,7 +64,7 @@ def contents(case,cert,lock,nonce):
  base=cert['baseline_certificate'];runtime=cert['runtime_certificate'];limits=cert['resource_certificate'];trust=case['trust']
  files={}
  def put(name,raw,mode=0o644):files[name]=(raw.encode()if isinstance(raw,str)else raw,mode)
- for name in('root.sh','probe.sh','case.sh','runtime.pl','smoke.t'):put(name,(HERE/'guest'/name).read_bytes())
+ for name in('root.sh','probe.sh','case.sh','official-trust.sh','runtime.pl','smoke.t'):put(name,(HERE/'guest'/name).read_bytes())
  for name in('rtc-clock.sh','guest-runtime.sh'):put('frozen/'+name,(HERE/'frozen'/name).read_bytes())
  inventory=dict(base['inventory']);deps=dict(inventory,**({'db5.3':runtime['dependency_transaction']['version']}if runtime['dependency_transaction']else{}));installed=dict(deps,**{K.PACKAGE['name']:K.PACKAGE['version']})
  def inv(rows):return ''.join(n+' '+v+'\n'for n,v in sorted(rows.items()))
@@ -95,6 +95,8 @@ def contents(case,cert,lock,nonce):
  put('elf-paths.tsv',''.join(str(i)+'.elf\t'+p+'\t'+runtime['files'][p]['sha256']+'\n' for i,p in enumerate(elfs)))
  dependency=runtime['dependency_transaction']
  if dependency:
+  put('official-public-files.tsv',''.join('\t'.join((p,str(row['bytes']),row['sha256'],format(row['mode'],'o'),row['owner'],row['version']))+'\n'for p,row in sorted(dependency['official_trust']['files'].items())))
+  put('official-signer',dependency['official_trust']['signer']+'\n')
   put('dependency-requires.txt',''.join(p+'\n'for p in dependency['requires']))
   put('dependency-payload.sha256',''.join(r['sha256']+'  '+p+'\n'for p,r in sorted(dependency['namespace'].items())if r['kind']=='f'))
   put('expected-dependency.paths',''.join(p+'\n'for p in sorted(dependency['namespace'])))
@@ -107,7 +109,7 @@ def contents(case,cert,lock,nonce):
  put('materials.sha256',''.join(h+'  '+n+'\n'for n,h in sorted(material_rows.items())))
  put('recovery-reason',str(rollback['reason'])+'\n')
  d='/var/lib/arm16k-perl5423-vm';o='/run/arm16k-perl5423-vm'
- put('dependency-pacman.conf','[options]\nArchitecture = aarch64\nSigLevel = Required TrustedOnly\nLocalFileSigLevel = Required TrustedOnly\nGPGDir = /etc/pacman.d/gnupg\nCacheDir = '+d+'/cache\nLogFile = /var/log/pacman.log\n')
+ put('dependency-pacman.conf','[options]\nArchitecture = aarch64\nSigLevel = Required TrustedOnly\nLocalFileSigLevel = Required TrustedOnly\nGPGDir = '+o+'/official-trust\nCacheDir = '+d+'/cache\nLogFile = /var/log/pacman.log\n')
  put('pacman.conf','[options]\nArchitecture = aarch64\nSigLevel = Required TrustedOnly\nLocalFileSigLevel = Required TrustedOnly\nGPGDir = '+d+'/trust\nCacheDir = '+d+'/cache\nLogFile = /var/log/pacman.log\n')
  unit='[Unit]\nDescription=Disposable Root-bound PERL5423 system-perl case\nAfter=local-fs.target\nBefore=multi-user.target\nConditionPathExists='+d+'/case.env\n[Service]\nType=oneshot\nUser=root\nExecStart=/usr/bin/bash --noprofile --norc '+d+'/root.sh\nTimeoutStartSec='+str(limits['boot_seconds'])+'\n[Install]\nWantedBy=multi-user.target\n'
  put('arm16k-perl5423-vm.service',unit)

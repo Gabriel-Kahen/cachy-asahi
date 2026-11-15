@@ -43,7 +43,7 @@ inventory() {
 }
 
 finish() {
-  local code=$?
+  local code=$? phase receipt receipt_size
   trap - EXIT INT TERM
   set +e
   if [[ $ready == 1 ]]; then
@@ -54,6 +54,19 @@ finish() {
     fi
     if verify_owned > "$D/owned-after.log" 2>&1; then owned_after=PASS; else status=FAIL; fi
     if ! /usr/bin/sha256sum --check --strict --status "$fixture/guest-paths.sha256" > "$D/guest-paths-after.log" 2>&1; then status=FAIL; fi
+    # Bounded exact argv DATA, outside the unchanged Rust result frame.
+    # Receipt presence never proves ld exit success; build/run gates still do.
+    for phase in direct cargo; do
+      receipt=$D/$phase-ld.receipt
+      if [[ -f $receipt && ! -L $receipt && $(/usr/bin/stat -c '%u:%a:%h' -- "$receipt") == 1000:600:1 ]]; then
+        receipt_size=$(/usr/bin/stat -c '%s' -- "$receipt")
+        if [[ $receipt_size =~ ^[0-9]+$ ]] && (( receipt_size > 0 && receipt_size <= 65536 )); then
+          printf '\nRUST_STAGE0_LD_RECEIPT_BEGIN %s %s\n' "$nonce" "$phase"
+          /usr/bin/cat -- "$receipt" || status=FAIL
+          printf 'RUST_STAGE0_LD_RECEIPT_END %s %s\n' "$nonce" "$phase"
+        else status=FAIL; fi
+      else status=FAIL; fi
+    done
     # Flush the disposable guest before Root's complete offline ownership check.
     guest_sync=FAIL
     if /usr/bin/timeout --signal=TERM --kill-after=3 10s /usr/bin/sync > "$D/guest-sync.stdout" 2> "$D/guest-sync.stderr"; then
@@ -94,10 +107,10 @@ cache_mode=$(/usr/bin/stat -c '%a' -- /home/builder/.cache)
 /usr/bin/mkdir -- "$D"
 ready=1
 [[ $(/usr/bin/stat -c '%u:%a' -- "$D") == 1000:700 ]]
-for item in expected111.lock owned-regular.sha256 owned-links.tsv guest-paths.sha256 rtc-clock.sh Cargo.toml Cargo.lock main.rs; do
+for item in expected111.lock owned-regular.sha256 owned-links.tsv guest-paths.sha256 rtc-clock.sh link-stage0.sh Cargo.toml Cargo.lock main.rs; do
   [[ -f $fixture/$item && ! -L $fixture/$item && -r $fixture/$item ]]
 done
-for executable in "$prefix/bin/rustc" "$prefix/bin/cargo" /usr/bin/ld /lib/ld-linux-aarch64.so.1; do
+for executable in "$prefix/bin/rustc" "$prefix/bin/cargo" "$fixture/link-stage0.sh" /usr/bin/ld /lib/ld-linux-aarch64.so.1; do
   [[ -f $executable && -x $executable ]]
 done
 for item in /usr/lib/Scrt1.o /usr/lib/crti.o /usr/lib/crtn.o; do [[ -f $item && -r $item ]]; done
@@ -132,12 +145,14 @@ export HOME=$D CARGO_HOME=$D/cargo-home CARGO_NET_OFFLINE=true
 export RUSTC=$prefix/bin/rustc RUSTDOC=$prefix/bin/rustdoc
 export CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=2
 unset RUSTFLAGS CARGO_ENCODED_RUSTFLAGS RUSTC_WRAPPER RUSTC_WORKSPACE_WRAPPER
-flags=(--edition=2021 -C linker=/usr/bin/ld -C linker-flavor=ld
+flags=(--edition=2021 -C linker="$fixture/link-stage0.sh" -C linker-flavor=ld
   -C link-arg=/usr/lib/Scrt1.o -C link-arg=/usr/lib/crti.o -C link-arg=/usr/lib/crtn.o
   -C link-arg=--dynamic-linker=/lib/ld-linux-aarch64.so.1
   -L native=/usr/lib -C link-arg=-z -C link-arg=max-page-size=16384)
-# No GCC assumption: the exact qualified ld/CRT/loader closure is explicit.
-export CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=/usr/bin/ld
+# Replace only Rust's dynamic -lgcc_s with the pinned ELF .so.1.
+# The GCC-driver script and its static -lgcc are not selected.
+# Other qualified ld/CRT/loader operands and both functional probes are unchanged.
+export CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER="$fixture/link-stage0.sh"
 # Cargo supplies the edition from Cargo.toml; rustc receives all remaining flags.
 export CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUSTFLAGS="${flags[*]:1}"
 started=$SECONDS
@@ -164,12 +179,14 @@ version=$(/usr/bin/cat "$D/cargo-version.stdout")
 [[ $version =~ ^cargo\ (1\.98\.0)\ \([0-9a-f]+\ [0-9-]+\)$ ]]
 cargo_version=${BASH_REMATCH[1]}
 printf '%s\n' 'RUST_CORRECTNESS=PASS threads=4 arithmetic=500050000 files=ok' > "$D/expected.stdout"
+export CACHY_RUST_STAGE0_LINK_RECEIPT=$D/direct-ld.receipt
 bounded direct-build 100 "$prefix/bin/rustc" --target "$triple" "${flags[@]}" "$fixture/main.rs" -o "$D/direct"
 bounded direct-run 15 "$D/direct" "$D"
 [[ $(file_sha "$D/direct-run.stdout") == "$(file_sha "$D/expected.stdout")" ]]
 direct=PASS
 runs=1
 cargo_args=(--offline --frozen --manifest-path "$fixture/Cargo.toml" --target "$triple" --target-dir "$D/target")
+export CACHY_RUST_STAGE0_LINK_RECEIPT=$D/cargo-ld.receipt
 bounded cargo-build 140 "$prefix/bin/cargo" build "${cargo_args[@]}"
 bounded cargo-run 15 "$prefix/bin/cargo" run "${cargo_args[@]}" -- "$D"
 [[ $(file_sha "$D/cargo-run.stdout") == "$(file_sha "$D/expected.stdout")" ]]

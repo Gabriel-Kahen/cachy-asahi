@@ -9,14 +9,17 @@ def module(n):
  s=importlib.util.spec_from_file_location('perl_controller_'+n,HERE/(n+'.py'));m=importlib.util.module_from_spec(s);s.loader.exec_module(m);return m
 
 
-def authority(value,phase,packet,source,output,K):
+def authority(value,phase,packet,source,output,K,resources=None):
  K.keys(value,('kind','issued_by','accepted','operation','phase','packet','source_lock','output','uid','created_utc','expires_utc','image','docker_endpoint','docker_cli','quota_device','actor_tools','kernel','credentials','prepared'),'controller authority')
  K.root_cert(value,'ROOT_PERL5423_VM_ACTOR_AUTHORITY_V1')
  K.need(value['phase']==phase and value['operation']==K.OP and value['packet']==packet and value['source_lock']==source and value['output']==str(output) and value['uid']==os.getuid()!=0,'exact Root phase/packet/Source/output/UID')
  now=int(time.time());K.need(type(value['created_utc'])is type(value['expires_utc'])is int and 0<=now-value['created_utc']<=3600 and now<value['expires_utc']<=value['created_utc']+3600,'fresh finite authority')
  K.need(re.fullmatch('sha256:[0-9a-f]{64}',value['image']or'') and re.fullmatch('unix:///run/user/'+str(os.getuid())+'/[A-Za-z0-9_./-]+',value['docker_endpoint']or'') and '..'not in value['docker_endpoint'],'exact local own-UID rootless endpoint/image')
  module('runtime').docker_cli_shape(value['docker_cli'])
- K.need(type(value['quota_device'])is str and re.fullmatch('/dev/[A-Za-z0-9_/-]+',value['quota_device']),'explicit readonly quota device')
+ if resources is not None and resources['quota_guard']['method']=='READ_ONLY_HOME_BTRFS_ENOSYS_FSTATVFS':
+  module('home_btrfs').profile(resources['quota_guard'],resources,source,phase,output,now)
+  K.need(value['quota_device']is None,'HOME FD syscall mode has no quota device path')
+ else:K.need(type(value['quota_device'])is str and re.fullmatch('/dev/[A-Za-z0-9_/-]+',value['quota_device']),'explicit readonly quota device')
  K.need(set(value['actor_tools'])=={'/usr/bin/python3','/usr/bin/cp','/usr/bin/debugfs','/usr/bin/e2fsck','/usr/bin/qemu-img','/usr/bin/qemu-system-aarch64'},'complete fixed tool image pins')
  for pin in list(value['actor_tools'].values())+list(value['kernel'].values()):K.pin_shape(pin)
  K.keys(value['kernel'],('Image','config'),'RTC 16K kernel pins')
@@ -42,7 +45,7 @@ def main():
  K.need(not out.exists() and out.parent.is_dir() and out.parent.stat().st_uid==os.getuid() and not out.parent.stat().st_mode&0o022,'fresh private owned output')
  K.need(all(out!=q and q not in out.parents and out not in q.parents for q in (HERE,packet_dir,baseline,kernel)),'disjoint Source/packet/baseline/kernel/output')
  authpath=K.ordinary(a.authority);K.need(K.pin(authpath)['sha256']==a.authority_sha256,'external Root exact authority bytes');auth=K.load(authpath)
- authority(auth,a.phase,K.pin(packet_dir/'case-packet.json'),source,out,K)
+ authority(auth,a.phase,K.pin(packet_dir/'case-packet.json'),source,out,K,cert['resource_certificate'])
  R.checked_docker_cli(auth['docker_cli'])
  base=cert['baseline_certificate'];r=cert['resource_certificate']
  baseline_paths=A.baseline_inputs(baseline,base,a.baseline_ownership)
@@ -70,7 +73,7 @@ def main():
  # The readonly whole-owner guard begins before Docker, runs throughout serial
  # waits, and remains active until owned retirement is recorded.
  os.umask(0o077);out.mkdir(mode=0o700);deadline=started+r[a.phase+'_seconds'];cleanup_end=deadline+r['cleanup_seconds']
- guard=Q.Guard(out,r,auth['quota_device'],cleanup_end,R.allocated,initial=True);R.GUARD=guard;guard(True)
+ guard=Q.Guard(out,r,auth['quota_device'],cleanup_end,R.allocated,initial=True,source=source,phase=a.phase);R.GUARD=guard;guard(True)
  B=K.helper('reference_controller.py');state=B.Cancellation();scope=serial=qmp=qfile=None
  report=dict(status='HOLD',docker_cli=auth['docker_cli'],operation=K.OP,phase=a.phase,VM_acceptance=None,Root_acceptance=None,native16K='NOT_RUN',M2='NOT_RUN',performance='NOT_MEASURED',release='NOT_ADMITTED')
  (out/'actor-envelope.json').write_bytes(K.canonical(dict(deadline_monotonic_ns=int(deadline*10**9))))
@@ -89,8 +92,9 @@ def main():
   name='cachy-perl5423-'+secrets.token_hex(12)
   class Scope(B.OwnedContainer):
    def call(self,argv,limit):return R.docker_call(argv,out,limit,shared_deadline=cleanup_end if state.cleaning else deadline,defer_cancel=state.cleaning)
-   def validate(self,row):
-    K.need(row['Name']=='/'+name and row['Image']==auth['image'] and row['Config']['Labels']==labels and row['Config']['Entrypoint']==['/usr/bin/python3'] and row['Config']['Cmd']==['-I','-B','/code/actor.py',a.phase],'exact owned actor identity')
+   def validate(self,row,expected_name=name):
+    # Capture this immutable string now; later material loops reuse "name".
+    K.need(row['Name']=='/'+expected_name and row['Image']==auth['image'] and row['Config']['Labels']==labels and row['Config']['Entrypoint']==['/usr/bin/python3'] and row['Config']['Cmd']==['-I','-B','/code/actor.py',a.phase],'exact owned actor identity')
     K.need(len(row['Mounts'])==len(mounts) and {(x['Type'],x['Source'],x['Destination'],x['RW'])for x in row['Mounts']}==mounts,'exact readonly inputs/single writable output')
     h=row['HostConfig'];K.need(h['ReadonlyRootfs']is True and h['NetworkMode']=='none' and h['CapDrop']==['ALL'] and not h.get('CapAdd') and not h['Privileged'] and not h['Devices'] and h['Init']is False and h['SecurityOpt']==['no-new-privileges'] and h['Memory']==h['MemorySwap']==r['owner_memory_bytes'] and h['NanoCpus']==r['cpus']*10**9 and h['PidsLimit']==r['pids'],'finite cap0 NNP no-network no-device actor')
   scope=Scope(name,out/'container.cid',auth['image'],labels,baseline,out);K.need(scope.listing(time.monotonic()+8)is None,'fresh owned name')
@@ -164,7 +168,8 @@ def main():
    except BaseException as error:report.setdefault('cleanup_errors',[]).append('owned-cleanup: '+str(error)[:1024])
    finally:
     if state.pending or report.get('cleanup_errors') or not report.get('owned_container_absence_verified'):report['status']='HOLD_CLEANUP_OR_CANCELLED'
-    report['quota_guard_samples']=guard.samples
+    if guard.home is None:report['quota_guard_samples']=guard.samples
+    else:report['storage_guard']=dict(mode='HOME_BTRFS_ENOSYS',samples=guard.samples,last_snapshot=guard.last_snapshot,own_uid_quota='UNSUPPORTED_NOT_UNLIMITED',other_quota_availability='UNCLAIMED',capacity_reservation=False)
     try:(out/'report.json').write_bytes(K.canonical(report))
     finally:
      try:

@@ -51,10 +51,16 @@ bounded "$run_seconds" triple.log "$P/bin/clang" -dumpmachine
 printf 'aarch64-unknown-linux-gnu\n' | cmp -- - triple.log
 bounded "$run_seconds" config-version.log "$P/bin/llvm-config" --version
 printf '23.1.1\n' | cmp -- - config-version.log
-bounded "$compile_seconds" c-build.log "$P/bin/clang" "$D/smoke.c" -fuse-ld=lld --rtlib=compiler-rt -Wl,-z,max-page-size=16384 -o "$U/smoke"
+probe_link_data
+# No headers, default startfiles/libraries or GCC development search operands.
+# Each input below is a Root-certified exact path; lib_unwind is baseline libgcc_s.
+link_flags=(-nostdinc -nostdinc++ -nostdlib -nostartfiles -nostdlib++ -fPIE -pie
+ "-fuse-ld=$linker" --rtlib=compiler-rt "-Wl,--dynamic-linker,$loader"
+ -Wl,--no-as-needed -Wl,--eh-frame-hdr -Wl,-z,max-page-size=16384)
+bounded "$compile_seconds" c-build.log "$P/bin/clang" "${link_flags[@]}" "$crt_start" "$crt_init" "$D/smoke.c" "$builtins" "$lib_c" "$loader" "$crt_fini" -o "$U/smoke"
 bounded "$run_seconds" c-run.log "$U/smoke"
 printf 'LLVM23_C_OK\n' | cmp -- - c-run.log
-bounded "$compile_seconds" cxx-build.log "$P/bin/clang++" "$D/unwind.cpp" -fuse-ld=lld --rtlib=compiler-rt --unwindlib=libunwind -L"$P/lib" -Wl,-rpath,"$P/lib" -Wl,-z,max-page-size=16384 -o "$U/unwind"
+bounded "$compile_seconds" cxx-build.log "$P/bin/clang++" "${link_flags[@]}" -fexceptions -frtti "$crt_start" "$crt_init" "$D/unwind.cpp" "$lib_cxx" "$lib_unwind" "$lib_m" "$builtins" "$lib_c" "$loader" "$crt_fini" -o "$U/unwind"
 bounded "$run_seconds" cxx-run.log "$U/unwind"
 printf 'LLVM23_UNWIND_OK\n' | cmp -- - cxx-run.log
 inventory > after.lock

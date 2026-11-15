@@ -1,0 +1,35 @@
+{
+  "Original": {
+    "bytes": 1269199,
+    "sha256": "41bc034655cc034e05d1d5f40aa63fb911b9d29076003a12ded6e22e6f878df8"
+  },
+  "TAR": {
+    "bytes": 35328,
+    "sha256": "fe5c145db338c7e61832008f42c1c29ac86f3cdcb330ee699df6de97592d90b8"
+  },
+  "XS_acceptance": false,
+  "actor_result": {
+    "bytes": 387,
+    "sha256": "1daf5345cc8b436f1398056afd9e0cba2288cf412f64ecd3f6b017b4bbe725cf"
+  },
+  "actual_failure": "ValueError: canonical shell-safe absolute path",
+  "argument": {
+    "type": "PosixPath",
+    "value": "/tmp/xs-sandbox.json"
+  },
+  "artifact": "14178075955",
+  "cause": "actor passes Path object to a string-only runner external operand check",
+  "job": "132933814476",
+  "native_acceptance": false,
+  "nested_invocation": "NOT_INVOKED",
+  "preflight_path_guard_unchanged": true,
+  "recorded_native_traceback": false,
+  "reproduced_callsite": "consumer/runner/run.py:176 p.path(sandbox_path)",
+  "run": "43753943999",
+  "runtime_observation": {
+    "bytes": 12381,
+    "sha256": "bddd4d6ac49929d96f102a0a424a4efe9a8a673645f7c070fd50918265d69320"
+  },
+  "schema": 1,
+  "source": "898554db64007b7b6071e7d94cfcbbb06d906145"
+}

@@ -19,6 +19,7 @@ MAX_ARCHIVE = 128*MIB
 MAX_LOGICAL = 1024*MIB
 MAX_FILE = 256*MIB
 MAX_NODES = 2048
+MAX_DECODER_MEMORY = 160*MIB
 
 
 def need(ok, why):
@@ -188,10 +189,10 @@ def verify_specs(data_root, spec):
 
 
 class _XZStream:
-    """One XZ stream, 128 MiB decoder cap, bounded output on every call."""
+    """One XZ stream, 160 MiB decoder cap, bounded output on every call."""
     def __init__(self, source, expected):
         self.source,self.expected = source,expected
-        self.decoder = lzma.LZMADecompressor(format=lzma.FORMAT_XZ,memlimit=128*MIB)
+        self.decoder = lzma.LZMADecompressor(format=lzma.FORMAT_XZ,memlimit=MAX_DECODER_MEMORY)
         self.h = hashlib.sha256();self.compressed = self.logical = 0;self.finished = False
     def _read(self):
         block = self.source.read(CHUNK);self.compressed += len(block);self.h.update(block)

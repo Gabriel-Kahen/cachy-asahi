@@ -30,11 +30,17 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_llvm23_vm/test_prepare.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_llvm23_vm/test_ops.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_llvm23_vm/test_boot.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_llvm23_vm/test_docker.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_llvm23_vm/test_ownership.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_llvm23_vm/test_probe.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/llvm23-source-reference-native/successor_v5/test_stage_receipts.py
           bash -n scripts/integration/arm16k_llvm23_vm/guest/root.sh scripts/integration/arm16k_llvm23_vm/guest/probe.sh scripts/integration/arm16k_llvm23_vm/guest/case.sh
       - name: Check Perl ARM16K lifecycle contracts without actors
         run: |
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_perl5423_vm/test_controls.py
-          bash -n scripts/integration/arm16k_perl5423_vm/guest/root.sh scripts/integration/arm16k_perl5423_vm/guest/probe.sh scripts/integration/arm16k_perl5423_vm/guest/case.sh
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_perl5423_vm/test_git_roundtrip.py
+          bash scripts/integration/arm16k_perl5423_vm/test_guest_data.sh
+          bash -n scripts/integration/arm16k_perl5423_vm/guest/root.sh scripts/integration/arm16k_perl5423_vm/guest/probe.sh scripts/integration/arm16k_perl5423_vm/guest/case.sh scripts/integration/arm16k_perl5423_vm/guest/official-trust.sh
       - name: Check image lifecycle producer and Reader DATA without actors
         run: |
           python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/test_pair_data.py -v
@@ -168,8 +174,15 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v2/test_producer.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v3/test_admission.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v3/test_source.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_rust_stage0_vm/test_budget.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_rust_stage0_vm/test_controls.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_rust_stage0_vm/test_dynamic_inputs.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_rust_stage0_vm/test_guest_link.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_rust_stage0_vm/test_home_guard.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_rust_stage0_vm/test_image.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_rust_stage0_vm/test_lzma_memory.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_rust_stage0_vm/test_memory.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_rust_stage0_vm/test_passive_namespace.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_rust_stage0_vm/test_runtime.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_rust_stage0_vm/test_stage0.py
       - name: Check current capability adapters and GUI frame DATA
@@ -373,6 +386,22 @@ jobs:
         run: |
           python3 -I -B -Werror::ResourceWarning scripts/port/llvm23-native-independent-reader/v4/test_v4.py --source-root "${RUNNER_TEMP}/llvm23-v4-source-DATA" --parent-source "${RUNNER_TEMP}/llvm23-v2-source-DATA" --ancestor-source "${RUNNER_TEMP}/llvm23-v1-source-DATA"
           python3 -I -B -Werror::ResourceWarning scripts/port/llvm23-native-independent-reader/v4/test_volume.py --source-root "${RUNNER_TEMP}/llvm23-v4-source-DATA"
+      - name: Render and check stage-isolated LLVM260 Source DATA
+        if: matrix.python == '3.14'
+        run: |
+          python3 -I -B -Werror::ResourceWarning scripts/ci/llvm23-source-reference-native/successor_v5/test_constructor.py --parent-source "${RUNNER_TEMP}/llvm23-v4-source-DATA" --ancestor-source "${RUNNER_TEMP}/llvm23-v1-source-DATA"
+          python3 -I -B -Werror::ResourceWarning - <<'PY'
+          import hashlib, importlib.util, os
+          from pathlib import Path
+          root = Path('scripts/ci/llvm23-source-reference-native/successor_v5')
+          spec = importlib.util.spec_from_file_location('LLVM260_CI_DATA', root / 'prepare.py')
+          constructor = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(constructor)
+          digest = hashlib.sha256((root / 'constructor-profile.json').read_bytes()).hexdigest()
+          constructor.construct(Path(os.environ['RUNNER_TEMP']) / 'llvm23-v4-source-DATA',
+                                Path(os.environ['RUNNER_TEMP']) / 'llvm23-v5-source-DATA', digest)
+          PY
+          python3 -I -B -Werror::ResourceWarning scripts/port/llvm23-native-independent-reader/v5/test_v5.py --parent-source "${RUNNER_TEMP}/llvm23-v4-source-DATA" --historical-source "${RUNNER_TEMP}/llvm23-v2-source-DATA" --ancestor-source "${RUNNER_TEMP}/llvm23-v1-source-DATA" --successor-source "${RUNNER_TEMP}/llvm23-v5-source-DATA"
       - name: Check out immutable XS316 Source as DATA
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
@@ -411,6 +440,37 @@ jobs:
           test "$(git -C .xs-v6-data-repository rev-parse HEAD^{tree})" = 23eb609e638450cab16e13666c433cca198520b6
           git -C .xs-v6-data-repository -c tar.umask=0022 archive --format=tar HEAD | tar -xf - -C "$xs_source"
           python3 -I -B -Werror::ResourceWarning scripts/port/perl-xs-native-independent-reader/v6/test_v6.py --v6-source "$xs_source"
+      - name: Check portable XS v7 Source controls and construct exact XS326 DATA
+        if: matrix.python == '3.14'
+        run: |
+          python3 -I -B -Werror::ResourceWarning - <<'PY'
+          import hashlib, importlib.util, os, unittest
+          from pathlib import Path
+          root = Path('scripts/ci/perl5423-native-xs-v7')
+          spec = importlib.util.spec_from_file_location('xs_v7_ci_source_controls', root / 'test_source.py')
+          controls = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(controls)
+          controls.PARENT = Path(os.environ['RUNNER_TEMP']) / 'xs-v6-source-DATA'
+          assert controls.PARENT.is_dir()
+          # These two tests replay Root's undistributed failed Original; no substitute fixture.
+          private = {'test_actual_path_object_failure_reproduced_before_sandbox_or_work',
+                     'test_string_argument_passes_strict_external_paths_only_until_fenced_sandbox'}
+          names = unittest.defaultTestLoader.getTestCaseNames(controls.Controls)
+          assert len(names) == 13 and private <= set(names)
+          suite = unittest.TestSuite(controls.Controls(name) for name in names if name not in private)
+          result = unittest.TextTestRunner(verbosity=2).run(suite)
+          assert result.wasSuccessful() and result.testsRun == 11 and not result.skipped
+          digest = hashlib.sha256((root / 'profile.json').read_bytes()).hexdigest()
+          output = Path(os.environ['RUNNER_TEMP']) / 'xs-v7-source-DATA'
+          frame = controls.P.construct(controls.PARENT, digest, output)
+          assert frame['files'] == 326 and frame['bytes'] == 88117546
+          assert frame['map'] == {'bytes': 63172, 'sha256': '89493dbeeb686f9606c03337aa6a824a756bc312cdc7b1e3a0e7ce96827cd43d'}
+          assert frame['prospective_tree'] == 'cb3684c7583c499f4f90f759314c7e03b9a0d428'
+          PY
+      - name: Check all forty-two independent XS326 Reader7 DATA controls
+        if: matrix.python == '3.14'
+        run: |
+          python3 -I -B -Werror::ResourceWarning scripts/port/perl-xs-native-independent-reader/v7/test_v7.py --v7-source "${RUNNER_TEMP}/xs-v7-source-DATA"
       - name: Check out immutable installed252 Source as DATA
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:

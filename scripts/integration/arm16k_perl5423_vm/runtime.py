@@ -80,6 +80,27 @@ def natural(row):
     return row.get('passed') is True and row.get('reaped') is True and row.get('ownership')=='REAPED' and row.get('exit')==0 and row.get('group_census')=='EMPTY_TWICE' and row.get('output_complete') is True and row.get('signals')==[] and row.get('timeout') is False and row.get('error') is None and not row.get('command_cancelled') and not row.get('command_timed_out') and not row.get('original_budget_overrun') and not row.get('emergency_retirement')
 
 
+def image_tool_metadata(name,info):
+    K=module('contracts')
+    K.need(name in('/usr/bin/python3','/usr/bin/cp','/usr/bin/debugfs','/usr/bin/e2fsck','/usr/bin/qemu-img','/usr/bin/qemu-system-aarch64'),'fixed image tool operand')
+    K.need(stat.S_ISREG(info.st_mode) and stat.S_IMODE(info.st_mode)==0o755 and info.st_uid==info.st_gid==0 and info.st_nlink in((1,4)if name=='/usr/bin/e2fsck'else(1,)) and 0<info.st_size<=64*1024**2,'root-owned ordinary executable tool; only observed e2fsck four-link layout admitted')
+
+
+def image_tool_pin(name):
+    # Tool529 e2fsck is legitimately hardlinked four times. Do not relax the
+    # single-link rule for generic DATA, archives, authority or host CLI files.
+    import hashlib
+    K=module('contracts');p=K.ordinary(Path(name).resolve(strict=True))
+    identity=lambda s:tuple(getattr(s,n)for n in('st_dev','st_ino','st_size','st_mode','st_uid','st_gid','st_nlink','st_mtime_ns','st_ctime_ns'))
+    with os.fdopen(os.open(p,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK|os.O_CLOEXEC),'rb')as stream:
+        before=os.fstat(stream.fileno());image_tool_metadata(name,before);h=hashlib.sha256();size=0
+        while block:=stream.read(65536):
+            K.need(size+len(block)<=64*1024**2 and (K.END is None or time.monotonic()<K.END),'finite tool hashing envelope');h.update(block);size+=len(block)
+        after=os.fstat(stream.fileno())
+    K.need(identity(before)==identity(after)==identity(p.lstat()) and size==before.st_size,'stable actual tool bytes/mode/owner/link identity')
+    return dict(bytes=size,sha256=h.hexdigest())
+
+
 def allocated(root,deadline=None):
     """Bounded lstat allocation census, including links without following them."""
     root=Path(root)

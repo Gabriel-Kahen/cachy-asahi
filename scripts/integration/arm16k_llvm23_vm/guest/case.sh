@@ -23,6 +23,25 @@ case_data() {
  (( cert_not_before < cert_not_after ))
 }
 file_sha() { local value;value=$(sha256sum -- "$1") || return;printf '%s' "${value%% *}"; }
+probe_link_data() {
+ local key value line count=0
+ declare -A seen=()
+ [[ -f $D/probe-link.env && ! -L $D/probe-link.env && $(stat -c '%u:%g:%a' "$D/probe-link.env") == 0:0:644 ]]
+ while IFS= read -r line || [[ -n $line ]]; do
+  [[ $line == *=* && ${line#*=} != *=* ]] || return 2
+  key=${line%%=*};value=${line#*=}
+  [[ $key =~ ^[a-z_]+$ && -n $value ]] || return 2
+  [[ ! ${seen[$key]+yes} ]] || return 2
+  case "$key" in
+   link_mode) [[ $value == EXPLICIT_COMPILER_RT_BASELINE_SONAMES ]] || return 2;;
+   crt_start|crt_init|crt_fini|lib_c|lib_m|lib_cxx|lib_unwind|builtins|loader|linker)
+    [[ $value =~ ^/[A-Za-z0-9._+/@:~-]+$ && $value != */ && $value != *//* && $value != */./* && $value != */../* && $value != */. && $value != */.. ]] || return 2;;
+   *) return 2;;
+  esac
+  seen[$key]=1;printf -v "$key" '%s' "$value";count=$((count+1))
+ done < "$D/probe-link.env"
+ [[ $count == 11 ]]
+}
 clock_valid() { local now;now=$(date -u +%s);(( now >= cert_not_before && now < cert_not_after )); }
 # A mandatory Root cap bounds each command and its combined log. Do not impose
 # RLIMIT_FSIZE on ALPM/clang: their installed payload/output files are larger.

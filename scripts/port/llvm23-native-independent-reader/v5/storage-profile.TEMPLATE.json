@@ -1,0 +1,15 @@
+{
+  "accepted": null,
+  "inode_accounting": "UNREPORTED_ALL_ZERO",
+  "issued_by": null,
+  "kind": "ROOT_REVIEWED_LLVM_READER5_BTRFS_STORAGE_V1",
+  "mount_identity": {
+    "bytes": 372,
+    "path": null,
+    "sha256": "cae374f1b05465b53e2f2d1efb6dc9171d30756e67fbdb5a84549bc7e6d60781"
+  },
+  "observed_epoch": null,
+  "output_parent": null,
+  "reservation": false,
+  "uid": 1000
+}

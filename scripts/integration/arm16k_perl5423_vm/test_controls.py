@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 """Fenced synthetic DATA only. Never Docker, VM, GPG, ALPM, compiler or network."""
-import ast,copy,hashlib,importlib.util,json,os,struct,sys,tempfile,time,unittest
+import ast,copy,ctypes,hashlib,importlib.util,json,os,struct,sys,tempfile,time,unittest
 from pathlib import Path
 from unittest.mock import patch
 HERE=Path(__file__).resolve().parent
@@ -31,6 +31,7 @@ def modeled(rollback=False, dependency=False):
  now=int(time.time());c['trust']=dict(fingerprint='A'*40,created_utc=now-1,expires_utc=now+3500,evaluated_utc=now,public_only=True,signature_valid=True,revoked=False)
  inv={n:'MODEL-1'for n in ('glibc','gdbm','db5.3','libxcrypt','bzip2','zlib','base-tools')}
  if dependency:inv.pop('db5.3')
+ if dependency:inv['archlinuxarm-keyring']='MODEL-1'
  if rollback:inv['perl']='5.42.3-1'
  b=dict(kind='ROOT_ACCEPTED_ARM16K_PAM_BASELINE_V1',issued_by='Root',accepted=True,architecture='aarch64',page_bytes=16384,raw=pin('raw',1024**3),prepared=pin('prepared'),inventory=inv,ownership=pin('ownership'),report=pin('PAM'),normal_PAM_logout_observed=True,owned_container_absence_verified=True,baseline_count=len(inv))
  ns={};files={};baseline_files={};tools=['/usr/bin/'+n for n in K.TOOLS]
@@ -63,8 +64,10 @@ def modeled(rollback=False, dependency=False):
  recovery=dict(mode='SIGNED_EXACT_OLD_PACKAGE'if rollback else'REMOVE',version=inv.get('perl'),archive=pin('old')if rollback else None,signature=pin('old-sig')if rollback else None,reason='explicit'if rollback else None,exact_payload_verified=True,local_database_policy='NORMAL_INSTALLDATE_AND_TRANSACTION_TIMESTAMPS'if rollback else'EXACT')
  rt=dict(kind='ROOT_REVIEWED_PERL5423_VM_RUNTIME_V1',issued_by='Root',accepted=True,baseline_certificate=None,package=None,namespace_coverage='ALL_PACKAGE_OWNED_PATHS',candidate_namespace=ns,baseline_namespace=old,baseline_files=baseline_files,hardlinks=K.HARDLINKS,dependency_transaction={},elf_inventory=pin('elf-inventory'),full_payload_elf_coverage=True,elfs=elfs,files=files,tools=tools,loader=loader,alpm_dependencies=requires,PKGINFO=dict(bytes=4483,sha256='31461fa035ad9f3761775dc412f3966c1c451c817e51eb5a2412808027133edc'),effective_hook_policy=dict(baseline_configuration='/etc/pacman.conf',transaction_same_effective_policy=True,hook_directories=['/usr/share/libalpm/hooks','/etc/pacman.d/hooks'],namespace_pin=pin('actual-complete-hooks'),scriptlets_enabled=True,suppression_added=False),dependency_resolution=deps,reverse_dependencies=[],rollback=recovery,probe_qualification=dict(commands=['/usr/bin/'+n for n in K.COMMANDS],modules=['Config','JSON::PP','Digest::SHA','DB_File','GDBM_File','Compress::Raw::Zlib','Compress::Raw::Bzip2','threads'],network=False,CPAN=False,compiler=False,actual_paths_verified=True),baseline_namespace_pin=pin('complete-baseline-namespace'),restoration_allowances=dict(install_date_path='/var/lib/pacman/local/perl-'+inv['perl']+'/desc'if rollback else None,database_timestamp_paths=['/var/lib/pacman/local']+(['/var/lib/pacman/local/perl-'+inv['perl'], '/var/lib/pacman/local/perl-'+inv['perl']+'/desc','/var/lib/pacman/local/perl-'+inv['perl']+'/files']if rollback else[]),payload_directory_timestamps=True,normal_pacman_log='/var/log/pacman.log',pacman_log_before=pin('MODEL_original_pacman_log'),cache_directory_timestamps=['/var/cache','/var/cache/ldconfig']))
  if dependency:
+  public_files={p:entry(p,'archlinuxarm-keyring',0o644)for p in K.ALARM_FILES};files.update(public_files);baseline_files.update(copy.deepcopy(public_files))
+  official=dict(kind='ROOT_REVIEWED_SCRATCH_ALARM_PUBLIC_TRUST_V1',signer=K.ALARM_SIGNER,files=public_files,trusted_policy_reviewed=True,revoked_signer_absent=True,ownertrust_policy='ROOT_ADMITTED_SIGNER_ONLY_NO_BULK_OWNERTRUST_IMPORT',scratch_home='/run/arm16k-perl5423-vm/official-trust',baseline_global_gpgdir='ABSENT')
   db=providers['db5.3'];row=files[db];nsdep={'/usr':dict(kind='d',mode=0o755,uid=0,gid=0),'/usr/lib':dict(kind='d',mode=0o755,uid=0,gid=0),db:dict(kind='f',mode=row['mode'],uid=0,gid=0,bytes=row['bytes'],sha256=row['sha256'])}
-  rt['dependency_transaction']=dict(K.DB53,namespace=nsdep,files={db:row},elf_paths=[db],full_ELF_coverage=True,requires=['libgcc','libstdc++','sh'],resolution={n:dict(owner='base-tools',version=inv['base-tools'],satisfied=True,providers=['/usr/bin/bash'])for n in('libgcc','libstdc++','sh')},baseline_public_trust=pin('actual-public-official-trust-namespace'),signature_authenticated=True,current_trust_reviewed=True,recovery='NORMAL_REMOVE_AFTER_PERL_RECOVERY')
+  rt['dependency_transaction']=dict(K.DB53,namespace=nsdep,files={db:row},elf_paths=[db],full_ELF_coverage=True,requires=['libgcc','libstdc++','sh'],resolution={n:dict(owner='base-tools',version=inv['base-tools'],satisfied=True,providers=['/usr/bin/bash'])for n in('libgcc','libstdc++','sh')},baseline_public_trust=pin('actual-public-official-trust-namespace'),official_trust=official,signature_authenticated=True,current_trust_reviewed=True,recovery='NORMAL_REMOVE_AFTER_PERL_RECOVERY')
  r={n:1 for n in K.LIMITS};r.update(kind='ROOT_REVIEWED_PERL5423_VM_RESOURCES_V1',issued_by='Root',accepted=True,baseline_certificate=None,package=None,package_expanded_bytes=sum(v.get('bytes',0)for v in ns.values())+(sum(v.get('bytes',0)for v in rt['dependency_transaction']['namespace'].values())if dependency else 0),fixture_source_bytes=1024**2,case_staging_bytes=24*1024**2,baseline_raw_bytes=1024**3,prepared_raw_bytes=1024**3,baseline_allocated_bytes=1024**2,guest_filesystem_free_bytes=100*1024**2,guest_output_cap_bytes=1024**2,clone_allocated_cap_bytes=40*1024**2,readback_allocated_cap_bytes=40*1024**2,overlay_cap_bytes=10*1024**2,logs_cap_bytes=10*1024**2,reserve_bytes=1024**2,physical_free_bytes=200*1024**2,quota_initial_headroom_bytes=200*1024**2,quota_live_reserve_bytes=1024**2,guest_memory_bytes=128*1024**2,owner_memory_bytes=256*1024**2,host_reserve_bytes=1024**2,host_MemAvailable_bytes=512*1024**2,cpus=2,pids=128,prepare_seconds=120,boot_seconds=600,cleanup_seconds=60,boot_overhead_seconds=30,output_device=1,host_uid=os.getuid(),gpg_seconds=5,install_seconds=20,probe_wait_seconds=180,remove_seconds=20,run_seconds=10,sync_seconds=5,log_bytes=1024**2)
  # Resources require a positive ordinary UID; synthetic host may be root, never actor.
  r['host_uid']=1000
@@ -75,7 +78,228 @@ def modeled(rollback=False, dependency=False):
 
 def reseal(a):return seal(a[0],*a[2:])
 
+def modeled_home():
+ a=modeled();r=a[4];q=K.load(HERE/'home-storage-guard.TEMPLATE.json');now=int(time.time())
+ q.update(outputs=dict(prepare='/home/gabe/MODEL/prepare',boot='/home/gabe/MODEL/boot'),source_lock=pin('modeled-controller-source'),created_utc=now-1,expires_utc=now+300)
+ r.update(host_uid=1000,output_device=54,quota_initial_headroom_bytes=None,quota_live_reserve_bytes=None,quota_guard=q)
+ return reseal(a)
+
 class Controls(unittest.TestCase):
+ def test_actual_scope_name_capture_survives_material_loop_name_rebinding(self):
+  import types
+  source=ast.parse((HERE/'controller.py').read_bytes());node=next(n for n in ast.walk(source)if isinstance(n,ast.ClassDef)and n.name=='Scope');name='cachy-perl5423-a9b3e6c2974deadcf05ed9a5';labels={'MODEL':'LABEL'};mounts={('bind','/MODEL','/work',True)};r=modeled()[4]
+  ns=dict(B=types.SimpleNamespace(OwnedContainer=object),K=K,name=name,auth=dict(image='sha256:'+'a'*64),labels=labels,mounts=mounts,r=r,a=types.SimpleNamespace(phase='prepare'))
+  exec(compile(ast.Module(body=[node],type_ignores=[]),'<actual-Scope-source>','exec'),ns);scope=ns['Scope']()
+  row=dict(Name='/'+name,Image=ns['auth']['image'],Config=dict(Labels=labels,Entrypoint=['/usr/bin/python3'],Cmd=['-I','-B','/code/actor.py','prepare']),Mounts=[dict(Type='bind',Source='/MODEL',Destination='/work',RW=True)],HostConfig=dict(ReadonlyRootfs=True,NetworkMode='none',CapDrop=['ALL'],CapAdd=[],Privileged=False,Devices=[],Init=False,SecurityOpt=['no-new-privileges'],Memory=r['owner_memory_bytes'],MemorySwap=r['owner_memory_bytes'],NanoCpus=r['cpus']*10**9,PidsLimit=r['pids']))
+  scope.validate(row);ns['name']='signing_receipt';scope.validate(row)
+  for bad in(dict(row,Name='/signing_receipt'),dict(row,Name='/cachy-perl5423-WRONG'),dict(row,Image='sha256:'+'b'*64)):
+   with self.assertRaises(ValueError):scope.validate(bad)
+ def test_actual_PT_INTERP_alias_pair_requires_same_loader_and_observed_alias(self):
+  canonical='/usr/lib/ld-linux-aarch64.so.1';alias='/lib/ld-linux-aarch64.so.1';baseline={'glibc':'ACTUAL-VERSION-MODEL','filesystem':'ACTUAL-FS-MODEL'};row=dict(bytes=201832,sha256='a'*64,mode=0o755,owner='glibc',version=baseline['glibc'],resolved=canonical)
+  value=dict(loader=alias,files={alias:copy.deepcopy(row),canonical:copy.deepcopy(row)},baseline_files={alias:copy.deepcopy(row),canonical:copy.deepcopy(row)},expected_payload=dict(aliases={'/lib':dict(target='usr/lib',owner='filesystem',version=baseline['filesystem'],mode=0o777,uid=0,gid=0)}))
+  self.assertTrue(K.interpreter_matches(value,canonical,baseline));self.assertTrue(K.interpreter_matches(value,alias,baseline));self.assertTrue(K.interpreter_matches(value,None,baseline))
+  reverse=copy.deepcopy(value);reverse['loader']=canonical;self.assertTrue(K.interpreter_matches(reverse,alias,baseline))
+  for kind in('target','hash','bytes','mode','owner','version','missing-alias','wrong-alias','alias-owner','alias-version','missing-file','missing-baseline','arbitrary','double-slash'):
+   bad=copy.deepcopy(value);interpreter=canonical
+   if kind in('target','hash','bytes','mode','owner','version'):
+    key={'target':'resolved','hash':'sha256'}.get(kind,kind);bad['files'][canonical][key]={'target':'/usr/lib/wrong.so','hash':'b'*64,'bytes':1,'mode':0o644,'owner':'filesystem','version':'OTHER'}[kind]
+   if kind=='missing-alias':bad['expected_payload']['aliases']={}
+   if kind=='wrong-alias':bad['expected_payload']['aliases']['/lib']['target']='usr/other'
+   if kind=='alias-owner':bad['expected_payload']['aliases']['/lib']['owner']='glibc'
+   if kind=='alias-version':bad['expected_payload']['aliases']['/lib']['version']='OTHER'
+   if kind=='missing-file':del bad['files'][canonical]
+   if kind=='missing-baseline':del bad['baseline_files'][canonical]
+   if kind=='arbitrary':interpreter='/tmp/ld-linux-aarch64.so.1'
+   if kind=='double-slash':interpreter='//usr/lib/ld-linux-aarch64.so.1'
+   with self.subTest(kind=kind),self.assertRaises(ValueError):K.interpreter_matches(bad,interpreter,baseline)
+ def test_official_scratch_trust_certificate_packet_and_finite_gpg_envelope(self):
+  a=modeled(dependency=True);K.validate(*a);rows=A.contents(a[0],dict(zip(K.EVIDENCE,a[2:])),pin('source'),'a'*32)
+  conf=rows['dependency-pacman.conf'][0];self.assertIn(b'GPGDir = /run/arm16k-perl5423-vm/official-trust',conf);self.assertNotIn(b'GPGDir = /etc/pacman.d/gnupg',conf);self.assertIn(b'Required TrustedOnly',conf);self.assertEqual(len(rows['official-public-files.tsv'][0].splitlines()),3);self.assertEqual(rows['official-signer'][0],(K.ALARM_SIGNER+'\n').encode());self.assertIn('official-trust.sh',rows)
+  for kind in('signer','review','revoked','bulk','global','home','missing-file','file-mode'):
+   b=modeled(dependency=True);trust=b[3]['dependency_transaction']['official_trust']
+   if kind=='signer':trust['signer']='A'*40
+   if kind=='review':trust['trusted_policy_reviewed']=False
+   if kind=='revoked':trust['revoked_signer_absent']=False
+   if kind=='bulk':trust['ownertrust_policy']='IMPORT_ALL_TRUSTED'
+   if kind=='global':trust['baseline_global_gpgdir']='PRESENT'
+   if kind=='home':trust['scratch_home']='/etc/pacman.d/gnupg'
+   if kind=='missing-file':del trust['files'][K.ALARM_FILES[-1]]
+   if kind=='file-mode':trust['files'][K.ALARM_FILES[0]]['mode']=0o600
+   with self.subTest(kind=kind),self.assertRaises(ValueError):K.validate(*reseal(b))
+  a[4].update(gpg_seconds=15,install_seconds=60,remove_seconds=60,run_seconds=10,sync_seconds=10,cleanup_seconds=90,boot_overhead_seconds=120,probe_wait_seconds=240,boot_seconds=900)
+  with self.assertRaises(ValueError):K.validate(*reseal(a))
+  a[4]['boot_seconds']=1200;K.validate(*reseal(a))
+  self.assertNotIn('cmp',K.TOOLS)
+  for p in(HERE/'guest').glob('*.sh'):self.assertNotIn('cmp --',p.read_text())
+ def test_absent_pacman_log_restored_with_retained_transaction_log_only(self):
+  import base64
+  rt=modeled()[3];rt['restoration_allowances']['pacman_log_before']=None
+  desc='%NAME%\nx\n\n%VERSION%\n1\n';files='%FILES%\nusr/bin/x\nvar/log/\n';h=lambda b:hashlib.sha256(b).hexdigest();data=b'normal ALPM transaction log\n';receipt='var/lib/arm16k-perl5423-vm/receipts/pacman-log-after'
+  nodes={'usr/bin/x':dict(type='file',mode=0o755,uid=0,gid=0,sha256='a'*64),'var/log':dict(type='directory',mode=0o755,uid=0,gid=0,mtime=1,mtime_ns=0)};records={'var/lib/pacman/local/x-1/desc':desc,'var/lib/pacman/local/x-1/files':files}
+  for p,text in records.items():nodes[p]=dict(type='file',mode=0o644,uid=0,gid=0,sha256=h(text.encode()))
+  before=dict(nodes=nodes,records=records,log_data_b64=None);valid=copy.deepcopy(before);valid['nodes']['var/log']['mtime']=2;valid['nodes'][receipt]=dict(type='file',mode=0o600,uid=0,gid=0,size=len(data),sha256=h(data));valid['retained_log_data_b64']=base64.b64encode(data).decode()
+  for kind in('valid','left-log','missing-receipt','owner','mode','hash','extra-log'):
+   after=copy.deepcopy(valid)
+   if kind=='left-log':after['nodes']['var/log/pacman.log']=after['nodes'][receipt]
+   if kind=='missing-receipt':after['retained_log_data_b64']=None
+   if kind=='owner':after['nodes'][receipt]['uid']=1000
+   if kind=='mode':after['nodes'][receipt]['mode']=0o644
+   if kind=='hash':after['nodes'][receipt]['sha256']='b'*64
+   if kind=='extra-log':after['nodes']['var/log/unrelated']=after['nodes'][receipt]
+   if kind=='valid':self.assertEqual(I.preserve(before,after,{'x':'1'},rt)['pacman_log'],'ABSENCE_RESTORED_WITH_RETAINED_NORMAL_TRANSACTION_LOG')
+   else:
+    with self.subTest(kind=kind),self.assertRaises(ValueError):I.preserve(before,after,{'x':'1'},rt)
+ def test_Tool529_e2fsck_four_links_only_and_generic_DATA_stays_single_link(self):
+  import types
+  R=module('runtime')
+  with tempfile.TemporaryDirectory()as tmp:
+   p=Path(tmp)/'synthetic-tool';p.write_bytes(b'MODELED_TOOL_BYTES_NOT_EXECUTED');actual=p.lstat();base={n:getattr(actual,n)for n in('st_dev','st_ino','st_size','st_mtime_ns','st_ctime_ns')};base.update(st_mode=0o100755,st_uid=0,st_gid=0,st_nlink=4);fakeK=types.SimpleNamespace(ordinary=lambda p:p,need=K.need,END=None)
+   for kind in('e2fsck-four','e2fsck-one','python-one','other-four','wrong-owner','wrong-mode','wrong-type','changed'):
+    values=dict(base);name='/usr/bin/e2fsck'
+    if kind in('e2fsck-one','python-one'):values['st_nlink']=1
+    if kind=='python-one':name='/usr/bin/python3'
+    if kind=='other-four':name='/usr/bin/cp'
+    if kind=='wrong-owner':values['st_uid']=1000
+    if kind=='wrong-mode':values['st_mode']=0o100777
+    if kind=='wrong-type':values['st_mode']=0o120755
+    first=types.SimpleNamespace(**values);last=types.SimpleNamespace(**dict(values,st_ino=values['st_ino']+1))if kind=='changed'else first
+    with patch.object(R,'module',return_value=fakeK),patch.object(R.Path,'resolve',return_value=p),patch.object(R.Path,'lstat',return_value=first),patch.object(R.os,'fstat',side_effect=[first,last]):
+     if kind in('e2fsck-four','e2fsck-one','python-one'):self.assertEqual(R.image_tool_pin(name),dict(bytes=len(b'MODELED_TOOL_BYTES_NOT_EXECUTED'),sha256=hashlib.sha256(b'MODELED_TOOL_BYTES_NOT_EXECUTED').hexdigest()))
+     else:
+      with self.subTest(kind=kind),self.assertRaises(ValueError):R.image_tool_pin(name)
+   link=p.with_name('hardlink');os.link(p,link)
+   with self.assertRaises(ValueError):K.pin(p)
+  self.assertNotIn('--sig-proxy=false',(HERE/'controller.py').read_text())
+ def test_strict_SHM_syscall443_FD_backend_and_unchanged_headroom_policy(self):
+  import types
+  for kind in('valid','hard-only','soft-only','exhausted','no-limits','invalid-mask','ENOSYS','EPERM','ENOTBLK'):
+   calls=[];number={'ENOSYS':38,'EPERM':1,'ENOTBLK':15}.get(kind,0);saved_errno={}
+   def syscall(*args):
+    calls.append(tuple(v.value for v in args[:4]));q=args[4]._obj;self.assertEqual(ctypes.sizeof(q),72);self.assertEqual(type(q).valid.offset,64)
+    q.bhard=0 if kind in('soft-only','no-limits')else 100;q.bsoft=0 if kind in('hard-only','no-limits')else 80;q.curspace=90*1024 if kind=='exhausted'else 1024;q.valid=1 if kind=='invalid-mask'else 63
+    ctypes.set_errno(number);return -1 if number else 0
+   class Fake:
+    def __call__(self,*args):return syscall(*args)
+   native=types.SimpleNamespace(syscall=Fake())
+   with patch.object(ctypes,'CDLL',return_value=native)as loader,patch.object(ctypes,'set_errno',side_effect=lambda n:saved_errno.update(value=n)),patch.object(ctypes,'get_errno',side_effect=lambda:saved_errno['value']),patch.object(Q.os,'fstat',return_value=types.SimpleNamespace(st_mode=0o40700)),patch.object(Q.os,'getuid',return_value=1000),patch.object(Q.platform,'system',return_value='Linux'),patch.object(Q.platform,'machine',return_value='x86_64'):
+    if number:
+     with self.assertRaises(OSError)as error:Q.quota_fd(23,1000)
+     self.assertEqual(error.exception.errno,number)
+    elif kind in('no-limits','invalid-mask'):
+     with self.assertRaises(ValueError):Q.quota_fd(23,1000)
+    else:self.assertEqual(Q.quota_fd(23,1000),0 if kind=='exhausted'else (100 if kind=='hard-only'else 80)*1024-1024)
+    loader.assert_called_once_with(None,use_errno=True)
+   self.assertEqual(calls,[(443,23,0x80000700,1000)])
+  with patch.object(ctypes,'CDLL')as loader,patch.object(Q.os,'getuid',return_value=1000),patch.object(Q.os,'fstat',return_value=types.SimpleNamespace(st_mode=0o40700)),patch.object(Q.platform,'machine',return_value='aarch64'):
+   with self.assertRaises(ValueError):Q.quota_fd(23,1000)
+   with self.assertRaises(ValueError):Q.quota_fd(23,1001)
+   loader.assert_not_called()
+ def test_strict_SHM_mount_directory_FD_walk_close_and_no_legacy_query(self):
+  opened=[];closed=[]
+  def open_fd(path,flags,**kw):opened.append((path,flags,kw));return 10+len(opened)
+  with patch.object(Q.os,'open',side_effect=open_fd),patch.object(Q.os,'close',side_effect=closed.append),patch.object(Q,'quota_fd',return_value=12345)as query:
+   self.assertEqual(Q.quota('/dev/shm',1000),12345);query.assert_called_once_with(13,1000)
+  flags=os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC;self.assertEqual(opened,[('/',flags,{}),('dev',flags,dict(dir_fd=11)),('shm',flags,dict(dir_fd=12))]);self.assertEqual(closed,[11,12,13])
+  for number in(1,15,38):
+   closed=[]
+   with patch.object(Q.os,'open',side_effect=[11,12,13]),patch.object(Q.os,'close',side_effect=closed.append),patch.object(Q,'quota_fd',side_effect=OSError(number,'MODELED backend HOLD')):
+    with self.assertRaises(OSError):Q.quota('/dev/shm',1000)
+   self.assertEqual(closed,[11,12,13])
+  for path in('/dev/../shm','/dev//shm','/dev/shm/','relative','/dev/shm\0'):
+   with patch.object(Q.os,'open')as opening:
+    with self.assertRaises(ValueError):Q.quota(path,1000)
+    opening.assert_not_called()
+  self.assertNotIn('.quotactl(', (HERE/'budget.py').read_text());self.assertIn('ctypes.c_long(443)',(HERE/'home_btrfs.py').read_text());self.assertNotIn('.quotactl(', (HERE/'home_btrfs.py').read_text())
+ def test_HOME_explicit_profile_acceptance_and_SHM_branch_unchanged(self):
+  H=module('home_btrfs');a=modeled_home();self.assertEqual(K.validate(*a)['operation'],K.OP)
+  for old in(False,True):self.assertEqual(K.validate(*modeled(old))['operation'],K.OP)
+  for kind in('numeric-quota','EPERM','other-fs','other-device','other-uid','unlimited','reservation','source','expired','mode','inode-model','node-cap','physical','RAM'):
+   b=modeled_home();r=b[4];q=r['quota_guard']
+   if kind=='numeric-quota':r['quota_initial_headroom_bytes']=1
+   if kind=='EPERM':q['quota_query']['errno']=1
+   if kind=='other-fs':q['filesystem']['fstype']='tmpfs'
+   if kind=='other-device':q['device']=55
+   if kind=='other-uid':q['uid']=1001
+   if kind=='unlimited':q['quota_query']['status']='UNLIMITED'
+   if kind=='reservation':q['capacity_reservation']=True
+   if kind=='source':q['source_lock']=None
+   if kind=='expired':q['created_utc']=1;q['expires_utc']=2
+   if kind=='mode':q['method']='UNKNOWN'
+   if kind=='inode-model':q['inode_counters']='UNLIMITED'
+   if kind=='node-cap':q['output_node_cap']=150001
+   if kind=='physical':r['physical_free_bytes']=1
+   if kind=='RAM':r['host_MemAvailable_bytes']=1
+   with self.subTest(kind=kind),self.assertRaises(ValueError):K.validate(*reseal(b))
+  strict=modeled();strict[4]['quota_initial_headroom_bytes']=strict[4]['quota_live_reserve_bytes']=None
+  with self.assertRaises(ValueError):K.validate(*reseal(strict))
+ def test_HOME_capacity_ENOSYS_inode_and_mount_semantics_pure(self):
+  H=module('home_btrfs');r=modeled_home()[4];fs=dict(blocks=1000000,bfree=900000,bavail=800000,frsize=4096,files=0,ffree=0,favail=0)
+  self.assertEqual(H.capacity(fs,r,True),'UNREPORTED');reported=dict(fs,files=100000,ffree=50000,favail=40000);self.assertEqual(H.capacity(reported,r,True),'REPORTED')
+  for bad in(dict(fs,files=100),dict(fs,frsize=0),dict(fs,bavail=1),dict(fs,bfree=0),dict(reported,favail=1),dict(reported,favail=50001)):
+   with self.assertRaises(ValueError):H.capacity(bad,r,True)
+  row='42 1 0:33 /@home /home rw - btrfs /dev/MODELED rw,subvolid=257,subvol=/@home\n';self.assertEqual(H.mountinfo(row,42)['subvolume'],'/@home')
+  for bad in(row.replace('btrfs','tmpfs'),row.replace('0:33','0:54'),row.replace('0:33','0:34'),row.replace('/@home','/@root'),row.replace('257','258'),row+row):
+   with self.assertRaises(ValueError):H.mountinfo(bad,42)
+  with self.assertRaises(ValueError):H.mountinfo(row,43)
+ def test_HOME_retained_kernel_mount_and_userspace_fstat_domains_separate(self):
+  H=module('home_btrfs');row='62 40 0:33 /@home /home rw,noatime shared:169 - btrfs /dev/nvme0n1p6 rw,compress=zstd:1,ssd,discard=async,space_cache=v2,subvolid=257,subvol=/@home'
+  with patch.object(H.os,'major',side_effect=AssertionError('must not derive kernel identity')),patch.object(H.os,'minor',side_effect=AssertionError('must not derive kernel identity')):
+   observed=H.mountinfo(row,62);self.assertEqual(observed['device'],54);self.assertEqual(observed['kernel_mount_device'],'0:33')
+  a=modeled_home();self.assertEqual(K.validate(*a)['operation'],K.OP)
+  for key,value in(('device',33),('kernel_mount_device','0:54')):
+   bad=modeled_home();bad[4]['quota_guard']['filesystem'][key]=value
+   with self.subTest(key=key),self.assertRaises(ValueError):K.validate(*reseal(bad))
+  with patch.object(H,'proc_read',side_effect=['pos:\t0\nmnt_id:\t62\nino:\t59258250\n',row]):self.assertEqual(H.mounted(17)['mount_id'],62)
+ def test_HOME_sample_brackets_capacity_and_holds_every_other_error(self):
+  import types
+  H=module('home_btrfs');r=modeled_home()[4];q=r['quota_guard'];root=Path(q['outputs']['prepare']);st=types.SimpleNamespace(st_dev=54,st_ino=7,st_mode=0o40700,st_uid=1000,st_gid=1000);fs=dict(blocks=1000000,bfree=900000,bavail=800000,frsize=4096,files=0,ffree=0,favail=0);mount=dict(mount_id=42)
+  for kind in('valid','EPERM','EIO','supported','late-error','low-bytes','changed-inodes','unknown-fs','wrong-fstat','allocation','node-limit','expired','wrong-Source','wrong-output'):
+   seen=[];closed=[];r=modeled_home()[4];q=r['quota_guard'];source=q['source_lock'];phase='prepare';end=time.monotonic()+60
+   def query(fd):
+    seen.append(fd)
+    if kind=='EPERM':return -1,1
+    if kind=='EIO':raise OSError(5,'MODELED unknown query')
+    if kind=='supported':return 0,0
+    if kind=='late-error'and len(seen)>1:return -1,1
+    return -1,38
+   samples=[]
+   def filesystem(fd):
+    samples.append(fd)
+    if kind=='low-bytes':return dict(fs,bavail=1)
+    if kind=='changed-inodes'and len(samples)>1:return dict(fs,files=100000,ffree=50000,favail=40000)
+    return dict(fs)
+   def allocation(*args,**kw):
+    if kind=='node-limit':raise ValueError('MODELED actual runtime census node bound')
+    return 2**63 if kind=='allocation'else 1234
+   def mounted(fd):
+    if kind=='unknown-fs':raise ValueError('MODELED unknown mount')
+    return mount
+   if kind=='expired':q['created_utc']=1;q['expires_utc']=2
+   if kind=='wrong-Source':source=pin('wrong-Source')
+   if kind=='wrong-output':phase='boot'
+   with patch.object(H.os,'fstat',return_value=types.SimpleNamespace(**dict(st.__dict__,st_dev=33))if kind=='wrong-fstat'else st),patch.object(H.os,'getuid',return_value=1000),patch.object(H.os,'geteuid',return_value=1000),patch.object(H.os,'close',side_effect=closed.append),patch.object(H.Path,'lstat',return_value=st):
+    args=(root,r,source,phase,True,end,allocation);kwargs=dict(query=query,fs_query=filesystem,mount_query=mounted,opener=lambda path:10 if path=='/home/gabe'else 11)
+    if kind=='valid':
+     result=H.sample(*args,**kwargs);self.assertEqual(seen,[10,10]);self.assertEqual(len(samples),2);self.assertEqual(result['own_uid_quota'],'UNSUPPORTED_NOT_UNLIMITED');self.assertEqual(result['filesystem_inode_counters'],'UNREPORTED');self.assertFalse(result['capacity_reservation']);self.assertEqual(result['allocated_bytes'],1234)
+    else:
+     with self.subTest(kind=kind),self.assertRaises((ValueError,OSError)):H.sample(*args,**kwargs)
+   if seen:self.assertEqual(closed,[11,10])
+ def test_HOME_guard_preserves_memory_deadline_and_prepare_boot_bindings(self):
+  r=modeled_home()[4];q=r['quota_guard'];root=Path(q['outputs']['prepare']);source=q['source_lock'];st=type('S',(),dict(st_dev=54))
+  guard=Q.Guard(root,r,None,time.monotonic()+60,lambda *a,**k:0,initial=True,source=source,phase='prepare');guard.home.sample=lambda *a,**k:dict(status='PASS_FILESYSTEM_CAPACITY_ONLY')
+  with patch.object(Q.os,'getuid',return_value=1000),patch.object(Q.Path,'stat',return_value=st),patch.object(Q.Path,'read_text',return_value='MemAvailable: 100000000 kB\n'):
+   guard(True);self.assertEqual(guard.samples,1)
+  with patch.object(Q.os,'getuid',return_value=1000),patch.object(Q.Path,'stat',return_value=st),patch.object(Q.Path,'read_text',return_value='MemAvailable: 1 kB\n'):
+   with self.assertRaisesRegex(ValueError,'host RAM reserve exhausted'):guard(True)
+  for uid,device in((1001,54),(1000,55)):
+   with patch.object(Q.os,'getuid',return_value=uid),patch.object(Q.Path,'stat',return_value=type('S',(),dict(st_dev=device))),patch.object(guard.home,'sample')as sample:
+    with self.subTest(uid=uid,device=device),self.assertRaisesRegex(ValueError,'actual quota UID/device differs'):guard(True)
+    sample.assert_not_called()
+  guard.deadline=time.monotonic()-1
+  with self.assertRaises(TimeoutError):guard(True)
+  for phase in('prepare','boot'):Q.Guard(Path(q['outputs'][phase]),r,None,time.monotonic()+60,lambda *a,**k:0,source=source,phase=phase)
+  with self.assertRaises(ValueError):Q.Guard(root,r,'/dev/MODELED',time.monotonic()+60,lambda *a,**k:0,source=source,phase='prepare')
+  with self.assertRaises(ValueError):Q.Guard(root,r,None,time.monotonic()+60,lambda *a,**k:0,source=source,phase='boot')
  def test_null_template_refuses(self):
   with self.assertRaises(ValueError):K.validate(K.load(HERE/'case.TEMPLATE.json'),{},None,None,None,None,None,None)
  def test_modeled_remove_and_rollback(self):
@@ -149,7 +373,7 @@ class Controls(unittest.TestCase):
   after=copy.deepcopy(scan);after['nodes']['usr/bin/x']['sha256']='b'*64
   with self.assertRaises(ValueError):I.preserve(scan,after,{'x':'1'},modeled()[3])
  def test_no_actions_on_import_and_operational_fence(self):
-  for n in('actor','runtime','controller','budget','image','baseline_observer'):module(n)
+  for n in('actor','runtime','controller','budget','image','baseline_observer','home_btrfs'):module(n)
   for event in('subprocess.Popen','socket.__new__','ctypes.dlopen','fcntl.flock'):
    with self.assertRaises(RuntimeError):sys.audit(event)
  def test_retained_alpm_literal_ownership_keys_and_exact_empty_records(self):
@@ -233,7 +457,9 @@ class Controls(unittest.TestCase):
    root=Path(tmp);r=modeled()[4];r.update(host_uid=os.getuid(),output_device=root.stat().st_dev,physical_free_bytes=1,host_reserve_bytes=1,host_MemAvailable_bytes=1,owner_memory_bytes=1)
    seen=[]
    def query(device,uid):seen.append((device,uid));return 10**12
-   guard=Q.Guard(root,r,'/dev/MODELED',time.monotonic()+60,lambda *args,**kw:0,initial=True,query=query);guard(True);self.assertEqual(seen,[('/dev/MODELED',os.getuid())]);self.assertEqual(guard.samples,1)
+   guard=Q.Guard(root,r,'/dev/MODELED',time.monotonic()+60,lambda *args,**kw:0,initial=True,query=query)
+   with patch.object(Q.shutil,'disk_usage',return_value=type('D',(),dict(free=2**40))),patch.object(Q.Path,'read_text',return_value='MemAvailable: 100000000 kB\n'):guard(True)
+   self.assertEqual(seen,[('/dev/MODELED',os.getuid())]);self.assertEqual(guard.samples,1)
    guard.query=lambda d,u:0
    with self.assertRaises(ValueError):guard(True)
    guard.query=lambda d,u:(_ for _ in ()).throw(OSError('MODELED quota unknown'))
@@ -245,6 +471,12 @@ class Controls(unittest.TestCase):
   auth=dict(kind='ROOT_PERL5423_VM_ACTOR_AUTHORITY_V1',issued_by='Root',accepted=True,operation=K.OP,phase='prepare',packet=pp,source_lock=sp,output=str(out),uid=1000,created_utc=now,expires_utc=now+100,image='sha256:'+'a'*64,docker_endpoint='unix:///run/user/1000/docker.sock',docker_cli=dict(path='/MODEL/Root-selected/docker',bytes=44217952,sha256='e966e0e6ea215b74fdbee17fbe7ed8bff15b65930bfc8e131652ceae4ed0210e',uid=1000,gid=1000,mode=0o755,device=1,inode=1,nlink=1),quota_device='/dev/MODELED',actor_tools={p:pin(p)for p in('/usr/bin/python3','/usr/bin/cp','/usr/bin/debugfs','/usr/bin/e2fsck','/usr/bin/qemu-img','/usr/bin/qemu-system-aarch64')},kernel={n:pin(n)for n in('Image','config')},credentials=None,prepared=None)
   with patch.object(C.os,'getuid',return_value=1000):
    C.authority(auth,'prepare',pp,sp,out,K)
+   home=modeled_home()[4];home['quota_guard']['source_lock']=sp
+   for phase in('prepare','boot'):
+    target=Path(home['quota_guard']['outputs'][phase]);trial=dict(auth,phase=phase,output=str(target),quota_device=None,prepared=pin('prepared')if phase=='boot'else None,credentials=pin('credentials')if phase=='boot'else None)
+    C.authority(trial,phase,pp,sp,target,K,home)
+    for bad in(dict(trial,quota_device='/dev/MODELED'),dict(trial,output=str(target)+'-wrong')):
+     with self.assertRaises(ValueError):C.authority(bad,phase,pp,sp,target,K,home)
    for n,value in [('accepted',False),('phase','boot'),('expires_utc',now-1),('docker_endpoint','tcp://remote:2375'),('uid',1001)]:
     bad=copy.deepcopy(auth);bad[n]=value
     with self.subTest(n=n),self.assertRaises(ValueError):C.authority(bad,'prepare',pp,sp,out,K)

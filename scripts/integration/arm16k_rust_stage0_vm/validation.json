@@ -1,54 +1,20 @@
 {
   "actual": {
     "VM_boot": null,
-    "attempt": null,
     "authority": null,
-    "prepared": null,
-    "ref": null,
-    "source": null,
-    "tree": null
+    "nonce": null,
+    "output": null,
+    "public_source": null,
+    "publication": null,
+    "ref": null
   },
+  "actual_probe": "65536-byte prefixes/max_length1 only,512MiBAS/10sCPU; no archive extraction",
   "address_space_limit_bytes": 134217728,
-  "bash_syntax": {
-    "frozen/rtc-clock.sh": "PASS",
-    "guest/check.sh": "PASS"
-  },
-  "date": "2026-11-15",
-  "kind": "ARM16K_RUST_STAGE0_FENCED_CONTROLS_V1",
   "not_run": [
-    "actual archive reads or extraction",
-    "Source constructor",
-    "Root authority or guest-input certification",
-    "prepare/boot actor",
-    "container daemon or lease",
-    "network",
-    "Perl/rustc/cargo/linker",
-    "native16K/M2 hardware",
-    "performance",
-    "release admission",
-    "actual cgroup diagnostics",
-    "actual quota query or change",
-    "external Root whole-actor quota monitor",
-    "complete actual baseline or prepared-image inventory"
+    "fullarchive extraction",
+    "actor/compiler/VM/Docker",
+    "lease/network/publication"
   ],
-  "passive_JSON": "PASS",
-  "passive_baseline_observation": {
-    "allocated_bytes": 617082880,
-    "block_bytes": 4096,
-    "bytes_read": 1024,
-    "incompat": "0x22c2",
-    "inode_bytes": 256,
-    "logical_bytes": 1610612736,
-    "rocompat": "0x46b",
-    "scope": "FIXED_SUPERBLOCK_AND_STAT_ONLY"
-  },
-  "passive_python_syntax": "PASS",
-  "schema": 1,
-  "status": "PASS_FENCED_CONTROLS_ONLY",
-  "unittest": {
-    "command": "PYTHONDONTWRITEBYTECODE=1 python3 -B -m unittest discover -s scripts/integration/arm16k_rust_stage0_vm -v",
-    "failed": 0,
-    "passed": 59,
-    "scope": "tiny synthetic archives/DATA/cgroup trees, mocked ext4 inventory, nonce frames/mocked children; no operational child spawn"
-  }
+  "status": "PASS_94_FENCED_SOURCE_CONTROLS_ONLY",
+  "tests": 94
 }

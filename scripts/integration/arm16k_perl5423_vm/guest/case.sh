@@ -26,6 +26,21 @@ case_data() {
  (( cert_not_before < cert_not_after ))
 }
 file_sha() { local value;value=$(sha256sum -- "$1") || return;printf '%s' "${value%% *}"; }
+# API name retained: equality is bounded length+SHA256 evidence, not a literal
+# byte comparison. Both commands must succeed, including for empty/binary files.
+same_bytes() {
+ local path size left right
+ [[ $# == 2 ]] || return 2
+ for path in "$@";do
+  [[ -f $path && ! -L $path ]] || return 2
+  size=$(stat -c '%s' -- "$path") || return
+  [[ $size =~ ^[0-9]+$ && $size -le 16777216 ]] || return 2
+ done
+ left=$(stat -c '%s' -- "$1") || return;right=$(stat -c '%s' -- "$2") || return
+ [[ $left == "$right" ]] || return 1
+ left=$(file_sha "$1") || return;right=$(file_sha "$2") || return
+ [[ $left =~ ^[0-9a-f]{64}$ && $right =~ ^[0-9a-f]{64}$ && $left == "$right" ]]
+}
 clock_valid() { local now;now=$(date -u +%s);(( now >= cert_not_before && now < cert_not_after )); }
 # A mandatory Root cap bounds each command and its combined log. Do not impose
 # RLIMIT_FSIZE on ALPM: their installed payload/output files are larger.

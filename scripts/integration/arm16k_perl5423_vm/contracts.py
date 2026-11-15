@@ -21,11 +21,13 @@ INSTALLED_SOURCE = '445b37a9475a4e92804954f4f0e3d0ac84cd9511'
 PACKAGE = dict(name='perl', version='5.42.3-1.3', arch='aarch64',
                depends=['glibc', 'gdbm>=1.17', 'db5.3', 'libxcrypt', 'libcrypt.so', 'bzip2', 'zlib'])
 DB53 = dict(name='db5.3',version='5.3.28-7',archive=dict(bytes=1044852,sha256='0a787f952c0f7dd1493db437ab0dc3ffda6053cb6affa4ebf91caff185e586b4'),signature=dict(bytes=566,sha256='e17a6fdad268459de144b828f33a8b63fd9b7f05a2c1ea2c1dc02b4670b8bdab'))
+ALARM_SIGNER = '68B3537F39A313B3E574D06777193F152BDBE6A6'
+ALARM_FILES = tuple('/usr/share/pacman/keyrings/archlinuxarm'+suffix for suffix in('.gpg','-trusted','-revoked'))
 HARDLINKS = {'/usr/bin/core_perl/perlthanks':'/usr/bin/core_perl/perlbug', '/usr/share/man/man1/perlthanks.1perl.gz':'/usr/share/man/man1/perlbug.1perl.gz'}
 ALPM_DEPENDS = ['glibc','gdbm>=1.17','db5.3','libxcrypt','libcrypt.so=2-64','bzip2','zlib']
 MATERIALS = ('archive', 'signature', 'public_TEST_certificate', 'signing_receipt')
 EVIDENCE = ('baseline_certificate', 'runtime_certificate', 'resource_certificate', 'Root_decision', 'installed_Reader', 'installed_component_decision')
-TOOLS = tuple('base64 bash cat chmod chown cmp comm cp cut date env find getconf getfattr gpg gpgconf grep head id install mkdir pacman readlink rm rmdir sed sha256sum sleep sort stat sync timeout touch tr uname wc xargs'.split())
+TOOLS = tuple('base64 bash cat chmod chown comm cp cut date env find getconf getfattr gpg gpgconf grep head id install mkdir pacman readlink rm rmdir sed sha256sum sleep sort stat sync timeout touch tr uname wc xargs'.split())
 COMMANDS = tuple('corelist json_pp perldoc pod2text podchecker prove shasum splain'.split())
 PERL_ELFS = ('/usr/bin/perl', '/usr/lib/perl5/5.42/core_perl/CORE/libperl.so',
  '/usr/lib/perl5/5.42/core_perl/auto/DB_File/DB_File.so',
@@ -116,6 +118,19 @@ def guest_path(value):
     return value
 
 
+def interpreter_matches(value, interpreter, baseline):
+    if interpreter is None:return True
+    guest_path(interpreter);guest_path(value['loader'])
+    if interpreter==value['loader']:return True
+    canonical='/usr/lib/ld-linux-aarch64.so.1'
+    need({interpreter,value['loader']}=={'/lib/ld-linux-aarch64.so.1',canonical},'only the observed AArch64 loader alias pair may differ')
+    files=value['files'];before=value['baseline_files'];rows=[files.get(p)for p in(interpreter,value['loader'],canonical)]
+    need(all(type(r)is dict for r in rows) and rows[0]==rows[1]==rows[2] and rows[0].get('resolved')==canonical and rows[0].get('owner')=='glibc' and rows[0].get('version')==baseline.get('glibc') and all(before.get(p)==files[p]for p in(interpreter,value['loader'],canonical)),'alternate PT_INTERP joins identical actual baseline loader bytes/mode/owner/version/canonical path')
+    alias=value.get('expected_payload',{}).get('aliases',{}).get('/lib')
+    need(baseline.get('filesystem')is not None and alias==dict(target='usr/lib',owner='filesystem',version=baseline['filesystem'],mode=0o777,uid=0,gid=0),'alternate loader requires exact observed filesystem /lib alias')
+    return True
+
+
 def root_cert(value, kind):
     need(type(value) is dict and value.get('kind') == kind and value.get('issued_by') == 'Root' and value.get('accepted') is True,
          'actual Root-issued accepted certificate: ' + kind)
@@ -195,9 +210,14 @@ def runtime(value, case, base):
     dep = value['dependency_transaction']; added = {}
     need(type(dep) is dict, 'explicit dependency transaction map; no silent packages')
     if dep:
-        keys(dep, ('name','version','archive','signature','namespace','files','elf_paths','full_ELF_coverage','requires','resolution','baseline_public_trust','signature_authenticated','current_trust_reviewed','recovery'), 'explicit db5.3 addition')
+        keys(dep, ('name','version','archive','signature','namespace','files','elf_paths','full_ELF_coverage','requires','resolution','baseline_public_trust','official_trust','signature_authenticated','current_trust_reviewed','recovery'), 'explicit db5.3 addition')
         need(all(dep[n] == DB53[n] for n in DB53) and 'db5.3' not in base and dep['requires'] == ['libgcc','libstdc++','sh'] and dep['recovery'] == 'NORMAL_REMOVE_AFTER_PERL_RECOVERY' and dep['signature_authenticated'] is dep['current_trust_reviewed'] is dep['full_ELF_coverage'] is True, 'only exact separately admitted cached official db5.3 addition')
         pin_shape(dep['baseline_public_trust']); expanded += namespace(dep['namespace']); added['db5.3'] = dep['version']
+        trust=dep['official_trust'];keys(trust,('kind','signer','files','trusted_policy_reviewed','revoked_signer_absent','ownertrust_policy','scratch_home','baseline_global_gpgdir'),'explicit scratch official trust')
+        need(trust['kind']=='ROOT_REVIEWED_SCRATCH_ALARM_PUBLIC_TRUST_V1' and trust['signer']==ALARM_SIGNER and trust['trusted_policy_reviewed']is trust['revoked_signer_absent']is True and trust['ownertrust_policy']=='ROOT_ADMITTED_SIGNER_ONLY_NO_BULK_OWNERTRUST_IMPORT' and trust['scratch_home']=='/run/arm16k-perl5423-vm/official-trust' and trust['baseline_global_gpgdir']=='ABSENT','one Root-admitted official signer and isolated scratch policy')
+        need(type(trust['files'])is dict and set(trust['files'])==set(ALARM_FILES),'exact baseline ALARM public/trusted/revoked files')
+        for path,row in trust['files'].items():
+            need(type(row)is dict and row==value['baseline_files'].get(path)==value['files'].get(path) and row.get('resolved')==path and row.get('mode')==0o644 and row.get('owner')=='archlinuxarm-keyring' and row.get('version')==base.get('archlinuxarm-keyring') and type(row.get('bytes'))is int and 0<=row['bytes']<=4*1024**2 and (path!=ALARM_FILES[0]or row['bytes']>0),'observed bounded baseline public trust byte/mode/ALPM owner/version join')
         need(type(dep['files']) is dict and dep['files'] and type(dep['elf_paths']) is list and dep['elf_paths'] and set(dep['resolution']) == set(dep['requires']), 'complete dependency namespace, ELF and ALPM provider inputs')
         for constraint,row in dep['resolution'].items():
             keys(row, ('owner','version','satisfied','providers'), 'db5.3 dependency provider')
@@ -271,7 +291,7 @@ def runtime(value, case, base):
         need(path in files and files[path]['sha256'] == elf.get('sha256') and files[path]['mode'] & 0o004, 'ELF joins ordinary-user readable file input closure')
         keys(elf, ('sha256', 'class', 'byte_order', 'machine', 'interpreter', 'needed', 'version_needs', 'providers', 'static_16k_geometry'), 'ELF facts')
         need(elf['class'] == 64 and elf['byte_order'] == 'little' and elf['machine'] == 183 and elf['static_16k_geometry'] is True and
-             (elf['interpreter'] is None or elf['interpreter'] == value['loader']), 'actual ARM16K ELF facts')
+             interpreter_matches(value,elf['interpreter'],base), 'actual ARM16K ELF facts')
         need(type(elf['needed']) is list and set(elf['providers']) == set(elf['needed']) and set(elf['version_needs']) <= set(elf['needed']), 'complete actual ELF provider closure')
         for soname, provider in elf['providers'].items():
             keys(provider, ('path', 'version_definitions'), 'ELF provider')
@@ -286,7 +306,10 @@ def resources(value, case, base, expanded, rollback, dependency):
     root_cert(value, 'ROOT_REVIEWED_PERL5423_VM_RESOURCES_V1')
     keys(value, {'kind', 'issued_by', 'accepted', 'baseline_certificate', 'package', 'quota_guard'} | set(LIMITS), 'resource certificate')
     need(value['baseline_certificate'] == case['evidence']['baseline_certificate'] and value['package'] == case['package']['archive'], 'resource baseline/candidate joins')
-    need(all(positive(value[n]) for n in LIMITS), 'all physical/resource/guest-phase numbers explicit positive integers')
+    home = type(value['quota_guard']) is dict and value['quota_guard'].get('method') == 'READ_ONLY_HOME_BTRFS_ENOSYS_FSTATVFS'
+    quota_fields = ('quota_initial_headroom_bytes','quota_live_reserve_bytes')
+    need(all(positive(value[n]) for n in LIMITS if not home or n not in quota_fields), 'all physical/resource/guest-phase numbers explicit positive integers')
+    if home: need(all(value[n] is None for n in quota_fields), 'unsupported HOME quota never supplies headroom')
     need(all(value[n] <= 999999999 for n in ('gpg_seconds', 'install_seconds', 'probe_wait_seconds', 'remove_seconds',
          'run_seconds', 'sync_seconds', 'guest_output_cap_bytes')) and 1024 <= value['log_bytes'] <= 16777216,
          'exact guest case.env scalar grammar')
@@ -296,21 +319,29 @@ def resources(value, case, base, expanded, rollback, dependency):
     need(value['clone_allocated_cap_bytes'] >= writes and value['readback_allocated_cap_bytes'] >= writes and
          value['guest_filesystem_free_bytes'] >= value['case_staging_bytes'] + expanded + value['guest_output_cap_bytes'] and value['prepared_raw_bytes'] >= writes, 'clone/readback/raw/guest capacity includes staged and expanded candidate and output')
     peak = sum(value[n] for n in ('clone_allocated_cap_bytes', 'overlay_cap_bytes', 'readback_allocated_cap_bytes', 'logs_cap_bytes', 'reserve_bytes'))
-    need(value['physical_free_bytes'] >= peak and value['quota_initial_headroom_bytes'] >= peak and value['quota_live_reserve_bytes'] >= value['reserve_bytes'], 'simultaneous physical/quota clone+overlay+readback+logs+reserve')
+    need(value['physical_free_bytes'] >= peak, 'simultaneous physical clone+overlay+readback+logs+reserve')
+    if not home: need(value['quota_initial_headroom_bytes'] >= peak and value['quota_live_reserve_bytes'] >= value['reserve_bytes'], 'simultaneous own-UID quota clone+overlay+readback+logs+reserve')
     need(value['owner_memory_bytes'] >= value['guest_memory_bytes'] and value['host_MemAvailable_bytes'] >= value['owner_memory_bytes'] + value['host_reserve_bytes'], 'actual host RAM reserve')
     # Twelve fixed runtime operations and sync; no compiler or XS build. Root's
     # wait encloses these calls, so the outer envelope counts that wait once.
     probe = 12*value['run_seconds'] + value['sync_seconds']
     need(value['probe_wait_seconds'] >= probe, 'probe wait covers twelve runtime commands and sync')
-    # Root: five gpg calls plus gpgconf retirement; two database checks and two
-    # durable syncs. Root separately supplies nondefault boot/PAM/snapshot overhead.
-    phase = (7*value['gpg_seconds'] + 2*value['install_seconds'] + value['probe_wait_seconds'] + 2*value['remove_seconds'] +
+    # TEST: five gpg calls, optional rollback, retirement; official scratch adds
+    # nine import/export/list/trust/verify/retirement operations when db is added.
+    # Two database checks/syncs; explicit boot/PAM/snapshot overhead stays separate.
+    phase = ((7+(9 if dependency else 0))*value['gpg_seconds'] + 2*value['install_seconds'] + value['probe_wait_seconds'] + 2*value['remove_seconds'] +
              6*value['run_seconds'] + 2*value['sync_seconds'] + value['cleanup_seconds'] + value['boot_overhead_seconds'])
     need(value['boot_seconds'] >= phase and value['prepare_seconds'] > value['cleanup_seconds'] and value['logs_cap_bytes'] >= value['log_bytes'], 'finite guest/cleanup/log envelopes')
     need(value['prepared_raw_bytes'] == value['baseline_raw_bytes'] <= 4*1024**3 and value['overlay_cap_bytes'] <= 4*1024**3 and value['guest_memory_bytes'] % 1024**2 == 0 and value['cpus'] <= 64 and value['pids'] <= 4096, 'supported fixed raw/overlay/guest geometry and finite actor controls')
     need(value['cleanup_seconds'] >= 45 and all(value[n] >= 5 for n in ('gpg_seconds','install_seconds','remove_seconds','run_seconds','sync_seconds')), 'frozen owned cleanup and command retirement minimum envelopes')
-    q = value['quota_guard']; keys(q, ('issued_by', 'method', 'whole_actor', 'read_only', 'uid', 'device', 'initial_headroom_bytes', 'live_reserve_bytes', 'on_unknown_or_exhausted'), 'quota guard')
-    need(q == dict(issued_by='Root', method='READ_ONLY_Q_GETQUOTA', whole_actor=True, read_only=True, uid=value['host_uid'], device=value['output_device'], initial_headroom_bytes=value['quota_initial_headroom_bytes'], live_reserve_bytes=value['quota_live_reserve_bytes'], on_unknown_or_exhausted='HOLD_AND_OWNED_CLEANUP'), 'actual readonly own-UID whole-actor quota guard')
+    q = value['quota_guard']
+    if home:
+        import importlib.util
+        spec=importlib.util.spec_from_file_location('perl_resource_home',HERE/'home_btrfs.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+        m.profile(q,value,now=int(time.time()))
+    else:
+        keys(q, ('issued_by', 'method', 'whole_actor', 'read_only', 'uid', 'device', 'initial_headroom_bytes', 'live_reserve_bytes', 'on_unknown_or_exhausted'), 'quota guard')
+        need(q == dict(issued_by='Root', method='READ_ONLY_Q_GETQUOTA', whole_actor=True, read_only=True, uid=value['host_uid'], device=value['output_device'], initial_headroom_bytes=value['quota_initial_headroom_bytes'], live_reserve_bytes=value['quota_live_reserve_bytes'], on_unknown_or_exhausted='HOLD_AND_OWNED_CLEANUP'), 'actual readonly own-UID whole-actor quota guard')
 
 
 def validate(case, observed_materials, baseline_certificate, runtime_certificate, resource_certificate, Root_decision, installed_Reader, installed_component_decision):

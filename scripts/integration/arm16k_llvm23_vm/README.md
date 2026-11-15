@@ -24,7 +24,7 @@ guest certificate, trust and resources unissued. The native Source identity and
 recipe name/version/prefix/five declared dependencies are known; they do not
 establish an installed runtime closure. Source111 and155 lack a GCC compiler;
 155's gcc-libs metapackage is not a development toolchain. Root must qualify the
-exact **fixed probe command vectors**, Clang driver startfile/development search,
+exact **fixed probe command vectors**, explicit Clang link inputs,
 CRT/loader/linker paths, all ALPM owner versions, actual interpreter/DT_NEEDED and
 GNU-version providers, and the complete package-owned namespace and ELF inventory.
 Safe contained tool aliases and zero-byte files are supported. No runtime package
@@ -59,9 +59,54 @@ installed inventory/payload/ownership, announces INSTALLED and waits for the use
 baseline proof (aarch64/16384, systemd/logind/DBus), not runuser/su. It invokes the
 cleared-environment `guest/probe.sh`, which checks UID/GID1000 and the certified
 installed closure, exact clang/clang++/llvm-config versions and target, then
-compiles/runs tiny C and exception C++ programs with LLD/compiler-rt, private
-libunwind and the16K linker flag. All work is in the fresh case-owned user output
+compiles/runs headerless C128 division and multi-frame C++ exception programs
+with explicit LLD/compiler-rt/baseline SONAME inputs and the16K linker flag.
+All work is in the fresh case-owned user output
 directory. It does not modify home configuration or set any clock.
+
+The only probe selection is `EXPLICIT_COMPILER_RT_BASELINE_SONAMES` in
+`gcc_driver_selection`: `gcc_prefix=null`, `headers=[]`, `startfiles` exactly
+`/usr/lib/{Scrt1,crti,crtn}.o`, and `libraries` exactly `/usr/lib/libc.so.6`,
+`/usr/lib/libm.so.6`, `/usr/lib/libstdc++.so.6`, `/usr/lib/libgcc_s.so.1` in that
+order. `builtins` is the candidate's
+`lib/clang/23/lib/linux/libclang_rt.builtins-aarch64.a` under the private prefix;
+`builtins_symbols=["__udivti3"]` records a required actually observed export.
+`baseline_elfs` covers the loader and all four libraries. Each row binds the
+certified file SHA, class64/machine183/static16K, SONAME, full `needed`,
+`version_needs`, `version_definitions` and the observed `defined_symbols` needed
+by the probe. C++ exception/personality/int-typeinfo and libgcc unwind exports
+are mandatory, and every DT_NEEDED/GNU version joins to these actual providers.
+The mode is refused if these new Root-certified observations are absent.
+
+The packet binds eleven scalar roles in `probe-link.env`; guest code parses
+DATA without eval/source and passes exact resolved library/CRT paths, an
+absolute `ld.lld` alias and the certified interpreter. Both compiles disable
+default headers, startfiles and libraries with `-nostdinc`, `-nostdinc++`,
+`-nostdlib`, `-nostartfiles`, `-nostdlib++`. PIE and `--eh-frame-hdr` allow this
+fixed probe to use the certified glibc CRT without GCC/compiler-rt crtbegin/end;
+no C++ global constructors or `__dso_handle` dependency are introduced. No
+unversioned `libstdc++.so`, `libgcc_s.so` script, GCC headers, `-I`, `-L` or
+`-l` search operand is used. C128 division requires compiler-rt's `__udivti3`.
+The C++ probe throws an int across two noinline frames and checks both RAII
+destructors ran in order before printing success. Its ABI-matching unwind
+provider is baseline `libgcc_s.so.1`; this does not test LLVM libunwind.
+The two compilation/six run-version/sync budget and durable two-output16K
+checks remain unchanged, as do ordinary ALPM/PAM and full restoration.
+
+Passive input audit: Source256 recipe requires builtins/profile archives and
+`libunwind.a`, but does not prove CRT begin/end or an exact shared-libunwind
+SONAME. Its `build.sh` SHA is
+`6e9bc3fb515d7f39648fe530d96be8dc4347b29693f78e54c29aa3cdfebb5a65`.
+Root's39-file certificate SHA
+`0833c137a193bfc1bc6392eb75d2b8080389e01bc0a7ec59f8196978e84f0fa2`
+certifies glibc CRT/loader/libc/libm and libgcc, but excludes libstdc++ and runtime
+acceptance. Static provider catalog SHA
+`b257a737a5a0a5a96935fdf613f7ebe1621e60c6761b698b3da11ef000eb7cd1`
+has matching glibc/libgcc hashes and a libstdc++.so.6 payload candidate; it has
+no physical111 C++ alias/ELF/version/export proof. These facts motivate this
+explicit mode, not an issued LLVM runtime certificate. The actual native
+package and complete new runtime certificate were not supplied to this worker;
+no compiler, Docker, actor or raw image scan ran for this change.
 
 After PROBED, root normally removes the one package, checks exact original
 inventory and exclusive-path/prefix absence, restores only the known unowned

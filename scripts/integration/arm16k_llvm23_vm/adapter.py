@@ -50,6 +50,7 @@ def contents(case,cert,lock,nonce):
  put('expected-base.lock',inv(inventory));put('expected-installed.lock',inv(installed))
  env=dict(nonce=nonce,signer_fingerprint=trust['fingerprint'],cert_not_before=trust['created_utc'],cert_not_after=trust['expires_utc'],**{n:limits[n]for n in CAPS})
  put('case.env',''.join(n+'='+str(v)+'\n'for n,v in env.items()))
+ put('probe-link.env',''.join(n+'='+p+'\n'for n,p in K.probe_inputs(runtime).items()))
  paths={}
  for row in runtime['files'].values():
   path=row['resolved'];K.need(path not in paths or paths[path]==row['sha256'],'aliases resolving to one runtime file must have one actual hash');paths[path]=row['sha256']

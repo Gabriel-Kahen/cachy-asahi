@@ -323,3 +323,155 @@ retains `ownership.json`, complete `namespace.json`, raw `alpm-records.json`, an
 acceptance fields stay NULL. It neither issues a baseline certificate nor
 supplies PAM or filesystem-integrity acceptance. Worker verification uses only
 synthetic DATA and retained ALPM record bytes; no actual raw scanner ran here.
+
+
+## Explicit HOME Btrfs trial mode
+
+The original `READ_ONLY_Q_GETQUOTA` resource branch remains strict: finite
+observed quota headroom is mandatory and every error holds. A separate
+`READ_ONLY_HOME_BTRFS_ENOSYS_FSTATVFS` branch is available only through an exact
+Root-issued resource certificate and matching phase/packet/controller authority.
+It is restricted to `/home/gabe`, UID1000, device54, Btrfs `/@home` subvolid257.
+`home-storage-guard.TEMPLATE.json` declares the shape; phase outputs, exact closed
+Source lock and fresh finite validity are NULL until Root issues them. HOME
+controller authority `quota_device` and resource quota headroom fields must be
+NULL: this branch makes no quota headroom, other-quota or reservation claim.
+
+The whole-actor guard walks directory FDs without following aliases and selects
+the held FD's actual mount ID from bounded kernel metadata. Before and after the
+allocation census it repeats readonly own-UID `quotactl_fd`, Linux x86_64 syscall
+443 / Q_GETQUOTA, and fstatvfs. Only `result=-1, errno=ENOSYS38` is admitted and
+reported as `UNSUPPORTED_NOT_UNLIMITED`. EPERM, other errors, success, an unknown
+filesystem, changed mount or expired profile hold. Live f_bavail*f_frsize must
+cover the initial complete physical plan and then the same finite live reserve.
+All-zero files/ffree/favail means `UNREPORTED`; no inode headroom is invented.
+Reported inode counters must be consistent and cover16384 initially/4096 live.
+The existing150000-node allocation census and allocated-byte/component caps stay
+in force. Memory, CPU/PID, time, cancellation, owned cleanup/recovery and all
+Perl expected-provider/pre-ALPM checks are unchanged.
+
+HOME reports use `storage_guard` / filesystem-capacity scope, never quota PASS.
+They explicitly retain unsupported own-UID quota, other quota UNCLAIMED and
+capacity_reservation=false. This opt-in mode is a guarded first-trial path, not a
+global fallback for missing quotas or an observation that storage is unlimited.
+No worker HOME filesystem/quota query or actor ran; controls use synthetic FD,
+mount, syscall-return and fstatvfs DATA only. Root owns fresh admission and runs.
+
+
+## Strict SHM quota backend compatibility
+
+The strict `READ_ONLY_Q_GETQUOTA` branch now opens the selected `/dev/shm` mount
+directory with `O_RDONLY|O_DIRECTORY|O_NOFOLLOW|O_CLOEXEC` (all components walked by
+FD) and calls Linux x86_64 `quotactl_fd` syscall443, command0x80000700, own UID,
+with the72-byte if_dqblk layout/valid offset64. It closes the directory FD on
+success and failure. Legacy libc.quotactl expected a block device and returned
+ENOTBLK for this actual mount-directory operand; it is no longer called.
+
+Only the backend changes: the existing block-limit/used-space valid mask,
+conservative minimum nonzero hard/soft byte limit, finite-limit requirement,
+zero-clamped remaining headroom and live reserve checks remain. ENOSYS/EPERM/
+ENOTBLK and every other unsuccessful strict query HOLD. There is no fallback to
+HOME semantics. HOME already used its separate actual FD syscall443 query and
+continues to admit only exact ENOSYS38 within its explicit Root profile.
+Synthetic controls exercise the actual ctypes argument/layout construction with
+CDLL/syscall mocked, verify FD flags/cleanup and errors, and perform no real quota
+query. Frozen Root observer Source0acdb...4886 is untouched by this increment.
+
+
+## Observed Tool529 e2fsck hardlinks
+
+Root's actual six-binary Tool529 DATA records e2fsck nlink4. A dedicated image-tool
+hasher now admits that exact four-link e2fsck layout (or its ordinary one-link
+layout), while all five other fixed tools require one link. All six must be
+regular root:root0755 files, within64MiB, with stable device/inode/mode/owner/link/
+size/timestamp identity and exact Root-selected bytes/SHA after alias resolution.
+Generic DATA/archive/authority/host-CLI single-link guards are unchanged. No tool
+execution is used for qualification. The Perl controller already starts Docker
+with `['docker','start',name]`; the unsupported start sig-proxy flag is absent.
+
+
+## Separate HOME device identity domains
+
+The HOME profile explicitly pins both userspace `fstat st_dev=54` and kernel
+mountinfo `kernel_mount_device="0:33"`. They are independently reviewed values;
+os.major/minor of54 must not be used to derive the kernel pair. The guard still
+selects the actual held FD's mount ID, checks Btrfs/@home/subvolid257, and requires
+stable before/after mount records. Unknown pairs/filesystems remain HOLD. Update
+the closed profile's filesystem declaration and all Source bindings after this
+fix; old draft packets are not silently rewritten or granted an exception.
+
+
+## Absent global trust, isolated official db trust
+
+Original111 has no `/etc/pacman.d/gnupg`. An admitted db5.3 transaction now requires
+`dependency_transaction.official_trust` matching `official-trust.TEMPLATE.json`:
+exact three baseline `/usr/share/pacman/keyrings/archlinuxarm.gpg`, `-trusted`,
+`-revoked` rows, the sole signer68B3537F39A313B3E574D06777193F152BDBE6A6, Root
+policy review, revoked-signer absence and explicit scratch/global-absence policy.
+Each file row equals baseline_files/files with its actual bytes/SHA/mode644,
+resolved path and archlinuxarm-keyring owner/version. Empty revoked DATA is valid.
+`baseline_public_trust` is the canonical JSON pin of exactly those three **relative
+path → image.stable(actual_node)** rows; it no longer means an assumed global
+GPG directory. The actor compares actual raw hash/metadata/ALPM ownership and
+absence before preparation. Root still admits signatures/current trust separately.
+
+Guest checks the same three actual files, normal trusted/revoked text and ALPM
+owners before import. It imports only the unchanged public ring into bounded
+volatile scratch, exports the sole admitted primary, and imports just that key
+into a separate `/run/arm16k-perl5423-vm/official-trust`. It rejects secret keys,
+requires one exact primary, sets ownertrust only for that Root-admitted signer,
+and verifies the exact db archive/signature with one matching VALIDSIG and
+TRUST_ULTIMATE. No bulk ownertrust, signing key, global GNUPG directory or changed
+Required/TrustedOnly policy is used. Normal db install/remove use explicit scratch
+GPGDir. All import/export/list/trust/verify/retirement calls are time/log bounded;
+public-only GPG calls disable autostart and key retrieval, writes are capped,
+success and failure retire/remove scratch homes. Nine extra GPG/retirement slots
+are charged when db is added: full envelope16*gpg_seconds + existing transaction,
+probe, overhead and cleanup bounds. With prior15/60/240/90/120 timings that is
+1010s;900s refuses, e.g. boot1200s needs a freshly reviewed corresponding outer cap.
+No actual GPG/ALPM/guest operation ran in this increment.
+
+## Original log absence and hash comparison prerequisites
+
+When the certified baseline pacman.log is absent, normal ALPM still writes its
+normal log. Guest retains that bounded complete log in durable receipts, then
+removes only that newly created unowned log to restore absence. Readback requires
+actual absence and exact safe retained receipt hash/size/ownership. Only `/var/log`
+parent mtime from this normal create/remove is additionally allowed; unrelated log
+residue refuses. An existing baseline log retains its original-prefix/append-only
+policy. User/database/payload/global-trust preservation gates stay in force.
+
+`cmp` is no longer a prerequisite or guest command. Both guest entry points use
+the reviewed `same_bytes` API implemented as bounded regular-file lengths plus
+SHA256, propagating stat/hash failures. This is cryptographic hash equality,
+not a new literal-byte comparison claim; no Python/Perl is needed for recovery.
+The local `test_guest_data.sh` regression covers literal binary/empty/equal/
+different/missing/symlink operands and command failures, plus trusted/revoked
+policy DATA, without GPG/ALPM/VM execution. Frozen helper bytes remain unchanged;
+Root sources the reviewed comparison override after the frozen helpers.
+
+
+## Exact alternate AArch64 PT_INTERP
+
+An ELF's literal PT_INTERP may differ from the selected loader only for the actual
+`/lib/ld-linux-aarch64.so.1` and `/usr/lib/ld-linux-aarch64.so.1` pair. Both strict
+paths and the canonical path must join identical baseline/file bytes, size,
+mode, glibc owner/version and canonical resolved target. The expected-input
+certificate must retain the exact filesystem-owned `/lib -> usr/lib` alias with
+its observed baseline version/root metadata; ordinary raw and guest alias checks
+remain mandatory. Missing/wrong alias, differing target/hash/metadata or arbitrary
+paths refuse. ELF interpreter facts are preserved; no double-slash normalization
+or relaxed general guest-path grammar is introduced.
+
+
+## Actual prepare-r1 cleanup name capture
+
+Actual Root prepare-r1 produced prepared DATA and actor exit0, then the controller
+held during cleanup because a later material loop rebound the closure variable
+`name`. Scope.validate now captures the immutable original name as a definition-
+time default. All image/label/mount/cap/resource checks remain unchanged; wrong
+names still refuse. The actual retained report references and closed-HOLD scope
+are in known/actual-prepare-cleanup-r1-reproducer.json. No r1 Source, packet, actor
+output or Root cleanup was edited. A regression compiles the actual Scope class,
+rebinds the material-loop name and requires original identity acceptance and
+wrong-name/image refusals. No actor runs in that regression.

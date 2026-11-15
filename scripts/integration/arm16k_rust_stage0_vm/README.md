@@ -86,3 +86,113 @@ bash -n guest/check.sh
 These controls never invoke Root operational entry points or actual compiler,
 linker, archive payloads, container daemon, VM or network. No build/boot claim
 follows from their passing.
+
+## Proposed direct dynamic libgcc selection successor
+
+This unbuilt successor requires a new Root certificate kind
+ARM16K_RUST_STAGE0_BASE111_DYNAMIC_GCC_INPUTS_V2. Its gcc_s input is exactly
+/usr/lib/libgcc_s.so.1, already among the fixed required runtime paths. The
+other six direct-ld library searches and their independent closure checks remain
+required. The resulting path union has39 rows (33 fixed plus6 distinct selected
+paths), rather than Source65's40. Source65 and its failed r6 evidence are retained.
+
+The r6 retained 132-byte libgcc_s.so script contains
+GROUP ( libgcc_s.so.1 -lgcc ). The retained .so.1 is a133352-byte AArch64 ELF,
+SHA256 ac598673a4bf67c0295b6609e46b1fafd0d4adf3f80a513d61ac49ecff772e48,
+owned by libgcc16.1.1+r12+g301eb08fa2c5-1. These are expected future input pins,
+not a Root-issued certificate or completed guest/closure qualification.
+
+Both rustc and Cargo select fixture/link-stage0.sh with unchanged ld flavor.
+This fixed Bash adapter replaces exactly one dynamic -lgcc_s token with the
+absolute ELF path before one exec of /usr/bin/ld. It preserves other argument
+bytes/order, refuses a missing/duplicate selection, static gcc operands, static
+gcc_s context and response files, and limits argv to512 entries/131072 bytes.
+Appending .so.1 alone would leave the original script selection possible.
+
+This deliberately bypasses the script's static libgcc contribution. If the
+fixture needs symbols unavailable from .so.1/Rust's existing compiler builtins,
+the future link must fail and remain HOLD; no library, dependency or compiler
+is installed and no failed symbol is silently ignored. The command/data tests
+do not establish that the real Rust fixture will link or run.
+
+Official stage0 archives are reused by path and pin without copying payloads.
+PAM login, builder identity, original nonce/marker, ordinary-user direct and
+offline Cargo thread/arithmetic/file probes,16K checks, full111 preservation,
+clock protocol, all resource budgets and frozen helpers are unchanged. Root
+must independently review/publish this Source, obtain a fresh complete39-row
+certificate plus ELF/remaining-script/archive closure, then authorize any run.
+All future actual Root publication/certificate/authority/VM fields remainNULL.
+
+Each real linker invocation must create a fresh private direct-ld.receipt or
+cargo-ld.receipt (mode0600, no overwrite). It records original/replaced argv
+with Bash %q quoting, counts and fixed /usr/bin/ld operand before exec. Bounded
+refused vectors also get a REFUSED_BEFORE_EXEC receipt with original argv and
+zero executed/replacement arguments, so unexpected static defaults stay visible. Receipt
+size is capped at65536 bytes each. finish emits both nonce/phase-delimited
+receipts outside the unchanged Rust result frame into the retained serial log,
+including any available receipt on failure. Missing receipts forceFAIL. Their
+pre-exec status never asserts a successful link. Root must treat quoted argv
+as DATA, never eval it. No frozen serial/parser limit is increased. The wrapper
+uses the existing certificate-required /usr/bin/bash, not guest Python.
+
+## HOME/Btrfs capacity-guard successor
+
+This Source-only contract extension retains the strict READ_ONLY_Q_GETQUOTA
+branch and adds only an explicit Root-reviewed HOME/Btrfs guard declaration.
+The new mode requires /home/gabe, UID1000, device54, Btrfs /@home/subvolid257,
+repeated ENOSYS38 ownUID quota observations, live fstatvfs and the same finite
+output/reserve/phase limits. Zero inode counters mean NOT_REPORTED; the bounded
+15000-node output census still applies. No positive quota/inode capacity is
+invented, other quota/qgroup constraints remain UNCLAIMED, and capacity is not
+reserved. EPERM/EINVAL/other errors, unknown filesystem identity, allocation/
+inode/ENOSPC failures or monitor loss HOLD with the existing cleanup policy.
+
+The new quota-guard-home-btrfs template is wholly unissued. Root must separately
+review the profile and monitor, publish/read back this new Source, and supply
+its genuine authority. Source68, all frozen helpers, guest linker/probes, PAM,
+39-row V2 certificate kind/consumer and baseline111 checks remain unchanged.
+The genuine39-row Root certificate produced from Source68 observations remains
+baseline evidence with that original provenance; this filesystem-only Source
+delta does not require new debugfs extraction or relabel that producer.
+
+No actual ownUID quota/Btrfs query, actor, VM, linker, compiler, lease, network
+or publication is performed by the worker. Future public Source/grants/runtime
+selectors remainNULL.
+
+## Passive namespace/ALPM successor
+
+The actual Source70 prepare attempt stopped before cloning because an image
+DATA key was passed to the strict active-command path validator. This successor
+adds a distinct bounded literal relative namespace/ALPM-key validator. It
+preserves punctuation, commas, brackets, literal backslashes and Unicode
+separators without unescaping or normalization. Empty components, traversal,
+absolute names, C0/DEL controls and overlong keys still refuse. The original
+strict command validator is unchanged and explicitly guards debugfs payload
+operands before active script construction.
+
+Exact byte-empty ALPM files records mean no owned paths. Nonempty records
+require nonempty FILES, paired records and exact byte/hash/version/111-package
+joins; duplicate per-package keys refuse. LF-only text splitting retains
+literal Unicode separators. All image keys use the passive validator.
+
+91 fenced Source controls and a separate real222 retained ALPM-body regression
+with a synthetic namespace pass. The latter does not claim actual image inode
+types, modes, content hashes or an image observation. The Root r5 executor
+mount identity fix and failure-only recovery fix are separate runtime changes.
+Source70, all frozen helpers, input contracts, V2/39-file semantics, linker,
+HOME/strict capacity modes, resource budgets and PAM/functional probes remain
+preserved. No raw scan/Reader/actor/compiler/VM/Docker/lease/network ran here.
+
+## Finite XZ decoder memory successor
+
+Source71's actual prepare passed the baseline namespace scan, then its128MiB
+XZ decoder cap refused the pinned rustc/rust-std archives. Their first-block
+LZMA2 property1e requests a128MiB dictionary; the measured first-byte decoder
+minimum here is134283928 bytes (dictionary plus66200-byte decoder overhead).
+Cargo property1b requests48MiB. A bounded65536-byte/one-output-byte probe
+passes all three at160MiB. The new finite cap is160MiB; owner3GiB, streaming
+chunk/output/archive/member/census/deadline bounds are unchanged. The actual
+probe is not archive extraction or compiler/link/runtime qualification.
+Source71 and the closed Root r3 attempt are retained. Root r2's missing path
+metadata was a separate Root-input issue, not a Source defect. All other
+Source/certificate/linker/HOME/custody semantics remain unchanged.
