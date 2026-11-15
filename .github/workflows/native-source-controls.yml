@@ -155,7 +155,23 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_rust_stage0_vm/test_memory.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_rust_stage0_vm/test_runtime.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_rust_stage0_vm/test_stage0.py
-          python3 -I -B -Werror::ResourceWarning scripts/port/arm-rust-toolchain-inputs/source-closure/archive-inventory/checksum-successor/license-followup/compiler-notices/successor-d/test_reevaluate.py
+      - name: Check eight portable notice controls; private capture replay remains Root-local
+        run: |
+          python3 -I -B -Werror::ResourceWarning - <<'PY'
+          import importlib.util, unittest
+          from pathlib import Path
+          path = Path('scripts/port/arm-rust-toolchain-inputs/source-closure/archive-inventory/checksum-successor/license-followup/compiler-notices/successor-d/test_reevaluate.py')
+          spec = importlib.util.spec_from_file_location('notice_d_portable_controls', path)
+          controls = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(controls)
+          # The authenticated private compiler capture is intentionally not a CI input.
+          local_only = 'test_real_replay_four_package_joins_96_remaining_all_broader_holds'
+          names = unittest.defaultTestLoader.getTestCaseNames(controls.Controls)
+          assert local_only in names
+          suite = unittest.TestSuite(controls.Controls(name) for name in names if name != local_only)
+          result = unittest.TextTestRunner(verbosity=2).run(suite)
+          raise SystemExit(not (result.wasSuccessful() and result.testsRun == 8 and not result.skipped))
+          PY
       - name: Check Rust volume Source against a freshly rendered pinned DATA fixture
         run: |
           python3 -I -B -Werror::ResourceWarning - <<'PY'
@@ -213,7 +229,8 @@ jobs:
           joined = controls.Controls.test_actual305_full_inverse_and_runtime_Source_DATA_only
           if getattr(joined, '__unittest_skip__', False):
               assert joined.__unittest_skip_why__ == 'retained Source DATA unavailable; no actual Reader role implied'
-              joined.__unittest_skip__ = False
+              # skipUnless wraps the body; clearing its marker still raises SkipTest.
+              controls.Controls.test_actual305_full_inverse_and_runtime_Source_DATA_only = joined.__wrapped__
           result = unittest.TextTestRunner(verbosity=2).run(unittest.defaultTestLoader.loadTestsFromModule(controls))
           raise SystemExit(not (result.wasSuccessful() and result.testsRun == 12 and not result.skipped))
           PY
@@ -235,7 +252,7 @@ jobs:
               if getattr(test, '__unittest_skip__', False):
                   assert test.__unittest_skip_why__ in ('retained frozen consumer Source DATA unavailable',
                                                       'retained exact305 Source needed; portable controls still run')
-                  test.__unittest_skip__ = False
+                  setattr(controls.Controls, name, test.__wrapped__)
           result = unittest.TextTestRunner(verbosity=2).run(unittest.defaultTestLoader.loadTestsFromModule(controls))
           raise SystemExit(not (result.wasSuccessful() and result.testsRun == 17 and not result.skipped))
           PY
