@@ -414,7 +414,7 @@ jobs:
 
           if os.getuid() == 0 or os.geteuid() == 0:
               raise SystemExit('repository fixtures require an ordinary non-root runner')
-          for filename, minimum in (('test_rotate.py', 24), ('test_transition.py', 13), ('test_revoke.py', 12)):
+          for filename, minimum in (('test_rotate.py', 24), ('test_transition.py', 13), ('test_revoke.py', 12), ('test_refresh.py', 15)):
               spec = importlib.util.spec_from_file_location('rotation_controls', Path('scripts/repository') / filename)
               module = importlib.util.module_from_spec(spec)
               spec.loader.exec_module(module)
