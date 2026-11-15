@@ -1,0 +1,117 @@
+[dependencies.alloc]
+optional = true
+package = "rustc-std-workspace-alloc"
+version = "1.0.0"
+
+[dependencies.core]
+optional = true
+package = "rustc-std-workspace-core"
+version = "1.0.0"
+
+[dependencies.crc32fast]
+default-features = false
+optional = true
+version = "1.2"
+
+[dependencies.flate2]
+optional = true
+version = "1"
+
+[dependencies.hashbrown]
+default-features = false
+features = ["default-hasher"]
+optional = true
+version = "0.16.0"
+
+[dependencies.indexmap]
+default-features = false
+optional = true
+version = "2.0"
+
+[dependencies.memchr]
+default-features = false
+version = "2.4.1"
+
+[dependencies.ruzstd]
+optional = true
+version = "0.8.1"
+
+[dependencies.wasmparser]
+default-features = false
+optional = true
+version = "0.243.0"
+
+[features]
+all = ["read", "write", "build", "std", "compression", "wasm"]
+archive = []
+build = ["build_core", "write_std", "elf"]
+build_core = ["read_core", "write_core"]
+cargo-all = []
+coff = []
+compression = ["dep:flate2", "dep:ruzstd", "std"]
+default = ["read", "compression"]
+doc = ["read_core", "write_std", "build_core", "std", "compression", "archive", "coff", "elf", "macho", "pe", "wasm", "xcoff"]
+elf = []
+macho = []
+pe = ["coff"]
+read = ["read_core", "archive", "coff", "elf", "macho", "pe", "xcoff", "unaligned"]
+read_core = []
+rustc-dep-of-std = ["core", "alloc", "memchr/rustc-dep-of-std"]
+std = ["memchr/std"]
+unaligned = []
+unstable = []
+unstable-all = ["all", "unstable"]
+wasm = ["dep:wasmparser"]
+write = ["write_std", "coff", "elf", "macho", "pe", "xcoff"]
+write_core = ["dep:crc32fast", "dep:indexmap", "dep:hashbrown"]
+write_std = ["write_core", "std", "indexmap?/std", "crc32fast?/std"]
+xcoff = []
+
+[lib]
+name = "object"
+path = "src/lib.rs"
+
+[lints.clippy]
+collapsible_else_if = "allow"
+collapsible_if = "allow"
+collapsible_match = "allow"
+comparison_chain = "allow"
+field_reassign_with_default = "allow"
+manual_flatten = "allow"
+match_like_matches_macro = "allow"
+needless_lifetimes = "allow"
+result_unit_err = "allow"
+should_implement_trait = "allow"
+single_match = "allow"
+type_complexity = "allow"
+uninlined_format_args = "allow"
+
+[package]
+autobenches = false
+autobins = false
+autoexamples = false
+autolib = false
+autotests = false
+build = "build.rs"
+description = "A unified interface for reading and writing object file formats."
+edition = "2018"
+include = ["/build.rs", "/Cargo.toml", "/CHANGELOG.md", "/README.md", "/LICENSE-APACHE", "/LICENSE-MIT", "/src", "/tests"]
+keywords = ["object", "elf", "mach-o", "pe", "coff"]
+license = "Apache-2.0 OR MIT"
+name = "object"
+readme = "README.md"
+repository = "https://github.com/gimli-rs/object"
+resolver = "2"
+rust-version = "1.65"
+version = "0.38.1"
+
+[package.metadata.docs.rs]
+features = ["doc"]
+
+[[test]]
+name = "integration"
+path = "tests/integration.rs"
+
+[[test]]
+name = "parse_self"
+path = "tests/parse_self.rs"
