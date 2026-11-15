@@ -147,9 +147,9 @@ def factory_proofs(binding, merge, ci, proof):
          merge.get('all_unlisted_objects_modes_preserved') is True and
          merge.get('inverse_restores_actual_premerge_main') is True, 'genuine recorded merge and exact correction inverse proof')
     need(type(merge.get('premerge_main')) is str and re.fullmatch('[0-9a-f]{40}',merge['premerge_main']) and
-         type(merge.get('reviewed_changes')) is dict and 10<=len(merge['reviewed_changes'])<=256 and
+         type(merge.get('reviewed_changes')) is dict and 1<=len(merge['reviewed_changes'])<=256 and
          type(merge.get('correction_paths')) is list and len(set(merge['correction_paths']))==10,
-         'complete reviewed integration batch and explicit correction subset; never claim ten-only merge')
+         'complete nonempty reviewed integration batch and explicit ten-body correction subset')
     need(ci.get('head')==binding['factory_head'] and type(ci.get('checks')) is int and ci['checks']==ci.get('jobs')==binding['expected_CI_checks'] and
          ci.get('check_job_bijection') is True and ci.get('failures')==[] and ci.get('nonterminal')==[],
          'full completed CI/check-job bijection; no rollup-name-only qualification')

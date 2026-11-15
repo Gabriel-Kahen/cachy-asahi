@@ -240,6 +240,31 @@ class ContextAdmissionDataControls(unittest.TestCase):
         self.assertEqual(result['source'],G.SOURCE);self.assertEqual(result['factory_correction_subset'],10)
         self.assertEqual(result['reader']['sha256'],G.READER['sha256']);self.assertFalse(result['reader_executed']);self.assertFalse(result['acceptance'])
 
+    def test_one_changed_factory_body_with_nine_retained_requires_complete_batch(self):
+        name='scripts/ci/native-build-namespace-context-admission/namespace_guard.py'
+        def followup():
+            q=qualification_model();q.before=deepcopy(q.after)
+            old=b'MODELED previous factory guard\n';q.bodies['before',name]=old
+            before=dict(**G.pin(old),mode=FACTORY[name]['mode'],oid=G.oid('blob',old))
+            q.before[name]=dict(mode=before['mode'],blob=before['oid'])
+            q.merge['reviewed_changes']={name:dict(before=before,after=FACTORY[name])};q.sync()
+            return q
+        q=followup()
+        self.assertEqual(sum(q.before[n]==q.after[n]for n in FACTORY),9)
+        self.assertEqual(G.qualify(q.namespace()),q.binding['factory_Main'])
+        result=q.saved[str(q.OUT/'source-qualification.json')]
+        self.assertEqual(result['factory_batch_changed'],1);self.assertEqual(result['factory_correction_subset'],10)
+        for change in('omitted','retained_body'):
+            q=followup()
+            if change=='omitted':
+                q.merge['reviewed_changes'].clear();q.sync()
+                with self.assertRaisesRegex(ValueError,'every changed'):
+                    G.batch(q.merge,q.before,q.after,lambda side,index,path:q.bodies[side,path])
+            else:
+                retained=next(n for n in FACTORY if n!=name);q.bodies['after',retained]+=b'changed retained body'
+            with self.subTest(change=change),self.assertRaises(ValueError):G.qualify(q.namespace())
+            self.assertFalse(q.saved)
+
     def test_full_join_refuses_wrong_uid_parent_map_manifest_or_changed_factory(self):
         for change in('uid','parent','map','manifest','reviewed_body','tested_table','hidden_batch','parent_order'):
             q=qualification_model()

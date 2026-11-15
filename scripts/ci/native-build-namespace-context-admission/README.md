@@ -79,7 +79,9 @@ That manifest excludes itself to avoid a hash cycle. Qualification independently
 joins all ten bodies/modes/blobs at the reviewed commit, actually tested head and
 live Main, proves reviewed→tested ancestry, complete reviewed integration-batch
 changes/additions/removals and inverse, actual two-parent merge and Main ancestry.
-The integration batch need not contain only those ten files.
+The complete integration batch contains1–256 actually changed paths; unchanged
+factory paths need not be changed again. All ten factory bodies still join
+independently, and exact changed-path equality and the full inverse remain required.
 
 The merge receipt must also pin `merge_action_journal` with the same external
 `{path,bytes,sha256}` row shape. Its closed journal schema is:
@@ -156,7 +158,7 @@ python3 -I -B -Werror::ResourceWarning \
   --source-root /absolute/no-Git-Source3937-export
 ```
 
-Thirteen actor-fenced controls pass on Python3.12.13 and3.14.7. They perform the real
+Fourteen actor-fenced controls pass on Python3.12.13 and3.14.7. They perform the real
 complete explicit new Source scan; only historical retained DATA and runtime Git
 callbacks are modeled. Controls cover full publication/profile/parent joins,
 reviewed/tested/current-Main bodies, genuine factory/CI schema, all refusal cases,

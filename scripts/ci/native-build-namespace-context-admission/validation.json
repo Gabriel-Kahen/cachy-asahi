@@ -21,12 +21,12 @@
       "3.14.7"
     ],
     "skipped": 0,
-    "tests": 13
+    "tests": 14
   },
   "factory_binding": null,
   "factory_manifest": {
     "bytes": 2595,
-    "sha256": "f69019d1b12ccd4b3828dda0e15981b28ca0e63801b8e1bc1ef12a95de994d2e"
+    "sha256": "14be4168d419da76d228762b6ead8148212c0eb0c473c1828c51833959963e9d"
   },
   "factory_subset_files": 10,
   "held_committed_operands_verified": 40,
@@ -36,7 +36,12 @@
   "merge_action_contract": {
     "PR440_candidate_evidence": "IMMUTABLE_OLD_GUARD_DATA_NOT_QUALIFIED",
     "all_three_external_evidence_files": "WHOLE_PINNED_AND_INPUT_SEALED",
+    "complete_reviewed_batch_changed_paths": {
+      "maximum": 256,
+      "minimum": 1
+    },
     "historical_HTTP_verbs_counts": "UNKNOWN_NOT_INFERRED",
+    "independently_joined_factory_bodies": 10,
     "new_factory_PR_CI_Main_and_Root_journal_required": true,
     "post_merge_PR": "PINNED_RAW_MATCHING_MERGED_PR_HEAD_MAIN",
     "pre_merge_PR": "PINNED_RAW_OPEN_UNMERGED_HEAD_BASE",
