@@ -1,0 +1,81 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 1298,
+      "sha256": "502eb92e83374c057088c4b1d676b11b46d9696bc084ee80b0ff755e0c94e94f"
+    },
+    "criteria.json": {
+      "bytes": 3056,
+      "sha256": "fbd28e5e2bcbf716b542a6043520e574354f0e61262b724675ad86a8014a370f"
+    },
+    "notices/bitmaps-2.1.0-COPYRIGHT-MPL-notice.txt": {
+      "bytes": 215,
+      "sha256": "e15f16777c099e06a89c158086668aa0001c5dca6010b08fa6a58c12972d5e02"
+    },
+    "notices/bitmaps-2.1.0-LICENCE.md": {
+      "bytes": 15550,
+      "sha256": "e6b6566f085df5746515c6d7e2edcaec0d2b77d527ac40d91409d783fb6c8508"
+    },
+    "notices/im-rc-15.1.0-COPYRIGHT-MPL-notice.txt": {
+      "bytes": 215,
+      "sha256": "b34031bcb12b53901345e40a6af52cf2b2cf2881a5b3bef151e63c9da4f121d4"
+    },
+    "notices/im-rc-15.1.0-LICENCE.md": {
+      "bytes": 15550,
+      "sha256": "e6b6566f085df5746515c6d7e2edcaec0d2b77d527ac40d91409d783fb6c8508"
+    },
+    "notices/nu-ansi-term-0.46.0-LICENCE.txt": {
+      "bytes": 1135,
+      "sha256": "cfdb7491dfa8800a1d561957d6a072ad63a6305ffa48386d04eae8eac8d65e8a"
+    },
+    "notices/r-efi-5.2.0-COPYRIGHT.txt": {
+      "bytes": 186,
+      "sha256": "b42d424237a0836bbd7a09d9c1e9efd80798b7f25fce526799c2e2466ce3845b"
+    },
+    "notices/r-efi-5.2.0-MIT-grant.txt": {
+      "bytes": 1165,
+      "sha256": "ea04296ad7659598ef96343152796b765c92810500891624f5ada54e9a62fe2a"
+    },
+    "notices/r-efi-5.3.0-COPYRIGHT.txt": {
+      "bytes": 186,
+      "sha256": "b42d424237a0836bbd7a09d9c1e9efd80798b7f25fce526799c2e2466ce3845b"
+    },
+    "notices/r-efi-5.3.0-MIT-grant.txt": {
+      "bytes": 1165,
+      "sha256": "ea04296ad7659598ef96343152796b765c92810500891624f5ada54e9a62fe2a"
+    },
+    "notices/r-efi-6.0.0-COPYRIGHT.txt": {
+      "bytes": 186,
+      "sha256": "b42d424237a0836bbd7a09d9c1e9efd80798b7f25fce526799c2e2466ce3845b"
+    },
+    "notices/r-efi-6.0.0-MIT-grant.txt": {
+      "bytes": 1165,
+      "sha256": "ea04296ad7659598ef96343152796b765c92810500891624f5ada54e9a62fe2a"
+    },
+    "notices/r-efi-alloc-2.1.0-COPYRIGHT.txt": {
+      "bytes": 132,
+      "sha256": "3861ab7e3f7ac1cf7fa7577262900794b84342b468a8d4855bc641a540da5fa5"
+    },
+    "notices/r-efi-alloc-2.1.0-MIT-grant.txt": {
+      "bytes": 1165,
+      "sha256": "ea04296ad7659598ef96343152796b765c92810500891624f5ada54e9a62fe2a"
+    },
+    "notices/sized-chunks-0.6.5-COPYRIGHT-MPL-notice.txt": {
+      "bytes": 215,
+      "sha256": "e15f16777c099e06a89c158086668aa0001c5dca6010b08fa6a58c12972d5e02"
+    },
+    "notices/sized-chunks-0.6.5-LICENCE.md": {
+      "bytes": 15550,
+      "sha256": "e6b6566f085df5746515c6d7e2edcaec0d2b77d527ac40d91409d783fb6c8508"
+    },
+    "retained-notices.json": {
+      "bytes": 10339,
+      "sha256": "33635b44b58c09a3dec8b77807de3088aad928d1a1256a62bd33bbdaa5ae2188"
+    },
+    "review.json": {
+      "bytes": 394394,
+      "sha256": "c2e782a07a13a965e5a85243b4a74bec1da0fe0a34fde3f15455aa0ed852208f"
+    }
+  },
+  "schema": 1
+}

@@ -1,0 +1,2 @@
+# Retained grant/notice byte spans include original trailing blank lines.
+license-review/notices/* -whitespace

@@ -1,0 +1,4 @@
+COPYRIGHT: (ordered alphabetically)
+        Copyright (C) 2017-2022 Red Hat, Inc.
+        Copyright (C) 2022-2025 David Rheinsberg
+
