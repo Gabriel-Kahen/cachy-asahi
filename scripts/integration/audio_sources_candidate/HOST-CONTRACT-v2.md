@@ -2,8 +2,9 @@
 
 **Review operand:** `host-contract-v2.json`, SHA256
 `c15bf77254ee4c857c31036004e7a663a5b3d7ec25f49e59c10a4ea3e1d942d6`.
-This successor preserves commit55aa3ae1 and all actual refusals. No successor
-transaction has run; Root requested this concrete boundary before that step.
+This successor preserves commit55aa3ae1 and all actual refusals. Root reviewed
+this concrete boundary before the [actual signed host journey](RESULT-20261114.md),
+which now passes its finite installed lifecycle. The JSON contract is unchanged.
 
 The immutable image,82101-byte exact tool archive,17-file payload and genuine
 packet pins are unchanged. The original inherited ARM/common modules, original
@@ -32,6 +33,7 @@ docker create --name "$NAME" --label "cachy-asahi.audio-candidate=$NONCE" \
   --mount "type=bind,src=$EVIDENCE,dst=/out" \
   --env "CACHY_ASAHI_AUDIO_CANDIDATE=$NONCE" \
   --env CACHY_ASAHI_IMAGE_ID=sha256:30cfe09952ef8d9bfabd64224185c97021b260d47bb83941fec5bae7bdd16145 \
+  --env TMPDIR=/scratch \
   --entrypoint=/usr/bin/python3 \
   sha256:30cfe09952ef8d9bfabd64224185c97021b260d47bb83941fec5bae7bdd16145 \
   -I -B /runner/journey.py --contract-sha256 "$PRIVATE_CONTRACT_SHA256"
@@ -111,8 +113,10 @@ is removed. Confirmed absence is required. Unacknowledged create outcomes remain
 UNKNOWN even after an empty immediate census. Every process retains existing
 bounded pipes,60-second guest command/180-second actor deadlines and scoped reap.
 
-Boundary, resource and create-only DATA checks pass. Actual TEST signature,
-installation/reinstallation/removal and installed packet verification remain
-pending Root's requested review and a real successor invocation. Existing
+Boundary/resource controls and the actual TEST signature,
+installation/reinstallation/removal/installed packet verification pass. The parent
+process explicitly uses the already declared noexec `/scratch` for temporary
+input files; the first attempt without this setting is retained as failed setup.
+Existing
 compiler, original-binary, source/legal, wmidi, security, native ARM/16K, M2/audio,
 performance, production trust and release holds are unchanged.

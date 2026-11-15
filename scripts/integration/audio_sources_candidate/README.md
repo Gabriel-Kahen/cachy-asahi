@@ -1,19 +1,19 @@
 # Audio-source tool private-container candidate
 
-The [v2 successor contract](HOST-CONTRACT-v2.md) and pinned
-`host-contract-v2.json` are prepared for Root's requested boundary review. They
-keep `/scratch` noexec, add a separate bounded executable `/alpm` tmpfs, and
-validate the complete engine-declared protected-mask profile. No successor
-transaction has run. Twenty-four successor boundary/DATA controls pass, including
-the actual create-only engine declaration. Root review is pending before the real
-transaction. The original55aa3ae1 evidence and refusals remain below.
+The Root-reviewed [v2 successor contract](HOST-CONTRACT-v2.md) now has an
+[actual host TEST-signed result](RESULT-20261114.md): unsigned refusal, signed
+install, same-version reinstall, two installed genuine-packet verifications,
+removal,139→140→140→139 inventory and owned cleanup pass. Twenty-five focused
+controls also pass. `/scratch` remains noexec; the copied root executes only on
+the separately declared `/alpm` tmpfs. This is host-x86 evidence with mask0x400cb,
+not cap0/native/M2/release qualification. All original refusals remain below.
 
 ## Retained predecessor evidence (55aa3ae1)
 
-This finite host-x86_64 journey is source-implemented and actually invoked. The
-current invocation refuses the protected-null mount contract **before TEST key
+The original finite host-x86_64 journey was source-implemented and invoked. That
+invocation refused the protected-null mount contract **before TEST key
 generation, copied-root construction or pacman execution**. Installation,
-reinstallation, installed-tool verification and removal remain **NOT_RUN** here.
+reinstallation, installed-tool verification and removal remained **NOT_RUN** at that checkpoint.
 Sixteen ingress, guard, DATA and cleanup controls pass; they do not replace the
 missing real transaction result.
 

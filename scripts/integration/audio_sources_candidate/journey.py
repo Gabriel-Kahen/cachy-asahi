@@ -70,6 +70,7 @@ def guard(r, contract, initial=False):
     C.need(marker.is_file() and not marker.is_symlink() and marker.stat().st_uid == 0, 'REAL_DOCKER_MARKER_REQUIRED')
     C.need(os.environ.get('CACHY_ASAHI_AUDIO_CANDIDATE') == contract['nonce']
            and os.environ.get('CACHY_ASAHI_IMAGE_ID') == contract['image_id'], 'CONTAINER_CONTRACT_IDENTITY')
+    C.need(os.environ.get('TMPDIR') == '/scratch', 'PARENT_PRIVATE_DATA_TMP_REQUIRED')
     observed = r.mounts(Path('/proc/self/mountinfo').read_text())
     host = C.host_contract(HERE)
     admitted_roles = H.mounts(r, observed, contract['engine_host_config'], host)

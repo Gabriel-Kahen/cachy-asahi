@@ -153,6 +153,7 @@ def execute(args):
             '--mount', f'type=bind,src={guest},dst=/out',
             '--env', 'CACHY_ASAHI_AUDIO_CANDIDATE=' + nonce,
             '--env', 'CACHY_ASAHI_IMAGE_ID=' + profile['image_id'],
+            '--env', 'TMPDIR=/scratch',
             '--entrypoint=/usr/bin/python3', profile['image_id'], '-I', '-B', '/runner/journey.py',
             '--contract-sha256', C.digest(raw_contract)]
         creation_attempted = True

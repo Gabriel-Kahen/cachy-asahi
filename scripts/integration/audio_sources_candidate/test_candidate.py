@@ -260,6 +260,20 @@ class CandidateBoundaries(unittest.TestCase):
         for field in ('package_installation', 'reinstallation', 'removal'):
             self.assertEqual(journey.report[field], 'NOT_RUN')
 
+    def test_parent_temp_is_the_declared_noexec_data_mount_before_commands(self):
+        contract = dict(nonce='a' * 32, image_id=P['image_id'])
+        for value in (None, '/tmp', '/producer'):
+            env = dict(CACHY_ASAHI_AUDIO_CANDIDATE=contract['nonce'], CACHY_ASAHI_IMAGE_ID=contract['image_id'])
+            if value is not None: env['TMPDIR'] = value
+            with self.subTest(value=value), mock.patch.object(G.platform, 'machine', return_value='x86_64'), \
+                 mock.patch.object(G.os, 'geteuid', return_value=0), mock.patch.object(G.Path, 'is_file', return_value=True), \
+                 mock.patch.object(G.Path, 'is_symlink', return_value=False), \
+                 mock.patch.object(G.Path, 'stat', return_value=SimpleNamespace(st_uid=0)), \
+                 mock.patch.dict(G.os.environ, env, clear=True), mock.patch.object(R, 'mounts') as mounted:
+                with self.assertRaisesRegex(ValueError, 'PARENT_PRIVATE_DATA_TMP_REQUIRED'):
+                    G.guard(R, contract)
+                mounted.assert_not_called()
+
     def test_cleanup_census_and_removal_failure_keep_structured_refusal(self):
         for failure in ('cleanup-census', 'remove-owned-container'):
             report = dict(status='initial')
