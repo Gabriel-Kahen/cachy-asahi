@@ -28,3 +28,6 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/test_image_lifecycle_data.py -v
           python3 -I -B -Werror::ResourceWarning scripts/ci/native-build-namespace-preflight/test_preflight_data.py -v
           python3 -I -B -Werror::ResourceWarning scripts/ci/native-build-namespace-preflight/test_image_lifecycle_data.py -v
+      - name: Check observable namespace source controls without actors
+        run: |
+          python3 -I -B -Werror::ResourceWarning scripts/ci/native-build-namespace-observable/test_observable_data.py
