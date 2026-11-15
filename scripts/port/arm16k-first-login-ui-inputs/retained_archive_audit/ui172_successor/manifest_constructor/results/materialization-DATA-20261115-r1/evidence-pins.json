@@ -1,0 +1,18 @@
+{
+  "controls.json": {
+    "bytes": 437,
+    "sha256": "b1a5e5dec7ce461f44658e68ac9e7195ea64118b5ad8f911abde18888af0598b"
+  },
+  "file-custody.DATA.json": {
+    "bytes": 937617,
+    "sha256": "1d164f23a27b38406cb78718f77ccee8993dca44dcdcea3282239e944de52a78"
+  },
+  "membership.DATA.json": {
+    "bytes": 53381,
+    "sha256": "24a4b55a5897209efee54fab4a807962cfc412e70fb0034c926525ff6aa1b349"
+  },
+  "receipt.DATA.json": {
+    "bytes": 1548,
+    "sha256": "3f0570298b627bab836df7cc7290c94acd881c7598dafa092b61690a0645c5d5"
+  }
+}

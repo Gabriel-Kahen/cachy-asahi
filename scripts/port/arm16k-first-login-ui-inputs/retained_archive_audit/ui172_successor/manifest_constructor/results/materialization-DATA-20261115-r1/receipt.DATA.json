@@ -1,0 +1,50 @@
+{
+  "GPG_network_daemon_lease_preparation_VM_ABI_claims": false,
+  "Root_approval": null,
+  "budget": {
+    "destination_read_bytes": 157222100,
+    "file_bytes": 157222100,
+    "metadata_read_bytes": 2389816,
+    "read_bytes": 316834016,
+    "source_read_bytes": 157222100
+  },
+  "completed_files": 348,
+  "destination": "/dev/shm/cachy-asahi-arm16k-ui172-materials-DATA-20261115-r1",
+  "failure": null,
+  "issued_by": null,
+  "kind": "UI172_RETAINED_MATERIALS_DATA_COPY_RECEIPT_V1",
+  "limits": {
+    "address_space_bytes": 134217728,
+    "archive_object_bytes": 67108864,
+    "file_set_bytes": 268435456,
+    "read_IO_bytes": 536870912,
+    "signature_keyring_bytes": 65536,
+    "template_bytes": 1048576,
+    "wall_seconds": 120
+  },
+  "membership": {
+    "bytes": 53381,
+    "sha256": "24a4b55a5897209efee54fab4a807962cfc412e70fb0034c926525ff6aa1b349"
+  },
+  "missing_or_refused_sources": [],
+  "original_paths_mutated": false,
+  "planned_file_bytes": 157222100,
+  "planned_files": 348,
+  "producer": {
+    "bytes": 12324,
+    "sha256": "c53832033936d05557333e79186ee940b0f680864cdfe2ac695561ab8a5f3954"
+  },
+  "public_Source_selector": null,
+  "runtime_authority": null,
+  "sealed_plan": {
+    "bytes": 132913,
+    "sha256": "7730156f620ff21e3e4c4089cd51c5a2bafd6decef95555ea5a0f738465e8083"
+  },
+  "seconds": 0.434,
+  "status": "PASS_COMPLETE_MATERIAL_BYTES_DATA_ONLY",
+  "unissued_manifest_reference": {
+    "bytes": 2256903,
+    "sha256": "f88c15e6de5b36dd63ea5216a3e4ca19dc395dbec9ffcb9a405253c6ebf7b981"
+  },
+  "valid_until_utc": null
+}
