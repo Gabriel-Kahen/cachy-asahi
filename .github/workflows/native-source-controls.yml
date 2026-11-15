@@ -28,3 +28,20 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/test_image_lifecycle_data.py -v
           python3 -I -B -Werror::ResourceWarning scripts/ci/native-build-namespace-preflight/test_preflight_data.py -v
           python3 -I -B -Werror::ResourceWarning scripts/ci/native-build-namespace-preflight/test_image_lifecycle_data.py -v
+      - name: Check out held namespace parent as data
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 6b5b5a8f20ad2698c2d7f14a8f59c9b0ad5da165
+          path: .observable-parent-repository
+          persist-credentials: false
+      - name: Export held namespace parent without executing it
+        run: |
+          umask 022
+          parent="${RUNNER_TEMP}/observable-parent-source"
+          test ! -e "$parent"
+          mkdir -m 700 "$parent"
+          test "$(git -C .observable-parent-repository rev-parse HEAD)" = 6b5b5a8f20ad2698c2d7f14a8f59c9b0ad5da165
+          git -C .observable-parent-repository -c tar.umask=0022 archive --format=tar HEAD | tar -xf - -C "$parent"
+      - name: Check observable namespace source controls without actors
+        run: |
+          python3 -I -B -Werror::ResourceWarning scripts/ci/native-build-namespace-observable/test_observable_data.py --parent-source "${RUNNER_TEMP}/observable-parent-source"

@@ -1,0 +1,105 @@
+{
+  "archives": {
+    "first_login": {
+      "bytes": 19471,
+      "name": "cachy-asahi-first-login-0.1.0-2-any.pkg.tar.zst",
+      "sha256": "d4b7291afedc2af95d89f3975c77c45e417125bf23818cbfd1dc7d53fb464839"
+    },
+    "fish": {
+      "bytes": 13518,
+      "name": "cachy-asahi-fish-config-0.1.0-1-any.pkg.tar.zst",
+      "sha256": "21f4ca0ab90c66b131673f2cb2c6caf85b72e2872777481d8118d9264b3d0c02"
+    },
+    "setup": {
+      "bytes": 33900,
+      "name": "cachy-asahi-setup-0.3.0-1-any.pkg.tar.xz",
+      "sha256": "8de3bd0cf2d9333b41925fecdef5cbfe2ec6d40c3424d90746182142e0c7dc47"
+    },
+    "zsh": {
+      "bytes": 14474,
+      "name": "cachy-asahi-zsh-config-0.1.0-1-any.pkg.tar.zst",
+      "sha256": "0e88f366d93de023007a290678e38c37dda64d2c10036f763e4ee0c4de4cc9c0"
+    }
+  },
+  "helpers": {
+    "gui_controls.py": {
+      "bytes": 8171,
+      "sha256": "92fecc34a9fbb58002387c8a79422838f717b095bc27076b81ccf790a9403686"
+    }
+  },
+  "recipe_files": {
+    ".SRCINFO": {
+      "bytes": 2051,
+      "sha256": "3fa4e2a43280a23f00cb7b091163c162bb7a964fac145bae241445de23ff89ca"
+    },
+    "LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "NOTICE": {
+      "bytes": 384,
+      "sha256": "dfa0e6f1fef4442602ca136c68f6e7eb23f887c0e799a2500792df26affc3012"
+    },
+    "PKGBUILD": {
+      "bytes": 2694,
+      "sha256": "0d83991bd644bff49d88fc4b504d5f56925a9ff715ffeae2d5329a3e80fe8ca8"
+    },
+    "README.md": {
+      "bytes": 4982,
+      "sha256": "2dbbb64e401bf5cb9ec2fe66b48a6ffb8438a1e8e3e001a4402a6e769ac04ec6"
+    },
+    "RESULTS.md": {
+      "bytes": 6890,
+      "sha256": "b7ee5eeb46e3553da35946a8553160a23953ddee109e5e61035a927547d4595d"
+    },
+    "bridge.py": {
+      "bytes": 14105,
+      "sha256": "ad3bdac0b0c056475d37294be5a40329acb4be2e5eb881026943f04975483101"
+    },
+    "cachy-asahi-first-login-ui": {
+      "bytes": 432,
+      "sha256": "0943cc4063c4a802d5c835676c056a2e3320e93732208295bfd80f0d26aa5883"
+    },
+    "first-login-entry-fixture": {
+      "bytes": 296,
+      "sha256": "a5e2b72ff58eac2763c0ad65f36c0c883a60ce20e97c38acc4bace9d30a18144"
+    },
+    "first-login-fixture.py": {
+      "bytes": 10384,
+      "sha256": "41ade792884afced7a078c6926d3f18d7a9e40fca50191c7d77d34678711921c"
+    },
+    "gui.py": {
+      "bytes": 10913,
+      "sha256": "3ce42af22ef6f73bf5f013bb1e128aa74b25d57a7a268ec78177d6f4bebf5923"
+    },
+    "io.github.GabrielKahen.CachyAsahiFirstLogin.desktop": {
+      "bytes": 240,
+      "sha256": "f6e3bdf2b8c0d392ea3ec1dc68023ae55203ba2a0770463fa825bebda4082c05"
+    },
+    "setup8-fixture.py": {
+      "bytes": 45116,
+      "sha256": "724a37c9832d607455aeda1d929f0ee265ce268aecb64be5e00065c1edf85cf0"
+    },
+    "source-provenance.json": {
+      "bytes": 1220,
+      "sha256": "f91d18de6d87dd9e3b6554c8672a9f8646efe0e331b5a594e112612b468fb2f8"
+    },
+    "test_bridge.py": {
+      "bytes": 10307,
+      "sha256": "07c13d9a4e7513dee8516845a3fd970a3e059b5b90bd1ccaf46b163ee3ecd4b1"
+    },
+    "test_delivery.py": {
+      "bytes": 5562,
+      "sha256": "a5805c0ec12428b75a91487bc1f2ae6f9f2cc89335ece0559c7b0d7c1eb075b5"
+    },
+    "test_gui.py": {
+      "bytes": 8171,
+      "sha256": "92fecc34a9fbb58002387c8a79422838f717b095bc27076b81ccf790a9403686"
+    },
+    "test_support.py": {
+      "bytes": 2571,
+      "sha256": "7385480f0fa3d111bebbc2d09614f6f989cad6d31586db492be3c93b41712225"
+    }
+  },
+  "schema": 1
+}

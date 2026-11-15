@@ -1,0 +1,78 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 9371,
+      "sha256": "5883d59acaa50666a9ecf304338d66b1a85713aeab936b9607904e80340c1cb4"
+    },
+    "parent-map.json": {
+      "bytes": 39849,
+      "sha256": "fac22275902476bd32c9aeb03778a5a97383bb6f65347ec74a7944aefc5edfaa"
+    },
+    "parent.raw": {
+      "bytes": 350,
+      "sha256": "fa317050fc47a818dedd1016dabe1146e31732020534a1231789152913c7ec14"
+    },
+    "payload/.github/workflows/native-arm-build.yml": {
+      "bytes": 13067,
+      "sha256": "1902378a18714c3d86333a0555bc8943529e9360c2329bb783d65f93d270f72c"
+    },
+    "payload/.github/workflows/native-arm-developer-workflows.yml": {
+      "bytes": 13067,
+      "sha256": "1902378a18714c3d86333a0555bc8943529e9360c2329bb783d65f93d270f72c"
+    },
+    "payload/native/build-tools-contract-v2.json": {
+      "bytes": 1240,
+      "sha256": "a1c13473ba072fac6d2a0418e7d12a10e531ade64291aac7a602e1422944378d"
+    },
+    "payload/native/build_tools_alpm_v2.py": {
+      "bytes": 8347,
+      "sha256": "bf0989ae84a273be1c85ac1193967c0d75eb9091c6a5c21a0f3b1040a2c3ec90"
+    },
+    "payload/native/build_tools_guest_v2.py": {
+      "bytes": 3393,
+      "sha256": "123a5ddf1bf428a9d8ee275a5874d1fa69a70d90e7bc3d859de1719ad73f2c9a"
+    },
+    "payload/native/build_tools_projection_v2.py": {
+      "bytes": 10688,
+      "sha256": "2719477f6b26d197f40e50dab5dd144aa0bf5b5c4f6f61430376a8489076eac1"
+    },
+    "payload/native/build_tools_reader_v2.py": {
+      "bytes": 100346,
+      "sha256": "2292e492bf33fea2d079525165293e47e2d817deed71495a3b80d3090a406aa5"
+    },
+    "payload/native/build_tools_tools_v2.py": {
+      "bytes": 13174,
+      "sha256": "7a933b927c708a5dac014b391c7f75b50ef8308cc517d49759dac3976ba03906"
+    },
+    "payload/native/image_lifecycle.py": {
+      "bytes": 13034,
+      "sha256": "805fabc496f10b67425cc69bdf7793d0e703dae1fab2407d8596391c9e9c5f2b"
+    },
+    "payload/native/invocation.json": {
+      "bytes": 1716,
+      "sha256": "277de383862296b6287a29f6ad20224268b647bd771dd704ac6c20f2d6b9020b"
+    },
+    "payload/native/owner.py": {
+      "bytes": 34048,
+      "sha256": "1ebfc9ca58c65a4441959ff51bdcd6eba494bfc00c2e2d62d78b72e212e85ae9"
+    },
+    "prepare.py": {
+      "bytes": 14354,
+      "sha256": "7c7b8ce846603d76da1db7de58573fa76642871aae7082fa36b32a54856585d7"
+    },
+    "profile.json": {
+      "bytes": 62083,
+      "sha256": "8c0dc91cbd97dcfda1353dcafa1da1f08f250e3c690a97e08f657431f29e7472"
+    },
+    "test_image_lifecycle_data.py": {
+      "bytes": 13701,
+      "sha256": "b85bd49d3ead662c1ea3fb5735c4987d6286cae910f937542a4421983a1179f1"
+    },
+    "test_preflight_data.py": {
+      "bytes": 25832,
+      "sha256": "4c632c09e5155eda9cb8fe5c269ca8666e5e301d6099d57e07d7c7bc50cb58dd"
+    }
+  },
+  "root": "../native-build-namespace-preflight",
+  "schema": 1
+}

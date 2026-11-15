@@ -1,0 +1,90 @@
+{
+  "Reader_executed": false,
+  "acceptance": false,
+  "artifact": 14136745648,
+  "attempt": 1,
+  "job": 132621675250,
+  "log": {
+    "path": "actor-logs/0025.log",
+    "pin": {
+      "bytes": 1101,
+      "sha256": "9b122c663e510018ee5cfeb3a31d1b1efe4eda0ffded497127e1fb3f16ce13a5"
+    }
+  },
+  "mapped_files_verified": 87,
+  "namespace_outcome": "UNKNOWN",
+  "namespace_policy_cause": "UNKNOWN",
+  "receipt": {
+    "error": "ValueError: actor direct waitpid exit: 1",
+    "status": "FAIL"
+  },
+  "retry_authorized": false,
+  "run": 43651792536,
+  "schema": 1,
+  "source": "6b5b5a8f20ad2698c2d7f14a8f59c9b0ad5da165",
+  "status": "PASSIVE_ORIGINAL_DATA_INSPECTED_NOT_REPLAYED",
+  "tar": {
+    "bytes": 7434240,
+    "sha256": "b5ec0a5c91418053513ef58c5318cf9e1a2faaccd87dedf93953186c24dc763f"
+  },
+  "tools_build": {
+    "actor": {
+      "argv": [
+        "/usr/bin/docker",
+        "--host=unix:///var/run/docker.sock",
+        "build",
+        "--quiet",
+        "--network=none",
+        "--pull=false",
+        "--no-cache",
+        "--platform=linux/arm64",
+        "--tag",
+        "native-developer-tools:1fc206ad50dae6cf477c3290",
+        "--label",
+        "org.cachy-asahi.native-developer=1fc206ad50dae6cf477c3290",
+        "--label",
+        "org.cachy-asahi.native-developer.source=6b5b5a8f20ad2698c2d7f14a8f59c9b0ad5da165",
+        "--iidfile",
+        "/home/runner/work/_temp/native-developer-work/overlay/image-id",
+        "/home/runner/work/_temp/native-developer-work/overlay/context"
+      ],
+      "cleanup_member_uids": [],
+      "elapsed_seconds": 4.41059741600003,
+      "exit": 1,
+      "exit_observed_via_waitpid": true,
+      "forced_cleanup": false,
+      "group_absent": true,
+      "leader_held_until_group_inspection": true,
+      "log": "/home/runner/work/_temp/native-developer-work/actors/0023.log",
+      "log_pin": {
+        "bytes": 1101,
+        "sha256": "9b122c663e510018ee5cfeb3a31d1b1efe4eda0ffded497127e1fb3f16ce13a5"
+      },
+      "natural_exit": true,
+      "owned_child": {
+        "cleanup_member_uids": [],
+        "elapsed_seconds": 4.41059741600003,
+        "exit": 1,
+        "exit_observed_via_waitpid": true,
+        "forced_cleanup": false,
+        "group_absent": true,
+        "leader_held_until_group_inspection": true,
+        "natural_exit": true,
+        "ownership_lost": false,
+        "pid": 6930,
+        "retirement": "REAPED"
+      },
+      "ownership_lost": false,
+      "pid": 6930,
+      "public_log": "actor-logs/0025.log",
+      "retirement": "REAPED",
+      "status": "FAIL"
+    },
+    "role": "tools",
+    "terminal": true
+  },
+  "zip": {
+    "bytes": 698250,
+    "sha256": "e4ef762f4cb3eb09eaf6b649ecef71cadaaba484cb95acc71a4c698a63916d3e"
+  }
+}
