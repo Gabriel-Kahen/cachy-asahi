@@ -11,6 +11,7 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import stat
 import tarfile
@@ -25,6 +26,43 @@ PREFLIGHT_SHA='9e881d5144c49cfa6b4a9abe5bc5172f0d4f00038d94e52426dc88b05473bc0d'
 STREAM_SHA='10f1a4c0ac5b98852d9ebb150af28f9ce345c800935a64fa463bc90f72fcb838'
 INVENTORY_SHA='579981195b654d8cdf142e4101dfc2bfffbc3576eed50f23796a06e90cf57453'
 MIB=1024**2
+MANIFEST_SHA='7004309f83344b49f0f8ca598d8cefcffbc078450944824849ab9c575f1c0cd2'
+RUNTIME_FILES=1870;RUNTIME_BYTES=74426813
+RUNTIME_MODES={0o444:1587,0o555:53,0o644:229,0o755:1}
+
+
+def runtime_row(name,row,manifest):
+    why=f'runtime member {name!r} mode={row.get("mode")!r}'
+    if type(row.get('mode')) is int:why=f'runtime member {name!r} mode={row["mode"]:04o}'
+    need(row.get('type')=='file' and type(row.get('mode')) is int and row['mode'] in RUNTIME_MODES,why+' is not an admitted ordinary readable mode')
+    actual={key:row[key] for key in ('bytes','sha256','mode')}
+    need(manifest.get(name)==actual,why+' bytes/hash/mode differs from exact reviewed runtime map')
+    return actual
+
+
+def reviewed_manifest(raw,p):
+    need(p.pin(raw)==dict(bytes=349767,sha256=MANIFEST_SHA),'exact Root-reviewed runtime manifest pin required')
+    value=p.decode(raw);need(type(value) is dict and set(value)=={'schema','archive','files'} and type(value['schema']) is int and
+        value['schema']==1 and value['archive']==dict(bytes=ARCHIVE_BYTES,sha256=ARCHIVE_SHA),'runtime manifest exact package join')
+    files=value['files'];need(type(files) is dict and len(files)==RUNTIME_FILES,'exact1870-file runtime map')
+    modes={mode:0 for mode in RUNTIME_MODES};total=0
+    for name,row in files.items():
+        need(type(name) is str and re.fullmatch('[A-Za-z0-9._+/-]+',name) and all(x not in ('','.','..') for x in name.split('/')) and
+             (name=='usr/bin/perl' or any(name.startswith(root+'/') for root in ('usr/lib/perl5/5.42/core_perl','usr/share/perl5/core_perl'))),'ordinary selected runtime manifest leaf: '+repr(name))
+        need(type(row) is dict and set(row)=={'bytes','sha256','mode'} and type(row['bytes']) is int and 0<=row['bytes']<=32*MIB and
+             type(row['sha256']) is str and re.fullmatch('[0-9a-f]{64}',row['sha256']),'bounded exact runtime row: '+name)
+        runtime_row(name,dict(type='file',**row),files);modes[row['mode']]+=1;total+=row['bytes']
+    need(total==RUNTIME_BYTES and modes==RUNTIME_MODES,'exact runtime byte/mode totals')
+    return files
+
+
+def copy_runtime(prefix,name,body,row,manifest):
+    runtime_row(name,row,manifest)
+    need(len(body)==row['bytes'] and hashlib.sha256(body).hexdigest()==row['sha256'],'copy bytes differ: '+name)
+    target=prefix/name;target.parent.mkdir(parents=True,exist_ok=True,mode=0o755)
+    with target.open('xb') as out:out.write(body);os.fchmod(out.fileno(),row['mode'])
+    info=target.lstat();need(stat.S_ISREG(info.st_mode) and info.st_nlink==1 and info.st_uid==os.getuid() and
+         stat.S_IMODE(info.st_mode)==row['mode'] and target.read_bytes()==body,'copied runtime bytes/owner/mode differ: '+name)
 
 
 def need(value,why):
@@ -59,7 +97,7 @@ def runtime():
     return dict(uid=1001,gid=1001,architecture='aarch64',limits=limits,capabilities='ZERO',NoNewPrivs=1,network='LO_ONLY')
 
 
-def scan(path,api,limits,selected,expected=None,prefix=None):
+def scan(path,api,limits,selected,manifest,expected=None,prefix=None):
     """Two bounded DATA passes. No tar extraction API and no archive code import."""
     rows={};controls={};headers=0;ended=False;copied={};total=0
     class Info(tarfile.TarInfo):
@@ -92,25 +130,24 @@ def scan(path,api,limits,selected,expected=None,prefix=None):
                 row=dict(mode=item.mode&0o7777)
                 if item.isdir():row['type']='directory'
                 elif item.issym():
-                    need(not selected(name) and len(item.linkname)<=4096 and '\0' not in item.linkname,'selected runtime alias refused')
+                    need(not selected(name) and len(item.linkname)<=4096 and '\0' not in item.linkname,f'runtime symlink refused: {name!r} mode={row["mode"]:04o}')
                     row.update(type='symlink',target=item.linkname)
                 elif item.islnk():
                     target=api.relative(item.linkname.removeprefix('./'))
-                    need(not selected(name) and target in rows and rows[target]['type']=='file','only ignored prior-regular-target hardlinks outside runtime')
+                    need(not selected(name) and target in rows and rows[target]['type']=='file',f'nonordinary/selected runtime hardlink refused: {name!r} mode={row["mode"]:04o}')
                     row.update(type='hardlink',target=target)
                 else:
-                    need(item.isfile(),'archive special member refused')
+                    need(item.isfile(),f'archive special member refused: {name!r} mode={row["mode"]:04o}')
                     body=archive.extractfile(item).read(32*MIB+1)
                     need(len(body)==item.size,'complete bounded regular member');row.update(type='file',bytes=len(body),sha256=hashlib.sha256(body).hexdigest())
                     if name in ('.PKGINFO','.BUILDINFO'):
                         need(len(body)<=MIB,'bounded package metadata');controls[name]=body
                     if selected(name):
-                        total+=len(body);need(len(copied)<5000 and total<=128*MIB and row['mode'] in (0o644,0o755),'finite protected runtime files')
-                        copied[name]={key:row[key] for key in ('bytes','sha256','mode')}
+                        total+=len(body);need(len(copied)<5000 and total<=128*MIB,'finite runtime count/bytes: '+name)
+                        copied[name]=runtime_row(name,row,manifest)
                         if prefix is not None:
-                            need(expected.get(name)==row,'second-pass member differs')
-                            target=prefix/name;target.parent.mkdir(parents=True,exist_ok=True,mode=0o755)
-                            with target.open('xb') as out:out.write(body);os.fchmod(out.fileno(),row['mode'])
+                            need(expected.get(name)==row,'second-pass member differs: '+name)
+                            copy_runtime(prefix,name,body,row,manifest)
                 rows[name]=row
             tail=archive.fileobj.read(65536);padding=0
             while tail:
@@ -119,6 +156,7 @@ def scan(path,api,limits,selected,expected=None,prefix=None):
         identity=lambda x:(x.st_dev,x.st_ino,x.st_mode,x.st_nlink,x.st_size,x.st_mtime_ns,x.st_ctime_ns)
         need(identity(before)==identity(os.fstat(source.fileno()))==identity(path.lstat()),'archive changed during bounded pass')
     if expected is not None:need(rows==expected,'whole second-pass archive description differs')
+    need(copied==manifest,'whole selected runtime namespace differs from exact reviewed manifest')
     return rows,controls,copied,dict(headers=headers,decoded_bytes=decoded.total,selected_files=len(copied),selected_bytes=total)
 
 
@@ -134,17 +172,18 @@ def main():
          accepted['status']=='ACCEPTED_EXACT_PERL5423_NATIVE_ARM4K_BUILD_PAIR_ONLY' and accepted['page_bytes']==4096 and
          accepted['archive']==dict(bytes=ARCHIVE_BYTES,sha256=ARCHIVE_SHA) and all(accepted['binding'][k]==v for k,v in pair.items()),'accepted exact ARM4K pair DATA binding')
     observed=runtime();os.umask(0o077)
+    manifest_raw=p.read(SOURCE/'accepted/runtime-files.json');manifest=reviewed_manifest(manifest_raw,p)
     outputs=('prefix','xs-inputs.json','xs-admission.json','xs-plan.json','preparation.json')
     need(not any(os.path.lexists(BUNDLE/name) for name in outputs),'fresh one-shot prepared DATA outputs')
     api=load('xs_preparation_archive_stream',SOURCE/'held/perl/helpers/archive_stream.py',STREAM_SHA)
     limits=api.Limits(ARCHIVE_BYTES,ARCHIVE_BYTES,256*MIB,8192,32*MIB,64*MIB,deadline)
     selected=lambda name:name=='usr/bin/perl' or any(name==root or name.startswith(root+'/') for root in (p.ARCH,p.PURE))
-    rows,metadata,files,first=scan(archive,api,limits,selected)
+    rows,metadata,files,first=scan(archive,api,limits,selected,manifest)
     need(rows.get('usr/bin/perl',{}).get('type')=='file' and files,'actual regular candidate runtime required')
     need(metadata.get('.PKGINFO')==p.read(BUNDLE/'PKGINFO') and metadata.get('.BUILDINFO')==p.read(BUNDLE/'BUILDINFO'),'sidecars match actual package control bytes')
     need(p.pin(p.read(BUNDLE/'packages.txt'))['sha256']==INVENTORY_SHA,'exact signed349 toolchain inventory')
     prefix=BUNDLE/'prefix';prefix.mkdir(mode=0o700)
-    _,_,second_files,second=scan(archive,api,limits,selected,rows,prefix)
+    _,_,second_files,second=scan(archive,api,limits,selected,manifest,rows,prefix)
     need(second_files==files and p.pin(p.read(archive,64*MIB))==dict(bytes=ARCHIVE_BYTES,sha256=ARCHIVE_SHA),'copy and retained package remain exact')
     inputs=dict(schema=1,archive_sha256=ARCHIVE_SHA,candidate_recipe_sha256=p.CANDIDATE['recipe_sha256'],files=files)
     def emit(name,value):
@@ -173,7 +212,7 @@ def main():
         shutil.rmtree(stage);need(not stage.exists(),'planning DATA stage removed')
     need(time.monotonic()<deadline,'fixed90-second preparation deadline')
     result=dict(schema=1,status='PREPARED_NATIVE_XS_DATA_ONLY',archive=operand(archive,64*MIB),accepted_reader=operand(decision,65536),root=admission['root'],
-        inputs=input_pin,admission=admission_pin,plan=plan_pin,files=files,extraction=dict(first_pass=first,copy_pass=second,selected_aliases='REFUSED',ignored_hardlinks='PRIOR_REGULAR_TARGETS_ONLY'),
+        inputs=input_pin,admission=admission_pin,plan=plan_pin,files=files,runtime_manifest=p.pin(manifest_raw),extraction=dict(first_pass=first,copy_pass=second,selected_aliases='REFUSED',ignored_hardlinks='PRIOR_REGULAR_TARGETS_ONLY'),
         runtime=observed,planning_stage_removed=True,native_acceptance=False,XS_acceptance=False,Perl_invocations=0,compiler_invocations=0,XS_loads=0)
     need(time.monotonic()<deadline,'fixed90-second preparation deadline')
     emit('preparation.json',result);print(p.encode(result).decode(),end='')

@@ -14,12 +14,12 @@
     ".github/workflows/native-arm-build.yml": {
       "bytes": 10259,
       "mode": 420,
-      "sha256": "e18bb2c866b1c8a41c092d0c0b7321230803b7aacf0f106edcfa5032564f9eb4"
+      "sha256": "a69a4fa6d66084604a725fd3a9268a048214ff71ec9fddb9809753b462b9a814"
     },
-    ".github/workflows/native-arm-perl5423-xs-v1.yml": {
+    ".github/workflows/native-arm-perl5423-xs-v2.yml": {
       "bytes": 10259,
       "mode": 420,
-      "sha256": "e18bb2c866b1c8a41c092d0c0b7321230803b7aacf0f106edcfa5032564f9eb4"
+      "sha256": "a69a4fa6d66084604a725fd3a9268a048214ff71ec9fddb9809753b462b9a814"
     },
     "LICENSE": {
       "bytes": 1081,
@@ -50,6 +50,11 @@
       "bytes": 22071176,
       "mode": 420,
       "sha256": "647c5f1d2c6965ec2e26b37e75d29c819fafa344f16002153493e9fc62121c22"
+    },
+    "accepted/runtime-files.json": {
+      "bytes": 349767,
+      "mode": 420,
+      "sha256": "7004309f83344b49f0f8ca598d8cefcffbc078450944824849ab9c575f1c0cd2"
     },
     "consumer/Consumer.xs": {
       "bytes": 1406,
@@ -1477,21 +1482,21 @@
       "sha256": "4b1de3aade5116206318570d1d44ee1063342faeab54935748b1b7c179a99e96"
     },
     "xs-provenance.json": {
-      "bytes": 968,
+      "bytes": 1182,
       "mode": 420,
-      "sha256": "314b275e76cc444b4d1b573bb2d2999788398d230bc4535ca2faf330e785f776"
+      "sha256": "4273b200ad3f894245e9e1aa888d014642014725739a39e08a96cbdf4d31e9b9"
     },
     "xs/entry.py": {
-      "bytes": 31872,
+      "bytes": 32054,
       "mode": 420,
-      "sha256": "8508b925c9d38a0721e3b1434e16c8386ac9b25838190f8550506883df4d2397"
+      "sha256": "9bbea95463ebe997826ee67d603a5aeec59989266a03471c0f743bf76d8bfb5a"
     },
     "xs/prepare_inputs.py": {
-      "bytes": 13338,
+      "bytes": 16209,
       "mode": 420,
-      "sha256": "b2ceabcd8927caa2bd6bbfc8e5a61e46af0e4a5760faf4dd1efe6daae666a32a"
+      "sha256": "93ad9feaa8a851c6df539123416aa2c6e1c2c0f451582b20754559e61b6748fe"
     }
   },
   "schema": 1,
-  "scope": "PROPOSED_SEPARATE_NATIVE_XS_HOSTED_SOURCE"
+  "scope": "PROPOSED_SEPARATE_NATIVE_XS_V2_EXACT_RUNTIME_MODES"
 }

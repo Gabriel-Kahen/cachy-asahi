@@ -29,8 +29,9 @@ ARCHIVE_PIN = {'bytes': 22071176, 'sha256': '647c5f1d2c6965ec2e26b37e75d29c819fa
 DECISION_PIN = {'bytes': 5804, 'sha256': '27803c99064198f8688abe2e4d91910eef93df5ad337ebfc7f2d8798afbf41e1'}
 PAIR = {'source': '25dc3e65bdb6137c87a9409067fe9b2cf6e9763f', 'run': '43692477455', 'job': '132745843566'}
 ACTUAL = dict.fromkeys(('source', 'ref', 'run', 'job', 'reader', 'authority', 'approval', 'artifact', 'image'))
-ALIASES = ('.github/workflows/native-arm-build.yml', '.github/workflows/native-arm-perl5423-xs-v1.yml')
-OPERATION = 'perl5423-native-xs-v1'
+ALIASES = ('.github/workflows/native-arm-build.yml', '.github/workflows/native-arm-perl5423-xs-v2.yml')
+OPERATION = 'perl5423-native-xs-v2'
+RUNTIME_MANIFEST = dict(bytes=349767, sha256='7004309f83344b49f0f8ca598d8cefcffbc078450944824849ab9c575f1c0cd2')
 DOCKER = ['/usr/bin/docker', '--host=unix:///var/run/docker.sock']
 PREP_TMPFS = {'/run': 'rw,noexec,nosuid,nodev,size=8m,uid=1001,gid=1001',
               '/tmp': 'rw,noexec,nosuid,nodev,size=64m,uid=1001,gid=1001',
@@ -403,6 +404,7 @@ def native(args, work, common, held):
         preparation = common.decode(preparation_body)
         need(preparation['schema'] == 1 and preparation['status'] == 'PREPARED_NATIVE_XS_DATA_ONLY' and
              preparation['native_acceptance'] is False and preparation['XS_acceptance'] is False and
+             preparation['runtime_manifest'] == RUNTIME_MANIFEST and
              preparation['planning_stage_removed'] is True and
              all(type(preparation[k]) is int and preparation[k] == 0 for k in
                  ('Perl_invocations', 'compiler_invocations', 'XS_loads')) and

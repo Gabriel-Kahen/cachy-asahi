@@ -1,6 +1,6 @@
 {
   "XS_acceptance": false,
-  "accepted_package": {
+  "accepted_archive": {
     "bytes": 22071176,
     "sha256": "647c5f1d2c6965ec2e26b37e75d29c819fafa344f16002153493e9fc62121c22"
   },
@@ -15,16 +15,20 @@
     "run": null,
     "source": null
   },
-  "constructor_profile_sha256": "d00345edda901a3c5ce8afd14aae3f837035e0111dea07ffe6de35ba1f01621a",
-  "held_map_sha256": "4b1de3aade5116206318570d1d44ee1063342faeab54935748b1b7c179a99e96",
-  "held_source": "25dc3e65bdb6137c87a9409067fe9b2cf6e9763f",
-  "held_tree": "43dfa9d6370abd1424bd5586c5524a6f4b4e1556",
+  "closed_failed_job": "132784130584",
+  "closed_failed_run": "43705018149",
+  "closed_failure": "PREPARATION_MODE_GUARD_BEFORE_XS_PRODUCER",
+  "constructor_profile_sha256": "c633adbfba721687a3158466e42a4e68307f27b64f9b87b94aded9da209bd719",
+  "correction": "PRESERVE_EXACT_0444_0555_0644_0755_ARCHIVED_BYTES_AND_MODES_WITH_FULL_MAP",
+  "delegated_consumer_operation": "perl5423-native-xs-v1",
   "native_acceptance": false,
-  "operation": "perl5423-native-xs-v1",
-  "root_decision": {
-    "bytes": 5804,
-    "sha256": "27803c99064198f8688abe2e4d91910eef93df5ad337ebfc7f2d8798afbf41e1"
+  "operation": "perl5423-native-xs-v2",
+  "parent_map_sha256": "674cc3d18e954dd1f3f351b357f746e3b9ab1b7580370666061fcb9deeb15efc",
+  "parent_source": "0885f89ab7a4301bbdf9c4b180620fb447d9a41a",
+  "parent_tree": "6a1c29b7aa1655943b54de71a89f3900ff1671c9",
+  "runtime_manifest": {
+    "bytes": 349767,
+    "sha256": "7004309f83344b49f0f8ca598d8cefcffbc078450944824849ab9c575f1c0cd2"
   },
-  "schema": 1,
-  "scope": "SOURCE_DATA_ONLY_NO_BOOTSTRAP_EXTRACTION_CONSUMER_READER_OR_PUBLICATION_ROLE"
+  "schema": 1
 }
