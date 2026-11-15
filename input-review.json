@@ -1,0 +1,564 @@
+{
+  "accepted_candidate": {
+    "archive": {
+      "bytes": 22071176,
+      "sha256": "647c5f1d2c6965ec2e26b37e75d29c819fafa344f16002153493e9fc62121c22"
+    },
+    "build_source": "25dc3e65bdb6137c87a9409067fe9b2cf6e9763f",
+    "decision": {
+      "bytes": 5804,
+      "mode": 420,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-perl-hosted-intake-r1/Root-native-component-decision.ACTUAL-r1.json",
+      "sha256": "27803c99064198f8688abe2e4d91910eef93df5ad337ebfc7f2d8798afbf41e1"
+    },
+    "native_run": "43692477455"
+  },
+  "authority": "Root",
+  "baseline_review": {
+    "archive_review": {
+      "bytes": 2600,
+      "mode": 420,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/scripts/port/perl5423-installed-lifecycle/baseline_review/actual/baseline-review.json",
+      "sha256": "cc3ac3191cef6f91f4c89b94f5f0635f2d03aec25431d03d86bd351bee49fdb6"
+    },
+    "install_metadata_config_hooks_reviewed": true,
+    "reviewed": true
+  },
+  "effective_policy": {
+    "bootstrap_config": "/etc/pacman.conf",
+    "bootstrap_hookdir": "/builder-disabled-hooks",
+    "equivalence": "NOT_EQUIVALENT_EFFECTIVE_HOOK_POLICY_REQUIRES_SEPARATE_ROOT_REVIEW",
+    "global_config_preservation": "BYTE_PRESERVATION_DOES_NOT_PROVE_EFFECTIVE_TRANSACTION_POLICY",
+    "reviewed": true,
+    "transaction_config": "/work/pacman.conf",
+    "transaction_hookdir": "NO_HOOKDIR_DIRECTIVE_ALPM_DEFAULT_DIRECTORIES"
+  },
+  "holds_preserved": true,
+  "image_expectations": {
+    "baseline_public_trust": "OBSERVE_FRESH_BOOTSTRAP_PUBLIC_FILES_NO_PREDICTED_LOCAL_KEY_BYTES",
+    "complete_hook_snapshots": true,
+    "config_files": {
+      "/etc/pacman.conf": {
+        "bytes": 116,
+        "mode": 420,
+        "sha256": "14d304eeb83baf1379279356c232580fd095c2d508b41c74677347801a0bafe7",
+        "type": "file"
+      }
+    },
+    "hook_snapshots": {
+      "/builder-disabled-hooks": {
+        ".": {
+          "mode": 493,
+          "type": "directory"
+        },
+        "10-openssh-mark-sshd-for-restart.hook": {
+          "mode": 511,
+          "target": "/dev/null",
+          "type": "symlink"
+        },
+        "20-systemd-sysusers.hook": {
+          "mode": 511,
+          "target": "/dev/null",
+          "type": "symlink"
+        },
+        "21-systemd-tmpfiles.hook": {
+          "mode": 511,
+          "target": "/dev/null",
+          "type": "symlink"
+        },
+        "25-systemd-binfmt.hook": {
+          "mode": 511,
+          "target": "/dev/null",
+          "type": "symlink"
+        },
+        "25-systemd-catalog.hook": {
+          "mode": 511,
+          "target": "/dev/null",
+          "type": "symlink"
+        },
+        "25-systemd-hwdb.hook": {
+          "mode": 511,
+          "target": "/dev/null",
+          "type": "symlink"
+        },
+        "25-systemd-sysctl.hook": {
+          "mode": 511,
+          "target": "/dev/null",
+          "type": "symlink"
+        },
+        "30-systemd-daemon-reload-system.hook": {
+          "mode": 511,
+          "target": "/dev/null",
+          "type": "symlink"
+        },
+        "30-systemd-daemon-reload-user.hook": {
+          "mode": 511,
+          "target": "/dev/null",
+          "type": "symlink"
+        },
+        "30-update-mime-database.hook": {
+          "mode": 511,
+          "target": "/dev/null",
+          "type": "symlink"
+        },
+        "35-systemd-enqueue-marked.hook": {
+          "mode": 511,
+          "target": "/dev/null",
+          "type": "symlink"
+        },
+        "35-systemd-udev-reload.hook": {
+          "mode": 511,
+          "target": "/dev/null",
+          "type": "symlink"
+        },
+        "35-systemd-update.hook": {
+          "mode": 511,
+          "target": "/dev/null",
+          "type": "symlink"
+        },
+        "36-systemd-modules-load.hook": {
+          "mode": 511,
+          "target": "/dev/null",
+          "type": "symlink"
+        },
+        "40-fontconfig-config.hook": {
+          "mode": 511,
+          "target": "/dev/null",
+          "type": "symlink"
+        },
+        "40-update-ca-trust.hook": {
+          "mode": 511,
+          "target": "/dev/null",
+          "type": "symlink"
+        },
+        "60-depmod.hook": {
+          "mode": 511,
+          "target": "/dev/null",
+          "type": "symlink"
+        },
+        "60-mkinitcpio-remove.hook": {
+          "mode": 511,
+          "target": "/dev/null",
+          "type": "symlink"
+        },
+        "70-openssh-restart-sshd.hook": {
+          "mode": 511,
+          "target": "/dev/null",
+          "type": "symlink"
+        },
+        "90-mkinitcpio-install.hook": {
+          "mode": 511,
+          "target": "/dev/null",
+          "type": "symlink"
+        },
+        "dbus-reload.hook": {
+          "mode": 511,
+          "target": "/dev/null",
+          "type": "symlink"
+        },
+        "dconf-update.hook": {
+          "mode": 511,
+          "target": "/dev/null",
+          "type": "symlink"
+        },
+        "detect-old-perl-modules.hook": {
+          "mode": 511,
+          "target": "/dev/null",
+          "type": "symlink"
+        },
+        "fontconfig.hook": {
+          "mode": 511,
+          "target": "/dev/null",
+          "type": "symlink"
+        },
+        "gdk-pixbuf-query-loaders.hook": {
+          "mode": 511,
+          "target": "/dev/null",
+          "type": "symlink"
+        },
+        "gdk-pixbuf-remove-loaders-cache.hook": {
+          "mode": 511,
+          "target": "/dev/null",
+          "type": "symlink"
+        },
+        "gio-querymodules.hook": {
+          "mode": 511,
+          "target": "/dev/null",
+          "type": "symlink"
+        },
+        "gio-remove-module-cache.hook": {
+          "mode": 511,
+          "target": "/dev/null",
+          "type": "symlink"
+        },
+        "glib-compile-schemas.hook": {
+          "mode": 511,
+          "target": "/dev/null",
+          "type": "symlink"
+        },
+        "glib-remove-compiled-schemas.hook": {
+          "mode": 511,
+          "target": "/dev/null",
+          "type": "symlink"
+        },
+        "gtk-query-immodules-3.0.hook": {
+          "mode": 511,
+          "target": "/dev/null",
+          "type": "symlink"
+        },
+        "gtk-remove-immodules-cache.hook": {
+          "mode": 511,
+          "target": "/dev/null",
+          "type": "symlink"
+        },
+        "gtk-update-icon-cache.hook": {
+          "mode": 511,
+          "target": "/dev/null",
+          "type": "symlink"
+        },
+        "shared-mime-info-remove-cache.hook": {
+          "mode": 511,
+          "target": "/dev/null",
+          "type": "symlink"
+        },
+        "texinfo-install.hook": {
+          "mode": 511,
+          "target": "/dev/null",
+          "type": "symlink"
+        },
+        "texinfo-remove.hook": {
+          "mode": 511,
+          "target": "/dev/null",
+          "type": "symlink"
+        },
+        "update-desktop-database.hook": {
+          "mode": 511,
+          "target": "/dev/null",
+          "type": "symlink"
+        },
+        "vimdoc.hook": {
+          "mode": 511,
+          "target": "/dev/null",
+          "type": "symlink"
+        }
+      },
+      "/etc/pacman.d/hooks": {
+        ".": {
+          "type": "absent"
+        }
+      },
+      "/usr/share/libalpm/hooks": {
+        ".": {
+          "mode": 493,
+          "type": "directory"
+        },
+        "10-openssh-mark-sshd-for-restart.hook": {
+          "bytes": 246,
+          "mode": 420,
+          "sha256": "52e23d53c1967ecce1d2f1010e965e5583dfad51590ab3af490223ad8a4bc4a9",
+          "type": "file"
+        },
+        "20-systemd-sysusers.hook": {
+          "bytes": 233,
+          "mode": 420,
+          "sha256": "f55162dc55268aa3850ef410aa1e444defa0f68b996e415c8b8bc04d63053e7a",
+          "type": "file"
+        },
+        "21-systemd-tmpfiles.hook": {
+          "bytes": 228,
+          "mode": 420,
+          "sha256": "3cfdc3c21d32cc35b1315f4ff4df87238bc7d2c27bdcf4e5a70600832c481e95",
+          "type": "file"
+        },
+        "25-systemd-binfmt.hook": {
+          "bytes": 226,
+          "mode": 420,
+          "sha256": "a938701f4244ebdc4ae88ed0032a8315b68f086c6e45d9f2e34ef9442a8f6b47",
+          "type": "file"
+        },
+        "25-systemd-catalog.hook": {
+          "bytes": 254,
+          "mode": 420,
+          "sha256": "be3c749ed51ee26c8412e0304a41ac5e00e668f4d5227b5f359a3b0c31d18d5d",
+          "type": "file"
+        },
+        "25-systemd-hwdb.hook": {
+          "bytes": 246,
+          "mode": 420,
+          "sha256": "b19b23467dc33b3e8267cabea10726b0d181e0de1b491ec538b9fb620bccf57f",
+          "type": "file"
+        },
+        "25-systemd-sysctl.hook": {
+          "bytes": 231,
+          "mode": 420,
+          "sha256": "1af0fbaeaf974fe3d8409854179fac68e8461524dd49849b7e889374363ce3c9",
+          "type": "file"
+        },
+        "30-systemd-daemon-reload-system.hook": {
+          "bytes": 272,
+          "mode": 420,
+          "sha256": "2d2733a167ee360a36d6cc613001913deb62f199d73e86d39bfe06e669f4b066",
+          "type": "file"
+        },
+        "30-systemd-daemon-reload-user.hook": {
+          "bytes": 266,
+          "mode": 420,
+          "sha256": "5e35263da327771ec1b9bff1d792b0da4c802f0322e40838f07554788fc191e2",
+          "type": "file"
+        },
+        "30-update-mime-database.hook": {
+          "bytes": 293,
+          "mode": 420,
+          "sha256": "f08efbcbac9d2bd18a805b8dcf3ed06d7763b97eca5935aa64d65593774b6501",
+          "type": "file"
+        },
+        "35-systemd-enqueue-marked.hook": {
+          "bytes": 214,
+          "mode": 420,
+          "sha256": "06180f1d8133babcec60bda7aacc06d881626e2a1d7ca164eeab59a6657bf501",
+          "type": "file"
+        },
+        "35-systemd-udev-reload.hook": {
+          "bytes": 261,
+          "mode": 420,
+          "sha256": "f6364443609b1d5a07f385e7228ace0eae5040ae3bbd4e00ed5033ef1b19e4b9",
+          "type": "file"
+        },
+        "35-systemd-update.hook": {
+          "bytes": 227,
+          "mode": 420,
+          "sha256": "1090b7b1edba2042298b609a77bbe122982ca936208408fb79d77b33a2f3c27a",
+          "type": "file"
+        },
+        "36-systemd-modules-load.hook": {
+          "bytes": 321,
+          "mode": 420,
+          "sha256": "53e1ac2a7ddcd696f7c8c930bd36c8764b9d46502cf56340c67a579b128dae4c",
+          "type": "file"
+        },
+        "40-fontconfig-config.hook": {
+          "bytes": 276,
+          "mode": 420,
+          "sha256": "44f12491c9fd7eff825853846a2b3b8df2b96fc6520be5cb31ce7f37a160ff02",
+          "type": "file"
+        },
+        "40-update-ca-trust.hook": {
+          "bytes": 243,
+          "mode": 420,
+          "sha256": "3a3833ebd6f9cdef2e534a273653f973a4354d4f9368577d0d73236b014b7748",
+          "type": "file"
+        },
+        "60-depmod.hook": {
+          "bytes": 273,
+          "mode": 420,
+          "sha256": "c11c2a0f66ea405493e8617689ca10818dc81dd1dddc19bdb220c8b2917119c1",
+          "type": "file"
+        },
+        "60-mkinitcpio-remove.hook": {
+          "bytes": 304,
+          "mode": 420,
+          "sha256": "1d9e54fa4cd58a3485e621c2ec45db86b4f96bf0b029184ecc1f69dc778165ae",
+          "type": "file"
+        },
+        "70-openssh-restart-sshd.hook": {
+          "bytes": 208,
+          "mode": 420,
+          "sha256": "1d55162a0a35ecbbad9deb0e6108510bcb9cb9e4c6b5813217816bf2be3b8f7e",
+          "type": "file"
+        },
+        "90-mkinitcpio-install.hook": {
+          "bytes": 855,
+          "mode": 420,
+          "sha256": "9fc607e81d2f09aa0dfd313805277af92977535bd222f1e86caf5fbb28138cb4",
+          "type": "file"
+        },
+        "dbus-reload.hook": {
+          "bytes": 355,
+          "mode": 420,
+          "sha256": "d636205622d0ee3b0734360225739ef0c7ad2468a09489e6ef773d88252960f3",
+          "type": "file"
+        },
+        "dconf-update.hook": {
+          "bytes": 250,
+          "mode": 420,
+          "sha256": "8d02176ff001a13d15a7ac087edd2502725494668933fa2c6e6f9cb21ae24e6b",
+          "type": "file"
+        },
+        "detect-old-perl-modules.hook": {
+          "bytes": 229,
+          "mode": 420,
+          "sha256": "c96c0b5ea4874f8ef6a1582d3389ad5ce566bc316de411e14bf2fb870510507f",
+          "type": "file"
+        },
+        "fontconfig.hook": {
+          "bytes": 328,
+          "mode": 420,
+          "sha256": "fd7b6ce8ce178107f2e0b52462ebf186b6051c6eec945770107fda57048c9f34",
+          "type": "file"
+        },
+        "gdk-pixbuf-query-loaders.hook": {
+          "bytes": 272,
+          "mode": 420,
+          "sha256": "4a01d5b67c202f4356a9ef053ec00c546cf126ff7780ea301af29489e98e286d",
+          "type": "file"
+        },
+        "gdk-pixbuf-remove-loaders-cache.hook": {
+          "bytes": 219,
+          "mode": 420,
+          "sha256": "52bf044e06698530e0241a7b1c6689332ece27d230509bf1332f33db5402fbed",
+          "type": "file"
+        },
+        "gio-querymodules.hook": {
+          "bytes": 245,
+          "mode": 420,
+          "sha256": "557c88177f011ced17bdeac1af3f882b2ca33b386a866fdf900b35f927a2bbe8",
+          "type": "file"
+        },
+        "gio-remove-module-cache.hook": {
+          "bytes": 198,
+          "mode": 420,
+          "sha256": "60e546b2017b38ca4cf0776b2e1313143f6f2ede05363f67b63b35fa53e3d1b2",
+          "type": "file"
+        },
+        "glib-compile-schemas.hook": {
+          "bytes": 322,
+          "mode": 420,
+          "sha256": "fe31399eb057d24a37062bcae6f88ca0778a91b85737f8110a03baa8bfc64fec",
+          "type": "file"
+        },
+        "glib-remove-compiled-schemas.hook": {
+          "bytes": 217,
+          "mode": 420,
+          "sha256": "374925e9437427ae5e4b3186a4061b2287020604fd5866de0eaa24aeb59a4efd",
+          "type": "file"
+        },
+        "gtk-query-immodules-3.0.hook": {
+          "bytes": 273,
+          "mode": 420,
+          "sha256": "fc38d4b0c21d6e4879fc9160756c7bad1deedac151d9530a0b860c3deaa6d6f0",
+          "type": "file"
+        },
+        "gtk-remove-immodules-cache.hook": {
+          "bytes": 214,
+          "mode": 420,
+          "sha256": "c951a8f238f2d0e5a084cb5543b8c179b3df0b3be177892d7c658a93bd490379",
+          "type": "file"
+        },
+        "gtk-update-icon-cache.hook": {
+          "bytes": 286,
+          "mode": 420,
+          "sha256": "2d435e3bec8b79b533f00f6d04decb1d7c299c6e89b5b175f20be0459f003fe8",
+          "type": "file"
+        },
+        "shared-mime-info-remove-cache.hook": {
+          "bytes": 550,
+          "mode": 420,
+          "sha256": "e67071897ecc61bae05a66874dedfb31d64f28f36e9fcf84bacc6e4dbd23636c",
+          "type": "file"
+        },
+        "texinfo-install.hook": {
+          "bytes": 307,
+          "mode": 420,
+          "sha256": "beb0ff50bd8e8ca1d6e1c01e6a50352f9d25937c62822cf767a7b3d8f7374a9d",
+          "type": "file"
+        },
+        "texinfo-remove.hook": {
+          "bytes": 285,
+          "mode": 420,
+          "sha256": "913ca8aac84386399b0a83ed0f6b04b5e6322da62f5c1d7ed31e1050ed37c1a9",
+          "type": "file"
+        },
+        "update-desktop-database.hook": {
+          "bytes": 263,
+          "mode": 420,
+          "sha256": "501f1eb35d9fbbd61666f40302b0ce63425299edf023c075986a24dc3ef18575",
+          "type": "file"
+        },
+        "vimdoc.hook": {
+          "bytes": 271,
+          "mode": 420,
+          "sha256": "8e9656934d9d7793063230d15a689e10455e6db9b9fe73afa0f294792795d8ae",
+          "type": "file"
+        }
+      }
+    },
+    "reviewed": true
+  },
+  "inner_operation": "perl5423-installed-lifecycle-v1",
+  "inputs": {
+    "baseline": {
+      "bytes": 16017184,
+      "mode": 420,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-perl-baseline-retained-r2/perl-5.42.3-1-aarch64.pkg.tar.xz",
+      "sha256": "f0e47c42ec91985898af2ce7355ef4eead50457108706add1f8c1650bca19b8f"
+    },
+    "baseline_lock": {
+      "bytes": 623664,
+      "mode": 420,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-perl-hosted-source-r1/source-tree/original/native/desktop574-inputs.lock.json",
+      "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
+    },
+    "baseline_signature": {
+      "bytes": 566,
+      "mode": 420,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-perl-baseline-retained-r2/perl-5.42.3-1-aarch64.pkg.tar.xz.sig",
+      "sha256": "f40e70ac18f61c8b706c7642bac2cfef7b4fcb9d96bd30da3fc41c48a6667dca"
+    },
+    "candidate": {
+      "bytes": 22071176,
+      "mode": 420,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-perl-xs-source-r4/source-tree/accepted/perl-5.42.3-1.3-aarch64.pkg.tar.zst",
+      "sha256": "647c5f1d2c6965ec2e26b37e75d29c819fafa344f16002153493e9fc62121c22"
+    },
+    "candidate_signature": {
+      "bytes": 119,
+      "mode": 420,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-perl-lifecycle-sign-r3/perl-5.42.3-1.3-aarch64.pkg.tar.zst.sig",
+      "sha256": "c860013b12243cd560ba99229045e983346c363936b642ba188b5042d860a993"
+    },
+    "expected349": {
+      "bytes": 6800,
+      "mode": 420,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-perl-hosted-source-r1/source-tree/original/native/expected349.lock",
+      "sha256": "579981195b654d8cdf142e4101dfc2bfffbc3576eed50f23796a06e90cf57453"
+    },
+    "public_keyring": {
+      "bytes": 2510,
+      "mode": 420,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-perl-lifecycle-sign-r3/pubring.gpg",
+      "sha256": "836f37531bb595157139a8acd74adbbbf483ebda1dfbba3a3c1a86280bad98f3"
+    },
+    "public_trustdb": {
+      "bytes": 1360,
+      "mode": 420,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-perl-lifecycle-sign-r3/trustdb.gpg",
+      "sha256": "0a27c175c9bb9507c6490028831cfcdf8532e6a241664285c43aa486dd7dd7d1"
+    },
+    "test_public": {
+      "bytes": 461,
+      "mode": 420,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-perl-lifecycle-sign-r3/test-public.asc",
+      "sha256": "afc1336af3ca67e130de313594cd9836aa700ed84abc7270a9c687969bc555d6"
+    }
+  },
+  "operation": "perl5423-installed-lifecycle-native-v1",
+  "review_evidence": {
+    "bytes": 67389,
+    "mode": 384,
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-perl-effective-hook-review-r1/Root-effective-hook-review.ACTUAL.json",
+    "sha256": "47dd6da9400d14b23852f0d424b0644db145e5d6ce0f49306d27a67cd96e873f"
+  },
+  "schema": 1,
+  "scope": "ROOT_INPUT_REVIEW_ONLY_NOT_IMAGE_OR_RUNTIME_QUALIFICATION",
+  "status": "ROOT_REVIEWED_PREREQUISITES_FOR_SINGLE_NATIVE_LIFECYCLE",
+  "trust_review": {
+    "baseline_fingerprint": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+    "combined_trust_pins_reviewed": true,
+    "fresh_test_signature_external": true,
+    "public_only": true,
+    "reviewed": true,
+    "signing_credentials": "EXCLUDED; fresh Root TEST signing performed outside actors",
+    "test_fingerprint": "FECBCDECD0E8F525E9F5E64221EFA8518F14040E",
+    "test_uid_policy": "TEST ONLY; @test.invalid"
+  }
+}

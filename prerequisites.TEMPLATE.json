@@ -1,0 +1,58 @@
+{
+  "schema": 1,
+  "operation": "perl5423-installed-lifecycle-native-v1",
+  "inner_operation": "perl5423-installed-lifecycle-v1",
+  "scope": "ROOT_INPUT_REVIEW_ONLY_NOT_IMAGE_OR_RUNTIME_QUALIFICATION",
+  "status": "UNREVIEWED",
+  "authority": null,
+  "holds_preserved": null,
+  "review_evidence": {"path": null, "bytes": null, "sha256": null, "mode": null},
+  "inputs": {
+    "baseline_lock": {"path": null, "bytes": null, "sha256": null, "mode": null},
+    "expected349": {"path": null, "bytes": null, "sha256": null, "mode": null},
+    "candidate": {"path": null, "bytes": null, "sha256": null, "mode": null},
+    "candidate_signature": {"path": null, "bytes": null, "sha256": null, "mode": null},
+    "baseline": {"path": null, "bytes": null, "sha256": null, "mode": null},
+    "baseline_signature": {"path": null, "bytes": null, "sha256": null, "mode": null},
+    "public_keyring": {"path": null, "bytes": null, "sha256": null, "mode": null},
+    "public_trustdb": {"path": null, "bytes": null, "sha256": null, "mode": null},
+    "test_public": {"path": null, "bytes": null, "sha256": null, "mode": null}
+  },
+  "accepted_candidate": {
+    "build_source": null,
+    "native_run": null,
+    "archive": null,
+    "decision": {"path": null, "bytes": null, "sha256": null, "mode": null}
+  },
+  "trust_review": {
+    "reviewed": null,
+    "public_only": null,
+    "fresh_test_signature_external": null,
+    "signing_credentials": null,
+    "test_fingerprint": null,
+    "baseline_fingerprint": null,
+    "test_uid_policy": null,
+    "combined_trust_pins_reviewed": null
+  },
+  "baseline_review": {
+    "reviewed": null,
+    "install_metadata_config_hooks_reviewed": null,
+    "archive_review": {"path": null, "bytes": null, "sha256": null, "mode": null}
+  },
+  "effective_policy": {
+    "transaction_config": "/work/pacman.conf",
+    "transaction_hookdir": "NO_HOOKDIR_DIRECTIVE_ALPM_DEFAULT_DIRECTORIES",
+    "bootstrap_config": "/etc/pacman.conf",
+    "bootstrap_hookdir": "/builder-disabled-hooks",
+    "equivalence": "NOT_EQUIVALENT_EFFECTIVE_HOOK_POLICY_REQUIRES_SEPARATE_ROOT_REVIEW",
+    "global_config_preservation": "BYTE_PRESERVATION_DOES_NOT_PROVE_EFFECTIVE_TRANSACTION_POLICY",
+    "reviewed": null
+  },
+  "image_expectations": {
+    "reviewed": null,
+    "complete_hook_snapshots": null,
+    "config_files": null,
+    "hook_snapshots": null,
+    "baseline_public_trust": null
+  }
+}
