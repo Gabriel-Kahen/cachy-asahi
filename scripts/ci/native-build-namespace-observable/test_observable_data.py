@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
 """Actor-fenced source/DATA controls; no full Reader, Source or probe execution."""
+import argparse
 import ast
 from copy import deepcopy
 import ctypes  # Initialize stdlib before the fence; every subsequent ctypes actor refuses.
@@ -17,7 +18,9 @@ import unittest
 from unittest.mock import patch
 
 HERE=Path(__file__).resolve().parent
-SOURCE6B=Path('/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/native-build-namespace-preflight-source-r2')
+parser=argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--parent-source',type=Path,required=True,help='ordinary complete published6b Source200 DATA export')
+SOURCE6B=parser.parse_args().parent_source
 
 
 def fence(event,args):
