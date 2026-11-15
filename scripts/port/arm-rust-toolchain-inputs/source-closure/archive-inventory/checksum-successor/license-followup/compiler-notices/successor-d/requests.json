@@ -1,0 +1,125 @@
+{
+  "acquisition_closed": true,
+  "body_bytes": 269861,
+  "requests": [
+    {
+      "HTTP": 200,
+      "bytes": 3237,
+      "file": "objc-framework-root-tree.json",
+      "ordinal": 1,
+      "seconds": 0.139,
+      "sha256": "ccb9fc3dfa8a99f2ac0972cd9a144ebabfb554a029322851ffe17e8718363bd4",
+      "url": "https://api.github.com/repos/madsmtm/objc2/git/trees/7b1abfd750a2cacaea71d6a56ecfb83cb7de560b"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 1339,
+      "file": "objc-framework-LICENSE.md",
+      "ordinal": 2,
+      "seconds": 0.057,
+      "sha256": "7f976f7e9cb2d87df7230606feb932c3f21ac0e664045a775b600046ff850c54",
+      "url": "https://raw.githubusercontent.com/madsmtm/objc2/7b1abfd750a2cacaea71d6a56ecfb83cb7de560b/LICENSE.md"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 39519,
+      "file": "objc-framework-Cargo.toml",
+      "ordinal": 3,
+      "seconds": 0.096,
+      "sha256": "2a5d4807cb132ce1d3f5b591a760643db49ca835dedefddcbd3087ad962360cd",
+      "url": "https://raw.githubusercontent.com/madsmtm/objc2/7b1abfd750a2cacaea71d6a56ecfb83cb7de560b/Cargo.toml"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 7846,
+      "file": "dateparser-tree.json",
+      "ordinal": 4,
+      "seconds": 0.204,
+      "sha256": "906a0a00bb244a656c8344ab8aa1e78b6b9dc4889be20fe84d4d2919b0db8598",
+      "url": "https://api.github.com/repos/waltzofpearls/dateparser/git/trees/4b652ea390f6e33b402d7ac834e23f05f845eed1?recursive=1"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 13706,
+      "file": "tenthash-tree.json",
+      "ordinal": 5,
+      "seconds": 0.153,
+      "sha256": "92ff3556dccda05c2d162b2489f220018a885f4cc6627468cd42693a6bdc16d7",
+      "url": "https://api.github.com/repos/cessen/tenthash/git/trees/d420ce80cfbf9a9cbbc41a55efb620ca9ed72efa?recursive=1"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 178811,
+      "file": "tera-tree.json",
+      "ordinal": 6,
+      "seconds": 0.222,
+      "sha256": "87b5876cb396cce3ad3f8e71f92488eb370bdbe9c1af0fd9e4992ed4762243ea",
+      "url": "https://api.github.com/repos/Keats/tera/git/trees/f60395cfc85be847714961ea139c82dd31481e75?recursive=1"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 8183,
+      "file": "alloc-stdlib-tree.json",
+      "ordinal": 7,
+      "seconds": 0.17,
+      "sha256": "d629a86174d8538751cdeb29479f82aa1aac1013630bd1d514e793848f2df8df",
+      "url": "https://api.github.com/repos/dropbox/rust-alloc-no-stdlib/git/trees/ae42d22078b98549e987d2f03d12df7b984fde47?recursive=1"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 1066,
+      "file": "dateparser-LICENSE",
+      "ordinal": 8,
+      "seconds": 0.156,
+      "sha256": "30d78298e3c358c4c707ba00200d3715c2450c0296a8142ba56233f9bbacb2bf",
+      "url": "https://raw.githubusercontent.com/waltzofpearls/dateparser/4b652ea390f6e33b402d7ac834e23f05f845eed1/LICENSE"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 1054,
+      "file": "tenthash-MIT.txt",
+      "ordinal": 9,
+      "seconds": 0.129,
+      "sha256": "98217f5a28aa0a6bef6166204a88fd5623ddb481b1f163001120d7cc8abf1466",
+      "url": "https://raw.githubusercontent.com/cessen/tenthash/d420ce80cfbf9a9cbbc41a55efb620ca9ed72efa/licenses/MIT.txt"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 1085,
+      "file": "tera-LICENSE",
+      "ordinal": 10,
+      "seconds": 0.121,
+      "sha256": "7aa0f703856c34abec7ca6065374a89a5237e28ed4b8c78392c706a7109cabb6",
+      "url": "https://raw.githubusercontent.com/Keats/tera/f60395cfc85be847714961ea139c82dd31481e75/LICENSE"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 1483,
+      "file": "alloc-stdlib-LICENSE",
+      "ordinal": 11,
+      "seconds": 0.096,
+      "sha256": "c0c56f26d9c051cac4d200c34c84e7ae9aaa853e01a982a1df08b09931e518ae",
+      "url": "https://raw.githubusercontent.com/dropbox/rust-alloc-no-stdlib/ae42d22078b98549e987d2f03d12df7b984fde47/LICENSE"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 10619,
+      "file": "tenthash-root-README.md",
+      "ordinal": 12,
+      "seconds": 0.11,
+      "sha256": "10e790e058b720a93b09449f3abc8acb91b9fff90698cb3ef2a24dc4283cd3d5",
+      "url": "https://raw.githubusercontent.com/cessen/tenthash/d420ce80cfbf9a9cbbc41a55efb620ca9ed72efa/README.md"
+    },
+    {
+      "HTTP": 200,
+      "bytes": 1913,
+      "file": "tenthash-rust-README.md",
+      "ordinal": 13,
+      "seconds": 0.081,
+      "sha256": "1011f06698f1be49025a271257161895212c4a47f6916de1e255b396e7ed07e1",
+      "url": "https://raw.githubusercontent.com/cessen/tenthash/d420ce80cfbf9a9cbbc41a55efb620ca9ed72efa/tenthash-rust/README.md"
+    }
+  ],
+  "started_epoch": 1794749143.9501467,
+  "stopped_epoch": 1794749244.6058621
+}

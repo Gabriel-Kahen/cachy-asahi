@@ -1,0 +1,291 @@
+{
+  "archives_checkout_download_build_package_source_actor_lease_trust_daemon_changes": "NOT_RUN",
+  "baseline_unresolved": 100,
+  "cases": [
+    {
+      "actual_target_activation": "NOT_PROVED",
+      "commit": "4b652ea390f6e33b402d7ac834e23f05f845eed1",
+      "component": "dateparser-0.2.1",
+      "full_vendor_projection_all_file_legal_native_release_acceptance": "HELD",
+      "grant_git_blob_sha1": "3d140542a9157115aee1e21b5170711effce21f8",
+      "grant_kind": "MIT",
+      "grant_origin_url": "https://raw.githubusercontent.com/waltzofpearls/dateparser/4b652ea390f6e33b402d7ac834e23f05f845eed1/LICENSE",
+      "grant_pin": {
+        "bytes": 1066,
+        "sha256": "30d78298e3c358c4c707ba00200d3715c2450c0296a8142ba56233f9bbacb2bf"
+      },
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "manifest_git_blob_sha1": "6229ce97bf32a1771cfd8ae5445b750548a6be31",
+      "manifest_path": "dateparser/Cargo.toml",
+      "manifest_pin": {
+        "bytes": 626,
+        "sha256": "16f22d2b3b33e3800bca4e6d61530049de08106a75ae70d9583f887c7c9f2f19"
+      },
+      "name": "dateparser",
+      "named_root_notice": "Copyright (c) 2021 Rollie Ma",
+      "repository": "waltzofpearls/dateparser",
+      "scope_evidence": {
+        "kind": "PACKAGE_ANCESTOR_ROOT_GRANT"
+      },
+      "source_not_marked_dirty": true,
+      "status": "UPSTREAM_PACKAGE_SCOPED_GRANT_AND_NOTICE_EVIDENCE_COMPLETE",
+      "version": "0.2.1",
+      "whole_source_tree_clean": "NOT_PROVED",
+      "workspace_version_resolved": false
+    },
+    {
+      "actual_target_activation": "NOT_PROVED",
+      "commit": "d420ce80cfbf9a9cbbc41a55efb620ca9ed72efa",
+      "component": "tenthash-1.1.0",
+      "full_vendor_projection_all_file_legal_native_release_acceptance": "HELD",
+      "grant_git_blob_sha1": "16c3ba6efc41e4a9fb4c876d90ad79806ee64fcf",
+      "grant_kind": "MIT",
+      "grant_origin_url": "https://raw.githubusercontent.com/cessen/tenthash/d420ce80cfbf9a9cbbc41a55efb620ca9ed72efa/licenses/MIT.txt",
+      "grant_pin": {
+        "bytes": 1054,
+        "sha256": "98217f5a28aa0a6bef6166204a88fd5623ddb481b1f163001120d7cc8abf1466"
+      },
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "manifest_git_blob_sha1": "6bf94c84329e374d4ae7e5a98fa1617abfed0610",
+      "manifest_path": "tenthash-rust/Cargo.toml",
+      "manifest_pin": {
+        "bytes": 531,
+        "sha256": "8d4006b59e7cc76e2495548e5a6aacb94da5f19754a95a5b8baa8f6508948e5f"
+      },
+      "name": "tenthash",
+      "named_root_notice": "Copyright 2022 Nathan Vegdahl",
+      "repository": "cessen/tenthash",
+      "scope_evidence": {
+        "kind": "EXPLICIT_ANCESTOR_PROJECT_AND_PACKAGE_README_GRANT_PATH",
+        "package_README_matches_authenticated_vendor_capture": true,
+        "readme_evidence": [
+          {
+            "body_pin": {
+              "bytes": 10619,
+              "sha256": "10e790e058b720a93b09449f3abc8acb91b9fff90698cb3ef2a24dc4283cd3d5"
+            },
+            "git_blob_sha1": "38a38ed3c5cd7b761b39f259c6a6f5b6ba8dc9c8",
+            "origin_url": "https://raw.githubusercontent.com/cessen/tenthash/d420ce80cfbf9a9cbbc41a55efb620ca9ed72efa/README.md",
+            "path": "README.md"
+          },
+          {
+            "body_pin": {
+              "bytes": 1913,
+              "sha256": "1011f06698f1be49025a271257161895212c4a47f6916de1e255b396e7ed07e1"
+            },
+            "git_blob_sha1": "38c57c9556fd7a502305325860935988acf4f121",
+            "origin_url": "https://raw.githubusercontent.com/cessen/tenthash/d420ce80cfbf9a9cbbc41a55efb620ca9ed72efa/tenthash-rust/README.md",
+            "path": "tenthash-rust/README.md"
+          }
+        ]
+      },
+      "source_not_marked_dirty": true,
+      "status": "UPSTREAM_PACKAGE_SCOPED_GRANT_AND_NOTICE_EVIDENCE_COMPLETE",
+      "version": "1.1.0",
+      "whole_source_tree_clean": "NOT_PROVED",
+      "workspace_version_resolved": false
+    },
+    {
+      "actual_target_activation": "NOT_PROVED",
+      "commit": "f60395cfc85be847714961ea139c82dd31481e75",
+      "component": "tera-2.0.0",
+      "full_vendor_projection_all_file_legal_native_release_acceptance": "HELD",
+      "grant_git_blob_sha1": "dfa35b4a3e5271aad3b5f9cdec3e883209f9f9c3",
+      "grant_kind": "MIT",
+      "grant_origin_url": "https://raw.githubusercontent.com/Keats/tera/f60395cfc85be847714961ea139c82dd31481e75/LICENSE",
+      "grant_pin": {
+        "bytes": 1085,
+        "sha256": "7aa0f703856c34abec7ca6065374a89a5237e28ed4b8c78392c706a7109cabb6"
+      },
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "manifest_git_blob_sha1": "4f154b9fe1a26b0fe36a905c2f2be78b6f715ee2",
+      "manifest_path": "tera/Cargo.toml",
+      "manifest_pin": {
+        "bytes": 1769,
+        "sha256": "3d6aaaf73faacb37696007eabd05b993861c76fcb4b6f2bcedf0dbf5f116100c"
+      },
+      "name": "tera",
+      "named_root_notice": "Copyright (c) 2025 Vincent Prouillet",
+      "repository": "Keats/tera",
+      "scope_evidence": {
+        "kind": "PACKAGE_ANCESTOR_ROOT_GRANT"
+      },
+      "source_not_marked_dirty": true,
+      "status": "UPSTREAM_PACKAGE_SCOPED_GRANT_AND_NOTICE_EVIDENCE_COMPLETE",
+      "version": "2.0.0",
+      "whole_source_tree_clean": "NOT_PROVED",
+      "workspace_version_resolved": false
+    },
+    {
+      "actual_target_activation": "NOT_PROVED",
+      "commit": "ae42d22078b98549e987d2f03d12df7b984fde47",
+      "component": "alloc-stdlib-0.2.4",
+      "full_vendor_projection_all_file_legal_native_release_acceptance": "HELD",
+      "grant_git_blob_sha1": "cd496ba72eb37e83a44958358d1f89a8a28cbc15",
+      "grant_kind": "BSD-3-Clause",
+      "grant_origin_url": "https://raw.githubusercontent.com/dropbox/rust-alloc-no-stdlib/ae42d22078b98549e987d2f03d12df7b984fde47/LICENSE",
+      "grant_pin": {
+        "bytes": 1483,
+        "sha256": "c0c56f26d9c051cac4d200c34c84e7ae9aaa853e01a982a1df08b09931e518ae"
+      },
+      "lock_membership": {
+        "Cargo.lock": false,
+        "src/tools/cargo/Cargo.lock": false
+      },
+      "manifest_git_blob_sha1": "b4d83ae7b6473ea017a91800f995d5b095463cd0",
+      "manifest_path": "alloc-stdlib/Cargo.toml",
+      "manifest_pin": {
+        "bytes": 697,
+        "sha256": "77cff698112ee833c7c2e2b42c2b51677502ee04ca4a0c213155e3494a80fec3"
+      },
+      "name": "alloc-stdlib",
+      "named_root_notice": "Copyright (c) 2016 Dropbox, Inc.",
+      "repository": "dropbox/rust-alloc-no-stdlib",
+      "scope_evidence": {
+        "kind": "PACKAGE_ANCESTOR_ROOT_GRANT"
+      },
+      "source_not_marked_dirty": true,
+      "status": "UPSTREAM_PACKAGE_SCOPED_GRANT_AND_NOTICE_EVIDENCE_COMPLETE",
+      "version": "0.2.4",
+      "whole_source_tree_clean": "NOT_PROVED",
+      "workspace_version_resolved": false
+    }
+  ],
+  "closed_components": [
+    "alloc-stdlib-0.2.4",
+    "dateparser-0.2.1",
+    "tenthash-1.1.0",
+    "tera-2.0.0"
+  ],
+  "framework_attempt": {
+    "closure_credit": 0,
+    "commit": "7b1abfd750a2cacaea71d6a56ecfb83cb7de560b",
+    "files": [
+      "evidence/objc-framework-root-tree.json",
+      "evidence/objc-framework-LICENSE.md",
+      "evidence/objc-framework-Cargo.toml"
+    ],
+    "repository": "madsmtm/objc2",
+    "status": "HELD_NO_COMPLETE_GRANT_IN_OVERVIEW_AND_UNRESOLVED_APPLE_SDK_DISTRIBUTION_WARNING"
+  },
+  "network": {
+    "acquisition_seconds": 100.656,
+    "new_actual_HTTP_requests": 13,
+    "new_response_body_bytes": 269861,
+    "offline_replay_requests": 0,
+    "redirect_or_error_requests": []
+  },
+  "new_scoped_package_notice_cases_closed": 4,
+  "object_mismatch_original_dirty_version_platform_and_other_holds": "PRESERVED",
+  "remaining_components": [
+    "anes-0.1.6",
+    "block2-0.6.2",
+    "comma-1.0.0",
+    "cranelift-assembler-x64-0.134.0",
+    "cranelift-assembler-x64-meta-0.134.0",
+    "cranelift-bitset-0.134.0",
+    "cranelift-isle-0.134.0",
+    "cranelift-srcgen-0.134.0",
+    "defmt-parser-1.0.0",
+    "difflib-0.4.0",
+    "dispatch2-0.3.1",
+    "fortanix-sgx-abi-0.6.1",
+    "fxhash-0.2.1",
+    "hifijson-0.5.0",
+    "intl_pluralrules-7.0.2",
+    "jaq-core-3.1.0",
+    "jaq-json-2.0.1",
+    "jaq-std-3.0.1",
+    "jni-0.22.4",
+    "jni-macros-0.22.4",
+    "jni-sys-macros-0.4.1",
+    "la-arena-0.3.1",
+    "line-index-0.1.2",
+    "mac-0.1.1",
+    "mdbook-i18n-helpers-0.4.0",
+    "objc2-0.6.3",
+    "objc2-0.6.4",
+    "objc2-cloud-kit-0.3.2",
+    "objc2-core-data-0.3.2",
+    "objc2-core-foundation-0.3.2",
+    "objc2-core-graphics-0.3.2",
+    "objc2-core-image-0.3.2",
+    "objc2-core-location-0.3.2",
+    "objc2-core-text-0.3.2",
+    "objc2-encode-4.1.0",
+    "objc2-io-kit-0.3.2",
+    "objc2-io-surface-0.3.2",
+    "objc2-quartz-core-0.3.2",
+    "objc2-system-configuration-0.3.2",
+    "objc2-ui-kit-0.3.2",
+    "objc2-user-notifications-0.3.2",
+    "perf-event-0.4.8",
+    "perf-event-0.4.9",
+    "perf-event-open-sys-3.0.0",
+    "perf-event-open-sys-4.0.0",
+    "perf-event-open-sys-6.0.0",
+    "polonius-engine-0.13.0",
+    "pq-src-0.3.6+libpq-17.4",
+    "pulldown-cmark-to-cmark-10.0.4",
+    "quine-mc_cluskey-0.2.4",
+    "ra-ap-rustc_abi-0.166.0",
+    "ra-ap-rustc_ast_ir-0.166.0",
+    "ra-ap-rustc_hashes-0.166.0",
+    "ra-ap-rustc_index-0.166.0",
+    "ra-ap-rustc_index_macros-0.166.0",
+    "ra-ap-rustc_lexer-0.166.0",
+    "ra-ap-rustc_next_trait_solver-0.166.0",
+    "ra-ap-rustc_parse_format-0.166.0",
+    "ra-ap-rustc_pattern_analysis-0.166.0",
+    "ra-ap-rustc_type_ir-0.166.0",
+    "ra-ap-rustc_type_ir_macros-0.166.0",
+    "rsqlite-vfs-0.1.1",
+    "rustls-platform-verifier-android-0.1.1",
+    "selectors-0.25.0",
+    "self_cell-1.2.1",
+    "servo_arc-0.3.0",
+    "spanned-0.4.1",
+    "syn-test-suite-0.0.0+test",
+    "ui_test-0.30.7",
+    "ungrammar-1.16.1",
+    "valuable-0.1.0",
+    "vex-sdk-0.27.1",
+    "wasi-preview1-component-adapter-provider-46.0.1",
+    "wasip1-1.0.0",
+    "wasip2-1.0.2+wasi-0.2.9",
+    "wasip3-0.4.0+wasi-0.3.0-rc-2026-01-06",
+    "wasite-1.0.2",
+    "wasm-encoder-0.219.2",
+    "wasm-encoder-0.244.0",
+    "wasmparser-0.219.2",
+    "wasmparser-0.235.0",
+    "wasmparser-0.243.0",
+    "wasmparser-0.244.0",
+    "wasmprinter-0.235.0",
+    "wasmtime-internal-core-47.0.0",
+    "wasmtime-internal-jit-icache-coherence-47.0.0",
+    "winapi-i686-pc-windows-gnu-0.4.0",
+    "winapi-x86_64-pc-windows-gnu-0.4.0",
+    "winsplit-0.1.0",
+    "wit-bindgen-rt-0.33.0",
+    "wit-bindgen-rt-0.39.0",
+    "wit-component-0.244.0",
+    "wit-parser-0.244.0",
+    "xflags-0.3.2",
+    "xflags-macros-0.3.2",
+    "xshell-macros-0.2.7"
+  ],
+  "remaining_unresolved": 96,
+  "schema": 1,
+  "scope": "Exact matching package/version/commit plus complete selected grant and literal named notice; no all-file/legal/activation/release acceptance",
+  "selection_limits": "All four are authenticated compiler-source vendor components outside both recorded root/Cargo-tools locks; actual target activation unproved"
+}
