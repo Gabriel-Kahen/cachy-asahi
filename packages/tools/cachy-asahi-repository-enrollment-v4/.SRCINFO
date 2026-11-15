@@ -1,0 +1,36 @@
+pkgbase = cachy-asahi-repository-enrollment
+	pkgdesc = Explicit repository enrollment, certificate refresh, authenticated transitions and revocation quarantine
+	pkgver = 0.4.0
+	pkgrel = 1
+	url = https://github.com/Gabriel-Kahen/cachy-asahi
+	arch = any
+	license = MIT
+	checkdepends = bubblewrap
+	checkdepends = util-linux
+	depends = python>=3.11
+	depends = gnupg
+	depends = pacman
+	depends = coreutils
+	depends = libarchive
+	options = !strip
+	options = !debug
+	source = private-source.tar.gz
+	source = test_release.py
+	source = cachy-asahi-repository-enrollment
+	source = test_package.py
+	source = README.md
+	source = source-provenance.json
+	source = payload-map.json
+	source = NOTICE
+	source = LICENSE
+	sha256sums = 3ad158d06e0a084bf734beac5b8e76d622e354fb690ae8bed4af67a60c44222b
+	sha256sums = 7ee9e693d4574c6bb11dcc927937475742b9fa7a6f8e988608532c1e1bab5f2e
+	sha256sums = 11ce3cea6422c5b97c1e9cc97f8cd5abddddfb3199becf8a4c2ad8c74cb432a9
+	sha256sums = 052a3b274326929d87f273a74959094fe092e47bffea3f9416ddc46258ce096e
+	sha256sums = 5c6afde675e8630b357f65f4c303de333b482f70a7ae340115e7dbb76ca335f0
+	sha256sums = ce5d7a77744b9ea35d42dc92332888b88e52019e88789d242fd47cdb5af747cb
+	sha256sums = f12d121d5f9e26f74b33263668b78b98d746a84c028e17a1c9d1696c375a8d05
+	sha256sums = 66c974199c3c94b0383dc296133883530307e89b7e54815e59d87543c1da70d0
+	sha256sums = 51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7
+
+pkgname = cachy-asahi-repository-enrollment

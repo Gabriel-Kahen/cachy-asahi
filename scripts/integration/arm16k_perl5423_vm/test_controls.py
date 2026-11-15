@@ -641,6 +641,108 @@ class Controls(unittest.TestCase):
        self.assertEqual(R.docker_call(args,Path(tmp),time.monotonic()+8,shared_deadline=time.monotonic()+20,defer_cancel=True),'MODELED_RETIRED');self.assertEqual(run.call_args.args[0][0],str(p));self.assertTrue(run.call_args.kwargs['defer_cancel'])
     self.assertIsNone(R.DOCKER_CLI);self.assertEqual(os.environ['DOCKER_CONTEXT'],'MODELED_UNWANTED_CONTEXT')
    self.assertEqual({k:os.environ.get(k)for k in before},before)
+ def test_QMP_original_peer_parent_start_argv_pidfd_and_descriptor_refusals(self):
+  import types
+  class Stream:
+   def __init__(self):self.credentials=(201,os.getuid(),os.getgid());self.fd=7
+   def fileno(self):return self.fd
+   def getsockopt(self,*args):return struct.pack('3i',*self.credentials)
+  class Poll:
+   ready=False
+   def register(self,*args):pass
+   def poll(self,*args):return [(101,1)]if self.ready else []
+  argv=['/usr/bin/qemu-system-aarch64','MODEL_NO_PROCESS'];rows={201:dict(pid=201,parent=101,start=777,argv=[x.encode()for x in argv]),101:dict(pid=101,parent=99,start=666,argv=[b'/usr/bin/python3',b'/code/actor.py'])};row=dict(State=dict(Pid=101,Running=True,OOMKilled=False))
+  stream=Stream();poll=Poll();closed=[]
+  with patch.object(C.os,'pidfd_open',side_effect=[501,502]),patch.object(C.os,'close',side_effect=closed.append),patch.object(C,'proc_identity',side_effect=lambda p:copy.deepcopy(rows[p])),patch.object(C.select,'poll',return_value=poll):
+   peer=C.QMPPeer(stream,row,argv);peer.check(row);self.assertEqual(peer.evidence()['qemu_start'],777)
+   for bad in('credentials','descriptor','parent','qemu-start','actor-start','argv','pidfd','actor-pid'):
+    before=copy.deepcopy(rows);old_creds=stream.credentials;old_fd=stream.fd;changed=copy.deepcopy(row)
+    if bad=='credentials':stream.credentials=(202,*stream.credentials[1:])
+    if bad=='descriptor':stream.fd=8
+    if bad=='parent':rows[201]['parent']=102
+    if bad=='qemu-start':rows[201]['start']+=1
+    if bad=='actor-start':rows[101]['start']+=1
+    if bad=='argv':rows[201]['argv']=[b'WRONG_QEMU']
+    if bad=='pidfd':poll.ready=True
+    if bad=='actor-pid':changed['State']['Pid']=102
+    with self.subTest(bad=bad),self.assertRaises(ValueError):peer.check(changed)
+    rows=before;stream.credentials=old_creds;stream.fd=old_fd;poll.ready=False
+   peer.close();self.assertEqual(closed,[501,502]);peer.close();self.assertEqual(closed,[501,502])
+  stream=Stream();stream.credentials=(201,os.getuid()+1,os.getgid())
+  with patch.object(C.os,'pidfd_open')as opened:
+   with self.assertRaises(ValueError):C.QMPPeer(stream,row,argv)
+   opened.assert_not_called()
+  fields=['S','101','201','201']+['0']*15+['777'];raw=('201 (MODEL qemu) '+' '.join(fields)).encode()
+  with patch.object(C.os,'open',side_effect=[601,602]),patch.object(C.os,'read',side_effect=[raw,b'/usr/bin/qemu\0MODEL\0']),patch.object(C.os,'close'):
+   result=C.proc_identity(201);self.assertEqual((result['parent'],result['start'],result['argv']),(101,777,[b'/usr/bin/qemu',b'MODEL']))
+ def test_early_HOLD_normal_QMP_retirement_and_forced_fallback_refusals(self):
+  import types
+  actor,R=module('actor'),module('runtime');nonce='a'*32;authority='b'*64;failure=P.GuestHold('INSTALLED','PROBE','UNREPORTED').failure
+  argv=['/usr/bin/qemu-system-aarch64','MODEL_NOT_EXECUTED'];natural=dict(argv=argv,passed=True,reaped=True,ownership='REAPED',exit=0,group_census='EMPTY_TWICE',output_complete=True,signals=[],timeout=False,error=None)
+  for bad in(None,'wrong-nonce','missing-marker','bad-marker-mode','timeout','missing-receipt','forced-QEMU','wrong-actor','missing-peer','wrong-image','wrong-authority','partial-quit','existing-marker'):
+   with self.subTest(bad=bad),tempfile.TemporaryDirectory()as tmp:
+    out=Path(tmp);events=[]
+    for name,value in(('qemu-argv.json',dict(argv=argv)),('qemu.json',natural)):
+     (out/name).write_bytes(K.canonical(value));(out/name).chmod(0o600)
+    class Peer:
+     fd=7;argv=list(natural['argv'])
+     def __init__(self):self.stream=self
+     def fileno(self):return self.fd
+     def settimeout(self,n):self.timeout=n
+     def check(self,row):
+      events.append('peer-check');K.need(row['State']['Pid']==101,'same actor')
+     def evidence(self):return dict(MODELED_PEER=True)
+    peer=Peer()
+    class File:
+     def fileno(self):return 7
+     def write(self,data):
+      events.append('quit');self.asserted=K.load(out/P.HOLD_MARKER);K.need(self.asserted==dict(nonce=nonce,failure=failure),'exact marker before quit')
+      if bad=='missing-marker':(out/P.HOLD_MARKER).unlink()
+      if bad=='bad-marker-mode':(out/P.HOLD_MARKER).chmod(0o644)
+      return len(data)-1 if bad=='partial-quit'else len(data)
+     def readline(self,n):
+      if bad=='timeout':raise TimeoutError('MODELED QMP timeout')
+      return b'{"return":{},"id":"guest-HOLD-retire"}\n'
+    class Scope:
+     cid='c'*64;name='MODEL_OWNED_NAME';image='sha256:'+'d'*64;labels={'org.cachy-asahi.perl5423-nonce':nonce,'org.cachy-asahi.perl5423-authority':authority}
+     def __init__(self):self.recovered=0;self.forced=False
+     def recover(self,end):
+      self.recovered+=1;events.append('recover');running=self.recovered==1
+      return dict(Id=self.cid,Name='/'+self.name,Image='WRONG_IMAGE'if bad=='wrong-image'else self.image,Config=dict(Labels=self.labels),State=dict(Pid=102 if bad=='wrong-actor'else 101,Running=running,ExitCode=0 if running else 1,OOMKilled=False))
+     def validate(self,row):K.need(row['Name']=='/'+self.name and row['Image']==self.image and row['Config']['Labels']==self.labels,'exact image/name/labels')
+     def call(self,args,end):
+      events.append(tuple(args))
+      if args[1]=='wait':
+       if bad=='forced-QEMU':
+        (out/'qemu.json').write_bytes(K.canonical(dict(natural,signals=['SIGTERM'],timeout=True)))
+       if bad!='missing-receipt':actor.retire_guest_hold(K,R,out,nonce)
+       return types.SimpleNamespace(returncode=0,stdout=b'1\n')
+      K.need(args==['docker','container','rm',self.cid],'normal exact CID removal only');return types.SimpleNamespace(returncode=0)
+     def listing(self,end):events.append('absence');return None
+     def cleanup(self,report):self.forced=True;events.append('forced-fallback');report['owned_container_absence_verified']=True
+    scope=Scope();report=dict(status='HOLD',failure=dict(category='GuestHold',message='ORIGINAL_FAILURE'),cleanup_errors=[])
+    selected_nonce='e'*32 if bad=='wrong-nonce'else nonce
+    if bad=='existing-marker':(out/P.HOLD_MARKER).write_bytes(b'PREVIOUS_EVIDENCE_DO_NOT_REPLACE')
+    C.cleanup_scope(scope,None if bad=='missing-peer'else peer,File(),failure,selected_nonce,'f'*64 if bad=='wrong-authority'else authority,out,time.monotonic()+90,lambda:None,report)
+    self.assertEqual(report['status'],'HOLD');self.assertEqual(report['failure']['message'],'ORIGINAL_FAILURE')
+    if bad is None:
+     self.assertFalse(scope.forced);self.assertEqual(report['cleanup_errors'],[]);self.assertFalse(report['guest_HOLD_cleanup']['forced']);self.assertTrue(report['owned_container_absence_verified']);self.assertLess(events.index('peer-check'),events.index('quit'));self.assertFalse((out/'STOP').exists());self.assertFalse((out/'preservation.json').exists());self.assertFalse((out/'results').exists())
+    else:
+     self.assertTrue(scope.forced);self.assertTrue(report['forced_owned_cleanup_fallback']);self.assertEqual(report['cleanup_errors'][0]['step'],'normal-guest-HOLD-retirement')
+     if bad=='existing-marker':self.assertNotIn('quit',events);self.assertEqual((out/P.HOLD_MARKER).read_bytes(),b'PREVIOUS_EVIDENCE_DO_NOT_REPLACE')
+     if bad in('wrong-nonce','wrong-actor','missing-peer','wrong-image','wrong-authority'):self.assertNotIn('quit',events);self.assertFalse((out/P.HOLD_MARKER).exists())
+  with tempfile.TemporaryDirectory()as tmp:
+   with self.assertRaises(FileNotFoundError):actor.retire_guest_hold(K,R,Path(tmp),nonce)
+  for bad in('nonce','failure','mode','symlink','hardlink','oversize','owner'):
+   with self.subTest(actor_marker=bad),tempfile.TemporaryDirectory()as tmp:
+    out=Path(tmp);marker=out/P.HOLD_MARKER;value=dict(nonce='e'*32 if bad=='nonce'else nonce,failure=dict(failure,status='PASS')if bad=='failure'else failure)
+    marker.write_bytes(K.canonical(value));marker.chmod(0o644 if bad=='mode'else 0o600)
+    if bad=='symlink':marker.rename(out/'original');marker.symlink_to(out/'original')
+    if bad=='hardlink':os.link(marker,out/'alias')
+    if bad=='oversize':marker.write_bytes(b' '*4097)
+    with patch.object(actor.os,'getuid',return_value=os.getuid()+1 if bad=='owner'else os.getuid()):
+     with self.assertRaises(ValueError):actor.retire_guest_hold(K,R,out,nonce)
+    self.assertFalse((out/P.HOLD_RETIRED).exists())
  def test_serial_phase_wait_observes_early_HOLD_and_ordered_chunked_success(self):
   B=K.helper('reference_controller.py');nonce='a'*32;other='b'*32
   def wire(kind,fields,n=nonce):return ('PERL5423_'+kind+'_BEGIN '+n+'\n'+''.join(k+'='+v+'\n'for k,v in fields.items())+'PERL5423_'+kind+'_END '+n+'\n').encode()
