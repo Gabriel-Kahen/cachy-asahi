@@ -1,0 +1,1395 @@
+{
+  "commit": "b940084d7eb6a299eb4bfeb8e34901bc051e7ac4",
+  "requests": 3,
+  "maximum_bytes": 6291456,
+  "actual_body_bytes": 144558,
+  "files": [
+    {
+      "url": "https://raw.githubusercontent.com/rust-lang/rust/b940084d7eb6a299eb4bfeb8e34901bc051e7ac4/bootstrap.example.toml",
+      "path": "bootstrap.example.toml",
+      "sha256": "0c073940371d4c691b6eec984c3cc4b7250127fe5fb328fe7ef4fff61ee18674",
+      "bytes": 54757,
+      "status": "READ_PRIMARY_METADATA",
+      "lines": [
+        {
+          "line": 144,
+          "text": ""
+        },
+        {
+          "line": 145,
+          "text": "# Whether to build LLVM as a dynamically linked library (as opposed to statically linked)."
+        },
+        {
+          "line": 146,
+          "text": "# Under the hood, this passes `--shared` to llvm-config."
+        },
+        {
+          "line": 147,
+          "text": "# NOTE: To avoid performing LTO multiple times, we suggest setting this to `true` when `thin-lto` is enabled."
+        },
+        {
+          "line": 148,
+          "text": "#llvm.link-shared = llvm.thin-lto"
+        },
+        {
+          "line": 149,
+          "text": ""
+        },
+        {
+          "line": 160,
+          "text": "#llvm.cflags = \"\""
+        },
+        {
+          "line": 161,
+          "text": "#llvm.cxxflags = \"\""
+        },
+        {
+          "line": 162,
+          "text": "#llvm.ldflags = \"\""
+        },
+        {
+          "line": 163,
+          "text": ""
+        },
+        {
+          "line": 164,
+          "text": "# Use libc++ when building LLVM instead of libstdc++. This is the default on"
+        },
+        {
+          "line": 165,
+          "text": "# platforms already use libc++ as the default C++ library, but this option"
+        },
+        {
+          "line": 169,
+          "text": ""
+        },
+        {
+          "line": 170,
+          "text": "# The value specified here will be passed as `-DLLVM_USE_LINKER` to CMake."
+        },
+        {
+          "line": 171,
+          "text": "#llvm.use-linker = <none> (path)"
+        },
+        {
+          "line": 172,
+          "text": ""
+        },
+        {
+          "line": 173,
+          "text": "# Whether or not to specify `-DLLVM_TEMPORARILY_ALLOW_OLD_TOOLCHAIN=YES`"
+        },
+        {
+          "line": 174,
+          "text": "#llvm.allow-old-toolchain = false"
+        },
+        {
+          "line": 742,
+          "text": "#"
+        },
+        {
+          "line": 743,
+          "text": "# See https://doc.rust-lang.org/rustc/codegen-options/index.html#linker for more information."
+        },
+        {
+          "line": 744,
+          "text": "#rust.default-linker = <none> (path)"
+        },
+        {
+          "line": 745,
+          "text": ""
+        },
+        {
+          "line": 746,
+          "text": "# The \"channel\" for the Rust build to produce. The stable/beta channels only"
+        },
+        {
+          "line": 747,
+          "text": "# allow using stable features, whereas the nightly and dev channels allow using"
+        },
+        {
+          "line": 761,
+          "text": "#rust.musl-root = <platform specific> (path)"
+        },
+        {
+          "line": 762,
+          "text": ""
+        },
+        {
+          "line": 763,
+          "text": "# By default the `rustc` executable is built with `-Wl,-rpath` flags on Unix"
+        },
+        {
+          "line": 764,
+          "text": "# platforms to ensure that the compiler is usable by default from the build"
+        },
+        {
+          "line": 765,
+          "text": "# directory (as it links to a number of dynamic libraries). This may not be"
+        },
+        {
+          "line": 766,
+          "text": "# desired in distributions, for example."
+        },
+        {
+          "line": 767,
+          "text": "#rust.rpath = true"
+        },
+        {
+          "line": 768,
+          "text": ""
+        },
+        {
+          "line": 769,
+          "text": "# Additional flags to pass to `rustc`."
+        },
+        {
+          "line": 770,
+          "text": "# Takes precedence over bootstrap's own flags but not over per target rustflags nor env. vars. like RUSTFLAGS."
+        },
+        {
+          "line": 771,
+          "text": "# Applies to all stages and targets."
+        },
+        {
+          "line": 772,
+          "text": "#"
+        },
+        {
+          "line": 773,
+          "text": "#rust.rustflags = []"
+        },
+        {
+          "line": 837,
+          "text": "#"
+        },
+        {
+          "line": 838,
+          "text": "# Explicitly setting the linker for a target will override this option when targeting MSVC."
+        },
+        {
+          "line": 839,
+          "text": "#rust.bootstrap-override-lld = false"
+        },
+        {
+          "line": 840,
+          "text": ""
+        },
+        {
+          "line": 841,
+          "text": "# Indicates whether some LLVM tools, like llvm-objdump, will be made available in the"
+        },
+        {
+          "line": 842,
+          "text": "# sysroot."
+        },
+        {
+          "line": 845,
+          "text": "# Indicates whether the `self-contained` llvm-bitcode-linker, will be made available"
+        },
+        {
+          "line": 846,
+          "text": "# in the sysroot. It is required for running nvptx tests."
+        },
+        {
+          "line": 847,
+          "text": "#rust.llvm-bitcode-linker = false"
+        },
+        {
+          "line": 848,
+          "text": ""
+        },
+        {
+          "line": 849,
+          "text": "# Whether to deny warnings in crates. Set to `false` to avoid"
+        },
+        {
+          "line": 850,
+          "text": "# error: warnings are denied by `build.warnings` configuration"
+        },
+        {
+          "line": 1001,
+          "text": "# Copy the linker, DLLs, and various libraries from MinGW into the Rust toolchain."
+        },
+        {
+          "line": 1002,
+          "text": "# Only applies when the host or target is pc-windows-gnu."
+        },
+        {
+          "line": 1003,
+          "text": "#dist.include-mingw-linker = true"
+        },
+        {
+          "line": 1004,
+          "text": ""
+        },
+        {
+          "line": 1005,
+          "text": "# Whether to vendor dependencies for the dist tarball."
+        },
+        {
+          "line": 1006,
+          "text": "#dist.vendor = if \"is a tarball source\" || \"is a git repository\" { true } else { false }"
+        },
+        {
+          "line": 1065,
+          "text": "# default value is platform specific, and if not specified it may also depend on"
+        },
+        {
+          "line": 1066,
+          "text": "# what platform is crossing to what platform."
+        },
+        {
+          "line": 1067,
+          "text": "# Setting this will override the `bootstrap-override-lld` option for Rust code when targeting MSVC."
+        },
+        {
+          "line": 1068,
+          "text": "#linker = \"cc\" (path)"
+        },
+        {
+          "line": 1069,
+          "text": ""
+        },
+        {
+          "line": 1070,
+          "text": "# Should rustc and the standard library be built with split debuginfo? Default"
+        },
+        {
+          "line": 1071,
+          "text": "# is platform dependent."
+        },
+        {
+          "line": 1097,
+          "text": "#compress-debuginfo = \"off\""
+        },
+        {
+          "line": 1098,
+          "text": ""
+        },
+        {
+          "line": 1099,
+          "text": "# Path to the `llvm-config` binary of the installation of a custom LLVM to link"
+        },
+        {
+          "line": 1100,
+          "text": "# against. Note that if this is specified we don't compile LLVM at all for this"
+        },
+        {
+          "line": 1101,
+          "text": "# target."
+        },
+        {
+          "line": 1102,
+          "text": "#llvm-config = <none> (path)"
+        },
+        {
+          "line": 1103,
+          "text": ""
+        },
+        {
+          "line": 1104,
+          "text": "# Override detection of whether this is a Rust-patched LLVM. This would be used"
+        },
+        {
+          "line": 1105,
+          "text": "# in conjunction with either an llvm-config or build.submodules = false."
+        },
+        {
+          "line": 1106,
+          "text": "#llvm-has-rust-patches = if llvm-config { false } else { true }"
+        },
+        {
+          "line": 1107,
+          "text": ""
+        },
+        {
+          "line": 1108,
+          "text": "# Normally the build system can find LLVM's FileCheck utility, but if"
+        },
+        {
+          "line": 1109,
+          "text": "# not, you can specify an explicit file name for it."
+        },
+        {
+          "line": 1133,
+          "text": "#profiler = build.profiler (bool)"
+        },
+        {
+          "line": 1134,
+          "text": ""
+        },
+        {
+          "line": 1135,
+          "text": "# This option supports enable `rpath` in each target independently,"
+        },
+        {
+          "line": 1136,
+          "text": "# and will override the same option under [rust] section. It only works on Unix platforms"
+        },
+        {
+          "line": 1137,
+          "text": "#rpath = rust.rpath (bool)"
+        },
+        {
+          "line": 1138,
+          "text": ""
+        },
+        {
+          "line": 1139,
+          "text": "# Additional flags to pass to `rustc`."
+        },
+        {
+          "line": 1140,
+          "text": "# Takes precedence over bootstrap's own flags and `rust.rustflags` but not over env. vars. like RUSTFLAGS."
+        },
+        {
+          "line": 1141,
+          "text": "# Applies to all stages."
+        },
+        {
+          "line": 1142,
+          "text": "#"
+        },
+        {
+          "line": 1143,
+          "text": "#rustflags = rust.rustflags"
+        }
+      ]
+    },
+    {
+      "url": "https://raw.githubusercontent.com/rust-lang/rust/b940084d7eb6a299eb4bfeb8e34901bc051e7ac4/compiler/rustc_llvm/build.rs",
+      "path": "compiler/rustc_llvm/build.rs",
+      "sha256": "f11e6494d356b9940c8c5d95a0f1badfe10554765b6c55fd2ce2bd97719f6164",
+      "bytes": 21207,
+      "status": "READ_PRIMARY_METADATA",
+      "lines": [
+        {
+          "line": 37,
+          "text": "    // Force the link mode we want, preferring static by default, but"
+        },
+        {
+          "line": 38,
+          "text": "    // possibly overridden by `configure --enable-llvm-link-shared`."
+        },
+        {
+          "line": 39,
+          "text": "    if tracked_env_var_os(\"LLVM_LINK_SHARED\").is_some() {"
+        },
+        {
+          "line": 40,
+          "text": "        (\"dylib\", \"--link-shared\")"
+        },
+        {
+          "line": 41,
+          "text": "    } else {"
+        },
+        {
+          "line": 42,
+          "text": "        (\"static\", \"--link-static\")"
+        },
+        {
+          "line": 44,
+          "text": "}"
+        },
+        {
+          "line": 45,
+          "text": ""
+        },
+        {
+          "line": 46,
+          "text": "// Because Cargo adds the compiler's dylib path to our library search path, llvm-config may"
+        },
+        {
+          "line": 47,
+          "text": "// break: the dylib path for the compiler, as of this writing, contains a copy of the LLVM"
+        },
+        {
+          "line": 48,
+          "text": "// shared library, which means that when our freshly built llvm-config goes to load it's"
+        },
+        {
+          "line": 49,
+          "text": "// associated LLVM, it actually loads the compiler's LLVM. In particular when building the first"
+        },
+        {
+          "line": 50,
+          "text": "// compiler (i.e., in stage 0) that's a problem, as the compiler's LLVM is likely different from"
+        },
+        {
+          "line": 51,
+          "text": "// the one we want to use. As such, we restore the environment to what bootstrap saw. This isn't"
+        },
+        {
+          "line": 141,
+          "text": "    fn drop(&mut self) {"
+        },
+        {
+          "line": 142,
+          "text": "        if let Self::QuotedPaths(shlex) = self {"
+        },
+        {
+          "line": 143,
+          "text": "            assert!(!shlex.had_error, \"error parsing llvm-config output\");"
+        },
+        {
+          "line": 144,
+          "text": "        }"
+        },
+        {
+          "line": 145,
+          "text": "    }"
+        },
+        {
+          "line": 146,
+          "text": "}"
+        },
+        {
+          "line": 184,
+          "text": ""
+        },
+        {
+          "line": 185,
+          "text": "    let llvm_config ="
+        },
+        {
+          "line": 186,
+          "text": "        PathBuf::from(tracked_env_var_os(\"LLVM_CONFIG\").expect(\"LLVM_CONFIG was not set\"));"
+        },
+        {
+          "line": 187,
+          "text": ""
+        },
+        {
+          "line": 188,
+          "text": "    println!(\"cargo:rerun-if-changed={}\", llvm_config.display());"
+        },
+        {
+          "line": 189,
+          "text": ""
+        },
+        {
+          "line": 190,
+          "text": "    // FIXME: `--quote-paths` was added to llvm-config in LLVM 22, so this test (and all its ensuing"
+        },
+        {
+          "line": 191,
+          "text": "    //        fallback paths) can be removed once we bump the minimum llvm_version >= (22, 0, 0)."
+        },
+        {
+          "line": 192,
+          "text": "    let llvm_config_supports_quote_paths ="
+        },
+        {
+          "line": 193,
+          "text": "        stderr(Command::new(&llvm_config).arg(\"--help\")).contains(\"quote-paths\");"
+        },
+        {
+          "line": 206,
+          "text": "    //"
+        },
+        {
+          "line": 207,
+          "text": "    // In that case, there's no guarantee that we can actually run the target,"
+        },
+        {
+          "line": 208,
+          "text": "    // so the build system works around this by giving us the LLVM_CONFIG for"
+        },
+        {
+          "line": 209,
+          "text": "    // the host platform. This only really works if the host LLVM and target"
+        },
+        {
+          "line": 210,
+          "text": "    // LLVM are compiled the same way, but for us that's typically the case."
+        },
+        {
+          "line": 211,
+          "text": "    //"
+        },
+        {
+          "line": 212,
+          "text": "    // We *want* detect this cross compiling situation by asking llvm-config"
+        },
+        {
+          "line": 213,
+          "text": "    // what its host-target is. If that's not the TARGET, then we're cross"
+        },
+        {
+          "line": 214,
+          "text": "    // compiling. Unfortunately `llvm-config` seems either be buggy, or we're"
+        },
+        {
+          "line": 215,
+          "text": "    // misconfiguring it, because the `i686-pc-windows-gnu` build of LLVM will"
+        },
+        {
+          "line": 216,
+          "text": "    // report itself with a `--host-target` of `x86_64-pc-windows-gnu`. This"
+        },
+        {
+          "line": 217,
+          "text": "    // tricks us into thinking we're doing a cross build when we aren't, so"
+        },
+        {
+          "line": 219,
+          "text": "    //"
+        },
+        {
+          "line": 220,
+          "text": "    // In any case, if we're cross compiling, this generally just means that we"
+        },
+        {
+          "line": 221,
+          "text": "    // can't trust all the output of llvm-config because it might be targeted"
+        },
+        {
+          "line": 222,
+          "text": "    // for the host rather than the target. As a result a bunch of blocks below"
+        },
+        {
+          "line": 223,
+          "text": "    // are gated on `if !is_crossed`"
+        },
+        {
+          "line": 224,
+          "text": "    let target = env::var(\"TARGET\").expect(\"TARGET was not set\");"
+        },
+        {
+          "line": 266,
+          "text": ""
+        },
+        {
+          "line": 267,
+          "text": "        // This is a libstdc++ implementation detail for the C++ library that"
+        },
+        {
+          "line": 268,
+          "text": "        // built the runnable llvm-config. When cross-compiling, target LLVM may"
+        },
+        {
+          "line": 269,
+          "text": "        // have been built against a target libstdc++ with a different default."
+        },
+        {
+          "line": 270,
+          "text": "        // Let the target compiler/toolchain select its ABI instead."
+        },
+        {
+          "line": 271,
+          "text": "        if is_crossed && is_libstdcxx_cxx11_abi_flag(flag.as_ref()) {"
+        },
+        {
+          "line": 314,
+          "text": "    }"
+        },
+        {
+          "line": 315,
+          "text": ""
+        },
+        {
+          "line": 316,
+          "text": "    if tracked_env_var_os(\"LLVM_RUSTLLVM\").is_some() {"
+        },
+        {
+          "line": 317,
+          "text": "        cfg.define(\"LLVM_RUSTLLVM\", None);"
+        },
+        {
+          "line": 318,
+          "text": "    }"
+        },
+        {
+          "line": 319,
+          "text": ""
+        },
+        {
+          "line": 320,
+          "text": "    if tracked_env_var_os(\"LLVM_ASSERTIONS\").is_none() {"
+        },
+        {
+          "line": 334,
+          "text": "    let (llvm_kind, llvm_link_arg) = detect_llvm_link();"
+        },
+        {
+          "line": 335,
+          "text": ""
+        },
+        {
+          "line": 336,
+          "text": "    // Link in all LLVM libraries, if we're using the \"wrong\" llvm-config then"
+        },
+        {
+          "line": 337,
+          "text": "    // we don't pick up system libs because unfortunately they're for the host"
+        },
+        {
+          "line": 338,
+          "text": "    // of llvm-config, not the target that we're attempting to link."
+        },
+        {
+          "line": 339,
+          "text": "    let mut cmd = Command::new(&llvm_config);"
+        },
+        {
+          "line": 340,
+          "text": "    cmd.arg(llvm_link_arg).arg(\"--libs\");"
+        },
+        {
+          "line": 341,
+          "text": ""
+        },
+        {
+          "line": 392,
+          "text": "            stripped"
+        },
+        {
+          "line": 393,
+          "text": "        } else if Path::new(&*lib).exists() {"
+        },
+        {
+          "line": 394,
+          "text": "            // On MSVC llvm-config will print the full name to libraries, but"
+        },
+        {
+          "line": 395,
+          "text": "            // we're only interested in the name part"
+        },
+        {
+          "line": 396,
+          "text": "            // On Unix when we get a static library llvm-config will print the"
+        },
+        {
+          "line": 397,
+          "text": "            // full name and we *are* interested in the path, but we need to"
+        },
+        {
+          "line": 398,
+          "text": "            // handle it separately. For example, when statically linking to"
+        },
+        {
+          "line": 399,
+          "text": "            // libzstd llvm-config will output something like"
+        },
+        {
+          "line": 400,
+          "text": "            //   -lrt -ldl -lm -lz /usr/local/lib/libzstd.a -lxml2"
+        },
+        {
+          "line": 401,
+          "text": "            // and we transform the zstd part into"
+        },
+        {
+          "line": 402,
+          "text": "            //   cargo:rustc-link-search-native=/usr/local/lib"
+        },
+        {
+          "line": 429,
+          "text": "        }"
+        },
+        {
+          "line": 430,
+          "text": ""
+        },
+        {
+          "line": 431,
+          "text": "        // On apple-darwin, llvm-config reports the versioned shared library name such as LLVM-22-..., but"
+        },
+        {
+          "line": 432,
+          "text": "        // the distributed toolchain ships libLLVM.dylib. Normalize the link name here."
+        },
+        {
+          "line": 433,
+          "text": "        let name ="
+        },
+        {
+          "line": 434,
+          "text": "            if target.contains(\"apple-darwin\") && llvm_kind == \"dylib\" && name.starts_with(\"LLVM-\")"
+        },
+        {
+          "line": 449,
+          "text": "    }"
+        },
+        {
+          "line": 450,
+          "text": ""
+        },
+        {
+          "line": 451,
+          "text": "    // LLVM ldflags"
+        },
+        {
+          "line": 452,
+          "text": "    //"
+        },
+        {
+          "line": 453,
+          "text": "    // If we're a cross-compile of LLVM then unfortunately we can't trust these"
+        },
+        {
+          "line": 454,
+          "text": "    // ldflags (largely where all the LLVM libs are located). Currently just"
+        },
+        {
+          "line": 455,
+          "text": "    // hack around this by replacing the host triple with the target and pray"
+        },
+        {
+          "line": 456,
+          "text": "    // that those -L directories are the same!"
+        },
+        {
+          "line": 457,
+          "text": "    let mut cmd = Command::new(&llvm_config);"
+        },
+        {
+          "line": 458,
+          "text": "    cmd.arg(llvm_link_arg).arg(\"--ldflags\");"
+        },
+        {
+          "line": 459,
+          "text": "    for lib in &quoted_split(cmd) {"
+        },
+        {
+          "line": 460,
+          "text": "        if is_crossed {"
+        },
+        {
+          "line": 461,
+          "text": "            if let Some(stripped) = lib.strip_prefix(\"-LIBPATH:\") {"
+        }
+      ]
+    },
+    {
+      "url": "https://raw.githubusercontent.com/rust-lang/rust/b940084d7eb6a299eb4bfeb8e34901bc051e7ac4/src/bootstrap/src/core/builder/cargo.rs",
+      "path": "src/bootstrap/src/core/builder/cargo.rs",
+      "sha256": "6e6a12de6443c114c23e0cbe17931af301cd96ce08692aa135e554cc88765a49",
+      "bytes": 68594,
+      "status": "READ_PRIMARY_METADATA",
+      "lines": [
+        {
+          "line": 18,
+          "text": "/// Represents flag values in `String` form with a `\\x1f` delimiter to pass to the compiler later."
+        },
+        {
+          "line": 19,
+          "text": "///"
+        },
+        {
+          "line": 20,
+          "text": "/// Flags are emitted via `CARGO_ENCODED_RUSTFLAGS` / `CARGO_ENCODED_RUSTDOCFLAGS`,"
+        },
+        {
+          "line": 21,
+          "text": "/// which use `\\x1f` (ASCII Unit Separator) as the delimiter and therefore allow spaces"
+        },
+        {
+          "line": 22,
+          "text": "/// within individual flag values (e.g. paths from `llvm-config --libdir`)."
+        },
+        {
+          "line": 23,
+          "text": "///"
+        },
+        {
+          "line": 24,
+          "text": "/// `-Z crate-attr` flags will be applied recursively on the target code using the"
+        },
+        {
+          "line": 25,
+          "text": "/// `rustc_parse::parser::Parser`. See `rustc_builtin_macros::cmdline_attrs::inject` for more"
+        },
+        {
+          "line": 37,
+          "text": "    /// overridden. Explicitly add back any previous value in the environment."
+        },
+        {
+          "line": 38,
+          "text": "    ///"
+        },
+        {
+          "line": 39,
+          "text": "    /// `prefix` is usually `RUSTFLAGS` or `RUSTDOCFLAGS`."
+        },
+        {
+          "line": 40,
+          "text": "    fn propagate_cargo_env(&mut self, prefix: &str) {"
+        },
+        {
+          "line": 41,
+          "text": "        // Inherit `RUSTFLAGS` by default ..."
+        },
+        {
+          "line": 42,
+          "text": "        self.env(prefix);"
+        },
+        {
+          "line": 43,
+          "text": ""
+        },
+        {
+          "line": 44,
+          "text": "        // ... and also handle target-specific env RUSTFLAGS if they're configured."
+        },
+        {
+          "line": 45,
+          "text": "        let target_specific = format!(\"CARGO_TARGET_{}_{}\", crate::envify(&self.1.triple), prefix);"
+        },
+        {
+          "line": 46,
+          "text": "        self.env(&target_specific);"
+        },
+        {
+          "line": 47,
+          "text": "    }"
+        },
+        {
+          "line": 70,
+          "text": ""
+        },
+        {
+          "line": 71,
+          "text": "    fn propagate_rustflag_envs(&mut self, build_compiler_stage: u32) {"
+        },
+        {
+          "line": 72,
+          "text": "        self.propagate_cargo_env(\"RUSTFLAGS\");"
+        },
+        {
+          "line": 73,
+          "text": "        if build_compiler_stage != 0 {"
+        },
+        {
+          "line": 74,
+          "text": "            self.env(\"RUSTFLAGS_NOT_BOOTSTRAP\");"
+        },
+        {
+          "line": 75,
+          "text": "        } else {"
+        },
+        {
+          "line": 76,
+          "text": "            self.env(\"RUSTFLAGS_BOOTSTRAP\");"
+        },
+        {
+          "line": 77,
+          "text": "            self.arg(\"--cfg=bootstrap\");"
+        },
+        {
+          "line": 78,
+          "text": "        }"
+        },
+        {
+          "line": 79,
+          "text": "    }"
+        },
+        {
+          "line": 83,
+          "text": "///"
+        },
+        {
+          "line": 84,
+          "text": "/// `flags` is the `\\x1f`-separated string built by [`Rustflags`]. We prefer the plain,"
+        },
+        {
+          "line": 85,
+          "text": "/// space-separated form (`RUSTFLAGS`/`RUSTDOCFLAGS`) so the command stays readable and"
+        },
+        {
+          "line": 86,
+          "text": "/// copy-pasteable in bootstrap's debug output, and only fall back to the `CARGO_ENCODED_*` form"
+        },
+        {
+          "line": 87,
+          "text": "/// (which keeps the `\\x1f` separators) when a flag value contains a space that the plain,"
+        },
+        {
+          "line": 88,
+          "text": "/// whitespace-split form can't represent. See <https://github.com/rust-lang/rust/issues/158749>."
+        },
+        {
+          "line": 231,
+          "text": "    }"
+        },
+        {
+          "line": 232,
+          "text": ""
+        },
+        {
+          "line": 233,
+          "text": "    /// Add an env var to the cargo command instance. Note that `RUSTFLAGS`/`RUSTDOCFLAGS` must go"
+        },
+        {
+          "line": 234,
+          "text": "    /// through [`Cargo::rustdocflags`] and [`Cargo::rustflags`] because inconsistent `RUSTFLAGS`"
+        },
+        {
+          "line": 235,
+          "text": "    /// and `RUSTDOCFLAGS` usages will trigger spurious rebuilds."
+        },
+        {
+          "line": 236,
+          "text": "    pub fn env(&mut self, key: impl AsRef<OsStr>, value: impl AsRef<OsStr>) -> &mut Cargo {"
+        },
+        {
+          "line": 237,
+          "text": "        assert_ne!(key.as_ref(), \"RUSTFLAGS\");"
+        },
+        {
+          "line": 238,
+          "text": "        assert_ne!(key.as_ref(), \"RUSTDOCFLAGS\");"
+        },
+        {
+          "line": 239,
+          "text": "        self.command.env(key.as_ref(), value.as_ref());"
+        },
+        {
+          "line": 240,
+          "text": "        self"
+        },
+        {
+          "line": 253,
+          "text": "        delimiter: impl AsRef<OsStr>,"
+        },
+        {
+          "line": 254,
+          "text": "    ) -> &mut Cargo {"
+        },
+        {
+          "line": 255,
+          "text": "        assert_ne!(key.as_ref(), \"RUSTFLAGS\");"
+        },
+        {
+          "line": 256,
+          "text": "        assert_ne!(key.as_ref(), \"RUSTDOCFLAGS\");"
+        },
+        {
+          "line": 257,
+          "text": ""
+        },
+        {
+          "line": 258,
+          "text": "        let key = key.as_ref();"
+        },
+        {
+          "line": 294,
+          "text": "        let compiler = self.compiler;"
+        },
+        {
+          "line": 295,
+          "text": ""
+        },
+        {
+          "line": 296,
+          "text": "        // Dealing with rpath here is a little special, so let's go into some"
+        },
+        {
+          "line": 297,
+          "text": "        // detail. First off, `-rpath` is a linker option on Unix platforms"
+        },
+        {
+          "line": 298,
+          "text": "        // which adds to the runtime dynamic loader path when looking for"
+        },
+        {
+          "line": 299,
+          "text": "        // dynamic libraries. We use this by default on Unix platforms to ensure"
+        },
+        {
+          "line": 300,
+          "text": "        // that our nightlies behave the same on Windows, that is they work out"
+        },
+        {
+          "line": 301,
+          "text": "        // of the box. This can be disabled by setting `rpath = false` in `[rust]`"
+        },
+        {
+          "line": 302,
+          "text": "        // table of `bootstrap.toml`"
+        },
+        {
+          "line": 303,
+          "text": "        //"
+        },
+        {
+          "line": 304,
+          "text": "        // Ok, so the astute might be wondering \"why isn't `-C rpath` used"
+        },
+        {
+          "line": 305,
+          "text": "        // here?\" and that is indeed a good question to ask. This codegen"
+        },
+        {
+          "line": 306,
+          "text": "        // option is the compiler's current interface to generating an rpath."
+        },
+        {
+          "line": 307,
+          "text": "        // Unfortunately it doesn't quite suffice for us. The flag currently"
+        },
+        {
+          "line": 308,
+          "text": "        // takes no value as an argument, so the compiler calculates what it"
+        },
+        {
+          "line": 309,
+          "text": "        // should pass to the linker as `-rpath`. This unfortunately is based on"
+        },
+        {
+          "line": 310,
+          "text": "        // the **compile time** directory structure which when building with"
+        },
+        {
+          "line": 311,
+          "text": "        // Cargo will be very different than the runtime directory structure."
+        },
+        {
+          "line": 312,
+          "text": "        //"
+        },
+        {
+          "line": 313,
+          "text": "        // All that's a really long winded way of saying that if we use"
+        },
+        {
+          "line": 314,
+          "text": "        // `-Crpath` then the executables generated have the wrong rpath of"
+        },
+        {
+          "line": 315,
+          "text": "        // something like `$ORIGIN/deps` when in fact the way we distribute"
+        },
+        {
+          "line": 316,
+          "text": "        // rustc requires the rpath to be `$ORIGIN/../lib`."
+        },
+        {
+          "line": 317,
+          "text": "        //"
+        },
+        {
+          "line": 318,
+          "text": "        // So, all in all, to set up the correct rpath we pass the linker"
+        },
+        {
+          "line": 319,
+          "text": "        // argument manually via `-C link-args=-Wl,-rpath,...`. Plus isn't it"
+        },
+        {
+          "line": 320,
+          "text": "        // fun to pass a flag to a tool to pass a flag to pass a flag to a tool"
+        },
+        {
+          "line": 321,
+          "text": "        // to change a flag in a binary?"
+        },
+        {
+          "line": 322,
+          "text": "        if builder.config.rpath_enabled(target) && helpers::use_host_linker(target) {"
+        },
+        {
+          "line": 323,
+          "text": "            let libdir = builder.sysroot_libdir_relative(compiler).to_str().unwrap();"
+        },
+        {
+          "line": 324,
+          "text": "            let rpath = if target.contains(\"apple\") {"
+        },
+        {
+          "line": 325,
+          "text": "                // Note that we need to take one extra step on macOS to also pass"
+        },
+        {
+          "line": 326,
+          "text": "                // `-Wl,-instal_name,@rpath/...` to get things to work right. To"
+        },
+        {
+          "line": 327,
+          "text": "                // do that we pass a weird flag to the compiler to get it to do"
+        },
+        {
+          "line": 328,
+          "text": "                // so. Note that this is definitely a hack, and we should likely"
+        },
+        {
+          "line": 329,
+          "text": "                // flesh out rpath support more fully in the future."
+        },
+        {
+          "line": 330,
+          "text": "                self.rustflags.arg(\"-Zosx-rpath-install-name\");"
+        },
+        {
+          "line": 331,
+          "text": "                Some(format!(\"-Wl,-rpath,@loader_path/../{libdir}\"))"
+        },
+        {
+          "line": 332,
+          "text": "            } else if !target.is_windows()"
+        },
+        {
+          "line": 333,
+          "text": "                && !target.contains(\"cygwin\")"
+        },
+        {
+          "line": 334,
+          "text": "                && !target.contains(\"aix\")"
+        },
+        {
+          "line": 336,
+          "text": "            {"
+        },
+        {
+          "line": 337,
+          "text": "                self.rustflags.arg(\"-Clink-args=-Wl,-z,origin\");"
+        },
+        {
+          "line": 338,
+          "text": "                Some(format!(\"-Wl,-rpath,$ORIGIN/../{libdir}\"))"
+        },
+        {
+          "line": 339,
+          "text": "            } else {"
+        },
+        {
+          "line": 340,
+          "text": "                None"
+        },
+        {
+          "line": 341,
+          "text": "            };"
+        },
+        {
+          "line": 342,
+          "text": "            if let Some(rpath) = rpath {"
+        },
+        {
+          "line": 343,
+          "text": "                self.rustflags.arg(&format!(\"-Clink-args={rpath}\"));"
+        },
+        {
+          "line": 344,
+          "text": "            }"
+        },
+        {
+          "line": 345,
+          "text": "        }"
+        },
+        {
+          "line": 346,
+          "text": ""
+        },
+        {
+          "line": 505,
+          "text": "        // bootstrap sets below. Flags from the caller's environment have already been folded into"
+        },
+        {
+          "line": 506,
+          "text": "        // the Rustflags struct via `propagate_cargo_env`. This also matters because we may set the"
+        },
+        {
+          "line": 507,
+          "text": "        // plain form below, which cargo ignores when `CARGO_ENCODED_RUSTFLAGS` is also present."
+        },
+        {
+          "line": 508,
+          "text": "        cargo.command.env_remove(\"RUSTFLAGS\");"
+        },
+        {
+          "line": 509,
+          "text": "        cargo.command.env_remove(\"CARGO_ENCODED_RUSTFLAGS\");"
+        },
+        {
+          "line": 510,
+          "text": "        cargo.command.env_remove(\"RUSTDOCFLAGS\");"
+        },
+        {
+          "line": 511,
+          "text": "        cargo.command.env_remove(\"CARGO_ENCODED_RUSTDOCFLAGS\");"
+        },
+        {
+          "line": 512,
+          "text": ""
+        },
+        {
+          "line": 513,
+          "text": "        if !cargo.rustflags.0.is_empty() {"
+        },
+        {
+          "line": 514,
+          "text": "            let (var, value) ="
+        },
+        {
+          "line": 515,
+          "text": "                flags_env(\"RUSTFLAGS\", \"CARGO_ENCODED_RUSTFLAGS\", &cargo.rustflags.0);"
+        },
+        {
+          "line": 516,
+          "text": "            cargo.command.env(var, value);"
+        },
+        {
+          "line": 517,
+          "text": "        }"
+        },
+        {
+          "line": 518,
+          "text": ""
+        },
+        {
+          "line": 684,
+          "text": "        let profile_var = |name: &str| cargo_profile_var(name, &self.config, mode);"
+        },
+        {
+          "line": 685,
+          "text": ""
+        },
+        {
+          "line": 686,
+          "text": "        // See comment in rustc_llvm/build.rs for why this is necessary, largely llvm-config"
+        },
+        {
+          "line": 687,
+          "text": "        // needs to not accidentally link to libLLVM in stage0/lib."
+        },
+        {
+          "line": 688,
+          "text": "        cargo.env(\"REAL_LIBRARY_PATH_VAR\", helpers::dylib_path_var());"
+        },
+        {
+          "line": 689,
+          "text": "        if let Some(e) = env::var_os(helpers::dylib_path_var()) {"
+        },
+        {
+          "line": 808,
+          "text": ""
+        },
+        {
+          "line": 809,
+          "text": "                if *name == \"bootstrap\" {"
+        },
+        {
+          "line": 810,
+          "text": "                    // Cargo doesn't pass RUSTFLAGS to proc_macros:"
+        },
+        {
+          "line": 811,
+          "text": "                    // https://github.com/rust-lang/cargo/issues/4423"
+        },
+        {
+          "line": 812,
+          "text": "                    // Thus, if we are on stage 0, we explicitly set `--cfg=bootstrap`."
+        },
+        {
+          "line": 813,
+          "text": "                    // We also declare that the flag is expected, which we need to do to not"
+        },
+        {
+          "line": 825,
+          "text": "        }"
+        },
+        {
+          "line": 826,
+          "text": ""
+        },
+        {
+          "line": 827,
+          "text": "        // FIXME: It might be better to use the same value for both `RUSTFLAGS` and `RUSTDOCFLAGS`,"
+        },
+        {
+          "line": 828,
+          "text": "        // but this breaks CI. At the very least, stage0 `rustdoc` needs `--cfg bootstrap`. See"
+        },
+        {
+          "line": 829,
+          "text": "        // #71458."
+        },
+        {
+          "line": 830,
+          "text": "        let mut rustdocflags = rustflags.clone();"
+        },
+        {
+          "line": 1317,
+          "text": "        // clippy, rustfmt, rust-analyzer, etc."
+        },
+        {
+          "line": 1318,
+          "text": "        if source_type == SourceType::InTree {"
+        },
+        {
+          "line": 1319,
+          "text": "            // When extending this list, add the new lints to the RUSTFLAGS of the"
+        },
+        {
+          "line": 1320,
+          "text": "            // build_bootstrap function of src/bootstrap/bootstrap.py as well as"
+        },
+        {
+          "line": 1321,
+          "text": "            // some code doesn't go through this `rustc` wrapper."
+        },
+        {
+          "line": 1322,
+          "text": "            lint_flags.push(\"-Wrust_2018_idioms\");"
+        },
+        {
+          "line": 1345,
+          "text": "        }"
+        },
+        {
+          "line": 1346,
+          "text": ""
+        },
+        {
+          "line": 1347,
+          "text": "        // This does not use RUSTFLAGS for two reasons."
+        },
+        {
+          "line": 1348,
+          "text": "        // - Due to caching issues with Cargo. Clippy is treated as an \"in"
+        },
+        {
+          "line": 1349,
+          "text": "        //   tree\" tool, but shares the same cache as other \"submodule\" tools."
+        },
+        {
+          "line": 1350,
+          "text": "        //   With these options set in RUSTFLAGS, that causes *every* shared"
+        },
+        {
+          "line": 1351,
+          "text": "        //   dependency to be rebuilt. By injecting this into the rustc"
+        },
+        {
+          "line": 1352,
+          "text": "        //   wrapper, this circumvents Cargo's fingerprint detection. This is"
+        },
+        {
+          "line": 1353,
+          "text": "        //   fine because lint flags are always ignored in dependencies."
+        },
+        {
+          "line": 1354,
+          "text": "        //   Eventually this should be fixed via better support from Cargo."
+        },
+        {
+          "line": 1355,
+          "text": "        // - RUSTFLAGS is ignored for proc macro crates that are being built on"
+        },
+        {
+          "line": 1356,
+          "text": "        //   the host (because `--target` is given). But we want the lint flags"
+        },
+        {
+          "line": 1357,
+          "text": "        //   to be applied to proc macro crates."
+        },
+        {
+          "line": 1358,
+          "text": "        cargo.env(\"RUSTC_LINT_FLAGS\", lint_flags.join(\" \"));"
+        }
+      ]
+    }
+  ]
+}
