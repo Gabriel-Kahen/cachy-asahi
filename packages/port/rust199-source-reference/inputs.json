@@ -47,7 +47,7 @@
       "url": "https://static.rust-lang.org/dist/rustc-1.99.0-src.tar.xz"
     }
   },
-  "bootstrap_config_sha256": "0b159237f6cf598eafe901d8665a4fcf33983c1c181df0d67fd1e8c09d241bb8",
+  "bootstrap_config_sha256": "504ccbfc112d0258059f1d105c69fe0fb104331f232aaf93b096777bb24447fb",
   "historical_recipe_patches_applied": [],
   "holds": {
     "ARM_M2_16K_performance_release": "NOT_TESTED_OR_ADMITTED",

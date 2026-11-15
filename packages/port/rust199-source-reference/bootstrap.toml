@@ -36,6 +36,8 @@ codegen-units-std = 1
 debuginfo-level = 0
 debuginfo-level-std = 0
 rpath = true
+# Pinned bootstrap supports rust.rustflags at every stage and target.
+rustflags = ["-Clink-arg=-Wl,-rpath,/opt/cachy-asahi/llvm23-source-reference/lib"]
 lld = false
 bootstrap-override-lld = "external"
 llvm-bitcode-linker = false
@@ -60,4 +62,4 @@ cc = "/usr/bin/gcc"
 cxx = "/usr/bin/g++"
 ar = "/usr/bin/gcc-ar"
 ranlib = "/usr/bin/gcc-ranlib"
-llvm-config = "/usr/bin/llvm-config"
+llvm-config = "/opt/cachy-asahi/llvm23-source-reference/bin/llvm-config"

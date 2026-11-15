@@ -1,0 +1,19 @@
+{
+  "actual_DRM_cards": [
+    "/sys/devices/pci0000:00/0000:00:01.0/drm/card0"
+  ],
+  "actual_seat": "seat0",
+  "actual_status": "PASS_X86_REAL_SEAT_REFERENCE_ONLY",
+  "actual_tty": "tty1",
+  "arm_transfer": "NOT ESTABLISHED; ARM needs MMIO virtio input parent and kernel proof",
+  "keyboard_names": [
+    "AT Translated Set 2 keyboard"
+  ],
+  "local_report_path": "/tmp/cachy-asahi-real-seat-live-tty-first-boot-root-20261114/report.json",
+  "local_report_pin": {
+    "bytes": 11299,
+    "sha256": "3384ce35565e5dea49cd7ad9889ac413e917a6386d8754057e62939323d7717b"
+  },
+  "schema_version": 1,
+  "scope": "READ_ONLY_X86_REFERENCE_NOT_ARM_ACCEPTANCE"
+}

@@ -89,7 +89,7 @@ class ReferenceTests(unittest.TestCase):
         self.assertTrue(config['build']['locked-deps'])
         self.assertEqual(config['install']['prefix'], str(r.PREFIX))
         self.assertTrue(config['install']['sysconfdir'].startswith(str(r.PREFIX) + '/'))
-        self.assertEqual(config['target'][r.TARGET]['llvm-config'], '/usr/bin/llvm-config')
+        self.assertEqual(config['target'][r.TARGET]['llvm-config'], str(r.LLVM_PREFIX / 'bin/llvm-config'))
 
     def test_default_cli_refuses_without_execution_or_writes(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -114,8 +114,12 @@ class ReferenceTests(unittest.TestCase):
             work.mkdir()
             for name in ['work', 'stage0', 'proc', 'dev', 'tmp', 'usr/bin']:
                 (image / name).mkdir(parents=True, exist_ok=True)
-            for name in ['python', 'gcc', 'g++', 'gcc-ar', 'gcc-ranlib', 'llvm-config', 'clang', 'ld.lld', 'cmake', 'ninja', 'make', 'pkg-config', 'perl', 'bash']:
+            for name in ['python', 'gcc', 'g++', 'gcc-ar', 'gcc-ranlib', 'cmake', 'ninja', 'make', 'pkg-config', 'perl', 'bash']:
                 (image / 'usr/bin' / name).write_text('TEST DATA: never executed')
+            private_tools = image / r.LLVM_PREFIX.relative_to('/') / 'bin'
+            private_tools.mkdir(parents=True)
+            for name in ['llvm-config', 'clang', 'ld.lld']:
+                (private_tools / name).write_text('TEST DATA: never executed')
             proof = root / 'proof.json'
             proof.write_text('{"fixture": true}\n')
             a = r.load(HERE / 'admission.example.json')
@@ -130,6 +134,13 @@ class ReferenceTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, 'local material missing'):
                     r.preflight(work, path, r.digest(path))
                 run.assert_not_called()
+                a['environment']['llvm_prefix'] = '/usr'
+                path.write_text(json.dumps(a))
+                with self.assertRaisesRegex(ValueError, 'private LLVM prefix'):
+                    r.preflight(work, path, r.digest(path))
+                run.assert_not_called()
+                a['environment']['llvm_prefix'] = str(r.LLVM_PREFIX)
+                path.write_text(json.dumps(a))
                 name = next(iter(r.load(HERE / 'inputs.json')['archives']))
                 (root / 'tiny-local-source').write_text('TEST DATA only')
                 (work / name).symlink_to(root / 'tiny-local-source')
@@ -214,6 +225,7 @@ class ReferenceTests(unittest.TestCase):
             self.assertIn('/work/home', command)
             self.assertIn('/work/cargo-home', command)
             self.assertNotIn('/run', command)
+            self.assertIn(f'/stage0/bin:{r.LLVM_PREFIX}/bin:/usr/bin:/bin', command)
             self.assertEqual(command[-1], 'NOT_EXECUTED')
 
     def test_internal_probe_refuses_without_qualified_inventory(self):

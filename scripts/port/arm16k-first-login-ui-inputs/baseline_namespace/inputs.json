@@ -1,0 +1,35 @@
+{
+  "fixed_paths": [
+    "etc/pam.d/login",
+    "etc/pam.d/system-login",
+    "etc/pam.d/system-local-login",
+    "etc/pam.d/system-auth",
+    "usr/lib/udev/rules.d/71-seat.rules",
+    "usr/lib/girepository-1.0/Gio-2.0.typelib",
+    "usr/lib/girepository-1.0/GLib-2.0.typelib"
+  ],
+  "raw": {
+    "bytes": 1610612736,
+    "path": "/tmp/cachy-asahi-arm16k-preparation-20261114-r5/assembly/guest.raw",
+    "sha256": "f69d74fbb0043793c96424d0f91ad2f6fb2d8cf3a72fb94024ea9cc40dae4cd3"
+  },
+  "references": {
+    "prepared.json": {
+      "bytes": 58179,
+      "path": "/tmp/cachy-asahi-arm16k-preparation-20261114-r5/assembly/prepared.json",
+      "sha256": "f7b3073f58acce8ab5e21ff61f2182779d24046e1582cda6adb0a3db66b7036e"
+    },
+    "rootfs-index.json": {
+      "bytes": 8752246,
+      "path": "/tmp/cachy-asahi-arm16k-inputs-20261114/rootfs-index.json",
+      "sha256": "5dfe8c3182fcf62dafe5c1fceead2099c95bb324ce4fc95370ce949507ef1878"
+    },
+    "selection.json": {
+      "bytes": 1608975,
+      "path": "/tmp/cachy-asahi-arm16k-inputs-20261114/selection.json",
+      "sha256": "31f6b6ecb20ea84a2a44dbe4771194fd2a36df7bb34f28e711020f729bdbb2b8"
+    }
+  },
+  "schema_version": 1,
+  "scope": "exact-ARM111-installed-metadata-and-seven-namespace-leaves-DATA"
+}

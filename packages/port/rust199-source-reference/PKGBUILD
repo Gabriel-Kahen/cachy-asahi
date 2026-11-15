@@ -8,7 +8,7 @@ arch=('aarch64')
 url='https://www.rust-lang.org/'
 license=('Apache-2.0 OR MIT')
 depends=('bash' 'curl' 'gcc' 'glibc' 'libgcc' 'libstdc++' 'libgit2' 'libssh2'
-         'openssl' 'sqlite' 'zlib' 'compiler-rt=23.1.1' 'lld=23.1.1' 'llvm-libs=23.1.1')
+         'openssl' 'sqlite' 'zlib' 'cachy-asahi-llvm23-source-reference=23.1.1')
 makedepends=('python>=3.12' 'bubblewrap' 'libarchive')
 options=('!lto' '!debug' '!strip' '!purge')
 # Local basenames only: makepkg has no upstream download URL to follow.
@@ -37,10 +37,10 @@ sha256sums=(
   'a36f7ac98af20ef0ba6368aace0345efabbebaef7962eba99f47190fd256162d'
   '00590657f2356d7163ca5ef295283523974c340fa21bb94b420ce794f29b358c'
   'cc41916a8c84f5d9ec4f55561b44e39f43b647b133f8a6f51be9ea13c83f7036'
-  '7d37474e2c4d6c769cca8a6dec4a0c00f005f751ecbe386fc55c5508053a0c1d'
-  '0b159237f6cf598eafe901d8665a4fcf33983c1c181df0d67fd1e8c09d241bb8'
-  'e076667af98fc3b3cf6fdceb2ff1518f43453ac235fac0cc555744eda0eaa6b5'
-  '76491aff2d68ccf3d750ab00ced4eab52db10664124a2b85e37e54c2793b02c8'
+  'e707e4642cf5fcd59d57d49aa4e38c73e595213f7c728a645587e42c1db3f1cb'
+  '504ccbfc112d0258059f1d105c69fe0fb104331f232aaf93b096777bb24447fb'
+  '4011253ed366f871b1f5e2cac1f5af0dc63049c1fa7badd293318adb44741672'
+  'ea62ed79e7911146e85c551d22fd8c9069e46c7d2ebc6f79873cc85986b87790'
   'b8f5f697f7e16eb59a3fb83868aad10d19c918e212aa196d1716c3df21ee20db'
 )
 

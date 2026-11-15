@@ -1,0 +1,63 @@
+{
+  "M2": "NOT RUN",
+  "actor_fenced_controls": {
+    "argv": [
+      "python3",
+      "-I",
+      "-B",
+      "-Werror",
+      "scripts/integration/arm16k_virtio_seat_vm/test_controls.py"
+    ],
+    "failed": 0,
+    "passed": 69
+  },
+  "actual_Root_authority": null,
+  "actual_UI": null,
+  "actual_VM": null,
+  "actual_container_by_worker": null,
+  "actual_preparation": null,
+  "actual_raw_clone": null,
+  "actual_read_only_DATA_checks": {
+    "additions_manifest": {
+      "addition_dependency_edges": 190,
+      "archives": 44,
+      "bytes": 2001071,
+      "sha256": "3934cbe28637d3dd88bb1f32e6db617055d09e84d5d8c12547dfa0573fcece24",
+      "status": "DATA_CONSUMER_PASS_NO_GPG_OR_PREPARATION"
+    },
+    "kernel_bundle": {
+      "bytes": 9549,
+      "config_bytes": 71585,
+      "config_sha256": "b8bc8c636ae7e58e8e338e7dba87d84a390d0555fa7307fc76217e0d56553d7f",
+      "scope": "CONSUMER_ONLY_NO_AUTHORITY",
+      "sha256": "c8f03dff4f98dbf24e2273442c3008875cfb8a2d595d08e28b263c8c8b3308f1"
+    }
+  },
+  "actual_seat0": null,
+  "actual_selected_inputs": null,
+  "additions_contract": {
+    "bytes": 3917,
+    "sha256": "94f3f323544ec754d1fb15c920ff07e2d1ec268e78b2e28fbd38a4db30535ced"
+  },
+  "native16K": "NOT RUN",
+  "operation": "arm16k-virtio-seat-vm-v1",
+  "performance": "NOT MEASURED",
+  "release": false,
+  "schema_version": 1,
+  "shell_syntax": "PASS",
+  "source_lock": {
+    "bytes": 17904,
+    "sha256": "9a7927d5c726b34fe2653bb02771fba0b364b4bc9a7ca8f195da56c86e6f0366"
+  },
+  "status": "READY_SOURCE_ONLY_TOOL_ELIGIBILITY_HOLD",
+  "tool_eligibility": {
+    "actual_root_report": {
+      "bytes": 2402,
+      "sha256": "adf2be19889fff8dedf47fe9b4e1c0c3dfa9f91bc0e187a9b1741ed5d3ae0179"
+    },
+    "exact_image": "sha256:ee1aa3da22a5d89dc1bc273fa818b1d996b7e62851f50d7b629144f6bba9f207",
+    "fallback": "FORBIDDEN; separate reviewed successor required",
+    "missing_device": "virtio-gpu-device",
+    "status": "HOLD"
+  }
+}
