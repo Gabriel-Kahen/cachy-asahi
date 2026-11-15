@@ -85,6 +85,24 @@ def modeled_home():
  return reseal(a)
 
 class Controls(unittest.TestCase):
+ def test_actual_PT_INTERP_alias_pair_requires_same_loader_and_observed_alias(self):
+  canonical='/usr/lib/ld-linux-aarch64.so.1';alias='/lib/ld-linux-aarch64.so.1';baseline={'glibc':'ACTUAL-VERSION-MODEL','filesystem':'ACTUAL-FS-MODEL'};row=dict(bytes=201832,sha256='a'*64,mode=0o755,owner='glibc',version=baseline['glibc'],resolved=canonical)
+  value=dict(loader=alias,files={alias:copy.deepcopy(row),canonical:copy.deepcopy(row)},baseline_files={alias:copy.deepcopy(row),canonical:copy.deepcopy(row)},expected_payload=dict(aliases={'/lib':dict(target='usr/lib',owner='filesystem',version=baseline['filesystem'],mode=0o777,uid=0,gid=0)}))
+  self.assertTrue(K.interpreter_matches(value,canonical,baseline));self.assertTrue(K.interpreter_matches(value,alias,baseline));self.assertTrue(K.interpreter_matches(value,None,baseline))
+  reverse=copy.deepcopy(value);reverse['loader']=canonical;self.assertTrue(K.interpreter_matches(reverse,alias,baseline))
+  for kind in('target','hash','bytes','mode','owner','version','missing-alias','wrong-alias','alias-owner','alias-version','missing-file','missing-baseline','arbitrary','double-slash'):
+   bad=copy.deepcopy(value);interpreter=canonical
+   if kind in('target','hash','bytes','mode','owner','version'):
+    key={'target':'resolved','hash':'sha256'}.get(kind,kind);bad['files'][canonical][key]={'target':'/usr/lib/wrong.so','hash':'b'*64,'bytes':1,'mode':0o644,'owner':'filesystem','version':'OTHER'}[kind]
+   if kind=='missing-alias':bad['expected_payload']['aliases']={}
+   if kind=='wrong-alias':bad['expected_payload']['aliases']['/lib']['target']='usr/other'
+   if kind=='alias-owner':bad['expected_payload']['aliases']['/lib']['owner']='glibc'
+   if kind=='alias-version':bad['expected_payload']['aliases']['/lib']['version']='OTHER'
+   if kind=='missing-file':del bad['files'][canonical]
+   if kind=='missing-baseline':del bad['baseline_files'][canonical]
+   if kind=='arbitrary':interpreter='/tmp/ld-linux-aarch64.so.1'
+   if kind=='double-slash':interpreter='//usr/lib/ld-linux-aarch64.so.1'
+   with self.subTest(kind=kind),self.assertRaises(ValueError):K.interpreter_matches(bad,interpreter,baseline)
  def test_official_scratch_trust_certificate_packet_and_finite_gpg_envelope(self):
   a=modeled(dependency=True);K.validate(*a);rows=A.contents(a[0],dict(zip(K.EVIDENCE,a[2:])),pin('source'),'a'*32)
   conf=rows['dependency-pacman.conf'][0];self.assertIn(b'GPGDir = /run/arm16k-perl5423-vm/official-trust',conf);self.assertNotIn(b'GPGDir = /etc/pacman.d/gnupg',conf);self.assertIn(b'Required TrustedOnly',conf);self.assertEqual(len(rows['official-public-files.tsv'][0].splitlines()),3);self.assertEqual(rows['official-signer'][0],(K.ALARM_SIGNER+'\n').encode());self.assertIn('official-trust.sh',rows)

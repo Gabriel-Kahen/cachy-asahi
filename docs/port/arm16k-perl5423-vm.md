@@ -123,3 +123,10 @@ with the bounded transaction log retained in receipts. Existing logs remain
 append-only. `cmp` was removed: bounded stat+SHA256 equality now serves both guest
 paths and propagates failures, without post-removal language-runtime assumptions.
 These are source/control results; no guest/GPG/ALPM acceptance is supplied.
+
+
+The actual libc PT_INTERP uses the canonical /usr/lib loader while the selected
+loader uses /lib. Source admits that pair only with identical baseline loader
+bytes/size/mode/owner/version/resolved target and the exact filesystem-owned
+/lib alias. Literal ELF facts and all raw/pre-ALPM alias checks remain unchanged;
+arbitrary, missing-alias and mismatched loader inputs refuse.

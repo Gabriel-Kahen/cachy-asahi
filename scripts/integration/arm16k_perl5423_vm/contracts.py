@@ -118,6 +118,19 @@ def guest_path(value):
     return value
 
 
+def interpreter_matches(value, interpreter, baseline):
+    if interpreter is None:return True
+    guest_path(interpreter);guest_path(value['loader'])
+    if interpreter==value['loader']:return True
+    canonical='/usr/lib/ld-linux-aarch64.so.1'
+    need({interpreter,value['loader']}=={'/lib/ld-linux-aarch64.so.1',canonical},'only the observed AArch64 loader alias pair may differ')
+    files=value['files'];before=value['baseline_files'];rows=[files.get(p)for p in(interpreter,value['loader'],canonical)]
+    need(all(type(r)is dict for r in rows) and rows[0]==rows[1]==rows[2] and rows[0].get('resolved')==canonical and rows[0].get('owner')=='glibc' and rows[0].get('version')==baseline.get('glibc') and all(before.get(p)==files[p]for p in(interpreter,value['loader'],canonical)),'alternate PT_INTERP joins identical actual baseline loader bytes/mode/owner/version/canonical path')
+    alias=value.get('expected_payload',{}).get('aliases',{}).get('/lib')
+    need(baseline.get('filesystem')is not None and alias==dict(target='usr/lib',owner='filesystem',version=baseline['filesystem'],mode=0o777,uid=0,gid=0),'alternate loader requires exact observed filesystem /lib alias')
+    return True
+
+
 def root_cert(value, kind):
     need(type(value) is dict and value.get('kind') == kind and value.get('issued_by') == 'Root' and value.get('accepted') is True,
          'actual Root-issued accepted certificate: ' + kind)
@@ -278,7 +291,7 @@ def runtime(value, case, base):
         need(path in files and files[path]['sha256'] == elf.get('sha256') and files[path]['mode'] & 0o004, 'ELF joins ordinary-user readable file input closure')
         keys(elf, ('sha256', 'class', 'byte_order', 'machine', 'interpreter', 'needed', 'version_needs', 'providers', 'static_16k_geometry'), 'ELF facts')
         need(elf['class'] == 64 and elf['byte_order'] == 'little' and elf['machine'] == 183 and elf['static_16k_geometry'] is True and
-             (elf['interpreter'] is None or elf['interpreter'] == value['loader']), 'actual ARM16K ELF facts')
+             interpreter_matches(value,elf['interpreter'],base), 'actual ARM16K ELF facts')
         need(type(elf['needed']) is list and set(elf['providers']) == set(elf['needed']) and set(elf['version_needs']) <= set(elf['needed']), 'complete actual ELF provider closure')
         for soname, provider in elf['providers'].items():
             keys(provider, ('path', 'version_definitions'), 'ELF provider')

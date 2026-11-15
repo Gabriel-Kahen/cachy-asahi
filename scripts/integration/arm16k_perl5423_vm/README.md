@@ -449,3 +449,16 @@ The local `test_guest_data.sh` regression covers literal binary/empty/equal/
 different/missing/symlink operands and command failures, plus trusted/revoked
 policy DATA, without GPG/ALPM/VM execution. Frozen helper bytes remain unchanged;
 Root sources the reviewed comparison override after the frozen helpers.
+
+
+## Exact alternate AArch64 PT_INTERP
+
+An ELF's literal PT_INTERP may differ from the selected loader only for the actual
+`/lib/ld-linux-aarch64.so.1` and `/usr/lib/ld-linux-aarch64.so.1` pair. Both strict
+paths and the canonical path must join identical baseline/file bytes, size,
+mode, glibc owner/version and canonical resolved target. The expected-input
+certificate must retain the exact filesystem-owned `/lib -> usr/lib` alias with
+its observed baseline version/root metadata; ordinary raw and guest alias checks
+remain mandatory. Missing/wrong alias, differing target/hash/metadata or arbitrary
+paths refuse. ELF interpreter facts are preserved; no double-slash normalization
+or relaxed general guest-path grammar is introduced.
