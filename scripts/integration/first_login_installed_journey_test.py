@@ -26,6 +26,7 @@ def load(name, path):
 guest = load('installed_guest', HERE / 'first_login_installed_journey.py')
 local = load('local_package_intake', HERE / 'first_login.py')
 INPUTS = None
+TEMPLATE_PROFILE = guest.DEFAULT_TEMPLATE_PROFILE
 
 
 class InstalledGuestTests(unittest.TestCase):
@@ -49,7 +50,7 @@ class InstalledGuestTests(unittest.TestCase):
         self.paths.update(fish='/usr/bin/fish', zsh='/usr/bin/zsh', python3='/usr/bin/python3',
                           template_root=str(self.prefix / 'usr/share/cachy-asahi'),
                           template_owner=self.uid, user=self.user,
-                          template_sha256={name: guest.digest(raw) for name, raw in guest.TEMPLATE_CONTENT.items()})
+                          template_profile=TEMPLATE_PROFILE, template_sha256=dict(guest.TEMPLATE_HASHES[TEMPLATE_PROFILE]))
 
     def callback(self, step, argv, expected=0, cwd=None):
         self.assertEqual(argv[:6], ['/usr/bin/runuser', '-u', self.user, '--', '/usr/bin/env', '-i'])
@@ -62,6 +63,8 @@ class InstalledGuestTests(unittest.TestCase):
     def test_actual_extracted_payloads_execute_ordinary_user_no_pty_workflow(self):
         report = guest.run(self.paths, self.home, self.callback, self.uid, self.gid, label='local')
         self.assertEqual(report['status'], 'PASS')
+        self.assertEqual(report['template_profile'], TEMPLATE_PROFILE)
+        self.assertEqual(report['template_sha256'], guest.TEMPLATE_HASHES[TEMPLATE_PROFILE])
         self.assertEqual(report['command_count'], 27)
         self.assertEqual(report['shell_startups'], 10)
         self.assertEqual(report['pty'], 'NOT RUN')
@@ -74,7 +77,7 @@ class InstalledGuestTests(unittest.TestCase):
         self.assertEqual(next(row['returncode'] for row in records if row['step'] == 'local-interrupted-setup'), 75)
         self.assertEqual(next(row['returncode'] for row in records if row['step'] == 'local-pending-new-selection-refused'), 2)
         self.assertTrue(all(row['uid'] == self.uid and row['gid'] == self.gid for row in report['final_user_state'].values()))
-        for name, raw in guest.TEMPLATE_CONTENT.items():
+        for name, raw in guest.TEMPLATE_PROFILES[TEMPLATE_PROFILE].items():
             self.assertEqual((Path(self.paths['template_root']) / name).read_bytes(), raw)
 
     def test_changed_actual_template_refuses_before_first_user_command(self):
@@ -84,6 +87,19 @@ class InstalledGuestTests(unittest.TestCase):
             guest.run(self.paths, self.home, self.callback, self.uid, self.gid)
         self.assertEqual(caught.exception.first_login_result['ordered_steps'], [])
         self.assertEqual(list(self.home.iterdir()), [])
+
+    def test_finite_template_profiles_and_bad_profile_refuse_before_commands(self):
+        for name, content in guest.TEMPLATE_PROFILES.items():
+            self.assertEqual({key: guest.digest(raw) for key, raw in content.items()}, guest.TEMPLATE_HASHES[name])
+        legacy = dict(self.paths);legacy.pop('template_profile')
+        legacy['template_sha256'] = dict(guest.TEMPLATE_HASHES[guest.DEFAULT_TEMPLATE_PROFILE])
+        self.assertEqual(guest.template_profile(legacy)[0], guest.DEFAULT_TEMPLATE_PROFILE)
+        for changes in ({'template_profile': 'unreviewed'}, {'template_sha256': {**self.paths['template_sha256'], 'fish/config.fish': '0'*64}}):
+            with self.subTest(changes=changes), self.assertRaises(ValueError) as caught:
+                guest.run(dict(self.paths, **changes), self.home, self.callback, self.uid, self.gid)
+            self.assertEqual(caught.exception.first_login_result['ordered_steps'], [])
+            self.assertEqual(list(self.home.iterdir()), [])
+        self.assertEqual(len(self.runner.records), self.start)
 
     def test_root_identity_and_home_alias_are_refused_before_commands(self):
         with self.assertRaises(ValueError):
@@ -99,6 +115,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument('--inputs', type=Path, required=True)
     parser.add_argument('--inputs-sha256', required=True)
+    parser.add_argument('--template-profile', choices=tuple(guest.TEMPLATE_PROFILES), default=guest.DEFAULT_TEMPLATE_PROFILE)
     args, remaining = parser.parse_known_args()
     INPUTS = local.selection(args.inputs, args.inputs_sha256)
+    TEMPLATE_PROFILE = args.template_profile
     unittest.main(argv=[__file__, *remaining])

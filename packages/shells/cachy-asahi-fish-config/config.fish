@@ -17,6 +17,11 @@ if not functions -q caa_mcd
             printf '%s\n' 'Usage: caa_mcd DIRECTORY' >&2
             return 2
         end
-        command mkdir -p -- $argv[1]; and cd -- $argv[1]
+        # Resolve both operations here, even when CDPATH contains another match.
+        set -l caa_target "$argv[1]"
+        if test -n "$caa_target"; and not string match --quiet '/*' -- "$caa_target"
+            set caa_target "./$caa_target"
+        end
+        command mkdir -p -- "$caa_target"; and cd -- "$caa_target"
     end
 end

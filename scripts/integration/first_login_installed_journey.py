@@ -19,6 +19,21 @@ TEMPLATE_CONTENT = {
 }
 
 
+# Historical default is retained. Current rehearsal explicitly opts into Fish02.
+DEFAULT_TEMPLATE_PROFILE = 'fish0.1.0-1-zsh0.1.0-1'
+CURRENT_TEMPLATE_PROFILE = 'fish0.1.0-2-zsh0.1.0-1'
+TEMPLATE_PROFILES = {
+    DEFAULT_TEMPLATE_PROFILE: TEMPLATE_CONTENT,
+    CURRENT_TEMPLATE_PROFILE: {**TEMPLATE_CONTENT, 'fish/config.fish': b'# SPDX-License-Identifier: MIT\n# Original cachy-asahi opt-in helpers. No upstream CachyOS code is included.\n# Source explicitly from your own Fish config after existing customizations.\nif not status is-interactive\n    return\nend\n\nif not functions -q caa_ll\n    function caa_ll --description \'List all entries with details\'\n        command ls -alF -- $argv\n    end\nend\n\nif not functions -q caa_mcd\n    function caa_mcd --description \'Create one directory and enter it\'\n        if test (count $argv) -ne 1\n            printf \'%s\\n\' \'Usage: caa_mcd DIRECTORY\' >&2\n            return 2\n        end\n        # Resolve both operations here, even when CDPATH contains another match.\n        set -l caa_target "$argv[1]"\n        if test -n "$caa_target"; and not string match --quiet \'/*\' -- "$caa_target"\n            set caa_target "./$caa_target"\n        end\n        command mkdir -p -- "$caa_target"; and cd -- "$caa_target"\n    end\nend\n'},
+}
+TEMPLATE_HASHES = {
+    DEFAULT_TEMPLATE_PROFILE: {'fish/config.fish': '223df59fe83948e1d83676f4571cd2d4ce186862adf1cc23da6d5bbd28370a1c',
+                              'zsh/config.zsh': '7639b938dca689c445b64cc307148e2d3f85c5399d51c8ce69072dcf835baa6f'},
+    CURRENT_TEMPLATE_PROFILE: {'fish/config.fish': 'd26d8826c8a7e096a55d0a4b3eee8e67013d6c9b201971e89ca32e273c0847aa',
+                              'zsh/config.zsh': '7639b938dca689c445b64cc307148e2d3f85c5399d51c8ce69072dcf835baa6f'},
+}
+
+
 def require(value, message):
     if not value:
         raise ValueError(message)
@@ -59,14 +74,24 @@ def snapshot(home, uid, gid):
     return result
 
 
+def template_profile(paths):
+    selected = paths.get('template_profile', DEFAULT_TEMPLATE_PROFILE)
+    require(type(selected) is str and selected in TEMPLATE_PROFILES, 'unknown finite template profile')
+    content, expected = TEMPLATE_PROFILES[selected], TEMPLATE_HASHES[selected]
+    require(set(content) == set(expected) and all(digest(raw) == expected[name] for name, raw in content.items()),
+            'finite template profile source hash differs')
+    require(paths['template_sha256'] == expected, 'selected template hash profile differs')
+    return selected, content
+
+
 def templates(paths):
     root = Path(paths['template_root'])
     owner = paths.get('template_owner', 0)
     expected = paths['template_sha256']
     require(root.is_absolute() and root.resolve() == root and root.is_dir(), 'canonical template directory required')
-    require(set(expected) == set(TEMPLATE_CONTENT), 'exact selected template profile required')
+    _, content = template_profile(paths)
     result = {}
-    for relative, original in TEMPLATE_CONTENT.items():
+    for relative, original in content.items():
         path = root / relative
         for parent in (root, path.parent):
             row = parent.lstat()
@@ -93,6 +118,8 @@ def run(paths, home, run, uid, gid, label='first-login'):
               'recovery_scope': 'delivered Setup8 process exits75 after its first durable Fish write; real journal replay, not power-loss recovery'}
     try:
         require(type(uid) is int and type(gid) is int and uid > 0 and gid > 0, 'ordinary non-root UID/GID required')
+        selected, _ = template_profile(paths)
+        report.update(template_profile=selected, template_sha256=dict(TEMPLATE_HASHES[selected]))
         require(re.fullmatch('[a-z0-9][a-z0-9-]{0,47}', label), 'bounded command label required')
         user = paths.get('user', 'alarm')
         require(re.fullmatch('[a-z_][a-z0-9_-]{0,31}', user), 'explicit ordinary account required')

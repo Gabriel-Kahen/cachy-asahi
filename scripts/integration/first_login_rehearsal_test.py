@@ -18,11 +18,18 @@ OUTPUT = None
 class BuildAndRehearseTests(unittest.TestCase):
     def test_actual_four_recipe_assembly_and_real_shell_recovery(self):
         self.assertIsNotNone(ROOT, 'Run explicitly with --build-and-rehearse-test and --output')
-        report = rehearsal.execute(ROOT, OUTPUT)
+        report = rehearsal.execute(ROOT, OUTPUT, installed_guest_controls=True)
         self.assertEqual(report['status'], 'PASS')
         self.assertTrue(report['temporary_build_state_removed'])
+        self.assertEqual(report['installed_guest_controls']['status'], 'PASS')
+        self.assertEqual(report['installed_guest_controls']['template_profile'], 'fish0.1.0-2-zsh0.1.0-1')
+        self.assertEqual(report['installed_guest_controls']['template_sha256']['fish/config.fish'],
+                         rehearsal.journey.sha(ROOT / 'packages/shells/cachy-asahi-fish-config/config.fish'))
         self.assertFalse(list(OUTPUT.glob('private-build-*')))
         self.assertEqual(set(report['builds']), set(rehearsal.RECIPES))
+        self.assertEqual(report['builds']['fish']['version'], '0.1.0-2')
+        self.assertEqual(report['builds']['fish']['sources']['config.fish'],
+                         rehearsal.journey.sha(ROOT / 'packages/shells/cachy-asahi-fish-config/config.fish'))
         self.assertEqual(report['recipe_check_functions'], 'NOT RUN (--nocheck)')
         self.assertEqual(report['dependency_resolution'], 'NOT RUN (--nodeps)')
         self.assertEqual(report['journey']['commands'], 41)

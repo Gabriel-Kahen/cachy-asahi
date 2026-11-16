@@ -24,9 +24,10 @@ spec.loader.exec_module(journey)
 RECIPES = {
     'first_login': ('packages/tools/cachy-asahi-first-login', '0.1.0-2'),
     'setup': ('packages/tools/cachy-asahi-setup8', '0.3.0-1'),
-    'fish': ('packages/shells/cachy-asahi-fish-config', '0.1.0-1'),
+    'fish': ('packages/shells/cachy-asahi-fish-config', '0.1.0-2'),
     'zsh': ('packages/shells/cachy-asahi-zsh-config', '0.1.0-1'),
 }
+TEMPLATE_PROFILE = 'fish0.1.0-2-zsh0.1.0-1'
 SOURCE_DATE_EPOCH = 1794614400  # 2026-11-14 00:00 UTC, fixed for this finite recipe set.
 
 
@@ -151,9 +152,13 @@ def execute(root, output, installed_guest_controls=False):
                 runner.cwd = scratch
                 runner.run('installed-guest-controls', ['/usr/bin/python3', '-I', '-B',
                            '-Werror::ResourceWarning', controls, '--inputs', selection_path,
-                           '--inputs-sha256', report['derived_inputs_sha256'], '-v'])
+                           '--inputs-sha256', report['derived_inputs_sha256'], '--template-profile', TEMPLATE_PROFILE, '-v'])
                 report['installed_guest_controls'] = {
                     'status': 'PASS', 'entry_sha256': journey.sha(controls),
+                    'template_profile': TEMPLATE_PROFILE,
+                    'journey_entry_sha256': journey.sha(root / 'scripts/integration/first_login_installed_journey.py'),
+                    'template_sha256': {name + '/config.' + suffix: report['builds'][name]['sources']['config.' + suffix]
+                                        for name, suffix in (('fish', 'fish'), ('zsh', 'zsh'))},
                     'scope': 'actual extracted payloads as the current ordinary user; no root-to-alarm switch',
                 }
         report.update(status='PASS', temporary_build_state_removed=True)
