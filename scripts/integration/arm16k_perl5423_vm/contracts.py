@@ -27,7 +27,7 @@ HARDLINKS = {'/usr/bin/core_perl/perlthanks':'/usr/bin/core_perl/perlbug', '/usr
 ALPM_DEPENDS = ['glibc','gdbm>=1.17','db5.3','libxcrypt','libcrypt.so=2-64','bzip2','zlib']
 MATERIALS = ('archive', 'signature', 'public_TEST_certificate', 'signing_receipt')
 EVIDENCE = ('baseline_certificate', 'runtime_certificate', 'resource_certificate', 'Root_decision', 'installed_Reader', 'installed_component_decision')
-TOOLS = tuple('base64 bash cat chmod chown comm cp cut date env find getconf getfattr gpg gpgconf grep head id install mkdir pacman readlink rm rmdir sed sha256sum sleep sort stat sync timeout touch tr uname wc xargs'.split())
+TOOLS = tuple('base64 bash cat chmod chown comm cp cut date env find getconf getfattr gpg gpgconf grep head id install mkdir mv pacman readlink rm rmdir sed sha256sum sleep sort stat sync timeout touch tr uname wc xargs'.split())
 COMMANDS = tuple('corelist json_pp perldoc pod2text podchecker prove shasum splain'.split())
 PERL_ELFS = ('/usr/bin/perl', '/usr/lib/perl5/5.42/core_perl/CORE/libperl.so',
  '/usr/lib/perl5/5.42/core_perl/auto/DB_File/DB_File.so',

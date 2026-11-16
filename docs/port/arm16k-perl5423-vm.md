@@ -294,3 +294,36 @@ reproducer is control evidence only. The coordinator must combine the separate
 guest-progress change and refresh the closed Source lock before any new role;
 this controller commit deliberately leaves that lock unchanged. Native/M2 and
 runtime/Root acceptance are not supplied by these controls.
+
+
+The installed-metadata successor combines the bounded readonly helper and Root
+phase checkpoints in one source family. The packet now copies and sources
+`installed-metadata.sh`; after the unchanged installed inventory/version,
+`pacman -Dk`, payload SHA256 and runtime-path gates, Root enters
+`installed_metadata` and verifies node kind/mode/UID/GID, symlink targets,
+hardlinks, canonical-parent ownership and complete Perl membership. One global
+`pacman -Ql` projection and one `-Qlq perl` inventory replace per-node `-Qoq`.
+Coreutils calls use at most128 operands/16KiB path bytes; the helper rechecks
+collected node/link facts before success. Private scratch streams are removed;
+only the original `added.paths` receipt enters the unchanged durable allowlist.
+
+Phase checkpoints are fixed nonce-bound public metadata, at most128 bytes and
+20 writes, published with atomic rename. On a readiness timeout the probe may
+report the last safely observed phase outside the protocol frames; that
+observation neither identifies a failing command nor changes the HOLD reason.
+Root removes checkpoint and temporary records before publishing restored PASS.
+The helper contract now explicitly requires `/usr/bin/mv` in the exact runtime
+vector and identical preserved `baseline_files`/`files` records. Root's retained
+baseline input DATA identifies coreutils9.11-2 `mv`,199104B,
+SHA5f8961fa59c447798ab5124045358083e668fbf3c66aa7f8cc474622c89cb5d1;
+it is pending fresh preparation recheck and is not a runtime certificate or
+host-tool substitution. Root must issue the new certificate separately.
+
+Immutable Source49 and consumed case6 remain a closed HOLD: the installed-ready
+wait expired at400 seconds, producer elapsed437.256 seconds, and QMP reported
+a44-byte write followed by first-read TimeoutError. This source integration
+neither modifies nor replays that trial. The existing boot1200/outer1350 and
+probe budgets, package pathsets, protected users, trust, recovery and preservation
+gates remain unchanged. Portable/filesystem and optional private readonly ALPM
+controls provide source evidence only; no worker actor, VM, package transaction,
+new runtime acceptance, native16K, M2 or release qualification is supplied.

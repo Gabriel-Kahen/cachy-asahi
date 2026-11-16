@@ -60,6 +60,25 @@ relay_root_summary() {
  printf '\n' || return
  printf '%s\n' "${summary_lines[@]}"
 }
+# Report only an observed last checkpoint, outside all PASS/HOLD frames. Never
+# infer failure cause from it; missing/unsafe/changing metadata is ignored.
+relay_last_root_phase() {
+ local path=$D/root-phase.checkpoint before after bytes line name first second rendered
+ [[ -d $D && ! -L $D && $(stat -c '%u:%g:%a' -- "$D") == 0:0:755 && -f $path && ! -L $path ]] || return 1
+ before=$(stat -c '%u:%g:%h:%a:%s:%d:%i:%y:%z' -- "$path") || return 1
+ [[ ${#before} -le 256 && $before =~ ^0:0:1:644:([0-9]+):[0-9]+:[0-9]+:.+$ ]] || return 1
+ bytes=${BASH_REMATCH[1]};(( bytes > 0 && bytes <= 128 )) || return 1
+ first=$(head -c 129 -- "$path" | sha256sum) || return 1
+ line=$(head -c 129 -- "$path") || return 1
+ name=${line##* }
+ case "$name" in guard|rtc_clock|users|baseline|trust|dependency_install|official_trust|install|installed_payload|installed_metadata|probe_wait|retain_outputs|recovery|cache_restoration|restoration) :;;*) return 1;;esac
+ [[ $nonce =~ ^[0-9a-f]{32}$ && $line == "PERL5423_ROOT_PHASE_V1 $nonce $name" && $bytes == $((${#line}+1)) ]] || return 1
+ rendered=$(printf '%s\n' "$line" | sha256sum) || return 1
+ second=$(head -c 129 -- "$path" | sha256sum) || return 1
+ after=$(stat -c '%u:%g:%h:%a:%s:%d:%i:%y:%z' -- "$path") || return 1
+ [[ $before == "$after" && $first == "$second" && $first == "$rendered" ]] || return 1
+ printf '\nPERL5423_LAST_ROOT_PHASE %s %s\n' "$nonce" "$name"
+}
 wait_for_case() {
  local kind=$1 end=$((SECONDS+probe_wait_seconds)) rc
  [[ $kind == installed || $kind == restored ]] || return 2
@@ -74,6 +93,7 @@ wait_for_case() {
   if [[ $kind == installed && $summary_state == ABSENT && -f $O/installed ]];then return 0;fi
   if (( SECONDS >= end ));then
    if [[ $kind == installed ]];then failure_phase=install_ready_timeout;else failure_phase=restoration_ready_timeout;fi
+   relay_last_root_phase || :
    return 1
   fi
   sleep 1 || return
