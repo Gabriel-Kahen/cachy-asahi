@@ -1,0 +1,137 @@
+{
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "image": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "baseline_packages": 349,
+  "cancel_in_progress": false,
+  "claims": {
+    "hardware_tested": false,
+    "installed": false,
+    "native_built": false,
+    "performance_measured": false,
+    "release_admitted": false,
+    "stage0_runtime_qualified": false
+  },
+  "class": "HEAVY_NON_KERNEL",
+  "copy_up_cause": "UNPROVEN_OWNER_STATE_NOT_CAPTURED_IN_LLVM_V1",
+  "external_image_provisioning": null,
+  "external_material_transport": null,
+  "final_image_inventory": "ROOT_ACTUAL_PRIVATE_LLVM_PACKAGE_INSTALLED_COUNT_NOT_ASSUMED_349",
+  "llvm_input_rejoin": {
+    "policy": {
+      "bytes": 1114,
+      "sha256": "e69b47708f171a63b7fcdcc413d6b53070f047e7240723f06115c02049c8b544"
+    },
+    "reader_program": {
+      "bytes": 15764,
+      "path": "hosted/reader.py",
+      "sha256": "b939343e3607b985e79c70c8f420e1a26dadf8433242d17df11b8b5be21eacb1"
+    },
+    "revision": 3,
+    "root_decision_required": true,
+    "runtime": {
+      "job": null,
+      "original": null,
+      "package": null,
+      "reader": null,
+      "root_acceptance": null,
+      "run": null
+    },
+    "source_identity": {
+      "bytes": 40807998,
+      "files": 251,
+      "map_sha256": "809f57839dfd574b7abf0c65535321aeac08c58608d4f9597f936a7af78fb3a2",
+      "operation": "llvm23-source-reference-native-v2",
+      "profile_sha256": "587145a6935726e7efe898963f126da1fe399dbde157930f83a1826e5e513e4b",
+      "ref": "refs/heads/codex/llvm23-source-reference-native-v2-20261115",
+      "sha": "6d0243dc8f5cf4ee5b9316b8c804f14a3236ecb0",
+      "tree": "87f5aa3537474c2dd33a02c50e869ea5fb25e7b4"
+    }
+  },
+  "native_successor_v4": {
+    "actual": {
+      "approval": null,
+      "artifact": null,
+      "image": null,
+      "job": null,
+      "ref": null,
+      "run": null,
+      "source": null
+    },
+    "dispatch_inputs": [
+      "source_sha",
+      "source_map_sha256",
+      "approval_sha256",
+      "root_admission_sha256",
+      "root_admission_json",
+      "operation"
+    ],
+    "llvm_identity": {
+      "bytes": 40862047,
+      "files": 253,
+      "map_sha256": "5c19a2699856e081712d159c551ce496919938bd456f2182c0c905f03cbd2ef0",
+      "operation": "llvm23-source-reference-native-v2",
+      "profile_sha256": "aa5e19a9df3da4dbead98ca975a2f791c7a1995cbad398ec76be5231999b6d35",
+      "ref": null,
+      "sha": null,
+      "tree": "2f90eaaaa532d14574c0ce1f1c93b02310f44d91"
+    },
+    "pending": "LLVM253_SUPERSEDED_CAPFIX_SOURCE_REJOIN_REQUIRED_BEFORE_PUBLICATION_OR_RUN",
+    "provider_ids": "JOIN_ACTUAL_RUN_AND_PHASE_JOB_INSIDE_WORKFLOW_BEFORE_PRODUCER",
+    "resource_policy": {
+      "bytes": 1615,
+      "sha256": "43d6dd01534530dede9d3e58e78bf296e625d7ada2804b3c1e06adf2823dbb3b"
+    },
+    "status": "SOURCE_CHECKPOINT_ONLY"
+  },
+  "operation": "rust199-source-reference-native-v1",
+  "resources": {
+    "active_host_disk_reserve_bytes": 8589934592,
+    "active_host_memory_reserve_bytes": 4294967296,
+    "build_actor_seconds": 16200,
+    "cleanup_seconds": 300,
+    "cpus": 2,
+    "export_bytes": 4294967296,
+    "job_minutes": 360,
+    "log_bytes": 67108864,
+    "memory_bytes": 8589934592,
+    "memory_swap_bytes": 8589934592,
+    "minimum_host_available_inodes": 1000000,
+    "minimum_host_disk_bytes": 85899345920,
+    "minimum_host_memory_bytes": 12884901888,
+    "native_seconds": 19800,
+    "package_bytes": 2147483648,
+    "pids": 512,
+    "prepare_actor_seconds": 900,
+    "swap_bytes": 0
+  },
+  "schema": 1,
+  "shared_native_lane": "native-arm-build",
+  "status": "SOURCE_AUDIT_AND_DATA_CONTROLS_ONLY_NOT_EXECUTED",
+  "work_volume_initialization": {
+    "budget": {
+      "additional_actors": 0,
+      "additional_seconds": 0,
+      "cap_add": [
+        "CHOWN"
+      ],
+      "cpus": 2,
+      "memory_bytes": 134217728,
+      "pids": 32,
+      "recursive": false,
+      "seconds": 60,
+      "swap_bytes": 0,
+      "user": "0:0"
+    },
+    "nocopy": "ALL_WORK_VOLUME_REFERENCES",
+    "original_candidate_and_stage0_unchanged": true,
+    "preentry": "OUTER_PREPARE_EMPTY_AND_MAIN_NONEMPTY_SAME_INODE_OWNER_MODE_WRITABLE",
+    "revision": 2
+  }
+}

@@ -1,0 +1,2 @@
+# Preserve exact upstream notice bytes, including terminal blank lines.
+records/notices/** -whitespace

@@ -1,0 +1,113 @@
+{
+  "hardware": "NOT RUN",
+  "measurement": {
+    "compression_level": 6,
+    "correctness_slots": 2,
+    "current_image": null,
+    "current_run": null,
+    "current_source": null,
+    "excluded_warmup_slots": 4,
+    "execution_context": "virtual",
+    "iterations": 4,
+    "measured_slots": 12,
+    "measurement_scope": "GENERIC_HOSTED_ARM_ZLIB_PGO_V1",
+    "minimum_trials": 6,
+    "order": [
+      "baseline",
+      "candidate",
+      "candidate",
+      "baseline",
+      "candidate",
+      "baseline",
+      "baseline",
+      "candidate",
+      "baseline",
+      "candidate",
+      "candidate",
+      "baseline"
+    ],
+    "payload_bytes": 16777216,
+    "payload_definition": "Repeat unchanged validation.bin four times",
+    "sample_seconds": 0.1,
+    "session_seconds": 900,
+    "thresholds": {
+      "maximum_elapsed_range_pct": 25,
+      "maximum_regression": {},
+      "minimum_elapsed_improvement_pct": 5
+    },
+    "total_slots": 18,
+    "trial_seconds": 45
+  },
+  "optimization_acceptance": "NOT RUN",
+  "performance_acceptance": "NOT GRANTED",
+  "purpose": "ZLIB_PGO_V1_FIXED_TRAINING_AND_INDEPENDENT_VALIDATION",
+  "release": "NOT_ADMITTED",
+  "schema": 1,
+  "separation": {
+    "construction": "Training generator uses only original text, fixed records and an independent SHA256 counter seed; no heldout bytes, hashes or sections influence generated training bytes",
+    "meaning": "Independent construction and role isolation; not a claim that arbitrary byte values or short substrings never overlap",
+    "training_input_allowlist": [
+      "training.bin",
+      "pinned test/example.c fixed literals"
+    ],
+    "validation_during_instrumentation": "FORBIDDEN"
+  },
+  "source_zlib_sha256": "bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16",
+  "training": {
+    "bytes": 262144,
+    "license": "MIT",
+    "path": "training.bin",
+    "prohibited_inputs": [
+      "validation.bin",
+      "heldout-source.bin",
+      "mixed.bin"
+    ],
+    "recipe": {
+      "counter_encoding": "uint32-big-endian",
+      "counter_seed_hex": "63616368792d61736168692d7a6c69622d70676f2d76312d747261696e696e672d636f756e7465723a",
+      "sha256_counter_blocks": 2048,
+      "structured_prefix_bytes": 65536,
+      "text_prefix_bytes": 131072,
+      "version": 1
+    },
+    "role": "training-only",
+    "sha256": "a6e84ea4cf12d2152fd408cea20bc2a395d4308f06683d13fc4909ae7ad46af6",
+    "upstream_fixed_literal_programs": {
+      "test/example.c": "be1b050aad808cdb016c01f42568d3a62ee37dd7b2b56bef0ade21be8d9fee0d"
+    }
+  },
+  "validation": {
+    "bytes": 4194304,
+    "license": "Public zlib source/doc sections retain upstream Zlib notices; synthetic sections MIT project",
+    "origin": "c01-paired-runtime source fc45bef5493afc1fbc5ee0a1fc0537275a4e90d6 fixed mixed4MiB corpus; unchanged bytes",
+    "path": "validation.bin",
+    "role": "independent-validation-and-measurement-only",
+    "sections": [
+      {
+        "bytes": 1048576,
+        "name": "public-zlib-source",
+        "offset": 0,
+        "sha256": "7ec5549498d34ca0a27b05a5045e474c561d09942b5af1f665ca60eb527f5dca"
+      },
+      {
+        "bytes": 1048576,
+        "name": "structured-records",
+        "offset": 1048576,
+        "sha256": "48dc12d1dfcc06a6a1535b25eddedf7cdd61cec010d253e4be388fef75567ae7"
+      },
+      {
+        "bytes": 1048576,
+        "name": "binary-ramp",
+        "offset": 2097152,
+        "sha256": "d0d5ce74c58ce0e93a8ea778171f293bed4c1b7b47701afd6bd8263fab1df3cf"
+      },
+      {
+        "bytes": 1048576,
+        "name": "seeded-high-entropy",
+        "offset": 3145728,
+        "sha256": "88aac3cba4d1c80deb950a516cb697e730df9a80fffaf187350142b700e4816c"
+      }
+    ],
+    "sha256": "e178d56b3a6d0af1900f8e3a1b668549793b48d0ae35c24e730b9a39992604bf"
+  }
+}
