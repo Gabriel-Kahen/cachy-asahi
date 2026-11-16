@@ -43,6 +43,7 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_perl5423_vm/test_probe_readiness.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_perl5423_vm/test_probe_diagnostics.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_perl5423_vm/test_runtime_lifetimes.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_perl5423_vm/test_natural_retirement.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_perl5423_vm/test_installed_metadata.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_perl5423_vm/test_root_progress.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_perl5423_vm/test_git_roundtrip.py

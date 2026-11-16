@@ -498,8 +498,8 @@ This is a probe lifetime correction, not a package thread-safety qualification.
 A bounded host matrix on Perl5.42.2/Bzip2 2.213/Zlib2.222 reproduced SIGABRT
 with original or quiet live streams, including either compression family alone.
 Both lexical-scope variants passed roundtrip plus thread join. This supports
-the lifetime diagnosis; the exact candidate's corrected ARM16K behavior remains
-unexecuted. The recipe still performs actual DT_NEEDED checks, then the full
+the lifetime diagnosis. At that time the exact candidate's corrected ARM16K
+behavior was unexecuted; the later Source54/case9 observation is recorded below. The recipe still performs actual DT_NEEDED checks, then the full
 `TEST_JOBS=2 make test_harness`, then check_config; no recipe/test exclusion changes.
 
 `test_runtime_lifetimes.py` runs only installed HOST core-module APIs in fresh
@@ -511,3 +511,46 @@ full target Config/module/XS/libperl/path checks and success frame stay intact.
 These checks provide HOST API/lifetime evidence only; no candidate ARM16K,
 restoration, M2, performance or release acceptance follows. New Source and case
 authorities require separate Root issuance; unissued selectors remain NULL.
+
+
+### Postboot actor failure diagnostics (Source55 successor)
+
+Retained Source54/case9 reached genuine INSTALLED, all12 PROBE checks and RESTORED
+PASS frames on aarch64/16384, then observed normal PAM logout. Its final controller
+and outer outcome is CLOSED HOLD, with no VM/runtime/Root qualification. Docker
+wait's CLI exited0 but stdout was exactly `1\n`; inspect independently recorded
+container ExitCode1/OOMKilled=false. QEMU and readback-convert, journal-copy-only,
+and readback-readonly-fsck receipts each record natural exit0. The stopped actor
+failed after those commands and before preservation/results export. The retained
+fsck stdout includes free-block/inode count warnings despite that command's
+recorded exit0; these words do not identify the later Python exception. The old
+Source/case/output remains immutable and its exact post-fsck cause is UNKNOWN.
+
+The prior actor allowed uncaught postboot exceptions to escape only to unattached
+Docker logging, which was not retained before owned container removal. The new
+actor writes only fixed `actor-failure.json` (at most4096 bytes, exclusive0600)
+when an admitted phase raises, then rethrows the original exception. A finite
+postboot stage identifies QEMU, conversion, journal replay, readonly fsck, either
+scan, preservation, retention, trust absence, report write or scratch removal.
+The reason is an allowlisted public category/code/message. Unknown exception
+text, credentials, environment and arbitrary absolute/private paths are omitted;
+only sanitized already-certified `/usr` runtime operands may accompany the three
+known path-bearing preservation reasons. No raw image or Docker log is exported.
+
+On failed actor completion, the controller accepts this diagnostic only after
+same nonce/Source/phase joins and a whole bounded stable read of an ordinary own-
+UID/GID, single-link0600 file. Canonical schema, fixed stages/reasons and NULL
+acceptance are mandatory; malformed, truncated, changed, aliased or mismatched
+DATA refuses. The report records CAPTURED/ABSENT/REFUSED diagnostic state. It
+still applies the identical zero-exit/nonrunning/non-OOM actor gate and natural
+QEMU/retirement checks. A diagnostic never changes HOLD to PASS. Guest-HOLD
+priority, fixed command arguments, time/output/resource caps and all restoration,
+preservation, trust and later Root qualification gates remain unchanged.
+
+`test_natural_retirement.py` models the actual boot function through readonly
+fsck, fails the next scan, verifies the bounded retained receipt and original
+exception identity, and exercises unsafe/mismatched/changed DATA refusals. It
+opens no actual image/credential/key home, executes no Docker/GPG/VM or lease,
+and supplies no fresh Root evidence. Source55 still requires separate Root
+publication, review and a new once-only case; it does not repair or qualify the
+unknown Source54 postboot failure merely by retaining future diagnostics.
