@@ -1,0 +1,456 @@
+{
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "image": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "candidate": {
+    "commit": "dd6871d566661c4fe9eba055ae19e1e017e0b69d",
+    "files": {
+      ".SRCINFO": {
+        "bytes": 2334,
+        "mode": 420,
+        "sha256": "3c1a0b1fca2224f3bc0e48f4c3e75c01307b979ed1f0fb055dbcad7460d72f48"
+      },
+      "LICENSE.packaging": {
+        "bytes": 1081,
+        "mode": 420,
+        "sha256": "b8f5f697f7e16eb59a3fb83868aad10d19c918e212aa196d1716c3df21ee20db"
+      },
+      "PKGBUILD": {
+        "bytes": 2409,
+        "mode": 420,
+        "sha256": "cd19d48e2ddf3a097e7462940dadfd8927d963cd55a9b18e33cdc5274b596c5c"
+      },
+      "README.md": {
+        "bytes": 3199,
+        "mode": 420,
+        "sha256": "7317d886451f8987ce502239b99429333885636f347c5ff2788a4b4e3bf7ed8f"
+      },
+      "admission.example.json": {
+        "bytes": 902,
+        "mode": 420,
+        "sha256": "ea62ed79e7911146e85c551d22fd8c9069e46c7d2ebc6f79873cc85986b87790"
+      },
+      "bootstrap.toml": {
+        "bytes": 1600,
+        "mode": 420,
+        "sha256": "504ccbfc112d0258059f1d105c69fe0fb104331f232aaf93b096777bb24447fb"
+      },
+      "inputs.json": {
+        "bytes": 4565,
+        "mode": 420,
+        "sha256": "4011253ed366f871b1f5e2cac1f5af0dc63049c1fa7badd293318adb44741672"
+      },
+      "notice-catalogue.DATA.json": {
+        "bytes": 733756,
+        "mode": 420,
+        "sha256": "1c477c7481df39c1b8b8e82edf73f8df99c63e3f7657e440393b6c812c8d421c"
+      },
+      "notice_preservation.py": {
+        "bytes": 8167,
+        "mode": 420,
+        "sha256": "754ce0a4018a16b94ad3827b314f967fba135793bfdda399a67dd02560899215"
+      },
+      "reference.py": {
+        "bytes": 21718,
+        "mode": 420,
+        "sha256": "acb468c2a2ddf327d882835590facabdc89939131ba8c51ae35028688693c665"
+      },
+      "test_reference.py": {
+        "bytes": 15725,
+        "mode": 420,
+        "sha256": "3d1a016c80a463e46322e0aab1a9b2678dbc708e216872bfc5b87cf79d926f61"
+      }
+    },
+    "notice_binding": {
+      "audit_seal_sha256": "d66d49a2734e79c6f9d1f5a57fda98ab519d39016483da0f4f88a0f626576fd9",
+      "base_candidate_map_pin": {
+        "bytes": 1470,
+        "sha256": "355293f0cc318f40ce6e96e831b294888f7d2fe87bf306571e5df85cbdfb2aec"
+      },
+      "base_commit": "dd6871d566661c4fe9eba055ae19e1e017e0b69d",
+      "catalogue_sha256": "1c477c7481df39c1b8b8e82edf73f8df99c63e3f7657e440393b6c812c8d421c",
+      "files": 11,
+      "files_pin": {
+        "bytes": 1602,
+        "sha256": "3c4efd6ddbe30caf79196bbdbead178fe10750be0104beba2f791505726c9e67"
+      },
+      "holds_preserved": true,
+      "kind": "RUST199_NOTICE_PRESERVATION_CANDIDATE_V7",
+      "schema": 1,
+      "tree": "16fc80733ba831a426fc54363ec8cff6dfe54110"
+    }
+  },
+  "holds": {
+    "ARM_M2_16K_performance_release": "NOT_TESTED_OR_ADMITTED",
+    "original_binary_recipe_correspondence": {
+      "compiler-rt": {
+        "original_sha256": "a08be2c30265ea1dcf95931d8e03f08dd5ff90e1cc1f092bd659f2687aa5d06c",
+        "status": "UNRESOLVED"
+      },
+      "lld": {
+        "original_sha256": "96344e325a4cb35f32f316a36e3e23507abb8b0c3ffe1c4b615f7f804fc9fb06",
+        "status": "UNRESOLVED"
+      },
+      "llvm/llvm-libs": {
+        "original_sha256": "7c6a21c0d9b125e981011016635541c970552776caa52b58c88b61d32feee5c9",
+        "status": "UNRESOLVED"
+      },
+      "rust": {
+        "original_sha256": "ef3fac9176e2a3698314d616e56d88b2df64d057ee7e9dfa13c98eb980a345fa",
+        "status": "UNRESOLVED"
+      }
+    },
+    "source_payload_license_completeness": "HELD; all existing license108 and related holds preserved"
+  },
+  "llvm_input_rejoin": {
+    "policy": {
+      "bytes": 1114,
+      "sha256": "e69b47708f171a63b7fcdcc413d6b53070f047e7240723f06115c02049c8b544"
+    },
+    "reader_program": {
+      "bytes": 15764,
+      "path": "hosted/reader.py",
+      "sha256": "b939343e3607b985e79c70c8f420e1a26dadf8433242d17df11b8b5be21eacb1"
+    },
+    "revision": 3,
+    "root_decision_required": true,
+    "runtime": {
+      "job": null,
+      "original": null,
+      "package": null,
+      "reader": null,
+      "root_acceptance": null,
+      "run": null
+    },
+    "source_identity": {
+      "bytes": 40807998,
+      "files": 251,
+      "map_sha256": "809f57839dfd574b7abf0c65535321aeac08c58608d4f9597f936a7af78fb3a2",
+      "operation": "llvm23-source-reference-native-v2",
+      "profile_sha256": "587145a6935726e7efe898963f126da1fe399dbde157930f83a1826e5e513e4b",
+      "ref": "refs/heads/codex/llvm23-source-reference-native-v2-20261115",
+      "sha": "6d0243dc8f5cf4ee5b9316b8c804f14a3236ecb0",
+      "tree": "87f5aa3537474c2dd33a02c50e869ea5fb25e7b4"
+    }
+  },
+  "native_successor_v4": {
+    "actual": {
+      "approval": null,
+      "artifact": null,
+      "image": null,
+      "job": null,
+      "ref": null,
+      "run": null,
+      "source": null
+    },
+    "dispatch_inputs": [
+      "source_sha",
+      "source_map_sha256",
+      "approval_sha256",
+      "root_admission_sha256",
+      "root_admission_json",
+      "operation"
+    ],
+    "llvm_identity": {
+      "bytes": 40862047,
+      "files": 253,
+      "map_sha256": "5c19a2699856e081712d159c551ce496919938bd456f2182c0c905f03cbd2ef0",
+      "operation": "llvm23-source-reference-native-v2",
+      "profile_sha256": "aa5e19a9df3da4dbead98ca975a2f791c7a1995cbad398ec76be5231999b6d35",
+      "ref": null,
+      "sha": null,
+      "tree": "2f90eaaaa532d14574c0ce1f1c93b02310f44d91"
+    },
+    "pending": "LLVM253_SUPERSEDED_CAPFIX_SOURCE_REJOIN_REQUIRED_BEFORE_PUBLICATION_OR_RUN",
+    "provider_ids": "JOIN_ACTUAL_RUN_AND_PHASE_JOB_INSIDE_WORKFLOW_BEFORE_PRODUCER",
+    "resource_policy": {
+      "bytes": 1615,
+      "sha256": "43d6dd01534530dede9d3e58e78bf296e625d7ada2804b3c1e06adf2823dbb3b"
+    },
+    "status": "SOURCE_CHECKPOINT_ONLY"
+  },
+  "operation": "rust199-source-reference-native-v1",
+  "schema": 1,
+  "stage0_intake": {
+    "archive_bytes": 108298076,
+    "candidate_join": "SAME_THREE_ARCHIVE_PINS_ONLY_NOT_QUALIFICATION_OF_DD6871D5",
+    "files": {
+      ".gitattributes": {
+        "bytes": 103,
+        "mode": 420,
+        "sha256": "56ef216483f1026aa41bee323a10828263efafd61148c1cb232305c3ad37e7df"
+      },
+      "README.md": {
+        "bytes": 2909,
+        "mode": 420,
+        "sha256": "b6fed000e76e3e71972fb69e82d679cf039008db5a3d2fad412ebc9a7100acc0"
+      },
+      "acquire.py": {
+        "bytes": 8057,
+        "mode": 420,
+        "sha256": "e03831774be747186e194301bcc13cce5cc2c805e42f4bf42aeb3cda07302843"
+      },
+      "acquisition.json": {
+        "bytes": 3328,
+        "mode": 420,
+        "sha256": "92b58363898e7e5fa9296152e0d083147a34ea4fce9483be003c718d3676aca8"
+      },
+      "audit-runs.json": {
+        "bytes": 404,
+        "mode": 420,
+        "sha256": "9c2076c2cadfda4ff3be6712ac52f89dfc1fb95dd0836432fa275ca1b4a972d7"
+      },
+      "audit.py": {
+        "bytes": 13841,
+        "mode": 420,
+        "sha256": "44b43766a059f5224ba897a313d3c68971390fd7ecc6a664c3635cc1f65a0f7d"
+      },
+      "data-admission.json": {
+        "bytes": 10364,
+        "mode": 420,
+        "sha256": "94fee5eee5cb496e4a3777a13eead350f64c4bf2d32e711dff9207283edc3d5c"
+      },
+      "evidence-pins.json": {
+        "bytes": 5637,
+        "mode": 420,
+        "sha256": "a856f127eece4f160cfb82f310ecda99ffb1f0d6f7385ea2fbd0009f69148eb2"
+      },
+      "join.py": {
+        "bytes": 4503,
+        "mode": 420,
+        "sha256": "870e1f2f773f85107e05b5aed0ab361d49b1be5d0077f777b4209fc921a042f9"
+      },
+      "records/cargo-1.98.0-aarch64-unknown-linux-gnu.tar.xz.elf.json": {
+        "bytes": 2638,
+        "mode": 420,
+        "sha256": "0da95000698543c9755057315fca64fa38660132af4a287aa2a8bfd9fc7508ff"
+      },
+      "records/cargo-1.98.0-aarch64-unknown-linux-gnu.tar.xz.inventory.json": {
+        "bytes": 15690,
+        "mode": 420,
+        "sha256": "aa2335eeeea5a9dff965fe38c246366bdc0b8486ea69293dd1c8c82f6e4f3cd3"
+      },
+      "records/component-prefix-model.json": {
+        "bytes": 28331,
+        "mode": 420,
+        "sha256": "c1fca476887a5005eb11ead2fcca672c1dd88d22d6794c57d29aef499d6dc07f"
+      },
+      "records/metadata/cargo-1.98.0-aarch64-unknown-linux-gnu/cargo/manifest.in": {
+        "bytes": 1532,
+        "mode": 420,
+        "sha256": "5b2160ec3635b8c8f3129f12cbeee078d55d882f9362313e56e9fd484febe8ba"
+      },
+      "records/metadata/cargo-1.98.0-aarch64-unknown-linux-gnu/components": {
+        "bytes": 6,
+        "mode": 420,
+        "sha256": "7bb89d54b70dc6110f7bc980b181b6fd9316b7779bba2fd928521e1c5009cc59"
+      },
+      "records/metadata/cargo-1.98.0-aarch64-unknown-linux-gnu/git-commit-hash": {
+        "bytes": 40,
+        "mode": 420,
+        "sha256": "98073e80ccbff8080d9deda247ce8b3b5addbd0d10abed91be83fbcc710889cd"
+      },
+      "records/metadata/cargo-1.98.0-aarch64-unknown-linux-gnu/rust-installer-version": {
+        "bytes": 2,
+        "mode": 420,
+        "sha256": "1121cfccd5913f0a63fec40a6ffd44ea64f9dc135c66634ba001d10bcf4302a2"
+      },
+      "records/metadata/cargo-1.98.0-aarch64-unknown-linux-gnu/version": {
+        "bytes": 29,
+        "mode": 420,
+        "sha256": "ea4bd37ea339be44c06cc80cce4f9cba8cf4d7369b9d9873abce21f6d326234b"
+      },
+      "records/metadata/rust-std-1.98.0-aarch64-unknown-linux-gnu/components": {
+        "bytes": 35,
+        "mode": 420,
+        "sha256": "c21322f8eb9e06780141e3c9921a3920cff4c3c1172e77382d74338ec3038db3"
+      },
+      "records/metadata/rust-std-1.98.0-aarch64-unknown-linux-gnu/git-commit-hash": {
+        "bytes": 40,
+        "mode": 420,
+        "sha256": "98073e80ccbff8080d9deda247ce8b3b5addbd0d10abed91be83fbcc710889cd"
+      },
+      "records/metadata/rust-std-1.98.0-aarch64-unknown-linux-gnu/rust-installer-version": {
+        "bytes": 2,
+        "mode": 420,
+        "sha256": "1121cfccd5913f0a63fec40a6ffd44ea64f9dc135c66634ba001d10bcf4302a2"
+      },
+      "records/metadata/rust-std-1.98.0-aarch64-unknown-linux-gnu/rust-std-aarch64-unknown-linux-gnu/manifest.in": {
+        "bytes": 5048,
+        "mode": 420,
+        "sha256": "e8e6b335e21b7690a5e5f425486a6af5fe94ef0cd29f45caf63949c30dc022b7"
+      },
+      "records/metadata/rust-std-1.98.0-aarch64-unknown-linux-gnu/version": {
+        "bytes": 29,
+        "mode": 420,
+        "sha256": "7c421ba07652f08acef66506ea99afa80d0b16a2a4dc2450711097a4d1d530d8"
+      },
+      "records/metadata/rustc-1.98.0-aarch64-unknown-linux-gnu/components": {
+        "bytes": 6,
+        "mode": 420,
+        "sha256": "17c769d50277575d5571ae0769c76c9cbbdd65314954e278e5b4c6faba8e0721"
+      },
+      "records/metadata/rustc-1.98.0-aarch64-unknown-linux-gnu/git-commit-hash": {
+        "bytes": 40,
+        "mode": 420,
+        "sha256": "98073e80ccbff8080d9deda247ce8b3b5addbd0d10abed91be83fbcc710889cd"
+      },
+      "records/metadata/rustc-1.98.0-aarch64-unknown-linux-gnu/rust-installer-version": {
+        "bytes": 2,
+        "mode": 420,
+        "sha256": "1121cfccd5913f0a63fec40a6ffd44ea64f9dc135c66634ba001d10bcf4302a2"
+      },
+      "records/metadata/rustc-1.98.0-aarch64-unknown-linux-gnu/rustc/manifest.in": {
+        "bytes": 1663,
+        "mode": 420,
+        "sha256": "3ca64298238e1d5237b15f1c0cfa4c1eb7de529320bfdf0a6c38d2e0ecd5d099"
+      },
+      "records/metadata/rustc-1.98.0-aarch64-unknown-linux-gnu/version": {
+        "bytes": 29,
+        "mode": 420,
+        "sha256": "7c421ba07652f08acef66506ea99afa80d0b16a2a4dc2450711097a4d1d530d8"
+      },
+      "records/notices/cargo-1.98.0-aarch64-unknown-linux-gnu/LICENSE-APACHE": {
+        "bytes": 10860,
+        "mode": 420,
+        "sha256": "8ada45cd9f843acf64e4722ae262c622a2b3b3007c7310ef36ac1061a30f6adb"
+      },
+      "records/notices/cargo-1.98.0-aarch64-unknown-linux-gnu/LICENSE-MIT": {
+        "bytes": 1023,
+        "mode": 420,
+        "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+      },
+      "records/notices/cargo-1.98.0-aarch64-unknown-linux-gnu/LICENSE-THIRD-PARTY": {
+        "bytes": 68430,
+        "mode": 420,
+        "sha256": "cbc759b1f17a2ac38fe3eb9e9563b1a08ba0f900611c49faaf68b46907b6d898"
+      },
+      "records/notices/cargo-1.98.0-aarch64-unknown-linux-gnu/cargo/share/doc/cargo/LICENSE-APACHE": {
+        "bytes": 10860,
+        "mode": 420,
+        "sha256": "8ada45cd9f843acf64e4722ae262c622a2b3b3007c7310ef36ac1061a30f6adb"
+      },
+      "records/notices/cargo-1.98.0-aarch64-unknown-linux-gnu/cargo/share/doc/cargo/LICENSE-MIT": {
+        "bytes": 1023,
+        "mode": 420,
+        "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+      },
+      "records/notices/cargo-1.98.0-aarch64-unknown-linux-gnu/cargo/share/doc/cargo/LICENSE-THIRD-PARTY": {
+        "bytes": 68430,
+        "mode": 420,
+        "sha256": "cbc759b1f17a2ac38fe3eb9e9563b1a08ba0f900611c49faaf68b46907b6d898"
+      },
+      "records/notices/rust-std-1.98.0-aarch64-unknown-linux-gnu/COPYRIGHT": {
+        "bytes": 1571,
+        "mode": 420,
+        "sha256": "172020dbfd5b53a226dfde77616190a48dcff519b0bc0e6deb91a8450782c4af"
+      },
+      "records/notices/rust-std-1.98.0-aarch64-unknown-linux-gnu/LICENSE-APACHE": {
+        "bytes": 9723,
+        "mode": 420,
+        "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+      },
+      "records/notices/rust-std-1.98.0-aarch64-unknown-linux-gnu/LICENSE-MIT": {
+        "bytes": 1068,
+        "mode": 420,
+        "sha256": "b71bd43a069ca0641a9ecfe585ca7b3c53b5cc1608f8b68321168698e28b5ea1"
+      },
+      "records/notices/rustc-1.98.0-aarch64-unknown-linux-gnu/COPYRIGHT": {
+        "bytes": 1571,
+        "mode": 420,
+        "sha256": "172020dbfd5b53a226dfde77616190a48dcff519b0bc0e6deb91a8450782c4af"
+      },
+      "records/notices/rustc-1.98.0-aarch64-unknown-linux-gnu/LICENSE-APACHE": {
+        "bytes": 9723,
+        "mode": 420,
+        "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+      },
+      "records/notices/rustc-1.98.0-aarch64-unknown-linux-gnu/LICENSE-MIT": {
+        "bytes": 1068,
+        "mode": 420,
+        "sha256": "b71bd43a069ca0641a9ecfe585ca7b3c53b5cc1608f8b68321168698e28b5ea1"
+      },
+      "records/rust-std-1.98.0-aarch64-unknown-linux-gnu.tar.xz.elf.json": {
+        "bytes": 2345,
+        "mode": 420,
+        "sha256": "b7e124de42fadc761b61c19decfc3f58345d579f5469b0c55287caa430c669a2"
+      },
+      "records/rust-std-1.98.0-aarch64-unknown-linux-gnu.tar.xz.inventory.json": {
+        "bytes": 27417,
+        "mode": 420,
+        "sha256": "61346195122bbdd6c1d391a1083698d25ad38ea203286e7150558429e34030cf"
+      },
+      "records/rustc-1.98.0-aarch64-unknown-linux-gnu.tar.xz.elf.json": {
+        "bytes": 30804,
+        "mode": 420,
+        "sha256": "03047e63766b26ef35ade4be273219ec4da26c35d4ddea564e9d8ecea7ec4877"
+      },
+      "records/rustc-1.98.0-aarch64-unknown-linux-gnu.tar.xz.inventory.json": {
+        "bytes": 15386,
+        "mode": 420,
+        "sha256": "9ee82f38a01909e6072e74000f9f9771f89f3bd69b5ea49b362039b7cdd31360"
+      },
+      "retained-search.json": {
+        "bytes": 4428,
+        "mode": 420,
+        "sha256": "d9a3fa8121974d02f620c1e7a38bf72fad18c2a647d1589b69aadd1c14556aaa"
+      },
+      "test_data.py": {
+        "bytes": 5437,
+        "mode": 420,
+        "sha256": "0b050d735da9193eaf7acf0d992f9c58912162df1ff9ecb8792602ca36c48910"
+      },
+      "verify.py": {
+        "bytes": 2661,
+        "mode": 420,
+        "sha256": "c97d0a73c0f6c1dec4a787935a766656e4bce8a173f454d73bf0d18b4df489ab"
+      }
+    },
+    "runtime_qualified": false,
+    "signature_authentication": "NOT_PERFORMED_TLS_AND_HASH_ONLY"
+  },
+  "work_volume_initialization": {
+    "budget": {
+      "additional_actors": 0,
+      "additional_seconds": 0,
+      "cap_add": [
+        "CHOWN"
+      ],
+      "cpus": 2,
+      "memory_bytes": 134217728,
+      "pids": 32,
+      "recursive": false,
+      "seconds": 60,
+      "swap_bytes": 0,
+      "user": "0:0"
+    },
+    "compiler_build_and_stage0_unchanged": true,
+    "nocopy": "ALL_WORK_VOLUME_REFERENCES",
+    "notice_preservation_candidate_binding": {
+      "audit_seal_sha256": "d66d49a2734e79c6f9d1f5a57fda98ab519d39016483da0f4f88a0f626576fd9",
+      "base_candidate_map_pin": {
+        "bytes": 1470,
+        "sha256": "355293f0cc318f40ce6e96e831b294888f7d2fe87bf306571e5df85cbdfb2aec"
+      },
+      "base_commit": "dd6871d566661c4fe9eba055ae19e1e017e0b69d",
+      "catalogue_sha256": "1c477c7481df39c1b8b8e82edf73f8df99c63e3f7657e440393b6c812c8d421c",
+      "files": 11,
+      "files_pin": {
+        "bytes": 1602,
+        "sha256": "3c4efd6ddbe30caf79196bbdbead178fe10750be0104beba2f791505726c9e67"
+      },
+      "holds_preserved": true,
+      "kind": "RUST199_NOTICE_PRESERVATION_CANDIDATE_V7",
+      "schema": 1,
+      "tree": "16fc80733ba831a426fc54363ec8cff6dfe54110"
+    },
+    "preentry": "OUTER_PREPARE_EMPTY_AND_MAIN_NONEMPTY_SAME_INODE_OWNER_MODE_WRITABLE",
+    "revision": 2
+  }
+}
