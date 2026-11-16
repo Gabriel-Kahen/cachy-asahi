@@ -1,0 +1,73 @@
+{
+  "Root_review": null,
+  "accepted": null,
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "image": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "bytes": 43408000,
+  "constructor_files": {
+    "README.md": {
+      "bytes": 4553,
+      "mode": 420,
+      "sha256": "e32f0df57ba8911759b06341403ff62375503a6c988e88d885270bf4be80fefc"
+    },
+    "Root-admission.TEMPLATE.json": {
+      "bytes": 14249,
+      "mode": 420,
+      "sha256": "8a564c2a68afd400abf746b8c600620a1a7fec18a814357dd2ba7107ff01074d"
+    },
+    "fixtures/mountinfo-data.ACTUAL.raw": {
+      "bytes": 5794,
+      "mode": 420,
+      "sha256": "c52d3185956b93870365913050bac4ebd012c3db08b5b803095822888db13460"
+    },
+    "fixtures/public-failure.ACTUAL-r2.json": {
+      "bytes": 8324,
+      "mode": 420,
+      "sha256": "e7d11080d025b0fabfae1d95199613436547bf4e7f09e4962a1d1b4a6012660b"
+    },
+    "payload/hosted/producer.py": {
+      "bytes": 37492,
+      "mode": 420,
+      "sha256": "d80c47a5120148946389bbe23446cff7a7f3e34666260160f6bdf94c47c8c075"
+    },
+    "payload/hosted/qualification.py": {
+      "bytes": 22855,
+      "mode": 420,
+      "sha256": "d34cf5cc5260ff3abff7e33706a0f8d8056562072c820699288603736d23e68b"
+    },
+    "prepare.py": {
+      "bytes": 8813,
+      "mode": 420,
+      "sha256": "d7bc421df8d099eacd6cd0f8bab7a2446f3235f732e8c830db68b7ca2394713d"
+    },
+    "test_data.py": {
+      "bytes": 2789,
+      "mode": 420,
+      "sha256": "8d7ac0ea37035c1b5833f4a67da72978756c2ca640e5123647a3a644111565eb"
+    },
+    "test_runtime.py": {
+      "bytes": 13721,
+      "mode": 420,
+      "sha256": "e9f13138d17748ad54a54ffb962a0f5ca2d74ec73face347263ab2fdd70b73a0"
+    }
+  },
+  "files": 355,
+  "map_sha256": "4a85015fbcb513f8af71ae0d313abc4927faa50682dbf0b6ebfee8f339352bfa",
+  "parent": {
+    "bytes": 43277113,
+    "files": 351,
+    "map_sha256": "026e63a2bac7b65b26e5f74c0862f68cb73d2cf984b419f8e96b60f5d5f2dffe",
+    "tree": "12fbd0fa35ab1c8e5a7c3cb9ab1d6d387ac57cc6"
+  },
+  "schema": 14,
+  "scope": "RUST199_API_OWNED_PRIVATE_BIND_SUCCESSOR_V14",
+  "tree": "3fbb71b78e06cdb9aa219c596a41fda3ccc29280",
+  "unadmitted": true
+}
