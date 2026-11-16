@@ -61,7 +61,7 @@ class WarmControls(unittest.TestCase):
         for field, value in cases:
             packet = copy.deepcopy(self.packet)
             packet[field] = value
-            with self.subTest(field=field), self.assertRaises((ValueError, KeyError)):
+            with self.subTest(field=field), self.assertRaises(ValueError):
                 self.K.inputs(packet, self.source)
 
     def test_templates_do_not_issue_review_grants_or_run(self):

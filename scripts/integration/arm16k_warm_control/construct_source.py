@@ -87,10 +87,12 @@ def bodies(selected):
         "    need({n: baseline[n] for n in plan.BASELINE} == plan.BASELINE, 'exact original accepted baseline pins')",
         "    need({n: baseline[n] for n in plan.BASELINE} == plan.BASELINE, 'exact warmed accepted baseline pins')\n"
         "    need(canonical(baseline['provenance']) == canonical(plan.WARM_SELECTION), 'complete exact warm provenance required')\n"
-        "    need(value['baseline_nonce'] == plan.WARM_SELECTION['baseline_nonce'], 'same original PAM baseline nonce')\n"
-        "    need({n: value['kernel'][n] for n in ('Image', 'config')} == plan.WARM_SELECTION['kernel'] and\n"
+        "    need(value['baseline_nonce'] == plan.WARM_SELECTION['baseline_nonce'], 'same original PAM baseline nonce')")
+    contract = replace_once(contract, "    resources(value['resources'], source, now)",
+        "    need({n: kernel[n] for n in ('Image', 'config')} == plan.WARM_SELECTION['kernel'] and\n"
         "         value['tool_image'] == plan.WARM_SELECTION['tool_image'] and\n"
-        "         value['actor_tools'] == plan.WARM_SELECTION['actor_tools'], 'same actual kernel tool image and tool pins')")
+        "         value['actor_tools'] == plan.WARM_SELECTION['actor_tools'], 'same actual kernel tool image and tool pins')\n"
+        "    resources(value['resources'], source, now)")
     contract = replace_once(contract, "accepted=None, **local('plan').BASELINE),",
         "accepted=None, provenance=local('plan').WARM_SELECTION, **local('plan').BASELINE),")
     plan = (OLD/'plan.py').read_text()
@@ -100,6 +102,12 @@ def bodies(selected):
     plan = replace_once(plan, "kind='ARM16K_NO_PACKAGE_CONTROL_DRAFT_V1'", "kind='ARM16K_WARM_NO_PACKAGE_CONTROL_DRAFT_V1'")
     plan = replace_once(plan, 'original_baseline=BASELINE,',
         'original_baseline=ORIGINAL_BASELINE,warm_baseline=BASELINE,warm_provenance=WARM_SELECTION,')
+    plan = replace_once(plan,
+        'Separate boot/login/logout-class drift from effects requiring the package lifecycle; observation only, no restoration or acceptance waiver',
+        'Observe a second normal PAM boot of the exact initialized baseline; observation only, no premarked stability, restoration or acceptance waiver')
+    plan = replace_once(plan,
+        'same original baseline raw/prepared/certificate and original private PAM credential pins',
+        'same exact warmed raw/prepared/Root-selected certificate, complete original/control provenance and original private PAM credential pins')
     test = (OLD/'test_prepare.py').read_text()
     test = test.replace("'ROOT_ACCEPTED_ORIGINAL_PAM_BASELINE_DECLARATION_V1'", "'ROOT_ACCEPTED_WARMED_PAM_BASELINE_DECLARATION_V1'")
     test = test.replace("'ROOT_NO_PACKAGE_CONTROL_INPUTS_V1'", "'ROOT_WARM_NO_PACKAGE_CONTROL_INPUTS_V1'")
