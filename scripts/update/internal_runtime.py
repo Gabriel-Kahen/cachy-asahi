@@ -6,6 +6,8 @@ Python callers may supply args.prior_archive plus its adjacent detached .sig to
 remove unmodified obsolete selected leaves. The current authenticated release's
 signer/keyring must verify that archive; ownership and backup ambiguity refuse.
 Old and new archives share the caller's existing aggregate inspection budgets.
+Results retain prior_archive identity/signature pins and projected obsolete paths;
+the enclosing transaction result alone reports whether a commit occurred.
 There is no CLI, automatic recovery or supported target-update claim here.
 """
 import ctypes as C
@@ -90,7 +92,7 @@ class Runtime(scale.Runtime):
         source = client.absolute(self.args.prior_archive)
         work = snapshot['bundle'].parent.parent / 'prior-package'
         work.mkdir(mode=0o700)
-        sources = []
+        sources, copies = [], {}
         for path, name, maximum in ((source, 'archive', self.archive_limits.compressed_bytes),
                 (Path(str(source) + '.sig'), 'archive.sig', client.MAX_SIGNATURE)):
             root = client.directory(path.parent)
@@ -104,12 +106,13 @@ class Runtime(scale.Runtime):
                 need(client.identity(os.stat(path.name, dir_fd=root, follow_symlinks=False)) == identity,
                      'prior input changed during snapshot')
                 target.chmod(0o400)
+                copies[name] = dict(sha256=pin, bytes=target.stat().st_size)
                 sources.extend(((path, identity, pin), (target, client.identity(target.stat()), pin)))
             finally:
                 os.close(root)
         verifier = client.Verifier(work, client.read_path(snapshot['keyring'], client.MAX_KEYRING),
                                   snapshot['metadata']['signer'], datetime.now(timezone.utc))
-        verifier.verify(work / 'archive', client.read_path(work / 'archive.sig', client.MAX_SIGNATURE))
+        signature = verifier.verify(work / 'archive', client.read_path(work / 'archive.sig', client.MAX_SIGNATURE))
         metadata, accounting = {}, {}
         payload = scale.archives.archive_payload(work / 'archive', self.archive_limits, accounting, pkginfo=metadata)
         fields = {}
@@ -133,7 +136,9 @@ class Runtime(scale.Runtime):
         need(not backups(package), 'installed backup semantics unsupported')
         need(set(payload) == self.old_paths, 'prior archive and selected ownership differ')
         foreign = set(self.alpm.owned_files(set(before) - set(desired)))
-        self.prior = dict(payload=payload, foreign=foreign, sources=sources, accounting=accounting)
+        evidence = dict(package=dict(name=name, version=before[name], arch=selected['arch']),
+            archive=copies['archive'], signature=dict(copies['archive.sig'], **signature), projected_obsolete_paths=[])
+        self.prior = dict(payload=payload, foreign=foreign, sources=sources, accounting=accounting, evidence=evidence)
         self.recheck_prior()
 
     def archive_payload(self, path, accounting):
@@ -179,6 +184,8 @@ class Runtime(scale.Runtime):
                 need(name not in foreign, 'obsolete leaf has foreign ownership')
         self.projected = roots.projected_internal_hardlinks(self.baseline, payload,
             selected_old_paths=self.old_paths, removed_paths=removed, protected_paths=(), limits=self.root_limits)
+        if getattr(self, 'prior', None) is not None:
+            self.prior['evidence']['projected_obsolete_paths'] = sorted(removed)
         return self.projected
 
     def node(self, path):
@@ -248,6 +255,8 @@ def apply(args):
         result.update(root_footprints=runtime.footprints, scope='internal-hardlink-disposable-root',
             auxiliary_execution='REFUSED_IF_PRESENT', full587_composition='NOT ESTABLISHED',
             apple_acceptance='NOT ESTABLISHED', hardware='NOT RUN')
+        if runtime.prior is not None:
+            result['prior_archive'] = runtime.prior['evidence']
         return result
     except BaseException as error:
         failure = dict(result) if type(result) is dict else {}
