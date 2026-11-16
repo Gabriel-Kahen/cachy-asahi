@@ -596,6 +596,137 @@ class RealStagingAssemblyControls(unittest.TestCase):
   self.assertFalse(self.plan.inputs if hasattr(self.plan,'inputs')else False)
 
 
+class FailureDiagnosticControls(unittest.TestCase):
+ """Inert process/kernel boundaries; maintained session/executor predicates run."""
+ SENTINEL='INERT_SECRET_NEVER_PUBLIC_71b9'
+ def fixture(self):
+  fixture=RealStagingAssemblyControls('test_actual_successor_grant_then_actual517_assembler_and_real_stream');fixture.setUp();self.addCleanup(fixture.doCleanups);return fixture
+ def domain(self):
+  modules=[]
+  for name,wanted in (('material_domain_current_v3',L.MATERIAL_DOMAIN_PIN),('owned_executor_current_v3',dict(bytes=53735,sha256='aee41c0956f3249eef2e9c8974238b214622cb385e2d8f736109d9650ce7120a'))):
+   path=HERE/'payload/native'/(name+'.py');self.assertEqual(L.pin(path.read_bytes()),wanted)
+   spec=importlib.util.spec_from_file_location('diagnostic_'+name,path);module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);modules.append(module)
+  return modules
+ def bound_request(self,fixture):
+  plan=fixture.plan;f=fixture.f;plan.d['capability']['allow_host_prerequisites']=True
+  plan.d['hosted']=dict(repository='Gabriel-Kahen/cachy-asahi');plan.d['context_limits'].update(metadata_query_seconds=15,metadata_max_bytes=1024**2)
+  rd=L.encoded(plan.d);r=dict(plan.request,schema=3,kind='ROOT_AUTHORIZED_CURRENT_HOSTED_LAUNCH_V3',issuer='Root',approved=True,
+   trusted_main_commit='9'*40,launcher=dict(member=MEMBER,**L.pin(MODULE.read_bytes())),staged_inputs=None,staged_root=None,
+   control_name='cachy-current-hosted-'+plan.d['nonce'],delegation_json=rd.decode(),delegation_pin=L.pin(rd),
+   authorization=dict(jobs_metadata=True,privileged_controller=True,launcher_limits=L.LIMITS,host_prerequisites=True,whole_timing=L.TIMING,material_staging=True))
+  plan.request=r;plan.control=f.root/r['control_name'];plan.main=f.root/'Main';plan.main.mkdir();plan.Q=object();plan.O=object();plan.E=object();plan.inputs=None
+  plan.intake=dict(status='DEFERRED_UNTIL_ACTUAL_COMPLETE517');plan.policy['executor_current_v3']=dict(setup_seconds=180,stage_seconds=7200,cleanup_seconds=180)
+  plan.H.ENV=('GITHUB_RUN_ID',);plan.H.capture_context=lambda *a,**kw:dict(fixture.context)
+  request=f.root/'root-request.json';request.write_bytes(L.encoded(r));request.chmod(0o644)
+  args=SimpleNamespace(request=request,request_sha256=L.pin(request.read_bytes())['sha256'],source_root=f.source,main_root=plan.main,control_root=plan.control)
+  env=dict(GITHUB_RUN_ID='11',**{name:self.SENTINEL for name in L.MATERIAL_SECRET_NAMES})
+  return args,env
+ def test_real_session_child_failure_retained_before_real_close_and_secrets_cleared(self):
+  fixture=self.fixture();plan=fixture.plan;D,E=self.domain();args,env=self.bound_request(fixture)
+  grant=json.loads(plan.request['material_staging']['grant_json']);role=Path(grant['storage_parent'])/('cachy-current-materials-'+plan.d['nonce']);hold=role/'HOLD.json'
+  safe=dict(status='HOLD_PARTIAL_OWNED_DATA_CLOSEONLY',scope='/system.slice/'+D.scope_name(plan.d['nonce']),Root_acceptance=None);hold_pin=L.pin(L.encoded(safe))
+  sessions=[];events=[];secret_maps=[]
+  def opened(**kw):
+   r=dict(control_root=str(plan.control),context=fixture.context,shared_timing=plan.timing,runner_uid=os.getuid(),runner_gid=os.getgid())
+   owner=SimpleNamespace(prepare=lambda:events.append('prepare'),supervise=supervise)
+   session=D.MaterialSession(r,(plan.root,plan.d,plan.policy,grant,E,fixture.S,owner));sessions.append(session);return session
+  def spawn(argv,**kw):
+   closing='close-entry'in argv;events.append('close-child'if closing else'stage-child')
+   if closing:
+    self.assertTrue(hold.exists());hold.unlink();role.rmdir();session=sessions[0]
+    D.write(plan.control/'material-domain-close.json',dict(owned_storage_absent=True,binding=fixture.context['binding'],nonce=plan.d['nonce'],request_pin=D.pin(D.encoded(session.r)),scope_absence=dict(scope=D.scope_name(plan.d['nonce']),absent_twice=True),**D.FINAL))
+   else:
+    role.mkdir(mode=0o700);D.write(hold,safe);kw['stderr'].write(self.SENTINEL.encode())
+   return SimpleNamespace(closing=closing)
+  def supervise(child,**kw):
+   return dict(reaped=True,ownership='REAPED',group_census='EMPTY_TWICE',output_complete=True,signals=[],timeout=False,error=None,exit=0 if child.closing else 7,output=b''if child.closing else self.SENTINEL.encode())
+  def run(owner,argv,cap,work):
+   if argv[0]=='/usr/bin/git':return ((plan.request['trusted_main_commit']if str(plan.main)in argv else plan.d['binding']['source'])+'\n').encode(),dict(FENCED=True)
+   self.assertIn('metadata',argv);return b'{}',dict(FENCED=True)
+  original_stage=D.MaterialSession.stage
+  def stage(session,*,secrets):
+   secret_maps.append(secrets);return original_stage(session,secrets=secrets)
+  def anonymous_buffer(*a):
+   # MODEL only the unavailable memfd/sealing kernel boundary on Python3.12.
+   # The maintained sealing generator, stream bounds and secret clearing run.
+   with tempfile.TemporaryFile()as stream:return os.dup(stream.fileno())
+  plan.M=SimpleNamespace(CLOSE_SECONDS=D.CLOSE_SECONDS,open_material_session=opened)
+  tools={name:dict(path='/usr/bin/'+name)for name in ('python3','systemd-run','sudo')}
+  with patch.object(L,'preflight',return_value=plan),patch.object(L,'program',side_effect=fixture.program),patch.object(L,'run',side_effect=run),patch.object(L.resource,'setrlimit'),patch.object(L.signal,'setitimer'),patch.object(D,'scope_tools',return_value=tools),patch.object(D,'scope_path',return_value=fixture.f.root/'absent-model-cgroup'),patch.object(D,'absent',side_effect=lambda nonce,deadline,closing=False:dict(scope=D.scope_name(nonce,closing),absent_twice=True)),patch.object(D.subprocess,'Popen',side_effect=spawn),patch.object(E,'require_runtime_capabilities'),patch.object(E,'natural',wraps=E.natural)as natural,patch.object(D.MaterialSession,'stage',stage),patch.multiple(D.os,create=True,memfd_create=anonymous_buffer,MFD_CLOEXEC=1,MFD_ALLOW_SEALING=2),patch.multiple(D.fcntl,create=True,F_ADD_SEALS=1033,F_GET_SEALS=1034,F_SEAL_GROW=4,F_SEAL_SHRINK=2,F_SEAL_WRITE=8,F_SEAL_SEAL=1),patch.object(D.fcntl,'fcntl',return_value=0):
+   status=L._execute(args,env)
+  report=L.decode((plan.control/'public/launcher-report.json').read_bytes());self.assertEqual(status,2,report)
+  self.assertEqual(report['failure'],dict(phase='material_stage',reason='VALIDATION_REFUSED'));self.assertEqual(report['failure_type'],'ValueError')
+  self.assertEqual(report['intake']['status'],'DEFERRED_UNTIL_ACTUAL_COMPLETE517');self.assertEqual(events,['prepare','stage-child','prepare','close-child'])
+  self.assertGreaterEqual(natural.call_count,3);self.assertEqual(sessions[0].state,'CLOSED');self.assertEqual(secret_maps,[{}]);self.assertFalse(set(L.MATERIAL_SECRET_NAMES)&set(env))
+  before=report['material_failure_before_cleanup'];self.assertEqual(before['state'],'HOLD_CLOSEONLY');self.assertTrue(before['stage_submitted']);self.assertEqual(len(before['children']),1)
+  child=before['children'][0];self.assertFalse(child['natural_success']);self.assertEqual(child['supervision'],dict(reaped=True,output_complete=True,timeout=False,exit=7,ownership='REAPED',group_census='EMPTY_TWICE',supervisor_error=False,signals_observed=False))
+  self.assertEqual(child['output_pin'],L.pin(self.SENTINEL.encode()));self.assertEqual(child['stderr_pin'],L.pin(self.SENTINEL.encode().ljust(E.MAX_OUTPUT,b'\0')));self.assertFalse(child['scope_absent_twice'])
+  self.assertEqual(before['source_hold'],dict(status=safe['status'],pin=hold_pin,source_reason='NOT_EMITTED_BY_PINNED_SOURCE'));self.assertFalse(hold.exists())
+  after=report['material_children_after_cleanup'];self.assertEqual(after['state'],'CLOSED');self.assertEqual([row['kind']for row in after['children']],['STAGE','CLOSE']);self.assertTrue(after['children'][1]['natural_success']);self.assertTrue(after['children'][1]['scope_absent_twice'])
+  self.assertTrue(all(report['material_domain_cleanup'][key]for key in ('closed','scope_absent','input_storage_absent')))
+  self.assertNotIn(self.SENTINEL,L.encoded(report).decode());self.assertNotIn('argv',L.encoded(report).decode())
+ def test_failure_summary_is_finite_without_exception_text_or_dynamic_name(self):
+  class SecretError(Exception):
+   def __str__(self):raise AssertionError('exception text must not be observed')
+  SecretError.__name__=self.SENTINEL
+  plan=SimpleNamespace(public_phase='material_stage')
+  for error,kind,reason in ((ValueError(self.SENTINEL),'ValueError','VALIDATION_REFUSED'),(TimeoutError(self.SENTINEL),'TimeoutError','DEADLINE_EXHAUSTED'),(KeyError(self.SENTINEL),'KeyError','REQUIRED_FIELD_MISSING'),(OSError(self.SENTINEL),'OSError','OS_OPERATION_FAILED'),(SystemExit(self.SENTINEL),'SystemExit','CHILD_ENTRY_REFUSED'),(KeyboardInterrupt(self.SENTINEL),'KeyboardInterrupt','INTERRUPTED'),(SecretError(),'OTHER','UNEXPECTED_FAILURE')):
+   with self.subTest(kind=kind):self.assertEqual(L.failure_summary(plan,error),(dict(phase='material_stage',reason=reason),kind))
+  plan.public_phase=self.SENTINEL;self.assertEqual(L.failure_summary(plan,SecretError())[0]['phase'],'UNKNOWN')
+ def test_unavailable_diagnostics_and_close_error_preserve_original_failure(self):
+  fixture=self.fixture();plan=fixture.plan;args,env=self.bound_request(fixture);events=[];secret_maps=[]
+  def stage(*,secrets):
+   events.append('stage');secret_maps.append(secrets);raise ValueError(self.SENTINEL)
+  def close():events.append('close');raise OSError(self.SENTINEL)
+  # A malformed existing row list must never interrupt the mandatory close path.
+  session=SimpleNamespace(state='HOLD_CLOSEONLY',stage_submitted=True,receipts=[dict(kind='STAGE')]*3,stage=stage,close=close)
+  plan.M=SimpleNamespace(CLOSE_SECONDS=90,open_material_session=lambda **kw:session)
+  def run(owner,argv,cap,work):
+   if argv[0]=='/usr/bin/git':return ((plan.request['trusted_main_commit']if str(plan.main)in argv else plan.d['binding']['source'])+'\n').encode(),dict(FENCED=True)
+   self.assertIn('metadata',argv);return b'{}',dict(FENCED=True)
+  with patch.object(L,'preflight',return_value=plan),patch.object(L,'run',side_effect=run),patch.object(L.resource,'setrlimit'),patch.object(L.signal,'setitimer'):
+   self.assertEqual(L._execute(args,env),2)
+  report=L.decode((plan.control/'public/launcher-report.json').read_bytes());self.assertEqual(events,['stage','close']);self.assertEqual(secret_maps,[{}]);self.assertFalse(set(L.MATERIAL_SECRET_NAMES)&set(env))
+  self.assertEqual(report['failure'],dict(phase='material_stage',reason='VALIDATION_REFUSED'));self.assertEqual(report['failure_type'],'ValueError')
+  self.assertEqual(report['material_cleanup_diagnostic'],dict(phase='material_cleanup',reason='OS_OPERATION_FAILED'));self.assertEqual(report['material_cleanup_failure'],'OSError')
+  for key in ('material_failure_before_cleanup','material_children_after_cleanup'):self.assertEqual(report[key],dict(status='DIAGNOSTICS_UNAVAILABLE'))
+  self.assertNotIn(self.SENTINEL,L.encoded(report).decode())
+ def test_projection_excludes_secret_fields_streams_and_untyped_pins(self):
+  nonce='a'*64;supervision=dict(reaped=True,output_complete=True,timeout=False,exit=7,ownership=self.SENTINEL,group_census=self.SENTINEL,error=self.SENTINEL,signals=[self.SENTINEL],output=self.SENTINEL)
+  row=dict(kind='STAGE',natural=False,supervision=supervision,argv=[self.SENTINEL],tools=dict(secret=self.SENTINEL),env=dict(secret=self.SENTINEL),failure=dict(type=self.SENTINEL,message=self.SENTINEL),stdout=self.SENTINEL,stderr=self.SENTINEL,output_pin=L.pin(b'inert output'),stderr_pin=dict(bytes=True,sha256=self.SENTINEL),scope_absence=dict(scope=self.SENTINEL,absent_twice=True))
+  plan=SimpleNamespace(d=dict(nonce=nonce),material_session=SimpleNamespace(state=self.SENTINEL,stage_submitted=True,receipts=[row]))
+  result=L.material_failure_data(plan);self.assertEqual(result['state'],'UNKNOWN');child=result['children'][0]
+  self.assertEqual(child['output_pin'],row['output_pin']);self.assertNotIn('stderr_pin',child);self.assertFalse(child['scope_absent_twice']);self.assertTrue(child['supervision']['supervisor_error']);self.assertTrue(child['supervision']['signals_observed']);self.assertNotIn(self.SENTINEL,L.encoded(result).decode())
+  for rows in ([row]*3,[dict(kind=self.SENTINEL)],self.SENTINEL):
+   plan.material_session.receipts=rows;self.assertEqual(L.material_failure_data(plan),dict(status='DIAGNOSTICS_UNAVAILABLE'))
+ def test_only_exact_safe_hold_receipt_selected_and_bad_receipts_do_not_mask_failure(self):
+  with tempfile.TemporaryDirectory(prefix='FENCED-diagnostic-hold-')as tmp:
+   root=Path(tmp);nonce='c'*64;role=root/('cachy-current-materials-'+nonce);role.mkdir(mode=0o700);path=role/'HOLD.json'
+   plan=SimpleNamespace(public_phase='material_stage',d=dict(nonce=nonce),request=dict(material_staging=dict(grant_json=L.encoded(dict(storage_parent=str(root))).decode())),material_session=SimpleNamespace(state='HOLD_CLOSEONLY',stage_submitted=True,receipts=[]))
+   safe=dict(status='HOLD_PARTIAL_OWNED_DATA_CLOSEONLY',scope='/system.slice/cachy-current-materials-'+nonce+'.scope',Root_acceptance=None)
+   cases=[('missing',None),('malformed',b'{'+self.SENTINEL.encode()),('extra',L.encoded(dict(safe,reason=self.SENTINEL))),('wrong-scope',L.encoded(dict(safe,scope=self.SENTINEL))),('aliased',L.encoded(safe))]
+   for mode,body in cases:
+    with self.subTest(mode=mode):
+     if path.exists()or path.is_symlink():path.unlink()
+     if mode=='aliased':
+      target=root/'different-receipt.json';target.write_bytes(body);target.chmod(0o644);path.symlink_to(target)
+     elif body is not None:path.write_bytes(body);path.chmod(0o644)
+     result=L.material_failure_data(plan,hold=True);self.assertEqual(result['source_hold']['status'],'NOT_OBSERVED'if mode=='missing'else'UNAVAILABLE_OR_UNSAFE');self.assertNotIn(self.SENTINEL,L.encoded(result).decode())
+     self.assertEqual(L.failure_summary(plan,ValueError(self.SENTINEL))[0],dict(phase='material_stage',reason='VALIDATION_REFUSED'))
+   path.unlink();path.write_bytes(L.encoded(safe));path.chmod(0o644);self.assertEqual(L.material_failure_data(plan,hold=True)['source_hold']['pin'],L.pin(path.read_bytes()))
+   plan.material_session.stage_submitted=False
+   with patch.object(L,'read',side_effect=AssertionError('unsubmitted role must not be read')):self.assertEqual(L.material_failure_data(plan,hold=True)['source_hold']['status'],'NOT_OBSERVED')
+ def test_real_selection_distinguishes_receipt_validation_and_assembly_failures(self):
+  for phase in ('material_receipt','assembly'):
+   with self.subTest(phase=phase):
+    fixture=self.fixture()
+    if phase=='material_receipt':fixture.result['receipt']['verified_files']=516
+    with patch.object(fixture.M.A,'assemble_inputs',side_effect=ValueError(self.SENTINEL))as assembler:
+     with self.assertRaises(ValueError):fixture.call()
+    self.assertEqual(fixture.plan.public_phase,phase);self.assertEqual(assembler.call_count,int(phase=='assembly'));fixture.plan.material_session.close();self.assertEqual(fixture.events,['stage','close'])
+    diagnostic,kind=L.failure_summary(fixture.plan,ValueError(self.SENTINEL));self.assertEqual(diagnostic,dict(phase=phase,reason='VALIDATION_REFUSED'));self.assertEqual(kind,'ValueError');self.assertNotIn(self.SENTINEL,L.encoded(diagnostic).decode())
+
+
 BUDGET_FIXTURE=os.environ.get('CACHY_CURRENT19_BUDGET_FIXTURE')
 if BUDGET_FIXTURE:
  class ActualDraftBudgetControls(unittest.TestCase):

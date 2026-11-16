@@ -344,32 +344,104 @@ def material_close_seconds(plan):
     return plan.M.CLOSE_SECONDS if getattr(plan,'S',None)is not None else 0
 
 
+PUBLIC_PHASES=frozenset(('git_main','git_source','metadata','context','timing','material_grant','material_open',
+    'material_stage','material_retirement','material_receipt','material_fields','assembly_selection','assembly',
+    'assembly_output','input_intake','staging_retention','post_staging_tools','prerequisites','context_refresh','controller','controller_result','material_cleanup','complete'))
+
+
+def failure_summary(plan,error):
+    # Neither exception messages nor dynamic exception class names are public.
+    kind,reason='OTHER','UNEXPECTED_FAILURE'
+    for cls,code in ((TimeoutError,'DEADLINE_EXHAUSTED'),(ValueError,'VALIDATION_REFUSED'),
+                     (KeyError,'REQUIRED_FIELD_MISSING'),(OSError,'OS_OPERATION_FAILED'),
+                     (SystemExit,'CHILD_ENTRY_REFUSED'),(KeyboardInterrupt,'INTERRUPTED')):
+        if isinstance(error,cls):kind,reason=cls.__name__,code;break
+    phase=getattr(plan,'public_phase',None)
+    return dict(phase=phase if type(phase)is str and phase in PUBLIC_PHASES else 'UNKNOWN',reason=reason),kind
+
+
+def material_failure_data(plan,*,hold=False):
+    """Project existing session DATA only; never retain argv/env/error text/streams."""
+    try:
+        session=plan.material_session;rows=getattr(session,'receipts',[])
+        need(type(rows)is list and len(rows)<=2,'finite stage/close diagnostic records')
+        state=getattr(session,'state',None)
+        result=dict(state=state if state in ('OPEN','HOLD_CLOSEONLY','RETAINED_FOR_CONSUMERS','CLOSED')else 'UNKNOWN',
+                    stage_submitted=getattr(session,'stage_submitted',None)is True,children=[])
+        for row in rows:
+            need(type(row)is dict and row.get('kind')in ('STAGE','CLOSE'),'known diagnostic child kind')
+            child=dict(kind=row['kind'],natural_success=row.get('natural')is True)
+            value=row.get('supervision')
+            if type(value)is dict:
+                child['supervision']={k:value[k]for k in ('reaped','output_complete','timeout')if type(value.get(k))is bool}
+                child['supervision'].update(
+                    exit=value.get('exit')if type(value.get('exit'))is int and -255<=value['exit']<=255 else None,
+                    ownership=value.get('ownership')if value.get('ownership')in ('OWNED','REAPED','UNKNOWN')else 'UNKNOWN',
+                    group_census='EMPTY_TWICE'if value.get('group_census')=='EMPTY_TWICE'else 'NOT_CONFIRMED_EMPTY',
+                    supervisor_error=value.get('error')is not None,
+                    signals_observed=bool(value.get('signals')))
+            for key in ('output_pin','stderr_pin'):
+                value=row.get(key)
+                if type(value)is dict and set(value)=={'bytes','sha256'}and type(value.get('bytes'))is int and 0<=value['bytes']<=1024**2:
+                    try:child[key]=dict(whole(value,allow_empty=True))
+                    except ValueError:pass
+            absence=row.get('scope_absence')
+            scope='cachy-current-materials-'+('close-'if row['kind']=='CLOSE'else '')+plan.d['nonce']+'.scope'
+            child['scope_absent_twice']=type(absence)is dict and absence.get('scope')==scope and absence.get('absent_twice')is True
+            result['children'].append(child)
+        if hold:
+            result['source_hold']=dict(status='NOT_OBSERVED')
+            if result['stage_submitted']:
+                path=Path(decode(plan.request['material_staging']['grant_json'].encode())['storage_parent'])/('cachy-current-materials-'+plan.d['nonce'])/'HOLD.json'
+                try:
+                    raw=read(path,4096);value=decode(raw)
+                    need(type(value)is dict and raw==encoded(value)and set(value)=={'status','scope','Root_acceptance'}and value['Root_acceptance']is None
+                         and value['status']=='HOLD_PARTIAL_OWNED_DATA_CLOSEONLY'
+                         and value['scope']=='/system.slice/cachy-current-materials-'+plan.d['nonce']+'.scope','exact selected safe Source HOLD receipt')
+                    result['source_hold']=dict(status=value['status'],pin=pin(raw),source_reason='NOT_EMITTED_BY_PINNED_SOURCE')
+                except FileNotFoundError:pass
+                except BaseException:result['source_hold']=dict(status='UNAVAILABLE_OR_UNSAFE')
+        return result
+    except BaseException:return dict(status='DIAGNOSTICS_UNAVAILABLE')
+
+
 def stage_and_assemble(plan,context,secrets,private,public):
     value=plan.request['material_staging'];raw_g=value['grant_json'].encode()
+    plan.public_phase='material_grant'
     plan.S.validate_grant(raw_g,value['grant_pin']['sha256'],plan.d,context,plan.policy)
+    plan.public_phase='material_open'
     plan.material_session=plan.M.open_material_session(source_root=plan.root,delegation_raw=plan.request['delegation_json'].encode(),delegation_sha256=plan.request['delegation_pin']['sha256'],
         context=context,grant_raw=raw_g,grant_sha256=value['grant_pin']['sha256'],shared_timing=plan.timing,control_root=plan.control,runner_uid=os.getuid(),runner_gid=os.getgid())
     session=plan.material_session;need(callable(getattr(session,'stage',None))and callable(getattr(session,'close',None)),'held concrete input session stage/close API')
+    plan.public_phase='material_stage'
     try:result=session.stage(secrets=secrets)
     finally:secrets.clear()
     need(type(result)is dict and set(result)=={'receipt','references','assembler_fields','staging_scope_retirement'},'exact actual staging/session result')
+    plan.public_phase='material_retirement'
     retirement=result['staging_scope_retirement'];need(retirement['natural']is True and retirement['scope_absent']is True and retirement['scope']=='cachy-current-materials-'+plan.d['nonce']+'.scope','natural actual staging scope retired before input assembly')
+    plan.public_phase='material_receipt'
     receipt=result['receipt'];need(receipt['status']=='COMPLETE517_HOSTED_CACHE_DATA_ONLY'and receipt['binding']==context['binding']and receipt['verified_files']==517 and all(receipt.get(k)==v for k,v in FINAL.items()),'same actual complete517 provisional result only')
+    plan.public_phase='material_fields'
     B=program(plan.root,plan.d['programs']['base_inputs'],'current_hosted_staging_base_provider')
     fields=B.assembler_fields(result['references']);need(fields==result['assembler_fields'],'exact maintained complete517 assembler fields')
     total=sum(row['bytes']for name in('base_materials','supplemental_materials','keyring_materials')for row in fields[name].values())
     need(receipt['verified_bytes']==result['references']['verified_bytes']==total,'same actual whole517 byte count')
     raw=assembly_request(value['assembler_request'])
+    plan.public_phase='assembly_selection'
     storage=Path(decode(raw_g)['storage_parent']);need(storage==storage.resolve()and storage.is_dir()and storage.stat().st_uid==os.getuid()and stat.S_IMODE(storage.stat().st_mode)==0o700,'same actual held caller-owned input domain')
     metadata=storage/('cachy-current-materials-'+plan.d['nonce'])/'Root-selected-public-metadata';metadata.mkdir(mode=0o700)
     request=assembly_selection(decode(raw),plan,fields,metadata);need(all(request[k]is None for k in BASE_FIELDS),'never replace Root-selected body refs');request.update(fields)
     output=storage/('cachy-current-materials-'+plan.d['nonce'])/'assembled'
     A=program(plan.root,plan.d['programs']['inputs_assembler'],'current_hosted_actual_input_assembler')
+    plan.public_phase='assembly'
     envelope=A.assemble_inputs(delegation_raw=plan.request['delegation_json'].encode(),delegation_sha256=plan.request['delegation_pin']['sha256'],source_root=plan.root,
         request=request,output=output,context=context,context_program=plan.H)
+    plan.public_phase='assembly_output'
     path=output/'inputs.json';raw_inputs=read(path,4*1024**2);need(decode(raw_inputs)==envelope,'actual committed assembler wrote the same canonical wrapper')
     actual=dict(plan.request,staged_root=str(storage),staged_inputs=dict(path=str(path),**pin(raw_inputs)))
+    plan.public_phase='input_intake'
     plan.inputs,plan.intake=checked_inputs(actual,plan.d,plan.root,plan.H,min(time.monotonic()+180,plan.timing['deadline_monotonic']))
+    plan.public_phase='staging_retention'
     remaining(plan.timing);write(private/'inputs.json',encoded(plan.inputs))
     write(public/'material-staging.json',encoded(dict(receipt=receipt,staging_scope_retirement=retirement,wrapper_pin=pin(raw_inputs),intake=plan.intake,**FINAL)))
     return result
@@ -502,10 +574,13 @@ def _execute_bound(args,env,r,secrets):
     try:
         git=['/usr/bin/git','--no-replace-objects','-c','core.hooksPath=/dev/null','-c','maintenance.auto=false','-c','gc.auto=0']
         for name,root,expected in [('Main',plan.main,r['trusted_main_commit']),('Source',plan.root,plan.d['binding']['source'])]:
+            plan.public_phase='git_main'if name=='Main'else'git_source'
             output,_=run(plan.O,[*git,'-C',str(root),'rev-parse','--verify','HEAD'],15,private);need(output.decode().strip()==expected,'actual '+name+' Git commit')
+        plan.public_phase='metadata'
         seconds=plan.d['context_limits']['metadata_query_seconds'];maximum=plan.d['context_limits']['metadata_max_bytes'];url=metadata_url(plan.d,env.get('GITHUB_RUN_ID'))
         before=time.monotonic();body,receipt=run(plan.O,['/usr/bin/python3','-I','-B',str(Path(__file__).resolve()),'metadata','--url',url,'--seconds',str(seconds),'--maximum',str(maximum)],seconds,private)
         response=dict(url=url,status=200,body=body,received_epoch=int(time.time()),elapsed_ms=int((time.monotonic()-before)*1000))
+        plan.public_phase='context'
         context=plan.H.capture_context(r['delegation_json'].encode(),r['delegation_pin']['sha256'],plan.root,environ={k:env.get(k)for k in plan.H.ENV},jobs_response=response)
         raw_c=encoded(context);raw_i=encoded(plan.inputs)if plan.inputs is not None else None;raw_r=read(args.request,LIMITS['request_bytes'])
         for name,raw in [('context.json',raw_c),('inputs.json',raw_i),('request.json',raw_r)]:
@@ -513,13 +588,16 @@ def _execute_bound(args,env,r,secrets):
         write(public/'context.json',raw_c);report.update(binding=context['binding'],metadata=receipt)
         need(time.monotonic()-started<LIMITS['preflight_seconds'],'complete preprivilege wall budget')
         if plan.Q:
+            plan.public_phase='timing'
             plan.timing=make_timing(plan,context,started)
             plan.timing_path=private/'timing.json';raw_t=encoded(plan.timing);plan.timing_sha=pin(raw_t)['sha256']
             write(plan.timing_path,raw_t);write(public/'timing.json',raw_t)
             if getattr(plan,'S',None):
                 signal.setitimer(signal.ITIMER_REAL,remaining(plan.timing));resource.setrlimit(resource.RLIMIT_CPU,(LIMITS['cpu_seconds'],)*2)
                 stage_and_assemble(plan,context,secrets,private,public);raw_i=encoded(plan.inputs);report['intake']=plan.intake
+                plan.public_phase='post_staging_tools'
                 observations=plan.E.probe_tools();need(set(observations['missing_or_invalid'])<={'bsdtar'},'actual fresh tools after held staging; only explicit prerequisite missing')
+            plan.public_phase='prerequisites'
             environment={key:env.get(key) for key in PREREQUISITE_ENV};raw_e=encoded(environment)
             environment_path=private/'prerequisite-environment.json';write(environment_path,raw_e)
             need(not Path('/sys/fs/cgroup/system.slice/cachy-current-prerequisites-'+plan.d['nonce']+'.scope').exists(),'fresh prerequisite scope')
@@ -532,6 +610,7 @@ def _execute_bound(args,env,r,secrets):
             tools=plan.E.probe_tools();need(not tools['missing_or_invalid'] and len(plan.E.NAMES)==16 and len(set(plan.E.NAMES))==16 and set(tools['tools'])==set(plan.E.NAMES),'fresh complete16 tools only after prerequisite retirement')
             prerequisite_scope_tools(plan)
             report['tools_after_prerequisites']=tools
+            plan.public_phase='context_refresh'
             seconds=plan.d['context_limits']['metadata_query_seconds'];before=time.monotonic()
             body,receipt=run(plan.O,['/usr/bin/python3','-I','-B',str(Path(__file__).resolve()),'metadata','--url',url,'--seconds',str(seconds),'--maximum',str(maximum)],min(seconds,remaining(plan.timing)),private)
             response=dict(url=url,status=200,body=body,received_epoch=int(time.time()),elapsed_ms=int((time.monotonic()-before)*1000))
@@ -542,6 +621,7 @@ def _execute_bound(args,env,r,secrets):
             report['metadata_after_prerequisites']=receipt
             report['shared_timing']=dict(whole_budget_seconds=7560,elapsed_seconds=time.monotonic()-started,
                 controller_runtime_ceiling_seconds=controller_seconds(plan),available_stage_ceiling_seconds=available_stage_seconds(plan))
+        plan.public_phase='controller'
         need(not Path('/sys/fs/cgroup/system.slice/cachy-current-controller-'+plan.d['nonce']+'.scope').exists(),'fresh unadopted controller cgroup')
         fixed_tool('/usr/bin/sudo');prerequisite_scope_tools(plan);signal.setitimer(signal.ITIMER_REAL,remaining(plan.timing) if plan.Q else 0)
         resource.setrlimit(resource.RLIMIT_CPU,(LIMITS['cpu_seconds'],)*2)
@@ -550,19 +630,25 @@ def _execute_bound(args,env,r,secrets):
         _,retirement=run(plan.O,argv,min(7590,remaining(plan.timing) if plan.Q else started+LIMITS['launcher_seconds']-time.monotonic()),private);report['controller_retirement']=retirement
         report['scope_absence']=scope_absent(plan.d['nonce'])
         if plan.Q:remaining(plan.timing)
+        plan.public_phase='controller_result'
         path=Path('/var/lib/cachy-current-'+plan.d['nonce'])/'executor-report.json';result=decode(read(path))
         need(result['binding']==context['binding']and result['status']=='DELEGATED_OWNED_STAGE_RETIRED_DATA_ONLY'
              and result['cleanup']['owned_storage_absent']is True and not result['cleanup']['errors']
              and all(result.get(k)==v for k,v in FINAL.items()),'same actual retired controller outcome; no inferred acceptance')
-        report.update(status='DELEGATED_HOSTED_CONTROLLER_RETIRED_DATA_ONLY',cleanup=dict(owned_storage_absent=True,error_count=0))
-    except BaseException as error:report['failure_type']=type(error).__name__
+        report.update(status='DELEGATED_HOSTED_CONTROLLER_RETIRED_DATA_ONLY',cleanup=dict(owned_storage_absent=True,error_count=0));plan.public_phase='complete'
+    except BaseException as error:report['failure'],report['failure_type']=failure_summary(plan,error)
     finally:
         if getattr(plan,'material_session',None)is not None:
+            if report['status']=='HOLD':report['material_failure_before_cleanup']=material_failure_data(plan,hold=True)
             try:
                 closed=plan.material_session.close()
                 need(closed['closed']is True and closed['scope_absent']is True and closed['input_storage_absent']is True and all(closed.get(k)==v for k,v in FINAL.items()),'actual final input-domain retirement and storage absence')
                 report['material_domain_cleanup']={k:closed[k]for k in('closed','scope_absent','input_storage_absent',*FINAL)}
-            except BaseException as error:report.update(status='HOLD',material_cleanup_failure=type(error).__name__)
+            except BaseException as error:
+                diagnostic,kind=failure_summary(SimpleNamespace(public_phase='material_cleanup'),error)
+                report.update(status='HOLD',material_cleanup_failure=kind,material_cleanup_diagnostic=diagnostic)
+                if 'failure'not in report:report.update(failure=diagnostic,failure_type=kind)
+            if report['status']=='HOLD':report['material_children_after_cleanup']=material_failure_data(plan)
         paths=list(plan.control.rglob('*'));need(len(paths)<=LIMITS['control_nodes']and not any(p.is_symlink()for p in paths)and sum(p.stat().st_size for p in paths if p.is_file())<=LIMITS['control_bytes'],'finite ordinary control storage')
         write(public/'launcher-report.json',encoded(report))
     return 0 if report['status']=='DELEGATED_HOSTED_CONTROLLER_RETIRED_DATA_ONLY'else 2
