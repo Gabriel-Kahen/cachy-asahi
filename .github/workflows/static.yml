@@ -377,6 +377,7 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/integration/networkmanager_session_vm/test_serial_driver.py
           python3 -I -B -Werror::ResourceWarning -m unittest discover -s scripts/integration/networkmanager_seat_vm -p 'test_*.py' -v
           python3 -I -B -Werror::ResourceWarning scripts/port/arm-rust-toolchain-inputs/test_catalog.py
+          python3 -I -B -Werror::ResourceWarning scripts/port/arm-rust-toolchain-inputs/test_recover_qt_signature.py
           python3 -I -B -Werror::ResourceWarning scripts/port/arm-rust-toolchain-inputs/qtbase-successor/test_candidate.py
           python3 -I -B -Werror::ResourceWarning scripts/port/arm-rust-toolchain-inputs/source-closure/test_collect.py
           python3 -I -B -Werror::ResourceWarning scripts/port/arm-rust-toolchain-inputs/source-closure/authentication/test_authenticate.py
