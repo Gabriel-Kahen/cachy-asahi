@@ -246,6 +246,27 @@ class ArchiveTests(unittest.TestCase):
         self.assertEqual(rows['payload']['bytes'], 12 * 1024**2)
         self.assertLess(peak, 2 * 1024**2)
 
+    def test_opt_in_metadata_is_exact_bounded_and_published_only_on_success(self):
+        metadata_raw = b'pkgname = demo\npkgver = 1-1\narch = any\nbackup = etc/demo\n'
+        for kind in FORMATS:
+            with self.subTest(kind=kind):
+                self.path.write_bytes(compress(tar_bytes([('.PKGINFO', metadata_raw), ('data', b'x')]), kind))
+                metadata = {}
+                self.assertIn('data', reader.archive_payload(self.path, self.limits, pkginfo=metadata))
+                self.assertEqual(metadata, {'raw': metadata_raw})
+        for raw in (tar_bytes([('data', b'x')]),
+                    tar_bytes([('.PKGINFO', b'x' * (reader.CHUNK + 1))]),
+                    tar_bytes([('.PKGINFO', metadata_raw)]) + b'bad tail'):
+            self.path.write_bytes(compress(raw, 'gzip'))
+            metadata, accounting = {}, {}
+            with self.assertRaises(reader.Invalid):
+                reader.archive_payload(self.path, self.limits, accounting, pkginfo=metadata)
+            self.assertEqual(metadata, {})
+            self.assertEqual(accounting, {})
+        self.parse()
+        with self.assertRaisesRegex(reader.Invalid, 'empty package metadata'):
+            reader.archive_payload(self.path, self.limits, pkginfo={'raw': b'stale'})
+
     def test_invalid_limits_and_aggregate_values_are_refused(self):
         for name in ('compressed_bytes', 'total_compressed_bytes', 'decoded_bytes', 'members', 'file_bytes', 'window_bytes'):
             with self.subTest(name=name), self.assertRaises(reader.Invalid):

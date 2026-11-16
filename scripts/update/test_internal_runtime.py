@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 """Inert full node-map and descriptor checks; no package transaction actors."""
 import os
+from contextlib import ExitStack
+from dataclasses import replace
+import io
 from pathlib import Path
 import sys
 import tempfile
+import tarfile
 import time
 from types import SimpleNamespace
 import unittest
@@ -161,5 +165,220 @@ class Tests(unittest.TestCase):
         self.assertFalse(getattr(self.runtime,'commit_ready',False))
         with patch.object(internal.scale.Runtime,'precommit'): self.runtime.precommit()
         self.assertTrue(self.runtime.commit_ready)
+
+class PriorArchives(unittest.TestCase):
+    """Real TEST signatures and read-only ALPM in an owned fixture database.
+
+    Run in `unshare --user --map-root-user` so archive UID/GID zero has its real
+    installed meaning without changing host ownership or installing anything.
+    """
+    file = Tests.file
+    config = Tests.config
+
+    @classmethod
+    def setUpClass(cls):
+        if os.getuid() != 0 or os.getgid() != 0:
+            raise unittest.SkipTest('run in a private mapped-root user namespace for exact archive ownership')
+        from test_snapshot import signing
+        cls.stack = ExitStack()
+        cls.addClassCleanup(cls.stack.close)
+        cls.keys = Path(cls.stack.enter_context(tempfile.TemporaryDirectory(prefix='prior-keys-')))
+        cls.signer, cls.public, sign = cls.stack.enter_context(signing(cls.keys / 'keys'))
+        cls.sign = staticmethod(sign)
+
+    def setUp(self):
+        Tests.setUp(self)
+        self.case = self.root.parent
+        self.args = SimpleNamespace(root=str(self.root), prior_archive=str(self.case / 'old.pkg.tar.gz'))
+        self.runtime = internal.Runtime(self.args, self.config())
+        self.seed = self.runtime.tree(self.root)
+        self.archive = Path(self.args.prior_archive)
+        self.work = self.case / 'work'
+        (self.work / 'authenticated/bundle').mkdir(parents=True)
+        keyring = self.work / 'authenticated/public.gpg'
+        keyring.write_bytes(self.public)
+        self.snapshot = dict(bundle=self.work / 'authenticated/bundle', keyring=keyring,
+            metadata=dict(signer=self.signer), release=dict(packages=[dict(arch='any')]))
+        self.before = {'selected': '1-1', 'held': '1-1'}
+        self.entries = {'usr/share/selected': b'inert data\n'}
+        self.alpm = None
+
+    def prepare(self, *, metadata='', backups='', foreign=()):
+        local = self.root / 'var/lib/pacman/local'
+        (local / 'ALPM_DB_VERSION').write_text('9\n')
+        for package in self.before:
+            directory = local / (package + '-1-1')
+            (directory / 'desc').write_text(f'%NAME%\n{package}\n\n%VERSION%\n1-1\n\n%ARCH%\nany\n\n')
+            owned = self.entries if package == 'selected' else foreign
+            suffix = '%BACKUP%\n' + backups + '\n\n' if package == 'selected' and backups else ''
+            (directory / 'files').write_text('%FILES%\n' + '\n'.join(owned) + '\n\n' + suffix)
+        with tarfile.open(self.archive, 'w:gz') as archive:
+            controls = f'pkgname = selected\npkgver = 1-1\narch = any\nlicense = MIT\n{metadata}'.encode()
+            for name, data in {'.PKGINFO': controls, **self.entries}.items():
+                node = tarfile.TarInfo(name)
+                node.mode = 0o644
+                if data is None:
+                    node.type, node.mode = tarfile.DIRTYPE, 0o755
+                    archive.addfile(node)
+                elif isinstance(data, tuple):
+                    node.type, node.linkname, node.mode = tarfile.SYMTYPE, data[0], 0o777
+                    archive.addfile(node)
+                else:
+                    node.size = len(data)
+                    archive.addfile(node, io.BytesIO(data))
+        self.sign(self.archive)
+        self.alpm = internal.roots.Alpm(self.root, self.keys / 'keys', self.case / 'read-only-alpm.log',
+                                        os.uname().machine, limits=self.runtime.root_limits)
+        self.addCleanup(self.alpm.close)
+        self.runtime.alpm = self.alpm
+        self.runtime.old_paths = self.alpm.owned_files({'selected'})
+        self.runtime.baseline = self.runtime.observation = None
+        self.seed = self.runtime.tree(self.root)
+
+    def authenticate(self):
+        self.runtime.select_prior(self.snapshot, self.before, {'selected': '2-1'})
+
+    def test_signed_old_regular_and_symlink_leaves_remove_only_obsolete_nodes(self):
+        link = self.root / 'usr/share/retired-link'
+        link.symlink_to('selected')
+        self.entries['usr/share/retired-link'] = ('selected',)
+        self.runtime.baseline = self.runtime.observation = None
+        self.seed = self.runtime.tree(self.root)
+        self.prepare()
+        self.authenticate()
+        projected = self.runtime.projected_paths(self.seed, {})
+        self.assertEqual(projected, {path: node for path, node in self.seed.items() if path not in self.entries})
+        self.runtime.tree(self.root)  # Original leaves must remain until commit.
+        for name in self.entries:
+            (self.root / name).unlink()
+        self.runtime.commit_ready = True
+        self.assertEqual(self.runtime.tree(self.root), projected)
+        self.assertEqual((self.root / 'home/user/config').read_bytes(), b'inert data\n')
+
+    def test_modified_leaf_refuses_and_preserves_user_content(self):
+        self.prepare()
+        (self.root / 'usr/share/selected').write_bytes(b'user edit')
+        self.runtime.baseline = self.runtime.observation = None
+        self.seed = self.runtime.tree(self.root)
+        self.authenticate()
+        with self.assertRaisesRegex(ValueError, 'modified or hardlinked'):
+            self.runtime.projected_paths(self.seed, {})
+        self.assertEqual((self.root / 'usr/share/selected').read_bytes(), b'user edit')
+
+    def test_signed_old_bytes_or_signature_tamper_never_authorizes_removal(self):
+        self.prepare()
+        self.archive.write_bytes(self.archive.read_bytes() + b'changed')
+        with self.assertRaisesRegex(internal.scale.bound.client.Error, 'GPG rejected'):
+            self.authenticate()
+        self.assertIsNone(self.runtime.prior)
+
+    def test_wrong_installed_version_in_signed_old_archive_refuses(self):
+        self.prepare(metadata='pkgver = 0-1\n')
+        with self.assertRaisesRegex(ValueError, 'prior package identity'):
+            self.authenticate()
+
+    def test_signed_archive_backup_semantics_refuse(self):
+        self.prepare(metadata='backup = usr/share/selected\n')
+        with self.assertRaisesRegex(ValueError, 'archive backup semantics'):
+            self.authenticate()
+
+    def test_actual_installed_backup_semantics_refuse(self):
+        self.prepare(backups='usr/share/selected\t0123456789abcdef0123456789abcdef')
+        with self.assertRaisesRegex(ValueError, 'installed backup semantics'):
+            self.authenticate()
+
+    def test_shared_local_ownership_refuses_obsolete_removal(self):
+        self.prepare(foreign=('usr/share/selected',))
+        self.authenticate()
+        with self.assertRaisesRegex(ValueError, 'foreign ownership'):
+            self.runtime.projected_paths(self.seed, {})
+
+    def test_complete_old_ownership_is_required(self):
+        self.entries['usr/share/extra'] = b'not installed'
+        self.prepare()
+        self.runtime.old_paths.remove('usr/share/extra')
+        with self.assertRaisesRegex(ValueError, 'selected ownership differ'):
+            self.authenticate()
+
+    def test_prior_source_drift_refuses_before_commit_and_after_observation(self):
+        self.prepare()
+        self.authenticate()
+        self.runtime.projected_paths(self.seed, {})
+        self.archive.write_bytes(self.archive.read_bytes() + b'drift')
+        for committed in (False, True):
+            self.runtime.commit_ready = committed
+            with self.assertRaisesRegex(ValueError, 'prior input identity changed'):
+                self.runtime.tree(self.root)
+
+    def test_signed_symlink_drift_preserves_obsolete_leaf(self):
+        path = self.root / 'usr/share/selected'
+        path.unlink()
+        path.symlink_to('a')
+        self.entries['usr/share/selected'] = ('a',)
+        self.prepare()
+        self.authenticate()
+        path.unlink()
+        path.symlink_to('b')
+        self.runtime.baseline = self.runtime.observation = None
+        self.seed = self.runtime.tree(self.root)
+        with self.assertRaisesRegex(ValueError, 'modified or hardlinked'):
+            self.runtime.projected_paths(self.seed, {})
+        self.assertEqual(os.readlink(path), 'b')
+
+    def test_obsolete_directory_still_refuses_with_authenticated_prior(self):
+        path = self.root / 'usr/share/retired'
+        path.mkdir()
+        self.entries['usr/share/retired'] = None
+        self.prepare()
+        self.authenticate()
+        with self.assertRaisesRegex(ValueError, 'directory removal unsupported'):
+            self.runtime.projected_paths(self.seed, {'usr/share/selected': self.file(b'new')})
+        self.assertTrue(path.is_dir())
+
+    def test_obsolete_hardlink_still_refuses_with_authenticated_prior(self):
+        path = self.root / 'usr/share/selected'
+        os.link(path, self.root / 'usr/share/held-alias')
+        self.prepare()
+        self.authenticate()
+        with self.assertRaisesRegex(ValueError, 'modified or hardlinked'):
+            self.runtime.projected_paths(self.seed, {})
+        self.assertEqual(path.stat().st_nlink, 2)
+
+    def test_obsolete_leaf_under_parent_alias_refuses(self):
+        self.entries = {'usr/alias/selected': b'inert data\n'}
+        self.prepare()
+        self.authenticate()
+        with self.assertRaisesRegex(ValueError, 'parent alias unsupported'):
+            self.runtime.projected_paths(self.seed, {})
+        self.assertTrue((self.root / 'usr/share/selected').is_file())
+
+    def test_signature_from_a_distinct_primary_is_refused(self):
+        from test_snapshot import signing
+        self.prepare()
+        with signing(self.case / 'foreign-keys') as (_, _, sign):
+            sign(self.archive)
+        with self.assertRaisesRegex(internal.scale.bound.client.Error, 'GPG rejected'):
+            self.authenticate()
+        self.assertIsNone(self.runtime.prior)
+
+    def test_frozen_prior_copy_drift_prevents_precommit_flag(self):
+        self.prepare()
+        self.authenticate()
+        self.runtime.projected_paths(self.seed, {})
+        copied = self.work / 'prior-package/archive'
+        copied.chmod(0o600)
+        copied.write_bytes(copied.read_bytes() + b'drift')
+        with patch.object(internal.scale.Runtime, 'precommit'):
+            with self.assertRaisesRegex(ValueError, 'prior input identity changed'):
+                self.runtime.precommit()
+        self.assertFalse(getattr(self.runtime, 'commit_ready', False))
+
+    def test_old_and_new_archives_share_existing_aggregate_limits(self):
+        self.prepare()
+        self.authenticate()
+        self.runtime.archive_limits = replace(self.runtime.archive_limits,
+            total_compressed_bytes=self.archive.stat().st_size)
+        with self.assertRaisesRegex(internal.scale.archives.Invalid, 'aggregate compressed'):
+            self.runtime.archive_payload(self.archive, {'bytes': 0, 'nodes': 0})
 
 if __name__=='__main__': unittest.main()
