@@ -1,0 +1,177 @@
+{
+  "M2": false,
+  "Root_final_acceptance": true,
+  "accepted": true,
+  "admission": null,
+  "archive": {
+    "arch": "aarch64",
+    "bytes": 192385078,
+    "package": "cachy-asahi-llvm23-source-reference",
+    "sha256": "689621ffa5261bdc7d382448529f6fa5d6e30f473d7470101cd0ab7d94140042",
+    "version": "23.1.1-1"
+  },
+  "artifact": {
+    "bytes": 194327220,
+    "id": "14186236728",
+    "metadata_sha256": "8ceb0eb943bf4cce78ba2ae323f249ef531f91ebca4bdcd1171e108bf922df8f",
+    "sha256": "39378b519abce9168e1faf41313420fa24b9f15cb396e22ed774d3a62a2775b7"
+  },
+  "decision_utc": "2026-11-16T02:44:40.782164+00:00",
+  "dispatch": null,
+  "evidence": {
+    "TEST_signing": {
+      "bytes": 1257,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-llvm260-TEST-sign-r1/execution-result.json",
+      "sha256": "bfec127bff29b1a5bc4685eaae303c4c66bd9ef226ee19f3d95d1072df8ed99b"
+    },
+    "native_component": {
+      "bytes": 4539,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-llvm260-native-component-decision-r1/Root-native-component-decision.ACTUAL.json",
+      "sha256": "894bc71aab7156be97488d153cd56900b8c24851e2b9c490be762f008ef6c285"
+    },
+    "public_verification": {
+      "bytes": 949,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-llvm260-TEST-sign-r1/llvm260-TEST-verification.json",
+      "sha256": "2383ff5aaa753b6941195aef081d542d7a0455c367c16772bed3665fffd88bfb"
+    }
+  },
+  "holds_preserved": true,
+  "issuer": "Root",
+  "llvm_v2": {
+    "policy": {
+      "bytes": 1114,
+      "resources": {
+        "active_minimum_disk_bytes": 1073741824,
+        "active_minimum_host_memory_bytes": 4294967296,
+        "actor_cpus": 2,
+        "actor_memory_bytes": 8589934592,
+        "actor_pids": 512,
+        "actor_seconds": 14400,
+        "actor_swap_bytes": 0,
+        "bootstrap_seconds": 4500,
+        "class": "HEAVY_NON_KERNEL",
+        "cleanup_seconds": 300,
+        "export_bytes": 4294967296,
+        "job_timeout_minutes": 360,
+        "log_bytes": 67108864,
+        "minimum_available_disk_bytes_per_device": 68719476736,
+        "minimum_available_inodes_per_device": 600000,
+        "minimum_host_available_memory_bytes": 12884901888,
+        "native_seconds": 19920,
+        "package_bytes": 2147483648,
+        "schema": 1,
+        "source_archive_body_bytes": 201326592,
+        "source_archive_requests_including_redirects": 4,
+        "source_intake_seconds": 600,
+        "status": "PROPOSAL_ONLY_ROOT_EXTERNAL_ADMISSION_REQUIRED",
+        "work_volume_initialization": {
+          "cap_add": [
+            "CHOWN"
+          ],
+          "cpus": 1,
+          "memory_bytes": 536870912,
+          "mounts": "ONLY_EXACT_OWNED_WORK_VOLUME_NOCOPY",
+          "network": "none",
+          "pids": 64,
+          "recursive": false,
+          "seconds": 120,
+          "swap_bytes": 0,
+          "user": "0:0"
+        }
+      },
+      "sha256": "e69b47708f171a63b7fcdcc413d6b53070f047e7240723f06115c02049c8b544"
+    },
+    "publication_sha256": "602bb01a24ae663cdf470e6d9fe3b547c281c29dd85860417f9063e659eabfd8",
+    "reader_binding": {
+      "actual": {
+        "approval": "8ddd755800e2f482140f23de33e9da6c83ea033d94703fc02ccb86cfe5d901f1",
+        "artifact": "14186236728",
+        "attempt": 1,
+        "authority": "7eaa60e1f174c8c287119797fcb61a396b10b94d5d4a71f3f6a6d38a8096ccc5",
+        "image": "sha256:83c8b49a30bf684cc698586fbd34e434af92ed628bad8d1f7ce8103c36540944",
+        "job": "132954847327",
+        "reader": "Root-llvm260-Reader7-r1",
+        "ref": "refs/heads/codex/llvm23-source-reference-native-v2-20261115-r3",
+        "run": "43760769287",
+        "source": "031bf1634429446cd0068f4842d56af276cf40f4"
+      },
+      "export_sha256": "bfc854568b6b275c4baca4029a3c4a412f0b6a3d67faf5f958388426768d2de8",
+      "full_original_decode": {
+        "bytes": 207709475,
+        "files": 624,
+        "map_sha256": "30b53c75707d57ffe6ac4f411cc51d7ae4be08030171f0777a3ba98051ee83ad"
+      },
+      "holds_preserved": true,
+      "operation": "llvm23-source-reference-native-v2",
+      "original_archive": {
+        "bytes": 194327220,
+        "sha256": "39378b519abce9168e1faf41313420fa24b9f15cb396e22ed774d3a62a2775b7"
+      },
+      "package_sha256": "689621ffa5261bdc7d382448529f6fa5d6e30f473d7470101cd0ab7d94140042",
+      "pins_sha256": "7a01820333a4b855eec0b4a1a673657afc0261039df036a5e34ea51283278328",
+      "policy_sha256": "e69b47708f171a63b7fcdcc413d6b53070f047e7240723f06115c02049c8b544",
+      "provider_sha256": "e0c83a660b2fb72cd31ea35cb27daafc8293323384c054a61f724ef6db77221a",
+      "publication": {
+        "bytes": 498,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-llvm260-source-r1/Root-public-readback.json",
+        "sha256": "602bb01a24ae663cdf470e6d9fe3b547c281c29dd85860417f9063e659eabfd8"
+      },
+      "reader_sha256": "936053e2e62a7c0a8c37772f083a22b59657db91746dcbc283f5aa73c74d9fcd",
+      "schema": 1,
+      "scope": "ROOT_BOUND_LLVM23_INDEPENDENT_READER_V7",
+      "source_commit_sha256": "b9775c9c06684335c08e31a405b484fa0a8baf83317aa294a6de22279368aa68",
+      "source_map_sha256": "75426d36fae416d1bc3606b8d1a7165408964996bb6467e3223842612221e187",
+      "source_tree": "a973e46f51174d1cc3523b66af7a7794b3e66c46",
+      "storage_profile": {
+        "bytes": 668,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-llvm260-Reader7-r1/Root-storage-profile.ACTUAL.json",
+        "sha256": "1a18966baf17fbf49814db9ee2e6b98d988711ee4107af9755e240ae28e1514c"
+      }
+    },
+    "reader_binding_sha256": "7aa3860709dce214a866ac396f8429f17e2c1856bc61be25fd84bfec9bf78322",
+    "reader_program_sha256": "936053e2e62a7c0a8c37772f083a22b59657db91746dcbc283f5aa73c74d9fcd",
+    "reader_result_sha256": "ed368782d2f93a09d85380d62da4c5e63727547a2949cf8ae9e319508ac080a7",
+    "source_identity": {
+      "bytes": 40989000,
+      "files": 260,
+      "map_sha256": "75426d36fae416d1bc3606b8d1a7165408964996bb6467e3223842612221e187",
+      "operation": "llvm23-source-reference-native-v2",
+      "profile_sha256": "e558255048be9808a08f024cad0cd8b609f8239eafb1b497b08d8149f862c383",
+      "ref": "refs/heads/codex/llvm23-source-reference-native-v2-20261115-r3",
+      "sha": "031bf1634429446cd0068f4842d56af276cf40f4",
+      "tree": "a973e46f51174d1cc3523b66af7a7794b3e66c46"
+    },
+    "source_reader_program_sha256": "b939343e3607b985e79c70c8f420e1a26dadf8433242d17df11b8b5be21eacb1"
+  },
+  "native16K": false,
+  "original": {
+    "artifact_id": "14186236728",
+    "job": "132954847327",
+    "run": "43760769287",
+    "source": "031bf1634429446cd0068f4842d56af276cf40f4"
+  },
+  "output_carrier_ids": null,
+  "performance": false,
+  "production": false,
+  "public_test_key": {
+    "bytes": 437,
+    "fingerprint": "BD0B3FBEB3035DB9DF46188E7EEEC20D9BDF4358",
+    "sha256": "759cb442a97309c58f7fed3a973c10e537281c4aca960470ed9513593debcf14",
+    "trust_scope": "TEST_ONLY"
+  },
+  "release": false,
+  "schema": 1,
+  "scope": "ONE_NATIVE_ARM4K_LLVM23_SOURCE_REFERENCE_PACKAGE_FRESH_PRIVATE_TEST_TRUST_ONLY",
+  "signature": {
+    "bytes": 119,
+    "sha256": "ffe7946ad416f553c59c1ccc4eb9319b03164db2ea1fcb6c3439be94c1b98143"
+  },
+  "source": {
+    "job": "132954847327",
+    "ref": "refs/heads/codex/llvm23-source-reference-native-v2-20261115-r3",
+    "run": "43760769287",
+    "sha": "031bf1634429446cd0068f4842d56af276cf40f4"
+  },
+  "status": "ACCEPTED_PRIVATE_LLVM23_PACKAGE_TEST_ONLY",
+  "verification_proof_sha256": "2383ff5aaa753b6941195aef081d542d7a0455c367c16772bed3665fffd88bfb"
+}

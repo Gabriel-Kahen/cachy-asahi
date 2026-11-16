@@ -1,0 +1,110 @@
+{
+  "Root_acceptance": null,
+  "Root_authentication": false,
+  "actual": {
+    "approval": "8ddd755800e2f482140f23de33e9da6c83ea033d94703fc02ccb86cfe5d901f1",
+    "artifact": "14186236728",
+    "attempt": 1,
+    "authority": "7eaa60e1f174c8c287119797fcb61a396b10b94d5d4a71f3f6a6d38a8096ccc5",
+    "image": "sha256:83c8b49a30bf684cc698586fbd34e434af92ed628bad8d1f7ce8103c36540944",
+    "job": "132954847327",
+    "reader": "Root-llvm260-Reader7-r1",
+    "ref": "refs/heads/codex/llvm23-source-reference-native-v2-20261115-r3",
+    "run": "43760769287",
+    "source": "031bf1634429446cd0068f4842d56af276cf40f4"
+  },
+  "binding_sha256": "7aa3860709dce214a866ac396f8429f17e2c1856bc61be25fd84bfec9bf78322",
+  "buildinfo_architecture": {
+    "architectures": {
+      "aarch64": 300,
+      "any": 49
+    },
+    "basis": "SOURCE_PINNED_SIGNED_BOOTSTRAP_INPUT_METADATA_NOT_OUTPUT_BUILDINFO",
+    "fresh_signature_verification": false,
+    "output_BUILDINFO_used_as_architecture_authority": false,
+    "required_external_architecture_input": null,
+    "rootfs_body_reread": false,
+    "rootfs_only_packages": 93,
+    "rows": 349,
+    "selected_packages": 256,
+    "selected_version_replacements": 71
+  },
+  "command_namespace": {
+    "bytes": 195831684,
+    "command_receipts": {
+      "buildinfo": "buildinfo.json",
+      "check": "stage-check.json",
+      "makepkg": "makepkg.json",
+      "packages-unsorted": "packages-unsorted.json",
+      "pkginfo": "pkginfo.json",
+      "probe": "stage-probe.json",
+      "runtimes": "stage-runtimes.json",
+      "tool-owners": "tool-owners.json",
+      "tools": "stage-tools.json"
+    },
+    "facts": {
+      "runtime": "runtime.json",
+      "tools": "tools.json"
+    },
+    "files": 44,
+    "runtime_and_build_success_separate": true
+  },
+  "elf_objects": 100,
+  "holds": "native16K/M2/performance/release remain held",
+  "native_acceptance": false,
+  "observed_native_page_bytes": 4096,
+  "package": {
+    "bytes": 192385078,
+    "sha256": "689621ffa5261bdc7d382448529f6fa5d6e30f473d7470101cd0ab7d94140042"
+  },
+  "passive_projection": {
+    "absent_image_stdout": {
+      "after_sha256": "6c43d85fec3c3e727bcb3404dfdb23cec1a04d008ab2bc8811e1b7efaa203d98",
+      "before_sha256": "c2b59ef95f7fba1738c8e3fc41674fc758c69e7cdac2d6e1f97ba30feeea1de2",
+      "inverse": "EXACT_FUNCTION_BYTES",
+      "seams": 1
+    },
+    "actual_tuple_projection": false,
+    "architecture_basis": "LLVM23_SOURCE260_BASE349_ARCHITECTURE_METADATA_V1",
+    "buildinfo": {
+      "after_sha256": "1054bf8582245500cb8e7fa5917a3b4f1b7ace491c12645eb6a660d379c482c9",
+      "before_sha256": "17ce8dd7407010505cba6dbc51a67bf3e2c779ab7e4d2c6f3636ca2bb1f049a0",
+      "inverse": "EXACT_FUNCTION_BYTES",
+      "seams": 1
+    },
+    "commands": {
+      "after_sha256": "ad0389032f75ac7cce845203501aa76f1d0a10c2e656fcd539708aa55292b189",
+      "before_sha256": "c0ecf2118bc95709ef778511f0914e0684457066a49d9372c95f548f98edb3b8",
+      "inverse": "EXACT_FUNCTION_BYTES",
+      "seams": 5
+    },
+    "replay": {
+      "after_sha256": "17ce8dd7407010505cba6dbc51a67bf3e2c779ab7e4d2c6f3636ca2bb1f049a0",
+      "before_sha256": "8c5983d5533345eb9246f0e34551275deca04c5613143cebde8dc40da1075508",
+      "inverse": "EXACT_FUNCTION_BYTES",
+      "seams": 1
+    }
+  },
+  "payload_entries": 4356,
+  "runtime_domain": "ROOTFUL_CONTAINER_NO_BWRAP_V1",
+  "schema": 1,
+  "source_files": 260,
+  "source_tree": "a973e46f51174d1cc3523b66af7a7794b3e66c46",
+  "status": "PASS_INDEPENDENT_LLVM23_BUILDINFO_ARCHITECTURE_SUCCESSOR_DATA_ONLY",
+  "storage": {
+    "available_bytes": 84980068352,
+    "fstat_device": 54,
+    "inode_accounting": "UNREPORTED",
+    "kernel_mount_device": "0:33",
+    "mode": "ROOT_REVIEWED_BTRFS_UNREPORTED_INODES",
+    "mount_id": 62,
+    "quota_claim": null,
+    "reservation": false
+  },
+  "verified_historical_inverse": [
+    256,
+    253,
+    251,
+    248
+  ]
+}

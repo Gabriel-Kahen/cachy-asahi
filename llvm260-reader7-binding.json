@@ -1,0 +1,46 @@
+{
+  "actual": {
+    "approval": "8ddd755800e2f482140f23de33e9da6c83ea033d94703fc02ccb86cfe5d901f1",
+    "artifact": "14186236728",
+    "attempt": 1,
+    "authority": "7eaa60e1f174c8c287119797fcb61a396b10b94d5d4a71f3f6a6d38a8096ccc5",
+    "image": "sha256:83c8b49a30bf684cc698586fbd34e434af92ed628bad8d1f7ce8103c36540944",
+    "job": "132954847327",
+    "reader": "Root-llvm260-Reader7-r1",
+    "ref": "refs/heads/codex/llvm23-source-reference-native-v2-20261115-r3",
+    "run": "43760769287",
+    "source": "031bf1634429446cd0068f4842d56af276cf40f4"
+  },
+  "export_sha256": "bfc854568b6b275c4baca4029a3c4a412f0b6a3d67faf5f958388426768d2de8",
+  "full_original_decode": {
+    "bytes": 207709475,
+    "files": 624,
+    "map_sha256": "30b53c75707d57ffe6ac4f411cc51d7ae4be08030171f0777a3ba98051ee83ad"
+  },
+  "holds_preserved": true,
+  "operation": "llvm23-source-reference-native-v2",
+  "original_archive": {
+    "bytes": 194327220,
+    "sha256": "39378b519abce9168e1faf41313420fa24b9f15cb396e22ed774d3a62a2775b7"
+  },
+  "package_sha256": "689621ffa5261bdc7d382448529f6fa5d6e30f473d7470101cd0ab7d94140042",
+  "pins_sha256": "7a01820333a4b855eec0b4a1a673657afc0261039df036a5e34ea51283278328",
+  "policy_sha256": "e69b47708f171a63b7fcdcc413d6b53070f047e7240723f06115c02049c8b544",
+  "provider_sha256": "e0c83a660b2fb72cd31ea35cb27daafc8293323384c054a61f724ef6db77221a",
+  "publication": {
+    "bytes": 498,
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-llvm260-source-r1/Root-public-readback.json",
+    "sha256": "602bb01a24ae663cdf470e6d9fe3b547c281c29dd85860417f9063e659eabfd8"
+  },
+  "reader_sha256": "936053e2e62a7c0a8c37772f083a22b59657db91746dcbc283f5aa73c74d9fcd",
+  "schema": 1,
+  "scope": "ROOT_BOUND_LLVM23_INDEPENDENT_READER_V7",
+  "source_commit_sha256": "b9775c9c06684335c08e31a405b484fa0a8baf83317aa294a6de22279368aa68",
+  "source_map_sha256": "75426d36fae416d1bc3606b8d1a7165408964996bb6467e3223842612221e187",
+  "source_tree": "a973e46f51174d1cc3523b66af7a7794b3e66c46",
+  "storage_profile": {
+    "bytes": 668,
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-llvm260-Reader7-r1/Root-storage-profile.ACTUAL.json",
+    "sha256": "1a18966baf17fbf49814db9ee2e6b98d988711ee4107af9755e240ae28e1514c"
+  }
+}

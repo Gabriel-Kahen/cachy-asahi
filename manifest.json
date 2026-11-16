@@ -1,0 +1,54 @@
+{
+  "case": {
+    "artifact": "14186236728",
+    "attempt": 1,
+    "job": "132954847327",
+    "map_sha256": "75426d36fae416d1bc3606b8d1a7165408964996bb6467e3223842612221e187",
+    "package": "cachy-asahi-llvm23-source-reference-23.1.1-1-aarch64.pkg.tar.zst",
+    "package_bytes": 192385078,
+    "package_sha256": "689621ffa5261bdc7d382448529f6fa5d6e30f473d7470101cd0ab7d94140042",
+    "ref": "refs/heads/codex/llvm23-source-reference-native-v2-20261115-r3",
+    "run": "43760769287",
+    "source": "031bf1634429446cd0068f4842d56af276cf40f4"
+  },
+  "files": {
+    "llvm_signature": {
+      "bytes": 119,
+      "name": "cachy-asahi-llvm23-source-reference-23.1.1-1-aarch64.pkg.tar.zst.sig",
+      "sha256": "ffe7946ad416f553c59c1ccc4eb9319b03164db2ea1fcb6c3439be94c1b98143"
+    },
+    "public_test_key": {
+      "bytes": 437,
+      "name": "llvm260-TEST-public.asc",
+      "sha256": "759cb442a97309c58f7fed3a973c10e537281c4aca960470ed9513593debcf14"
+    },
+    "reader_binding": {
+      "bytes": 2337,
+      "name": "llvm260-reader7-binding.json",
+      "sha256": "7aa3860709dce214a866ac396f8429f17e2c1856bc61be25fd84bfec9bf78322"
+    },
+    "reader_result": {
+      "bytes": 3871,
+      "name": "llvm260-reader7-result.json",
+      "sha256": "ed368782d2f93a09d85380d62da4c5e63727547a2949cf8ae9e319508ac080a7"
+    },
+    "root_decision": {
+      "bytes": 7766,
+      "name": "llvm260-Root-decision.json",
+      "sha256": "42c180bc40309a3ccbae2b4784c2ec9ce14e2652e98b033b73d6888cd05ca238"
+    },
+    "source_audit": {
+      "bytes": 320,
+      "name": "llvm260-source-audit.json",
+      "sha256": "92e1f8155d17fa7ea43b995f84291a561251a0bda03755c4663e9945c39e3048"
+    },
+    "verification_proof": {
+      "bytes": 949,
+      "name": "llvm260-TEST-verification.json",
+      "sha256": "2383ff5aaa753b6941195aef081d542d7a0455c367c16772bed3665fffd88bfb"
+    }
+  },
+  "reader_expected_status": "PASS_INDEPENDENT_LLVM23_BUILDINFO_ARCHITECTURE_SUCCESSOR_DATA_ONLY",
+  "schema": 1,
+  "scope": "LLVM260_RETAINED_PUBLIC_TEST_PROOFS_DATA_ONLY"
+}

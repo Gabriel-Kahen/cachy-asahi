@@ -1,0 +1,31 @@
+{
+  "Root_issuer": "Root",
+  "actual_verified_utc": "2026-11-16T02:25:09.406708+00:00",
+  "archive": {
+    "bytes": 192385078,
+    "sha256": "689621ffa5261bdc7d382448529f6fa5d6e30f473d7470101cd0ab7d94140042"
+  },
+  "program": {
+    "bytes": 1451056,
+    "path": "/usr/bin/gpg",
+    "sha256": "0317f5ec41b20edcaafc0e99455deba85ca7b3381b1f681dff3c2394de1667f0"
+  },
+  "public_test_key": {
+    "bytes": 437,
+    "fingerprint": "BD0B3FBEB3035DB9DF46188E7EEEC20D9BDF4358",
+    "sha256": "759cb442a97309c58f7fed3a973c10e537281c4aca960470ed9513593debcf14",
+    "trust_scope": "TEST_ONLY"
+  },
+  "schema": 1,
+  "signature": {
+    "bytes": 119,
+    "sha256": "ffe7946ad416f553c59c1ccc4eb9319b03164db2ea1fcb6c3439be94c1b98143"
+  },
+  "status": "ROOT_VERIFIED_PUBLIC_TEST_SIGNATURE",
+  "status_stream": {
+    "bytes": 408,
+    "sha256": "0b29f8f853b669a64edd5b337438d50f89236b4e813e3c9ec6083204723eee09"
+  },
+  "trust_scope": "TEST_ONLY",
+  "verified": true
+}

@@ -1,0 +1,7 @@
+{
+  "compiler_rt_libunwind_members_and_notices_reviewed": true,
+  "consumed_git_dependencies_and_paths_reviewed": true,
+  "library_cargo_config_sha256": "77e9219c27274120197571fd165cbe4121963b5ad3bc0b20b383c86ef0ce6c2b",
+  "retained_source_authentication_rejoined": true,
+  "status": "REVIEWED_FOR_THIS_PRIVATE_BUILD"
+}
