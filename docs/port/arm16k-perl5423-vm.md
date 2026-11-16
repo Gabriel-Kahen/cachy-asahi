@@ -327,3 +327,35 @@ probe budgets, package pathsets, protected users, trust, recovery and preservati
 gates remain unchanged. Portable/filesystem and optional private readonly ALPM
 controls provide source evidence only; no worker actor, VM, package transaction,
 new runtime acceptance, native16K, M2 or release qualification is supplied.
+
+
+Source52/case7 is an immutable consumed HOLD. Root reported preparation PASS in
+53.27 seconds and first-boot HOLD in136 seconds. The retained transcript contains
+the exact installed PASS fields, but systemd OSC3008 terminal metadata immediately
+prefixed INSTALLED_BEGIN without a newline. The anchored host parser therefore
+continued waiting for INSTALLED and subsequently observed PROBE HOLD,
+FAILED_PHASE=probe_checks, EXIT_STATUS=134. The actual aborting command and cause
+remain UNKNOWN; volatile ordinary-user logs did not survive forced retirement.
+No runtime acceptance follows, and no new batch-helper causal claim is made.
+
+The observability successor emits a leading newline before INSTALLED_BEGIN while
+leaving the strict host parser unchanged. Twelve fixed command tags now report
+`PERL5423_PROBE_PROGRESS <nonce> probe_<tag> <tag>` outside protocol frames and
+set the last selected command phase/log tag. The original bounded helper,
+functional argv/order/assertions, signature/user/preservation checks and budgets
+are unchanged. A finite inverse restores every original bounded call and the
+complete historical functional-tail SHA before checking that oracle.
+
+On probe HOLD only, the ordinary probe may emit one `PERL5423_PROBE_LOG` line
+before its original HOLD frame. It selects only the current fixed command log
+under the validated1000:1000:700 user directory; the file must be ordinary,
+single-link,1000:1000:600 and within the existing log cap. Two at-most4096-byte
+prefix reads and before/after metadata must agree. At most5464 base64 characters
+encode that observed prefix, with total file and selected-prefix lengths; NUL,
+terminal controls, arbitrary bytes and protocol-like text stay encoded on one
+ASCII-prefixed line. Missing, unsafe or changing logs are ignored. Root HOLD
+relay retains priority. Diagnostic output neither identifies a failing command
+nor changes FAILURE_SOURCE, original exit status, HOLD/PASS fields or acceptance.
+All tools were already certified; no tool, time/output budget, actor or hardware
+acceptance was added. New controls model exit134 with stderr, terminal framing,
+fixed tags, excerpt bounds and unsafe/changing-log refusal without running a VM.

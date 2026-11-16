@@ -12,6 +12,7 @@ nonce=INVALID
 failure_phase=probe_checks
 summary_relayed=0
 summary_state=ABSENT
+probe_log_tag=NONE
 
 # A Root summary is DATA, never shell input. Root publishes by chmod644 only
 # after its complete copy. Keep unpublished600 files pending within this wait.
@@ -99,10 +100,43 @@ wait_for_case() {
   sleep 1 || return
  done
 }
+# Only these fixed public command logs can leave the volatile ordinary-user
+# directory on HOLD. The tag records observation, never a failure diagnosis.
+probe_tag() {
+ case "$1" in version|functional|corelist|json|perldoc|podtext|podcheck|prove|sha|splain|paths|sync) return 0;;*) return 2;;esac
+}
+run_probe() {
+ local tag=$1 seconds=$2;shift 2
+ probe_tag "$tag" || return
+ failure_phase=probe_$tag;probe_log_tag=$tag
+ printf '\nPERL5423_PROBE_PROGRESS %s %s %s\n' "$nonce" "$failure_phase" "$probe_log_tag"
+ bounded "$seconds" "$tag.log" "$@"
+}
+relay_probe_diagnostic() {
+ local path before after bytes selected first again
+ probe_tag "${probe_log_tag:-NONE}" || return 1
+ [[ $nonce =~ ^[0-9a-f]{32}$ && $failure_phase == "probe_$probe_log_tag" ]] || return 1
+ path=$U/$probe_log_tag.log
+ [[ -d $U && ! -L $U && $(stat -c '%u:%g:%a' -- "$U") == 1000:1000:700 && -f $path && ! -L $path ]] || return 1
+ before=$(stat -c '%u:%g:%h:%a:%s:%d:%i:%y:%z' -- "$path") || return 1
+ [[ ${#before} -le 256 && $before =~ ^1000:1000:1:600:([0-9]+):[0-9]+:[0-9]+:.+$ ]] || return 1
+ bytes=${BASH_REMATCH[1]};(( bytes <= log_bytes )) || return 1
+ selected=$bytes;(( selected <= 4096 )) || selected=4096
+ first=$(head -c 4096 -- "$path" | base64 --wrap=0) || return 1
+ again=$(head -c 4096 -- "$path" | base64 --wrap=0) || return 1
+ after=$(stat -c '%u:%g:%h:%a:%s:%d:%i:%y:%z' -- "$path") || return 1
+ [[ $before == "$after" && $first == "$again" && ${#first} -le 5464 && $first =~ ^[A-Za-z0-9+/]*={0,2}$ ]] || return 1
+ [[ -d $U && ! -L $U && $(stat -c '%u:%g:%a' -- "$U") == 1000:1000:700 ]] || return 1
+ (( ${#first} == (selected+2)/3*4 )) || return 1
+ # One ASCII-prefixed encoded line: terminal controls/NUL/newlines/frame text
+ # stay encoded. No file path, environment, raw stderr or arbitrary tree leaves.
+ printf '\nPERL5423_PROBE_LOG %s %s %s BYTES=%s PREFIX_BYTES=%s BASE64=%s\n' "$nonce" "$failure_phase" "$probe_log_tag" "$bytes" "$selected" "$first"
+}
 finish() {
  local rc=$?
  trap - EXIT
  if [[ ${summary_relayed:-0} == 1 ]];then exit "$rc";fi
+ if [[ $status != PASS && ${probe_log_tag:-NONE} != NONE ]];then relay_probe_diagnostic || :;fi
  printf '\nPERL5423_PROBE_BEGIN %s\nSTATUS=%s\n' "$nonce" "$status"
  if [[ $status == PASS ]];then
   printf 'ARCH=aarch64\nPAGESIZE=16384\nUID=1000\nGID=1000\nPERL_VERSION=5.42.3\nFUNCTIONAL=PASS\nCOMMANDS=PASS\nELF_GEOMETRY=HOST_CHECK_REQUIRED\n'
@@ -129,45 +163,45 @@ failure_phase=probe_checks
 [[ $(stat -c '%u:%g:%a' "$O/installed") == 0:0:644 ]]
 [[ $(stat -c '%s' "$O/installed") == 33 ]]
 [[ -d $U && ! -L $U && $(stat -c '%u:%g:%a' "$U") == 1000:1000:700 ]]
-printf 'PERL5423_INSTALLED_BEGIN %s\nSTATUS=PASS\nPACKAGE=perl\nVERSION=5.42.3-1.3\nPERL5423_INSTALLED_END %s\n' "$nonce" "$nonce"
+printf '\nPERL5423_INSTALLED_BEGIN %s\nSTATUS=PASS\nPACKAGE=perl\nVERSION=5.42.3-1.3\nPERL5423_INSTALLED_END %s\n' "$nonce" "$nonce"
 [[ ! -e $U/PROBED && ! -L $U/PROBED ]]
 clock_valid
 verify_paths
 cd "$U"
 inventory > before.lock
 same_bytes "$D/expected-installed.lock" before.lock
-bounded "$run_seconds" version.log /usr/bin/perl -e 'print "$^V\n"'
+run_probe version "$run_seconds" /usr/bin/perl -e 'print "$^V\n"'
 printf 'v5.42.3\n' > expected-version; same_bytes expected-version version.log
-bounded "$run_seconds" functional.log /usr/bin/perl "$D/runtime.pl"
+run_probe functional "$run_seconds" /usr/bin/perl "$D/runtime.pl"
 printf 'PERL5423_FUNCTIONAL_OK\nDB_FILE=ROUNDTRIP\nGDBM=ROUNDTRIP\nZLIB=ROUNDTRIP\nBZIP2=ROUNDTRIP\nTHREADS=JOIN_SHARED\nLIBPERL=SHARED\n' > expected-functional; same_bytes expected-functional functional.log
-bounded "$run_seconds" corelist.log /usr/bin/corelist -v 5.42.3
+run_probe corelist "$run_seconds" /usr/bin/corelist -v 5.42.3
 grep -F '5.42.3' corelist.log
 printf '{"answer":42}\n' > input.json
-bounded "$run_seconds" json.log /usr/bin/json_pp -json_opt canonical < input.json
+run_probe json "$run_seconds" /usr/bin/json_pp -json_opt canonical < input.json
 grep -Eq '"answer"[[:space:]]*:[[:space:]]*42' json.log
-bounded "$run_seconds" perldoc.log /usr/bin/perldoc -T -t -f print
+run_probe perldoc "$run_seconds" /usr/bin/perldoc -T -t -f print
 grep -F 'print' perldoc.log
 printf '=head1 NAME\n\nsample - candidate document\n\n=cut\n' > sample.pod
-bounded "$run_seconds" podtext.log /usr/bin/pod2text sample.pod
+run_probe podtext "$run_seconds" /usr/bin/pod2text sample.pod
 grep -F 'candidate document' podtext.log
-bounded "$run_seconds" podcheck.log /usr/bin/podchecker sample.pod
+run_probe podcheck "$run_seconds" /usr/bin/podchecker sample.pod
 grep -F 'pod syntax OK' podcheck.log
-bounded "$run_seconds" prove.log /usr/bin/prove "$D/smoke.t"
+run_probe prove "$run_seconds" /usr/bin/prove "$D/smoke.t"
 grep -F 'Result: PASS' prove.log
 printf 'abc' > digest-input
-bounded "$run_seconds" sha.log /usr/bin/shasum -a 256 digest-input
+run_probe sha "$run_seconds" /usr/bin/shasum -a 256 digest-input
 printf 'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad  digest-input\n' > expected-sha; same_bytes expected-sha sha.log
 printf 'Use of uninitialized value $x in print at runtime.pl line 1.\n' > diagnostic
-bounded "$run_seconds" splain.log /usr/bin/splain < diagnostic
+run_probe splain "$run_seconds" /usr/bin/splain < diagnostic
 grep -F 'undefined value' splain.log
-bounded "$run_seconds" paths.log /usr/bin/perl -MConfig -e 'print "$Config{archlib}/CORE/$Config{libperl}\n"'
+run_probe paths "$run_seconds" /usr/bin/perl -MConfig -e 'print "$Config{archlib}/CORE/$Config{libperl}\n"'
 printf '/usr/lib/perl5/5.42/core_perl/CORE/libperl.so\n' > expected-paths; same_bytes expected-paths paths.log
 inventory > after.lock
 same_bytes before.lock after.lock
 verify_paths
 clock_valid
 sha256sum -- *.log > probe-outputs.sha256
-bounded "$sync_seconds" sync.log sync -f "$U"
+run_probe sync "$sync_seconds" sync -f "$U"
 # This marker reports completed ordinary-user probes, not Root restoration or
 # ELF16K acceptance. Root checks the retained files; the host parses their ELF.
 ( set -o noclobber;printf '%s\n' "$nonce" > PROBED )

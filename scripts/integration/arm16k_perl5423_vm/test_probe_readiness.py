@@ -3,7 +3,7 @@
 
 Only fixed D/O/PATH literals are projected into scratch. Summary bytes are never
 sourced or evaluated. No VM, ALPM, Root credentials, resource query or actor runs.
-The installed functional-check tail must remain byte-identical to Source48.
+The exact finite wrapper inverse restores the complete Source48 functional tail.
 """
 import hashlib
 import os
@@ -167,7 +167,16 @@ class Controls(unittest.TestCase):
         self.assertEqual(result['exit'],19);self.assertIn(b'FAILED_PHASE=probe_checks\n',result['stdout'])
         self.assertNotIn(b'FUNCTIONAL=PASS',result['stdout']);self.assertFalse(result['probed'])
         source=(HERE/'guest/probe.sh').read_bytes();anchor=b'[[ ! -e $U/PROBED && ! -L $U/PROBED ]]\n'
-        self.assertEqual(hashlib.sha256(source[source.index(anchor):]).hexdigest(),TAIL_SHA)
+        tail=source[source.index(anchor):]
+        # Exact finite inverse: instrumentation changes only the wrapper call.
+        tags=('version','functional','corelist','json','perldoc','podtext','podcheck','prove','sha','splain','paths','sync')
+        for tag in tags:
+            seconds='sync_seconds' if tag=='sync' else 'run_seconds'
+            before=('run_probe '+tag+' "$'+seconds+'" ').encode()
+            after=('bounded "$'+seconds+'" '+tag+'.log ').encode()
+            self.assertEqual(tail.count(before),1)
+            tail=tail.replace(before,after)
+        self.assertEqual(hashlib.sha256(tail).hexdigest(),TAIL_SHA)
 
 
 if __name__=='__main__':unittest.main(verbosity=2)

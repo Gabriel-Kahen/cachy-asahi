@@ -122,9 +122,9 @@
       "sha256": "ce020b7a4f6edc7c25baa9dc42b690d0cff528985090612e8a630383e3b2ddde"
     },
     "guest/probe.sh": {
-      "bytes": 8775,
+      "bytes": 10819,
       "mode": 420,
-      "sha256": "6bf77bf6f468e517f51541b5f0d74b833ea179a44033532edd29f8e103ef6db0"
+      "sha256": "45573362408087ebbe41011571811145e203345d5ea8955e9f39306d80652a69"
     },
     "guest/root.sh": {
       "bytes": 18991,
@@ -251,10 +251,15 @@
       "mode": 420,
       "sha256": "ee0449fb5e9172d0f24fc4130b371553f1ea27acde73980674504ce61d89fda5"
     },
-    "test_probe_readiness.py": {
-      "bytes": 9983,
+    "test_probe_diagnostics.py": {
+      "bytes": 8166,
       "mode": 420,
-      "sha256": "daf21eef3e8854cc28e21c2df55239442ea733718d39f571e556d10baa9ae4e7"
+      "sha256": "4c83491e58379c5ff59444458e0665860d80d9f993914caba349651757953898"
+    },
+    "test_probe_readiness.py": {
+      "bytes": 10532,
+      "mode": 420,
+      "sha256": "4d1d47d7458ed7a69903c7c8c5121fca008a3827f478d5a2e9f7310ae9483735"
     },
     "test_root_progress.py": {
       "bytes": 9159,
