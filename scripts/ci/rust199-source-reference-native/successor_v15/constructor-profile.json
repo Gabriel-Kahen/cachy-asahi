@@ -1,0 +1,78 @@
+{
+  "Root_review": null,
+  "accepted": null,
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "image": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "bytes": 43556824,
+  "constructor_files": {
+    "README.md": {
+      "bytes": 6230,
+      "mode": 420,
+      "sha256": "1ca915e04887c3178d5f23e9c91ba8fed84b968f083993da52636174365d82ed"
+    },
+    "Root-admission.TEMPLATE.json": {
+      "bytes": 14249,
+      "mode": 420,
+      "sha256": "8a564c2a68afd400abf746b8c600620a1a7fec18a814357dd2ba7107ff01074d"
+    },
+    "fixtures/public-failure.ACTUAL355.json": {
+      "bytes": 4701,
+      "mode": 420,
+      "sha256": "28c650fd0e3b1979fc496342185dd43ca14d30c6658bbad2e1755a49f823d948"
+    },
+    "payload/hosted/owned_dir.py": {
+      "bytes": 12793,
+      "mode": 420,
+      "sha256": "7a914d77e6cb4bb262fadecc003a8dc050dcca69960a44989a3d065f7630f7b2"
+    },
+    "payload/hosted/producer.py": {
+      "bytes": 35398,
+      "mode": 420,
+      "sha256": "fa57ea2f29db29ceeea6c4356c806783bc8819a31cefd3480302dce2d89acdbc"
+    },
+    "payload/hosted/qualification.py": {
+      "bytes": 23461,
+      "mode": 420,
+      "sha256": "6d161216185e18a874395b5b9142a5d4baaba2cd18260d755588352cde3c0392"
+    },
+    "payload/hosted/volume.py": {
+      "bytes": 5012,
+      "mode": 420,
+      "sha256": "f5f12814b5b8ec1b6fee6c37737eddf0940cc6e84ac4f9225803be978e0f9f4e"
+    },
+    "prepare.py": {
+      "bytes": 9332,
+      "mode": 420,
+      "sha256": "2012364b42ca057fbecc72b3367a2ad1e39fe6f5be5674cde2c6ab965551c937"
+    },
+    "test_data.py": {
+      "bytes": 3777,
+      "mode": 420,
+      "sha256": "52ef9a21ea8058622c62fdfccffd41dc9947a5f7ded97bc32214fb7f06d7c86f"
+    },
+    "test_runtime.py": {
+      "bytes": 12964,
+      "mode": 420,
+      "sha256": "ca5baaa148e2106b4a33138da884acfe7d68e9ebc95bac8202e61b4d2e837f0f"
+    }
+  },
+  "files": 361,
+  "map_sha256": "b255ba5b02d8484f9db29bb9515118c5b317a3938d49cb3dd0688030263ead7e",
+  "parent": {
+    "bytes": 43408000,
+    "files": 355,
+    "map_sha256": "4a85015fbcb513f8af71ae0d313abc4927faa50682dbf0b6ebfee8f339352bfa",
+    "tree": "3fbb71b78e06cdb9aa219c596a41fda3ccc29280"
+  },
+  "schema": 15,
+  "scope": "RUST199_EXTERNAL_OWNED_JOB_DIRECTORY_SUCCESSOR_V15",
+  "tree": "56aa770543f684b4f78e4a7abf1de4b93e006f28",
+  "unadmitted": true
+}
