@@ -1,0 +1,54 @@
+{
+  "CI_line_proposal": "python3 -I -B -Werror::ResourceWarning scripts/port/llvm23-native-independent-reader/v7/test_v7.py",
+  "GETs": 0,
+  "Root_acceptance": null,
+  "Root_grants": null,
+  "Source_or_artifact_code_executed": false,
+  "actual_selectors": null,
+  "lease_entries": 0,
+  "missing_architecture_inputs": [],
+  "old_readers_modified": false,
+  "operational_Reader": "NOT RUN",
+  "prior_Reader6_r1": "CLOSED_HOLD_NOT_REENTERED",
+  "python312": {
+    "errors": 0,
+    "failures": 0,
+    "skips": 0,
+    "tests": 19,
+    "version": "3.12.13"
+  },
+  "python314": {
+    "errors": 0,
+    "failures": 0,
+    "skips": 0,
+    "tests": 19,
+    "version": "3.14.6"
+  },
+  "required_external_architecture_input": null,
+  "retained_BUILDINFO_helper": {
+    "Source_and_retained_bootstrap_metadata_join": true,
+    "Source_architecture_metadata_pins": true,
+    "architectures": {
+      "aarch64": 300,
+      "any": 49
+    },
+    "bytes": 14215,
+    "next_inherited_recipe_inverse_and_BUILDINFO_hash": true,
+    "rows": 349,
+    "sha256": "cf1d6201d51da8b51beea87e90bd98f8182fbbb6b5c270278ec477dae088ffba"
+  },
+  "schema": 1,
+  "signature_operations": 0,
+  "status": "PASS_FENCED_BUILDINFO_ARCHITECTURE_SUCCESSOR_CONTROLS_AND_RETAINED_HELPER_DATA_ONLY",
+  "unchanged_v5_explicit_Source_DATA_controls": {
+    "errors": 0,
+    "failures": 0,
+    "tests": 24
+  },
+  "unchanged_v6_controls": {
+    "errors": 0,
+    "failures": 0,
+    "tests": 11
+  },
+  "workflow_edited": false
+}
