@@ -27,9 +27,9 @@
       "sha256": "487f85e659a99a417777f15eb1af98f2abfb8fca5881f79fc1b89a133430cb7b"
     },
     "adapter.py": {
-      "bytes": 13473,
+      "bytes": 13497,
       "mode": 420,
-      "sha256": "4d2f70dc77e1cb63e048ae847bd0c13039a2818cd29ea4e42d94a6aa4679acec"
+      "sha256": "04564d43bd117bcb5329d2b796be9c3d59d6f0886e8e65019421e0ac63e47f36"
     },
     "authority.TEMPLATE.json": {
       "bytes": 684,
@@ -57,9 +57,9 @@
       "sha256": "740179889d78da7d275f3d6067d72e3d935c8af6c42ec224bbf759fae08c16e6"
     },
     "contracts.py": {
-      "bytes": 36155,
+      "bytes": 36158,
       "mode": 420,
-      "sha256": "3bfbb6e80ba44e3d561a59b67a709ccb1cf713227fc595b93950b6d2a16dbf54"
+      "sha256": "9152a9fad6b22b249c681c9e18fbdeed90664d98026110734492925ca1c02b28"
     },
     "controller.py": {
       "bytes": 25630,
@@ -111,20 +111,25 @@
       "mode": 420,
       "sha256": "256c20415d305a2378241a9ea929d993e0e8ccf115e1bc14fda71c11fe320fd4"
     },
+    "guest/installed-metadata.sh": {
+      "bytes": 8662,
+      "mode": 420,
+      "sha256": "565b6373d9feb9d37db048ad175b3f986af9e3bcf6ede413131f1cb05c508c11"
+    },
     "guest/official-trust.sh": {
       "bytes": 5062,
       "mode": 420,
       "sha256": "ce020b7a4f6edc7c25baa9dc42b690d0cff528985090612e8a630383e3b2ddde"
     },
     "guest/probe.sh": {
-      "bytes": 7339,
+      "bytes": 8775,
       "mode": 420,
-      "sha256": "d00f4640d80bf1c7674b6db83a37427dd10714ef5071e81bc11a05aec5fbdab4"
+      "sha256": "6bf77bf6f468e517f51541b5f0d74b833ea179a44033532edd29f8e103ef6db0"
     },
     "guest/root.sh": {
-      "bytes": 16583,
+      "bytes": 18991,
       "mode": 420,
-      "sha256": "277f80358a79f905956a2fc1690ee7b9145c47faee869b0be1bacf998f9f1302"
+      "sha256": "9be11484131188df57b7f23fec3fe9e75b4fe9066833f752fed7353b7b513aa0"
     },
     "guest/runtime.pl": {
       "bytes": 3548,
@@ -236,6 +241,11 @@
       "mode": 493,
       "sha256": "5da499b97360993efa5b9039a1b8d488a84c2a43b861ceccbf9bfcf440f661da"
     },
+    "test_installed_metadata.py": {
+      "bytes": 15346,
+      "mode": 420,
+      "sha256": "a0326adfb1b6f5737d01217df79da8398bbd723aa5540c6cc111cc56b4f5c902"
+    },
     "test_local_dependency_queries.py": {
       "bytes": 8941,
       "mode": 420,
@@ -245,6 +255,11 @@
       "bytes": 9983,
       "mode": 420,
       "sha256": "daf21eef3e8854cc28e21c2df55239442ea733718d39f571e556d10baa9ae4e7"
+    },
+    "test_root_progress.py": {
+      "bytes": 9159,
+      "mode": 420,
+      "sha256": "04056d1b7be0f05b54f5f70f8d0e81c8b6466e35dddf04a7c55f7e4a9e22c664"
     },
     "validation.json": {
       "bytes": 2930,

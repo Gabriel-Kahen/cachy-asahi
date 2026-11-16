@@ -64,7 +64,7 @@ def contents(case,cert,lock,nonce):
  base=cert['baseline_certificate'];runtime=cert['runtime_certificate'];limits=cert['resource_certificate'];trust=case['trust']
  files={}
  def put(name,raw,mode=0o644):files[name]=(raw.encode()if isinstance(raw,str)else raw,mode)
- for name in('root.sh','probe.sh','case.sh','official-trust.sh','runtime.pl','smoke.t'):put(name,(HERE/'guest'/name).read_bytes())
+ for name in('root.sh','probe.sh','case.sh','official-trust.sh','installed-metadata.sh','runtime.pl','smoke.t'):put(name,(HERE/'guest'/name).read_bytes())
  for name in('rtc-clock.sh','guest-runtime.sh'):put('frozen/'+name,(HERE/'frozen'/name).read_bytes())
  inventory=dict(base['inventory']);deps=dict(inventory,**({'db5.3':runtime['dependency_transaction']['version']}if runtime['dependency_transaction']else{}));installed=dict(deps,**{K.PACKAGE['name']:K.PACKAGE['version']})
  def inv(rows):return ''.join(n+' '+v+'\n'for n,v in sorted(rows.items()))

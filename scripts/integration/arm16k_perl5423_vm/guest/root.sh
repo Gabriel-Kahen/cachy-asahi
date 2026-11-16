@@ -15,7 +15,7 @@ root_phase_writes=0
 root_phase_name() {
  case "$1" in guard|rtc_clock|users|baseline|trust|dependency_install|official_trust|install|installed_payload|installed_metadata|probe_wait|retain_outputs|recovery|cache_restoration|restoration) return 0;;*) return 2;;esac
 }
-# Fixed metadata only. Atomic rename needs /usr/bin/mv admission at integration.
+# Fixed metadata only. Atomic rename uses the certified baseline /usr/bin/mv.
 # This is best-effort journaled progress, not a durability or success receipt.
 write_root_phase() (
  umask 077
@@ -87,6 +87,7 @@ install -d -m755 "$O"
 install -d -m700 "$S"
 . "$D/frozen/guest-runtime.sh"
 . "$D/case.sh"
+. "$D/installed-metadata.sh"
 . "$D/official-trust.sh"
 . "$D/frozen/rtc-clock.sh"
 case_data
@@ -242,19 +243,12 @@ bounded "$run_seconds" "$S/database-installed.log" pacman -Dk
 sha256sum --check --strict --status "$D/payload.sha256"
 verify_paths
 checkpoint_phase installed_metadata
-while IFS=$'\t' read -r kind mode uid gid path target extra; do
- [[ -z $extra && $mode =~ ^[0-7]{3,4}$ && $uid =~ ^[0-9]+$ && $gid =~ ^[0-9]+$ ]]
- [[ ( $path == /usr/* || ( $path == /usr && $kind == d ) ) && $path != /usr/local/* ]]
- [[ $(stat -c '%a:%u:%g' -- "$path") == "$mode:$uid:$gid" ]]
- case "$kind" in f) [[ -f $path && ! -L $path && $target == - ]];;d) [[ -d $path && ! -L $path && $target == - ]];;l) [[ -L $path && $(readlink -- "$path") == "$target" && $(readlink -f -- "$path") == /usr/* ]];;*) false;;esac
- pacman -Qoq -- "$path" | grep -qx perl
-done < "$D/payload-metadata.tsv"
-while IFS=$'\t' read -r path target extra;do
- [[ -z $extra && -f $path && ! -L $path && -f $target && ! -L $target ]]
- [[ $(stat -c '%d:%i' -- "$path") == "$(stat -c '%d:%i' -- "$target")" && $(stat -c '%h' -- "$path") -ge 2 ]]
-done < "$D/hardlinks.tsv"
-pacman -Qlq "$PACKAGE" | sed 's:/$::' | sort -u > "$S/added.paths"
-same_bytes "$D/expected-payload.paths" "$S/added.paths"
+# Keep temporary metadata streams out of the exact durable receipt allowlist.
+[[ ! -e $O/installed-metadata && ! -L $O/installed-metadata ]]
+install -d -m700 "$O/installed-metadata"
+verify_installed_metadata "$D" "$O/installed-metadata"
+cp -- "$O/installed-metadata/added.paths" "$S/added.paths"
+rm -r -- "$O/installed-metadata"
 assert_users
 install -d -m700 -o1000 -g1000 "$O/user"
 printf '%s\n' "$nonce" > "$O/installed";chmod 644 "$O/installed"
