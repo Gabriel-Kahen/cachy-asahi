@@ -335,7 +335,7 @@ class RealAssemblerControls(unittest.TestCase):
  """Actual 7a1719be assembly/validators; only its tiny existing MODEL catalogues."""
  def setUp(self):
   fixture=Path(os.environ.get('CACHY_CURRENT_INPUTS_FIXTURE',str(HERE/'payload/native/test_inputs_current_v3.py'))).resolve()
-  self.assertEqual(hashlib.sha256(fixture.read_bytes()).hexdigest(),'ee72d05d380caa6c49e7b0601a3ac641d55c352478f35d7d251f14c6a0dd6b8e','use committed 7a1719be fixture')
+  self.assertEqual(hashlib.sha256(fixture.read_bytes()).hexdigest(),'32ac0846ecbe59d4c5459506e0c41170095a5ba993a1b0f3240237e2d91b05b7','use composed image-atime repair fixture')
   self.assertEqual(hashlib.sha256((fixture.parent/'inputs_current_v3.py').read_bytes()).hexdigest(),'a1838fe056f95ae5baae5a70b9ba20a623271475160c9010ae59e3c751e90f9c','actual committed assembler, no matching replacement stub')
   spec=importlib.util.spec_from_file_location('actual_7a1719be_inputs_fixture',fixture);self.M=importlib.util.module_from_spec(spec);spec.loader.exec_module(self.M)
   self.f=self.M.Controls('test_backend_and_pure_preflight_match_real_image_selected_inputs');self.f.setUp();self.addCleanup(self.f.doCleanups)
