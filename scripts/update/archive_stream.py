@@ -135,15 +135,20 @@ class Decoded:
         return bytes(result)
 
 
-def archive_payload(path, limits, accounting=None):
+def archive_payload(path, limits, accounting=None, *, pkginfo=None):
     """Return installer-compatible nodes and update aggregate counters on success.
 
     accounting retains the tiny caller's bytes/nodes names (decoded tar bytes and
     raw tar headers), adding compressed_bytes. Failed inspection changes none.
+    An optional empty pkginfo dict receives the bounded raw .PKGINFO only after
+    complete successful inspection. Existing callers do not collect controls.
     Caller must separately authenticate the archive and protect cross-package/root
     overlaps; no archive-derived value can increase these externally supplied caps.
     """
     need(isinstance(limits, Limits), 'explicit archive limits required')
+    need(pkginfo is None or type(pkginfo) is dict and not pkginfo,
+         'empty package metadata output required')
+    metadata = None
     tick(limits)
     need(accounting is None or type(accounting) is dict
          and set(accounting) <= {'bytes', 'nodes', 'compressed_bytes'}, 'invalid aggregate accounting')
@@ -207,6 +212,10 @@ def archive_payload(path, limits, accounting=None):
                     need(0 <= member.size <= limits.file_bytes, 'member file byte limit exceeded')
                     if name.startswith('.'):
                         need(name in CONTROLS and member.isfile(), 'unexpected control member')
+                        if pkginfo is not None and name == '.PKGINFO':
+                            need(member.size <= CHUNK, 'package metadata byte limit exceeded')
+                            metadata = archive.extractfile(member).read(CHUNK + 1)
+                            need(len(metadata) == member.size, 'truncated package metadata')
                         continue
                     node = {'mode': member.mode & 0o7777, 'uid': 0, 'gid': 0}
                     if member.isdir():
@@ -245,6 +254,9 @@ def archive_payload(path, limits, accounting=None):
     for name in rows:
         target = resolve(rows, name, limits)
         need(target not in AUXILIARIES, 'unaudited auxiliary ldconfig alias refused')
+    if pkginfo is not None:
+        need(metadata is not None, 'package metadata missing')
+        pkginfo['raw'] = metadata
     if accounting is not None:
         accounting.update(bytes=counters['bytes'] + decoded.total, nodes=counters['nodes'] + headers,
                           compressed_bytes=counters['compressed_bytes'] + before.st_size)
