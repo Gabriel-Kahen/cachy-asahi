@@ -1,0 +1,97 @@
+{
+  "M2": "NOT RUN",
+  "Root_review": null,
+  "accepted": null,
+  "actual_archive_read": {
+    "bytes": 265258564,
+    "contexts": 283,
+    "selected_bytes": 4902587,
+    "selected_files": 281,
+    "sha256": "cc41916a8c84f5d9ec4f55561b44e39f43b647b133f8a6f51be9ea13c83f7036",
+    "status": "PASS_EXACT_BYTES_AND_CONTEXTS_DATA_ONLY",
+    "unique_bodies": 245
+  },
+  "bytes": 41966044,
+  "files": 317,
+  "map": {
+    "bytes": 62227,
+    "sha256": "0d05713a37c7569682a787152a981bb9f47556da11de3529e7895ebb4960d23d"
+  },
+  "marker": {
+    "actual": {
+      "approval": null,
+      "artifact": null,
+      "image": null,
+      "job": null,
+      "ref": null,
+      "run": null,
+      "source": null
+    },
+    "catalogue_review": null,
+    "changes": {
+      "packages/port/rust199-source-reference/notice-catalogue.DATA.json": {
+        "after": {
+          "bytes": 317724,
+          "mode": 420,
+          "sha256": "515d3ec9add3b04ac1bde8b6de150c28525fd3262c92223ca0444c6fd8af3df3"
+        },
+        "before": null
+      },
+      "packages/port/rust199-source-reference/notice_preservation.py": {
+        "after": {
+          "bytes": 6507,
+          "mode": 420,
+          "sha256": "07b193b850b28d93a04672e8586a63549168766314dc0b4ab291038bf928c774"
+        },
+        "before": null
+      },
+      "packages/port/rust199-source-reference/reference.py": {
+        "after": {
+          "bytes": 21718,
+          "mode": 420,
+          "sha256": "d66757da79fc68ab61ee8bff3d091606b8fc7aa2bfe690905e9cadfbdcbdee35"
+        },
+        "before": {
+          "bytes": 20960,
+          "mode": 420,
+          "sha256": "e707e4642cf5fcd59d57d49aa4e38c73e595213f7c728a645587e42c1db3f1cb"
+        }
+      }
+    },
+    "holds_preserved": true,
+    "parent": {
+      "files": 314,
+      "map_sha256": "2786d1d393888699faf320b416e1570f40060e2428907c09855d4c7103aa33f8",
+      "tree": "109005278b7a1404310ffb06e5f57933a6c1ba20"
+    },
+    "schema": 7,
+    "scope": "INCOMPLETE_NOTICE_PRESERVATION_PROPOSAL_NOT_OPERATIONAL",
+    "successor_candidate_binding": null
+  },
+  "native": "NOT RUN",
+  "operational": false,
+  "payload": {
+    "packages/port/rust199-source-reference/notice-catalogue.DATA.json": {
+      "bytes": 317724,
+      "mode": 420,
+      "sha256": "515d3ec9add3b04ac1bde8b6de150c28525fd3262c92223ca0444c6fd8af3df3"
+    },
+    "packages/port/rust199-source-reference/notice_preservation.py": {
+      "bytes": 6507,
+      "mode": 420,
+      "sha256": "07b193b850b28d93a04672e8586a63549168766314dc0b4ab291038bf928c774"
+    },
+    "packages/port/rust199-source-reference/reference.py": {
+      "bytes": 21718,
+      "mode": 420,
+      "sha256": "d66757da79fc68ab61ee8bff3d091606b8fc7aa2bfe690905e9cadfbdcbdee35"
+    }
+  },
+  "source_constructed": false,
+  "status": "BLOCKED_DRAFT_CATALOGUE_AND_UNCHANGED_FROZEN_CANDIDATE_BINDING",
+  "tests": {
+    "portable_controls": 9,
+    "status": "PASS"
+  },
+  "tree": "430091d9bd9cc9f3b540afc289e3a60a04412bfd"
+}
