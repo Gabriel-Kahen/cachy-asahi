@@ -39,16 +39,19 @@ my %g; tie %g, 'GDBM_File', 'gdbm-file', GDBM_WRCREAT, 0600 or die "GDBM: $!";
 $g{probe}=$text; untie %g;
 tie %g, 'GDBM_File', 'gdbm-file', GDBM_READER, 0600 or die $!;
 die 'GDBM roundtrip' unless $g{probe} eq $text; untie %g;
+# Native compression objects must be destroyed before ithreads clones this interpreter.
+{
 my ($def,$status)=Compress::Raw::Zlib::Deflate->new();die 'deflate init' unless $status==Z_OK;
 my ($compressed,$tail,$plain)=('','','');die 'deflate' unless $def->deflate($text,$compressed)==Z_OK;
 die 'flush' unless $def->flush($tail)==Z_OK;$compressed.=$tail;
 my ($inf,$s)=Compress::Raw::Zlib::Inflate->new();die 'inflate init' unless $s==Z_OK;
 die 'inflate' unless $inf->inflate($compressed,$plain)==Z_STREAM_END && $plain eq $text;
-my ($bz,$bs)=Compress::Raw::Bzip2->new(1,9,0,30);die 'bzip init' unless $bs==BZ_OK;
+my ($bz,$bs)=Compress::Raw::Bzip2->new(1,9,30,0);die 'bzip init' unless $bs==BZ_OK;
 my ($bzout,$out)=('','');die 'bzip' unless $bz->bzdeflate($text,$bzout)==BZ_RUN_OK;
 die 'bzip close' unless $bz->bzclose($out)==BZ_STREAM_END;$bzout.=$out;
 my ($bi,$is)=Compress::Raw::Bunzip2->new(0,0);die 'bunzip init' unless $is==BZ_OK;
 my $decoded='';die 'bunzip' unless $bi->bzinflate($bzout,$decoded)==BZ_STREAM_END && $decoded eq $text;
+}
 my $shared :shared=0;my $t=threads->create(sub { lock($shared);$shared=42;return 17; });
 die 'threads' unless $t->join()==17 && $shared==42;
 die 'JSON' unless decode_json(encode_json({answer=>42}))->{answer}==42;

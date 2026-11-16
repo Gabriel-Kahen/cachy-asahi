@@ -475,3 +475,39 @@ are in known/actual-prepare-cleanup-r1-reproducer.json. No r1 Source, packet, ac
 output or Root cleanup was edited. A regression compiles the actual Scope class,
 rebinds the material-loop name and requires original identity acceptance and
 wrong-name/image refusals. No actor runs in that regression.
+
+### Compression lifetime successor (2026-11-16)
+
+Retained Source53/case8 installed Perl5.42.3-1.3 and passed its version probe,
+then aborted during the functional probe with `free(): double free detected in
+tcache 2` (exit134). That case and the qualified package archive are unchanged.
+The actual Source leaf is `guest/runtime.pl`, copied by `adapter.contents`;
+`image.py` does not generate this Perl program.
+
+The pinned upstream snapshot `bc3dab4d4f66de5ea67dda34e5feb5230a54c603`
+(22610875 bytes, SHA256
+`16b23f32e34df12709fc5fa0a7028d3df3c3cfceca21e38faada6a025edff725`)
+contains Compress::Raw::Bzip2 2.218. Its `Bzip2.xs` constructor order is
+appendOutput, blockSize100k, workfactor, verbosity. The old `(1,9,0,30)`
+requested verbosity30; the successor uses explicit workfactor30/verbosity0.
+`bzclose` finishes output; native allocation is released separately by DESTROY.
+No Bzip2 CLONE/CLONE_SKIP implementation is present. Live native stream
+references therefore must not cross this probe's interpreter-cloning boundary.
+This is a probe lifetime correction, not a package thread-safety qualification.
+
+A bounded host matrix on Perl5.42.2/Bzip2 2.213/Zlib2.222 reproduced SIGABRT
+with original or quiet live streams, including either compression family alone.
+Both lexical-scope variants passed roundtrip plus thread join. This supports
+the lifetime diagnosis; the exact candidate's corrected ARM16K behavior remains
+unexecuted. The recipe still performs actual DT_NEEDED checks, then the full
+`TEST_JOBS=2 make test_harness`, then check_config; no recipe/test exclusion changes.
+
+`test_runtime_lifetimes.py` runs only installed HOST core-module APIs in fresh
+temporary DATA with core0, CPU3s, wall6s, AS256MiB, and per-file64KiB limits.
+It checks DB_File/GDBM/zlib/bzip2 roundtrips, observes all four stream objects
+expire via weak references before thread creation, then checks join/shared state.
+Its lifetime mutant refuses before creating a thread with live streams. The
+full target Config/module/XS/libperl/path checks and success frame stay intact.
+These checks provide HOST API/lifetime evidence only; no candidate ARM16K,
+restoration, M2, performance or release acceptance follows. New Source and case
+authorities require separate Root issuance; unissued selectors remain NULL.
