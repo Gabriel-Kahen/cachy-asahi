@@ -1,0 +1,2318 @@
+{
+  "M2": "NOT_TESTED",
+  "Root_acceptance": null,
+  "actual_kernel_private_success": null,
+  "fresh_files": 422,
+  "fresh_home": "EMPTY",
+  "inputs": {
+    "scripts/ci/rust199-source-reference-native/LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "scripts/ci/rust199-source-reference-native/admission.py": {
+      "bytes": 20757,
+      "mode": 420,
+      "sha256": "a548f56b0759ae2ecd90ee79fed8c1e254a032dbaa0726f15e673e139b946c30"
+    },
+    "scripts/ci/rust199-source-reference-native/builder-audit.json": {
+      "bytes": 1420,
+      "mode": 420,
+      "sha256": "9d1c07018123c7c32fa1693edb2ea582978119ab0667f2855634e4f071b6953a"
+    },
+    "scripts/ci/rust199-source-reference-native/candidate/.SRCINFO": {
+      "bytes": 2106,
+      "mode": 420,
+      "sha256": "f8d99f575d984c4958bc11b98f56dc2a599a7236895addffcf34f3bfadb6a35e"
+    },
+    "scripts/ci/rust199-source-reference-native/candidate/LICENSE.packaging": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "b8f5f697f7e16eb59a3fb83868aad10d19c918e212aa196d1716c3df21ee20db"
+    },
+    "scripts/ci/rust199-source-reference-native/candidate/PKGBUILD": {
+      "bytes": 2213,
+      "mode": 420,
+      "sha256": "03408fc4ff1a46d36bed599bbe8fbb014ad732234ba414430d34a388bd1c1114"
+    },
+    "scripts/ci/rust199-source-reference-native/candidate/README.md": {
+      "bytes": 3199,
+      "mode": 420,
+      "sha256": "7317d886451f8987ce502239b99429333885636f347c5ff2788a4b4e3bf7ed8f"
+    },
+    "scripts/ci/rust199-source-reference-native/candidate/admission.example.json": {
+      "bytes": 902,
+      "mode": 420,
+      "sha256": "ea62ed79e7911146e85c551d22fd8c9069e46c7d2ebc6f79873cc85986b87790"
+    },
+    "scripts/ci/rust199-source-reference-native/candidate/bootstrap.toml": {
+      "bytes": 1600,
+      "mode": 420,
+      "sha256": "504ccbfc112d0258059f1d105c69fe0fb104331f232aaf93b096777bb24447fb"
+    },
+    "scripts/ci/rust199-source-reference-native/candidate/inputs.json": {
+      "bytes": 4565,
+      "mode": 420,
+      "sha256": "4011253ed366f871b1f5e2cac1f5af0dc63049c1fa7badd293318adb44741672"
+    },
+    "scripts/ci/rust199-source-reference-native/candidate/reference.py": {
+      "bytes": 20960,
+      "mode": 420,
+      "sha256": "e707e4642cf5fcd59d57d49aa4e38c73e595213f7c728a645587e42c1db3f1cb"
+    },
+    "scripts/ci/rust199-source-reference-native/candidate/test_reference.py": {
+      "bytes": 15725,
+      "mode": 420,
+      "sha256": "3d1a016c80a463e46322e0aab1a9b2678dbc708e216872bfc5b87cf79d926f61"
+    },
+    "scripts/ci/rust199-source-reference-native/constructor-profile.json": {
+      "bytes": 14438,
+      "mode": 420,
+      "sha256": "aa83d68e268f9f3dae0980d4a67cea8c53a1c3b11adc24c204445edd9663aed0"
+    },
+    "scripts/ci/rust199-source-reference-native/derivation.json": {
+      "bytes": 11532,
+      "mode": 420,
+      "sha256": "6c9d5d7f448a8653cb4ad8def01ab96f873d132365d6987c510295732ecddc8a"
+    },
+    "scripts/ci/rust199-source-reference-native/expected349.lock": {
+      "bytes": 6800,
+      "mode": 420,
+      "sha256": "579981195b654d8cdf142e4101dfc2bfffbc3576eed50f23796a06e90cf57453"
+    },
+    "scripts/ci/rust199-source-reference-native/filesystem.py": {
+      "bytes": 14354,
+      "mode": 420,
+      "sha256": "7c7b8ce846603d76da1db7de58573fa76642871aae7082fa36b32a54856585d7"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v10/README.md": {
+      "bytes": 6441,
+      "mode": 420,
+      "sha256": "977f2a6c4cbadd6e9455f1f30c03fac8abf9c48d1565cea7a95037e61993d588"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v10/archives.py": {
+      "bytes": 16951,
+      "mode": 420,
+      "sha256": "e15b2f41b431a33738751bf4d5e70dc4db8443a24bc5696a8ce78a2cade959c9"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v10/bindings.py": {
+      "bytes": 10681,
+      "mode": 420,
+      "sha256": "c9110cc0d2673097160e7f0a0826c9e2436c9dc54b234d65d3a2c6e7c2e53455"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v10/elf.py": {
+      "bytes": 1720,
+      "mode": 420,
+      "sha256": "0d5adbfcca43700272b65462f69584f9c0a79d71c46ad5b6e037be56366773a2"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v10/evidence.py": {
+      "bytes": 14808,
+      "mode": 420,
+      "sha256": "1c6235402c6c34290220f63b51669cbd98f77dad1b6e0a9ff43f444d8ad593c3"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v10/inverse.DATA.json": {
+      "bytes": 4259,
+      "mode": 420,
+      "sha256": "90fdb1357dc44fa5d4390c7e991792ebda73b3ce3d5b8e29604acb4edd2ac6cc"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v10/reader.py": {
+      "bytes": 23236,
+      "mode": 420,
+      "sha256": "ee64e33e42fa287efc7ddd5f9ca9627be7cebac38dea36b4f0981dff164e5a93"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v10/request.TEMPLATE.json": {
+      "bytes": 4079,
+      "mode": 420,
+      "sha256": "070961e062cbb2e89377c2a2d8778d647a4d483a8ba6e72b483373a6f616a337"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v10/source-profile.DATA.json": {
+      "bytes": 1654,
+      "mode": 420,
+      "sha256": "8cd2240f0e8eb3094d29b3e1d3aa5076e3923c962e1fbf37919c73177a9f6dec"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v10/storage.py": {
+      "bytes": 5337,
+      "mode": 420,
+      "sha256": "be71c2eebcfcc604e4140431b76aae92dae8f42c67211d0dd3f3744d7a656130"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v10/test_reader.py": {
+      "bytes": 42058,
+      "mode": 420,
+      "sha256": "c8689044ea48717cf7a9e0b718a90c6308011829a28b8887287aafa536ce24b4"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v11/README.md": {
+      "bytes": 6470,
+      "mode": 420,
+      "sha256": "acda5c83b8d0ca41ca39920311f5f90dca289723b139026bc3373b2afae376df"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v11/archives.py": {
+      "bytes": 16951,
+      "mode": 420,
+      "sha256": "e15b2f41b431a33738751bf4d5e70dc4db8443a24bc5696a8ce78a2cade959c9"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v11/bindings.py": {
+      "bytes": 10681,
+      "mode": 420,
+      "sha256": "c9110cc0d2673097160e7f0a0826c9e2436c9dc54b234d65d3a2c6e7c2e53455"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v11/elf.py": {
+      "bytes": 1720,
+      "mode": 420,
+      "sha256": "0d5adbfcca43700272b65462f69584f9c0a79d71c46ad5b6e037be56366773a2"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v11/evidence.py": {
+      "bytes": 14808,
+      "mode": 420,
+      "sha256": "1c6235402c6c34290220f63b51669cbd98f77dad1b6e0a9ff43f444d8ad593c3"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v11/inverse.DATA.json": {
+      "bytes": 5683,
+      "mode": 420,
+      "sha256": "8a094354fc83a2ef2dd3ee51e857d5c7fdf0684bbb9c6b11ee4c9d97fe9e41f7"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v11/reader.py": {
+      "bytes": 24049,
+      "mode": 420,
+      "sha256": "a2945b09b0ccc9c4c7b2120e458aac92dc50d6c18b0f11f088ff485b4f1c56f6"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v11/request.TEMPLATE.json": {
+      "bytes": 4079,
+      "mode": 420,
+      "sha256": "9eaea4fb448f584279987468f10895b5d6567067e99e83d6710188f4c3198cab"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v11/source-profile.DATA.json": {
+      "bytes": 1490,
+      "mode": 420,
+      "sha256": "329dba1e8cc240edfb91a62ac3d99e542825604f7df57d060d5e589b9171a160"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v11/storage.py": {
+      "bytes": 5337,
+      "mode": 420,
+      "sha256": "48cab261a0005fda4c58614b80eb6f688e42555df13141334387bc71cddb3c11"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v11/test_reader.py": {
+      "bytes": 47082,
+      "mode": 420,
+      "sha256": "f47f22138bdba948cf4c8fd59b4dda6339bcc0cc5036101be722e8c22c19c30d"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v12/README.md": {
+      "bytes": 6733,
+      "mode": 420,
+      "sha256": "e5223e0df9ce21e63783e59680bf4c12cef498677855ee43357e5c9caf92ea9f"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v12/actual-failure.DATA.json": {
+      "bytes": 2454,
+      "mode": 420,
+      "sha256": "ab80b4456df882aea34b2e8c6317ab60623fb4ad0b1d6c1d087410cc64100b97"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v12/archives.py": {
+      "bytes": 16951,
+      "mode": 420,
+      "sha256": "e15b2f41b431a33738751bf4d5e70dc4db8443a24bc5696a8ce78a2cade959c9"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v12/bindings.py": {
+      "bytes": 10681,
+      "mode": 420,
+      "sha256": "c9110cc0d2673097160e7f0a0826c9e2436c9dc54b234d65d3a2c6e7c2e53455"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v12/elf.py": {
+      "bytes": 1720,
+      "mode": 420,
+      "sha256": "0d5adbfcca43700272b65462f69584f9c0a79d71c46ad5b6e037be56366773a2"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v12/evidence.py": {
+      "bytes": 23994,
+      "mode": 420,
+      "sha256": "eff21d74413aa89db672688bdc1c067fc6a51831f213ff434bf8e257fad4a3a7"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v12/inverse.DATA.json": {
+      "bytes": 69241,
+      "mode": 420,
+      "sha256": "0deaf52408d5af47e08eac632bb42421e9e2df137a96da259b780f7d4ac2ec4c"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v12/reader.py": {
+      "bytes": 24768,
+      "mode": 420,
+      "sha256": "66cf006c9dab4970362fdb852db98cee2f3e509a1b33ab486e578bf8c1aebd0b"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v12/request.TEMPLATE.json": {
+      "bytes": 4079,
+      "mode": 420,
+      "sha256": "1703e795faec645adbbde9734197199105ae20d7c5b375e8aef359983fb4308d"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v12/source-profile.DATA.json": {
+      "bytes": 2162,
+      "mode": 420,
+      "sha256": "63e432dd183a20a27742645bc0b918254e821ed394883dc4d983b54b9eec70cd"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v12/storage.py": {
+      "bytes": 7536,
+      "mode": 420,
+      "sha256": "cb4e493dcc1167d8031ac57d1d5cff6d8b37b70f5ddfceb0797e682d3a0914ba"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v12/test_reader.py": {
+      "bytes": 46591,
+      "mode": 420,
+      "sha256": "102d7f51336903274b41341120e549a5a28cde605ca5cf26d3e63f8ed7492610"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v12/test_runtime.py": {
+      "bytes": 19578,
+      "mode": 420,
+      "sha256": "b18a14b14c9360d8763cc9491706dbd0f384cddfa1ff4d73fab79d09278325f1"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v13/README.md": {
+      "bytes": 7833,
+      "mode": 420,
+      "sha256": "d01f5b5863735e5eb9536e0db702d311d1943a2c93199d54a587ac25bb8888d5"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v13/actual-failure.DATA.json": {
+      "bytes": 2454,
+      "mode": 420,
+      "sha256": "ab80b4456df882aea34b2e8c6317ab60623fb4ad0b1d6c1d087410cc64100b97"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v13/archives.py": {
+      "bytes": 17270,
+      "mode": 420,
+      "sha256": "90904de0bfe31886419e94823ce830c71b06db1bbd4557e3b687696d1b4901c0"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v13/bindings.py": {
+      "bytes": 10681,
+      "mode": 420,
+      "sha256": "c9110cc0d2673097160e7f0a0826c9e2436c9dc54b234d65d3a2c6e7c2e53455"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v13/elf.py": {
+      "bytes": 1720,
+      "mode": 420,
+      "sha256": "0d5adbfcca43700272b65462f69584f9c0a79d71c46ad5b6e037be56366773a2"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v13/evidence.py": {
+      "bytes": 40530,
+      "mode": 420,
+      "sha256": "1bb5e78a3cf7f0fc0efb2c64334f945b08c267f311aae518074d61d8d051f5e8"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v13/fixtures/source344-probe-mount.ACTUAL.json": {
+      "bytes": 6302,
+      "mode": 420,
+      "sha256": "e8cf3b1f7dbefc763f93fc91c501e6d28d9a79e0d83cde6a57e9c180d83edf74"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v13/inverse.DATA.json": {
+      "bytes": 100213,
+      "mode": 420,
+      "sha256": "04e9d40ed9c2ccace2ee6cf8b82fc126ad4d4bf185e469a5b8443c26b96bf86b"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v13/prepare_reader.py": {
+      "bytes": 2453,
+      "mode": 420,
+      "sha256": "f7021e63787b32dae0bbcb76e4e0148d8ab9d4adf4e18f3277a15afd90a5908d"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v13/reader-code.DATA.json": {
+      "bytes": 2432,
+      "mode": 420,
+      "sha256": "3429e41c5287941899636b6d11d4d81d25f848e2bbe20cc5859d3790bf3cb1f6"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v13/reader.py": {
+      "bytes": 25902,
+      "mode": 420,
+      "sha256": "ba09ba5875b080e832a9d3113e81a54c2d5985631497f212c536a30e6ad49ad7"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v13/request.TEMPLATE.json": {
+      "bytes": 4080,
+      "mode": 420,
+      "sha256": "915378ecab5adbe318567ce995f89f96f4c20a4922562f71479338cbaa88a440"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v13/source-profile.DATA.json": {
+      "bytes": 2482,
+      "mode": 420,
+      "sha256": "aca60bb938304cc306bb8ef6c1e790d7b84f49cea4178beda75dad4c00938d2f"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v13/storage.py": {
+      "bytes": 10918,
+      "mode": 420,
+      "sha256": "1e1bdc51887784be306230db40e14c5edb75e506c734a297434063aa0937c0b5"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v13/test_mounts.py": {
+      "bytes": 12776,
+      "mode": 420,
+      "sha256": "14ed101bc9651bb4d81b992c870f5c29fbe413be5077283440ef895891bde6ff"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v13/test_preparation.py": {
+      "bytes": 4105,
+      "mode": 420,
+      "sha256": "dc396fab48a95e7614d3a9391e4fd4fbcff91fb7fb6bb409e360089f7161e0fb"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v13/test_qualification.py": {
+      "bytes": 8448,
+      "mode": 420,
+      "sha256": "9dd86a8d2ddb1dc8b51c8bb7e8360b837aaceee0e6e0b345ae9f3cf089a45df3"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v13/test_reader.py": {
+      "bytes": 50145,
+      "mode": 420,
+      "sha256": "237656c62d33cd379c0b9594094817f3fc777ec2598c6bf8f2b187c64d145044"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v13/test_runtime.py": {
+      "bytes": 24099,
+      "mode": 420,
+      "sha256": "c77dcc0e3a2c4e2235fb36b56fb74480e242824eaf7cf5f5546e78c629986226"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v13/test_source.py": {
+      "bytes": 6075,
+      "mode": 420,
+      "sha256": "ed273e9d76e302fb2758d8e0c59112b816d0448586e0d9fbaea394eebde16027"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v13/validation-logs/Python-3.12.13-test_mounts.py.txt": {
+      "bytes": 128,
+      "mode": 420,
+      "sha256": "a845184b1ee38769e3a3ce6ba63a1195adcce071389ab343352c078bca01ed21"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v13/validation-logs/Python-3.12.13-test_preparation.py.txt": {
+      "bytes": 105,
+      "mode": 420,
+      "sha256": "eb8c88bdf6d7bffd457b38469078be30b7e97db745e82c5f24162939bad78be2"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v13/validation-logs/Python-3.12.13-test_qualification.py.txt": {
+      "bytes": 109,
+      "mode": 420,
+      "sha256": "7ada9f6e6f2e49ce5d47796c9c2d5a0ee664b54f48cfb456ce70c3ea2aba1686"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v13/validation-logs/Python-3.12.13-test_reader.py.txt": {
+      "bytes": 155,
+      "mode": 420,
+      "sha256": "594b9d70837ceed87afc2bdbe95d10798f53d828b7ecdbcef7dbb3260cfbf2f3"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v13/validation-logs/Python-3.12.13-test_runtime.py.txt": {
+      "bytes": 128,
+      "mode": 420,
+      "sha256": "0ab0d907726ff94dab6b6268debd088113b591d21045ea1a5fa0234a1cdb3365"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v13/validation-logs/Python-3.12.13-test_source.py.txt": {
+      "bytes": 109,
+      "mode": 420,
+      "sha256": "c6ec80dfd15463ef31e5fe163300d0586d467438d3363957851bf49375e49982"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v13/validation-logs/Python-3.14.7-test_mounts.py.txt": {
+      "bytes": 128,
+      "mode": 420,
+      "sha256": "e90f334ab68af814aaa8418996b49b12951e162ce8ea12424b09913583154716"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v13/validation-logs/Python-3.14.7-test_preparation.py.txt": {
+      "bytes": 105,
+      "mode": 420,
+      "sha256": "e19a86747084065fc6026e9e5463e2291a2e56061843e8a27e0424f4fed284be"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v13/validation-logs/Python-3.14.7-test_qualification.py.txt": {
+      "bytes": 109,
+      "mode": 420,
+      "sha256": "0e6726d50e803379d5dba8bffa695156ec8dd968c17d4b7aceb115bede57015c"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v13/validation-logs/Python-3.14.7-test_reader.py.txt": {
+      "bytes": 155,
+      "mode": 420,
+      "sha256": "93bfa37ebe2d5cd09c342231443fe37ce8be7fca397575acf7ca16230219fb7b"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v13/validation-logs/Python-3.14.7-test_runtime.py.txt": {
+      "bytes": 128,
+      "mode": 420,
+      "sha256": "f7af0d7107160e3018a4cd4caa1dce9a4cb18e3e4f19ea62e74d5e6636174a5a"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v13/validation-logs/Python-3.14.7-test_source.py.txt": {
+      "bytes": 109,
+      "mode": 420,
+      "sha256": "451b5d6c8b16c0717cc54662c16ef95cf80d2853395bdd06a34336455382f262"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v13/validation.DATA.json": {
+      "bytes": 81189,
+      "mode": 420,
+      "sha256": "afcfbb32d1675d216cacfd87cb252721ff50c366c504b28aa191af9e229459b5"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v14/README.md": {
+      "bytes": 6795,
+      "mode": 420,
+      "sha256": "586019e0a26e95e49f52123a96cc4f761d68c36a150bcdbc0e8b2c701ea1b07b"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v14/actual-failure.DATA.json": {
+      "bytes": 2454,
+      "mode": 420,
+      "sha256": "ab80b4456df882aea34b2e8c6317ab60623fb4ad0b1d6c1d087410cc64100b97"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v14/archives.py": {
+      "bytes": 17270,
+      "mode": 420,
+      "sha256": "90904de0bfe31886419e94823ce830c71b06db1bbd4557e3b687696d1b4901c0"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v14/bindings.py": {
+      "bytes": 10681,
+      "mode": 420,
+      "sha256": "c9110cc0d2673097160e7f0a0826c9e2436c9dc54b234d65d3a2c6e7c2e53455"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v14/elf.py": {
+      "bytes": 1720,
+      "mode": 420,
+      "sha256": "0d5adbfcca43700272b65462f69584f9c0a79d71c46ad5b6e037be56366773a2"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v14/evidence.py": {
+      "bytes": 46380,
+      "mode": 420,
+      "sha256": "239e8bacf9a8f419c143ec1aa501b75d6e83a5abd5b5dfef6ed7e05a0d7d1d45"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v14/fixtures/source344-probe-mount.ACTUAL.json": {
+      "bytes": 6302,
+      "mode": 420,
+      "sha256": "e8cf3b1f7dbefc763f93fc91c501e6d28d9a79e0d83cde6a57e9c180d83edf74"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v14/fixtures/source351-mountinfo-data.ACTUAL.raw": {
+      "bytes": 5794,
+      "mode": 420,
+      "sha256": "c52d3185956b93870365913050bac4ebd012c3db08b5b803095822888db13460"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v14/fixtures/source351-public-failure.ACTUAL-r2.json": {
+      "bytes": 8324,
+      "mode": 420,
+      "sha256": "e7d11080d025b0fabfae1d95199613436547bf4e7f09e4962a1d1b4a6012660b"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v14/inverse.DATA.json": {
+      "bytes": 105684,
+      "mode": 420,
+      "sha256": "f16a294f48439a654504f507f55ecded2f5f423dc3e803dce599f02159c8ee57"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v14/prepare_reader.py": {
+      "bytes": 2453,
+      "mode": 420,
+      "sha256": "15bf7dab238e1fd7db7f93e90d9ea0c70dddafb2f912f611688fd10d32b6f8a5"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v14/reader.py": {
+      "bytes": 26524,
+      "mode": 420,
+      "sha256": "7af759176251d7d84d6d7a8b50a3bc130f9ec49f6543ed7f341a887d73d7d739"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v14/request.TEMPLATE.json": {
+      "bytes": 4080,
+      "mode": 420,
+      "sha256": "af541ac155c24812330d1fc7bfe0b668edbbc620fcb27bdeb15e62149fa30e99"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v14/source-profile.DATA.json": {
+      "bytes": 2167,
+      "mode": 420,
+      "sha256": "e4f2dd79663a0a8233d1aabde156356fc9e02de217668f66c5058156b0bbe8b9"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v14/storage.py": {
+      "bytes": 13867,
+      "mode": 420,
+      "sha256": "f1606595fd7676cb4422d2ac785729e5a5b9e782c0d3f919b4c9e0cea2000b4a"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v14/test_actual_failure.py": {
+      "bytes": 2845,
+      "mode": 420,
+      "sha256": "388ad68128bdf68db9edb1ea426b82ea121f95345659897c93a2d06879a8d719"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v14/test_mounts.py": {
+      "bytes": 12776,
+      "mode": 420,
+      "sha256": "14ed101bc9651bb4d81b992c870f5c29fbe413be5077283440ef895891bde6ff"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v14/test_owned_bind.py": {
+      "bytes": 7686,
+      "mode": 420,
+      "sha256": "1e4ec7706ce1d8c83e08ba0089cc4821f758597cc9d582bcbd5799aaa848a71e"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v14/test_preparation.py": {
+      "bytes": 4102,
+      "mode": 420,
+      "sha256": "95e10a2539fd01f2e8726c78fde5e2c970cf5d31b98c95cd1aa7b408bc9fafb5"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v14/test_qualification.py": {
+      "bytes": 8448,
+      "mode": 420,
+      "sha256": "9dd86a8d2ddb1dc8b51c8bb7e8360b837aaceee0e6e0b345ae9f3cf089a45df3"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v14/test_reader.py": {
+      "bytes": 52380,
+      "mode": 420,
+      "sha256": "24902ee3f94461bfc47210aeaeda6493e119f5ba733d56bbcfff6636befa459d"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v14/test_runtime.py": {
+      "bytes": 29123,
+      "mode": 420,
+      "sha256": "34383d82294ee361f9969a0225ae9e03775766709385ba3bf08a5760a15520d0"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v14/test_source.py": {
+      "bytes": 6994,
+      "mode": 420,
+      "sha256": "3ab41bb0f979acf9fcc93ca9f22e28d29578c3e6d1d84a7c99f217b459452093"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v8/archives.py": {
+      "bytes": 16951,
+      "mode": 420,
+      "sha256": "e15b2f41b431a33738751bf4d5e70dc4db8443a24bc5696a8ce78a2cade959c9"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v8/bindings.py": {
+      "bytes": 10681,
+      "mode": 420,
+      "sha256": "c9110cc0d2673097160e7f0a0826c9e2436c9dc54b234d65d3a2c6e7c2e53455"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v8/elf.py": {
+      "bytes": 1720,
+      "mode": 420,
+      "sha256": "0d5adbfcca43700272b65462f69584f9c0a79d71c46ad5b6e037be56366773a2"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v8/evidence.py": {
+      "bytes": 14808,
+      "mode": 420,
+      "sha256": "1c6235402c6c34290220f63b51669cbd98f77dad1b6e0a9ff43f444d8ad593c3"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v8/reader.py": {
+      "bytes": 23227,
+      "mode": 420,
+      "sha256": "942a2181ece19b42a0a1e62465dc8b8a69a476d1359a8dcb364d4d992f3b1ad5"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v8/storage.py": {
+      "bytes": 5337,
+      "mode": 420,
+      "sha256": "c42593dd41c704eae7ec8b4f8584acd1e32324e3dbc0bd415306dc0a1b874cfc"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v9/README.md": {
+      "bytes": 8894,
+      "mode": 420,
+      "sha256": "3a2e0954cdc5e975b1279557a21fee16985967d184f6befede4072f3b553fea2"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v9/archives.py": {
+      "bytes": 16951,
+      "mode": 420,
+      "sha256": "e15b2f41b431a33738751bf4d5e70dc4db8443a24bc5696a8ce78a2cade959c9"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v9/bindings.py": {
+      "bytes": 10681,
+      "mode": 420,
+      "sha256": "c9110cc0d2673097160e7f0a0826c9e2436c9dc54b234d65d3a2c6e7c2e53455"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v9/elf.py": {
+      "bytes": 1720,
+      "mode": 420,
+      "sha256": "0d5adbfcca43700272b65462f69584f9c0a79d71c46ad5b6e037be56366773a2"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v9/evidence.py": {
+      "bytes": 14808,
+      "mode": 420,
+      "sha256": "1c6235402c6c34290220f63b51669cbd98f77dad1b6e0a9ff43f444d8ad593c3"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v9/inverse.DATA.json": {
+      "bytes": 4252,
+      "mode": 420,
+      "sha256": "f3de74d492f0f35c8c658ca7fcba1ec763c2166f6cebb5356f79e0501e42a1f5"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v9/reader.py": {
+      "bytes": 23227,
+      "mode": 420,
+      "sha256": "33cca2bdff3cdfa74de307dae4754aea36b2e1cc53ebac94b367305089307fa0"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v9/request.TEMPLATE.json": {
+      "bytes": 4077,
+      "mode": 420,
+      "sha256": "e6abb29b3e487ddf5e8535477148543401f022580d013c459b52b8fbdc074b2b"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v9/source-profile.DATA.json": {
+      "bytes": 2213,
+      "mode": 420,
+      "sha256": "48bba4ebf68422c189d3d26d9c41830f5841123eb86f77850d0e5bb490a21dab"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v9/storage.py": {
+      "bytes": 5337,
+      "mode": 420,
+      "sha256": "4b1b5b05d4bc03db3834c13cbc6f2948053e3fee742a17546ec1ba61739fbf5f"
+    },
+    "scripts/ci/rust199-source-reference-native/independent_reader_v9/test_reader.py": {
+      "bytes": 40151,
+      "mode": 420,
+      "sha256": "7be7bcf46382a29ec5816f5ba232e2a82fb22e6f366db74b9f2dc6e9970d6b90"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/.gitattributes": {
+      "bytes": 103,
+      "mode": 420,
+      "sha256": "56ef216483f1026aa41bee323a10828263efafd61148c1cb232305c3ad37e7df"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/README.md": {
+      "bytes": 2909,
+      "mode": 420,
+      "sha256": "b6fed000e76e3e71972fb69e82d679cf039008db5a3d2fad412ebc9a7100acc0"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/acquire.py": {
+      "bytes": 8057,
+      "mode": 420,
+      "sha256": "e03831774be747186e194301bcc13cce5cc2c805e42f4bf42aeb3cda07302843"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/acquisition.json": {
+      "bytes": 3328,
+      "mode": 420,
+      "sha256": "92b58363898e7e5fa9296152e0d083147a34ea4fce9483be003c718d3676aca8"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/audit-runs.json": {
+      "bytes": 404,
+      "mode": 420,
+      "sha256": "9c2076c2cadfda4ff3be6712ac52f89dfc1fb95dd0836432fa275ca1b4a972d7"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/audit.py": {
+      "bytes": 13841,
+      "mode": 420,
+      "sha256": "44b43766a059f5224ba897a313d3c68971390fd7ecc6a664c3635cc1f65a0f7d"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/data-admission.json": {
+      "bytes": 10364,
+      "mode": 420,
+      "sha256": "94fee5eee5cb496e4a3777a13eead350f64c4bf2d32e711dff9207283edc3d5c"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/evidence-pins.json": {
+      "bytes": 5637,
+      "mode": 420,
+      "sha256": "a856f127eece4f160cfb82f310ecda99ffb1f0d6f7385ea2fbd0009f69148eb2"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/join.py": {
+      "bytes": 4503,
+      "mode": 420,
+      "sha256": "870e1f2f773f85107e05b5aed0ab361d49b1be5d0077f777b4209fc921a042f9"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/records/cargo-1.98.0-aarch64-unknown-linux-gnu.tar.xz.elf.json": {
+      "bytes": 2638,
+      "mode": 420,
+      "sha256": "0da95000698543c9755057315fca64fa38660132af4a287aa2a8bfd9fc7508ff"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/records/cargo-1.98.0-aarch64-unknown-linux-gnu.tar.xz.inventory.json": {
+      "bytes": 15690,
+      "mode": 420,
+      "sha256": "aa2335eeeea5a9dff965fe38c246366bdc0b8486ea69293dd1c8c82f6e4f3cd3"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/records/component-prefix-model.json": {
+      "bytes": 28331,
+      "mode": 420,
+      "sha256": "c1fca476887a5005eb11ead2fcca672c1dd88d22d6794c57d29aef499d6dc07f"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/records/metadata/cargo-1.98.0-aarch64-unknown-linux-gnu/cargo/manifest.in": {
+      "bytes": 1532,
+      "mode": 420,
+      "sha256": "5b2160ec3635b8c8f3129f12cbeee078d55d882f9362313e56e9fd484febe8ba"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/records/metadata/cargo-1.98.0-aarch64-unknown-linux-gnu/components": {
+      "bytes": 6,
+      "mode": 420,
+      "sha256": "7bb89d54b70dc6110f7bc980b181b6fd9316b7779bba2fd928521e1c5009cc59"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/records/metadata/cargo-1.98.0-aarch64-unknown-linux-gnu/git-commit-hash": {
+      "bytes": 40,
+      "mode": 420,
+      "sha256": "98073e80ccbff8080d9deda247ce8b3b5addbd0d10abed91be83fbcc710889cd"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/records/metadata/cargo-1.98.0-aarch64-unknown-linux-gnu/rust-installer-version": {
+      "bytes": 2,
+      "mode": 420,
+      "sha256": "1121cfccd5913f0a63fec40a6ffd44ea64f9dc135c66634ba001d10bcf4302a2"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/records/metadata/cargo-1.98.0-aarch64-unknown-linux-gnu/version": {
+      "bytes": 29,
+      "mode": 420,
+      "sha256": "ea4bd37ea339be44c06cc80cce4f9cba8cf4d7369b9d9873abce21f6d326234b"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/records/metadata/rust-std-1.98.0-aarch64-unknown-linux-gnu/components": {
+      "bytes": 35,
+      "mode": 420,
+      "sha256": "c21322f8eb9e06780141e3c9921a3920cff4c3c1172e77382d74338ec3038db3"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/records/metadata/rust-std-1.98.0-aarch64-unknown-linux-gnu/git-commit-hash": {
+      "bytes": 40,
+      "mode": 420,
+      "sha256": "98073e80ccbff8080d9deda247ce8b3b5addbd0d10abed91be83fbcc710889cd"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/records/metadata/rust-std-1.98.0-aarch64-unknown-linux-gnu/rust-installer-version": {
+      "bytes": 2,
+      "mode": 420,
+      "sha256": "1121cfccd5913f0a63fec40a6ffd44ea64f9dc135c66634ba001d10bcf4302a2"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/records/metadata/rust-std-1.98.0-aarch64-unknown-linux-gnu/rust-std-aarch64-unknown-linux-gnu/manifest.in": {
+      "bytes": 5048,
+      "mode": 420,
+      "sha256": "e8e6b335e21b7690a5e5f425486a6af5fe94ef0cd29f45caf63949c30dc022b7"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/records/metadata/rust-std-1.98.0-aarch64-unknown-linux-gnu/version": {
+      "bytes": 29,
+      "mode": 420,
+      "sha256": "7c421ba07652f08acef66506ea99afa80d0b16a2a4dc2450711097a4d1d530d8"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/records/metadata/rustc-1.98.0-aarch64-unknown-linux-gnu/components": {
+      "bytes": 6,
+      "mode": 420,
+      "sha256": "17c769d50277575d5571ae0769c76c9cbbdd65314954e278e5b4c6faba8e0721"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/records/metadata/rustc-1.98.0-aarch64-unknown-linux-gnu/git-commit-hash": {
+      "bytes": 40,
+      "mode": 420,
+      "sha256": "98073e80ccbff8080d9deda247ce8b3b5addbd0d10abed91be83fbcc710889cd"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/records/metadata/rustc-1.98.0-aarch64-unknown-linux-gnu/rust-installer-version": {
+      "bytes": 2,
+      "mode": 420,
+      "sha256": "1121cfccd5913f0a63fec40a6ffd44ea64f9dc135c66634ba001d10bcf4302a2"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/records/metadata/rustc-1.98.0-aarch64-unknown-linux-gnu/rustc/manifest.in": {
+      "bytes": 1663,
+      "mode": 420,
+      "sha256": "3ca64298238e1d5237b15f1c0cfa4c1eb7de529320bfdf0a6c38d2e0ecd5d099"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/records/metadata/rustc-1.98.0-aarch64-unknown-linux-gnu/version": {
+      "bytes": 29,
+      "mode": 420,
+      "sha256": "7c421ba07652f08acef66506ea99afa80d0b16a2a4dc2450711097a4d1d530d8"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/records/notices/cargo-1.98.0-aarch64-unknown-linux-gnu/LICENSE-APACHE": {
+      "bytes": 10860,
+      "mode": 420,
+      "sha256": "8ada45cd9f843acf64e4722ae262c622a2b3b3007c7310ef36ac1061a30f6adb"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/records/notices/cargo-1.98.0-aarch64-unknown-linux-gnu/LICENSE-MIT": {
+      "bytes": 1023,
+      "mode": 420,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/records/notices/cargo-1.98.0-aarch64-unknown-linux-gnu/LICENSE-THIRD-PARTY": {
+      "bytes": 68430,
+      "mode": 420,
+      "sha256": "cbc759b1f17a2ac38fe3eb9e9563b1a08ba0f900611c49faaf68b46907b6d898"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/records/notices/cargo-1.98.0-aarch64-unknown-linux-gnu/cargo/share/doc/cargo/LICENSE-APACHE": {
+      "bytes": 10860,
+      "mode": 420,
+      "sha256": "8ada45cd9f843acf64e4722ae262c622a2b3b3007c7310ef36ac1061a30f6adb"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/records/notices/cargo-1.98.0-aarch64-unknown-linux-gnu/cargo/share/doc/cargo/LICENSE-MIT": {
+      "bytes": 1023,
+      "mode": 420,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/records/notices/cargo-1.98.0-aarch64-unknown-linux-gnu/cargo/share/doc/cargo/LICENSE-THIRD-PARTY": {
+      "bytes": 68430,
+      "mode": 420,
+      "sha256": "cbc759b1f17a2ac38fe3eb9e9563b1a08ba0f900611c49faaf68b46907b6d898"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/records/notices/rust-std-1.98.0-aarch64-unknown-linux-gnu/COPYRIGHT": {
+      "bytes": 1571,
+      "mode": 420,
+      "sha256": "172020dbfd5b53a226dfde77616190a48dcff519b0bc0e6deb91a8450782c4af"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/records/notices/rust-std-1.98.0-aarch64-unknown-linux-gnu/LICENSE-APACHE": {
+      "bytes": 9723,
+      "mode": 420,
+      "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/records/notices/rust-std-1.98.0-aarch64-unknown-linux-gnu/LICENSE-MIT": {
+      "bytes": 1068,
+      "mode": 420,
+      "sha256": "b71bd43a069ca0641a9ecfe585ca7b3c53b5cc1608f8b68321168698e28b5ea1"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/records/notices/rustc-1.98.0-aarch64-unknown-linux-gnu/COPYRIGHT": {
+      "bytes": 1571,
+      "mode": 420,
+      "sha256": "172020dbfd5b53a226dfde77616190a48dcff519b0bc0e6deb91a8450782c4af"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/records/notices/rustc-1.98.0-aarch64-unknown-linux-gnu/LICENSE-APACHE": {
+      "bytes": 9723,
+      "mode": 420,
+      "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/records/notices/rustc-1.98.0-aarch64-unknown-linux-gnu/LICENSE-MIT": {
+      "bytes": 1068,
+      "mode": 420,
+      "sha256": "b71bd43a069ca0641a9ecfe585ca7b3c53b5cc1608f8b68321168698e28b5ea1"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/records/rust-std-1.98.0-aarch64-unknown-linux-gnu.tar.xz.elf.json": {
+      "bytes": 2345,
+      "mode": 420,
+      "sha256": "b7e124de42fadc761b61c19decfc3f58345d579f5469b0c55287caa430c669a2"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/records/rust-std-1.98.0-aarch64-unknown-linux-gnu.tar.xz.inventory.json": {
+      "bytes": 27417,
+      "mode": 420,
+      "sha256": "61346195122bbdd6c1d391a1083698d25ad38ea203286e7150558429e34030cf"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/records/rustc-1.98.0-aarch64-unknown-linux-gnu.tar.xz.elf.json": {
+      "bytes": 30804,
+      "mode": 420,
+      "sha256": "03047e63766b26ef35ade4be273219ec4da26c35d4ddea564e9d8ecea7ec4877"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/records/rustc-1.98.0-aarch64-unknown-linux-gnu.tar.xz.inventory.json": {
+      "bytes": 15386,
+      "mode": 420,
+      "sha256": "9ee82f38a01909e6072e74000f9f9771f89f3bd69b5ea49b362039b7cdd31360"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/retained-search.json": {
+      "bytes": 4428,
+      "mode": 420,
+      "sha256": "d9a3fa8121974d02f620c1e7a38bf72fad18c2a647d1589b69aadd1c14556aaa"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/test_data.py": {
+      "bytes": 5437,
+      "mode": 420,
+      "sha256": "0b050d735da9193eaf7acf0d992f9c58912162df1ff9ecb8792602ca36c48910"
+    },
+    "scripts/ci/rust199-source-reference-native/intake/verify.py": {
+      "bytes": 2661,
+      "mode": 420,
+      "sha256": "c97d0a73c0f6c1dec4a787935a766656e4bce8a173f454d73bf0d18b4df489ab"
+    },
+    "scripts/ci/rust199-source-reference-native/payload/actor/entry.py": {
+      "bytes": 18689,
+      "mode": 420,
+      "sha256": "ffff07ec6712028fce974bbaad9466751f247658fdf5088c60c9e4dea8757f60"
+    },
+    "scripts/ci/rust199-source-reference-native/payload/actor/makepkg.conf": {
+      "bytes": 341,
+      "mode": 420,
+      "sha256": "ae5646207cf535cdee74170eb2ab2edba9f893e5fbe5c5e8a7ec338ef9fc6e14"
+    },
+    "scripts/ci/rust199-source-reference-native/payload/actor/phase.py": {
+      "bytes": 13669,
+      "mode": 420,
+      "sha256": "052d34d1bdfca6e8764ef37a6899085f25dcc86df569326ff28ebbc491225849"
+    },
+    "scripts/ci/rust199-source-reference-native/payload/actor/test_entry.py": {
+      "bytes": 6077,
+      "mode": 420,
+      "sha256": "24e19ba0ccbb2cb6bef0988abd3bb1b02210f8db79f4298060e1b51cc05b30c0"
+    },
+    "scripts/ci/rust199-source-reference-native/payload/actor/test_phase.py": {
+      "bytes": 4991,
+      "mode": 420,
+      "sha256": "02ebf240f137bff4ed3a0bc13047d6ccc815650e78b036ca020aac622a67733f"
+    },
+    "scripts/ci/rust199-source-reference-native/payload/helpers/owned_child.py": {
+      "bytes": 10907,
+      "mode": 420,
+      "sha256": "3ae0a898d26607dc3bb3304724469cafff966f611ebe4a576cae8f9610e342cb"
+    },
+    "scripts/ci/rust199-source-reference-native/payload/hosted/entry.py": {
+      "bytes": 12665,
+      "mode": 420,
+      "sha256": "dc0ebd3a64ce71810e46d25ac480c417608cddf8d976f83af09121a5f8c180ad"
+    },
+    "scripts/ci/rust199-source-reference-native/payload/hosted/producer.py": {
+      "bytes": 28318,
+      "mode": 420,
+      "sha256": "2e5da30646f917ab3b494e091ee4b13651b59e818fc980ca6c5d0ca7a389bedd"
+    },
+    "scripts/ci/rust199-source-reference-native/payload/hosted/test_producer.py": {
+      "bytes": 13819,
+      "mode": 420,
+      "sha256": "43a28ce0ee3684f5bf5ed4b700329013bf0603bc4d784ab39e0912547247ba23"
+    },
+    "scripts/ci/rust199-source-reference-native/policy.json": {
+      "bytes": 568,
+      "mode": 420,
+      "sha256": "4e479329e43754ddf7fa295ba81e0e17829cd6cc6b8b4bdf0c2fd8bdbf963b69"
+    },
+    "scripts/ci/rust199-source-reference-native/prepare.py": {
+      "bytes": 7598,
+      "mode": 420,
+      "sha256": "75e1c3ff5d9d16bb46e39b3bdbf3659ff79551fc7ae7c99b19fff989b5c5e8bb"
+    },
+    "scripts/ci/rust199-source-reference-native/root-admission.TEMPLATE.json": {
+      "bytes": 5287,
+      "mode": 420,
+      "sha256": "14b79a1d4fe7f736bd707ce1ac18006989301ba7c4ce403afa0c3582f7c3c261"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v10/README.md": {
+      "bytes": 4467,
+      "mode": 420,
+      "sha256": "b69ab94ef6783ded89df6a33a82ca1f0346cc8636fcc7e08f4893aa60868fd14"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v10/Root-admission.TEMPLATE.json": {
+      "bytes": 14249,
+      "mode": 420,
+      "sha256": "8a564c2a68afd400abf746b8c600620a1a7fec18a814357dd2ba7107ff01074d"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v10/constructor-profile.json": {
+      "bytes": 1654,
+      "mode": 420,
+      "sha256": "8cd2240f0e8eb3094d29b3e1d3aa5076e3923c962e1fbf37919c73177a9f6dec"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v10/payload/hosted/materials.py": {
+      "bytes": 22727,
+      "mode": 420,
+      "sha256": "da36e3db0ce05c7d775547489a459152ac45d156071fc38e52a1ae379c08e2b9"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v10/payload/hosted/phase_transfer.py": {
+      "bytes": 30723,
+      "mode": 420,
+      "sha256": "0fde1fe2626770dd615b21abc7b7436ab5118127227658c041e7f640387412d8"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v10/prepare.py": {
+      "bytes": 7958,
+      "mode": 420,
+      "sha256": "2ae0313814d053f8ad373cafdf669ca579aedd5e0951dcdef34408fbfd3273cf"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v10/prospective.DATA.json": {
+      "bytes": 570,
+      "mode": 420,
+      "sha256": "779f8390aad40d5b769e98584204ea262dbbf99672a4678838b5a8c7e765ab8c"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v10/test_data.py": {
+      "bytes": 14097,
+      "mode": 420,
+      "sha256": "90fc1bd129df217a85c752c815024de99cff66d52a9ff484a1b55b20f8c46bf5"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v11/README.md": {
+      "bytes": 4609,
+      "mode": 420,
+      "sha256": "8154e65ad04ca4ed7db545b6dc668ec1dfbeeae2baa2f957a92ff80d0a4257ad"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v11/Root-admission.TEMPLATE.json": {
+      "bytes": 14249,
+      "mode": 420,
+      "sha256": "8a564c2a68afd400abf746b8c600620a1a7fec18a814357dd2ba7107ff01074d"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v11/constructor-profile.json": {
+      "bytes": 1490,
+      "mode": 420,
+      "sha256": "329dba1e8cc240edfb91a62ac3d99e542825604f7df57d060d5e589b9171a160"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v11/payload/hosted/bootstrap.py": {
+      "bytes": 31406,
+      "mode": 420,
+      "sha256": "3ec0dd0ffc8519e0b456b4f129106d69c4fc57acee87c0a5203db599fa1349cc"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v11/prepare.py": {
+      "bytes": 7945,
+      "mode": 420,
+      "sha256": "5674fcd36b14c8c732e4b6c480b72146509f637a188f05a291b0b4f441da72b2"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v11/prospective.DATA.json": {
+      "bytes": 569,
+      "mode": 420,
+      "sha256": "d7643d3ad222df48cef627cd7081ce0e82de5625caa5e2eaf812c5b2ec4b66e7"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v11/test_data.py": {
+      "bytes": 12127,
+      "mode": 420,
+      "sha256": "ca83438d361ef3cb8e480269349cbed73eccd9f6b29c7ac03f460e9a19974ef5"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v12/README.md": {
+      "bytes": 4576,
+      "mode": 420,
+      "sha256": "a32c8546cca7779168463946531702c1188bc0070d57e79d1047ae3c35f1987c"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v12/Root-admission.TEMPLATE.json": {
+      "bytes": 14249,
+      "mode": 420,
+      "sha256": "8a564c2a68afd400abf746b8c600620a1a7fec18a814357dd2ba7107ff01074d"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v12/constructor-profile.json": {
+      "bytes": 2162,
+      "mode": 420,
+      "sha256": "63e432dd183a20a27742645bc0b918254e821ed394883dc4d983b54b9eec70cd"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v12/fixtures/actual287-inspect.json": {
+      "bytes": 5198,
+      "mode": 420,
+      "sha256": "94b04d74b274ef5fdfb089ea9ae712d6ef06341541b6ec438fd98eb0464e1b55"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v12/fixtures/actual287-provenance.json": {
+      "bytes": 696,
+      "mode": 420,
+      "sha256": "e4c68bfd324abdeaa68c11390f0f83c0f401290f5b76151fd49caa00e5e5af8c"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v12/payload/hosted/producer.py": {
+      "bytes": 33774,
+      "mode": 420,
+      "sha256": "5ef59811fe0f5e9935317bb4d1b1a671272b28ab09308b570a09a55ca2b1fcce"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v12/payload/hosted/qualification.py": {
+      "bytes": 18658,
+      "mode": 420,
+      "sha256": "d76a06691bb6fa0138c0bc0cafb4ae1428c85fd96756de7c130230994030b6f5"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v12/prepare.py": {
+      "bytes": 7860,
+      "mode": 420,
+      "sha256": "12c15bd232ab11d23979b57cd1acac0fdd612e0d476fc4e0fedcfddc6d25336c"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v12/prospective.DATA.json": {
+      "bytes": 571,
+      "mode": 420,
+      "sha256": "3070f0d62abb0aa59b4a6a8cd3c2d88518e6c052a9753aad8eafa5c0053b90fe"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v12/test_data.py": {
+      "bytes": 5984,
+      "mode": 420,
+      "sha256": "480f86e7e881007698804593ff80c99a364cdcea6a068b70016729a2a0af2a30"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v12/test_runtime.py": {
+      "bytes": 16088,
+      "mode": 420,
+      "sha256": "8fc2a35a35dd0878a150bd1cd28439a634f5fb73405537d589549c5e21af93d8"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v13/README.md": {
+      "bytes": 5738,
+      "mode": 420,
+      "sha256": "a45870208ecb7ff349c3d5ca5d3f61f56bf1e2c11acde3d052a484d6118f47c8"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v13/Root-admission.TEMPLATE.json": {
+      "bytes": 14249,
+      "mode": 420,
+      "sha256": "8a564c2a68afd400abf746b8c600620a1a7fec18a814357dd2ba7107ff01074d"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v13/constructor-profile.json": {
+      "bytes": 2482,
+      "mode": 420,
+      "sha256": "aca60bb938304cc306bb8ef6c1e790d7b84f49cea4178beda75dad4c00938d2f"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v13/fixtures/probe-mount.ACTUAL.json": {
+      "bytes": 6302,
+      "mode": 420,
+      "sha256": "e8cf3b1f7dbefc763f93fc91c501e6d28d9a79e0d83cde6a57e9c180d83edf74"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v13/payload/actor/entry.py": {
+      "bytes": 22434,
+      "mode": 420,
+      "sha256": "e84630b6ca3e531e6f4197fb03228a26880a6c31a63d57e36a3496269b6e1627"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v13/payload/actor/mount_proof.py": {
+      "bytes": 7365,
+      "mode": 420,
+      "sha256": "c5f7320f872f60803c461c0a34659cde6127e21abef31a4a1a43ce306b630895"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v13/payload/actor/qualify.py": {
+      "bytes": 13927,
+      "mode": 420,
+      "sha256": "f402e9062f130723a9a9093dcc06ba64acc51693d1614cab4a57308e12a0ea78"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v13/payload/hosted/producer.py": {
+      "bytes": 34156,
+      "mode": 420,
+      "sha256": "964d5f0177843c323b2e5d28590bd41b53a9d129bb84a986ba60448265f70854"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v13/payload/hosted/qualification.py": {
+      "bytes": 22120,
+      "mode": 420,
+      "sha256": "9fa67f12e15d4d11769d6bc8689939196088483e9d6f80edd289640ad03f3b9b"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v13/prepare.py": {
+      "bytes": 8114,
+      "mode": 420,
+      "sha256": "23aad3b827043b6749815f8e2bfa72ce8f31a547aad4eea1d9cf69868a1ac911"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v13/prospective.DATA.json": {
+      "bytes": 589,
+      "mode": 420,
+      "sha256": "130a057a463337712b73963ed7e39be4d0a0582018533375ad54312e35a43a73"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v13/test_data.py": {
+      "bytes": 5994,
+      "mode": 420,
+      "sha256": "7f80eccaf407e3c91a0637a31ec277501825a0c89230890d07f8a72eea775a0a"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v13/test_runtime.py": {
+      "bytes": 12019,
+      "mode": 420,
+      "sha256": "f63ef37bc6a36ea07ba20ab70fddcb0e3ac8fb27770fcac982c8c1f30b9b2755"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v2/README.md": {
+      "bytes": 3941,
+      "mode": 420,
+      "sha256": "8ba17b13adfde35c31413154ed54200394f96d2b208b98ed1a793a8e7364651d"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v2/constructor-profile.json": {
+      "bytes": 1726,
+      "mode": 420,
+      "sha256": "6802e3138a6cb2e362df0ea2759424c4f03895122778f183179bd241293ec2ad"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v2/payload/hosted/producer.py": {
+      "bytes": 31843,
+      "mode": 420,
+      "sha256": "e1a12e48469bb32c6a5753929195ea95a2a537300d1779d84fde400cced49d97"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v2/payload/hosted/volume.py": {
+      "bytes": 5039,
+      "mode": 420,
+      "sha256": "6ec0d36b7241b42162dedec3771f81f33fa2e47ca8f4cbbed82b969c671fa59f"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v2/prepare.py": {
+      "bytes": 10713,
+      "mode": 420,
+      "sha256": "559bbc6365cf7ad2b9c2ad6c651208d2bb649925cf6800aecb8336581c25b3ef"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v2/test_producer.py": {
+      "bytes": 14983,
+      "mode": 420,
+      "sha256": "7f7653b02654c59d68d407752507ab558558959d3d706fcb5c7711a86fcb2129"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v2/test_source.py": {
+      "bytes": 4261,
+      "mode": 420,
+      "sha256": "248e628ad55ad00982787b883e44d2dd405bd92679f9d440cb9b815ff7171cbf"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v2/validation.json": {
+      "bytes": 2274,
+      "mode": 420,
+      "sha256": "f990ffc01b0b221be440f17328cd337a324ab0ae737f15c5d3b88c641e286702"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v3/README.md": {
+      "bytes": 4814,
+      "mode": 420,
+      "sha256": "c0cd420339c79377ea5fb2fbb3ab3364253aed9b8b5d7156905ac7a75c5bc9e0"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v3/ci-routing.json": {
+      "bytes": 1028,
+      "mode": 420,
+      "sha256": "2db1ce4569fc74e111cf713717ba01c7688ae170a05abf9863334a40ea2a272e"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v3/constructor-profile.json": {
+      "bytes": 3525,
+      "mode": 420,
+      "sha256": "1702cde18560918351c2ac4edce176ee6fffffb5f326a7169a871a644220c0a2"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v3/fixtures/actor-entry-v2.py.data": {
+      "bytes": 21092,
+      "mode": 420,
+      "sha256": "44ef83c2ce51fd6be5b2560fc5126e51abfb098f51e9c5c896f89441b063e38f"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v3/payload/admission.py": {
+      "bytes": 8283,
+      "mode": 420,
+      "sha256": "3b0d3165e427216b90b48ab0f1fe0dc09c2bfe115a6c7094391a552c5dc70408"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v3/payload/frozen/rust199-admission-v1.py": {
+      "bytes": 20757,
+      "mode": 420,
+      "sha256": "a548f56b0759ae2ecd90ee79fed8c1e254a032dbaa0726f15e673e139b946c30"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v3/payload/llvm-v2/candidate-map.json": {
+      "bytes": 3647,
+      "mode": 420,
+      "sha256": "5b774ea14a33314de5c1ab6af5aef4cbd5dc04718c2c6cec2f20dc97425d7c93"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v3/payload/llvm-v2/contract.json": {
+      "bytes": 3148,
+      "mode": 420,
+      "sha256": "40e01661102dee517c5f535696c4625b6c57aa68c3985a89014f9475643da469"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v3/payload/llvm-v2/policy.json": {
+      "bytes": 1114,
+      "mode": 420,
+      "sha256": "e69b47708f171a63b7fcdcc413d6b53070f047e7240723f06115c02049c8b544"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v3/payload/llvm-v2/reader.py": {
+      "bytes": 15764,
+      "mode": 420,
+      "sha256": "b939343e3607b985e79c70c8f420e1a26dadf8433242d17df11b8b5be21eacb1"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v3/payload/llvm-v2/source.json": {
+      "bytes": 2379,
+      "mode": 420,
+      "sha256": "59acf282ae64258af5e9bc3ff97d2dba39bfe58347800d20679ff5baf9c88063"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v3/prepare.py": {
+      "bytes": 8938,
+      "mode": 420,
+      "sha256": "310eeb65f0ec11731bc24093209b79490a105d7f0163041834e414dea644df71"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v3/test_admission.py": {
+      "bytes": 8139,
+      "mode": 420,
+      "sha256": "8ea046cd7a7c4df44af7474c59106743b938f31e19a42b20d5606b52c3005886"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v3/test_source.py": {
+      "bytes": 4880,
+      "mode": 420,
+      "sha256": "32cb0fccce0a4e885c1f58fb7788916e66d0b30d903f8c45965dc2defb541585"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v3/validation.json": {
+      "bytes": 2427,
+      "mode": 420,
+      "sha256": "7b7c8c461a16d4e94ce6b1c36e43e71dbb98076dafbd5050e74743bd58782300"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v4/README.md": {
+      "bytes": 5575,
+      "mode": 420,
+      "sha256": "66d88ffc229c56fa1118109bfa7ecfaa43e88b4b85e39d2f17729f6ee9e59e38"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v4/ci-routing.json": {
+      "bytes": 1718,
+      "mode": 420,
+      "sha256": "178534cb00eaec7d5383b89d71af8728e72b4515f52268ee3c0d17d893e3c642"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v4/constructor-profile.json": {
+      "bytes": 7640,
+      "mode": 420,
+      "sha256": "90c8193a83296a8acb4b10776fe3436f2e3109bc9fbed5dc01da3a8e9f775a3e"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v4/operator/dispatch_six.py": {
+      "bytes": 7121,
+      "mode": 420,
+      "sha256": "7289722cb5125d4cd67f0fbd2f34e9e9bddd1bf063378cbacf1133dcbc47c292"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v4/payload/actor/entry.py": {
+      "bytes": 21100,
+      "mode": 420,
+      "sha256": "f40651ac157f81e5124c7c1346cf85b151c4c24ab6ffcadb70c8111b1070a93c"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v4/payload/actor/qualify.py": {
+      "bytes": 11655,
+      "mode": 420,
+      "sha256": "5c6724fd1872ffac424108dae9fee5a4862d9db5c63bc1a9fcd86ae39c9b3b1a"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v4/payload/admission.py": {
+      "bytes": 27180,
+      "mode": 420,
+      "sha256": "5d38b340e5027de6cf1196c19152143c6876718a55cf9506dc9ac315160eb588"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v4/payload/frozen/bootstrap349.py": {
+      "bytes": 16757,
+      "mode": 420,
+      "sha256": "27e17683ba185d6959307b081ab86be4c7740ef5dbb8dff9c850670eda2ec008"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v4/payload/frozen/rust199-admission-v1.py": {
+      "bytes": 20757,
+      "mode": 420,
+      "sha256": "a548f56b0759ae2ecd90ee79fed8c1e254a032dbaa0726f15e673e139b946c30"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v4/payload/hosted/bootstrap.py": {
+      "bytes": 29148,
+      "mode": 420,
+      "sha256": "b18e4aaaf137a976f065a55ca219b8f7a9b055ea4356aeda2fd8aacf43662d67"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v4/payload/hosted/entry.py": {
+      "bytes": 19080,
+      "mode": 420,
+      "sha256": "db9e5dedbcc0467eebac75c4d0e9536eb2857236ad4bf39ed8576669a4de827d"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v4/payload/hosted/materials.py": {
+      "bytes": 22664,
+      "mode": 420,
+      "sha256": "f822722db59fc398e32378060a9c72775c3cd0e74dfbf947dc4e9d59e79d8728"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v4/payload/hosted/phase_transfer.py": {
+      "bytes": 23980,
+      "mode": 420,
+      "sha256": "68889170688b672b67cf27af71501c859c54e19aa438260c21e0dcfa2c2a9522"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v4/payload/hosted/producer.py": {
+      "bytes": 32146,
+      "mode": 420,
+      "sha256": "f7f042c992a6d7bd2c2f22b34c8b5095b17eb6a63ee8605e6dce76a9bae4650c"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v4/payload/hosted/qualification.py": {
+      "bytes": 18320,
+      "mode": 420,
+      "sha256": "fbb39f006a261526afc3507f52d3c2b81fa6ad452d6aba52dd9b8daafc3af063"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v4/payload/llvm-v2/candidate-map.json": {
+      "bytes": 3647,
+      "mode": 420,
+      "sha256": "5b774ea14a33314de5c1ab6af5aef4cbd5dc04718c2c6cec2f20dc97425d7c93"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v4/payload/llvm-v2/contract.json": {
+      "bytes": 3148,
+      "mode": 420,
+      "sha256": "40e01661102dee517c5f535696c4625b6c57aa68c3985a89014f9475643da469"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v4/payload/llvm-v2/independent-reader-v3/base.py": {
+      "bytes": 2593,
+      "mode": 420,
+      "sha256": "6d6d6c00d686ea97e6cd9702b61c545d630418be1f18ac3fe9b1ff7da82cd610"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v4/payload/llvm-v2/independent-reader-v3/pins.json": {
+      "bytes": 6486,
+      "mode": 420,
+      "sha256": "3adab3af82327142762aa4d366993aa9695e9d25a012f0b72c07cb611f926439"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v4/payload/llvm-v2/independent-reader-v3/profile.json": {
+      "bytes": 3048,
+      "mode": 420,
+      "sha256": "8860534587527cb6f9d010d54f635934bc273b6ee32b451a6476ffc47c171a86"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v4/payload/llvm-v2/independent-reader-v3/reader.py": {
+      "bytes": 9442,
+      "mode": 420,
+      "sha256": "1edb14485c8df4b880750e0d783fe4f732e88ed9d17119ef491fb7cfe65cd8c6"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v4/payload/llvm-v2/policy.json": {
+      "bytes": 1114,
+      "mode": 420,
+      "sha256": "e69b47708f171a63b7fcdcc413d6b53070f047e7240723f06115c02049c8b544"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v4/payload/llvm-v2/reader.py": {
+      "bytes": 15764,
+      "mode": 420,
+      "sha256": "b939343e3607b985e79c70c8f420e1a26dadf8433242d17df11b8b5be21eacb1"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v4/payload/llvm-v2/source.json": {
+      "bytes": 2892,
+      "mode": 420,
+      "sha256": "883e1eba00457207666402f9adab4d3c9d0a514e4c05c71f744c437228d20460"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v4/payload/resource-policy.json": {
+      "bytes": 1615,
+      "mode": 420,
+      "sha256": "43d6dd01534530dede9d3e58e78bf296e625d7ada2804b3c1e06adf2823dbb3b"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v4/prepare.py": {
+      "bytes": 10105,
+      "mode": 420,
+      "sha256": "6288839dd329a6e5b126a385ccd3be384344a5ee9b4559546038849cf0cb37c8"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v4/test_actor_binding.py": {
+      "bytes": 1955,
+      "mode": 420,
+      "sha256": "98a774196405be06e17a444afa579bb86b20a9586fca49b4283563be8b1258cb"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v4/test_admission.py": {
+      "bytes": 3556,
+      "mode": 420,
+      "sha256": "ebd741ea8a936d355e048be80c9e73751db29e8bf8879c0d2502744701ec5423"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v4/test_binding.py": {
+      "bytes": 6059,
+      "mode": 420,
+      "sha256": "0c1e25e060ea06bbfe29f16967ad9df1671661b9ab7b16f9f7f3c19d093ec3e9"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v4/test_bootstrap.py": {
+      "bytes": 10808,
+      "mode": 420,
+      "sha256": "95696aa7b90d0bf0b797fa7cbb62421c2c71864985b90421fc15845294c58346"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v4/test_caps.py": {
+      "bytes": 1551,
+      "mode": 420,
+      "sha256": "5d4370685a53732350a5766ba0c93f66227996142694fed5772f5c6209f65213"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v4/test_materials.py": {
+      "bytes": 12005,
+      "mode": 420,
+      "sha256": "a24ab0ebba433e08a794e4435e5673e0130d44854f4679340e0bcc0b428f89e3"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v4/test_orchestration.py": {
+      "bytes": 8194,
+      "mode": 420,
+      "sha256": "442578a87b99b83295237a4a510fd6b2a09a01cdcc5f8f310ff23f745899d47a"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v4/test_qualification.py": {
+      "bytes": 6723,
+      "mode": 420,
+      "sha256": "c6dcfef3fd688dd0206085e563a4a2d7f2c55b60dde2caae3175a65e1c109095"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v4/test_resources.py": {
+      "bytes": 2521,
+      "mode": 420,
+      "sha256": "d59b612da708a7b57aa4ccdc6c98966734542e4bc21fcb998ac8675f1aa2e371"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v4/test_six.py": {
+      "bytes": 6548,
+      "mode": 420,
+      "sha256": "cd308cd63d7bd4d88929991f07d873bc62c4fb96991c6aceb77d740c319c077a"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v4/test_source.py": {
+      "bytes": 3623,
+      "mode": 420,
+      "sha256": "edf39aed86125cf14a13ebb9585015572298777367455a76ab96872cc2711dfc"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v4/test_transfer.py": {
+      "bytes": 14526,
+      "mode": 420,
+      "sha256": "33a93be71d10145a41e59d6ede6d8c66def727f91d48ce350852da59b42e62a6"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v4/validation.json": {
+      "bytes": 4812,
+      "mode": 420,
+      "sha256": "104ea885991e1fe8bfbc203120c96874f0989ba1e9bbc50c54e6f20c9c5f020f"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v4/workflow.yml.in": {
+      "bytes": 15883,
+      "mode": 420,
+      "sha256": "7f3284e81fb439e35a3317371794639f37fd106169b9a58f962bb62e9f57f9ac"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v5/README.md": {
+      "bytes": 2338,
+      "mode": 420,
+      "sha256": "79fcc607b947b1df986bccc9b4e5da28f0e071b87bae3dd96995894c8d7ea538"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v5/ci-routing.json": {
+      "bytes": 897,
+      "mode": 420,
+      "sha256": "f4d2669b0f84b982cfcd3a212c38e109079bf3f03b2e55259d5da2cd7b218139"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v5/constructor-profile.json": {
+      "bytes": 7314,
+      "mode": 420,
+      "sha256": "a02ad02873640666f3ef1429086a21a2cfe8de3b34820d9df8c9763a5dc48b95"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v5/payload/actor/entry.py": {
+      "bytes": 21100,
+      "mode": 420,
+      "sha256": "f40651ac157f81e5124c7c1346cf85b151c4c24ab6ffcadb70c8111b1070a93c"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v5/payload/actor/qualify.py": {
+      "bytes": 11655,
+      "mode": 420,
+      "sha256": "5c6724fd1872ffac424108dae9fee5a4862d9db5c63bc1a9fcd86ae39c9b3b1a"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v5/payload/admission.py": {
+      "bytes": 30666,
+      "mode": 420,
+      "sha256": "d4608fe405306d7ac2159a90fcdf14dad3e3471d2362fc63f71396e3e1e9bbd6"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v5/payload/frozen/bootstrap349.py": {
+      "bytes": 16757,
+      "mode": 420,
+      "sha256": "27e17683ba185d6959307b081ab86be4c7740ef5dbb8dff9c850670eda2ec008"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v5/payload/frozen/rust199-admission-v1.py": {
+      "bytes": 20757,
+      "mode": 420,
+      "sha256": "a548f56b0759ae2ecd90ee79fed8c1e254a032dbaa0726f15e673e139b946c30"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v5/payload/hosted/bootstrap.py": {
+      "bytes": 29148,
+      "mode": 420,
+      "sha256": "b18e4aaaf137a976f065a55ca219b8f7a9b055ea4356aeda2fd8aacf43662d67"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v5/payload/hosted/entry.py": {
+      "bytes": 19055,
+      "mode": 420,
+      "sha256": "0c7d75ebe67d5cb1e79bc0c8e7146418015e6e8a473f32b19e1dab99f256393a"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v5/payload/hosted/materials.py": {
+      "bytes": 22664,
+      "mode": 420,
+      "sha256": "f822722db59fc398e32378060a9c72775c3cd0e74dfbf947dc4e9d59e79d8728"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v5/payload/hosted/phase_transfer.py": {
+      "bytes": 23980,
+      "mode": 420,
+      "sha256": "68889170688b672b67cf27af71501c859c54e19aa438260c21e0dcfa2c2a9522"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v5/payload/hosted/producer.py": {
+      "bytes": 32146,
+      "mode": 420,
+      "sha256": "f7f042c992a6d7bd2c2f22b34c8b5095b17eb6a63ee8605e6dce76a9bae4650c"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v5/payload/hosted/qualification.py": {
+      "bytes": 18320,
+      "mode": 420,
+      "sha256": "fbb39f006a261526afc3507f52d3c2b81fa6ad452d6aba52dd9b8daafc3af063"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v5/payload/llvm-v2/candidate-map.json": {
+      "bytes": 3647,
+      "mode": 420,
+      "sha256": "5b774ea14a33314de5c1ab6af5aef4cbd5dc04718c2c6cec2f20dc97425d7c93"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v5/payload/llvm-v2/contract.json": {
+      "bytes": 3148,
+      "mode": 420,
+      "sha256": "40e01661102dee517c5f535696c4625b6c57aa68c3985a89014f9475643da469"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v5/payload/llvm-v2/independent-reader-v3/base.py": {
+      "bytes": 2593,
+      "mode": 420,
+      "sha256": "6d6d6c00d686ea97e6cd9702b61c545d630418be1f18ac3fe9b1ff7da82cd610"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v5/payload/llvm-v2/independent-reader-v3/pins.json": {
+      "bytes": 6486,
+      "mode": 420,
+      "sha256": "3adab3af82327142762aa4d366993aa9695e9d25a012f0b72c07cb611f926439"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v5/payload/llvm-v2/independent-reader-v3/profile.json": {
+      "bytes": 3048,
+      "mode": 420,
+      "sha256": "8860534587527cb6f9d010d54f635934bc273b6ee32b451a6476ffc47c171a86"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v5/payload/llvm-v2/independent-reader-v3/reader.py": {
+      "bytes": 9442,
+      "mode": 420,
+      "sha256": "1edb14485c8df4b880750e0d783fe4f732e88ed9d17119ef491fb7cfe65cd8c6"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v5/payload/llvm-v2/independent-reader-v4/base.py": {
+      "bytes": 9366,
+      "mode": 420,
+      "sha256": "d879c2716c1035d85ce601eb1d0c469fdbf7ce9d4d20881d1e6785d02c75fb65"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v5/payload/llvm-v2/independent-reader-v4/pins.json": {
+      "bytes": 7420,
+      "mode": 420,
+      "sha256": "7c45abc5ef57898cdd725c55cc1d4e39df1b59f480d131331e0b4114a4f6aa43"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v5/payload/llvm-v2/independent-reader-v4/profile.json": {
+      "bytes": 5650,
+      "mode": 420,
+      "sha256": "5c7c99dffe553edbc7878549717bc1c08c40ea0257be44109408c80a6b7a317c"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v5/payload/llvm-v2/independent-reader-v4/reader.py": {
+      "bytes": 10422,
+      "mode": 420,
+      "sha256": "c4c738fd3260990babe0a814b597c1930c203aeaf7994b3d70d9738bf00431bf"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v5/payload/llvm-v2/policy.json": {
+      "bytes": 1114,
+      "mode": 420,
+      "sha256": "e69b47708f171a63b7fcdcc413d6b53070f047e7240723f06115c02049c8b544"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v5/payload/llvm-v2/publication.json": {
+      "bytes": 498,
+      "mode": 420,
+      "sha256": "c881f0e992148888d2dff11fcc40db03a736e87e1ab7c008f59a06b870391b47"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v5/payload/llvm-v2/reader.py": {
+      "bytes": 15764,
+      "mode": 420,
+      "sha256": "b939343e3607b985e79c70c8f420e1a26dadf8433242d17df11b8b5be21eacb1"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v5/payload/llvm-v2/source.json": {
+      "bytes": 3858,
+      "mode": 420,
+      "sha256": "d80d444b2b981c2c43edfd84367ded6e5d5539a2dbb8dc8ac2e6fff1b67bd0a8"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v5/payload/resource-policy.json": {
+      "bytes": 1615,
+      "mode": 420,
+      "sha256": "43d6dd01534530dede9d3e58e78bf296e625d7ada2804b3c1e06adf2823dbb3b"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v5/prepare.py": {
+      "bytes": 11841,
+      "mode": 420,
+      "sha256": "b19134698756d308e7614da4f6cbff545fc4c20a3a53421f7fe6ab162396e01a"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v5/test_actor_binding.py": {
+      "bytes": 1955,
+      "mode": 420,
+      "sha256": "d57ba6a42b8a640b672844673432eec9b398ddd7f0aa3608a01d7cf35285eb4d"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v5/test_admission.py": {
+      "bytes": 8756,
+      "mode": 420,
+      "sha256": "9b8a0a59f8177d807583e3b17c224894df40582a29dca21d1481ec8c543a400d"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v5/test_binding.py": {
+      "bytes": 6006,
+      "mode": 420,
+      "sha256": "89aba1924faf7dd3d1025f4cd40fe0676cf0aa6ea32c5ed1423b021f934e68f8"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v5/test_orchestration.py": {
+      "bytes": 8194,
+      "mode": 420,
+      "sha256": "066de8772ec989b9535f7169b985ee4e07837511872d4d149fc6a8923bec1473"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v5/test_source.py": {
+      "bytes": 7593,
+      "mode": 420,
+      "sha256": "efa454b2f9af7e9bf517e52d8a4c4f98a09af9df6e6ab8293752f26f2a52292c"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v5/validation.json": {
+      "bytes": 4530,
+      "mode": 420,
+      "sha256": "a84d1b1bcddbcad1bc7a0c29f1609636397b7d46891c3ca3f5c100134280c6d4"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v5/workflow.yml.in": {
+      "bytes": 15883,
+      "mode": 420,
+      "sha256": "7f3284e81fb439e35a3317371794639f37fd106169b9a58f962bb62e9f57f9ac"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v6/README.md": {
+      "bytes": 3287,
+      "mode": 420,
+      "sha256": "984e437d22647a476e4e29d5b822f020b805e96ef2f2e4ffcaf4f2708da1d88a"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v6/ci-routing.json": {
+      "bytes": 900,
+      "mode": 420,
+      "sha256": "b332f3ae58af67546dd343b9a682fd838bba9fe69a3795b10b43ac1392d2fe6c"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v6/constructor-profile.json": {
+      "bytes": 8951,
+      "mode": 420,
+      "sha256": "b98df27f0d83f975b99bd77ccaa3df26bc56273566c69d4b9350ae12e8e020dc"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v6/evidence/artifact.json": {
+      "bytes": 758,
+      "mode": 420,
+      "sha256": "8ceb0eb943bf4cce78ba2ae323f249ef531f91ebca4bdcd1171e108bf922df8f"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v6/evidence/jobs.json": {
+      "bytes": 3466,
+      "mode": 420,
+      "sha256": "bc56809f45a1c234ca8a23472f2b0322d4327fd7900535a40312a71d43a2a87f"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v6/evidence/reader6-hold.DATA.json": {
+      "bytes": 593,
+      "mode": 420,
+      "sha256": "8b4e9077b5dddc892b979e7c8c11af7331e9e9f05255641a3394dd9193c7c607"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v6/evidence/reader6-static-checkpoint/base.py": {
+      "bytes": 1605,
+      "mode": 420,
+      "sha256": "381586ed2c175d7c950c54e4c8bd10eedcc68a54dd0b4275e8cda4bcb916cfc9"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v6/evidence/reader6-static-checkpoint/binding.TEMPLATE.json": {
+      "bytes": 975,
+      "mode": 420,
+      "sha256": "44f668d99a27f99964027e06b49325bf22f6bebb3323100ea3f7d6743edf2b64"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v6/evidence/reader6-static-checkpoint/derivation.json": {
+      "bytes": 714,
+      "mode": 420,
+      "sha256": "0c08b644b3971a9401d82fed56e20a0fa151b15dc8cce6de941bba8aad62ac98"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v6/evidence/reader6-static-checkpoint/inverse-frame.json": {
+      "bytes": 4481,
+      "mode": 420,
+      "sha256": "fd6f8d80dc0b70fc1ab97e9afdf37db8828fc06f7a18cdb99e759b8d3a78c487"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v6/evidence/reader6-static-checkpoint/pins.json": {
+      "bytes": 9202,
+      "mode": 420,
+      "sha256": "c5b0c2fe35d83801e18da4dd59cf783b1af627131f3ef5c06b0aa86b38346741"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v6/evidence/reader6-static-checkpoint/reader.py": {
+      "bytes": 13515,
+      "mode": 420,
+      "sha256": "67faa153f36ada95b298271a627acb0f656b18e574dc1a9302075f9440fa038a"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v6/evidence/reader6-static-checkpoint/storage.py": {
+      "bytes": 4918,
+      "mode": 420,
+      "sha256": "8bd69167e5b3f6b1e200b53485c4630bdb48b717d5a24f2331418d4871652d77"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v6/evidence/reader7-code.DATA.json": {
+      "bytes": 752,
+      "mode": 420,
+      "sha256": "75fa7c39d95436720cb76b7dbe60789def7a130f4052ca59da2cf4bbf63f8c23"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v6/evidence/reader7-qualification.DATA.json": {
+      "bytes": 2088,
+      "mode": 420,
+      "sha256": "cf4890314930b82ec9a99a8cf4f27ae9fd77b4b043bd7d2689fa25afe06943bd"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v6/evidence/terminal-observation.json": {
+      "bytes": 1402,
+      "mode": 420,
+      "sha256": "3248ab1622b66c3338b1e01ff7ad204d3c5c2e24d2911b387160c6154aab199e"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v6/payload/admission.py": {
+      "bytes": 36075,
+      "mode": 420,
+      "sha256": "c7afb2dbdddc950ac6e1beedecba901d2973849287a46f4832e6df150a24ea0c"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v6/payload/hosted/entry.py": {
+      "bytes": 19060,
+      "mode": 420,
+      "sha256": "9c0068958b1af3d5ee6c49ca4acbebcdca30c2eb3f1f38a75dd455e5f1a55436"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v6/payload/llvm-v2/candidate-map.json": {
+      "bytes": 3647,
+      "mode": 420,
+      "sha256": "5b774ea14a33314de5c1ab6af5aef4cbd5dc04718c2c6cec2f20dc97425d7c93"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v6/payload/llvm-v2/contract.json": {
+      "bytes": 3149,
+      "mode": 420,
+      "sha256": "fb268cd260afcff7133c96e7115c1638f6c0da0c2398b608b33b1cfc0ae88f09"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v6/payload/llvm-v2/independent-reader-v7/architecture-profile.json": {
+      "bytes": 1109,
+      "mode": 420,
+      "sha256": "7ef21b06256f0a1f3098e01c58ebb2cbb67bf261a39582d0626a99693141a585"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v6/payload/llvm-v2/independent-reader-v7/base.py": {
+      "bytes": 2723,
+      "mode": 420,
+      "sha256": "f362c51ddbf705b0a047a26a04ee2cc368061504116b6c050e6d8eac8d53f6e5"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v6/payload/llvm-v2/independent-reader-v7/binding.TEMPLATE.json": {
+      "bytes": 975,
+      "mode": 420,
+      "sha256": "5add0fd3df90115655ce339db71c5d31724e5e174a4ed15bcf51035b59b3c9e5"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v6/payload/llvm-v2/independent-reader-v7/buildinfo.py": {
+      "bytes": 6455,
+      "mode": 420,
+      "sha256": "1e86fbac17b2cf5dad23f59c12a6b39be60d8cbecc9288a071077a338c6ca37b"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v6/payload/llvm-v2/independent-reader-v7/derivation.json": {
+      "bytes": 1419,
+      "mode": 420,
+      "sha256": "a3d3cbd053e9c4c2b8302db34ac85c7d5dbe9a8015492277388b071998993ba5"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v6/payload/llvm-v2/independent-reader-v7/inverse-frame.json": {
+      "bytes": 4481,
+      "mode": 420,
+      "sha256": "fd6f8d80dc0b70fc1ab97e9afdf37db8828fc06f7a18cdb99e759b8d3a78c487"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v6/payload/llvm-v2/independent-reader-v7/pins.json": {
+      "bytes": 9393,
+      "mode": 420,
+      "sha256": "7a01820333a4b855eec0b4a1a673657afc0261039df036a5e34ea51283278328"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v6/payload/llvm-v2/independent-reader-v7/reader.py": {
+      "bytes": 13709,
+      "mode": 420,
+      "sha256": "936053e2e62a7c0a8c37772f083a22b59657db91746dcbc283f5aa73c74d9fcd"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v6/payload/llvm-v2/independent-reader-v7/storage.py": {
+      "bytes": 4918,
+      "mode": 420,
+      "sha256": "8bd69167e5b3f6b1e200b53485c4630bdb48b717d5a24f2331418d4871652d77"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v6/payload/llvm-v2/policy.json": {
+      "bytes": 1114,
+      "mode": 420,
+      "sha256": "e69b47708f171a63b7fcdcc413d6b53070f047e7240723f06115c02049c8b544"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v6/payload/llvm-v2/publication.json": {
+      "bytes": 498,
+      "mode": 420,
+      "sha256": "602bb01a24ae663cdf470e6d9fe3b547c281c29dd85860417f9063e659eabfd8"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v6/payload/llvm-v2/reader.py": {
+      "bytes": 15764,
+      "mode": 420,
+      "sha256": "b939343e3607b985e79c70c8f420e1a26dadf8433242d17df11b8b5be21eacb1"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v6/payload/llvm-v2/source.json": {
+      "bytes": 5052,
+      "mode": 420,
+      "sha256": "0ff90b55a246895633e47a3f01a9fcd69351d2e81993a83880ea3f006cf25111"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v6/prepare.py": {
+      "bytes": 13580,
+      "mode": 420,
+      "sha256": "471a212727555f6a6febe62bb96a7f8239d82f7fabd5e7380d95575aaf24b302"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v6/test_actor_binding.py": {
+      "bytes": 2172,
+      "mode": 420,
+      "sha256": "53ca2de4d468316ddea683e074a3f07c9ef8180675fe0af73c00a8d68ec25a34"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v6/test_admission.py": {
+      "bytes": 19608,
+      "mode": 420,
+      "sha256": "7a123ea8794e2814f4a0f6b7aa6c71e48a93330713ec5a9286253f8a2ca226de"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v6/test_binding.py": {
+      "bytes": 6206,
+      "mode": 420,
+      "sha256": "f6ca1a2238cebace792658ed04f5ba2d4dc775b4d42ffebb28908e0156291f58"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v6/test_orchestration.py": {
+      "bytes": 8411,
+      "mode": 420,
+      "sha256": "00433a4ca69cef94d0de27a564984f9af4f63a253c6a4b2bd4cd5ad4fc456a73"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v6/test_source.py": {
+      "bytes": 9585,
+      "mode": 420,
+      "sha256": "9be1c936c71dad1fa92f78980f6b0032a7763fc2cbad9b4ba64537e75f4ae3ed"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v6/test_support.py": {
+      "bytes": 539,
+      "mode": 420,
+      "sha256": "2c435fc94f5618a1830bad520f2ef3fc15eefbff46431a849848c6a8ec3fcda3"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v6/validation.json": {
+      "bytes": 5273,
+      "mode": 420,
+      "sha256": "9443d8da7e9358ff31e761f20568dedf84e47987292a3f28450cff157d1aafd5"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v6/workflow.yml.in": {
+      "bytes": 15883,
+      "mode": 420,
+      "sha256": "7f3284e81fb439e35a3317371794639f37fd106169b9a58f962bb62e9f57f9ac"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v7/README.md": {
+      "bytes": 5467,
+      "mode": 420,
+      "sha256": "786fa367153d991a9218b7e8efa19e39e2645d239141499d89f65ea19c865970"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v7/catalogue.py": {
+      "bytes": 4177,
+      "mode": 420,
+      "sha256": "c03bc1f4ea2400dc9399b45c5d9c338a3aec74fdadd444107c6cc00af2af45ea"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v7/ci-routing.json": {
+      "bytes": 1019,
+      "mode": 420,
+      "sha256": "123b71a5bcdb7466b0839027044348a8fadfe6476478d05fcb5215cbd0271828"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v7/constructor-profile.json": {
+      "bytes": 5368,
+      "mode": 420,
+      "sha256": "4910b36306987763b9b760ac431258aad760a028016426b24c28817349539818"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v7/payload/.github/workflows/native-arm-build.yml": {
+      "bytes": 15985,
+      "mode": 420,
+      "sha256": "15b4341495516e6e9a2fe14a3cb476db8936efe54432d5199723b8958fed43d5"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v7/payload/.github/workflows/native-arm-rust199-source-reference-v1.yml": {
+      "bytes": 15985,
+      "mode": 420,
+      "sha256": "15b4341495516e6e9a2fe14a3cb476db8936efe54432d5199723b8958fed43d5"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v7/payload/actor/entry.py": {
+      "bytes": 21659,
+      "mode": 420,
+      "sha256": "2e8709e0ae5c8b031240733b17fc7a76c6efdd9d2cd9d3ae12a03ded59526fe1"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v7/payload/actor/phase.py": {
+      "bytes": 13669,
+      "mode": 420,
+      "sha256": "c6e8551445d4dc714a4eff4629a147263ad9b3de422657fe4209227b978e8b67"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v7/payload/actor/qualify.py": {
+      "bytes": 11655,
+      "mode": 420,
+      "sha256": "8aab93367c2155d1474519dcd6303aff64a55835b336420dd7e3820264381927"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v7/payload/admission.py": {
+      "bytes": 36947,
+      "mode": 420,
+      "sha256": "a9810401c593112af0fd13175010fb634bb89e01e31a08e5f39a5f1efde4a640"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v7/payload/candidate-map.json": {
+      "bytes": 2522,
+      "mode": 420,
+      "sha256": "fe33c24896cea0a02b5a5698fccf5d51250d68963c403e6edddf1c03158e1ff5"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v7/payload/contract.json": {
+      "bytes": 16968,
+      "mode": 420,
+      "sha256": "5631e474e818704e5cae38ce1aba761dcbf2581c3e815bf43e88090b5b21ac93"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v7/payload/hosted/entry.py": {
+      "bytes": 19366,
+      "mode": 420,
+      "sha256": "6a1d64b36aea13b8333c22fdcbbc7d34de5d7ffcd118427fea89b4a895039b67"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v7/payload/hosted/producer.py": {
+      "bytes": 32637,
+      "mode": 420,
+      "sha256": "64f672337f97bd37d19b807a792053a265e710b9e4649b37bfde15fece612b76"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v7/payload/notice_binding.py": {
+      "bytes": 5120,
+      "mode": 420,
+      "sha256": "e763ffd24c97e425b0065c0f2fe0c7bdb20a6524dab3129c0987b370000c2dce"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v7/payload/packages/port/rust199-source-reference/.SRCINFO": {
+      "bytes": 2334,
+      "mode": 420,
+      "sha256": "3c1a0b1fca2224f3bc0e48f4c3e75c01307b979ed1f0fb055dbcad7460d72f48"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v7/payload/packages/port/rust199-source-reference/PKGBUILD": {
+      "bytes": 2409,
+      "mode": 420,
+      "sha256": "cd19d48e2ddf3a097e7462940dadfd8927d963cd55a9b18e33cdc5274b596c5c"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v7/payload/packages/port/rust199-source-reference/notice-catalogue.DATA.json": {
+      "bytes": 733756,
+      "mode": 420,
+      "sha256": "1c477c7481df39c1b8b8e82edf73f8df99c63e3f7657e440393b6c812c8d421c"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v7/payload/packages/port/rust199-source-reference/notice_preservation.py": {
+      "bytes": 8167,
+      "mode": 420,
+      "sha256": "754ce0a4018a16b94ad3827b314f967fba135793bfdda399a67dd02560899215"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v7/payload/packages/port/rust199-source-reference/reference.py": {
+      "bytes": 21718,
+      "mode": 420,
+      "sha256": "acb468c2a2ddf327d882835590facabdc89939131ba8c51ae35028688693c665"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v7/payload/recipe/PKGBUILD": {
+      "bytes": 2370,
+      "mode": 420,
+      "sha256": "2f79bcedd1d55ca4cc84b87a3fa29c352cc177d2956405d36b335eaa06bc6357"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v7/prepare.py": {
+      "bytes": 9370,
+      "mode": 420,
+      "sha256": "fb8d0f05714e865df7022d4e3e0f3d19e68f36e8520ce63911f068332a581173"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v7/prospective.DATA.json": {
+      "bytes": 4200,
+      "mode": 420,
+      "sha256": "7976634691e74f2e255a7a40f8b51447ee6a6d167c076efe12a1f2e45e25953f"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v7/test_actor_binding.py": {
+      "bytes": 5204,
+      "mode": 420,
+      "sha256": "b25dcb7365bc85b9329c091c7aa48c4e2c84668407dc0449b980e6ca175ba332"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v7/test_admission.py": {
+      "bytes": 22717,
+      "mode": 420,
+      "sha256": "54fd07f87d06eefa6f0a0f6aec55477ad6b73188599a405b71ce4b4c36c5f313"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v7/test_binding.py": {
+      "bytes": 5024,
+      "mode": 420,
+      "sha256": "8380b7af8685b661020c411b79807221e251e7199560401216b41f8920bf59ac"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v7/test_orchestration.py": {
+      "bytes": 8411,
+      "mode": 420,
+      "sha256": "b49484a92562001bc9c2639af3d23bb042c4e80dba94a7410e86be166b33e7d4"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v7/test_source.py": {
+      "bytes": 13601,
+      "mode": 420,
+      "sha256": "efe15ce207f84426d36e3fb13d6953263389f9bdc39dd53ec74f6d5063132c11"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v7/test_support.py": {
+      "bytes": 917,
+      "mode": 420,
+      "sha256": "b58449107553daa0b948f038eb5317f567d57c2253da5963b3fc278367fd526c"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v8/README.md": {
+      "bytes": 6767,
+      "mode": 420,
+      "sha256": "683d4d056c195e88a42dcbcac4391a413bb950497e82824913c263a7bb007593"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v8/Root-admission.TEMPLATE.json": {
+      "bytes": 14249,
+      "mode": 420,
+      "sha256": "8a564c2a68afd400abf746b8c600620a1a7fec18a814357dd2ba7107ff01074d"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v8/ci-routing.json": {
+      "bytes": 410,
+      "mode": 420,
+      "sha256": "b70540bc0acba26328a261d9bffb5fb97d13599f7e890d304d69be1bb49f5e69"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v8/constructor-profile.json": {
+      "bytes": 2558,
+      "mode": 420,
+      "sha256": "ab707a457af02441773c7c7322ed7838cc98313d09ee81a95a37378fefaa11b0"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v8/payload/.github/workflows/native-arm-build.yml": {
+      "bytes": 16567,
+      "mode": 420,
+      "sha256": "1477467a7182603ae9c128c0efe787ebf1db336dfed25fec719cf703f7a0b93a"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v8/payload/.github/workflows/native-arm-rust199-source-reference-v1.yml": {
+      "bytes": 16567,
+      "mode": 420,
+      "sha256": "1477467a7182603ae9c128c0efe787ebf1db336dfed25fec719cf703f7a0b93a"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v8/payload/admission.py": {
+      "bytes": 37429,
+      "mode": 420,
+      "sha256": "239e5f14d2a78fc68dc8473b02839c822c525dee1a05a75b378decf31dbb5917"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v8/payload/hosted/entry.py": {
+      "bytes": 19809,
+      "mode": 420,
+      "sha256": "4f15085673b0aa3c6d45fd783a42d8122c60dc8a820c7c482169aa764f744c6f"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v8/payload/hosted/phase-transfer-provider-policy.json": {
+      "bytes": 1261,
+      "mode": 420,
+      "sha256": "ac64464206b2e9e4165bfd6916395ea0873cbfbb25937011a8ae4ba301d94116"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v8/payload/hosted/phase_transfer.py": {
+      "bytes": 30490,
+      "mode": 420,
+      "sha256": "82162a7a27a11ed1512bcb9adecfe561d168dd816987ff8a6b601cbafd619bb3"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v8/prepare.py": {
+      "bytes": 6182,
+      "mode": 420,
+      "sha256": "6b29218ba6764bb2e9da616f78201aa3d89d676937b26da42d720d88f7b71eaf"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v8/prospective.DATA.json": {
+      "bytes": 535,
+      "mode": 420,
+      "sha256": "d7b389a6c631ac7623e3de2b01252f6a0dc250e0336365372e50deb488f24684"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v8/test_data.py": {
+      "bytes": 15851,
+      "mode": 420,
+      "sha256": "5ee42a75375699e6971664d02148e805a9ec57cbebb2adc2628875f80b2438ad"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v9/README.md": {
+      "bytes": 4742,
+      "mode": 420,
+      "sha256": "642e20af4f26bb8acf76ec87f447ade0b5421b719986f4f8b98781c4e027e52a"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v9/Root-admission.TEMPLATE.json": {
+      "bytes": 14249,
+      "mode": 420,
+      "sha256": "8a564c2a68afd400abf746b8c600620a1a7fec18a814357dd2ba7107ff01074d"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v9/constructor-profile.json": {
+      "bytes": 2213,
+      "mode": 420,
+      "sha256": "48bba4ebf68422c189d3d26d9c41830f5841123eb86f77850d0e5bb490a21dab"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v9/payload/.github/workflows/native-arm-build.yml": {
+      "bytes": 16567,
+      "mode": 420,
+      "sha256": "484f1aa8eea123b9e31650bcd9956ba39155898c1af773a0c2cb7fd628cf0089"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v9/payload/.github/workflows/native-arm-rust199-source-reference-v1.yml": {
+      "bytes": 16567,
+      "mode": 420,
+      "sha256": "484f1aa8eea123b9e31650bcd9956ba39155898c1af773a0c2cb7fd628cf0089"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v9/payload/hosted/entry.py": {
+      "bytes": 20245,
+      "mode": 420,
+      "sha256": "09b53ca5e93961451cb6e2da950144dea4ed5e2db72f881266eb2e9054ec42eb"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v9/payload/hosted/materials.py": {
+      "bytes": 22719,
+      "mode": 420,
+      "sha256": "46717f3f022bfd111f52370c2657fc3a744efe0fcdaa550f623916af07a9e8ab"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v9/payload/hosted/phase_transfer.py": {
+      "bytes": 30545,
+      "mode": 420,
+      "sha256": "a7b5c29ebf48540219425fb07c2f6246ecdc83a9d1c760b0e483213dd1e439cc"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v9/prepare.py": {
+      "bytes": 8859,
+      "mode": 420,
+      "sha256": "f34e7f5391cc639ae03dbb45df234c563a483e616edabdaed5bf9a8a38fa2e81"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v9/prospective.DATA.json": {
+      "bytes": 571,
+      "mode": 420,
+      "sha256": "6da0e76cb010a84c226ab24bae4c15df73f0c5f1c907d776986b4af3b32575a7"
+    },
+    "scripts/ci/rust199-source-reference-native/successor_v9/test_data.py": {
+      "bytes": 16161,
+      "mode": 420,
+      "sha256": "36c826c142c9a5c11581941d3ead69d5b040a2faff600a347111ffa449df54ef"
+    },
+    "scripts/ci/rust199-source-reference-native/test_admission.py": {
+      "bytes": 6232,
+      "mode": 420,
+      "sha256": "ce5852955e5db68eb149f23052d493e52b63c07d7ea4a04e05f0f22b4c97a603"
+    },
+    "scripts/ci/rust199-source-reference-native/test_hosted.py": {
+      "bytes": 3094,
+      "mode": 420,
+      "sha256": "a6b26f0eab15f2898518849ac6d9287d138106edec724ebc764968a0b5ef9411"
+    },
+    "scripts/ci/rust199-source-reference-native/test_source.py": {
+      "bytes": 3725,
+      "mode": 420,
+      "sha256": "6fe002805c470eeb8db7afaa97dcf20d6e017f7211e6dd15e32b05dbb325793c"
+    },
+    "scripts/ci/rust199-source-reference-native/validation.json": {
+      "bytes": 1741,
+      "mode": 420,
+      "sha256": "6a0c941c717cb811f6828eba2206ace4fb6788a8414f6ee0423aa4e4a354a47b"
+    },
+    "scripts/ci/rust199-source-reference-native/workflow.yml.in": {
+      "bytes": 3954,
+      "mode": 420,
+      "sha256": "aaba623dcf7ccb17483319bdac2c76029dd172743269643ad2cca2dfd3d5628a"
+    },
+    "scripts/port/llvm23-native-independent-reader/v2/reader.py": {
+      "bytes": 64910,
+      "mode": 420,
+      "sha256": "e3fed71e01be989b5c84cd0e33124ca096e452eda380f4840b45786cb385335c"
+    }
+  },
+  "limits": {
+    "address_space_bytes": 134217728,
+    "core_bytes": 0,
+    "cpu_seconds": 30,
+    "file_bytes": 134217728,
+    "wall_seconds": 45
+  },
+  "native": "NOT RUN",
+  "release_acceptance": false,
+  "result": "PASS",
+  "results": [
+    {
+      "controls": 57,
+      "log": {
+        "bytes": 156,
+        "file": "validation-logs/Python-3.12.13-test_reader.py.txt",
+        "sha256": "ea5893484e718f149a1d54ef7fdf7660659d1d0e82d1103dae7135412c2e9968"
+      },
+      "python": "Python 3.12.13",
+      "status": "PASS",
+      "suite": "test_reader.py"
+    },
+    {
+      "controls": 39,
+      "log": {
+        "bytes": 138,
+        "file": "validation-logs/Python-3.12.13-test_runtime.py.txt",
+        "sha256": "28bd4d18edf9ee3edc6730c19c607f14df67aec235a3005d76df8b7f373aeb9e"
+      },
+      "python": "Python 3.12.13",
+      "status": "PASS",
+      "suite": "test_runtime.py"
+    },
+    {
+      "controls": 29,
+      "log": {
+        "bytes": 128,
+        "file": "validation-logs/Python-3.12.13-test_mounts.py.txt",
+        "sha256": "4c2f8e2ca18ef0add3bef79df2c7051edd7bb6b4db657baebcbcf6109d877ab7"
+      },
+      "python": "Python 3.12.13",
+      "status": "PASS",
+      "suite": "test_mounts.py"
+    },
+    {
+      "controls": 10,
+      "log": {
+        "bytes": 109,
+        "file": "validation-logs/Python-3.12.13-test_qualification.py.txt",
+        "sha256": "7ada9f6e6f2e49ce5d47796c9c2d5a0ee664b54f48cfb456ce70c3ea2aba1686"
+      },
+      "python": "Python 3.12.13",
+      "status": "PASS",
+      "suite": "test_qualification.py"
+    },
+    {
+      "controls": 7,
+      "log": {
+        "bytes": 105,
+        "file": "validation-logs/Python-3.12.13-test_preparation.py.txt",
+        "sha256": "e19a86747084065fc6026e9e5463e2291a2e56061843e8a27e0424f4fed284be"
+      },
+      "python": "Python 3.12.13",
+      "status": "PASS",
+      "suite": "test_preparation.py"
+    },
+    {
+      "controls": 15,
+      "log": {
+        "bytes": 114,
+        "file": "validation-logs/Python-3.12.13-test_owned_bind.py.txt",
+        "sha256": "e25e20d72ff1e67cb6db16f928fd05a4ef025fba3d223c20ad487ecf8e54b910"
+      },
+      "python": "Python 3.12.13",
+      "status": "PASS",
+      "suite": "test_owned_bind.py"
+    },
+    {
+      "controls": 4,
+      "log": {
+        "bytes": 102,
+        "file": "validation-logs/Python-3.12.13-test_actual_failure.py.txt",
+        "sha256": "d094b1bd2c8318c96097f80c50da282add5b2972970a77046de8db6c8935f6ca"
+      },
+      "python": "Python 3.12.13",
+      "status": "PASS",
+      "suite": "test_actual_failure.py"
+    },
+    {
+      "controls": 11,
+      "log": {
+        "bytes": 110,
+        "file": "validation-logs/Python-3.12.13-test_source.py.txt",
+        "sha256": "eeeed3cf8ebb476a9f92871b7c9ded67744d122b50b34e6fdc17291c3af38d3f"
+      },
+      "python": "Python 3.12.13",
+      "status": "PASS",
+      "suite": "test_source.py"
+    },
+    {
+      "controls": 57,
+      "log": {
+        "bytes": 156,
+        "file": "validation-logs/Python-3.14.7-test_reader.py.txt",
+        "sha256": "3ca3130829b4b71648752898b7ce69be9f1e74073c319e19236dd9a2719177bb"
+      },
+      "python": "Python 3.14.7",
+      "status": "PASS",
+      "suite": "test_reader.py"
+    },
+    {
+      "controls": 39,
+      "log": {
+        "bytes": 138,
+        "file": "validation-logs/Python-3.14.7-test_runtime.py.txt",
+        "sha256": "21953ec2f632a4c2dc1fab95023f008a091c899c87a0362615affc99b023d898"
+      },
+      "python": "Python 3.14.7",
+      "status": "PASS",
+      "suite": "test_runtime.py"
+    },
+    {
+      "controls": 29,
+      "log": {
+        "bytes": 128,
+        "file": "validation-logs/Python-3.14.7-test_mounts.py.txt",
+        "sha256": "e90f334ab68af814aaa8418996b49b12951e162ce8ea12424b09913583154716"
+      },
+      "python": "Python 3.14.7",
+      "status": "PASS",
+      "suite": "test_mounts.py"
+    },
+    {
+      "controls": 10,
+      "log": {
+        "bytes": 109,
+        "file": "validation-logs/Python-3.14.7-test_qualification.py.txt",
+        "sha256": "1822e087313c63643806534667202591c83ac2d5a5db377f3c9f836e91dd8ad4"
+      },
+      "python": "Python 3.14.7",
+      "status": "PASS",
+      "suite": "test_qualification.py"
+    },
+    {
+      "controls": 7,
+      "log": {
+        "bytes": 105,
+        "file": "validation-logs/Python-3.14.7-test_preparation.py.txt",
+        "sha256": "b5985bb5d4095da848c1e4e38b9358c2d452a471f0f3fb2fd143db7544944125"
+      },
+      "python": "Python 3.14.7",
+      "status": "PASS",
+      "suite": "test_preparation.py"
+    },
+    {
+      "controls": 15,
+      "log": {
+        "bytes": 114,
+        "file": "validation-logs/Python-3.14.7-test_owned_bind.py.txt",
+        "sha256": "62acb9885edb56ae7b4856afd37db2bf6ffc90ff139e71fa98c3642795048183"
+      },
+      "python": "Python 3.14.7",
+      "status": "PASS",
+      "suite": "test_owned_bind.py"
+    },
+    {
+      "controls": 4,
+      "log": {
+        "bytes": 102,
+        "file": "validation-logs/Python-3.14.7-test_actual_failure.py.txt",
+        "sha256": "d094b1bd2c8318c96097f80c50da282add5b2972970a77046de8db6c8935f6ca"
+      },
+      "python": "Python 3.14.7",
+      "status": "PASS",
+      "suite": "test_actual_failure.py"
+    },
+    {
+      "controls": 11,
+      "log": {
+        "bytes": 110,
+        "file": "validation-logs/Python-3.14.7-test_source.py.txt",
+        "sha256": "9d9d0be8e9410ab3a1404f61e4578f5da504e50be88d1d4ba197f14e9c7211fb"
+      },
+      "python": "Python 3.14.7",
+      "status": "PASS",
+      "suite": "test_source.py"
+    }
+  ],
+  "schema": 14,
+  "scope": "FRESH_PORTABLE_SOURCE_AND_MODEL_CONTROLS_ONLY",
+  "source_contract": {
+    "bytes": 43408000,
+    "files": 355,
+    "map_sha256": "4a85015fbcb513f8af71ae0d313abc4927faa50682dbf0b6ebfee8f339352bfa",
+    "profile_sha256": "e4f2dd79663a0a8233d1aabde156356fc9e02de217668f66c5058156b0bbe8b9",
+    "tree": "3fbb71b78e06cdb9aa219c596a41fda3ccc29280"
+  },
+  "source_execution": false,
+  "total_controls": 344
+}

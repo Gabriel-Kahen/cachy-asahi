@@ -1,0 +1,225 @@
+{
+  "Config_Env": "OMITTED",
+  "HostConfig_Mounts": [
+    {
+      "Source": "rust199-qual-6419282dfe9cfacdcd570dd4-work",
+      "Target": "/work",
+      "Type": "volume",
+      "VolumeOptions": {
+        "DriverConfig": {},
+        "NoCopy": true
+      }
+    },
+    {
+      "ReadOnly": true,
+      "Source": "/home/runner/work/_temp/rust199-hosted/qualification/inputs",
+      "Target": "/inputs",
+      "Type": "bind"
+    },
+    {
+      "ReadOnly": true,
+      "Source": "/home/runner/work/cachy-asahi/cachy-asahi",
+      "Target": "/source",
+      "Type": "bind"
+    },
+    {
+      "ReadOnly": true,
+      "Source": "/home/runner/work/_temp/rust199-hosted/material-delivery/stage0_carrier/cargo-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+      "Target": "/materials/cargo-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+      "Type": "bind"
+    },
+    {
+      "ReadOnly": true,
+      "Source": "/home/runner/work/_temp/rust199-hosted/material-delivery/llvm-project-23.1.1.src.tar.xz",
+      "Target": "/materials/llvm-project-23.1.1.src.tar.xz",
+      "Type": "bind"
+    },
+    {
+      "ReadOnly": true,
+      "Source": "/home/runner/work/_temp/rust199-hosted/material-delivery/stage0_carrier/rust-std-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+      "Target": "/materials/rust-std-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+      "Type": "bind"
+    },
+    {
+      "ReadOnly": true,
+      "Source": "/home/runner/work/_temp/rust199-hosted/material-delivery/stage0_carrier/rustc-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+      "Target": "/materials/rustc-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+      "Type": "bind"
+    },
+    {
+      "ReadOnly": true,
+      "Source": "/home/runner/work/_temp/rust199-hosted/material-delivery/rustc-1.99.0-src.tar.xz",
+      "Target": "/materials/rustc-1.99.0-src.tar.xz",
+      "Type": "bind"
+    }
+  ],
+  "Mounts": [
+    {
+      "Destination": "/materials/llvm-project-23.1.1.src.tar.xz",
+      "Mode": "",
+      "Propagation": "rprivate",
+      "RW": false,
+      "Source": "/home/runner/work/_temp/rust199-hosted/material-delivery/llvm-project-23.1.1.src.tar.xz",
+      "Type": "bind"
+    },
+    {
+      "Destination": "/materials/rust-std-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+      "Mode": "",
+      "Propagation": "rprivate",
+      "RW": false,
+      "Source": "/home/runner/work/_temp/rust199-hosted/material-delivery/stage0_carrier/rust-std-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+      "Type": "bind"
+    },
+    {
+      "Destination": "/materials/rustc-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+      "Mode": "",
+      "Propagation": "rprivate",
+      "RW": false,
+      "Source": "/home/runner/work/_temp/rust199-hosted/material-delivery/stage0_carrier/rustc-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+      "Type": "bind"
+    },
+    {
+      "Destination": "/materials/rustc-1.99.0-src.tar.xz",
+      "Mode": "",
+      "Propagation": "rprivate",
+      "RW": false,
+      "Source": "/home/runner/work/_temp/rust199-hosted/material-delivery/rustc-1.99.0-src.tar.xz",
+      "Type": "bind"
+    },
+    {
+      "Destination": "/work",
+      "Driver": "local",
+      "Mode": "z",
+      "Name": "rust199-qual-6419282dfe9cfacdcd570dd4-work",
+      "Propagation": "",
+      "RW": true,
+      "Source": "/var/lib/docker/volumes/rust199-qual-6419282dfe9cfacdcd570dd4-work/_data",
+      "Type": "volume"
+    },
+    {
+      "Destination": "/inputs",
+      "Mode": "",
+      "Propagation": "rprivate",
+      "RW": false,
+      "Source": "/home/runner/work/_temp/rust199-hosted/qualification/inputs",
+      "Type": "bind"
+    },
+    {
+      "Destination": "/source",
+      "Mode": "",
+      "Propagation": "rprivate",
+      "RW": false,
+      "Source": "/home/runner/work/cachy-asahi/cachy-asahi",
+      "Type": "bind"
+    },
+    {
+      "Destination": "/materials/cargo-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+      "Mode": "",
+      "Propagation": "rprivate",
+      "RW": false,
+      "Source": "/home/runner/work/_temp/rust199-hosted/material-delivery/stage0_carrier/cargo-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+      "Type": "bind"
+    }
+  ],
+  "Source": "1e42eb03cc918c4f0a86c0988d1e3c042efc5a5e",
+  "actor": "data",
+  "actual_kernel_failure": "ValueError private selected mount propagation",
+  "actual_kernel_private_mount": "REFUSED",
+  "actual_post_execution_state": "NOT_RETAINED",
+  "cleanup": [
+    "rust199-qual-6419282dfe9cfacdcd570dd4-init",
+    "rust199-qual-6419282dfe9cfacdcd570dd4-data",
+    "rust199-qual-6419282dfe9cfacdcd570dd4-work"
+  ],
+  "docker_start_attach_returncode": 1,
+  "error": "ValueError: private selected mount propagation",
+  "image": "sha256:ff013d44ab8344842de3ff2d4f3df2b291352db269f2d103dc23173a3724027b",
+  "initialization": {
+    "after": {
+      "device": 2049,
+      "gid": 1001,
+      "inode": 3197478,
+      "mode": 448,
+      "uid": 1001
+    },
+    "before": {
+      "device": 2049,
+      "gid": 0,
+      "inode": 3197478,
+      "mode": 493,
+      "uid": 0
+    },
+    "binding": {
+      "image": "sha256:ff013d44ab8344842de3ff2d4f3df2b291352db269f2d103dc23173a3724027b",
+      "init": "rust199-qual-6419282dfe9cfacdcd570dd4-init",
+      "makepkg": "rust199-qual-6419282dfe9cfacdcd570dd4-probe",
+      "operation": "rust199-source-reference-native-v1",
+      "prepare": "rust199-qual-6419282dfe9cfacdcd570dd4-data",
+      "root_admission_sha256": "49c6c2eff8312978458739069b40edcf807dc056426674dfc0bdc6cc867ae309",
+      "source": {
+        "approval": "ba9a33ef951cc8e07b6105e252ce9a662eff976b18e33d4f2f98919c0e1e45e6",
+        "job": "133513054496",
+        "map_sha256": "026e63a2bac7b65b26e5f74c0862f68cb73d2cf984b419f8e96b60f5d5f2dffe",
+        "ref": "refs/heads/codex/rust199-source351-native-v13-20261116-r1",
+        "run": "43928150645",
+        "sha": "1e42eb03cc918c4f0a86c0988d1e3c042efc5a5e"
+      },
+      "token": "6419282dfe9cfacdcd570dd4",
+      "volume": "rust199-qual-6419282dfe9cfacdcd570dd4-work"
+    },
+    "capabilities": "CHOWN_ONLY_CHMOD_BEFORE_CHOWN",
+    "limits": {
+      "cpu.max": "200000 100000",
+      "memory.max": "134217728",
+      "memory.swap.max": "0",
+      "pids.max": "32"
+    },
+    "recursive": false,
+    "schema": 1,
+    "status": "INITIALIZED_EMPTY_WORK_VOLUME"
+  },
+  "job": 133513054496,
+  "kernel_raw": {
+    "bytes": 5794,
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-rust351-kernel-mount-observation-r1/mountinfo-data.ACTUAL.raw",
+    "sha256": "c52d3185956b93870365913050bac4ebd012c3db08b5b803095822888db13460"
+  },
+  "kernel_record_status": "HOLD_KERNEL_MOUNTINFO_PREENTRY",
+  "kind": "SANITIZED_ACTUAL_RUST351_DATA_MOUNT_FAILURE",
+  "native_build": "NOT_STARTED",
+  "note": "Prestart ExitCode0 and zero FinishedAt are configuration facts, not successful actor completion",
+  "owned_resources_absent": true,
+  "provider": {
+    "dispatch_sha256": "49c6c2eff8312978458739069b40edcf807dc056426674dfc0bdc6cc867ae309",
+    "job_metadata_sha256": "7119878832c3067a8e9170c2250d92747b8a525facee9aeb66c081d5a7be15ac",
+    "manual_dispatch": true,
+    "native_acceptance": false,
+    "phase": "bootstrap",
+    "readback_required": true,
+    "run_attempt": 1,
+    "schema": 4,
+    "source": {
+      "approval": "ba9a33ef951cc8e07b6105e252ce9a662eff976b18e33d4f2f98919c0e1e45e6",
+      "job": "133513054496",
+      "map_sha256": "026e63a2bac7b65b26e5f74c0862f68cb73d2cf984b419f8e96b60f5d5f2dffe",
+      "ref": "refs/heads/codex/rust199-source351-native-v13-20261116-r1",
+      "run": "43928150645",
+      "sha": "1e42eb03cc918c4f0a86c0988d1e3c042efc5a5e"
+    },
+    "status": "ACTUAL_PROVIDER_BINDING_ONLY"
+  },
+  "run": 43928150645,
+  "selected_rows": [
+    "426 413 8:1 /home/runner/work/cachy-asahi/cachy-asahi /source ro,relatime - ext4 /dev/root rw,discard,journal_async_commit,nobarrier,errors=remount-ro,commit=30,data=writeback",
+    "427 413 8:1 /var/lib/docker/volumes/rust199-qual-6419282dfe9cfacdcd570dd4-work/_data /work rw,relatime master:1 - ext4 /dev/root rw,discard,journal_async_commit,nobarrier,errors=remount-ro,commit=30,data=writeback"
+  ],
+  "state": {
+    "Error": "",
+    "ExitCode": 0,
+    "FinishedAt": "0001-01-01T00:00:00Z",
+    "OOMKilled": false,
+    "Running": false
+  },
+  "state_observation": "PRESTART_DOCKER_INSPECT_ONLY_NOT_POST_EXECUTION",
+  "volume": "rust199-qual-6419282dfe9cfacdcd570dd4-work"
+}
