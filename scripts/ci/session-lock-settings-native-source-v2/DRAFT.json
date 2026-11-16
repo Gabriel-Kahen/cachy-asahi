@@ -1,0 +1,60 @@
+{
+  "actual": {
+    "Root_resources": null,
+    "Root_signing": null,
+    "Root_trust": null,
+    "Source": null,
+    "artifact": null,
+    "hardware_acceptance": null,
+    "independent_component_acceptance": null,
+    "job": null,
+    "publication": null,
+    "ref": null,
+    "release_acceptance": null,
+    "run": null,
+    "runtime": null
+  },
+  "basis_family": "scripts/ci/session-lock-settings-native-source",
+  "basis_profile_sha256": "bd923eab0a2d36fab3f6d6f3f51ac28c9751156db38c4e66991bc1f022203315",
+  "draft_map_sha256": "7b592707e2692af66143f457696d2eda3d8703a6da144f657e72520c0c0c800b",
+  "draft_tree": "fc1ac059557d8dd7a69c33e234cf3adfec31f14d",
+  "kind": "UNISSUED_COUPLED_SESSION_LOCK_SETTINGS_V2_DRAFT",
+  "operation": "session-lock-settings-alpm-v2",
+  "profile": {
+    "bytes": 62439,
+    "sha256": "d0e4b44fd14908813dcfb842c2a5af6293b6e837fda22c825f286493163fd200"
+  },
+  "resource_proposal": {
+    "classification": "HEAVY_NON_KERNEL",
+    "cleanup_command_seconds": 20,
+    "cleanup_total_seconds": 90,
+    "consumer": {
+      "capabilities": "ALL_DROPPED",
+      "cpus": 2,
+      "memory_bytes": 4294967296,
+      "network": "none",
+      "no_new_privileges": true,
+      "pids": 256,
+      "read_only": true,
+      "tmpfs_bytes": 2147483648
+    },
+    "image_build_daemon_limits": "UNKNOWN",
+    "max_output_bytes": 1048576,
+    "operation_command_seconds": 180,
+    "operation_total_seconds": 450
+  },
+  "schema": 2,
+  "target": {
+    "builds": 4,
+    "helper": "0.1.0-1",
+    "lifecycle_counts": [
+      349,
+      351,
+      349,
+      351,
+      349
+    ],
+    "payload_leaves": 13,
+    "settings": "0.1.1-1"
+  }
+}
