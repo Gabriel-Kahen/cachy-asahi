@@ -1,0 +1,13 @@
+# SPDX-License-Identifier: MIT
+cmake_minimum_required(VERSION 3.20)
+project(developer_fixture LANGUAGES C CXX)
+add_library(greeting SHARED greeting.cpp)
+target_compile_options(greeting PRIVATE -Wall -Wextra -Werror)
+add_executable(developer-demo main.c)
+target_compile_options(developer-demo PRIVATE -Wall -Wextra -Werror)
+target_link_libraries(developer-demo PRIVATE greeting)
+set_target_properties(developer-demo PROPERTIES INSTALL_RPATH "$ORIGIN/../lib")
+enable_testing()
+add_test(NAME greeting COMMAND developer-demo --self-test "${CMAKE_CURRENT_SOURCE_DIR}/expected.txt")
+install(TARGETS developer-demo greeting RUNTIME DESTINATION bin LIBRARY DESTINATION lib)
+install(FILES LICENSE DESTINATION share/licenses/developer-fixture)

@@ -1,0 +1,63 @@
+{
+  "active_reserve": {
+    "disk_bytes": 8589934592,
+    "inodes": 120000,
+    "memory_bytes": 4294967296
+  },
+  "actor": {
+    "capabilities": [],
+    "cpus": 2,
+    "memory_bytes": 8589934592,
+    "network": "none",
+    "no_new_privileges": true,
+    "pids": 512,
+    "readonly_root": true,
+    "swap_bytes": 0
+  },
+  "bootstrap": {
+    "cleanup_seconds": 300,
+    "delivery_seconds": 1800,
+    "image_save_seconds": 900,
+    "job_minutes": 246,
+    "native_seconds": 12200,
+    "normal_image_seconds": 2100,
+    "provider_seconds": 300,
+    "qualification_seconds": 1800,
+    "qualification_cleanup_seconds": 300,
+    "retained_seconds": 500,
+    "signed349_seconds": 4500
+  },
+  "build": {
+    "cleanup_seconds": 300,
+    "export_seconds": 900,
+    "image_import_seconds": 600,
+    "job_minutes": 360,
+    "main_seconds": 16200,
+    "native_seconds": 20400,
+    "prepare_seconds": 900,
+    "provider_seconds": 300,
+    "producer_cleanup_seconds": 300,
+    "transfer_seconds": 1800
+  },
+  "cancel_in_progress": false,
+  "classification": "HEAVY_NON_KERNEL",
+  "group": "native-arm-build",
+  "minimum_host": {
+    "available_inodes": 1000000,
+    "disk_available_bytes_per_device": 85899345920,
+    "memory_available_bytes": 12884901888
+  },
+  "phase_transfer": {
+    "artifact_bytes": 17179869184,
+    "files": 256,
+    "image_bytes": 12884901888,
+    "logical_bytes": 17179869184,
+    "metadata_bytes": 2097152,
+    "manifest_bytes": 4194304,
+    "redirects": 3,
+    "requests": 7
+  },
+  "schema": 4,
+  "status": "PROPOSAL_ONLY_EXACT_ROOT_ONCE_RESOURCE_ADMISSION_REQUIRED",
+  "workflow_job_minutes_max": 606
+}

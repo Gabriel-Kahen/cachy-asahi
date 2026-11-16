@@ -1,0 +1,53 @@
+{
+  "Doc315": "NOT_ESTABLISHED",
+  "GUI": false,
+  "acceptance": false,
+  "actual": {
+    "artifact": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "baseline": {
+    "bytes": 6800,
+    "sha256": "579981195b654d8cdf142e4101dfc2bfffbc3576eed50f23796a06e90cf57453"
+  },
+  "baseline_packages": 349,
+  "bounds": {
+    "command_bytes": 65536,
+    "command_rows": 2,
+    "command_seconds": 20,
+    "consumer_cpus": 2,
+    "consumer_memory": 4294967296,
+    "consumer_pids": 256,
+    "total_seconds": 60
+  },
+  "cases": [
+    "bwrap-user-mount-net",
+    "unshare-mapped-root"
+  ],
+  "concurrency_group": "native-arm-build",
+  "execution": "NORMAL_DOCKER_IMAGE_BUILD_RUN_USER_ALARM",
+  "gid": 1001,
+  "host_policy_changes": false,
+  "kind": "native-build-namespace-preflight-contract-v1",
+  "namespace_policy_cause": "UNKNOWN",
+  "operation": "native-build-namespace-preflight-v1",
+  "outcomes": [
+    "SUPPORTED",
+    "DENIED",
+    "UNKNOWN"
+  ],
+  "package_build": false,
+  "package_install": false,
+  "qualification": "SOURCE_ONLY_NOT_RUN",
+  "resource_class": "HEAVY_NON_KERNEL",
+  "schema": 1,
+  "services": false,
+  "uid": 1001,
+  "versions": {
+    "bubblewrap": "0.13.0-1",
+    "python": "3.14.8-1"
+  }
+}
