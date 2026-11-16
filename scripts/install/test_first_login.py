@@ -186,7 +186,8 @@ class FirstLoginTests(unittest.TestCase):
             report, code = first.execute(args, run=self.run_helper)
         self.assertEqual(code, 2)
         command = shlex.split(report['next'][1])
-        recovery_args = first.parser().parse_args(command[2:])
+        self.assertEqual(command[1:3], ['-I', '-B'])
+        recovery_args = first.parser().parse_args(command[4:])
         with mock.patch.dict(os.environ, {'HOME': str(self.root), 'XDG_CONFIG_HOME': '/unrelated',
                                          'ZDOTDIR': '/unrelated', 'XDG_STATE_HOME': '/unrelated'}):
             report, code = first.execute(recovery_args, run=self.run_helper)
@@ -209,6 +210,38 @@ class FirstLoginTests(unittest.TestCase):
         for bad in ({}, {'schema_version': 1, 'operation': 'status', 'mode': 'read-only', 'exit_code': 0, 'state': None}):
             with self.assertRaises(first.Error):
                 first.execute(args, run=lambda _: (bad, 0))
+
+    def test_helper_context_excludes_ambient_python_and_current_directory(self):
+        result = subprocess.CompletedProcess([], 0, '{}', '')
+        with mock.patch.object(first.subprocess, 'run', return_value=result) as call:
+            first.invoke([str(self.helper), 'status'])
+        self.assertEqual(call.call_args.kwargs['cwd'], '/')
+        self.assertEqual(call.call_args.kwargs['env'], {'PATH': '/usr/bin:/bin', 'LC_ALL': 'C.UTF-8',
+                         'PYTHONNOUSERSITE': '1', 'PYTHONSAFEPATH': '1'})
+        self.assertFalse(call.call_args.kwargs.get('shell', False))
+
+    def test_real_helper_ignores_poisoned_python_path_home_and_interpreter_path(self):
+        poison = self.root / 'unsafe cwd'; poison.mkdir()
+        (self.root / 'argparse.py').write_text("raise RuntimeError('helper script directory imported')\n")
+        (poison / 'argparse.py').write_text("raise RuntimeError('ambient Python path imported')\n")
+        fake = poison / 'python3'; fake.write_text('#!/bin/sh\nexit 97\n'); fake.chmod(0o700)
+        before = self.snapshot()
+        with mock.patch.dict(os.environ, {'PYTHONPATH': str(poison), 'PYTHONHOME': str(poison), 'PATH': str(poison)}):
+            report, code = self.run_first('activate', '--components', 'zsh')
+        self.assertEqual((report['status'], code), ('activation-preview', 0))
+        self.assertEqual(self.snapshot(), before)
+
+    def test_emitted_inspect_command_is_isolated_and_preserves_frozen_roots(self):
+        poison = self.root / 'unsafe cwd'; poison.mkdir()
+        (poison / 'argparse.py').write_text("raise RuntimeError('followup ambient import')\n")
+        args = first.freeze_paths(first.parser().parse_args(self.paths))
+        command = shlex.split(first.followup(args, 'inspect'))
+        self.assertEqual(command[:4], [sys.executable, '-I', '-B', str(Path(first.__file__).resolve())])
+        process = subprocess.run(command, cwd=poison, env=dict(os.environ, PYTHONPATH=str(poison), PYTHONHOME=str(poison)),
+                                 capture_output=True, text=True, timeout=10)
+        self.assertEqual(process.returncode, 0, process.stderr)
+        self.assertEqual(json.loads(process.stdout)['operation'], 'inspect')
+        self.assertEqual(list(self.home.iterdir()), [])
 
     def test_cli_returns_json_and_root_refusal(self):
         process = subprocess.run([sys.executable, '-B', str(Path(first.__file__)), *self.paths],

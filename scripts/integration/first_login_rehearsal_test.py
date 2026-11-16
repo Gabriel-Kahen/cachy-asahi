@@ -39,7 +39,7 @@ class BuildAndRehearseTests(unittest.TestCase):
                 self.assertIn(option, build['argv'])
             self.assertEqual(build['environment']['SOURCE_DATE_EPOCH'], str(rehearsal.SOURCE_DATE_EPOCH))
         for name, member, relative in (
-                ('first_login', 'usr/lib/cachy-asahi/first-login/first_login.py', 'scripts/install/first_login.py'),
+                ('first_login', 'usr/lib/cachy-asahi/first-login/first_login.py', 'packages/tools/cachy-asahi-first-login/first_login.py'),
                 ('setup', 'usr/bin/cachy-asahi-setup', 'packages/tools/cachy-asahi-setup8/cachy-asahi-setup'),
                 ('fish', 'usr/share/cachy-asahi/fish/config.fish', 'packages/shells/cachy-asahi-fish-config/config.fish'),
                 ('zsh', 'usr/share/cachy-asahi/zsh/config.zsh', 'packages/shells/cachy-asahi-zsh-config/config.zsh')):
