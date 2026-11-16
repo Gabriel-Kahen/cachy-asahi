@@ -37,6 +37,11 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/port/llvm23-native-independent-reader/v6/test_v6.py
           python3 -I -B -Werror::ResourceWarning scripts/port/llvm23-native-independent-reader/v7/test_v7.py
           bash -n scripts/integration/arm16k_llvm23_vm/guest/root.sh scripts/integration/arm16k_llvm23_vm/guest/probe.sh scripts/integration/arm16k_llvm23_vm/guest/case.sh
+      - name: Install Perl lifecycle xattr tools on disposable runner
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y attr
+          command -v getfattr setfattr
       - name: Check Perl ARM16K lifecycle contracts without actors
         run: |
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_perl5423_vm/test_controls.py
