@@ -103,7 +103,7 @@ class Controls(unittest.TestCase):
         # Explicit synthetic model grants; never persisted/published as actual Root authority.
         self.a=dict(common,kind='ROOT_FISH02_HOSTED_ADMISSION_V1')
         self.r=dict(common,kind='ROOT_FISH02_HOSTED_RUNTIME_V1',external_supervision=self.result['owner_program'],
-                    bootstrap_resource_domain=self.result['bootstrap_resource_domain'])
+                    bootstrap_resource_domain=self.result['bootstrap_resource_domain'],host_prerequisites=POLICY['host_prerequisites'])
 
     def admit(self):
         a,r=raw(self.a),raw(self.r)
@@ -204,6 +204,7 @@ class Controls(unittest.TestCase):
         return dict(kind='FISH02_ACTUAL_HOSTED_DOMAINS_V2',source=self.a['source'],ref=self.a['ref'],nonce=self.a['nonce'],
                     source_map_sha256=self.map,owner=dict(pid=123,starttime=456,cgroup='/owner',limits=limits('owner')),
                     daemon=dict(pid=789,starttime=999,cgroup='/daemon',limits=limits('daemon')),
+                    host_prerequisite=dict(status='PASS_CI_LIBARCHIVE_TOOLS_PREREQUISITE_ONLY',declaration=POLICY['host_prerequisites'],package='libarchive-tools',selected_version='3.7.2-2',installed=dict(package='libarchive-tools',state='install ok installed',version='3.7.2-2',architecture='arm64'),receipt=dict(bytes=100,sha256='a'*64)),
                     endpoint='unix:///owned/docker.sock',storage_bytes=POLICY['storage_bytes'],backend=POLICY['bootstrap_backend'])
 
     def test_actual_postdispatch_observation_joins_before_actor(self):
@@ -219,6 +220,12 @@ class Controls(unittest.TestCase):
         with self.assertRaises(ValueError):D.observation(value,self.a,self.map,POLICY,123,456,'/owner')
         value=self.observed();value['daemon']['limits']['memory.max']='max'
         with self.assertRaises(ValueError):D.observation(value,self.a,self.map,POLICY,123,456,'/owner')
+
+    def test_old_runtime_cannot_implicitly_admit_CI_host_package_setup(self):
+        runtime=copy.deepcopy(self.r);runtime.pop('host_prerequisites')
+        a,r=raw(self.a),raw(runtime)
+        with self.assertRaisesRegex(ValueError,'CI prerequisite admission'):
+            D.admission(self.root,self.map,a,r,D.pin(a)['sha256'],D.pin(r)['sha256'],self.env,200)
 
     def test_policy_aggregate_reserve_and_held_pair_budgets(self):
         self.assertGreaterEqual(POLICY['minimum_available_bytes'],POLICY['owner']['memory_bytes']+POLICY['daemon']['memory_bytes']+POLICY['host_reserve_bytes'])
@@ -241,7 +248,7 @@ class Controls(unittest.TestCase):
         self.assertIn('C.verify_source = closed_source',body)
         self.assertIn("not os.access('/tmp',os.W_OK)",body)
         workflow=WORKFLOW.read_text()
-        self.assertIn('systemd-run --scope',workflow);self.assertIn('--property=RuntimeMaxSec=1290s',workflow)
+        self.assertIn('systemd-run --scope',workflow);self.assertIn('--property=RuntimeMaxSec=1740s',workflow)
         self.assertIn('if: always()',workflow)
         self.assertNotIn('docker system prune',workflow)
 
@@ -258,7 +265,7 @@ class Controls(unittest.TestCase):
 
     def test_cleanup_keeps_first_error_and_attempts_both_owned_units(self):
         value=O.Controller.__new__(O.Controller);value.out=Path(self.temp.name)
-        value.cleanup_end=time.monotonic()+90;value.mounted=False;value.loop=None;value.pidfds={}
+        value.cleanup_end=time.monotonic()+90;value.mounted=False;value.loop=None;value.pidfds={};value.policy=POLICY
         calls=[]
         def stop(kind):
             calls.append(kind)

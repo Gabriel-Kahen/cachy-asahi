@@ -498,8 +498,8 @@ This is a probe lifetime correction, not a package thread-safety qualification.
 A bounded host matrix on Perl5.42.2/Bzip2 2.213/Zlib2.222 reproduced SIGABRT
 with original or quiet live streams, including either compression family alone.
 Both lexical-scope variants passed roundtrip plus thread join. This supports
-the lifetime diagnosis; the exact candidate's corrected ARM16K behavior remains
-unexecuted. The recipe still performs actual DT_NEEDED checks, then the full
+the lifetime diagnosis. At that time the exact candidate's corrected ARM16K
+behavior was unexecuted; the later Source54/case9 observation is recorded below. The recipe still performs actual DT_NEEDED checks, then the full
 `TEST_JOBS=2 make test_harness`, then check_config; no recipe/test exclusion changes.
 
 `test_runtime_lifetimes.py` runs only installed HOST core-module APIs in fresh
@@ -511,3 +511,122 @@ full target Config/module/XS/libperl/path checks and success frame stay intact.
 These checks provide HOST API/lifetime evidence only; no candidate ARM16K,
 restoration, M2, performance or release acceptance follows. New Source and case
 authorities require separate Root issuance; unissued selectors remain NULL.
+
+
+### Postboot actor failure diagnostics (Source55 successor)
+
+Retained Source54/case9 reached genuine INSTALLED, all12 PROBE checks and RESTORED
+PASS frames on aarch64/16384, then observed normal PAM logout. Its final controller
+and outer outcome is CLOSED HOLD, with no VM/runtime/Root qualification. Docker
+wait's CLI exited0 but stdout was exactly `1\n`; inspect independently recorded
+container ExitCode1/OOMKilled=false. QEMU and readback-convert, journal-copy-only,
+and readback-readonly-fsck receipts each record natural exit0. The stopped actor
+failed after those commands and before preservation/results export. The retained
+fsck stdout includes free-block/inode count warnings despite that command's
+recorded exit0; these words do not identify the later Python exception. The old
+Source/case/output remains immutable and its exact post-fsck cause is UNKNOWN.
+
+The prior actor allowed uncaught postboot exceptions to escape only to unattached
+Docker logging, which was not retained before owned container removal. The new
+actor writes only fixed `actor-failure.json` (at most4096 bytes, exclusive0600)
+when an admitted phase raises, then rethrows the original exception. A finite
+postboot stage identifies QEMU, conversion, journal replay, readonly fsck, either
+scan, preservation, retention, trust absence, report write or scratch removal.
+The reason is an allowlisted public category/code/message. Unknown exception
+text, credentials, environment and arbitrary absolute/private paths are omitted;
+only sanitized already-certified `/usr` runtime operands may accompany the three
+known path-bearing preservation reasons. No raw image or Docker log is exported.
+
+On failed actor completion, the controller accepts this diagnostic only after
+same nonce/Source/phase joins and a whole bounded stable read of an ordinary own-
+UID/GID, single-link0600 file. Canonical schema, fixed stages/reasons and NULL
+acceptance are mandatory; malformed, truncated, changed, aliased or mismatched
+DATA refuses. The report records CAPTURED/ABSENT/REFUSED diagnostic state. It
+still applies the identical zero-exit/nonrunning/non-OOM actor gate and natural
+QEMU/retirement checks. A diagnostic never changes HOLD to PASS. Guest-HOLD
+priority, fixed command arguments, time/output/resource caps and all restoration,
+preservation, trust and later Root qualification gates remain unchanged.
+
+`test_natural_retirement.py` models the actual boot function through readonly
+fsck, fails the next scan, verifies the bounded retained receipt and original
+exception identity, and exercises unsafe/mismatched/changed DATA refusals. It
+opens no actual image/credential/key home, executes no Docker/GPG/VM or lease,
+and supplies no fresh Root evidence. Source55 still requires separate Root
+publication, review and a new once-only case; it does not repair or qualify the
+unknown Source54 postboot failure merely by retaining future diagnostics.
+
+
+### Exact cache-parent mtime restoration (Source56 successor)
+
+Source55 case10's independent preservation result remains HOLD. Root's public
+readonly observation identified only unreviewed `/etc` directory timestamp
+variance: before1794708503.000000000, after1794823231.184000000, with the reported
+stable directory metadata equal. Its successful installation/functional and
+restoration frames and natural QEMU exit do not override that final failure.
+This source correction neither reruns nor accepts case10.
+
+Before any ALPM transaction, `cache_etc_timestamp_capture` opens the ordinary
+root-owned0755 `/etc` directory and records its device/inode/type/mode/UID/GID/
+link count and exact nanosecond mtime. It exclusively creates a fresh ordinary
+root-only0600, single-link, zero-byte `cache/etc-mtime.reference` under the
+existing root-only0700 disposable case cache. Already-certified GNU `touch -m
+--reference=/etc` captures the original mtime; no new tool, package or runtime
+requirement is added. Symlink/noncanonical directories, occupied references,
+wrong owner/mode and reference mutation refuse.
+
+After normal package/dependency recovery and existing exact cache byte/metadata/
+xattr comparison, `cache_etc_timestamp_restore` repeats the original directory
+identity checks and verifies the unchanged reference. `touch -m --reference`
+restores only mtime through the still-open original directory FD. The original
+pathname must still name that same directory before and after the operation;
+even a replacement between the last precheck and touch cannot redirect the
+write onto the replacement inode. Directory aliases, replacement, mode/owner/
+group/link-count changes or a missing/replaced/tampered reference fail. The
+helper does not modify directory atime, contents, permissions or xattrs; ordinary
+ctime changes caused by timestamp restoration are not presented as a baseline
+ctime restoration. It removes the reference and closes the FD before the final
+payload preservation snapshot and final sync. Errors propagate to the unchanged
+HOLD path. No receipt allowlist entry is needed because the reference is gone.
+
+`image.preserve`, every prior directory timestamp allowance, cache/file/payload/
+configuration/xattr check, normal hook/scriptlet/dependency operation, package
+archive, trust decision and execution/output budget remain byte-identical to
+Source55. In particular `/etc` timestamp variance remains forbidden. Removing
+the two new helpers and their two calls exactly restores Source55 `guest/root.sh`
+SHA256 `9be11484131188df57b7f23fec3fe9e75b4fe9066833f752fed7353b7b513aa0`. The focused test pins this whole predecessor inverse;
+the handoff also checks every unchanged predecessor leaf and CI's one-line
+inverse. The new sealed family has56 total files (55 lock members plus the lock),
+compared with Source55's55 total files. Its Source/ref/authority/case/image/VM/
+ALPM/runtime/Root acceptance selectors remain NULL.
+
+`test_etc_mtime.py` runs10 focused controls on ordinary, owned temporary HOST
+files under CPython3.12.13 and3.14.6, with no skips in the observed runs. It executes
+only the extracted two helpers in non-root Bash fixtures, projects `/etc` into
+scratch with an exact inverse, and substitutes the test owner's UID/GID in the
+Root-only assertions. These are HOST GNU touch/stat/proc-FD results, not ARM or
+VM execution. The tests restore nonzero nanoseconds for initially absent and
+present caches, preserve atime/configuration/user xattrs and inode identity,
+reject unsafe directories/references and modeled owner/group changes, exercise
+replacement during touch, propagate touch/removal failures, and confirm the
+unchanged independent preservation function still refuses modeled `/etc` drift.
+The unchanged broader `test_controls.py` has54 passes and one existing error
+on each local uv interpreter: its pidfd mock requires `os.pidfd_open`, which
+these builds do not expose. This is not a complete broader-suite PASS and is
+not suppressed or changed here. The eight existing root-progress controls,
+synthetic guest DATA checks and shell syntax pass.
+
+The fixture permits only its fixed host Bash subprocess and denies Python-side
+network/ctypes/exec/fork/lock actors; child limits are CPU3s, wall6s, AS128MiB,
+file64KiB, FD64 and core0. The exact CI command, in both existing Python jobs, is:
+
+```sh
+python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_perl5423_vm/test_etc_mtime.py
+```
+
+Publication/outer-capsule DRAFT only: Root can export the newly committed family
+at its reported exact Git subtree and lock, keep all existing closed capsule
+payloads/tools/authorities unchanged, and replace only the reviewed Source
+binding and this finite family. Source/ref publication, exact capsule commit,
+fresh nonce/authorities and a new once-only actual case remain Root work; no old
+capsule or completed case is relabelled. Actual new VM/ALPM/runtime/Reader/Root
+outcomes remain NULL; native16K hardware, M2, performance and release stay open.

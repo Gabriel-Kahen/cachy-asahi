@@ -34,6 +34,105 @@ def retire_guest_hold(K,R,W,nonce):
  return False
 
 
+FAILURE_FILE='actor-failure.json'
+FAILURE_CAP=4096
+BOOT_STAGES=('boot_entry','overlay_create','qemu','readback_convert','journal_replay','readonly_fsck',
+ 'baseline_scan','final_scan','preservation','retention','trust_absence','preservation_write','verification_remove')
+FAILURE_MESSAGES={
+ 'UNKNOWN':'actor exception details unavailable',
+ 'SCAN_DEADLINE':'finite readonly scan deadline',
+ 'ACTOR_CANCELLED_OR_DEADLINE':'actor cancellation/deadline',
+ 'EXT4_NODE_BOUND':'node exceeds content bound',
+ 'EXT4_NODE_TYPE':'unsupported special or unused inode',
+ 'EXT4_LINK_COUNT':'inode link-count mismatch',
+ 'EXT4_DIRECTORY_TYPE':'directory type differs from inode',
+ 'EXT4_DIRECTORY_CYCLE':'directory hardlink/cycle',
+ 'EXT4_DIRECTORY_ENTRY':'invalid directory entry',
+ 'EXT4_SHORT_READ':'short image read',
+ 'EXT4_READ_BUDGET':'read budget exhausted',
+ 'EXT4_UNSUPPORTED_FEATURE':'unsupported ext4 incompat feature',
+ 'EXT4_SIZE':'filesystem/image size mismatch',
+ 'EXT4_INODE_EXTRA':'invalid inode extra size',
+ 'ALPM_TEXT_HASH':'ALPM text hash',
+ 'ALPM_OWNED_PATH':'literal owned path exists without alias substitution',
+ 'ALPM_INVENTORY':'exact actual complete baseline ALPM inventory',
+ 'BASELINE_OWNERSHIP_SET':'complete baseline ALPM ownership set',
+ 'BASELINE_OWNED_CHANGED':'baseline owned file bytes/mode/owner/version/time',
+ 'PROTECTED_NAMESPACE_CHANGED':'baseline user/platform/database/fixture bytes and metadata',
+ 'UNREVIEWED_TIMESTAMP':'unrelated baseline timestamp drift',
+ 'UNREVIEWED_RESIDUE':'unreviewed user/payload/database/log residue',
+ 'BASELINE_LOG_ABSENCE':'certified baseline pacman log absence restored',
+ 'RETAINED_LOG_METADATA':'actual safe retained transaction log for absent baseline log',
+ 'RETAINED_LOG_BYTES':'actual retained normal transaction log bytes/hash',
+ 'RESULT_MEMBERSHIP':'exact durable result membership',
+ 'RECEIPT_MEMBERSHIP':'exact reviewed receipt allowlist',
+ 'RETAINED_NODE':'ordinary root-owned single-link nonexecutable guest DATA',
+ 'RETAINED_SIZE':'bounded selected DATA file',
+ 'RETAINED_BUDGET':'combined results/receipts/manifest byte budget',
+ 'TRUST_RESIDUE':'private TEST trust absent on disk',
+ 'OS_ERROR':'actor operating-system error',
+}
+FAILURE_CATEGORIES=('ValueError','ReadbackError','TimeoutError','OSError','FileNotFoundError','PermissionError',
+ 'MemoryError','AssertionError','KeyboardInterrupt','SystemExit','Exception')
+PATH_FAILURES={FAILURE_MESSAGES[k]+': ':k for k in('BASELINE_OWNED_CHANGED','PROTECTED_NAMESPACE_CHANGED','UNREVIEWED_TIMESTAMP')}
+
+
+def public_failure_path(value,runtime):
+ # Only already certified /usr runtime operands may name a path. User homes,
+ # credentials, arbitrary filenames and all nonmatching exception text are absent.
+ import re
+ allowed={p.lstrip('/')for group in('files','baseline_files')for p in runtime.get(group,{})}
+ return value if type(value)is str and value in allowed and value.startswith(('usr/bin/','usr/lib/','usr/share/'))and len(value)<=512 and all(re.fullmatch('[A-Za-z0-9._+@-]+',part)and part not in('.','..')for part in value.split('/'))else None
+
+
+def failure_fields(error,runtime):
+ text=str(error);category=type(error).__name__;category=category if category in FAILURE_CATEGORIES else'Exception'
+ code=next((code for code,message in FAILURE_MESSAGES.items()if code not in('UNKNOWN','OS_ERROR')and text==message),'UNKNOWN');public_path=None
+ for prefix,selected in PATH_FAILURES.items():
+  if text.startswith(prefix):code=selected;public_path=public_failure_path(text[len(prefix):],runtime);break
+ number=getattr(error,'errno',None);number=number if type(number)is int and 0<=number<=4095 else None
+ if isinstance(error,OSError)and number is not None:code='OS_ERROR'
+ return dict(category=category,code=code,message=FAILURE_MESSAGES[code],public_path=public_path,errno=number)
+
+
+def write_failure(K,W,phase,packet,progress,error,runtime):
+ stage=progress['stage'];K.need(phase in('prepare','boot')and stage in(('prepare',)if phase=='prepare'else BOOT_STAGES),'fixed actor failure phase/stage')
+ module('protocol')._nonce(packet['nonce']);K.pin_shape(packet['Source_lock'])
+ value=dict(schema=1,status='HOLD_ACTOR_FAILURE_DATA_ONLY',phase=phase,stage=stage,nonce=packet['nonce'],source_lock=packet['Source_lock'],
+  failure=failure_fields(error,runtime),VM_acceptance=None,Root_acceptance=None)
+ raw=K.canonical(value);K.need(0<len(raw)<=FAILURE_CAP,'bounded public actor failure receipt')
+ fd=os.open(W/FAILURE_FILE,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW|os.O_CLOEXEC,0o600)
+ with os.fdopen(fd,'wb')as stream:os.fchmod(stream.fileno(),0o600);stream.write(raw)
+ return value
+
+
+def read_failure(K,W,phase,nonce,source_lock,runtime):
+ path=K.ordinary(W/FAILURE_FILE);fd=os.open(path,os.O_RDONLY|os.O_NONBLOCK|os.O_NOFOLLOW|os.O_CLOEXEC)
+ try:
+  before=os.fstat(fd);K.need(stat.S_ISREG(before.st_mode)and before.st_nlink==1 and before.st_uid==os.getuid()and before.st_gid==os.getgid()and stat.S_IMODE(before.st_mode)==0o600 and 0<before.st_size<=FAILURE_CAP,'owned single-link private bounded actor failure DATA')
+  with os.fdopen(os.dup(fd),'rb')as stream:raw=stream.read(FAILURE_CAP+1)
+  identity=lambda row:tuple(getattr(row,k)for k in('st_dev','st_ino','st_mode','st_nlink','st_uid','st_gid','st_size','st_mtime_ns','st_ctime_ns'))
+  K.need(len(raw)==before.st_size and identity(before)==identity(os.fstat(fd))==identity(path.lstat()),'stable complete actor failure DATA')
+ finally:os.close(fd)
+ value=json.loads(raw);K.keys(value,('schema','status','phase','stage','nonce','source_lock','failure','VM_acceptance','Root_acceptance'),'actor failure DATA')
+ K.need(type(value['schema'])is int and value['schema']==1 and value['status']=='HOLD_ACTOR_FAILURE_DATA_ONLY'and value['phase']==phase and value['stage']in(('prepare',)if phase=='prepare'else BOOT_STAGES)and value['nonce']==nonce and value['source_lock']==source_lock and value['VM_acceptance']is value['Root_acceptance']is None,'same phase/nonce/Source failure only; no acceptance')
+ failure=value['failure'];K.keys(failure,('category','code','message','public_path','errno'),'public actor failure fields')
+ K.need(failure['category']in FAILURE_CATEGORIES and failure['code']in FAILURE_MESSAGES and failure['message']==FAILURE_MESSAGES[failure['code']]and
+  (failure['public_path']is None or public_failure_path(failure['public_path'],runtime)==failure['public_path'])and
+  (failure['errno']is None or type(failure['errno'])is int and 0<=failure['errno']<=4095)and raw==K.canonical(value),'allowlisted canonical public failure fields only')
+ return value,dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())
+
+
+def run_phase(phase,K,R,I,W,packet,cert,guard,deadline):
+ progress=dict(stage='prepare'if phase=='prepare'else'boot_entry')
+ try:
+  return prepare(K,R,I,W,packet,cert,guard,deadline)if phase=='prepare'else boot(K,R,I,W,packet,cert,guard,deadline,progress)
+ except BaseException as error:
+  try:write_failure(K,W,phase,packet,progress,error,cert['runtime_certificate'])
+  except BaseException:pass # Diagnostic failure never replaces the original failed operation.
+  raise
+
+
 def prepare(K,R,I,W,packet,cert,guard,deadline):
  r=cert['resource_certificate'];base=cert['baseline_certificate'];rt=cert['runtime_certificate']
  scan=I.scan(Path('/base/guest.raw'),deadline,guard);K.need(scan['filesystem_free_bytes']==r['guest_filesystem_free_bytes'],'actual baseline ext4 free bytes');owned=I.owners(scan,base['inventory']);I.qualify(scan,rt['baseline_files'],owned)
@@ -93,30 +192,45 @@ def prepare(K,R,I,W,packet,cert,guard,deadline):
   packet=K.pin(Path('/packet/case-packet.json')),raw=K.pin(raw),addition_namespace=additions,baseline=base['raw'],VM=None,ALPM=None,Root_acceptance=None)))
 
 
-def boot(K,R,I,W,packet,cert,guard,deadline):
+def boot(K,R,I,W,packet,cert,guard,deadline,progress=None):
+ if progress is None:progress=dict(stage='boot_entry')
  r=cert['resource_certificate'];m=K.load(Path('/prepared/prepared.json'));K.need(m['packet']==K.pin(Path('/packet/case-packet.json')) and m['operation']==K.OP,'prepared exact packet join')
  K.need(K.pin(Path('/prepared/guest.raw'))==m['raw'],'prepared raw original input')
  epoch=K.load(W/'host-epoch.json');K.need(epoch['nonce']==m['nonce'] and 0<=time.time_ns()-epoch['utc_ns']<=30*10**9,'fresh host RTC boot epoch')
  def cmd(n,args,sec,**kw):return R.command(args,W,n,sec,deadline,watched_tree=(W,r['overlay_cap_bytes']+r['readback_allocated_cap_bytes']+r['logs_cap_bytes'],r['reserve_bytes']),**kw)
+ progress['stage']='overlay_create'
  cmd('overlay-create',['qemu-img','create','-f','qcow2','-F','raw','-b','/prepared/guest.raw','/work/overlay.qcow2'],15)
  argv=qemu_argv(m,r,epoch['utc_ns']//10**9);(W/'qemu-argv.json').write_bytes(K.canonical(dict(argv=argv)))
+ progress['stage']='qemu'
  cmd('qemu',argv,deadline-time.monotonic(),child_file_size_cap=r['overlay_cap_bytes'])
  row=R.receipt(W/'qemu.json');K.need(R.natural(row),'natural QEMU reap and group absence')
  marker=W/module('protocol').HOLD_MARKER
  if marker.exists()or marker.is_symlink():return retire_guest_hold(K,R,W,packet['nonce'])
  raw=W/'verification.raw'
+ progress['stage']='readback_convert'
  cmd('readback-convert',['qemu-img','convert','-f','qcow2','-O','raw','-S','4k','/work/overlay.qcow2',str(raw)],r['cleanup_seconds'])
+ progress['stage']='journal_replay'
  replay=cmd('journal-copy-only',['e2fsck','-p','-E','journal_only',str(raw)],r['cleanup_seconds'],check=False,completed=True)
  K.need(replay.returncode in (0,1),'verification-copy journal replay')
+ progress['stage']='readonly_fsck'
  cmd('readback-readonly-fsck',['e2fsck','-fn',str(raw)],r['cleanup_seconds'])
- before=I.scan(Path('/prepared/guest.raw'),deadline,guard);after=I.scan(raw,deadline,guard)
+ progress['stage']='baseline_scan'
+ before=I.scan(Path('/prepared/guest.raw'),deadline,guard)
+ progress['stage']='final_scan'
+ after=I.scan(raw,deadline,guard)
+ progress['stage']='preservation'
  preservation=I.preserve(before,after,cert['baseline_certificate']['inventory'],cert['runtime_certificate'])
  # Bounded exact ordinary DATA only, read from the disposable verification copy.
+ progress['stage']='retention'
  F=K.helper('independent_readback.py')
  with F.Ext4Reader(raw,max_nodes=150000,max_file_bytes=256*1024**2)as reader:
   preservation['retained_DATA']=module('retention').export(reader,after['nodes'],W,cert['runtime_certificate'],r,packet,K.pin(Path('/packet/case-packet.json')),guard)
+ progress['stage']='trust_absence'
  K.need(not any(n==D.lstrip('/')+'/trust' or n.startswith(D.lstrip('/')+'/trust/')for n in after['nodes']),'private TEST trust absent on disk')
- (W/'preservation.json').write_bytes(K.canonical(preservation));raw.unlink()
+ progress['stage']='preservation_write'
+ (W/'preservation.json').write_bytes(K.canonical(preservation))
+ progress['stage']='verification_remove'
+ raw.unlink()
 
 
 def main():
@@ -138,6 +252,6 @@ def main():
   K.need(time.monotonic()<deadline and not(W/'STOP').exists(),'actor cancellation/deadline')
   R.component_limits(W,[(W/'guest.raw',r['clone_allocated_cap_bytes']),(W/'overlay.qcow2',r['overlay_cap_bytes']),(W/'verification.raw',r['readback_allocated_cap_bytes'])])
  R.GUARD=guard;resource.setrlimit(resource.RLIMIT_CORE,(0,0))
- result=(prepare if a.phase=='prepare'else boot)(K,R,I,W,packet,cert,guard,deadline)
+ result=run_phase(a.phase,K,R,I,W,packet,cert,guard,deadline)
  return 1 if result is False else 0
 if __name__=='__main__':raise SystemExit(main())

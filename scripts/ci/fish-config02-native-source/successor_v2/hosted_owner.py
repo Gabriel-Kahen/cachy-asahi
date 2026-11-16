@@ -5,6 +5,7 @@ import argparse
 import grp
 import importlib.util
 import json
+import math
 import os
 from pathlib import Path
 import platform
@@ -21,6 +22,7 @@ import time
 HERE=Path(__file__).resolve().parent
 s=importlib.util.spec_from_file_location('fish02_v2_data',HERE/'data.py');D=importlib.util.module_from_spec(s);s.loader.exec_module(D)
 s=importlib.util.spec_from_file_location('fish02_v2_host_tools',HERE/'host_tools.py');H=importlib.util.module_from_spec(s);s.loader.exec_module(H)
+s=importlib.util.spec_from_file_location('fish02_v2_host_prerequisites',HERE/'host_prerequisites.py');Q=importlib.util.module_from_spec(s);s.loader.exec_module(Q)
 LIMIT_FILES=('memory.max','memory.swap.max','pids.max','cpu.max')
 
 
@@ -39,9 +41,9 @@ def proc(pid):
 class Controller:
     def __init__(self,root,out,policy,nonce,uid,gid):
         self.root,self.out,self.policy,self.nonce,self.uid,self.gid=root,out,policy,nonce,uid,gid
-        self.started=time.monotonic();self.end=self.started+1200;self.cleanup_end=self.end+90
+        self.started=time.monotonic();self.end=self.started+policy['controller_work_seconds'];self.cleanup_end=self.end+policy['cleanup_seconds']
         self.cleaning=False;self.commands=[];self.units={};self.pidfds={};self.loop=None;self.mounted=False
-        self.host_facts={};self.tools={}
+        self.host_facts={};self.tools={};self.H=H;self.prerequisite={}
         path=root/'held-source32'/D.BASE_PREFIX/'runtime/owned_process.py'
         spec=importlib.util.spec_from_file_location('fish02_v2_owned_process',path);self.O=importlib.util.module_from_spec(spec);spec.loader.exec_module(self.O);self.O.prepare()
 
@@ -63,6 +65,66 @@ class Controller:
                and type(row['exit']) is int and (row['exit']==0 if check else row['exit']>=0),
                'natural complete controller child retirement')
         return row['exit'],body
+
+    def record_prerequisite(self,value):
+        path=self.out/'host-prerequisite.json';temporary=self.out/'host-prerequisite.partial'
+        raw=(json.dumps(value,sort_keys=True,indent=2)+'\n').encode();D.need(len(raw)<=1024**2,'bounded complete CI prerequisite receipt')
+        if path.exists():
+            info=path.lstat();D.need(stat.S_ISREG(info.st_mode)and info.st_nlink==1 and info.st_uid==0 and stat.S_IMODE(info.st_mode)==0o600,'same own prerequisite receipt')
+        fd=os.open(temporary,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)
+        try:
+            with os.fdopen(fd,'wb')as stream:stream.write(raw);stream.flush();os.fsync(stream.fileno())
+            os.replace(temporary,path)
+        finally:
+            if temporary.exists():temporary.unlink() # Only this invocation's fixed exclusive temporary.
+
+    def run_prerequisite(self,args,seconds,check,end,cache,limits):
+        # Same frozen child custody, with the existing WNOWAIT-before-transfer
+        # pattern and file-backed bounded streams for the one APT phase.
+        D.need(args and any(row['path']==args[0]for row in self.tools.values()),'qualified prerequisite executable')
+        for row in self.tools.values():
+            if row['path']==args[0]:H.checked(row)
+        D.need(len(self.commands)<512,'finite shared controller command count')
+        cap=min(seconds,end-time.monotonic(),self.end-time.monotonic());D.need(cap>3,'prerequisite command/retirement budget')
+        finish=time.monotonic()+cap;work_end=finish-2;number=len(self.commands)+1
+        stdout=cache/('command-'+str(number)+'.stdout');stderr=cache/('command-'+str(number)+'.stderr')
+        child=None;row=None;failure=None
+        def child_limits():
+            resource.setrlimit(resource.RLIMIT_AS,(limits['address_space_bytes'],limits['address_space_bytes']))
+            resource.setrlimit(resource.RLIMIT_FSIZE,(limits['file_bytes'],limits['file_bytes']))
+            resource.setrlimit(resource.RLIMIT_CPU,(math.ceil(cap)+5,math.ceil(cap)+5));resource.setrlimit(resource.RLIMIT_CORE,(0,0))
+        with stdout.open('xb')as so,stderr.open('xb')as se:
+            try:
+                child=subprocess.Popen(args,stdin=subprocess.DEVNULL,stdout=so,stderr=se,start_new_session=True,preexec_fn=child_limits,
+                    env={'PATH':'/usr/bin:/bin','HOME':str(self.out),'LC_ALL':'C','DEBIAN_FRONTEND':'noninteractive'})
+                while os.waitid(os.P_PID,child.pid,os.WEXITED|os.WNOWAIT|os.WNOHANG)is None:
+                    Q.cache_census(cache,work_end,limits)
+                    D.need(os.fstat(so.fileno()).st_size+os.fstat(se.fileno()).st_size<=limits['command_output_bytes'],'bounded prerequisite stdout/stderr')
+                    time.sleep(.05)
+            except BaseException as error:failure=error
+            finally:
+                if child is not None:
+                    remaining=finish-time.monotonic();overrun=remaining<=0
+                    if overrun and failure is None:failure=TimeoutError('prerequisite work budget expired; retirement only')
+                    retirement_cap=.5 if overrun else remaining
+                    row=self.O.supervise(child,cap=retirement_cap,retirement=min(.4,retirement_cap/2),grace=min(.1,retirement_cap/4),streams=(),max_output=0)
+                    row.update(original_budget_overrun=overrun,emergency_retirement=overrun)
+        size=stdout.stat().st_size+stderr.stat().st_size
+        body=stdout.read_bytes()+stderr.read_bytes()if size<=limits['command_output_bytes']else b''
+        record=dict(argv=args,retirement=row,output=D.pin(body))
+        if failure is not None:record['failure']=dict(type=type(failure).__name__,message='CI prerequisite work/cancellation/bound refused')
+        self.commands.append(record);(self.out/('command-%03d.bin'%len(self.commands))).write_bytes(body);write(self.out/('command-%03d.json'%len(self.commands)),record)
+        if failure is not None:raise failure
+        D.need(size<=limits['command_output_bytes'],'complete bounded prerequisite streams')
+        D.need(row['reaped']is True and row['ownership']=='REAPED'and row['group_census']=='EMPTY_TWICE'and row['output_complete']is True and
+            row['signals']==[]and row['timeout']is False and row['error']is None and type(row['exit'])is int and
+            row['passed']is(row['exit']==0)and not row.get('original_budget_overrun')and not row.get('emergency_retirement')and(row['exit']==0 if check else 0<=row['exit']<=255),'natural complete prerequisite child; no retry/forced acceptance')
+        Q.cache_census(cache,end,limits);return row['exit'],body
+
+    def capacity(self):
+        p=self.policy;available=int(next(s.split()[1]for s in Path('/proc/meminfo').read_text().splitlines()if s.startswith('MemAvailable:')))*1024
+        D.need(available>=p['minimum_available_bytes']and shutil.disk_usage(self.out).free>=p['minimum_disk_bytes'],'fresh complete controller/pair memory/disk admission')
+        return available
 
     def tool(self,name):
         D.need(name in self.tools,'observed required host tool: '+name)
@@ -146,8 +208,11 @@ class Controller:
         return self.run([self.tool('docker'),'--host=unix://'+str(self.out/'volume/docker.sock'),*args],30,check)
 
     def setup(self):
-        self.preflight()
-        p=self.policy;available=int(next(s.split()[1] for s in Path('/proc/meminfo').read_text().splitlines() if s.startswith('MemAvailable:')))*1024
+        self.capacity()
+        Q.prepare(self,os.environ,platform.machine())
+        self.end=min(self.end,time.monotonic()+self.policy['pair_seconds']);self.cleanup_end=self.end+self.policy['cleanup_seconds']
+        self.preflight() # Fresh observations of ALL13 tools after host package installation.
+        p=self.policy;available=self.capacity()
         D.need(available>=p['minimum_available_bytes'] and shutil.disk_usage(self.out).free>=p['minimum_disk_bytes'],
                'new separately reviewed aggregate memory/storage admission')
         D.need(p['minimum_available_bytes']>=p['owner']['memory_bytes']+p['daemon']['memory_bytes']+p['host_reserve_bytes']
@@ -247,8 +312,11 @@ class Controller:
                 image=self.out/'storage.img'
                 if image.exists():image.unlink()
             except BaseException as error:errors.append(dict(step='owned-storage',error=type(error).__name__))
+        prerequisite_cache_absent=False
+        try:prerequisite_cache_absent=Q.cleanup(self.out,self.cleanup_end,self.policy['host_prerequisites'])
+        except BaseException as error:errors.append(dict(step='CI-prerequisite-cache',error=type(error).__name__))
         for fd in self.pidfds.values():os.close(fd)
-        return dict(services=rows,errors=errors,owned_storage_absent=not self.mounted and self.loop is None and not (self.out/'storage.img').exists())
+        return dict(services=rows,errors=errors,host_prerequisite_cache_absent=prerequisite_cache_absent,owned_storage_absent=not self.mounted and self.loop is None and not (self.out/'storage.img').exists())
 
 
 def main():
@@ -277,7 +345,7 @@ def main():
                 controller=dict(pid=os.getpid(),starttime=controller_start,cgroup=actual_group,limits=controller_limits))
     def cancelled(signum,frame):raise TimeoutError('external whole operation deadline/cancellation')
     for sig in (signal.SIGTERM,signal.SIGINT,signal.SIGALRM):signal.signal(sig,cancelled)
-    signal.setitimer(signal.ITIMER_REAL,1200)
+    signal.setitimer(signal.ITIMER_REAL,policy['controller_work_seconds'])
     try:
         daemon,available,disk=owner.setup();volume=a.output/'volume';work=volume/'work';marker=work/'actual-owner.json'
         allowed={k:v for k,v in os.environ.items() if k.startswith(('GITHUB_','CACHY_RETAINED_','CACHY_OLD_FOUR_'))
@@ -290,7 +358,8 @@ def main():
         payload=owner.start('owner',[owner.tool('python3'),'-I','-B',str(HERE/'payload.py'),str(launch)],a.runner_uid,a.runner_gid)
         observed=dict(kind='FISH02_ACTUAL_HOSTED_DOMAINS_V2',source=actual['source'],ref=actual['ref'],nonce=actual['nonce'],
                       source_map_sha256=a.source_map_sha256,run=os.environ['GITHUB_RUN_ID'],attempt=1,job=os.environ['GITHUB_JOB'],
-                      owner=payload,daemon=daemon,endpoint='unix://'+str(volume/'docker.sock'),storage_bytes=policy['storage_bytes'],
+                      owner=payload,daemon=daemon,host_prerequisite=dict(status=owner.prerequisite['status'],declaration=Q.DECLARATION,
+                       package=Q.PACKAGE,selected_version=owner.prerequisite['selected_version'],installed=owner.prerequisite['installed'],receipt=D.pin(D.read(a.output/'host-prerequisite.json'))),endpoint='unix://'+str(volume/'docker.sock'),storage_bytes=policy['storage_bytes'],
                       available_memory=available,available_storage=disk,backend=policy['bootstrap_backend'])
         write(a.output/'actual-domains.json',observed);write(marker,observed,a.runner_uid,a.runner_gid)
         while True:
@@ -316,6 +385,10 @@ def main():
     except BaseException as error:report['failure']=dict(type=type(error).__name__,message=str(error)[:500])
     finally:
         report['host_preflight']=owner.host_facts
+        report['host_prerequisite']=owner.prerequisite
+        if owner.prerequisite:
+            try:owner.record_prerequisite(owner.prerequisite)
+            except BaseException:report['prerequisite_report_failure']=True
         signal.setitimer(signal.ITIMER_REAL,90)
         try:report['cleanup']=owner.cleanup()
         except BaseException as error:report['cleanup']=dict(errors=[dict(type=type(error).__name__)])

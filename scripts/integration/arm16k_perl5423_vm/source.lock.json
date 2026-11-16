@@ -17,14 +17,14 @@
       "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
     },
     "README.md": {
-      "bytes": 33249,
+      "bytes": 41234,
       "mode": 420,
-      "sha256": "5ffa890c25260f0038a60f7f2cfa747048b8f3652828991b5f612181599d645e"
+      "sha256": "086c6d2858a67baf79c90b87fd38a51702ecacdc6c9bceb9b33b16fd55b3e4aa"
     },
     "actor.py": {
-      "bytes": 12793,
+      "bytes": 20349,
       "mode": 420,
-      "sha256": "487f85e659a99a417777f15eb1af98f2abfb8fca5881f79fc1b89a133430cb7b"
+      "sha256": "f7a5196c89dae9cbf5d8105ab8983ca84bd4f172b978cf92924de23e29cbb46e"
     },
     "adapter.py": {
       "bytes": 13497,
@@ -62,9 +62,9 @@
       "sha256": "9152a9fad6b22b249c681c9e18fbdeed90664d98026110734492925ca1c02b28"
     },
     "controller.py": {
-      "bytes": 25630,
+      "bytes": 26314,
       "mode": 420,
-      "sha256": "3098dfabb36f1dac508cde4e61f89bc6f6f111f2e3a09b6af2cabd7c25cc9185"
+      "sha256": "c76fb3e71ff3a15e1ba15cb3a05263ad4dd2e6631ddbca5a5dc436155d91e0b3"
     },
     "expected-payload-certificate.TEMPLATE.json": {
       "bytes": 929,
@@ -127,9 +127,9 @@
       "sha256": "45573362408087ebbe41011571811145e203345d5ea8955e9f39306d80652a69"
     },
     "guest/root.sh": {
-      "bytes": 18991,
+      "bytes": 21251,
       "mode": 420,
-      "sha256": "9be11484131188df57b7f23fec3fe9e75b4fe9066833f752fed7353b7b513aa0"
+      "sha256": "48b99a1d9173e38a71259acea52d7f6a0dc5aeea4cc095e4619e0aac1d6502b4"
     },
     "guest/runtime.pl": {
       "bytes": 3640,
@@ -231,6 +231,11 @@
       "mode": 420,
       "sha256": "1288bf37b666e59632e2ebbd96df9c9944cfc6e8b758609f95121c059489168c"
     },
+    "test_etc_mtime.py": {
+      "bytes": 15287,
+      "mode": 420,
+      "sha256": "59a70007a295de7225926776f954d39dda3c7bc55d3a010ee773da69283263c7"
+    },
     "test_git_roundtrip.py": {
       "bytes": 2665,
       "mode": 420,
@@ -250,6 +255,11 @@
       "bytes": 8941,
       "mode": 420,
       "sha256": "ee0449fb5e9172d0f24fc4130b371553f1ea27acde73980674504ce61d89fda5"
+    },
+    "test_natural_retirement.py": {
+      "bytes": 8878,
+      "mode": 420,
+      "sha256": "8c0b73599a619dd3bc498fb9c26d89c4980f9b5540774defcfb2c6b2adcb4d19"
     },
     "test_probe_diagnostics.py": {
       "bytes": 8166,

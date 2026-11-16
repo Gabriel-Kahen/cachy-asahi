@@ -1,4 +1,4 @@
-# Source/DATA results — 2026-11-16
+# Prior Source45 DATA results — 2026-11-16
 
 - Twenty-two actor-fenced tests pass with isolated Python and ResourceWarnings treated
   as errors. They import new modules without actor effects, construct/check a tiny
@@ -32,3 +32,39 @@ exclude only read-updated atime. New source-map/owner-program hashes are require
 old Source44 is not current dispatch-ready. No native/runtime grant is supplied.
 
 Current temporary constructor DATA: 45 files/663356 bytes; map9593B SHA256 `fbfa1998442cc67e9da6af34aadbbf55a393338cc4cd8e519acea7422141fd3d`; owner-program2326B SHA256 `6e2f88507c3e4f4e277e371517820854e27ffb02831b4a996d810bf9785eb139`. Actual fields remain NULL. No public Source/readback or runtime acceptance is supplied.
+
+## Source47 CI prerequisite successor — 2026-11-16
+
+The consumed Source46 native run held before any owned domain or storage because
+`bsdtar` was absent. No retry or acceptance is inferred. The separately admitted
+Ubuntu24/arm64 successor adds only the literal `libarchive-tools` CI prerequisite,
+normal signed repository update, exact candidate selection, simulation, bounded
+download/install, exact installed state and complete tool re-observation.
+
+All61 actor-fenced controls pass under Python3.14 and Python3.12 with isolated
+imports, bytecode disabled and ResourceWarnings as errors:17 legacy,23 successor,
+10 host-tool and11 prerequisite controls. The new controls model cancellation,
+output overflow and deadline overrun with mandatory original-child custody
+transfer, exact command plan, trust drift, package/version/platform refusals,
+public-only configuration selection and bounded cache retention. Ten module ASTs
+and39 actual workflow shell blocks parse; `git diff --check` passes.
+
+No APT, network, sudo, service, storage, native build, signing, lease, dispatch or
+publication ran. Host installation and native compatibility remain NOT RUN.
+The450-second prerequisite,1650-second aggregate work,1740-second scope,30-minute
+step,35-minute job and512MiB virtual AS require a new exact Root policy/runtime
+review. Physical controller and normal package/owner/daemon limits are unchanged.
+Source publication/readback and every actual authority selector remain unset.
+
+## Source47 r3 public context diagnostics
+
+The consumed r2 attempt held before APT/domain submission; the exact failed
+conjunct is unknown. The new guard records bounded public facts and finite
+reasons before refusal and uses actual os-release/native architecture and the
+existing Root dispatch binding. Provider labels are informational. All existing
+APT normal trust, limits, package/version and owned-pair requirements remain.
+
+Fourteen fenced prerequisite controls cover genuine ARM provider labels, unsafe
+label/private-field omission, every OS/architecture/repository/dispatch/run
+invariant, receipt-before-refusal ordering, and dpkg mismatch before APT. No
+actual setup or native attempt is performed by these controls.

@@ -110,6 +110,16 @@ def normal_hold_cleanup(scope,peer,qfile,failure,nonce,authority_sha256,out,end,
  record.update(stage='ABSENCE_VERIFIED',status='HOLD_FAILURE_NATURALLY_RETIRED',forced=False);return record
 
 
+def capture_actor_failure(K,out,phase,nonce,source_lock,runtime):
+ # A diagnostic can explain a failed actor, never authorize completion.
+ A=module('actor')
+ try:
+  value,pin=A.read_failure(K,out,phase,nonce,source_lock,runtime)
+  return dict(status='CAPTURED_PUBLIC_FAILURE_DATA_ONLY',file=pin,data=value)
+ except FileNotFoundError:return dict(status='ABSENT',data=None)
+ except BaseException:return dict(status='REFUSED_UNSAFE_OR_INVALID',data=None)
+
+
 def cleanup_scope(scope,peer,qfile,failure,nonce,authority_sha256,out,cleanup_end,guard,report):
  if scope is None:return
  if failure is not None:
@@ -250,6 +260,8 @@ def main():
     serial=Serial(Watched(),deadline-r['cleanup_seconds'])
     report.update(P.journey(serial,secret['password'],m['baseline_nonce'],packet['nonce'],B.parse_frame));rpc('quit');report['QMP_quit_requested']=True
   cmd('wait',['docker','wait',name],max(5,deadline-time.monotonic()));finished=scope.recover(time.monotonic()+8)
+  if finished['State']['ExitCode']!=0 or finished['State']['Running']or finished['State']['OOMKilled']:
+   report['actor_failure_diagnostic']=capture_actor_failure(K,out,a.phase,packet['nonce'],source,cert['runtime_certificate'])
   K.need(finished['State']['ExitCode']==0 and not finished['State']['Running'] and not finished['State']['OOMKilled'],'natural actor completion')
   if a.phase=='boot':
    K.need(R.natural(R.receipt(out/'qemu.json')),'natural QEMU group reap')

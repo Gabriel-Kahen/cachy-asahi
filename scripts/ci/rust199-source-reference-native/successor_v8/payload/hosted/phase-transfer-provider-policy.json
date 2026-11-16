@@ -1,0 +1,40 @@
+{
+  "Root_review": null,
+  "accepted": null,
+  "actual": {
+    "artifact": null,
+    "host": null,
+    "image": null,
+    "job": null,
+    "manifest": null,
+    "run": null
+  },
+  "api_origin": "https://api.github.com",
+  "artifact_name": "rust199-qualified-transfer-v4-{run}-1",
+  "attempt": 1,
+  "bearer_forwarding": "API_ORIGIN_FIRST_REQUEST_ONLY",
+  "bootstrap_job": "rust199-bootstrap-v4",
+  "event": "workflow_dispatch",
+  "initial_carrier_policy": "UNCHANGED_EXACT_PER_ARTIFACT_ROOT_LISTS",
+  "kind": "ROOT_REVIEW_REQUIRED_SAME_RUN_GITHUB_PHASE_TRANSFER_PROVIDER_V8",
+  "maximum_artifact_bytes": 17179869184,
+  "maximum_redirects": 3,
+  "maximum_requests": 7,
+  "needs_outputs": [
+    "artifact_id",
+    "artifact_sha256",
+    "bootstrap_job_id",
+    "manifest_sha256",
+    "image_id",
+    "image_sha256",
+    "image_bytes"
+  ],
+  "repository": "Gabriel-Kahen/cachy-asahi",
+  "repository_id": 1414857795,
+  "schema": 8,
+  "selection": "ONE_HOST_FROM_AUTHENTICATED_EXACT_VALIDATED_ARTIFACT_ZIP_ENDPOINT_ONLY",
+  "storage_host_pattern": "productionresultssa[1-9][0-9]{0,2}\\.blob\\.core\\.windows\\.net",
+  "subsequent_storage_redirects": "SAME_OBSERVED_HOST_ONLY",
+  "workflow_id": 381664314,
+  "workflow_path": ".github/workflows/native-arm-build.yml"
+}

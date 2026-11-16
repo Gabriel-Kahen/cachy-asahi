@@ -43,8 +43,10 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_perl5423_vm/test_probe_readiness.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_perl5423_vm/test_probe_diagnostics.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_perl5423_vm/test_runtime_lifetimes.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_perl5423_vm/test_natural_retirement.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_perl5423_vm/test_installed_metadata.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_perl5423_vm/test_root_progress.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_perl5423_vm/test_etc_mtime.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_perl5423_vm/test_git_roundtrip.py
           python3 -I -B -Werror::ResourceWarning scripts/port/perl5423-arm16k-independent-reader/test_reader.py
           bash scripts/integration/arm16k_perl5423_vm/test_guest_data.sh
@@ -61,6 +63,7 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/ci/fish-config02-native-source/test_data.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/fish-config02-native-source/successor_v2/test_data.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/fish-config02-native-source/successor_v2/test_host_tools.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/fish-config02-native-source/successor_v2/test_host_prerequisites.py
       - name: Check bounded native package readers on their Python 3.14 runtime
         if: matrix.python == '3.14'
         run: |
@@ -239,6 +242,7 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v7/test_binding.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v7/test_actor_binding.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v7/test_orchestration.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v8/test_data.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/retained-llvm260-proofs/test_collect.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/retained-rust-stage0-provider/test_collect.py
       - name: Check eight portable notice controls; private capture replay remains Root-local

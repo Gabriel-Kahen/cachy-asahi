@@ -1,0 +1,83 @@
+{
+  "Root_review": null,
+  "accepted": null,
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "image": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "bytes": 42590643,
+  "constructor_files": {
+    "README.md": {
+      "bytes": 6767,
+      "mode": 420,
+      "sha256": "683d4d056c195e88a42dcbcac4391a413bb950497e82824913c263a7bb007593"
+    },
+    "Root-admission.TEMPLATE.json": {
+      "bytes": 14249,
+      "mode": 420,
+      "sha256": "8a564c2a68afd400abf746b8c600620a1a7fec18a814357dd2ba7107ff01074d"
+    },
+    "ci-routing.json": {
+      "bytes": 410,
+      "mode": 420,
+      "sha256": "b70540bc0acba26328a261d9bffb5fb97d13599f7e890d304d69be1bb49f5e69"
+    },
+    "payload/.github/workflows/native-arm-build.yml": {
+      "bytes": 16567,
+      "mode": 420,
+      "sha256": "1477467a7182603ae9c128c0efe787ebf1db336dfed25fec719cf703f7a0b93a"
+    },
+    "payload/.github/workflows/native-arm-rust199-source-reference-v1.yml": {
+      "bytes": 16567,
+      "mode": 420,
+      "sha256": "1477467a7182603ae9c128c0efe787ebf1db336dfed25fec719cf703f7a0b93a"
+    },
+    "payload/admission.py": {
+      "bytes": 37429,
+      "mode": 420,
+      "sha256": "239e5f14d2a78fc68dc8473b02839c822c525dee1a05a75b378decf31dbb5917"
+    },
+    "payload/hosted/entry.py": {
+      "bytes": 19809,
+      "mode": 420,
+      "sha256": "4f15085673b0aa3c6d45fd783a42d8122c60dc8a820c7c482169aa764f744c6f"
+    },
+    "payload/hosted/phase-transfer-provider-policy.json": {
+      "bytes": 1261,
+      "mode": 420,
+      "sha256": "ac64464206b2e9e4165bfd6916395ea0873cbfbb25937011a8ae4ba301d94116"
+    },
+    "payload/hosted/phase_transfer.py": {
+      "bytes": 30490,
+      "mode": 420,
+      "sha256": "82162a7a27a11ed1512bcb9adecfe561d168dd816987ff8a6b601cbafd619bb3"
+    },
+    "prepare.py": {
+      "bytes": 6182,
+      "mode": 420,
+      "sha256": "6b29218ba6764bb2e9da616f78201aa3d89d676937b26da42d720d88f7b71eaf"
+    },
+    "test_data.py": {
+      "bytes": 15851,
+      "mode": 420,
+      "sha256": "5ee42a75375699e6971664d02148e805a9ec57cbebb2adc2628875f80b2438ad"
+    }
+  },
+  "files": 326,
+  "map_sha256": "382ccdcf2d8abf8fcc739fe917ed35b4cf1cbaa00617393d6fa42614d366cdf4",
+  "parent": {
+    "bytes": 42401750,
+    "files": 318,
+    "map_sha256": "33bececb45d84997ea5b19a64100629bb3fe76c2e61faa9d4a1a86b947febad6",
+    "tree": "0c1e096dbfb34515f80937c5d0973ca384bcfb69"
+  },
+  "schema": 8,
+  "scope": "RUST199_PHASE_TRANSFER_PROVIDER_SUCCESSOR_V8",
+  "tree": "7db8b512209a275ec9fc4f37006e18b8e5839a6d",
+  "unadmitted": true
+}
