@@ -366,13 +366,22 @@ jobs:
             --mount "type=bind,src=$PWD,dst=/work,readonly" \
             --entrypoint /usr/bin/python3 "$image" -I -B -Werror::ResourceWarning \
             scripts/update/test_internal_runtime.py PriorArchives -v
-          docker run --rm --network=none --read-only --cap-drop=ALL --user=0:0 \
+          docker run --rm -i --network=none --read-only --cap-drop=ALL --user=0:0 \
             --env CACHY_ASAHI_TEST_ALPM_PROFILE=archlinux-base-fcee73ea-pacman-7.1.0.r9.g54d9411-3 \
             --security-opt=no-new-privileges --pids-limit=128 --memory=512m \
             --tmpfs /tmp:rw,nodev,nosuid,noexec,size=256m,mode=1777 \
             --mount "type=bind,src=$PWD,dst=/work,readonly" \
-            --entrypoint /usr/bin/python3 "$image" -I -B -Werror::ResourceWarning \
-            scripts/update/test_prior_aux_runtime.py -v
+            --entrypoint /usr/bin/python3 "$image" -I -B -Werror::ResourceWarning - <<'PY'
+          import os, sys, unittest
+          from pathlib import Path
+          sys.path.insert(0, str(Path('scripts/update').resolve()))
+          from test_internal_runtime import alpm_test_profile
+          with alpm_test_profile(os.environ['CACHY_ASAHI_TEST_ALPM_PROFILE']):
+              import test_prior_aux_runtime
+              suite = unittest.defaultTestLoader.loadTestsFromTestCase(test_prior_aux_runtime.Cases)
+              result = unittest.TextTestRunner(verbosity=2).run(suite)
+              raise SystemExit(not (result.wasSuccessful() and result.testsRun == 25 and not result.skipped))
+          PY
       - name: Check corresponding-source data tools
         if: ${{ matrix.shard == 'all' || matrix.shard == 'source-data' }}
         run: |
