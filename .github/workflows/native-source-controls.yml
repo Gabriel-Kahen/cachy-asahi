@@ -219,6 +219,12 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v5/test_binding.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v5/test_orchestration.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v5/test_source.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v6/test_actor_binding.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v6/test_admission.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v6/test_binding.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v6/test_orchestration.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v6/test_source.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/retained-llvm260-proofs/test_collect.py
       - name: Check eight portable notice controls; private capture replay remains Root-local
         run: |
           python3 -I -B -Werror::ResourceWarning - <<'PY'

@@ -1,0 +1,147 @@
+{
+  "Reader6_snapshots_and_HOLD_unchanged": true,
+  "Reader7_commit": "0e8af913091fb85db1d10bc1b35bb35e7be6cfbd",
+  "Root_Rust_admission": null,
+  "Root_grants": null,
+  "dispatch": null,
+  "final_TEST_package_decision": null,
+  "fresh_TEST_signature": null,
+  "in_memory_constructors": [
+    {
+      "Reader_execution": false,
+      "bytes": 41639049,
+      "files": 314,
+      "forbidden_role_events": [],
+      "future_Rust_grants_TESTproofs_final_material_acceptance_NULL": true,
+      "genuine_Reader7_DATA_adapter_check": true,
+      "map_sha256": "2786d1d393888699faf320b416e1570f40060e2428907c09855d4c7103aa33f8",
+      "physical_Source_export": false,
+      "profile_sha256": "b98df27f0d83f975b99bd77ccaa3df26bc56273566c69d4b9350ae12e8e020dc",
+      "protected_parent_leaves": 292,
+      "python": "3.12.13",
+      "recipe_flags_actors_carrier_limits_resources_unchanged": true,
+      "status": "PASS_IN_MEMORY_SOURCE_AND_GENUINE_READER7_DATA_ONLY",
+      "tree": "109005278b7a1404310ffb06e5f57933a6c1ba20",
+      "unadmitted_template_refused": true,
+      "whole_Source304_inverse": true
+    },
+    {
+      "Reader_execution": false,
+      "bytes": 41639049,
+      "files": 314,
+      "forbidden_role_events": [],
+      "future_Rust_grants_TESTproofs_final_material_acceptance_NULL": true,
+      "genuine_Reader7_DATA_adapter_check": true,
+      "map_sha256": "2786d1d393888699faf320b416e1570f40060e2428907c09855d4c7103aa33f8",
+      "physical_Source_export": false,
+      "profile_sha256": "b98df27f0d83f975b99bd77ccaa3df26bc56273566c69d4b9350ae12e8e020dc",
+      "protected_parent_leaves": 292,
+      "python": "3.14.6",
+      "recipe_flags_actors_carrier_limits_resources_unchanged": true,
+      "status": "PASS_IN_MEMORY_SOURCE_AND_GENUINE_READER7_DATA_ONLY",
+      "tree": "109005278b7a1404310ffb06e5f57933a6c1ba20",
+      "unadmitted_template_refused": true,
+      "whole_Source304_inverse": true
+    }
+  ],
+  "observed_finite_component_decision": {
+    "accepted_scope": [
+      "one native LLVM23.1.1 AArch64 source-reference build and package",
+      "Clang/LLD/compiler-rt/libunwind C compilation/link/execution, profiling and C++ exception smoke checks",
+      "complete pinned Source260/historical inverse, signed349 input lineage and build environment metadata",
+      "complete package payload, notices, ownership and100 ELF objects",
+      "owned native execution/export/retirement and independent passive Reader7 replay"
+    ],
+    "bytes": 4539,
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-llvm260-native-component-decision-r1/Root-native-component-decision.ACTUAL.json",
+    "sha256": "894bc71aab7156be97488d153cd56900b8c24851e2b9c490be762f008ef6c285",
+    "status": "VALIDATED_NATIVE_LLVM23_SOURCE_REFERENCE_COMPONENT_EVIDENCE_ONLY"
+  },
+  "observed_genuine_Reader7_result": {
+    "bytes": 3871,
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-llvm260-Reader7-r1/reader-output/reader.json",
+    "sha256": "ed368782d2f93a09d85380d62da4c5e63727547a2949cf8ae9e319508ac080a7",
+    "status": "PASS_INDEPENDENT_LLVM23_BUILDINFO_ARCHITECTURE_SUCCESSOR_DATA_ONLY"
+  },
+  "physical_Source_export": null,
+  "preserved_Reader6_checkpoint": "e8e96198d1aaab00684b4f7547a7ef583ba2966a",
+  "profile_sha256": "b98df27f0d83f975b99bd77ccaa3df26bc56273566c69d4b9350ae12e8e020dc",
+  "proof_carrier": null,
+  "public_Main_base": "a1c8e00fb3c8de8e94a8641b9e38ade6e2a71468",
+  "publication": null,
+  "python_tests": [
+    {
+      "controls": [
+        {
+          "returncode": 0,
+          "script": "test_actor_binding.py",
+          "tests": 2
+        },
+        {
+          "returncode": 0,
+          "script": "test_admission.py",
+          "tests": 17
+        },
+        {
+          "returncode": 0,
+          "script": "test_binding.py",
+          "tests": 7
+        },
+        {
+          "returncode": 0,
+          "script": "test_orchestration.py",
+          "tests": 4
+        },
+        {
+          "returncode": 0,
+          "script": "test_source.py",
+          "tests": 8
+        }
+      ],
+      "python": "3.12.13",
+      "status": "PASS",
+      "tests": 38
+    },
+    {
+      "controls": [
+        {
+          "returncode": 0,
+          "script": "test_actor_binding.py",
+          "tests": 2
+        },
+        {
+          "returncode": 0,
+          "script": "test_admission.py",
+          "tests": 17
+        },
+        {
+          "returncode": 0,
+          "script": "test_binding.py",
+          "tests": 7
+        },
+        {
+          "returncode": 0,
+          "script": "test_orchestration.py",
+          "tests": 4
+        },
+        {
+          "returncode": 0,
+          "script": "test_source.py",
+          "tests": 8
+        }
+      ],
+      "python": "3.14.6",
+      "status": "PASS",
+      "tests": 38
+    }
+  ],
+  "roles": "NO_GET_NETWORK_ACTOR_LEASE_SIGNING_OR_READER_EXECUTION_HERE",
+  "schema": 6,
+  "source": {
+    "bytes": 41639049,
+    "files": 314,
+    "map_sha256": "2786d1d393888699faf320b416e1570f40060e2428907c09855d4c7103aa33f8",
+    "tree": "109005278b7a1404310ffb06e5f57933a6c1ba20"
+  },
+  "status": "PASS_PROSPECTIVE_READER7_CODE_AND_GENUINE_READER_DATA_FINAL_TEST_ACCEPTANCE_PENDING"
+}
