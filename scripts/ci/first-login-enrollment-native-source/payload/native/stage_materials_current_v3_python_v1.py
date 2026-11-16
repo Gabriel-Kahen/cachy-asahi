@@ -34,6 +34,10 @@ PROPOSAL=dict(kind=API,whole_budget_seconds=7560,staging_seconds=3600,cleanup_se
  transport_policy=dict(fetch_seconds=400,transport_seconds=480,outer_seconds=500,
  reason='Explicit one-fetch allocation for full retained DATA; no measured latency guarantee'),Root_acceptance=None)
 FINAL=dict(Root_final_acceptance=None,independent_component_acceptance=False,hardware_acceptance=False,release_acceptance=False)
+FAILURE_KIND='CURRENT_MATERIAL_STAGE_FAILURE_V1'
+FAILURE_BYTES=1024
+FAILURE_PHASES=('ENTRY','AUTHORIZE','SOURCE','NATIVE_CONTEXT','INPUTS','HELPERS','TOOLS','STORAGE','SCOPE','TRANSPORT_PUBLIC14','TRANSPORT_NATIVE248','PRIVATE_SEED','PUBLIC14_PREPARE','NATIVE248_PREPARE','DOWNLOAD','COMPLETE517','FINALIZE','CHILD')
+FAILURE_REASONS=('PHASE_FAILED','COMMAND_FAILED')
 # Exact Source139 parent helpers. Preserve paths: their original relative imports
 # and canonical/owned-process resolution must not resolve outside reviewed code.
 HELPERS={
@@ -58,6 +62,29 @@ def need(ok,why):
  if not ok:raise ValueError('HOLD_MATERIALS: '+why)
 def pin(raw):return dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())
 def encoded(value):return(json.dumps(value,sort_keys=True,indent=2,allow_nan=False)+'\n').encode()
+def diagnostic_phase(diagnostic,phase):
+ if diagnostic is not None:
+  need(type(phase)is str and phase in FAILURE_PHASES,'fixed failure phase')
+  diagnostic.update(phase=phase,reason='PHASE_FAILED',command_ordinal=None)
+def diagnostic_command(diagnostic,ordinal):
+ if diagnostic is not None:
+  diagnostic.update(reason='COMMAND_FAILED',command_ordinal=ordinal if type(ordinal)is int and 0<=ordinal<27 else None)
+def failure_packet(diagnostic):
+ need(type(diagnostic)is dict and set(diagnostic)=={'phase','reason','command_ordinal'},'closed failure diagnostic')
+ ordinal=diagnostic['command_ordinal']
+ need(type(diagnostic['phase'])is str and diagnostic['phase']in FAILURE_PHASES and type(diagnostic['reason'])is str and diagnostic['reason']in FAILURE_REASONS
+      and(ordinal is None or type(ordinal)is int and 0<=ordinal<27),'finite failure diagnostic values')
+ raw=encoded(dict(schema=1,kind=FAILURE_KIND,**diagnostic));need(len(raw)<=FAILURE_BYTES,'failure packet bound');return raw
+def emit_failure(diagnostic,error=None):
+ # Best effort only: failure to report must never mask the original exception.
+ try:
+  raw=failure_packet(diagnostic);stream=getattr(sys.stderr,'buffer',None)
+  written=stream.write(raw)if stream is not None else sys.stderr.write(raw.decode('ascii'))
+  if written!=len(raw):return False
+  (stream if stream is not None else sys.stderr).flush()
+  if error is not None:error._current_material_failure_emitted=True
+  return True
+ except BaseException:return False
 def decoded(raw):
  def pairs(rows):
   result={}
@@ -171,8 +198,9 @@ def qualified_tools(E):
 
 
 class Runner:
- def __init__(self,O,out,end,E,tools):self.O,self.out,self.end,self.E,self.tools=O,out,end,E,tools;self.rows=[]
+ def __init__(self,O,out,end,E,tools,_diagnostic=None):self.O,self.out,self.end,self.E,self.tools=O,out,end,E,tools;self.rows=[];self._diagnostic=_diagnostic
  def run(self,argv,seconds,*,env=None):
+  diagnostic_command(self._diagnostic,len(self.rows))
   need(len(self.rows)<PROPOSAL['command_rows']and type(argv)is list and argv and all(type(a)is str and '\0'not in a for a in argv),'finite direct argv')
   matches=[row for row in self.tools.values()if row['path']==argv[0]]
   need(len(matches)==1 and self.E.checked_tool(matches[0])==argv[0],'immediately rejoined qualified canonical staging executable')
@@ -202,7 +230,9 @@ class Runner:
    raw=stdout.read_bytes();record=dict(argv=argv,natural=False,Root_acceptance=None)
    # Never retain raw private-seed stdout/stderr or environment values.
    if failure is not None:raise failure
-   natural(row);record['natural']=True;self.rows.append(record);census(self.out,self.end);return raw
+   natural(row);record['natural']=True;self.rows.append(record);census(self.out,self.end)
+   if self._diagnostic is not None:diagnostic_phase(self._diagnostic,self._diagnostic['phase'])
+   return raw
   finally:stdout.unlink();stderr.unlink()
 
 
@@ -230,34 +260,49 @@ def validate_local_references(*,provider,source_root,source_map,base_lock,bootst
  return dict(status='COMPLETE517_LOCAL_REFS_DATA_ONLY',references=result,assembler_fields=provider.assembler_fields(result),archive_copies=0,hosted_delivery=False,**FINAL)
 
 
-def _stage_materials(*,source_root,delegation_raw,delegation_sha256,context,grant_raw,grant_sha256,output,secret_provider,base_lock,bootstrap_profile):
+def _stage_materials(*,source_root,delegation_raw,delegation_sha256,context,grant_raw,grant_sha256,output,secret_provider,base_lock,bootstrap_profile,_diagnostic=None):
  """Actual runtime entry; caller owns explicit physical scope and final absence.
 
  Caller supplies Root-authenticated hash inputs and one-shot22-value provider;
  no live environment, token, private home or credential-store lookup occurs here.
  """
+ diagnostic_phase(_diagnostic,'ENTRY')
  need(pin(delegation_raw)['sha256']==delegation_sha256 and pin(grant_raw)['sha256']==grant_sha256,'external whole inputs before selected code')
- root=Path(source_root);preview=decoded(delegation_raw);C=selected(root,preview,'context');d=C.validate_delegation(delegation_raw,delegation_sha256);C.source(d,root);C.validate_context(d,context)
+ diagnostic_phase(_diagnostic,'AUTHORIZE')
+ root=Path(source_root);preview=decoded(delegation_raw);C=selected(root,preview,'context');d=C.validate_delegation(delegation_raw,delegation_sha256)
+ diagnostic_phase(_diagnostic,'SOURCE');C.source(d,root);C.validate_context(d,context)
  need(context['source_root']==str(root),'actual selected GITHUB_WORKSPACE Source root')
+ diagnostic_phase(_diagnostic,'AUTHORIZE')
  policy=decoded(descriptor(root,d['policy']));g=validate_grant(grant_raw,grant_sha256,d,context,policy)
+ diagnostic_phase(_diagnostic,'SOURCE')
  need(pin(read(Path(__file__).resolve()))=={k:d['programs']['materials_stager'][k]for k in('bytes','sha256')},'actual reviewed stager program')
+ diagnostic_phase(_diagnostic,'SCOPE')
  expiry=min(d['expires_epoch'],g['expires_epoch'],d['issued_epoch']+7560);shared_end=time.monotonic()+expiry-time.time();need(shared_end-time.monotonic()>120,'remaining shared budget')
+ diagnostic_phase(_diagnostic,'NATIVE_CONTEXT')
  need(os.getuid()==os.geteuid()>0 and os.uname().sysname=='Linux'and os.uname().machine=='aarch64','ordinary native ARM64 hosted staging controller')
  need(type(secret_provider)is OneShotSecrets,'Root caller must supply one-shot exact22 provider before acquisition')
+ diagnostic_phase(_diagnostic,'SCOPE')
  domain=kernel_scope(d['nonce'],expiry);B=selected(root,d,'base_inputs')
  source_map=dict(path=str(root/'source-map.json'),**d['binding']['source_lock'])
- plan=B.metadata(source_root=root,source_map=source_map,base_lock=base_lock,bootstrap_profile=bootstrap_profile);public,native=verify_helpers(root,d,plan)
+ diagnostic_phase(_diagnostic,'INPUTS')
+ plan=B.metadata(source_root=root,source_map=source_map,base_lock=base_lock,bootstrap_profile=bootstrap_profile)
+ diagnostic_phase(_diagnostic,'HELPERS');public,native=verify_helpers(root,d,plan)
+ diagnostic_phase(_diagnostic,'TOOLS')
  E=selected(root,d,'image_executor');L=selected(root,d,'hosted_launcher');L.fixed_tool('/usr/bin/git')
  tools=qualified_tools(E)
+ diagnostic_phase(_diagnostic,'STORAGE')
  out=Path(output);need(out.is_absolute()and out==out.resolve()and out.name=='cachy-current-materials-'+d['nonce']and not out.exists()and not out.is_relative_to(root)and not root.is_relative_to(out),'fresh exact disjoint domain')
  parent=out.parent;storage=storage_domain(parent,g['storage_parent'],d['nonce'],root)
  out.mkdir(mode=0o700);(out/'empty-home').mkdir(mode=0o700);cache=out/'cache';cache.mkdir(mode=0o700)
- O=selected(root,d,'owned_process');end=min(shared_end,time.monotonic()+3600)-30;R=Runner(O,out,end,E,tools)
+ diagnostic_phase(_diagnostic,'TOOLS')
+ O=selected(root,d,'owned_process');end=min(shared_end,time.monotonic()+3600)-30;R=Runner(O,out,end,E,tools,_diagnostic)
+ diagnostic_phase(_diagnostic,'SCOPE')
  raw=R.run([E.checked_tool(tools['systemctl']),'show','cachy-current-materials-'+d['nonce']+'.scope','--no-pager','--property=RuntimeMaxUSec,ActiveEnterTimestampMonotonic,ControlGroup'],15)
  props=dict(line.split('=',1)for line in raw.decode().splitlines());need(set(props)=={'ControlGroup','RuntimeMaxUSec','ActiveEnterTimestampMonotonic'}and props['ControlGroup']==domain['cgroup']and props['ActiveEnterTimestampMonotonic'].isdigit()and int(props['ActiveEnterTimestampMonotonic'])>0,'actual finite staging scope properties')
  runtime=E.runtime_microseconds(props['RuntimeMaxUSec'])
  physical_end=(runtime+int(props['ActiveEnterTimestampMonotonic']))/1000000
  need(0<runtime<=3600*1000000 and time.monotonic()+30<physical_end<=shared_end,'physical scope cannot extend Root/shared deadline');R.end=min(end,physical_end-30)
+ diagnostic_phase(_diagnostic,'INPUTS')
  acquisition=B.acquisition_plan(plan,cache_root=cache,public14_root=out/'public14',retained_root=out/'native248',retained_git=out/'native248/.git',helper_root=root/'bootstrap/scripts/ci/setup6-retained-helpers',deadline=R.end)
  need(acquisition['existing_secret_names']==secret_names(),'unchanged22 secret interface')
  redirects=g['redirect_urls'];downloads=acquisition['remaining_base5_and_supplement8'];need(set(redirects)=={x['filename']for x in downloads},'explicit exact21 redirect selections')
@@ -269,22 +314,30 @@ def _stage_materials(*,source_root,delegation_raw,delegation_sha256,context,gran
  write(out/'child-request.json',request);child_sha=pin(read(out/'child-request.json'))['sha256']
  child=[E.checked_tool(tools['python3']),'-I','-B',str(Path(__file__).resolve())]
  try:
-  for which in ('public14','native248'):R.run([*child,'transport','--request',str(out/'child-request.json'),'--request-sha256',child_sha,'--which',which],500)
+  for which in ('public14','native248'):
+   diagnostic_phase(_diagnostic,'TRANSPORT_PUBLIC14'if which=='public14'else'TRANSPORT_NATIVE248')
+   R.run([*child,'transport','--request',str(out/'child-request.json'),'--request-sha256',child_sha,'--which',which],500)
+  diagnostic_phase(_diagnostic,'PRIVATE_SEED')
   need(callable(secret_provider),'explicit one-shot secret provider required');values=secret_provider(tuple(secret_names()))
   try:
    need(type(values)is dict and set(values)==set(secret_names())and all(type(v)is str and 0<len(v)<=32768 for v in values.values()),'exact bounded22 values, never log contents')
    R.run([*child,'private-seed','--request',str(out/'child-request.json'),'--request-sha256',child_sha],65,env=dict(values,CACHY_OLD_FOUR_SCHEMA='1',CACHY_OLD_FOUR_SOURCE_EPOCH='1791748800'))
   finally:
    if type(values)is dict:values.clear()
+  diagnostic_phase(_diagnostic,'PUBLIC14_PREPARE')
   need(pin(read(out/'public14/seed.py'))['sha256']==PUBLIC_SEED and pin(read(out/'public14/index.json'))['sha256']==PUBLIC_INDEX,'immediate public14 helper/index rejoin before execution')
   R.run([E.checked_tool(tools['python3']),*acquisition['public14']['argv'][1:]],30)
+  diagnostic_phase(_diagnostic,'NATIVE248_PREPARE')
   R.run([*child,'prepare','--request',str(out/'child-request.json'),'--request-sha256',child_sha],480)
+  diagnostic_phase(_diagnostic,'DOWNLOAD')
   for row in downloads:
    request_row=dict(authority=authority,source_root=str(root),programs=d['programs'],base_lock=base_lock,bootstrap_profile=bootstrap_profile,cache=str(cache),filename=row['filename'],url=row['argv'][-1],redirect_urls=redirects[row['filename']],expected=row['whole_pin'],output=str(cache/row['filename']))
    file=out/('download-'+row['filename']+'.json');write(file,request_row)
    R.run([*child,'download','--request',str(file),'--request-sha256',pin(read(file))['sha256']],90);file.unlink()
+  diagnostic_phase(_diagnostic,'COMPLETE517')
   result=B.build_references(cache_root=cache,source_root=root,source_map=source_map,base_lock=base_lock,bootstrap_profile=bootstrap_profile)
   fields=B.assembler_fields(result);need(time.monotonic()<R.end,'whole staging and verification within shared deadline')
+  diagnostic_phase(_diagnostic,'FINALIZE')
   for name in ('public14','native248','public14-evidence','native248-evidence'):shutil.rmtree(out/name)
   census(out,min(shared_end,physical_end));write(out/'complete517.json',result);write(out/'assembler-fields.json',fields)
   receipt=dict(status='COMPLETE517_HOSTED_CACHE_DATA_ONLY',binding=context['binding'],domain=domain,storage_domain=storage,grant_pin=pin(grant_raw),policy_pin=g['policy'],
@@ -298,9 +351,12 @@ def _stage_materials(*,source_root,delegation_raw,delegation_sha256,context,gran
 
 
 def stage_materials(*,source_root,delegation_raw,delegation_sha256,context,grant_raw,grant_sha256,output,secret_provider,base_lock,bootstrap_profile):
+ diagnostic=dict(phase='ENTRY',reason='PHASE_FAILED',command_ordinal=None)
  try:
   return _stage_materials(source_root=source_root,delegation_raw=delegation_raw,delegation_sha256=delegation_sha256,context=context,
-   grant_raw=grant_raw,grant_sha256=grant_sha256,output=output,secret_provider=secret_provider,base_lock=base_lock,bootstrap_profile=bootstrap_profile)
+   grant_raw=grant_raw,grant_sha256=grant_sha256,output=output,secret_provider=secret_provider,base_lock=base_lock,bootstrap_profile=bootstrap_profile,_diagnostic=diagnostic)
+ except BaseException as error:
+  emit_failure(diagnostic,error);raise
  finally:
   if type(secret_provider)is OneShotSecrets:secret_provider.close()
 
@@ -366,4 +422,5 @@ def download(r):
 if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('mode',choices=('transport','prepare','private-seed','download'));p.add_argument('--request',type=Path,required=True);p.add_argument('--request-sha256',required=True);p.add_argument('--which',choices=('public14','native248'));a=p.parse_args()
  try:child_main(a.mode,a.request,a.request_sha256,a.which)
- except BaseException:print('HOLD_CURRENT_MATERIAL_CHILD',file=sys.stderr);raise SystemExit(2)
+ except BaseException:
+  emit_failure(dict(phase='CHILD',reason='PHASE_FAILED',command_ordinal=None));raise SystemExit(2)from None
