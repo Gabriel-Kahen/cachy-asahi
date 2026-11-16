@@ -1,0 +1,64 @@
+{
+  "actual": {
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "admission": "ROOT_CURRENT_CANONICAL_RESOURCE_REVIEW_REQUIRED_NO_LANE_EXEMPTION",
+  "argv": [
+    "/usr/bin/python3",
+    "-I",
+    "-B",
+    "native/owner.py",
+    "--execute",
+    "--source-sha",
+    null,
+    "--ref",
+    null,
+    "--run-id",
+    null,
+    "--map-sha256",
+    "@MAP_SHA256@",
+    "--work",
+    "$RUNNER_TEMP/native-developer-work",
+    "--cache",
+    "$RUNNER_TEMP/alarm-cache",
+    "--carrier",
+    "$RUNNER_TEMP/pgo-hosted-retained"
+  ],
+  "concurrency_group": "native-arm-build",
+  "operations": {
+    "default": "native-build-namespace-preflight-v1",
+    "native-build-namespace-preflight-v1": {
+      "actual": {
+        "ref": null,
+        "run": null,
+        "source": null
+      },
+      "argv_extra": [
+        "--operation",
+        "native-build-namespace-preflight-v1"
+      ],
+      "matching_reader": "native/build_tools_reader_v2.py",
+      "prerequisite": "ROOT_BOUND_HEAVY_NON_KERNEL_NATIVE_ARM_BUILD_RESOURCE_AND_SOURCE_ADMISSION_REQUIRED; NO_NAMESPACE_POLICY_BYPASS; CURRENT_NULL_HELD"
+    }
+  },
+  "provisioning": "PROOF_PRIVATE22_PUBLIC14_ORIGINAL1154_FIXED16_COPY_THEN_OWNER",
+  "publication": "ROOT_MUST_BIND_SOURCE_REF_RUN_AND_WHOLE_MAP_BEFORE_EXECUTION",
+  "resource_class": "HEAVY_NON_KERNEL",
+  "retention": {
+    "actor": "native/provision.py retain",
+    "output": "$RUNNER_TEMP/native-developer-work/upload/public-tree.tar",
+    "reader": [
+      "/usr/bin/python3",
+      "-I",
+      "-B",
+      "native/build_tools_reader_v2.py",
+      "--capsule",
+      "ROOT_AUTHENTICATED_PUBLIC_TREE_TAR",
+      "--binding",
+      "ROOT_ACTUAL_BINDING_JSON"
+    ]
+  },
+  "workflow_id": 381664314
+}

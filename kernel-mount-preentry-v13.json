@@ -1,0 +1,98 @@
+{
+  "Root_grants": null,
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "image": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "api_subpath_is_not_kernel_proof": true,
+  "archives": [
+    "previous-v12/actor/entry.py",
+    "previous-v12/actor/qualify.py",
+    "previous-v12/hosted/producer.py",
+    "previous-v12/hosted/qualification.py",
+    "previous-v12/source-map.json"
+  ],
+  "carrier_transport_changed": false,
+  "changes": {
+    "actor/entry.py": {
+      "after": {
+        "bytes": 22434,
+        "mode": 420,
+        "sha256": "e84630b6ca3e531e6f4197fb03228a26880a6c31a63d57e36a3496269b6e1627"
+      },
+      "before": {
+        "bytes": 21659,
+        "mode": 420,
+        "sha256": "2e8709e0ae5c8b031240733b17fc7a76c6efdd9d2cd9d3ae12a03ded59526fe1"
+      }
+    },
+    "actor/mount_proof.py": {
+      "after": {
+        "bytes": 7365,
+        "mode": 420,
+        "sha256": "c5f7320f872f60803c461c0a34659cde6127e21abef31a4a1a43ce306b630895"
+      },
+      "before": null
+    },
+    "actor/qualify.py": {
+      "after": {
+        "bytes": 13927,
+        "mode": 420,
+        "sha256": "f402e9062f130723a9a9093dcc06ba64acc51693d1614cab4a57308e12a0ea78"
+      },
+      "before": {
+        "bytes": 11655,
+        "mode": 420,
+        "sha256": "8aab93367c2155d1474519dcd6303aff64a55835b336420dd7e3820264381927"
+      }
+    },
+    "hosted/producer.py": {
+      "after": {
+        "bytes": 34156,
+        "mode": 420,
+        "sha256": "964d5f0177843c323b2e5d28590bd41b53a9d129bb84a986ba60448265f70854"
+      },
+      "before": {
+        "bytes": 33774,
+        "mode": 420,
+        "sha256": "5ef59811fe0f5e9935317bb4d1b1a671272b28ab09308b570a09a55ca2b1fcce"
+      }
+    },
+    "hosted/qualification.py": {
+      "after": {
+        "bytes": 22120,
+        "mode": 420,
+        "sha256": "9fa67f12e15d4d11769d6bc8689939196088483e9d6f80edd289640ad03f3b9b"
+      },
+      "before": {
+        "bytes": 18658,
+        "mode": 420,
+        "sha256": "d76a06691bb6fa0138c0bc0cafb4ae1428c85fd96756de7c130230994030b6f5"
+      }
+    }
+  },
+  "dispatch": null,
+  "holds_preserved": true,
+  "kernel_preentry_required": true,
+  "metadata_headers_changed": false,
+  "metadata_normalization_changed": false,
+  "parent": {
+    "bytes": 43106281,
+    "files": 344,
+    "map_sha256": "8a2f52bb029181c3b547a09f07e4839ce0a58dd40d01c20b2cfd396af1401ec4",
+    "tree": "3f470539f51c0bdbc9fdcb52e0657834310c9e63"
+  },
+  "recipe_changed": false,
+  "request_bounds_changed": false,
+  "resources_changed": false,
+  "schema": 13,
+  "scope": "RUST199_KERNEL_MOUNT_PREENTRY_SUCCESSOR_V13",
+  "source_enforced_order": true,
+  "unadmitted": true,
+  "workflows_changed": false
+}
