@@ -1,0 +1,72 @@
+{
+  "Root_acceptance": null,
+  "accepted": null,
+  "configured_work_volume": {
+    "Source": "rust199-qual-2627335e2c79e645a7946023-work",
+    "Target": "/work",
+    "Type": "volume",
+    "VolumeOptions": {
+      "DriverConfig": {},
+      "NoCopy": true
+    }
+  },
+  "container_id": "16aa9ada533b4d6f5938b7b6cedf8571ba2a059d636c7a2c80f6762a0128513e",
+  "container_name": "/rust199-qual-2627335e2c79e645a7946023-data",
+  "create_ack": {
+    "bytes": 65,
+    "sha256": "bfd4bbed0278d849d53dedaa66dce2710db8634a726fec684b22d2da71423081"
+  },
+  "files": {
+    "hosted.json": {
+      "bytes": 367,
+      "sha256": "f8daaee14a8e74592fa13f826ce66c5bcc0bb5deaa0e9febc435314037c9df28"
+    },
+    "operations/286.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "operations/286.stdout": {
+      "bytes": 65,
+      "sha256": "bfd4bbed0278d849d53dedaa66dce2710db8634a726fec684b22d2da71423081"
+    },
+    "operations/287.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "operations/287.stdout": {
+      "bytes": 14206,
+      "sha256": "3049a973c26c02fbfdec6ea0300b518addd10b48e5b3de76c204b6c61e53189d"
+    },
+    "operations/292.stderr": {
+      "bytes": 165,
+      "sha256": "f9db7f936d6b275755ccb5b29b03c87e7c60d14fd6b7d3f426392a94c4b53fd9"
+    },
+    "operations/292.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "operations/301.stderr": {
+      "bytes": 141,
+      "sha256": "4dff2bbf89cea5ee1883909e7628f521b6cd1894e7678b470c7b9897a447dd72"
+    },
+    "operations/301.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "hosted": {
+    "cleanup_error": "ValueError: owned bootstrap images not retired",
+    "dispatch_sha256": "8d9055eb96006d43462dc779cf68bf5caaba26ad0dcf8e5455c6147af2cc8139",
+    "error": "ValueError: exact configured mount and volume-subpath required; no fallback",
+    "holds_preserved": true,
+    "native_acceptance": false,
+    "phase": "bootstrap",
+    "schema": 4,
+    "status": "FAIL"
+  },
+  "image": "sha256:2c1869fe7b2bf025ac6df11e128476e45ed99a645183d5409dc182281f0d6aaa",
+  "native": "NOT RUN",
+  "schema": 1,
+  "scope": "PUBLIC_SOURCE340_FAILURE_DATA_ONLY_NO_RUNTIME_CREDIT",
+  "source": "d02f2115692eae3ec27db71811577f1b80f59a1e"
+}

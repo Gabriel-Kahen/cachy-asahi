@@ -394,6 +394,34 @@ jobs:
           test "$(git -C .rust-source355-data-repository rev-parse HEAD^{tree})" = 3fbb71b78e06cdb9aa219c596a41fda3ccc29280
           git -C .rust-source355-data-repository -c tar.umask=0022 archive --format=tar HEAD | tar -xf - -C "$rust_source"
           python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/independent_reader_v14/test_source.py --source-root "$rust_source"
+      - name: Check Rust Source15 and independent Reader15 fenced DATA
+        run: |
+          RUST199_V15_PARENT="${RUNNER_TEMP}/rust355-source-DATA" python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v15/test_data.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v15/test_runtime.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/independent_reader_v15/test_reader.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/independent_reader_v15/test_runtime.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/independent_reader_v15/test_mounts.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/independent_reader_v15/test_qualification.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/independent_reader_v15/test_preparation.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/independent_reader_v15/test_owned_bind.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/independent_reader_v15/test_actual_failure.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/independent_reader_v15/test_preservation.py
+      - name: Check out immutable Rust361 Source as DATA
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: b421e5e90d0908fa972b6d20fa3a53b4a6722713
+          path: .rust-source361-data-repository
+          persist-credentials: false
+      - name: Check genuine Rust361 whole Source and complete inverses
+        run: |
+          umask 022
+          rust_source="${RUNNER_TEMP}/rust361-source-DATA"
+          test ! -e "$rust_source"
+          mkdir -m 700 "$rust_source"
+          test "$(git -C .rust-source361-data-repository rev-parse HEAD)" = b421e5e90d0908fa972b6d20fa3a53b4a6722713
+          test "$(git -C .rust-source361-data-repository rev-parse HEAD^{tree})" = a5973bcc4cca083492e365c62e282d6f4f8075b8
+          git -C .rust-source361-data-repository -c tar.umask=0022 archive --format=tar HEAD | tar -xf - -C "$rust_source"
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/independent_reader_v15/test_source.py --source-root "$rust_source"
       - name: Check eight portable notice controls; private capture replay remains Root-local
         run: |
           python3 -I -B -Werror::ResourceWarning - <<'PY'
