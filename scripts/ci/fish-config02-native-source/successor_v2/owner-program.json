@@ -1,0 +1,61 @@
+{
+  "base_source_map_sha256": "c1ac908dade524987e4b24fbde5d808ade2629edfa8b965b37f85a798abafd64",
+  "files": {
+    ".github/workflows/native-arm-fish-config02-source-v2.yml": {
+      "bytes": 5853,
+      "mode": 420,
+      "sha256": "b2ce181b1c8fc7c02c6c7e2b71e7907e2ed25b51513a0ea532ff6df8cc4a91d2"
+    },
+    "LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "scripts/ci/fish-config02-native-source/successor_v2/README.md": {
+      "bytes": 7787,
+      "mode": 420,
+      "sha256": "1e5719dbbc6632dec9c87687b57689c5cdcbb38c633de92d716284330f326a37"
+    },
+    "scripts/ci/fish-config02-native-source/successor_v2/admission.TEMPLATE.json": {
+      "bytes": 687,
+      "mode": 420,
+      "sha256": "13f73982b3d4504c0e7f4694c882ab602dea8d2452f5316582635d434165be71"
+    },
+    "scripts/ci/fish-config02-native-source/successor_v2/base-read-delta.json": {
+      "bytes": 2252,
+      "mode": 420,
+      "sha256": "a1bda858356162c824ec1a324b271b581a7271400d638964841f9a0b102ad26b"
+    },
+    "scripts/ci/fish-config02-native-source/successor_v2/data.py": {
+      "bytes": 10668,
+      "mode": 420,
+      "sha256": "f3847af69435f08d5303073a6e46230c20dd0dc2a8102a7d8f5cffbaf6847513"
+    },
+    "scripts/ci/fish-config02-native-source/successor_v2/hosted_owner.py": {
+      "bytes": 21849,
+      "mode": 420,
+      "sha256": "4a4fda3a9232fcb87d89e01da47a4e5b50a34df524d16fb80a706b52b7d122f0"
+    },
+    "scripts/ci/fish-config02-native-source/successor_v2/payload.py": {
+      "bytes": 4220,
+      "mode": 420,
+      "sha256": "081d93b2f770982fb5275ac195240335dc2f023972d340b84e2b81cce34ca1ce"
+    },
+    "scripts/ci/fish-config02-native-source/successor_v2/policy.json": {
+      "bytes": 804,
+      "mode": 420,
+      "sha256": "bf7c115e2993079faf44941a13ebf83858e187a6f7ddd0564f8ef4063c97a6c8"
+    },
+    "scripts/ci/fish-config02-native-source/successor_v2/retain.py": {
+      "bytes": 3039,
+      "mode": 420,
+      "sha256": "bd7abff2db1602a8da5eafae9ceea8bf83f338dde8b9f7384fac4440f26b1c14"
+    },
+    "scripts/ci/fish-config02-native-source/successor_v2/runtime.TEMPLATE.json": {
+      "bytes": 754,
+      "mode": 420,
+      "sha256": "eecbc1fb2c57c1fb4079a9c731d895173bf066ebccf1945fbc54c25efacc254c"
+    }
+  },
+  "schema": 1
+}

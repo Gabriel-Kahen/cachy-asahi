@@ -1,0 +1,236 @@
+{
+  "actual": {
+    "Root_admission": null,
+    "daemon_domain": null,
+    "image": null,
+    "job": null,
+    "owner_domain": null,
+    "ref": null,
+    "run": null,
+    "runtime": null,
+    "source": null
+  },
+  "files": {
+    ".github/workflows/native-arm-fish-config02-source-v2.yml": {
+      "bytes": 5853,
+      "mode": 420,
+      "sha256": "b2ce181b1c8fc7c02c6c7e2b71e7907e2ed25b51513a0ea532ff6df8cc4a91d2"
+    },
+    "LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "held-source32/.github/workflows/native-arm-fish-config02-source.yml": {
+      "bytes": 4431,
+      "mode": 420,
+      "sha256": "1f825a3a349131d9dee97d6aeabb42a3db8ccb535874a8bd4910e9dd468220af"
+    },
+    "held-source32/LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "held-source32/scripts/ci/fish-config02-native-source/README.md": {
+      "bytes": 8592,
+      "mode": 420,
+      "sha256": "f639ee4dce0a030d062cc0153c579fed8c5c261b5c4c939f5979948377a542ba"
+    },
+    "held-source32/scripts/ci/fish-config02-native-source/admission.TEMPLATE.json": {
+      "bytes": 687,
+      "mode": 420,
+      "sha256": "13f73982b3d4504c0e7f4694c882ab602dea8d2452f5316582635d434165be71"
+    },
+    "held-source32/scripts/ci/fish-config02-native-source/contract.py": {
+      "bytes": 6952,
+      "mode": 420,
+      "sha256": "3dcf28047e70c0cdaf11cb9689c7f9ed1d0d3723ce666a45b4ab87e3bf8b6a4a"
+    },
+    "held-source32/scripts/ci/fish-config02-native-source/entry.py": {
+      "bytes": 19734,
+      "mode": 420,
+      "sha256": "4c586d85400fb014c6eac853a94ced79dcaaa3a1573d84d5c03e3b59eda743e1"
+    },
+    "held-source32/scripts/ci/fish-config02-native-source/expected349.lock": {
+      "bytes": 6800,
+      "mode": 420,
+      "sha256": "579981195b654d8cdf142e4101dfc2bfffbc3576eed50f23796a06e90cf57453"
+    },
+    "held-source32/scripts/ci/fish-config02-native-source/finish_pair.py": {
+      "bytes": 3048,
+      "mode": 420,
+      "sha256": "0c0157ae10959a89f138f2c4012b4d8f3d19fe15fe43a3df6ad66acb8b68cb2f"
+    },
+    "held-source32/scripts/ci/fish-config02-native-source/profile.json": {
+      "bytes": 5932,
+      "mode": 420,
+      "sha256": "9d5989302fa91093bafb8ed553ca6e420474b6005cf49b201fd6b1c15dd5ab82"
+    },
+    "held-source32/scripts/ci/fish-config02-native-source/recipe/.SRCINFO": {
+      "bytes": 660,
+      "mode": 420,
+      "sha256": "eceab58745cd0235718cc71ddce312d6faa4eb23df0a724f3900c2f673b21416"
+    },
+    "held-source32/scripts/ci/fish-config02-native-source/recipe/LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "held-source32/scripts/ci/fish-config02-native-source/recipe/NOTICE": {
+      "bytes": 557,
+      "mode": 420,
+      "sha256": "19eb85ed65396056e59782ddf80fb5285ee26cad5ddf77ccb378936a2d5601c9"
+    },
+    "held-source32/scripts/ci/fish-config02-native-source/recipe/PKGBUILD": {
+      "bytes": 1069,
+      "mode": 420,
+      "sha256": "0a8a0a7edbf13fb814bdab8584e16207208221d1fa1bc2db9dfa8159ba64fff5"
+    },
+    "held-source32/scripts/ci/fish-config02-native-source/recipe/check-config.py": {
+      "bytes": 3034,
+      "mode": 420,
+      "sha256": "8dca732bd86f93e3b125b9575b172adfe3a80aa7f830924cdea328bf81b94c49"
+    },
+    "held-source32/scripts/ci/fish-config02-native-source/recipe/config.fish": {
+      "bytes": 931,
+      "mode": 420,
+      "sha256": "d26d8826c8a7e096a55d0a4b3eee8e67013d6c9b201971e89ca32e273c0847aa"
+    },
+    "held-source32/scripts/ci/fish-config02-native-source/reviewed-inputs.json": {
+      "bytes": 502,
+      "mode": 420,
+      "sha256": "9ad483d7118d774db9788fb2170c949d16b9bcd8b739583f82d05c5247c056e4"
+    },
+    "held-source32/scripts/ci/fish-config02-native-source/runtime.TEMPLATE.json": {
+      "bytes": 754,
+      "mode": 420,
+      "sha256": "eecbc1fb2c57c1fb4079a9c731d895173bf066ebccf1945fbc54c25efacc254c"
+    },
+    "held-source32/scripts/ci/fish-config02-native-source/runtime/owned_process.py": {
+      "bytes": 25140,
+      "mode": 420,
+      "sha256": "83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f"
+    },
+    "held-source32/scripts/ci/fish-config02-native-source/runtime/reference_controller.py": {
+      "bytes": 14117,
+      "mode": 420,
+      "sha256": "e7c8935f342d4b36bb6f8f24c0b48c3b8aa04be9807f62c3f8141aeaf26819fc"
+    },
+    "held-source32/scripts/ci/fish-config02-native-source/runtime/scripts/build/build_fish02.py": {
+      "bytes": 13559,
+      "mode": 420,
+      "sha256": "db47af8e8be77c1e4e82652ec600aba8913ef40c3da6986d6ccbdfbb9b64d448"
+    },
+    "held-source32/scripts/ci/fish-config02-native-source/runtime/scripts/build/build_v2.py": {
+      "bytes": 13242,
+      "mode": 420,
+      "sha256": "37242a5680c0cb587087042455782478dac0f574f977a5f696c97d29eac39b43"
+    },
+    "held-source32/scripts/ci/fish-config02-native-source/runtime/scripts/build/compare_v2.py": {
+      "bytes": 5963,
+      "mode": 420,
+      "sha256": "89c606044b587ea772d5bbab4bad55c09dc23a7080900a9ad51839b2f516215b"
+    },
+    "held-source32/scripts/ci/fish-config02-native-source/runtime/scripts/build/container-entry-v2.sh": {
+      "bytes": 2447,
+      "mode": 420,
+      "sha256": "9be3db97efde70536a81d1c97f9ac69893a6004ab403566f8453704a2a189d2a"
+    },
+    "held-source32/scripts/ci/fish-config02-native-source/runtime/scripts/build/source_materials.py": {
+      "bytes": 7877,
+      "mode": 420,
+      "sha256": "9b0d95d2604ae4689f081283fc671281ce13879fcb146ddf4188873b05c89e5a"
+    },
+    "held-source32/scripts/ci/fish-config02-native-source/runtime/scripts/checks/package_checks.py": {
+      "bytes": 19289,
+      "mode": 420,
+      "sha256": "314e8b4a0920b3f6d93619fc74ad1d63a6210d1b17b925618451b493d2610a1a"
+    },
+    "held-source32/scripts/ci/fish-config02-native-source/runtime/scripts/ci/inputs.lock.json": {
+      "bytes": 328101,
+      "mode": 420,
+      "sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f"
+    },
+    "held-source32/scripts/ci/fish-config02-native-source/runtime/scripts/ci/log_evidence.py": {
+      "bytes": 1708,
+      "mode": 420,
+      "sha256": "a25f0089759c12afae3eea23bab8b22fa05cf5bbaa9eddc1611ce78b0405f8f5"
+    },
+    "held-source32/scripts/ci/fish-config02-native-source/runtime/scripts/ci/native_arm.py": {
+      "bytes": 28877,
+      "mode": 420,
+      "sha256": "8e71ba83e7d5037c6f7772401ec3b872684ccfa8472d855d8d6d3052cb1f41ba"
+    },
+    "held-source32/scripts/ci/fish-config02-native-source/runtime/scripts/ci/old_four_seed.py": {
+      "bytes": 29048,
+      "mode": 420,
+      "sha256": "a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7"
+    },
+    "held-source32/scripts/ci/fish-config02-native-source/runtime/scripts/maintenance/source_cache.py": {
+      "bytes": 14253,
+      "mode": 420,
+      "sha256": "3c922b1c5ea737605d7fd39aa986fa281c50bcf6926660390032e677706e28f3"
+    },
+    "held-source32/scripts/ci/fish-config02-native-source/runtime/scripts/release/source_delivery.py": {
+      "bytes": 16456,
+      "mode": 420,
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+    },
+    "held-source32/scripts/ci/fish-config02-native-source/source-map.json": {
+      "bytes": 6521,
+      "mode": 420,
+      "sha256": "c1ac908dade524987e4b24fbde5d808ade2629edfa8b965b37f85a798abafd64"
+    },
+    "scripts/ci/fish-config02-native-source/successor_v2/README.md": {
+      "bytes": 7787,
+      "mode": 420,
+      "sha256": "1e5719dbbc6632dec9c87687b57689c5cdcbb38c633de92d716284330f326a37"
+    },
+    "scripts/ci/fish-config02-native-source/successor_v2/admission.TEMPLATE.json": {
+      "bytes": 687,
+      "mode": 420,
+      "sha256": "13f73982b3d4504c0e7f4694c882ab602dea8d2452f5316582635d434165be71"
+    },
+    "scripts/ci/fish-config02-native-source/successor_v2/base-read-delta.json": {
+      "bytes": 2252,
+      "mode": 420,
+      "sha256": "a1bda858356162c824ec1a324b271b581a7271400d638964841f9a0b102ad26b"
+    },
+    "scripts/ci/fish-config02-native-source/successor_v2/data.py": {
+      "bytes": 10668,
+      "mode": 420,
+      "sha256": "f3847af69435f08d5303073a6e46230c20dd0dc2a8102a7d8f5cffbaf6847513"
+    },
+    "scripts/ci/fish-config02-native-source/successor_v2/hosted_owner.py": {
+      "bytes": 21849,
+      "mode": 420,
+      "sha256": "4a4fda3a9232fcb87d89e01da47a4e5b50a34df524d16fb80a706b52b7d122f0"
+    },
+    "scripts/ci/fish-config02-native-source/successor_v2/owner-program.json": {
+      "bytes": 2326,
+      "mode": 420,
+      "sha256": "6e2f88507c3e4f4e277e371517820854e27ffb02831b4a996d810bf9785eb139"
+    },
+    "scripts/ci/fish-config02-native-source/successor_v2/payload.py": {
+      "bytes": 4220,
+      "mode": 420,
+      "sha256": "081d93b2f770982fb5275ac195240335dc2f023972d340b84e2b81cce34ca1ce"
+    },
+    "scripts/ci/fish-config02-native-source/successor_v2/policy.json": {
+      "bytes": 804,
+      "mode": 420,
+      "sha256": "bf7c115e2993079faf44941a13ebf83858e187a6f7ddd0564f8ef4063c97a6c8"
+    },
+    "scripts/ci/fish-config02-native-source/successor_v2/retain.py": {
+      "bytes": 3039,
+      "mode": 420,
+      "sha256": "bd7abff2db1602a8da5eafae9ceea8bf83f338dde8b9f7384fac4440f26b1c14"
+    },
+    "scripts/ci/fish-config02-native-source/successor_v2/runtime.TEMPLATE.json": {
+      "bytes": 754,
+      "mode": 420,
+      "sha256": "eecbc1fb2c57c1fb4079a9c731d895173bf066ebccf1945fbc54c25efacc254c"
+    }
+  },
+  "kind": "FISH02_OWNED_HOSTED_SOURCE_V2"
+}
