@@ -5,7 +5,7 @@ import base64,hashlib,json
 from pathlib import Path
 
 HERE=Path(__file__).resolve().parent
-SOURCE65=dict(author_commit='57c0aa8ad61b8128cc7a224030bebbc759a41df3',author_tree='09bd4c22062ca3b4c23019ff3564bd51c860d355',author_lock=dict(bytes=10598,sha256='9324c8e79374ba95e5b2ce37e389b3e5732cf6c079ca6857b35205932ad5a61a'),tree='60d81a3fec1110aa78ba691703fb7922ac7c490b',files=65,bytes=741718,lock=dict(bytes=10598,sha256='da1c8749a281b767f50ca696cf7818d1925aa852057d7de011b4c3ddd8eca75d'),production_bytes_unchanged=True,test_only_amendment=['test_controls.py','source.lock.json'])
+SOURCE65=dict(author_commit='57c0aa8ad61b8128cc7a224030bebbc759a41df3',author_tree='09bd4c22062ca3b4c23019ff3564bd51c860d355',author_lock=dict(bytes=10598,sha256='9324c8e79374ba95e5b2ce37e389b3e5732cf6c079ca6857b35205932ad5a61a'),tree='7ad0d52fdeeeba3314d29201bd28f41766639625',files=65,bytes=742532,lock=dict(bytes=10598,sha256='f787650b1dcd78c4081b544719cd4f1d8d7c67c46da09c495e6c185917c542ac'),production_bytes_unchanged=True,test_only_amendment=['test_controls.py','test_probe_readiness.py','source.lock.json'])
 BASELINE=dict(certificate=dict(bytes=3870,sha256='569d9373d0af561def524d8a573f67c50e7556886b59047ceac4804dfb239d61'),raw=dict(bytes=1610612736,sha256='f69d74fbb0043793c96424d0f91ad2f6fb2d8cf3a72fb94024ea9cc40dae4cd3'),prepared=dict(bytes=58179,sha256='f7b3073f58acce8ab5e21ff61f2182779d24046e1582cda6adb0a3db66b7036e'))
 
 
