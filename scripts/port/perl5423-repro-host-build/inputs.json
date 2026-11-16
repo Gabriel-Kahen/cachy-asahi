@@ -85,7 +85,7 @@
     },
     "scripts/port/perl5423-host-build/inspect_archive.py": {
       "bytes": 7808,
-      "sha256": "48b4875a1ecb0fe940a072e639e2ebb1eff8adadeb32e2864f1cc0c9751fa1ec"
+      "sha256": "2e155e5718e16e50a25679cbd34da19116ff61367293f5e7bbe0d39fa594ec56"
     },
     "scripts/port/perl5423-host-build/provenance.py": {
       "bytes": 2399,

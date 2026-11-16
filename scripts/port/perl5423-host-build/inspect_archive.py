@@ -27,7 +27,7 @@ def need(value,message):
 
 def read_rows(path):
     source=ROOT/'scripts/update/archive_stream.py'
-    need(hashlib.sha256(source.read_bytes()).hexdigest()=='10f1a4c0ac5b98852d9ebb150af28f9ce345c800935a64fa463bc90f72fcb838','existing bounded decoder changed')
+    need(hashlib.sha256(source.read_bytes()).hexdigest()=='7454682feb4b9c93b8b043b801388ce202e4a4a31c1f396d92c54b8de85a0ad0','existing bounded decoder changed')
     api=load('perl_archive_stream',source)
     limits=api.Limits(compressed_bytes=64*1024**2,total_compressed_bytes=64*1024**2,decoded_bytes=160*1024**2,
         members=12000,file_bytes=32*1024**2,window_bytes=128*1024**2,deadline=time.monotonic()+90)

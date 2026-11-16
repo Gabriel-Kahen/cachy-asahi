@@ -78,7 +78,7 @@ def main():
         for name, expected in profile['helpers'].items():
             if pin(HERE / name) != expected: raise ValueError('reused GUI control source changed')
     verify()
-    reader = load('bounded_reader', ROOT / 'scripts/update/archive_stream.py', '10f1a4c0ac5b98852d9ebb150af28f9ce345c800935a64fa463bc90f72fcb838')
+    reader = load('bounded_reader', ROOT / 'scripts/update/archive_stream.py', '7454682feb4b9c93b8b043b801388ce202e4a4a31c1f396d92c54b8de85a0ad0')
     runtime = load('finite_runtime', ROOT / 'scripts/port/fdk-native-stage/runtime.py', '253494be99c21c83743b384b2c06cd1627023ffaf54f0cbbd271bde80572f70a')
     out = args.output.absolute()
     if out.exists() or any(p.is_symlink() for p in (out, *out.parents)): raise ValueError('new private output required')
