@@ -17,7 +17,8 @@ Source32 map. The corrected32-file base is 592443 bytes, map SHA256
 Its two changed leaves are exactly inverted by `base-read-delta.json`; the original
 591897-byte Source32/map dfd91945 remains immutable and is reconstructed in full.
 This maintained successor requires a new minimal Source and public readback; the
-old44-file export is not granted current readiness.
+old45-file export is not granted current readiness. The host-tool successor adds
+one runtime resolver member, yielding a new46-file closed export.
 Actual public commit/ref, job/run, images, receipt hashes and grants remain NULL.
 
 The workflow retains five inputs: external successor `source_map_sha256`, exact
@@ -59,6 +60,31 @@ admission observations plus kernel/storage bounds; they do not reserve host RAM.
 Missing tools, unified cpu/memory/pids controllers, systemd254+ delegation,
 namespace/mount support, finite limits, storage or ordinary runner IDs refuse.
 No software installation, weaker profile or budget fallback is attempted.
+
+The hosted tool resolver checks exactly `/usr/bin/<name>` and `/usr/sbin/<name>`
+for each of the13 required tools; it never falls back to the ambient PATH.
+It records all candidate outcomes before reporting a missing-tool HOLD, including
+the selected canonical path, root ownership, executable/non-writable metadata,
+the complete alias/directory chain and a streamed whole SHA256 (at most256MiB per
+binary,64KiB read chunks). The same identity/alias/body observation is rejoined
+before every controller command and service submission. Read atime is excluded
+from security metadata. A present unsafe/dangling candidate does not silently
+fall through to another candidate. Canonical targets stay in `/usr/bin` or
+`/usr/sbin`; only the named tool, explicit `mkfs.ext4` → `mke2fs`, and versioned
+`python3` aliases are allowed. The canonical mke2fs operand uses `-t ext4`, so
+resolving its alias does not accidentally select the default filesystem type.
+
+Before storage mutation, public `host-tools.json` and owner-report preflight
+facts retain every tool candidate, bounded actual `systemctl --version` output,
+systemd minimum254, kernel controller names, effective capability text, systemd
+runtime-directory presence and loop-control character-device metadata. The
+version probe uses the existing supervised controller command path and budget;
+these facts do not assert that future unit properties, loops, mounts, overlay2
+or the explicit legacy Docker backend have succeeded. Missing actual capability
+still keeps HOLD. No package installation or service probing is done by DATA
+construction or tests. The observed Source45 run43828167701 failed at the old
+`losetup` PATH lookup before any service/loop submission; its clean cleanup and
+`native_pair=NOT RUN` remain historical facts, not native success for this fix.
 
 The Docker backend is explicitly **legacy builder only**, via
 `DOCKER_BUILDKIT=0`, with no fallback if that supported backend is unavailable.
@@ -109,5 +135,6 @@ it is not relabeled as cleaned. Root independently authenticates actual retained
 receipts and the original pair before qualification.
 
 Run `python3 -I -B scripts/ci/fish-config02-native-source/successor_v2/test_data.py`.
+Also run `python3 -I -B scripts/ci/fish-config02-native-source/successor_v2/test_host_tools.py`.
 These fenced tests perform pure plan/JSON/inverse/namespace controls and tiny
 local DATA copies only. Operational acceptance remains NOT RUN.

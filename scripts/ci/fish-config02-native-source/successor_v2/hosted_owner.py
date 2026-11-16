@@ -20,6 +20,7 @@ import time
 
 HERE=Path(__file__).resolve().parent
 s=importlib.util.spec_from_file_location('fish02_v2_data',HERE/'data.py');D=importlib.util.module_from_spec(s);s.loader.exec_module(D)
+s=importlib.util.spec_from_file_location('fish02_v2_host_tools',HERE/'host_tools.py');H=importlib.util.module_from_spec(s);s.loader.exec_module(H)
 LIMIT_FILES=('memory.max','memory.swap.max','pids.max','cpu.max')
 
 
@@ -40,10 +41,14 @@ class Controller:
         self.root,self.out,self.policy,self.nonce,self.uid,self.gid=root,out,policy,nonce,uid,gid
         self.started=time.monotonic();self.end=self.started+1200;self.cleanup_end=self.end+90
         self.cleaning=False;self.commands=[];self.units={};self.pidfds={};self.loop=None;self.mounted=False
+        self.host_facts={};self.tools={}
         path=root/'held-source32'/D.BASE_PREFIX/'runtime/owned_process.py'
         spec=importlib.util.spec_from_file_location('fish02_v2_owned_process',path);self.O=importlib.util.module_from_spec(spec);spec.loader.exec_module(self.O);self.O.prepare()
 
     def run(self,args,seconds=30,check=True):
+        D.need(args and any(row['path']==args[0] for row in self.tools.values()),'qualified absolute controller executable')
+        for row in self.tools.values():
+            if row['path']==args[0]:H.checked(row)
         D.need(len(self.commands)<512,'finite controller command count')
         cap=min(seconds,(self.cleanup_end if self.cleaning else self.end)-time.monotonic())
         D.need(cap>1,'whole owner deadline expired')
@@ -59,15 +64,61 @@ class Controller:
                'natural complete controller child retirement')
         return row['exit'],body
 
+    def tool(self,name):
+        D.need(name in self.tools,'observed required host tool: '+name)
+        return H.checked(self.tools[name])
+
+    def preflight(self):
+        self.host_facts=H.probe_all()
+        self.tools={name:row['selected'] for name,row in self.host_facts['tools'].items() if row['selected'] is not None}
+        facts=self.host_facts
+        facts['observed_epoch']=int(time.time())
+        facts['systemd']={"minimum_version":254,"version":None,"minimum_met":False}
+        if 'systemctl' in self.tools:
+            try:
+                code,raw=self.run([self.tool('systemctl'),'--version'],10,check=False)
+                match=re.match(rb'systemd ([0-9]+)\b',raw)
+                version=int(match[1]) if match and code==0 else None
+                facts['systemd'].update(exit=code,output=D.pin(raw),text=raw[:4096].decode('utf-8','replace'),
+                                         version=version,minimum_met=version is not None and version>=254)
+            except Exception as error:
+                facts['systemd']['error']=dict(type=type(error).__name__,message=str(error)[:240])
+        capabilities={}
+        for name,path in (('cgroup_controllers',Path('/sys/fs/cgroup/cgroup.controllers')),
+                          ('effective_capabilities',Path('/proc/self/status'))):
+            try:
+                # procfs/sysfs report synthetic sizes; bound the read itself.
+                with path.open('rb') as stream:raw=stream.read(65537)
+                D.need(len(raw)<=65536,'bounded kernel capability facts')
+                capabilities[name]=raw.decode().split() if name=='cgroup_controllers' else next(line for line in raw.decode().splitlines() if line.startswith('CapEff:'))
+            except Exception as error:capabilities[name]=dict(error=type(error).__name__)
+        capabilities['systemd_runtime_directory']=Path('/run/systemd/system').is_dir()
+        try:
+            info=Path('/dev/loop-control').stat()
+            capabilities['loop_control']=dict(present=True,character_device=stat.S_ISCHR(info.st_mode),uid=info.st_uid,gid=info.st_gid,mode=stat.S_IMODE(info.st_mode))
+        except OSError as error:capabilities['loop_control']=dict(present=False,error=type(error).__name__)
+        facts['capabilities']=capabilities
+        write(self.out/'host-tools.json',facts)
+        D.need(not facts['missing_or_invalid'],'existing required host tools missing/invalid: '+','.join(facts['missing_or_invalid']))
+        D.need(facts['systemd']['minimum_met'],'actual systemd254+ required for DelegateSubgroup')
+        D.need(type(capabilities['cgroup_controllers']) is list and {'cpu','memory','pids'}<=set(capabilities['cgroup_controllers']),
+               'unified kernel controllers required')
+        D.need(capabilities['systemd_runtime_directory'],'actual systemd runtime directory required')
+        D.need(capabilities['loop_control'].get('character_device') is True,'existing loop-control character device required')
+
     def show(self,kind):
-        _,raw=self.run(['/usr/bin/systemctl','show',D.unit(self.nonce,kind),'--no-pager',
+        _,raw=self.run([self.tool('systemctl'),'show',D.unit(self.nonce,kind),'--no-pager',
                         '--property=LoadState,ActiveState,SubState,Result,MainPID,ControlGroup,ExecMainCode,ExecMainStatus,Description'],check=False)
         result=dict(line.split('=',1) for line in raw.decode().splitlines() if '=' in line)
         return result
 
     def start(self,kind,command,uid=None,gid=None):
         prior=self.show(kind);D.need(prior.get('LoadState')=='not-found','fresh exclusive unit name')
+        D.need(any(row['path']==command[0] for row in self.tools.values()),'qualified observed service executable')
+        for row in self.tools.values():
+            if row['path']==command[0]:H.checked(row)
         argv=D.service_args(self.nonce,kind,self.policy[kind],command,self.out/'volume'/(kind+'.log'),uid,gid)
+        argv[0]=self.tool('systemd-run')
         argv.insert(3,'--description=cachy-fish02-owned-'+self.nonce+'-'+kind)
         # Preserve uncertain submission in cleanup, even when systemd-run itself fails.
         self.units[kind]=dict(submitted=True,cgroup=None)
@@ -82,7 +133,7 @@ class Controller:
                 D.need(row['Description']=='cachy-fish02-owned-'+self.nonce+'-'+kind and row['ControlGroup']==expected
                        and cgroup==(expected+'/daemon' if kind=='daemon' else expected),'same exact owned service/cgroup')
                 executable=Path('/proc/'+str(pid)+'/exe').resolve()
-                D.need(executable==Path('/usr/bin/dockerd' if kind=='daemon' else '/usr/bin/python3').resolve(),'exact service executable')
+                D.need(executable==Path(self.tool('dockerd' if kind=='daemon' else 'python3')),'exact observed service executable')
                 limits={k:(Path('/sys/fs/cgroup'+expected)/k).read_text().strip() for k in LIMIT_FILES}
                 D.domain(limits,self.policy[kind]);self.pidfds[kind]=fd
                 actual=dict(pid=pid,starttime=start,cgroup=expected,limits=limits)
@@ -92,26 +143,24 @@ class Controller:
         raise TimeoutError('owned service startup deadline')
 
     def docker(self,*args,check=True):
-        return self.run(['/usr/bin/docker','--host=unix://'+str(self.out/'volume/docker.sock'),*args],30,check)
+        return self.run([self.tool('docker'),'--host=unix://'+str(self.out/'volume/docker.sock'),*args],30,check)
 
     def setup(self):
+        self.preflight()
         p=self.policy;available=int(next(s.split()[1] for s in Path('/proc/meminfo').read_text().splitlines() if s.startswith('MemAvailable:')))*1024
         D.need(available>=p['minimum_available_bytes'] and shutil.disk_usage(self.out).free>=p['minimum_disk_bytes'],
                'new separately reviewed aggregate memory/storage admission')
         D.need(p['minimum_available_bytes']>=p['owner']['memory_bytes']+p['daemon']['memory_bytes']+p['host_reserve_bytes']
                and p['minimum_disk_bytes']>=p['storage_bytes']+p['host_reserve_bytes'],'aggregate policy inequality')
-        for name in ('systemd-run','systemctl','dockerd','docker','fallocate','losetup','mkfs.ext4','mount','umount','python3','gpg','bsdtar','zstd'):
-            D.need(shutil.which(name,path='/usr/bin:/bin') is not None,'existing required host tool: '+name)
-        D.need({'cpu','memory','pids'}<=set(Path('/sys/fs/cgroup/cgroup.controllers').read_text().split()),'unified kernel controllers required')
         image=self.out/'storage.img';fd=os.open(image,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600);os.close(fd)
-        self.run(['/usr/bin/fallocate','--length',str(p['storage_bytes']),'--',str(image)],60)
+        self.run([self.tool('fallocate'),'--length',str(p['storage_bytes']),'--',str(image)],60)
         D.need(image.stat().st_size==p['storage_bytes'] and image.stat().st_blocks*512>=p['storage_bytes'],'physically allocated fixed storage reservation')
-        _,raw=self.run(['/usr/bin/losetup','--find','--show','--nooverlap',str(image)])
+        _,raw=self.run([self.tool('losetup'),'--find','--show','--nooverlap',str(image)])
         device=raw.decode().strip();D.need(re.fullmatch('/dev/loop[0-9]+',device),'owned loop device')
         self.loop=device;self.loop_identity()
-        self.run(['/usr/bin/mkfs.ext4','-q','-m','0',device],60)
+        self.run([self.tool('mkfs.ext4'),'-t','ext4','-q','-m','0',device],60)
         volume=self.out/'volume';volume.mkdir(mode=0o755)
-        self.run(['/usr/bin/mount','-t','ext4','-o','nodev,nosuid',device,str(volume)]);self.mounted=True
+        self.run([self.tool('mount'),'-t','ext4','-o','nodev,nosuid',device,str(volume)]);self.mounted=True
         # Work and daemon storage share the same finite filesystem; no sparse quota claim.
         for name in ('work','data','exec'):(volume/name).mkdir(mode=0o700)
         os.chown(volume/'work',self.uid,self.gid)
@@ -119,7 +168,7 @@ class Controller:
         (volume/'exec/tmp').mkdir(mode=0o700)
         write(volume/'daemon.json',{})
         cg='/system.slice/'+D.unit(self.nonce,'daemon')+'/containers'
-        argv=['/usr/bin/dockerd','--config-file='+str(volume/'daemon.json'),'--host=unix://'+str(volume/'docker.sock'),
+        argv=[self.tool('dockerd'),'--config-file='+str(volume/'daemon.json'),'--host=unix://'+str(volume/'docker.sock'),
               '--data-root='+str(volume/'data'),'--exec-root='+str(volume/'exec'),'--pidfile='+str(volume/'docker.pid'),
               '--group='+grp.getgrgid(self.gid).gr_name,'--storage-driver=overlay2','--exec-opt=native.cgroupdriver=cgroupfs',
               '--cgroup-parent='+cg,'--default-cgroupns-mode=private','--bridge=none','--iptables=false',
@@ -139,7 +188,7 @@ class Controller:
         daemon['engine_id']=info['ID'];return daemon,available,shutil.disk_usage(volume).free
 
     def loop_identity(self):
-        _,raw=self.run(['/usr/bin/losetup','--json','--list','--output','NAME,BACK-FILE',self.loop])
+        _,raw=self.run([self.tool('losetup'),'--json','--list','--output','NAME,BACK-FILE',self.loop])
         devices=D.decode(raw)['loopdevices']
         D.need(len(devices)==1 and devices[0]['name']==self.loop and devices[0]['back-file']==str(self.out/'storage.img'),
                'same exact owned loop backing file')
@@ -150,7 +199,7 @@ class Controller:
         if row.get('LoadState')!='not-found':
             D.need(row.get('Description')=='cachy-fish02-owned-'+self.nonce+'-'+kind,'owned unit before stop')
             if owned.get('cgroup'):D.need(row.get('ControlGroup') in ('',owned['cgroup']),'same unit cgroup before stop')
-            self.run(['/usr/bin/systemctl','stop',D.unit(self.nonce,kind)],20)
+            self.run([self.tool('systemctl'),'stop',D.unit(self.nonce,kind)],20)
         for _ in range(2):
             current=self.show(kind)
             D.need(current.get('ActiveState') in ('inactive','failed') or current.get('LoadState')=='not-found','owned service absent')
@@ -181,7 +230,7 @@ class Controller:
             try:
                 image=self.out/'storage.img'
                 if image.exists():
-                    _,raw=self.run(['/usr/bin/losetup','--json','--list','--associated',str(image),'--output','NAME,BACK-FILE'])
+                    _,raw=self.run([self.tool('losetup'),'--json','--list','--associated',str(image),'--output','NAME,BACK-FILE'])
                     found=D.decode(raw)['loopdevices'];D.need(len(found)<=1,'at most one exclusively owned loop association')
                     if found:
                         D.need(found[0]['back-file']==str(image) and re.fullmatch('/dev/loop[0-9]+',found[0]['name']),'same associated loop backing file')
@@ -190,10 +239,10 @@ class Controller:
                 self.mounted=volume.exists() and os.path.ismount(volume)
                 if self.mounted:
                     D.need(self.loop is not None and volume.stat().st_dev==Path(self.loop).stat().st_rdev,'same exact owned mounted block device')
-                    self.run(['/usr/bin/umount',str(self.out/'volume')],20);self.mounted=False
+                    self.run([self.tool('umount'),str(self.out/'volume')],20);self.mounted=False
                 if self.loop:
-                    self.loop_identity();self.run(['/usr/bin/losetup','--detach',self.loop]);self.loop=None
-                    _,raw=self.run(['/usr/bin/losetup','--json','--list','--associated',str(image),'--output','NAME,BACK-FILE'])
+                    self.loop_identity();self.run([self.tool('losetup'),'--detach',self.loop]);self.loop=None
+                    _,raw=self.run([self.tool('losetup'),'--json','--list','--associated',str(image),'--output','NAME,BACK-FILE'])
                     D.need(not D.decode(raw)['loopdevices'],'owned loop backing association absent after detach')
                 image=self.out/'storage.img'
                 if image.exists():image.unlink()
@@ -238,7 +287,7 @@ def main():
                     admission_sha256=a.admission_sha256,runtime_sha256=a.runtime_sha256,environment=allowed,
                     marker=str(marker),output=str(work/'fish02-native'))
         launch=work/'launch.json';write(launch,config,a.runner_uid,a.runner_gid)
-        payload=owner.start('owner',['/usr/bin/python3','-I','-B',str(HERE/'payload.py'),str(launch)],a.runner_uid,a.runner_gid)
+        payload=owner.start('owner',[owner.tool('python3'),'-I','-B',str(HERE/'payload.py'),str(launch)],a.runner_uid,a.runner_gid)
         observed=dict(kind='FISH02_ACTUAL_HOSTED_DOMAINS_V2',source=actual['source'],ref=actual['ref'],nonce=actual['nonce'],
                       source_map_sha256=a.source_map_sha256,run=os.environ['GITHUB_RUN_ID'],attempt=1,job=os.environ['GITHUB_JOB'],
                       owner=payload,daemon=daemon,endpoint='unix://'+str(volume/'docker.sock'),storage_bytes=policy['storage_bytes'],
@@ -266,6 +315,7 @@ def main():
         report.update(status='PAIR_PASSED_PENDING_EXTERNAL_CLEANUP',native_pair=inherited['status'])
     except BaseException as error:report['failure']=dict(type=type(error).__name__,message=str(error)[:500])
     finally:
+        report['host_preflight']=owner.host_facts
         signal.setitimer(signal.ITIMER_REAL,90)
         try:report['cleanup']=owner.cleanup()
         except BaseException as error:report['cleanup']=dict(errors=[dict(type=type(error).__name__)])

@@ -248,10 +248,12 @@ class Controls(unittest.TestCase):
     def test_uncertain_service_submission_is_owned_before_transport(self):
         value=O.Controller.__new__(O.Controller)
         value.nonce='b'*32;value.policy=POLICY;value.out=Path(self.temp.name);value.units={}
+        value.tools={name:dict(path='/usr/bin/'+name) for name in ('systemd-run','dockerd')}
         value.show=lambda kind: {'LoadState':'not-found'}
         def fail(*args,**kwargs):raise RuntimeError('synthetic systemd transport uncertainty')
         value.run=fail
-        with self.assertRaises(RuntimeError):value.start('daemon',['/usr/bin/dockerd'])
+        with patch.object(O.H,'checked',side_effect=lambda row:row['path']),self.assertRaises(RuntimeError):
+            value.start('daemon',['/usr/bin/dockerd'])
         self.assertEqual(value.units,{'daemon':{'submitted':True,'cgroup':None}})
 
     def test_cleanup_keeps_first_error_and_attempts_both_owned_units(self):
