@@ -22,6 +22,7 @@ import zlib
 
 HERE=Path(__file__).resolve().parent
 GENUINE_SOURCE=None  # Selected only by an explicit --genuine-source CLI argument.
+GENUINE_DIAGNOSTIC_SOURCE=None  # Separate explicit Source188 DATA audit; never executed.
 
 
 def load(name,path):
@@ -6653,11 +6654,22 @@ def source_data_git_tree(files,rows):
 
 
 def genuine_source27_files(root):
-    """Read one explicitly selected public Source as opaque DATA, with no Git or archive decoding."""
+    return genuine_source_files(root,trusted_model_bytes('genuine_source27_map'),179,45286259,'291a338381f910158d80a7b3da694b9d20fb866b')
+
+
+def genuine_diagnostic_source_files(root):
+    """Authenticate only an explicitly selected Source188 tree, without importing its code."""
+    wanted=(Path(root)/'source.lock.json').read_bytes()
+    if pin(wanted)!=dict(bytes=37091,sha256='ba06925244cd010ab2223325e2e324d4d3b469befbea5e7eb8e0de68383d4908'):raise ValueError('fixed Source188 external map')
+    return genuine_source_files(root,wanted,188,45544942,'50bf7aab34ee5497f12d078709354aa69b0cdb9d')
+
+
+def genuine_source_files(root,wanted,count,total,tree):
+    """Read explicitly selected public Source as opaque DATA, with no Git or archive decoding."""
     root=Path(root)
     if not root.is_absolute()or root!=root.resolve(strict=True)or any(path.is_symlink()for path in (root,*root.parents)):raise ValueError('genuine Source requires ordinary canonical absolute directory')
-    wanted=trusted_model_bytes('genuine_source27_map');lock=json.loads(wanted);rows=dict(lock['files']);rows.update({'source.lock.json':dict(mode=0o644,**pin(wanted)),'source-map.json':dict(mode=0o644,**pin(wanted))})
-    if len(rows)!=179 or sum(row['bytes']for row in rows.values())!=45286259:raise ValueError('fixed genuine Source179 metadata')
+    lock=json.loads(wanted);rows=dict(lock['files']);rows.update({'source.lock.json':dict(mode=0o644,**pin(wanted)),'source-map.json':dict(mode=0o644,**pin(wanted))})
+    if len(rows)!=count or sum(row['bytes']for row in rows.values())!=total:raise ValueError('fixed genuine Source metadata')
     directories={''}
     for name in rows:
         parts=Path(name).parts
@@ -6686,7 +6698,7 @@ def genuine_source27_files(root):
         finally:os.close(fd)
     namespace()
     if result['source.lock.json']!=wanted or result['source-map.json']!=wanted:raise ValueError('genuine Source exact external map')
-    if source_data_git_tree(result,rows)!='291a338381f910158d80a7b3da694b9d20fb866b':raise ValueError('genuine Source exact independently recomputed tree')
+    if source_data_git_tree(result,rows)!=tree:raise ValueError('genuine Source exact independently recomputed tree')
     return result
 
 
@@ -7810,8 +7822,122 @@ class GenuineSource27(unittest.TestCase):
                 with patch.object(Path,'read_bytes',side_effect=AssertionError('tamper parser may not read external paths')),self.assertRaises((ValueError,KeyError)):reader.source_data(selected,altered,delegated=True)
 
 
+class DiagnosticFailureData(unittest.TestCase):
+    """Portable public-safe DATA parser controls; no held actor or runtime admission."""
+    def setUp(self):self.reader=load('FENCED_diagnostic_data_reader',HERE/'reader_current_v3.py')
+    def record(self,available=True):
+        packet=dict(schema=1,kind='CURRENT_MATERIAL_STAGE_FAILURE_V1',phase='DOWNLOAD',reason='COMMAND_FAILED',command_ordinal=26)if available else None
+        return dict(schema=1,kind='CURRENT_MATERIAL_STAGE_FAILURE_RECORD_V1',status='DIAGNOSTIC_ONLY',availability='AVAILABLE'if available else'UNAVAILABLE',packet=packet,request_pin=pin(b'FENCED PUBLIC REQUEST'),context_pin=pin(b'FENCED PUBLIC CONTEXT'),stdout_pin=pin(b''),stderr_pin=pin(encode(packet))if available else None,retirement_pin=pin(b'FENCED PUBLIC RETIREMENT'),Root_final_acceptance=None,independent_component_acceptance=False,hardware_acceptance=False,release_acceptance=False)
+    def test_available_and_unavailable_are_diagnostic_only(self):
+        for available in (True,False):
+            value=self.record(available);pins={name:value[name]for name in ('request_pin','context_pin','stdout_pin','stderr_pin','retirement_pin')}
+            with patch.object(Path,'read_bytes',side_effect=AssertionError('diagnostic parser must remain pure DATA')):
+                parsed=self.reader.diagnostic_failure_record(encode(value),expected_pins=pins)
+                self.reader.delegated_public_body(encode(value))
+            self.assertEqual(parsed,dict(value,Root_authentication=False,Root_acceptance=None,native_acceptance=False))
+            for name in pins:
+                altered=copy.deepcopy(pins);altered[name]=pin(b'FENCED OTHER OBSERVATION')
+                with self.subTest(available=available,expected_pin=name),self.assertRaises(ValueError):self.reader.diagnostic_failure_record(encode(value),expected_pins=altered)
+    def test_public_bodies_refuse_raw_secrets_and_forged_packet_fields(self):
+        self.reader.delegated_public_body(encode(self.record()['packet']))
+        for raw in (b'GITHUB_TOKEN=FENCED_SECRET\n',b'Authorization: Bearer FENCED_SECRET\n',b'AWS_SECRET_ACCESS_KEY=FENCED_SECRET\n',b'-----BEGIN PGP PRIVATE KEY BLOCK-----\nFENCED\n',b'-----BEGIN RSA PRIVATE KEY-----\nFENCED\n'):
+            with self.subTest(prefix=raw.splitlines()[0]),self.assertRaises(ValueError):self.reader.delegated_public_body(raw)
+        for scope in ('record','packet'):
+            value=self.record()if scope=='record'else self.record()['packet'];value['exception']='FENCED_SECRET'
+            with self.subTest(scope=scope),self.assertRaises(ValueError):self.reader.delegated_public_body(encode(value))
+    def test_finite_packets_and_ordinal_boundaries(self):
+        phases=('ENTRY','AUTHORIZE','SOURCE','NATIVE_CONTEXT','INPUTS','HELPERS','TOOLS','STORAGE','SCOPE','TRANSPORT_PUBLIC14','TRANSPORT_NATIVE248','PRIVATE_SEED','PUBLIC14_PREPARE','NATIVE248_PREPARE','DOWNLOAD','COMPLETE517','FINALIZE','CHILD')
+        for phase in phases:
+            for ordinal in (None,0,26):
+                value=self.record();value['packet'].update(phase=phase,reason='PHASE_FAILED'if ordinal is None else'COMMAND_FAILED',command_ordinal=ordinal);value['stderr_pin']=pin(encode(value['packet']))
+                with self.subTest(phase=phase,ordinal=ordinal):self.reader.diagnostic_failure_record(encode(value))
+        for field,values in dict(schema=(True,2),kind=('OTHER',),phase=('download','UNKNOWN','/private/FENCED_TOKEN'),reason=('FENCED_SECRET','VALIDATION_REFUSED'),command_ordinal=(True,False,-1,27,1.5,'0')).items():
+            for changed in values:
+                value=self.record();value['packet'][field]=changed;value['stderr_pin']=pin(encode(value['packet']))
+                with self.subTest(field=field,value=changed),self.assertRaises(ValueError):self.reader.diagnostic_failure_record(encode(value))
+    def test_closed_schema_canonical_pins_and_no_acceptance(self):
+        original=self.record()
+        mutations={'unknown_field':lambda v:v.update(exception='FENCED_SECRET'), 'packet_secret':lambda v:v['packet'].update(stderr='FENCED_SECRET'), 'record_schema_bool':lambda v:v.update(schema=True), 'record_kind':lambda v:v.update(kind='OTHER'), 'status':lambda v:v.update(status='ACCEPTED'), 'availability':lambda v:v.update(availability='NOT_OBSERVED'), 'stderr_mismatch':lambda v:v.update(stderr_pin=pin(b'FENCED RAW STDERR')), 'missing_packet':lambda v:v.update(packet=None), 'unavailable_packet':lambda v:v.update(availability='UNAVAILABLE'), 'pin_extra':lambda v:v['request_pin'].update(path='/private/FENCED'), 'pin_bool':lambda v:v['context_pin'].update(bytes=True), 'pin_negative':lambda v:v['context_pin'].update(bytes=-1), 'pin_digest':lambda v:v['context_pin'].update(sha256='A'*64), 'stream_oversize':lambda v:v['stdout_pin'].update(bytes=1024**2+1)}
+        for name in ('Root_final_acceptance','independent_component_acceptance','hardware_acceptance','release_acceptance'):
+            mutations['forged_'+name]=lambda v,name=name:v.update({name:True})
+            if name!='Root_final_acceptance':mutations['integer_'+name]=lambda v,name=name:v.update({name:0})
+        for name,mutate in mutations.items():
+            value=copy.deepcopy(original);mutate(value)
+            # Rehash public packet claims: finite schema and acceptance refusal still apply.
+            if name=='packet_secret':value['stderr_pin']=pin(encode(value['packet']))
+            with self.subTest(mutation=name),self.assertRaises(ValueError):self.reader.diagnostic_failure_record(encode(value))
+        raw=encode(original)
+        for malformed in (raw+b' ',json.dumps(original).encode(),b' '*4097,b'{}\n',b'{"schema":1,"schema":1}\n'):
+            with self.subTest(raw_length=len(malformed)),self.assertRaises(ValueError):self.reader.diagnostic_failure_record(malformed)
+        value=self.record(False);value.update(stdout_pin=None,retirement_pin=None);self.reader.diagnostic_failure_record(encode(value))
+
+
+class GenuineDiagnosticSource188(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        if GENUINE_DIAGNOSTIC_SOURCE is None:raise unittest.SkipTest('explicit public Source188 fixture required: --genuine-diagnostic-source ABS_PATH')
+        cls.files=genuine_diagnostic_source_files(GENUINE_DIAGNOSTIC_SOURCE)
+    def setUp(self):
+        self.reader=load('FENCED_genuine_diagnostic_source_auditor',HERE/'reader_current_v3.py');self.family='scripts/ci/first-login-enrollment-native-source';self.prefix=self.family+'/successor_v5_source/';self.program=json.loads(self.files[self.prefix+'program.json'])
+        paths=dict(profile=self.family+'/successor_v2/profile.json',program=self.prefix+'program.json',**{role:self.program['roles'][role]['member']for role in ('policy','retention','encoder')})
+        self.expected=dict(source_lock_pin=pin(self.files['source.lock.json']),binding=dict(source_lock=pin(self.files['source.lock.json'])),source={role:dict(path=name,**pin(self.files[name]))for role,name in paths.items()},fingerprint='D9D7A9FC25B9914CF6F2CE55952AEDD8A209B4C0',resources=RESOURCES,reader_pin=pin((HERE/'reader_current_v3.py').read_bytes()),stage='backend')
+    def parse(self,expected,files):
+        with patch.object(Path,'read_bytes',side_effect=AssertionError('Source programs and historical paths stay opaque DATA')):return self.reader.source_data(expected,files,delegated=True)
+    def test_relocated_source188_registry_and_exact_inverses_are_data_only(self):
+        files=self.files;program=self.program;lock=json.loads(files['source.lock.json'])
+        # Physically relocate the public leaves; selectors must use members, never recorded host paths.
+        with tempfile.TemporaryDirectory(prefix='FENCED-relocated-Source188-')as temporary:
+            root=Path(temporary);rows=dict(lock['files']);rows.update({name:dict(mode=0o644)for name in ('source.lock.json','source-map.json')})
+            for name,raw in files.items():
+                path=root/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(raw);path.chmod(rows[name]['mode'])
+            relocated=genuine_diagnostic_source_files(root);profile,parsed,policy=self.parse(self.expected,relocated)
+        self.assertEqual(relocated,files)
+        self.assertEqual(parsed,program);self.assertEqual((program['schema'],len(program['roles']),len(program['delegation_programs']),len(program['staging_materials'])),(5,27,25,5));self.assertEqual(pin(files[self.prefix+'program.json']),dict(bytes=14642,sha256='d2ba5333ae8364fa8ee2fb3709f362b2025fc060593a433f5260eda5ff47b169'))
+        frozen={key:program['roles']['public_reader'][key]for key in ('bytes','sha256')};self.assertEqual(frozen,dict(bytes=248531,sha256='4f3ddd10cbe8c008254985e6ab82f8f3d8fa8c0b579d89c3d70c2dc70d399724'));self.assertNotEqual(frozen,self.expected['reader_pin'])
+        self.assertTrue(all(value is None for value in lock['actual'].values()));self.assertTrue(all(value is None for value in parsed['actual'].values()));self.assertIsNone(policy['material_domain_executor_current_v3']['Root_issuance'])
+        projection=self.reader.material_projection_data(files['inputs/delegated-materials-v4.json'],files['inputs/material-staging-materials-v4.json'],program);self.assertEqual(len(projection['materials']),64);self.assertFalse(projection['Root_authentication'])
+        inverse=json.loads(files[self.prefix+'inverse.json']);self.assertEqual((inverse['basis']['files'],inverse['basis']['bytes'],inverse['basis']['tree']),(179,45330627,'5128864b3c17f230d5045361014b41ce31b72767'));self.assertIsNone(inverse['actual_acceptance'])
+        restored={name:raw for name,raw in files.items()if name not in set(inverse['remove'])|{'source.lock.json','source-map.json'}}
+        for target,archived in inverse['restore'].items():restored[target]=files[archived]
+        raw=files['provenance/v5/source179-map.json'];self.assertEqual(pin(raw),inverse['basis']['source_map']);restored['source.lock.json']=restored['source-map.json']=raw
+        rows=dict(json.loads(raw)['files']);rows.update({name:dict(mode=0o644,**pin(raw))for name in ('source.lock.json','source-map.json')});self.assertEqual(set(restored),set(rows));self.assertEqual(len(restored),179);self.assertEqual(sum(map(len,restored.values())),45330627);self.assertTrue(all(pin(body)=={key:rows[name][key]for key in ('bytes','sha256')}for name,body in restored.items()));self.assertEqual(source_data_git_tree(restored,rows),inverse['basis']['tree'])
+        prefix=self.family+'/successor_v4_source/';inverse139=json.loads(restored[prefix+'inverse.json']);raw139=restored['provenance/v4/v3-source-map.json'];original={name:body for name,body in restored.items()if name not in set(inverse139['remove'])|{'source.lock.json','source-map.json'}};original['source.lock.json']=original['source-map.json']=raw139
+        rows139=dict(json.loads(raw139)['files']);rows139.update({name:dict(mode=0o644,**pin(raw139))for name in ('source.lock.json','source-map.json')});self.assertEqual(set(original),set(rows139));self.assertEqual((len(original),sum(map(len,original.values()))),(139,43544563));self.assertTrue(all(pin(body)=={key:rows139[name][key]for key in ('bytes','sha256')}for name,body in original.items()));self.assertEqual(source_data_git_tree(original,rows139),'dcab30972b74d62df099d8ae12997dc0e557ff00')
+    def test_rehashed_source188_claims_cannot_authorize_tampering(self):
+        modes=('old_v4_registry','role_missing','role_extra','mapping','provenance','constructor','archive','map','mode','policy','context','authority','selector','inverse','original_body','stager','domain','launcher','program_kind')
+        for mode in modes:
+            with self.subTest(mode=mode):
+                files=dict(self.files);expected=copy.deepcopy(self.expected);program=copy.deepcopy(self.program);lock=json.loads(files['source.lock.json']);changed=set()
+                if mode=='old_v4_registry':
+                    name=self.family+'/successor_v4_source/program.json';expected['source']['program']=dict(path=name,**pin(files[name]))
+                elif mode=='role_missing':program['roles'].pop('private_seed')
+                elif mode=='role_extra':program['roles']['FENCED_extra']=copy.deepcopy(program['roles']['private_seed'])
+                elif mode=='mapping':program['delegation_programs']['materials_stager']=copy.deepcopy(program['delegation_programs']['material_domain_executor'])
+                elif mode=='program_kind':program['kind']='DELEGATED_CURRENT_PROGRAM_REGISTRY_V4'
+                elif mode=='authority':program['actual']['Root_delegation']={}
+                elif mode=='selector':expected['source']['policy']=copy.deepcopy(expected['source']['encoder'])
+                elif mode=='mode':lock['files'][program['roles']['materials_stager']['member']]['mode']=0o755
+                elif mode=='map':lock['actual']['publication']={}
+                else:
+                    if mode=='provenance':name='provenance/v5/rebind.json';value=json.loads(files[name]);value['diagnostics_commit']='0'*40;files[name]=encode(value)
+                    elif mode=='constructor':name=self.prefix+'prepare.py';files[name]+=b'\n# FENCED DATA mutation\n'
+                    elif mode=='archive':name='inputs/public-carrier.tar';files[name]+=b'FENCED TAMPER'
+                    elif mode=='inverse':name=self.prefix+'inverse.json';value=json.loads(files[name]);value['basis']['files']=180;files[name]=encode(value)
+                    elif mode=='original_body':name=next(name for name in files if name.startswith('provenance/v5/original/'));files[name]+=b' '
+                    else:
+                        role={'policy':'policy','context':'context','stager':'materials_stager','domain':'material_domain_executor','launcher':'hosted_launcher'}[mode];name=program['roles'][role]['member'];files[name]+=b'\n# FENCED DATA mutation\n';program['roles'][role].update(pin(files[name]));delegation_role=role
+                        if delegation_role in program['delegation_programs']:program['delegation_programs'][delegation_role]=copy.deepcopy(program['roles'][role])
+                        if role in expected['source']:expected['source'][role].update(pin(files[name]))
+                    changed.add(name)
+                if mode!='old_v4_registry':files[self.prefix+'program.json']=encode(program);changed.add(self.prefix+'program.json');expected['source']['program'].update(pin(files[self.prefix+'program.json']))
+                for name in changed:lock['files'][name].update(pin(files[name]))
+                files['source.lock.json']=files['source-map.json']=encode(lock);expected['source_lock_pin']=expected['binding']['source_lock']=pin(files['source.lock.json'])
+                with self.assertRaises((ValueError,KeyError)):self.parse(expected,files)
+
+
 if __name__=='__main__':
-    arguments=argparse.ArgumentParser(add_help=False);arguments.add_argument('--genuine-source',type=Path)
-    selected,remaining=arguments.parse_known_args();GENUINE_SOURCE=selected.genuine_source
+    arguments=argparse.ArgumentParser(add_help=False);arguments.add_argument('--genuine-source',type=Path);arguments.add_argument('--genuine-diagnostic-source',type=Path)
+    selected,remaining=arguments.parse_known_args();GENUINE_SOURCE=selected.genuine_source;GENUINE_DIAGNOSTIC_SOURCE=selected.genuine_diagnostic_source
     if sys.argv.count('--genuine-source')>1:arguments.error('select at most one genuine Source fixture')
+    if sys.argv.count('--genuine-diagnostic-source')>1:arguments.error('select at most one genuine diagnostic Source fixture')
     unittest.main(argv=[sys.argv[0],*remaining])
