@@ -1,0 +1,48 @@
+name: retained-llvm260-public-proofs
+on:
+  workflow_dispatch:
+    inputs:
+      sourceRef:
+        description: Closed eight-file DATA branch (refs/heads/codex/...)
+        required: true
+        type: string
+      sourceCommit:
+        description: Exact 40-hex DATA Source commit
+        required: true
+        type: string
+      manifestSHA:
+        description: Root-pinned whole manifest.json SHA256
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  proofs:
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.ref == 'refs/heads/main' && github.workflow_ref == 'Gabriel-Kahen/cachy-asahi/.github/workflows/retained-llvm260-proofs.yml@refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout exact trusted main collector
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.workflow_sha }}
+          persist-credentials: false
+          sparse-checkout: scripts/ci/retained-llvm260-proofs
+      - name: Read pinned Source blobs only
+        id: collect
+        env:
+          SOURCE_REF: ${{ inputs.sourceRef }}
+          SOURCE_COMMIT: ${{ inputs.sourceCommit }}
+          MANIFEST_SHA: ${{ inputs.manifestSHA }}
+        run: |
+          timeout --signal=KILL 60s python3 -I scripts/ci/retained-llvm260-proofs/collect.py \
+            --source-ref "$SOURCE_REF" --source-commit "$SOURCE_COMMIT" --manifest-sha256 "$MANIFEST_SHA"
+      - name: Retain seven public TEST proof files
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: llvm260-root-proofs-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ steps.collect.outputs.proof_directory }}/*
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 3
+          overwrite: false
