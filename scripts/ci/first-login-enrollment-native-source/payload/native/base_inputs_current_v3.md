@@ -72,7 +72,7 @@ public keyring pins and their immutable upstream keyring commit join the lock.
 This is a metadata join, not fresh GPG authentication. Real separately issued
 current public trust remains a required caller input.
 
-The final committed `67c7460d` image consumes the explicit bootstrap profile and
+The committed `bc5df257` image consumes the explicit bootstrap profile and
 fixed8 references. Portable controls feed genuine committed lock/profile/factory
 and inventory metadata into that exact image's base selector. The provider
 preserves the original lock and returns the16 supplemental

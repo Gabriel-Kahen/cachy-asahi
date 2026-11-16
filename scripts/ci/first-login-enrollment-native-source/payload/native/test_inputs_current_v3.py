@@ -21,7 +21,7 @@ def module(name,path):
     spec=importlib.util.spec_from_file_location(name,path);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);return m
 A=module('current_inputs_controls',HERE/'inputs_current_v3.py')
 IMAGE=Path(os.environ.get('CACHY_CURRENT_INPUTS_IMAGE',str(HERE/'image_current_v3.py')))
-IMAGE_PIN=dict(bytes=55441,sha256='676528c0bdc254e3371a47e45bd9a9f687a8ed6e8f4483741f5ffcdd624887d9') # committed67c7460d
+IMAGE_PIN=dict(bytes=55783,sha256='f4e590532d7f6115f830215810f9dee5f2a1eb714351a9a7e572d22c5a255f90') # committedbc5df257
 assert A.pin(IMAGE.read_bytes())==IMAGE_PIN,'exact committed signed341 plus fixed8 image consumer'
 I=module('actual_committed_image_selected_inputs',IMAGE)
 

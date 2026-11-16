@@ -8,8 +8,8 @@ API `CURRENT_ONBOARDING_INPUTS_V3` belongs to the new Source program descriptor
 `programs.inputs_assembler`. The constructor/coordinator must include its exact
 committed body and both validator entrypoints below. This increment
 changes no constructor, owner, image, policy, Source packet, or shared manifest.
-The fixture accepts only the final committed `67c7460d` image body
-(55441 bytes, SHA256 `676528c0bdc254e3371a47e45bd9a9f687a8ed6e8f4483741f5ffcdd624887d9`),
+The fixture accepts only the committed `bc5df257` image body
+(55783 bytes, SHA256 `f4e590532d7f6115f830215810f9dee5f2a1eb714351a9a7e572d22c5a255f90`),
 whose context basis is `992cf5b2`. This increment changes no image/executor body.
 
 ```python
@@ -309,7 +309,7 @@ the selected-product preflight and real context replay both passed. Evidence is
 `work/current-inputs-context4/actual-context4-component.DATA.json` in this
 worktree. It is component DATA, not actual Root authentication or native work.
 
-The tests now pin only the final `67c7460d` image listed above.
+The tests now pin only the `bc5df257` image listed above.
 `CACHY_CURRENT_INPUTS_IMAGE` selects that exact file for local verification;
 any other body refuses before import. Both Python versions were checked against
 that image selector. This supplies no native image or Root authentication credit.
