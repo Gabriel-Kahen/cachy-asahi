@@ -66,6 +66,18 @@ class Controls(unittest.TestCase):
         with self.assertRaises((ValueError, KeyError)):
             A.validate_owner_inputs_v3(inputs=inner, delegation={}, source_root=NATIVE)
 
+    def test_actual_assembler_and_constructor_select_same_five_staging_materials(self):
+        A = self.load('inputs_current_v3')
+        spec = importlib.util.spec_from_file_location('PURE_SEAM_constructor', HERE/'prepare.py')
+        P = importlib.util.module_from_spec(spec);spec.loader.exec_module(P)
+        self.assertEqual(P.STAGING_MATERIALS, A.STAGING_MATERIALS)
+        self.assertEqual(A.STAGING_TABLE, 'inputs/material-staging-materials-v4.json')
+        self.assertEqual(A.REGISTRY, P.PREFIX+'/program.json')
+        self.assertEqual(P.ALIASES, A.ALIASES)
+        value = P.closure_template(with_host_prerequisites=True, with_material_staging=True)
+        self.assertEqual(set(value['staging_materials']), set(A.STAGING_MATERIALS))
+        self.assertTrue(all(row is None for row in value['staging_materials'].values()))
+
     def test_actual_launcher_canonical_wrapper_reaches_missing_descriptor_refusal(self):
         L = self.load('hosted_current_v3')
         with tempfile.TemporaryDirectory(prefix='PURE-current-seam-') as temporary:
@@ -124,18 +136,26 @@ class Controls(unittest.TestCase):
 
     def test_actual_reader_selects_current_constructor_whole_body(self):
         R = self.load('reader_current_v3')
-        # Evaluate only the real Reader's single pure version-selection expression.
-        # Several historical constructor pins coexist; membership alone would
-        # hide selecting the wrong one for the current producer.
+        # Evaluate the actual Reader's pure current139 selector and accepted
+        # version expression. Membership alone could hide taking a historical
+        # inverse path for the new common constructor.
         tree = ast.parse(Path(R.__file__).read_bytes())
-        expressions = [node.value for node in ast.walk(tree) if isinstance(node, ast.Assign) and
-                       any(isinstance(target, ast.Name) and target.id == 'constructor_pin' for target in node.targets)]
-        self.assertEqual(len(expressions), 1, 'One actual Reader constructor-version selector')
+        function = next(node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name == 'source_data')
+        def expression(name):
+            values = [node.value for node in ast.walk(function) if isinstance(node, ast.Assign) and
+                      any(isinstance(target, ast.Name) and target.id == name for target in node.targets)]
+            self.assertEqual(len(values), 1, 'One actual Reader selector: '+name)
+            return values[0]
+        raw = (HERE/'prepare.py').read_bytes();actual = pin(raw)
+        prefix = 'scripts/ci/first-login-enrollment-native-source/successor_v4_source/'
         expected = dict(source=dict(retention=pin((NATIVE/'retention_delegated_v4.py').read_bytes())))
-        scope = dict(R.__dict__, expected=expected)
-        selected = eval(compile(ast.Expression(expressions[0]), '<pure-Reader-constructor-selector>', 'eval'), scope)
-        self.assertEqual(selected, pin((HERE/'prepare.py').read_bytes()),
-                         'Current Source constructor must match the independent Reader selected version')
+        scope = dict(R.__dict__, expected=expected, prefix=prefix, files={prefix+'prepare.py':raw})
+        evaluate = lambda value: eval(compile(ast.Expression(value), '<pure-Reader-constructor-selector>', 'eval'), scope)
+        current = expression('source139')
+        self.assertIs(evaluate(current), True, 'Actual constructor must select the exact original139 inverse path')
+        self.assertIn(actual, evaluate(expression('constructors')))
+        scope['files'] = {prefix+'prepare.py':raw+b'\n# changed body'}
+        self.assertIs(evaluate(current), False)
 
     def test_pure_fence_and_no_native_or_Root_acceptance_claim(self):
         for event in ('socket.connect', 'subprocess.Popen', 'os.system', 'os.fork', 'fcntl.flock'):

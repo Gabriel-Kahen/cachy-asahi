@@ -85,13 +85,17 @@ def program(root,row,name):
 def request(path,expected):
     raw=read(path,LIMITS['request_bytes']);need(pin(raw)['sha256']==expected,'external whole Root launch request pin')
     r=decode(raw);need(raw==encoded(r),'canonical Root request')
-    need(set(r)=={'schema','kind','issuer','approved','trusted_main_commit','launcher','delegation_json','delegation_pin','staged_inputs','staged_root','control_name','authorization'},'finite Root launch request schema')
+    need(set(r)in({'schema','kind','issuer','approved','trusted_main_commit','launcher','delegation_json','delegation_pin','staged_inputs','staged_root','control_name','authorization'}, {'schema','kind','issuer','approved','trusted_main_commit','launcher','delegation_json','delegation_pin','staged_inputs','staged_root','control_name','authorization','material_staging'}),'finite Root launch request schema')
     need(type(r['schema'])is int and r['schema']==3 and r['kind']=='ROOT_AUTHORIZED_CURRENT_HOSTED_LAUNCH_V3'
          and r['issuer']=='Root'and r['approved']is True and re.fullmatch('[0-9a-f]{40}',r['trusted_main_commit']or ''),'Root selected private launch only')
     descriptor(r['launcher']);need(type(r['delegation_json'])is str and pin(r['delegation_json'].encode())==whole(r['delegation_pin']),'whole canonical delegation input')
     authorization=dict(jobs_metadata=True,privileged_controller=True,launcher_limits=LIMITS)
     if prerequisite_selected(decode(r['delegation_json'])):authorization.update(host_prerequisites=True,whole_timing=TIMING)
+    if material_selected(r):authorization.update(material_staging=True)
     need(r['authorization']==authorization,'separate explicit finite launcher authorization')
+    if material_selected(r):
+        value=r['material_staging'];need(type(value)is dict and set(value)=={'grant_json','grant_pin','assembler_request'}and type(value['grant_json'])is str and pin(value['grant_json'].encode())==whole(value['grant_pin']),'exact independently whole-pinned Root staging selection')
+        assembly_request(value['assembler_request']);need(r['staged_inputs']is None and r['staged_root']is None,'no pretended preexisting staged bodies on acquisition path');return r
     need(type(r['staged_inputs'])is dict and set(r['staged_inputs'])=={'path','bytes','sha256'},'externally whole-pinned staged input DATA')
     whole({k:r['staged_inputs'][k]for k in('bytes','sha256')});return r
 
@@ -136,7 +140,7 @@ def checked_inputs(r,d,root,H,deadline):
             with os.fdopen(os.dup(fd),'rb')as stream:
                 while block:=stream.read(1024**2):
                     need(time.monotonic()<deadline,'whole finite preflight/intake deadline');size+=len(block);digest.update(block)
-                    need(not re.search(rb'-----BEGIN [A-Z ]*PRIVATE KEY-----',tail+block),'private key material refused');tail=block[-128:]
+                    need(not re.search(rb'-----BEGIN [A-Z ]*PRIVATE KEY(?: BLOCK)?-----',tail+block),'private key material refused');tail=block[-128:]
             key=lambda s:(s.st_dev,s.st_ino,s.st_size,s.st_mode,s.st_nlink,s.st_mtime_ns,s.st_ctime_ns)
             need(dict(bytes=size,sha256=digest.hexdigest())==expected and key(before)==key(os.fstat(fd))==key(p.lstat()),'stable whole required body')
         finally:os.close(fd)
@@ -165,11 +169,15 @@ def boot_pin():
     return pin(raw)
 
 
+def timing_expiry(r,d):
+    return min(d['expires_epoch'],decode(r['material_staging']['grant_json'])['expires_epoch'])if material_selected(r)else d['expires_epoch']
+
+
 def make_timing(plan,context,started):
-    now=time.monotonic();deadline=min(started+7560,now+plan.d['expires_epoch']-time.time())
+    now=time.monotonic();expiry=timing_expiry(plan.request,plan.d);deadline=min(started+7560,now+expiry-time.time())
     value=dict(schema=3,kind=TIMING['kind'],request_pin=pin(encoded(plan.request)),delegation_pin=plan.request['delegation_pin'],
         binding=context['binding'],policy_pin=descriptor(plan.d['policy']),boot_pin=boot_pin(),started_monotonic=started,
-        deadline_monotonic=deadline,expires_epoch=plan.d['expires_epoch'],whole_budget_seconds=7560,**FINAL)
+        deadline_monotonic=deadline,expires_epoch=expiry,whole_budget_seconds=7560,**FINAL)
     validate_timing(plan.request,plan.d,context,value);return value
 
 
@@ -181,7 +189,7 @@ def validate_timing(r,d,context,value):
         and value['policy_pin']==descriptor(d['policy'])and value['boot_pin']==boot_pin(),'actual request/context/policy and same-boot timing binding')
     a,b=value['started_monotonic'],value['deadline_monotonic']
     need(all(type(x)in(int,float)and math.isfinite(x)for x in(a,b))and 0<a<=time.monotonic()<b<=a+7560,'finite actual whole shared deadline')
-    need(value['expires_epoch']==d['expires_epoch']and time.time()<d['expires_epoch']and b<=time.monotonic()+d['expires_epoch']-time.time()+.1,'actual Root expiry bounds whole deadline')
+    need(value['expires_epoch']==timing_expiry(r,d)and time.time()<value['expires_epoch']and b<=time.monotonic()+value['expires_epoch']-time.time()+.1,'actual Root expiry bounds whole deadline')
     need(all(value.get(k)==v for k,v in FINAL.items()),'timing facts never acceptance');return value
 
 
@@ -203,7 +211,7 @@ def timing_args(plan):
 
 def controller_seconds(plan):
     if not prerequisite_selected(plan.d):return 7560
-    p=plan.policy['executor_current_v3'];seconds=math.floor(remaining(plan.timing))-15
+    p=plan.policy['executor_current_v3'];seconds=math.floor(remaining(plan.timing))-15-material_close_seconds(plan)
     need(p['setup_seconds']+p['cleanup_seconds']+1<seconds<=7560,'remaining setup, clipped stage and cleanup within same whole budget')
     return seconds
 
@@ -215,18 +223,22 @@ def available_stage_seconds(plan):
 
 def prerequisite_scope_tools(plan):
     facts=plan.E.probe_tools();need(set(facts['missing_or_invalid'])<={'bsdtar'},'only explicit prerequisite may be missing before scope entry')
+    paths={}
     for name in ('systemd-run','python3'):
-        need(plan.E.checked_tool(facts['tools'][name]['selected'])=='/usr/bin/'+name,'fresh exact root-owned scope executable')
+        row=facts['tools'][name]['selected'];path=plan.E.checked_tool(row)
+        need(path==row['path'],'fresh rejoined canonical root-owned scope executable');paths[name]=path
+    plan.scope_tools=paths;return paths
 
 
 def prerequisite_argv(plan,request_path,request_sha,context_path,context_sha,environment_path,environment_sha):
     need(prerequisite_selected(plan.d)and remaining(plan.timing)>=495+15,'full finite prerequisite scope fits actual shared deadline')
-    return ['/usr/bin/sudo','-n','/usr/bin/systemd-run','--scope','--quiet',
+    tools=getattr(plan,'scope_tools',{'systemd-run':'/usr/bin/systemd-run','python3':'/usr/bin/python3'})
+    return ['/usr/bin/sudo','-n',tools['systemd-run'],'--scope','--quiet',
         '--unit=cachy-current-prerequisites-'+plan.d['nonce']+'.scope',
         '--property=MemoryMax=536870912','--property=MemorySwapMax=0','--property=CPUQuota=100%',
         '--property=CPUQuotaPeriodSec=100ms','--property=TasksMax=64','--property=RuntimeMaxSec=495s',
         '--property=TimeoutStopSec=10s','--property=KillMode=control-group','--property=OOMPolicy=kill',
-        '--','/usr/bin/python3','-I','-B',str(Path(__file__).resolve()),'prerequisite',
+        '--',tools['python3'],'-I','-B',str(Path(__file__).resolve()),'prerequisite',
         '--request',str(request_path),'--request-sha256',request_sha,'--source-root',str(plan.root),
         '--context',str(context_path),'--context-sha256',context_sha,'--environment',str(environment_path),'--environment-sha256',environment_sha,
         '--uid',str(os.getuid()),'--gid',str(os.getgid()),*timing_args(plan)]
@@ -266,6 +278,103 @@ def prerequisite_controller(args):
     return 0
 
 
+BASE_FIELDS=('base_lock','bootstrap_profile','base_materials','supplemental_materials','keyring_materials')
+MATERIAL_STAGER_PIN=dict(bytes=32266,sha256='d0c0764b1b7a92bb55dce63ba55314bb84ace4533434afcc47b1e23205e1cac9')
+MATERIAL_DOMAIN_PIN=dict(bytes=36172,sha256='dda088c77150046b3822db81e329e00a0afa72db3e10c3c1b74cd1e50bc2e0c3')
+MATERIAL_SECRET_NAMES=tuple(['CACHY_OLD_FOUR_'+tag+'_%02d'%i for tag,count in(('JBIGKIT',2),('JBIGKIT_SIG',1),('LIBTIFF',15),('LIBTIFF_SIG',1))for i in range(1,count+1)]+['CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01','CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02','CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01'])
+
+
+def material_selected(r):return 'material_staging'in r
+
+
+def assembly_request(row):
+    need(type(row)is dict and set(row)=={'json','pin'}and type(row['json'])is str,'explicit externally selected assembly JSON and whole pin')
+    raw=row['json'].encode();need(0<len(raw)<=8192 and pin(raw)==whole(row['pin']),'assembly DATA capped8192 bytes and externally whole-pinned')
+    value=decode(raw);need(raw==encoded(value),'canonical assembly request DATA');return raw
+
+
+def material_programs(r,d,root,policy):
+    if not material_selected(r):return None,None
+    need(d['capability'].get('allow_material_staging')is True and prerequisite_selected(d),'explicit staging and prerequisite capabilities share timing consumer')
+    value=r['material_staging'];row=d['programs']['materials_stager']
+    need(descriptor(row)==MATERIAL_STAGER_PIN,'exact committed canonical-tool staging successor')
+    S=program(root,row,'current_hosted_material_stager')
+    need(S.API=='CURRENT_COMPLETE517_MATERIAL_STAGING_V3'and tuple(S.secret_names())==MATERIAL_SECRET_NAMES and policy['material_staging_current_v3']==S.PROPOSAL,'actual staging API/names/separate Root resource policy')
+    need(descriptor(d['programs']['material_domain_executor'])==MATERIAL_DOMAIN_PIN,'exact committed retained input-domain executor')
+    M=program(root,d['programs']['material_domain_executor'],'current_hosted_material_domain_executor')
+    need(M.API=='CURRENT_ONBOARDING_MATERIAL_DOMAIN_V3'and callable(getattr(M,'open_material_session',None))and type(getattr(M,'CLOSE_SECONDS',None))is int and 0<M.CLOSE_SECONDS<=180,'actual committed physical input-domain executor API and finite close reservation required')
+    need(policy['material_domain_executor_current_v3']==M.PROPOSAL,'separate explicit Root retained-domain resource proposal')
+    for role in('staging_base_lock','staging_bootstrap_profile'):
+        row=d['materials'][role];need(pin(read(root/row['member'],2*1024**2))==descriptor(row),'whole Source staging operand '+role)
+    raw=assembly_request(value['assembler_request'])
+    A=program(root,d['programs']['inputs_assembler'],'current_hosted_staging_assembler')
+    request=decode(raw);need(type(request)is dict and set(request)==set(A.template())and all(request[k]is None for k in BASE_FIELDS),'actual assembler request with only five unfilled base slots')
+    need(request['stage']==d['stage']and type(request['source_date_epoch'])is int and request['source_date_epoch']>=0,'actual stage/epoch selection before acquisition')
+    need(all(type(request[k])is dict and set(request[k])=={'public_key','fingerprint','Root_admission'}and all(v is not None for v in request[k].values())for k in('official_trust','test_trust')),'actual externally selected trust inputs before acquisition')
+    need(type(request['products'])is dict,'explicit actual product selection before acquisition')
+    need(pin(value['grant_json'].encode())==value['grant_pin'],'external whole staging grant before actor')
+    # Pure predispatch Source-binding checks, not a fabricated poststart context.
+    S.validate_grant(value['grant_json'].encode(),value['grant_pin']['sha256'],d,dict(binding={k:d['binding'][k]for k in('source','ref','source_lock')}),policy)
+    return S,M
+
+
+def assembly_selection(value,plan,fields,output=None,trail=()):
+    """Only reviewed Source descriptors or exact staged-cache references resolve."""
+    if type(value)is dict:
+        if set(value)=={'json','pin'}:
+            allowed={'Root_admission','producer_delegation','producer_context','pair','test','root_component','root_test','Root_decision','Root_verification'}
+            need(output is not None and trail and trail[-1]in allowed,'only explicit public authority/producer metadata slots may carry exact supplied JSON')
+            raw=assembly_request(value);decode(raw);need(not re.search(rb'-----BEGIN [A-Z ]*PRIVATE KEY(?: BLOCK)?-----',raw),'private key material refused in public metadata')
+            label=hashlib.sha256(encoded(list(trail))).hexdigest()[:24]+'.json';path=output/label
+            write(path,raw);return dict(path=str(path),**pin(raw))
+        if set(value)=={'member','bytes','sha256'}:
+            need(value in plan.d['materials'].values(),'assembly Source ref is a declared public material')
+            raw=read(plan.root/value['member']);need(pin(raw)==descriptor(value),'whole selected Source public DATA')
+            return dict(path=str(plan.root/value['member']),**descriptor(value))
+        if set(value)=={'cache_member','bytes','sha256'}:
+            matches=[rows[value['cache_member']]for name,rows in fields.items()if name.endswith('_materials')and value['cache_member']in rows]
+            need(len(matches)==1 and {k:matches[0][k]for k in('bytes','sha256')}=={k:value[k]for k in('bytes','sha256')},'exact explicit complete517 cache selection')
+            return copy.deepcopy(matches[0])
+        return {k:assembly_selection(v,plan,fields,output,(*trail,k))for k,v in value.items()}
+    if type(value)is list:return [assembly_selection(v,plan,fields,output,(*trail,str(i)))for i,v in enumerate(value)]
+    return value
+
+
+def material_close_seconds(plan):
+    return plan.M.CLOSE_SECONDS if getattr(plan,'S',None)is not None else 0
+
+
+def stage_and_assemble(plan,context,secrets,private,public):
+    value=plan.request['material_staging'];raw_g=value['grant_json'].encode()
+    plan.S.validate_grant(raw_g,value['grant_pin']['sha256'],plan.d,context,plan.policy)
+    plan.material_session=plan.M.open_material_session(source_root=plan.root,delegation_raw=plan.request['delegation_json'].encode(),delegation_sha256=plan.request['delegation_pin']['sha256'],
+        context=context,grant_raw=raw_g,grant_sha256=value['grant_pin']['sha256'],shared_timing=plan.timing,control_root=plan.control,runner_uid=os.getuid(),runner_gid=os.getgid())
+    session=plan.material_session;need(callable(getattr(session,'stage',None))and callable(getattr(session,'close',None)),'held concrete input session stage/close API')
+    try:result=session.stage(secrets=secrets)
+    finally:secrets.clear()
+    need(type(result)is dict and set(result)=={'receipt','references','assembler_fields','staging_scope_retirement'},'exact actual staging/session result')
+    retirement=result['staging_scope_retirement'];need(retirement['natural']is True and retirement['scope_absent']is True and retirement['scope']=='cachy-current-materials-'+plan.d['nonce']+'.scope','natural actual staging scope retired before input assembly')
+    receipt=result['receipt'];need(receipt['status']=='COMPLETE517_HOSTED_CACHE_DATA_ONLY'and receipt['binding']==context['binding']and receipt['verified_files']==517 and all(receipt.get(k)==v for k,v in FINAL.items()),'same actual complete517 provisional result only')
+    B=program(plan.root,plan.d['programs']['base_inputs'],'current_hosted_staging_base_provider')
+    fields=B.assembler_fields(result['references']);need(fields==result['assembler_fields'],'exact maintained complete517 assembler fields')
+    total=sum(row['bytes']for name in('base_materials','supplemental_materials','keyring_materials')for row in fields[name].values())
+    need(receipt['verified_bytes']==result['references']['verified_bytes']==total,'same actual whole517 byte count')
+    raw=assembly_request(value['assembler_request'])
+    storage=Path(decode(raw_g)['storage_parent']);need(storage==storage.resolve()and storage.is_dir()and storage.stat().st_uid==os.getuid()and stat.S_IMODE(storage.stat().st_mode)==0o700,'same actual held caller-owned input domain')
+    metadata=storage/('cachy-current-materials-'+plan.d['nonce'])/'Root-selected-public-metadata';metadata.mkdir(mode=0o700)
+    request=assembly_selection(decode(raw),plan,fields,metadata);need(all(request[k]is None for k in BASE_FIELDS),'never replace Root-selected body refs');request.update(fields)
+    output=storage/('cachy-current-materials-'+plan.d['nonce'])/'assembled'
+    A=program(plan.root,plan.d['programs']['inputs_assembler'],'current_hosted_actual_input_assembler')
+    envelope=A.assemble_inputs(delegation_raw=plan.request['delegation_json'].encode(),delegation_sha256=plan.request['delegation_pin']['sha256'],source_root=plan.root,
+        request=request,output=output,context=context,context_program=plan.H)
+    path=output/'inputs.json';raw_inputs=read(path,4*1024**2);need(decode(raw_inputs)==envelope,'actual committed assembler wrote the same canonical wrapper')
+    actual=dict(plan.request,staged_root=str(storage),staged_inputs=dict(path=str(path),**pin(raw_inputs)))
+    plan.inputs,plan.intake=checked_inputs(actual,plan.d,plan.root,plan.H,min(time.monotonic()+180,plan.timing['deadline_monotonic']))
+    remaining(plan.timing);write(private/'inputs.json',encoded(plan.inputs))
+    write(public/'material-staging.json',encoded(dict(receipt=receipt,staging_scope_retirement=retirement,wrapper_pin=pin(raw_inputs),intake=plan.intake,**FINAL)))
+    return result
+
+
 def preflight(r,source_root,main_root,control_root,environ,now):
     root,main,control=map(Path,(source_root,main_root,control_root))
     need(str(root)==environ.get('GITHUB_WORKSPACE')and root.is_absolute()and root==root.resolve(),'Source is actual GITHUB_WORKSPACE root')
@@ -285,8 +394,10 @@ def preflight(r,source_root,main_root,control_root,environ,now):
     policy=decode(read(root/d['policy']['member']));p=E.validate_policy(policy,d)
     Q=prerequisite_program(root,d,policy)
     if Q:need(environ.get('GITHUB_EVENT_NAME')=='workflow_dispatch','actual explicit manual prerequisite event before privilege')
-    observations=E.probe_tools()
-    need(set(observations['missing_or_invalid'])<={'bsdtar'} if Q else not observations['missing_or_invalid'],'required fixed host tools missing before privilege')
+    S,M=material_programs(r,d,root,policy)
+    if not S:
+        observations=E.probe_tools()
+        need(set(observations['missing_or_invalid'])<={'bsdtar'} if Q else not observations['missing_or_invalid'],'required fixed host tools missing before privilege')
     for tool in ('/usr/bin/git','/usr/bin/sudo'):fixed_tool(tool)
     need(E.API=='CURRENT_ONBOARDING_IMAGE_EXECUTOR_V3'and p['controller']==SCOPE
          and p['controller_AS_bytes']==512*1024**2 and p['controller_seconds']==7560,'Root selected exact777 controller policy; no implicit cap change')
@@ -298,9 +409,9 @@ def preflight(r,source_root,main_root,control_root,environ,now):
     callback=functions.get('run_owned_current_v3')
     api=[n.value.value for n in tree.body if isinstance(n,ast.Assign)and any(isinstance(t,ast.Name)and t.id=='API'for t in n.targets)and isinstance(n.value,ast.Constant)]
     need(api==['CURRENT_ONBOARDING_DELEGATED_OWNER_V3']and callback is not None and not callback.args.args and not callback.args.posonlyargs and callback.args.vararg is None and callback.args.kwarg is None and {a.arg for a in callback.args.kwonlyargs}=={'delegation_raw','delegation_sha256','context','source_root','inputs','executor','output','public_output'},'exact committed current owner callback before privilege')
-    deadline=time.monotonic()+LIMITS['preflight_seconds'];inputs,intake=checked_inputs(r,d,root,H,deadline)
+    deadline=time.monotonic()+LIMITS['preflight_seconds'];inputs,intake=(None,dict(status='DEFERRED_UNTIL_ACTUAL_COMPLETE517'))if S else checked_inputs(r,d,root,H,deadline)
     O=program(root,d['programs']['owned_process'],'current_hosted_held_process')
-    return SimpleNamespace(request=r,d=d,H=H,E=E,O=O,policy=policy,inputs=inputs,intake=intake,root=root,main=main,control=control,Q=Q)
+    return SimpleNamespace(request=r,d=d,H=H,E=E,O=O,policy=policy,inputs=inputs,intake=intake,root=root,main=main,control=control,Q=Q,S=S,M=M,material_session=None)
 
 
 def fixed_tool(name):
@@ -320,11 +431,12 @@ def fixed_tool(name):
 
 def scope_argv(plan,request_path,request_sha,context_path,context_sha,inputs_path,inputs_sha):
     nonce=plan.d['nonce'];scope='cachy-current-controller-'+nonce+'.scope'
-    return ['/usr/bin/sudo','-n','/usr/bin/systemd-run','--scope','--quiet','--unit='+scope,
+    tools=getattr(plan,'scope_tools',{'systemd-run':'/usr/bin/systemd-run','python3':'/usr/bin/python3'})
+    return ['/usr/bin/sudo','-n',tools['systemd-run'],'--scope','--quiet','--unit='+scope,
         '--property=MemoryMax=536870912','--property=MemorySwapMax=0','--property=CPUQuota=100%',
         '--property=CPUQuotaPeriodSec=100ms','--property=TasksMax=64','--property=RuntimeMaxSec='+str(controller_seconds(plan))+'s',
         '--property=TimeoutStopSec=10s','--property=KillMode=control-group','--property=OOMPolicy=kill',
-        '--','/usr/bin/python3','-I','-B',str(Path(__file__).resolve()),'controller',
+        '--',tools['python3'],'-I','-B',str(Path(__file__).resolve()),'controller',
         '--request',str(request_path),'--request-sha256',request_sha,'--source-root',str(plan.root),
         '--context',str(context_path),'--context-sha256',context_sha,'--inputs',str(inputs_path),'--inputs-sha256',inputs_sha,
         '--uid',str(os.getuid()),'--gid',str(os.getgid())]+timing_args(plan)
@@ -369,8 +481,21 @@ def write(path,raw):
 
 
 def _execute(args,environ=None):
-    env=os.environ if environ is None else environ;started=time.monotonic()
-    r=request(args.request,args.request_sha256);plan=preflight(r,args.source_root,args.main_root,args.control_root,env,int(time.time()))
+    env=os.environ if environ is None else environ;secrets={}
+    try:
+        r=request(args.request,args.request_sha256)
+        for name in MATERIAL_SECRET_NAMES:
+            if material_selected(r):secrets[name]=env.pop(name,None)
+            else:env.pop(name,None)
+        return _execute_bound(args,env,r,secrets)
+    finally:
+        for name in MATERIAL_SECRET_NAMES:env.pop(name,None)
+        secrets.clear()
+
+
+def _execute_bound(args,env,r,secrets):
+    started=time.monotonic()
+    plan=preflight(r,args.source_root,args.main_root,args.control_root,env,int(time.time()))
     available=os.statvfs(plan.control.parent);need(available.f_bavail*available.f_frsize>=LIMITS['control_bytes']+64*1024**2 and available.f_favail>=LIMITS['control_nodes']+128,'finite fresh control disk/inode reserve')
     plan.control.mkdir(mode=0o700);private=plan.control/'private';public=plan.control/'public';private.mkdir(mode=0o700);public.mkdir(mode=0o700)
     report=dict(status='HOLD',request_pin=pin(read(args.request,LIMITS['request_bytes'])),intake=plan.intake,**FINAL)
@@ -382,14 +507,19 @@ def _execute(args,environ=None):
         before=time.monotonic();body,receipt=run(plan.O,['/usr/bin/python3','-I','-B',str(Path(__file__).resolve()),'metadata','--url',url,'--seconds',str(seconds),'--maximum',str(maximum)],seconds,private)
         response=dict(url=url,status=200,body=body,received_epoch=int(time.time()),elapsed_ms=int((time.monotonic()-before)*1000))
         context=plan.H.capture_context(r['delegation_json'].encode(),r['delegation_pin']['sha256'],plan.root,environ={k:env.get(k)for k in plan.H.ENV},jobs_response=response)
-        raw_c=encoded(context);raw_i=encoded(plan.inputs);raw_r=read(args.request,LIMITS['request_bytes'])
-        for name,raw in [('context.json',raw_c),('inputs.json',raw_i),('request.json',raw_r)]:write(private/name,raw)
+        raw_c=encoded(context);raw_i=encoded(plan.inputs)if plan.inputs is not None else None;raw_r=read(args.request,LIMITS['request_bytes'])
+        for name,raw in [('context.json',raw_c),('inputs.json',raw_i),('request.json',raw_r)]:
+            if raw is not None:write(private/name,raw)
         write(public/'context.json',raw_c);report.update(binding=context['binding'],metadata=receipt)
         need(time.monotonic()-started<LIMITS['preflight_seconds'],'complete preprivilege wall budget')
         if plan.Q:
             plan.timing=make_timing(plan,context,started)
             plan.timing_path=private/'timing.json';raw_t=encoded(plan.timing);plan.timing_sha=pin(raw_t)['sha256']
             write(plan.timing_path,raw_t);write(public/'timing.json',raw_t)
+            if getattr(plan,'S',None):
+                signal.setitimer(signal.ITIMER_REAL,remaining(plan.timing));resource.setrlimit(resource.RLIMIT_CPU,(LIMITS['cpu_seconds'],)*2)
+                stage_and_assemble(plan,context,secrets,private,public);raw_i=encoded(plan.inputs);report['intake']=plan.intake
+                observations=plan.E.probe_tools();need(set(observations['missing_or_invalid'])<={'bsdtar'},'actual fresh tools after held staging; only explicit prerequisite missing')
             environment={key:env.get(key) for key in PREREQUISITE_ENV};raw_e=encoded(environment)
             environment_path=private/'prerequisite-environment.json';write(environment_path,raw_e)
             need(not Path('/sys/fs/cgroup/system.slice/cachy-current-prerequisites-'+plan.d['nonce']+'.scope').exists(),'fresh prerequisite scope')
@@ -413,7 +543,7 @@ def _execute(args,environ=None):
             report['shared_timing']=dict(whole_budget_seconds=7560,elapsed_seconds=time.monotonic()-started,
                 controller_runtime_ceiling_seconds=controller_seconds(plan),available_stage_ceiling_seconds=available_stage_seconds(plan))
         need(not Path('/sys/fs/cgroup/system.slice/cachy-current-controller-'+plan.d['nonce']+'.scope').exists(),'fresh unadopted controller cgroup')
-        fixed_tool('/usr/bin/sudo');signal.setitimer(signal.ITIMER_REAL,remaining(plan.timing) if plan.Q else 0)
+        fixed_tool('/usr/bin/sudo');prerequisite_scope_tools(plan);signal.setitimer(signal.ITIMER_REAL,remaining(plan.timing) if plan.Q else 0)
         resource.setrlimit(resource.RLIMIT_CPU,(LIMITS['cpu_seconds'],)*2)
         context_path=private/('context-after-prerequisites.json' if plan.Q else 'context.json')
         argv=scope_argv(plan,private/'request.json',args.request_sha256,context_path,pin(raw_c)['sha256'],private/'inputs.json',pin(raw_i)['sha256'])
@@ -427,6 +557,12 @@ def _execute(args,environ=None):
         report.update(status='DELEGATED_HOSTED_CONTROLLER_RETIRED_DATA_ONLY',cleanup=dict(owned_storage_absent=True,error_count=0))
     except BaseException as error:report['failure_type']=type(error).__name__
     finally:
+        if getattr(plan,'material_session',None)is not None:
+            try:
+                closed=plan.material_session.close()
+                need(closed['closed']is True and closed['scope_absent']is True and closed['input_storage_absent']is True and all(closed.get(k)==v for k,v in FINAL.items()),'actual final input-domain retirement and storage absence')
+                report['material_domain_cleanup']={k:closed[k]for k in('closed','scope_absent','input_storage_absent',*FINAL)}
+            except BaseException as error:report.update(status='HOLD',material_cleanup_failure=type(error).__name__)
         paths=list(plan.control.rglob('*'));need(len(paths)<=LIMITS['control_nodes']and not any(p.is_symlink()for p in paths)and sum(p.stat().st_size for p in paths if p.is_file())<=LIMITS['control_bytes'],'finite ordinary control storage')
         write(public/'launcher-report.json',encoded(report))
     return 0 if report['status']=='DELEGATED_HOSTED_CONTROLLER_RETIRED_DATA_ONLY'else 2
@@ -460,10 +596,11 @@ def controller_observation(domain,properties,nonce,binding,policy_pin):
                 domain=domain,properties=properties,**FINAL)
 
 
-def clipped_controller_observation(E,domain,properties,d,context,timing):
+def clipped_controller_observation(E,domain,properties,d,context,timing,reserve_seconds=0):
+    need(type(reserve_seconds)is int and 0<=reserve_seconds<=180,'finite explicit input cleanup reserve')
     observation=controller_observation(domain,properties,d['nonce'],context['binding'],context['policy_pin'])
     runtime=E.runtime_microseconds(properties['RuntimeMaxUSec'])
-    need(0<runtime<=7560*1000000 and int(properties['ActiveEnterTimestampMonotonic'])/1000000+runtime/1000000<=timing['deadline_monotonic'],'physical controller scope cannot extend shared deadline')
+    need(0<runtime<=7560*1000000 and int(properties['ActiveEnterTimestampMonotonic'])/1000000+runtime/1000000<=timing['deadline_monotonic']-reserve_seconds,'physical controller scope cannot extend shared deadline or input cleanup reservation')
     remaining(timing);return observation
 
 
@@ -482,7 +619,12 @@ def controller(args):
         O=program(root,d['programs']['owned_process'],'current_clipped_controller_observer')
         raw,_=run(O,[E.checked_tool(tools['tools']['systemctl']['selected']),'show',expected.rsplit('/',1)[1],'--no-pager','--property=RuntimeMaxUSec,ActiveEnterTimestampMonotonic,ControlGroup'],min(15,remaining(timing)),Path(args.request).parent)
         properties=dict(line.split('=',1)for line in raw.decode().splitlines()if '='in line)
-        clipped_controller_observation(E,domain,properties,d,context,timing)
+        reserve=0
+        if material_selected(r):
+            M=program(root,d['programs']['material_domain_executor'],'current_controller_held_input_executor')
+            need(M.API=='CURRENT_ONBOARDING_MATERIAL_DOMAIN_V3'and type(M.CLOSE_SECONDS)is int and 0<M.CLOSE_SECONDS<=180,'same finite input close reservation')
+            reserve=M.CLOSE_SECONDS
+        clipped_controller_observation(E,domain,properties,d,context,timing,reserve)
     else:need(args.timing is None and args.timing_sha256 is None,'old path has no timing override')
     # Convert cancellation into the existing controller finally/owned cleanup path.
     def cancel(sig,frame):raise KeyboardInterrupt('current controller cancellation')

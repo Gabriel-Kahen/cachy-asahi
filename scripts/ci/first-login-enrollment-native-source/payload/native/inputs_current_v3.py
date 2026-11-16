@@ -23,6 +23,14 @@ FACTORY_PIN=dict(bytes=62259,sha256='ad874751a48cfd7e7d94f5d38d79caa138679be067c
 BOOTSTRAP_PIN=dict(bytes=168201,sha256='2c42c705654d31e639f389f9a868dada0d9df76813d865e766be7b7c08f8404c')
 SUPPLEMENT={'cmake','cppdap','jsoncpp','libuv','meson','ninja','python-tqdm','rhash'}
 KEYRINGS={'archlinuxarm.gpg','archlinuxarm-trusted','archlinuxarm-revoked'}
+STAGING_TABLE='inputs/material-staging-materials-v4.json'
+REGISTRY=FAMILY+'/successor_v4_source/program.json'
+STAGING_MATERIALS={
+    'retained_carrier_profile':('bootstrap/scripts/ci/setup6-retained-helpers/carrier-profile.json','4089fd798849cafda23d03c0dd95ac896a83fd63ad21e331ae420c147535586c'),
+    'retained_prefill_profile':('bootstrap/scripts/ci/setup6-retained-helpers/legacy-prefill-profile.json','9cc82d4e0947415ecad9d40094a4c0a2709d01be54513e78af8c739fd76fb696'),
+    'public14_profile':(FAMILY+'/inputs/public14-profile.json','5fe4761bc96d21ec388322ead3b97c735d2f689c38061c560afc90a2143de346'),
+    'staging_base_lock':('bootstrap/scripts/ci/inputs.lock.json',BASE_SHA),
+    'staging_bootstrap_profile':('native/input-profile.json',BOOTSTRAP_PIN['sha256'])}
 BASELINE_SHA='579981195b654d8cdf142e4101dfc2bfffbc3576eed50f23796a06e90cf57453'
 COUNTS=dict(backend=350,lifecycle=372,ui=374)
 OFFICIAL=('fuse-common','fuse3','gobject-introspection-runtime','graphene','gssdp','gst-plugins-bad-libs','gst-plugins-base-libs',
@@ -166,17 +174,41 @@ def _context(delegation_raw,delegation_sha256,c,source,H):
     return d,root,H,rows
 
 def source_inputs(root,d,H,source_rows):
-    def closed(alias):
-        selected=d['materials'][alias];member=selected['member']
+    def selected_ref(selected):
+        need(type(selected)is dict and set(selected)=={'member','bytes','sha256'},'exact Source material descriptor')
+        member=selected['member'];need(type(member)is str and not Path(member).is_absolute()and '..'not in Path(member).parts,'ordinary Source-relative material member')
         need(member in source_rows and {k:source_rows[member][k]for k in('bytes','sha256')}==H.descriptor(selected),'material joins complete verified Source')
         row=dict(path=str(root/member),**H.descriptor(selected))
         whole(row,16*1024**2);return row
     # Resolve the closure once above; every selected material also retains its exact whole pin.
     member='inputs/delegated-materials-v4.json';raw=whole(dict(path=str(root/member),**{k:source_rows[member][k]for k in('bytes','sha256')}),1024**2,True);table=decoded(raw)
-    need(table['schema']==4 and table['kind']=='DELEGATED_SOURCE_RELATIVE_MATERIALS_V4'and table['aliases']==ALIASES
-         and set(table['materials'])==set(ALIASES.values())and d['materials']==table['materials'],'exact original59 roles and fixed aliases')
+    need(set(table)=={'schema','kind','aliases','materials'}and type(table['schema'])is int and table['schema']==4
+         and table['kind']=='DELEGATED_SOURCE_RELATIVE_MATERIALS_V4'and table['aliases']==ALIASES
+         and type(table['materials'])is dict and set(table['materials'])==set(ALIASES.values()),'exact original59 roles and fixed aliases')
     need(len({row['member']for row in table['materials'].values()})==59,'distinct carrier material members')
-    refs={name:closed(alias)for name,alias in ALIASES.items()}
+    original=table['materials'];need(type(d['materials'])is dict and all(d['materials'].get(k)==v for k,v in original.items()),'all original59 Root selections unchanged')
+    registry=load(dict(path=str(root/REGISTRY),**{k:source_rows[REGISTRY][k]for k in('bytes','sha256')}))if REGISTRY in source_rows else None
+    staging=STAGING_TABLE in source_rows or set(d['materials'])!=set(original)or(registry is not None and 'staging_materials'in registry)
+    if staging:
+        need(STAGING_TABLE in source_rows and registry is not None,'explicit supplemental Source table and registry required')
+        for name in(STAGING_TABLE,REGISTRY):need(source_rows[name]['mode']==0o644,'ordinary supplemental table/registry Source mode')
+        supplemental=load(dict(path=str(root/STAGING_TABLE),**{k:source_rows[STAGING_TABLE][k]for k in('bytes','sha256')}))
+        need(set(supplemental)=={'schema','kind','materials'}and type(supplemental['schema'])is int and supplemental['schema']==4
+            and supplemental['kind']=='DELEGATED_MATERIAL_STAGING_SOURCE_MATERIALS_V4'and type(supplemental['materials'])is dict
+            and set(supplemental['materials'])==set(STAGING_MATERIALS),'exact optional supplemental5 table')
+        extra=supplemental['materials']
+        need(type(registry['schema'])is int and registry['schema']==4 and registry['kind']=='DELEGATED_CURRENT_PROGRAM_REGISTRY_V4'
+            and registry['operation']==OP and registry['staging_materials']==extra,'whole Source registry selects exact same supplemental5')
+        need(set(d['materials'])==set(original)|set(extra)and all(d['materials'][k]==v for k,v in extra.items()),'exact Root-selected original59 plus supplemental5')
+        need(all(type(v)is dict and set(v)=={'member','bytes','sha256'}for v in extra.values()),'typed supplemental descriptors')
+        need(len({v['member']for v in d['materials'].values()})==64,'no supplemental/original/cross-role member aliases')
+        for role,(member,sha)in STAGING_MATERIALS.items():
+            row=extra[role];need(row['member']==member and row['sha256']==sha,'fixed supplemental role/member/pin: '+role)
+            need(member in source_rows and source_rows[member]['mode']==0o644,'fixed supplemental Source member mode');selected_ref(row)
+            if role=='staging_base_lock':need(row['bytes']==BASE_BYTES,'fixed staging lock size')
+            if role=='staging_bootstrap_profile':need(row['bytes']==BOOTSTRAP_PIN['bytes'],'fixed staging bootstrap size')
+    else:need(d['materials']==original,'exact default59 materials')
+    refs={name:selected_ref(d['materials'][alias])for name,alias in ALIASES.items()}
     profile_raw=whole(dict(path=str(root/PROFILE),**PROFILE_PIN),1024**2,True)
     profile=decoded(profile_raw);need(profile['operation']==OP and all(v is None for v in profile['actual'].values()),'unissued exact recipe profile')
     return refs,profile

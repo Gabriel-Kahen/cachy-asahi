@@ -81,6 +81,23 @@ The expected inventory is independently reconstructed for backend350,
 lifecycle372, or UI374, with no baseline replacement. Setup8 stays exactly
 0.3.0-1 and the pinned payload/archive; current first-login stays 0.1.0-3.
 
+The default selects exactly59 materials and preserves the original
+`inputs/delegated-materials-v4.json` four-key schema and bytes. The opt-in
+constructor extension instead selects exactly64: the original59 plus
+`retained_carrier_profile`, `retained_prefill_profile`, `public14_profile`,
+`staging_base_lock`, and `staging_bootstrap_profile`. The extra five live only
+in `inputs/material-staging-materials-v4.json`, whose exact shape is
+`{schema:4,kind:DELEGATED_MATERIAL_STAGING_SOURCE_MATERIALS_V4,materials:{...}}`.
+Its descriptors must equal the whole-Source registry's `staging_materials` at
+`scripts/ci/first-login-enrollment-native-source/successor_v4_source/program.json`
+and the same five entries in Root's selected delegation. Every descriptor then
+joins its verified Source member, actual whole body, fixed role/member/SHA256,
+and mode0644. The lock and bootstrap sizes also remain exactly328101 and168201.
+Missing tables, registry disagreement, omissions, unknown roles and cross-role
+or original-carrier aliases refuse. Registry/table signals cannot silently fall
+back to59. No staging capability, Root trust or acquisition is granted by this
+material selection; the result's original-role projection still has59 entries.
+
 Both public trust rows require separately issued, current Root trust documents
 with the image API's existing `CURRENT_ONBOARDING_IMAGE_INPUT_TRUST_ONLY` scope.
 The test key must be the exact retained Setup8 public certificate/fingerprint.
@@ -185,7 +202,7 @@ the same exact product refs with the unchanged context adoption callback. No
 field or authority is renamed into Root issuance, final image qualification,
 independent component acceptance, M2 support, performance or release acceptance.
 
-Twenty-two small fenced controls pass on Python 3.12.14 and 3.14.7 with one isolated,
+Twenty-six small fenced controls pass on Python 3.12.14 and 3.14.7 with one isolated,
 bytecode-disabled process per interpreter. They use explicitly fictional DATA
 and call the actual committed image's `selected_inputs`, without executing its
 actors. They cover all three compositions, current product hydration, pure
@@ -212,14 +229,14 @@ This closes the earlier missing-file HOLD only. Current Root public trust,
 GPG authentication, operational assembly, native image and hardware qualification
 remain separate. No body was acquired or copied by this check.
 
-The freeze pins are assembler41570 bytes,
+The prior freeze pins were assembler41570 bytes,
 `a1838fe056f95ae5baae5a70b9ba20a623271475160c9010ae59e3c751e90f9c`,
 and its fixture39434 bytes,
 `ee72d05d380caa6c49e7b0601a3ac641d55c352478f35d7d251f14c6a0dd6b8e`.
 The local seam report is1573 bytes,
 `ecfead82ee7c20a747b599f4d17425942ece0b33cd90f46f18008240a65b8fd0`.
-The launcher author must repin that fixture; production assembler/provider bodies
-are unchanged in this final interoperability correction.
+The optional64-material join changes the assembler/fixture bodies; these prior
+pins and the original676 evidence are retained as historical seam evidence.
 
 The full517 handoff also exposes a launcher integration prerequisite: the
 empty original revoked-key file must pass staged-leaf whole checking. The

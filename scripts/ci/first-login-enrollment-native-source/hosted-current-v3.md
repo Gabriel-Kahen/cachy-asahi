@@ -289,3 +289,165 @@ only the checkout. Existing real-assembler fixture controls remain unchanged.
 Actual Source construction/integration, Root review/resource/authorization,
 genuine caller-staged input delivery, workflow registration/dispatch, real host
 prerequisite installation, native execution and acceptance remain NOT RUN here.
+
+## Optional actual material staging before input/tool gates
+
+The new path is selected only by an additional `material_staging` object in the
+externally Root-pinned request. Without it, caller-staged bodies/wrapper and the
+existing strict tool/lifetime gates remain required; no acquisition is inferred
+from a capability flag alone. With it, Root must explicitly authorize
+`authorization.material_staging=true`, both staging and prerequisite capabilities,
+the exact c640 stager policy, the shared timing policy and the physical domain
+executor. `staged_inputs` and `staged_root` must then be NULL: the launcher does
+not pretend these future outputs already exist.
+
+The added object has exactly:
+
+```text
+material_staging = {
+  grant_json: canonical externally Root-issued conditional staging grant DATA,
+  grant_pin: {bytes, sha256},
+  assembler_request: {json: canonical public selection DATA, pin: {bytes, sha256}}
+}
+```
+
+The assembly selection is at most8192 bytes; the entire canonical Root request
+remains at most49152 bytes. Its key set must equal the actual committed input
+assembler's `template()`. Exactly `base_lock`, `bootstrap_profile`, `base_materials`,
+`supplemental_materials`, `keyring_materials` must be NULL. Stage/epoch/trust/product
+selections must be provided explicitly. The launcher fills only those five base
+slots from the real complete517 result and passes all other selections to the
+actual assembler. It never fills a Root trust/adoption boolean or future producer
+observation. Late selection DATA is outside the immutable Source/ref, so choosing
+completed producer inputs need not change that Source/ref.
+
+Within that selected JSON, `{member,bytes,sha256}` resolves only an explicitly
+declared public Source material and rejoins its whole body. A
+`{cache_member,bytes,sha256}` selection resolves only one exact named member of the
+verified517 result. Existing ordinary `{path,bytes,sha256}` references still need
+actual bodies under the held input domain or the exact declared Source closure.
+Missing external archives/signatures are HOLD; no extra downloader is invented.
+
+At explicit public metadata slots only (`Root_admission`, `producer_delegation`,
+`producer_context`, `pair`, `test`, `root_component`, `root_test`, `Root_decision`,
+`Root_verification`), a nested `{json,pin}` can carry exact externally selected
+canonical public JSON. The supplied bytes are whole-checked and written unchanged
+to a fixed derived name inside the held domain. Private key armor refuses.
+These are provided Root/producer documents, not synthesized authority. Large late
+producer bodies still require an independently reviewed delivery actor; an inline
+metadata selection does not claim their delivery.
+
+Source and trusted Main remain distinct: this launcher executes from the exact
+Root-selected Main checkout outside GITHUB_WORKSPACE and must equal its reviewed
+closed Source descriptor. Actual Main/Source Git HEAD and hosted Source/ref/workflow
+selectors still join before privilege. Selected context, stager, domain executor,
+provider and assembler programs are whole-pinned closed Source roles. The selected stager is the separately versioned canonical-Python successor
+`stage_materials_current_v3_python_v1.py`, exactly32266 bytes / SHA256
+`d0c0764b1b7a92bb55dce63ba55314bb84ace4533434afcc47b1e23205e1cac9`.
+It uses the audited inspector/checker canonical target, rather than rejecting a
+valid python3 -> python3.N alias. The immutable c640 predecessor is unchanged.
+The additional executor role is `material_domain_executor`; it must expose the
+actual committed ae3ab1dd body:36172 bytes, SHA256
+`dda088c77150046b3822db81e329e00a0afa72db3e10c3c1b74cd1e50bc2e0c3`,
+and its exact policy proposal, API below and `CLOSE_SECONDS=90`.
+No absent/uncommitted/missing callback is accepted as a usable executor.
+The Source must also explicitly close materials `staging_base_lock` and
+`staging_bootstrap_profile`, plus the stager's other helper/profile dependencies.
+These bodies are not assumed to exist merely because Source139's profile names
+them. The old59 public table stays separate from the five supplemental staging
+material roles; constructor/integration owns the coherent expanded closure.
+
+```python
+API = 'CURRENT_ONBOARDING_MATERIAL_DOMAIN_V3'
+CLOSE_SECONDS = 90  # exact reviewed executor value; not an implicit issued grant
+open_material_session(
+    *, source_root, delegation_raw, delegation_sha256, context,
+    grant_raw, grant_sha256, shared_timing, control_root, runner_uid, runner_gid
+) -> session
+session.stage(*, secrets) -> {
+    'receipt': actual_stager_receipt,
+    'references': actual_complete517_provider_result,
+    'assembler_fields': actual_provider_fields,
+    'staging_scope_retirement': {
+        'natural': True, 'scope_absent': True,
+        'scope': 'cachy-current-materials-<nonce>.scope', ...actual_owned_facts
+    }
+}
+session.close() -> {
+    'closed': True, 'scope_absent': True, 'input_storage_absent': True,
+    ...provisional_only_markers
+}
+```
+
+This is the execution contract; the True outcomes above must be actual poststart
+observations, not predispatch grant/template fields. Source, Root grants,
+resources, domain module selectors and execution observations remain unissued in
+this change. The provisioner owns physical scope/storage creation, PIDFDs and
+close-only disposal; the launcher does not duplicate that implementation. A
+failed open must retire its own partial resources before raising. Once open
+returns, the launcher owns its handle and calls close in its finally path.
+
+The actual order is Source/Main/request/selection checks, fixed metadata context,
+open and run the finite3600-second staging scope, natural staging scope retirement
+and absence, actual complete517 provider-field join, actual input assembler,
+complete `checked_inputs` whole streams, fresh tool observations, explicit495-second
+prerequisite, fresh complete16 tools/context, then clipped native controller.
+The separate input filesystem/loop custody remains held after staging scope exit,
+through assembly and native use. It is closed only after final native use, or a
+failure. An early unmount is not a valid implementation of this API.
+
+One shared deadline is the earliest of launcher-start+7560, delegation expiry and
+staging grant expiry. Stage time is consumed within it. The main runtime additionally
+reserves the executor's exact `CLOSE_SECONDS` alongside the existing15-second
+controller retirement reserve. The root main wrapper independently refuses a
+physical main scope that would consume that input cleanup reservation. Close and
+all cleanup remain inside the same Root expiry; no3600+495+7560 relabeling occurs.
+The7200-second stage limit remains a ceiling and the available window is recorded
+honestly after the earlier phases.
+
+The manual workflow still has exactly two dispatch inputs. Its launcher step maps
+exactly the existing22 named chunk secrets, only when the externally hash-bound
+request explicitly selects material staging. It adds no other secret/token name.
+The Main launcher validates the request hash then captures/removes those exact
+names before loading Source-selected code or doing metadata/network work. They
+are passed only to the selected one-shot staging session, cleared on every return
+or exception, never serialized, printed or put in argv. All other child environments
+remain minimal. No secret values were read in development/tests; tests use only
+explicit inert dictionaries and modeled process boundaries.
+
+The real current optional19 unissued drafts were measured, not guessed:
+Root request21488 bytes (cap49152), delegation18142 bytes (17 program/59 material
+descriptors), staging grant340 bytes and inline backend selection623 bytes
+(cap8192). Their Root approval/authorization/selectors remain NULL and the actual
+517 table is excluded. This measurement is **not** a certificate for the expanded
+27-program/64-material closure or fully issued grants/trust/producer selections.
+Those exact final bytes must be remeasured and still pass the unchanged runtime
+caps; overflow remains HOLD. No Source19 freeze is authorized by these drafts.
+
+Full staging controls pin the committed45247-byte assembler
+`ddc4f0da13c4e9d7ab58f2c3fe318343082f320dae105e069336ecb24c4c49cb`,
+43566-byte full27 fixture
+`07344dfcbe89edca77362ef41bf34b176fa20f0cb9f1b0e7795055a2cac410b8`,
+and55783-byte image atime repair
+`f4e590532d7f6115f830215810f9dee5f2a1eb714351a9a7e572d22c5a255f90`
+from the exact authored117/0f61/bc5 components integrated atff33d619. The separate
+Root minimal-CI39434-byte/32ac fixture is untouched.
+
+Fenced caller controls use the actual versioned-stager grant/data boundary, actual27 input
+assembler/validator and real tiny517 fixture files, including the empty revoked
+leaf. Only scope/provisioning/network/native actors are modeled. The complete
+caller order is exercised with3600 staging +495 prerequisite charged, held input
+files still readable at native invocation, and close only afterward. Exact inline
+pins/caps, old-path refusal, public metadata slot limits/private armor, secret
+capture/cleanup, partial scope failure, missing bodies and current-draft sizes are
+also checked. The actual ae3ab1dd session stage/close receipt logic and the held
+executor retirement validator are exercised together; only physical execution
+and mounted-storage observation are modeled. The optional exact draft-budget fixture is selected explicitly by
+`CACHY_CURRENT19_BUDGET_FIXTURE`; it is never a private-path CI dependency.
+Validation passed42 fenced caller controls on Python3.12.13 and3.14.7, with the
+explicit public donor/assembler/domain and NULL-authority draft fixtures. The
+separate canonical-tool staging successor passed19 controls on both versions.
+Both workflow shell bodies pass `bash -n`; inline Python and the exact22 secret
+name/conditional mappings pass the caller controls. A full YAML parser was not
+available locally. No real workflow dispatch, acquisition, privilege, Root grant,
+Source freeze, publication, GPG or native role was performed for this wiring.

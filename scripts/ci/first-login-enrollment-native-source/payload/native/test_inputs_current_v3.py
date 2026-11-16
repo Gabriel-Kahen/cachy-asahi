@@ -166,6 +166,59 @@ class Controls(unittest.TestCase):
         raw=A.encoded(self.d)
         return A.assemble_inputs(delegation_raw=raw,delegation_sha256=A.pin(raw)['sha256'],source_root=self.source,request=self.request,output=self.stage/('output-'+stage),context_program=self.H)
 
+    def source_data(self,member,value):
+        row=self.closed(member,A.encoded(value));Path(row['path']).chmod(0o644);self.rows[member]['mode']=0o644
+        return row
+
+    def staging(self):
+        extra={};expected={}
+        for role,(member,_)in A.STAGING_MATERIALS.items():
+            raw=Path(self.request['base_lock'if role=='staging_base_lock'else'bootstrap_profile']['path']).read_bytes()if role in('staging_base_lock','staging_bootstrap_profile')else A.encoded(dict(FENCED='NOT_OPERATIONAL_STAGING',role=role))
+            row=self.closed(member,raw);Path(row['path']).chmod(0o644);self.rows[member]['mode']=0o644
+            extra[role]=dict(member=member,**A.pin(raw));expected[role]=(member,row['sha256'])
+        patch.object(A,'STAGING_MATERIALS',expected).start()
+        self.d['materials']=dict(self.materials,**extra)
+        self.source_data(A.STAGING_TABLE,dict(schema=4,kind='DELEGATED_MATERIAL_STAGING_SOURCE_MATERIALS_V4',materials=extra))
+        self.source_data(A.REGISTRY,dict(schema=4,kind='DELEGATED_CURRENT_PROGRAM_REGISTRY_V4',operation=A.OP,staging_materials=extra,FENCED='NOT_ROOT_AUTHORITY'))
+        return extra
+
+    def test_optional_staging64_preserves_original59_bytes_and_assembles(self):
+        original=(self.source/'inputs/delegated-materials-v4.json').read_bytes();extra=self.staging()
+        refs,_=A.source_inputs(self.source,self.d,self.H,self.rows)
+        self.assertEqual(len(refs),59);self.assertEqual(len(self.d['materials']),64);self.assertEqual(set(extra),set(A.STAGING_MATERIALS))
+        envelope=self.assemble();A.validate_hosted_inputs_v3(inputs=envelope,delegation=self.d,source_root=self.source)
+        self.assertEqual((self.source/'inputs/delegated-materials-v4.json').read_bytes(),original)
+
+    def test_staging_omissions_extras_cross_role_and_original_aliases_refuse(self):
+        self.staging();original=copy.deepcopy(self.d['materials'])
+        roles=list(A.STAGING_MATERIALS)
+        for mutate in(lambda v:v.pop(roles[0]),lambda v:v.update(unselected=v[roles[0]]),
+            lambda v:v.update({roles[0]:v[roles[1]]}),lambda v:v.update({roles[0]:v['setup8_archive']})):
+            self.d['materials']=copy.deepcopy(original);mutate(self.d['materials'])
+            with self.subTest(mutate=mutate),self.assertRaises(ValueError):A.source_inputs(self.source,self.d,self.H,self.rows)
+
+    def test_staging_table_registry_and_whole_source_pins_are_mandatory(self):
+        extra=self.staging();table=A.decoded((self.source/A.STAGING_TABLE).read_bytes());registry=A.decoded((self.source/A.REGISTRY).read_bytes())
+        for mutate in(lambda t,r:t.update(extra=True),lambda t,r:t['materials'].pop('staging_base_lock'),
+            lambda t,r:r['staging_materials'].pop('public14_profile'),lambda t,r:r.update(operation='different'),
+            lambda t,r:t['materials']['staging_base_lock'].update(sha256='0'*64)):
+            t=copy.deepcopy(table);r=copy.deepcopy(registry);mutate(t,r)
+            self.source_data(A.STAGING_TABLE,t);self.source_data(A.REGISTRY,r)
+            with self.subTest(mutate=mutate),self.assertRaises(ValueError):A.source_inputs(self.source,self.d,self.H,self.rows)
+        self.source_data(A.STAGING_TABLE,table);self.source_data(A.REGISTRY,registry)
+        for member in(A.STAGING_TABLE,A.REGISTRY):
+            row=self.rows.pop(member)
+            with self.subTest(member=member),self.assertRaises(ValueError):A.source_inputs(self.source,self.d,self.H,self.rows)
+            self.rows[member]=row
+        path=self.source/extra['public14_profile']['member'];path.write_bytes(b'stale Source staging profile')
+        with self.assertRaises(ValueError):A.source_inputs(self.source,self.d,self.H,self.rows)
+
+    def test_staging_registry_signal_cannot_silently_fall_back_to_default59(self):
+        self.staging();self.d['materials']=dict(self.materials);row=self.rows.pop(A.STAGING_TABLE)
+        with self.assertRaises(ValueError):A.source_inputs(self.source,self.d,self.H,self.rows)
+        self.rows[A.STAGING_TABLE]=row
+        with self.assertRaises(ValueError):A.source_inputs(self.source,self.d,self.H,self.rows)
+
     def test_backend_and_pure_preflight_match_real_image_selected_inputs(self):
         value=self.assemble();owner=value['owner_inputs'];before={p:p.read_bytes()for p in self.root.rglob('*')if p.is_file()}
         actual=A.validate_hosted_inputs_v3(inputs=value,delegation=self.d,source_root=self.source)
