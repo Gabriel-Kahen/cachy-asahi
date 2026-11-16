@@ -4,6 +4,7 @@
 No action on import. This does not install project packages or target-system tools.
 """
 import hashlib
+import json
 import os
 from pathlib import Path
 import re
@@ -30,15 +31,41 @@ APT_FIXED=['-o','Acquire::Retries=0','-o','Acquire::http::Timeout=15','-o','Acqu
 def need(ok,message):
  if not ok:raise ValueError(message)
 def pin(raw):return dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())
-def context(env,machine,release,uid):
- need(uid==0 and machine in('aarch64','arm64')and env.get('GITHUB_ACTIONS')=='true'and env.get('RUNNER_OS')=='Linux'and
-  env.get('RUNNER_ARCH')=='ARM64'and env.get('ImageOS')=='ubuntu24'and env.get('GITHUB_REPOSITORY')=='Gabriel-Kahen/cachy-asahi'and
-  env.get('GITHUB_EVENT_NAME')=='workflow_dispatch','explicit native Ubuntu24 GitHub CI controller only')
- values={}
- for line in release.decode().splitlines():
-  if '='in line:
-   key,value=line.split('=',1);values[key]=value.strip('"')
- need(values.get('ID')=='ubuntu'and values.get('VERSION_ID')=='24.04','literal Ubuntu24.04 prerequisite; no host/Asahi fallback')
+def context(env,machine,release,uid,record=None):
+ # Only fixed public fields; invalid/unknown text is omitted, never truncated.
+ def safe(value,pattern):
+  return value if type(value)is str and len(value)<=160 and re.fullmatch(pattern,value)else None
+ patterns=dict(GITHUB_ACTIONS='true|false',RUNNER_OS='Linux|Windows|macOS',RUNNER_ARCH='ARM64|X64|ARM',
+  ImageOS='[A-Za-z0-9._-]{1,64}',ImageVersion='[0-9][A-Za-z0-9._-]{0,63}',
+  GITHUB_REPOSITORY='Gabriel-Kahen/cachy-asahi',GITHUB_EVENT_NAME='workflow_dispatch',
+  GITHUB_RUN_ATTEMPT='[1-9][0-9]{0,2}',GITHUB_RUN_ID='[1-9][0-9]{1,19}',GITHUB_SHA='[0-9a-f]{40}',
+  GITHUB_REF='refs/heads/codex/fish02-owned-v2-host-prerequisites-source-[A-Za-z0-9._-]{1,80}',GITHUB_JOB='pair')
+ public={name:safe(env.get(name),pattern)for name,pattern in patterns.items()}
+ values={};valid=type(release)is bytes and 0<len(release)<=16384
+ if valid:
+  try:
+   for line in release.decode('utf-8').splitlines():
+    key=line.split('=',1)[0]
+    if key not in('ID','VERSION_ID'):continue
+    match=re.fullmatch(r'(ID|VERSION_ID)=(?:"([A-Za-z0-9._-]{1,32})"|([A-Za-z0-9._-]{1,32}))',line)
+    if not match or key in values:valid=False;continue
+    values[key]=match[2]or match[3]
+  except UnicodeDecodeError:valid=False
+ valid=valid and set(values)=={'ID','VERSION_ID'}
+ checks=dict(ROOT_UID=type(uid)is int and uid==0,MACHINE_ARM64=machine in('aarch64','arm64'),
+  CI_ACTIONS=public['GITHUB_ACTIONS']=='true',CI_RUNNER_OS=public['RUNNER_OS']=='Linux',CI_RUNNER_ARCH=public['RUNNER_ARCH']=='ARM64',
+  CI_REPOSITORY=public['GITHUB_REPOSITORY']is not None,CI_DISPATCH=public['GITHUB_EVENT_NAME']is not None,
+  CI_FIRST_ATTEMPT=public['GITHUB_RUN_ATTEMPT']=='1',CI_RUN_ID=public['GITHUB_RUN_ID']is not None,
+  CI_SOURCE_SHA=public['GITHUB_SHA']is not None,CI_SOURCE_REF=public['GITHUB_REF']is not None,CI_JOB_PAIR=public['GITHUB_JOB']=='pair',
+  OS_RELEASE_FORMAT=bool(valid),OS_UBUNTU=valid and values.get('ID')=='ubuntu',OS_VERSION24_04=valid and values.get('VERSION_ID')=='24.04')
+ facts=dict(kind='PUBLIC_UBUNTU24_ARM_CI_CONTEXT_V1',uid=uid if type(uid)is int and 0<=uid<2**32 else None,
+  machine=safe(machine,'[A-Za-z0-9_-]{1,32}'),os_release={k:safe(values.get(k),'[A-Za-z0-9._-]{1,32}')for k in('ID','VERSION_ID')},
+  environment=public,checks=checks,reason_codes=[name for name,passed in checks.items()if not passed],
+  provider_labels_informational=True,Root_authority=None)
+ need(len(json.dumps(facts))<=8192,'finite public context receipt')
+ if record is not None:record(facts) # Durable BEFORE any context refusal or APT action.
+ need(not facts['reason_codes'],'CI prerequisite context refused: '+','.join(facts['reason_codes']))
+ return facts
 def public_file(path,root,uid):
  path=path.resolve(strict=True);need(path==root or root in path.parents,'public configuration stays within selected root')
  before=path.lstat();need(stat.S_ISREG(before.st_mode)and before.st_uid==uid and not before.st_mode&0o022 and before.st_nlink==1 and 0<=before.st_size<=2*1024**2,'ordinary root-owned bounded public configuration')
@@ -119,11 +146,14 @@ def prepare(owner,env,machine,root=Path('/'),uid=0):
  root/uid are inert test seams; operational caller supplies no overrides.
  """
  limits=owner.policy['host_prerequisites'];need(limits==DECLARATION,'separately Root-admitted exact CI prerequisite proposal')
- root=Path(root);release=public_file(root/'etc/os-release',root,uid);context(env,machine,release,uid)
- trust=trust_snapshot(root,uid);end=min(owner.end,time.monotonic()+limits['seconds']);calls=0
+ root=Path(root);end=min(owner.end,time.monotonic()+limits['seconds']);calls=0
  report=dict(kind=KIND,status='STARTED_NO_NATIVE_ACCEPTANCE',package=PACKAGE,Root_acceptance=None,selected_version=None,
-  installed=None,repository_key_trust_before=trust,commands=[],cache_absent=False)
+  installed=None,repository_key_trust_before=None,commands=[],cache_absent=False)
  owner.prerequisite=report
+ def record_context(facts):
+  report['context']=facts;owner.record_prerequisite(report)
+ release=public_file(root/'etc/os-release',root,uid);context(env,machine,release,uid,record=record_context)
+ trust=trust_snapshot(root,uid);report['repository_key_trust_before']=trust
  before=owner.H.probe_all();need(set(before['missing_or_invalid'])<={'bsdtar'},'other host prerequisites must already be valid; no generalized installer')
  report['tools_before']=before
  prior={n:row['selected']for n,row in before['tools'].items()if row['selected']is not None}
@@ -143,7 +173,9 @@ def prepare(owner,env,machine,root=Path('/'),uid=0):
   report['commands'].append(dict(name=name,argv=[owner.tools[name]['path'],*args],exit=code,output=pin(raw)))
   need(trust_snapshot(root,uid)==trust,'repository/key/trust configuration unchanged')
   return code,raw
- _,raw=run('dpkg',['--print-architecture'],15);need(raw.strip()==b'arm64','actual dpkg arm64 host architecture')
+ _,raw=run('dpkg',['--print-architecture'],15);arm=raw.strip()==b'arm64'
+ report['dpkg_architecture']=dict(architecture='arm64'if arm else None,output=pin(raw),reason_codes=[]if arm else ['DPKG_ARM64'])
+ owner.record_prerequisite(report);need(arm,'CI prerequisite context refused: DPKG_ARM64')
  code,raw=run('dpkg-query',['-W','--showformat='+FORMAT,PACKAGE],15,False);need(code in(0,1),'normal initial package query only');report['initial_package_query']=dict(exit=code,output=pin(raw))
  run('apt-get',[*APT_FIXED,*opts,'update'],120)
  _,raw=run('apt-cache',[*opts,'policy',PACKAGE],15);version=candidate(raw);report['selected_version']=version

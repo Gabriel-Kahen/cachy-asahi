@@ -222,3 +222,26 @@ mount, lease, credentials, native build, dispatch or publication occurred here.
 Actual selected Ubuntu version, install result and future host capabilities stay
 unobserved. Neither the prerequisite proposal nor local tests qualify a Fish02
 native pair, Asahi/M2 target, performance or release.
+
+### Context receipt successor (Source47 r3)
+
+Source47 r2's consumed run43849433623/job133237881597 held at the combined
+context guard before APT or owned domains. Its public setup log reports
+Ubuntu24.04.5LTS, image `ubuntu-24.04-arm`, version20261111.182.1 and the
+`ubuntu24-arm64` runner-image family. The precise failing conjunct and actual
+ImageOS environment value were not retained; neither is inferred here.
+
+The successor persists an at-most8192-byte allowlisted public context object
+before evaluating the guard. It records typed UID/machine, only ID/VERSION_ID
+from os-release, fixed expected GitHub/runner fields, per-invariant booleans and
+finite reason codes. Unknown/private environment keys, raw release text and
+unsafe field values are never exported. ImageOS/ImageVersion are informational
+provider labels; actual Ubuntu24.04 os-release, root UID, native ARM machine,
+Linux/ARM64 runner, expected public repository/dispatch/first-attempt/run/Source
+ref/SHA/job remain required. Existing separate Root source/ref/nonce/runtime
+admission remains mandatory. The first supervised read-only dpkg architecture
+query records its result/reason before any APT command and still requires arm64.
+
+All prerequisite/package/trust/resource/time/output/cleanup/build requirements
+are unchanged. A context receipt or passing label check supplies no authority or
+native acceptance. Old r2 Source/ref/case are immutable and must not be retried.

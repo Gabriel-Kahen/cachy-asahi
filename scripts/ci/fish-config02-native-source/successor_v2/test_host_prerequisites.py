@@ -16,7 +16,7 @@ HERE=Path(__file__).resolve().parent
 def module(name):
  s=importlib.util.spec_from_file_location('CI_prerequisite_DATA_'+name,HERE/(name+'.py'));m=importlib.util.module_from_spec(s);s.loader.exec_module(m);return m
 Q,H,O,D,R=map(module,('host_prerequisites','host_tools','hosted_owner','data','retain'))
-ENV=dict(GITHUB_ACTIONS='true',RUNNER_OS='Linux',RUNNER_ARCH='ARM64',ImageOS='ubuntu24',GITHUB_REPOSITORY='Gabriel-Kahen/cachy-asahi',GITHUB_EVENT_NAME='workflow_dispatch')
+ENV=dict(GITHUB_ACTIONS='true',RUNNER_OS='Linux',RUNNER_ARCH='ARM64',ImageOS='ubuntu24',GITHUB_REPOSITORY='Gabriel-Kahen/cachy-asahi',GITHUB_EVENT_NAME='workflow_dispatch',GITHUB_RUN_ATTEMPT='1',GITHUB_RUN_ID='12345678',GITHUB_SHA='a'*40,GITHUB_REF='refs/heads/codex/fish02-owned-v2-host-prerequisites-source-FENCED-r3',GITHUB_JOB='pair')
 VERSION='3.7.2-2ubuntu0.4'
 POLICY=json.loads((HERE/'policy.json').read_bytes())
 REAL_CONTEXT=Q.context
@@ -44,7 +44,7 @@ class Controls(unittest.TestCase):
   owner.tool=tool;owner.record_prerequisite=lambda value:self.records.append(copy.deepcopy(value))
   def run(argv,seconds,check,end,cache,limits):
    self.commands.append((argv,seconds,check));name=Path(argv[0]).name
-   if name=='dpkg':return 0,b'arm64\n'
+   if name=='dpkg':return 0,self.behavior.get('dpkg_architecture',b'arm64\n')
    if name=='dpkg-query':
     if not self.installed:return 1,b'dpkg-query: no packages found matching libarchive-tools\n'
     return 0,('libarchive-tools\tinstall ok installed\t'+self.behavior.get('installed_version',VERSION)+'\tarm64\n').encode()
@@ -52,7 +52,7 @@ class Controls(unittest.TestCase):
    if name=='bsdtar':return 0,b'bsdtar 3.7.2 - libarchive 3.7.2\n'
    if 'update'in argv and self.behavior.get('trust_change'):(self.root/'etc/apt/sources.list.d/ubuntu.sources').write_bytes(b'FENCED changed repository')
    if '--download-only'in argv or '--no-download'in argv:
-    self.assertTrue(self.records);self.assertEqual(self.records[0]['selected_version'],VERSION)
+    self.assertTrue(self.records);self.assertTrue(any(row.get('selected_version')==VERSION for row in self.records))
    if '--no-download'in argv:
     if self.behavior.get('install_failure'):raise ValueError('FENCED apt install failed')
     self.installed=True;self.binary('bsdtar')
@@ -64,7 +64,7 @@ class Controls(unittest.TestCase):
  def prepare(self):
   # Only the fixture UID seam is translated to the modeled root context. No UID
   # change or operational grant exists; every subprocess/syscall actor is fenced.
-  with patch.object(Q,'context',side_effect=lambda e,m,r,u:REAL_CONTEXT(e,m,r,0)):
+  with patch.object(Q,'context',side_effect=lambda e,m,r,u,**kw:REAL_CONTEXT(e,m,r,0,**kw)):
    return Q.prepare(self.owner,ENV,'aarch64',root=self.root,uid=os.getuid())
  def test_exact_nine_command_plan_candidate_durable_and_complete_reobservation(self):
   old=self.owner.H.inspect('/usr/bin/docker');result=self.prepare()
@@ -91,6 +91,33 @@ class Controls(unittest.TestCase):
   self.owner.policy['host_prerequisites']['seconds']=451
   with self.assertRaises(ValueError):self.prepare()
   self.assertEqual(self.commands,[])
+ def test_ARM_provider_labels_are_informational_actual_context_stays_required(self):
+  for label in('ubuntu24-arm64','ubuntu-24.04-arm','ubuntu24',None):
+   facts=Q.context(dict(ENV,ImageOS=label,ImageVersion='20261111.182.1'),'aarch64',b'ID=ubuntu\nVERSION_ID="24.04"\n',0)
+   self.assertEqual(facts['reason_codes'],[]);self.assertEqual(facts['environment']['ImageOS'],label)
+   self.assertTrue(facts['provider_labels_informational']);self.assertIsNone(facts['Root_authority'])
+  facts=Q.context(dict(ENV,ImageOS='PRIVATE_SENTINEL\n',ImageVersion='x'*161,UNKNOWN_PRIVATE='PRIVATE_SENTINEL'),'aarch64',b'ID=ubuntu\nVERSION_ID=24.04\nPRETTY_NAME=PRIVATE_SENTINEL',0)
+  self.assertIsNone(facts['environment']['ImageOS']);self.assertIsNone(facts['environment']['ImageVersion']);self.assertNotIn('PRIVATE_SENTINEL',json.dumps(facts))
+ def test_context_negative_reasons_are_recorded_before_refusal_without_private_text(self):
+  cases=[('ROOT_UID',ENV,'aarch64',b'ID=ubuntu\nVERSION_ID=24.04',1000),('MACHINE_ARM64',ENV,'x86_64',b'ID=ubuntu\nVERSION_ID=24.04',0),
+   ('OS_UBUNTU',ENV,'aarch64',b'ID=arch\nVERSION_ID=24.04',0),('OS_VERSION24_04',ENV,'aarch64',b'ID=ubuntu\nVERSION_ID=22.04',0),
+   ('OS_RELEASE_FORMAT',ENV,'aarch64',b'ID=ubuntu\nID=ubuntu\nVERSION_ID=24.04',0)]
+  for field,reason,value in [('GITHUB_ACTIONS','CI_ACTIONS','false'),('RUNNER_OS','CI_RUNNER_OS','Windows'),('RUNNER_ARCH','CI_RUNNER_ARCH','X64'),
+   ('GITHUB_REPOSITORY','CI_REPOSITORY','PRIVATE_SENTINEL'),('GITHUB_EVENT_NAME','CI_DISPATCH','PRIVATE_SENTINEL'),('GITHUB_RUN_ATTEMPT','CI_FIRST_ATTEMPT','2'),
+   ('GITHUB_RUN_ID','CI_RUN_ID','PRIVATE_SENTINEL'),('GITHUB_SHA','CI_SOURCE_SHA','PRIVATE_SENTINEL'),('GITHUB_REF','CI_SOURCE_REF','PRIVATE_SENTINEL'),('GITHUB_JOB','CI_JOB_PAIR','PRIVATE_SENTINEL')]:
+   cases.append((reason,dict(ENV,**{field:value,'UNKNOWN_PRIVATE':'PRIVATE_SENTINEL'}),'aarch64',b'ID=ubuntu\nVERSION_ID=24.04',0))
+  for reason,env,machine,release,uid in cases:
+   records=[]
+   with self.subTest(reason=reason),self.assertRaisesRegex(ValueError,reason):Q.context(env,machine,release,uid,record=records.append)
+   self.assertEqual(len(records),1);self.assertIn(reason,records[0]['reason_codes']);self.assertNotIn('PRIVATE_SENTINEL',json.dumps(records));self.assertLess(len(json.dumps(records)),8192)
+ def test_context_receipt_precedes_guard_and_dpkg_mismatch_precedes_APT(self):
+  release=self.root/'etc/os-release';release.write_bytes(b'ID=arch\nVERSION_ID=24.04\n')
+  with self.assertRaisesRegex(ValueError,'OS_UBUNTU'):self.prepare()
+  self.assertEqual(self.commands,[]);self.assertIn('OS_UBUNTU',self.records[0]['context']['reason_codes']);self.assertFalse((self.out/Q.CACHE).exists())
+  release.write_bytes(b'ID=ubuntu\nVERSION_ID=24.04\n');self.behavior['dpkg_architecture']=b'amd64\n'
+  with self.assertRaisesRegex(ValueError,'DPKG_ARM64'):self.prepare()
+  self.assertEqual(len(self.commands),1);self.assertEqual(self.owner.prerequisite['dpkg_architecture']['reason_codes'],['DPKG_ARM64'])
+  self.assertTrue(any(row.get('dpkg_architecture')for row in self.records));self.assertFalse(self.installed)
  def test_insecure_existing_source_or_repository_key_drift_refuses(self):
   source=self.root/'etc/apt/sources.list.d/ubuntu.sources';source.write_bytes(b'Trusted: yes\n')
   with self.assertRaises(ValueError):self.prepare()

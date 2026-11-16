@@ -55,3 +55,16 @@ The450-second prerequisite,1650-second aggregate work,1740-second scope,30-minut
 step,35-minute job and512MiB virtual AS require a new exact Root policy/runtime
 review. Physical controller and normal package/owner/daemon limits are unchanged.
 Source publication/readback and every actual authority selector remain unset.
+
+## Source47 r3 public context diagnostics
+
+The consumed r2 attempt held before APT/domain submission; the exact failed
+conjunct is unknown. The new guard records bounded public facts and finite
+reasons before refusal and uses actual os-release/native architecture and the
+existing Root dispatch binding. Provider labels are informational. All existing
+APT normal trust, limits, package/version and owned-pair requirements remain.
+
+Fourteen fenced prerequisite controls cover genuine ARM provider labels, unsafe
+label/private-field omission, every OS/architecture/repository/dispatch/run
+invariant, receipt-before-refusal ordering, and dpkg mismatch before APT. No
+actual setup or native attempt is performed by these controls.
