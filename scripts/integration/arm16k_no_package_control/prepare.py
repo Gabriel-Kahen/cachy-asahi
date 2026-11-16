@@ -83,7 +83,18 @@ def prepare(inputs_path, source_lock_sha256, reader_path, output, *, now=None, s
                 os.fchmod(fd, 0o400)
             finally:
                 os.close(fd)
+        identity = lambda s: (s.st_dev, s.st_ino, s.st_mode, s.st_uid, s.st_gid)
+        held = os.fstat(root)
+        K.need(stat.S_ISDIR(held.st_mode) and identity(held) == identity(created),
+               'same held constructor directory before membership')
+        # Refresh enumeration on this original FD after populating the directory.
+        os.lseek(root, 0, os.SEEK_SET)
         K.need(set(os.listdir(root)) == set(rows), 'exact constructor snapshot membership')
+        after = os.fstat(root)
+        K.need(identity(after) == identity(held) and
+               all(getattr(after, n) == getattr(held, n) for n in
+                   ('st_nlink', 'st_size', 'st_mtime_ns', 'st_ctime_ns')),
+               'same held constructor directory after membership')
         os.fchmod(root, 0o500)
         os.fsync(root)
         final = os.stat(out.name, dir_fd=parent, follow_symlinks=False)

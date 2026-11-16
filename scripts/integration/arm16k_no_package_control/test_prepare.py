@@ -246,6 +246,103 @@ class Constructor(unittest.TestCase):
         reader.write_bytes(MODEL_READER)
         return packet, source, inputs, reader, out
 
+    def test_snapshot_rewinds_same_held_fd_before_exact_membership(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            _, source, inputs, reader, out = self.fixture(Path(temporary))
+            seek, listing = os.lseek, os.listdir
+            calls = []
+            rewound = []
+            def rewind(fd, offset, whence):
+                self.assertTrue(stat.S_ISDIR(os.fstat(fd).st_mode))
+                self.assertEqual((offset, whence), (0, os.SEEK_SET))
+                calls.append(('rewind', fd));rewound.append(fd)
+                return seek(fd, offset, whence)
+            def members(fd):
+                self.assertIs(type(fd), int)  # A pathname fallback is forbidden.
+                calls.append(('members', fd))
+                return listing(fd) if rewound == [fd] else []
+            with patch.object(P.os, 'lseek', side_effect=rewind), \
+                 patch.object(P.os, 'listdir', side_effect=members):
+                result = P.prepare(inputs, source['sha256'], reader, out,
+                                   now=1000000, source_loader=lambda _: source)
+            try:
+                self.assertEqual(calls, [('rewind', rewound[0]), ('members', rewound[0])])
+                self.assertEqual(result['status'], 'PUBLIC_PACKET_AND_READER_SNAPSHOTTED_NOT_EXECUTED')
+                self.assertEqual(set(x.name for x in out.iterdir()), {'control-packet.json', 'raw_metadata.py'})
+            finally:
+                out.chmod(0o700)
+
+    def test_snapshot_rewind_error_refuses_without_path_fallback(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            _, source, inputs, reader, out = self.fixture(Path(temporary))
+            with patch.object(P.os, 'lseek', side_effect=OSError('MODEL directory seek refused')), \
+                 patch.object(P.os, 'listdir') as listing:
+                with self.assertRaises(OSError):
+                    P.prepare(inputs, source['sha256'], reader, out,
+                              now=1000000, source_loader=lambda _: source)
+                listing.assert_not_called()
+            self.assertEqual(stat.S_IMODE(out.stat().st_mode), 0o700)
+
+    def test_snapshot_extra_member_after_rewind_still_refuses(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            _, source, inputs, reader, out = self.fixture(Path(temporary))
+            listing = os.listdir
+            def extra(fd):
+                self.assertIs(type(fd), int)
+                return listing(fd)+['MODEL_UNREVIEWED_EXTRA']
+            with patch.object(P.os, 'listdir', side_effect=extra):
+                with self.assertRaisesRegex(ValueError, 'exact constructor snapshot membership'):
+                    P.prepare(inputs, source['sha256'], reader, out,
+                              now=1000000, source_loader=lambda _: source)
+            self.assertEqual(stat.S_IMODE(out.stat().st_mode), 0o700)
+
+    def test_snapshot_held_identity_substitution_refuses_before_or_after_listing(self):
+        for change_at in (2, 3):
+            with self.subTest(change_at=change_at), tempfile.TemporaryDirectory() as temporary:
+                _, source, inputs, reader, out = self.fixture(Path(temporary))
+                opened, fstat, names = os.open, os.fstat, os.listdir
+                target, counts = [], []
+                def opening(name, flags, *args, **kwargs):
+                    fd = opened(name, flags, *args, **kwargs)
+                    if name == out.name and flags & os.O_DIRECTORY:
+                        self.assertTrue(flags & os.O_NOFOLLOW)
+                        target.append(fd)
+                    return fd
+                def identity(fd):
+                    result = fstat(fd)
+                    if target == [fd]:
+                        counts.append(fd)
+                        if len(counts) >= change_at:
+                            changed = list(result);changed[1] += 1
+                            return os.stat_result(changed)
+                    return result
+                with patch.object(P.os, 'open', side_effect=opening), \
+                     patch.object(P.os, 'fstat', side_effect=identity), \
+                     patch.object(P.os, 'listdir', side_effect=names) as listing:
+                    with self.assertRaisesRegex(ValueError, 'same held constructor directory'):
+                        P.prepare(inputs, source['sha256'], reader, out,
+                                  now=1000000, source_loader=lambda _: source)
+                    self.assertEqual(listing.call_count, change_at-2)
+
+    def test_snapshot_path_replacement_cannot_replace_held_fd_membership(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            _, source, inputs, reader, out = self.fixture(Path(temporary))
+            parked = out.with_name('original-held-snapshot')
+            chmod = os.fchmod
+            def substituted(fd, mode):
+                self.assertIs(type(fd), int)
+                result = chmod(fd, mode)
+                if mode == 0o500:
+                    out.rename(parked);out.mkdir(mode=0o700)
+                return result
+            try:
+                with patch.object(P.os, 'fchmod', side_effect=substituted):
+                    with self.assertRaisesRegex(ValueError, 'stable read-only constructor snapshot directory'):
+                        P.prepare(inputs, source['sha256'], reader, out,
+                                  now=1000000, source_loader=lambda _: source)
+            finally:
+                if parked.exists():parked.chmod(0o700)
+
     def test_pin_streams_owned_public_scratch_without_read_bytes_or_large_reads(self):
         with tempfile.TemporaryDirectory() as temporary:
             public = Path(temporary)/'public-model-stream.bin'
