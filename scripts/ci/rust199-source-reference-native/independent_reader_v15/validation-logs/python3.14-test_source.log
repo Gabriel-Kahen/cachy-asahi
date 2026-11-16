@@ -1,5 +1,6 @@
-............
+.................
 ----------------------------------------------------------------------
-Ran 12 tests in 1.679s
+Ran 17 tests in 2.444s
 
 OK
+MODEL shared-cursor later-child omission: True

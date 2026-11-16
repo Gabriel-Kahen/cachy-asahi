@@ -10,12 +10,12 @@
     "run": null,
     "source": null
   },
-  "bytes": 43556824,
+  "bytes": 43557462,
   "constructor_files": {
     "README.md": {
-      "bytes": 6230,
+      "bytes": 6800,
       "mode": 420,
-      "sha256": "1ca915e04887c3178d5f23e9c91ba8fed84b968f083993da52636174365d82ed"
+      "sha256": "f4426e3ed8dd4481da4f7d35cf841234c49d1897d0b33583194d662a52480be2"
     },
     "Root-admission.TEMPLATE.json": {
       "bytes": 14249,
@@ -28,9 +28,9 @@
       "sha256": "28c650fd0e3b1979fc496342185dd43ca14d30c6658bbad2e1755a49f823d948"
     },
     "payload/hosted/owned_dir.py": {
-      "bytes": 12793,
+      "bytes": 13431,
       "mode": 420,
-      "sha256": "7a914d77e6cb4bb262fadecc003a8dc050dcca69960a44989a3d065f7630f7b2"
+      "sha256": "a7f231b8c1a8ffafaa2ffd61f2528348775ba3b78e22c6f40fe7e795e3756c16"
     },
     "payload/hosted/producer.py": {
       "bytes": 35398,
@@ -58,13 +58,13 @@
       "sha256": "52ef9a21ea8058622c62fdfccffd41dc9947a5f7ded97bc32214fb7f06d7c86f"
     },
     "test_runtime.py": {
-      "bytes": 12964,
+      "bytes": 14073,
       "mode": 420,
-      "sha256": "ca5baaa148e2106b4a33138da884acfe7d68e9ebc95bac8202e61b4d2e837f0f"
+      "sha256": "b910c5d0f26f2c0b437d0ea23a675deee017e2e5fc33e688ac1ef42ae6697b26"
     }
   },
   "files": 361,
-  "map_sha256": "b255ba5b02d8484f9db29bb9515118c5b317a3938d49cb3dd0688030263ead7e",
+  "map_sha256": "ef172f129f2970abd5685a24621d9aab5e7854e522041896ecf3570aff4c95fb",
   "parent": {
     "bytes": 43408000,
     "files": 355,
@@ -73,6 +73,6 @@
   },
   "schema": 15,
   "scope": "RUST199_EXTERNAL_OWNED_JOB_DIRECTORY_SUCCESSOR_V15",
-  "tree": "56aa770543f684b4f78e4a7abf1de4b93e006f28",
+  "tree": "a5973bcc4cca083492e365c62e282d6f4f8075b8",
   "unadmitted": true
 }

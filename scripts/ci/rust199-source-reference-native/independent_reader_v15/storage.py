@@ -59,7 +59,7 @@ def namespace(root,maximum=2048):
   if stat.S_ISDIR(info.st_mode):dirs.add(name)
   else:need(stat.S_ISREG(info.st_mode)and info.st_nlink==1,'NAMESPACE_SPECIAL_OR_HARDLINK');files.add(name);need(len(files)<=maximum,'NAMESPACE_FILE_BOUND')
  need(dirs=={str(p)for n in files for p in Path(n).parents if str(p)!='.'},'EMPTY_OR_UNLISTED_DIRECTORY');return files
-SOURCE=dict(files=361,bytes=43556824,tree='56aa770543f684b4f78e4a7abf1de4b93e006f28',map_sha256='b255ba5b02d8484f9db29bb9515118c5b317a3938d49cb3dd0688030263ead7e',profile_sha256='a0433e3e3a24f4da62fc5b57dedad658334212055412be27e1b9daac26c85e5c')
+SOURCE=dict(files=361,bytes=43557462,tree='a5973bcc4cca083492e365c62e282d6f4f8075b8',map_sha256='ef172f129f2970abd5685a24621d9aab5e7854e522041896ecf3570aff4c95fb',profile_sha256='c387e198c434fb269f4ea2ad7bf22c31a0091b527f814badd7ad65d3670414df')
 SOURCE_MAP_BYTES=69826
 def source(root,profile_raw,selected):
  need(all(v is not None for v in SOURCE.values()),'SOURCE15_CONTRACT_UNPINNED')
@@ -75,6 +75,7 @@ def source(root,profile_raw,selected):
  need(len(files)==361 and sum(len(v[0])for v in files.values())==SOURCE['bytes']and git_tree(files)==SOURCE['tree'],'SOURCE_WHOLE_TREE')
  need(decode(files['contract.json'][0])['holds']['source_payload_license_completeness']=='HELD; all existing license108 and related holds preserved','HISTORICAL_LICENSE_HOLDS')
  source_inverse(files)
+ workspace_cleanup_source(files['hosted/owned_dir.py'][0])
  return files
 
 PARENT=dict(files=340,bytes=42985162,tree='596fe9277740365fa3e29ee11f2b75ae7ce8bbc8',map_sha256='3974a68677faadf1136f21539b595f3f0da85fa26bd72eb8d0fa8c6e922894f1')
@@ -155,3 +156,60 @@ def source_inverse(files):
  need(old['actual']==actual and old['files']=={n:dict(pin(b),mode=mode)for n,(b,mode)in restored.items()if n!='source-map.json'}and len(restored)==PARENT355['files']and sum(len(b)for b,mode in restored.values())==PARENT355['bytes']and git_tree(restored)==PARENT355['tree'],'SOURCE361_FULL_SOURCE355_INVERSE')
  source355_inverse(restored)
  return PARENT355
+
+def workspace_cleanup_source(raw):
+ """Audit fresh directory scan and two-pass retirement AST as inert Source DATA."""
+ import ast
+ need(type(raw)is bytes and 0<len(raw)<=64*1024,'CLEANUP_SOURCE_BODY_BOUND')
+ try:tree=ast.parse(raw)
+ except(SyntaxError,ValueError):raise Hold('CLEANUP_SOURCE_AST')
+ def dump(node):return ast.dump(node,include_attributes=False)
+ def parsed(text):return ast.parse(text).body[0]
+ def call(node,name):return isinstance(node,ast.Call)and dump(node.func)==dump(ast.parse(name,mode='eval').body)
+ def normalized(node):
+  # Diagnostic text does not affect guard semantics.
+  node=ast.parse(ast.unparse(node)).body[0]
+  for part in ast.walk(node):
+   if call(part,'need')and len(part.args)==2 and isinstance(part.args[1],ast.Constant)and type(part.args[1].value)is str:part.args[1]=ast.Constant('diagnostic')
+  return dump(node)
+ functions={n.name:n for n in tree.body if isinstance(n,ast.FunctionDef)}
+ need({'scan','empty'}<=set(functions),'CLEANUP_FRESH_SCAN_FUNCTIONS_REQUIRED')
+ expected_scan=parsed("""@contextmanager
+def scan(fd):
+ before=os.fstat(fd)
+ fresh=os.open('.',FLAGS,dir_fd=fd)
+ try:
+  need(stat.S_ISDIR(before.st_mode) and node(before)==node(os.fstat(fresh)) and mount_id(fd)==mount_id(fresh),'diagnostic')
+  with os.scandir(fresh) as rows:
+   yield rows
+ finally:os.close(fresh)
+""")
+ need(normalized(functions['scan'])==normalized(expected_scan),'CLEANUP_FRESH_OPEN_IDENTITY_MOUNT_AND_FINALLY_CLOSE')
+ expected_empty=parsed('def empty(fd):\n with scan(fd) as rows:\n  return next(rows,None) is None\n')
+ need(dump(functions['empty'])==dump(expected_empty),'CLEANUP_EMPTINESS_USES_FRESH_SCAN')
+ flags=[n for n in tree.body if isinstance(n,ast.Assign)and any(isinstance(t,ast.Name)and t.id=='FLAGS'for t in n.targets)]
+ need(len(flags)==1 and dump(flags[0])==dump(parsed('FLAGS=os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC')),'CLEANUP_FRESH_SCAN_DIRECTORY_NOFOLLOW_FLAGS')
+ need(len([n for n in ast.walk(tree)if call(n,'os.scandir')])==1 and not any(call(n,f'os.{name}')for n in ast.walk(tree)for name in('listdir','dup','dup2','lseek')),'CLEANUP_NO_SHARED_CURSOR_OR_REWIND_SCAN')
+ leases=[n for n in tree.body if isinstance(n,ast.ClassDef)and n.name=='Lease'];need(len(leases)==1,'CLEANUP_ONE_OWNED_LEASE')
+ methods={n.name:n for n in leases[0].body if isinstance(n,ast.FunctionDef)}
+ need({'__init__','retire'}<=set(methods),'CLEANUP_ALLOCATION_AND_RETIREMENT_REQUIRED')
+ empties=[n for n in ast.walk(leases[0])if call(n,'empty')]
+ need(len(empties)==3 and all(dump(n)==dump(ast.parse('empty(self.fd)',mode='eval').body)for n in empties),'CLEANUP_CREATION_ROLLBACK_TERMINAL_FRESH_EMPTINESS')
+ body=methods['retire'].body
+ need(len(body)==11 and isinstance(body[2],ast.FunctionDef)and body[2].name=='walk','CLEANUP_FINITE_TWO_PASS_RETIREMENT_BODY')
+ expected=['self.check()','count=[0]',None,'walk(self.fd,0,False)','count[0]=0','walk(self.fd,0,True)','self.check()',None,'os.rmdir(self.path.name,dir_fd=self.rootfd)']
+ need(all(text is None or dump(body[i])==dump(parsed(text))for i,text in enumerate(expected)),'CLEANUP_COMPLETE_PREFLIGHT_BEFORE_DELETION')
+ need(isinstance(body[7],ast.Expr)and call(body[7].value,'need')and len(body[7].value.args)==2 and dump(body[7].value.args[0])==dump(ast.parse('empty(self.fd)',mode='eval').body),'CLEANUP_FRESH_TERMINAL_CHECK_BEFORE_ROOT_RMDIR')
+ walk=body[2];scans=[n for n in ast.walk(walk)if isinstance(n,ast.With)]
+ need(len(scans)==1 and len(scans[0].items)==1 and dump(scans[0].items[0])==dump(parsed('with scan(fd) as rows:\n pass').items[0]),'CLEANUP_EVERY_WALK_PASS_USES_FRESH_SCAN')
+ mutations=[]
+ def visit(node,guarded=False):
+  if call(node,'os.unlink')or call(node,'os.rmdir'):mutations.append(guarded)
+  if isinstance(node,ast.If)and dump(node.test)==dump(ast.Name(id='remove',ctx=ast.Load())):
+   for child in node.body:visit(child,True)
+   for child in node.orelse:visit(child,guarded)
+  else:
+   for child in ast.iter_child_nodes(node):visit(child,guarded)
+ visit(walk)
+ need(mutations==[True,True],'CLEANUP_PREFLIGHT_HAS_NO_UNGUARDED_MUTATION')
+ return dict(scope='SOURCE_AST_FRESH_FD_SCAN_AND_TWO_PASS_RETIREMENT_ONLY',fresh_open=True,preflight_before_deletion=True,terminal_fresh_empty=True,Source_executed=False)

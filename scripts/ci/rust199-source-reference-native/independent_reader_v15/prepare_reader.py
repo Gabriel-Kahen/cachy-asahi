@@ -10,8 +10,8 @@ from pathlib import Path
 HERE=Path(__file__).resolve().parent
 PROGRAMS=('reader.py','storage.py','bindings.py','evidence.py','archives.py','elf.py')
 PREDECESSOR='8b76a72d9b4808d5b8599a455e1cbf8163d86c5f'
-PROFILE_PIN=dict(bytes=2331,sha256='a0433e3e3a24f4da62fc5b57dedad658334212055412be27e1b9daac26c85e5c')
-CONSTRUCTOR='8d44169d967420784d89da16e5cb316b540396de'
+PROFILE_PIN=dict(bytes=2331,sha256='c387e198c434fb269f4ea2ad7bf22c31a0091b527f814badd7ad65d3670414df')
+CONSTRUCTOR='adead7b96d049e42a836c55605f423e08028ae81'
 
 
 def pin(raw):return dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())

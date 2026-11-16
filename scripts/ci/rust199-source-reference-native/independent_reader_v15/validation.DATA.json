@@ -58,8 +58,8 @@
       "sha256": "246e2e8f3d9d687a76d2b61f2d1eb4a51f240b90c3147253c5cb224e4f588521"
     },
     "test_source.py": {
-      "bytes": 7697,
-      "sha256": "acf32447079040a902d7ac5586d1e02c8329dbdbbaf89d91f29e13f263e5e36e"
+      "bytes": 12121,
+      "sha256": "c43a6e54ebe8961d4e842efbffbe8798493b0a91db47ebcacfe69a975f85befb"
     }
   },
   "interpreters": {
@@ -71,28 +71,28 @@
     "validation-logs/python3.12-test_actual_failure.log": {
       "bytes": 103,
       "exit": 0,
-      "sha256": "baf49b59538192f3e136ca0404cac516ecb8dd2fe5ba1416604056f3080fa49c",
+      "sha256": "2d014bb427120fb1a5014d7499096989061fd0fdf40acb471c2e2667de60e71e",
       "status": "PASS",
       "tests": 5
     },
     "validation-logs/python3.12-test_mounts.log": {
       "bytes": 128,
       "exit": 0,
-      "sha256": "1ca67fcfc648d9d230ee86f51c8be63b49630657ed51b1dec26def1516c37468",
+      "sha256": "1bf83eee6b6ca45f12f95322d7d0e3efac00f55fa3de634a954f0d5659f41fb1",
       "status": "PASS",
       "tests": 29
     },
     "validation-logs/python3.12-test_owned_bind.log": {
       "bytes": 113,
       "exit": 0,
-      "sha256": "e0d28806c56abd87488ce7e01e17c24064159d6644542a0a1f8a7e15ce56255f",
+      "sha256": "1f8a030730ddf2837aa158b98cca53b8b58b3f2ae8f45eae6ea3be840ed7f38f",
       "status": "PASS",
       "tests": 14
     },
     "validation-logs/python3.12-test_preparation.log": {
       "bytes": 105,
       "exit": 0,
-      "sha256": "62f4decbacb2e031de4e76f2bc96caa7cf3ec498967ced4083e0885df723cc1e",
+      "sha256": "fc827540616121b1a004e635148c02faab8889a9b4ce20cf29a8788294430ef9",
       "status": "PASS",
       "tests": 7
     },
@@ -113,23 +113,23 @@
     "validation-logs/python3.12-test_reader.log": {
       "bytes": 156,
       "exit": 0,
-      "sha256": "1a1c8900adae5679627873578044bdf78eb433003e271050f7a0e04d825b32f7",
+      "sha256": "bac9095306c5094ddda0a0c1c003e25d4411b3419fa5094b650def03b3fba595",
       "status": "PASS",
       "tests": 57
     },
     "validation-logs/python3.12-test_runtime.log": {
       "bytes": 137,
       "exit": 0,
-      "sha256": "a86faea22db678af088590dc1fdef31d8751a88b9dddb7edd9429cb61aa77a2c",
+      "sha256": "0cc94a67112b54e4e5ef0aadfd0824b9e3e803d6a4b87f3a6bbf70c8750f6435",
       "status": "PASS",
       "tests": 38
     },
     "validation-logs/python3.12-test_source.log": {
-      "bytes": 111,
+      "bytes": 163,
       "exit": 0,
-      "sha256": "4de161d4600987546b35248cda07f6922c9afcde3988c744c4cd7429df712ee5",
+      "sha256": "44893c6e696830acc63ad5a79527fa63dae793176caff44278402d00487a614c",
       "status": "PASS",
-      "tests": 12
+      "tests": 17
     },
     "validation-logs/python3.14-test_actual_failure.log": {
       "bytes": 103,
@@ -141,42 +141,42 @@
     "validation-logs/python3.14-test_mounts.log": {
       "bytes": 128,
       "exit": 0,
-      "sha256": "e517cd087d3c19371b90b789ed461d374004e50acc95946d757669041f5a254b",
+      "sha256": "4d6b42747e7517ca1943f274453e42be55dfd9c236b74bf4a439d7d71bdc0e5c",
       "status": "PASS",
       "tests": 29
     },
     "validation-logs/python3.14-test_owned_bind.log": {
       "bytes": 113,
       "exit": 0,
-      "sha256": "3bff0bea1acd9b55226c47627baadc09a90bbb2b45f5244839dc0e593492232e",
+      "sha256": "2000499d9ae498d46cfd2c697264dc8ad198bdc30b71cba5fca9cecb2f0e494f",
       "status": "PASS",
       "tests": 14
     },
     "validation-logs/python3.14-test_preparation.log": {
       "bytes": 105,
       "exit": 0,
-      "sha256": "8c45607fe2083a267482a6875ad6678741b57e9824267d761dd156c35beaf145",
+      "sha256": "bba69393211f4e9c0af4bc3ed09a15509753129438f4a83e1fe47a01ef65333e",
       "status": "PASS",
       "tests": 7
     },
     "validation-logs/python3.14-test_preservation.log": {
       "bytes": 103,
       "exit": 0,
-      "sha256": "fc216958a87d4ac5ea804bef681d4c3236ab98547df98c7cdcc53d2bdb0a7a8a",
+      "sha256": "9ad83a6df99389ffb3ca61b0079779a47d23344a68786cb95c1fd04d5aac9c59",
       "status": "PASS",
       "tests": 5
     },
     "validation-logs/python3.14-test_qualification.log": {
       "bytes": 109,
       "exit": 0,
-      "sha256": "3f3f3304ca08cbefa0be379efcc861313b5d5c3eaedad20509a59f96173e50b4",
+      "sha256": "32b2d9a54721f0bfc22bcd5f9c6d4dc0cfb519a608747e55e4ab4f093ca15384",
       "status": "PASS",
       "tests": 10
     },
     "validation-logs/python3.14-test_reader.log": {
       "bytes": 156,
       "exit": 0,
-      "sha256": "8016fffcd74b5ded7e4a53b7f8691b1054152c7bbc23fa01d1e6835f4bd88d27",
+      "sha256": "b1fd966be843a1cceb391e04820efd445a68c382eed5eb0a8a396553946b7fba",
       "status": "PASS",
       "tests": 57
     },
@@ -188,29 +188,37 @@
       "tests": 38
     },
     "validation-logs/python3.14-test_source.log": {
-      "bytes": 111,
+      "bytes": 163,
       "exit": 0,
-      "sha256": "c9c54cb8c42c33d068a8966a9acf30587add19f13de42adef59acbdb1851fe80",
+      "sha256": "ffbba8eda23483b6488e093fb624afa35d0678f57403f558ea74282154061df7",
       "status": "PASS",
-      "tests": 12
+      "tests": 17
     }
   },
   "native_acceptance": false,
   "release_acceptance": false,
   "schema": 15,
-  "source_constructor_commit": "8d44169d967420784d89da16e5cb316b540396de",
+  "semantic_cleanup_controls": {
+    "AST_guard": "FRESH_FD_SCAN_COMPLETE_PREFLIGHT_TERMINAL_EMPTY_AND_FINALLY_CLOSE",
+    "Source_executed": false,
+    "adversarial_mutations_refused": 14,
+    "own_Btrfs_MODEL_shared_cursor_omission_reproduced_both_interpreters": true,
+    "own_MODEL_preflight_detects_FIFO_before_mutation": true,
+    "own_MODEL_terminal_empty_sees_later_child": true
+  },
+  "source_constructor_commit": "adead7b96d049e42a836c55605f423e08028ae81",
   "source_contract": {
-    "bytes": 43556824,
+    "bytes": 43557462,
     "files": 361,
-    "map_sha256": "b255ba5b02d8484f9db29bb9515118c5b317a3938d49cb3dd0688030263ead7e",
-    "profile_sha256": "a0433e3e3a24f4da62fc5b57dedad658334212055412be27e1b9daac26c85e5c",
-    "tree": "56aa770543f684b4f78e4a7abf1de4b93e006f28"
+    "map_sha256": "ef172f129f2970abd5685a24621d9aab5e7854e522041896ecf3570aff4c95fb",
+    "profile_sha256": "c387e198c434fb269f4ea2ad7bf22c31a0091b527f814badd7ad65d3670414df",
+    "tree": "a5973bcc4cca083492e365c62e282d6f4f8075b8"
   },
   "source_data_scope": "GENUINE_PROSPECTIVE_SOURCE361_DATA_COMPLETE_INVERSES_ONLY",
   "status": "PASS",
   "tests_per_interpreter": {
-    "python3.12": 177,
-    "python3.14": 177
+    "python3.12": 182,
+    "python3.14": 182
   },
   "warning_policy": "error::ResourceWarning"
 }
