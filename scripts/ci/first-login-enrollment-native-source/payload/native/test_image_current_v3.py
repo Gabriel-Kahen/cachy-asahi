@@ -13,6 +13,7 @@ import sys
 import tarfile
 import tempfile
 import time
+from types import SimpleNamespace
 import unittest
 from unittest import mock
 import uuid
@@ -45,6 +46,72 @@ def package(path,name,version,arch='aarch64'):
 
 def supervision(code=0):
     return dict(reaped=True,ownership='REAPED',group_census='EMPTY_TWICE',output_complete=True,signals=[],timeout=False,error=None,exit=code)
+
+
+class FileStabilityControls(unittest.TestCase):
+    def setUp(self):
+        self.temp=tempfile.TemporaryDirectory(prefix='image-read-stability-',dir='/dev/shm'if Path('/dev/shm').is_dir()else None)
+        self.addCleanup(self.temp.cleanup);self.path=Path(self.temp.name)/'data';self.raw=b'MODEL pinned bytes'
+        self.row=put(self.path,self.raw)
+
+    def observed(self,value,**changes):
+        fields={name:getattr(value,name)for name in dir(value)if name.startswith('st_')}
+        return SimpleNamespace(**dict(fields,**changes))
+
+    def read(self,kind):
+        return P.data(self.path)if kind=='data'else P.whole(self.row)
+
+    def test_real_reads_with_stale_access_time_preserve_pin(self):
+        for kind in ('data','whole'):
+            with self.subTest(kind=kind):
+                os.utime(self.path,ns=(1,self.path.stat().st_mtime_ns));before=self.path.stat()
+                result=self.read(kind);after=self.path.stat()
+                self.assertEqual(result,self.raw if kind=='data'else self.path)
+                self.assertEqual(P.stable_stat(before),P.stable_stat(after))
+                self.assertEqual(P.reference(self.row),self.raw)
+
+    def test_controlled_read_induced_access_time_update_is_allowed(self):
+        value=self.path.stat();before=self.observed(value,st_atime=0.0,st_atime_ns=0)
+        after=self.observed(value,st_atime=1.0,st_atime_ns=10**9)
+        self.assertNotEqual(before,after)
+        for kind in ('data','whole'):
+            with self.subTest(kind=kind),mock.patch.object(P.os,'fstat',side_effect=[before,after]),mock.patch.object(Path,'lstat',return_value=after):
+                self.assertEqual(self.read(kind),self.raw if kind=='data'else self.path)
+
+    def test_identity_and_write_metadata_mutations_are_refused(self):
+        before=self.observed(self.path.stat())
+        for field in ('st_dev','st_ino','st_mode','st_nlink','st_uid','st_gid','st_size','st_mtime_ns','st_ctime_ns'):
+            after=copy.copy(before);setattr(after,field,getattr(after,field)+1)
+            for kind in ('data','whole'):
+                for endpoint in ('descriptor','path'):
+                    with self.subTest(field=field,kind=kind,endpoint=endpoint),mock.patch.object(P.os,'fstat',side_effect=[before,after if endpoint=='descriptor'else before]),mock.patch.object(Path,'lstat',return_value=after if endpoint=='path'else before):
+                        with self.assertRaisesRegex(ValueError,'stable'):self.read(kind)
+
+    def test_same_body_path_replacement_during_read_is_refused(self):
+        original=os.read
+        for kind in ('data','whole'):
+            replacement=self.path.with_name('replacement');put(replacement,self.raw);replaced=False
+            def read(fd,size):
+                nonlocal replaced
+                block=original(fd,size)
+                if block and not replaced:os.replace(replacement,self.path);replaced=True
+                return block
+            with self.subTest(kind=kind),mock.patch.object(P.os,'read',side_effect=read):
+                with self.assertRaisesRegex(ValueError,'stable'):self.read(kind)
+            self.assertTrue(replaced)
+
+    def test_hash_mismatch_and_aliases_remain_refused(self):
+        bad=dict(self.row,sha256='0'*64)
+        for reader in (P.reference,P.whole):
+            with self.subTest(reader=reader.__name__):
+                with self.assertRaises(ValueError):reader(bad)
+        alias=self.path.with_name('alias');alias.symlink_to(self.path)
+        with self.assertRaises(ValueError):P.data(alias)
+        with self.assertRaises(ValueError):P.whole(dict(self.row,path=str(alias)))
+        alias.unlink();os.link(self.path,alias)
+        for kind in ('data','whole'):
+            with self.subTest(kind=kind):
+                with self.assertRaises(ValueError):self.read(kind)
 
 
 class HeldModel:

@@ -94,6 +94,12 @@ def decoded(raw):
     need(type(value)is dict,'JSON object');return value
 
 
+def stable_stat(value):
+    """Identity and mutation metadata; ordinary reads may update access time."""
+    return (value.st_dev,value.st_ino,value.st_mode,value.st_nlink,value.st_uid,value.st_gid,
+            value.st_size,value.st_mtime_ns,value.st_ctime_ns)
+
+
 def data(path,cap=2*1024**2):
     path=Path(path);need(path.is_absolute() and path==path.resolve(),'ordinary nonaliased DATA path')
     fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK|os.O_CLOEXEC)
@@ -101,7 +107,7 @@ def data(path,cap=2*1024**2):
         before=os.fstat(fd);need(stat.S_ISREG(before.st_mode) and before.st_nlink==1 and 0<=before.st_size<=cap,'bounded ordinary DATA')
         raw=b''
         while block:=os.read(fd,min(65536,cap+1-len(raw))):raw+=block;need(len(raw)<=cap,'DATA cap')
-        need(len(raw)==before.st_size and before==os.fstat(fd)==path.lstat(),'stable whole DATA');return raw
+        need(len(raw)==before.st_size and stable_stat(before)==stable_stat(os.fstat(fd))==stable_stat(path.lstat()),'stable whole DATA');return raw
     finally:os.close(fd)
 
 
@@ -119,7 +125,7 @@ def whole(row,cap=1024**3):
         before=os.fstat(fd);need(stat.S_ISREG(before.st_mode) and before.st_nlink==1 and before.st_size==row['bytes'],'ordinary exact archive')
         h=hashlib.sha256();size=0
         while block:=os.read(fd,1024**2):h.update(block);size+=len(block);need(size<=row['bytes'],'archive cap')
-        need(size==row['bytes'] and h.hexdigest()==row['sha256'] and before==os.fstat(fd)==path.lstat(),'whole stable archive pin')
+        need(size==row['bytes'] and h.hexdigest()==row['sha256'] and stable_stat(before)==stable_stat(os.fstat(fd))==stable_stat(path.lstat()),'whole stable archive pin')
     finally:os.close(fd)
     return path
 
