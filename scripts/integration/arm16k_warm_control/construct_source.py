@@ -21,8 +21,26 @@ V = module('verify')
 OLD = HERE/'predecessor'/'arm16k_no_package_control'
 K = module('contracts', OLD)
 P = module('plan', OLD)
+COMMON_PIN = dict(bytes=4822, sha256='d76d2f5cfa66ef7f8d2f18a4ce8651061f466cb47133ebcfa6f974ed5e530ea6')
+IDENTITY_PIN = dict(bytes=18370, sha256='ae69ebe75e2b17011ac6bd063f825f9993242e63b7a293799a5bcd1fa6fb4d79')
+
+
+def fixed_common():
+    path = HERE/'common-inputs.ACTUAL.DATA.json'
+    value = K.load(path)
+    K.need(K.json_pin(value) == COMMON_PIN, 'exact actual common DATA pin')
+    identity = K.load(HERE/'original111-package-identity.ACTUAL.DATA.json')
+    K.need(K.json_pin(identity) == IDENTITY_PIN and identity['count'] == 111 and
+           len(identity['base_packages']) == 111, 'exact actual complete111 package identity')
+    K.need(value['fixed_package_identity']['bytes'] == IDENTITY_PIN['bytes'] and
+           value['fixed_package_identity']['sha256'] == IDENTITY_PIN['sha256'], 'common complete111 identity join')
+    return value
+
+
+COMMON = fixed_common()
 FIXED_CONTROL = dict(
     source_lock=dict(bytes=3732, sha256=V.LOCKS['arm16k_no_package_control']),
+    packet=dict(bytes=4733, sha256='50ed6dcfd66f77cab02beb44184c59f4d77f29ce6b7360069274aa34a75caa77'),
     observations=dict(bytes=10140, sha256='aad212908bfa20e9f7b6b326f02ee7e360b9d63467d3c8ed36a41727cd54cd0f'),
     report=dict(bytes=21241, sha256='c60358f08263973e5fabf8268366aa12a43c357b42fe0a77efe62f56529f3cef'),
     terminal_closure=dict(bytes=1371, sha256='9afa27cdd182cbaef4cf307069f9b4e6426ccbcc247d4944f8e57823bee13002'),
@@ -32,11 +50,33 @@ FIXED_CONTROL = dict(
     scope='ACCEPT_FINITE_OBSERVATION_AND_CLEANUP_ONLY', next_boot_stability='NOT_RUN')
 
 
+def incomplete_actual_selection():
+    """Only retained common facts; no conversion, certificate or new-image claim."""
+    return dict(kind='ROOT_SELECTED_ONE_WARM_PAM_BASELINE_DATA_V1',
+        common_inputs=COMMON_PIN, original_baseline=COMMON['original_baseline'],
+        comparison_source65=COMMON['dependency65'], control=FIXED_CONTROL,
+        conversion=None, warmed_baseline=dict(raw=None, prepared=None, certificate=None),
+        packages=dict(count=111, original_inventory=IDENTITY_PIN, warmed_inventory=None),
+        baseline_nonce=COMMON['original_baseline_nonce'],
+        kernel={n: COMMON['kernel'][n] for n in ('Image', 'config')},
+        tool_image=COMMON['tool_image'], actor_tools=COMMON['actor_tools'],
+        Root_warm_baseline_acceptance=None, next_boot_stability=None)
+
+
 def selection(value):
     K.keys(value, ('kind', 'original_baseline', 'comparison_source65', 'control',
         'conversion', 'warmed_baseline', 'packages', 'baseline_nonce', 'kernel',
-        'tool_image', 'actor_tools'), 'one warm baseline selection')
+        'tool_image', 'actor_tools', 'common_inputs', 'Root_warm_baseline_acceptance',
+        'next_boot_stability'), 'one warm baseline selection')
     K.need(value['kind'] == 'ROOT_SELECTED_ONE_WARM_PAM_BASELINE_DATA_V1', 'finite warm DATA kind')
+    K.need(value['common_inputs'] == COMMON_PIN and
+           value['Root_warm_baseline_acceptance'] is value['next_boot_stability'] is None,
+           'exact common facts and unissued warm acceptance and stability')
+    K.need(value['baseline_nonce'] == COMMON['original_baseline_nonce'] and
+           K.canonical(value['kernel']) == K.canonical({n: COMMON['kernel'][n] for n in ('Image', 'config')}) and
+           value['tool_image'] == COMMON['tool_image'] and
+           K.canonical(value['actor_tools']) == K.canonical(COMMON['actor_tools']),
+           'same actual original nonce kernel image and six tools')
     K.need(K.canonical(value['original_baseline']) == K.canonical(P.BASELINE) and
            K.canonical(value['comparison_source65']) == K.canonical(P.SOURCE65['lock']) and
            K.canonical(value['control']) == K.canonical(FIXED_CONTROL), 'complete exact original baseline control and cleanup provenance')
@@ -56,7 +96,7 @@ def selection(value):
     K.pin_shape(packages['original_inventory'])
     K.pin_shape(packages['warmed_inventory'])
     K.need(type(packages['count']) is int and packages['count'] == 111 and
-           packages['original_inventory'] == packages['warmed_inventory'], 'same fixed111 package identity')
+           packages['original_inventory'] == packages['warmed_inventory'] == IDENTITY_PIN, 'same actual whole-pinned fixed111 package identity')
     nonce = value['baseline_nonce']
     K.need(type(nonce) is str and len(nonce) == 32 and all(c in '0123456789abcdef' for c in nonce), 'original PAM baseline nonce')
     K.keys(value['kernel'], ('Image', 'config'), 'same actual kernel')

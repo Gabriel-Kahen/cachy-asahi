@@ -22,9 +22,11 @@ def model():
         control=copy.deepcopy(C.FIXED_CONTROL), warmed_baseline=warm,
         conversion=dict(report=pin('opaque_conversion_report'), raw=warm['raw'], prepared=warm['prepared'],
             opaque_only=True, original_unchanged=True),
-        packages=dict(count=111, original_inventory=pin('same111'), warmed_inventory=pin('same111')),
-        baseline_nonce='b'*32, kernel=dict(Image=pin('same_actual_Image'), config=pin('same_actual_config')),
-        tool_image='sha256:'+'c'*64, actor_tools={name: pin(name) for name in K.TOOLS})
+        packages=dict(count=111, original_inventory=copy.deepcopy(C.IDENTITY_PIN), warmed_inventory=copy.deepcopy(C.IDENTITY_PIN)),
+        baseline_nonce=C.COMMON['original_baseline_nonce'],
+        kernel={n: copy.deepcopy(C.COMMON['kernel'][n]) for n in ('Image', 'config')},
+        tool_image=C.COMMON['tool_image'], actor_tools=copy.deepcopy(C.COMMON['actor_tools']),
+        common_inputs=copy.deepcopy(C.COMMON_PIN), Root_warm_baseline_acceptance=None, next_boot_stability=None)
 
 
 class ConstructorControls(unittest.TestCase):

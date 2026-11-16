@@ -30,8 +30,11 @@ Root review/grants, actual source/ref and VM acceptance. Observation completion
 can only describe the finite observation and cleanup protocol. A second boot's
 stability is NOT RUN until Root performs and reviews that actual operation.
 
-The final source seal and construction remain pending exact new Root-selected
-baseline and provenance descriptors. No image, credential, key, Docker endpoint,
+The actual common facts are now whole-pinned in `common-inputs.ACTUAL.DATA.json`
+and the separate complete111 identity DATA. Exact new raw/prepared/certificate
+and conversion descriptors remain NULL in `selection.ACTUAL.INCOMPLETE.DATA.json`.
+See `ROOT-SELECTION.md` for the precise remaining fields. The final actual
+source seal and construction remain pending those new Root-selected descriptors. No image, credential, key, Docker endpoint,
 VM, network transport or lease is opened or started by this work.
 
 The source constructor is `construct_source.py`. It accepts only a canonical
@@ -44,6 +47,7 @@ verify the selected kernel/tools/111-package identity against the original
 actual evidence before admitting the derived source.
 
 `source/` is currently the unchanged predecessor reference, not a completed warm
-candidate. The generated synthetic candidate used for 139 passing family
-controls is private `/tmp` MODEL data. Seven additional constructor controls pass.
-No genuine warm source construction or next boot is claimed from those models.
+candidate. The earlier generated synthetic candidate passed139 family and seven constructor
+controls in private `/tmp` MODEL data. Actual common integration then passed six
+focused join/tamper controls and one MODEL source-snapshot control. No genuine
+warm source construction or next boot is claimed from those models.
