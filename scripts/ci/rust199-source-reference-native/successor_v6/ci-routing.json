@@ -1,0 +1,19 @@
+{
+  "base_test_changes": [],
+  "commands": [
+    "python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v6/test_actor_binding.py",
+    "python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v6/test_admission.py",
+    "python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v6/test_binding.py",
+    "python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v6/test_orchestration.py",
+    "python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v6/test_source.py"
+  ],
+  "isolation": "ONE_PYTHON_PROCESS_PER_SCRIPT",
+  "native_roles": "NOT_RUN",
+  "python_versions": [
+    "3.12",
+    "3.14"
+  ],
+  "relax_permanent_audit_fence": false,
+  "schema": 1,
+  "status": "PORTABLE_FENCED_LLVM260_READER6_ADAPTER_CONTROLS"
+}

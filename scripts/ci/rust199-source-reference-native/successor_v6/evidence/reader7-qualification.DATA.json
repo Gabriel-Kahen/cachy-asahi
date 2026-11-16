@@ -1,0 +1,41 @@
+{
+  "Reader7_commit": "0e8af913091fb85db1d10bc1b35bb35e7be6cfbd",
+  "Reader_role_executed_here": false,
+  "Root_Rust_admission": null,
+  "Root_grants": null,
+  "adapter_Reader_DATA_checks": "PASS",
+  "binding": {
+    "bytes": 2337,
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-llvm260-Reader7-r1/Root-binding.ACTUAL.json",
+    "sha256": "7aa3860709dce214a866ac396f8429f17e2c1856bc61be25fd84bfec9bf78322"
+  },
+  "component_decision": {
+    "accepted_scope": [
+      "one native LLVM23.1.1 AArch64 source-reference build and package",
+      "Clang/LLD/compiler-rt/libunwind C compilation/link/execution, profiling and C++ exception smoke checks",
+      "complete pinned Source260/historical inverse, signed349 input lineage and build environment metadata",
+      "complete package payload, notices, ownership and100 ELF objects",
+      "owned native execution/export/retirement and independent passive Reader7 replay"
+    ],
+    "bytes": 4539,
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-llvm260-native-component-decision-r1/Root-native-component-decision.ACTUAL.json",
+    "sha256": "894bc71aab7156be97488d153cd56900b8c24851e2b9c490be762f008ef6c285",
+    "status": "VALIDATED_NATIVE_LLVM23_SOURCE_REFERENCE_COMPONENT_EVIDENCE_ONLY"
+  },
+  "dispatch": null,
+  "final_TEST_package_decision": null,
+  "fresh_TEST_signature": null,
+  "package": {
+    "bytes": 192385078,
+    "sha256": "689621ffa5261bdc7d382448529f6fa5d6e30f473d7470101cd0ab7d94140042"
+  },
+  "proof_carrier": null,
+  "reader_result": {
+    "bytes": 3871,
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-llvm260-Reader7-r1/reader-output/reader.json",
+    "sha256": "ed368782d2f93a09d85380d62da4c5e63727547a2949cf8ae9e319508ac080a7",
+    "status": "PASS_INDEPENDENT_LLVM23_BUILDINFO_ARCHITECTURE_SUCCESSOR_DATA_ONLY"
+  },
+  "schema": 1,
+  "status": "GENUINE_ROOT_READER7_AND_FINITE_COMPONENT_DATA_OBSERVED_NOT_FINAL_TEST_ACCEPTANCE"
+}
