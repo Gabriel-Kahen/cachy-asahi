@@ -1,0 +1,343 @@
+{
+  "$id": "urn:cachy-asahi:bankstown-qt3-image-data-v1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "Root_final_acceptance": {
+      "type": "null"
+    },
+    "binding": {
+      "additionalProperties": false,
+      "properties": {
+        "attempt": {
+          "const": 1
+        },
+        "job": {
+          "pattern": "^[1-9][0-9]{0,19}$",
+          "type": "string"
+        },
+        "ref": {
+          "pattern": "^refs/heads/",
+          "type": "string"
+        },
+        "run": {
+          "pattern": "^[1-9][0-9]{0,19}$",
+          "type": "string"
+        },
+        "source": {
+          "pattern": "^[0-9a-f]{40}$",
+          "type": "string"
+        },
+        "source_lock": {
+          "additionalProperties": false,
+          "properties": {
+            "bytes": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "bytes",
+            "sha256"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "source",
+        "ref",
+        "run",
+        "job",
+        "attempt",
+        "source_lock"
+      ],
+      "type": "object"
+    },
+    "catalog": {
+      "additionalProperties": false,
+      "properties": {
+        "bytes": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "path": {
+          "maxLength": 4096,
+          "pattern": "^/",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "bytes",
+        "sha256"
+      ],
+      "type": "object"
+    },
+    "delegation_pin": {
+      "additionalProperties": false,
+      "properties": {
+        "bytes": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "bytes",
+        "sha256"
+      ],
+      "type": "object"
+    },
+    "executor": {
+      "additionalProperties": false,
+      "properties": {
+        "code_pin": {
+          "additionalProperties": false,
+          "properties": {
+            "bytes": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "bytes",
+            "sha256"
+          ],
+          "type": "object"
+        },
+        "daemon_pid": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "docker_endpoint": {
+          "pattern": "^unix:///",
+          "type": "string"
+        },
+        "engine_id": {
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string"
+        },
+        "owner_pid": {
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "code_pin",
+        "engine_id",
+        "docker_endpoint",
+        "owner_pid",
+        "daemon_pid"
+      ],
+      "type": "object"
+    },
+    "filesystem": {
+      "additionalProperties": false,
+      "properties": {
+        "archive": {
+          "additionalProperties": false,
+          "properties": {
+            "bytes": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "path": {
+              "maxLength": 4096,
+              "pattern": "^/",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "path",
+            "bytes",
+            "sha256"
+          ],
+          "type": "object"
+        },
+        "image_id": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "root": {
+          "maxLength": 4096,
+          "pattern": "^/",
+          "type": "string"
+        }
+      },
+      "required": [
+        "root",
+        "image_id",
+        "archive"
+      ],
+      "type": "object"
+    },
+    "hardware_acceptance": {
+      "const": false
+    },
+    "image": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "inventory": {
+          "additionalProperties": false,
+          "properties": {
+            "bytes": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "path": {
+              "maxLength": 4096,
+              "pattern": "^/",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "path",
+            "bytes",
+            "sha256"
+          ],
+          "type": "object"
+        },
+        "protected349": {
+          "additionalProperties": false,
+          "properties": {
+            "bytes": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "bytes",
+            "sha256"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "id",
+        "inventory",
+        "protected349"
+      ],
+      "type": "object"
+    },
+    "independent_component_acceptance": {
+      "const": false
+    },
+    "key_freshness": {
+      "const": "HELD"
+    },
+    "kind": {
+      "const": "BANKSTOWN_QT3_IMAGE_DATA_V1"
+    },
+    "legal": {
+      "const": "HELD"
+    },
+    "lifetime": {
+      "additionalProperties": false,
+      "properties": {
+        "observed_monotonic": {
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        "work_deadline_monotonic": {
+          "exclusiveMinimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "observed_monotonic",
+        "work_deadline_monotonic"
+      ],
+      "type": "object"
+    },
+    "nonce": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "release_acceptance": {
+      "const": false
+    },
+    "schema": {
+      "const": 1
+    },
+    "source": {
+      "additionalProperties": false,
+      "properties": {
+        "commit": {
+          "pattern": "^[0-9a-f]{40}$",
+          "type": "string"
+        },
+        "ref": {
+          "pattern": "^refs/heads/",
+          "type": "string"
+        },
+        "root": {
+          "maxLength": 4096,
+          "pattern": "^/",
+          "type": "string"
+        }
+      },
+      "required": [
+        "root",
+        "commit",
+        "ref"
+      ],
+      "type": "object"
+    },
+    "status": {
+      "const": "PASS_PRIVATE_IMAGE_DATA_ONLY"
+    }
+  },
+  "required": [
+    "schema",
+    "kind",
+    "status",
+    "source",
+    "binding",
+    "nonce",
+    "delegation_pin",
+    "catalog",
+    "image",
+    "filesystem",
+    "executor",
+    "lifetime",
+    "legal",
+    "key_freshness",
+    "Root_final_acceptance",
+    "independent_component_acceptance",
+    "hardware_acceptance",
+    "release_acceptance"
+  ],
+  "type": "object"
+}
