@@ -19,7 +19,7 @@ import time
 API='CURRENT_ONBOARDING_MATERIAL_DOMAIN_V3'
 CLOSE_SECONDS=90
 EXECUTOR_PIN=dict(bytes=53735,sha256='aee41c0956f3249eef2e9c8974238b214622cb385e2d8f736109d9650ce7120a')
-STAGER_PIN=dict(bytes=32266,sha256='d0c0764b1b7a92bb55dce63ba55314bb84ace4533434afcc47b1e23205e1cac9')
+STAGER_PIN=dict(bytes=35550,sha256='58c5d0842c17a914239b5f24e9e1ac2987ad8ec9ce9e2a03e63a04f2e2e99282')
 OWNED_SHA='83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f'
 INPUT_METADATA={'staging_base_lock':dict(member='bootstrap/scripts/ci/inputs.lock.json',bytes=328101,sha256='beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'),
     'staging_bootstrap_profile':dict(member='native/input-profile.json',bytes=168201,sha256='2c42c705654d31e639f389f9a868dada0d9df76813d865e766be7b7c08f8404c')}
@@ -45,6 +45,41 @@ def decoded(raw):
         return value
     value=json.loads(raw,object_pairs_hook=pairs,parse_constant=lambda _:need(False,'finite DATA'))
     need(type(value)is dict,'DATA object');encoded(value);return value
+
+
+# Failure-only public protocol. No exception text, raw output or request body.
+FAILURE_KIND='CURRENT_MATERIAL_STAGE_FAILURE_V1'
+FAILURE_BYTES=1024
+FAILURE_PHASES=frozenset(('ENTRY','AUTHORIZE','SOURCE','NATIVE_CONTEXT','INPUTS','HELPERS','TOOLS','STORAGE','SCOPE','TRANSPORT_PUBLIC14','TRANSPORT_NATIVE248','PRIVATE_SEED','PUBLIC14_PREPARE','NATIVE248_PREPARE','DOWNLOAD','COMPLETE517','FINALIZE','CHILD'))
+FAILURE_REASONS=frozenset(('PHASE_FAILED','COMMAND_FAILED'))
+
+def failure_packet(raw):
+    """Decode the entire canonical packet, or return unavailable without raising."""
+    try:
+        if type(raw)is not bytes or not 0<len(raw)<=FAILURE_BYTES:return None
+        value=decoded(raw)
+        if set(value)!={'schema','kind','phase','reason','command_ordinal'}or raw!=encoded(value):return None
+        if type(value['schema'])is not int or value['schema']!=1 or value['kind']!=FAILURE_KIND:return None
+        if type(value['phase'])is not str or value['phase']not in FAILURE_PHASES or type(value['reason'])is not str or value['reason']not in FAILURE_REASONS:return None
+        index=value['command_ordinal']
+        if index is not None and(type(index)is not int or not 0<=index<=26):return None
+        return value
+    except (ValueError,TypeError,KeyError,UnicodeError,RecursionError,OverflowError):return None
+
+
+def emit_failure(diagnostic,error=None):
+    """Best-effort fixed-domain fallback; never replace the original failure."""
+    try:
+        value=dict(schema=1,kind=FAILURE_KIND,phase=diagnostic['phase'],reason='PHASE_FAILED',command_ordinal=None)
+        raw=encoded(value)
+        if failure_packet(raw)is None:return False
+        stream=getattr(sys.stderr,'buffer',None)
+        written=stream.write(raw)if stream is not None else sys.stderr.write(raw.decode('ascii'))
+        if written!=len(raw):return False
+        (stream or sys.stderr).flush()
+        if error is not None:setattr(error,'_current_material_failure_emitted',True)
+        return True
+    except BaseException:return False
 
 
 def ordinary(path):
@@ -351,6 +386,30 @@ class MaterialSession:
         self.r=r;self.root,self.d,self.policy,self.g,self.E,self.S,self.O=dependencies
         self.control=Path(r['control_root']);self.request=self.control/'material-domain-request.json';self.state='OPEN';self.receipts=[];self.stage_submitted=False
         need(not self.request.exists(),'fresh caller request, no collision adoption');write(self.request,r)
+    def retain_stage_failure(self,row,raw=None,stderr_complete=False):
+        """Retain one fixed safe record before CLOSEONLY cleanup; no raw streams."""
+        try:
+            def stream_pin(value):
+                if type(value)is not dict or set(value)!={'bytes','sha256'}:return None
+                if type(value['bytes'])is not int or not 0<=value['bytes']<=self.E.MAX_OUTPUT:return None
+                if type(value['sha256'])is not str or re.fullmatch('[0-9a-f]{64}',value['sha256'])is None:return None
+                return dict(value)
+            supervision=row.get('supervision');retirement_pin=pin(encoded(supervision))if type(supervision)is dict else None
+            retired=(type(supervision)is dict and supervision.get('reaped')is True and supervision.get('ownership')=='REAPED'
+                and supervision.get('output_complete')is True and type(supervision.get('exit'))is int)
+            complete=(stderr_complete is True and type(raw)is bytes and len(raw)<=self.E.MAX_OUTPUT
+                and stream_pin(row.get('stderr_pin'))==pin(raw)and retired)
+            packet=failure_packet(raw)if complete else None
+            record=dict(schema=1,kind='CURRENT_MATERIAL_STAGE_FAILURE_RECORD_V1',status='DIAGNOSTIC_ONLY',
+                availability='AVAILABLE'if packet is not None else'UNAVAILABLE',packet=packet,
+                request_pin=pin(encoded(self.r)),context_pin=pin(encoded(self.r['context'])),
+                stdout_pin=stream_pin(row.get('output_pin')),stderr_pin=stream_pin(row.get('stderr_pin'))if complete else None,
+                retirement_pin=retirement_pin,**FINAL)
+            write(self.control/'material-stage-failure.json',record)
+        except BaseException:
+            # A missing/colliding/unwritable diagnostic cannot change HOLD or close.
+            pass
+
     def execute(self,closing=False,secrets=None):
         E=self.E;E.require_runtime_capabilities();need(not scope_path(self.d['nonce'],closing).exists(),'fresh exact material scope, no foreign cleanup')
         tools=scope_tools(self.root,self.d,E)
@@ -359,7 +418,7 @@ class MaterialSession:
         need(read(self.request)==encoded(self.r),'unchanged original caller request')
         argv=scope_argv(Path(__file__).resolve(),self.request,pin(encoded(self.r))['sha256'],self.d['nonce'],seconds,closing,python_path=tools['python3']['path'],systemd_run_path=tools['systemd-run']['path'])
         row=dict(kind='CLOSE'if closing else'STAGE',argv=argv,tools=tools,natural=False,scope_absence=None,**FINAL);self.receipts.append(row)
-        stdin=None;generator=None
+        stdin=None;generator=None;error_body=None;stderr_complete=False
         try:
             if not closing:
                 generator=sealed_secret_input(secrets,self.S.secret_names());stdin=next(generator)
@@ -371,12 +430,15 @@ class MaterialSession:
                 result=self.O.supervise(child,cap=min(seconds+3,remaining(self.r['shared_timing'])-1),retirement=1,grace=.2,max_output=65536)
                 size=errors.tell();errors.seek(0);error_body=errors.read(E.MAX_OUTPUT)
             raw=result.pop('output');row['supervision']=result;row['output_pin']=pin(raw);row['stderr_pin']=pin(error_body)
+            stderr_complete=(size==len(error_body)and size<E.MAX_OUTPUT)
             need(size<E.MAX_OUTPUT,'complete bounded separate material stderr')
             E.natural(result);need(raw==b'','no material control stdout or secret diagnostics')
             row['scope_absence']=absent(self.d['nonce'],self.r['shared_timing']['deadline_monotonic'],closing);row['natural']=True
             return row
         except BaseException as error:
-            row['failure']=dict(type=type(error).__name__,message=str(error)[:240]);raise
+            row['failure']=dict(reason='MATERIAL_SCOPE_FAILED')
+            if not closing:self.retain_stage_failure(row,error_body,stderr_complete)
+            raise
         finally:
             if generator is not None:generator.close()
             if secrets is not None:secrets.clear()
@@ -402,7 +464,9 @@ class MaterialSession:
             self.state='RETAINED_FOR_CONSUMERS'
             return dict(receipt=receipt,references=refs,assembler_fields=fields,staging_scope_retirement=retirement)
         except BaseException:
-            if prior=='OPEN':self.state='HOLD_CLOSEONLY'
+            if prior=='OPEN':
+                self.retain_stage_failure(self.receipts[-1]if self.receipts else{})
+                self.state='HOLD_CLOSEONLY'
             raise
         finally:
             for name in self.S.secret_names():os.environ.pop(name,None)
@@ -442,12 +506,16 @@ def open_material_session(*,source_root,delegation_raw,delegation_sha256,context
     return MaterialSession(r,authorize(r))
 
 
-def root_entry(request,expected,closing=False):
+def root_entry(request,expected,closing=False,_diagnostic=None):
+    diagnostic={}if _diagnostic is None else _diagnostic;diagnostic['phase']='ENTRY'
     need(sys.flags.isolated and os.getuid()==os.geteuid()==0 and os.uname().sysname=='Linux'and os.uname().machine=='aarch64','isolated native ARM root material entry')
+    diagnostic['phase']='SOURCE'
     raw=read(request);need(pin(raw)['sha256']==expected,'exact caller request before authorization');r=decoded(raw)
+    diagnostic['phase']='AUTHORIZE'
     root,d,policy,g,E,S,O=authorize(r);E.require_runtime_capabilities();scope=actual_scope(E,d['nonce'],r['shared_timing'],closing)
     resource.setrlimit(resource.RLIMIT_AS,(PROPOSAL['controller_AS_bytes'],)*2);resource.setrlimit(resource.RLIMIT_CORE,(0,0))
     resource.setrlimit(resource.RLIMIT_CPU,(min(CLOSE_SECONDS if closing else 3600,math.floor(remaining(r['shared_timing']))),)*2)
+    diagnostic['phase']='STORAGE'
     storage=RootStorage(r,E,O,g,d);storage.policy=policy
     if closing:
         if not storage.admin.exists():
@@ -468,16 +536,21 @@ def root_entry(request,expected,closing=False):
         return
     storage.begin()
     # Actual systemd activation/runtime observation must precede secret use.
+    diagnostic['phase']='SCOPE'
     raw_props=storage.run('systemctl',['show',scope_name(d['nonce']),'--no-pager','--property=ControlGroup,RuntimeMaxUSec,ActiveEnterTimestampMonotonic'])
     props=decoded_scope_properties(raw_props)
     end=check_scope_properties(E,props,scope,r['shared_timing'],3600)
     need(time.monotonic()+30<end,'remaining physical staging scope budget')
+    diagnostic['phase']='STORAGE'
     storage.allocate()
+    diagnostic['phase']='NATIVE_CONTEXT'
     os.setgroups([]);os.setgid(r['runner_gid']);os.setuid(r['runner_uid'])
     need(os.getuid()==os.geteuid()==r['runner_uid']and os.getgid()==r['runner_gid'],'actual ordinary runner after one-way drop')
     os.environ.clear();os.environ.update(PATH='/usr/bin:/usr/sbin:/bin',HOME=str(g['storage_parent']),LC_ALL='C',LANG='C')
+    diagnostic['phase']='INPUTS'
     metadata=staging_inputs(root,d);values=secret_input(S.secret_names())
     try:
+        diagnostic['phase']='INPUTS'
         S.stage_materials(source_root=root,delegation_raw=r['delegation_raw'].encode(),delegation_sha256=r['delegation_sha256'],context=r['context'],
             grant_raw=r['grant_raw'].encode(),grant_sha256=r['grant_sha256'],output=Path(g['storage_parent'])/('cachy-current-materials-'+d['nonce']),
             secret_provider=S.OneShotSecrets(values),base_lock=metadata['base_lock'],bootstrap_profile=metadata['bootstrap_profile'])
@@ -487,8 +560,13 @@ def root_entry(request,expected,closing=False):
 def main():
     parser=argparse.ArgumentParser();parser.add_argument('mode',choices=('stage-entry','close-entry'))
     parser.add_argument('--request',type=Path,required=True);parser.add_argument('--request-sha256',required=True);args=parser.parse_args()
-    try:root_entry(args.request,args.request_sha256,args.mode=='close-entry')
-    except BaseException:raise SystemExit(2)from None
+    diagnostic=dict(phase='ENTRY')
+    try:root_entry(args.request,args.request_sha256,args.mode=='close-entry',_diagnostic=diagnostic)
+    except BaseException as error:
+        try:emitted=getattr(error,'_current_material_failure_emitted',False)is True
+        except BaseException:emitted=False
+        if args.mode=='stage-entry'and not emitted:emit_failure(diagnostic,error)
+        raise SystemExit(2)from None
 
 
 if __name__=='__main__':main()
