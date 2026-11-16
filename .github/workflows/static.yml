@@ -337,6 +337,10 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/port/platform-audio-registry-sources/test_join.py
           python3 -I -B -Werror::ResourceWarning packages/port/perl5423-source-candidate/test_recipe.py
           python3 -I -B -Werror::ResourceWarning packages/port/bankstown-source-candidate/test_candidate.py
+          python3 -I -B -Werror scripts/port/bankstown-qt3-native-v1/test_admission.py
+          python3 -I -B -Werror scripts/port/bankstown-qt3-native-v1/test_profile.py
+          python3 -I -B -Werror scripts/port/bankstown-qt3-native-v1/test_builder.py
+          bash -n scripts/port/bankstown-qt3-native-v1/entry.sh
           python3 -I -B -Werror::ResourceWarning scripts/port/platform-audio-bankstown-build/test_build.py
           python3 -I -B -Werror::ResourceWarning packages/port/networkmanager-source-candidate/test_candidate.py
           python3 -I -B -Werror::ResourceWarning scripts/port/python314-tk-host-build/test_host_build.py
