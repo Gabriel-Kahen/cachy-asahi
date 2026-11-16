@@ -5,14 +5,14 @@ programs and pinned inherited tar/ELF helper never execute producer/Source code.
 Root authentication, resource admission and final acceptance remain external.
 The template has no issued selectors, observations, grants or acceptance.
 
-The constructor is `8d44169d967420784d89da16e5cb316b540396de`:
+The constructor is `adead7b96d049e42a836c55605f423e08028ae81`:
 
 | Field | Exact value |
 | --- | --- |
-| Files / bytes / modes | 361 / 43556824 / all0644 |
-| Git tree | `56aa770543f684b4f78e4a7abf1de4b93e006f28` |
-| Source map | 69826 bytes, SHA256 `b255ba5b02d8484f9db29bb9515118c5b317a3938d49cb3dd0688030263ead7e` |
-| Constructor profile | 2331 bytes, SHA256 `a0433e3e3a24f4da62fc5b57dedad658334212055412be27e1b9daac26c85e5c` |
+| Files / bytes / modes | 361 / 43557462 / all0644 |
+| Git tree | `a5973bcc4cca083492e365c62e282d6f4f8075b8` |
+| Source map | 69826 bytes, SHA256 `ef172f129f2970abd5685a24621d9aab5e7854e522041896ecf3570aff4c95fb` |
+| Constructor profile | 2331 bytes, SHA256 `c387e198c434fb269f4ea2ad7bf22c31a0091b527f814badd7ad65d3670414df` |
 | Initializer code | 2060 bytes, SHA256 `e3da33c401407b1d0bc04caa5a67bde354a0ad54727450003cda5f57c611fc1a` |
 
 `reader-code.DATA.json` records the exact Reader closure. The constructor commit
@@ -56,6 +56,16 @@ components with O_NOFOLLOW, preserves held root/work identities and mount IDs,
 and removes only that owned tree. Owned leaf symlinks are unlinked via stable
 no-follow identity; targets are never followed. Directory/ancestor aliases,
 foreign ownership, mount crossing, lost identity and special files refuse.
+Reader additionally audits the inert cleanup AST: every scan opens `.` with a
+fresh directory file description relative to the held FD, verifies the same
+inode/owner/mode/mount, and closes it in `finally`. Allocation, rollback, both
+retirement passes and terminal emptiness must use this fresh scan. Shared-cursor
+listdir/scandir, dup/seek substitutions, missing guards and deletion before the
+complete preflight refuse. The independent Btrfs MODEL reproduces the old
+later-child omission and verifies fresh preflight sees an unsafe FIFO before any
+mutation; terminal emptiness also sees later children. These are local MODEL
+checks, with no Source/helper execution.
+
 These cleanup invariants are Source-enforced; Reader replays retained lifecycle
 DATA and does not inspect the retired runner filesystem.
 
@@ -87,7 +97,7 @@ Limits remain600s wall/CPU,1GiB address space,4GiB scratch,8 scratch files and
 specific zstd-unavailable hold. `prepare_reader.py` verifies the local unissued
 template and complete Reader15→14 inverse; `--write` regenerates both.
 
-177 fenced controls passed per interpreter on Python3.12.13 and3.14.7 with
+182 fenced controls passed per interpreter on Python3.12.13 and3.14.7 with
 ResourceWarning treated as errors. These use genuine prospective Source DATA,
 curated public actual failures and explicit MODEL fixtures. Exact inputs, logs
 and results are in `validation.DATA.json`. No Source actor, daemon, Original GET,

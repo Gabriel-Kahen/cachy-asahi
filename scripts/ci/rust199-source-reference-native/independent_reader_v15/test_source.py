@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: MIT
 """Read genuine public Source361 as DATA and exercise both complete inverses."""
 import argparse
+import os
+import stat
 import ast
 import importlib.util
 from pathlib import Path
@@ -59,6 +61,57 @@ class SourceControls(unittest.TestCase):
   self.assertEqual(S.pin(raw)['sha256'],'e3da33c401407b1d0bc04caa5a67bde354a0ad54727450003cda5f57c611fc1a')
   self.assertNotIn(b'os.fchmod(',raw);self.assertNotIn(b'os.fchown(',raw)
   self.assertIn(b"NO_CAPS_NO_MUTATION_OWNED_DIRECTORY",raw)
+ def test_cleanup_ast_proves_fresh_fd_preflight_and_terminal_checks(self):
+  raw=self.files['hosted/owned_dir.py'][0]
+  with patch('builtins.exec',side_effect=AssertionError('Source execution forbidden')):
+   proof=S.workspace_cleanup_source(raw)
+  self.assertFalse(proof['Source_executed']);self.assertTrue(proof['fresh_open'])
+  self.assertTrue(proof['preflight_before_deletion']);self.assertTrue(proof['terminal_fresh_empty'])
+  with patch.object(S,'workspace_cleanup_source',side_effect=S.Hold('MODEL_REQUIRED_CLEANUP_SOURCE_GATE')):
+   with self.assertRaisesRegex(S.Hold,'MODEL_REQUIRED_CLEANUP_SOURCE_GATE'):S.source(self.root,self.profile,S.SOURCE)
+ def test_cleanup_ast_rejects_shared_cursor_missing_identity_mount_and_close(self):
+  text=self.files['hosted/owned_dir.py'][0].decode()
+  mutations=[("fresh = os.open('.',FLAGS,dir_fd=fd)",'fresh = os.dup(fd)'),('with os.scandir(fresh) as rows:','with os.scandir(fd) as rows:'),('node(before) == node(os.fstat(fresh))','True'),('mount_id(fd) == mount_id(fresh)','True'),('finally: os.close(fresh)','finally: pass'),('FLAGS = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC','FLAGS = os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC'),('with scan(fd) as rows:', 'with os.scandir(fd) as rows:')]
+  for old,new in mutations:
+   self.assertIn(old,text)
+   with self.subTest(mutation=old),self.assertRaisesRegex(S.Hold,'CLEANUP_'):S.workspace_cleanup_source(text.replace(old,new,1).encode())
+ def test_cleanup_ast_rejects_skipped_preflight_early_mutation_and_stale_empty(self):
+  text=self.files['hosted/owned_dir.py'][0].decode()
+  mutations=[('walk(self.fd,0,False)','walk(self.fd,0,True)'),('walk(self.fd,0,True)','walk(self.fd,0,False)'),('if remove: os.unlink(entry.name,dir_fd=fd)','os.unlink(entry.name,dir_fd=fd)'),('if remove: os.rmdir(entry.name,dir_fd=fd)','os.rmdir(entry.name,dir_fd=fd)'),("need(empty(self.fd), 'exact owned workspace empty after bounded retirement')","need(True, 'exact owned workspace empty after bounded retirement')"),('empty(self.fd)','not os.listdir(self.fd)'),('return next(rows,None) is None','return True')]
+  for old,new in mutations:
+   self.assertIn(old,text)
+   with self.subTest(mutation=old),self.assertRaisesRegex(S.Hold,'CLEANUP_'):S.workspace_cleanup_source(text.replace(old,new,1).encode())
+ def fresh_names(self,fd):
+  # Independent MODEL, never an import/execution of the Source helper.
+  before=os.fstat(fd);fresh=os.open('.',os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC,dir_fd=fd)
+  try:
+   after=os.fstat(fresh)
+   self.assertEqual(tuple(getattr(before,k)for k in('st_dev','st_ino','st_uid','st_gid','st_mode')),tuple(getattr(after,k)for k in('st_dev','st_ino','st_uid','st_gid','st_mode')))
+   with os.scandir(fresh)as rows:return sorted(row.name for row in rows)
+  finally:os.close(fresh)
+ def test_real_cursor_model_preflight_sees_unsafe_children_after_empty_scan(self):
+  with tempfile.TemporaryDirectory(prefix='.cursor-model-',dir=HERE)as temp:
+   root=Path(temp);fd=os.open(root,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC)
+   try:
+    self.assertEqual(os.listdir(fd),[])
+    (root/'safe').write_bytes(b'MODEL safe sentinel');os.mkfifo(root/'unsafe-fifo')
+    with os.scandir(fd)as rows:shared=sorted(row.name for row in rows)
+    print('MODEL shared-cursor later-child omission:',shared==[])
+    held_offset=os.lseek(fd,0,os.SEEK_CUR);names=self.fresh_names(fd)
+    self.assertEqual(names,['safe','unsafe-fifo']);self.assertEqual(os.lseek(fd,0,os.SEEK_CUR),held_offset)
+    with self.assertRaisesRegex(ValueError,'MODEL unsafe entry before deletion'):
+     for name in names:
+      if not stat.S_ISREG(os.stat(name,dir_fd=fd,follow_symlinks=False).st_mode):raise ValueError('MODEL unsafe entry before deletion')
+    self.assertEqual((root/'safe').read_bytes(),b'MODEL safe sentinel');self.assertTrue(stat.S_ISFIFO((root/'unsafe-fifo').lstat().st_mode))
+   finally:os.close(fd)
+ def test_real_cursor_model_terminal_empty_rechecks_current_entries(self):
+  with tempfile.TemporaryDirectory(prefix='.cursor-model-',dir=HERE)as temp:
+   root=Path(temp);fd=os.open(root,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC)
+   try:
+    self.assertEqual(os.listdir(fd),[]);(root/'later').write_bytes(b'MODEL later')
+    self.assertEqual(self.fresh_names(fd),['later'])
+    os.unlink('later',dir_fd=fd);self.assertEqual(self.fresh_names(fd),[])
+   finally:os.close(fd)
  def test_wrong_source_contract_refuses_before_namespace(self):
   with patch.object(S,'namespace',side_effect=AssertionError('must refuse before Source read')):
    with self.assertRaisesRegex(S.Hold,'EXTERNAL_SOURCE_PROFILE_PIN'):S.source(self.root,self.profile,dict(S.SOURCE,files=344))
