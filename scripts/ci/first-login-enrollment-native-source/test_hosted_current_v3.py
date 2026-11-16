@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 """Fenced MODEL launcher controls. No HTTP/process/privilege/native execution."""
-import ast,copy,hashlib,importlib.util,json,os
+import ast,copy,hashlib,importlib.util,json,os,re
 from pathlib import Path
 import sys,tempfile,time,unittest
 from types import SimpleNamespace
@@ -185,7 +185,9 @@ class Controls(unittest.TestCase):
  def test_workflow_inline_python_and_single_manual_bounded_entry(self):
   path=HERE.parents[2]/'.github/workflows/native-arm-current-onboarding-delegated-v3.yml';text=path.read_text()
   self.assertIn('workflow_dispatch:',text);self.assertNotIn('pull_request:',text);self.assertNotIn('push:',text);self.assertIn('timeout-minutes: 140',text)
-  self.assertIn('persist-credentials: false',text);self.assertIn('retention-days: 3',text);self.assertNotIn('secrets.',text)
+  self.assertIn('persist-credentials: false',text);self.assertIn('retention-days: 3',text)
+  names=re.findall(r'secrets\.([A-Z0-9_]+)',text);self.assertEqual(len(names),22);self.assertEqual(set(names),set(L.MATERIAL_SECRET_NAMES))
+  self.assertEqual(text.count('authorization.material_staging == true && secrets.'),22)
   self.assertNotIn('run: sudo',text);self.assertEqual(text.count('root_request_json:\n'),1)
   for part in text.split("python3 -I -B - <<'PY'\n")[1:]:
    lines=[]
@@ -332,12 +334,12 @@ if PREREQUISITE_FIXTURE:
 
 
 class RealAssemblerControls(unittest.TestCase):
- """Actual 7a1719be assembly/validators; only its tiny existing MODEL catalogues."""
+ """Actual ff33d619 assembly/validators; only its tiny existing MODEL catalogues."""
  def setUp(self):
   fixture=Path(os.environ.get('CACHY_CURRENT_INPUTS_FIXTURE',str(HERE/'payload/native/test_inputs_current_v3.py'))).resolve()
-  self.assertEqual(hashlib.sha256(fixture.read_bytes()).hexdigest(),'32ac0846ecbe59d4c5459506e0c41170095a5ba993a1b0f3240237e2d91b05b7','use composed image-atime repair fixture')
-  self.assertEqual(hashlib.sha256((fixture.parent/'inputs_current_v3.py').read_bytes()).hexdigest(),'a1838fe056f95ae5baae5a70b9ba20a623271475160c9010ae59e3c751e90f9c','actual committed assembler, no matching replacement stub')
-  spec=importlib.util.spec_from_file_location('actual_7a1719be_inputs_fixture',fixture);self.M=importlib.util.module_from_spec(spec);spec.loader.exec_module(self.M)
+  self.assertEqual(L.pin(fixture.read_bytes()),dict(bytes=43566,sha256='07344dfcbe89edca77362ef41bf34b176fa20f0cb9f1b0e7795055a2cac410b8'),'use committed full27 fixture')
+  self.assertEqual(L.pin((fixture.parent/'inputs_current_v3.py').read_bytes()),dict(bytes=45247,sha256='ddc4f0da13c4e9d7ab58f2c3fe318343082f320dae105e069336ecb24c4c49cb'),'actual committed assembler, no matching replacement stub')
+  spec=importlib.util.spec_from_file_location('actual_ff33d619_inputs_fixture',fixture);self.M=importlib.util.module_from_spec(spec);spec.loader.exec_module(self.M)
   self.f=self.M.Controls('test_backend_and_pure_preflight_match_real_image_selected_inputs');self.f.setUp();self.addCleanup(self.f.doCleanups)
   self.f.stage.chmod(0o700)
   self.envelope=self.f.assemble()
@@ -399,6 +401,213 @@ class RealAssemblerControls(unittest.TestCase):
   row=next(row for row in self.envelope['staged_refs']if Path(row['path']).name=='rootfs')
   Path(row['path']).unlink()
   with self.assertRaises((ValueError,FileNotFoundError)):self.call(self.envelope)
+
+
+class MaterialSelectionControls(unittest.TestCase):
+ def test_inline_cap_canonical_hash_and_exact_shape(self):
+  raw=L.encoded(dict(MODEL='public metadata'));row=dict(json=raw.decode(),pin=L.pin(raw));self.assertEqual(L.assembly_request(row),raw)
+  for bad in [dict(row,extra=True),dict(row,pin=dict(bytes=len(raw),sha256='0'*64)),dict(json='{}',pin=L.pin(b'{}')),dict(json='x'*8193,pin=L.pin(b'x'*8193))]:
+   with self.assertRaises(ValueError):L.assembly_request(bad)
+ def test_only_five_base_fields_and_no_secret_values_in_request(self):
+  self.assertEqual(L.BASE_FIELDS,('base_lock','bootstrap_profile','base_materials','supplemental_materials','keyring_materials'))
+  self.assertEqual(len(L.MATERIAL_SECRET_NAMES),22);self.assertEqual(len(set(L.MATERIAL_SECRET_NAMES)),22)
+  for name in L.MATERIAL_SECRET_NAMES:self.assertRegex(name,r'^CACHY_(OLD_FOUR|RETAINED_BUBBLEWRAP_V1)_')
+ def test_exact_root_optional_fields_keep_old_path_strict(self):
+  f=Controls('test_real_file_pins_main_source_owner_assembler_and_staged_bodies');f.setUp();self.addCleanup(f.doCleanups)
+  raw=L.encoded(dict(schema=3,MODEL='not operational'));selection=dict(grant_json=raw.decode(),grant_pin=L.pin(raw),assembler_request=dict(json=raw.decode(),pin=L.pin(raw)))
+  r=copy.deepcopy(f.r);r['material_staging']=selection;r['staged_inputs']=r['staged_root']=None;r['authorization']['material_staging']=True
+  p=f.base/'optional.json';p.write_bytes(L.encoded(r));self.assertEqual(L.request(p,L.pin(p.read_bytes())['sha256']),r)
+  for mutate in(lambda v:v.update(staged_root=str(f.staged)),lambda v:v['material_staging'].update(extra=True),lambda v:v['authorization'].pop('material_staging')):
+   bad=copy.deepcopy(r);mutate(bad);p.write_bytes(L.encoded(bad))
+   with self.assertRaises(ValueError):L.request(p,L.pin(p.read_bytes())['sha256'])
+  r=copy.deepcopy(f.r);r['staged_inputs']=None;p.write_bytes(L.encoded(r))
+  with self.assertRaises(ValueError):L.request(p,L.pin(p.read_bytes())['sha256'])
+ def test_secret_capture_precedes_selected_import_and_all_failures_clear(self):
+  secret_names=L.MATERIAL_SECRET_NAMES;env={name:'INERT_MODEL'for name in secret_names};r=dict(material_staging={});seen=[]
+  def bound(args,actual,request,secrets):
+   self.assertFalse(set(secret_names)&set(actual));self.assertEqual(set(secrets),set(secret_names));seen.append(secrets);raise ValueError('MODEL preflight refusal')
+  with patch.object(L,'request',return_value=r),patch.object(L,'_execute_bound',side_effect=bound):
+   with self.assertRaises(ValueError):L._execute(SimpleNamespace(request=None,request_sha256=None),env)
+  self.assertEqual(env,{});self.assertEqual(seen,[{}])
+ def test_inline_metadata_is_exact_public_bytes_only_at_named_slots(self):
+  with tempfile.TemporaryDirectory()as tmp:
+   out=Path(tmp);plan=SimpleNamespace(d=dict(materials={}),root=out);raw=L.encoded(dict(FENCED='NOT_ROOT_AUTHORITY'));value=dict(json=raw.decode(),pin=L.pin(raw))
+   ref=L.assembly_selection(dict(Root_admission=value),plan,{},out)['Root_admission'];self.assertEqual(Path(ref['path']).read_bytes(),raw)
+   with self.assertRaises(ValueError):L.assembly_selection(dict(archive=value),plan,{},out)
+   bad=L.encoded(dict(public='-----BEGIN PGP PRIVATE KEY BLOCK-----'));value=dict(json=bad.decode(),pin=L.pin(bad))
+   with self.assertRaises(ValueError):L.assembly_selection(dict(Root_admission=value),plan,{},out)
+ def test_final_close_time_is_reserved_and_earliest_grant_expiry_wins(self):
+  f=SharedTimingControls();plan,context=f.model();before=L.controller_seconds(plan)
+  plan.S=object();plan.M=SimpleNamespace(CLOSE_SECONDS=90);self.assertLessEqual(L.controller_seconds(plan),before-90)
+  r=dict(material_staging=dict(grant_json=L.encoded(dict(expires_epoch=100)).decode()))
+  self.assertEqual(L.timing_expiry(r,dict(expires_epoch=200)),100)
+
+
+class RealStagingAssemblyControls(unittest.TestCase):
+ """Actual canonical-tool successor seams +actual27 assembler; only actors modeled."""
+ def setUp(self):
+  owner=RealAssemblerControls('test_actual_committed_assembler_wrapper_real_validator_and_full_stream');owner.setUp();self.addCleanup(owner.doCleanups)
+  self.owner=owner;self.M=owner.M;self.f=owner.f;f=self.f
+  nonce='f'*64;old=f.stage;new=f.root/('cachy-current-material-domain-'+nonce);old.rename(new);f.stage=new
+  def move(value):
+   if type(value)is dict:return {k:move(v)for k,v in value.items()}
+   if type(value)is list:return [move(v)for v in value]
+   if type(value)is str and value.startswith(str(old)+'/'):return str(new)+value[len(str(old)):]
+   return value
+  f.request=move(f.request)
+  f.staging() # Actual committed strict59+5 subset/registry join, no predicate replacement.
+  self.assertEqual(len(f.d['materials']),64)
+  for trust in ('official_trust','test_trust'):
+   ref=f.request[trust]['Root_admission'];p=Path(ref['path']);raw=self.M.A.encoded(move(json.loads(p.read_bytes())));p.write_bytes(raw);ref.update(self.M.A.pin(raw))
+  spec=importlib.util.spec_from_file_location('actual_canonical_stager_seam',HERE/'payload/native/stage_materials_current_v3_python_v1.py');S=importlib.util.module_from_spec(spec);spec.loader.exec_module(S)
+  self.assertEqual(L.pin(Path(S.__file__).read_bytes()),L.MATERIAL_STAGER_PIN);self.S=S
+  provider=Path(self.M.__file__).parent/'base_inputs_current_v3.py';self.assertEqual(L.pin(provider.read_bytes())['sha256'],S.PROVIDER_SHA)
+  spec=importlib.util.spec_from_file_location('actual_complete517_provider_seam',provider);B=importlib.util.module_from_spec(spec);spec.loader.exec_module(B);self.B=B
+  f.closed('programs/base.py',provider.read_bytes());f.d['programs']['base_inputs']=dict(member='programs/base.py',**L.pin(provider.read_bytes()))
+  now=int(time.time());f.d.update(nonce=nonce,issued_epoch=now-10,expires_epoch=now-10+7560,context_limits=dict(max_context_age_seconds=7560,max_delegation_seconds=7560));f.d['capability']['allow_material_staging']=True
+  policy=json.loads((f.source/'policy.json').read_bytes());policy['material_staging_current_v3']=S.PROPOSAL
+  ref=f.closed('policy.json',self.M.A.encoded(policy));f.d['policy']={k:ref[k]for k in('bytes','sha256')};f.d['policy']['member']='policy.json'
+  fields={k:copy.deepcopy(f.request[k])for k in L.BASE_FIELDS};request=copy.deepcopy(f.request)
+  for k in L.BASE_FIELDS:request[k]=None
+  raw=self.M.A.encoded(request);g=dict(schema=3,kind='ROOT_CURRENT_COMPLETE517_STAGING_V3',issuer='Root',approved=True,**{k:f.d['binding'][k]for k in('source','ref','source_lock')},nonce=nonce,policy={k:f.d['policy'][k]for k in('bytes','sha256')},issued_epoch=now-5,expires_epoch=f.d['expires_epoch']-1,redirect_urls={},secret_provider='CALLER_ONE_SHOT_EXACT22',scope='COMPLETE517_PUBLIC_DATA_ONLY',storage_parent=str(new))
+  rg=L.encoded(g);rd=L.encoded(f.d);r=dict(delegation_json=rd.decode(),delegation_pin=L.pin(rd),material_staging=dict(grant_json=rg.decode(),grant_pin=L.pin(rg),assembler_request=dict(json=raw.decode(),pin=L.pin(raw))))
+  self.context=dict(FENCED='NOT_PROVIDER_OBSERVATION',source_root=str(f.source),stage='backend',binding=dict(f.binding,run='11',job='12'))
+  references=dict(api=B.API,kind='VERIFIED_BASE349_CACHE_REFERENCES_DATA_V3',missing_materials={},complete=True,verified_files=517,actual=dict.fromkeys(B.ACTUAL),**fields)
+  total=sum(ref['bytes']for k in ('base_materials','supplemental_materials','keyring_materials')for ref in fields[k].values());references['verified_bytes']=total
+  self.result=dict(receipt=dict(status='COMPLETE517_HOSTED_CACHE_DATA_ONLY',binding=self.context['binding'],verified_files=517,verified_bytes=total,**L.FINAL),references=references,assembler_fields=B.assembler_fields(references),staging_scope_retirement=dict(natural=True,scope_absent=True,scope='cachy-current-materials-'+nonce+'.scope',FENCED='NOT_RUNTIME_EVIDENCE'))
+  self.events=[];test=self
+  class Session:
+   def stage(self,*,secrets):
+    test.events.append('stage');test.assertEqual(set(secrets),set(L.MATERIAL_SECRET_NAMES))
+    role=new/('cachy-current-materials-'+nonce)
+    if not role.exists():role.mkdir(mode=0o700)
+    return test.result
+   def close(self):test.events.append('close');return dict(closed=True,scope_absent=True,input_storage_absent=True,**L.FINAL)
+  session=Session();M=SimpleNamespace(CLOSE_SECONDS=90,open_material_session=lambda **kw:session)
+  self.private=f.root/'control/private';self.public=f.root/'control/public'
+  for p in(self.private,self.public):p.mkdir(parents=True,mode=0o700)
+  self.plan=SimpleNamespace(S=S,M=M,H=f.H,d=f.d,policy=policy,root=f.source,request=r,control=f.root/'control',timing=dict(deadline_monotonic=time.monotonic()+100,expires_epoch=int(time.time())+100),material_session=None)
+ def program(self,root,row,name):
+  raw=L.read(root/row['member']);self.assertEqual(L.pin(raw),L.descriptor(row))
+  if row==self.f.d['programs']['inputs_assembler']:return self.M.A
+  if row==self.f.d['programs']['base_inputs']:return self.B
+  raise AssertionError('unexpected Source program')
+ def call(self):
+  secrets={name:'INERT_MODEL'for name in L.MATERIAL_SECRET_NAMES}
+  with patch.object(L,'program',side_effect=self.program):result=L.stage_and_assemble(self.plan,self.context,secrets,self.private,self.public)
+  self.assertEqual(secrets,{});return result
+ def test_actual_successor_grant_then_actual517_assembler_and_real_stream(self):
+  self.call();self.assertEqual(self.events,['stage']);self.assertIsNotNone(self.plan.material_session)
+  self.assertEqual(set(self.plan.inputs),{'image_inputs','stage_inputs'});self.assertGreater(self.plan.intake['files'],517)
+  self.assertEqual(self.plan.inputs['image_inputs']['keyring_materials']['archlinuxarm-revoked']['bytes'],0)
+  self.plan.material_session.close();self.assertEqual(self.events,['stage','close'])
+ def test_unknown_refs_wrong_pin_partial_scope_and_missing_real_body_refuse(self):
+  self.result['staging_scope_retirement']['scope_absent']=False
+  with self.assertRaises(ValueError):self.call()
+  self.result['staging_scope_retirement']['scope_absent']=True
+  row=next(iter(self.result['assembler_fields']['base_materials'].values()));Path(row['path']).unlink()
+  with self.assertRaises((ValueError,FileNotFoundError)):self.call()
+ def test_whole_caller_holds_input_domain_until_main_then_natural_close(self):
+  plan=self.plan;f=self.f;plan.d['capability']['allow_host_prerequisites']=True
+  rd=L.encoded(plan.d);r=dict(plan.request,schema=3,kind='ROOT_AUTHORIZED_CURRENT_HOSTED_LAUNCH_V3',issuer='Root',approved=True,
+   trusted_main_commit='9'*40,launcher=dict(member=MEMBER,**L.pin(MODULE.read_bytes())),staged_inputs=None,staged_root=None,
+   control_name='cachy-current-hosted-'+plan.d['nonce'],delegation_json=rd.decode(),delegation_pin=L.pin(rd),
+   authorization=dict(jobs_metadata=True,privileged_controller=True,launcher_limits=L.LIMITS,host_prerequisites=True,whole_timing=L.TIMING,material_staging=True))
+  plan.request=r;plan.control=f.root/r['control_name'];plan.main=f.root/'Main';plan.main.mkdir();plan.Q=object();plan.O=object();plan.inputs=None;plan.intake=dict(status='DEFERRED');plan.material_session=None
+  plan.policy['executor_current_v3']=dict(setup_seconds=180,stage_seconds=7200,cleanup_seconds=180)
+  missing=[True];names=tuple(L.MATERIAL_SECRET_NAMES);context=dict(self.context)
+  tool_names=('systemd-run','systemctl','dockerd','docker','fallocate','losetup','mkfs.ext4','mount','umount','python3','gpg','gpgconf','gpg-connect-agent','bsdtar','zstd','env')
+  plan.E=SimpleNamespace(NAMES=tool_names,probe_tools=lambda:dict(missing_or_invalid=['bsdtar']if missing[0]else[],tools={n:dict(selected=dict(path='/usr/bin/'+n))for n in tool_names}),checked_tool=lambda row:row['path'])
+  plan.H.ENV=('GITHUB_RUN_ID',);plan.H.capture_context=lambda *a,**kw:dict(context)
+  plan.d['hosted']=dict(repository='Gabriel-Kahen/cachy-asahi');plan.d['context_limits'].update(metadata_query_seconds=15,metadata_max_bytes=1024**2)
+  rd=L.encoded(plan.d);r.update(delegation_json=rd.decode(),delegation_pin=L.pin(rd))
+  request=f.root/'root-request.json';request.write_bytes(L.encoded(r));args=SimpleNamespace(request=request,request_sha256=L.pin(request.read_bytes())['sha256'],source_root=f.source,main_root=plan.main,control_root=plan.control)
+  env=dict(GITHUB_RUN_ID='11',**{name:'INERT_MODEL'for name in names});offset=[0];mono=time.monotonic;epoch=time.time
+  actual_stage=L.stage_and_assemble
+  def stage(*a,**kw):
+   result=actual_stage(*a,**kw);offset[0]+=3600;return result
+  def run(O,argv,cap,work):
+   if argv[0]=='/usr/bin/git':return ((r['trusted_main_commit']if str(plan.main)in argv else plan.d['binding']['source'])+'\n').encode(),dict(FENCED=True)
+   if 'metadata'in argv:return b'{}',dict(FENCED=True)
+   if 'prerequisite'in argv:self.events.append('prerequisite');offset[0]+=495;missing[0]=False;return b'',dict(FENCED=True)
+   self.events.append('main');self.assertIsNotNone(plan.material_session)
+   self.assertTrue(Path(next(iter(self.result['assembler_fields']['base_materials'].values()))['path']).exists())
+   runtime=int(next(v.split('=')[-1][:-1]for v in argv if v.startswith('--property=RuntimeMaxSec=')))
+   self.assertLess(runtime,7560-4095);return b'',dict(FENCED=True)
+  actual_read=L.read
+  def read(path,*a):
+   if str(path).startswith('/var/lib/cachy-current-'):return L.encoded(dict(binding=context['binding'],status='DELEGATED_OWNED_STAGE_RETIRED_DATA_ONLY',cleanup=dict(owned_storage_absent=True,errors=[]),**L.FINAL))
+   return actual_read(path,*a)
+  with patch.object(L,'preflight',return_value=plan),patch.object(L,'program',side_effect=self.program),patch.object(L,'stage_and_assemble',side_effect=stage),patch.object(L,'run',side_effect=run),patch.object(L,'read',side_effect=read),patch.object(L,'fixed_tool'),patch.object(L.resource,'setrlimit'),patch.object(L.signal,'setitimer'),patch.object(L,'prerequisite_absent',return_value=dict(FENCED=True)),patch.object(L,'scope_absent',return_value=dict(FENCED=True)),patch.object(L.time,'monotonic',side_effect=lambda:mono()+offset[0]),patch.object(L.time,'time',side_effect=lambda:epoch()+offset[0]):
+   status=L._execute(args,env)
+  self.assertEqual(status,0,(plan.control/'public/launcher-report.json').read_text());self.assertEqual(self.events,['stage','prerequisite','main','close'])
+  self.assertFalse(set(names)&set(env));report=L.decode((plan.control/'public/launcher-report.json').read_bytes());self.assertTrue(report['material_domain_cleanup']['input_storage_absent'])
+ def test_actual_committed_domain_retirement_projection_and_close(self):
+  # Execute real session DATA/receipt logic; replace only privileged actor and
+  # mounted-storage observation boundaries. All archives remain tiny MODEL DATA.
+  path=Path(os.environ.get('CACHY_CURRENT_MATERIAL_DOMAIN_FIXTURE',str(HERE/'payload/native/material_domain_current_v3.py'))).resolve()
+  self.assertEqual(L.pin(path.read_bytes()),L.MATERIAL_DOMAIN_PIN)
+  spec=importlib.util.spec_from_file_location('actual_ae3ab1dd_material_domain',path);D=importlib.util.module_from_spec(spec);spec.loader.exec_module(D)
+  executor=Path(os.environ.get('CACHY_CURRENT_EXECUTOR_FIXTURE',str(HERE/'payload/native/owned_executor_current_v3.py'))).resolve()
+  self.assertEqual(L.pin(executor.read_bytes()),dict(bytes=53735,sha256='aee41c0956f3249eef2e9c8974238b214622cb385e2d8f736109d9650ce7120a'))
+  spec=importlib.util.spec_from_file_location('actual_domain_retirement_executor',executor);E=importlib.util.module_from_spec(spec);spec.loader.exec_module(E)
+  plan=self.plan;g=json.loads(plan.request['material_staging']['grant_json'])
+  plan.d['capability']['allow_host_prerequisites']=True
+  for role,body in (('materials_stager',Path(self.S.__file__).read_bytes()),('material_domain_executor',path.read_bytes())):
+   member='programs/'+role+'.py';self.f.closed(member,body);plan.d['programs'][role]=dict(member=member,**L.pin(body))
+  plan.policy['material_domain_executor_current_v3']=D.PROPOSAL
+  def selected(root,row,name):
+   self.assertEqual(L.pin(L.read(root/row['member'])),L.descriptor(row))
+   if row==plan.d['programs']['materials_stager']:return self.S
+   if row==plan.d['programs']['material_domain_executor']:return D
+   return self.program(root,row,name)
+  with patch.object(L,'program',side_effect=selected):
+   self.assertEqual(L.material_programs(plan.request,plan.d,plan.root,plan.policy),(self.S,D))
+   plan.policy['material_domain_executor_current_v3']={}
+   with self.assertRaises(ValueError):L.material_programs(plan.request,plan.d,plan.root,plan.policy)
+  plan.policy['material_domain_executor_current_v3']=D.PROPOSAL
+  r=dict(control_root=str(plan.control),context=self.context,shared_timing=plan.timing,runner_uid=os.getuid(),runner_gid=os.getgid())
+  session=D.MaterialSession(r,(plan.root,plan.d,plan.policy,g,E,self.S,object()))
+  def execute(closing=False,secrets=None):
+   row=dict(kind='CLOSE'if closing else'STAGE',natural=True,
+    supervision=dict(reaped=True,ownership='REAPED',group_census='EMPTY_TWICE',output_complete=True,signals=[],timeout=False,error=None,exit=0),
+    scope_absence=dict(scope=D.scope_name(plan.d['nonce'],closing),absent_twice=True),**D.FINAL)
+   session.receipts.append(row)
+   if closing:
+    D.write(plan.control/'material-domain-close.json',dict(owned_storage_absent=True,binding=self.context['binding'],nonce=plan.d['nonce'],request_pin=D.pin(D.encoded(r)),scope_absence=dict(scope=D.scope_name(plan.d['nonce']),absent_twice=True),**D.FINAL))
+   else:
+    session.stage_submitted=True;out=Path(g['storage_parent'])/('cachy-current-materials-'+plan.d['nonce']);out.mkdir(mode=0o700)
+    receipt=dict(self.result['receipt'],Root_expires_epoch=min(plan.d['expires_epoch'],g['expires_epoch'],plan.d['issued_epoch']+7560),whole_deadline_monotonic=plan.timing['deadline_monotonic'])
+    for name,value in (('staging-receipt.json',receipt),('complete517.json',self.result['references']),('assembler-fields.json',self.result['assembler_fields'])):D.write(out/name,value)
+  session.execute=execute
+  plan.M=SimpleNamespace(CLOSE_SECONDS=D.CLOSE_SECONDS,open_material_session=lambda **kw:session)
+  with patch.object(D,'retained_storage',return_value=dict(FENCED='NOT_KERNEL_OBSERVATION')),patch.object(D,'load',side_effect=lambda root,row,name:self.program(root,row,name)):
+   self.call()
+  self.assertEqual(session.state,'RETAINED_FOR_CONSUMERS');self.assertTrue(Path(next(iter(self.result['assembler_fields']['base_materials'].values()))['path']).exists())
+  retirement=D.scope_retirement(E,session.receipts[0],plan.d['nonce']);self.assertTrue(retirement['scope_absent']);self.assertIn('supervision_pin',retirement)
+  closed=session.close();self.assertTrue(all(closed[k]for k in ('closed','scope_absent','input_storage_absent')));self.assertEqual(closed['Root_final_acceptance'],None)
+  session.receipts[0]['supervision']['signals']=['MODEL_KILL']
+  with self.assertRaises(ValueError):D.scope_retirement(E,session.receipts[0],plan.d['nonce'])
+  session.receipts[0]['supervision']['signals']=[];session.receipts[0]['scope_absence']['absent_twice']=False
+  with self.assertRaises(ValueError):D.scope_retirement(E,session.receipts[0],plan.d['nonce'])
+ def test_no_issued_trust_is_synthesized_from_null_selection(self):
+  row=self.plan.request['material_staging']['assembler_request'];value=json.loads(row['json']);value['official_trust']=None;raw=L.encoded(value);row.update(json=raw.decode(),pin=L.pin(raw))
+  with self.assertRaises((ValueError,KeyError)):self.call()
+  self.assertFalse(self.plan.inputs if hasattr(self.plan,'inputs')else False)
+
+
+BUDGET_FIXTURE=os.environ.get('CACHY_CURRENT19_BUDGET_FIXTURE')
+if BUDGET_FIXTURE:
+ class ActualDraftBudgetControls(unittest.TestCase):
+  def test_exact_current19_null_authority_bytes_and_pins_still_not_certificate(self):
+   root=Path(BUDGET_FIXTURE).resolve();wanted={'Root-request-staging.DRAFT.json':(21488,'babddf4939f6f54215d8f1c640ddf9b90ba22409026e9da767d7aee8622c03ac'),'delegation-optional19.DRAFT.json':(18142,'e003293c4c43a03df20a0de970d57fbd0e16a63485f6e0db6662b62fa1fcfc63'),'assembler-request-backend.DRAFT.json':(623,'150b07ecf971834db1a568ee67ff8b35d6bd2e4b75062dbde72e9c7efb80261f')}
+   values={}
+   for name,(size,sha)in wanted.items():
+    raw=(root/name).read_bytes();self.assertEqual(L.pin(raw),dict(bytes=size,sha256=sha));self.assertEqual(raw,L.encoded(json.loads(raw)));values[name]=json.loads(raw)
+   r=values['Root-request-staging.DRAFT.json'];d=values['delegation-optional19.DRAFT.json'];self.assertEqual((len(d['programs']),len(d['materials'])),(17,59))
+   self.assertLessEqual(len(L.encoded(r)),L.LIMITS['request_bytes']);self.assertEqual(len(L.assembly_request(r['material_staging']['assembler_request'])),623)
+   self.assertIsNone(r['approved']);self.assertIsNone(r['authorization']);self.assertIsNone(d['approved'])
+   self.assertTrue(all(values['assembler-request-backend.DRAFT.json'][k]is None for k in L.BASE_FIELDS))
 
 
 if __name__=='__main__':unittest.main(verbosity=2)

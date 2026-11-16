@@ -66,6 +66,18 @@ class Controls(unittest.TestCase):
         with self.assertRaises((ValueError, KeyError)):
             A.validate_owner_inputs_v3(inputs=inner, delegation={}, source_root=NATIVE)
 
+    def test_actual_assembler_and_constructor_select_same_five_staging_materials(self):
+        A = self.load('inputs_current_v3')
+        spec = importlib.util.spec_from_file_location('PURE_SEAM_constructor', HERE/'prepare.py')
+        P = importlib.util.module_from_spec(spec);spec.loader.exec_module(P)
+        self.assertEqual(P.STAGING_MATERIALS, A.STAGING_MATERIALS)
+        self.assertEqual(A.STAGING_TABLE, 'inputs/material-staging-materials-v4.json')
+        self.assertEqual(A.REGISTRY, P.PREFIX+'/program.json')
+        self.assertEqual(P.ALIASES, A.ALIASES)
+        value = P.closure_template(with_host_prerequisites=True, with_material_staging=True)
+        self.assertEqual(set(value['staging_materials']), set(A.STAGING_MATERIALS))
+        self.assertTrue(all(row is None for row in value['staging_materials'].values()))
+
     def test_actual_launcher_canonical_wrapper_reaches_missing_descriptor_refusal(self):
         L = self.load('hosted_current_v3')
         with tempfile.TemporaryDirectory(prefix='PURE-current-seam-') as temporary:

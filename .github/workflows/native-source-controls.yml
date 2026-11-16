@@ -72,6 +72,9 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/payload/native/test_retention_delegated_v4.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/test_owned_executor_current_v3.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/test_hosted_current_v3.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/payload/native/test_stage_materials_current_v3.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/payload/native/test_stage_materials_current_v3_python_v1.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/test_material_domain_current_v3.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/test_host_prerequisites_current_v3.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/payload/native/test_owned_current_v3_policy.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/successor_v2/test_owned_route.py

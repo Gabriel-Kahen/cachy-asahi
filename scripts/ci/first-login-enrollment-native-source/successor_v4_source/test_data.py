@@ -2,6 +2,7 @@
 """Portable inert committed-closure/projection/inverse controls; no actual Source."""
 import copy
 import importlib.util
+import json
 import os
 from pathlib import Path
 import subprocess
@@ -86,7 +87,7 @@ class Controls(unittest.TestCase):
             name = cls.roles[role]
             raw, mode = cls.files[name]
             cls.files[name] = (raw+('CONTEXT_PROGRAM_PINS='+repr({4:context_pin})+'\n').encode(), mode)
-        for name in ('prepare.py', 'README.md'):
+        for name in ('prepare.py', 'README.md', 'source139-owner-closure.json'):
             cls.files[M.PREFIX+'/'+name] = ((HERE/name).read_bytes(), 0o644)
         for name, (body, mode) in cls.files.items():
             path = cls.repo/name
@@ -223,6 +224,122 @@ class Controls(unittest.TestCase):
             self.assertEqual(program['delegation_programs']['host_prerequisite_plan']['sha256'],M.PREREQUISITE_FILES['host_prerequisite_plan'][2])
             self.assertEqual(M.inverse_v3(extended),basis)
 
+    def test_staging_template_is_separate_and_unissued(self):
+        default = M.closure_template();optional = M.closure_template(with_host_prerequisites=True)
+        self.assertEqual(len(default['roles']),15);self.assertEqual(len(optional['roles']),19)
+        self.assertNotIn('staging_materials',default);self.assertNotIn('staging_materials',optional)
+        with self.assertRaisesRegex(ValueError,'REQUIRES_EXPLICIT_PREREQUISITES'):
+            M.closure_template(with_material_staging=True)
+        value = M.closure_template(with_host_prerequisites=True,with_material_staging=True)
+        self.assertEqual(len(value['roles']),27);self.assertEqual(set(value['staging_materials']),set(M.STAGING_MATERIALS))
+        self.assertTrue(all(v is None for v in (*value['roles'].values(),*value['staging_materials'].values(),*value['actual'].values())))
+        with self.assertRaises(ValueError):M.committed_closure(self.P,self.repo,M.encode(value))
+
+    def test_staging_missing_domain_body_has_named_HOLD(self):
+        value = dict(roles={r:row[0] for r,row in M.STAGING_FILES.items()},
+                     staging_materials={r:row[0] for r,row in M.STAGING_MATERIALS.items()})
+        files = {row[0]:(b'MODEL never actual',0o644) for row in M.STAGING_FILES.values()}
+        # Reach the missing closure body after an explicitly inert model stager;
+        # an ambient domain module cannot fill an absent committed file.
+        selected = dict(M.STAGING_FILES)
+        selected['materials_stager'] = (selected['materials_stager'][0],18,M.pin(b'MODEL never actual')['sha256'])
+        del files[selected['material_domain_executor'][0]]
+        with patch.object(M,'STAGING_FILES',selected),self.assertRaisesRegex(ValueError,'MISSING_BODY:material_domain_executor'):
+            M.validate_staging_closure(value,files)
+
+    def test_staging_literal_policy_refuses_execution_and_widened_lifetime(self):
+        raw = b"API='CURRENT_COMPLETE517_MATERIAL_STAGING_V3'\nSCOPE={'memory.max':'536870912'}\nPROPOSAL=dict(kind=API,whole_budget_seconds=7560,staging_seconds=3600,storage_bytes=8*1024**3,scope_limits=SCOPE,Root_acceptance=None)\n"
+        selected = dict(M.STAGING_FILES,materials_stager=('MODEL/stager.py',len(raw),M.pin(raw)['sha256']))
+        base = dict(executor_current_v3=dict(controller_seconds=7560,stage_seconds=7200,setup_seconds=180,cleanup_seconds=180),
+                    context=dict(max_context_age_seconds=7560,max_delegation_seconds=7560),Root_issuance=None)
+        with patch.object(M,'STAGING_FILES',selected):
+            result = M.material_staging_policy_candidate(base,raw)
+            self.assertNotIn('material_staging_current_v3',base)
+            self.assertEqual(result['material_staging_current_v3']['storage_bytes'],8*1024**3)
+            for key in ('max_context_age_seconds','max_delegation_seconds'):
+                bad=copy.deepcopy(base);bad['context'][key]=8055
+                with self.assertRaisesRegex(ValueError,'EXPLICIT_CONTEXT_LIFETIME'):M.material_staging_policy_candidate(bad,raw)
+            bad=copy.deepcopy(base);bad['Root_issuance']=True
+            with self.assertRaises(ValueError):M.material_staging_policy_candidate(bad,raw)
+        malicious=raw.replace(b'8*1024**3',b'__import__("os").getuid()')
+        selected['materials_stager']=('MODEL/stager.py',len(malicious),M.pin(malicious)['sha256'])
+        with patch.object(M,'STAGING_FILES',selected),self.assertRaisesRegex(ValueError,'literal stager policy'):
+            M.staging_proposal(malicious)
+
+    def test_complete_committed_staging_MODEL_registry_preserves_inverse(self):
+        value=copy.deepcopy(self.closure);files=dict(self.files)
+        for role,(member,size,digest) in M.PREREQUISITE_FILES.items():
+            path=REPO/member
+            if not path.is_file():self.skipTest('whole-pinned public prerequisite donor absent; no actual staging closure claim')
+            body=path.read_bytes();self.assertEqual(M.pin(body),dict(bytes=size,sha256=digest))
+            files[member]=(body,0o644);value['roles'][role]=member
+        selected={};materials={}
+        for role in M.STAGING_FILES:
+            member='MODEL/staging-'+role+'.py'
+            if role=='materials_stager':
+                body=b"API='CURRENT_COMPLETE517_MATERIAL_STAGING_V3'\nSCOPE={'memory.max':'536870912'}\nPROPOSAL=dict(kind=API,whole_budget_seconds=7560,staging_seconds=3600,scope_limits=SCOPE,Root_acceptance=None)\n"
+                body+=b'def stage_materials(): raise AssertionError("MODEL")\ndef validate_grant(): raise AssertionError("MODEL")\ndef secret_names(): return []\n'
+            elif role=='material_domain_executor':
+                body=b"API='CURRENT_ONBOARDING_MATERIAL_DOMAIN_V3'\nCLOSE_SECONDS=90\nSCOPE={'memory.max':'536870912'}\nPROPOSAL=dict(kind=API,whole_budget_seconds=7560,scope_seconds=3600,cleanup_seconds=CLOSE_SECONDS,scope_limits=SCOPE,Root_issuance=None)\ndef open_material_session(): raise AssertionError('MODEL')\n"
+                body+=('STAGER_PIN='+repr(M.pin(files[value['roles']['materials_stager']][0]))+'\nEXECUTOR_PIN='+repr(M.pin(files[value['roles']['image_executor']][0]))+'\n').encode()
+            else:body=b'# MODEL retained helper never actual execution\n'
+            selected[role]=(member,len(body),M.pin(body)['sha256']);files[member]=(body,0o644);value['roles'][role]=member
+        value['staging_materials']={}
+        for role in M.STAGING_MATERIALS:
+            member='MODEL/'+role+'.json';body=M.encode(dict(MODEL_ONLY=role))
+            materials[role]=(member,M.pin(body)['sha256']);files[member]=(body,0o644);value['staging_materials'][role]=member
+        launcher=value['roles']['hosted_launcher'];body,mode=files[launcher]
+        body+=('TIMING='+repr(M.PREREQUISITE_TIMING)+'\n'+''.join('def '+name+'(*args,**kwargs): raise AssertionError("MODEL")\n'
+                   for name in sorted(M.PREREQUISITE_CALLBACKS|M.STAGING_CALLBACKS))).encode();files[launcher]=(body,mode)
+        base=dict(executor_current_v3=dict(controller_seconds=7560,stage_seconds=7200,setup_seconds=180,cleanup_seconds=180),
+                  context=dict(max_context_age_seconds=7560,max_delegation_seconds=7560),Root_issuance=None)
+        with patch.object(M,'STAGING_FILES',selected),patch.object(M,'STAGING_MATERIALS',materials):
+            files[value['roles']['policy']]=(M.encode(M.material_staging_policy_candidate(base,files[value['roles']['materials_stager']][0],domain_raw=files[value['roles']['material_domain_executor']][0])),0o644)
+            with tempfile.TemporaryDirectory(prefix='v4-staging-MODEL-') as tmp:
+                repo=Path(tmp)
+                def git(*args):return subprocess.check_output(['/usr/bin/git','-C',str(repo),*args],env=self.env,timeout=15)
+                git('init','--quiet')
+                for name,(body,mode) in files.items():
+                    path=repo/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(body);path.chmod(mode)
+                git('add','.');git('commit','--quiet','-m','INERT27 MODEL staging closure')
+                value['commit']=git('rev-parse','HEAD').decode().strip()
+                value['files']=self.P.C.descriptors({n:v for n,v in files.items()if not n.startswith(M.PREFIX+'/')})
+                checked,_=M.committed_closure(self.P,repo,M.encode(value));self.assertEqual(checked,value)
+                for change in ('missing_domain_policy','wrong_domain_policy'):
+                    altered=dict(files);policy=json.loads(files[value['roles']['policy']][0])
+                    if change=='missing_domain_policy':del policy['material_domain_executor_current_v3']
+                    else:policy['material_domain_executor_current_v3']['cleanup_seconds']=91
+                    altered[value['roles']['policy']]=(M.encode(policy),0o644)
+                    with self.subTest(change=change),self.assertRaises(ValueError):M.validate_staging_closure(value,altered)
+                domain_member=value['roles']['material_domain_executor']
+                for name,role in (('STAGER_PIN','materials_stager'),('EXECUTOR_PIN','image_executor')):
+                    old=(name+'='+repr(M.pin(files[value['roles'][role]][0]))).encode()
+                    changed=files[domain_member][0].replace(old,(name+'='+repr(dict(bytes=1,sha256='f'*64))).encode())
+                    self.assertNotEqual(changed,files[domain_member][0]);altered=dict(files);altered[domain_member]=(changed,0o644)
+                    selected_bad=dict(selected,material_domain_executor=(domain_member,len(changed),M.pin(changed)['sha256']))
+                    with patch.object(M,'STAGING_FILES',selected_bad),self.subTest(name=name),self.assertRaisesRegex(ValueError,'DOMAIN_DEPENDENCY:'+name):
+                        M.validate_staging_closure(value,altered)
+                for change in ('partial','material_missing','material_unknown','collision','pin'):
+                    bad=copy.deepcopy(value)
+                    if change=='partial':del bad['roles']['private_seed']
+                    elif change=='material_missing':del bad['staging_materials']['staging_base_lock']
+                    elif change=='material_unknown':bad['staging_materials']['unknown']=bad['staging_materials']['staging_bootstrap_profile']
+                    elif change=='collision':bad['staging_materials']['public14_profile']=bad['roles']['private_seed']
+                    else:bad['files'][bad['staging_materials']['public14_profile']]['sha256']='0'*64
+                    with self.subTest(change=change),self.assertRaises(ValueError):M.committed_closure(self.P,repo,M.encode(bad))
+                roles,carrier=self.projection_fixture();carrier.update({n:v for n,v in files.items()if not n.startswith(M.PREFIX+'/')})
+                C=self.P.C;carrier[C.PREFIX+'/owner-program.json']=(M.encode(dict(materials=roles)),0o644)
+                old=dict(schema=1,kind='CURRENT_ONBOARDING_CLOSED_SOURCE_V3',operation=M.OP,actual=dict(Source=None),files=C.descriptors(carrier))
+                carrier['source-map.json']=carrier['source.lock.json']=(M.encode(old),0o644);basis=dict(carrier)
+                extended=M.extend_v3(self.P,carrier,dict(value,_repo=repo),M.encode(value))
+                program=C.decode(extended[M.PREFIX+'/program.json'][0]);projected=C.decode(extended['inputs/delegated-materials-v4.json'][0])
+                self.assertEqual(len(program['roles']),27);self.assertEqual(len(projected['materials']),59)
+                supplemental=C.decode(extended['inputs/material-staging-materials-v4.json'][0])
+                self.assertEqual(supplemental['materials'],program['staging_materials']);self.assertEqual(len(supplemental['materials']),5)
+                self.assertEqual(program['delegation_programs']['materials_stager']['sha256'],selected['materials_stager'][2])
+                self.assertEqual(set(program['staging_materials']),set(materials));self.assertEqual(M.inverse_v3(extended),basis)
+                self.assertTrue(all(x is None for x in program['actual'].values()))
+
     def test_immutable_retention_dependencies_cannot_be_missing_or_replaced(self):
         for name in (*M.RETENTION_DEPENDENCIES, M.BUILD_VALIDATOR[0]):
             for change in ('missing', 'hash', 'mode'):
@@ -323,6 +440,20 @@ class Controls(unittest.TestCase):
         key = self.roles['retention']
         broken[key] = (broken[key][0]+b'MODEL MUTATION', 0o644)
         with self.assertRaises(ValueError):M.inverse_v3(broken)
+
+    def test_original_basis_precedes_new_code_and_inverse_removes_all_additions(self):
+        roles,files=self.projection_fixture()
+        files[self.P.C.PREFIX+'/owner-program.json']=(M.encode(dict(materials=roles,MODEL_ONLY=True)),0o644)
+        mapping=M.encode(dict(schema=1,kind=self.P.C.KIND,operation=M.OP,files=self.P.C.descriptors(files),actual=dict(source=None)))
+        files['source-map.json']=files['source.lock.json']=(mapping,0o644);basis=dict(files)
+        code={n:v for n,v in self.files.items()if not n.startswith(M.PREFIX+'/')}
+        extended=M.extend_v3(self.P,files,dict(self.closure,_repo=self.repo,_additions=code),M.encode(self.closure))
+        inverse=self.P.C.decode(extended[M.PREFIX+'/inverse.json'][0])
+        self.assertEqual(inverse['original_files'],len(basis))
+        self.assertTrue(set(code)<=set(inverse['remove']))
+        self.assertEqual(M.inverse_v3(extended),basis)
+        with self.assertRaisesRegex(ValueError,'cannot replace original139'):
+            M.extend_v3(self.P,files,dict(self.closure,_repo=self.repo,_additions={next(iter(files)):(b'MODEL ALTERED',0o644)}),M.encode(self.closure))
 
     def test_operational_assembly_still_refuses_absent_real_historical_basis(self):
         self.assertFalse((self.repo/'.git/objects/info/alternates').exists())

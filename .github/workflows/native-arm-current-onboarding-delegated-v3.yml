@@ -77,6 +77,28 @@ jobs:
           ROOT_REQUEST_SHA256: ${{ inputs.root_request_sha256 }}
           TRUSTED_MAIN_PATH: ${{ steps.bound.outputs.main_path }}
           CONTROL_PATH: ${{ steps.bound.outputs.control_path }}
+          CACHY_OLD_FOUR_JBIGKIT_01: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_OLD_FOUR_JBIGKIT_01 || '' }}
+          CACHY_OLD_FOUR_JBIGKIT_02: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_OLD_FOUR_JBIGKIT_02 || '' }}
+          CACHY_OLD_FOUR_JBIGKIT_SIG_01: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_OLD_FOUR_JBIGKIT_SIG_01 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_01: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_OLD_FOUR_LIBTIFF_01 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_02: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_OLD_FOUR_LIBTIFF_02 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_03: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_OLD_FOUR_LIBTIFF_03 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_04: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_OLD_FOUR_LIBTIFF_04 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_05: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_OLD_FOUR_LIBTIFF_05 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_06: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_OLD_FOUR_LIBTIFF_06 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_07: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_OLD_FOUR_LIBTIFF_07 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_08: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_OLD_FOUR_LIBTIFF_08 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_09: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_OLD_FOUR_LIBTIFF_09 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_10: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_OLD_FOUR_LIBTIFF_10 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_11: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_OLD_FOUR_LIBTIFF_11 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_12: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_OLD_FOUR_LIBTIFF_12 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_13: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_OLD_FOUR_LIBTIFF_13 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_14: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_OLD_FOUR_LIBTIFF_14 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_15: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_OLD_FOUR_LIBTIFF_15 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_SIG_01: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_OLD_FOUR_LIBTIFF_SIG_01 || '' }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01 || '' }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02 || '' }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01 || '' }}
         run: |
           python3 -I -B - <<'PY'
           import os,subprocess

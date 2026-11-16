@@ -192,6 +192,47 @@ HISTORICAL_CONSTRUCTOR_PIN=dict(bytes=15456,sha256='742308ab13be797192b805034b8c
 CURRENT_CONSTRUCTOR_PIN=dict(bytes=16211,sha256='24bf8c841fe9eb9608a183e101de8f3a6ce1f72f974d003eb88cbcd65fcb318d')
 HISTORICAL_FULL_POLICY_PIN=dict(bytes=5314,sha256='4d3452ba28366f5cebc0217158c014f9944fa4a417e867014815f4d15aef15ee')
 FULL_POLICY_PIN=dict(bytes=5478,sha256='075f517e04cee255650897c5b71545fbe394928699d73502184ebe95b7b39d1a')
+PREREQUISITE_FILES={
+    'host_prerequisites':('scripts/ci/first-login-enrollment-native-source/payload/native/host_prerequisites_current_v3.py',13750,
+        '521163f6f9504edaa573fa079751d7714065bea2ceef69428e8bc7585e361daa'),
+    'host_prerequisite_plan':('scripts/ci/fish-config02-native-source/successor_v2/host_prerequisites.py',13845,
+        '4bef653f0e999876e8dd1e74e7d61b808182f7528f4f50ce6444e14f6ff33d64'),
+    'host_prerequisite_tools':('scripts/ci/fish-config02-native-source/successor_v2/host_tools.py',5273,
+        '5f980d2df87cebdf264167e7be7220485a6fcc555667782d31316da0d08aef72'),
+    'host_prerequisite_runner_basis':('scripts/ci/fish-config02-native-source/successor_v2/hosted_owner.py',31464,
+        '7f4d2a68f13a2439a4363cfb154553dc9e721a88dc985080dd290d44583ad634')}
+PREREQUISITE_ROLES=CURRENT_ROLES|set(PREREQUISITE_FILES)
+PREREQUISITE_POLICY=dict(kind='CURRENT_ONBOARDING_HOST_PREREQUISITES_V3',scope_seconds=495,work_seconds=450,
+    observation_seconds=15,cleanup_seconds=30,controller_AS_bytes=536870912,controller_CPU_seconds=500,core_bytes=0,
+    scope_limits={'memory.max':'536870912','memory.swap.max':'0','cpu.max':'100000 100000','pids.max':'64'},
+    output_bytes=16777216,output_nodes=64,minimum_free_bytes=822083584,minimum_free_nodes=4288,
+    prerequisite_plan_sha256=PREREQUISITE_FILES['host_prerequisite_plan'][2],Root_acceptance=None)
+PREREQUISITE_TIMING=dict(kind='CURRENT_HOSTED_SHARED_7560_PREREQUISITE_TIMING_V3',whole_budget_seconds=7560,
+    charge_preflight_and_prerequisites=True,allow_clipped_stage_window=True,metadata_queries=2,
+    controller_retirement_reserve_seconds=15,Root_acceptance=None)
+PREREQUISITE_CALLBACKS={'prerequisite_selected','prerequisite_program','make_timing','validate_timing',
+    'controller_seconds','available_stage_seconds','prerequisite_controller'}
+PREREQUISITE_SUPPORT={'prerequisite_timing','prerequisite_report','prerequisite_initial_context',
+    'prerequisite_launcher','prerequisite_controller','prerequisite_qualification'}
+HOSTED_LAUNCHER_LIMITS=dict(request_bytes=49152,preflight_seconds=180,launcher_seconds=7740,
+    address_space_bytes=536870912,cpu_seconds=7740,preflight_cpu_seconds=180,control_bytes=33554432,
+    control_nodes=128,reference_files=1024,reference_bytes=34359738368,reference_file_bytes=8589934592,
+    scope_stop_seconds=10)
+PREREQUISITE_TOOLS={'systemd-run','systemctl','dockerd','docker','fallocate','losetup','mkfs.ext4','mount',
+    'umount','python3','gpg','gpgconf','gpg-connect-agent','bsdtar','zstd','env'}
+MATERIAL_PROGRAM_ROLES={'materials_stager','material_domain_executor','base_inputs','private_seed',
+    'material_transport','retained_transport_core','retained_prepare','retained_prefill'}
+MATERIAL_STAGING_ROLES=PREREQUISITE_ROLES|MATERIAL_PROGRAM_ROLES
+MATERIAL_STAGING_MATERIAL_ROLES={'retained_carrier_profile','retained_prefill_profile','public14_profile',
+    'staging_base_lock','staging_bootstrap_profile'}
+MATERIAL_STAGING_POLICY=dict(kind='CURRENT_COMPLETE517_MATERIAL_STAGING_V3',whole_budget_seconds=7560,
+    staging_seconds=3600,cleanup_seconds=30,controller_AS_bytes=2147483648,controller_CPU_seconds=3600,
+    context_age_seconds=7560,initial_metadata_queries=1,scope_limits=PREREQUISITE_POLICY['scope_limits'],
+    storage_bytes=8*1024**3,storage_nodes=20000,storage_minimum_free_bytes=6*1024**3,command_rows=27,
+    python_spawn_ceiling=2400,child_output_bytes=131072,file_bytes=2*1024**3+128*1024**2,
+    download_requests=63,download_redirects=42,download_seconds=90,
+    transport_policy=dict(fetch_seconds=400,transport_seconds=480,outer_seconds=500,
+        reason='Explicit one-fetch allocation for full retained DATA; no measured latency guarantee'),Root_acceptance=None)
 SELECTED_TEST_FINGERPRINT='D9D7A9FC25B9914CF6F2CE55952AEDD8A209B4C0'
 SELECTED_TEST_KEY_PIN=dict(bytes=437,sha256='01ffe16c6215c2030914d0cfc7f27f14ae15cb58da1e4723ac1651c423c1e289')
 
@@ -210,6 +251,129 @@ def whole(row):
 
 
 def same(a,b):return encoded(a)==encoded(b)
+
+
+def prerequisite_policy(raw):
+    """Exact optional proposal composed with the independently pinned base policy."""
+    policy=receipt(raw);base=dict(policy)
+    need(same(base.pop('host_prerequisites_current_v3',None),PREREQUISITE_POLICY)
+         and same(base.pop('host_prerequisite_timing_v3',None),PREREQUISITE_TIMING)
+         and pin(encoded(base))==FULL_POLICY_PIN and raw==encoded(policy),
+         'HOLD_EXACT_PREREQUISITE_POLICY_COMPOSITION')
+    return policy
+
+
+def material_staging_policy(raw):
+    """Parse the committed stager's unissued proposal as DATA, never a grant."""
+    policy=receipt(raw);base=dict(policy)
+    need(same(base.pop('material_staging_current_v3',None),MATERIAL_STAGING_POLICY)
+         and raw==encoded(policy),'HOLD_MATERIAL_STAGING_EXACT_POLICY_COMPOSITION')
+    prerequisite_policy(encoded(base));return policy
+
+
+def material_registry_shape(program,closure):
+    """Exact corrected27+5 metadata shape; not whole-body Source qualification."""
+    actual={'source','ref','run','job','Root_delegation','Root_trust','Root_resources','Root_runtime','actual_images','publication'}
+    registry_keys={'schema','kind','operation','api','owner','route','owner_callbacks','route_callback','roles',
+        'entrypoints','closure_commit','v3_registry_scope','actual','delegation_programs','retention_callback','staging_materials'}
+    need(type(program) is dict and set(program)==registry_keys and type(program['schema']) is int
+         and program['schema']==4 and program['kind']=='DELEGATED_CURRENT_PROGRAM_REGISTRY_V4'
+         and program['operation']==OP and program['api']=='CURRENT_ONBOARDING_DELEGATED_OWNER_V3'
+         and program['owner_callbacks']==dict(build='open_delegated_session',lifecycle='launch_delegated_lifecycle')
+         and program['route_callback']=='run_registered' and program['retention_callback']=='retain_delegated_stage'
+         and program['v3_registry_scope']=='PRESERVED_DATA_ONLY_NEVER_DELEGATED_EXECUTION',
+         'HOLD_MATERIAL_STAGING_REGISTRY_SCHEMA')
+    need(type(closure) is dict and set(closure)=={'schema','kind','operation','commit','roles','files','entrypoints','actual','staging_materials'}
+         and type(closure['schema']) is int and closure['schema']==4
+         and closure['kind']=='COMMITTED_DELEGATED_CURRENT_PIPELINE_CLOSURE_V4' and closure['operation']==OP
+         and type(program['closure_commit']) is str and re.fullmatch('[0-9a-f]{40}',program['closure_commit'])
+         and closure['commit']==program['closure_commit'],'HOLD_MATERIAL_STAGING_CLOSURE_SCHEMA')
+    for value in (program,closure):
+        need(type(value['actual']) is dict and set(value['actual'])==actual
+             and all(x is None for x in value['actual'].values()),'HOLD_MATERIAL_STAGING_UNISSUED_SELECTORS')
+    roles=program['roles'];materials=program['staging_materials']
+    need(type(roles) is dict and set(roles)==MATERIAL_STAGING_ROLES,
+         'HOLD_MATERIAL_STAGING_EXACT_PROGRAM_ROLES')
+    need(type(materials) is dict and set(materials)==MATERIAL_STAGING_MATERIAL_ROLES,
+         'HOLD_MATERIAL_STAGING_EXACT_FIVE_MATERIALS')
+    members=set()
+    for role,row in {**roles,**materials}.items():
+        need(type(row) is dict and set(row)=={'member','bytes','sha256'},'HOLD_MATERIAL_STAGING_DESCRIPTOR')
+        relative(row['member']);need(row['member'] not in members and 0<whole(row)['bytes']<=16*1024**2,
+             'HOLD_MATERIAL_STAGING_DESCRIPTOR_COLLISION')
+        members.add(row['member'])
+    need(closure['roles']=={role:row['member'] for role,row in roles.items()}
+         and closure['staging_materials']=={role:row['member'] for role,row in materials.items()}
+         and program['owner']==roles['delegated_owner'] and program['route']==roles['route'],
+         'HOLD_MATERIAL_STAGING_ROLE_MATERIAL_JOIN')
+    entries=program['entrypoints']
+    need(type(entries) is dict and set(entries)=={'image_executor','public_reader','hosted_launcher','inputs_assembler'}
+         and closure['entrypoints']==entries and all(type(name) is str and re.fullmatch('[A-Za-z_][A-Za-z0-9_]{0,95}',name)
+             for name in entries.values()) and entries['public_reader']=='read_delegated_stage',
+         'HOLD_MATERIAL_STAGING_ENTRYPOINTS')
+    rows=closure['files'];need(type(rows) is dict and members<=set(rows) and len(members)<=len(rows)<=96,
+         'HOLD_MATERIAL_STAGING_CLOSED_FILES')
+    for name,row in rows.items():
+        relative(name);need(not name.startswith(('carrier/','inputs/','provenance/',
+             'scripts/ci/first-login-enrollment-native-source/successor_v3/',
+             'scripts/ci/first-login-enrollment-native-source/successor_v4_source/'))
+             and name not in ('source-map.json','source.lock.json')
+             and type(row) is dict and set(row)=={'bytes','sha256','mode'}
+             and type(row['mode']) is int and row['mode'] in (0o644,0o755),
+             'HOLD_MATERIAL_STAGING_CLOSED_FILES')
+        whole(row)
+    for role,row in {**roles,**materials}.items():
+        need(whole(row)==whole(rows[row['member']]) and (role not in MATERIAL_PROGRAM_ROLES|MATERIAL_STAGING_MATERIAL_ROLES
+             or rows[row['member']]['mode']==0o644),'HOLD_MATERIAL_STAGING_DESCRIPTOR_JOIN')
+    selected={name:roles[role] for name,role in dict(context='context',owner='delegated_owner',image='image',
+        image_executor='image_executor',route='route',retention='retention',public_reader='public_reader',owned_process='owned_process',
+        hosted_launcher='hosted_launcher',inputs_assembler='inputs_assembler',encoder='encoder',local_callbacks='v3_basis_owner').items()}
+    selected.update({role:roles[role] for role in set(PREREQUISITE_FILES)|MATERIAL_PROGRAM_ROLES})
+    selected['build_validator']=dict(member='scripts/ci/first-login-enrollment-native-source/successor_v4/validate_build.py',bytes=7798,
+        sha256='dd2fd5a390b7764b753817044e60b8ea088cb6b704e80503f53d4b6335559d84')
+    validator=selected['build_validator']
+    need(validator['member'] in rows and rows[validator['member']]==dict(mode=0o644,**whole(validator)),
+         'HOLD_MATERIAL_STAGING_BUILD_VALIDATOR')
+    need(same(program['delegation_programs'],selected),'HOLD_MATERIAL_STAGING_CANONICAL_PROGRAM_MAPPING')
+    return dict(status='MATERIAL_STAGING_REGISTRY_SHAPE_DATA_ONLY_V4',program_roles=27,staging_material_roles=5,
+        Root_authentication=False,Source_qualification='HOLD_PENDING_COMMITTED_CONSTRUCTOR_AND_DOMAIN')
+
+
+def material_projection_data(original_raw,supplemental_raw,program):
+    """Keep original59 DATA byte-canonical and supplemental5 in a separate table."""
+    original=receipt(original_raw);extra=receipt(supplemental_raw)
+    need(set(original)=={'schema','kind','aliases','materials'} and type(original['schema']) is int
+         and original['schema']==4 and original['kind']=='DELEGATED_SOURCE_RELATIVE_MATERIALS_V4'
+         and original['aliases']==MATERIAL_ALIASES and set(original['materials'])==set(MATERIAL_ALIASES.values())
+         and original_raw==encoded(original),'HOLD_MATERIAL_STAGING_ORIGINAL59_PROJECTION')
+    need(set(extra)=={'schema','kind','materials'} and type(extra['schema']) is int and extra['schema']==4
+         and extra['kind']=='DELEGATED_MATERIAL_STAGING_SOURCE_MATERIALS_V4'
+         and type(extra['materials']) is dict and set(extra['materials'])==MATERIAL_STAGING_MATERIAL_ROLES
+         and same(extra['materials'],program['staging_materials']) and supplemental_raw==encoded(extra),
+         'HOLD_MATERIAL_STAGING_SUPPLEMENTAL5_PROJECTION')
+    selected={**original['materials'],**extra['materials']};members=set()
+    for role,row in selected.items():
+        need(type(row) is dict and set(row)=={'member','bytes','sha256'},'HOLD_MATERIAL_STAGING_DESCRIPTOR')
+        relative(row['member']);need(row['member'] not in members and 0<whole(row)['bytes']<=16*1024**2,
+             'HOLD_MATERIAL_STAGING_DESCRIPTOR_COLLISION')
+        if role in original['materials']:need(row['member'].startswith('carrier/'),'HOLD_MATERIAL_STAGING_ORIGINAL59_PROJECTION')
+        members.add(row['member'])
+    return dict(status='MATERIAL_STAGING_MATERIAL_PROJECTION_DATA_ONLY_V4',materials=selected,
+        original_material_roles=59,staging_material_roles=5,Root_authentication=False)
+
+
+def literal_timing(tree):
+    """Read one literal dict declaration; never invoke a Source predicate."""
+    rows=[node.value for node in tree.body if isinstance(node,ast.Assign)
+          and any(isinstance(target,ast.Name) and target.id=='TIMING' for target in node.targets)]
+    need(len(rows)==1,'HOLD_PREREQUISITE_LITERAL_TIMING')
+    node=rows[0]
+    if isinstance(node,ast.Call):
+        need(isinstance(node.func,ast.Name) and node.func.id=='dict' and not node.args
+             and all(item.arg is not None for item in node.keywords)
+             and len({item.arg for item in node.keywords})==len(node.keywords),'HOLD_PREREQUISITE_LITERAL_TIMING')
+        return {item.arg:ast.literal_eval(item.value) for item in node.keywords}
+    return ast.literal_eval(node)
 
 
 def receipt(raw):
@@ -285,8 +449,17 @@ def source_data(expected,files,*,delegated=False):
     if program.get('schema')==4:
         actual={'source','ref','run','job','Root_delegation','Root_trust','Root_resources','Root_runtime','actual_images','publication'}
         prefix='scripts/ci/first-login-enrollment-native-source/successor_v4_source/'
-        roles=set(program['roles']);current=roles==CURRENT_ROLES
+        roles=set(program['roles'])
+        if roles==MATERIAL_STAGING_ROLES:
+            material_registry_shape(program,receipt(files['provenance/v4/delegated-closure.json']))
+            material_projection_data(files['inputs/delegated-materials-v4.json'],
+                files['inputs/material-staging-materials-v4.json'],program)
+            need(False,'HOLD_MATERIAL_STAGING_FINAL_CONSTRUCTOR_REQUIRED')
+        prerequisites=roles==PREREQUISITE_ROLES
+        current=roles in (CURRENT_ROLES,PREREQUISITE_ROLES)
         need(current or roles==HISTORICAL_ROLES,'HOLD_DELEGATED_EXACT_REGISTRY_VERSION')
+        need(not prerequisites or delegated and whole(expected['source']['retention'])==BASE_RETENTION_PIN,
+             'HOLD_PREREQUISITE_EXACT_SOURCE_VERSION')
         entries={'image_executor','public_reader'}|({'hosted_launcher','inputs_assembler'} if current else set())
         if delegated:
             need(current and whole(expected['source']['retention']) in DELEGATED_RETENTION_VERSIONS,
@@ -356,6 +529,10 @@ def source_data(expected,files,*,delegated=False):
             need(program['roles']['owned_process']==dict(member=name,bytes=25140,
                  sha256='83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f')
                  and closure['files'][name]['mode']==0o755,'HOLD_CURRENT_OWNED_SUPERVISOR')
+        if prerequisites:
+            for role,(name,size,sha) in PREREQUISITE_FILES.items():
+                need(program['roles'][role]==dict(member=name,bytes=size,sha256=sha)
+                     and closure['files'][name]['mode']==0o644,'HOLD_PREREQUISITE_EXACT_SOURCE_DEPENDENCY')
         need(program['owner']==program['roles']['delegated_owner'] and program['route']==program['roles']['route'],
              'HOLD_DELEGATED_CALLBACK_ROLES')
         for role in ('retention','encoder','policy'):
@@ -387,6 +564,11 @@ def source_data(expected,files,*,delegated=False):
             callbacks.update(inputs_assembler={'validate_owner_inputs_v3','validate_hosted_inputs_v3','stage_inputs'},
                 image_executor={'context_contract','owner_main','controller_main'},hosted_launcher={'checked_inputs','preflight'})
             need(program['retention_callback']=='retain_delegated_stage','HOLD_DELEGATED_CALLBACK_SELECTION')
+        if prerequisites:
+            callbacks['host_prerequisites']={'prepare_host_prerequisites'}
+            callbacks['hosted_launcher']|=PREREQUISITE_CALLBACKS
+            need(same(literal_timing(trees['hosted_launcher']),PREREQUISITE_TIMING),
+                 'HOLD_PREREQUISITE_LITERAL_TIMING')
         need(all(entries<=functions(role) for role,entries in callbacks.items()),'HOLD_DELEGATED_ROLE_CALLBACKS')
         if delegated:
             selected={name:program['roles'][role] for name,role in dict(context='context',owner='delegated_owner',image='image',
@@ -397,6 +579,7 @@ def source_data(expected,files,*,delegated=False):
             need(pin(files[name])==validator and lock['files'][name]['mode']==0o644 and name in closure['files'],
                  'HOLD_DELEGATED_BUILD_VALIDATOR_BODY')
             selected['build_validator']=dict(member=name,**validator)
+            if prerequisites:selected.update({role:program['roles'][role] for role in PREREQUISITE_FILES})
             need(program['delegation_programs']==selected,'HOLD_DELEGATED_EXACT_PROGRAM_MAPPING')
             need(program['roles']['encoder']['member']=='scripts/ci/log_evidence.py'
                  and whole(program['roles']['encoder'])==dict(bytes=1708,sha256='a25f0089759c12afae3eea23bab8b22fa05cf5bbaa9eddc1611ce78b0405f8f5'),
@@ -445,9 +628,11 @@ def source_data(expected,files,*,delegated=False):
              all(value is None for value in program['actual'].values()),'HOLD_OWNER_PROGRAM')
         for name,row in program['closure'].items():
             relative(name);need(pin(files[name])==whole(row),'HOLD_PROGRAM_CLOSURE_BODY')
-    if program.get('schema')==4 and set(program['roles'])==CURRENT_ROLES:
-        if delegated:need(pin(values['policy'])==FULL_POLICY_PIN,'HOLD_DELEGATED_SELECTED_FULL_POLICY')
-        need(pin(values['policy']) in (HISTORICAL_FULL_POLICY_PIN,FULL_POLICY_PIN) and policy['schema']==3
+    if program.get('schema')==4 and set(program['roles']) in (CURRENT_ROLES,PREREQUISITE_ROLES):
+        optional=set(program['roles'])==PREREQUISITE_ROLES
+        if optional:prerequisite_policy(values['policy'])
+        elif delegated:need(pin(values['policy'])==FULL_POLICY_PIN,'HOLD_DELEGATED_SELECTED_FULL_POLICY')
+        need((optional or pin(values['policy']) in (HISTORICAL_FULL_POLICY_PIN,FULL_POLICY_PIN)) and policy['schema']==3
              and policy['kind']=='CURRENT_ONBOARDING_FULL_POLICY_PROPOSAL_V3'
              and policy['review_state']=='PROPOSED_REQUIRES_SEPARATE_ROOT_DELEGATION'
              and all(policy[name] is None for name in ('Root_issuance','Root_final_acceptance','actual_binding',
@@ -456,7 +641,7 @@ def source_data(expected,files,*,delegated=False):
              and expected['resources']==frozen_resources(policy)
              and all(lock['files'][name]['mode']==0o644 for name in inverse['remove']),
              'HOLD_UNISSUED_FULL_SOURCE_POLICY')
-        if pin(values['policy'])==FULL_POLICY_PIN:
+        if optional or pin(values['policy'])==FULL_POLICY_PIN:
             test=policy['private_stage']['test']
             need(test==dict(fingerprint=SELECTED_TEST_FINGERPRINT,public_key_role='setup8_current_public_key')
                  and expected['fingerprint']==test['fingerprint'],'HOLD_SOURCE_TEST_KEY_SELECTION')
@@ -1394,6 +1579,16 @@ def delegated_context(d_raw,c_raw,expected,source,event_epoch):
     selected=cap.get('allow_selected_pair_adoption',False)
     need(type(selected) is bool and (not selected or version==4 and not cap['allow_pair_adoption']),
          'HOLD_DELEGATED_ADOPTION_SCOPE')
+    material_selected=cap.get('allow_material_staging',False)
+    need(type(material_selected) is bool,'HOLD_MATERIAL_STAGING_EXPLICIT_CAPABILITY')
+    need(not material_selected,'HOLD_MATERIAL_STAGING_RUNTIME_QUALIFICATION_UNAVAILABLE')
+    prerequisites=cap.get('allow_host_prerequisites',False)
+    need(type(prerequisites) is bool,'HOLD_PREREQUISITE_EXPLICIT_CAPABILITY')
+    if prerequisites:
+        need(version==4 and set(PREREQUISITE_FILES)<=set(d['programs'])
+             and whole(d['programs']['retention'])==BASE_RETENTION_PIN,
+             'HOLD_PREREQUISITE_EXACT_SOURCE_VERSION')
+        prerequisite_policy(source[d['policy']['member']])
     if selected:
         # The exact committed context currently supports backend producers only.
         selections=d.get('pair_selections',{'single':d.get('pair_selection')})
@@ -1454,6 +1649,249 @@ def delegated_context(d_raw,c_raw,expected,source,event_epoch):
         source_root=root,binding=actual,hosted=env,jobs_response=response,jobs_response_pin=pin(body),observed_epoch=observed,**DELEGATED_FINAL)
     need(c==replay and actual==binding,'HOLD_DELEGATED_EXACT_CONTEXT_REPLAY')
     return d,c,policy
+
+
+def prerequisite_scope(value,nonce,role):
+    """Parse retained kernel/property DATA independently of the executor."""
+    domain=value['domain'];props=value['properties'];group='/system.slice/cachy-current-'+role+'-'+nonce+'.scope'
+    need(set(domain)=={'pid','starttime','cgroup','limits'} and type(domain['pid']) is int and domain['pid']>0
+         and type(domain['starttime']) is int and domain['starttime']>0 and domain['cgroup']==group
+         and same(domain['limits'],PREREQUISITE_POLICY['scope_limits'])
+         and set(props)=={'RuntimeMaxUSec','ActiveEnterTimestampMonotonic','ControlGroup'}
+         and props['ControlGroup']==group and type(props['ActiveEnterTimestampMonotonic']) is str
+         and props['ActiveEnterTimestampMonotonic'].isdecimal()
+         and int(props['ActiveEnterTimestampMonotonic'])>0,'HOLD_PREREQUISITE_ACTUAL_KERNEL_SCOPE')
+    span=props['RuntimeMaxUSec'];need(type(span) is str and 0<len(span)<=100,'HOLD_PREREQUISITE_RUNTIME_PROPERTY')
+    units={'us':1,'ms':1000,'s':1000000,'min':60000000,'h':3600000000,'d':86400000000}
+    parts=re.findall(r'([0-9]+)(min|us|ms|s|h|d)',span)
+    need(span.isdecimal() or parts and ''.join(a+b for a,b in parts)==re.sub(r'\s+','',span),
+         'HOLD_PREREQUISITE_RUNTIME_PROPERTY')
+    runtime=int(span) if span.isdecimal() else sum(int(a)*units[b] for a,b in parts)
+    need(runtime>0,'HOLD_PREREQUISITE_RUNTIME_PROPERTY')
+    return int(props['ActiveEnterTimestampMonotonic'])/1000000,runtime/1000000
+
+
+def prerequisite_tools(value):
+    need(type(value) is dict and value['missing_or_invalid']==[] and set(value['tools'])==PREREQUISITE_TOOLS,
+         'HOLD_PREREQUISITE_COMPLETE_TOOL_OBSERVATIONS')
+    result={}
+    for name,row in value['tools'].items():
+        selected=row['selected'];need(type(selected) is dict and type(selected['path']) is str,
+             'HOLD_PREREQUISITE_COMPLETE_TOOL_OBSERVATIONS')
+        target=Path(selected['path']);aliases={name}|({'mke2fs'} if name=='mkfs.ext4' else set())
+        need(selected['candidate'] in ('/usr/bin/'+name,'/usr/sbin/'+name) and str(target)==selected['path']
+             and str(target.parent) in ('/usr/bin','/usr/sbin') and (target.name in aliases
+                 or name=='python3' and re.fullmatch(r'python3\.[0-9]{1,2}',target.name))
+             and type(selected['bytes']) is int and 0<selected['bytes']<=256*1024**2
+             and type(selected['sha256']) is str and re.fullmatch('[0-9a-f]{64}',selected['sha256']),
+             'HOLD_PREREQUISITE_COMPLETE_TOOL_OBSERVATIONS')
+        result[name]={key:selected[key] for key in ('path','bytes','sha256')}
+    return result
+
+
+def delegated_prerequisites(files,expected,source,support,policy,d,c,runtime,q):
+    """Replay public launch facts and separately selected Root observations.
+
+    Missing APT output bodies are not reconstructed or claimed replayed. Root
+    supplies their authentic supervision and the private launch/clock bridge.
+    """
+    selected=d['capability'].get('allow_host_prerequisites',False)
+    need(type(selected) is bool,'HOLD_PREREQUISITE_EXPLICIT_CAPABILITY')
+    if not selected:
+        need(not PREREQUISITE_SUPPORT&set(support) and 'host_prerequisite_qualification_pin' not in runtime,
+             'HOLD_PREREQUISITE_UNSELECTED_RUNTIME')
+        return None
+    need(PREREQUISITE_SUPPORT<=set(support),'HOLD_PREREQUISITE_ROOT_OBSERVATIONS')
+    prerequisite_policy(source[expected['source']['policy']['path']])
+    raw={role:support[role] for role in PREREQUISITE_SUPPORT};v={role:receipt(body) for role,body in raw.items()}
+    root=v['prerequisite_qualification'];timing=v['prerequisite_timing'];report=v['prerequisite_report']
+    launcher=v['prerequisite_launcher'];controller=v['prerequisite_controller'];nonce=expected['nonce']
+    public={role:pin(body) for role,body in raw.items() if role!='prerequisite_qualification'}
+    keys={'schema','kind','issuer','status','binding','nonce','delegation_pin','policy_pin','request_pin','launcher',
+          'trusted_main_commit','launch_selection','public_pins','boot_pin','same_boot','clock','actual_limits','commands'}
+    need(set(root)==keys and type(root['schema']) is int and root['schema']==4
+         and root['kind']=='ROOT_QUALIFIED_HOST_PREREQUISITES_SHARED_7560_V4' and root['issuer']=='Root'
+         and root['status']=='ROOT_REVIEWED_HOST_PREREQUISITES_SHARED_7560' and root['binding']==expected['binding']
+         and root['nonce']==nonce and root['delegation_pin']==expected['delegation_pin']
+         and root['policy_pin']==whole(expected['source']['policy']) and root['launcher']==d['programs']['hosted_launcher']
+         and type(root['trusted_main_commit']) is str and re.fullmatch('[0-9a-f]{40}',root['trusted_main_commit'])
+         and root['public_pins']==public and root['same_boot'] is True,
+         'HOLD_PREREQUISITE_ROOT_SELECTION')
+    need(0<whole(root['request_pin'])['bytes']<=HOSTED_LAUNCHER_LIMITS['request_bytes']
+         and whole(root['boot_pin'])['bytes']==37
+         and same(root['launch_selection'],dict(jobs_metadata=True,privileged_controller=True,
+             launcher_limits=HOSTED_LAUNCHER_LIMITS,host_prerequisites=True,whole_timing=PREREQUISITE_TIMING))
+         and runtime['host_prerequisite_qualification_pin']==pin(raw['prerequisite_qualification'])
+         and q['host_prerequisite_qualification_pin']==pin(raw['prerequisite_qualification']),
+         'HOLD_PREREQUISITE_ROOT_LAUNCH_AUTHORIZATION')
+    need(set(timing)=={'schema','kind','request_pin','delegation_pin','binding','policy_pin','boot_pin',
+         'started_monotonic','deadline_monotonic','expires_epoch','whole_budget_seconds',*DELEGATED_FINAL}
+         and type(timing['schema']) is int and timing['schema']==3 and timing['kind']==PREREQUISITE_TIMING['kind']
+         and type(timing['whole_budget_seconds']) is int and timing['whole_budget_seconds']==7560
+         and timing['request_pin']==root['request_pin'] and timing['delegation_pin']==expected['delegation_pin']
+         and timing['binding']==expected['binding'] and timing['policy_pin']==root['policy_pin']
+         and timing['boot_pin']==root['boot_pin'] and timing['expires_epoch']==d['expires_epoch']
+         and raw['prerequisite_timing']==encoded(timing),'HOLD_PREREQUISITE_SHARED_TIMING')
+    delegated_final(timing)
+    start,end=timing['started_monotonic'],timing['deadline_monotonic']
+    need(all(type(x) in (int,float) and math.isfinite(x) for x in (start,end)) and 0<start<end<=start+7560,
+         'HOLD_PREREQUISITE_SHARED_TIMING')
+    order=('launch_started','preflight_finished','prerequisite_started','prerequisite_retired','controller_selected',
+           'controller_started','stage_started','stage_finished','controller_retired','launch_finished')
+    clock=root['clock'];need(set(clock)==set(order),'HOLD_PREREQUISITE_CLOCK_OBSERVATIONS')
+    for point in clock.values():
+        need(set(point)=={'monotonic','epoch'} and all(type(x) in (int,float) and math.isfinite(x) for x in point.values())
+             and start<=point['monotonic']<end and d['issued_epoch']<=point['epoch']<d['expires_epoch'],
+             'HOLD_PREREQUISITE_CLOCK_OBSERVATIONS')
+    need(clock['launch_started']['monotonic']==start and all(
+         clock[a]['monotonic']<=clock[b]['monotonic'] and clock[a]['epoch']<=clock[b]['epoch'] for a,b in zip(order,order[1:]))
+         and all(abs((point['epoch']-clock['launch_started']['epoch'])-(point['monotonic']-start))<=1 for point in clock.values())
+         and clock['preflight_finished']['monotonic']-start<=180
+         and end<=clock['preflight_finished']['monotonic']+d['expires_epoch']-clock['preflight_finished']['epoch']+.1
+         and end-clock['prerequisite_started']['monotonic']>=510
+         and clock['prerequisite_retired']['monotonic']-clock['prerequisite_started']['monotonic']<=510
+         and runtime['started_at']==clock['stage_started']['epoch'] and runtime['finished_at']==clock['stage_finished']['epoch'],
+         'HOLD_PREREQUISITE_WHOLE_TIME_ORDER')
+    initial_d,initial,_=delegated_context(files['delegation.json'],raw['prerequisite_initial_context'],expected,source,
+        clock['preflight_finished']['epoch'])
+    need(initial_d==d and initial['binding']==c['binding'] and initial['observed_epoch']<=clock['preflight_finished']['epoch']
+         and clock['prerequisite_retired']['epoch']<c['observed_epoch']+1
+         and c['observed_epoch']<=clock['controller_selected']['epoch']
+         and c['observed_epoch']>=initial['observed_epoch'],'HOLD_PREREQUISITE_TWO_CONTEXT_OBSERVATIONS')
+    need(controller['kind']=='CURRENT_HOSTED_CONTROLLER_OBSERVATION_V3' and controller['binding']==expected['binding']
+         and controller['policy_pin']==root['policy_pin'],'HOLD_PREREQUISITE_CONTROLLER_BINDING')
+    delegated_final(controller)
+    entered,ceiling=prerequisite_scope(controller,nonce,'controller')
+    chosen=clock['controller_selected'];left=min(end-chosen['monotonic'],d['expires_epoch']-chosen['epoch'])
+    stage_ceiling=min(7200,ceiling-361)
+    need(ceiling==math.floor(left)-15 and 361<ceiling<=7560
+         and clock['controller_selected']['monotonic']<=entered<=clock['controller_started']['monotonic']
+         and entered+ceiling<=end and clock['controller_retired']['monotonic']<=entered+ceiling
+         and clock['controller_retired']['monotonic']-entered<=q['owned_domains']['seconds']['controller_seconds']
+         and runtime['finished_at']-runtime['started_at']<=stage_ceiling
+         and clock['stage_finished']['monotonic']-clock['stage_started']['monotonic']
+             <=q['owned_domains']['seconds']['stage_seconds']
+         and clock['stage_started']['monotonic']-clock['controller_started']['monotonic']
+             <=q['owned_domains']['seconds']['setup_seconds']
+         and clock['controller_retired']['monotonic']-clock['stage_finished']['monotonic']
+             <=q['owned_domains']['seconds']['cleanup_seconds']
+         and q['owned_domains']['seconds']['controller_seconds']<=ceiling
+         and q['owned_domains']['seconds']['stage_seconds']<=stage_ceiling,
+         'HOLD_PREREQUISITE_CLIPPED_MAIN_BUDGET')
+    limits=root['actual_limits'];need(set(limits)=={'rlimits','capacity','output','seconds'},'HOLD_PREREQUISITE_ACTUAL_LIMITS')
+    need(same(limits['rlimits'],dict(address_space_bytes=536870912,cpu_seconds=500,core_bytes=0))
+         and set(limits['capacity'])=={'free_bytes','free_nodes'}
+         and all(type(x) is int for x in limits['capacity'].values())
+         and limits['capacity']['free_bytes']>=822083584 and limits['capacity']['free_nodes']>=4288
+         and set(limits['output'])=={'bytes','nodes'}
+         and all(type(x) is int and 0<=x<=PREREQUISITE_POLICY['output_'+key] for key,x in limits['output'].items())
+         and set(limits['seconds'])=={'observation','work','cleanup'}
+         and all(type(x) in (int,float) and math.isfinite(x) and 0<=x<=PREREQUISITE_POLICY[key+'_seconds']
+             for key,x in limits['seconds'].items()) and sum(limits['seconds'].values())<=495,
+         'HOLD_PREREQUISITE_ACTUAL_LIMITS')
+    need(report['api']=='CURRENT_ONBOARDING_HOST_PREREQUISITES_V3'
+         and report['kind']=='UBUNTU24_ARM64_LIBARCHIVE_TOOLS_CI_PREREQUISITE_V1'
+         and report['status']=='PASS_CI_LIBARCHIVE_TOOLS_PREREQUISITE_ONLY' and report['package']=='libarchive-tools'
+         and report['binding']==expected['binding'] and report['delegation_pin']==expected['delegation_pin']
+         and type(report['tool_count']) is int and report['tool_count']==16 and report['cache_absent'] is True
+         and report['Root_acceptance'] is None,'HOLD_PREREQUISITE_PUBLIC_OUTCOME')
+    delegated_final(report)
+    entered,seconds=prerequisite_scope(report['scope_observation'],nonce,'prerequisites')
+    need(seconds==495 and clock['prerequisite_started']['monotonic']<=entered
+         <=clock['prerequisite_retired']['monotonic']<=entered+495 and entered+495<=end,
+         'HOLD_PREREQUISITE_SCOPE_TIME')
+    host=report['context'];env=dict(GITHUB_ACTIONS='true',RUNNER_OS='Linux',RUNNER_ARCH='ARM64',
+        GITHUB_REPOSITORY=c['hosted']['GITHUB_REPOSITORY'],GITHUB_EVENT_NAME='workflow_dispatch',GITHUB_RUN_ATTEMPT='1',
+        GITHUB_RUN_ID=expected['binding']['run'],GITHUB_SHA=expected['binding']['source'],GITHUB_REF=expected['binding']['ref'],
+        GITHUB_JOB=c['hosted']['GITHUB_JOB'])
+    need(host['kind']=='CURRENT_ONBOARDING_PUBLIC_HOST_CONTEXT_V3' and host['machine'] in ('aarch64','arm64')
+         and host['os_release']==dict(ID='ubuntu',VERSION_ID='24.04') and host['environment']==env
+         and same(host['checks'],dict(root=True,machine=True,ubuntu24=True,public_identity=True))
+         and host['reason_codes']==[] and host['Root_acceptance'] is None,'HOLD_PREREQUISITE_HOST_CONTEXT')
+    delegated_final(host)
+    tools=prerequisite_tools(report['tools_after']);before=report['tools_before']
+    need(set(before['tools'])==PREREQUISITE_TOOLS and type(before['missing_or_invalid']) is list
+         and set(before['missing_or_invalid'])<={'bsdtar'} and report['repository_key_trust_before']==report['repository_key_trust_after']
+         and type(report['repository_key_trust_before']) is dict and report['repository_key_trust_before'],
+         'HOLD_PREREQUISITE_TOOL_TRUST_PRESERVATION')
+    trust=report['repository_key_trust_before'];total=0
+    roots=('etc/apt/sources.list','etc/apt/sources.list.d','etc/apt/trusted.gpg','etc/apt/trusted.gpg.d',
+           'etc/apt/keyrings','etc/apt/apt.conf','etc/apt/apt.conf.d','usr/share/keyrings')
+    need(len(trust)<=1024 and any(name.startswith('etc/apt/sources.list') for name in trust)
+         and any(name.startswith(('usr/share/keyrings/','etc/apt/keyrings/','etc/apt/trusted.gpg')) for name in trust),
+         'HOLD_PREREQUISITE_TOOL_TRUST_PRESERVATION')
+    for name,row in trust.items():
+        relative(name);need(any(name==prefix or name.startswith(prefix+'/') for prefix in roots)
+             and set(row)=={'bytes','sha256'} and whole(row)['bytes']<=2*1024**2,
+             'HOLD_PREREQUISITE_TOOL_TRUST_PRESERVATION')
+        total+=row['bytes']
+    need(total<=16*1024**2,'HOLD_PREREQUISITE_TOOL_TRUST_PRESERVATION')
+    for name,row in before['tools'].items():
+        if name!='bsdtar':need(row['selected'] is not None and tools[name]=={key:row['selected'][key] for key in ('path','bytes','sha256')},
+             'HOLD_PREREQUISITE_TOOL_TRUST_PRESERVATION')
+    need(report['installed']==dict(package='libarchive-tools',state='install ok installed',version=report['selected_version'],architecture='arm64')
+         and type(report['selected_version']) is str and re.fullmatch('[A-Za-z0-9.+:~_-]{1,160}',report['selected_version']),
+         'HOLD_PREREQUISITE_INSTALLED_IDENTITY')
+    rows=report['commands'];observations=root['commands'];caps=(15,15,120,15,30,90,120,15,15)
+    need(type(rows) is list and len(rows)==9 and type(observations) is list and len(observations)==9
+         and [row['name'] for row in rows]==['dpkg','dpkg-query','apt-get','apt-cache','apt-get','apt-get','apt-get','dpkg-query','bsdtar'],
+         'HOLD_PREREQUISITE_COMMAND_OBSERVATIONS')
+    fixed=['-o','Acquire::Retries=0','-o','Acquire::http::Timeout=15','-o','Acquire::https::Timeout=15',
+        '-o','APT::Update::Error-Mode=any','-o','Acquire::AllowInsecureRepositories=false',
+        '-o','Acquire::AllowDowngradeToInsecureRepositories=false','-o','APT::Get::AllowUnauthenticated=false',
+        '-o','APT::Get::allow-Downgrades=false','-o','APT::Get::allow-Change-Held-Packages=false',
+        '-o','Acquire::Check-Valid-Until=true']
+    cache='/var/lib/cachy-current-prerequisites-'+nonce+'/ci-prerequisite-cache'
+    opts=['-o','Dir::State::lists='+cache+'/lists','-o','Dir::Cache::archives='+cache+'/archives',
+        '-o','Dir::Cache::pkgcache='+cache+'/pkgcache.bin','-o','Dir::Cache::srcpkgcache='+cache+'/srcpkgcache.bin']
+    query=['-W','--showformat='+'${binary:Package}\t${Status}\t${Version}\t${Architecture}\n','libarchive-tools']
+    install=['--yes','--no-remove','--no-install-recommends','install','libarchive-tools='+report['selected_version']]
+    args=[['--print-architecture'],query,[*fixed,*opts,'update'],[*opts,'policy','libarchive-tools'],
+          [*fixed,*opts,'--simulate',*install],[*fixed,*opts,'--download-only',*install],
+          [*fixed,*opts,'--no-download',*install],query,['--version']]
+    for i,(row,actual,cap) in enumerate(zip(rows,observations,caps)):
+        need(type(row['exit']) is int and row['exit'] in ((0,1) if i==1 else (0,)) and whole(row['output'])['bytes']<=1024**2
+             and set(row)=={'name','argv','exit','output'} and row['argv']==[
+                 tools['bsdtar']['path'] if row['name']=='bsdtar' else '/usr/bin/'+row['name'],*args[i]]
+             and set(actual)=={'receipt_pin','output_pin','supervision'} and actual['receipt_pin']==pin(encoded(row))
+             and actual['output_pin']==whole(row['output']),'HOLD_PREREQUISITE_COMMAND_OBSERVATIONS')
+        sup=dict(actual['supervision'])
+        need(type(sup['exit']) is int and sup['exit']==row['exit'] and sup['passed'] is (row['exit']==0)
+             and sup['reaped'] is True and sup['output_complete'] is True and sup['timeout'] is False,
+             'HOLD_PREREQUISITE_COMMAND_OBSERVATIONS')
+        # The initial query may naturally observe an absent package (exit1).
+        sup.update(exit=0,passed=True);natural(sup)
+        need(sup['seconds']<=cap,'HOLD_PREREQUISITE_COMMAND_OBSERVATIONS')
+    need(sum(row['supervision']['seconds'] for row in observations)<=limits['seconds']['work'],
+         'HOLD_PREREQUISITE_COMMAND_OBSERVATIONS')
+    need(report['dpkg_architecture']==dict(architecture='arm64',output=rows[0]['output'],reason_codes=[])
+         and report['initial_package_query']==dict(exit=rows[1]['exit'],output=rows[1]['output'])
+         and report['bsdtar_version_output']==rows[-1]['output'],'HOLD_PREREQUISITE_COMMAND_OBSERVATIONS')
+    need(launcher['status']=='DELEGATED_HOSTED_CONTROLLER_RETIRED_DATA_ONLY' and launcher['binding']==expected['binding']
+         and launcher['request_pin']==root['request_pin'] and same(launcher['cleanup'],dict(owned_storage_absent=True,error_count=0))
+         and same(launcher['prerequisite_scope_absence'],dict(scope='cachy-current-prerequisites-'+nonce+'.scope',absent_twice=True))
+         and same(launcher['scope_absence'],dict(scope='cachy-current-controller-'+nonce+'.scope',empty_twice=True))
+         and prerequisite_tools(launcher['tools_after_prerequisites'])==tools,'HOLD_PREREQUISITE_LAUNCH_RETIREMENT')
+    delegated_final(launcher)
+    for role in ('metadata','metadata_after_prerequisites','prerequisite_retirement','controller_retirement'):
+        row=launcher[role];need(type(row['exit']) is int and row['exit']==0 and row['reaped'] is True
+             and row['group_census']=='EMPTY_TWICE' and row['natural'] is True,
+             'HOLD_PREREQUISITE_LAUNCH_RETIREMENT')
+        whole(row['stdout_pin']);whole(row['stderr_pin'])
+    need(launcher['metadata']['stdout_pin']==initial['jobs_response_pin']
+         and launcher['metadata_after_prerequisites']['stdout_pin']==c['jobs_response_pin'],
+         'HOLD_PREREQUISITE_TWO_CONTEXT_OBSERVATIONS')
+    shared=launcher['shared_timing']
+    need(set(shared)=={'whole_budget_seconds','elapsed_seconds','controller_runtime_ceiling_seconds','available_stage_ceiling_seconds'}
+         and type(shared['whole_budget_seconds']) is int and shared['whole_budget_seconds']==7560
+         and all(type(shared[key]) is int for key in ('controller_runtime_ceiling_seconds','available_stage_ceiling_seconds'))
+         and all(type(x) in (int,float) and math.isfinite(x) for x in shared.values())
+         and clock['prerequisite_retired']['monotonic']-start<=shared['elapsed_seconds']<=chosen['monotonic']-start
+         and ceiling<=shared['controller_runtime_ceiling_seconds']<=math.floor(end-start-shared['elapsed_seconds'])-15
+         and stage_ceiling<=shared['available_stage_ceiling_seconds']<=min(7200,shared['controller_runtime_ceiling_seconds']-361),
+         'HOLD_PREREQUISITE_LAUNCH_TIMING')
+    return dict(whole_budget_seconds=7560,controller_ceiling_seconds=ceiling,stage_ceiling_seconds=stage_ceiling,
+        APT_output_bodies_replayed=False,Root_authentication=False)
 
 
 def delegated_root_inputs(files,expected,support,commands,policy,d,c):
@@ -1876,9 +2314,12 @@ def _delegated_check(capsule,expected,source_files,support_files,now,depth=0):
     need(set(times)=={'started_at','finished_at'} and all(type(value) in (int,float) and math.isfinite(value) for value in times.values())
          and 0<=times['started_at']<=times['finished_at']<=now,'HOLD_DELEGATED_EVENT_TIME')
     files,manifest,commands=delegated_payload(capsule,expected)
+    prerequisites=receipt(files['delegation.json'])['capability'].get('allow_host_prerequisites',False)
+    need(type(prerequisites) is bool,'HOLD_PREREQUISITE_EXPLICIT_CAPABILITY')
     kinds=() if stage=='lifecycle' else ('ui',) if stage=='ui' else ('enrollment','first-login')
     required={'inputs','runtime','domain_qualification','image_qualification','command_observations'}
     if whole(expected['source']['retention'])==BASE_RETENTION_PIN:required|=set(BASE_METADATA_PINS)
+    if prerequisites:required|=PREREQUISITE_SUPPORT
     if kinds:required|={'completion',*('component_'+kind for kind in kinds)}
     need(type(expected['support_pins']) is dict and set(expected['support_pins'])==required
          and type(support_files) is dict,'HOLD_MISSING_DELEGATED_ROOT_QUALIFICATION')
@@ -1922,6 +2363,7 @@ def _delegated_check(capsule,expected,source_files,support_files,now,depth=0):
     if whole(expected['source']['retention'])==BASE_RETENTION_PIN:
         base_provenance=delegated_base_provenance(files,expected,source_files,inputs,support)
     packages,runtime,q=delegated_root_inputs(files,expected,support,commands,policy,d,c)
+    prerequisite_facts=delegated_prerequisites(files,expected,source_files,support,policy,d,c,runtime,q)
     need(runtime['inputs_pin']==pin(support['inputs']),'HOLD_DELEGATED_QUALIFIED_INPUT_DECLARATION')
     if base_provenance is not None:
         name='image/base-inputs.public.json';qualification=receipt(support['image_qualification'])
@@ -2020,6 +2462,7 @@ def _delegated_check(capsule,expected,source_files,support_files,now,depth=0):
     if base_provenance is not None:
         verdict['base_provenance']={key:base_provenance[key] for key in
             ('original_packages','supplemental_packages','material_count','operand_count','archive_bodies_replayed','signature_math_replayed')}
+    if prerequisite_facts is not None:verdict['host_prerequisites']=prerequisite_facts
     return verdict
 
 

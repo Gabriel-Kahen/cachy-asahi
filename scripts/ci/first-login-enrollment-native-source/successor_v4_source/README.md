@@ -169,3 +169,96 @@ files. If absent, the one optional-positive control is reported as skipped;
 template/partial-roster/policy refusal controls still run. No historical/private
 archive, network or operational actor is needed. Both roster variants exercise
 the complete v3 inverse using synthetic carrier data, never an actual Source.
+
+## Explicit complete517 staging variant
+
+`closure_template(with_host_prerequisites=True, with_material_staging=True)` is a
+separate opt-in27-role variant. Default15 and optional19 templates retain their
+existing shape; staging without explicit prerequisites refuses. The eight added
+program roles are `materials_stager`, `material_domain_executor`, `base_inputs`,
+`private_seed`, `material_transport`, `retained_transport_core`, `retained_prepare`
+and `retained_prefill`. The separate `staging_materials` map must select exactly
+`retained_carrier_profile`, `retained_prefill_profile`, `public14_profile`,
+`staging_base_lock` and `staging_bootstrap_profile` by member name; all five bodies must be in the same committed `files` closure.
+The constructor publishes their whole descriptors in the registry and a separate
+`inputs/material-staging-materials-v4.json` (schema4, kind
+`DELEGATED_MATERIAL_STAGING_SOURCE_MATERIALS_V4`, materials map). The original59
+material projection remains unchanged. A delegation needs their exact combined64
+descriptors for staging; the inputs author must explicitly validate that supplemental
+table and combined set, since the existing assembler strictly accepts59. No old
+assembler check is waived and this consumer adaptation is not implemented here. The selected public14 profile member is
+`scripts/ci/first-login-enrollment-native-source/inputs/public14-profile.json`.
+This is a required future committed artifact, not a claim that it already exists.
+
+The selected versioned stager is
+`payload/native/stage_materials_current_v3_python_v1.py`, author db619da7,32266
+bytes/SHA256d0c0764b1b7a92bb55dce63ba55314bb84ace4533434afcc47b1e23205e1cac9.
+The old c640 body remains held byte-exact31630 bytes/
+2e2bf75fb6c59e400cf21aadb719ee687d7b8c12e21ace872637b47f7304fede; prior27-role
+proposal history remains unchanged. The successor preserves API, PROPOSAL, SCOPE
+and all original helper/material hashes, while accepting the held executor's
+qualified canonical Python path and rejoining its tool row before spawn.
+Its actual `stage_materials`, `validate_grant`, `secret_names` functions and API
+`CURRENT_COMPLETE517_MATERIAL_STAGING_V3` must exist. All retained helper/profile
+hashes are fixed to the original factory metadata; ambient files cannot substitute.
+The physical domain executor needs API `CURRENT_ONBOARDING_MATERIAL_DOMAIN_V3`
+and `open_material_session`. The selected stable domain is author ae3ab1dd,36172 bytes/SHA256
+`dda088c77150046b3822db81e329e00a0afa72db3e10c3c1b74cd1e50bc2e0c3`.
+Its hardcoded stager and executor pins must equal the actual selected whole
+closure bodies. Missing or mismatched dependencies refuse; no live uncommitted
+body may fill a selected descriptor. The committed launcher must also expose the
+actual staging-selection, assembly and staged-domain orchestration callbacks.
+Every body still comes from the one full Git closure commit.
+
+`material_staging_policy_candidate(base, stager_raw, domain_raw=domain_raw)` returns
+unissued DATA after checking both exact whole program bodies. It composes the
+actual `material_domain_executor_current_v3` proposal (90-second close included
+inside shared7560), refuses a conflicting domain policy and requires the same
+physical scope limits as the stager. Every complete27-role closure requires this
+domain policy. Omitting domain_raw produces only the earlier partial stager DATA
+candidate and does not satisfy construction. It reads only the finite literal policy
+constants through AST, never imports or runs the actor. The candidate retains
+7560 whole seconds,7200 stage ceiling,180 setup/180 cleanup and the495 prerequisite
+scope, with staging's3600-second physical scope charged inside the same absolute
+deadline. Both context lifetime limits must explicitly equal7560. Conflicting
+policies, authority fields, missing dependencies or a hidden staging policy in a
+15/19-role closure refuse. No scope, Root selection, trust, secret, future hosted
+binding, storage mount or resource grant is synthesized.
+
+The five materials add696276 bytes (195440 carrier profile +1510 prefill profile
++3024 canonical public14 metadata +328101 base lock +168201 bootstrap profile);
+seven known selected program bodies add127578 bytes. The two added fixed metadata members
+are `bootstrap/scripts/ci/inputs.lock.json` (SHA256beca39e0...) and
+`native/input-profile.json` (SHA2562c42c705...). Neither body is presumed present
+in Source139; each must be explicitly committed and closed.
+The selected36172-byte domain makes eight selected program bodies163750 bytes.
+Final launcher/workflow and policy deltas remain unknown until committed. These are input-byte counts, not a whole Source size. The actual
+constructor still enforces256 files/64MiB per file/128MiB total and the exact v3
+inverse; no completed Source size or operational qualification is asserted.
+Focused inert tests commit a clearly marked tiny MODEL closure, verify27 roles,
+separate59+5 material tables and full inverse, and exercise missing-body/collision/pin/lifetime/
+policy-code refusals. Their model pins never substitute for missing real artifacts.
+
+## Exact original139 inverse for every variant
+
+The common `assemble` path now reconstructs the same exact139-file/43544563-byte
+Source139 before adding any delegated closure code. The immutable2118-byte
+`source139-owner-closure.json` pins the original eight committed bc47942d runtime
+files; its SHA256 is6211506eb9b1483f276314b9e8c0c23e9b338ffa332f2efa899c9e1949446977.
+The original v3 constructor and genuine carrier/manifest must reproduce the26734-
+byte Source map ec752108c451d056ebbe4caa97d629bad081c256d506a3d83722f47952a9005e.
+Missing historical Git objects or any changed original body/mode/namespace refuse.
+All new code comes from the separately selected one-commit closure, and an overlap
+must equal the original body/mode. The inverse removes every new code member as
+well as the v4 metadata, restoring both original map aliases and every Source139
+body/mode/count exactly.
+
+This fixes a common15/19/27-variant defect: the earlier implementation first
+included new delegated code in an enlarged v3 assembly, then inverted only its
+v4 metadata. Those controls proved that enlarged basis, not the exact original139.
+No previously frozen Source or historical constructor is edited. The public
+`assemble`/CLI interface and strict role variants stay unchanged. Ordinary inert
+controls exercise additions-before-inverse and replacement refusals; genuine
+construction regressions additionally need the actual frozen carrier/profile and
+original committed donors. A genuine inverse proves DATA identity only, never
+Root/runtime/native/component qualification or Source publication.
