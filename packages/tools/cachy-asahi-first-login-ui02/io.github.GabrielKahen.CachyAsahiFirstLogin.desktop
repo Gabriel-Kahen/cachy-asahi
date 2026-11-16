@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Set up Cachy-Asahi settings
+Comment=Preview, apply or remove per-user shell and desktop settings
+Exec=cachy-asahi-first-login-ui
+Icon=preferences-desktop
+Terminal=false
+Categories=Settings;
+StartupNotify=true

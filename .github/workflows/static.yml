@@ -443,9 +443,10 @@ jobs:
                   subprocess.run([sys.executable, '-I', '-B', '-Werror::ResourceWarning', str(source / 'test_package.py'),
                                   '--recipe-root', str(recipe), '--srcdir', str(source),
                                   '--hide-checkout', str(Path.cwd())], check=True)
-          for filename in ('test_bridge.py', 'test_delivery.py'):
-              subprocess.run([sys.executable, '-I', '-B', '-Werror::ResourceWarning',
-                              str(Path('packages/tools/cachy-asahi-first-login-ui') / filename)], check=True)
+          for package in ('cachy-asahi-first-login-ui', 'cachy-asahi-first-login-ui02'):
+              for filename in ('test_bridge.py', 'test_delivery.py'):
+                  subprocess.run([sys.executable, '-I', '-B', '-Werror::ResourceWarning',
+                                  str(Path('packages/tools') / package / filename)], check=True)
           for package, archives in (
               ('cachy-asahi-audio-sources', ('runtime-source.tar.gz',)),
               ('cachy-asahi-install-handoff', ('private-source.tar.gz', 'check-source.tar.gz')),
