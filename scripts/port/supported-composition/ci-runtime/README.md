@@ -17,13 +17,61 @@ Arch keyring. Only these two packages were added in the actual local build.
 All other runtime packages originate in the exact base image. The resulting
 `/opt/composition-runtime-packages.txt` records their installed versions.
 
-From the checkout root:
+## Exact host acquisition and offline installation
+
+The foundation shard previously made its first archive connection inside the
+image build. PR485/486/487 each stopped there with curl28 after60 seconds, before
+the DB hash, package installation or composition tests. Acquisition now runs on
+the host, outside that build bridge, and prepares the complete immutable input
+set before the image build starts.
+
+`inputs.lock` pins the same131666-byte core DB and both package archives by exact
+filename, size and SHA256. Package sizes/hashes and the two detached signature
+packets are independently joined to that DB's `FILENAME`, `CSIZE`, `SHA256SUM`
+and `PGPSIG` records. The signature packets are decoded from the whole-pinned DB;
+they are not new keys or trust decisions. No archive/signature bytes are vendored.
+The package DB reports PSF-2.0 for Python and BSD-2-Clause for mpdecimal.
+
+Sources are the fixed [2026/11/09 core DB](https://archive.archlinux.org/repos/2026/11/09/core/os/x86_64/core.db),
+[Python3.14.9-1](https://archive.archlinux.org/packages/p/python/python-3.14.9-1-x86_64.pkg.tar.zst)
+and [mpdecimal4.0.1-3](https://archive.archlinux.org/packages/m/mpdecimal/mpdecimal-4.0.1-3-x86_64.pkg.tar.zst).
+These are exact official archive objects, with no moving mirror/version fallback.
+Pacman's documented [local file repository](https://man.archlinux.org/man/pacman.conf.5.en)
+provides the same `-S` transaction from the staged files. `SigLevel = Required
+DatabaseOptional`, the pinned image keyring, explicit package versions and
+libalpm16.0.1 assertion remain. The image verifies the whole input-lock checksum
+and every file's size/SHA again, installs with `RUN --network=none`, and asserts
+both installed package versions. Missing dependencies fail offline.
+
+The helper makes at most three attempts per public transfer, with10-second
+connect and60-second request caps, an explicit process timeout and one180-second
+deadline across the entire acquisition. Only transient transport/HTTP failures
+retry. Hash/length errors, certificate errors, malformed DB joins and unsafe
+cache operands fail closed. Partial downloads never enter the cache/context.
+
+The workflow restores/saves only these five exact input files, using an exact
+key bound to the input lock and Dockerfile with no restore-key fallback. Every
+hit is reverified; a missing or corrupt ordinary file is reacquired from its
+same pinned URL, and signatures are rederived without another request. Save
+follows successful complete verification, before image/tests, so later failures
+do not prevent verified inputs from being retained. A warm verified cache needs
+no archive network. The existing APT `.deb` cache and prerequisite/attr setup are
+unchanged. Cache-service restore/save failures are optional optimization failures;
+the exact-input acquisition, verification, image build and suites remain required.
+The fixed base image still requires its ordinary registry pull when
+not locally retained; this repair does not claim to cache or qualify that pull.
+
+From the checkout root (the build context must be fresh):
 
 ```sh
+composition_work=$(mktemp -d)
+python3 -I -B -Werror::ResourceWarning scripts/port/supported-composition/ci-runtime/test_acquire.py
+python3 -I -B scripts/port/supported-composition/ci-runtime/acquire.py \
+  --cache "$composition_work/cache" --context "$composition_work/context"
 docker build --pull=false \
   --file scripts/port/supported-composition/ci-runtime/Dockerfile \
   --tag cachy-asahi-supported-composition-tests \
-  scripts/port/supported-composition/ci-runtime
+  "$composition_work/context"
 docker run --rm --network=none --read-only --cap-drop=ALL \
   --security-opt=no-new-privileges --pids-limit=128 --memory=512m \
   --tmpfs /tmp:rw,nodev,nosuid,noexec,size=256m,mode=1777 \
@@ -31,12 +79,25 @@ docker run --rm --network=none --read-only --cap-drop=ALL \
   cachy-asahi-supported-composition-tests
 ```
 
-The build requires HTTPS access to the fixed official image and archive; it
-installs prerequisites only in disposable image layers. Local rootless bridge
-networking timed out during the actual build. Adding `--network=host` to the
-build command succeeded here; the test invocation still used `--network=none`.
-CI may use its ordinary build network if available. No host package install or
-host configuration change is part of either command.
+Host acquisition and a missing base image require their respective HTTPS
+sources. Package installation occurs only in the disposable image, offline;
+the test invocation also retains `--network=none`. No host network-mode,
+package installation or system configuration change is required. BuildKit is
+required for the Dockerfile's per-RUN network restriction.
+
+Deterministic MODEL controls cover cold/warm and partial/corrupt caches, exact
+DB/signature joins, changed input locks, unsafe links/paths, interrupted requests,
+retry exhaustion and total deadlines without network or package/image tools.
+Actual public acquisition receipts separately retain all five whole-file pins.
+Acquisition does not perform GPG signature verification or execute packages;
+the unchanged required-signature transaction does that in the pinned image.
+An acquisition/control PASS is not a Docker build or composition-suite PASS.
+
+## Runtime boundary and earlier retained validation
+
+The retained image/test results below predate this acquisition repair. No new
+Docker build was run for it; the new offline image install and suites still need
+the separately owned hosted check.
 
 The image defaults to UID/GID 65534. `run.py` refuses root and any libalpm version
 other than 16.0.1, prints actual runtime identity/scope, and runs only

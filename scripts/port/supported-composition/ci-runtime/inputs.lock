@@ -1,0 +1,5 @@
+131666 aec62efbfb59d300204f936a633a59d3c89d6a7e7f94852b8f621b61a253afae core.db https://archive.archlinux.org/repos/2026/11/09/core/os/x86_64/core.db
+105687 8679f71ed9a982c91883adfaaf0f87a1b74d92d4060283180c4a105a6c7afb19 mpdecimal-4.0.1-3-x86_64.pkg.tar.zst https://archive.archlinux.org/packages/m/mpdecimal/mpdecimal-4.0.1-3-x86_64.pkg.tar.zst
+14222022 e7b28e851f8f94bc4083774c4931741c5cf35573875e31d6ac52c2649da12c55 python-3.14.9-1-x86_64.pkg.tar.zst https://archive.archlinux.org/packages/p/python/python-3.14.9-1-x86_64.pkg.tar.zst
+310 bcc17af7b801c1eb181f32c1ce9fe6e087f8998fef087dff61669442ff711406 mpdecimal-4.0.1-3-x86_64.pkg.tar.zst.sig db:mpdecimal-4.0.1-3/desc
+310 9261278f2a855d6ae8f7b148ef84300030a120d11ddcf66e93835f705656925d python-3.14.9-1-x86_64.pkg.tar.zst.sig db:python-3.14.9-1/desc
