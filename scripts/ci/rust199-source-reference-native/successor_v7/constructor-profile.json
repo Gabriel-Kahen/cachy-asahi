@@ -10,17 +10,87 @@
     "run": null,
     "source": null
   },
-  "bytes": 42383950,
+  "bytes": 42401750,
   "constructor_files": {
     "README.md": {
-      "bytes": 4603,
+      "bytes": 5467,
       "mode": 420,
-      "sha256": "e044f580c92646858c772c5652c2c21aa14221b182c12adddfe0eb5703d03660"
+      "sha256": "786fa367153d991a9218b7e8efa19e39e2645d239141499d89f65ea19c865970"
     },
     "catalogue.py": {
       "bytes": 4177,
       "mode": 420,
       "sha256": "c03bc1f4ea2400dc9399b45c5d9c338a3aec74fdadd444107c6cc00af2af45ea"
+    },
+    "ci-routing.json": {
+      "bytes": 1019,
+      "mode": 420,
+      "sha256": "123b71a5bcdb7466b0839027044348a8fadfe6476478d05fcb5215cbd0271828"
+    },
+    "payload/.github/workflows/native-arm-build.yml": {
+      "bytes": 15985,
+      "mode": 420,
+      "sha256": "15b4341495516e6e9a2fe14a3cb476db8936efe54432d5199723b8958fed43d5"
+    },
+    "payload/.github/workflows/native-arm-rust199-source-reference-v1.yml": {
+      "bytes": 15985,
+      "mode": 420,
+      "sha256": "15b4341495516e6e9a2fe14a3cb476db8936efe54432d5199723b8958fed43d5"
+    },
+    "payload/actor/entry.py": {
+      "bytes": 21659,
+      "mode": 420,
+      "sha256": "2e8709e0ae5c8b031240733b17fc7a76c6efdd9d2cd9d3ae12a03ded59526fe1"
+    },
+    "payload/actor/phase.py": {
+      "bytes": 13669,
+      "mode": 420,
+      "sha256": "c6e8551445d4dc714a4eff4629a147263ad9b3de422657fe4209227b978e8b67"
+    },
+    "payload/actor/qualify.py": {
+      "bytes": 11655,
+      "mode": 420,
+      "sha256": "8aab93367c2155d1474519dcd6303aff64a55835b336420dd7e3820264381927"
+    },
+    "payload/admission.py": {
+      "bytes": 36947,
+      "mode": 420,
+      "sha256": "a9810401c593112af0fd13175010fb634bb89e01e31a08e5f39a5f1efde4a640"
+    },
+    "payload/candidate-map.json": {
+      "bytes": 2522,
+      "mode": 420,
+      "sha256": "fe33c24896cea0a02b5a5698fccf5d51250d68963c403e6edddf1c03158e1ff5"
+    },
+    "payload/contract.json": {
+      "bytes": 16968,
+      "mode": 420,
+      "sha256": "5631e474e818704e5cae38ce1aba761dcbf2581c3e815bf43e88090b5b21ac93"
+    },
+    "payload/hosted/entry.py": {
+      "bytes": 19366,
+      "mode": 420,
+      "sha256": "6a1d64b36aea13b8333c22fdcbbc7d34de5d7ffcd118427fea89b4a895039b67"
+    },
+    "payload/hosted/producer.py": {
+      "bytes": 32637,
+      "mode": 420,
+      "sha256": "64f672337f97bd37d19b807a792053a265e710b9e4649b37bfde15fece612b76"
+    },
+    "payload/notice_binding.py": {
+      "bytes": 5120,
+      "mode": 420,
+      "sha256": "e763ffd24c97e425b0065c0f2fe0c7bdb20a6524dab3129c0987b370000c2dce"
+    },
+    "payload/packages/port/rust199-source-reference/.SRCINFO": {
+      "bytes": 2334,
+      "mode": 420,
+      "sha256": "3c1a0b1fca2224f3bc0e48f4c3e75c01307b979ed1f0fb055dbcad7460d72f48"
+    },
+    "payload/packages/port/rust199-source-reference/PKGBUILD": {
+      "bytes": 2409,
+      "mode": 420,
+      "sha256": "cd19d48e2ddf3a097e7462940dadfd8927d963cd55a9b18e33cdc5274b596c5c"
     },
     "payload/packages/port/rust199-source-reference/notice-catalogue.DATA.json": {
       "bytes": 733756,
@@ -37,20 +107,49 @@
       "mode": 420,
       "sha256": "acb468c2a2ddf327d882835590facabdc89939131ba8c51ae35028688693c665"
     },
-    "prepare.py": {
-      "bytes": 7117,
+    "payload/recipe/PKGBUILD": {
+      "bytes": 2370,
       "mode": 420,
-      "sha256": "910be312e010888631f9df0a12f6d62fb07b71188776e44d26f7807e3abc1942"
+      "sha256": "2f79bcedd1d55ca4cc84b87a3fa29c352cc177d2956405d36b335eaa06bc6357"
+    },
+    "prepare.py": {
+      "bytes": 9370,
+      "mode": 420,
+      "sha256": "fb8d0f05714e865df7022d4e3e0f3d19e68f36e8520ce63911f068332a581173"
+    },
+    "test_actor_binding.py": {
+      "bytes": 5204,
+      "mode": 420,
+      "sha256": "b25dcb7365bc85b9329c091c7aa48c4e2c84668407dc0449b980e6ca175ba332"
+    },
+    "test_admission.py": {
+      "bytes": 22717,
+      "mode": 420,
+      "sha256": "54fd07f87d06eefa6f0a0f6aec55477ad6b73188599a405b71ce4b4c36c5f313"
+    },
+    "test_binding.py": {
+      "bytes": 5024,
+      "mode": 420,
+      "sha256": "8380b7af8685b661020c411b79807221e251e7199560401216b41f8920bf59ac"
+    },
+    "test_orchestration.py": {
+      "bytes": 8411,
+      "mode": 420,
+      "sha256": "b49484a92562001bc9c2639af3d23bb042c4e80dba94a7410e86be166b33e7d4"
     },
     "test_source.py": {
-      "bytes": 6687,
+      "bytes": 13601,
       "mode": 420,
-      "sha256": "fb5d3f72314d43dfcc3d5638107be6bd0ed39e79569485bfa229b2a874bdd02d"
+      "sha256": "efe15ce207f84426d36e3fb13d6953263389f9bdc39dd53ec74f6d5063132c11"
+    },
+    "test_support.py": {
+      "bytes": 917,
+      "mode": 420,
+      "sha256": "b58449107553daa0b948f038eb5317f567d57c2253da5963b3fc278367fd526c"
     }
   },
-  "files": 317,
-  "map_sha256": "744df563cc08100e93b0a2143bc36e1865acc94304d6890fcb731179a83c379a",
-  "operational": false,
+  "files": 318,
+  "map_sha256": "33bececb45d84997ea5b19a64100629bb3fe76c2e61faa9d4a1a86b947febad6",
   "parent": {
     "bytes": 41639049,
     "factory_commit": "d9f66d8bb10c9af91a7169cfa5f6b6fcb453910b",
@@ -59,6 +158,7 @@
     "tree": "109005278b7a1404310ffb06e5f57933a6c1ba20"
   },
   "schema": 7,
-  "scope": "NOTICE_ONLY_DATA_PROPOSAL_COORDINATOR_CANDIDATE_BINDING_PENDING",
-  "tree": "41c0baed1f6f56bd9f6e08ce64695592d110b252"
+  "scope": "RUST199_NOTICE_PRESERVATION_UNADMITTED_SOURCE_V7",
+  "tree": "0c1e096dbfb34515f80937c5d0973ca384bcfb69",
+  "unadmitted": true
 }

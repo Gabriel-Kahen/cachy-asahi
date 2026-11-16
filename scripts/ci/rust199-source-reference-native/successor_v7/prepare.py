@@ -1,6 +1,6 @@
 #!/usr/bin/env -S python3 -I -B
 # SPDX-License-Identifier: MIT
-"""Construct a notice-only Source DATA proposal; execute no actor or Reader."""
+"""Construct the exact unadmitted notice-preservation successor; execute no roles."""
 import argparse
 import hashlib
 import importlib.util
@@ -20,11 +20,15 @@ fs.MAX_FILES = 512
 PARENT = dict(files=314, bytes=41639049, tree='109005278b7a1404310ffb06e5f57933a6c1ba20',
               map_sha256='2786d1d393888699faf320b416e1570f40060e2428907c09855d4c7103aa33f8',
               factory_commit='d9f66d8bb10c9af91a7169cfa5f6b6fcb453910b')
-SCOPE = 'NOTICE_ONLY_DATA_PROPOSAL_COORDINATOR_CANDIDATE_BINDING_PENDING'
+SCOPE = 'RUST199_NOTICE_PRESERVATION_UNADMITTED_SOURCE_V7'
 ACTUAL = dict.fromkeys(('source', 'ref', 'run', 'job', 'approval', 'artifact', 'image'))
-REVISION = 'notice-preservation.PROPOSAL.json'
+REVISION = 'notice-preservation.json'
 PREFIX = 'packages/port/rust199-source-reference/'
-LEAVES = {PREFIX + name for name in ('reference.py', 'notice_preservation.py', 'notice-catalogue.DATA.json')}
+LEAVES = {PREFIX + name for name in ('reference.py', 'notice_preservation.py', 'notice-catalogue.DATA.json', 'PKGBUILD', '.SRCINFO')} | {
+    'candidate-map.json', 'contract.json', 'notice_binding.py', 'recipe/PKGBUILD', 'admission.py',
+    'actor/entry.py', 'actor/phase.py', 'actor/qualify.py', 'hosted/entry.py', 'hosted/producer.py',
+    '.github/workflows/native-arm-build.yml', '.github/workflows/native-arm-rust199-source-reference-v1.yml'}
+
 SEAL = 'd66d49a2734e79c6f9d1f5a57fda98ab519d39016483da0f4f88a0f626576fd9'
 
 
@@ -45,7 +49,7 @@ def capture(directory):
 def render(before):
     fs.need(len(before) == PARENT['files'] and fs.tree(before) == PARENT['tree'], 'exact frozen Source314 required')
     payload = fs.snapshot(HERE / 'payload')
-    fs.need(set(payload) == LEAVES and all(mode == 0o644 for raw, mode in payload.values()), 'exact three notice payload leaves')
+    fs.need(set(payload) == LEAVES and all(mode == 0o644 for raw, mode in payload.values()), 'exact notice successor payload leaves')
     catalogue = json.loads(payload[PREFIX + 'notice-catalogue.DATA.json'][0])
     fs.need(catalogue['catalogue_basis']['seal_sha256'] == SEAL and catalogue['holds_preserved'] is True
             and catalogue['Root_review'] is None and catalogue['accepted'] is None, 'sealed factual catalogue without invented authority')
@@ -53,23 +57,46 @@ def render(before):
     files.update(payload)
     changes = {name: dict(before=fs.descriptors({name: before[name]})[name] if name in before else None,
                           after=fs.descriptors({name: files[name]})[name]) for name in sorted(payload)}
+    candidate = json.loads(files['candidate-map.json'][0])
+    contract = json.loads(files['contract.json'][0])
+    candidate_rows = {name.removeprefix(PREFIX): row for name, row in files.items() if name.startswith(PREFIX)}
+    binding = candidate['notice_binding']
+    fs.need(candidate['files'] == fs.descriptors(candidate_rows) and len(candidate_rows) == binding['files'] == 11
+            and binding['files_pin'] == fs.pin(encode(candidate['files'])) and binding['tree'] == fs.tree(candidate_rows)
+            and candidate['commit'] == binding['base_commit'] == json.loads(before['candidate-map.json'][0])['commit']
+            and binding['base_candidate_map_pin'] == fs.pin(before['candidate-map.json'][0])
+            and contract['actual'] == ACTUAL
+            and contract['candidate'] == {key: candidate[key] for key in ('commit', 'files', 'notice_binding')},
+            'whole effective eleven-file candidate and unchanged base provenance')
+    native_recipe = files[PREFIX + 'PKGBUILD'][0]
+    hooks = []
+    for action in ('prepare', 'build', 'package'):
+        suffix = ' --destination "$pkgdir"' if action == 'package' else ''
+        old = f'  python -I "$srcdir/reference.py" {action} --work "$srcdir"{suffix} || return'.encode()
+        new = f'  /usr/bin/python -I -B /source/actor/entry.py {action} || return'.encode()
+        fs.need(native_recipe.count(old) == 1, 'exact original recipe hook')
+        native_recipe = native_recipe.replace(old, new)
+        hooks.append(dict(before=old.decode(), after=new.decode(), count=1))
+    fs.need(files['recipe/PKGBUILD'][0] == native_recipe, 'same three-hook native recipe projection')
     marker = dict(schema=7, scope=SCOPE, parent=PARENT, changes=changes, holds_preserved=True,
-                  catalogue_seal_sha256=SEAL, operational=False,
-                  pending='COORDINATOR_SUCCESSOR_CANDIDATE_BINDING_REQUIRED', actual=ACTUAL)
+                  catalogue_seal_sha256=SEAL, candidate_binding=binding,
+                  candidate_map_pin=fs.pin(files['candidate-map.json'][0]), contract_pin=fs.pin(files['contract.json'][0]),
+                  recipe_derivation=dict(candidate=fs.pin(files[PREFIX + 'PKGBUILD'][0]), effective=fs.pin(native_recipe), hooks=hooks),
+                  unadmitted=True, Root_grants=None, dispatch=None, pending=None, actual=ACTUAL)
     files[REVISION] = (encode(marker), 0o644)
     original_map = json.loads(before['source-map.json'][0])
     files['source-map.json'] = (encode(dict(schema=1, operation=original_map['operation'], actual=ACTUAL,
                                           files=fs.descriptors(files))), 0o644)
     fs.need(undo(files, before, marker) == before, 'whole exact Source314 inverse')
     fs.need(all(files[name] == row for name, row in before.items() if name not in LEAVES | {'source-map.json'}),
-            'actors, resources, flags, contract, admission and all other Source314 leaves unchanged')
+            'all Source314 leaves outside the exact successor binding delta unchanged')
     return files
 
 
 def undo(files, before, marker):
     fs.need(marker['schema'] == 7 and marker['scope'] == SCOPE and marker['parent'] == PARENT
-            and marker['actual'] == ACTUAL and marker['operational'] is False
-            and marker['pending'] == 'COORDINATOR_SUCCESSOR_CANDIDATE_BINDING_REQUIRED'
+            and marker['actual'] == ACTUAL and marker['unadmitted'] is True
+            and marker['pending'] is None and marker['Root_grants'] is None and marker['dispatch'] is None
             and files[REVISION] == (encode(marker), 0o644), 'exact notice proposal inverse metadata')
     expected_map = json.loads(before['source-map.json'][0])
     expected_map.update(actual=ACTUAL, files=fs.descriptors({name: row for name, row in files.items() if name != 'source-map.json'}))
@@ -97,7 +124,7 @@ def construct(parent, output, expected):
     raw = fs.read(HERE / 'constructor-profile.json')[0]
     fs.need(fs.pin(raw)['sha256'] == expected, 'external whole constructor profile pin required')
     profile = json.loads(raw)
-    fs.need(profile['schema'] == 7 and profile['operational'] is False and profile['actual'] == ACTUAL
+    fs.need(profile['schema'] == 7 and profile['unadmitted'] is True and profile['actual'] == ACTUAL
             and profile['parent'] == PARENT and profile['scope'] == SCOPE and profile['constructor_files'] == inputs(),
             'whole reviewed constructor closure')
     fs.need(not any(output.is_relative_to(path) or path.is_relative_to(output) for path in (parent, HERE)),
@@ -107,7 +134,7 @@ def construct(parent, output, expected):
                   map_sha256=fs.pin(files['source-map.json'][0])['sha256'])
     fs.need(all(profile[key] == value for key, value in result.items()), 'whole profiled prospective Source identity')
     fs.publish(files, output)
-    return dict(status=SCOPE, operational=False, actual=ACTUAL, native='NOT RUN', **result)
+    return dict(status=SCOPE, unadmitted=True, actual=ACTUAL, native='NOT RUN', **result)
 
 
 if __name__ == '__main__':

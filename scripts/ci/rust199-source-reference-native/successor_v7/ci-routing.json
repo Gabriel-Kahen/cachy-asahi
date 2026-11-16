@@ -1,0 +1,20 @@
+{
+  "base_test_changes": [],
+  "commands": [
+    "python3 -I -B -Werror::ResourceWarning packages/port/rust199-source-reference/test_notice_preservation.py",
+    "python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v7/test_source.py",
+    "python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v7/test_admission.py",
+    "python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v7/test_binding.py",
+    "python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v7/test_actor_binding.py",
+    "python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v7/test_orchestration.py"
+  ],
+  "isolation": "ONE_PYTHON_PROCESS_PER_SCRIPT",
+  "native_roles": "NOT RUN",
+  "python_versions": [
+    "3.12",
+    "3.14"
+  ],
+  "relax_permanent_audit_fence": false,
+  "schema": 1,
+  "status": "PORTABLE_FENCED_NOTICE_PRESERVATION_SUCCESSOR_CONTROLS"
+}

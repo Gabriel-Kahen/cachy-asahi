@@ -1,5 +1,6 @@
 {
   "M2": "NOT RUN",
+  "Root_issuance": null,
   "Root_review": null,
   "accepted": null,
   "actual": {
@@ -33,26 +34,53 @@
     "retained_grants": 21,
     "total_unique_bodies": 406
   },
-  "all_non_notice_parent_leaves_unchanged": true,
-  "bytes": 42383950,
+  "bytes": 42401750,
+  "candidate_binding": {
+    "audit_seal_sha256": "d66d49a2734e79c6f9d1f5a57fda98ab519d39016483da0f4f88a0f626576fd9",
+    "base_candidate_map_pin": {
+      "bytes": 1470,
+      "sha256": "355293f0cc318f40ce6e96e831b294888f7d2fe87bf306571e5df85cbdfb2aec"
+    },
+    "base_commit": "dd6871d566661c4fe9eba055ae19e1e017e0b69d",
+    "catalogue_sha256": "1c477c7481df39c1b8b8e82edf73f8df99c63e3f7657e440393b6c812c8d421c",
+    "files": 11,
+    "files_pin": {
+      "bytes": 1602,
+      "sha256": "3c4efd6ddbe30caf79196bbdbead178fe10750be0104beba2f791505726c9e67"
+    },
+    "holds_preserved": true,
+    "kind": "RUST199_NOTICE_PRESERVATION_CANDIDATE_V7",
+    "schema": 1,
+    "tree": "16fc80733ba831a426fc54363ec8cff6dfe54110"
+  },
+  "candidate_gate": "PASS_EXACT_ELEVEN_FILE_BYTES_MODES_TREE",
+  "candidate_map_pin": {
+    "bytes": 2522,
+    "sha256": "fe33c24896cea0a02b5a5698fccf5d51250d68963c403e6edddf1c03158e1ff5"
+  },
   "catalogue": {
     "bytes": 733756,
     "sha256": "1c477c7481df39c1b8b8e82edf73f8df99c63e3f7657e440393b6c812c8d421c"
   },
-  "complete_inverse": "PASS",
+  "code_ready": true,
+  "complete_inverse": "PASS_EXACT_SOURCE314_BYTES_AND_MODES",
   "constructor_profile": {
-    "bytes": 2015,
-    "sha256": "772122c0a45842d620c772b9253483b27e7d3cf62979c0f0534e0c6646552049"
+    "bytes": 5368,
+    "sha256": "4910b36306987763b9b760ac431258aad760a028016426b24c28817349539818"
+  },
+  "contract_pin": {
+    "bytes": 16968,
+    "sha256": "5631e474e818704e5cae38ce1aba761dcbf2581c3e815bf43e88090b5b21ac93"
   },
   "emitted_COPYRIGHT_HTML": "NOT RUN",
-  "files": 317,
+  "files": 318,
   "holds_preserved": true,
   "map": {
-    "bytes": 62227,
-    "sha256": "744df563cc08100e93b0a2143bc36e1865acc94304d6890fcb731179a83c379a"
+    "bytes": 62375,
+    "sha256": "33bececb45d84997ea5b19a64100629bb3fe76c2e61faa9d4a1a86b947febad6"
   },
   "native": "NOT RUN",
-  "operational": false,
+  "operational_authorized": false,
   "parent": {
     "bytes": 41639049,
     "factory_commit": "d9f66d8bb10c9af91a7169cfa5f6b6fcb453910b",
@@ -61,7 +89,10 @@
     "tree": "109005278b7a1404310ffb06e5f57933a6c1ba20"
   },
   "parent_source_unchanged_after_readback": true,
-  "pending": "COORDINATOR_SUCCESSOR_CANDIDATE_BINDING_REQUIRED",
+  "pending": null,
+  "protected_bytes_unchanged": true,
+  "protected_files": 299,
+  "recipe_syntax": "PASS_BASH_N_BOTH_RECIPES",
   "sealed_catalogue_derivation": {
     "bytes": 9701329,
     "seal_sha256": "d66d49a2734e79c6f9d1f5a57fda98ab519d39016483da0f4f88a0f626576fd9",
@@ -69,12 +100,23 @@
     "status": "PASS_EXACT_SEALED_FILES_AND_DETERMINISTIC_DERIVATION"
   },
   "source_constructed": true,
-  "source_output": "/home/gabe/Documents/ChatGPT/cachy-asahi-rust-notice-preservation-20261116/work/rust-notice-Source317-PROPOSAL-20261116-r1",
-  "status": "NOTICE_ONLY_DATA_PROPOSAL_COORDINATOR_CANDIDATE_BINDING_PENDING",
+  "source_gate": "PASS_STATIC_DATA_ONLY_NO_ROLE",
+  "source_output": "/home/gabe/Documents/ChatGPT/cachy-asahi-rust-notice-preservation-20261116/work/rust-notice-Source318-UNADMITTED-20261116-r1",
+  "status": "RUST199_NOTICE_PRESERVATION_UNADMITTED_SOURCE_V7",
   "tests": {
+    "actor_binding_controls": 4,
+    "admission_controls": 19,
+    "binding_controls": 6,
     "notice_controls": 11,
-    "source_controls": 6,
-    "status": "PASS"
+    "orchestration_controls": 4,
+    "python": "3.14.7",
+    "python312": "NOT RUN_LOCALLY",
+    "resource_warnings": "ERROR",
+    "source_controls": 9,
+    "status": "PASS",
+    "total": 53
   },
-  "tree": "41c0baed1f6f56bd9f6e08ce64695592d110b252"
+  "tree": "0c1e096dbfb34515f80937c5d0973ca384bcfb69",
+  "unadmitted": true,
+  "unadmitted_template": "REFUSED_AS_REQUIRED"
 }
