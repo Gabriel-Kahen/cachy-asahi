@@ -11,6 +11,56 @@ PACKAGE=perl
 ARCHIVE=$D/$PACKAGE-5.42.3-1.3-aarch64.pkg.tar.zst
 phase=guard
 nonce=INVALID
+root_phase_writes=0
+root_phase_name() {
+ case "$1" in guard|rtc_clock|users|baseline|trust|dependency_install|official_trust|install|installed_payload|installed_metadata|probe_wait|retain_outputs|recovery|cache_restoration|restoration) return 0;;*) return 2;;esac
+}
+# Fixed metadata only. Atomic rename needs /usr/bin/mv admission at integration.
+# This is best-effort journaled progress, not a durability or success receipt.
+write_root_phase() (
+ umask 077
+ local name=$1 record=$D/root-phase.checkpoint temporary=$D/.root-phase.checkpoint.tmp line bytes old_phase
+ [[ $nonce =~ ^[0-9a-f]{32}$ ]] && root_phase_name "$name" || return 2
+ [[ -d $D && ! -L $D && $(stat -c '%u:%g:%a' -- "$D") == 0:0:755 ]] || return 2
+ if [[ -e $record || -L $record ]];then
+  [[ -f $record && ! -L $record && $(stat -c '%u:%g:%h:%a' -- "$record") == 0:0:1:644 ]] || return 2
+  bytes=$(stat -c '%s' -- "$record") || return
+  (( bytes > 0 && bytes <= 128 )) || return 2
+  line=$(head -c 129 -- "$record") || return
+  old_phase=${line##* };root_phase_name "$old_phase" || return 2
+  [[ $line == "PERL5423_ROOT_PHASE_V1 $nonce $old_phase" && $bytes == $((${#line}+1)) ]] || return 2
+ fi
+ [[ ! -e $temporary && ! -L $temporary ]] || return 2
+ line="PERL5423_ROOT_PHASE_V1 $nonce $name"
+ ( set -o noclobber;printf '%s\n' "$line" > "$temporary" ) || return
+ if [[ -f $temporary && ! -L $temporary && $(stat -c '%u:%g:%h:%a' -- "$temporary") == 0:0:1:600 ]] &&
+    [[ $(stat -c '%s' -- "$temporary") == $((${#line}+1)) && ${#line} -lt 128 ]] &&
+    chmod 644 -- "$temporary" && /usr/bin/mv -T -- "$temporary" "$record";then return 0;fi
+ if [[ -f $temporary && ! -L $temporary && $(stat -c '%u:%g:%h' -- "$temporary") == 0:0:1 ]];then rm -- "$temporary" || :;fi
+ return 2
+)
+checkpoint_phase() {
+ root_phase_name "$1" || return 2
+ phase=$1;root_phase_writes=$((root_phase_writes+1))
+ if (( root_phase_writes <= 20 ));then write_root_phase "$phase" || :;fi
+}
+clear_root_phase() {
+ local path metadata bytes line name
+ for path in "$D/root-phase.checkpoint" "$D/.root-phase.checkpoint.tmp";do
+  if [[ -e $path || -L $path ]];then
+   [[ -f $path && ! -L $path ]] || return 2
+   metadata=$(stat -c '%u:%g:%h:%a' -- "$path") || return
+   [[ $metadata == 0:0:1:644 || $metadata == 0:0:1:600 ]] || return 2
+   bytes=$(stat -c '%s' -- "$path") || return
+   (( bytes > 0 && bytes <= 128 )) || return 2
+   line=$(head -c 129 -- "$path") || return
+   name=${line##* };root_phase_name "$name" || return 2
+   [[ $line == "PERL5423_ROOT_PHASE_V1 $nonce $name" && $bytes == $((${#line}+1)) ]] || return 2
+   rm -- "$path" || return
+  fi
+ done
+ [[ ! -e $D/root-phase.checkpoint && ! -L $D/root-phase.checkpoint && ! -e $D/.root-phase.checkpoint.tmp && ! -L $D/.root-phase.checkpoint.tmp ]]
+}
 finish() {
  local rc=$?
  trap - EXIT
@@ -40,12 +90,13 @@ install -d -m700 "$S"
 . "$D/official-trust.sh"
 . "$D/frozen/rtc-clock.sh"
 case_data
+checkpoint_phase guard
 [[ $(uname -m) == aarch64 && $(getconf PAGESIZE) == 16384 && $(cat /proc/1/comm) == systemd ]]
 grep -qw "arm16k_perl5423_vm_nonce=$nonce" /proc/cmdline
 [[ $(id -u builder) == 1000 && $(id -g builder) == 1000 && $(id -G builder) == 1000 ]]
 [[ ! -e $D/consumed && ! -L $D/consumed ]]
 ( set -o noclobber;printf '%s\n' "$nonce" > "$D/consumed" )
-phase=rtc_clock
+checkpoint_phase rtc_clock
 rtc_clock_guard
 clock_valid
 inventory > "$S/base.lock"
@@ -119,9 +170,9 @@ cache_snapshot() (
   else printf 'ABSENT %s\n' "$path";fi
  done
 )
-phase=users
+checkpoint_phase users
 user_snapshot "$S/user-before"
-phase=baseline
+checkpoint_phase baseline
 payload_snapshot before
 cache_snapshot > "$S/before.cache"
 for path in /etc/ld.so.cache /var/cache/ldconfig/aux-cache; do
@@ -132,7 +183,7 @@ done
 [[ -d /var/cache/ldconfig ]] || touch "$S/ldconfig-directory.absent"
 [[ ! -L /var/log/pacman.log ]]
 if [[ -f /var/log/pacman.log ]];then cp -a -- /var/log/pacman.log "$S/pacman-log-before";else [[ ! -e /var/log/pacman.log ]];: > "$S/pacman-log-before";touch "$S/pacman-log-before.absent";fi
-phase=trust
+checkpoint_phase trust
 ( cd "$D";sha256sum --check --strict --status "$D/materials.sha256" )
 [[ -d $D/trust && ! -L $D/trust && $(stat -c '%u:%g:%a' "$D/trust") == 0:0:700 ]]
 gpg_fixed() { bounded "$gpg_seconds" "$S/$1.log" gpg --no-options --homedir "$D/trust" --batch --no-tty --no-auto-key-retrieve "${@:2}"; }
@@ -164,11 +215,11 @@ done < "$S/signature.log"
 if [[ $recovery_mode == SIGNED_EXACT_OLD_PACKAGE ]];then
  gpg_fixed rollback-signature --verify "$D/rollback.pkg.tar.zst.sig" "$D/rollback.pkg.tar.zst"
 fi
-phase=dependency_install
+checkpoint_phase dependency_install
 if [[ $dependency_mode == DB53 ]];then
- phase=official_trust
+ checkpoint_phase official_trust
  official_init
- phase=dependency_install
+ checkpoint_phase dependency_install
  mapfile -t dependencies < "$D/dependency-requires.txt"
  bounded "$run_seconds" "$S/dependency-requires.log" pacman --config "$D/dependency-pacman.conf" -T "${dependencies[@]}"
  [[ ! -s $S/dependency-requires.log ]]
@@ -181,14 +232,16 @@ fi
 mapfile -t dependencies < "$D/dependencies.txt"
 bounded "$run_seconds" "$S/dependencies.log" pacman --config "$D/pacman.conf" -T "${dependencies[@]}"
 [[ ! -s $S/dependencies.log ]]
-phase=install
+checkpoint_phase install
 bounded "$install_seconds" "$S/install.log" pacman --config "$D/pacman.conf" --noconfirm -U "$ARCHIVE"
+checkpoint_phase installed_payload
 inventory > "$S/installed.lock"
 same_bytes "$D/expected-installed.lock" "$S/installed.lock"
 [[ $(pacman -Q "$PACKAGE") == "$PACKAGE 5.42.3-1.3" ]]
 bounded "$run_seconds" "$S/database-installed.log" pacman -Dk
 sha256sum --check --strict --status "$D/payload.sha256"
 verify_paths
+checkpoint_phase installed_metadata
 while IFS=$'\t' read -r kind mode uid gid path target extra; do
  [[ -z $extra && $mode =~ ^[0-7]{3,4}$ && $uid =~ ^[0-9]+$ && $gid =~ ^[0-9]+$ ]]
  [[ ( $path == /usr/* || ( $path == /usr && $kind == d ) ) && $path != /usr/local/* ]]
@@ -205,7 +258,7 @@ same_bytes "$D/expected-payload.paths" "$S/added.paths"
 assert_users
 install -d -m700 -o1000 -g1000 "$O/user"
 printf '%s\n' "$nonce" > "$O/installed";chmod 644 "$O/installed"
-phase=probe_wait
+checkpoint_phase probe_wait
 end=$((SECONDS+probe_wait_seconds))
 while [[ ! -f $O/user/PROBED ]]; do (( SECONDS < end ));sleep 1;done
 [[ ! -L $O/user/PROBED && $(stat -c '%u:%g:%a' "$O/user/PROBED") == 1000:1000:600 && $(cat "$O/user/PROBED") == "$nonce" ]]
@@ -217,6 +270,7 @@ assert_users
 clock_valid
 verify_paths
 # Seal and retain functional logs and the actual installed ELF bytes before ALPM recovery.
+checkpoint_phase retain_outputs
 [[ ! -e $D/results && ! -L $D/results ]]
 install -d -m700 "$D/results"
 for name in version functional corelist json perldoc podtext podcheck prove sha splain paths;do
@@ -231,7 +285,7 @@ done < "$D/elf-paths.tsv"
 cp -- "$S/before-alpm-provider-observation.tsv" "$D/results/before-alpm-provider-observation.tsv"
 (cd "$D/results";sha256sum -- *.elf *.log *.tsv > outputs.sha256)
 functional_sha=$(file_sha "$D/results/functional.log");elf_manifest_sha=$(file_sha "$D/elf-paths.tsv")
-phase=recovery
+checkpoint_phase recovery
 if [[ $recovery_mode == REMOVE ]];then
  bounded "$remove_seconds" "$S/remove.log" pacman --config "$D/pacman.conf" --noconfirm -R "$PACKAGE"
 else
@@ -250,14 +304,14 @@ bounded "$run_seconds" "$S/database-final.log" pacman -Dk
 sha256sum --check --strict --status "$D/baseline-paths.sha256"
 comm -23 "$S/added.paths" <(tr '\0' '\n' < "$S/before.paths" | sed 's:/$::' | sort -u) > "$S/exclusive.paths"
 while IFS= read -r path;do [[ ! -e $path && ! -L $path ]];done < "$S/exclusive.paths"
-phase=cache_restoration
+checkpoint_phase cache_restoration
 for path in /etc/ld.so.cache /var/cache/ldconfig/aux-cache; do
  name=${path//\//_};[[ ! -L $path ]]
  if [[ -e $S/$name.absent ]];then rm -f -- "$path";else cp -a -- "$S/$name.saved" "$path";fi
 done
 if [[ -e $S/ldconfig-directory.absent && -d /var/cache/ldconfig ]];then rmdir /var/cache/ldconfig;fi
 cache_snapshot > "$S/after.cache";same_bytes "$S/before.cache" "$S/after.cache"
-phase=restoration
+checkpoint_phase restoration
 payload_snapshot after
 for suffix in paths hash db-normalized xattr dbmeta dbxattr;do same_bytes "$S/before.$suffix" "$S/after.$suffix";done
 same_bytes "$S/before.meta-equality" "$S/after.meta-equality"
@@ -275,6 +329,7 @@ if [[ $recovery_mode == REMOVE ]];then db_policy=EXACT;else db_policy=NORMAL_INS
 bounded "$gpg_seconds" "$S/gpg-stop.log" gpgconf --homedir "$D/trust" --kill all
 rm -rf -- "$D/trust"
 if [[ $dependency_mode == DB53 ]];then official_finish;fi
+clear_root_phase
 bounded "$sync_seconds" "$S/sync.log" sync -f "$D"
 {
  printf 'PERL5423_RESTORED_BEGIN %s\nSTATUS=PASS\nARCH=aarch64\nPAGESIZE=16384\nPACKAGE=%s\nVERSION=5.42.3-1.3\n' "$nonce" "$PACKAGE"
