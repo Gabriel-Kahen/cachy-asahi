@@ -17,19 +17,19 @@
       "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
     },
     "README.md": {
-      "bytes": 41234,
+      "bytes": 68058,
       "mode": 420,
-      "sha256": "086c6d2858a67baf79c90b87fd38a51702ecacdc6c9bceb9b33b16fd55b3e4aa"
+      "sha256": "34a534ea09f48e978d062cf14f8553e2365e7fa57e4b4735367945348ca2f7c3"
     },
     "actor.py": {
-      "bytes": 20349,
+      "bytes": 22818,
       "mode": 420,
-      "sha256": "f7a5196c89dae9cbf5d8105ab8983ca84bd4f172b978cf92924de23e29cbb46e"
+      "sha256": "cea374a469c886c194ff51047054bbad3c5a4c7682cf4a82a35d0f9ff5317079"
     },
     "adapter.py": {
-      "bytes": 13497,
+      "bytes": 13788,
       "mode": 420,
-      "sha256": "04564d43bd117bcb5329d2b796be9c3d59d6f0886e8e65019421e0ac63e47f36"
+      "sha256": "c06183009cfc24e257db83eecaef2dca2072ba3a7dba625a7b0a6a4c8b8f2410"
     },
     "authority.TEMPLATE.json": {
       "bytes": 684,
@@ -126,10 +126,15 @@
       "mode": 420,
       "sha256": "45573362408087ebbe41011571811145e203345d5ea8955e9f39306d80652a69"
     },
-    "guest/root.sh": {
-      "bytes": 21251,
+    "guest/root-ssh.sh": {
+      "bytes": 8397,
       "mode": 420,
-      "sha256": "48b99a1d9173e38a71259acea52d7f6a0dc5aeea4cc095e4619e0aac1d6502b4"
+      "sha256": "035e13f5e8ccc7a02f71ec753bf18e11b67961038301bc4e1df6ca209398356d"
+    },
+    "guest/root.sh": {
+      "bytes": 31065,
+      "mode": 420,
+      "sha256": "0c9a527f2311a4a7673eef7f5304e61585e76ed721101ac887e79ef06d703c2a"
     },
     "guest/runtime.pl": {
       "bytes": 3640,
@@ -157,9 +162,9 @@
       "sha256": "a8d4ed22857163e1850223286e0b6252cd842eaeb5dd5dd1bfab5dc431566b16"
     },
     "image.py": {
-      "bytes": 10273,
+      "bytes": 10382,
       "mode": 420,
-      "sha256": "628792b5e5c41c1cc737606b237607294bfd530875cfc22295ec30ebeb940622"
+      "sha256": "d8aef149917e5e3f65dce130050d0f95a0bf10a838fcd33afa4b04f62de79871"
     },
     "known/actual-prepare-cleanup-r1-reproducer.json": {
       "bytes": 2023,
@@ -196,6 +201,11 @@
       "mode": 420,
       "sha256": "ceb19b5ee07f9c4d796a18416397fe8ebeb87cb804eda885b1831baa72b38d16"
     },
+    "preboot.py": {
+      "bytes": 3408,
+      "mode": 420,
+      "sha256": "b809eb696b8fd8333db2d06412bb75611b5a4ad381839b52297a54d90f912e9b"
+    },
     "proof.py": {
       "bytes": 4577,
       "mode": 420,
@@ -216,6 +226,11 @@
       "mode": 420,
       "sha256": "19a6d9b0bf563d15ebe9a8e16255282fbd6d238d5afd92fd826f8eb2c8e6377e"
     },
+    "root_ssh.py": {
+      "bytes": 2918,
+      "mode": 420,
+      "sha256": "a0e0d2d54874ed96e84ff14380807ca817245ade72614747cda7a492956f18dd"
+    },
     "runtime.py": {
       "bytes": 18202,
       "mode": 420,
@@ -226,15 +241,20 @@
       "mode": 420,
       "sha256": "3126ee0c8a7c02e12503b4858f90b5a70fd7f300fd6228c99532ec7eaec02e28"
     },
-    "test_controls.py": {
-      "bytes": 84936,
+    "ssh_privacy.py": {
+      "bytes": 2574,
       "mode": 420,
-      "sha256": "1288bf37b666e59632e2ebbd96df9c9944cfc6e8b758609f95121c059489168c"
+      "sha256": "dfc50adcf26582db3b041ec2d377481f7edaaa318a719616d297492cbbfe4e44"
+    },
+    "test_controls.py": {
+      "bytes": 86189,
+      "mode": 420,
+      "sha256": "40c7f4580c224bfdc934fe36875507540c6ceb9d4189aa8cfad9666246956c94"
     },
     "test_etc_mtime.py": {
-      "bytes": 15287,
+      "bytes": 20567,
       "mode": 420,
-      "sha256": "59a70007a295de7225926776f954d39dda3c7bc55d3a010ee773da69283263c7"
+      "sha256": "06c695c31fda9ef4fb38edc7e639d91c00e2cf26ec2edc27f1313e77c429434c"
     },
     "test_git_roundtrip.py": {
       "bytes": 2665,
@@ -257,9 +277,14 @@
       "sha256": "ee0449fb5e9172d0f24fc4130b371553f1ea27acde73980674504ce61d89fda5"
     },
     "test_natural_retirement.py": {
-      "bytes": 8878,
+      "bytes": 8935,
       "mode": 420,
-      "sha256": "8c0b73599a619dd3bc498fb9c26d89c4980f9b5540774defcfb2c6b2adcb4d19"
+      "sha256": "df0d3686fb0ce27adf683c9bea0208ae025a046145ed22f4e184b36e41d06ced"
+    },
+    "test_preboot.py": {
+      "bytes": 8430,
+      "mode": 420,
+      "sha256": "4a2d9a319f43969d8881d342215c47120a0585011c6ddd07b4a502085db868be"
     },
     "test_probe_diagnostics.py": {
       "bytes": 8166,
@@ -271,20 +296,40 @@
       "mode": 420,
       "sha256": "4d1d47d7458ed7a69903c7c8c5121fca008a3827f478d5a2e9f7310ae9483735"
     },
-    "test_root_progress.py": {
-      "bytes": 9159,
+    "test_restoration.py": {
+      "bytes": 12115,
       "mode": 420,
-      "sha256": "04056d1b7be0f05b54f5f70f8d0e81c8b6466e35dddf04a7c55f7e4a9e22c664"
+      "sha256": "e68fd3ddaef482ba52e4df7edae970dcadffae21e7b0420da945f35b6fe6c95c"
+    },
+    "test_root_progress.py": {
+      "bytes": 9289,
+      "mode": 420,
+      "sha256": "fc73a30d9f29c0bca99ebb5915057abaf2c078b5194834d3cbe3745b7224dc1c"
+    },
+    "test_root_ssh.py": {
+      "bytes": 22925,
+      "mode": 420,
+      "sha256": "b52993d77ee720470eb2fa22d793bc78074ba2083a6c3eed733e0018befa2a6e"
+    },
+    "test_root_ssh_descriptor.py": {
+      "bytes": 8972,
+      "mode": 420,
+      "sha256": "58f8cc89b2d59bec4728a082c1bb18d2acf9755362a844db22dfdf51d27de642"
     },
     "test_runtime_lifetimes.py": {
       "bytes": 3750,
       "mode": 420,
       "sha256": "831381e453f2353c8be8472499236b9c599cd549506e31a893898f5d96f1858a"
     },
-    "validation.json": {
-      "bytes": 3163,
+    "test_ssh_privacy.py": {
+      "bytes": 10417,
       "mode": 420,
-      "sha256": "16c3a20b4eb0a0f309015d63d0c6965d53b67193bb99b22129fefec1985dd74a"
+      "sha256": "d12788b3b99b56664dd7a02e2518d254b967b34ff8de2db1514444e439c45e0d"
+    },
+    "validation.json": {
+      "bytes": 7621,
+      "mode": 420,
+      "sha256": "bc453f817a870687d967696f0993a606dd044b734a3df438106c97a3a0d71525"
     }
   },
   "kind": "ARM16K_PERL5423_CASE_SOURCE_LOCK_V1",

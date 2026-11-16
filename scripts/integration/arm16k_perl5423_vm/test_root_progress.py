@@ -146,7 +146,8 @@ printf READY
         self.assertLess(clear,success);self.assertLess(root.rindex('checkpoint_phase restoration'),clear)
         self.assertEqual(probe.count('relay_last_root_phase || :'),1)
         timeout=probe.index('if (( SECONDS >= end ));then');call=probe.index('relay_last_root_phase || :');self.assertLess(timeout,call)
-        self.assertNotIn('sync',root[root.index('write_root_phase()'):root.index('finish() {')])
+        checkpoint_helpers=root[root.index('write_root_phase()'):root.index('# Fixed failure labels only;')]+root[root.index('clear_root_phase() {'):root.index('finish() {')]
+        self.assertNotIn('sync',checkpoint_helpers)
         self.assertIn('probe_wait_seconds',probe);self.assertNotIn('probe_wait_seconds=',probe)
         self.assertIn('FAILED_PHASE=%s\\nEXIT_STATUS=%s',root[root.index('finish() {'):root.index('trap finish EXIT')])
 

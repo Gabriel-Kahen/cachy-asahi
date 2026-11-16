@@ -59,12 +59,14 @@ def preflight(case_path,case_sha256,materials,source_sha256,baseline,baseline_re
  K.need(K.pin(report,expected['report']['bytes'])==expected['report'],'exact accepted baseline PAM report bytes')
  return validated,cert,observed,lock,paths,extras
 
-def contents(case,cert,lock,nonce):
+def contents(case,cert,lock,nonce,case_pin=None):
  K.need(type(nonce)is str and len(nonce)==32 and all(c in'0123456789abcdef'for c in nonce),'fresh literal case nonce')
  base=cert['baseline_certificate'];runtime=cert['runtime_certificate'];limits=cert['resource_certificate'];trust=case['trust']
  files={}
  def put(name,raw,mode=0o644):files[name]=(raw.encode()if isinstance(raw,str)else raw,mode)
- for name in('root.sh','probe.sh','case.sh','official-trust.sh','installed-metadata.sh','runtime.pl','smoke.t'):put(name,(HERE/'guest'/name).read_bytes())
+ spec=importlib.util.spec_from_file_location('perl_preboot',HERE/'preboot.py');P=importlib.util.module_from_spec(spec);spec.loader.exec_module(P)
+ put('preboot-context.json',K.canonical(P.context(K,cert,lock,nonce,case_pin or K.json_pin(case))))
+ for name in('root.sh','probe.sh','case.sh','official-trust.sh','installed-metadata.sh','root-ssh.sh','runtime.pl','smoke.t'):put(name,(HERE/'guest'/name).read_bytes())
  for name in('rtc-clock.sh','guest-runtime.sh'):put('frozen/'+name,(HERE/'frozen'/name).read_bytes())
  inventory=dict(base['inventory']);deps=dict(inventory,**({'db5.3':runtime['dependency_transaction']['version']}if runtime['dependency_transaction']else{}));installed=dict(deps,**{K.PACKAGE['name']:K.PACKAGE['version']})
  def inv(rows):return ''.join(n+' '+v+'\n'for n,v in sorted(rows.items()))
@@ -120,7 +122,7 @@ def prepare(case_path,case_sha256,materials,source_sha256,nonce,output,baseline,
  case,cert,observed,lock,paths,extras=preflight(case_path,case_sha256,materials,source_sha256,baseline,baseline_report,baseline_ownership)
  out=K.ordinary(output);K.need(not out.exists()and out.parent.is_dir()and out.parent.stat().st_uid==os.getuid()and not out.parent.stat().st_mode&0o022,'fresh private owned case output')
  K.need(not any(out==p or out in p.parents or p in out.parents for p in(HERE,materials,K.ordinary(case_path))),'case output disjoint from Source/materials')
- rows=contents(case,cert,lock,nonce);fixture_bytes=sum(len(b)for b,_ in rows.values());K.need(fixture_bytes<=cert['resource_certificate']['fixture_source_bytes'],'actual generated fixture must fit the Root-reviewed physical staging plan')
+ rows=contents(case,cert,lock,nonce,K.pin(case_path));fixture_bytes=sum(len(b)for b,_ in rows.values());K.need(fixture_bytes<=cert['resource_certificate']['fixture_source_bytes'],'actual generated fixture must fit the Root-reviewed physical staging plan')
  os.umask(0o077);out.mkdir(mode=0o700)
  for name,(raw,mode)in rows.items():
   p=out/name;p.parent.mkdir(parents=True,exist_ok=True)

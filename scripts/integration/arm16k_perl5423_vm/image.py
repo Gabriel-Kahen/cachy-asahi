@@ -17,6 +17,9 @@ def scan(path,deadline,guard):
   def read(self,offset,length):
    if time.monotonic()>=deadline:raise TimeoutError('finite readonly scan deadline')
    guard();return super().read(offset,length)
+  def inventory(self):
+   module('ssh_privacy').guard_root_ssh_absence(K,self)
+   return super().inventory()
  with Reader(K.ordinary(path),max_nodes=150000,max_file_bytes=256*1024**2)as r:
   sb=r.read(1024,1024);free_blocks=F.u32(sb,12)|(F.u32(sb,344)<<32 if r.incompat&0x80 else 0)
   free_bytes=free_blocks*4096
