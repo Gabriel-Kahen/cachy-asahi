@@ -1,0 +1,189 @@
+{
+  "acceptance": false,
+  "excluded_fields": [
+    "Config.Env",
+    "other Config",
+    "host process details"
+  ],
+  "issuer": "Root",
+  "job": 133416142892,
+  "projection": {
+    "HostConfig": {
+      "Mounts": [
+        {
+          "Source": "rust199-qual-5534cd75ecb8ece8352266ea-work",
+          "Target": "/work",
+          "Type": "volume",
+          "VolumeOptions": {
+            "DriverConfig": {},
+            "NoCopy": true
+          }
+        },
+        {
+          "ReadOnly": true,
+          "Source": "/home/runner/work/_temp/rust199-hosted/qualification/inputs",
+          "Target": "/inputs",
+          "Type": "bind"
+        },
+        {
+          "ReadOnly": true,
+          "Source": "/home/runner/work/cachy-asahi/cachy-asahi",
+          "Target": "/source",
+          "Type": "bind"
+        },
+        {
+          "ReadOnly": true,
+          "Source": "/home/runner/work/_temp/rust199-hosted/material-delivery/stage0_carrier/cargo-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+          "Target": "/materials/cargo-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+          "Type": "bind"
+        },
+        {
+          "ReadOnly": true,
+          "Source": "/home/runner/work/_temp/rust199-hosted/material-delivery/llvm-project-23.1.1.src.tar.xz",
+          "Target": "/materials/llvm-project-23.1.1.src.tar.xz",
+          "Type": "bind"
+        },
+        {
+          "ReadOnly": true,
+          "Source": "/home/runner/work/_temp/rust199-hosted/material-delivery/stage0_carrier/rust-std-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+          "Target": "/materials/rust-std-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+          "Type": "bind"
+        },
+        {
+          "ReadOnly": true,
+          "Source": "/home/runner/work/_temp/rust199-hosted/material-delivery/stage0_carrier/rustc-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+          "Target": "/materials/rustc-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+          "Type": "bind"
+        },
+        {
+          "ReadOnly": true,
+          "Source": "/home/runner/work/_temp/rust199-hosted/material-delivery/rustc-1.99.0-src.tar.xz",
+          "Target": "/materials/rustc-1.99.0-src.tar.xz",
+          "Type": "bind"
+        },
+        {
+          "ReadOnly": true,
+          "Source": "rust199-qual-5534cd75ecb8ece8352266ea-work",
+          "Target": "/stage0",
+          "Type": "volume",
+          "VolumeOptions": {
+            "DriverConfig": {},
+            "NoCopy": true,
+            "Subpath": "build/stage0"
+          }
+        },
+        {
+          "ReadOnly": true,
+          "Source": "rust199-qual-5534cd75ecb8ece8352266ea-work",
+          "Target": "/work/build/stage0",
+          "Type": "volume",
+          "VolumeOptions": {
+            "DriverConfig": {},
+            "NoCopy": true,
+            "Subpath": "build/stage0"
+          }
+        }
+      ]
+    },
+    "Id": "02febdd6e418ecad110bc3409e0f1e92e490667a6fdb0d9cc2abcfaf37fff213",
+    "Mounts": [
+      {
+        "Destination": "/stage0",
+        "Driver": "local",
+        "Mode": "z",
+        "Name": "rust199-qual-5534cd75ecb8ece8352266ea-work",
+        "Propagation": "",
+        "RW": false,
+        "Source": "/var/lib/docker/volumes/rust199-qual-5534cd75ecb8ece8352266ea-work/_data",
+        "Type": "volume"
+      },
+      {
+        "Destination": "/inputs",
+        "Mode": "",
+        "Propagation": "rprivate",
+        "RW": false,
+        "Source": "/home/runner/work/_temp/rust199-hosted/qualification/inputs",
+        "Type": "bind"
+      },
+      {
+        "Destination": "/materials/cargo-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+        "Mode": "",
+        "Propagation": "rprivate",
+        "RW": false,
+        "Source": "/home/runner/work/_temp/rust199-hosted/material-delivery/stage0_carrier/cargo-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+        "Type": "bind"
+      },
+      {
+        "Destination": "/materials/llvm-project-23.1.1.src.tar.xz",
+        "Mode": "",
+        "Propagation": "rprivate",
+        "RW": false,
+        "Source": "/home/runner/work/_temp/rust199-hosted/material-delivery/llvm-project-23.1.1.src.tar.xz",
+        "Type": "bind"
+      },
+      {
+        "Destination": "/materials/rustc-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+        "Mode": "",
+        "Propagation": "rprivate",
+        "RW": false,
+        "Source": "/home/runner/work/_temp/rust199-hosted/material-delivery/stage0_carrier/rustc-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+        "Type": "bind"
+      },
+      {
+        "Destination": "/materials/rustc-1.99.0-src.tar.xz",
+        "Mode": "",
+        "Propagation": "rprivate",
+        "RW": false,
+        "Source": "/home/runner/work/_temp/rust199-hosted/material-delivery/rustc-1.99.0-src.tar.xz",
+        "Type": "bind"
+      },
+      {
+        "Destination": "/work",
+        "Driver": "local",
+        "Mode": "z",
+        "Name": "rust199-qual-5534cd75ecb8ece8352266ea-work",
+        "Propagation": "",
+        "RW": true,
+        "Source": "/var/lib/docker/volumes/rust199-qual-5534cd75ecb8ece8352266ea-work/_data",
+        "Type": "volume"
+      },
+      {
+        "Destination": "/source",
+        "Mode": "",
+        "Propagation": "rprivate",
+        "RW": false,
+        "Source": "/home/runner/work/cachy-asahi/cachy-asahi",
+        "Type": "bind"
+      },
+      {
+        "Destination": "/materials/rust-std-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+        "Mode": "",
+        "Propagation": "rprivate",
+        "RW": false,
+        "Source": "/home/runner/work/_temp/rust199-hosted/material-delivery/stage0_carrier/rust-std-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+        "Type": "bind"
+      },
+      {
+        "Destination": "/work/build/stage0",
+        "Driver": "local",
+        "Mode": "z",
+        "Name": "rust199-qual-5534cd75ecb8ece8352266ea-work",
+        "Propagation": "",
+        "RW": false,
+        "Source": "/var/lib/docker/volumes/rust199-qual-5534cd75ecb8ece8352266ea-work/_data",
+        "Type": "volume"
+      }
+    ],
+    "Name": "/rust199-qual-5534cd75ecb8ece8352266ea-probe",
+    "State": {
+      "Running": false,
+      "Status": "created"
+    }
+  },
+  "run": 43900684447,
+  "source_member": "operations/299.stdout",
+  "source_pin": {
+    "bytes": 15889,
+    "sha256": "ad53211873314a2eb57f13fd72d875f784797a8c55c40923ddb009c0cd3b2b21"
+  }
+}

@@ -1,0 +1,145 @@
+{
+  "approved": null,
+  "external_files": {},
+  "files": {},
+  "issuer": null,
+  "kind": "ROOT_SELECTED_RUST355_RETAINED_EVIDENCE_READER_V14",
+  "members": {
+    "bootstrap": {},
+    "build": {},
+    "transfer": {}
+  },
+  "reader_files": {
+    "archives.py": {
+      "bytes": 17270,
+      "sha256": "90904de0bfe31886419e94823ce830c71b06db1bbd4557e3b687696d1b4901c0"
+    },
+    "bindings.py": {
+      "bytes": 10681,
+      "sha256": "c9110cc0d2673097160e7f0a0826c9e2436c9dc54b234d65d3a2c6e7c2e53455"
+    },
+    "elf.py": {
+      "bytes": 1720,
+      "sha256": "0d5adbfcca43700272b65462f69584f9c0a79d71c46ad5b6e037be56366773a2"
+    },
+    "evidence.py": {
+      "bytes": 46380,
+      "sha256": "239e8bacf9a8f419c143ec1aa501b75d6e83a5abd5b5dfef6ed7e05a0d7d1d45"
+    },
+    "reader.py": {
+      "bytes": 26524,
+      "sha256": "7af759176251d7d84d6d7a8b50a3bc130f9ec49f6543ed7f341a887d73d7d739"
+    },
+    "storage.py": {
+      "bytes": 13867,
+      "sha256": "f1606595fd7676cb4422d2ac785729e5a5b9e782c0d3f919b4c9e0cea2000b4a"
+    }
+  },
+  "resources": {
+    "address_space_bytes": null,
+    "cpu_seconds": null,
+    "scratch_bytes": null,
+    "scratch_files": null,
+    "wall_seconds": null
+  },
+  "roles": {
+    "baseline_inventory": null,
+    "bootstrap_artifact_metadata": null,
+    "bootstrap_artifact_zip": null,
+    "bootstrap_daemon": null,
+    "bootstrap_hosted": null,
+    "bootstrap_image_retirement": null,
+    "bootstrap_jobs_start": null,
+    "bootstrap_operations": null,
+    "bootstrap_provider": null,
+    "build_artifact_metadata": null,
+    "build_artifact_zip": null,
+    "build_daemon": null,
+    "build_export": null,
+    "build_hosted": null,
+    "build_image_retirement": null,
+    "build_jobs_start": null,
+    "build_operations": null,
+    "build_provider": null,
+    "candidate_admission": null,
+    "dispatch": null,
+    "grant_shape": null,
+    "init_finished": null,
+    "init_inspect": null,
+    "llvm_archive": null,
+    "llvm_original_artifact": null,
+    "llvm_original_job": null,
+    "llvm_public_key": null,
+    "llvm_public_verification": null,
+    "llvm_reader_binding": null,
+    "llvm_reader_result": null,
+    "llvm_root_decision": null,
+    "llvm_signature": null,
+    "makepkg_finished": null,
+    "makepkg_inspect": null,
+    "native_qualification": null,
+    "operational_admission": null,
+    "prepare_finished": null,
+    "prepare_inspect": null,
+    "producer": null,
+    "profile": null,
+    "publication": null,
+    "qualification_envelope": null,
+    "qualified_inventory": null,
+    "root_proof_carrier_artifact": null,
+    "root_proof_carrier_job": null,
+    "source_review": null,
+    "stage0_carrier_artifact": null,
+    "stage0_carrier_job": null,
+    "terminal_jobs": null,
+    "terminal_run": null,
+    "transfer_acquisition": null,
+    "transfer_artifact_metadata": null,
+    "transfer_bootstrap_job_metadata": null,
+    "transfer_import": null,
+    "transfer_manifest": null,
+    "transfer_provider_host": null,
+    "transfer_run_metadata": null,
+    "transfer_zip": null,
+    "volume_admission": null,
+    "volume_initialization": null
+  },
+  "schema": 14,
+  "selected": {
+    "bootstrap_artifact_id": null,
+    "bootstrap_job": null,
+    "build_artifact_id": null,
+    "build_job": null,
+    "dispatch_sha256": null,
+    "initial_redirect_hosts": {
+      "llvm_original": null,
+      "root_proof_carrier": null,
+      "stage0_carrier": null
+    },
+    "ref": null,
+    "run": null,
+    "source": null,
+    "source_review_sha256": null,
+    "transfer": {
+      "artifact": {
+        "bytes": null,
+        "sha256": null
+      },
+      "artifact_id": null,
+      "image": {
+        "bytes": null,
+        "sha256": null
+      },
+      "image_id": null,
+      "manifest_sha256": null,
+      "storage_host": null
+    }
+  },
+  "source_contract": {
+    "bytes": 43408000,
+    "files": 355,
+    "map_sha256": "4a85015fbcb513f8af71ae0d313abc4927faa50682dbf0b6ebfee8f339352bfa",
+    "profile_sha256": "e4f2dd79663a0a8233d1aabde156356fc9e02de217668f66c5058156b0bbe8b9",
+    "tree": "3fbb71b78e06cdb9aa219c596a41fda3ccc29280"
+  }
+}
