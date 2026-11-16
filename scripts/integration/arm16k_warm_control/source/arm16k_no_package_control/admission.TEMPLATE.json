@@ -1,0 +1,14 @@
+{
+  "accepted": null,
+  "created_utc": null,
+  "enforcement": "ROOT_CUSLS_WHOLE_PROCESS_MEMORY_CPU_PID_QUOTA_OUTPUT_AND_CANONICAL_EXCLUSIVE_CUSTODY",
+  "expires_utc": null,
+  "issued_by": "Root",
+  "kind": "ROOT_NO_PACKAGE_CONTROL_ADMISSION_V1",
+  "operation": "NO_PACKAGE_BOOT_LOGIN_LOGOUT_CONTROL_V1",
+  "output": null,
+  "packet": null,
+  "resources": null,
+  "source_lock": null,
+  "uid": null
+}

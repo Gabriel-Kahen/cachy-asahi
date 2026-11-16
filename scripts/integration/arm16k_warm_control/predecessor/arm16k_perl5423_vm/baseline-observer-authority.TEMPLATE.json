@@ -1,0 +1,16 @@
+{
+  "accepted": null,
+  "created_utc": null,
+  "expires_utc": null,
+  "external_resource_enforcement": null,
+  "issued_by": "Root",
+  "kind": "ROOT_PERL5423_READONLY_BASELINE_AUTHORITY_V1",
+  "operation": "arm16k-perl5423-system-runtime-v1",
+  "output": null,
+  "output_cap_bytes": null,
+  "prepared": null,
+  "raw": null,
+  "scan_seconds": null,
+  "source_lock": null,
+  "uid": null
+}

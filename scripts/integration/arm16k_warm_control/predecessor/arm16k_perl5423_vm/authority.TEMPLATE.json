@@ -1,0 +1,31 @@
+{
+  "accepted": null,
+  "actor_tools": {
+    "/usr/bin/cp": null,
+    "/usr/bin/debugfs": null,
+    "/usr/bin/e2fsck": null,
+    "/usr/bin/python3": null,
+    "/usr/bin/qemu-img": null,
+    "/usr/bin/qemu-system-aarch64": null
+  },
+  "created_utc": null,
+  "credentials": null,
+  "docker_cli": null,
+  "docker_endpoint": null,
+  "expires_utc": null,
+  "image": null,
+  "issued_by": "Root",
+  "kernel": {
+    "Image": null,
+    "config": null
+  },
+  "kind": "ROOT_PERL5423_VM_ACTOR_AUTHORITY_V1",
+  "operation": "arm16k-perl5423-system-runtime-v1",
+  "output": null,
+  "packet": null,
+  "phase": null,
+  "prepared": null,
+  "quota_device": null,
+  "source_lock": null,
+  "uid": null
+}

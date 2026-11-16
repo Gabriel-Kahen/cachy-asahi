@@ -1,0 +1,138 @@
+{
+  "HOME_Btrfs_trial": "EXPLICIT_ROOT_HOME_DEV54_UID1000_ENOSYS38_UNSUPPORTED_NOT_UNLIMITED_INODES_UNREPORTED_NO_RESERVATION_STRICT_QUOTA_BRANCH_UNCHANGED",
+  "HOME_device_identity": "SEPARATE_ROOT_REVIEWED_FSTAT_DEV54_AND_KERNEL_MOUNTINFO_0_33_ACTUAL_FD_MOUNT_ID_BRACKET",
+  "PT_INTERP_alias": "ONLY_EXACT_AARCH64_LIB_USRLIB_PAIR_IDENTICAL_BASELINE_CANONICAL_LOADER_AND_EXACT_FILESYSTEM_ALIAS",
+  "Tool529_e2fsck": "SPECIALIZED_FIXED_TOOL_HASH_ADMITS_OBSERVED_NLINK4_GENERIC_DATA_SINGLE_LINK_RULE_UNCHANGED",
+  "absent_pacman_log": "RETAIN_NORMAL_TRANSACTION_LOG_AND_RESTORE_CERTIFIED_ABSENCE",
+  "actual": {
+    "ALPM": null,
+    "ARM16K_runtime": null,
+    "Docker": null,
+    "GPG": null,
+    "M2": null,
+    "Reader": null,
+    "Root_VM_decision": null,
+    "Source_publication": null,
+    "VM": null,
+    "compiler": null,
+    "image_preparation": null,
+    "native16K": null,
+    "packet_preparation": null,
+    "performance": null,
+    "release": null
+  },
+  "actual_prepare_r1": "CLOSED_HOLD_CLEANUP_NAME_CAPTURE_DEFECT_REPRODUCED_BY_ACTUAL_SCOPE_AST_REGRESSION_NO_NEW_ACTOR",
+  "case12_restoration_order": {
+    "Root_acceptance": null,
+    "actual_VM": null,
+    "actual_case12": "CONSUMED_HOLD_RESTORATION_RC1_WITH_RETIREMENT_TIMEOUT_AND_FORCED_CLEANUP_FALLBACK",
+    "actual_inputs": "ONLY_ROOT_SUPPLIED_SERIAL_REDACTED_AND_PUBLIC_REPORT",
+    "diagnostics": "CLOSED_RESTORATION_STEP_LABELS_EXISTING_FAILED_PHASE_SCALAR_NO_NEW_FRAME_FIELDS_NO_CHECKPOINT_WRITES",
+    "exact_actual_failing_subcheck": "UNREPORTED",
+    "fix": "EXACT_RUNNING_STATE_COMPARISONS_BEFORE_UNCHANGED_PREBOOT_CLEANUP_THEN_TRUST_TEARDOWN_AND_SYNC",
+    "focused_HOST_reproduction_controls": 12,
+    "offline_defect": "EARLY_PREBOOT_CLEANUP_CHANGES_OWNED_PARENT_NLINKS_BEFORE_RUNNING_STATE_METADATA_COMPARISON",
+    "public_code_2f6_branch": "UNCHANGED",
+    "retirement_fix": null,
+    "scope": "DRAFT_SOURCE_HOST_REPRO_ONLY_NOT_ACTUAL_CASE_CAUSE_PROOF",
+    "unchanged_strict_code": [
+      "image.py",
+      "frozen/guest-runtime.sh",
+      "guest/installed-metadata.sh",
+      "preboot.py",
+      "preboot_absence_timestamp_helpers"
+    ]
+  },
+  "checks": {
+    "committed_Git_source_roundtrip": "PASS_COMMITTED_TRACKED_SOURCE_EXPORT_AND_FENCED_PREDICATE",
+    "host_API_lifetimes": "PASS_HOST_PERL5422_BZIP2213_ZLIB2222_NOT_CANDIDATE_ARM16K",
+    "python_fenced_controls": 46,
+    "shell_syntax": "PASS",
+    "source_membership": "PASS",
+    "synthetic_guest_shell_data": "PASS_BINARY_EMPTY_LENGTH_SHA256_AND_OFFICIAL_POLICY_NO_GPG_ALPM"
+  },
+  "comparison_prerequisite": "NO_CMP_BOUNDED_STAT_SHA256_FAILURES_PROPAGATE",
+  "compression_lifetimes": "LEXICAL_NATIVE_STREAM_DESTRUCTION_BEFORE_ITHREAD_CLONE_ALL_ROUNDTRIPS_AND_THREAD_SHARED_JOIN_RETAINED",
+  "expected_ABI_intake": "EXACT81_ROWS_SEPARATE_INPUT_KIND_ACTUAL_GUEST_FIELDS_NULL_NO_RUNTIME_CREDIT",
+  "host_Docker_CLI": "EXPLICIT_ROOT_DESCRIPTOR_NO_PATH_FALLBACK_INCLUDING_CLEANUP",
+  "known_prerequisites": {
+    "installed_component_scope": "FINITE_ARM4K_ONLY_NO_FULL_UNINSTALL",
+    "installed_source": "445b37a9475a4e92804954f4f0e3d0ac84cd9511",
+    "native_pair_source": "25dc3e65bdb6137c87a9409067fe9b2cf6e9763f",
+    "version": "5.42.3-1.3"
+  },
+  "official_db53_trust": "ROOT_ADMITTED_SINGLE_SIGNER_FROM_EXACT_BASELINE_PUBLIC_RING_SEPARATE_VOLATILE_SCRATCH_REQUIRED_TRUSTED_ONLY_NO_GLOBAL_TRUST",
+  "optional_dependency": "EXACT_CACHED_DB53_NORMAL_SIGNED_INSTALL_AND_REMOVE_REQUIRES_FUTURE_ROOT_CERTIFICATION",
+  "preboot_etc_timestamp": {
+    "baseline_existing_selected_path": "REFUSE_PREPARE_NEVER_DELETE",
+    "broader_uv_API_limit": "EXISTING_OS_PIDFD_OPEN_ABSENT_54_PASS_ONE_ERROR_NOT_FULL_SUITE_PASS",
+    "cleanup": "ONLY_FIXED_NINE_PREBOOT_ABSENCES_SINGLE_RM_OR_EMPTY_RMDIR_AFTER_ALL_SNAPSHOTS_AND_REFS_JOIN",
+    "context_max_bytes": 4096,
+    "descriptor": "V2_SOURCE_CASE_NONCE_CERT_RAW_PREPARED_NAMESPACE_FIXED_NINE_ABSENCES_THREE_PARENT_INODE_LINK_MTIME_KERNEL_SHA",
+    "descriptor_max_bytes": 4096,
+    "fenced_provenance_DATA_controls": 10,
+    "final_parent_check": "EXACT_THREE_ORIGINAL_PARENT_INODE_LINKS_TYPE_MODE_UID_GID_XATTR_MTIME",
+    "focused_HOST_controls": 23,
+    "focused_interpreters": [
+      "CPython3.12.13",
+      "CPython3.14.6"
+    ],
+    "guest_DATA_and_shell_syntax": "PASS_LOCAL_NO_ACTOR",
+    "historical_case11": "CONSUMED_HOLD_NEVER_REENTER_OR_RETRY",
+    "independent_atime": "RESTORATION_ITSELF_MUST_KEEP_CURRENT_ATIME_UNCHANGED_NO_WHOLEBOOT_ATIME_REQUIREMENT",
+    "initial_state": "ACTUAL_GUEST_SNAPSHOT_BEFORE_ALPM_NO_CAUSALITY_ASSUMPTION",
+    "normal_cache_inode": "ONLY_LDSO_CACHE_NORMAL_HOOK_CP_A_RECOVERY_MAY_REPLACE_INODE_EXACT_LOGICAL_SNAPSHOT_REQUIRED",
+    "other_existing_controls_per_uv_interpreter": "PASS52_INSTALLED13_DEPENDENCY5_RETIREMENT7_DIAGNOSTICS8_READINESS9_ROOT_PROGRESS8_LIFETIMES2",
+    "prepared_namespace_additions": [
+      "/var/lib/arm16k-perl5423-vm/preboot-context.json",
+      "/var/lib/arm16k-perl5423-vm/preboot-etc.tsv"
+    ],
+    "scope": "REVISED_DRAFT_CERTIFIED_NINE_PATH_ABSENCE_AND_THREE_PARENT_RESTORATION_HOST_SOURCE_ONLY",
+    "strict_image_preserve": "UNCHANGED_NO_ETC_TIME_ALLOWANCE",
+    "system_python3147_controls": "PASS55",
+    "transient_references": [
+      "cache/preboot-parent-0.reference",
+      "cache/preboot-parent-1.reference",
+      "cache/preboot-parent-2.reference"
+    ],
+    "unpublished_e14": "HELD_SUPERSEDED_NO_OPERATIONAL_ACCEPTANCE"
+  },
+  "root_ssh_preservation": {
+    "HOST_controls": 22,
+    "Root_acceptance": null,
+    "Root_authority": null,
+    "actual_VM": null,
+    "actual_case13": "CONSUMED_HOLD_FINAL_ROOT_TIMESTAMP_DESPITE_GUEST_PASS_AND_REPORTED_NATURAL_QEMU0",
+    "actual_creator": "UNPROVEN_NO_SOURCE_CREATOR_FOUND",
+    "atime": "KEEP_CURRENT_AROUND_MTIME_TOUCH_NO_WHOLEBOOT_ATIME_REQUIREMENT",
+    "baseline_target": "CERTIFIED_ABSENT_ELSE_REFUSE_BEFORE_CONTENT_INVENTORY",
+    "context": "FIXED_POLICY_EXISTING_SOURCE_CASE_NONCE_CERT_RAW_PREPARED_NAMESPACE_JOIN",
+    "descriptor_DATA_controls": 12,
+    "frozen_source59": "UNCHANGED",
+    "guest_cleanup": "HELD_PARENT_CHILD_FD_EXACT_EMPTY_ROOT0700_RMDIR_ONLY_AFTER_TRUST_TEARDOWN",
+    "kernel_binding": "arm16k_perl5423_vm_root_ssh_sha256",
+    "late_owned_root_timing": "EXISTING_PAYLOAD_NLINK_CHECK_CAN_STILL_HOLD_NO_NORMALIZATION",
+    "new_prepared_leaves": {
+      "root-ssh-preboot.tsv": "PREPARE_ROOT0600_SINGLE_LINK_MAX1024",
+      "root-ssh.sh": "ADAPTER_ROOT0644"
+    },
+    "parent": "root",
+    "parent_mode": "0700_ROOT_UID_GID0",
+    "preserve": "IMAGE_PRESERVE_FUNCTION_BYTE_IDENTICAL_PLUS_STRICT_FINAL_ROOT_GATE",
+    "privacy_MODEL_controls": 11,
+    "private_body_reads": "GUARDED_EXACT_USER_SNAPSHOT_PRUNE_AND_METADATA_ONLY_PREINVENTORY_ABSENCE_GATE",
+    "public_code_5e": "UNCHANGED",
+    "publication": null,
+    "scope": "DRAFT_SOURCE_HOST_AND_METADATA_MODELS_ONLY",
+    "selected_path": "root/.ssh"
+  },
+  "schema": 1,
+  "scope": "SOURCE_IMPLEMENTATION_AND_FENCED_SYNTHETIC_DATA_CONTROLS_ONLY",
+  "source_implemented_recovery": "NORMAL_ALPM_ROLLBACK_WITH_ONLY_CERTIFIED_SOURCE445B_INSTALLDATE_TIMESTAMP_AND_APPEND_LOG_VARIANCE",
+  "strict_SHM_quota_backend": "READONLY_MOUNT_DIRECTORY_FD_SYSCALL443_Q_GETQUOTA_IF_DQBLK72_VALID_OFFSET64_EXISTING_FINITE_HEADROOM_POLICY",
+  "unfinished": [
+    "Root supplies future16K baseline/runtime/trust/resource certificates and fresh exact controller authorities",
+    "actual prepared actor, PAM/QMP/ownership/ELF/functional/resource retirement qualification NOT_RUN",
+    "Corrected compression lifetimes and unchanged full functional success contract require genuine candidate ARM16K qualification"
+  ]
+}

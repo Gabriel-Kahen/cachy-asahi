@@ -1,0 +1,6 @@
+cachy-asahi-screenshot-copy
+Copyright (c) 2026 cachy-asahi contributors
+Original project code, licensed under MIT. No wl-clipboard or screenshot-helper
+implementation is bundled. Those installed external programs retain their own
+licenses and lifecycle. This development candidate is not release-selected and
+has no native ARM or M2 qualification.

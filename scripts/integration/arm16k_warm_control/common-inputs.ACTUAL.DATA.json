@@ -1,0 +1,116 @@
+{
+  "M2": "NOT_RUN",
+  "Root_warm_baseline_acceptance": null,
+  "actor_tools": {
+    "/usr/bin/cp": {
+      "bytes": 129336,
+      "sha256": "3a597f7c21f2922e97bc1607f111ee15d2ed71998570d8a152d1e40aedfa2035"
+    },
+    "/usr/bin/debugfs": {
+      "bytes": 202328,
+      "sha256": "9b27184084383c8607eee03b43c80eca4ef912acf4887b40a7cc420e267ad8a8"
+    },
+    "/usr/bin/e2fsck": {
+      "bytes": 356568,
+      "sha256": "a9ea133a844edd695b5172abadc8bbbbb03aaedad80fc24d039bdbf4563a125c"
+    },
+    "/usr/bin/python3": {
+      "bytes": 14424,
+      "sha256": "122ce07db306cd111fd10e27125460362610452983a64903c470afd66b6403bd"
+    },
+    "/usr/bin/qemu-img": {
+      "bytes": 2567104,
+      "sha256": "2139b2c8d5a9f28dbef2c5cdb663ce842648105fa76720ec691f8f5cddc8b002"
+    },
+    "/usr/bin/qemu-system-aarch64": {
+      "bytes": 34622584,
+      "sha256": "6f16cea44da813a65a1076886f63687350a0173e188873ba227dcc06f5c16b27"
+    }
+  },
+  "control": {
+    "Root-terminal-closure.ACTUAL.json": {
+      "bytes": 1371,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-no-package-control-trial-r3/Root-terminal-closure.ACTUAL.json",
+      "sha256": "9afa27cdd182cbaef4cf307069f9b4e6426ccbcc247d4944f8e57823bee13002"
+    },
+    "control-output/observations.json": {
+      "bytes": 10140,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-no-package-control-trial-r3/control-output/observations.json",
+      "sha256": "aad212908bfa20e9f7b6b326f02ee7e360b9d63467d3c8ed36a41727cd54cd0f"
+    },
+    "control-output/report.json": {
+      "bytes": 21241,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-no-package-control-trial-r3/control-output/report.json",
+      "sha256": "c60358f08263973e5fabf8268366aa12a43c357b42fe0a77efe62f56529f3cef"
+    },
+    "outer-output/Root-outer-result.json": {
+      "bytes": 3677,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-no-package-control-trial-r3/outer-output/Root-outer-result.json",
+      "sha256": "d577d6c904c2321faf7059caa056d88b804e90f035067b84403c403e8c83c6c5"
+    },
+    "packet/control-packet.json": {
+      "bytes": 4733,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-no-package-control-trial-r3/packet/control-packet.json",
+      "sha256": "50ed6dcfd66f77cab02beb44184c59f4d77f29ce6b7360069274aa34a75caa77"
+    }
+  },
+  "conversion": null,
+  "dependency65": {
+    "bytes": 10598,
+    "sha256": "da1c8749a281b767f50ca696cf7818d1925aa852057d7de011b4c3ddd8eca75d"
+  },
+  "fixed_package_identity": {
+    "bytes": 18370,
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-no-package-control-trial-r3/Root-original111-package-identity.DATA.json",
+    "sha256": "ae69ebe75e2b17011ac6bd063f825f9993242e63b7a293799a5bcd1fa6fb4d79"
+  },
+  "kernel": {
+    "Image": {
+      "bytes": 9019400,
+      "sha256": "36066ded2f5721fd9bb257cebb2e4cb32084f45c3717f4d7a45430fe3cdcc494"
+    },
+    "accepted": true,
+    "config": {
+      "bytes": 71585,
+      "sha256": "b8bc8c636ae7e58e8e338e7dba87d84a390d0555fa7307fc76217e0d56553d7f"
+    },
+    "issued_by": "Root",
+    "kind": "ROOT_ACCEPTED_CASE14_KERNEL_DECLARATION_V1"
+  },
+  "kind": "ROOT_CURATED_WARM_BASELINE_COMMON_INPUTS_DATA_ONLY_V1",
+  "new_certificate": null,
+  "new_prepared": null,
+  "new_raw": null,
+  "next_boot_stability": null,
+  "original_baseline": {
+    "certificate": {
+      "bytes": 3870,
+      "sha256": "569d9373d0af561def524d8a573f67c50e7556886b59047ceac4804dfb239d61"
+    },
+    "prepared": {
+      "bytes": 58179,
+      "sha256": "f7b3073f58acce8ab5e21ff61f2182779d24046e1582cda6adb0a3db66b7036e"
+    },
+    "raw": {
+      "bytes": 1610612736,
+      "sha256": "f69d74fbb0043793c96424d0f91ad2f6fb2d8cf3a72fb94024ea9cc40dae4cd3"
+    }
+  },
+  "original_baseline_nonce": "bb6811477be73d38da7bf22130d60ccd",
+  "original_prepared": {
+    "bytes": 58179,
+    "path": "/tmp/cachy-asahi-arm16k-preparation-20261114-r5/assembly/prepared.json",
+    "sha256": "f7b3073f58acce8ab5e21ff61f2182779d24046e1582cda6adb0a3db66b7036e"
+  },
+  "overlay": {
+    "bytes": 19660800,
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-no-package-control-trial-r3/control-output/overlay.qcow2",
+    "sha256": "8a6aa8f2ccd64e1bfcb2a6a6ec0f573d5e768a7d864da37cb5d32538e13edcbb"
+  },
+  "package_count": 111,
+  "source23": {
+    "bytes": 3732,
+    "sha256": "63ca909ef5828c43668fe3c56586a5fffa92badd1abcd670118802acd13213df"
+  },
+  "tool_image": "sha256:52958d534193d739aeb6d3c9239ed31b97f8fb357a618e14391293068b28cd2a"
+}
