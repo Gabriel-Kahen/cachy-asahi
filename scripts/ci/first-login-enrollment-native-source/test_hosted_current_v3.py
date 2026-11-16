@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 """Fenced MODEL launcher controls. No HTTP/process/privilege/native execution."""
-import ast,copy,hashlib,importlib.util,json,os,re
+import ast,copy,hashlib,importlib.util,io,json,os,re
 from pathlib import Path
 import sys,tempfile,time,unittest
 from types import SimpleNamespace
@@ -459,7 +459,8 @@ class RealStagingAssemblyControls(unittest.TestCase):
   self.assertEqual(len(f.d['materials']),64)
   for trust in ('official_trust','test_trust'):
    ref=f.request[trust]['Root_admission'];p=Path(ref['path']);raw=self.M.A.encoded(move(json.loads(p.read_bytes())));p.write_bytes(raw);ref.update(self.M.A.pin(raw))
-  spec=importlib.util.spec_from_file_location('actual_canonical_stager_seam',HERE/'payload/native/stage_materials_current_v3_python_v1.py');S=importlib.util.module_from_spec(spec);spec.loader.exec_module(S)
+  stager=Path(os.environ.get('CACHY_CURRENT_STAGER_FIXTURE',str(HERE/'payload/native/stage_materials_current_v3_python_v1.py'))).resolve()
+  spec=importlib.util.spec_from_file_location('actual_canonical_stager_seam',stager);S=importlib.util.module_from_spec(spec);spec.loader.exec_module(S)
   self.assertEqual(L.pin(Path(S.__file__).read_bytes()),L.MATERIAL_STAGER_PIN);self.S=S
   provider=Path(self.M.__file__).parent/'base_inputs_current_v3.py';self.assertEqual(L.pin(provider.read_bytes())['sha256'],S.PROVIDER_SHA)
   spec=importlib.util.spec_from_file_location('actual_complete517_provider_seam',provider);B=importlib.util.module_from_spec(spec);spec.loader.exec_module(B);self.B=B
@@ -542,6 +543,7 @@ class RealStagingAssemblyControls(unittest.TestCase):
    status=L._execute(args,env)
   self.assertEqual(status,0,(plan.control/'public/launcher-report.json').read_text());self.assertEqual(self.events,['stage','prerequisite','main','close'])
   self.assertFalse(set(names)&set(env));report=L.decode((plan.control/'public/launcher-report.json').read_bytes());self.assertTrue(report['material_domain_cleanup']['input_storage_absent'])
+  self.assertNotIn('material_failure_before_cleanup',report);self.assertNotIn('material_children_after_cleanup',report)
  def test_actual_committed_domain_retirement_projection_and_close(self):
   # Execute real session DATA/receipt logic; replace only privileged actor and
   # mounted-storage observation boundaries. All archives remain tiny MODEL DATA.
@@ -604,7 +606,7 @@ class FailureDiagnosticControls(unittest.TestCase):
  def domain(self):
   modules=[]
   for name,wanted in (('material_domain_current_v3',L.MATERIAL_DOMAIN_PIN),('owned_executor_current_v3',dict(bytes=53735,sha256='aee41c0956f3249eef2e9c8974238b214622cb385e2d8f736109d9650ce7120a'))):
-   path=HERE/'payload/native'/(name+'.py');self.assertEqual(L.pin(path.read_bytes()),wanted)
+   path=Path(os.environ.get('CACHY_CURRENT_MATERIAL_DOMAIN_FIXTURE',str(HERE/'payload/native'/(name+'.py')))).resolve()if name=='material_domain_current_v3'else HERE/'payload/native'/(name+'.py');self.assertEqual(L.pin(path.read_bytes()),wanted)
    spec=importlib.util.spec_from_file_location('diagnostic_'+name,path);module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);modules.append(module)
   return modules
  def bound_request(self,fixture):
@@ -625,9 +627,10 @@ class FailureDiagnosticControls(unittest.TestCase):
   fixture=self.fixture();plan=fixture.plan;D,E=self.domain();args,env=self.bound_request(fixture)
   grant=json.loads(plan.request['material_staging']['grant_json']);role=Path(grant['storage_parent'])/('cachy-current-materials-'+plan.d['nonce']);hold=role/'HOLD.json'
   safe=dict(status='HOLD_PARTIAL_OWNED_DATA_CLOSEONLY',scope='/system.slice/'+D.scope_name(plan.d['nonce']),Root_acceptance=None);hold_pin=L.pin(L.encoded(safe))
+  packet=dict(schema=1,kind='CURRENT_MATERIAL_STAGE_FAILURE_V1',phase='TOOLS',reason='COMMAND_FAILED',command_ordinal=4);stderr=D.encoded(packet)
   sessions=[];events=[];secret_maps=[]
   def opened(**kw):
-   r=dict(control_root=str(plan.control),context=fixture.context,shared_timing=plan.timing,runner_uid=os.getuid(),runner_gid=os.getgid())
+   r=dict(source_root=str(plan.root),delegation_raw=plan.request['delegation_json'],delegation_sha256=plan.request['delegation_pin']['sha256'],grant_raw=plan.request['material_staging']['grant_json'],grant_sha256=plan.request['material_staging']['grant_pin']['sha256'],control_root=str(plan.control),context=fixture.context,shared_timing=plan.timing,runner_uid=os.getuid(),runner_gid=os.getgid())
    owner=SimpleNamespace(prepare=lambda:events.append('prepare'),supervise=supervise)
    session=D.MaterialSession(r,(plan.root,plan.d,plan.policy,grant,E,fixture.S,owner));sessions.append(session);return session
   def spawn(argv,**kw):
@@ -636,7 +639,7 @@ class FailureDiagnosticControls(unittest.TestCase):
     self.assertTrue(hold.exists());hold.unlink();role.rmdir();session=sessions[0]
     D.write(plan.control/'material-domain-close.json',dict(owned_storage_absent=True,binding=fixture.context['binding'],nonce=plan.d['nonce'],request_pin=D.pin(D.encoded(session.r)),scope_absence=dict(scope=D.scope_name(plan.d['nonce']),absent_twice=True),**D.FINAL))
    else:
-    role.mkdir(mode=0o700);D.write(hold,safe);kw['stderr'].write(self.SENTINEL.encode())
+    role.mkdir(mode=0o700);D.write(hold,safe);kw['stderr'].write(stderr)
    return SimpleNamespace(closing=closing)
   def supervise(child,**kw):
    return dict(reaped=True,ownership='REAPED',group_census='EMPTY_TWICE',output_complete=True,signals=[],timeout=False,error=None,exit=0 if child.closing else 7,output=b''if child.closing else self.SENTINEL.encode())
@@ -652,7 +655,7 @@ class FailureDiagnosticControls(unittest.TestCase):
    with tempfile.TemporaryFile()as stream:return os.dup(stream.fileno())
   plan.M=SimpleNamespace(CLOSE_SECONDS=D.CLOSE_SECONDS,open_material_session=opened)
   tools={name:dict(path='/usr/bin/'+name)for name in ('python3','systemd-run','sudo')}
-  with patch.object(L,'preflight',return_value=plan),patch.object(L,'program',side_effect=fixture.program),patch.object(L,'run',side_effect=run),patch.object(L.resource,'setrlimit'),patch.object(L.signal,'setitimer'),patch.object(D,'scope_tools',return_value=tools),patch.object(D,'scope_path',return_value=fixture.f.root/'absent-model-cgroup'),patch.object(D,'absent',side_effect=lambda nonce,deadline,closing=False:dict(scope=D.scope_name(nonce,closing),absent_twice=True)),patch.object(D.subprocess,'Popen',side_effect=spawn),patch.object(E,'require_runtime_capabilities'),patch.object(E,'natural',wraps=E.natural)as natural,patch.object(D.MaterialSession,'stage',stage),patch.multiple(D.os,create=True,memfd_create=anonymous_buffer,MFD_CLOEXEC=1,MFD_ALLOW_SEALING=2),patch.multiple(D.fcntl,create=True,F_ADD_SEALS=1033,F_GET_SEALS=1034,F_SEAL_GROW=4,F_SEAL_SHRINK=2,F_SEAL_WRITE=8,F_SEAL_SEAL=1),patch.object(D.fcntl,'fcntl',return_value=0):
+  with patch.object(L,'preflight',return_value=plan),patch.object(L,'program',side_effect=fixture.program),patch.object(L,'run',side_effect=run),patch.object(L.resource,'setrlimit'),patch.object(L.signal,'setitimer'),patch.object(D,'scope_tools',return_value=tools),patch.object(D,'scope_path',return_value=fixture.f.root/'absent-model-cgroup'),patch.object(D,'absent',side_effect=lambda nonce,deadline,closing=False:dict(scope=D.scope_name(nonce,closing),absent_twice=True)),patch.object(D.subprocess,'Popen',side_effect=spawn),patch.object(E,'require_runtime_capabilities'),patch.object(E,'stderr_buffer',side_effect=io.BytesIO),patch.object(E,'natural',wraps=E.natural)as natural,patch.object(D.MaterialSession,'stage',stage),patch.multiple(D.os,create=True,memfd_create=anonymous_buffer,MFD_CLOEXEC=1,MFD_ALLOW_SEALING=2),patch.multiple(D.fcntl,create=True,F_ADD_SEALS=1033,F_GET_SEALS=1034,F_SEAL_GROW=4,F_SEAL_SHRINK=2,F_SEAL_WRITE=8,F_SEAL_SEAL=1),patch.object(D.fcntl,'fcntl',return_value=0):
    status=L._execute(args,env)
   report=L.decode((plan.control/'public/launcher-report.json').read_bytes());self.assertEqual(status,2,report)
   self.assertEqual(report['failure'],dict(phase='material_stage',reason='VALIDATION_REFUSED'));self.assertEqual(report['failure_type'],'ValueError')
@@ -660,8 +663,10 @@ class FailureDiagnosticControls(unittest.TestCase):
   self.assertGreaterEqual(natural.call_count,3);self.assertEqual(sessions[0].state,'CLOSED');self.assertEqual(secret_maps,[{}]);self.assertFalse(set(L.MATERIAL_SECRET_NAMES)&set(env))
   before=report['material_failure_before_cleanup'];self.assertEqual(before['state'],'HOLD_CLOSEONLY');self.assertTrue(before['stage_submitted']);self.assertEqual(len(before['children']),1)
   child=before['children'][0];self.assertFalse(child['natural_success']);self.assertEqual(child['supervision'],dict(reaped=True,output_complete=True,timeout=False,exit=7,ownership='REAPED',group_census='EMPTY_TWICE',supervisor_error=False,signals_observed=False))
-  self.assertEqual(child['output_pin'],L.pin(self.SENTINEL.encode()));self.assertEqual(child['stderr_pin'],L.pin(self.SENTINEL.encode().ljust(E.MAX_OUTPUT,b'\0')));self.assertFalse(child['scope_absent_twice'])
-  self.assertEqual(before['source_hold'],dict(status=safe['status'],pin=hold_pin,source_reason='NOT_EMITTED_BY_PINNED_SOURCE'));self.assertFalse(hold.exists())
+  self.assertEqual(child['output_pin'],L.pin(self.SENTINEL.encode()));self.assertEqual(child['stderr_pin'],L.pin(stderr));self.assertFalse(child['scope_absent_twice'])
+  source=before['source_failure'];self.assertEqual(source['status'],'DIAGNOSTIC_ONLY');self.assertEqual(source['availability'],'AVAILABLE');self.assertEqual(source['packet'],packet)
+  record=L.read(plan.control/'material-stage-failure.json');self.assertEqual(source['record_pin'],L.pin(record));self.assertEqual(source['request_pin'],D.pin(D.encoded(sessions[0].r)));self.assertEqual(source['context_pin'],D.pin(D.encoded(fixture.context)));self.assertEqual(source['stderr_pin'],L.pin(stderr));self.assertEqual(source['stdout_pin'],child['output_pin']);self.assertEqual(source['retirement_pin'],L.pin(L.encoded(sessions[0].receipts[0]['supervision'])))
+  self.assertEqual(before['source_hold'],dict(status=safe['status'],pin=hold_pin,source_reason='NOT_EMITTED_IN_HOLD_RECEIPT'));self.assertFalse(hold.exists())
   after=report['material_children_after_cleanup'];self.assertEqual(after['state'],'CLOSED');self.assertEqual([row['kind']for row in after['children']],['STAGE','CLOSE']);self.assertTrue(after['children'][1]['natural_success']);self.assertTrue(after['children'][1]['scope_absent_twice'])
   self.assertTrue(all(report['material_domain_cleanup'][key]for key in ('closed','scope_absent','input_storage_absent')))
   self.assertNotIn(self.SENTINEL,L.encoded(report).decode());self.assertNotIn('argv',L.encoded(report).decode())
@@ -725,6 +730,54 @@ class FailureDiagnosticControls(unittest.TestCase):
      with self.assertRaises(ValueError):fixture.call()
     self.assertEqual(fixture.plan.public_phase,phase);self.assertEqual(assembler.call_count,int(phase=='assembly'));fixture.plan.material_session.close();self.assertEqual(fixture.events,['stage','close'])
     diagnostic,kind=L.failure_summary(fixture.plan,ValueError(self.SENTINEL));self.assertEqual(diagnostic,dict(phase=phase,reason='VALIDATION_REFUSED'));self.assertEqual(kind,'ValueError');self.assertNotIn(self.SENTINEL,L.encoded(diagnostic).decode())
+ def source_record(self):
+  D,E=self.domain();tmp=tempfile.TemporaryDirectory(prefix='FENCED-source-failure-');self.addCleanup(tmp.cleanup);control=Path(tmp.name);private=control/'private';private.mkdir(mode=0o700)
+  context=dict(binding=dict(source='b'*40,run='11',job='12'),FENCED='NOT_NATIVE_CONTEXT');r=dict(control_root=str(control),context=context)
+  session=D.MaterialSession(r,(control,dict(nonce='f'*64),{}, {},E,object(),object()));session.stage_submitted=True;session.state='HOLD_CLOSEONLY'
+  packet=dict(schema=1,kind='CURRENT_MATERIAL_STAGE_FAILURE_V1',phase='TRANSPORT_NATIVE248',reason='COMMAND_FAILED',command_ordinal=26);raw=D.encoded(packet)
+  observation=dict(reaped=True,ownership='REAPED',group_census='EMPTY_TWICE',output_complete=True,signals=[],timeout=False,error=None,exit=2)
+  row=dict(kind='STAGE',natural=False,supervision=observation,output_pin=D.pin(b''),stderr_pin=D.pin(raw),scope_absence=None)
+  session.receipts=[row]
+  session.retain_stage_failure(row,raw,True);L.write(private/'context.json',L.encoded(context))
+  plan=SimpleNamespace(control=control,material_session=session,d=session.d);path=control/'material-stage-failure.json'
+  return plan,D,L.decode(path.read_bytes()),path
+ def test_source_failure_record_available_and_unavailable_are_diagnostic_only(self):
+  plan,D,record,path=self.source_record();selected=L.material_stage_failure(plan)
+  self.assertEqual(selected,dict(record,record_pin=L.pin(path.read_bytes())));self.assertEqual(selected['availability'],'AVAILABLE')
+  self.assertIsNone(selected['Root_final_acceptance']);self.assertFalse(any(selected[key]for key in ('independent_component_acceptance','hardware_acceptance','release_acceptance')))
+  path.unlink();plan.material_session.retain_stage_failure({});unavailable=L.decode(path.read_bytes());plan.material_session.receipts=[dict(kind='STAGE')]
+  self.assertEqual(unavailable['availability'],'UNAVAILABLE');self.assertIsNone(unavailable['packet']);self.assertIsNone(unavailable['stderr_pin']);self.assertIsNone(unavailable['retirement_pin']);self.assertIsNone(unavailable['stdout_pin'])
+  self.assertEqual(L.material_stage_failure(plan),dict(unavailable,record_pin=L.pin(path.read_bytes())))
+ def test_source_failure_rejects_packet_fields_enums_ordinals_and_noncanonical_records(self):
+  plan,D,record,path=self.source_record();row=plan.material_session.receipts[0]
+  cases=[('extra',dict(record,secret=self.SENTINEL)),('wrong-status',dict(record,status=self.SENTINEL)),('wrong-availability',dict(record,availability=self.SENTINEL)),('acceptance',dict(record,Root_final_acceptance=True)),('bool-schema',dict(record,schema=True))]
+  for key,value in (('phase',self.SENTINEL),('reason',self.SENTINEL),('command_ordinal',-1),('command_ordinal',27),('command_ordinal',True),('schema',True),('secret',self.SENTINEL)):
+   packet=dict(record['packet'],**{key:value});cases.append(('packet-'+key+'-'+str(value),dict(record,packet=packet,stderr_pin=L.pin(L.encoded(packet)))))
+  for name,value in cases:
+   with self.subTest(case=name):
+    row['stderr_pin']=value['stderr_pin'];path.write_bytes(L.encoded(value));self.assertEqual(L.material_stage_failure(plan),dict(status='UNAVAILABLE_OR_UNSAFE'));self.assertNotIn(self.SENTINEL,L.encoded(L.material_stage_failure(plan)).decode())
+  row['stderr_pin']=record['stderr_pin']
+  for body in (json.dumps(record).encode(),L.encoded(record)+b'\n',b'{'+self.SENTINEL.encode(),b' '*4097):
+   path.write_bytes(body);self.assertEqual(L.material_stage_failure(plan),dict(status='UNAVAILABLE_OR_UNSAFE'))
+ def test_source_failure_requires_exact_record_request_context_and_retirement_joins(self):
+  plan,D,record,path=self.source_record();session=plan.material_session;row=session.receipts[0];original=copy.deepcopy(row)
+  for key in ('request_pin','context_pin','stdout_pin','stderr_pin','retirement_pin'):
+   with self.subTest(join=key):
+    path.write_bytes(L.encoded(dict(record,**{key:L.pin(b'wrong join')})));self.assertEqual(L.material_stage_failure(plan),dict(status='UNAVAILABLE_OR_UNSAFE'))
+  path.write_bytes(L.encoded(record))
+  for key,value in (('reaped',False),('ownership','OWNED'),('output_complete',False),('exit',True)):
+   with self.subTest(retirement=key):
+    row['supervision']=dict(original['supervision'],**{key:value});path.write_bytes(L.encoded(dict(record,retirement_pin=L.pin(L.encoded(row['supervision'])))));self.assertEqual(L.material_stage_failure(plan),dict(status='UNAVAILABLE_OR_UNSAFE'))
+  row.update(copy.deepcopy(original));path.write_bytes(L.encoded(record))
+  session.stage_submitted=False;self.assertEqual(L.material_stage_failure(plan),dict(status='UNAVAILABLE_OR_UNSAFE'));session.stage_submitted=True
+  for key,value in (('control',plan.control/'other-control'),('request',plan.control/'other-request.json')):
+   with self.subTest(session_path=key):
+    before=getattr(session,key);setattr(session,key,value);self.assertEqual(L.material_stage_failure(plan),dict(status='UNAVAILABLE_OR_UNSAFE'));setattr(session,key,before)
+  for target in (session.request,plan.control/'private/context.json'):
+   with self.subTest(fixed_input=target.name):
+    before=target.read_bytes();target.write_bytes(L.encoded(dict(secret=self.SENTINEL)));self.assertEqual(L.material_stage_failure(plan),dict(status='UNAVAILABLE_OR_UNSAFE'));target.write_bytes(before)
+  path.unlink();self.assertEqual(L.material_stage_failure(plan),dict(status='NOT_OBSERVED'))
+  other=plan.control/'other.json';other.write_bytes(L.encoded(record));path.symlink_to(other);self.assertEqual(L.material_stage_failure(plan),dict(status='UNAVAILABLE_OR_UNSAFE'))
 
 
 BUDGET_FIXTURE=os.environ.get('CACHY_CURRENT19_BUDGET_FIXTURE')

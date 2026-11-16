@@ -279,8 +279,8 @@ def prerequisite_controller(args):
 
 
 BASE_FIELDS=('base_lock','bootstrap_profile','base_materials','supplemental_materials','keyring_materials')
-MATERIAL_STAGER_PIN=dict(bytes=32266,sha256='d0c0764b1b7a92bb55dce63ba55314bb84ace4533434afcc47b1e23205e1cac9')
-MATERIAL_DOMAIN_PIN=dict(bytes=36172,sha256='dda088c77150046b3822db81e329e00a0afa72db3e10c3c1b74cd1e50bc2e0c3')
+MATERIAL_STAGER_PIN=dict(bytes=35550,sha256='58c5d0842c17a914239b5f24e9e1ac2987ad8ec9ce9e2a03e63a04f2e2e99282')
+MATERIAL_DOMAIN_PIN=dict(bytes=40975,sha256='da8e397a63e02c11758d08bf2c45ecf14d94029f6311f4fcb4a09ad420624c8b')
 MATERIAL_SECRET_NAMES=tuple(['CACHY_OLD_FOUR_'+tag+'_%02d'%i for tag,count in(('JBIGKIT',2),('JBIGKIT_SIG',1),('LIBTIFF',15),('LIBTIFF_SIG',1))for i in range(1,count+1)]+['CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01','CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02','CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01'])
 
 
@@ -360,6 +360,55 @@ def failure_summary(plan,error):
     return dict(phase=phase if type(phase)is str and phase in PUBLIC_PHASES else 'UNKNOWN',reason=reason),kind
 
 
+SOURCE_FAILURE_PHASES=frozenset(('ENTRY','AUTHORIZE','SOURCE','NATIVE_CONTEXT','INPUTS','HELPERS','TOOLS','STORAGE','SCOPE',
+    'TRANSPORT_PUBLIC14','TRANSPORT_NATIVE248','PRIVATE_SEED','PUBLIC14_PREPARE','NATIVE248_PREPARE','DOWNLOAD','COMPLETE517','FINALIZE','CHILD'))
+
+
+def material_stage_failure(plan):
+    """Validate the pinned Source's fixed diagnostic record before input cleanup."""
+    try:
+        try:raw=read(plan.control/'material-stage-failure.json',4096)
+        except FileNotFoundError:return dict(status='NOT_OBSERVED')
+        value=decode(raw)
+        keys={'schema','kind','status','availability','packet','request_pin','context_pin','stdout_pin','stderr_pin','retirement_pin',*FINAL}
+        need(type(value)is dict and set(value)==keys and raw==encoded(value),'canonical closed Source failure record')
+        need(type(value['schema'])is int and value['schema']==1 and value['kind']=='CURRENT_MATERIAL_STAGE_FAILURE_RECORD_V1'
+             and value['status']=='DIAGNOSTIC_ONLY'and value['availability']in('AVAILABLE','UNAVAILABLE')
+             and all(value[k]is v for k,v in FINAL.items()),'fixed diagnostic-only Source record, never acceptance')
+        session=plan.material_session;r=session.r
+        need(session.control==plan.control and session.request==plan.control/'material-domain-request.json'
+             and r['control_root']==str(plan.control),'same held caller control')
+        request=read(plan.control/'material-domain-request.json');context=read(plan.control/'private/context.json')
+        need(request==encoded(r)and context==encoded(r['context'])and value['request_pin']==whole(value['request_pin'])==pin(request)
+             and value['context_pin']==whole(value['context_pin'])==pin(context),'same actual caller request and captured context pins')
+        rows=session.receipts;need(type(rows)is list and len(rows)<=2,'finite original material child rows')
+        stage=[row for row in rows if type(row)is dict and row.get('kind')=='STAGE'];need(len(stage)<=1,'one owned staging child')
+        row=stage[0]if stage else{};supervision=row.get('supervision')
+        def stream_pin(candidate):
+            if candidate is None:return None
+            whole(candidate,allow_empty=True);need(candidate['bytes']<=1024**2,'bounded material stream pin');return candidate
+        need(stream_pin(value['stdout_pin'])==stream_pin(row.get('output_pin')),'same owned staging stdout whole pin')
+        retirement=pin(encoded(supervision))if type(supervision)is dict else None
+        if value['retirement_pin']is not None:whole(value['retirement_pin'])
+        need(value['retirement_pin']==retirement,'same owned child retirement whole pin')
+        if value['stderr_pin']is not None:
+            need(stream_pin(value['stderr_pin'])==stream_pin(row.get('stderr_pin'))and type(supervision)is dict
+                 and supervision.get('reaped')is True and supervision.get('ownership')=='REAPED'
+                 and supervision.get('output_complete')is True and type(supervision.get('exit'))is int,'complete retired staging stderr pin')
+        packet=value['packet']
+        if value['availability']=='AVAILABLE':
+            need(session.stage_submitted is True and len(stage)==1,'packet belongs to the submitted owned staging child')
+            need(type(packet)is dict and set(packet)=={'schema','kind','phase','reason','command_ordinal'},'closed Source failure packet')
+            need(type(packet['schema'])is int and packet['schema']==1 and packet['kind']=='CURRENT_MATERIAL_STAGE_FAILURE_V1'
+                 and type(packet['phase'])is str and packet['phase']in SOURCE_FAILURE_PHASES
+                 and type(packet['reason'])is str and packet['reason']in('PHASE_FAILED','COMMAND_FAILED'),'finite Source failure phase and reason')
+            ordinal=packet['command_ordinal'];need(ordinal is None or(type(ordinal)is int and 0<=ordinal<=26),'finite Source command ordinal')
+            body=encoded(packet);need(len(body)<=1024 and value['stderr_pin']==pin(body),'whole canonical packet equals complete staging stderr')
+        else:need(packet is None,'unavailable Source reason must remain absent')
+        return dict(value,record_pin=pin(raw))
+    except BaseException:return dict(status='UNAVAILABLE_OR_UNSAFE')
+
+
 def material_failure_data(plan,*,hold=False):
     """Project existing session DATA only; never retain argv/env/error text/streams."""
     try:
@@ -390,6 +439,7 @@ def material_failure_data(plan,*,hold=False):
             child['scope_absent_twice']=type(absence)is dict and absence.get('scope')==scope and absence.get('absent_twice')is True
             result['children'].append(child)
         if hold:
+            result['source_failure']=material_stage_failure(plan)
             result['source_hold']=dict(status='NOT_OBSERVED')
             if result['stage_submitted']:
                 path=Path(decode(plan.request['material_staging']['grant_json'].encode())['storage_parent'])/('cachy-current-materials-'+plan.d['nonce'])/'HOLD.json'
@@ -398,7 +448,7 @@ def material_failure_data(plan,*,hold=False):
                     need(type(value)is dict and raw==encoded(value)and set(value)=={'status','scope','Root_acceptance'}and value['Root_acceptance']is None
                          and value['status']=='HOLD_PARTIAL_OWNED_DATA_CLOSEONLY'
                          and value['scope']=='/system.slice/cachy-current-materials-'+plan.d['nonce']+'.scope','exact selected safe Source HOLD receipt')
-                    result['source_hold']=dict(status=value['status'],pin=pin(raw),source_reason='NOT_EMITTED_BY_PINNED_SOURCE')
+                    result['source_hold']=dict(status=value['status'],pin=pin(raw),source_reason='NOT_EMITTED_IN_HOLD_RECEIPT')
                 except FileNotFoundError:pass
                 except BaseException:result['source_hold']=dict(status='UNAVAILABLE_OR_UNSAFE')
         return result
