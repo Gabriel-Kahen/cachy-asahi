@@ -5,12 +5,15 @@ import ast
 import copy
 import importlib.util
 import json
+import os
+import types
 from pathlib import Path
 import shutil
 import sys
 import tempfile
 import time
 import unittest
+from unittest.mock import patch
 
 sys.dont_write_bytecode=True
 HERE=Path(__file__).resolve().parent
@@ -41,7 +44,46 @@ POLICY=D.decode((HERE/'policy.json').read_bytes())
 def raw(value):return json.dumps(value,sort_keys=True).encode()
 
 
+
+def read_with_drift(reader, field=None, content=False):
+    with tempfile.TemporaryDirectory(prefix='fish-read-stability-DATA-') as temporary:
+        path=Path(temporary)/'leaf';path.write_bytes(b'PAYLOAD')
+        initial=path.stat();original_stat=Path.lstat;original_read=Path.read_bytes;done=False
+        fields=('st_dev','st_ino','st_mode','st_nlink','st_uid','st_gid','st_size','st_mtime_ns','st_ctime_ns','st_atime','st_atime_ns','st_mtime','st_ctime')
+        def observed(p,*args,**kwargs):
+            value=original_stat(p,*args,**kwargs)
+            if p!=path or content:return value
+            values={name:getattr(value,name) for name in fields}
+            if done:values[field]+=1
+            return types.SimpleNamespace(**values)
+        def consume(p,*args,**kwargs):
+            nonlocal done
+            raw=original_read(p,*args,**kwargs)
+            if p==path:
+                done=True
+                if content:
+                    path.write_bytes(b'MUTATED')
+                    os.utime(path,ns=(initial.st_atime_ns,initial.st_mtime_ns+1))
+            return raw
+        with patch.object(Path,'lstat',observed),patch.object(Path,'read_bytes',consume):
+            return reader(path)
+
 class Controls(unittest.TestCase):
+    def test_read_atime_only_change_is_allowed(self):
+        self.assertEqual(read_with_drift(D.read,'st_atime_ns'),b'PAYLOAD')
+        self.assertEqual(read_with_drift(D.read,'st_atime'),b'PAYLOAD')
+        def prior_whole_stat_read(path):
+            before=path.lstat();raw=path.read_bytes()
+            if path.lstat()!=before:raise ValueError('prior atime false HOLD')
+            return raw
+        with self.assertRaisesRegex(ValueError,'atime false HOLD'):
+            read_with_drift(prior_whole_stat_read,'st_atime_ns')
+
+    def test_read_content_and_each_security_metadata_change_refuse(self):
+        for field in ('st_dev','st_ino','st_mode','st_nlink','st_uid','st_gid','st_size','st_mtime_ns','st_ctime_ns'):
+            with self.subTest(field=field),self.assertRaises(ValueError):read_with_drift(D.read,field)
+        with self.assertRaises(ValueError):read_with_drift(D.read,content=True)
+
     @classmethod
     def setUpClass(cls):
         cls.held_temp=tempfile.TemporaryDirectory(prefix='fish02-held32-DATA-')
@@ -71,8 +113,14 @@ class Controls(unittest.TestCase):
         value=D.source(self.root,self.map)
         self.assertTrue(all(v is None for v in value['actual'].values()))
         self.assertEqual(len([n for n in value['files'] if n.startswith('held-source32/')]),32)
-        self.assertEqual(sum(v['bytes'] for n,v in value['files'].items() if n.startswith('held-source32/')),591897)
+        self.assertEqual(sum(v['bytes'] for n,v in value['files'].items() if n.startswith('held-source32/')),D.BASE_BYTES)
         self.admit()
+        proof_path=self.root/D.PREFIX/'base-read-delta.json';original=proof_path.read_bytes()
+        proof=D.decode(original);proof['changes'][0]['seams'][0]['after']='MISSING_INVERSE_SEAM'
+        proof_path.write_bytes(json.dumps(proof).encode())
+        current=D.decode((self.root/'held-source32'/D.BASE_PREFIX/'source-map.json').read_bytes())
+        with self.assertRaises(ValueError):D.original_base(self.root,current)
+        proof_path.write_bytes(original)
 
     def test_outer_body_mode_missing_extra_and_source32_tamper_refuse(self):
         path=self.root/D.PREFIX/'payload.py';original=path.read_bytes()

@@ -34,3 +34,15 @@ register/publish/read back the new workflow/Source, issue actual authority, and
 perform a fresh hosted pair plus independent validation. Inherited threaded
 acquisition means the Source's internal timer alone is not a hard whole-tree
 resource guarantee. No unknown bootstrap/swap/domain bound is silently passed.
+
+## Maintained read-stability successor
+
+PR471's hosted fresh-checkout CI held in the old whole-stat comparison: the read
+itself updated atime. The maintained guard now compares device, inode, mode,
+link count, UID, GID, size and nanosecond mtime/ctime, excluding only atime.
+Seventeen fenced controls include deterministic atime-only acceptance (and the
+prior false-HOLD counterfactual), each security-field refusal and content drift.
+The original frozen Source32/map above remains historical and unchanged.
+A rebuilt current base has32 files/592443 bytes and map6521B SHA256
+`c1ac908dade524987e4b24fbde5d808ade2629edfa8b965b37f85a798abafd64`.
+It requires a new minimal Source/public readback and separate Root issuance.

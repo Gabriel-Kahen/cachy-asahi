@@ -121,10 +121,16 @@ introduced; Root independently validates actual output before acceptance.
 python3 -I -B -Werror::ResourceWarning scripts/ci/fish-config02-native-source/test_data.py
 ```
 
-Fifteen actor-fenced controls pass. They cover exact construction/inverse,
+Seventeen actor-fenced controls pass. They cover exact construction/inverse,
 missing/tampered source, disabled/stale checks, all comparison booleans,
 source/runtime/admission refusal, ordinary argv and ownership/resource/mount
 refusals, supervisor first-failure retention, empty/unsafe output, and composed
 positive/audit/build/check/comparison/foreign-cleanup models. These models execute
 neither Fish, GPG, makepkg nor Docker. The workflow syntax and generated Source
 are separately checked as DATA. Actual hosted execution remains NOT RUN.
+
+The maintained read guard compares device/inode/mode/link count/UID/GID/size and
+nanosecond mtime/ctime. Read-updated atime is excluded. The prior frozen Source32
+remains immutable; reconstructing these corrected bodies yields a new map that
+requires separate publication/readback and Root issuance. Two deterministic read
+regressions allow atime-only changes and refuse content/security-metadata drift.

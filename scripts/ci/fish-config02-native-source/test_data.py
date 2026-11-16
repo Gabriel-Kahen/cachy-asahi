@@ -34,7 +34,46 @@ def selected():
     p=C.load(HERE/'profile.json');a=authority(p,'ROOT_FISH02_HOSTED_ADMISSION_V1');r=authority(p,'ROOT_FISH02_HOSTED_RUNTIME_V1');r.update(bootstrap_resource_domain=dict(sha256='d'*64),external_supervision=dict(sha256='e'*64));return p,a,r
 
 
+
+def read_with_drift(reader, field=None, content=False):
+    with tempfile.TemporaryDirectory(prefix='fish-read-stability-DATA-') as temporary:
+        path=Path(temporary)/'leaf';path.write_bytes(b'PAYLOAD')
+        initial=path.stat();original_stat=Path.lstat;original_read=Path.read_bytes;done=False
+        fields=('st_dev','st_ino','st_mode','st_nlink','st_uid','st_gid','st_size','st_mtime_ns','st_ctime_ns','st_atime','st_atime_ns','st_mtime','st_ctime')
+        def observed(p,*args,**kwargs):
+            value=original_stat(p,*args,**kwargs)
+            if p!=path or content:return value
+            values={name:getattr(value,name) for name in fields}
+            if done:values[field]+=1
+            return types.SimpleNamespace(**values)
+        def consume(p,*args,**kwargs):
+            nonlocal done
+            raw=original_read(p,*args,**kwargs)
+            if p==path:
+                done=True
+                if content:
+                    path.write_bytes(b'MUTATED')
+                    os.utime(path,ns=(initial.st_atime_ns,initial.st_mtime_ns+1))
+            return raw
+        with patch.object(Path,'lstat',observed),patch.object(Path,'read_bytes',consume):
+            return reader(path)
+
 class Controls(unittest.TestCase):
+    def test_read_atime_only_change_is_allowed(self):
+        self.assertEqual(read_with_drift(C.read,'st_atime_ns'),b'PAYLOAD')
+        self.assertEqual(read_with_drift(C.read,'st_atime'),b'PAYLOAD')
+        def prior_whole_stat_read(path):
+            before=path.lstat();raw=path.read_bytes()
+            if path.lstat()!=before:raise ValueError('prior atime false HOLD')
+            return raw
+        with self.assertRaisesRegex(ValueError,'atime false HOLD'):
+            read_with_drift(prior_whole_stat_read,'st_atime_ns')
+
+    def test_read_content_and_each_security_metadata_change_refuse(self):
+        for field in ('st_dev','st_ino','st_mode','st_nlink','st_uid','st_gid','st_size','st_mtime_ns','st_ctime_ns'):
+            with self.subTest(field=field),self.assertRaises(ValueError):read_with_drift(C.read,field)
+        with self.assertRaises(ValueError):read_with_drift(C.read,content=True)
+
     def test_constructor_exact_current_Main_recipe_runtime_and_null_actuals(self):
         with tempfile.TemporaryDirectory()as temporary:
             out=Path(temporary)/'Source';report=P.construct(ROOT,out)

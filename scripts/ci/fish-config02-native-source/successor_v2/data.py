@@ -7,7 +7,9 @@ import re
 import stat
 
 PREFIX = 'scripts/ci/fish-config02-native-source/successor_v2/'
-BASE_MAP = 'dfd91945cef9a3d3c7ffc73ac06252d6f54514f880071b2951b4e698fc5d6909'
+BASE_MAP = 'c1ac908dade524987e4b24fbde5d808ade2629edfa8b965b37f85a798abafd64'
+BASE_MAP_BYTES = 6521
+BASE_BYTES = 592443
 BASE_PREFIX = 'scripts/ci/fish-config02-native-source/'
 ENV_ANCHOR = "                    if env:clean.update(env)"
 ENV_PROJECTION = "                    clean['DOCKER_HOST']=os.environ['CACHY_FISH02_OWNED_DOCKER_HOST']\n                    clean['DOCKER_BUILDKIT']='0'\n                    clean['TMPDIR']=os.environ['CACHY_FISH02_OWNED_TMPDIR']\n" + ENV_ANCHOR
@@ -35,7 +37,8 @@ def read(path, cap=2*1024**2, empty=False):
     info = path.lstat()
     need(stat.S_ISREG(info.st_mode) and info.st_nlink == 1 and (0 if empty else 1) <= info.st_size <= cap
          and not info.st_mode & 0o022, 'bounded ordinary DATA body')
-    body = path.read_bytes(); need(len(body) == info.st_size and path.lstat() == info, 'unchanged whole DATA')
+    identity = lambda s: (s.st_dev, s.st_ino, s.st_mode, s.st_nlink, s.st_uid, s.st_gid, s.st_size, s.st_mtime_ns, s.st_ctime_ns)
+    body = path.read_bytes(); need(len(body) == info.st_size and identity(path.lstat()) == identity(info), 'unchanged whole DATA')
     return body
 
 
@@ -55,18 +58,41 @@ def source(root, expected):
         need(dict(pin(read(path)), mode=stat.S_IMODE(path.stat().st_mode)) == row and row['mode'] == 0o644,
              'whole successor body/mode: '+name)
     base = root/'held-source32'; raw = read(base/BASE_PREFIX/'source-map.json')
-    need(pin(raw) == dict(bytes=6521,sha256=BASE_MAP), 'whole immutable Source32 map')
+    need(pin(raw) == dict(bytes=BASE_MAP_BYTES,sha256=BASE_MAP), 'whole immutable Source32 map')
     prior = decode(raw)
     subset = {n[len('held-source32/'):]:r for n,r in rows.items() if n.startswith('held-source32/')}
     need(subset == dict(prior['files'], **{BASE_PREFIX+'source-map.json':dict(pin(raw),mode=0o644)})
-         and len(subset) == 32 and sum(r['bytes'] for r in subset.values()) == 591897,
+         and len(subset) == 32 and sum(r['bytes'] for r in subset.values()) == BASE_BYTES,
          'exact unchanged whole Source32 subtree')
+    original_base(root, prior)
     program = decode(read(root/PREFIX/'owner-program.json'))
     need(program['base_source_map_sha256'] == BASE_MAP and program['schema'] == 1, 'explicit held Source32 delegation')
     need(set(program['files']) == {n for n in rows if not n.startswith('held-source32/') and n != PREFIX+'owner-program.json'}, 'complete owner-program namespace')
     for name, row in program['files'].items():
         need(rows[name] == row, 'whole owner-program closure')
     return value
+
+
+
+def original_base(root, current):
+    proof = decode(read(root/PREFIX/'base-read-delta.json'))
+    need(proof['kind'] == 'FISH02_BASE32_READ_STABILITY_SUCCESSOR_DELTA' and proof['actual'] is None,
+         'explicit read-stability successor, no original Source relabel')
+    prior = dict(current, files=dict(current['files']))
+    for change in proof['changes']:
+        body = read(root/'held-source32'/change['path'])
+        need(dict(pin(body), mode=0o644) == change['after'], 'exact updated base leaf')
+        text = body.decode()
+        for seam in reversed(change['seams']):
+            need(text.count(seam['after']) == 1, 'one exact base-read inverse seam')
+            text = text.replace(seam['after'], seam['before'])
+        need(dict(pin(text.encode()), mode=0o644) == change['before'], 'whole original base leaf inverse')
+        prior['files'][change['path']] = change['before']
+    raw = (json.dumps(prior, indent=2, sort_keys=True)+'\n').encode()
+    need(pin(raw) == proof['original_source_map'] == dict(bytes=6521,sha256='dfd91945cef9a3d3c7ffc73ac06252d6f54514f880071b2951b4e698fc5d6909')
+         and len(prior['files'])+1 == proof['original_source_files'] == 32
+         and sum(r['bytes'] for r in prior['files'].values())+len(raw) == proof['original_source_bytes'] == 591897,
+         'complete original Source32 map/body reconstruction; frozen exports unchanged')
 
 
 def admission(root, map_sha, admission_raw, runtime_raw, admission_sha, runtime_sha, env, now):

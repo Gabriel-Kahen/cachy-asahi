@@ -9,7 +9,7 @@ import stat
 
 HERE=Path(__file__).resolve().parent
 s=importlib.util.spec_from_file_location('fish02_v2_data',HERE/'data.py');D=importlib.util.module_from_spec(s);s.loader.exec_module(D)
-LOCAL=('data.py','hosted_owner.py','payload.py','retain.py','policy.json','README.md','admission.TEMPLATE.json','runtime.TEMPLATE.json')
+LOCAL=('data.py','hosted_owner.py','payload.py','retain.py','policy.json','README.md','admission.TEMPLATE.json','runtime.TEMPLATE.json','base-read-delta.json')
 WORKFLOW='.github/workflows/native-arm-fish-config02-source-v2.yml'
 
 
@@ -17,7 +17,7 @@ def construct(base,workflow,output):
     base,workflow,output=map(Path,(base,workflow,output))
     D.need(all(p.is_absolute() and p==p.resolve() for p in (base,workflow,output))
            and not output.exists() and not output.is_relative_to(base),'fresh disjoint DATA output')
-    body=D.read(base/D.BASE_PREFIX/'source-map.json');D.need(D.pin(body)==dict(bytes=6521,sha256=D.BASE_MAP),'fixed Source32 map')
+    body=D.read(base/D.BASE_PREFIX/'source-map.json');D.need(D.pin(body)==dict(bytes=D.BASE_MAP_BYTES,sha256=D.BASE_MAP),'fixed Source32 map')
     prior=D.decode(body);names=set(prior['files'])|{D.BASE_PREFIX+'source-map.json'}
     found={str(p.relative_to(base)) for p in base.rglob('*') if p.relative_to(base).parts[0]!='.git' and (p.is_file() or p.is_symlink())}
     D.need(found==names and len(names)==32,'complete exact Source32 namespace')
@@ -26,7 +26,7 @@ def construct(base,workflow,output):
         raw=D.read(base/name);mode=stat.S_IMODE((base/name).stat().st_mode)
         D.need(mode==0o644 and (name not in prior['files'] or dict(D.pin(raw),mode=mode)==prior['files'][name]),'whole held Source32 body/mode')
         bodies['held-source32/'+name]=raw
-    D.need(sum(map(len,bodies.values()))==591897,'whole held Source32 bytes')
+    D.need(sum(map(len,bodies.values()))==D.BASE_BYTES,'whole held Source32 bytes')
     bodies.update({D.PREFIX+n:D.read(HERE/n) for n in LOCAL});bodies[WORKFLOW]=D.read(workflow)
     bodies['LICENSE']=bodies['held-source32/LICENSE']
     program=dict(schema=1,base_source_map_sha256=D.BASE_MAP,

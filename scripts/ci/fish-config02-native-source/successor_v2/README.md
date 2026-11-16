@@ -8,12 +8,16 @@ semantic finisher, comparator and historical acceptance remain unchanged.
 
 `prepare.py --base <exact Source32 export> --workflow <new v2 workflow> --output
 <fresh directory>` constructs a fresh closed Source containing the complete held
-32-file tree under `held-source32/`, this finite owner closure, and only the new
+corrected32-file tree under `held-source32/`, this finite owner closure, and only the new
 `.github/workflows/native-arm-fish-config02-source-v2.yml` workflow at its root.
 Its generated `source-map.json` pins the entire non-Git namespace. Its generated
 `owner-program.json` pins all new code/policy/workflow bytes and the exact held
-Source32 map. Source32 is 32 files/591897 bytes, map SHA256
-`dfd91945cef9a3d3c7ffc73ac06252d6f54514f880071b2951b4e698fc5d6909`.
+Source32 map. The corrected32-file base is 592443 bytes, map SHA256
+`c1ac908dade524987e4b24fbde5d808ade2629edfa8b965b37f85a798abafd64`.
+Its two changed leaves are exactly inverted by `base-read-delta.json`; the original
+591897-byte Source32/map dfd91945 remains immutable and is reconstructed in full.
+This maintained successor requires a new minimal Source and public readback; the
+old44-file export is not granted current readiness.
 Actual public commit/ref, job/run, images, receipt hashes and grants remain NULL.
 
 The workflow retains five inputs: external successor `source_map_sha256`, exact
@@ -79,7 +83,7 @@ Two explicit adapters are reversible: one original entry line gains dedicated
 Docker endpoint, TMPDIR and legacy-backend environment propagation; undoing this
 single insertion restores every original entry byte. Its Source verifier is
 explicitly delegated to recheck the whole outer successor namespace and the
-unchanged held32 subtree before applying the original verifier to that subtree.
+exact corrected32 subtree plus complete original-map inverse before applying the original verifier to that subtree.
 All generic builder/bootstrap/audit/comparator/finisher bodies are byte exact.
 The existing Fish-only predetermined-name/nonce/swap4GiB projection is retained.
 No native16K/M2, target lifecycle, project-package signature or release claim follows.

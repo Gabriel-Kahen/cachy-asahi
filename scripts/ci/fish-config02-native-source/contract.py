@@ -35,7 +35,8 @@ def ordinary(path):
 def read(path,cap=2*1024**2,empty=False):
     path=ordinary(path);s=path.lstat()
     need(stat.S_ISREG(s.st_mode)and s.st_nlink==1 and s.st_uid in(0,os.getuid())and not s.st_mode&0o022 and (0 if empty else 1)<=s.st_size<=cap,'bounded owned ordinary DATA required')
-    raw=path.read_bytes();need(len(raw)==s.st_size and path.lstat()==s,'DATA changed during read');return raw
+    identity=lambda v:(v.st_dev,v.st_ino,v.st_mode,v.st_nlink,v.st_uid,v.st_gid,v.st_size,v.st_mtime_ns,v.st_ctime_ns)
+    raw=path.read_bytes();need(len(raw)==s.st_size and identity(path.lstat())==identity(s),'DATA changed during read');return raw
 
 
 def load(path,cap=2*1024**2):return json.loads(read(path,cap))
