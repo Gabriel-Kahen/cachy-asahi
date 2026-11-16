@@ -9,7 +9,7 @@ import stat
 
 HERE=Path(__file__).resolve().parent
 s=importlib.util.spec_from_file_location('fish02_v2_data',HERE/'data.py');D=importlib.util.module_from_spec(s);s.loader.exec_module(D)
-LOCAL=('data.py','hosted_owner.py','host_tools.py','payload.py','retain.py','policy.json','README.md','admission.TEMPLATE.json','runtime.TEMPLATE.json','base-read-delta.json')
+LOCAL=('data.py','hosted_owner.py','host_tools.py','host_prerequisites.py','payload.py','retain.py','policy.json','README.md','admission.TEMPLATE.json','runtime.TEMPLATE.json','base-read-delta.json')
 WORKFLOW='.github/workflows/native-arm-fish-config02-source-v2.yml'
 
 

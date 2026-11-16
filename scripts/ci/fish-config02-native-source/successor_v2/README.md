@@ -114,7 +114,7 @@ All generic builder/bootstrap/audit/comparator/finisher bodies are byte exact.
 The existing Fish-only predetermined-name/nonce/swap4GiB projection is retained.
 No native16K/M2, target lifecycle, project-package signature or release claim follows.
 
-The controller's 1200-second deadline includes setup/acquisition/builds; cleanup
+After the separately bounded CI prerequisite, the pair's 1200-second deadline includes owned setup/acquisition/builds; cleanup
 is bounded by90 seconds. Its external scope has a 1290-second kernel wall cap.
 The old inner pair/build limits are not increased. The entire old pair must
 succeed naturally, produce both real semantic check markers and strict archive/
@@ -138,3 +138,87 @@ Run `python3 -I -B scripts/ci/fish-config02-native-source/successor_v2/test_data
 Also run `python3 -I -B scripts/ci/fish-config02-native-source/successor_v2/test_host_tools.py`.
 These fenced tests perform pure plan/JSON/inverse/namespace controls and tiny
 local DATA copies only. Operational acceptance remains NOT RUN.
+
+### Explicit Ubuntu24 CI prerequisite successor (Source47 proposal)
+
+Consumed Source46 run43841931526/job133212497901 held before storage/domain/seed:
+`bsdtar` was absent from both reviewed paths. The other12 required tools were
+observed, along with systemd255, required cgroup controllers and real loop-control.
+Neither owner nor daemon was submitted; cleanup had no errors and storage was
+absent. This is retained prebuild DATA, not a Fish02 native pair. Source46/case
+and old exports are immutable; this successor needs a separate Source/ref/run.
+
+The held349 bootstrap contains libarchive inside its later builder image, while
+the held host entry requires bsdtar before entering that bootstrap. No supported
+qualified host bsdtar export/path is provided there. This successor explicitly
+provisions Ubuntu's literal `libarchive-tools` on the disposable Ubuntu24.04 ARM64
+GitHub CI host. It performs no project package installation on a user's host or
+Asahi target, adds no repository/key/trust configuration, and supplies no tar
+substitution or arbitrary missing-tool fallback. Root's new accepted runtime
+must explicitly contain the exact `host_prerequisites` declaration from policy;
+its template is NULL and the old runtime refuses before setup.
+
+`host_prerequisites.prepare(owner,env,machine)` is a small literal-package API.
+The owner supplies an already-admitted bounded runner, tool observations, output,
+policy/deadline and receipt writer. It can be reused by onboarding only with the
+same explicit context/declaration and supervised callback contract; it is not a
+general package acquisition interface. Root/fixture filesystem seams are never
+chosen from input/environment by the actual controller.
+
+Before any mutation, the helper requires root inside this manual public-repository
+GitHub workflow on native ARM64 Ubuntu24.04 (`ImageOS=ubuntu24`), verifies dpkg's
+actual arm64 architecture, and snapshots only existing PUBLIC APT source/config/
+keyring hashes. It never scans authentication files or private key homes. Existing
+insecure/trusted-without-signature source settings refuse. APT uses normal
+repository signature and validity checks with insecure/unauthenticated permission
+explicitly false; no dependency/signature/hook bypass or trust/key change exists.
+
+Nine commands, all through the controller's same frozen owned-child primitive:
+
+1. `dpkg --print-architecture` (15s).
+2. Exact `dpkg-query` initial package state (15s; absent1 is DATA).
+3. APT update (120s; Error-Mode=any, no retries, HTTP/HTTPS timeout15s).
+4. `apt-cache policy libarchive-tools` (15s), parse exactly one candidate.
+5. Normal dependency simulation of `libarchive-tools=SELECTED_VERSION` (30s).
+6. Authenticated download-only install of that exact version (90s).
+7. No-download normal install of that exact version (120s).
+8. Exact post-install package/version/architecture/state query (15s).
+9. Actual `bsdtar --version` (15s), with a freshly qualified bsdtar executable.
+
+The exact candidate is durably recorded BEFORE download/install. No-remove and
+no-install-recommends constrain the normal transaction; dependencies, package
+signatures and maintainer hooks remain enabled. All public repository/key/trust
+configuration hashes must remain unchanged after every command. Lists, archive
+cache and package metadata files live only in one new fixed owned cache, which
+is removed on success and separately attempted during failure cleanup. Public
+retention excludes that cache and preserves only its bounded receipt/command DATA.
+Host-installed Ubuntu prerequisites are intentionally not removed from the
+throwaway CI runner; no rollback or unchanged-host claim is made for that phase.
+
+Proposed finite budgets require NEW Root review. The prerequisite ceiling450s
+covers435s of command maxima plus15s overhead, at most9 commands, each <=1MiB
+combined output,512MiB cache/4096 nodes,128MiB per child-written file,512MiB virtual
+AS and finite per-command CPU. The existing512MiB/1CPU/64-PID controller cgroup is
+unchanged; controller virtual AS rises explicitly from256MiB to512MiB for APT
+metadata. Owned-child output/cache/time watchers use WNOWAIT then transfer the
+same original child to the frozen reap primitive; cancellation, nonzero exit,
+forced retirement or overrun HOLD. The rare0.5s emergency handoff is retirement
+only inside cleanup, never renewed work or accepted completion.
+
+Controller work is now450+1200=1650s with90s cleanup, so the workflow controller
+scope is1740s, operation step30min and job35min. The pair deadline restarts only
+within that aggregate bound after prerequisites; its1200s limit and all original
+owner/daemon/build/cleanup/memory/CPU/PID/storage constraints remain unchanged.
+Capacity is checked before prerequisite work and again before storage allocation.
+After installation changes `/usr` directory metadata, ALL13 tools are freshly
+observed, and existing executable bodies are rejoined before any subsequent use.
+The full preflight repeats after cache cleanup and before owned storage, daemon,
+owner or seed. The actual prerequisite receipt is joined into the owner-domain
+marker; the ordinary payload refuses seed without it.
+
+Fenced controls use only synthetic Ubuntu/repository/executable/package-state DATA
+and mocked child custody. No APT/download/install, sudo, GPG, Docker, service,
+mount, lease, credentials, native build, dispatch or publication occurred here.
+Actual selected Ubuntu version, install result and future host capabilities stay
+unobserved. Neither the prerequisite proposal nor local tests qualify a Fish02
+native pair, Asahi/M2 target, performance or release.

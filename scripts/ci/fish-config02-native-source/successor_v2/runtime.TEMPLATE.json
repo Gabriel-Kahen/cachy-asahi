@@ -4,6 +4,7 @@
   "created_utc": null,
   "expires_utc": null,
   "external_supervision": null,
+  "host_prerequisites": null,
   "issued_by": null,
   "kind": "ROOT_FISH02_HOSTED_RUNTIME_V1",
   "nonce": null,

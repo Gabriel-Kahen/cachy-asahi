@@ -111,6 +111,8 @@ def admission(root, map_sha, admission_raw, runtime_raw, admission_sha, runtime_
         need(type(value['created_utc']) is int and type(value['expires_utc']) is int
              and value['created_utc'] <= now < value['expires_utc'] and value['expires_utc']-value['created_utc'] <= 3600
              and re.fullmatch('[0-9a-f]{32}',value['nonce'] or ''), 'fresh bounded Root delegation')
+    policy=decode(read(root/PREFIX/'policy.json'))
+    need(r.get('host_prerequisites')==policy['host_prerequisites'], 'separate explicit Root Ubuntu CI prerequisite admission required')
     need(a['nonce'] == r['nonce'] and env.get('GITHUB_REPOSITORY') == 'Gabriel-Kahen/cachy-asahi'
          and env.get('GITHUB_EVENT_NAME') == 'workflow_dispatch' and env.get('GITHUB_RUN_ATTEMPT') == '1'
          and re.fullmatch('[1-9][0-9]{1,19}',env.get('GITHUB_RUN_ID','')), 'single hosted attempt/nonce')
@@ -168,6 +170,12 @@ def observation(value, a, map_sha, policy, self_pid, self_start, self_cgroup):
          and value['source_map_sha256'] == map_sha and value['owner']['pid'] == self_pid
          and value['owner']['starttime'] == self_start and value['owner']['cgroup'] == self_cgroup,
          'actual post-dispatch Source/PID/start/cgroup observation join')
+    prerequisite=value.get('host_prerequisite',{})
+    need(prerequisite.get('status')=='PASS_CI_LIBARCHIVE_TOOLS_PREREQUISITE_ONLY'and prerequisite.get('declaration')==policy['host_prerequisites']and
+         prerequisite.get('package')=='libarchive-tools'and prerequisite.get('installed')==dict(package='libarchive-tools',state='install ok installed',version=prerequisite.get('selected_version'),architecture='arm64')and
+         type(prerequisite.get('selected_version'))is str and re.fullmatch('[A-Za-z0-9.+:~_-]{1,128}',prerequisite['selected_version'])and
+         type(prerequisite.get('receipt',{}).get('bytes'))is int and 0<prerequisite['receipt']['bytes']<=1024**2 and re.fullmatch('[0-9a-f]{64}',prerequisite['receipt']['sha256']),
+         'actual recorded CI prerequisite before any native seed')
     domain(value['owner']['limits'],policy['owner']);domain(value['daemon']['limits'],policy['daemon'])
     need(value['daemon']['cgroup'] != self_cgroup and value['endpoint'].startswith('unix:///')
          and value['storage_bytes'] == policy['storage_bytes'] and value['backend'] == policy['bootstrap_backend'],
