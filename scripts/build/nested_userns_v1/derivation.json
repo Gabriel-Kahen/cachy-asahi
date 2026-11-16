@@ -1,0 +1,75 @@
+{
+  "files": {
+    "build_v3.py": {
+      "edits": [
+        {
+          "after": "Version 3: build reviewed recipes",
+          "before": "Version 2: build reviewed recipes"
+        },
+        {
+          "after": "import source_materials\nfrom nested_userns_v1 import policy as namespace_policy\n",
+          "before": "import source_materials\n"
+        },
+        {
+          "after": "    parser.add_argument('--nested-seccomp-profile', type=Path, help='explicit reviewed nested namespace profile; default Docker policy otherwise')\n    parser.add_argument('--nested-seccomp-sha256', help='independently reviewed exact nested profile SHA-256')\n    parser.add_argument('--expected-packages'",
+          "before": "    parser.add_argument('--expected-packages'"
+        },
+        {
+          "after": "    try:\n        namespace_request = namespace_policy.request(args.nested_seccomp_profile, args.nested_seccomp_sha256, args.network, args.mode)\n        evidence['nested_namespaces'] = None\n        if args.source_date_epoch",
+          "before": "    try:\n        if args.source_date_epoch"
+        },
+        {
+          "after": "        namespace_engine = namespace_policy.engine() if namespace_request is not None else None\n        # A fresh unique directory",
+          "before": "        # A fresh unique directory"
+        },
+        {
+          "after": "        created = True\n        if namespace_request is not None:\n            evidence['nested_namespaces'] = namespace_policy.retain(namespace_request, namespace_engine, out)\n        inputs",
+          "before": "        created = True\n        inputs"
+        },
+        {
+          "after": "        command[2:2] = namespace_policy.arguments(out, evidence['nested_namespaces'])\n        evidence['command'] = command",
+          "before": "        evidence['command'] = command"
+        },
+        {
+          "after": "        namespace_policy.verify(out, evidence['nested_namespaces'])\n        evidence['artifacts'] =",
+          "before": "        evidence['artifacts'] ="
+        },
+        {
+          "after": "        if evidence['nested_namespaces'] is not None:\n            evidence['files']['nested-seccomp.json'] = digest(out / 'nested-seccomp.json')\n        evidence['status'] = 'built-package-static-pass'",
+          "before": "        evidence['status'] = 'built-package-static-pass'"
+        }
+      ],
+      "parent": "build_v2.py",
+      "parent_pin": {
+        "bytes": 13242,
+        "sha256": "37242a5680c0cb587087042455782478dac0f574f977a5f696c97d29eac39b43"
+      }
+    },
+    "compare_v3.py": {
+      "edits": [
+        {
+          "after": "Version 3: verify evidence",
+          "before": "Version 2: verify evidence"
+        },
+        {
+          "after": "from build_v3 import bind_artifact\nfrom nested_userns_v1 import policy as namespace_policy",
+          "before": "from build_v2 import bind_artifact"
+        },
+        {
+          "after": "    if 'nested_namespaces' not in record:\n        raise ValueError('v3 explicit default/custom namespace policy binding missing')\n    namespace_policy.verify(path, record['nested_namespaces'])\n    if record['nested_namespaces'] is not None and record.get('files', {}).get('nested-seccomp.json') != record['nested_namespaces']['profile']['sha256']:\n        raise ValueError('retained namespace policy absent from evidence closure')\n    if record.get('status') !=",
+          "before": "    if record.get('status') !="
+        },
+        {
+          "after": "'entry_script_sha256', 'nested_namespaces'):",
+          "before": "'entry_script_sha256'):"
+        }
+      ],
+      "parent": "compare_v2.py",
+      "parent_pin": {
+        "bytes": 5963,
+        "sha256": "89c606044b587ea772d5bbab4bad55c09dc23a7080900a9ad51839b2f516215b"
+      }
+    }
+  },
+  "source": "522e7cc8d2446416849dc5c1f84642cc46f82a06"
+}
