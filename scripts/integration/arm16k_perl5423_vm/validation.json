@@ -24,12 +24,14 @@
   "actual_prepare_r1": "CLOSED_HOLD_CLEANUP_NAME_CAPTURE_DEFECT_REPRODUCED_BY_ACTUAL_SCOPE_AST_REGRESSION_NO_NEW_ACTOR",
   "checks": {
     "committed_Git_source_roundtrip": "PASS_COMMITTED_TRACKED_SOURCE_EXPORT_AND_FENCED_PREDICATE",
+    "host_API_lifetimes": "PASS_HOST_PERL5422_BZIP2213_ZLIB2222_NOT_CANDIDATE_ARM16K",
     "python_fenced_controls": 46,
     "shell_syntax": "PASS",
     "source_membership": "PASS",
     "synthetic_guest_shell_data": "PASS_BINARY_EMPTY_LENGTH_SHA256_AND_OFFICIAL_POLICY_NO_GPG_ALPM"
   },
   "comparison_prerequisite": "NO_CMP_BOUNDED_STAT_SHA256_FAILURES_PROPAGATE",
+  "compression_lifetimes": "LEXICAL_NATIVE_STREAM_DESTRUCTION_BEFORE_ITHREAD_CLONE_ALL_ROUNDTRIPS_AND_THREAD_SHARED_JOIN_RETAINED",
   "expected_ABI_intake": "EXACT81_ROWS_SEPARATE_INPUT_KIND_ACTUAL_GUEST_FIELDS_NULL_NO_RUNTIME_CREDIT",
   "host_Docker_CLI": "EXPLICIT_ROOT_DESCRIPTOR_NO_PATH_FALLBACK_INCLUDING_CLEANUP",
   "known_prerequisites": {
@@ -47,6 +49,6 @@
   "unfinished": [
     "Root supplies future16K baseline/runtime/trust/resource certificates and fresh exact controller authorities",
     "actual prepared actor, PAM/QMP/ownership/ELF/functional/resource retirement qualification NOT_RUN",
-    "new roundtrip Perl API and exact paths remain unexecuted on candidate; require genuine Root probe qualification"
+    "Corrected compression lifetimes and unchanged full functional success contract require genuine candidate ARM16K qualification"
   ]
 }

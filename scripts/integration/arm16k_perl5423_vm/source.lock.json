@@ -17,9 +17,9 @@
       "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
     },
     "README.md": {
-      "bytes": 30955,
+      "bytes": 33249,
       "mode": 420,
-      "sha256": "7b582cc7b332147c463e606c3c3443cefacf4e7c55f4704a2ca43359656f843d"
+      "sha256": "5ffa890c25260f0038a60f7f2cfa747048b8f3652828991b5f612181599d645e"
     },
     "actor.py": {
       "bytes": 12793,
@@ -132,9 +132,9 @@
       "sha256": "9be11484131188df57b7f23fec3fe9e75b4fe9066833f752fed7353b7b513aa0"
     },
     "guest/runtime.pl": {
-      "bytes": 3548,
+      "bytes": 3640,
       "mode": 420,
-      "sha256": "4d6d4cff57e0f5cec2dd30e960ecc74270648d822cbdfbcd3933f82478903ce2"
+      "sha256": "149bf77cf55534d3d9a67e85e354165188ea5769776a62e380c6d72964903d01"
     },
     "guest/smoke.t": {
       "bytes": 129,
@@ -266,10 +266,15 @@
       "mode": 420,
       "sha256": "04056d1b7be0f05b54f5f70f8d0e81c8b6466e35dddf04a7c55f7e4a9e22c664"
     },
-    "validation.json": {
-      "bytes": 2930,
+    "test_runtime_lifetimes.py": {
+      "bytes": 3750,
       "mode": 420,
-      "sha256": "039297d3ab9b57a54cf56a1987c442977fbf6af5dafc9e39fdfd81d5e3174b97"
+      "sha256": "831381e453f2353c8be8472499236b9c599cd549506e31a893898f5d96f1858a"
+    },
+    "validation.json": {
+      "bytes": 3163,
+      "mode": 420,
+      "sha256": "16c3a20b4eb0a0f309015d63d0c6965d53b67193bb99b22129fefec1985dd74a"
     }
   },
   "kind": "ARM16K_PERL5423_CASE_SOURCE_LOCK_V1",
