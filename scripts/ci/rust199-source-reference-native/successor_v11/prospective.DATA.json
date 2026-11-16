@@ -1,0 +1,22 @@
+{
+  "Root_review": null,
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "image": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "bytes": 42985162,
+  "files": 340,
+  "map_sha256": "3974a68677faadf1136f21539b595f3f0da85fa26bd72eb8d0fa8c6e922894f1",
+  "matching_result_reader": null,
+  "profile": {
+    "bytes": 1490,
+    "sha256": "329dba1e8cc240edfb91a62ac3d99e542825604f7df57d060d5e589b9171a160"
+  },
+  "status": "UNADMITTED_ROOTFS_READABLE_STAGING_SOURCE_DATA",
+  "tree": "596fe9277740365fa3e29ee11f2b75ae7ce8bbc8"
+}
