@@ -1,0 +1,96 @@
+name: native-arm-fish-config02-source-v2
+on:
+  workflow_dispatch:
+    inputs:
+      source_map_sha256:
+        description: Root-reviewed complete generated Source map SHA-256
+        type: string
+        required: true
+      admission_sha256:
+        description: Whole exact Root admission JSON SHA-256
+        type: string
+        required: true
+      admission_json:
+        description: Separately Root-issued admission; template is not authority
+        type: string
+        required: true
+      runtime_sha256:
+        description: Whole exact external Root runtime/resource review SHA-256
+        type: string
+        required: true
+      runtime_json:
+        description: Separately Root-issued runtime/custody policy
+        type: string
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: native-arm-fish-config02-source-v2
+  cancel-in-progress: false
+jobs:
+  pair:
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Fresh admitted owned domains and current Fish02 pair
+        timeout-minutes: 24
+        env:
+          SOURCE_MAP_SHA256: ${{ inputs.source_map_sha256 }}
+          ADMISSION_SHA256: ${{ inputs.admission_sha256 }}
+          RUNTIME_SHA256: ${{ inputs.runtime_sha256 }}
+          ROOT_FISH02_ADMISSION_JSON: ${{ inputs.admission_json }}
+          ROOT_FISH02_RUNTIME_JSON: ${{ inputs.runtime_json }}
+          CACHY_OLD_FOUR_SCHEMA: '1'
+          CACHY_OLD_FOUR_SOURCE_EPOCH: '1791748800'
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01 }}
+          CACHY_OLD_FOUR_JBIGKIT_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_01 }}
+          CACHY_OLD_FOUR_JBIGKIT_02: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_02 }}
+          CACHY_OLD_FOUR_JBIGKIT_SIG_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_SIG_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_02: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_02 }}
+          CACHY_OLD_FOUR_LIBTIFF_03: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_03 }}
+          CACHY_OLD_FOUR_LIBTIFF_04: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_04 }}
+          CACHY_OLD_FOUR_LIBTIFF_05: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_05 }}
+          CACHY_OLD_FOUR_LIBTIFF_06: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_06 }}
+          CACHY_OLD_FOUR_LIBTIFF_07: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_07 }}
+          CACHY_OLD_FOUR_LIBTIFF_08: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_08 }}
+          CACHY_OLD_FOUR_LIBTIFF_09: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_09 }}
+          CACHY_OLD_FOUR_LIBTIFF_10: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_10 }}
+          CACHY_OLD_FOUR_LIBTIFF_11: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_11 }}
+          CACHY_OLD_FOUR_LIBTIFF_12: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_12 }}
+          CACHY_OLD_FOUR_LIBTIFF_13: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_13 }}
+          CACHY_OLD_FOUR_LIBTIFF_14: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_14 }}
+          CACHY_OLD_FOUR_LIBTIFF_15: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_15 }}
+          CACHY_OLD_FOUR_LIBTIFF_SIG_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_SIG_01 }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          umask 077
+          sudo -n --preserve-env=GITHUB_SHA,GITHUB_REF,GITHUB_REPOSITORY,GITHUB_EVENT_NAME,GITHUB_RUN_ATTEMPT,GITHUB_RUN_ID,GITHUB_JOB,ImageOS,ImageVersion,RUNNER_OS,RUNNER_ARCH,ROOT_FISH02_ADMISSION_JSON,ROOT_FISH02_RUNTIME_JSON,CACHY_OLD_FOUR_SCHEMA,CACHY_OLD_FOUR_SOURCE_EPOCH,CACHY_OLD_FOUR_JBIGKIT_01,CACHY_OLD_FOUR_JBIGKIT_02,CACHY_OLD_FOUR_JBIGKIT_SIG_01,CACHY_OLD_FOUR_LIBTIFF_01,CACHY_OLD_FOUR_LIBTIFF_02,CACHY_OLD_FOUR_LIBTIFF_03,CACHY_OLD_FOUR_LIBTIFF_04,CACHY_OLD_FOUR_LIBTIFF_05,CACHY_OLD_FOUR_LIBTIFF_06,CACHY_OLD_FOUR_LIBTIFF_07,CACHY_OLD_FOUR_LIBTIFF_08,CACHY_OLD_FOUR_LIBTIFF_09,CACHY_OLD_FOUR_LIBTIFF_10,CACHY_OLD_FOUR_LIBTIFF_11,CACHY_OLD_FOUR_LIBTIFF_12,CACHY_OLD_FOUR_LIBTIFF_13,CACHY_OLD_FOUR_LIBTIFF_14,CACHY_OLD_FOUR_LIBTIFF_15,CACHY_OLD_FOUR_LIBTIFF_SIG_01,CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01,CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02,CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01 \
+            /usr/bin/systemd-run --scope --quiet --unit="cachy-fish02-controller-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" \
+            --property=MemoryMax=536870912 --property=MemorySwapMax=0 --property=CPUQuota=100% \
+            --property=CPUQuotaPeriodSec=100ms --property=TasksMax=64 --property=RuntimeMaxSec=1290s \
+            -- /usr/bin/python3 -I -B scripts/ci/fish-config02-native-source/successor_v2/hosted_owner.py \
+            --root "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/fish02-owned-v2" \
+            --runner-uid "$(id -u)" --runner-gid "$(id -g)" \
+            --source-map-sha256 "$SOURCE_MAP_SHA256" \
+            --admission-sha256 "$ADMISSION_SHA256" --runtime-sha256 "$RUNTIME_SHA256"
+      - name: Retain public owner receipts and complete pair evidence
+        if: always()
+        env:
+          SOURCE_MAP_SHA256: ${{ inputs.source_map_sha256 }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if test -d "$RUNNER_TEMP/fish02-owned-v2"; then
+            python3 -I -B scripts/ci/fish-config02-native-source/successor_v2/retain.py "$RUNNER_TEMP/fish02-owned-v2" --root "$GITHUB_WORKSPACE" --source-map-sha256 "$SOURCE_MAP_SHA256"
+          else
+            echo 'FISH02_OWNER_NOT_ENTERED: external admission/host capability HOLD'
+          fi
