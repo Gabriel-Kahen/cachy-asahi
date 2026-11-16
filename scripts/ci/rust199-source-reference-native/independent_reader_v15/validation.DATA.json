@@ -1,0 +1,216 @@
+{
+  "Docker": "NOT_RUN",
+  "M2": "NOT_TESTED",
+  "Original_GET": "NOT_RUN",
+  "Root_acceptance": null,
+  "Source_actor": "NOT_RUN",
+  "inputs": {
+    "fixtures/initializer-code.DATA.txt": {
+      "bytes": 2060,
+      "sha256": "e3da33c401407b1d0bc04caa5a67bde354a0ad54727450003cda5f57c611fc1a"
+    },
+    "fixtures/source344-probe-mount.ACTUAL.json": {
+      "bytes": 6302,
+      "sha256": "e8cf3b1f7dbefc763f93fc91c501e6d28d9a79e0d83cde6a57e9c180d83edf74"
+    },
+    "fixtures/source351-mountinfo-data.ACTUAL.raw": {
+      "bytes": 5794,
+      "sha256": "c52d3185956b93870365913050bac4ebd012c3db08b5b803095822888db13460"
+    },
+    "fixtures/source351-public-failure.ACTUAL-r2.json": {
+      "bytes": 8324,
+      "sha256": "e7d11080d025b0fabfae1d95199613436547bf4e7f09e4962a1d1b4a6012660b"
+    },
+    "fixtures/source355-daemon-root-bind-refusal.ACTUAL.json": {
+      "bytes": 4701,
+      "sha256": "28c650fd0e3b1979fc496342185dd43ca14d30c6658bbad2e1755a49f823d948"
+    },
+    "test_actual_failure.py": {
+      "bytes": 4069,
+      "sha256": "bf5763cd0a29b68e8ae8bc22b0c2fbe98b7097c1b18b4db5f0ed48f074cd2ddd"
+    },
+    "test_mounts.py": {
+      "bytes": 12776,
+      "sha256": "14ed101bc9651bb4d81b992c870f5c29fbe413be5077283440ef895891bde6ff"
+    },
+    "test_owned_bind.py": {
+      "bytes": 8469,
+      "sha256": "b9457fa2005a586c45a569482dfd01d812d08fc77a4c6cf9c7f202e439044457"
+    },
+    "test_preparation.py": {
+      "bytes": 4102,
+      "sha256": "1af6675440e3ba205bb36fe9ea3605bf918db4af00cc6ea5844200a0a0a5afed"
+    },
+    "test_preservation.py": {
+      "bytes": 2364,
+      "sha256": "564f486cff0f2d2d17d65ce3d344dd99e142cea2a93fe07b581e44250f91909f"
+    },
+    "test_qualification.py": {
+      "bytes": 8448,
+      "sha256": "9dd86a8d2ddb1dc8b51c8bb7e8360b837aaceee0e6e0b345ae9f3cf089a45df3"
+    },
+    "test_reader.py": {
+      "bytes": 52195,
+      "sha256": "434f957f5e83b23469a1f8ca32ef4dbc0c0e4821135fc9ed54537bcb99b09fc0"
+    },
+    "test_runtime.py": {
+      "bytes": 30507,
+      "sha256": "246e2e8f3d9d687a76d2b61f2d1eb4a51f240b90c3147253c5cb224e4f588521"
+    },
+    "test_source.py": {
+      "bytes": 7697,
+      "sha256": "acf32447079040a902d7ac5586d1e02c8329dbdbbaf89d91f29e13f263e5e36e"
+    }
+  },
+  "interpreters": {
+    "python3.12": "3.12.13",
+    "python3.14": "3.14.7"
+  },
+  "kind": "INDEPENDENT_READER15_FENCED_DATA_CONTROLS_ONLY",
+  "logs": {
+    "validation-logs/python3.12-test_actual_failure.log": {
+      "bytes": 103,
+      "exit": 0,
+      "sha256": "baf49b59538192f3e136ca0404cac516ecb8dd2fe5ba1416604056f3080fa49c",
+      "status": "PASS",
+      "tests": 5
+    },
+    "validation-logs/python3.12-test_mounts.log": {
+      "bytes": 128,
+      "exit": 0,
+      "sha256": "1ca67fcfc648d9d230ee86f51c8be63b49630657ed51b1dec26def1516c37468",
+      "status": "PASS",
+      "tests": 29
+    },
+    "validation-logs/python3.12-test_owned_bind.log": {
+      "bytes": 113,
+      "exit": 0,
+      "sha256": "e0d28806c56abd87488ce7e01e17c24064159d6644542a0a1f8a7e15ce56255f",
+      "status": "PASS",
+      "tests": 14
+    },
+    "validation-logs/python3.12-test_preparation.log": {
+      "bytes": 105,
+      "exit": 0,
+      "sha256": "62f4decbacb2e031de4e76f2bc96caa7cf3ec498967ced4083e0885df723cc1e",
+      "status": "PASS",
+      "tests": 7
+    },
+    "validation-logs/python3.12-test_preservation.log": {
+      "bytes": 103,
+      "exit": 0,
+      "sha256": "fe9545370a9b2071cfa9a14d724789faf26e3015146b01c0ec056023c648c95b",
+      "status": "PASS",
+      "tests": 5
+    },
+    "validation-logs/python3.12-test_qualification.log": {
+      "bytes": 109,
+      "exit": 0,
+      "sha256": "2d6603fa9f5000144e76e400c77dd7540642ffd9e3ba07e69618a92fee4d406c",
+      "status": "PASS",
+      "tests": 10
+    },
+    "validation-logs/python3.12-test_reader.log": {
+      "bytes": 156,
+      "exit": 0,
+      "sha256": "1a1c8900adae5679627873578044bdf78eb433003e271050f7a0e04d825b32f7",
+      "status": "PASS",
+      "tests": 57
+    },
+    "validation-logs/python3.12-test_runtime.log": {
+      "bytes": 137,
+      "exit": 0,
+      "sha256": "a86faea22db678af088590dc1fdef31d8751a88b9dddb7edd9429cb61aa77a2c",
+      "status": "PASS",
+      "tests": 38
+    },
+    "validation-logs/python3.12-test_source.log": {
+      "bytes": 111,
+      "exit": 0,
+      "sha256": "4de161d4600987546b35248cda07f6922c9afcde3988c744c4cd7429df712ee5",
+      "status": "PASS",
+      "tests": 12
+    },
+    "validation-logs/python3.14-test_actual_failure.log": {
+      "bytes": 103,
+      "exit": 0,
+      "sha256": "0f7e4b97443e54aca647179972594d13bb587afcbf151fab8228148587ea844a",
+      "status": "PASS",
+      "tests": 5
+    },
+    "validation-logs/python3.14-test_mounts.log": {
+      "bytes": 128,
+      "exit": 0,
+      "sha256": "e517cd087d3c19371b90b789ed461d374004e50acc95946d757669041f5a254b",
+      "status": "PASS",
+      "tests": 29
+    },
+    "validation-logs/python3.14-test_owned_bind.log": {
+      "bytes": 113,
+      "exit": 0,
+      "sha256": "3bff0bea1acd9b55226c47627baadc09a90bbb2b45f5244839dc0e593492232e",
+      "status": "PASS",
+      "tests": 14
+    },
+    "validation-logs/python3.14-test_preparation.log": {
+      "bytes": 105,
+      "exit": 0,
+      "sha256": "8c45607fe2083a267482a6875ad6678741b57e9824267d761dd156c35beaf145",
+      "status": "PASS",
+      "tests": 7
+    },
+    "validation-logs/python3.14-test_preservation.log": {
+      "bytes": 103,
+      "exit": 0,
+      "sha256": "fc216958a87d4ac5ea804bef681d4c3236ab98547df98c7cdcc53d2bdb0a7a8a",
+      "status": "PASS",
+      "tests": 5
+    },
+    "validation-logs/python3.14-test_qualification.log": {
+      "bytes": 109,
+      "exit": 0,
+      "sha256": "3f3f3304ca08cbefa0be379efcc861313b5d5c3eaedad20509a59f96173e50b4",
+      "status": "PASS",
+      "tests": 10
+    },
+    "validation-logs/python3.14-test_reader.log": {
+      "bytes": 156,
+      "exit": 0,
+      "sha256": "8016fffcd74b5ded7e4a53b7f8691b1054152c7bbc23fa01d1e6835f4bd88d27",
+      "status": "PASS",
+      "tests": 57
+    },
+    "validation-logs/python3.14-test_runtime.log": {
+      "bytes": 137,
+      "exit": 0,
+      "sha256": "fe39a23f90f1a259bccab3cac5f6e413f013cb0f813714c60fb3299d1a7ae02c",
+      "status": "PASS",
+      "tests": 38
+    },
+    "validation-logs/python3.14-test_source.log": {
+      "bytes": 111,
+      "exit": 0,
+      "sha256": "c9c54cb8c42c33d068a8966a9acf30587add19f13de42adef59acbdb1851fe80",
+      "status": "PASS",
+      "tests": 12
+    }
+  },
+  "native_acceptance": false,
+  "release_acceptance": false,
+  "schema": 15,
+  "source_constructor_commit": "8d44169d967420784d89da16e5cb316b540396de",
+  "source_contract": {
+    "bytes": 43556824,
+    "files": 361,
+    "map_sha256": "b255ba5b02d8484f9db29bb9515118c5b317a3938d49cb3dd0688030263ead7e",
+    "profile_sha256": "a0433e3e3a24f4da62fc5b57dedad658334212055412be27e1b9daac26c85e5c",
+    "tree": "56aa770543f684b4f78e4a7abf1de4b93e006f28"
+  },
+  "source_data_scope": "GENUINE_PROSPECTIVE_SOURCE361_DATA_COMPLETE_INVERSES_ONLY",
+  "status": "PASS",
+  "tests_per_interpreter": {
+    "python3.12": 177,
+    "python3.14": 177
+  },
+  "warning_policy": "error::ResourceWarning"
+}
