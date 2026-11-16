@@ -1,0 +1,114 @@
+{
+  "rust-std-1.98.0-aarch64-unknown-linux-gnu/rust-std-aarch64-unknown-linux-gnu/lib/rustlib/aarch64-unknown-linux-gnu/lib/libstd-d0d82f59f384a37e.so": {
+    "elf_class": 64,
+    "endianness": "little",
+    "entry": 0,
+    "interpreter": null,
+    "load_segments_16k_congruence_and_alignment": true,
+    "machine": 183,
+    "needed": [
+      "libgcc_s.so.1",
+      "libpthread.so.0",
+      "libdl.so.2",
+      "libc.so.6"
+    ],
+    "program_headers": [
+      {
+        "align": 8,
+        "filesz": 560,
+        "flags": 4,
+        "memsz": 560,
+        "offset": 64,
+        "type": 6,
+        "vaddr": 64
+      },
+      {
+        "align": 65536,
+        "filesz": 512988,
+        "flags": 4,
+        "memsz": 512988,
+        "offset": 0,
+        "type": 1,
+        "vaddr": 0
+      },
+      {
+        "align": 65536,
+        "filesz": 660896,
+        "flags": 5,
+        "memsz": 660896,
+        "offset": 512992,
+        "type": 1,
+        "vaddr": 578528
+      },
+      {
+        "align": 65536,
+        "filesz": 30816,
+        "flags": 6,
+        "memsz": 34432,
+        "offset": 1173888,
+        "type": 1,
+        "vaddr": 1304960
+      },
+      {
+        "align": 65536,
+        "filesz": 2616,
+        "flags": 6,
+        "memsz": 2912,
+        "offset": 1204704,
+        "type": 1,
+        "vaddr": 1401312
+      },
+      {
+        "align": 8,
+        "filesz": 72,
+        "flags": 4,
+        "memsz": 144,
+        "offset": 1173888,
+        "type": 7,
+        "vaddr": 1304960
+      },
+      {
+        "align": 8,
+        "filesz": 496,
+        "flags": 6,
+        "memsz": 496,
+        "offset": 1199200,
+        "type": 2,
+        "vaddr": 1330272
+      },
+      {
+        "align": 1,
+        "filesz": 30816,
+        "flags": 4,
+        "memsz": 34432,
+        "offset": 1173888,
+        "type": 1685382482,
+        "vaddr": 1304960
+      },
+      {
+        "align": 4,
+        "filesz": 18948,
+        "flags": 4,
+        "memsz": 18948,
+        "offset": 380896,
+        "type": 1685382480,
+        "vaddr": 380896
+      },
+      {
+        "align": 0,
+        "filesz": 0,
+        "flags": 6,
+        "memsz": 0,
+        "offset": 0,
+        "type": 1685382481,
+        "vaddr": 0
+      }
+    ],
+    "rpath": [],
+    "runpath": [
+      "$ORIGIN/../lib"
+    ],
+    "soname": "libstd-d0d82f59f384a37e.so",
+    "type": 3
+  }
+}

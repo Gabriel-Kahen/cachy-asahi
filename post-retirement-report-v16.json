@@ -1,0 +1,51 @@
+{
+  "Root_grants": null,
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "image": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "archives": [
+    "previous-v15/hosted/qualification.py",
+    "previous-v15/source-map.json"
+  ],
+  "carrier_transport_changed": false,
+  "changes": {
+    "hosted/qualification.py": {
+      "after": {
+        "bytes": 23710,
+        "mode": 420,
+        "sha256": "e1ba650e90debb5b25b640c3444ab49ef85ea0a56c5bbb22dca7a140ec56cd36"
+      },
+      "before": {
+        "bytes": 23461,
+        "mode": 420,
+        "sha256": "6d161216185e18a874395b5b9142a5d4baaba2cd18260d755588352cde3c0392"
+      }
+    }
+  },
+  "dispatch": null,
+  "holds_preserved": true,
+  "kernel_preentry_required": true,
+  "metadata_headers_changed": false,
+  "metadata_normalization_changed": false,
+  "parent": {
+    "bytes": 43557462,
+    "files": 361,
+    "map_sha256": "ef172f129f2970abd5685a24621d9aab5e7854e522041896ecf3570aff4c95fb",
+    "tree": "a5973bcc4cca083492e365c62e282d6f4f8075b8"
+  },
+  "post_retirement_report_guard": true,
+  "recipe_changed": false,
+  "request_bounds_changed": false,
+  "resources_changed": false,
+  "schema": 16,
+  "scope": "RUST199_POST_RETIREMENT_REPORT_GUARD_SUCCESSOR_V16",
+  "source_enforced_order": true,
+  "unadmitted": true,
+  "workflows_changed": false
+}

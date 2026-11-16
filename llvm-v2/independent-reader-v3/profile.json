@@ -1,0 +1,101 @@
+{
+  "actual": {
+    "Original": null,
+    "Reader": null,
+    "acceptance": null,
+    "approval": null,
+    "artifact": null,
+    "authority": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "runtime": null,
+    "source": null
+  },
+  "constructor_commit": "5c6f5f317c638a519d02be3dad0c1de17e476c94",
+  "constructor_profile_sha256": "aa5e19a9df3da4dbead98ca975a2f791c7a1995cbad398ec76be5231999b6d35",
+  "expected_source": {
+    "bytes": 40862047,
+    "files": 253,
+    "map_sha256": "5c19a2699856e081712d159c551ce496919938bd456f2182c0c905f03cbd2ef0",
+    "ref": null,
+    "source": null,
+    "tree": "2f90eaaaa532d14574c0ce1f1c93b02310f44d91"
+  },
+  "external_Root_operands_required": {
+    "Reader_authority": null,
+    "new_Original": null,
+    "publication_proof": null,
+    "published_ref": null,
+    "published_source": null,
+    "resource_authority": null,
+    "runtime_identity": null,
+    "source_approval": null,
+    "successful_provider": null
+  },
+  "files": {
+    "README.md": {
+      "bytes": 5385,
+      "mode": 420,
+      "sha256": "061c7f0e9ae24e60e1d520422021adeba1107efee7fc4218d20b4f5d738e0832"
+    },
+    "base.py": {
+      "bytes": 2593,
+      "mode": 420,
+      "sha256": "6d6d6c00d686ea97e6cd9702b61c545d630418be1f18ac3fe9b1ff7da82cd610"
+    },
+    "binding.TEMPLATE.json": {
+      "bytes": 925,
+      "mode": 420,
+      "sha256": "b8325011f0379c2b60287aa3fe9b18043b4db00236320c8b5eefd42cc4602618"
+    },
+    "pins.json": {
+      "bytes": 6486,
+      "mode": 420,
+      "sha256": "3adab3af82327142762aa4d366993aa9695e9d25a012f0b72c07cb611f926439"
+    },
+    "reader.py": {
+      "bytes": 9442,
+      "mode": 420,
+      "sha256": "1edb14485c8df4b880750e0d783fe4f732e88ed9d17119ef491fb7cfe65cd8c6"
+    },
+    "test_v3.py": {
+      "bytes": 9171,
+      "mode": 420,
+      "sha256": "23bb381ceebf4fad02ec949a1901514369f7ad2d0479bc74d513dcba52006ece"
+    },
+    "validation.json": {
+      "bytes": 630,
+      "mode": 420,
+      "sha256": "696f89af48d4ff32bb4f5aca82215bf9597a7f549f12ecef2b04cc41168fafd1"
+    }
+  },
+  "frozen_v2": {
+    "pins.json": {
+      "bytes": 5658,
+      "mode": 420,
+      "sha256": "c9a1013cac557e992ab2ad824821ad868c87d73c2b9da60e860d05a70742a328"
+    },
+    "reader.py": {
+      "bytes": 64910,
+      "mode": 420,
+      "sha256": "e3fed71e01be989b5c84cd0e33124ca096e452eda380f4840b45786cb385335c"
+    }
+  },
+  "historical_parent": {
+    "bytes": 40807998,
+    "files": 251,
+    "map_sha256": "809f57839dfd574b7abf0c65535321aeac08c58608d4f9597f936a7af78fb3a2",
+    "source": "6d0243dc8f5cf4ee5b9316b8c804f14a3236ecb0",
+    "tree": "87f5aa3537474c2dd33a02c50e869ea5fb25e7b4"
+  },
+  "historical_projection": {
+    "actual_Source_ref_run_job_map_changes": false,
+    "after_sha256": "458b0adc0c6854cbb17b542d0b3503cd7e99c494cf948d75e442f391646d5f47",
+    "before_sha256": "e876668f1aeafed771dd738e4b96420ae4b2775943c714708ee58276cd3c085f",
+    "inverse": "EXACT_FUNCTION_BYTES",
+    "seams": 6
+  },
+  "kind": "LLVM23_CORRECTED253_PASSIVE_READER_SOURCE_INVENTORY_NOT_AUTHORITY",
+  "schema": 1
+}
