@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "component": "cachy-asahi-screenshot-copy",
+  "version": "0.1.0",
+  "license": "MIT",
+  "source": "original project implementation; no upstream implementation bundled",
+  "command_sha256": "a404261748f9dfb69704e55b807aa6af6dd1063cd88d8f7c3018640a66be1c93",
+  "external_capture": {
+    "command": "cachy-asahi-screenshot",
+    "bundled": false,
+    "observed_source_revision": "b078d833bc6e0ccf15f84997d214bcef72790fb3",
+    "observed_source_path": "packages/desktop/cachy-asahi-hyprland-settings/cachy-asahi-screenshot",
+    "observed_source_sha256": "7dc01c020275f2d482f326bad0592e59bde140ba9cc349849ac5916e883e7c7d",
+    "contract": "full|region [--directory DIRECTORY]; successful stdout is one saved absolute PNG path"
+  },
+  "external_clipboard": {
+    "command": "wl-copy",
+    "bundled": false,
+    "minimum_package_version": "2.2.1",
+    "arguments": [
+      "--type",
+      "image/png"
+    ],
+    "reference": "https://github.com/bugaevc/wl-clipboard/blob/v2.2.1/data/wl-clipboard.1",
+    "provider": "default daemonization; provider intentionally retains selection"
+  },
+  "scope": "unselected opt-in M6 desktop workflow; no platform changes or automatic activation",
+  "native_ARM": "NOT RUN",
+  "ALPM_lifecycle": "NOT RUN",
+  "real_capture_and_paste": "NOT RUN",
+  "M2_13": "NOT RUN",
+  "M2_15": "NOT RUN",
+  "performance": "NOT MEASURED",
+  "release": "NOT ADMITTED"
+}

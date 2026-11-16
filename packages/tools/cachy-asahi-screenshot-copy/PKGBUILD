@@ -1,0 +1,40 @@
+# SPDX-License-Identifier: MIT
+# Explicit user command only; no activation, platform changes or install hooks.
+pkgname=cachy-asahi-screenshot-copy
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Opt-in Wayland screenshot-to-file and clipboard workflow'
+arch=('any')
+url='https://github.com/Gabriel-Kahen/cachy-asahi'
+license=('MIT')
+depends=('python>=3.11' 'cachy-asahi-hyprland-settings>=0.1.0' 'grim' 'wl-clipboard>=2.2.1')
+optdepends=('slurp: explicit region capture')
+options=('!strip' '!debug')
+source=('cachy-asahi-screenshot-copy' 'test_screenshot_copy.py' 'test_package.py'
+        'README.md' 'NOTICE' 'LICENSE' 'source-provenance.json')
+sha256sums=(
+    'a404261748f9dfb69704e55b807aa6af6dd1063cd88d8f7c3018640a66be1c93'
+    '49b6a9be10fbebf0750f6216a80f04f9969ac13ea2f1b02d9bfc83ae662bc031'
+    '1513fcf209f712c2d25f6d9c4400b82f46c41903a3e18e9812bef6a09d2a87f8'
+    '09268fb6200a336f8a1de3ca825053287fbb814892edbbb3fd15caf73a5ba48c'
+    'ce5aac53ac46cb6078ab7ec729f3b4bc2945362f46baacb2c8b07b6a93dd62a2'
+    '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
+    '127768e272b3285cbff63b369bb6230f95be316fd0750a79b7286d42fadc41ff'
+)
+
+check() {
+    python -I -B -Werror::ResourceWarning "$srcdir/test_screenshot_copy.py" || return
+    python -I -B -Werror::ResourceWarning "$srcdir/test_package.py" --recipe-root "$startdir"
+}
+
+package() {
+    [[ -n ${pkgdir:-} && $pkgdir != / ]] || return 1
+    install -Dm755 "$srcdir/cachy-asahi-screenshot-copy" "$pkgdir/usr/bin/$pkgname" || return
+    local file
+    for file in README.md source-provenance.json; do
+        install -Dm644 "$srcdir/$file" "$pkgdir/usr/share/doc/$pkgname/$file" || return
+    done
+    for file in NOTICE LICENSE; do
+        install -Dm644 "$srcdir/$file" "$pkgdir/usr/share/licenses/$pkgname/$file" || return
+    done
+}
