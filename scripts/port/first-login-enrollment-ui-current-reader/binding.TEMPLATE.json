@@ -1,0 +1,15 @@
+{
+  "Root_acceptance": null,
+  "admission": null,
+  "approved": null,
+  "build_stage_bindings": null,
+  "inputs": null,
+  "issuer": null,
+  "operation": "first-login-enrollment-ui-current-v2",
+  "output": null,
+  "profile": null,
+  "reader": null,
+  "runtime": null,
+  "source_lock": null,
+  "stage": null
+}

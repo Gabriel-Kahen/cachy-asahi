@@ -55,6 +55,32 @@ jobs:
         run: |
           python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/test_pair_data.py -v
           python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/test_image_lifecycle_data.py -v
+          python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/successor_v2/test_controls.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/successor_v2/test_constructor.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/payload/native/test_owner_current_v2.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/payload/native/test_owner_delegated_v3.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/payload/native/test_local_command_invocation_v1.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/payload/native/test_delegated_context_v3.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/test_delegated_context_v4.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/payload/native/test_image_current_v3.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/test_image_selected_context_v4.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/test_image_base349_current_v3.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/payload/native/test_base_inputs_current_v3.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/payload/native/test_inputs_current_v3.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/payload/native/test_reader_current_v3.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/payload/native/test_retention_current_v3.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/payload/native/test_retention_delegated_v4.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/test_owned_executor_current_v3.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/test_hosted_current_v3.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/test_host_prerequisites_current_v3.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/payload/native/test_owned_current_v3_policy.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/successor_v2/test_owned_route.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/successor_v4/test_route.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/successor_v3/test_data.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/successor_v4_source/test_data.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/successor_v4_source/test_seams.py
+          python3 -I -B -Werror::ResourceWarning scripts/port/first-login-enrollment-ui-current-reader/test_reader.py
+          python3 -I -B -Werror::ResourceWarning scripts/port/first-login-enrollment-ui-current-reader/test_owner_receipts.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_perl5423_vm/test_local_dependency_queries.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/native-build-namespace-preflight/test_preflight_data.py -v
           python3 -I -B -Werror::ResourceWarning scripts/ci/native-build-namespace-preflight/test_image_lifecycle_data.py -v
