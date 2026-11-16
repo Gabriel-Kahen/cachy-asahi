@@ -160,7 +160,7 @@ def validate(baseline, current):
     aggregate = current['jobs']['static-result']
     assert aggregate['name'] == 'checks'
     assert aggregate['needs'] == ['cache-seed', 'checks']
-    assert aggregate['if'] == '${{ always() }}'
+    assert aggregate['if'] == '${{ always() && !cancelled() }}'
     assert new['name'] == 'Static ${{ matrix.shard }}'
     gate = aggregate['steps'][0]
     cases = 0
@@ -171,10 +171,14 @@ def validate(baseline, current):
         ctx = context(event='workflow_dispatch', measure=measure, seed=seed,
                       result=result, cancelled=cancelled)
         env = {k: str(expression(v, ctx)).lower() for k, v in gate['env'].items()}
+        # GitHub status functions are legal in job/step if, not step env.
+        assert not any(re.search(r'\b(?:always|cancelled|success|failure)\s*\(', v)
+                       for v in gate['env'].values())
         code = subprocess.run(['bash', '-e', '-c', gate['run']],
                               env=dict(os.environ, **env), capture_output=True).returncode
-        assert (code == 0) == (not cancelled and result == 'success' and
-                              seed == ('success' if measure else 'skipped')), env
+        scheduled = expression(aggregate['if'], ctx)
+        assert (scheduled and code == 0) == (not cancelled and result == 'success' and
+                                             seed == ('success' if measure else 'skipped')), env
         cases += 1
 
     blocks = 0

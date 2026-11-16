@@ -25,7 +25,8 @@ The aggregate runs after both the matrix and cache seed reach a terminal
 state. It requires matrix success and seed `skipped` normally, or seed
 `success` when `workflow_dispatch` requests `measure-cache`. A failed, skipped
 or cancelled matrix cannot produce a successful aggregate. Cancellation also
-fails the aggregate's shell guard. Ordinary step skips in each matrix job are
+prevents the aggregate job from running through its job-level guard. Ordinary
+step skips in each matrix job are
 explicit routing: each suite runs on one other required shard, rather than
 being removed from validation.
 
@@ -64,10 +65,19 @@ unchanged. Normal runs do not emit a matched measurement report.
 
 ## Offline evidence and remaining validation
 
+Hosted run `43865046798` rejected the initial workflow before creating jobs:
+GitHub does not permit `cancelled()` in a step `env` expression. The correction
+moves that condition to the aggregate job's supported `if` context. The
+validator now rejects status functions in aggregate environment expressions;
+the actual aggregate job condition and shell together cover cancellation.
+Offline actionlint 1.7.12 reproduced that exact error on the original head and
+passes the corrected workflow with external shellcheck/pyflakes disabled.
+
 From the worktree root, run:
 
 ```sh
 python3 -B scripts/ci/static_parallelization/validate.py
+actionlint -shellcheck= -pyflakes= .github/workflows/static.yml
 python3 -I -B -Werror::ResourceWarning scripts/ci/component_selection/test_select.py
 python3 -I -B -Werror::ResourceWarning scripts/ci/component_selection/test_collect.py
 python3 -I -B scripts/ci/test_static_apt_trial.py -v

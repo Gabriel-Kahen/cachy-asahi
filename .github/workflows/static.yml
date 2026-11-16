@@ -1401,7 +1401,7 @@ jobs:
   static-result:
     name: checks
     needs: [cache-seed, checks]
-    if: ${{ always() }}
+    if: ${{ always() && !cancelled() }}
     runs-on: ubuntu-24.04
     steps:
       - name: Require every static shard and the expected cache predecessor
@@ -1409,9 +1409,7 @@ jobs:
           STATIC_RESULT: ${{ needs.checks.result }}
           CACHE_RESULT: ${{ needs.cache-seed.result }}
           MEASURE_CACHE: ${{ github.event_name == 'workflow_dispatch' && inputs.measure-cache }}
-          CANCELLED: ${{ cancelled() }}
         run: |
-          test "$CANCELLED" = false
           test "$STATIC_RESULT" = success
           if [ "$MEASURE_CACHE" = true ]; then
             test "$CACHE_RESULT" = success

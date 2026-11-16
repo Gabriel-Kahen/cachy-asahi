@@ -90,6 +90,11 @@ succeed. Raw GitHub job names for reusable runs may carry the caller prefix
 prefix rather than accepting an unrelated normal run. This wrapper is a
 separate measurement run, not the ordinary PR required-check inventory.
 
-No result above is claimed to have occurred on hosted CI. Root must inspect
+Initial hosted run `43865046798` rejected the workflow before creating jobs
+because `cancelled()` was used in a step `env` expression. The follow-up fix
+moves cancellation into the aggregate job's supported `if` context and adds
+an offline regression guard; no suite command or shard membership changes.
+
+No successful static result above is claimed to have occurred on hosted CI. Root must inspect
 the actual published exact-head check identities and job conclusions before
 merging, and separately measure timing before claiming a throughput gain.
