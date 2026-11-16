@@ -199,6 +199,16 @@ jobs:
           python3 -I -B -Werror scripts/ci/bankstown-qt3-native-profile-v1/test_inventory.py
           python3 -I -B -Werror scripts/ci/bankstown-qt3-native-profile-v1/test_profile.py
           python3 -I -B -Werror scripts/ci/bankstown-qt3-native-profile-v1/test_consumers.py
+      - name: Check Bankstown Qt3 owned factory and handoff DATA
+        run: |
+          python3 -I -B -Werror scripts/ci/bankstown-qt3-native-source/test_context.py
+          python3 -I -B -Werror scripts/ci/bankstown-qt3-native-source/test_controller.py
+          python3 -I -B -Werror scripts/ci/bankstown-qt3-native-source/test_handoff.py
+          python3 -I -B -Werror scripts/ci/bankstown-qt3-native-source/test_image.py
+          python3 -I -B -Werror scripts/ci/bankstown-qt3-native-source/test_inputs.py
+          python3 -I -B -Werror scripts/ci/bankstown-qt3-native-source/test_materialize.py
+          python3 -I -B -Werror scripts/ci/bankstown-qt3-native-source/test_owner.py
+          python3 -I -B -Werror scripts/ci/bankstown-qt3-native-source/test_prepare.py
       - name: Check out immutable LLVM v1 Source as DATA
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
