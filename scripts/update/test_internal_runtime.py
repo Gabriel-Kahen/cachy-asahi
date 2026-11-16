@@ -155,6 +155,7 @@ class Tests(unittest.TestCase):
              patch.object(internal.scale.bound,'apply',return_value=failure) as apply:
             row=internal.apply(args)
         self.assertTrue(row['packages_committed']); self.assertFalse(row['checkpoint_changed'])
+        self.assertNotIn('prior_archive', row)
         self.assertEqual(row['phase'],'observe-after'); self.assertIsInstance(apply.call_args.kwargs['adapter'],internal.Runtime)
         self.assertEqual(row['full587_composition'],'NOT ESTABLISHED')
 
@@ -380,5 +381,27 @@ class PriorArchives(unittest.TestCase):
             total_compressed_bytes=self.archive.stat().st_size)
         with self.assertRaisesRegex(internal.scale.archives.Invalid, 'aggregate compressed'):
             self.runtime.archive_payload(self.archive, {'bytes': 0, 'nodes': 0})
+
+    def test_result_retains_exact_authenticated_prior_evidence_without_commit_claim(self):
+        self.prepare()
+        self.authenticate()
+        self.runtime.projected_paths(self.seed, {})
+        client = internal.scale.bound.client
+        expected = dict(package=dict(name='selected', version='1-1', arch='any'),
+            archive=dict(sha256=client.digest(self.archive.read_bytes()), bytes=self.archive.stat().st_size),
+            signature=dict(sha256=client.digest(Path(str(self.archive) + '.sig').read_bytes()),
+                bytes=Path(str(self.archive) + '.sig').stat().st_size,
+                primary_fingerprint=self.signer, signing_fingerprint=self.signer, hash_algorithm='8'),
+            projected_obsolete_paths=['usr/share/selected'])
+        args = SimpleNamespace(root=str(self.root), workspace=str(self.case), scale='unused', scale_sha256='0'*64)
+        for status in ('PASS', 'FAIL'):
+            with self.subTest(status=status), patch.object(internal.scale.bound, 'guard'), \
+                    patch.object(internal.scale, 'configuration', return_value=self.config()), \
+                    patch.object(internal, 'Runtime', return_value=self.runtime), \
+                    patch.object(internal.scale.bound, 'apply', return_value=dict(status=status, packages_committed=False)):
+                result = internal.apply(args)
+            self.assertEqual(result['prior_archive'], expected)
+            self.assertEqual(result['status'], status)
+            self.assertFalse(result['packages_committed'])
 
 if __name__=='__main__': unittest.main()
