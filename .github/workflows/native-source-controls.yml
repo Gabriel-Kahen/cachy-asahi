@@ -39,6 +39,7 @@ jobs:
       - name: Check Perl ARM16K lifecycle contracts without actors
         run: |
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_perl5423_vm/test_controls.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_perl5423_vm/test_probe_readiness.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_perl5423_vm/test_git_roundtrip.py
           python3 -I -B -Werror::ResourceWarning scripts/port/perl5423-arm16k-independent-reader/test_reader.py
           bash scripts/integration/arm16k_perl5423_vm/test_guest_data.sh

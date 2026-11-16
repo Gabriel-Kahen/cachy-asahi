@@ -260,3 +260,37 @@ database, reproducing the retained warning hash and proving missing/versioned
 dependencies still exit127. They do not access the host package database or
 install/remove packages. These tests are local/control evidence; the combined
 cleanup and guest fix still require a separately issued Root attempt.
+
+The controller-only QMP progress successor retains a bounded
+`guest_HOLD_cleanup.qmp_quit_progress` record in the existing final report.
+`WRITE_ENTERED`, `WRITE_RETURNED`, `WRITE_FAILED`, `READ_ENTERED`,
+`READ_RETURNED`, `READ_FAILED` and `ACKNOWLEDGED` distinguish control-traffic
+steps. The record contains request/reply byte counters, reply-attempt count,
+and, on an I/O exception, only the OSError class and errno. It retains no raw
+QMP replies, arbitrary error text, credentials or additional process queries.
+
+The exact 44-byte request, original descriptor, 2-second individual timeout,
+5-second exchange budget, 16-reply/64-KiB rejection bounds and exact matching
+return/error checks are unchanged. Exceptions still propagate into the same
+owned fallback; acknowledgement alone still cannot establish natural QEMU or
+actor retirement. Existing peer, marker, natural-reap and absence predicates
+remain mandatory. No deadline extension or missing-flush workaround is added:
+the original connection already uses an unbuffered makefile.
+
+Closed Source48 case 5 reached `MARKER_WRITTEN`, then reported TimeoutError and
+used owned fallback removal. It retained no `qemu.json`; its QEMU stderr was
+empty. That record does not identify the failing write/read operation or prove
+normal retirement. The guest failure phase remains unobserved; this change is
+observability, not a claimed repair of the guest or QMP failure. Prior Source
+and trial evidence remain unchanged.
+
+Six focused portable controls cover the actual maintained function/caller,
+request and event/acknowledgement bytes, remaining-deadline clamping, private
+progress/error fields, write/read timeouts, partial writes, invalid/oversized
+or foreign replies, and the existing authenticated-peer and retirement/fallback
+paths. They use only modeled transport and fenced private fixtures: no sockets,
+process queries, Docker, lease or VM. The separate private synthetic socketpair
+reproducer is control evidence only. The coordinator must combine the separate
+guest-progress change and refresh the closed Source lock before any new role;
+this controller commit deliberately leaves that lock unchanged. Native/M2 and
+runtime/Root acceptance are not supplied by these controls.
