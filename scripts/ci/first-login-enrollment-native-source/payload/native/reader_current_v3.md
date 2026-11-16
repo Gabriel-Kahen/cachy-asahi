@@ -146,3 +146,87 @@ python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-
 ```
 
 The portable controls generate only tiny inert USTAR/XZ packages and public receipt models, call actual retain→existing encoder→Reader for all stages, verify both lifecycle prior capsules, and exercise tamper/missing-body/tuple/time/credential/Root-proof/qualification/cleanup refusals. The current MODEL runs SHA-checked committed constructor `committed_closure`, `project_materials`, `extend_v3`, and `inverse_v3` with finite in-memory MODEL adapters; full `assemble`, Git, actors and artifact execution are not run. This trusted test constructor is distinct from Source bytes consumed by the Reader, which never imports them. Exact historical callback/supervisor bodies are compressed opaque DATA and never executed. Synthetic expected selections are not real Root authority. Fresh committed-copy checks require only the new Reader/test plus committed retention module/test and `scripts/ci/log_evidence.py`; no private state or network is involved. Root owns constructor/executor/hosted/CI integration, actual qualified bindings and eventual pipeline operation.
+
+## Source188 diagnostic-only successor
+
+The finite schema5 registry `DELEGATED_CURRENT_DIAGNOSTIC_PROGRAM_REGISTRY_V5`
+selects only Source188:188 files/45544942 bytes, Git tree
+`50bf7aab34ee5497f12d078709354aa69b0cdb9d`, equal37091-byte map aliases SHA256
+`ba06925244cd010ab2223325e2e324d4d3b469befbea5e7eb8e0de68383d4908`.
+Its selected program is `successor_v5_source/program.json`,14642 bytes/SHA256
+`d2ba5333ae8364fa8ee2fb3709f362b2025fc060593a433f5260eda5ff47b169` under this Source family.
+The separately retained unissued constructor profile is20942 bytes/SHA256
+`1e4fba1deeef88ceaec9b49b4ac9781c298304f8605b1679859de6f3a41f909f`;
+it does not replace the unchanged21679-byte selected package profile.
+
+`diagnostic_source_data` verifies complete Source188 Git identity, exactly nine
+new metadata/provenance members, three replacement bodies/modes, committed
+constructor pins, unissued provenance and the complete restored Source179:
+179 files/45330627 bytes/tree`5128864b3c17f230d5045361014b41ce31b72767`,
+35107-byte map SHA256`063a34c64d9e9ad21e6c2bd5c4e0a147f88890061cd79fb13587bc1e37e9d7f4`.
+Only then does the preserved v4 parser validate the restored old registry/closure
+and the existing full Source139 byte/mode inverse. The old v4 registry cannot select the
+three new bodies. Source139, all older179 variants and their predicates remain
+available through their original selectors.
+
+The exact new registry is derived from that validated old registry by changing
+only hosted launcher, material-domain executor and stager descriptors, replacing
+`closure_commit` with `basis_closure_commit`, and adding the fixed diagnostics
+commit`e263bd414318a9ca94158a9d272218703d145102` and rebind provenance descriptor.
+All27 roles,25 program mappings,59+5 materials, context4, policy, resources,
+retention, immutable callbacks and trust predicates remain preserved. The three
+new Source bodies are66059/5685fa9149242fd878ce81ddbe4368a0f6317de71c654962311de4fdb631fa14,
+40975/da8e397a63e02c11758d08bf2c45ecf14d94029f6311f4fcb4a09ad420624c8b and
+35550/58c5d0842c17a914239b5f24e9e1ac2987ad8ec9ce9e2a03e63a04f2e2e99282.
+
+The frozen Source `public_reader` descriptor remains248531 bytes/SHA256
+`4f3ddd10cbe8c008254985e6ab82f8f3d8fa8c0b579d89c3d70c2dc70d399724`.
+It describes retained Source DATA. Root must independently pin the actual updated
+Reader executing `read_delegated_stage`; that whole self-pin check remains
+mandatory. The Source179 inverse is checked using its frozen declared Reader,
+without importing, executing or changing any Source program.
+
+`diagnostic_source_contract` reads only literal AST declarations/callbacks and
+exact pins for the fixed failure contract. `diagnostic_failure_record` accepts
+only canonical closed4096-byte records and finite1024-byte packets, exact stream/
+request/context/retirement pins, bounded phase/reason/ordinal values and preserved
+false/NULL acceptance flags. An optional exact five-pin external selection binds
+the record to retained observations. Both record and packet shapes are checked
+when encountered as public DATA. Raw stderr, argv, environment, error text,
+credentials, unknown fields, noncanonical bodies and forged acceptance refuse.
+These helpers return diagnostic DATA and cannot satisfy success, complete517,
+Root-trust, custody, resource or runtime qualifications.
+
+The maintained Main preflight already requires its66059-byte executing launcher
+and selected Source launcher to match. Context4 requires delegation schema4.
+The existing external once-binder's `bind_inputs.py` currently pins the old
+55970-byte launcher at lines45–46/63 and requires delegation schema3 at54, so it
+cannot bind this successor. Root must replace those bounded request bindings
+before another trial; this Reader change does not modify that operator tool.
+The Root hosted request remains schema3, separately from schema4 delegation.
+Root must select the new actual Source/ref/map/program, the exact25 updated
+program descriptors, unchanged64 materials/policy, actual executing Reader pin,
+fresh nonce/expiry/resources/trust and retained observations. No such authority
+or actual native acceptance is supplied here.
+
+The independent opt-in test command is:
+
+```sh
+python3 -I -B -Werror scripts/ci/first-login-enrollment-native-source/payload/native/test_reader_current_v3.py \
+  --genuine-diagnostic-source /absolute/selected/files-only-Source188
+```
+
+It reads genuine public Source as DATA, relocates the files, verifies both complete
+inverses and exercises provenance, selector, code/mode/map and authority mutations.
+The original `--genuine-source` Source27 route remains distinct. Default portable
+controls separately exercise finite diagnostic records and secret refusals; a
+skip of either opt-in source fixture is not a genuine Source test PASS. Source188
+adds diagnostics only; the earlier actual failure's cause remains UNKNOWN.
+
+Fresh five-file copies with empty HOME and512MiB test cap passed on Python3.12.13
+and3.14.7:43 tests discovered,42 passed and one historical Source27 opt-in skipped
+per version. Both Source188 genuine tests ran; neither uses the skipped historical
+fixture. The62 existing non-boundary functions remain AST-source-exact. Details
+and whole tested input pins are in `reader_current_v3.source188.validation.json`.
+Updated executing Reader: 262891 bytes/SHA256
+`b1a78d5fdcddb6301f2193bff9661f4b6a5c43df02c41c9c738c8db0b424fa65`. These are DATA/source controls only.
