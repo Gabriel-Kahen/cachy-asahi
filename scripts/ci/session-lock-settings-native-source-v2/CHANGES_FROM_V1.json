@@ -1,0 +1,55 @@
+{
+  "Root_acceptance": null,
+  "added": {
+    "checker": {
+      "bytes": 6911,
+      "sha256": "d4d77b83fca3f3de00d9aac8f15f9e87ef9c13f5a2fe04a4ef959566a51c70ff"
+    },
+    "controls_per_installed_state": {
+      "installed": 24,
+      "moved": 24
+    },
+    "custody": "Exact argv/raw-log pin/payload bytes+mode/48 results joined independently by projection and Reader",
+    "source_bundle_member": "verification/check_installed.py"
+  },
+  "basis_commit": "2599b7c265c53c386d0c035d6e74af77e0981240",
+  "basis_family": "scripts/ci/session-lock-settings-native-source",
+  "basis_profile": {
+    "bytes": 62436,
+    "sha256": "bd923eab0a2d36fab3f6d6f3f51ac28c9751156db38c4e66991bc1f022203315"
+  },
+  "narrowed_helper_only_family": "NOT_SELECTED_FOR_PUBLICATION",
+  "preserved": {
+    "bootstrap_counts": [
+      349,
+      350,
+      349
+    ],
+    "check_blocks": {
+      "helper": [
+        24,
+        2
+      ],
+      "settings": [
+        5,
+        2
+      ]
+    },
+    "clean_builds": 4,
+    "lifecycle_counts": [
+      349,
+      351,
+      349,
+      351,
+      349
+    ],
+    "original_source_bundle_members": 23,
+    "packages": [
+      "cachy-asahi-session-lock0.1.0-1",
+      "cachy-asahi-hyprland-settings0.1.1-1"
+    ],
+    "payload_files": 13
+  },
+  "reason": "V1 installed business checked only helper help/screenshot help/Hyprland parser; readiness-cancellation-refusal coverage ran only during makepkg",
+  "schema": 1
+}
