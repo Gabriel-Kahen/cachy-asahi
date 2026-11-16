@@ -105,6 +105,32 @@ class NoticeControls(unittest.TestCase):
         with self.assertRaises(ValueError): self.stage()
         (self.root / 'alias').symlink_to(self.root, target_is_directory=True)
         with self.assertRaises(ValueError): n.stage(self.archive, self.catalogue, self.root / 'alias/out2', self.expected)
+    def with_grant(self):
+        grant = b'Copyright 2023 FENCED retained evidence. No test legal grant.\n'
+        digest = n.pin(grant)['sha256']
+        self.value['retained_upstream_grant_bodies'] = {digest: dict(**n.pin(grant), text=grant.decode(), path='/FENCED/retained-original-grant')}
+        self.value['components'] = [dict(component='fenced-1', retained_exact_upstream_grant_bodies=[digest])]
+        self.value['grant_scope'] = 'FENCED component-scoped prior evidence, not a package-wide grant'
+        self.save()
+        return digest, grant
+    def test_retained_grant_body_and_distinct_provenance_are_preserved(self):
+        digest, grant = self.with_grant()
+        result = self.stage()
+        row = result['retained_grants'][digest]
+        self.assertEqual((self.root / 'out' / row['body']).read_bytes(), grant)
+        self.assertEqual(row['retained_evidence_path'], '/FENCED/retained-original-grant')
+        self.assertEqual(row['components'], ['fenced-1'])
+        self.assertEqual(row['scope'], self.value['grant_scope'])
+    def test_changed_grant_body_or_component_provenance_refuses(self):
+        digest, grant = self.with_grant()
+        original = copy.deepcopy(self.value)
+        for mutation in ('body', 'binding'):
+            self.value = copy.deepcopy(original)
+            if mutation == 'body': self.value['retained_upstream_grant_bodies'][digest]['text'] += 'changed'
+            else: self.value['components'][0]['retained_exact_upstream_grant_bodies'] = []
+            self.save()
+            with self.subTest(mutation=mutation), self.assertRaises(ValueError): self.stage()
+            self.assertFalse((self.root / 'out').exists())
     def test_overlay_changes_only_package_notice_hook(self):
         self.assertEqual((PAYLOAD / 'notice_preservation.py').read_bytes(), (HERE / 'notice_preservation.py').read_bytes())
         before = ast.parse((HERE / 'reference.py').read_bytes())

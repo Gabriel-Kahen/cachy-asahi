@@ -1,52 +1,78 @@
-# Proposed Rust notice preservation delta
+# Rust notice preservation Source DATA proposal
 
-This is package-hook DATA and portable utility code, not a runnable v7 Source
-constructor. The original physical Source314/v6 and all 108 historical holds
-remain unchanged. No build, Cargo invocation, container, network operation,
-installation, hardware test, signature, publication, or Root admission occurred.
+This notice-only successor proposal adds deterministic preservation code and exact
+factual notice DATA to frozen Source314. It executes no actor, Reader, build,
+Cargo, container, network, installation, signature, publication or Root admission.
+Old physical Source314/v6 and all 108 historical holds remain untouched.
 
-The helper authenticates the complete Rust source archive before reading 281
-regular source files selected by the exact factual `notice-catalogue.DRAFT.json`
-from the all108 audit. It preserves complete files instead of possibly truncated
-keyword contexts. The catalogue retains the 283 context spans, component metadata,
-original draft pin, source paths and whole-file pins. Its review/acceptance fields
-remain NULL. These are authentic contexts, including references/examples; they
-are not a claim that every context is a grant or a package-wide applicable notice.
-Manifest authors remain labelled as authors, with no inferred owners or years.
+The Root-supplied seal is
+`d66d49a2734e79c6f9d1f5a57fda98ab519d39016483da0f4f88a0f626576fd9`.
+`catalogue.py` authenticates all 15 sealed audit files and deterministically derives
+the maintained preservation catalogue. The source catalogue's DRAFT name and NULL
+legal/Root acceptance fields remain factual; they do not block this explicitly
+requested preservation implementation and do not become legal acceptance.
 
-`payload/packages/port/rust199-source-reference/reference.py` differs from v6
-only in package(): after existing grants are copied, it verifies the new helper
-and invokes it against `verified-materials/rustc-1.99.0-src.tar.xz`. The helper
-writes `share/licenses/rust199-source-reference/source-notices/`, deduplicates
-identical complete bodies, and retains each path in `index.json`. Existing grants
-are retained. Whole-file source bytes are kept without normalization.
+The catalogue selects 425 complete source files, 6227097 bytes, containing all
+433 actual keyword contexts in the sealed audit. References, examples and author
+roles remain labelled as contexts and roles. Complete files are preserved so
+notice bodies extend beyond the selected context span without being cut off.
+The 21 exact retained grant bodies, 67508 bytes, retain their original evidence
+pins, paths, component associations and existing scope/binding limitations. They
+are distinguished from files authenticated directly by the Rust source archive.
+No owner, year, universal grant, native consumption or legal clearance is inferred.
 
-Two prerequisites block an operational constructor:
+The helper authenticates the complete 265258564-byte Rust source archive before
+reading selected regular members without filesystem extraction. It verifies each
+whole-file hash and each exact context, then writes deterministic files beneath
+`share/licenses/rust199-source-reference/source-notices/`. Identical bodies share
+one digest-named file; index.json retains every source path and whole-file pin,
+and separate original evidence provenance for grants. The exact catalogue is
+also retained. There are 386 unique source files and 406 total unique bodies,
+5802472 output body bytes, after deduplication.
 
-1. The audit catalogue is still explicitly DRAFT, with Root_review and accepted
-   NULL. A reviewed selection must be supplied or this exact factual selection
-   reviewed; this worker did not manufacture review or legal acceptance.
-2. Source314's actor/entry.py enforces the original dd6871d5 nine-file candidate
-   and original contract. actor/phase.py and actor/qualify.py independently pin
-   reference.py to e707e4642cf5fcd59d57d49aa4e38c73e595213f7c728a645587e42c1db3f1cb.
-   Changing reference.py and adding helper/catalogue requires an explicit successor
-   candidate binding. Actors, contract, qualification, admission and resources
-   were outside the permitted notice-only semantic delta and were not weakened
-   or relabelled. An overlay alone would be refused by the unchanged actors.
+`payload/packages/port/rust199-source-reference/reference.py` changes only the
+package notice hook. After existing Rust and compiler-rt/libunwind grants are
+copied, it verifies the helper and catalogue and invokes preservation against
+`verified-materials/rustc-1.99.0-src.tar.xz`. Existing grants remain present.
+Source314's compiler flags, actors, resources, qualification, contracts and
+admission semantics remain byte-for-byte unchanged by this constructor.
 
-`prospective.DATA.json` records the exact *incomplete, non-operational* proposed
-Source identity for the three payload leaves plus a truthful pending marker.
-It is not a publishable or admitted successor. A reviewed selection or binding
-change will necessarily yield a new identity. No physical Source was generated.
+Operational integration is still pending with the coordinator: actor/entry.py
+enforces the original dd6871d5 nine-file candidate and contract, while phase.py
+and qualify.py independently pin the old reference.py. The new proposal therefore
+honestly carries `operational: false` and
+`COORDINATOR_SUCCESSOR_CANDIDATE_BINDING_REQUIRED`. It must not be dispatched as
+an operational successor. The coordinator owns any separately reviewed successor
+candidate binding; this worker did not weaken those guards or invent a candidate
+Git commit. Root's eventual integration will have a different Source identity.
 
-Validation: `python3 -I -B
-packages/port/rust199-source-reference/test_notice_preservation.py` passes nine
-controls. A passive read of the whole pinned 265258564-byte archive verified all
-281 selected files, 4902587 bytes and 245 unique bodies against the catalogue,
-including each context. The tests use fixture DATA for refusal and staging
-controls. Native build, actual ALPM packaging and hardware checks: NOT RUN.
+Run the portable controls:
 
-Base: public Main 9fe143d2357c633748080de3a54ec2c0f2ccef6a. Canonical v6
-code: d9f66d8bb10c9af91a7169cfa5f6b6fcb453910b. The allowed v6 prerequisite
-25471c5ab5c1fd0b74cc8f2816f5a79d5343c083 was cherry-picked separately; integrate
-only the new notice-preservation commit from this branch.
+```
+python3 -I -B packages/port/rust199-source-reference/test_notice_preservation.py
+python3 -I -B scripts/ci/rust199-source-reference-native/successor_v7/test_source.py
+```
+
+The constructor requires the exact frozen parent and an externally pinned profile:
+
+```
+python3 -I -B scripts/ci/rust199-source-reference-native/successor_v7/prepare.py \
+  --parent /absolute/immutable/Source314 \
+  --output /absolute/fresh/disjoint/proposal \
+  --profile-sha256 SHA256_OF_CONSTRUCTOR_PROFILE
+```
+
+It changes only the three payload leaves, adds the truthful pending marker,
+regenerates the map, and verifies a complete inverse to Source314. Its output is
+Source DATA, with all future actual selectors NULL. See prospective.DATA.json for
+actual passive validation and exact prospective identity. Native, actual ALPM
+packaging, generated COPYRIGHT.html, final package notice comparison, and M2
+checks remain NOT RUN. The sealed source audit establishes a copy/scrape-input
+gap; this proposal makes no claim of an actual emitted-output omission.
+
+Base: public Main 9fe143d2357c633748080de3a54ec2c0f2ccef6a. Canonical v6 code:
+d9f66d8bb10c9af91a7169cfa5f6b6fcb453910b. The allowed v6 prerequisite
+25471c5ab5c1fd0b74cc8f2816f5a79d5343c083 was cherry-picked separately. Root
+reports PR469 merged at 50ee5db18fba88bba19e7b2ac475dcdbd9fe4368; this isolated
+branch remains on the explicitly assigned base. Integrate the notice commits
+only; do not reapply the already integrated v6 prerequisite.

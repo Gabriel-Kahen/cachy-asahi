@@ -305,13 +305,13 @@ def package(work, destination):
     # Preserve complete authenticated files containing catalogue notice contexts.
     import importlib.util
     notice_helper = HERE / 'notice_preservation.py'
-    require(digest(notice_helper) == '07b193b850b28d93a04672e8586a63549168766314dc0b4ab291038bf928c774', 'notice preservation helper changed')
+    require(digest(notice_helper) == '754ce0a4018a16b94ad3827b314f967fba135793bfdda399a67dd02560899215', 'notice preservation helper changed')
     spec = importlib.util.spec_from_file_location('rust199_notice_preservation', notice_helper)
     notice_module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(notice_module)
     notice_module.stage(work / 'verified-materials/rustc-1.99.0-src.tar.xz',
                         HERE / 'notice-catalogue.DATA.json', notices / 'source-notices',
-                        '515d3ec9add3b04ac1bde8b6de150c28525fd3262c92223ca0444c6fd8af3df3')
+                        '1c477c7481df39c1b8b8e82edf73f8df99c63e3f7657e440393b6c812c8d421c')
     check_stage(destination)
 
 

@@ -2,96 +2,79 @@
   "M2": "NOT RUN",
   "Root_review": null,
   "accepted": null,
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "image": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "actual_ALPM_packaging": "NOT RUN",
   "actual_archive_read": {
     "bytes": 265258564,
-    "contexts": 283,
-    "selected_bytes": 4902587,
-    "selected_files": 281,
+    "contexts": 433,
+    "selected_bytes": 6227097,
+    "selected_files": 425,
     "sha256": "cc41916a8c84f5d9ec4f55561b44e39f43b647b133f8a6f51be9ea13c83f7036",
-    "status": "PASS_EXACT_BYTES_AND_CONTEXTS_DATA_ONLY",
-    "unique_bodies": 245
+    "status": "PASS_WHOLE_ARCHIVE_SELECTED_WHOLEFILES_AND_EXACT_CONTEXTS_DATA_ONLY",
+    "unique_source_bodies": 386
   },
-  "bytes": 41966044,
+  "actual_preservation_output": {
+    "all_output_hashes_and_complete_membership": "PASS",
+    "index": {
+      "bytes": 143768,
+      "sha256": "daeb94e9388895e6e8237b769717ddbc45a240bec2604b232643d56f267947ad"
+    },
+    "output_body_bytes": 5802472,
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi-rust-notice-preservation-20261116/work/rust-notice-preservation-sealed-DATA-20261116-r1",
+    "retained_grant_bytes": 67508,
+    "retained_grants": 21,
+    "total_unique_bodies": 406
+  },
+  "all_non_notice_parent_leaves_unchanged": true,
+  "bytes": 42383950,
+  "catalogue": {
+    "bytes": 733756,
+    "sha256": "1c477c7481df39c1b8b8e82edf73f8df99c63e3f7657e440393b6c812c8d421c"
+  },
+  "complete_inverse": "PASS",
+  "constructor_profile": {
+    "bytes": 2015,
+    "sha256": "772122c0a45842d620c772b9253483b27e7d3cf62979c0f0534e0c6646552049"
+  },
+  "emitted_COPYRIGHT_HTML": "NOT RUN",
   "files": 317,
+  "holds_preserved": true,
   "map": {
     "bytes": 62227,
-    "sha256": "0d05713a37c7569682a787152a981bb9f47556da11de3529e7895ebb4960d23d"
-  },
-  "marker": {
-    "actual": {
-      "approval": null,
-      "artifact": null,
-      "image": null,
-      "job": null,
-      "ref": null,
-      "run": null,
-      "source": null
-    },
-    "catalogue_review": null,
-    "changes": {
-      "packages/port/rust199-source-reference/notice-catalogue.DATA.json": {
-        "after": {
-          "bytes": 317724,
-          "mode": 420,
-          "sha256": "515d3ec9add3b04ac1bde8b6de150c28525fd3262c92223ca0444c6fd8af3df3"
-        },
-        "before": null
-      },
-      "packages/port/rust199-source-reference/notice_preservation.py": {
-        "after": {
-          "bytes": 6507,
-          "mode": 420,
-          "sha256": "07b193b850b28d93a04672e8586a63549168766314dc0b4ab291038bf928c774"
-        },
-        "before": null
-      },
-      "packages/port/rust199-source-reference/reference.py": {
-        "after": {
-          "bytes": 21718,
-          "mode": 420,
-          "sha256": "d66757da79fc68ab61ee8bff3d091606b8fc7aa2bfe690905e9cadfbdcbdee35"
-        },
-        "before": {
-          "bytes": 20960,
-          "mode": 420,
-          "sha256": "e707e4642cf5fcd59d57d49aa4e38c73e595213f7c728a645587e42c1db3f1cb"
-        }
-      }
-    },
-    "holds_preserved": true,
-    "parent": {
-      "files": 314,
-      "map_sha256": "2786d1d393888699faf320b416e1570f40060e2428907c09855d4c7103aa33f8",
-      "tree": "109005278b7a1404310ffb06e5f57933a6c1ba20"
-    },
-    "schema": 7,
-    "scope": "INCOMPLETE_NOTICE_PRESERVATION_PROPOSAL_NOT_OPERATIONAL",
-    "successor_candidate_binding": null
+    "sha256": "744df563cc08100e93b0a2143bc36e1865acc94304d6890fcb731179a83c379a"
   },
   "native": "NOT RUN",
   "operational": false,
-  "payload": {
-    "packages/port/rust199-source-reference/notice-catalogue.DATA.json": {
-      "bytes": 317724,
-      "mode": 420,
-      "sha256": "515d3ec9add3b04ac1bde8b6de150c28525fd3262c92223ca0444c6fd8af3df3"
-    },
-    "packages/port/rust199-source-reference/notice_preservation.py": {
-      "bytes": 6507,
-      "mode": 420,
-      "sha256": "07b193b850b28d93a04672e8586a63549168766314dc0b4ab291038bf928c774"
-    },
-    "packages/port/rust199-source-reference/reference.py": {
-      "bytes": 21718,
-      "mode": 420,
-      "sha256": "d66757da79fc68ab61ee8bff3d091606b8fc7aa2bfe690905e9cadfbdcbdee35"
-    }
+  "parent": {
+    "bytes": 41639049,
+    "factory_commit": "d9f66d8bb10c9af91a7169cfa5f6b6fcb453910b",
+    "files": 314,
+    "map_sha256": "2786d1d393888699faf320b416e1570f40060e2428907c09855d4c7103aa33f8",
+    "tree": "109005278b7a1404310ffb06e5f57933a6c1ba20"
   },
-  "source_constructed": false,
-  "status": "BLOCKED_DRAFT_CATALOGUE_AND_UNCHANGED_FROZEN_CANDIDATE_BINDING",
+  "parent_source_unchanged_after_readback": true,
+  "pending": "COORDINATOR_SUCCESSOR_CANDIDATE_BINDING_REQUIRED",
+  "sealed_catalogue_derivation": {
+    "bytes": 9701329,
+    "seal_sha256": "d66d49a2734e79c6f9d1f5a57fda98ab519d39016483da0f4f88a0f626576fd9",
+    "sealed_files": 15,
+    "status": "PASS_EXACT_SEALED_FILES_AND_DETERMINISTIC_DERIVATION"
+  },
+  "source_constructed": true,
+  "source_output": "/home/gabe/Documents/ChatGPT/cachy-asahi-rust-notice-preservation-20261116/work/rust-notice-Source317-PROPOSAL-20261116-r1",
+  "status": "NOTICE_ONLY_DATA_PROPOSAL_COORDINATOR_CANDIDATE_BINDING_PENDING",
   "tests": {
-    "portable_controls": 9,
+    "notice_controls": 11,
+    "source_controls": 6,
     "status": "PASS"
   },
-  "tree": "430091d9bd9cc9f3b540afc289e3a60a04412bfd"
+  "tree": "41c0baed1f6f56bd9f6e08ce64695592d110b252"
 }

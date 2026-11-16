@@ -75,7 +75,18 @@ def catalogue(path, expected):
         need(type(row['bytes']) is int and 0 < row['bytes'] <= MAX_FILE
              and type(row['sha256']) is str and len(row['sha256']) == 64
              and all(c in '0123456789abcdef' for c in row['sha256']), 'invalid notice file pin')
-    need(sum(row['bytes'] for row in files.values()) <= MAX_TOTAL, 'notice aggregate cap')
+    grants = value.get('retained_upstream_grant_bodies', {})
+    need(type(grants) is dict and len(grants) <= 128, 'finite retained grant set required')
+    for digest, row in grants.items():
+        need(type(row['text']) is str and type(row.get('path', row.get('file'))) is str, 'retained grant text/provenance required')
+        raw_grant = row['text'].encode('utf-8')
+        need(0 < len(raw_grant) <= MAX_FILE and pin(raw_grant) == {k: row[k] for k in ('bytes', 'sha256')}
+             and row['sha256'] == digest, 'retained grant bytes changed')
+    referenced = {digest for component in value['components']
+                  for digest in component.get('retained_exact_upstream_grant_bodies', [])}
+    need(referenced == set(grants), 'complete retained grant component provenance required')
+    need(sum(row['bytes'] for row in files.values()) + sum(row['bytes'] for row in grants.values()) <= MAX_TOTAL,
+         'notice aggregate cap')
     return value, raw
 
 
@@ -123,6 +134,9 @@ def stage(archive, catalogue_path, destination, expected):
     need(destination.is_absolute() and destination.parent.resolve() == destination.parent
          and not os.path.lexists(destination), 'fresh canonical notice destination required')
     bodies = {hashlib.sha256(raw).hexdigest(): raw for raw in selected.values()}
+    grants = value.get('retained_upstream_grant_bodies', {})
+    for digest, row in grants.items():
+        bodies[digest] = row['text'].encode('utf-8')
     # No source-provided name is used as an output path.
     destination.mkdir(mode=0o755)
     (destination / 'bodies').mkdir(mode=0o755)
@@ -133,6 +147,13 @@ def stage(archive, catalogue_path, destination, expected):
     index = dict(scope=SCOPE, holds_preserved=True, source_archive=value['source_archive'],
                  catalogue_sha256=pin(raw_catalogue)['sha256'],
                  copyright_ownership_inferred=False, manifest_authors_are_owners=False,
+                 retained_grants={digest: dict(bytes=row['bytes'], sha256=row['sha256'],
+                     retained_evidence_path=row.get('path', row.get('file')),
+                     retained_evidence={key: value for key, value in row.items() if key != 'text'},
+                     body='bodies/' + digest + '.txt',
+                     components=[component['component'] for component in sorted(value['components'], key=lambda c: c['component'])
+                                 if digest in component.get('retained_exact_upstream_grant_bodies', [])],
+                     scope=value['grant_scope']) for digest, row in sorted(grants.items())},
                  paths={name: dict(**pin(raw), body='bodies/' + pin(raw)['sha256'] + '.txt')
                         for name, raw in sorted(selected.items())})
     for name, raw in [('index.json', encode(index)), ('catalogue.DATA.json', raw_catalogue)]:

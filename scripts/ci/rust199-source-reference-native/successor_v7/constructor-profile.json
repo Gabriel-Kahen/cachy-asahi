@@ -1,0 +1,64 @@
+{
+  "Root_review": null,
+  "accepted": null,
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "image": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "bytes": 42383950,
+  "constructor_files": {
+    "README.md": {
+      "bytes": 4603,
+      "mode": 420,
+      "sha256": "e044f580c92646858c772c5652c2c21aa14221b182c12adddfe0eb5703d03660"
+    },
+    "catalogue.py": {
+      "bytes": 4177,
+      "mode": 420,
+      "sha256": "c03bc1f4ea2400dc9399b45c5d9c338a3aec74fdadd444107c6cc00af2af45ea"
+    },
+    "payload/packages/port/rust199-source-reference/notice-catalogue.DATA.json": {
+      "bytes": 733756,
+      "mode": 420,
+      "sha256": "1c477c7481df39c1b8b8e82edf73f8df99c63e3f7657e440393b6c812c8d421c"
+    },
+    "payload/packages/port/rust199-source-reference/notice_preservation.py": {
+      "bytes": 8167,
+      "mode": 420,
+      "sha256": "754ce0a4018a16b94ad3827b314f967fba135793bfdda399a67dd02560899215"
+    },
+    "payload/packages/port/rust199-source-reference/reference.py": {
+      "bytes": 21718,
+      "mode": 420,
+      "sha256": "acb468c2a2ddf327d882835590facabdc89939131ba8c51ae35028688693c665"
+    },
+    "prepare.py": {
+      "bytes": 7117,
+      "mode": 420,
+      "sha256": "910be312e010888631f9df0a12f6d62fb07b71188776e44d26f7807e3abc1942"
+    },
+    "test_source.py": {
+      "bytes": 6687,
+      "mode": 420,
+      "sha256": "fb5d3f72314d43dfcc3d5638107be6bd0ed39e79569485bfa229b2a874bdd02d"
+    }
+  },
+  "files": 317,
+  "map_sha256": "744df563cc08100e93b0a2143bc36e1865acc94304d6890fcb731179a83c379a",
+  "operational": false,
+  "parent": {
+    "bytes": 41639049,
+    "factory_commit": "d9f66d8bb10c9af91a7169cfa5f6b6fcb453910b",
+    "files": 314,
+    "map_sha256": "2786d1d393888699faf320b416e1570f40060e2428907c09855d4c7103aa33f8",
+    "tree": "109005278b7a1404310ffb06e5f57933a6c1ba20"
+  },
+  "schema": 7,
+  "scope": "NOTICE_ONLY_DATA_PROPOSAL_COORDINATOR_CANDIDATE_BINDING_PENDING",
+  "tree": "41c0baed1f6f56bd9f6e08ce64695592d110b252"
+}
