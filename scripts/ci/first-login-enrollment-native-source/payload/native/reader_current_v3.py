@@ -233,7 +233,10 @@ MATERIAL_STAGING_POLICY=dict(kind='CURRENT_COMPLETE517_MATERIAL_STAGING_V3',whol
     download_requests=63,download_redirects=42,download_seconds=90,
     transport_policy=dict(fetch_seconds=400,transport_seconds=480,outer_seconds=500,
         reason='Explicit one-fetch allocation for full retained DATA; no measured latency guarantee'),Root_acceptance=None)
-MATERIAL_CONSTRUCTOR_PIN=dict(bytes=35701,sha256='308bd58cdcb951e40e9ff76f766fe394f0495aa57847439eb8e1bfcbaf1be489')
+HISTORICAL_MATERIAL_CONSTRUCTOR_PIN=dict(bytes=35701,sha256='308bd58cdcb951e40e9ff76f766fe394f0495aa57847439eb8e1bfcbaf1be489')
+MATERIAL_CONSTRUCTOR_PIN=dict(bytes=36564,sha256='72ab4cd782f4bb2376a4fbc8642b4e783b56f2663685b87e4727eae1efbb78df')
+SOURCE139_MAP_PIN=dict(bytes=26734,sha256='ec752108c451d056ebbe4caa97d629bad081c256d506a3d83722f47952a9005e')
+SOURCE139_CLOSURE_PIN=dict(bytes=2118,sha256='6211506eb9b1483f276314b9e8c0c23e9b338ffa332f2efa899c9e1949446977')
 MATERIAL_FULL_POLICY_PIN=dict(bytes=8366,sha256='1177da4f3bfc36f8ebe8802ca6956adf3d0230511aa827bdac933688d83f0767')
 MATERIAL_EXECUTOR_PIN=dict(bytes=53735,sha256='aee41c0956f3249eef2e9c8974238b214622cb385e2d8f736109d9650ce7120a')
 MATERIAL_DOMAIN_POLICY=dict(kind='CURRENT_ONBOARDING_MATERIAL_DOMAIN_V3',scope_seconds=3600,cleanup_seconds=90,
@@ -487,7 +490,8 @@ def source_data(expected,files,*,delegated=False):
          'HOLD_SOURCE_QUALIFICATION')
     need(set(files)==set(lock['files'])|{'source.lock.json','source-map.json'},'HOLD_SOURCE_CLOSED_NAMESPACE')
     for name,row in lock['files'].items():
-        relative(name);need(row['mode'] in (0o644,0o755) and pin(files[name])==whole(row),'HOLD_SOURCE_LEAF:'+name)
+        relative(name);need(type(row['mode']) is int and row['mode'] in (0o644,0o755)
+             and pin(files[name])==whole(row),'HOLD_SOURCE_LEAF:'+name)
     need(set(expected['source'])=={'profile','program','policy','retention','encoder'},'HOLD_SOURCE_ROLE_SET')
     values={}
     for role,row in expected['source'].items():
@@ -504,6 +508,7 @@ def source_data(expected,files,*,delegated=False):
     if program.get('schema')==4:
         actual={'source','ref','run','job','Root_delegation','Root_trust','Root_resources','Root_runtime','actual_images','publication'}
         prefix='scripts/ci/first-login-enrollment-native-source/successor_v4_source/'
+        source139=pin(files[prefix+'prepare.py'])==MATERIAL_CONSTRUCTOR_PIN
         roles=set(program['roles']);staging=roles==MATERIAL_STAGING_ROLES
         if staging:
             material_registry_shape(program,receipt(files['provenance/v4/delegated-closure.json']))
@@ -520,7 +525,7 @@ def source_data(expected,files,*,delegated=False):
         if delegated:
             need(current and whole(expected['source']['retention']) in DELEGATED_RETENTION_VERSIONS,
                  'HOLD_DELEGATED_SOURCE_SELECTOR')
-            constructors=((BASE_CONSTRUCTOR_PIN,MATERIAL_CONSTRUCTOR_PIN) if whole(expected['source']['retention'])==BASE_RETENTION_PIN
+            constructors=((BASE_CONSTRUCTOR_PIN,HISTORICAL_MATERIAL_CONSTRUCTOR_PIN,MATERIAL_CONSTRUCTOR_PIN) if whole(expected['source']['retention'])==BASE_RETENTION_PIN
                           else (DELEGATED_CONSTRUCTOR_PIN,))
             need(pin(files[prefix+'prepare.py']) in constructors,'HOLD_DELEGATED_EXACT_CONSTRUCTOR_BODY')
             tree=ast.parse(files[prefix+'prepare.py']);declarations={}
@@ -683,13 +688,32 @@ def source_data(expected,files,*,delegated=False):
              and b'workflow_dispatch:' in files[workflow],'HOLD_DELEGATED_WORKFLOW_DECLARATION')
         inverse=receipt(files[prefix+'inverse.json'])
         original=files['provenance/v4/v3-source-map.json'];old=receipt(original)
+        generated={'provenance/v4/v3-source-map.json','provenance/v4/delegated-closure.json','inputs/delegated-materials-v4.json',
+            *(prefix+name for name in ('program.json','prepare.py','README.md','inverse.json'))}
+        if staging:generated.add('inputs/material-staging-materials-v4.json')
+        remove=set(generated)
+        if source139:
+            frozen_name=prefix+'source139-owner-closure.json';generated.add(frozen_name)
+            old_names=set(old['files']);code_names=set(closure['files'])
+            need(pin(original)==SOURCE139_MAP_PIN and len(old_names)==137
+                 and len(old_names)+2==139 and sum(whole(row)['bytes'] for row in old['files'].values())+2*len(original)==43544563
+                 and inverse['original_files']==139 and type(inverse['original_files']) is int
+                 and inverse['original_bytes']==43544563 and type(inverse['original_bytes']) is int
+                 and not generated&(old_names|code_names)
+                 and all(same(closure['files'][name],old['files'][name]) for name in old_names&code_names),
+                 'HOLD_EXACT_SOURCE139_INVERSE_BASIS')
+            need(pin(files[frozen_name])==SOURCE139_CLOSURE_PIN and lock['files'][frozen_name]['mode']==0o644,
+                 'HOLD_EXACT_SOURCE139_OWNER_CLOSURE')
+            frozen=receipt(files[frozen_name]);registry=receipt(files['scripts/ci/first-login-enrollment-native-source/successor_v3/owner-program.json'])
+            need(registry['closure']==frozen['files'] and registry['closure_commit']==frozen['commit']
+                 and all(same(row,old['files'][name]) for name,row in frozen['files'].items()),
+                 'HOLD_SOURCE139_FROZEN_REGISTRY_JOIN')
+            remove=generated|(code_names-old_names)
         need(set(inverse)=={'schema','kind','original_map','original_files','original_bytes','remove','actual_acceptance'}
-             and inverse['schema']==4 and inverse['kind']=='DELEGATED_SOURCE_V4_TO_V3_INVERSE_DATA_ONLY'
+             and type(inverse['schema']) is int and inverse['schema']==4 and inverse['kind']=='DELEGATED_SOURCE_V4_TO_V3_INVERSE_DATA_ONLY'
              and inverse['actual_acceptance'] is None and inverse['original_map']==pin(original)
              and {k:v for k,v in old.items() if k!='files'}=={k:v for k,v in lock.items() if k!='files'}
-             and inverse['remove']==sorted(['provenance/v4/v3-source-map.json','provenance/v4/delegated-closure.json',
-                 'inputs/delegated-materials-v4.json',*(('inputs/material-staging-materials-v4.json',) if staging else ()),
-                 *(prefix+name for name in ('program.json','prepare.py','README.md','inverse.json'))]),
+             and inverse['remove']==sorted(remove),
              'HOLD_DELEGATED_INVERSE')
         restored={name:raw for name,raw in files.items() if name not in inverse['remove'] and name not in ('source.lock.json','source-map.json')}
         need(set(restored)==set(old['files']) and all(pin(raw)==whole(old['files'][name])

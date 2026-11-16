@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: MIT
-"""FENCED public Reader tests: tiny generated DATA, no actors, GPG or network."""
+"""Portable DATA MODELS plus opt-in genuine Source audit; no actors, GPG or network."""
+import argparse
 import ast
 import base64
 import copy
@@ -8,7 +9,10 @@ import importlib.util
 import io
 import json
 import lzma
+import os
 from pathlib import Path
+import stat
+import sys
 import tarfile
 import tempfile
 import unittest
@@ -17,6 +21,7 @@ from unittest.mock import patch
 import zlib
 
 HERE=Path(__file__).resolve().parent
+GENUINE_SOURCE=None  # Selected only by an explicit --genuine-source CLI argument.
 
 
 def load(name,path):
@@ -6115,6 +6120,154 @@ TRUSTED_MODEL_FIXTURES.update({
 })
 
 
+# Metadata-only external genuine Source case; package and Source program bodies are never embedded/executed.
+TRUSTED_MODEL_FIXTURES.update({
+    'genuine_source27_map':({'bytes': 35107, 'sha256': '6a8f42c7c1e219f47409885480a4ebb90f7ee4be40643ffb522b093fa0b8965c'},
+        'c-q~aU2~krk)`kbD;&BWkoEnscN$rCI7TBmBzbQU^-1;!1h@@=GH1g7eV=TAlnA4ng+?o4wX!V-'
+        '8X!^izFC<kPoB*BpFjNZk6)B_b6YOH_+NkgAHL%2@2{?I&bQ<G>UP`4HJ@MJUR?a!ufKPDd9!&l9{JAo=GEoq^3@~Xx!K-c-+cP{-'
+        'S0i$yeY39{+hDA*-XCw>8E{j{kGh+*XOUc<?_Mz{_CoK`oY`Vda-HcW^;A<={L4xKKS7F!B5=n{QfgO`lo#U#oS!%mU;h_UcB1eyuPh3f4<uOG'
+        '%v1xzJ7VhFMBu6%J$7!yWMWb<;~gEWxXof&LcVN<6^ujH>01uvoGGi`Q>@@ch&bdyT3YRm;dd<hi|UBtic)e@uTb4#rVL7U$|0=)w7ILLkPZmW'
+        'o$Gq#BO`>ZH%dEwaR<jO`lblmZwd{>DjW<!GE#)EB|@F;mRAjzS)+yFR$Bn^Y-'
+        'TYW!t>mT)w@%xqfkR)qZ;MU)Q^*_%92#CTXSDmRv_GHV@^7HomA?qUocTYI={+@OcW}_oSK)&FD~+)qSeM*U6ia=E9P%F8cZ8<(*%T(O<lM|Ja'
+        'gE<~OaaxM(+6Me;6p<4UeAYaVS?b~Mv?`lf3$O|`|%Tvc(cwONC!!@6o}Tv+k-xVe2B&bH&GY%Z~l*W=>t*z&Ei-EPMA?CthS>~8N1(Ahhu7Hv'
+        'kQJbTP3x!lU^#n`TFQ@v+jTFRj$JA1ID8$GPmW$^bj?V`8dr_i3U9Wnj(p4|*~bMg6IdA+!&+*&f7*OXm!+GAopcc=K0x1oxODtD#p@Xl*HVk$'
+        'GWXyq{k-c%0H-qZR0p7vOq&nc|!MER06{~f%7Ty5n<1RwPDwN904uT?9bbL!6YI<;jtes(>F@!9eIp0N|Q@V0Eno-Nq8>XbqYDK)Eot2vk!oUW'
+        ';<s(B?TP2NyU-N!OCCuvOM^+;)8i<J`-'
+        'tbXt^?vKE|AL2yZl#8oZFR$j@v`x9d&$id%ZzblGo7?R;yZ2c8tjbsw7JU_l<Xv#HcCUkDS7{pd<!g3!PR=&|%jU$RFOyf$LT%F+-'
+        'kCRH4&9%&lXh`+&HDE*TxXTz+RC+!x)nEEz~`$uOZJ#bFQMqsFs8zZ=}Kwk%)qinXilr@o6gy!oDaW)`v?4|@4x)>kNa0^;-'
+        'bmhKE1BdYl%uu)zoFVrcBdgQl`#?5mh#1V&#czW9H2GrdGU~$&G_+eM79>@^r61KIfN8y|_1;N7tRgVqBQ1gg9`Q+2VLc8@cD8`Nvcju!%k~c^'
+        'B)>+6lZ`r=rxT*?aa?^AYR*XylJNnXvf4lMAz`z6-'
+        'elubGsu97e1`JL?F`#*|=LsW;Y3NK+vb=sX7*!}0OS3)hDpI6f?>ML$1^E*cn62O$YV);`*p2wFOV9BPhXBn&tX<D%}}D6M0)+1P3)`>98){4|'
+        'fem*^v)Aps4BRsqjlB4$2$3(0pUXVViUR91cDR6$2BMWVBIY$~@WFWek@<aj{m7L9zU9!j>saxy0{GkSxWPn{EcP^Bxj&@AVb=gkr2g<xGK$D('
+        ')-'
+        'WgM~a(>!sl6z+_8KVrsA0KK_~6m6^4+8&5OdRk7QYlKjjTvQxShj#}u>(HKV<o2MEE9`X9uNb^rD#>IJFE}lj&}#8%wuWz+L{O_bs4RQkL26F<'
+        'gfZEaLaBJ6SdUowX&(6)(HJ*%DRVmU=%YsGdnqHT0w_+F{G{PB0cs#~Fe`h}#sQ>>R5?9);qK5Q_g>k>g$K@CA(k6ZOZ8+%RXftAP;ulcCV^U5'
+        'iD|j};8VfQbHTpAHML>*;fRHw=85Cf27ZN*LLTTU@zN{jNcLh-O%g!Ws;V&s6?)LEnn;l9UGhWzM4L}uxIY*=qfz{-'
+        'MabT9%$X+$Y*G?Md0TN{E>-J_RS-GJyT}!7vdvb&Kq!vCsy3B#bn%F#pXQmXP)dsUMB{4Bm`4Wjk$l)r4%W%Ry8<Sv!SQuOQ8T(Xv(FYd)CxrT'
+        '<b{WW&)o2K^(xZR0-'
+        'wMw5$6o%ChaS##1bayYZLdu>Fut<D!5AI91%S338pxrj?Evj^wT`^4EoL`G+$fSy8GOeB;lO|R#oCDNvw%(68w7@(_<fchN{37IDa*ten8_vXH'
+        'J~<+AKbETS=yE4ly*+QXX<o9M(EBe~lkNf;=#OAH{~!P*HUU(C<XjlCZ5KmVTONUW_xgHIpD;vKupV{Awl!1^l8147M)Gv&p0mIa&NlsUB!B9H'
+        'C#urytOCIDnD{`&H*cdV@R6Ch&ot4&SE+xT<ys{l!<skV#peY9SjfQL?#cc-&@s&Qmu>to<|(-'
+        'IMYAloh0l!wAIZHK?+YNtB_Uj6jpg3L*WVFiMLNjMH@SwUf2={^W({gAbjQGp^cs8llJ8o07+vs!GFjGhhMo2q_RpYwsfrg@Z|?)c_S-iWd43|'
+        '6k`3D?iO6kF!k@IXhS@spar9+DXowJbA?c$6)>4V(2cm90VMyMluaCL)tXDed@yX;q)`c)hF&E?gR%1J34~GhH>hn2SO#pYK4JN$rq;}kXj(N7'
+        'QjJL6Sz1^7(v$~7Ji~9PF^|lWcfPc5{&`tLPiegAVMm+^b`!4V7jvI%E4&^0<is#pCsBn*|X@w`6s|UE&7#~TaJ<<*rK7UDyI%=xEW;)G@SEMb'
+        '6!c3Fzw;3ilbmjq^px(lIQ40to$^O9M8<-16CzSYd!JO&~ni2&g7Y!$tHWUJ6DK57<&(V9&wp7G%fVj(-'
+        ';1k{8Oh@_Pt`gc>dn2mm~`R2tEu3lgIhl2GGSD5`)N;vco${dBcMzp(}C=`k0lU=8?PR3i%t(1oJ2Xl8ek|))t)*odrDDNbnuNMhO8*#zg+lAE'
+        '>w<*!d@C&e|UKD_ZA8$1(`(am+}L273a);y-m{et6ayAmL_L0%xdgSV^LXi!kf1b-tdM{1GcZ%_FA*1BhZ-'
+        'U{$IwI!|EA#9$~hnF8+&Q%6;!Pd4LuBM<|88Oc;D$SXWK0oCp>Otfy*%8ld<5N*owSPc&|QL_^mkS*kL<A2&t8}aM92b_zYp42b#0SR3V`iPaE'
+        '$d^aFpCUJIA!w4h049M2^~8Boz_A9Cf&8i*Si&V(y_0b02CobAPr>ZT3qP2FTAth@vBjCJpl^~LR~5EPmVo~zH1ZPs*zrNL;}=0KKEk(9J<1Ap'
+        'RB4z{<LnU&KT-'
+        'Z!SzpmpLl%+;Mc|VmAYsEZ_7GYk3)ikRQqPbeNi&=|4%3tT;~vY?P32(znJnIU(USvD$ljCKH;80P^n`@a!|WD05{0=5h2(5VMr<3GX=7GlG)S'
+        '3v%)(FPR;=sO^4hWNktE2=;cRe55OUPpI}sHRNHI9@M(~r#xMrwMP$&X&J>68|;oxb^swdZ2ZUVMK=O+ycfw0Kb5<B5VL#jafgAB#Xch>49Q3|'
+        'kHLf(<mg*1;?`HA@Qm<KU3XNv1amYamR5;qP~!G8~k#-c&#h7<#P0YT0{3JQcI0|`$~;B-'
+        '3t$d$IMs2om<hm6^hO~ACl7R?qt6;Ut=Xobad6e)8KOX3_7CHE4{DDvESTl0vOpNLDuO(P<}XMp%DX(uQ|$|f*FzQJBk(w<1QC^kTs<7do-'
+        ';l=4w3y26dp1kmbsVBeCtx_xk3`dZh3_OCbz;L?`AjO`kb44fRqLGaDDw0e)){OQ8a=l<(k+^ll%1;zLN5jWC)2JZ^fD`;D6*=;X5Qt<jxRe5{'
+        '<$VAY$@Q$V%0<F`?`f8rp6po6!PJuyxAlvU9KVg~h4M*^IB_+itetq?I|(UXUGZ}hgk_4QN=^lr7t<95TuZ?@=VMlWnnw=vFrj2?qe{i&hnelb'
+        'F7!N&0)%qiNO6dh+NA~n3rFpxS!@LJXQ$!GMO$+)_e5M^R&_fA$4$YL+{}CU!yFS-fhX*QiH#5xplV6r5Li$aidFA;XBWJV6v8m`BUXMQB60BA'
+        't+y1wt)>zSCNJGNFYG752dN9#5I#Uh(N|Gt>}^mr(#=btZBO>)=3wp#f0<YLa_S`TouonJ%?Sm<oR*U8gk_;fglz)>aP6goWuj9P3vxXpp0W~x'
+        'VA+pY`H8|OxdLW_|Ffu9CN#J<KtrVw@zjVe1ac1OSP<l(C_-naBZWnhf6_PKmKVNL5~Y`i+&D?hqJ5`6pvn~r8lEAnIjpkrh-x~7enX-HN<^%H'
+        '4v-_$sk<O;!KdR+RO2;$rXX}D1HE7H2VLe1k))!?Y@2K3q5G9A(Jp3jZb;xKH-_$49Rm-'
+        '9MzSKe<NKXxxbWH}dL|f~30JrqH8oUkf^E0<h%J=s_NZgAi$Wo?90Un)EQCklv7p?Xyo45~i7c%MgIj&#Jd)-'
+        'c3tq>iG${=L+*3Yc$(Z=#2Xj$h2J?`rRIhl_BLGLJv!Pi;a|7l=F*+$<HHzYnWICh9K~K@G<fTpb;nOjO@(zQa_cG$WcESr@wDg2B6i5gYi<Mw'
+        'rcIT5ynh5x)UiF0Mqm+et@XX2XdC;TDc~wF&9ySwkAc*=dHXNPz?c$>x?yy=*i$-'
+        '`cjhm6;8$2TH2}}{Bp@=JZ9|C2lMN?8q0nvq*%o@cgMGPCs`hgd`8hhBCU*DhtKYKUY&DD0lgik2pRcr{g6DX#U#Lt+mU@R(GfN-'
+        ')LG}2apB4i7SJyN#{C^zU3Q5NA<hBD57ezn&xYiU1?%l=~g<1GtEax7x$$JR|=yNV1+$gpzC;IPO|G!w}A%s}Vi;P9zrNg7nEh;87+JL*rWwJi'
+        'f@av+auE6e_9BA;J)M5MHcQi7z9rK14_=TW^MAv;_<oWB#|1f0czB^z>h6pGIkEg$4=LR&Eu7PGSO+s(p?ty{Ebq<bQoPsk9FT#*=S97fW>C`y'
+        'BqtcWThFc9gM)cHxh(cV(+MDmWESo6T1?^pVZ%>QGwJbUN%A3p$pTt!nb4|6B=X;O-%-'
+        'az_5Ak2sjGQ}U8i6?VRc&cg#B~SVR3c7>I<A;2Cbh#fEc_vR-'
+        '+7#ASP5o|>hd|$B=uQyfNffK5dK^gc1uYpenGpperYaPX4bl@po(5YBhT?As^WdWQ`w0}II<4}USqMv@Gs>UZAS!w54oik{MVo{GxRw+UMuL$j'
+        '(Z*3BF#%VQ$O$!Fdvt|&!Q|}TieKE6?c=&$i}Nw7x)~|FPpMyHjHH3oe>2%FFoO7oZllPt;*gaI3k$-'
+        '76NEk?Q5eF2_xk8Ue=m;g;c~CX1rm1a^2(A|fhaUzPT01u!IMkzv;}1f^NWfHIWo%cW<63<(g3mmC`!6i0_-'
+        'rc8`NzNE%|rgbALa+_O8?FE;xL?nFO0%?NKt|+eX?f@84>g5~OR2LMa{qAWYGnR)!e^y30<t5-'
+        'O>HRH{NQC2FYZq0!zi^FzM{J#gjn`t8;BW>2Su<`FHvc{;tI>8Ph50kopyH!OXM|F;DK$-'
+        '~{zOGYJfRs==}rI2MHF+uwWt|YPgbfIrK{=1icb9Hqg4GQh``?GRgUT@CkW_x{eM!Ul1^6Yk_%*z))eE-'
+        '#7zy0%fk2*B9s?&jdsi;4cWO>d6EzC@n`VlW3hJe;DWg#Iw8Z{BUCei0+`j=4dm;hmY{QAH7>sMcY`@`3dW8t*gAA)>^XABeu&PUWq-'
+        'V%&ylENMk@p8O~yEL>p(hedWMGucOnqoomXp<gljGwanZ@>GI4Lq80C%4KGz}p4sTfty>_(*dpGD`E#1ilYA>Y1n=!0ibO??p;S4<VAOIjJpab'
+        'Nu4}_8))w_rL%3n?F6CY%9CkoI^QIauDK%)E}FnRz$5-'
+        '${FM$)Ex8NNzjRWyqj52ooF;t5S8rdVHWk2^?(2Mmw)=tuV1|Bk2}L)R)wTdngJ}`j%3=%zBKtBBAr4&>yglc;=v~fC`x*i3m_<gOsS(p)+M4I'
+        'c+LiX`1?0M{;+2U2ohG+YHe_Q#Zy}3=|*{&FErl+xh7Nyou}wy6G>p-)!-'
+        '4B(rO4JMGgzUI$b?}2X(vYulBX7!E(7(VJR$Q@HB0Dsd>O@(7WXWl^G~MP&2fdrI3g4lo}HnYH95R0V<^B*-'
+        ')B##t!y>^Km|B)u?DqYmG7vdq6G)=oZ<%s5J;@0=(=_nj8tHBm<)Q=^_e)=q@;}^o&#S>kr^ew(t3of9zv2O<pCBkssGc$Ct>~IO6P!rW2qco='
+        'O2~P}Y#C%buc0f7m)8mQo?DDH_z^PP3o;o$RwW?0?beR!3EM!2K2C0M(o%9#;nuG*NsJ)*CM0VvExAfvOJ{oazHWn1Yo^KaStdE0Elt<#Qt4YV'
+        'WWxY(WvsY?3F8pa5D^^kWHF47L|BHdG4=e$jgrgI8eL!iLiz=Z|0h=IXxF{>5JkhksoBM|nLiUwkEh=1ch_f0jS-jr@TZeO&)^bM^L7yK{?aHk'
+        '>$RD&jWv8OTxCL$GwR8uSeP#U?RIX_!XC0N|239{u0bQf9<gqlr3xr}xz3VUwe;X|;&K!i$Z<*invFQWhvQn`zOuNc)HhcyW{>yq{gqI$;%FmD'
+        'VZLe@I~Gb9S;DpdiTn-MB25Z9h1tF0@>w2Gdg6mA+OO(I|-'
+        'z`~f(N9yHvXilWR=O^y&1cwQp3_8c5F$X^J*<9EYKZ_W?K9fR(D)el5VYmTJ9^y<(sQl;QK5YVHD?lh~T`Z6UC(jOX)2xrntjkJ_TS<(>t+Ml@'
+        '%=qXZ??fX3&p|-NhMk#<V<gQ1JL?VaWSVRIHK~g|oN^dm!7-'
+        'A`!L4!`oN<qN@3V_N;4XPi{+{Xc@235XD{gAg~IF?Ec;{rsx)+w&iSZ5{sMDR%Qj9!9Hu!)pIcw^`^5&4isVRG#7nR~dteS07ogb!IvMyOJG;Z'
+        'zXGz-l9s9a7oDn1XgQKvU5ygLaS%3PQX>8ljMES?X+{95h)+ZR4Fim<dvQUOf;)5E$iwj<rje8Pa5hvtn`pq9qZ$O^STc%g_KaDl)-'
+        '>ut4qFHc_G+yZYa69?0VNXMxTxX5hd+#gnE!)@#y&fzc<0j(ELGg9(%&yAgGY9_X49RD!~65JXU=qACAqt2vkhdbL;z1X@tIf>44!N;pi|&jAQ'
+        'TOaQE>u-oX-8))%5ns(~S6xxV<8G-'
+        '?jOx5b>)gR0NS<vG0h4Y~ML<D`b$oMI0JX&Z(hN74wBaO<01R84sG>&ERj5Mdvr;7EEc;$Hf@(<;IRK4<QR{_NaTqp7kE6wZhU%gRepa2V~#AV'
+        'tj(=(iOSqZKsDU^OgH-Ngz&2;Sg_k8R3muSddUXS+E+4cL&wl9+TRW=Y$BfYfvOE3^pX4f5b2bwH2k)?ozU=#>yG*Lpcw<Io>R%Q<uO#A+DN57'
+        '8Um*=}Lf2SD|oB00%cFR7NLAOD=z38VR&COOsPjrLOpJp01WvJlDpbA=YsXC#WE24Qpp_@JIAgLb;27Uz<h@<zif>miTSZ!;8?7)l=WLx4vl;q'
+        'CFDB37yjX?+|5$$lcfsQndNL7Nt8>o5du%j9n^0Riaa7Osei+&gR6N)GL`=~=vl5})ZbQp1jXTUiIiSVWjgs$anp=r!A#$b{RCAvuX+OIQ*OoY'
+        '0+-'
+        'k`;J52drcy0~~F<LutK!=P^&d2>Fbg$0mgY1f7@P!(Lwu_5d+7XoQ9wIG0=rPG_N!r3Gg7ESh)H6`Rce;>au__uc(`+?vxloE_V+dL{5vI1IS7'
+        '`xDE45SppXc5$#O4=C{>Ooq)0E$CoO3@2tif&wW_54j7goFsr7taQ5SFrrVJH_0qL{T5H5QapbpocDC0^AUBfsvyjGe{_tlO0hoaMbxp$)CTE!'
+        '{88tc9mSG)I!HJrTc`m1FTJ}kCeoD6;K&+)M>PiGQWX>0h5j>L`wB6$jl5sPw+xM`$LbzmAn{LC~S~Q&~fDmD74C;UqIV}6_R*#Vb=IZh(xA@p'
+        'k6^^Mo$ez>&ROoH!u158+=>dUtAT@=)B!uH%42tNKI)O1j%%YNtGLQIYJU^K=dIofu&NpiK0`au>z5cj^LJz_$<@0iVIB0Bu=oO?dBb#n6o<!A'
+        'bOJ*um1b-'
+        '?g}bNt38z+#(;*;!5j#RIdsSG+E=AzlIdYcVnFjwrYI^ILporrpi=}abI2Hm_xxS0BN|eVReBeNIUVsa%1n!a`<8i%$WC};2qh{CO%HJm0f$OK'
+        'RO!T4w2ky2BOnx!<MVg5Lk0JLa33O&samUJBk8oD!;gazB;q8I?=oV{!BF9GkTd3;mK3pXq4%D~qYi?gE07LB7@~2a{cMrFA<Ef@o<;h<+8M*h'
+        'i;!)nSV*%VQ!jPLHBjP(PbA0!6X@-'
+        'c$u&t7B;wprZfa3&RmqMY?B}EDy!<ed_nrB0N)Ar8WoF;%IKU{X3xbcL(w3NP1qIq=)B=T1L}FA7q4Ma1<^O=8O$K<OV`eZW85>!^!(O{zE&1x'
+        '_OGdzcemdl;)D5XOO2EJ%LRwrzjxJMv<QTA+W<W9cEvh+05qflK&PdYK$h1y`Bp~94gI#{L&`;%Vc-2ePPS-d4S$}lAtF%AW7s|-'
+        'YLPOBYj8w*4fKp`WuE9)jN4zH(EE@Gh;!Q;cQ8?HVrbNzh%X`<1<^H18{M<8UAjPTyL%|Z0qp(lpe&kFb4Cx-JU0jPykU-qTOkpE}2dZXt!@`Y'
+        'ITSI@0Lcttb@H=~Ny9Wc8p$%aXYDgE00q-'
+        '{QTLMv#c7GIv1<=iWpGrj{X(}o~6r5ywq)iM;aZ!eJX6csxbg|p<ZZm!!{pBwXV!viS##Kp{mf@uE8^AVlW-U#*Od1lE9%(ftxm-'
+        'v|X&a<<6g3&W(FoI{ki&>NA4&~AF7a2X+5sQ1s?B9!=HP+h2$&p$x{(1}(!_`A#0#!r0ucv|@PRq7Qnc~RtfaXGGMgW!ez<3m6gl>*+VtYu62B'
+        'fT6&NuCX`n|*A(3uSBS5u*To7#)qe?|;f~ubouW0V0a0}xO+}96J{fBYF^>%a7@BY0nh#~!4r9(NZbXgIa5tAfJVf>hFqIJ$4o`j(R<QuR<D3;'
+        'g^y|p|(TCbR<sbs2<KeWVl_2$5EW6Hd%)3ddN8=z>A-aXo+(SCw_n2KTPN0N3t9OYmb65*Ai9VH|NAt59sTt$flhu3(ylL&6_^b;?xU+<Y$v--'
+        '->2wRz*&P3t~?Ljk4pi4~#E|Uo{#s+CKFpUOIC&P<L9%Kv#FTJyBJnrLb-'
+        '4T{(o9{5f`Q4X$5e%fm>TEi?(yE+jF#>u=nK=q$iT4D6$~bbumXfYabY1)rw17ym9S8y0AS7Vfv)Ii8UCKwuazCd3&XIoF{iEGy)uc4xucmRhf'
+        'ylHaW=F|D^(NUgn3<+Q$#@t-MzJ(dn?p|#M2w`0%;v{wILY!{c;3G5Go1TN33iI<^SiyC-y@-O?jhLo^3w9D$m9Uc%1j=_X-p<%K&;dv19(mJ-'
+        '#9$JhZqEGhQwcZ=`7tspo-'
+        '2Ij&|Zr%3(U&LDw@mQd@420PpP&l)%T;f`>2(Oaf(`3CiHY5EgoFnLY>uhj>pWvB0H6T|vH~z2*a?lupXXnl`BMu)*&X`#j(6^SoTVeRIwp_Y{'
+        '%ia$+RI2PJEu`H6BqdAG2>BzjOK-~&{9jh^Bvqiq=FA#?Sy?gC$jI<bh1|2Ny=-M{y4kx@IVK%Lf&DHJ@Yn>d5Ol@@imTtbmOpoGI7rGf&^-'
+        '~kvn=)srq2jubaknobH-Qq{^c`l|p{=s>4d()?763oa9QYLk?F(5D*ER8@EwRUKkH(Z1oLjjOQEMsLFd6U_8R3~hg0bBi~TYP;bneKLM$N#yd)'
+        '0WLF_#WWVYP$yM4AW$S<XDap3#v^kV;?dT<pF|P!~_r)Ms7n1GMt4lBLg`oGBF;kl#}mO-sR`^$E@$Ts*z{tGcr|16U+1-9IcjOOu-'
+        '!42k|dUo30GN0P9NSk7BZx`y!-q0gY-q>Hc=N^sH=;1GAXf!HOdY65$6_ETAM2TVb4-*#&V<!JDouG{uBNX!cw{hY0V4Fyt?QX;Y`&-'
+        'ePEUepyJ^ca<6`TQV(x%tQ+MGH4o2nx=saKVv4ETmUXbQihPx`z`~I$ancqe#kUEbAKON=Fa=o8<6JbH)=)3wYpLGLFic$2pMCBOJ)8IniAYA$'
+        'q*>C?C$!ZOacz3Y{1BbCSwwr=qx?_r**5snS6Q-'
+        'uK;%MU;OR+@Ba4P4_|(>7YvA>U!|{Urvo|D+E4uu9;(6?N)tsuh)9Pqx9ZT{Pr;Z`mJB{2M9QmW-'
+        '~yD3iXr|6`yKxn?G|os;eb;A^s5c0^u954n-&UdfNV^ng{CLBU<Lq1M-7Vzup@vn?=`^=1IOhe43Am@VVNo?-{-'
+        'Hkw+{`lrd57>%56J18sa@IU4xPlEnG~J(lSk&5*Sl$P|BmlNzge{W|ULYCn@1q!0nm-'
+        '8*J|vOtAO;1(JyMj1`fW)6!#yF_NMpXeq?V0N2fV<R#J4NXku7pWG`@CTBzvGSeV)W6EhaxFzu!3-(Egj-'
+        'b9e(nrd}mVyLLZ`6^oL<g`*G(~2HCo!-'
+        '}hU5DR^MPay%?{2;x;o%H<RP4TgE#yPV<HxU2oo&AvbNLiL?qlzz_=~W9ck9?<{3uj0tiqr(8$G1E+>j-nPW_6(U7@Cqs!p2-'
+        ')M`!GSq#bl}z2Owyq$M;SGrj7lkt;ykPugRvIN5y2WX66t+Ufk4IFxRM+UsW#S&!A3zNv(KxL`-L=1-'
+        'e{3=T)!RIO`~K!Nn}4VG#Z1z_)j2&B3uNFI!BB>KGcJSKM@%l00fSKTGF(GmFkGjltcK=H<~mVA04dN${gBpv@|F)?_{HsOt2#hN!wItCAMy?w'
+        'B$C_=Lsc5-'
+        'AK{*KQ6}Mt$Ki%48vIGU0JHGO2*8Du^v~VKVXlVww7L=M%TiuK$DYW1qmZSJafwz)<tCy=rccA6O6MLGDJv`vPf7ZxL{B=OdCsnHG5G6i;`clA'
+        ';gYQ%zy8m^ee>myUmvJRtjbg{HK={&oK_l{>Ea~XAvBeFXbr^4jv)HMF7))Ec|vWvyCRR-'
+        '0l~vv(mZ^^&E0)#f9|*114`Sll{3P`9ML&WZaZPj3&zEOvE3{&CIHI}PNpqa5<p&SA#;-JX-'
+        'IiNWhdOy9Rk~4-QMhN4+-lr+oI41m7r`EaFx)fAhux?Hhq&!A(J``gW@3!@$bk%cAON&5k$AtKM-c0a9@X=1QBU<!m-ap-XRqQvQ?C*Ow#9Ha*'
+        'Y@6K&I1Lxgv<+z!AX3xK$vvTwB8lW1zvbC*9Ivhrx|Ls|s!|1481+XrnBC4CW8a&&v>?58rP^bw`nmvOM2n=mmFAAmnCXHnEx-'
+        'a6H|a`kW@+t=>M>r8W&c!Up92ku28+73r!H0u1T)kh}RrvpOa6^3!wz4jJf<`7wwlop49gY~Eb$lS|TpusSbnw_NU8qmNI7QcNqK0_r6mVP6#M'
+        'D38E*A~dAA4B-'
+        'w$7<w~oQH1$cop47Vt}fo2m95@PnQ(E4jEY=zhfoaOS;;60xlYM3sSu4AF}TU>R)&aiQ<xTq2M;f|a3aGmC*0E&mxt~KqoECXwYiqU)!u6FYHN'
+        'IwX?W<0*^Fnn39pJe0>iGkh!ZWG=q;hQ5VOMQ37J4PBbR!DlF?D1H20_6-'
+        'Y4pd&xT_}9*b7lC?Eic0Q594l3q8VEMdZ!OwSvYduh1nmE;@yq|iw{E}?si^gLmqI^~mZ5wFOF+HVe&nt`2*KE%ppqBhIrHCnD`5Q!D?e7PQup'
+        'iJ-'
+        'M5SF9~r$Eh1%Fzsn5}2_Ysnk!nx6feQob&2<N~B*5CF#3XB5A3kZw`E(Wjqx*36nJFxn~3mENvEG2!KcS>*a#SCc@K`?a9471Tqi=taiLa$s&P'
+        '4ya{k2-Ly>T708P&fNK$z+@&FtS(~^KoF-Sra=V-Kc~a8_c#RY8=v}$kbaJipLrQ{m&7w4*c4^O)ZUxdSuC7kfiU_ZP?04*VN-'
+        'k;P6S?~o??Q8fqxp*d5|K5#)9vj1{<DL@nGx-)qG0B`c^U5mgUC>883nc@r<lr(|EGpOMV25peV~-'
+        '!tZ`GG5seHtF>?CIVotxa%_Yql*9R));G;!^DAQ=@hDO1~96PzVkVpo}K?@dw1a{7Si!!Z(lAJKAO`K+=-'
+        '4#Iqvz>}R{oX!vBQ`f5xK#*J7}Ur0jL4>Fg{CbI;<$43kdW~1aE*9ESOZ`qF+9qoRr<H!c#wth+U9Suwa<8aw>(G)het*w{Y)}u3QCGxOzPjva'
+        '-y{(5w0lP&;td>YGn!>9bSz7BM<0IgXW&w({JwX{}>{5_W!na@{_$@zZSK^+`LleQ1bGx)ztm{M5_a75p?tZ<cehCVUkOf;lH^RmtcT$MGE24X'
+        '+Q(f1oe}#(S9u#6oW*jj7xVX+SRVazYiLdAFc{+=tSkx2w)S#h-6|F`I*d@l-p_PC-jJhTf@^!DhdJ4><QG+%yd&C2#Dr1n}G}1+1@_iLD^*0c'
+        'aZ#3YLM%eWk@ujiVU-%-'
+        '2y2Rw=l107#GZ7D6Ws9ib3$BJxu1SBi(1X?cV)xu+EVf_92q`eUp?_TD>h2O)HbxXwYYf5~V(&`3e_r18y1RM?v1pz4Kfx%G6J$st4)*0D*vPD'
+        'f!Ml&RdF<H}}HVkMr}G1M}G#dPX?YMeP#vC}f`XL{NyV54EV=Qp7(TADZCdkEq@S@nuEAsSHt+yBFooQAqi^=SaWXY;SHE>3&BG;cdk{_AXXGa'
+        'tT1TkD*X>E>5l~L{2=UIS5IE%u3+09PTV)=mR_i1p#PfL{?lXN)-'
+        '!};Yulru<l<(<{uXO^VRmJd2#i#%&mPlE+nHn|M1zqHRt908zhWLIN|ChbtuGNv{=xjPamAzH6laVWIPCJlq&aj(Gy##opK)vmO<n1hg|g!_v`'
+        '-Rr_H6ns4u?y`}f~}{q2wE-+lY<-+lT0pZ@yoU(Ub!=DQ!h{?qvn-~Ijjuf9J2-'
+        '}Z~$ANZJ|?zrm5gUapZ?3dPnyFYe~wDC=mQ}Bm>{^9=uc5jot'
+    ),
+})
+
+
 def trusted_model_bytes(name):
     expected,packed=TRUSTED_MODEL_FIXTURES[name];raw=zlib.decompress(base64.b85decode(packed))
     if pin(raw)!=expected:raise ValueError('FENCED trusted fixture pin mismatch')
@@ -6312,6 +6465,60 @@ def prerequisite_constructor_source(fixture,domain_policy,*,enabled=False,mutati
         files[selected['program']['path']]=encode(program);files['provenance/v4/delegated-closure.json']=encode(closed);selected['program'].update(pin(files[selected['program']['path']]))
         lock=json.loads(files['source.lock.json']);lock['files']={name:dict(mode=extended[name][1],**pin(raw))for name,raw in files.items()if name not in ('source.lock.json','source-map.json')};raw=encode(lock);files['source.lock.json']=files['source-map.json']=raw
     return files,selected,pin(files['source.lock.json'])
+
+
+def source_data_git_tree(files,rows):
+    """Pure Git object hashing of already selected DATA; never invoke Git."""
+    def oid(kind,body):return hashlib.sha1(kind+b' '+str(len(body)).encode()+b'\0'+body).digest()
+    tree={}
+    for name,body in files.items():
+        branch=tree;parts=name.split('/')
+        for part in parts[:-1]:branch=branch.setdefault(part,{})
+        branch[parts[-1]]=(rows[name]['mode'],oid(b'blob',body))
+    def tree_oid(branch):
+        body=b''
+        for name,value in sorted(branch.items(),key=lambda item:item[0].encode()+(b'/'if isinstance(item[1],dict)else b'')):
+            directory=isinstance(value,dict);mode=b'40000'if directory else b'100755'if value[0]==0o755 else b'100644';body+=mode+b' '+name.encode()+b'\0'+(tree_oid(value)if directory else value[1])
+        return oid(b'tree',body)
+    return tree_oid(tree).hex()
+
+
+def genuine_source27_files(root):
+    """Read one explicitly selected public Source as opaque DATA, with no Git or archive decoding."""
+    root=Path(root)
+    if not root.is_absolute()or root!=root.resolve(strict=True)or any(path.is_symlink()for path in (root,*root.parents)):raise ValueError('genuine Source requires ordinary canonical absolute directory')
+    wanted=trusted_model_bytes('genuine_source27_map');lock=json.loads(wanted);rows=dict(lock['files']);rows.update({'source.lock.json':dict(mode=0o644,**pin(wanted)),'source-map.json':dict(mode=0o644,**pin(wanted))})
+    if len(rows)!=179 or sum(row['bytes']for row in rows.values())!=45286259:raise ValueError('fixed genuine Source179 metadata')
+    directories={''}
+    for name in rows:
+        parts=Path(name).parts
+        if Path(name).is_absolute()or Path(name).as_posix()!=name or any(part in ('.','..')for part in parts):raise ValueError('ordinary genuine Source member')
+        directories.update('/'.join(parts[:i])for i in range(1,len(parts)))
+    def namespace():
+        found=set();seen_dirs=set()
+        for directory,children,names in os.walk(root,followlinks=False):
+            directory=Path(directory);relative=directory.relative_to(root).as_posix();seen_dirs.add(''if relative=='.'else relative)
+            if not stat.S_ISDIR(directory.lstat().st_mode)or directory.is_symlink():raise ValueError('genuine Source directory alias')
+            for child in children:
+                value=directory/child
+                if not stat.S_ISDIR(value.lstat().st_mode)or value.is_symlink():raise ValueError('genuine Source child alias')
+            found.update((directory/name).relative_to(root).as_posix()for name in names)
+        if found!=set(rows)or seen_dirs!=directories:raise ValueError('genuine Source closed physical namespace')
+    identity=lambda value:tuple(getattr(value,key)for key in ('st_dev','st_ino','st_mode','st_uid','st_gid','st_nlink','st_size','st_mtime_ns','st_ctime_ns'))
+    namespace();result={}
+    for name,row in rows.items():
+        path=root/name;fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK|os.O_CLOEXEC)
+        try:
+            initial=os.fstat(fd)
+            if not stat.S_ISREG(initial.st_mode)or initial.st_nlink!=1 or stat.S_IMODE(initial.st_mode)!=row['mode']or initial.st_size!=row['bytes']:raise ValueError('genuine Source ordinary whole leaf '+name)
+            with os.fdopen(os.dup(fd),'rb')as stream:raw=stream.read(row['bytes']+1)
+            if identity(initial)!=identity(os.fstat(fd))or identity(initial)!=identity(path.lstat())or pin(raw)!={key:row[key]for key in ('bytes','sha256')}:raise ValueError('genuine Source stable pinned leaf '+name)
+            result[name]=raw
+        finally:os.close(fd)
+    namespace()
+    if result['source.lock.json']!=wanted or result['source-map.json']!=wanted:raise ValueError('genuine Source exact external map')
+    if source_data_git_tree(result,rows)!='291a338381f910158d80a7b3da694b9d20fb866b':raise ValueError('genuine Source exact independently recomputed tree')
+    return result
 
 
 def prerequisite_runtime_model(reader, source, expected):
@@ -7079,7 +7286,7 @@ class EndToEnd(unittest.TestCase):
             for member,row in closure['files'].items():
                 if member not in source:source[member]=b'FENCED descriptor-only; not a committed Source body'
             outer=json.loads(source['source.lock.json']);outer['files']={name:dict(mode=outer['files'].get(name,{}).get('mode',0o644),**pin(body))for name,body in source.items()if name not in ('source.lock.json','source-map.json')};source['source.lock.json']=source['source-map.json']=encode(outer);lock=pin(source['source.lock.json']);expected=dict(source_lock_pin=lock,binding=dict(fixture.binding,source_lock=lock),source=selected,fingerprint=fixture.fingerprint,resources=RESOURCES,reader_pin=pin((HERE/'reader_current_v3.py').read_bytes()),stage='backend')
-            # Historical24988 constructor cannot authorize the final35701 Source branch.
+            # Historical24988 constructor cannot authorize the final36564 Source branch.
             with self.assertRaisesRegex(ValueError,'HOLD_MATERIAL_STAGING_FINAL_CONSTRUCTOR_REQUIRED'):reader.source_data(expected,source,delegated=True)
 
     def test_final_material_policy_matches_committed_python_stager_and_domain_as_data(self):
@@ -7151,4 +7358,54 @@ class EndToEnd(unittest.TestCase):
                     with patch.object(constructor,'load_v3',return_value=adapter),self.assertRaises(ValueError):constructor.inverse_v3(altered)
 
 
-if __name__=='__main__':unittest.main()
+class GenuineSource27(unittest.TestCase):
+    def test_explicit_genuine_source27_declaration_and_tamper_refusals(self):
+        """External genuine Source DATA only: no current Reader self-replay, Root grant or actor."""
+        if GENUINE_SOURCE is None:self.skipTest('explicit public Source fixture required: --genuine-source ABS_PATH')
+        files=genuine_source27_files(GENUINE_SOURCE);reader=load('FENCED_genuine_source_auditor',HERE/'reader_current_v3.py');family='scripts/ci/first-login-enrollment-native-source';prefix=family+'/successor_v4_source/';program=json.loads(files[prefix+'program.json']);closure=json.loads(files['provenance/v4/delegated-closure.json']);lock=json.loads(files['source.lock.json']);inverse=json.loads(files[prefix+'inverse.json']);original=json.loads(files['provenance/v4/v3-source-map.json'])
+        self.assertEqual(program['closure_commit'],'21c8a0bca500fb613722c98aa2f50db7f93653c3');self.assertEqual(pin(files[prefix+'prepare.py']),dict(bytes=36564,sha256='72ab4cd782f4bb2376a4fbc8642b4e783b56f2663685b87e4727eae1efbb78df'));self.assertEqual(len(program['roles']),27);self.assertEqual(len(program['staging_materials']),5);self.assertEqual(len(program['delegation_programs']),25)
+        paths=dict(profile=family+'/successor_v2/profile.json',program=prefix+'program.json',policy=program['roles']['policy']['member'],retention=program['roles']['retention']['member'],encoder=program['roles']['encoder']['member']);selections={role:dict(path=name,**pin(files[name]))for role,name in paths.items()};map_pin=pin(files['source.lock.json'])
+        # These NULLs are deliberately not provider identities or an issued Root runtime grant.
+        expected=dict(source_lock_pin=map_pin,binding=dict(source_lock=map_pin),source=selections,fingerprint='D9D7A9FC25B9914CF6F2CE55952AEDD8A209B4C0',resources=RESOURCES,reader_pin=dict(bytes=204163,sha256='c5cd9735b83a5f6b85e47398bf493c8e7caa345b7d986bce900a32a537b3f63d'),stage='backend')
+        with patch.object(Path,'read_bytes',side_effect=AssertionError('genuine Source parser may not follow historical paths')):profile,parsed,policy=reader.source_data(expected,files,delegated=True)
+        self.assertEqual(parsed,program);self.assertIsNone(policy['material_domain_executor_current_v3']['Root_issuance']);self.assertTrue(all(value is None for value in lock['actual'].values()));self.assertTrue(all(value is None for value in parsed['actual'].values()))
+        projection=reader.material_projection_data(files['inputs/delegated-materials-v4.json'],files['inputs/material-staging-materials-v4.json'],program);self.assertEqual(len(projection['materials']),64);self.assertFalse(projection['Root_authentication'])
+        self.assertEqual(pin(files['provenance/v4/v3-source-map.json']),dict(bytes=26734,sha256='ec752108c451d056ebbe4caa97d629bad081c256d506a3d83722f47952a9005e'));self.assertEqual(pin(files[prefix+'source139-owner-closure.json']),dict(bytes=2118,sha256='6211506eb9b1483f276314b9e8c0c23e9b338ffa332f2efa899c9e1949446977'));self.assertEqual((inverse['original_files'],inverse['original_bytes']),(139,43544563))
+        generated={prefix+name for name in ('program.json','prepare.py','README.md','inverse.json','source139-owner-closure.json')}|{'provenance/v4/v3-source-map.json','provenance/v4/delegated-closure.json','inputs/delegated-materials-v4.json','inputs/material-staging-materials-v4.json'};removed=generated|(set(closure['files'])-set(original['files']));self.assertEqual(set(inverse['remove']),removed);self.assertEqual(len(removed),40)
+        restored={name:body for name,body in files.items()if name not in removed|{'source.lock.json','source-map.json'}};self.assertEqual(set(restored),set(original['files']));self.assertTrue(all(pin(body)=={key:original['files'][name][key]for key in ('bytes','sha256')}for name,body in restored.items()));self.assertEqual(sum(len(body)for body in restored.values())+2*len(files['provenance/v4/v3-source-map.json']),43544563)
+        original_bodies=dict(restored);original_bodies['source.lock.json']=original_bodies['source-map.json']=files['provenance/v4/v3-source-map.json'];original_rows=dict(original['files']);original_rows.update({name:dict(mode=0o644,**pin(original_bodies[name]))for name in ('source.lock.json','source-map.json')});self.assertEqual(source_data_git_tree(original_bodies,original_rows),'dcab30972b74d62df099d8ae12997dc0e557ff00')
+        for mode in ('constructor','stager','domain','profile','policy','missing_role','extra_role','entrypoint','mode','inverse_remove','inverse139','owner_closure','original59','supplemental','issued','actual_publication'):
+            with self.subTest(mode=mode):
+                altered=dict(files);selected=copy.deepcopy(expected);p=copy.deepcopy(program);c=copy.deepcopy(closure);v=copy.deepcopy(inverse);changed=set()
+                if mode in ('constructor','stager','domain'):
+                    name=prefix+'prepare.py'if mode=='constructor'else p['roles']['materials_stager'if mode=='stager'else'material_domain_executor']['member'];altered[name]+=b'\n# DATA tamper\n';changed.add(name)
+                    if mode!='constructor':
+                        role='materials_stager'if mode=='stager'else'material_domain_executor';p['roles'][role].update(pin(altered[name]));p['delegation_programs'][role]=p['roles'][role];c['files'][name].update(pin(altered[name]))
+                elif mode=='profile':
+                    name=p['staging_materials']['staging_base_lock']['member'];altered[name]+=b' ';changed.add(name);p['staging_materials']['staging_base_lock'].update(pin(altered[name]));c['files'][name].update(pin(altered[name]));extra_name='inputs/material-staging-materials-v4.json';extra=json.loads(altered[extra_name]);extra['materials']['staging_base_lock']=p['staging_materials']['staging_base_lock'];altered[extra_name]=encode(extra);changed.add(extra_name)
+                elif mode=='policy':name=paths['policy'];body=json.loads(altered[name]);body['material_domain_executor_current_v3']['cleanup_seconds']+=1;altered[name]=encode(body);changed.add(name);p['roles']['policy'].update(pin(altered[name]));c['files'][name].update(pin(altered[name]));selected['source']['policy'].update(pin(altered[name]))
+                elif mode=='missing_role':p['roles'].pop('private_seed')
+                elif mode=='extra_role':p['roles']['FENCED_extra']=copy.deepcopy(p['roles']['private_seed'])
+                elif mode=='entrypoint':p['entrypoints']['public_reader']=c['entrypoints']['public_reader']='pin'
+                elif mode=='mode':c['files'][p['roles']['material_domain_executor']['member']]['mode']=0o755
+                elif mode=='inverse_remove':v['remove'].remove(p['roles']['materials_stager']['member'])
+                elif mode=='inverse139':v['original_files']=140
+                elif mode=='owner_closure':name=prefix+'source139-owner-closure.json';altered[name]+=b' ';changed.add(name)
+                elif mode=='original59':name='inputs/delegated-materials-v4.json';body=json.loads(altered[name]);body['materials'].update(p['staging_materials']);altered[name]=encode(body);changed.add(name)
+                elif mode=='supplemental':name='inputs/material-staging-materials-v4.json';body=json.loads(altered[name]);body['materials'].pop('staging_base_lock');altered[name]=encode(body);changed.add(name)
+                elif mode=='issued':p['actual']['Root_delegation']={}
+                for name,value in ((prefix+'program.json',p),('provenance/v4/delegated-closure.json',c),(prefix+'inverse.json',v)):
+                    altered[name]=encode(value);changed.add(name)
+                updated=copy.deepcopy(lock)
+                for name in changed:updated['files'][name].update(pin(altered[name]))
+                if mode=='mode':updated['files'][p['roles']['material_domain_executor']['member']]['mode']=0o755
+                if mode=='actual_publication':updated['actual']['publication']={}
+                altered['source.lock.json']=altered['source-map.json']=encode(updated);selection=pin(altered['source.lock.json']);selected['source_lock_pin']=selected['binding']['source_lock']=selection;selected['source']['program'].update(pin(altered[prefix+'program.json']))
+                with patch.object(Path,'read_bytes',side_effect=AssertionError('tamper parser may not read external paths')),self.assertRaises((ValueError,KeyError)):reader.source_data(selected,altered,delegated=True)
+
+
+if __name__=='__main__':
+    arguments=argparse.ArgumentParser(add_help=False);arguments.add_argument('--genuine-source',type=Path)
+    selected,remaining=arguments.parse_known_args();GENUINE_SOURCE=selected.genuine_source
+    if sys.argv.count('--genuine-source')>1:arguments.error('select at most one genuine Source fixture')
+    unittest.main(argv=[sys.argv[0],*remaining])
