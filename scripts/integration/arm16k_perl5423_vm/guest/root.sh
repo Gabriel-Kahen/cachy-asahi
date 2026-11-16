@@ -44,6 +44,14 @@ checkpoint_phase() {
  phase=$1;root_phase_writes=$((root_phase_writes+1))
  if (( root_phase_writes <= 20 ));then write_root_phase "$phase" || :;fi
 }
+# Fixed failure labels only; the coarse checkpoint and five-field HOLD frame stay exact.
+restoration_step() {
+ [[ $# == 1 ]] || return 2
+ case "$1" in snapshot|paths|hash|db-normalized|xattr|dbmeta|dbxattr|meta_equality|users|log_prefix|log_shape|log_capture|preboot_cleanup|trust_cleanup|root_ssh_cleanup|sync|publish)
+  phase=restoration_${1//-/_};;
+  *) return 2;;
+ esac
+}
 clear_root_phase() {
  local path metadata bytes line name
  for path in "$D/root-phase.checkpoint" "$D/.root-phase.checkpoint.tmp";do
@@ -88,6 +96,7 @@ install -d -m700 "$S"
 . "$D/frozen/guest-runtime.sh"
 . "$D/case.sh"
 . "$D/installed-metadata.sh"
+. "$D/root-ssh.sh"
 . "$D/official-trust.sh"
 . "$D/frozen/rtc-clock.sh"
 case_data
@@ -123,9 +132,12 @@ done < "$D/expected-before-alpm-aliases.tsv"
 
 user_snapshot() (
  ulimit -f 16384
- find /home/builder /root -xdev -printf '%p\t%m\t%U\t%G\t%y\t%l\0' | sort -z > "$1.meta"
- find /home/builder /root -xdev -print0 | sort -z | xargs -0 -r getfattr --no-dereference --absolute-names --dump --match='.*' -- > "$1.xattr"
- find /home/builder /root -xdev -type f -print0 | sort -z | xargs -0 -r sha256sum -b -z > "$1.hash"
+ root_ssh_guard
+ find /home/builder /root -xdev -path "$root_ssh_target" -prune -o -printf '%p\t%m\t%U\t%G\t%y\t%l\0' | sort -z > "$1.meta"
+ root_ssh_guard
+ find /home/builder /root -xdev -path "$root_ssh_target" -prune -o -print0 | sort -z | xargs -0 -r getfattr --no-dereference --absolute-names --dump --match='.*' -- > "$1.xattr"
+ root_ssh_guard
+ find /home/builder /root -xdev -path "$root_ssh_target" -prune -o -type f -print0 | sort -z | xargs -0 -r sha256sum -b -z > "$1.hash"
 )
 assert_users() {
  user_snapshot "$S/user-current"
@@ -161,35 +173,175 @@ payload_snapshot() (
  ( O=$S;metadata_equality_view "$stage" )
 )
 # The normal ldconfig hook can create/remove ld.so.cache and change /etc mtime.
-# Pin the original directory with an open FD; restore mtime only, never atime,
-# contents or other metadata. The ordinary reference is private disposable DATA.
+# Restore only certified preboot absence and parent mtime; never normalize atime.
+preboot_root=/etc
+preboot_parents=(etc etc/audit etc/udev)
+preboot_paths=(etc/.pwd.lock etc/.updated etc/audisp etc/audit/plugins.d etc/audit/rules.d etc/ld.so.cache etc/os-release etc/udev/hwdb.bin etc/vconsole.conf)
+preboot_kinds=(f f d d d f l f f)
+preboot_modes=(600 644 755 750 755 644 777 444 644)
+preboot_caps=(0 4096 0 0 0 1048576 4096 16777216 4096)
+preboot_parent_index=(0 0 0 1 1 0 0 2 0)
+preboot_absolute() { printf '%s%s' "$preboot_root" "${1#etc}"; }
+preboot_identity() { stat -c '%d:%i:%f:%u:%g:%h:%s:%y:%z' -- "$1"; }
+preboot_parent_check() {
+ local i=$1 path
+ path=$(preboot_absolute "${preboot_parents[$i]}") || return
+ [[ -d $path && ! -L $path && $(readlink -f -- "$path") == "$path" ]] || return 2
+ [[ $(stat -c '%d:%i:%f:%u:%g' -- "$path") == "${preboot_parent_identity[$i]}" && $(stat -Lc '%d:%i:%f:%u:%g' -- "/proc/self/fd/${preboot_parent_fd[$i]}") == "${preboot_parent_identity[$i]}" ]]
+}
+preboot_empty() {
+ local found
+ found=$(find -P "$1" -xdev -mindepth 1 -maxdepth 1 -printf x -quit) || return
+ [[ -z $found ]]
+}
+preboot_node_view() {
+ local i=$1 path kind mode cap size hash metadata attrs
+ path=$(preboot_absolute "${preboot_paths[$i]}") || return
+ kind=${preboot_kinds[$i]};mode=${preboot_modes[$i]};cap=${preboot_caps[$i]}
+ [[ $(stat -c '%u:%g:%h:%a' -- "$path") == "0:0:$([[ $kind == d ]] && printf 2 || printf 1):$mode" ]] || return 2
+ size=$(stat -c '%s' -- "$path") || return
+ [[ $size =~ ^[0-9]+$ ]] || return 2
+ case "$kind" in
+  f) [[ -f $path && ! -L $path && $size -le $cap ]] || return 2;hash=$(file_sha "$path") || return;;
+  l) [[ -L $path && $size -le $cap ]] || return 2;hash=$(readlink -z -- "$path" | sha256sum) || return;hash=${hash%% *};;
+  d) [[ -d $path && ! -L $path && $(readlink -f -- "$path") == "$path" ]] || return 2;preboot_empty "$path" || return;hash=EMPTY;;
+  *) return 2;;
+ esac
+ attrs=$(getfattr --no-dereference --absolute-names --dump --match='.*' -- "$path" | sha256sum) || return
+ metadata=$(stat -c '%f:%u:%g:%h:%s:%y' -- "$path") || return
+ printf '%s|%s|%s' "$metadata" "${attrs%% *}" "$hash"
+}
 cache_etc_timestamp_capture() {
- local reference=$D/cache/etc-mtime.reference
- [[ -d /etc && ! -L /etc && $(readlink -f -- /etc) == /etc && $(stat -c '%u:%g:%a' -- /etc) == 0:0:755 ]]
+ local descriptor=$D/preboot-etc.tsv context=$D/preboot-context.json token selected_hash= count=0 marker observed_nonce context_sha extra line i key inode links seconds nanos path reference fd before after actual added expected owned expected_bytes=0
+ local -a boot_arguments
+ [[ -f $context && ! -L $context && $(stat -c '%u:%g:%h:%a' -- "$context") == 0:0:1:644 && $(stat -c '%s' -- "$context") -le 4096 ]]
+ [[ -f $descriptor && ! -L $descriptor && $(stat -c '%u:%g:%h:%a' -- "$descriptor") == 0:0:1:600 && $(stat -c '%s' -- "$descriptor") -le 4096 ]]
+ preboot_context_identity=$(preboot_identity "$context")
+ preboot_descriptor_identity=$(preboot_identity "$descriptor")
+ read -r -a boot_arguments < /proc/cmdline
+ for token in "${boot_arguments[@]}";do
+  if [[ $token == arm16k_perl5423_vm_preboot_etc_sha256=* ]];then selected_hash=${token#*=};count=$((count+1));fi
+ done
+ [[ $count == 1 && $selected_hash =~ ^[0-9a-f]{64}$ && $(file_sha "$descriptor") == "$selected_hash" ]]
+ exec {preboot_descriptor_fd}< "$descriptor"
+ IFS= read -r line <&"$preboot_descriptor_fd"
+ expected_bytes=$((${#line}+1))
+ IFS=' ' read -r marker observed_nonce context_sha extra <<< "$line"
+ [[ $line == "PERL5423_PREBOOT_ETC_V2 $nonce $context_sha" && $observed_nonce == "$nonce" && $context_sha =~ ^[0-9a-f]{64}$ && -z $extra && $(file_sha "$context") == "$context_sha" ]]
+ for i in 0 1 2;do
+  IFS= read -r line <&"$preboot_descriptor_fd"
+  expected_bytes=$((expected_bytes+${#line}+1))
+  IFS=' ' read -r marker key inode links seconds nanos extra <<< "$line"
+  [[ $marker == P && $key == "${preboot_parents[$i]}" && -z $extra && $line == "P $key $inode $links $seconds $nanos" ]]
+  [[ $inode =~ ^[1-9][0-9]{0,9}$ && $links =~ ^[1-9][0-9]{0,4}$ && $seconds =~ ^(0|[1-9][0-9]{0,9})$ && $nanos =~ ^(0|[1-9][0-9]{0,8})$ ]]
+  (( inode <= 4294967295 && links >= 2 && links <= 65535 && seconds <= 8589934591 && nanos <= 999999999 ))
+  preboot_certified_inode[$i]=$inode;preboot_certified_links[$i]=$links;preboot_seconds[$i]=$seconds;preboot_nanos[$i]=$nanos
+ done
+ for i in 0 1 2 3 4 5 6 7 8;do
+  IFS= read -r line <&"$preboot_descriptor_fd"
+  expected_bytes=$((expected_bytes+${#line}+1))
+  [[ $line == "A ${preboot_paths[$i]} ${preboot_kinds[$i]} ${preboot_modes[$i]} ${preboot_caps[$i]}" ]]
+ done
+ if IFS= read -r extra <&"$preboot_descriptor_fd";then return 2;fi
+ [[ -z $extra && $(stat -c '%s' -- "$descriptor") == "$expected_bytes" ]]
+ exec {preboot_descriptor_fd}<&-
+ [[ $(preboot_identity "$descriptor") == "$preboot_descriptor_identity" && $(preboot_identity "$context") == "$preboot_context_identity" ]]
  [[ -d $D/cache && ! -L $D/cache && $(readlink -f -- "$D/cache") == "$D/cache" && $(stat -c '%u:%g:%a' -- "$D/cache") == 0:0:700 ]]
- [[ ! -e $reference && ! -L $reference ]]
- exec {etc_directory_fd}< /etc
- etc_directory_identity=$(stat -Lc '%d:%i:%f:%u:%g:%h' -- "/proc/self/fd/$etc_directory_fd")
- [[ $(stat -c '%d:%i:%f:%u:%g:%h' -- /etc) == "$etc_directory_identity" ]]
- etc_directory_mtime=$(stat -c '%y' -- /etc)
- ( set -o noclobber;: > "$reference" )
- [[ -f $reference && ! -L $reference && $(stat -c '%u:%g:%h:%a:%s' -- "$reference") == 0:0:1:600:0 ]]
- touch -m --reference=/etc -- "$reference"
- etc_reference_identity=$(stat -c '%d:%i:%f:%u:%g:%h:%s:%y:%z' -- "$reference")
- [[ $(stat -c '%y' -- "$reference") == "$etc_directory_mtime" && $(stat -c '%d:%i:%f:%u:%g:%h' -- /etc) == "$etc_directory_identity" ]]
+ for i in 0 1 2;do
+  path=$(preboot_absolute "${preboot_parents[$i]}")
+  [[ -d $path && ! -L $path && $(readlink -f -- "$path") == "$path" && $(stat -c '%i:%u:%g:%a' -- "$path") == "${preboot_certified_inode[$i]}:0:0:755" ]]
+  exec {fd}< "$path";preboot_parent_fd[$i]=$fd
+  [[ $(stat -Lc '%i:%u:%g:%a:%F' -- "/proc/self/fd/$fd") == "${preboot_certified_inode[$i]}:0:0:755:directory" ]]
+  preboot_parent_identity[$i]=$(stat -Lc '%d:%i:%f:%u:%g' -- "/proc/self/fd/$fd")
+  preboot_parent_check "$i"
+  reference=$D/cache/preboot-parent-$i.reference
+  [[ ! -e $reference && ! -L $reference ]]
+  (set -o noclobber;: > "$reference")
+  [[ $(stat -c '%u:%g:%h:%a:%s' -- "$reference") == 0:0:1:600:0 && ! -L $reference ]]
+  touch -m --date="@${preboot_seconds[$i]}.$(printf '%09d' "${preboot_nanos[$i]}")" -- "$reference"
+  [[ $(date -u -r "$reference" +%s.%N) == "${preboot_seconds[$i]}.$(printf '%09d' "${preboot_nanos[$i]}")" ]]
+  preboot_reference_identity[$i]=$(preboot_identity "$reference")
+ done
+ # Literal ownership only: pacman -Qo may resolve the os-release symlink target.
+ owned=$(pacman -Qlq)
+ (( ${#owned} <= 16777216 ))
+ owned=$'\n'$owned$'\n'
+ # Snapshot only these literal public-system operands before the first ALPM write.
+ for i in 0 1 2 3 4 5 6 7 8;do
+  path=$(preboot_absolute "${preboot_paths[$i]}")
+  preboot_parent_check "${preboot_parent_index[$i]}"
+  if [[ ! -e $path && ! -L $path ]];then preboot_present[$i]=0;continue;fi
+  [[ $owned != *$'\n'"$path"$'\n'* && $owned != *$'\n'"$path/"$'\n'* ]]
+  before=$(preboot_identity "$path")
+  preboot_initial_view[$i]=$(preboot_node_view "$i")
+  after=$(preboot_identity "$path");[[ $before == "$after" ]]
+  preboot_initial_identity[$i]=$before;preboot_present[$i]=1
+  if [[ ${preboot_kinds[$i]} != l ]];then
+   exec {fd}< "$path";preboot_node_fd[$i]=$fd
+   [[ $(stat -Lc '%d:%i:%f:%u:%g:%h:%s:%y:%z' -- "/proc/self/fd/$fd") == "$before" ]]
+  fi
+ done
+ # A link delta is accepted only when the exact selected initial directories account for it.
+ for i in 0 1 2;do
+  added=0
+  for key in 2 3 4;do if [[ ${preboot_parent_index[$key]} == "$i" && ${preboot_present[$key]} == 1 ]];then added=$((added+1));fi;done
+  expected=$((preboot_certified_links[i]+added))
+  [[ $(stat -Lc '%h' -- "/proc/self/fd/${preboot_parent_fd[$i]}") == "$expected" ]]
+  preboot_observed_links[$i]=$expected
+ done
 }
 cache_etc_timestamp_restore() {
- local reference=$D/cache/etc-mtime.reference
+ local descriptor=$D/preboot-etc.tsv i path reference current before after parent anchored fd atime
+ [[ -f $descriptor && ! -L $descriptor && $(preboot_identity "$descriptor") == "$preboot_descriptor_identity" ]]
+ [[ -f $D/preboot-context.json && ! -L $D/preboot-context.json && $(preboot_identity "$D/preboot-context.json") == "$preboot_context_identity" ]]
  [[ -d $D/cache && ! -L $D/cache && $(readlink -f -- "$D/cache") == "$D/cache" && $(stat -c '%u:%g:%a' -- "$D/cache") == 0:0:700 ]]
- [[ -f $reference && ! -L $reference && $(stat -c '%d:%i:%f:%u:%g:%h:%s:%y:%z' -- "$reference") == "$etc_reference_identity" ]]
- [[ -d /etc && ! -L /etc && $(readlink -f -- /etc) == /etc && $(stat -c '%d:%i:%f:%u:%g:%h' -- /etc) == "$etc_directory_identity" ]]
- [[ $(stat -Lc '%d:%i:%f:%u:%g:%h' -- "/proc/self/fd/$etc_directory_fd") == "$etc_directory_identity" ]]
- touch -m --reference="$reference" -- "/proc/self/fd/$etc_directory_fd"
- [[ $(stat -c '%d:%i:%f:%u:%g:%h' -- /etc) == "$etc_directory_identity" && $(stat -c '%y' -- /etc) == "$etc_directory_mtime" ]]
- [[ $(stat -c '%d:%i:%f:%u:%g:%h:%s:%y:%z' -- "$reference") == "$etc_reference_identity" ]]
- rm -- "$reference"
- [[ ! -e $reference && ! -L $reference ]]
- exec {etc_directory_fd}<&-
+ # All references and observed parent links must still join before any deletion.
+ for i in 0 1 2;do
+  preboot_parent_check "$i";reference=$D/cache/preboot-parent-$i.reference
+  [[ -f $reference && ! -L $reference && $(preboot_identity "$reference") == "${preboot_reference_identity[$i]}" && $(stat -Lc '%h' -- "/proc/self/fd/${preboot_parent_fd[$i]}") == "${preboot_observed_links[$i]}" ]]
+ done
+ # Validate the whole initial nine-path snapshot before deleting any selected node.
+ for i in 0 1 2 3 4 5 6 7 8;do
+  path=$(preboot_absolute "${preboot_paths[$i]}");parent=${preboot_parent_index[$i]};preboot_parent_check "$parent"
+  if [[ ${preboot_present[$i]} == 0 ]];then [[ ! -e $path && ! -L $path ]];continue;fi
+  before=$(preboot_identity "$path")
+  [[ $(preboot_node_view "$i") == "${preboot_initial_view[$i]}" ]]
+  [[ $(preboot_identity "$path") == "$before" ]]
+  # Normal ldconfig plus the existing exact cp -a cache recovery can replace only this inode.
+  if [[ $i != 5 ]];then [[ $before == "${preboot_initial_identity[$i]}" ]];fi
+ done
+ for i in 0 1 2 3 4 5 6 7 8;do
+  [[ ${preboot_present[$i]} == 1 ]] || continue
+  path=$(preboot_absolute "${preboot_paths[$i]}");parent=${preboot_parent_index[$i]};preboot_parent_check "$parent"
+  before=$(preboot_identity "$path");[[ $(preboot_node_view "$i") == "${preboot_initial_view[$i]}" && $(preboot_identity "$path") == "$before" ]]
+  if [[ $i != 5 ]];then [[ $before == "${preboot_initial_identity[$i]}" ]];fi
+  anchored=/proc/self/fd/${preboot_parent_fd[$parent]}/${preboot_paths[$i]##*/}
+  [[ $(preboot_identity "$anchored") == "$before" ]]
+  if [[ ${preboot_kinds[$i]} == l ]];then
+   rm -- "$anchored"
+  else
+   # Re-pin the currently verified cache inode after its normal ALPM restoration.
+   if [[ $i == 5 ]];then exec {fd}< "$path";else fd=${preboot_node_fd[$i]};fi
+   [[ $(stat -Lc '%d:%i:%f:%u:%g:%h:%s:%y:%z' -- "/proc/self/fd/$fd") == "$before" ]]
+   if [[ ${preboot_kinds[$i]} == d ]];then rmdir -- "$anchored";else rm -- "$anchored";fi
+   [[ $(stat -Lc '%h' -- "/proc/self/fd/$fd") == 0 ]]
+   exec {fd}<&-
+  fi
+  [[ ! -e $path && ! -L $path ]];preboot_parent_check "$parent"
+ done
+ for i in 0 1 2;do
+  preboot_parent_check "$i";fd=${preboot_parent_fd[$i]};reference=$D/cache/preboot-parent-$i.reference
+  [[ $(stat -Lc '%h' -- "/proc/self/fd/$fd") == "${preboot_certified_links[$i]}" && -f $reference && ! -L $reference && $(preboot_identity "$reference") == "${preboot_reference_identity[$i]}" ]]
+  atime=$(stat -Lc '%x' -- "/proc/self/fd/$fd")
+  touch -m --reference="$reference" -- "/proc/self/fd/$fd"
+  [[ $(stat -Lc '%x' -- "/proc/self/fd/$fd") == "$atime" && $(stat -Lc '%y' -- "/proc/self/fd/$fd") == "$(stat -c '%y' -- "$reference")" ]]
+  preboot_parent_check "$i"
+  [[ $(preboot_identity "$reference") == "${preboot_reference_identity[$i]}" ]]
+  rm -- "$reference";[[ ! -e $reference && ! -L $reference ]]
+  exec {fd}<&-
+ done
+ # The original cache FD may have become unlinked during the normal ldconfig hook.
+ fd=${preboot_node_fd[5]:-};if [[ -n $fd ]];then exec {fd}<&-;fi
 }
 cache_snapshot() (
  ulimit -f 16384
@@ -203,6 +355,7 @@ cache_snapshot() (
  done
 )
 checkpoint_phase users
+root_ssh_capture
 user_snapshot "$S/user-before"
 checkpoint_phase baseline
 payload_snapshot before
@@ -337,27 +490,44 @@ for path in /etc/ld.so.cache /var/cache/ldconfig/aux-cache; do
 done
 if [[ -e $S/ldconfig-directory.absent && -d /var/cache/ldconfig ]];then rmdir /var/cache/ldconfig;fi
 cache_snapshot > "$S/after.cache";same_bytes "$S/before.cache" "$S/after.cache"
-cache_etc_timestamp_restore
 checkpoint_phase restoration
+restoration_step snapshot
 payload_snapshot after
-for suffix in paths hash db-normalized xattr dbmeta dbxattr;do same_bytes "$S/before.$suffix" "$S/after.$suffix";done
+for suffix in paths hash db-normalized xattr dbmeta dbxattr;do
+ restoration_step "$suffix"
+ same_bytes "$S/before.$suffix" "$S/after.$suffix"
+done
+restoration_step meta_equality
 same_bytes "$S/before.meta-equality" "$S/after.meta-equality"
+restoration_step users
 assert_users
+restoration_step log_prefix
 before_log_bytes=$(stat -c '%s' "$S/pacman-log-before")
 head -c "$before_log_bytes" /var/log/pacman.log > "$S/pacman-log-prefix"
 same_bytes "$S/pacman-log-before" "$S/pacman-log-prefix"
+restoration_step log_shape
 [[ -f /var/log/pacman.log && ! -L /var/log/pacman.log && $(stat -c '%u:%g' /var/log/pacman.log) == 0:0 ]]
 after_log_bytes=$(stat -c '%s' /var/log/pacman.log)
 (( after_log_bytes >= before_log_bytes && after_log_bytes-before_log_bytes <= log_bytes ))
+restoration_step log_capture
 cp -- /var/log/pacman.log "$S/pacman-log-after"
 chmod 600 "$S/pacman-log-after"
 if [[ -f $S/pacman-log-before.absent ]];then rm -- /var/log/pacman.log;[[ ! -e /var/log/pacman.log && ! -L /var/log/pacman.log ]];fi
 if [[ $recovery_mode == REMOVE ]];then db_policy=EXACT;else db_policy=NORMAL_INSTALLDATE_AND_TRANSACTION_TIMESTAMPS;fi
+# Compare the recovered running state first: certified preboot cleanup changes parent nlinks.
+# Final preboot absence/identity/mtime remains subject to the unchanged host preserve gate.
+restoration_step preboot_cleanup
+cache_etc_timestamp_restore
+restoration_step trust_cleanup
 bounded "$gpg_seconds" "$S/gpg-stop.log" gpgconf --homedir "$D/trust" --kill all
 rm -rf -- "$D/trust"
 if [[ $dependency_mode == DB53 ]];then official_finish;fi
+restoration_step root_ssh_cleanup
+root_ssh_restore
 clear_root_phase
+restoration_step sync
 bounded "$sync_seconds" "$S/sync.log" sync -f "$D"
+restoration_step publish
 {
  printf 'PERL5423_RESTORED_BEGIN %s\nSTATUS=PASS\nARCH=aarch64\nPAGESIZE=16384\nPACKAGE=%s\nVERSION=5.42.3-1.3\n' "$nonce" "$PACKAGE"
  printf 'BASE_SHA256=%s\nFINAL_SHA256=%s\n' "$(file_sha "$S/base.lock")" "$(file_sha "$S/final.lock")"

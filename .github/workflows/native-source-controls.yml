@@ -37,6 +37,11 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/port/llvm23-native-independent-reader/v6/test_v6.py
           python3 -I -B -Werror::ResourceWarning scripts/port/llvm23-native-independent-reader/v7/test_v7.py
           bash -n scripts/integration/arm16k_llvm23_vm/guest/root.sh scripts/integration/arm16k_llvm23_vm/guest/probe.sh scripts/integration/arm16k_llvm23_vm/guest/case.sh
+      - name: Install Perl lifecycle xattr tools on disposable runner
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y attr
+          command -v getfattr setfattr
       - name: Check Perl ARM16K lifecycle contracts without actors
         run: |
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_perl5423_vm/test_controls.py
@@ -48,6 +53,20 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_perl5423_vm/test_root_progress.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_perl5423_vm/test_etc_mtime.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_perl5423_vm/test_git_roundtrip.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_perl5423_vm/test_preboot.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_perl5423_vm/test_restoration.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_perl5423_vm/test_root_ssh.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_perl5423_vm/test_root_ssh_descriptor.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_perl5423_vm/test_ssh_privacy.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_no_package_control/test_actor.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_no_package_control/test_controller.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_no_package_control/test_integration.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_no_package_control/test_metadata.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_no_package_control/test_metadata_raw_reader.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_no_package_control/test_plan.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_no_package_control/test_prepare.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_no_package_control/test_rules.py
+          bash -n scripts/integration/arm16k_no_package_control/guest-metadata.sh scripts/integration/arm16k_perl5423_vm/guest/root-ssh.sh
           python3 -I -B -Werror::ResourceWarning scripts/port/perl5423-arm16k-independent-reader/test_reader.py
           bash scripts/integration/arm16k_perl5423_vm/test_guest_data.sh
           bash -n scripts/integration/arm16k_perl5423_vm/guest/root.sh scripts/integration/arm16k_perl5423_vm/guest/probe.sh scripts/integration/arm16k_perl5423_vm/guest/case.sh scripts/integration/arm16k_perl5423_vm/guest/official-trust.sh scripts/integration/arm16k_perl5423_vm/guest/installed-metadata.sh
@@ -93,6 +112,11 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/ci/fish-config02-native-source/successor_v2/test_data.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/fish-config02-native-source/successor_v2/test_host_tools.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/fish-config02-native-source/successor_v2/test_host_prerequisites.py
+      - name: Check coupled SessionLock and Settings installed-control custody DATA
+        run: |
+          python3 -I -B -Werror::ResourceWarning scripts/ci/session-lock-settings-native-source-v2/test_data.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/session-lock-settings-native-source-v2/test_image_lifecycle_data.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/session-lock-settings-native-source-v2/test_runtime_v2.py
       - name: Check bounded native package readers on their Python 3.14 runtime
         if: matrix.python == '3.14'
         run: |
@@ -284,6 +308,31 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/independent_reader_v12/test_runtime.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/retained-llvm260-proofs/test_collect.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/retained-rust-stage0-provider/test_collect.py
+      - name: Check Rust Source13 and independent Reader13 fenced DATA
+        run: |
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v13/test_runtime.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v13/test_data.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/independent_reader_v13/test_reader.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/independent_reader_v13/test_runtime.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/independent_reader_v13/test_mounts.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/independent_reader_v13/test_qualification.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/independent_reader_v13/test_preparation.py
+      - name: Check out immutable Rust351 Source as DATA
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 1e42eb03cc918c4f0a86c0988d1e3c042efc5a5e
+          path: .rust-source351-data-repository
+          persist-credentials: false
+      - name: Check genuine Rust351 whole Source and complete inverses
+        run: |
+          umask 022
+          rust_source="${RUNNER_TEMP}/rust351-source-DATA"
+          test ! -e "$rust_source"
+          mkdir -m 700 "$rust_source"
+          test "$(git -C .rust-source351-data-repository rev-parse HEAD)" = 1e42eb03cc918c4f0a86c0988d1e3c042efc5a5e
+          test "$(git -C .rust-source351-data-repository rev-parse HEAD^{tree})" = 12fbd0fa35ab1c8e5a7c3cb9ab1d6d387ac57cc6
+          git -C .rust-source351-data-repository -c tar.umask=0022 archive --format=tar HEAD | tar -xf - -C "$rust_source"
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/independent_reader_v13/test_source.py --source-root "$rust_source"
       - name: Check eight portable notice controls; private capture replay remains Root-local
         run: |
           python3 -I -B -Werror::ResourceWarning - <<'PY'

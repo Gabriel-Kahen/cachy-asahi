@@ -1,0 +1,42 @@
+{
+  "ALPM": "NOT RUN",
+  "M2": "NOT RUN",
+  "Root_trust": null,
+  "acceptance": null,
+  "actual": {
+    "acceptance": null,
+    "artifact": null,
+    "job": null,
+    "nonce": null,
+    "ref": null,
+    "run": null,
+    "runtime": null,
+    "source": null
+  },
+  "closure": {
+    "bytes": 26158,
+    "sha256": "e3925716733cefc800b1491a142dd199b13922cf8d5acf8181f89bb335795532"
+  },
+  "namespace_support": "UNKNOWN",
+  "native": "NOT RUN",
+  "parent_source": {
+    "files": 199,
+    "map_sha256": "18a66670c60d4f5550823895f9584052a4848d52ac6477c5457fe1994b81e0fa",
+    "tree": "9e30738959eae51df51a0b616b21f49a68aa97a4"
+  },
+  "performance": "NOT MEASURED",
+  "release": "NOT ADMITTED",
+  "resources": null,
+  "schema": 2,
+  "scope": "MEASUREMENT_TOOLS_NATIVE_SOURCE_DRAFT_V2",
+  "signing": null,
+  "source": {
+    "bytes": 38878840,
+    "files": 200,
+    "source_map": {
+      "bytes": 39975,
+      "sha256": "075dbe6b7f431dd89150682499bc78f9a530ce4ebf008089d00eae4fe50d9d2f"
+    },
+    "tree": "0bff2973225c2cd6ff8592404ca5a5f692a572c9"
+  }
+}

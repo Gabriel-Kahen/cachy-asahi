@@ -14,7 +14,7 @@ def module(n):
 def qemu_argv(m,r,epoch):
  return ['/usr/bin/qemu-system-aarch64','-machine','virt','-accel','tcg,thread=multi','-rtc','base=utc,clock=host','-cpu','max',
  '-smp',str(r['cpus']),'-m',str(r['guest_memory_bytes']//1024**2),'-nodefaults','-no-user-config','-display','none','-monitor','none','-nic','none','-no-reboot',
- '-kernel','/kernel/Image','-append','root=/dev/vda rootfstype=ext4 rw console=ttyAMA0,115200n8 rootwait init=/usr/lib/systemd/systemd systemd.unit=multi-user.target arm16k_systemd_nonce='+m['baseline_nonce']+' arm16k_perl5423_vm_nonce='+m['nonce']+' arm16k_rtc_host_epoch='+str(epoch),
+ '-kernel','/kernel/Image','-append','root=/dev/vda rootfstype=ext4 rw console=ttyAMA0,115200n8 rootwait init=/usr/lib/systemd/systemd systemd.unit=multi-user.target arm16k_systemd_nonce='+m['baseline_nonce']+' arm16k_perl5423_vm_nonce='+m['nonce']+' arm16k_perl5423_vm_preboot_etc_sha256='+m['preboot_etc_descriptor']['sha256']+' arm16k_perl5423_vm_root_ssh_sha256='+m['root_ssh_descriptor']['sha256']+' arm16k_rtc_host_epoch='+str(epoch),
  '-drive','if=none,id=refdisk,file=/work/overlay.qcow2,format=qcow2','-device','virtio-blk-device,drive=refdisk',
  '-serial','unix:/work/serial.sock,server=on,wait=off','-qmp','unix:/work/qmp.sock,server=on,wait=off',
  '-sandbox','on,obsolete=deny,elevateprivileges=deny,spawn=deny,resourcecontrol=deny']
@@ -40,6 +40,11 @@ BOOT_STAGES=('boot_entry','overlay_create','qemu','readback_convert','journal_re
  'baseline_scan','final_scan','preservation','retention','trust_absence','preservation_write','verification_remove')
 FAILURE_MESSAGES={
  'UNKNOWN':'actor exception details unavailable',
+ 'PREBOOT_ETC_FIELDS':'integer original and final preboot etc inode metadata',
+ 'PREBOOT_ETC_PRESERVATION':'exact original preboot parent identity metadata and mtime',
+ 'ROOT_SSH_PARENT':'exact original preboot root identity metadata and mtime',
+ 'ROOT_SSH_ABSENCE':'final certified root SSH path and descendants absent',
+ 'ROOT_SSH_PRIVACY':'SSH privacy protected target must be absent before inventory',
  'SCAN_DEADLINE':'finite readonly scan deadline',
  'ACTOR_CANCELLED_OR_DEADLINE':'actor cancellation/deadline',
  'EXT4_NODE_BOUND':'node exceeds content bound',
@@ -176,6 +181,20 @@ def prepare(K,R,I,W,packet,cert,guard,deadline):
   for name,row in packet[group].items():
    if group=='materials' and name not in K.MATERIALS:continue
    source=Path('/materials')/row['guest_name'];file(D+'/'+row['guest_name'],source,row,0o644)
+ # Derive only from the authenticated /base readonly scan, never running guest time.
+ context_raw=Path('/packet/preboot-context.json').read_bytes()
+ descriptor=module('preboot').descriptor(K,I,packet,cert,scan,context_raw)
+ descriptor_path=W/'preboot-etc.tsv'
+ fd=os.open(descriptor_path,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW|os.O_CLOEXEC,0o600)
+ with os.fdopen(fd,'wb')as stream:os.fchmod(stream.fileno(),0o600);stream.write(descriptor)
+ descriptor_pin=K.pin(descriptor_path,4096)
+ file(D+'/preboot-etc.tsv',descriptor_path,descriptor_pin,0o600)
+ root_ssh_descriptor=module('root_ssh').descriptor(K,I,packet,cert,scan,context_raw)
+ root_ssh_path=W/'root-ssh-preboot.tsv'
+ fd=os.open(root_ssh_path,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW|os.O_CLOEXEC,0o600)
+ with os.fdopen(fd,'wb')as stream:os.fchmod(stream.fileno(),0o600);stream.write(root_ssh_descriptor)
+ root_ssh_pin=K.pin(root_ssh_path,1024)
+ file(D+'/root-ssh-preboot.tsv',root_ssh_path,root_ssh_pin,0o600)
  directory(D+'/trust',0o700);directory(D+'/cache',0o700)
  link='/etc/systemd/system/multi-user.target.wants/'+UNIT;directory(link.rsplit('/',1)[0]);K.need(link.lstrip('/') not in nodes,'fresh case enablement link')
  edits.append('symlink '+link+' /etc/systemd/system/'+UNIT)
@@ -187,9 +206,12 @@ def prepare(K,R,I,W,packet,cert,guard,deadline):
  K.need(after['nodes'].keys()-nodes.keys()=={p.lstrip('/')for p in additions},'exact complete preparation membership')
  K.need(all(I.stable(after['nodes'][n])==I.stable(row) for n,row in nodes.items()),'all baseline file bytes/type/mode/UID/GID/xattrs preserved')
  for path,expected in additions.items():K.need(all(after['nodes'][path.lstrip('/')].get(n)==v for n,v in expected.items()),'actual case delta readback: '+path)
+ K.need(all(after['nodes'][p].get(n)==nodes[p].get(n)for p in (*module('preboot').PARENTS,'root') for n in ('inode','links','type','mode','uid','gid','mtime','mtime_ns','atime','atime_ns','xattrs')),'exact preboot parent inode metadata retained by preparation')
+ K.need(after['nodes'][(D+'/preboot-etc.tsv').lstrip('/')]['size']==len(descriptor) and after['nodes'][(D+'/preboot-etc.tsv').lstrip('/')]['links']==1,'bounded single-link prepared preboot descriptor readback')
+ K.need(after['nodes'][(D+'/root-ssh-preboot.tsv').lstrip('/')]['size']==len(root_ssh_descriptor) and after['nodes'][(D+'/root-ssh-preboot.tsv').lstrip('/')]['links']==1,'bounded single-link prepared root SSH descriptor readback')
  I.owners(after,base['inventory']);I.qualify(after,rt['baseline_files'],owned)
  (W/'prepared.json').write_bytes(K.canonical(dict(status='PREPARED_NOT_BOOTED',operation=K.OP,nonce=packet['nonce'],baseline_nonce=K.load(Path('/base/prepared.json'))['nonce'],
-  packet=K.pin(Path('/packet/case-packet.json')),raw=K.pin(raw),addition_namespace=additions,baseline=base['raw'],VM=None,ALPM=None,Root_acceptance=None)))
+  packet=K.pin(Path('/packet/case-packet.json')),raw=K.pin(raw),preboot_etc_descriptor=descriptor_pin,root_ssh_descriptor=root_ssh_pin,preboot_context=K.pin(Path('/packet/preboot-context.json')),addition_namespace=additions,baseline=base['raw'],VM=None,ALPM=None,Root_acceptance=None)))
 
 
 def boot(K,R,I,W,packet,cert,guard,deadline,progress=None):
@@ -219,6 +241,8 @@ def boot(K,R,I,W,packet,cert,guard,deadline,progress=None):
  progress['stage']='final_scan'
  after=I.scan(raw,deadline,guard)
  progress['stage']='preservation'
+ module('preboot').preserve_etc(K,before,after)
+ module('root_ssh').preserve(K,before,after)
  preservation=I.preserve(before,after,cert['baseline_certificate']['inventory'],cert['runtime_certificate'])
  # Bounded exact ordinary DATA only, read from the disposable verification copy.
  progress['stage']='retention'

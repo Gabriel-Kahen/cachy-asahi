@@ -480,8 +480,8 @@ class Controls(unittest.TestCase):
    for n,value in [('accepted',False),('phase','boot'),('expires_utc',now-1),('docker_endpoint','tcp://remote:2375'),('uid',1001)]:
     bad=copy.deepcopy(auth);bad[n]=value
     with self.subTest(n=n),self.assertRaises(ValueError):C.authority(bad,'prepare',pp,sp,out,K)
-  actor=module('actor');argv=actor.qemu_argv(dict(nonce='a'*32,baseline_nonce='b'*32),modeled()[4],now)
-  self.assertEqual(argv[argv.index('-nic')+1],'none');self.assertEqual(argv[argv.index('-accel')+1],'tcg,thread=multi');self.assertNotIn('-enable-kvm',argv)
+  actor=module('actor');argv=actor.qemu_argv(dict(nonce='a'*32,baseline_nonce='b'*32,preboot_etc_descriptor=pin('preboot'),root_ssh_descriptor=pin('root-ssh')),modeled()[4],now)
+  self.assertEqual(argv[argv.index('-nic')+1],'none');self.assertEqual(argv[argv.index('-accel')+1],'tcg,thread=multi');self.assertNotIn('-enable-kvm',argv);self.assertIn('arm16k_perl5423_vm_preboot_etc_sha256='+pin('preboot')['sha256'],argv[argv.index('-append')+1]);self.assertIn('arm16k_perl5423_vm_root_ssh_sha256='+pin('root-ssh')['sha256'],argv[argv.index('-append')+1])
  def test_explicit_db53_dependency_addition_and_no_other_packages(self):
   a=modeled(dependency=True);K.validate(*a)
   rows=A.contents(a[0],dict(zip(K.EVIDENCE,a[2:])),pin('source'),'a'*32)
@@ -653,7 +653,7 @@ class Controls(unittest.TestCase):
    def poll(self,*args):return [(101,1)]if self.ready else []
   argv=['/usr/bin/qemu-system-aarch64','MODEL_NO_PROCESS'];rows={201:dict(pid=201,parent=101,start=777,argv=[x.encode()for x in argv]),101:dict(pid=101,parent=99,start=666,argv=[b'/usr/bin/python3',b'/code/actor.py'])};row=dict(State=dict(Pid=101,Running=True,OOMKilled=False))
   stream=Stream();poll=Poll();closed=[]
-  with patch.object(C.os,'pidfd_open',side_effect=[501,502]),patch.object(C.os,'close',side_effect=closed.append),patch.object(C,'proc_identity',side_effect=lambda p:copy.deepcopy(rows[p])),patch.object(C.select,'poll',return_value=poll):
+  with patch.object(C.os,'pidfd_open',side_effect=[501,502],create=True),patch.object(C.os,'close',side_effect=closed.append),patch.object(C,'proc_identity',side_effect=lambda p:copy.deepcopy(rows[p])),patch.object(C.select,'poll',return_value=poll):
    peer=C.QMPPeer(stream,row,argv);peer.check(row);self.assertEqual(peer.evidence()['qemu_start'],777)
    for bad in('credentials','descriptor','parent','qemu-start','actor-start','argv','pidfd','actor-pid'):
     before=copy.deepcopy(rows);old_creds=stream.credentials;old_fd=stream.fd;changed=copy.deepcopy(row)
@@ -669,12 +669,25 @@ class Controls(unittest.TestCase):
     rows=before;stream.credentials=old_creds;stream.fd=old_fd;poll.ready=False
    peer.close();self.assertEqual(closed,[501,502]);peer.close();self.assertEqual(closed,[501,502])
   stream=Stream();stream.credentials=(201,os.getuid()+1,os.getgid())
-  with patch.object(C.os,'pidfd_open')as opened:
+  with patch.object(C.os,'pidfd_open',create=True)as opened:
    with self.assertRaises(ValueError):C.QMPPeer(stream,row,argv)
    opened.assert_not_called()
   fields=['S','101','201','201']+['0']*15+['777'];raw=('201 (MODEL qemu) '+' '.join(fields)).encode()
   with patch.object(C.os,'open',side_effect=[601,602]),patch.object(C.os,'read',side_effect=[raw,b'/usr/bin/qemu\0MODEL\0']),patch.object(C.os,'close'):
    result=C.proc_identity(201);self.assertEqual((result['parent'],result['start'],result['argv']),(101,777,[b'/usr/bin/qemu',b'MODEL']))
+ def test_QMP_missing_native_pidfd_API_refuses_before_process_metadata_without_fds(self):
+  import types
+  class Stream:
+   def fileno(self):return 7
+   def getsockopt(self,*args):return struct.pack('3i',201,os.getuid(),os.getgid())
+  closed=[]
+  native_missing=types.SimpleNamespace(getuid=os.getuid,getgid=os.getgid,close=closed.append)
+  peer=C.QMPPeer.__new__(C.QMPPeer)
+  with patch.object(C,'os',native_missing),patch.object(C,'proc_identity',side_effect=AssertionError('MODEL must not read process identity'))as identity,patch.object(C.select,'poll',side_effect=AssertionError('MODEL must not poll a process'))as poll:
+   with self.assertRaises(AttributeError):
+    peer.__init__(Stream(),dict(State=dict(Pid=101,Running=True,OOMKilled=False)),['/usr/bin/qemu-system-aarch64','MODEL_NO_PROCESS'])
+   identity.assert_not_called();poll.assert_not_called()
+   self.assertEqual(peer.fds,[]);peer.close();self.assertEqual(closed,[])
  def test_QMP_quit_progress_exact_request_events_ACK_and_private_counters(self):
   class Peer:
    fd=7

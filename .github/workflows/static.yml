@@ -313,6 +313,31 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/test_image_lifecycle_data.py -v
           python3 -I -B -Werror::ResourceWarning scripts/ci/native-build-namespace-preflight/test_preflight_data.py -v
           python3 -I -B -Werror::ResourceWarning scripts/ci/native-build-namespace-preflight/test_image_lifecycle_data.py -v
+      - name: Restore exact composition archive inputs
+        if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
+        id: composition-inputs
+        timeout-minutes: 2
+        continue-on-error: true
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: ${{ runner.temp }}/composition-arch-inputs
+          key: composition-arch-x86_64-v1-${{ hashFiles('scripts/port/supported-composition/ci-runtime/inputs.lock', 'scripts/port/supported-composition/ci-runtime/Dockerfile') }}
+      - name: Verify or acquire the complete pinned composition inputs
+        if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
+        timeout-minutes: 4
+        run: |
+          python3 -I -B -Werror::ResourceWarning scripts/port/supported-composition/ci-runtime/test_acquire.py
+          python3 -I -B scripts/port/supported-composition/ci-runtime/acquire.py \
+            --cache "$RUNNER_TEMP/composition-arch-inputs" \
+            --context "$RUNNER_TEMP/composition-runtime-context"
+      - name: Retain only the verified exact composition inputs
+        if: ${{ (matrix.shard == 'all' || matrix.shard == 'foundation') && steps.composition-inputs.outputs.cache-hit != 'true' }}
+        timeout-minutes: 2
+        continue-on-error: true
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: ${{ runner.temp }}/composition-arch-inputs
+          key: composition-arch-x86_64-v1-${{ hashFiles('scripts/port/supported-composition/ci-runtime/inputs.lock', 'scripts/port/supported-composition/ci-runtime/Dockerfile') }}
       - name: Check protected composition with pinned libalpm16
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
         timeout-minutes: 10
@@ -322,7 +347,7 @@ jobs:
           trap 'docker image rm "$image" >/dev/null 2>&1 || true' EXIT
           docker build --pull=false \
             -f scripts/port/supported-composition/ci-runtime/Dockerfile \
-            -t "$image" scripts/port/supported-composition/ci-runtime
+            -t "$image" "$RUNNER_TEMP/composition-runtime-context"
           docker run --rm --network=none --read-only --cap-drop=ALL \
             --security-opt=no-new-privileges --pids-limit=128 --memory=512m \
             --tmpfs /tmp:rw,nodev,nosuid,noexec,size=256m,mode=1777 \
@@ -337,6 +362,10 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/port/platform-audio-registry-sources/test_join.py
           python3 -I -B -Werror::ResourceWarning packages/port/perl5423-source-candidate/test_recipe.py
           python3 -I -B -Werror::ResourceWarning packages/port/bankstown-source-candidate/test_candidate.py
+          python3 -I -B -Werror scripts/port/bankstown-qt3-native-v1/test_admission.py
+          python3 -I -B -Werror scripts/port/bankstown-qt3-native-v1/test_profile.py
+          python3 -I -B -Werror scripts/port/bankstown-qt3-native-v1/test_builder.py
+          bash -n scripts/port/bankstown-qt3-native-v1/entry.sh
           python3 -I -B -Werror::ResourceWarning scripts/port/platform-audio-bankstown-build/test_build.py
           python3 -I -B -Werror::ResourceWarning packages/port/networkmanager-source-candidate/test_candidate.py
           python3 -I -B -Werror::ResourceWarning scripts/port/python314-tk-host-build/test_host_build.py
