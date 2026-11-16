@@ -1,0 +1,73 @@
+{
+  "Root_review": null,
+  "accepted": null,
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "image": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "bytes": 43106281,
+  "constructor_files": {
+    "README.md": {
+      "bytes": 4576,
+      "mode": 420,
+      "sha256": "a32c8546cca7779168463946531702c1188bc0070d57e79d1047ae3c35f1987c"
+    },
+    "Root-admission.TEMPLATE.json": {
+      "bytes": 14249,
+      "mode": 420,
+      "sha256": "8a564c2a68afd400abf746b8c600620a1a7fec18a814357dd2ba7107ff01074d"
+    },
+    "fixtures/actual287-inspect.json": {
+      "bytes": 5198,
+      "mode": 420,
+      "sha256": "94b04d74b274ef5fdfb089ea9ae712d6ef06341541b6ec438fd98eb0464e1b55"
+    },
+    "fixtures/actual287-provenance.json": {
+      "bytes": 696,
+      "mode": 420,
+      "sha256": "e4c68bfd324abdeaa68c11390f0f83c0f401290f5b76151fd49caa00e5e5af8c"
+    },
+    "payload/hosted/producer.py": {
+      "bytes": 33774,
+      "mode": 420,
+      "sha256": "5ef59811fe0f5e9935317bb4d1b1a671272b28ab09308b570a09a55ca2b1fcce"
+    },
+    "payload/hosted/qualification.py": {
+      "bytes": 18658,
+      "mode": 420,
+      "sha256": "d76a06691bb6fa0138c0bc0cafb4ae1428c85fd96756de7c130230994030b6f5"
+    },
+    "prepare.py": {
+      "bytes": 7860,
+      "mode": 420,
+      "sha256": "12c15bd232ab11d23979b57cd1acac0fdd612e0d476fc4e0fedcfddc6d25336c"
+    },
+    "test_data.py": {
+      "bytes": 5984,
+      "mode": 420,
+      "sha256": "480f86e7e881007698804593ff80c99a364cdcea6a068b70016729a2a0af2a30"
+    },
+    "test_runtime.py": {
+      "bytes": 16088,
+      "mode": 420,
+      "sha256": "8fc2a35a35dd0878a150bd1cd28439a634f5fb73405537d589549c5e21af93d8"
+    }
+  },
+  "files": 344,
+  "map_sha256": "8a2f52bb029181c3b547a09f07e4839ce0a58dd40d01c20b2cfd396af1401ec4",
+  "parent": {
+    "bytes": 42985162,
+    "files": 340,
+    "map_sha256": "3974a68677faadf1136f21539b595f3f0da85fa26bd72eb8d0fa8c6e922894f1",
+    "tree": "596fe9277740365fa3e29ee11f2b75ae7ce8bbc8"
+  },
+  "schema": 12,
+  "scope": "RUST199_MOUNT_DEFAULT_CID_CUSTODY_SUCCESSOR_V12",
+  "tree": "3f470539f51c0bdbc9fdcb52e0657834310c9e63",
+  "unadmitted": true
+}
