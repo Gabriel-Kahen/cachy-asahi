@@ -1,0 +1,33 @@
+{
+  "Root_acceptance": null,
+  "bootstrap_backend": "EXPLICIT_LEGACY_BUILDER_NO_BUILDKIT_NO_FALLBACK",
+  "cleanup_seconds": 90,
+  "controller": {
+    "AS_bytes": 268435456,
+    "cpus": 1,
+    "memory_bytes": 536870912,
+    "pids": 64,
+    "swap_bytes": 0
+  },
+  "daemon": {
+    "cpus": 4,
+    "memory_bytes": 6442450944,
+    "pids": 768,
+    "swap_bytes": 0
+  },
+  "host_reserve_bytes": 2147483648,
+  "kind": "FISH02_OWNED_HOSTED_DOMAINS_POLICY_V2",
+  "minimum_available_bytes": 10737418240,
+  "minimum_disk_bytes": 15032385536,
+  "owner": {
+    "AS_bytes": 2147483648,
+    "cpus": 1,
+    "memory_bytes": 2147483648,
+    "pids": 256,
+    "swap_bytes": 0
+  },
+  "pair_seconds": 1200,
+  "review_state": "PROPOSED_REQUIRES_SEPARATE_ROOT_ISSUANCE",
+  "shared_daemon": false,
+  "storage_bytes": 12884901888
+}
