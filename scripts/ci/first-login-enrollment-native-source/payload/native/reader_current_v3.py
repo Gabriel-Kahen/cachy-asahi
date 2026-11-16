@@ -497,6 +497,183 @@ def capsule_files(raw,expected_pin,stage):
     return files,manifest
 
 
+DIAGNOSTIC_PREFIX='scripts/ci/first-login-enrollment-native-source/successor_v5_source/'
+DIAGNOSTIC_PROGRAM_PIN=dict(bytes=14642,sha256='d2ba5333ae8364fa8ee2fb3709f362b2025fc060593a433f5260eda5ff47b169')
+DIAGNOSTIC_SOURCE=dict(files=188,bytes=45544942,tree='50bf7aab34ee5497f12d078709354aa69b0cdb9d',
+    source_map=dict(bytes=37091,sha256='ba06925244cd010ab2223325e2e324d4d3b469befbea5e7eb8e0de68383d4908'))
+DIAGNOSTIC_BASIS=dict(files=179,bytes=45330627,tree='5128864b3c17f230d5045361014b41ce31b72767',
+    source_map=dict(bytes=35107,sha256='063a34c64d9e9ad21e6c2bd5c4e0a147f88890061cd79fb13587bc1e37e9d7f4'))
+DIAGNOSTICS_COMMIT='e263bd414318a9ca94158a9d272218703d145102'
+DIAGNOSTIC_REPLACEMENTS={
+    'hosted_launcher':dict(member='scripts/ci/first-login-enrollment-native-source/payload/native/hosted_current_v3.py',
+        bytes=66059,sha256='5685fa9149242fd878ce81ddbe4368a0f6317de71c654962311de4fdb631fa14'),
+    'material_domain_executor':dict(member='scripts/ci/first-login-enrollment-native-source/payload/native/material_domain_current_v3.py',
+        bytes=40975,sha256='da8e397a63e02c11758d08bf2c45ecf14d94029f6311f4fcb4a09ad420624c8b'),
+    'materials_stager':dict(member='scripts/ci/first-login-enrollment-native-source/payload/native/stage_materials_current_v3_python_v1.py',
+        bytes=35550,sha256='58c5d0842c17a914239b5f24e9e1ac2987ad8ec9ce9e2a03e63a04f2e2e99282')}
+DIAGNOSTIC_CONSTRUCTION={
+    DIAGNOSTIC_PREFIX+'prepare.py':dict(bytes=11245,mode=0o644,sha256='91ac3c40014b5752d936fb5247d28a20b73ba0e5a1499615af11b47eb544909c'),
+    DIAGNOSTIC_PREFIX+'README.md':dict(bytes=1916,mode=0o644,sha256='1f76e8ca8353e36afdb6510cb9deed82ee7dfe754be67e43534388cab31bac93')}
+DIAGNOSTIC_PHASES=('ENTRY','AUTHORIZE','SOURCE','NATIVE_CONTEXT','INPUTS','HELPERS','TOOLS','STORAGE','SCOPE',
+    'TRANSPORT_PUBLIC14','TRANSPORT_NATIVE248','PRIVATE_SEED','PUBLIC14_PREPARE','NATIVE248_PREPARE','DOWNLOAD','COMPLETE517','FINALIZE','CHILD')
+DIAGNOSTIC_FINAL=dict(Root_final_acceptance=None,independent_component_acceptance=False,hardware_acceptance=False,release_acceptance=False)
+
+
+def diagnostic_packet(value):
+    need(type(value) is dict and set(value)=={'schema','kind','phase','reason','command_ordinal'}
+         and type(value['schema']) is int and value['schema']==1
+         and value['kind']=='CURRENT_MATERIAL_STAGE_FAILURE_V1'
+         and type(value['phase']) is str and value['phase'] in DIAGNOSTIC_PHASES
+         and type(value['reason']) is str and value['reason'] in ('PHASE_FAILED','COMMAND_FAILED')
+         and (value['command_ordinal'] is None or type(value['command_ordinal']) is int
+              and 0<=value['command_ordinal']<=26) and len(encoded(value))<=1024,
+         'HOLD_DIAGNOSTIC_FIXED_PACKET')
+    return value
+
+
+def diagnostic_failure_record(raw,*,expected_pins=None):
+    """Closed public failure DATA only; never qualify a stage or issue acceptance."""
+    need(type(raw) is bytes and 0<len(raw)<=4096,'HOLD_DIAGNOSTIC_RECORD_BOUND')
+    value=receipt(raw);pins={'request_pin','context_pin','stdout_pin','stderr_pin','retirement_pin'}
+    need(set(value)=={'schema','kind','status','availability','packet',*pins,*DIAGNOSTIC_FINAL}
+         and raw==encoded(value) and type(value['schema']) is int and value['schema']==1
+         and value['kind']=='CURRENT_MATERIAL_STAGE_FAILURE_RECORD_V1' and value['status']=='DIAGNOSTIC_ONLY'
+         and value['availability'] in ('AVAILABLE','UNAVAILABLE')
+         and all(value[k] is v for k,v in DIAGNOSTIC_FINAL.items()),'HOLD_DIAGNOSTIC_RECORD_SCHEMA')
+    for name in pins:
+        row=value[name]
+        need(row is not None or name not in ('request_pin','context_pin'),'HOLD_DIAGNOSTIC_REQUIRED_PIN')
+        if row is not None:
+            need(type(row) is dict and set(row)=={'bytes','sha256'} and row==whole(row)
+                 and row['bytes']<=(1024**2 if name in ('stdout_pin','stderr_pin') else MAX_FILE)
+                 and (name in ('stdout_pin','stderr_pin') or row['bytes']>0),
+                 'HOLD_DIAGNOSTIC_WHOLE_PIN')
+    if value['availability']=='AVAILABLE':
+        packet=diagnostic_packet(value['packet'])
+        need(value['stderr_pin']==pin(encoded(packet)) and value['retirement_pin'] is not None,
+             'HOLD_DIAGNOSTIC_COMPLETE_PACKET_PIN')
+    else:need(value['packet'] is None,'HOLD_DIAGNOSTIC_UNAVAILABLE_PACKET')
+    if expected_pins is not None:
+        need(type(expected_pins) is dict and set(expected_pins)==pins
+             and all(same(value[name],expected_pins[name]) for name in pins),'HOLD_DIAGNOSTIC_EXTERNAL_PINS')
+    return dict(value,Root_authentication=False,Root_acceptance=None,native_acceptance=False)
+
+
+def source_git_tree(files,rows):
+    """Compute Git identity from selected body/mode DATA without invoking Git."""
+    def oid(kind,body):return hashlib.sha1(kind+b' '+str(len(body)).encode()+b'\0'+body).digest()
+    tree={}
+    for name,body in files.items():
+        relative(name);branch=tree;parts=name.split('/')
+        for part in parts[:-1]:
+            need(part not in branch or type(branch[part]) is dict,'HOLD_DIAGNOSTIC_SOURCE_TREE_NAMESPACE')
+            branch=branch.setdefault(part,{})
+        need(parts[-1] not in branch and type(rows[name]['mode']) is int
+             and rows[name]['mode'] in (0o644,0o755),'HOLD_DIAGNOSTIC_SOURCE_TREE_MODE')
+        branch[parts[-1]]=(rows[name]['mode'],oid(b'blob',body))
+    def digest(branch):
+        body=b''
+        for name,value in sorted(branch.items(),key=lambda item:item[0].encode()+(b'/' if type(item[1]) is dict else b'')):
+            directory=type(value) is dict;mode=b'40000' if directory else b'100755' if value[0]==0o755 else b'100644'
+            body+=mode+b' '+name.encode()+b'\0'+(digest(value) if directory else value[1])
+        return oid(b'tree',body)
+    return digest(tree).hex()
+
+
+def diagnostic_source_data(expected,files,*,delegated):
+    """Verify exact188→179, then invoke the preserved179→139 DATA predicates."""
+    need(delegated is True,'HOLD_DIAGNOSTIC_DELEGATED_ONLY')
+    raw=files['source.lock.json'];lock=receipt(raw);program_name=DIAGNOSTIC_PREFIX+'program.json'
+    need(len(files)==DIAGNOSTIC_SOURCE['files'] and sum(map(len,files.values()))==DIAGNOSTIC_SOURCE['bytes']
+         and pin(raw)==DIAGNOSTIC_SOURCE['source_map'] and expected['source']['program']==dict(path=program_name,**DIAGNOSTIC_PROGRAM_PIN)
+         and pin(files[program_name])==DIAGNOSTIC_PROGRAM_PIN,'HOLD_EXACT_DIAGNOSTIC_SOURCE188')
+    rows=dict(lock['files']);rows.update({name:dict(mode=0o644,**pin(raw)) for name in ('source.lock.json','source-map.json')})
+    need(source_git_tree(files,rows)==DIAGNOSTIC_SOURCE['tree'],'HOLD_DIAGNOSTIC_WHOLE_SOURCE188_TREE')
+    original_raw=files['provenance/v5/source179-map.json'];old=receipt(original_raw)
+    need(pin(original_raw)==DIAGNOSTIC_BASIS['source_map'] and lock['files']['provenance/v5/source179-map.json']['mode']==0o644
+         and {k:v for k,v in old.items() if k!='files'}=={k:v for k,v in lock.items() if k!='files'},
+         'HOLD_DIAGNOSTIC_SOURCE179_BASIS')
+    backups={row['member']:'provenance/v5/original/'+row['member'] for row in DIAGNOSTIC_REPLACEMENTS.values()}
+    added={'provenance/v5/rebind.json','provenance/v5/source179-map.json',*backups.values(),
+        *(DIAGNOSTIC_PREFIX+n for n in ('prepare.py','README.md','program.json','inverse.json'))}
+    inverse=receipt(files[DIAGNOSTIC_PREFIX+'inverse.json'])
+    need(same(inverse,dict(schema=5,kind='DIAGNOSTIC_SOURCE_V5_TO_SOURCE179_INVERSE_DATA_ONLY',basis=DIAGNOSTIC_BASIS,
+             remove=sorted(added),restore=backups,actual_acceptance=None))
+         and set(files)==set(old['files'])|added|{'source.lock.json','source-map.json'}
+         and not added&set(old['files']) and all(lock['files'][name]['mode']==0o644 for name in added),
+         'HOLD_DIAGNOSTIC_EXACT_INVERSE_ROSTER')
+    restored={name:body for name,body in files.items() if name not in added|{'source.lock.json','source-map.json'}}
+    changes={}
+    for role,row in DIAGNOSTIC_REPLACEMENTS.items():
+        name=row['member'];backup=backups[name]
+        need(lock['files'][name]==dict(mode=0o644,**whole(row)) and pin(files[name])==whole(row)
+             and dict(mode=lock['files'][backup]['mode'],**pin(files[backup]))==old['files'][name],
+             'HOLD_DIAGNOSTIC_EXACT_REPLACEMENT_INVERSE')
+        restored[name]=files[backup]
+        changes[role]=dict(member=name,original=old['files'][name],replacement=lock['files'][name],original_member=backup)
+    need(set(restored)==set(old['files']) and all(pin(body)==whole(old['files'][name])
+         and (name in backups or lock['files'][name]==old['files'][name]) for name,body in restored.items()),
+         'HOLD_DIAGNOSTIC_COMPLETE_SOURCE179_INVERSE')
+    restored['source.lock.json']=restored['source-map.json']=original_raw
+    old_rows=dict(old['files']);old_rows.update({name:dict(mode=0o644,**pin(original_raw)) for name in ('source.lock.json','source-map.json')})
+    need(len(restored)==DIAGNOSTIC_BASIS['files'] and sum(map(len,restored.values()))==DIAGNOSTIC_BASIS['bytes']
+         and source_git_tree(restored,old_rows)==DIAGNOSTIC_BASIS['tree'],'HOLD_DIAGNOSTIC_WHOLE_SOURCE179_INVERSE')
+    provenance=receipt(files['provenance/v5/rebind.json']);actual=dict.fromkeys(('source','ref','run','job','Root_delegation','Root_trust','Root_resources','Root_runtime','actual_images','publication'))
+    need(same(provenance,dict(schema=5,kind='COMMITTED_SOURCE179_DIAGNOSTIC_REBIND_V5',operation=OP,basis=DIAGNOSTIC_BASIS,
+             diagnostics_commit=DIAGNOSTICS_COMMIT,replacements=changes,construction=DIAGNOSTIC_CONSTRUCTION,actual=actual))
+         and all(lock['files'][name]==row and pin(files[name])==whole(row) for name,row in DIAGNOSTIC_CONSTRUCTION.items()),
+         'HOLD_DIAGNOSTIC_COMMITTED_PROVENANCE')
+    old_name='scripts/ci/first-login-enrollment-native-source/successor_v4_source/program.json'
+    old_program=receipt(restored[old_name]);selection=dict(expected,source_lock_pin=pin(original_raw),
+        binding=dict(expected['binding'],source_lock=pin(original_raw)),
+        source=dict(expected['source'],program=dict(path=old_name,**pin(restored[old_name]))),reader_pin=whole(old_program['roles']['public_reader']))
+    profile,checked,policy=source_data(selection,restored,delegated=True)
+    wanted=decode(encoded(checked));wanted.update(schema=5,kind='DELEGATED_CURRENT_DIAGNOSTIC_PROGRAM_REGISTRY_V5',
+        basis_closure_commit=wanted.pop('closure_commit'),diagnostics_commit=DIAGNOSTICS_COMMIT,
+        rebind_provenance=dict(member='provenance/v5/rebind.json',**pin(files['provenance/v5/rebind.json'])))
+    for role,row in DIAGNOSTIC_REPLACEMENTS.items():wanted['roles'][role]=wanted['delegation_programs'][role]=row
+    need(same(receipt(files[program_name]),wanted),'HOLD_DIAGNOSTIC_CANONICAL_PROGRAM_SELECTION')
+    diagnostic_source_contract(files,wanted)
+    return profile,wanted,policy
+
+
+def diagnostic_source_contract(files,program):
+    """Read the finite fixed failure declarations as AST DATA; no Source calls."""
+    trees={role:ast.parse(files[row['member']]) for role,row in DIAGNOSTIC_REPLACEMENTS.items()}
+    def declaration(role,name):
+        values=[node.value for node in trees[role].body if isinstance(node,ast.Assign)
+            and any(isinstance(target,ast.Name) and target.id==name for target in node.targets)]
+        need(len(values)==1,'HOLD_DIAGNOSTIC_LITERAL_CONTRACT')
+        value=values[0]
+        if isinstance(value,ast.Call):
+            need(isinstance(value.func,ast.Name) and value.func.id=='frozenset' and len(value.args)==1
+                 and not value.keywords,'HOLD_DIAGNOSTIC_LITERAL_CONTRACT');value=value.args[0]
+        return ast.literal_eval(value)
+    for role in ('materials_stager','material_domain_executor'):
+        need(declaration(role,'FAILURE_KIND')=='CURRENT_MATERIAL_STAGE_FAILURE_V1'
+             and type(declaration(role,'FAILURE_BYTES')) is int and declaration(role,'FAILURE_BYTES')==1024
+             and tuple(declaration(role,'FAILURE_PHASES'))==DIAGNOSTIC_PHASES
+             and tuple(declaration(role,'FAILURE_REASONS'))==('PHASE_FAILED','COMMAND_FAILED'),
+             'HOLD_DIAGNOSTIC_LITERAL_CONTRACT')
+    callbacks=dict(hosted_launcher={'checked_inputs','preflight','material_stage_failure','material_failure_data'}|PREREQUISITE_CALLBACKS|MATERIAL_CALLBACKS,
+        material_domain_executor={'open_material_session','root_entry','failure_packet','emit_failure'},
+        materials_stager={'stage_materials','validate_grant','secret_names','failure_packet','emit_failure'})
+    need(all(names<={node.name for node in trees[role].body if isinstance(node,ast.FunctionDef)}
+         for role,names in callbacks.items()),'HOLD_DIAGNOSTIC_REQUIRED_CALLBACKS')
+    for role,api in (('materials_stager','CURRENT_COMPLETE517_MATERIAL_STAGING_V3'),
+                     ('material_domain_executor','CURRENT_ONBOARDING_MATERIAL_DOMAIN_V3')):
+        need(literal_source_table(trees[role],'API')==api,'HOLD_DIAGNOSTIC_LITERAL_DEPENDENCIES')
+    need(literal_source_table(trees['materials_stager'],'IMPLEMENTATION')=='ROOT_QUALIFIED_CANONICAL_PYTHON_V1'
+         and same(literal_source_table(trees['material_domain_executor'],'EXECUTOR_PIN'),MATERIAL_EXECUTOR_PIN)
+         and same(literal_source_table(trees['material_domain_executor'],'INPUT_METADATA'),
+             {role:program['staging_materials'][role] for role in ('staging_base_lock','staging_bootstrap_profile')}),
+         'HOLD_DIAGNOSTIC_LITERAL_DEPENDENCIES')
+    need(tuple(declaration('hosted_launcher','SOURCE_FAILURE_PHASES'))==DIAGNOSTIC_PHASES
+         and same(literal_source_table(trees['material_domain_executor'],'STAGER_PIN'),whole(program['roles']['materials_stager']))
+         and same(literal_timing(trees['hosted_launcher']),PREREQUISITE_TIMING),'HOLD_DIAGNOSTIC_LITERAL_DEPENDENCIES')
+    return dict(status='DIAGNOSTIC_SOURCE_CONTRACT_DATA_ONLY_V5',Root_authentication=False,Root_acceptance=None)
+
+
 def source_data(expected,files,*,delegated=False):
     need(type(files) is dict and all(type(n) is str and type(v) is bytes for n,v in files.items()),'HOLD_SOURCE_BODIES')
     need(sum(map(len,files.values()))<=MAX_SOURCE and len(files)<=512,'HOLD_SOURCE_CAP')
@@ -525,6 +702,8 @@ def source_data(expected,files,*,delegated=False):
              'HOLD_CURRENT_PACKAGE_SCOPE')
         for name,row in recipe['files'].items():
             relative(name);need(pin(files[recipe['path']+'/'+name])==whole(row),'HOLD_RECIPE_SOURCE_BODY')
+    if program.get('schema')==5:
+        return diagnostic_source_data(expected,files,delegated=delegated)
     if program.get('schema')==4:
         actual={'source','ref','run','job','Root_delegation','Root_trust','Root_resources','Root_runtime','actual_images','publication'}
         prefix='scripts/ci/first-login-enrollment-native-source/successor_v4_source/'
@@ -1337,6 +1516,8 @@ def delegated_public_body(raw):
             need(not raw.lstrip().startswith(b'{'),'HOLD_MALFORMED_PUBLIC_RECEIPT')
             return
         receipt(encoded(dict(value=value)))
+        if type(value) is dict and value.get('kind')=='CURRENT_MATERIAL_STAGE_FAILURE_RECORD_V1':diagnostic_failure_record(raw)
+        elif type(value) is dict and value.get('kind')=='CURRENT_MATERIAL_STAGE_FAILURE_V1':diagnostic_packet(value)
 
 
 def delegated_capsule_files(raw,expected):

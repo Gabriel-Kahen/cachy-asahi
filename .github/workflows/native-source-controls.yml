@@ -102,11 +102,28 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/successor_v3/test_data.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/successor_v4_source/test_data.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/successor_v4_source/test_seams.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/successor_v5_source/test_data.py
           python3 -I -B -Werror::ResourceWarning scripts/port/first-login-enrollment-ui-current-reader/test_reader.py
           python3 -I -B -Werror::ResourceWarning scripts/port/first-login-enrollment-ui-current-reader/test_owner_receipts.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_perl5423_vm/test_local_dependency_queries.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/native-build-namespace-preflight/test_preflight_data.py -v
           python3 -I -B -Werror::ResourceWarning scripts/ci/native-build-namespace-preflight/test_image_lifecycle_data.py -v
+      - name: Check out immutable onboarding Source188 as DATA
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 640a1d0ccebb6d04c28ef0508d59055efdc56209
+          path: .onboarding-source188-data-repository
+          persist-credentials: false
+      - name: Check genuine onboarding Source188 and complete inverses
+        run: |
+          umask 022
+          onboarding_source="${RUNNER_TEMP}/onboarding188-source-DATA"
+          test ! -e "$onboarding_source"
+          mkdir -m 700 "$onboarding_source"
+          test "$(git -C .onboarding-source188-data-repository rev-parse HEAD)" = 640a1d0ccebb6d04c28ef0508d59055efdc56209
+          test "$(git -C .onboarding-source188-data-repository rev-parse HEAD^{tree})" = 50bf7aab34ee5497f12d078709354aa69b0cdb9d
+          git -C .onboarding-source188-data-repository -c tar.umask=0022 archive --format=tar HEAD | tar -xf - -C "$onboarding_source"
+          python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/payload/native/test_reader_current_v3.py --genuine-diagnostic-source "$onboarding_source" GenuineDiagnosticSource188
       - name: Check current Fish source without actors
         run: |
           python3 -I -B -Werror::ResourceWarning scripts/ci/fish-config02-native-source/test_data.py
