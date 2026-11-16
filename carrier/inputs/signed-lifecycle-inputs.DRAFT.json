@@ -1,0 +1,266 @@
+{
+  "Root_admission": null,
+  "common_TEST_fingerprint": null,
+  "constraint": "Existing native.lifecycle requires one TEST primary for all four packages; actual Setup8 signature grants no signing authority for the three current candidates",
+  "expected_inventory_counts": [
+    372,
+    373,
+    376,
+    373,
+    376,
+    373,
+    372
+  ],
+  "installed_inventory_observations": null,
+  "official_trust": null,
+  "runtime": null,
+  "schema": 1,
+  "signed": {
+    "enrollment": {
+      "archive": null,
+      "archive_pin": null,
+      "name": "cachy-asahi-repository-enrollment",
+      "payload_files": {
+        "usr/bin/cachy-asahi-repository-enrollment": {
+          "bytes": 1595,
+          "mode": 493,
+          "sha256": "11ce3cea6422c5b97c1e9cc97f8cd5abddddfb3199becf8a4c2ad8c74cb432a9"
+        },
+        "usr/lib/cachy-asahi/repository-enrollment/scripts/maintenance/signing_expiry.py": {
+          "bytes": 9002,
+          "mode": 420,
+          "sha256": "dd6ef397ea47cf14bb31f6ae6f7ca388d68bdb15e7fa3d20c36eb01f901b2c98"
+        },
+        "usr/lib/cachy-asahi/repository-enrollment/scripts/release/compare_releases_v2.py": {
+          "bytes": 12061,
+          "mode": 420,
+          "sha256": "b56c78b03dcb224ecc1b76769089099ad67d9643ecbee7d5b8d5d2d16edd7632"
+        },
+        "usr/lib/cachy-asahi/repository-enrollment/scripts/release/release.py": {
+          "bytes": 41320,
+          "mode": 420,
+          "sha256": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435"
+        },
+        "usr/lib/cachy-asahi/repository-enrollment/scripts/release/signing_transition.py": {
+          "bytes": 12206,
+          "mode": 420,
+          "sha256": "6c7b40aef38436e54e751c8113135bab3d462c59ff7dd6d5c31734d5d5d89a61"
+        },
+        "usr/lib/cachy-asahi/repository-enrollment/scripts/release/source_delivery.py": {
+          "bytes": 16456,
+          "mode": 420,
+          "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+        },
+        "usr/lib/cachy-asahi/repository-enrollment/scripts/repository/enroll.py": {
+          "bytes": 19778,
+          "mode": 420,
+          "sha256": "38db2d45955b569a4c74c3f31d6b6c79611126238e1bbe1e5cf819f81d0fb54f"
+        },
+        "usr/lib/cachy-asahi/repository-enrollment/scripts/repository/refresh.py": {
+          "bytes": 9178,
+          "mode": 420,
+          "sha256": "24f78317c766c96f824d9775908c0ff60563caf396f9fb4bcc1a119138f78d79"
+        },
+        "usr/lib/cachy-asahi/repository-enrollment/scripts/repository/revoke.py": {
+          "bytes": 14784,
+          "mode": 420,
+          "sha256": "8804cf14527341c23bd7ba540c23a08185a10c92f6d405a65f52f277ff6bc44b"
+        },
+        "usr/lib/cachy-asahi/repository-enrollment/scripts/repository/rotate.py": {
+          "bytes": 7181,
+          "mode": 420,
+          "sha256": "8bb7f255cdaaf02c06d6305b924f68988b3e733d0187d8b8b45164bb4761b711"
+        },
+        "usr/lib/cachy-asahi/repository-enrollment/scripts/repository/transition.py": {
+          "bytes": 11317,
+          "mode": 420,
+          "sha256": "04b2576cce20f08c2ae879ee696ab8d682e4f0434849026ee419a33c46707996"
+        },
+        "usr/share/doc/cachy-asahi-repository-enrollment/README.md": {
+          "bytes": 5094,
+          "mode": 420,
+          "sha256": "5c6afde675e8630b357f65f4c303de333b482f70a7ae340115e7dbb76ca335f0"
+        },
+        "usr/share/doc/cachy-asahi-repository-enrollment/payload-map.json": {
+          "bytes": 1821,
+          "mode": 420,
+          "sha256": "f12d121d5f9e26f74b33263668b78b98d746a84c028e17a1c9d1696c375a8d05"
+        },
+        "usr/share/doc/cachy-asahi-repository-enrollment/source-provenance.json": {
+          "bytes": 5087,
+          "mode": 420,
+          "sha256": "ce5d7a77744b9ea35d42dc92332888b88e52019e88789d242fd47cdb5af747cb"
+        },
+        "usr/share/licenses/cachy-asahi-repository-enrollment/LICENSE": {
+          "bytes": 1081,
+          "mode": 420,
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        },
+        "usr/share/licenses/cachy-asahi-repository-enrollment/NOTICE": {
+          "bytes": 509,
+          "mode": 420,
+          "sha256": "66c974199c3c94b0383dc296133883530307e89b7e54815e59d87543c1da70d0"
+        }
+      },
+      "signature": null,
+      "signature_pin": null,
+      "version": "0.4.0-1"
+    },
+    "first-login": {
+      "archive": null,
+      "archive_pin": null,
+      "name": "cachy-asahi-first-login",
+      "payload_files": {
+        "usr/bin/cachy-asahi-first-login": {
+          "bytes": 296,
+          "mode": 493,
+          "sha256": "a5e2b72ff58eac2763c0ad65f36c0c883a60ce20e97c38acc4bace9d30a18144"
+        },
+        "usr/lib/cachy-asahi/first-login/first_login.py": {
+          "bytes": 10534,
+          "mode": 420,
+          "sha256": "b4505e393a2913048136c16b62a4355da133c32536cbae60a1c3c65f4483b1d6"
+        },
+        "usr/share/doc/cachy-asahi-first-login/README.md": {
+          "bytes": 5579,
+          "mode": 420,
+          "sha256": "e426fcf02296865fb6367fd04d200a4333dab58e66c943a9be5f7a0f5f2eb697"
+        },
+        "usr/share/doc/cachy-asahi-first-login/source-provenance.json": {
+          "bytes": 2365,
+          "mode": 420,
+          "sha256": "e73d53d59030b7722cdde23488b4ebcda4a3d6a60d5fa295012ba289d2364c10"
+        },
+        "usr/share/licenses/cachy-asahi-first-login/LICENSE": {
+          "bytes": 1081,
+          "mode": 420,
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        },
+        "usr/share/licenses/cachy-asahi-first-login/NOTICE": {
+          "bytes": 430,
+          "mode": 420,
+          "sha256": "6aa0a8736adb815343fe56d530df8caa77605896e1eb8984c40e3cc669d86b35"
+        }
+      },
+      "signature": null,
+      "signature_pin": null,
+      "version": "0.1.0-3"
+    },
+    "setup8": {
+      "archive": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0038-cachy-asahi-setup-0.3.0-1-any.pkg.tar.xz",
+      "archive_pin": {
+        "bytes": 33900,
+        "sha256": "8de3bd0cf2d9333b41925fecdef5cbfe2ec6d40c3424d90746182142e0c7dc47"
+      },
+      "name": "cachy-asahi-setup",
+      "payload_files": {
+        "usr/bin/cachy-asahi-config-migrate": {
+          "bytes": 455,
+          "mode": 493,
+          "sha256": "844b5c01b49552ea5aaef19a7ced8637f49d1f5126c37f4c14471620d0951cc2"
+        },
+        "usr/bin/cachy-asahi-repository": {
+          "bytes": 19778,
+          "mode": 493,
+          "sha256": "38db2d45955b569a4c74c3f31d6b6c79611126238e1bbe1e5cf819f81d0fb54f"
+        },
+        "usr/bin/cachy-asahi-setup": {
+          "bytes": 45116,
+          "mode": 493,
+          "sha256": "724a37c9832d607455aeda1d929f0ee265ce268aecb64be5e00065c1edf85cf0"
+        },
+        "usr/lib/cachy-asahi/setup8/config_migrate.py": {
+          "bytes": 20150,
+          "mode": 420,
+          "sha256": "1368a1fa0586d946f33945b0be7e5c1deb4fe929509e34a81d55cfb9f5cb800b"
+        },
+        "usr/lib/cachy-asahi/setup8/setup.py": {
+          "bytes": 45116,
+          "mode": 420,
+          "sha256": "724a37c9832d607455aeda1d929f0ee265ce268aecb64be5e00065c1edf85cf0"
+        },
+        "usr/share/doc/cachy-asahi-setup/README.md": {
+          "bytes": 4791,
+          "mode": 420,
+          "sha256": "2cba96f8e009b5611fde80854654db64ffc1d92772bbea3686e4ea335b8d6afd"
+        },
+        "usr/share/doc/cachy-asahi-setup/configuration-migrations.md": {
+          "bytes": 9979,
+          "mode": 420,
+          "sha256": "c6c8d325fdfa7e2371591b0e9862f0b8baf802065a8e00bfea1b55db0bc8ae19"
+        },
+        "usr/share/doc/cachy-asahi-setup/repository-enrollment.md": {
+          "bytes": 10984,
+          "mode": 420,
+          "sha256": "67963698b98954466c5fe8eb684ce88c25865089c7ffd2035646eaa44b2988b4"
+        },
+        "usr/share/licenses/cachy-asahi-setup/LICENSE": {
+          "bytes": 1081,
+          "mode": 420,
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        },
+        "usr/share/licenses/cachy-asahi-setup/NOTICE": {
+          "bytes": 1290,
+          "mode": 420,
+          "sha256": "c47e845e85522c77bfc40b8a0d0e4a7cb44d0e4aa7ebfb244168bca8f604c9b1"
+        }
+      },
+      "signature": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-setup8-TEST-sign-r1/0038-cachy-asahi-setup-0.3.0-1-any.pkg.tar.xz.sig",
+      "signature_pin": {
+        "bytes": 119,
+        "sha256": "76c8b8e40006e67cc846a8346206516afaaac58140469112e98d36ac7c1de587"
+      },
+      "version": "0.3.0-1"
+    },
+    "ui": {
+      "archive": null,
+      "archive_pin": null,
+      "name": "cachy-asahi-first-login-ui",
+      "payload_files": {
+        "usr/bin/cachy-asahi-first-login-ui": {
+          "bytes": 432,
+          "mode": 493,
+          "sha256": "0943cc4063c4a802d5c835676c056a2e3320e93732208295bfd80f0d26aa5883"
+        },
+        "usr/lib/cachy-asahi/first-login-ui/bridge.py": {
+          "bytes": 17446,
+          "mode": 420,
+          "sha256": "91c565b0a525343c12e5563c4d126a571232a56c536806d4ccca07050392a2db"
+        },
+        "usr/lib/cachy-asahi/first-login-ui/gui.py": {
+          "bytes": 13454,
+          "mode": 420,
+          "sha256": "4065166093f380a186ca45b29298ffb61ce10d57fb31e05ba2c201d6628aece5"
+        },
+        "usr/share/applications/io.github.GabrielKahen.CachyAsahiFirstLogin.desktop": {
+          "bytes": 247,
+          "mode": 420,
+          "sha256": "c21993e58240c62ac724c8310ab70c10db72d95abd94f4ecdfb3af3e82716f30"
+        },
+        "usr/share/doc/cachy-asahi-first-login-ui/README.md": {
+          "bytes": 7362,
+          "mode": 420,
+          "sha256": "067cfe135d87f12581d2e785ae34d750fb5158c11c8716ec496798dc3e1a762c"
+        },
+        "usr/share/doc/cachy-asahi-first-login-ui/source-provenance.json": {
+          "bytes": 3136,
+          "mode": 420,
+          "sha256": "fd2bcb2d61acc077f41ab8e5ec3956760739c40c25366521995c2fe3041de3da"
+        },
+        "usr/share/licenses/cachy-asahi-first-login-ui/LICENSE": {
+          "bytes": 1081,
+          "mode": 420,
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        },
+        "usr/share/licenses/cachy-asahi-first-login-ui/NOTICE": {
+          "bytes": 384,
+          "mode": 420,
+          "sha256": "dfa0e6f1fef4442602ca136c68f6e7eb23f887c0e799a2500792df26affc3012"
+        }
+      },
+      "signature": null,
+      "signature_pin": null,
+      "version": "0.2.0-2"
+    }
+  }
+}
