@@ -1,0 +1,145 @@
+{
+  "approved": null,
+  "external_files": {},
+  "files": {},
+  "issuer": null,
+  "kind": "ROOT_SELECTED_RUST337_RETAINED_EVIDENCE_READER_V10",
+  "members": {
+    "bootstrap": {},
+    "build": {},
+    "transfer": {}
+  },
+  "reader_files": {
+    "archives.py": {
+      "bytes": 16951,
+      "sha256": "e15b2f41b431a33738751bf4d5e70dc4db8443a24bc5696a8ce78a2cade959c9"
+    },
+    "bindings.py": {
+      "bytes": 10681,
+      "sha256": "c9110cc0d2673097160e7f0a0826c9e2436c9dc54b234d65d3a2c6e7c2e53455"
+    },
+    "elf.py": {
+      "bytes": 1720,
+      "sha256": "0d5adbfcca43700272b65462f69584f9c0a79d71c46ad5b6e037be56366773a2"
+    },
+    "evidence.py": {
+      "bytes": 14808,
+      "sha256": "1c6235402c6c34290220f63b51669cbd98f77dad1b6e0a9ff43f444d8ad593c3"
+    },
+    "reader.py": {
+      "bytes": 23236,
+      "sha256": "ee64e33e42fa287efc7ddd5f9ca9627be7cebac38dea36b4f0981dff164e5a93"
+    },
+    "storage.py": {
+      "bytes": 5337,
+      "sha256": "be71c2eebcfcc604e4140431b76aae92dae8f42c67211d0dd3f3744d7a656130"
+    }
+  },
+  "resources": {
+    "address_space_bytes": null,
+    "cpu_seconds": null,
+    "scratch_bytes": null,
+    "scratch_files": null,
+    "wall_seconds": null
+  },
+  "roles": {
+    "baseline_inventory": null,
+    "bootstrap_artifact_metadata": null,
+    "bootstrap_artifact_zip": null,
+    "bootstrap_daemon": null,
+    "bootstrap_hosted": null,
+    "bootstrap_image_retirement": null,
+    "bootstrap_jobs_start": null,
+    "bootstrap_operations": null,
+    "bootstrap_provider": null,
+    "build_artifact_metadata": null,
+    "build_artifact_zip": null,
+    "build_daemon": null,
+    "build_export": null,
+    "build_hosted": null,
+    "build_image_retirement": null,
+    "build_jobs_start": null,
+    "build_operations": null,
+    "build_provider": null,
+    "candidate_admission": null,
+    "dispatch": null,
+    "grant_shape": null,
+    "init_finished": null,
+    "init_inspect": null,
+    "llvm_archive": null,
+    "llvm_original_artifact": null,
+    "llvm_original_job": null,
+    "llvm_public_key": null,
+    "llvm_public_verification": null,
+    "llvm_reader_binding": null,
+    "llvm_reader_result": null,
+    "llvm_root_decision": null,
+    "llvm_signature": null,
+    "makepkg_finished": null,
+    "makepkg_inspect": null,
+    "native_qualification": null,
+    "operational_admission": null,
+    "prepare_finished": null,
+    "prepare_inspect": null,
+    "producer": null,
+    "profile": null,
+    "publication": null,
+    "qualification_envelope": null,
+    "qualified_inventory": null,
+    "root_proof_carrier_artifact": null,
+    "root_proof_carrier_job": null,
+    "source_review": null,
+    "stage0_carrier_artifact": null,
+    "stage0_carrier_job": null,
+    "terminal_jobs": null,
+    "terminal_run": null,
+    "transfer_acquisition": null,
+    "transfer_artifact_metadata": null,
+    "transfer_bootstrap_job_metadata": null,
+    "transfer_import": null,
+    "transfer_manifest": null,
+    "transfer_provider_host": null,
+    "transfer_run_metadata": null,
+    "transfer_zip": null,
+    "volume_admission": null,
+    "volume_initialization": null
+  },
+  "schema": 10,
+  "selected": {
+    "bootstrap_artifact_id": null,
+    "bootstrap_job": null,
+    "build_artifact_id": null,
+    "build_job": null,
+    "dispatch_sha256": null,
+    "initial_redirect_hosts": {
+      "llvm_original": null,
+      "root_proof_carrier": null,
+      "stage0_carrier": null
+    },
+    "ref": null,
+    "run": null,
+    "source": null,
+    "source_review_sha256": null,
+    "transfer": {
+      "artifact": {
+        "bytes": null,
+        "sha256": null
+      },
+      "artifact_id": null,
+      "image": {
+        "bytes": null,
+        "sha256": null
+      },
+      "image_id": null,
+      "manifest_sha256": null,
+      "storage_host": null
+    }
+  },
+  "source_contract": {
+    "bytes": 42886171,
+    "files": 337,
+    "map_sha256": "9a4855f84fb64ffb03e1a3691a57aeff860967890af84ce87b333ce73226f934",
+    "profile_sha256": "8cd2240f0e8eb3094d29b3e1d3aa5076e3923c962e1fbf37919c73177a9f6dec",
+    "tree": "e9bf6161d48d85838a5a9b9c951b791a34e175c7"
+  }
+}

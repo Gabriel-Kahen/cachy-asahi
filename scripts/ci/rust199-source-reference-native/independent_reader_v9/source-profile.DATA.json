@@ -1,0 +1,73 @@
+{
+  "Root_review": null,
+  "accepted": null,
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "image": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "bytes": 42765216,
+  "constructor_files": {
+    "README.md": {
+      "bytes": 4742,
+      "mode": 420,
+      "sha256": "642e20af4f26bb8acf76ec87f447ade0b5421b719986f4f8b98781c4e027e52a"
+    },
+    "Root-admission.TEMPLATE.json": {
+      "bytes": 14249,
+      "mode": 420,
+      "sha256": "8a564c2a68afd400abf746b8c600620a1a7fec18a814357dd2ba7107ff01074d"
+    },
+    "payload/.github/workflows/native-arm-build.yml": {
+      "bytes": 16567,
+      "mode": 420,
+      "sha256": "484f1aa8eea123b9e31650bcd9956ba39155898c1af773a0c2cb7fd628cf0089"
+    },
+    "payload/.github/workflows/native-arm-rust199-source-reference-v1.yml": {
+      "bytes": 16567,
+      "mode": 420,
+      "sha256": "484f1aa8eea123b9e31650bcd9956ba39155898c1af773a0c2cb7fd628cf0089"
+    },
+    "payload/hosted/entry.py": {
+      "bytes": 20245,
+      "mode": 420,
+      "sha256": "09b53ca5e93961451cb6e2da950144dea4ed5e2db72f881266eb2e9054ec42eb"
+    },
+    "payload/hosted/materials.py": {
+      "bytes": 22719,
+      "mode": 420,
+      "sha256": "46717f3f022bfd111f52370c2657fc3a744efe0fcdaa550f623916af07a9e8ab"
+    },
+    "payload/hosted/phase_transfer.py": {
+      "bytes": 30545,
+      "mode": 420,
+      "sha256": "a7b5c29ebf48540219425fb07c2f6246ecdc83a9d1c760b0e483213dd1e439cc"
+    },
+    "prepare.py": {
+      "bytes": 8859,
+      "mode": 420,
+      "sha256": "f34e7f5391cc639ae03dbb45df234c563a483e616edabdaed5bf9a8a38fa2e81"
+    },
+    "test_data.py": {
+      "bytes": 16161,
+      "mode": 420,
+      "sha256": "36c826c142c9a5c11581941d3ead69d5b040a2faff600a347111ffa449df54ef"
+    }
+  },
+  "files": 333,
+  "map_sha256": "982a96a7911c530ac6a5a4bd7b20cdca0c624fb6c1b0d020ec006f7226ac58ca",
+  "parent": {
+    "bytes": 42590643,
+    "files": 326,
+    "map_sha256": "382ccdcf2d8abf8fcc739fe917ed35b4cf1cbaa00617393d6fa42614d366cdf4",
+    "tree": "7db8b512209a275ec9fc4f37006e18b8e5839a6d"
+  },
+  "schema": 9,
+  "scope": "RUST199_HTTP_USER_AGENT_SUCCESSOR_V9",
+  "tree": "dba0702807e306b75773250a823212def508e5a9",
+  "unadmitted": true
+}
