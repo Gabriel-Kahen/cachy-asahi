@@ -1,0 +1,21 @@
+{
+  "Root_grants": null,
+  "accepted": null,
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "image": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "bytes": 43652864,
+  "dispatch": null,
+  "files": 364,
+  "map_sha256": "bd1d5d61836ee3284142884d22cf0f80ccb5d6c285dd8ca4b218708db2551406",
+  "native": "NOT RUN",
+  "schema": 16,
+  "scope": "RUST199_POST_RETIREMENT_REPORT_GUARD_SUCCESSOR_V16",
+  "tree": "305db479cf93b6abfd441311fb66db047230530e"
+}
