@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 """Inert full node-map and descriptor checks; no package transaction actors."""
 import os
-from contextlib import ExitStack
+from contextlib import ExitStack, contextmanager
 from dataclasses import replace
+import hashlib
 import io
+import json
 from pathlib import Path
+import stat
 import sys
 import tempfile
 import tarfile
@@ -16,6 +19,124 @@ from unittest.mock import patch
 HERE=Path(__file__).resolve().parent
 sys.path.insert(0,str(HERE))
 import internal_runtime as internal
+
+# TEST ONLY: independently read from the whole-pinned official image layers,
+# including pacman's files/mtree; never accept a digest derived from this host.
+CI_ALPM_PROFILE = 'archlinux-base-fcee73ea-pacman-7.1.0.r9.g54d9411-3'
+CI_ALPM_IMAGE = 'sha256:fcee73ea1b96e236248f53a213f71276cc9072d9025b58bce9915e32f19963ae'
+CI_ALPM_PATH = Path('/usr/lib/libalpm.so.16.0.1')
+CI_ALPM_SHA = '1bc59ef4cee493246db69c9466970de01d24fdc32a4a4c18c77063af66705e90'
+CACHY_ALPM_SHA = 'da30edd45277cf4b1000485658976042f8106fe0b97378d1e6c4e81a9d7c4888'
+CI_PACMAN_DESC = Path('/var/lib/pacman/local/pacman-7.1.0.r9.g54d9411-3/desc')
+CI_PACMAN_DESC_SHA = '0ee6e4c981f717be73dea1a9311ad7a947a2a6929060b2250a0f70342d093c58'
+
+
+def profile_file(path, size, expected):
+    node = path.lstat()
+    internal.need(stat.S_ISREG(node.st_mode) and node.st_size == size,
+                  'TEST libalpm profile file identity changed')
+    internal.need(hashlib.sha256(path.read_bytes()).hexdigest() == expected,
+                  'TEST libalpm profile bytes changed')
+
+
+def ci_alpm_identity():
+    installer = internal.roots.installer
+    internal.need(os.uname().machine == 'x86_64', 'TEST libalpm profile architecture changed')
+    internal.need(installer.LIBRARY == CI_ALPM_PATH and installer.LIBRARY_SHA == CACHY_ALPM_SHA,
+                  'TEST libalpm default binding changed')
+    profile_file(CI_PACMAN_DESC, 719, CI_PACMAN_DESC_SHA)
+    profile_file(CI_ALPM_PATH, 281240, CI_ALPM_SHA)
+
+
+@contextmanager
+def alpm_test_profile(name):
+    if name is None:
+        yield None
+        return
+    internal.need(name == CI_ALPM_PROFILE, 'unknown TEST libalpm profile')
+    ci_alpm_identity()  # Refuse before changing the fixture module or creating keys.
+    with patch.object(internal.roots.installer, 'LIBRARY_SHA', CI_ALPM_SHA):
+        yield dict(scope='TEST read-only host-x86_64 prior archives', profile=name,
+                   image_manifest=CI_ALPM_IMAGE, package='pacman 7.1.0.r9.g54d9411-3',
+                   library=str(CI_ALPM_PATH), library_bytes=281240, library_sha256=CI_ALPM_SHA,
+                   expected_abi='16.0.1', native_ARM='NOT RUN', hardware='NOT RUN')
+
+
+class AlpmProfileTests(unittest.TestCase):
+    """Finite profile controls; no library load, GPG or package actor."""
+    def test_default_keeps_original_pin_without_probing_ci_identity(self):
+        with patch(__name__ + '.ci_alpm_identity') as identity, alpm_test_profile(None) as row:
+            self.assertIsNone(row)
+            self.assertEqual(internal.roots.installer.LIBRARY_SHA, CACHY_ALPM_SHA)
+        identity.assert_not_called()
+
+    def test_explicit_profile_binding_and_diagnostic_restore_on_success_and_error(self):
+        for fail in (False, True):
+            with self.subTest(fail=fail), patch(__name__ + '.ci_alpm_identity') as identity:
+                try:
+                    with alpm_test_profile(CI_ALPM_PROFILE) as row:
+                        self.assertEqual(internal.roots.installer.LIBRARY_SHA, CI_ALPM_SHA)
+                        self.assertEqual(row['image_manifest'], CI_ALPM_IMAGE)
+                        self.assertEqual(row['library_sha256'], CI_ALPM_SHA)
+                        if fail: raise RuntimeError('fixture setup failed')
+                except RuntimeError as error:
+                    self.assertTrue(fail)
+                    self.assertEqual(str(error), 'fixture setup failed')
+                identity.assert_called_once_with()
+                self.assertEqual(internal.roots.installer.LIBRARY_SHA, CACHY_ALPM_SHA)
+
+    def test_unknown_profile_refused_before_identity_or_library_load(self):
+        with patch(__name__ + '.ci_alpm_identity') as identity, \
+                patch.object(internal.roots.installer.C, 'CDLL') as load:
+            with self.assertRaisesRegex(ValueError, 'unknown TEST'):
+                with alpm_test_profile(CI_ALPM_PROFILE + '-changed'): self.fail('accepted')
+        identity.assert_not_called(); load.assert_not_called()
+
+    def test_failed_class_setup_restores_profile_through_unittest_cleanup(self):
+        class Refused(PriorArchives):
+            def runTest(self): self.fail('setup failure must prevent the case')
+        with patch.dict(os.environ, CACHY_ASAHI_TEST_ALPM_PROFILE=CI_ALPM_PROFILE), \
+                patch(__name__ + '.ci_alpm_identity'), patch.object(os, 'getuid', return_value=0), \
+                patch.object(os, 'getgid', return_value=0), patch('test_snapshot.signing',
+                side_effect=RuntimeError('fixture setup failed')), patch('sys.stdout', new=io.StringIO()):
+            result = unittest.TestResult()
+            unittest.TestSuite([Refused()]).run(result)
+        self.assertEqual(result.testsRun, 0)
+        self.assertEqual(len(result.errors), 1)
+        self.assertIn('fixture setup failed', result.errors[0][1])
+        self.assertEqual(result.skipped, [])
+        self.assertEqual(internal.roots.installer.LIBRARY_SHA, CACHY_ALPM_SHA)
+
+    def test_wrong_architecture_and_default_binding_refused_before_file_reads(self):
+        installer = internal.roots.installer
+        cases = ((patch.object(os, 'uname', return_value=SimpleNamespace(machine='aarch64')), 'architecture'),
+                 (patch.object(installer, 'LIBRARY_SHA', '0'*64), 'binding'),
+                 (patch.object(installer, 'LIBRARY', Path('/other/libalpm.so.16.0.1')), 'binding'))
+        for change, reason in cases:
+            with self.subTest(reason=reason), change, patch(__name__ + '.profile_file') as read:
+                with self.assertRaisesRegex(ValueError, reason): ci_alpm_identity()
+                read.assert_not_called()
+
+    def test_changed_package_or_library_identity_cannot_bind_or_load(self):
+        for rejected in (CI_PACMAN_DESC, CI_ALPM_PATH):
+            def refuse(path, size, expected):
+                if path == rejected: raise ValueError('changed identity')
+            with self.subTest(path=rejected), patch(__name__ + '.profile_file', side_effect=refuse), \
+                    patch.object(internal.roots.installer.C, 'CDLL') as load:
+                with self.assertRaisesRegex(ValueError, 'changed identity'):
+                    with alpm_test_profile(CI_ALPM_PROFILE): self.fail('accepted')
+                self.assertEqual(internal.roots.installer.LIBRARY_SHA, CACHY_ALPM_SHA)
+                load.assert_not_called()
+
+    def test_actual_altered_bytes_size_and_symlink_refused_without_library_load(self):
+        with tempfile.TemporaryDirectory(prefix='alpm-profile-data-') as directory, \
+                patch.object(internal.roots.installer.C, 'CDLL') as load:
+            path = Path(directory) / 'library'; path.write_bytes(b'\0' * 281240)
+            with self.assertRaisesRegex(ValueError, 'bytes changed'): profile_file(path, 281240, CI_ALPM_SHA)
+            with self.assertRaisesRegex(ValueError, 'identity changed'): profile_file(path, 281241, CI_ALPM_SHA)
+            alias = path.with_name('alias'); alias.symlink_to(path)
+            with self.assertRaisesRegex(ValueError, 'identity changed'): profile_file(alias, 281240, CI_ALPM_SHA)
+        load.assert_not_called()
 
 class Tests(unittest.TestCase):
     def setUp(self):
@@ -178,11 +299,14 @@ class PriorArchives(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        if os.getuid() != 0 or os.getgid() != 0:
-            raise unittest.SkipTest('run in a private mapped-root user namespace for exact archive ownership')
-        from test_snapshot import signing
         cls.stack = ExitStack()
         cls.addClassCleanup(cls.stack.close)
+        profile = cls.stack.enter_context(alpm_test_profile(os.environ.get('CACHY_ASAHI_TEST_ALPM_PROFILE')))
+        if os.getuid() != 0 or os.getgid() != 0:
+            if profile is not None: raise AssertionError('selected TEST libalpm profile requires UID/GID zero')
+            raise unittest.SkipTest('run in a private mapped-root user namespace for exact archive ownership')
+        if profile is not None: print(json.dumps(profile, sort_keys=True), flush=True)
+        from test_snapshot import signing
         cls.keys = Path(cls.stack.enter_context(tempfile.TemporaryDirectory(prefix='prior-keys-')))
         cls.signer, cls.public, sign = cls.stack.enter_context(signing(cls.keys / 'keys'))
         cls.sign = staticmethod(sign)
