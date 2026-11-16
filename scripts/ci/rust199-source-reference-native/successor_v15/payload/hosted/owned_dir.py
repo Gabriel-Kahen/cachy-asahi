@@ -3,6 +3,7 @@
 import hashlib
 import json
 import os
+from contextlib import contextmanager
 from pathlib import Path
 import re
 import secrets
@@ -34,6 +35,24 @@ def mount_id(fd):
     rows = [line.split(':', 1)[1].strip() for line in Path('/proc/self/fdinfo/'+str(fd)).read_text().splitlines() if line.startswith('mnt_id:')]
     need(len(rows) == 1 and rows[0].isdigit() and int(rows[0]) > 0, 'held FD kernel mount identity')
     return int(rows[0])
+
+
+@contextmanager
+def scan(fd):
+    # dup/scandir(fd) can share a stale end-of-directory cursor after an empty
+    # scan followed by new children. openat('.') creates an independent cursor.
+    before = os.fstat(fd)
+    fresh = os.open('.',FLAGS,dir_fd=fd)
+    try:
+        need(stat.S_ISDIR(before.st_mode) and node(before) == node(os.fstat(fresh)) and mount_id(fd) == mount_id(fresh), 'same held ordinary directory inode/owner/mode/mount for fresh scan')
+        with os.scandir(fresh) as rows:
+            yield rows
+    finally: os.close(fresh)
+
+
+def empty(fd):
+    with scan(fd) as rows:
+        return next(rows,None) is None
 
 
 def open_root(path):
@@ -90,7 +109,7 @@ class Lease:
             need(stat.S_ISDIR(os.fstat(self.rootfd).st_mode) and self.rootnode['uid'] == self.rootnode['gid'] == 1001 and self.rootnode['mode'] == 0o700, 'already admitted private ordinary job root')
             os.mkdir(volume,0o700,dir_fd=self.rootfd); self.created = True
             self.fd = os.open(volume,FLAGS,dir_fd=self.rootfd); self.worknode = node(os.fstat(self.fd))
-            need(self.worknode['uid'] == self.worknode['gid'] == 1001 and self.worknode['mode'] == 0o700 and not os.listdir(self.fd) and mount_id(self.fd) == self.mount, 'fresh empty1001:1001/0700 directory on held job mount')
+            need(self.worknode['uid'] == self.worknode['gid'] == 1001 and self.worknode['mode'] == 0o700 and mount_id(self.fd) == self.mount and empty(self.fd), 'fresh empty1001:1001/0700 directory on held job mount')
             source = {'sha':bindings['cachy-asahi.source'],'run':bindings['cachy-asahi.run'],'job':bindings['cachy-asahi.job']}
             # Full source identity is supplied by the caller before any actor.
             self.proof = dict(schema=15,status=STATUS,endpoint='unix:///var/run/docker.sock',daemon_inspect=dict(json=daemon_raw.decode(),pin=dict(bytes=len(daemon_raw),sha256=hashlib.sha256(daemon_raw).hexdigest())),daemon_root=str(storage),volume=volume,labels=bindings,job_root=str(self.root),job_root_node=self.rootnode,job_root_mount_id=self.mount,work_source=str(self.path),stage0_source=str(self.path/'build/stage0'),workspace_node=self.worknode,workspace_mount_id=mount_id(self.fd),nonce=secrets.token_hex(32),producer=dict(source=source,token=bindings['cachy-asahi.token'],operation=OPERATION),bind_propagation='rprivate',native_acceptance=False,holds_preserved=True)
@@ -101,7 +120,7 @@ class Lease:
             try:
                 if self.created and self.fd is not None:
                     held = node(os.fstat(self.fd))
-                    need(held['uid'] == held['gid'] == 1001 and held['mode'] == 0o700 and mount_id(self.fd) == self.mount and not os.listdir(self.fd) and node(os.stat(volume,dir_fd=self.rootfd,follow_symlinks=False)) == held, 'refuse unsafe allocation rollback')
+                    need(held['uid'] == held['gid'] == 1001 and held['mode'] == 0o700 and mount_id(self.fd) == self.mount and empty(self.fd) and node(os.stat(volume,dir_fd=self.rootfd,follow_symlinks=False)) == held, 'refuse unsafe allocation rollback')
                     os.rmdir(volume,dir_fd=self.rootfd)
                     try: os.stat(volume,dir_fd=self.rootfd,follow_symlinks=False)
                     except FileNotFoundError: absent = True
@@ -127,7 +146,7 @@ class Lease:
         self.check(); count = [0]
         def walk(fd, depth, remove):
             tick(); need(depth <= MAX_DEPTH and mount_id(fd) == self.mount, 'bounded same-mount retirement')
-            with os.scandir(fd) as rows:
+            with scan(fd) as rows:
                 for entry in rows:
                     tick(); count[0] += 1; need(count[0] <= MAX_NODES, 'bounded workspace retirement node count')
                     before = os.stat(entry.name,dir_fd=fd,follow_symlinks=False)
@@ -149,7 +168,7 @@ class Lease:
                         finally: os.close(leaf)
         # Refuse unsafe trees before removing anything; recheck every deletion.
         walk(self.fd,0,False); count[0] = 0; walk(self.fd,0,True); self.check()
-        need(not os.listdir(self.fd), 'exact owned workspace empty after bounded retirement')
+        need(empty(self.fd), 'exact owned workspace empty after bounded retirement')
         os.rmdir(self.path.name,dir_fd=self.rootfd)
         try: os.stat(self.path.name,dir_fd=self.rootfd,follow_symlinks=False)
         except FileNotFoundError: pass

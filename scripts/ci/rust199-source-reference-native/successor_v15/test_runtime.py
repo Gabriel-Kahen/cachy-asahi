@@ -80,6 +80,19 @@ class Runtime(unittest.TestCase):
     with self.assertRaises(OSError):l.check()
     work.unlink();saved.rename(work);l.retire(lambda:None)
    finally:l.close()
+ def test_real_linux_empty_scan_then_children_never_bypasses_preflight(self):
+  # Use this owned checkout's filesystem: Linux/Btrfs can retain an empty-scan
+  # cursor after children appear; /tmp tmpfs did not expose the old failure.
+  with tempfile.TemporaryDirectory(dir=HERE,prefix='MODEL-cursor-')as tmp,domain():
+   root,work=self.roots(tmp);l=lease(work,root)
+   try:
+    with os.scandir(l.fd)as rows:self.assertEqual(list(rows),[])
+    (l.path/'ordinary').write_text('must survive failed preflight');os.mkfifo(l.path/'special')
+    with patch.object(D.os,'unlink',wraps=D.os.unlink)as unlink,patch.object(D.os,'rmdir',wraps=D.os.rmdir)as rmdir:
+     with self.assertRaisesRegex(ValueError,'ordinary files or owned leaf symlinks'):l.retire(lambda:None)
+     self.assertFalse(unlink.called,'preflight refusal must precede every unlink');self.assertFalse(rmdir.called,'preflight refusal must precede every rmdir')
+    self.assertEqual((l.path/'ordinary').read_text(),'must survive failed preflight');(l.path/'special').unlink();l.retire(lambda:None);self.assertFalse(l.path.exists())
+   finally:l.close()
  def test_foreign_mount_special_and_cleanup_deadline_refuse_before_any_deletion(self):
   with tempfile.TemporaryDirectory()as tmp,domain():
    root,work=self.roots(tmp);l=lease(work,root)
