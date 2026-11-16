@@ -70,6 +70,36 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/port/perl5423-arm16k-independent-reader/test_reader.py
           bash scripts/integration/arm16k_perl5423_vm/test_guest_data.sh
           bash -n scripts/integration/arm16k_perl5423_vm/guest/root.sh scripts/integration/arm16k_perl5423_vm/guest/probe.sh scripts/integration/arm16k_perl5423_vm/guest/case.sh scripts/integration/arm16k_perl5423_vm/guest/official-trust.sh scripts/integration/arm16k_perl5423_vm/guest/installed-metadata.sh
+      - name: Check unissued ARM16K warm-control Source DATA
+        run: |
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_warm_control/verify.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_warm_control/test_constructor.py
+          python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_warm_control/test_actual_common.py
+          python3 -I -B -Werror::ResourceWarning - <<'PYMODEL'
+          import importlib.util
+          from pathlib import Path
+          import subprocess
+          import sys
+          import tempfile
+
+          # Only a transient MODEL source; no actual warmed baseline or Root grant.
+          root = Path('scripts/integration/arm16k_warm_control').resolve()
+          spec = importlib.util.spec_from_file_location('warm_ci_MODEL', root / 'test_constructor.py')
+          model = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(model)
+          with tempfile.TemporaryDirectory(prefix='arm16k-warm-CI-MODEL-') as directory:
+              temporary = Path(directory)
+              selection = temporary / 'selection.MODEL.json'
+              selection.write_bytes(model.K.canonical(model.model()))
+              source = temporary / 'source.MODEL'
+              model.C.construct(selection, model.K.pin(selection)['sha256'], source)
+              family = source / 'arm16k_no_package_control'
+              tests = ('test_actor', 'test_controller', 'test_integration', 'test_metadata',
+                       'test_metadata_raw_reader', 'test_plan', 'test_prepare', 'test_rules', 'test_warm')
+              for name in tests:
+                  subprocess.run([sys.executable, '-I', '-B', '-Werror::ResourceWarning',
+                                  str(family / (name + '.py'))], check=True)
+          PYMODEL
       - name: Check image lifecycle producer and Reader DATA without actors
         run: |
           python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/test_pair_data.py -v
