@@ -4,21 +4,27 @@ on:
     paths:
       - .github/workflows/measurement-native-factory-source.yml
       - scripts/ci/measurement-tools-native-source/**
+      - packages/tools/cachy-asahi-measurement-tools/**
       - docs/workstreams/measurement-tools-native-source.md
   push:
     branches: [main]
     paths:
       - .github/workflows/measurement-native-factory-source.yml
       - scripts/ci/measurement-tools-native-source/**
+      - packages/tools/cachy-asahi-measurement-tools/**
       - docs/workstreams/measurement-tools-native-source.md
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
   source-data:
-    name: Measurement31 finite Source DATA controls
+    name: Measurement Source199/200 DATA (Python ${{ matrix.python }})
     runs-on: ubuntu-24.04
     timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
@@ -32,7 +38,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
-          python-version: '3.14'
+          python-version: ${{ matrix.python }}
       - name: Run exactly31 new DATA controls and emit Source under actor denial
         timeout-minutes: 5
         env:
@@ -66,6 +72,17 @@ jobs:
           assert all(x is None for x in stage['actual'].values())
           print('PASS exactly31 DATA controls and actor-denied Source199 emission; native/build/GPG/VM NOT_RUN')
           PYDATA
+      - name: Run Source200 constructor15 and installed-probe Reader32 DATA controls
+        timeout-minutes: 5
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          set -euo pipefail
+          ulimit -t 60 -v 524288 -f 32768 -n 128
+          FACTORY=scripts/ci/measurement-tools-native-source/successor_v2
+          BASIS="$GITHUB_WORKSPACE/.measurement-native-parent-data"
+          timeout --signal=TERM --kill-after=5s 90s python -I -B -Werror::ResourceWarning "$FACTORY/test_data.py" --checkout "$GITHUB_WORKSPACE" --basis "$BASIS"
+          (ulimit -v 131072; timeout --signal=TERM --kill-after=5s 90s python -I -B -Werror::ResourceWarning "$FACTORY/test_probe.py")
   cleanup-binding-data:
     name: Measurement cleanup-binding NEW10 DATA (Python ${{ matrix.python }})
     runs-on: ubuntu-24.04

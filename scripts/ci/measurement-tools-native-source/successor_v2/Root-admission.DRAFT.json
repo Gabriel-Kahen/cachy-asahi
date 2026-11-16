@@ -1,0 +1,20 @@
+{
+  "Root_trust": null,
+  "accepted": null,
+  "actual": {
+    "acceptance": null,
+    "artifact": null,
+    "job": null,
+    "nonce": null,
+    "ref": null,
+    "run": null,
+    "runtime": null,
+    "source": null
+  },
+  "approved": null,
+  "issuer": null,
+  "kind": "UNISSUED_MEASUREMENT_NATIVE_SOURCE_V2_DRAFT",
+  "resources": null,
+  "schema": 2,
+  "signing": null
+}
