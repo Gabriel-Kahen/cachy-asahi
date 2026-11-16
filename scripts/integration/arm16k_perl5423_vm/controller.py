@@ -56,17 +56,30 @@ class QMPPeer:
   return dict(qemu_pid=self.qemu['pid'],qemu_start=self.qemu['start'],actor_pid=self.actor_pid,actor_start=self.actor['start'],peer_uid=self.credentials[1],peer_gid=self.credentials[2],argv=module('contracts').json_pin(self.argv),original_connection=True,pidfds_live_checked=True)
 
 
-def quit_hold_qmp(peer,qfile,guard,end):
+def quit_hold_qmp(peer,qfile,guard,end,progress=None):
  K=module('contracts');K.need(qfile.fileno()==peer.fd,'original QMP stream descriptor')
+ if progress is None:progress={}
+ progress.update(stage='VALIDATING',request_bytes=0,reply_attempts=0,reply_bytes=0)
  guard();K.need(time.monotonic()<end,'bounded HOLD quit deadline')
  peer.stream.settimeout(min(2,end-time.monotonic()));request=b'{"execute":"quit","id":"guest-HOLD-retire"}\n'
- K.need(qfile.write(request)==len(request),'complete fixed HOLD quit request')
+ progress['stage']='WRITE_ENTERED'
+ try:written=qfile.write(request)
+ except OSError as error:
+  progress.update(stage='WRITE_FAILED',io_error=type(error).__name__,errno=error.errno);raise
+ progress.update(stage='WRITE_RETURNED',request_bytes=written)
+ K.need(written==len(request),'complete fixed HOLD quit request')
  total=0
- for _ in range(16):
+ for attempt in range(16):
   guard();K.need(time.monotonic()<end,'bounded HOLD quit reply deadline');peer.stream.settimeout(min(2,end-time.monotonic()))
-  line=qfile.readline(65537);total+=len(line);K.need(0<len(line)<=65536 and total<=65536,'bounded HOLD QMP reply')
+  progress.update(stage='READ_ENTERED',reply_attempts=attempt+1)
+  try:line=qfile.readline(65537)
+  except OSError as error:
+   progress.update(stage='READ_FAILED',io_error=type(error).__name__,errno=error.errno);raise
+  total+=len(line);progress.update(stage='READ_RETURNED',reply_bytes=total)
+  K.need(0<len(line)<=65536 and total<=65536,'bounded HOLD QMP reply')
   row=json.loads(line)
-  if row.get('id')=='guest-HOLD-retire':K.need('return'in row and 'error'not in row,'QMP HOLD quit acknowledged');return
+  if row.get('id')=='guest-HOLD-retire':
+   K.need('return'in row and 'error'not in row,'QMP HOLD quit acknowledged');progress['stage']='ACKNOWLEDGED';return
  raise ValueError('QMP HOLD quit acknowledgement absent')
 
 
@@ -82,7 +95,7 @@ def normal_hold_cleanup(scope,peer,qfile,failure,nonce,authority_sha256,out,end,
  marker_pin=K.pin(marker,4096)
  record.update(stage='MARKER_WRITTEN',marker=marker_pin)
  # Recheck the pinned peer and authenticated container before control traffic.
- peer.check(row);quit_hold_qmp(peer,qfile,guard,min(end,time.monotonic()+5))
+ peer.check(row);quit_hold_qmp(peer,qfile,guard,min(end,time.monotonic()+5),record.setdefault('qmp_quit_progress',{}))
  record.update(stage='QMP_QUIT_ACKNOWLEDGED',QMP_quit_acknowledged=True)
  wait=scope.call(['docker','wait',scope.cid],min(end,time.monotonic()+8))
  K.need(wait.returncode==0 and wait.stdout.strip()==b'1','natural stopped failure actor wait')

@@ -675,6 +675,78 @@ class Controls(unittest.TestCase):
   fields=['S','101','201','201']+['0']*15+['777'];raw=('201 (MODEL qemu) '+' '.join(fields)).encode()
   with patch.object(C.os,'open',side_effect=[601,602]),patch.object(C.os,'read',side_effect=[raw,b'/usr/bin/qemu\0MODEL\0']),patch.object(C.os,'close'):
    result=C.proc_identity(201);self.assertEqual((result['parent'],result['start'],result['argv']),(101,777,[b'/usr/bin/qemu',b'MODEL']))
+ def test_QMP_quit_progress_exact_request_events_ACK_and_private_counters(self):
+  class Peer:
+   fd=7
+   def __init__(self):self.stream=self;self.timeouts=[]
+   def settimeout(self,value):self.timeouts.append(value)
+  peer=Peer();writes=[];guards=[];progress={}
+  event=b'{"event":"SHUTDOWN","data":{}}\n';ack=b'{"return":{},"id":"guest-HOLD-retire"}\n';replies=iter((event,ack))
+  class File:
+   def fileno(self):return 7
+   def write(self,body):writes.append(body);return len(body)
+   def readline(self,cap):self.cap=cap;return next(replies)
+  stream=File()
+  with patch.object(C.time,'monotonic',return_value=100):
+   C.quit_hold_qmp(peer,stream,lambda:guards.append('guard'),105,progress)
+  self.assertEqual(writes,[b'{"execute":"quit","id":"guest-HOLD-retire"}\n'])
+  self.assertEqual(progress,dict(stage='ACKNOWLEDGED',request_bytes=44,reply_attempts=2,reply_bytes=len(event)+len(ack)))
+  self.assertEqual(peer.timeouts,[2,2,2]);self.assertEqual(stream.cap,65537);self.assertEqual(len(guards),3)
+ def test_QMP_quit_progress_failure_substeps_keep_all_transport_refusals(self):
+  sentinel='PRIVATE_SYNTHETIC_ERROR_OR_REPLY_NEVER_EXPORTED'
+  for bad in('write-timeout','read-timeout','partial-write','EOF','JSON','matching-error','wrong-ID','oversize','aggregate','descriptor','deadline','guard'):
+   with self.subTest(bad=bad):
+    class Peer:
+     fd=7
+     def __init__(self):self.stream=self;self.timeouts=[]
+     def settimeout(self,value):self.timeouts.append(value)
+    peer=Peer();progress={};writes=[];reads=[]
+    class File:
+     def fileno(self):return 8 if bad=='descriptor'else 7
+     def write(self,body):
+      writes.append(body)
+      if bad=='write-timeout':raise TimeoutError(110,sentinel)
+      return len(body)-1 if bad=='partial-write'else len(body)
+     def readline(self,cap):
+      reads.append(cap)
+      if bad=='read-timeout':raise TimeoutError(110,sentinel)
+      if bad=='EOF':return b''
+      if bad=='JSON':return sentinel.encode()+b'\n'
+      if bad=='matching-error':return b'{"error":{},"id":"guest-HOLD-retire"}\n'
+      if bad=='wrong-ID':return b'{"return":{},"id":"other"}\n'
+      if bad=='oversize':return b' '*65537
+      if bad=='aggregate'and len(reads)==1:
+       return b'{"event":"MODEL"}'+b' '*(65535-len(b'{"event":"MODEL"}'))+b'\n'
+      return b'{"return":{},"id":"guest-HOLD-retire"}\n'
+    def guard():
+     if bad=='guard':raise ValueError('MODELED_GUARD_REFUSAL')
+    expected=TimeoutError if bad in('write-timeout','read-timeout')else ValueError
+    with patch.object(C.time,'monotonic',return_value=100),self.assertRaises(expected):
+     C.quit_hold_qmp(peer,File(),guard,99 if bad=='deadline'else 105,progress)
+    self.assertNotIn(sentinel,json.dumps(progress))
+    self.assertLessEqual(set(progress),{'stage','request_bytes','reply_attempts','reply_bytes','io_error','errno'})
+    if bad in('write-timeout','read-timeout'):
+     self.assertEqual(progress['stage'],'WRITE_FAILED'if bad=='write-timeout'else'READ_FAILED')
+     self.assertEqual((progress['io_error'],progress['errno']),('TimeoutError',110))
+     self.assertEqual(progress['request_bytes'],0 if bad=='write-timeout'else 44)
+    if bad in('write-timeout','partial-write','descriptor','deadline','guard'):self.assertEqual(reads,[])
+    if bad in('descriptor','deadline','guard'):self.assertEqual(writes,[])
+    if bad=='wrong-ID':self.assertEqual(progress['reply_attempts'],16)
+    if bad in('oversize','aggregate'):self.assertGreater(progress['reply_bytes'],65536)
+    self.assertNotEqual(progress.get('stage'),'ACKNOWLEDGED');self.assertTrue(all(0<n<=2 for n in peer.timeouts))
+ def test_QMP_quit_progress_keeps_remaining_deadline_clamp(self):
+  class Peer:
+   fd=7
+   def __init__(self):self.stream=self;self.timeouts=[]
+   def settimeout(self,value):self.timeouts.append(value)
+  class File:
+   def fileno(self):return 7
+   def write(self,body):return len(body)
+   def readline(self,cap):return b'{"return":{},"id":"guest-HOLD-retire"}\n'
+  peer=Peer();progress={}
+  with patch.object(C.time,'monotonic',side_effect=[100,100,104.5,104.5]):
+   C.quit_hold_qmp(peer,File(),lambda:None,105,progress)
+  self.assertEqual(peer.timeouts,[2,.5]);self.assertEqual(progress['stage'],'ACKNOWLEDGED')
  def test_early_HOLD_normal_QMP_retirement_and_forced_fallback_refusals(self):
   import types
   actor,R=module('actor'),module('runtime');nonce='a'*32;authority='b'*64;failure=P.GuestHold('INSTALLED','PROBE','UNREPORTED').failure
@@ -726,9 +798,12 @@ class Controls(unittest.TestCase):
     C.cleanup_scope(scope,None if bad=='missing-peer'else peer,File(),failure,selected_nonce,'f'*64 if bad=='wrong-authority'else authority,out,time.monotonic()+90,lambda:None,report)
     self.assertEqual(report['status'],'HOLD');self.assertEqual(report['failure']['message'],'ORIGINAL_FAILURE')
     if bad is None:
+     self.assertEqual(report['guest_HOLD_cleanup']['qmp_quit_progress'],dict(stage='ACKNOWLEDGED',request_bytes=44,reply_attempts=1,reply_bytes=39))
      self.assertFalse(scope.forced);self.assertEqual(report['cleanup_errors'],[]);self.assertFalse(report['guest_HOLD_cleanup']['forced']);self.assertTrue(report['owned_container_absence_verified']);self.assertLess(events.index('peer-check'),events.index('quit'));self.assertFalse((out/'STOP').exists());self.assertFalse((out/'preservation.json').exists());self.assertFalse((out/'results').exists())
     else:
      self.assertTrue(scope.forced);self.assertTrue(report['forced_owned_cleanup_fallback']);self.assertEqual(report['cleanup_errors'][0]['step'],'normal-guest-HOLD-retirement')
+     if bad=='timeout':self.assertEqual(report['guest_HOLD_cleanup']['qmp_quit_progress'],dict(stage='READ_FAILED',request_bytes=44,reply_attempts=1,reply_bytes=0,io_error='TimeoutError',errno=None))
+     if bad=='partial-quit':self.assertEqual(report['guest_HOLD_cleanup']['qmp_quit_progress']['stage'],'WRITE_RETURNED')
      if bad=='existing-marker':self.assertNotIn('quit',events);self.assertEqual((out/P.HOLD_MARKER).read_bytes(),b'PREVIOUS_EVIDENCE_DO_NOT_REPLACE')
      if bad in('wrong-nonce','wrong-actor','missing-peer','wrong-image','wrong-authority'):self.assertNotIn('quit',events);self.assertFalse((out/P.HOLD_MARKER).exists())
   with tempfile.TemporaryDirectory()as tmp:
