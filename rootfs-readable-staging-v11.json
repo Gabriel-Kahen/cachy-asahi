@@ -1,0 +1,51 @@
+{
+  "Root_grants": null,
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "image": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "archives": [
+    "previous-v10/hosted/bootstrap.py",
+    "previous-v10/source-map.json"
+  ],
+  "carrier_transport_changed": false,
+  "changes": {
+    "hosted/bootstrap.py": {
+      "after": {
+        "bytes": 31406,
+        "mode": 420,
+        "sha256": "3ec0dd0ffc8519e0b456b4f129106d69c4fc57acee87c0a5203db599fa1349cc"
+      },
+      "before": {
+        "bytes": 29148,
+        "mode": 420,
+        "sha256": "b18e4aaaf137a976f065a55ca219b8f7a9b055ea4356aeda2fd8aacf43662d67"
+      }
+    }
+  },
+  "digest_format_unchanged": true,
+  "dispatch": null,
+  "holds_preserved": true,
+  "metadata_headers_changed": false,
+  "metadata_normalization_changed": false,
+  "original_modes_applied_once": true,
+  "parent": {
+    "bytes": 42886171,
+    "files": 337,
+    "map_sha256": "9a4855f84fb64ffb03e1a3691a57aeff860967890af84ce87b333ce73226f934",
+    "tree": "e9bf6161d48d85838a5a9b9c951b791a34e175c7"
+  },
+  "postmode_content_rehash": false,
+  "recipe_changed": false,
+  "request_bounds_changed": false,
+  "resources_changed": false,
+  "schema": 11,
+  "scope": "RUST199_ROOTFS_READABLE_STAGING_SUCCESSOR_V11",
+  "unadmitted": true,
+  "workflows_changed": false
+}

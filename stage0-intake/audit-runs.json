@@ -1,0 +1,16 @@
+[
+  {
+    "elapsed_seconds": 4.23,
+    "network_requests": 0,
+    "process_VmHWM": "VmHWM:\t  206220 kB",
+    "publisher_execution": 0,
+    "result": "COMPLETED_DATA_ONLY_SUPERSEDED_BY_PARSER_PRECISION_FIXES"
+  },
+  {
+    "elapsed_seconds": 4.115,
+    "network_requests": 0,
+    "process_VmHWM": "VmHWM:\t  206472 kB",
+    "publisher_execution": 0,
+    "result": "COMPLETED_DATA_ONLY_FINAL_PARSER"
+  }
+]

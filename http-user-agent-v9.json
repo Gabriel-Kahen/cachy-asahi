@@ -1,0 +1,99 @@
+{
+  "Root_grants": null,
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "image": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "archives": [
+    "previous-v8/.github/workflows/native-arm-build.yml",
+    "previous-v8/.github/workflows/native-arm-rust199-source-reference-v1.yml",
+    "previous-v8/hosted/entry.py",
+    "previous-v8/hosted/materials.py",
+    "previous-v8/hosted/phase_transfer.py",
+    "previous-v8/source-map.json"
+  ],
+  "carrier_transport_changed": false,
+  "changes": {
+    ".github/workflows/native-arm-build.yml": {
+      "after": {
+        "bytes": 16567,
+        "mode": 420,
+        "sha256": "484f1aa8eea123b9e31650bcd9956ba39155898c1af773a0c2cb7fd628cf0089"
+      },
+      "before": {
+        "bytes": 16567,
+        "mode": 420,
+        "sha256": "1477467a7182603ae9c128c0efe787ebf1db336dfed25fec719cf703f7a0b93a"
+      }
+    },
+    ".github/workflows/native-arm-rust199-source-reference-v1.yml": {
+      "after": {
+        "bytes": 16567,
+        "mode": 420,
+        "sha256": "484f1aa8eea123b9e31650bcd9956ba39155898c1af773a0c2cb7fd628cf0089"
+      },
+      "before": {
+        "bytes": 16567,
+        "mode": 420,
+        "sha256": "1477467a7182603ae9c128c0efe787ebf1db336dfed25fec719cf703f7a0b93a"
+      }
+    },
+    "hosted/entry.py": {
+      "after": {
+        "bytes": 20245,
+        "mode": 420,
+        "sha256": "09b53ca5e93961451cb6e2da950144dea4ed5e2db72f881266eb2e9054ec42eb"
+      },
+      "before": {
+        "bytes": 19809,
+        "mode": 420,
+        "sha256": "4f15085673b0aa3c6d45fd783a42d8122c60dc8a820c7c482169aa764f744c6f"
+      }
+    },
+    "hosted/materials.py": {
+      "after": {
+        "bytes": 22719,
+        "mode": 420,
+        "sha256": "46717f3f022bfd111f52370c2657fc3a744efe0fcdaa550f623916af07a9e8ab"
+      },
+      "before": {
+        "bytes": 22664,
+        "mode": 420,
+        "sha256": "f822722db59fc398e32378060a9c72775c3cd0e74dfbf947dc4e9d59e79d8728"
+      }
+    },
+    "hosted/phase_transfer.py": {
+      "after": {
+        "bytes": 30545,
+        "mode": 420,
+        "sha256": "a7b5c29ebf48540219425fb07c2f6246ecdc83a9d1c760b0e483213dd1e439cc"
+      },
+      "before": {
+        "bytes": 30490,
+        "mode": 420,
+        "sha256": "82162a7a27a11ed1512bcb9adecfe561d168dd816987ff8a6b601cbafd619bb3"
+      }
+    }
+  },
+  "dispatch": null,
+  "holds_preserved": true,
+  "metadata_normalization_changed": false,
+  "parent": {
+    "bytes": 42590643,
+    "files": 326,
+    "map_sha256": "382ccdcf2d8abf8fcc739fe917ed35b4cf1cbaa00617393d6fa42614d366cdf4",
+    "tree": "7db8b512209a275ec9fc4f37006e18b8e5839a6d"
+  },
+  "recipe_changed": false,
+  "request_bounds_changed": false,
+  "resources_changed": false,
+  "schema": 9,
+  "scope": "RUST199_HTTP_USER_AGENT_SUCCESSOR_V9",
+  "unadmitted": true,
+  "user_agent": "cachy-asahi/rust199-source-reference-v9"
+}

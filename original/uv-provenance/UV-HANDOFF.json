@@ -1,0 +1,985 @@
+{
+  "boundaries": {
+    "GPG": "NOT_RUN",
+    "PEP517_build": "NOT_RUN",
+    "backend_import": "NOT_RUN",
+    "binary_execution": "NOT_RUN",
+    "binary_version_probe": "NOT_RUN",
+    "direct_build": "NOT_RUN",
+    "installation": "NOT_RUN",
+    "native_16k": "NOT_RUN",
+    "native_ARM": "NOT_RUN",
+    "performance": "NOT_MEASURED",
+    "physical_M2": "NOT_RUN",
+    "release": "NOT_ADMITTED"
+  },
+  "files": {
+    "_acquire.py": {
+      "bytes": 2804,
+      "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/_acquire.py",
+      "sha256": "a712e51d0dc38597cbff69dbd8658376d56fa51b434d56683b7ceb4777c23bba"
+    },
+    "_inspect.py": {
+      "bytes": 7202,
+      "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/_inspect.py",
+      "sha256": "831be475bb9f18f39ab9dc1efd8f9e2ece683f8d8039620b92dbd93b3e2f44cd"
+    },
+    "archive-inspection.json": {
+      "bytes": 65201,
+      "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/archive-inspection.json",
+      "sha256": "e73bbcb0a61cc4112bb7720a9164aec29c2a68fab8394cd34ce5aeb2fe286805"
+    },
+    "downloads/uv-aarch64-unknown-linux-gnu.tar.gz": {
+      "bytes": 24689886,
+      "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/downloads/uv-aarch64-unknown-linux-gnu.tar.gz",
+      "sha256": "03e9fe0a81b0718d0bc84625de3885df6cc3f89a8b6af6121d6b9f6113fb6533"
+    },
+    "downloads/uv-aarch64-unknown-linux-gnu.tar.gz.sha256": {
+      "bytes": 102,
+      "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/downloads/uv-aarch64-unknown-linux-gnu.tar.gz.sha256",
+      "sha256": "98f31eee8385ef700d9937e0dc7995d6a63f4902c263cca9482d229fea3872ad"
+    },
+    "downloads/uv_build-0.11.28-py3-none-manylinux_2_28_aarch64.whl": {
+      "bytes": 1616098,
+      "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/downloads/uv_build-0.11.28-py3-none-manylinux_2_28_aarch64.whl",
+      "sha256": "d99cb38411412134781140cc64dc7d296dbc383fa1e81ddc13ecb6863852ecf5"
+    },
+    "downloads/uv_build-0.11.28.tar.gz": {
+      "bytes": 408697,
+      "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/downloads/uv_build-0.11.28.tar.gz",
+      "sha256": "daba66fd25a9a82caa23949686e967cbb69fd056177e991650643186057adaef"
+    },
+    "http-ledger.json": {
+      "bytes": 52247,
+      "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/http-ledger.json",
+      "sha256": "ea5a9f899d9ae8b621e19e16c9fee4acc4fae018246f4b91dcad66bcc62f2a31"
+    },
+    "inspected-wheel/uv_build-0.11.28.dist-info/METADATA": {
+      "bytes": 1727,
+      "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/inspected-wheel/uv_build-0.11.28.dist-info/METADATA",
+      "sha256": "178dbd83732c8b819145d5b2a62d8a9e30d57f622ca622939486fac3c44187b1"
+    },
+    "inspected-wheel/uv_build-0.11.28.dist-info/WHEEL": {
+      "bytes": 107,
+      "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/inspected-wheel/uv_build-0.11.28.dist-info/WHEEL",
+      "sha256": "3db55fec504d4e5ac116c25347d71f358fa5dc1e5ff41e62199e08025ae65b65"
+    },
+    "inspected-wheel/uv_build/__init__.py": {
+      "bytes": 4803,
+      "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/inspected-wheel/uv_build/__init__.py",
+      "sha256": "6fbe0020d04fa78db8fecc53bab420065e2ca0bdb8bcc4f9b0996d24a22a7465"
+    },
+    "inspected-wheel/uv_build/__main__.py": {
+      "bytes": 449,
+      "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/inspected-wheel/uv_build/__main__.py",
+      "sha256": "44d3061ee13523b399a218c08923e6e92de0fbef8caa4780730855d790a1f43c"
+    },
+    "licenses/LICENSE-APACHE": {
+      "bytes": 11357,
+      "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/licenses/LICENSE-APACHE",
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+    },
+    "licenses/LICENSE-MIT": {
+      "bytes": 1077,
+      "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/licenses/LICENSE-MIT",
+      "sha256": "860e3d7a86b84e6a7012c7a635fc64df475cebc6cce34dfeb73a5982ec58176c"
+    },
+    "metadata/github-commit.json": {
+      "bytes": 2501,
+      "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/metadata/github-commit.json",
+      "sha256": "4c10846a892f64a1531621e2d11255b82bdef94ae968477d47e1a2f2b31e7c0e"
+    },
+    "metadata/github-release.json": {
+      "bytes": 82256,
+      "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/metadata/github-release.json",
+      "sha256": "aa784956161f572961dbacfdd4c9dec5b3db6893ce201b6148cb72c7dea77221"
+    },
+    "metadata/github-tag-ref.json": {
+      "bytes": 329,
+      "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/metadata/github-tag-ref.json",
+      "sha256": "fc00703900e36cd4b7b4bac363b39d1f4c71a2270d57f265365beb8fb5703fad"
+    },
+    "metadata/github-tree.json": {
+      "bytes": 456042,
+      "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/metadata/github-tree.json",
+      "sha256": "ff23f42a96f65f0876f423fee1a8863ef31cd0205b6aa75e33bf198484300f13"
+    },
+    "metadata/pypi-uv-build.json": {
+      "bytes": 18595,
+      "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/metadata/pypi-uv-build.json",
+      "sha256": "0c2e7451b14c961b48054feda8d3a0fa15fb487a156a54277e67248072578053"
+    },
+    "source-joins.json": {
+      "bytes": 8402,
+      "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/source-joins.json",
+      "sha256": "6f771108086f80eda9bff83180b6cd98595d1e5f8ee62d1e94f777a070b18c5b"
+    },
+    "source/Cargo.toml": {
+      "bytes": 16623,
+      "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/source/Cargo.toml",
+      "sha256": "cc1fe02a7969bedf73d03ca98e9151e2b3fbb1ca53fd6ced989f26104d640b94"
+    },
+    "source/LICENSE-APACHE": {
+      "bytes": 11357,
+      "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/source/LICENSE-APACHE",
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+    },
+    "source/LICENSE-MIT": {
+      "bytes": 1077,
+      "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/source/LICENSE-MIT",
+      "sha256": "860e3d7a86b84e6a7012c7a635fc64df475cebc6cce34dfeb73a5982ec58176c"
+    },
+    "source/crates/uv-build-backend/src/lib.rs": {
+      "bytes": 80238,
+      "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/source/crates/uv-build-backend/src/lib.rs",
+      "sha256": "1733b813f9800ae749760a6d834e435231d69e2e77ac5be27cbbd05db3bf0d28"
+    },
+    "source/crates/uv-build-backend/src/metadata.rs": {
+      "bytes": 79183,
+      "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/source/crates/uv-build-backend/src/metadata.rs",
+      "sha256": "0e22f80046a365536da3bc2152d4239c3d0b842b2de59ff1cc2633bfb8faf4c5"
+    },
+    "source/crates/uv-build-frontend/src/lib.rs": {
+      "bytes": 50014,
+      "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/source/crates/uv-build-frontend/src/lib.rs",
+      "sha256": "2d19a46185106e63313f58912ac966b481ab8d60dfc0c64813679a1a785d7f30"
+    },
+    "source/crates/uv-build/Cargo.toml": {
+      "bytes": 662,
+      "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/source/crates/uv-build/Cargo.toml",
+      "sha256": "57fce2fd9b7b5ce84e97d4e9a1a65fe8531f20ea1d7c703b433fbce3511f4b47"
+    },
+    "source/crates/uv-build/pyproject.toml": {
+      "bytes": 1629,
+      "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/source/crates/uv-build/pyproject.toml",
+      "sha256": "1bce4b0492684083f8db440d323a5b1449dfd5aea4180d8a7aebfda3271a3081"
+    },
+    "source/crates/uv-build/python/uv_build/__init__.py": {
+      "bytes": 4803,
+      "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/source/crates/uv-build/python/uv_build/__init__.py",
+      "sha256": "6fbe0020d04fa78db8fecc53bab420065e2ca0bdb8bcc4f9b0996d24a22a7465"
+    },
+    "source/crates/uv-build/src/main.rs": {
+      "bytes": 6090,
+      "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/source/crates/uv-build/src/main.rs",
+      "sha256": "b3526aaf1c73931d2c333633f1f69b4e56c5a0e8d49204072e401e93a70dbc69"
+    },
+    "source/crates/uv-cli/src/lib.rs": {
+      "bytes": 328315,
+      "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/source/crates/uv-cli/src/lib.rs",
+      "sha256": "4dd5895eb86b5ebf1da061da1165e581a3cf75b669564a14b4b783598a92d578"
+    },
+    "source/crates/uv-version/Cargo.toml": {
+      "bytes": 368,
+      "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/source/crates/uv-version/Cargo.toml",
+      "sha256": "d5052e15647181cd95093776ff468b13e3e1a8b9bece4776214d06d74a0e3a50"
+    },
+    "source/crates/uv-version/src/lib.rs": {
+      "bytes": 355,
+      "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/source/crates/uv-version/src/lib.rs",
+      "sha256": "56244bd779ca7895cc41f4e0dd12ec8d298f3fa34d4553e776f2c8aa050c88ae"
+    },
+    "source/crates/uv/src/commands/build_backend.rs": {
+      "bytes": 3206,
+      "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/source/crates/uv/src/commands/build_backend.rs",
+      "sha256": "12f63de7a978ef925250554035dbf751368d5139265a26da4856d20a7fb12f2b"
+    },
+    "source/crates/uv/src/commands/build_frontend.rs": {
+      "bytes": 47726,
+      "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/source/crates/uv/src/commands/build_frontend.rs",
+      "sha256": "8525fa983711cb2de13dde1fa5063825e0cc11d747a2b37ec171216037d5b091"
+    }
+  },
+  "gaps": [
+    "Primary publisher metadata/TLS/download hashes verified; no independent signature, attestation or reproducible binary build was verified.",
+    "AArch64 ELF and structural16K layout are static observations, not load/execution/16K/M2 acceptance.",
+    "ELF dynamic dependencies are recorded; actual loader/runtime resolution remains unrun. Required GLIBC symbol versions top out at2.28; selected ALARM runtime compatibility still needs execution.",
+    "uv_build sdist retained for provenance; Rust/maturin/transitive source rebuild closure was not acquired or executed. Use pinned prebuilt backend wheel for the bounded offline route.",
+    "Github release tar has no Python backend shim; never substitute binary-only availability for importable uv_build PEP517 backend availability."
+  ],
+  "http": {
+    "all_success": true,
+    "downloaded_bytes": 27906152,
+    "failures": [],
+    "ledger": {
+      "bytes": 52247,
+      "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/http-ledger.json",
+      "sha256": "ea5a9f899d9ae8b621e19e16c9fee4acc4fae018246f4b91dcad66bcc62f2a31"
+    },
+    "limits": {
+      "default_aggregate_seconds": 120,
+      "max_total_bytes": 104857600,
+      "per_request_socket_timeout": 15,
+      "requests": 25
+    },
+    "provenance": "Primary URL, HTTP status/headers, final host/path, final URL-query hash, intent and actual bytes/hash retained for each request; ephemeral redirect query strings are not copied.",
+    "requests": 24,
+    "total_cap": 104857600
+  },
+  "inspection": {
+    "backend_wheel": {
+      "bytes": 1616098,
+      "expanded_file_bytes": 3629450,
+      "licenses_equal_exact_tag": true,
+      "members": [
+        {
+          "bytes": 4803,
+          "mode": 33188,
+          "name": "uv_build/__init__.py",
+          "sha256": "6fbe0020d04fa78db8fecc53bab420065e2ca0bdb8bcc4f9b0996d24a22a7465",
+          "zip_size": 1493
+        },
+        {
+          "bytes": 449,
+          "mode": 33188,
+          "name": "uv_build/__main__.py",
+          "sha256": "44d3061ee13523b399a218c08923e6e92de0fbef8caa4780730855d790a1f43c",
+          "zip_size": 281
+        },
+        {
+          "bytes": 0,
+          "mode": 33188,
+          "name": "uv_build/py.typed",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "zip_size": 7
+        },
+        {
+          "bytes": 3310128,
+          "elf": {
+            "M2": "NOT_RUN",
+            "bytes": 3310128,
+            "class_bits": 64,
+            "elf_type": 3,
+            "endian": "little",
+            "interpreter": "/lib/ld-linux-aarch64.so.1",
+            "load_segments": [
+              {
+                "align": 65536,
+                "filesz": 3045716,
+                "flags": 5,
+                "memsz": 3045716,
+                "offset": 0,
+                "vaddr": 0
+              },
+              {
+                "align": 65536,
+                "filesz": 254344,
+                "flags": 6,
+                "memsz": 254704,
+                "offset": 3049808,
+                "vaddr": 3115344
+              }
+            ],
+            "machine": 183,
+            "machine_name": "AArch64",
+            "native_16k": "NOT_RUN",
+            "native_execution": "NOT_RUN",
+            "needed": [
+              "libgcc_s.so.1",
+              "libpthread.so.0",
+              "libdl.so.2",
+              "libc.so.6"
+            ],
+            "needed_symbol_versions": [
+              "GCC_3.0",
+              "GCC_3.3",
+              "GCC_4.2.0",
+              "GLIBC_2.17",
+              "GLIBC_2.18",
+              "GLIBC_2.25",
+              "GLIBC_2.28"
+            ],
+            "sha256": "82cf8b50be166cf5aab7eddddd0c27535b59cf9b34c4abc9443acacb1256f10c",
+            "structural_16k": true
+          },
+          "mode": 33261,
+          "name": "uv_build-0.11.28.data/scripts/uv-build",
+          "sha256": "82cf8b50be166cf5aab7eddddd0c27535b59cf9b34c4abc9443acacb1256f10c",
+          "zip_size": 1571718
+        },
+        {
+          "bytes": 1727,
+          "mode": 33188,
+          "name": "uv_build-0.11.28.dist-info/METADATA",
+          "sha256": "178dbd83732c8b819145d5b2a62d8a9e30d57f622ca622939486fac3c44187b1",
+          "zip_size": 670
+        },
+        {
+          "bytes": 107,
+          "mode": 33188,
+          "name": "uv_build-0.11.28.dist-info/WHEEL",
+          "sha256": "3db55fec504d4e5ac116c25347d71f358fa5dc1e5ff41e62199e08025ae65b65",
+          "zip_size": 111
+        },
+        {
+          "bytes": 11357,
+          "mode": 33188,
+          "name": "uv_build-0.11.28.dist-info/licenses/LICENSE-APACHE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "zip_size": 3943
+        },
+        {
+          "bytes": 1077,
+          "mode": 33188,
+          "name": "uv_build-0.11.28.dist-info/licenses/LICENSE-MIT",
+          "sha256": "860e3d7a86b84e6a7012c7a635fc64df475cebc6cce34dfeb73a5982ec58176c",
+          "zip_size": 647
+        },
+        {
+          "bytes": 298937,
+          "mode": 33188,
+          "name": "uv_build-0.11.28.dist-info/sboms/uv-build.cyclonedx.json",
+          "sha256": "73abfd470c6ae5963432646783dc8b21b2b8596e558a71d389b4b96b5889076c",
+          "zip_size": 35233
+        },
+        {
+          "bytes": 865,
+          "mode": 33188,
+          "name": "uv_build-0.11.28.dist-info/RECORD",
+          "sha256": "7b68cb95b04fadfaa8ceec8f15075a98e11ae7fedf24906ebf939ffa9cf370f7",
+          "zip_size": 517
+        }
+      ],
+      "metadata": {
+        "license": "MIT OR Apache-2.0",
+        "name": "uv-build",
+        "requires_dist": [],
+        "requires_python": ">=3.8",
+        "version": "0.11.28"
+      },
+      "python_shim_equals_exact_tag": true,
+      "record_checks": 9,
+      "record_verified": true,
+      "sha256": "d99cb38411412134781140cc64dc7d296dbc383fa1e81ddc13ecb6863852ecf5"
+    },
+    "elf": {
+      "uv-aarch64-unknown-linux-gnu/uv": {
+        "M2": "NOT_RUN",
+        "bytes": 56689472,
+        "class_bits": 64,
+        "elf_type": 3,
+        "endian": "little",
+        "interpreter": "/lib/ld-linux-aarch64.so.1",
+        "load_segments": [
+          {
+            "align": 65536,
+            "filesz": 55512428,
+            "flags": 5,
+            "memsz": 55512428,
+            "offset": 0,
+            "vaddr": 0
+          },
+          {
+            "align": 65536,
+            "filesz": 1165300,
+            "flags": 6,
+            "memsz": 1753272,
+            "offset": 55512824,
+            "vaddr": 55578360
+          }
+        ],
+        "machine": 183,
+        "machine_name": "AArch64",
+        "native_16k": "NOT_RUN",
+        "native_execution": "NOT_RUN",
+        "needed": [
+          "libgcc_s.so.1",
+          "libpthread.so.0",
+          "libm.so.6",
+          "libdl.so.2",
+          "libc.so.6"
+        ],
+        "needed_symbol_versions": [
+          "GCC_3.0",
+          "GCC_3.3",
+          "GCC_4.2.0",
+          "GLIBC_2.17",
+          "GLIBC_2.18",
+          "GLIBC_2.25",
+          "GLIBC_2.27",
+          "GLIBC_2.28"
+        ],
+        "sha256": "b9f74e398b6b15826a4b68b5a83d039036d47df64013e7faf1a9974ec199c144",
+        "structural_16k": true
+      },
+      "uv-aarch64-unknown-linux-gnu/uvx": {
+        "M2": "NOT_RUN",
+        "bytes": 316848,
+        "class_bits": 64,
+        "elf_type": 3,
+        "endian": "little",
+        "interpreter": "/lib/ld-linux-aarch64.so.1",
+        "load_segments": [
+          {
+            "align": 65536,
+            "filesz": 293920,
+            "flags": 5,
+            "memsz": 293920,
+            "offset": 0,
+            "vaddr": 0
+          },
+          {
+            "align": 65536,
+            "filesz": 9832,
+            "flags": 6,
+            "memsz": 10048,
+            "offset": 295736,
+            "vaddr": 361272
+          }
+        ],
+        "machine": 183,
+        "machine_name": "AArch64",
+        "native_16k": "NOT_RUN",
+        "native_execution": "NOT_RUN",
+        "needed": [
+          "libgcc_s.so.1",
+          "libpthread.so.0",
+          "libc.so.6"
+        ],
+        "needed_symbol_versions": [
+          "GCC_3.0",
+          "GCC_3.3",
+          "GCC_4.2.0",
+          "GLIBC_2.17",
+          "GLIBC_2.28"
+        ],
+        "sha256": "a5dee4970f3f1cea8d50d1ddecdf91f95f0f1e7a6e52336b15a95d8ab981b7e3",
+        "structural_16k": true
+      },
+      "uv_build-0.11.28.data/scripts/uv-build": {
+        "M2": "NOT_RUN",
+        "bytes": 3310128,
+        "class_bits": 64,
+        "elf_type": 3,
+        "endian": "little",
+        "interpreter": "/lib/ld-linux-aarch64.so.1",
+        "load_segments": [
+          {
+            "align": 65536,
+            "filesz": 3045716,
+            "flags": 5,
+            "memsz": 3045716,
+            "offset": 0,
+            "vaddr": 0
+          },
+          {
+            "align": 65536,
+            "filesz": 254344,
+            "flags": 6,
+            "memsz": 254704,
+            "offset": 3049808,
+            "vaddr": 3115344
+          }
+        ],
+        "machine": 183,
+        "machine_name": "AArch64",
+        "native_16k": "NOT_RUN",
+        "native_execution": "NOT_RUN",
+        "needed": [
+          "libgcc_s.so.1",
+          "libpthread.so.0",
+          "libdl.so.2",
+          "libc.so.6"
+        ],
+        "needed_symbol_versions": [
+          "GCC_3.0",
+          "GCC_3.3",
+          "GCC_4.2.0",
+          "GLIBC_2.17",
+          "GLIBC_2.18",
+          "GLIBC_2.25",
+          "GLIBC_2.28"
+        ],
+        "sha256": "82cf8b50be166cf5aab7eddddd0c27535b59cf9b34c4abc9443acacb1256f10c",
+        "structural_16k": true
+      }
+    },
+    "joins": {
+      "github_checksum_matches_uv_archive": true,
+      "licenses_equal_exact_tag_wheel_and_sdist": true,
+      "sdist_python_shim_equals_exact_tag": true,
+      "wheel_RECORD_matches": true,
+      "wheel_python_shim_equals_exact_tag": true
+    },
+    "report": {
+      "bytes": 65201,
+      "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/archive-inspection.json",
+      "sha256": "e73bbcb0a61cc4112bb7720a9164aec29c2a68fab8394cd34ce5aeb2fe286805"
+    },
+    "sdist_members": 231,
+    "uv_archive_members": [
+      {
+        "mode": 493,
+        "name": "uv-aarch64-unknown-linux-gnu",
+        "size": 0,
+        "type": "5"
+      },
+      {
+        "bytes": 316848,
+        "elf": {
+          "M2": "NOT_RUN",
+          "bytes": 316848,
+          "class_bits": 64,
+          "elf_type": 3,
+          "endian": "little",
+          "interpreter": "/lib/ld-linux-aarch64.so.1",
+          "load_segments": [
+            {
+              "align": 65536,
+              "filesz": 293920,
+              "flags": 5,
+              "memsz": 293920,
+              "offset": 0,
+              "vaddr": 0
+            },
+            {
+              "align": 65536,
+              "filesz": 9832,
+              "flags": 6,
+              "memsz": 10048,
+              "offset": 295736,
+              "vaddr": 361272
+            }
+          ],
+          "machine": 183,
+          "machine_name": "AArch64",
+          "native_16k": "NOT_RUN",
+          "native_execution": "NOT_RUN",
+          "needed": [
+            "libgcc_s.so.1",
+            "libpthread.so.0",
+            "libc.so.6"
+          ],
+          "needed_symbol_versions": [
+            "GCC_3.0",
+            "GCC_3.3",
+            "GCC_4.2.0",
+            "GLIBC_2.17",
+            "GLIBC_2.28"
+          ],
+          "sha256": "a5dee4970f3f1cea8d50d1ddecdf91f95f0f1e7a6e52336b15a95d8ab981b7e3",
+          "structural_16k": true
+        },
+        "mode": 493,
+        "name": "uv-aarch64-unknown-linux-gnu/uvx",
+        "sha256": "a5dee4970f3f1cea8d50d1ddecdf91f95f0f1e7a6e52336b15a95d8ab981b7e3",
+        "size": 316848,
+        "type": "0"
+      },
+      {
+        "bytes": 56689472,
+        "elf": {
+          "M2": "NOT_RUN",
+          "bytes": 56689472,
+          "class_bits": 64,
+          "elf_type": 3,
+          "endian": "little",
+          "interpreter": "/lib/ld-linux-aarch64.so.1",
+          "load_segments": [
+            {
+              "align": 65536,
+              "filesz": 55512428,
+              "flags": 5,
+              "memsz": 55512428,
+              "offset": 0,
+              "vaddr": 0
+            },
+            {
+              "align": 65536,
+              "filesz": 1165300,
+              "flags": 6,
+              "memsz": 1753272,
+              "offset": 55512824,
+              "vaddr": 55578360
+            }
+          ],
+          "machine": 183,
+          "machine_name": "AArch64",
+          "native_16k": "NOT_RUN",
+          "native_execution": "NOT_RUN",
+          "needed": [
+            "libgcc_s.so.1",
+            "libpthread.so.0",
+            "libm.so.6",
+            "libdl.so.2",
+            "libc.so.6"
+          ],
+          "needed_symbol_versions": [
+            "GCC_3.0",
+            "GCC_3.3",
+            "GCC_4.2.0",
+            "GLIBC_2.17",
+            "GLIBC_2.18",
+            "GLIBC_2.25",
+            "GLIBC_2.27",
+            "GLIBC_2.28"
+          ],
+          "sha256": "b9f74e398b6b15826a4b68b5a83d039036d47df64013e7faf1a9974ec199c144",
+          "structural_16k": true
+        },
+        "mode": 493,
+        "name": "uv-aarch64-unknown-linux-gnu/uv",
+        "sha256": "b9f74e398b6b15826a4b68b5a83d039036d47df64013e7faf1a9974ec199c144",
+        "size": 56689472,
+        "type": "0"
+      }
+    ]
+  },
+  "licensing": {
+    "expression": "MIT OR Apache-2.0",
+    "files": [
+      {
+        "bytes": 1077,
+        "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/licenses/LICENSE-MIT",
+        "sha256": "860e3d7a86b84e6a7012c7a635fc64df475cebc6cce34dfeb73a5982ec58176c"
+      },
+      {
+        "bytes": 11357,
+        "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/licenses/LICENSE-APACHE",
+        "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+      }
+    ],
+    "joins": "License bytes match exact Git tag, PyPI wheel and PyPI sdist"
+  },
+  "ownership": "Only acquisition/uv/* and this UV-HANDOFF.json in the new input-closure packet",
+  "practical_offline_interfaces": {
+    "direct": {
+      "argv": [
+        "/inputs/uv",
+        "--offline",
+        "--no-config",
+        "--no-python-downloads",
+        "--cache-dir",
+        "/private/cache",
+        "build",
+        "--wheel",
+        "--python",
+        "/private/venv/bin/python",
+        "--no-index",
+        "--out-dir",
+        "/private/dist",
+        "/private/project"
+      ],
+      "backend_import_claim": "NONE; fast-path Rust call is distinct from importable Python backend",
+      "required": [
+        "exact ARM uv release input",
+        "explicit selected Python runtime",
+        "original project with build-backend=uv_build and requires=[uv_build==0.11.28]"
+      ]
+    },
+    "executed": false,
+    "force_pep517": {
+      "backend": "Original unmodified shim plus installed uv-build executable supplied by exact wheel; source-audited interface still needs owned native execution proof",
+      "build_argv": [
+        "/inputs/uv",
+        "--offline",
+        "--no-config",
+        "--no-python-downloads",
+        "--cache-dir",
+        "/private/cache",
+        "build",
+        "--wheel",
+        "--force-pep517",
+        "--no-build-isolation",
+        "--python",
+        "/private/venv/bin/python",
+        "--no-index",
+        "--out-dir",
+        "/private/dist-pep517",
+        "/private/project"
+      ],
+      "build_environment": {
+        "HOME": "/private/home",
+        "PATH": "/private/venv/bin:/usr/bin",
+        "TMPDIR": "/private/tmp"
+      },
+      "preinstall_argv": [
+        "/inputs/uv",
+        "--offline",
+        "--no-config",
+        "--no-python-downloads",
+        "--cache-dir",
+        "/private/cache",
+        "pip",
+        "install",
+        "--python",
+        "/private/venv/bin/python",
+        "--no-index",
+        "--no-deps",
+        "--reinstall",
+        "--link-mode",
+        "copy",
+        "/inputs/uv_build-0.11.28-py3-none-manylinux_2_28_aarch64.whl"
+      ],
+      "required": [
+        "same exact ARM uv input",
+        "explicit private Python venv",
+        "exact retained ARM uv_build0.11.28 wheel installed in that venv; no sdist fallback"
+      ]
+    },
+    "isolated_local_wheelhouse_alternative": "--force-pep517 with --offline --no-index --find-links pointing to only the pinned backend wheel can populate an isolated build environment; separately test if selected."
+  },
+  "schema": 1,
+  "selected_inputs": {
+    "uv_build_sdist": {
+      "actual": {
+        "bytes": 408697,
+        "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/downloads/uv_build-0.11.28.tar.gz",
+        "sha256": "daba66fd25a9a82caa23949686e967cbb69fd056177e991650643186057adaef"
+      },
+      "expected": {
+        "bytes": 408697,
+        "sha256": "daba66fd25a9a82caa23949686e967cbb69fd056177e991650643186057adaef"
+      },
+      "filename": "uv_build-0.11.28.tar.gz",
+      "metadata": {
+        "comment_text": null,
+        "core-metadata": false,
+        "digests": {
+          "blake2b_256": "c8388602c78e9df92ece7070ba765440dac3640920d49b00d19cd94173e4fb4b",
+          "md5": "7cf20afc2c03ca7ee504d30fcd02e50e",
+          "sha256": "daba66fd25a9a82caa23949686e967cbb69fd056177e991650643186057adaef"
+        },
+        "downloads": -1,
+        "filename": "uv_build-0.11.28.tar.gz",
+        "has_sig": false,
+        "md5_digest": "7cf20afc2c03ca7ee504d30fcd02e50e",
+        "packagetype": "sdist",
+        "python_version": "source",
+        "requires_python": ">=3.8",
+        "size": 408697,
+        "upload_time": "2026-07-07T23:12:16",
+        "upload_time_iso_8601": "2026-07-07T23:12:16.716030Z",
+        "url": "https://files.pythonhosted.org/packages/c8/38/8602c78e9df92ece7070ba765440dac3640920d49b00d19cd94173e4fb4b/uv_build-0.11.28.tar.gz",
+        "yanked": false,
+        "yanked_reason": null
+      },
+      "primary_metadata": "metadata/pypi-uv-build.json",
+      "url": "https://files.pythonhosted.org/packages/c8/38/8602c78e9df92ece7070ba765440dac3640920d49b00d19cd94173e4fb4b/uv_build-0.11.28.tar.gz",
+      "version": "0.11.28"
+    },
+    "uv_build_wheel": {
+      "actual": {
+        "bytes": 1616098,
+        "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/downloads/uv_build-0.11.28-py3-none-manylinux_2_28_aarch64.whl",
+        "sha256": "d99cb38411412134781140cc64dc7d296dbc383fa1e81ddc13ecb6863852ecf5"
+      },
+      "expected": {
+        "bytes": 1616098,
+        "sha256": "d99cb38411412134781140cc64dc7d296dbc383fa1e81ddc13ecb6863852ecf5"
+      },
+      "filename": "uv_build-0.11.28-py3-none-manylinux_2_28_aarch64.whl",
+      "metadata": {
+        "comment_text": null,
+        "core-metadata": {
+          "sha256": "178dbd83732c8b819145d5b2a62d8a9e30d57f622ca622939486fac3c44187b1"
+        },
+        "digests": {
+          "blake2b_256": "fd523c09ef5991657d4ddedbf0c3854561f9a7f6d1d4205fb4b28500f01afb7d",
+          "md5": "8fa3f48190ef718cda52118307fe3464",
+          "sha256": "d99cb38411412134781140cc64dc7d296dbc383fa1e81ddc13ecb6863852ecf5"
+        },
+        "downloads": -1,
+        "filename": "uv_build-0.11.28-py3-none-manylinux_2_28_aarch64.whl",
+        "has_sig": false,
+        "md5_digest": "8fa3f48190ef718cda52118307fe3464",
+        "packagetype": "bdist_wheel",
+        "python_version": "py3",
+        "requires_python": ">=3.8",
+        "size": 1616098,
+        "upload_time": "2026-07-07T23:12:04",
+        "upload_time_iso_8601": "2026-07-07T23:12:04.286751Z",
+        "url": "https://files.pythonhosted.org/packages/fd/52/3c09ef5991657d4ddedbf0c3854561f9a7f6d1d4205fb4b28500f01afb7d/uv_build-0.11.28-py3-none-manylinux_2_28_aarch64.whl",
+        "yanked": false,
+        "yanked_reason": null
+      },
+      "primary_metadata": "metadata/pypi-uv-build.json",
+      "url": "https://files.pythonhosted.org/packages/fd/52/3c09ef5991657d4ddedbf0c3854561f9a7f6d1d4205fb4b28500f01afb7d/uv_build-0.11.28-py3-none-manylinux_2_28_aarch64.whl",
+      "version": "0.11.28"
+    },
+    "uv_release": {
+      "actual": {
+        "bytes": 24689886,
+        "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/downloads/uv-aarch64-unknown-linux-gnu.tar.gz",
+        "sha256": "03e9fe0a81b0718d0bc84625de3885df6cc3f89a8b6af6121d6b9f6113fb6533"
+      },
+      "expected": {
+        "bytes": 24689886,
+        "sha256": "03e9fe0a81b0718d0bc84625de3885df6cc3f89a8b6af6121d6b9f6113fb6533"
+      },
+      "filename": "uv-aarch64-unknown-linux-gnu.tar.gz",
+      "metadata": {
+        "browser_download_url": "https://github.com/astral-sh/uv/releases/download/0.11.28/uv-aarch64-unknown-linux-gnu.tar.gz",
+        "content_type": "application/x-gtar",
+        "created_at": "2026-07-07T23:14:05Z",
+        "digest": "sha256:03e9fe0a81b0718d0bc84625de3885df6cc3f89a8b6af6121d6b9f6113fb6533",
+        "download_count": 287150,
+        "id": 469655712,
+        "label": "",
+        "name": "uv-aarch64-unknown-linux-gnu.tar.gz",
+        "node_id": "RA_kwDOKbIFZc4b_mCg",
+        "size": 24689886,
+        "state": "uploaded",
+        "updated_at": "2026-07-07T23:14:06Z",
+        "uploader": {
+          "avatar_url": "https://avatars.githubusercontent.com/in/15368?v=4",
+          "events_url": "https://api.github.com/users/github-actions%5Bbot%5D/events{/privacy}",
+          "followers_url": "https://api.github.com/users/github-actions%5Bbot%5D/followers",
+          "following_url": "https://api.github.com/users/github-actions%5Bbot%5D/following{/other_user}",
+          "gists_url": "https://api.github.com/users/github-actions%5Bbot%5D/gists{/gist_id}",
+          "gravatar_id": "",
+          "html_url": "https://github.com/apps/github-actions",
+          "id": 41898282,
+          "login": "github-actions[bot]",
+          "node_id": "MDM6Qm90NDE4OTgyODI=",
+          "organizations_url": "https://api.github.com/users/github-actions%5Bbot%5D/orgs",
+          "received_events_url": "https://api.github.com/users/github-actions%5Bbot%5D/received_events",
+          "repos_url": "https://api.github.com/users/github-actions%5Bbot%5D/repos",
+          "site_admin": false,
+          "starred_url": "https://api.github.com/users/github-actions%5Bbot%5D/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/github-actions%5Bbot%5D/subscriptions",
+          "type": "Bot",
+          "url": "https://api.github.com/users/github-actions%5Bbot%5D",
+          "user_view_type": "public"
+        },
+        "url": "https://api.github.com/repos/astral-sh/uv/releases/assets/469655712"
+      },
+      "primary_metadata": "metadata/github-release.json",
+      "url": "https://github.com/astral-sh/uv/releases/download/0.11.28/uv-aarch64-unknown-linux-gnu.tar.gz",
+      "version": "0.11.28"
+    }
+  },
+  "source": {
+    "commit": "ebf0f43d7c4267876fc256f5fce75982c33f4399",
+    "note": "15 raw exact-commit files joined by Git blob SHA1/primary tree size; actual SHA256 recorded. Primary source file SHA256 is not published by GitHub tree API.",
+    "ref": "refs/tags/0.11.28",
+    "release_id": 350619820,
+    "release_target_commitish": "ebf0f43d7c4267876fc256f5fce75982c33f4399",
+    "repository": "https://github.com/astral-sh/uv",
+    "source_file_joins": {
+      "bytes": 8402,
+      "path": "artifacts/development/native-developer-workflows-input-closure-development-20261027/acquisition/uv/source-joins.json",
+      "sha256": "6f771108086f80eda9bff83180b6cd98595d1e5f8ee62d1e94f777a070b18c5b"
+    },
+    "tag": "0.11.28",
+    "tag_object_type": "commit"
+  },
+  "source_behavior": {
+    "direct_fast_path": "Genuine uv Rust backend built into uv; matching project can build without separately importing/installing uv_build Python package.",
+    "evidence": [
+      {
+        "lines": [
+          250,
+          333
+        ],
+        "meaning": "Direct-build checker requires uv_build backend and one uv-build requirement compatible with compiled uv version; exact==0.11.28 matches exact uv0.11.28.",
+        "path": "source/crates/uv-build-backend/src/metadata.rs",
+        "primary_url": "https://github.com/astral-sh/uv/blob/ebf0f43d7c4267876fc256f5fce75982c33f4399/crates/uv-build-backend/src/metadata.rs#L250-L333"
+      },
+      {
+        "lines": [
+          681,
+          711
+        ],
+        "meaning": "force_pep517 selects PEP517; otherwise eligible project selects DirectBuild.",
+        "path": "source/crates/uv/src/commands/build_frontend.rs",
+        "primary_url": "https://github.com/astral-sh/uv/blob/ebf0f43d7c4267876fc256f5fce75982c33f4399/crates/uv/src/commands/build_frontend.rs#L681-L711"
+      },
+      {
+        "lines": [
+          1090,
+          1114
+        ],
+        "meaning": "DirectBuild calls Rust uv_build_backend::build_wheel inside uv; it does not import the Python uv_build shim.",
+        "path": "source/crates/uv/src/commands/build_frontend.rs",
+        "primary_url": "https://github.com/astral-sh/uv/blob/ebf0f43d7c4267876fc256f5fce75982c33f4399/crates/uv/src/commands/build_frontend.rs#L1090-L1114"
+      },
+      {
+        "lines": [
+          1126,
+          1158
+        ],
+        "meaning": "PEP517 route sets up a build environment and invokes the selected backend through frontend setup/build.",
+        "path": "source/crates/uv/src/commands/build_frontend.rs",
+        "primary_url": "https://github.com/astral-sh/uv/blob/ebf0f43d7c4267876fc256f5fce75982c33f4399/crates/uv/src/commands/build_frontend.rs#L1126-L1158"
+      },
+      {
+        "lines": [
+          26,
+          67
+        ],
+        "meaning": "Original shim defaults USE_UV_EXECUTABLE=False, finds uv-build on PATH and launches it; uv executable alone is not an importable uv_build package.",
+        "path": "source/crates/uv-build/python/uv_build/__init__.py",
+        "primary_url": "https://github.com/astral-sh/uv/blob/ebf0f43d7c4267876fc256f5fce75982c33f4399/crates/uv-build/python/uv_build/__init__.py#L26-L67"
+      },
+      {
+        "lines": [
+          79,
+          115
+        ],
+        "meaning": "Python PEP517 wheel hook calls standalone backend; extra build requirements hook returns an empty list.",
+        "path": "source/crates/uv-build/python/uv_build/__init__.py",
+        "primary_url": "https://github.com/astral-sh/uv/blob/ebf0f43d7c4267876fc256f5fce75982c33f4399/crates/uv-build/python/uv_build/__init__.py#L79-L115"
+      },
+      {
+        "lines": [
+          368,
+          415
+        ],
+        "meaning": "Without isolation a supplied shared environment is used and build requirements installation is skipped; isolated mode resolves/installs requirements.",
+        "path": "source/crates/uv-build-frontend/src/lib.rs",
+        "primary_url": "https://github.com/astral-sh/uv/blob/ebf0f43d7c4267876fc256f5fce75982c33f4399/crates/uv-build-frontend/src/lib.rs#L368-L415"
+      },
+      {
+        "lines": [
+          2995,
+          3002
+        ],
+        "meaning": "--force-pep517 disables direct fast path.",
+        "path": "source/crates/uv-cli/src/lib.rs",
+        "primary_url": "https://github.com/astral-sh/uv/blob/ebf0f43d7c4267876fc256f5fce75982c33f4399/crates/uv-cli/src/lib.rs#L2995-L3002"
+      },
+      {
+        "lines": [
+          6344,
+          6354
+        ],
+        "meaning": "--no-build-isolation assumes declared backend dependencies are already installed.",
+        "path": "source/crates/uv-cli/src/lib.rs",
+        "primary_url": "https://github.com/astral-sh/uv/blob/ebf0f43d7c4267876fc256f5fce75982c33f4399/crates/uv-cli/src/lib.rs#L6344-L6354"
+      },
+      {
+        "lines": [
+          1,
+          44
+        ],
+        "meaning": "uv-build Python package0.11.28 is MIT OR Apache-2.0 and Python>=3.8; source building requires maturin rather than providing an already closed Rust rebuild.",
+        "path": "source/crates/uv-build/pyproject.toml",
+        "primary_url": "https://github.com/astral-sh/uv/blob/ebf0f43d7c4267876fc256f5fce75982c33f4399/crates/uv-build/pyproject.toml#L1-L44"
+      },
+      {
+        "lines": [
+          1,
+          4
+        ],
+        "meaning": "Exact tag application-version crate is0.11.28.",
+        "path": "source/crates/uv-version/Cargo.toml",
+        "primary_url": "https://github.com/astral-sh/uv/blob/ebf0f43d7c4267876fc256f5fce75982c33f4399/crates/uv-version/Cargo.toml#L1-L4"
+      },
+      {
+        "lines": [
+          1,
+          4
+        ],
+        "meaning": "Exact tag standalone backend crate is0.11.28.",
+        "path": "source/crates/uv-build/Cargo.toml",
+        "primary_url": "https://github.com/astral-sh/uv/blob/ebf0f43d7c4267876fc256f5fce75982c33f4399/crates/uv-build/Cargo.toml#L1-L4"
+      }
+    ],
+    "no_importability_inference": true,
+    "pep517": "Original uv_build shim is a separate importable Python package; default calls separate uv-build binary shipped inside the pinned backend wheel. uv release tar contains only uv and uvx.",
+    "status": "SOURCE_AUDITED_NOT_RUNTIME_EXECUTED"
+  },
+  "status": "PASS_EXACT_PRIMARY_INPUT_ACQUISITION_AND_SOURCE_AUDIT_NO_EXECUTION",
+  "version": "0.11.28"
+}
