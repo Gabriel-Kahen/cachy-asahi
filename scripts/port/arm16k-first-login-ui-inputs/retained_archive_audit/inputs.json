@@ -90,8 +90,8 @@
       "sha256": "df71e3166025849785f1bdd4543f36938d7fd191dc8d407aa420a1b61968548e"
     },
     "scripts/update/archive_stream.py": {
-      "bytes": 11938,
-      "sha256": "10f1a4c0ac5b98852d9ebb150af28f9ce345c800935a64fa463bc90f72fcb838"
+      "bytes": 12718,
+      "sha256": "7454682feb4b9c93b8b043b801388ce202e4a4a31c1f396d92c54b8de85a0ad0"
     }
   },
   "schema": 1,

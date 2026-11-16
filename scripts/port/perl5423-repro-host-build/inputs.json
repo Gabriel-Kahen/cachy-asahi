@@ -85,7 +85,7 @@
     },
     "scripts/port/perl5423-host-build/inspect_archive.py": {
       "bytes": 7808,
-      "sha256": "48b4875a1ecb0fe940a072e639e2ebb1eff8adadeb32e2864f1cc0c9751fa1ec"
+      "sha256": "2e155e5718e16e50a25679cbd34da19116ff61367293f5e7bbe0d39fa594ec56"
     },
     "scripts/port/perl5423-host-build/provenance.py": {
       "bytes": 2399,
@@ -104,8 +104,8 @@
       "sha256": "58e11e367fd09e3c1ee55cf5d6da55239bc5e26533362f8d01ed025d6e43b79f"
     },
     "scripts/update/archive_stream.py": {
-      "bytes": 11938,
-      "sha256": "10f1a4c0ac5b98852d9ebb150af28f9ce345c800935a64fa463bc90f72fcb838"
+      "bytes": 12718,
+      "sha256": "7454682feb4b9c93b8b043b801388ce202e4a4a31c1f396d92c54b8de85a0ad0"
     },
     "scripts/update/capacity.py": {
       "bytes": 1449,

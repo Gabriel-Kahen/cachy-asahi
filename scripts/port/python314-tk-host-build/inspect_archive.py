@@ -55,7 +55,7 @@ def validate_rows(rows, pins):
 
 def read_rows(path):
     reader_path = host.ROOT / 'scripts/update/archive_stream.py'
-    if host.identity(reader_path)['sha256'] != '10f1a4c0ac5b98852d9ebb150af28f9ce345c800935a64fa463bc90f72fcb838':
+    if host.identity(reader_path)['sha256'] != '7454682feb4b9c93b8b043b801388ce202e4a4a31c1f396d92c54b8de85a0ad0':
         raise ValueError('bounded archive reader changed')
     reader = load('python_tk_archive_stream', reader_path)
     limits = reader.Limits(compressed_bytes=128 * 1024**2, total_compressed_bytes=128 * 1024**2,
