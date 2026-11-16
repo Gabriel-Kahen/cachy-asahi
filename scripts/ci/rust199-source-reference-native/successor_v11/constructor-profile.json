@@ -1,0 +1,53 @@
+{
+  "Root_review": null,
+  "accepted": null,
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "image": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "bytes": 42985162,
+  "constructor_files": {
+    "README.md": {
+      "bytes": 4609,
+      "mode": 420,
+      "sha256": "8154e65ad04ca4ed7db545b6dc668ec1dfbeeae2baa2f957a92ff80d0a4257ad"
+    },
+    "Root-admission.TEMPLATE.json": {
+      "bytes": 14249,
+      "mode": 420,
+      "sha256": "8a564c2a68afd400abf746b8c600620a1a7fec18a814357dd2ba7107ff01074d"
+    },
+    "payload/hosted/bootstrap.py": {
+      "bytes": 31406,
+      "mode": 420,
+      "sha256": "3ec0dd0ffc8519e0b456b4f129106d69c4fc57acee87c0a5203db599fa1349cc"
+    },
+    "prepare.py": {
+      "bytes": 7945,
+      "mode": 420,
+      "sha256": "5674fcd36b14c8c732e4b6c480b72146509f637a188f05a291b0b4f441da72b2"
+    },
+    "test_data.py": {
+      "bytes": 12127,
+      "mode": 420,
+      "sha256": "ca83438d361ef3cb8e480269349cbed73eccd9f6b29c7ac03f460e9a19974ef5"
+    }
+  },
+  "files": 340,
+  "map_sha256": "3974a68677faadf1136f21539b595f3f0da85fa26bd72eb8d0fa8c6e922894f1",
+  "parent": {
+    "bytes": 42886171,
+    "files": 337,
+    "map_sha256": "9a4855f84fb64ffb03e1a3691a57aeff860967890af84ce87b333ce73226f934",
+    "tree": "e9bf6161d48d85838a5a9b9c951b791a34e175c7"
+  },
+  "schema": 11,
+  "scope": "RUST199_ROOTFS_READABLE_STAGING_SUCCESSOR_V11",
+  "tree": "596fe9277740365fa3e29ee11f2b75ae7ce8bbc8",
+  "unadmitted": true
+}

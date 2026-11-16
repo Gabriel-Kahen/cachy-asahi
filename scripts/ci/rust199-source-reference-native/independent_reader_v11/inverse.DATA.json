@@ -1,0 +1,147 @@
+{
+  "Root_acceptance": null,
+  "files": {
+    "archives.py": {
+      "after": {
+        "bytes": 16951,
+        "sha256": "e15b2f41b431a33738751bf4d5e70dc4db8443a24bc5696a8ce78a2cade959c9"
+      },
+      "before": {
+        "bytes": 16951,
+        "sha256": "e15b2f41b431a33738751bf4d5e70dc4db8443a24bc5696a8ce78a2cade959c9"
+      },
+      "seams": []
+    },
+    "bindings.py": {
+      "after": {
+        "bytes": 10681,
+        "sha256": "c9110cc0d2673097160e7f0a0826c9e2436c9dc54b234d65d3a2c6e7c2e53455"
+      },
+      "before": {
+        "bytes": 10681,
+        "sha256": "c9110cc0d2673097160e7f0a0826c9e2436c9dc54b234d65d3a2c6e7c2e53455"
+      },
+      "seams": []
+    },
+    "elf.py": {
+      "after": {
+        "bytes": 1720,
+        "sha256": "0d5adbfcca43700272b65462f69584f9c0a79d71c46ad5b6e037be56366773a2"
+      },
+      "before": {
+        "bytes": 1720,
+        "sha256": "0d5adbfcca43700272b65462f69584f9c0a79d71c46ad5b6e037be56366773a2"
+      },
+      "seams": []
+    },
+    "evidence.py": {
+      "after": {
+        "bytes": 14808,
+        "sha256": "1c6235402c6c34290220f63b51669cbd98f77dad1b6e0a9ff43f444d8ad593c3"
+      },
+      "before": {
+        "bytes": 14808,
+        "sha256": "1c6235402c6c34290220f63b51669cbd98f77dad1b6e0a9ff43f444d8ad593c3"
+      },
+      "seams": []
+    },
+    "reader.py": {
+      "after": {
+        "bytes": 24049,
+        "sha256": "a2945b09b0ccc9c4c7b2120e458aac92dc50d6c18b0f11f088ff485b4f1c56f6"
+      },
+      "before": {
+        "bytes": 23236,
+        "sha256": "ee64e33e42fa287efc7ddd5f9ca9627be7cebac38dea36b4f0981dff164e5a93"
+      },
+      "seams": [
+        {
+          "after": "Rust340 evidence",
+          "before": "Rust337 evidence",
+          "count": 1
+        },
+        {
+          "after": "independent_rust340_",
+          "before": "independent_rust337_",
+          "count": 1
+        },
+        {
+          "after": "request.get('schema')==11",
+          "before": "request.get('schema')==10",
+          "count": 1
+        },
+        {
+          "after": "ROOT_SELECTED_RUST340_RETAINED_EVIDENCE_READER_V11",
+          "before": "ROOT_SELECTED_RUST337_RETAINED_EVIDENCE_READER_V10",
+          "count": 1
+        },
+        {
+          "after": "rust199-source340-native-v11-",
+          "before": "rust199-source337-native-v10-",
+          "count": 1
+        },
+        {
+          "after": "ROOT_REVIEWED_EXACT_RUST340_SOURCE_V11",
+          "before": "ROOT_REVIEWED_EXACT_RUST337_SOURCE_V10",
+          "count": 1
+        },
+        {
+          "after": "PASS_RUST340_RETAINED_ARCHIVE_EVIDENCE_DATA_ONLY",
+          "before": "PASS_RUST337_RETAINED_ARCHIVE_EVIDENCE_DATA_ONLY",
+          "count": 1
+        },
+        {
+          "after": "schema=11",
+          "before": "schema=10",
+          "count": 5
+        },
+        {
+          "after": " extraction=boot.get('extraction');S.need(type(extraction)is dict and set(extraction)=={'files','logical_bytes','rootfs_tree_sha256','digest_timing','final_modes_verified'} and\n  type(extraction['files'])is int and 1<=extraction['files']<=600000 and type(extraction['logical_bytes'])is int and 0<=extraction['logical_bytes']<=16*S.GIB and\n  S.digest(extraction['rootfs_tree_sha256']) and extraction['digest_timing']=='PRIVATE_READABLE_STAGING_BEFORE_EXACT_MODE_FINALIZATION' and extraction['final_modes_verified']is True and extraction['rootfs_tree_sha256']==boot['rootfs_tree_sha256']==q['rootfs_tree_sha256'],'EXACT_PRE_FINALIZATION_ROOTFS_STAGING_RECEIPT')\n S.need({k:v for k,v in qual.items()if k not in('files','proof_path','proof_sha256')}==q,'TRANSFERRED_QUALIFICATION_EXACT_PROOF')",
+          "before": " S.need({k:v for k,v in qual.items()if k not in('files','proof_path','proof_sha256')}==q,'TRANSFERRED_QUALIFICATION_EXACT_PROOF')",
+          "count": 1
+        },
+        {
+          "after": " transferred_image=image_checks,input_rootfs_staging=manifest['metadata']['boot']['extraction'],input_rootfs_digest_scope='HOST_DATA_STAGING_PROVENANCE_ONLY_NO_POSTMODE_CONTENT_REHASH',historical_license108_and_related_holds='PRESERVED'",
+          "before": " transferred_image=image_checks,historical_license108_and_related_holds='PRESERVED'",
+          "count": 1
+        }
+      ]
+    },
+    "storage.py": {
+      "after": {
+        "bytes": 5337,
+        "sha256": "48cab261a0005fda4c58614b80eb6f688e42555df13141334387bc71cddb3c11"
+      },
+      "before": {
+        "bytes": 5337,
+        "sha256": "be71c2eebcfcc604e4140431b76aae92dae8f42c67211d0dd3f3744d7a656130"
+      },
+      "seams": [
+        {
+          "after": "files=340,bytes=42985162,tree='596fe9277740365fa3e29ee11f2b75ae7ce8bbc8',map_sha256='3974a68677faadf1136f21539b595f3f0da85fa26bd72eb8d0fa8c6e922894f1',profile_sha256='329dba1e8cc240edfb91a62ac3d99e542825604f7df57d060d5e589b9171a160'",
+          "before": "files=337,bytes=42886171,tree='e9bf6161d48d85838a5a9b9c951b791a34e175c7',map_sha256='9a4855f84fb64ffb03e1a3691a57aeff860967890af84ce87b333ce73226f934',profile_sha256='8cd2240f0e8eb3094d29b3e1d3aa5076e3923c962e1fbf37919c73177a9f6dec'",
+          "count": 1
+        },
+        {
+          "after": "namespace(root,340)",
+          "before": "namespace(root,337)",
+          "count": 1
+        },
+        {
+          "after": "bytes=66248",
+          "before": "bytes=65734",
+          "count": 1
+        },
+        {
+          "after": "len(files)==340",
+          "before": "len(files)==337",
+          "count": 1
+        }
+      ]
+    }
+  },
+  "kind": "SOURCE340_READER_V11_EXACT_V10_PROGRAM_INVERSE_DATA",
+  "predecessor_commit": "2e2000b2f8c91945603d5d30b5fc2ed7aadb4a3b",
+  "schema": 11,
+  "source_constructor_commit": "76c7d3bae404d2da71512957823a6843a4f4685c"
+}
