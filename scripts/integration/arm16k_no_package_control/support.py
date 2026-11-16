@@ -6,7 +6,7 @@ from pathlib import Path
 HERE=Path(__file__).resolve().parent
 LEGACY=HERE.parent/'arm16k_perl5423_vm'
 if not LEGACY.is_dir():LEGACY=Path('/legacy')
-SOURCE65_SHA='da1c8749a281b767f50ca696cf7818d1925aa852057d7de011b4c3ddd8eca75d'
+SOURCE65_SHA='f787650b1dcd78c4081b544719cd4f1d8d7c67c46da09c495e6c185917c542ac'
 
 
 @lru_cache(None)

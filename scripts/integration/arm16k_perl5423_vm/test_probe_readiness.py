@@ -25,6 +25,10 @@ def hold(nonce=NONCE,phase='dependency_install',code=1):
 STAT=r'''#!/usr/bin/bash
 set -eu
 format=$2;path=${@: -1}
+if [[ $path == "$FIXTURE_O/summary.env" && ${FIXTURE_DELAY_SUMMARY:-0} == 1 && ! -e $FIXTURE_DELAYED ]];then
+ touch "$FIXTURE_DELAYED"
+ /usr/bin/sleep 1.1
+fi
 value=$(/usr/bin/stat "$@")
 if [[ $path == "$FIXTURE_O" ]];then
  [[ $format == '%u:%g:%a' ]];printf '0:0:%s\n' "${value##*:}"
@@ -47,7 +51,7 @@ else printf '%s\n' "$value";fi
 
 
 def run_probe(summary=None,*,restored=False,mode=0o644,bad_owner=False,alias=None,
-              publish=None,installed=False,change=False):
+              publish=None,installed=False,change=False,delay_summary=False):
     with tempfile.TemporaryDirectory(prefix='perl-probe-readiness-DATA-') as name:
         root=Path(name);data=root/'packet';runtime=root/'run';tools=root/'bin'
         for p in (data,runtime,tools):p.mkdir(mode=0o755)
@@ -59,7 +63,11 @@ def run_probe(summary=None,*,restored=False,mode=0o644,bad_owner=False,alias=Non
             (runtime/'installed').write_text(NONCE+'\n');(runtime/'installed').chmod(0o644)
             (runtime/'user').mkdir(mode=0o700)
         # These helpers are explicit fixture Source, not artifact/summary input.
-        (data/'case.sh').write_text('case_data() { nonce='+NONCE+';probe_wait_seconds=1; }\nclock_valid() { return 19; }\n')
+        # Model polling time, not scheduler latency: publication happens on the
+        # first fixture sleep, before the next deadline/summary observation.
+        (data/'case.sh').write_text('case_data() { nonce='+NONCE+';probe_wait_seconds=1; unset SECONDS;SECONDS=0; }\n'
+                                  'sleep() { [[ $# == 1 && $1 == 1 ]] || return 2;command sleep "$@";SECONDS=$((SECONDS+1)); }\n'
+                                  'clock_valid() { return 19; }\n')
         scripts={
             'id':'#!/usr/bin/bash\nprintf "1000\\n"\n',
             'uname':'#!/usr/bin/bash\nprintf "aarch64\\n"\n',
@@ -85,7 +93,7 @@ if [[ -n ${FIXTURE_PUBLISH:-} && ! -f $FIXTURE_PUBLISHED ]];then
  cp -- "$FIXTURE_PUBLISH" "$FIXTURE_O/summary.env"
  chmod 644 "$FIXTURE_O/summary.env"
  touch "$FIXTURE_PUBLISHED"
-else exec /usr/bin/sleep "$@";fi
+fi
 '''}
         for command,body in scripts.items():
             p=tools/command;p.write_text(body);p.chmod(0o755)
@@ -96,13 +104,14 @@ else exec /usr/bin/sleep "$@";fi
             source=source.replace(old,new)
         script=root/'probe.sh';script.write_text(source)
         env=dict(PATH='/usr/bin:/bin',HOME=str(root),LC_ALL='C',FIXTURE_O=str(runtime),FIXTURE_BAD_OWNER=str(int(bad_owner)),
-                 FIXTURE_CHANGE=str(int(change)),FIXTURE_COUNTER=str(root/'counter'),FIXTURE_PUBLISHED=str(root/'published'))
+                 FIXTURE_CHANGE=str(int(change)),FIXTURE_COUNTER=str(root/'counter'),FIXTURE_PUBLISHED=str(root/'published'),
+                 FIXTURE_DELAY_SUMMARY=str(int(delay_summary)),FIXTURE_DELAYED=str(root/'delayed'))
         if publish is not None:
             p=root/'complete';p.write_bytes(publish);env['FIXTURE_PUBLISH']=str(p)
         result=subprocess.run(['/usr/bin/bash','--noprofile','--norc',str(script),NONCE,*(['restored'] if restored else [])],
                               env=env,cwd=root,stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=8)
         return dict(exit=result.returncode,stdout=result.stdout,stderr=result.stderr,published=(root/'published').exists(),
-                    evaluated=(root/'EVALUATED').exists(),probed=(runtime/'user/PROBED').exists())
+                    evaluated=(root/'EVALUATED').exists(),probed=(runtime/'user/PROBED').exists(),delayed=(root/'delayed').exists())
 
 
 class Controls(unittest.TestCase):
@@ -125,8 +134,11 @@ class Controls(unittest.TestCase):
             self.assertNotIn(b'PERL5423_PROBE_BEGIN',result['stdout']);self.assertFalse(result['probed'])
 
     def test_unpublished_summary_waits_for_complete_publication(self):
-        result=run_probe(b'PARTIAL_PRIVATE_PENDING',mode=0o600,publish=hold(),installed=True)
-        self.assertTrue(result['published']);self.assertNotEqual(result['exit'],0);self.assertEqual(result['stdout'],b'\n'+hold())
+        for delayed in (False,True):
+            with self.subTest(delayed=delayed):
+                result=run_probe(b'PARTIAL_PRIVATE_PENDING',mode=0o600,publish=hold(),installed=True,delay_summary=delayed)
+                self.assertEqual(result['delayed'],delayed);self.assertTrue(result['published'])
+                self.assertNotEqual(result['exit'],0);self.assertEqual(result['stdout'],b'\n'+hold())
         result=run_probe(b'PARTIAL_PRIVATE_PENDING',mode=0o600)
         self.assertIn(b'FAILED_PHASE=install_ready_timeout\nROOT_SUMMARY_STATE=UNPUBLISHED\n',result['stdout'])
         self.assertNotIn(b'PARTIAL_PRIVATE_PENDING',result['stdout'])
