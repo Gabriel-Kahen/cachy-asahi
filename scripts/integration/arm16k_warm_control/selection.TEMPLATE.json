@@ -1,0 +1,82 @@
+{
+  "actor_tools": {
+    "/usr/bin/cp": null,
+    "/usr/bin/debugfs": null,
+    "/usr/bin/e2fsck": null,
+    "/usr/bin/python3": null,
+    "/usr/bin/qemu-img": null,
+    "/usr/bin/qemu-system-aarch64": null
+  },
+  "baseline_nonce": null,
+  "comparison_source65": {
+    "bytes": 10598,
+    "sha256": "da1c8749a281b767f50ca696cf7818d1925aa852057d7de011b4c3ddd8eca75d"
+  },
+  "control": {
+    "next_boot_stability": "NOT_RUN",
+    "normal_PAM_logout": true,
+    "observations": {
+      "bytes": 10140,
+      "sha256": "aad212908bfa20e9f7b6b326f02ee7e360b9d63467d3c8ed36a41727cd54cd0f"
+    },
+    "outer_result": {
+      "bytes": 3677,
+      "sha256": "d577d6c904c2321faf7059caa056d88b804e90f035067b84403c403e8c83c6c5"
+    },
+    "overlay": {
+      "bytes": 19660800,
+      "sha256": "8a6aa8f2ccd64e1bfcb2a6a6ec0f573d5e768a7d864da37cb5d32538e13edcbb"
+    },
+    "package_transaction": false,
+    "report": {
+      "bytes": 21241,
+      "sha256": "c60358f08263973e5fabf8268366aa12a43c357b42fe0a77efe62f56529f3cef"
+    },
+    "scope": "ACCEPT_FINITE_OBSERVATION_AND_CLEANUP_ONLY",
+    "source_lock": {
+      "bytes": 3732,
+      "sha256": "63ca909ef5828c43668fe3c56586a5fffa92badd1abcd670118802acd13213df"
+    },
+    "terminal_closure": {
+      "bytes": 1371,
+      "sha256": "9afa27cdd182cbaef4cf307069f9b4e6426ccbcc247d4944f8e57823bee13002"
+    }
+  },
+  "conversion": {
+    "opaque_only": null,
+    "original_unchanged": null,
+    "prepared": null,
+    "raw": null,
+    "report": null
+  },
+  "kernel": {
+    "Image": null,
+    "config": null
+  },
+  "kind": "ROOT_SELECTED_ONE_WARM_PAM_BASELINE_DATA_V1",
+  "original_baseline": {
+    "certificate": {
+      "bytes": 3870,
+      "sha256": "569d9373d0af561def524d8a573f67c50e7556886b59047ceac4804dfb239d61"
+    },
+    "prepared": {
+      "bytes": 58179,
+      "sha256": "f7b3073f58acce8ab5e21ff61f2182779d24046e1582cda6adb0a3db66b7036e"
+    },
+    "raw": {
+      "bytes": 1610612736,
+      "sha256": "f69d74fbb0043793c96424d0f91ad2f6fb2d8cf3a72fb94024ea9cc40dae4cd3"
+    }
+  },
+  "packages": {
+    "count": 111,
+    "original_inventory": null,
+    "warmed_inventory": null
+  },
+  "tool_image": null,
+  "warmed_baseline": {
+    "certificate": null,
+    "prepared": null,
+    "raw": null
+  }
+}

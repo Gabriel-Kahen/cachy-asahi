@@ -1,0 +1,102 @@
+{
+  "M2": "NOT_RUN",
+  "Root_authentication": false,
+  "Root_decision": null,
+  "acceptance": false,
+  "binding": {
+    "approval": "3c4ed2df2a58a363a1c50a30fcc0742339da4585ceada22596f1c5e59c3fd432",
+    "image": "sha256:6716e01b076337dbe1bfd21c3baf591dcdb918cb5ef7d34f74c0a0e4b976f66d",
+    "job": "132874611601",
+    "operation": "perl5423-installed-lifecycle-native-v1",
+    "producer_report_sha256": "f77ad726f99662b4e7a9550c2d863282c24b4249d629ab93428755edbe25d4b0",
+    "ref": "refs/heads/codex/native-arm-perl5423-installed-lifecycle-v1-20261115-r3",
+    "run": "43734696338",
+    "scope": "ROOT_AUTHENTICATED_PERL_INSTALLED_LIFECYCLE_DATA_READER_ONLY",
+    "source": "445b37a9475a4e92804954f4f0e3d0ac84cd9511",
+    "source_map_sha256": "2bbf2c808562d13a158d654f7e7d3adb71c7e577444e82ea05a0aad5cf0f3c97"
+  },
+  "full_uninstall": "NOT_RUN",
+  "lifecycle_consistency": {
+    "M2": "NOT_RUN",
+    "actor_report": {
+      "bytes": 10125037,
+      "sha256": "f8cbfe93c1695f9cb970247fcdf232a01988c1c30ae7f0ede0ee99cfe9005688"
+    },
+    "dependency_protected_removal": "PASS_ORIGINAL_NEGATIVE_CONSISTENCY_ONLY",
+    "full_uninstall": "NOT_RUN",
+    "image": "sha256:6716e01b076337dbe1bfd21c3baf591dcdb918cb5ef7d34f74c0a0e4b976f66d",
+    "native_acceptance": "ROOT_INDEPENDENT_REVIEW_REQUIRED",
+    "outer_job": "132874611601",
+    "outer_run": "43734696338",
+    "outer_scope": "DATA_CONSISTENCY_ONLY_NOT_INSTALLATION_OR_RELEASE_ACCEPTANCE",
+    "outer_source": "445b37a9475a4e92804954f4f0e3d0ac84cd9511",
+    "outer_source_map_sha256": "2bbf2c808562d13a158d654f7e7d3adb71c7e577444e82ea05a0aad5cf0f3c97",
+    "producer_report": {
+      "bytes": 13500,
+      "sha256": "f77ad726f99662b4e7a9550c2d863282c24b4249d629ab93428755edbe25d4b0"
+    },
+    "release": "NOT_ACCEPTED",
+    "schema": 1,
+    "source_map_sha256": "c785461555e1e2833de5f42d7718c9186d8d1717d60cc810269bb07d82ba0cef",
+    "status": "PASS_READONLY_ORIGINAL_RESULT_CONSISTENCY_ONLY"
+  },
+  "native16K": "NOT_RUN",
+  "performance": "NOT_RUN",
+  "reader_revision": {
+    "Source_and_original_unchanged": true,
+    "finite_passive_modules": [
+      "argparse",
+      "hashlib",
+      "importlib.util",
+      "io",
+      "json",
+      "math",
+      "os",
+      "pathlib",
+      "re",
+      "stat",
+      "sys",
+      "tarfile",
+      "types"
+    ],
+    "kind": "RETAINED_OUTPUT_READER_V2_EXPLICIT_STDLIB_MATH_PRELOAD",
+    "math": {
+      "bytes": 82168,
+      "kind": "SELECTED_PYTHON_STDLIB_EXTENSION",
+      "module": "math",
+      "origin": "/usr/lib/python3.14/lib-dynload/math.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "2d1d360dbbee679586aaab6e84ac3cb9e0ab83f28df1476e28cdfd5c11026e67"
+    },
+    "parent_profile_sha256": "c10f724f69c4a2cd5f4a243ea5057edd9acfc628caacbc7c41c347426936f08c",
+    "preloads": [
+      "math"
+    ]
+  },
+  "release": "NOT_ACCEPTED",
+  "retention": {
+    "actor_report": {
+      "bytes": 10125037,
+      "sha256": "f8cbfe93c1695f9cb970247fcdf232a01988c1c30ae7f0ede0ee99cfe9005688"
+    },
+    "natural_owned_cleanup": true,
+    "package_runtime_acceptance": false,
+    "producer_report": {
+      "bytes": 13500,
+      "sha256": "f77ad726f99662b4e7a9550c2d863282c24b4249d629ab93428755edbe25d4b0"
+    },
+    "proof_boundary": "PINNED_ACTOR_CHECKS_LSTAT_OWNER_MODE_ROOT_ST_DEV; BOOLEAN_ASSERTION_NOT_INDEPENDENT_NUMERIC_STAT",
+    "retained_output": {
+      "gid": 0,
+      "mode": 448,
+      "parent": "/cachy-asahi-perl-lifecycle",
+      "parent_absent_before_entry": true,
+      "path": "/cachy-asahi-perl-lifecycle/result",
+      "same_filesystem_as_parent_root": true,
+      "storage": "OWNED_CONTAINER_WRITABLE_LAYER",
+      "uid": 0
+    },
+    "status": "PASS_RETAINED_OUTPUT_DATA_JOINS_ONLY"
+  },
+  "schema": 1,
+  "status": "PASS_INDEPENDENT_RETAINED_OUTPUT_AND_PINNED_LIFECYCLE_DATA_ONLY"
+}

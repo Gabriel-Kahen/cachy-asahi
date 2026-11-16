@@ -1,0 +1,42 @@
+{
+  "files": {
+    "guest-runtime.sh": {
+      "bytes": 8870,
+      "sha256": "639257a6637923b9f6ee8486fa580b0603b662863fdcb51a2187fc7864568463",
+      "source": "scripts/integration/arm16k_llvm23_vm/frozen/guest-runtime.sh",
+      "source_commit": "9f3689ebdc372f7ad101c806cc417c5c176ba52b"
+    },
+    "independent_readback.py": {
+      "bytes": 13913,
+      "sha256": "8fb8c2c32dc5a40998bf31cc5727768f88ce51e423b7090cfb702116bdc9b5d3",
+      "source": "scripts/integration/arm16k_rust_stage0_vm/frozen/independent_readback.py",
+      "source_commit": "9f3689ebdc372f7ad101c806cc417c5c176ba52b"
+    },
+    "owned_process.py": {
+      "bytes": 25140,
+      "sha256": "83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f",
+      "source": "scripts/integration/arm16k_llvm23_vm/frozen/owned_process.py",
+      "source_commit": "9f3689ebdc372f7ad101c806cc417c5c176ba52b"
+    },
+    "reference_controller.py": {
+      "bytes": 14117,
+      "sha256": "e7c8935f342d4b36bb6f8f24c0b48c3b8aa04be9807f62c3f8141aeaf26819fc",
+      "source": "scripts/integration/arm16k_llvm23_vm/frozen/reference_controller.py",
+      "source_commit": "9f3689ebdc372f7ad101c806cc417c5c176ba52b"
+    },
+    "rtc-clock.sh": {
+      "bytes": 1344,
+      "sha256": "fed8c8eabe89ad8cb979994c35dc44ad3e8704f5481c3dd00560192018c504fa",
+      "source": "scripts/integration/arm16k_llvm23_vm/frozen/rtc-clock.sh",
+      "source_commit": "9f3689ebdc372f7ad101c806cc417c5c176ba52b"
+    },
+    "rtc_contract.py": {
+      "bytes": 9806,
+      "sha256": "b3f4727110fefb9429ca3944e758189cac8ecddfc53332f4ce2c40b64ca35028",
+      "source": "scripts/integration/arm16k_llvm23_vm/frozen/rtc_contract.py",
+      "source_commit": "9f3689ebdc372f7ad101c806cc417c5c176ba52b"
+    }
+  },
+  "schema": 1,
+  "scope": "REVIEWED_SOURCE_HELPERS_ONLY_NO_RUNTIME_ACCEPTANCE"
+}

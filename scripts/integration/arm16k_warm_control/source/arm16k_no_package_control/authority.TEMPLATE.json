@@ -1,0 +1,23 @@
+{
+  "accepted": null,
+  "actor_tools": null,
+  "baseline": null,
+  "created_utc": null,
+  "credentials": null,
+  "docker_cli": null,
+  "docker_endpoint": null,
+  "expires_utc": null,
+  "external_admission": null,
+  "image": null,
+  "issued_by": "Root",
+  "kernel": null,
+  "kind": "ROOT_NO_PACKAGE_CONTROL_AUTHORITY_V1",
+  "operation": "NO_PACKAGE_BOOT_LOGIN_LOGOUT_CONTROL_V1",
+  "output": null,
+  "packet": null,
+  "quota_device": null,
+  "reader": null,
+  "resources": null,
+  "source_lock": null,
+  "uid": null
+}
