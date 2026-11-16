@@ -35,6 +35,7 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_llvm23_vm/test_probe.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/llvm23-source-reference-native/successor_v5/test_stage_receipts.py
           python3 -I -B -Werror::ResourceWarning scripts/port/llvm23-native-independent-reader/v6/test_v6.py
+          python3 -I -B -Werror::ResourceWarning scripts/port/llvm23-native-independent-reader/v7/test_v7.py
           bash -n scripts/integration/arm16k_llvm23_vm/guest/root.sh scripts/integration/arm16k_llvm23_vm/guest/probe.sh scripts/integration/arm16k_llvm23_vm/guest/case.sh
       - name: Check Perl ARM16K lifecycle contracts without actors
         run: |
