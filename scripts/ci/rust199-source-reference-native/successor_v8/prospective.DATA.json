@@ -1,0 +1,21 @@
+{
+  "Root_review": null,
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "image": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "bytes": 42590643,
+  "files": 326,
+  "map_sha256": "382ccdcf2d8abf8fcc739fe917ed35b4cf1cbaa00617393d6fa42614d366cdf4",
+  "profile": {
+    "bytes": 2558,
+    "sha256": "ab707a457af02441773c7c7322ed7838cc98313d09ee81a95a37378fefaa11b0"
+  },
+  "status": "UNADMITTED_TRANSFER_ONLY_SUCCESSOR_SOURCE_DATA",
+  "tree": "7db8b512209a275ec9fc4f37006e18b8e5839a6d"
+}
