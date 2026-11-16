@@ -1,0 +1,51 @@
+{
+  "api": "CURRENT_ONBOARDING_OWNED_CALLBACKS_V2",
+  "commit": "bc47942d909a1207280cf2c136f203235ac94493",
+  "files": {
+    "scripts/ci/first-login-enrollment-native-source/payload/native/build_tools_alpm_v2.py": {
+      "bytes": 27087,
+      "mode": 420,
+      "sha256": "d4197495e0281aecfd590e76ed908cd1fcf46b1934bc02709e47a7dac49abb73"
+    },
+    "scripts/ci/first-login-enrollment-native-source/payload/native/build_tools_tools_v2.py": {
+      "bytes": 34468,
+      "mode": 420,
+      "sha256": "eb1ff0ee8aefc2c0e32b38520e1bf0dabcbb9308081a24e2f9c378366a3cab13"
+    },
+    "scripts/ci/first-login-enrollment-native-source/payload/native/owner_current_v2.py": {
+      "bytes": 46298,
+      "mode": 420,
+      "sha256": "f1a91dee080f76eff88409dd1fe893dc45a2084338017f367ec9874a462a612d"
+    },
+    "scripts/ci/first-login-enrollment-native-source/successor_v2/native.py": {
+      "bytes": 13703,
+      "mode": 420,
+      "sha256": "cde384acd8574ddfcb07f7316ad4d24349f5b958ac6b2cea48a3a6aff480c827"
+    },
+    "scripts/ci/first-login-enrollment-native-source/successor_v2/owned_route.py": {
+      "bytes": 26320,
+      "mode": 420,
+      "sha256": "43db41de72822cb8f4d875b6c1d17ffd5062770616ed303f63e299c13478dd86"
+    },
+    "scripts/ci/first-login-enrollment-native-source/successor_v2/profile.json": {
+      "bytes": 21679,
+      "mode": 420,
+      "sha256": "8ad3641649e395b1202363e3368f713f65252a743b12e3a8d69430e4f82bc171"
+    },
+    "scripts/virtual/owned_process.py": {
+      "bytes": 25140,
+      "mode": 493,
+      "sha256": "83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f"
+    },
+    "scripts/workflows/developer_workflow.py": {
+      "bytes": 29699,
+      "mode": 420,
+      "sha256": "531c124cde3fa41d46888acfc638c823196bb2f297b19ab68ab3d001b05f16ba"
+    }
+  },
+  "kind": "CURRENT_ONBOARDING_COMMITTED_OWNER_ROUTE_CLOSURE_V3",
+  "operation": "first-login-enrollment-ui-current-v2",
+  "owner": "scripts/ci/first-login-enrollment-native-source/payload/native/owner_current_v2.py",
+  "route": "scripts/ci/first-login-enrollment-native-source/successor_v2/owned_route.py",
+  "schema": 1
+}

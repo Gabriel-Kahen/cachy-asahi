@@ -1,0 +1,120 @@
+name: Current onboarding delegated private v3
+on:
+  workflow_dispatch:
+    inputs:
+      root_request_json:
+        type: string
+        required: true
+        description: Canonical externally Root-issued launch DATA, at most49152 bytes
+      root_request_sha256:
+        type: string
+        required: true
+        description: Independently Root-selected whole request SHA256
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: native-arm-build
+  cancel-in-progress: false
+  queue: max
+jobs:
+  current:
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
+    name: current-onboarding-delegated-v3
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 140
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - name: Bind Root request before checkout or privileged entry
+        id: bound
+        env:
+          ROOT_REQUEST_JSON: ${{ inputs.root_request_json }}
+          ROOT_REQUEST_SHA256: ${{ inputs.root_request_sha256 }}
+        run: |
+          python3 -I -B - <<'PY'
+          import hashlib,json,os,re
+          from pathlib import Path
+          raw=os.environ['ROOT_REQUEST_JSON'].encode();digest=os.environ['ROOT_REQUEST_SHA256']
+          assert 0<len(raw)<=49152 and re.fullmatch('[0-9a-f]{64}',digest) and hashlib.sha256(raw).hexdigest()==digest
+          def unique(rows):
+              value={}
+              for k,v in rows:
+                  assert k not in value
+                  value[k]=v
+              return value
+          r=json.loads(raw,object_pairs_hook=unique)
+          assert raw==(json.dumps(r,sort_keys=True,indent=2,allow_nan=False)+'\n').encode()
+          assert r['schema']==3 and r['kind']=='ROOT_AUTHORIZED_CURRENT_HOSTED_LAUNCH_V3' and r['issuer']=='Root' and r['approved'] is True
+          d=json.loads(r['delegation_json'],object_pairs_hook=unique)
+          assert hashlib.sha256(r['delegation_json'].encode()).hexdigest()==r['delegation_pin']['sha256']
+          source,ref,main,nonce=d['binding']['source'],d['binding']['ref'],r['trusted_main_commit'],d['nonce']
+          assert re.fullmatch('[0-9a-f]{40}',source) and re.fullmatch('refs/heads/codex/[A-Za-z0-9._/-]+',ref) and re.fullmatch('[0-9a-f]{40}',main) and re.fullmatch('[0-9a-f]{64}',nonce)
+          assert os.environ['GITHUB_SHA']==source and os.environ['GITHUB_REF']==ref and os.environ['GITHUB_RUN_ATTEMPT']=='1'
+          member='scripts/ci/first-login-enrollment-native-source/payload/native/hosted_current_v3.py'
+          assert r['launcher']['member']==member and r['control_name']=='cachy-current-hosted-'+nonce
+          temp=Path(os.environ['RUNNER_TEMP']);request=temp/('current-root-request-'+nonce+'.json')
+          with request.open('xb') as f:f.write(raw)
+          request.chmod(0o600)
+          rows=dict(source=source,main=main,nonce=nonce,request=str(request),main_path=str(temp/('current-trusted-main-'+nonce)),control_path=str(temp/r['control_name']),public_path=str(temp/r['control_name']/'public'))
+          with Path(os.environ['GITHUB_OUTPUT']).open('a') as f:
+              for k,v in rows.items():assert '\n' not in v;f.write(k+'='+v+'\n')
+          PY
+      - name: Checkout the exact closed Source at GITHUB_WORKSPACE
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: ${{ steps.bound.outputs.source }}
+          persist-credentials: false
+      - name: Checkout the separate Root-pinned Main launcher
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: ${{ steps.bound.outputs.main }}
+          path: .current-trusted-main-transfer
+          persist-credentials: false
+      - name: Move trusted code outside the closed Source and invoke direct argv
+        env:
+          ROOT_REQUEST_PATH: ${{ steps.bound.outputs.request }}
+          ROOT_REQUEST_SHA256: ${{ inputs.root_request_sha256 }}
+          TRUSTED_MAIN_PATH: ${{ steps.bound.outputs.main_path }}
+          CONTROL_PATH: ${{ steps.bound.outputs.control_path }}
+          CACHY_OLD_FOUR_JBIGKIT_01: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_OLD_FOUR_JBIGKIT_01 || '' }}
+          CACHY_OLD_FOUR_JBIGKIT_02: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_OLD_FOUR_JBIGKIT_02 || '' }}
+          CACHY_OLD_FOUR_JBIGKIT_SIG_01: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_OLD_FOUR_JBIGKIT_SIG_01 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_01: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_OLD_FOUR_LIBTIFF_01 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_02: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_OLD_FOUR_LIBTIFF_02 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_03: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_OLD_FOUR_LIBTIFF_03 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_04: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_OLD_FOUR_LIBTIFF_04 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_05: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_OLD_FOUR_LIBTIFF_05 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_06: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_OLD_FOUR_LIBTIFF_06 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_07: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_OLD_FOUR_LIBTIFF_07 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_08: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_OLD_FOUR_LIBTIFF_08 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_09: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_OLD_FOUR_LIBTIFF_09 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_10: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_OLD_FOUR_LIBTIFF_10 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_11: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_OLD_FOUR_LIBTIFF_11 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_12: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_OLD_FOUR_LIBTIFF_12 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_13: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_OLD_FOUR_LIBTIFF_13 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_14: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_OLD_FOUR_LIBTIFF_14 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_15: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_OLD_FOUR_LIBTIFF_15 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_SIG_01: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_OLD_FOUR_LIBTIFF_SIG_01 || '' }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01 || '' }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02 || '' }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01: ${{ fromJSON(inputs.root_request_json).authorization.material_staging == true && secrets.CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01 || '' }}
+        run: |
+          python3 -I -B - <<'PY'
+          import os,subprocess
+          from pathlib import Path
+          root=Path(os.environ['GITHUB_WORKSPACE']);main=Path(os.environ['TRUSTED_MAIN_PATH']);transfer=root/'.current-trusted-main-transfer'
+          assert not main.exists() and transfer.is_dir() and not transfer.is_symlink()
+          transfer.rename(main)
+          command=['/usr/bin/python3','-I','-B',str(main/'scripts/ci/first-login-enrollment-native-source/payload/native/hosted_current_v3.py'),'launch','--request',os.environ['ROOT_REQUEST_PATH'],'--request-sha256',os.environ['ROOT_REQUEST_SHA256'],'--source-root',str(root),'--main-root',str(main),'--control-root',os.environ['CONTROL_PATH']]
+          raise SystemExit(subprocess.run(command,stdin=subprocess.DEVNULL,timeout=7800).returncode)
+          PY
+      - name: Retain only selected public context and controller receipts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: current-onboarding-control-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ steps.bound.outputs.public_path }}
+          if-no-files-found: warn
+          retention-days: 3
+          include-hidden-files: false

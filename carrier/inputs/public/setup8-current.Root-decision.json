@@ -1,0 +1,57 @@
+{
+  "accepted": true,
+  "archive": {
+    "arch": "any",
+    "bytes": 33900,
+    "package": "cachy-asahi-setup",
+    "sha256": "8de3bd0cf2d9333b41925fecdef5cbfe2ec6d40c3424d90746182142e0c7dc47",
+    "version": "0.3.0-1"
+  },
+  "holds_preserved": true,
+  "issued_at": "2026-11-16T06:52:14.753704+00:00",
+  "issuer": "Root",
+  "limits": [
+    "Fresh TEST signature and public-only trust verification on unchanged already-qualified Setup8 archive only",
+    "No new package build, current onboarding lifecycle, native16K, M2, performance, production trust or release acceptance",
+    "No actual owner/runtime/image/trust/admission or native dispatch granted"
+  ],
+  "public_test_key": {
+    "bytes": 437,
+    "fingerprint": "D9D7A9FC25B9914CF6F2CE55952AEDD8A209B4C0",
+    "sha256": "01ffe16c6215c2030914d0cfc7f27f14ae15cb58da1e4723ac1651c423c1e289",
+    "trust_scope": "TEST_ONLY"
+  },
+  "public_test_key_file": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-setup8-TEST-sign-r1/setup8-TEST-public.asc",
+  "qualified_native_component": {
+    "bytes": 6290,
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/setup8-explicit-validator-source-native-actual-20261027/Root-native-component-qualification.json",
+    "sha256": "a0b03e6b8a66836f64bca0600b0438cc8111ed0fd325698b30784ccbc659927a"
+  },
+  "schema": 1,
+  "signature": {
+    "bytes": 119,
+    "sha256": "76c8b8e40006e67cc846a8346206516afaaac58140469112e98d36ac7c1de587"
+  },
+  "signature_file": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-setup8-TEST-sign-r1/0038-cachy-asahi-setup-0.3.0-1-any.pkg.tar.xz.sig",
+  "signing_execution": {
+    "bytes": 1258,
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-setup8-TEST-sign-r1/execution-result.json",
+    "sha256": "33f3dc101645c7f966a021e0d8be7a271f15e34b0a2b7670b35f498f05a318b5"
+  },
+  "source": {
+    "artifact": "12728587696",
+    "artifact_digest": "sha256:2f27ac455f2a1bd1961d2b9c4021849eac7ecf1d24c01e35147298f2f35f25ba",
+    "attempt": 1,
+    "job": "122143535275",
+    "package": "cachy-asahi-setup-0.3.0-1-any.pkg.tar.xz",
+    "package_bytes": 33900,
+    "package_sha256": "8de3bd0cf2d9333b41925fecdef5cbfe2ec6d40c3424d90746182142e0c7dc47",
+    "ref": "refs/heads/codex/setup8-explicit-validator-source-v5",
+    "run": "40490674681",
+    "source": "5d0f5ae6331807704a8ebafc7922972629e0b96f",
+    "tree": "10a8649ee4e9df0dcf5e7ef3e8bf62d1cc562a78"
+  },
+  "status": "ACCEPTED_PRIVATE_SETUP8_PACKAGE_TEST_ONLY",
+  "trust_scope": "TEST_ONLY",
+  "verification_proof_sha256": "88e3475858e0d5273316916a8f5acf59d851a89d7d2e47b61e28ecc07a045713"
+}

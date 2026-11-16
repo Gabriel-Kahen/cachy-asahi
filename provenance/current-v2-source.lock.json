@@ -1,0 +1,308 @@
+{
+  "actual": {
+    "Reader": null,
+    "Root_acceptance": null,
+    "artifact": null,
+    "job": null,
+    "native_pair": null,
+    "ref": null,
+    "run": null,
+    "signed_lifecycle": null,
+    "source": null
+  },
+  "files": {
+    "packages/tools/cachy-asahi-first-login-ui02/.SRCINFO": {
+      "bytes": 2060,
+      "mode": 420,
+      "sha256": "ddbb60e0ecde42612edbb796139d44531d039b35a7a30d184315908958b26b5f"
+    },
+    "packages/tools/cachy-asahi-first-login-ui02/LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-first-login-ui02/NOTICE": {
+      "bytes": 384,
+      "mode": 420,
+      "sha256": "dfa0e6f1fef4442602ca136c68f6e7eb23f887c0e799a2500792df26affc3012"
+    },
+    "packages/tools/cachy-asahi-first-login-ui02/PKGBUILD": {
+      "bytes": 2703,
+      "mode": 420,
+      "sha256": "5e034915e807e2ccc27909aced7b4dfa7b9f287aeee2756fa523196d7e40e713"
+    },
+    "packages/tools/cachy-asahi-first-login-ui02/README.md": {
+      "bytes": 7362,
+      "mode": 420,
+      "sha256": "067cfe135d87f12581d2e785ae34d750fb5158c11c8716ec496798dc3e1a762c"
+    },
+    "packages/tools/cachy-asahi-first-login-ui02/RESULTS.md": {
+      "bytes": 6906,
+      "mode": 420,
+      "sha256": "5ceb60c70538fc205d3ceb7e9644e9bb3b9084b5df2110cab23df345711d1f4b"
+    },
+    "packages/tools/cachy-asahi-first-login-ui02/bridge.py": {
+      "bytes": 17446,
+      "mode": 420,
+      "sha256": "91c565b0a525343c12e5563c4d126a571232a56c536806d4ccca07050392a2db"
+    },
+    "packages/tools/cachy-asahi-first-login-ui02/cachy-asahi-first-login-ui": {
+      "bytes": 432,
+      "mode": 420,
+      "sha256": "0943cc4063c4a802d5c835676c056a2e3320e93732208295bfd80f0d26aa5883"
+    },
+    "packages/tools/cachy-asahi-first-login-ui02/first-login-entry-fixture": {
+      "bytes": 296,
+      "mode": 420,
+      "sha256": "a5e2b72ff58eac2763c0ad65f36c0c883a60ce20e97c38acc4bace9d30a18144"
+    },
+    "packages/tools/cachy-asahi-first-login-ui02/first-login-fixture.py": {
+      "bytes": 10534,
+      "mode": 420,
+      "sha256": "b4505e393a2913048136c16b62a4355da133c32536cbae60a1c3c65f4483b1d6"
+    },
+    "packages/tools/cachy-asahi-first-login-ui02/gui.py": {
+      "bytes": 13454,
+      "mode": 420,
+      "sha256": "4065166093f380a186ca45b29298ffb61ce10d57fb31e05ba2c201d6628aece5"
+    },
+    "packages/tools/cachy-asahi-first-login-ui02/io.github.GabrielKahen.CachyAsahiFirstLogin.desktop": {
+      "bytes": 247,
+      "mode": 420,
+      "sha256": "c21993e58240c62ac724c8310ab70c10db72d95abd94f4ecdfb3af3e82716f30"
+    },
+    "packages/tools/cachy-asahi-first-login-ui02/setup8-fixture.py": {
+      "bytes": 45116,
+      "mode": 420,
+      "sha256": "724a37c9832d607455aeda1d929f0ee265ce268aecb64be5e00065c1edf85cf0"
+    },
+    "packages/tools/cachy-asahi-first-login-ui02/source-provenance.json": {
+      "bytes": 3136,
+      "mode": 420,
+      "sha256": "fd2bcb2d61acc077f41ab8e5ec3956760739c40c25366521995c2fe3041de3da"
+    },
+    "packages/tools/cachy-asahi-first-login-ui02/test_bridge.py": {
+      "bytes": 20204,
+      "mode": 420,
+      "sha256": "b730cbe9b2d27d08b6354eab591ad09d3592a9e8d4a10744cb96a4cf519f9009"
+    },
+    "packages/tools/cachy-asahi-first-login-ui02/test_delivery.py": {
+      "bytes": 7467,
+      "mode": 420,
+      "sha256": "a0757d0a5180881a40c57dd2f061723981374d17bb2f603f14a2b90560440b5e"
+    },
+    "packages/tools/cachy-asahi-first-login-ui02/test_gui.py": {
+      "bytes": 10458,
+      "mode": 420,
+      "sha256": "0cf676397194a9615db973f4328d4bf60714b9dc8874aeb2d598942b5a395981"
+    },
+    "packages/tools/cachy-asahi-first-login-ui02/test_support.py": {
+      "bytes": 2571,
+      "mode": 420,
+      "sha256": "7385480f0fa3d111bebbc2d09614f6f989cad6d31586db492be3c93b41712225"
+    },
+    "packages/tools/cachy-asahi-first-login-v3/.SRCINFO": {
+      "bytes": 1704,
+      "mode": 420,
+      "sha256": "be5253a32d7444065ea876455c0bb99ea1ffc47759bce864431abaf07018a2f7"
+    },
+    "packages/tools/cachy-asahi-first-login-v3/LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-first-login-v3/NOTICE": {
+      "bytes": 430,
+      "mode": 420,
+      "sha256": "6aa0a8736adb815343fe56d530df8caa77605896e1eb8984c40e3cc669d86b35"
+    },
+    "packages/tools/cachy-asahi-first-login-v3/PKGBUILD": {
+      "bytes": 2509,
+      "mode": 420,
+      "sha256": "1d605572877a82a94aae8acf9fc56decc24be4c2dd3df2d331da1979643c78a5"
+    },
+    "packages/tools/cachy-asahi-first-login-v3/README.md": {
+      "bytes": 5579,
+      "mode": 420,
+      "sha256": "e426fcf02296865fb6367fd04d200a4333dab58e66c943a9be5f7a0f5f2eb697"
+    },
+    "packages/tools/cachy-asahi-first-login-v3/RESULTS.md": {
+      "bytes": 2459,
+      "mode": 420,
+      "sha256": "b5394763e0f3598008fdc508aaa1349dc3764fb4a47733c34e9a0a74e35504f8"
+    },
+    "packages/tools/cachy-asahi-first-login-v3/cachy-asahi-first-login": {
+      "bytes": 296,
+      "mode": 420,
+      "sha256": "a5e2b72ff58eac2763c0ad65f36c0c883a60ce20e97c38acc4bace9d30a18144"
+    },
+    "packages/tools/cachy-asahi-first-login-v3/check-sync.py": {
+      "bytes": 1575,
+      "mode": 420,
+      "sha256": "929c60ebb939c7ea4d46d74ddedcaa219fb53285bce25c85ea8d71595d952e48"
+    },
+    "packages/tools/cachy-asahi-first-login-v3/first_login.py": {
+      "bytes": 10534,
+      "mode": 420,
+      "sha256": "b4505e393a2913048136c16b62a4355da133c32536cbae60a1c3c65f4483b1d6"
+    },
+    "packages/tools/cachy-asahi-first-login-v3/setup8-fixture.py": {
+      "bytes": 45116,
+      "mode": 420,
+      "sha256": "724a37c9832d607455aeda1d929f0ee265ce268aecb64be5e00065c1edf85cf0"
+    },
+    "packages/tools/cachy-asahi-first-login-v3/source-provenance.json": {
+      "bytes": 2365,
+      "mode": 420,
+      "sha256": "e73d53d59030b7722cdde23488b4ebcda4a3d6a60d5fa295012ba289d2364c10"
+    },
+    "packages/tools/cachy-asahi-first-login-v3/test_delivery.py": {
+      "bytes": 9022,
+      "mode": 420,
+      "sha256": "e5bfb628033dd373e583770071c367138960dc381041f2819469c9b879fe1b69"
+    },
+    "packages/tools/cachy-asahi-first-login-v3/test_first_login.py": {
+      "bytes": 13819,
+      "mode": 420,
+      "sha256": "d90dc4f08c3522a425ad8b2fd33b4da5d592260330b8049bb46f65289a18045c"
+    },
+    "packages/tools/cachy-asahi-repository-enrollment-v4/.SRCINFO": {
+      "bytes": 1458,
+      "mode": 420,
+      "sha256": "37c875abef3f6be050b42ba37dab12418f6ce31a3cd97dd4386a2e4d5ad70f35"
+    },
+    "packages/tools/cachy-asahi-repository-enrollment-v4/LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-repository-enrollment-v4/NOTICE": {
+      "bytes": 509,
+      "mode": 420,
+      "sha256": "66c974199c3c94b0383dc296133883530307e89b7e54815e59d87543c1da70d0"
+    },
+    "packages/tools/cachy-asahi-repository-enrollment-v4/PKGBUILD": {
+      "bytes": 2482,
+      "mode": 420,
+      "sha256": "d19396daa200ff812a0238f6608577f545e204420b80ed95f61f6f4df41e4cbe"
+    },
+    "packages/tools/cachy-asahi-repository-enrollment-v4/README.md": {
+      "bytes": 5094,
+      "mode": 420,
+      "sha256": "5c6afde675e8630b357f65f4c303de333b482f70a7ae340115e7dbb76ca335f0"
+    },
+    "packages/tools/cachy-asahi-repository-enrollment-v4/cachy-asahi-repository-enrollment": {
+      "bytes": 1595,
+      "mode": 420,
+      "sha256": "11ce3cea6422c5b97c1e9cc97f8cd5abddddfb3199becf8a4c2ad8c74cb432a9"
+    },
+    "packages/tools/cachy-asahi-repository-enrollment-v4/payload-map.json": {
+      "bytes": 1821,
+      "mode": 420,
+      "sha256": "f12d121d5f9e26f74b33263668b78b98d746a84c028e17a1c9d1696c375a8d05"
+    },
+    "packages/tools/cachy-asahi-repository-enrollment-v4/private-source.tar.gz": {
+      "bytes": 37798,
+      "mode": 420,
+      "sha256": "3ad158d06e0a084bf734beac5b8e76d622e354fb690ae8bed4af67a60c44222b"
+    },
+    "packages/tools/cachy-asahi-repository-enrollment-v4/source-provenance.json": {
+      "bytes": 5087,
+      "mode": 420,
+      "sha256": "ce5d7a77744b9ea35d42dc92332888b88e52019e88789d242fd47cdb5af747cb"
+    },
+    "packages/tools/cachy-asahi-repository-enrollment-v4/test_package.py": {
+      "bytes": 19521,
+      "mode": 420,
+      "sha256": "052a3b274326929d87f273a74959094fe092e47bffea3f9416ddc46258ce096e"
+    },
+    "packages/tools/cachy-asahi-repository-enrollment-v4/test_release.py": {
+      "bytes": 43541,
+      "mode": 420,
+      "sha256": "7ee9e693d4574c6bb11dcc927937475742b9fa7a6f8e988608532c1e1bab5f2e"
+    },
+    "reviewed/enrollment.json": {
+      "bytes": 977,
+      "mode": 420,
+      "sha256": "2c1c199c6080eecb1334d4a095b6da10c19ae23378d79d770994a7718a21d84b"
+    },
+    "reviewed/first-login.json": {
+      "bytes": 1137,
+      "mode": 420,
+      "sha256": "b52e62949f89e0fe4030ca21965cc97de931447c77233755804bf5c4430feb3a"
+    },
+    "reviewed/ui.json": {
+      "bytes": 1617,
+      "mode": 420,
+      "sha256": "87de39be7d9182c560dc0c7bbc5d39488437b8c8715ef34b00b9d66775481177"
+    },
+    "scripts/build/build.py": {
+      "bytes": 11299,
+      "mode": 420,
+      "sha256": "e520b37e5dfc285914203cfab99daecc80543505fef7ded6704b3fb06f001d45"
+    },
+    "scripts/build/compare.py": {
+      "bytes": 5820,
+      "mode": 420,
+      "sha256": "4198864c264642b196a090a67b36185e5c194e38edc4cb928d08eb65b9f710cd"
+    },
+    "scripts/build/container-entry.sh": {
+      "bytes": 1787,
+      "mode": 420,
+      "sha256": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24"
+    },
+    "scripts/checks/package_checks.py": {
+      "bytes": 19289,
+      "mode": 420,
+      "sha256": "314e8b4a0920b3f6d93619fc74ad1d63a6210d1b17b925618451b493d2610a1a"
+    },
+    "scripts/ci/first-login-enrollment-native-source/payload/native/build-tools-contract-v2.json": {
+      "bytes": 28609,
+      "mode": 420,
+      "sha256": "b38f63e2b2a4d3af501540da4251d29db65d9b1226052429df6e428d418dde33"
+    },
+    "scripts/ci/first-login-enrollment-native-source/payload/native/build_tools_alpm_v2.py": {
+      "bytes": 27087,
+      "mode": 420,
+      "sha256": "d4197495e0281aecfd590e76ed908cd1fcf46b1934bc02709e47a7dac49abb73"
+    },
+    "scripts/ci/first-login-enrollment-native-source/payload/native/build_tools_tools_v2.py": {
+      "bytes": 34468,
+      "mode": 420,
+      "sha256": "eb1ff0ee8aefc2c0e32b38520e1bf0dabcbb9308081a24e2f9c378366a3cab13"
+    },
+    "scripts/ci/first-login-enrollment-native-source/prepare.py": {
+      "bytes": 15159,
+      "mode": 420,
+      "sha256": "f0c9d7aaaad08ab78130aae3fb4b3e6b1856173f6b5c8e3ee83163d8b5ede395"
+    },
+    "scripts/ci/first-login-enrollment-native-source/profile.json": {
+      "bytes": 62259,
+      "mode": 420,
+      "sha256": "ad874751a48cfd7e7d94f5d38d79caa138679be067cb113ead35150f0d3c78fa"
+    },
+    "scripts/ci/first-login-enrollment-native-source/successor_v2/inputs.TEMPLATE.json": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "c0756e0f6b9a8aff76e4d254f2c6ec7cbbad69586cb873a98c73998e659f72e1"
+    },
+    "scripts/ci/first-login-enrollment-native-source/successor_v2/native.py": {
+      "bytes": 13703,
+      "mode": 420,
+      "sha256": "cde384acd8574ddfcb07f7316ad4d24349f5b958ac6b2cea48a3a6aff480c827"
+    },
+    "scripts/ci/first-login-enrollment-native-source/successor_v2/prepare.py": {
+      "bytes": 4598,
+      "mode": 420,
+      "sha256": "259e90e6677403fb50b1b500cece835b273ccc8a717a20f3c6f8606dd3533ef3"
+    },
+    "scripts/ci/first-login-enrollment-native-source/successor_v2/profile.json": {
+      "bytes": 21679,
+      "mode": 420,
+      "sha256": "8ad3641649e395b1202363e3368f713f65252a743b12e3a8d69430e4f82bc171"
+    }
+  },
+  "kind": "CURRENT_FIRST_LOGIN_THREE_NATIVE_SOURCE_V2",
+  "operation": "first-login-enrollment-ui-current-v2",
+  "schema": 1
+}

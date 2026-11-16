@@ -1,0 +1,42 @@
+{
+  "candidate_version": "0.1.0-3",
+  "canonical_sources": {
+    "LICENSE": "LICENSE",
+    "README.md": "docs/first-login.md",
+    "first_login.py": "scripts/install/first_login.py",
+    "setup8-fixture.py": "packages/tools/cachy-asahi-setup8/cachy-asahi-setup",
+    "test_first_login.py": "scripts/install/test_first_login.py"
+  },
+  "change": "Fixed helper PATH/locale/Python import environment and cwd; isolated printed follow-ups; explicit roots and operation/ownership behavior unchanged",
+  "check_dependencies": [
+    "zsh"
+  ],
+  "fixture_commit": "6eb5fcf4cd3d0b6b88ec1cb88622fa8f7a80f35f",
+  "fixture_delivery": "Setup8 fixture is check-only, never installed; runtime uses separately installed /usr/bin/cachy-asahi-setup.",
+  "hardware": "NOT RUN",
+  "implementation": "Exact current maintained first_login.py, pinned by input_sha256; unselected isolation correction",
+  "implementation_repository": "https://github.com/Gabriel-Kahen/cachy-asahi",
+  "input_sha256": {
+    "LICENSE": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+    "NOTICE": "6aa0a8736adb815343fe56d530df8caa77605896e1eb8984c40e3cc669d86b35",
+    "README.md": "e426fcf02296865fb6367fd04d200a4333dab58e66c943a9be5f7a0f5f2eb697",
+    "cachy-asahi-first-login": "a5e2b72ff58eac2763c0ad65f36c0c883a60ce20e97c38acc4bace9d30a18144",
+    "check-sync.py": "929c60ebb939c7ea4d46d74ddedcaa219fb53285bce25c85ea8d71595d952e48",
+    "first_login.py": "b4505e393a2913048136c16b62a4355da133c32536cbae60a1c3c65f4483b1d6",
+    "setup8-fixture.py": "724a37c9832d607455aeda1d929f0ee265ce268aecb64be5e00065c1edf85cf0",
+    "test_delivery.py": "e5bfb628033dd373e583770071c367138960dc381041f2819469c9b879fe1b69",
+    "test_first_login.py": "d90dc4f08c3522a425ad8b2fd33b4da5d592260330b8049bb46f65289a18045c"
+  },
+  "native_arm": "NOT RUN",
+  "package_installation": "NOT RUN",
+  "parent_implementation_commit": "409cb24ba224508aeea1b692b1a164505cd0101a",
+  "release": "NOT ADMITTED",
+  "retained_parent": "packages/tools/cachy-asahi-first-login 0.1.0-2 unchanged",
+  "runtime_dependencies": [
+    "python>=3.11",
+    "cachy-asahi-setup>=0.3.0"
+  ],
+  "schema_version": 1,
+  "source_kind": "local original project code, opt-in development package",
+  "test_adapter": "Only canonical test root and two Setup8 fixture paths change; check-sync.py records and verifies exact substitutions."
+}
