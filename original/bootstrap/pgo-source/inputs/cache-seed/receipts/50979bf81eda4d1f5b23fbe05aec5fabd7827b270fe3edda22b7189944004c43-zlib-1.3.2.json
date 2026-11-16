@@ -1,0 +1,27 @@
+{
+  "inputs_sha256": "50979bf81eda4d1f5b23fbe05aec5fabd7827b270fe3edda22b7189944004c43",
+  "legal_acceptance": false,
+  "object_path": "objects/bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16",
+  "purpose": "source-cache-receipt",
+  "schema_version": 1,
+  "source": {
+    "license": "Zlib; caller provenance record only; no legal approval",
+    "license_evidence": [
+      {
+        "bytes": 1002,
+        "id": "zlib-license",
+        "path": "notices/LICENSE.zlib",
+        "sha256": "e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2"
+      }
+    ],
+    "material": {
+      "bytes": 1502830,
+      "id": "zlib-1.3.2",
+      "path": "sources/zlib-1.3.2.tar.gz",
+      "sha256": "bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16"
+    },
+    "revision": "zlib-1.3.2 release archive; exact archive SHA256 pinned",
+    "url": "https://zlib.net/zlib-1.3.2.tar.gz"
+  },
+  "source_completeness_accepted": false
+}
