@@ -56,7 +56,7 @@ def public_file(path,root,uid):
 
 
 def trust_snapshot(root=Path('/'),uid=0):
- root=Path(root);names=('etc/apt/sources.list','etc/apt/sources.list.d','etc/apt/trusted.gpg','etc/apt/trusted.gpg.d','etc/apt/apt.conf','etc/apt/apt.conf.d','usr/share/keyrings')
+ root=Path(root);names=('etc/apt/sources.list','etc/apt/sources.list.d','etc/apt/trusted.gpg','etc/apt/trusted.gpg.d','etc/apt/keyrings','etc/apt/apt.conf','etc/apt/apt.conf.d','usr/share/keyrings')
  rows={};total=0
  for name in names:
   path=root/name
@@ -74,7 +74,7 @@ def trust_snapshot(root=Path('/'),uid=0):
    need(len(rows)<=1024 and total<=16*1024**2,'bounded public repository/key/trust configuration')
    if relative.startswith('etc/apt/'):
     need(not re.search(rb'(?im)(?:(?:trusted|allow-insecure|allow-weak|allow-downgrade-to-insecure)\s*=\s*(?:yes|true|1)|^\s*(?:Trusted|Allow-Insecure|Allow-Weak|Allow-Downgrade-To-Insecure)\s*:\s*(?:yes|true|1)\b|AllowUnauthenticated\s+["\']?(?:true|1)|AllowInsecureRepositories\s+["\']?(?:true|1)|AllowDowngradeToInsecureRepositories\s+["\']?(?:true|1))',raw),'normal APT signature policy; insecure source/config refused')
- need(any(n.startswith('etc/apt/sources.list')for n in rows)and any(n.startswith(('usr/share/keyrings/','etc/apt/trusted.gpg'))for n in rows),'existing normal repository and public key configuration required')
+ need(any(n.startswith('etc/apt/sources.list')for n in rows)and any(n.startswith(('usr/share/keyrings/','etc/apt/keyrings/','etc/apt/trusted.gpg'))for n in rows),'existing normal repository and public key configuration required')
  return rows
 
 def cache_census(path,deadline,limits,retiring=False):

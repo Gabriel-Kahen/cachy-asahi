@@ -122,7 +122,10 @@ class Controls(unittest.TestCase):
  def test_public_trust_snapshot_never_follows_authentication_paths(self):
   for name in('etc/apt/auth.conf','etc/apt/auth.conf.d/private'):
    path=self.root/name;path.parent.mkdir(exist_ok=True);path.symlink_to('/NEVER_OPEN_CREDENTIAL_DATA')
-  self.assertFalse(any('auth.conf'in name for name in Q.trust_snapshot(self.root,os.getuid())))
+  key=self.root/'etc/apt/keyrings/repository.gpg';key.parent.mkdir();key.write_bytes(b'FENCED PUBLIC repository key');key.chmod(0o644)
+  before=Q.trust_snapshot(self.root,os.getuid());self.assertIn('etc/apt/keyrings/repository.gpg',before)
+  key.write_bytes(b'FENCED changed PUBLIC key');self.assertNotEqual(before,Q.trust_snapshot(self.root,os.getuid()))
+  self.assertFalse(any('auth.conf'in name for name in before))
  def test_retention_excludes_failed_cache_but_retains_public_prerequisite(self):
   (self.out/Q.CACHE).symlink_to('/NEVER_OPEN_PRIVATE_CACHE');(self.out/'owner-report.json').write_bytes(b'{}');(self.out/'host-prerequisite.json').write_bytes(b'{}')
   self.assertEqual(set(R.selected(self.out)),{'owner-report.json','host-prerequisite.json'})
