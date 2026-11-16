@@ -452,6 +452,19 @@ jobs:
           test "$(git -C .rust-source361-data-repository rev-parse HEAD^{tree})" = a5973bcc4cca083492e365c62e282d6f4f8075b8
           git -C .rust-source361-data-repository -c tar.umask=0022 archive --format=tar HEAD | tar -xf - -C "$rust_source"
           python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/independent_reader_v15/test_source.py --source-root "$rust_source"
+      - name: Check Rust Source16 and independent Reader16 fenced DATA
+        run: |
+          RUST199_V16_PARENT="${RUNNER_TEMP}/rust361-source-DATA" python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v16/test_data.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v16/test_runtime.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/independent_reader_v16/test_reader.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/independent_reader_v16/test_runtime.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/independent_reader_v16/test_mounts.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/independent_reader_v16/test_qualification.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/independent_reader_v16/test_preparation.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/independent_reader_v16/test_owned_bind.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/independent_reader_v16/test_actual_failure.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/independent_reader_v16/test_preservation.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/independent_reader_v16/test_outcomes.py
       - name: Check eight portable notice controls; private capture replay remains Root-local
         run: |
           python3 -I -B -Werror::ResourceWarning - <<'PY'
