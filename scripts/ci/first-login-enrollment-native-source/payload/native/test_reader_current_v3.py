@@ -6268,6 +6268,175 @@ TRUSTED_MODEL_FIXTURES.update({
 })
 
 
+# The current Context4 body is opaque trusted DATA, never imported or invoked.
+TRUSTED_MODEL_FIXTURES.update({
+    'current_context_v4':({'bytes': 43482, 'sha256': '2d08f9572b3f5f89d3ebac2b32e6d41a00ff4929739c35780c7c96a1d3d3b21d'},
+        'c-rlKYjfL1mgsl=3T&ooLE0qsu&mh1pl&HP?Px}pRFdq;tinP;BqSlG2wsAetnvE4-'
+        '}C6l=|+R3ob2qEo2pm@`gOYd^y%})U!wEVx4(9eieWyf^6ud%pUjKvBA@L?9}X`ze)!>sPx-'
+        '7W%1J(o&dbGYn0K$r#bgu>%gH?dGLPOKTpUChyvV;y$HlOiL&@EAoX_)77k@#^$vnzN<#Z0c^form$`YOz^IIHgnBm)~s3LfdhS_+W&*BRDn&-'
+        '1gHjW-'
+        '{%W>YlnPt?+T~Q$@5kZj69(x<dWi*|Y_r)lmMYH_>F7j&LiQb>SkIHF2qrN*)RoqO9$xT$wq6xgZ&!cQOhlkl>Qbo7<Ebm1ZFnIn2UT@sLfDZF'
+        'fKFq5M>RjdH@&Ums?(P=z>}s6<M37z=lVYC3koUMc@EV}YrgNUn4UADm_q!X#yo$<)NmLDQ^Si7A{ZtD86jzHThOooj?xKR0eg4>sU_t<bUR)S'
+        '>mX9-lVw{h9xEmV<Ea_|>%^#<Er60;_W8?I!|F-|8e|~;)mYyCSM@cj)hV$0d<2<jDo$cMdEm(=$Z0F@(66e?1%WP-'
+        'w)sNY5`{mYde*JRq<&S$Wvf<XNomZpL-thIS;mg-AUhcgZUBCYEYUldp?$&U4y_;{1^4FuCtGK<9it%8qSscfIS&2%g#RTzaIxFroSiMm`&Tn|'
+        'ha7kz*aeraor)4#-=Glz#>!)Z^Mw5L0P|iN%Hq!o8fJ?k@(|icnCcC@Ms#{#VYB2?*gtDtg+P3^lQOyw-'
+        '2npx2MK#|vXtiO`D*6T613G16*pw(60}@B05;k?>;%?3z0Z8wQ`7evBUUWE#rT}&^T#U0>X9EZQy}YWrv%G?%PywD?Rr4840KvS2@d3pEn{a<M'
+        'kbqQ0{s7N+`5drno~d);>_5(MTwLkL-'
+        'z$LMV#D>UyaPDqSS3=gPvNl>oi1kiX;~Ft@KLvz<@y(_`P`sbahGpwoSgR04lWK)5ToMjVph$&<MO7Mbo0rq9FOl{CAy2EJ6z0W`15`z-'
+        'gw(T>c2N_&Q4A)QuV6;HhuH)?5ux$k)9m?d~$I1_VD;Upwi(dC`<dl_TPNOX6dIF@y45z<BR^U7udzp)~X)0IXplA*gx}{sPfaZllNx_AE@4kg'
+        'J08khe!QRgugCME)I_PC%!y~_Ita}wzqb6pFP{@MB6*B>;s&ijiW=rXROtV@3Jo`P`Nw6-'
+        '?Yl%*p8~W6UFm#o{i;;t3@#e8kG*G3wYj$%zvijF25^hk13s3*<xC74|<eY`B1_6>mPq20Nx*7{POYV^xzGy+c{QLZ_fIsC+CM3Cujc@FVBBDa'
+        'H_nsu$Y%0kJH1qvKG8JxVY$lIK2>W|90}Tc>2f5+27wCo%|!*r73lX$Jghl2XFfL4n{fdpQSLZ!?Tm)53t9gA60mAE@~c}z4=8v9v^(@!?L_PJ'
+        'U%$mv=7f_3X~eQA{!2KAkULwo*ctr22wm3<<oqEG%7XMl&tnH8&|p9DfsU;n~ff_SzfP)WIE5PdP#d@V`G$G1NF*Bt@3jR2>)YypSmrsiJX+5_'
+        'suA?tN;@6DH|{H{%lsxT3B24FfAsnS@xhB&+_?VHjy-boO8J$^NK|D_>szbxA~V*aRawxtF8OZC&O|Cz}@4hZtpE5E4|U;Zd!3M^bM3D{hU8m$'
+        ';E7;)^RdV;A8-eDj(8GHc=CQ9{)Cp+db~SrALFC6(0eZ4v@8Jq7IfCmsSa{Hi8x@IL(c&hpp(Zk)C7p*92SRF+rN0>-'
+        '+R?=RkA#2(_t0TDT0TRtwKfTdZ_mEyi=el&{~+yKA81FttuZbA_oz*l6Fu0fG=J(bi!N>IVQBEs*`eD}jK3DhdR5#7ig`z_2ugfQHtat86&%(H'
+        '4x$Y*g{0l~=#Rb(hkl(%Z89oX}4XQ^kL99RXefB?8(GJ2lSku0~mu?(<X>`o@!TqIenvKW?}E{UCT~OAzOv1x=HoA=aw^wn<I-'
+        'FVVrcD&g(*qQXmaahK1EVN?RMbdCH}3s)NWE#woU?fmuY*KOKj0HQ0pg&Q7w(+H|S*r+cUqgDYt(@j3pm<j_W+nwmPxVcSso;}-'
+        'p(cP|L8RI<hcgSD@2ngO^)%M^IY%b7Djp0vNfy0~1&=5j8hblBIt|g6I<#YWy0i=x0J;0|o{suo8$EjqKI2<4e3IJ#Bm#XzZ&EDK`?GPN7dWZo'
+        '*1l$P$1Z?s30`B*0KD=$kms{P}S@(MIb#M1utPY512*3ethu;FEz?vX0iwyY6Wzj(BGp|ZuKX!Jvs3iXFw^*M+wc)XnPxL6jKiyq{IKki`Hw4G'
+        'Y;eS-'
+        'W77XkVEB1;i1xBqLFXlkHc!TD%78cR|FnSQa0Cdy>xxR`(+}^Wi5vu@UY<a7B(EYEh`!872Ui!Q{cn&K%<x!@3POZ3yyWi`@ZK6w4d?^MJ=RF>'
+        'd%L;I_%C2)Iqq$QL?8GRqhO=S{Y%~(aI`u6d>gY)?2{~2ocrF5H>Td(1tsT)orH}#oz0_R}9EkZ0ef_+Tg!uCFfGIRDk3Vwzo4#VSFx4t1*QI-'
+        '*&4EbgtsCI0=dhhv-ibc9Ww+Hl9p(4b?>sFgrTTRT6iEG?jEl+VI6!Z)a8Zm@wHx!RD*mP0-XTw&PAc^{)Q{#ep5@ty@QH6n&628FXdFh=C0w-'
+        'I)_}F#B4Nw{YFUn9!ST2bGa$BbUyVU{83Btldt^x-E1DC796gLzRy`1>C#`rB;D(2j^z7})@zFn{|K_K+hiCma$Z6^qZ;noom*;M-N6-'
+        'Z_UGy}cJ?=XfE~2x<Z5WbK{BnDL;NHE%TVRO=JXmc#fR0bzog4uN>H*jR1fQkXqlCwG?`x<?2dfn-'
+        'G;2dJ*$KJe!Hg!^T^@wd2k96@nxm69e_t2Gs~lD@=i#nVY-?SQY$@RczU`f-'
+        'hv#Sg_bsm9Q@G67Vc!u_Bcf~@x@!v&ffdK)Vm;s4^T_Qx`p;;q+}ha@*JcGWH|TL_5C`7`k3^e}+M0jitS;g5+A?Jiu*z`rjmzQZXrHD`2jzOy'
+        'iSB?cHqseD_<XyIU9{W#{)PcRkxh~3Z&63?hSIRl6QbvVVqQ<X4(2wdLjx~jf9+`+iNA`tVun6(8PQbpPVS})f?thl2^@3qqyuM*`0?uT4p+TW'
+        'OgSEX2KhFd+z{W4D~qcMTO=l-'
+        '2<BBB_kJ%6K5G@q77C|6oV@M(IK{^u<*l(e<RIq2u_#z~f^=X%e9R>J*3KSNN4UWXP>AHIRrN4ataU&sUj`i*>wyG4g$1a_RBfY-bT-'
+        '`zx*)X?>e^5t^OM!^0H0c1KSrp&Gnz=$B4)5Ac@MQPw9mjQCdhfUkc{{6ACRh8tRtNv0ube}?1nvq0zhj?wv|w4c`4lH+H_(Ah6}r=^3p;N3cy'
+        'Cr5~INrb*~uek$Vwny{+t3%2L$D2p}bGCPVsyFdANd20@Tt3GI(6W3?xj#yEl4Wssl>98A#u<=6!*9Ez5@q#6P-'
+        'Rc*EQM=OlZFAm=KQ>3aft&vhdYyBeW=ImtDG_G)UfJFv?5#<MVZph?ZDHf+9CI-6&DTe+mCin-GdH4tThx~3jr+b`grbsj5Z|=kzc<9|N<e{%F'
+        '^&kUOAjVQ$tTmn?7{K+zIjuGw_HmQ>N9YX!4R?iw0RF%rrFw~zabFVm2PJxb14lTL1$0?RE|l56O@IPuz?XdVQ*^z+^MZQzO&BR!Oh6Hu&+e%R'
+        '6^W7REGj2sEiE(4XV!+7b>Jc3JiEbFV?Hn&eg>M3JFzJ6-'
+        '*IuB4<Co)JZ`TRWS}=df3XL0Ml_9xM$_Uc)N}<djoza)pO(X0l)1KQH2^a~SgdMQ^n~0V@QRtR7#eCDU&G^V9j{GicK~mST0`0+))4U`Dc#qiP'
+        '(RF4F|EYDdCRDeO6-^#0~xlPS-F_<+AH$~v9qwgKsDi#iN(!pC5q7{wHvr%g_iGZDNNevVG$l<XJM7N5^t<9Q3+f}=s+ip+BhV@pdC})_Mnfus'
+        '?`ptay;ySV>P(svy~3MZguuvAeLaKZNbji;i<?|^mwwB-JGwnvg_b_fnA72C|YatBhA0$!v#u7-'
+        '*7FEB*C7Vg(gwktcL1tllt1E_M5tWWZGy=n1KpAEP+%$>Vq|8k_c=}c2%IsLsG@zWo(RTj8fJlfO|N!2Qr~<)RRkspcX3#g_S4O%i$9JU{zimx'
+        'Os-3D_h?kgAmQO2DMnK?T(6&U6tin-V}O6^^L)2U95ved(`;>O0n)=a5w6d4@t4tc9tz<9H7$;Wv+!_U={q)LovUFffVLbz36H&0-'
+        ';qwGcN9sGvO`c6-@b^f0^-'
+        'HBeb(MDFrJj7#f6e!jvGuMy_V)xqDoD*#L?x{V^rqB=HpHVCtibL|(z}(NKPQ*#x0hW4+i~(aeIcn`rHFxLv~p2hG(3la_mq<g8AzyFm)Ss#_P'
+        'eSHiqbmzJK|(oJn@#=8JnShY8|j9<54hefW;#j9I|QZtxORRBqOM65vTEUI@?#W9&@;9?c)gq8#S6Qvf#SON7)^T~ZND<^1A6mQE)JY+LiyfBg'
+        '(lE?r@%pu$BAw=s97nSyahuZX>VcgqGIm0k(1$CTx4|-&_uJ9DMybhkno4p%&zqs1eZK}<sY@g3F%F%FD*WeuWJkx=gU>EPU*RNHVdSk-'
+        '95mi;SXwL>g6|GkTRkd4NwY3UtHnaA;E?tFhUiDJ(GVxI{S$v6`dL{heiU(&O_IBfr=HZmzM+0(z#MX3cSVBML13~5b_7wUF<XWe6QI8fwfJK}'
+        '?REZBf^+0`>54!L4E<-;+#K?3B1PJaXS|xvP^!#=0>Ea5Y!i`LcDH$*aBp5R!0IvLa(LcYSn@!C~92V4Ck9u(Hv_7-'
+        'S+aiO0O?beXd!<7K%K(l_R#?q+A;%&lO7i7FF`G37ku{jQ+Uk*#`B@HVjgSi~=T@FS%TX`EZbMpdRf=$Mpt;MYbdi>ex$=KNua9i<s5wZ*9T{O'
+        'BJJ+gJ8c2{0cnqjkxkW;Mt!mX2VGB^nkg^rD3kwvmji{}Fz<PStsKy}eS;9(SEZbC4P#31tLqi}ShjXPlIt0aj8Nt?*p$IY_Apr&5-'
+        'tMkOhbg<|Xw!jFW`V{et2+EAZGx?by*C3#jcJ)c_rTT=+na^MC<XEU?y{OoEEFmJsHFmp4KNLA4sD$hdJ0x+ssgL4h(rD)M<?gtHgbOQ@$5~Xy'
+        'hWVjrutaQ5=-'
+        'M6?|p0qpI~>omN6LJ8?hV@*1a)v*{VHyRtIb`VGaXvzqXHP#nvY0OQ4A3+~E|p#iw#*GqSbg+vhtCQkfbEI~1c`lY1bGE|z`PYRM7Ws;LR86;R'
+        'Rlkc~eRMroa;)K@xcL}m9Nji5exu1JTyU+$xQ{Sq%C8kv3|DTFdo&f)Waz~19sEcq-_ULstf)(Yb0=KfFtS<~p_!9LMy$=PgT%XV)}I^DKWsLF'
+        '$(C12ny@$M>eSMr55?=7aN;B29#GSs^^xTW)wNnE==Lvf1KJ|^1s2k7zNMlmKSQk@W>6;RP)1vU;+O*2E}S*!sb;hA>n*pQ28BzPRRF1;JmAx$'
+        'ixZCGKy^lgVI(x8FQ8rcnjeh{ntRCA<z<D-'
+        '>RNhk6=F~Pv)cpj>veAB!m$6hhY1cW46KzUV;9s^fNV5xA8wT1{U5p3D!rinEYQBOEWMXR^UA78#~lN1f4$Up>bH?it|6hC*z;=R_k6&yp*9xC'
+        '(Z>TCg-'
+        'O@@NH%rtIX3Oz<AdgiD}3~}TF!2_9+!G2(av>96C9<6}d@#@m4GFXWLw79M^$TJ&TRgO?80p4bjdwd*oK4^P7QK~nW4tkp6=}ptNWkfs%0UEVE'
+        'c$@_@ssvUsu@(t=CM_QtSLMnITgo8?wp5#pX*<NdY|u~am0d#1FkEg)Ihtz<kQ8g<YdZ`Q)?H>DhIW{PHV5XCM7n2E^rS}7gVc0zX?0hFRcaps'
+        'Q)qal>Wno(h}1?o#N%@TDe%Zs9W{8S9T<Iv(5YBmh852fv~%5_=(a?ZG;Ra5>#4@`mSwm*ii1vdqp@-FqZf!sn#T?|a#-'
+        'OpUvQ?TFJCCUwHu;JrJ_{KVzZ&AORO$1Ma@&!Kv5eU_b1IjJ2O>&6Hi>Fnx7?hlNdiBpe)biX<9ZB<KK}g?p(_=9VL^Z11UR*qlX{s+-'
+        'qJrT(y3&>G$fc1|M4D98lkuF+)YTrleo+$RCe1^8kJ(R~<*As5L$vN0#U`DjSXay}C$ThvXy%Cwo-$)Vz`tPdQ?$fFoHVY-'
+        '3@^M(e?xXv>!!!#XS{@wOcsT$U55?O58g^k`0MN}f&>aBWU%+L@Ijkoz;C6dklqRCj|;8nh<izKy4J;%ZM!&*(Ot_$m`m>}M2kWPd5$>m8Q@zL'
+        'Ibiidj>jQFLt*W!>aqYZ@4M4fw;YFFjB6nxwLrEOS)c?!F$NJ_R*g+oa*b1{Or^jH*Dzkzo)620~{ck<R4-'
+        'IG}P+7p99?38wrNC&piqi)*W<Mkfs#!?Tznj~w65=hJF`b2FP3N`Ke`mB%KXp3V4qUCYSfB^9nVR)9b762nmb53mV9n!pJdRYw0g#rOi)7SNM#'
+        '#dU{YqDKKf+LRD84M4Ix8+b=><O1>obj!iLcW<=bcv+9LDclYzFdQ{YIrn)<-'
+        'O+uIlQ+V&Emz~XhUt1S_5f>NH|MgNOvUR^Y!3KCjHadTs#**&_6tzTSci1)=KA7!MfQTX<9n0#Y`t5E5}LkuO-E99-'
+        '(UlAm#aRmSXvsB98tHnww|pvt|)`Do~>b_sG@e7fIa0KRE<ZQ>>mkY?v2;J;pAzNO#qa1De=@eEV?YS>u@vb&?q$UsRjzZBvA13bJk3?VguX|C'
+        'Os!c6nW7tLTNm~)SQiStXfnaY<ODS`KXx~l`1F?ekXGIJ05ka3R(k($vsQI6NQcWyyL)*3SCxF#M;*67h=u`vj(Bft{KPyP^cqOJ!m>YXu#J3b'
+        'f(C}Qx~yWP}10N2f&Q$x8O&B1>`Kt%LgyPoCOR*EkuAypxcy6<?+P!UMWw)9&l4!^E`1ezh2L(_oxhAWRz_L-'
+        'S32xjj1AOL|jZ#5^dnj$AO{Xlnlp<iWPm*Q^o)y30AKHdlYOK6Wh40SJLg%wD^9?j{QRg-'
+        'l4z{xAVJkS|3M@@sxYRj3mkFO+Hx^liVI`)W=um?gytIwMEo}iPHUec2vc6-kNvGVf-'
+        '+DL~wV|V*>woaDs^fM|%)qpodU)Cw2cJX1_t)LjM+RLS^Sc?PTXj0MEdwkl8KeD}yVZ>ba_So|oYtbO;<VNeg>83dhEFgY*^<+SC--OISY?*XF'
+        '$glX}T=0kb4<zXPkhuZx%^1YuN)#=xt7!;qh2jD?056>^85^Z|#X3XN8a390L#H^IMhWRDUrV3=mP$XRzee~orZ?(pj2RgyUG^qtjHmrcBwUw2'
+        '>WNGAsu$#9UofY<<lDp3KXI($3fAk&TwF;9&4zr!9RiPa?3*>v(EORVErCvt6tiMHo-'
+        'w9bXzuBEuC4aPczPzTxp$iW&Zil`k))L*?LiQ1UjQ0@V-JK?-H6AW%m+X}zTKP7ZNo;@RjV$BO!pJFM-'
+        't9NvO>rTLD`E;B;szKNuNmL8t7=g?aGNMHh^y@cdo%C5i!mB^a1DM=#tv9Zj#Tw*5P4hDL?abDZSezAhNNQ?A@gWB1;*cA#jq1|-'
+        'BbZ;)vAcI``8k^Il+Po(Sw3{-'
+        '`+(+Qi6e}|@e^Zfa|wujkHb{N%*DY^M?&`G5rw%*3?#8<o)u_M{dn=N`%0##@T3U0hX8l2V`nv`Qtb$Zlki<u_a_&)A`Uvf*Y}$#H>#h;Skk2j'
+        '9gmyQUDfc8I6i`1Xl?P)y0Kf2MoRbqcML`-'
+        'SO)>TP4t!FXt5OWR*e;zASVv;=V&AlA#V*{MqOZPlivrGk+TK;s?(PP9MdR2yIN;1@UCKOsPZ>l(7MsZNzUqcKyapz+5&rg3#bHl(Z~iLaA<-'
+        '~n=*rI3VALhS&GqTw^G7Ilrta|$|j|`;KQqLEX;TU2+JJX{5CV{{TKxsg})RhLNe-f-'
+        'r>v_0P6##R{=(>rzfo?xiyF~u9!=eq}tR`qKEx)wBx7a?hjQ=f|<JWrm#uaq3Uit#!}LN6eO}}^FgDVPtC(d*R1<%o02e@Z^q44Fa)oF+WzR~A'
+        '!M&_ldj|V`byt>_0!IZ>(%^cTaA$w4Ivf2H@Tr!*3X4Q>XX_;{5se(8oSj|v62d-kZx|m9}8Zb^4e-'
+        'BG#O}j^czhMjBSo`c1$A2)Ml4YGH!fU2X>8AATx5Ev{o&KVR`<O(}Tk^bW;J4S_JK?2I%yK*-'
+        '%d2Q8Rym1Ku+)!rn6krzmmad;%c+19hp6LyhMJW43F>Zpt<~d_%M_FB=CEj5Rm4`zC7{=2=-'
+        'FgB$92($@mNsjILXoh(|{mCiFCo71LHTCLEgF~4zS0K@oG&EpPav&y)YqbYzAS0#k{K!DYYnr=-'
+        'OxcW6zLD>>izp4mi?2EMX02$G9hm5m|P?uBnx~X6HyYKm8xbYRb7HC~?eDk<H(D|jxYfbtk<0}qz?D?PZ-6HdK0X4vDQ^AN-'
+        '%{8hwm;p7_4!dd&TvAJ5aviFV6%E8Vq?nHDBr5Kxx(lhRCsOT+J4j`e9nl9JROj7htUT9lqj*#3%r~4(%k?-'
+        '@Lr9)wiRYPvN&FVEh%5?Vzf~wsV|!c>u_%>58_Y`c#W)e=Wb;ASC@%?&_4`n`61#{)-'
+        'Qcz1jK`>;DoJE;@DeDfX4)L@UwlKZPh4jKEExy6i2dPQ6kHSaU)i)48EH!Cgjcu4RL58L4^I1UW4988L8X|N&FDSRJo?Y{;va{Qe<={vZMt8~r'
+        'wdMzghF8x6e#*aRW2siJ-'
+        '3|JVywo#94r|y$Gk_Os6<=iOW_A5dS&EU>eEWS@{&;wV$&R4?8wGyca1g1X491ZIN*53MM0yWE&_>m@8!!Edm^69u-'
+        'wR6tKRM4;5x!iiTFclnA?~gflwV^B9e16E~XYOQbceY8<G%TzCZqW`W_m`ZO3`>su%&)LyceD|Mm3z@I9V>`1SYxKh?uo|C4?A`QWXtb9SbF9i'
+        'OD9AAg2A_yB*PH6&tq8#l<4F*Gw(r~!;{@^^lEcW`+0@vP6?Ql<d-b#e9)NYiouQ~%69ems8Lhg%YwS(_qpyL!o-'
+        'W#YwD3!_47Cb_yX;!g)hhcqw$ETZr;d2H1hq2HugyV^KyL(T}Gwl!6lcj)*;ueXED3RS=hEJ^HRcYAF@Z&;BK@I>r+4UaAkKLE292j)PwT@oe@'
+        'n$oF(vF^|@)xp;#YScBj*n_txr#k<iuWqg3kk(Ju*+U`H=t@hN$wm#WxXGJTwT(KpfF?F9t|e=Tl$v8nTxO*<1oIYn=bG9^I_a2OEzv(Zk+}O4'
+        '=h`<KS4itw(?X^Fw<`T1LD2f)`!YQK(22gU<?at^?yVozObm%btyeYNcP)dY*P&m&E`&;STL~W5Tenw7zFXP1ti5~$CB8NE$fZx3xj63YErD$y'
+        '#_>c|?8$v4>S~gNmDF!4HST!@vN?G9vl2#UYIJk1s&E7^_oB>*+n9vWspMp1#FzpvhwqZSkV=DUvJyvL-ePpaM9x!bCA2vM3~gcz-'
+        'x9`RAm%Y9{l0ExxN7z{2TF21Cre+%l)#D6P(JC((@A%RIeT>@_0Elts80|gTEGEChe6-'
+        '($^^?*4w_2KAX$*ruO4ZZ!6xcJtiyUSWpi#TH&2hVJHz$Q^OV6TrW5tcj7W_;sxK2>sO$fSUDaiqYfLcryWM%&g}p^I)4gbq6C~T(ZlN8(6a52'
+        'B!{jeQulUFFxOcw`7ob54bn<TDSkR)SRs-AV9>@zE^-'
+        '469bHP*k>E1aVmt!5<(R%hw)!f(sqIlLveDhD#1}=4~gHBqpv7N?NZ>63TUB#cw1Q2707ZdTF$Di;IduG>o%vi@)U>y@&pdToZ2_KNV!@qdb;)'
+        'K~27gNaMkaE8H{VJ<htW_7R$mDnwZfEk`QAtL<>BLQ1oq01ZuRtCGKAx5Wtv@;|9j#o4m#DpQ4lDA;Nu>-'
+        'd^U>j(!wabQ;q<7_7tn{(lVhZqraF*FOrfmb!;wEcm%VVsrrS_A!%paecv5?6fldDs^@&WW<j^{O6?of6l%YC*we@0mlwB$Hn=u2W_b<>#1;dv'
+        '(q7r(#1$&Qn&MRl>{SLa6Af{5tQPfiTCtqcw7kj(gd%a%oYPkL5cDomy1IkWcA)opPQdthY!WccVIB@&D{rCp1FUlu`oXuChFTf%(ynXCuRd!o'
+        '+t*?woeT{p&)!XfDb+<`}J;5Coit#`{B8N7&-iFpMzN2-Q^WALqcA$eD*#Q=8eDht-zdIM{cjiKJQdAm0x|(5xax%tEsY#VH&^oC}Ie6M{7zk!'
+        'pRmiWXx#N{7mz-{zhY6=r@(Z=ko>?FERu!Jqx@y3rBK9Mge1`|)u#~5GPK$QX{pSgO%fMLX%?29xX_4}_!T-'
+        'vp+WvlQ)OjQB`MVT^fhf_;Vcn4B`DX0PBE_5j4uz$|^;Psc{sT*Cuw~#N&OYT`*xvckUtCXBrS(FMa7#mtGkKL13kd<P3zk711l&E90s#^u5H}'
+        '_obtm~^J|kuK@G~3j)NUD>l#F>T1CCl5v75F?sKq(kswwi~<yP&Z^e<I=)JU?;mg}3w47#bh-'
+        ';{k*Y5);v6|z|>MyGK|+Bv;Y>>Zpk!XcZZgLjr@R^og`?BdJTZjG^?*}D^|?2VxuM!HRxY!xD)47(Q@E}k%sQQ~?hfNdvcmL{NKL<z*fnncMR5'
+        'OHT^1>d|_Od?ykmRr)~gbn6(3nz0MF7XTSGxo>&uD45M4;1D@N2@^HU!W3+J}mUSZBz7@NI3IZP+QZnHaX*-'
+        'q~5D5P}bCzDEIuw=%6D$N&uWF83=SUDkjB_UlOtz`4?+dr>;6floFbe)E8{k_w{Ic9t4;K+Zqe;4%3DY{uYL>o>U2>Oy6#Dsb{#x-'
+        '=rU!!E|zw@exYQ%!>W4_jxE4L?sQ`hHLKBkcPxfZq4HvcB;CpFVA2de}`q>4Z%*0gTtuFqrr(5CT;-'
+        '}p!iE=(~44>v!q7gt4p!F(kAJ(#PkPnKJg+MxgH_*yowzJSGYrYmsK|LAS@A>mt+D+v37_FzQwl^dDfg|Za~1`C0^MJ+%Y=p_sZ<ZR|<S}$Z`@'
+        'Q7S}UTb6Z!d5i(L&(y*?y@b0_qf#d@{gS5KFg_+zr0Ciiy3eH)i9SS#>uxORPw*Pv0+*InZ;K8;@+@8JK+uho7E?Ep?=8M$0DH+_Y%v}nXm`9Z'
+        '>djsuD+YiMQg)U|P3i|pDdsUzNknXx)#X;ET3g0$X--9}7t-'
+        'SBoxOdyeA3{)6f<=)&h~(8*t0hYykOGEl&5Deu3SMD#%RAQ%XXMmnV6A**(@!|xc;nM7;3>y><@j!3Do*n)74ET~%tLwtjPqsax?Xb50N3v&>B'
+        'N;)db5$Tu9#UQ;*$`ZHgk;in--I9gc_ouPiXDS3zcCOEkbte@{uQqbSE`C*>EWInQ(j1XzZ=8+)@!87Fa9#GK<4nny$T%o`?xf(4!D`Rz=rUHa'
+        'Ag?Mmb$NyX{XzubX6c{nXuo9d_3I((QEc2lI%dj+yjxy(e{{IEN+sxK7fuHQF<5UhDs#BVw(Yh7vtIam@lY+3&~^@jn}+_JjyCiBszXr6E#(eW'
+        '2>`T<mK6$6|XzvkC;(JT-8}S%N3Jxc~1(A)K?j21*7bgM;ym;+%o013#djtT;>&xbQVgut|Zw0MZj8ACqH6{x0etb?%=y`S+j97HM^al5z-'
+        'Kq2CZfgR@Vomb_uTlcs%G8V%#`QPR9=NqzSccN-PnpxH#-'
+        'cWimCfZ5KcXaWImLHM$4!JnMf2`=ed9y)Yws=u*njKMwena`#VgSy}RWIhEVL@?1DNF9cy$2-'
+        'N$%iKa8k&vh!Yo~3`GUyHhPV~2NDHyC{=2DJPkww}$(7UTR82rqu*6cZ1$CR0yQf7^@#Ur#sk4&%uN52^OBg{fVCQ6eIs8Yc*k)0*Q%uH@7_y}'
+        '(f(9nl^BhKX<jN^bUn=umxQ_)dQS0L})<&?q808FX0bm~(#Z07sJ=>lHyNn-aTq(`VL#?7qik#S0I%94cEpZEd<*KrLSsvQdD;QF=OcE8M_#?#'
+        'AXbnTj(HN%1{hvi|zwr(A)y4e&ED?TgMU=M$hdQl%WySQ|iP?qq^Sc9O}v}PqI)h~aZX@#Yn#&a~SsvXg?4gI3G^nz=5f*Zf=iVFnlxvHF+Zpa'
+        'Q$(-GM$|I1=b*8$O0-`3cC&}u=LM5%~C-4tcN)uBH+=LKD%T#5|YpPN6>VezV=mu3-'
+        'P)iVp$eKbv)LASw^^9&LQzDY@tIYG)~&Ox0_*`c$FRljpSaK&j_QYXEn3$wQZCb?t~(v`q*m||VgX#?pf%F+R6HAT?5IgG$&`|-'
+        'b}?$ISy5mBh^(hQ7VQbUd{#39<wN1oJ6L!HeHzLZw}`%^87U1C7P$rk^#tcmO9Y7E;@LpUXvNA;Br|HCrQO#UZ>!(H$=LR=)${NCtrV4q|r^Kj'
+        '_5fLGOT_}-~1C3FpU<&uB=T&dQD>YmkS{cIxR+W=b@LDG=%*nWY|CI+F)Pi6;E{R&CWW-JWkP;_JFrC+)_PRcu-'
+        '#_=<K(91uV?qkh_ANDT)Q}TX%U*-?J-'
+        '}U4lfdN!Hkia&$0)Nw~3H2Gy6|y=_h<+5F>ucm62$2Y`@{<Z|%dP+|;k2Sy)QR}JtlAZW+$b78UZ8MGdcCmeSLsbUXfkh(z?N<?GP}RB&j~BCV'
+        '=7{v$5`FEW>ORruukTD$Mq^?OAV#g4<@u<kz?PuE*h^2^cQRh)%C;}wG#D$<?Vwk>5}s0y-DMKtt+R{F@%~eQMN_&kdd5obCwnT-GQY-VLi;nu'
+        'kR;asbyuUeVWlNb~3Z9F!;ruc&S)<UJ2zWZu~GvIIds3BFCSg9XeZQM`x}Jn$7v6hn=QU`ud^1AIeC^k84`yW=P|!DI>U6rEbH&!HjC|mz4fZx'
+        'ik^zbyI-'
+        '4PK@81cyno2HMYp3T$UvYrCMC?`)6*d&Giy>{%<GZlzx9q<O7Nsm5S4_{mZ$+C#2KF4xXG%lN&uTnWmT@jXkw)cQTJAdR7Pz3n!Om?F$e3E$fv'
+        'b$z;2hf|7!FP5MdbZk+_0juyfr;^c6v1KtA(G@T&#CAl%ZQqGMTIzhT#*r&K&+;~+A&ts2xU>|M{&4v!NhjpO6%3zv=Nvh3p8fYq0oi?Nau|3t'
+        '(GrOHRi9XH##kPWz-'
+        '4iRR0E0LTS?UnfK%KQSdwSP{P3IZfjWu$4HeNR}foD*;roT;Puv;WRc7619)`(gjPckZ?auV5OZB@|E{J9tS0h@6*r8xFMz)21x)PZVdbH{NEp'
+        'Br379#%ME&*I-'
+        'kUw6NCe;fTaqJJ*%pMCSsf066RgYj;+6T5gL36ud{D8TG=^cUqZ2cVvD57(opN|+#kVn8(^VlfUKKi}Hghby<;?wQ^^cL_5HdWrotbP__$ooKf'
+        '0aC?q#QB8A-?sh5-u4c`2f>*m3u8^ZU(Nd1~MpZJ7vFQ~`#@2F=*<CiYHpx0pd-DNw@Px9c3#Lo*i_>5F=JA(hnEvD9&Texqq@cu5|M<BR|55w'
+        'y`P08PW`Jz|P`dSE=K${w8P7J#5rtXjD?M$k4?X$&>E#WDPK5k~{{$E5nub6+A4~sf;eQ-XXQe%8EA2MR@|TM@)|Cx4&d!HdSP1GUb6{1M%jzE'
+        'i@Ay@geg)jpU(|r|x7<SFnfN%k>d!?O^xsnjU8kFH3eBd^#8To+<@Dz)QY`?5`7NxIQhKRW>O{0RS^%lJ-'
+        'EB4-JwTXWt(DCoBWkNuL*dGPxEWiF%;tLEo!rzTZ|eL-jk+8h-'
+        '|^;f+!g)=w~j^!192X>rEwteLImtP<51ApsX8esaP9><*BNJN^TrP&5cJ$}R1Eo^{H^3KglM<by2Bo0x$<K+Q}~I~O`=bSGWz#HiT23f6~nx2u'
+        '+8{+><mTmUUU#9{a|;e52E45Vc0o+0;e*e8#>qKEPnuxmpP<tA=4L~5^{JUPXi}G&>dvR00yHN12>e<@JeT!EL+LCY;Y{EuPJ8=rtfi*2_gQ{X'
+        '$0>Y`gFOzTOskM>j>}%Qwe{EhYq=x3SU&|+2%TF3Y7&yf(m}#{@C#cW~F1$GuU+;wca9OzrvMPi$H!y*7aay!g5`Z0NKPSL2|5l{*(2WQjx;sM'
+        'HRQ#&knl2Hc@K)Ys%mDDs`f#@C~@8Y`W@1k!n=uv22)z2>I~9YdgZ2Pt#)K=3_r{+noCJ`{QG*JQ;|N5uRpG36t?WK&<0S&;x2&-'
+        'qgzRgxU}!oD>?;4&amaN?L`M+6Fv))aigU(wOXq5>c4j5wRnVNq}C|Q=EEyGAD8jvdL}{<*HH!5EtvIny?J4k@O~hjtUa(XcX#iy{x0F`&n&Y5'
+        'S7=<I%@0J5{^DCIjrB?lM<7PhQf14*pt+o;7BSYI8fcFd2DU%p%AQX3Pa=A@TXcl)aopv8?~&fSRPKgDoUQ7b2WC)k#*3}f)e(=sdiCiT~#?lw'
+        'SQxc%hX@O-LiRTG#iFqFO&wj#<I!v!Mwk99<I8SQE-EHP>aHq+cXGjb~~)-'
+        'v1#jcg+Lxo8=yvYLct+wGLJSW0!R8+F>T2ywgX>E4t!0@iB94o|0}wVn~@%}?)0dZZqp`JmkNUwU#)e)41K*;NlkzhSLErjY+PD~S{z@1|87`^'
+        'U`;YOkgrdj=?FGZ^e&WeHsCVqrhs+UPN;wa@(GNwEV3EKs^_bzU5uXcXhY|{!|T-@-'
+        'MUumf$K5TFs75<X073Pqo6PMh^b|CUJ==$nvLmvn^xXa|5GRR@J!W1pg^=*mf<%PF3-'
+        '}xr(L5BH<R1c$c!l9=>`HhAa~cw0cmmy`N`h?<YbUl*g4wZW#V34|E2_yR_OA5f-'
+        '2<`6wDu4t>;bK5Ux<`!jm;zja(9PK&g+R(^Y!x=#s;qtfURKQNkxWS$ft@3QXq$6)F%aktaAXyZT{GnyIIMFq7b64W#mH%FL-05A2kk-'
+        'b`;&eeouoP~A8{{Xd|J82J'
+    ),
+})
+
+
 def trusted_model_bytes(name):
     expected,packed=TRUSTED_MODEL_FIXTURES[name];raw=zlib.decompress(base64.b85decode(packed))
     if pin(raw)!=expected:raise ValueError('FENCED trusted fixture pin mismatch')
@@ -6521,13 +6690,45 @@ def genuine_source27_files(root):
     return result
 
 
-def prerequisite_runtime_model(reader, source, expected):
+def material_context_source_model(fixture,*,with_materials=True,prerequisites=True):
+    """Unsealed callback MODEL; canonical shape is not Source authentication."""
+    source,selections,lock=prerequisite_constructor_source(fixture,DOMAIN_POLICY,enabled=prerequisites);constructor=trusted_constructor('constructor_staging_final');program=json.loads(source[selections['program']['path']])
+    replacements=dict(context='current_context_v4',image_executor='material_executor_final')
+    for role,key in replacements.items():
+        name=program['roles'][role]['member'];source[name]=trusted_model_bytes(key);program['roles'][role].update(pin(source[name]));program['delegation_programs'][role]=program['roles'][role]
+    if not with_materials:
+        source[selections['program']['path']]=encode(program);selections['program'].update(pin(source[selections['program']['path']]));return source,selections,lock,program
+    for role,(name,_,_)in constructor.STAGING_FILES.items():
+        source[name]=trusted_model_bytes('material_stager_python'if role=='materials_stager'else'material_domain_final')if role in ('materials_stager','material_domain_executor')else('# FENCED callback-only '+role+'\n').encode();row=dict(member=name,**pin(source[name]));program['roles'][role]=row;program['delegation_programs'][role]=row
+    material_keys=dict(retained_carrier_profile='staging_carrier_profile',retained_prefill_profile='staging_prefill_profile',public14_profile='staging_public14_profile',staging_base_lock='base_metadata_base_lock',staging_bootstrap_profile='base_metadata_bootstrap_profile');program['staging_materials']={}
+    for role,(name,digest)in constructor.STAGING_MATERIALS.items():
+        source[name]=trusted_model_bytes(material_keys[role]);assert pin(source[name])['sha256']==digest;program['staging_materials'][role]=dict(member=name,**pin(source[name]))
+    policy=constructor.material_staging_policy_candidate(json.loads(trusted_model_bytes('proposal_key')),trusted_model_bytes('material_stager_python'),domain_raw=trusted_model_bytes('material_domain_final'));source[selections['policy']['path']]=encode(policy);program['roles']['policy'].update(pin(source[selections['policy']['path']]));selections['policy'].update(pin(source[selections['policy']['path']]));source[selections['program']['path']]=encode(program);selections['program'].update(pin(source[selections['program']['path']]));source['inputs/material-staging-materials-v4.json']=encode(dict(schema=4,kind='DELEGATED_MATERIAL_STAGING_SOURCE_MATERIALS_V4',materials=program['staging_materials']))
+    return source,selections,lock,program
+
+
+def material_operand_metadata_model():
+    """Pinned517 operand metadata only: unavailable paths are never followed or decoded."""
+    lock=json.loads(trusted_model_bytes('base_metadata_base_lock'));bootstrap=json.loads(trusted_model_bytes('base_metadata_bootstrap_profile'));groups=dict(base_materials={},supplemental_materials={},keyring_materials={});flat={}
+    for group,rows in (('base_materials',[lock['rootfs'],*lock['packages']]),('supplemental_materials',bootstrap['additions']['rows']),('keyring_materials',lock['keyring_files'])):
+        for row in rows:
+            for signature in ((False,)if group=='keyring_materials'else(False,True)):
+                name=row['filename']+('.sig'if signature else'');wanted=dict(bytes=row['signature_size']if signature else row['size'],sha256=row['signature_sha256']if signature else row['sha256']);assert name not in flat;flat[name]=dict(group=group,**wanted);groups[group][name]=dict(path='/FENCED/UNAVAILABLE/'+group+'/'+name,**wanted)
+    assert {key:len(value)for key,value in groups.items()}==dict(base_materials=498,supplemental_materials=16,keyring_materials=3)
+    redirects={name:[]for name in {lock['rootfs']['filename'],lock['rootfs']['filename']+'.sig',*(row['filename']for row in lock['keyring_files']),*groups['supplemental_materials']}}
+    assert len(flat)==517 and len(redirects)==21
+    return groups,flat,sum(row['bytes']for row in flat.values()),redirects
+
+
+def prerequisite_runtime_model(reader, source, expected, *, material_staging=False,current_outer=False,prerequisites=True):
     """Synthetic external observations for the pure parser; no Root authority is issued."""
     policy=json.loads(source[expected['source']['policy']['path']]);program=json.loads(source[expected['source']['program']['path']]);binding=expected['binding'];nonce='b'*64;root='/FENCED/HISTORICAL-WORKSPACE'
     hosted=dict(repository='FENCED/example',workflow_ref='FENCED/example/.github/workflows/FENCED.yml@refs/heads/codex/FENCED',workflow_sha='c'*40,job_key='backend',job_name='FENCED native stage',runner_environment='github-hosted',runner_os='Linux',runner_arch='ARM64')
-    capability=dict(policy['stage_capabilities']['backend'],operation=reader.OP,stage='backend',allow_provisional_context=True,allow_provisional_image_checks=True,allow_pair_adoption=False,allow_selected_pair_adoption=False,allow_host_prerequisites=True);capability['max_command_seconds']=180
+    capability=dict(policy['stage_capabilities']['backend'],operation=reader.OP,stage='backend',allow_provisional_context=True,allow_provisional_image_checks=True,allow_pair_adoption=False,allow_selected_pair_adoption=False,allow_host_prerequisites=prerequisites);capability['max_command_seconds']=1800 if material_staging or current_outer else 180
+    if material_staging:capability['allow_material_staging']=True
     desc=lambda row:dict(member=row['path'],**pin(source[row['path']]))
     d=dict(schema=4,kind='ROOT_DELEGATED_CURRENT_ONBOARDING_PRIVATE_EXECUTION_V4',issuer='Root',approved=True,scope='CURRENT_PRIVATE_STAGE_ONLY',binding=dict(binding,run=None,job=None),stage='backend',nonce=nonce,image_ids=dict(backend=None,ui=None,lifecycle=None),issued_epoch=1000,expires_epoch=8560,context_limits=policy['context'],capability=capability,programs=program['delegation_programs'],materials=json.loads(source['inputs/delegated-materials-v4.json'])['materials'],policy=desc(expected['source']['policy']),hosted=hosted,**reader.DELEGATED_FINAL)
+    if material_staging:d['materials'].update(json.loads(source['inputs/material-staging-materials-v4.json'])['materials'])
     expected.update(nonce=nonce,delegation_pin=pin(encode(d)))
     env=dict(GITHUB_ACTIONS='true',GITHUB_REPOSITORY=hosted['repository'],GITHUB_SHA=binding['source'],GITHUB_REF=binding['ref'],GITHUB_RUN_ATTEMPT='1',GITHUB_JOB='backend',GITHUB_WORKFLOW_REF=hosted['workflow_ref'],GITHUB_WORKFLOW_SHA=hosted['workflow_sha'],GITHUB_WORKSPACE=root,RUNNER_ENVIRONMENT='github-hosted',RUNNER_OS='Linux',RUNNER_ARCH='ARM64',GITHUB_RUN_ID=binding['run'],RUNNER_NAME='FENCED-ARM64-001')
     base='https://api.github.com/repos/FENCED/example/actions/runs/'+binding['run'];job=dict(name=hosted['job_name'],runner_name=env['RUNNER_NAME'],id=int(binding['job']),run_id=int(binding['run']),run_attempt=1,head_sha=binding['source'],status='in_progress',conclusion=None,run_url=base,url='https://api.github.com/repos/FENCED/example/actions/jobs/'+binding['job'],html_url='https://github.com/FENCED/example/actions/runs/'+binding['run']+'/job/'+binding['job']);body=encode(dict(total_count=1,jobs=[job]))
@@ -6559,6 +6760,48 @@ def prerequisite_runtime_model(reader, source, expected):
     support={role:encode(value)for role,value in dict(prerequisite_timing=timing,prerequisite_report=report,prerequisite_initial_context=initial,prerequisite_launcher=launcher,prerequisite_controller=controller).items()};qualification['public_pins']={role:pin(raw)for role,raw in support.items()};support['prerequisite_qualification']=encode(qualification)
     runtime=dict(started_at=1112,finished_at=1122,host_prerequisite_qualification_pin=pin(support['prerequisite_qualification']));q=dict(host_prerequisite_qualification_pin=runtime['host_prerequisite_qualification_pin'],owned_domains=dict(seconds=dict(controller_seconds=13,setup_seconds=1,stage_seconds=10,cleanup_seconds=2)))
     return dict(files=files,expected=expected,source=source,support=support,policy=policy,d=d,c=c,runtime=runtime,q=q)
+
+
+def bind_material_observation_pins(model,*,prerequisite=False):
+    """Re-pin controlled MODEL inputs, never authenticate or issue a Root grant."""
+    support=model['support']
+    if prerequisite:
+        pre=json.loads(support['prerequisite_qualification']);pre['public_pins']={role:pin(support[role])for role in ('prerequisite_timing','prerequisite_report','prerequisite_initial_context','prerequisite_launcher','prerequisite_controller')};support['prerequisite_qualification']=encode(pre);model['runtime']['host_prerequisite_qualification_pin']=model['q']['host_prerequisite_qualification_pin']=pin(support['prerequisite_qualification'])
+    root=json.loads(support['material_qualification']);root['public_pins']={role:pin(support[role])for role in ('material_grant','material_assembly_request','material_staging','material_close','prerequisite_timing','prerequisite_launcher')};root['prerequisite_qualification_pin']=pin(support['prerequisite_qualification']);support['material_qualification']=encode(root);model['runtime']['material_qualification_pin']=model['q']['material_qualification_pin']=pin(support['material_qualification'])
+
+
+def material_runtime_model(reader,fixture):
+    """Synthetic external launch/kernel/supervision facts; no Root/native authentication."""
+    source,selected,lock,program=material_context_source_model(fixture);expected=dict(source=selected,binding=dict(source='a'*40,ref='refs/heads/codex/FENCED',run='101',job='102',attempt=1,source_lock=lock),stage='backend');model=prerequisite_runtime_model(reader,source,expected,material_staging=True);support=model['support'];d=model['d'];binding=expected['binding'];nonce=expected['nonce'];initial=json.loads(support['prerequisite_initial_context']);pre=json.loads(support['prerequisite_qualification']);timing=json.loads(support['prerequisite_timing']);launcher=json.loads(support['prerequisite_launcher']);controller=json.loads(support['prerequisite_controller']);final=reader.DELEGATED_FINAL;parent='/var/lib/cachy-current-material-domain-'+nonce;out=parent+'/cachy-current-materials-'+nonce;cache=out+'/cache';control='/FENCED/cachy-current-hosted-'+nonce
+    # Earliest grant expiry shortens the same7560 envelope; close90 remains reserved.
+    timing.update(expires_epoch=8400,deadline_monotonic=7500);controller['properties']['RuntimeMaxUSec']='7185s';pre['clock']['launch_finished']=dict(monotonic=230,epoch=1130);pre['launch_selection']['material_staging']=True;launcher['shared_timing'].update(controller_runtime_ceiling_seconds=7185,available_stage_ceiling_seconds=6824);launcher['material_domain_cleanup']=dict(closed=True,scope_absent=True,input_storage_absent=True,**final)
+    groups,metadata,total,redirects=material_operand_metadata_model();image={group:{name:dict(row,path=cache+'/'+name)for name,row in rows.items()}for group,rows in groups.items()}
+    for role,key in (('staging_base_lock','base_lock'),('staging_bootstrap_profile','bootstrap_profile')):row=d['materials'][role];image[key]=dict(path=initial['source_root']+'/'+row['member'],**{k:row[k]for k in ('bytes','sha256')})
+    inputs=dict(image_inputs=image,stage_inputs=dict(source_date_epoch=42,products={}));support['inputs']=encode(inputs);intake=dict(files=519,bytes=total+image['base_lock']['bytes']+image['bootstrap_profile']['bytes']);launcher['intake']=intake
+    for role,value in (('prerequisite_timing',timing),('prerequisite_launcher',launcher),('prerequisite_controller',controller),('prerequisite_qualification',pre)):support[role]=encode(value)
+    grant=dict(schema=3,kind='ROOT_CURRENT_COMPLETE517_STAGING_V3',issuer='Root',approved=True,source=binding['source'],ref=binding['ref'],source_lock=binding['source_lock'],nonce=nonce,policy={k:d['policy'][k]for k in ('bytes','sha256')},issued_epoch=1001,expires_epoch=8400,redirect_urls=redirects,secret_provider='CALLER_ONE_SHOT_EXACT22',scope='COMPLETE517_PUBLIC_DATA_ONLY',storage_parent=parent);support['material_grant']=encode(grant)
+    trust=dict(public_key=d['materials']['setup8_current_public_key'],fingerprint=fixture.fingerprint,Root_admission=dict(json=encode(dict(issuer='Root',scope='FENCED_MODEL_ONLY')).decode(),pin=pin(encode(dict(issuer='Root',scope='FENCED_MODEL_ONLY')))))
+    request=dict(schema=3,kind='CURRENT_ONBOARDING_INPUT_REQUEST_V3',stage='backend',source_date_epoch=42,base_lock=None,bootstrap_profile=None,base_materials=None,supplemental_materials=None,keyring_materials=None,official_trust=trust,test_trust=trust,products={},retention={});support['material_assembly_request']=encode(request)
+    domain_request=dict(source_root=initial['source_root'],delegation_raw=model['files']['delegation.json'].decode(),delegation_sha256=pin(model['files']['delegation.json'])['sha256'],context=initial,grant_raw=support['material_grant'].decode(),grant_sha256=pin(support['material_grant'])['sha256'],shared_timing=timing,control_root=control,runner_uid=1000,runner_gid=1000);domain_pin=pin(encode(domain_request))
+    clock={name:dict(monotonic=value,epoch=value+900)for name,value in dict(material_selected=111,material_started=112,material_staged=116,assembly_finished=118,material_close_selected=224,material_close_started=225,material_closed=226).items()}
+    def tool(name):return dict(path='/usr/bin/python3.12'if name=='python3'else'/usr/bin/'+name,**pin(('FENCED actual-observation '+name).encode()))
+    physical={};rows={}
+    for role,scope_role,entered,seconds in (('stage','materials',112,3600),('close','materials-close',225,90)):
+        unit='cachy-current-'+scope_role+'-'+nonce+'.scope';group='/system.slice/'+unit;physical[role]=dict(domain=dict(pid=123,starttime=456,cgroup=group,limits=reader.PREREQUISITE_POLICY['scope_limits']),properties=dict(ControlGroup=group,RuntimeMaxUSec=str(seconds)+'s',ActiveEnterTimestampMonotonic=str(entered*1000000)));tools={name:tool(name)for name in ('python3','systemd-run','sudo')};argv=['/usr/bin/sudo','-n',tools['systemd-run']['path'],'--scope','--quiet','--unit='+unit,'--description=current-material-domain-'+nonce,'--property=MemoryMax=536870912','--property=MemorySwapMax=0','--property=CPUQuota=100%','--property=CPUQuotaPeriodSec=100ms','--property=TasksMax=64','--property=RuntimeMaxSec='+str(seconds)+'s','--property=TimeoutStopSec=5s','--property=KillMode=control-group','--property=OOMPolicy=kill','--',tools['python3']['path'],'-I','-B',initial['source_root']+'/'+d['programs']['material_domain_executor']['member'],'stage-entry'if role=='stage'else'close-entry','--request',control+'/material-domain-request.json','--request-sha256',domain_pin['sha256']];rows[role]=dict(kind='STAGE'if role=='stage'else'CLOSE',argv=argv,tools=tools,natural=True,scope_absence=dict(scope=unit,absent_twice=True),supervision=dict(natural(),seconds=4 if role=='stage'else 1),output_pin=pin(b''),stderr_pin=pin(b''),**final)
+    root_tools={name:tool(name)for name in ('python3','systemctl')};deadline=3682;authority=dict(delegation_json=model['files']['delegation.json'].decode(),delegation_sha256=pin(model['files']['delegation.json'])['sha256'],grant_json=support['material_grant'].decode(),grant_sha256=pin(support['material_grant'])['sha256'],context=initial);child_request=dict(authority=authority,source_root=initial['source_root'],programs=d['programs'],cache=cache,deadline=deadline,base_lock=image['base_lock'],transport_policy=model['policy']['material_staging_current_v3']['transport_policy'],public_profile=json.loads(source[d['materials']['public14_profile']['member']]),native_profile=json.loads(source[d['materials']['retained_carrier_profile']['member']]));child_pin=pin(encode(child_request));child=[root_tools['python3']['path'],'-I','-B',initial['source_root']+'/'+d['programs']['materials_stager']['member']];args=['--request',out+'/child-request.json','--request-sha256',child_pin['sha256']]
+    plan=[([root_tools['systemctl']['path'],'show','cachy-current-materials-'+nonce+'.scope','--no-pager','--property=RuntimeMaxUSec,ActiveEnterTimestampMonotonic,ControlGroup'],15)];plan.extend(([*child,'transport',*args,'--which',which],500)for which in ('public14','native248'));plan.extend((([*child,'private-seed',*args],65),([root_tools['python3']['path'],'-I','-B',out+'/public14/seed.py','--cache',cache],30),([*child,'prepare',*args],480)))
+    lock_meta=json.loads(source[d['materials']['staging_base_lock']['member']]);boot_meta=json.loads(source[d['materials']['staging_bootstrap_profile']['member']]);urls={}
+    for entries,signatures in (([lock_meta['rootfs'],*lock_meta['packages']],True),(boot_meta['additions']['rows'],True),(lock_meta['keyring_files'],False)):
+        for row in entries:
+            for signature in ((False,True)if signatures else(False,)):urls[row['filename']+('.sig'if signature else'')]=row['url']+('.sig'if signature else'')
+    pins={name:{k:row[k]for k in ('bytes','sha256')}for name,row in metadata.items()}
+    for name in sorted(redirects):
+        download=dict(authority=authority,source_root=initial['source_root'],programs=d['programs'],base_lock=image['base_lock'],bootstrap_profile=image['bootstrap_profile'],cache=cache,filename=name,url=urls[name],redirect_urls=redirects[name],expected=pins[name],output=cache+'/'+name);plan.append(([*child,'download','--request',out+'/download-'+name+'.json','--request-sha256',pin(encode(download))['sha256']],90))
+    commands=[dict(argv=argv,natural=True,Root_acceptance=None)for argv,_ in plan];observations=[dict(receipt_pin=pin(encode(row)),supervision=natural(),elapsed_seconds=0.001,timeout_seconds=timeout,supervision_cap_seconds=1,output_pin=pin(b''),stderr_pin=pin(b''),started_monotonic=112+i*0.01,finished_monotonic=112+i*0.01+0.001)for i,(row,(_,timeout))in enumerate(zip(commands,plan))]
+    storage_domain=dict(path=parent,device=2,total_bytes=8*1024**3,total_nodes=18432,free_bytes=6*1024**3,free_nodes=18000,Root_acceptance=None);receipt=dict(status='COMPLETE517_HOSTED_CACHE_DATA_ONLY',binding=binding,domain=dict(physical['stage']['domain'],Root_acceptance=None),storage_domain=storage_domain,grant_pin=pin(support['material_grant']),policy_pin=grant['policy'],whole_deadline_monotonic=7500,Root_expires_epoch=8400,physical_scope_end_monotonic=3712,commands=commands,verified_files=517,verified_bytes=total,cache=cache,materialization='UNCHANGED_ORIGINAL_SEEDS_AND_FIXED_PINNED_DOWNLOADS',cache_created_files=517,provider_validation_archive_copies=0,caller_must_prove_scope_retirement_and_absence=True,**final)
+    refs=[row for group in ('base_materials','supplemental_materials','keyring_materials')for row in image[group].values()];wrapper=encode(dict(schema=3,kind='ROOT_STAGED_CURRENT_INPUTS_V3',owner_inputs=inputs,staged_refs=refs));retirement=dict(natural=True,scope_absent=True,scope=rows['stage']['scope_absence']['scope'],supervision_pin=pin(encode(rows['stage']['supervision'])),scope_absence_pin=pin(encode(rows['stage']['scope_absence'])),**final);public=dict(receipt=receipt,staging_scope_retirement=retirement,wrapper_pin=pin(wrapper),intake=intake,**final);support['material_staging']=encode(public);closed=dict(owned_storage_absent=True,scope_absent=True,scope_absence=rows['stage']['scope_absence'],binding=binding,nonce=nonce,request_pin=domain_pin,**final);support['material_close']=encode(closed)
+    root=dict(schema=4,kind='ROOT_QUALIFIED_CURRENT_MATERIAL_STAGING_V4',issuer='Root',status='ROOT_REVIEWED_CURRENT_MATERIAL_STAGING',approved=True,binding=binding,nonce=nonce,delegation_pin=expected['delegation_pin'],policy_pin=grant['policy'],request_pin=pre['request_pin'],domain_request_pin=domain_pin,initial_context_pin=pin(support['prerequisite_initial_context']),public_pins={},control_root=control,boot_pin=pre['boot_pin'],assembly=dict(request_pin=pin(support['material_assembly_request']),wrapper_pin=pin(wrapper),inputs_pin=pin(support['inputs']),staged_refs_pin=pin(encode(refs)),intake=intake,initial_staged_inputs=None,initial_staged_root=None),clock=clock,physical=physical,rows=rows,storage=dict(source_device=1,runner_uid=1000,runner_gid=1000,stage_uid=1000,close_uid=0,mode=0o700,filesystem='ext4',mount_options=['nodev','nosuid'],loop_device='/dev/loop7',private=True,exclusive_loop=True,retained_until_consumers_retired=True,loop_absent=True,mount_absent=True,backing_absent=True,rlimits={role:dict(address_space_bytes=2147483648,cpu_seconds=seconds,core_bytes=0)for role,seconds in (('stage',3600),('close',90))}),secret_lifecycle=dict(values_read=22,sealed_anonymous_input=True,cleared_before_assembly=True,retired=True),verified_materials=pins,commands=observations,child_request_pin=child_pin,command_deadline_monotonic=deadline,tools=root_tools,prerequisite_qualification_pin={});support['material_qualification']=encode(root);bind_material_observation_pins(model,prerequisite=True)
+    return model
 
 
 def bound_stage(root,stage,prior=None,*,source_builder=closed_source,fixture_builder=Fixture):
@@ -7203,7 +7446,7 @@ class EndToEnd(unittest.TestCase):
                         altered['support'][role]=encode(value);root['public_pins'][role]=pin(altered['support'][role]);altered['support']['prerequisite_qualification']=encode(root);root_pin=pin(altered['support']['prerequisite_qualification']);altered['runtime']['host_prerequisite_qualification_pin']=altered['q']['host_prerequisite_qualification_pin']=root_pin
                     with self.assertRaises((ValueError,KeyError))as caught:reader.delegated_prerequisites(**altered)
                     if mode!='missing_query':self.assertIn(reason,str(caught.exception))
-            for selection,reason in ((True,'HOLD_MATERIAL_STAGING_RUNTIME_QUALIFICATION_UNAVAILABLE'),(1,'HOLD_MATERIAL_STAGING_EXPLICIT_CAPABILITY')):
+            for selection,reason in ((True,'HOLD_MATERIAL_STAGING_EXACT_RUNTIME_SELECTION'),(1,'HOLD_MATERIAL_STAGING_EXPLICIT_CAPABILITY')):
                 prospective=copy.deepcopy(model['d']);prospective['capability']['allow_material_staging']=selection
                 with self.assertRaisesRegex(ValueError,reason):reader.delegated_context(encode(prospective),model['support']['prerequisite_initial_context'],model['expected'],model['source'],1010)
             unselected=copy.deepcopy(model);unselected['d']['capability']['allow_host_prerequisites']=False;unselected['support']={};unselected['runtime'].pop('host_prerequisite_qualification_pin');self.assertIsNone(reader.delegated_prerequisites(**unselected))
@@ -7356,6 +7599,169 @@ class EndToEnd(unittest.TestCase):
                         with self.assertRaises(ValueError):reader.material_projection_data(encode(old),encode(supplemental),program)
                         continue
                     with patch.object(constructor,'load_v3',return_value=adapter),self.assertRaises(ValueError):constructor.inverse_v3(altered)
+
+    def test_current_context_43482_replays_outer_policy_and_exact25_64_callback_selection(self):
+        """Callback parser MODEL only: no closed Source authentication or Root issuance claim."""
+        reader=self.reader()
+        with tempfile.TemporaryDirectory(prefix='FENCED-current-context-materials-')as temporary:
+            fixture=Fixture(Path(temporary),'backend',fingerprint='D9D7A9FC25B9914CF6F2CE55952AEDD8A209B4C0',public_key=trusted_model_bytes('public_cert'));source,selected,lock,program=material_context_source_model(fixture);expected=dict(source=selected,binding=dict(source='a'*40,ref='refs/heads/codex/FENCED',run='101',job='102',attempt=1,source_lock=lock),stage='backend');model=prerequisite_runtime_model(reader,source,expected,material_staging=True)
+            with patch.object(Path,'read_bytes',side_effect=AssertionError('FENCED callback cannot follow historical paths')),patch('builtins.exec',side_effect=AssertionError('FENCED Source programs stay opaque')):
+                parsed,observed,policy=reader.delegated_context(encode(model['d']),encode(model['c']),expected,source,1110)
+            self.assertEqual(parsed,model['d']);self.assertEqual(observed,model['c']);self.assertEqual(policy,model['policy']);self.assertEqual((len(parsed['programs']),len(parsed['materials'])),(25,64));self.assertEqual((parsed['capability']['max_command_seconds'],parsed['capability']['total_seconds']),(1800,7200));self.assertEqual(RESOURCES['build_seconds'],180);self.assertIsNone(parsed['Root_final_acceptance']);self.assertIsNone(parsed['binding']['run']);self.assertIsNone(parsed['binding']['job'])
+            for mode in ('delegation_float','context_float','flag_bool','host_flag','old_context','wrong_executor','outer180','outer1801','total7201','missing_program','extra_program','missing_material','extra_material','wrong_material','policy_domain','provider_url','provider_page','attempt','preissued'):
+                with self.subTest(mode=mode):
+                    d=copy.deepcopy(model['d']);c=copy.deepcopy(model['c']);bodies=dict(source);chosen=copy.deepcopy(expected)
+                    if mode=='delegation_float':d['schema']=4.0
+                    elif mode=='context_float':c['schema']=4.0
+                    elif mode=='flag_bool':d['capability']['allow_material_staging']=1
+                    elif mode=='host_flag':d['capability']['allow_host_prerequisites']=False
+                    elif mode=='old_context':name=d['programs']['context']['member'];bodies[name]=trusted_model_bytes('context_v4');d['programs']['context'].update(pin(bodies[name]));c['program_pin']=pin(bodies[name])
+                    elif mode=='wrong_executor':d['programs']['image_executor']['sha256']='0'*64
+                    elif mode=='outer180':d['capability']['max_command_seconds']=180
+                    elif mode=='outer1801':d['capability']['max_command_seconds']=1801
+                    elif mode=='total7201':d['capability']['total_seconds']=7201
+                    elif mode=='missing_program':d['programs'].pop('material_transport')
+                    elif mode=='extra_program':d['programs']['FENCED_extra']=copy.deepcopy(d['programs']['material_transport'])
+                    elif mode=='missing_material':d['materials'].pop('staging_base_lock')
+                    elif mode=='extra_material':d['materials']['FENCED_extra']=copy.deepcopy(d['materials']['staging_base_lock'])
+                    elif mode=='wrong_material':d['materials']['staging_base_lock']['sha256']='0'*64
+                    elif mode=='policy_domain':name=d['policy']['member'];value=json.loads(bodies[name]);value.pop('material_domain_executor_current_v3');bodies[name]=encode(value);d['policy'].update(pin(bodies[name]));c['policy_pin']=pin(bodies[name])
+                    elif mode=='provider_url':c['jobs_response']['url']='https://FENCED.invalid/jobs'
+                    elif mode=='provider_page':page=json.loads(c['jobs_response']['body']);page['total_count']=2;c['jobs_response']['body']=encode(page).decode()
+                    elif mode=='attempt':d['binding']['attempt']=2
+                    else:d['binding']['run']='101'
+                    chosen['delegation_pin']=c['delegation_pin']=pin(encode(d))
+                    with self.assertRaises((ValueError,KeyError)):reader.delegated_context(encode(d),encode(c),chosen,bodies,1110)
+            # The current Context accepts either unchanged15/19 roster without granting material staging.
+            for prerequisites in (False,True):
+                bodies,selected,lock,registry=material_context_source_model(fixture,with_materials=False,prerequisites=prerequisites);chosen=dict(source=selected,binding=dict(expected['binding'],source_lock=lock),stage='backend');unselected=prerequisite_runtime_model(reader,bodies,chosen,current_outer=True,prerequisites=prerequisites);d,c,_=reader.delegated_context(encode(unselected['d']),encode(unselected['c']),chosen,bodies,1110);self.assertNotIn('allow_material_staging',d['capability']);self.assertEqual(len(registry['roles']),19 if prerequisites else 15);self.assertEqual(len(d['materials']),59);self.assertIsNone(d['Root_final_acceptance'])
+            # Isolated version gate only; component/TEST/package qualification is still separate.
+            current=dict(schema=4,programs=dict(context=dict(member='FENCED/current-context.py',**pin(trusted_model_bytes('current_context_v4')))));old=dict(schema=4,programs=dict(context=dict(member='FENCED/old-context.py',**pin(trusted_model_bytes('context_v4')))));v3=dict(schema=3,programs=dict(context=dict(member='FENCED/v3-context.py',bytes=21460,sha256='efa5a2687ac1504ef565763ac0828dd6c98c593563df97b2f540ccf4e0de9d2b')))
+            for producer in (current,v3):self.assertIsNone(reader.delegated_selected_context_versions(current,producer,'lifecycle','ui','ui'))
+            self.assertIsNone(reader.delegated_selected_context_versions(old,old,'ui','backend','first-login'))
+            for consumer,producer,stage,producer_stage,kind in ((old,old,'lifecycle','ui','ui'),(current,current,'ui','ui','ui'),(current,old,'lifecycle','ui','ui'),(old,current,'ui','backend','first-login')):
+                with self.subTest(selected_context=(stage,producer_stage,consumer is current,producer is current)),self.assertRaises(ValueError):reader.delegated_selected_context_versions(consumer,producer,stage,producer_stage,kind)
+            proof_keys=('producer_delegation_pin','producer_context_pin','completion_pin','pair_pin','root_component_decision_pin','root_test_decision_pin','public_test_key_pin')
+            def selection(kind):
+                return dict(schema=1,kind='ROOT_EXPLICIT_COMPLETED_COMPONENT_SELECTION_V4',producer_binding=dict(model['d']['binding'],run='91',job='92'),component=dict(name=reader.VERSIONS[kind][0],version=reader.VERSIONS[kind][1],architecture='any'),archives=[pin(b'FENCED candidate')]*2,signatures=[pin(b'FENCED inert signature-a'),pin(b'FENCED inert signature-b')],test_fingerprint=fixture.fingerprint,max_producer_age_seconds=10,**{key:pin(('FENCED selected '+key).encode())for key in proof_keys})
+            declarations=dict(stage='lifecycle',binding=model['d']['binding'],pair_selections={kind.replace('-','_'):selection(kind)for kind in reader.KINDS});self.assertIsNone(reader.delegated_selection_declarations(declarations,True));historical=dict(stage='ui',binding=model['d']['binding'],pair_selection=selection('first-login'));self.assertIsNone(reader.delegated_selection_declarations(historical,False));legacy_enrollment=dict(historical,pair_selection=selection('enrollment'));self.assertIsNone(reader.delegated_selection_declarations(legacy_enrollment,False))
+            for mode in ('backend','ui_consumer','old_component_set','unused_bad_row','source_lock_bool','extra_pin_field','duplicate_representation'):
+                with self.subTest(declaration=mode):
+                    altered=copy.deepcopy(declarations)
+                    if mode=='backend':altered['stage']='backend'
+                    elif mode=='ui_consumer':altered['stage']='ui'
+                    elif mode=='unused_bad_row':altered['pair_selections']['unused_extra']=selection('first-login');altered['pair_selections']['unused_extra'].pop('completion_pin')
+                    elif mode=='source_lock_bool':altered['pair_selections']['ui']['producer_binding']['source_lock']['bytes']=True
+                    elif mode=='extra_pin_field':altered['pair_selections']['ui']['pair_pin']['FENCED_extra']=True
+                    elif mode=='duplicate_representation':altered['pair_selection']=selection('first-login')
+                    with self.assertRaises(ValueError):reader.delegated_selection_declarations(altered,mode!='old_component_set')
+    def test_callback_material_mapping_preserves_original59_and_requires_separate_five(self):
+        reader=self.reader()
+        with tempfile.TemporaryDirectory(prefix='FENCED-callback-material-mapping-')as temporary:
+            fixture=Fixture(Path(temporary),'backend',fingerprint='D9D7A9FC25B9914CF6F2CE55952AEDD8A209B4C0',public_key=trusted_model_bytes('public_cert'));source,_,_,program=material_context_source_model(fixture);original=json.loads(source['inputs/delegated-materials-v4.json']);extra=json.loads(source['inputs/material-staging-materials-v4.json']);expected={**original['materials'],**extra['materials']}
+            self.assertEqual(reader.delegated_material_mapping(program,source),expected);self.assertEqual((len(original['materials']),len(extra['materials']),len(expected)),(59,5,64))
+            for prerequisites in (False,True):
+                bodies,_,_,registry=material_context_source_model(fixture,with_materials=False,prerequisites=prerequisites);self.assertEqual(reader.delegated_material_mapping(registry,bodies),json.loads(bodies['inputs/delegated-materials-v4.json'])['materials'])
+            for mode in ('missing_extra','missing_role','extra_role','wrong_kind','wrong_pin','member_alias','original_pollution','original_aliases','original_kind','original_bool','material_schema_bool'):
+                with self.subTest(mode=mode):
+                    bodies=dict(source);old=copy.deepcopy(original);value=copy.deepcopy(extra)
+                    if mode=='missing_extra':bodies.pop('inputs/material-staging-materials-v4.json')
+                    elif mode=='missing_role':value['materials'].pop('staging_base_lock')
+                    elif mode=='extra_role':value['materials']['FENCED_extra']=copy.deepcopy(value['materials']['staging_base_lock'])
+                    elif mode=='wrong_kind':value['kind']='FENCED_WRONG_KIND'
+                    elif mode=='wrong_pin':value['materials']['staging_base_lock']['sha256']='0'*64
+                    elif mode=='member_alias':value['materials']['staging_base_lock']['member']=next(iter(old['materials'].values()))['member']
+                    elif mode=='original_pollution':old['materials'].update(value['materials'])
+                    elif mode=='original_aliases':old['aliases'].pop(next(iter(old['aliases'])))
+                    elif mode=='original_kind':old['kind']='FENCED_WRONG_KIND'
+                    elif mode=='original_bool':old['schema']=True
+                    else:value['schema']=True
+                    bodies['inputs/delegated-materials-v4.json']=encode(old)
+                    if mode!='missing_extra':bodies['inputs/material-staging-materials-v4.json']=encode(value)
+                    with self.assertRaises((ValueError,KeyError)):reader.delegated_material_mapping(program,bodies)
+
+    def test_modeled_material_callback_and_prerequisites_share_grant_expiry_and_close_reserve(self):
+        """Synthetic externally selected facts exercise DATA joins; no native/Root authenticity claim."""
+        reader=self.reader()
+        with tempfile.TemporaryDirectory(prefix='FENCED-material-observations-')as temporary:
+            fixture=Fixture(Path(temporary),'backend',fingerprint='D9D7A9FC25B9914CF6F2CE55952AEDD8A209B4C0',public_key=trusted_model_bytes('public_cert'));model=material_runtime_model(reader,fixture)
+            with patch.object(Path,'read_bytes',side_effect=AssertionError('FENCED no operand/historical filesystem access')),patch('builtins.exec',side_effect=AssertionError('FENCED Source programs stay opaque')):
+                result=reader.delegated_materials(**model);pre=reader.delegated_prerequisites(**model)
+            self.assertEqual(result,dict(status='PASS_MATERIAL_STAGING_CALLBACK_DATA_ONLY',materials=517,programs=25,whole_budget_seconds=7560,cleanup_reserve_seconds=90,material_bodies_replayed=False,command_output_bodies_replayed=False,Root_authentication=False));self.assertEqual(pre,dict(whole_budget_seconds=7560,controller_ceiling_seconds=7185,stage_ceiling_seconds=6824,APT_output_bodies_replayed=False,Root_authentication=False));self.assertEqual(model['d']['expires_epoch'],8560);self.assertEqual(json.loads(model['support']['material_grant'])['expires_epoch'],8400);self.assertEqual(json.loads(model['support']['prerequisite_timing'])['expires_epoch'],8400)
+
+    def test_material_observation_model_refuses_missing_facts_budget_drift_and_retirement_claims(self):
+        reader=self.reader()
+        with tempfile.TemporaryDirectory(prefix='FENCED-material-observation-refusals-')as temporary:
+            fixture=Fixture(Path(temporary),'backend',fingerprint='D9D7A9FC25B9914CF6F2CE55952AEDD8A209B4C0',public_key=trusted_model_bytes('public_cert'));original=material_runtime_model(reader,fixture)
+            cases=('missing_support','cap_bool','unselected','root_unapproved','root_producer_status','grant_unapproved','grant_schema_bool','grant_widened','grant_min_expiry','grant_parent','redirect_missing','redirect_credentials','verified_count','verified_bytes','verified_map','operand_pin','storage_device','storage_retired','storage_rlimit','storage_bytes','storage_nodes','secret_retirement','command_missing','command_argv','command_natural','command_seconds','command_elapsed','command_late90','command_overlap','command_output','command_deadline','child_request','stage_argv','stage_natural','scope_seconds','stage_absence','stage_runtime','close_runtime','retirement_pin','close_storage','close_request','close_order','assembly_initial','assembly_wrapper','close_reservation')
+            for mode in cases:
+                with self.subTest(mode=mode):
+                    model=copy.deepcopy(original);support=model['support'];root=json.loads(support['material_qualification']);public=json.loads(support['material_staging']);closed=json.loads(support['material_close']);grant=json.loads(support['material_grant']);inputs=json.loads(support['inputs']);pre_changed=False
+                    if mode=='missing_support':support.pop('material_qualification')
+                    elif mode=='cap_bool':model['d']['capability']['allow_material_staging']=1
+                    elif mode=='unselected':model['d']['capability']['allow_material_staging']=False
+                    elif mode=='root_unapproved':root['approved']=False
+                    elif mode=='root_producer_status':root['status']='COMPLETE517_HOSTED_CACHE_DATA_ONLY'
+                    elif mode=='grant_unapproved':grant['approved']=False
+                    elif mode=='grant_schema_bool':grant['schema']=True
+                    elif mode=='grant_widened':grant['expires_epoch']=8561
+                    elif mode=='grant_min_expiry':grant['expires_epoch']=8401
+                    elif mode=='grant_parent':grant['storage_parent']=model['c']['source_root']
+                    elif mode=='redirect_missing':grant['redirect_urls'].pop(next(iter(grant['redirect_urls'])))
+                    elif mode=='redirect_credentials':grant['redirect_urls'][next(iter(grant['redirect_urls']))]=['https://user:credential@FENCED.invalid/body']
+                    elif mode=='verified_count':public['receipt']['verified_files']=516
+                    elif mode=='verified_bytes':public['receipt']['verified_bytes']-=1
+                    elif mode=='verified_map':root['verified_materials'].pop(next(iter(root['verified_materials'])))
+                    elif mode=='operand_pin':inputs['image_inputs']['base_materials'][next(iter(inputs['image_inputs']['base_materials']))]['sha256']='0'*64
+                    elif mode=='storage_device':public['receipt']['storage_domain']['device']=root['storage']['source_device']
+                    elif mode=='storage_retired':root['storage']['retained_until_consumers_retired']=False
+                    elif mode=='storage_rlimit':root['storage']['rlimits']['close']['cpu_seconds']=91
+                    elif mode=='storage_bytes':public['receipt']['storage_domain']['total_bytes']=9*1024**3
+                    elif mode=='storage_nodes':public['receipt']['storage_domain']['total_nodes']=20001
+                    elif mode=='secret_retirement':root['secret_lifecycle']['retired']=False
+                    elif mode=='command_missing':root['commands'].pop()
+                    elif mode=='command_argv':public['receipt']['commands'][2]['argv'][-1]='FENCED-wrong-transport';root['commands'][2]['receipt_pin']=pin(encode(public['receipt']['commands'][2]))
+                    elif mode=='command_natural':root['commands'][0]['supervision']['passed']=False
+                    elif mode=='command_seconds':root['commands'][0]['supervision'].pop('seconds')
+                    elif mode=='command_elapsed':
+                        for row in root['commands']:row['elapsed_seconds']=1
+                    elif mode=='command_late90':
+                        # Keep all completion/consumer clocks coherent; only FULL90s cannot fit the final1s.
+                        root['commands'][-1].update(started_monotonic=3681,finished_monotonic=3681.001)
+                        root['clock'].update({name:dict(monotonic=mono,epoch=mono+900)for name,mono in dict(material_staged=3681.1,assembly_finished=3681.2,material_close_selected=3794,material_close_started=3795,material_closed=3796).items()});root['physical']['close']['properties']['ActiveEnterTimestampMonotonic']='3795000000';root['rows']['stage']['supervision']['seconds']=3569.1;public['staging_scope_retirement']['supervision_pin']=pin(encode(root['rows']['stage']['supervision']))
+                        pre=json.loads(support['prerequisite_qualification']);pre['clock'].update({name:dict(monotonic=mono,epoch=mono+900)for name,mono in dict(prerequisite_started=3690,prerequisite_retired=3770,controller_selected=3780,controller_started=3781,stage_started=3782,stage_finished=3792,controller_retired=3794,launch_finished=3800).items()});support['prerequisite_qualification']=encode(pre)
+                        report=json.loads(support['prerequisite_report']);report['scope_observation']['properties']['ActiveEnterTimestampMonotonic']='3690000000';support['prerequisite_report']=encode(report);controller=json.loads(support['prerequisite_controller']);controller['properties'].update(RuntimeMaxUSec='3615s',ActiveEnterTimestampMonotonic='3781000000');support['prerequisite_controller']=encode(controller);launcher=json.loads(support['prerequisite_launcher']);launcher['shared_timing'].update(elapsed_seconds=3680,controller_runtime_ceiling_seconds=3615,available_stage_ceiling_seconds=3254);support['prerequisite_launcher']=encode(launcher);model['runtime'].update(started_at=4682,finished_at=4692);model['c']['observed_epoch']=4675;model['c']['jobs_response']['received_epoch']=4674;pre_changed=True
+                    elif mode=='command_overlap':root['commands'][2].update(started_monotonic=112,finished_monotonic=112.001)
+                    elif mode=='command_output':root['commands'][0]['output_pin']=dict(bytes=131073,sha256='0'*64)
+                    elif mode=='command_deadline':root['command_deadline_monotonic']=3713
+                    elif mode=='child_request':root['child_request_pin']['sha256']='0'*64
+                    elif mode=='stage_argv':root['rows']['stage']['argv'][0]='/usr/bin/FENCED'
+                    elif mode=='stage_natural':root['rows']['stage']['natural']=1
+                    elif mode=='scope_seconds':root['rows']['stage']['supervision']['seconds']=0.001;public['staging_scope_retirement']['supervision_pin']=pin(encode(root['rows']['stage']['supervision']))
+                    elif mode=='stage_absence':root['rows']['stage']['scope_absence']['absent_twice']=False
+                    elif mode=='stage_runtime':root['physical']['stage']['properties']['RuntimeMaxUSec']='3601s'
+                    elif mode=='close_runtime':root['physical']['close']['properties']['RuntimeMaxUSec']='91s'
+                    elif mode=='retirement_pin':public['staging_scope_retirement']['supervision_pin']['sha256']='0'*64
+                    elif mode=='close_storage':closed['owned_storage_absent']=False
+                    elif mode=='close_request':closed['request_pin']['sha256']='0'*64
+                    elif mode=='close_order':root['clock']['material_close_selected']=dict(monotonic=223,epoch=1123)
+                    elif mode=='assembly_initial':root['assembly']['initial_staged_inputs']={}
+                    elif mode=='assembly_wrapper':root['assembly']['wrapper_pin']['sha256']='0'*64
+                    else:
+                        controller=json.loads(support['prerequisite_controller']);controller['properties']['RuntimeMaxUSec']='7275s';support['prerequisite_controller']=encode(controller);pre_changed=True
+                    if mode not in ('missing_support','cap_bool','unselected'):
+                        support.update(material_grant=encode(grant),material_staging=encode(public),material_close=encode(closed),inputs=encode(inputs));root['assembly']['inputs_pin']=pin(support['inputs']);support['material_qualification']=encode(root);bind_material_observation_pins(model,prerequisite=pre_changed)
+                    if mode=='command_late90':
+                        healthy=copy.deepcopy(model);root_ok=json.loads(healthy['support']['material_qualification']);root_ok['commands'][-1].update(started_monotonic=112.26,finished_monotonic=112.261);healthy['support']['material_qualification']=encode(root_ok);bind_material_observation_pins(healthy);self.assertFalse(reader.delegated_materials(**healthy)['Root_authentication']);self.assertFalse(reader.delegated_prerequisites(**healthy)['Root_authentication'])
+                    with patch.object(Path,'read_bytes',side_effect=AssertionError('FENCED no actual operands')),self.assertRaises((ValueError,KeyError))as caught:
+                        reader.delegated_materials(**model);reader.delegated_prerequisites(**model)
+                    if mode=='close_reservation':self.assertIn('HOLD_PREREQUISITE_CLIPPED_MAIN_BUDGET',str(caught.exception))
+                    if mode in ('command_elapsed','command_late90','command_overlap'):self.assertIn('HOLD_MATERIAL_RUNTIME_ORIGINAL_COMMAND_WINDOW',str(caught.exception))
+                    if mode=='command_argv':self.assertIn('HOLD_MATERIAL_RUNTIME_COMMAND_OBSERVATIONS',str(caught.exception))
+                    if mode=='grant_min_expiry':self.assertIn('HOLD_MATERIAL_RUNTIME_SHARED_DEADLINE',str(caught.exception))
+            unselected=copy.deepcopy(original);unselected['d']['capability']['allow_material_staging']=False
+            for role in reader.MATERIAL_RUNTIME_SUPPORT:unselected['support'].pop(role)
+            unselected['runtime'].pop('material_qualification_pin');self.assertIsNone(reader.delegated_materials(**unselected))
 
 
 class GenuineSource27(unittest.TestCase):

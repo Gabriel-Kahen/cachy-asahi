@@ -9,6 +9,7 @@ import io
 import json
 import math
 from pathlib import Path, PurePosixPath
+from urllib.parse import urlsplit
 import re
 import tarfile
 import zlib
@@ -239,6 +240,8 @@ SOURCE139_MAP_PIN=dict(bytes=26734,sha256='ec752108c451d056ebbe4caa97d629bad081c
 SOURCE139_CLOSURE_PIN=dict(bytes=2118,sha256='6211506eb9b1483f276314b9e8c0c23e9b338ffa332f2efa899c9e1949446977')
 MATERIAL_FULL_POLICY_PIN=dict(bytes=8366,sha256='1177da4f3bfc36f8ebe8802ca6956adf3d0230511aa827bdac933688d83f0767')
 MATERIAL_EXECUTOR_PIN=dict(bytes=53735,sha256='aee41c0956f3249eef2e9c8974238b214622cb385e2d8f736109d9650ce7120a')
+CURRENT_CONTEXT4_PIN=dict(bytes=43482,sha256='2d08f9572b3f5f89d3ebac2b32e6d41a00ff4929739c35780c7c96a1d3d3b21d')
+MATERIAL_RUNTIME_SUPPORT={'material_grant','material_assembly_request','material_staging','material_close','material_qualification'}
 MATERIAL_DOMAIN_POLICY=dict(kind='CURRENT_ONBOARDING_MATERIAL_DOMAIN_V3',scope_seconds=3600,cleanup_seconds=90,
     whole_budget_seconds=7560,scope_limits=PREREQUISITE_POLICY['scope_limits'],controller_AS_bytes=2147483648,
     controller_CPU_seconds=3600,storage_parent_base='/var/lib',storage_bytes=8*1024**3,filesystem_inodes=18432,
@@ -394,6 +397,23 @@ def material_projection_data(original_raw,supplemental_raw,program):
         members.add(row['member'])
     return dict(status='MATERIAL_STAGING_MATERIAL_PROJECTION_DATA_ONLY_V4',materials=selected,
         original_material_roles=59,staging_material_roles=5,Root_authentication=False)
+
+
+def delegated_material_mapping(program,source):
+    raw=source['inputs/delegated-materials-v4.json']
+    if set(program['roles'])==MATERIAL_STAGING_ROLES:
+        return material_projection_data(raw,source['inputs/material-staging-materials-v4.json'],program)['materials']
+    value=receipt(raw)
+    need(set(value)=={'schema','kind','aliases','materials'} and value['schema']==4
+         and value['kind']=='DELEGATED_SOURCE_RELATIVE_MATERIALS_V4' and value['aliases']==MATERIAL_ALIASES
+         and set(value['materials'])==set(MATERIAL_ALIASES.values()),'HOLD_DELEGATED_ORIGINAL_MATERIAL_MAPPING')
+    return value['materials']
+
+
+def selected_prerequisite_policy(raw,material_selected):
+    if pin(raw)==MATERIAL_FULL_POLICY_PIN:return material_staging_policy(raw,with_domain=True)
+    need(not material_selected,'HOLD_MATERIAL_STAGING_EXACT_DOMAIN_POLICY_COMPOSITION')
+    return prerequisite_policy(raw)
 
 
 def literal_source_table(tree,name):
@@ -1664,6 +1684,41 @@ def delegated_base_provenance(files,expected,source_files,inputs,support):
         archive_bodies_replayed=False,signature_math_replayed=False)
 
 
+def delegated_selection_declarations(d,new_context):
+    pins={'producer_delegation_pin','producer_context_pin','completion_pin','pair_pin',
+          'root_component_decision_pin','root_test_decision_pin','public_test_key_pin'}
+    selections=d.get('pair_selections',{'component':d.get('pair_selection')})
+    need(d['stage'] in ('ui','lifecycle') and ('pair_selection' in d)!=('pair_selections' in d)
+         and type(selections) is dict and 0<len(selections)<=8,'HOLD_DELEGATED_SELECTED_PAIR_CONTRACT')
+    for role,value in selections.items():
+        need(type(role) is str and re.fullmatch('[a-z][a-z0-9_]{0,63}',role)
+             and type(value) is dict and set(value)=={'schema','kind','producer_binding','component','archives','signatures',
+                 'test_fingerprint','max_producer_age_seconds',*pins}
+             and type(value['schema']) is int and value['schema']==1
+             and value['kind']=='ROOT_EXPLICIT_COMPLETED_COMPONENT_SELECTION_V4','HOLD_DELEGATED_SELECTED_PAIR_CONTRACT')
+        binding=value['producer_binding'];component=value['component']
+        need(type(binding) is dict and set(binding)=={'source','ref','run','job','attempt','source_lock'}
+             and all(binding[key]==d['binding'][key] for key in ('source','ref','source_lock'))
+             and type(binding['attempt']) is int and binding['attempt']==1
+             and all(type(binding[key]) is str and re.fullmatch('[1-9][0-9]{0,19}',binding[key]) for key in ('run','job')),
+             'HOLD_DELEGATED_SELECTED_PRODUCER_TUPLE')
+        need(set(binding['source_lock'])=={'bytes','sha256'} and whole(binding['source_lock'])['bytes']>0,
+             'HOLD_DELEGATED_SELECTED_PRODUCER_TUPLE')
+        need(type(component) is dict and set(component)=={'name','version','architecture'},'HOLD_DELEGATED_SELECTED_COMPONENT')
+        kinds=KINDS if new_context else ('enrollment','first-login')
+        selected=next((kind for kind in kinds if component==dict(name=VERSIONS[kind][0],version=VERSIONS[kind][1],architecture='any')),None)
+        need(selected is not None and (selected!='ui' or d['stage']=='lifecycle'),'HOLD_DELEGATED_SELECTED_COMPONENT')
+        for key in pins:
+            need(set(value[key])=={'bytes','sha256'} and whole(value[key])['bytes']>0,'HOLD_DELEGATED_SELECTED_WHOLE_PIN')
+        for key in ('archives','signatures'):
+            need(type(value[key]) is list and len(value[key])==2,'HOLD_DELEGATED_SELECTED_WHOLE_PIN')
+            for row in value[key]:need(set(row)=={'bytes','sha256'} and whole(row)['bytes']>0,'HOLD_DELEGATED_SELECTED_WHOLE_PIN')
+        need(same(value['archives'][0],value['archives'][1]) and type(value['test_fingerprint']) is str
+             and re.fullmatch('[0-9A-F]{40}',value['test_fingerprint'])
+             and type(value['max_producer_age_seconds']) is int and 0<value['max_producer_age_seconds']<=30*86400,
+             'HOLD_DELEGATED_SELECTED_PAIR_CONTRACT')
+
+
 def delegated_context(d_raw,c_raw,expected,source,event_epoch):
     """Replay original provider/context bytes; never open the historical workspace."""
     d,c=receipt(d_raw),receipt(c_raw);version=d['schema']
@@ -1688,31 +1743,36 @@ def delegated_context(d_raw,c_raw,expected,source,event_epoch):
          and 0<d['expires_epoch']-d['issued_epoch']<=limits['max_delegation_seconds']
          and limits['max_context_age_seconds']<=limits['max_delegation_seconds'],'HOLD_DELEGATED_CONTEXT_LIMITS')
     cap=d['capability'];numeric=policy['stage_capabilities'][stage]
+    current_context=version==4 and whole(d['programs']['context'])==CURRENT_CONTEXT4_PIN
     need(cap['operation']==OP and cap['stage']==stage and cap['allow_provisional_context'] is True
          and cap['allow_provisional_image_checks'] is True and type(cap['allow_pair_adoption']) is bool
          and all(type(cap[key]) is int and 0<cap[key]<=value for key,value in numeric.items())
          and (cap['builder_cpus'],cap['builder_memory_bytes'],cap['builder_pids'])==(4,4*1024**3,512)
-         and 2<=cap['max_command_seconds']<=min(180,cap['total_seconds']),
+         and (cap['max_command_seconds']==1800 and cap['total_seconds']==7200
+              and whole(d['programs']['image_executor'])==MATERIAL_EXECUTOR_PIN if current_context else
+              2<=cap['max_command_seconds']<=min(180,cap['total_seconds'])),
          'HOLD_DELEGATED_CAPABILITY_SCOPE')
     selected=cap.get('allow_selected_pair_adoption',False)
     need(type(selected) is bool and (not selected or version==4 and not cap['allow_pair_adoption']),
          'HOLD_DELEGATED_ADOPTION_SCOPE')
     material_selected=cap.get('allow_material_staging',False)
     need(type(material_selected) is bool,'HOLD_MATERIAL_STAGING_EXPLICIT_CAPABILITY')
-    need(not material_selected,'HOLD_MATERIAL_STAGING_RUNTIME_QUALIFICATION_UNAVAILABLE')
     prerequisites=cap.get('allow_host_prerequisites',False)
     need(type(prerequisites) is bool,'HOLD_PREREQUISITE_EXPLICIT_CAPABILITY')
+    if material_selected:
+        need(current_context and prerequisites and whole(d['programs']['retention'])==BASE_RETENTION_PIN,
+             'HOLD_MATERIAL_STAGING_EXACT_RUNTIME_SELECTION')
+        registry=receipt(source[expected['source']['program']['path']])
+        need(set(registry['roles'])==MATERIAL_STAGING_ROLES and same(registry['delegation_programs'],d['programs'])
+             and same(delegated_material_mapping(registry,source),d['materials']),
+             'HOLD_MATERIAL_STAGING_CANONICAL_RUNTIME_MAPPING')
     if prerequisites:
         need(version==4 and set(PREREQUISITE_FILES)<=set(d['programs'])
              and whole(d['programs']['retention'])==BASE_RETENTION_PIN,
              'HOLD_PREREQUISITE_EXACT_SOURCE_VERSION')
-        prerequisite_policy(source[d['policy']['member']])
+        selected_prerequisite_policy(source[d['policy']['member']],material_selected)
     if selected:
-        # The exact committed context currently supports backend producers only.
-        selections=d.get('pair_selections',{'single':d.get('pair_selection')})
-        need(('pair_selection' in d)!=('pair_selections' in d) and type(selections) is dict
-             and 0<len(selections)<=8 and all(type(value) is dict for value in selections.values()),
-             'HOLD_DELEGATED_SELECTED_PAIR_CONTRACT')
+        delegated_selection_declarations(d,current_context)
     else:need('pair_selection' not in d and 'pair_selections' not in d,'HOLD_DELEGATED_UNSELECTED_PAIR_CONTRACT')
     for group in ('programs','materials'):
         need(type(d[group]) is dict and 0<len(d[group])<=256,'HOLD_DELEGATED_DESCRIPTOR_ROLES')
@@ -1724,7 +1784,7 @@ def delegated_context(d_raw,c_raw,expected,source,event_epoch):
          'HOLD_DELEGATED_POLICY_DESCRIPTOR')
     program=d['programs']['context'];known={3:dict(bytes=21460,sha256='efa5a2687ac1504ef565763ac0828dd6c98c593563df97b2f540ccf4e0de9d2b'),
         4:dict(bytes=42498,sha256='7dc4af2ea5db1f36db62e9df0c00cd728edfa16114b7218a9ee494965f638566')}
-    need(whole(program)==known[version],'HOLD_DELEGATED_CONTEXT_PROGRAM_PIN')
+    need(whole(program)==known[version] or current_context,'HOLD_DELEGATED_CONTEXT_PROGRAM_PIN')
     h=d['hosted'];need(set(h)=={'repository','workflow_ref','workflow_sha','job_key','job_name','runner_environment','runner_os','runner_arch'}
          and re.fullmatch('[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+',h['repository'])
          and h['workflow_ref'].startswith(h['repository']+'/.github/workflows/')
@@ -1765,7 +1825,7 @@ def delegated_context(d_raw,c_raw,expected,source,event_epoch):
     replay=dict(schema=version,kind='DELEGATED_CURRENT_ONBOARDING_CONTEXT_V'+str(version),issuer='DELEGATED_CONTEXT_PROGRAM_V'+str(version),
         operation=OP,stage=stage,nonce=nonce,delegation_pin=pin(d_raw),program_pin=whole(program),policy_pin=whole(d['policy']),
         source_root=root,binding=actual,hosted=env,jobs_response=response,jobs_response_pin=pin(body),observed_epoch=observed,**DELEGATED_FINAL)
-    need(c==replay and actual==binding,'HOLD_DELEGATED_EXACT_CONTEXT_REPLAY')
+    need(c_raw==encoded(replay) and same(actual,binding),'HOLD_DELEGATED_EXACT_CONTEXT_REPLAY')
     return d,c,policy
 
 
@@ -1807,6 +1867,320 @@ def prerequisite_tools(value):
     return result
 
 
+def material_whole(row):
+    need(type(row) is dict and {'bytes','sha256'}<=set(row) and type(row['bytes']) is int
+         and 0<=row['bytes']<=MATERIAL_STAGING_POLICY['file_bytes'] and type(row['sha256']) is str
+         and re.fullmatch('[0-9a-f]{64}',row['sha256'])
+         and (row['bytes']!=0 or row['sha256']==pin(b'')['sha256']),'HOLD_MATERIAL_RUNTIME_WHOLE_PIN')
+    return {key:row[key] for key in ('bytes','sha256')}
+
+
+def material_url(value):
+    need(type(value) is str and 0<len(value)<=2048 and not any(x.isspace() for x in value),
+         'HOLD_MATERIAL_RUNTIME_PUBLIC_URL')
+    parsed=urlsplit(value)
+    need(parsed.scheme=='https' and parsed.hostname and parsed.port in (None,443)
+         and not (parsed.username or parsed.password or parsed.query or parsed.fragment),
+         'HOLD_MATERIAL_RUNTIME_PUBLIC_URL')
+    return value
+
+
+def material_operand_data(source,d,c,inputs,cache):
+    """Recompute all517 metadata operands; no cache path or archive body is opened."""
+    lock_row=d['materials']['staging_base_lock'];profile_row=d['materials']['staging_bootstrap_profile']
+    lock=pinned_base_metadata(source[lock_row['member']],BASE_METADATA_PINS['base_lock'])
+    profile=pinned_base_metadata(source[profile_row['member']],BASE_METADATA_PINS['bootstrap_profile'])
+    image=inputs['image_inputs'];pins={};urls={};paths=set();groups={}
+    for key,row in (('base_lock',lock_row),('bootstrap_profile',profile_row)):
+        need(image[key]==dict(path=c['source_root']+'/'+row['member'],**whole(row)),
+             'HOLD_MATERIAL_RUNTIME_METADATA_OPERAND')
+    recipes=(('base_materials',[lock['rootfs'],*lock['packages']],True),
+             ('supplemental_materials',profile['additions']['rows'],True),('keyring_materials',lock['keyring_files'],False))
+    for group,rows,signatures in recipes:
+        selected={}
+        for row in rows:
+            for signature in ((False,True) if signatures else (False,)):
+                name=row['filename']+('.sig' if signature else '')
+                need(type(name) is str and re.fullmatch('[A-Za-z0-9._+@:-]{1,255}',name) and name not in ('.','..')
+                     and name not in pins,'HOLD_MATERIAL_RUNTIME_DISTINCT_OPERANDS')
+                wanted=dict(bytes=row['signature_size'] if signature else row['size'],
+                    sha256=row['signature_sha256'] if signature else row['sha256'])
+                material_whole(wanted);ref=dict(path=cache+'/'+name,**wanted)
+                need(ref['path'] not in paths,'HOLD_MATERIAL_RUNTIME_DISTINCT_OPERANDS');paths.add(ref['path'])
+                selected[name]=ref;pins[name]=wanted;urls[name]=material_url(row['url']+('.sig' if signature else ''))
+        need(type(image[group]) is dict and same(image[group],selected),'HOLD_MATERIAL_RUNTIME_COMPLETE517_JOIN:'+group)
+        groups[group]=selected
+    need(tuple(map(len,groups.values()))==(498,16,3) and len(pins)==517,'HOLD_MATERIAL_RUNTIME_COMPLETE517_COUNT')
+    downloads=sorted({lock['rootfs']['filename'],lock['rootfs']['filename']+'.sig',*groups['keyring_materials'],*groups['supplemental_materials']})
+    need(len(downloads)==21,'HOLD_MATERIAL_RUNTIME_DOWNLOAD_ROSTER')
+    return dict(pins=pins,urls=urls,downloads=downloads,total_bytes=sum(row['bytes'] for row in pins.values()))
+
+
+def material_tool(row,name):
+    need(type(row) is dict and type(row.get('path')) is str,'HOLD_MATERIAL_RUNTIME_TOOL')
+    path=Path(row['path']);aliases={name}|({'mke2fs'} if name=='mkfs.ext4' else set())
+    need(str(path)==row['path'] and str(path.parent) in ('/usr/bin','/usr/sbin')
+         and (path.name in aliases or name=='python3' and re.fullmatch(r'python3\.[0-9]{1,2}',path.name))
+         and type(row['bytes']) is int and 0<row['bytes']<=256*1024**2
+         and type(row['sha256']) is str and re.fullmatch('[0-9a-f]{64}',row['sha256']),
+         'HOLD_MATERIAL_RUNTIME_TOOL')
+    return row['path']
+
+
+def delegated_materials(files,expected,source,support,policy,d,c,runtime,q):
+    """Join committed callback receipts to separately authenticated Root facts.
+
+    No package/cache body, private request, command diagnostic or secret value
+    is opened or manufactured. Their missing observations remain Root inputs.
+    """
+    selected=d['capability'].get('allow_material_staging',False)
+    need(type(selected) is bool,'HOLD_MATERIAL_STAGING_EXPLICIT_CAPABILITY')
+    if not selected:
+        need(not MATERIAL_RUNTIME_SUPPORT&set(support) and 'material_qualification_pin' not in runtime,
+             'HOLD_MATERIAL_RUNTIME_UNSELECTED_OBSERVATIONS')
+        return None
+    need(MATERIAL_RUNTIME_SUPPORT|PREREQUISITE_SUPPORT<=set(support),'HOLD_MATERIAL_RUNTIME_ROOT_OBSERVATIONS')
+    material_staging_policy(source[expected['source']['policy']['path']],with_domain=True)
+    need(whole(d['programs']['context'])==CURRENT_CONTEXT4_PIN and d['capability']['allow_host_prerequisites'] is True,
+         'HOLD_MATERIAL_STAGING_EXACT_RUNTIME_SELECTION')
+    raw={role:support[role] for role in MATERIAL_RUNTIME_SUPPORT};data={role:receipt(body) for role,body in raw.items()}
+    root=data['material_qualification'];grant=data['material_grant'];public=data['material_staging'];closed=data['material_close']
+    timing=receipt(support['prerequisite_timing']);pre=receipt(support['prerequisite_qualification'])
+    initial=receipt(support['prerequisite_initial_context']);launcher=receipt(support['prerequisite_launcher'])
+    inputs=receipt(support['inputs']);binding=expected['binding'];nonce=expected['nonce']
+    keys={'schema','kind','issuer','status','approved','binding','nonce','delegation_pin','policy_pin','request_pin',
+        'domain_request_pin','initial_context_pin','public_pins','control_root','boot_pin','assembly','clock','physical','rows',
+        'storage','secret_lifecycle','verified_materials','commands','child_request_pin','command_deadline_monotonic',
+        'tools','prerequisite_qualification_pin'}
+    public_pins={role:pin(body) for role,body in raw.items() if role!='material_qualification'}
+    public_pins.update({role:pin(support[role]) for role in ('prerequisite_timing','prerequisite_launcher')})
+    need(set(root)==keys and type(root['schema']) is int and root['schema']==4
+         and root['kind']=='ROOT_QUALIFIED_CURRENT_MATERIAL_STAGING_V4' and root['issuer']=='Root'
+         and root['status']=='ROOT_REVIEWED_CURRENT_MATERIAL_STAGING' and root['approved'] is True
+         and root['binding']==binding and root['nonce']==nonce and root['delegation_pin']==expected['delegation_pin']==pin(files['delegation.json'])
+         and root['policy_pin']==whole(expected['source']['policy']) and root['request_pin']==pre['request_pin']==timing['request_pin']
+         and root['initial_context_pin']==pin(support['prerequisite_initial_context'])
+         and root['prerequisite_qualification_pin']==pin(support['prerequisite_qualification'])
+         and same(root['public_pins'],public_pins) and root['boot_pin']==pre['boot_pin']==timing['boot_pin']
+         and runtime['material_qualification_pin']==q['material_qualification_pin']==pin(raw['material_qualification']),
+         'HOLD_MATERIAL_RUNTIME_ROOT_QUALIFICATION')
+    need(len(raw['material_grant'])<=65536 and raw['material_grant']==encoded(grant)
+         and set(grant)=={'schema','kind','issuer','approved','source','ref','source_lock','nonce','policy','issued_epoch',
+             'expires_epoch','redirect_urls','secret_provider','scope','storage_parent'}
+         and type(grant['schema']) is int and grant['schema']==3 and grant['kind']=='ROOT_CURRENT_COMPLETE517_STAGING_V3'
+         and grant['issuer']=='Root' and grant['approved'] is True and grant['nonce']==nonce
+         and all(grant[key]==binding[key] for key in ('source','ref','source_lock'))
+         and grant['policy']==root['policy_pin'] and grant['secret_provider']=='CALLER_ONE_SHOT_EXACT22'
+         and grant['scope']=='COMPLETE517_PUBLIC_DATA_ONLY'
+         and all(type(grant[key]) is int for key in ('issued_epoch','expires_epoch'))
+         and d['issued_epoch']<=grant['issued_epoch']<grant['expires_epoch']<=d['expires_epoch']
+         and 0<d['expires_epoch']-d['issued_epoch']<=7560,'HOLD_MATERIAL_RUNTIME_ROOT_GRANT')
+    parent='/var/lib/cachy-current-material-domain-'+nonce;out=parent+'/cachy-current-materials-'+nonce;cache=out+'/cache'
+    need(grant['storage_parent']==parent and type(root['control_root']) is str
+         and Path(root['control_root']).is_absolute() and str(Path(root['control_root']))==root['control_root']
+         and '..' not in Path(root['control_root']).parts and Path(root['control_root']).name=='cachy-current-hosted-'+nonce
+         and not Path(root['control_root']).is_relative_to(initial['source_root'])
+         and not Path(initial['source_root']).is_relative_to(root['control_root']),
+         'HOLD_MATERIAL_RUNTIME_DOMAIN_SELECTION')
+    expiry=min(d['expires_epoch'],grant['expires_epoch']);start=timing['started_monotonic'];end=timing['deadline_monotonic']
+    need(timing['expires_epoch']==expiry and 0<start<end<=start+7560,'HOLD_MATERIAL_RUNTIME_SHARED_DEADLINE')
+    order=('material_selected','material_started','material_staged','assembly_finished','material_close_selected',
+           'material_close_started','material_closed');clock=root['clock'];need(set(clock)==set(order),'HOLD_MATERIAL_RUNTIME_CLOCK')
+    for point in clock.values():
+        need(set(point)=={'monotonic','epoch'} and all(type(value) in (int,float) and math.isfinite(value) for value in point.values())
+             and start<=point['monotonic']<end and grant['issued_epoch']<=point['epoch']<expiry
+             and abs((point['epoch']-pre['clock']['launch_started']['epoch'])-(point['monotonic']-start))<=1,
+             'HOLD_MATERIAL_RUNTIME_CLOCK')
+    need(all(clock[a]['monotonic']<=clock[b]['monotonic'] and clock[a]['epoch']<=clock[b]['epoch'] for a,b in zip(order,order[1:]))
+         and pre['clock']['preflight_finished']['monotonic']<=clock['material_selected']['monotonic']
+         and clock['assembly_finished']['monotonic']<=pre['clock']['prerequisite_started']['monotonic']
+         and pre['clock']['controller_retired']['monotonic']<=clock['material_close_selected']['monotonic']
+         and clock['material_closed']['monotonic']<=pre['clock']['launch_finished']['monotonic'],
+         'HOLD_MATERIAL_RUNTIME_CONSUMER_CLOSE_ORDER')
+    delegated_context(files['delegation.json'],support['prerequisite_initial_context'],expected,source,
+        pre['clock']['preflight_finished']['epoch'])
+    operands=material_operand_data(source,d,initial,inputs,cache)
+    need(same(root['verified_materials'],operands['pins']),'HOLD_MATERIAL_RUNTIME_ROOT_517_VERIFICATIONS')
+    need(type(grant['redirect_urls']) is dict and set(grant['redirect_urls'])==set(operands['downloads']),
+         'HOLD_MATERIAL_RUNTIME_REDIRECT_ROSTER')
+    for name,values in grant['redirect_urls'].items():
+        need(type(values) is list and len(values)<=2 and len(set(values))==len(values),'HOLD_MATERIAL_RUNTIME_REDIRECT_ROSTER')
+        for value in values:material_url(value)
+    need(set(public)=={'receipt','staging_scope_retirement','wrapper_pin','intake',*DELEGATED_FINAL},
+         'HOLD_MATERIAL_RUNTIME_PUBLIC_RECEIPT')
+    delegated_final(public);receipt_value=public['receipt'];delegated_final(receipt_value)
+    receipt_keys={'status','binding','domain','storage_domain','grant_pin','policy_pin','whole_deadline_monotonic',
+        'Root_expires_epoch','physical_scope_end_monotonic','commands','verified_files','verified_bytes','cache','materialization',
+        'cache_created_files','provider_validation_archive_copies','caller_must_prove_scope_retirement_and_absence',*DELEGATED_FINAL}
+    need(set(receipt_value)==receipt_keys and receipt_value['status']=='COMPLETE517_HOSTED_CACHE_DATA_ONLY'
+         and receipt_value['binding']==binding and receipt_value['grant_pin']==pin(raw['material_grant'])
+         and receipt_value['policy_pin']==root['policy_pin'] and type(receipt_value['Root_expires_epoch']) is int
+         and receipt_value['Root_expires_epoch']==expiry
+         and type(receipt_value['verified_files']) is int and receipt_value['verified_files']==517
+         and type(receipt_value['cache_created_files']) is int and receipt_value['cache_created_files']==517
+         and type(receipt_value['verified_bytes']) is int and receipt_value['verified_bytes']==operands['total_bytes']
+         and type(receipt_value['provider_validation_archive_copies']) is int and receipt_value['provider_validation_archive_copies']==0
+         and receipt_value['caller_must_prove_scope_retirement_and_absence'] is True and receipt_value['cache']==cache
+         and receipt_value['materialization']=='UNCHANGED_ORIGINAL_SEEDS_AND_FIXED_PINNED_DOWNLOADS',
+         'HOLD_MATERIAL_RUNTIME_COMPLETE_RECEIPT')
+    assembly=root['assembly'];request=data['material_assembly_request']
+    need(set(assembly)=={'request_pin','wrapper_pin','inputs_pin','staged_refs_pin','intake','initial_staged_inputs','initial_staged_root'}
+         and assembly['initial_staged_inputs'] is None and assembly['initial_staged_root'] is None
+         and assembly['request_pin']==pin(raw['material_assembly_request']) and 0<len(raw['material_assembly_request'])<=8192
+         and raw['material_assembly_request']==encoded(request)
+         and set(request)=={'schema','kind','stage','source_date_epoch','base_lock','bootstrap_profile','base_materials',
+             'supplemental_materials','keyring_materials','official_trust','test_trust','products','retention'}
+         and type(request['schema']) is int and request['schema']==3 and request['kind']=='CURRENT_ONBOARDING_INPUT_REQUEST_V3'
+         and request['stage']==expected['stage']
+         and type(request['source_date_epoch']) is int and request['source_date_epoch']==inputs['stage_inputs']['source_date_epoch']
+         and all(request[key] is None for key in ('base_lock','bootstrap_profile','base_materials','supplemental_materials','keyring_materials'))
+         and all(type(request[key]) is dict and set(request[key])=={'public_key','fingerprint','Root_admission'}
+             and all(value is not None for value in request[key].values()) for key in ('official_trust','test_trust'))
+         and type(request['products']) is dict and set(request['products'])==set(inputs['stage_inputs']['products'])
+         and assembly['wrapper_pin']==public['wrapper_pin']
+         and assembly['inputs_pin']==pin(support['inputs']) and same(assembly['intake'],public['intake']),
+         'HOLD_MATERIAL_RUNTIME_ASSEMBLER_BOUNDARY')
+    need(whole(assembly['wrapper_pin'])['bytes']>0 and whole(assembly['staged_refs_pin'])['bytes']>0,
+         'HOLD_MATERIAL_RUNTIME_ASSEMBLER_BOUNDARY');intake=assembly['intake']
+    need(set(intake)=={'files','bytes'} and all(type(x) is int for x in intake.values())
+         and 517<=intake['files']<=HOSTED_LAUNCHER_LIMITS['reference_files']
+         and operands['total_bytes']<=intake['bytes']<=HOSTED_LAUNCHER_LIMITS['reference_bytes'],
+         'HOLD_MATERIAL_RUNTIME_INTAKE_CENSUS')
+    storage=root['storage'];storage_keys={'source_device','runner_uid','runner_gid','stage_uid','close_uid','mode','filesystem','mount_options',
+        'loop_device','private','exclusive_loop','retained_until_consumers_retired','loop_absent','mount_absent','backing_absent','rlimits'}
+    need(set(storage)==storage_keys and all(type(storage[key]) is int and storage[key]>0 for key in ('source_device','runner_uid','runner_gid'))
+         and type(storage['stage_uid']) is int and storage['stage_uid']==storage['runner_uid']
+         and type(storage['close_uid']) is int and storage['close_uid']==0 and type(storage['mode']) is int and storage['mode']==0o700
+         and storage['filesystem']=='ext4' and storage['mount_options']==['nodev','nosuid']
+         and type(storage['loop_device']) is str and re.fullmatch('/dev/loop[0-9]+',storage['loop_device'])
+         and all(storage[key] is True for key in ('private','exclusive_loop','retained_until_consumers_retired','loop_absent','mount_absent','backing_absent')),
+         'HOLD_MATERIAL_RUNTIME_STORAGE_OBSERVATIONS')
+    need(type(storage['rlimits']) is dict and set(storage['rlimits'])=={'stage','close'},'HOLD_MATERIAL_RUNTIME_ACTUAL_RLIMITS')
+    for role,maximum in (('stage',3600),('close',90)):
+        limits=storage['rlimits'][role]
+        need(set(limits)=={'address_space_bytes','cpu_seconds','core_bytes'} and all(type(x) is int for x in limits.values())
+             and limits['address_space_bytes']==2147483648 and limits['core_bytes']==0 and 0<limits['cpu_seconds']<=maximum,
+             'HOLD_MATERIAL_RUNTIME_ACTUAL_RLIMITS')
+    observed_storage=receipt_value['storage_domain']
+    need(set(observed_storage)=={'path','device','total_bytes','total_nodes','free_bytes','free_nodes','Root_acceptance'}
+         and observed_storage['Root_acceptance'] is None and observed_storage['path']==parent
+         and all(type(observed_storage[key]) is int for key in ('device','total_bytes','total_nodes','free_bytes','free_nodes'))
+         and observed_storage['device']>0 and observed_storage['device']!=storage['source_device']
+         and 6*1024**3<=observed_storage['free_bytes']<=observed_storage['total_bytes']<=8*1024**3
+         and 18000<=observed_storage['free_nodes']<=observed_storage['total_nodes']<=20000,
+         'HOLD_MATERIAL_RUNTIME_RETAINED_FILESYSTEM')
+    need(same(root['secret_lifecycle'],dict(values_read=22,sealed_anonymous_input=True,cleared_before_assembly=True,retired=True)),
+         'HOLD_MATERIAL_RUNTIME_ONE_SHOT_RETIREMENT')
+    domain_request=dict(source_root=initial['source_root'],delegation_raw=files['delegation.json'].decode(),delegation_sha256=pin(files['delegation.json'])['sha256'],
+        context=initial,grant_raw=raw['material_grant'].decode(),grant_sha256=pin(raw['material_grant'])['sha256'],shared_timing=timing,
+        control_root=root['control_root'],runner_uid=storage['runner_uid'],runner_gid=storage['runner_gid'])
+    need(set(closed)=={'owned_storage_absent','scope_absent','scope_absence','binding','nonce','request_pin',*DELEGATED_FINAL}
+         and root['domain_request_pin']==pin(encoded(domain_request)) and closed['request_pin']==root['domain_request_pin']
+         and closed['binding']==binding and closed['nonce']==nonce and closed['owned_storage_absent'] is True,
+         'HOLD_MATERIAL_RUNTIME_DOMAIN_REQUEST_CLOSE')
+    delegated_final(closed);physical=root['physical'];rows=root['rows'];need(set(physical)==set(rows)=={'stage','close'},'HOLD_MATERIAL_RUNTIME_SCOPES')
+    for role,scope_role,selected_point,started_point,finished_point,maximum in (
+        ('stage','materials','material_selected','material_started','material_staged',3600),
+        ('close','materials-close','material_close_selected','material_close_started','material_closed',90)):
+        observed=physical[role];need(set(observed)=={'domain','properties'},'HOLD_MATERIAL_RUNTIME_SCOPES')
+        entered,seconds=prerequisite_scope(observed,nonce,scope_role)
+        point=clock[selected_point];left=min(end-point['monotonic'],expiry-point['epoch'])
+        need(seconds==min(maximum,math.floor(left)-15) and (seconds>120 if role=='stage' else seconds>1)
+             and point['monotonic']<=entered<=clock[started_point]['monotonic']<=clock[finished_point]['monotonic']<=entered+seconds
+             and entered+seconds+5<=end,'HOLD_MATERIAL_RUNTIME_PHYSICAL_DEADLINE')
+        if role=='stage':
+            domain=receipt_value['domain'];need(set(domain)=={'cgroup','pid','starttime','limits','Root_acceptance'}
+                 and domain['Root_acceptance'] is None and same({k:v for k,v in domain.items() if k!='Root_acceptance'},observed['domain'])
+                 and receipt_value['physical_scope_end_monotonic']==entered+seconds
+                 and entered+seconds<=receipt_value['whole_deadline_monotonic']<=end+.1,
+                 'HOLD_MATERIAL_RUNTIME_STAGE_KERNEL')
+        row=rows[role];need(set(row)=={'kind','argv','tools','natural','scope_absence','supervision','output_pin','stderr_pin',*DELEGATED_FINAL}
+             and row['kind']==('STAGE' if role=='stage' else 'CLOSE') and row['natural'] is True,
+             'HOLD_MATERIAL_RUNTIME_SCOPE_SUPERVISION')
+        delegated_final(row);natural(row['supervision'])
+        need(row['supervision']['reaped'] is True and row['supervision']['output_complete'] is True and row['supervision']['timeout'] is False
+             and row['supervision']['seconds']<seconds+3 and material_whole(row['output_pin'])==pin(b'')
+             and clock[finished_point]['monotonic']-clock[started_point]['monotonic']<=row['supervision']['seconds']+.25
+             and material_whole(row['stderr_pin'])['bytes']<1024**2,
+             'HOLD_MATERIAL_RUNTIME_SCOPE_SUPERVISION')
+        absence=dict(scope='cachy-current-'+scope_role+'-'+nonce+'.scope',absent_twice=True)
+        need(same(row['scope_absence'],absence),'HOLD_MATERIAL_RUNTIME_SCOPE_ABSENCE')
+        retirement=dict(natural=True,scope_absent=True,scope=absence['scope'],supervision_pin=pin(encoded(row['supervision'])),
+            scope_absence_pin=pin(encoded(absence)),**DELEGATED_FINAL)
+        if role=='stage':need(same(public['staging_scope_retirement'],retirement),'HOLD_MATERIAL_RUNTIME_STAGING_RETIREMENT')
+        else:need(same(closed['scope_absence'],rows['stage']['scope_absence']) and closed['scope_absent'] is True,
+             'HOLD_MATERIAL_RUNTIME_CLOSE_ABSENCE')
+        need(set(row['tools'])=={'python3','systemd-run','sudo'},'HOLD_MATERIAL_RUNTIME_SCOPE_TOOLS')
+        python=material_tool(row['tools']['python3'],'python3');systemd=material_tool(row['tools']['systemd-run'],'systemd-run')
+        need(material_tool(row['tools']['sudo'],'sudo')=='/usr/bin/sudo','HOLD_MATERIAL_RUNTIME_SCOPE_TOOLS')
+        argv=['/usr/bin/sudo','-n',systemd,'--scope','--quiet','--unit='+absence['scope'],'--description=current-material-domain-'+nonce,
+            '--property=MemoryMax=536870912','--property=MemorySwapMax=0','--property=CPUQuota=100%','--property=CPUQuotaPeriodSec=100ms',
+            '--property=TasksMax=64','--property=RuntimeMaxSec='+str(int(seconds))+'s','--property=TimeoutStopSec=5s',
+            '--property=KillMode=control-group','--property=OOMPolicy=kill','--',python,'-I','-B',
+            initial['source_root']+'/'+d['programs']['material_domain_executor']['member'],'stage-entry' if role=='stage' else 'close-entry',
+            '--request',root['control_root']+'/material-domain-request.json','--request-sha256',root['domain_request_pin']['sha256']]
+        need(row['argv']==argv,'HOLD_MATERIAL_RUNTIME_DIRECT_SCOPE_INVOCATION')
+    need(set(root['tools'])=={'python3','systemctl'},'HOLD_MATERIAL_RUNTIME_COMMAND_TOOLS')
+    python=material_tool(root['tools']['python3'],'python3');systemctl=material_tool(root['tools']['systemctl'],'systemctl')
+    deadline=root['command_deadline_monotonic']
+    need(type(deadline) in (int,float) and math.isfinite(deadline)
+         and clock['material_started']['monotonic']<deadline<=receipt_value['physical_scope_end_monotonic']-30
+         and clock['material_staged']['monotonic']<=receipt_value['physical_scope_end_monotonic'],
+         'HOLD_MATERIAL_RUNTIME_COMMAND_DEADLINE')
+    profiles={}
+    for role in ('public14_profile','retained_carrier_profile'):
+        member,sha=MATERIAL_PROFILES[role];body=source[member]
+        need(pin(body)['sha256']==sha,'HOLD_MATERIAL_RUNTIME_PROFILE_PIN');profiles[role]=decode(body)
+    authority=dict(delegation_json=files['delegation.json'].decode(),delegation_sha256=pin(files['delegation.json'])['sha256'],
+        grant_json=raw['material_grant'].decode(),grant_sha256=pin(raw['material_grant'])['sha256'],context=initial)
+    image=inputs['image_inputs'];child_request=dict(authority=authority,source_root=initial['source_root'],programs=d['programs'],cache=cache,
+        deadline=deadline,base_lock=image['base_lock'],transport_policy=MATERIAL_STAGING_POLICY['transport_policy'],
+        public_profile=profiles['public14_profile'],native_profile=profiles['retained_carrier_profile'])
+    need(root['child_request_pin']==pin(encoded(child_request)),'HOLD_MATERIAL_RUNTIME_CHILD_REQUEST')
+    child=[python,'-I','-B',initial['source_root']+'/'+d['programs']['materials_stager']['member']]
+    request_args=['--request',out+'/child-request.json','--request-sha256',root['child_request_pin']['sha256']]
+    planned=[([systemctl,'show','cachy-current-materials-'+nonce+'.scope','--no-pager',
+        '--property=RuntimeMaxUSec,ActiveEnterTimestampMonotonic,ControlGroup'],15)]
+    planned.extend(([ *child,'transport',*request_args,'--which',which],500) for which in ('public14','native248'))
+    planned.extend((([*child,'private-seed',*request_args],65),([python,'-I','-B',out+'/public14/seed.py','--cache',cache],30),
+                    ([*child,'prepare',*request_args],480)))
+    for name in operands['downloads']:
+        request_row=dict(authority=authority,source_root=initial['source_root'],programs=d['programs'],base_lock=image['base_lock'],
+            bootstrap_profile=image['bootstrap_profile'],cache=cache,filename=name,url=operands['urls'][name],redirect_urls=grant['redirect_urls'][name],
+            expected=operands['pins'][name],output=cache+'/'+name)
+        planned.append(([*child,'download','--request',out+'/download-'+name+'.json','--request-sha256',pin(encoded(request_row))['sha256']],90))
+    commands=receipt_value['commands'];observations=root['commands']
+    need(type(commands) is list and len(commands)==27 and type(observations) is list and len(observations)==27,
+         'HOLD_MATERIAL_RUNTIME_COMPLETE_COMMANDS')
+    elapsed=0;previous=clock['material_started']['monotonic']
+    for row,actual,(argv,timeout) in zip(commands,observations,planned):
+        need(set(row)=={'argv','natural','Root_acceptance'} and row['argv']==argv and row['natural'] is True and row['Root_acceptance'] is None
+             and set(actual)=={'receipt_pin','supervision','elapsed_seconds','timeout_seconds','supervision_cap_seconds','output_pin','stderr_pin',
+                 'started_monotonic','finished_monotonic'}
+             and actual['receipt_pin']==pin(encoded(row)) and type(actual['timeout_seconds']) is int and actual['timeout_seconds']==timeout
+             and all(type(actual[key]) in (int,float) and math.isfinite(actual[key]) for key in
+                 ('elapsed_seconds','supervision_cap_seconds','started_monotonic','finished_monotonic'))
+             and 0<=actual['elapsed_seconds']<=timeout and 0<actual['supervision_cap_seconds']<=timeout,
+             'HOLD_MATERIAL_RUNTIME_COMMAND_OBSERVATIONS')
+        need(previous<=actual['started_monotonic']<=actual['finished_monotonic']<=min(deadline,clock['material_staged']['monotonic'])
+             and actual['started_monotonic']+timeout<deadline
+             and abs(actual['finished_monotonic']-actual['started_monotonic']-actual['elapsed_seconds'])<=.001,
+             'HOLD_MATERIAL_RUNTIME_ORIGINAL_COMMAND_WINDOW')
+        sup=actual['supervision'];natural(sup)
+        need(sup['reaped'] is True and sup['output_complete'] is True and sup['timeout'] is False
+             and sup['seconds']<=actual['supervision_cap_seconds']
+             and material_whole(actual['output_pin'])['bytes']+material_whole(actual['stderr_pin'])['bytes']<=131072,
+             'HOLD_MATERIAL_RUNTIME_COMMAND_OBSERVATIONS')
+        elapsed+=actual['elapsed_seconds']
+        previous=actual['finished_monotonic']
+    need(elapsed<=min(deadline,clock['material_staged']['monotonic'])-clock['material_started']['monotonic'],
+         'HOLD_MATERIAL_RUNTIME_AGGREGATE_COMMAND_TIME')
+    need(same(launcher['material_domain_cleanup'],dict(closed=True,scope_absent=True,input_storage_absent=True,**DELEGATED_FINAL))
+         and same(launcher['intake'],intake),'HOLD_MATERIAL_RUNTIME_LAUNCH_CLEANUP')
+    return dict(status='PASS_MATERIAL_STAGING_CALLBACK_DATA_ONLY',materials=517,programs=25,whole_budget_seconds=7560,
+        cleanup_reserve_seconds=90,material_bodies_replayed=False,command_output_bodies_replayed=False,Root_authentication=False)
+
+
 def delegated_prerequisites(files,expected,source,support,policy,d,c,runtime,q):
     """Replay public launch facts and separately selected Root observations.
 
@@ -1820,7 +2194,13 @@ def delegated_prerequisites(files,expected,source,support,policy,d,c,runtime,q):
              'HOLD_PREREQUISITE_UNSELECTED_RUNTIME')
         return None
     need(PREREQUISITE_SUPPORT<=set(support),'HOLD_PREREQUISITE_ROOT_OBSERVATIONS')
-    prerequisite_policy(source[expected['source']['policy']['path']])
+    material_selected=d['capability'].get('allow_material_staging',False)
+    need(type(material_selected) is bool,'HOLD_MATERIAL_STAGING_EXPLICIT_CAPABILITY')
+    selected_prerequisite_policy(source[expected['source']['policy']['path']],material_selected)
+    expiry=d['expires_epoch'];close_seconds=0
+    if material_selected:
+        need(MATERIAL_RUNTIME_SUPPORT<=set(support),'HOLD_MATERIAL_RUNTIME_ROOT_OBSERVATIONS')
+        grant=receipt(support['material_grant']);expiry=min(expiry,grant['expires_epoch']);close_seconds=90
     raw={role:support[role] for role in PREREQUISITE_SUPPORT};v={role:receipt(body) for role,body in raw.items()}
     root=v['prerequisite_qualification'];timing=v['prerequisite_timing'];report=v['prerequisite_report']
     launcher=v['prerequisite_launcher'];controller=v['prerequisite_controller'];nonce=expected['nonce']
@@ -1835,10 +2215,12 @@ def delegated_prerequisites(files,expected,source,support,policy,d,c,runtime,q):
          and type(root['trusted_main_commit']) is str and re.fullmatch('[0-9a-f]{40}',root['trusted_main_commit'])
          and root['public_pins']==public and root['same_boot'] is True,
          'HOLD_PREREQUISITE_ROOT_SELECTION')
+    launch_selection=dict(jobs_metadata=True,privileged_controller=True,launcher_limits=HOSTED_LAUNCHER_LIMITS,
+        host_prerequisites=True,whole_timing=PREREQUISITE_TIMING)
+    if material_selected:launch_selection['material_staging']=True
     need(0<whole(root['request_pin'])['bytes']<=HOSTED_LAUNCHER_LIMITS['request_bytes']
          and whole(root['boot_pin'])['bytes']==37
-         and same(root['launch_selection'],dict(jobs_metadata=True,privileged_controller=True,
-             launcher_limits=HOSTED_LAUNCHER_LIMITS,host_prerequisites=True,whole_timing=PREREQUISITE_TIMING))
+         and same(root['launch_selection'],launch_selection)
          and runtime['host_prerequisite_qualification_pin']==pin(raw['prerequisite_qualification'])
          and q['host_prerequisite_qualification_pin']==pin(raw['prerequisite_qualification']),
          'HOLD_PREREQUISITE_ROOT_LAUNCH_AUTHORIZATION')
@@ -1848,7 +2230,7 @@ def delegated_prerequisites(files,expected,source,support,policy,d,c,runtime,q):
          and type(timing['whole_budget_seconds']) is int and timing['whole_budget_seconds']==7560
          and timing['request_pin']==root['request_pin'] and timing['delegation_pin']==expected['delegation_pin']
          and timing['binding']==expected['binding'] and timing['policy_pin']==root['policy_pin']
-         and timing['boot_pin']==root['boot_pin'] and timing['expires_epoch']==d['expires_epoch']
+         and timing['boot_pin']==root['boot_pin'] and timing['expires_epoch']==expiry
          and raw['prerequisite_timing']==encoded(timing),'HOLD_PREREQUISITE_SHARED_TIMING')
     delegated_final(timing)
     start,end=timing['started_monotonic'],timing['deadline_monotonic']
@@ -1859,13 +2241,13 @@ def delegated_prerequisites(files,expected,source,support,policy,d,c,runtime,q):
     clock=root['clock'];need(set(clock)==set(order),'HOLD_PREREQUISITE_CLOCK_OBSERVATIONS')
     for point in clock.values():
         need(set(point)=={'monotonic','epoch'} and all(type(x) in (int,float) and math.isfinite(x) for x in point.values())
-             and start<=point['monotonic']<end and d['issued_epoch']<=point['epoch']<d['expires_epoch'],
+             and start<=point['monotonic']<end and d['issued_epoch']<=point['epoch']<expiry,
              'HOLD_PREREQUISITE_CLOCK_OBSERVATIONS')
     need(clock['launch_started']['monotonic']==start and all(
          clock[a]['monotonic']<=clock[b]['monotonic'] and clock[a]['epoch']<=clock[b]['epoch'] for a,b in zip(order,order[1:]))
          and all(abs((point['epoch']-clock['launch_started']['epoch'])-(point['monotonic']-start))<=1 for point in clock.values())
          and clock['preflight_finished']['monotonic']-start<=180
-         and end<=clock['preflight_finished']['monotonic']+d['expires_epoch']-clock['preflight_finished']['epoch']+.1
+         and end<=clock['preflight_finished']['monotonic']+expiry-clock['preflight_finished']['epoch']+.1
          and end-clock['prerequisite_started']['monotonic']>=510
          and clock['prerequisite_retired']['monotonic']-clock['prerequisite_started']['monotonic']<=510
          and runtime['started_at']==clock['stage_started']['epoch'] and runtime['finished_at']==clock['stage_finished']['epoch'],
@@ -1880,11 +2262,11 @@ def delegated_prerequisites(files,expected,source,support,policy,d,c,runtime,q):
          and controller['policy_pin']==root['policy_pin'],'HOLD_PREREQUISITE_CONTROLLER_BINDING')
     delegated_final(controller)
     entered,ceiling=prerequisite_scope(controller,nonce,'controller')
-    chosen=clock['controller_selected'];left=min(end-chosen['monotonic'],d['expires_epoch']-chosen['epoch'])
+    chosen=clock['controller_selected'];left=min(end-chosen['monotonic'],expiry-chosen['epoch'])
     stage_ceiling=min(7200,ceiling-361)
-    need(ceiling==math.floor(left)-15 and 361<ceiling<=7560
+    need(ceiling==math.floor(left)-15-close_seconds and 361<ceiling<=7560
          and clock['controller_selected']['monotonic']<=entered<=clock['controller_started']['monotonic']
-         and entered+ceiling<=end and clock['controller_retired']['monotonic']<=entered+ceiling
+         and entered+ceiling<=end-close_seconds and clock['controller_retired']['monotonic']<=entered+ceiling
          and clock['controller_retired']['monotonic']-entered<=q['owned_domains']['seconds']['controller_seconds']
          and runtime['finished_at']-runtime['started_at']<=stage_ceiling
          and clock['stage_finished']['monotonic']-clock['stage_started']['monotonic']
@@ -2005,7 +2387,7 @@ def delegated_prerequisites(files,expected,source,support,policy,d,c,runtime,q):
          and all(type(shared[key]) is int for key in ('controller_runtime_ceiling_seconds','available_stage_ceiling_seconds'))
          and all(type(x) in (int,float) and math.isfinite(x) for x in shared.values())
          and clock['prerequisite_retired']['monotonic']-start<=shared['elapsed_seconds']<=chosen['monotonic']-start
-         and ceiling<=shared['controller_runtime_ceiling_seconds']<=math.floor(end-start-shared['elapsed_seconds'])-15
+         and ceiling<=shared['controller_runtime_ceiling_seconds']<=math.floor(end-start-shared['elapsed_seconds'])-15-close_seconds
          and stage_ceiling<=shared['available_stage_ceiling_seconds']<=min(7200,shared['controller_runtime_ceiling_seconds']-361),
          'HOLD_PREREQUISITE_LAUNCH_TIMING')
     return dict(whole_budget_seconds=7560,controller_ceiling_seconds=ceiling,stage_ceiling_seconds=stage_ceiling,
@@ -2229,6 +2611,15 @@ def delegated_builds(files,commands,p,source,packages,image_id,epoch,expected,su
     return results
 
 
+def delegated_selected_context_versions(d,pd,stage,producer_stage,kind):
+    new_consumer=whole(d['programs']['context'])==CURRENT_CONTEXT4_PIN
+    need(d['schema']==4 and (producer_stage=='backend' or new_consumer and stage=='lifecycle' and kind=='ui'),
+         'HOLD_SELECTED_UI_CONTEXT_PROGRAM_UNSUPPORTED')
+    if pd['schema']==4:
+        need(whole(pd['programs']['context'])==whole(d['programs']['context']),
+             'HOLD_DELEGATED_SELECTED_PRODUCER_CONTEXT_VERSION')
+
+
 def delegated_products(files,expected,source,p,d,c,inputs,at):
     stage=expected['stage'];wanted=set() if stage=='backend' else {'first-login'} if stage=='ui' else set(KINDS)
     products=inputs['stage_inputs']['products'];need(set(products)==wanted,'HOLD_DELEGATED_PRODUCT_SET')
@@ -2260,7 +2651,7 @@ def delegated_products(files,expected,source,p,d,c,inputs,at):
              and pair['matching_pair'] is True,'HOLD_DELEGATED_PRODUCT_PAIR')
         delegated_final(pair)
         if selected:
-            need(d['schema']==4 and producer_stage=='backend','HOLD_SELECTED_UI_CONTEXT_PROGRAM_UNSUPPORTED')
+            delegated_selected_context_versions(d,pd,stage,producer_stage,kind)
             selection=d['pair_selections'][product['selection_role']] if 'pair_selections' in d else d['pair_selection']
             fields={'schema','kind','producer_binding','component','archives','signatures','test_fingerprint','max_producer_age_seconds',
                 'producer_delegation_pin','producer_context_pin','completion_pin','pair_pin','root_component_decision_pin',
@@ -2434,10 +2825,13 @@ def _delegated_check(capsule,expected,source_files,support_files,now,depth=0):
     files,manifest,commands=delegated_payload(capsule,expected)
     prerequisites=receipt(files['delegation.json'])['capability'].get('allow_host_prerequisites',False)
     need(type(prerequisites) is bool,'HOLD_PREREQUISITE_EXPLICIT_CAPABILITY')
+    material_selected=receipt(files['delegation.json'])['capability'].get('allow_material_staging',False)
+    need(type(material_selected) is bool,'HOLD_MATERIAL_STAGING_EXPLICIT_CAPABILITY')
     kinds=() if stage=='lifecycle' else ('ui',) if stage=='ui' else ('enrollment','first-login')
     required={'inputs','runtime','domain_qualification','image_qualification','command_observations'}
     if whole(expected['source']['retention'])==BASE_RETENTION_PIN:required|=set(BASE_METADATA_PINS)
     if prerequisites:required|=PREREQUISITE_SUPPORT
+    if material_selected:required|=MATERIAL_RUNTIME_SUPPORT
     if kinds:required|={'completion',*('component_'+kind for kind in kinds)}
     need(type(expected['support_pins']) is dict and set(expected['support_pins'])==required
          and type(support_files) is dict,'HOLD_MISSING_DELEGATED_ROOT_QUALIFICATION')
@@ -2466,7 +2860,7 @@ def _delegated_check(capsule,expected,source_files,support_files,now,depth=0):
          'HOLD_DELEGATED_ACTUAL_OWNER_BASIS')
     if whole(expected['source']['retention'])!=DELEGATED_RETENTION_PIN:
         need(program['delegation_programs']==d['programs'],'HOLD_DELEGATED_CANONICAL_PROGRAM_MAPPING')
-    need(d['materials']==receipt(source_files['inputs/delegated-materials-v4.json'])['materials'],
+    need(same(d['materials'],delegated_material_mapping(program,source_files)),
          'HOLD_DELEGATED_CANONICAL_MATERIAL_MAPPING')
     validator=d['programs']['inputs_assembler'];tree=ast.parse(source_files[validator['member']])
     need(any(isinstance(node,ast.FunctionDef) and node.name=='validate_owner_inputs_v3' for node in tree.body),
@@ -2481,6 +2875,7 @@ def _delegated_check(capsule,expected,source_files,support_files,now,depth=0):
     if whole(expected['source']['retention'])==BASE_RETENTION_PIN:
         base_provenance=delegated_base_provenance(files,expected,source_files,inputs,support)
     packages,runtime,q=delegated_root_inputs(files,expected,support,commands,policy,d,c)
+    material_facts=delegated_materials(files,expected,source_files,support,policy,d,c,runtime,q)
     prerequisite_facts=delegated_prerequisites(files,expected,source_files,support,policy,d,c,runtime,q)
     need(runtime['inputs_pin']==pin(support['inputs']),'HOLD_DELEGATED_QUALIFIED_INPUT_DECLARATION')
     if base_provenance is not None:
@@ -2581,6 +2976,7 @@ def _delegated_check(capsule,expected,source_files,support_files,now,depth=0):
         verdict['base_provenance']={key:base_provenance[key] for key in
             ('original_packages','supplemental_packages','material_count','operand_count','archive_bodies_replayed','signature_math_replayed')}
     if prerequisite_facts is not None:verdict['host_prerequisites']=prerequisite_facts
+    if material_facts is not None:verdict['material_staging']=material_facts
     return verdict
 
 
