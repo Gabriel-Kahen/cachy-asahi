@@ -1,0 +1,40 @@
+# SPDX-License-Identifier: MIT
+# Original opt-in development candidate; no service activation or platform changes.
+pkgname=cachy-asahi-session-lock
+pkgver=0.1.1
+pkgrel=1
+pkgdesc='Explicit and idle Wayland locking with readiness-ordered suspend requests'
+arch=('any')
+url='https://github.com/Gabriel-Kahen/cachy-asahi'
+license=('MIT')
+depends=('python>=3.11' 'swaylock>=1.8.6' 'systemd>=248' 'coreutils')
+optdepends=('swayidle>=1.8.0: explicit idle-timeout locking')
+options=('!strip' '!debug')
+source=('cachy-asahi-session-lock' 'test_session_lock.py' 'test_idle.py' 'test_package.py' 'README.md' 'source-provenance.json' 'NOTICE' 'LICENSE')
+sha256sums=(
+    '71315cff63ba2e6722cba73af8b388477a0fa2b5686cdb7eb408a4ff07311b8a'
+    '7f235c42e12336f3bf61e3ecead4477afe67bf3af6270d6913e0f4b123ca60d2'
+    '6305750bd0f66203fafe0e1737481296b0c26b590e435e516e308dbad76b5318'
+    '5d6d83626353048e5b9bcbb6a7b99cb7dacd86633adfb26d31800c4b1b4622c1'
+    '7264d90f047e75f9f7be1ed0471f3f50362acbd75da607d77d05c10cc082d712'
+    '950b1add74705c4f4b8b3f8ac2ef1f5fc903ef8ca7068385c1dad8f9fa1153f7'
+    '5ae1678fe537fff2a5a0dd2f8e0b40523b55e7c9ac5acd7c3c2eab6f75b4e94e'
+    '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
+)
+
+check() {
+    python -I -B -Werror::ResourceWarning "$srcdir/test_session_lock.py" || return
+    python -I -B -Werror::ResourceWarning "$srcdir/test_idle.py" || return
+    python -I -B -Werror::ResourceWarning "$srcdir/test_package.py" --recipe-root "$startdir"
+}
+
+package() {
+    [[ -n ${pkgdir:-} && $pkgdir != / ]] || return 1
+    install -Dm755 "$srcdir/cachy-asahi-session-lock" "$pkgdir/usr/bin/$pkgname" || return
+    install -Dm644 "$srcdir/README.md" "$pkgdir/usr/share/doc/$pkgname/README.md" || return
+    install -Dm644 "$srcdir/source-provenance.json" "$pkgdir/usr/share/doc/$pkgname/source-provenance.json" || return
+    local file
+    for file in NOTICE LICENSE; do
+        install -Dm644 "$srcdir/$file" "$pkgdir/usr/share/licenses/$pkgname/$file" || return
+    done
+}

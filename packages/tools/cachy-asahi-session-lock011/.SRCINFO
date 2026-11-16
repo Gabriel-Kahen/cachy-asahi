@@ -1,0 +1,32 @@
+pkgbase = cachy-asahi-session-lock
+	pkgdesc = Explicit and idle Wayland locking with readiness-ordered suspend requests
+	pkgver = 0.1.1
+	pkgrel = 1
+	url = https://github.com/Gabriel-Kahen/cachy-asahi
+	arch = any
+	license = MIT
+	depends = python>=3.11
+	depends = swaylock>=1.8.6
+	depends = systemd>=248
+	depends = coreutils
+	optdepends = swayidle>=1.8.0: explicit idle-timeout locking
+	options = !strip
+	options = !debug
+	source = cachy-asahi-session-lock
+	source = test_session_lock.py
+	source = test_idle.py
+	source = test_package.py
+	source = README.md
+	source = source-provenance.json
+	source = NOTICE
+	source = LICENSE
+	sha256sums = 71315cff63ba2e6722cba73af8b388477a0fa2b5686cdb7eb408a4ff07311b8a
+	sha256sums = 7f235c42e12336f3bf61e3ecead4477afe67bf3af6270d6913e0f4b123ca60d2
+	sha256sums = 6305750bd0f66203fafe0e1737481296b0c26b590e435e516e308dbad76b5318
+	sha256sums = 5d6d83626353048e5b9bcbb6a7b99cb7dacd86633adfb26d31800c4b1b4622c1
+	sha256sums = 7264d90f047e75f9f7be1ed0471f3f50362acbd75da607d77d05c10cc082d712
+	sha256sums = 950b1add74705c4f4b8b3f8ac2ef1f5fc903ef8ca7068385c1dad8f9fa1153f7
+	sha256sums = 5ae1678fe537fff2a5a0dd2f8e0b40523b55e7c9ac5acd7c3c2eab6f75b4e94e
+	sha256sums = 51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7
+
+pkgname = cachy-asahi-session-lock
