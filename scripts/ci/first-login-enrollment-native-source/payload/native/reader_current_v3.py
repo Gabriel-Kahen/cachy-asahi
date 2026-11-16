@@ -233,6 +233,33 @@ MATERIAL_STAGING_POLICY=dict(kind='CURRENT_COMPLETE517_MATERIAL_STAGING_V3',whol
     download_requests=63,download_redirects=42,download_seconds=90,
     transport_policy=dict(fetch_seconds=400,transport_seconds=480,outer_seconds=500,
         reason='Explicit one-fetch allocation for full retained DATA; no measured latency guarantee'),Root_acceptance=None)
+MATERIAL_CONSTRUCTOR_PIN=dict(bytes=35701,sha256='308bd58cdcb951e40e9ff76f766fe394f0495aa57847439eb8e1bfcbaf1be489')
+MATERIAL_FULL_POLICY_PIN=dict(bytes=8366,sha256='1177da4f3bfc36f8ebe8802ca6956adf3d0230511aa827bdac933688d83f0767')
+MATERIAL_EXECUTOR_PIN=dict(bytes=53735,sha256='aee41c0956f3249eef2e9c8974238b214622cb385e2d8f736109d9650ce7120a')
+MATERIAL_DOMAIN_POLICY=dict(kind='CURRENT_ONBOARDING_MATERIAL_DOMAIN_V3',scope_seconds=3600,cleanup_seconds=90,
+    whole_budget_seconds=7560,scope_limits=PREREQUISITE_POLICY['scope_limits'],controller_AS_bytes=2147483648,
+    controller_CPU_seconds=3600,storage_parent_base='/var/lib',storage_bytes=8*1024**3,filesystem_inodes=18432,
+    maximum_inodes=20000,minimum_free_inodes=18000,administration_rows=32,administration_bytes=128*1024**2,
+    administration_nodes=256,secret_bytes=1024**2,receipt_bytes=2*1024**2,retain_until_consumers_retired=True,Root_issuance=None)
+MATERIAL_FILES={
+    'materials_stager':('scripts/ci/first-login-enrollment-native-source/payload/native/stage_materials_current_v3_python_v1.py',32266,
+        'd0c0764b1b7a92bb55dce63ba55314bb84ace4533434afcc47b1e23205e1cac9'),
+    'material_domain_executor':('scripts/ci/first-login-enrollment-native-source/payload/native/material_domain_current_v3.py',36172,
+        'dda088c77150046b3822db81e329e00a0afa72db3e10c3c1b74cd1e50bc2e0c3'),
+    'base_inputs':('scripts/ci/first-login-enrollment-native-source/payload/native/base_inputs_current_v3.py',18820,
+        '9e35c3ae6c3e1e9596f54806279d05cc77ae6a2cb5fb284d469df549e1d3abc6'),
+    'private_seed':('bootstrap/scripts/ci/old_four_seed.py',29048,'a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7'),
+    'material_transport':('native/retained_transport.py',12375,'46708771ccb93bbfe22c4f449f3a54052bc9494c4fb572e10b0853b5aa47bdef'),
+    'retained_transport_core':('scripts/maintenance/retained_git_transport.py',25334,'9b90c423fd67c261d8be1dddd8450df5b927b6dbaba9972c4daff8c0da2836b7'),
+    'retained_prepare':('bootstrap/scripts/ci/setup6-retained-helpers/prepare.py',3749,'6c688c315cb962c641b8c0b1d9d88f94778d57ae19bcef251e88e49cb4be6316'),
+    'retained_prefill':('bootstrap/scripts/ci/setup6-retained-helpers/legacy_prefill.py',5986,'05a91a91efd69b3b2e06561f5bbf08bdbb105998d42dbf133e75fd1fe25945ac')}
+MATERIAL_PROFILES={
+    'retained_carrier_profile':('bootstrap/scripts/ci/setup6-retained-helpers/carrier-profile.json','4089fd798849cafda23d03c0dd95ac896a83fd63ad21e331ae420c147535586c'),
+    'retained_prefill_profile':('bootstrap/scripts/ci/setup6-retained-helpers/legacy-prefill-profile.json','9cc82d4e0947415ecad9d40094a4c0a2709d01be54513e78af8c739fd76fb696'),
+    'public14_profile':('scripts/ci/first-login-enrollment-native-source/inputs/public14-profile.json','5fe4761bc96d21ec388322ead3b97c735d2f689c38061c560afc90a2143de346'),
+    'staging_base_lock':('bootstrap/scripts/ci/inputs.lock.json','beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'),
+    'staging_bootstrap_profile':('native/input-profile.json','2c42c705654d31e639f389f9a868dada0d9df76813d865e766be7b7c08f8404c')}
+MATERIAL_CALLBACKS={'material_selected','assembly_request','material_programs','assembly_selection','stage_and_assemble'}
 SELECTED_TEST_FINGERPRINT='D9D7A9FC25B9914CF6F2CE55952AEDD8A209B4C0'
 SELECTED_TEST_KEY_PIN=dict(bytes=437,sha256='01ffe16c6215c2030914d0cfc7f27f14ae15cb58da1e4723ac1651c423c1e289')
 
@@ -263,11 +290,15 @@ def prerequisite_policy(raw):
     return policy
 
 
-def material_staging_policy(raw):
+def material_staging_policy(raw,*,with_domain=False):
     """Parse the committed stager's unissued proposal as DATA, never a grant."""
     policy=receipt(raw);base=dict(policy)
     need(same(base.pop('material_staging_current_v3',None),MATERIAL_STAGING_POLICY)
          and raw==encoded(policy),'HOLD_MATERIAL_STAGING_EXACT_POLICY_COMPOSITION')
+    need(type(with_domain) is bool,'HOLD_MATERIAL_STAGING_EXPLICIT_DOMAIN_POLICY')
+    if with_domain:
+        need(same(base.pop('material_domain_executor_current_v3',None),MATERIAL_DOMAIN_POLICY)
+             and pin(raw)==MATERIAL_FULL_POLICY_PIN,'HOLD_MATERIAL_STAGING_EXACT_DOMAIN_POLICY_COMPOSITION')
     prerequisite_policy(encoded(base));return policy
 
 
@@ -336,7 +367,7 @@ def material_registry_shape(program,closure):
          'HOLD_MATERIAL_STAGING_BUILD_VALIDATOR')
     need(same(program['delegation_programs'],selected),'HOLD_MATERIAL_STAGING_CANONICAL_PROGRAM_MAPPING')
     return dict(status='MATERIAL_STAGING_REGISTRY_SHAPE_DATA_ONLY_V4',program_roles=27,staging_material_roles=5,
-        Root_authentication=False,Source_qualification='HOLD_PENDING_COMMITTED_CONSTRUCTOR_AND_DOMAIN')
+        Root_authentication=False,Source_qualification='NOT_EVALUATED_BY_SHAPE_PARSER')
 
 
 def material_projection_data(original_raw,supplemental_raw,program):
@@ -360,6 +391,30 @@ def material_projection_data(original_raw,supplemental_raw,program):
         members.add(row['member'])
     return dict(status='MATERIAL_STAGING_MATERIAL_PROJECTION_DATA_ONLY_V4',materials=selected,
         original_material_roles=59,staging_material_roles=5,Root_authentication=False)
+
+
+def literal_source_table(tree,name):
+    """Read bounded literal declarations without resolving or executing Source."""
+    need(name in {'API','IMPLEMENTATION','STAGER_PIN','EXECUTOR_PIN','INPUT_METADATA','CONTEXT_PROGRAM_PINS'},
+         'HOLD_LITERAL_SOURCE_TABLE')
+    values=[node.value for node in tree.body if isinstance(node,ast.Assign)
+            and any(isinstance(target,ast.Name) and target.id==name for target in node.targets)]
+    need(len(values)==1,'HOLD_LITERAL_SOURCE_TABLE:'+name)
+    def data(node,depth=0):
+        need(depth<12,'HOLD_LITERAL_SOURCE_TABLE:'+name)
+        if isinstance(node,ast.Constant) and type(node.value) in (str,int,bool,type(None)):return node.value
+        if isinstance(node,ast.Dict):pairs=list(zip(node.keys,node.values))
+        elif isinstance(node,ast.Call) and isinstance(node.func,ast.Name) and node.func.id=='dict' and not node.args:
+            need(all(item.arg is not None for item in node.keywords),'HOLD_LITERAL_SOURCE_TABLE:'+name)
+            pairs=[(ast.Constant(item.arg),item.value) for item in node.keywords]
+        else:need(False,'HOLD_LITERAL_SOURCE_TABLE:'+name)
+        need(len(pairs)<=64,'HOLD_LITERAL_SOURCE_TABLE:'+name);result={}
+        for key,value in pairs:
+            key=data(key,depth+1)
+            need(type(key) in (str,int) and key not in result,'HOLD_LITERAL_SOURCE_TABLE:'+name)
+            result[key]=data(value,depth+1)
+        return result
+    return data(values[0])
 
 
 def literal_timing(tree):
@@ -449,14 +504,15 @@ def source_data(expected,files,*,delegated=False):
     if program.get('schema')==4:
         actual={'source','ref','run','job','Root_delegation','Root_trust','Root_resources','Root_runtime','actual_images','publication'}
         prefix='scripts/ci/first-login-enrollment-native-source/successor_v4_source/'
-        roles=set(program['roles'])
-        if roles==MATERIAL_STAGING_ROLES:
+        roles=set(program['roles']);staging=roles==MATERIAL_STAGING_ROLES
+        if staging:
             material_registry_shape(program,receipt(files['provenance/v4/delegated-closure.json']))
             material_projection_data(files['inputs/delegated-materials-v4.json'],
                 files['inputs/material-staging-materials-v4.json'],program)
-            need(False,'HOLD_MATERIAL_STAGING_FINAL_CONSTRUCTOR_REQUIRED')
-        prerequisites=roles==PREREQUISITE_ROLES
-        current=roles in (CURRENT_ROLES,PREREQUISITE_ROLES)
+            need(pin(files[prefix+'prepare.py'])==MATERIAL_CONSTRUCTOR_PIN,
+                 'HOLD_MATERIAL_STAGING_FINAL_CONSTRUCTOR_REQUIRED')
+        prerequisites=roles in (PREREQUISITE_ROLES,MATERIAL_STAGING_ROLES)
+        current=roles in (CURRENT_ROLES,PREREQUISITE_ROLES,MATERIAL_STAGING_ROLES)
         need(current or roles==HISTORICAL_ROLES,'HOLD_DELEGATED_EXACT_REGISTRY_VERSION')
         need(not prerequisites or delegated and whole(expected['source']['retention'])==BASE_RETENTION_PIN,
              'HOLD_PREREQUISITE_EXACT_SOURCE_VERSION')
@@ -464,8 +520,9 @@ def source_data(expected,files,*,delegated=False):
         if delegated:
             need(current and whole(expected['source']['retention']) in DELEGATED_RETENTION_VERSIONS,
                  'HOLD_DELEGATED_SOURCE_SELECTOR')
-            constructor_pin=BASE_CONSTRUCTOR_PIN if whole(expected['source']['retention'])==BASE_RETENTION_PIN else DELEGATED_CONSTRUCTOR_PIN
-            need(pin(files[prefix+'prepare.py'])==constructor_pin,'HOLD_DELEGATED_EXACT_CONSTRUCTOR_BODY')
+            constructors=((BASE_CONSTRUCTOR_PIN,MATERIAL_CONSTRUCTOR_PIN) if whole(expected['source']['retention'])==BASE_RETENTION_PIN
+                          else (DELEGATED_CONSTRUCTOR_PIN,))
+            need(pin(files[prefix+'prepare.py']) in constructors,'HOLD_DELEGATED_EXACT_CONSTRUCTOR_BODY')
             tree=ast.parse(files[prefix+'prepare.py']);declarations={}
             for node in tree.body:
                 if isinstance(node,ast.Assign) and isinstance(node.value,(ast.Tuple,ast.List)):
@@ -491,6 +548,7 @@ def source_data(expected,files,*,delegated=False):
         program_keys={'schema','kind','operation','api','owner','route','owner_callbacks','route_callback','roles',
                  'entrypoints','closure_commit','v3_registry_scope','actual'}
         if delegated:program_keys|={'delegation_programs','retention_callback'}
+        if staging:program_keys.add('staging_materials')
         need(set(program)==program_keys
              and program['kind']=='DELEGATED_CURRENT_PROGRAM_REGISTRY_V4' and program['operation']==OP
              and program['api']=='CURRENT_ONBOARDING_DELEGATED_OWNER_V3'
@@ -500,7 +558,8 @@ def source_data(expected,files,*,delegated=False):
              and set(program['actual'])==actual and re.fullmatch('[0-9a-f]{40}',program['closure_commit'])
              and all(value is None for value in program['actual'].values()),'HOLD_DELEGATED_PROGRAM')
         closure=receipt(files['provenance/v4/delegated-closure.json'])
-        need(set(closure)=={'schema','kind','operation','commit','roles','files','entrypoints','actual'}
+        closure_keys={'schema','kind','operation','commit','roles','files','entrypoints','actual'}|({'staging_materials'} if staging else set())
+        need(set(closure)==closure_keys
              and closure['schema']==4 and closure['kind']=='COMMITTED_DELEGATED_CURRENT_PIPELINE_CLOSURE_V4'
              and closure['operation']==OP and closure['commit']==program['closure_commit']
              and closure['roles']=={role:row['member'] for role,row in program['roles'].items()}
@@ -510,7 +569,8 @@ def source_data(expected,files,*,delegated=False):
              and all(value is None for value in closure['actual'].values()),'HOLD_DELEGATED_COMMITTED_CLOSURE')
         for name,row in closure['files'].items():
             relative(name);need(set(row)=={'bytes','sha256','mode'} and pin(files[name])==whole(row)
-                and row==lock['files'][name] and name not in ('source-map.json','source.lock.json')
+                and row==lock['files'][name] and (not staging or same(row,lock['files'][name]))
+                and name not in ('source-map.json','source.lock.json')
                 and not name.startswith((prefix,'scripts/ci/first-login-enrollment-native-source/successor_v3/',
                     'carrier/','inputs/','provenance/')),'HOLD_DELEGATED_CODE_BODY')
         for role,row in program['roles'].items():
@@ -533,6 +593,18 @@ def source_data(expected,files,*,delegated=False):
             for role,(name,size,sha) in PREREQUISITE_FILES.items():
                 need(program['roles'][role]==dict(member=name,bytes=size,sha256=sha)
                      and closure['files'][name]['mode']==0o644,'HOLD_PREREQUISITE_EXACT_SOURCE_DEPENDENCY')
+        if staging:
+            for role,(name,size,sha) in MATERIAL_FILES.items():
+                need(program['roles'][role]==dict(member=name,bytes=size,sha256=sha)
+                     and closure['files'][name]['mode']==0o644,'HOLD_MATERIAL_STAGING_EXACT_CODE_BODY')
+            executor=program['roles']['image_executor']
+            need(whole(executor)==MATERIAL_EXECUTOR_PIN and closure['files'][executor['member']]['mode']==0o644,
+                 'HOLD_MATERIAL_STAGING_EXACT_EXECUTOR_BODY')
+            for role,(name,sha) in MATERIAL_PROFILES.items():
+                row=program['staging_materials'][role]
+                need(row['member']==name and row['sha256']==sha and pin(files[name])==whole(row)
+                     and closure['files'][name]==lock['files'][name]==dict(mode=0o644,**whole(row)),
+                     'HOLD_MATERIAL_STAGING_EXACT_PROFILE_BODY')
         need(program['owner']==program['roles']['delegated_owner'] and program['route']==program['roles']['route'],
              'HOLD_DELEGATED_CALLBACK_ROLES')
         for role in ('retention','encoder','policy'):
@@ -569,6 +641,24 @@ def source_data(expected,files,*,delegated=False):
             callbacks['hosted_launcher']|=PREREQUISITE_CALLBACKS
             need(same(literal_timing(trees['hosted_launcher']),PREREQUISITE_TIMING),
                  'HOLD_PREREQUISITE_LITERAL_TIMING')
+        if staging:
+            callbacks['materials_stager']={'stage_materials','validate_grant','secret_names'}
+            callbacks['material_domain_executor']={'open_material_session'}
+            callbacks['hosted_launcher']|=MATERIAL_CALLBACKS
+            for role,api in (('materials_stager','CURRENT_COMPLETE517_MATERIAL_STAGING_V3'),
+                             ('material_domain_executor','CURRENT_ONBOARDING_MATERIAL_DOMAIN_V3')):
+                need(literal_source_table(trees[role],'API')==api,'HOLD_MATERIAL_STAGING_LITERAL_API')
+            need(literal_source_table(trees['materials_stager'],'IMPLEMENTATION')=='ROOT_QUALIFIED_CANONICAL_PYTHON_V1',
+                 'HOLD_MATERIAL_STAGING_IMPLEMENTATION')
+            for name,role in (('STAGER_PIN','materials_stager'),('EXECUTOR_PIN','image_executor')):
+                need(same(literal_source_table(trees['material_domain_executor'],name),whole(program['roles'][role])),
+                     'HOLD_MATERIAL_STAGING_DOMAIN_DEPENDENCY:'+name)
+            metadata={role:program['staging_materials'][role] for role in ('staging_base_lock','staging_bootstrap_profile')}
+            need(same(literal_source_table(trees['material_domain_executor'],'INPUT_METADATA'),metadata),
+                 'HOLD_MATERIAL_STAGING_DOMAIN_INPUT_METADATA')
+            for role in ('image','image_executor'):
+                need(same(literal_source_table(trees[role],'CONTEXT_PROGRAM_PINS').get(4),whole(program['roles']['context'])),
+                     'HOLD_MATERIAL_STAGING_CONTEXT_DEPENDENCY:'+role)
         need(all(entries<=functions(role) for role,entries in callbacks.items()),'HOLD_DELEGATED_ROLE_CALLBACKS')
         if delegated:
             selected={name:program['roles'][role] for name,role in dict(context='context',owner='delegated_owner',image='image',
@@ -580,6 +670,7 @@ def source_data(expected,files,*,delegated=False):
                  'HOLD_DELEGATED_BUILD_VALIDATOR_BODY')
             selected['build_validator']=dict(member=name,**validator)
             if prerequisites:selected.update({role:program['roles'][role] for role in PREREQUISITE_FILES})
+            if staging:selected.update({role:program['roles'][role] for role in MATERIAL_FILES})
             need(program['delegation_programs']==selected,'HOLD_DELEGATED_EXACT_PROGRAM_MAPPING')
             need(program['roles']['encoder']['member']=='scripts/ci/log_evidence.py'
                  and whole(program['roles']['encoder'])==dict(bytes=1708,sha256='a25f0089759c12afae3eea23bab8b22fa05cf5bbaa9eddc1611ce78b0405f8f5'),
@@ -597,7 +688,8 @@ def source_data(expected,files,*,delegated=False):
              and inverse['actual_acceptance'] is None and inverse['original_map']==pin(original)
              and {k:v for k,v in old.items() if k!='files'}=={k:v for k,v in lock.items() if k!='files'}
              and inverse['remove']==sorted(['provenance/v4/v3-source-map.json','provenance/v4/delegated-closure.json',
-                 'inputs/delegated-materials-v4.json',*(prefix+name for name in ('program.json','prepare.py','README.md','inverse.json'))]),
+                 'inputs/delegated-materials-v4.json',*(('inputs/material-staging-materials-v4.json',) if staging else ()),
+                 *(prefix+name for name in ('program.json','prepare.py','README.md','inverse.json'))]),
              'HOLD_DELEGATED_INVERSE')
         restored={name:raw for name,raw in files.items() if name not in inverse['remove'] and name not in ('source.lock.json','source-map.json')}
         need(set(restored)==set(old['files']) and all(pin(raw)==whole(old['files'][name])
@@ -628,9 +720,11 @@ def source_data(expected,files,*,delegated=False):
              all(value is None for value in program['actual'].values()),'HOLD_OWNER_PROGRAM')
         for name,row in program['closure'].items():
             relative(name);need(pin(files[name])==whole(row),'HOLD_PROGRAM_CLOSURE_BODY')
-    if program.get('schema')==4 and set(program['roles']) in (CURRENT_ROLES,PREREQUISITE_ROLES):
-        optional=set(program['roles'])==PREREQUISITE_ROLES
-        if optional:prerequisite_policy(values['policy'])
+    if program.get('schema')==4 and set(program['roles']) in (CURRENT_ROLES,PREREQUISITE_ROLES,MATERIAL_STAGING_ROLES):
+        staged=set(program['roles'])==MATERIAL_STAGING_ROLES
+        optional=set(program['roles']) in (PREREQUISITE_ROLES,MATERIAL_STAGING_ROLES)
+        if staged:material_staging_policy(values['policy'],with_domain=True)
+        elif optional:prerequisite_policy(values['policy'])
         elif delegated:need(pin(values['policy'])==FULL_POLICY_PIN,'HOLD_DELEGATED_SELECTED_FULL_POLICY')
         need((optional or pin(values['policy']) in (HISTORICAL_FULL_POLICY_PIN,FULL_POLICY_PIN)) and policy['schema']==3
              and policy['kind']=='CURRENT_ONBOARDING_FULL_POLICY_PROPOSAL_V3'
