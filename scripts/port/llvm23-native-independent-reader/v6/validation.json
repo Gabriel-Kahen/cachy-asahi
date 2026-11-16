@@ -1,0 +1,24 @@
+{
+  "GETs": 0,
+  "Root_acceptance": null,
+  "Source_or_artifact_code_executed": false,
+  "lease_entries": 0,
+  "old_readers_modified": false,
+  "operational_Reader": "NOT RUN",
+  "python312": {
+    "errors": 0,
+    "failures": 0,
+    "skips": 0,
+    "tests": 11,
+    "version": "3.12.13"
+  },
+  "python314": {
+    "errors": 0,
+    "failures": 0,
+    "skips": 0,
+    "tests": 11,
+    "version": "3.14.7"
+  },
+  "schema": 1,
+  "status": "PASS_SYNTHETIC_RETIREMENT_AND_EXACT_READER_DERIVATION_ONLY"
+}
