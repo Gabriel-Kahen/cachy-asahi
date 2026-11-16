@@ -34,6 +34,14 @@ class ConstructorControls(unittest.TestCase):
         self.assertTrue(inverse['actor_controller_reader_constructor_unchanged'])
         self.assertIsNone(inverse['actual_VM'])
 
+    def test_unknown_empty_directory_cannot_disappear_from_inverse(self):
+        with tempfile.TemporaryDirectory(prefix='finite-warm-inverse-MODEL-') as directory:
+            root = Path(directory)
+            (root/'public.py').write_bytes(b'# PUBLIC MODEL\n')
+            (root/'unexpected').mkdir()
+            with self.assertRaisesRegex(ValueError, 'exact source directory membership'):
+                C.V.rows(root)
+
     def test_incomplete_new_root_choices_refuse(self):
         for field in ('raw', 'prepared', 'certificate'):
             selected = model()

@@ -45,5 +45,5 @@ actual evidence before admitting the derived source.
 
 `source/` is currently the unchanged predecessor reference, not a completed warm
 candidate. The generated synthetic candidate used for 139 passing family
-controls is private `/tmp` MODEL data. Six additional constructor controls pass.
+controls is private `/tmp` MODEL data. Seven additional constructor controls pass.
 No genuine warm source construction or next boot is claimed from those models.

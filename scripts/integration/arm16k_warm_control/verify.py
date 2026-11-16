@@ -15,9 +15,11 @@ LOCKS = {
 
 def rows(root):
     result = {}
+    directories = set()
     for path in root.rglob('*'):
         info = path.lstat()
         if stat.S_ISDIR(info.st_mode):
+            directories.add(path.relative_to(root).as_posix())
             continue
         if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1:
             raise ValueError('ordinary single-link source files required')
@@ -25,6 +27,10 @@ def rows(root):
         result[path.relative_to(root).as_posix()] = dict(
             bytes=len(raw), sha256=hashlib.sha256(raw).hexdigest(),
             mode=stat.S_IMODE(info.st_mode))
+    expected = {parent.as_posix() for name in result for parent in Path(name).parents
+                if parent.as_posix() != '.'}
+    if directories != expected:
+        raise ValueError('exact source directory membership required')
     return result
 
 
