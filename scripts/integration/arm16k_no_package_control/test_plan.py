@@ -1,7 +1,7 @@
 #!/usr/bin/env -S python3 -I -B
 # SPDX-License-Identifier: MIT
 """Pure plan and serial transport controls; no guest, process or package runs."""
-import base64,importlib.util,json,shlex,unittest
+import base64,hashlib,importlib.util,json,shlex,unittest
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
 s=importlib.util.spec_from_file_location('no_package_plan',HERE/'plan.py');P=importlib.util.module_from_spec(s);s.loader.exec_module(P)
@@ -37,6 +37,23 @@ class Controls(unittest.TestCase):
   self.assertEqual(P.plan()['original_baseline']['raw'],dict(bytes=1610612736,sha256='f69d74fbb0043793c96424d0f91ad2f6fb2d8cf3a72fb94024ea9cc40dae4cd3'))
   self.assertIn('Perl-prepared raw or package lifecycle service',P.plan()['forbidden'])
   self.assertIn('timestamp touch, absence cleanup, root/.ssh enumeration or body reads',P.plan()['forbidden'])
+
+ def test_whole_dependency_rebind_matches_manifest_support_and_unissued_template(self):
+  dependency=HERE.parent/'arm16k_perl5423_vm'
+  raw=(dependency/'source.lock.json').read_bytes();lock=json.loads(raw)
+  pin=dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())
+  self.assertEqual(P.SOURCE65['lock'],pin)
+  self.assertEqual(P.SOURCE65['files'],len(lock['files'])+1)
+  self.assertEqual(P.SOURCE65['bytes'],len(raw)+sum(row['bytes']for row in lock['files'].values()))
+  spec=importlib.util.spec_from_file_location('sealed_plan_support',HERE/'support.py')
+  support=importlib.util.module_from_spec(spec);spec.loader.exec_module(support)
+  self.assertEqual(support.SOURCE65_SHA,pin['sha256'])
+  template=json.loads((HERE/'operator-inputs.TEMPLATE.json').read_bytes())
+  self.assertEqual(template['comparison_source65'],pin)
+  self.assertIsNone(template['source_lock']);self.assertIsNone(template['nonce'])
+  self.assertIsNone(template['kernel']['accepted']);self.assertIsNone(template['baseline']['accepted'])
+  self.assertTrue(P.SOURCE65['production_bytes_unchanged'])
+  self.assertIn('test_probe_readiness.py',P.SOURCE65['test_only_amendment'])
 
 
 if __name__=='__main__':unittest.main(verbosity=2)

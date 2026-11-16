@@ -17,13 +17,19 @@ SHA256 `9324c8e79374ba95e5b2ce37e389b3e5732cf6c079ca6857b35205932ad5a61a`.
 Its production bytes and `image.preserve` remain unchanged. The maintained
 65-file dependency has a test-only amendment: two intentional `pidfd_open`
 models use explicit attribute creation, and a negative control verifies that
-the original peer refuses an absent API before process-identity access. Only
-`test_controls.py` and its regenerated `source.lock.json` differ from the author
-family. The whole amended dependency is741718 bytes, tree
-`60d81a3fec1110aa78ba691703fb7922ac7c490b`, lock10598 bytes / SHA256
-`da1c8749a281b767f50ca696cf7818d1925aa852057d7de011b4c3ddd8eca75d`.
+the original peer refuses an absent API before process-identity access. The
+readiness fixture also uses a deterministic polling clock, including delayed
+publication coverage, so host scheduling cannot consume its modeled deadline.
+Guest barriers, timeouts and production bytes are unchanged; no test is skipped.
+Only `test_controls.py`, `test_probe_readiness.py` and regenerated
+`source.lock.json` differ from the author family. The whole amended dependency
+is742532 bytes, tree `7ad0d52fdeeeba3314d29201bd28f41766639625`, lock10598 bytes /
+SHA256 `f787650b1dcd78c4081b544719cd4f1d8d7c67c46da09c495e6c185917c542ac`.
 The adapter seal, public input template and packet comparison join that exact
 whole dependency pin; A's three production helper pins remain byte-identical.
+This Main rebind records corrected test provenance, not runtime acceptance.
+The earlier `da1c8749…` dependency and `63ca909e…` diagnostic seals remain
+unchanged historical references; Root's frozen old snapshot is not relabelled.
 Case14 is consumed HOLD;
 Root-reported guest PASS/natural exit0 and `/var` mtime drift supply context,
 not acceptance or a proven creator. Nothing reenters case14.

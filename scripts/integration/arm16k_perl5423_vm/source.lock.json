@@ -292,9 +292,9 @@
       "sha256": "4c83491e58379c5ff59444458e0665860d80d9f993914caba349651757953898"
     },
     "test_probe_readiness.py": {
-      "bytes": 10532,
+      "bytes": 11346,
       "mode": 420,
-      "sha256": "4d1d47d7458ed7a69903c7c8c5121fca008a3827f478d5a2e9f7310ae9483735"
+      "sha256": "985eab54145738578da19aa8f9c0ae5151c5e3e34b76808e4e67dc6d2c1226b3"
     },
     "test_restoration.py": {
       "bytes": 12115,
