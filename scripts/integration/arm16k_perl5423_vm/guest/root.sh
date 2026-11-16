@@ -160,6 +160,37 @@ payload_snapshot() (
  (( total <= 33538048 ))
  ( O=$S;metadata_equality_view "$stage" )
 )
+# The normal ldconfig hook can create/remove ld.so.cache and change /etc mtime.
+# Pin the original directory with an open FD; restore mtime only, never atime,
+# contents or other metadata. The ordinary reference is private disposable DATA.
+cache_etc_timestamp_capture() {
+ local reference=$D/cache/etc-mtime.reference
+ [[ -d /etc && ! -L /etc && $(readlink -f -- /etc) == /etc && $(stat -c '%u:%g:%a' -- /etc) == 0:0:755 ]]
+ [[ -d $D/cache && ! -L $D/cache && $(readlink -f -- "$D/cache") == "$D/cache" && $(stat -c '%u:%g:%a' -- "$D/cache") == 0:0:700 ]]
+ [[ ! -e $reference && ! -L $reference ]]
+ exec {etc_directory_fd}< /etc
+ etc_directory_identity=$(stat -Lc '%d:%i:%f:%u:%g:%h' -- "/proc/self/fd/$etc_directory_fd")
+ [[ $(stat -c '%d:%i:%f:%u:%g:%h' -- /etc) == "$etc_directory_identity" ]]
+ etc_directory_mtime=$(stat -c '%y' -- /etc)
+ ( set -o noclobber;: > "$reference" )
+ [[ -f $reference && ! -L $reference && $(stat -c '%u:%g:%h:%a:%s' -- "$reference") == 0:0:1:600:0 ]]
+ touch -m --reference=/etc -- "$reference"
+ etc_reference_identity=$(stat -c '%d:%i:%f:%u:%g:%h:%s:%y:%z' -- "$reference")
+ [[ $(stat -c '%y' -- "$reference") == "$etc_directory_mtime" && $(stat -c '%d:%i:%f:%u:%g:%h' -- /etc) == "$etc_directory_identity" ]]
+}
+cache_etc_timestamp_restore() {
+ local reference=$D/cache/etc-mtime.reference
+ [[ -d $D/cache && ! -L $D/cache && $(readlink -f -- "$D/cache") == "$D/cache" && $(stat -c '%u:%g:%a' -- "$D/cache") == 0:0:700 ]]
+ [[ -f $reference && ! -L $reference && $(stat -c '%d:%i:%f:%u:%g:%h:%s:%y:%z' -- "$reference") == "$etc_reference_identity" ]]
+ [[ -d /etc && ! -L /etc && $(readlink -f -- /etc) == /etc && $(stat -c '%d:%i:%f:%u:%g:%h' -- /etc) == "$etc_directory_identity" ]]
+ [[ $(stat -Lc '%d:%i:%f:%u:%g:%h' -- "/proc/self/fd/$etc_directory_fd") == "$etc_directory_identity" ]]
+ touch -m --reference="$reference" -- "/proc/self/fd/$etc_directory_fd"
+ [[ $(stat -c '%d:%i:%f:%u:%g:%h' -- /etc) == "$etc_directory_identity" && $(stat -c '%y' -- /etc) == "$etc_directory_mtime" ]]
+ [[ $(stat -c '%d:%i:%f:%u:%g:%h:%s:%y:%z' -- "$reference") == "$etc_reference_identity" ]]
+ rm -- "$reference"
+ [[ ! -e $reference && ! -L $reference ]]
+ exec {etc_directory_fd}<&-
+}
 cache_snapshot() (
  ulimit -f 16384
  local path
@@ -176,6 +207,7 @@ user_snapshot "$S/user-before"
 checkpoint_phase baseline
 payload_snapshot before
 cache_snapshot > "$S/before.cache"
+cache_etc_timestamp_capture
 for path in /etc/ld.so.cache /var/cache/ldconfig/aux-cache; do
  name=${path//\//_};[[ ! -L $path ]]
  ! pacman -Qo -- "$path" > /dev/null 2>&1
@@ -305,6 +337,7 @@ for path in /etc/ld.so.cache /var/cache/ldconfig/aux-cache; do
 done
 if [[ -e $S/ldconfig-directory.absent && -d /var/cache/ldconfig ]];then rmdir /var/cache/ldconfig;fi
 cache_snapshot > "$S/after.cache";same_bytes "$S/before.cache" "$S/after.cache"
+cache_etc_timestamp_restore
 checkpoint_phase restoration
 payload_snapshot after
 for suffix in paths hash db-normalized xattr dbmeta dbxattr;do same_bytes "$S/before.$suffix" "$S/after.$suffix";done

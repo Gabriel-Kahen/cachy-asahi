@@ -17,9 +17,9 @@
       "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
     },
     "README.md": {
-      "bytes": 36236,
+      "bytes": 41234,
       "mode": 420,
-      "sha256": "aa52bf69646659632b663c397ed2cb64c7d6fcbd0f8a0a921f0c4945abc30fab"
+      "sha256": "086c6d2858a67baf79c90b87fd38a51702ecacdc6c9bceb9b33b16fd55b3e4aa"
     },
     "actor.py": {
       "bytes": 20349,
@@ -127,9 +127,9 @@
       "sha256": "45573362408087ebbe41011571811145e203345d5ea8955e9f39306d80652a69"
     },
     "guest/root.sh": {
-      "bytes": 18991,
+      "bytes": 21251,
       "mode": 420,
-      "sha256": "9be11484131188df57b7f23fec3fe9e75b4fe9066833f752fed7353b7b513aa0"
+      "sha256": "48b99a1d9173e38a71259acea52d7f6a0dc5aeea4cc095e4619e0aac1d6502b4"
     },
     "guest/runtime.pl": {
       "bytes": 3640,
@@ -230,6 +230,11 @@
       "bytes": 84936,
       "mode": 420,
       "sha256": "1288bf37b666e59632e2ebbd96df9c9944cfc6e8b758609f95121c059489168c"
+    },
+    "test_etc_mtime.py": {
+      "bytes": 15287,
+      "mode": 420,
+      "sha256": "59a70007a295de7225926776f954d39dda3c7bc55d3a010ee773da69283263c7"
     },
     "test_git_roundtrip.py": {
       "bytes": 2665,
