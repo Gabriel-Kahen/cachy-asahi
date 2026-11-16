@@ -34,7 +34,7 @@ class Controls(unittest.TestCase):
  def test_actual_boot_sequence_after_readonly_fsck_rethrows_and_reports_stage(self):
   with tempfile.TemporaryDirectory(prefix='FENCED-perl-post-fsck-')as name:
    out=Path(name);calls=[];original=ValueError('inode link-count mismatch')
-   metadata=dict(operation=K.OP,packet=SOURCE,raw=SOURCE,nonce=NONCE,baseline_nonce='c'*32)
+   metadata=dict(operation=K.OP,packet=SOURCE,raw=SOURCE,nonce=NONCE,baseline_nonce='c'*32,preboot_etc_descriptor=SOURCE,root_ssh_descriptor=SOURCE)
    resources=dict(cpus=2,guest_memory_bytes=2*1024**3,overlay_cap_bytes=512*1024**2,readback_allocated_cap_bytes=1024**3,logs_cap_bytes=16*1024**2,reserve_bytes=1,cleanup_seconds=90)
    cert=dict(resource_certificate=resources,runtime_certificate=RUNTIME)
    def command(argv,work,label,*args,**kwargs):calls.append(label);return SimpleNamespace(returncode=0)if label=='journal-copy-only'else b''

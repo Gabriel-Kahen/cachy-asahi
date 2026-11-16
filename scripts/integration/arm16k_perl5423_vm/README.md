@@ -556,7 +556,7 @@ publication, review and a new once-only case; it does not repair or qualify the
 unknown Source54 postboot failure merely by retaining future diagnostics.
 
 
-### Exact cache-parent mtime restoration (Source56 successor)
+### Historical late-capture cache-parent restoration (Source56)
 
 Source55 case10's independent preservation result remains HOLD. Root's public
 readonly observation identified only unreviewed `/etc` directory timestamp
@@ -630,3 +630,406 @@ binding and this finite family. Source/ref publication, exact capsule commit,
 fresh nonce/authorities and a new once-only actual case remain Root work; no old
 capsule or completed case is relabelled. Actual new VM/ALPM/runtime/Reader/Root
 outcomes remain NULL; native16K hardware, M2, performance and release stay open.
+
+
+### Historical unpublished preboot /etc-only attempt (58-file DRAFT)
+
+Source56 case11 remains consumed HOLD and must never be retried or reentered.
+Root's supplied public readonly observation reports prepared `/etc`
+1794708503.000000000 versus final1794827034.205988225, with stable directory
+metadata unchanged. Guest install/probe/recovery PASS frames and natural QEMU
+exit0 do not override the preservation failure. Source56 captured the directory
+only after boot. This successor uses the authenticated preboot scan; it does
+not establish which boot operation changed the timestamp.
+
+`adapter.contents` adds exactly one public packet file, `preboot-context.json`
+(root0644). Its canonical DATA binds the Source lock, exact original case-file
+pin, case nonce, complete baseline certificate pin, independently selected raw
+and prepared baseline pins, and complete stable namespace pin. Directory times
+are deliberately absent from `image.stable`, so that namespace pin alone is
+not timestamp evidence. The original independent raw pin is indispensable.
+
+After the prepare actor has scanned the independently pinned original raw,
+validated the complete namespace, ownership, providers, hook policy and other
+existing gates, `preboot.descriptor` checks the exact context and selects only
+ordinary root0755 `/etc`'s actual inode, link count and exact mtime seconds/ns.
+It never reads a running-guest clock or late `/etc` timestamp. A bounded,
+canonical one-line `preboot-etc.tsv` (at most256 bytes, root0600 single-link)
+is created exclusively and added at `/var/lib/arm16k-perl5423-vm/preboot-etc.tsv`.
+This is the only prepare-generated image leaf beyond the adapter's declared
+packet membership. Both public DATA leaves remain unchanged in the image;
+neither is removed during recovery. The existing transient
+`cache/etc-mtime.reference` is still guest-created and removed normally.
+Prepare readback checks exact additions, descriptor SHA/size/link count, and
+unchanged original `/etc` inode/type/mode/UID/GID/link count/xattrs/atime/mtime.
+The host `prepared.json` joins descriptor/context pins and final prepared raw.
+No image geometry, resource budget, package, hook, trust or root-service change
+is made. Existing staging caps apply to both additional leaves.
+
+The Root-selected prepared-manifest pin is already joined to boot authority.
+`qemu_argv` adds one explicit kernel DATA token,
+`arm16k_perl5423_vm_preboot_etc_sha256=SHA`, from that manifest's descriptor pin.
+The guest requires exactly one token, matches the ordinary descriptor SHA,
+checks its canonical fixed schema/length, nonce and context SHA, and compares
+its certified inode/link count to both `/etc` and the actually opened FD.
+Missing/duplicate tokens, aliases, changed context, malformed numeric fields,
+wrong mode/owner/link count and identity substitutions refuse. The descriptor
+identity is captured before its hash/read and checked afterward and before
+restoration. No descriptor content is sourced or evaluated as shell.
+
+The guest builds its private zero-byte reference using already-certified GNU
+`touch -m --date=@SEC.NS`, then checks exact numeric seconds/nanoseconds using
+already-certified `date`. After normal transactions and exact cache restoration,
+the existing held-FD `touch -m --reference` restores the certified preboot mtime.
+It does not set atime, permissions, UID/GID, xattrs or contents; ctime restoration
+is not claimed. The reference is removed and FD closed normally. Only the two
+timestamp helper bodies change in `guest/root.sh`; the15 focused controls pin
+its complete Source56 inverse SHA256
+`48b99a1d9173e38a71259acea52d7f6a0dc5aeea4cc095e4619e0aac1d6502b4`.
+
+`image.py` and its strict preservation predicate remain byte-identical to
+Source56. `/etc` timestamp drift is never allowed or normalized. A separate,
+stricter readonly actor check now also requires original/final `/etc` inode,
+links, type/mode/UID/GID/xattrs and exact atime/mtime sec/ns equality before the
+unchanged predicate. There is no atime restoration or allowance. This closes
+the earlier independent atime gap and may expose pre-existing boot atime drift;
+no actual case has demonstrated this new guard passing. Every `/etc` child,
+configuration byte, mode, ownership and xattr stays under the existing strict
+namespace/preservation requirements.
+
+`test_etc_mtime.py` runs15 HOST controls, including preboot timestamp, earlier
+boot drift before capture, transaction/cache replacement and exact original
+zero/nonzero-nanosecond restoration, unchanged atime/configuration/xattrs,
+pre-open and post-open directory substitution, malformed DATA, metadata,
+nonce/provenance/hash/token/reference tampering and error propagation.
+`test_preboot.py` runs7 fenced DATA controls for every provenance join,
+namespace/metadata bounds, kernel binding and stricter original-atime/identity
+refusals. These are owned temporary host filesystem/GNU-tool and modeled scan
+results, not ARM/VM or ALPM execution. The new family has58 total files
+(57 lock members plus the lock), two more than Source56.
+
+Run both controls with isolated Python3.12 and3.14, then existing source, guest
+DATA and shell-syntax checks. On the observed local uv3.12.13/3.14.6 builds,
+`test_controls.py` retains its existing `os.pidfd_open` mock API error; report
+54 passes/one error rather than claiming the whole broader suite passed.
+The system Python3.14.7 runs all55 broader controls successfully. All actual Source
+publication, authority issuance, packet/image preparation, Docker/GPG/VM/ALPM,
+Reader/runtime/Root acceptance fields remain NULL in this source increment.
+
+Root's DRAFT handoff must carry exact commit/subtree/count/lock, the complete
+binary Source56 inverse and outer-capsule inverse, original public
+Source0ba807e67554549939644a7cc7f138c3efda8b2b and fixed baseline/raw/tree/certificate
+pins. Only Root can publish, issue a fresh nonce and new actual case/authorities,
+or execute actors. No historical capsule/case is relabelled. Case11 is terminal
+HOLD. Native16K, supported Asahi/M2, performance and release remain unqualified.
+
+
+### Certified nine-path absence and three-parent recovery (revised DRAFT)
+
+The unpublished e14/Source58 attempt is superseded and must not be published or
+entered as operationally ready. Root's case11 readonly metadata observation
+shows `/etc` inode16 unchanged but links37 before versus38 after, `/etc/audit`
+links2 versus4, and unchanged `/etc/udev` links4. Its exact nine paths below
+are absent from the authenticated prepared baseline and present in the final
+case11 image. Those timestamps suggest early boot activity; they do not establish
+causality or prove the next guest's initial state. Case11 remains consumed HOLD.
+This successor performs an actual initial guest snapshot before ALPM and fails
+if the later recovered state cannot join it.
+
+The fixed policy is exactly:
+
+| Relative path | Initial allowed type/mode | Maximum body bytes |
+| --- | --- | ---: |
+| `etc/.pwd.lock` | regular0600 | 0 |
+| `etc/.updated` | regular0644 | 4096 |
+| `etc/audisp` | empty directory0755 | no children |
+| `etc/audit/plugins.d` | empty directory0750 | no children |
+| `etc/audit/rules.d` | empty directory0755 | no children |
+| `etc/ld.so.cache` | regular0644 | 1048576 |
+| `etc/os-release` | symlink0777 | 4096 |
+| `etc/udev/hwdb.bin` | regular0444 | 16777216 |
+| `etc/vconsole.conf` | regular0644 | 4096 |
+
+All initial nodes must be root-owned. Regular files/symlinks must be single-link;
+empty directories must have two links. No arbitrary additional path, recursive
+cleanup, wildcard operand, root-home/trust inspection or timestamp allowance is
+introduced. A baseline containing any selected path, alias or descendant is
+refused by prepare rather than deleted by the guest. The exact original pinned
+baseline certificate/raw/prepared/ownership/report inputs stay unchanged.
+
+`preboot-context.json` now has schema-kind V2, adding the exact fixed ordered
+policy and the three parents `etc`, `etc/audit`, `etc/udev` to the unchanged
+Source/case/nonce/certificate/raw/prepared/namespace joins. Prepare derives the
+V2 `preboot-etc.tsv` only from its original authenticated readonly scan: one
+header, three `P path inode links seconds nanoseconds` records and nine ordered
+`A path type mode cap` absence records. The descriptor is at most4096 bytes,
+root0600, single-link; context is bounded4096 root0644. Both existing public
+prepared leaves remain unchanged through recovery; no further image leaf is
+added. Prepare independently verifies original parent identity, mode/UID/GID,
+links, xattrs, atime and exact mtime through staging. The prepared-manifest and
+kernel descriptor-SHA binding are unchanged. Raw geometry and all existing
+resource/staging guards remain exact; exceeding a cap fails rather than changes it.
+
+Guest capture validates the bound descriptor/context, canonical byte count,
+strict13-line schema/EOF, nonce, path policy and SHA. It rejects NULs discarded
+by Bash `read`, trailing blank lines, missing newlines, reordered policy and
+unbounded integers. Each original parent is held open and must join its certified
+inode/type/mode/UID/GID. Parent identity checks omit link count while the exact
+selected new directories exist. Only their individually verified presence may
+account for the initial link delta; an unselected child directory refuses.
+This does not treat links37 as mandatory when the observed running state has38.
+
+Before any ALPM write, the guest snapshots each selected initial node's actual
+bytes or symlink target (length/SHA), type/mode/UID/GID/link count/size/nanosecond
+mtime/xattr hash, and physical identity. A fixed-byte emptiness probe returns
+only presence/absence, never directory names or file contents. A bounded literal
+`pacman -Qlq` view refuses ownership of selected paths, including directory
+entries with a trailing slash; it never follows `os-release` to classify its
+target's ownership. Query failures propagate. Initially absent paths may remain
+absent; a later appearance refuses. Snapshot state is private in-memory guest
+DATA, never a fabricated baseline or durable runtime acceptance certificate.
+
+After normal package/dependency recovery and the existing exact cache recovery,
+all three reference identities, current parent identities/link counts, and the
+complete nine-path initial snapshot must still join before any deletion. Every
+node is rechecked immediately before its single anchored removal. All non-cache
+nodes require their original inode/ctime identity; the existing normal ldconfig
+and `cp -a` cache recovery may replace only `ld.so.cache`'s inode while its full
+logical snapshot (including body, xattrs and mtime) remains exact. The currently
+verified cache inode is newly held before removal. This bounded exception does
+not change host preservation: its independently certified final state is absence.
+
+Only the fixed file/symlink operands are unlinked with `rm --`; only the three
+verified empty directory operands use `rmdir --`. Operands are anchored beneath
+the original held parent FDs. Ordinary file/directory FDs must report zero links
+after removal; no recursive deletion is used. Symlink and child-inode checks are
+sequential shell checks, not a claim of atomic same-child-inode deletion against
+concurrent privileged replacement. Parent pathname/FD joins remain required
+throughout, and strict independent preservation still catches any residue or
+protected baseline change. Later recreation is HOLD, not a cleanup loop or retry.
+
+Only after all nine absences and all three exact original parent link counts are
+restored does held-FD `touch -m --reference` restore each certified parent mtime.
+Each current parent atime is checked immediately before/after touch and is never
+restored or normalized. The unrelated wholeboot-atime requirement from the held
+attempt is removed. A separate final readonly three-parent identity/link/type/
+mode/UID/GID/xattr/mtime check remains; `image.py` and every strict original
+preservation allowance remain byte-identical to public Source56. No parent or
+child timestamp difference is waived. The guest-created references are exactly
+`cache/preboot-parent-0.reference`, `-1.reference` and `-2.reference`; all are
+zero-byte root0600 single-link private transient DATA and must be removed.
+
+The revised family still has58 leaves (57 lock members plus the lock), with no
+shared manifests or other package families changed. Existing normal ALPM hooks,
+scriptlets, cache recovery, Root phases, package archives, trust and output
+contracts remain enabled. Only the timestamp/absence helper block changes in
+`guest/root.sh`; the focused control pins the complete unpublished e14 root
+inverse. Handoff provides complete Source56 and unpublished Source58 inverses,
+exact final subtree/count/lock, fixed baseline pins, all-six-leaf outer-capsule
+inverse, concrete unissued case inputs and publication/helper APIs.
+
+The23 owned scratch HOST controls model preboot absence, exact nine-path boot
+creation, a13735371-byte MODEL hwdb, normal cache replacement/recovery, and exact
+final absence plus original three-parent link counts/nonzero-nanosecond mtimes.
+They test file/dir/symlink substitution, nonempty dirs, changed body/mode/mtime/
+xattrs/link count, literal ownership/query errors, descriptor/context/reference/
+nonce/token tampering, strict EOF/NUL handling and touch/error propagation.
+Every restore-refusal fixture proves capture passed first. Ten fenced provenance
+DATA controls cover all parents, policies, absence/alias/descendant refusal and
+scope of atime. These pass on local uv3.12.13/3.14.6 and system3.14.7; no actual
+ALPM/VM/ARM16K execution is performed by these controls. The uv broad-suite
+`os.pidfd_open` mock API error remains explicit; it is not a skipped or passing
+control. Fresh committed exports and all applicable existing source checks must
+be recorded separately before Root review. No new Source publication, authority,
+packet/image/VM/Reader/Root runtime acceptance is issued by this increment.
+
+
+### Case12 restoration-order successor (DRAFT; case12 remains HOLD)
+
+Root reports public Source58 `94ab56c086d08764ee050f5ae3b8f142eb97339b`
+entered case12 once. The two permitted actual evidence files are its redacted
+serial and public boot `report.json`. They establish successful installed/probe
+frames followed by Root `STATUS=HOLD`, `FAILED_PHASE=restoration`, exit1.
+The report also records normal-HOLD-retirement timeout, bounded-wait error and
+forced owned cleanup fallback, with owned-container absence verified. These
+are not natural-retirement, final-preservation, recovery or runtime acceptance.
+Case12 is consumed and must never be retried/reentered. No actual raw image,
+credential, lease or additional case artifact is read by this source work.
+
+The coarse failure frame does not identify the exact failing comparison. The
+source has a concrete, offline-reproduced ordering defect consistent with it:
+`payload_snapshot before` records the running state while the selected empty
+system directories may exist. Source58 removed those directories and restored
+preboot parent link counts *before* `payload_snapshot after`. The unchanged
+`metadata_equality_view` preserves every directory link count except live
+`/proc/`. Thus, when the three selected directories are initially present,
+its exact comparison sees `/etc` change by one link and `/etc/audit` by two,
+even though those changes restore their certified preboot baseline. This is a
+proven source/model defect, not proof of case12's unreported failing subcheck.
+
+The fix changes ordering only: all original recovered-running-state snapshots
+and exact payload/metadata/database/xattr/user/log comparisons run first. Only
+after those succeed does the unchanged nine-path preboot cleanup run, before
+trust teardown and sync. That cleanup still validates its complete initial
+snapshot, references, held parent identities and link counts before unlinking
+anything, then requires the exact certified absences/parent times/link counts.
+The independent final three-parent gate and strict `image.preserve` still
+validate the resulting preboot state. No metadata difference is ignored or
+normalized, and no raw comparison is weakened to make this pass.
+
+`frozen/guest-runtime.sh`, its `/proc/`-only nlink equality view, `image.py`,
+installed metadata, preboot descriptor/context and the entire absence/timestamp
+helper block remain byte-identical to Source58. The23 helper controls now pin
+the unchanged block SHA256 rather than carry an unused older helper body;
+the complete Source58 family inverse is verified in the DRAFT handoff.
+
+Fixed `restoration_step` labels now identify snapshot, each original comparison,
+users, log prefix/shape/capture, preboot cleanup, trust cleanup, sync and publish.
+They map into the existing `FAILED_PHASE=restoration_LABEL` scalar on failure.
+No new HOLD-frame field, command/argument dump, arbitrary path text, checkpoint
+write or checkpoint-budget increase is introduced. The five-line HOLD frame,
+protocol parser and bounded failure manifest remain compatible; the coarse
+checkpoint remains `restoration`. These diagnostics locate a future failure
+without asserting which subcheck failed in case12.
+
+`test_restoration.py` adds12 real HOST controls on owned temporary filesystems.
+It uses the actual frozen equality helper and actual nine-path cleanup. The
+old order deterministically fails with only the two parent link rows differing;
+comparing recovered running state first passes, then restores the exact preboot
+baseline. Body/mode/xattr/user/unrelated-directory-link/file-hardlink changes
+still refuse before selected cleanup. It also runs the actual fixed-label parser
+and finish trap, verifying an injected metadata failure emits the unchanged
+five-line HOLD frame with `restoration_meta_equality`, without GPG or host sync.
+The tests pass on local CPython3.12.13/3.14.6/system3.14.7 with no skips. They do
+not execute ALPM, VM, network or any Root role. Root owns CI integration; the new
+command proposed for its existing Python matrix is:
+
+```sh
+python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_perl5423_vm/test_restoration.py
+```
+
+The revised family has59 files (58 lock members plus the lock). Fresh Source
+closure/committed exports, exact predecessor inverse and all existing relevant
+controls must be reported with the final pins. The local uv broad-suite missing
+`os.pidfd_open` mock API error remains explicit. No public-code2f6 branch change,
+new publication, actor, Root authority, actual VM/ALPM run or runtime acceptance
+is supplied here. The separate case12 retirement outcome is not repaired by
+this guest ordering correction and remains Root's independent investigation.
+
+
+### Exact empty Root SSH-directory recovery and privacy successor (DRAFT)
+
+Root reports case13 consumed HOLD under Source59, despite successful installed,
+probe and restored guest frames, natural QEMU exit0 and clean owned retirement.
+Final independent preservation refused the standard Root directory timestamp.
+The two allowed public metadata observations establish `root/.ssh` absent in
+prepared state and an empty ordinary root0700 UID/GID0 directory afterward:
+inode29359, links2, zero descendants. `/root` remains ordinary root0700 inode214
+but links2 became3, with mtime1785933495.000000000 versus1794837074.148000000.
+Atime also changed. No exact creator is proved by these metadata or by the
+owned Perl source audit; the fix makes no creator or timing attribution.
+Case13 remains consumed HOLD and must not be retried. This work reads no actual
+image, SSH file content, credential, GPG home, lease or additional case artifact.
+
+The new scope is exactly the certified preboot absence of `root/.ssh`, with
+ordinary `/root` root0700 identity/links/xattrs/mtime preserved. A baseline with
+that selected entry or any descendant refuses before content inventory rather
+than authorizing deletion of existing SSH state. No recursive removal, arbitrary
+Root cleanup, Root timestamp allowance, path-name pattern or private content
+export is introduced. Existing `/etc` recovery and its three-parent helpers stay
+byte-identical to Source59.
+
+`preboot-context.json` adds the fixed `ROOT_SSH_PREBOOT_V1` policy: parent `root`,
+path `root/.ssh`, directory0700, cap0 children, descriptor cap1024, allowed late
+empty creation, and private_contents=false. The existing Source/case/nonce,
+original certificate/raw/prepared and stable-namespace joins remain exact.
+`root_ssh.descriptor` verifies this canonical context, original ordinary
+root0700 metadata and exact selected absence, then emits the bounded three-line
+`root-ssh-preboot.tsv`: nonce/context SHA, original parent inode/links/mtime
+seconds/ns, and literal `A root/.ssh d 700 0`. No private subtree row or file
+body is visited. The independently pinned whole raw certifies parent time;
+the stable namespace pin alone omits directory mtime.
+
+Preparation adds exactly two new public image leaves beyond Source59:
+`/var/lib/arm16k-perl5423-vm/root-ssh.sh` (packet root0644) and
+`/var/lib/arm16k-perl5423-vm/root-ssh-preboot.tsv` (prepare root0600 single-link).
+Both remain unchanged through final readback. Prepare independently checks
+original `/root` metadata, including exact timestamps, through image staging.
+The Root-selected prepared manifest pins the new descriptor, and the boot
+command carries exactly one `arm16k_perl5423_vm_root_ssh_sha256=SHA` token. The
+guest joins token/descriptor/context/nonce, checks canonical byte length/strict
+EOF (including NUL/trailing-byte refusal), and opens the certified original
+parent FD. Original raw geometry and all existing caps/resource guards remain;
+new fixture bytes must fit the already-reviewed staging budget or preparation
+fails. No new tool or package dependency is added.
+
+`root_ssh_capture` runs before the initial user snapshot. The parent must still
+be canonical ordinary root0700 with the original inode, UID/GID and type; its
+held FD must join that pathname throughout. If the target already exists, it
+must be canonical ordinary root0700, links2 and empty, and its physical identity
+and directory xattr hash are captured with a held child FD. Missing target is
+also valid. Each user snapshot is preceded by the same bounded guard and prunes
+exactly this certified-absent node and its descendants from all three walks;
+every other Root/builder baseline path stays in the exact user comparisons.
+The dedicated guard checks the delegated directory metadata instead. A presence
+probe emits only one fixed bit, never names or file bodies. Nonempty, file,
+symlink, alias, wrong mode/owner or unexpected identity changes refuse before
+SSH data can be hashed or dumped. An independent race/prune HOST test forbids
+body-tool operands beneath the selected target even if a MODEL file appears
+immediately after a successful guard.
+
+After both existing trust teardown paths complete, `root_ssh_restore` rechecks
+all descriptor/context/reference and parent identity/xattr facts. An initially
+absent target may have become a late empty ordinary root0700 directory; only
+that exact class is permitted, without assuming who created it. It is snapshotted
+and held before removal. Initially captured directory identity must remain
+unchanged. Only one `rmdir -- /proc/self/fd/PARENT/.ssh` is used, anchored to the
+original held parent. Nonempty state is atomically refused by rmdir; the held
+removed child must report zero links. Then target absence and exact certified
+parent links are required. There is no loop, recursive deletion or retry.
+Sequential child checks are not a claim of atomic same-child-inode removal
+against concurrent privileged replacement.
+
+A private guest-created zero-byte root0600 single-link
+`cache/root-ssh-parent.reference` carries exact certified preboot mtime. It is
+checked before cleanup and around held-FD `touch -m --reference`; current parent
+atime must be identical immediately before/after touch and is never rewritten.
+Wholeboot atime equality is not added. The final helper also requires target
+absence and original parent nlink after touch (including recreation-during-touch
+refusal), then removes the reference and closes the FD. All original payload,
+metadata/user/log checks and Source59's `/etc` cleanup remain in their existing
+order. If a late creation falls between payload snapshots while `/root` is owned,
+the unchanged frozen nlink comparison may still HOLD; it is not normalized to
+accept that different timing window. The focused MODEL test preserves that
+refusal. Actual next-case timing and full qualification remain Root work.
+
+A second privacy boundary runs before raw content inventory. `ssh_privacy`
+reads only filesystem-root and literal-root directory inode/entry metadata,
+under strict size, block-entry, count and alias bounds. Any `.ssh` entry, of any
+type, refuses before its inode or body is requested. Unknown SSH state is never
+silently omitted from inventory. This protects both rejected preboot inputs and
+unexpected late readback residues from content hashing. A MODEL reader poisons
+all private inode/body access; an actual `image.scan` integration control proves
+the guard precedes base inventory. This changes only `image.scan`; the entire
+`image.preserve` function and its timestamp/residue allowances remain byte-exact.
+The new final root gate additionally requires selected absence and exact original
+root inode/links/type/mode/UID/GID/xattrs/mtime, without wholeboot atime equality.
+
+New controls:22 real HOST root/target/descriptor/reference/guard/prune/mtime
+transition controls,12 fenced descriptor/provenance/final-root controls and11
+metadata-only privacy controls. They pass without skips on Python3.12.13,
+Python3.14.6 and system3.14.7. Early/late/never creation, no-body-read sentinels,
+nonempty and substitution refusals, descriptor/context/nonce/EOF/NUL tampering,
+current atime, parent/child links, post-touch recreation and exact nlink refusal
+are modeled on owned scratch. No actual SSH state or VM is accessed by tests.
+
+The Source family has65 leaves (64 lock members plus lock). Root owns separate
+review of both new prepared leaves, descriptor/kernel joins, unchanged resource
+limits and any future actual case. New test commands proposed for Root's existing
+Python source matrix are `test_root_ssh.py`, `test_root_ssh_descriptor.py` and
+`test_ssh_privacy.py`, each under this family with `python3 -I -B
+-Werror::ResourceWarning`. The final DRAFT handoff must provide full Source59
+inverse, exact tree/count/lock, concrete source/packet/capsule helper paths and
+unissued case inputs. Public branch5e and frozen Source59 remain unchanged;
+no new publication, Root authority, actors or runtime/hardware/release acceptance
+is issued by this successor. Source-only controls are not an operational PASS.

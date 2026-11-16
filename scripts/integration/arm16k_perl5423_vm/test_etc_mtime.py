@@ -1,292 +1,349 @@
 #!/usr/bin/env -S python3 -I -B
 # SPDX-License-Identifier: MIT
-"""Actual HOST timestamp/FD controls on owned scratch; no guest or ALPM run.
+"""Real owned HOST filesystem controls for the finite preboot absence recovery.
 
-Only the exact two new root.sh helpers run, projected from /etc into scratch.
-UID/GID assertions use the invoking test owner, never sudo or real Root state.
-Whole predecessor inverse pins all preexisting transaction/preservation bytes.
+Only extracted Bash helpers execute. No guest entry point, ALPM, trust tool,
+image, credential or VM is opened. /etc and root ownership assertions are
+projected into scratch with an exact source-text inverse.
 """
 import errno
-import base64
-import copy
-import importlib.util
 import hashlib
 import os
 from pathlib import Path
-import resource
 import re
+import resource
 import subprocess
 import sys
 import tempfile
 import unittest
 
-HERE = Path(__file__).resolve().parent
-SOURCE = (HERE/'guest/root.sh').read_text()
-START = '# The normal ldconfig hook can create/remove ld.so.cache and change /etc mtime.\n'
-END = 'cache_snapshot() (\n'
-HELPERS = SOURCE[SOURCE.index(START):SOURCE.index(END)]
-ROOT55_SHA256 = '9be11484131188df57b7f23fec3fe9e75b4fe9066833f752fed7353b7b513aa0'
-MTIME = 1794708503123456789
-ATIME = 1794708403987654321
+HERE=Path(__file__).resolve().parent
+SOURCE=(HERE/'guest/root.sh').read_text()
+START='# The normal ldconfig hook can create/remove ld.so.cache and change /etc mtime.\n'
+END='cache_snapshot() (\n'
+HELPERS=SOURCE[SOURCE.index(START):SOURCE.index(END)]
+SOURCE58_HELPERS_SHA256='58f166dbea51c086867987fc9173363582fab5960a05fe8945ceee3284900648'
+NONCE='a'*32
+
+PARENTS=('etc','etc/audit','etc/udev')
+POLICY=(('etc/.pwd.lock','f','600',0),('etc/.updated','f','644',4096),
+        ('etc/audisp','d','755',0),('etc/audit/plugins.d','d','750',0),
+        ('etc/audit/rules.d','d','755',0),('etc/ld.so.cache','f','644',1048576),
+        ('etc/os-release','l','777',4096),('etc/udev/hwdb.bin','f','444',16777216),
+        ('etc/vconsole.conf','f','644',4096))
+ATIMES=(1785933514000000000,1785933495000000000,1785933457000000000)
+MTIMES=(1794708503123456789,1785933495987654321,1785933457123000000)
 
 
 def limits():
-    resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
-    resource.setrlimit(resource.RLIMIT_CPU, (3, 3))
-    resource.setrlimit(resource.RLIMIT_AS, (128*1024**2, 128*1024**2))
-    resource.setrlimit(resource.RLIMIT_FSIZE, (65536, 65536))
-    resource.setrlimit(resource.RLIMIT_NOFILE, (64, 64))
+    for name,cap in ((resource.RLIMIT_CORE,0),(resource.RLIMIT_CPU,8),
+                     (resource.RLIMIT_AS,192*1024**2),(resource.RLIMIT_FSIZE,1048576),
+                     (resource.RLIMIT_NOFILE,96)):
+        resource.setrlimit(name,(cap,cap))
 
 
-def fence(event, args):
-    if event == 'subprocess.Popen':
-        if args[0] != '/usr/bin/bash' or args[1][:3] != ['/usr/bin/bash', '--noprofile', '--norc']:
-            raise AssertionError('only fixed HOST Bash helper fixture allowed')
-    elif event.startswith(('socket.', 'ctypes.', 'os.exec', 'os.fork', 'os.posix_spawn', 'fcntl.')) or event == 'os.system':
-        raise AssertionError('HOST timestamp test actor fence: '+event)
-
-
+def fence(event,args):
+    if event=='subprocess.Popen':
+        if args[0]!='/usr/bin/bash' or args[1][:3]!=['/usr/bin/bash','--noprofile','--norc']:
+            raise AssertionError('only finite HOST Bash fixture may execute')
+    elif event.startswith(('socket.','ctypes.','os.exec','os.fork','os.posix_spawn','fcntl.'))or event=='os.system':
+        raise AssertionError('HOST filesystem fixture fence: '+event)
 sys.addaudithook(fence)
 
 
 class Fixture:
     def __init__(self):
-        self.tmp = tempfile.TemporaryDirectory(prefix='perl-etc-mtime-HOST-')
-        self.top = Path(self.tmp.name)
-        self.etc = self.top/'etc'
-        self.data = self.top/'case'
-        self.cache = self.data/'cache'
-        self.etc.mkdir(mode=0o755)
-        self.cache.mkdir(mode=0o700, parents=True)
-        self.reference = self.cache/'etc-mtime.reference'
-        self.config = self.etc/'config'
-        self.config.write_bytes(b'HOST owned configuration\n')
-        self.config.chmod(0o644)
-        self.original = None
+        self.tmp=tempfile.TemporaryDirectory(prefix='perl-preboot-absence-HOST-')
+        self.top=Path(self.tmp.name)
+        self.etc=self.top/'etc'
+        self.data=self.top/'case'
+        self.cache=self.data/'cache'
+        self.run_dir=self.top/'run'
+        self.cache.mkdir(mode=0o700,parents=True)
+        self.run_dir.mkdir(mode=0o700)
+        for name in PARENTS:(self.top/name).mkdir(mode=0o755,parents=True,exist_ok=True)
+        self.sentinels={}
+        for name in ('etc/base.conf','etc/audit/base.conf','etc/udev/base.rules'):
+            path=self.top/name;path.write_bytes(('HOST baseline '+name+'\n').encode());path.chmod(0o644)
+            self.sentinels[name]=path.read_bytes()
+        self.context=self.data/'preboot-context.json'
+        self.context.write_bytes(b'{"MODEL":"source/case/nonce/raw/prepared/certificate/namespace joins tested separately"}\n')
+        self.context.chmod(0o644)
+        self.descriptor=self.data/'preboot-etc.tsv'
+        self.cmdline=self.top/'cmdline'
+        self.original={}
+        self.stamp()
 
-    def close(self):
-        self.tmp.cleanup()
+    def close(self):self.tmp.cleanup()
 
-    def stamp(self):
-        os.utime(self.etc, ns=(ATIME, MTIME))
-        self.original = self.etc.stat()
+    def stamp(self,mtimes=MTIMES):
+        for name,atime,mtime in zip(PARENTS,ATIMES,mtimes):
+            path=self.top/name;os.utime(path,ns=(atime,mtime));self.original[name]=path.stat()
+        lines=[f'PERL5423_PREBOOT_ETC_V2 {NONCE} {hashlib.sha256(self.context.read_bytes()).hexdigest()}']
+        for name in PARENTS:
+            row=self.original[name]
+            lines.append(f'P {name} {row.st_ino} {row.st_nlink} {row.st_mtime_ns//10**9} {row.st_mtime_ns%10**9}')
+        lines.extend(f'A {name} {kind} {mode} {cap}'for name,kind,mode,cap in POLICY)
+        self.descriptor.write_text('\n'.join(lines)+'\n');self.descriptor.chmod(0o600)
+        self.bind_descriptor()
 
-    def run(self, body, *, before=''):
-        uid, gid = os.getuid(), os.getgid()
-        # Finite inverse: the production literal and assertions stay exact.
-        edits = [('/etc', '"$MODEL_ETC"'), (' == 0:0:755', f' == {uid}:{gid}:755'),
-                 (' == 0:0:700', f' == {uid}:{gid}:700'), (' == 0:0:1:600:0', f' == {uid}:{gid}:1:600:0')]
-        text = HELPERS
-        for old, new in edits:
-            if old not in text or new in text:
-                raise AssertionError('fixed HOST projection seam')
-            text = re.sub(r'/etc(?![A-Za-z0-9._/-])', lambda _: new, text) if old == '/etc' else text.replace(old, new)
-        inverse = text
-        for old, new in reversed(edits):
-            inverse = inverse.replace(new, old)
-        if inverse != HELPERS:
-            raise AssertionError('whole HOST projection inverse')
-        script = 'set -Eeuo pipefail\numask 077\nD=$1\n'+text+before+'\n'+body
-        result = subprocess.run(['/usr/bin/bash', '--noprofile', '--norc', '-c', script, 'HOST-helper', str(self.data)],
-                 cwd=self.top, env=dict(PATH='/usr/bin:/bin', HOME=str(self.top), LC_ALL='C', TZ='UTC', MODEL_ETC=str(self.etc)),
-                 stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=6, preexec_fn=limits)
-        if max(len(result.stdout), len(result.stderr)) > 65536:
-            raise AssertionError('bounded HOST helper output')
+    def bind_descriptor(self):
+        self.cmdline.write_text('arm16k_perl5423_vm_preboot_etc_sha256='+hashlib.sha256(self.descriptor.read_bytes()).hexdigest()+'\n')
+
+    def boot(self,omit=(),hwdb_bytes=65792):
+        for index,(name,kind,mode,_)in enumerate(POLICY):
+            if name in omit:continue
+            path=self.top/name
+            if kind=='d':path.mkdir(mode=int(mode,8));path.chmod(int(mode,8))
+            elif kind=='l':path.symlink_to('../usr/lib/HOST-MODEL-release')
+            else:
+                body=b''if name.endswith('.pwd.lock')else (bytes(range(256))*((hwdb_bytes+255)//256))[:hwdb_bytes]if name.endswith('hwdb.bin')else ('HOST boot '+name+'\n').encode()+b'\0BINARY'
+                path.write_bytes(body);path.chmod(int(mode,8))
+                os.utime(path,ns=(1794827028000000000+index,1794827029000000000+index))
+        return self
+
+    def run(self,body,*,before=''):
+        uid,gid=os.getuid(),os.getgid()
+        text=HELPERS
+        replacements=[('/proc/cmdline','"$MODEL_CMDLINE"'),('/etc','"$MODEL_ETC"'),('0:0',f'{uid}:{gid}')]
+        for old,new in replacements:
+            if old not in text or new in text:raise AssertionError('fixed HOST projection seam missing/colliding: '+old)
+            text=re.sub(r'(?<![0-9])0:0(?![0-9])',lambda _:new,text)if old=='0:0'else text.replace(old,new)
+        inverse=text
+        for old,new in reversed(replacements):inverse=inverse.replace(new,old)
+        if inverse!=HELPERS:raise AssertionError('whole source projection inverse')
+        script='set -Eeuo pipefail\numask 077\nD=$1\nO=$2\nS=$O/root\nmkdir -m700 "$S"\nnonce='+NONCE+'\n'
+        script+='file_sha() { local value;value=$(sha256sum -- "$1");printf %s "${value%% *}"; }\n'
+        script+='pacman() { [[ $# == 1 && $1 == -Qlq ]] || exit 97;return 0; }\n'
+        script+=text+'\n'+before+'\n'+body
+        result=subprocess.run(['/usr/bin/bash','--noprofile','--norc','-c',script,'HOST-preboot-controls',str(self.data),str(self.run_dir)],
+                              cwd=self.top,env=dict(PATH='/usr/bin:/bin',HOME=str(self.top),LC_ALL='C',TZ='UTC',MODEL_ETC=str(self.etc),MODEL_CMDLINE=str(self.cmdline)),
+                              stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=20,preexec_fn=limits)
+        if max(len(result.stdout),len(result.stderr))>1048576:raise AssertionError('bounded helper output')
         return result
+
+    def assert_baseline(self,test):
+        for name,row in self.original.items():
+            actual=(self.top/name).stat()
+            test.assertEqual((actual.st_ino,actual.st_mode,actual.st_uid,actual.st_gid,actual.st_nlink,actual.st_mtime_ns),
+                             (row.st_ino,row.st_mode,row.st_uid,row.st_gid,row.st_nlink,row.st_mtime_ns),name)
+        for name,_,_,_ in POLICY:
+            path=self.top/name;test.assertFalse(path.exists()or path.is_symlink(),name)
+        for name,body in self.sentinels.items():test.assertEqual((self.top/name).read_bytes(),body)
+        test.assertEqual(list(self.cache.iterdir()),[])
 
 
 class Controls(unittest.TestCase):
-    def fixture(self):
-        value = Fixture()
-        self.addCleanup(value.close)
+    def fixture(self,*,boot=True):
+        value=Fixture();self.addCleanup(value.close)
+        if boot:value.boot()
         return value
 
-    def test_exact_nanoseconds_restored_for_original_cache_presence_or_absence(self):
-        for present in (False, True):
-            with self.subTest(present=present):
-                f = self.fixture()
-                cache = f.etc/'ld.so.cache'
-                if present:
-                    cache.write_bytes(b'original HOST cache\n')
-                    cache.chmod(0o644)
-                f.stamp()
-                body = '''cache_etc_timestamp_capture
-[[ -f $D/cache/etc-mtime.reference && $(stat -c '%a:%h:%s' -- "$D/cache/etc-mtime.reference") == 600:1:0 ]]
-[[ $(stat -Lc '%d:%i' -- "/proc/self/fd/$etc_directory_fd") == $(stat -c '%d:%i' -- "$MODEL_ETC") ]]
-printf 'normal hook cache replacement\\n' > "$MODEL_ETC/new-cache"
-rm -f -- "$MODEL_ETC/ld.so.cache"
-'''
-                if present:
-                    body += 'printf "original HOST cache\\n" > "$MODEL_ETC/ld.so.cache"\nchmod 644 -- "$MODEL_ETC/ld.so.cache"\n'
-                body += '''rm -- "$MODEL_ETC/new-cache"
-[[ $(stat -c '%y' -- "$MODEL_ETC") != "$etc_directory_mtime" ]]
-cache_etc_timestamp_restore
-[[ ! -e /proc/self/fd/$etc_directory_fd && ! -L /proc/self/fd/$etc_directory_fd ]]
-[[ ! -e $D/cache/etc-mtime.reference && ! -L $D/cache/etc-mtime.reference ]]
-'''
-                result = f.run(body)
-                self.assertEqual(result.returncode, 0, result.stderr.decode())
-                info = f.etc.stat()
-                self.assertEqual(info.st_mtime_ns, MTIME)
-                self.assertEqual(info.st_atime_ns, ATIME)
-                self.assertEqual((info.st_dev, info.st_ino, info.st_mode, info.st_uid, info.st_gid, info.st_nlink),
-                                 (f.original.st_dev, f.original.st_ino, f.original.st_mode, f.original.st_uid, f.original.st_gid, f.original.st_nlink))
-                self.assertEqual(f.config.read_bytes(), b'HOST owned configuration\n')
-                self.assertEqual(cache.exists(), present)
-                self.assertFalse(f.reference.exists())
+    def assert_refuses(self,f,mutation,*,capture_first=True):
+        body=('cache_etc_timestamp_capture\nprintf CAPTURED\\n\n'if capture_first else'')+mutation+'\n'
+        body+='cache_etc_timestamp_restore\nprintf BAD_SUCCESS\n'if capture_first else'cache_etc_timestamp_capture\nprintf BAD_SUCCESS\n'
+        result=f.run(body)
+        self.assertNotEqual(result.returncode,0,result.stderr.decode())
+        self.assertNotIn(b'BAD_SUCCESS',result.stdout)
+        if capture_first:self.assertIn(b'CAPTURED',result.stdout,result.stderr.decode())
+        return result
 
-    def test_directory_replacement_alias_mode_and_link_count_changes_refuse_before_touch(self):
-        cases = ['mv -- "$MODEL_ETC" old-etc;mkdir -m755 -- "$MODEL_ETC"',
-                 'mv -- "$MODEL_ETC" old-etc;ln -s -- old-etc "$MODEL_ETC"',
-                 'chmod 700 -- "$MODEL_ETC"', 'mkdir -- "$MODEL_ETC/new-directory"',
-                 '''stat() { local value;value=$(/usr/bin/stat "$@");if [[ ${@: -1} == "$MODEL_ETC" && $2 == '%d:%i:%f:%u:%g:%h' ]];then printf '%sOTHER_UID_GID\\n' "$value";else printf '%s\\n' "$value";fi; }''']
+    def test_full_nine_path_boot_transaction_and_exact_preboot_parent_recovery(self):
+        f=self.fixture(boot=False);f.boot(hwdb_bytes=13735371)
+        self.assertEqual(f.etc.stat().st_nlink,f.original['etc'].st_nlink+1)
+        self.assertEqual((f.etc/'audit').stat().st_nlink,f.original['etc/audit'].st_nlink+2)
+        result=f.run("""cache_etc_timestamp_capture
+cp -a -- "$MODEL_ETC/ld.so.cache" "$D/cache.saved"
+printf 'HOST normal hook replacement' > "$MODEL_ETC/new-cache"
+mv -- "$MODEL_ETC/new-cache" "$MODEL_ETC/ld.so.cache"
+cp -a -- "$D/cache.saved" "$MODEL_ETC/ld.so.cache"
+cache_etc_timestamp_restore
+""")
+        self.assertEqual(result.returncode,0,result.stderr.decode())
+        f.assert_baseline(self)
+
+    def test_absent_at_initial_observation_remains_absent(self):
+        f=self.fixture(boot=False)
+        result=f.run('cache_etc_timestamp_capture\ncache_etc_timestamp_restore\n')
+        self.assertEqual(result.returncode,0,result.stderr.decode())
+        f.assert_baseline(self)
+
+    def test_path_appearing_after_initial_observation_refuses_before_other_deletions(self):
+        f=Fixture();self.addCleanup(f.close);f.boot(omit=('etc/vconsole.conf',))
+        self.assert_refuses(f,'printf NEW > "$MODEL_ETC/vconsole.conf";chmod 644 "$MODEL_ETC/vconsole.conf"')
+        self.assertTrue((f.etc/'.updated').exists())
+        self.assertTrue((f.etc/'audisp').exists())
+
+    def test_changed_regular_file_bytes_refuse_before_any_deletion(self):
+        for name,kind,mode,_ in POLICY:
+            if kind!='f':continue
+            with self.subTest(name=name):
+                f=self.fixture();path='"$MODEL_ETC/'+name[4:]+'"'
+                self.assert_refuses(f,'chmod u+w '+path+';printf CHANGED >> '+path+';chmod '+mode+' '+path)
+                self.assertTrue((f.etc/'audisp').exists())
+
+    def test_regular_file_mode_mtime_or_hardlink_change_refuses(self):
+        for mutation in ('chmod 600 "$MODEL_ETC/.updated"','touch -m -d @1 "$MODEL_ETC/.updated"',
+                         'ln "$MODEL_ETC/.updated" "$D/extra-hardlink"'):
+            with self.subTest(mutation=mutation):self.assert_refuses(self.fixture(),mutation)
+
+    def test_identical_noncache_file_replacement_refuses(self):
+        self.assert_refuses(self.fixture(),'cp -a "$MODEL_ETC/.updated" "$D/substitute";mv "$D/substitute" "$MODEL_ETC/.updated"')
+
+    def test_file_or_directory_aliases_refuse_at_capture(self):
+        for name in ('.updated','audisp','udev/hwdb.bin'):
+            with self.subTest(name=name):
+                f=self.fixture();target=f.etc/name;target.rename(f.top/'original-target');target.symlink_to(f.top/'original-target')
+                self.assert_refuses(f,'',capture_first=False)
+
+    def test_symlink_target_and_identical_symlink_inode_replacement_refuse(self):
+        for target in ('CHANGED-HOST-target','../usr/lib/HOST-MODEL-release'):
+            with self.subTest(target=target):
+                self.assert_refuses(self.fixture(),'rm "$MODEL_ETC/os-release";ln -s '+target+' "$MODEL_ETC/os-release"')
+
+    def test_nonempty_directories_refuse_at_capture_and_restore_without_recursion(self):
+        for stage in ('capture','restore'):
+            with self.subTest(stage=stage):
+                f=self.fixture()
+                if stage=='capture':(f.etc/'audisp/child').write_bytes(b'HOST UNOWNED CONTENT')
+                self.assert_refuses(f,'printf "HOST UNOWNED CONTENT" > "$MODEL_ETC/audisp/child"'if stage=='restore'else'',capture_first=stage=='restore')
+                self.assertEqual((f.etc/'audisp/child').read_bytes(),b'HOST UNOWNED CONTENT')
+                self.assertTrue((f.etc/'.updated').exists())
+
+    def test_identical_empty_directory_replacement_refuses(self):
+        self.assert_refuses(self.fixture(),'mv "$MODEL_ETC/audisp" "$D/original-directory";mkdir -m755 "$MODEL_ETC/audisp";touch -m -r "$D/original-directory" "$MODEL_ETC/audisp"')
+
+    def test_initial_nonempty_lock_wrong_mode_hardlink_and_size_cap_refusals(self):
+        cases=('printf X > "$MODEL_ETC/.pwd.lock"',
+               'chmod 600 "$MODEL_ETC/.updated"',
+               'ln "$MODEL_ETC/.updated" "$D/initial-hardlink"',
+               'head -c 4097 /dev/zero > "$MODEL_ETC/.updated"')
         for mutation in cases:
+            with self.subTest(mutation=mutation):self.assert_refuses(self.fixture(),mutation,capture_first=False)
+        f=self.fixture(boot=False);f.boot(hwdb_bytes=16777217)
+        self.assert_refuses(f,'',capture_first=False)
+
+    def test_literal_selected_file_or_directory_ownership_refuses(self):
+        for name in ('.updated','audisp/'):
+            with self.subTest(name=name):
+                self.assert_refuses(self.fixture(),'pacman() { [[ $# == 1 && $1 == -Qlq ]] || exit 97;printf "%s\\n" "$MODEL_ETC/'+name+'"; }',capture_first=False)
+
+    def test_literal_ownership_query_error_refuses(self):
+        self.assert_refuses(self.fixture(),'pacman() { return 23; }',capture_first=False)
+
+    def test_parent_inode_alias_mode_or_unaccounted_child_directory_refuses(self):
+        for mutation in ('mv "$MODEL_ETC/audit" "$D/old-audit";mkdir -m755 "$MODEL_ETC/audit"',
+                         'mv "$MODEL_ETC/udev" "$D/old-udev";ln -s "$D/old-udev" "$MODEL_ETC/udev"',
+                         'chmod 700 "$MODEL_ETC"','mkdir "$MODEL_ETC/unreviewed-directory"'):
+            with self.subTest(mutation=mutation):self.assert_refuses(self.fixture(),mutation)
+
+    def test_descriptor_context_nonce_token_and_identity_tampering_refuse(self):
+        cases=('rm "$D/preboot-etc.tsv"','printf X >> "$D/preboot-etc.tsv"','chmod 644 "$D/preboot-etc.tsv"',
+               'ln "$D/preboot-etc.tsv" "$D/descriptor-alias"','printf X >> "$D/preboot-context.json"',
+               'nonce=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',': > "$MODEL_CMDLINE"',
+               'line=$(cat "$MODEL_CMDLINE");printf "%s %s\\n" "$line" "$line" > "$MODEL_CMDLINE"')
+        for mutation in cases:
+            with self.subTest(mutation=mutation):self.assert_refuses(self.fixture(),mutation,capture_first=False)
+
+    def test_selected_malformed_or_reordered_descriptor_refuses(self):
+        for mutation in ('sed -i "s/P etc /P etc-other /" "$D/preboot-etc.tsv"',
+                         'sed -i "s/A etc\\/.pwd.lock f 600 0/A etc\\/.pwd.lock f 600 1/" "$D/preboot-etc.tsv"',
+                         'printf EXTRA >> "$D/preboot-etc.tsv"',
+                         'printf \"\\n\" >> "$D/preboot-etc.tsv"'):
             with self.subTest(mutation=mutation):
-                f = self.fixture()
-                f.stamp()
-                result = f.run('cache_etc_timestamp_capture\n'+mutation+'\ntouch() { printf BAD_TOUCH;return 0; }\ncache_etc_timestamp_restore\n')
-                self.assertNotEqual(result.returncode, 0)
-                self.assertNotIn(b'BAD_TOUCH', result.stdout)
-                self.assertTrue(f.reference.exists())
+                f=self.fixture();before=mutation+'\nprintf "arm16k_perl5423_vm_preboot_etc_sha256=%s\\n" "$(file_sha "$D/preboot-etc.tsv")" > "$MODEL_CMDLINE"\n'
+                result=f.run('cache_etc_timestamp_capture\nprintf BAD_SUCCESS\n',before=before)
+                self.assertNotEqual(result.returncode,0,result.stderr.decode());self.assertNotIn(b'BAD_SUCCESS',result.stdout)
 
-    def test_replaced_directory_after_precheck_never_gets_its_timestamp_changed(self):
-        f = self.fixture()
-        f.stamp()
-        result = f.run('''cache_etc_timestamp_capture
-touch() {
- mv -- "$MODEL_ETC" old-etc
- mkdir -m755 -- "$MODEL_ETC"
- /usr/bin/touch "$@"
-}
-cache_etc_timestamp_restore
-''')
-        self.assertNotEqual(result.returncode, 0)
-        self.assertEqual((f.top/'old-etc').stat().st_mtime_ns, MTIME)
-        self.assertNotEqual(f.etc.stat().st_mtime_ns, MTIME)
-        self.assertTrue(f.reference.exists())
+        for before,after in ((b'PERL5423_PREBOOT_ETC_V2',b'PERL5423_PREBOOT_ETC_V2\0'),
+                             (b'P etc ',b'P et\0c '),
+                             (b'A etc/.pwd.lock ',b'A etc/.pwd.\0lock ')):
+            with self.subTest(NUL=before):
+                f=self.fixture();raw=f.descriptor.read_bytes();self.assertIn(before,raw)
+                f.descriptor.write_bytes(raw.replace(before,after,1));f.bind_descriptor()
+                self.assert_refuses(f,'',capture_first=False)
+                self.assertTrue((f.etc/'.updated').exists())
 
-    def test_capture_refuses_occupied_alias_and_special_references_without_clobber(self):
-        for kind in ('regular', 'symlink', 'dangling', 'hardlink', 'fifo'):
+    def test_reference_mutation_or_touch_error_never_reports_success(self):
+        for mutation in ('printf X > "$D/cache/preboot-parent-0.reference"',
+                         'rm "$D/cache/preboot-parent-1.reference";ln -s "$MODEL_ETC/base.conf" "$D/cache/preboot-parent-1.reference"',
+                         'chmod 644 "$D/cache/preboot-parent-2.reference"',
+                         'printf X >> "$D/preboot-context.json"',
+                         'cp -a "$D/preboot-context.json" "$D/context-copy";mv "$D/context-copy" "$D/preboot-context.json"',
+                         'touch() { return 23; }'):
+            with self.subTest(mutation=mutation):
+                f=self.fixture();self.assert_refuses(f,mutation)
+                if not mutation.startswith('touch()'):self.assertTrue((f.etc/'.updated').exists())
+
+    def test_occupied_reference_nodes_refuse_without_clobber(self):
+        for kind in ('ordinary','symlink','dangling','hardlink','fifo'):
             with self.subTest(kind=kind):
-                f = self.fixture()
-                outside = f.top/'outside'
-                outside.write_bytes(b'UNOWNED MODEL sentinel')
-                if kind == 'regular': f.reference.write_bytes(b'existing')
-                elif kind == 'symlink': f.reference.symlink_to(outside)
-                elif kind == 'dangling': f.reference.symlink_to(f.top/'absent')
-                elif kind == 'hardlink': os.link(outside, f.reference)
-                else: os.mkfifo(f.reference)
-                f.stamp()
-                before = f.reference.lstat()
-                result = f.run('cache_etc_timestamp_capture\n')
-                self.assertNotEqual(result.returncode, 0)
-                self.assertEqual((f.reference.lstat().st_ino, f.reference.lstat().st_mode), (before.st_ino, before.st_mode))
-                self.assertEqual(outside.read_bytes(), b'UNOWNED MODEL sentinel')
-                self.assertEqual(f.etc.stat().st_mtime_ns, MTIME)
+                f=self.fixture();outside=f.top/'HOST-unowned';outside.write_bytes(b'HOST sentinel')
+                reference=f.cache/'preboot-parent-0.reference'
+                if kind=='ordinary':reference.write_bytes(b'HOST occupied reference')
+                elif kind=='symlink':reference.symlink_to(outside)
+                elif kind=='dangling':reference.symlink_to(f.top/'absent')
+                elif kind=='hardlink':os.link(outside,reference)
+                else:os.mkfifo(reference)
+                before=reference.lstat()
+                self.assert_refuses(f,'',capture_first=False)
+                self.assertEqual((reference.lstat().st_ino,reference.lstat().st_mode),(before.st_ino,before.st_mode))
+                self.assertEqual(outside.read_bytes(),b'HOST sentinel')
+                self.assertTrue((f.etc/'.updated').exists())
 
-    def test_refuses_reference_tampering_alias_mode_data_and_cache_parent_changes(self):
-        cases = ['printf X > "$D/cache/etc-mtime.reference"',
-                 'chmod 644 -- "$D/cache/etc-mtime.reference"',
-                 'rm -- "$D/cache/etc-mtime.reference";ln -s -- "$MODEL_ETC/config" "$D/cache/etc-mtime.reference"',
-                 'ln -- "$D/cache/etc-mtime.reference" "$D/cache/alias"',
-                 'rm -- "$D/cache/etc-mtime.reference";: > "$D/cache/etc-mtime.reference"',
-                 'chmod 755 -- "$D/cache"',
-                 'mv -- "$D/cache" "$D/original-cache";ln -s -- original-cache "$D/cache"']
-        for mutation in cases:
-            with self.subTest(mutation=mutation):
-                f = self.fixture()
-                f.stamp()
-                result = f.run('cache_etc_timestamp_capture\n'+mutation+'\ntouch() { printf BAD_TOUCH;return 0; }\ncache_etc_timestamp_restore\n')
-                self.assertNotEqual(result.returncode, 0)
-                self.assertNotIn(b'BAD_TOUCH', result.stdout)
+    def test_snapshot_command_error_refuses_before_deletion(self):
+        for command in ('getfattr','sha256sum'):
+            with self.subTest(command=command):
+                f=self.fixture();self.assert_refuses(f,command+'() { return 23; }')
+                self.assertTrue((f.etc/'.updated').exists())
 
-    def test_capture_rejects_noncanonical_or_wrong_mode_directories(self):
-        for mutation in ('chmod 700 -- "$MODEL_ETC"', 'chmod 755 -- "$D/cache"',
-                         'mv -- "$MODEL_ETC" old-etc;ln -s -- old-etc "$MODEL_ETC"'):
-            f = self.fixture()
-            f.stamp()
-            result = f.run('cache_etc_timestamp_capture\n', before=mutation)
-            self.assertNotEqual(result.returncode, 0)
-            self.assertFalse(f.reference.exists())
+    def test_timestamp_restoration_preserves_current_atime_without_wholeboot_requirement(self):
+        f=self.fixture()
+        current=(1794829001123456789,1794829002987654321,1794829003555000000)
+        body='cache_etc_timestamp_capture\n'
+        for name,ns in zip(PARENTS,current):
+            suffix=name[3:];body+=f'touch -a -d @{ns//10**9}.{ns%10**9:09d} -- "$MODEL_ETC{suffix}"\n'
+        body+='cache_etc_timestamp_restore\n'
+        result=f.run(body);self.assertEqual(result.returncode,0,result.stderr.decode())
+        for name,ns in zip(PARENTS,current):self.assertEqual((f.top/name).stat().st_atime_ns,ns,name)
+        f.assert_baseline(self)
 
-    def test_only_mtime_changes_and_existing_xattrs_and_configuration_are_preserved(self):
-        f = self.fixture()
+    def test_zero_nanoseconds_and_initial_xattrs_remain_exact_until_removal(self):
+        f=self.fixture(boot=False)
         try:
-            os.setxattr(f.etc, 'user.HOST_timestamp_test', b'directory attribute')
-            os.setxattr(f.config, 'user.HOST_timestamp_test', b'configuration attribute')
+            os.setxattr(f.etc/'base.conf','user.HOST_namespace_control',b'protected baseline')
+            os.setxattr(f.etc/'audit','user.HOST_namespace_control',b'protected parent')
+            f.stamp(tuple(x//10**9*10**9 for x in MTIMES));f.boot()
+            os.setxattr(f.etc/'.updated','user.HOST_namespace_control',b'initial generated state')
         except OSError as error:
-            if error.errno in (errno.ENOTSUP, errno.EOPNOTSUPP):self.skipTest('HOST scratch filesystem has no user xattrs')
+            if error.errno in(errno.ENOTSUP,errno.EOPNOTSUPP):self.skipTest('HOST filesystem has no user xattrs')
             raise
-        f.stamp()
-        config_before = f.config.stat()
-        result = f.run('''cache_etc_timestamp_capture
-printf CACHE > "$MODEL_ETC/ld.so.cache"
-rm -- "$MODEL_ETC/ld.so.cache"
-cache_etc_timestamp_restore
-''')
-        self.assertEqual(result.returncode, 0, result.stderr.decode())
-        self.assertEqual(f.etc.stat().st_mtime_ns, MTIME)
-        self.assertEqual(f.etc.stat().st_atime_ns, ATIME)
-        self.assertEqual(os.getxattr(f.etc, 'user.HOST_timestamp_test'), b'directory attribute')
-        self.assertEqual(os.getxattr(f.config, 'user.HOST_timestamp_test'), b'configuration attribute')
-        self.assertEqual(f.config.stat(), config_before)
+        result=f.run('cache_etc_timestamp_capture\ncache_etc_timestamp_restore\n')
+        self.assertEqual(result.returncode,0,result.stderr.decode());f.assert_baseline(self)
+        self.assertEqual(os.getxattr(f.etc/'base.conf','user.HOST_namespace_control'),b'protected baseline')
+        self.assertEqual(os.getxattr(f.etc/'audit','user.HOST_namespace_control'),b'protected parent')
 
-    def test_touch_or_cleanup_error_propagates_and_no_success_is_invented(self):
-        for before in ('touch() { return 23; }\n', 'rm() { return 24; }\n'):
-            f = self.fixture()
-            f.stamp()
-            body = 'cache_etc_timestamp_capture\n'+before+'cache_etc_timestamp_restore\nprintf BAD_SUCCESS\n'
-            result = f.run(body)
-            self.assertNotEqual(result.returncode, 0)
-            self.assertNotIn(b'BAD_SUCCESS', result.stdout)
-            self.assertTrue(f.reference.exists())
-        f = self.fixture()
-        f.stamp()
-        result = f.run('cache_etc_timestamp_capture\nprintf BAD_SUCCESS\n', before='touch() { return 23; }\n')
-        self.assertEqual(result.returncode, 23)
-        self.assertNotIn(b'BAD_SUCCESS', result.stdout)
+    def test_xattr_change_after_capture_refuses(self):
+        f=self.fixture()
+        self.assertTrue(Path('/usr/bin/setfattr').is_file())
+        try:os.setxattr(f.etc/'.updated','user.HOST_namespace_control',b'initial')
+        except OSError as error:
+            if error.errno in(errno.ENOTSUP,errno.EOPNOTSUPP):self.skipTest('HOST filesystem has no user xattrs')
+            raise
+        self.assert_refuses(f,'setfattr -n user.HOST_namespace_control -v CHANGED "$MODEL_ETC/.updated"')
 
-    def test_independent_preservation_still_refuses_model_etc_timestamp_drift(self):
-        spec = importlib.util.spec_from_file_location('HOST_timestamp_image_MODEL', HERE/'image.py')
-        image = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(image)
-        log = b'MODEL original transaction log\n'
-        row = dict(type='directory', mode=0o755, uid=0, gid=0, mtime=1794708503, mtime_ns=0)
-        before = dict(nodes={'etc': row, 'var/log/pacman.log': dict(type='file', mode=0o644, uid=0, gid=0,
-                           mtime=1, mtime_ns=0, sha256=hashlib.sha256(log).hexdigest())},
-                      records={'var/lib/pacman/local/MODEL-1/desc': '%NAME%\nMODEL\n\n%VERSION%\n1\n',
-                               'var/lib/pacman/local/MODEL-1/files': '%FILES%\netc/\n'},
-                      log_data_b64=base64.b64encode(log).decode())
-        runtime = dict(candidate_namespace={}, baseline_namespace={}, dependency_transaction={}, restoration_allowances=dict(
-                       install_date_path=None, database_timestamp_paths=['/var/lib/pacman/local'],
-                       cache_directory_timestamps=['/var/cache', '/var/cache/ldconfig'], normal_pacman_log='/var/log/pacman.log',
-                       pacman_log_before=dict(bytes=len(log), sha256=hashlib.sha256(log).hexdigest())))
-        after = copy.deepcopy(before)
-        after['nodes']['etc'].update(mtime=1794823231, mtime_ns=184000000)
-        with self.assertRaisesRegex(ValueError, 'unrelated baseline timestamp drift: etc'):
-            image.preserve(before, after, {'MODEL': '1'}, runtime)
-        after['nodes']['etc'] = copy.deepcopy(row)
-        self.assertEqual(image.preserve(before, after, {'MODEL': '1'}, runtime)['normal_timestamp_differences'], [])
-
-    def test_full_source55_inverse_and_order_keep_every_prior_preservation_gate(self):
-        self.assertEqual(SOURCE.count(HELPERS), 1)
-        restored = SOURCE.replace(HELPERS, '', 1)
-        for line in ('cache_etc_timestamp_capture\n', 'cache_etc_timestamp_restore\n'):
-            self.assertEqual(restored.count(line), 1)
-            restored = restored.replace(line, '', 1)
-        self.assertEqual(hashlib.sha256(restored.encode()).hexdigest(), ROOT55_SHA256)
-        capture = SOURCE.index('\ncache_etc_timestamp_capture\n')
-        restore = SOURCE.index('\ncache_etc_timestamp_restore\n')
-        self.assertLess(SOURCE.index('cache_snapshot > "$S/before.cache"'), capture)
-        self.assertLess(capture, SOURCE.index('checkpoint_phase dependency_install'))
-        self.assertLess(SOURCE.index('same_bytes "$S/before.cache" "$S/after.cache"'), restore)
-        self.assertLess(restore, SOURCE.index('payload_snapshot after'))
-        self.assertLess(restore, SOURCE.index('sync -f "$D"', restore))
-        self.assertNotIn('touch -a', HELPERS)
-        self.assertNotIn('|| :', HELPERS)
-        self.assertNotIn('mtime.reference', (HERE/'retention.py').read_text())
-        self.assertNotIn("allowed_dirs.add('etc')", (HERE/'image.py').read_text())
+    def test_source58_preboot_helpers_unchanged_and_corrected_transaction_order(self):
+        self.assertEqual(SOURCE.count(HELPERS),1)
+        self.assertEqual(hashlib.sha256(HELPERS.encode()).hexdigest(),SOURCE58_HELPERS_SHA256)
+        capture=SOURCE.index('\ncache_etc_timestamp_capture\n');restore=SOURCE.index('\ncache_etc_timestamp_restore\n')
+        self.assertLess(capture,SOURCE.index('checkpoint_phase dependency_install'))
+        self.assertLess(SOURCE.index('same_bytes "$S/before.cache" "$S/after.cache"'),restore)
+        self.assertLess(SOURCE.index('payload_snapshot after'),restore)
+        self.assertLess(SOURCE.index('same_bytes \"$S/before.meta-equality\" \"$S/after.meta-equality\"'),restore)
+        self.assertLess(restore,SOURCE.index('bounded \"$gpg_seconds\" \"$S/gpg-stop.log\"'))
+        self.assertNotIn('rm -rf',HELPERS)
+        self.assertNotIn('touch -a',HELPERS)
+        self.assertNotIn("allowed_dirs.add('etc')",(HERE/'image.py').read_text())
 
 
-if __name__ == '__main__':
-    unittest.main(verbosity=2)
+if __name__=='__main__':unittest.main(verbosity=2)
