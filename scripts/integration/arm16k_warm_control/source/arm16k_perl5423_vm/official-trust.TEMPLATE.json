@@ -1,0 +1,14 @@
+{
+  "baseline_global_gpgdir": "ABSENT",
+  "files": {
+    "/usr/share/pacman/keyrings/archlinuxarm-revoked": null,
+    "/usr/share/pacman/keyrings/archlinuxarm-trusted": null,
+    "/usr/share/pacman/keyrings/archlinuxarm.gpg": null
+  },
+  "kind": "ROOT_REVIEWED_SCRATCH_ALARM_PUBLIC_TRUST_V1",
+  "ownertrust_policy": "ROOT_ADMITTED_SIGNER_ONLY_NO_BULK_OWNERTRUST_IMPORT",
+  "revoked_signer_absent": null,
+  "scratch_home": "/run/arm16k-perl5423-vm/official-trust",
+  "signer": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+  "trusted_policy_reviewed": null
+}
