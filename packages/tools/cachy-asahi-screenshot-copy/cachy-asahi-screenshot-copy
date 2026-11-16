@@ -1,0 +1,107 @@
+#!/usr/bin/python
+# SPDX-License-Identifier: MIT
+"""Explicit full/region screenshot to a private file and the Wayland clipboard."""
+import argparse
+import os
+from pathlib import Path
+import shutil
+import stat
+import subprocess
+import sys
+
+MAX_BYTES = 64 * 1024**2
+COPY_TIMEOUT = 10
+PNG = b'\x89PNG\r\n\x1a\n'
+IEND = b'\0\0\0\0IEND\xaeB`\x82'
+
+
+class CopyError(Exception):
+    pass
+
+
+def tool(name):
+    path = shutil.which(name)
+    if path is None:
+        raise CopyError(f'Missing {name}; no screenshot or clipboard change was requested.')
+    return path
+
+
+def png_bytes(path):
+    """Read a bounded private ordinary file; detect observed replacement/editing."""
+    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC)
+    with os.fdopen(fd, 'rb') as stream:
+        before = os.fstat(stream.fileno())
+        if (not stat.S_ISREG(before.st_mode) or before.st_uid != os.getuid() or
+                stat.S_IMODE(before.st_mode) != 0o600 or before.st_nlink != 1 or
+                not 45 <= before.st_size <= MAX_BYTES):
+            raise CopyError('Saved PNG must be a private user-owned ordinary file, at most64MiB, without hardlinks.')
+        data = stream.read(MAX_BYTES + 1)
+        identity = lambda n: (n.st_dev, n.st_ino, n.st_mode, n.st_uid, n.st_nlink,
+                              n.st_size, n.st_mtime_ns, n.st_ctime_ns)
+        if (identity(before) != identity(os.fstat(stream.fileno())) or
+                identity(before) != identity(path.lstat()) or len(data) != before.st_size):
+            raise CopyError('Saved PNG changed while reading; clipboard copy was not requested.')
+    if data[:8] != PNG or data[8:16] != b'\0\0\0\rIHDR' or data[-12:] != IEND:
+        raise CopyError('Capture did not return a complete PNG; clipboard copy was not requested.')
+    return data
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('mode', choices=('full', 'region'))
+    parser.add_argument('--directory', type=Path, help='Forward an explicit private output directory to the existing screenshot helper')
+    args = parser.parse_args(argv)
+    saved = None
+    copying = False
+    try:
+        copier = tool('wl-copy')  # Missing clipboard support must not trigger capture.
+        capture = tool('cachy-asahi-screenshot')
+        command = [capture, args.mode]
+        if args.directory is not None:
+            command += ['--directory', str(args.directory)]
+        # The existing helper owns its selection/capture timeouts and cleanup.
+        # Its diagnostics stay visible; cancellation never falls back to full.
+        result = subprocess.run(command, stdout=subprocess.PIPE, check=False)
+        if result.returncode:
+            if result.stdout:
+                print(result.stdout.decode('utf-8', errors='backslashreplace'), end='', flush=True)
+            print('Capture failed or was cancelled; clipboard copy was not requested. Any already saved PNG was preserved.', file=sys.stderr)
+            return 130 if result.returncode in (130, -2) else 1
+        try:
+            line = result.stdout.decode('utf-8')
+        except UnicodeDecodeError as error:
+            raise CopyError('Capture returned an unreadable path; any saved PNG was preserved.') from error
+        if not line.endswith('\n') or any(ord(c) < 32 or ord(c) == 127 for c in line[:-1]):
+            raise CopyError('Capture must report exactly one absolute filename; any saved PNG was preserved.')
+        path = Path(line[:-1])
+        if not path.is_absolute() or '..' in path.parts:
+            raise CopyError('Capture did not report an absolute filename; any saved PNG was preserved.')
+        saved = path
+        print(saved, flush=True)
+        data = png_bytes(saved)
+        copying = True
+        # Default wl-copy daemonization keeps the selection available after this
+        # command exits. Never use --foreground, --paste-once or clipboard clear.
+        result = subprocess.run([copier, '--type', 'image/png'], input=data,
+                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                                timeout=COPY_TIMEOUT, check=False)
+        if result.returncode:
+            raise CopyError('wl-copy failed; clipboard outcome is unknown. The previous selection was not restored.')
+        print('PNG offered to the Wayland clipboard.', file=sys.stderr)
+        return 0
+    except KeyboardInterrupt:
+        print('Screenshot copy interrupted; clipboard outcome is unknown.' if copying else
+              'Screenshot copy interrupted before clipboard access.', file=sys.stderr)
+        return 130
+    except (CopyError, OSError, subprocess.TimeoutExpired) as error:
+        message = ('wl-copy timed out; clipboard outcome is unknown. The previous selection was not restored.'
+                   if isinstance(error, subprocess.TimeoutExpired) else str(error))
+        print(message, file=sys.stderr)
+        return 1
+    finally:
+        if saved is not None:
+            print(f'Saved PNG retained at {str(saved)!r}.', file=sys.stderr)
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())
