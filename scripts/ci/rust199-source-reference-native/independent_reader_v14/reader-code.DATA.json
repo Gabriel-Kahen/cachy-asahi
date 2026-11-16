@@ -1,0 +1,76 @@
+{
+  "M2": "NOT_TESTED",
+  "Root_acceptance": null,
+  "actual": {
+    "Root_review": null,
+    "bootstrap_artifact": null,
+    "bootstrap_job": null,
+    "build_artifact": null,
+    "build_job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "actual_kernel_private_success": null,
+  "archive_helper": {
+    "bytes": 64910,
+    "member": "scripts/port/llvm23-native-independent-reader/v2/reader.py",
+    "sha256": "e3fed71e01be989b5c84cd0e33124ca096e452eda380f4840b45786cb385335c"
+  },
+  "constructor": {
+    "bytes": 2453,
+    "sha256": "15bf7dab238e1fd7db7f93e90d9ea0c70dddafb2f912f611688fd10d32b6f8a5"
+  },
+  "inverse": {
+    "bytes": 105684,
+    "sha256": "f16a294f48439a654504f507f55ecded2f5f423dc3e803dce599f02159c8ee57"
+  },
+  "kind": "INDEPENDENT_READER14_EXACT_CODE_DATA_ONLY",
+  "native": "NOT RUN",
+  "new_tool_runtime": "NOT_EMITTED_NOT_QUALIFIED",
+  "predecessor_reader_commit": "756422588eb92290fc5c308752612878aafad3be",
+  "programs": {
+    "archives.py": {
+      "bytes": 17270,
+      "sha256": "90904de0bfe31886419e94823ce830c71b06db1bbd4557e3b687696d1b4901c0"
+    },
+    "bindings.py": {
+      "bytes": 10681,
+      "sha256": "c9110cc0d2673097160e7f0a0826c9e2436c9dc54b234d65d3a2c6e7c2e53455"
+    },
+    "elf.py": {
+      "bytes": 1720,
+      "sha256": "0d5adbfcca43700272b65462f69584f9c0a79d71c46ad5b6e037be56366773a2"
+    },
+    "evidence.py": {
+      "bytes": 46380,
+      "sha256": "239e8bacf9a8f419c143ec1aa501b75d6e83a5abd5b5dfef6ed7e05a0d7d1d45"
+    },
+    "reader.py": {
+      "bytes": 26524,
+      "sha256": "7af759176251d7d84d6d7a8b50a3bc130f9ec49f6543ed7f341a887d73d7d739"
+    },
+    "storage.py": {
+      "bytes": 13867,
+      "sha256": "f1606595fd7676cb4422d2ac785729e5a5b9e782c0d3f919b4c9e0cea2000b4a"
+    }
+  },
+  "release_acceptance": false,
+  "request_template": {
+    "bytes": 4080,
+    "sha256": "af541ac155c24812330d1fc7bfe0b668edbbc620fcb27bdeb15e62149fa30e99"
+  },
+  "schema": 14,
+  "source_constructor_commit": "8bf9fc44f0b2a41df2c773d6f494b379ca69320f",
+  "source_contract": {
+    "bytes": 43408000,
+    "files": 355,
+    "map_sha256": "4a85015fbcb513f8af71ae0d313abc4927faa50682dbf0b6ebfee8f339352bfa",
+    "profile_sha256": "e4f2dd79663a0a8233d1aabde156356fc9e02de217668f66c5058156b0bbe8b9",
+    "tree": "3fbb71b78e06cdb9aa219c596a41fda3ccc29280"
+  },
+  "validation": {
+    "bytes": 100847,
+    "sha256": "8b56b27ad9e739a6787697e95f1979529d61a0b58f4281f0d78dd1642bc5a8af"
+  }
+}
