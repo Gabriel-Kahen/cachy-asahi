@@ -61,10 +61,11 @@ class Controls(unittest.TestCase):
   with self.assertRaises(ValueError):F.construct(ARGS.checkout,ARGS.basis,output,pin)
   self.assertEqual((output/'stage.DRAFT.json').read_bytes(),original)
  def test_changed_or_missing_genuine_basis_refuses(self):
-  basis=self.root/'basis';shutil.copytree(ARGS.basis,basis);target=next(p for p in basis.rglob('*')if p.is_file());target.write_bytes(target.read_bytes()+b'drift')
-  with self.assertRaises(ValueError):F.render(ARGS.checkout,basis)
+  # Checkout .git metadata is excluded; mutate a required pinned Source member.
+  basis=self.root/'basis';shutil.copytree(ARGS.basis,basis);target=basis/'native/source-map.json';target.write_bytes(target.read_bytes()+b'drift')
+  with self.assertRaisesRegex(ValueError,'whole genuine191 basis differs'):F.render(ARGS.checkout,basis)
   target.unlink()
-  with self.assertRaises(ValueError):F.render(ARGS.checkout,basis)
+  with self.assertRaisesRegex(ValueError,'whole genuine191 basis differs'):F.render(ARGS.checkout,basis)
  def test_modified_inputs_manifest_refused_before_factory_import(self):
   original=F.ordinary;manifest=HERE/'inputs.json'
   def body(p,cap):return(b'{}\n',0o644)if Path(p)==manifest else original(p,cap)
