@@ -303,6 +303,9 @@ jobs:
         run: |
           python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-session-lock/test_session_lock.py -v
           python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-session-lock/test_package.py --recipe-root packages/tools/cachy-asahi-session-lock -v
+          python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-session-lock011/test_session_lock.py -v
+          python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-session-lock011/test_idle.py -v
+          python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-session-lock011/test_package.py --recipe-root packages/tools/cachy-asahi-session-lock011 -v
           python3 -I -B -Werror::ResourceWarning packages/desktop/cachy-asahi-hyprland-settings011/test_package.py --recipe-root packages/desktop/cachy-asahi-hyprland-settings011 -v
       - name: Check new native source families without native actors
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
