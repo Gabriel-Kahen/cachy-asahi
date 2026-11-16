@@ -1,0 +1,21 @@
+import json,os,stat,sys
+from pathlib import Path
+b=json.loads(sys.argv[1]);p=Path('/work')
+def need(v,s):
+ if not v:raise ValueError(s)
+def node(s):return dict(device=s.st_dev,inode=s.st_ino,uid=s.st_uid,gid=s.st_gid,mode=stat.S_IMODE(s.st_mode))
+print(json.dumps(dict(status='INITIALIZER_WORK_ROOT_OBSERVED',binding=b,actual=node(p.lstat())),sort_keys=True),file=sys.stderr,flush=True)
+need(os.getuid()==os.geteuid()==os.getgid()==os.getegid()==1001,'ordinary owned-directory verifier only')
+status=dict(l.split(':',1)for l in Path('/proc/self/status').read_text().splitlines()if ':'in l)
+need(all(int(status[k].strip(),16)==0 for k in('CapPrm','CapEff','CapBnd','CapInh','CapAmb'))and status['NoNewPrivs'].strip()=='1','zero capabilities; no ownership/mode mutation')
+need(os.uname().machine=='aarch64'and set(x.name for x in Path('/sys/class/net').iterdir())=={'lo'},'native isolated initializer')
+need(os.statvfs('/').f_flag&os.ST_RDONLY and not os.statvfs(p).f_flag&os.ST_RDONLY,'readonly root and writable volume')
+limits={n:(Path('/sys/fs/cgroup')/n).read_text().strip()for n in('cpu.max','memory.max','memory.swap.max','pids.max')}
+need(limits=={'cpu.max':'200000 100000','memory.max':'134217728','memory.swap.max':'0','pids.max':'32'},'bounded initializer cgroup')
+fd=os.open(p,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC)
+try:
+ before=os.fstat(fd);need(stat.S_ISDIR(before.st_mode)and before.st_uid==before.st_gid==1001 and stat.S_IMODE(before.st_mode)==0o700 and not os.listdir(fd),'fresh empty owned1001 directory')
+ after=os.fstat(fd);need(stat.S_IMODE(after.st_mode)==0o700 and after.st_uid==after.st_gid==1001 and not os.listdir(fd),'exact initialized empty volume')
+ need((before.st_dev,before.st_ino)==(after.st_dev,after.st_ino)==(p.lstat().st_dev,p.lstat().st_ino),'same ordinary directory')
+ print(json.dumps(dict(schema=1,status='INITIALIZED_EMPTY_WORK_VOLUME',binding=b,before=node(before),after=node(after),limits=limits,capabilities='NO_CAPS_NO_MUTATION_OWNED_DIRECTORY',recursive=False),sort_keys=True))
+finally:os.close(fd)
