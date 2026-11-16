@@ -126,6 +126,7 @@ jobs:
       - name: Check opt-in builder namespace DATA without actors
         run: |
           python3 -I -B -Werror::ResourceWarning scripts/build/nested_userns_v1/test_policy.py -v
+          python3 -I -B -Werror::ResourceWarning scripts/build/nested_userns_v1/test_probe.py -v
       - name: Check out immutable LLVM v1 Source as DATA
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
