@@ -14,7 +14,6 @@ import unittest
 
 sys.dont_write_bytecode=True
 HERE=Path(__file__).resolve().parent
-BASE=Path('/home/gabe/Documents/ChatGPT/cachy-asahi-fish02-native-Source-DATA-20261116-r1')
 REPO=HERE.parents[3]
 WORKFLOW=REPO/'.github/workflows/native-arm-fish-config02-source-v2.yml'
 
@@ -32,6 +31,7 @@ def module(name,path):
 
 
 D=module('fish02_v2_test_data',HERE/'data.py');P=module('fish02_v2_test_prepare',HERE/'prepare.py')
+B=module('fish02_v2_held32_prepare',HERE.parent/'prepare.py')
 R=module('fish02_v2_test_retain',HERE/'retain.py')
 # Importing either operational module must have no process/resource/namespace side effects.
 O=module('fish02_v2_test_owner',HERE/'hosted_owner.py');Y=module('fish02_v2_test_payload',HERE/'payload.py')
@@ -42,13 +42,20 @@ def raw(value):return json.dumps(value,sort_keys=True).encode()
 
 
 class Controls(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.held_temp=tempfile.TemporaryDirectory(prefix='fish02-held32-DATA-')
+        cls.addClassCleanup(cls.held_temp.cleanup)
+        cls.base=Path(cls.held_temp.name)/'Source32'
+        B.construct(REPO,cls.base)
+
     def setUp(self):
         self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup)
         self.root=Path(self.temp.name)/'source'
-        self.result=P.construct(BASE,WORKFLOW,self.root);self.map=self.result['source_map']['sha256']
+        self.result=P.construct(self.base,WORKFLOW,self.root);self.map=self.result['source_map']['sha256']
         self.env=dict(GITHUB_SHA='a'*40,GITHUB_REF='refs/heads/codex/synthetic-fish-owner',GITHUB_REPOSITORY='Gabriel-Kahen/cachy-asahi',
                       GITHUB_EVENT_NAME='workflow_dispatch',GITHUB_RUN_ATTEMPT='1',GITHUB_RUN_ID='99')
-        profile=D.decode((BASE/D.BASE_PREFIX/'profile.json').read_bytes())
+        profile=D.decode((self.base/D.BASE_PREFIX/'profile.json').read_bytes())
         common=dict(accepted=True,issued_by='Root',created_utc=100,expires_utc=300,nonce='b'*32,
                     ref=self.env['GITHUB_REF'],source=self.env['GITHUB_SHA'],source_map_sha256=self.map,resources=profile['resources'])
         # Explicit synthetic model grants; never persisted/published as actual Root authority.
@@ -114,7 +121,7 @@ class Controls(unittest.TestCase):
         with self.assertRaises(ValueError):D.admission(self.root,self.map,a,r,D.pin(a)['sha256'],D.pin(r)['sha256'],self.env,200)
 
     def test_single_entry_environment_projection_has_complete_inverse(self):
-        body=(BASE/D.BASE_PREFIX/'entry.py').read_bytes();projected=D.projected_entry(body)
+        body=(self.base/D.BASE_PREFIX/'entry.py').read_bytes();projected=D.projected_entry(body)
         self.assertEqual(projected.replace(D.ENV_PROJECTION,D.ENV_ANCHOR).encode(),body)
         self.assertIn("clean['DOCKER_HOST']",projected);self.assertIn("clean['TMPDIR']",projected)
         self.assertIn("clean['DOCKER_BUILDKIT']='0'",projected)

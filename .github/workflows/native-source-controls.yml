@@ -55,6 +55,7 @@ jobs:
       - name: Check current Fish source without actors
         run: |
           python3 -I -B -Werror::ResourceWarning scripts/ci/fish-config02-native-source/test_data.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/fish-config02-native-source/successor_v2/test_data.py
       - name: Check bounded native package readers on their Python 3.14 runtime
         if: matrix.python == '3.14'
         run: |
