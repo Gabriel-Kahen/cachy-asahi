@@ -1,0 +1,24 @@
+{
+  "actual": {
+    "ALPM": null,
+    "M2": null,
+    "Root_authority": null,
+    "VM": null,
+    "nonce": null,
+    "release": null,
+    "runtime": null
+  },
+  "actual_failed_predicate": null,
+  "baseline": {
+    "bytes": 12313,
+    "expected_from_independent_r76_namespace": {
+      "bytes": 12313,
+      "sha256": "bf57218ea22ca530decf18bf8ec548c22ec96afb0afc423088a97fbb148149ed"
+    },
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-perl-restored-cache-observation-trial-r1/actor-output/decoder-output/baseline-aux.bin",
+    "sha256": "bf57218ea22ca530decf18bf8ec548c22ec96afb0afc423088a97fbb148149ed"
+  },
+  "kind": "ACTUAL_BASELINE_AUX_PUBLIC_INPUT_V1",
+  "restored": null,
+  "source_selection": "UNSELECTED"
+}
