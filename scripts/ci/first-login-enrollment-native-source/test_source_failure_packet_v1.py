@@ -58,22 +58,18 @@ class Controls(unittest.TestCase):
  def values(self):return {n:CANARY for n in S.secret_names()}
  def record(self):return M.decoded(M.read(self.control/'material-stage-failure.json'))
  def row(self,raw,**changes):
-  result=outcome(7);result.pop('output');result['error']=CANARY
+  result=outcome(7);result.pop('output');result['error']=None
   return dict(kind='STAGE',output_pin=M.pin(CANARY.encode()),stderr_pin=M.pin(raw),supervision=result,**changes)
  @contextlib.contextmanager
  def process(self,session,stderr=b'',exit=7,stdout=b'',events=None):
   events=[]if events is None else events
-  @contextlib.contextmanager
-  def errors():
-   stream=io.BytesIO(stderr);stream.seek(0,io.SEEK_END)
-   try:yield stream
-   finally:stream.close()
   def secret(values,names):
    try:yield io.BytesIO(CANARY.encode())
    finally:values.clear()
-  def spawn(*a,**kw):events.append('MODELED_SPAWN');return object()
+  def spawn(*a,**kw):
+   os.write(kw['stderr'].fileno(),stderr);events.append('MODELED_SPAWN');return object()
   session.O=SimpleNamespace(prepare=lambda:None,supervise=lambda *a,**kw:outcome(exit,stdout))
-  with patch.object(M,'scope_path',return_value=SimpleNamespace(exists=lambda:False)),patch.object(M,'scope_tools',return_value=TOOLS),patch.object(E,'require_runtime_capabilities'),patch.object(E,'stderr_buffer',errors),patch.object(M,'sealed_secret_input',side_effect=secret),patch.object(M.subprocess,'Popen',side_effect=spawn),patch.object(M,'absent',side_effect=lambda nonce,deadline,closing=False:dict(scope=M.scope_name(nonce,closing),absent_twice=True)):
+  with patch.object(M,'scope_path',return_value=SimpleNamespace(exists=lambda:False)),patch.object(M,'scope_tools',return_value=TOOLS),patch.object(E,'require_runtime_capabilities'),patch.object(M,'sealed_secret_input',side_effect=secret),patch.object(M.subprocess,'Popen',side_effect=spawn),patch.object(M,'absent',side_effect=lambda nonce,deadline,closing=False:dict(scope=M.scope_name(nonce,closing),absent_twice=True)):
    yield events
  def safe_record(self,value,availability):
   self.assertEqual(set(value),{'schema','kind','status','availability','packet','request_pin','context_pin','stdout_pin','stderr_pin','retirement_pin',*M.FINAL})
@@ -111,8 +107,9 @@ class Controls(unittest.TestCase):
   self.assertEqual((self.control/'material-stage-failure.json').read_bytes(),original)
  def test_07_real_execute_retains_failed_child_before_mandatory_cleanup(self):
   session=self.session();raw=M.encoded(packet());values=self.values();events=[];natural=E.natural
-  def reject(row):
-   events.append('NATURAL_GATE');return natural(row)
+  def reject(row,*expected):
+   if not expected:events.append('NATURAL_GATE')
+   return natural(row,*expected)
   original_write=M.write
   def retain(path,value):
    result=original_write(path,value)

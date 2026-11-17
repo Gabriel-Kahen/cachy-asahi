@@ -649,13 +649,9 @@ class FailureDiagnosticControls(unittest.TestCase):
   original_stage=D.MaterialSession.stage
   def stage(session,*,secrets):
    secret_maps.append(secrets);return original_stage(session,secrets=secrets)
-  def anonymous_buffer(*a):
-   # MODEL only the unavailable memfd/sealing kernel boundary on Python3.12.
-   # The maintained sealing generator, stream bounds and secret clearing run.
-   with tempfile.TemporaryFile()as stream:return os.dup(stream.fileno())
   plan.M=SimpleNamespace(CLOSE_SECONDS=D.CLOSE_SECONDS,open_material_session=opened)
   tools={name:dict(path='/usr/bin/'+name)for name in ('python3','systemd-run','sudo')}
-  with patch.object(L,'preflight',return_value=plan),patch.object(L,'program',side_effect=fixture.program),patch.object(L,'run',side_effect=run),patch.object(L.resource,'setrlimit'),patch.object(L.signal,'setitimer'),patch.object(D,'scope_tools',return_value=tools),patch.object(D,'scope_path',return_value=fixture.f.root/'absent-model-cgroup'),patch.object(D,'absent',side_effect=lambda nonce,deadline,closing=False:dict(scope=D.scope_name(nonce,closing),absent_twice=True)),patch.object(D.subprocess,'Popen',side_effect=spawn),patch.object(E,'require_runtime_capabilities'),patch.object(E,'stderr_buffer',side_effect=io.BytesIO),patch.object(E,'natural',wraps=E.natural)as natural,patch.object(D.MaterialSession,'stage',stage),patch.multiple(D.os,create=True,memfd_create=anonymous_buffer,MFD_CLOEXEC=1,MFD_ALLOW_SEALING=2),patch.multiple(D.fcntl,create=True,F_ADD_SEALS=1033,F_GET_SEALS=1034,F_SEAL_GROW=4,F_SEAL_SHRINK=2,F_SEAL_WRITE=8,F_SEAL_SEAL=1),patch.object(D.fcntl,'fcntl',return_value=0):
+  with patch.object(L,'preflight',return_value=plan),patch.object(L,'program',side_effect=fixture.program),patch.object(L,'run',side_effect=run),patch.object(L.resource,'setrlimit'),patch.object(L.signal,'setitimer'),patch.object(D,'scope_tools',return_value=tools),patch.object(D,'scope_path',return_value=fixture.f.root/'absent-model-cgroup'),patch.object(D,'absent',side_effect=lambda nonce,deadline,closing=False:dict(scope=D.scope_name(nonce,closing),absent_twice=True)),patch.object(D.subprocess,'Popen',side_effect=spawn),patch.object(E,'require_runtime_capabilities'),patch.object(E,'natural',wraps=E.natural)as natural,patch.object(D.MaterialSession,'stage',stage):
    status=L._execute(args,env)
   report=L.decode((plan.control/'public/launcher-report.json').read_bytes());self.assertEqual(status,2,report)
   self.assertEqual(report['failure'],dict(phase='material_stage',reason='VALIDATION_REFUSED'));self.assertEqual(report['failure_type'],'ValueError')

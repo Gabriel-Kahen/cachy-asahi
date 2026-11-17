@@ -1,0 +1,234 @@
+{
+  "CI_binding": {
+    "CI_job_count_delta": 1,
+    "Source196_CID": "0a49872473251ad289fc8a49f51f3a27334c0b35",
+    "author_commit": "441832e1d687255434c9001d603d400e4932f26a",
+    "construction": "EXACT_AUTHOR_RECONSTRUCTION_COMPARED_WITH_PUBLISHED_DATA;PROFILE_STAYS_UNISSUED",
+    "native_workflow_changed": false,
+    "published_Source188": "640a1d0ccebb6d04c28ef0508d59055efdc56209",
+    "published_Source196": "0a49872473251ad289fc8a49f51f3a27334c0b35",
+    "real_memfd_controls_interpreter": "/usr/bin/python3;Ubuntu24.04 OS Python outside setup-python matrix;probe exports first;HOLD if absent;no fallback, installer or API synthesis",
+    "real_memfd_controls_job": "onboarding-capture-os-python",
+    "setup_python_matrix_real_buffer_coverage": false,
+    "syntax": "52_RUN_BLOCKS_BASH_N_PASS;YAML_PARSER_UNAVAILABLE_LOCAL"
+  },
+  "Root_authentication": false,
+  "actors": false,
+  "actual": {
+    "Reader": null,
+    "Root_acceptance": null,
+    "Root_delegation": null,
+    "Root_resources": null,
+    "Root_runtime": null,
+    "Root_trust": null,
+    "actual_images": null,
+    "artifact": null,
+    "job": null,
+    "publication": null,
+    "ref": null,
+    "run": null,
+    "source": null,
+    "trusted_Main_commit": null
+  },
+  "actual_stage_failure_cause": "UNKNOWN",
+  "base_Main_commit": "875e956d48cdb81a8ab3bd390fd68fb86af79f18",
+  "capture_implementation_commit": "441832e1d687255434c9001d603d400e4932f26a",
+  "closed_Source196_program_execution": false,
+  "external_profile": {
+    "bytes": 21191,
+    "sha256": "613436b98b8208d28c675d2f7b985f9d3b3bb758b12d0f51f737b7cd5b9b110c"
+  },
+  "flags": [
+    "-I",
+    "-B",
+    "-Werror::ResourceWarning"
+  ],
+  "frozen_Source196_Reader": {
+    "bytes": 248531,
+    "sha256": "4f3ddd10cbe8c008254985e6ab82f8f3d8fa8c0b579d89c3d70c2dc70d399724"
+  },
+  "hardware_acceptance": false,
+  "inputs": {
+    ".github/workflows/native-arm-current-onboarding-delegated-v3.yml": {
+      "bytes": 8949,
+      "mode": 420,
+      "sha256": "4aaa31fae8b6665d502372467d3da5ceef0bb30553d2dfb1ac9f38a41fc90165"
+    },
+    ".github/workflows/native-source-controls.yml": {
+      "bytes": 61841,
+      "mode": 420,
+      "sha256": "1b1aa52775928d95191020bb2ff4366b5a279a21e2074bc9d0887a90e32a911d"
+    },
+    "scripts/ci/first-login-enrollment-native-source/payload/native/hosted_current_v3.py": {
+      "bytes": 66263,
+      "mode": 420,
+      "sha256": "f8387c748f31698b45656998248f099a8207bb58f7f9d7e70ef53a73be286d97"
+    },
+    "scripts/ci/first-login-enrollment-native-source/payload/native/material_domain_current_v3.py": {
+      "bytes": 42462,
+      "mode": 420,
+      "sha256": "ead51cfa3bcf4b74fbccc8c469926c71fbb72edefcf9525b297e1737fde3ab8f"
+    },
+    "scripts/ci/first-login-enrollment-native-source/payload/native/reader_current_v3.py": {
+      "bytes": 271591,
+      "mode": 420,
+      "sha256": "068926ff18018ca49182d8ca9113291ca0e06b8a7a167b1e8b5dee21c454dd5d"
+    },
+    "scripts/ci/first-login-enrollment-native-source/payload/native/test_reader_current_v3.py": {
+      "bytes": 919417,
+      "mode": 420,
+      "sha256": "a777e35c44ada6d2eac19b95f8bcd1d003b3cc8df4564e4315b0eb7b56f3d8e5"
+    },
+    "scripts/ci/first-login-enrollment-native-source/payload/native/test_reader_current_v3_source196.py": {
+      "bytes": 16447,
+      "mode": 420,
+      "sha256": "6abe187f2c6b371aeca3cb7375e17fc5f2f0677725898bb86cc5986bb7ff41f3"
+    },
+    "scripts/ci/first-login-enrollment-native-source/successor_v6_source/README.md": {
+      "bytes": 3020,
+      "mode": 420,
+      "sha256": "1955067799b963434117e49f4a1f5b00977eb0b284e445185de0ed4ef37a7cc5"
+    },
+    "scripts/ci/first-login-enrollment-native-source/successor_v6_source/prepare.py": {
+      "bytes": 10836,
+      "mode": 420,
+      "sha256": "4cc618d1259732bd83013d012d600b913a330a6233e82f33c5803a4d72637138"
+    },
+    "scripts/ci/first-login-enrollment-native-source/successor_v6_source/test_trusted_cascade.py": {
+      "bytes": 19954,
+      "mode": 420,
+      "sha256": "24e184bc19a31f61846b1555e298b2a5108dc7c89166af111f4d5cb8f7c2a517"
+    }
+  },
+  "kind": "INDEPENDENT_SOURCE196_READER_TRUSTED_CASCADE_DATA_CONTROLS",
+  "local_environment_limits": [
+    "uv interpreters omit required Linux executor fd APIs; their capture runs correctly HOLD and are not credited as PASS",
+    "initial system hosted models HOLD on Btrfs f_favail=0; unchanged guards pass using private fixed-inode tmpfs scratch"
+  ],
+  "native_acceptance": false,
+  "network": false,
+  "preservation": {
+    "all_v5_closed_products_byte_mode_exact": true,
+    "changed_existing_functions": [
+      "source_data"
+    ],
+    "closed_Source196_not_resealed": true,
+    "dispatch_added_lines": 2,
+    "existing_functions": 69,
+    "legacy_nonboundary_predicates_preserved": 62,
+    "old_Source188_validation_byte_exact": true,
+    "old_tests_byte_exact": true,
+    "source_exact_functions": 68
+  },
+  "published_Source196": {
+    "Root_publication_receipt": {
+      "bytes": 1714,
+      "sha256": "43e360087b2c30dbde26fdfc0446bdeaf7b9c67ec1b2228318e35f38e0d67ad2"
+    },
+    "actual_Main_registration": null,
+    "commit": "0a49872473251ad289fc8a49f51f3a27334c0b35",
+    "execution_authority": null,
+    "ref": "refs/heads/codex/current-onboarding-staging-v6-20261116-r1",
+    "trusted_Main": null
+  },
+  "release_acceptance": false,
+  "results": {
+    "constructor_data7": [
+      "PASS_CP3.12.13",
+      "PASS_CP3.14.6",
+      "PASS_SYSTEM_CP3.14.7"
+    ],
+    "constructor_exact_CLI_reconstruction": [
+      "PASS_CP3.12.13",
+      "PASS_CP3.14.6"
+    ],
+    "hosted46_domain26_failure_packet21": "PASS_SYSTEM_CP3.14.7_FIXED_INODE_TMPFS",
+    "legacy_reader": {
+      "CPython3.12.13": {
+        "genuine_Source188": "PASS",
+        "passed": 42,
+        "skipped": 1,
+        "tests": 43
+      },
+      "CPython3.14.6": {
+        "genuine_Source188": "PASS",
+        "passed": 42,
+        "skipped": 1,
+        "tests": 43
+      }
+    },
+    "legacy_skip": "UNCHANGED_HISTORICAL_SOURCE27_EXPLICIT_FIXTURE_NOT_SELECTED",
+    "new_tamper_refusals": "PASS",
+    "physical_source_and_inverses": [
+      "PASS_CP3.12.13",
+      "PASS_CP3.14.6"
+    ],
+    "raw_stdout_provenance": "NEW_READER_AND_CASCADE_COMPLETED_SUBAGENT_TOOL_RESULTS_RECORDED;RAW_STDOUT_NOT_RETAINED",
+    "reader_new": {
+      "CPython3.12.13": {
+        "passed": 7,
+        "skipped": 0,
+        "tests": 7
+      },
+      "CPython3.14.6": {
+        "passed": 7,
+        "skipped": 0,
+        "tests": 7
+      }
+    },
+    "real_memfd_capture8": "PASS_SYSTEM_CP3.14.7",
+    "trusted_cascade": {
+      "CPython3.12.13": {
+        "passed": 8,
+        "skipped": 0,
+        "tests": 8
+      },
+      "CPython3.14.6": {
+        "passed": 8,
+        "skipped": 0,
+        "tests": 8
+      }
+    }
+  },
+  "schema": 1,
+  "schema_distinction": {
+    "delegation": 4,
+    "hosted_request": 3,
+    "registry": 6
+  },
+  "scope": "PUBLIC_SOURCE_AND_FENCED_MODEL_DATA_ONLY",
+  "source196": {
+    "bytes": 45726789,
+    "files": 196,
+    "registry": {
+      "bytes": 14884,
+      "sha256": "15d1781d0b70805bab9bca89b2339650b90553c2413cf084bc42dfd57bc73628"
+    },
+    "source_map": {
+      "bytes": 38809,
+      "sha256": "a8f5ab1c1ceee9f3450634e14dd172d7421d6fe49d8e17ce680cb4cfe43da86a"
+    },
+    "tree": "e85302474308dbf579b79bd6d501f5ad86b66bbb"
+  },
+  "subprocess_boundary": "READ_ONLY_GIT_IN_DATA_CONSTRUCTOR_ONLY;NO_OPERATIONAL_ACTOR",
+  "trusted_Main_MODEL_callbacks_exercised": true,
+  "workflow_roles": {
+    "actual_Source196_launcher": {
+      "bytes": 66263,
+      "mode": 420,
+      "sha256": "f8387c748f31698b45656998248f099a8207bb58f7f9d7e70ef53a73be286d97"
+    },
+    "candidate_Main": {
+      "bytes": 8949,
+      "mode": 420,
+      "sha256": "4aaa31fae8b6665d502372467d3da5ceef0bb30553d2dfb1ac9f38a41fc90165"
+    },
+    "expected_launcher_pin": "SUPPLIED_BY_EXTERNALLY_WHOLE_PINNED_ROOT_REQUEST_NOT_HARDCODED_IN_WORKFLOW",
+    "frozen_Source196": {
+      "bytes": 8949,
+      "mode": 420,
+      "sha256": "4aaa31fae8b6665d502372467d3da5ceef0bb30553d2dfb1ac9f38a41fc90165"
+    },
+    "same_bytes_distinct_registration_roles": true
+  }
+}
