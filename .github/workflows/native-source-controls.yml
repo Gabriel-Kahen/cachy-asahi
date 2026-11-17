@@ -481,6 +481,29 @@ jobs:
           test "$(git -C .rust-source364-data-repository rev-parse HEAD^{tree})" = 305db479cf93b6abfd441311fb66db047230530e
           git -C .rust-source364-data-repository -c tar.umask=0022 archive --format=tar HEAD | tar -xf - -C "$rust_source"
           python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/independent_reader_v16/test_source.py --source-root "$rust_source"
+      - name: Check Rust Source17 and independent Reader17 fenced DATA
+        run: |
+          RUST199_V17_PARENT="${RUNNER_TEMP}/rust364-source-DATA" python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v17/test_data.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/successor_v17/test_runtime.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/independent_reader_v17/prepare_reader.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/independent_reader_v17/test_timing.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/independent_reader_v17/test_preservation.py
+      - name: Check out immutable Rust367 Source as DATA
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 8fb13c028cf043119f8324eb089c51d74e3891ee
+          path: .rust-source367-data-repository
+          persist-credentials: false
+      - name: Check genuine Rust367 whole Source and complete inverses
+        run: |
+          umask 022
+          rust_source="${RUNNER_TEMP}/rust367-source-DATA"
+          test ! -e "$rust_source"
+          mkdir -m 700 "$rust_source"
+          test "$(git -C .rust-source367-data-repository rev-parse HEAD)" = 8fb13c028cf043119f8324eb089c51d74e3891ee
+          test "$(git -C .rust-source367-data-repository rev-parse HEAD^{tree})" = f846369139e03239d500cb737092b5eeb358c260
+          git -C .rust-source367-data-repository -c tar.umask=0022 archive --format=tar HEAD | tar -xf - -C "$rust_source"
+          python3 -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/independent_reader_v17/test_source.py --source-root "$rust_source"
       - name: Check eight portable notice controls; private capture replay remains Root-local
         run: |
           python3 -I -B -Werror::ResourceWarning - <<'PY'
