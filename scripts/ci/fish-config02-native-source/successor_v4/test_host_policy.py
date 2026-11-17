@@ -12,7 +12,8 @@ import unittest
 from unittest.mock import patch
 
 HERE=Path(__file__).resolve().parent
-OLD=Path('/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-fish48-source-r1/closed-source-tree/scripts/ci/fish-config02-native-source/successor_v2')
+FROZEN=Path(os.environ.get('FISH48_SOURCE_ROOT','/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-fish48-source-r1/closed-source-tree'))
+OLD=FROZEN/'scripts/ci/fish-config02-native-source/successor_v2'
 
 
 def module(name):

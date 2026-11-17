@@ -18,7 +18,8 @@ import unittest
 from unittest.mock import Mock, patch
 
 HERE = Path(__file__).resolve().parent
-BASE = Path('/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-fish48-source-r1/closed-source-tree/held-source32/scripts/ci/fish-config02-native-source')
+FROZEN = Path(os.environ.get('FISH48_SOURCE_ROOT', '/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-fish48-source-r1/closed-source-tree'))
+BASE = FROZEN / 'held-source32/scripts/ci/fish-config02-native-source'
 RUNTIME = BASE / 'runtime/scripts'
 ACTORS = []
 TEMP_ROOT = Path(os.environ.get('TMPDIR', '/tmp'))
