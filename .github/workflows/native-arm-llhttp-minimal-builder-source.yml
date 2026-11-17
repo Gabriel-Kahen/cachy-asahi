@@ -1,0 +1,75 @@
+name: native-arm-llhttp-minimal-builder-source
+on:
+  workflow_dispatch:
+    inputs:
+      source_map_sha256:
+        description: Root-reviewed complete generated Source map SHA-256
+        type: string
+        required: true
+      admission_sha256:
+        description: Whole exact Root admission JSON SHA-256
+        type: string
+        required: true
+      admission_json:
+        description: Separately Root-issued admission; template is not authority
+        type: string
+        required: true
+      runtime_sha256:
+        description: Whole exact external Root runtime/resource review SHA-256
+        type: string
+        required: true
+      runtime_json:
+        description: Separately Root-issued runtime/custody policy
+        type: string
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: native-arm-llhttp-minimal-builder-source
+  cancel-in-progress: false
+jobs:
+  pair:
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false && github.ref == 'refs/heads/codex/llhttp-minimal206-authenticated-source-20261117-r3'
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Admitted existing-host XZ-only llhttp reference pair
+        timeout-minutes: 30
+        env:
+          SOURCE_MAP_SHA256: ${{ inputs.source_map_sha256 }}
+          ADMISSION_SHA256: ${{ inputs.admission_sha256 }}
+          RUNTIME_SHA256: ${{ inputs.runtime_sha256 }}
+          ROOT_LLHTTP_MINIMAL206_BUILD_ONLY_ADMISSION_JSON: ${{ inputs.admission_json }}
+          ROOT_LLHTTP_MINIMAL206_BUILD_ONLY_RUNTIME_JSON: ${{ inputs.runtime_json }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          umask 077
+          python3 -I -B scripts/ci/llhttp-minimal-builder-source/owner/admit.py \
+            --root "$GITHUB_WORKSPACE" --source-map-sha256 "$SOURCE_MAP_SHA256" \
+            --admission-sha256 "$ADMISSION_SHA256" --runtime-sha256 "$RUNTIME_SHA256"
+          sudo -n --preserve-env=GITHUB_ACTIONS,GITHUB_SHA,GITHUB_REF,GITHUB_REPOSITORY,GITHUB_EVENT_NAME,GITHUB_RUN_ATTEMPT,GITHUB_RUN_ID,GITHUB_JOB,GITHUB_WORKFLOW_REF,ImageOS,ImageVersion,RUNNER_OS,RUNNER_ARCH,ROOT_LLHTTP_MINIMAL206_BUILD_ONLY_ADMISSION_JSON,ROOT_LLHTTP_MINIMAL206_BUILD_ONLY_RUNTIME_JSON \
+            /usr/bin/systemd-run --scope --quiet --unit="cachy-llhttp-minimal-builder-controller-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" \
+            --property=MemoryMax=536870912 --property=MemorySwapMax=0 --property=CPUQuota=100% \
+            --property=CPUQuotaPeriodSec=100ms --property=TasksMax=64 --property=RuntimeMaxSec=1740s \
+            -- /usr/bin/python3 -I -B scripts/ci/llhttp-minimal-builder-source/owner/hosted_owner.py \
+            --root "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/llhttp-minimal-builder-owned-v1" \
+            --runner-uid "$(id -u)" --runner-gid "$(id -g)" \
+            --source-map-sha256 "$SOURCE_MAP_SHA256" \
+            --admission-sha256 "$ADMISSION_SHA256" --runtime-sha256 "$RUNTIME_SHA256"
+      - name: Retain public owner receipts and complete pair evidence
+        if: always()
+        env:
+          SOURCE_MAP_SHA256: ${{ inputs.source_map_sha256 }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if test -d "$RUNNER_TEMP/llhttp-minimal-builder-owned-v1"; then
+            python3 -I -B scripts/ci/llhttp-minimal-builder-source/owner/retain.py "$RUNNER_TEMP/llhttp-minimal-builder-owned-v1" --root "$GITHUB_WORKSPACE" --source-map-sha256 "$SOURCE_MAP_SHA256"
+          else
+            echo 'LLHTTP_MINIMAL206_BUILD_ONLY_OWNER_NOT_ENTERED: external admission/host capability HOLD'
+          fi

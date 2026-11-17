@@ -1,0 +1,93 @@
+[
+  {
+    "argv": [
+      "cmake",
+      "-S",
+      "recipe-audit/work/llhttp-4fce8cac9433aa4728428bb3b26880d32ad05c88",
+      "-B",
+      "recipe-audit/work/build-llhttp",
+      "-G",
+      "Ninja",
+      "-DCMAKE_BUILD_TYPE=Release",
+      "-DCMAKE_INSTALL_PREFIX=/usr",
+      "-DCMAKE_INSTALL_LIBDIR=lib",
+      "-DLLHTTP_BUILD_SHARED_LIBS=ON",
+      "-DLLHTTP_BUILD_STATIC_LIBS=OFF"
+    ],
+    "scope": "private host configure",
+    "exit": 0
+  },
+  {
+    "argv": [
+      "cmake",
+      "--build",
+      "recipe-audit/work/build-llhttp",
+      "--parallel",
+      "4"
+    ],
+    "scope": "private host compile",
+    "exit": 0
+  },
+  {
+    "argv": [
+      "cmake",
+      "--install",
+      "recipe-audit/work/build-llhttp"
+    ],
+    "env": {
+      "DESTDIR": "recipe-audit/work/stage-llhttp"
+    },
+    "scope": "private DESTDIR, not host installation",
+    "exit": 0
+  },
+  {
+    "argv": [
+      "cc",
+      "recipe-audit/recipes/packages/libraries/cachy-asahi-llhttp-reference/smoke.c",
+      "-Irecipe-audit/work/llhttp-4fce8cac9433aa4728428bb3b26880d32ad05c88/include",
+      "-Lrecipe-audit/work/build-llhttp",
+      "-Wl,-rpath,recipe-audit/work/build-llhttp",
+      "-lllhttp",
+      "-o",
+      "recipe-audit/work/smoke-llhttp"
+    ],
+    "scope": "private smoke compile",
+    "exit": 0
+  },
+  {
+    "argv": [
+      "recipe-audit/work/smoke-llhttp"
+    ],
+    "scope": "private smoke execution; libgit2 argv is mkdtemp placeholder, no persistent repository",
+    "exit": 0
+  },
+  {
+    "argv": [
+      "bash",
+      "-c",
+      "source \"$1\"; package",
+      "bash",
+      "recipe-audit/recipes/packages/libraries/cachy-asahi-llhttp-reference/PKGBUILD"
+    ],
+    "env": {
+      "srcdir": "recipe-audit/work/package-function-llhttp/src",
+      "pkgdir": "recipe-audit/work/package-function-llhttp/pkg"
+    },
+    "scope": "actual recipe package() private staging only",
+    "exit": 0
+  },
+  {
+    "argv": [
+      "makepkg",
+      "--verifysource",
+      "--ignorearch",
+      "--noconfirm"
+    ],
+    "cwd": "recipe-audit/recipes/packages/libraries/cachy-asahi-llhttp-reference",
+    "env": {
+      "SRCDEST": "recipe-audit/work/"
+    },
+    "scope": "source verification only; no dependency acceptance/compile/package/native claim",
+    "exit": 0
+  }
+]
