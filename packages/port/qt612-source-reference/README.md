@@ -1,6 +1,6 @@
 # Qt 6.12 independent source-reference provider
 
-`cachy-asahi-qt612-base-source-reference 6.12.0-1` is a separate, unselected
+`cachy-asahi-qt612-base-source-reference 6.12.0-2` is a separate, unselected
 project package for a disposable TEST image. It is not the source recipe for
 the foreign `qt6-base 6.12.0-3` artifact. Correspondence to that artifact's
 PKGBUILD SHA256 `0bd04f4db92ed8b0992e851a4ddd68f39ac7b6b079af4e354dba466946ca2272`
@@ -56,7 +56,7 @@ private image. Co-installing it with official qt6-base is unsupported.
 Other Qt modules/plugins and existing binary consumers require explicit
 image/ABI admission; this feature subset is not a qualified desktop upgrade.
 
-`configure.cmake` fixes 90 cache settings and `source.py configuration` checks
+`configure.cmake` fixes 91 cache settings and `source.py configuration` checks
 the actual resulting cache before compilation. The expected public modules
 are Core, Concurrent, DBus, Gui, Network, OpenGL, OpenGLWidgets, PrintSupport,
 Sql, Test, Widgets and Xml. XCB/GLX and offscreen backends and SQLite are
@@ -76,8 +76,22 @@ There is no architecture or dependency bypass and no M2-specific tuning.
 Normal native build command, only after a complete compatible image is bound:
 
 ```sh
-makepkg --cleanbuild --force
+MAX_JOBS=1 CMAKE_BUILD_PARALLEL_LEVEL=1 makepkg --cleanbuild --force
 ```
+
+This successor defaults both `MAX_JOBS` and `CMAKE_BUILD_PARALLEL_LEVEL` to
+literal `1`. `build()` and `check()` reject any other explicitly supplied value,
+including an empty string, before configure/tool calls. Both builds pass explicit
+`--parallel 1`; the Qt profile also sets `CMAKE_AUTOGEN_PARALLEL=1` for moc/uic.
+The recipe has no `nproc` job override. These scheduling limits do not bound a compiler
+or linker's memory use and do not establish that Qt fits any memory limit.
+
+`RESOURCE-EXPERIMENT.json` proposes a new 4 GiB/one CPU inner builder, 6 GiB
+daemon, 12 GiB owned storage, minimum 14 GiB available disk and 10 GiB available
+RAM, with the selected Source93 controller/owner/guards unchanged. C must enforce
+and measure those limits. The predecessor's 18 GiB RAM / 72 GiB disk proposal
+remains immutable; neither proposal has a capacity PASS. `SCRATCH-RETENTION.md`
+records disposable first-attempt work and evidence that must survive comparison.
 
 No `--nodeps`, architecture override, `--nocheck` or signing bypass is needed.
 The recipe emits an XZ package, with normal dependency checks retained.
@@ -108,9 +122,10 @@ rollback and compatibility with a supported Asahi/M2 image are NOT RUN.
 ## Actual checks and remaining holds
 
 The exact source/tag/notices and zero-fuzz patch sequence were checked.
-The corrected profile successfully configured on this existing x86_64 host;
-all 90 selected settings matched the generated cache. This generated build
-files and compiler probes, not a Qt library/package build. Notice copying
+The predecessor at `7748d41315d7b2a0a79ddc18eab4e89fc4ef71e1` successfully
+configured its 90-setting profile on this existing x86_64 host. The new
+91-setting serial profile has not been configured against Qt. The predecessor
+probe generated build files and compiler probes, not a Qt library/package build. Notice copying
 inside real fakeroot preserved all 173 pinned files in a private DESTDIR.
 Synthetic source/staging tests confer no native result.
 

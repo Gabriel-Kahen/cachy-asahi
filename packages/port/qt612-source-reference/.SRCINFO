@@ -1,7 +1,7 @@
 pkgbase = cachy-asahi-qt612-base-source-reference
 	pkgdesc = Independent Qt6.12 XCB/offscreen source provider; TEST-only and unselected
 	pkgver = 6.12.0
-	pkgrel = 1
+	pkgrel = 2
 	url = https://code.qt.io/cgit/qt/qtbase.git/
 	arch = aarch64
 	license = GPL-3.0-only
@@ -70,7 +70,7 @@ pkgbase = cachy-asahi-qt612-base-source-reference
 	source = CVE-2026-105924-qtbase-6.12.diff
 	source = CVE-2026-105943-qtbase-6.12.diff
 	sha256sums = a951bd163c7b80fc6b8c88d7668fb56abf91c152373e13c10666763238131307
-	sha256sums = 846af5f3465c572359cf9a6e8b89da82c35ce489f2dba27ab402262697c0c5e1
+	sha256sums = b3d9852bad7659e4b0d6167897be4d8c8f8b45ccfef0855fd905f5f93d86e025
 	sha256sums = 3651e4bca7846caee61183c2bc55bf4988c6f4f2a56af81f3948afe03d41cfda
 	sha256sums = d6f033399cb039469622ea962a0aac45afdb6f8f203f1b45066d4dc0b3e40987
 	sha256sums = 597e2874df52be41a02896abae57fc7ef16975e5f6e858cc9705c5d637dbe5a6

@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Finite XCB/offscreen reference profile; no direct-device or Wayland backend.
 set(CMAKE_BUILD_TYPE Release CACHE STRING "" FORCE)
+set(CMAKE_AUTOGEN_PARALLEL 1 CACHE STRING "" FORCE)
 set(CMAKE_INSTALL_PREFIX /usr CACHE STRING "" FORCE)
 set(INSTALL_BINDIR lib/qt6/bin CACHE STRING "" FORCE)
 set(INSTALL_PUBLICBINDIR bin CACHE STRING "" FORCE)
