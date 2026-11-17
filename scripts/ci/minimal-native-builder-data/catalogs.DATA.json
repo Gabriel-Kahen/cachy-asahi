@@ -1,0 +1,38 @@
+{
+  "M2": null,
+  "Root_selection": null,
+  "catalogs": [
+    {
+      "bytes": 257446,
+      "path": "catalogs/core.db",
+      "repo": "core",
+      "sha256": "4e69ea285f0326927b72cea86667a35e4fb83f6e1a05ae784956f503bad02c6d",
+      "signed": false,
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/core.db"
+    },
+    {
+      "bytes": 10783831,
+      "path": "catalogs/extra.db",
+      "repo": "extra",
+      "sha256": "3ede6c1a518c7b43459badaa7d0406e84a10f8a49799c2ef338a67174ff6216b",
+      "signed": false,
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/extra.db"
+    },
+    {
+      "bytes": 62305,
+      "path": "catalogs/alarm.db",
+      "repo": "alarm",
+      "sha256": "e374ac5a9b56b91099363d16a34a3542dd8528157e57beef5d6fd1f0d4dca7f1",
+      "signed": false,
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/alarm/alarm.db"
+    }
+  ],
+  "kind": "FIXED_PUBLIC_UNSIGNED_CATALOG_FIXTURES_FOR_METADATA_REGENERATION_ONLY",
+  "native": null,
+  "origin": "Exact locally retained public snapshots matching author primary/manifest pins; no live mirror fetch or packages read",
+  "package_or_rootfs_bodies_copied": false,
+  "schema": 1,
+  "signature_authentication": null,
+  "source_author": "e947d24c3cb2f9facfd897d5e65ce6f19942cbca",
+  "total_bytes": 11103582
+}

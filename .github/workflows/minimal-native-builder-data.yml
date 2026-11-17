@@ -1,0 +1,53 @@
+# SPDX-License-Identifier: MIT
+name: Minimal206 builder metadata DATA
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/minimal-native-builder-data.yml'
+      - 'scripts/ci/minimal-native-builder-data/**'
+      - 'scripts/port/minimal-native-builder-inputs/**'
+      - 'scripts/port/platform-residual-closure/resolve.py'
+      - 'scripts/port/supported-composition/ci-runtime/acquire.py'
+      - 'scripts/checks/package_checks.py'
+      - 'scripts/ci/native_arm.py'
+      - 'scripts/ci/inputs.lock.json'
+      - 'scripts/ci/hyprland03-native-source-v1/fixtures/expected349.lock'
+      - 'packages/libraries/cachy-asahi-llhttp-reference/**'
+      - 'packages/libraries/cachy-asahi-libgit2-reference/**'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/minimal-native-builder-data.yml'
+      - 'scripts/ci/minimal-native-builder-data/**'
+      - 'scripts/port/minimal-native-builder-inputs/**'
+      - 'scripts/port/platform-residual-closure/resolve.py'
+      - 'scripts/port/supported-composition/ci-runtime/acquire.py'
+      - 'scripts/checks/package_checks.py'
+      - 'scripts/ci/native_arm.py'
+      - 'scripts/ci/inputs.lock.json'
+      - 'scripts/ci/hyprland03-native-source-v1/fixtures/expected349.lock'
+      - 'packages/libraries/cachy-asahi-llhttp-reference/**'
+      - 'packages/libraries/cachy-asahi-libgit2-reference/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  data:
+    name: 17 minimal206 metadata DATA controls (${{ matrix.python }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Regenerate the fixed manifest and check metadata/refusal boundaries without actors
+        run: |
+          set -euo pipefail
+          python -I -B -Werror::ResourceWarning scripts/ci/minimal-native-builder-data/ci.py
