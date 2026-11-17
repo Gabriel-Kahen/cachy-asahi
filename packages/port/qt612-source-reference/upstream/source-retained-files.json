@@ -1,0 +1,1184 @@
+[
+  {
+    "archive_path": ".cmake.conf",
+    "retained_path": "source/.cmake.conf",
+    "size_bytes": 3251,
+    "sha256": "e78b439fa15619a942f8b78d9321021778eb44dafba7f7067a1962637a5a4b64"
+  },
+  {
+    "archive_path": ".release-timestamp",
+    "retained_path": "source/.release-timestamp",
+    "size_bytes": 29,
+    "sha256": "43dcedec9ec123fec0f01d24c424090acc8ea11a0bcc10f08ad0aab19f6bb797"
+  },
+  {
+    "archive_path": ".tag",
+    "retained_path": "source/.tag",
+    "size_bytes": 41,
+    "sha256": "4db2e34ca3cb5e714fe769812695133848c4bcd1eb9aa2ab5dadf6e34f3de639"
+  },
+  {
+    "archive_path": "CMakeLists.txt",
+    "retained_path": "source/CMakeLists.txt",
+    "size_bytes": 1164,
+    "sha256": "19284751242b33ff39b86d0b75afd587aae465cbca5d8347f1fe71d1bd9113d2"
+  },
+  {
+    "archive_path": "LICENSES/AFL-2.1.txt",
+    "retained_path": "source/LICENSES/AFL-2.1.txt",
+    "size_bytes": 8948,
+    "sha256": "93bb4f7417aa775bab9026cc3d0af28aeb64451fc5a8ec651876785edd8eaf9b"
+  },
+  {
+    "archive_path": "LICENSES/Apache-2.0.txt",
+    "retained_path": "source/LICENSES/Apache-2.0.txt",
+    "size_bytes": 10398,
+    "sha256": "e3ba223bb1423f0aad8c3dfce0fe3148db48926d41e6fbc3afbbf5ff9e1c89cb"
+  },
+  {
+    "archive_path": "LICENSES/BSD-2-Clause.txt",
+    "retained_path": "source/LICENSES/BSD-2-Clause.txt",
+    "size_bytes": 1276,
+    "sha256": "8fda146749ca071ac9cdce2e24d25444676ea48d1f9dccc2b7c15c054b717db8"
+  },
+  {
+    "archive_path": "LICENSES/BSD-3-Clause.txt",
+    "retained_path": "source/LICENSES/BSD-3-Clause.txt",
+    "size_bytes": 1469,
+    "sha256": "9f0490f18656c6f2435bd14f603ef0c96434d1825615363dce43abb42ed1dcce"
+  },
+  {
+    "archive_path": "LICENSES/BSD-4-Clause.txt",
+    "retained_path": "source/LICENSES/BSD-4-Clause.txt",
+    "size_bytes": 1672,
+    "sha256": "83faa0d205c316ce3efeafee465b6a165914fb29595968c08dc6437021b7b6fd"
+  },
+  {
+    "archive_path": "LICENSES/BSL-1.0.txt",
+    "retained_path": "source/LICENSES/BSL-1.0.txt",
+    "size_bytes": 1340,
+    "sha256": "3abd6471b9a9a08d65ce771143f8e278bb4c1aeb10c1c2d476935a6b049653f5"
+  },
+  {
+    "archive_path": "LICENSES/Bitstream-Vera.txt",
+    "retained_path": "source/LICENSES/Bitstream-Vera.txt",
+    "size_bytes": 8816,
+    "sha256": "7a083b136e64d064794c3419751e5c7dd10d2f64c108fe5ba161eae5e5958a93"
+  },
+  {
+    "archive_path": "LICENSES/CC0-1.0.txt",
+    "retained_path": "source/LICENSES/CC0-1.0.txt",
+    "size_bytes": 7048,
+    "sha256": "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499"
+  },
+  {
+    "archive_path": "LICENSES/FTL.txt",
+    "retained_path": "source/LICENSES/FTL.txt",
+    "size_bytes": 6743,
+    "sha256": "08c135755dd589039470f1fdbb400daaabaaa50d0b366d19cebff4d22986baa1"
+  },
+  {
+    "archive_path": "LICENSES/GFDL-1.3-no-invariants-only.txt",
+    "retained_path": "source/LICENSES/GFDL-1.3-no-invariants-only.txt",
+    "size_bytes": 22955,
+    "sha256": "110535522396708cea37c72a802c5e7e81391139f5f7985631c93ef242b206a4"
+  },
+  {
+    "archive_path": "LICENSES/GPL-2.0-only.txt",
+    "retained_path": "source/LICENSES/GPL-2.0-only.txt",
+    "size_bytes": 18092,
+    "sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643"
+  },
+  {
+    "archive_path": "LICENSES/GPL-2.0-or-later.txt",
+    "retained_path": "source/LICENSES/GPL-2.0-or-later.txt",
+    "size_bytes": 18092,
+    "sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643"
+  },
+  {
+    "archive_path": "LICENSES/GPL-3.0-only.txt",
+    "retained_path": "source/LICENSES/GPL-3.0-only.txt",
+    "size_bytes": 35147,
+    "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
+  },
+  {
+    "archive_path": "LICENSES/HPND.txt",
+    "retained_path": "source/LICENSES/HPND.txt",
+    "size_bytes": 1188,
+    "sha256": "67ac968431270291f5e9cd3ed76705e1169f57082ee102093b2543b28cef63cf"
+  },
+  {
+    "archive_path": "LICENSES/IJG.txt",
+    "retained_path": "source/LICENSES/IJG.txt",
+    "size_bytes": 1815,
+    "sha256": "1cb448f5e2e6d3aca60943f4eee1a04675628dc0266a074a42bc1560ebc28d61"
+  },
+  {
+    "archive_path": "LICENSES/IPL-1.0.txt",
+    "retained_path": "source/LICENSES/IPL-1.0.txt",
+    "size_bytes": 11789,
+    "sha256": "d5328e672fb1bff47ee18e890784541453380081cf3771bb7b3c06fc19c7d503"
+  },
+  {
+    "archive_path": "LICENSES/Imlib2.txt",
+    "retained_path": "source/LICENSES/Imlib2.txt",
+    "size_bytes": 1986,
+    "sha256": "8846f2baba1a7f4c36f7ca19a923a000d8a21afa37cf0fe006f6ce88a6058a89"
+  },
+  {
+    "archive_path": "LICENSES/LGPL-2.1-or-later.txt",
+    "retained_path": "source/LICENSES/LGPL-2.1-or-later.txt",
+    "size_bytes": 25906,
+    "sha256": "1ccf09bf2f598308df4bed9cd8e9657dc5cd0973d2800318f2e241486e2edf3f"
+  },
+  {
+    "archive_path": "LICENSES/LGPL-3.0-only.txt",
+    "retained_path": "source/LICENSES/LGPL-3.0-only.txt",
+    "size_bytes": 7651,
+    "sha256": "da7eabb7bafdf7d3ae5e9f223aa5bdc1eece45ac569dc21b3b037520b4464768"
+  },
+  {
+    "archive_path": "LICENSES/Libpng.txt",
+    "retained_path": "source/LICENSES/Libpng.txt",
+    "size_bytes": 4120,
+    "sha256": "58fe669792f9b4e0740bf75ecfe90b5326128bb2ce7e27e1c342abd9db4d8ea6"
+  },
+  {
+    "archive_path": "LICENSES/LicenseRef-BSD-3-Clause-with-PCRE2-Binary-Like-Packages-Exception.txt",
+    "retained_path": "source/LICENSES/LicenseRef-BSD-3-Clause-with-PCRE2-Binary-Like-Packages-Exception.txt",
+    "size_bytes": 1852,
+    "sha256": "0526625fcc746a42d3f19a0ab357d3dc8479fdbe3bfd168825498f50215c7a63"
+  },
+  {
+    "archive_path": "LICENSES/LicenseRef-ICC-License.txt",
+    "retained_path": "source/LICENSES/LicenseRef-ICC-License.txt",
+    "size_bytes": 463,
+    "sha256": "9e34ff47b3a44814e183342e7e198d127a6740e29d20e8381fba7688dafc79dd"
+  },
+  {
+    "archive_path": "LICENSES/LicenseRef-Lcs-Telegraphics.txt",
+    "retained_path": "source/LICENSES/LicenseRef-Lcs-Telegraphics.txt",
+    "size_bytes": 139,
+    "sha256": "c10225ebbd5191bfdd761b0d7752c785f2453ab665d6c454473fb12d254668aa"
+  },
+  {
+    "archive_path": "LICENSES/LicenseRef-Qt-Commercial.txt",
+    "retained_path": "source/LICENSES/LicenseRef-Qt-Commercial.txt",
+    "size_bytes": 462,
+    "sha256": "9b1f50aae6267f9d5e0ceb6775ee86450262c25ec7c0573e151fe5d3f18a4700"
+  },
+  {
+    "archive_path": "LICENSES/LicenseRef-SHA1-Public-Domain.txt",
+    "retained_path": "source/LICENSES/LicenseRef-SHA1-Public-Domain.txt",
+    "size_bytes": 144,
+    "sha256": "65d86b8ec6b1cd8b8f6e64fd8710274ba00d6a3c520e00dfdcd1c3d2071f3305"
+  },
+  {
+    "archive_path": "LICENSES/Linux-syscall-note.txt",
+    "retained_path": "source/LICENSES/Linux-syscall-note.txt",
+    "size_bytes": 624,
+    "sha256": "3f9e477523febab58de8b716ccfbcf02e6ef1c8e7728953905e8558637abe2a9"
+  },
+  {
+    "archive_path": "LICENSES/MIT-Khronos-old.txt",
+    "retained_path": "source/LICENSES/MIT-Khronos-old.txt",
+    "size_bytes": 1306,
+    "sha256": "3c58021633974f9ed3c3d445a374240a5244fd039628f4d7f6f3e674bc8e6694"
+  },
+  {
+    "archive_path": "LICENSES/MIT-open-group.txt",
+    "retained_path": "source/LICENSES/MIT-open-group.txt",
+    "size_bytes": 897,
+    "sha256": "c55d2ab72d8a4f9e9cd8fbd1379268e575e8cfa16874affa5899b75a6d754514"
+  },
+  {
+    "archive_path": "LICENSES/MIT.txt",
+    "retained_path": "source/LICENSES/MIT.txt",
+    "size_bytes": 1111,
+    "sha256": "d040359701c01996a017d5c515678929cd1b0625e64cb86db44025fbb6cdf1fc"
+  },
+  {
+    "archive_path": "LICENSES/MPL-2.0.txt",
+    "retained_path": "source/LICENSES/MPL-2.0.txt",
+    "size_bytes": 16726,
+    "sha256": "3f3d9e0024b1921b067d6f7f88deb4a60cbe7a78e76c64e3f1d7fc3b779b9d04"
+  },
+  {
+    "archive_path": "LICENSES/Qt-GPL-exception-1.0.txt",
+    "retained_path": "source/LICENSES/Qt-GPL-exception-1.0.txt",
+    "size_bytes": 965,
+    "sha256": "40678d338ce53cd93f8b22b281a2ecbcaa3ee65ce60b25ffb0c462b0530846b2"
+  },
+  {
+    "archive_path": "LICENSES/SPL-1.0.txt",
+    "retained_path": "source/LICENSES/SPL-1.0.txt",
+    "size_bytes": 23547,
+    "sha256": "f58f2f30909982445f97f1a61667261920a7caeab21ef5bea1b740f5b144d141"
+  },
+  {
+    "archive_path": "LICENSES/Unicode-3.0.txt",
+    "retained_path": "source/LICENSES/Unicode-3.0.txt",
+    "size_bytes": 1995,
+    "sha256": "80bb6294022d8764adb36a9d65ebb6bd94efb1865918a71e31e6c247607d7634"
+  },
+  {
+    "archive_path": "LICENSES/X11.txt",
+    "retained_path": "source/LICENSES/X11.txt",
+    "size_bytes": 1338,
+    "sha256": "e2936c6509784b4f0ec27bac74182393866fad9422b29a70e085ff14aba87193"
+  },
+  {
+    "archive_path": "LICENSES/Xerox.txt",
+    "retained_path": "source/LICENSES/Xerox.txt",
+    "size_bytes": 965,
+    "sha256": "b6bc52205d01e10cf43dbb7b8aec06dcaa3b21d1486e7c9c0bec329ee8244d8d"
+  },
+  {
+    "archive_path": "LICENSES/Zlib.txt",
+    "retained_path": "source/LICENSES/Zlib.txt",
+    "size_bytes": 1465,
+    "sha256": "d7e3139972874dc8abdbbfce27ec1e6f942b28279dd7d27453630a8b4610e080"
+  },
+  {
+    "archive_path": "LICENSES/blessing.txt",
+    "retained_path": "source/LICENSES/blessing.txt",
+    "size_bytes": 244,
+    "sha256": "592db1199aab67aafe4515db9808b420db122083807c5329b2f061951e79acbe"
+  },
+  {
+    "archive_path": "LICENSES/libpng-2.0.txt",
+    "retained_path": "source/LICENSES/libpng-2.0.txt",
+    "size_bytes": 5345,
+    "sha256": "7317e078e2d3b5d7ba5a6159e650945153262b44b76f6700f8e9edb261c5143e"
+  },
+  {
+    "archive_path": "REUSE.toml",
+    "retained_path": "source/REUSE.toml",
+    "size_bytes": 5615,
+    "sha256": "ac3a75d082888c1379902f53d42583322cdbe9bd9d2d49a5464a8c0e31837316"
+  },
+  {
+    "archive_path": "cmake/3rdparty/extra-cmake-modules/COPYING-CMAKE-SCRIPTS",
+    "retained_path": "source/cmake/3rdparty/extra-cmake-modules/COPYING-CMAKE-SCRIPTS",
+    "size_bytes": 1327,
+    "sha256": "46cde7dc11e64c78d650b4851b88f6704b4665ff60f22a1caf68ceb15e217e5b"
+  },
+  {
+    "archive_path": "cmake/3rdparty/extra-cmake-modules/qt_attribution.json",
+    "retained_path": "source/cmake/3rdparty/extra-cmake-modules/qt_attribution.json",
+    "size_bytes": 479,
+    "sha256": "f34f498d6c63a78a882b352fa38c9dd076a59b1696cd6a6f921151a61f2a02e0"
+  },
+  {
+    "archive_path": "cmake/3rdparty/kwin/COPYING-CMAKE-SCRIPTS",
+    "retained_path": "source/cmake/3rdparty/kwin/COPYING-CMAKE-SCRIPTS",
+    "size_bytes": 1327,
+    "sha256": "46cde7dc11e64c78d650b4851b88f6704b4665ff60f22a1caf68ceb15e217e5b"
+  },
+  {
+    "archive_path": "cmake/3rdparty/kwin/qt_attribution.json",
+    "retained_path": "source/cmake/3rdparty/kwin/qt_attribution.json",
+    "size_bytes": 663,
+    "sha256": "bf3a3c09e99f1c9fab7553ebc4a7548b71dc23fcfdbe6e5df0fa0e7847c2efc3"
+  },
+  {
+    "archive_path": "cmake/QtBaseConfigureTests.cmake",
+    "retained_path": "source/cmake/QtBaseConfigureTests.cmake",
+    "size_bytes": 16927,
+    "sha256": "662c3031ab255b77a8a55c6e4bcb14827cbaadf6f7e3e40619c1f483a3dd0e04"
+  },
+  {
+    "archive_path": "cmake/QtFlagHandlingHelpers.cmake",
+    "retained_path": "source/cmake/QtFlagHandlingHelpers.cmake",
+    "size_bytes": 66220,
+    "sha256": "2ab207f4adcee9415e9ae5d1907308724253adaf847ebd532a5d9ce5ea7ff1c3"
+  },
+  {
+    "archive_path": "cmake/QtSetup.cmake",
+    "retained_path": "source/cmake/QtSetup.cmake",
+    "size_bytes": 246,
+    "sha256": "cad44fdd8ecd3506986b2e98addddcd03bd320a32064f287f4a983fb28100c86"
+  },
+  {
+    "archive_path": "cmake/QtToolHelpers.cmake",
+    "retained_path": "source/cmake/QtToolHelpers.cmake",
+    "size_bytes": 43393,
+    "sha256": "31c78da48ccac20a4ef8ff4bc5e785a8b914ae968807786e689b50413c0ddbc8"
+  },
+  {
+    "archive_path": "configure.cmake",
+    "retained_path": "source/configure.cmake",
+    "size_bytes": 54161,
+    "sha256": "11d9e6e7848e47a91abdc6cf7b709191dd2126d86379b05411d88aa125e1bf59"
+  },
+  {
+    "archive_path": "licenseRule.json",
+    "retained_path": "source/licenseRule.json",
+    "size_bytes": 26242,
+    "sha256": "e9bb0e0c6c7257c682e3407a14a580dfa6d85b9986717b16585cf673f521125f"
+  },
+  {
+    "archive_path": "qmake/CMakeLists.txt",
+    "retained_path": "source/qmake/CMakeLists.txt",
+    "size_bytes": 5295,
+    "sha256": "12f578ee75e7b397590f04d160a27687dc6e116a9240b3ae1769cae3c845898e"
+  },
+  {
+    "archive_path": "qt_cmdline.cmake",
+    "retained_path": "source/qt_cmdline.cmake",
+    "size_bytes": 10858,
+    "sha256": "5c58fc98e976d8fbf2579610a9dddaad10cdd6e717495680909df1e3bc95775c"
+  },
+  {
+    "archive_path": "src/3rdparty/D3D12MemoryAllocator/LICENSE.txt",
+    "retained_path": "source/src/3rdparty/D3D12MemoryAllocator/LICENSE.txt",
+    "size_bytes": 1099,
+    "sha256": "5478a2f36b736e13dd3250b9c71a4ab521bc327fb9d112a92c647bf3e69ddb68"
+  },
+  {
+    "archive_path": "src/3rdparty/D3D12MemoryAllocator/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/D3D12MemoryAllocator/qt_attribution.json",
+    "size_bytes": 693,
+    "sha256": "ad36f74f9d5bb4c2a5d7bce97507711452a2089c1f4f673473bf75d17851f381"
+  },
+  {
+    "archive_path": "src/3rdparty/VulkanMemoryAllocator/LICENSE.txt",
+    "retained_path": "source/src/3rdparty/VulkanMemoryAllocator/LICENSE.txt",
+    "size_bytes": 1099,
+    "sha256": "846d97c8b74ccaa92b9ad031140a04363b3b3985f318094552f297b8bda1c68e"
+  },
+  {
+    "archive_path": "src/3rdparty/VulkanMemoryAllocator/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/VulkanMemoryAllocator/qt_attribution.json",
+    "size_bytes": 699,
+    "sha256": "bdadb296dc4d3aadea5f9eb68f8f4abab2e6a9e135fec084d2914c030af5bab2"
+  },
+  {
+    "archive_path": "src/3rdparty/android/LICENSE",
+    "retained_path": "source/src/3rdparty/android/LICENSE",
+    "size_bytes": 525,
+    "sha256": "4a51cf7f724f51bedb5fa4f9583a2762f1db8d05e43a577e2487c7aab2fdce18"
+  },
+  {
+    "archive_path": "src/3rdparty/android/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/android/qt_attribution.json",
+    "size_bytes": 373,
+    "sha256": "120710d661892ceb44a94556c56998795372334674c79710947282e8279ef415"
+  },
+  {
+    "archive_path": "src/3rdparty/blake2/COPYING",
+    "retained_path": "source/src/3rdparty/blake2/COPYING",
+    "size_bytes": 17914,
+    "sha256": "4103f471877ed0bae500752c5fcd7ecca409d4a4a8dc2ad40437daba60f1a2bc"
+  },
+  {
+    "archive_path": "src/3rdparty/blake2/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/blake2/qt_attribution.json",
+    "size_bytes": 926,
+    "sha256": "bab552307bdd03ed9a4cf7f8f1397c3d18d4dbee19ee576033284104785245be"
+  },
+  {
+    "archive_path": "src/3rdparty/double-conversion/LICENSE",
+    "retained_path": "source/src/3rdparty/double-conversion/LICENSE",
+    "size_bytes": 1527,
+    "sha256": "4af93c12062c58058378de2397dc1c92bbff9ddfb1d583a01c84127557ce97ca"
+  },
+  {
+    "archive_path": "src/3rdparty/double-conversion/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/double-conversion/qt_attribution.json",
+    "size_bytes": 771,
+    "sha256": "4d9c7505a7c12e4e6b57bbee63af926c861abb5515cdf802b8f3491e321146fe"
+  },
+  {
+    "archive_path": "src/3rdparty/easing/LICENSE",
+    "retained_path": "source/src/3rdparty/easing/LICENSE",
+    "size_bytes": 1505,
+    "sha256": "92fac99458f1754b73edf50f9c9983e0efaa06ad96e2afd5e538c79f45b4b191"
+  },
+  {
+    "archive_path": "src/3rdparty/easing/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/easing/qt_attribution.json",
+    "size_bytes": 471,
+    "sha256": "77d67a1db5882bb0b9a1278b014885bee45a4c059d1da9f835b6da5bc4b9c93d"
+  },
+  {
+    "archive_path": "src/3rdparty/emoji-segmenter/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/emoji-segmenter/qt_attribution.json",
+    "size_bytes": 682,
+    "sha256": "9a980fc0f9e478d2a7e9a571d4cd234c259aaf8e2ea3fb60a0a7cf02cc3c3700"
+  },
+  {
+    "archive_path": "src/3rdparty/forkfd/LICENSE",
+    "retained_path": "source/src/3rdparty/forkfd/LICENSE",
+    "size_bytes": 1148,
+    "sha256": "d0d683ae18e78fbef90eb41168fb781920da2d12bf80704490f0882915c18ae0"
+  },
+  {
+    "archive_path": "src/3rdparty/forkfd/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/forkfd/qt_attribution.json",
+    "size_bytes": 493,
+    "sha256": "525fd890017a3966f542da42a9ff0ca2a0d71bc45f80a4871de3e0bd0f612612"
+  },
+  {
+    "archive_path": "src/3rdparty/freetype/BDF-LICENSE.txt",
+    "retained_path": "source/src/3rdparty/freetype/BDF-LICENSE.txt",
+    "size_bytes": 2305,
+    "sha256": "e4e792f29e66750f2e410fd7b50a567652c180f6ee15e1a4dfa0bb5cde524537"
+  },
+  {
+    "archive_path": "src/3rdparty/freetype/LICENSE.txt",
+    "retained_path": "source/src/3rdparty/freetype/LICENSE.txt",
+    "size_bytes": 26234,
+    "sha256": "bf543cdda11864477b8d2ca2aa9afc2aaa8f9133461b4d962ed6ec73646256a1"
+  },
+  {
+    "archive_path": "src/3rdparty/freetype/PCF-LICENSE.txt",
+    "retained_path": "source/src/3rdparty/freetype/PCF-LICENSE.txt",
+    "size_bytes": 2218,
+    "sha256": "6938597bfdeca0db191a8f9ede52eaf2482c2c71a0094c084747a1235f9958fe"
+  },
+  {
+    "archive_path": "src/3rdparty/freetype/ZLIB-LICENSE.txt",
+    "retained_path": "source/src/3rdparty/freetype/ZLIB-LICENSE.txt",
+    "size_bytes": 962,
+    "sha256": "2b1f5d615382a151af3eb71462ad17d89e2efee8fa7664058d35d3d9237ebb19"
+  },
+  {
+    "archive_path": "src/3rdparty/freetype/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/freetype/qt_attribution.json",
+    "size_bytes": 5328,
+    "sha256": "628b68bf60eb3bc1616342bc3545b63be2392e78bbebbc4c19f49675dd2ac8a7"
+  },
+  {
+    "archive_path": "src/3rdparty/gradle/LICENSE",
+    "retained_path": "source/src/3rdparty/gradle/LICENSE",
+    "size_bytes": 23645,
+    "sha256": "cf234c4188d773406f640bf89be680d9288f40ff96901c70d643fcea96ad46df"
+  },
+  {
+    "archive_path": "src/3rdparty/gradle/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/gradle/qt_attribution.json",
+    "size_bytes": 581,
+    "sha256": "06ab470b6b136cbc3486068995ff3c6abf2b27a999031032121cd0f0602fc487"
+  },
+  {
+    "archive_path": "src/3rdparty/harfbuzz-ng/AUTHORS",
+    "retained_path": "source/src/3rdparty/harfbuzz-ng/AUTHORS",
+    "size_bytes": 201,
+    "sha256": "19bfe8f5ed100636cd24ab0c90a3f71c21d8b02d9ba00719447a0faab364d49f"
+  },
+  {
+    "archive_path": "src/3rdparty/harfbuzz-ng/COPYING",
+    "retained_path": "source/src/3rdparty/harfbuzz-ng/COPYING",
+    "size_bytes": 1971,
+    "sha256": "ba8f810f2455c2f08e2d56bb49b72f37fcf68f1f4fade38977cfd7372050ad64"
+  },
+  {
+    "archive_path": "src/3rdparty/harfbuzz-ng/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/harfbuzz-ng/qt_attribution.json",
+    "size_bytes": 1646,
+    "sha256": "b869a7f186e4cfc00cc979e7c4ffd369d823f7a0a94b951a6aedb9b3278c8419"
+  },
+  {
+    "archive_path": "src/3rdparty/icc/LICENSE.txt",
+    "retained_path": "source/src/3rdparty/icc/LICENSE.txt",
+    "size_bytes": 463,
+    "sha256": "9e34ff47b3a44814e183342e7e198d127a6740e29d20e8381fba7688dafc79dd"
+  },
+  {
+    "archive_path": "src/3rdparty/icc/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/icc/qt_attribution.json",
+    "size_bytes": 775,
+    "sha256": "509da9bd2b3f769c730aa4627b1080d65f39b0ecd4130111c9e1122e13cd35b5"
+  },
+  {
+    "archive_path": "src/3rdparty/libjpeg/LICENSE",
+    "retained_path": "source/src/3rdparty/libjpeg/LICENSE",
+    "size_bytes": 6077,
+    "sha256": "ba6bceebcba0fdd35488477c2cca8c4632ce82c74dbfbc87d886ce6fc4433579"
+  },
+  {
+    "archive_path": "src/3rdparty/libjpeg/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/libjpeg/qt_attribution.json",
+    "size_bytes": 859,
+    "sha256": "ed7cb7abdd9124f664acd26cf552ba821c8cf236c4cd34a6737f202215bd41bc"
+  },
+  {
+    "archive_path": "src/3rdparty/libpng/LICENSE",
+    "retained_path": "source/src/3rdparty/libpng/LICENSE",
+    "size_bytes": 5345,
+    "sha256": "bdb0a645ea18c60507d0368379b1ac5474b92255fcc2d115e07486a7672ba526"
+  },
+  {
+    "archive_path": "src/3rdparty/libpng/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/libpng/qt_attribution.json",
+    "size_bytes": 1763,
+    "sha256": "a43ff8e146c949f7cd14e00bd681f4957e27def06ecafec55ccc7231c451d3fa"
+  },
+  {
+    "archive_path": "src/3rdparty/libpsl/PSL-LICENSE.txt",
+    "retained_path": "source/src/3rdparty/libpsl/PSL-LICENSE.txt",
+    "size_bytes": 16726,
+    "sha256": "3f3d9e0024b1921b067d6f7f88deb4a60cbe7a78e76c64e3f1d7fc3b779b9d04"
+  },
+  {
+    "archive_path": "src/3rdparty/libpsl/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/libpsl/qt_attribution.json",
+    "size_bytes": 2458,
+    "sha256": "ae227b5f2cf40511fe1a84d4c752f4005917b7eeb44e7c4495b1403c27cc3647"
+  },
+  {
+    "archive_path": "src/3rdparty/libpsl/src/LICENSE.chromium",
+    "retained_path": "source/src/3rdparty/libpsl/src/LICENSE.chromium",
+    "size_bytes": 1664,
+    "sha256": "1d7f52747a9169751cdf2641a8299c0098e9ecdf9429296ffd55bdb14c9ed5b3"
+  },
+  {
+    "archive_path": "src/3rdparty/md4/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/md4/qt_attribution.json",
+    "size_bytes": 574,
+    "sha256": "34bda63a2fcc23c83f2e5364ccd394553b4baa505b1f79ded9cc2161c56a9b4c"
+  },
+  {
+    "archive_path": "src/3rdparty/md4c/LICENSE.md",
+    "retained_path": "source/src/3rdparty/md4c/LICENSE.md",
+    "size_bytes": 1096,
+    "sha256": "d30937367d5413e7eaa218b1640b8946ff76fd34d97152f6979fd96169d5d0fc"
+  },
+  {
+    "archive_path": "src/3rdparty/md4c/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/md4c/qt_attribution.json",
+    "size_bytes": 673,
+    "sha256": "7b2bc7be22e4be2a2984119ce3d0bfc210ddd0d8ef6193d66e8479d4c22af4ba"
+  },
+  {
+    "archive_path": "src/3rdparty/md5/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/md5/qt_attribution.json",
+    "size_bytes": 446,
+    "sha256": "20b0f1b17ccd1bd5e8d763b1cdca4b095b8f0c037644b5ee18154536b7d8425e"
+  },
+  {
+    "archive_path": "src/3rdparty/pcre2/AUTHORS.md",
+    "retained_path": "source/src/3rdparty/pcre2/AUTHORS.md",
+    "size_bytes": 4232,
+    "sha256": "412ace3355a4d6a4d835c350a7df172903811eafda7b13500dacf58429ee757e"
+  },
+  {
+    "archive_path": "src/3rdparty/pcre2/LICENCE.md",
+    "retained_path": "source/src/3rdparty/pcre2/LICENCE.md",
+    "size_bytes": 4011,
+    "sha256": "197d8a73ffee0d6b09adba2f9c677b5f5aede24edf89258a68e48248d010d811"
+  },
+  {
+    "archive_path": "src/3rdparty/pcre2/LICENSE-SLJIT",
+    "retained_path": "source/src/3rdparty/pcre2/LICENSE-SLJIT",
+    "size_bytes": 1444,
+    "sha256": "5f216505c0f6ea3273caec89e766eef93cdeb7bbb0c429f9360116d7c938feeb"
+  },
+  {
+    "archive_path": "src/3rdparty/pcre2/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/pcre2/qt_attribution.json",
+    "size_bytes": 1829,
+    "sha256": "c65e311b057e3ecb8ee9aeddd681add5aa4484485e265d3a6a8e7967abc19948"
+  },
+  {
+    "archive_path": "src/3rdparty/pixman/LICENSE",
+    "retained_path": "source/src/3rdparty/pixman/LICENSE",
+    "size_bytes": 1092,
+    "sha256": "942c4f2a80394d3f53599b8382e9f27349b95c45d92b69b84f26d404f4dd74a5"
+  },
+  {
+    "archive_path": "src/3rdparty/pixman/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/pixman/qt_attribution.json",
+    "size_bytes": 597,
+    "sha256": "f1dc159b63bf84a4c9c367e8ff79aa748b63f5fc622d5080c0a7ddd98ddc7ac7"
+  },
+  {
+    "archive_path": "src/3rdparty/rfc6234/LICENSE",
+    "retained_path": "source/src/3rdparty/rfc6234/LICENSE",
+    "size_bytes": 1568,
+    "sha256": "7ccebd514aaabc86192f957d773cebf06577c12fe9f25ecd419c6cac5da7a14c"
+  },
+  {
+    "archive_path": "src/3rdparty/rfc6234/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/rfc6234/qt_attribution.json",
+    "size_bytes": 660,
+    "sha256": "fa24413bdc5015fc7fc84297fa17d4c8a598f8f7c76b9495a6e6b26a77b4a324"
+  },
+  {
+    "archive_path": "src/3rdparty/sha1/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/sha1/qt_attribution.json",
+    "size_bytes": 618,
+    "sha256": "53cab2c771f7f7ffbf6a58ff759e5846b746e91d98dfe467d5145edf8cd7d306"
+  },
+  {
+    "archive_path": "src/3rdparty/sha3/BRG_ENDIAN_LICENSE",
+    "retained_path": "source/src/3rdparty/sha3/BRG_ENDIAN_LICENSE",
+    "size_bytes": 645,
+    "sha256": "2fed6f252ca4a7e813811de3cd3cd08183edd4138bdee909410ef6eee394e82c"
+  },
+  {
+    "archive_path": "src/3rdparty/sha3/CC0_LICENSE",
+    "retained_path": "source/src/3rdparty/sha3/CC0_LICENSE",
+    "size_bytes": 7013,
+    "sha256": "1f2786e2c5befeb4dcba6638db6528bf96ef5d2cf24bc85ab5a81ef00abef59d"
+  },
+  {
+    "archive_path": "src/3rdparty/sha3/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/sha3/qt_attribution.json",
+    "size_bytes": 2322,
+    "sha256": "d904a6c21c150d9cac693c0806a469480306cb4e5879cc13c994fbadba71a56e"
+  },
+  {
+    "archive_path": "src/3rdparty/siphash/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/siphash/qt_attribution.json",
+    "size_bytes": 793,
+    "sha256": "8614947dfc0ca1d21aad2f88b4400598262ab8c08aa87c4f7acc0c2de6e5619e"
+  },
+  {
+    "archive_path": "src/3rdparty/sqlite/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/sqlite/qt_attribution.json",
+    "size_bytes": 799,
+    "sha256": "fcba08e23508524b77ee22186a5ef2d35957979fe9e2a604d994c5e9604c8fb9"
+  },
+  {
+    "archive_path": "src/3rdparty/tinycbor/LICENSE",
+    "retained_path": "source/src/3rdparty/tinycbor/LICENSE",
+    "size_bytes": 1074,
+    "sha256": "3c6ba0b5bfa7830505301ffb336a17b0748e0d61c4d34216e9dc98f10e40395e"
+  },
+  {
+    "archive_path": "src/3rdparty/tinycbor/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/tinycbor/qt_attribution.json",
+    "size_bytes": 685,
+    "sha256": "788408509fb7967042640f24ba78b263712e816d886303ba1733f49753d33863"
+  },
+  {
+    "archive_path": "src/3rdparty/wasm/DEJAVU-LICENSE",
+    "retained_path": "source/src/3rdparty/wasm/DEJAVU-LICENSE",
+    "size_bytes": 8816,
+    "sha256": "7a083b136e64d064794c3419751e5c7dd10d2f64c108fe5ba161eae5e5958a93"
+  },
+  {
+    "archive_path": "src/3rdparty/wasm/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/wasm/qt_attribution.json",
+    "size_bytes": 730,
+    "sha256": "2019d37665bfb2ce7d4931d0bdf7427ea178919399cf37c0fef14a229144936b"
+  },
+  {
+    "archive_path": "src/3rdparty/wayland/protocols/MIT_LICENSE.txt",
+    "retained_path": "source/src/3rdparty/wayland/protocols/MIT_LICENSE.txt",
+    "size_bytes": 1055,
+    "sha256": "a8341b9c90ef447a77f55d550e6691e370d3ac15d60edb584def356e348ab828"
+  },
+  {
+    "archive_path": "src/3rdparty/wayland/protocols/appmenu/LGPL-2.1-or-later.txt",
+    "retained_path": "source/src/3rdparty/wayland/protocols/appmenu/LGPL-2.1-or-later.txt",
+    "size_bytes": 25906,
+    "sha256": "1ccf09bf2f598308df4bed9cd8e9657dc5cd0973d2800318f2e241486e2edf3f"
+  },
+  {
+    "archive_path": "src/3rdparty/wayland/protocols/appmenu/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/wayland/protocols/appmenu/qt_attribution.json",
+    "size_bytes": 629,
+    "sha256": "b7200f7fdfd2223aaecbd9b2ec8e4145eebe4f0b376ffbcb3859154661fb1095"
+  },
+  {
+    "archive_path": "src/3rdparty/wayland/protocols/color-management/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/wayland/protocols/color-management/qt_attribution.json",
+    "size_bytes": 885,
+    "sha256": "6081490578a0a5ff17e450a3f9a05a36a3433de0832f1b2b497ca3c8ec1f9ba9"
+  },
+  {
+    "archive_path": "src/3rdparty/wayland/protocols/fractional-scale/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/wayland/protocols/fractional-scale/qt_attribution.json",
+    "size_bytes": 719,
+    "sha256": "bf87b7dc5bf42e91c9d98ad2a109d197141aaebffe563ab247dd771e0b9b07c8"
+  },
+  {
+    "archive_path": "src/3rdparty/wayland/protocols/fullscreen-shell/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/wayland/protocols/fullscreen-shell/qt_attribution.json",
+    "size_bytes": 830,
+    "sha256": "24ebba6014034dcf2c9a23a5b1085dc9708eaa81c021dfe51ba3f6b51ba788a7"
+  },
+  {
+    "archive_path": "src/3rdparty/wayland/protocols/linux-dmabuf/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/wayland/protocols/linux-dmabuf/qt_attribution.json",
+    "size_bytes": 1536,
+    "sha256": "6dd0dbdb4e0fba8ac2a17700e462f1f2df53e4fe14a5ac6168ca4bc2c594cea5"
+  },
+  {
+    "archive_path": "src/3rdparty/wayland/protocols/pointer-gestures/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/wayland/protocols/pointer-gestures/qt_attribution.json",
+    "size_bytes": 720,
+    "sha256": "3c85ce329ccb30c469aa3f3c71596eb915c9cccd645ac1192d94a8fe548556b7"
+  },
+  {
+    "archive_path": "src/3rdparty/wayland/protocols/pointer-warp/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/wayland/protocols/pointer-warp/qt_attribution.json",
+    "size_bytes": 764,
+    "sha256": "3eb309adae44fe120dab08dca8c4df57a34ac347ecf1764cafdd7542cd0a0a11"
+  },
+  {
+    "archive_path": "src/3rdparty/wayland/protocols/presentation-time/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/wayland/protocols/presentation-time/qt_attribution.json",
+    "size_bytes": 742,
+    "sha256": "c3af7f51726c7584d5e8ad74a29813d66cac6a215a9675da7cfc9a42f15c2d0a"
+  },
+  {
+    "archive_path": "src/3rdparty/wayland/protocols/scaler/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/wayland/protocols/scaler/qt_attribution.json",
+    "size_bytes": 718,
+    "sha256": "8b7751412fc26d70f641d6bad9c6aadd406317cbf17359ffcc58651f58aa2fca"
+  },
+  {
+    "archive_path": "src/3rdparty/wayland/protocols/session-management/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/wayland/protocols/session-management/qt_attribution.json",
+    "size_bytes": 854,
+    "sha256": "23b07636c4bbaae01b94b11041d8664e8b7e21038a6a4860af0abed2ff2a4d8a"
+  },
+  {
+    "archive_path": "src/3rdparty/wayland/protocols/tablet/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/wayland/protocols/tablet/qt_attribution.json",
+    "size_bytes": 726,
+    "sha256": "a46626dbac8fc1f57d5b34eb077425fc402fc0767b75ec06578e1465502883b5"
+  },
+  {
+    "archive_path": "src/3rdparty/wayland/protocols/text-input/v1/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/wayland/protocols/text-input/v1/qt_attribution.json",
+    "size_bytes": 836,
+    "sha256": "882ac88020f0ecaea6d991f7e8d292542c9422592ede0396c4d217f040ef6a54"
+  },
+  {
+    "archive_path": "src/3rdparty/wayland/protocols/text-input/v2/HPND_LICENSE.txt",
+    "retained_path": "source/src/3rdparty/wayland/protocols/text-input/v2/HPND_LICENSE.txt",
+    "size_bytes": 1095,
+    "sha256": "8172d52f3b7bba7d10af2f9134c63d0f699ba6b20a47e35f5ac45654c500bfd7"
+  },
+  {
+    "archive_path": "src/3rdparty/wayland/protocols/text-input/v2/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/wayland/protocols/text-input/v2/qt_attribution.json",
+    "size_bytes": 693,
+    "sha256": "197d9edcc6fb17d7bc2b230f7061ce0d2ef90fa4291c86e87ae2817e8f2809fe"
+  },
+  {
+    "archive_path": "src/3rdparty/wayland/protocols/text-input/v3/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/wayland/protocols/text-input/v3/qt_attribution.json",
+    "size_bytes": 927,
+    "sha256": "476225d10cb5789d993c38335c6cc442fdc19a8d91f1ceb7a3ddb50414a8e68a"
+  },
+  {
+    "archive_path": "src/3rdparty/wayland/protocols/viewporter/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/wayland/protocols/viewporter/qt_attribution.json",
+    "size_bytes": 758,
+    "sha256": "95139e441967bc289d174078f1ca0485363e8405bd8d06eb9946356c09c0a5e4"
+  },
+  {
+    "archive_path": "src/3rdparty/wayland/protocols/wayland/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/wayland/protocols/wayland/qt_attribution.json",
+    "size_bytes": 794,
+    "sha256": "d2b263d97853d72128987f55fb912fc197f488de003a8e4bbc53cae2549d0e6e"
+  },
+  {
+    "archive_path": "src/3rdparty/wayland/protocols/wl-eglstream/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/wayland/protocols/wl-eglstream/qt_attribution.json",
+    "size_bytes": 786,
+    "sha256": "2432510e17446887decd1fc58770aeeef060aff5331a8bfec7fb668555f3b347"
+  },
+  {
+    "archive_path": "src/3rdparty/wayland/protocols/wlr-data-control/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/wayland/protocols/wlr-data-control/qt_attribution.json",
+    "size_bytes": 815,
+    "sha256": "433a74149249d01d946d86aa0d88d30bc755523f1a978f640f6142e9c8fa1035"
+  },
+  {
+    "archive_path": "src/3rdparty/wayland/protocols/wp-primary-selection/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/wayland/protocols/wp-primary-selection/qt_attribution.json",
+    "size_bytes": 824,
+    "sha256": "14586c06e09439e9c2b7719766f68e219d0ff0231811e13e44f4587dabf52707"
+  },
+  {
+    "archive_path": "src/3rdparty/wayland/protocols/xdg-activation/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/wayland/protocols/xdg-activation/qt_attribution.json",
+    "size_bytes": 865,
+    "sha256": "8f13cfd4c78a2f116d3e674c329d3d211b647d80190e7a95493528cd6dedbd89"
+  },
+  {
+    "archive_path": "src/3rdparty/wayland/protocols/xdg-decoration/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/wayland/protocols/xdg-decoration/qt_attribution.json",
+    "size_bytes": 843,
+    "sha256": "b8d9102ff3c7eccd840f7d5332d072e41e95eb055a8a9f2e3719a83005879c86"
+  },
+  {
+    "archive_path": "src/3rdparty/wayland/protocols/xdg-dialog/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/wayland/protocols/xdg-dialog/qt_attribution.json",
+    "size_bytes": 566,
+    "sha256": "c7918fb63ad5be29e9a95db3464a7832224c7d904d21617ccfc689e6b0ab04c0"
+  },
+  {
+    "archive_path": "src/3rdparty/wayland/protocols/xdg-foreign/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/wayland/protocols/xdg-foreign/qt_attribution.json",
+    "size_bytes": 729,
+    "sha256": "0ed6fbddba411b647bbe895b6e7a842c2a884905206888c0b4df6b6cd3bb9f79"
+  },
+  {
+    "archive_path": "src/3rdparty/wayland/protocols/xdg-output/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/wayland/protocols/xdg-output/qt_attribution.json",
+    "size_bytes": 813,
+    "sha256": "c5e4f132de8d08a75af02682bba3a9349a00f49b773e23ef5543648209b76658"
+  },
+  {
+    "archive_path": "src/3rdparty/wayland/protocols/xdg-shell/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/wayland/protocols/xdg-shell/qt_attribution.json",
+    "size_bytes": 990,
+    "sha256": "e1367b44fe28fce2eee7656cda75203f4102662bb6aa370b3c9f3eb5a2cc3f82"
+  },
+  {
+    "archive_path": "src/3rdparty/wayland/protocols/xdg-system-bell/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/wayland/protocols/xdg-system-bell/qt_attribution.json",
+    "size_bytes": 820,
+    "sha256": "43a10e6b73a26d9c75e99447f5e731d170047ed2e709878e61eb83f6453cb3da"
+  },
+  {
+    "archive_path": "src/3rdparty/wayland/protocols/xdg-toplevel-icon/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/wayland/protocols/xdg-toplevel-icon/qt_attribution.json",
+    "size_bytes": 845,
+    "sha256": "2e022951f22a56051a099b9045f4fb0c569daa896a218d23f47b0dac3e905c04"
+  },
+  {
+    "archive_path": "src/3rdparty/wintab/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/wintab/qt_attribution.json",
+    "size_bytes": 602,
+    "sha256": "b879ea91b719531d45e1cfe33d2241d060a9260200bd91a09ada074b16063f9c"
+  },
+  {
+    "archive_path": "src/3rdparty/xcb/LICENSE",
+    "retained_path": "source/src/3rdparty/xcb/LICENSE",
+    "size_bytes": 1246,
+    "sha256": "82775191bc05f85b40404d77bb69b1edeaeb4033f48387e9e5eab4dd67f5d6f1"
+  },
+  {
+    "archive_path": "src/3rdparty/xcb/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/xcb/qt_attribution.json",
+    "size_bytes": 825,
+    "sha256": "8bae8861957bc0168d586d24da6e8e93edceb11796811c5f614d211f4674d437"
+  },
+  {
+    "archive_path": "src/3rdparty/zlib/LICENSE",
+    "retained_path": "source/src/3rdparty/zlib/LICENSE",
+    "size_bytes": 1465,
+    "sha256": "d7e3139972874dc8abdbbfce27ec1e6f942b28279dd7d27453630a8b4610e080"
+  },
+  {
+    "archive_path": "src/3rdparty/zlib/qt_attribution.json",
+    "retained_path": "source/src/3rdparty/zlib/qt_attribution.json",
+    "size_bytes": 731,
+    "sha256": "0346805e9c4048316dbc7c58d560a20c12482ea0218de264282212e9619b6d64"
+  },
+  {
+    "archive_path": "src/corelib/configure.cmake",
+    "retained_path": "source/src/corelib/configure.cmake",
+    "size_bytes": 38981,
+    "sha256": "62e638897f2eb136baa337e0d24306f98835e5496244c124e7d2ede1631c15a0"
+  },
+  {
+    "archive_path": "src/corelib/global/qt_attribution.json",
+    "retained_path": "source/src/corelib/global/qt_attribution.json",
+    "size_bytes": 814,
+    "sha256": "64698063a65a1502b986bd61163b5eb9c6bde87f93feb28e4eab43ff07a4f10a"
+  },
+  {
+    "archive_path": "src/corelib/kernel/LICENSE.QEVENTDISPATCHER_CF.txt",
+    "retained_path": "source/src/corelib/kernel/LICENSE.QEVENTDISPATCHER_CF.txt",
+    "size_bytes": 1501,
+    "sha256": "e9e5b9f66d21c0e88a4179525ab39cd8d7eac9af78a8404f322c32b0874783d5"
+  },
+  {
+    "archive_path": "src/corelib/kernel/qt_attribution.json",
+    "retained_path": "source/src/corelib/kernel/qt_attribution.json",
+    "size_bytes": 564,
+    "sha256": "27bb1f28d336f1f8f6d44689f28cb650f0844cc82672e36ae168d0716783fad5"
+  },
+  {
+    "archive_path": "src/corelib/mimetypes/3rdparty/qt_attribution.json",
+    "retained_path": "source/src/corelib/mimetypes/3rdparty/qt_attribution.json",
+    "size_bytes": 1383,
+    "sha256": "329652c93e6b47663115543cfd746cb56b96a98d774d540d58e64614bd9739eb"
+  },
+  {
+    "archive_path": "src/corelib/text/qt_attribution.json",
+    "retained_path": "source/src/corelib/text/qt_attribution.json",
+    "size_bytes": 2170,
+    "sha256": "4e23736600be956e4214849ad8baaa955441656db7324713fab6353c1163b4f5"
+  },
+  {
+    "archive_path": "src/dbus/LICENSE.LIBDBUS-1.txt",
+    "retained_path": "source/src/dbus/LICENSE.LIBDBUS-1.txt",
+    "size_bytes": 27248,
+    "sha256": "ad90aa08bb1a9b7056aa51e2e215b36630855457cde5dffd36aa0faa7b169f24"
+  },
+  {
+    "archive_path": "src/dbus/qt_attribution.json",
+    "retained_path": "source/src/dbus/qt_attribution.json",
+    "size_bytes": 959,
+    "sha256": "346532e1fb3bf653bc949408834c305646fc93f96650a2af9b2171d141c107ee"
+  },
+  {
+    "archive_path": "src/gui/configure.cmake",
+    "retained_path": "source/src/gui/configure.cmake",
+    "size_bytes": 57268,
+    "sha256": "610ab871e23697d3f84da088cea322423ace5002a7b180982e5a674c6ab31943"
+  },
+  {
+    "archive_path": "src/gui/opengl/LICENSE.KHRONOS.txt",
+    "retained_path": "source/src/gui/opengl/LICENSE.KHRONOS.txt",
+    "size_bytes": 1084,
+    "sha256": "2e484f3c26ff5008c704a3ca9dd809d43f24a004a1abb6c202660fbff0d19715"
+  },
+  {
+    "archive_path": "src/gui/opengl/qt_attribution.json",
+    "retained_path": "source/src/gui/opengl/qt_attribution.json",
+    "size_bytes": 1526,
+    "sha256": "d05626e02386f22186b385b3ce2cd5a6431b84e2fc552c68f7133e38da552fc1"
+  },
+  {
+    "archive_path": "src/gui/painting/LICENSE.QIMAGETRANSFORM.txt",
+    "retained_path": "source/src/gui/painting/LICENSE.QIMAGETRANSFORM.txt",
+    "size_bytes": 3004,
+    "sha256": "46b3cbfa2f2946b93291506351e9be1dd0a28d2a53260f5aa488abd36fbeca9d"
+  },
+  {
+    "archive_path": "src/gui/painting/LICENSE.XCONSORTIUM.txt",
+    "retained_path": "source/src/gui/painting/LICENSE.XCONSORTIUM.txt",
+    "size_bytes": 2294,
+    "sha256": "a216b01291eb38fc1af93cfccf1fc67b48d9923612e517c2a695e95b3f03c22c"
+  },
+  {
+    "archive_path": "src/gui/painting/qt_attribution.json",
+    "retained_path": "source/src/gui/painting/qt_attribution.json",
+    "size_bytes": 2256,
+    "sha256": "8cddd6c73a885f697261c4d6d60e5cd814a2544fcd407504b52a5eb9b7cc3600"
+  },
+  {
+    "archive_path": "src/gui/rhi/LICENSE.MiniEngine.txt",
+    "retained_path": "source/src/gui/rhi/LICENSE.MiniEngine.txt",
+    "size_bytes": 1077,
+    "sha256": "cf248820bf1178370bb4f1670a59f8748d46bc96d0f64080cd631511c6046409"
+  },
+  {
+    "archive_path": "src/gui/rhi/qt_attribution.json",
+    "retained_path": "source/src/gui/rhi/qt_attribution.json",
+    "size_bytes": 782,
+    "sha256": "59df3efb041ed346aa797602a76ef8d284e84c3cc6ace30967d6704fc65dbb47"
+  },
+  {
+    "archive_path": "src/gui/text/LICENSE.AGLFN.txt",
+    "retained_path": "source/src/gui/text/LICENSE.AGLFN.txt",
+    "size_bytes": 1425,
+    "sha256": "40818155548ff41c67d3a40edf355e9658992b292c227f4c1147425cedc746c6"
+  },
+  {
+    "archive_path": "src/gui/text/qt_attribution.json",
+    "retained_path": "source/src/gui/text/qt_attribution.json",
+    "size_bytes": 837,
+    "sha256": "7960234e4078c69003e4d9de24c1bf36c9370cfae8a1797ceb1501c4eec81e5d"
+  },
+  {
+    "archive_path": "src/gui/util/LICENSE.XSVG.txt",
+    "retained_path": "source/src/gui/util/LICENSE.XSVG.txt",
+    "size_bytes": 1185,
+    "sha256": "3a946598a9f674d44df764279ca0b85b5d6faba08f3bc75d8e0fcf6cd729a9bd"
+  },
+  {
+    "archive_path": "src/gui/util/qt_attribution.json",
+    "retained_path": "source/src/gui/util/qt_attribution.json",
+    "size_bytes": 547,
+    "sha256": "95156a38085638f0e14785cdcf95ff06f009ecfddfd64699366ed94446f164cc"
+  },
+  {
+    "archive_path": "src/gui/vulkan/LICENSE.txt",
+    "retained_path": "source/src/gui/vulkan/LICENSE.txt",
+    "size_bytes": 11473,
+    "sha256": "5f618873b0cdd1e84c611c5529212c2524bfc887bdfd7d1f3b568bad3c649612"
+  },
+  {
+    "archive_path": "src/gui/vulkan/qt_attribution.json",
+    "retained_path": "source/src/gui/vulkan/qt_attribution.json",
+    "size_bytes": 801,
+    "sha256": "b4beb6ac27b066a6a71408da116fea60131c06ac9799c9763fe9cef28a76e7b9"
+  },
+  {
+    "archive_path": "src/network/configure.cmake",
+    "retained_path": "source/src/network/configure.cmake",
+    "size_bytes": 11923,
+    "sha256": "383a898f51222121e51bbcd7c030c64cc5e8fa13c8a768cfc5f84e2c06669489"
+  },
+  {
+    "archive_path": "src/plugins/platforms/CMakeLists.txt",
+    "retained_path": "source/src/plugins/platforms/CMakeLists.txt",
+    "size_bytes": 1344,
+    "sha256": "94540a248f235c138409b43e5915a34c27d402b743de8d8cae25d9e7279db0cb"
+  },
+  {
+    "archive_path": "src/plugins/platforms/cocoa/LICENSE.COCOA.txt",
+    "retained_path": "source/src/plugins/platforms/cocoa/LICENSE.COCOA.txt",
+    "size_bytes": 1501,
+    "sha256": "e9e5b9f66d21c0e88a4179525ab39cd8d7eac9af78a8404f322c32b0874783d5"
+  },
+  {
+    "archive_path": "src/plugins/platforms/cocoa/qt_attribution.json",
+    "retained_path": "source/src/plugins/platforms/cocoa/qt_attribution.json",
+    "size_bytes": 720,
+    "sha256": "27a435bfea96ca950f4a5ad6a82be7fe2a62bb4db0d8851e7a84fc5dce0c3ff3"
+  },
+  {
+    "archive_path": "src/plugins/platforms/offscreen/CMakeLists.txt",
+    "retained_path": "source/src/plugins/platforms/offscreen/CMakeLists.txt",
+    "size_bytes": 1022,
+    "sha256": "c675b17dbfa890f6cacd16bb0541b84f8b228fbbaf296f960e24904a977276c4"
+  },
+  {
+    "archive_path": "src/plugins/platforms/wayland/CMakeLists.txt",
+    "retained_path": "source/src/plugins/platforms/wayland/CMakeLists.txt",
+    "size_bytes": 11386,
+    "sha256": "ae6c90a675cd1ebfa5f5aac9a66960ab6c3fcbf591a74ecaec5a40d53cebb94c"
+  },
+  {
+    "archive_path": "src/plugins/platforms/xcb/CMakeLists.txt",
+    "retained_path": "source/src/plugins/platforms/xcb/CMakeLists.txt",
+    "size_bytes": 4601,
+    "sha256": "e09958a107cd728b59f952e3082177f57a01c8832b6479e017f9ad8975c92adf"
+  },
+  {
+    "archive_path": "src/plugins/sqldrivers/configure.cmake",
+    "retained_path": "source/src/plugins/sqldrivers/configure.cmake",
+    "size_bytes": 3195,
+    "sha256": "c91d7c97267fbf22389df655c13392c18abc73f66542305dc0c7f79c0c5cc106"
+  },
+  {
+    "archive_path": "src/sql/configure.cmake",
+    "retained_path": "source/src/sql/configure.cmake",
+    "size_bytes": 464,
+    "sha256": "8c049dbdebb823c7bbe6108483807e65c77de1780dd78c388e727f92c953f384"
+  },
+  {
+    "archive_path": "src/testinternal/3rdparty/cmake/Copyright.txt",
+    "retained_path": "source/src/testinternal/3rdparty/cmake/Copyright.txt",
+    "size_bytes": 5477,
+    "sha256": "0676e30827684487aa0ea8f72f01e9460a6320fa34a2888df0ad1dd3e8a06eb8"
+  },
+  {
+    "archive_path": "src/testinternal/3rdparty/cmake/qt_attribution.json",
+    "retained_path": "source/src/testinternal/3rdparty/cmake/qt_attribution.json",
+    "size_bytes": 515,
+    "sha256": "f194ea33cf9b0d44615a6fa9eb4d45e7796b50cb0a88cdadf5d9b15745bf52f0"
+  },
+  {
+    "archive_path": "src/testlib/3rdparty/catch2/LICENSE.txt",
+    "retained_path": "source/src/testlib/3rdparty/catch2/LICENSE.txt",
+    "size_bytes": 1338,
+    "sha256": "c9bff75738922193e67fa726fa225535870d2aa1059f91452c411736284ad566"
+  },
+  {
+    "archive_path": "src/testlib/3rdparty/catch2/qt_attribution.json",
+    "retained_path": "source/src/testlib/3rdparty/catch2/qt_attribution.json",
+    "size_bytes": 898,
+    "sha256": "8149331a9f68c529955173cbfb12e3f0193c2e4db23ae4117bcd537ee1eacde0"
+  },
+  {
+    "archive_path": "src/testlib/3rdparty/cycle/LICENSE.txt",
+    "retained_path": "source/src/testlib/3rdparty/cycle/LICENSE.txt",
+    "size_bytes": 1023,
+    "sha256": "cb5aedb296c5246d1f22e9099f925a65146f9f0d6b4eebba97fd27a6cdbbab2d"
+  },
+  {
+    "archive_path": "src/testlib/3rdparty/cycle/qt_attribution.json",
+    "retained_path": "source/src/testlib/3rdparty/cycle/qt_attribution.json",
+    "size_bytes": 1227,
+    "sha256": "5b4c5fc477cd61b935983b93ec6d09b39a8f5644ea4fe5ac787c84583f521c7c"
+  },
+  {
+    "archive_path": "src/testlib/3rdparty/linux/LICENSE.txt",
+    "retained_path": "source/src/testlib/3rdparty/linux/LICENSE.txt",
+    "size_bytes": 18458,
+    "sha256": "ed71cfca021790f74094e9810f42e31288e7f43cf00c8d9ac8d6f904124bd815"
+  },
+  {
+    "archive_path": "src/testlib/3rdparty/linux/qt_attribution.json",
+    "retained_path": "source/src/testlib/3rdparty/linux/qt_attribution.json",
+    "size_bytes": 1691,
+    "sha256": "a69f1c5519995cb3e77d34a864d9a383b68d0d3304883ee28c6b14a7c4efbe50"
+  },
+  {
+    "archive_path": "src/testlib/3rdparty/valgrind/LICENSE.txt",
+    "retained_path": "source/src/testlib/3rdparty/valgrind/LICENSE.txt",
+    "size_bytes": 1667,
+    "sha256": "ec72eebd6326165156787da828caaa18386489387aefaa073c9bd40b8b2a400e"
+  },
+  {
+    "archive_path": "src/testlib/3rdparty/valgrind/qt_attribution.json",
+    "retained_path": "source/src/testlib/3rdparty/valgrind/qt_attribution.json",
+    "size_bytes": 979,
+    "sha256": "202daf86588d8cded6c492d490cec190e5790796fff23ec5065b116b78e70fbc"
+  },
+  {
+    "archive_path": "src/tools/moc/CMakeLists.txt",
+    "retained_path": "source/src/tools/moc/CMakeLists.txt",
+    "size_bytes": 1685,
+    "sha256": "9f80ba980bc2d7e9585a519a6da7f0995703265188221ea3bf43665cfcd1599a"
+  },
+  {
+    "archive_path": "src/tools/rcc/CMakeLists.txt",
+    "retained_path": "source/src/tools/rcc/CMakeLists.txt",
+    "size_bytes": 909,
+    "sha256": "ed9809640cd66a4af6b89aff0ab4e52796cb5ae4ace0961ecf2e16adf605d293"
+  },
+  {
+    "archive_path": "src/tools/uic/CMakeLists.txt",
+    "retained_path": "source/src/tools/uic/CMakeLists.txt",
+    "size_bytes": 1514,
+    "sha256": "0df64b45d0ed2da47e7b9f8766c22e31899443b6b3da7dbeb56a4aef476ea2ac"
+  },
+  {
+    "archive_path": "src/widgets/configure.cmake",
+    "retained_path": "source/src/widgets/configure.cmake",
+    "size_bytes": 20546,
+    "sha256": "4e066a4504f7efe80ee2ff5a40d7574d3b672ea8213a6acfe488f8fb33dfc366"
+  },
+  {
+    "archive_path": "tests/auto/cmake/RunCMake/Sbom/attributions/multi_entry/qt_attribution.json",
+    "retained_path": "source/tests/auto/cmake/RunCMake/Sbom/attributions/multi_entry/qt_attribution.json",
+    "size_bytes": 1279,
+    "sha256": "2aecfbea7527b27ffe8e402e83c5227ace022d9b343124a27c6f8220e9fbff66"
+  },
+  {
+    "archive_path": "tests/auto/corelib/serialization/qxmlstream/LICENSE.XML-Test-Suite.txt",
+    "retained_path": "source/tests/auto/corelib/serialization/qxmlstream/LICENSE.XML-Test-Suite.txt",
+    "size_bytes": 2813,
+    "sha256": "b2ace830c68a486d548834b9a93806d064a3eb041f603ec6368034d060fdf46a"
+  },
+  {
+    "archive_path": "tests/manual/rhi/shared/imgui/fonts/LICENSE.txt",
+    "retained_path": "source/tests/manual/rhi/shared/imgui/fonts/LICENSE.txt",
+    "size_bytes": 11358,
+    "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+  },
+  {
+    "archive_path": "tests/manual/rhi/shared/imgui/imgui/LICENSE.txt",
+    "retained_path": "source/tests/manual/rhi/shared/imgui/imgui/LICENSE.txt",
+    "size_bytes": 1083,
+    "sha256": "1b64b23b817e547982a86984685f5e9337695caa542753fb6f08d502d5208e38"
+  },
+  {
+    "archive_path": "util/gradientgen/LICENSE.WEBGRADIENTS.txt",
+    "retained_path": "source/util/gradientgen/LICENSE.WEBGRADIENTS.txt",
+    "size_bytes": 1062,
+    "sha256": "9be732e45b638c74f9c0e5248541dd54dc7e8e9a5545df96b5c4b7c9ac0c68ba"
+  },
+  {
+    "archive_path": "util/gradientgen/qt_attribution.json",
+    "retained_path": "source/util/gradientgen/qt_attribution.json",
+    "size_bytes": 596,
+    "sha256": "6e87ac5d79ab92110e6e517b2c74e4f4fd15878540e93eea0300e529d3318572"
+  }
+]

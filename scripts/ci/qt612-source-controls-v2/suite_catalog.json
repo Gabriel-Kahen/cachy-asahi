@@ -1,0 +1,103 @@
+{
+  "coverage_alias": {
+    "baseline_test_path": "scripts/ci/qt612-reference-artifact-transport/test_transport.py",
+    "producer_test_path": "scripts/ci/qt612-reference-native-source/transport_basis/test_transport.py",
+    "proof": "All six transport_basis files are byte and mode identical to scripts/ci/qt612-reference-artifact-transport at 75cee7ea27e1c9f3d10959e824b261764b9b1c3d.",
+    "tests": 28
+  },
+  "schema": 1,
+  "suites": [
+    {
+      "family": "gui-adapter",
+      "fence": "module",
+      "path": "scripts/port/qt612-gui-native-v1/test_adapter.py",
+      "tests": 9
+    },
+    {
+      "family": "gui-adapter",
+      "fence": "module",
+      "path": "scripts/port/qt612-gui-native-v1/test_archive.py",
+      "tests": 25
+    },
+    {
+      "family": "gui-adapter",
+      "fence": "module",
+      "path": "scripts/port/qt612-gui-native-v1/test_lifecycle.py",
+      "tests": 29
+    },
+    {
+      "family": "gui-adapter",
+      "fence": "module",
+      "path": "scripts/port/qt612-gui-native-v1/test_native.py",
+      "tests": 11
+    },
+    {
+      "family": "gui-adapter",
+      "fence": "module",
+      "path": "scripts/port/qt612-gui-native-v1/test_runtime.py",
+      "tests": 14
+    },
+    {
+      "family": "gui-adapter",
+      "fence": "module",
+      "path": "scripts/port/qt612-gui-native-v1/test_trust.py",
+      "tests": 29
+    },
+    {
+      "family": "producer",
+      "fence": "module",
+      "path": "scripts/ci/qt612-reference-native-source/gui/test_projection.py",
+      "tests": 16
+    },
+    {
+      "family": "producer",
+      "fence": "module",
+      "path": "scripts/ci/qt612-reference-native-source/test_data.py",
+      "tests": 21
+    },
+    {
+      "family": "producer",
+      "fence": "module",
+      "path": "scripts/ci/qt612-reference-native-source/test_producer.py",
+      "tests": 25
+    },
+    {
+      "family": "producer",
+      "fence": "wrapper",
+      "path": "scripts/ci/qt612-reference-native-source/test_transport_binding.py",
+      "tests": 15
+    },
+    {
+      "family": "producer",
+      "fence": "wrapper",
+      "path": "scripts/ci/qt612-reference-native-source/test_transport_source.py",
+      "tests": 9
+    },
+    {
+      "family": "producer",
+      "fence": "wrapper",
+      "path": "scripts/ci/qt612-reference-native-source/transport_basis/test_transport.py",
+      "tests": 28
+    },
+    {
+      "family": "isolation",
+      "fence": "wrapper",
+      "path": "scripts/ci/qt612-source-controls-v2/test_isolation.py",
+      "tests": 1
+    }
+  ],
+  "support_files": [
+    ".gitattributes",
+    "README.md",
+    "scripts/build/build_v2.py",
+    "scripts/build/container-entry-v2.sh",
+    "scripts/ci/hyprland03-native-source-v1/fixtures/expected349.lock",
+    "scripts/ci/inputs.lock.json",
+    "scripts/ci/management-tools-generic16k/signature_observer.py"
+  ],
+  "totals": {
+    "gui_adapter": 117,
+    "producer_logical": 114,
+    "producer_unique": 86
+  }
+}

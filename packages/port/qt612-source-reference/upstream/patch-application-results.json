@@ -1,0 +1,197 @@
+[
+  {
+    "patch": "CVE-2026-116337-qtbase-6.12-0001.diff",
+    "check": "independent-pristine-dry-run",
+    "argv": [
+      "patch",
+      "-p1",
+      "--fuzz=0",
+      "--batch",
+      "--dry-run",
+      "-i",
+      "upstream/patches/CVE-2026-116337-qtbase-6.12-0001.diff"
+    ],
+    "returncode": 1,
+    "stdout": "checking file src/network/access/qhttpnetworkreply.cpp\nchecking file tests/auto/network/access/qhttpnetworkreply/tst_qhttpnetworkreply.cpp\nHunk #1 FAILED at 24.\nHunk #2 FAILED at 280.\n2 out of 2 hunks FAILED\n",
+    "stderr": ""
+  },
+  {
+    "patch": "CVE-2026-116337-qtbase-6.12-0002.diff",
+    "check": "independent-pristine-dry-run",
+    "argv": [
+      "patch",
+      "-p1",
+      "--fuzz=0",
+      "--batch",
+      "--dry-run",
+      "-i",
+      "upstream/patches/CVE-2026-116337-qtbase-6.12-0002.diff"
+    ],
+    "returncode": 0,
+    "stdout": "checking file src/network/access/qhttpheaderparser_p.h\nchecking file src/network/access/qhttpnetworkreply.cpp\nchecking file tests/auto/network/access/qhttpnetworkreply/tst_qhttpnetworkreply.cpp\n",
+    "stderr": ""
+  },
+  {
+    "patch": "CVE-2026-105924-qtbase-6.12.diff",
+    "check": "independent-pristine-dry-run",
+    "argv": [
+      "patch",
+      "-p1",
+      "--fuzz=0",
+      "--batch",
+      "--dry-run",
+      "-i",
+      "upstream/patches/CVE-2026-105924-qtbase-6.12.diff"
+    ],
+    "returncode": 0,
+    "stdout": "checking file src/corelib/serialization/qjsoncbor.cpp\nchecking file tests/auto/corelib/serialization/qcborvalue_json/tst_qcborvalue_json.cpp\n",
+    "stderr": ""
+  },
+  {
+    "patch": "CVE-2026-105943-qtbase-6.12.diff",
+    "check": "independent-pristine-dry-run",
+    "argv": [
+      "patch",
+      "-p1",
+      "--fuzz=0",
+      "--batch",
+      "--dry-run",
+      "-i",
+      "upstream/patches/CVE-2026-105943-qtbase-6.12.diff"
+    ],
+    "returncode": 0,
+    "stdout": "checking file src/network/kernel/qauthenticator.cpp\n",
+    "stderr": ""
+  },
+  {
+    "patch": "CVE-2026-116337-qtbase-6.12-0001.diff",
+    "check": "ordered-apply-ignored-work-copy",
+    "returncode": 1,
+    "stdout": "patching file src/network/access/qhttpnetworkreply.cpp\npatching file tests/auto/network/access/qhttpnetworkreply/tst_qhttpnetworkreply.cpp\nHunk #1 FAILED at 24.\nHunk #2 FAILED at 280.\n2 out of 2 hunks FAILED -- saving rejects to file tests/auto/network/access/qhttpnetworkreply/tst_qhttpnetworkreply.cpp.rej\n",
+    "stderr": ""
+  },
+  {
+    "patch": "CVE-2026-116337-qtbase-6.12-0002.diff",
+    "check": "corrected-order-dry-run",
+    "argv": [
+      "patch",
+      "-p1",
+      "--fuzz=0",
+      "--batch",
+      "--dry-run",
+      "-i",
+      "packages/port/qt612-source-reference/upstream/patches/CVE-2026-116337-qtbase-6.12-0002.diff"
+    ],
+    "returncode": 0,
+    "stdout": "checking file src/network/access/qhttpheaderparser_p.h\nchecking file src/network/access/qhttpnetworkreply.cpp\nchecking file tests/auto/network/access/qhttpnetworkreply/tst_qhttpnetworkreply.cpp\n",
+    "stderr": ""
+  },
+  {
+    "patch": "CVE-2026-116337-qtbase-6.12-0002.diff",
+    "check": "corrected-order-apply",
+    "argv": [
+      "patch",
+      "-p1",
+      "--fuzz=0",
+      "--batch",
+      "-i",
+      "packages/port/qt612-source-reference/upstream/patches/CVE-2026-116337-qtbase-6.12-0002.diff"
+    ],
+    "returncode": 0,
+    "stdout": "patching file src/network/access/qhttpheaderparser_p.h\npatching file src/network/access/qhttpnetworkreply.cpp\npatching file tests/auto/network/access/qhttpnetworkreply/tst_qhttpnetworkreply.cpp\n",
+    "stderr": ""
+  },
+  {
+    "patch": "CVE-2026-116337-qtbase-6.12-0001.diff",
+    "check": "corrected-order-dry-run",
+    "argv": [
+      "patch",
+      "-p1",
+      "--fuzz=0",
+      "--batch",
+      "--dry-run",
+      "-i",
+      "packages/port/qt612-source-reference/upstream/patches/CVE-2026-116337-qtbase-6.12-0001.diff"
+    ],
+    "returncode": 0,
+    "stdout": "checking file src/network/access/qhttpnetworkreply.cpp\nchecking file tests/auto/network/access/qhttpnetworkreply/tst_qhttpnetworkreply.cpp\n",
+    "stderr": ""
+  },
+  {
+    "patch": "CVE-2026-116337-qtbase-6.12-0001.diff",
+    "check": "corrected-order-apply",
+    "argv": [
+      "patch",
+      "-p1",
+      "--fuzz=0",
+      "--batch",
+      "-i",
+      "packages/port/qt612-source-reference/upstream/patches/CVE-2026-116337-qtbase-6.12-0001.diff"
+    ],
+    "returncode": 0,
+    "stdout": "patching file src/network/access/qhttpnetworkreply.cpp\npatching file tests/auto/network/access/qhttpnetworkreply/tst_qhttpnetworkreply.cpp\n",
+    "stderr": ""
+  },
+  {
+    "patch": "CVE-2026-105924-qtbase-6.12.diff",
+    "check": "corrected-order-dry-run",
+    "argv": [
+      "patch",
+      "-p1",
+      "--fuzz=0",
+      "--batch",
+      "--dry-run",
+      "-i",
+      "packages/port/qt612-source-reference/upstream/patches/CVE-2026-105924-qtbase-6.12.diff"
+    ],
+    "returncode": 0,
+    "stdout": "checking file src/corelib/serialization/qjsoncbor.cpp\nchecking file tests/auto/corelib/serialization/qcborvalue_json/tst_qcborvalue_json.cpp\n",
+    "stderr": ""
+  },
+  {
+    "patch": "CVE-2026-105924-qtbase-6.12.diff",
+    "check": "corrected-order-apply",
+    "argv": [
+      "patch",
+      "-p1",
+      "--fuzz=0",
+      "--batch",
+      "-i",
+      "packages/port/qt612-source-reference/upstream/patches/CVE-2026-105924-qtbase-6.12.diff"
+    ],
+    "returncode": 0,
+    "stdout": "patching file src/corelib/serialization/qjsoncbor.cpp\npatching file tests/auto/corelib/serialization/qcborvalue_json/tst_qcborvalue_json.cpp\n",
+    "stderr": ""
+  },
+  {
+    "patch": "CVE-2026-105943-qtbase-6.12.diff",
+    "check": "corrected-order-dry-run",
+    "argv": [
+      "patch",
+      "-p1",
+      "--fuzz=0",
+      "--batch",
+      "--dry-run",
+      "-i",
+      "packages/port/qt612-source-reference/upstream/patches/CVE-2026-105943-qtbase-6.12.diff"
+    ],
+    "returncode": 0,
+    "stdout": "checking file src/network/kernel/qauthenticator.cpp\n",
+    "stderr": ""
+  },
+  {
+    "patch": "CVE-2026-105943-qtbase-6.12.diff",
+    "check": "corrected-order-apply",
+    "argv": [
+      "patch",
+      "-p1",
+      "--fuzz=0",
+      "--batch",
+      "-i",
+      "packages/port/qt612-source-reference/upstream/patches/CVE-2026-105943-qtbase-6.12.diff"
+    ],
+    "returncode": 0,
+    "stdout": "patching file src/network/kernel/qauthenticator.cpp\n",
+    "stderr": ""
+  }
+]

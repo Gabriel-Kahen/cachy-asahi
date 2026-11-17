@@ -1,0 +1,108 @@
+{
+  "actions": {
+    "download": null,
+    "upload": {
+      "commit": "cf430e030ddbb5b0abf93d22962f4752f3646cd9",
+      "observations": [
+        {
+          "bytes": 46805,
+          "commit": "69a02851b87ca29daf2e197101b66bf75ff61889",
+          "git_blob": "dbe9bc77ccccba87873cb71afefacfe0769e8864",
+          "line_end": 720,
+          "line_start": 710,
+          "path": ".github/workflows/native-arm-current606-ksm2-owned-copy.yml",
+          "sha256": "0e459a0853182bcbc4689331fc8221ff2e9423a95003afc12c003c396d02f030",
+          "supports": "existing exact upload pin, closed export path, retention3/compression0/hiddenfalse/error options"
+        },
+        {
+          "bytes": 7329,
+          "commit": "69a02851b87ca29daf2e197101b66bf75ff61889",
+          "git_blob": "c568d1d06c0a86e7a9f26a73354ecb30494c1632",
+          "line_end": 140,
+          "line_start": 125,
+          "path": ".github/workflows/native-arm-ksm.yml",
+          "sha256": "ae2dc0adace61812c4fcf6396dfec2a219dbef66813a00c28852ca6d156f34ae",
+          "supports": "existing exact upload pin and overwritefalse option"
+        }
+      ],
+      "pin_provenance": "Observed directly in committed repository workflows before any web lookup; action implementation was not re-audited.",
+      "repository": "https://github.com/actions/upload-artifact",
+      "uses": "actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9"
+    }
+  },
+  "actual": {
+    "Root_acceptance": null,
+    "actions_executed": false,
+    "artifact_id": null,
+    "download": null,
+    "native_dispatch": false,
+    "release": false,
+    "signing": false,
+    "upload": null,
+    "workflow_selected": false
+  },
+  "collector_source": {
+    "basis_sha256": "3fa1f4351629a84825e85f89b6b0ee33e9de606dd99a3ea3f918da64fd07ae0b",
+    "path": "scripts/ci/qt612-reference-artifact-transport/transport.py",
+    "self_hash_requirement": false,
+    "sha256": "02354a45f33d71fb5569ff72fdddbd48c2f8ebbd86c7573054e54fd8f6d7198e",
+    "status": "FROZEN_SOURCE_PREPARATION_NOT_SELECTED"
+  },
+  "download_action_note": "No download-artifact usage was found in the bounded .github/workflows search. No download action is required: Root performs a separately selected download and pinned verify readback before signing.",
+  "kind": "QT612_REFERENCE_ARTIFACT_TRANSPORT_ACTION_PINS_SOURCE_ONLY",
+  "readback": {
+    "command": [
+      "python3",
+      "-I",
+      "-B",
+      "/absolute/selected/transport.py",
+      "verify",
+      "--root",
+      "/absolute/fresh/downloaded/export",
+      "--manifest-sha256",
+      "EXTERNAL_ROOT_PIN",
+      "--receipt-sha256",
+      "EXTERNAL_C_PIN"
+    ],
+    "manifest_pin_from_downloaded_bytes_is_authority": false,
+    "scope": "Transport integrity readback only; no signing or acceptance."
+  },
+  "remaining_limits": [
+    "C must implement and Root must review the new F69a V1 producer/finisher contract before operational selection.",
+    "Action pin provenance is repository-observed, not a new action implementation audit.",
+    "The selected C receipt and actual packages are unavailable in this source-only fragment.",
+    "No live GitHub upload/download/readback or capacity measurement was performed.",
+    "Three-day retention requires timely independent Root readback; it is not durable archival."
+  ],
+  "repository_basis_commit": "69a02851b87ca29daf2e197101b66bf75ff61889",
+  "required_external_bindings": [
+    "QT612_TRANSPORT_SELECTED=true only after original C/Root gates",
+    "QT612_C_PUBLIC_EXPORT",
+    "QT612_C_ACTUAL_RECEIPT",
+    "QT612_C_RECEIPT_SHA256",
+    "externally frozen collector source SHA256",
+    "Root-selected downloaded manifest SHA256 before readback"
+  ],
+  "schema": 1,
+  "status": "NONSELECTED_FRAGMENT",
+  "transport_policy": {
+    "bounds_enforcement": "Pinned collector; upload action options alone do not enforce byte/file/schema caps.",
+    "compression_level": 0,
+    "existing_bounded_log_export": "UNCHANGED_SEPARATE",
+    "if_no_files_found": "error",
+    "include_hidden_files": false,
+    "max_files": 4096,
+    "max_total_bytes": 134217728,
+    "other_members": "Finite public receipts admitted by the exact externally pinned C actual receipt; collector owns closed member schema.",
+    "overwrite": false,
+    "package_attempts": [
+      1,
+      2
+    ],
+    "package_basename": "cachy-asahi-qt612-base-source-reference-6.12.0-2-aarch64.pkg.tar.xz",
+    "package_count": 2,
+    "retention_days": 3,
+    "source_receipt_gates": "REQUIRED_UNCHANGED",
+    "upload_tree": "Fresh collector output only; never raw Source or arbitrary package globs."
+  }
+}

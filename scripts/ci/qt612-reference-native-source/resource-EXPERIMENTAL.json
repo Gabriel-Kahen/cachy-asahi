@@ -1,0 +1,67 @@
+{
+  "Root_acceptance": null,
+  "accepted": false,
+  "actual_Qt_pair": null,
+  "actual_capacity": null,
+  "admission_max_seconds": 15120,
+  "builder": {
+    "compile_parallelism": 1,
+    "cpus": 1,
+    "memory_bytes": 4294967296,
+    "memory_swap_bytes": 4294967296,
+    "pids": 512,
+    "tmpfs_bytes": 4294967296
+  },
+  "builds": 2,
+  "cleanup_seconds": 90,
+  "command_output_bytes": 16777216,
+  "concurrent_builds": 1,
+  "controller": {
+    "AS_bytes": 536870912,
+    "cpus": 1,
+    "memory_bytes": 536870912,
+    "pids": 64,
+    "swap_bytes": 0
+  },
+  "controller_scope_seconds": 14940,
+  "controller_work_seconds": 14850,
+  "daemon": {
+    "cpus": 4,
+    "memory_bytes": 6442450944,
+    "pids": 768,
+    "swap_bytes": 0
+  },
+  "first_container_absent_before_second": true,
+  "go_cli_va": {
+    "canonical_paths": [
+      "/usr/bin/docker",
+      "/usr/sbin/docker"
+    ],
+    "docker_bytes": 2147483648,
+    "normal_bytes": 536870912,
+    "observed_executable_custody_required": true,
+    "physical_bounds_unchanged": true
+  },
+  "host_package_commands": 0,
+  "host_package_mutations": 0,
+  "host_reserve_bytes": 2147483648,
+  "kind": "QT612_SERIAL_EXPERIMENTAL_RESOURCE_POLICY_V1",
+  "measured_Qt_fit": false,
+  "minimum_available_bytes": 10737418240,
+  "minimum_disk_bytes": 15032385536,
+  "network": "none",
+  "owner": {
+    "AS_bytes": 2147483648,
+    "cpus": 1,
+    "memory_bytes": 2147483648,
+    "pids": 256,
+    "swap_bytes": 0
+  },
+  "pair_seconds": 14400,
+  "readonly_filesystem": "UNCHANGED_STRICT_GUARD_REQUIRED",
+  "schema": 1,
+  "scratch_retention": "DESTROY_EACH_CONTAINER_TMPFS_NATURALLY_RETAIN_PACKAGE_AND_COMPLETE_RECEIPTS",
+  "shared_daemon": false,
+  "source": "Root-preparation-direction-preserving-Source93-host-domain-bounds",
+  "storage_bytes": 12884901888
+}

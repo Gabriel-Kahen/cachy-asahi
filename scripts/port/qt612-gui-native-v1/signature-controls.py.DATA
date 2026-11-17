@@ -1,0 +1,340 @@
+# SPDX-License-Identifier: MIT
+"""DATA tests only: synthetic framing and MODEL_ONLY supervised-call records.
+
+These bytes are not keys, signatures, packages or Root decisions usable for real
+verification. No subprocess, gpgv, key import, key generation or signing runs.
+"""
+import copy
+import importlib.util
+import json
+from pathlib import Path
+import sys
+import tempfile
+import unittest
+from unittest.mock import patch
+
+
+def actor_fence(event, args):
+    """Permanent DATA fence, installed before importing implementation code."""
+    if event.startswith(('subprocess.', 'socket.', 'ctypes.', 'os.exec', 'os.fork', 'os.posix_spawn')) or event in {
+        'os.system', 'fcntl.flock', 'resource.setrlimit', 'os.kill', 'os.killpg',
+    }:
+        raise RuntimeError('MODEL_ONLY_ACTOR_FENCE:' + event)
+
+
+sys.addaudithook(actor_fence)
+HERE = Path(__file__).resolve().parent
+SPEC = importlib.util.spec_from_file_location('model_only_project_test_trust', HERE / 'trust.py')
+T = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(T)
+
+
+def packet(tag, body):
+    assert 0 < len(body) < 192
+    return bytes([0xc0 | tag, len(body)]) + body
+
+
+class ModelOnly(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix='MODEL_ONLY_PROJECT_TEST_')
+        self.addCleanup(self.temp.cleanup)
+        self.work = Path(self.temp.name) / 'public-work'
+        self.package = b'MODEL_ONLY_NOT_A_REAL_PACKAGE'
+        self.tampered = bytes([self.package[0] ^ 1]) + self.package[1:]
+        self.key_body = b'\x04\x00\x00\x00\x01\x01MODEL_ONLY_NOT_KEY_MATERIAL'
+        self.public_key = packet(6, self.key_body)
+        self.signature = packet(2, b'\x04\x00\x01\x08\x00\x00\x00\x00\x00\x00MODEL_ONLY_NOT_A_SIGNATURE')
+        self.fingerprint = T._fingerprint(self.key_body)
+        self.root = dict(schema_version=1, scope=T.SCOPE,
+                         issuer='MODEL_ONLY_EXTERNAL_SELECTION_NOT_REAL_ROOT', approved=True, public_only=True,
+                         issued_epoch=900, expires_epoch=1100, primary_fingerprint=self.fingerprint,
+                         signing_fingerprint=self.fingerprint, package=T.pin(self.package),
+                         signature=T.pin(self.signature), public_key=T.pin(self.public_key),
+                         tampered_package=T.pin(self.tampered),
+                         pacman=dict(repository='PROJECT_TEST', SigLevel=['Required', 'TrustedOnly'],
+                                     LocalFileSigLevel=['Required', 'TrustedOnly']))
+        self.calls = []
+        self.mutate = lambda row, kind: None
+
+    def model_call(self, argv, env, *, timeout):
+        """Model the supervisor contract; never perform signature mathematics."""
+        index = len(self.calls)
+        kind = ('positive', 'tamper', 'unknown-key')[index]
+        self.calls.append((argv, env, timeout))
+        key = self.fingerprint[-16:]
+        if kind == 'positive':
+            lines = [f'KEY_CONSIDERED {self.fingerprint} 0', f'GOODSIG {key} MODEL_ONLY',
+                     f'VALIDSIG {self.fingerprint} 1970-01-01 950 0 4 0 1 8 00 {self.fingerprint}']
+            exit_code = 0
+        elif kind == 'tamper':
+            lines, exit_code = [f'BADSIG {key} MODEL_ONLY'], 1
+        else:
+            lines, exit_code = [f'ERRSIG {key} 1 8 00 950 9 {self.fingerprint}', f'NO_PUBKEY {key}'], 2
+        row = dict(argv=list(argv), env=dict(env), timeout_seconds=timeout, exit=exit_code,
+                   stdout=''.join('[GNUPG:] ' + line + '\n' for line in lines).encode(), stderr=b'MODEL_ONLY',
+                   natural_exit=True, pid=200 + index, pgid=200 + index, group_absent=True,
+                   owned_processes_absent=True, seconds=0.01)
+        self.mutate(row, kind)
+        return row
+
+    def verify(self, **changes):
+        raw = json.dumps(self.root, sort_keys=True).encode()
+        args = dict(package=self.package, signature=self.signature, public_key=self.public_key,
+                    tampered_package=self.tampered, trust_raw=raw, external_sha=T.pin(raw)['sha256'],
+                    now=1000, work=self.work, call=self.model_call,
+                    official_fingerprints={'F' * 40}, official_key_sha256={'f' * 64})
+        args.update(changes)
+        return T.verify(**args)
+
+    def test_model_only_three_controls_join_original_tuple_and_current_key(self):
+        result = self.verify()
+        self.assertFalse(result['overall_admission'])
+        self.assertEqual(result['scope'], T.SCOPE)
+        self.assertEqual([r['control'] for r in result['controls']], ['positive', 'tamper', 'unknown-key'])
+        positive, tamper, unknown = self.calls
+        for argv, env, timeout in self.calls:
+            self.assertEqual(timeout, 30)
+            self.assertEqual(argv[:2], ['/usr/bin/gpgv', '--homedir'])
+            self.assertEqual(argv[5:8], ['--status-fd', '1', '--'])
+            self.assertEqual(Path(argv[-2]).read_bytes(), self.signature)
+            self.assertEqual(env, dict(PATH='/usr/bin:/bin', HOME=argv[2], GNUPGHOME=argv[2], LC_ALL='C'))
+        self.assertEqual(positive[0][:-1], tamper[0][:-1])
+        self.assertEqual(Path(positive[0][-1]).read_bytes(), self.package)
+        self.assertEqual(Path(tamper[0][-1]).read_bytes(), self.tampered)
+        self.assertEqual(positive[0][-1], unknown[0][-1])
+        self.assertNotEqual(positive[0][2], unknown[0][2])
+        self.assertEqual(Path(positive[0][4]).read_bytes(), self.public_key)
+        self.assertEqual(Path(unknown[0][4]).read_bytes(), b'')
+        self.assertEqual(list(Path(unknown[0][2]).iterdir()), [])
+
+    def test_no_default_actor(self):
+        with self.assertRaisesRegex(ValueError, 'EXPLICIT_SUPERVISED'):
+            self.verify(call=None)
+        self.assertFalse(self.work.exists())
+        tree = T.ast.parse((HERE / 'trust.py').read_bytes())
+        imports = [n.module for n in T.ast.walk(tree) if isinstance(n, T.ast.ImportFrom)]
+        imports += [a.name for n in T.ast.walk(tree) if isinstance(n, T.ast.Import) for a in n.names]
+        self.assertFalse(set(imports) & {'subprocess', 'socket', 'requests', 'urllib', 'os'})
+
+    def test_preimport_actor_fence_direct_denials(self):
+        for event in ('subprocess.Popen', 'socket.connect', 'ctypes.dlopen', 'os.system', 'os.exec',
+                      'os.fork', 'os.forkpty', 'os.posix_spawn', 'fcntl.flock', 'resource.setrlimit',
+                      'os.kill', 'os.killpg'):
+            with self.subTest(event=event), self.assertRaisesRegex(RuntimeError, 'MODEL_ONLY_ACTOR_FENCE'):
+                sys.audit(event)
+
+    def test_fresh_external_root_digest_required(self):
+        with self.assertRaisesRegex(ValueError, 'EXTERNALLY_PROVIDED_ROOT_SHA256'):
+            self.verify(external_sha='0' * 64)
+        self.assertEqual(self.calls, [])
+
+    def test_root_current_lifetime_and_integer_boundaries(self):
+        for issued, expires in ((900, 1000), (1001, 1100), (900, 87301), (True, 1100), (900, None)):
+            with self.subTest(issued=issued, expires=expires):
+                self.root.update(issued_epoch=issued, expires_epoch=expires)
+                with self.assertRaisesRegex(ValueError, 'CURRENT_ROOT_MAX_24_HOURS'):
+                    self.verify()
+        self.assertEqual(self.calls, [])
+
+    def test_root_remaining_lifetime_covers_all_three_bounded_calls(self):
+        self.root['expires_epoch'] = 1090
+        with self.assertRaisesRegex(ValueError, 'ROOT_REMAINING_LIFETIME'):
+            self.verify()
+        self.assertEqual(self.calls, [])
+
+    def test_root_selection_scope_predicates_and_no_unknown_fields(self):
+        for field, value in (('approved', False), ('public_only', False), ('issuer', None),
+                             ('scope', 'OFFICIAL'), ('schema_version', True), ('extra', 'untrusted')):
+            saved = copy.deepcopy(self.root)
+            self.root[field] = value
+            with self.subTest(field=field), self.assertRaises(ValueError):
+                self.verify()
+            self.root = saved
+        for value in (['Optional', 'TrustAll'], ['Required'], ['Required', 'TrustedOnly', 'Optional']):
+            self.root['pacman']['SigLevel'] = value
+            with self.assertRaisesRegex(ValueError, 'REQUIRED_TRUSTEDONLY'):
+                self.verify()
+
+    def test_all_exact_bytes_pins_required_before_callback(self):
+        for field in ('package', 'signature', 'public_key', 'tampered_package'):
+            saved = copy.deepcopy(self.root)
+            self.root[field]['sha256'] = '0' * 64
+            with self.subTest(field=field), self.assertRaisesRegex(ValueError, 'EXACT_'):
+                self.verify()
+            self.root = saved
+        self.assertEqual(self.calls, [])
+
+    def test_missing_or_identical_tamper_control_refused(self):
+        with self.assertRaisesRegex(ValueError, 'BOUNDED_BINARY_OPERANDS'):
+            self.verify(tampered_package=b'')
+        self.root['tampered_package'] = T.pin(self.package)
+        with self.assertRaisesRegex(ValueError, 'DISTINCT_TAMPER_CONTROL'):
+            self.verify(tampered_package=self.package)
+
+    def test_arbitrary_other_bytes_are_not_the_required_bit_flip(self):
+        for tampered in (b'MODEL_ONLY_DIFFERENT_PACKAGE', bytes([self.package[0] ^ 2]) + self.package[1:],
+                         self.tampered + b'X'):
+            self.root['tampered_package'] = T.pin(tampered)
+            with self.assertRaisesRegex(ValueError, 'EXACT_FIRST_BYTE_BIT_FLIP'):
+                self.verify(tampered_package=tampered)
+
+    def test_full_fingerprints_and_official_disjointness(self):
+        for kwargs in (dict(official_fingerprints={self.fingerprint}),
+                       dict(official_key_sha256={T.pin(self.public_key)['sha256']})):
+            with self.assertRaisesRegex(ValueError, 'DISJOINT_FROM_OFFICIAL'):
+                self.verify(**kwargs)
+        for kwargs in (dict(official_fingerprints=set()), dict(official_key_sha256=set()),
+                       dict(official_fingerprints={self.fingerprint[-16:]})):
+            with self.assertRaises(ValueError):
+                self.verify(**kwargs)
+        self.root['signing_fingerprint'] = self.fingerprint[-16:]
+        with self.assertRaisesRegex(ValueError, 'FULL_V4_FINGERPRINT'):
+            self.verify()
+
+    def test_all_subkeys_also_disjoint_and_v4(self):
+        body = b'\x04\x00\x00\x00\x01\x01MODEL_ONLY_SUBKEY'
+        public_key = self.public_key + packet(14, body)
+        self.root['public_key'] = T.pin(public_key)
+        with self.assertRaisesRegex(ValueError, 'DISJOINT_FROM_OFFICIAL'):
+            self.verify(public_key=public_key, official_fingerprints={T._fingerprint(body)})
+        malformed = self.public_key + packet(14, b'\x05' + body[1:])
+        with self.assertRaisesRegex(ValueError, 'BINARY_PUBLIC_V4_ONLY'):
+            self.verify(public_key=malformed)
+
+    def test_binary_public_v4_and_single_detached_signature_only(self):
+        for key in (packet(5, self.key_body), packet(7, self.key_body), b'-----BEGIN PGP PUBLIC KEY BLOCK-----',
+                    self.public_key + self.public_key, packet(6, b'\x05' + self.key_body[1:])):
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                self.verify(public_key=key)
+        for sig in (self.signature + self.signature, packet(6, self.key_body),
+                    packet(2, b'\x04\x01\x01\x08\x00\x00\x00\x00abc'), b'-----BEGIN PGP SIGNATURE-----'):
+            with self.subTest(signature=sig), self.assertRaises(ValueError):
+                self.verify(signature=sig)
+
+    def test_whole_parser_pin_before_extracting_only_packets(self):
+        read = Path.read_bytes
+        def changed(path):
+            data = read(path)
+            return data + b'\n' if path.name == 'signature_observer.py' else data
+        with patch.object(Path, 'read_bytes', changed):
+            with self.assertRaisesRegex(ValueError, 'PINNED_PACKET_PARSER'):
+                self.verify()
+        self.assertEqual(self.calls, [])
+
+    def test_every_supervised_record_requires_natural_exit_and_reaping(self):
+        for field, bad in (('natural_exit', False), ('group_absent', False), ('owned_processes_absent', False),
+                           ('pid', 0), ('pgid', 1), ('seconds', 30.001), ('timeout_seconds', 31)):
+            with self.subTest(field=field):
+                self.work = Path(self.temp.name) / field
+                self.calls = []
+                self.mutate = lambda row, kind, field=field, bad=bad: row.update({field: bad})
+                with self.assertRaises(ValueError):
+                    self.verify()
+                self.assertEqual(len(self.calls), 1)
+
+    def test_exact_argv_env_and_bounded_status_output(self):
+        for field, value in (('argv', ['gpgv']), ('env', {}), ('stdout', b'x' * 32769),
+                             ('stderr', b'x' * 32769), ('stdout', b'[GNUPG:] UNKNOWN\n'),
+                             ('stdout', b'[GNUPG:] EXPKEYSIG ' + self.fingerprint[-16:].encode() + b'\n')):
+            with self.subTest(field=field, value=value[:40] if isinstance(value, bytes) else value):
+                self.work = Path(self.temp.name) / ('case-' + str(len(list(Path(self.temp.name).iterdir()))))
+                self.calls = []
+                self.mutate = lambda row, kind, field=field, value=value: row.update({field: value})
+                with self.assertRaises(ValueError):
+                    self.verify()
+
+    def test_each_negative_control_must_naturally_fail(self):
+        for kind in ('tamper', 'unknown-key'):
+            self.work = Path(self.temp.name) / kind
+            self.calls = []
+            self.mutate = lambda row, observed, kind=kind: row.update(exit=0) if observed == kind else None
+            with self.assertRaises(ValueError):
+                self.verify()
+            self.assertEqual(len(self.calls), 2 if kind == 'tamper' else 3)
+
+    def test_unknown_key_control_cannot_substitute_other_key_or_status(self):
+        def alter(row, kind):
+            if kind == 'unknown-key':
+                row['stdout'] = b'[GNUPG:] NO_PUBKEY AAAAAAAAAAAAAAAA\n'
+        self.mutate = alter
+        with self.assertRaisesRegex(ValueError, 'SAME_SIGNATURE_KEY_ID'):
+            self.verify()
+
+    def test_positive_full_signature_join_required(self):
+        def alter(row, kind):
+            if kind == 'positive':
+                row['stdout'] = row['stdout'].replace(self.fingerprint.encode(), b'A' * 40)
+        self.mutate = alter
+        with self.assertRaises(ValueError):
+            self.verify()
+
+    def test_positive_public_and_hash_algorithms_must_join_detached(self):
+        for old, new in ((b' 4 0 1 8 00 ', b' 4 0 22 8 00 '), (b' 4 0 1 8 00 ', b' 4 0 1 10 00 ')):
+            self.work = Path(self.temp.name) / ('alg-' + str(len(list(Path(self.temp.name).iterdir()))))
+            self.calls = []
+            self.mutate = lambda row, kind, old=old, new=new: row.update(stdout=row['stdout'].replace(old, new))
+            with self.assertRaisesRegex(ValueError, 'FULL_VALID_SIGNATURE_JOIN'):
+                self.verify()
+
+    def test_weak_digest_refused_before_callback(self):
+        signature = packet(2, b'\x04\x00\x01\x02\x00\x00\x00\x00\x00\x00MODEL_ONLY')
+        with self.assertRaisesRegex(ValueError, 'APPROVED_SHA2'):
+            self.verify(signature=signature)
+        self.assertEqual(self.calls, [])
+
+    def test_control_inputs_cannot_change_at_callback(self):
+        def alter(row, kind):
+            Path(row['argv'][-1]).write_bytes(b'MODEL_ONLY_CHANGED_DURING_BOUNDARY')
+        self.mutate = alter
+        with self.assertRaisesRegex(ValueError, 'PUBLIC_CONTROL_INPUTS_UNCHANGED'):
+            self.verify()
+
+    def test_unknown_home_must_remain_empty(self):
+        def alter(row, kind):
+            if kind == 'unknown-key':
+                (Path(row['argv'][2]) / 'unexpected-public.gpg').write_bytes(self.public_key)
+        self.mutate = alter
+        with self.assertRaisesRegex(ValueError, 'PUBLIC_CONTROL_INPUTS_UNCHANGED'):
+            self.verify()
+
+    def test_unknown_keyring_must_remain_empty(self):
+        def alter(row, kind):
+            if kind == 'unknown-key':
+                Path(row['argv'][4]).write_bytes(self.public_key)
+        self.mutate = alter
+        with self.assertRaisesRegex(ValueError, 'PUBLIC_CONTROL_INPUTS_UNCHANGED'):
+            self.verify()
+
+    def test_same_byte_operand_replacement_refused(self):
+        def alter(row, kind):
+            path = Path(row['argv'][-1])
+            raw = path.read_bytes()
+            alternate = path.with_name('replacement')
+            alternate.write_bytes(raw)
+            alternate.chmod(0o600)
+            alternate.replace(path)
+        self.mutate = alter
+        with self.assertRaisesRegex(ValueError, 'PUBLIC_CONTROL_INPUTS_UNCHANGED'):
+            self.verify()
+
+    def test_work_path_canonical_spelling_required(self):
+        with self.assertRaisesRegex(ValueError, 'FRESH_UNALIASED_PUBLIC_WORK'):
+            self.verify(work=Path(self.temp.name) / 'unused' / '..' / 'work')
+
+    def test_callback_cannot_mutate_expected_argv_or_environment(self):
+        original = self.model_call
+        def mutate_call(argv, env, *, timeout):
+            argv[0] = '/MODEL_ONLY_UNAPPROVED_ACTOR'
+            env['UNAPPROVED'] = 'MODEL_ONLY'
+            return original(argv, env, timeout=timeout)
+        with self.assertRaisesRegex(ValueError, 'EXACT_GPGV_ARGV_ENV_TIMEOUT'):
+            self.verify(call=mutate_call)
+
+    def test_duplicate_root_fields_refused(self):
+        raw = json.dumps(self.root).encode()[:-1] + b',"approved":true}'
+        with self.assertRaisesRegex(ValueError, 'DUPLICATE_ROOT_FIELD'):
+            self.verify(trust_raw=raw, external_sha=T.pin(raw)['sha256'])
+
+
+if __name__ == '__main__':
+    unittest.main()
