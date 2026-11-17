@@ -152,7 +152,7 @@ def budget_bound(predecessor,proposal,constructor):
     """
     inputs=decode(constructor['inputs.json'][0]);closed(predecessor,inputs['predecessor']['source_lock']);proposal_closed(proposal,inputs['proposal'])
     files={n:r for n,r in predecessor.items()if n!='source.lock.json'}
-    for name,extra in(('guest/initialized-state.sh',len(proposal['guest-cache-transition.sh'][0])+2048),('guest/root.sh',1024)):
+    for name,extra in(('guest/initialized-state.sh',len(proposal['guest-cache-transition.sh'][0])+2048),('guest/root.sh',1024),('adapter.py',512)):
         files[name]=(b'\0'*(len(predecessor[name][0])+extra),predecessor[name][1])
     files[PREFIX+'inverse/source.lock.json']=predecessor['source.lock.json']
     for prefix,family in(('proposal/',proposal),('constructor/',constructor)):
@@ -172,8 +172,10 @@ def project(predecessor,proposal,constructor,proposal_root,baseline,materials):
     spec=importlib.util.spec_from_file_location('authenticated_cache_transition',proposal_root/'transform.py');T=importlib.util.module_from_spec(spec);spec.loader.exec_module(T)
     generated=T.apply(predecessor['guest/initialized-state.sh'][0],predecessor['guest/root.sh'][0],baseline)
     need(T.inverse(generated,baseline)==(predecessor['guest/initialized-state.sh'][0],predecessor['guest/root.sh'][0]),'whole exact2-leaf proposal byte inverse')
+    spec=importlib.util.spec_from_file_location('authenticated_fixture_delivery',HERE/'fixture_delivery.py');D=importlib.util.module_from_spec(spec);spec.loader.exec_module(D)
+    need(constructor['predecessor-adapter.py']==predecessor['adapter.py'],'retained exact third operational preimage');generated['adapter']=D.transform(predecessor['adapter.py'][0]);need(D.inverse(generated['adapter'],predecessor['adapter.py'][0])==predecessor['adapter.py'][0],'exact fixed-name fixture-delivery inverse')
     result={n:r for n,r in predecessor.items()if n!='source.lock.json'};changes={}
-    for name,key in(('guest/initialized-state.sh','initialized'),('guest/root.sh','root')):
+    for name,key in(('guest/initialized-state.sh','initialized'),('guest/root.sh','root'),('adapter.py','adapter')):
         result[name]=generated[key],predecessor[name][1];changes[name]=dict(before=rows({name:predecessor[name]})[name],after=rows({name:result[name]})[name])
     # The original operational preimages already occur inside the35-leaf proposal.
     # Reuse them; retain only the old whole lock and added membership additionally.
@@ -183,9 +185,9 @@ def project(predecessor,proposal,constructor,proposal_root,baseline,materials):
     result[PREFIX+'materials/baseline-cache.bin']=baseline,0o644
     result['expected-cache-transition.tsv']=generated['manifest'],0o644
     manifest_name=PREFIX+'construction.DATA.json';added=sorted((set(result)-set(predecessor))|{manifest_name})
-    preimages={'guest/initialized-state.sh':PREFIX+'proposal/predecessor-initialized-state.sh','guest/root.sh':PREFIX+'proposal/predecessor-root.sh'}
+    preimages={'adapter.py':PREFIX+'constructor/predecessor-adapter.py','guest/initialized-state.sh':PREFIX+'proposal/predecessor-initialized-state.sh','guest/root.sh':PREFIX+'proposal/predecessor-root.sh'}
     for name,ref in preimages.items():need(result[ref]==predecessor[name],'reused exact preimage body/mode')
-    manifest=dict(kind='UNISSUED_PROVIDER_DERIVED_CACHE_LIFECYCLE_SUCCESSOR_V1',predecessor=inputs['predecessor'],proposal=dict(commit=inputs['proposal']['commit'],source_lock=inputs['proposal']['source_lock']),constructor=pin(constructor['source.lock.json'][0]),baseline=inputs['baseline'],material_refs=materials,derivation=dict(baseline=generated['derivation']['baseline'],installed=generated['derivation']['installed'],restored=generated['derivation']['restored'],added_entries=generated['derivation']['added_entries']),changes=changes,inverse=dict(preimages=preimages,old_lock=PREFIX+'inverse/source.lock.json',strategy='WHOLE339_REUSE_UNCHANGED_PLUS_PINNED_TWO_PREIMAGES_OLD_LOCK_AND_ADDED_MEMBERSHIP'),added_membership=added,fixture_source_cap_bytes=CAP,source_qualification='UNISSUED_NEEDS_MATCHING_SUCCESSOR_CASE_NAMESPACE_AND_MATERIAL_BINDING_NO_F51_WAIVER',actual=dict.fromkeys(ACTUAL))
+    manifest=dict(fixture_delivery=dict(kind='ONE_FIXED_TSV_THROUGH_EXISTING_ADAPTER_CONTENTS',name='expected-cache-transition.tsv',delta=pin(constructor['fixture_delivery.py'][0])),kind='UNISSUED_PROVIDER_DERIVED_CACHE_LIFECYCLE_SUCCESSOR_V1',predecessor=inputs['predecessor'],proposal=dict(commit=inputs['proposal']['commit'],source_lock=inputs['proposal']['source_lock']),constructor=pin(constructor['source.lock.json'][0]),baseline=inputs['baseline'],material_refs=materials,derivation=dict(baseline=generated['derivation']['baseline'],installed=generated['derivation']['installed'],restored=generated['derivation']['restored'],added_entries=generated['derivation']['added_entries']),changes=changes,inverse=dict(preimages=preimages,old_lock=PREFIX+'inverse/source.lock.json',strategy='WHOLE339_REUSE_UNCHANGED_PLUS_PINNED_TWO_PREIMAGES_OLD_LOCK_AND_ADDED_MEMBERSHIP'),added_membership=added,fixture_source_cap_bytes=CAP,source_qualification='UNISSUED_NEEDS_MATCHING_SUCCESSOR_CASE_NAMESPACE_AND_MATERIAL_BINDING_NO_F51_WAIVER',actual=dict.fromkeys(ACTUAL))
     need(len(canonical(manifest))<=16384,'bounded membership/construction manifest')
     result[manifest_name]=canonical(manifest),0o644
     lock=dict(old_lock,files=rows(result),actual=dict.fromkeys(old_lock['actual']));result['source.lock.json']=canonical(lock),0o644
@@ -212,7 +214,7 @@ def verify_export(root,expected,constructor_expected):
     for name,(body,_)in files.items():
         if name.endswith('.py'):compile(body,name,'exec');compiled+=1
     count=sum(len(b)for b,_ in files.values())
-    return dict(status='PASS_PHYSICAL_SOURCE_AND_WHOLE339_INVERSE_ONLY_ROOT_QUALIFICATION_HELD',files=len(files),closed_leaf_bytes=count,source_lock=expected,fixture_source_cap_bytes=CAP,remaining_source_bytes=CAP-count,compiled_python_files=compiled,changed_operational_leaves=['guest/initialized-state.sh','guest/root.sh'],derived_manifest=pin(files['expected-cache-transition.tsv'][0]),baseline=inputs['baseline'],source_qualification=None,actual=dict.fromkeys(ACTUAL))
+    return dict(status='PASS_PHYSICAL_SOURCE_AND_WHOLE339_INVERSE_ONLY_ROOT_QUALIFICATION_HELD',files=len(files),closed_leaf_bytes=count,source_lock=expected,fixture_source_cap_bytes=CAP,remaining_source_bytes=CAP-count,compiled_python_files=compiled,changed_operational_leaves=['adapter.py','guest/initialized-state.sh','guest/root.sh'],derived_manifest=pin(files['expected-cache-transition.tsv'][0]),baseline=inputs['baseline'],source_qualification=None,actual=dict.fromkeys(ACTUAL))
 
 
 def construct(value,constructor_expected):

@@ -12,19 +12,29 @@
   },
   "files": {
     "README.md": {
-      "bytes": 3691,
+      "bytes": 4298,
       "mode": 420,
-      "sha256": "f272e9b3b527f58e3aea9f6569bb09fd917baa2d0de8a84d1019fbb07b44c0b2"
+      "sha256": "a7cb61ed9a8291f0ea0a055ae398d39b542aefcbb5ad6e2fc5427995eafbb1c9"
     },
     "constructor.py": {
-      "bytes": 17170,
+      "bytes": 17947,
       "mode": 420,
-      "sha256": "e86318d770cf12ae93a4181a68524a80532cd75b639134aa6c534d9b5e9d8ac4"
+      "sha256": "da6da2afaeb8bc8fa90304bc8860cc1fb5e5e10e9198e95c37e1b3639c7e949a"
+    },
+    "fixture_delivery.py": {
+      "bytes": 925,
+      "mode": 420,
+      "sha256": "6dc0f29ca5dd0f4d7aa615883c6810d267a7f180ae4981b60d1b8aea7bf98e5b"
     },
     "inputs.json": {
       "bytes": 8196,
       "mode": 420,
       "sha256": "0a01f266975f4ca42277eac699be49a29d5070a21e3376959edb82538b75fa33"
+    },
+    "predecessor-adapter.py": {
+      "bytes": 14435,
+      "mode": 420,
+      "sha256": "a04aba8c5c4916662afdb3ea4fc960e74235ecbb559440cf21649ce5fe67606c"
     },
     "selection.TEMPLATE.json": {
       "bytes": 370,
@@ -32,14 +42,14 @@
       "sha256": "90165dbccbf3e845215000ea42374af8b4f65e1840d324c91f38c1f8a51987d9"
     },
     "test_constructor.py": {
-      "bytes": 6655,
+      "bytes": 11004,
       "mode": 420,
-      "sha256": "a1253f7312e8d1b1e89a2f8302136c27d9d53b2cd61bc64f390f7e90992595f7"
+      "sha256": "0efc6a05843ed7927f29c52795b7c0c2d746ba00d4fcf648f03234c898a20821"
     },
     "validation.DATA.json": {
-      "bytes": 612,
+      "bytes": 683,
       "mode": 420,
-      "sha256": "da0c85729f86816f689d6da3afc7c3a0f7af8ccb8242ad00ade23634d687dc2b"
+      "sha256": "1b44a13e98569a03a76b0de49baf9b6711e2e76d75c1515e8e20af00412c95de"
     }
   },
   "kind": "PURE_CACHE_LIFECYCLE_SUCCESSOR_CONSTRUCTOR_SOURCE_V1"

@@ -1,11 +1,12 @@
 # SPDX-License-Identifier: MIT
 """Constructor DATA controls; no actor, Root issuance, Raw or package execution."""
-import copy,importlib.util,json,tempfile,unittest
+import ast,copy,hashlib,importlib.util,json,os,shutil,tempfile,time,types,unittest
 from pathlib import Path
 from unittest.mock import patch
 HERE=Path(__file__).resolve().parent
 s=importlib.util.spec_from_file_location('cache_successor_constructor',HERE/'constructor.py');C=importlib.util.module_from_spec(s);s.loader.exec_module(C)
 PARENT=Path('/home/gabe/Documents/ChatGPT/cachy-asahi-perl-observed-hold-successor-readiness-20261117-r1/constructed-source')
+BASELINE=Path('/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-perl-baseline-cache-observation-trial-r1/actor-output/decoder-output/scan/cache.bin')
 PROPOSAL=Path('/home/gabe/Documents/ChatGPT/cachy-asahi-perl-ldcache-semantic-transition-20261117/scripts/integration/arm16k_perl_ldcache_semantic_transition')
 class Controls(unittest.TestCase):
  @classmethod
@@ -58,6 +59,26 @@ class Controls(unittest.TestCase):
   ctor=C.snapshot(HERE)
   with patch.object(C.importlib.util,'spec_from_file_location',side_effect=AssertionError('proposal must not execute')):
    with self.assertRaisesRegex(ValueError,'baseline'):C.project(self.old,self.proposal,ctor,PROPOSAL,b'',self.inputs['materials'])
+ def test_genuine_baseline_independent_derivation_confirms_actual_r90(self):
+  spec=importlib.util.spec_from_file_location('qualified_a91_transform',PROPOSAL/'transform.py');T=importlib.util.module_from_spec(spec);spec.loader.exec_module(T);body=C.baseline_bytes(dict(path=str(BASELINE),**self.inputs['baseline']));manifest,derived,expected=T.manifest(body);self.assertEqual(derived['baseline_entries'],358);self.assertEqual(derived['installed_entries'],361);self.assertEqual(len(derived['baseline_provider_joins']),358);self.assertEqual(len(derived['dependency_provider_joins']),3);self.assertEqual(expected,(PROPOSAL/'actual-r90-cache.bin').read_bytes());self.assertEqual(C.pin(body),self.inputs['baseline'])
+ def test_real_adapter_contents_delivers_exact_manifest_owned_temp(self):
+  spec=importlib.util.spec_from_file_location('fixed_tsv_delivery',HERE/'fixture_delivery.py');F=importlib.util.module_from_spec(spec);spec.loader.exec_module(F);old=self.old['adapter.py'][0];new=F.transform(old);self.assertEqual(F.inverse(new,old),old);self.assertEqual(new.count(b"put('expected-cache-transition.tsv'"),1)
+  spec=importlib.util.spec_from_file_location('qualified_semantic_transform',PROPOSAL/'transform.py');T=importlib.util.module_from_spec(spec);spec.loader.exec_module(T);body=C.baseline_bytes(dict(path=str(BASELINE),**self.inputs['baseline']));generated=T.apply(self.old['guest/initialized-state.sh'][0],self.old['guest/root.sh'][0],body)
+  # Reuse existing synthetic certificate factory without importing its audit hook,
+  # actor controls, Root records, or executing any qualification/actor entry.
+  spec=importlib.util.spec_from_file_location('delivery_model_contracts',PARENT/'contracts.py');K=importlib.util.module_from_spec(spec);spec.loader.exec_module(K);tree=ast.parse((PARENT/'test_controls.py').read_text());defs=[n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name in('pin','seal','modeled')];env=dict(K=K,HERE=PARENT,Path=Path,copy=copy,time=time,hashlib=hashlib,os=os);exec(compile(ast.Module(body=defs,type_ignores=[]),'maintained DATA factory','exec'),env);a=env['modeled'](dependency=True);cert=dict(zip(K.EVIDENCE,a[2:]));cert['_initialized_state']={'MODEL_ONLY':True};cert['_initialized_qualified']={'proof':{'MODEL_ONLY':True}}
+  with tempfile.TemporaryDirectory()as d:
+   root=Path(d)/'source';root.mkdir();(root/'adapter.py').write_bytes(new)
+   for name in('contracts.py','preboot.py'):shutil.copy2(PARENT/name,root/name)
+   for name in('guest','frozen'):shutil.copytree(PARENT/name,root/name)
+   (root/'guest/initialized-state.sh').write_bytes(generated['initialized']);(root/'guest/root.sh').write_bytes(generated['root']);(root/'expected-cache-transition.tsv').write_bytes(generated['manifest'])
+   spec=importlib.util.spec_from_file_location('real_adapter_delivery_path',root/'adapter.py');A=importlib.util.module_from_spec(spec);spec.loader.exec_module(A);rows=A.contents(a[0],cert,env['pin']('MODEL_source'),'a'*32);out=Path(d)/'fixture';out.mkdir()
+   for name,(raw,mode)in rows.items():
+    p=out/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(raw);p.chmod(mode)
+   delivered=(out/'expected-cache-transition.tsv').read_bytes();self.assertEqual(delivered,generated['manifest']);self.assertEqual(C.pin(delivered),C.pin(generated['manifest']));self.assertEqual((out/'expected-cache-transition.tsv').stat().st_mode&0o777,0o644);self.assertIn(b'p=$D/expected-cache-transition.tsv',(out/'initialized-state.sh').read_bytes());self.assertIn(b'initialized_cache_transaction_installed',(out/'root.sh').read_bytes())
+ def test_positive_project_full339_inverse_and_operational_whitelist(self):
+  result=C.project(self.old,self.proposal,C.snapshot(HERE),PROPOSAL,C.baseline_bytes(dict(path=str(BASELINE),**self.inputs['baseline'])),self.inputs['materials']);self.assertEqual(C.inverse(result,self.inputs['predecessor']),self.old);self.assertLessEqual(sum(len(b)for b,_ in result.values()),C.CAP)
+  changed={n for n in self.old if n!='source.lock.json'and self.old[n]!=result[n]};self.assertEqual(changed,{'adapter.py','guest/root.sh','guest/initialized-state.sh'})
  def test_authority_and_old_qualification_unchanged(self):
   self.assertTrue(all(v is None for v in self.inputs['actual'].values()));self.assertIn(b'no default authority', (HERE/'constructor.py').read_bytes());self.assertIn(b'NO_F51_WAIVER',(HERE/'constructor.py').read_bytes());self.assertNotIn('f51',','.join(self.inputs['materials']))
 if __name__=='__main__':unittest.main(verbosity=2)

@@ -15,13 +15,13 @@
     "source_ref": null
   },
   "baseline": null,
-  "controls": 14,
+  "controls": 17,
   "kind": "SOURCE339_CACHE_LIFECYCLE_CONSTRUCTOR_DATA_VALIDATION_V1",
   "material_refs": null,
-  "physical_successor_export": null,
-  "positive_actual_construction": null,
+  "physical_successor_export": "VERIFY_SEPARATELY",
+  "positive_actual_construction": "GENUINE_R91_BASELINE_DERIVED_AND_EXACT339_INVERSE",
   "skips": 0,
   "source_qualification": null,
-  "status": "PASS_PASSIVE_CONTROLS_UNBOUND_BASELINE_BODY_MISSING",
+  "status": "PASS_POSITIVE_DATA_CONSTRUCTION_ONLY_ROOT_QUALIFICATION_HELD",
   "whole339_model_inverse": true
 }
