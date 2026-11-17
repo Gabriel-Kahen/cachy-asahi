@@ -24,6 +24,7 @@ PARENT = dict(files=367, bytes=43757093, tree='f846369139e03239d500cb737092b5eeb
               map_sha256='189430cae42422e8f50d8de38a41976d87a8b4a0fcec527a3949d6031eccc2f6')
 LIMIT = 512 * 1024**2
 SUITES = {
+    'ci-guards': ('project_test_provider_v1/test_ci.py', 8),
     'admission': ('project_test_provider_v1/test_admission.py', 12),
     'archive': ('project_test_provider_v1/test_archive.py', 8),
     'native': ('project_test_provider_v1/test_native.py', 10),
@@ -149,13 +150,14 @@ def run(archive_path, commit_raw_path, output):
     finally:
         os.close(parent)
     report = dict(schema=1, status='FAIL', source=SOURCE, Source_issued=False, parent=PARENT,
-                  tests=0, suites=[], errors=[], native='NOT RUN', signing='NOT RUN',
+                  tests=0, existing_controls=65, CI_guards=8, suites=[], errors=[], native='NOT RUN', signing='NOT RUN',
                   Root_grants=None, provider_tuples='UNBOUND', RLIMIT_AS=LIMIT)
     try:
         source = output / 'Source367'; extract_source(*sources, source)
         tmp = output / 'tmp'; tmp.mkdir(mode=0o700)
         env = dict(PATH=os.environ.get('PATH', '/usr/bin:/bin'), LC_ALL='C', TZ='UTC', TMPDIR=str(tmp),
-                   RUST199_V19_PARENT=str(source))
+                   RUST199_V19_PARENT=str(source), RUST199_CI_SOURCE_ARCHIVE=str(sources[0]),
+                   RUST199_CI_SOURCE_COMMIT=str(sources[1]))
         for name, (relative, expected) in SUITES.items():
             log = output / (name + '.rawlog'); receipt = output / (name + '.DATA.json')
             argv = [sys.executable, '-I', '-B', '-Werror::ResourceWarning', str(Path(__file__).resolve()),
@@ -173,7 +175,7 @@ def run(archive_path, commit_raw_path, output):
             report['suites'].append(dict(name=name, argv=argv, returncode=done.returncode,
                 tests=expected, rawlog=pin(raw), receipt=pin(encode(result))))
             report['tests'] += expected
-        need(report['tests'] == 65, '38 interface plus 27 v19 controls, without double counting')
+        need(report['tests'] == 73, '38 interface plus 27 v19 plus 8 CI guards, counted once')
         report['status'] = 'PASS_ACTOR_FREE_DATA_ONLY'
     except BaseException as error:
         report['errors'].append(type(error).__name__ + ': ' + str(error)); raise

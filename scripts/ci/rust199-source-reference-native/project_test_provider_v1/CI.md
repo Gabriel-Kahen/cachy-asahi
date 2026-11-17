@@ -15,7 +15,7 @@ file/byte/tree/map tuple, and the complete file and directory census. It then
 atomically extracts fresh ordinary DATA files. Source programs are never
 imported or executed, and there is no fallback to a local Root artifact cache.
 
-The runner executes the seven unchanged suites as separate isolated Python
+The runner executes the seven unchanged suites and the CI guards as eight isolated Python
 workers under 512 MiB. An audit hook installed before test imports refuses
 process creation, sockets, system commands, locks and native library loading.
 The only ctypes operations permitted by the outer hook are the existing
@@ -24,10 +24,11 @@ Workers refuse caught actor attempts, skips, expected failures, failures and
 test-count drift. The runner retains complete bounded rawlogs, canonical
 worker receipts and aggregate result DATA in a fresh evidence directory.
 
-There are **65 existing controls**, counted once: 38 interface controls and
+There are **73 unique controls**, counted once: 38 interface controls and
 27 v19 controls. The Source suite includes the genuine367→364→361→355→351→344→340
-inverse and each exact re-render. Eight additional CI self-controls exercise
-published Source extraction and refusal boundaries. None of these MODEL
+inverse and each exact re-render, plus eight CI self-controls for
+published Source extraction and refusal boundaries. All eight guard tests are
+required by the same count/skip/actor checks as the existing65. None of these MODEL
 provider/signature controls grants real signature, native, ARM or M2 credit.
 
 Local execution uses an independently retrieved tar/raw-commit pair:
@@ -47,11 +48,11 @@ python -I -B -Werror::ResourceWarning \
 ```
 
 The unchanged interface and v19 require the passive official v18 author
-closure from `8128cd73c85d533092d081f0b9131b2ca9893ecd`. Main5a29 contains the
-earlier constructors through v17 but not that v18 directory. A publication
-must include that exact reviewed dependency commit; a workflow cannot infer
-it from a cache or an unpublished commit. Missing dependencies produce a
-failed suite, never a skip or a partial green result.
+closure from `8128cd73c85d533092d081f0b9131b2ca9893ecd`. This integration merges
+that original author history, including its 17 exact unchanged v18 files,
+and Main17ce. The original8128,14dd,72482 and0840 commits remain ancestors.
+Missing dependencies produce a failed suite, never a skip or a partial green
+result; the workflow obtains no dependency from a cache or unpublished ref.
 
 Real accepted provider tuples and the constructor profile remain UNBOUND.
 The original interface and v19 author files, including their frozen seals,

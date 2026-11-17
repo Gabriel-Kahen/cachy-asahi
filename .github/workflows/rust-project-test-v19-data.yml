@@ -19,7 +19,7 @@ permissions:
 
 jobs:
   data:
-    name: Actor-free TEST provider and v19 (${{ matrix.python }})
+    name: 73 actor-free TEST provider and v19 controls (${{ matrix.python }})
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     strategy:
@@ -47,16 +47,7 @@ jobs:
             8fb13c028cf043119f8324eb089c51d74e3891ee > "$SOURCE_INPUTS/Source367.commit"
           git -c tar.umask=0022 -C "$SOURCE_INPUTS/repository" archive --format=tar \
             --output="$SOURCE_INPUTS/Source367.tar" 8fb13c028cf043119f8324eb089c51d74e3891ee
-      - name: Check Source input and aggregate refusal boundaries
-        env:
-          RUST199_CI_SOURCE_ARCHIVE: ${{ runner.temp }}/rust-project-source367-inputs/Source367.tar
-          RUST199_CI_SOURCE_COMMIT: ${{ runner.temp }}/rust-project-source367-inputs/Source367.commit
-          TMPDIR: ${{ runner.temp }}
-        run: |
-          set -euo pipefail
-          ulimit -v 524288
-          python -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/project_test_provider_v1/test_ci.py
-      - name: Run 65 controls and complete genuine Source inverses with actors denied
+      - name: Run 38 interface, 27 v19 and 8 CI guards with actors denied
         env:
           SOURCE_INPUTS: ${{ runner.temp }}/rust-project-source367-inputs
           EVIDENCE_OUTPUT: ${{ runner.temp }}/rust-project-test-v19-evidence
