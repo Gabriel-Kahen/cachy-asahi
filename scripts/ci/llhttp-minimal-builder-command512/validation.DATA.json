@@ -1,0 +1,68 @@
+{
+  "GPG": null,
+  "M2": null,
+  "Root_selection": null,
+  "actor": null,
+  "controls": 14,
+  "interpreters": {
+    "/home/gabe/.local/bin/python3.14": "3.14.6",
+    "/usr/bin/python3": "3.14.7"
+  },
+  "native": null,
+  "physical_export": {
+    "M2": null,
+    "Root_selection": null,
+    "actual": {
+      "Root_admission": null,
+      "daemon_domain": null,
+      "image": null,
+      "job": null,
+      "owner_domain": null,
+      "ref": null,
+      "run": null,
+      "runtime": null,
+      "source": null
+    },
+    "bytes": 1629237,
+    "files": 96,
+    "native": null,
+    "parent_map": {
+      "bytes": 20332,
+      "sha256": "a5661571f8698b41233d4a0cb5cdbe39b27ecbcc5c59c266e9555a003efc0ec5"
+    },
+    "policy": {
+      "bytes": 53158,
+      "sha256": "5dd45679f8a4bf1ed01f68b92f8cf116fb6e386e90d2aecc453b9020093b5fac"
+    },
+    "program": {
+      "bytes": 9835,
+      "sha256": "9a0826dbe34f8681caac369ac6db62c90c10616ddb4673a0aee7d0cc270421b9"
+    },
+    "publication": null,
+    "signature_authentication": null,
+    "source_map": {
+      "bytes": 20332,
+      "sha256": "53ae0f0beed7f222cf34ee25eee168128a1767087e32d08c71a61d48a98f3144"
+    },
+    "status": "SOURCE_DATA_ONLY_BUILD_ONLY_UNISSUED",
+    "tree": "8a8f0baa349399a5546883acd67f43d4fe0f15f1"
+  },
+  "schema": 1,
+  "status": "PASS_PURE_DATA_ONLY",
+  "tests": [
+    "genuine whole96 inverse and historical95 chain",
+    "historic compression reused without recompression",
+    "missing operand default refusal",
+    "nine-leaf projection and unchanged membership",
+    "unchanged unrelated source/resources/trust/dependencies",
+    "changed-body/map/ledger/membership corruption refusal",
+    "corrupt immutable parent refusal",
+    "inner512 and513 pre-child gate",
+    "outer512 and513 pre-child gate",
+    "actual cadence AST with clipped MODEL clock",
+    "complete inner228/240 and outer253 ledgers",
+    "literal000..511 finite1582 export",
+    "MODEL failed export remains nonaccepting before cleanup",
+    "unissued authority and syntax"
+  ]
+}
