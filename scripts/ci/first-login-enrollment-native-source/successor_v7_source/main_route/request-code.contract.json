@@ -1,0 +1,82 @@
+{
+  "POSTs": 0,
+  "Root_acceptance": null,
+  "Root_authority": null,
+  "canonical_launcher": {
+    "bytes": 68455,
+    "member": "scripts/ci/first-login-enrollment-native-source/payload/native/hosted_current_v3.py",
+    "sha256": "d491626c309a4b0f1fc198fa1cc8515d2412326d0e4fb9947332590d9de0132e"
+  },
+  "constructor": "9e26ce819a258225cac866341e15d7099038ab9e",
+  "kind": "SOURCE205_CANONICAL_MAIN_REQUEST_CODE_CONTRACT_DATA_ONLY",
+  "main_cid": null,
+  "operator_must_authenticate": true,
+  "profile": {
+    "bytes": 21451,
+    "sha256": "99198c00308780aaf95e803c43d01ab185b55a049731287b7644c2425dd90a12"
+  },
+  "program": {
+    "bytes": 15135,
+    "path": "scripts/ci/first-login-enrollment-native-source/successor_v7_source/program.json",
+    "sha256": "623f667137fd38d9c319de729df910780fbf0fae7c0bc7e2aade27889c102dae"
+  },
+  "qualifier": {
+    "clock": "REQUIRED_EXPLICIT_CURRENT_EPOCH",
+    "core_raw": "REQUIRED_EXACT_CANONICAL_LAUNCHER_BYTES",
+    "function": "qualify",
+    "module": "scripts/ci/first-login-enrollment-native-source/successor_v7_source/main_route/contract.py",
+    "profile_raw": "REQUIRED_EXACT_PROFILE_BYTES",
+    "required_external_pins": [
+      "case",
+      "admission",
+      "runtime",
+      "registration",
+      "readback",
+      "once",
+      "request"
+    ],
+    "required_operands": [
+      "case",
+      "admission",
+      "runtime",
+      "registration",
+      "readback",
+      "once",
+      "request"
+    ]
+  },
+  "reader": {
+    "contract": "SOURCE205_FINITE_TRANSPORT_V2",
+    "member": "scripts/ci/first-login-enrollment-native-source/payload/native/reader_current_v3.py",
+    "whole_pin": "REQUIRED_EXTERNAL_MAIN_READBACK"
+  },
+  "request": {
+    "delegation_schema": 4,
+    "fields": [
+      "root_request_json",
+      "root_request_sha256"
+    ],
+    "material_grant_schema": 3,
+    "max_bytes": 49152,
+    "schema": 3
+  },
+  "schema": 1,
+  "source": {
+    "bytes": 45962607,
+    "files": 205,
+    "source_map": {
+      "bytes": 40793,
+      "sha256": "a6d22a528075c11f6fa2e87d894c41e0ed31befcd17f99a8b92d6c26fccdb815"
+    },
+    "tree": "d7e48cbd6a3a638c5ecdabf8ca98a6a642dfde36"
+  },
+  "source_cid": null,
+  "source_ref": null,
+  "status": "CODE_CONTRACT_ONLY",
+  "workflow": {
+    "bytes": 8949,
+    "member": ".github/workflows/native-arm-current-onboarding-delegated-v3.yml",
+    "sha256": "4aaa31fae8b6665d502372467d3da5ceef0bb30553d2dfb1ac9f38a41fc90165"
+  },
+  "workflow_id": null
+}
