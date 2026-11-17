@@ -12,6 +12,7 @@ makedepends=('cmake>=3.25' 'ninja')
 provides=("llhttp=$pkgver" 'libllhttp.so')
 conflicts=('llhttp')
 options=('!lto' '!debug' '!staticlibs')
+PKGEXT='.pkg.tar.xz'
 _commit=4fce8cac9433aa4728428bb3b26880d32ad05c88
 source=("llhttp-$pkgver.tar.gz::https://codeload.github.com/nodejs/llhttp/tar.gz/$_commit"
         'smoke.c')

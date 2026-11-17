@@ -18,5 +18,6 @@
   "M2_13": "NOT RUN",
   "M2_15": "NOT RUN",
   "project_TEST_signing": "NOT RUN",
-  "installation": "NOT RUN"
+  "installation": "NOT RUN",
+  "package_archive_extension": ".pkg.tar.xz"
 }

@@ -113,3 +113,9 @@ using `--verifysource --ignorearch` solely for source verification on x86_64.
 The unchanged normal architecture check refuses the host as expected. Native
 build execution must use normal aarch64 validation, with no --ignorearch. Exact
 argv/environment records are in each evidence/commands.json.
+
+The recipe explicitly sets `PKGEXT='.pkg.tar.xz'` for the finite native
+XZ-only archive reader. Normal makepkg XZ compression parameters are unchanged.
+This packaging-format pin changes no build, check or package function; retained
+host build evidence predates the pin and remains host evidence only. No XZ
+package archive or native result is claimed.

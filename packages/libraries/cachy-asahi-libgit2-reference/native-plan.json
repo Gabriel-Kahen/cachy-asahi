@@ -72,5 +72,6 @@
   "native_makepkg_dependency_check": "NOT RUN",
   "signed_package_transaction": "NOT RUN",
   "rust_build_with_candidates": "NOT RUN",
-  "release": "NOT RUN"
+  "release": "NOT RUN",
+  "package_archive_extension": ".pkg.tar.xz"
 }

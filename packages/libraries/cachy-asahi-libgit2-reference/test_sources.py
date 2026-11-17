@@ -3,12 +3,21 @@
 import argparse
 from pathlib import Path
 import shutil
+import subprocess
+import json
 import tempfile
 from validate_sources import validate
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--cache', type=Path, required=True)
 args = parser.parse_args()
+for name in ('llhttp', 'libgit2'):
+    recipe = Path(__file__).resolve().parent.parent / f'cachy-asahi-{name}-reference'
+    actual = subprocess.check_output(
+        ['bash', '-c', 'source "$1"; printf "%s" "$PKGEXT"',
+         'bash', str(recipe / 'PKGBUILD')], text=True)
+    expected = json.loads((recipe / 'source.json').read_text())['package_archive_extension']
+    assert actual == expected == '.pkg.tar.xz', (name, actual, expected)
 assert len(validate(args.cache)) == 2
 with tempfile.TemporaryDirectory(prefix='source-controls-') as scratch:
     cache = Path(scratch)
@@ -26,4 +35,4 @@ with tempfile.TemporaryDirectory(prefix='source-controls-') as scratch:
             raise AssertionError(f'accepted same-size tampered source: {filename}')
         path.write_bytes(original)
     assert len(validate(cache)) == 2
-print('PASS: complete source pins, both same-size corruption refusals and restored inputs')
+print('PASS: actual Bash XZ recipe format, complete source pins, both corruption refusals and restored inputs')
