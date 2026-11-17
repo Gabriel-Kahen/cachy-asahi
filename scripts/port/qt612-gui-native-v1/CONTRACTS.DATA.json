@@ -1,0 +1,273 @@
+{
+  "actual": {
+    "C_GUI_producer_binding": null,
+    "GUI_native_pair": null,
+    "M2": null,
+    "Root_grant": null,
+    "baseline13_signed_tuple": null,
+    "capacity": null,
+    "current_TEST_key": null,
+    "release": null,
+    "runtime": null,
+    "signed_GUI_tuple": null
+  },
+  "added5": [
+    "EglFSDeviceIntegration",
+    "EglFsKmsGbmSupport",
+    "EglFsKmsSupport",
+    "WaylandClient",
+    "WlShellIntegration"
+  ],
+  "baseline13": [
+    "Core",
+    "Concurrent",
+    "DBus",
+    "Gui",
+    "Network",
+    "OpenGL",
+    "OpenGLWidgets",
+    "PrintSupport",
+    "Sql",
+    "Test",
+    "Widgets",
+    "Xml",
+    "XcbQpa"
+  ],
+  "expected_stage": {
+    "added_modules": [
+      "EglFSDeviceIntegration",
+      "EglFsKmsGbmSupport",
+      "EglFsKmsSupport",
+      "WaylandClient",
+      "WlShellIntegration"
+    ],
+    "all_ELF_PT_LOAD_minimum_alignment": 16384,
+    "checker": "check_stage.py",
+    "complete_file_mode_hash_symlink_ELF_GNU_inventory_required": true,
+    "elf_class": 64,
+    "elf_endian": "little",
+    "elf_machine": 183,
+    "extra_Qt_shared_libraries": "REFUSE_OUTSIDE_EXACT18",
+    "plugins_required": [
+      "platforms/libqoffscreen.so",
+      "platforms/libqxcb.so",
+      "sqldrivers/libqsqlite.so",
+      "platforms/libqeglfs.so",
+      "platforms/libqwayland.so",
+      "platforms/libqminimalegl.so",
+      "wayland-decoration-client/libbradient.so",
+      "egldeviceintegrations/libqeglfs-emu-integration.so",
+      "egldeviceintegrations/libqeglfs-kms-integration.so",
+      "wayland-shell-integration/libwl-shell-plugin.so",
+      "wayland-shell-integration/libxdg-shell.so",
+      "wayland-graphics-integration-client/libqt-plugin-wayland-egl.so"
+    ],
+    "private_headers": {
+      "EglFSDeviceIntegration": "qeglfsdeviceintegration_p.h",
+      "EglFsKmsGbmSupport": "qeglfskmsgbmintegration_p.h",
+      "EglFsKmsSupport": "qeglfskmsintegration_p.h",
+      "WlShellIntegration": "qwaylandwlshellintegration_p.h"
+    },
+    "private_modules": [
+      "XcbQpa",
+      "EglFSDeviceIntegration",
+      "EglFsKmsGbmSupport",
+      "EglFsKmsSupport",
+      "WlShellIntegration"
+    ],
+    "public_modules": [
+      "Core",
+      "Concurrent",
+      "DBus",
+      "Gui",
+      "Network",
+      "OpenGL",
+      "OpenGLWidgets",
+      "PrintSupport",
+      "Sql",
+      "Test",
+      "Widgets",
+      "Xml",
+      "WaylandClient"
+    ],
+    "real_staging": "NOT RUN",
+    "structural_16K_is_not_hardware_validation": true,
+    "tools_required": [
+      "usr/lib/qt6/bin/qmake",
+      "usr/lib/qt6/moc",
+      "usr/lib/qt6/uic",
+      "usr/lib/qt6/rcc",
+      "usr/lib/qt6/qtwaylandscanner"
+    ]
+  },
+  "kind": "QT612_GUI18_NATIVE_ADAPTER_COMPONENT_CONTRACTS_V1",
+  "lifecycle": {
+    "atomic_conflicts": true,
+    "negative_controls": [
+      "missing-dependency",
+      "foreign-file-overlap"
+    ],
+    "normal_dependencies": true,
+    "stages": [
+      "upgrade",
+      "reinstall",
+      "downgrade",
+      "upgrade-again",
+      "remove"
+    ],
+    "user_configuration": "complete original contents/mode/uid/gid/link/owner snapshots preserved"
+  },
+  "native_acceptance": false,
+  "native_binding_commit": null,
+  "native_binding_kind": "QT612_GUI_NATIVE_PAIR_EXTERNAL_BINDING_V1",
+  "normal_dependencies": {
+    "base_build_environment": "ordinary signed Arch/ALARM base-devel; Root-selected native image and inventory required",
+    "build": [
+      "gcc",
+      "cmake>=3.25",
+      "ninja",
+      "pkgconf",
+      "python",
+      "perl",
+      "patch"
+    ],
+    "check": [],
+    "native_image": null,
+    "native_inventory": null,
+    "native_missing_dependencies": "NOT AVAILABLE UNTIL ACTUAL NATIVE INVENTORY IS BOUND",
+    "normal_makepkg_checks": true,
+    "normal_version_and_provides_resolution": "REQUIRED_SEPARATE_NATIVE_TRANSACTION_UNBOUND",
+    "runtime": [
+      "brotli",
+      "dbus",
+      "double-conversion",
+      "fontconfig",
+      "freetype2",
+      "glib2",
+      "glibc",
+      "harfbuzz",
+      "icu",
+      "libb2",
+      "libgcc",
+      "libgl",
+      "libice",
+      "libjpeg-turbo",
+      "libpng",
+      "libsm",
+      "libstdc++",
+      "libx11",
+      "libxcb",
+      "libxkbcommon",
+      "libxkbcommon-x11",
+      "md4c>=0.5.3",
+      "md4c<0.6",
+      "openssl",
+      "pcre2",
+      "shared-mime-info",
+      "sqlite",
+      "xcb-util-cursor",
+      "xcb-util-image",
+      "xcb-util-keysyms",
+      "xcb-util-renderutil",
+      "xcb-util-wm",
+      "xdg-utils",
+      "zlib",
+      "zstd",
+      "libdrm",
+      "libglvnd",
+      "mesa",
+      "wayland>=1.15"
+    ]
+  },
+  "official_0bd04f_correspondence": "HOLD_UNCHANGED",
+  "other54": "OUTSIDE_SCOPE_UPSTREAM_IMPLEMENTATIONS_EXIST",
+  "package": {
+    "architecture": "aarch64",
+    "conflicts": [
+      "qt6-base",
+      "cachy-asahi-qt612-base-source-reference"
+    ],
+    "filename": "cachy-asahi-qt612-gui-source-reference-6.12.0-1-aarch64.pkg.tar.xz",
+    "hooks": [],
+    "install_script": null,
+    "name": "cachy-asahi-qt612-gui-source-reference",
+    "provides": [
+      "qt6-base=6.12.0",
+      "libQt6Core.so.6",
+      "libQt6Concurrent.so.6",
+      "libQt6DBus.so.6",
+      "libQt6Gui.so.6",
+      "libQt6Network.so.6",
+      "libQt6OpenGL.so.6",
+      "libQt6OpenGLWidgets.so.6",
+      "libQt6PrintSupport.so.6",
+      "libQt6Sql.so.6",
+      "libQt6Test.so.6",
+      "libQt6Widgets.so.6",
+      "libQt6Xml.so.6",
+      "libQt6XcbQpa.so.6",
+      "libQt6EglFSDeviceIntegration.so.6",
+      "libQt6EglFsKmsGbmSupport.so.6",
+      "libQt6EglFsKmsSupport.so.6",
+      "libQt6WaylandClient.so.6",
+      "libQt6WlShellIntegration.so.6"
+    ],
+    "replaces": [],
+    "selected_for_release": false,
+    "version": "6.12.0-1"
+  },
+  "recipe_commit": "b05267833d497ef034576741bf31968019a526c3",
+  "recipe_contract": {
+    "bytes": 14990,
+    "sha256": "1896928865f4770908e0d00cd4f64dbdea5ba216b7e440c09fed2335fcfa15cf"
+  },
+  "recipe_map": {
+    "bytes": 5976,
+    "sha256": "a595ee503233867201704ab8a6aac88d3514b39067d1ef004f6c8f7ac10f1559"
+  },
+  "recipe_path": "packages/port/qt612-gui-source-reference",
+  "references": [
+    "original_archive",
+    "signature",
+    "public_key",
+    "tampered_archive",
+    "current_public_trust",
+    "producer_binding",
+    "first_provenance",
+    "second_provenance",
+    "comparison",
+    "stage",
+    "installed_snapshot",
+    "pacman",
+    "load",
+    "offscreen",
+    "cmake",
+    "lifecycle_plan",
+    "lifecycle_evidence",
+    "actual_pacman_config"
+  ],
+  "request_kind": "QT612_GUI18_NATIVE_ADAPTER_INPUT_SELECTION_V1",
+  "schema": 1,
+  "shared_manifest_changes": [],
+  "signature_projection": {
+    "algorithm_changes": false,
+    "changes": [
+      [
+        "BANKSTOWN_QT3_PROJECT_TEST_SIGNATURE_ONLY",
+        "QT612_GUI18_PROJECT_TEST_SIGNATURE_ONLY_V1"
+      ],
+      [
+        "Path(__file__).resolve().parents[1] / 'management-tools-generic16k/signature_observer.py'",
+        "Path(__file__).resolve().parents[3] / 'scripts/ci/management-tools-generic16k/signature_observer.py'"
+      ]
+    ],
+    "shared": {
+      "bytes": 13961,
+      "sha256": "4beeabd05804712fe6696d8cebc288b93b59b05ad58caf8208cd31769d6b16dc"
+    }
+  },
+  "stage_program": {
+    "bytes": 19545,
+    "sha256": "291053598bd806eed9be622f495d51725aae5f579f5f3241a83111ded254cee5"
+  }
+}

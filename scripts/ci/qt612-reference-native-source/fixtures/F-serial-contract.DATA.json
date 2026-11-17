@@ -1,0 +1,393 @@
+{
+  "actual_host": {
+    "architecture": "x86_64",
+    "configure": "NOT_RUN_CURRENT91_SETTINGS_PREDECESSOR90_SETTINGS_PASSED",
+    "fakeroot_notice_staging": "PASS173_NOTICE_FILES_ONLY",
+    "full_Qt_build": "NOT RUN",
+    "normal_makepkg_architecture_check": "REFUSED_X86_64_WITHOUT_OVERRIDE",
+    "normal_package_dependency_hold": [
+      "cmake>=3.25"
+    ],
+    "own_Qt_smoke": "NOT RUN",
+    "patches": "PASS_ZERO_FUZZ_SOURCE_ONLY",
+    "predecessor_commit": "7748d41315d7b2a0a79ddc18eab4e89fc4ef71e1",
+    "source_notices": "PASS173"
+  },
+  "actual_native": {
+    "M2": "NOT RUN",
+    "Root_selection": null,
+    "archive": null,
+    "build_pair": null,
+    "comparison": null,
+    "image": null,
+    "installation": "NOT RUN",
+    "inventory": null,
+    "native_acceptance": false,
+    "public_TEST_key": null,
+    "release": "UNSELECTED",
+    "removal": "NOT RUN",
+    "signature": null
+  },
+  "commands": {
+    "configuration_verification": "python source.py configuration --build BUILD --profile configure.cmake",
+    "native_build": [
+      "env",
+      "MAX_JOBS=1",
+      "CMAKE_BUILD_PARALLEL_LEVEL=1",
+      "makepkg",
+      "--cleanbuild",
+      "--force"
+    ],
+    "package_check": "own-built Qt6.12 offline offscreen Core/Network/Widgets smoke; no network request",
+    "source_verification": "python source.py verify --root SOURCE --policy source-notices.json",
+    "staging_verification": "python check_stage.py --root PRIVATE_DESTDIR --license-manifest source-notices.json"
+  },
+  "configuration": {
+    "file": "configure.cmake",
+    "settings": {
+      "BUILD_SHARED_LIBS": "ON",
+      "CMAKE_AUTOGEN_PARALLEL": "1",
+      "CMAKE_BUILD_TYPE": "Release",
+      "CMAKE_INSTALL_PREFIX": "/usr",
+      "FEATURE_accessibility_atspi_bridge": "OFF",
+      "FEATURE_androiddeployqt": "OFF",
+      "FEATURE_brotli": "ON",
+      "FEATURE_concurrent": "ON",
+      "FEATURE_cups": "OFF",
+      "FEATURE_dbus": "ON",
+      "FEATURE_dbus_linked": "ON",
+      "FEATURE_directfb": "OFF",
+      "FEATURE_drm_atomic": "OFF",
+      "FEATURE_egl": "OFF",
+      "FEATURE_egl_x11": "OFF",
+      "FEATURE_eglfs": "OFF",
+      "FEATURE_evdev": "OFF",
+      "FEATURE_fontconfig": "ON",
+      "FEATURE_gbm": "OFF",
+      "FEATURE_glib": "ON",
+      "FEATURE_graphicsframecapture": "OFF",
+      "FEATURE_gssapi": "OFF",
+      "FEATURE_gtk3": "OFF",
+      "FEATURE_gui": "ON",
+      "FEATURE_harmonydeployqt": "OFF",
+      "FEATURE_icu": "ON",
+      "FEATURE_journald": "OFF",
+      "FEATURE_kms": "OFF",
+      "FEATURE_libinput": "OFF",
+      "FEATURE_libproxy": "OFF",
+      "FEATURE_libudev": "OFF",
+      "FEATURE_liburing": "OFF",
+      "FEATURE_linuxfb": "OFF",
+      "FEATURE_mtdev": "OFF",
+      "FEATURE_network": "ON",
+      "FEATURE_opengl": "ON",
+      "FEATURE_opengl_desktop": "ON",
+      "FEATURE_opengles2": "OFF",
+      "FEATURE_openssl_linked": "ON",
+      "FEATURE_printsupport": "ON",
+      "FEATURE_qtwaylandscanner": "OFF",
+      "FEATURE_sql": "ON",
+      "FEATURE_sql_db2": "OFF",
+      "FEATURE_sql_ibase": "OFF",
+      "FEATURE_sql_mimer": "OFF",
+      "FEATURE_sql_mysql": "OFF",
+      "FEATURE_sql_oci": "OFF",
+      "FEATURE_sql_odbc": "OFF",
+      "FEATURE_sql_psql": "OFF",
+      "FEATURE_sql_sqlite": "ON",
+      "FEATURE_system_doubleconversion": "ON",
+      "FEATURE_system_freetype": "ON",
+      "FEATURE_system_harfbuzz": "ON",
+      "FEATURE_system_jpeg": "ON",
+      "FEATURE_system_libb2": "ON",
+      "FEATURE_system_pcre2": "ON",
+      "FEATURE_system_png": "ON",
+      "FEATURE_system_sqlite": "ON",
+      "FEATURE_system_textmarkdownreader": "ON",
+      "FEATURE_system_xcb_xinput": "ON",
+      "FEATURE_system_zlib": "ON",
+      "FEATURE_testlib": "ON",
+      "FEATURE_tslib": "OFF",
+      "FEATURE_vnc": "OFF",
+      "FEATURE_vulkan": "OFF",
+      "FEATURE_wasmdeployqt": "OFF",
+      "FEATURE_wayland": "OFF",
+      "FEATURE_waylandscanner": "OFF",
+      "FEATURE_widgets": "ON",
+      "FEATURE_xcb": "ON",
+      "FEATURE_xcb_egl_plugin": "OFF",
+      "FEATURE_xcb_glx_plugin": "ON",
+      "FEATURE_xcb_sm": "ON",
+      "FEATURE_xcb_xlib": "ON",
+      "FEATURE_xml": "ON",
+      "FEATURE_zstd": "ON",
+      "INSTALL_ARCHDATADIR": "lib/qt6",
+      "INSTALL_BINDIR": "lib/qt6/bin",
+      "INSTALL_DATADIR": "share/qt6",
+      "INSTALL_DOCDIR": "share/doc/qt6",
+      "INSTALL_EXAMPLESDIR": "share/doc/qt6/examples",
+      "INSTALL_INCLUDEDIR": "include/qt6",
+      "INSTALL_LIBDIR": "lib",
+      "INSTALL_LIBEXECDIR": "lib/qt6",
+      "INSTALL_MKSPECSDIR": "lib/qt6/mkspecs",
+      "INSTALL_PUBLICBINDIR": "bin",
+      "QT_BUILD_DOCS": "OFF",
+      "QT_BUILD_EXAMPLES": "OFF",
+      "QT_BUILD_TESTS": "OFF",
+      "QT_GENERATE_SBOM": "OFF",
+      "QT_INSTALL_CONFIG_INFO_FILES": "ON"
+    },
+    "verification": "source.py configuration checks actual CMakeCache.txt before build"
+  },
+  "dependencies": {
+    "base_build_environment": "ordinary Arch base-devel; immutable native image/inventory must be separately bound",
+    "build": [
+      "gcc",
+      "cmake>=3.25",
+      "ninja",
+      "pkgconf",
+      "python",
+      "perl",
+      "patch"
+    ],
+    "native_image": null,
+    "native_inventory": null,
+    "native_missing_dependencies": "NOT AVAILABLE UNTIL NATIVE IMAGE IS BOUND",
+    "normal_makepkg_checks": true,
+    "runtime": [
+      "brotli",
+      "dbus",
+      "double-conversion",
+      "fontconfig",
+      "freetype2",
+      "glib2",
+      "glibc",
+      "harfbuzz",
+      "icu",
+      "libb2",
+      "libgcc",
+      "libgl",
+      "libice",
+      "libjpeg-turbo",
+      "libpng",
+      "libsm",
+      "libstdc++",
+      "libx11",
+      "libxcb",
+      "libxkbcommon",
+      "libxkbcommon-x11",
+      "md4c>=0.5.3",
+      "md4c<0.6",
+      "openssl",
+      "pcre2",
+      "shared-mime-info",
+      "sqlite",
+      "xcb-util-cursor",
+      "xcb-util-image",
+      "xcb-util-keysyms",
+      "xcb-util-renderutil",
+      "xcb-util-wm",
+      "xdg-utils",
+      "zlib",
+      "zstd"
+    ]
+  },
+  "expected_stage": {
+    "builtin_minimal_QPA_retained": true,
+    "checker": "check_stage.py",
+    "complete_file_mode_hash_symlink_ELF_inventory_required": true,
+    "elf_class": 64,
+    "elf_endian": "little",
+    "elf_machine": 183,
+    "library_filename": "libQt6<MODULE>.so.6.12.0",
+    "library_soname": "libQt6<MODULE>.so.6",
+    "plugins_required": [
+      "platforms/libqoffscreen.so",
+      "platforms/libqxcb.so",
+      "sqldrivers/libqsqlite.so"
+    ],
+    "private_modules": [
+      "XcbQpa"
+    ],
+    "public_modules": [
+      "Core",
+      "Concurrent",
+      "DBus",
+      "Gui",
+      "Network",
+      "OpenGL",
+      "OpenGLWidgets",
+      "PrintSupport",
+      "Sql",
+      "Test",
+      "Widgets",
+      "Xml"
+    ],
+    "real_staging": "NOT RUN",
+    "tools_required": [
+      "usr/lib/qt6/bin/qmake",
+      "usr/lib/qt6/moc",
+      "usr/lib/qt6/uic",
+      "usr/lib/qt6/rcc"
+    ]
+  },
+  "foreign_official_correspondence": {
+    "PKGBUILD_sha256": "0bd04f4db92ed8b0992e851a4ddd68f39ac7b6b079af4e354dba466946ca2272",
+    "status": "HOLD_UNRECOVERED_NOT_CLAIMED_BY_THIS_RECIPE"
+  },
+  "native_recipe_files": {
+    ".SRCINFO": {
+      "bytes": 2931,
+      "mode": 420,
+      "sha256": "356e4c1b2ab034b5920ca4311f3a5b833c277e3713f6980322a5c2ddee734f22"
+    },
+    "CVE-2026-105924-qtbase-6.12.diff": {
+      "bytes": 5019,
+      "mode": 420,
+      "sha256": "c27d27b86aaf2cdab0c18d513fbb94a432e98782eddfc5f856387e4be68be50b"
+    },
+    "CVE-2026-105943-qtbase-6.12.diff": {
+      "bytes": 2291,
+      "mode": 420,
+      "sha256": "dd22629ce948cf0a900421323cca331907180242a9b51c3fd75b25c75f068099"
+    },
+    "CVE-2026-116337-qtbase-6.12-0001.diff": {
+      "bytes": 3262,
+      "mode": 420,
+      "sha256": "74c5028985dcc0455255909de4dc80f50cf5472dbf465ce46ebc791a7b080f12"
+    },
+    "CVE-2026-116337-qtbase-6.12-0002.diff": {
+      "bytes": 5186,
+      "mode": 420,
+      "sha256": "83abc89d507dbd9a94dc5718b0125492c1c37b0609a8f404a1f164925940faec"
+    },
+    "LICENSE.packaging": {
+      "bytes": 1070,
+      "mode": 420,
+      "sha256": "67fe503b5c407bca1c340e14fb7ceb6849b1af4d531a783b30d09cb76e65a3aa"
+    },
+    "LICENSE.third-party": {
+      "bytes": 639,
+      "mode": 420,
+      "sha256": "277c4d14792c236a96f02612b4f134f84707eb33fc6a1d954ec9c5ad20490585"
+    },
+    "PKGBUILD": {
+      "bytes": 5386,
+      "mode": 420,
+      "sha256": "ffa1fc5ae1a36a1894b342c76bf21c0367df76064f248e4f8045cf2c4777902f"
+    },
+    "SmokeCMakeLists.txt": {
+      "bytes": 695,
+      "mode": 420,
+      "sha256": "987e3b6860eb9ad8295b51fd502d678ef316af7e834d9e65a620bc9c2fd5359e"
+    },
+    "check_stage.py": {
+      "bytes": 9433,
+      "mode": 420,
+      "sha256": "597e2874df52be41a02896abae57fc7ef16975e5f6e858cc9705c5d637dbe5a6"
+    },
+    "configure.cmake": {
+      "bytes": 4473,
+      "mode": 420,
+      "sha256": "b3d9852bad7659e4b0d6167897be4d8c8f8b45ccfef0855fd905f5f93d86e025"
+    },
+    "smoke.cpp": {
+      "bytes": 1774,
+      "mode": 420,
+      "sha256": "999949cc97fb0154f4edd74ccca9925356b42124dfbd856d65bc4f0499681aaa"
+    },
+    "source-notices.json": {
+      "bytes": 20042,
+      "mode": 420,
+      "sha256": "3651e4bca7846caee61183c2bc55bf4988c6f4f2a56af81f3948afe03d41cfda"
+    },
+    "source.py": {
+      "bytes": 5246,
+      "mode": 420,
+      "sha256": "d6f033399cb039469622ea962a0aac45afdb6f8f203f1b45066d4dc0b3e40987"
+    }
+  },
+  "package": {
+    "architecture": "aarch64",
+    "conflicts": [
+      "qt6-base"
+    ],
+    "filename": "cachy-asahi-qt612-base-source-reference-6.12.0-2-aarch64.pkg.tar.xz",
+    "hooks": [],
+    "install_script": null,
+    "name": "cachy-asahi-qt612-base-source-reference",
+    "provides": [
+      "qt6-base=6.12.0",
+      "libQt6Core.so.6"
+    ],
+    "replaces": [],
+    "selected_for_release": false,
+    "version": "6.12.0-2"
+  },
+  "parallelism": {
+    "CMAKE_AUTOGEN_PARALLEL": 1,
+    "CMAKE_BUILD_PARALLEL_LEVEL": 1,
+    "MAX_JOBS": 1,
+    "cmake_build_arguments": [
+      "--parallel",
+      "1"
+    ],
+    "memory_bound": "EXTERNAL_C_ENFORCEMENT_REQUIRED_NO_CAPACITY_CLAIM",
+    "other_explicit_values": "REFUSED_BEFORE_BUILD_OR_CHECK_TOOLS",
+    "unset_environment": "DEFAULT_TO_1"
+  },
+  "patch_fuzz": 0,
+  "patch_order": [
+    "CVE-2026-116337-qtbase-6.12-0002.diff",
+    "CVE-2026-116337-qtbase-6.12-0001.diff",
+    "CVE-2026-105924-qtbase-6.12.diff",
+    "CVE-2026-105943-qtbase-6.12.diff"
+  ],
+  "recipe_input_audit": {
+    "bytes": 18865,
+    "sha256": "3d729158412c378fa56c20702cde6feb98db96de4d934807bb9ea1773f3c00cb"
+  },
+  "recipe_input_license": "0BSD for retained Arch/ALARM packaging; separate Qt per-file grants",
+  "resource_experiment": {
+    "Root_acceptance": null,
+    "capacity_sufficient": null,
+    "file": "RESOURCE-EXPERIMENT.json",
+    "predecessor_immutable": true,
+    "proposal": {
+      "bytes": 1295,
+      "file": "RESOURCE-EXPERIMENT.json",
+      "sha256": "b8be1cbacd1e69ea5d537c4a16d7715059e6481491e2d5f0151188b0b1c7ac95"
+    },
+    "retention": {
+      "bytes": 8342,
+      "file": "SCRATCH-RETENTION.md",
+      "sha256": "945f85c59cfbccdd97c344cafac29b95925a0c30e8ee75c39e6c5dd086b22ace"
+    },
+    "scratch_retention": "SCRATCH-RETENTION.md"
+  },
+  "schema_version": 1,
+  "scope": "PROJECT_TEST_PRIVATE_IMAGE_ONLY",
+  "source_notices": {
+    "bytes": 636122,
+    "count": 173,
+    "destination": "usr/share/licenses/cachy-asahi-qt612-base-source-reference/source",
+    "policy": {
+      "bytes": 20042,
+      "sha256": "3651e4bca7846caee61183c2bc55bf4988c6f4f2a56af81f3948afe03d41cfda"
+    }
+  },
+  "status": "SOURCE_AUDITED_SERIAL_EXPERIMENT_UNBUILT_UNMEASURED",
+  "upstream": {
+    "archive": {
+      "bytes": 51220268,
+      "sha256": "a951bd163c7b80fc6b8c88d7668fb56abf91c152373e13c10666763238131307",
+      "url": "https://download.qt.io/archive/qt/6.12/6.12.0/submodules/qtbase-everywhere-src-6.12.0.tar.xz"
+    },
+    "audit": {
+      "bytes": 8853,
+      "sha256": "ccfa150ed1fc4f00aa12302b80b99db10d2e359e541eae08e5858d8ff9ea15a7"
+    },
+    "revision": "025bdad181de241e81bf853c8a2d7bf3d19261a9",
+    "tag": "v6.12.0"
+  }
+}

@@ -1,0 +1,80 @@
+[
+  {
+    "file": "archive-mirrorlist.html",
+    "url": "https://download.qt.io/archive/qt/6.12/6.12.0/submodules/qtbase-everywhere-src-6.12.0.tar.xz.mirrorlist",
+    "size": 7502,
+    "sha256": "8c44ab5bfbf9bf5c4b46734d699b0de392bb3c538a1f32080c2c3b84d97a30e4"
+  },
+  {
+    "file": "qt-6.12-official-patch-index.html",
+    "url": "https://download.qt.io/official_releases/qt/6.12/",
+    "size": 5893,
+    "sha256": "a1f1d6aad3c72fd016ceb5cd3ff4f56ba5569bbbf24aed714a7e85a35f5849ae"
+  },
+  {
+    "file": "patches/CVE-2026-116337-qtbase-6.12-0001.diff",
+    "url": "https://download.qt.io/official_releases/qt/6.12/CVE-2026-116337-qtbase-6.12-0001.diff",
+    "size": 3262,
+    "sha256": "74c5028985dcc0455255909de4dc80f50cf5472dbf465ce46ebc791a7b080f12"
+  },
+  {
+    "file": "metadata/CVE-2026-116337-qtbase-6.12-0001.diff.mirrorlist.html",
+    "url": "https://download.qt.io/official_releases/qt/6.12/CVE-2026-116337-qtbase-6.12-0001.diff.mirrorlist",
+    "size": 7188,
+    "sha256": "fffe27e89c967078895ce92f2961d2b08bfd82c1e42ef1115b5eea0c382ad7b8"
+  },
+  {
+    "file": "patches/CVE-2026-116337-qtbase-6.12-0002.diff",
+    "url": "https://download.qt.io/official_releases/qt/6.12/CVE-2026-116337-qtbase-6.12-0002.diff",
+    "size": 5186,
+    "sha256": "83abc89d507dbd9a94dc5718b0125492c1c37b0609a8f404a1f164925940faec"
+  },
+  {
+    "file": "metadata/CVE-2026-116337-qtbase-6.12-0002.diff.mirrorlist.html",
+    "url": "https://download.qt.io/official_releases/qt/6.12/CVE-2026-116337-qtbase-6.12-0002.diff.mirrorlist",
+    "size": 7188,
+    "sha256": "9a7416426369a5b4efa69d1df05e1c86083a799ad21ef8f9bde2897fff2aaf19"
+  },
+  {
+    "file": "patches/CVE-2026-105924-qtbase-6.12.diff",
+    "url": "https://download.qt.io/official_releases/qt/6.12/CVE-2026-105924-qtbase-6.12.diff",
+    "size": 5019,
+    "sha256": "c27d27b86aaf2cdab0c18d513fbb94a432e98782eddfc5f856387e4be68be50b"
+  },
+  {
+    "file": "metadata/CVE-2026-105924-qtbase-6.12.diff.mirrorlist.html",
+    "url": "https://download.qt.io/official_releases/qt/6.12/CVE-2026-105924-qtbase-6.12.diff.mirrorlist",
+    "size": 7033,
+    "sha256": "6e239140c993f98dada1b7a7b88c3c8676a729db855743b6dc4b5d96120fc6c7"
+  },
+  {
+    "file": "patches/CVE-2026-105943-qtbase-6.12.diff",
+    "url": "https://download.qt.io/official_releases/qt/6.12/CVE-2026-105943-qtbase-6.12.diff",
+    "size": 2291,
+    "sha256": "dd22629ce948cf0a900421323cca331907180242a9b51c3fd75b25c75f068099"
+  },
+  {
+    "file": "metadata/CVE-2026-105943-qtbase-6.12.diff.mirrorlist.html",
+    "url": "https://download.qt.io/official_releases/qt/6.12/CVE-2026-105943-qtbase-6.12.diff.mirrorlist",
+    "size": 7033,
+    "sha256": "41c2db1633be157e94590dd37435c7fb8dfed7c40151225fb418039752187b4b"
+  },
+  {
+    "file": "git-v6.12.0-tag.html",
+    "url": "https://code.qt.io/cgit/qt/qtbase.git/tag/?h=v6.12.0",
+    "size": 5897,
+    "sha256": "eb8422882410d9505fd323e358c98db04645a1236162c9d742a08f1760dd2d4b"
+  },
+  {
+    "file": "git-v6.12.0-cmake.conf",
+    "url": "https://code.qt.io/cgit/qt/qtbase.git/plain/.cmake.conf?h=v6.12.0",
+    "size": 3251,
+    "sha256": "e78b439fa15619a942f8b78d9321021778eb44dafba7f7067a1962637a5a4b64"
+  },
+  {
+    "file": "git-v6.12.0-commit.html",
+    "url": "https://code.qt.io/cgit/qt/qtbase.git/commit/?id=025bdad181de241e81bf853c8a2d7bf3d19261a9",
+    "size": 26618,
+    "sha256": "61d793b871f429fad13b5656c9e092eb09c2ed3a4035eae441c69c1baf09ef5d"
+  }
+]

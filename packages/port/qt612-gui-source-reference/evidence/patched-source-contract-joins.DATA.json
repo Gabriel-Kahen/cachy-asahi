@@ -1,0 +1,8 @@
+{
+  "M2": "NOT RUN",
+  "audited_source_files": 39,
+  "bundled_protocol_XML_files": 28,
+  "native_build": "NOT RUN",
+  "recipe_execution": false,
+  "scope": "ACTUAL_PATCHED_SOURCE_FILE_PIN_JOINS_ONLY"
+}

@@ -1,0 +1,121 @@
+{
+  "Root_acceptance": null,
+  "Source85_Root_closure_review": "PENDING",
+  "Source85_files": {
+    "mount-class-diagnostics-v4.json": {
+      "bytes": 2287,
+      "mode": 420,
+      "sha256": "acd7f55a22919d1f33f4042caec8841970942870c6127c93174ca3efc89087db"
+    },
+    "scripts/ci/llhttp-reference-native-source/owner/hosted_owner.py": {
+      "bytes": 28219,
+      "mode": 420,
+      "sha256": "1302aadad5e0eeb42291675882565f40d84e7a3bbb57f8503f302a579ad951b4"
+    },
+    "scripts/ci/llhttp-reference-native-source/owner/mount_accounting.py": {
+      "bytes": 7940,
+      "mode": 420,
+      "sha256": "439cf67e561692e7987a9092d2fed8e5d825bdc28a822ab8e54a63bf331bfada"
+    },
+    "scripts/ci/llhttp-reference-native-source/owner/payload.py": {
+      "bytes": 5131,
+      "mode": 420,
+      "sha256": "d3eb696da9c3654c9fb91e75c942b80b5b7fcb5be73cd6d24dc0ecf1a6e0c1f4"
+    },
+    "scripts/ci/llhttp-reference-native-source/owner/policy.json": {
+      "bytes": 3269,
+      "mode": 420,
+      "sha256": "35fde476943dca9f85dda902a47016e84c64b4438e28ad0492eab2881ba74f78"
+    }
+  },
+  "framework_commit": "620b5b28c4e07cfd23e753bde3de51695a7a7ef8",
+  "framework_files": {
+    "scripts/build/build_v2.py": {
+      "bytes": 13242,
+      "mode": 420,
+      "sha256": "37242a5680c0cb587087042455782478dac0f574f977a5f696c97d29eac39b43"
+    },
+    "scripts/build/compare_v2.py": {
+      "bytes": 5963,
+      "mode": 420,
+      "sha256": "89c606044b587ea772d5bbab4bad55c09dc23a7080900a9ad51839b2f516215b"
+    },
+    "scripts/build/container-entry-v2.sh": {
+      "bytes": 2447,
+      "mode": 420,
+      "sha256": "9be3db97efde70536a81d1c97f9ac69893a6004ab403566f8453704a2a189d2a"
+    },
+    "scripts/ci/hyprland03-native-source-v1/fixtures/expected349.lock": {
+      "bytes": 6800,
+      "mode": 420,
+      "sha256": "579981195b654d8cdf142e4101dfc2bfffbc3576eed50f23796a06e90cf57453"
+    },
+    "scripts/ci/inputs.lock.json": {
+      "bytes": 328101,
+      "mode": 420,
+      "sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f"
+    },
+    "scripts/ci/libgit2-reference-native-source/owner/policy.json": {
+      "bytes": 1348,
+      "mode": 420,
+      "sha256": "e60e551ac52e9d5f81903800ba00da30c9dfd6fa7d8d1c50a0a25b130f191105"
+    },
+    "scripts/ci/llhttp-reference-native-source/base/contract.py": {
+      "bytes": 8140,
+      "mode": 420,
+      "sha256": "abcefe496536a9f5f72d4d5660b273aa0a40e6a357a35efc355b9a01aa1b4aa0"
+    },
+    "scripts/ci/llhttp-reference-native-source/base/entry.py": {
+      "bytes": 19914,
+      "mode": 420,
+      "sha256": "2a0e3160bd2dc1da18dc81a1ca1ee8608528424749e97c3d714547028297c2cb"
+    },
+    "scripts/ci/llhttp-reference-native-source/base/finish_pair.py": {
+      "bytes": 8710,
+      "mode": 420,
+      "sha256": "9c050c418e3fdb2b1bb168d3c8f535a885a3714a68844988b3a2f93d1d9566a0"
+    },
+    "scripts/ci/llhttp-reference-native-source/base/profile.json": {
+      "bytes": 4194,
+      "mode": 420,
+      "sha256": "d9303c69df16f6bc0b5a2c9d2ec755f0983d4c7ed6fedd8074742a7dbb9ebe35"
+    },
+    "scripts/ci/llhttp-reference-native-source/owner/data.py": {
+      "bytes": 10359,
+      "mode": 420,
+      "sha256": "6682a4773f95424e0235887791907cf561682f004b5768886559a2f01381687b"
+    },
+    "scripts/ci/llhttp-reference-native-source/owner/hosted_owner.py": {
+      "bytes": 27378,
+      "mode": 420,
+      "sha256": "f50742d4bf0ef40539cf73f26dd9a7f47cb7b1a9f5ab87c7dad31c2b1dad2c81"
+    },
+    "scripts/ci/llhttp-reference-native-source/owner/payload.py": {
+      "bytes": 4295,
+      "mode": 420,
+      "sha256": "5f0b529b664f7ac25b29adc0e56d41fb87283e508a7cdece7287b80c0cdffb55"
+    },
+    "scripts/ci/llhttp-reference-native-source/owner/policy.json": {
+      "bytes": 1347,
+      "mode": 420,
+      "sha256": "1652ee524c5b75e1a5f1c9267ead5a2843d3f033b26b43adb71c68c8c95aa16a"
+    },
+    "scripts/ci/llhttp-reference-native-source/successor_v2/go_cli_va.py": {
+      "bytes": 1996,
+      "mode": 420,
+      "sha256": "3b2feba315f3a0e4cfed2498160e75591d64c7b8f0e8f5c11b46321b04b5eff3"
+    },
+    "scripts/ci/llhttp-reference-native-source/successor_v3/failed_retirement.py": {
+      "bytes": 4165,
+      "mode": 420,
+      "sha256": "95fc52f8a6c610ae165eecfe959cc696c210fa0fd3238bd9b24c9d5ffbcf9df1"
+    },
+    "scripts/virtual/owned_process.py": {
+      "bytes": 25140,
+      "mode": 493,
+      "sha256": "83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f"
+    }
+  },
+  "kind": "QT612_NATIVE_PREPARATION_RETAINED_BASIS_DATA_V1",
+  "schema": 1
+}

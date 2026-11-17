@@ -1,0 +1,37 @@
+loading initial cache file /home/gabe/Documents/ChatGPT/cachy-asahi-qt612-gui-source-reference-20261117/packages/port/qt612-gui-source-reference/configure.cmake
+-- The CXX compiler identification is GNU 16.2.1
+-- The C compiler identification is GNU 16.2.1
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- The ASM compiler identification is GNU
+-- Found assembler: /usr/bin/cc
+-- CMAKE_BUILD_TYPE was already explicitly set to: 'Release'
+
+-- Configuration summary has been written to /home/gabe/Documents/ChatGPT/cachy-asahi-qt612-gui-source-reference-20261117/work/qt612-gui-host-audit-r1/configure-build/config.summary
+
+Note: Disabling X11 Accessibility Bridge: D-Bus or AT-SPI is missing.
+
+-- 
+
+Qt is now configured for building. Just run 'cmake --build . --parallel'
+
+Once everything is built, you must run 'cmake --install .'
+Qt will be installed into '/usr'
+
+To configure and build other Qt modules, you can use the following convenience script:
+        /usr/lib/qt6/bin/qt-configure-module
+
+If reconfiguration fails for some reason, try removing 'CMakeCache.txt' from the build directory
+Alternatively, you can add the --fresh flag to your CMake flags.
+
+-- Configuring done (17.6s)
+-- Generating done (0.8s)
+-- Build files have been written to: /home/gabe/Documents/ChatGPT/cachy-asahi-qt612-gui-source-reference-20261117/work/qt612-gui-host-audit-r1/configure-build

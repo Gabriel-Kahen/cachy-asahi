@@ -1,0 +1,503 @@
+{
+  "catalog_sha256": "0d293f2638a7df667e1c9f9deb981c890eac4c4025a1476b7e7f284d39bc5ced",
+  "families": {
+    "baseline-ci": {
+      "commit": "3305881fdba011be1d0cc28a9d4d4e834b074f85",
+      "files": {
+        "README.md": {
+          "bytes": 4090,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "78cabb28b9e3f158877c616544a2890038695c97bc0309526b0ac244f3c14909"
+        },
+        "ci.py": {
+          "bytes": 6512,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "4aa40097823d0edd9812fd15a1f19d90963f1d8bde9bbf9144e33a0bfd90236f"
+        },
+        "pins.py": {
+          "bytes": 6246,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "d7a926b22338ab56ed246fbf17a0023b973ba741887d4ebe9dd956d0672d4afe"
+        },
+        "runner.py": {
+          "bytes": 2944,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "0ec04c878ae9a23d4c8ade70ab0df81254316f90d63ced76c8cc6d5074740ce8"
+        },
+        "sources.lock.json": {
+          "bytes": 69845,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "b985cd021f7d77094212301b8fe87f580484622a6c95b75388b49c88446c7c10"
+        },
+        "test_pins.py": {
+          "bytes": 11894,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "738567cf8d1ab41e74f3966429f504697000716a9d940f37f059d16aa45eb6a3"
+        }
+      },
+      "path": "scripts/ci/qt612-source-controls"
+    },
+    "gui-adapter": {
+      "commit": "85626d96a95abc0a29d7239c63b8d522150bcb50",
+      "files": {
+        "CONTRACTS.DATA.json": {
+          "bytes": 7253,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "96c2c5144037d5a62a5265b68387e5ce1fd95600e439cd92bcfae979a10bc4de"
+        },
+        "README.md": {
+          "bytes": 8890,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "7b0f65d68658243f5f67c83763c6f37923259af002a657fc340f77a7e4d98979"
+        },
+        "UNBOUND.DATA.json": {
+          "bytes": 1102,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "fa454b76cda309c29dafd42a89e98ba12544bba84af530acddde4e2475b8f2d2"
+        },
+        "adapter.py": {
+          "bytes": 11471,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "e10c15efc71c9c15b1aeb9f6aa0d79775b2f5e938ba4fcb93bf0446209ba7672"
+        },
+        "archive.py": {
+          "bytes": 18261,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "c03be72c4f08554e2e813c0e194521f03ef119f5624d89163a31cee7e0216151"
+        },
+        "common.py": {
+          "bytes": 6475,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "379e8945cb2b3065f20b20ee69a2641b98014ee68f636ce8e370c09e19f93cc7"
+        },
+        "entry.py": {
+          "bytes": 1576,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "91e036c9b53084f491162d22062d96f4b588ad4e186d2996d38781354e1baadb"
+        },
+        "files.lock.json": {
+          "bytes": 3254,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "90d5bd017d1994060bd54a2868a255f3ab3f177d1dad92d4bf9ea8702568ba43"
+        },
+        "lifecycle.py": {
+          "bytes": 22360,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "899e0c801952650858ce8f2ef321e670390da2498b05575c089ef20a0a898362"
+        },
+        "native.py": {
+          "bytes": 17338,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "a462ad8e80369cd2488feb2657f81e2647587200218f4e47d27b34ab232f1205"
+        },
+        "runtime.py": {
+          "bytes": 29033,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "06c2f48ed2006960d2d3f83ea24ce0c45e52086cbf5ac735e0f07f4a04d1bee7"
+        },
+        "signature-controls.py.DATA": {
+          "bytes": 17800,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "4c73fe2602b7ee6d810502099cc36918ae3f9b55f326a34503fa9b5b7b173bce"
+        },
+        "signature-shared.py.DATA": {
+          "bytes": 13961,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "4beeabd05804712fe6696d8cebc288b93b59b05ad58caf8208cd31769d6b16dc"
+        },
+        "test_adapter.py": {
+          "bytes": 9894,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "d185121e5d9e306c3d94710d7123014b7fd95ff3e6bd2b17e7f72611f0efa4e7"
+        },
+        "test_archive.py": {
+          "bytes": 11909,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "1c32e8a31441e1e8ad67e5df0c5557d785eb0e4029f02da7e93d265d80cf2fad"
+        },
+        "test_lifecycle.py": {
+          "bytes": 21886,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "fffec192b6974662321661178ee9ab001d8e612eba68af834ad555ce6d702eb0"
+        },
+        "test_native.py": {
+          "bytes": 13185,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "623e651437faf6a4dbc2cf3da65543317efcd29dc65c10823ab20441a874f686"
+        },
+        "test_runtime.py": {
+          "bytes": 18914,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "fd780166c27814a47a47ee6ab2ae28018d4783e546fab50a2ec876db87832d2b"
+        },
+        "test_trust.py": {
+          "bytes": 1726,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "2081e6e05c119ab9f761341310f6f0ff7f6ea32fa7c32056808e90025333b3b4"
+        },
+        "trust.py": {
+          "bytes": 1497,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "c6ddec4ce29ef6f134df262a2b15980211d6e97b42ad8f32b9ca41950c05730e"
+        }
+      },
+      "path": "scripts/port/qt612-gui-native-v1"
+    },
+    "producer": {
+      "commit": "663927a694fcfddda56f32c1eff00701a6395a93",
+      "files": {
+        "README.md": {
+          "bytes": 9261,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "c57225c2da27ed1e2f59f33493127f9ac52b29f7cc4ac080ed4d151a91f73b16"
+        },
+        "TRANSPORT-BINDING.md": {
+          "bytes": 6114,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "845dd53af14e63453c7633ae7ba6f3d48a9a64b23cb3c7f51fb22f2d537161f3"
+        },
+        "actor_gate.py": {
+          "bytes": 7754,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "74d96a00bed95cf43fe296b76f57b75e5693683a058e74fb83a072602070aac6"
+        },
+        "basis.lock.json": {
+          "bytes": 4516,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "6a38fd9026b10ea7400b69360ce32a9c45205ccfee5f18116fbf694e10905e3d"
+        },
+        "dependency-candidates.lock.json": {
+          "bytes": 10357,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "3240b821dd9f2827732d808a94e493a8f9a9fb9550fdc802d95bc7c49397f3df"
+        },
+        "f-recipe.lock.json": {
+          "bytes": 7754,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "a6ecf61d9bb36e1525e01f791cd51958426cd59c961b2f0a1d80d912fc0a1d52"
+        },
+        "f-serial-recipe.lock.json": {
+          "bytes": 10713,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "020c248a7fc63bb058b0d607b83f6f711f0a5ae1d81354ce22b4dfaf0e2afec0"
+        },
+        "f_intake.py": {
+          "bytes": 14270,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "8dd52885ea4bcacdd3fc458d46edfa047c60c65aa839e3834abe7f1ac81dd2e3"
+        },
+        "finish_pair.py": {
+          "bytes": 22010,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "be918deb2d9e75e48f71ae6cbf7fbc8c820df7652324556e6e9d2f1fb9af9c98"
+        },
+        "fixtures/F-contract.DATA.json": {
+          "bytes": 10867,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "1cc18024992ddd926d0ce12efa0a1f1901f9d73b823214f51f6f24fb679220ec"
+        },
+        "fixtures/F-notices.DATA.json": {
+          "bytes": 20042,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "3651e4bca7846caee61183c2bc55bf4988c6f4f2a56af81f3948afe03d41cfda"
+        },
+        "fixtures/F-serial-contract.DATA.json": {
+          "bytes": 12002,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "5d3d9a17f91b7849214fa405b577b4584830ebe5a7d2f2c3fdb1794ec0a50dfc"
+        },
+        "gui/README.md": {
+          "bytes": 3755,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "50fb66c3b31fcd33789030343378fe18182bf0228612ac76f744debdbc9c6987"
+        },
+        "gui/evidence/passive-preparation.DATA.json": {
+          "bytes": 1225,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "ae51900bc218bcf0f7397cab71f1edc3e107fb514dfc9ef882554e8f81a8f699"
+        },
+        "gui/fixtures/BUILD-CONTRACT.json": {
+          "bytes": 14990,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "1896928865f4770908e0d00cd4f64dbdea5ba216b7e440c09fed2335fcfa15cf"
+        },
+        "gui/fixtures/check_stage.py": {
+          "bytes": 19545,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "291053598bd806eed9be622f495d51725aae5f579f5f3241a83111ded254cee5"
+        },
+        "gui/fixtures/module-source-contract.DATA.json": {
+          "bytes": 35643,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "ba1b0b516247b62b8bffd7b2aad85f3c4603d2f6e86ee54f0f4626bd50aa888e"
+        },
+        "gui/fixtures/source-notices.json": {
+          "bytes": 20042,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "3651e4bca7846caee61183c2bc55bf4988c6f4f2a56af81f3948afe03d41cfda"
+        },
+        "gui/parent.lock.json": {
+          "bytes": 505,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "84a07778ca467a7e3c3183a12f40a9e62554a145481df924cc0314a1766f23af"
+        },
+        "gui/projection.py": {
+          "bytes": 22731,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "2e13dc1acb00c9d624aa2a70cf43041ce33fdb75f40b24fa03e8f77a78fd05ae"
+        },
+        "gui/recipe.lock.json": {
+          "bytes": 3753,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "41520326da3654b90b1f21fb8ff28398064c2730e1dcf4f7ec47adbcbb9f84cb"
+        },
+        "gui/stage.py": {
+          "bytes": 6109,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "4306df49c77548ba1e5cd4a00148d7b720c00ef455b5a3d3a5ec4ec9c41509d1"
+        },
+        "gui/test_projection.py": {
+          "bytes": 14480,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "21dd2f8a1f4e323dfd7b272fe600d9f16263ad8c0f1c5ee6e3b538f1df305f4e"
+        },
+        "prepare.py": {
+          "bytes": 23579,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "9c91423837ec791b91dfc7e1575168e8d0e6838eee3c3b17cc3b19eebfb82f99"
+        },
+        "producer.py": {
+          "bytes": 32191,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "9d44ec3ba2ba6063e9857bbaf9898e48828658c506d9dccbc75ab6e0e3c7dc25"
+        },
+        "recipe-API.UNBOUND.json": {
+          "bytes": 519,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "04de6e64fb492eb01bb77b579c9814c7ad320f55938261070c909d2cd5183ebc"
+        },
+        "resource-EXPERIMENTAL.json": {
+          "bytes": 1786,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "937d2c05b96df99dde7097d10647c5ea96aea38d3442ffcbca2f3647dd643ece"
+        },
+        "resource-PROPOSAL.json": {
+          "bytes": 1858,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "cc6e7a6daf31827a3ef060cfdbf3d8ab0a8a6dcfdf32e9b2c51ed857fa05b9b3"
+        },
+        "test_data.py": {
+          "bytes": 10628,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "dcd15c9c4415bfd163669f4f910f736793df076ab7f3da0b8aef7ba56a97a040"
+        },
+        "test_producer.py": {
+          "bytes": 16972,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "4d91f61ace4785669ea553b8c62bb5f0e97a773c4b237f32eced1b79468cc6e7"
+        },
+        "test_transport_binding.py": {
+          "bytes": 11053,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "37ebd8fdfb83bf9ceee6842189628886a286d958d7673c6ecb8b438260021a61"
+        },
+        "test_transport_source.py": {
+          "bytes": 4493,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "5490c95cd2c45e4738a2324dc3207047729e5653c27aa0d7b0b7228e122ed13f"
+        },
+        "transport-evidence.DATA.json": {
+          "bytes": 2210,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "85193feedacdb0f69d029660fbfb6140963e2c9927965c977de65dcf59cfd07f"
+        },
+        "transport.lock.json": {
+          "bytes": 1130,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "d3e0ab92824fc809b9db32b69f93af5d21b7f994ca96567378e12c9be28d9653"
+        },
+        "transport_basis/ACTIONS-PINS.json": {
+          "bytes": 4594,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "516b38025a2d220858559dd643a4efb30303823b024caf5a4916c011173a86d1"
+        },
+        "transport_basis/README.md": {
+          "bytes": 10914,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "ea923ec85876ba6b5d7220d6b50de30f860a4f926a942512d3212440a0fdda85"
+        },
+        "transport_basis/basis.json": {
+          "bytes": 4877,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "3fa1f4351629a84825e85f89b6b0ee33e9de606dd99a3ea3f918da64fd07ae0b"
+        },
+        "transport_basis/test_transport.py": {
+          "bytes": 25768,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "f94ae733d2305f9a0c6f46386206f69856f848fdc52ae7ac72214415ceb79b47"
+        },
+        "transport_basis/transport.py": {
+          "bytes": 27953,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "02354a45f33d71fb5569ff72fdddbd48c2f8ebbd86c7573054e54fd8f6d7198e"
+        },
+        "transport_basis/workflow.fragment.yml": {
+          "bytes": 3388,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "b8114eadc2825c4355c02814f1607aef343b35bdfcf9dfc231eabf64a1f8abfa"
+        },
+        "transport_binding.py": {
+          "bytes": 20339,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "4bc7f71d6a1b11c9019d0a1b4aa601038b718c64e8a4cd0aaa7a1411313f77b0"
+        },
+        "transport_source.py": {
+          "bytes": 12741,
+          "kind": "file",
+          "mode": 420,
+          "sha256": "41e82eb57ab731a5094a02d342f8073f11e563b841784ef4ff07e4476c0ca21d"
+        }
+      },
+      "path": "scripts/ci/qt612-reference-native-source"
+    }
+  },
+  "kind": "QT612_SOURCE_CONTROLS_SUCCESSOR_LOCK_V1",
+  "local_files": {
+    "scripts/ci/qt612-source-controls-v2/isolation.py": {
+      "bytes": 4029,
+      "kind": "file",
+      "mode": 420,
+      "sha256": "7fc74229976d5424c0f1e1152943289c7ee0822406c9c0b74d6693e79cc8c3d6"
+    },
+    "scripts/ci/qt612-source-controls-v2/runner.py": {
+      "bytes": 2175,
+      "kind": "file",
+      "mode": 420,
+      "sha256": "2ed044020b1c1b1e5137f47c36bddcf01b3d03db015db23b930892a44d56f63a"
+    },
+    "scripts/ci/qt612-source-controls-v2/test_isolation.py": {
+      "bytes": 4713,
+      "kind": "file",
+      "mode": 420,
+      "sha256": "a2d8bc8bc3485b4f8eefd6e05b16afc7f0561c2baa3cb8aea042c003c7712b86"
+    }
+  },
+  "schema": 1,
+  "support_files": {
+    ".gitattributes": {
+      "bytes": 1905,
+      "kind": "file",
+      "mode": 420,
+      "sha256": "2339f02aa96a7399d99b0ab31a31270f8ded04415bb006568656ce8912467c75"
+    },
+    ".github/workflows/qt612-source-controls.yml": {
+      "bytes": 1900,
+      "kind": "file",
+      "mode": 420,
+      "sha256": "3b69788477fae58fad7e483b61ec39af752622676bbe480146a79181af456d6b"
+    },
+    "README.md": {
+      "bytes": 4871,
+      "kind": "file",
+      "mode": 420,
+      "sha256": "12ecaba1ec389041f9244cb8c692b8ed73bd07ef73c7766bbe29c3d661ac3fdb"
+    },
+    "scripts/build/build_v2.py": {
+      "bytes": 13242,
+      "kind": "file",
+      "mode": 420,
+      "sha256": "37242a5680c0cb587087042455782478dac0f574f977a5f696c97d29eac39b43"
+    },
+    "scripts/build/container-entry-v2.sh": {
+      "bytes": 2447,
+      "kind": "file",
+      "mode": 420,
+      "sha256": "9be3db97efde70536a81d1c97f9ac69893a6004ab403566f8453704a2a189d2a"
+    },
+    "scripts/ci/hyprland03-native-source-v1/fixtures/expected349.lock": {
+      "bytes": 6800,
+      "kind": "file",
+      "mode": 420,
+      "sha256": "579981195b654d8cdf142e4101dfc2bfffbc3576eed50f23796a06e90cf57453"
+    },
+    "scripts/ci/inputs.lock.json": {
+      "bytes": 328101,
+      "kind": "file",
+      "mode": 420,
+      "sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f"
+    },
+    "scripts/ci/management-tools-generic16k/signature_observer.py": {
+      "bytes": 9009,
+      "kind": "file",
+      "mode": 420,
+      "sha256": "6926902e69e639b999aa67d7ff01b617ec7c57e9074ba8d52330f21cf24edfa9"
+    }
+  }
+}

@@ -1,0 +1,4 @@
+# Audited upstream recipes, notices and patches retain their pinned exact bytes.
+upstream/** -whitespace
+recipe-inputs/** -whitespace
+CVE-*.diff -whitespace
