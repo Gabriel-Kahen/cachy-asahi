@@ -13,6 +13,7 @@ def load(name,path):
  spec=importlib.util.spec_from_file_location(name,path);module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);return module
 M=load('capture_v6_constructor',HERE/'prepare.py')
 B=load('capture_v6_v5_DATA_fixture',HERE.parent/'successor_v5_source/test_data.py')
+LEGACY=load('capture_v6_original_hosted_operand',HERE.parent/'successor_v7_source/main_route/legacy_input.py')
 
 
 class Controls(unittest.TestCase):
@@ -32,7 +33,9 @@ class Controls(unittest.TestCase):
  def test_fixed_real_pins_and_source188_identity_match_retained_basis_contract(self):
   self.assertEqual(self.real_basis,dict(files=188,bytes=45544942,tree='50bf7aab34ee5497f12d078709354aa69b0cdb9d',source_map=dict(bytes=37091,sha256='ba06925244cd010ab2223325e2e324d4d3b469befbea5e7eb8e0de68383d4908')))
   self.assertEqual(set(self.real_pins),{'hosted_launcher','material_domain_executor'})
-  for row in self.real_pins.values():self.assertEqual(self.C.pin((HERE.parents[3]/row['member']).read_bytes()),{k:row[k]for k in('bytes','sha256')})
+  for role,row in self.real_pins.items():
+   raw=LEGACY.hosted_bytes()if role=='hosted_launcher'else(HERE.parents[3]/row['member']).read_bytes()
+   self.assertEqual(self.C.pin(raw),{k:row[k]for k in('bytes','sha256')})
  def test_two_replacements_eight_additions_and_exact_188_179_139_inverses(self):
   before=copy.deepcopy(self.basis188);candidate,profile=self.rebind()
   self.assertEqual(M.inverse_v5(candidate),before);self.assertEqual(M.inverse_v4(candidate),self.basis179);self.assertEqual(M.inverse_v3(candidate),self.basis139)

@@ -38,10 +38,17 @@ publish, POST or invoke the native workflow. Source196 selectors are refused.
 Offline receipt validation establishes DATA consistency; it cannot establish
 remote publication authenticity.
 
-A route HOLD is intentional: the current native workflow executes the v6 Main
-canonical launcher. The sealed205 launcher also requires its canonical Main
-member to contain exactly the new body. A new family path alone cannot satisfy
-that gate. Root must separately review and publish a matching Main route before
-issuing any205 request. The preserved old Main selector and v6 code remain
-unchanged; no196 authority is carried into205. CI/DATA success does not resolve
-this operational route or establish native, hardware or release acceptance.
+The publication-preparation generator deliberately remains unissued/HOLD. The
+separate `main_route` implementation now adopts the exact sealed v7 body at
+Main's canonical hosted launcher member. The frozen Source205 workflow already
+invokes that member, so no Source or workflow body is changed. Published v6
+remains tied to its immutable historical Main selectors; the new Main route
+refuses an old v6 launcher pin rather than retargeting it.
+
+Source205's publication selector is still null here. Root must provide and
+independently authenticate the published Source/Main selectors and the bound
+case, admission, runtime, registration/readback and canonical ONCE operands.
+`main_route` validates their DATA consistency before the existing actor boundary;
+it neither issues those operands nor performs live qualification or dispatch.
+CI/DATA success is not native, hardware or release acceptance. See
+`main_route/README.md` for the actionable route and remaining Root inputs.

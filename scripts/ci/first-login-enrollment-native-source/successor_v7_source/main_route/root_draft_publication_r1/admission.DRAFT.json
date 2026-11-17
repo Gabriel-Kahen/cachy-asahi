@@ -1,0 +1,70 @@
+{
+  "approved": null,
+  "binding": null,
+  "expires_epoch": null,
+  "issued_epoch": null,
+  "issuer": null,
+  "kind": "ROOT_SOURCE205_ONCE_ADMISSION_V1",
+  "reservation": {
+    "active": null,
+    "group": "native-arm-build",
+    "held_by": null,
+    "no_exemptions": null,
+    "operation": "first-login-enrollment-ui-current-v2",
+    "pending": null
+  },
+  "resources": {
+    "classification": "HEAVY_NON_KERNEL",
+    "context_limits": {
+      "max_context_age_seconds": 7560,
+      "max_delegation_seconds": 7560,
+      "metadata_max_bytes": 1048576,
+      "metadata_query_seconds": 30
+    },
+    "exemptions": [],
+    "launcher_limits": {
+      "address_space_bytes": 536870912,
+      "control_bytes": 33554432,
+      "control_nodes": 128,
+      "cpu_seconds": 7740,
+      "launcher_seconds": 7740,
+      "preflight_cpu_seconds": 180,
+      "preflight_seconds": 180,
+      "reference_bytes": 34359738368,
+      "reference_file_bytes": 8589934592,
+      "reference_files": 1024,
+      "request_bytes": 49152,
+      "scope_stop_seconds": 10
+    },
+    "policy": {
+      "bytes": 8366,
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/owned_current_v3.policy.PROPOSAL.json",
+      "sha256": "1177da4f3bfc36f8ebe8802ca6956adf3d0230511aa827bdac933688d83f0767"
+    },
+    "scheduling_lane": "native-arm-build",
+    "scope_limits": {
+      "cpu.max": "100000 100000",
+      "memory.max": "536870912",
+      "memory.swap.max": "0",
+      "pids.max": "64"
+    },
+    "stage_limits": {
+      "builder_cpus": 4,
+      "builder_memory_bytes": 4294967296,
+      "builder_pids": 512,
+      "command_rows": 512,
+      "max_command_seconds": 1800,
+      "total_seconds": 7200
+    },
+    "whole_timing": {
+      "Root_acceptance": null,
+      "allow_clipped_stage_window": true,
+      "charge_preflight_and_prerequisites": true,
+      "controller_retirement_reserve_seconds": 15,
+      "kind": "CURRENT_HOSTED_SHARED_7560_PREREQUISITE_TIMING_V3",
+      "metadata_queries": 2,
+      "whole_budget_seconds": 7560
+    }
+  },
+  "schema": 1
+}

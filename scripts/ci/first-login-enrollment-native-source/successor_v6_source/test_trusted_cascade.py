@@ -54,7 +54,8 @@ def load(name, path):
     return module
 
 
-L = load('MODEL_v6_trusted_launcher', REPO/LAUNCHER)
+LEGACY = load('MODEL_v6_original_hosted_operand', HERE.parent/'successor_v7_source/main_route/legacy_input.py')
+L = LEGACY.load_hosted('MODEL_v6_trusted_launcher')
 C = load('MODEL_v6_actual_context', REPO/CONTEXT)
 
 
@@ -80,7 +81,7 @@ def data_prefix():
     Stop before native identity, executable probes, staging or control creation.
     No predicate or call from the selected prefix is replaced or weakened.
     """
-    tree = ast.parse((REPO/LAUNCHER).read_bytes())
+    tree = ast.parse(LEGACY.hosted_bytes())
     function = copy.deepcopy(next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == 'preflight'))
     ends = [i for i, n in enumerate(function.body) if isinstance(n, ast.Expr) and isinstance(n.value, ast.Call)
             and any(isinstance(a, ast.Constant) and a.value == 'actual hosted Source/ref/workflow/stage selectors before GET or privilege'
@@ -151,13 +152,13 @@ class Controls(unittest.TestCase):
         self.base = Path(temporary.name)
         self.root, self.main = self.base/'MODEL-source', self.base/'MODEL-main'
         self.root.mkdir(); self.main.mkdir()
-        path = self.main/LAUNCHER; path.parent.mkdir(parents=True); path.write_bytes((REPO/LAUNCHER).read_bytes())
+        path = self.main/LAUNCHER; path.parent.mkdir(parents=True); path.write_bytes(LEGACY.hosted_bytes())
         ceilings = dict(max_command_seconds=600, total_seconds=3600, builder_cpus=4,
                         builder_memory_bytes=2*1024**3, builder_pids=512, command_rows=400)
         self.policy = dict(context=dict(metadata_query_seconds=30, metadata_max_bytes=1024**2,
                                        max_context_age_seconds=300, max_delegation_seconds=7560),
                            stage_capabilities={s: ceilings for s in ('backend', 'ui', 'lifecycle')})
-        self.files = {CONTEXT: (REPO/CONTEXT).read_bytes(), LAUNCHER: (REPO/LAUNCHER).read_bytes(),
+        self.files = {CONTEXT: (REPO/CONTEXT).read_bytes(), LAUNCHER: LEGACY.hosted_bytes(),
                       'MODEL/owner.py': b'# MODEL inert owner\n', 'MODEL/image.py': b'# MODEL inert image\n',
                       'MODEL/executor.py': b'# MODEL inert executor\n', 'MODEL/material.DATA': b'MODEL public DATA\n',
                       'MODEL/policy.json': L.encoded(self.policy),
@@ -180,7 +181,8 @@ class Controls(unittest.TestCase):
 
     def test_fixed_runtime_bodies_and_workflow_remain_exact(self):
         for name, pin in FIXED.items():
-            with self.subTest(member=name): self.assertEqual(L.pin((REPO/name).read_bytes()), pin)
+            body = LEGACY.hosted_bytes() if name == LAUNCHER else (REPO/name).read_bytes()
+            with self.subTest(member=name): self.assertEqual(L.pin(body), pin)
 
     def test_workflow_separates_source_and_main_then_invokes_exact_main_direct_argv(self):
         text = (REPO/WORKFLOW).read_text()
