@@ -1,0 +1,33 @@
+{
+  "Root_acceptance": null,
+  "actual_controller": null,
+  "actual_executor": null,
+  "actual_peak_memory_bytes": null,
+  "actual_peak_storage_bytes": null,
+  "basis": {
+    "bytes": 1295,
+    "commit": "69a02851b87ca29daf2e197101b66bf75ff61889",
+    "path": "packages/port/qt612-source-reference/RESOURCE-EXPERIMENT.json",
+    "sha256": "b8be1cbacd1e69ea5d537c4a16d7715059e6481491e2d5f0151188b0b1c7ac95"
+  },
+  "capacity_sufficient": null,
+  "daemon": {
+    "memory_bytes": 6442450944
+  },
+  "enforcement": "RECIPE_SERIAL_SCHEDULING_ONLY; C_MUST_BIND_CGROUP_STORAGE_AND_GUARDS_AFTER_ROOT_SELECTION",
+  "inner_builder": {
+    "CMAKE_AUTOGEN_PARALLEL": 1,
+    "CMAKE_BUILD_PARALLEL_LEVEL": 1,
+    "MAX_JOBS": 1,
+    "cpus": 1,
+    "memory_bytes": 4294967296
+  },
+  "kind": "QT612_GUI_RESOURCE_PROPOSAL_UNACCEPTED",
+  "minimum_available_RAM_bytes": 10737418240,
+  "minimum_available_disk_bytes": 15032385536,
+  "native_pair": "NOT RUN",
+  "owned_storage_bytes": 12884901888,
+  "package": "cachy-asahi-qt612-gui-source-reference",
+  "schema": 1,
+  "version": "6.12.0-1"
+}

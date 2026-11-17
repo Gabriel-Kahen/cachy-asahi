@@ -1,0 +1,4 @@
+# Preserve byte-pinned upstream patches and original configure observations.
+CVE-*.diff -whitespace
+evidence/host-CMakeCache.txt -whitespace
+evidence/host-configure.rawlog -whitespace
