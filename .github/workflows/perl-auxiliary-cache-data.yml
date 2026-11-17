@@ -19,7 +19,7 @@ permissions:
   contents: read
 jobs:
   data:
-    name: 10 auxiliary host/guest DATA controls (${{ matrix.python }})
+    name: 11 auxiliary host/guest DATA controls (${{ matrix.python }})
     runs-on: ubuntu-24.04
     timeout-minutes: 6
     strategy:

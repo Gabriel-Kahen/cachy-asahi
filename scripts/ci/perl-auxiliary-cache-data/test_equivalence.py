@@ -103,6 +103,20 @@ class Controls(unittest.TestCase):
         self.assertEqual(sum(row['soname_b64'] is None for row in report['entries']), 1)
         self.assertEqual(H.pin(self.agree(BASELINE)), H.CANONICAL_PIN)
 
+    def test_actual101_after_raw_differs_but_all190_defined_records_equal(self):
+        after = H.actual_after()
+        self.assertEqual(H.pin(after), H.AFTER_PIN); self.assertNotEqual(after, BASELINE)
+        before_canonical = self.agree(BASELINE); after_canonical = self.agree(after)
+        self.assertEqual(before_canonical, after_canonical); self.assertEqual(H.pin(after_canonical), H.CANONICAL_PIN)
+        comparison = A.compare(BASELINE, after)
+        self.assertFalse(comparison['raw_bytes_equal']); self.assertTrue(comparison['defined_fields_equal'])
+        self.assertEqual((comparison['before']['count'], comparison['after']['count']), (190, 190))
+        for key in ('added', 'removed', 'changed'): self.assertEqual(comparison[key], [])
+        self.assertEqual(comparison['selection'], 'UNSELECTED')
+        self.assertIsNone(comparison['Root_acceptance']); self.assertIsNone(comparison['lifecycle_acceptance'])
+        proof = json.loads((HERE / 'provenance.DATA.json').read_bytes())
+        self.assertEqual(proof['actual_after_body'], dict(path='scripts/ci/perl-auxiliary-cache-data/actual-after-aux.bin', **H.AFTER_PIN))
+
     def test_full_U64_sorting_serialization_and_tuple_prefix_ties(self):
         # Descending input exposes float/awk-strnum ties that sorted input could hide.
         rows = list(reversed(C.unsigned_entries()))
@@ -173,11 +187,11 @@ if __name__ == '__main__':
     if not __debug__ or not sys.flags.isolated or not sys.dont_write_bytecode:
         raise ValueError('use unoptimized Python -I -B')
     result = unittest.TextTestRunner(verbosity=2).run(unittest.defaultTestLoader.loadTestsFromTestCase(Controls))
-    passed = (result.wasSuccessful() and result.testsRun == 10 and not result.skipped and not result.expectedFailures
+    passed = (result.wasSuccessful() and result.testsRun == 11 and not result.skipped and not result.expectedFailures
               and not result.unexpectedSuccesses and not ATTEMPTS)
     print(json.dumps(dict(status='PASS_HOST_GUEST_CANONICAL_DATA_ONLY' if passed else 'FAIL', tests=result.testsRun,
                          skips=len(result.skipped), denied_actor_attempts=len(ATTEMPTS), guest_DATA_launches=GUEST_LAUNCHES,
-                         actual_after_body=None, auxcomparison='NOT_ACCEPTED', selection='UNSELECTED',
+                         actual_after_body=H.AFTER_PIN, auxcomparison='STRICT_DEFINED_FIELDS_EQUAL_DATA_ONLY', selection='UNSELECTED',
                          Source65_private_inode_guard='HOLD_UNCHANGED', Root_acceptance=None, lifecycle_acceptance=None,
                          VM=None, M2=None), sort_keys=True))
     sys.exit(0 if passed else 1)
