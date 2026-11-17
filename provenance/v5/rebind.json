@@ -1,0 +1,83 @@
+{
+  "actual": {
+    "Root_delegation": null,
+    "Root_resources": null,
+    "Root_runtime": null,
+    "Root_trust": null,
+    "actual_images": null,
+    "job": null,
+    "publication": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "basis": {
+    "bytes": 45330627,
+    "files": 179,
+    "source_map": {
+      "bytes": 35107,
+      "sha256": "063a34c64d9e9ad21e6c2bd5c4e0a147f88890061cd79fb13587bc1e37e9d7f4"
+    },
+    "tree": "5128864b3c17f230d5045361014b41ce31b72767"
+  },
+  "construction": {
+    "scripts/ci/first-login-enrollment-native-source/successor_v5_source/README.md": {
+      "bytes": 1916,
+      "mode": 420,
+      "sha256": "1f76e8ca8353e36afdb6510cb9deed82ee7dfe754be67e43534388cab31bac93"
+    },
+    "scripts/ci/first-login-enrollment-native-source/successor_v5_source/prepare.py": {
+      "bytes": 11245,
+      "mode": 420,
+      "sha256": "91ac3c40014b5752d936fb5247d28a20b73ba0e5a1499615af11b47eb544909c"
+    }
+  },
+  "diagnostics_commit": "e263bd414318a9ca94158a9d272218703d145102",
+  "kind": "COMMITTED_SOURCE179_DIAGNOSTIC_REBIND_V5",
+  "operation": "first-login-enrollment-ui-current-v2",
+  "replacements": {
+    "hosted_launcher": {
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/hosted_current_v3.py",
+      "original": {
+        "bytes": 55970,
+        "mode": 420,
+        "sha256": "d11f91cc316ca1e3513d53a66a8bc93d97f1403e618ab93922911f5b31e62a2c"
+      },
+      "original_member": "provenance/v5/original/scripts/ci/first-login-enrollment-native-source/payload/native/hosted_current_v3.py",
+      "replacement": {
+        "bytes": 66059,
+        "mode": 420,
+        "sha256": "5685fa9149242fd878ce81ddbe4368a0f6317de71c654962311de4fdb631fa14"
+      }
+    },
+    "material_domain_executor": {
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/material_domain_current_v3.py",
+      "original": {
+        "bytes": 36172,
+        "mode": 420,
+        "sha256": "dda088c77150046b3822db81e329e00a0afa72db3e10c3c1b74cd1e50bc2e0c3"
+      },
+      "original_member": "provenance/v5/original/scripts/ci/first-login-enrollment-native-source/payload/native/material_domain_current_v3.py",
+      "replacement": {
+        "bytes": 40975,
+        "mode": 420,
+        "sha256": "da8e397a63e02c11758d08bf2c45ecf14d94029f6311f4fcb4a09ad420624c8b"
+      }
+    },
+    "materials_stager": {
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/stage_materials_current_v3_python_v1.py",
+      "original": {
+        "bytes": 32266,
+        "mode": 420,
+        "sha256": "d0c0764b1b7a92bb55dce63ba55314bb84ace4533434afcc47b1e23205e1cac9"
+      },
+      "original_member": "provenance/v5/original/scripts/ci/first-login-enrollment-native-source/payload/native/stage_materials_current_v3_python_v1.py",
+      "replacement": {
+        "bytes": 35550,
+        "mode": 420,
+        "sha256": "58c5d0842c17a914239b5f24e9e1ac2987ad8ec9ce9e2a03e63a04f2e2e99282"
+      }
+    }
+  },
+  "schema": 5
+}

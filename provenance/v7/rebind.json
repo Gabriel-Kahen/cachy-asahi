@@ -1,0 +1,86 @@
+{
+  "actual": {
+    "Root_delegation": null,
+    "Root_resources": null,
+    "Root_runtime": null,
+    "Root_trust": null,
+    "actual_images": null,
+    "job": null,
+    "publication": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "basis": {
+    "bytes": 45726789,
+    "files": 196,
+    "source_map": {
+      "bytes": 38809,
+      "sha256": "a8f5ab1c1ceee9f3450634e14dd172d7421d6fe49d8e17ce680cb4cfe43da86a"
+    },
+    "tree": "e85302474308dbf579b79bd6d501f5ad86b66bbb"
+  },
+  "construction": {
+    "scripts/ci/first-login-enrollment-native-source/successor_v7_source/README.md": {
+      "bytes": 4535,
+      "mode": 420,
+      "sha256": "3eb359a9414e3f2ccfc130d8b02d2c3980c8065f3b59b716f0e3eaa881f91f61"
+    },
+    "scripts/ci/first-login-enrollment-native-source/successor_v7_source/prepare.py": {
+      "bytes": 11500,
+      "mode": 420,
+      "sha256": "04513618e1b9526a71b852ed3cdc6e8fbe6f097513b2291b951e7684c758e3b5"
+    }
+  },
+  "kind": "COMMITTED_SOURCE196_TRANSPORT_DIAGNOSTIC_REBIND_V7",
+  "operation": "first-login-enrollment-ui-current-v2",
+  "replacements": {
+    "hosted_launcher": {
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/hosted_current_v3.py",
+      "operand": "scripts/ci/first-login-enrollment-native-source/successor_v7_source/payload/hosted.py",
+      "original": {
+        "bytes": 66263,
+        "mode": 420,
+        "sha256": "f8387c748f31698b45656998248f099a8207bb58f7f9d7e70ef53a73be286d97"
+      },
+      "original_member": "provenance/v7/original/scripts/ci/first-login-enrollment-native-source/payload/native/hosted_current_v3.py",
+      "replacement": {
+        "bytes": 68455,
+        "mode": 420,
+        "sha256": "d491626c309a4b0f1fc198fa1cc8515d2412326d0e4fb9947332590d9de0132e"
+      }
+    },
+    "material_domain_executor": {
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/material_domain_current_v3.py",
+      "operand": "scripts/ci/first-login-enrollment-native-source/successor_v7_source/payload/material_domain.py",
+      "original": {
+        "bytes": 42462,
+        "mode": 420,
+        "sha256": "ead51cfa3bcf4b74fbccc8c469926c71fbb72edefcf9525b297e1737fde3ab8f"
+      },
+      "original_member": "provenance/v7/original/scripts/ci/first-login-enrollment-native-source/payload/native/material_domain_current_v3.py",
+      "replacement": {
+        "bytes": 44646,
+        "mode": 420,
+        "sha256": "af2efcc9f2b58af8c02e8de92e4a3a8704f90c34aea8109ce2a3725bd5600b04"
+      }
+    },
+    "materials_stager": {
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/stage_materials_current_v3_python_v1.py",
+      "operand": "scripts/ci/first-login-enrollment-native-source/successor_v7_source/payload/stager.py",
+      "original": {
+        "bytes": 35550,
+        "mode": 420,
+        "sha256": "58c5d0842c17a914239b5f24e9e1ac2987ad8ec9ce9e2a03e63a04f2e2e99282"
+      },
+      "original_member": "provenance/v7/original/scripts/ci/first-login-enrollment-native-source/payload/native/stage_materials_current_v3_python_v1.py",
+      "replacement": {
+        "bytes": 43583,
+        "mode": 420,
+        "sha256": "da365c903750c47b7465cfb8002f3a110747497d5755bd4b7eb903c410355289"
+      }
+    }
+  },
+  "schema": 7,
+  "transport_commit": "9e26ce819a258225cac866341e15d7099038ab9e"
+}

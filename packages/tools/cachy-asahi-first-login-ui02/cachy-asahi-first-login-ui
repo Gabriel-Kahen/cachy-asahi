@@ -1,0 +1,14 @@
+#!/usr/bin/python3 -I
+# SPDX-License-Identifier: MIT
+from pathlib import Path
+import runpy
+import sys
+
+if not sys.flags.isolated:
+    raise SystemExit('Run with isolated Python (-I).')
+prefix = Path(__file__).resolve().parents[1]
+module = runpy.run_path(str(prefix / 'lib/cachy-asahi/first-login-ui/gui.py'))
+try:
+    raise SystemExit(module['main'](prefix))
+except module['bridge'].Error as error:
+    raise SystemExit(str(error))

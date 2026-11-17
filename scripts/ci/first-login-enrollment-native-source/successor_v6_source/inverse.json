@@ -1,0 +1,28 @@
+{
+  "actual_acceptance": null,
+  "basis": {
+    "bytes": 45544942,
+    "files": 188,
+    "source_map": {
+      "bytes": 37091,
+      "sha256": "ba06925244cd010ab2223325e2e324d4d3b469befbea5e7eb8e0de68383d4908"
+    },
+    "tree": "50bf7aab34ee5497f12d078709354aa69b0cdb9d"
+  },
+  "kind": "CAPTURE_SOURCE_V6_TO_SOURCE188_INVERSE_DATA_ONLY",
+  "remove": [
+    "provenance/v6/original/scripts/ci/first-login-enrollment-native-source/payload/native/hosted_current_v3.py",
+    "provenance/v6/original/scripts/ci/first-login-enrollment-native-source/payload/native/material_domain_current_v3.py",
+    "provenance/v6/rebind.json",
+    "provenance/v6/source188-map.json",
+    "scripts/ci/first-login-enrollment-native-source/successor_v6_source/README.md",
+    "scripts/ci/first-login-enrollment-native-source/successor_v6_source/inverse.json",
+    "scripts/ci/first-login-enrollment-native-source/successor_v6_source/prepare.py",
+    "scripts/ci/first-login-enrollment-native-source/successor_v6_source/program.json"
+  ],
+  "restore": {
+    "scripts/ci/first-login-enrollment-native-source/payload/native/hosted_current_v3.py": "provenance/v6/original/scripts/ci/first-login-enrollment-native-source/payload/native/hosted_current_v3.py",
+    "scripts/ci/first-login-enrollment-native-source/payload/native/material_domain_current_v3.py": "provenance/v6/original/scripts/ci/first-login-enrollment-native-source/payload/native/material_domain_current_v3.py"
+  },
+  "schema": 6
+}
