@@ -1,0 +1,54 @@
+{
+  "Root_acceptance": null,
+  "Root_grants": null,
+  "files": {
+    "README.md": {
+      "bytes": 4590,
+      "mode": 420,
+      "sha256": "a8a422ef2dd696827d906c31706d28e2be6067710f5ba9349353da556f00bcbf"
+    },
+    "canonicalize.awk": {
+      "bytes": 2508,
+      "mode": 420,
+      "sha256": "fec5c4e1b3929f4d44ac122e506c6e1d3821d4845faab153df9a78466d17d69f"
+    },
+    "canonicalize.sh": {
+      "bytes": 389,
+      "mode": 420,
+      "sha256": "e48ffe0b024da4ed4c7587d5d2b3884288e80af472915e54d99677aa7c9b426d"
+    },
+    "component.DATA.json": {
+      "bytes": 2433,
+      "mode": 420,
+      "sha256": "ab44503d2c0fad1bffb3597cc70f7920a19f6b49ea8277828598f859e76fe166"
+    },
+    "project.py": {
+      "bytes": 2934,
+      "mode": 420,
+      "sha256": "31886a1be9a8100467fd41ec30107156c713b3276c41e1a620cf6131dedf3fbf"
+    },
+    "provenance.DATA.json": {
+      "bytes": 1212,
+      "mode": 420,
+      "sha256": "9b379d95a9f89255658119c0d855447daa5046267fbc15f66d974763a10108ad"
+    },
+    "test_guest.py": {
+      "bytes": 8228,
+      "mode": 420,
+      "sha256": "54cedb47e51e2e68438a07695237f3964877bfcc9a2ab48e846141848da55083"
+    },
+    "tools.DATA.json": {
+      "bytes": 4294,
+      "mode": 420,
+      "sha256": "6ef07df54f23cb02fb7f959d0ecf93f37804c4ca54ce1f750a2a26338c4bd556"
+    },
+    "validation.DATA.json": {
+      "bytes": 1013,
+      "mode": 420,
+      "sha256": "570eabda1da53be75da297416ef45120d71783a125f531cfcf35bc2e1ec01454"
+    }
+  },
+  "kind": "AUXCACHE_GUEST_COMPONENT_CLOSED_PROPOSAL_ONLY_V1",
+  "schema": 1,
+  "selection": "UNSELECTED"
+}
