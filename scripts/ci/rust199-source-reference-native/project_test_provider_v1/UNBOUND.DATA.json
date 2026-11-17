@@ -1,0 +1,42 @@
+{
+  "kind": "UNBOUND_PROJECT_TEST_PROVIDER_INPUTS_NOT_AN_ADMISSION_POLICY",
+  "predecessor": "8128cd73c85d533092d081f0b9131b2ca9893ecd",
+  "providers": {
+    "cachy-asahi-libgit2-reference": {
+      "archive": null,
+      "complete_provider_inventory": null,
+      "detached_TEST_signature": null,
+      "native_clean_pair_and_original_receipts": null,
+      "source_license_and_unedited_BUILDINFO_tuple": null,
+      "version": "1:1.9.7-1"
+    },
+    "cachy-asahi-llhttp-reference": {
+      "archive": null,
+      "complete_provider_inventory": null,
+      "detached_TEST_signature": null,
+      "native_clean_pair_and_original_receipts": null,
+      "source_license_and_unedited_BUILDINFO_tuple": null,
+      "version": "9.3.1-1"
+    }
+  },
+  "public_TEST_key_and_full_fingerprints": null,
+  "Root_accepted_exact_tuple_decision": null,
+  "actual": {
+    "Root_acceptance": null,
+    "Root_grant": null,
+    "Source_CID": null,
+    "executor": null,
+    "image": null,
+    "job": null,
+    "run": null,
+    "trusted_Main": null
+  },
+  "source_runtime_integration": "UNISSUED_REQUIRES_EXACT_SOURCE367_INVERSE_AND_BOTH_CAP0_PHASES",
+  "ALARM_authentication": false,
+  "native": "NOT_RUN",
+  "installation": "NOT_RUN",
+  "M2": "NOT_RUN",
+  "legal": "HELD",
+  "key_freshness": "HELD",
+  "release_acceptance": false
+}
