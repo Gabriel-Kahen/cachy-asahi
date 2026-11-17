@@ -84,3 +84,12 @@ jobs:
           python -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/payload/native/test_reader_current_v3_source196.py \
             --genuine-capture-source "$RUNNER_TEMP/source205-basis"
           python -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/payload/native/test_reader_current_v3.py DiagnosticFailureData
+      - name: Check canonical Main route and Root request contract with actors denied
+        shell: bash
+        run: |
+          set -euo pipefail
+          export TMPDIR="$RUNNER_TEMP/source205-tmp"
+          python -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/successor_v7_source/main_route/test_contract.py \
+            --genuine-profile "$RUNNER_TEMP/source205-profile.json"
+          python -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/successor_v7_source/main_route/test_route.py \
+            --source-root "$RUNNER_TEMP/source205-candidate" --profile "$RUNNER_TEMP/source205-profile.json"

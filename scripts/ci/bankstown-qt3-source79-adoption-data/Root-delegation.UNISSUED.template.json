@@ -1,0 +1,536 @@
+{
+  "Root_final_acceptance": null,
+  "approved": null,
+  "audio": {
+    "bankstown_version": "1.1.0-5",
+    "frozen_minus2": "HELD",
+    "key_freshness": "HELD",
+    "legal": "HELD",
+    "private_test_only": true,
+    "qt_candidate": "6.12.0-3",
+    "rust_compiler": "1.99.0"
+  },
+  "binding": {
+    "attempt": 1,
+    "job": null,
+    "ref": "refs/heads/codex/bankstown-qt3-hosted-source79-20261117-r1",
+    "run": null,
+    "source": "429f82ea1e63cdf69b4be4be518257142f925e91",
+    "source_lock": {
+      "bytes": 15559,
+      "sha256": "e5560b70bc993b6d894de5319804bab4e907dc354750fb55a1f4cf54cbd9e764"
+    }
+  },
+  "capability": {
+    "allow_pair_adoption": false,
+    "allow_provisional_context": true,
+    "allow_provisional_image_checks": true,
+    "builder_cpus": 4,
+    "builder_memory_bytes": 4294967296,
+    "builder_pids": 512,
+    "command_rows": 512,
+    "max_command_seconds": 1800,
+    "operation": "bankstown-qt3-native-private-test-v1",
+    "stage": "qt3",
+    "total_seconds": 3600
+  },
+  "context_limits": {
+    "max_context_age_seconds": 3960,
+    "max_delegation_seconds": 4320,
+    "metadata_max_bytes": 1048576,
+    "metadata_query_seconds": 30
+  },
+  "expires_epoch": null,
+  "hardware_acceptance": false,
+  "hosted": {
+    "job_key": null,
+    "job_name": null,
+    "repository": null,
+    "runner_arch": "ARM64",
+    "runner_environment": "github-hosted",
+    "runner_os": "Linux",
+    "workflow_ref": null,
+    "workflow_sha": null
+  },
+  "image_ids": {
+    "qt3": null
+  },
+  "independent_component_acceptance": false,
+  "inputs_pin": null,
+  "issued_epoch": null,
+  "issuer": null,
+  "kind": "ROOT_DELEGATED_BANKSTOWN_QT3_PRIVATE_TEST_V1",
+  "materials": {
+    "source_000": {
+      "bytes": 5376,
+      "member": ".github/workflows/native-arm-bankstown-qt3-hosted-v1.yml",
+      "sha256": "7ac7accbf0b56587c85f865c6958669a94cbfe03d36843942de90c91806035b7"
+    },
+    "source_001": {
+      "bytes": 27829517,
+      "member": "inputs/catalog333.DATA.json",
+      "sha256": "aa612232f6bf711b9d1137ec8e10c8aaca99d026f26fce2b1954f64c9973b673"
+    },
+    "source_002": {
+      "bytes": 9102,
+      "member": "inputs/prospective477.expected.DATA.lock",
+      "sha256": "64f9c67795bd16f4cf3704dc0a050d2d17d1baa6e42b4e4fa254507b15183c49"
+    },
+    "source_003": {
+      "bytes": 6800,
+      "member": "inputs/stages/baseline349.expected.lock",
+      "sha256": "579981195b654d8cdf142e4101dfc2bfffbc3576eed50f23796a06e90cf57453"
+    },
+    "source_004": {
+      "bytes": 1388,
+      "member": "packages/port/bankstown-source-candidate/.SRCINFO",
+      "sha256": "9db5e128ca662252cea5980bac45455b0504485997276badaeeebdea7420a908"
+    },
+    "source_005": {
+      "bytes": 4942,
+      "member": "packages/port/bankstown-source-candidate/COMPONENTS.json",
+      "sha256": "c1e3c54b93e0889976cfd2fda75c320e6d2fc1d254674024a2ddeee1ebc541f2"
+    },
+    "source_006": {
+      "bytes": 1081,
+      "member": "packages/port/bankstown-source-candidate/PACKAGING.LICENSE",
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "source_007": {
+      "bytes": 4991,
+      "member": "packages/port/bankstown-source-candidate/PKGBUILD",
+      "sha256": "ce2a5cc3292e1de7f930c4c249c1839f3c4040e75aa1b37cdfc5d3b3b38e9659"
+    },
+    "source_008": {
+      "bytes": 2208,
+      "member": "packages/port/bankstown-source-candidate/SOURCE-CANDIDATE.md",
+      "sha256": "13a80861493ed9ca18d66c6e6d71001be6150eb17b7a19c84e5e110da99a65f5"
+    },
+    "source_009": {
+      "bytes": 48916,
+      "member": "packages/port/bankstown-source-candidate/audio-rust-notices-v1.tar.xz",
+      "sha256": "7cd393018f279ff2a1e71fe85fb5767e3f58398edcd395da4ab6f4eb357ce522"
+    },
+    "source_010": {
+      "bytes": 6655,
+      "member": "packages/port/bankstown-source-candidate/bankstown-1.1.0.tar.gz",
+      "sha256": "e877508b73fe90774d74526d838f75e8ea278bdbcee0a1f92e3eca67ed734675"
+    },
+    "source_011": {
+      "bytes": 8777,
+      "member": "packages/port/bankstown-source-candidate/build_guard.py",
+      "sha256": "778c22cb52a4ffe4103a0e7a2c907def00bd9cd2411d0fdbca339a4cc010e21a"
+    },
+    "source_012": {
+      "bytes": 5733816,
+      "member": "packages/port/bankstown-source-candidate/cargo-vendor-117.tar.xz",
+      "sha256": "64cd55473b19f104f3a90570409d58c5ab69f63c61396541c4ad1e56e8d6293f"
+    },
+    "source_013": {
+      "bytes": 25105,
+      "member": "packages/port/bankstown-source-candidate/native-rust-inputs.json",
+      "sha256": "65c0857c6278d82cc30afaff91a424dd753ba4435b6ac60ea377b3a0d6c9c1bc"
+    },
+    "source_014": {
+      "bytes": 2361,
+      "member": "packages/port/bankstown-source-candidate/native-toolchain-requirements.json",
+      "sha256": "29ce46145c8945cd2a224e4ad717f934eb1821e7c09bef8921f261f80a55a28d"
+    },
+    "source_015": {
+      "bytes": 11299,
+      "member": "scripts/build/build.py",
+      "sha256": "e520b37e5dfc285914203cfab99daecc80543505fef7ded6704b3fb06f001d45"
+    },
+    "source_016": {
+      "bytes": 1787,
+      "member": "scripts/build/container-entry.sh",
+      "sha256": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24"
+    },
+    "source_017": {
+      "bytes": 19289,
+      "member": "scripts/checks/package_checks.py",
+      "sha256": "314e8b4a0920b3f6d93619fc74ad1d63a6210d1b17b925618451b493d2610a1a"
+    },
+    "source_018": {
+      "bytes": 928,
+      "member": "scripts/ci/bankstown-qt3-hosted-v1/basis-origin.DATA.json",
+      "sha256": "5cfeced01b6e9e7c0010e9f4447fce7e7a232efcce524ded4a7a28b8f53cc661"
+    },
+    "source_019": {
+      "bytes": 66263,
+      "member": "scripts/ci/bankstown-qt3-hosted-v1/basis/hosted_current_v3.py",
+      "sha256": "f8387c748f31698b45656998248f099a8207bb58f7f9d7e70ef53a73be286d97"
+    },
+    "source_020": {
+      "bytes": 9677,
+      "member": "scripts/ci/bankstown-qt3-hosted-v1/hosted.py",
+      "sha256": "4f4bc0268ea83b97e294642ceaa1963c7dcbd3375af1d29c5805a666bffad2ea"
+    },
+    "source_021": {
+      "bytes": 10052,
+      "member": "scripts/ci/bankstown-qt3-hosted-v1/inputs.py",
+      "sha256": "7c19b63a3135e372f8b31f8297cb0aee1d783a69b282c3e6aa19ee4777174617"
+    },
+    "source_022": {
+      "bytes": 5703,
+      "member": "scripts/ci/bankstown-qt3-hosted-v1/policy.PROPOSAL.json",
+      "sha256": "7bd20f3c36cce413b4e732232cb3e60dee5ce9d8f791d9cb046eed19654b03ba"
+    },
+    "source_023": {
+      "bytes": 14203,
+      "member": "scripts/ci/bankstown-qt3-hosted-v1/source72-map.DATA.json",
+      "sha256": "5643afddb02e2d4d29f1215f44b8409599d9b17dd3849699e8fd6897eb6c40b8"
+    },
+    "source_024": {
+      "bytes": 6800,
+      "member": "scripts/ci/bankstown-qt3-native-profile-v1/expected349.lock",
+      "sha256": "579981195b654d8cdf142e4101dfc2bfffbc3576eed50f23796a06e90cf57453"
+    },
+    "source_025": {
+      "bytes": 3858,
+      "member": "scripts/ci/bankstown-qt3-native-profile-v1/inventory.py",
+      "sha256": "6802f0e5a493f04fd1cc170cf00e70dbcbab4c6f85138ab537e491c4429e7b94"
+    },
+    "source_026": {
+      "bytes": 7332,
+      "member": "scripts/ci/bankstown-qt3-native-profile-v1/passive.py",
+      "sha256": "5866de0e50d00eeb74bdcf33ff452061298a77c47d906fa346cd9aaf6cb06f54"
+    },
+    "source_027": {
+      "bytes": 7601,
+      "member": "scripts/ci/bankstown-qt3-native-profile-v1/profile.py",
+      "sha256": "629cf347fde8f8e130fbefb375546ef120cee3775c2bfec7a7fdd8160b44b6f9"
+    },
+    "source_028": {
+      "bytes": 4178,
+      "member": "scripts/ci/bankstown-qt3-native-profile-v1/receipt.py",
+      "sha256": "c0b1c8ccdcd6c0fbdfbf5f87a4e2dd4dcf7e2a2340295e70c36035a965bb69ea"
+    },
+    "source_029": {
+      "bytes": 8860,
+      "member": "scripts/ci/bankstown-qt3-native-source/context.py",
+      "sha256": "6705f668f3dd257a251b4c674896dc6412f749580d54e3e12e6e5779515fcef3"
+    },
+    "source_030": {
+      "bytes": 3407,
+      "member": "scripts/ci/bankstown-qt3-native-source/controller.py",
+      "sha256": "8f17ce98eea2ddf8b2b220736460c2535d4d2fc33de57f1f94829ac521206ebe"
+    },
+    "source_031": {
+      "bytes": 8111,
+      "member": "scripts/ci/bankstown-qt3-native-source/handoff.py",
+      "sha256": "284f9270ddba904e28bc4750576c7be54660b00c2d4a8ba2f846955f88a8cebb"
+    },
+    "source_032": {
+      "bytes": 7404,
+      "member": "scripts/ci/bankstown-qt3-native-source/handoff.schema.json",
+      "sha256": "59897233f75ccf24dc4a995fff2b443330510c00a35a41db3a1b3d4a3744c8b1"
+    },
+    "source_033": {
+      "bytes": 10046,
+      "member": "scripts/ci/bankstown-qt3-native-source/image.py",
+      "sha256": "2b6afb4286a2cffa22646733316fd74ccf1f5e8692c4fe5baa74735a4e7f9eba"
+    },
+    "source_034": {
+      "bytes": 9376,
+      "member": "scripts/ci/bankstown-qt3-native-source/inputs.py",
+      "sha256": "b605524811535fd9f108a2797ada7f135c2beed91c0ab99c73e28b76046e270d"
+    },
+    "source_035": {
+      "bytes": 8807,
+      "member": "scripts/ci/bankstown-qt3-native-source/materialize.py",
+      "sha256": "fabb62a02fff86c4476fcc30e4b7129aa0bc53aa3fdb7fbaa40cfffde28e0b1d"
+    },
+    "source_036": {
+      "bytes": 12524,
+      "member": "scripts/ci/bankstown-qt3-native-source/owner.py",
+      "sha256": "c528e8bdf2f16573bb4da0eed6aa77b0e271d476fe0baeac35231a4248e9a634"
+    },
+    "source_037": {
+      "bytes": 4574,
+      "member": "scripts/ci/bankstown-qt3-native-source/policy.PROPOSAL.json",
+      "sha256": "09ab724b9746a137fca214c4e90ba258c1fd436e40ada2454761c44eb3c46d59"
+    },
+    "source_038": {
+      "bytes": 18820,
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/base_inputs_current_v3.py",
+      "sha256": "9e35c3ae6c3e1e9596f54806279d05cc77ae6a2cb5fb284d469df549e1d3abc6"
+    },
+    "source_039": {
+      "bytes": 34468,
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/build_tools_tools_v2.py",
+      "sha256": "eb1ff0ee8aefc2c0e32b38520e1bf0dabcbb9308081a24e2f9c378366a3cab13"
+    },
+    "source_040": {
+      "bytes": 21460,
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/delegated_context_v3.py",
+      "sha256": "efa5a2687ac1504ef565763ac0828dd6c98c593563df97b2f540ccf4e0de9d2b"
+    },
+    "source_041": {
+      "bytes": 55783,
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/image_current_v3.py",
+      "sha256": "f4e590532d7f6115f830215810f9dee5f2a1eb714351a9a7e572d22c5a255f90"
+    },
+    "source_042": {
+      "bytes": 45247,
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/inputs_current_v3.py",
+      "sha256": "ddc4f0da13c4e9d7ab58f2c3fe318343082f320dae105e069336ecb24c4c49cb"
+    },
+    "source_043": {
+      "bytes": 53735,
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/owned_executor_current_v3.py",
+      "sha256": "aee41c0956f3249eef2e9c8974238b214622cb385e2d8f736109d9650ce7120a"
+    },
+    "source_044": {
+      "bytes": 62259,
+      "member": "scripts/ci/first-login-enrollment-native-source/profile.json",
+      "sha256": "ad874751a48cfd7e7d94f5d38d79caa138679be067cb113ead35150f0d3c78fa"
+    },
+    "source_045": {
+      "bytes": 6716,
+      "member": "scripts/port/arm-rust-toolchain-inputs/CLOSURE.md",
+      "sha256": "6ba241cf1713450c03113ebee6a4195fd1a6b9321efaa5e9cc0390e414bbff24"
+    },
+    "source_046": {
+      "bytes": 8584,
+      "member": "scripts/port/arm-rust-toolchain-inputs/README.md",
+      "sha256": "87fe1796f9e162452fc248242a0410521e4a7ab7100ef9ae5df5204443fbfa7d"
+    },
+    "source_047": {
+      "bytes": 5947,
+      "member": "scripts/port/arm-rust-toolchain-inputs/SUPPLEMENT.md",
+      "sha256": "3413f4ab3b464a0368a95d3459ace2e14f6441f1593d5124f42fa059987ab946"
+    },
+    "source_048": {
+      "bytes": 8757,
+      "member": "scripts/port/arm-rust-toolchain-inputs/acquire_qt.py",
+      "sha256": "c49be1b3b35f3f16746acd2249e090c2e29d4b6d37d049005525e9ea747bdb2b"
+    },
+    "source_049": {
+      "bytes": 2228,
+      "member": "scripts/port/arm-rust-toolchain-inputs/alarm-public.gpg",
+      "sha256": "9403f923eed777ba0896a0b225e1522d3a7625234694c753ae26b27c29672aae"
+    },
+    "source_050": {
+      "bytes": 28837,
+      "member": "scripts/port/arm-rust-toolchain-inputs/catalog.py",
+      "sha256": "d11fd6ec64d2622f23b31e86f9ea80493dfffa0d9558ec85cb7543feefae41f6"
+    },
+    "source_051": {
+      "bytes": 328165,
+      "member": "scripts/port/arm-rust-toolchain-inputs/history/inputs-271.lock.json",
+      "sha256": "7d0b4ba9f6b707a3afba8d8087d8229d5b52ca105476602ac55086eab167c6f5"
+    },
+    "source_052": {
+      "bytes": 94299,
+      "member": "scripts/port/arm-rust-toolchain-inputs/history/inputs-84.lock.json",
+      "sha256": "56f015387f08888f924aff4f0271c342a5303644f13515c7a3743fa9af9650f2"
+    },
+    "source_053": {
+      "bytes": 4969,
+      "member": "scripts/port/arm-rust-toolchain-inputs/history/remaining-inputs-271.json",
+      "sha256": "8df69e68381a19f88c3f7fa7d0fc667b142747af82aacb0ff063df456418ccdc"
+    },
+    "source_054": {
+      "bytes": 472,
+      "member": "scripts/port/arm-rust-toolchain-inputs/history/result-271.json",
+      "sha256": "93f7395ca271b8d05b786f1b251e55fd67de0c00f5e3b1d954712b73465713b2"
+    },
+    "source_055": {
+      "bytes": 932,
+      "member": "scripts/port/arm-rust-toolchain-inputs/history/result-84.json",
+      "sha256": "f6ecb3187677b497867ace100e757e804e7c042e24c3f41ce5c9cc33f1d09b21"
+    },
+    "source_056": {
+      "bytes": 334371,
+      "member": "scripts/port/arm-rust-toolchain-inputs/inputs.lock.json",
+      "sha256": "a69001b6e4b2426ed12fd17a548a1a3f7a07e491b48c5c62ea48f8832355b5f9"
+    },
+    "source_057": {
+      "bytes": 4710,
+      "member": "scripts/port/arm-rust-toolchain-inputs/loader-semantics.json",
+      "sha256": "7540d47831d1398789107340483173642cd92c8d9b9d65793dcd8c6c428ae13c"
+    },
+    "source_058": {
+      "bytes": 26419,
+      "member": "scripts/port/arm-rust-toolchain-inputs/loader-source/COPYING.LIB",
+      "sha256": "20e50fe7aae3e56378ebf0417d9de904f55a0e61e4df315333e632a4d3555d95"
+    },
+    "source_059": {
+      "bytes": 68674,
+      "member": "scripts/port/arm-rust-toolchain-inputs/loader-source/dl-load.c",
+      "sha256": "d4e96705a45a1f120f8a8a27e23778a976e9c055fabeeed87cdc8f6888e71109"
+    },
+    "source_060": {
+      "bytes": 17028,
+      "member": "scripts/port/arm-rust-toolchain-inputs/qt-acquisition-evidence.json",
+      "sha256": "c92d380e06d7906a250955514bbe748e2bf4ffce3d2a81ded282711b8021b260"
+    },
+    "source_061": {
+      "bytes": 7326,
+      "member": "scripts/port/arm-rust-toolchain-inputs/qt-frozen-inputs.json",
+      "sha256": "cf66e1390dbe87b64c44a51f45ecd4fc786c26cdeabd8efa8ad560f7843d9d88"
+    },
+    "source_062": {
+      "bytes": 88821,
+      "member": "scripts/port/arm-rust-toolchain-inputs/qtbase-successor/candidate.lock.json",
+      "sha256": "b9053079a1c2f6dab8cee3b782d8ebbedae5865c6f9fad74de85357fec2d07a7"
+    },
+    "source_063": {
+      "bytes": 14337,
+      "member": "scripts/port/arm-rust-toolchain-inputs/qtbase-successor/candidate.py",
+      "sha256": "0f2c908c32f2c1102bef8a3e5ee5096a3e9b0ffdc18b37365a6fcba4424b2041"
+    },
+    "source_064": {
+      "bytes": 4685,
+      "member": "scripts/port/arm-rust-toolchain-inputs/qtbase-successor/elf_versions.py",
+      "sha256": "6cf4a17b22dd6df28ace686ca1b3f4d6f5ed9248910a0f7f787ad65046e73285"
+    },
+    "source_065": {
+      "bytes": 3972,
+      "member": "scripts/port/arm-rust-toolchain-inputs/qtbase-successor/parent-binding.json",
+      "sha256": "ae78fac40449df9da2d055a39ef8431339813f3fbba9c9569c8bcd23a09b87ed"
+    },
+    "source_066": {
+      "bytes": 42661,
+      "member": "scripts/port/arm-rust-toolchain-inputs/qtbase-successor/source-facts.json",
+      "sha256": "3da16183fd434ff52a996e6b56c5e93467ae26a3e78b9086f6d0b5828a80e22a"
+    },
+    "source_067": {
+      "bytes": 36362,
+      "member": "scripts/port/arm-rust-toolchain-inputs/remaining-inputs.json",
+      "sha256": "91f92ac9a38310b1b7292c2d16a66c6c0d1d3634b181d3e8a1379567ba5fd508"
+    },
+    "source_068": {
+      "bytes": 25105,
+      "member": "scripts/port/arm-rust-toolchain-inputs/rust-137-files.json",
+      "sha256": "65c0857c6278d82cc30afaff91a424dd753ba4435b6ac60ea377b3a0d6c9c1bc"
+    },
+    "source_069": {
+      "bytes": 5934,
+      "member": "scripts/port/arm-rust-toolchain-inputs/source-facts.json",
+      "sha256": "5ce3c53a44afab2b905ca7f01669f3f323f3bad2d06b8849b2c2bc66c5931c2c"
+    },
+    "source_070": {
+      "bytes": 223199,
+      "member": "scripts/port/arm-rust-toolchain-inputs/supplemental-inputs.json",
+      "sha256": "c93cd72d6954c2513208f13fcf6555aa0bb1cce2bbd5a0c183bab9e8bbdd6183"
+    },
+    "source_071": {
+      "bytes": 18139,
+      "member": "scripts/port/arm-rust-toolchain-inputs/test_catalog.py",
+      "sha256": "114d073d09cb9f03038c410f805707644991ec79d0066e20d83a6055f6f59ae9"
+    },
+    "source_072": {
+      "bytes": 8276,
+      "member": "scripts/port/bankstown-qt3-native-v1/admission.py",
+      "sha256": "6408b84bdf54e604ae6d734dedbbc5b179a7d2ded7c68abfa8451e8b7a16cf02"
+    },
+    "source_073": {
+      "bytes": 26504,
+      "member": "scripts/port/bankstown-qt3-native-v1/builder.py",
+      "sha256": "6d5c19922091163ab612ceeceb96deef034e3274b80e2d17aa36704c87e30366"
+    },
+    "source_074": {
+      "bytes": 934,
+      "member": "scripts/port/bankstown-qt3-native-v1/entry.sh",
+      "sha256": "3a73d1defb7f4463d5e1cb2a9b20c58c86211bdb8008a0b39ca3c04de6e51bf3"
+    },
+    "source_075": {
+      "bytes": 19342,
+      "member": "scripts/port/bankstown-qt3-native-v1/profile.py",
+      "sha256": "a2543a08d750dbf27cfc278bec09d61229ee9f9f3d47c56d018451f6c032d855"
+    },
+    "source_076": {
+      "bytes": 25140,
+      "member": "scripts/virtual/owned_process.py",
+      "sha256": "83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f"
+    }
+  },
+  "nonce": null,
+  "policy": {
+    "bytes": 5703,
+    "member": "scripts/ci/bankstown-qt3-hosted-v1/policy.PROPOSAL.json",
+    "sha256": "7bd20f3c36cce413b4e732232cb3e60dee5ce9d8f791d9cb046eed19654b03ba"
+  },
+  "programs": {
+    "audio_inputs": {
+      "bytes": 9376,
+      "member": "scripts/ci/bankstown-qt3-native-source/inputs.py",
+      "sha256": "b605524811535fd9f108a2797ada7f135c2beed91c0ab99c73e28b76046e270d"
+    },
+    "context": {
+      "bytes": 8860,
+      "member": "scripts/ci/bankstown-qt3-native-source/context.py",
+      "sha256": "6705f668f3dd257a251b4c674896dc6412f749580d54e3e12e6e5779515fcef3"
+    },
+    "handoff": {
+      "bytes": 8111,
+      "member": "scripts/ci/bankstown-qt3-native-source/handoff.py",
+      "sha256": "284f9270ddba904e28bc4750576c7be54660b00c2d4a8ba2f846955f88a8cebb"
+    },
+    "hosted_launcher": {
+      "bytes": 9677,
+      "member": "scripts/ci/bankstown-qt3-hosted-v1/hosted.py",
+      "sha256": "4f4bc0268ea83b97e294642ceaa1963c7dcbd3375af1d29c5805a666bffad2ea"
+    },
+    "image": {
+      "bytes": 10046,
+      "member": "scripts/ci/bankstown-qt3-native-source/image.py",
+      "sha256": "2b6afb4286a2cffa22646733316fd74ccf1f5e8692c4fe5baa74735a4e7f9eba"
+    },
+    "image_executor": {
+      "bytes": 3407,
+      "member": "scripts/ci/bankstown-qt3-native-source/controller.py",
+      "sha256": "8f17ce98eea2ddf8b2b220736460c2535d4d2fc33de57f1f94829ac521206ebe"
+    },
+    "inputs_assembler": {
+      "bytes": 10052,
+      "member": "scripts/ci/bankstown-qt3-hosted-v1/inputs.py",
+      "sha256": "7c19b63a3135e372f8b31f8297cb0aee1d783a69b282c3e6aa19ee4777174617"
+    },
+    "materialize": {
+      "bytes": 8807,
+      "member": "scripts/ci/bankstown-qt3-native-source/materialize.py",
+      "sha256": "fabb62a02fff86c4476fcc30e4b7129aa0bc53aa3fdb7fbaa40cfffde28e0b1d"
+    },
+    "owned_process": {
+      "bytes": 25140,
+      "member": "scripts/virtual/owned_process.py",
+      "sha256": "83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f"
+    },
+    "owner": {
+      "bytes": 12524,
+      "member": "scripts/ci/bankstown-qt3-native-source/owner.py",
+      "sha256": "c528e8bdf2f16573bb4da0eed6aa77b0e271d476fe0baeac35231a4248e9a634"
+    },
+    "profile": {
+      "bytes": 7601,
+      "member": "scripts/ci/bankstown-qt3-native-profile-v1/profile.py",
+      "sha256": "629cf347fde8f8e130fbefb375546ef120cee3775c2bfec7a7fdd8160b44b6f9"
+    },
+    "profile_inventory": {
+      "bytes": 3858,
+      "member": "scripts/ci/bankstown-qt3-native-profile-v1/inventory.py",
+      "sha256": "6802f0e5a493f04fd1cc170cf00e70dbcbab4c6f85138ab537e491c4429e7b94"
+    },
+    "profile_passive": {
+      "bytes": 7332,
+      "member": "scripts/ci/bankstown-qt3-native-profile-v1/passive.py",
+      "sha256": "5866de0e50d00eeb74bdcf33ff452061298a77c47d906fa346cd9aaf6cb06f54"
+    },
+    "profile_receipt": {
+      "bytes": 4178,
+      "member": "scripts/ci/bankstown-qt3-native-profile-v1/receipt.py",
+      "sha256": "c0b1c8ccdcd6c0fbdfbf5f87a4e2dd4dcf7e2a2340295e70c36035a965bb69ea"
+    }
+  },
+  "release_acceptance": false,
+  "root_selection": {
+    "directory": null,
+    "wait_seconds": 300
+  },
+  "schema": 1,
+  "scope": "CURRENT_PRIVATE_STAGE_ONLY",
+  "stage": "qt3"
+}

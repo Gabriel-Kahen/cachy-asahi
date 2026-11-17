@@ -1,0 +1,127 @@
+{
+  "approved": null,
+  "canonical_lease": {
+    "bytes": 0,
+    "ctime_ns": null,
+    "dev": null,
+    "gid": null,
+    "inode": null,
+    "mode": 420,
+    "mtime_ns": null,
+    "nlink": 1,
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261025/shared-GUI-ancestor-collection.lock",
+    "uid": null
+  },
+  "case_id": null,
+  "expires_epoch": null,
+  "group": "native-arm-build",
+  "issued_epoch": null,
+  "issuer": null,
+  "kind": "ROOT_SOURCE205_ONCE_CASE_V1",
+  "main": {
+    "cid": null,
+    "launcher": {
+      "bytes": 68455,
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/hosted_current_v3.py",
+      "sha256": "d491626c309a4b0f1fc198fa1cc8515d2412326d0e4fb9947332590d9de0132e"
+    },
+    "reader": {
+      "bytes": null,
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/reader_current_v3.py",
+      "sha256": null
+    },
+    "reader_contract": "SOURCE205_FINITE_TRANSPORT_V2",
+    "tree": null,
+    "workflow": {
+      "bytes": 8949,
+      "member": ".github/workflows/native-arm-current-onboarding-delegated-v3.yml",
+      "sha256": "4aaa31fae8b6665d502372467d3da5ceef0bb30553d2dfb1ac9f38a41fc90165"
+    }
+  },
+  "nonce": null,
+  "operation": "first-login-enrollment-ui-current-v2",
+  "pins": {
+    "admission": null,
+    "once": null,
+    "readback": null,
+    "registration": null,
+    "request": null,
+    "runtime": null
+  },
+  "resources": {
+    "classification": "HEAVY_NON_KERNEL",
+    "context_limits": {
+      "max_context_age_seconds": 7560,
+      "max_delegation_seconds": 7560,
+      "metadata_max_bytes": 1048576,
+      "metadata_query_seconds": 30
+    },
+    "exemptions": [],
+    "launcher_limits": {
+      "address_space_bytes": 536870912,
+      "control_bytes": 33554432,
+      "control_nodes": 128,
+      "cpu_seconds": 7740,
+      "launcher_seconds": 7740,
+      "preflight_cpu_seconds": 180,
+      "preflight_seconds": 180,
+      "reference_bytes": 34359738368,
+      "reference_file_bytes": 8589934592,
+      "reference_files": 1024,
+      "request_bytes": 49152,
+      "scope_stop_seconds": 10
+    },
+    "policy": {
+      "bytes": 8366,
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/owned_current_v3.policy.PROPOSAL.json",
+      "sha256": "1177da4f3bfc36f8ebe8802ca6956adf3d0230511aa827bdac933688d83f0767"
+    },
+    "scheduling_lane": "native-arm-build",
+    "scope_limits": {
+      "cpu.max": "100000 100000",
+      "memory.max": "536870912",
+      "memory.swap.max": "0",
+      "pids.max": "64"
+    },
+    "stage_limits": {
+      "builder_cpus": 4,
+      "builder_memory_bytes": 4294967296,
+      "builder_pids": 512,
+      "command_rows": 512,
+      "max_command_seconds": 1800,
+      "total_seconds": 7200
+    },
+    "whole_timing": {
+      "Root_acceptance": null,
+      "allow_clipped_stage_window": true,
+      "charge_preflight_and_prerequisites": true,
+      "controller_retirement_reserve_seconds": 15,
+      "kind": "CURRENT_HOSTED_SHARED_7560_PREREQUISITE_TIMING_V3",
+      "metadata_queries": 2,
+      "whole_budget_seconds": 7560
+    }
+  },
+  "schema": 1,
+  "source": {
+    "bytes": 45962607,
+    "cid": null,
+    "files": 205,
+    "profile": {
+      "bytes": 21451,
+      "sha256": "99198c00308780aaf95e803c43d01ab185b55a049731287b7644c2425dd90a12"
+    },
+    "program": {
+      "bytes": 15135,
+      "path": "scripts/ci/first-login-enrollment-native-source/successor_v7_source/program.json",
+      "sha256": "623f667137fd38d9c319de729df910780fbf0fae7c0bc7e2aade27889c102dae"
+    },
+    "ref": null,
+    "source_map": {
+      "bytes": 40793,
+      "sha256": "a6d22a528075c11f6fa2e87d894c41e0ed31befcd17f99a8b92d6c26fccdb815"
+    },
+    "tree": "d7e48cbd6a3a638c5ecdabf8ca98a6a642dfde36"
+  },
+  "stage": null,
+  "workflow_id": null
+}

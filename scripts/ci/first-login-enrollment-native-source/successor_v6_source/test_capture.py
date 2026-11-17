@@ -18,8 +18,9 @@ HERE=Path(__file__).resolve().parent
 spec=importlib.util.spec_from_file_location('capture_controls_basis',HERE.parent/'test_source_failure_packet_v1.py')
 B=importlib.util.module_from_spec(spec);spec.loader.exec_module(B)
 M,E,S=B.M,B.E,B.S
-spec=importlib.util.spec_from_file_location('capture_hosted_projection',HERE.parent/'payload/native/hosted_current_v3.py')
-L=importlib.util.module_from_spec(spec);spec.loader.exec_module(L)
+spec=importlib.util.spec_from_file_location('capture_original_hosted_operand',HERE.parent/'successor_v7_source/main_route/legacy_input.py')
+LEGACY=importlib.util.module_from_spec(spec);spec.loader.exec_module(LEGACY)
+L=LEGACY.load_hosted('capture_hosted_projection')
 
 
 class Controls(unittest.TestCase):

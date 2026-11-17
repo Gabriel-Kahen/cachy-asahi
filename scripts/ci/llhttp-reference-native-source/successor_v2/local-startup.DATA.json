@@ -1,0 +1,33 @@
+{
+  "binary": {
+    "ELF_machine": 62,
+    "bytes": 44217952,
+    "path": "/home/gabe/bin/docker",
+    "sha256": "e966e0e6ea215b74fdbee17fbe7ed8bff15b65930bfc8e131652ceae4ed0210e"
+  },
+  "native_ARM": "NOT RUN",
+  "results": [
+    {
+      "AS_bytes": 536870912,
+      "argv": [
+        "/home/gabe/bin/docker",
+        "--version"
+      ],
+      "exit": 2,
+      "scope": "local x86_64 Go Docker CLI startup only; no daemon access; not native ARM qualification",
+      "stderr": "fatal error: failed to reserve page summary memory\n\nruntime stack:\nruntime.throw({0x22e5e4?, 0x20000000?})\n\t/usr/local/go/src/runtime/panic.go:1229 +0x4a fp=0x7ffe672bd9f0 sp=0x7ffe672bd9c0 pc=0xe624ea\nruntime.(*pageAlloc).sysInit(0x1efe388, 0xa0?)\n\t/usr/local/go/src/runtime/mpagealloc_64bit.go:81 +0x112 fp=0x7ffe672bda58 sp=0x7ffe672bd9f0 pc=0xe1f652\nruntime.(*pageAlloc).init(0x1efe388, 0x1efe380, 0x1f1d5a0, 0x0)\n\t/usr/local/go/src/runtime/mpagealloc.go:327 +0x85 fp=0x7ffe672bda88 sp=0x7ffe672bda58 pc=0xe1cd65\nruntime.(*mheap).init(0x1efe380)\n\t/usr/local/go/src/runtime/mheap.go:821 +0x225 fp=0x7ffe672bdac0 sp=0x7ffe672bda88 pc=0xe18ea5\nruntime.mallocinit()\n\t/usr/local/go/src/runtime/malloc.go:493 +0xfd fp=0x7ffe672bdb08 sp=0x7ffe672bdac0 pc=0xdfbe3d\nruntime.schedinit()\n\t/usr/local/go/src/runtime/proc.go:877 +0x112 fp=0x7ffe672bdba0 sp=0x7ffe672bdb08 pc=0xe2e1d2\nruntime.rt0_go()\n\t/usr/local/go/src/runtime/asm_amd64.s:373 +0x127 fp=0x7ffe672bdba8 sp=0x7ffe672bdba0 pc=0xe68567\n",
+      "stdout": ""
+    },
+    {
+      "AS_bytes": 2147483648,
+      "argv": [
+        "/home/gabe/bin/docker",
+        "--version"
+      ],
+      "exit": 0,
+      "scope": "local x86_64 Go Docker CLI startup only; no daemon access; not native ARM qualification",
+      "stderr": "",
+      "stdout": "Docker version 29.8.0, build 88096ef\n"
+    }
+  ]
+}

@@ -6,8 +6,10 @@ import sys,tempfile,time,unittest
 from types import SimpleNamespace
 from unittest.mock import patch
 HERE=Path(__file__).resolve().parent
-MODULE=HERE/'payload/native/hosted_current_v3.py'
-s=importlib.util.spec_from_file_location('FENCED_current_hosted',MODULE);L=importlib.util.module_from_spec(s);s.loader.exec_module(L)
+s=importlib.util.spec_from_file_location('FENCED_legacy_hosted_operand',HERE/'successor_v7_source/main_route/legacy_input.py')
+LEGACY=importlib.util.module_from_spec(s);s.loader.exec_module(LEGACY)
+MODULE=LEGACY.hosted_path()
+L=LEGACY.load_hosted('FENCED_current_hosted')
 MEMBER='scripts/ci/first-login-enrollment-native-source/payload/native/hosted_current_v3.py'
 CONTEXT='''import json,hashlib
 from pathlib import Path

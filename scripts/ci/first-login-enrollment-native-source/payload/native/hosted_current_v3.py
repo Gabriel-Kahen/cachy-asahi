@@ -279,8 +279,8 @@ def prerequisite_controller(args):
 
 
 BASE_FIELDS=('base_lock','bootstrap_profile','base_materials','supplemental_materials','keyring_materials')
-MATERIAL_STAGER_PIN=dict(bytes=35550,sha256='58c5d0842c17a914239b5f24e9e1ac2987ad8ec9ce9e2a03e63a04f2e2e99282')
-MATERIAL_DOMAIN_PIN=dict(bytes=42462,sha256='ead51cfa3bcf4b74fbccc8c469926c71fbb72edefcf9525b297e1737fde3ab8f')
+MATERIAL_STAGER_PIN=dict(bytes=43583,sha256='da365c903750c47b7465cfb8002f3a110747497d5755bd4b7eb903c410355289')
+MATERIAL_DOMAIN_PIN=dict(bytes=44646,sha256='af2efcc9f2b58af8c02e8de92e4a3a8704f90c34aea8109ce2a3725bd5600b04')
 MATERIAL_SECRET_NAMES=tuple(['CACHY_OLD_FOUR_'+tag+'_%02d'%i for tag,count in(('JBIGKIT',2),('JBIGKIT_SIG',1),('LIBTIFF',15),('LIBTIFF_SIG',1))for i in range(1,count+1)]+['CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01','CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02','CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01'])
 
 
@@ -364,6 +364,22 @@ SOURCE_FAILURE_PHASES=frozenset(('ENTRY','AUTHORIZE','SOURCE','NATIVE_CONTEXT','
     'TRANSPORT_PUBLIC14','TRANSPORT_NATIVE248','PRIVATE_SEED','PUBLIC14_PREPARE','NATIVE248_PREPARE','DOWNLOAD','COMPLETE517','FINALIZE','CHILD'))
 
 
+TRANSPORT_PHASES=('ADMISSION','SETUP','METADATA_FETCH','METADATA_PROOF','REQUIRED_BLOBS_FETCH','COMPLETE_OBJECT_PROOF','MATERIALIZATION','FINAL_NAMESPACE_PROOF')
+TRANSPORT_OPERATIONS=('DELIVERY','VALIDATE_PROFILE','VALIDATE_POLICY','VALIDATE_URL','PATH_OPEN','RECEIPT_WRITE','GIT_INIT','GIT_FETCH_METADATA','GIT_FETCH_BLOBS','GIT_REV_PARSE','GIT_COMMIT_READ','GIT_TREE_READ','GIT_OBJECT_INVENTORY','GIT_BLOB_READ','GIT_UPDATE_REF','NAMESPACE_VERIFY','FILE_VERIFY','DEADLINE')
+TRANSPORT_ERRORS=('VALIDATION','OS_ERROR','TIMEOUT','UNICODE','JSON','CONTROL','OTHER')
+TRANSPORT_ERRNOS=(1,2,5,9,12,13,17,18,20,21,22,24,27,28,30,32,36,40,101,104,110,111,113)
+
+
+def transport_packet(value):
+ """Finite diagnostic DATA; Git exposes no HTTP status through this API."""
+ if type(value)is not dict or set(value)!={'schema','kind','phase','operation','error_class','errno','command_ordinal','git_exit','git_timeout','http_status'}:return False
+ if type(value['schema'])is not int or value['schema']!=1 or value['kind']!='CURRENT_RETAINED_TRANSPORT_FAILURE_V1':return False
+ if any(type(value[k])is not str or value[k]not in choices for k,choices in(('phase',TRANSPORT_PHASES),('operation',TRANSPORT_OPERATIONS),('error_class',TRANSPORT_ERRORS))):return False
+ if value['errno']is not None and(type(value['errno'])is not int or value['errno']not in TRANSPORT_ERRNOS):return False
+ if value['command_ordinal']is not None and(type(value['command_ordinal'])is not int or not 0<=value['command_ordinal']<1170):return False
+ if value['git_exit']is not None and(type(value['git_exit'])is not int or not -255<=value['git_exit']<=255):return False
+ return (value['git_timeout']is None or type(value['git_timeout'])is bool)and value['http_status']is None
+
 def material_stage_failure(plan):
     """Validate the pinned Source's fixed diagnostic record before input cleanup."""
     try:
@@ -400,9 +416,15 @@ def material_stage_failure(plan):
         packet=value['packet']
         if value['availability']=='AVAILABLE':
             need(session.stage_submitted is True and len(stage)==1,'packet belongs to the submitted owned staging child')
-            need(type(packet)is dict and set(packet)=={'schema','kind','phase','reason','command_ordinal'},'closed Source failure packet')
-            need(type(packet['schema'])is int and packet['schema']==1 and packet['kind']=='CURRENT_MATERIAL_STAGE_FAILURE_V1'
-                 and type(packet['phase'])is str and packet['phase']in SOURCE_FAILURE_PHASES
+            fields={'schema','kind','phase','reason','command_ordinal'}
+            need(type(packet)is dict and type(packet.get('schema'))is int,'closed Source failure packet')
+            if packet['schema']==1:
+                need(set(packet)==fields and packet['kind']=='CURRENT_MATERIAL_STAGE_FAILURE_V1','historical Source packet')
+            else:
+                need(packet['schema']==2 and set(packet)==fields|{'transport'}and packet['kind']=='CURRENT_MATERIAL_STAGE_FAILURE_V2','nested Source packet')
+                nested=packet['transport']
+                need(nested is None or transport_packet(nested)and packet['phase']in('CHILD','TRANSPORT_PUBLIC14','TRANSPORT_NATIVE248'),'closed finite transport DATA')
+            need(type(packet['phase'])is str and packet['phase']in SOURCE_FAILURE_PHASES
                  and type(packet['reason'])is str and packet['reason']in('PHASE_FAILED','COMMAND_FAILED'),'finite Source failure phase and reason')
             ordinal=packet['command_ordinal'];need(ordinal is None or(type(ordinal)is int and 0<=ordinal<=26),'finite Source command ordinal')
             body=encoded(packet);need(len(body)<=1024 and value['stderr_pin']==pin(body),'whole canonical packet equals complete staging stderr')
