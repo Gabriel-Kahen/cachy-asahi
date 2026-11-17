@@ -1,0 +1,160 @@
+{
+  "all501": {
+    "bytes": 328101,
+    "sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f"
+  },
+  "archive": {
+    "authentication": "whole SHA256 verified; upstream signature NOT_ESTABLISHED",
+    "bytes": 244705,
+    "commit": "472c417005c2c71b8617de4f7b8d6b30411d78f4",
+    "commit_date": "2026-04-20T11:43:40Z",
+    "filename": "md4c-472c417005c2c71b8617de4f7b8d6b30411d78f4.tar.gz",
+    "license": "MIT; upstream LICENSE.md retained verbatim",
+    "repository": "https://github.com/mity/md4c",
+    "sha256": "ecbd85292465df929839897e314d809b5c8b267e20c4e5e24d51a1602d16d99a",
+    "source_date_epoch": 1776685420,
+    "tag": "release-0.5.3",
+    "tag_object": "093c3f45ce44bd6661849982b1dd7f0e7f385621",
+    "url": "https://codeload.github.com/mity/md4c/tar.gz/472c417005c2c71b8617de4f7b8d6b30411d78f4"
+  },
+  "expected349": {
+    "bytes": 6800,
+    "sha256": "579981195b654d8cdf142e4101dfc2bfffbc3576eed50f23796a06e90cf57453"
+  },
+  "factory": {
+    "entry": "prepare.py",
+    "kind": "MD4C053_NATIVE_SOURCE_FACTORY_V1",
+    "source": {
+      "bytes": 2035430,
+      "files": 95,
+      "map": {
+        "bytes": 20201,
+        "sha256": "0bf7317197d180315da5ce3cffa309a61898571eacf27dd99360a8ea7f4b0e7c"
+      },
+      "policy": {
+        "bytes": 57656,
+        "sha256": "9d0ab18e51c3a2ba836b9359f0f2ab82ca317c4068f6bb4dc386a0aeae1ea232"
+      },
+      "program": {
+        "bytes": 9674,
+        "sha256": "bf720016fd829f9cd6d6c92282d22a26ed19d696401e1607df5956c582198fb0"
+      },
+      "tree": "f1218cff0804c456f74f980e36e262532d2d080f",
+      "workflow": {
+        "bytes": 7465,
+        "sha256": "45412e2de56867d703dbb9741713b2ba61db004500b1fc292d7023e3a5de3ced"
+      },
+      "workflow_path": ".github/workflows/native-arm-md4c053-reference-source.yml"
+    }
+  },
+  "parent": {
+    "bytes": 1912806,
+    "commit": "241221e2e804fb00e313cf41a18987151e188db6",
+    "files": 95,
+    "map": {
+      "bytes": 20203,
+      "sha256": "9c17f9df07a79a9869e1a40e8d97cd473b620a07a78bd89c3cb6dc7d50bf843e"
+    },
+    "tree": "d335ae8cb985345371dce777530c97d7edfd928a"
+  },
+  "predecessors": [
+    {
+      "bytes": 1561116,
+      "files": 95,
+      "map": {
+        "bytes": 20203,
+        "sha256": "df0895cc04819cb475812ab6d2c84b153315ba6f1a18554d20f052c8b15283c0"
+      },
+      "tree": "9ec7e1b362a97c7e301980b73ea29ee16ea8112f"
+    },
+    {
+      "bytes": 1318237,
+      "files": 95,
+      "map": {
+        "bytes": 20200,
+        "sha256": "ab743415f602ba8c5f81a063fc7cc5d25587be0d535601396f2ee617fb4149ce"
+      },
+      "tree": "b73f92b1ed4e6f6ab8c4210fdaa19617b1a5721f"
+    },
+    {
+      "bytes": 1204391,
+      "files": 93,
+      "map": {
+        "bytes": 19821,
+        "sha256": "4abcbcd541e3bf3ad652ff09cd2a813ce5a276bc58fade63cc2801a248c349c7"
+      },
+      "tree": "424259eb3868b802b9aa2ae4dbeceff169fce7fd"
+    },
+    {
+      "bytes": 1120826,
+      "files": 85,
+      "map": {
+        "bytes": 18199,
+        "sha256": "9a4b43eedecd09e5e1edc68677620ccd17a38a1bed8218fdb429b65b04715645"
+      },
+      "tree": "0a5bae34a6339354116933cad916d60cc78adda4"
+    },
+    {
+      "bytes": 1053728,
+      "files": 76,
+      "map": {
+        "bytes": 16377,
+        "sha256": "8e6290fb7c916ba52d094d2a324b7ba77e8813c910a6e454a8f78f0aeda92d57"
+      },
+      "tree": "ff131da635fc160b557c58ce0f716a997a918551"
+    },
+    {
+      "bytes": 980464,
+      "files": 68,
+      "map": {
+        "bytes": 14771,
+        "sha256": "00a7b3ced2bbf21303734d32cf9dde10e7db5e724b0c1b4857f7ab7e5a685998"
+      },
+      "tree": "ff40c38eb5062ace3b46cb2f2c4c8c32fc010a00"
+    },
+    {
+      "bytes": 928551,
+      "files": 62,
+      "map": {
+        "bytes": 13601,
+        "sha256": "d6240a8a32bd363e75542e3e5896356e24d28e010f99e24edfff380b67afa050"
+      },
+      "tree": "d09f9b9870f6b7b9c9eba9c6418178c775a54d43"
+    }
+  ],
+  "recipe_commit": "295c8685692db700f1cbbb932b8ab38ede290aa9",
+  "recipe_files": {
+    ".SRCINFO": {
+      "bytes": 772,
+      "sha256": "7c87e0b59735bdf7dfcd8fbe2e0039615281eae8565c6bf6f40c476f6be79944"
+    },
+    "HOST-RESULT.json": {
+      "bytes": 3748,
+      "sha256": "a4c51820521ef869568efb105b2e0cb57405539a2d6fcfa4e57070a31cef9c5c"
+    },
+    "PKGBUILD": {
+      "bytes": 1593,
+      "sha256": "f64ebd08f42d908a746d30447ac1485e9e9a7e9d431764c41bea8784b57e93a6"
+    },
+    "README.md": {
+      "bytes": 4867,
+      "sha256": "627b0a96d2e8211b225b7431826a0ca1d59dd0c602acee6480e161a9c2f256fd"
+    },
+    "native-contract.json": {
+      "bytes": 810,
+      "sha256": "821b58c545333e67ed6f330e75b267f7a48961d8318f4d802f210c131696f259"
+    },
+    "smoke.c": {
+      "bytes": 2220,
+      "sha256": "4f0dbc190dd58841cfe0a892c8927dbeee682211f0e1c01f9f31e4730edb5d17"
+    },
+    "smoke.sh": {
+      "bytes": 2224,
+      "sha256": "b9249cc75dbd96f85947046ffc4131925f0d760e4c2bb78073e8c2b04f1e819a"
+    },
+    "source.json": {
+      "bytes": 676,
+      "sha256": "e539ac2410f7c4d36ec4ce70ea4d4088ed9945c950607b48ea39898ea774a02f"
+    }
+  }
+}
