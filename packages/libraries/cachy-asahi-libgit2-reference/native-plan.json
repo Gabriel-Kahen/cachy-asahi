@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "base_commit": "44234c090fd93909aea8f6c54b4ef4f949eb0aef",
+  "baseline": {
+    "source": "RustSource367 run44000620180 observed actual-packages.DATA.txt",
+    "package_count": 350,
+    "bytes": 6845,
+    "sha256": "60554bd6189cf253a90c8a58271f74a3c8434d4c23c8e65380ef77d552608061"
+  },
+  "required_existing_packages": {
+    "gcc": "16.1.1+r12+g301eb08fa2c5-1",
+    "gcc-libs": "16.1.1+r12+g301eb08fa2c5-1",
+    "glibc": "2.43+r22+g8362e8ce10b2-2",
+    "cmake": "4.4.4-1",
+    "ninja": "1.13.2-3",
+    "pkgconf": "3.0.7-1",
+    "python": "3.14.8-1",
+    "make": "4.4.1-3",
+    "openssl": "3.6.5-1",
+    "libssh2": "1.11.1-7",
+    "pcre2": "10.49-1",
+    "zlib": "1:1.3.2-3"
+  },
+  "new_source_materials": [
+    "../cachy-asahi-llhttp-reference/source.json",
+    "source.json"
+  ],
+  "ordered_candidate_builds": [
+    {
+      "name": "cachy-asahi-llhttp-reference",
+      "version": "9.3.1-1",
+      "provides": [
+        "llhttp=9.3.1",
+        "libllhttp.so=9.3-64"
+      ],
+      "conflicts": [
+        "llhttp"
+      ],
+      "runtime_dependencies": [
+        "glibc"
+      ],
+      "status": "native NOT RUN"
+    },
+    {
+      "name": "cachy-asahi-libgit2-reference",
+      "version": "1:1.9.7-1",
+      "provides": [
+        "libgit2=1:1.9.7",
+        "libgit2.so=1.9-64"
+      ],
+      "conflicts": [
+        "libgit2"
+      ],
+      "runtime_dependencies": [
+        "glibc",
+        "openssl",
+        "libssh2",
+        "pcre2",
+        "zlib",
+        "llhttp=9.3.1"
+      ],
+      "status": "native NOT RUN"
+    }
+  ],
+  "proposed_inventory_counts": [
+    350,
+    351,
+    352
+  ],
+  "provider_authority": "NONE; separate project TEST provider source/signature/conflict review required; official-only v18 unchanged",
+  "native_actor": "NOT RUN",
+  "native_makepkg_dependency_check": "NOT RUN",
+  "signed_package_transaction": "NOT RUN",
+  "rust_build_with_candidates": "NOT RUN",
+  "release": "NOT RUN",
+  "package_archive_extension": ".pkg.tar.xz"
+}

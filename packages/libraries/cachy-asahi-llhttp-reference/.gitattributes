@@ -1,0 +1,2 @@
+# Preserve raw command logs, including publisher/tool trailing spaces.
+evidence/*.log -whitespace
