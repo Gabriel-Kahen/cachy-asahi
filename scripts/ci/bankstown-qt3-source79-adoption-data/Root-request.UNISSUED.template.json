@@ -1,0 +1,35 @@
+{
+  "approved": null,
+  "authorization": {
+    "jobs_metadata": true,
+    "launcher_limits": {
+      "address_space_bytes": 536870912,
+      "control_bytes": 33554432,
+      "control_nodes": 128,
+      "cpu_seconds": 4170,
+      "launcher_seconds": 4170,
+      "preflight_cpu_seconds": 180,
+      "preflight_seconds": 180,
+      "reference_bytes": 34359738368,
+      "reference_file_bytes": 8589934592,
+      "reference_files": 1024,
+      "request_bytes": 49152,
+      "scope_stop_seconds": 10
+    },
+    "privileged_controller": true
+  },
+  "control_name": null,
+  "delegation_json": null,
+  "delegation_pin": null,
+  "issuer": null,
+  "kind": "ROOT_AUTHORIZED_BANKSTOWN_QT3_HOSTED_LAUNCH_V1",
+  "launcher": {
+    "bytes": 9677,
+    "member": "scripts/ci/bankstown-qt3-hosted-v1/hosted.py",
+    "sha256": "4f4bc0268ea83b97e294642ceaa1963c7dcbd3375af1d29c5805a666bffad2ea"
+  },
+  "schema": 1,
+  "staged_inputs": null,
+  "staged_root": null,
+  "trusted_main_commit": null
+}
