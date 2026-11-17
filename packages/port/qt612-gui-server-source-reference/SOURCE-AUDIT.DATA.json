@@ -1,0 +1,46 @@
+{
+  "Root_acceptance": null,
+  "actual_import_by_QtWayland": "NOT_RUN",
+  "files": {
+    "cmake/QtFeature.cmake": {
+      "bytes": 83513,
+      "sha256": "2755378207102fa22d73ec6c3fa0bbbeb0436b97c883f870c64f73bc63d04640"
+    },
+    "src/gui/configure.cmake": {
+      "bytes": 57268,
+      "sha256": "610ab871e23697d3f84da088cea322423ace5002a7b180982e5a674c6ab31943"
+    },
+    "src/tools/qtwaylandscanner/CMakeLists.txt": {
+      "bytes": 1163,
+      "sha256": "b7f016c7a737fd536bc33e994151dfa251513aed7ae7823a38914f6d4db96a39"
+    },
+    "src/tools/qtwaylandscanner/Qt6WaylandCompositorMacros.cmake": {
+      "bytes": 5134,
+      "sha256": "739e49788459770186f84223631e373865c6c301a4a5638359eeb95bdef12203"
+    }
+  },
+  "findings": [
+    {
+      "lines": "245-246,1548-1570",
+      "meaning": "Wayland>=1.15/client/scanner conditions; private server feature lacks independent Server target condition",
+      "path": "src/gui/configure.cmake"
+    },
+    {
+      "lines": "1311-1348,2073-2108",
+      "meaning": "Enabled/disabled target properties are exported and imported into QT_FEATURE variables",
+      "path": "cmake/QtFeature.cmake"
+    },
+    {
+      "lines": "12-18,53-95",
+      "meaning": "Compositor generation requires external Wayland::Scanner and matching Qt6::qtwaylandscanner",
+      "path": "src/tools/qtwaylandscanner/Qt6WaylandCompositorMacros.cmake"
+    }
+  ],
+  "native_build": "NOT_RUN",
+  "new_Qtbase_shared_modules": 0,
+  "normal_server_prerequisite": "Explicit additional pkg-config/API link guard and versioned SONAME package dependency",
+  "retained_shared_modules": 18,
+  "schema": 1,
+  "scope": "PINNED_QTBASE_SOURCE_FEATURE_EXPORT_AUDIT_ONLY",
+  "upstream_revision": "025bdad181de241e81bf853c8a2d7bf3d19261a9"
+}
