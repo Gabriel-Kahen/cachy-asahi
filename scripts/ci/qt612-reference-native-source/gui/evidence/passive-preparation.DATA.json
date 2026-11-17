@@ -1,0 +1,44 @@
+{
+  "GPG": "NOT_RUN",
+  "M2": "NOT_RUN",
+  "MODEL_controls": 16,
+  "Root_capacity": null,
+  "files": 41,
+  "handoff_seal": "UNBOUND",
+  "kind": "QT612_GUI_PASSIVE_PREPARATION_OBSERVATION_DATA_V1",
+  "namespace_controls": [
+    {
+      "control": "unexpected-source-leaf",
+      "refusal": "GUI_COMPLETE_SOURCE_NAMESPACE"
+    },
+    {
+      "control": "symlink-source-leaf",
+      "refusal": "GUI_BOUNDED_ORDINARY_NAMESPACE"
+    },
+    {
+      "control": "F69-source-verifier-rejects-GUI",
+      "refusal": "UNISSUED_PRODUCER_SOURCE_ONLY"
+    }
+  ],
+  "native_pair": "NOT_RUN",
+  "recipe_commit": "b05267833d497ef034576741bf31968019a526c3",
+  "schema": 1,
+  "source_map": {
+    "bytes": 7459,
+    "sha256": "4a7c80b9a4c78e4ce396085c48c7b3f209ead4e7e55bfcb62611b8d883cb40c2"
+  },
+  "source_map_verified": {
+    "Root_acceptance": null,
+    "actor_enabled": false,
+    "input_plan_complete": false,
+    "source_map_verified": true
+  },
+  "source_output": "/home/gabe/Documents/ChatGPT/cachy-asahi-qt612-producer-transport-gui-20261117/work/qt612-gui-DATA-r3",
+  "static_recipe": {
+    "errors": [],
+    "input_files": 15,
+    "status": "static-pass"
+  },
+  "transport_binding": "UNBOUND",
+  "whole_archive_pin_verified": true
+}
