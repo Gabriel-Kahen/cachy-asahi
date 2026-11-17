@@ -1,0 +1,7 @@
+{
+  "bytes": 69452,
+  "component": "qtbase",
+  "release_tag": "v6.12.0",
+  "sha256": "a5e9e4e422668a31d88def074f1a2cb62b1afc530b5d257041de4386aa7de81d",
+  "url": "https://code.qt.io/cgit/qt/qtbase.git/plain/src/gui/rhi/qshaderdescription.cpp?h=v6.12.0"
+}

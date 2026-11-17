@@ -1,0 +1,69 @@
+{
+  "Root_acceptance": null,
+  "archive": {
+    "bytes": 1244684,
+    "sha256": "c7d84f436e1aaef39fdcadebf2bd71bdf24dc69497e13f2e0198873cbbfea2ab",
+    "url": "https://download.qt.io/official_releases/qt/6.12/6.12.0/submodules/qtshadertools-everywhere-src-6.12.0.tar.xz"
+  },
+  "archive_tag": "bccd516b990a6396900051470ac86cc27a7042ea",
+  "archive_tag_semantics": "THIS_COMPONENT_EXPORTS_COMMIT_NOT_TREE; Declarative uses different template",
+  "commit": "bccd516b990a6396900051470ac86cc27a7042ea",
+  "commit_tree_api": {
+    "bytes": 1319,
+    "sha256": "cc64d840d4ed064eef53e8c5d4ace692644fd9edef271269d26c6058fea18a72",
+    "url": "https://api.github.com/repos/qt/qtshadertools/git/commits/bccd516b990a6396900051470ac86cc27a7042ea"
+  },
+  "monolithic_bundle": false,
+  "native": null,
+  "notices": 19,
+  "retained_component_archive": "upstream/qtshadertools-everywhere-src-6.12.0.tar.xz",
+  "schema": 1,
+  "signature_authentication": null,
+  "source_bytes": 10266940,
+  "source_files": 330,
+  "tag": "v6.12.0",
+  "tag_object": "a386823038d8ea1c52e2414f4e82b6e59fd4e3fc",
+  "tracked_tag_template": "$Format:%H$",
+  "tree": "00cf97838baca2f2b1a4833f6498ca39e6e073ec",
+  "vendor_bytes": 9682834,
+  "vendor_files": 168,
+  "vendored_attribution": {
+    "src/3rdparty/SPIRV-Cross": [
+      {
+        "Comment": "No relevant CPE found",
+        "CopyrightFile": "COPYRIGHT.txt",
+        "Description": "A practical tool and library for performing reflection on SPIR-V and disassembling SPIR-V back to high level languages.",
+        "Homepage": "https://github.com/KhronosGroup/SPIRV-Cross",
+        "Id": "spirvcross",
+        "License": "Apache License 2.0 and MIT Khronos - old variant",
+        "LicenseId": "Apache-2.0 AND LicenseRef-MIT-Khronos-old",
+        "Name": "SPIRV-Cross",
+        "PURL": [
+          "pkg:github/KhronosGroup/SPIRV-Cross@$<VERSION>"
+        ],
+        "QDocModule": "qtshadertools",
+        "QtUsage": "Shader code generation.",
+        "Version": "1a6169566c73d3da552748fc372fe2bbb856e46e"
+      }
+    ],
+    "src/3rdparty/glslang": [
+      {
+        "Comment": "No relevant CPE found",
+        "CopyrightFile": "COPYRIGHT.txt",
+        "Description": "An OpenGL and OpenGL ES shader front end and validator.",
+        "Homepage": "https://github.com/KhronosGroup/glslang",
+        "Id": "glslang",
+        "License": "BSD 3-Clause \"New\" or \"Revised\" License, and MIT Khronos - old variant, and Apache License 2.0, and GNU General Public License v3.0 or later with Bison exception 2.2, and AML glslang variant License",
+        "LicenseFile": "LICENSE.txt",
+        "LicenseId": "BSD-3-Clause AND LicenseRef-MIT-Khronos-old AND Apache-2.0 AND GPL-3.0-or-later WITH Bison-exception-2.2 AND AML-glslang",
+        "Name": "glslang",
+        "PURL": [
+          "pkg:github/KhronosGroup/glslang@$<VERSION>"
+        ],
+        "QDocModule": "qtshadertools",
+        "QtUsage": "Compile GLSL to SPIR-V.",
+        "Version": "16.3.0"
+      }
+    ]
+  }
+}

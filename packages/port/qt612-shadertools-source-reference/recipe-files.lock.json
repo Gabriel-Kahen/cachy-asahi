@@ -1,0 +1,441 @@
+{
+  "M2": null,
+  "Root_acceptance": null,
+  "actual_provider": null,
+  "build": null,
+  "files": {
+    ".SRCINFO": {
+      "bytes": 2592,
+      "mode": 420,
+      "sha256": "0a28b98e720a428f1be682cc37233fced06c47bff542e7799089e13879bbeded"
+    },
+    ".gitattributes": {
+      "bytes": 177,
+      "mode": 420,
+      "sha256": "25893272c37a1091d31df0500da160603922174dbf9e895effda164fafcf0fd3"
+    },
+    "BUILD-CONTRACT.json": {
+      "bytes": 1733,
+      "mode": 420,
+      "sha256": "6705f652f9a1c6825e98c1c54d06c2e48be9b521030e7bb6ee504aeafbbb7713"
+    },
+    "ELF-PARSER-ORIGIN.DATA.json": {
+      "bytes": 322,
+      "mode": 420,
+      "sha256": "e8b1833b09c14dcc4a6932930589aba26d41efbb36e50ce1f058562939a74edc"
+    },
+    "LICENSE.packaging": {
+      "bytes": 1070,
+      "mode": 420,
+      "sha256": "67fe503b5c407bca1c340e14fb7ceb6849b1af4d531a783b30d09cb76e65a3aa"
+    },
+    "LICENSE.third-party": {
+      "bytes": 837,
+      "mode": 420,
+      "sha256": "58cc65719d55523ceebd21f132e18902c11ce6fa9ee3ff0b190b85af288f37ee"
+    },
+    "PKGBUILD": {
+      "bytes": 6344,
+      "mode": 420,
+      "sha256": "189cab5bb396eb2c540c606a3575b8cd6bd74ba87dc9159d3ffb035a99dbed49"
+    },
+    "PROVIDER-INTERFACE.DATA.json": {
+      "bytes": 1297,
+      "mode": 420,
+      "sha256": "f8bfef49c52b4d36c5ec86d861a95ea9038d5d40d4e179ed857d336af4924ca9"
+    },
+    "README.md": {
+      "bytes": 5943,
+      "mode": 420,
+      "sha256": "3b47b8a0b2f91ff0037afd26bf64a560c5bb0595a0452fcf64cc713109185ee6"
+    },
+    "RESOURCE-PROPOSAL.json": {
+      "bytes": 1012,
+      "mode": 420,
+      "sha256": "b9325978434ea863d33cc05cc2e879dd1fa58c8c450e349b65d9c86bdc17845e"
+    },
+    "SECURITY-RELEVANCE.DATA.json": {
+      "bytes": 794,
+      "mode": 420,
+      "sha256": "de6907c87ccae0b8563594c708ad830fc96c1bab46a5180c8ed2017e61492585"
+    },
+    "SOURCE-AUDIT.DATA.json": {
+      "bytes": 1033,
+      "mode": 420,
+      "sha256": "e5d308b5530e741addef53777fa3da026a0d1f5b9b5c1396ce2d4e9eae9b0b5b"
+    },
+    "SOURCE-INPUTS.lock.json": {
+      "bytes": 2980,
+      "mode": 420,
+      "sha256": "17c30b02b738739e0a26c3c8961df78c5933e19ab09d533bef4e7fc0d29bfc70"
+    },
+    "SmokeCMakeLists.txt": {
+      "bytes": 2121,
+      "mode": 420,
+      "sha256": "f168cd74aac6f200497804636633f25e1c0cc0f3647976b93fa24e9331a8ca3b"
+    },
+    "check_stage.py": {
+      "bytes": 4040,
+      "mode": 420,
+      "sha256": "fece5a639573df37b17f8639af435d1e9f7913c476db8c0c14f97753296109f7"
+    },
+    "configure.cmake": {
+      "bytes": 911,
+      "mode": 420,
+      "sha256": "4f06d082f5e93d8eeb418fdd4e9a4dfaa6205e4808c2c0001cdb613d99014426"
+    },
+    "dependency_guard.cmake": {
+      "bytes": 1908,
+      "mode": 420,
+      "sha256": "30d1c92679f1853336843193a6a6cd72be4a6b1ba2466384732cd3ded2d2de91"
+    },
+    "elf.py": {
+      "bytes": 6713,
+      "mode": 420,
+      "sha256": "0220adf2acdba80b3efb0d8e801d50f6ba586e824e8caf5944b2f9364f149050"
+    },
+    "evidence/controls.DATA.json": {
+      "bytes": 1496,
+      "mode": 420,
+      "sha256": "852171e11dba80ada9dacc2ecfbed4ec0e7b9001e4ca59ac24b31df7cfa9b215"
+    },
+    "evidence/makepkg-verifysource.rawlog": {
+      "bytes": 1160,
+      "mode": 420,
+      "sha256": "1553f32bce21273301311f3d26ddae926e7aeee6cdd129c2b05c058fc1a97236"
+    },
+    "evidence/normal-dependency-probe.DATA.json": {
+      "bytes": 247,
+      "mode": 420,
+      "sha256": "a4c81cf104810c102ed0ebff4b0bd2589a85ffbbf6e01833f22706ba650c8d16"
+    },
+    "evidence/normal-dependency-probe.rawlog": {
+      "bytes": 621,
+      "mode": 420,
+      "sha256": "f656f63e3de454e5659918fe76cc350d4ee705b4a0ee11e59b9dae0ecc9ae5ab"
+    },
+    "lifecycle.DATA.json": {
+      "bytes": 1027,
+      "mode": 420,
+      "sha256": "69bad2dbe7d4990aeaca37c029d5700b336beb444c1115ef392098a40a387360"
+    },
+    "reflection.py": {
+      "bytes": 3286,
+      "mode": 420,
+      "sha256": "225f70874d4ff3e54f8bd164e58078ad5c356e7ac43fd497843bbe688adb0ec9"
+    },
+    "smoke.cpp": {
+      "bytes": 2892,
+      "mode": 420,
+      "sha256": "92df051cf6660ec494b8193cbf95d362e908bc4994a457ffd7b0ca7328569251"
+    },
+    "smoke.frag": {
+      "bytes": 318,
+      "mode": 420,
+      "sha256": "27ade780de02348a1e1bddc999c4f84c298d20caa7e7165c3a1db44d885e8ada"
+    },
+    "smoke.vert": {
+      "bytes": 272,
+      "mode": 420,
+      "sha256": "60def73e2ffab14cc61cf843f0eacb6e8fba6fe977a660c95734a7cd8fca5093"
+    },
+    "source-notices.json": {
+      "bytes": 2090,
+      "mode": 420,
+      "sha256": "09c63071babd163ff02b773c2bb49fa2bac81c3b43b2212a4d1963184be54044"
+    },
+    "source.py": {
+      "bytes": 4888,
+      "mode": 420,
+      "sha256": "7e5672b20569e864fbfd9852d4af51994ad292b511adfdfd4c531818ba7f777b"
+    },
+    "test_recipe.py": {
+      "bytes": 13493,
+      "mode": 420,
+      "sha256": "580ea8482a08792bb0c10be06edcf590a7f0031431f4ddb1c5ca63d6134e0029"
+    },
+    "upstream/QtModuleHelpers.cmake": {
+      "bytes": 91502,
+      "mode": 420,
+      "sha256": "31617f26c2d07b85d3e20aaaba5ab16f12a27a0bfac0dcfe4ab30ca7d8f97700"
+    },
+    "upstream/QtToolHelpers.cmake": {
+      "bytes": 43393,
+      "mode": 420,
+      "sha256": "31c78da48ccac20a4ef8ff4bc5e785a8b914ae968807786e689b50413c0ddbc8"
+    },
+    "upstream/acquisition.DATA.json": {
+      "bytes": 1452,
+      "mode": 420,
+      "sha256": "165f9f1b42041f9480926be7ca62cd2928569ee40cf18f88f41703c1b402f3d3"
+    },
+    "upstream/archive.mirrorlist.html": {
+      "bytes": 7868,
+      "mode": 420,
+      "sha256": "4fc1861f44f57348e0e1698d672502cc890e88f1001fd2be859bce2d9958af7c"
+    },
+    "upstream/archive.sha256": {
+      "bytes": 109,
+      "mode": 420,
+      "sha256": "282f799c6be7187a301f71a46d98a98c37dc6a596e38f53614abf976d737a4a9"
+    },
+    "upstream/commit.DATA.json": {
+      "bytes": 1319,
+      "mode": 420,
+      "sha256": "cc64d840d4ed064eef53e8c5d4ace692644fd9edef271269d26c6058fea18a72"
+    },
+    "upstream/git-v6.12.0-ref.DATA.json": {
+      "bytes": 379,
+      "mode": 420,
+      "sha256": "5ca55d142ea5a30a2483aa9c687f0e6b45ce5bbad298729970adf1e16e0531db"
+    },
+    "upstream/public-patch-index.html": {
+      "bytes": 5863,
+      "mode": 420,
+      "sha256": "1122632b6d766da938a10930541830db0f69e51a103963ddf1d9903a13e6e83e"
+    },
+    "upstream/qshaderdescription.cpp": {
+      "bytes": 69452,
+      "mode": 420,
+      "sha256": "a5e9e4e422668a31d88def074f1a2cb62b1afc530b5d257041de4386aa7de81d"
+    },
+    "upstream/qtshadertools-everywhere-src-6.12.0.tar.xz": {
+      "bytes": 1244684,
+      "mode": 420,
+      "sha256": "c7d84f436e1aaef39fdcadebf2bd71bdf24dc69497e13f2e0198873cbbfea2ab"
+    },
+    "upstream/reflection-writer-origin.DATA.json": {
+      "bytes": 255,
+      "mode": 420,
+      "sha256": "e8c52ad9a12cae769d595066c48a2b2277b3d8f4af30e5edfd82026036998314"
+    },
+    "upstream/selected-source.lock.json": {
+      "bytes": 6795,
+      "mode": 420,
+      "sha256": "8b3605289a2c29fb2b9e2316fa17a31eb4c0662e5daff3687b0772d9f30628cf"
+    },
+    "upstream/source/.cmake.conf": {
+      "bytes": 319,
+      "mode": 420,
+      "sha256": "eb0edc56e041f68092b32b244e9e9d0ea1e0df0a6a987d2a4dee5f19298be4bc"
+    },
+    "upstream/source/.tag": {
+      "bytes": 41,
+      "mode": 420,
+      "sha256": "9e713cbbb3a062d267c79f10ef61b95d00bdcd8d2444175ec680bed826cbdfd5"
+    },
+    "upstream/source/CMakeLists.txt": {
+      "bytes": 1055,
+      "mode": 420,
+      "sha256": "1c1ef4d34e67ba83f7eb88f8b2c5312e79917a8539be6204c4f4710d43498c12"
+    },
+    "upstream/source/LICENSES/AML-glslang.txt": {
+      "bytes": 2373,
+      "mode": 420,
+      "sha256": "b5545d31e12c303e8ee9a0cc203d0a2a8d6e02729dd450d4cda5f8ff0e1193d0"
+    },
+    "upstream/source/LICENSES/Apache-2.0.txt": {
+      "bytes": 10280,
+      "mode": 420,
+      "sha256": "074e6e32c86a4c0ef8b3ed25b721ca23aca83df277cd88106ef7177c354615ff"
+    },
+    "upstream/source/LICENSES/BSD-3-Clause.txt": {
+      "bytes": 1469,
+      "mode": 420,
+      "sha256": "9f0490f18656c6f2435bd14f603ef0c96434d1825615363dce43abb42ed1dcce"
+    },
+    "upstream/source/LICENSES/Bison-exception-2.2.txt": {
+      "bytes": 673,
+      "mode": 420,
+      "sha256": "193ff9d6e52b80b654fa9402ff351fd1f9f855381f31062a5b7400fd82409b29"
+    },
+    "upstream/source/LICENSES/GFDL-1.3-no-invariants-only.txt": {
+      "bytes": 22955,
+      "mode": 420,
+      "sha256": "110535522396708cea37c72a802c5e7e81391139f5f7985631c93ef242b206a4"
+    },
+    "upstream/source/LICENSES/GPL-2.0-only.txt": {
+      "bytes": 18092,
+      "mode": 420,
+      "sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643"
+    },
+    "upstream/source/LICENSES/GPL-3.0-only.txt": {
+      "bytes": 35147,
+      "mode": 420,
+      "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
+    },
+    "upstream/source/LICENSES/GPL-3.0-or-later.txt": {
+      "bytes": 32184,
+      "mode": 420,
+      "sha256": "1a52218b744fa3a722df8d0477a2041571ec2cecdb9906cf1f626fc1a2cf0d6f"
+    },
+    "upstream/source/LICENSES/LGPL-3.0-only.txt": {
+      "bytes": 7651,
+      "mode": 420,
+      "sha256": "da7eabb7bafdf7d3ae5e9f223aa5bdc1eece45ac569dc21b3b037520b4464768"
+    },
+    "upstream/source/LICENSES/LicenseRef-MIT-Khronos-old.txt": {
+      "bytes": 1305,
+      "mode": 420,
+      "sha256": "fbeaca472f4f70e276dd1106ca5097435967a22ad6c1d8200aef7ad9f70aaf3f"
+    },
+    "upstream/source/LICENSES/LicenseRef-Qt-Commercial.txt": {
+      "bytes": 462,
+      "mode": 420,
+      "sha256": "9b1f50aae6267f9d5e0ceb6775ee86450262c25ec7c0573e151fe5d3f18a4700"
+    },
+    "upstream/source/LICENSES/MIT.txt": {
+      "bytes": 1111,
+      "mode": 420,
+      "sha256": "d040359701c01996a017d5c515678929cd1b0625e64cb86db44025fbb6cdf1fc"
+    },
+    "upstream/source/LICENSES/Qt-GPL-exception-1.0.txt": {
+      "bytes": 965,
+      "mode": 420,
+      "sha256": "40678d338ce53cd93f8b22b281a2ecbcaa3ee65ce60b25ffb0c462b0530846b2"
+    },
+    "upstream/source/dependencies.yaml": {
+      "bytes": 96,
+      "mode": 420,
+      "sha256": "9f463ff6dea5d92a9b055dde51f360daeb40bccf17379071374c1f345cbd96e0"
+    },
+    "upstream/source/src/3rdparty/SPIRV-Cross/COPYRIGHT.txt": {
+      "bytes": 243,
+      "mode": 420,
+      "sha256": "afe3458e2431963def8b2c1520d342566725a07b46344aa34c5d327531bf2873"
+    },
+    "upstream/source/src/3rdparty/SPIRV-Cross/LICENSE": {
+      "bytes": 11358,
+      "mode": 420,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    "upstream/source/src/3rdparty/SPIRV-Cross/qt_attribution.json": {
+      "bytes": 749,
+      "mode": 420,
+      "sha256": "1fa6880b74fc9393debabc0b3b910e238acaefc409e1dfdd4a275c5cc481d800"
+    },
+    "upstream/source/src/3rdparty/glslang/COPYRIGHT.txt": {
+      "bytes": 314,
+      "mode": 420,
+      "sha256": "7a0986b241205c038dcea76b343dd9b7030a424b644a7d59585200824831dae8"
+    },
+    "upstream/source/src/3rdparty/glslang/LICENSE.txt": {
+      "bytes": 54705,
+      "mode": 420,
+      "sha256": "adb783e734e906d1f46db5df29991dbde84bdb0ceab502ac2febb44fe3c2b5f4"
+    },
+    "upstream/source/src/3rdparty/glslang/qt_attribution.json": {
+      "bytes": 907,
+      "mode": 420,
+      "sha256": "0815efd96ce336ce862c461a64946436ddbe9027e9a8988f73fb96d8aab282af"
+    },
+    "upstream/source/src/CMakeLists.txt": {
+      "bytes": 195,
+      "mode": 420,
+      "sha256": "a51cd69a04fe1fd8b9a089357ba42b4060ccadc31d31317851c078de02405231"
+    },
+    "upstream/source/src/SPIRV-Cross/CMakeLists.txt": {
+      "bytes": 1242,
+      "mode": 420,
+      "sha256": "fd7fbae14f91b64e281f8fe407e6d5d0581f35dd8a331ef0dc5771f55b456792"
+    },
+    "upstream/source/src/glslang/CMakeLists.txt": {
+      "bytes": 6232,
+      "mode": 420,
+      "sha256": "c6d4ae1b5a7d6b75d5d96b28db9a40b7f8e129c05fffe87fce14de124dbe90ba"
+    },
+    "upstream/source/src/shadertools/CMakeLists.txt": {
+      "bytes": 1525,
+      "mode": 420,
+      "sha256": "3b8e02fcdadd26521bf0ab1fea737c3d27e3fb86b28ef0b294539b8953656a49"
+    },
+    "upstream/source/src/shadertools/qshaderbaker.cpp": {
+      "bytes": 36770,
+      "mode": 420,
+      "sha256": "d207abd5b745f3a7c7ffa0f5a78b52346c15289f5a720cbf85af1fe570af4026"
+    },
+    "upstream/source/src/shadertools/qshaderbaker.h": {
+      "bytes": 2360,
+      "mode": 420,
+      "sha256": "1c5f4359726c53054b44e2ad14301883019cd8791d8fe4c998443e34f05a442c"
+    },
+    "upstream/source/src/shadertools/qspirvcompiler_p.h": {
+      "bytes": 1641,
+      "mode": 420,
+      "sha256": "589b6c5d6fdaea282f28e7219be73e49625fd2d2bd1ffc32e3331d3024f85001"
+    },
+    "upstream/source/src/shadertools/qtshadertoolsglobal.h": {
+      "bytes": 390,
+      "mode": 420,
+      "sha256": "18e8996d7c9abd0415788caedbbc9fc567a9ab34c1028c372922d2ef7099eb80"
+    },
+    "upstream/source/tests/CMakeLists.txt": {
+      "bytes": 290,
+      "mode": 420,
+      "sha256": "75183878febbeda50b971f7ce3117885a43e3fe8564d0f37886e87278f0e96a5"
+    },
+    "upstream/source/tests/auto/CMakeLists.txt": {
+      "bytes": 670,
+      "mode": 420,
+      "sha256": "fa13a0646299ac1756ddf6cd0711aa3c573326bcd8dcea5e5f0d3829db8508a6"
+    },
+    "upstream/source/tests/auto/buildtimeqsb/CMakeLists.txt": {
+      "bytes": 4292,
+      "mode": 420,
+      "sha256": "f2add0bccb27b5b68cd886c0b30443b53a9356e2a3005fdc1d37bdb18d3a39aa"
+    },
+    "upstream/source/tests/auto/qsbdepfiles/CMakeLists.txt": {
+      "bytes": 1703,
+      "mode": 420,
+      "sha256": "8f6130c56b97b5e10e73323aa5da992e8db52d8daf3f7724a63982ad24a7a9ed"
+    },
+    "upstream/source/tests/auto/qshaderbaker/CMakeLists.txt": {
+      "bytes": 865,
+      "mode": 420,
+      "sha256": "dec8cb593271083419749646552c9b609b2df73f5d510851d55787e002ca2dc7"
+    },
+    "upstream/source/tests/manual/qmlappshadermacro/CMakeLists.txt": {
+      "bytes": 897,
+      "mode": 420,
+      "sha256": "27174768b6d73786bd631068fbf8b499e2c49282b9c0dadd5fb2514b987dd95b"
+    },
+    "upstream/source/tools/CMakeLists.txt": {
+      "bytes": 133,
+      "mode": 420,
+      "sha256": "2109f9d29fc91c7c1d34a9d726363b0672a1c91d86db50d63818cc420d3f8158"
+    },
+    "upstream/source/tools/qsb/CMakeLists.txt": {
+      "bytes": 851,
+      "mode": 420,
+      "sha256": "0d864adb29a8fa17f314bfbd95ea42be9e06ff3b4d3ab16c28055f1724c11ba9"
+    },
+    "upstream/source/tools/qsb/Qt6ShaderToolsMacros.cmake": {
+      "bytes": 18743,
+      "mode": 420,
+      "sha256": "a320c770197eaf469540ffa3fd018e692ebe1a0d1f3ada021f10b7822a5f0864"
+    },
+    "upstream/source/tools/qsb/qsb.cpp": {
+      "bytes": 51087,
+      "mode": 420,
+      "sha256": "09ae412f22fb230da9a7ab2b2f52e8ff56bbc34fbdc5607354d067f33cdbe2c1"
+    },
+    "upstream/source/tools/qsb/qsb.pro": {
+      "bytes": 102,
+      "mode": 420,
+      "sha256": "300de85b100d0c845efa4f79a5c35f00d3bfbf2c820e94d43f5489610c398618"
+    },
+    "upstream/tag-template.txt": {
+      "bytes": 12,
+      "mode": 420,
+      "sha256": "2070743a71dbdccd323f1848e8f9f1fd893081c4e779f9f5a3cebcee6b2e467d"
+    },
+    "vendored-inputs.lock.json": {
+      "bytes": 29105,
+      "mode": 420,
+      "sha256": "a09705bc52dc9a8ea8c4e59b8fd1e92edc60ac7364a6a5916d6ea813ddae7b08"
+    }
+  },
+  "kind": "QT612_SHADERTOOLS_CLOSED_SOURCE_RECIPE_FAMILY",
+  "native": null,
+  "schema": 1
+}
