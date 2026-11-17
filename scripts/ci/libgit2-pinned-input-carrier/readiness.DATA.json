@@ -1,0 +1,53 @@
+{
+  "Root_registration": null,
+  "Root_roles": null,
+  "actual501": {
+    "bytes": 328101,
+    "sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f"
+  },
+  "actual_carrier": null,
+  "actual_parent_Source": null,
+  "actual_parent_map": null,
+  "actual_provider": null,
+  "carrier_source_revision": "29c2ab22f047f3639c35f5fcceeaf4e6000b3302",
+  "controls": [
+    {
+      "executable": "/usr/bin/python3",
+      "passed": 16,
+      "version": "3.14.7"
+    },
+    {
+      "executable": "/home/gabe/.local/bin/python3.14",
+      "passed": 16,
+      "version": "3.14.6"
+    }
+  ],
+  "full_predecessor_inverse": "IMPLEMENTED; actual positive application blocked; exact static code inverses PASS",
+  "held_ledger": {
+    "call513": "REFUSED_BEFORE_CHILD",
+    "failure_cleanup_upper": 302,
+    "limit": 512,
+    "normal_upper": 282
+  },
+  "kind": "UNBOUND_LIBGIT2_PRIVATE182_SOURCE_CODE_READY",
+  "missing182_bytes": 544634853,
+  "missing182_files": 182,
+  "native": null,
+  "outer_ledger": {
+    "cleanup_whole_seconds": 90,
+    "deadlines_resources": "UNCHANGED",
+    "limit": 512,
+    "max_authorized_lifetime_upper": 373,
+    "observation_delay_before_natural_retirement_seconds": 40,
+    "running_seconds": 10,
+    "startup_seconds": 1,
+    "status_query_existing_seconds": 30
+  },
+  "positive_full_Source_export": "NOT RUN; genuine provider tuple missing",
+  "public_catalog": {
+    "files": 1585,
+    "max_bytes": 16777216,
+    "max_file_guard": 4096
+  },
+  "status": "READY_CODE_BLOCKED_ON_GENUINE_ACCEPTED_SIGNED_LLHTTP_PROVIDER"
+}
