@@ -34,11 +34,14 @@
   "missing182_files": 182,
   "native": null,
   "outer_ledger": {
+    "cleanup_whole_seconds": 90,
     "deadlines_resources": "UNCHANGED",
     "limit": 512,
     "max_authorized_lifetime_upper": 373,
+    "observation_delay_before_natural_retirement_seconds": 40,
     "running_seconds": 10,
-    "startup_seconds": 1
+    "startup_seconds": 1,
+    "status_query_existing_seconds": 30
   },
   "positive_full_Source_export": "NOT RUN; genuine provider tuple missing",
   "public_catalog": {
