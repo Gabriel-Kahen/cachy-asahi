@@ -1,0 +1,63 @@
+{
+  "Root_review": null,
+  "accepted": null,
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "image": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "bytes": 43652864,
+  "constructor_files": {
+    "README.md": {
+      "bytes": 3873,
+      "mode": 420,
+      "sha256": "6a1b79d1c89fc3c1438226d167f955b50200ee1df5bf224965f933b18524e1e4"
+    },
+    "Root-admission.TEMPLATE.json": {
+      "bytes": 14249,
+      "mode": 420,
+      "sha256": "8a564c2a68afd400abf746b8c600620a1a7fec18a814357dd2ba7107ff01074d"
+    },
+    "fixtures/public-failure.ACTUAL361.json": {
+      "bytes": 3585,
+      "mode": 420,
+      "sha256": "b77783095035ca5eef88176b78fcc24af71aa3321890897929e6f09587cabb67"
+    },
+    "payload/hosted/qualification.py": {
+      "bytes": 23710,
+      "mode": 420,
+      "sha256": "e1ba650e90debb5b25b640c3444ab49ef85ea0a56c5bbb22dca7a140ec56cd36"
+    },
+    "prepare.py": {
+      "bytes": 7948,
+      "mode": 420,
+      "sha256": "d5c1da5505ec8e6730c2048cf01ce6884c9609f6eadb3f83e4f19f5ecc157416"
+    },
+    "test_data.py": {
+      "bytes": 3867,
+      "mode": 420,
+      "sha256": "938b5fe1ae4e4b6c7b6f5858afd9d755b8dae383d99523e62caa693cc3c3b7e2"
+    },
+    "test_runtime.py": {
+      "bytes": 8738,
+      "mode": 420,
+      "sha256": "6218f20a9302588392b682f9098766442dc349c0c83eb68ccfdb057f8d2bc82d"
+    }
+  },
+  "files": 364,
+  "map_sha256": "bd1d5d61836ee3284142884d22cf0f80ccb5d6c285dd8ca4b218708db2551406",
+  "parent": {
+    "bytes": 43557462,
+    "files": 361,
+    "map_sha256": "ef172f129f2970abd5685a24621d9aab5e7854e522041896ecf3570aff4c95fb",
+    "tree": "a5973bcc4cca083492e365c62e282d6f4f8075b8"
+  },
+  "schema": 16,
+  "scope": "RUST199_POST_RETIREMENT_REPORT_GUARD_SUCCESSOR_V16",
+  "tree": "305db479cf93b6abfd441311fb66db047230530e",
+  "unadmitted": true
+}
