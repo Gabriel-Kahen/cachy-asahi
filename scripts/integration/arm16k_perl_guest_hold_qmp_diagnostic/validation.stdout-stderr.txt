@@ -1,0 +1,27 @@
+test_exact_proposed_source_compiles_without_execution (test_integration.Integration.test_exact_proposed_source_compiles_without_execution) ... ok
+test_optional_failure_is_fixed_unavailable_without_private_error (test_integration.Integration.test_optional_failure_is_fixed_unavailable_without_private_error) ... ok
+test_original_quit_call_and_retirement_requirements_preserved (test_integration.Integration.test_original_quit_call_and_retirement_requirements_preserved) ... ok
+test_three_slots_and_canonical_report_component_bound (test_integration.Integration.test_three_slots_and_canonical_report_component_bound) ... ok
+test_absent_and_missing_counters_are_null_not_zero (test_observe.Controls.test_absent_and_missing_counters_are_null_not_zero) ... ok
+test_cgroup_move_or_replacement_refuses (test_observe.Controls.test_cgroup_move_or_replacement_refuses) ... ok
+test_cgroup_symlink_refuses_and_closes_only_own_metadata_fds (test_observe.Controls.test_cgroup_symlink_refuses_and_closes_only_own_metadata_fds) ... ok
+test_cgroup_traversal_refuses_before_sysfs_open (test_observe.Controls.test_cgroup_traversal_refuses_before_sysfs_open) ... ok
+test_exact_stage_order_once_and_bounded_journal (test_observe.Controls.test_exact_stage_order_once_and_bounded_journal) ... ok
+test_fixed_metadata_does_not_consume_private_stream (test_observe.Controls.test_fixed_metadata_does_not_consume_private_stream) ... ok
+test_full_thread_schema_and_canonical_three_stage_component_fit_caps (test_observe.Controls.test_full_thread_schema_and_canonical_three_stage_component_fit_caps) ... ok
+test_metadata_deadline_is_bounded_and_not_retried (test_observe.Controls.test_metadata_deadline_is_bounded_and_not_retried) ... ok
+test_original_socket_fd_change_refuses (test_observe.Controls.test_original_socket_fd_change_refuses) ... ok
+test_output_bound_returns_fixed_unavailable_record (test_observe.Controls.test_output_bound_returns_fixed_unavailable_record) ... ok
+test_overlarge_counter_is_not_emitted (test_observe.Controls.test_overlarge_counter_is_not_emitted) ... ok
+test_pidfd_identity_mismatch_refuses_before_process_read (test_observe.Controls.test_pidfd_identity_mismatch_refuses_before_process_read) ... ok
+test_pidfd_ready_refuses_further_process_read (test_observe.Controls.test_pidfd_ready_refuses_further_process_read) ... ok
+test_private_buffer_count_bound_refuses_without_payload (test_observe.Controls.test_private_buffer_count_bound_refuses_without_payload) ... ok
+test_process_start_change_refuses (test_observe.Controls.test_process_start_change_refuses) ... ok
+test_thread_listing_stops_at_fixed_bound (test_observe.Controls.test_thread_listing_stops_at_fixed_bound) ... ok
+test_unbound_refuses_before_any_io (test_observe.Controls.test_unbound_refuses_before_any_io) ... ok
+test_unrecognized_error_text_is_not_exported (test_observe.Controls.test_unrecognized_error_text_is_not_exported) ... ok
+
+----------------------------------------------------------------------
+Ran 22 tests in 0.063s
+
+OK

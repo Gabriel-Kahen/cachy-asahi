@@ -1,0 +1,23 @@
+{
+  "Root_authority": null,
+  "actual_source_composition": null,
+  "added_module_destination": "hold_state_observations.py",
+  "added_module_source": "observe.py",
+  "diagnostic_component_max_bytes": 65536,
+  "preserved": [
+    "literal min(end,time.monotonic()+5) quit deadline",
+    "normal HOLD actor/QEMU retirement guards",
+    "same original socket and existing pidfd references",
+    "Source339 source bytes untouched"
+  ],
+  "proposed_controller": {
+    "bytes": 26992,
+    "sha256": "2d3475e0b9562354cca11b663a9c4b18aa27974aa385a7745b75f665360beb02"
+  },
+  "source": {
+    "bytes": 25913,
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi-perl-observed-hold-successor-readiness-20261117-r1/constructed-source/controller.py",
+    "sha256": "4b6511f0cadfce2d0af9479f6aa181c7fa042b82075e6b37be5d22ed9562eeec"
+  },
+  "status": "UNAPPLIED_SOURCE339_INTEGRATION_PROPOSAL_ONLY"
+}

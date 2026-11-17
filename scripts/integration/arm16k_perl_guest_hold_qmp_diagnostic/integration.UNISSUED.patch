@@ -1,0 +1,92 @@
+--- a/controller.py
++++ b/controller.py
+@@ -60,7 +60,21 @@
+  return module('hold_cleanup').quit_hold_qmp(module('contracts'),peer,qfile,guard,end,progress)
+ 
+ 
+-def normal_hold_cleanup(scope,peer,qfile,failure,nonce,authority_sha256,out,end,guard,record):
++def diagnostic_sample(observer,stage,report):
++ # Optional fixed metadata only. Failure cannot alter the original HOLD/cleanup.
++ if observer is None or type(report)is not dict:return
++ try:
++  rows=report.setdefault('guest_HOLD_state_observations',[])
++  if type(rows)is not list or len(rows)>=3:raise ValueError('fixed diagnostic slots')
++  value=observer.sample(stage)
++  K=module('contracts')
++  K.need(len(K.canonical(dict(guest_HOLD_state_observations=rows+[value])))<=65536,'fixed diagnostic component budget')
++  rows.append(value)
++ except Exception:
++  report.setdefault('guest_HOLD_state_diagnostic_unavailable',True)
++
++
++def normal_hold_cleanup(scope,peer,qfile,failure,nonce,authority_sha256,out,end,guard,record,observer=None,report=None):
+  K,P,R=module('contracts'),module('protocol'),module('runtime');P._nonce(nonce);P.hold_failure(failure);out=K.ordinary(out)
+  K.need(end-time.monotonic()>12,'reserved normal HOLD retirement budget')
+  K.need(scope.labels['org.cachy-asahi.perl5423-nonce']==nonce and scope.labels['org.cachy-asahi.perl5423-authority']==authority_sha256,'same case/authority owned actor')
+@@ -72,7 +86,9 @@
+  marker_pin=K.pin(marker,4096)
+  record.update(stage='MARKER_WRITTEN',marker=marker_pin)
+  # Recheck the pinned peer and authenticated container before control traffic.
+- peer.check(row);quit_hold_qmp(peer,qfile,guard,min(end,time.monotonic()+5),record.setdefault('qmp_quit_progress',{}))
++ peer.check(row)
++ diagnostic_sample(observer,'BEFORE_QUIT',report)
++ quit_hold_qmp(peer,qfile,guard,min(end,time.monotonic()+5),record.setdefault('qmp_quit_progress',{}))
+  record.update(stage='QMP_QUIT_ACKNOWLEDGED',QMP_quit_acknowledged=True)
+  wait=scope.call(['docker','wait',scope.cid],min(end,time.monotonic()+8))
+  K.need(wait.returncode==0 and wait.stdout.strip()==b'1','natural stopped failure actor wait')
+@@ -97,15 +113,16 @@
+  except BaseException:return dict(status='REFUSED_UNSAFE_OR_INVALID',data=None)
+ 
+ 
+-def cleanup_scope(scope,peer,qfile,failure,nonce,authority_sha256,out,cleanup_end,guard,report):
++def cleanup_scope(scope,peer,qfile,failure,nonce,authority_sha256,out,cleanup_end,guard,report,observer=None):
+  if scope is None:return
+  if failure is not None:
+   record=report.setdefault('guest_HOLD_cleanup',dict(status='HOLD_RETIREMENT_ATTEMPT',stage='AUTHENTICATING'))
+   try:
+    module('contracts').need(peer is not None and qfile is not None,'original authenticated HOLD QMP binding available')
+-   normal_hold_cleanup(scope,peer,qfile,failure,nonce,authority_sha256,out,min(cleanup_end-40,time.monotonic()+25),guard,record)
++   normal_hold_cleanup(scope,peer,qfile,failure,nonce,authority_sha256,out,min(cleanup_end-40,time.monotonic()+25),guard,record,observer,report)
+    report.update(container_id=scope.cid,cleanup_ownership_verified=True,owned_container_removed=True,owned_container_absence_verified=True);return
+   except BaseException as error:
++   if record.get('qmp_quit_progress',{}).get('stage')=='DEADLINE_EXPIRED':diagnostic_sample(observer,'DEADLINE',report)
+    report.setdefault('cleanup_errors',[]).append(dict(step='normal-guest-HOLD-retirement',category=type(error).__name__,message=str(error)[:1024]));report['forced_owned_cleanup_fallback']=True
+  if report.get('forced_owned_cleanup_fallback'):
+   try:module('qmp_observations').retirement_journal(module('contracts'),out,module('protocol').HOLD_RETIRED,'BEFORE_FORCED_FALLBACK',report,module('hold_cleanup').retirement_observation)
+@@ -179,7 +196,7 @@
+  # waits, and remains active until owned retirement is recorded.
+  os.umask(0o077);out.mkdir(mode=0o700);deadline=started+r[a.phase+'_seconds'];cleanup_end=deadline+r['cleanup_seconds']
+  guard=Q.Guard(out,r,auth['quota_device'],cleanup_end,R.allocated,initial=True,source=source,phase=a.phase);R.GUARD=guard;guard(True)
+- B=K.helper('reference_controller.py');state=B.Cancellation();scope=serial=qmp=qfile=peer=None;hold_failure=None
++ B=K.helper('reference_controller.py');state=B.Cancellation();scope=serial=qmp=qfile=peer=hold_observer=None;hold_failure=None
+  report=dict(status='HOLD',docker_cli=auth['docker_cli'],operation=K.OP,phase=a.phase,cleanup_errors=[],VM_acceptance=None,Root_acceptance=None,native16K='NOT_RUN',M2='NOT_RUN',performance='NOT_MEASURED',release='NOT_ADMITTED')
+  (out/'actor-envelope.json').write_bytes(K.canonical(dict(deadline_monotonic_ns=int(deadline*10**9))))
+  (out/'actor-tools.json').write_bytes(K.canonical(dict(files=auth['actor_tools'])))
+@@ -239,6 +256,8 @@
+      def __getattr__(self,n):return getattr(stream,n)
+      def recv(self,n):guard();return stream.recv(n)
+     serial=Serial(Watched(),deadline-r['cleanup_seconds'])
++    try:hold_observer=module('hold_state_observations').Binding(peer,serial)
++    except Exception:report['guest_HOLD_state_diagnostic_unavailable']=True
+     report.update(P.journey(serial,secret['password'],m['baseline_nonce'],packet['nonce'],B.parse_frame));rpc('quit');report['QMP_quit_requested']=True
+   cmd('wait',['docker','wait',name],max(5,deadline-time.monotonic()));finished=scope.recover(time.monotonic()+8)
+   if finished['State']['ExitCode']!=0 or finished['State']['Running']or finished['State']['OOMKilled']:
+@@ -257,7 +276,8 @@
+   report['status']='PREPARED_NOT_BOOTED'if a.phase=='prepare'else'PASS_EMULATED_ARM16K_PERL5423_DATA_ONLY'
+  except BaseException as error:
+   report['failure']=dict(category=type(error).__name__,message=str(error)[:1024])
+-  if isinstance(error,P.GuestHold):hold_failure=error.failure
++  if isinstance(error,P.GuestHold):
++   hold_failure=error.failure;diagnostic_sample(hold_observer,'HOLD',report)
+  finally:
+   state.cleaning=True;K.END=cleanup_end
+   # Quota failure must never prevent owned-container recovery/removal. The
+@@ -273,7 +293,7 @@
+    except BaseException as error:report.setdefault('cleanup_errors',[]).append('serial-report: '+str(error)[:1024])
+   finally:
+    try:
+-    cleanup_scope(scope,peer,qfile,hold_failure,packet['nonce'],a.authority_sha256,out,cleanup_end,cleanup_guard,report)
++    cleanup_scope(scope,peer,qfile,hold_failure,packet['nonce'],a.authority_sha256,out,cleanup_end,cleanup_guard,report,hold_observer)
+    except BaseException as error:report.setdefault('cleanup_errors',[]).append('owned-cleanup: '+str(error)[:1024])
+    finally:
+     if report.get('failure'):
