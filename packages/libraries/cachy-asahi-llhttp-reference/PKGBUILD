@@ -1,0 +1,40 @@
+# SPDX-License-Identifier: MIT
+# Original development recipe; not recovered ALARM packaging.
+pkgname=cachy-asahi-llhttp-reference
+pkgver=9.3.1
+pkgrel=1
+pkgdesc='Original llhttp source provider development candidate; unselected'
+arch=('aarch64')
+url='https://github.com/nodejs/llhttp'
+license=('MIT')
+depends=('glibc')
+makedepends=('cmake>=3.25' 'ninja')
+provides=("llhttp=$pkgver" 'libllhttp.so')
+conflicts=('llhttp')
+options=('!lto' '!debug' '!staticlibs')
+_commit=4fce8cac9433aa4728428bb3b26880d32ad05c88
+source=("llhttp-$pkgver.tar.gz::https://codeload.github.com/nodejs/llhttp/tar.gz/$_commit"
+        'smoke.c')
+sha256sums=('ac1d762ad696e05cc6f8be52465632a2700af662b4682b2e6d13228d92fd5c09'
+            '779b59692c0f751fcecbde5cde5fa679e73a0542fef477804b17292cc32b0bd8')
+
+build() {
+  cmake -S "$srcdir/llhttp-$_commit" -B "$srcdir/build" -G Ninja \
+    -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib -DLLHTTP_BUILD_SHARED_LIBS=ON \
+    -DLLHTTP_BUILD_STATIC_LIBS=OFF || return
+  cmake --build "$srcdir/build" || return
+}
+
+check() {
+  cc "$srcdir/smoke.c" -I"$srcdir/llhttp-$_commit/include" \
+    -L"$srcdir/build" -Wl,-rpath,"$srcdir/build" -lllhttp \
+    -o "$srcdir/smoke" || return
+  "$srcdir/smoke" || return
+}
+
+package() {
+  DESTDIR="$pkgdir" cmake --install "$srcdir/build" || return
+  install -Dm644 "$srcdir/llhttp-$_commit/LICENSE-MIT" \
+    "$pkgdir/usr/share/licenses/$pkgname/LICENSE-MIT" || return
+}

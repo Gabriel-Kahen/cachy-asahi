@@ -1,0 +1,9 @@
+Test project /home/gabe/Documents/ChatGPT/cachy-asahi-libgit2-llhttp-source-work-20261117/build-libgit2
+    Start  1: offline
+1/2 Test  #1: offline ..........................   Passed  150.36 sec
+    Start 12: util
+2/2 Test #12: util .............................   Passed    0.41 sec
+
+100% tests passed, 0 tests failed out of 2
+
+Total Test time (real) = 150.77 sec
