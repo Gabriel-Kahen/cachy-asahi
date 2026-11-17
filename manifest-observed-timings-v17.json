@@ -1,0 +1,51 @@
+{
+  "Root_grants": null,
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "image": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "archives": [
+    "previous-v16/hosted/phase_transfer.py",
+    "previous-v16/source-map.json"
+  ],
+  "carrier_transport_changed": false,
+  "changes": {
+    "hosted/phase_transfer.py": {
+      "after": {
+        "bytes": 32020,
+        "mode": 420,
+        "sha256": "7fe3828bc14c232f274782175208f0ec49deab3578e620202de899bae0661755"
+      },
+      "before": {
+        "bytes": 30723,
+        "mode": 420,
+        "sha256": "0fde1fe2626770dd615b21abc7b7436ab5118127227658c041e7f640387412d8"
+      }
+    }
+  },
+  "dispatch": null,
+  "holds_preserved": true,
+  "kernel_preentry_required": true,
+  "manifest_observed_timings": true,
+  "metadata_headers_changed": false,
+  "metadata_normalization_changed": false,
+  "parent": {
+    "bytes": 43652864,
+    "files": 364,
+    "map_sha256": "bd1d5d61836ee3284142884d22cf0f80ccb5d6c285dd8ca4b218708db2551406",
+    "tree": "305db479cf93b6abfd441311fb66db047230530e"
+  },
+  "recipe_changed": false,
+  "request_bounds_changed": false,
+  "resources_changed": false,
+  "schema": 17,
+  "scope": "RUST199_MANIFEST_OBSERVED_TIMINGS_SUCCESSOR_V17",
+  "source_enforced_order": true,
+  "unadmitted": true,
+  "workflows_changed": false
+}

@@ -1,0 +1,64 @@
+{
+  "Root_grants": null,
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "image": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "api_owned_private_bind_setup": true,
+  "archives": [
+    "previous-v13/hosted/producer.py",
+    "previous-v13/hosted/qualification.py",
+    "previous-v13/source-map.json"
+  ],
+  "carrier_transport_changed": false,
+  "changes": {
+    "hosted/producer.py": {
+      "after": {
+        "bytes": 37492,
+        "mode": 420,
+        "sha256": "d80c47a5120148946389bbe23446cff7a7f3e34666260160f6bdf94c47c8c075"
+      },
+      "before": {
+        "bytes": 34156,
+        "mode": 420,
+        "sha256": "964d5f0177843c323b2e5d28590bd41b53a9d129bb84a986ba60448265f70854"
+      }
+    },
+    "hosted/qualification.py": {
+      "after": {
+        "bytes": 22855,
+        "mode": 420,
+        "sha256": "d34cf5cc5260ff3abff7e33706a0f8d8056562072c820699288603736d23e68b"
+      },
+      "before": {
+        "bytes": 22120,
+        "mode": 420,
+        "sha256": "9fa67f12e15d4d11769d6bc8689939196088483e9d6f80edd289640ad03f3b9b"
+      }
+    }
+  },
+  "dispatch": null,
+  "holds_preserved": true,
+  "kernel_preentry_required": true,
+  "metadata_headers_changed": false,
+  "metadata_normalization_changed": false,
+  "parent": {
+    "bytes": 43277113,
+    "files": 351,
+    "map_sha256": "026e63a2bac7b65b26e5f74c0862f68cb73d2cf984b419f8e96b60f5d5f2dffe",
+    "tree": "12fbd0fa35ab1c8e5a7c3cb9ab1d6d387ac57cc6"
+  },
+  "recipe_changed": false,
+  "request_bounds_changed": false,
+  "resources_changed": false,
+  "schema": 14,
+  "scope": "RUST199_API_OWNED_PRIVATE_BIND_SUCCESSOR_V14",
+  "source_enforced_order": true,
+  "unadmitted": true,
+  "workflows_changed": false
+}

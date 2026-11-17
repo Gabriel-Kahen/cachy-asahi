@@ -1,0 +1,85 @@
+{
+  "Root_grants": null,
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "image": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "archives": [
+    "previous-v14/hosted/producer.py",
+    "previous-v14/hosted/qualification.py",
+    "previous-v14/hosted/volume.py",
+    "previous-v14/source-map.json"
+  ],
+  "carrier_transport_changed": false,
+  "changes": {
+    "hosted/owned_dir.py": {
+      "after": {
+        "bytes": 13431,
+        "mode": 420,
+        "sha256": "a7f231b8c1a8ffafaa2ffd61f2528348775ba3b78e22c6f40fe7e795e3756c16"
+      },
+      "before": null
+    },
+    "hosted/producer.py": {
+      "after": {
+        "bytes": 35398,
+        "mode": 420,
+        "sha256": "fa57ea2f29db29ceeea6c4356c806783bc8819a31cefd3480302dce2d89acdbc"
+      },
+      "before": {
+        "bytes": 37492,
+        "mode": 420,
+        "sha256": "d80c47a5120148946389bbe23446cff7a7f3e34666260160f6bdf94c47c8c075"
+      }
+    },
+    "hosted/qualification.py": {
+      "after": {
+        "bytes": 23461,
+        "mode": 420,
+        "sha256": "6d161216185e18a874395b5b9142a5d4baaba2cd18260d755588352cde3c0392"
+      },
+      "before": {
+        "bytes": 22855,
+        "mode": 420,
+        "sha256": "d34cf5cc5260ff3abff7e33706a0f8d8056562072c820699288603736d23e68b"
+      }
+    },
+    "hosted/volume.py": {
+      "after": {
+        "bytes": 5012,
+        "mode": 420,
+        "sha256": "f5f12814b5b8ec1b6fee6c37737eddf0940cc6e84ac4f9225803be978e0f9f4e"
+      },
+      "before": {
+        "bytes": 5039,
+        "mode": 420,
+        "sha256": "6ec0d36b7241b42162dedec3771f81f33fa2e47ca8f4cbbed82b969c671fa59f"
+      }
+    }
+  },
+  "dispatch": null,
+  "external_owned_job_directory_setup": true,
+  "holds_preserved": true,
+  "kernel_preentry_required": true,
+  "metadata_headers_changed": false,
+  "metadata_normalization_changed": false,
+  "parent": {
+    "bytes": 43408000,
+    "files": 355,
+    "map_sha256": "4a85015fbcb513f8af71ae0d313abc4927faa50682dbf0b6ebfee8f339352bfa",
+    "tree": "3fbb71b78e06cdb9aa219c596a41fda3ccc29280"
+  },
+  "recipe_changed": false,
+  "request_bounds_changed": false,
+  "resources_changed": false,
+  "schema": 15,
+  "scope": "RUST199_EXTERNAL_OWNED_JOB_DIRECTORY_SUCCESSOR_V15",
+  "source_enforced_order": true,
+  "unadmitted": true,
+  "workflows_changed": false
+}

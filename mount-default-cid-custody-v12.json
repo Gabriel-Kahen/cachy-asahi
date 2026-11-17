@@ -1,0 +1,64 @@
+{
+  "Root_grants": null,
+  "acknowledged_cid_before_validation": true,
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "image": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "archives": [
+    "previous-v11/hosted/producer.py",
+    "previous-v11/hosted/qualification.py",
+    "previous-v11/source-map.json"
+  ],
+  "carrier_transport_changed": false,
+  "changes": {
+    "hosted/producer.py": {
+      "after": {
+        "bytes": 33774,
+        "mode": 420,
+        "sha256": "5ef59811fe0f5e9935317bb4d1b1a671272b28ab09308b570a09a55ca2b1fcce"
+      },
+      "before": {
+        "bytes": 32637,
+        "mode": 420,
+        "sha256": "64f672337f97bd37d19b807a792053a265e710b9e4649b37bfde15fece612b76"
+      }
+    },
+    "hosted/qualification.py": {
+      "after": {
+        "bytes": 18658,
+        "mode": 420,
+        "sha256": "d76a06691bb6fa0138c0bc0cafb4ae1428c85fd96756de7c130230994030b6f5"
+      },
+      "before": {
+        "bytes": 18320,
+        "mode": 420,
+        "sha256": "fbb39f006a261526afc3507f52d3c2b81fa6ad452d6aba52dd9b8daafc3af063"
+      }
+    }
+  },
+  "cleanup_requires_owned_identity": true,
+  "dispatch": null,
+  "empty_driverconfig_only": true,
+  "holds_preserved": true,
+  "metadata_headers_changed": false,
+  "metadata_normalization_changed": false,
+  "parent": {
+    "bytes": 42985162,
+    "files": 340,
+    "map_sha256": "3974a68677faadf1136f21539b595f3f0da85fa26bd72eb8d0fa8c6e922894f1",
+    "tree": "596fe9277740365fa3e29ee11f2b75ae7ce8bbc8"
+  },
+  "recipe_changed": false,
+  "request_bounds_changed": false,
+  "resources_changed": false,
+  "schema": 12,
+  "scope": "RUST199_MOUNT_DEFAULT_CID_CUSTODY_SUCCESSOR_V12",
+  "unadmitted": true,
+  "workflows_changed": false
+}

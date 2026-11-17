@@ -1,0 +1,2015 @@
+{
+  "archives": {
+    "uv-aarch64-unknown-linux-gnu.tar.gz": {
+      "bytes": 24689886,
+      "expanded_file_bytes": 57006320,
+      "members": [
+        {
+          "mode": 493,
+          "name": "uv-aarch64-unknown-linux-gnu",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 316848,
+          "elf": {
+            "M2": "NOT_RUN",
+            "bytes": 316848,
+            "class_bits": 64,
+            "elf_type": 3,
+            "endian": "little",
+            "interpreter": "/lib/ld-linux-aarch64.so.1",
+            "load_segments": [
+              {
+                "align": 65536,
+                "filesz": 293920,
+                "flags": 5,
+                "memsz": 293920,
+                "offset": 0,
+                "vaddr": 0
+              },
+              {
+                "align": 65536,
+                "filesz": 9832,
+                "flags": 6,
+                "memsz": 10048,
+                "offset": 295736,
+                "vaddr": 361272
+              }
+            ],
+            "machine": 183,
+            "machine_name": "AArch64",
+            "native_16k": "NOT_RUN",
+            "native_execution": "NOT_RUN",
+            "needed": [
+              "libgcc_s.so.1",
+              "libpthread.so.0",
+              "libc.so.6"
+            ],
+            "needed_symbol_versions": [
+              "GCC_3.0",
+              "GCC_3.3",
+              "GCC_4.2.0",
+              "GLIBC_2.17",
+              "GLIBC_2.28"
+            ],
+            "sha256": "a5dee4970f3f1cea8d50d1ddecdf91f95f0f1e7a6e52336b15a95d8ab981b7e3",
+            "structural_16k": true
+          },
+          "mode": 493,
+          "name": "uv-aarch64-unknown-linux-gnu/uvx",
+          "sha256": "a5dee4970f3f1cea8d50d1ddecdf91f95f0f1e7a6e52336b15a95d8ab981b7e3",
+          "size": 316848,
+          "type": "0"
+        },
+        {
+          "bytes": 56689472,
+          "elf": {
+            "M2": "NOT_RUN",
+            "bytes": 56689472,
+            "class_bits": 64,
+            "elf_type": 3,
+            "endian": "little",
+            "interpreter": "/lib/ld-linux-aarch64.so.1",
+            "load_segments": [
+              {
+                "align": 65536,
+                "filesz": 55512428,
+                "flags": 5,
+                "memsz": 55512428,
+                "offset": 0,
+                "vaddr": 0
+              },
+              {
+                "align": 65536,
+                "filesz": 1165300,
+                "flags": 6,
+                "memsz": 1753272,
+                "offset": 55512824,
+                "vaddr": 55578360
+              }
+            ],
+            "machine": 183,
+            "machine_name": "AArch64",
+            "native_16k": "NOT_RUN",
+            "native_execution": "NOT_RUN",
+            "needed": [
+              "libgcc_s.so.1",
+              "libpthread.so.0",
+              "libm.so.6",
+              "libdl.so.2",
+              "libc.so.6"
+            ],
+            "needed_symbol_versions": [
+              "GCC_3.0",
+              "GCC_3.3",
+              "GCC_4.2.0",
+              "GLIBC_2.17",
+              "GLIBC_2.18",
+              "GLIBC_2.25",
+              "GLIBC_2.27",
+              "GLIBC_2.28"
+            ],
+            "sha256": "b9f74e398b6b15826a4b68b5a83d039036d47df64013e7faf1a9974ec199c144",
+            "structural_16k": true
+          },
+          "mode": 493,
+          "name": "uv-aarch64-unknown-linux-gnu/uv",
+          "sha256": "b9f74e398b6b15826a4b68b5a83d039036d47df64013e7faf1a9974ec199c144",
+          "size": 56689472,
+          "type": "0"
+        }
+      ],
+      "sha256": "03e9fe0a81b0718d0bc84625de3885df6cc3f89a8b6af6121d6b9f6113fb6533"
+    },
+    "uv_build-0.11.28-py3-none-manylinux_2_28_aarch64.whl": {
+      "bytes": 1616098,
+      "expanded_file_bytes": 3629450,
+      "licenses_equal_exact_tag": true,
+      "members": [
+        {
+          "bytes": 4803,
+          "mode": 33188,
+          "name": "uv_build/__init__.py",
+          "sha256": "6fbe0020d04fa78db8fecc53bab420065e2ca0bdb8bcc4f9b0996d24a22a7465",
+          "zip_size": 1493
+        },
+        {
+          "bytes": 449,
+          "mode": 33188,
+          "name": "uv_build/__main__.py",
+          "sha256": "44d3061ee13523b399a218c08923e6e92de0fbef8caa4780730855d790a1f43c",
+          "zip_size": 281
+        },
+        {
+          "bytes": 0,
+          "mode": 33188,
+          "name": "uv_build/py.typed",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "zip_size": 7
+        },
+        {
+          "bytes": 3310128,
+          "elf": {
+            "M2": "NOT_RUN",
+            "bytes": 3310128,
+            "class_bits": 64,
+            "elf_type": 3,
+            "endian": "little",
+            "interpreter": "/lib/ld-linux-aarch64.so.1",
+            "load_segments": [
+              {
+                "align": 65536,
+                "filesz": 3045716,
+                "flags": 5,
+                "memsz": 3045716,
+                "offset": 0,
+                "vaddr": 0
+              },
+              {
+                "align": 65536,
+                "filesz": 254344,
+                "flags": 6,
+                "memsz": 254704,
+                "offset": 3049808,
+                "vaddr": 3115344
+              }
+            ],
+            "machine": 183,
+            "machine_name": "AArch64",
+            "native_16k": "NOT_RUN",
+            "native_execution": "NOT_RUN",
+            "needed": [
+              "libgcc_s.so.1",
+              "libpthread.so.0",
+              "libdl.so.2",
+              "libc.so.6"
+            ],
+            "needed_symbol_versions": [
+              "GCC_3.0",
+              "GCC_3.3",
+              "GCC_4.2.0",
+              "GLIBC_2.17",
+              "GLIBC_2.18",
+              "GLIBC_2.25",
+              "GLIBC_2.28"
+            ],
+            "sha256": "82cf8b50be166cf5aab7eddddd0c27535b59cf9b34c4abc9443acacb1256f10c",
+            "structural_16k": true
+          },
+          "mode": 33261,
+          "name": "uv_build-0.11.28.data/scripts/uv-build",
+          "sha256": "82cf8b50be166cf5aab7eddddd0c27535b59cf9b34c4abc9443acacb1256f10c",
+          "zip_size": 1571718
+        },
+        {
+          "bytes": 1727,
+          "mode": 33188,
+          "name": "uv_build-0.11.28.dist-info/METADATA",
+          "sha256": "178dbd83732c8b819145d5b2a62d8a9e30d57f622ca622939486fac3c44187b1",
+          "zip_size": 670
+        },
+        {
+          "bytes": 107,
+          "mode": 33188,
+          "name": "uv_build-0.11.28.dist-info/WHEEL",
+          "sha256": "3db55fec504d4e5ac116c25347d71f358fa5dc1e5ff41e62199e08025ae65b65",
+          "zip_size": 111
+        },
+        {
+          "bytes": 11357,
+          "mode": 33188,
+          "name": "uv_build-0.11.28.dist-info/licenses/LICENSE-APACHE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "zip_size": 3943
+        },
+        {
+          "bytes": 1077,
+          "mode": 33188,
+          "name": "uv_build-0.11.28.dist-info/licenses/LICENSE-MIT",
+          "sha256": "860e3d7a86b84e6a7012c7a635fc64df475cebc6cce34dfeb73a5982ec58176c",
+          "zip_size": 647
+        },
+        {
+          "bytes": 298937,
+          "mode": 33188,
+          "name": "uv_build-0.11.28.dist-info/sboms/uv-build.cyclonedx.json",
+          "sha256": "73abfd470c6ae5963432646783dc8b21b2b8596e558a71d389b4b96b5889076c",
+          "zip_size": 35233
+        },
+        {
+          "bytes": 865,
+          "mode": 33188,
+          "name": "uv_build-0.11.28.dist-info/RECORD",
+          "sha256": "7b68cb95b04fadfaa8ceec8f15075a98e11ae7fedf24906ebf939ffa9cf370f7",
+          "zip_size": 517
+        }
+      ],
+      "metadata": {
+        "license": "MIT OR Apache-2.0",
+        "name": "uv-build",
+        "requires_dist": [],
+        "requires_python": ">=3.8",
+        "version": "0.11.28"
+      },
+      "python_shim_equals_exact_tag": true,
+      "record_checks": 9,
+      "record_verified": true,
+      "sha256": "d99cb38411412134781140cc64dc7d296dbc383fa1e81ddc13ecb6863852ecf5"
+    },
+    "uv_build-0.11.28.tar.gz": {
+      "bytes": 408697,
+      "expanded_file_bytes": 2049974,
+      "members": [
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 76644,
+          "mode": 420,
+          "name": "uv_build-0.11.28/Cargo.lock",
+          "sha256": "736d0c06c4812d1f615ba7bcb0b55e9cfda764120fbd92df35bd18a1c1db2905",
+          "size": 76644,
+          "type": "0"
+        },
+        {
+          "bytes": 16623,
+          "mode": 420,
+          "name": "uv_build-0.11.28/Cargo.toml",
+          "sha256": "cc1fe02a7969bedf73d03ca98e9151e2b3fbb1ca53fd6ced989f26104d640b94",
+          "size": 16623,
+          "type": "0"
+        },
+        {
+          "bytes": 11357,
+          "mode": 420,
+          "name": "uv_build-0.11.28/LICENSE-APACHE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "size": 11357,
+          "type": "0"
+        },
+        {
+          "bytes": 1077,
+          "mode": 420,
+          "name": "uv_build-0.11.28/LICENSE-MIT",
+          "sha256": "860e3d7a86b84e6a7012c7a635fc64df475cebc6cce34dfeb73a5982ec58176c",
+          "size": 1077,
+          "type": "0"
+        },
+        {
+          "bytes": 1727,
+          "mode": 420,
+          "name": "uv_build-0.11.28/PKG-INFO",
+          "sha256": "178dbd83732c8b819145d5b2a62d8a9e30d57f622ca622939486fac3c44187b1",
+          "size": 1727,
+          "type": "0"
+        },
+        {
+          "bytes": 216,
+          "mode": 420,
+          "name": "uv_build-0.11.28/README.md",
+          "sha256": "e5344a6f6abfc6a9c75970f71fa4da6ce029a368753c4bffb8082b66a9f07eda",
+          "size": 216,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-build",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 683,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-build/Cargo.toml",
+          "sha256": "e0f60d041a9565b43c9ecc97dde40595c46d3adbf1ec7ea7039b70c4ed1fc9a1",
+          "size": 683,
+          "type": "0"
+        },
+        {
+          "bytes": 11357,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-build/LICENSE-APACHE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "size": 11357,
+          "type": "0"
+        },
+        {
+          "bytes": 1077,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-build/LICENSE-MIT",
+          "sha256": "860e3d7a86b84e6a7012c7a635fc64df475cebc6cce34dfeb73a5982ec58176c",
+          "size": 1077,
+          "type": "0"
+        },
+        {
+          "bytes": 216,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-build/README.md",
+          "sha256": "e5344a6f6abfc6a9c75970f71fa4da6ce029a368753c4bffb8082b66a9f07eda",
+          "size": 216,
+          "type": "0"
+        },
+        {
+          "bytes": 406,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-build/deny.toml",
+          "sha256": "0af9794ff7365dfd3f755d44126735a2199068350e18c975528cd83f5241a2b1",
+          "size": 406,
+          "type": "0"
+        },
+        {
+          "bytes": 102,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-build/ruff.toml",
+          "sha256": "8b23a4141d946b60e59c72fdec4ec5407b846e0ee4e5570bf1a03b161b442277",
+          "size": 102,
+          "type": "0"
+        },
+        {
+          "bytes": 31,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-build/rust-toolchain.toml",
+          "sha256": "6791dcb04edcb490caaf08590dbe1dd9d9954b46dab2095df12dc984f704f1a8",
+          "size": 31,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-build/src",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 6090,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-build/src/main.rs",
+          "sha256": "b3526aaf1c73931d2c333633f1f69b4e56c5a0e8d49204072e401e93a70dbc69",
+          "size": 6090,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-build-backend",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 2082,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-build-backend/Cargo.toml",
+          "sha256": "9ff8bd1bc1cdf06e597922bcf6d2a307dd795d777895639bbcc816e4e3e708b9",
+          "size": 2082,
+          "type": "0"
+        },
+        {
+          "bytes": 551,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-build-backend/README.md",
+          "sha256": "4597956e0e88b9ea88754aefcc07b69597fc156766bcef2e98f7ae6848e0b63e",
+          "size": 551,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-build-backend/src",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 80238,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-build-backend/src/lib.rs",
+          "sha256": "1733b813f9800ae749760a6d834e435231d69e2e77ac5be27cbbd05db3bf0d28",
+          "size": 80238,
+          "type": "0"
+        },
+        {
+          "bytes": 79183,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-build-backend/src/metadata.rs",
+          "sha256": "0e22f80046a365536da3bc2152d4239c3d0b842b2de59ff1cc2633bfb8faf4c5",
+          "size": 79183,
+          "type": "0"
+        },
+        {
+          "bytes": 1422,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-build-backend/src/serde_verbatim.rs",
+          "sha256": "08e1155b91e4b8cc4ef50018a69922690d01d3b5587e7b0f1156227d8ea6ac52",
+          "size": 1422,
+          "type": "0"
+        },
+        {
+          "bytes": 9089,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-build-backend/src/settings.rs",
+          "sha256": "e608f3337099d88e00de1141b8401d32304a4ca48d1c97218fc9ca0fd2fa1854",
+          "size": 9089,
+          "type": "0"
+        },
+        {
+          "bytes": 19928,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-build-backend/src/source_dist.rs",
+          "sha256": "05ab3a88df5aba6d4dd672b6786d8f8a9ec9966a81f3977c7806b7b98642ca5d",
+          "size": 19928,
+          "type": "0"
+        },
+        {
+          "bytes": 36061,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-build-backend/src/wheel.rs",
+          "sha256": "e658b1cc811ca1d4fa30c705c94844154935543b059bcc4a98cf8d0825fa58b4",
+          "size": 36061,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-cache-key",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 581,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-cache-key/Cargo.toml",
+          "sha256": "c09487cbda7e5938a298a0bb24ce7aae2bb69de1fda895907693fcf66a3a52a2",
+          "size": 581,
+          "type": "0"
+        },
+        {
+          "bytes": 543,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-cache-key/README.md",
+          "sha256": "53d9fa06ca9a364fa229ff55b054d93ef7ce7a54ca4353fc14abddb8747bdb3e",
+          "size": 543,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-cache-key/src",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 8333,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-cache-key/src/cache_key.rs",
+          "sha256": "38ec5913c7e5a639b6e67ddcc10dea108cc3efbbc5ac132752cf72a37d827655",
+          "size": 8333,
+          "type": "0"
+        },
+        {
+          "bytes": 18580,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-cache-key/src/canonical_url.rs",
+          "sha256": "d98a28501b96c9ff83f5480ff85bbc7ebffe8a5e6ce264b4e6fa2963f31bb382",
+          "size": 18580,
+          "type": "0"
+        },
+        {
+          "bytes": 3510,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-cache-key/src/digest.rs",
+          "sha256": "c36298dbc9734cce460009995c9770cdc26a5c13d2f94ea2eb08f41d2ab0bc0c",
+          "size": 3510,
+          "type": "0"
+        },
+        {
+          "bytes": 205,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-cache-key/src/lib.rs",
+          "sha256": "e551ae72a4e84a42fe3fe0d312bfbc5fa7a270c49b615d1e221c485746a5ce00",
+          "size": 205,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-distribution-filename",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 812,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-distribution-filename/Cargo.toml",
+          "sha256": "9ee878b95f1f00f22de2c17eac6000c5bb80ee2f5cd19bb826e66ed5e9d07ff0",
+          "size": 812,
+          "type": "0"
+        },
+        {
+          "bytes": 567,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-distribution-filename/README.md",
+          "sha256": "e9ea773faa67ab5d3cd7bb5637e33af07ba56013e3bf396705dd985416347152",
+          "size": 567,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-distribution-filename/src",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 4068,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-distribution-filename/src/build_tag.rs",
+          "sha256": "a033f73cd410bc4fd306857e903affc4a6dbaf6ddc563fbf8406551fa2fd313d",
+          "size": 4068,
+          "type": "0"
+        },
+        {
+          "bytes": 3930,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-distribution-filename/src/egg.rs",
+          "sha256": "78f2f984ae4ddb6442dba9a160d5bf40801bf732538b5e190669cc02e5f7445e",
+          "size": 3930,
+          "type": "0"
+        },
+        {
+          "bytes": 16242,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-distribution-filename/src/expanded_tags.rs",
+          "sha256": "d837af372f6907495d82b845cb2e295286fe1bd360eaecf0c5e6501b49cf398f",
+          "size": 16242,
+          "type": "0"
+        },
+        {
+          "bytes": 3996,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-distribution-filename/src/extension.rs",
+          "sha256": "d86c13f0aeda47afc3ffb805fc6a66ae69eba44abf530ba8577d8985c1d55826",
+          "size": 3996,
+          "type": "0"
+        },
+        {
+          "bytes": 7857,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-distribution-filename/src/lib.rs",
+          "sha256": "3b10a359625fd3b30a6e7b21c1b29e2f0fbf5e6bbe10d0192bd8c6a62a1e27a0",
+          "size": 7857,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-distribution-filename/src/snapshots",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 887,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-distribution-filename/src/snapshots/uv_distribution_filename__wheel__tests__ok_build_tag.snap",
+          "sha256": "9d17d12aac210babce8816d0469e441f23e05501004c98d884ddf50ff9d44a22",
+          "size": 887,
+          "type": "0"
+        },
+        {
+          "bytes": 1371,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-distribution-filename/src/snapshots/uv_distribution_filename__wheel__tests__ok_multiple_tags.snap",
+          "sha256": "d3984f9e1e71bff9d297b4859944e19ea77a1af1d477e5f9582e01943d674ca0",
+          "size": 1371,
+          "type": "0"
+        },
+        {
+          "bytes": 515,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-distribution-filename/src/snapshots/uv_distribution_filename__wheel__tests__ok_single_tags.snap",
+          "sha256": "6a1810e91266e8eafe06f359b8afb2c940077647321d008cc5171c40e15637b8",
+          "size": 515,
+          "type": "0"
+        },
+        {
+          "bytes": 9194,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-distribution-filename/src/source_dist.rs",
+          "sha256": "ed8b18f0910d019711d1b36b10688b3da82123aa0cdc9c4fc3a0917534813034",
+          "size": 9194,
+          "type": "0"
+        },
+        {
+          "bytes": 1513,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-distribution-filename/src/splitter.rs",
+          "sha256": "378e8d8f14d1e60681f51988ac5b144fb72a1c49f54e65f1de9cfe2d632f2721",
+          "size": 1513,
+          "type": "0"
+        },
+        {
+          "bytes": 22208,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-distribution-filename/src/wheel.rs",
+          "sha256": "6983f831ff356d3ca4c4b21ac541ce89ba580efb44eebe69b0679cecc4d73580",
+          "size": 22208,
+          "type": "0"
+        },
+        {
+          "bytes": 5135,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-distribution-filename/src/wheel_tag.rs",
+          "sha256": "ab1cb68ed89d5a6967eb7d69f32a43c3ce2b8e8bb73307c4108d7f64c2b28e6c",
+          "size": 5135,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-errors",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 682,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-errors/Cargo.toml",
+          "sha256": "c3d294a2afdde6b5e96079396d9104087ccfac04a75e25839c9fda3faa1881dd",
+          "size": 682,
+          "type": "0"
+        },
+        {
+          "bytes": 537,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-errors/README.md",
+          "sha256": "0f5331d060dce63d98fe17b2e9741853d528888c1be22de09f8c9c7ac4faa707",
+          "size": 537,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-errors/src",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 19031,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-errors/src/lib.rs",
+          "sha256": "b1dfb93e0e45c028cb58d7fe8751ac0a2c0ba96495f703552458ed4d292821fa",
+          "size": 19031,
+          "type": "0"
+        },
+        {
+          "bytes": 2528,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-errors/src/line_wrap.rs",
+          "sha256": "819722711a79eed3fd9f402c549c97c0d1e24ef839d6da45ef55eb5e229689cc",
+          "size": 2528,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-fs",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 1464,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-fs/Cargo.toml",
+          "sha256": "bcf2b7f89764843f84d42cf3864972d76391621ea126f8658c2265afd9bdc986",
+          "size": 1464,
+          "type": "0"
+        },
+        {
+          "bytes": 529,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-fs/README.md",
+          "sha256": "66b7ce85314b1afdbd06b6f9a1cea9b293d3d34ee73e33772cf0acf9eee2f813",
+          "size": 529,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-fs/src",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 1765,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-fs/src/cachedir.rs",
+          "sha256": "ee6aa7e15bab6e2eba538cb590ed2d759b3fd8231b2244e57f6363ab33b0f1c5",
+          "size": 1765,
+          "type": "0"
+        },
+        {
+          "bytes": 35443,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-fs/src/lib.rs",
+          "sha256": "ffcd7919ad8fdff49aa78e89b4bdc4099a54e91ab5fc50bbc0eba4c15ef14ea9",
+          "size": 35443,
+          "type": "0"
+        },
+        {
+          "bytes": 71413,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-fs/src/link.rs",
+          "sha256": "5865aef2e343c27ef073b5b782070eb5c47a46f69373c1923375dbeda89f3d58",
+          "size": 71413,
+          "type": "0"
+        },
+        {
+          "bytes": 16603,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-fs/src/locked_file.rs",
+          "sha256": "bf4b7b4fdf363de05d6841907cb41fa33f18a5765b4a7a24841cb6f1933bc0bf",
+          "size": 16603,
+          "type": "0"
+        },
+        {
+          "bytes": 32419,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-fs/src/path.rs",
+          "sha256": "97eda7cf1d928e54e6d5490fba897cdbd77fa0d843e5bb7fb611a9e3aa596062",
+          "size": 32419,
+          "type": "0"
+        },
+        {
+          "bytes": 4650,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-fs/src/read.rs",
+          "sha256": "2ac35edcdacfa8fe5234941c203be38dd15f233ca225dcc1f06c645144245061",
+          "size": 4650,
+          "type": "0"
+        },
+        {
+          "bytes": 1882,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-fs/src/which.rs",
+          "sha256": "9209dd2c268d9890075a153941bcc557a728552d4ca03841f214838e9566a5e6",
+          "size": 1882,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-git-types",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 655,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-git-types/Cargo.toml",
+          "sha256": "607f32acc5c0f22ad68074d3fe831dc542c89816f8386ec0c8bf7674647ee883",
+          "size": 655,
+          "type": "0"
+        },
+        {
+          "bytes": 543,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-git-types/README.md",
+          "sha256": "952b2dc5e61d0b930fcc15e556b854518a28feb256e4d362bb227b8623449768",
+          "size": 543,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-git-types/src",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 2868,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-git-types/src/github.rs",
+          "sha256": "c65d57009fb2a47180d5115372e5d86226e4548e3c61aa02c91810f9c89b420a",
+          "size": 2868,
+          "type": "0"
+        },
+        {
+          "bytes": 10797,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-git-types/src/lib.rs",
+          "sha256": "be13b553f0161d59b10b6f4cccad095c46fe93ef15d67459de637c1fda3f73c6",
+          "size": 10797,
+          "type": "0"
+        },
+        {
+          "bytes": 3563,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-git-types/src/oid.rs",
+          "sha256": "63d16ddc9a07ed124f2a595adf40664b98ba723b68924288a572cbb76916c738",
+          "size": 3563,
+          "type": "0"
+        },
+        {
+          "bytes": 3484,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-git-types/src/reference.rs",
+          "sha256": "e5506dc2848500cced5d0e71e8acce3f62751d727bf004e1f922ce064282227a",
+          "size": 3484,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-globfilter",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 760,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-globfilter/Cargo.toml",
+          "sha256": "45b7429c1d789c4c94d70df3b029a8934f9c0db99ab69eefd820704f15fcd73a",
+          "size": 760,
+          "type": "0"
+        },
+        {
+          "bytes": 1552,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-globfilter/README.md",
+          "sha256": "03627a8138b84af0747392b763c8dc0581b4604e53c8db5d6abaf02de0c00cc4",
+          "size": 1552,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-globfilter/src",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 10164,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-globfilter/src/glob_dir_filter.rs",
+          "sha256": "8c163ecf7579cb2cb26cda9fa9728ff23c5efb17cb3f539ad3a3e75c2fef238f",
+          "size": 10164,
+          "type": "0"
+        },
+        {
+          "bytes": 342,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-globfilter/src/lib.rs",
+          "sha256": "b830da6c0e78163d11b0aa6e63bbfb215741482c470d5490f0e814e2ab2704f4",
+          "size": 342,
+          "type": "0"
+        },
+        {
+          "bytes": 2115,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-globfilter/src/main.rs",
+          "sha256": "86dc6184418934b05a65d9e8f66bb2bebe8b7474d5f4254bb08d445acd0b9723",
+          "size": 2115,
+          "type": "0"
+        },
+        {
+          "bytes": 13379,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-globfilter/src/portable_glob.rs",
+          "sha256": "a3651ac12bbbd4fba4639fd36ee4d0a44785b241d90be7f00279973a473ac58c",
+          "size": 13379,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-logging",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 555,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-logging/Cargo.toml",
+          "sha256": "4d82e273022a9d0cf7f9a6012e4ec16eecd83b9eaf497e408fc506d96fa20e02",
+          "size": 555,
+          "type": "0"
+        },
+        {
+          "bytes": 539,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-logging/README.md",
+          "sha256": "44976c8aa74313fab72950b3e09faed01cee9d8997bf3626d96e65b2a295758c",
+          "size": 539,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-logging/src",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 5122,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-logging/src/lib.rs",
+          "sha256": "3872b9fecbcbe7d2b271d9d30344943570faaca963748d7f88fa25270977b63b",
+          "size": 5122,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-macros",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 562,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-macros/Cargo.toml",
+          "sha256": "6683e56997432c74f9bae881bd16c7b1234441f383764ea0af2135a79a839c09",
+          "size": 562,
+          "type": "0"
+        },
+        {
+          "bytes": 537,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-macros/README.md",
+          "sha256": "e49d668fbf991917948a9ed0ddaec728b91e17dda1baf1353b08ffc5239abf87",
+          "size": 537,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-macros/src",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 7195,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-macros/src/lib.rs",
+          "sha256": "a6604002ea6ef2bc931e39495d91c3857067fdff29232ebfee23b4baa5bd7ef3",
+          "size": 7195,
+          "type": "0"
+        },
+        {
+          "bytes": 14112,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-macros/src/options_metadata.rs",
+          "sha256": "ba092de2fca7bcc4261f29be9517b7ce6c5a32966c302c3a352e375ac84ad1d8",
+          "size": 14112,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-normalize",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 621,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-normalize/Cargo.toml",
+          "sha256": "f66dae030e059ed45be5f32f7584da1863a2cc3a05f06507c27946cd19a937ed",
+          "size": 621,
+          "type": "0"
+        },
+        {
+          "bytes": 543,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-normalize/README.md",
+          "sha256": "153be0e7bea75df4b7fe74d1f42dfe9ec6c0ab460c67eb339f91fb5128bb22eb",
+          "size": 543,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-normalize/src",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 3199,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-normalize/src/dist_info_name.rs",
+          "sha256": "6b49c378df58d59730e97ff56e32470780871b38e376b0b5896fe21f6b9b90a2",
+          "size": 3199,
+          "type": "0"
+        },
+        {
+          "bytes": 5033,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-normalize/src/extra_name.rs",
+          "sha256": "703aa8e50dccf801483571eaa63fc778947129f6631bfc577b4470100113736d",
+          "size": 5033,
+          "type": "0"
+        },
+        {
+          "bytes": 8458,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-normalize/src/group_name.rs",
+          "sha256": "6de2f1544e99be5e3d8173ac4b4b7dbd0b9a523b36bbf32a9f47024ceb5ad2bd",
+          "size": 8458,
+          "type": "0"
+        },
+        {
+          "bytes": 6924,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-normalize/src/lib.rs",
+          "sha256": "42e39b6f0118f6a1ff210d17bfe04e63221c87b14dcf7ea338f2b1190404205a",
+          "size": 6924,
+          "type": "0"
+        },
+        {
+          "bytes": 3625,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-normalize/src/package_name.rs",
+          "sha256": "b8d6e89e21a9b8df3d97cbf8470d57fa3294964c27f58e34343e5e1023330932",
+          "size": 3625,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-options-metadata",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 439,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-options-metadata/Cargo.toml",
+          "sha256": "53f890d6ceee48b0e844b4f4db2bb703d557b677ee5dbcf2ab5d12f414b3289b",
+          "size": 439,
+          "type": "0"
+        },
+        {
+          "bytes": 557,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-options-metadata/README.md",
+          "sha256": "c3808c6eb96b4a044971ddccafba985507cb6acf77757146140f3ddf961bd5dc",
+          "size": 557,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-options-metadata/src",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 6676,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-options-metadata/src/lib.rs",
+          "sha256": "c5e69ea5b18c7544f193c87731c731311f26e7307eaf29ade7953052ef7ee561",
+          "size": 6676,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-pep440",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 1014,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pep440/Cargo.toml",
+          "sha256": "c313b1ad9ba022a63e9a3ba432ea7af662984b7ed8ed47e0683c50b2bd4a4f06",
+          "size": 1014,
+          "type": "0"
+        },
+        {
+          "bytes": 10173,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pep440/License-Apache",
+          "sha256": "a6cba85bc92e0cff7a450b1d873c0eaa2e9fc96bf472df0247a26bec77bf3ff9",
+          "size": 10173,
+          "type": "0"
+        },
+        {
+          "bytes": 1293,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pep440/License-BSD",
+          "sha256": "349881bddbe385d3febd5ab50e36ea781aefee73bda4b0610918fe73fda29322",
+          "size": 1293,
+          "type": "0"
+        },
+        {
+          "bytes": 537,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pep440/README.md",
+          "sha256": "2f43503a66e910292771bc8e46296b480901f836858a1068b7e8846d43209eb4",
+          "size": 537,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-pep440/src",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 2801,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pep440/src/lib.rs",
+          "sha256": "3b9820c20178c484ee32fec909f7daaa73d100530ba877fa2aeb2cc50bedd49b",
+          "size": 2801,
+          "type": "0"
+        },
+        {
+          "bytes": 166144,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pep440/src/version.rs",
+          "sha256": "cd8e892684d6dcbff812f0b911f65b16f6aa4352ee6c000f8e145ea34ce00375",
+          "size": 166144,
+          "type": "0"
+        },
+        {
+          "bytes": 26117,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pep440/src/version_ranges.rs",
+          "sha256": "e0506af33aaec283a4f987a738709b81e4791731a1f3fbe2587bf65d752c6da4",
+          "size": 26117,
+          "type": "0"
+        },
+        {
+          "bytes": 76623,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pep440/src/version_specifier.rs",
+          "sha256": "51b66872f2b42b808e95531f6ea3ee6e0446ef46d480c84da6277bf73b21bff4",
+          "size": 76623,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-pep508",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 2119,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pep508/Cargo.toml",
+          "sha256": "95d2cf7efdafff478b5d52385f2be48fc9a74023f04069de238c0ca6d539c5bc",
+          "size": 2119,
+          "type": "0"
+        },
+        {
+          "bytes": 504,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pep508/Changelog.md",
+          "sha256": "a0407990d6bd95b64b984a4e4c7a073bd7b4df64386a7edb932afe5fb4187510",
+          "size": 504,
+          "type": "0"
+        },
+        {
+          "bytes": 10173,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pep508/License-Apache",
+          "sha256": "a6cba85bc92e0cff7a450b1d873c0eaa2e9fc96bf472df0247a26bec77bf3ff9",
+          "size": 10173,
+          "type": "0"
+        },
+        {
+          "bytes": 1293,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pep508/License-BSD",
+          "sha256": "349881bddbe385d3febd5ab50e36ea781aefee73bda4b0610918fe73fda29322",
+          "size": 1293,
+          "type": "0"
+        },
+        {
+          "bytes": 537,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pep508/README.md",
+          "sha256": "a82a6f6995e08142971e2266c5b6fbebcf5fff21cc1c3673e4f4dd8103c8c52c",
+          "size": 537,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-pep508/src",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 4270,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pep508/src/cursor.rs",
+          "sha256": "2ea3c1f10a0fc894f10097903255242dc5c96e602da1aa08697eab1f07488741",
+          "size": 4270,
+          "type": "0"
+        },
+        {
+          "bytes": 64344,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pep508/src/lib.rs",
+          "sha256": "13d3abecfdbd44e77fe00515011d7324d404f1de6a1fbe362c4ee691c0751bc2",
+          "size": 64344,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-pep508/src/marker",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 80443,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pep508/src/marker/algebra.rs",
+          "sha256": "6cab0971321f47e27ba69d1e7959a68d62f90cadfe87bee1f09004b661826902",
+          "size": 80443,
+          "type": "0"
+        },
+        {
+          "bytes": 11372,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pep508/src/marker/environment.rs",
+          "sha256": "389d34e116a0573d27a80be1e7d1a30cf7c2bd17ccdd367e194faadaf02e7e47",
+          "size": 11372,
+          "type": "0"
+        },
+        {
+          "bytes": 7507,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pep508/src/marker/lowering.rs",
+          "sha256": "44734a4e47592dff5402c2de07b7f8915e4c3d515ad2fb3370f714ab46ac00c4",
+          "size": 7507,
+          "type": "0"
+        },
+        {
+          "bytes": 1975,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pep508/src/marker/mod.rs",
+          "sha256": "dae57a9cf9a4255fbc64a4604a52b0e9adb8c7b1ed31bc4eb1b28338db957de0",
+          "size": 1975,
+          "type": "0"
+        },
+        {
+          "bytes": 26836,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pep508/src/marker/parse.rs",
+          "sha256": "63bdef572c9b8cff463b51e63a6f3ab0bcc13d90ffaefa48f495c5f7db663cf0",
+          "size": 26836,
+          "type": "0"
+        },
+        {
+          "bytes": 17091,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pep508/src/marker/simplify.rs",
+          "sha256": "734c0ba2bd188833f2420a43bccdf4d12319bb8a8624752d621eda1e7a5b81e3",
+          "size": 17091,
+          "type": "0"
+        },
+        {
+          "bytes": 136059,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pep508/src/marker/tree.rs",
+          "sha256": "c0da696d8b5ae3a2358f34d710c443b1c13054d187606246b29445b525f05225",
+          "size": 136059,
+          "type": "0"
+        },
+        {
+          "bytes": 1271,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pep508/src/origin.rs",
+          "sha256": "f736d3804a19d9f1eba35e0d93a5788cc1f2e9199258e506924b5250c8ea639b",
+          "size": 1271,
+          "type": "0"
+        },
+        {
+          "bytes": 14875,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pep508/src/unnamed.rs",
+          "sha256": "37ff3f528b3088d8ea92a6f6cd4da5a26f780c05e951410a31e3562d0e914dd3",
+          "size": 14875,
+          "type": "0"
+        },
+        {
+          "bytes": 32358,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pep508/src/verbatim_url.rs",
+          "sha256": "20f3bedc5712534714059858c6cd0a0363c62f9b48ae355559bbc44ed60c8455",
+          "size": 32358,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-platform-tags",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 665,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-platform-tags/Cargo.toml",
+          "sha256": "f050485d9d8b0f7ad1a5f94d9ede708da84428be560c1dffc92d4625dbf7b64b",
+          "size": 665,
+          "type": "0"
+        },
+        {
+          "bytes": 551,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-platform-tags/README.md",
+          "sha256": "7ca4a664862761dd549938249bcb541ce25c634bb5875a445ae5ea30a656b715",
+          "size": 551,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-platform-tags/src",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 22044,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-platform-tags/src/abi_tag.rs",
+          "sha256": "305ec942aea4cfb500b91fbd779a55e8b70ded6f9261604ef4f83856f93c5e39",
+          "size": 22044,
+          "type": "0"
+        },
+        {
+          "bytes": 15049,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-platform-tags/src/language_tag.rs",
+          "sha256": "4b1d7cb1079fb3bcedeeefc665cbc8dc686ccd39aef124129e128aca3740900b",
+          "size": 15049,
+          "type": "0"
+        },
+        {
+          "bytes": 465,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-platform-tags/src/lib.rs",
+          "sha256": "e55c26097c420234097731fbf6f2088a258cf90fb574784a91a4b708d8bbe1c3",
+          "size": 465,
+          "type": "0"
+        },
+        {
+          "bytes": 8749,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-platform-tags/src/platform.rs",
+          "sha256": "d01f7191add97ec992a39c106fc6121bc4bc368c62fe80a61b1543d1642eb861",
+          "size": 8749,
+          "type": "0"
+        },
+        {
+          "bytes": 46115,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-platform-tags/src/platform_tag.rs",
+          "sha256": "30fa1f3e3a1d0469f03681a8e7663551d0265e8cdcb4acf123e67475f0e98085",
+          "size": 46115,
+          "type": "0"
+        },
+        {
+          "bytes": 109942,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-platform-tags/src/tags.rs",
+          "sha256": "14b5de62244902c3257d7fd84a457ba7caa091f726d659f3f41fa732d16d89fd",
+          "size": 109942,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-preview",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 797,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-preview/Cargo.toml",
+          "sha256": "423441713b2c1e6f434617777d8bd7a9dbc763775cd506b71fedf014b40c6c12",
+          "size": 797,
+          "type": "0"
+        },
+        {
+          "bytes": 539,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-preview/README.md",
+          "sha256": "5e1bf54b9e2b9208708eb2c5745b0d53f23e32bb929330db6178e8bf74909e34",
+          "size": 539,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-preview/src",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 26408,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-preview/src/lib.rs",
+          "sha256": "c3c5650917c7123afa141456924f70fcda2f139357e4cb0410fc3baacfcdba6c",
+          "size": 26408,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-pypi-types",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 1450,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pypi-types/Cargo.toml",
+          "sha256": "cc32cdf92e4298473b565464f9ff4dc916b346c9aba429fafffba26b43d0bef8",
+          "size": 1450,
+          "type": "0"
+        },
+        {
+          "bytes": 545,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pypi-types/README.md",
+          "sha256": "75f545d22c31c19426891d9aca691f4dc04d6a11e15d90348c972c2d5a4cb934",
+          "size": 545,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-pypi-types/src",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 858,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pypi-types/src/base_url.rs",
+          "sha256": "91d8613599d433840e3f7cc3a5632532333267f5e186b541156f10418af575ed",
+          "size": 858,
+          "type": "0"
+        },
+        {
+          "bytes": 29242,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pypi-types/src/conflicts.rs",
+          "sha256": "96d45a4aca175ba58bbeca67836cc568badaf84c918a0f78e8281347b971df6b",
+          "size": 29242,
+          "type": "0"
+        },
+        {
+          "bytes": 5184,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pypi-types/src/dependency_groups.rs",
+          "sha256": "1cef3d4d0a44b25fb06d9fbf41a7352aa5050f81d128690f748dcd65d8bdef49",
+          "size": 5184,
+          "type": "0"
+        },
+        {
+          "bytes": 6013,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pypi-types/src/direct_url.rs",
+          "sha256": "b5240af0da4e920cf61ce93c9ed53b6127d09cc3652b77341df0a4cadf7d0cd9",
+          "size": 6013,
+          "type": "0"
+        },
+        {
+          "bytes": 5897,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pypi-types/src/identifier.rs",
+          "sha256": "e391f1e689439dae71bda91ab058ff6c945390be0548f0978f3e528560bb16b5",
+          "size": 5897,
+          "type": "0"
+        },
+        {
+          "bytes": 16213,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pypi-types/src/lenient_requirement.rs",
+          "sha256": "9b67008df28b3ff5d09dcc2ae13879ff240e2f40661dc689ae3e5d97b1218906",
+          "size": 16213,
+          "type": "0"
+        },
+        {
+          "bytes": 613,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pypi-types/src/lib.rs",
+          "sha256": "ff31af29e00db62932e870f2a6756239b85c97daf50d8dcf185bc72be618ab4f",
+          "size": 613,
+          "type": "0"
+        },
+        {
+          "bytes": 1623,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pypi-types/src/marker_environment.rs",
+          "sha256": "d898158cc9fab7d3edf419a90d37c89862da0eeb39dee606adb185e9549e4c15",
+          "size": 1623,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-pypi-types/src/metadata",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 354,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pypi-types/src/metadata/build_requires.rs",
+          "sha256": "2ae8ba23bd888db336d282f378c2f0d4cf7f40e20daf92e3e3f069143703bf3f",
+          "size": 354,
+          "type": "0"
+        },
+        {
+          "bytes": 1088,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pypi-types/src/metadata/metadata10.rs",
+          "sha256": "a5cac40fc5835b2aaa18096e90ce688df23a40cbf3f2620992fde9a661721f7e",
+          "size": 1088,
+          "type": "0"
+        },
+        {
+          "bytes": 20122,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pypi-types/src/metadata/metadata23.rs",
+          "sha256": "bac849b6acffee207dc16436a7d56d3d997db83b8023fb03c0b3e07ae252d39d",
+          "size": 20122,
+          "type": "0"
+        },
+        {
+          "bytes": 17220,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pypi-types/src/metadata/metadata_resolver.rs",
+          "sha256": "bd96323f50f586b224270042bd42ad7ceeafeca89802852aca1f2c0e4286b304",
+          "size": 17220,
+          "type": "0"
+        },
+        {
+          "bytes": 4312,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pypi-types/src/metadata/mod.rs",
+          "sha256": "20249411385f2267ff192b7f7943d934f804509d0b157e0c5b430086425a752c",
+          "size": 4312,
+          "type": "0"
+        },
+        {
+          "bytes": 5114,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pypi-types/src/metadata/pyproject_toml.rs",
+          "sha256": "a1b63716cb236fbc7e4481621c7abba68e6050e3d1bfc41a1e94f3f20b7b8cd7",
+          "size": 5114,
+          "type": "0"
+        },
+        {
+          "bytes": 3548,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pypi-types/src/metadata/requires_dist.rs",
+          "sha256": "88a703c46d7cf9eccccbf7d36d7d7986fbc57fdfc5f2a0d617330eb7c9962c4f",
+          "size": 3548,
+          "type": "0"
+        },
+        {
+          "bytes": 4782,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pypi-types/src/module_name.rs",
+          "sha256": "96a090a923913d18140348007000ab0f149c3a301740763a0ccc571d8db758a4",
+          "size": 4782,
+          "type": "0"
+        },
+        {
+          "bytes": 25155,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pypi-types/src/parsed_url.rs",
+          "sha256": "7f978179fb8d35b83a80ae355a28e198164d4167389260fa5404370f6179280e",
+          "size": 25155,
+          "type": "0"
+        },
+        {
+          "bytes": 4175,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pypi-types/src/project_status.rs",
+          "sha256": "cf54e8893a5676a6fb36fe556e3d3fe1a95ca8dbe779cee00796337fc2fd3b47",
+          "size": 4175,
+          "type": "0"
+        },
+        {
+          "bytes": 575,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pypi-types/src/scheme.rs",
+          "sha256": "0a31bcc4f967058f7d803009c7639cb48becde7757994d9bb500e640eeb07721",
+          "size": 575,
+          "type": "0"
+        },
+        {
+          "bytes": 29902,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pypi-types/src/simple_json.rs",
+          "sha256": "ba1eca3089e643fc26bb16ef2959e29e56bb50ffbc6d971a8bf75855868705b8",
+          "size": 29902,
+          "type": "0"
+        },
+        {
+          "bytes": 3176,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-pypi-types/src/supported_environments.rs",
+          "sha256": "4e9c851c1a4844e58f036a52e051f266d5a0745c4e2852c3b5ae40f43669f2b8",
+          "size": 3176,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-redacted",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 576,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-redacted/Cargo.toml",
+          "sha256": "5d58b5397a62f02b2713875757d7a7a0f635aa1b15d2638b3ed2414e2fd91e23",
+          "size": 576,
+          "type": "0"
+        },
+        {
+          "bytes": 541,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-redacted/README.md",
+          "sha256": "849145a1fb86e3799e683381323e9f3b84fb6e68b4499c99a88bc4511a71e89c",
+          "size": 541,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-redacted/src",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 23582,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-redacted/src/lib.rs",
+          "sha256": "5b5da606cebafdc17882379edc7953d74c8b2e2004b54575d9c1bd73264d0340",
+          "size": 23582,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-small-str",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 539,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-small-str/Cargo.toml",
+          "sha256": "de37b3753f21782947a7053343f4aed451da2506f6ce4376295f66b9153a3b40",
+          "size": 539,
+          "type": "0"
+        },
+        {
+          "bytes": 543,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-small-str/README.md",
+          "sha256": "a62335d3016714d5e9ad617b1e909845f0761d46c31607accb9225e0e9f8846b",
+          "size": 543,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-small-str/src",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 4120,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-small-str/src/lib.rs",
+          "sha256": "30a3d8c4e1f85be6bb8bd0a443834191c8f878dc4ba023b70d33567ea4ab8fa7",
+          "size": 4120,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-static",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 467,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-static/Cargo.toml",
+          "sha256": "d4ac0ddb4997b315ebcf785b31e85d71d71c234eebb6a0030c3561a599f5acbf",
+          "size": 467,
+          "type": "0"
+        },
+        {
+          "bytes": 537,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-static/README.md",
+          "sha256": "be95ae25d41307f4d33610370eab1bacffadc1d77c7a84d07d3ec6bdfcbde8f0",
+          "size": 537,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-static/src",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 67814,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-static/src/env_vars.rs",
+          "sha256": "18a7957d5af543d13095bab8fda1398f83eaed64c5bb8ea84f96720d3118686d",
+          "size": 67814,
+          "type": "0"
+        },
+        {
+          "bytes": 11780,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-static/src/known_stdlib.rs",
+          "sha256": "54fb93cb498a3e9f6cb068de180b530e49c845e7120026ca5a31cac15aa9c44a",
+          "size": 11780,
+          "type": "0"
+        },
+        {
+          "bytes": 3171,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-static/src/lib.rs",
+          "sha256": "b8ccd11554376c28e63b62d1f1ee2d0c408308155a7a2e07cb5a1810331cb8cd",
+          "size": 3171,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-toml",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 486,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-toml/Cargo.toml",
+          "sha256": "c2481fd6a7bf985435e616274b50b321853fd1d18227d7cb073baf233c403fea",
+          "size": 486,
+          "type": "0"
+        },
+        {
+          "bytes": 533,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-toml/README.md",
+          "sha256": "e00b7ef43f3d3b12257e10a1e4da550a2d13a431ab3664b461e064262b83952b",
+          "size": 533,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-toml/src",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 10258,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-toml/src/lib.rs",
+          "sha256": "1c577f99f0f8a367fd9c19ab7c647f0f9d435f22c84c23fc771f281a42df53df",
+          "size": 10258,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-version",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 389,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-version/Cargo.toml",
+          "sha256": "018fa790e695ec99bd5c775e8d7cff73e513e393ac3df8cde6857fbf0476ceea",
+          "size": 389,
+          "type": "0"
+        },
+        {
+          "bytes": 540,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-version/README.md",
+          "sha256": "90a4f5fb2ae6af0574bcb28e8914b61c76b0a5147809faf389289ab572405539",
+          "size": 540,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-version/src",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 355,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-version/src/lib.rs",
+          "sha256": "56244bd779ca7895cc41f4e0dd12ec8d298f3fa34d4553e776f2c8aa050c88ae",
+          "size": 355,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-warnings",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 602,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-warnings/Cargo.toml",
+          "sha256": "8ff8ccc68d558aa7b58575273cf61eb124cde16ce2875e382595af691f209d80",
+          "size": 602,
+          "type": "0"
+        },
+        {
+          "bytes": 541,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-warnings/README.md",
+          "sha256": "8222108bc96d70e484a552f24e58a7552b43ffb653f8dc92f374b767a5798dd0",
+          "size": 541,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-warnings/src",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 3282,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-warnings/src/lib.rs",
+          "sha256": "035787ccfe651929dfd6f07ee3e8033ec2c65a92b093079741dae2f503ec5c8a",
+          "size": 3282,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-windows",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 548,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-windows/Cargo.toml",
+          "sha256": "cdbbdf3849b068b8b65a74a99142b7c813879772680c25068960d39033f14e16",
+          "size": 548,
+          "type": "0"
+        },
+        {
+          "bytes": 539,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-windows/README.md",
+          "sha256": "c42a7d6794b86014a807838117d3e2490a9acd85789930ae787e23dbde317ca2",
+          "size": 539,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/crates/uv-windows/src",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 1848,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-windows/src/ctrl_handler.rs",
+          "sha256": "daee36d570efce4d1e8afbabde97e09b4175c2f182d50073ec8a6446579a79b0",
+          "size": 1848,
+          "type": "0"
+        },
+        {
+          "bytes": 11211,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-windows/src/exception.rs",
+          "sha256": "a7d34425b93a27d8f4792389e9780b37c221d7d7196a7c531e31de9347b122db",
+          "size": 11211,
+          "type": "0"
+        },
+        {
+          "bytes": 5704,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-windows/src/job.rs",
+          "sha256": "2b8a4046fea03ed5e0b89c2c2d781adb1cfac92cb7ebe037e9d27c26fbc15688",
+          "size": 5704,
+          "type": "0"
+        },
+        {
+          "bytes": 622,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-windows/src/lib.rs",
+          "sha256": "d8220d7e8f6d797497c1859e6855c52a4ad509cfd61fd1a0f45936a3c5c1e056",
+          "size": 622,
+          "type": "0"
+        },
+        {
+          "bytes": 3361,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-windows/src/spawn.rs",
+          "sha256": "e304d16bde880d5160d8a2907ffa7d91e9fe051b30a8e3819f53381e41d2de2d",
+          "size": 3361,
+          "type": "0"
+        },
+        {
+          "bytes": 2242,
+          "mode": 420,
+          "name": "uv_build-0.11.28/crates/uv-windows/src/wine.rs",
+          "sha256": "accffeab11f763d65298431df3a4cf21696192bfdf982c325b2110e8918240c2",
+          "size": 2242,
+          "type": "0"
+        },
+        {
+          "bytes": 1674,
+          "mode": 420,
+          "name": "uv_build-0.11.28/pyproject.toml",
+          "sha256": "e04bc0a66477dfefd8d1ac861c2c3e44a56acf8b581b0626fb9ecf1a2163aedb",
+          "size": 1674,
+          "type": "0"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/python",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "mode": 493,
+          "name": "uv_build-0.11.28/python/uv_build",
+          "size": 0,
+          "type": "5"
+        },
+        {
+          "bytes": 4803,
+          "mode": 420,
+          "name": "uv_build-0.11.28/python/uv_build/__init__.py",
+          "sha256": "6fbe0020d04fa78db8fecc53bab420065e2ca0bdb8bcc4f9b0996d24a22a7465",
+          "size": 4803,
+          "type": "0"
+        },
+        {
+          "bytes": 449,
+          "mode": 420,
+          "name": "uv_build-0.11.28/python/uv_build/__main__.py",
+          "sha256": "44d3061ee13523b399a218c08923e6e92de0fbef8caa4780730855d790a1f43c",
+          "size": 449,
+          "type": "0"
+        },
+        {
+          "bytes": 0,
+          "mode": 420,
+          "name": "uv_build-0.11.28/python/uv_build/py.typed",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0,
+          "type": "0"
+        },
+        {
+          "bytes": 31,
+          "mode": 420,
+          "name": "uv_build-0.11.28/rust-toolchain.toml",
+          "sha256": "6791dcb04edcb490caaf08590dbe1dd9d9954b46dab2095df12dc984f704f1a8",
+          "size": 31,
+          "type": "0"
+        }
+      ],
+      "sha256": "daba66fd25a9a82caa23949686e967cbb69fd056177e991650643186057adaef"
+    }
+  },
+  "joins": {
+    "github_checksum_matches_uv_archive": true,
+    "licenses_equal_exact_tag_wheel_and_sdist": true,
+    "sdist_python_shim_equals_exact_tag": true,
+    "wheel_RECORD_matches": true,
+    "wheel_python_shim_equals_exact_tag": true
+  },
+  "schema": 1,
+  "scope": "Read-only source/archive/ELF metadata; no acquired code executed"
+}
