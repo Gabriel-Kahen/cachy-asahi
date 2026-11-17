@@ -1,0 +1,116 @@
+{
+  "Root_acceptance": null,
+  "active_files": {
+    ".SRCINFO": {
+      "bytes": 3626,
+      "mode": 420,
+      "sha256": "22a70c92318dc7aaadbc9c30f8beb5098c7d6c4c734d8dbcca5ec12f138c91ea"
+    },
+    "CVE-2026-105924-qtbase-6.12.diff": {
+      "bytes": 5019,
+      "mode": 420,
+      "sha256": "c27d27b86aaf2cdab0c18d513fbb94a432e98782eddfc5f856387e4be68be50b"
+    },
+    "CVE-2026-105943-qtbase-6.12.diff": {
+      "bytes": 2291,
+      "mode": 420,
+      "sha256": "dd22629ce948cf0a900421323cca331907180242a9b51c3fd75b25c75f068099"
+    },
+    "CVE-2026-116337-qtbase-6.12-0001.diff": {
+      "bytes": 3262,
+      "mode": 420,
+      "sha256": "74c5028985dcc0455255909de4dc80f50cf5472dbf465ce46ebc791a7b080f12"
+    },
+    "CVE-2026-116337-qtbase-6.12-0002.diff": {
+      "bytes": 5186,
+      "mode": 420,
+      "sha256": "83abc89d507dbd9a94dc5718b0125492c1c37b0609a8f404a1f164925940faec"
+    },
+    "LICENSE.packaging": {
+      "bytes": 1070,
+      "mode": 420,
+      "sha256": "67fe503b5c407bca1c340e14fb7ceb6849b1af4d531a783b30d09cb76e65a3aa"
+    },
+    "LICENSE.third-party": {
+      "bytes": 639,
+      "mode": 420,
+      "sha256": "277c4d14792c236a96f02612b4f134f84707eb33fc6a1d954ec9c5ad20490585"
+    },
+    "PKGBUILD": {
+      "bytes": 5865,
+      "mode": 420,
+      "sha256": "7962cdc0d8648ae6f96b76f13bb2ae75cee5892940c93d57b8ee57f5163e9c95"
+    },
+    "SmokeCMakeLists.txt": {
+      "bytes": 4273,
+      "mode": 420,
+      "sha256": "e2786c21fdf000d5956fdf02b33d452d0c9d02c8459134b36a276618e3bc9533"
+    },
+    "check_stage.py": {
+      "bytes": 19545,
+      "mode": 420,
+      "sha256": "291053598bd806eed9be622f495d51725aae5f579f5f3241a83111ded254cee5"
+    },
+    "configure.cmake": {
+      "bytes": 5696,
+      "mode": 420,
+      "sha256": "1d394895a6a9fd42944ff70c3cbf801cebc2986c3f52b4f49b2359c3d5d3f24a"
+    },
+    "smoke.cpp": {
+      "bytes": 2876,
+      "mode": 420,
+      "sha256": "208e306973a4e3ee33f737071629a54b0a07ac029a632215c5e67960661ecbb1"
+    },
+    "source-notices.json": {
+      "bytes": 20042,
+      "mode": 420,
+      "sha256": "3651e4bca7846caee61183c2bc55bf4988c6f4f2a56af81f3948afe03d41cfda"
+    },
+    "source.py": {
+      "bytes": 5245,
+      "mode": 420,
+      "sha256": "402e4fde4bf176b92dda602d71d4ad1e1dbf0ee832347f0e6452ea9c53de6632"
+    }
+  },
+  "commit": "b05267833d497ef034576741bf31968019a526c3",
+  "handoff_seal": "UNBOUND",
+  "kind": "QT612_GUI_INDEPENDENT_RECIPE_PINS_DATA_V1",
+  "native_pair": null,
+  "recipe_path": "packages/port/qt612-gui-source-reference",
+  "references": {
+    "ABI-REFERENCE.DATA.json": {
+      "bytes": 15368,
+      "sha256": "c06556bd90e9e4c086cfc79300be8c86bdeed9dabe9048d3577f9ca2b58f13e6"
+    },
+    "BUILD-CONTRACT.json": {
+      "bytes": 14990,
+      "sha256": "1896928865f4770908e0d00cd4f64dbdea5ba216b7e440c09fed2335fcfa15cf"
+    },
+    "SERIAL-POLICY.DATA.json": {
+      "bytes": 1295,
+      "sha256": "b8be1cbacd1e69ea5d537c4a16d7715059e6481491e2d5f0151188b0b1c7ac95"
+    },
+    "SOURCE-INPUTS.lock.json": {
+      "bytes": 3833,
+      "sha256": "4c2b26053f343d46cd1d742fb4465faadd00bc3f4bd7525635a46154d5e0df5e"
+    },
+    "check_stage.py": {
+      "bytes": 19545,
+      "sha256": "291053598bd806eed9be622f495d51725aae5f579f5f3241a83111ded254cee5"
+    },
+    "module-source-contract.DATA.json": {
+      "bytes": 35643,
+      "sha256": "ba1b0b516247b62b8bffd7b2aad85f3c4603d2f6e86ee54f0f4626bd50aa888e"
+    },
+    "recipe-files.lock.json": {
+      "bytes": 5976,
+      "sha256": "a595ee503233867201704ab8a6aac88d3514b39067d1ef004f6c8f7ac10f1559"
+    },
+    "source-notices.json": {
+      "bytes": 20042,
+      "sha256": "3651e4bca7846caee61183c2bc55bf4988c6f4f2a56af81f3948afe03d41cfda"
+    }
+  },
+  "schema": 1,
+  "tree": "c317716ca1f8b4ef687ac0db8dd2a26d1ac4478e"
+}

@@ -1,0 +1,227 @@
+{
+  "Root_selection": null,
+  "active_files": {
+    ".SRCINFO": {
+      "bytes": 2931,
+      "mode": 420,
+      "sha256": "9ccb514ceb1c3fcb9e3d688f328c7f35e78fe6c3e24bf09f9ec3443e38157952"
+    },
+    "CVE-2026-105924-qtbase-6.12.diff": {
+      "bytes": 5019,
+      "mode": 420,
+      "sha256": "c27d27b86aaf2cdab0c18d513fbb94a432e98782eddfc5f856387e4be68be50b"
+    },
+    "CVE-2026-105943-qtbase-6.12.diff": {
+      "bytes": 2291,
+      "mode": 420,
+      "sha256": "dd22629ce948cf0a900421323cca331907180242a9b51c3fd75b25c75f068099"
+    },
+    "CVE-2026-116337-qtbase-6.12-0001.diff": {
+      "bytes": 3262,
+      "mode": 420,
+      "sha256": "74c5028985dcc0455255909de4dc80f50cf5472dbf465ce46ebc791a7b080f12"
+    },
+    "CVE-2026-116337-qtbase-6.12-0002.diff": {
+      "bytes": 5186,
+      "mode": 420,
+      "sha256": "83abc89d507dbd9a94dc5718b0125492c1c37b0609a8f404a1f164925940faec"
+    },
+    "LICENSE.packaging": {
+      "bytes": 1070,
+      "mode": 420,
+      "sha256": "67fe503b5c407bca1c340e14fb7ceb6849b1af4d531a783b30d09cb76e65a3aa"
+    },
+    "LICENSE.third-party": {
+      "bytes": 639,
+      "mode": 420,
+      "sha256": "277c4d14792c236a96f02612b4f134f84707eb33fc6a1d954ec9c5ad20490585"
+    },
+    "PKGBUILD": {
+      "bytes": 5016,
+      "mode": 420,
+      "sha256": "0534a991858e8f161430418efa228b958781495337cc4038944591b78ebee85e"
+    },
+    "SmokeCMakeLists.txt": {
+      "bytes": 695,
+      "mode": 420,
+      "sha256": "987e3b6860eb9ad8295b51fd502d678ef316af7e834d9e65a620bc9c2fd5359e"
+    },
+    "check_stage.py": {
+      "bytes": 9433,
+      "mode": 420,
+      "sha256": "597e2874df52be41a02896abae57fc7ef16975e5f6e858cc9705c5d637dbe5a6"
+    },
+    "configure.cmake": {
+      "bytes": 4421,
+      "mode": 420,
+      "sha256": "846af5f3465c572359cf9a6e8b89da82c35ce489f2dba27ab402262697c0c5e1"
+    },
+    "smoke.cpp": {
+      "bytes": 1774,
+      "mode": 420,
+      "sha256": "999949cc97fb0154f4edd74ccca9925356b42124dfbd856d65bc4f0499681aaa"
+    },
+    "source-notices.json": {
+      "bytes": 20042,
+      "mode": 420,
+      "sha256": "3651e4bca7846caee61183c2bc55bf4988c6f4f2a56af81f3948afe03d41cfda"
+    },
+    "source.py": {
+      "bytes": 5246,
+      "mode": 420,
+      "sha256": "d6f033399cb039469622ea962a0aac45afdb6f8f203f1b45066d4dc0b3e40987"
+    }
+  },
+  "commit": "7748d41315d7b2a0a79ddc18eab4e89fc4ef71e1",
+  "configuration_settings": 90,
+  "kind": "QT612_F_INTAKE_PINS_DATA_V1",
+  "native_pair": null,
+  "original_root": "/home/gabe/Documents/ChatGPT/cachy-asahi-qt612-source-reference-20261117",
+  "patch_order": [
+    "CVE-2026-116337-qtbase-6.12-0002.diff",
+    "CVE-2026-116337-qtbase-6.12-0001.diff",
+    "CVE-2026-105924-qtbase-6.12.diff",
+    "CVE-2026-105943-qtbase-6.12.diff"
+  ],
+  "recipe_path": "packages/port/qt612-source-reference",
+  "references": {
+    "packages/port/qt612-source-reference/BUILD-CONTRACT.json": {
+      "bytes": 10867,
+      "sha256": "1cc18024992ddd926d0ce12efa0a1f1901f9d73b823214f51f6f24fb679220ec"
+    },
+    "packages/port/qt612-source-reference/recipe-inputs.DATA.json": {
+      "bytes": 18865,
+      "sha256": "3d729158412c378fa56c20702cde6feb98db96de4d934807bb9ea1773f3c00cb"
+    },
+    "packages/port/qt612-source-reference/upstream.DATA.json": {
+      "bytes": 8853,
+      "sha256": "ccfa150ed1fc4f00aa12302b80b99db10d2e359e541eae08e5858d8ff9ea15a7"
+    },
+    "work/qt612-final-DATA-20261117-r1/HANDOFF-SEAL.DATA.json": {
+      "bytes": 102037,
+      "sha256": "43e2c10694d48d542e6c0abf0e96c82c43890b24f198e9a4ec831e695796db56"
+    },
+    "work/qt612-final-DATA-20261117-r1/HANDOFF.DATA.json": {
+      "bytes": 69370,
+      "sha256": "fddb0000b220cc866c0ec5b846d8608512ca7231085c0789dedcd2017f0e42c4"
+    }
+  },
+  "schema": 1,
+  "source_notices": {
+    "bytes": 636122,
+    "count": 173,
+    "destination": "usr/share/licenses/cachy-asahi-qt612-base-source-reference/source",
+    "policy": {
+      "bytes": 20042,
+      "sha256": "3651e4bca7846caee61183c2bc55bf4988c6f4f2a56af81f3948afe03d41cfda"
+    }
+  },
+  "sources": [
+    {
+      "alias": "qtbase-everywhere-src-6.12.0.tar.xz",
+      "bytes": 51220268,
+      "kind": "upstream-archive",
+      "sha256": "a951bd163c7b80fc6b8c88d7668fb56abf91c152373e13c10666763238131307",
+      "source": "https://download.qt.io/archive/qt/6.12/6.12.0/submodules/qtbase-everywhere-src-6.12.0.tar.xz"
+    },
+    {
+      "alias": "configure.cmake",
+      "bytes": 4421,
+      "kind": "local-recipe-source",
+      "sha256": "846af5f3465c572359cf9a6e8b89da82c35ce489f2dba27ab402262697c0c5e1",
+      "source": "configure.cmake"
+    },
+    {
+      "alias": "source-notices.json",
+      "bytes": 20042,
+      "kind": "local-recipe-source",
+      "sha256": "3651e4bca7846caee61183c2bc55bf4988c6f4f2a56af81f3948afe03d41cfda",
+      "source": "source-notices.json"
+    },
+    {
+      "alias": "source.py",
+      "bytes": 5246,
+      "kind": "local-recipe-source",
+      "sha256": "d6f033399cb039469622ea962a0aac45afdb6f8f203f1b45066d4dc0b3e40987",
+      "source": "source.py"
+    },
+    {
+      "alias": "check_stage.py",
+      "bytes": 9433,
+      "kind": "local-recipe-source",
+      "sha256": "597e2874df52be41a02896abae57fc7ef16975e5f6e858cc9705c5d637dbe5a6",
+      "source": "check_stage.py"
+    },
+    {
+      "alias": "smoke.cpp",
+      "bytes": 1774,
+      "kind": "local-recipe-source",
+      "sha256": "999949cc97fb0154f4edd74ccca9925356b42124dfbd856d65bc4f0499681aaa",
+      "source": "smoke.cpp"
+    },
+    {
+      "alias": "SmokeCMakeLists.txt",
+      "bytes": 695,
+      "kind": "local-recipe-source",
+      "sha256": "987e3b6860eb9ad8295b51fd502d678ef316af7e834d9e65a620bc9c2fd5359e",
+      "source": "SmokeCMakeLists.txt"
+    },
+    {
+      "alias": "LICENSE.packaging",
+      "bytes": 1070,
+      "kind": "local-recipe-source",
+      "sha256": "67fe503b5c407bca1c340e14fb7ceb6849b1af4d531a783b30d09cb76e65a3aa",
+      "source": "LICENSE.packaging"
+    },
+    {
+      "alias": "LICENSE.third-party",
+      "bytes": 639,
+      "kind": "local-recipe-source",
+      "sha256": "277c4d14792c236a96f02612b4f134f84707eb33fc6a1d954ec9c5ad20490585",
+      "source": "LICENSE.third-party"
+    },
+    {
+      "alias": "CVE-2026-116337-qtbase-6.12-0002.diff",
+      "bytes": 5186,
+      "kind": "local-recipe-source",
+      "sha256": "83abc89d507dbd9a94dc5718b0125492c1c37b0609a8f404a1f164925940faec",
+      "source": "CVE-2026-116337-qtbase-6.12-0002.diff"
+    },
+    {
+      "alias": "CVE-2026-116337-qtbase-6.12-0001.diff",
+      "bytes": 3262,
+      "kind": "local-recipe-source",
+      "sha256": "74c5028985dcc0455255909de4dc80f50cf5472dbf465ce46ebc791a7b080f12",
+      "source": "CVE-2026-116337-qtbase-6.12-0001.diff"
+    },
+    {
+      "alias": "CVE-2026-105924-qtbase-6.12.diff",
+      "bytes": 5019,
+      "kind": "local-recipe-source",
+      "sha256": "c27d27b86aaf2cdab0c18d513fbb94a432e98782eddfc5f856387e4be68be50b",
+      "source": "CVE-2026-105924-qtbase-6.12.diff"
+    },
+    {
+      "alias": "CVE-2026-105943-qtbase-6.12.diff",
+      "bytes": 2291,
+      "kind": "local-recipe-source",
+      "sha256": "dd22629ce948cf0a900421323cca331907180242a9b51c3fd75b25c75f068099",
+      "source": "CVE-2026-105943-qtbase-6.12.diff"
+    }
+  ],
+  "status": "FROZEN_SOURCE_AUDITED_HOST_CONFIGURED_NATIVE_UNBOUND",
+  "tree": "51316a6940b206350d9ad6077286d4452ef4d9db",
+  "upstream": {
+    "archive": {
+      "bytes": 51220268,
+      "sha256": "a951bd163c7b80fc6b8c88d7668fb56abf91c152373e13c10666763238131307",
+      "url": "https://download.qt.io/archive/qt/6.12/6.12.0/submodules/qtbase-everywhere-src-6.12.0.tar.xz"
+    },
+    "audit": {
+      "bytes": 8853,
+      "sha256": "ccfa150ed1fc4f00aa12302b80b99db10d2e359e541eae08e5858d8ff9ea15a7"
+    },
+    "revision": "025bdad181de241e81bf853c8a2d7bf3d19261a9",
+    "tag": "v6.12.0"
+  }
+}

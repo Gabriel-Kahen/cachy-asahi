@@ -1,0 +1,140 @@
+{
+  "filename": "cachy-asahi-qt612-base-source-reference-6.12.0-2-aarch64.pkg.tar.xz",
+  "notice_policy_sha256": "3651e4bca7846caee61183c2bc55bf4988c6f4f2a56af81f3948afe03d41cfda",
+  "recipe_commit": "69a02851b87ca29daf2e197101b66bf75ff61889",
+  "recipe_contract_sha256": "5d3d9a17f91b7849214fa405b577b4584830ebe5a7d2f2c3fdb1794ec0a50dfc",
+  "recipe_inputs": {
+    ".SRCINFO": "356e4c1b2ab034b5920ca4311f3a5b833c277e3713f6980322a5c2ddee734f22",
+    "CVE-2026-105924-qtbase-6.12.diff": "c27d27b86aaf2cdab0c18d513fbb94a432e98782eddfc5f856387e4be68be50b",
+    "CVE-2026-105943-qtbase-6.12.diff": "dd22629ce948cf0a900421323cca331907180242a9b51c3fd75b25c75f068099",
+    "CVE-2026-116337-qtbase-6.12-0001.diff": "74c5028985dcc0455255909de4dc80f50cf5472dbf465ce46ebc791a7b080f12",
+    "CVE-2026-116337-qtbase-6.12-0002.diff": "83abc89d507dbd9a94dc5718b0125492c1c37b0609a8f404a1f164925940faec",
+    "LICENSE.packaging": "67fe503b5c407bca1c340e14fb7ceb6849b1af4d531a783b30d09cb76e65a3aa",
+    "LICENSE.third-party": "277c4d14792c236a96f02612b4f134f84707eb33fc6a1d954ec9c5ad20490585",
+    "PKGBUILD": "ffa1fc5ae1a36a1894b342c76bf21c0367df76064f248e4f8045cf2c4777902f",
+    "SmokeCMakeLists.txt": "987e3b6860eb9ad8295b51fd502d678ef316af7e834d9e65a620bc9c2fd5359e",
+    "check_stage.py": "597e2874df52be41a02896abae57fc7ef16975e5f6e858cc9705c5d637dbe5a6",
+    "configure.cmake": "b3d9852bad7659e4b0d6167897be4d8c8f8b45ccfef0855fd905f5f93d86e025",
+    "smoke.cpp": "999949cc97fb0154f4edd74ccca9925356b42124dfbd856d65bc4f0499681aaa",
+    "source-notices.json": "3651e4bca7846caee61183c2bc55bf4988c6f4f2a56af81f3948afe03d41cfda",
+    "source.json": "5d3d9a17f91b7849214fa405b577b4584830ebe5a7d2f2c3fdb1794ec0a50dfc",
+    "source.py": "d6f033399cb039469622ea962a0aac45afdb6f8f203f1b45066d4dc0b3e40987"
+  },
+  "recipe_metadata": {
+    "arch": [
+      "aarch64"
+    ],
+    "conflicts": [
+      "qt6-base"
+    ],
+    "depends": [
+      "brotli",
+      "dbus",
+      "double-conversion",
+      "fontconfig",
+      "freetype2",
+      "glib2",
+      "glibc",
+      "harfbuzz",
+      "icu",
+      "libb2",
+      "libgcc",
+      "libgl",
+      "libice",
+      "libjpeg-turbo",
+      "libpng",
+      "libsm",
+      "libstdc++",
+      "libx11",
+      "libxcb",
+      "libxkbcommon",
+      "libxkbcommon-x11",
+      "md4c>=0.5.3",
+      "md4c<0.6",
+      "openssl",
+      "pcre2",
+      "shared-mime-info",
+      "sqlite",
+      "xcb-util-cursor",
+      "xcb-util-image",
+      "xcb-util-keysyms",
+      "xcb-util-renderutil",
+      "xcb-util-wm",
+      "xdg-utils",
+      "zlib",
+      "zstd"
+    ],
+    "license": [
+      "GPL-3.0-only",
+      "LGPL-3.0-only",
+      "Qt-GPL-exception-1.0",
+      "LicenseRef-Qt-ThirdParty"
+    ],
+    "makedepends": [
+      "gcc",
+      "cmake>=3.25",
+      "ninja",
+      "pkgconf",
+      "python",
+      "perl",
+      "patch"
+    ],
+    "options": [
+      "!lto",
+      "!debug",
+      "!staticlibs"
+    ],
+    "pkgbase": [
+      "cachy-asahi-qt612-base-source-reference"
+    ],
+    "pkgdesc": [
+      "Independent Qt6.12 XCB/offscreen source provider; TEST-only and unselected"
+    ],
+    "pkgname": [
+      "cachy-asahi-qt612-base-source-reference"
+    ],
+    "pkgrel": [
+      "2"
+    ],
+    "pkgver": [
+      "6.12.0"
+    ],
+    "provides": [
+      "qt6-base=6.12.0",
+      "libQt6Core.so.6"
+    ],
+    "sha256sums": [
+      "a951bd163c7b80fc6b8c88d7668fb56abf91c152373e13c10666763238131307",
+      "b3d9852bad7659e4b0d6167897be4d8c8f8b45ccfef0855fd905f5f93d86e025",
+      "3651e4bca7846caee61183c2bc55bf4988c6f4f2a56af81f3948afe03d41cfda",
+      "d6f033399cb039469622ea962a0aac45afdb6f8f203f1b45066d4dc0b3e40987",
+      "597e2874df52be41a02896abae57fc7ef16975e5f6e858cc9705c5d637dbe5a6",
+      "999949cc97fb0154f4edd74ccca9925356b42124dfbd856d65bc4f0499681aaa",
+      "987e3b6860eb9ad8295b51fd502d678ef316af7e834d9e65a620bc9c2fd5359e",
+      "67fe503b5c407bca1c340e14fb7ceb6849b1af4d531a783b30d09cb76e65a3aa",
+      "277c4d14792c236a96f02612b4f134f84707eb33fc6a1d954ec9c5ad20490585",
+      "83abc89d507dbd9a94dc5718b0125492c1c37b0609a8f404a1f164925940faec",
+      "74c5028985dcc0455255909de4dc80f50cf5472dbf465ce46ebc791a7b080f12",
+      "c27d27b86aaf2cdab0c18d513fbb94a432e98782eddfc5f856387e4be68be50b",
+      "dd22629ce948cf0a900421323cca331907180242a9b51c3fd75b25c75f068099"
+    ],
+    "source": [
+      "https://download.qt.io/archive/qt/6.12/6.12.0/submodules/qtbase-everywhere-src-6.12.0.tar.xz",
+      "configure.cmake",
+      "source-notices.json",
+      "source.py",
+      "check_stage.py",
+      "smoke.cpp",
+      "SmokeCMakeLists.txt",
+      "LICENSE.packaging",
+      "LICENSE.third-party",
+      "CVE-2026-116337-qtbase-6.12-0002.diff",
+      "CVE-2026-116337-qtbase-6.12-0001.diff",
+      "CVE-2026-105924-qtbase-6.12.diff",
+      "CVE-2026-105943-qtbase-6.12.diff"
+    ],
+    "url": [
+      "https://code.qt.io/cgit/qt/qtbase.git/"
+    ]
+  }
+}

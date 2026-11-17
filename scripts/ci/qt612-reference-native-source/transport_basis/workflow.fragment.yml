@@ -1,0 +1,60 @@
+# NONSELECTED integration fragment, not a runnable workflow or dispatch.
+# C/Root must select this frozen collector source and bind public export/receipt paths and the
+# external C receipt SHA before selecting these steps. Existing bounded log
+# retention and all original C source/owner/receipt gates remain separate.
+# Collector policy: <=134217728 total bytes, <=4096 files, exactly two independent
+# 6.12.0-2 package roles plus the finite public receipts selected by that C receipt.
+# Never upload SOURCE directly, package globs, private maps, keys or builder inputs.
+steps:
+  - name: Collect exact Qt612 packages and public receipts
+    id: qt612_transport_collect
+    if: ${{ env.QT612_TRANSPORT_SELECTED == 'true' }}
+    timeout-minutes: 3
+    shell: bash
+    env:
+      # Frozen implementation pin; integration still requires Root source selection.
+      QT612_COLLECTOR_SHA256: 02354a45f33d71fb5569ff72fdddbd48c2f8ebbd86c7573054e54fd8f6d7198e
+    run: |
+      set -euo pipefail
+      : "${QT612_C_PUBLIC_EXPORT:?C curated public export is unbound}"
+      : "${QT612_C_ACTUAL_RECEIPT:?C actual receipt path is unbound}"
+      : "${QT612_C_RECEIPT_SHA256:?External C receipt pin is unbound}"
+      [[ "$QT612_COLLECTOR_SHA256" =~ ^[0-9a-f]{64}$ ]]
+      [[ "$QT612_C_RECEIPT_SHA256" =~ ^[0-9a-f]{64}$ ]]
+      collector="$GITHUB_WORKSPACE/scripts/ci/qt612-reference-artifact-transport/transport.py"
+      printf '%s  %s\n' "$QT612_COLLECTOR_SHA256" "$collector" | sha256sum --check --strict
+      export_dir="$RUNNER_TEMP/qt612-reference-package-transport"
+      [[ ! -e "$export_dir" && ! -L "$export_dir" ]]
+      python3 -I -B "$collector" collect \
+        --source "$QT612_C_PUBLIC_EXPORT" \
+        --receipt "$QT612_C_ACTUAL_RECEIPT" \
+        --receipt-sha256 "$QT612_C_RECEIPT_SHA256" \
+        --output "$export_dir"
+
+  - name: Upload only the fresh closed Qt612 transport export
+    if: ${{ success() && steps.qt612_transport_collect.outcome == 'success' }}
+    uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+    timeout-minutes: 3
+    with:
+      name: qt612-reference-packages-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
+      path: ${{ runner.temp }}/qt612-reference-package-transport/
+      if-no-files-found: error
+      include-hidden-files: false
+      overwrite: false
+      compression-level: 0
+      retention-days: 3
+
+# No automatic download, signing, promotion or acceptance is part of this fragment.
+# Root must select the actual run/job/artifact, download/extract to a fresh ordinary
+# directory and independently bind ROOT_MANIFEST_SHA256 and C_RECEIPT_SHA256.
+# Do not derive the trusted manifest pin from the downloaded manifest itself.
+# With the externally pinned collector source, Root then performs readback only:
+# python3 -I -B /absolute/selected/transport.py verify \
+#   --root /absolute/fresh/downloaded/export \
+#   --manifest-sha256 "$ROOT_MANIFEST_SHA256" \
+#   --receipt-sha256 "$C_RECEIPT_SHA256"
+# A passing readback establishes transport integrity only. Root must complete
+# original C acceptance/source/custody and signing gates independently. The upload
+# action digest and artifact ID are transport metadata, not package acceptance.
+# Three-day retention is temporary transport, not a durable archive. Expiry or
+# missing/changed files remain HOLD; never reconstruct a successful receipt.
