@@ -1,0 +1,82 @@
+{
+  "name": "Observed-HOLD Perl Source339 controls",
+  "on": {
+    "pull_request": {
+      "paths": [
+        ".github/workflows/perl-observed-hold-source339.yml",
+        "scripts/ci/perl-observed-hold-source339/**",
+        "scripts/integration/arm16k_perl_hold_cleanup_vm/**",
+        "scripts/integration/arm16k_perl_initialized_successor_vm/**",
+        "scripts/integration/arm16k_perl_observed_hold_successor_vm/**",
+        "scripts/integration/arm16k_perl_initialized_guard_diagnostic/**",
+        "scripts/integration/arm16k_perl_initialized_lifecycle_vm/**",
+        "scripts/integration/arm16k_perl_installed_metadata_diagnostic/**",
+        "scripts/integration/arm16k_perl_qmp_no_ack_diagnostic/**",
+        "scripts/integration/arm16k_warm_control/source/arm16k_perl5423_vm/**"
+      ]
+    },
+    "push": {
+      "branches": [
+        "main"
+      ],
+      "paths": [
+        ".github/workflows/perl-observed-hold-source339.yml",
+        "scripts/ci/perl-observed-hold-source339/**",
+        "scripts/integration/arm16k_perl_hold_cleanup_vm/**",
+        "scripts/integration/arm16k_perl_initialized_successor_vm/**",
+        "scripts/integration/arm16k_perl_observed_hold_successor_vm/**",
+        "scripts/integration/arm16k_perl_initialized_guard_diagnostic/**",
+        "scripts/integration/arm16k_perl_initialized_lifecycle_vm/**",
+        "scripts/integration/arm16k_perl_installed_metadata_diagnostic/**",
+        "scripts/integration/arm16k_perl_qmp_no_ack_diagnostic/**",
+        "scripts/integration/arm16k_warm_control/source/arm16k_perl5423_vm/**"
+      ]
+    }
+  },
+  "permissions": {
+    "contents": "read"
+  },
+  "jobs": {
+    "source339": {
+      "runs-on": "ubuntu-24.04",
+      "timeout-minutes": 8,
+      "strategy": {
+        "fail-fast": false,
+        "matrix": {
+          "python": [
+            "3.12",
+            "3.14"
+          ]
+        }
+      },
+      "steps": [
+        {
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "persist-credentials": false,
+            "fetch-depth": 0
+          }
+        },
+        {
+          "name": "Select explicit Python",
+          "uses": "actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+          "with": {
+            "python-version": "${{ matrix.python }}"
+          }
+        },
+        {
+          "name": "Install ordinary temporary-tree xattr tools",
+          "run": "sudo apt-get update\nsudo apt-get install --no-install-recommends -y attr\n"
+        },
+        {
+          "name": "Reconstruct exact unissued Sources and run 65 original controls",
+          "timeout-minutes": 4,
+          "env": {
+            "PYTHONDONTWRITEBYTECODE": "1"
+          },
+          "run": "set -euo pipefail\nulimit -t 180 -v 1048576 -f 16384 -n 128\ntimeout --signal=TERM --kill-after=5s 180s python3 -I -B -Werror::ResourceWarning scripts/ci/perl-observed-hold-source339/check.py\n"
+        }
+      ]
+    }
+  }
+}

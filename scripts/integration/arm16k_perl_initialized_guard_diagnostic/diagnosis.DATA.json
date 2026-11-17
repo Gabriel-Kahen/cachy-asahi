@@ -1,0 +1,41 @@
+{
+  "M2": null,
+  "Root_acceptance": null,
+  "VM": null,
+  "actual_cause": null,
+  "actual_exit_status": 2,
+  "actual_phase": "installed_metadata",
+  "kind": "SOURCE310_R83_PUBLIC_DIAGNOSTIC_BOUNDARY_OBSERVATION_ONLY",
+  "metadata_normal_return": "NOT_OBSERVED_BY_OLD_SOURCE",
+  "metadata_predicate_or_command_markers": 0,
+  "metadata_stages": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14
+  ],
+  "proposed_scope": "POST_METADATA_COMMAND_BOUNDARIES_AND_EXISTING_14_PUBLIC_INITIALIZED_NODES_ONLY",
+  "public_inputs": {
+    "report.json": {
+      "bytes": 3639,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-perl-initialized-FIRST-trial-r2/boot-output/report.json",
+      "sha256": "2c24afd3cbc3eb50f99bbbe39baaed21089a53bc98b853f9b673332a0d980e20"
+    },
+    "serial.redacted.log": {
+      "bytes": 19642,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-perl-initialized-FIRST-trial-r2/boot-output/serial.redacted.log",
+      "sha256": "aebfdda59d3793f9c3714e72b9eacec077b415df95ba8582680b4161eb863db9"
+    }
+  },
+  "release": null
+}

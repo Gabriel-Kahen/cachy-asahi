@@ -1,0 +1,9 @@
+--- Source310/controller.py
++++ proposed/controller.py
+@@ -109,0 +110,3 @@
++ if report.get('forced_owned_cleanup_fallback'):
++  try:module('qmp_observations').retirement_journal(module('contracts'),out,module('protocol').HOLD_RETIRED,'BEFORE_FORCED_FALLBACK',report,module('hold_cleanup').retirement_observation)
++  except Exception:pass
+@@ -278,0 +282,2 @@
++      try:module('qmp_observations').retirement_journal(K,out,P.HOLD_RETIRED,'AFTER_OWNED_CLEANUP',report,module('hold_cleanup').retirement_observation)
++      except Exception:pass

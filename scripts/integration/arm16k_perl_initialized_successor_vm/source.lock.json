@@ -1,0 +1,36 @@
+{
+  "actual": {
+    "ALPM": null,
+    "M2": null,
+    "Root_authority": null,
+    "Source_CID": null,
+    "VM": null,
+    "release": null,
+    "runtime": null,
+    "source_ref": null
+  },
+  "files": {
+    "README.md": {
+      "bytes": 4477,
+      "mode": 420,
+      "sha256": "600e0ee8144bbc2832d6003482e4e3a8a4203137b4d1268223cd2818a52b3fcb"
+    },
+    "constructor.py": {
+      "bytes": 11733,
+      "mode": 420,
+      "sha256": "3fdbd29079643d45b792ae2285418205e47dbb00de15233dd3bac16043805356"
+    },
+    "inputs.json": {
+      "bytes": 3300,
+      "mode": 420,
+      "sha256": "109f48952166c71132a6cc2e688cabf6f31d78268af5db05b62ca75da17ffa33"
+    },
+    "test_constructor.py": {
+      "bytes": 9020,
+      "mode": 420,
+      "sha256": "f2e71b6b34910cf2d05969e72d4ede8e2cbc354e571462acfbb7faf55d8f671d"
+    }
+  },
+  "kind": "UNISSUED_PERL_INITIALIZED_SUCCESSOR_CONSTRUCTOR_SOURCE_V1",
+  "schema": 1
+}

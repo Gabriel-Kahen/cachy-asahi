@@ -1,0 +1,34 @@
+{
+  "kind": "FIXED_PUBLIC_CACHE_PARENT_BASELINE_DATA_ONLY",
+  "nodes": {
+    "etc": {
+      "gid": 0,
+      "inode": 16,
+      "links": 38,
+      "mode": 493,
+      "mtime": 1794860510,
+      "mtime_ns": 99721648,
+      "size": 4096,
+      "type": "directory",
+      "uid": 0,
+      "xattrs": {}
+    },
+    "etc/ld.so.cache": {
+      "gid": 0,
+      "inode": 29322,
+      "links": 1,
+      "mode": 420,
+      "mtime": 1794860506,
+      "mtime_ns": 164000000,
+      "sha256": "0128a732a8b926232b5065374176194ea4a1f5c1628728037109bbdbb3d53215",
+      "size": 17551,
+      "type": "file",
+      "uid": 0,
+      "xattrs": {}
+    }
+  },
+  "state": {
+    "bytes": 3885,
+    "sha256": "9f649de58dfce01d6d36c8b04df3d705259f10875d3e64d5f402bd397772da9a"
+  }
+}
