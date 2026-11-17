@@ -19,6 +19,8 @@ def module(path,name):
     spec=importlib.util.spec_from_file_location(name,path);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);return m
 F=module(HERE/'failed_retirement.py','local_v3_pidfd_retirement')
 O=module(ROOT/'scripts/virtual/owned_process.py','local_v3_owned_child');O.prepare()
+if not hasattr(os,'pidfd_open'):
+    print(json.dumps(dict(status='SKIP_LOCAL_PIDFD_CONTROL_API_UNAVAILABLE',reason='this Python build lacks os.pidfd_open; no process launched; no operational fallback',Root_role='NOT RUN',native_pair='NOT RUN'),sort_keys=True));raise SystemExit(0)
 CODE="import sys; sys.stdin.buffer.read(1); raise SystemExit(2)"
 child=None;fd=None;released=False
 

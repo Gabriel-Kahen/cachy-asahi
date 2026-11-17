@@ -105,6 +105,9 @@ foreign/closed identity refuses, and explicit MODEL unit/cgroup rows produce onl
 STOPPED_EMPTY_FAILED_OWNER/payload_success=false. The service rows and temporary
 cgroup files are synthetic, not a native systemd retirement qualification.
 No Root role/shared lock, network, real cgroup mutation or native actor is used.
+The real control passed on local Python3.14.7. The local uv Python3.12.13 build
+lacks os.pidfd_open and reports an explicit prelaunch SKIP; the seven fenced
+controls pass on both versions. This adds no operational PIDFD fallback.
 
 ```sh
 python3 -I -B -Werror::ResourceWarning scripts/ci/llhttp-reference-native-source/successor_v3/test_data.py
