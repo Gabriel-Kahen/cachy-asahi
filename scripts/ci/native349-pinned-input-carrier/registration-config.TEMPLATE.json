@@ -1,0 +1,16 @@
+{
+  "Main": null,
+  "Root_authority": null,
+  "Root_publication": null,
+  "Root_publication_pin": null,
+  "Source_root": "/home/gabe/Documents/ChatGPT/cachy-asahi-native349-pinned-input-carrier-20261117/artifacts/development/native349-pinned-input-carrier-20261117-r3/Source-DATA",
+  "output": null,
+  "public_store": null,
+  "ref": null,
+  "source": null,
+  "workflow_body": {
+    "bytes": 7464,
+    "sha256": "a327c7d9c5edac219a7e567d1e35eae42da6ee6535d86ff4b0ad9379cdc88b84"
+  },
+  "workflow_id": null
+}

@@ -80,3 +80,35 @@ operation. An actual ARM private fetch and native package pair remain unrun.
 Construct a fresh output with `prepare.py --parent <closed-Source95>
 --output <new-disjoint-directory>`. Root alone supplies publication,
 registration and runtime authority. This preparation does not issue them.
+
+## Canonical caller and registration
+
+`prepare_canonical.py` builds a 28-file canonical ONCE DRAFT from the frozen
+27-file v6 caller and this exact Source. Its compact complete inverse reuses
+unchanged predecessor bodies and stores every replaced body; it reconstructs
+all 27 original files and preserves the older inverse unchanged. It stays
+below the original 40-file/2 MiB constructor limits. The issuer, config joiner,
+operator and five-input primitive remain concrete. All ten-GET/two-sweep
+Actions gate, Main CAS, runtime54, custody, one POST, no retry, CLOSE_ONLY,
+resource, owner/payload success and retirement guards remain unchanged.
+Only Source/program/policy/helper metadata, the consumed predecessor refusal,
+operation name and distinct workflow identity change. Source CID/ref and new
+workflow ID initially remain NULL. Optional actual publication/registration
+receipts must match the exact Source and new workflow; Root native authority
+is never synthesized. The archived constructor/test copies explicitly use
+this frozen local code family when run from a generated caller directory.
+
+`read_registration.py --config <file> --sha256 <whole SHA>` is a source-only
+adapter over the whole-pinned v6 reader. The configuration template refuses
+before any metadata command while actual Main/Source/publication/new workflow
+ID are unissued. When Root binds those public operands it retains the same
+initial/final Main CAS, API/local/public Git body joins, finite 2 GiB/45-second
+children and natural retirement. It checks all 23 literal secret names through
+the name-only catalog. It neither reads values nor issues authority. The
+reader requires the frozen v6 reader path recorded in its source; it is an
+explicit local preparation dependency, not a newly implemented executor.
+
+Run `python -I -B -Werror::ResourceWarning test_canonical.py` for the additional
+fenced inverse/tamper, unchanged operational-function, unissued mock-POST,
+registration-reader and foreign metadata refusal controls. Actual new-workflow
+registration and any private fetch remain separate Root operations.
