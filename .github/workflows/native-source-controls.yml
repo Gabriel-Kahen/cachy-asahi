@@ -134,7 +134,6 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/successor_v4_source/test_seams.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/successor_v5_source/test_data.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/successor_v6_source/test_data.py
-          /usr/bin/python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/successor_v6_source/test_capture.py
           python3 -I -B -Werror::ResourceWarning scripts/port/first-login-enrollment-ui-current-reader/test_reader.py
           python3 -I -B -Werror::ResourceWarning scripts/port/first-login-enrollment-ui-current-reader/test_owner_receipts.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_perl5423_vm/test_local_dependency_queries.py
@@ -772,3 +771,32 @@ jobs:
           git -C .installed252-data-repository -c tar.umask=0022 archive --format=tar HEAD | tar -xf - -C "$installed_source"
           python3 -I -B -Werror::ResourceWarning scripts/port/perl-installed-retained-output-reader/test_reader.py --source "$installed_source"
           python3 -I -B -Werror::ResourceWarning scripts/port/perl-installed-retained-output-reader/successor_v2/test_imports.py --source "$installed_source"
+
+  onboarding-capture-os-python:
+    name: Onboarding capture real-buffer controls (OS Python)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Require OS-Python Linux fd and sealing APIs
+        run: |
+          /usr/bin/python3 -I -B - <<'PY'
+          import fcntl, json, os, sys
+          functions = ('memfd_create', 'pidfd_open', 'pread', 'lseek', 'dup')
+          os_constants = ('MFD_CLOEXEC', 'MFD_ALLOW_SEALING')
+          seal_constants = ('F_GET_SEALS', 'F_ADD_SEALS', 'F_SEAL_GROW',
+                            'F_SEAL_SHRINK', 'F_SEAL_WRITE', 'F_SEAL_SEAL')
+          capabilities = {f'os.{name}': callable(getattr(os, name, None)) for name in functions}
+          capabilities.update({f'os.{name}': isinstance(getattr(os, name, None), int) for name in os_constants})
+          capabilities.update({f'fcntl.{name}': isinstance(getattr(fcntl, name, None), int) for name in seal_constants})
+          print(json.dumps({'interpreter': sys.executable, 'version': sys.version,
+                            'capabilities': capabilities}, sort_keys=True))
+          missing = [name for name, available in capabilities.items() if not available]
+          if missing:
+              raise SystemExit('HOLD: required OS-Python APIs absent: ' + ', '.join(missing))
+          PY
+      - name: Check eight real memfd capture controls with modeled child lifecycle
+        run: |
+          /usr/bin/python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/successor_v6_source/test_capture.py

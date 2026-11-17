@@ -1,13 +1,16 @@
 {
   "CI_binding": {
+    "CI_job_count_delta": 1,
     "Source196_CID": "0a49872473251ad289fc8a49f51f3a27334c0b35",
     "author_commit": "441832e1d687255434c9001d603d400e4932f26a",
     "construction": "EXACT_AUTHOR_RECONSTRUCTION_COMPARED_WITH_PUBLISHED_DATA;PROFILE_STAYS_UNISSUED",
     "native_workflow_changed": false,
     "published_Source188": "640a1d0ccebb6d04c28ef0508d59055efdc56209",
     "published_Source196": "0a49872473251ad289fc8a49f51f3a27334c0b35",
-    "real_memfd_controls_interpreter": "/usr/bin/python3;same fixed system interpreter class as native caller;no API synthesis",
-    "syntax": "50_RUN_BLOCKS_BASH_N_PASS;YAML_PARSER_UNAVAILABLE_LOCAL"
+    "real_memfd_controls_interpreter": "/usr/bin/python3;Ubuntu24.04 OS Python outside setup-python matrix;probe exports first;HOLD if absent;no fallback, installer or API synthesis",
+    "real_memfd_controls_job": "onboarding-capture-os-python",
+    "setup_python_matrix_real_buffer_coverage": false,
+    "syntax": "52_RUN_BLOCKS_BASH_N_PASS;YAML_PARSER_UNAVAILABLE_LOCAL"
   },
   "Root_authentication": false,
   "actors": false,
@@ -52,9 +55,9 @@
       "sha256": "4aaa31fae8b6665d502372467d3da5ceef0bb30553d2dfb1ac9f38a41fc90165"
     },
     ".github/workflows/native-source-controls.yml": {
-      "bytes": 60316,
+      "bytes": 61841,
       "mode": 420,
-      "sha256": "1e3b812b7002b6917d2bca11ce1b207a2069565c35673b712ef1b120590a002f"
+      "sha256": "1b1aa52775928d95191020bb2ff4366b5a279a21e2074bc9d0887a90e32a911d"
     },
     "scripts/ci/first-login-enrollment-native-source/payload/native/hosted_current_v3.py": {
       "bytes": 66263,

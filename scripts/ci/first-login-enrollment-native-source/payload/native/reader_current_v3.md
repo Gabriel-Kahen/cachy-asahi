@@ -292,7 +292,14 @@ CI preserves the existing Source188 audit, reconstructs Source196 from that
 exact basis and author441832e1's immutable committed operands, checks the complete
 unissued external profile, and compares its map with the exact newly published
 Source196 checkout before invoking these Main DATA controls. It does not issue
-execution authority. New Reader/caller and all inverse
+execution authority. Eight real memfd/sealing/offset controls run in one separate
+Ubuntu24.04 OS-Python job using `/usr/bin/python3`, outside the setup-python
+matrix. The job reports its interpreter and checks required fd/sealing exports
+first; missing exports fail with HOLD, without installation, fallback or API
+synthesis. This adds one CI job/check. The portable Python3.12/3.14 matrix does
+not establish real-buffer coverage. Locally these eight controls passed on the
+system CPython3.14.7; the uv interpreters lacked required exports and held.
+New Reader/caller and all inverse
 checks are source/model DATA evidence only; native, hardware and release
 acceptance remain absent. Fresh test identities and results are recorded in
 `reader_current_v3.source196.validation.json`.
