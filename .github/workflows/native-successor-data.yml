@@ -5,6 +5,8 @@ on:
     paths:
       - '.github/workflows/native-successor-data.yml'
       - 'scripts/ci/native-successor-data/**'
+      - 'scripts/integration/arm16k_perl_ldcache_file_backend/**'
+      - 'scripts/integration/arm16k_perl_ldcache_semantic_transition/**'
       - 'scripts/ci/bankstown-qt3-source79-adoption-data/**'
       - 'scripts/ci/llhttp-reference-native-source/**'
       - 'scripts/ci/libgit2-reference-native-source/**'
@@ -31,6 +33,8 @@ on:
     paths:
       - '.github/workflows/native-successor-data.yml'
       - 'scripts/ci/native-successor-data/**'
+      - 'scripts/integration/arm16k_perl_ldcache_file_backend/**'
+      - 'scripts/integration/arm16k_perl_ldcache_semantic_transition/**'
       - 'scripts/ci/bankstown-qt3-source79-adoption-data/**'
       - 'scripts/ci/llhttp-reference-native-source/**'
       - 'scripts/ci/libgit2-reference-native-source/**'
@@ -57,7 +61,7 @@ permissions:
   contents: read
 jobs:
   data:
-    name: 72 author DATA controls and 8 CI guards (${{ matrix.python }})
+    name: 105 author DATA controls and 8 CI guards (${{ matrix.python }})
     runs-on: ubuntu-24.04
     timeout-minutes: 12
     strategy:

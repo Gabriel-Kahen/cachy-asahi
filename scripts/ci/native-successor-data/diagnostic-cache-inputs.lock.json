@@ -1,0 +1,187 @@
+{
+  "M2_acceptance": null,
+  "Root_authority": null,
+  "constructor_reference_commit": "620b5b28c4e07cfd23e753bde3de51695a7a7ef8",
+  "constructors": {
+    "scripts/ci/llhttp-reference-native-source/successor_v2/go_cli_va.py": {
+      "bytes": 1996,
+      "mode": 420,
+      "sha256": "3b2feba315f3a0e4cfed2498160e75591d64c7b8f0e8f5c11b46321b04b5eff3"
+    },
+    "scripts/ci/llhttp-reference-native-source/successor_v2/prepare.py": {
+      "bytes": 8931,
+      "mode": 420,
+      "sha256": "9da8a325c0ca13dd1325e5e5903652f046d31678294c826c83276d1a84b2c39f"
+    },
+    "scripts/ci/llhttp-reference-native-source/successor_v3/failed_retirement.py": {
+      "bytes": 4165,
+      "mode": 420,
+      "sha256": "95fc52f8a6c610ae165eecfe959cc696c210fa0fd3238bd9b24c9d5ffbcf9df1"
+    },
+    "scripts/ci/llhttp-reference-native-source/successor_v3/payload_diagnostic.py": {
+      "bytes": 1564,
+      "mode": 420,
+      "sha256": "18592a89eb5c6cc7fd182167a37d566dbfa098647167e2a67180083927f1517a"
+    },
+    "scripts/ci/llhttp-reference-native-source/successor_v3/prepare.py": {
+      "bytes": 10724,
+      "mode": 420,
+      "sha256": "0d6ac04a67aaa750ff6d696c30a729433b8398c64bb7c130d4f1ef49f46c418c"
+    }
+  },
+  "explicitly_blocked_new_controls": 3,
+  "kind": "EXACT_COMMITTED_DIAGNOSTIC_CACHE_DATA_CI_INPUTS_V1",
+  "native_acceptance": null,
+  "new_registered_author_controls": 33,
+  "reconstruction": {
+    "actor_attempts": 0,
+    "actual_selectors": "ALL_NULL",
+    "additional_network_inputs": false,
+    "chain": "genuine existing Source62 -> pinned v2.construct -> exact68 -> pinned v3.construct -> exact76 -> v4.parent_bodies whole gate",
+    "existing_public_input": "native-fish-inputs.lock.json:sources.llhttp62",
+    "source85_publication": null,
+    "status": "LOCALLY_REPLAYED_UNDER_ACTOR_FENCE_512MIB"
+  },
+  "reference_base": "620b5b28c4e07cfd23e753bde3de51695a7a7ef8",
+  "schema": 1,
+  "semantic_baseline_body": "UNAVAILABLE; cache derivation remains HOLD until exact actual baseline bytes arrive; observed r90 cache/hash-only is not a substitute",
+  "source76_expected": {
+    "bytes": 1053728,
+    "files": 76,
+    "source_map": {
+      "bytes": 16377,
+      "sha256": "8e6290fb7c916ba52d094d2a324b7ba77e8813c910a6e454a8f78f0aeda92d57"
+    },
+    "tree": "ff131da635fc160b557c58ce0f716a997a918551"
+  },
+  "source85_preview_expected": {
+    "bytes": 1120826,
+    "files": 85,
+    "source_map": {
+      "bytes": 18199,
+      "sha256": "9a4b43eedecd09e5e1edc68677620ccd17a38a1bed8218fdb429b65b04715645"
+    },
+    "tree": "0a5bae34a6339354116933cad916d60cc78adda4"
+  },
+  "suites": {
+    "filebackend": {
+      "actor_fence_compatible": true,
+      "arguments": [],
+      "author": "bd72a9c9a20da6dbfc6fb11009483816e96e0c0d",
+      "blocked_methods": {},
+      "external_fixture_required": false,
+      "original_count": 10,
+      "path": "scripts/integration/arm16k_perl_ldcache_file_backend/test_chain.py",
+      "registered_count": 10,
+      "registered_methods": [
+        "test_actual_retained_r89_positive",
+        "test_exact_transform_and_full_byte_inverse",
+        "test_predecessor_or_successor_corruption_refuses",
+        "test_file_wrapper_filename_and_protocol_refuse",
+        "test_extra_nested_missing_and_named_children_refuse",
+        "test_external_backing_encrypted_dirty_corrupt_refuse",
+        "test_topology_formats_geometry_and_allocation_refuse",
+        "test_unknown_protocol_fields_and_flags_refuse",
+        "test_bad_json_duplicate_nonfinite_and_frame_cap_refuse",
+        "test_root_overlay_pin_eof_is_required"
+      ],
+      "scope_note": "Actual r89 2047byte frame replay accepts only finite two-node metadata shape, not QEMU/cache/lifecycle execution. Exact transform works on committed predecessor code bytes and checks complete inverse.",
+      "source_edits": false,
+      "whole_test_pin": {
+        "bytes": 4251,
+        "sha256": "b8f2b8f0af37bd9aa6d510f6ffe3aba46011686556a5f6a065fd8a5572272b7a"
+      }
+    },
+    "semantic": {
+      "actor_fence_compatible": true,
+      "arguments": [
+        "Controls.test_actual_primary_format_full_canonical_roundtrip",
+        "Controls.test_all_actual_targets_join_pinned_provider_and_alias_evidence",
+        "Controls.test_projection_is_not_learned_from_actual_cache",
+        "Controls.test_primary_numeric_sort_and_suffix_shared_strings",
+        "Controls.test_bad_header_endian_reserved_counts_and_geometry_refuse",
+        "Controls.test_all_entry_fields_offsets_and_overlap_refuse",
+        "Controls.test_extension_bounds_count_magic_tag_flags_and_length_refuse",
+        "Controls.test_missing_nul_non_ascii_bad_paths_and_sort_refuse",
+        "Controls.test_duplicate_keys_mapping_and_unaccounted_strings_refuse",
+        "Controls.test_provider_missing_alias_cycle_wrong_owner_or_target_refuse",
+        "Controls.test_baseline_hash_only_and_observed_sample_cannot_derive_acceptance",
+        "Controls.test_r90_metadata_omits_xattrs_so_cannot_pass_live_metadata_guard",
+        "Controls.test_typed_cache_and_parent_metadata_constraints",
+        "Controls.test_whole_source_and_provider_projection_corruption_refuse",
+        "Controls.test_source_transform_refuses_missing_baseline_and_wrong_predecessor",
+        "Controls.test_original_private_guards_and_restoration_checks_retained"
+      ],
+      "author": "a91d16be7b901baed7a55f6007e0900a7712728d",
+      "baseline_body_status": "Not committed;17551bytes/SHA0128a732a8b926232b5065374176194ea4a1f5c1628728037109bbdbb3d53215 is only a whole pin. Actual r90 cache is different17695byte sample; derive rejects sample/hash-only/empty.",
+      "blocked_methods": {
+        "test_finite_shell_phase_checks_with_model_data_only": "Invokes Bash -c and uses synthetic phase hashes/metadata including positive INSTALLED predicate. Existing outer fence blocks actual subprocess; Root requested no synthetic positive-phase acceptance. Do not register unchanged case under this scope.",
+        "test_model_exact_transform_inverse_and_shell_syntax": "Patches manifest derivation to MODEL output, bypassing unavailable qualified baseline, then invokes Bash -n. Existing outer fence blocks subprocess. Do not replace baseline or loosen fence to register this unchanged case."
+      },
+      "external_fixture_required": false,
+      "original_count": 18,
+      "path": "scripts/integration/arm16k_perl_ldcache_semantic_transition/test_semantics.py",
+      "registered_count": 16,
+      "registered_methods": [
+        "test_actual_primary_format_full_canonical_roundtrip",
+        "test_all_actual_targets_join_pinned_provider_and_alias_evidence",
+        "test_projection_is_not_learned_from_actual_cache",
+        "test_primary_numeric_sort_and_suffix_shared_strings",
+        "test_bad_header_endian_reserved_counts_and_geometry_refuse",
+        "test_all_entry_fields_offsets_and_overlap_refuse",
+        "test_extension_bounds_count_magic_tag_flags_and_length_refuse",
+        "test_missing_nul_non_ascii_bad_paths_and_sort_refuse",
+        "test_duplicate_keys_mapping_and_unaccounted_strings_refuse",
+        "test_provider_missing_alias_cycle_wrong_owner_or_target_refuse",
+        "test_baseline_hash_only_and_observed_sample_cannot_derive_acceptance",
+        "test_r90_metadata_omits_xattrs_so_cannot_pass_live_metadata_guard",
+        "test_typed_cache_and_parent_metadata_constraints",
+        "test_whole_source_and_provider_projection_corruption_refuse",
+        "test_source_transform_refuses_missing_baseline_and_wrong_predecessor",
+        "test_original_private_guards_and_restoration_checks_retained"
+      ],
+      "scope_note": "Actual cache binary roundtrip/provider joins are DATA format/evidence checks only. Typed metadata positive predicate is not Root/lifecycle phase acceptance. No call to transition.phase is made by included16 controls; derive/apply remains refusing.",
+      "source_edits": false,
+      "whole_test_pin": {
+        "bytes": 9505,
+        "sha256": "35a1014aa6325bdac963db5aa28064f81f06b0565f850a9d08f436234f981e59"
+      }
+    },
+    "source85": {
+      "arguments": [
+        "Controls.test_bounded_parser_and_longest_component_covering_prefix",
+        "Controls.test_stacked_covering_mounts_remain_ambiguous",
+        "Controls.test_malformed_truncated_and_over_budget_inputs_never_guess",
+        "Controls.test_fixed_path_access_statvfs_and_permission_unknowns",
+        "Controls.test_bounded_hash_only_privacy_and_diagnostic_nonacceptance",
+        "Controls.test_complete76_inverse_and_preserved_service_scope",
+        "Controls.test_original_aggregate_guard_still_refuses_each_writable_path"
+      ],
+      "author": "2e5dc57e04863c4b547fd9c486305626ec015cde",
+      "blocked_methods": {
+        "test_actual87_failure_and_verified_cleanup_remain_distinct": "Actual87 PUBLIC is hardcoded external retained fixture, no environment override. Five author files contain only summary evidence; complete original public file set is not supplied as committed fixture. Do not synthesize or reconstruct actual records from selected summary assertions. Required files: owner-report.json, owner.log, command-012.json, actual-domains.json and the genuine complete public namespace."
+      },
+      "confinement_acceptance": false,
+      "native_acceptance": null,
+      "original_count": 8,
+      "parent_environment": "LLHTTP_V4_PARENT",
+      "parent_input": "fresh exact reconstructed Source76",
+      "path": "scripts/ci/llhttp-reference-native-source/successor_v4/test_data.py",
+      "registered_count": 7,
+      "registered_methods": [
+        "test_bounded_parser_and_longest_component_covering_prefix",
+        "test_stacked_covering_mounts_remain_ambiguous",
+        "test_malformed_truncated_and_over_budget_inputs_never_guess",
+        "test_fixed_path_access_statvfs_and_permission_unknowns",
+        "test_bounded_hash_only_privacy_and_diagnostic_nonacceptance",
+        "test_complete76_inverse_and_preserved_service_scope",
+        "test_original_aggregate_guard_still_refuses_each_writable_path"
+      ],
+      "whole_test_pin": {
+        "bytes": 15784,
+        "sha256": "25aa5127bebacca548d9eecb625eaddee42b32dbf3e8038117a28b129e71f6d9"
+      }
+    }
+  },
+  "synthetic_positive_Root_phase_acceptance": "FORBIDDEN"
+}
