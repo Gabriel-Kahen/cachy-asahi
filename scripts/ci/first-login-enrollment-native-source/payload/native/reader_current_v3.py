@@ -674,6 +674,107 @@ def diagnostic_source_contract(files,program):
     return dict(status='DIAGNOSTIC_SOURCE_CONTRACT_DATA_ONLY_V5',Root_authentication=False,Root_acceptance=None)
 
 
+CAPTURE_PREFIX='scripts/ci/first-login-enrollment-native-source/successor_v6_source/'
+CAPTURE_PROGRAM_PIN=dict(bytes=14884,sha256='15d1781d0b70805bab9bca89b2339650b90553c2413cf084bc42dfd57bc73628')
+CAPTURE_SOURCE=dict(files=196,bytes=45726789,tree='e85302474308dbf579b79bd6d501f5ad86b66bbb',
+    source_map=dict(bytes=38809,sha256='a8f5ab1c1ceee9f3450634e14dd172d7421d6fe49d8e17ce680cb4cfe43da86a'))
+CAPTURE_COMMIT='441832e1d687255434c9001d603d400e4932f26a'
+CAPTURE_REPLACEMENTS={
+    'hosted_launcher':dict(member='scripts/ci/first-login-enrollment-native-source/payload/native/hosted_current_v3.py',
+        bytes=66263,sha256='f8387c748f31698b45656998248f099a8207bb58f7f9d7e70ef53a73be286d97'),
+    'material_domain_executor':dict(member='scripts/ci/first-login-enrollment-native-source/payload/native/material_domain_current_v3.py',
+        bytes=42462,sha256='ead51cfa3bcf4b74fbccc8c469926c71fbb72edefcf9525b297e1737fde3ab8f')}
+CAPTURE_CONSTRUCTION={
+    CAPTURE_PREFIX+'prepare.py':dict(bytes=10836,mode=0o644,sha256='4cc618d1259732bd83013d012d600b913a330a6233e82f33c5803a4d72637138'),
+    CAPTURE_PREFIX+'README.md':dict(bytes=3020,mode=0o644,sha256='1955067799b963434117e49f4a1f5b00977eb0b284e445185de0ed4ef37a7cc5')}
+CAPTURE_HELPER_SHA256={
+    ('material_domain_executor', 'stderr_identity'):'ed7ec14f3b27b9ac653f6c4dc895a799715658e6c2cf5b1dfcd925be73c7c56c',
+    ('material_domain_executor', 'retired_stderr'):'44c7ed511ee693b13afaaeaf287a49874a7b61873de9de0215e8569235b47887',
+    ('material_domain_executor', 'MaterialSession.retain_stage_failure'):'d299dbbc7a54b9c09024efdc39ea2f3a7396a36cb2fba88010c57c9e6da7596c',
+    ('material_domain_executor', 'MaterialSession.execute'):'3750b53a9cacd5d5f217ba8fc939ab72a03fcd28babf382d248d2de6c21141d3',
+    ('material_domain_executor', 'MaterialSession.stage'):'b5a5f078696d06718901b31cf74338783b6eaedaadfd1096cbe95ee718b61c79',
+    ('hosted_launcher', 'material_stage_failure'):'b918ee030e548710a552a0f0716cacc3e3ed00353ab43ca962c7eb4cd529211a',
+}
+
+
+def capture_source_data(expected,files,*,delegated):
+    """Verify exact196→188, then reuse the preserved188→179→139 predicates."""
+    need(delegated is True,'HOLD_CAPTURE_DELEGATED_ONLY')
+    raw=files['source.lock.json'];lock=receipt(raw);program_name=CAPTURE_PREFIX+'program.json'
+    need(len(files)==CAPTURE_SOURCE['files'] and sum(map(len,files.values()))==CAPTURE_SOURCE['bytes']
+         and pin(raw)==CAPTURE_SOURCE['source_map'] and expected['source']['program']==dict(path=program_name,**CAPTURE_PROGRAM_PIN)
+         and pin(files[program_name])==CAPTURE_PROGRAM_PIN,'HOLD_EXACT_CAPTURE_SOURCE196')
+    rows=dict(lock['files']);rows.update({name:dict(mode=0o644,**pin(raw)) for name in ('source.lock.json','source-map.json')})
+    need(source_git_tree(files,rows)==CAPTURE_SOURCE['tree'],'HOLD_CAPTURE_WHOLE_SOURCE196_TREE')
+    original_raw=files['provenance/v6/source188-map.json'];old=receipt(original_raw)
+    need(pin(original_raw)==DIAGNOSTIC_SOURCE['source_map'] and lock['files']['provenance/v6/source188-map.json']['mode']==0o644
+         and {k:v for k,v in old.items() if k!='files'}=={k:v for k,v in lock.items() if k!='files'},
+         'HOLD_CAPTURE_SOURCE188_BASIS')
+    backups={row['member']:'provenance/v6/original/'+row['member'] for row in CAPTURE_REPLACEMENTS.values()}
+    added={'provenance/v6/rebind.json','provenance/v6/source188-map.json',*backups.values(),
+        *(CAPTURE_PREFIX+n for n in ('prepare.py','README.md','program.json','inverse.json'))}
+    need(same(receipt(files[CAPTURE_PREFIX+'inverse.json']),dict(schema=6,
+             kind='CAPTURE_SOURCE_V6_TO_SOURCE188_INVERSE_DATA_ONLY',basis=DIAGNOSTIC_SOURCE,
+             remove=sorted(added),restore=backups,actual_acceptance=None))
+         and set(files)==set(old['files'])|added|{'source.lock.json','source-map.json'}
+         and not added&set(old['files']) and all(lock['files'][name]['mode']==0o644 for name in added),
+         'HOLD_CAPTURE_EXACT_INVERSE_ROSTER')
+    restored={name:body for name,body in files.items() if name not in added|{'source.lock.json','source-map.json'}}
+    changes={}
+    for role,row in CAPTURE_REPLACEMENTS.items():
+        name=row['member'];backup=backups[name]
+        need(lock['files'][name]==dict(mode=0o644,**whole(row)) and pin(files[name])==whole(row)
+             and dict(mode=lock['files'][backup]['mode'],**pin(files[backup]))==old['files'][name],
+             'HOLD_CAPTURE_EXACT_REPLACEMENT_INVERSE')
+        restored[name]=files[backup]
+        changes[role]=dict(member=name,original=old['files'][name],replacement=lock['files'][name],original_member=backup)
+    need(set(restored)==set(old['files']) and all(pin(body)==whole(old['files'][name])
+         and (name in backups or lock['files'][name]==old['files'][name]) for name,body in restored.items()),
+         'HOLD_CAPTURE_COMPLETE_SOURCE188_INVERSE')
+    restored['source.lock.json']=restored['source-map.json']=original_raw
+    old_rows=dict(old['files']);old_rows.update({name:dict(mode=0o644,**pin(original_raw)) for name in ('source.lock.json','source-map.json')})
+    need(len(restored)==DIAGNOSTIC_SOURCE['files'] and sum(map(len,restored.values()))==DIAGNOSTIC_SOURCE['bytes']
+         and source_git_tree(restored,old_rows)==DIAGNOSTIC_SOURCE['tree'],'HOLD_CAPTURE_WHOLE_SOURCE188_INVERSE')
+    actual=dict.fromkeys(('source','ref','run','job','Root_delegation','Root_trust','Root_resources','Root_runtime','actual_images','publication'))
+    need(same(receipt(files['provenance/v6/rebind.json']),dict(schema=6,
+             kind='COMMITTED_SOURCE188_WRITTEN_SPAN_CAPTURE_REBIND_V6',operation=OP,basis=DIAGNOSTIC_SOURCE,
+             capture_commit=CAPTURE_COMMIT,replacements=changes,construction=CAPTURE_CONSTRUCTION,actual=actual))
+         and all(lock['files'][name]==row and pin(files[name])==whole(row) for name,row in CAPTURE_CONSTRUCTION.items()),
+         'HOLD_CAPTURE_COMMITTED_PROVENANCE')
+    old_name=DIAGNOSTIC_PREFIX+'program.json';old_program=receipt(restored[old_name])
+    selection=dict(expected,source_lock_pin=pin(original_raw),binding=dict(expected['binding'],source_lock=pin(original_raw)),
+        source=dict(expected['source'],program=dict(path=old_name,**pin(restored[old_name]))),reader_pin=whole(old_program['roles']['public_reader']))
+    profile,checked,policy=source_data(selection,restored,delegated=True)
+    wanted=decode(encoded(checked));wanted.update(schema=6,kind='DELEGATED_CURRENT_CAPTURE_PROGRAM_REGISTRY_V6',
+        capture_commit=CAPTURE_COMMIT,capture_rebind_provenance=dict(member='provenance/v6/rebind.json',**pin(files['provenance/v6/rebind.json'])))
+    for role,row in CAPTURE_REPLACEMENTS.items():wanted['roles'][role]=wanted['delegation_programs'][role]=row
+    need(same(receipt(files[program_name]),wanted),'HOLD_CAPTURE_CANONICAL_PROGRAM_SELECTION')
+    capture_source_contract(files,wanted)
+    return profile,wanted,policy
+
+
+def capture_source_contract(files,program):
+    """Read six declared capture helpers as sealed Source AST DATA, never calls."""
+    diagnostic_source_contract(files,program)
+    texts={role:files[row['member']].decode('utf-8') for role,row in CAPTURE_REPLACEMENTS.items()}
+    trees={role:ast.parse(raw) for role,raw in texts.items()}
+    for (role,name),digest in CAPTURE_HELPER_SHA256.items():
+        nodes=trees[role].body
+        for part in name.split('.'):
+            matches=[node for node in nodes if isinstance(node,(ast.FunctionDef,ast.ClassDef)) and node.name==part]
+            need(len(matches)==1,'HOLD_CAPTURE_DECLARED_HELPER:'+name);node=matches[0];nodes=node.body
+        need(isinstance(node,ast.FunctionDef) and hashlib.sha256(ast.get_source_segment(texts[role],node).encode()).hexdigest()==digest,
+             'HOLD_CAPTURE_SEALED_HELPER:'+name)
+    declarations=[node.value for node in trees['hosted_launcher'].body if isinstance(node,ast.Assign)
+        and any(isinstance(target,ast.Name) and target.id=='MATERIAL_DOMAIN_PIN' for target in node.targets)]
+    need(len(declarations)==1,'HOLD_CAPTURE_LITERAL_DOMAIN_PIN');value=declarations[0]
+    need(isinstance(value,ast.Call) and isinstance(value.func,ast.Name) and value.func.id=='dict' and not value.args
+         and len(value.keywords)==2 and {item.arg for item in value.keywords}=={'bytes','sha256'}
+         and same({item.arg:ast.literal_eval(item.value) for item in value.keywords},whole(program['roles']['material_domain_executor'])),
+         'HOLD_CAPTURE_LITERAL_DOMAIN_PIN')
+    return dict(status='CAPTURE_SOURCE_CONTRACT_DATA_ONLY_V6',Root_authentication=False,Root_acceptance=None)
+
+
 def source_data(expected,files,*,delegated=False):
     need(type(files) is dict and all(type(n) is str and type(v) is bytes for n,v in files.items()),'HOLD_SOURCE_BODIES')
     need(sum(map(len,files.values()))<=MAX_SOURCE and len(files)<=512,'HOLD_SOURCE_CAP')
@@ -702,6 +803,8 @@ def source_data(expected,files,*,delegated=False):
              'HOLD_CURRENT_PACKAGE_SCOPE')
         for name,row in recipe['files'].items():
             relative(name);need(pin(files[recipe['path']+'/'+name])==whole(row),'HOLD_RECIPE_SOURCE_BODY')
+    if program.get('schema')==6:
+        return capture_source_data(expected,files,delegated=delegated)
     if program.get('schema')==5:
         return diagnostic_source_data(expected,files,delegated=delegated)
     if program.get('schema')==4:

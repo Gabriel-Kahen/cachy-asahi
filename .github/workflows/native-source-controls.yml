@@ -133,6 +133,8 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/successor_v4_source/test_data.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/successor_v4_source/test_seams.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/successor_v5_source/test_data.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/successor_v6_source/test_data.py
+          /usr/bin/python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/successor_v6_source/test_capture.py
           python3 -I -B -Werror::ResourceWarning scripts/port/first-login-enrollment-ui-current-reader/test_reader.py
           python3 -I -B -Werror::ResourceWarning scripts/port/first-login-enrollment-ui-current-reader/test_owner_receipts.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_perl5423_vm/test_local_dependency_queries.py
@@ -154,6 +156,46 @@ jobs:
           test "$(git -C .onboarding-source188-data-repository rev-parse HEAD^{tree})" = 50bf7aab34ee5497f12d078709354aa69b0cdb9d
           git -C .onboarding-source188-data-repository -c tar.umask=0022 archive --format=tar HEAD | tar -xf - -C "$onboarding_source"
           python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/payload/native/test_reader_current_v3.py --genuine-diagnostic-source "$onboarding_source" GenuineDiagnosticSource188
+      - name: Check out exact Source196 capture constructor as DATA
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 441832e1d687255434c9001d603d400e4932f26a
+          path: .onboarding-source196-author-data-repository
+          persist-credentials: false
+      - name: Check out immutable onboarding Source196 as DATA
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 0a49872473251ad289fc8a49f51f3a27334c0b35
+          path: .onboarding-source196-data-repository
+          persist-credentials: false
+      - name: Reconstruct Source196 and check the published DATA with the trusted Reader
+        run: |
+          umask 022
+          onboarding_capture="${RUNNER_TEMP}/onboarding196-source-DATA"
+          onboarding_profile="${RUNNER_TEMP}/onboarding196-profile.UNISSUED.json"
+          test ! -e "$onboarding_capture"
+          test ! -e "$onboarding_profile"
+          test "$(git -C .onboarding-source196-author-data-repository rev-parse HEAD)" = 441832e1d687255434c9001d603d400e4932f26a
+          test "$(git -C .onboarding-source196-author-data-repository rev-parse HEAD^{tree})" = eff62e7fbc7e3170a67aecd80c4997ee7b4f77b4
+          python3 -I -B scripts/ci/first-login-enrollment-native-source/successor_v6_source/prepare.py \
+            --repo "$GITHUB_WORKSPACE/.onboarding-source196-author-data-repository" \
+            --basis "${RUNNER_TEMP}/onboarding188-source-DATA" \
+            --revision 441832e1d687255434c9001d603d400e4932f26a \
+            --output "$onboarding_capture" > "$onboarding_profile"
+          test "$(wc -c < "$onboarding_profile")" = 21191
+          test "$(sha256sum "$onboarding_profile" | cut -d ' ' -f 1)" = 613436b98b8208d28c675d2f7b985f9d3b3bb758b12d0f51f737b7cd5b9b110c
+          onboarding_published="${RUNNER_TEMP}/onboarding196-published-source-DATA"
+          test ! -e "$onboarding_published"
+          mkdir -m 700 "$onboarding_published"
+          test "$(git -C .onboarding-source196-data-repository rev-parse HEAD)" = 0a49872473251ad289fc8a49f51f3a27334c0b35
+          test "$(git -C .onboarding-source196-data-repository rev-parse HEAD^{tree})" = e85302474308dbf579b79bd6d501f5ad86b66bbb
+          git -C .onboarding-source196-data-repository -c tar.umask=0022 archive --format=tar HEAD | tar -xf - -C "$onboarding_published"
+          cmp "$onboarding_capture/source-map.json" "$onboarding_published/source-map.json"
+          python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/payload/native/test_reader_current_v3_source196.py \
+            --genuine-capture-source "$onboarding_published" \
+            --genuine-diagnostic-source "${RUNNER_TEMP}/onboarding188-source-DATA"
+          python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/successor_v6_source/test_trusted_cascade.py \
+            --source-root "$onboarding_published" --profile "$onboarding_profile"
       - name: Check current Fish source without actors
         run: |
           python3 -I -B -Werror::ResourceWarning scripts/ci/fish-config02-native-source/test_data.py
