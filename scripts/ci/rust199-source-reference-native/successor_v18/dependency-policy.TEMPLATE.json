@@ -1,0 +1,23 @@
+{
+  "actual": {
+    "Root_acceptance": null,
+    "image": null,
+    "job": null,
+    "native_acceptance": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "keyring": {
+    "bytes": 3098,
+    "sha256": "6ce771e853f04a38a5b533cb33e61f877b9b06b58b6db051eb8a15d737a2332f"
+  },
+  "packages": [],
+  "parent350": {
+    "bytes": 6845,
+    "sha256": "60554bd6189cf253a90c8a58271f74a3c8434d4c23c8e65380ef77d552608061"
+  },
+  "schema": 18,
+  "signer": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+  "status": "HOLD_SIGNED_CLOSURE_AND_EXACT_RECIPE_PROVENANCE_PENDING"
+}
