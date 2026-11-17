@@ -15,9 +15,9 @@
       "sha256": "1b69043dbf54536823fdded6807577f8314d68c86c5e7b2d2dd0b755844aabf5"
     },
     "controller.patch": {
-      "bytes": 1486,
+      "bytes": 541,
       "mode": 420,
-      "sha256": "c50e8043990389925117f8e2c946463c87cad3e670e2e7d87c81b11500becc48"
+      "sha256": "be781d0c5ef8bbff7760c30651472ecb386e571b450326eb64e1cf57d8023858"
     },
     "generated-hold_cleanup.py": {
       "bytes": 6643,

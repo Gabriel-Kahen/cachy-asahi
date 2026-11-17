@@ -1,21 +1,9 @@
 --- Source310/controller.py
 +++ proposed/controller.py
-@@ -107,6 +107,9 @@
-    report.update(container_id=scope.cid,cleanup_ownership_verified=True,owned_container_removed=True,owned_container_absence_verified=True);return
-   except BaseException as error:
-    report.setdefault('cleanup_errors',[]).append(dict(step='normal-guest-HOLD-retirement',category=type(error).__name__,message=str(error)[:1024]));report['forced_owned_cleanup_fallback']=True
+@@ -109,0 +110,3 @@
 + if report.get('forced_owned_cleanup_fallback'):
 +  try:module('qmp_observations').retirement_journal(module('contracts'),out,module('protocol').HOLD_RETIRED,'BEFORE_FORCED_FALLBACK',report,module('hold_cleanup').retirement_observation)
 +  except Exception:pass
-  scope.cleanup(report)
- 
- 
-@@ -276,6 +279,8 @@
-     if report.get('failure'):
-      try:
-       report['retirement_observation']=module('hold_cleanup').retirement_observation(K,out,P.HOLD_RETIRED)
+@@ -278,0 +282,2 @@
 +      try:module('qmp_observations').retirement_journal(K,out,P.HOLD_RETIRED,'AFTER_OWNED_CLEANUP',report,module('hold_cleanup').retirement_observation)
 +      except Exception:pass
-       if 'actor_failure_diagnostic'not in report:report['actor_failure_diagnostic']=capture_actor_failure(K,out,a.phase,packet['nonce'],source,cert['runtime_certificate'])
-      except BaseException:report['retirement_observation']=dict(status='REFUSED_OBSERVATION',VM_acceptance=None,Root_acceptance=None)
-     for handle in (serial.stream if serial is not None else None,qfile,qmp,peer):
