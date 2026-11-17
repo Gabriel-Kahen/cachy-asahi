@@ -1,0 +1,86 @@
+{
+  "actual_native": null,
+  "all501_lock": {
+    "bytes": 328101,
+    "sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f"
+  },
+  "all_existing_time_CPU_RSS_PID_swap_limits_unchanged": true,
+  "inner": {
+    "bootstrap_inventory_outer_image_checks": 6,
+    "comparison": 1,
+    "conservative_owned_container_cleanup": 15,
+    "conservative_upper": 282,
+    "image_cleanup": 4,
+    "key_import": 1,
+    "limit": 512,
+    "natural_absent_container_cleanup": 3,
+    "normal_upper": 270,
+    "rootfs_and_package_GPG_verifies": 249,
+    "two_builddrivers_and_pre_post_identity": 6
+  },
+  "kind": "SOURCE_AUDITED_FINITE_COMMAND_LEDGER_NO_ACTUAL_NATIVE_RESULT",
+  "outer": {
+    "cleanup_end": "min(original owner.end+90,cleanup admission time+90)",
+    "cleanup_main_SIGALRM_seconds_unchanged": 90,
+    "cleanup_reserve_seconds_unchanged": 90,
+    "cleanup_success_not_inferred_from_budget": true,
+    "conservative_query_plus_added_wait_seconds": 40,
+    "conservative_upper": 253,
+    "controller_work_seconds": 1650,
+    "docker_info": 1,
+    "final_docker_ps": 1,
+    "host_preflight": 1,
+    "inherited_status_query_seconds": 30,
+    "limit_unchanged": 512,
+    "maximum_added_poll_wait_seconds": 10,
+    "prior_show_and_submit_per_start": 2,
+    "query_retirement_seconds_unchanged": 0.5,
+    "running_interval_seconds": 10,
+    "running_status_queries_conservative_upper": 166,
+    "running_status_queries_tighter_upper": 121,
+    "service_starts": 2,
+    "startup_commands_upper": 66,
+    "startup_interval_seconds": 1,
+    "startup_seconds": 30,
+    "startup_status_queries_per_start_upper": 31,
+    "storage_cleanup": 5,
+    "storage_setup": 5,
+    "tighter_pair_seconds": 1200,
+    "tighter_upper": 208,
+    "two_services_stop_and_two_censuses": 8,
+    "work_wait_and_query_clamped_to_owner_end": true
+  },
+  "packages": 248,
+  "public_export": {
+    "combined_selected_file_upper": 2614,
+    "command_indices": [
+      0,
+      511
+    ],
+    "commands": 512,
+    "existing_max_bytes": 16777216,
+    "existing_physical_file_guard_less_than": 4096,
+    "fixed_outer_receipt_names": [
+      "host-policy.json",
+      "host-policy.partial",
+      "host-tools.json",
+      "actual-domains.json",
+      "owner.log",
+      "daemon.log",
+      "owner-report.json"
+    ],
+    "fixed_outer_receipt_upper": 7,
+    "including_manifest": 1583,
+    "leaves_per_command": 3,
+    "outer_command_leaf_upper": 1024,
+    "total_literal_leaves": 1582
+  },
+  "separate": {
+    "builder_driver_children_normal_per_two_builds": 6,
+    "builder_driver_children_timeout_upper": 8,
+    "byte_hash_tar_metadata_and_acquisition": "in-process; not GPG waiver",
+    "carrier_scope_limit_unchanged": 24,
+    "carrier_ssh_key_and_Git_metadata_actual_path": 10,
+    "makepkg_dependency_build_check_smoke": "inside each supervised normal builder; not separate parent Commands slots"
+  }
+}

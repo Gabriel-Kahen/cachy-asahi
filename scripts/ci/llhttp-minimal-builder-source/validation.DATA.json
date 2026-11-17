@@ -1,0 +1,43 @@
+{
+  "M2": null,
+  "Root_selection": null,
+  "controls": 12,
+  "failed_public_retention": "PASS_MODEL_ONLY",
+  "native": null,
+  "new_source": {
+    "bytes": 1592222,
+    "files": 96,
+    "map": {
+      "bytes": 20332,
+      "sha256": "a5661571f8698b41233d4a0cb5cdbe39b27ecbcc5c59c266e9555a003efc0ec5"
+    },
+    "policy": {
+      "bytes": 22281,
+      "sha256": "5919a3e4f64d2b9543402572ec3137c3057f82cc6802a0eb708b8393249342d8"
+    },
+    "program": {
+      "bytes": 9835,
+      "sha256": "92426ba11d9c304f3cd244bd80e4e886897bb03a063ff4bf9a320bf14894159d"
+    },
+    "tree": "06061af2729a5806556cc76f84eba36aafb9a0e3"
+  },
+  "physical_closed_export": "PASS96_MODE644",
+  "public_signature_seed": "PASS206_EXACT_PUBLIC_BYTES_HOST_TEMP_ONLY",
+  "publication": null,
+  "resources": "UNCHANGED_DECLARATIONS_NOT_ACTUAL_GRANTS",
+  "runs": [
+    {
+      "executable": "/usr/bin/python3",
+      "passed": 12,
+      "version": "3.14.7"
+    },
+    {
+      "executable": "/home/gabe/.local/bin/python3.14",
+      "passed": 12,
+      "version": "3.14.6"
+    }
+  ],
+  "signature_authentication": null,
+  "status": "PASS_PURE_DATA_SOURCE_ONLY_BUILD_ONLY",
+  "whole95_inverse": "PASS"
+}
