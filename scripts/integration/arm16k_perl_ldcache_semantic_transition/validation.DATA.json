@@ -1,0 +1,33 @@
+{
+  "M2": null,
+  "Root_acceptance": null,
+  "VM": null,
+  "actor_entered": false,
+  "actual_guest_transition": "NOT_RUN",
+  "authority": null,
+  "baseline_body": null,
+  "checks": {
+    "Python": [
+      "3.14.7",
+      "3.12.13"
+    ],
+    "actual_cache_full_roundtrip": true,
+    "actual_provider_joins": 361,
+    "controls": 18,
+    "db_elf_members": 3,
+    "independent_projection_nodes": 540,
+    "skips": 0,
+    "unresolved_providers": 0
+  },
+  "ext4_clean_state": "UNQUALIFIED",
+  "kind": "PASSIVE_CACHE_SEMANTIC_PROPOSAL_VALIDATION_V1",
+  "lifecycle_acceptance": null,
+  "nonce": null,
+  "output": null,
+  "positive_phase_derivation": "NOT_RUN_BASELINE_BODY_MISSING",
+  "raw_image_opened": false,
+  "release": null,
+  "runtime_profile": null,
+  "status": "PASS_DATA_SOURCE_ONLY_BASELINE_BODY_PENDING",
+  "xattrs": "R90_UNOBSERVED_FUTURE_LIVE_GUARD_REQUIRED"
+}
