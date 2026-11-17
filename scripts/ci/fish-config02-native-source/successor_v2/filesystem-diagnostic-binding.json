@@ -1,0 +1,32 @@
+{
+  "actual": null,
+  "cross_controller_reference": {
+    "job": null,
+    "message_bytes": 64,
+    "message_sha256": "fb486df27f93098ca0869bbefefdfc5eebd0260b10abfcc4fb1b8c1dfb3286bb",
+    "phase": "readonly-filesystem",
+    "project": "llhttp",
+    "provenance": "Root-reported; not a Fish failure or qualification; no original fetched",
+    "run": "44048877765",
+    "source_files": 76
+  },
+  "helper": {
+    "bytes": 3065,
+    "sha256": "d07339b6815852f459ee71b037c6eff3a52fc78de09b1b62fa30a80f3531ef45"
+  },
+  "kind": "FISH02_FIXED_PATH_FILESYSTEM_DIAGNOSTIC_BINDING_V7",
+  "role_label": null,
+  "seams": {
+    "scripts/ci/fish-config02-native-source/successor_v2/payload.py": [
+      {
+        "after": "s = importlib.util.spec_from_file_location('fish02_payload_diagnostic_v6',HERE/'payload_diagnostic.py');X=importlib.util.module_from_spec(s);s.loader.exec_module(X)\ns = importlib.util.spec_from_file_location('fish02_filesystem_diagnostic_v7',HERE/'filesystem_diagnostic.py');Y=importlib.util.module_from_spec(s);s.loader.exec_module(Y)",
+        "before": "s = importlib.util.spec_from_file_location('fish02_payload_diagnostic_v6',HERE/'payload_diagnostic.py');X=importlib.util.module_from_spec(s);s.loader.exec_module(X)"
+      },
+      {
+        "after": "    Y.emit(root,Path(config['output']).parent)\n    D.need(not os.access('/tmp',os.W_OK) and not os.access('/var/tmp',os.W_OK) and not os.access(root,os.W_OK),'actual owner writable filesystem restricted to quota work domain')",
+        "before": "    D.need(not os.access('/tmp',os.W_OK) and not os.access('/var/tmp',os.W_OK) and not os.access(root,os.W_OK),'actual owner writable filesystem restricted to quota work domain')"
+      }
+    ]
+  },
+  "source_conclusion": "No deterministic Fish contract defect proven; diagnostic only"
+}
