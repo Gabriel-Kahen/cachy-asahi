@@ -1,6 +1,25 @@
 # SPDX-License-Identifier: MIT
-name: Opt-in prior payload source controls
+name: Prior payload source controls
 on:
+  pull_request:
+    paths:
+      - '.github/workflows/updater-payload-source.yml'
+      - 'scripts/update/prior_aux_lifecycle/README.md'
+      - 'scripts/update/prior_payload_aux_runtime.py'
+      - 'scripts/update/prior_payload_aux_runtime/README.md'
+      - 'scripts/update/test_prior_aux_lifecycle.py'
+      - 'scripts/update/test_prior_aux_lifecycle_cleanup.py'
+      - 'scripts/update/test_prior_payload_aux_runtime.py'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/updater-payload-source.yml'
+      - 'scripts/update/prior_aux_lifecycle/README.md'
+      - 'scripts/update/prior_payload_aux_runtime.py'
+      - 'scripts/update/prior_payload_aux_runtime/README.md'
+      - 'scripts/update/test_prior_aux_lifecycle.py'
+      - 'scripts/update/test_prior_aux_lifecycle_cleanup.py'
+      - 'scripts/update/test_prior_payload_aux_runtime.py'
   workflow_dispatch:
     inputs:
       source_commit:
@@ -20,22 +39,36 @@ jobs:
         python: ['3.12', '3.14']
     env:
       PYTHONDONTWRITEBYTECODE: '1'
-      SOURCE_COMMIT: ${{ inputs.source_commit }}
     steps:
-      - name: Require an exact source revision
+      - name: Select an exact source revision
+        id: source
         shell: bash
+        env:
+          PAYLOAD_SOURCE_EVENT: ${{ github.event_name }}
+          PAYLOAD_MANUAL_COMMIT: ${{ inputs.source_commit }}
+          PAYLOAD_PR_COMMIT: ${{ github.event.pull_request.head.sha }}
+          PAYLOAD_PUSH_COMMIT: ${{ github.sha }}
         run: |
           set -euo pipefail
-          [[ "$SOURCE_COMMIT" =~ ^[0-9a-f]{40}$ ]]
+          case "$PAYLOAD_SOURCE_EVENT" in
+            workflow_dispatch) payload_source_commit="$PAYLOAD_MANUAL_COMMIT" ;;
+            pull_request) payload_source_commit="$PAYLOAD_PR_COMMIT" ;;
+            push) payload_source_commit="$PAYLOAD_PUSH_COMMIT" ;;
+            *) exit 1 ;;
+          esac
+          [[ "$payload_source_commit" =~ ^[0-9a-f]{40}$ ]]
+          printf 'commit=%s\n' "$payload_source_commit" >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
-          ref: ${{ inputs.source_commit }}
+          ref: ${{ steps.source.outputs.commit }}
           persist-credentials: false
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
           python-version: ${{ matrix.python }}
       - name: Check source-only binding and modeled cleanup with actors denied
         shell: bash
+        env:
+          SOURCE_COMMIT: ${{ steps.source.outputs.commit }}
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$SOURCE_COMMIT"
