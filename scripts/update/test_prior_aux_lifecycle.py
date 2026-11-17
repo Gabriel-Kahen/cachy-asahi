@@ -355,25 +355,58 @@ def main():
     need(len(mapping)==3 and mapping[0]=='0' and int(mapping[1])>0 and mapping[2]=='1','owned one-UID user namespace required')
     interfaces={line.split(':',1)[0].strip() for line in Path('/proc/net/dev').read_text().splitlines() if ':' in line}
     need(interfaces=={'lo'},'private network namespace required')
-    subprocess.run(['/usr/bin/mount','-t','tmpfs','-o','size=67108864,nr_inodes=20000,nodev,nosuid,mode=0700','tmpfs',str(args.sandbox)],check=True,timeout=5)
+    mount_target=args.sandbox.absolute()
+    subprocess.run(['/usr/bin/mount','-t','tmpfs','-o','size=67108864,nr_inodes=20000,nodev,nosuid,mode=0700','tmpfs',str(mount_target)],check=True,timeout=5)
     status={'status':'FAIL','profile':PROFILE,'native_file_pins':HOST_FILES,'ALPM_pin':ALPM_SHA,'fence':fence,'cases':[],
         'production_helper_binding':'OVERRIDDEN ONLY BY FIXED TEST PROFILE',
         'production_ARM_closure':'NOT EXERCISED','comparator_host_source_correspondence':'NOT VERIFIED'}
+    primary=None
     try:
         (args.sandbox/'tmp').mkdir(mode=0o700); os.environ['TMPDIR']=str(args.sandbox/'tmp')
         with signing(args.sandbox/'keys') as (signer,public,sign):
-            for mode in CASES: status['cases'].append(run_case(args.sandbox,args.evidence,mode,signer,public,sign))
+            for mode in CASES:
+                status['active_case']=mode
+                status['cases'].append(run_case(args.sandbox,args.evidence,mode,signer,public,sign))
+            status.pop('active_case',None)
         status['status']='PASS-host-TEST-lifecycle'
+    except BaseException as error:
+        primary=error
+        status['primary_error']=dict(type=type(error).__name__,message=str(error)[:2048])
     finally:
-        group=Path(fence['group'])
-        status['resource_peak']={n:(group/n).read_text().strip() for n in ('memory.peak','pids.peak')}
-        status['key_retirement']=retire_agents(args.sandbox,args.evidence)
-        os.chdir(HERE)
-        unmounted=subprocess.run(['/usr/bin/umount',str(args.sandbox)],capture_output=True,timeout=5)
-        status['unmount']={'exit':unmounted.returncode,'stderr':unmounted.stderr.decode(errors='replace')}
-        if unmounted.returncode: status['status']='FAIL-cleanup'
-        (args.evidence/'lifecycle.json').write_bytes(encoded(status))
-        need(unmounted.returncode==0,'private fixture unmount failed')
+        status['case_status']=status['status']
+        errors=[]
+        def attempt(stage,action):
+            try: return action()
+            except BaseException as error:
+                errors.append(dict(stage=stage,type=type(error).__name__,message=str(error)[:2048]))
+        status['resource_peak']={n:attempt('resource_peak/'+n,
+            lambda n=n:(Path(fence['group'])/n).read_text().strip()) for n in ('memory.peak','pids.peak')}
+        def agents():
+            result=retire_agents(args.sandbox,args.evidence)
+            need(isinstance(result,dict) and result.get('gpgconf_exit')==0
+                 and result.get('owned_agents_absent') is True,'owned TEST agent absence unverified')
+            return result
+        status['key_retirement']=attempt('key_retirement',agents)
+        if status['key_retirement'] is None:
+            status['key_retirement']=dict(gpgconf_exit=None,owned_agents_absent=None,status='UNKNOWN')
+        attempt('leave_mount',lambda:os.chdir(HERE))
+        def unmount():
+            result=subprocess.run(['/usr/bin/umount',str(mount_target)],capture_output=True,timeout=5)
+            status['unmount']=dict(exit=result.returncode,stderr=result.stderr.decode(errors='replace'))
+            need(result.returncode==0,'private fixture unmount failed')
+        status['unmount']=dict(exit=None,stderr=None,status='UNKNOWN')
+        attempt('unmount',unmount)
+        status['cleanup']=dict(status='HOLD' if errors else 'PASS',errors=errors)
+        if errors: status['status']='FAIL-cleanup'
+        status['report_write']=dict(status='PASS')
+        written=attempt('report_write',lambda:(args.evidence/'lifecycle.json').write_bytes(encoded(status)))
+        if written is None:
+            status['status']='FAIL-cleanup'
+            status['cleanup']['status']='HOLD'
+            status['report_write']=dict(status='FAIL')
+            attempt('report_fallback',lambda:print(json.dumps(status,sort_keys=True),file=sys.stderr))
+    if primary is not None: raise primary
+    need(not errors,'private fixture cleanup/report unverified')
 
 
 if __name__=='__main__': main()
