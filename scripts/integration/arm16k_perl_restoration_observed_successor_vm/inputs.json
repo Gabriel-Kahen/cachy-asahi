@@ -1,0 +1,73 @@
+{
+  "actual": {
+    "ALPM": null,
+    "M2": null,
+    "Root_authority": null,
+    "Source_CID": null,
+    "VM": null,
+    "nonce": null,
+    "release": null,
+    "runtime": null,
+    "source_ref": null
+  },
+  "diagnostic": {
+    "commit": "501643f6f5c0261f643b4e949d11f7bf2b97071b",
+    "files": {
+      "README.md": {
+        "bytes": 3917,
+        "mode": 420,
+        "sha256": "bbb02201b43d6e5903602684835b835edf9f2fe36bc101427b139492a0c359fe"
+      },
+      "auxiliary.py": {
+        "bytes": 2327,
+        "mode": 420,
+        "sha256": "0d1492209e070bd65c4edef8d714ea942f4106f7c204102b445661ea1b4b9d9d"
+      },
+      "diagnostics.sh": {
+        "bytes": 3290,
+        "mode": 420,
+        "sha256": "81ec35f38c947b2b4ca80e224bcacc3c9901c6c8d3026ae7dcff4009243bb28f"
+      },
+      "inputs.DATA.json": {
+        "bytes": 1717,
+        "mode": 420,
+        "sha256": "20ad20b4f997f5fbecf0cd634905896b0aeae92f074c731912fab87f8e0b2e8d"
+      },
+      "proposal.py": {
+        "bytes": 2271,
+        "mode": 420,
+        "sha256": "ef70b4f046f341bcd50911ad14e0628999dfd2a353ba26b4391333517a884f6c"
+      },
+      "source.lock.json": {
+        "bytes": 1217,
+        "mode": 420,
+        "sha256": "b732ef1a61c986c0f9f6ee3e98a28691790cd6869e7ffb91ad211a29a363d761"
+      },
+      "test_diagnostic.py": {
+        "bytes": 5823,
+        "mode": 420,
+        "sha256": "090c3f47ede99200d59eca2f6200077f59ca58dd70a4757b32123eca5317be91"
+      },
+      "validation.DATA.json": {
+        "bytes": 703,
+        "mode": 420,
+        "sha256": "438812e4326e1ae48c6a72a3354898206ee2475acb668725ac3a263a39528e91"
+      }
+    },
+    "source_lock": {
+      "bytes": 1217,
+      "sha256": "b732ef1a61c986c0f9f6ee3e98a28691790cd6869e7ffb91ad211a29a363d761"
+    }
+  },
+  "fixture_source_cap_bytes": 4194304,
+  "kind": "PINNED_COMPACT_RESTORATION_SUCCESSOR_INPUTS_V1",
+  "predecessor": {
+    "closed_leaf_bytes": 4106688,
+    "files": 387,
+    "source_lock": {
+      "bytes": 69318,
+      "sha256": "06d227647cbbf5d357bcccccc77dde07344bea033880a87b5405e9679810b443"
+    }
+  },
+  "qmp": null
+}

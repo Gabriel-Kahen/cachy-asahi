@@ -1,0 +1,29 @@
+{
+  "Python": [
+    "3.14.7",
+    "3.12.13"
+  ],
+  "Root_acceptance": null,
+  "actual": {
+    "ALPM": null,
+    "M2": null,
+    "Root_authority": null,
+    "Source_CID": null,
+    "VM": null,
+    "nonce": null,
+    "release": null,
+    "runtime": null,
+    "source_ref": null
+  },
+  "canonical_old_lock_exact_bytes": 69318,
+  "controls": 10,
+  "diagnostic_only": true,
+  "full_old_lock_copied": false,
+  "full_old_root_copied": false,
+  "full_predecessor_inverse_files": 387,
+  "kind": "COMPACT_SOURCE387_SUCCESSOR_DATA_VALIDATION_V1",
+  "qmp_contract": null,
+  "skips": 0,
+  "source_qualification": null,
+  "status": "PASS_PHYSICAL_DATA_ONLY_ROOT_QUALIFICATION_HELD"
+}

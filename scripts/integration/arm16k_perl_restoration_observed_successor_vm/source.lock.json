@@ -1,0 +1,46 @@
+{
+  "actual": {
+    "ALPM": null,
+    "M2": null,
+    "Root_authority": null,
+    "Source_CID": null,
+    "VM": null,
+    "nonce": null,
+    "release": null,
+    "runtime": null,
+    "source_ref": null
+  },
+  "files": {
+    "README.md": {
+      "bytes": 2715,
+      "mode": 420,
+      "sha256": "bdf96e39fac4967d0ee1122a6e6d10043770578807b5fb3ff20fd5f013d71d44"
+    },
+    "constructor.py": {
+      "bytes": 13245,
+      "mode": 420,
+      "sha256": "5407a1b8f250a7c226b32575f7096c34187674cb3767f21d0b7a402beb6a6c3e"
+    },
+    "inputs.json": {
+      "bytes": 2078,
+      "mode": 420,
+      "sha256": "9ec6338b7081c461bc9a50908668e1bd533ddb61192409bedfad3ed1c58ab27c"
+    },
+    "selection.TEMPLATE.json": {
+      "bytes": 336,
+      "mode": 420,
+      "sha256": "6accd67dfac9b66facdbecc72746bf086c1c1459e803aff4a539efe43236812f"
+    },
+    "test_constructor.py": {
+      "bytes": 5424,
+      "mode": 420,
+      "sha256": "1d5108ba539bab53811e9171b8c4432a41d840fa0f23a7557ac1bbdf74095211"
+    },
+    "validation.DATA.json": {
+      "bytes": 670,
+      "mode": 420,
+      "sha256": "b5969351203a0fd43c8a194bf1a3a3fffc11b2f0cb7b36411362034f4f1f3b36"
+    }
+  },
+  "kind": "COMPACT_RESTORATION_SUCCESSOR_CONSTRUCTOR_SOURCE_V1"
+}
