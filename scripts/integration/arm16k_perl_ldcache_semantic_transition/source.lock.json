@@ -152,14 +152,14 @@
       "sha256": "ec9968268f5135df822967f471c10cc562f7a640b17bc311c073a0ee82f5da12"
     },
     "test_semantics.py": {
-      "bytes": 9426,
+      "bytes": 9505,
       "mode": 420,
-      "sha256": "8c916f4101aaec23ce313a5bfd0563a4de0acd0da7ab2a63ca4f1402fc13d353"
+      "sha256": "35a1014aa6325bdac963db5aa28064f81f06b0565f850a9d08f436234f981e59"
     },
     "transform.py": {
-      "bytes": 3572,
+      "bytes": 3609,
       "mode": 420,
-      "sha256": "555dfefdd15fa30f7331cdb43ebae04bbdd9acd1cc34e4f823ef7f7d6ccdbfed"
+      "sha256": "56277327bae54c4652a73feb52fe6adb3539a4c47253dbe50580bce8b349e04e"
     },
     "transition.py": {
       "bytes": 4952,

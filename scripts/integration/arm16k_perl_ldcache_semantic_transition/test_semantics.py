@@ -84,7 +84,7 @@ class Controls(unittest.TestCase):
     test=subprocess.run(['/usr/bin/bash','-n'],input=result[name],capture_output=True,timeout=5);self.assertEqual(test.returncode,0,test.stderr)
    self.assertIn(b'[[ $attrs == "${initialized_attrs[$i]}"',result['initialized']);self.assertIn(b'_initialized_empty "$initialized_prefix/root/.ssh"',result['initialized']);self.assertIn(b'same_bytes "$S/before.cache" "$S/after.cache"',result['root'])
  def test_original_private_guards_and_restoration_checks_retained(self):
-  s=(HERE/'transform.py').read_text();self.assertIn('current=$(_initialized_view',s);self.assertIn('$i == 5 || $i == 9',s)
+  s=(HERE/'transform.py').read_text();self.assertIn('current=$(_initialized_view',s);self.assertIn('current=$(_initialized_view \"$i\") || { _ig_diagnostic R21',s);self.assertIn('$i == 5 || $i == 9',s)
   old=(HERE/'predecessor-initialized-state.sh').read_text();self.assertIn('_initialized_empty "$initialized_prefix/root/.ssh"',old);self.assertIn('[[ $attrs == "${initialized_attrs[$i]}"',old)
   helper=(HERE/'guest-cache-transition.sh').read_text();self.assertNotIn('touch ',helper);self.assertNotIn('rm ',helper);self.assertNotIn('cp ',helper);self.assertIn('RESTORED',helper);self.assertIn('1500000000000',helper)
 if __name__=='__main__':unittest.main(verbosity=2)
