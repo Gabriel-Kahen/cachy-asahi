@@ -1,0 +1,44 @@
+{
+  "Root_selection": null,
+  "files": {
+    "README.md": {
+      "bytes": 5113,
+      "mode": 420,
+      "sha256": "c753c7244d3fb6c9eb0c2a7105f6109c6e4f168dae26a466c68c3bdfb2841117"
+    },
+    "fixtures/acquisition-with-catalogs.DATA.json": {
+      "bytes": 68251,
+      "mode": 420,
+      "sha256": "001a8e7213858a3ff92379f8b489d214c5b08ac505ec5b44aa98384f17c05aed"
+    },
+    "fixtures/material-check.DATA.json": {
+      "bytes": 204,
+      "mode": 420,
+      "sha256": "e13386f6f7dd4e7ac41d946b417e4af44b840f63e94b6954d9ea92db107fd34c"
+    },
+    "prepare.py": {
+      "bytes": 20399,
+      "mode": 420,
+      "sha256": "a7915d97b9e8fc9a5e152d803dbd5e453a6a99e59ae62704712b5e73015f1d7f"
+    },
+    "provenance.DATA.json": {
+      "bytes": 1813,
+      "mode": 420,
+      "sha256": "e41373c2c04f17a17067ab359812a4620bc814f9cce49d47e439cf34fa772eeb"
+    },
+    "test_data.py": {
+      "bytes": 10219,
+      "mode": 420,
+      "sha256": "65f4fac7a7e45d97f3c82c54b8c53d3c80b42ea23f94c97c93f71f9b2ea998a6"
+    },
+    "validation.DATA.json": {
+      "bytes": 1173,
+      "mode": 420,
+      "sha256": "dfa021cff7eb8f869871723d4d2581eacfc4983729788b003749e7efc6edb5ad"
+    }
+  },
+  "kind": "LLHTTP_MINIMAL206_SOURCE_CONSTRUCTOR_CLOSED_CODE_FAMILY",
+  "native": null,
+  "publication": null,
+  "schema": 1
+}

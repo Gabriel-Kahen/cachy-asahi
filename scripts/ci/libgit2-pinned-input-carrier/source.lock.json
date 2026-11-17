@@ -1,0 +1,85 @@
+{
+  "Root_registration": null,
+  "actual_carrier": null,
+  "actual_provider": null,
+  "files": {
+    "README.md": {
+      "bytes": 7474,
+      "mode": 420,
+      "sha256": "58f53c18350ad0dd8440059c07be0af7f508a4776ffb47d65c8db1b89384cc4f"
+    },
+    "adapter.py": {
+      "bytes": 3847,
+      "mode": 420,
+      "sha256": "cde067157f690aa10bb5a9b920207a76da2cb06e1b0a144fc2741ee1ea6333e4"
+    },
+    "fixtures/actual501.lock.json": {
+      "bytes": 328101,
+      "mode": 420,
+      "sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f"
+    },
+    "frozen/binding.TEMPLATE.json": {
+      "bytes": 429,
+      "mode": 420,
+      "sha256": "439791780558d268ffede03f54a48e1b8e4fe247c57cc3c81f80a731b69fb18e"
+    },
+    "frozen/carrier-workflow.yml.in": {
+      "bytes": 7464,
+      "mode": 420,
+      "sha256": "a327c7d9c5edac219a7e567d1e35eae42da6ee6535d86ff4b0ad9379cdc88b84"
+    },
+    "frozen/carrier.py": {
+      "bytes": 22562,
+      "mode": 420,
+      "sha256": "600dded4471efcf09027dca1e8906cfa2c75620b6cfafa2645a79dded5723f4d"
+    },
+    "frozen/expected-files.json": {
+      "bytes": 71079,
+      "mode": 420,
+      "sha256": "1564360abf5695b19c132de971750311ab017189dd7b11b38b969d5445faf70b"
+    },
+    "frozen/github-host-reference.json": {
+      "bytes": 576,
+      "mode": 420,
+      "sha256": "e1e5ec5b74d5d973ec68b5834bfda1035206b72cc4f1c995a1e1458b1af801c4"
+    },
+    "frozen/libgit2-workflow.yml.in": {
+      "bytes": 6216,
+      "mode": 420,
+      "sha256": "83d49de54141edd07b10bfbf21eab735da58856706194bc91ded5a8d26b1b913"
+    },
+    "frozen/public_evidence.py": {
+      "bytes": 10144,
+      "mode": 420,
+      "sha256": "9b3c103dc6b309568ff5215f2b282b27bb349b4a44f55b777dcf55bda3157a42"
+    },
+    "prepare.py": {
+      "bytes": 16007,
+      "mode": 420,
+      "sha256": "8cedd2b3b78d0fd8e88a6b2f352797e6256303c950313f2a6c54eda98de17aca"
+    },
+    "profile.DATA.json": {
+      "bytes": 8966,
+      "mode": 420,
+      "sha256": "81849e5479cb73e6fbb6b1f06ef575f937a707de6dd0b72d5157c6c5be3dc9f8"
+    },
+    "readiness.DATA.json": {
+      "bytes": 1556,
+      "mode": 420,
+      "sha256": "7755410255d893005dff4aa8b413282ab76e852a8717273160d8720ee4b5036c"
+    },
+    "test_data.py": {
+      "bytes": 10770,
+      "mode": 420,
+      "sha256": "c13645fadf89536c1dde8d2886c40791a469c7fadbc5ec685c63d406f1d42970"
+    },
+    "workflow.yml.in": {
+      "bytes": 7483,
+      "mode": 420,
+      "sha256": "ed866b722e03bdec9e7d180c311de02a27ec34fccc7632b8f9a662e017daf4da"
+    }
+  },
+  "kind": "CLOSED_UNISSUED_LIBGIT2_501_182_PREPARATION",
+  "native": null,
+  "schema": 1
+}
