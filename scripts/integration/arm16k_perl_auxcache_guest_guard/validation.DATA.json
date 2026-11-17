@@ -1,0 +1,36 @@
+{
+  "Root_acceptance": null,
+  "Root_grants": null,
+  "actual_added_adapter_statement_and_projected_snapshot": "PASS_OWNED_TEMP_HOST_ONLY_XATTR_COLLECTION_STUBBED",
+  "actual_guest_execution": null,
+  "actual_restored_aux_comparison": null,
+  "baseline_actual": {
+    "bytes": 12313,
+    "sha256": "bf57218ea22ca530decf18bf8ec548c22ec96afb0afc423088a97fbb148149ed"
+  },
+  "bash_syntax": "PASS",
+  "canonical": {
+    "bytes": 11373,
+    "sha256": "101a81b8720aeb3f5994f133226c19f06a3b9073d51cee7d419c2ceb96184f1d"
+  },
+  "controls": 15,
+  "existing_Source389_unchanged": true,
+  "maximum_entries": 4096,
+  "maximum_input_bytes": 1048576,
+  "runs": [
+    {
+      "executable": "/usr/bin/python3",
+      "passed": 15,
+      "version": "3.14.7"
+    },
+    {
+      "executable": "/home/gabe/.local/bin/python3.14",
+      "passed": 15,
+      "version": "3.14.6"
+    }
+  ],
+  "selection": "UNSELECTED",
+  "status": "PASS_HOST_DATA_UNSELECTED_GUEST_COMPONENT",
+  "tamper_refusals": "PASS",
+  "whole389_inverse": "PASS"
+}
