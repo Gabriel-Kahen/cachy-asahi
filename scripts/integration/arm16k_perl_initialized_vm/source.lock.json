@@ -1,0 +1,75 @@
+{
+  "actual": {
+    "ALPM_ownership": null,
+    "M2": null,
+    "Perl_preservation": null,
+    "Raw_certificate": null,
+    "Root_authority": null,
+    "VM": null,
+    "namespace": null,
+    "readonly_scan": null,
+    "release": null,
+    "runtime_providers": null,
+    "source_ref": null
+  },
+  "files": {
+    "README.md": {
+      "bytes": 5974,
+      "mode": 420,
+      "sha256": "c3ad21591e48d56b456100f92f2d64013d2aab11a32241fc4f485bc0c6d2a617"
+    },
+    "next-operation.TEMPLATE.json": {
+      "bytes": 3461,
+      "mode": 420,
+      "sha256": "8c798004f752f9e4012eac1d519ccefb04788355a34c06df0d83459c69f272b8"
+    },
+    "observer.py": {
+      "bytes": 5213,
+      "mode": 420,
+      "sha256": "bc54ad8940a9c631db08b698eea9d732c1846bca4f5df658f5100541c4fbbc51"
+    },
+    "policy.py": {
+      "bytes": 3503,
+      "mode": 420,
+      "sha256": "b058712adcfe0996c14144a1b1cd148d30d045d36c1582ccd4bd11fe913ebed6"
+    },
+    "qualification.TEMPLATE.json": {
+      "bytes": 597,
+      "mode": 420,
+      "sha256": "3a0fda3593eb0335e425fe5a37160ee2fe6a1945169da724117039f6bd32547b"
+    },
+    "qualification.py": {
+      "bytes": 11719,
+      "mode": 420,
+      "sha256": "6f5d1f7fe566983f4bac66d1713bf983ff9aae79bf0e9bdccb116a0bd493f903"
+    },
+    "scan-authority.TEMPLATE.json": {
+      "bytes": 767,
+      "mode": 420,
+      "sha256": "f6a3a9e521474b324667c82b440068a36dea721fc3fd17e8b8dbba880e39cf82"
+    },
+    "scanner.py": {
+      "bytes": 4544,
+      "mode": 420,
+      "sha256": "abeb6dfae2e3600b3c0593c6adbd7e8359a952707b5e50fb7fe18b518b724e05"
+    },
+    "ssh_empty.py": {
+      "bytes": 4655,
+      "mode": 420,
+      "sha256": "36d8599851a592c168bdf073ebc5122fcdde0644bdf3f06b5effa55382ef501a"
+    },
+    "test_policy.py": {
+      "bytes": 15349,
+      "mode": 420,
+      "sha256": "3df203dec1d989e6b7c7cf8e60b8dd9520b899ae5a1c4c0a2d8b0c8abb113609"
+    },
+    "test_ssh_empty.py": {
+      "bytes": 3233,
+      "mode": 420,
+      "sha256": "bc9c7b9cd5141abd40d2962f79912753a537fc9777d5d68c9d351005030f09e3"
+    }
+  },
+  "kind": "OPT_IN_INITIALIZED_PERL_BASELINE_QUALIFICATION_SOURCE_V1",
+  "operation": "initialized-perl-baseline-qualification-data-only-v1",
+  "schema": 1
+}
