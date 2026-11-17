@@ -1,0 +1,70 @@
+{
+  "actual_dependency_tuple": null,
+  "actual_parent_Source": null,
+  "actual_parent_map": null,
+  "author": "cbcaba9e98ab96c512ca1d9c6540a830844ff78c",
+  "corresponding_llhttp": "9d82f079490803f20f0810096e4611e42ab28a3c",
+  "helpers": {
+    "source_readonly.py": {
+      "bytes": 1766,
+      "sha256": "8078d7cdbae5d4a91470170f51160887d9810e84c5dad14dd5a4d6f9888beee7"
+    },
+    "source_readonly_shared.py": {
+      "bytes": 3052,
+      "sha256": "55c58b6e15a73339f0c901a6d379f468e39e90e81a6602651942f35162a8e9d8"
+    }
+  },
+  "namespace_adapter": {
+    "purpose": "One daemon cgroup namespace literal projection of the complete pinned shared helper, with whole-source inverse; all APIs and shared declaration preserved",
+    "source": "local bounded adapter; source_readonly_shared.py is byte exact"
+  },
+  "predecessor_prepare": {
+    "bytes": 16768,
+    "sha256": "4f1ada516c9d9c244468a4d6e18e7418cb52fd42749b4417e29cbe5ab75a4089",
+    "source_path": "scripts/ci/libgit2-reference-native-source/successor_v3/prepare.py"
+  },
+  "qualification": "SOURCE DATA ONLY; no actors, native pair or Root acceptance",
+  "schema": 1,
+  "shared_helper_provenance": {
+    "source_readonly_shared.py": {
+      "source_commit": "9d82f079490803f20f0810096e4611e42ab28a3c",
+      "source_path": "scripts/ci/llhttp-reference-native-source/successor_v5/source_readonly.py"
+    }
+  },
+  "source_audit": {
+    "actual_libgit2_namespace_observation": null,
+    "actual_namespace_effect": "NOT RUN",
+    "at_commit": "cbcaba9e98ab96c512ca1d9c6540a830844ff78c",
+    "controller_successor_v3": {
+      "bytes": 28236,
+      "sha256": "360dfbdadfed92e655f742acd8ec91668b5ad7e1dd557eca6a4b1a2c6361e28f"
+    },
+    "files": {
+      "scripts/ci/libgit2-reference-native-source/owner/data.py": {
+        "bytes": 10692,
+        "sha256": "fadf9736d58fae6cf1e5e398fd263e853ac662bd511874a16749b9e56aed9c94"
+      },
+      "scripts/ci/libgit2-reference-native-source/owner/hosted_owner.py": {
+        "bytes": 27393,
+        "sha256": "bb8ce058996b7b1654658ac56d1b2e47978c3bfecc403e60876f69302ff6d859"
+      }
+    },
+    "old_service_args": {
+      "BindPaths": null,
+      "BindReadOnlyPaths": null,
+      "ProtectSystem": "strict",
+      "ReadOnlyPaths": "/tmp /var/tmp /sys/fs/cgroup",
+      "ReadWritePaths_daemon": "<output>/volume /sys/fs/cgroup/system.slice/cachy-libgit2-reference-<nonce>-daemon.service",
+      "ReadWritePaths_owner": "<output>/volume/work",
+      "RootDirectory": null,
+      "RootImage": null,
+      "Source_readonly_bind": "MISSING"
+    },
+    "scope": "SOURCE_AUDITED_MISSING_BIND",
+    "successor_v3_controller_changes": [
+      "finite Docker CLI VA child plan",
+      "failed-owner PIDFD retirement"
+    ],
+    "upstream_actual_92_scope": "LLHTTP ONLY; not libgit2 qualification"
+  }
+}
