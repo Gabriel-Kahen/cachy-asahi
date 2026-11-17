@@ -394,6 +394,13 @@ class Controls(unittest.TestCase):
         self.assertEqual(len(raw),21404)
         self.assertGreater(len(raw),16384)
         self.assertEqual(self.m.read(SOURCE/PREFIX/'policy.json'),raw)
+        custody=self.m.read(self.m.CUSTODY)
+        self.assertEqual(pin(custody)['sha256'],self.m.CUSTODY_SHA)
+        nodes=[n for n in ast.parse(custody).body if isinstance(n,ast.FunctionDef)and n.name in ('identity','read')]
+        scope=dict(Path=Path,os=os,stat=stat)
+        exec(compile(ast.Module(body=nodes,type_ignores=[]),'held-custody-read-only-MODEL','exec'),scope)
+        self.assertEqual(scope['read'](SOURCE/PREFIX/'policy.json'),raw)
+        self.assertIn('a.st_size < 768 * 1024 ** 2',ast.unparse(nodes[-1]))
         authority=dict(MODEL=True,resources=json.loads(raw),Root_authority=None)
         path=self.model/'MODEL-authority.json';data=canonical(authority);path.write_bytes(data)
         self.assertGreater(len(data),16384)

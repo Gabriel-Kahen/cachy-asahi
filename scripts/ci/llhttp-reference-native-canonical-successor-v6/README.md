@@ -20,7 +20,9 @@ allow2MiB per file; operator policy/authority reads already allow8MiB. The
 16KiB admission/runtime limit is unchanged: those documents carry policy and
 program pin objects, with the existing finite PAIR_RESOURCES, rather than the
 full policy. Full policy is placed in authority.resources on the existing
-8MiB path. Fenced tests read the real policy, join a temporary MODEL authority,
+8MiB path. The primitive imports the pinned custody reader, whose existing
+strict768MiB bound also contains the21KB policy; controls execute only its
+unchanged read/identity functions on the public policy, without custody entry. Fenced tests read the real policy, join a temporary MODEL authority,
 and reject oversized admission/runtime documents under the unchanged limit.
 
 Initial candidate CID/ref/publication are NULL. Only Root's actual immutable
