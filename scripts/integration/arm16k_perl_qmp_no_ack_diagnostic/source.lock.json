@@ -1,0 +1,54 @@
+{
+  "actual": {
+    "M2": null,
+    "Root_Source": null,
+    "Source_CID": null,
+    "VM": null,
+    "authority": null,
+    "release": null,
+    "runtime": null
+  },
+  "files": {
+    "README.md": {
+      "bytes": 5732,
+      "mode": 420,
+      "sha256": "1b69043dbf54536823fdded6807577f8314d68c86c5e7b2d2dd0b755844aabf5"
+    },
+    "controller.patch": {
+      "bytes": 1486,
+      "mode": 420,
+      "sha256": "c50e8043990389925117f8e2c946463c87cad3e670e2e7d87c81b11500becc48"
+    },
+    "generated-hold_cleanup.py": {
+      "bytes": 6643,
+      "mode": 420,
+      "sha256": "918ee5d38cdcb6b042e22723145b5e8f3eff575f310f5b80be2d9b3d69aafa2a"
+    },
+    "inputs.DATA.json": {
+      "bytes": 1778,
+      "mode": 420,
+      "sha256": "08923ad634d10190082583a3735fc2b63ce6f9021b017f1cd2194401bc4ca081"
+    },
+    "observations.py": {
+      "bytes": 2484,
+      "mode": 420,
+      "sha256": "0f5b5c1711cd3bb156fc611c755545fffe4bd4b15bd9094097179b87ed5541b5"
+    },
+    "proposal.py": {
+      "bytes": 3886,
+      "mode": 420,
+      "sha256": "a612f7491e43339f15a90838fe47b20e5d812cd5919761f4505e6e544d39906e"
+    },
+    "test_proposal.py": {
+      "bytes": 10720,
+      "mode": 420,
+      "sha256": "d8a15a26ee2f517fcaac20501b23405c8c249cea8b9b42cc30f7b86c422d8f85"
+    },
+    "validation.DATA.json": {
+      "bytes": 1063,
+      "mode": 420,
+      "sha256": "e6342671d4ce498270764b06b766e047c3032d62d05046469f97f1aa1bbe89e6"
+    }
+  },
+  "kind": "UNISSUED_SOURCE310_QMP_FAILURE_OBSERVATION_PROPOSAL_V1"
+}
