@@ -1,0 +1,46 @@
+{
+  "actor_grant": null,
+  "issuer": "Root",
+  "overlay": {
+    "bytes": 128122880,
+    "ctime_ns": 1794911607909042792,
+    "dev": 54,
+    "gid": 1000,
+    "inode": 81575480,
+    "mode": 420,
+    "mtime_ns": 1794911607909042792,
+    "nlink": 1,
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-perl-initialized-FIRST-trial-r4/boot-output/overlay.qcow2",
+    "sha256": "02a36e9b3ccecccb42b2c2275606351bb7b29b9c1148f38b9f8c962f99830c61",
+    "uid": 1000
+  },
+  "r91_baseline": {
+    "bytes": 1610612736,
+    "ctime_ns": 1794903335684018866,
+    "dev": 54,
+    "gid": 1000,
+    "inode": 81103122,
+    "mode": 384,
+    "mtime_ns": 1794903335684018866,
+    "nlink": 1,
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-perl-initialized-FIRST-trial-r3/prepare-output/guest.raw",
+    "sha256": "49da69b9262e089e08aa84063ed14ca13e66189f9c1e396616ab5f5cb5e24b81",
+    "uid": 1000
+  },
+  "r94_prepared_backing": {
+    "bytes": 1610612736,
+    "ctime_ns": 1794911192904100751,
+    "dev": 54,
+    "gid": 1000,
+    "inode": 81574558,
+    "mode": 384,
+    "mtime_ns": 1794911192904100751,
+    "nlink": 1,
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-perl-initialized-FIRST-trial-r4/prepare-output/guest.raw",
+    "sha256": "d076fdddccba9c65daf5cc795a9472058d8978f9a76d15b8bf8a06285124986e",
+    "uid": 1000
+  },
+  "request": null,
+  "runtime_profile": null,
+  "status": "OPAQUE_INPUT_SELECTION_ONLY_ACTOR_UNISSUED"
+}
