@@ -1,0 +1,14 @@
+{
+  "authentication": "whole SHA256 verified; upstream signature NOT_ESTABLISHED",
+  "bytes": 244705,
+  "commit": "472c417005c2c71b8617de4f7b8d6b30411d78f4",
+  "commit_date": "2026-04-20T11:43:40Z",
+  "filename": "md4c-472c417005c2c71b8617de4f7b8d6b30411d78f4.tar.gz",
+  "license": "MIT; upstream LICENSE.md retained verbatim",
+  "repository": "https://github.com/mity/md4c",
+  "sha256": "ecbd85292465df929839897e314d809b5c8b267e20c4e5e24d51a1602d16d99a",
+  "source_date_epoch": 1776685420,
+  "tag": "release-0.5.3",
+  "tag_object": "093c3f45ce44bd6661849982b1dd7f0e7f385621",
+  "url": "https://codeload.github.com/mity/md4c/tar.gz/472c417005c2c71b8617de4f7b8d6b30411d78f4"
+}

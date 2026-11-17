@@ -1,0 +1,125 @@
+{
+  "architecture": "x86_64",
+  "build": "CMake commands matching recipe, with parallel=2",
+  "builds": 2,
+  "environment": {
+    "CFLAGS": "-O2",
+    "LC_ALL": "C",
+    "LDFLAGS": "-Wl,-z,relro,-z,now",
+    "SOURCE_DATE_EPOCH": "1776685420",
+    "TZ": "UTC"
+  },
+  "evidence": "work/md4c053-source-DATA-20261117-r1/host-pair/{commands.DATA.json,RESULT.DATA.json,a/*.log,b/*.log}",
+  "host": {
+    "cmake": "4.3.3",
+    "compiler": "GCC 16.2.1 20260810",
+    "ninja": "1.13.2",
+    "pkgconf": "3.0.7"
+  },
+  "independent_clean_build_environments": false,
+  "independent_clean_source_build_directories": true,
+  "installed_payloads_identical": true,
+  "makepkg_package_created": false,
+  "native_aarch64": "NOTRUN",
+  "payload": {
+    "usr/bin/md2html": {
+      "bytes": 25840,
+      "mode": 493,
+      "sha256": "d0f24ae0a8757c66c85b09aa1d4176f9e7052925a0c0093093fe3debe0fd7f29",
+      "type": "file"
+    },
+    "usr/include/md4c-html.h": {
+      "bytes": 2511,
+      "mode": 420,
+      "sha256": "e29c5e190884b2e36c5f2131b880b52ab0556091374cd3a3133145d0aa224814",
+      "type": "file"
+    },
+    "usr/include/md4c.h": {
+      "bytes": 15350,
+      "mode": 420,
+      "sha256": "4efd19bf7ec270691d5b4189f496886e421768a814b5e817eb945aa85e859f18",
+      "type": "file"
+    },
+    "usr/lib/cmake/md4c/md4cConfig-release.cmake": {
+      "bytes": 1310,
+      "mode": 420,
+      "sha256": "7dd5bd3a4f39e0fa6a159d38f1fe4ee649c5ca91e4cd3669816c33d0a70def8b",
+      "type": "file"
+    },
+    "usr/lib/cmake/md4c/md4cConfig.cmake": {
+      "bytes": 4709,
+      "mode": 420,
+      "sha256": "1a0fdea9e6d79a79edb7121dc63ebdf13d772d1ee398b150f4a119c95a3687f8",
+      "type": "file"
+    },
+    "usr/lib/libmd4c-html.so": {
+      "target": "libmd4c-html.so.0",
+      "type": "symlink"
+    },
+    "usr/lib/libmd4c-html.so.0": {
+      "target": "libmd4c-html.so.0.5.3",
+      "type": "symlink"
+    },
+    "usr/lib/libmd4c-html.so.0.5.3": {
+      "bytes": 126968,
+      "mode": 493,
+      "sha256": "ab94951aaa53ac28f633a32ede3c8f58d2809d0892e2fcdeccace8be5d25cb26",
+      "type": "file"
+    },
+    "usr/lib/libmd4c.so": {
+      "target": "libmd4c.so.0",
+      "type": "symlink"
+    },
+    "usr/lib/libmd4c.so.0": {
+      "target": "libmd4c.so.0.5.3",
+      "type": "symlink"
+    },
+    "usr/lib/libmd4c.so.0.5.3": {
+      "bytes": 96416,
+      "mode": 493,
+      "sha256": "e665d914a47ce4e64ea8c2cd4b8f6e4f9b3533a018cdafbb1a74d73ad046d6cc",
+      "type": "file"
+    },
+    "usr/lib/pkgconfig/md4c-html.pc": {
+      "bytes": 263,
+      "mode": 420,
+      "sha256": "1570a859a43b09806d9ed4fa4740fdfa5c1c25864b57fd8f5198869b8a1f753e",
+      "type": "file"
+    },
+    "usr/lib/pkgconfig/md4c.pc": {
+      "bytes": 251,
+      "mode": 420,
+      "sha256": "461a9249f157a890d00c0845d3018cf29a05ae2baa37deab17cb6554c3a2ead7",
+      "type": "file"
+    },
+    "usr/share/licenses/md4c/LICENSE.md": {
+      "bytes": 1096,
+      "mode": 420,
+      "sha256": "d30937367d5413e7eaa218b1640b8946ff76fd34d97152f6979fd96169d5d0fc",
+      "type": "file"
+    },
+    "usr/share/man/man1/md2html.1": {
+      "bytes": 1817,
+      "mode": 420,
+      "sha256": "69432b4f1588ff4a92e36a83b13730690edfbb0ac22ace9f846289b7358a681e",
+      "type": "file"
+    }
+  },
+  "recipe_phases_executed": [
+    "check",
+    "package"
+  ],
+  "signing": "NOTRUN",
+  "source_date_epoch": 1776685420,
+  "source_signature_authentication": "NOT_ESTABLISHED",
+  "staged_smoke": "CLI/version/output, SONAMEs/symlinks, pkg-config, C parser+render, CMake consumer",
+  "status": "HOST_ONLY_TWO_CLEAN_DIRECTORY_BUILDS_AND_STAGED_RECIPE_PHASES_PASS",
+  "system_installation": false,
+  "upstream_cases_per_build": {
+    "commonmark": 652,
+    "errored": 0,
+    "failed": 0,
+    "regressions": 65,
+    "skipped": 0
+  }
+}
