@@ -76,3 +76,12 @@ genuine unchanged Source65 ALPM ownership/provider and preservation functions;
 verified r74 metadata binding and r72/cold refusal; no-private-child inventory
 race model; unissued-declaration refusal. No actual raw image, credential,
 keyhome, actor/VM, network, lock/custody or fresh Root authority was accessed.
+
+Portable source-only CI uses the committed immutable Source65 copy in
+`arm16k_warm_control/source/arm16k_perl5423_vm` and minimal historical r74/r72/
+cold metadata projections embedded in test_policy.py with whole-original pins.
+Those projections are regression DATA, not complete certificates or new Root
+authority. The 13 policy and five SSH tests use no local artifact directory.
+This test/README source-lock update does not alter operational modules or
+templates. The separate frozen f51c/ead107 full-scan private packet remains
+unchanged; no new lock is substituted there and no acceptance carries forward.
