@@ -1,0 +1,110 @@
+{
+  "Root_grants": null,
+  "actual": {
+    "approval": null,
+    "artifact": null,
+    "image": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "constructor_files": {
+    "PROJECT_TEST_PROVIDER_HANDOFF.md": {
+      "bytes": 1909,
+      "mode": 420,
+      "sha256": "6b1d4fc8b6e98ec9e7b56c686b7b434660bb3d45b8b23f86452034f9fbb30a49"
+    },
+    "README.md": {
+      "bytes": 6382,
+      "mode": 420,
+      "sha256": "d09178ff81eb69e08b44797e8afb3fd11ecfbb037ce34ef8de3be31d6dd8c5bb"
+    },
+    "Root-admission.TEMPLATE.json": {
+      "bytes": 14249,
+      "mode": 420,
+      "sha256": "8a564c2a68afd400abf746b8c600620a1a7fec18a814357dd2ba7107ff01074d"
+    },
+    "delta.py": {
+      "bytes": 4545,
+      "mode": 420,
+      "sha256": "f032c22aeb05beeac8749289be39db4032d7da66c49c02e7df0d4ea5e1170b4f"
+    },
+    "dependency-policy.TEMPLATE.json": {
+      "bytes": 574,
+      "mode": 420,
+      "sha256": "5268a4cdfffcbe1846dfa67c640b9a3975d3a1676f7beba95b1849595f4902e1"
+    },
+    "fixtures/parent350.ACTUAL367.lock": {
+      "bytes": 6845,
+      "mode": 420,
+      "sha256": "60554bd6189cf253a90c8a58271f74a3c8434d4c23c8e65380ef77d552608061"
+    },
+    "fixtures/public-failure.ACTUAL367.json": {
+      "bytes": 2912,
+      "mode": 420,
+      "sha256": "23ddd9727f6f6e43bd42ec1ee48daf88d94dcb53417b0cb713c9b9c98263c89d"
+    },
+    "payload/actor/qualify.py": {
+      "bytes": 14490,
+      "mode": 420,
+      "sha256": "12094e033881ed3daf3eb33a224b363e274b6d769bd24528b35ff280178a0b73"
+    },
+    "payload/hosted/bootstrap.py": {
+      "bytes": 32404,
+      "mode": 420,
+      "sha256": "ebaa47429768dc619b5d0424a358316a77586b978638c04fa245df25f98d044c"
+    },
+    "payload/hosted/build_dependencies.py": {
+      "bytes": 20374,
+      "mode": 420,
+      "sha256": "ba8aaf5b89c5fa318ce1595bbb486edec270b8e0f4ea71975c42a0f70046e882"
+    },
+    "payload/hosted/qualification.py": {
+      "bytes": 24731,
+      "mode": 420,
+      "sha256": "118eaa9ef06397c69bf36d6f515423c4f4d16b0cde969a38c6ec7ee00c998744"
+    },
+    "prepare.py": {
+      "bytes": 8781,
+      "mode": 420,
+      "sha256": "20fcecb5c90ac5d57a97cf906a7bf73592cf2b8c51d8bb6140bd701ddc514058"
+    },
+    "seal.py": {
+      "bytes": 2045,
+      "mode": 420,
+      "sha256": "b3d62aed5831acb05916510740d8c3867db3d153f9d74cdeb7575b91be04d056"
+    },
+    "test_data.py": {
+      "bytes": 7393,
+      "mode": 420,
+      "sha256": "7005629857f57886690e6e8c429d62914348ce0efec1e386436888edc6fe2a43"
+    },
+    "test_dependencies.py": {
+      "bytes": 15408,
+      "mode": 420,
+      "sha256": "99ef3191a52d5a8c6c7e352ee2a88f5c368e96b1d547bc454fafc4546291f5f6"
+    },
+    "test_qualification.py": {
+      "bytes": 4760,
+      "mode": 420,
+      "sha256": "f646fffa11756a7e35ee1cff7065ae657c28bc1b0ed1500ec84ad380fb7d5300"
+    }
+  },
+  "constructor_profile": null,
+  "dispatch": null,
+  "native": "NOT RUN",
+  "official_recipe_correspondence": "HOLD",
+  "parent": {
+    "bytes": 43757093,
+    "files": 367,
+    "map_sha256": "189430cae42422e8f50d8de38a41976d87a8b4a0fcec527a3949d6031eccc2f6",
+    "tree": "f846369139e03239d500cb737092b5eeb358c260"
+  },
+  "runtime_library_load": "NOT RUN",
+  "schema": 18,
+  "signed_dependency_policy": "HOLD",
+  "source_identity": null,
+  "status": "HOLD_PROPOSAL_SEALED_DATA_ONLY",
+  "unadmitted": true
+}
