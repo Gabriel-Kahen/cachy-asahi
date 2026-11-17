@@ -1,0 +1,36 @@
+{
+  "M2": null,
+  "Root_acceptance": null,
+  "Root_authority": null,
+  "Source65_private_inode_guard": "HOLD_UNCHANGED",
+  "VM": null,
+  "actual_after_body": null,
+  "auxcomparison": "NOT_ACCEPTED_WITHOUT_REAL_AFTER_BODY_AND_QUALIFICATION",
+  "expected": {
+    "canonical": {
+      "bytes": 11373,
+      "sha256": "101a81b8720aeb3f5994f133226c19f06a3b9073d51cee7d419c2ceb96184f1d"
+    },
+    "records": 190
+  },
+  "fixture": {
+    "bytes": 12313,
+    "path": "scripts/integration/arm16k_perl_auxcache_semantics/baseline-aux.ACTUAL.bin",
+    "sha256": "bf57218ea22ca530decf18bf8ec548c22ec96afb0afc423088a97fbb148149ed"
+  },
+  "kind": "AUTHORIZED_PUBLIC_AUXILIARY_BASELINE_CI_PROVENANCE_V1",
+  "lifecycle_acceptance": null,
+  "origin": {
+    "Raw_read": false,
+    "description": "Root-designated actual public baseline auxiliary cache; system library facts only",
+    "fixture_reused_from_exact_author_history": true,
+    "fresh_guest_observation_here": false,
+    "member": "actor-output/decoder-output/baseline-aux.bin",
+    "other_Root_records_copied": false,
+    "trial": "Root-perl-restored-cache-observation-trial-r1"
+  },
+  "release": null,
+  "schema": 1,
+  "selection": "UNSELECTED",
+  "source_author": "4bf08adaf1986e87a814c5c453fedad9f2b701f4"
+}
