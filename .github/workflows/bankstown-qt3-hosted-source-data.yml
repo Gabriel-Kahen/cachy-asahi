@@ -54,28 +54,29 @@ jobs:
           python3 -I -B -Werror scripts/ci/bankstown-qt3-hosted-v1/test_hosted.py
           python3 -I -B -Werror scripts/ci/bankstown-qt3-hosted-v1/test_inputs.py
           python3 -I -B -Werror scripts/ci/bankstown-qt3-hosted-v1/test_prepare.py
+          python3 -I -B -Werror scripts/ci/bankstown-qt3-hosted-v1/test_prepare_dispatch.py
       - name: Check portable thin Reader composition controls
         run: |
           ulimit -v 524288
           python3 -I -B -Werror scripts/ci/bankstown-qt3-hosted-reader-v1/test_inputs.py
           python3 -I -B -Werror scripts/ci/bankstown-qt3-hosted-reader-v1/test_result.py
-      # Root-selected immutable Source78 CID: NULL. No placeholder checkout/ref.
-      # After actual publication/selection, a separately reviewed files-only
-      # export must enable producer Genuine(1) and Reader GenuineSource78(10).
-      # Fixed Source78 itself lacks the native dispatch workflow; DATA controls
-      # do not register a workflow ID, grant authority or enable native actors.
+      # Root-selected immutable dispatch Source CID: NULL. No placeholder ref.
+      # After Source79 publication/selection, a separately reviewed files-only
+      # export and exact inverse can enable the genuine Source78/72 controls.
+      # Source79 includes the exact workflow; Source78 remains immutable/held.
+      # Neither DATA generation registers an ID, grants authority or runs actors.
       - name: Report configured coverage and pending immutable Source selection
         if: always()
         run: |
           cat >> "$GITHUB_STEP_SUMMARY" <<'SUMMARY'
-          Configured per Python: producer 18 hosted +13 inputs +13 prepare controls
-          (12 portable prepare +1 explicit optional genuine-Source72 skip),
-          plus 11 Reader input +12 Reader result controls.
+          Configured per Python: producer 18 hosted +13 inputs +13 prepare controls,
+          plus 10 dispatch-constructor controls and 11+12 portable Reader controls.
 
-          Expected successful default run: 66 PASS, 1 SKIP per Python.
-          Root-selected immutable Source78 CID is NULL: 10 genuine Source78 Reader
-          controls and the genuine producer check remain pending publication and
-          explicit immutable checkout registration. No synthetic fixture/CID is used.
-          Source78 native dispatch remains HELD because its fixed tree omits the
-          workflow leaf; complete773 custody and all native acceptance remain unbound.
+          Expected successful default run: 75 PASS, 2 SKIP per Python.
+          The two optional genuine producer checks and 10 genuine Source78 Reader
+          controls remain pending an actual immutable Source CID and files-only
+          export/inverse registration. No synthetic fixture/CID is used.
+          Source79 contains the exact dispatch workflow and preserves Source78 via
+          full inverse. Source78 itself remains held; Source79 qualification,
+          complete773 custody and all native authority/acceptance remain separate.
           SUMMARY
