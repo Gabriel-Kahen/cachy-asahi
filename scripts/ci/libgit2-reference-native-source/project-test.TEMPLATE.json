@@ -1,5 +1,6 @@
 {
   "actual": "UNBOUND; template confers no Root acceptance",
+  "consumer_root": null,
   "expected": {
     "arch": "aarch64",
     "filename": "cachy-asahi-llhttp-reference-9.3.1-1-aarch64.pkg.tar.xz",
@@ -18,6 +19,7 @@
       "signature": null,
       "signing_receipt": null
     },
+    "signing_fingerprint": null,
     "source": {
       "recipe_commit": "7e4d4ce45b19e45b6241af6f4fd787e67a1cdf18",
       "recipe_origin": "ORIGINAL_PROJECT_RECIPE_NOT_ALARM_BINARY_CORRESPONDENCE",

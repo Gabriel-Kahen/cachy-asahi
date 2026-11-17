@@ -72,7 +72,7 @@ def audit_adapter(native,raw):
 def verify_source(root,expected):
     root=ordinary(root);path=root/PREFIX/'source-map.json';raw=read(path)
     need(re.fullmatch('[0-9a-f]{64}',expected or '')and pin(raw)['sha256']==expected,'independent complete Source map SHA-256 required')
-    value=json.loads(raw);need(value['kind']=='LIBGIT2_REFERENCE_MINIMAL_HOSTED_SOURCE_MAP_V1'and 20<len(value['files'])<64,'finite libgit2 reference Source closure')
+    value=json.loads(raw);need(value['kind']=='LIBGIT2_REFERENCE_MINIMAL_HOSTED_SOURCE_MAP_V1'and 20<len(value['files'])<256,'finite libgit2 reference Source closure')
     actual={str(p.relative_to(root))for p in root.rglob('*')if p.relative_to(root).parts[0]!='.git'and(p.is_file()or p.is_symlink())}
     need(actual==set(value['files'])|{str(path.relative_to(root))},'complete closed Source namespace')
     need(all(v is None for v in value['actual'].values()),'prospective Source actuals remain null')

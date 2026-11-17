@@ -151,9 +151,9 @@ def retain(out):
 def execute(root,output,map_sha,admission,runtime):
     profile=C.load(HERE/'profile.json');C.verify_source(root,map_sha);nonce=C.admitted(admission,runtime,map_sha,os.environ,profile)
     T=C.module(HERE/'project_test.py','libgit2_project_test_runtime');X=C.module(HERE/'dependency.py','libgit2_dependency_runtime')
-    binding=C.load(HERE/'project-test.json');paths={key:HERE/'project-test'/binding['paths'][key] for key in T.KEYS}
+    binding=C.load(HERE/'project-test.json');paths={key:HERE/('dependency-evidence' if key=='native_receipt' else 'project-test')/binding['paths'][key] for key in T.KEYS}
     authorization={key:admission[key] for key in ('project_test_tuple_sha256','project_test_root_receipt_sha256')}
-    metadata=T.validate_tuple(paths,binding['expected'],authorization=authorization)
+    metadata=T.validate_compatible_tuple(paths,binding['expected'],authorization=authorization,consumer_root=HERE/'consumer-v1')
     C.need(all(binding[k]==authorization[k] for k in authorization),'exact exported dependency and runtime binding')
     output=C.ordinary(output);observed=resource_observation(profile,output.parent);C.need(not output.exists()and root not in output.parents,'new disjoint native operation output')
     os.umask(0o077);output.mkdir(mode=0o700);(output/'consumed.json').write_text(json.dumps(dict(nonce=nonce,source=admission['source'],admission=C.pin(json.dumps(admission,sort_keys=True).encode())))+'\n')

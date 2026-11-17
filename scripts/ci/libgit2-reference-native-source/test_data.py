@@ -43,6 +43,12 @@ def pin(raw):return dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())
 def write(path,value):
     path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(value if isinstance(value,bytes) else encoded(value));path.chmod(0o644)
 
+def compatible_fixture(test,root):
+    consumer=os.environ.get('LIBGIT2_CONSUMER_ROOT')
+    if not consumer:test.skipTest('set LIBGIT2_CONSUMER_ROOT for immutable consumer interoperability DATA')
+    I=module(HERE/'test_interop.py','libgit2_complete_consumer_model')
+    return I.fixture(root,Path(consumer)),Path(consumer)
+
 def elf_bytes(soname='libgit2.so.1.9',needed=None,align=65536):
     if needed is None:needed=['libc.so.6','libcrypto.so.3','libllhttp.so.9.3','libpcre2-8.so.0','libssh2.so.1','libssl.so.3','libz.so.1']
     raw=bytearray(2048);raw[:6]=b'\x7fELF\x02\x01';struct.pack_into('<HH',raw,16,3,183);struct.pack_into('<Q',raw,32,64);struct.pack_into('<HH',raw,54,56,2)
@@ -129,10 +135,15 @@ class SourceControls(unittest.TestCase):
         recipe=os.environ.get(RECIPE_ENV);archive=os.environ.get(ARCHIVE_ENV)
         if not(recipe and archive):self.skipTest('set exact external original recipe/archive DATA paths')
         with tempfile.TemporaryDirectory(prefix='libgit2-Source-MODEL-',dir='/home/gabe') as name:
-            root=Path(name);paths,expected,_=ProjectTestControls.model_tuple(self,root/'MODEL-operands');source=root/'MODEL-Source'
-            result=P.construct(ROOT,Path(recipe),Path(archive),source,dependency_paths=paths,dependency_expected=expected)
+            root=Path(name);f,consumer=compatible_fixture(self,root/'MODEL-operands');paths,expected=f.paths,f.expected;source=root/'MODEL-Source'
+            result=P.construct(ROOT,Path(recipe),Path(archive),source,dependency_paths=paths,dependency_expected=expected,consumer_root=consumer)
             self.assertEqual(result['files'],len([p for p in source.rglob('*') if p.is_file()]));self.assertLess(result['bytes'],40*1024**2);self.assertEqual(result['native_build'],'NOT RUN');self.assertTrue(all(v is None for v in result['actual'].values()))
             D.source(source,result['source_map']['sha256']);P.C.verify_source(source/'held-source',json.loads((source/D.PREFIX/'base-binding.json').read_bytes())['map']['sha256'])
+            held=source/'held-source'/P.BASE;binding=json.loads((held/'project-test.json').read_bytes())
+            copied=module(held/'project_test.py','libgit2_copied_consumer_tuple')
+            copied_paths={key:held/('dependency-evidence' if key=='native_receipt' else 'project-test')/binding['paths'][key] for key in copied.KEYS}
+            joined=copied.validate_compatible_tuple(copied_paths,binding['expected'],consumer_root=held/'consumer-v1')
+            self.assertFalse(joined['admitted']);self.assertEqual(joined['tuple_sha256'],binding['project_test_tuple_sha256']);self.assertEqual(joined['consumer']['row'],pin(f.A.encode(f.row)))
             admission=D.read(HERE/'owner/admission.TEMPLATE.json');runtime=D.read(HERE/'owner/runtime.TEMPLATE.json')
             with self.assertRaisesRegex(ValueError,'actual Root issuance'):
                 D.admission(source,result['source_map']['sha256'],admission,runtime,pin(admission)['sha256'],pin(runtime)['sha256'],{},0)
@@ -279,10 +290,10 @@ class DependencyPlanControls(unittest.TestCase):
 
     def test_model_offline_required_signature_plan_only(self):
         with tempfile.TemporaryDirectory(prefix='libgit2-plan-MODEL-',dir='/home/gabe') as name:
-            root=Path(name);paths,expected,authorization=ProjectTestControls.model_tuple(self,root/'operands')
+            root=Path(name);f,consumer=compatible_fixture(self,root/'operands');paths,expected,authorization=f.paths,f.expected,f.authorization
             # A matching MODEL authorization exercises DATA generation only. The
             # audit fence forbids executing this inert Docker/GPG/pacman source.
-            metadata=T.validate_tuple(paths,expected,authorization);self.assertEqual(metadata['crypto'],'NOT RUN')
+            metadata=T.validate_compatible_tuple(paths,expected,authorization,consumer_root=consumer);self.assertEqual(metadata['crypto'],'NOT RUN')
             plan=DEP.prepare_context(metadata,paths,ROOT/'scripts/ci/hyprland03-native-source-v1/fixtures/expected349.lock','sha256:'+'b'*64,root/'context',nonce='a'*32)
             self.assertEqual(plan['status'],'ROOT_BOUND_DATA_PLAN_ONLY');command=plan['build_command'];self.assertEqual(command[:2],['/usr/bin/docker','build']);self.assertIn('--network=none',command);self.assertIn('--pull=false',command);self.assertIn('--platform=linux/arm64',command)
             for item in ('--memory=4294967296','--memory-swap=4294967296','--cpu-period=100000','--cpu-quota=400000'):self.assertIn(item,command)
@@ -298,8 +309,9 @@ class DependencyPlanControls(unittest.TestCase):
             # Fully synthetic verifier MODEL, never actual runtime evidence.
             manifest=plan['manifest'];custody=dict(paths=349,payload_bytes=349,sha256='d'*64);trust=pin(b'MODEL official trust bytes')
             evidence=dict(MODEL=True,schema=1,status='PROJECT_TEST_DEPENDENCY_INSTALLED',test_only=True,tuple_sha256=plan['tuple_sha256'],root_receipt=manifest['root_receipt'],crypto='GPG_VALIDSIG',fingerprint=manifest['fingerprint'],primary_fingerprint=manifest['fingerprint'],signer_fingerprint=manifest['fingerprint'],trust_keyring=DEP.KEYRING,official_trust_before=trust,official_trust_after=trust,inventory_before=manifest['expected349'],inventory_after=manifest['expected350'],official_key_overlap=False,official_key_count=1,test_key_fingerprints=[manifest['fingerprint']],provider_before=custody,provider_after=custody,database_before=custody,database_after=custody,package=manifest['copies'][manifest['package']],signature=manifest['copies'][manifest['signature']],public_key=manifest['copies']['public_key'],transaction=['/usr/bin/pacman','--config','/project-test-input/pacman-project-test.conf','--gpgdir',DEP.KEYRING,'-U','--noconfirm','/project-test-input/'+manifest['package']])
+            evidence.update(installed_providers=manifest['providers'],loader='LLHTTP_PROJECT_TEST_RTLD_NOW_PASSED')
             inventory=(context/'expected350.lock').read_bytes();model_result=DEP.verify_result(plan,'sha256:'+'c'*64,inventory,encoded(evidence));self.assertEqual(model_result['package_count'],350);self.assertEqual(model_result['M2'],'NOT RUN');self.assertEqual(model_result['release'],'NOT ADMITTED')
-            mutations=dict(official_key_overlap=True,official_key_count=0,test_key_fingerprints=[],provider_after=dict(custody,sha256='e'*64),database_after=dict(custody,sha256='e'*64),official_trust_after=pin(b'changed MODEL trust'),crypto=None,primary_fingerprint='B'*40,transaction=evidence['transaction']+['--nodeps'])
+            mutations=dict(official_key_overlap=True,official_key_count=0,test_key_fingerprints=[],provider_after=dict(custody,sha256='e'*64),database_after=dict(custody,sha256='e'*64),official_trust_after=pin(b'changed MODEL trust'),crypto=None,primary_fingerprint='B'*40,transaction=evidence['transaction']+['--nodeps'],installed_providers={},loader='NOT RUN',signer_fingerprint='B'*40)
             for key,value in mutations.items():
                 wrong=copy.deepcopy(evidence);wrong[key]=value
                 with self.subTest(model_evidence=key),self.assertRaises(ValueError):DEP.verify_result(plan,'sha256:'+'c'*64,inventory,encoded(wrong))

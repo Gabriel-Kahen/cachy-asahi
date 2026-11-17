@@ -8,6 +8,7 @@ package, key, signature or acceptance is supplied by this module.
 """
 import hashlib
 import io
+import importlib.util
 import json
 import lzma
 import os
@@ -44,6 +45,14 @@ def pin(raw):
 
 def canonical(value):
     return (json.dumps(value, sort_keys=True, separators=(',', ':'), ensure_ascii=True) + '\n').encode('ascii')
+
+
+def tuple_binding(actual, expected):
+    value = {'schema': 1, 'kind': KIND, 'source': expected['source'], 'license': expected['license'],
+             'fingerprint': expected['fingerprint'], 'operands': {k: actual[k] for k in KEYS[:-1]}}
+    if 'signing_fingerprint' in expected:
+        value['signing_fingerprint'] = expected['signing_fingerprint']
+    return value
 
 
 def read(path, cap=1024**2):
@@ -144,9 +153,12 @@ def validate_tuple(paths, expected=None, authorization=None):
     need(Path(paths['package']).name == expected['filename']
          and Path(paths['signature']).name == expected['filename'] + '.sig', 'exact project XZ package/detached signature basenames')
     key = raw['public_key'].strip()
-    need(key.startswith(b'-----BEGIN PGP PUBLIC KEY BLOCK-----\n')
-         and key.endswith(b'-----END PGP PUBLIC KEY BLOCK-----')
-         and b'PRIVATE KEY' not in key and b'SECRET KEY' not in key, 'public-only PROJECT TEST armored key DATA')
+    # Legacy DATA controls retain armor inspection. Executable admission below
+    # requires the consumer's immutable binary-v4 public packet predicates.
+    need((key.startswith(b'-----BEGIN PGP PUBLIC KEY BLOCK-----\n')
+          and key.endswith(b'-----END PGP PUBLIC KEY BLOCK-----')
+          and b'PRIVATE KEY' not in key and b'SECRET KEY' not in key)
+         or (key and key[0] & 128 and not key.startswith(b'-----')), 'bounded public PROJECT TEST key DATA')
     need(16 <= len(raw['signature']) <= 16384, 'bounded detached PROJECT TEST signature DATA')
     package = package_data(raw['package'], expected)
     native, signing, root = (load(raw[k]) for k in ('native_receipt', 'signing_receipt', 'root_receipt'))
@@ -158,8 +170,7 @@ def validate_tuple(paths, expected=None, authorization=None):
          and signing.get('fingerprint') == fingerprint
          and all(signing.get(k) == actual[k] for k in ('package', 'signature', 'public_key', 'native_receipt')),
          'exact native package/public TEST key/signing receipt binding')
-    binding = {'schema': 1, 'kind': KIND, 'source': expected['source'], 'license': expected['license'],
-               'fingerprint': fingerprint, 'operands': {k: actual[k] for k in KEYS[:-1]}}
+    binding = tuple_binding(actual, expected)
     digest = pin(canonical(binding))['sha256']
     need(root.get('accepted') is True and root.get('issued_by') == 'Root' and root.get('scope') == KIND
          and root.get('tuple_sha256') == digest, 'Root receipt must bind this exact PROJECT TEST tuple')
@@ -171,3 +182,22 @@ def validate_tuple(paths, expected=None, authorization=None):
     return {'schema': 1, 'kind': KIND, 'admitted': admitted, 'tuple_sha256': digest, 'binding': binding,
             'pins': actual, 'fingerprint': fingerprint, 'package': package, 'crypto': 'NOT RUN',
             'expected': expected, 'Root_authorization': authorization}
+
+
+def validate_compatible_tuple(paths, expected, authorization=None, *, consumer_root):
+    """Production dependency admission uses the unchanged consumer predicates.
+
+    This remains DATA: no signature math, native credit or Rust admission.
+    Missing actual external bindings cannot create an executable context.
+    """
+    need(consumer_root is not None, 'explicit immutable consumer interface root required')
+    value = validate_tuple(paths, expected, authorization)
+    need(type(expected.get('signing_fingerprint')) is str
+         and re.fullmatch('[A-F0-9]{40}', expected['signing_fingerprint']), 'explicit shared v4 signing fingerprint')
+    signing = load(read(paths['signing_receipt'], 256*1024))
+    need(signing.get('signing_fingerprint') == expected['signing_fingerprint'], 'same explicit TEST signing fingerprint receipt')
+    spec = importlib.util.spec_from_file_location('libgit2_consumer_bridge', Path(__file__).with_name('consumer_bridge.py'))
+    B = importlib.util.module_from_spec(spec); spec.loader.exec_module(B)
+    value['consumer'] = B.validate(paths, expected, Path(consumer_root), load(read(paths['native_receipt'], 256*1024)), value['package']['pkginfo'])
+    value['consumer_root'] = str(Path(consumer_root))
+    return value

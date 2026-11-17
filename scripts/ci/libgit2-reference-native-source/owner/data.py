@@ -48,7 +48,7 @@ def source(root, expected):
     need(root.is_absolute() and root == root.resolve(), 'canonical complete Source')
     body = read(root/'source-map.json'); need(pin(body)['sha256'] == expected, 'external successor map pin')
     value = decode(body); rows = value['files']
-    need(value['kind'] == 'LIBGIT2_REFERENCE_OWNED_HOSTED_SOURCE_V2' and 32 < len(rows) < 80
+    need(value['kind'] == 'LIBGIT2_REFERENCE_OWNED_HOSTED_SOURCE_V2' and 32 < len(rows) < 512
          and all(v is None for v in value['actual'].values()), 'finite prospective successor namespace')
     found = {str(p.relative_to(root)) for p in root.rglob('*') if p.relative_to(root).parts[0] != '.git'
              and (p.is_file() or p.is_symlink())}

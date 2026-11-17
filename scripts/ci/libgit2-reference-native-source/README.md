@@ -28,7 +28,7 @@ Actual dependency operands are **UNBOUND**. Construction requires six explicit
 ordinary existing DATA files: the exact original native aarch64 llhttp XZ
 package, detached signature, public PROJECT TEST key, native-pair receipt,
 offline signing receipt and Root acceptance receipt. The expected descriptor
-must contain all six byte pins, the public TEST fingerprint and the fixed
+must contain all six byte pins, the primary and signing TEST fingerprints and the fixed
 original source/license identity. `project-test.TEMPLATE.json` contains no
 usable pins or acceptance. Host unsigned packages, foreign ALARM signer data,
 different source/license/version/architecture, missing operands and changed
@@ -55,6 +55,35 @@ inventories, full original349 package-owned files and local package-database
 bytes, and signature/transaction receipts must join before either of two clean
 normal libgit2 makepkg builds. Inventory counts alone are insufficient.
 This stage is builder-only PROJECT TEST installation, not Asahi target acceptance.
+The selected provider files/aliases must also match the complete shared consumer
+inventory, and a native `RTLD_NOW|RTLD_LOCAL` llhttp load must pass before builds.
+
+## Shared consumer tuple
+
+The producer successor uses the immutable `project_test_provider_v1` interface
+at `14ddf20677652e1d4057798ddf04734924668ae9`. Its seven required helper/input
+bodies are whole-pinned by `consumer-interface-pin.json`, copied without edits
+into the closed Source, and rechecked before use. The public key is the same
+binary v4 public export accepted by that interface; primary and signing
+fingerprints are explicit. Armor is not an executable production operand.
+
+`validate_compatible_tuple` adds the unchanged consumer public-key, source,
+native-receipt and complete provider/archive validators. `native_receipt.consumer`
+contains the exact consumer row and a complete relative file/pin map rooted at
+the native receipt's parent: original recipe/source/license bytes, both full
+native build snapshots/reports/inventories and strict comparison. Those exact
+bytes enter Source. The aggregate receipt alone is insufficient. The older
+`validate_tuple` DATA parser cannot create an executable dependency context.
+
+Only two exact cardinality expressions in the consumer row-policy function are
+projected from two packages to this single llhttp row, with a whole inverse
+check. All other predicates and helper bytes stay unchanged. This does not call
+Rust admission, change its parent350 or waive its two-provider requirement.
+The producer's native llhttp evidence must retain the separate exact signed349.
+The consumer's `fed5d7c` recipe revision and original `7e4d4ce` revision name
+identical pinned recipe bytes; every original recipe leaf is still required.
+Later Rust admission needs both providers and its separate policy and loader
+qualification. No such admission or actual signature mathematics is claimed.
 
 The comparator retains whole archive, payload, PKGINFO and BUILDINFO equality.
 The finisher additionally requires both normal check phases, passed upstream
@@ -77,12 +106,16 @@ python3 -I -B scripts/ci/libgit2-reference-native-source/prepare.py \
   --archive /absolute/libgit2-1.9.7.tar.gz \
   --dependency-paths /absolute/six-operand-paths.json \
   --dependency-expected /absolute/root-reviewed-tuple-descriptor.json \
+  --consumer-root /absolute/frozen-consumer-interface-checkout \
   --output /absolute/fresh-libgit2-Source
 ```
 
 The path JSON has exactly `package`, `signature`, `public_key`, `native_receipt`,
 `signing_receipt` and `root_receipt`, each an absolute path. The expected JSON
-extends `project_test.DEFAULT_EXPECTED` with `fingerprint` and exact six `pins`.
+extends `project_test.DEFAULT_EXPECTED` with `fingerprint`, `signing_fingerprint`
+and exact six `pins`. `native_receipt.consumer.files` is a closed, bounded
+512-file/32MiB evidence selection; the complete output is bounded to512 leaves
+and128MiB. No source is extracted and no missing evidence is substituted.
 Root must separately publish/register/read back the closed Source, bind its
 whole map, supply fresh independent genuine admission/runtime and once-caller
 custody, and perform any authorized dispatch. There is no reserved Source label
@@ -97,11 +130,15 @@ bounded PIDs and physically allocated12GiB ext4 storage remain required, with
 2850/2940s. Dedicated socket/storage ownership, PID/starttime/PIDFD, natural reap,
 empty twice and retained custody remain required. Uncertain retirement HOLD.
 These are proposed admission limits, not measured native completion times.
+The inherited Docker CLI512MiB address-space failure is a known native blocker.
+This successor leaves the AS guard unchanged; Root's separately pinned finite
+Docker-only helper is still an integration prerequisite.
 
 ## Actor-fenced DATA controls
 
 ```sh
 LIBGIT2_DATA_RECIPE_ROOT=/absolute/original-recipe-checkout \
+LIBGIT2_CONSUMER_ROOT=/absolute/frozen-consumer-interface-checkout \
 LIBGIT2_DATA_ARCHIVE=/absolute/libgit2-1.9.7.tar.gz \
 LLHTTP_DATA_ARCHIVE=/absolute/llhttp-9.3.1.tar.gz \
 python3 -I -B -Werror::ResourceWarning \
@@ -120,3 +157,8 @@ constructor output checks complete namespace, pins, null actuals and custody,
 then is removed. It is never a retained real Source, Root grant, signed package
 or native runtime tuple. MODEL postcondition results are not actual build or
 dependency-installation acceptance. No model is used to fill production operands.
+
+Run `test_interop.py` separately with the same environment. Its one combined
+MODEL control invokes the unchanged consumer validators and producer dependency
+admission on the same tuple. Rehashed source/provider/native/key/inventory and
+`--nodeps` substitutions refuse. No native or crypto predicate is mocked.

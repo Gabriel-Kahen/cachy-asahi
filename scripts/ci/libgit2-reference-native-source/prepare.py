@@ -38,12 +38,13 @@ def archive_closure(raw,proof):
     C.need(members==proof['members'],'every source/license/member/mode/link byte pinned')
     return members
 
-def construct(root,recipe_root,archive_path,output,*,dependency_paths=None,dependency_expected=None):
+def construct(root,recipe_root,archive_path,output,*,dependency_paths=None,dependency_expected=None,consumer_root=None):
     root,recipe_root,archive_path,output=map(C.ordinary,(root,recipe_root,archive_path,output))
     C.need(not output.exists() and all(not output.is_relative_to(p) for p in (root,recipe_root)),'fresh disjoint Source output')
     C.need(dependency_paths is not None and dependency_expected is not None,'explicit Root-accepted PROJECT TEST llhttp tuple required; no default')
     T=C.module(HERE/'project_test.py','libgit2_project_test')
-    dependency=T.validate_tuple(dependency_paths,dependency_expected)
+    C.need(consumer_root is not None,'explicit frozen consumer interface root required')
+    dependency=T.validate_compatible_tuple(dependency_paths,dependency_expected,consumer_root=consumer_root)
     derivation=C.load(HERE/'derivation.json')
     C.need(derivation['base_commit']=='7770823e19115eeba2bbb81f1abf5643cc4258c6','exact frozen integration framework')
     for name,row in derivation['files'].items():
@@ -68,9 +69,15 @@ def construct(root,recipe_root,archive_path,output,*,dependency_paths=None,depen
     for name,row in profile['held_inputs'].items():
         body=C.read(root/row['source_path']);C.need(C.pin(body)=={k:row[k] for k in ('bytes','sha256')},'exact held framework dependency: '+name);base_bodies[BASE+name]=body
     for name,body in recipe_bodies.items():base_bodies[BASE+'recipe/'+name]=body
-    for name in ('project_test.py','dependency.py'):base_bodies[BASE+name]=C.read(HERE/name)
+    for name in ('project_test.py','dependency.py','consumer_bridge.py','consumer-interface-pin.json'):base_bodies[BASE+name]=C.read(HERE/name)
+    B=C.module(HERE/'consumer_bridge.py','libgit2_consumer_constructor');_,consumer_pin=B.interface(consumer_root)
+    for name,wanted in consumer_pin['files'].items():
+        body=C.read(Path(consumer_root)/name);C.need(C.pin(body)==wanted,'unchanged frozen consumer helper custody');base_bodies[BASE+'consumer-v1/'+name]=body
+    evidence_root=Path(dependency_paths['native_receipt']).parent
+    for name,wanted in dependency['consumer']['files'].items():
+        body=C.read(evidence_root/name);C.need(C.pin(body)==wanted,'complete source/native dependency evidence custody');base_bodies[BASE+'dependency-evidence/'+name]=body
     operand_names={name:(dependency_expected['filename'] if name=='package' else dependency_expected['filename']+'.sig' if name=='signature' else name) for name in T.KEYS}
-    for name,path in dependency_paths.items():base_bodies[BASE+'project-test/'+operand_names[name]]=C.read(path,cap=8*1024**2)
+    for name,path in dependency_paths.items():base_bodies[BASE+('dependency-evidence/' if name=='native_receipt' else 'project-test/')+operand_names[name]]=C.read(path,cap=8*1024**2)
     dependency_record=dict(paths=operand_names,expected=dependency_expected,project_test_tuple_sha256=dependency['tuple_sha256'],project_test_root_receipt_sha256=dependency_expected['pins']['root_receipt']['sha256'])
     base_bodies[BASE+'project-test.json']=encoded(dependency_record)
     X=C.module(HERE/'dependency.py','libgit2_dependency')
@@ -92,7 +99,7 @@ def construct(root,recipe_root,archive_path,output,*,dependency_paths=None,depen
     bodies[OWNER+'owner-program.json']=program
     value=dict(kind='LIBGIT2_REFERENCE_OWNED_HOSTED_SOURCE_V2',files={n:dict(C.pin(b),mode=0o644) for n,b in sorted(bodies.items())},actual=dict(source=None,ref=None,run=None,job=None,Root_admission=None,runtime=None,image=None,owner_domain=None,daemon_domain=None))
     bodies['source-map.json']=encoded(value)
-    C.need(32<len(bodies)<80 and sum(map(len,bodies.values()))<40*1024**2,'finite complete libgit2 Source')
+    C.need(32<len(bodies)<512 and sum(map(len,bodies.values()))<128*1024**2,'finite complete libgit2 Source')
     output.mkdir(mode=0o700)
     for n,b in bodies.items():
         path=output/n;path.parent.mkdir(parents=True,exist_ok=True)
@@ -104,5 +111,5 @@ def construct(root,recipe_root,archive_path,output,*,dependency_paths=None,depen
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
-    for n in ('root','recipe-root','archive','output','dependency-paths','dependency-expected'):p.add_argument('--'+n,type=Path,required=True)
-    a=p.parse_args();print(json.dumps(construct(a.root,a.recipe_root,a.archive,a.output,dependency_paths={k:Path(v) for k,v in C.load(a.dependency_paths).items()},dependency_expected=C.load(a.dependency_expected)),indent=2,sort_keys=True))
+    for n in ('root','recipe-root','archive','output','dependency-paths','dependency-expected','consumer-root'):p.add_argument('--'+n,type=Path,required=True)
+    a=p.parse_args();print(json.dumps(construct(a.root,a.recipe_root,a.archive,a.output,dependency_paths={k:Path(v) for k,v in C.load(a.dependency_paths).items()},dependency_expected=C.load(a.dependency_expected),consumer_root=a.consumer_root),indent=2,sort_keys=True))

@@ -29,7 +29,7 @@ def expected350(raw349):
 
 # This is inert source DATA until the Root-admitted, supervised Docker build.
 # Every executable is an existing qualified binary inside the signed349 image.
-INSTALLER = r'''import hashlib,json,os,pathlib,stat,subprocess
+INSTALLER = r'''import hashlib,json,os,pathlib,stat,subprocess,time
 R=pathlib.Path('/project-test-input');K='/project-test-gnupg'
 M=json.loads((R/'manifest.json').read_bytes())
 def need(v,s):
@@ -103,9 +103,18 @@ valid=[x[2:] for x in lines if x[1]=='VALIDSIG']
 need(len(valid)==1 and len(valid[0]) in (9,10),'one actual cryptographically valid detached signature')
 signer=valid[0][0];primary_fingerprint=valid[0][9] if len(valid[0])==10 else signer
 need(primary_fingerprint==M['fingerprint'],'actual signature belongs to exact public PROJECT TEST key')
+need(signer==M['signing_fingerprint'],'same explicitly selected consumer signing subkey')
+need(valid[0][2].isdigit() and valid[0][3].isdigit() and int(valid[0][2])<=int(time.time()) and (int(valid[0][3])==0 or int(time.time())<int(valid[0][3])) and valid[0][7] in ('8','9','10','11'),'consumer-compatible signature lifetime/hash')
 need(any(x[1] in ('TRUST_FULLY','TRUST_ULTIMATE') for x in lines),'explicit separate PROJECT TEST trust')
 run(['/usr/bin/pacman','--config',str(R/'pacman-project-test.conf'),'--gpgdir',K,'-U','--noconfirm',str(R/M['package'])])
 run(['/usr/bin/ldconfig'])
+for name,want in M['providers'].items():
+    p=pathlib.Path('/')/name;s=p.lstat()
+    need(s.st_uid==s.st_gid==0 and stat.S_IMODE(s.st_mode)==want['mode'],'exact installed project provider ownership/mode')
+    if want['kind']=='file':need(stat.S_ISREG(s.st_mode) and pin(p.read_bytes())=={k:want[k] for k in ('bytes','sha256')},'exact installed project provider bytes')
+    else:need(stat.S_ISLNK(s.st_mode) and os.readlink(p)==want['target'],'exact installed project provider alias')
+loader=run(['/usr/bin/python3','-I','-B','-c',"import ctypes,os;ctypes.CDLL('/usr/lib/libllhttp.so.9.3',mode=os.RTLD_NOW|os.RTLD_LOCAL);print('LLHTTP_PROJECT_TEST_RTLD_NOW_PASSED')"])
+need(loader==b'LLHTTP_PROJECT_TEST_RTLD_NOW_PASSED\n','actual native RTLD_NOW|RTLD_LOCAL project provider load')
 after=run(['/usr/bin/pacman','-Q']);after=b'\n'.join(sorted(after.splitlines()))+b'\n'
 need(pin(after)==M['expected350'],'all349 providers unchanged; only pinned project llhttp added')
 provider_after=custody(owned);need(provider_after==provider_before,'all349 existing package-owned paths and bytes unchanged')
@@ -113,7 +122,7 @@ need({p.name for p in db.iterdir()}==db_names|{'cachy-asahi-llhttp-reference-9.3
 database_after=custody(db_paths);need(database_after==database_before,'all349 original local package database bytes unchanged')
 need(tree()==trust,'official349 pacman trust must remain byte-identical')
 pathlib.Path('/builder-packages.lock').write_bytes(after)
-e={'schema':1,'status':'PROJECT_TEST_DEPENDENCY_INSTALLED','test_only':True,'tuple_sha256':M['tuple_sha256'],'root_receipt':M['root_receipt'],'fingerprint':M['fingerprint'],'signer_fingerprint':signer,'primary_fingerprint':primary_fingerprint,'crypto':'GPG_VALIDSIG','trust_keyring':K,'official_key_overlap':False,'official_key_count':len(official_fingerprints),'test_key_fingerprints':sorted(test_fingerprints),'provider_before':provider_before,'provider_after':provider_after,'database_before':database_before,'database_after':database_after,'official_trust_before':trust,'official_trust_after':tree(),'inventory_before':pin(before),'inventory_after':pin(after),'package':M['copies'][M['package']],'signature':M['copies'][M['signature']],'public_key':M['copies']['public_key'],'transaction':['/usr/bin/pacman','--config',str(R/'pacman-project-test.conf'),'--gpgdir',K,'-U','--noconfirm',str(R/M['package'])]}
+e={'schema':1,'status':'PROJECT_TEST_DEPENDENCY_INSTALLED','test_only':True,'tuple_sha256':M['tuple_sha256'],'root_receipt':M['root_receipt'],'fingerprint':M['fingerprint'],'signer_fingerprint':signer,'primary_fingerprint':primary_fingerprint,'crypto':'GPG_VALIDSIG','trust_keyring':K,'official_key_overlap':False,'official_key_count':len(official_fingerprints),'test_key_fingerprints':sorted(test_fingerprints),'provider_before':provider_before,'provider_after':provider_after,'database_before':database_before,'database_after':database_after,'official_trust_before':trust,'official_trust_after':tree(),'inventory_before':pin(before),'inventory_after':pin(after),'package':M['copies'][M['package']],'signature':M['copies'][M['signature']],'public_key':M['copies']['public_key'],'transaction':['/usr/bin/pacman','--config',str(R/'pacman-project-test.conf'),'--gpgdir',K,'-U','--noconfirm',str(R/M['package'])],'installed_providers':M['providers'],'loader':'LLHTTP_PROJECT_TEST_RTLD_NOW_PASSED'}
 pathlib.Path('/project-test-evidence.json').write_text(json.dumps(e,sort_keys=True)+'\n')
 # Keep public TEST trust first-class, but no signing or private key material.
 owner.unlink()
@@ -127,7 +136,8 @@ def prepare_context(metadata, paths, expected349_path, base_image, context, *, n
     enters the official keyring; no repository, APT or dependency bypass exists.
     """
     P.need(metadata.get('admitted') is True, 'unbound PROJECT TEST dependency cannot produce an executable plan')
-    checked = P.validate_tuple(paths, metadata['expected'], metadata['Root_authorization'])
+    P.need(metadata.get('consumer',{}).get('kind')=='LLHTTP_SHARED_CONSUMER_TUPLE_DATA_V1', 'complete immutable consumer tuple predicates required before executable plan')
+    checked = P.validate_compatible_tuple(paths, metadata['expected'], metadata['Root_authorization'], consumer_root=metadata['consumer_root'])
     P.need(checked == metadata, 'exact current Root-bound dependency metadata')
     P.need(re.fullmatch(r'sha256:[0-9a-f]{64}', base_image), 'immutable actual signed349 base image')
     P.need(re.fullmatch(r'[a-f0-9]{16,64}', nonce) and attempt == 'dependency', 'finite owned dependency image identity')
@@ -145,6 +155,7 @@ def prepare_context(metadata, paths, expected349_path, base_image, context, *, n
         P.need(P.pin(raw) == metadata['pins'][key], 'stable dependency copy custody')
         (context/name).write_bytes(raw);copied[name] = P.pin(raw)
     manifest = {'schema': 1, 'tuple_sha256': metadata['tuple_sha256'], 'fingerprint': metadata['fingerprint'],
+                'signing_fingerprint': metadata['expected']['signing_fingerprint'], 'providers': metadata['consumer']['providers'],
                 'root_receipt': metadata['pins']['root_receipt'], 'copies': copied, 'package': package,
                 'signature': signature, 'expected349': P.pin(raw349), 'expected350': P.pin(raw350)}
     config = ('[options]\nArchitecture = aarch64\nSigLevel = Required TrustedOnly\n'
@@ -191,7 +202,7 @@ def verify_result(plan, image_id, inventory_raw, evidence_raw):
            and evidence.get('root_receipt') == manifest['root_receipt'], 'actual exact Root-bound PROJECT TEST installation receipt')
     P.need(evidence.get('crypto') == 'GPG_VALIDSIG' and evidence.get('fingerprint') == manifest['fingerprint']
            and evidence.get('primary_fingerprint') == manifest['fingerprint']
-           and re.fullmatch(r'(?:[A-F0-9]{40}|[A-F0-9]{64})', evidence.get('signer_fingerprint', ''))
+           and evidence.get('signer_fingerprint') == manifest['signing_fingerprint']
            and evidence.get('trust_keyring') == KEYRING, 'actual separate public TEST keyring/signature verification')
     P.need(evidence.get('official_trust_before') == evidence.get('official_trust_after')
            and type(evidence.get('official_trust_before')) is dict
@@ -211,6 +222,7 @@ def verify_result(plan, image_id, inventory_raw, evidence_raw):
     transaction = ['/usr/bin/pacman', '--config', '/project-test-input/pacman-project-test.conf', '--gpgdir', KEYRING,
                    '-U', '--noconfirm', '/project-test-input/'+manifest['package']]
     P.need(evidence.get('transaction') == transaction, 'normal offline Required TrustedOnly local pacman transaction')
+    P.need(evidence.get('installed_providers') == manifest['providers'] and evidence.get('loader') == 'LLHTTP_PROJECT_TEST_RTLD_NOW_PASSED', 'same complete installed project provider bytes/aliases and actual native loader gate')
     return {'schema': 1, 'status': 'PROJECT_TEST_DEPENDENCY_IMAGE_VERIFIED', 'test_only': True,
             'image_id': image_id, 'base_image': plan['base_image'], 'tuple_sha256': plan['tuple_sha256'],
             'inventory': P.pin(inventory_raw), 'evidence': P.pin(evidence_raw), 'package_count': 350,
