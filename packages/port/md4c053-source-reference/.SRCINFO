@@ -1,0 +1,22 @@
+pkgbase = md4c
+	pkgdesc = CommonMark parser and HTML renderer (pinned source-reference provider)
+	pkgver = 0.5.3
+	pkgrel = 1
+	url = https://github.com/mity/md4c
+	arch = aarch64
+	license = MIT
+	checkdepends = python
+	checkdepends = pkgconf
+	makedepends = cmake
+	makedepends = ninja
+	depends = glibc
+	options = !debug
+	options = !lto
+	source = md4c-472c417005c2c71b8617de4f7b8d6b30411d78f4.tar.gz::https://codeload.github.com/mity/md4c/tar.gz/472c417005c2c71b8617de4f7b8d6b30411d78f4
+	source = smoke.sh
+	source = smoke.c
+	sha256sums = ecbd85292465df929839897e314d809b5c8b267e20c4e5e24d51a1602d16d99a
+	sha256sums = b9249cc75dbd96f85947046ffc4131925f0d760e4c2bb78073e8c2b04f1e819a
+	sha256sums = 4f0dbc190dd58841cfe0a892c8927dbeee682211f0e1c01f9f31e4730edb5d17
+
+pkgname = md4c
