@@ -1,0 +1,78 @@
+{
+  "actual": {
+    "Root_acceptance": null,
+    "artifact": null,
+    "hardware": false,
+    "job": null,
+    "native": false,
+    "ref": null,
+    "release": false,
+    "run": null,
+    "source": null
+  },
+  "constructor_commit": "9e26ce819a258225cac866341e15d7099038ab9e",
+  "kind": "SOURCE205_PUBLICATION_PREPARATION_DATA_ONLY",
+  "local": {
+    "Root_authentication": false,
+    "actor_attempts": 0,
+    "constructor_inputs": "five checked fixed9e Git blobs",
+    "counts": {
+      "capture-v6": 8,
+      "ci-bootstrap": 9,
+      "constructor": 7,
+      "data-v6": 7,
+      "legacy-diagnostic": 4,
+      "reader196": 7,
+      "reader205": 10,
+      "transport": 18,
+      "unissued-once": 13
+    },
+    "genuine_basis": "existing immutable published Source196 DATA",
+    "python": "3.14.7",
+    "status": "PASS_DATA_CONTROLS",
+    "total": 83
+  },
+  "once_templates": {
+    "approved": null,
+    "authority": null,
+    "dispatch_ready": false,
+    "expires_epoch": null,
+    "issued_epoch": null,
+    "issuer": null,
+    "main_authentication": "UNVERIFIED_DATA_ONLY",
+    "nonce": null,
+    "publication_authentication": "UNVERIFIED_DATA_ONLY",
+    "route_hold": "CANONICAL_MAIN_V7_LAUNCHER_AND_WORKFLOW_ADOPTION_REQUIRED",
+    "status": "UNISSUED"
+  },
+  "schema": 1,
+  "source205": {
+    "bytes": 45962607,
+    "files": 205,
+    "profile": {
+      "bytes": 21451,
+      "sha256": "99198c00308780aaf95e803c43d01ab185b55a049731287b7644c2425dd90a12"
+    },
+    "source_map": {
+      "bytes": 40793,
+      "sha256": "a6d22a528075c11f6fa2e87d894c41e0ed31befcd17f99a8b92d6c26fccdb815"
+    },
+    "tree": "d7e48cbd6a3a638c5ecdabf8ca98a6a642dfde36"
+  },
+  "workflow": {
+    "events": [
+      "pull_request matching paths",
+      "push main matching paths",
+      "workflow_dispatch"
+    ],
+    "hosted_status": "NOT RUN",
+    "jobs": 2,
+    "path": ".github/workflows/onboarding-source205-data.yml",
+    "python": [
+      "3.12",
+      "3.14"
+    ],
+    "source205_native_cid_default": null,
+    "tests_per_job": 83
+  }
+}

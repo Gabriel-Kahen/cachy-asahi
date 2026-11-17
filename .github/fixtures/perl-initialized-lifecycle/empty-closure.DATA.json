@@ -1,0 +1,278 @@
+{
+  "M2": null,
+  "Perl_baseline_qualification": null,
+  "Perl_preservation": null,
+  "Root_acceptance": null,
+  "canonical_custody": "SAME_FD_PIDFD_REAL_NB_CLOSE_ONLY",
+  "external": {
+    "error": null,
+    "exit": 0,
+    "group_census": "EMPTY_TWICE",
+    "output_bytes": 0,
+    "output_complete": true,
+    "ownership": "REAPED",
+    "passed": true,
+    "reaped": true,
+    "seconds": 5.421363410016056,
+    "signals": [],
+    "timeout": false
+  },
+  "issuer": "Root",
+  "observed_utc": "2026-11-17T00:56:35.969690+00:00",
+  "original_raw": {
+    "bytes": 1610612736,
+    "identity": [
+      54,
+      79624740,
+      33152,
+      1000,
+      1000,
+      1,
+      1610612736,
+      1794868917874854476,
+      1794868917874854476
+    ],
+    "sha256": "f30fa96283042b12229b455fe33918facb83a0650a8e7849fcaab493dda366cb",
+    "unchanged": true
+  },
+  "outer_report": {
+    "bytes": 8961,
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-warm-perl-ssh-empty-proof-trial-r1/actor-output/records/Root-outer-result.json",
+    "sha256": "8bc0b9f23ed7ad335b5f1f55feb6f508ecb2c99931350d8b639e66e922af95ce"
+  },
+  "owned_absence_independently_verified": [
+    {
+      "argv": [
+        "/home/gabe/bin/docker",
+        "--host=unix:///run/user/1000/docker.sock",
+        "container",
+        "ls",
+        "-a",
+        "--no-trunc",
+        "--filter",
+        "label=org.cachy-asahi.warm-owner=1000",
+        "--filter",
+        "label=org.cachy-asahi.warm-nonce=4724ccee8091b48779928a68773d54d1",
+        "--filter",
+        "label=org.cachy-asahi.warm-authority=05ef338bd20c22f5fe76ddb63b6faa344f4c743bee9baea5fa04f57c740c384d",
+        "--format",
+        "{{.ID}}"
+      ],
+      "retirement": {
+        "error": null,
+        "exit": 0,
+        "group_census": "EMPTY_TWICE",
+        "output_complete": true,
+        "ownership": "REAPED",
+        "passed": true,
+        "reaped": true,
+        "seconds": 0.05833552801050246,
+        "signals": [],
+        "timeout": false
+      }
+    },
+    {
+      "argv": [
+        "/home/gabe/bin/docker",
+        "--host=unix:///run/user/1000/docker.sock",
+        "container",
+        "ls",
+        "-a",
+        "--no-trunc",
+        "--filter",
+        "name=^/cachy-warm-policy-meta-4724ccee8091b48779928a68$",
+        "--format",
+        "{{.ID}}"
+      ],
+      "retirement": {
+        "error": null,
+        "exit": 0,
+        "group_census": "EMPTY_TWICE",
+        "output_complete": true,
+        "ownership": "REAPED",
+        "passed": true,
+        "reaped": true,
+        "seconds": 0.05890663500758819,
+        "signals": [],
+        "timeout": false
+      }
+    },
+    {
+      "argv": [
+        "/home/gabe/bin/docker",
+        "--host=unix:///run/user/1000/docker.sock",
+        "container",
+        "ls",
+        "-a",
+        "--no-trunc",
+        "--filter",
+        "id=122d30e9548fcc6801036d4e1618a0565219ff9fdcd9e2fc19ffa784b398cc74",
+        "--format",
+        "{{.ID}}"
+      ],
+      "retirement": {
+        "error": null,
+        "exit": 0,
+        "group_census": "EMPTY_TWICE",
+        "output_complete": true,
+        "ownership": "REAPED",
+        "passed": true,
+        "reaped": true,
+        "seconds": 0.04897324100602418,
+        "signals": [],
+        "timeout": false
+      }
+    }
+  ],
+  "policy_exit_code": 0,
+  "policy_result": {
+    "M2": null,
+    "Perl_baseline_qualification": null,
+    "Perl_preservation": null,
+    "Root_acceptance": null,
+    "Root_authority_sha256": "0b57917a3cb977375f3dc85317ea8cee9c34c73bcd1e32f4eb9159f2f225de8a",
+    "Source65_gate": "ssh_privacy.guard_root_ssh_absence / root_ssh.descriptor / preboot.descriptor",
+    "Source65_privacy_gate": {
+      "category": "ValueError",
+      "reason": "SSH privacy protected target must be absent before inventory",
+      "status": "REFUSED"
+    },
+    "file_payload_chunks_read": false,
+    "incompatible_paths": [
+      "etc/.pwd.lock",
+      "etc/.updated",
+      "etc/audisp",
+      "etc/audit/plugins.d",
+      "etc/audit/rules.d",
+      "etc/ld.so.cache",
+      "etc/os-release",
+      "etc/udev/hwdb.bin",
+      "etc/vconsole.conf",
+      "root/.ssh"
+    ],
+    "kind": "WARM_PERL_FIXED_POLICY_PATHS_AND_SSH_EMPTY_V1",
+    "may_prepare_lifecycle": false,
+    "may_use_old_namespace_or_ownership": false,
+    "metadata_read_bytes": 48704,
+    "nonce": "4724ccee8091b48779928a68773d54d1",
+    "paths": {
+      "etc/.pwd.lock": {
+        "exists": true,
+        "gid": 0,
+        "mode": 384,
+        "type": "file",
+        "uid": 0
+      },
+      "etc/.updated": {
+        "exists": true,
+        "gid": 0,
+        "mode": 420,
+        "type": "file",
+        "uid": 0
+      },
+      "etc/audisp": {
+        "exists": true,
+        "gid": 0,
+        "mode": 493,
+        "type": "directory",
+        "uid": 0
+      },
+      "etc/audit/plugins.d": {
+        "exists": true,
+        "gid": 0,
+        "mode": 488,
+        "type": "directory",
+        "uid": 0
+      },
+      "etc/audit/rules.d": {
+        "exists": true,
+        "gid": 0,
+        "mode": 493,
+        "type": "directory",
+        "uid": 0
+      },
+      "etc/ld.so.cache": {
+        "exists": true,
+        "gid": 0,
+        "mode": 420,
+        "type": "file",
+        "uid": 0
+      },
+      "etc/os-release": {
+        "exists": true,
+        "gid": 0,
+        "mode": 511,
+        "type": "symlink",
+        "uid": 0
+      },
+      "etc/udev/hwdb.bin": {
+        "exists": true,
+        "gid": 0,
+        "mode": 292,
+        "type": "file",
+        "uid": 0
+      },
+      "etc/vconsole.conf": {
+        "exists": true,
+        "gid": 0,
+        "mode": 420,
+        "type": "file",
+        "uid": 0
+      },
+      "root/.ssh": {
+        "exists": true,
+        "gid": 0,
+        "mode": 448,
+        "type": "directory",
+        "uid": 0
+      }
+    },
+    "raw_descriptor": {
+      "bytes": 1610612736,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-warm-baseline-inputs-r1/assembly/guest.raw",
+      "sha256": "f30fa96283042b12229b455fe33918facb83a0650a8e7849fcaab493dda366cb"
+    },
+    "raw_descriptor_origin": "ROOT_SELECTED_FINALIZED_INPUT_NOT_REHASHED_BY_METADATA_COMMAND",
+    "raw_identity_unchanged": true,
+    "release": null,
+    "root_ssh_emptiness": {
+      "child_inodes_visited": 0,
+      "complete": true,
+      "directory_bytes_read": 4096,
+      "empty": true,
+      "file_payload_chunks_read": false,
+      "headers_seen": 3,
+      "inode_metadata": {
+        "gid": 0,
+        "inode": 29304,
+        "links": 2,
+        "mode": 448,
+        "mtime": 1794860505,
+        "mtime_ns": 263600768,
+        "size": 4096,
+        "type": "directory",
+        "uid": 0
+      },
+      "kind": "FIXED_ROOT_SSH_EMPTY_AGGREGATE_V1",
+      "live_entries_seen": 2,
+      "names_retained": false,
+      "non_dot_entries_seen": 0,
+      "parent_inode": 214,
+      "state": "EMPTY_DIRECTORY_METADATA_ONLY",
+      "symlink_targets_decoded": false,
+      "xattr_values_read": false
+    },
+    "source_lock": {
+      "bytes": 10598,
+      "sha256": "da1c8749a281b767f50ca696cf7818d1925aa852057d7de011b4c3ddd8eca75d"
+    },
+    "status": "INCOMPATIBLE_WITH_UNCHANGED_SOURCE65_PREBOOT_GATES",
+    "symlink_targets_decoded": false,
+    "tool_image": "sha256:52958d534193d739aeb6d3c9239ed31b97f8fb357a618e14391293068b28cd2a",
+    "xattr_values_read": false
+  },
+  "release": null,
+  "runtime": "r74",
+  "scope_collected_twice": true,
+  "status": "COMPLETE_FINITE_POLICY_METADATA_AND_CLEANUP_ONLY"
+}
