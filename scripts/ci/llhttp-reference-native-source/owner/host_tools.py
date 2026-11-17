@@ -10,9 +10,8 @@ import re
 import stat
 
 NAMES = ('systemd-run', 'systemctl', 'dockerd', 'docker', 'fallocate', 'losetup',
-         'mkfs.ext4', 'mount', 'umount', 'python3', 'gpg', 'bsdtar', 'zstd')
+         'mkfs.ext4', 'mount', 'umount', 'python3', 'gpg', 'zstd')
 CANDIDATES = {name: ('/usr/bin/'+name, '/usr/sbin/'+name) for name in NAMES}
-CI_CANDIDATES={name:('/usr/bin/'+name,) for name in ('apt-get','apt-cache','dpkg','dpkg-query')}
 MAX_BINARY = 256*1024**2
 FIELDS = ('st_dev', 'st_ino', 'st_mode', 'st_nlink', 'st_uid', 'st_gid',
           'st_size', 'st_mtime_ns', 'st_ctime_ns')
@@ -49,7 +48,7 @@ def inspect(candidate, *, root=Path('/'), trusted_uid=0):
     Operational callers use the default host root and uid 0, never input/env
     selected filesystem roots or owners.
     """
-    need(candidate in {p for rows in (*CANDIDATES.values(),*CI_CANDIDATES.values()) for p in rows}, 'fixed host tool candidate')
+    need(candidate in {p for rows in CANDIDATES.values() for p in rows}, 'fixed host tool candidate')
     root = Path(root)
     need(root.is_absolute() and root == root.resolve(), 'canonical executable observation root')
     path = root/candidate.lstrip('/')
