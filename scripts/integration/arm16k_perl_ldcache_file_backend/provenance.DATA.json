@@ -1,0 +1,34 @@
+{
+  "Root_acceptance": null,
+  "VM": null,
+  "actual_chain": {
+    "bytes": 2047,
+    "mode": 384,
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-perl-ldcache-recovery-trial-r1/actor-output/decoder-output/scan/chain.log",
+    "sha256": "22015f36053b76c295e9adcbba31c2aa6ebf94764dfe2f7fa9a21abc27fe5c60"
+  },
+  "actual_overlay_bytes": 125042688,
+  "authority": null,
+  "kind": "R89_PUBLIC_CHAIN_AND_R1_OPERAND_PINS_V1",
+  "lifecycle_acceptance": null,
+  "nonce": null,
+  "original_trial_status": "HOLD",
+  "output": null,
+  "predecessor": {
+    "observe_initialized.py": {
+      "bytes": 5179,
+      "mode": 420,
+      "sha256": "79b988dc3169d3b524fc08f61c936780ff90ee90ecc8f9aed60eb9ef888a0d6c"
+    },
+    "recovery.py": {
+      "bytes": 7058,
+      "mode": 420,
+      "sha256": "7043db0083232132cf6daeb5d6973d5f159e74644c9a5d25af0c8b884054849b"
+    }
+  },
+  "r1_seal": {
+    "bytes": 7130,
+    "sha256": "10b69c0f0465a766098c69a8862e69329ee923476d934cfaaf58c5176ef37d14"
+  },
+  "runtime_profile": null
+}
