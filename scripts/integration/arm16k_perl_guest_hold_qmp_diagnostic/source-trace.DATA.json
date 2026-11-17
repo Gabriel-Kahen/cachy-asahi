@@ -1,0 +1,223 @@
+{
+  "Root_acceptance": null,
+  "VM_acceptance": null,
+  "actual_authority": null,
+  "findings": {
+    "concrete_causal_bug": null,
+    "proven": [
+      "Original QMP socket, peer credentials, live PIDFD, start, argv and authenticated actor are checked before quit",
+      "QMP SocketIO is unbuffered; five-second quit sends exact44-byte fixed request and waits under select/recv",
+      "GuestHold interrupts journey immediately after the complete HOLD frame; no serial receive occurs in subsequent cleanup",
+      "Serial recv may append65536bytes, offset stops atmatch.end, totaltranscript capped1MiB",
+      "QEMU stdout/stderr are fresh regularfiles, not inherited pipes; no stdout-pipe backpressure mechanism is shown",
+      "Probe exits after relaying Root HOLD summary without emittinganotherPROBEframe"
+    ],
+    "unproven": [
+      "Whether the original serial socket has unread kernel bytes or userland read-ahead at actual HOLD",
+      "Whether serial backpressure, guest I/O, a QEMU thread wait, cgroup throttling or memory pressure prevents full-guest QMP progress",
+      "Whether QEMU parsed the request; outputqueue accounting is not application-byte progress"
+    ]
+  },
+  "hook_sites": [
+    {
+      "file": "controller.py",
+      "line": 260,
+      "placement": "after GuestHold failure assignment while original peer/serial objects still live, before cleanup",
+      "stage": "HOLD"
+    },
+    {
+      "file": "controller.py",
+      "line": 75,
+      "placement": "after peer.check(row), before constructing/calling existing min(end,monotonic()+5) quit deadline",
+      "stage": "BEFORE_QUIT"
+    },
+    {
+      "file": "controller.py",
+      "line": 108,
+      "placement": "normal-HOLD-retirement exception when existing qmp_quit_progress.stage==DEADLINE_EXPIRED, before forcedfallback; no RPC retry/deadline change",
+      "stage": "DEADLINE"
+    }
+  ],
+  "invariants": [
+    "No actor/VM/lease/Rootauthority/network/OriginalGET/privatehome/Raw/serialraw used by this audit",
+    "No Source339 edits",
+    "No FDreplacement/reopen/close or socket option mutation by diagnostic",
+    "Five-second quit stays unchanged; DEADLINE observation uses existing cleanup reserve after failure",
+    "Normal QEMU exit0/originalreap/EMPTY_TWICE remain required",
+    "No cause or acceptance inferred from missing snapshot/zero counter"
+  ],
+  "metadata_proposal": [
+    "Original QEMU PID/start and existing PIDFD readiness; no new process ownership",
+    "Bounded original QEMU thread states and numeric counters; no cmdline/environ/paths or thread output bodies",
+    "Original QEMU cgroup cpu.stat and fixed memory event counters only",
+    "Same original QMP/serial sockets: readiness, FIONREAD, SIOCOUTQ and buffer sizes without receive/send/SO_ERROR",
+    "Serial numeric len(data), offset, len(data)-offset only; no byte access/hash/drain/discard"
+  ],
+  "retained_evidence": {
+    "r86": {
+      "bytes": 4993,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-perl-initialized-FIRST-trial-r3/Root-boot-independent-closure-r1/Root-terminal-closure.ACTUAL.json",
+      "sha256": "ca0dfe23ef03d9910b77900bf7150f5e36c3e53bad06241e9667d7c4dfee80dc"
+    },
+    "r86_metadata": {
+      "errno": null,
+      "idle_polls": 20,
+      "io_error": "TimeoutError",
+      "reply_attempts": 0,
+      "reply_bytes": 0,
+      "request_bytes": 44,
+      "stage": "DEADLINE_EXPIRED",
+      "transport_after_write": {
+        "Root_acceptance": null,
+        "VM_acceptance": null,
+        "exceptional": false,
+        "input_queued_bytes": 0,
+        "output_kernel_accounted_bytes": 768,
+        "readable": false,
+        "receive_buffer_bytes": 212992,
+        "send_buffer_bytes": 212992,
+        "status": "SAME_FD_SOCKET_QUEUES_ONLY",
+        "writable": true
+      },
+      "transport_at_exit": {
+        "Root_acceptance": null,
+        "VM_acceptance": null,
+        "exceptional": false,
+        "input_queued_bytes": 0,
+        "output_kernel_accounted_bytes": 768,
+        "readable": false,
+        "receive_buffer_bytes": 212992,
+        "send_buffer_bytes": 212992,
+        "status": "SAME_FD_SOCKET_QUEUES_ONLY",
+        "writable": true
+      },
+      "transport_before_write": {
+        "Root_acceptance": null,
+        "VM_acceptance": null,
+        "exceptional": false,
+        "input_queued_bytes": 0,
+        "output_kernel_accounted_bytes": 0,
+        "readable": false,
+        "receive_buffer_bytes": 212992,
+        "send_buffer_bytes": 212992,
+        "status": "SAME_FD_SOCKET_QUEUES_ONLY",
+        "writable": true
+      }
+    },
+    "r88": [
+      {
+        "capabilities_ack": true,
+        "helper_progress": {},
+        "mode": "ordinary",
+        "preserved_wire_failure": {
+          "category": "ConnectionResetError",
+          "message": "[Errno 104] Connection reset by peer"
+        },
+        "quit_ack": true,
+        "receipt": {
+          "bytes": 4208,
+          "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-tiny-qmp-trial-r1/controller-output/ordinary.json",
+          "sha256": "2401c5969f099eecaf797a93703e996a247610fa51230ec4d242a2ef0bf8743a"
+        },
+        "retirement": {
+          "error": null,
+          "exit": 0,
+          "group_census": "EMPTY_TWICE",
+          "ownership": "REAPED",
+          "reaped": true,
+          "signals": [],
+          "timeout": false
+        }
+      },
+      {
+        "capabilities_ack": true,
+        "helper_progress": {
+          "idle_polls": 0,
+          "reply_attempts": 2,
+          "reply_bytes": 181,
+          "request_bytes": 44,
+          "stage": "ACKNOWLEDGED"
+        },
+        "mode": "frozen",
+        "preserved_wire_failure": {
+          "category": "ConnectionResetError",
+          "message": "[Errno 104] Connection reset by peer"
+        },
+        "quit_ack": true,
+        "receipt": {
+          "bytes": 4025,
+          "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-tiny-qmp-trial-r1/controller-output/frozen.json",
+          "sha256": "bcda8926295c7f7450da426f6738d0cda0ca5d0d85e128c2d69ac612f95a5e6e"
+        },
+        "retirement": {
+          "error": null,
+          "exit": 0,
+          "group_census": "EMPTY_TWICE",
+          "ownership": "REAPED",
+          "reaped": true,
+          "signals": [],
+          "timeout": false
+        }
+      }
+    ],
+    "r88_result": "CLOSED_LOCAL_R88_HOLD unchanged; two minimal actual ACKs do not clear Source339 fullguestnoACK"
+  },
+  "source": {
+    "actor.py": {
+      "bytes": 22885,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi-perl-observed-hold-successor-readiness-20261117-r1/constructed-source/actor.py",
+      "sha256": "9727aa3b3b2b8b5d8456eefd3b24e0ad6ad303c9a2b7644ebd89ec8ab989af87"
+    },
+    "controller.py": {
+      "bytes": 25913,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi-perl-observed-hold-successor-readiness-20261117-r1/constructed-source/controller.py",
+      "sha256": "4b6511f0cadfce2d0af9479f6aa181c7fa042b82075e6b37be5d22ed9562eeec"
+    },
+    "frozen/reference_controller.py": {
+      "bytes": 14117,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi-perl-observed-hold-successor-readiness-20261117-r1/constructed-source/frozen/reference_controller.py",
+      "sha256": "e7c8935f342d4b36bb6f8f24c0b48c3b8aa04be9807f62c3f8141aeaf26819fc"
+    },
+    "guest/installed-metadata.sh": {
+      "bytes": 12805,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi-perl-observed-hold-successor-readiness-20261117-r1/constructed-source/guest/installed-metadata.sh",
+      "sha256": "5db4bfbb965a8eeac391ff648c769fcafb16fb9366f7e8ce31d3c4975dc2d956"
+    },
+    "guest/probe.sh": {
+      "bytes": 10819,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi-perl-observed-hold-successor-readiness-20261117-r1/constructed-source/guest/probe.sh",
+      "sha256": "45573362408087ebbe41011571811145e203345d5ea8955e9f39306d80652a69"
+    },
+    "guest/root.sh": {
+      "bytes": 20266,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi-perl-observed-hold-successor-readiness-20261117-r1/constructed-source/guest/root.sh",
+      "sha256": "03d5768c6831827451f079a9a3830fb9f2e74650f00bd158c3f62c721caca198"
+    },
+    "hold_cleanup.py": {
+      "bytes": 6643,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi-perl-observed-hold-successor-readiness-20261117-r1/constructed-source/hold_cleanup.py",
+      "sha256": "918ee5d38cdcb6b042e22723145b5e8f3eff575f310f5b80be2d9b3d69aafa2a"
+    },
+    "protocol.py": {
+      "bytes": 9242,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi-perl-observed-hold-successor-readiness-20261117-r1/constructed-source/protocol.py",
+      "sha256": "3981766ebd8318f937a8d9779e4b18d8c1112e0cdbb9da23041279ab93950a82"
+    },
+    "qmp_observations.py": {
+      "bytes": 2484,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi-perl-observed-hold-successor-readiness-20261117-r1/constructed-source/qmp_observations.py",
+      "sha256": "0f5b5c1711cd3bb156fc611c755545fffe4bd4b15bd9094097179b87ed5541b5"
+    },
+    "runtime.py": {
+      "bytes": 18202,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi-perl-observed-hold-successor-readiness-20261117-r1/constructed-source/runtime.py",
+      "sha256": "443f085b7d821478d0390ae8053e6d30629eeea655c88ed6b473b4cc1f12d395"
+    },
+    "source.lock.json": {
+      "bytes": 60210,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi-perl-observed-hold-successor-readiness-20261117-r1/constructed-source/source.lock.json",
+      "sha256": "7beb4deb63cbd03b34738b41463380b388e67c2a8015b81f7124866e80b17b13"
+    }
+  },
+  "status": "SOURCE_AUDIT_ONLY_NO_CAUSAL_BUG_PROVEN"
+}

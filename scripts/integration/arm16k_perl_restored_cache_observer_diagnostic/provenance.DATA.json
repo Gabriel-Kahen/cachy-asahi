@@ -1,0 +1,67 @@
+{
+  "actual": {
+    "M2": null,
+    "Root_acceptance": null,
+    "VM": null,
+    "actor": null,
+    "authority": null,
+    "lifecycle": null,
+    "nonce": null,
+    "output": null,
+    "release": null,
+    "runtime_profile": null
+  },
+  "aux_semantics": "NOT_DECODED",
+  "frozen_inode_reader": {
+    "bytes": 13913,
+    "sha256": "8fb8c2c32dc5a40998bf31cc5727768f88ce51e423b7090cfb702116bdc9b5d3"
+  },
+  "graph_source": {
+    "bytes": 8849,
+    "sha256": "8c7a60ea1261ffe5274067db21d8dd94f9f48f8e93054d4c7e70066483c1022b"
+  },
+  "kind": "UNISSUED_FINITE_OBSERVER_DIAGNOSTIC_SUCCESSOR_V2",
+  "opaque_Root_input_selection": {
+    "bytes": 1590,
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-perl-restoration-three-inputs-OPAQUE-r1.json",
+    "sha256": "a88dd8ed4f028f9563e26aef62a9701babc853a9aab0d25a7cf4a96065567de1"
+  },
+  "predecessor_observer": {
+    "commit": "771644416c4881368b15a67a204e579489c1fe4e",
+    "packet": {
+      "bytes": 26928,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi-perl-restored-cache-execution-preparation-20261117-r1/packet-seal.DATA.json",
+      "sha256": "92769fb114d658630a3c3ff756054c641f2046fa1a2c4b3d5bf5fcb5ccfb702e"
+    }
+  },
+  "predecessor_r2": {
+    "bytes": 16790,
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi-perl-ldcache-execution-preparation-20261117-r2/packet-seal.DATA.json",
+    "sha256": "1bca2f9deae220e0406cc65afe0c17017e792f683e613c7815dbcc573b399a01"
+  },
+  "r94_independent_closure": {
+    "bytes": 5120,
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-perl-initialized-FIRST-trial-r4/Root-boot-independent-closure-r1/Root-terminal-closure.ACTUAL.json",
+    "sha256": "82438337c915e79f50600f71be2788e2ea872651bbbcb2e042e2860c5435103f"
+  },
+  "r96_baseline_public_bodies": {
+    "baseline-aux.bin": {
+      "bytes": 12313,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-perl-restored-cache-observation-trial-r1/actor-output/decoder-output/baseline-aux.bin",
+      "sha256": "bf57218ea22ca530decf18bf8ec548c22ec96afb0afc423088a97fbb148149ed"
+    },
+    "baseline-main.bin": {
+      "bytes": 17551,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-perl-restored-cache-observation-trial-r1/actor-output/decoder-output/baseline-main.bin",
+      "sha256": "0128a732a8b926232b5065374176194ea4a1f5c1628728037109bbdbb3d53215"
+    }
+  },
+  "r96_independent_closure": {
+    "bytes": 4310,
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-perl-restored-cache-observation-trial-r1/Root-independent-HOLD-closure-r1/Root-terminal-closure.ACTUAL.json",
+    "sha256": "a023c496b59b47cfc0cc7e43cd9e2b47b82d656a2c173a1f6a9e51c1b5929a2c"
+  },
+  "r96_observer_outcome": "HOLD_AFTER_RESTORED_AUX_BEFORE_RETIREMENT_FRAME_NOT_RETAINED_EXACT_PREDICATE_UNPROVEN",
+  "restoration_cause": "UNPROVEN",
+  "xattr_display_primary_source": "https://github.com/tytso/e2fsprogs/blob/v1.47.4/debugfs/xattrs.c"
+}

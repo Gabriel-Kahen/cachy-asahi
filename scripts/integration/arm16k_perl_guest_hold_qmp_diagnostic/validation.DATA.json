@@ -1,0 +1,156 @@
+{
+  "Original_GET": false,
+  "Rootful_QEMU_or_Docker": false,
+  "Source339_source_lock": {
+    "bytes": 60210,
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi-perl-observed-hold-successor-readiness-20261117-r1/constructed-source/source.lock.json",
+    "sha256": "7beb4deb63cbd03b34738b41463380b388e67c2a8015b81f7124866e80b17b13"
+  },
+  "actual": {
+    "Root_acceptance": null,
+    "Root_truth": null,
+    "VM": null,
+    "actor": null,
+    "authority": null,
+    "lease": null,
+    "nonce": null,
+    "output": null,
+    "runtime": null,
+    "scope": null
+  },
+  "audited_source_members_verified": 11,
+  "caps": {
+    "canonical_component_bytes": 65536,
+    "canonical_snapshot_bytes": 16384,
+    "checked_metadata_seconds": 0.05,
+    "max_samples": 3,
+    "metadata_read_bytes": 4096,
+    "serial_count_bound": 1048576,
+    "threads": 32
+  },
+  "command": [
+    "/usr/bin/python3",
+    "-I",
+    "-B",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "scripts/integration/arm16k_perl_guest_hold_qmp_diagnostic",
+    "-p",
+    "test_*.py",
+    "-v"
+  ],
+  "cwd": "/home/gabe/Documents/ChatGPT/cachy-asahi",
+  "errors": 0,
+  "exit_code": 0,
+  "failures": 0,
+  "files": {
+    "README.md": {
+      "bytes": 6008,
+      "mode": 420,
+      "sha256": "02edd32d1283e342d2122d05d9e3bce4fce6752f309322edfe1d4478fa1f838c"
+    },
+    "TRACE.md": {
+      "bytes": 5693,
+      "mode": 420,
+      "sha256": "4cec2c7d3d22bb45e7b9b05df6e3199fc0e5a79e6a72374aecfa00818c9950b1"
+    },
+    "integration-basis.DATA.json": {
+      "bytes": 886,
+      "mode": 420,
+      "sha256": "44691d5fca53a3583736e887e228cc5343d3a2570120a27fbe45d593bdbabb5b"
+    },
+    "integration.UNISSUED.patch": {
+      "bytes": 6573,
+      "mode": 420,
+      "sha256": "1a9161767709ec004e44b6c989ae5c62f40fa4be8824cebb6e72954787c697f8"
+    },
+    "observe.py": {
+      "bytes": 13817,
+      "mode": 420,
+      "sha256": "9b0e64730ae8f32d32d5b783f659a0df3e555ba9f0cf325354d06ab25630ddfb"
+    },
+    "source-trace.DATA.json": {
+      "bytes": 9773,
+      "mode": 420,
+      "sha256": "97b2b8689f627062e1ae80bb3b7047ae1925dc14c9799f684b32e5f2eb442457"
+    },
+    "source387-component.DATA.json": {
+      "bytes": 3170,
+      "mode": 420,
+      "sha256": "7eacaee7e668bb8dd99919bb078854f88b8ec2fd403322e94dc7ad7f3d834b3a"
+    },
+    "test_integration.py": {
+      "bytes": 5154,
+      "mode": 420,
+      "sha256": "9524887e4d5a8f7dad228b39b0b6a79e5c69bfc3f62514ab4a707d386c1214f3"
+    },
+    "test_observe.py": {
+      "bytes": 15899,
+      "mode": 420,
+      "sha256": "e8a1d7905f9ba224aab8a832d0fa86d5df57b21b25fae171f27ede262f7954cd"
+    },
+    "test_source387_projection.py": {
+      "bytes": 7332,
+      "mode": 420,
+      "sha256": "1ce63dfeccef7b0ec7c6ce80a152744222aa6a717b0dbf13cfa2ecbbe5563900"
+    },
+    "validation.stdout-stderr.txt": {
+      "bytes": 3001,
+      "mode": 420,
+      "sha256": "b4b3c48774984ab408f3614436fa1aebe6153f3d404ebf1b679b5c0dc80ca598"
+    }
+  },
+  "integration_applied": false,
+  "invariants": [
+    "borrow original QMP/serial/pidfd only; never read/drain/discard/peek/reconnect/duplicate/close originals",
+    "no SO_ERROR, timeout/socket mutation, process signal/wait",
+    "PIDFD readiness before numeric process reads; original start/cgroup/fd checked",
+    "HOLD/beforequit/deadline; failed samples not retried",
+    "same original5s quit call and retirement requirements structurally unchanged",
+    "existing QEMU exit0/original reap/EMPTY_TWICE remains required",
+    "no newresourcecap/authority; futurecomposeraccounts insideexistingcertifiedbudget"
+  ],
+  "live_process_or_socket_observed": false,
+  "manifest_or_package_inventory_modified": false,
+  "original_source_unmodified": true,
+  "private_home_Raw_credentials_serialpayload": false,
+  "skips": 0,
+  "source387_component_verification": {
+    "command": [
+      "/usr/bin/python3",
+      "-I",
+      "-B",
+      "scripts/integration/arm16k_perl_guest_hold_qmp_diagnostic/test_source387_projection.py"
+    ],
+    "complete_inverse_bytes": 4106688,
+    "complete_inverse_files": 387,
+    "contract": "source387-component.DATA.json",
+    "cwd": "/home/gabe/Documents/ChatGPT/cachy-asahi-perl-guest-hold-qmp-successor-20261117",
+    "errors": 0,
+    "exit_code": 0,
+    "failures": 0,
+    "module": {
+      "bytes": 13817,
+      "mode": 420,
+      "sha256": "9b0e64730ae8f32d32d5b783f659a0df3e555ba9f0cf325354d06ab25630ddfb"
+    },
+    "projector": {
+      "bytes": 4977,
+      "mode": 420,
+      "sha256": "b14ada5f8d2ae9889b1e6f25eed6b626fc08f4c67f8263d8043ae953b0f550a2"
+    },
+    "standalone_physical_export": null,
+    "tests": 6,
+    "unified_constructor_owner": "Root otherworker"
+  },
+  "source_trace_findings": {
+    "concrete_causal_bug": null,
+    "proven_gap": "Serial reading stops afterGuestHold; read-ahead/queue counts not observed",
+    "unproven": "Whether serial backpressure/QEMU wait/cgroup pressure causes full-guest no-ACK"
+  },
+  "status": "UNISSUED_SOURCE_AUDIT_AND_MOCKED_DIAGNOSTIC_PROPOSAL_ONLY",
+  "syntax": "all3Pythonfiles compile(); proposedSource339controller compiles in memory only; no bytecode",
+  "tests": 22
+}

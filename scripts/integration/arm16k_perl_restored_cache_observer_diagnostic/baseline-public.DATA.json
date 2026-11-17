@@ -1,0 +1,67 @@
+{
+  "Root_acceptance": null,
+  "kind": "THREE_FIXED_PUBLIC_BASELINE_NODES_ONLY",
+  "namespace": {
+    "bytes": 13619268,
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-perl-initialized-fullscan-trial-r1/actor-output/decoder-output/scan/namespace.json",
+    "sha256": "9ce5346df993be2e56ca88a477f3c64731800a38ae6ce6dae7e34d272a4231c9"
+  },
+  "nodes": {
+    "etc/ld.so.cache": {
+      "atime": 1794860510,
+      "atime_ns": 20000000,
+      "crtime": 1794860506,
+      "crtime_ns": 164000000,
+      "ctime": 1794860506,
+      "ctime_ns": 188000000,
+      "gid": 0,
+      "inode": 29322,
+      "links": 1,
+      "mode": 420,
+      "mtime": 1794860506,
+      "mtime_ns": 164000000,
+      "sha256": "0128a732a8b926232b5065374176194ea4a1f5c1628728037109bbdbb3d53215",
+      "size": 17551,
+      "type": "file",
+      "uid": 0,
+      "xattrs": {}
+    },
+    "var/cache/ldconfig": {
+      "atime": 1794860506,
+      "atime_ns": 188000000,
+      "crtime": 1794860506,
+      "crtime_ns": 188000000,
+      "ctime": 1794860506,
+      "ctime_ns": 196000000,
+      "gid": 0,
+      "inode": 29323,
+      "links": 2,
+      "mode": 448,
+      "mtime": 1794860506,
+      "mtime_ns": 196000000,
+      "size": 4096,
+      "type": "directory",
+      "uid": 0,
+      "xattrs": {}
+    },
+    "var/cache/ldconfig/aux-cache": {
+      "atime": 1794860506,
+      "atime_ns": 188000000,
+      "crtime": 1794860506,
+      "crtime_ns": 188000000,
+      "ctime": 1794860506,
+      "ctime_ns": 196000000,
+      "gid": 0,
+      "inode": 29324,
+      "links": 1,
+      "mode": 384,
+      "mtime": 1794860506,
+      "mtime_ns": 188000000,
+      "sha256": "bf57218ea22ca530decf18bf8ec548c22ec96afb0afc423088a97fbb148149ed",
+      "size": 12313,
+      "type": "file",
+      "uid": 0,
+      "xattrs": {}
+    }
+  }
+}

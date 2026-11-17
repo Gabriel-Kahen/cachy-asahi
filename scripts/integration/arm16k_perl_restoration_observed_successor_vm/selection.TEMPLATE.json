@@ -1,0 +1,18 @@
+{
+  "actual": {
+    "ALPM": null,
+    "M2": null,
+    "Root_authority": null,
+    "Source_CID": null,
+    "VM": null,
+    "nonce": null,
+    "release": null,
+    "runtime": null,
+    "source_ref": null
+  },
+  "diagnostic": null,
+  "kind": "PURE_RESTORATION_SOURCE_SELECTION_V1",
+  "output": null,
+  "predecessor": null,
+  "qmp": null
+}
