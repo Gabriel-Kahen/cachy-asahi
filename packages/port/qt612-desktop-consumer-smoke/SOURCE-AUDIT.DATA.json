@@ -1,0 +1,127 @@
+{
+  "schema": 1,
+  "kind": "SOURCE_API_AUDIT_NOT_EXECUTION",
+  "upstreams": {
+    "qtbase": {
+      "revision": "025bdad181de241e81bf853c8a2d7bf3d19261a9",
+      "retrieval": "existing pinned source archive extraction",
+      "files": {
+        "src/gui/rhi/qshader.h": {
+          "bytes": 7661,
+          "sha256": "64c686901ed29a3cfc16ff861aac44639c1bb2051607435cb67d4ca488bc2400"
+        },
+        "src/gui/rhi/qshaderdescription.h": {
+          "bytes": 11212,
+          "sha256": "ff19feedebf17f97f307cb62f5bac6e65f42a54a1242ba02686317bf30c51bf9"
+        },
+        "src/tools/qtwaylandscanner/Qt6WaylandClientMacros.cmake": {
+          "bytes": 5749,
+          "sha256": "3bc7b667c5c8dcd9f885e57ba4d6b276eca0f5b2471196ace171745c94a307cc"
+        },
+        "src/tools/qtwaylandscanner/Qt6WaylandCompositorMacros.cmake": {
+          "bytes": 5134,
+          "sha256": "739e49788459770186f84223631e373865c6c301a4a5638359eeb95bdef12203"
+        },
+        "src/tools/qtwaylandscanner/qtwaylandscanner.cpp": {
+          "bytes": 56032,
+          "sha256": "aaf5838e0a1c86ed04ee57abf9368281b7bcdd101be0332f9c0bf4a62fe5b24c"
+        }
+      }
+    },
+    "qtdeclarative": {
+      "revision": "4332fbbb4c340463dc8cee36dda0c85d932122d8",
+      "retrieval": "bounded official raw source reads",
+      "url_prefix": "https://raw.githubusercontent.com/qt/qtdeclarative/4332fbbb4c340463dc8cee36dda0c85d932122d8/",
+      "files": {
+        "src/quick/items/qquickrendercontrol.h": {
+          "bytes": 1492,
+          "sha256": "b1863c75ce54edae7395e395ced81cca84ff484c68e270d8f954fdcb287190f3"
+        },
+        "src/quick/items/qquickrendercontrol.cpp": {
+          "bytes": 28876,
+          "sha256": "c8e1631637cd0d946904e77cab94ab0cb18279b2e0b22c90ddc0fab4ba3e5a5f"
+        },
+        "src/quick/items/qquickrendertarget.h": {
+          "bytes": 4104,
+          "sha256": "0bdb32cb7b1a2ec5cc3312d3c11e2991ed187a50895e3bd8024c61e3f049001e"
+        },
+        "src/quick/items/qquickrendertarget.cpp": {
+          "bytes": 74729,
+          "sha256": "3be2086c44456741441df6366e7d9ba86ce43ea0db7389118a9c2b1bff067395"
+        },
+        "src/quick/items/qquickwindow.cpp": {
+          "bytes": 176646,
+          "sha256": "3d26089e0aacd5ca8504f0f661dc151c3c9fa6ef9afd85a33b4d122ba0f35108"
+        },
+        "src/quick/items/qquickitem.h": {
+          "bytes": 20039,
+          "sha256": "bcd88cb38c7488ade7a59bf7bd1b665c1697fdfbed50faa0e1aff0d158cd4185"
+        }
+      }
+    },
+    "qtsvg": {
+      "revision": "883a58532078d003cefef0a549bfe9f885ce41f5",
+      "retrieval": "bounded official raw source reads",
+      "url_prefix": "https://raw.githubusercontent.com/qt/qtsvg/883a58532078d003cefef0a549bfe9f885ce41f5/",
+      "files": {
+        "src/svg/qsvgrenderer.h": {
+          "bytes": 2712,
+          "sha256": "282715c52738a91732f86ce3c9ad90700ede2a32c55c1962600aec3ef87b88a4"
+        },
+        "src/plugins/imageformats/svg/main.cpp": {
+          "bytes": 1614,
+          "sha256": "8a43543498725c7b1672ad63460491743f895d9612b6ddfa1bdf3ca166236520"
+        }
+      }
+    },
+    "qtwayland": {
+      "revision": "c4f85cd060e3e80a7d71829defac9cf5a40e8ffa",
+      "retrieval": "existing pinned source archive extraction",
+      "files": {
+        "src/compositor/compositor_api/qwaylandcompositorquickextensions_p.h": {
+          "bytes": 3948,
+          "sha256": "975a2164cd841e7da8eb726710ce042d83253c52cc8642653636fab9dbcbb732"
+        },
+        "src/imports/compositor-extensions/xdgshell/qwaylandcompositorxdgshell_p.h": {
+          "bytes": 1984,
+          "sha256": "a24ec764bcfc17447dae2dc7c8dff5e55f551590593a2b38722ca02e9c9e932b"
+        },
+        "src/imports/compositor-extensions/iviapplication/qwaylandcompositoriviapplicationforeign_p.h": {
+          "bytes": 1033,
+          "sha256": "879b5121210f623cedddc907a4b6a53ee2868c81696be981e20c5ddcc6d8981d"
+        },
+        "src/imports/compositor-extensions/wlshell/qwaylandcompositorwlshell_p.h": {
+          "bytes": 923,
+          "sha256": "e4129071ee213cf69e68364dbd4d9f40e18002898eef5df8d47ed9c82a3751b8"
+        },
+        "src/imports/compositor-extensions/qtshell/qwaylandqtshell.h": {
+          "bytes": 6037,
+          "sha256": "29624880329056ef78180d3b33f77752abaa13950af0e1b224d21ee4e7fa1476"
+        },
+        "src/imports/compositor-extensions/presentationtime/qwaylandcompositorpresentationtimeforeign_p.h": {
+          "bytes": 847,
+          "sha256": "88cc591057e0979bbfcbaf4f88cbfde5312a4bf57d1b3a22da028c3dc5cc773f"
+        },
+        "src/imports/texture-sharing-extension/plugin_p.h": {
+          "bytes": 1385,
+          "sha256": "7ffdd78b53df53bbc020ffb5744bdfec4438d02a87cff2416cb58b1606259e8c"
+        }
+      }
+    }
+  },
+  "findings": [
+    "Quick software render control uses a QPaintDevice target and must not call initialize().",
+    "QShader and QShaderDescription expose the serialized data and exact reflected fields used here.",
+    "Both Qt scanner macros generate the same protocol C basename; separate generation and one compiled definition are required.",
+    "SVG plugin advertises SVG reading and constructs QSvgIOHandler.",
+    "All seven tested compositor QML type names are declared by the exact QtWayland source; no compositor object is created."
+  ],
+  "api_audit": "source-reviewed",
+  "configure": null,
+  "compile": null,
+  "runtime": null,
+  "external_protocol_api_references": {
+    "server_fd_ownership_on_failure": "https://wayland.freedesktop.org/docs/html/apc.html",
+    "client_fd_consumed_even_on_failure": "https://wayland.freedesktop.org/docs/html/apb.html"
+  }
+}
