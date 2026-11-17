@@ -1,0 +1,4 @@
+# Retain exact upstream bytes and genuine configure observations.
+upstream/** -whitespace
+evidence/host-configure.rawlog -whitespace
+evidence/host-failed-CMakeCache.txt -whitespace

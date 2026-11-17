@@ -1,0 +1,56 @@
+{
+  "API_smoke": null,
+  "Bash_syntax": "PASS",
+  "M2": null,
+  "MODEL": [
+    "complete stage ELF/API/notice namespace",
+    "ELF architecture/geometry/alias/system-vendor refusal",
+    "known shader reflection and corrupt input refusal",
+    "real configure target-rule presence/refusal"
+  ],
+  "Root_acceptance": null,
+  "SRCINFO": "GENERATED_BY_MAKEPKG",
+  "actual_vendor_positive": {
+    "bytes": 9682834,
+    "files": 168,
+    "notices": 19
+  },
+  "build": null,
+  "controls": 19,
+  "install": null,
+  "interpreters": {
+    "/home/gabe/.local/bin/python3.14": "3.14.6",
+    "/usr/bin/python3": "3.14.7"
+  },
+  "makepkg_source_verification": {
+    "command": [
+      "makepkg",
+      "--verifysource",
+      "--ignorearch"
+    ],
+    "exit": 0,
+    "log": {
+      "bytes": 1160,
+      "sha256": "1553f32bce21273301311f3d26ddae926e7aeee6cdd129c2b05c058fc1a97236"
+    },
+    "operands": 16,
+    "scope": "SOURCE_CHECKSUMS_ONLY_NO_ARCH_BUILD"
+  },
+  "native": null,
+  "normal_dependency_probe": {
+    "exit": 1,
+    "log": {
+      "bytes": 621,
+      "sha256": "f656f63e3de454e5659918fe76cc350d4ee705b4a0ee11e59b9dae0ecc9ae5ab"
+    },
+    "reason": "hostQt6.11.2 refused byEXACT6.12.0",
+    "scope": "CMake projectNONE, no compiler"
+  },
+  "package": null,
+  "qsb_execution": null,
+  "remove": null,
+  "schema": 1,
+  "shader_compile": null,
+  "source_archive": "retained wholehash-matching1.2MiB component, tests do not use network",
+  "status": "PASS_GENUINE_SOURCE_AND_MODEL_CONTROLS_ONLY"
+}

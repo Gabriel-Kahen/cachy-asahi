@@ -1,0 +1,97 @@
+# SPDX-License-Identifier: MIT
+# Original unselected source candidate; normal dependencies are mandatory.
+pkgname=cachy-asahi-qt612-declarative-source-reference
+pkgver=6.12.0
+pkgrel=1
+pkgdesc='Qt6.12 full Linux QML, Quick and Controls development source candidate'
+arch=('aarch64')
+url='https://code.qt.io/cgit/qt/qtdeclarative.git/'
+license=('LGPL-3.0-only' 'GPL-3.0-only' 'Qt-GPL-exception-1.0' 'LicenseRef-Qt-ThirdParty')
+depends=('glibc' 'libgcc' 'libstdc++' 'cachy-asahi-qt612-gui-server-source-reference=6.12.0'
+         'qt6-shadertools=6.12.0' 'qt6-svg=6.12.0')
+makedepends=('gcc' 'cmake>=3.25' 'ninja' 'pkgconf' 'python' 'perl')
+provides=("qt6-declarative=$pkgver" 'libQt6Qml.so.6' 'libQt6QmlModels.so.6'
+          'libQt6Quick.so.6' 'libQt6QuickControls2.so.6' 'libQt6QuickTemplates2.so.6'
+          'libQt6QuickLayouts.so.6' 'libQt6QuickWidgets.so.6' 'libQt6QuickDialogs2.so.6')
+conflicts=('qt6-declarative')
+options=('!lto' '!debug' '!staticlibs')
+PKGEXT='.pkg.tar.xz'
+source=("https://download.qt.io/official_releases/qt/6.12/$pkgver/submodules/qtdeclarative-everywhere-src-$pkgver.tar.xz"
+        'configure.cmake'
+        'dependency_guard.cmake'
+        'source.py'
+        'check_stage.py'
+        'BUILD-CONTRACT.json'
+        'source-notices.json'
+        'SmokeCMakeLists.txt'
+        'smoke.cpp'
+        'smoke.qml'
+        'Consumer.qml'
+        'LICENSE.packaging'
+        'LICENSE.third-party'
+)
+sha256sums=('311f3a2603e1973bb59baef9dfa740a376de713157d4782ee043681e889c9260'
+            '53fc9405a9868456ba86c5309fe14f0109b695727b62e720cb9e21baadc861de'
+            'a1989be84fbe965de12339f4406001a79fc99cc1a02f3b8bbcfa9bbce73d5a66'
+            'a9d50bf47a64eaf458a778b9e1b336ce20990eeacf62e01f877f26d647d05fc9'
+            'fa4efe2a547c101d21b2bd89894bbc9df04ce7cd9767676c20388d7260bbbbd2'
+            'ef9ce8e904603ba2b532133c8a1468a8b767e24c0be1d430da6145b8366e354b'
+            '9a4517652e61d0e1d57ac631da239419f71fd9875dcb053e9f2812d43b531882'
+            '4e73294e0a361b019f2c980c7dfaded32eb8d1a87fb0680b3471adc190bd4337'
+            '192734b8b58bb986eeabb9b3c70f1f489c88809867432e3ebb613fd2fded9161'
+            '520bcf0b11c81d998d7fc3372240cfe165f8f5bb56d271ba35f3cd5343f83fd0'
+            '486d00d412a6ae1b2bb6fb585f8f473ca22bed3097f640809de97331328bb2c2'
+            '67fe503b5c407bca1c340e14fb7ceb6849b1af4d531a783b30d09cb76e65a3aa'
+            '54d9df8d505a98350656a5e51d5ab49719a32e2fe9e8f3e790af1eff55ff1321'
+)
+
+prepare() {
+  python "$srcdir/source.py" verify --root "$srcdir/qtdeclarative-everywhere-src-$pkgver" \
+    --policy "$srcdir/source-notices.json" || return
+}
+
+_qt_single_job() {
+  if [[ "${MAX_JOBS-1}" != 1 || "${CMAKE_BUILD_PARALLEL_LEVEL-1}" != 1 ]]; then
+    printf '%s\n' 'Qt612 candidate requires serial MAX_JOBS=1 and CMAKE_BUILD_PARALLEL_LEVEL=1' >&2
+    return 1
+  fi
+  export MAX_JOBS=1 CMAKE_BUILD_PARALLEL_LEVEL=1
+}
+
+build() {
+  _qt_single_job || return
+  cmake -C "$srcdir/configure.cmake" -S "$srcdir/qtdeclarative-everywhere-src-$pkgver" \
+    -B "$srcdir/build" -G Ninja \
+    -DCMAKE_PROJECT_QtDeclarative_INCLUDE="$srcdir/dependency_guard.cmake" || return
+  python "$srcdir/source.py" configuration --build "$srcdir/build" \
+    --contract "$srcdir/BUILD-CONTRACT.json" || return
+  cmake --build "$srcdir/build" --parallel "$MAX_JOBS" || return
+}
+
+check() {
+  _qt_single_job || return
+  install -d "$srcdir/smoke-source" "$srcdir/smoke-home" || return
+  install -m644 "$srcdir/SmokeCMakeLists.txt" "$srcdir/smoke-source/CMakeLists.txt" || return
+  install -m644 "$srcdir/smoke.cpp" "$srcdir/smoke.qml" "$srcdir/Consumer.qml" "$srcdir/smoke-source/" || return
+  cmake -S "$srcdir/smoke-source" -B "$srcdir/smoke-build" -G Ninja \
+    -DQT612_BUILD_TREE="$srcdir/build" || return
+  cmake --build "$srcdir/smoke-build" --parallel "$MAX_JOBS" || return
+  HOME="$srcdir/smoke-home" QT_QPA_PLATFORM=offscreen QT_QUICK_BACKEND=software \
+    QML_DISABLE_DISK_CACHE=1 QT_QUICK_CONTROLS_STYLE=Basic \
+    QT_QPA_PLATFORM_PLUGIN_PATH=/usr/lib/qt6/plugins/platforms \
+    QT_PLUGIN_PATH="$srcdir/build/lib/qt6/plugins:/usr/lib/qt6/plugins" \
+    LD_LIBRARY_PATH="$srcdir/build/lib" \
+    timeout 60 "$srcdir/smoke-build/qt612-declarative-smoke" "$srcdir/smoke-source/smoke.qml" || return
+}
+
+package() {
+  DESTDIR="$pkgdir" cmake --install "$srcdir/build" || return
+  python "$srcdir/source.py" install-notices --root "$srcdir/qtdeclarative-everywhere-src-$pkgver" \
+    --policy "$srcdir/source-notices.json" --stage "$pkgdir" || return
+  install -Dm644 "$srcdir/LICENSE.packaging" "$pkgdir/usr/share/licenses/$pkgname/LICENSE.packaging" || return
+  install -Dm644 "$srcdir/LICENSE.third-party" "$pkgdir/usr/share/licenses/$pkgname/LicenseRef-Qt-ThirdParty.txt" || return
+  install -Dm644 "$srcdir/source-notices.json" "$pkgdir/usr/share/licenses/$pkgname/source-notices.json" || return
+  install -Dm644 "$srcdir/BUILD-CONTRACT.json" "$pkgdir/usr/share/licenses/$pkgname/BUILD-CONTRACT.json" || return
+  python "$srcdir/check_stage.py" --root "$pkgdir" --contract "$srcdir/BUILD-CONTRACT.json" \
+    --notices "$srcdir/source-notices.json" > "$srcdir/stage-contract.json" || return
+}

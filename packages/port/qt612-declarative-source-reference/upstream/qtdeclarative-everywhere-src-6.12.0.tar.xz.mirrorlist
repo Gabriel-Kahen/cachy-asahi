@@ -1,0 +1,104 @@
+<!doctype html>
+<!--[if lt IE 7]> <html lang="nb" class="lt-ie10 lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>    <html lang="nb" class="lt-ie10 lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>    <html lang="nb" class="lt-ie10 lt-ie9"> <![endif]-->
+<!--[if IE 9]>    <html lang="nb" class="lt-ie10"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="nb"> <!--<![endif]-->
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta content="noarchive" name="robots" />
+<meta name="description" content="Apache folder listing" />
+<link rel="stylesheet" type="text/css" href="/static/normalize.css" />
+<link rel="stylesheet" type="text/css" href="/static/style.css" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Qt Downloads</title>
+</head>
+<div class="top-line">
+  <div class="wrapper">
+    <a href="/" class="logo">Qt Downloads</a>
+    <ul class="main-menu">
+      <li><a href="https://www.qt.io/">Qt Home</a></li>
+      <li><a href="https://bugreports.qt.io/">Bug Tracker</a></li>
+      <li><a href="https://codereview.qt-project.org/">Code Review</a></li>
+      <li><a href="https://planet.qt.io">Planet Qt</a></li>
+      <li><a href="https://marketplace.qt.io/">Get Qt Extensions</a></li>
+    </ul>
+  </div>
+</div>
+<div class="content">
+	<div class="wrapper">
+<div id="mirrorbrain-details">
+  <h2>Mirrors for <a href="/official_releases/qt/6.12/6.12.0/submodules/qtdeclarative-everywhere-src-6.12.0.tar.xz">qtdeclarative-everywhere-src-6.12.0.tar.xz</a></h2>
+<div id="mirrorbrain-fileinfo">
+<h3>File information</h3>
+<ul>
+  <li><span class="mirrorbrain-label">Filename:</span> qtdeclarative-everywhere-src-6.12.0.tar.xz</li>
+  <li><span class="mirrorbrain-label">Path:</span> /official_releases/qt/6.12/6.12.0/submodules/qtdeclarative-everywhere-src-6.12.0.tar.xz</li>
+  <li><span class="mirrorbrain-label">Size:</span>  37M (39221652 bytes)</li>
+  <li><span class="mirrorbrain-label">Last modified:</span> Wed, 30 Sep 2026 08:39:21 GMT (Unix time: 1790757561)</li>
+  <li><span class="mirrorbrain-label"><a href="/official_releases/qt/6.12/6.12.0/submodules/qtdeclarative-everywhere-src-6.12.0.tar.xz.sha256">SHA-256 Hash</a>:</span> <tt>311f3a2603e1973bb59baef9dfa740a376de713157d4782ee043681e889c9260</tt></li>
+  <li><span class="mirrorbrain-label"><a href="/official_releases/qt/6.12/6.12.0/submodules/qtdeclarative-everywhere-src-6.12.0.tar.xz.sha1">SHA-1 Hash</a>:</span> <tt>603fd184d161b372819f8af7a9e32e3c8cfaab55</tt></li>
+  <li><span class="mirrorbrain-label"><a href="/official_releases/qt/6.12/6.12.0/submodules/qtdeclarative-everywhere-src-6.12.0.tar.xz.md5">MD5 Hash</a>:</span> <tt>455207d1f12f2b0cc997e4d699429cb0</tt></li>
+  <li><span class="mirrorbrain-label"><a href="/official_releases/qt/6.12/6.12.0/submodules/qtdeclarative-everywhere-src-6.12.0.tar.xz.btih">BitTorrent Information Hash</a>:</span> <tt>e6dbeb4a92b7b135a9eba9f04d0c9ddfb5e83cac</tt></li>
+</ul>
+<p><a href="/official_releases/qt/6.12/6.12.0/submodules/qtdeclarative-everywhere-src-6.12.0.tar.xz" class="mirrorbrain-btn">Download file from preferred mirror</a></p>
+</div>
+
+<div id="mirrorbrain-links">
+<h3>Reliable downloads</h3>
+<div class="mirrorbrain-links-grp">
+<h4>Metalink</h4>
+<ul>
+  <li><a href="/official_releases/qt/6.12/6.12.0/submodules/qtdeclarative-everywhere-src-6.12.0.tar.xz.meta4">/official_releases/qt/6.12/6.12.0/submodules/qtdeclarative-everywhere-src-6.12.0.tar.xz.meta4</a> (IETF Metalink)</li>
+  <li><a href="/official_releases/qt/6.12/6.12.0/submodules/qtdeclarative-everywhere-src-6.12.0.tar.xz.metalink">/official_releases/qt/6.12/6.12.0/submodules/qtdeclarative-everywhere-src-6.12.0.tar.xz.metalink</a> (old (v3) Metalink)</li>
+</ul>
+</div>
+<div class="mirrorbrain-links-grp">
+<h4>P2P links</h4>
+<ul>
+  <li><a href="/official_releases/qt/6.12/6.12.0/submodules/qtdeclarative-everywhere-src-6.12.0.tar.xz.torrent">/official_releases/qt/6.12/6.12.0/submodules/qtdeclarative-everywhere-src-6.12.0.tar.xz.torrent</a> (BitTorrent)</li>
+  <li><a href="/official_releases/qt/6.12/6.12.0/submodules/qtdeclarative-everywhere-src-6.12.0.tar.xz.magnet">/official_releases/qt/6.12/6.12.0/submodules/qtdeclarative-everywhere-src-6.12.0.tar.xz.magnet</a> (Magnet)</li>
+</ul>
+</div>
+</div>
+
+<div id="mirrorbrain-mirrors">
+<h3>Mirrors</h3>
+<p>List of best mirrors for IP address 130.245.224.172, located at 40.741501,-73.751099 in United States (US), network 130.245.128.0/17 (autonomous system 5719).</p>
+
+<p><a href="http://maps.google.com/maps/api/staticmap?size=640x512&amp;visual_refresh=true&amp;scale=2&amp;maptype=roadmap&amp;sensor=false&amp;markers=color:red|40.741501,-73.751099&amp;markers=color:yellow|label:1|40.550999,-74.460999&amp;markers=color:yellow|label:2|51.495998,-0.122000&amp;markers=color:yellow|label:3|49.549000,11.009000&amp;markers=color:yellow|label:4|63.825001,20.256001&amp;markers=color:yellow|label:5|-1.284000,36.814999&amp;markers=color:yellow|label:6|-31.941999,115.879997&amp;markers=color:yellow|label:7|36.458000,136.490997">Map showing the closest mirrors</a></p>
+
+<div class="mirrorbrain-mirrors-grp">
+<h4>Found 1 mirror which handle this country (US)</h4>
+<ul>
+ <li><a href="https://qt.mirror.constant.com/archive/qt/6.12/6.12.0/submodules/qtdeclarative-everywhere-src-6.12.0.tar.xz">https://qt.mirror.constant.com/archive/qt/6.12/6.12.0/submodules/qtdeclarative-everywhere-src-6.12.0.tar.xz</a> (us, prio 100)</li>
+</ul>
+</div>
+
+<div class="mirrorbrain-mirrors-grp">
+<h4>Found 6 mirrors in other parts of the world</h4>
+<ul>
+  <li><a href="https://mirrors.20i.com/pub/qt.io/archive/qt/6.12/6.12.0/submodules/qtdeclarative-everywhere-src-6.12.0.tar.xz">https://mirrors.20i.com/pub/qt.io/archive/qt/6.12/6.12.0/submodules/qtdeclarative-everywhere-src-6.12.0.tar.xz</a> (gb, prio 100)</li>
+  <li><a href="https://ftp.fau.de/qtproject/archive/qt/6.12/6.12.0/submodules/qtdeclarative-everywhere-src-6.12.0.tar.xz">https://ftp.fau.de/qtproject/archive/qt/6.12/6.12.0/submodules/qtdeclarative-everywhere-src-6.12.0.tar.xz</a> (de, prio 100)</li>
+  <li><a href="https://mirror.accum.se/mirror/qt.io/qtproject/archive/qt/6.12/6.12.0/submodules/qtdeclarative-everywhere-src-6.12.0.tar.xz">https://mirror.accum.se/mirror/qt.io/qtproject/archive/qt/6.12/6.12.0/submodules/qtdeclarative-everywhere-src-6.12.0.tar.xz</a> (se, prio 100)</li>
+  <li><a href="https://qtproject.mirror.liquidtelecom.com/archive/qt/6.12/6.12.0/submodules/qtdeclarative-everywhere-src-6.12.0.tar.xz">https://qtproject.mirror.liquidtelecom.com/archive/qt/6.12/6.12.0/submodules/qtdeclarative-everywhere-src-6.12.0.tar.xz</a> (ke, prio 100)</li>
+  <li><a href="https://mirror.aarnet.edu.au/pub/qtproject/archive/qt/6.12/6.12.0/submodules/qtdeclarative-everywhere-src-6.12.0.tar.xz">https://mirror.aarnet.edu.au/pub/qtproject/archive/qt/6.12/6.12.0/submodules/qtdeclarative-everywhere-src-6.12.0.tar.xz</a> (au, prio 100)</li>
+  <li><a href="https://ftp.jaist.ac.jp/pub/qtproject/archive/qt/6.12/6.12.0/submodules/qtdeclarative-everywhere-src-6.12.0.tar.xz">https://ftp.jaist.ac.jp/pub/qtproject/archive/qt/6.12/6.12.0/submodules/qtdeclarative-everywhere-src-6.12.0.tar.xz</a> (jp, prio 100)</li>
+</ul>
+</div>
+
+</div>
+<address>Powered by <a href="http://mirrorbrain.org/">MirrorBrain</a></address>
+</div><!-- mirrorbrain-details -->
+  </div>
+    <div class="copyright-wrapper">
+      <p>Qt® and the Qt logo is a registered trade mark of The Qt Company Ltd and is used pursuant to a license from The Qt Company Ltd.<br />
+      All other trademarks are property of their respective owners.<br />
+      </p>      
+      <p>The Qt Company Ltd, Miestentie 7, 02150 Espoo, Finland. Org. Nr. 2637805-2</p>
+	<p><a href="http://download.qt.io/static/mirrorlist/">List of official Qt-project mirrors</a></p>
+    </div>
+</div>
+<script type="text/javascript" src="/static/javascript-mirrorlist.js"></script>
+</html>

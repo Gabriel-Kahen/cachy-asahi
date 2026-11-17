@@ -1,0 +1,48 @@
+{
+  "Bash_syntax": "PASS",
+  "M2": null,
+  "MODEL": [
+    "complete stage payload",
+    "ELF arch/type/16KiB geometry",
+    "QML plugin and namespace",
+    "mutation/alias/permission refusal"
+  ],
+  "Root_acceptance": null,
+  "SRCINFO": "GENERATED_BY_MAKEPKG",
+  "build": null,
+  "controls": 17,
+  "install": null,
+  "interpreters": {
+    "/home/gabe/.local/bin/python3.14": "3.14.6",
+    "/usr/bin/python3": "3.14.7"
+  },
+  "makepkg_source_checksums": {
+    "command": [
+      "makepkg",
+      "--verifysource",
+      "--ignorearch"
+    ],
+    "exit": 0,
+    "log": {
+      "bytes": 990,
+      "sha256": "d1ba12ec94d94bf1ccbd930216d70f3e20fc21cfd2a5f25536b2d8a4ea519e6a"
+    },
+    "operands": 13,
+    "scope": "SOURCE_INTEGRITY_ONLY_NOT_ARCH_BUILD"
+  },
+  "native": null,
+  "normal_dependency_probe": {
+    "command_scope": "CMake project(NONE), no compilation",
+    "exit": 1,
+    "log": {
+      "bytes": 620,
+      "sha256": "839e0e55600cd6bf579f824ebe6764301e607452dc54edf0f9a0410ac49c7ec1"
+    },
+    "reason": "HostQt6.11.2 refused because EXACT6.12.0 required"
+  },
+  "package": null,
+  "remove": null,
+  "schema": 1,
+  "smoke_execution": null,
+  "status": "PASS_SOURCE_AND_MODEL_ONLY"
+}
