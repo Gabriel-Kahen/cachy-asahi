@@ -12,20 +12,20 @@
     "source": null
   },
   "candidate": {
-    "bytes": 45962616,
+    "bytes": 45962607,
     "files": 205,
     "program": {
       "bytes": 15135,
       "path": "scripts/ci/first-login-enrollment-native-source/successor_v7_source/program.json",
-      "sha256": "39f2c738f8cd40bd95ce074ed275c881d9e01644c6cf0c2dbd846665df72e847"
+      "sha256": "623f667137fd38d9c319de729df910780fbf0fae7c0bc7e2aade27889c102dae"
     },
-    "prospective_tree": "3cf7e3c590cfa227b56335c85366ffb57f46e375",
+    "prospective_tree": "d7e48cbd6a3a638c5ecdabf8ca98a6a642dfde36",
     "source_map": {
       "bytes": 40793,
-      "sha256": "0bc42f13b906bba0a22eecd6f30c1536668f6221b728fa696ca441da54c68119"
+      "sha256": "a6d22a528075c11f6fa2e87d894c41e0ed31befcd17f99a8b92d6c26fccdb815"
     }
   },
-  "constructor_commit": "b96d5ba945e35df5c70c09d9580ec86c256476f0",
+  "constructor_commit": "9e26ce819a258225cac866341e15d7099038ab9e",
   "diagnostic_contract": {
     "arbitrary_urls_paths": false,
     "error_text": false,

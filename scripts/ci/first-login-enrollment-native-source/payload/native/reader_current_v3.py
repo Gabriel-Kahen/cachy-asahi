@@ -805,17 +805,27 @@ def capture_source_contract(files,program):
 
 TRANSPORT_PREFIX='scripts/ci/first-login-enrollment-native-source/successor_v7_source/'
 # Exact unissued Source205 from the committed finite constructor; no runtime grant.
-TRANSPORT_PROGRAM_PIN=dict(bytes=15135,sha256='39f2c738f8cd40bd95ce074ed275c881d9e01644c6cf0c2dbd846665df72e847')
-TRANSPORT_SOURCE=dict(files=205,bytes=45962616,tree='3cf7e3c590cfa227b56335c85366ffb57f46e375',
-    source_map=dict(bytes=40793,sha256='0bc42f13b906bba0a22eecd6f30c1536668f6221b728fa696ca441da54c68119'))
-TRANSPORT_COMMIT='b96d5ba945e35df5c70c09d9580ec86c256476f0'
-TRANSPORT_REPLACEMENTS={
-    'materials_stager':dict(member='scripts/ci/first-login-enrollment-native-source/payload/native/stage_materials_current_v3_python_v1.py',bytes=43592,sha256='3ddfdb3f1981f154348ab67e051cec0ea2bedda04dbb3596a9b285797662ef51'),
-    'material_domain_executor':dict(member='scripts/ci/first-login-enrollment-native-source/payload/native/material_domain_current_v3.py',bytes=44646,sha256='2df9c12d402e86187cd11e4b35e957b562dd2ccfc7c5229e21fc4d7d97e2e17f'),
-    'hosted_launcher':dict(member='scripts/ci/first-login-enrollment-native-source/payload/native/hosted_current_v3.py',bytes=68455,sha256='e6e8fdadc7dd125649a6c9f1bb393fed8a033bda0b8512f2f5c250345e54743f')}
-TRANSPORT_CONSTRUCTION={
-    TRANSPORT_PREFIX+'prepare.py':dict(bytes=11500,mode=0o644,sha256='a45f85f3412b099c8c59c0c2125b9071a2ee26e15bcb711c7fb2b97cefc8d56c'),
-    TRANSPORT_PREFIX+'README.md':dict(bytes=4535,mode=0o644,sha256='3eb359a9414e3f2ccfc130d8b02d2c3980c8065f3b59b716f0e3eaa881f91f61')}
+TRANSPORT_PROGRAM_PIN={'bytes': 15135, 'sha256': '623f667137fd38d9c319de729df910780fbf0fae7c0bc7e2aade27889c102dae'}
+TRANSPORT_SOURCE={'files': 205,
+ 'bytes': 45962607,
+ 'tree': 'd7e48cbd6a3a638c5ecdabf8ca98a6a642dfde36',
+ 'source_map': {'bytes': 40793, 'sha256': 'a6d22a528075c11f6fa2e87d894c41e0ed31befcd17f99a8b92d6c26fccdb815'}}
+TRANSPORT_COMMIT='9e26ce819a258225cac866341e15d7099038ab9e'
+TRANSPORT_REPLACEMENTS={'materials_stager': {'bytes': 43583,
+                      'member': 'scripts/ci/first-login-enrollment-native-source/payload/native/stage_materials_current_v3_python_v1.py',
+                      'sha256': 'da365c903750c47b7465cfb8002f3a110747497d5755bd4b7eb903c410355289'},
+ 'material_domain_executor': {'bytes': 44646,
+                              'member': 'scripts/ci/first-login-enrollment-native-source/payload/native/material_domain_current_v3.py',
+                              'sha256': 'af2efcc9f2b58af8c02e8de92e4a3a8704f90c34aea8109ce2a3725bd5600b04'},
+ 'hosted_launcher': {'bytes': 68455,
+                     'member': 'scripts/ci/first-login-enrollment-native-source/payload/native/hosted_current_v3.py',
+                     'sha256': 'd491626c309a4b0f1fc198fa1cc8515d2412326d0e4fb9947332590d9de0132e'}}
+TRANSPORT_CONSTRUCTION={'scripts/ci/first-login-enrollment-native-source/successor_v7_source/prepare.py': {'bytes': 11500,
+                                                                                    'mode': 420,
+                                                                                    'sha256': '04513618e1b9526a71b852ed3cdc6e8fbe6f097513b2291b951e7684c758e3b5'},
+ 'scripts/ci/first-login-enrollment-native-source/successor_v7_source/README.md': {'bytes': 4535,
+                                                                                   'mode': 420,
+                                                                                   'sha256': '3eb359a9414e3f2ccfc130d8b02d2c3980c8065f3b59b716f0e3eaa881f91f61'}}
 TRANSPORT_OPERANDS={
     'materials_stager':TRANSPORT_PREFIX+'payload/stager.py',
     'material_domain_executor':TRANSPORT_PREFIX+'payload/material_domain.py',
