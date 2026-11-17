@@ -1,0 +1,37 @@
+{
+  "M2": null,
+  "Root_acceptance": null,
+  "VM": null,
+  "authority": null,
+  "backing": {
+    "bytes": 1610612736,
+    "sha256": "49da69b9262e089e08aa84063ed14ca13e66189f9c1e396616ab5f5cb5e24b81"
+  },
+  "decoded_semantics": null,
+  "expected_cache": {
+    "bytes": 17551,
+    "sha256": "0128a732a8b926232b5065374176194ea4a1f5c1628728037109bbdbb3d53215"
+  },
+  "kind": "UNISSUED_BASELINE_PREPARED_PUBLIC_CACHE_OBSERVER_V1",
+  "nonce": null,
+  "output": null,
+  "predecessor_r2": {
+    "bytes": 16790,
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi-perl-ldcache-execution-preparation-20261117-r2/packet-seal.DATA.json",
+    "sha256": "1bca2f9deae220e0406cc65afe0c17017e792f683e613c7815dbcc573b399a01"
+  },
+  "r90_closed_public_executor": {
+    "bytes": 8602,
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi-perl-ldcache-r90-executor-evidence-20261117-r1/executor-terminal-closure.ACTUAL.json",
+    "sha256": "fd6b58c9e7a5dc9b41385cc006c2e6e412b79f8810df1d1738d61aa3b7d1d1bf"
+  },
+  "release": null,
+  "runtime_profile": null,
+  "scope": [
+    "stat /etc/ld.so.cache",
+    "stat /etc",
+    "dump /etc/ld.so.cache /output/cache.bin",
+    "stat /etc/ld.so.cache",
+    "stat /etc"
+  ]
+}
