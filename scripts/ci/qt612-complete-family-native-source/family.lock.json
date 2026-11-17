@@ -1,0 +1,1225 @@
+{
+  "Root_acceptance": null,
+  "basis_commit": "663927a694fcfddda56f32c1eff00701a6395a93",
+  "components": {
+    "declarative": {
+      "archive": {
+        "bytes": 39221652,
+        "filename": "qtdeclarative-everywhere-src-6.12.0.tar.xz",
+        "sha256": "311f3a2603e1973bb59baef9dfa740a376de713157d4782ee043681e889c9260",
+        "url": "https://download.qt.io/official_releases/qt/6.12/6.12.0/submodules/qtdeclarative-everywhere-src-6.12.0.tar.xz"
+      },
+      "checker_api": "check",
+      "commit": "7d173c861a62e497017d161cf37643ae0175e51e",
+      "config_args": [
+        "--contract",
+        "/inputs/BUILD-CONTRACT.json"
+      ],
+      "contracts": {
+        "BUILD-CONTRACT.json": {
+          "bytes": 12044,
+          "mode": 420,
+          "sha256": "ef9ce8e904603ba2b532133c8a1468a8b767e24c0be1d430da6145b8366e354b"
+        },
+        "PROVIDER-INTERFACE.DATA.json": {
+          "bytes": 1358,
+          "mode": 420,
+          "sha256": "573a4bb4f7c398f6c555ac85b5854c1a7ca59b97d877c40dedc7aec619f91dc5"
+        },
+        "SOURCE-INPUTS.lock.json": {
+          "bytes": 1131,
+          "mode": 420,
+          "sha256": "4bb390409374842d2fd9485d0d0366d107bf4df1820a12583ff8e957e3f24bfe"
+        },
+        "lifecycle.DATA.json": {
+          "bytes": 1481,
+          "mode": 420,
+          "sha256": "3b03fcbe6e273b24a45096dcec81928791447f273b1f7a1044a59e86057d4332"
+        }
+      },
+      "filename": "cachy-asahi-qt612-declarative-source-reference-6.12.0-1-aarch64.pkg.tar.xz",
+      "marker": "PASS_QT612_FAMILY_CHECK_DECLARATIVE",
+      "metadata": {
+        "arch": [
+          "aarch64"
+        ],
+        "conflicts": [
+          "qt6-declarative"
+        ],
+        "depends": [
+          "glibc",
+          "libgcc",
+          "libstdc++",
+          "cachy-asahi-qt612-gui-server-source-reference=6.12.0",
+          "qt6-shadertools=6.12.0",
+          "qt6-svg=6.12.0"
+        ],
+        "license": [
+          "LGPL-3.0-only",
+          "GPL-3.0-only",
+          "Qt-GPL-exception-1.0",
+          "LicenseRef-Qt-ThirdParty"
+        ],
+        "makedepends": [
+          "gcc",
+          "cmake>=3.25",
+          "ninja",
+          "pkgconf",
+          "python",
+          "perl"
+        ],
+        "options": [
+          "!lto",
+          "!debug",
+          "!staticlibs"
+        ],
+        "pkgbase": [
+          "cachy-asahi-qt612-declarative-source-reference"
+        ],
+        "pkgdesc": [
+          "Qt6.12 full Linux QML, Quick and Controls development source candidate"
+        ],
+        "pkgname": [
+          "cachy-asahi-qt612-declarative-source-reference"
+        ],
+        "pkgrel": [
+          "1"
+        ],
+        "pkgver": [
+          "6.12.0"
+        ],
+        "provides": [
+          "qt6-declarative=6.12.0",
+          "libQt6Qml.so.6",
+          "libQt6QmlModels.so.6",
+          "libQt6Quick.so.6",
+          "libQt6QuickControls2.so.6",
+          "libQt6QuickTemplates2.so.6",
+          "libQt6QuickLayouts.so.6",
+          "libQt6QuickWidgets.so.6",
+          "libQt6QuickDialogs2.so.6"
+        ],
+        "sha256sums": [
+          "311f3a2603e1973bb59baef9dfa740a376de713157d4782ee043681e889c9260",
+          "53fc9405a9868456ba86c5309fe14f0109b695727b62e720cb9e21baadc861de",
+          "a1989be84fbe965de12339f4406001a79fc99cc1a02f3b8bbcfa9bbce73d5a66",
+          "a9d50bf47a64eaf458a778b9e1b336ce20990eeacf62e01f877f26d647d05fc9",
+          "fa4efe2a547c101d21b2bd89894bbc9df04ce7cd9767676c20388d7260bbbbd2",
+          "ef9ce8e904603ba2b532133c8a1468a8b767e24c0be1d430da6145b8366e354b",
+          "9a4517652e61d0e1d57ac631da239419f71fd9875dcb053e9f2812d43b531882",
+          "4e73294e0a361b019f2c980c7dfaded32eb8d1a87fb0680b3471adc190bd4337",
+          "192734b8b58bb986eeabb9b3c70f1f489c88809867432e3ebb613fd2fded9161",
+          "520bcf0b11c81d998d7fc3372240cfe165f8f5bb56d271ba35f3cd5343f83fd0",
+          "486d00d412a6ae1b2bb6fb585f8f473ca22bed3097f640809de97331328bb2c2",
+          "67fe503b5c407bca1c340e14fb7ceb6849b1af4d531a783b30d09cb76e65a3aa",
+          "54d9df8d505a98350656a5e51d5ab49719a32e2fe9e8f3e790af1eff55ff1321"
+        ],
+        "source": [
+          "https://download.qt.io/official_releases/qt/6.12/6.12.0/submodules/qtdeclarative-everywhere-src-6.12.0.tar.xz",
+          "configure.cmake",
+          "dependency_guard.cmake",
+          "source.py",
+          "check_stage.py",
+          "BUILD-CONTRACT.json",
+          "source-notices.json",
+          "SmokeCMakeLists.txt",
+          "smoke.cpp",
+          "smoke.qml",
+          "Consumer.qml",
+          "LICENSE.packaging",
+          "LICENSE.third-party"
+        ],
+        "url": [
+          "https://code.qt.io/cgit/qt/qtdeclarative.git/"
+        ]
+      },
+      "notice_args": [],
+      "original_marker": null,
+      "package": "cachy-asahi-qt612-declarative-source-reference",
+      "predecessors": [
+        "gui_server",
+        "shadertools",
+        "svg"
+      ],
+      "recipe_inputs": {
+        ".SRCINFO": {
+          "bytes": 2582,
+          "mode": 420,
+          "sha256": "17b18d75b4c2e47b21719456d0ec6eee3edc39e86a45beb6801e42d1d4a7e33f"
+        },
+        "BUILD-CONTRACT.json": {
+          "bytes": 12044,
+          "mode": 420,
+          "sha256": "ef9ce8e904603ba2b532133c8a1468a8b767e24c0be1d430da6145b8366e354b"
+        },
+        "Consumer.qml": {
+          "bytes": 79,
+          "mode": 420,
+          "sha256": "486d00d412a6ae1b2bb6fb585f8f473ca22bed3097f640809de97331328bb2c2"
+        },
+        "LICENSE.packaging": {
+          "bytes": 1070,
+          "mode": 420,
+          "sha256": "67fe503b5c407bca1c340e14fb7ceb6849b1af4d531a783b30d09cb76e65a3aa"
+        },
+        "LICENSE.third-party": {
+          "bytes": 463,
+          "mode": 420,
+          "sha256": "54d9df8d505a98350656a5e51d5ab49719a32e2fe9e8f3e790af1eff55ff1321"
+        },
+        "PKGBUILD": {
+          "bytes": 5141,
+          "mode": 420,
+          "sha256": "7cdde9165997e2a7ef3db8e943f52d27402c99ef84e7e0ddb555ab0c9f4099d1"
+        },
+        "SmokeCMakeLists.txt": {
+          "bytes": 1927,
+          "mode": 420,
+          "sha256": "4e73294e0a361b019f2c980c7dfaded32eb8d1a87fb0680b3471adc190bd4337"
+        },
+        "check_stage.py": {
+          "bytes": 11149,
+          "mode": 420,
+          "sha256": "fa4efe2a547c101d21b2bd89894bbc9df04ce7cd9767676c20388d7260bbbbd2"
+        },
+        "configure.cmake": {
+          "bytes": 5625,
+          "mode": 420,
+          "sha256": "53fc9405a9868456ba86c5309fe14f0109b695727b62e720cb9e21baadc861de"
+        },
+        "dependency_guard.cmake": {
+          "bytes": 2524,
+          "mode": 420,
+          "sha256": "a1989be84fbe965de12339f4406001a79fc99cc1a02f3b8bbcfa9bbce73d5a66"
+        },
+        "smoke.cpp": {
+          "bytes": 1145,
+          "mode": 420,
+          "sha256": "192734b8b58bb986eeabb9b3c70f1f489c88809867432e3ebb613fd2fded9161"
+        },
+        "smoke.qml": {
+          "bytes": 2213,
+          "mode": 420,
+          "sha256": "520bcf0b11c81d998d7fc3372240cfe165f8f5bb56d271ba35f3cd5343f83fd0"
+        },
+        "source-notices.json": {
+          "bytes": 2532,
+          "mode": 420,
+          "sha256": "9a4517652e61d0e1d57ac631da239419f71fd9875dcb053e9f2812d43b531882"
+        },
+        "source.py": {
+          "bytes": 4275,
+          "mode": 420,
+          "sha256": "a9d50bf47a64eaf458a778b9e1b336ce20990eeacf62e01f877f26d647d05fc9"
+        }
+      },
+      "recipe_path": "packages/port/qt612-declarative-source-reference",
+      "upstream_revision": "4332fbbb4c340463dc8cee36dda0c85d932122d8"
+    },
+    "gui_server": {
+      "archive": {
+        "bytes": 51220268,
+        "filename": "qtbase-everywhere-src-6.12.0.tar.xz",
+        "sha256": "a951bd163c7b80fc6b8c88d7668fb56abf91c152373e13c10666763238131307",
+        "url": "https://download.qt.io/archive/qt/6.12/6.12.0/submodules/qtbase-everywhere-src-6.12.0.tar.xz"
+      },
+      "checker_api": "inspect",
+      "commit": "5dcbefda2c182dbacb6f7a908f1e204b68892ec6",
+      "config_args": [
+        "--profile",
+        "/inputs/configure.cmake"
+      ],
+      "contracts": {
+        "BUILD-CONTRACT.json": {
+          "bytes": 15570,
+          "mode": 420,
+          "sha256": "fe136aaab252f4bba4ffd53c2d6819eceae0e6aaa03d5b8d404e176c335b9039"
+        },
+        "PROVIDER-INTERFACE.DATA.json": {
+          "bytes": 2474,
+          "mode": 420,
+          "sha256": "5292da6ca8520fbc2e73892bd77373c32bc1fa10592fd7f3366ff8c1baefc3c7"
+        },
+        "SOURCE-INPUTS.lock.json": {
+          "bytes": 6915,
+          "mode": 420,
+          "sha256": "b41af5a6f92cb1c5f68ec663118916af13fce3d7f26be928e8002857c5a9167c"
+        },
+        "lifecycle.DATA.json": {
+          "bytes": 2182,
+          "mode": 420,
+          "sha256": "a5ee79b1c11cbbf241b7b136a8d0f7054423cacfb9c3f746a3a8287b5580f8ca"
+        }
+      },
+      "filename": "cachy-asahi-qt612-gui-server-source-reference-6.12.0-1-aarch64.pkg.tar.xz",
+      "marker": "PASS_QT612_FAMILY_CHECK_GUI_SERVER",
+      "metadata": {
+        "arch": [
+          "aarch64"
+        ],
+        "conflicts": [
+          "qt6-base",
+          "cachy-asahi-qt612-base-source-reference",
+          "cachy-asahi-qt612-gui-source-reference"
+        ],
+        "depends": [
+          "brotli",
+          "dbus",
+          "double-conversion",
+          "fontconfig",
+          "freetype2",
+          "glib2",
+          "glibc",
+          "harfbuzz",
+          "icu",
+          "libb2",
+          "libgcc",
+          "libgl",
+          "libice",
+          "libjpeg-turbo",
+          "libpng",
+          "libsm",
+          "libstdc++",
+          "libx11",
+          "libxcb",
+          "libxkbcommon",
+          "libxkbcommon-x11",
+          "md4c>=0.5.3",
+          "md4c<0.6",
+          "openssl",
+          "pcre2",
+          "shared-mime-info",
+          "sqlite",
+          "xcb-util-cursor",
+          "xcb-util-image",
+          "xcb-util-keysyms",
+          "xcb-util-renderutil",
+          "xcb-util-wm",
+          "xdg-utils",
+          "zlib",
+          "zstd",
+          "libdrm",
+          "libglvnd",
+          "mesa",
+          "wayland>=1.15",
+          "libwayland-server.so=0-64"
+        ],
+        "license": [
+          "GPL-3.0-only",
+          "LGPL-3.0-only",
+          "Qt-GPL-exception-1.0",
+          "LicenseRef-Qt-ThirdParty"
+        ],
+        "makedepends": [
+          "gcc",
+          "cmake>=3.25",
+          "ninja",
+          "pkgconf",
+          "python",
+          "perl",
+          "patch"
+        ],
+        "options": [
+          "!lto",
+          "!debug",
+          "!staticlibs"
+        ],
+        "pkgbase": [
+          "cachy-asahi-qt612-gui-server-source-reference"
+        ],
+        "pkgdesc": [
+          "Independent Qt6.12 GUI18 server-enabled candidate; TEST-only and unselected"
+        ],
+        "pkgname": [
+          "cachy-asahi-qt612-gui-server-source-reference"
+        ],
+        "pkgrel": [
+          "1"
+        ],
+        "pkgver": [
+          "6.12.0"
+        ],
+        "provides": [
+          "qt6-base=6.12.0",
+          "libQt6Core.so.6",
+          "libQt6Concurrent.so.6",
+          "libQt6DBus.so.6",
+          "libQt6Gui.so.6",
+          "libQt6Network.so.6",
+          "libQt6OpenGL.so.6",
+          "libQt6OpenGLWidgets.so.6",
+          "libQt6PrintSupport.so.6",
+          "libQt6Sql.so.6",
+          "libQt6Test.so.6",
+          "libQt6Widgets.so.6",
+          "libQt6Xml.so.6",
+          "libQt6XcbQpa.so.6",
+          "libQt6EglFSDeviceIntegration.so.6",
+          "libQt6EglFsKmsGbmSupport.so.6",
+          "libQt6EglFsKmsSupport.so.6",
+          "libQt6WaylandClient.so.6",
+          "libQt6WlShellIntegration.so.6"
+        ],
+        "sha256sums": [
+          "a951bd163c7b80fc6b8c88d7668fb56abf91c152373e13c10666763238131307",
+          "eaa27120efac20a30c6c8d256385532aa988af0dee00dd1f8117f24922674350",
+          "77ee32886383da2d2b7c30b03269c7c482a6386237ad7c0bc111dd960579e379",
+          "3651e4bca7846caee61183c2bc55bf4988c6f4f2a56af81f3948afe03d41cfda",
+          "efe21d53a77c92ea66997923529b4d6e34635db7f1cb760af99d01774bdb7870",
+          "35f410bf60af41f677f7a36d58cc5079ecf57dfde2b84f29dc1b006a4bf7f0da",
+          "cd504607ac0aec8aad372aad0387c60fb405a216addfa29d6ff2f16b93eaeb96",
+          "91036b0a511b570d7ce738584ff9607ae4e3d1f88fda3b0a926847ff260a79a1",
+          "67fe503b5c407bca1c340e14fb7ceb6849b1af4d531a783b30d09cb76e65a3aa",
+          "277c4d14792c236a96f02612b4f134f84707eb33fc6a1d954ec9c5ad20490585",
+          "83abc89d507dbd9a94dc5718b0125492c1c37b0609a8f404a1f164925940faec",
+          "74c5028985dcc0455255909de4dc80f50cf5472dbf465ce46ebc791a7b080f12",
+          "c27d27b86aaf2cdab0c18d513fbb94a432e98782eddfc5f856387e4be68be50b",
+          "dd22629ce948cf0a900421323cca331907180242a9b51c3fd75b25c75f068099"
+        ],
+        "source": [
+          "https://download.qt.io/archive/qt/6.12/6.12.0/submodules/qtbase-everywhere-src-6.12.0.tar.xz",
+          "configure.cmake",
+          "SERVER_DEPENDENCY_GUARD.cmake",
+          "source-notices.json",
+          "source.py",
+          "check_stage.py",
+          "smoke.cpp",
+          "SmokeCMakeLists.txt",
+          "LICENSE.packaging",
+          "LICENSE.third-party",
+          "CVE-2026-116337-qtbase-6.12-0002.diff",
+          "CVE-2026-116337-qtbase-6.12-0001.diff",
+          "CVE-2026-105924-qtbase-6.12.diff",
+          "CVE-2026-105943-qtbase-6.12.diff"
+        ],
+        "url": [
+          "https://code.qt.io/cgit/qt/qtbase.git/"
+        ]
+      },
+      "notice_args": [],
+      "original_marker": "PASS_QT612_GUI_SERVER_OFFSCREEN_AND_LOCAL_DISPLAY_API_ONLY",
+      "package": "cachy-asahi-qt612-gui-server-source-reference",
+      "predecessors": [],
+      "recipe_inputs": {
+        ".SRCINFO": {
+          "bytes": 3856,
+          "mode": 420,
+          "sha256": "9c132b1d743040efcfad23401efee5879270fab91d71877fe0972d6501bdb445"
+        },
+        "CVE-2026-105924-qtbase-6.12.diff": {
+          "bytes": 5019,
+          "mode": 420,
+          "sha256": "c27d27b86aaf2cdab0c18d513fbb94a432e98782eddfc5f856387e4be68be50b"
+        },
+        "CVE-2026-105943-qtbase-6.12.diff": {
+          "bytes": 2291,
+          "mode": 420,
+          "sha256": "dd22629ce948cf0a900421323cca331907180242a9b51c3fd75b25c75f068099"
+        },
+        "CVE-2026-116337-qtbase-6.12-0001.diff": {
+          "bytes": 3262,
+          "mode": 420,
+          "sha256": "74c5028985dcc0455255909de4dc80f50cf5472dbf465ce46ebc791a7b080f12"
+        },
+        "CVE-2026-116337-qtbase-6.12-0002.diff": {
+          "bytes": 5186,
+          "mode": 420,
+          "sha256": "83abc89d507dbd9a94dc5718b0125492c1c37b0609a8f404a1f164925940faec"
+        },
+        "LICENSE.packaging": {
+          "bytes": 1070,
+          "mode": 420,
+          "sha256": "67fe503b5c407bca1c340e14fb7ceb6849b1af4d531a783b30d09cb76e65a3aa"
+        },
+        "LICENSE.third-party": {
+          "bytes": 639,
+          "mode": 420,
+          "sha256": "277c4d14792c236a96f02612b4f134f84707eb33fc6a1d954ec9c5ad20490585"
+        },
+        "PKGBUILD": {
+          "bytes": 6145,
+          "mode": 420,
+          "sha256": "121f2ec8f25a8c935be16136cd3dc036603679fdaea2f1b95e45a7a2201f852b"
+        },
+        "SERVER_DEPENDENCY_GUARD.cmake": {
+          "bytes": 830,
+          "mode": 420,
+          "sha256": "77ee32886383da2d2b7c30b03269c7c482a6386237ad7c0bc111dd960579e379"
+        },
+        "SmokeCMakeLists.txt": {
+          "bytes": 6902,
+          "mode": 420,
+          "sha256": "91036b0a511b570d7ce738584ff9607ae4e3d1f88fda3b0a926847ff260a79a1"
+        },
+        "check_stage.py": {
+          "bytes": 22362,
+          "mode": 420,
+          "sha256": "35f410bf60af41f677f7a36d58cc5079ecf57dfde2b84f29dc1b006a4bf7f0da"
+        },
+        "configure.cmake": {
+          "bytes": 5695,
+          "mode": 420,
+          "sha256": "eaa27120efac20a30c6c8d256385532aa988af0dee00dd1f8117f24922674350"
+        },
+        "smoke.cpp": {
+          "bytes": 3105,
+          "mode": 420,
+          "sha256": "cd504607ac0aec8aad372aad0387c60fb405a216addfa29d6ff2f16b93eaeb96"
+        },
+        "source-notices.json": {
+          "bytes": 20042,
+          "mode": 420,
+          "sha256": "3651e4bca7846caee61183c2bc55bf4988c6f4f2a56af81f3948afe03d41cfda"
+        },
+        "source.py": {
+          "bytes": 6717,
+          "mode": 420,
+          "sha256": "efe21d53a77c92ea66997923529b4d6e34635db7f1cb760af99d01774bdb7870"
+        }
+      },
+      "recipe_path": "packages/port/qt612-gui-server-source-reference",
+      "upstream_revision": "025bdad181de241e81bf853c8a2d7bf3d19261a9"
+    },
+    "shadertools": {
+      "archive": {
+        "bytes": 1244684,
+        "filename": "qtshadertools-everywhere-src-6.12.0.tar.xz",
+        "sha256": "c7d84f436e1aaef39fdcadebf2bd71bdf24dc69497e13f2e0198873cbbfea2ab",
+        "url": "https://download.qt.io/official_releases/qt/6.12/6.12.0/submodules/qtshadertools-everywhere-src-6.12.0.tar.xz"
+      },
+      "checker_api": "check",
+      "commit": "504e6278b2d6db7362cfc0a6e54e7fcd80be00a8",
+      "config_args": [],
+      "contracts": {
+        "BUILD-CONTRACT.json": {
+          "bytes": 1733,
+          "mode": 420,
+          "sha256": "6705f652f9a1c6825e98c1c54d06c2e48be9b521030e7bb6ee504aeafbbb7713"
+        },
+        "PROVIDER-INTERFACE.DATA.json": {
+          "bytes": 1297,
+          "mode": 420,
+          "sha256": "f8bfef49c52b4d36c5ec86d861a95ea9038d5d40d4e179ed857d336af4924ca9"
+        },
+        "SOURCE-INPUTS.lock.json": {
+          "bytes": 2980,
+          "mode": 420,
+          "sha256": "17c30b02b738739e0a26c3c8961df78c5933e19ab09d533bef4e7fc0d29bfc70"
+        },
+        "lifecycle.DATA.json": {
+          "bytes": 1027,
+          "mode": 420,
+          "sha256": "69bad2dbe7d4990aeaca37c029d5700b336beb444c1115ef392098a40a387360"
+        }
+      },
+      "filename": "cachy-asahi-qt612-shadertools-source-reference-6.12.0-1-aarch64.pkg.tar.xz",
+      "marker": "PASS_QT612_FAMILY_CHECK_SHADERTOOLS",
+      "metadata": {
+        "arch": [
+          "aarch64"
+        ],
+        "conflicts": [
+          "qt6-shadertools"
+        ],
+        "depends": [
+          "glibc",
+          "libgcc",
+          "libstdc++",
+          "cachy-asahi-qt612-gui-server-source-reference=6.12.0"
+        ],
+        "license": [
+          "LGPL-3.0-only",
+          "GPL-3.0-only WITH Qt-GPL-exception-1.0",
+          "LicenseRef-Qt-ThirdParty"
+        ],
+        "makedepends": [
+          "gcc",
+          "cmake>=3.25",
+          "ninja",
+          "pkgconf",
+          "python",
+          "perl"
+        ],
+        "options": [
+          "!lto",
+          "!debug",
+          "!staticlibs"
+        ],
+        "pkgbase": [
+          "cachy-asahi-qt612-shadertools-source-reference"
+        ],
+        "pkgdesc": [
+          "Qt6.12 ShaderTools and qsb source candidate with bundled compiler notices"
+        ],
+        "pkgname": [
+          "cachy-asahi-qt612-shadertools-source-reference"
+        ],
+        "pkgrel": [
+          "1"
+        ],
+        "pkgver": [
+          "6.12.0"
+        ],
+        "provides": [
+          "qt6-shadertools=6.12.0",
+          "libQt6ShaderTools.so.6"
+        ],
+        "sha256sums": [
+          "c7d84f436e1aaef39fdcadebf2bd71bdf24dc69497e13f2e0198873cbbfea2ab",
+          "4f06d082f5e93d8eeb418fdd4e9a4dfaa6205e4808c2c0001cdb613d99014426",
+          "30d1c92679f1853336843193a6a6cd72be4a6b1ba2466384732cd3ded2d2de91",
+          "7e5672b20569e864fbfd9852d4af51994ad292b511adfdfd4c531818ba7f777b",
+          "fece5a639573df37b17f8639af435d1e9f7913c476db8c0c14f97753296109f7",
+          "0220adf2acdba80b3efb0d8e801d50f6ba586e824e8caf5944b2f9364f149050",
+          "225f70874d4ff3e54f8bd164e58078ad5c356e7ac43fd497843bbe688adb0ec9",
+          "6705f652f9a1c6825e98c1c54d06c2e48be9b521030e7bb6ee504aeafbbb7713",
+          "09c63071babd163ff02b773c2bb49fa2bac81c3b43b2212a4d1963184be54044",
+          "a09705bc52dc9a8ea8c4e59b8fd1e92edc60ac7364a6a5916d6ea813ddae7b08",
+          "f168cd74aac6f200497804636633f25e1c0cc0f3647976b93fa24e9331a8ca3b",
+          "92df051cf6660ec494b8193cbf95d362e908bc4994a457ffd7b0ca7328569251",
+          "60def73e2ffab14cc61cf843f0eacb6e8fba6fe977a660c95734a7cd8fca5093",
+          "27ade780de02348a1e1bddc999c4f84c298d20caa7e7165c3a1db44d885e8ada",
+          "67fe503b5c407bca1c340e14fb7ceb6849b1af4d531a783b30d09cb76e65a3aa",
+          "58cc65719d55523ceebd21f132e18902c11ce6fa9ee3ff0b190b85af288f37ee"
+        ],
+        "source": [
+          "https://download.qt.io/official_releases/qt/6.12/6.12.0/submodules/qtshadertools-everywhere-src-6.12.0.tar.xz",
+          "configure.cmake",
+          "dependency_guard.cmake",
+          "source.py",
+          "check_stage.py",
+          "elf.py",
+          "reflection.py",
+          "BUILD-CONTRACT.json",
+          "source-notices.json",
+          "vendored-inputs.lock.json",
+          "SmokeCMakeLists.txt",
+          "smoke.cpp",
+          "smoke.vert",
+          "smoke.frag",
+          "LICENSE.packaging",
+          "LICENSE.third-party"
+        ],
+        "url": [
+          "https://code.qt.io/cgit/qt/qtshadertools.git/"
+        ]
+      },
+      "notice_args": [
+        "--vendors",
+        "/inputs/vendored-inputs.lock.json"
+      ],
+      "original_marker": null,
+      "package": "cachy-asahi-qt612-shadertools-source-reference",
+      "predecessors": [
+        "gui_server"
+      ],
+      "recipe_inputs": {
+        ".SRCINFO": {
+          "bytes": 2592,
+          "mode": 420,
+          "sha256": "0a28b98e720a428f1be682cc37233fced06c47bff542e7799089e13879bbeded"
+        },
+        "BUILD-CONTRACT.json": {
+          "bytes": 1733,
+          "mode": 420,
+          "sha256": "6705f652f9a1c6825e98c1c54d06c2e48be9b521030e7bb6ee504aeafbbb7713"
+        },
+        "LICENSE.packaging": {
+          "bytes": 1070,
+          "mode": 420,
+          "sha256": "67fe503b5c407bca1c340e14fb7ceb6849b1af4d531a783b30d09cb76e65a3aa"
+        },
+        "LICENSE.third-party": {
+          "bytes": 837,
+          "mode": 420,
+          "sha256": "58cc65719d55523ceebd21f132e18902c11ce6fa9ee3ff0b190b85af288f37ee"
+        },
+        "PKGBUILD": {
+          "bytes": 6344,
+          "mode": 420,
+          "sha256": "189cab5bb396eb2c540c606a3575b8cd6bd74ba87dc9159d3ffb035a99dbed49"
+        },
+        "SmokeCMakeLists.txt": {
+          "bytes": 2121,
+          "mode": 420,
+          "sha256": "f168cd74aac6f200497804636633f25e1c0cc0f3647976b93fa24e9331a8ca3b"
+        },
+        "check_stage.py": {
+          "bytes": 4040,
+          "mode": 420,
+          "sha256": "fece5a639573df37b17f8639af435d1e9f7913c476db8c0c14f97753296109f7"
+        },
+        "configure.cmake": {
+          "bytes": 911,
+          "mode": 420,
+          "sha256": "4f06d082f5e93d8eeb418fdd4e9a4dfaa6205e4808c2c0001cdb613d99014426"
+        },
+        "dependency_guard.cmake": {
+          "bytes": 1908,
+          "mode": 420,
+          "sha256": "30d1c92679f1853336843193a6a6cd72be4a6b1ba2466384732cd3ded2d2de91"
+        },
+        "elf.py": {
+          "bytes": 6713,
+          "mode": 420,
+          "sha256": "0220adf2acdba80b3efb0d8e801d50f6ba586e824e8caf5944b2f9364f149050"
+        },
+        "reflection.py": {
+          "bytes": 3286,
+          "mode": 420,
+          "sha256": "225f70874d4ff3e54f8bd164e58078ad5c356e7ac43fd497843bbe688adb0ec9"
+        },
+        "smoke.cpp": {
+          "bytes": 2892,
+          "mode": 420,
+          "sha256": "92df051cf6660ec494b8193cbf95d362e908bc4994a457ffd7b0ca7328569251"
+        },
+        "smoke.frag": {
+          "bytes": 318,
+          "mode": 420,
+          "sha256": "27ade780de02348a1e1bddc999c4f84c298d20caa7e7165c3a1db44d885e8ada"
+        },
+        "smoke.vert": {
+          "bytes": 272,
+          "mode": 420,
+          "sha256": "60def73e2ffab14cc61cf843f0eacb6e8fba6fe977a660c95734a7cd8fca5093"
+        },
+        "source-notices.json": {
+          "bytes": 2090,
+          "mode": 420,
+          "sha256": "09c63071babd163ff02b773c2bb49fa2bac81c3b43b2212a4d1963184be54044"
+        },
+        "source.py": {
+          "bytes": 4888,
+          "mode": 420,
+          "sha256": "7e5672b20569e864fbfd9852d4af51994ad292b511adfdfd4c531818ba7f777b"
+        },
+        "vendored-inputs.lock.json": {
+          "bytes": 29105,
+          "mode": 420,
+          "sha256": "a09705bc52dc9a8ea8c4e59b8fd1e92edc60ac7364a6a5916d6ea813ddae7b08"
+        }
+      },
+      "recipe_path": "packages/port/qt612-shadertools-source-reference",
+      "upstream_revision": "bccd516b990a6396900051470ac86cc27a7042ea"
+    },
+    "svg": {
+      "archive": {
+        "bytes": 2341876,
+        "filename": "qtsvg-everywhere-src-6.12.0.tar.xz",
+        "sha256": "e4ab39534ec97987b1b9b60ef7f4d3253d5912a69f8c713a01753174a4029331",
+        "url": "https://download.qt.io/archive/qt/6.12/6.12.0/submodules/qtsvg-everywhere-src-6.12.0.tar.xz"
+      },
+      "checker_api": "inspect",
+      "commit": "60c17b7bca5348937ba04d79ecc1cb23e1a0b934",
+      "config_args": [
+        "--profile",
+        "/inputs/configure.cmake"
+      ],
+      "contracts": {
+        "ABI-REFERENCE.DATA.json": {
+          "bytes": 1880,
+          "mode": 420,
+          "sha256": "f88b727a4e8e98a1a94061454efe42b971d608d512c1a6db6c7ca6712695c3f0"
+        },
+        "BUILD-CONTRACT.json": {
+          "bytes": 9351,
+          "mode": 420,
+          "sha256": "b19e53590cc3e74709e6d848ce7865ff5fe0ce0fd0320ff85dba27078a3ca78e"
+        },
+        "VERSION-HEADER-CONTRACT.DATA.json": {
+          "bytes": 655,
+          "mode": 420,
+          "sha256": "0f5c86fe94864386fc31138d2bfa9e08486a8a0f9e5e69da06ce2fbd494b17fd"
+        }
+      },
+      "filename": "cachy-asahi-qt612-svg-source-reference-6.12.0-1-aarch64.pkg.tar.xz",
+      "marker": "PASS_QT612_FAMILY_CHECK_SVG",
+      "metadata": {
+        "arch": [
+          "aarch64"
+        ],
+        "conflicts": [
+          "qt6-svg"
+        ],
+        "depends": [
+          "glibc",
+          "libgcc",
+          "libstdc++",
+          "qt6-base=6.12.0",
+          "zlib"
+        ],
+        "license": [
+          "LGPL-3.0-only",
+          "GPL-2.0-only",
+          "GPL-3.0-only",
+          "HPND-sell-variant",
+          "LicenseRef-Qt-ThirdParty"
+        ],
+        "makedepends": [
+          "gcc",
+          "cmake>=3.25",
+          "ninja",
+          "pkgconf",
+          "python",
+          "perl"
+        ],
+        "options": [
+          "!lto",
+          "!debug",
+          "!staticlibs"
+        ],
+        "pkgbase": [
+          "cachy-asahi-qt612-svg-source-reference"
+        ],
+        "pkgdesc": [
+          "Qt6.12 SVG and SVGWidgets source provider with both plugins; TEST-only"
+        ],
+        "pkgname": [
+          "cachy-asahi-qt612-svg-source-reference"
+        ],
+        "pkgrel": [
+          "1"
+        ],
+        "pkgver": [
+          "6.12.0"
+        ],
+        "provides": [
+          "qt6-svg=6.12.0",
+          "libQt6Svg.so.6",
+          "libQt6SvgWidgets.so.6"
+        ],
+        "sha256sums": [
+          "e4ab39534ec97987b1b9b60ef7f4d3253d5912a69f8c713a01753174a4029331",
+          "ee1b9c1f6093d0e1900fd26e16201f451c008622c57acd3d9882d248e7f267f0",
+          "8ff94bcf6ece8851dbfaac5098de6b7f999563dd647089278f449ce35ed70610",
+          "91373cd08bc00181604fe602a4319c0e838bd03e3113004fc6a6ae303a122132",
+          "ac18d1a95b566a4d6d74a036b480cf12d648b83c50267b22e71c54b217269e42",
+          "1452679ddb40231057ffe49771df2a48b241a36e5e29ed8cb36e4a6cf68d726c",
+          "6576e985825d50ad7bc371193cca28fa2524e22d90638b2de29b224daff7df17",
+          "850385b09c953f24a17bf95f5ae32b4aa066a7318c55a1713505c8418c170285",
+          "67fe503b5c407bca1c340e14fb7ceb6849b1af4d531a783b30d09cb76e65a3aa",
+          "12c0559d5673b2e983a0c757abeed72c51cfe27dab1a851b7cd1b38f93d71ddd"
+        ],
+        "source": [
+          "https://download.qt.io/archive/qt/6.12/6.12.0/submodules/qtsvg-everywhere-src-6.12.0.tar.xz",
+          "configure.cmake",
+          "dependency_guard.cmake",
+          "source.py",
+          "check_stage.py",
+          "source-notices.json",
+          "SmokeCMakeLists.txt",
+          "smoke.cpp",
+          "LICENSE.packaging",
+          "LICENSE.third-party"
+        ],
+        "url": [
+          "https://code.qt.io/cgit/qt/qtsvg.git/"
+        ]
+      },
+      "notice_args": [],
+      "original_marker": "PASS_QT612_SVG_OFFSCREEN_API_RENDER_ONLY",
+      "package": "cachy-asahi-qt612-svg-source-reference",
+      "predecessors": [
+        "gui_server"
+      ],
+      "recipe_inputs": {
+        ".SRCINFO": {
+          "bytes": 1940,
+          "mode": 420,
+          "sha256": "f0c2a17a0b15ee4ac1a17d0625e11995ff415d4374462b05359b0ee245f9cb46"
+        },
+        "LICENSE.packaging": {
+          "bytes": 1070,
+          "mode": 420,
+          "sha256": "67fe503b5c407bca1c340e14fb7ceb6849b1af4d531a783b30d09cb76e65a3aa"
+        },
+        "LICENSE.third-party": {
+          "bytes": 1188,
+          "mode": 420,
+          "sha256": "12c0559d5673b2e983a0c757abeed72c51cfe27dab1a851b7cd1b38f93d71ddd"
+        },
+        "PKGBUILD": {
+          "bytes": 4437,
+          "mode": 420,
+          "sha256": "c11e2888d12ddea3436573a22939114c6d0bf37c18efec19980fbba19519edf9"
+        },
+        "SmokeCMakeLists.txt": {
+          "bytes": 4079,
+          "mode": 420,
+          "sha256": "6576e985825d50ad7bc371193cca28fa2524e22d90638b2de29b224daff7df17"
+        },
+        "check_stage.py": {
+          "bytes": 13044,
+          "mode": 420,
+          "sha256": "ac18d1a95b566a4d6d74a036b480cf12d648b83c50267b22e71c54b217269e42"
+        },
+        "configure.cmake": {
+          "bytes": 1308,
+          "mode": 420,
+          "sha256": "ee1b9c1f6093d0e1900fd26e16201f451c008622c57acd3d9882d248e7f267f0"
+        },
+        "dependency_guard.cmake": {
+          "bytes": 3155,
+          "mode": 420,
+          "sha256": "8ff94bcf6ece8851dbfaac5098de6b7f999563dd647089278f449ce35ed70610"
+        },
+        "smoke.cpp": {
+          "bytes": 6241,
+          "mode": 420,
+          "sha256": "850385b09c953f24a17bf95f5ae32b4aa066a7318c55a1713505c8418c170285"
+        },
+        "source-notices.json": {
+          "bytes": 1279,
+          "mode": 420,
+          "sha256": "1452679ddb40231057ffe49771df2a48b241a36e5e29ed8cb36e4a6cf68d726c"
+        },
+        "source.py": {
+          "bytes": 8800,
+          "mode": 420,
+          "sha256": "91373cd08bc00181604fe602a4319c0e838bd03e3113004fc6a6ae303a122132"
+        }
+      },
+      "recipe_path": "packages/port/qt612-svg-source-reference",
+      "upstream_revision": "883a58532078d003cefef0a549bfe9f885ce41f5"
+    },
+    "wayland": {
+      "archive": {
+        "bytes": 908828,
+        "filename": "qtwayland-everywhere-src-6.12.0.tar.xz",
+        "sha256": "ae14d9bcf1bb3c300a3ab2e6a53f50284e5c6c966a4ac4cc5aedcb1bc74e4d02",
+        "url": "https://download.qt.io/archive/qt/6.12/6.12.0/submodules/qtwayland-everywhere-src-6.12.0.tar.xz"
+      },
+      "checker_api": "inspect",
+      "commit": "af714934d87849661dd1f1102287a4f3761cb600",
+      "config_args": [
+        "--profile",
+        "/inputs/configure.cmake"
+      ],
+      "contracts": {
+        "BUILD-CONTRACT.json": {
+          "bytes": 12591,
+          "mode": 420,
+          "sha256": "a6b8c1f769037094d8a630efc12605e38bf538543d0c96c22486021ad7a9e0a6"
+        },
+        "COMPATIBLE-PROVIDER-INTERFACE.DATA.json": {
+          "bytes": 3135,
+          "mode": 420,
+          "sha256": "8a925fb471eeb50e2928737472fdebd57b27816dab04c07864bf0089321f325a"
+        },
+        "SOURCE-INPUTS.lock.json": {
+          "bytes": 1659,
+          "mode": 420,
+          "sha256": "97c825beb5661ea12f6e3ea9d4b6d460a81e27b3bfbedfbcf46282133e57bfac"
+        },
+        "lifecycle.DATA.json": {
+          "bytes": 8224,
+          "mode": 420,
+          "sha256": "c1a7b8b78a529dc931dc5907eb2cd7efb4777dfa767eccebd12a9f038885ddbf"
+        }
+      },
+      "filename": "cachy-asahi-qt612-wayland-source-reference-6.12.0-1-aarch64.pkg.tar.xz",
+      "marker": "PASS_QT612_FAMILY_CHECK_WAYLAND",
+      "metadata": {
+        "arch": [
+          "aarch64"
+        ],
+        "conflicts": [
+          "qt6-wayland"
+        ],
+        "depends": [
+          "glibc",
+          "libgcc",
+          "libstdc++",
+          "qt6-base=6.12.0",
+          "qt6-declarative=6.12.0",
+          "qt6-svg=6.12.0",
+          "wayland>=1.15",
+          "libxkbcommon>=0.5.0",
+          "libdrm",
+          "libglvnd"
+        ],
+        "license": [
+          "GPL-3.0-only",
+          "LGPL-3.0-only",
+          "BSD-3-Clause",
+          "MIT",
+          "Qt-GPL-exception-1.0"
+        ],
+        "makedepends": [
+          "gcc",
+          "cmake>=3.25",
+          "ninja",
+          "pkgconf",
+          "python",
+          "perl"
+        ],
+        "options": [
+          "!lto",
+          "!debug",
+          "!staticlibs"
+        ],
+        "pkgbase": [
+          "cachy-asahi-qt612-wayland-source-reference"
+        ],
+        "pkgdesc": [
+          "Qt6.12 client extensions and full Quick/QML compositor source candidate"
+        ],
+        "pkgname": [
+          "cachy-asahi-qt612-wayland-source-reference"
+        ],
+        "pkgrel": [
+          "1"
+        ],
+        "pkgver": [
+          "6.12.0"
+        ],
+        "provides": [
+          "qt6-wayland=6.12.0",
+          "libQt6WaylandCompositor.so.6",
+          "libQt6WaylandEglCompositorHwIntegration.so.6",
+          "libQt6WaylandCompositorXdgShell.so.6",
+          "libQt6WaylandCompositorIviapplication.so.6",
+          "libQt6WaylandCompositorWLShell.so.6",
+          "libQt6WaylandCompositorPresentationTime.so.6"
+        ],
+        "sha256sums": [
+          "ae14d9bcf1bb3c300a3ab2e6a53f50284e5c6c966a4ac4cc5aedcb1bc74e4d02",
+          "0f9ae5eb0c618cbe5a33a120b21b4135de390d16fdab46f2f340472fb9803cfc",
+          "c990b529419cba027a5116ad8aed58470c90238c98b49de945152270370f79e0",
+          "7e69f4707bba8face86a8384004e9034c2efd03eeda76a20b988e80cb4a880e7",
+          "384df5ae3a9333152a482c50171b98a14a8a9e3a9be066b0f2d92437a8327670",
+          "c4e6a5bf9a58e79ec40c83c2394bf2bdfdef4ab172471e8abaca4b64b8c746d8",
+          "21ac9d87755c0a4efaa37bde993566da910bba99393ae68a73f0be20bb38d01f",
+          "f224e2a93e53764a4d678d6af2389000b8692836f76ee1442c34f8b31b0bb45c",
+          "d6c2ff5c88e1628dbf6499b523efd1453e6bef705c93488b3992cb07cc41e443",
+          "6d2e5650915907c1fa50c64d58069e0763e5314c2ee0783a40b2413bd069b9c3",
+          "67fe503b5c407bca1c340e14fb7ceb6849b1af4d531a783b30d09cb76e65a3aa",
+          "4e63379bc0b59272e37ed860cf8e8fe5a784c0bf8d551c67647f27a0c2152dc5"
+        ],
+        "source": [
+          "https://download.qt.io/archive/qt/6.12/6.12.0/submodules/qtwayland-everywhere-src-6.12.0.tar.xz",
+          "configure.cmake",
+          "dependency_guard.cmake",
+          "source.py",
+          "check_stage.py",
+          "source-notices.json",
+          "dependency-inputs.json",
+          "SmokeCMakeLists.txt",
+          "smoke.cpp",
+          "smoke.qml",
+          "LICENSE.packaging",
+          "LICENSE.third-party"
+        ],
+        "url": [
+          "https://code.qt.io/cgit/qt/qtwayland.git/"
+        ]
+      },
+      "notice_args": [],
+      "original_marker": "PASS_QT612_WAYLAND_QML_API_ONLY",
+      "package": "cachy-asahi-qt612-wayland-source-reference",
+      "predecessors": [
+        "gui_server",
+        "shadertools",
+        "svg",
+        "declarative"
+      ],
+      "recipe_inputs": {
+        ".SRCINFO": {
+          "bytes": 2542,
+          "mode": 420,
+          "sha256": "2954677d2133b9473dd3ffad233445614f321dcbf7ba3294e2d6263ff030d058"
+        },
+        "LICENSE.packaging": {
+          "bytes": 1070,
+          "mode": 420,
+          "sha256": "67fe503b5c407bca1c340e14fb7ceb6849b1af4d531a783b30d09cb76e65a3aa"
+        },
+        "LICENSE.third-party": {
+          "bytes": 543,
+          "mode": 420,
+          "sha256": "4e63379bc0b59272e37ed860cf8e8fe5a784c0bf8d551c67647f27a0c2152dc5"
+        },
+        "PKGBUILD": {
+          "bytes": 5342,
+          "mode": 420,
+          "sha256": "9f5a725afd91c38c776399267af42f49a168aab55d106c6647f45eac6e6488b9"
+        },
+        "SmokeCMakeLists.txt": {
+          "bytes": 5850,
+          "mode": 420,
+          "sha256": "f224e2a93e53764a4d678d6af2389000b8692836f76ee1442c34f8b31b0bb45c"
+        },
+        "check_stage.py": {
+          "bytes": 25436,
+          "mode": 420,
+          "sha256": "384df5ae3a9333152a482c50171b98a14a8a9e3a9be066b0f2d92437a8327670"
+        },
+        "configure.cmake": {
+          "bytes": 1433,
+          "mode": 420,
+          "sha256": "0f9ae5eb0c618cbe5a33a120b21b4135de390d16fdab46f2f340472fb9803cfc"
+        },
+        "dependency-inputs.json": {
+          "bytes": 9460,
+          "mode": 420,
+          "sha256": "21ac9d87755c0a4efaa37bde993566da910bba99393ae68a73f0be20bb38d01f"
+        },
+        "dependency_guard.cmake": {
+          "bytes": 2605,
+          "mode": 420,
+          "sha256": "c990b529419cba027a5116ad8aed58470c90238c98b49de945152270370f79e0"
+        },
+        "smoke.cpp": {
+          "bytes": 3006,
+          "mode": 420,
+          "sha256": "d6c2ff5c88e1628dbf6499b523efd1453e6bef705c93488b3992cb07cc41e443"
+        },
+        "smoke.qml": {
+          "bytes": 554,
+          "mode": 420,
+          "sha256": "6d2e5650915907c1fa50c64d58069e0763e5314c2ee0783a40b2413bd069b9c3"
+        },
+        "source-notices.json": {
+          "bytes": 1748,
+          "mode": 420,
+          "sha256": "c4e6a5bf9a58e79ec40c83c2394bf2bdfdef4ab172471e8abaca4b64b8c746d8"
+        },
+        "source.py": {
+          "bytes": 9736,
+          "mode": 420,
+          "sha256": "7e69f4707bba8face86a8384004e9034c2efd03eeda76a20b988e80cb4a880e7"
+        }
+      },
+      "recipe_path": "packages/port/qt612-wayland-source-reference",
+      "upstream_revision": "c4f85cd060e3e80a7d71829defac9cf5a40e8ffa"
+    }
+  },
+  "framework_files": {
+    "scripts/build/build_v2.py": {
+      "bytes": 13242,
+      "sha256": "37242a5680c0cb587087042455782478dac0f574f977a5f696c97d29eac39b43"
+    },
+    "scripts/build/compare_v2.py": {
+      "bytes": 5963,
+      "sha256": "89c606044b587ea772d5bbab4bad55c09dc23a7080900a9ad51839b2f516215b"
+    },
+    "scripts/build/container-entry-v2.sh": {
+      "bytes": 2447,
+      "sha256": "9be3db97efde70536a81d1c97f9ac69893a6004ab403566f8453704a2a189d2a"
+    },
+    "scripts/build/source_materials.py": {
+      "bytes": 7877,
+      "sha256": "9b0d95d2604ae4689f081283fc671281ce13879fcb146ddf4188873b05c89e5a"
+    },
+    "scripts/checks/package_checks.py": {
+      "bytes": 19289,
+      "sha256": "314e8b4a0920b3f6d93619fc74ad1d63a6210d1b17b925618451b493d2610a1a"
+    },
+    "scripts/ci/inputs.lock.json": {
+      "bytes": 328101,
+      "sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f"
+    },
+    "scripts/ci/llhttp-reference-native-source/base/profile.json": {
+      "bytes": 4194,
+      "sha256": "d9303c69df16f6bc0b5a2c9d2ec755f0983d4c7ed6fedd8074742a7dbb9ebe35"
+    },
+    "scripts/ci/log_evidence.py": {
+      "bytes": 1708,
+      "sha256": "a25f0089759c12afae3eea23bab8b22fa05cf5bbaa9eddc1611ce78b0405f8f5"
+    },
+    "scripts/ci/native_arm.py": {
+      "bytes": 28877,
+      "sha256": "8e71ba83e7d5037c6f7772401ec3b872684ccfa8472d855d8d6d3052cb1f41ba"
+    },
+    "scripts/ci/old_four_seed.py": {
+      "bytes": 29048,
+      "sha256": "a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7"
+    },
+    "scripts/integration/arm16k_systemd_tcg_guest/frozen/reference_controller.py": {
+      "bytes": 14117,
+      "sha256": "e7c8935f342d4b36bb6f8f24c0b48c3b8aa04be9807f62c3f8141aeaf26819fc"
+    },
+    "scripts/maintenance/source_cache.py": {
+      "bytes": 14253,
+      "sha256": "3c922b1c5ea737605d7fd39aa986fa281c50bcf6926660390032e677706e28f3"
+    },
+    "scripts/release/source_delivery.py": {
+      "bytes": 16456,
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+    },
+    "scripts/virtual/owned_process.py": {
+      "bytes": 25140,
+      "sha256": "83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f"
+    }
+  },
+  "kind": "QT612_COMPLETE_FAMILY_FROZEN_INPUTS_V1",
+  "order": [
+    "gui_server",
+    "shadertools",
+    "svg",
+    "declarative",
+    "wayland"
+  ],
+  "parents": {
+    "actor_gate.py": {
+      "bytes": 7754,
+      "sha256": "74d96a00bed95cf43fe296b76f57b75e5693683a058e74fb83a072602070aac6"
+    },
+    "basis.lock.json": {
+      "bytes": 4516,
+      "sha256": "6a38fd9026b10ea7400b69360ce32a9c45205ccfee5f18116fbf694e10905e3d"
+    },
+    "dependency-candidates.lock.json": {
+      "bytes": 10357,
+      "sha256": "3240b821dd9f2827732d808a94e493a8f9a9fb9550fdc802d95bc7c49397f3df"
+    },
+    "f-recipe.lock.json": {
+      "bytes": 7754,
+      "sha256": "a6ecf61d9bb36e1525e01f791cd51958426cd59c961b2f0a1d80d912fc0a1d52"
+    },
+    "f-serial-recipe.lock.json": {
+      "bytes": 10713,
+      "sha256": "020c248a7fc63bb058b0d607b83f6f711f0a5ae1d81354ce22b4dfaf0e2afec0"
+    },
+    "f_intake.py": {
+      "bytes": 14270,
+      "sha256": "8dd52885ea4bcacdd3fc458d46edfa047c60c65aa839e3834abe7f1ac81dd2e3"
+    },
+    "finish_pair.py": {
+      "bytes": 22010,
+      "sha256": "be918deb2d9e75e48f71ae6cbf7fbc8c820df7652324556e6e9d2f1fb9af9c98"
+    },
+    "prepare.py": {
+      "bytes": 23579,
+      "sha256": "9c91423837ec791b91dfc7e1575168e8d0e6838eee3c3b17cc3b19eebfb82f99"
+    },
+    "producer.py": {
+      "bytes": 32191,
+      "sha256": "9d44ec3ba2ba6063e9857bbaf9898e48828658c506d9dccbc75ab6e0e3c7dc25"
+    },
+    "resource-EXPERIMENTAL.json": {
+      "bytes": 1786,
+      "sha256": "937d2c05b96df99dde7097d10647c5ea96aea38d3442ffcbca2f3647dd643ece"
+    },
+    "resource-PROPOSAL.json": {
+      "bytes": 1858,
+      "sha256": "cc6e7a6daf31827a3ef060cfdbf3d8ab0a8a6dcfdf32e9b2c51ed857fa05b9b3"
+    },
+    "transport.lock.json": {
+      "bytes": 1130,
+      "sha256": "d3e0ab92824fc809b9db32b69f93af5d21b7f994ca96567378e12c9be28d9653"
+    },
+    "transport_binding.py": {
+      "bytes": 20339,
+      "sha256": "4bc7f71d6a1b11c9019d0a1b4aa601038b718c64e8a4cd0aaa7a1411313f77b0"
+    },
+    "transport_source.py": {
+      "bytes": 12741,
+      "sha256": "41e82eb57ab731a5094a02d342f8073f11e563b841784ef4ff07e4476c0ca21d"
+    }
+  },
+  "schema": 1,
+  "serial_recipe_commit": "69a02851b87ca29daf2e197101b66bf75ff61889",
+  "transport_commit": "75cee7ea27e1c9f3d10959e824b261764b9b1c3d"
+}
