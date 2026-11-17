@@ -181,9 +181,22 @@ class Controls(unittest.TestCase):
                 rows.append(dict(filename=name,size=len(body),sha256=hashlib.sha256(body).hexdigest(),signature_size=len(sig),signature_sha256=hashlib.sha256(sig).hexdigest()))
             profile=dict(additions=dict(rows=rows));result=b.seed_additions(profile,carrier,cache,out,time.monotonic()+30,provision,common)
             self.assertEqual(result['status'],'PASS_FIXED_EIGHT_CACHE_DATA_ONLY');self.assertEqual(len(list(cache.iterdir())),17);self.assertEqual(prior.stat(),before)
-            existing=cache/rows[0]['filename'];existing_before=existing.stat()
+            def preserved_metadata(path):
+                info = path.lstat()
+                # Reading to verify the hash may update access time.
+                return (info.st_dev, info.st_ino, info.st_mode, info.st_nlink,
+                        info.st_uid, info.st_gid, info.st_size, info.st_mtime_ns,
+                        info.st_ctime_ns)
+
+            existing = cache / rows[0]['filename']
+            # An older access time lets a verification read exercise relatime mounts.
+            os.utime(existing, ns=(0, existing.stat().st_mtime_ns))
+            existing_before = preserved_metadata(existing)
             result=b.seed_additions(profile,carrier,cache,out,time.monotonic()+30,provision,common)
-            self.assertEqual(result['files'][rows[0]['filename']]['status'],'EXACT_EXISTING_FILE_PRESERVED');self.assertEqual(existing.stat(),existing_before)
+            self.assertEqual(result['files'][rows[0]['filename']]['status'],
+                             'EXACT_EXISTING_FILE_PRESERVED')
+            self.assertEqual(existing.read_bytes(), (carrier / 'packages' / existing.name).read_bytes())
+            self.assertEqual(preserved_metadata(existing), existing_before)
             existing.write_bytes(b'MODELED wrong cache bytes');bad=existing.read_bytes()
             with self.assertRaises(ValueError):b.seed_additions(profile,carrier,cache,out,time.monotonic()+30,provision,common)
             self.assertEqual(existing.read_bytes(),bad);self.assertFalse(any(p.name.endswith('.partial') for p in cache.iterdir()))
