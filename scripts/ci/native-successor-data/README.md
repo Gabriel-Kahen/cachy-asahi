@@ -1,8 +1,8 @@
 # Automatic successor DATA controls
 
-This CI-only family registers 72 existing author controls and eight CI guards on
-Python 3.12 and 3.14. It adds one PR/Main/manual workflow. Author test files,
-production files, existing workflows, manifests and counts remain unchanged.
+This CI-only family registers 105 author controls and eight CI guards on
+Python 3.12 and 3.14. It adds one PR/Main/manual workflow. All 80 previously registered controls remain intact. Author test files,
+production files, other workflows and package manifests remain unchanged.
 There is no native job, package build, installation, signing or Root dispatch.
 The existing Source205104, Rust73, Fish v4 and Full Lua workflows are untouched.
 
@@ -14,6 +14,9 @@ The existing Source205104, Rust73, Fish v4 and Full Lua workflows are untouched.
 | Libgit2 interoperability | 1 | Seven pinned consumer helpers; explicit MODEL records |
 | Libgit2 VA successor | 7 | Same genuine DATA plus explicit MODEL records |
 | Fish v5 | 8 | Exact Source50 reconstructed from published Source48 |
+| Source85 filesystem diagnostics | 7 of 8 | Exact Source76 reconstructed from public Source62 |
+| Filebackend chain parser | 10 | Committed actual r89 frame and pinned predecessors |
+| Semantic cache DATA/refusals | 16 of 18 | Committed cache/provider evidence; baseline derivation stays HOLD |
 | CI guards | 8 | Adversarial tar, whole-file, result and selection boundaries |
 
 ## Explicit coverage gap
@@ -28,6 +31,24 @@ native seven-method allowlist is explicit, and an AST census requires every
 original source method to be registered or listed as blocked; additions cannot
 silently disappear. Missing required inputs fail the registered suites; no skips
 or expected failures are accepted.
+
+The Source85 case `test_actual87_failure_and_verified_cleanup_remain_distinct`
+also remains unregistered: it needs uncommitted actual87 public files at a local
+retained path. Seven Source85 controls use the exact reconstructed Source76.
+Root must provide a genuine portable fixture before the eighth can be added.
+
+Two semantic cases remain unregistered:
+`test_finite_shell_phase_checks_with_model_data_only` and
+`test_model_exact_transform_inverse_and_shell_syntax`. They invoke Bash and use
+synthetic positive phase data or substitute a MODEL manifest. The actor fence is
+unchanged. No synthetic positive phase result, fake baseline/profile or shell
+exception is introduced to make them pass. The included 16 semantic controls
+check committed DATA and refusal behavior; none calls `transition.phase`.
+
+The exact 17551-byte independently qualified baseline body is absent. Its hash,
+header and the different observed r90 cache cannot substitute for it. The
+unchanged derive/apply APIs keep refusing, as required by the registered tests.
+The existing 12 native caller exclusions remain separate and unchanged.
 
 ## Exact public operands
 
@@ -63,12 +84,22 @@ suffixes refuse. The setup and each suite run with 512 MiB address space, 120 CP
 seconds, 32 MiB maximum file size and 256 descriptors; orchestrator deadlines are
 120 seconds for setup and 180 seconds per suite.
 
+`diagnostic-cache-inputs.lock.json` whole-pins the five existing constructor
+operands for Source62→68→76 and the three new test files. Preparation reconstructs
+76 files / 1053728 bytes / tree `ff131da635fc160b557c58ce0f716a997a918551`,
+then the unchanged v4 parent gate checks the complete76→68→62 inverse and NULL
+actual selectors. This uses the existing Source62 operand; no additional fetch
+or Source publication occurs. Explicit method censuses cover all eight Source85,
+ten filebackend and eighteen semantic methods: each is registered or named as
+blocked. The new33 plus retained80 require **113 controls per Python version**.
+
 ## Unchanged author commands and portable temporary directories
 
 The runner executes each original test CLI through `runpy` with its original
 `__main__` initialization. Fish receives its original `--base` argument and
 `TMPDIR=/tmp` requirement. Native receives the seven explicit unittest method
-names; other suites run in full. All test assertions, pins, MODEL records and
+names. Source85 and semantic receive their explicit seven/sixteen names; the
+filebackend suite runs in full. Existing suites retain their original arguments. All test assertions, pins, MODEL records and
 source paths are unchanged.
 
 The only portability adapter maps the two historical temporary-parent literals

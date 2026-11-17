@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html [
+	<!ENTITY nbsp "&#xA0;">
+	<!ENTITY sdot "&#x22C5;">
+]>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
+<!-- git web interface version 2.43.7, (C) 2005-2006, Kay Sievers <kay.sievers@vrfy.org>, Christian Gierke -->
+<!-- git core binaries version 2.43.7 -->
+<head>
+<meta name="generator" content="gitweb/2.43.7 git/2.43.7"/>
+<meta name="robots" content="index, nofollow"/>
+<title>sourceware.org Git - glibc.git/commit</title>
+<base href="https://sourceware.org/git" />
+<link rel="stylesheet" type="text/css" href="static/gitweb.css"/>
+<link rel="alternate" title="glibc.git - log - RSS feed" href="/git?p=glibc.git;a=rss" type="application/rss+xml" />
+<link rel="alternate" title="glibc.git - log - RSS feed (no merges)" href="/git?p=glibc.git;a=rss;opt=--no-merges" type="application/rss+xml" />
+<link rel="alternate" title="glibc.git - log - Atom feed" href="/git?p=glibc.git;a=atom" type="application/atom+xml" />
+<link rel="alternate" title="glibc.git - log - Atom feed (no merges)" href="/git?p=glibc.git;a=atom;opt=--no-merges" type="application/atom+xml" />
+<link rel="shortcut icon" href="static/git-favicon.png" type="image/png" />
+</head>
+<body>
+<div class="page_header">
+<a href="https://git-scm.com/" title="git homepage"><img alt="git" class="logo" height="27" src="static/git-logo.png" width="72" /></a><a href="/git">git://sourceware.org</a> / <a href="/git?p=glibc.git;a=summary">glibc.git</a> / commit
+</div>
+<div class="page_nav">
+<a href="/git?p=glibc.git;a=summary">summary</a> | <a href="/git?p=glibc.git;a=shortlog;h=8362e8ce10b2">shortlog</a> | <a href="/git?p=glibc.git;a=log;h=8362e8ce10b2">log</a> | commit | <a href="/git?p=glibc.git;a=commitdiff;h=8362e8ce10b2">commitdiff</a> | <a href="/git?p=glibc.git;a=tree;h=912828afc79878e39e0e771d461f11080c25b715;hb=8362e8ce10b2">tree</a><br/>
+(parent: <a href="/git?p=glibc.git;a=commit;h=ce1013a197eb4a3b8ff2b07e0672f4d0b976ce7c">ce1013a</a>) | <a href="/git?p=glibc.git;a=patch;h=8362e8ce10b2">patch</a><br/>
+</div>
+<div class="header">
+<a class="title" href="/git?p=glibc.git;a=commitdiff;h=8362e8ce10b2">Use pending character state in IBM1390, IBM1399 character sets (CVE-2026-4046)</a>
+</div>
+<div class="title_text">
+<table class="object_header">
+<tr><td>author</td><td>Florian Weimer &lt;fweimer@redhat.com&gt;</td><td rowspan="2"></td></tr>
+<tr><td></td><td><span class="datetime">Thu, 16 Apr 2026 17:13:43 +0000</span> (19:13 +0200)</td></tr>
+<tr><td>committer</td><td>Aurelien Jarno &lt;aurelien@aurel32.net&gt;</td><td rowspan="2"></td></tr>
+<tr><td></td><td><span class="datetime">Sun, 19 Apr 2026 09:32:09 +0000</span> (11:32 +0200)</td></tr>
+<tr><td>commit</td><td class="sha1">8362e8ce10b24068bacc19552c128dd10e082fd9</td></tr>
+<tr><td>tree</td><td class="sha1"><a class="list" href="/git?p=glibc.git;a=tree;h=912828afc79878e39e0e771d461f11080c25b715;hb=8362e8ce10b2">912828afc79878e39e0e771d461f11080c25b715</a></td><td class="link"><a href="/git?p=glibc.git;a=tree;h=912828afc79878e39e0e771d461f11080c25b715;hb=8362e8ce10b2">tree</a></td></tr>
+<tr><td>parent</td><td class="sha1"><a class="list" href="/git?p=glibc.git;a=commit;h=ce1013a197eb4a3b8ff2b07e0672f4d0b976ce7c">ce1013a197eb4a3b8ff2b07e0672f4d0b976ce7c</a></td><td class="link"><a href="/git?p=glibc.git;a=commit;h=ce1013a197eb4a3b8ff2b07e0672f4d0b976ce7c">commit</a> | <a href="/git?p=glibc.git;a=commitdiff;h=8362e8ce10b2;hp=ce1013a197eb4a3b8ff2b07e0672f4d0b976ce7c">diff</a></td></tr>
+</table></div>
+<div class="page_body">
+Use&nbsp;pending&nbsp;character&nbsp;state&nbsp;in&nbsp;IBM1390,&nbsp;IBM1399&nbsp;character&nbsp;sets&nbsp;(CVE-2026-4046)<br/>
+<br/>
+Follow&nbsp;the&nbsp;example&nbsp;in&nbsp;iso-2022-jp-3.c&nbsp;and&nbsp;use&nbsp;the&nbsp;__count&nbsp;state<br/>
+variable&nbsp;to&nbsp;store&nbsp;the&nbsp;pending&nbsp;character.&nbsp;&nbsp;This&nbsp;avoids&nbsp;restarting<br/>
+the&nbsp;conversion&nbsp;if&nbsp;the&nbsp;output&nbsp;buffer&nbsp;ends&nbsp;between&nbsp;two&nbsp;4-byte&nbsp;UCS-4<br/>
+code&nbsp;points,&nbsp;so&nbsp;that&nbsp;the&nbsp;assert&nbsp;reported&nbsp;in&nbsp;the&nbsp;bug&nbsp;can&nbsp;no&nbsp;longer<br/>
+happen.<br/>
+<br/>
+Even&nbsp;though&nbsp;the&nbsp;fix&nbsp;is&nbsp;applied&nbsp;to&nbsp;ibm1364.c,&nbsp;the&nbsp;change&nbsp;is&nbsp;only<br/>
+effective&nbsp;for&nbsp;the&nbsp;two&nbsp;HAS_COMBINED&nbsp;codecs&nbsp;for&nbsp;IBM1390,&nbsp;IBM1399.<br/>
+<br/>
+The&nbsp;test&nbsp;case&nbsp;was&nbsp;mostly&nbsp;auto-generated&nbsp;using<br/>
+claude-4.6-opus-high-thinking,&nbsp;and&nbsp;composer-2-fast&nbsp;shows&nbsp;up&nbsp;in&nbsp;the<br/>
+log&nbsp;as&nbsp;well.&nbsp;&nbsp;During&nbsp;review,&nbsp;gpt-5.4-xhigh&nbsp;flagged&nbsp;that&nbsp;the&nbsp;original<br/>
+version&nbsp;of&nbsp;the&nbsp;test&nbsp;case&nbsp;was&nbsp;not&nbsp;exercising&nbsp;the&nbsp;new&nbsp;character<br/>
+flush&nbsp;logic.<br/>
+<br/>
+This&nbsp;fixes&nbsp;bug&nbsp;33980.<br/>
+<br/>
+<span class="signoff">Assisted-by: LLM</span><br/>
+<span class="signoff">Reviewed-by: Carlos O&#39;Donell &lt;carlos@redhat.com&gt;</span><br/>
+(cherry&nbsp;picked&nbsp;from&nbsp;commit&nbsp;<a class="text" href="/git?p=glibc.git;a=object;h=d6f08d1cf027f4eb2ba289a6cc66853722d4badc">d6f08d1cf027f4eb2ba289a6cc66853722d4badc</a>)<br/>
+</div>
+<div class="list_head">
+</div>
+<table class="diff_tree">
+<tr class="dark">
+<td><a class="list" href="/git?p=glibc.git;a=blob;f=iconvdata/Makefile;h=fbb00673027026ade443a7f7380112e498e048b9;hb=8362e8ce10b2">iconvdata/Makefile</a></td>
+<td></td>
+<td class="link"><a href="/git?p=glibc.git;a=blobdiff;f=iconvdata/Makefile;h=fbb00673027026ade443a7f7380112e498e048b9;hp=26e888b443ef1b6df718ea8baecd36a2d6c64a8b;hb=8362e8ce10b2;hpb=ce1013a197eb4a3b8ff2b07e0672f4d0b976ce7c">diff</a> | <a href="/git?p=glibc.git;a=blob;f=iconvdata/Makefile;h=fbb00673027026ade443a7f7380112e498e048b9;hb=8362e8ce10b2">blob</a> | <a href="/git?p=glibc.git;a=history;f=iconvdata/Makefile;hb=8362e8ce10b2">history</a></td>
+</tr>
+<tr class="light">
+<td><a class="list" href="/git?p=glibc.git;a=blob;f=iconvdata/ibm1364.c;h=8df66ea048723960b6d38dc6c34aa61584a09276;hb=8362e8ce10b2">iconvdata/ibm1364.c</a></td>
+<td></td>
+<td class="link"><a href="/git?p=glibc.git;a=blobdiff;f=iconvdata/ibm1364.c;h=8df66ea048723960b6d38dc6c34aa61584a09276;hp=4f41f22c12249928880b3e64a5e284ad96505a41;hb=8362e8ce10b2;hpb=ce1013a197eb4a3b8ff2b07e0672f4d0b976ce7c">diff</a> | <a href="/git?p=glibc.git;a=blob;f=iconvdata/ibm1364.c;h=8df66ea048723960b6d38dc6c34aa61584a09276;hb=8362e8ce10b2">blob</a> | <a href="/git?p=glibc.git;a=history;f=iconvdata/ibm1364.c;hb=8362e8ce10b2">history</a></td>
+</tr>
+<tr class="dark">
+<td><a class="list" href="/git?p=glibc.git;a=blob;f=iconvdata/tst-bug33980.c;h=c9693e0efebe4eae33588c016c1f8ccbc151631a;hb=8362e8ce10b2">iconvdata/tst-bug33980.c</a></td>
+<td><span class="file_status new">[new file with mode: 0644]</span></td>
+<td class="link"><a href="/git?p=glibc.git;a=blob;f=iconvdata/tst-bug33980.c;h=c9693e0efebe4eae33588c016c1f8ccbc151631a;hb=8362e8ce10b2">blob</a></td>
+</tr>
+</table>
+<div class="page_footer">
+<div class="page_footer_text">GNU C Library master sources</div>
+<a class="rss_logo" href="/git?p=glibc.git;a=rss" title="log RSS feed">RSS</a>
+<a class="rss_logo" href="/git?p=glibc.git;a=atom" title="log Atom feed">Atom</a>
+</div>
+<div id="generating_info">
+This page took <span id="generating_time" class="time_span">0.077698 seconds </span> and <span id="generating_cmd">5</span> git commands  to generate.
+</div>
+<script type="text/javascript" src="static/gitweb.js"></script>
+<script type="text/javascript">
+window.onload = function () {
+	var tz_cookie = { name: 'gitweb_tz', expires: 14, path: '/' };
+	onloadTZSetup('local', tz_cookie, 'datetime');
+};
+</script>
+</body>
+</html>

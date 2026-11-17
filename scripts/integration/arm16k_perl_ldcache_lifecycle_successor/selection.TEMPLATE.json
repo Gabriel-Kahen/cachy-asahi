@@ -1,0 +1,19 @@
+{
+  "actual": {
+    "ALPM": null,
+    "M2": null,
+    "Root_authority": null,
+    "Source_CID": null,
+    "VM": null,
+    "nonce": null,
+    "release": null,
+    "runtime": null,
+    "source_ref": null
+  },
+  "baseline": null,
+  "kind": "EXPLICIT_UNISSUED_CACHE_SUCCESSOR_SELECTION_V1",
+  "materials": null,
+  "output": null,
+  "predecessor": null,
+  "proposal": null
+}
