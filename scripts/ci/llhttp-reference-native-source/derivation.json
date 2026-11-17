@@ -1,0 +1,299 @@
+{
+  "base_commit": "44234c090fd93909aea8f6c54b4ef4f949eb0aef",
+  "files": {
+    "base/admission.TEMPLATE.json": {
+      "changes": [
+        {
+          "after": "LLHTTP_REFERENCE",
+          "before": "FISH02"
+        }
+      ],
+      "original": {
+        "bytes": 687,
+        "sha256": "13f73982b3d4504c0e7f4694c882ab602dea8d2452f5316582635d434165be71"
+      },
+      "projected": {
+        "bytes": 697,
+        "sha256": "f9ebc42af36bd7ce889739084451281c4493a3268128b82982b093276c56bae3"
+      },
+      "source_path": "scripts/ci/fish-config02-native-source/admission.TEMPLATE.json"
+    },
+    "base/contract.py": {
+      "changes": [
+        {
+          "after": "scripts/ci/llhttp-reference-native-source/base",
+          "before": "scripts/ci/fish-config02-native-source"
+        },
+        {
+          "after": ".github/workflows/native-arm-llhttp-reference-source.yml",
+          "before": ".github/workflows/native-arm-fish-config02-source.yml"
+        },
+        {
+          "after": "LLHTTP_REFERENCE",
+          "before": "FISH02"
+        },
+        {
+          "after": "llhttp reference",
+          "before": "Fish02"
+        },
+        {
+          "after": "llhttp-reference",
+          "before": "fish02"
+        }
+      ],
+      "original": {
+        "bytes": 6952,
+        "sha256": "3dcf28047e70c0cdaf11cb9689c7f9ed1d0d3723ce666a45b4ab87e3bf8b6a4a"
+      },
+      "projected": {
+        "bytes": 7093,
+        "sha256": "843772474ca317f0299dda33f5dee0b67edb4b6ab20dc6a5e07ab97b070db6b3"
+      },
+      "source_path": "scripts/ci/fish-config02-native-source/contract.py"
+    },
+    "base/entry.py": {
+      "changes": [
+        {
+          "after": "LLHTTP_REFERENCE",
+          "before": "FISH02"
+        },
+        {
+          "after": "llhttp reference",
+          "before": "Fish02"
+        },
+        {
+          "after": "llhttp-reference",
+          "before": "fish02"
+        },
+        {
+          "after": "output/'comparison.json',image,runner)",
+          "before": "output/'comparison.json',image)"
+        }
+      ],
+      "original": {
+        "bytes": 19734,
+        "sha256": "4c586d85400fb014c6eac853a94ced79dcaaa3a1573d84d5c03e3b59eda743e1"
+      },
+      "projected": {
+        "bytes": 19941,
+        "sha256": "fb0c09a51e41dfe3fd013bed0b99cb70cb2c3c8201f01beb999dd025fa051bef"
+      },
+      "source_path": "scripts/ci/fish-config02-native-source/entry.py"
+    },
+    "base/runtime.TEMPLATE.json": {
+      "changes": [
+        {
+          "after": "LLHTTP_REFERENCE",
+          "before": "FISH02"
+        }
+      ],
+      "original": {
+        "bytes": 754,
+        "sha256": "eecbc1fb2c57c1fb4079a9c731d895173bf066ebccf1945fbc54c25efacc254c"
+      },
+      "projected": {
+        "bytes": 764,
+        "sha256": "1528dae0982cc7c3c719a527317646b697463aab9de295aa36d913ea5a46d994"
+      },
+      "source_path": "scripts/ci/fish-config02-native-source/runtime.TEMPLATE.json"
+    },
+    "owner/admission.TEMPLATE.json": {
+      "changes": [
+        {
+          "after": "LLHTTP_REFERENCE",
+          "before": "FISH02"
+        }
+      ],
+      "original": {
+        "bytes": 687,
+        "sha256": "13f73982b3d4504c0e7f4694c882ab602dea8d2452f5316582635d434165be71"
+      },
+      "projected": {
+        "bytes": 697,
+        "sha256": "f9ebc42af36bd7ce889739084451281c4493a3268128b82982b093276c56bae3"
+      },
+      "source_path": "scripts/ci/fish-config02-native-source/successor_v2/admission.TEMPLATE.json"
+    },
+    "owner/data.py": {
+      "changes": [
+        {
+          "after": "scripts/ci/llhttp-reference-native-source/owner/",
+          "before": "scripts/ci/fish-config02-native-source/successor_v2/"
+        },
+        {
+          "after": "scripts/ci/llhttp-reference-native-source/base",
+          "before": "scripts/ci/fish-config02-native-source"
+        },
+        {
+          "after": "LLHTTP_REFERENCE",
+          "before": "FISH02"
+        },
+        {
+          "after": "llhttp-reference",
+          "before": "fish02"
+        },
+        {
+          "after": "held-source",
+          "before": "held-source32"
+        },
+        {
+          "after": "# SPDX-License-Identifier: MIT\n\"\"\"Finite Fish-only policy, namespace and domain joins; no actor on import.\"\"\"\nimport hashlib\nimport json\nfrom pathlib import Path\nimport re\nimport stat\n\nPREFIX = 'scripts/ci/llhttp-reference-native-source/owner/'\nBASE_PREFIX = 'scripts/ci/llhttp-reference-native-source/base/'\n\ndef base_binding(root):\n    return decode(read(root/PREFIX/'base-binding.json'))\n\nENV_ANCHOR = \"                    if env:clean.update(env)\"\nENV_PROJECTION = \"                    clean['DOCKER_HOST']=os.environ['CACHY_LLHTTP_REFERENCE_OWNED_DOCKER_HOST']\\n                    clean['DOCKER_BUILDKIT']='0'\\n                    clean['TMPDIR']=os.environ['CACHY_LLHTTP_REFERENCE_OWNED_TMPDIR']\\n\" + ENV_ANCHOR\n\n\ndef need(value, why):\n    if not value: raise ValueError(why)\n\n\ndef pin(body): return dict(bytes=len(body), sha256=hashlib.sha256(body).hexdigest())\n\n\ndef decode(body):\n    def pairs(items):\n        value = {}\n        for key, item in items:\n            need(key not in value, 'duplicate JSON key'); value[key] = item\n        return value\n    return json.loads(body, object_pairs_hook=pairs,\n                      parse_constant=lambda _: (_ for _ in ()).throw(ValueError('nonfinite JSON')))\n\n\ndef read(path, cap=2*1024**2, empty=False):\n    need(path.is_absolute() and path == path.resolve() and not path.is_symlink(), 'canonical DATA path')\n    info = path.lstat()\n    need(stat.S_ISREG(info.st_mode) and info.st_nlink == 1 and (0 if empty else 1) <= info.st_size <= cap\n         and not info.st_mode & 0o022, 'bounded ordinary DATA body')\n    identity = lambda s: (s.st_dev, s.st_ino, s.st_mode, s.st_nlink, s.st_uid, s.st_gid, s.st_size, s.st_mtime_ns, s.st_ctime_ns)\n    body = path.read_bytes(); need(len(body) == info.st_size and identity(path.lstat()) == identity(info), 'unchanged whole DATA')\n    return body\n\n\ndef source(root, expected):\n    root = Path(root)\n    need(root.is_absolute() and root == root.resolve(), 'canonical complete Source')\n    body = read(root/'source-map.json'); need(pin(body)['sha256'] == expected, 'external successor map pin')\n    value = decode(body); rows = value['files']\n    need(value['kind'] == 'LLHTTP_REFERENCE_OWNED_HOSTED_SOURCE_V2' and 32 < len(rows) < 80\n         and all(v is None for v in value['actual'].values()), 'finite prospective successor namespace')\n    found = {str(p.relative_to(root)) for p in root.rglob('*') if p.relative_to(root).parts[0] != '.git'\n             and (p.is_file() or p.is_symlink())}\n    need(found == set(rows)|{'source-map.json'}, 'complete closed successor namespace')\n    for name, row in rows.items():\n        need(not Path(name).is_absolute() and '..' not in Path(name).parts, 'safe Source name')\n        path = root/name\n        need(dict(pin(read(path)), mode=stat.S_IMODE(path.stat().st_mode)) == row and row['mode'] == 0o644,\n             'whole successor body/mode: '+name)\n    base = root/'held-source'; raw = read(base/BASE_PREFIX/'source-map.json')\n    binding=base_binding(root)\n    need(pin(raw) == binding['map'], 'whole exact newly constructed base map')\n    prior = decode(raw)\n    subset = {n[len('held-source/'):]:r for n,r in rows.items() if n.startswith('held-source/')}\n    need(subset == dict(prior['files'], **{BASE_PREFIX+'source-map.json':dict(pin(raw),mode=0o644)})\n         and len(subset) == binding['files'] and sum(r['bytes'] for r in subset.values()) == binding['bytes'],\n         'exact unchanged whole Source32 subtree')\n    program = decode(read(root/PREFIX/'owner-program.json'))\n    need(program['base_source_map_sha256'] == binding['map']['sha256'] and program['schema'] == 1, 'explicit held Source32 delegation')\n    need(set(program['files']) == {n for n in rows if not n.startswith('held-source/') and n != PREFIX+'owner-program.json'}, 'complete owner-program namespace')\n    for name, row in program['files'].items():\n        need(rows[name] == row, 'whole owner-program closure')\n    return value\n\n\n\ndef admission(root, map_sha, admission_raw, runtime_raw, admission_sha, runtime_sha, env, now):\n    need(0 < len(admission_raw) <= 16384 and 0 < len(runtime_raw) <= 16384\n         and pin(admission_raw)['sha256'] == admission_sha and pin(runtime_raw)['sha256'] == runtime_sha,\n         'two separately pinned whole Root documents')\n    source(root,map_sha); a,r = decode(admission_raw),decode(runtime_raw)\n    profile = decode(read(root/'held-source'/BASE_PREFIX/'profile.json'))\n    for value,kind in ((a,'ROOT_LLHTTP_REFERENCE_HOSTED_ADMISSION_V1'),(r,'ROOT_LLHTTP_REFERENCE_HOSTED_RUNTIME_V1')):\n        need(value['kind'] == kind and value['issued_by'] == 'Root' and value['accepted'] is True,\n             'separate actual Root issuance')\n        need(re.fullmatch('[0-9a-f]{40}',value['source'] or '') and value['source'] == env.get('GITHUB_SHA')\n             and value['ref'] == env.get('GITHUB_REF') and value['ref'].startswith('refs/heads/codex/')\n             and value['source_map_sha256'] == map_sha and value['resources'] == profile['resources'],\n             'exact actual Source/ref/map/held pair policy')\n        need(type(value['created_utc']) is int and type(value['expires_utc']) is int\n             and value['created_utc'] <= now < value['expires_utc'] and value['expires_utc']-value['created_utc'] <= 3600\n             and re.fullmatch('[0-9a-f]{32}',value['nonce'] or ''), 'fresh bounded Root delegation')\n    policy=decode(read(root/PREFIX/'policy.json'))\n    need(r.get('host_prerequisites')==policy['host_prerequisites'], 'separate explicit Root Ubuntu CI prerequisite admission required')\n    need(a['nonce'] == r['nonce'] and env.get('GITHUB_REPOSITORY') == 'Gabriel-Kahen/cachy-asahi'\n         and env.get('GITHUB_EVENT_NAME') == 'workflow_dispatch' and env.get('GITHUB_RUN_ATTEMPT') == '1'\n         and re.fullmatch('[1-9][0-9]{1,19}',env.get('GITHUB_RUN_ID','')), 'single hosted attempt/nonce')\n    need(r['external_supervision'] == pin(read(root/PREFIX/'owner-program.json'))\n         and r['bootstrap_resource_domain'] == pin(read(root/PREFIX/'policy.json')),\n         'loaded actual owner-program and new separate resource policy pins')\n    return a,r\n\n\ndef projected_entry(body):\n    text = body.decode(); need(text.count(ENV_ANCHOR) == 1, 'finite Docker endpoint/backend seam')\n    projected = text.replace(ENV_ANCHOR,ENV_PROJECTION)\n    need(projected.count(ENV_PROJECTION) == 1 and projected.replace(ENV_PROJECTION,ENV_ANCHOR).encode() == body,\n         'whole held entry inverse')\n    return projected\n\n\ndef unit(nonce, kind):\n    need(re.fullmatch('[0-9a-f]{32}',nonce or '') and kind in ('owner','daemon'), 'fixed operation identity')\n    return 'cachy-llhttp-reference-'+nonce+'-'+kind+'.service'\n\n\ndef service_args(nonce, kind, limits, command, log, uid=None, gid=None):\n    args = ['/usr/bin/systemd-run','--quiet','--no-block','--unit='+unit(nonce,kind),\n            '--property=Type=exec','--property=OOMPolicy=kill','--property=Restart=no','--property=KillMode=control-group',\n            '--property=TimeoutStopSec=5s','--property=RuntimeMaxSec=1290s',\n            '--property=MemoryMax='+str(limits['memory_bytes']),'--property=MemorySwapMax=0',\n            '--property=CPUQuota='+str(limits['cpus']*100)+'%','--property=CPUQuotaPeriodSec=100ms',\n            '--property=TasksMax='+str(limits['pids']), '--property=LimitCORE=0',\n            '--property=StandardOutput=append:'+str(log),'--property=StandardError=append:'+str(log)]\n    volume=log.parent\n    args += ['--property=ProtectSystem=strict','--property=ReadOnlyPaths=/tmp /var/tmp /sys/fs/cgroup']\n    if kind == 'daemon':\n        args += ['--property=Delegate=yes','--property=DelegateSubgroup=daemon',\n                 '--property=ReadWritePaths='+str(volume)+' /sys/fs/cgroup/system.slice/'+unit(nonce,kind),\n                 '--property=Environment=DOCKER_TMPDIR='+str(volume/'exec/tmp')+' TMPDIR='+str(volume/'exec/tmp')]\n    else:\n        need(type(uid) is int and uid > 0 and type(gid) is int and gid > 0, 'ordinary fixed runner IDs')\n        args += ['--uid='+str(uid),'--gid='+str(gid),'--property=NoNewPrivileges=yes',\n                 '--property=LimitAS='+str(limits['AS_bytes']),'--property=RemainAfterExit=yes',\n                 '--property=ReadWritePaths='+str(volume/'work')]\n    return args+['--',*command]\n\n\ndef domain(values, limits):\n    expected = {'memory.max':str(limits['memory_bytes']), 'memory.swap.max':'0',\n                'pids.max':str(limits['pids']), 'cpu.max':str(limits['cpus']*100000)+' 100000'}\n    need(values == expected, 'actual kernel domain must equal separately reviewed maxima')\n    return expected\n\n\ndef observation(value, a, map_sha, policy, self_pid, self_start, self_cgroup):\n    need(value['kind'] == 'LLHTTP_REFERENCE_ACTUAL_HOSTED_DOMAINS_V2'\n         and value['source'] == a['source'] and value['ref'] == a['ref'] and value['nonce'] == a['nonce']\n         and value['source_map_sha256'] == map_sha and value['owner']['pid'] == self_pid\n         and value['owner']['starttime'] == self_start and value['owner']['cgroup'] == self_cgroup,\n         'actual post-dispatch Source/PID/start/cgroup observation join')\n    prerequisite=value.get('host_prerequisite',{})\n    need(prerequisite.get('status')=='PASS_CI_LIBARCHIVE_TOOLS_PREREQUISITE_ONLY'and prerequisite.get('declaration')==policy['host_prerequisites']and\n         prerequisite.get('package')=='libarchive-tools'and prerequisite.get('installed')==dict(package='libarchive-tools',state='install ok installed',version=prerequisite.get('selected_version'),architecture='arm64')and\n         type(prerequisite.get('selected_version'))is str and re.fullmatch('[A-Za-z0-9.+:~_-]{1,128}',prerequisite['selected_version'])and\n         type(prerequisite.get('receipt',{}).get('bytes'))is int and 0<prerequisite['receipt']['bytes']<=1024**2 and re.fullmatch('[0-9a-f]{64}',prerequisite['receipt']['sha256']),\n         'actual recorded CI prerequisite before any native seed')\n    domain(value['owner']['limits'],policy['owner']);domain(value['daemon']['limits'],policy['daemon'])\n    need(value['daemon']['cgroup'] != self_cgroup and value['endpoint'].startswith('unix:///')\n         and value['storage_bytes'] == policy['storage_bytes'] and value['backend'] == policy['bootstrap_backend'],\n         'distinct finite owned daemon/storage/backend')\n    return value\n",
+          "before": "# SPDX-License-Identifier: MIT\n\"\"\"Finite Fish-only policy, namespace and domain joins; no actor on import.\"\"\"\nimport hashlib\nimport json\nfrom pathlib import Path\nimport re\nimport stat\n\nPREFIX = 'scripts/ci/llhttp-reference-native-source/owner/'\nBASE_MAP = 'c1ac908dade524987e4b24fbde5d808ade2629edfa8b965b37f85a798abafd64'\nBASE_MAP_BYTES = 6521\nBASE_BYTES = 592443\nBASE_PREFIX = 'scripts/ci/llhttp-reference-native-source/base/'\nENV_ANCHOR = \"                    if env:clean.update(env)\"\nENV_PROJECTION = \"                    clean['DOCKER_HOST']=os.environ['CACHY_LLHTTP_REFERENCE_OWNED_DOCKER_HOST']\\n                    clean['DOCKER_BUILDKIT']='0'\\n                    clean['TMPDIR']=os.environ['CACHY_LLHTTP_REFERENCE_OWNED_TMPDIR']\\n\" + ENV_ANCHOR\n\n\ndef need(value, why):\n    if not value: raise ValueError(why)\n\n\ndef pin(body): return dict(bytes=len(body), sha256=hashlib.sha256(body).hexdigest())\n\n\ndef decode(body):\n    def pairs(items):\n        value = {}\n        for key, item in items:\n            need(key not in value, 'duplicate JSON key'); value[key] = item\n        return value\n    return json.loads(body, object_pairs_hook=pairs,\n                      parse_constant=lambda _: (_ for _ in ()).throw(ValueError('nonfinite JSON')))\n\n\ndef read(path, cap=2*1024**2, empty=False):\n    need(path.is_absolute() and path == path.resolve() and not path.is_symlink(), 'canonical DATA path')\n    info = path.lstat()\n    need(stat.S_ISREG(info.st_mode) and info.st_nlink == 1 and (0 if empty else 1) <= info.st_size <= cap\n         and not info.st_mode & 0o022, 'bounded ordinary DATA body')\n    identity = lambda s: (s.st_dev, s.st_ino, s.st_mode, s.st_nlink, s.st_uid, s.st_gid, s.st_size, s.st_mtime_ns, s.st_ctime_ns)\n    body = path.read_bytes(); need(len(body) == info.st_size and identity(path.lstat()) == identity(info), 'unchanged whole DATA')\n    return body\n\n\ndef source(root, expected):\n    root = Path(root)\n    need(root.is_absolute() and root == root.resolve(), 'canonical complete Source')\n    body = read(root/'source-map.json'); need(pin(body)['sha256'] == expected, 'external successor map pin')\n    value = decode(body); rows = value['files']\n    need(value['kind'] == 'LLHTTP_REFERENCE_OWNED_HOSTED_SOURCE_V2' and 32 < len(rows) < 48\n         and all(v is None for v in value['actual'].values()), 'finite prospective successor namespace')\n    found = {str(p.relative_to(root)) for p in root.rglob('*') if p.relative_to(root).parts[0] != '.git'\n             and (p.is_file() or p.is_symlink())}\n    need(found == set(rows)|{'source-map.json'}, 'complete closed successor namespace')\n    for name, row in rows.items():\n        need(not Path(name).is_absolute() and '..' not in Path(name).parts, 'safe Source name')\n        path = root/name\n        need(dict(pin(read(path)), mode=stat.S_IMODE(path.stat().st_mode)) == row and row['mode'] == 0o644,\n             'whole successor body/mode: '+name)\n    base = root/'held-source'; raw = read(base/BASE_PREFIX/'source-map.json')\n    need(pin(raw) == dict(bytes=BASE_MAP_BYTES,sha256=BASE_MAP), 'whole immutable Source32 map')\n    prior = decode(raw)\n    subset = {n[len('held-source/'):]:r for n,r in rows.items() if n.startswith('held-source/')}\n    need(subset == dict(prior['files'], **{BASE_PREFIX+'source-map.json':dict(pin(raw),mode=0o644)})\n         and len(subset) == 32 and sum(r['bytes'] for r in subset.values()) == BASE_BYTES,\n         'exact unchanged whole Source32 subtree')\n    original_base(root, prior)\n    program = decode(read(root/PREFIX/'owner-program.json'))\n    need(program['base_source_map_sha256'] == BASE_MAP and program['schema'] == 1, 'explicit held Source32 delegation')\n    need(set(program['files']) == {n for n in rows if not n.startswith('held-source/') and n != PREFIX+'owner-program.json'}, 'complete owner-program namespace')\n    for name, row in program['files'].items():\n        need(rows[name] == row, 'whole owner-program closure')\n    return value\n\n\n\ndef original_base(root, current):\n    proof = decode(read(root/PREFIX/'base-read-delta.json'))\n    need(proof['kind'] == 'LLHTTP_REFERENCE_BASE32_READ_STABILITY_SUCCESSOR_DELTA' and proof['actual'] is None,\n         'explicit read-stability successor, no original Source relabel')\n    prior = dict(current, files=dict(current['files']))\n    for change in proof['changes']:\n        body = read(root/'held-source'/change['path'])\n        need(dict(pin(body), mode=0o644) == change['after'], 'exact updated base leaf')\n        text = body.decode()\n        for seam in reversed(change['seams']):\n            need(text.count(seam['after']) == 1, 'one exact base-read inverse seam')\n            text = text.replace(seam['after'], seam['before'])\n        need(dict(pin(text.encode()), mode=0o644) == change['before'], 'whole original base leaf inverse')\n        prior['files'][change['path']] = change['before']\n    raw = (json.dumps(prior, indent=2, sort_keys=True)+'\\n').encode()\n    need(pin(raw) == proof['original_source_map'] == dict(bytes=6521,sha256='dfd91945cef9a3d3c7ffc73ac06252d6f54514f880071b2951b4e698fc5d6909')\n         and len(prior['files'])+1 == proof['original_source_files'] == 32\n         and sum(r['bytes'] for r in prior['files'].values())+len(raw) == proof['original_source_bytes'] == 591897,\n         'complete original Source32 map/body reconstruction; frozen exports unchanged')\n\n\ndef admission(root, map_sha, admission_raw, runtime_raw, admission_sha, runtime_sha, env, now):\n    need(0 < len(admission_raw) <= 16384 and 0 < len(runtime_raw) <= 16384\n         and pin(admission_raw)['sha256'] == admission_sha and pin(runtime_raw)['sha256'] == runtime_sha,\n         'two separately pinned whole Root documents')\n    source(root,map_sha); a,r = decode(admission_raw),decode(runtime_raw)\n    profile = decode(read(root/'held-source'/BASE_PREFIX/'profile.json'))\n    for value,kind in ((a,'ROOT_LLHTTP_REFERENCE_HOSTED_ADMISSION_V1'),(r,'ROOT_LLHTTP_REFERENCE_HOSTED_RUNTIME_V1')):\n        need(value['kind'] == kind and value['issued_by'] == 'Root' and value['accepted'] is True,\n             'separate actual Root issuance')\n        need(re.fullmatch('[0-9a-f]{40}',value['source'] or '') and value['source'] == env.get('GITHUB_SHA')\n             and value['ref'] == env.get('GITHUB_REF') and value['ref'].startswith('refs/heads/codex/')\n             and value['source_map_sha256'] == map_sha and value['resources'] == profile['resources'],\n             'exact actual Source/ref/map/held pair policy')\n        need(type(value['created_utc']) is int and type(value['expires_utc']) is int\n             and value['created_utc'] <= now < value['expires_utc'] and value['expires_utc']-value['created_utc'] <= 3600\n             and re.fullmatch('[0-9a-f]{32}',value['nonce'] or ''), 'fresh bounded Root delegation')\n    policy=decode(read(root/PREFIX/'policy.json'))\n    need(r.get('host_prerequisites')==policy['host_prerequisites'], 'separate explicit Root Ubuntu CI prerequisite admission required')\n    need(a['nonce'] == r['nonce'] and env.get('GITHUB_REPOSITORY') == 'Gabriel-Kahen/cachy-asahi'\n         and env.get('GITHUB_EVENT_NAME') == 'workflow_dispatch' and env.get('GITHUB_RUN_ATTEMPT') == '1'\n         and re.fullmatch('[1-9][0-9]{1,19}',env.get('GITHUB_RUN_ID','')), 'single hosted attempt/nonce')\n    need(r['external_supervision'] == pin(read(root/PREFIX/'owner-program.json'))\n         and r['bootstrap_resource_domain'] == pin(read(root/PREFIX/'policy.json')),\n         'loaded actual owner-program and new separate resource policy pins')\n    return a,r\n\n\ndef projected_entry(body):\n    text = body.decode(); need(text.count(ENV_ANCHOR) == 1, 'finite Docker endpoint/backend seam')\n    projected = text.replace(ENV_ANCHOR,ENV_PROJECTION)\n    need(projected.count(ENV_PROJECTION) == 1 and projected.replace(ENV_PROJECTION,ENV_ANCHOR).encode() == body,\n         'whole held entry inverse')\n    return projected\n\n\ndef unit(nonce, kind):\n    need(re.fullmatch('[0-9a-f]{32}',nonce or '') and kind in ('owner','daemon'), 'fixed operation identity')\n    return 'cachy-llhttp-reference-'+nonce+'-'+kind+'.service'\n\n\ndef service_args(nonce, kind, limits, command, log, uid=None, gid=None):\n    args = ['/usr/bin/systemd-run','--quiet','--no-block','--unit='+unit(nonce,kind),\n            '--property=Type=exec','--property=OOMPolicy=kill','--property=Restart=no','--property=KillMode=control-group',\n            '--property=TimeoutStopSec=5s','--property=RuntimeMaxSec=1290s',\n            '--property=MemoryMax='+str(limits['memory_bytes']),'--property=MemorySwapMax=0',\n            '--property=CPUQuota='+str(limits['cpus']*100)+'%','--property=CPUQuotaPeriodSec=100ms',\n            '--property=TasksMax='+str(limits['pids']), '--property=LimitCORE=0',\n            '--property=StandardOutput=append:'+str(log),'--property=StandardError=append:'+str(log)]\n    volume=log.parent\n    args += ['--property=ProtectSystem=strict','--property=ReadOnlyPaths=/tmp /var/tmp /sys/fs/cgroup']\n    if kind == 'daemon':\n        args += ['--property=Delegate=yes','--property=DelegateSubgroup=daemon',\n                 '--property=ReadWritePaths='+str(volume)+' /sys/fs/cgroup/system.slice/'+unit(nonce,kind),\n                 '--property=Environment=DOCKER_TMPDIR='+str(volume/'exec/tmp')+' TMPDIR='+str(volume/'exec/tmp')]\n    else:\n        need(type(uid) is int and uid > 0 and type(gid) is int and gid > 0, 'ordinary fixed runner IDs')\n        args += ['--uid='+str(uid),'--gid='+str(gid),'--property=NoNewPrivileges=yes',\n                 '--property=LimitAS='+str(limits['AS_bytes']),'--property=RemainAfterExit=yes',\n                 '--property=ReadWritePaths='+str(volume/'work')]\n    return args+['--',*command]\n\n\ndef domain(values, limits):\n    expected = {'memory.max':str(limits['memory_bytes']), 'memory.swap.max':'0',\n                'pids.max':str(limits['pids']), 'cpu.max':str(limits['cpus']*100000)+' 100000'}\n    need(values == expected, 'actual kernel domain must equal separately reviewed maxima')\n    return expected\n\n\ndef observation(value, a, map_sha, policy, self_pid, self_start, self_cgroup):\n    need(value['kind'] == 'LLHTTP_REFERENCE_ACTUAL_HOSTED_DOMAINS_V2'\n         and value['source'] == a['source'] and value['ref'] == a['ref'] and value['nonce'] == a['nonce']\n         and value['source_map_sha256'] == map_sha and value['owner']['pid'] == self_pid\n         and value['owner']['starttime'] == self_start and value['owner']['cgroup'] == self_cgroup,\n         'actual post-dispatch Source/PID/start/cgroup observation join')\n    prerequisite=value.get('host_prerequisite',{})\n    need(prerequisite.get('status')=='PASS_CI_LIBARCHIVE_TOOLS_PREREQUISITE_ONLY'and prerequisite.get('declaration')==policy['host_prerequisites']and\n         prerequisite.get('package')=='libarchive-tools'and prerequisite.get('installed')==dict(package='libarchive-tools',state='install ok installed',version=prerequisite.get('selected_version'),architecture='arm64')and\n         type(prerequisite.get('selected_version'))is str and re.fullmatch('[A-Za-z0-9.+:~_-]{1,128}',prerequisite['selected_version'])and\n         type(prerequisite.get('receipt',{}).get('bytes'))is int and 0<prerequisite['receipt']['bytes']<=1024**2 and re.fullmatch('[0-9a-f]{64}',prerequisite['receipt']['sha256']),\n         'actual recorded CI prerequisite before any native seed')\n    domain(value['owner']['limits'],policy['owner']);domain(value['daemon']['limits'],policy['daemon'])\n    need(value['daemon']['cgroup'] != self_cgroup and value['endpoint'].startswith('unix:///')\n         and value['storage_bytes'] == policy['storage_bytes'] and value['backend'] == policy['bootstrap_backend'],\n         'distinct finite owned daemon/storage/backend')\n    return value\n"
+        }
+      ],
+      "original": {
+        "bytes": 11665,
+        "sha256": "59c4f2bef964da4b03022b0bd3248fd5dacc7463731cf1b177336f31c76bf318"
+      },
+      "projected": {
+        "bytes": 10317,
+        "sha256": "37c6533c9fbd99cfde857bb1c2b61c01170f91cf08f9590944ec51b681ae0fce"
+      },
+      "source_path": "scripts/ci/fish-config02-native-source/successor_v2/data.py"
+    },
+    "owner/host_prerequisites.py": {
+      "changes": [
+        {
+          "after": "llhttp-reference",
+          "before": "fish02"
+        }
+      ],
+      "original": {
+        "bytes": 13845,
+        "sha256": "4bef653f0e999876e8dd1e74e7d61b808182f7528f4f50ce6444e14f6ff33d64"
+      },
+      "projected": {
+        "bytes": 13855,
+        "sha256": "9224e85413b670aaa5d3b47288728efc3fddd73dadf7f7101c7d778fae43645e"
+      },
+      "source_path": "scripts/ci/fish-config02-native-source/successor_v2/host_prerequisites.py"
+    },
+    "owner/host_tools.py": {
+      "changes": [
+        {
+          "after": "LLHTTP_REFERENCE",
+          "before": "FISH02"
+        }
+      ],
+      "original": {
+        "bytes": 5273,
+        "sha256": "5f980d2df87cebdf264167e7be7220485a6fcc555667782d31316da0d08aef72"
+      },
+      "projected": {
+        "bytes": 5283,
+        "sha256": "5211023499ce2d19ead2d69b60f281ce0a53a818ec06695720bc6e719d6110c6"
+      },
+      "source_path": "scripts/ci/fish-config02-native-source/successor_v2/host_tools.py"
+    },
+    "owner/hosted_owner.py": {
+      "changes": [
+        {
+          "after": "LLHTTP_REFERENCE",
+          "before": "FISH02"
+        },
+        {
+          "after": "llhttp-reference",
+          "before": "fish02"
+        },
+        {
+          "after": "held-source",
+          "before": "held-source32"
+        }
+      ],
+      "original": {
+        "bytes": 31464,
+        "sha256": "7f4d2a68f13a2439a4363cfb154553dc9e721a88dc985080dd290d44583ad634"
+      },
+      "projected": {
+        "bytes": 31622,
+        "sha256": "f3ecc632d96040633970f1f2469300bfd0fd52c9f27c5fbaa4af9ea2691e3927"
+      },
+      "source_path": "scripts/ci/fish-config02-native-source/successor_v2/hosted_owner.py"
+    },
+    "owner/payload.py": {
+      "changes": [
+        {
+          "after": "LLHTTP_REFERENCE",
+          "before": "FISH02"
+        },
+        {
+          "after": "llhttp-reference",
+          "before": "fish02"
+        },
+        {
+          "after": "held-source",
+          "before": "held-source32"
+        },
+        {
+          "after": "#!/usr/bin/env python3\n# SPDX-License-Identifier: MIT\n\"\"\"Ordinary hosted payload; waits for actual kernel-domain admission before seed.\"\"\"\nimport importlib.util\nimport json\nimport os\nfrom pathlib import Path\nimport resource\nimport sys\nimport time\n\nHERE = Path(__file__).resolve().parent\ns = importlib.util.spec_from_file_location('llhttp-reference_v2_data',HERE/'data.py');D=importlib.util.module_from_spec(s);s.loader.exec_module(D)\n\n\ndef main():\n    D.need(sys.flags.isolated and __debug__ and os.getuid() == os.geteuid() > 0, 'ordinary isolated payload')\n    config_path = Path(sys.argv[1]); config = D.decode(D.read(config_path)); config_path.unlink()\n    os.environ.clear(); os.environ.update(config['environment'])\n    root = Path(config['source_root']); map_sha = config['source_map_sha256']\n    a,r = D.admission(root,map_sha,config['admission_raw'].encode(),config['runtime_raw'].encode(),\n                      config['admission_sha256'],config['runtime_sha256'],os.environ,int(time.time()))\n    policy = D.decode(D.read(HERE/'policy.json'))\n    resource.setrlimit(resource.RLIMIT_AS,(policy['owner']['AS_bytes'],policy['owner']['AS_bytes']))\n    resource.setrlimit(resource.RLIMIT_CORE,(0,0))\n    end = time.monotonic()+30; marker = Path(config['marker'])\n    while not marker.exists():\n        D.need(time.monotonic() < end,'no actual external owner observation before seed');time.sleep(.05)\n    raw = D.read(marker); observed = D.decode(raw)\n    fields = Path('/proc/self/stat').read_text().rpartition(')')[2].split()\n    group = Path('/proc/self/cgroup').read_text().strip();D.need(group.startswith('0::/'),'unified owner cgroup')\n    D.observation(observed,a,map_sha,policy,os.getpid(),int(fields[19]),group[3:])\n    own = Path('/sys/fs/cgroup'+group[3:])\n    D.domain({k:(own/k).read_text().strip() for k in ('memory.max','memory.swap.max','pids.max','cpu.max')},policy['owner'])\n    D.need(observed['run'] == os.environ['GITHUB_RUN_ID'] and observed['attempt'] == 1\n           and observed['job'] == os.environ['GITHUB_JOB'], 'actual hosted run/attempt/job')\n    os.environ['CACHY_LLHTTP_REFERENCE_OWNED_DOCKER_HOST'] = observed['endpoint']\n    os.environ['CACHY_LLHTTP_REFERENCE_OWNED_TMPDIR'] = os.environ['TMPDIR']\n    daemon=observed['daemon']; daemon_fields=Path('/proc/'+str(daemon['pid'])+'/stat').read_text().rpartition(')')[2].split()\n    D.need(int(daemon_fields[19])==daemon['starttime'] and Path('/proc/'+str(daemon['pid'])+'/cgroup').read_text().strip()=='0::'+daemon['cgroup']+'/daemon','same actual daemon PID/start/domain before seed')\n    parent=Path('/sys/fs/cgroup'+daemon['cgroup'])\n    D.domain({k:(parent/k).read_text().strip() for k in ('memory.max','memory.swap.max','pids.max','cpu.max')},policy['daemon'])\n    socket=Path(observed['endpoint'][7:]).stat()\n    import stat\n    D.need(stat.S_ISSOCK(socket.st_mode) and socket.st_uid==0 and socket.st_gid==os.getgid() and stat.S_IMODE(socket.st_mode)==0o660,'same scoped root-owned daemon socket')\n    D.need(not os.access('/tmp',os.W_OK) and not os.access('/var/tmp',os.W_OK) and not os.access(root,os.W_OK),'actual owner writable filesystem restricted to quota work domain')\n    base = root/'held-source'; entry_path = base/D.BASE_PREFIX/'entry.py'\n    # Exact finite environment seam; restoring it gives every original entry byte.\n    namespace = dict(__name__='llhttp-reference_v2_held_entry',__file__=str(entry_path))\n    exec(compile(D.projected_entry(D.read(entry_path)),str(entry_path),'exec'),namespace)\n    C = namespace['C']; original_verify = C.verify_source\n    def closed_source(held,expected):\n        D.need(held == base and expected == map_sha,'exact outer/held Source delegation')\n        D.source(root,map_sha)\n        return original_verify(held,D.base_binding(root)['map']['sha256'])\n    C.verify_source = closed_source\n    report = namespace['execute'](base,Path(config['output']),map_sha,a,r)\n    print(json.dumps(dict(status=report['status'],actual_observation=D.pin(raw),Root_acceptance=None)),flush=True)\n    return 0 if report['status'] == 'PASS_CURRENT_LLHTTP_REFERENCE_NATIVE_PAIR_ONLY' else 1\n\n\nif __name__ == '__main__':\n    try: raise SystemExit(main())\n    except Exception as error:\n        print('HOLD_PAYLOAD: '+type(error).__name__,file=sys.stderr);raise SystemExit(2)\n",
+          "before": "#!/usr/bin/env python3\n# SPDX-License-Identifier: MIT\n\"\"\"Ordinary hosted payload; waits for actual kernel-domain admission before seed.\"\"\"\nimport importlib.util\nimport json\nimport os\nfrom pathlib import Path\nimport resource\nimport sys\nimport time\n\nHERE = Path(__file__).resolve().parent\ns = importlib.util.spec_from_file_location('llhttp-reference_v2_data',HERE/'data.py');D=importlib.util.module_from_spec(s);s.loader.exec_module(D)\n\n\ndef main():\n    D.need(sys.flags.isolated and __debug__ and os.getuid() == os.geteuid() > 0, 'ordinary isolated payload')\n    config_path = Path(sys.argv[1]); config = D.decode(D.read(config_path)); config_path.unlink()\n    os.environ.clear(); os.environ.update(config['environment'])\n    root = Path(config['source_root']); map_sha = config['source_map_sha256']\n    a,r = D.admission(root,map_sha,config['admission_raw'].encode(),config['runtime_raw'].encode(),\n                      config['admission_sha256'],config['runtime_sha256'],os.environ,int(time.time()))\n    policy = D.decode(D.read(HERE/'policy.json'))\n    resource.setrlimit(resource.RLIMIT_AS,(policy['owner']['AS_bytes'],policy['owner']['AS_bytes']))\n    resource.setrlimit(resource.RLIMIT_CORE,(0,0))\n    end = time.monotonic()+30; marker = Path(config['marker'])\n    while not marker.exists():\n        D.need(time.monotonic() < end,'no actual external owner observation before seed');time.sleep(.05)\n    raw = D.read(marker); observed = D.decode(raw)\n    fields = Path('/proc/self/stat').read_text().rpartition(')')[2].split()\n    group = Path('/proc/self/cgroup').read_text().strip();D.need(group.startswith('0::/'),'unified owner cgroup')\n    D.observation(observed,a,map_sha,policy,os.getpid(),int(fields[19]),group[3:])\n    own = Path('/sys/fs/cgroup'+group[3:])\n    D.domain({k:(own/k).read_text().strip() for k in ('memory.max','memory.swap.max','pids.max','cpu.max')},policy['owner'])\n    D.need(observed['run'] == os.environ['GITHUB_RUN_ID'] and observed['attempt'] == 1\n           and observed['job'] == os.environ['GITHUB_JOB'], 'actual hosted run/attempt/job')\n    os.environ['CACHY_LLHTTP_REFERENCE_OWNED_DOCKER_HOST'] = observed['endpoint']\n    os.environ['CACHY_LLHTTP_REFERENCE_OWNED_TMPDIR'] = os.environ['TMPDIR']\n    daemon=observed['daemon']; daemon_fields=Path('/proc/'+str(daemon['pid'])+'/stat').read_text().rpartition(')')[2].split()\n    D.need(int(daemon_fields[19])==daemon['starttime'] and Path('/proc/'+str(daemon['pid'])+'/cgroup').read_text().strip()=='0::'+daemon['cgroup']+'/daemon','same actual daemon PID/start/domain before seed')\n    parent=Path('/sys/fs/cgroup'+daemon['cgroup'])\n    D.domain({k:(parent/k).read_text().strip() for k in ('memory.max','memory.swap.max','pids.max','cpu.max')},policy['daemon'])\n    socket=Path(observed['endpoint'][7:]).stat()\n    import stat\n    D.need(stat.S_ISSOCK(socket.st_mode) and socket.st_uid==0 and socket.st_gid==os.getgid() and stat.S_IMODE(socket.st_mode)==0o660,'same scoped root-owned daemon socket')\n    D.need(not os.access('/tmp',os.W_OK) and not os.access('/var/tmp',os.W_OK) and not os.access(root,os.W_OK),'actual owner writable filesystem restricted to quota work domain')\n    base = root/'held-source'; entry_path = base/D.BASE_PREFIX/'entry.py'\n    # Exact finite environment seam; restoring it gives every original entry byte.\n    namespace = dict(__name__='llhttp-reference_v2_held_entry',__file__=str(entry_path))\n    exec(compile(D.projected_entry(D.read(entry_path)),str(entry_path),'exec'),namespace)\n    C = namespace['C']; original_verify = C.verify_source\n    def closed_source(held,expected):\n        D.need(held == base and expected == map_sha,'exact outer/held Source delegation')\n        D.source(root,map_sha)\n        return original_verify(held,D.BASE_MAP)\n    C.verify_source = closed_source\n    report = namespace['execute'](base,Path(config['output']),map_sha,a,r)\n    print(json.dumps(dict(status=report['status'],actual_observation=D.pin(raw),Root_acceptance=None)),flush=True)\n    return 0 if report['status'] == 'PASS_CURRENT_LLHTTP_REFERENCE_NATIVE_PAIR_ONLY' else 1\n\n\nif __name__ == '__main__':\n    try: raise SystemExit(main())\n    except Exception as error:\n        print('HOLD_PAYLOAD: '+type(error).__name__,file=sys.stderr);raise SystemExit(2)\n"
+        }
+      ],
+      "original": {
+        "bytes": 4220,
+        "sha256": "081d93b2f770982fb5275ac195240335dc2f023972d340b84e2b81cce34ca1ce"
+      },
+      "projected": {
+        "bytes": 4295,
+        "sha256": "5f0b529b664f7ac25b29adc0e56d41fb87283e508a7cdece7287b80c0cdffb55"
+      },
+      "source_path": "scripts/ci/fish-config02-native-source/successor_v2/payload.py"
+    },
+    "owner/policy.json": {
+      "changes": [
+        {
+          "after": "LLHTTP_REFERENCE",
+          "before": "FISH02"
+        }
+      ],
+      "original": {
+        "bytes": 1571,
+        "sha256": "db9a6a77adeb7e76803ae2706fe2811cfba19f9111a6c95253f3f2cfa3fd5515"
+      },
+      "projected": {
+        "bytes": 1581,
+        "sha256": "95887688b187fd2a3daf97ed71bb69edc4b0ff3e88aa7df69b61417bdaad8b6f"
+      },
+      "source_path": "scripts/ci/fish-config02-native-source/successor_v2/policy.json"
+    },
+    "owner/retain.py": {
+      "changes": [
+        {
+          "after": "llhttp-reference",
+          "before": "fish02"
+        },
+        {
+          "after": "held-source",
+          "before": "held-source32"
+        }
+      ],
+      "original": {
+        "bytes": 3092,
+        "sha256": "367de11c63cea626bab30837715e57c073b0983b66cc2dcb333d8b7921151dd8"
+      },
+      "projected": {
+        "bytes": 3130,
+        "sha256": "b1719bc3f0ca44c52ce41621f9783ccc6e7d7baf813c558c1202d76b28ed68fb"
+      },
+      "source_path": "scripts/ci/fish-config02-native-source/successor_v2/retain.py"
+    },
+    "owner/runtime.TEMPLATE.json": {
+      "changes": [
+        {
+          "after": "LLHTTP_REFERENCE",
+          "before": "FISH02"
+        }
+      ],
+      "original": {
+        "bytes": 784,
+        "sha256": "124020adad14e30f619a9f7bcf49704ca1ce18c2f8774cc8aa4736a3dfa9a941"
+      },
+      "projected": {
+        "bytes": 794,
+        "sha256": "c1f49d7d8c9905637c96b54ae9d4ba0a9a6d8b2ac3fe363f7bd3217e8c79ea84"
+      },
+      "source_path": "scripts/ci/fish-config02-native-source/successor_v2/runtime.TEMPLATE.json"
+    }
+  },
+  "schema": 1
+}
