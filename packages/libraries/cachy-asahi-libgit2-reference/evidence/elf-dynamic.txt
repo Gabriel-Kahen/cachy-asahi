@@ -1,0 +1,34 @@
+
+Dynamic section at offset 0x17cc20 contains 31 entries:
+  Tag        Type                         Name/Value
+ 0x0000000000000001 (NEEDED)             Shared library: [libssl.so.3]
+ 0x0000000000000001 (NEEDED)             Shared library: [libcrypto.so.3]
+ 0x0000000000000001 (NEEDED)             Shared library: [libllhttp.so.9.3]
+ 0x0000000000000001 (NEEDED)             Shared library: [libpcre2-8.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libssh2.so.1]
+ 0x0000000000000001 (NEEDED)             Shared library: [libz.so.1]
+ 0x0000000000000001 (NEEDED)             Shared library: [libc.so.6]
+ 0x000000000000000e (SONAME)             Library soname: [libgit2.so.1.9]
+ 0x000000000000000c (INIT)               0x18000
+ 0x000000000000000d (FINI)               0x1401d8
+ 0x0000000000000019 (INIT_ARRAY)         0x17cb50
+ 0x000000000000001b (INIT_ARRAYSZ)       8 (bytes)
+ 0x000000000000001a (FINI_ARRAY)         0x17cb58
+ 0x000000000000001c (FINI_ARRAYSZ)       8 (bytes)
+ 0x000000006ffffef5 (GNU_HASH)           0x2d0
+ 0x0000000000000005 (STRTAB)             0x9110
+ 0x0000000000000006 (SYMTAB)             0x1df0
+ 0x000000000000000a (STRSZ)              25555 (bytes)
+ 0x000000000000000b (SYMENT)             24 (bytes)
+ 0x0000000000000003 (PLTGOT)             0x17dfe8
+ 0x0000000000000002 (PLTRELSZ)           18720 (bytes)
+ 0x0000000000000014 (PLTREL)             RELA
+ 0x0000000000000017 (JMPREL)             0x133a0
+ 0x0000000000000007 (RELA)               0xffb0
+ 0x0000000000000008 (RELASZ)             13296 (bytes)
+ 0x0000000000000009 (RELAENT)            24 (bytes)
+ 0x000000006ffffffe (VERNEED)            0xfe80
+ 0x000000006fffffff (VERNEEDNUM)         4
+ 0x000000006ffffff0 (VERSYM)             0xf4e4
+ 0x000000006ffffff9 (RELACOUNT)          520
+ 0x0000000000000000 (NULL)               0x0

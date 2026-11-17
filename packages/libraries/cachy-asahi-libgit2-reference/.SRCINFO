@@ -1,0 +1,30 @@
+pkgbase = cachy-asahi-libgit2-reference
+	pkgdesc = Original libgit2 source provider development candidate; unselected
+	pkgver = 1.9.7
+	pkgrel = 1
+	epoch = 1
+	url = https://github.com/libgit2/libgit2
+	arch = aarch64
+	license = LicenseRef-libgit2
+	makedepends = cmake>=3.25
+	makedepends = ninja
+	makedepends = pkgconf
+	makedepends = python
+	depends = glibc
+	depends = openssl
+	depends = libssh2
+	depends = pcre2
+	depends = zlib
+	depends = llhttp=9.3.1
+	provides = libgit2=1:1.9.7
+	provides = libgit2.so
+	conflicts = libgit2
+	options = !lto
+	options = !debug
+	options = !staticlibs
+	source = libgit2-1.9.7.tar.gz::https://codeload.github.com/libgit2/libgit2/tar.gz/49e408b3208bc3093757a1c2db938d3590f3f412
+	source = smoke.c
+	sha256sums = 173c45822177d73bb1a97555d864ad04a3e0486eb0bc3455443a4669a35d8aa2
+	sha256sums = b64f177cc8f5a8c0ecb33b68779c7495e081a47e385eedde3b61e9ab509181d2
+
+pkgname = cachy-asahi-libgit2-reference
