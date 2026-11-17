@@ -80,10 +80,12 @@ def selected_notices(archive,policy,observed):
     return found
 
 
-def prepare_source(*,framework,providers,archives,base_provider,candidate_map,md4c,output):
+def prepare_source(*,framework,providers,archives,base_provider,candidate_map,md4c,output,consumer_root=None):
     lock=C.load_lock();observed={};out=M.ordinary(output);framework=M.ordinary(framework)
     need(set(providers)==set(archives)==set(C.ORDER),'EXACT_FIVE_SELECTED_SOURCE_INPUTS')
     roots=[framework]+[M.ordinary(providers[k]) for k in C.ORDER]
+    if consumer_root is not None:
+        roots.append(M.ordinary(consumer_root))
     need(not out.exists() and all(not out.is_relative_to(p) and not p.is_relative_to(out) for p in roots),'FRESH_DISJOINT_FAMILY_SOURCE')
     dependency_lock=P.selected(C.PARENT/'dependency-candidates.lock.json',P.DEPENDENCIES,observed)
     base=P.validate_base_provider(base_provider,dependency_lock,observed) if base_provider else None
@@ -97,6 +99,7 @@ def prepare_source(*,framework,providers,archives,base_provider,candidate_map,md
         for name,pin in lock['parents'].items():
             files['scripts/ci/qt612-reference-native-source/'+name]=writer.put('scripts/ci/qt612-reference-native-source/'+name,source=C.PARENT/name,expected=pin,observed=observed)
         for name in ('common.py','source.py','pipeline.py','proof.py','qualify.py','lifecycle.py',
+                     'consumer.py','consumer_worker.py',
                      'family.lock.json','dependency-audit.DATA.json','README.md'):
             put('scripts/ci/qt612-complete-family-native-source/'+name,M.stream(HERE/name,None,observed,collect=True,cap=4*1024**2))
         raw_builder=M.stream(framework/'scripts/build/build_v2.py',lock['framework_files']['scripts/build/build_v2.py'],observed,collect=True)
@@ -138,10 +141,20 @@ def prepare_source(*,framework,providers,archives,base_provider,candidate_map,md
             inventory=dict(base['inventory']);inventory.update({n:r['version'] for n,r in deps['packages'].items()})
             need(len(inventory)==356,'UNCHANGED349_PLUS7')
             put('expected356.lock',''.join(n+' '+v+'\n' for n,v in sorted(inventory.items())).encode())
-        plan=C.local('pipeline').family_plan(lock,complete=complete)
+        consumer_pin=None
+        if consumer_root is not None:
+            desktop=lock['consumer']
+            path=M.ordinary(consumer_root)/desktop['source_path']
+            for name,pin in desktop['files'].items():
+                raw=M.stream(path/name,pin,observed,collect=True,mode=0o644)
+                put('consumer/'+name,raw)
+            interface=M.decode(M.stream(path/'INTERFACE.DATA.json',desktop['files']['INTERFACE.DATA.json'],observed,collect=True))
+            need(interface['provider_sources']=={k:v['commit'] for k,v in lock['components'].items()},'MATCHING_CONSUMER_PROVIDER_RECIPES')
+            consumer_pin=desktop['commit']
+        plan=C.local('pipeline').family_plan(lock,complete=complete,consumer_selected=consumer_pin is not None)
         put('family-plan.DATA.json',C.encoded(plan))
         mapping=dict(schema=1,kind='QT612_COMPLETE_FAMILY_SOURCE_DATA_V1',files=files,components=component_inputs,
-                     input_plan_complete=complete,actual=dict.fromkeys(M.ACTUAL),Root_acceptance=None)
+                     input_plan_complete=complete,desktop_consumer=consumer_pin,actual=dict.fromkeys(M.ACTUAL),Root_acceptance=None)
         raw=C.encoded(mapping);writer.put('source-map.json',raw=raw);M.unchanged(observed)
         C.read_source(out,C.pin(raw)['sha256'])
         return dict(status='PREPARED_FAMILY_DATA_ONLY' if complete else 'HOLD_MISSING_FAMILY_DEPENDENCIES',
@@ -160,7 +173,8 @@ def main():
     parser.add_argument('--output',type=Path,required=True)
     args=parser.parse_args();sys.addaudithook(M.fence)
     request=M.load(args.request,dict(bytes=args.request.lstat().st_size,sha256=args.request_sha256),{})
-    need(set(request)=={'framework','providers','archives','base_provider','candidate_map','md4c'},'EXACT_PREPARATION_REQUEST')
+    required={'framework','providers','archives','base_provider','candidate_map','md4c'}
+    need(set(request) in (required,required|{'consumer_root'}),'EXACT_PREPARATION_REQUEST')
     print(C.encoded(prepare_source(**request,output=args.output)).decode(),end='')
 
 

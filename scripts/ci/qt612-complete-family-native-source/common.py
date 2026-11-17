@@ -12,7 +12,7 @@ import types
 HERE = Path(__file__).resolve().parent
 PARENT = HERE.parent/'qt612-reference-native-source'
 ORDER = ('gui_server','shadertools','svg','declarative','wayland')
-LOCK_PIN = {'bytes': 42232, 'sha256': '4644b20432f6c39ffec936deea00fe9aaf11c2d47c721a564accde505ec02f6c'}
+LOCK_PIN = {'bytes': 45084, 'sha256': 'b46bfe8eb38a5c09ca550193b470bafc035d5c76097c15618959f94b44725e47'}
 
 
 def need(value,why):

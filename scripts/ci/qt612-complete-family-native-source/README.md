@@ -20,6 +20,15 @@ archive paths under the same keys. Base provider uses the existing whole-pin
 reference, and the candidate map uses the existing six-addition format.
 `prepare_cache` stages the five reviewed archives into a private offline cache.
 
+Pass `consumer_root` in the preparation request to include E's frozen
+`a7421e42564e67307086e3f8a048fe578390d1cd` checkout. Its interface selects
+the original ShaderTools recipe at `785d680499feaa7de18d35e6ccd46ee9df4e2891`.
+The lock binds its recipe tree, active inputs, provider interface, and upstream
+archive bytes. The original ShaderTools reader can reject an unchanged file
+when a filesystem updates access time during the read. The failure reproduced
+on a local inert fixture. The separately pinned repair at `3d2b6922` changes
+the recipe, source helper and checksums, and requires a separate selection.
+
 Once md4c is available, `pipeline.builder_image_plan` reopens the selected
 dependency and preceding provider pairs and emits the normal signed package
 transactions plus the complete expected inventory. Root's image builder
@@ -27,6 +36,18 @@ supplies the authenticated 349 image, trust configuration and signature
 verification. `pipeline.stage_commands` checks every installed package row
 against the unchanged baseline and ordered family providers. It emits both
 builder invocations and the unchanged comparator argv.
+
+For the installed family, select `desktop_consumer` in `builder_image_plan`.
+Its predecessor set is all five qualified and separately authenticated
+providers and its inventory is exactly 361 packages. `consumer.run_stage`
+requires a matching Root binding and signed-image check. It launches the
+frozen consumer in a network-disabled container with separate scratch. CMake
+and CTest run serially and require the three expected checks and their
+per-test success output. The reader joins the registered commands, original
+JUnit report, verbose tool commands, per-process loader traces and installed
+package ownership. It retains the observed object hashes for independent
+image readback. The smoke scope is software QML/SVG rendering, qsb shader
+reflection, and the anonymous in-process Wayland exchange.
 
 The exact reversible package projection appends a success marker to the end of
 each original check and sets CMake autogen parallelism to one. Normal makepkg
@@ -63,7 +84,7 @@ The original F69 transport contract remains specific to its original package
 tuple and cap. The family stage retains its original files for independent
 readback and later selection by Root. No family upload workflow is issued.
 
-Run `test_pipeline.py`, `test_proof.py` and `test_qualify.py` as separate
+Run `test_pipeline.py`, `test_proof.py`, `test_qualify.py` and `test_consumer.py` as separate
 `python3 -I -B` invocations. Their inputs are passive source bytes and clearly
 labelled inert models. Native builds, package transactions, signing and
 actual capacity qualification require separately supplied Root inputs.

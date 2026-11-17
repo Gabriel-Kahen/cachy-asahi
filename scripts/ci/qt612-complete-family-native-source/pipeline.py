@@ -10,6 +10,7 @@ HERE=Path(__file__).resolve().parent
 spec=importlib.util.spec_from_file_location('pipeline_common',HERE/'common.py')
 C=importlib.util.module_from_spec(spec);spec.loader.exec_module(C)
 M,P,need=C.M,C.P,C.need
+DESKTOP_CONSUMER='desktop_consumer'
 BUILD_SECONDS,COMPARE_SECONDS,QUALIFY_SECONDS,LIFECYCLE_SECONDS=6900,120,1200,1800
 STAGE_SECONDS,CLEANUP_SECONDS=18000,90
 POLICY=dict(builder_memory_bytes=4*1024**3,builder_swap_extra_bytes=0,builder_cpus=1,builder_pids=512,
@@ -19,7 +20,7 @@ POLICY=dict(builder_memory_bytes=4*1024**3,builder_swap_extra_bytes=0,builder_cp
             baseline_authentication_timeout=None,capacity_sufficient=None,Root_acceptance=None)
 
 
-def family_plan(lock,*,complete):
+def family_plan(lock,*,complete,consumer_selected=False):
     rows=[]
     for i,key in enumerate(C.ORDER):
         row=lock['components'][key]
@@ -34,6 +35,8 @@ def family_plan(lock,*,complete):
     return dict(schema=1,kind='QT612_COMPLETE_FAMILY_ORDERED_STAGE_PLAN_V1',order=list(C.ORDER),stages=rows,
         input_plan_complete=complete,baseline=349,required_additions=7,prepared_baseline=356 if complete else None,
         final_package_count=361 if complete else None,policy=POLICY,
+        desktop_consumer=dict(source_commit=lock['consumer']['commit'],selected=consumer_selected,
+                              requires_all_providers=True,expected_inventory_count=361,Root_binding=None),
         family_is_one_job=False,require_new_Root_stage_binding_each=True,
         Wayland_notice_path_reconciliation=dict(frozen_interface='usr/share/licenses/cachy-asahi-qt612-gui-source-reference/source',
             selected_provider='usr/share/licenses/cachy-asahi-qt612-gui-server-source-reference/source',
@@ -62,11 +65,15 @@ def expected_inventory(root,mapping,component):
     packages=dict(line.split(' ',1) for line in raw.decode('ascii').splitlines())
     need(len(packages)==356,'EXACT_BASE356_INVENTORY')
     providers=C.load_lock()['components']
-    for key in C.ORDER[:C.ORDER.index(component)]:
+    for key in prior_components(component):
         row=providers[key]; name=row['package']
         need(name not in packages,'DISTINCT_QT_PROVIDER_IDENTITY')
         packages[name]='6.12.0-1'
     return ''.join(f'{name} {version}\n' for name,version in sorted(packages.items())).encode()
+
+
+def prior_components(component):
+    return C.ORDER if component==DESKTOP_CONSUMER else C.ORDER[:C.ORDER.index(component)]
 
 
 def builder_image_plan(*,source,source_map_sha256,component,baseline_image,previous,uid,gid):
@@ -77,7 +84,9 @@ def builder_image_plan(*,source,source_map_sha256,component,baseline_image,previ
     identity before emitting the seven additions and ordered Qt providers.
     """
     mapping=C.read_source(source,source_map_sha256)
-    need(mapping['input_plan_complete'] is True and component in C.ORDER,'COMPLETE_FAMILY_IMAGE_INPUTS')
+    need(mapping['input_plan_complete'] is True and
+         (component in C.ORDER or component==DESKTOP_CONSUMER and mapping.get('desktop_consumer')),
+         'COMPLETE_FAMILY_IMAGE_INPUTS')
     root=M.ordinary(source);observed={}
     items=mapping['files']['family-inputs.DATA.json']
     inputs=M.load(root/'family-inputs.DATA.json',{k:items[k] for k in ('bytes','sha256')},observed)
@@ -90,7 +99,7 @@ def builder_image_plan(*,source,source_map_sha256,component,baseline_image,previ
         name=row['filename']
         assets[name]=row['archive'];assets[name+'.sig']=row['signature']
         for ref in (row['archive'],row['signature']):P.reference(ref,observed)
-    prior=C.ORDER[:C.ORDER.index(component)]
+    prior=prior_components(component)
     need(type(previous)is dict and set(previous)==set(prior),'EXACT_PREVIOUS_PROVIDER_SET')
     lock=C.load_lock()
     paths=[]
@@ -153,7 +162,7 @@ def stage_commands(*,source,source_map_sha256,component,output,image,inventory,c
 def require_actual_family(component,*,source=None,source_map_sha256=None,actor_argv=None):
     """Binding consistency only; actual Root supervisor authenticates authority."""
     need(os.getuid()==os.geteuid()>0 and os.uname().machine in ('aarch64','arm64'),'ACTUAL_ORDINARY_NATIVE_ARM_REQUIRED')
-    need(component in C.ORDER,'EXACT_FAMILY_COMPONENT')
+    need(component in C.ORDER or (component==DESKTOP_CONSUMER and actor_argv is None),'EXACT_FAMILY_COMPONENT')
     source=source or os.environ.get('QT612_FAMILY_SOURCE_ROOT')
     source_map_sha256=source_map_sha256 or os.environ.get('QT612_FAMILY_SOURCE_MAP_SHA256')
     need(source is not None,'ROOT_FAMILY_SOURCE_UNBOUND')

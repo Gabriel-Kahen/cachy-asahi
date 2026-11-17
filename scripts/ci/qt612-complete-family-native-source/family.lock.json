@@ -488,7 +488,7 @@
         "url": "https://download.qt.io/official_releases/qt/6.12/6.12.0/submodules/qtshadertools-everywhere-src-6.12.0.tar.xz"
       },
       "checker_api": "check",
-      "commit": "504e6278b2d6db7362cfc0a6e54e7fcd80be00a8",
+      "commit": "785d680499feaa7de18d35e6ccd46ee9df4e2891",
       "config_args": [],
       "contracts": {
         "BUILD-CONTRACT.json": {
@@ -613,6 +613,7 @@
       "predecessors": [
         "gui_server"
       ],
+      "recipe_git_tree": "8c39be20fcb511cffbbec3b1862bc19ab1a7d4f3",
       "recipe_inputs": {
         ".SRCINFO": {
           "bytes": 2592,
@@ -1094,6 +1095,82 @@
       "recipe_path": "packages/port/qt612-wayland-source-reference",
       "upstream_revision": "c4f85cd060e3e80a7d71829defac9cf5a40e8ffa"
     }
+  },
+  "consumer": {
+    "checks": {
+      "qt612-desktop-protocol": "PASS_QT612_GENERATED_ANONYMOUS_PROTOCOL",
+      "qt612-desktop-render": "PASS_QT612_DESKTOP_SOFTWARE_SVG_QML_PIXELS_ONLY",
+      "qt612-desktop-shader": "PASS_QT612_DESKTOP_SHADERTOOLS_QSB_REFLECTION_ONLY"
+    },
+    "commit": "a7421e42564e67307086e3f8a048fe578390d1cd",
+    "files": {
+      "CMakeLists.txt": {
+        "bytes": 5956,
+        "sha256": "4509ebcdc6e6776d6e59d5c42f9ed0191388ac5db5a9e062b96f3e4177c1ca9d"
+      },
+      "INTERFACE.DATA.json": {
+        "bytes": 1073,
+        "sha256": "d9d067d6dfec26c5dc2a16726f42252e388e771e128e5969468c8b6de533d89c"
+      },
+      "LICENSE": {
+        "bytes": 1081,
+        "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+      },
+      "README.md": {
+        "bytes": 4287,
+        "sha256": "773ea10b3d36dc534d80fb90583aecf5b072d685be3198289154ae4b317679c1"
+      },
+      "SOURCE-AUDIT.DATA.json": {
+        "bytes": 6288,
+        "sha256": "3468168dd3c8eea343b9a92684a73a5b59cc7b2b81339f39b1835b749d4ab77a"
+      },
+      "Scene.qml": {
+        "bytes": 862,
+        "sha256": "0c6f1cff41166503b28e867b99b7b959b77f3a056fa906dc416288837fc33726"
+      },
+      "colors.svg": {
+        "bytes": 230,
+        "sha256": "2e722e46978da6e0f0603e604ca3d67a0e71f30d0e3d1237acf101fac6d1e4cb"
+      },
+      "desktop-probe.xml": {
+        "bytes": 615,
+        "sha256": "ecb5a7d85f65383624a41bcaddf93a6d74b6bff5ed83ed02eea6703294932de0"
+      },
+      "probe.vert": {
+        "bytes": 369,
+        "sha256": "8d1d14be8c94916a3cbdfb0a4759a3843f4f9c70ef66f46aa15eace3559e60b0"
+      },
+      "protocol-client/CMakeLists.txt": {
+        "bytes": 292,
+        "sha256": "18c5729adb9838748489bf7ade7a511dce98f3d9a97980128947348df7bec929"
+      },
+      "protocol-server/CMakeLists.txt": {
+        "bytes": 417,
+        "sha256": "d0b72f5641b7e76ef50fb3117c650e796b4655100534c508b1107df7f8918e99"
+      },
+      "protocol.cpp": {
+        "bytes": 6589,
+        "sha256": "1dbc5a3ebbc7b5d5e67dedb58889c8b348b7608661de1a335b95147d86fb0500"
+      },
+      "render.cpp": {
+        "bytes": 6032,
+        "sha256": "0aab56dc7cd0c0bf90149899a2b516661ffc5ee0fc5039d3325263cb6b58f566"
+      },
+      "shader.cpp": {
+        "bytes": 3515,
+        "sha256": "f19a2323b8b51e0d7a1cd46ab6d54e8c2b2b975ac1c9ebe25d6b12dc4967df22"
+      },
+      "source-files.lock.json": {
+        "bytes": 2065,
+        "sha256": "084fed07b5d6285181aec139ee3c51b0b3f794c70f86fc6fc59c50b70486619f"
+      },
+      "test_data.py": {
+        "bytes": 4982,
+        "sha256": "d004aabf26ac63284a4d02656314ab55bd6737165fd857c0917489b6c4d503fb"
+      }
+    },
+    "source_path": "packages/port/qt612-desktop-consumer-smoke",
+    "tree": "e620b8d736c37dbe30c5a8c5948ee7664b2c25b2"
   },
   "framework_files": {
     "scripts/build/build_v2.py": {
