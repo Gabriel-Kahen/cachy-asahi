@@ -1,0 +1,24 @@
+{
+  "GPG": null,
+  "Root_selection": null,
+  "actual_fit": null,
+  "actual_intake": "422_OPS_1473694724_BYTES_ZERO_FAILURES",
+  "actual_package_metadata": "206_PASS",
+  "controls": [
+    {
+      "executable": "/usr/bin/python3",
+      "passed": 11,
+      "version": "3.14.7"
+    },
+    {
+      "executable": "/home/gabe/.local/bin/python3.14",
+      "passed": 11,
+      "version": "3.14.6"
+    }
+  ],
+  "default_CLI_refusal": "EXIT2_HOLD_AUTHENTICATION_UNISSUED",
+  "libgit2_provider": "UNISSUED_REFUSES",
+  "native": null,
+  "repeatable_manifest": "PASS_EXACT_C5C9",
+  "status": "PASS_PURE_DATA_AND_READONLY_INTAKE_ONLY"
+}
