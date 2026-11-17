@@ -33,7 +33,8 @@ class DeliveryTests(unittest.TestCase):
         cls.parent_bodies = S.parent_bodies(args.parent)
         cls.auth = S.adoption(args.adoption, args.transcript)
         cls.local = cls.root / 'local'
-        cls.prepared = D.prepare(*OPERANDS, cls.local)
+        cls.assurance = cls.root / 'assurance'
+        cls.prepared = D.prepare(*OPERANDS, cls.local, cls.assurance)
         cls.checkout = cls.root / 'readback'
         D.git(cls.root, 'clone', '--quiet', '--no-local', '--branch', S.BRANCH, '--', str(cls.local), str(cls.checkout))
         cls.bodies = S.physical(cls.checkout, checkout=True)
@@ -74,7 +75,11 @@ class DeliveryTests(unittest.TestCase):
     def test_real_source_whole_git_readback_and_preserved_caps(self):
         changed = {name for name, raw in self.parent_bodies.items() if raw != self.bodies[name]}
         self.assertEqual(changed, {S.WORKFLOW, S.NB + 'contract.py', S.NO + 'data.py', S.NB + 'source-map.json',
-                                   S.NO + 'base-binding.json', S.NO + 'owner-program.json', 'source-map.json'})
+                                   S.NO + 'base-binding.json', S.NO + 'owner-program.json', 'source-map.json',
+                                   S.P.MARKER, S.NB + 'reviewed-inputs.json',
+                                   S.NB + 'recipe/evidence/host-result.json'}
+                         | {S.NO + n for n in S.E.EVIDENCE_OWNER}
+                         | {S.NB + 'recipe/evidence/' + n for n in S.E.EVIDENCE_RECIPE})
         self.assertEqual(self.prepared['source'], self.identity['source'])
         self.assertEqual(self.prepared['files'], 96)
         self.assertIsNone(self.prepared['publication'])
@@ -82,6 +87,38 @@ class DeliveryTests(unittest.TestCase):
         self.assertEqual(self.prepared['policy'], S.pin(self.parent_bodies[S.NO + 'policy.json']))
         self.assertEqual(self.bodies[S.WORKFLOW], (HERE.parents[2] / S.WORKFLOW).read_bytes())
         self.actor.source(self.checkout, self.identity['source_map']['sha256'])
+
+    def test_private_preimages_only_in_restricted_assurance(self):
+        before = S.authenticated_source(self.parent_bodies, public=False)
+        rows = self.assurance / 'original-source'
+        self.assertEqual(self.assurance.stat().st_mode & 0o777, 0o700)
+        self.assertTrue(S.E.private_findings(before))
+        self.assertFalse(S.E.private_findings(self.bodies))
+        self.assertEqual(S.P.tree(before), S.PRIVATE_TREE)
+        for name, raw in before.items():
+            self.assertEqual((rows / name).read_bytes(), raw)
+            self.assertEqual((rows / name).stat().st_mode & 0o777, 0o600)
+        projected = S.decode(self.bodies[S.P.MARKER])['public_evidence_projection']
+        private = projected['private_inverse_rows']
+        self.assertEqual(len(private), 2)
+        self.assertTrue(all(set(row) == {'pin', 'mode'} for row in private.values()))
+        original = S.decode(before[S.P.MARKER])['changed']
+        self.assertTrue(all(row['pin'] == original[key]['pin'] for key, row in private.items()))
+
+    def test_real_recipe_review_and_host_outcomes(self):
+        base = self.checkout / S.NB
+        checker = S.module(base / 'runtime/scripts/checks/package_checks.py', 'public_recipe_data')
+        report = checker.recipe(base / 'recipe/PKGBUILD')
+        self.assertEqual(report['errors'], [])
+        self.assertEqual(report['input_sha256'], S.decode(self.bodies[S.NB + 'reviewed-inputs.json']))
+        rel = S.NB + 'recipe/evidence/host-result.json'
+        before = S.decode(self.parent_bodies[rel])
+        after = S.decode(self.bodies[rel])
+        self.assertEqual(after.pop('original_log_pins'), before['logs'])
+        for name, pin in after.pop('logs').items():
+            self.assertEqual(pin, S.pin(self.bodies[S.NB + 'recipe/evidence/' + name]))
+        before.pop('logs')
+        self.assertEqual(before, after)
 
     def test_wrong_real_adoption_or_transcript_refused_before_output(self):
         bad = self.root / 'altered'
@@ -93,14 +130,14 @@ class DeliveryTests(unittest.TestCase):
             trio[adoption_idx] = bad
             output = self.root / 'never-created'
             with self.assertRaisesRegex(ValueError, 'whole exact Root r2'):
-                D.prepare(*trio, output)
+                D.prepare(*trio, output, self.root / 'never-assured')
             self.assertFalse(output.exists())
 
     def test_local_git_failure_does_not_leave_partial_source(self):
         output = self.root / 'partial'
         with patch.object(D, 'git', side_effect=OSError('MODEL git failure')):
             with self.assertRaises(OSError):
-                D.prepare(*OPERANDS, output)
+                D.prepare(*OPERANDS, output, self.root / 'never-assured')
         self.assertFalse(output.exists())
 
     def test_schema_shaped_forged_adoption_refused_by_actor_and_inner_gate(self):

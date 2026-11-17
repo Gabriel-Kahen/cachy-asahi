@@ -4,18 +4,25 @@ This build-only route starts with the exact 96-file command512 Source at
 `1f0a2a18600b5aea4c837974f91e3ba2451f18a9`. It verifies its complete
 historical inverse and binds Root's exact r2 authentication adoption
 and 207-signature transcript. The hosted and inner admission checks
-require that adoption's exact canonical hash. Seven Source leaves change,
-including the enclosing maps. The original build entry, controller,
+require that adoption's exact canonical hash. The publication successor
+normalizes six historical evidence files and rebinds the reviewed recipe
+inventory. The original build entry, controller,
 two 512-command caps, package inventory, cleanup and evidence exporter
 remain byte-identical.
 
 The local preparation generates a parentless Git commit with the original
 author identity and timestamp. It compares the staged Git tree and all 96
 checkout body and mode pins. The proposed fixed destination is
-`refs/heads/codex/llhttp-minimal206-authenticated-source-20261117-r1`.
+`refs/heads/codex/llhttp-minimal206-authenticated-source-20261117-r2`.
 The tracked workflow is byte-identical to the Source workflow. It skips
 all refs except the designated Source branch and requires the exact
 workflow identity, pair job and first run attempt at admission.
+
+The first authenticated Source remains in local custody. Its separate
+mode-0700 assurance packet retains every original body and the historical
+inverse. The public projection records original and projected evidence pins
+and the two removed inverse pins. The public archive and all retained
+encoded preimages pass the local path and credential-marker scan.
 
 ## Local preparation and tests
 
@@ -23,25 +30,26 @@ Run from this code checkout with the actual command512 construction and
 the two verified r2 Root files.
 
 ```sh
-parent=/home/gabe/Documents/ChatGPT/cachy-asahi-llhttp-minimal-builder-command512-readiness-20261117-r2/constructed-source
-auth_dir=/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-minimal206-public-input-authentication-r2
+parent=/absolute/command512-r2/constructed-source
+auth_dir=/absolute/Root-minimal206-public-input-authentication-r2
 adoption="$auth_dir/Root-authentication.ACTUAL.json"
 transcript="$auth_dir/signatures.DATA.json"
 
 /usr/bin/python3 -I -B scripts/ci/llhttp-minimal206-delivery/delivery.py prepare \
   --parent "$parent" --adoption "$adoption" --transcript "$transcript" \
-  --output /absolute/fresh/local-publication-repository
+  --output /absolute/fresh/local-publication-repository \
+  --assurance-output /absolute/fresh/private-assurance
 
 /usr/bin/python3 -I -B -Werror::ResourceWarning scripts/ci/llhttp-minimal206-delivery/test_data.py \
   --parent "$parent" --adoption "$adoption" --transcript "$transcript"
 ```
 
-The actual local Source has commit `7a55473d017e5c95c86088027ecb44df06ad2cf9`,
-tree `0ce20196636943c4fb9d30b5d2907dcbcf6f2bf8`, 96 leaves and 1,630,219
-Source bytes. Its 20,332-byte map SHA-256 is
-`1524a79087d38204ce90935da70e0526610c108d5bd351ca57321b0bf9ba3d8b`.
+The actual local Source has commit `990c1eb947e9a2973dcf95d454fb9ed6d821ef4d`,
+tree `517b2f76d3552c8daa017b660b07a75a8bbee794`, 96 leaves and 1,622,425
+Source bytes. Its 20,331-byte map SHA-256 is
+`c51248cee9d84302af552582a94cdc01a34f089e73931aaf52bfd56082c4bd91`.
 Its 3,818-byte workflow SHA-256 is
-`16f583f6e2add0be80975afa2f4695ee599cd4e9094dfe2114e78e76470afa7f`.
+`a9519300643ad77920b7c8cb3afc5c329ab7ac518473a520d40b7614dcf9d101`.
 
 ## Canonical dispatch inputs
 

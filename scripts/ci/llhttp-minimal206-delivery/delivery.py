@@ -56,11 +56,34 @@ def selection(parent, adoption, transcript):
     return auth, bodies
 
 
-def prepare(parent, adoption, transcript, output):
+def private_assurance(before, after, output):
+    """Retain the whole preimage outside the candidate Git object store."""
+    output.mkdir(mode=0o700)
+    try:
+        for name, raw in before.items():
+            leaf = output / 'original-source' / name
+            leaf.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+            leaf.write_bytes(raw)
+            leaf.chmod(0o600)
+        receipt = dict(original=S.source_tuple(before), public=S.source_tuple(after),
+                       original_CID='7a55473d017e5c95c86088027ecb44df06ad2cf9',
+                       originals=S.rows(before), public_changes=sorted(n for n in before if before[n] != after[n]))
+        path = output / 'assurance.json'
+        path.write_bytes(S.encode(receipt))
+        path.chmod(0o600)
+    except BaseException:
+        shutil.rmtree(output)
+        raise
+
+
+def prepare(parent, adoption, transcript, output, assurance):
     _, bodies = selection(parent, adoption, transcript)
-    output = S.P.P.ordinary(output)
-    S.need(not output.exists() and not output.is_relative_to(parent) and not parent.is_relative_to(output),
-           'fresh disjoint local publication output')
+    output, assurance = map(S.P.P.ordinary, (output, assurance))
+    S.need(not output.exists() and not assurance.exists() and not output.is_relative_to(assurance)
+           and not assurance.is_relative_to(output)
+           and not any(p.is_relative_to(parent) or parent.is_relative_to(p) for p in (output, assurance)),
+           'fresh disjoint local publication and private assurance outputs')
+    private = S.authenticated_source(S.parent_bodies(parent), public=False)
     output.mkdir(mode=0o700)
     try:
         for name, raw in bodies.items():
@@ -75,6 +98,7 @@ def prepare(parent, adoption, transcript, output):
         commit = git(output, 'commit-tree', tree, body=MESSAGE)
         git(output, 'update-ref', S.REF, commit, '0' * 40)
         result = check_checkout(output, bodies)
+        private_assurance(private, bodies, assurance)
     except BaseException:
         shutil.rmtree(output)
         raise
@@ -133,6 +157,7 @@ def main():
         sub.add_argument('--adoption', type=Path, required=True)
         sub.add_argument('--transcript', type=Path, required=True)
     prepare_cli.add_argument('--output', type=Path, required=True)
+    prepare_cli.add_argument('--assurance-output', type=Path, required=True)
     canonical_cli.add_argument('--checkout', type=Path, required=True)
     for name in ('publication', 'registration', 'admission', 'runtime'):
         canonical_cli.add_argument('--' + name, type=Path, required=True)
@@ -140,7 +165,7 @@ def main():
     args = parser.parse_args()
     operands = args.parent, args.adoption, args.transcript
     if args.command == 'prepare':
-        result = prepare(*operands, args.output)
+        result = prepare(*operands, args.output, args.assurance_output)
     else:
         documents = [read_document(getattr(args, n), getattr(args, n + '_sha256'))
                      for n in ('publication', 'registration', 'admission', 'runtime')]

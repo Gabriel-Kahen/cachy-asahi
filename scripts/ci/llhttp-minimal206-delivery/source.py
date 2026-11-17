@@ -21,11 +21,14 @@ PREPARER = HERE.parent / 'llhttp-minimal-builder-command512/prepare.py'
 if hashlib.sha256(PREPARER.read_bytes()).hexdigest() != '0f687972c90cd8d89b3a650a5ae25b1f7135d1202b2cd83447b35843ad88926f':
     raise ValueError('exact command512 predecessor constructor')
 P = module(PREPARER, 'minimal206_fixed512')
+E = module(HERE / 'public_evidence.py', 'minimal206_public_evidence')
 need, pin, encode, decode = P.need, P.pin, P.encode, P.decode
 NB, NO = P.NB, P.NO
 REPOSITORY = 'Gabriel-Kahen/cachy-asahi'
-BRANCH = 'codex/llhttp-minimal206-authenticated-source-20261117-r1'
+BRANCH = 'codex/llhttp-minimal206-authenticated-source-20261117-r2'
 REF = 'refs/heads/' + BRANCH
+PRIVATE_REF = 'refs/heads/codex/llhttp-minimal206-authenticated-source-20261117-r1'
+PRIVATE_TREE = '0ce20196636943c4fb9d30b5d2907dcbcf6f2bf8'
 WORKFLOW = '.github/workflows/native-arm-llhttp-minimal-builder-source.yml'
 AUTH = dict(bytes=735, sha256='34eea4d446b4e595b1f6e08455d4b1090a7cd57e3e70bebdf8a73f7bad35ebc7')
 TRANSCRIPT = dict(bytes=219316, sha256='731c31033d7a53a86b2831ecf857fe2a72ff5e49640b453e37db61e0c64e794f')
@@ -84,8 +87,9 @@ def rows(bodies):
     return {name: dict(pin(raw), mode=0o644) for name, raw in sorted(bodies.items())}
 
 
-def authenticated_source(parent):
+def authenticated_source(parent, *, public=True):
     bodies = dict(parent)
+    ref = REF if public else PRIVATE_REF
     contract = NB + 'contract.py'
     before = "    return value\n\ndef admitted("
     after = (
@@ -103,13 +107,13 @@ def authenticated_source(parent):
     )
     raw = replace(raw, "value['source'] == env.get('GITHUB_SHA')", "value['source'] == source_sha")
     raw = replace(raw, "value['ref'] == env.get('GITHUB_REF') and value['ref'].startswith('refs/heads/codex/')",
-                  f"value['ref'] == source_ref == {REF!r}")
+                  f"value['ref'] == source_ref == {ref!r}")
     start = raw.index(b"    need(a['nonce'] == r['nonce'] and")
     end = raw.index(b"    need(r['external_supervision']", start)
     raw = raw[:start] + b"    need(a['nonce'] == r['nonce'], 'same Root admission/runtime nonce')\n" + raw[end:]
     actor_check = f"""def admission(root, map_sha, admission_raw, runtime_raw, admission_sha, runtime_sha, env, now):
     need(env.get('GITHUB_REPOSITORY') == {REPOSITORY!r}
-         and env.get('GITHUB_WORKFLOW_REF') == {f'{REPOSITORY}/{WORKFLOW}@{REF}'!r}
+         and env.get('GITHUB_WORKFLOW_REF') == {f'{REPOSITORY}/{WORKFLOW}@{ref}'!r}
          and env.get('GITHUB_JOB') == 'pair' and env.get('GITHUB_EVENT_NAME') == 'workflow_dispatch'
          and env.get('GITHUB_RUN_ATTEMPT') == '1' and re.fullmatch('[1-9][0-9]{{1,19}}', env.get('GITHUB_RUN_ID', '')),
          'exact minimal206 hosted workflow/job and first dispatch attempt')
@@ -122,10 +126,13 @@ def authenticated_source(parent):
     bodies[WORKFLOW] = replace(
         parent[WORKFLOW],
         "github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false",
-        f"github.repository == '{REPOSITORY}' && github.event.repository.private == false && github.ref == '{REF}'",
+        f"github.repository == '{REPOSITORY}' && github.event.repository.private == false && github.ref == '{ref}'",
     )
     bodies[WORKFLOW] = replace(bodies[WORKFLOW], 'GITHUB_RUN_ID,GITHUB_JOB,ImageOS',
                               'GITHUB_RUN_ID,GITHUB_JOB,GITHUB_WORKFLOW_REF,ImageOS')
+
+    if public:
+        E.project(bodies, NB, NO, P.MARKER, pin, encode, decode)
 
     # Rebind inside-out. The parent constructor and all other source bodies stay byte-exact.
     base_map = NB + 'source-map.json'
@@ -141,6 +148,10 @@ def authenticated_source(parent):
                                                   files=rows(owners)))
     bodies['source-map.json'] = encode(dict(decode(outer_map), files=rows(bodies)))
     need(set(bodies) == set(parent) and sum(map(len, bodies.values())) < 2 * 1024**2, 'same96 Source namespace and cap')
+    if public:
+        need(not E.private_findings(bodies), 'public Source and all nested evidence are clear of private paths and markers')
+    else:
+        need(P.tree(bodies) == PRIVATE_TREE, 'whole original private authenticated Source')
     return bodies
 
 
