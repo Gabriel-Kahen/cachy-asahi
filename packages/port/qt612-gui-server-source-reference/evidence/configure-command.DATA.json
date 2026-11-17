@@ -1,0 +1,33 @@
+{
+  "Qt_compilation": "NOT_RUN",
+  "Root_acceptance": null,
+  "argv": [
+    "prlimit",
+    "--as=536870912",
+    "--cpu=60",
+    "--",
+    "/home/gabe/.local/bin/cmake",
+    "-C",
+    "/home/gabe/Documents/ChatGPT/cachy-asahi-qt612-gui-server-source-20261117/packages/port/qt612-gui-server-source-reference/configure.cmake",
+    "-S",
+    "/home/gabe/Documents/ChatGPT/cachy-asahi-qt612-gui-server-source-20261117/work/gui-server-source-r1/qtbase-everywhere-src-6.12.0",
+    "-B",
+    "/home/gabe/Documents/ChatGPT/cachy-asahi-qt612-gui-server-source-20261117/work/gui-server-host-audit-r2/build",
+    "-G",
+    "Ninja",
+    "-DCMAKE_PROJECT_QtBase_INCLUDE=/home/gabe/Documents/ChatGPT/cachy-asahi-qt612-gui-server-source-20261117/packages/port/qt612-gui-server-source-reference/SERVER_DEPENDENCY_GUARD.cmake",
+    "-DCMAKE_FIND_USE_PACKAGE_REGISTRY=OFF",
+    "-DCMAKE_FIND_USE_SYSTEM_PACKAGE_REGISTRY=OFF"
+  ],
+  "cpu_limit_seconds": 60,
+  "exit": 0,
+  "memory_limit_bytes": 536870912,
+  "native_build": "NOT_RUN",
+  "rawlog": {
+    "bytes": 1963,
+    "sha256": "1f5066eebe365b20514b28d54d4a571c38c3a482c4ed9a2a55de714a9b1b3e08"
+  },
+  "scope": "GENUINE_HOST_X86_64_CONFIGURE_AND_SMALL_PREREQUISITE_PROBES_ONLY_FRESH_PINNED_PATCHED_SOURCE",
+  "seconds": 19.347,
+  "timed_out": false
+}

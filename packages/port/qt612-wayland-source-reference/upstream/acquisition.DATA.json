@@ -1,0 +1,37 @@
+{
+  "Qt_heavy_compile": "NOT RUN",
+  "Root_grants": null,
+  "expanded_member_bytes": 2930771,
+  "expected_archive": {
+    "bytes": 908828,
+    "sha256": "ae14d9bcf1bb3c300a3ab2e6a53f50284e5c6c966a4ac4cc5aedcb1bc74e4d02"
+  },
+  "fetches": [
+    {
+      "bytes": 908828,
+      "content_type": "application/octet-stream",
+      "final_url": "https://qt.mirror.constant.com/archive/qt/6.12/6.12.0/submodules/qtwayland-everywhere-src-6.12.0.tar.xz",
+      "sha256": "ae14d9bcf1bb3c300a3ab2e6a53f50284e5c6c966a4ac4cc5aedcb1bc74e4d02",
+      "url": "https://download.qt.io/archive/qt/6.12/6.12.0/submodules/qtwayland-everywhere-src-6.12.0.tar.xz"
+    },
+    {
+      "bytes": 7593,
+      "content_type": "text/html; charset=UTF-8",
+      "final_url": "https://download.qt.io/archive/qt/6.12/6.12.0/submodules/qtwayland-everywhere-src-6.12.0.tar.xz.mirrorlist",
+      "sha256": "cbb792ae0fbb760b83291ed1e956ee47e27d2fe807ed25f109168526840221fe",
+      "url": "https://download.qt.io/archive/qt/6.12/6.12.0/submodules/qtwayland-everywhere-src-6.12.0.tar.xz.mirrorlist"
+    },
+    {
+      "bytes": 105,
+      "content_type": "text/plain; charset=UTF-8",
+      "final_url": "https://download.qt.io/archive/qt/6.12/6.12.0/submodules/qtwayland-everywhere-src-6.12.0.tar.xz.sha256",
+      "sha256": "3b2bdfb3662ff0846832e82b1a5eb0c403fc311a482ae5f2f758155f317d7d78",
+      "url": "https://download.qt.io/archive/qt/6.12/6.12.0/submodules/qtwayland-everywhere-src-6.12.0.tar.xz.sha256"
+    }
+  ],
+  "native_build": "NOT RUN",
+  "schema": 1,
+  "scope": "BOUNDED_OFFICIAL_QTWAYLAND_SOURCE_ACQUISITION_ONLY",
+  "tag": "c4f85cd060e3e80a7d71829defac9cf5a40e8ffa",
+  "tar_members": 859
+}

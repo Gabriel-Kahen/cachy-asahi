@@ -1,0 +1,57 @@
+{
+  "derived_outputs": {
+    "no_private_module_for": [
+      "SvgWidgets"
+    ],
+    "private_cmake_interface": [
+      "Qt6SvgPrivate/Qt6SvgPrivateConfig.cmake"
+    ],
+    "qmake_pri": [
+      "qt_lib_svg.pri",
+      "qt_lib_svg_private.pri",
+      "qt_lib_svgwidgets.pri"
+    ],
+    "qmake_prl": [
+      "libQt6Svg.prl",
+      "libQt6SvgWidgets.prl"
+    ],
+    "version_headers": [
+      "QtSvg/qtsvgversion.h",
+      "QtSvgWidgets/qtsvgwidgetsversion.h"
+    ]
+  },
+  "files": [
+    {
+      "bytes": 16476,
+      "path": "cmake/QtSyncQtHelpers.cmake",
+      "retained_path": "qtbase-helpers/cmake/QtSyncQtHelpers.cmake",
+      "sha256": "ea8245edd6e06912bb789254f0d10c2e70c8d9ad247a937596d412d9477b5304"
+    },
+    {
+      "bytes": 91502,
+      "path": "cmake/QtModuleHelpers.cmake",
+      "retained_path": "qtbase-helpers/cmake/QtModuleHelpers.cmake",
+      "sha256": "31617f26c2d07b85d3e20aaaba5ab16f12a27a0bfac0dcfe4ab30ca7d8f97700"
+    },
+    {
+      "bytes": 46819,
+      "path": "cmake/QtPriHelpers.cmake",
+      "retained_path": "qtbase-helpers/cmake/QtPriHelpers.cmake",
+      "sha256": "31d5ef67b4391a8dcf4b050d016a0c13c0200c68082598f24b623e676d4c30e8"
+    },
+    {
+      "bytes": 7945,
+      "path": "cmake/QtPrlHelpers.cmake",
+      "retained_path": "qtbase-helpers/cmake/QtPrlHelpers.cmake",
+      "sha256": "b6c226bbdf68403c26d92a33336574364b8ae0351df8984f8b5a80738a4bbb87"
+    }
+  ],
+  "origin": {
+    "archive_sha256": "a951bd163c7b80fc6b8c88d7668fb56abf91c152373e13c10666763238131307",
+    "commit": "025bdad181de241e81bf853c8a2d7bf3d19261a9",
+    "component": "qtbase",
+    "version": "6.12.0"
+  },
+  "schema": 1,
+  "scope": "Source-audited inherited generated install names only, not actual QtSvg configuration or staging."
+}

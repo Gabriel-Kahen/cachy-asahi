@@ -1,0 +1,48 @@
+{
+  "M2": "NOT RUN",
+  "Qt_heavy_compile": "NOT RUN",
+  "Root_grant": null,
+  "address_space_bytes": 536870912,
+  "argv": [
+    "prlimit",
+    "--as=536870912",
+    "--",
+    "/home/gabe/.local/bin/cmake",
+    "-C",
+    "/home/gabe/Documents/ChatGPT/cachy-asahi-qt612-wayland-source-reference-20261117/packages/port/qt612-wayland-source-reference/configure.cmake",
+    "-S",
+    "/home/gabe/Documents/ChatGPT/cachy-asahi-qt612-wayland-source-reference-20261117/work/qt612-wayland-source-audit/qtwayland-everywhere-src-6.12.0",
+    "-B",
+    "/home/gabe/Documents/ChatGPT/cachy-asahi-qt612-wayland-source-reference-20261117/work/qt612-wayland-source-audit/configure-build-final",
+    "-G",
+    "Ninja",
+    "-DQT612_DEPENDENCY_PREFIX=/usr",
+    "-DCMAKE_PROJECT_QtWayland_INCLUDE=/home/gabe/Documents/ChatGPT/cachy-asahi-qt612-wayland-source-reference-20261117/packages/port/qt612-wayland-source-reference/dependency_guard.cmake"
+  ],
+  "configured_targets": null,
+  "exit": 1,
+  "inputs": {
+    "configure.cmake": {
+      "bytes": 1433,
+      "sha256": "0f9ae5eb0c618cbe5a33a120b21b4135de390d16fdab46f2f340472fb9803cfc"
+    },
+    "dependency_guard.cmake": {
+      "bytes": 2605,
+      "sha256": "c990b529419cba027a5116ad8aed58470c90238c98b49de945152270370f79e0"
+    }
+  },
+  "native_build": "NOT RUN",
+  "observed_dependency_Qt_version": "6.11.2",
+  "rawlog": {
+    "bytes": 2673,
+    "sha256": "f6cd82d83c39994a32ff4f483d24035fa5465dcdeb3d47558014ff57eef0e500"
+  },
+  "required_Qt_version": "6.12.0",
+  "scheduling": {
+    "CMAKE_BUILD_PARALLEL_LEVEL": 1,
+    "MAX_JOBS": 1
+  },
+  "scope": "GENUINE_HOST_X86_64_CONFIGURE_REFUSAL_REQUIRED_QT612",
+  "seconds": 0.314,
+  "timed_out": false
+}

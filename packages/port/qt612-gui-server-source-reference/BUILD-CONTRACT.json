@@ -1,0 +1,478 @@
+{
+  "actual_host": {
+    "Qt_compilation": "NOT_RUN",
+    "architecture": "x86_64",
+    "configure": "PASS113_SETTINGS_SERVER_EXPORT_AND_EXACT18_GENERATED_TARGETS_ONLY",
+    "normal_package_dependency_hold": [
+      "host_cmake4.3.3_unregistered_in_package_DB"
+    ],
+    "own_Qt_smoke": "NOT_RUN",
+    "patches": "PASS4_ZERO_FUZZ_FRESH_PINNED_SOURCE_ONLY",
+    "real_ELF_staging": "NOT_RUN",
+    "server_dependency": "HOST_WAYLAND1.26.0_PKG_CONFIG_AND_LINK_PROBE_PASS",
+    "source_notices": "PASS173_636122_BYTES"
+  },
+  "actual_native": {
+    "M2": "NOT RUN",
+    "Root_selection": null,
+    "archive": null,
+    "build_pair": null,
+    "comparison": null,
+    "image": null,
+    "installation": "NOT RUN",
+    "inventory": null,
+    "native_acceptance": false,
+    "public_TEST_key": null,
+    "release": "UNSELECTED",
+    "removal": "NOT RUN",
+    "signature": null
+  },
+  "basis": {
+    "bootstrap_unchanged": true,
+    "recipe_commit": "b05267833d497ef034576741bf31968019a526c3",
+    "recipe_path": "packages/port/qt612-gui-source-reference",
+    "resource_policy": {
+      "bytes": 1295,
+      "path": "SERIAL-POLICY.DATA.json",
+      "sha256": "b8be1cbacd1e69ea5d537c4a16d7715059e6481491e2d5f0151188b0b1c7ac95"
+    },
+    "serial_recipe_commit": "69a02851b87ca29daf2e197101b66bf75ff61889"
+  },
+  "commands": {
+    "configuration_prerequisite_guard": "-DCMAKE_PROJECT_QtBase_INCLUDE=SOURCE/SERVER_DEPENDENCY_GUARD.cmake",
+    "configuration_verification": "python source.py configuration --build BUILD --profile configure.cmake",
+    "native_build": [
+      "makepkg",
+      "--cleanbuild",
+      "--force"
+    ],
+    "source_verification": "python source.py verify --root SOURCE --policy source-notices.json",
+    "staging_verification": "python check_stage.py --root PRIVATE_DESTDIR --license-manifest source-notices.json"
+  },
+  "configuration": {
+    "auto_outputs": "complete actual stage/ELF inventory required; host target declarations are not built outputs",
+    "settings": {
+      "BUILD_SHARED_LIBS": "ON",
+      "CMAKE_AUTOGEN_PARALLEL": "1",
+      "CMAKE_BUILD_TYPE": "Release",
+      "CMAKE_INSTALL_PREFIX": "/usr",
+      "FEATURE_accessibility_atspi_bridge": "OFF",
+      "FEATURE_androiddeployqt": "OFF",
+      "FEATURE_brotli": "ON",
+      "FEATURE_concurrent": "ON",
+      "FEATURE_cups": "OFF",
+      "FEATURE_dbus": "ON",
+      "FEATURE_dbus_linked": "ON",
+      "FEATURE_directfb": "OFF",
+      "FEATURE_drm_atomic": "OFF",
+      "FEATURE_egl": "ON",
+      "FEATURE_egl_x11": "OFF",
+      "FEATURE_eglfs": "ON",
+      "FEATURE_eglfs_brcm": "OFF",
+      "FEATURE_eglfs_egldevice": "OFF",
+      "FEATURE_eglfs_gbm": "ON",
+      "FEATURE_eglfs_mali": "OFF",
+      "FEATURE_eglfs_openwfd": "OFF",
+      "FEATURE_eglfs_rcar": "OFF",
+      "FEATURE_eglfs_viv": "OFF",
+      "FEATURE_eglfs_viv_wl": "OFF",
+      "FEATURE_eglfs_vsp2": "OFF",
+      "FEATURE_eglfs_x11": "OFF",
+      "FEATURE_evdev": "OFF",
+      "FEATURE_fontconfig": "ON",
+      "FEATURE_gbm": "ON",
+      "FEATURE_glib": "ON",
+      "FEATURE_graphicsframecapture": "OFF",
+      "FEATURE_gssapi": "OFF",
+      "FEATURE_gtk3": "OFF",
+      "FEATURE_gui": "ON",
+      "FEATURE_harmonydeployqt": "OFF",
+      "FEATURE_icu": "ON",
+      "FEATURE_journald": "OFF",
+      "FEATURE_kms": "ON",
+      "FEATURE_libinput": "OFF",
+      "FEATURE_libproxy": "OFF",
+      "FEATURE_libudev": "OFF",
+      "FEATURE_liburing": "OFF",
+      "FEATURE_linuxfb": "OFF",
+      "FEATURE_mtdev": "OFF",
+      "FEATURE_network": "ON",
+      "FEATURE_opengl": "ON",
+      "FEATURE_opengl_desktop": "ON",
+      "FEATURE_opengles2": "OFF",
+      "FEATURE_openssl_linked": "ON",
+      "FEATURE_printsupport": "ON",
+      "FEATURE_qtwaylandscanner": "ON",
+      "FEATURE_sql": "ON",
+      "FEATURE_sql_db2": "OFF",
+      "FEATURE_sql_ibase": "OFF",
+      "FEATURE_sql_mimer": "OFF",
+      "FEATURE_sql_mysql": "OFF",
+      "FEATURE_sql_oci": "OFF",
+      "FEATURE_sql_odbc": "OFF",
+      "FEATURE_sql_psql": "OFF",
+      "FEATURE_sql_sqlite": "ON",
+      "FEATURE_system_doubleconversion": "ON",
+      "FEATURE_system_freetype": "ON",
+      "FEATURE_system_harfbuzz": "ON",
+      "FEATURE_system_jpeg": "ON",
+      "FEATURE_system_libb2": "ON",
+      "FEATURE_system_pcre2": "ON",
+      "FEATURE_system_png": "ON",
+      "FEATURE_system_sqlite": "ON",
+      "FEATURE_system_textmarkdownreader": "ON",
+      "FEATURE_system_xcb_xinput": "ON",
+      "FEATURE_system_zlib": "ON",
+      "FEATURE_testlib": "ON",
+      "FEATURE_tslib": "OFF",
+      "FEATURE_vnc": "OFF",
+      "FEATURE_vulkan": "OFF",
+      "FEATURE_wasmdeployqt": "OFF",
+      "FEATURE_wayland": "ON",
+      "FEATURE_wayland_brcm": "OFF",
+      "FEATURE_wayland_client": "ON",
+      "FEATURE_wayland_client_fullscreen_shell_v1": "OFF",
+      "FEATURE_wayland_client_wl_shell": "ON",
+      "FEATURE_wayland_client_xdg_shell": "ON",
+      "FEATURE_wayland_dmabuf_server_buffer": "OFF",
+      "FEATURE_wayland_drm_egl_server_buffer": "OFF",
+      "FEATURE_wayland_egl": "ON",
+      "FEATURE_wayland_libhybris_egl_server_buffer": "OFF",
+      "FEATURE_wayland_server": "ON",
+      "FEATURE_wayland_shm_emulation_server_buffer": "OFF",
+      "FEATURE_wayland_vulkan_server_buffer": "OFF",
+      "FEATURE_waylandscanner": "ON",
+      "FEATURE_widgets": "ON",
+      "FEATURE_xcb": "ON",
+      "FEATURE_xcb_egl_plugin": "OFF",
+      "FEATURE_xcb_glx_plugin": "ON",
+      "FEATURE_xcb_sm": "ON",
+      "FEATURE_xcb_xlib": "ON",
+      "FEATURE_xml": "ON",
+      "FEATURE_zstd": "ON",
+      "INSTALL_ARCHDATADIR": "lib/qt6",
+      "INSTALL_BINDIR": "lib/qt6/bin",
+      "INSTALL_DATADIR": "share/qt6",
+      "INSTALL_DOCDIR": "share/doc/qt6",
+      "INSTALL_EXAMPLESDIR": "share/doc/qt6/examples",
+      "INSTALL_INCLUDEDIR": "include/qt6",
+      "INSTALL_LIBDIR": "lib",
+      "INSTALL_LIBEXECDIR": "lib/qt6",
+      "INSTALL_MKSPECSDIR": "lib/qt6/mkspecs",
+      "INSTALL_PUBLICBINDIR": "bin",
+      "QT_BUILD_DOCS": "OFF",
+      "QT_BUILD_EXAMPLES": "OFF",
+      "QT_BUILD_TESTS": "OFF",
+      "QT_GENERATE_SBOM": "OFF",
+      "QT_INSTALL_CONFIG_INFO_FILES": "ON"
+    },
+    "settings_count": 113
+  },
+  "dependencies": {
+    "base_build_environment": "ordinary signed Arch/ALARM base-devel; Root-selected native image and inventory required",
+    "build": [
+      "gcc",
+      "cmake>=3.25",
+      "ninja",
+      "pkgconf",
+      "python",
+      "perl",
+      "patch"
+    ],
+    "check": [],
+    "native_image": null,
+    "native_inventory": null,
+    "native_missing_dependencies": "NOT AVAILABLE UNTIL ACTUAL NATIVE INVENTORY IS BOUND",
+    "normal_makepkg_checks": true,
+    "normal_version_and_provides_resolution": "REQUIRED_SEPARATE_NATIVE_TRANSACTION_UNBOUND",
+    "runtime": [
+      "brotli",
+      "dbus",
+      "double-conversion",
+      "fontconfig",
+      "freetype2",
+      "glib2",
+      "glibc",
+      "harfbuzz",
+      "icu",
+      "libb2",
+      "libgcc",
+      "libgl",
+      "libice",
+      "libjpeg-turbo",
+      "libpng",
+      "libsm",
+      "libstdc++",
+      "libx11",
+      "libxcb",
+      "libxkbcommon",
+      "libxkbcommon-x11",
+      "md4c>=0.5.3",
+      "md4c<0.6",
+      "openssl",
+      "pcre2",
+      "shared-mime-info",
+      "sqlite",
+      "xcb-util-cursor",
+      "xcb-util-image",
+      "xcb-util-keysyms",
+      "xcb-util-renderutil",
+      "xcb-util-wm",
+      "xdg-utils",
+      "zlib",
+      "zstd",
+      "libdrm",
+      "libglvnd",
+      "mesa",
+      "wayland>=1.15",
+      "libwayland-server.so=0-64"
+    ]
+  },
+  "expected_stage": {
+    "added_modules": [
+      "EglFSDeviceIntegration",
+      "EglFsKmsGbmSupport",
+      "EglFsKmsSupport",
+      "WaylandClient",
+      "WlShellIntegration"
+    ],
+    "all_ELF_PT_LOAD_minimum_alignment": 16384,
+    "checker": "check_stage.py",
+    "complete_file_mode_hash_symlink_ELF_GNU_inventory_required": true,
+    "elf_class": 64,
+    "elf_endian": "little",
+    "elf_machine": 183,
+    "extra_Qt_shared_libraries": "REFUSE_OUTSIDE_EXACT18",
+    "plugins_required": [
+      "platforms/libqoffscreen.so",
+      "platforms/libqxcb.so",
+      "sqldrivers/libqsqlite.so",
+      "platforms/libqeglfs.so",
+      "platforms/libqwayland.so",
+      "platforms/libqminimalegl.so",
+      "wayland-decoration-client/libbradient.so",
+      "egldeviceintegrations/libqeglfs-emu-integration.so",
+      "egldeviceintegrations/libqeglfs-kms-integration.so",
+      "wayland-shell-integration/libwl-shell-plugin.so",
+      "wayland-shell-integration/libxdg-shell.so",
+      "wayland-graphics-integration-client/libqt-plugin-wayland-egl.so"
+    ],
+    "private_headers": {
+      "EglFSDeviceIntegration": "qeglfsdeviceintegration_p.h",
+      "EglFsKmsGbmSupport": "qeglfskmsgbmintegration_p.h",
+      "EglFsKmsSupport": "qeglfskmsintegration_p.h",
+      "WlShellIntegration": "qwaylandwlshellintegration_p.h"
+    },
+    "private_modules": [
+      "XcbQpa",
+      "EglFSDeviceIntegration",
+      "EglFsKmsGbmSupport",
+      "EglFsKmsSupport",
+      "WlShellIntegration"
+    ],
+    "public_modules": [
+      "Core",
+      "Concurrent",
+      "DBus",
+      "Gui",
+      "Network",
+      "OpenGL",
+      "OpenGLWidgets",
+      "PrintSupport",
+      "Sql",
+      "Test",
+      "Widgets",
+      "Xml",
+      "WaylandClient"
+    ],
+    "real_staging": "NOT RUN",
+    "structural_16K_is_not_hardware_validation": true,
+    "tools_required": [
+      "usr/lib/qt6/bin/qmake",
+      "usr/lib/qt6/moc",
+      "usr/lib/qt6/uic",
+      "usr/lib/qt6/rcc",
+      "usr/lib/qt6/qtwaylandscanner"
+    ]
+  },
+  "foreign_official_correspondence": {
+    "PKGBUILD_sha256": "0bd04f4db92ed8b0992e851a4ddd68f39ac7b6b079af4e354dba466946ca2272",
+    "status": "HOLD_UNRECOVERED_NOT_CLAIMED_BY_GUI_RECIPE"
+  },
+  "native_recipe_files": {
+    ".SRCINFO": {
+      "bytes": 3856,
+      "mode": 420,
+      "sha256": "9c132b1d743040efcfad23401efee5879270fab91d71877fe0972d6501bdb445"
+    },
+    "CVE-2026-105924-qtbase-6.12.diff": {
+      "bytes": 5019,
+      "mode": 420,
+      "sha256": "c27d27b86aaf2cdab0c18d513fbb94a432e98782eddfc5f856387e4be68be50b"
+    },
+    "CVE-2026-105943-qtbase-6.12.diff": {
+      "bytes": 2291,
+      "mode": 420,
+      "sha256": "dd22629ce948cf0a900421323cca331907180242a9b51c3fd75b25c75f068099"
+    },
+    "CVE-2026-116337-qtbase-6.12-0001.diff": {
+      "bytes": 3262,
+      "mode": 420,
+      "sha256": "74c5028985dcc0455255909de4dc80f50cf5472dbf465ce46ebc791a7b080f12"
+    },
+    "CVE-2026-116337-qtbase-6.12-0002.diff": {
+      "bytes": 5186,
+      "mode": 420,
+      "sha256": "83abc89d507dbd9a94dc5718b0125492c1c37b0609a8f404a1f164925940faec"
+    },
+    "LICENSE.packaging": {
+      "bytes": 1070,
+      "mode": 420,
+      "sha256": "67fe503b5c407bca1c340e14fb7ceb6849b1af4d531a783b30d09cb76e65a3aa"
+    },
+    "LICENSE.third-party": {
+      "bytes": 639,
+      "mode": 420,
+      "sha256": "277c4d14792c236a96f02612b4f134f84707eb33fc6a1d954ec9c5ad20490585"
+    },
+    "PKGBUILD": {
+      "bytes": 6145,
+      "mode": 420,
+      "sha256": "121f2ec8f25a8c935be16136cd3dc036603679fdaea2f1b95e45a7a2201f852b"
+    },
+    "SERVER_DEPENDENCY_GUARD.cmake": {
+      "bytes": 830,
+      "mode": 420,
+      "sha256": "77ee32886383da2d2b7c30b03269c7c482a6386237ad7c0bc111dd960579e379"
+    },
+    "SmokeCMakeLists.txt": {
+      "bytes": 6902,
+      "mode": 420,
+      "sha256": "91036b0a511b570d7ce738584ff9607ae4e3d1f88fda3b0a926847ff260a79a1"
+    },
+    "check_stage.py": {
+      "bytes": 22362,
+      "mode": 420,
+      "sha256": "35f410bf60af41f677f7a36d58cc5079ecf57dfde2b84f29dc1b006a4bf7f0da"
+    },
+    "configure.cmake": {
+      "bytes": 5695,
+      "mode": 420,
+      "sha256": "eaa27120efac20a30c6c8d256385532aa988af0dee00dd1f8117f24922674350"
+    },
+    "smoke.cpp": {
+      "bytes": 3105,
+      "mode": 420,
+      "sha256": "cd504607ac0aec8aad372aad0387c60fb405a216addfa29d6ff2f16b93eaeb96"
+    },
+    "source-notices.json": {
+      "bytes": 20042,
+      "mode": 420,
+      "sha256": "3651e4bca7846caee61183c2bc55bf4988c6f4f2a56af81f3948afe03d41cfda"
+    },
+    "source.py": {
+      "bytes": 6717,
+      "mode": 420,
+      "sha256": "efe21d53a77c92ea66997923529b4d6e34635db7f1cb760af99d01774bdb7870"
+    }
+  },
+  "other54_modules": "OUTSIDE_SOURCE_SCOPE_UPSTREAM_IMPLEMENTATIONS_EXIST; NO_FULL72_CATALOG_CLAIM",
+  "package": {
+    "architecture": "aarch64",
+    "conflicts": [
+      "qt6-base",
+      "cachy-asahi-qt612-base-source-reference",
+      "cachy-asahi-qt612-gui-source-reference"
+    ],
+    "filename": "cachy-asahi-qt612-gui-server-source-reference-6.12.0-1-aarch64.pkg.tar.xz",
+    "hooks": [],
+    "install_script": null,
+    "name": "cachy-asahi-qt612-gui-server-source-reference",
+    "provides": [
+      "qt6-base=6.12.0",
+      "libQt6Core.so.6",
+      "libQt6Concurrent.so.6",
+      "libQt6DBus.so.6",
+      "libQt6Gui.so.6",
+      "libQt6Network.so.6",
+      "libQt6OpenGL.so.6",
+      "libQt6OpenGLWidgets.so.6",
+      "libQt6PrintSupport.so.6",
+      "libQt6Sql.so.6",
+      "libQt6Test.so.6",
+      "libQt6Widgets.so.6",
+      "libQt6Xml.so.6",
+      "libQt6XcbQpa.so.6",
+      "libQt6EglFSDeviceIntegration.so.6",
+      "libQt6EglFsKmsGbmSupport.so.6",
+      "libQt6EglFsKmsSupport.so.6",
+      "libQt6WaylandClient.so.6",
+      "libQt6WlShellIntegration.so.6"
+    ],
+    "replaces": [],
+    "selected_for_release": false,
+    "version": "6.12.0-1"
+  },
+  "patch_fuzz": 0,
+  "patch_order": [
+    "CVE-2026-116337-qtbase-6.12-0002.diff",
+    "CVE-2026-116337-qtbase-6.12-0001.diff",
+    "CVE-2026-105924-qtbase-6.12.diff",
+    "CVE-2026-105943-qtbase-6.12.diff"
+  ],
+  "producer_requirements": {
+    "binding": null,
+    "comparison": [
+      "archive_bytes",
+      "payload",
+      "PKGINFO",
+      "BUILDINFO"
+    ],
+    "complete_original_provenance_files_retained": true,
+    "no_dependency_bypass": true,
+    "real_check_required_in_both": true,
+    "resource_enforcement": "Root-selected C controller/executor required; recipe enforces serial scheduling only",
+    "stage_contract_export": "NEW_GUI_SERVER_PRODUCER_BINDING_REQUIRED_BEFORE_ACTOR; OLD_GUI_AND_F69_PRODUCERS_REJECT_THIS_VARIANT",
+    "two_clean_native_attempts": true
+  },
+  "resource_proposal": {
+    "bytes": 1070,
+    "sha256": "4ce2938faa32591da41eb2d5fc4b5b2fdb5152918c50b1c0e02a1c4dd96e2c20"
+  },
+  "schema_version": 1,
+  "scope": "PROJECT_TEST_PRIVATE_IMAGE_ONLY_UNSELECTED_GUI_SERVER_VARIANT",
+  "smoke": {
+    "GPU_context_created": false,
+    "Wayland_compositor_connected": false,
+    "compiled_or_run": false,
+    "direct_device_backends_activated": false,
+    "marker": "PASS_QT612_GUI_SERVER_OFFSCREEN_AND_LOCAL_DISPLAY_API_ONLY",
+    "network_requests": 0,
+    "own_library_path": "build/lib",
+    "own_plugin_path": "build/lib/qt6/plugins",
+    "scope": "OWN_BUILT_GUI_OFFSCREEN_AND_WAYLAND_SERVER_LOCAL_DISPLAY_API_ONLY",
+    "server_event_loop_run": false,
+    "server_socket_added": false,
+    "timeout_seconds": 60
+  },
+  "source_notices": {
+    "bytes": 636122,
+    "count": 173,
+    "destination": "usr/share/licenses/cachy-asahi-qt612-gui-server-source-reference/source",
+    "policy": {
+      "bytes": 20042,
+      "sha256": "3651e4bca7846caee61183c2bc55bf4988c6f4f2a56af81f3948afe03d41cfda"
+    }
+  },
+  "status": "SOURCE_AUDITED_HOST_CONFIGURED_GUI18_UNBUILT",
+  "upstream": {
+    "archive": {
+      "bytes": 51220268,
+      "filename": "qtbase-everywhere-src-6.12.0.tar.xz",
+      "sha256": "a951bd163c7b80fc6b8c88d7668fb56abf91c152373e13c10666763238131307",
+      "url": "https://download.qt.io/archive/qt/6.12/6.12.0/submodules/qtbase-everywhere-src-6.12.0.tar.xz"
+    },
+    "revision": "025bdad181de241e81bf853c8a2d7bf3d19261a9",
+    "tag": "v6.12.0"
+  }
+}

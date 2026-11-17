@@ -1,0 +1,3396 @@
+{
+  "acceptance": {
+    "Root_acceptance": null,
+    "actual_build": null,
+    "actual_configure": null,
+    "actual_runtime": null,
+    "actual_stage": null,
+    "existing_source_and_adapter_families": "UNCHANGED",
+    "hardware_acceptance": false,
+    "native_acceptance": false,
+    "official_qtbase_correspondence": "HOLD_UNCHANGED",
+    "release_acceptance": false
+  },
+  "complete_external_dependency_requirements": {
+    "gui_server_feature": "server_feature_provider_audit remains HELD",
+    "native_targets": {
+      "drm": "Libdrm::Libdrm for enabled dma-buf probes/integrations",
+      "egl": "EGL::EGL for enabled OpenGL/EGL integrations",
+      "vsp2": "PkgConfig::Waylandkms only for conditional VSP2 hardware-layer integration; not selected by this audit",
+      "wayland": "Wayland >=1.15, Client/Server/Cursor/Egl imported targets; wayland-scanner executable",
+      "x11": "X11::X11 discovered if absent; transitive/selected platform use must remain coherent",
+      "xkbcommon": "XKB::XKB >=0.5.0 when not already supplied by GUI; optional finder, actual selected feature requirements still checked"
+    },
+    "protocol_data": "external_protocol_prefix_dependency complete exact source/data list",
+    "qml_quick_svg_providers": "Independent corresponding-source providers remain unbound; no feature silently disabled to claim complete capabilities.",
+    "qt_targets": {
+      "adwaita": [
+        "Qt6::DBus",
+        "Qt6::Svg"
+      ],
+      "build_system_package": "Qt6BuildInternals matching6.12.0; CMake package required by top-level find_package, no Qt6::BuildInternals target asserted.",
+      "client_extras": [
+        "Qt6::WaylandClient",
+        "Qt6::WaylandClientPrivate"
+      ],
+      "full_quick_compositor": [
+        "Qt6::Qml",
+        "Qt6::QmlPrivate",
+        "Qt6::Quick",
+        "Qt6::QuickPrivate"
+      ],
+      "gl_compositor": [
+        "Qt6::OpenGL"
+      ],
+      "required_core": [
+        "Qt6::Core",
+        "Qt6::Gui",
+        "Qt6::CorePrivate",
+        "Qt6::GuiPrivate",
+        "Qt6::WaylandGlobalPrivate"
+      ],
+      "required_generator": [
+        "Qt6::qtwaylandscanner",
+        "Qt6WaylandScannerTools matching6.12.0",
+        "Wayland::Scanner"
+      ]
+    }
+  },
+  "coverage": {
+    "adwaita_blocker": "Qt::Svg is outside GUI18; top-level optional discovery must not silently count missing Adwaita as feature-complete.",
+    "client_QPA_implementation_location": "Qt6.12 qtbase src/plugins/platforms/wayland, already source-backed by GUI18; qtwayland archive complements it.",
+    "compositor_Cpp_targets": [
+      "WaylandCompositor",
+      "WaylandEglCompositorHwIntegrationPrivate when wayland_egl"
+    ],
+    "compositor_needed_by_declared_desktop": "No qt6-wayland or WaylandCompositor package dependency recorded in these scoped minimal/expanded/prospective snapshots. This is not a permanent exclusion or proof of every runtime workflow.",
+    "compositor_quick_requires": [
+      "Qt::Qml",
+      "Qt::QmlPrivate",
+      "Qt::Quick",
+      "Qt::QuickPrivate",
+      "QT_FEATURE_wayland_compositor_quick"
+    ],
+    "default_qml_plugin_output_names": "Not inferred from other Qt versions. Verify actual generated6.12 qmldir module/plugin/typeinfo and ordinary in-package relative plugin ELF;8 source URIs identified.",
+    "desktop_expanded_QML_blockers": [
+      "hyprpolkitagent and hyprland-qt-support declare qt6-declarative; GUI18 supplies no Qml/Quick implementation.",
+      "Retained foreign qt6-declarative archive metadata is not a project source-built corresponding-source provider.",
+      "Per-application QML imports and exact DT_NEEDED are not retained by the scoped observation schema; do not invent a minimal QML module list."
+    ],
+    "full_qtwayland_capability_acceptance": "HELD_FOR_COMPATIBLE_GUI_SERVER_FEATURE_PROVIDER_DECLARATIVE_QML_QUICK_SVG_AND_ACTUAL_OUTPUT_CHECKS",
+    "gui18_actual_candidate_output_status": "UNBOUND_NO_BUILD_OR_HARDWARE_ACCEPTANCE",
+    "gui18_intended_client_libraries": [
+      "WaylandClient",
+      "WlShellIntegration"
+    ],
+    "gui18_intended_client_plugins": [
+      "platforms/libqwayland.so",
+      "wayland-shell-integration/libxdg-shell.so",
+      "wayland-shell-integration/libwl-shell-plugin.so",
+      "wayland-graphics-integration-client/libqt-plugin-wayland-egl.so"
+    ],
+    "other_qt_modules": "No blanket full72-module requirement is selected by this audit.",
+    "qml_uris": [
+      "QtWayland.Client.TextureSharing",
+      "QtWayland.Compositor",
+      "QtWayland.Compositor.IviApplication",
+      "QtWayland.Compositor.PresentationTime",
+      "QtWayland.Compositor.QtShell",
+      "QtWayland.Compositor.TextureSharingExtension",
+      "QtWayland.Compositor.WlShell",
+      "QtWayland.Compositor.XdgShell"
+    ],
+    "qtbase_protocol_and_tool_requirements": [
+      "Qt6WaylandScannerTools matching6.12.0",
+      "Wayland::Scanner external wayland-scanner",
+      "installed qtbase share/qt6/wayland/protocols and extensions used by QtWaylandSetup"
+    ],
+    "qtwayland_client_additions": [
+      "WaylandClientFeaturesPrivate header-only target",
+      "ivi-shell integration plugin",
+      "qt-shell integration plugin",
+      "Adwaita decoration plugin when DBus and Svg targets exist",
+      "QtWayland.Client.TextureSharing QML import when Quick/client/compositor/OpenGL targets exist"
+    ],
+    "versioned_native_wayland_requirement": "Wayland >=1.15 in src/CMakeLists.txt:26"
+  },
+  "expanded_desktop_preview": {
+    "actual_runtime_or_transaction": null,
+    "limitations": [
+      "Declared new 341 builder inventory, not yet a native installed builder",
+      "GENERIC stock Mesa only; Asahi boot/kernel/firmware/Mesa/audio transaction NOT RUN",
+      "FDK 3.0.0 candidate authenticated but license/source clearance still pending",
+      "45 roots; Neovim optional; current complete candidate archive set must be separately authenticated",
+      "Named package/platform/release custodians unassigned"
+    ],
+    "qt_dependency_edges": [
+      {
+        "consumer": "hyprland-qt-support",
+        "dependency": "qt6-base"
+      },
+      {
+        "consumer": "hyprland-qt-support",
+        "dependency": "qt6-declarative"
+      },
+      {
+        "consumer": "hyprpolkitagent",
+        "dependency": "hyprland-qt-support"
+      },
+      {
+        "consumer": "hyprpolkitagent",
+        "dependency": "polkit-qt6"
+      },
+      {
+        "consumer": "hyprpolkitagent",
+        "dependency": "qt6-base"
+      },
+      {
+        "consumer": "hyprpolkitagent",
+        "dependency": "qt6-declarative"
+      },
+      {
+        "consumer": "polkit-qt6",
+        "dependency": "qt6-base"
+      },
+      {
+        "consumer": "qt6-base",
+        "dependency": "qt6-translations"
+      },
+      {
+        "consumer": "qt6-declarative",
+        "dependency": "qt6-base"
+      },
+      {
+        "consumer": "xdg-desktop-portal-hyprland",
+        "dependency": "qt6-base"
+      }
+    ],
+    "qt_dependent_roots": [
+      {
+        "name": "xdg-desktop-portal-hyprland",
+        "version": "1.4.1-2"
+      },
+      {
+        "name": "hyprpolkitagent",
+        "version": "0.2.0-1"
+      }
+    ],
+    "qt_package_archive_selection": [
+      "qt6-base",
+      "qt6-declarative",
+      "qt6-translations"
+    ],
+    "root_count": 45
+  },
+  "external_protocol_prefix_dependency": {
+    "actual_gui_installed_stage": null,
+    "actual_native_prefix": null,
+    "attribution_directory_inputs": [
+      {
+        "expected_installed_prefix_path": "usr/share/qt6/wayland/protocols/linux-dmabuf",
+        "family": "protocols",
+        "gui_configure_copy_present": true,
+        "kind": "attribution_directory",
+        "qtbase_source_path": "src/3rdparty/wayland/protocols/linux-dmabuf",
+        "source_file_paths": [
+          "src/3rdparty/wayland/protocols/linux-dmabuf/REUSE.toml",
+          "src/3rdparty/wayland/protocols/linux-dmabuf/linux-dmabuf-unstable-v1.xml",
+          "src/3rdparty/wayland/protocols/linux-dmabuf/linux-dmabuf-v1.xml",
+          "src/3rdparty/wayland/protocols/linux-dmabuf/qt_attribution.json"
+        ],
+        "source_present": true,
+        "source_uses": [
+          {
+            "line": 31,
+            "source": "src/plugins/hardwareintegration/compositor/linux-dmabuf-unstable-v1/CMakeLists.txt"
+          },
+          {
+            "line": 31,
+            "source": "src/plugins/hardwareintegration/compositor/linux-dmabuf-v1/CMakeLists.txt"
+          }
+        ],
+        "suffix": "linux-dmabuf"
+      },
+      {
+        "expected_installed_prefix_path": "usr/share/qt6/wayland/protocols/presentation-time",
+        "family": "protocols",
+        "gui_configure_copy_present": true,
+        "kind": "attribution_directory",
+        "qtbase_source_path": "src/3rdparty/wayland/protocols/presentation-time",
+        "source_file_paths": [
+          "src/3rdparty/wayland/protocols/presentation-time/REUSE.toml",
+          "src/3rdparty/wayland/protocols/presentation-time/presentation-time.xml",
+          "src/3rdparty/wayland/protocols/presentation-time/qt_attribution.json"
+        ],
+        "source_present": true,
+        "source_uses": [
+          {
+            "line": 84,
+            "source": "src/compositor/CMakeLists.txt"
+          }
+        ],
+        "suffix": "presentation-time"
+      },
+      {
+        "expected_installed_prefix_path": "usr/share/qt6/wayland/protocols/scaler",
+        "family": "protocols",
+        "gui_configure_copy_present": true,
+        "kind": "attribution_directory",
+        "qtbase_source_path": "src/3rdparty/wayland/protocols/scaler",
+        "source_file_paths": [
+          "src/3rdparty/wayland/protocols/scaler/REUSE.toml",
+          "src/3rdparty/wayland/protocols/scaler/qt_attribution.json",
+          "src/3rdparty/wayland/protocols/scaler/scaler.xml"
+        ],
+        "source_present": true,
+        "source_uses": [
+          {
+            "line": 85,
+            "source": "src/compositor/CMakeLists.txt"
+          }
+        ],
+        "suffix": "scaler"
+      },
+      {
+        "expected_installed_prefix_path": "usr/share/qt6/wayland/protocols/text-input/v2",
+        "family": "protocols",
+        "gui_configure_copy_present": true,
+        "kind": "attribution_directory",
+        "qtbase_source_path": "src/3rdparty/wayland/protocols/text-input/v2",
+        "source_file_paths": [
+          "src/3rdparty/wayland/protocols/text-input/v2/HPND_LICENSE.txt",
+          "src/3rdparty/wayland/protocols/text-input/v2/REUSE.toml",
+          "src/3rdparty/wayland/protocols/text-input/v2/qt_attribution.json",
+          "src/3rdparty/wayland/protocols/text-input/v2/text-input-unstable-v2.xml"
+        ],
+        "source_present": true,
+        "source_uses": [
+          {
+            "line": 86,
+            "source": "src/compositor/CMakeLists.txt"
+          }
+        ],
+        "suffix": "text-input/v2"
+      },
+      {
+        "expected_installed_prefix_path": "usr/share/qt6/wayland/protocols/text-input/v3",
+        "family": "protocols",
+        "gui_configure_copy_present": true,
+        "kind": "attribution_directory",
+        "qtbase_source_path": "src/3rdparty/wayland/protocols/text-input/v3",
+        "source_file_paths": [
+          "src/3rdparty/wayland/protocols/text-input/v3/REUSE.toml",
+          "src/3rdparty/wayland/protocols/text-input/v3/qt_attribution.json",
+          "src/3rdparty/wayland/protocols/text-input/v3/text-input-unstable-v3.xml"
+        ],
+        "source_present": true,
+        "source_uses": [
+          {
+            "line": 87,
+            "source": "src/compositor/CMakeLists.txt"
+          }
+        ],
+        "suffix": "text-input/v3"
+      },
+      {
+        "expected_installed_prefix_path": "usr/share/qt6/wayland/protocols/viewporter",
+        "family": "protocols",
+        "gui_configure_copy_present": true,
+        "kind": "attribution_directory",
+        "qtbase_source_path": "src/3rdparty/wayland/protocols/viewporter",
+        "source_file_paths": [
+          "src/3rdparty/wayland/protocols/viewporter/REUSE.toml",
+          "src/3rdparty/wayland/protocols/viewporter/qt_attribution.json",
+          "src/3rdparty/wayland/protocols/viewporter/viewporter.xml"
+        ],
+        "source_present": true,
+        "source_uses": [
+          {
+            "line": 88,
+            "source": "src/compositor/CMakeLists.txt"
+          }
+        ],
+        "suffix": "viewporter"
+      },
+      {
+        "expected_installed_prefix_path": "usr/share/qt6/wayland/protocols/wayland",
+        "family": "protocols",
+        "gui_configure_copy_present": true,
+        "kind": "attribution_directory",
+        "qtbase_source_path": "src/3rdparty/wayland/protocols/wayland",
+        "source_file_paths": [
+          "src/3rdparty/wayland/protocols/wayland/README",
+          "src/3rdparty/wayland/protocols/wayland/REUSE.toml",
+          "src/3rdparty/wayland/protocols/wayland/qt_attribution.json",
+          "src/3rdparty/wayland/protocols/wayland/wayland.xml"
+        ],
+        "source_present": true,
+        "source_uses": [
+          {
+            "line": 89,
+            "source": "src/compositor/CMakeLists.txt"
+          }
+        ],
+        "suffix": "wayland"
+      },
+      {
+        "expected_installed_prefix_path": "usr/share/qt6/wayland/protocols/wl-eglstream",
+        "family": "protocols",
+        "gui_configure_copy_present": true,
+        "kind": "attribution_directory",
+        "qtbase_source_path": "src/3rdparty/wayland/protocols/wl-eglstream",
+        "source_file_paths": [
+          "src/3rdparty/wayland/protocols/wl-eglstream/REUSE.toml",
+          "src/3rdparty/wayland/protocols/wl-eglstream/qt_attribution.json",
+          "src/3rdparty/wayland/protocols/wl-eglstream/wl-eglstream-controller.xml"
+        ],
+        "source_present": true,
+        "source_uses": [
+          {
+            "line": 32,
+            "source": "src/plugins/hardwareintegration/compositor/wayland-eglstream-controller/CMakeLists.txt"
+          }
+        ],
+        "suffix": "wl-eglstream"
+      },
+      {
+        "expected_installed_prefix_path": "usr/share/qt6/wayland/protocols/xdg-decoration",
+        "family": "protocols",
+        "gui_configure_copy_present": true,
+        "kind": "attribution_directory",
+        "qtbase_source_path": "src/3rdparty/wayland/protocols/xdg-decoration",
+        "source_file_paths": [
+          "src/3rdparty/wayland/protocols/xdg-decoration/REUSE.toml",
+          "src/3rdparty/wayland/protocols/xdg-decoration/qt_attribution.json",
+          "src/3rdparty/wayland/protocols/xdg-decoration/xdg-decoration-unstable-v1.xml"
+        ],
+        "source_present": true,
+        "source_uses": [
+          {
+            "line": 90,
+            "source": "src/compositor/CMakeLists.txt"
+          }
+        ],
+        "suffix": "xdg-decoration"
+      },
+      {
+        "expected_installed_prefix_path": "usr/share/qt6/wayland/protocols/xdg-dialog",
+        "family": "protocols",
+        "gui_configure_copy_present": true,
+        "kind": "attribution_directory",
+        "qtbase_source_path": "src/3rdparty/wayland/protocols/xdg-dialog",
+        "source_file_paths": [
+          "src/3rdparty/wayland/protocols/xdg-dialog/REUSE.toml",
+          "src/3rdparty/wayland/protocols/xdg-dialog/qt_attribution.json",
+          "src/3rdparty/wayland/protocols/xdg-dialog/xdg-dialog-v1.xml"
+        ],
+        "source_present": true,
+        "source_uses": [
+          {
+            "line": 93,
+            "source": "src/compositor/CMakeLists.txt"
+          }
+        ],
+        "suffix": "xdg-dialog"
+      },
+      {
+        "expected_installed_prefix_path": "usr/share/qt6/wayland/protocols/xdg-output",
+        "family": "protocols",
+        "gui_configure_copy_present": true,
+        "kind": "attribution_directory",
+        "qtbase_source_path": "src/3rdparty/wayland/protocols/xdg-output",
+        "source_file_paths": [
+          "src/3rdparty/wayland/protocols/xdg-output/REUSE.toml",
+          "src/3rdparty/wayland/protocols/xdg-output/qt_attribution.json",
+          "src/3rdparty/wayland/protocols/xdg-output/xdg-output-unstable-v1.xml"
+        ],
+        "source_present": true,
+        "source_uses": [
+          {
+            "line": 91,
+            "source": "src/compositor/CMakeLists.txt"
+          }
+        ],
+        "suffix": "xdg-output"
+      },
+      {
+        "expected_installed_prefix_path": "usr/share/qt6/wayland/protocols/xdg-shell",
+        "family": "protocols",
+        "gui_configure_copy_present": true,
+        "kind": "attribution_directory",
+        "qtbase_source_path": "src/3rdparty/wayland/protocols/xdg-shell",
+        "source_file_paths": [
+          "src/3rdparty/wayland/protocols/xdg-shell/REUSE.toml",
+          "src/3rdparty/wayland/protocols/xdg-shell/qt_attribution.json",
+          "src/3rdparty/wayland/protocols/xdg-shell/xdg-shell-unstable-v6.xml",
+          "src/3rdparty/wayland/protocols/xdg-shell/xdg-shell.xml"
+        ],
+        "source_present": true,
+        "source_uses": [
+          {
+            "line": 92,
+            "source": "src/compositor/CMakeLists.txt"
+          }
+        ],
+        "suffix": "xdg-shell"
+      }
+    ],
+    "available_attribution_directory_inputs": 12,
+    "available_xml_inputs": 23,
+    "distinct_external_prefix_references": 36,
+    "host_configure_copy_only": true,
+    "limitations": "Whole source/build-copy hashes prove source availability and configure-time export only. A selected real prefix must retain and reverify every required XML and attribution operand before component configure/build. No fallback to host system wayland-protocols or manufactured path is selected.",
+    "protocol_xml_inputs": [
+      {
+        "expected_installed_prefix_path": "usr/share/qt6/wayland/extensions/drm-egl-server-buffer.xml",
+        "family": "extensions",
+        "gui_configure_copy_present": true,
+        "kind": "protocol_xml",
+        "qtbase_source_path": "src/3rdparty/wayland/extensions/drm-egl-server-buffer.xml",
+        "source_file_paths": [
+          "src/3rdparty/wayland/extensions/drm-egl-server-buffer.xml"
+        ],
+        "source_present": true,
+        "source_uses": [
+          {
+            "line": 35,
+            "source": "src/plugins/hardwareintegration/compositor/drm-egl-server/CMakeLists.txt"
+          }
+        ],
+        "suffix": "drm-egl-server-buffer.xml"
+      },
+      {
+        "expected_installed_prefix_path": "usr/share/qt6/wayland/extensions/hardware-integration.xml",
+        "family": "extensions",
+        "gui_configure_copy_present": true,
+        "kind": "protocol_xml",
+        "qtbase_source_path": "src/3rdparty/wayland/extensions/hardware-integration.xml",
+        "source_file_paths": [
+          "src/3rdparty/wayland/extensions/hardware-integration.xml"
+        ],
+        "source_present": true,
+        "source_uses": [
+          {
+            "line": 145,
+            "source": "src/compositor/CMakeLists.txt"
+          }
+        ],
+        "suffix": "hardware-integration.xml"
+      },
+      {
+        "expected_installed_prefix_path": "usr/share/qt6/wayland/extensions/libhybris-egl-server-buffer.xml",
+        "family": "extensions",
+        "gui_configure_copy_present": true,
+        "kind": "protocol_xml",
+        "qtbase_source_path": "src/3rdparty/wayland/extensions/libhybris-egl-server-buffer.xml",
+        "source_file_paths": [
+          "src/3rdparty/wayland/extensions/libhybris-egl-server-buffer.xml"
+        ],
+        "source_present": true,
+        "source_uses": [
+          {
+            "line": 34,
+            "source": "src/plugins/hardwareintegration/compositor/libhybris-egl-server/CMakeLists.txt"
+          }
+        ],
+        "suffix": "libhybris-egl-server-buffer.xml"
+      },
+      {
+        "expected_installed_prefix_path": "usr/share/qt6/wayland/extensions/qt-dmabuf-server-buffer.xml",
+        "family": "extensions",
+        "gui_configure_copy_present": true,
+        "kind": "protocol_xml",
+        "qtbase_source_path": "src/3rdparty/wayland/extensions/qt-dmabuf-server-buffer.xml",
+        "source_file_paths": [
+          "src/3rdparty/wayland/extensions/qt-dmabuf-server-buffer.xml"
+        ],
+        "source_present": true,
+        "source_uses": [
+          {
+            "line": 36,
+            "source": "src/plugins/hardwareintegration/compositor/dmabuf-server/CMakeLists.txt"
+          }
+        ],
+        "suffix": "qt-dmabuf-server-buffer.xml"
+      },
+      {
+        "expected_installed_prefix_path": "usr/share/qt6/wayland/extensions/qt-text-input-method-unstable-v1.xml",
+        "family": "extensions",
+        "gui_configure_copy_present": true,
+        "kind": "protocol_xml",
+        "qtbase_source_path": "src/3rdparty/wayland/extensions/qt-text-input-method-unstable-v1.xml",
+        "source_file_paths": [
+          "src/3rdparty/wayland/extensions/qt-text-input-method-unstable-v1.xml"
+        ],
+        "source_present": true,
+        "source_uses": [
+          {
+            "line": 146,
+            "source": "src/compositor/CMakeLists.txt"
+          }
+        ],
+        "suffix": "qt-text-input-method-unstable-v1.xml"
+      },
+      {
+        "expected_installed_prefix_path": "usr/share/qt6/wayland/extensions/qt-texture-sharing-unstable-v1.xml",
+        "family": "extensions",
+        "gui_configure_copy_present": true,
+        "kind": "protocol_xml",
+        "qtbase_source_path": "src/3rdparty/wayland/extensions/qt-texture-sharing-unstable-v1.xml",
+        "source_file_paths": [
+          "src/3rdparty/wayland/extensions/qt-texture-sharing-unstable-v1.xml"
+        ],
+        "source_present": true,
+        "source_uses": [
+          {
+            "line": 147,
+            "source": "src/compositor/CMakeLists.txt"
+          },
+          {
+            "line": 43,
+            "source": "src/imports/texture-sharing/CMakeLists.txt"
+          }
+        ],
+        "suffix": "qt-texture-sharing-unstable-v1.xml"
+      },
+      {
+        "expected_installed_prefix_path": "usr/share/qt6/wayland/extensions/qt-vulkan-server-buffer-unstable-v1.xml",
+        "family": "extensions",
+        "gui_configure_copy_present": true,
+        "kind": "protocol_xml",
+        "qtbase_source_path": "src/3rdparty/wayland/extensions/qt-vulkan-server-buffer-unstable-v1.xml",
+        "source_file_paths": [
+          "src/3rdparty/wayland/extensions/qt-vulkan-server-buffer-unstable-v1.xml"
+        ],
+        "source_present": true,
+        "source_uses": [
+          {
+            "line": 35,
+            "source": "src/plugins/hardwareintegration/compositor/vulkan-server/CMakeLists.txt"
+          }
+        ],
+        "suffix": "qt-vulkan-server-buffer-unstable-v1.xml"
+      },
+      {
+        "expected_installed_prefix_path": "usr/share/qt6/wayland/extensions/qt-windowmanager.xml",
+        "family": "extensions",
+        "gui_configure_copy_present": true,
+        "kind": "protocol_xml",
+        "qtbase_source_path": "src/3rdparty/wayland/extensions/qt-windowmanager.xml",
+        "source_file_paths": [
+          "src/3rdparty/wayland/extensions/qt-windowmanager.xml"
+        ],
+        "source_present": true,
+        "source_uses": [
+          {
+            "line": 148,
+            "source": "src/compositor/CMakeLists.txt"
+          }
+        ],
+        "suffix": "qt-windowmanager.xml"
+      },
+      {
+        "expected_installed_prefix_path": "usr/share/qt6/wayland/extensions/server-buffer-extension.xml",
+        "family": "extensions",
+        "gui_configure_copy_present": true,
+        "kind": "protocol_xml",
+        "qtbase_source_path": "src/3rdparty/wayland/extensions/server-buffer-extension.xml",
+        "source_file_paths": [
+          "src/3rdparty/wayland/extensions/server-buffer-extension.xml"
+        ],
+        "source_present": true,
+        "source_uses": [
+          {
+            "line": 149,
+            "source": "src/compositor/CMakeLists.txt"
+          },
+          {
+            "line": 37,
+            "source": "src/plugins/hardwareintegration/compositor/dmabuf-server/CMakeLists.txt"
+          },
+          {
+            "line": 36,
+            "source": "src/plugins/hardwareintegration/compositor/drm-egl-server/CMakeLists.txt"
+          },
+          {
+            "line": 35,
+            "source": "src/plugins/hardwareintegration/compositor/libhybris-egl-server/CMakeLists.txt"
+          },
+          {
+            "line": 33,
+            "source": "src/plugins/hardwareintegration/compositor/shm-emulation-server/CMakeLists.txt"
+          },
+          {
+            "line": 36,
+            "source": "src/plugins/hardwareintegration/compositor/vulkan-server/CMakeLists.txt"
+          },
+          {
+            "line": 44,
+            "source": "src/imports/texture-sharing/CMakeLists.txt"
+          }
+        ],
+        "suffix": "server-buffer-extension.xml"
+      },
+      {
+        "expected_installed_prefix_path": "usr/share/qt6/wayland/extensions/shm-emulation-server-buffer.xml",
+        "family": "extensions",
+        "gui_configure_copy_present": true,
+        "kind": "protocol_xml",
+        "qtbase_source_path": "src/3rdparty/wayland/extensions/shm-emulation-server-buffer.xml",
+        "source_file_paths": [
+          "src/3rdparty/wayland/extensions/shm-emulation-server-buffer.xml"
+        ],
+        "source_present": true,
+        "source_uses": [
+          {
+            "line": 32,
+            "source": "src/plugins/hardwareintegration/compositor/shm-emulation-server/CMakeLists.txt"
+          }
+        ],
+        "suffix": "shm-emulation-server-buffer.xml"
+      },
+      {
+        "expected_installed_prefix_path": "usr/share/qt6/wayland/protocols/idle-inhibit/idle-inhibit-unstable-v1.xml",
+        "family": "protocols",
+        "gui_configure_copy_present": true,
+        "kind": "protocol_xml",
+        "qtbase_source_path": "src/3rdparty/wayland/protocols/idle-inhibit/idle-inhibit-unstable-v1.xml",
+        "source_file_paths": [
+          "src/3rdparty/wayland/protocols/idle-inhibit/idle-inhibit-unstable-v1.xml"
+        ],
+        "source_present": true,
+        "source_uses": [
+          {
+            "line": 133,
+            "source": "src/compositor/CMakeLists.txt"
+          }
+        ],
+        "suffix": "idle-inhibit/idle-inhibit-unstable-v1.xml"
+      },
+      {
+        "expected_installed_prefix_path": "usr/share/qt6/wayland/protocols/linux-dmabuf/linux-dmabuf-v1.xml",
+        "family": "protocols",
+        "gui_configure_copy_present": true,
+        "kind": "protocol_xml",
+        "qtbase_source_path": "src/3rdparty/wayland/protocols/linux-dmabuf/linux-dmabuf-v1.xml",
+        "source_file_paths": [
+          "src/3rdparty/wayland/protocols/linux-dmabuf/linux-dmabuf-v1.xml"
+        ],
+        "source_present": true,
+        "source_uses": [
+          {
+            "line": 37,
+            "source": "src/plugins/hardwareintegration/compositor/linux-dmabuf-unstable-v1/CMakeLists.txt"
+          },
+          {
+            "line": 37,
+            "source": "src/plugins/hardwareintegration/compositor/linux-dmabuf-v1/CMakeLists.txt"
+          }
+        ],
+        "suffix": "linux-dmabuf/linux-dmabuf-v1.xml"
+      },
+      {
+        "expected_installed_prefix_path": "usr/share/qt6/wayland/protocols/presentation-time/presentation-time.xml",
+        "family": "protocols",
+        "gui_configure_copy_present": true,
+        "kind": "protocol_xml",
+        "qtbase_source_path": "src/3rdparty/wayland/protocols/presentation-time/presentation-time.xml",
+        "source_file_paths": [
+          "src/3rdparty/wayland/protocols/presentation-time/presentation-time.xml"
+        ],
+        "source_present": true,
+        "source_uses": [
+          {
+            "line": 135,
+            "source": "src/compositor/CMakeLists.txt"
+          }
+        ],
+        "suffix": "presentation-time/presentation-time.xml"
+      },
+      {
+        "expected_installed_prefix_path": "usr/share/qt6/wayland/protocols/scaler/scaler.xml",
+        "family": "protocols",
+        "gui_configure_copy_present": true,
+        "kind": "protocol_xml",
+        "qtbase_source_path": "src/3rdparty/wayland/protocols/scaler/scaler.xml",
+        "source_file_paths": [
+          "src/3rdparty/wayland/protocols/scaler/scaler.xml"
+        ],
+        "source_present": true,
+        "source_uses": [
+          {
+            "line": 136,
+            "source": "src/compositor/CMakeLists.txt"
+          }
+        ],
+        "suffix": "scaler/scaler.xml"
+      },
+      {
+        "expected_installed_prefix_path": "usr/share/qt6/wayland/protocols/text-input/v2/text-input-unstable-v2.xml",
+        "family": "protocols",
+        "gui_configure_copy_present": true,
+        "kind": "protocol_xml",
+        "qtbase_source_path": "src/3rdparty/wayland/protocols/text-input/v2/text-input-unstable-v2.xml",
+        "source_file_paths": [
+          "src/3rdparty/wayland/protocols/text-input/v2/text-input-unstable-v2.xml"
+        ],
+        "source_present": true,
+        "source_uses": [
+          {
+            "line": 137,
+            "source": "src/compositor/CMakeLists.txt"
+          }
+        ],
+        "suffix": "text-input/v2/text-input-unstable-v2.xml"
+      },
+      {
+        "expected_installed_prefix_path": "usr/share/qt6/wayland/protocols/text-input/v3/text-input-unstable-v3.xml",
+        "family": "protocols",
+        "gui_configure_copy_present": true,
+        "kind": "protocol_xml",
+        "qtbase_source_path": "src/3rdparty/wayland/protocols/text-input/v3/text-input-unstable-v3.xml",
+        "source_file_paths": [
+          "src/3rdparty/wayland/protocols/text-input/v3/text-input-unstable-v3.xml"
+        ],
+        "source_present": true,
+        "source_uses": [
+          {
+            "line": 138,
+            "source": "src/compositor/CMakeLists.txt"
+          }
+        ],
+        "suffix": "text-input/v3/text-input-unstable-v3.xml"
+      },
+      {
+        "expected_installed_prefix_path": "usr/share/qt6/wayland/protocols/viewporter/viewporter.xml",
+        "family": "protocols",
+        "gui_configure_copy_present": true,
+        "kind": "protocol_xml",
+        "qtbase_source_path": "src/3rdparty/wayland/protocols/viewporter/viewporter.xml",
+        "source_file_paths": [
+          "src/3rdparty/wayland/protocols/viewporter/viewporter.xml"
+        ],
+        "source_present": true,
+        "source_uses": [
+          {
+            "line": 139,
+            "source": "src/compositor/CMakeLists.txt"
+          }
+        ],
+        "suffix": "viewporter/viewporter.xml"
+      },
+      {
+        "expected_installed_prefix_path": "usr/share/qt6/wayland/protocols/wayland/wayland.xml",
+        "family": "protocols",
+        "gui_configure_copy_present": true,
+        "kind": "protocol_xml",
+        "qtbase_source_path": "src/3rdparty/wayland/protocols/wayland/wayland.xml",
+        "source_file_paths": [
+          "src/3rdparty/wayland/protocols/wayland/wayland.xml"
+        ],
+        "source_present": true,
+        "source_uses": [
+          {
+            "line": 140,
+            "source": "src/compositor/CMakeLists.txt"
+          }
+        ],
+        "suffix": "wayland/wayland.xml"
+      },
+      {
+        "expected_installed_prefix_path": "usr/share/qt6/wayland/protocols/wl-eglstream/wl-eglstream-controller.xml",
+        "family": "protocols",
+        "gui_configure_copy_present": true,
+        "kind": "protocol_xml",
+        "qtbase_source_path": "src/3rdparty/wayland/protocols/wl-eglstream/wl-eglstream-controller.xml",
+        "source_file_paths": [
+          "src/3rdparty/wayland/protocols/wl-eglstream/wl-eglstream-controller.xml"
+        ],
+        "source_present": true,
+        "source_uses": [
+          {
+            "line": 38,
+            "source": "src/plugins/hardwareintegration/compositor/wayland-eglstream-controller/CMakeLists.txt"
+          }
+        ],
+        "suffix": "wl-eglstream/wl-eglstream-controller.xml"
+      },
+      {
+        "expected_installed_prefix_path": "usr/share/qt6/wayland/protocols/xdg-decoration/xdg-decoration-unstable-v1.xml",
+        "family": "protocols",
+        "gui_configure_copy_present": true,
+        "kind": "protocol_xml",
+        "qtbase_source_path": "src/3rdparty/wayland/protocols/xdg-decoration/xdg-decoration-unstable-v1.xml",
+        "source_file_paths": [
+          "src/3rdparty/wayland/protocols/xdg-decoration/xdg-decoration-unstable-v1.xml"
+        ],
+        "source_present": true,
+        "source_uses": [
+          {
+            "line": 141,
+            "source": "src/compositor/CMakeLists.txt"
+          }
+        ],
+        "suffix": "xdg-decoration/xdg-decoration-unstable-v1.xml"
+      },
+      {
+        "expected_installed_prefix_path": "usr/share/qt6/wayland/protocols/xdg-dialog/xdg-dialog-v1.xml",
+        "family": "protocols",
+        "gui_configure_copy_present": true,
+        "kind": "protocol_xml",
+        "qtbase_source_path": "src/3rdparty/wayland/protocols/xdg-dialog/xdg-dialog-v1.xml",
+        "source_file_paths": [
+          "src/3rdparty/wayland/protocols/xdg-dialog/xdg-dialog-v1.xml"
+        ],
+        "source_present": true,
+        "source_uses": [
+          {
+            "line": 144,
+            "source": "src/compositor/CMakeLists.txt"
+          }
+        ],
+        "suffix": "xdg-dialog/xdg-dialog-v1.xml"
+      },
+      {
+        "expected_installed_prefix_path": "usr/share/qt6/wayland/protocols/xdg-output/xdg-output-unstable-v1.xml",
+        "family": "protocols",
+        "gui_configure_copy_present": true,
+        "kind": "protocol_xml",
+        "qtbase_source_path": "src/3rdparty/wayland/protocols/xdg-output/xdg-output-unstable-v1.xml",
+        "source_file_paths": [
+          "src/3rdparty/wayland/protocols/xdg-output/xdg-output-unstable-v1.xml"
+        ],
+        "source_present": true,
+        "source_uses": [
+          {
+            "line": 142,
+            "source": "src/compositor/CMakeLists.txt"
+          }
+        ],
+        "suffix": "xdg-output/xdg-output-unstable-v1.xml"
+      },
+      {
+        "expected_installed_prefix_path": "usr/share/qt6/wayland/protocols/xdg-shell/xdg-shell.xml",
+        "family": "protocols",
+        "gui_configure_copy_present": true,
+        "kind": "protocol_xml",
+        "qtbase_source_path": "src/3rdparty/wayland/protocols/xdg-shell/xdg-shell.xml",
+        "source_file_paths": [
+          "src/3rdparty/wayland/protocols/xdg-shell/xdg-shell.xml"
+        ],
+        "source_present": true,
+        "source_uses": [
+          {
+            "line": 143,
+            "source": "src/compositor/CMakeLists.txt"
+          }
+        ],
+        "suffix": "xdg-shell/xdg-shell.xml"
+      }
+    ],
+    "qtbase_install_path_source_proof": "cmake/QtBuildPathsHelpers.cmake:165-168 INSTALL_SHAREDIR=share and INSTALL_QT_SHAREDIR=share/qt6; GUI18 cache has same paths.",
+    "qtbase_install_source_proof": "cmake/QtBaseHelpers.cmake:159-213 copies/installs whole protocols and extensions trees; called:292-299 unless QT_INTERNAL_BUILD_STANDALONE_PARTS. No server feature gate surrounds this export.",
+    "scope": "Complete union of external-prefix uses in actual QtWayland source CMake; capability conditions remain operative, not all inputs belong to every profile.",
+    "source_variable_resolution": "qtwayland cmake/QtWaylandSetup.cmake:4-23 uses selected Qtbase relocatable prefix and share/qt6/wayland/{protocols,extensions}.",
+    "unavailable_conditional_inputs": [
+      {
+        "condition": "QT_FEATURE_wayland_brcm",
+        "expected_installed_prefix_path": "usr/share/qt6/wayland/extensions/extensions/brcm.xml",
+        "family": "extensions",
+        "gui_configure_copy_present": false,
+        "qtbase_source_path": "src/3rdparty/wayland/extensions/extensions/brcm.xml",
+        "source_present": false,
+        "source_uses": [
+          {
+            "line": 34,
+            "source": "src/plugins/hardwareintegration/compositor/brcm-egl/CMakeLists.txt"
+          }
+        ],
+        "status": "UNAVAILABLE_DOUBLE_EXTENSIONS_SOURCE_PATH",
+        "suffix": "extensions/brcm.xml"
+      }
+    ],
+    "whole_qtbase_data_files": {
+      "src/3rdparty/wayland/extensions/drm-egl-server-buffer.xml": {
+        "bytes": 774,
+        "expected_installed_path": "usr/share/qt6/wayland/extensions/drm-egl-server-buffer.xml",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 774,
+          "sha256": "80c581c65de140bae525aa44dc98f701b812e75e92287aa345bd16fc7b4520a8"
+        },
+        "sha256": "80c581c65de140bae525aa44dc98f701b812e75e92287aa345bd16fc7b4520a8"
+      },
+      "src/3rdparty/wayland/extensions/hardware-integration.xml": {
+        "bytes": 692,
+        "expected_installed_path": "usr/share/qt6/wayland/extensions/hardware-integration.xml",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 692,
+          "sha256": "6160d445b16d3e30237f240c6ab38ca110af08608fdaf95d55cbd2f1fad357d9"
+        },
+        "sha256": "6160d445b16d3e30237f240c6ab38ca110af08608fdaf95d55cbd2f1fad357d9"
+      },
+      "src/3rdparty/wayland/extensions/libhybris-egl-server-buffer.xml": {
+        "bytes": 1070,
+        "expected_installed_path": "usr/share/qt6/wayland/extensions/libhybris-egl-server-buffer.xml",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 1070,
+          "sha256": "e8d76a35feafe6dba0fbd346cef611c2fc6d1f912f351a727c0740dc7b960b86"
+        },
+        "sha256": "e8d76a35feafe6dba0fbd346cef611c2fc6d1f912f351a727c0740dc7b960b86"
+      },
+      "src/3rdparty/wayland/extensions/qt-dmabuf-server-buffer.xml": {
+        "bytes": 1060,
+        "expected_installed_path": "usr/share/qt6/wayland/extensions/qt-dmabuf-server-buffer.xml",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 1060,
+          "sha256": "90f198535161d059b88184dbf4145cfd51f80d3ce529514442453d2517ecf712"
+        },
+        "sha256": "90f198535161d059b88184dbf4145cfd51f80d3ce529514442453d2517ecf712"
+      },
+      "src/3rdparty/wayland/extensions/qt-text-input-method-unstable-v1.xml": {
+        "bytes": 11509,
+        "expected_installed_path": "usr/share/qt6/wayland/extensions/qt-text-input-method-unstable-v1.xml",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 11509,
+          "sha256": "d8fec614b1f11a1769c8f3d99f9c8e7bbd123a6bc6a120d10cfcf6cb9be77b26"
+        },
+        "sha256": "d8fec614b1f11a1769c8f3d99f9c8e7bbd123a6bc6a120d10cfcf6cb9be77b26"
+      },
+      "src/3rdparty/wayland/extensions/qt-texture-sharing-unstable-v1.xml": {
+        "bytes": 808,
+        "expected_installed_path": "usr/share/qt6/wayland/extensions/qt-texture-sharing-unstable-v1.xml",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 808,
+          "sha256": "5cb043deca9c79eb7736c769ff9c50ed17be06244915d9cbc19161daa56dec5f"
+        },
+        "sha256": "5cb043deca9c79eb7736c769ff9c50ed17be06244915d9cbc19161daa56dec5f"
+      },
+      "src/3rdparty/wayland/extensions/qt-vulkan-server-buffer-unstable-v1.xml": {
+        "bytes": 1499,
+        "expected_installed_path": "usr/share/qt6/wayland/extensions/qt-vulkan-server-buffer-unstable-v1.xml",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 1499,
+          "sha256": "ff52356ddc57c63bfde3f35b11ec982446f8d0e681dbf03a60dbc5e2ed23d8ac"
+        },
+        "sha256": "ff52356ddc57c63bfde3f35b11ec982446f8d0e681dbf03a60dbc5e2ed23d8ac"
+      },
+      "src/3rdparty/wayland/extensions/qt-windowmanager.xml": {
+        "bytes": 906,
+        "expected_installed_path": "usr/share/qt6/wayland/extensions/qt-windowmanager.xml",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 906,
+          "sha256": "9be2dc028de17f03b8d878bc50cc90c596450f30a737564b70642a2c56abed35"
+        },
+        "sha256": "9be2dc028de17f03b8d878bc50cc90c596450f30a737564b70642a2c56abed35"
+      },
+      "src/3rdparty/wayland/extensions/server-buffer-extension.xml": {
+        "bytes": 758,
+        "expected_installed_path": "usr/share/qt6/wayland/extensions/server-buffer-extension.xml",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 758,
+          "sha256": "d2a0e2760406aaf8bc062df18726474b32d60c51b2bf456c3c06c9ce0e84e3dc"
+        },
+        "sha256": "d2a0e2760406aaf8bc062df18726474b32d60c51b2bf456c3c06c9ce0e84e3dc"
+      },
+      "src/3rdparty/wayland/extensions/shm-emulation-server-buffer.xml": {
+        "bytes": 1167,
+        "expected_installed_path": "usr/share/qt6/wayland/extensions/shm-emulation-server-buffer.xml",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 1167,
+          "sha256": "3275deb7a561e897046d9d96c8d4bb54b5fdab8ce1782f4c9d6040cae899cd95"
+        },
+        "sha256": "3275deb7a561e897046d9d96c8d4bb54b5fdab8ce1782f4c9d6040cae899cd95"
+      },
+      "src/3rdparty/wayland/protocols/idle-inhibit/idle-inhibit-unstable-v1.xml": {
+        "bytes": 4017,
+        "expected_installed_path": "usr/share/qt6/wayland/protocols/idle-inhibit/idle-inhibit-unstable-v1.xml",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 4017,
+          "sha256": "c2ac9f002c6669ca6c02eb9b587b8e9108e3ce6deab4a2de58b576f4f864ca38"
+        },
+        "sha256": "c2ac9f002c6669ca6c02eb9b587b8e9108e3ce6deab4a2de58b576f4f864ca38"
+      },
+      "src/3rdparty/wayland/protocols/linux-dmabuf/REUSE.toml": {
+        "bytes": 351,
+        "expected_installed_path": "usr/share/qt6/wayland/protocols/linux-dmabuf/REUSE.toml",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 351,
+          "sha256": "128791d7c9442fa7fde6efa2118469d01115a54b21af8e306b2f0bf5d1ae4e0c"
+        },
+        "sha256": "128791d7c9442fa7fde6efa2118469d01115a54b21af8e306b2f0bf5d1ae4e0c"
+      },
+      "src/3rdparty/wayland/protocols/linux-dmabuf/linux-dmabuf-unstable-v1.xml": {
+        "bytes": 17878,
+        "expected_installed_path": "usr/share/qt6/wayland/protocols/linux-dmabuf/linux-dmabuf-unstable-v1.xml",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 17878,
+          "sha256": "be1cc5194d050d346fdbbaf9966fdce5779a28beaafca8f7b93861eec20d1aa7"
+        },
+        "sha256": "be1cc5194d050d346fdbbaf9966fdce5779a28beaafca8f7b93861eec20d1aa7"
+      },
+      "src/3rdparty/wayland/protocols/linux-dmabuf/linux-dmabuf-v1.xml": {
+        "bytes": 28562,
+        "expected_installed_path": "usr/share/qt6/wayland/protocols/linux-dmabuf/linux-dmabuf-v1.xml",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 28562,
+          "sha256": "ef39de11196083a41e865737f71e89a9ce3d61b94d2dbbed9b156cd89d6bb97f"
+        },
+        "sha256": "ef39de11196083a41e865737f71e89a9ce3d61b94d2dbbed9b156cd89d6bb97f"
+      },
+      "src/3rdparty/wayland/protocols/linux-dmabuf/qt_attribution.json": {
+        "bytes": 1536,
+        "expected_installed_path": "usr/share/qt6/wayland/protocols/linux-dmabuf/qt_attribution.json",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 1536,
+          "sha256": "6dd0dbdb4e0fba8ac2a17700e462f1f2df53e4fe14a5ac6168ca4bc2c594cea5"
+        },
+        "sha256": "6dd0dbdb4e0fba8ac2a17700e462f1f2df53e4fe14a5ac6168ca4bc2c594cea5"
+      },
+      "src/3rdparty/wayland/protocols/presentation-time/REUSE.toml": {
+        "bytes": 179,
+        "expected_installed_path": "usr/share/qt6/wayland/protocols/presentation-time/REUSE.toml",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 179,
+          "sha256": "bc6af8bc72eaacd62679ef44460934fe5fe2ca90a717d46852bf7b836a4b5822"
+        },
+        "sha256": "bc6af8bc72eaacd62679ef44460934fe5fe2ca90a717d46852bf7b836a4b5822"
+      },
+      "src/3rdparty/wayland/protocols/presentation-time/presentation-time.xml": {
+        "bytes": 12481,
+        "expected_installed_path": "usr/share/qt6/wayland/protocols/presentation-time/presentation-time.xml",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 12481,
+          "sha256": "57c15a794125d5c3b3d83f5069a10d96d23988cb464ae9f3635b7116a10ab481"
+        },
+        "sha256": "57c15a794125d5c3b3d83f5069a10d96d23988cb464ae9f3635b7116a10ab481"
+      },
+      "src/3rdparty/wayland/protocols/presentation-time/qt_attribution.json": {
+        "bytes": 742,
+        "expected_installed_path": "usr/share/qt6/wayland/protocols/presentation-time/qt_attribution.json",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 742,
+          "sha256": "c3af7f51726c7584d5e8ad74a29813d66cac6a215a9675da7cfc9a42f15c2d0a"
+        },
+        "sha256": "c3af7f51726c7584d5e8ad74a29813d66cac6a215a9675da7cfc9a42f15c2d0a"
+      },
+      "src/3rdparty/wayland/protocols/scaler/REUSE.toml": {
+        "bytes": 167,
+        "expected_installed_path": "usr/share/qt6/wayland/protocols/scaler/REUSE.toml",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 167,
+          "sha256": "7151ec3aee23bb31d8a3b3e6f5ca3a94f6e45b9050b5bbad5d414b992f68b46c"
+        },
+        "sha256": "7151ec3aee23bb31d8a3b3e6f5ca3a94f6e45b9050b5bbad5d414b992f68b46c"
+      },
+      "src/3rdparty/wayland/protocols/scaler/qt_attribution.json": {
+        "bytes": 718,
+        "expected_installed_path": "usr/share/qt6/wayland/protocols/scaler/qt_attribution.json",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 718,
+          "sha256": "8b7751412fc26d70f641d6bad9c6aadd406317cbf17359ffcc58651f58aa2fca"
+        },
+        "sha256": "8b7751412fc26d70f641d6bad9c6aadd406317cbf17359ffcc58651f58aa2fca"
+      },
+      "src/3rdparty/wayland/protocols/scaler/scaler.xml": {
+        "bytes": 9205,
+        "expected_installed_path": "usr/share/qt6/wayland/protocols/scaler/scaler.xml",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 9205,
+          "sha256": "345a63aba11ca36f59a39b8c9d0bbdcc055a23c89bf4b0cc99b237b5e47449f6"
+        },
+        "sha256": "345a63aba11ca36f59a39b8c9d0bbdcc055a23c89bf4b0cc99b237b5e47449f6"
+      },
+      "src/3rdparty/wayland/protocols/text-input/v2/HPND_LICENSE.txt": {
+        "bytes": 1095,
+        "expected_installed_path": "usr/share/qt6/wayland/protocols/text-input/v2/HPND_LICENSE.txt",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 1095,
+          "sha256": "8172d52f3b7bba7d10af2f9134c63d0f699ba6b20a47e35f5ac45654c500bfd7"
+        },
+        "sha256": "8172d52f3b7bba7d10af2f9134c63d0f699ba6b20a47e35f5ac45654c500bfd7"
+      },
+      "src/3rdparty/wayland/protocols/text-input/v2/REUSE.toml": {
+        "bytes": 263,
+        "expected_installed_path": "usr/share/qt6/wayland/protocols/text-input/v2/REUSE.toml",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 263,
+          "sha256": "beed83e9d3b3956b898647c2ee6cee52872ebfc2b32dd6f38778823f3ad1627a"
+        },
+        "sha256": "beed83e9d3b3956b898647c2ee6cee52872ebfc2b32dd6f38778823f3ad1627a"
+      },
+      "src/3rdparty/wayland/protocols/text-input/v2/qt_attribution.json": {
+        "bytes": 693,
+        "expected_installed_path": "usr/share/qt6/wayland/protocols/text-input/v2/qt_attribution.json",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 693,
+          "sha256": "197d9edcc6fb17d7bc2b230f7061ce0d2ef90fa4291c86e87ae2817e8f2809fe"
+        },
+        "sha256": "197d9edcc6fb17d7bc2b230f7061ce0d2ef90fa4291c86e87ae2817e8f2809fe"
+      },
+      "src/3rdparty/wayland/protocols/text-input/v2/text-input-unstable-v2.xml": {
+        "bytes": 20209,
+        "expected_installed_path": "usr/share/qt6/wayland/protocols/text-input/v2/text-input-unstable-v2.xml",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 20209,
+          "sha256": "043f0a48903248552a4f140e365a4854612ea2770f10b32c93cf9795300309cc"
+        },
+        "sha256": "043f0a48903248552a4f140e365a4854612ea2770f10b32c93cf9795300309cc"
+      },
+      "src/3rdparty/wayland/protocols/text-input/v3/REUSE.toml": {
+        "bytes": 381,
+        "expected_installed_path": "usr/share/qt6/wayland/protocols/text-input/v3/REUSE.toml",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 381,
+          "sha256": "42e32e46ccd312f5ce18df6dd237a5f0fc676480fdd19301ff319d91d3344476"
+        },
+        "sha256": "42e32e46ccd312f5ce18df6dd237a5f0fc676480fdd19301ff319d91d3344476"
+      },
+      "src/3rdparty/wayland/protocols/text-input/v3/qt_attribution.json": {
+        "bytes": 927,
+        "expected_installed_path": "usr/share/qt6/wayland/protocols/text-input/v3/qt_attribution.json",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 927,
+          "sha256": "476225d10cb5789d993c38335c6cc442fdc19a8d91f1ceb7a3ddb50414a8e68a"
+        },
+        "sha256": "476225d10cb5789d993c38335c6cc442fdc19a8d91f1ceb7a3ddb50414a8e68a"
+      },
+      "src/3rdparty/wayland/protocols/text-input/v3/text-input-unstable-v3.xml": {
+        "bytes": 28120,
+        "expected_installed_path": "usr/share/qt6/wayland/protocols/text-input/v3/text-input-unstable-v3.xml",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 28120,
+          "sha256": "160815cda13c285a30df1971d8f0a5b3aac07071537df59916d2f748b18e4f59"
+        },
+        "sha256": "160815cda13c285a30df1971d8f0a5b3aac07071537df59916d2f748b18e4f59"
+      },
+      "src/3rdparty/wayland/protocols/viewporter/REUSE.toml": {
+        "bytes": 171,
+        "expected_installed_path": "usr/share/qt6/wayland/protocols/viewporter/REUSE.toml",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 171,
+          "sha256": "867d032e1a82f0672e3b5ca6af9e5385822febbecac23610c36d51580da58053"
+        },
+        "sha256": "867d032e1a82f0672e3b5ca6af9e5385822febbecac23610c36d51580da58053"
+      },
+      "src/3rdparty/wayland/protocols/viewporter/qt_attribution.json": {
+        "bytes": 758,
+        "expected_installed_path": "usr/share/qt6/wayland/protocols/viewporter/qt_attribution.json",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 758,
+          "sha256": "95139e441967bc289d174078f1ca0485363e8405bd8d06eb9946356c09c0a5e4"
+        },
+        "sha256": "95139e441967bc289d174078f1ca0485363e8405bd8d06eb9946356c09c0a5e4"
+      },
+      "src/3rdparty/wayland/protocols/viewporter/viewporter.xml": {
+        "bytes": 8541,
+        "expected_installed_path": "usr/share/qt6/wayland/protocols/viewporter/viewporter.xml",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 8541,
+          "sha256": "d5da5c61107c53062c7a73093bd72676a0d643fa04eb1867411126600a75fc54"
+        },
+        "sha256": "d5da5c61107c53062c7a73093bd72676a0d643fa04eb1867411126600a75fc54"
+      },
+      "src/3rdparty/wayland/protocols/wayland/README": {
+        "bytes": 61,
+        "expected_installed_path": "usr/share/qt6/wayland/protocols/wayland/README",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 61,
+          "sha256": "e7cbe93a6aff03294673b1bd1c7e64e59911f718ca5a39fb9fa7018a8e11b2de"
+        },
+        "sha256": "e7cbe93a6aff03294673b1bd1c7e64e59911f718ca5a39fb9fa7018a8e11b2de"
+      },
+      "src/3rdparty/wayland/protocols/wayland/REUSE.toml": {
+        "bytes": 314,
+        "expected_installed_path": "usr/share/qt6/wayland/protocols/wayland/REUSE.toml",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 314,
+          "sha256": "d6412b6c9728ef516e93cfd55dbe6dfb21304bd1e26afcc7552a6c0193848485"
+        },
+        "sha256": "d6412b6c9728ef516e93cfd55dbe6dfb21304bd1e26afcc7552a6c0193848485"
+      },
+      "src/3rdparty/wayland/protocols/wayland/qt_attribution.json": {
+        "bytes": 794,
+        "expected_installed_path": "usr/share/qt6/wayland/protocols/wayland/qt_attribution.json",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 794,
+          "sha256": "d2b263d97853d72128987f55fb912fc197f488de003a8e4bbc53cae2549d0e6e"
+        },
+        "sha256": "d2b263d97853d72128987f55fb912fc197f488de003a8e4bbc53cae2549d0e6e"
+      },
+      "src/3rdparty/wayland/protocols/wayland/wayland.xml": {
+        "bytes": 153752,
+        "expected_installed_path": "usr/share/qt6/wayland/protocols/wayland/wayland.xml",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 153752,
+          "sha256": "6f8530cfd7c61b39fe15f608b1add851b5c4d2d16be55f88e20b5b42434a5945"
+        },
+        "sha256": "6f8530cfd7c61b39fe15f608b1add851b5c4d2d16be55f88e20b5b42434a5945"
+      },
+      "src/3rdparty/wayland/protocols/wl-eglstream/REUSE.toml": {
+        "bytes": 209,
+        "expected_installed_path": "usr/share/qt6/wayland/protocols/wl-eglstream/REUSE.toml",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 209,
+          "sha256": "e23db0a26dea29326d2ce1005c7e9e1856484e5e29d5981d28d6275a0f6df246"
+        },
+        "sha256": "e23db0a26dea29326d2ce1005c7e9e1856484e5e29d5981d28d6275a0f6df246"
+      },
+      "src/3rdparty/wayland/protocols/wl-eglstream/qt_attribution.json": {
+        "bytes": 786,
+        "expected_installed_path": "usr/share/qt6/wayland/protocols/wl-eglstream/qt_attribution.json",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 786,
+          "sha256": "2432510e17446887decd1fc58770aeeef060aff5331a8bfec7fb668555f3b347"
+        },
+        "sha256": "2432510e17446887decd1fc58770aeeef060aff5331a8bfec7fb668555f3b347"
+      },
+      "src/3rdparty/wayland/protocols/wl-eglstream/wl-eglstream-controller.xml": {
+        "bytes": 1925,
+        "expected_installed_path": "usr/share/qt6/wayland/protocols/wl-eglstream/wl-eglstream-controller.xml",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 1925,
+          "sha256": "4f077d75a626416ffc7566392ef155a9c1c2aad52da803d11c64da2fac6ffb87"
+        },
+        "sha256": "4f077d75a626416ffc7566392ef155a9c1c2aad52da803d11c64da2fac6ffb87"
+      },
+      "src/3rdparty/wayland/protocols/xdg-decoration/REUSE.toml": {
+        "bytes": 176,
+        "expected_installed_path": "usr/share/qt6/wayland/protocols/xdg-decoration/REUSE.toml",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 176,
+          "sha256": "0b90658831d4df0031679c642fac81ac0054199d16b821ed6ee23c451c7691cd"
+        },
+        "sha256": "0b90658831d4df0031679c642fac81ac0054199d16b821ed6ee23c451c7691cd"
+      },
+      "src/3rdparty/wayland/protocols/xdg-decoration/qt_attribution.json": {
+        "bytes": 843,
+        "expected_installed_path": "usr/share/qt6/wayland/protocols/xdg-decoration/qt_attribution.json",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 843,
+          "sha256": "b8d9102ff3c7eccd840f7d5332d072e41e95eb055a8a9f2e3719a83005879c86"
+        },
+        "sha256": "b8d9102ff3c7eccd840f7d5332d072e41e95eb055a8a9f2e3719a83005879c86"
+      },
+      "src/3rdparty/wayland/protocols/xdg-decoration/xdg-decoration-unstable-v1.xml": {
+        "bytes": 8239,
+        "expected_installed_path": "usr/share/qt6/wayland/protocols/xdg-decoration/xdg-decoration-unstable-v1.xml",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 8239,
+          "sha256": "965673e4963c1b854d415be6841e467e7c68ad486f100c621735aa625992587a"
+        },
+        "sha256": "965673e4963c1b854d415be6841e467e7c68ad486f100c621735aa625992587a"
+      },
+      "src/3rdparty/wayland/protocols/xdg-dialog/REUSE.toml": {
+        "bytes": 169,
+        "expected_installed_path": "usr/share/qt6/wayland/protocols/xdg-dialog/REUSE.toml",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 169,
+          "sha256": "ffda8ff86909a172a4c362915d5ea570c4d397226d27314ef61007568b867316"
+        },
+        "sha256": "ffda8ff86909a172a4c362915d5ea570c4d397226d27314ef61007568b867316"
+      },
+      "src/3rdparty/wayland/protocols/xdg-dialog/qt_attribution.json": {
+        "bytes": 566,
+        "expected_installed_path": "usr/share/qt6/wayland/protocols/xdg-dialog/qt_attribution.json",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 566,
+          "sha256": "c7918fb63ad5be29e9a95db3464a7832224c7d904d21617ccfc689e6b0ab04c0"
+        },
+        "sha256": "c7918fb63ad5be29e9a95db3464a7832224c7d904d21617ccfc689e6b0ab04c0"
+      },
+      "src/3rdparty/wayland/protocols/xdg-dialog/xdg-dialog-v1.xml": {
+        "bytes": 4828,
+        "expected_installed_path": "usr/share/qt6/wayland/protocols/xdg-dialog/xdg-dialog-v1.xml",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 4828,
+          "sha256": "cdfa1601fb7d9bd78dbb33d007fcf4506c05a57179883fed9f144022b1b70963"
+        },
+        "sha256": "cdfa1601fb7d9bd78dbb33d007fcf4506c05a57179883fed9f144022b1b70963"
+      },
+      "src/3rdparty/wayland/protocols/xdg-output/REUSE.toml": {
+        "bytes": 175,
+        "expected_installed_path": "usr/share/qt6/wayland/protocols/xdg-output/REUSE.toml",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 175,
+          "sha256": "04b7b4c1a742651642248753c6987b536455f7223302d3f77ea27347c1504849"
+        },
+        "sha256": "04b7b4c1a742651642248753c6987b536455f7223302d3f77ea27347c1504849"
+      },
+      "src/3rdparty/wayland/protocols/xdg-output/qt_attribution.json": {
+        "bytes": 813,
+        "expected_installed_path": "usr/share/qt6/wayland/protocols/xdg-output/qt_attribution.json",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 813,
+          "sha256": "c5e4f132de8d08a75af02682bba3a9349a00f49b773e23ef5543648209b76658"
+        },
+        "sha256": "c5e4f132de8d08a75af02682bba3a9349a00f49b773e23ef5543648209b76658"
+      },
+      "src/3rdparty/wayland/protocols/xdg-output/xdg-output-unstable-v1.xml": {
+        "bytes": 9693,
+        "expected_installed_path": "usr/share/qt6/wayland/protocols/xdg-output/xdg-output-unstable-v1.xml",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 9693,
+          "sha256": "363d547c3eefe8959160cac903ff90b311d4b183005557d73640d9df2cfd7f79"
+        },
+        "sha256": "363d547c3eefe8959160cac903ff90b311d4b183005557d73640d9df2cfd7f79"
+      },
+      "src/3rdparty/wayland/protocols/xdg-shell/REUSE.toml": {
+        "bytes": 950,
+        "expected_installed_path": "usr/share/qt6/wayland/protocols/xdg-shell/REUSE.toml",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 950,
+          "sha256": "958c9d57aedecf34632965e6b22815570636dd518b50194e5e455ea89741673c"
+        },
+        "sha256": "958c9d57aedecf34632965e6b22815570636dd518b50194e5e455ea89741673c"
+      },
+      "src/3rdparty/wayland/protocols/xdg-shell/qt_attribution.json": {
+        "bytes": 990,
+        "expected_installed_path": "usr/share/qt6/wayland/protocols/xdg-shell/qt_attribution.json",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 990,
+          "sha256": "e1367b44fe28fce2eee7656cda75203f4102662bb6aa370b3c9f3eb5a2cc3f82"
+        },
+        "sha256": "e1367b44fe28fce2eee7656cda75203f4102662bb6aa370b3c9f3eb5a2cc3f82"
+      },
+      "src/3rdparty/wayland/protocols/xdg-shell/xdg-shell-unstable-v6.xml": {
+        "bytes": 45261,
+        "expected_installed_path": "usr/share/qt6/wayland/protocols/xdg-shell/xdg-shell-unstable-v6.xml",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 45261,
+          "sha256": "15b9922317144e81aec6872ee0ed78d563efdba13ba88592bda71696120a41d2"
+        },
+        "sha256": "15b9922317144e81aec6872ee0ed78d563efdba13ba88592bda71696120a41d2"
+      },
+      "src/3rdparty/wayland/protocols/xdg-shell/xdg-shell.xml": {
+        "bytes": 60418,
+        "expected_installed_path": "usr/share/qt6/wayland/protocols/xdg-shell/xdg-shell.xml",
+        "gui_configure_copy_equal": true,
+        "gui_configure_copy_pin": {
+          "bytes": 60418,
+          "sha256": "b72112a7a1f9b2ad94ffa59468753ced568d6e7b2069df94a9d437e488b8506e"
+        },
+        "sha256": "b72112a7a1f9b2ad94ffa59468753ced568d6e7b2069df94a9d437e488b8506e"
+      }
+    }
+  },
+  "historical_optional_mirror_observations": {
+    "hyprpolkitagent": {
+      "architecture": [
+        "aarch64"
+      ],
+      "depends": [
+        "libgcc",
+        "libstdc++",
+        "glibc",
+        "hyprgraphics",
+        "hyprland-qt-support",
+        "hyprtoolkit",
+        "hyprutils",
+        "polkit-qt6",
+        "qt6-base",
+        "qt6-declarative",
+        "sdbus-cpp"
+      ],
+      "version": "0.2.0-1"
+    },
+    "kvantum": {
+      "architecture": [
+        "aarch64"
+      ],
+      "depends": [
+        "glibc",
+        "libgcc",
+        "libstdc++",
+        "libx11",
+        "kwindowsystem",
+        "qt6-base",
+        "qt6-svg"
+      ],
+      "version": "1.1.8-1"
+    },
+    "polkit-kde-agent": {
+      "architecture": [
+        "aarch64"
+      ],
+      "depends": [
+        "glibc",
+        "kcoreaddons",
+        "kcrash",
+        "kdbusaddons",
+        "ki18n",
+        "kirigami",
+        "knotifications",
+        "kwindowsystem",
+        "libstdc++",
+        "polkit-qt6",
+        "qt6-base",
+        "qt6-declarative"
+      ],
+      "version": "6.7.5-1"
+    },
+    "xdg-desktop-portal-hyprland": {
+      "architecture": [
+        "aarch64"
+      ],
+      "depends": [
+        "libgcc",
+        "libstdc++",
+        "glibc",
+        "hyprlang",
+        "libhyprlang.so=2-64",
+        "hyprutils",
+        "libhyprutils.so=13-64",
+        "libinih",
+        "pipewire",
+        "qt6-base",
+        "sdbus-cpp",
+        "libsdbus-c++.so=2-64",
+        "util-linux-libs",
+        "libuuid.so=1-64",
+        "xdg-desktop-portal"
+      ],
+      "version": "1.4.1-2"
+    }
+  },
+  "inputs": {
+    "archive_metadata": {
+      "bytes": 215826,
+      "path": "scripts/port/refreshed-desktop/desktop-archives-proposal.json",
+      "sha256": "96bce50d99ebcc10ac3897f17f05e66ec185aad85e807e5d09928c1cbfa5c9a8"
+    },
+    "desktop_inventory": {
+      "bytes": 231878,
+      "path": "packages/desktop/upstream-inventory.json",
+      "sha256": "eb01b967ad3031b989dbb4823d8127aac100388eb8c5523d23b5f61f1b1f7bba"
+    },
+    "expanded_desktop_preview": {
+      "bytes": 4924,
+      "path": "scripts/port/refreshed-desktop/desktop-proposal.json",
+      "sha256": "d7189a0526cfaa09d75011f06cdb6a5811dbd70a7b419784681ea669fa76b131"
+    },
+    "gui18_contract": {
+      "bytes": 14990,
+      "path": "packages/port/qt612-gui-source-reference/BUILD-CONTRACT.json",
+      "sha256": "1896928865f4770908e0d00cd4f64dbdea5ba216b7e440c09fed2335fcfa15cf"
+    },
+    "manifest": {
+      "bytes": 90943,
+      "path": "manifests/packages.toml",
+      "sha256": "a4426baa9eb7790a9274cb6c9ea1f1563d650ddcf24f49c1f8a0044afb3e2bbf"
+    },
+    "observations": {
+      "hyprland-qt-support": {
+        "bytes": 13031,
+        "path": "scripts/port/refreshed-desktop/observations/hyprland-qt-support.json",
+        "sha256": "1c9ae19d5b8688b5179921360d6030c42001cb90ebfe09abc2896e352c694ff3"
+      },
+      "hyprpolkitagent": {
+        "bytes": 12838,
+        "path": "scripts/port/refreshed-desktop/observations/hyprpolkitagent.json",
+        "sha256": "46caef14e34c23c9a734d084e4e3fb0835c3faaed23c4d758f07988ce2de0d84"
+      },
+      "polkit-qt6": {
+        "bytes": 15339,
+        "path": "scripts/port/refreshed-desktop/observations/polkit-qt6.json",
+        "sha256": "f95266bb29269951cbf121b21c24c8bc806cf72add1becd34c12492e701ee583"
+      },
+      "qt6-base": {
+        "bytes": 351599,
+        "path": "scripts/port/refreshed-desktop/observations/qt6-base.json",
+        "sha256": "6fa906e3e05373cb1b54a8afef9f1fd1d08b2367045d1898b4ffdab97f879219"
+      },
+      "qt6-declarative": {
+        "bytes": 504938,
+        "path": "scripts/port/refreshed-desktop/observations/qt6-declarative.json",
+        "sha256": "a4d302354576a6451a73f1ab97c4d0b9f2fb4d0c06231ba5a5beb91cdedf86a9"
+      },
+      "qt6-translations": {
+        "bytes": 26972,
+        "path": "scripts/port/refreshed-desktop/observations/qt6-translations.json",
+        "sha256": "b9e403e2407caadd5e53893125404f6fdc46ef0f9fd910b3cb04c51e366d4e1b"
+      },
+      "xdg-desktop-portal-hyprland": {
+        "bytes": 13939,
+        "path": "scripts/port/refreshed-desktop/observations/xdg-desktop-portal-hyprland.json",
+        "sha256": "b0ebcc1130902c6db77047a7a946def9730a5e70c075d60940aca43130830afa"
+      }
+    },
+    "prospective622": {
+      "bytes": 444951,
+      "path": "scripts/ci/core622-current-desktop-source/composition.json",
+      "sha256": "154aab2490617a23d3fb745cc8c03d3bc4abb35d3c836f4a43394b1758158d6c"
+    }
+  },
+  "kind": "QT612_WAYLAND_DECLARED_DESKTOP_INVENTORY_CLOSURE_DATA_V1",
+  "manifest_scope": {
+    "candidate_version": "0.1.0-3",
+    "package": "cachy-asahi-hyprland-settings",
+    "qt_package_rows": [],
+    "selected_for_development": true,
+    "selected_for_release": false
+  },
+  "minimal_eight_root_snapshot": {
+    "limitations": "Repository-name closure only; dependency version constraints, optional dependencies, signatures and Asahi overrides are not resolved. Not an install transaction.",
+    "package_count": 236,
+    "qt_package_names": [],
+    "retrieved_utc": "2026-10-11T23:50:15.784994+00:00",
+    "roots": [
+      "hyprland",
+      "alacritty",
+      "wofi",
+      "swaylock",
+      "wireplumber",
+      "brightnessctl",
+      "lua",
+      "python"
+    ]
+  },
+  "original_archive_metadata": {
+    "hyprland-qt-support": {
+      "arch": "aarch64",
+      "depends": [
+        "libgcc",
+        "libstdc++",
+        "glibc",
+        "hyprlang",
+        "libhyprlang.so=2-64",
+        "qt6-base",
+        "qt6-declarative"
+      ],
+      "filename": "hyprland-qt-support-0.1.0-14-aarch64.pkg.tar.xz",
+      "provides": [
+        "libhyprland-quick-style-impl.so=libhyprland-quick-style-impl.so-64",
+        "libhyprland-quick-style.so=libhyprland-quick-style.so-64",
+        "libhyprland-quick-style-implplugin.so",
+        "libhyprland-quick-styleplugin.so"
+      ],
+      "sha256": "f1a63e47dd0246c86f29e006a8dad4e086545ef8b78e5f92362eb5c561af4fc2",
+      "signature_sha256": "4fc5b33e347fd3e24df7484a49d1d78676ff4a1a7be7ea022b142744c3484dd8",
+      "signature_size": 566,
+      "size": 83732,
+      "version": "0.1.0-14"
+    },
+    "hyprpolkitagent": {
+      "arch": "aarch64",
+      "depends": [
+        "libgcc",
+        "libstdc++",
+        "glibc",
+        "hyprgraphics",
+        "hyprland-qt-support",
+        "hyprtoolkit",
+        "hyprutils",
+        "polkit-qt6",
+        "qt6-base",
+        "qt6-declarative",
+        "sdbus-cpp"
+      ],
+      "filename": "hyprpolkitagent-0.2.0-1-aarch64.pkg.tar.xz",
+      "provides": [],
+      "sha256": "dbb4fedfe15897c20aa760ae9d7ea88556423094725e8dedbe5c59b53c2eaf0e",
+      "signature_sha256": "203c75cb7379fb644d67f748ad7aba802f5a2a6169ff46285a7b02f0966fdaf1",
+      "signature_size": 566,
+      "size": 104204,
+      "version": "0.2.0-1"
+    },
+    "polkit-qt6": {
+      "arch": "aarch64",
+      "depends": [
+        "libgcc",
+        "libstdc++",
+        "glib2",
+        "glibc",
+        "polkit",
+        "qt6-base"
+      ],
+      "filename": "polkit-qt6-0.201.1-1-aarch64.pkg.tar.xz",
+      "provides": [],
+      "sha256": "f6baaa62490e2f609483498f8aa2db244bd170824236d9261f284c95c6aa3daf",
+      "signature_sha256": "fe2dc0c394bdd71aff28a7dabd98cec8a9872a0c1e829a8b7f6b8b2a4a514520",
+      "signature_size": 566,
+      "size": 88620,
+      "version": "0.201.1-1"
+    },
+    "qt6-base": {
+      "arch": "aarch64",
+      "depends": [
+        "brotli",
+        "dbus",
+        "double-conversion",
+        "fontconfig",
+        "freetype2",
+        "glib2",
+        "glibc",
+        "harfbuzz",
+        "icu",
+        "krb5",
+        "libb2",
+        "libcups",
+        "libdrm",
+        "libgcc",
+        "libgl",
+        "libice",
+        "libinput",
+        "libjpeg-turbo",
+        "libpng",
+        "libproxy",
+        "libsm",
+        "libstdc++",
+        "liburing",
+        "libx11",
+        "libxcb",
+        "libxkbcommon",
+        "libxkbcommon-x11",
+        "md4c",
+        "mesa",
+        "mtdev",
+        "openssl",
+        "pcre2",
+        "shared-mime-info",
+        "sqlite",
+        "systemd-libs",
+        "tslib",
+        "wayland",
+        "xcb-util-cursor",
+        "xcb-util-image",
+        "xcb-util-keysyms",
+        "xcb-util-renderutil",
+        "xcb-util-wm",
+        "xdg-utils",
+        "zlib",
+        "zstd",
+        "qt6-translations"
+      ],
+      "filename": "qt6-base-6.12.0-2-aarch64.pkg.tar.xz",
+      "provides": [
+        "libQt6Core.so.6"
+      ],
+      "sha256": "70f2bbce49fa82dee86074a7c96dcc1e43f54a1f82407bb8d855708932323abd",
+      "signature_sha256": "8e08983add68384863e86df8795ad5906bbd50a159af9bfe43b2894f16a87e41",
+      "signature_size": 566,
+      "size": 15176004,
+      "version": "6.12.0-2"
+    },
+    "qt6-declarative": {
+      "arch": "aarch64",
+      "depends": [
+        "glibc",
+        "libgcc",
+        "libstdc++",
+        "qt6-base"
+      ],
+      "filename": "qt6-declarative-6.12.0-1-aarch64.pkg.tar.xz",
+      "provides": [],
+      "sha256": "410a29bc88fb004f4c1b5c8d2b08bf6d2d27c5028ebd13447e7ff67134c94940",
+      "signature_sha256": "fdfcb06a1ec49a27b0c8a6a99c6034c94bce2234f896f5a27ffd337538b14f6d",
+      "signature_size": 566,
+      "size": 20090780,
+      "version": "6.12.0-1"
+    },
+    "qt6-translations": {
+      "arch": "any",
+      "depends": [],
+      "filename": "qt6-translations-6.12.0-1-any.pkg.tar.xz",
+      "provides": [],
+      "sha256": "51c3b96236aa9cccd06d27a79d62f76fb9921710ecc30db9612fcb280165bbc2",
+      "signature_sha256": "295fbca39a2b4f09cd7dbd2ddca83c090ceb87c2ef146a0159bdf5d1c46f5d7f",
+      "signature_size": 566,
+      "size": 2010144,
+      "version": "6.12.0-1"
+    },
+    "xdg-desktop-portal-hyprland": {
+      "arch": "aarch64",
+      "depends": [
+        "libgcc",
+        "libstdc++",
+        "glibc",
+        "hyprlang",
+        "libhyprlang.so=2-64",
+        "hyprutils",
+        "libhyprutils.so=13-64",
+        "libinih",
+        "pipewire",
+        "qt6-base",
+        "sdbus-cpp",
+        "libsdbus-c++.so=2-64",
+        "util-linux-libs",
+        "libuuid.so=1-64",
+        "xdg-desktop-portal"
+      ],
+      "filename": "xdg-desktop-portal-hyprland-1.4.1-2-aarch64.pkg.tar.xz",
+      "provides": [
+        "xdg-desktop-portal-impl"
+      ],
+      "sha256": "afbe5116a25a58093d72f20640ad81a10140e363f7caedd300d110e9232ab006",
+      "signature_sha256": "db642463ec0422707f6f84f76f383006b9eeb358e04b189307503b7c9041a165",
+      "signature_size": 566,
+      "size": 268400,
+      "version": "1.4.1-2"
+    }
+  },
+  "prospective622_snapshot": {
+    "actual_field": null,
+    "qt_versions": {
+      "qt6-base": "6.12.0-3",
+      "qt6-declarative": "6.12.0-1",
+      "qt6-translations": "6.12.0-1"
+    },
+    "qt_wayland_package_recorded": false,
+    "scope": "Prospective retained composition DATA; actual field null. Not a current installed inventory."
+  },
+  "qtwayland_source": {
+    "archive": {
+      "bytes": 908828,
+      "filename": "qtwayland-everywhere-src-6.12.0.tar.xz",
+      "pin_selection": "COORDINATOR_VERIFIED_ARCHIVE_REFERENCE",
+      "sha256": "ae14d9bcf1bb3c300a3ab2e6a53f50284e5c6c966a4ac4cc5aedcb1bc74e4d02"
+    },
+    "evidence": {
+      "build_component_gates": {
+        "lines": [
+          [
+            40,
+            52
+          ]
+        ],
+        "path": "src/CMakeLists.txt"
+      },
+      "client_complement_features": {
+        "lines": [
+          [
+            6,
+            23
+          ]
+        ],
+        "path": "src/client/configure.cmake"
+      },
+      "client_is_header_only": {
+        "lines": [
+          [
+            1,
+            7
+          ]
+        ],
+        "path": "src/client/CMakeLists.txt"
+      },
+      "compositor_feature_dependencies": {
+        "lines": [
+          [
+            63,
+            79
+          ]
+        ],
+        "path": "src/compositor/configure.cmake"
+      },
+      "compositor_libraries_and_qml": {
+        "lines": [
+          [
+            68,
+            79
+          ],
+          [
+            158,
+            205
+          ],
+          [
+            235,
+            252
+          ]
+        ],
+        "path": "src/compositor/CMakeLists.txt"
+      },
+      "installed_qtbase_protocol_inputs": {
+        "lines": [
+          [
+            4,
+            23
+          ]
+        ],
+        "path": "cmake/QtWaylandSetup.cmake"
+      },
+      "missing_native_dependencies_can_skip_all_outputs": {
+        "lines": [
+          [
+            9,
+            34
+          ]
+        ],
+        "path": "src/CMakeLists.txt"
+      },
+      "qml_import_gates": {
+        "lines": [
+          [
+            6,
+            14
+          ]
+        ],
+        "path": "src/imports/CMakeLists.txt"
+      },
+      "top_qt_packages": {
+        "lines": [
+          [
+            16,
+            19
+          ],
+          [
+            26,
+            36
+          ],
+          [
+            49,
+            60
+          ],
+          [
+            69,
+            73
+          ]
+        ],
+        "path": "CMakeLists.txt"
+      }
+    },
+    "observed_tag": "c4f85cd060e3e80a7d71829defac9cf5a40e8ffa",
+    "source_files": {
+      ".cmake.conf": {
+        "bytes": 353,
+        "lines": 11,
+        "sha256": "85c1add6adaaef81c5da600bb27eb81cd960ae15800c03cbebbccf25952f77d6"
+      },
+      ".tag": {
+        "bytes": 41,
+        "lines": 1,
+        "sha256": "240c622b692078f39d7f1e3d94d5d97d01b8142b13a20e5df61a0d20a1ac1f97"
+      },
+      "CMakeLists.txt": {
+        "bytes": 2249,
+        "lines": 73,
+        "sha256": "c5b1f490cc8d23be2125e2cdaeeac3dae6db2652ede1325c0985604512fad36b"
+      },
+      "cmake/QtWaylandSetup.cmake": {
+        "bytes": 1073,
+        "lines": 24,
+        "sha256": "5a147b5e96848cbd0af3f85c4a6b19257dfcb741ab2160d76e3ae26f33556d35"
+      },
+      "dependencies.yaml": {
+        "bytes": 268,
+        "lines": 10,
+        "sha256": "2ecbb11fab6e14f24c92d6d09be21fd556b1839cbf46be62862593bd48aaec35"
+      },
+      "src/CMakeLists.txt": {
+        "bytes": 1576,
+        "lines": 53,
+        "sha256": "721730954d8dcab3f24af5b2ecd070db262f9a31dd2d2e5ed498ef92ac77e205"
+      },
+      "src/client/CMakeLists.txt": {
+        "bytes": 172,
+        "lines": 7,
+        "sha256": "d76b7d54a3ad06e716737bcc353eb8aa6fc3ed4c308b2eed425ea3b968a6069d"
+      },
+      "src/client/configure.cmake": {
+        "bytes": 1308,
+        "lines": 33,
+        "sha256": "5b78361e1d3734ab5844c6fb630f8fce570266dde8bbef5109b9d1d693774f8b"
+      },
+      "src/compositor/CMakeLists.txt": {
+        "bytes": 13335,
+        "lines": 252,
+        "sha256": "54bcf1259b3bb8641ef49ad28dcc4a736b7702862ffd474a0e859cc7be638a1d"
+      },
+      "src/compositor/configure.cmake": {
+        "bytes": 3213,
+        "lines": 98,
+        "sha256": "b433d322c7fdf78055021eef536ef1167184793bbc02c5da4b646ae9df0a2c45"
+      },
+      "src/compositor/global/qtwaylandcompositorglobal.h": {
+        "bytes": 373,
+        "lines": 12,
+        "sha256": "fe093f267b53ded5fff3ea2185bbbe4d50799319d6015a10b9c6e430b663e521"
+      },
+      "src/compositor/global/qtwaylandcompositorglobal_p.h": {
+        "bytes": 867,
+        "lines": 32,
+        "sha256": "f2af74d3317f79d854f223c34c92c28841b3be4fbb4eabe7543906d59f9c104d"
+      },
+      "src/configure.cmake": {
+        "bytes": 2452,
+        "lines": 73,
+        "sha256": "2ffbb82338bebf85bcfa9733d2b0d5251e468b176ead74c4b5fdb29593ed1d6f"
+      },
+      "src/hardwareintegration/CMakeLists.txt": {
+        "bytes": 156,
+        "lines": 6,
+        "sha256": "b81087eac1ac952dbc96a440ef22c4fdc44e706039e33bb0b0f5178d019f449c"
+      },
+      "src/hardwareintegration/compositor/CMakeLists.txt": {
+        "bytes": 185,
+        "lines": 8,
+        "sha256": "828774819b72e4f72d0d88bea9914099f127cb1ab19b3f0a9e22b692e8addc7c"
+      },
+      "src/hardwareintegration/compositor/wayland-egl/CMakeLists.txt": {
+        "bytes": 946,
+        "lines": 30,
+        "sha256": "78dadfeceb591adc747595f0765d833876a04c6ec99b7ec63561860c73dba404"
+      },
+      "src/imports/CMakeLists.txt": {
+        "bytes": 478,
+        "lines": 14,
+        "sha256": "59a31b9020ba2cffe0e8663b1dab7ab4633fb9cba8714987a8dd930e6e76b3df"
+      },
+      "src/imports/compositor-extensions/CMakeLists.txt": {
+        "bytes": 343,
+        "lines": 13,
+        "sha256": "a00540b2e758b695672ba780d70526f7ae5741db148be0552edcab55b72aa75d"
+      },
+      "src/imports/compositor-extensions/iviapplication/CMakeLists.txt": {
+        "bytes": 964,
+        "lines": 28,
+        "sha256": "0cd4414578336ed338e4bba362991e78743078cb6353e5337efec6eaefbd129b"
+      },
+      "src/imports/compositor-extensions/presentationtime/CMakeLists.txt": {
+        "bytes": 1158,
+        "lines": 29,
+        "sha256": "e131b32d0aec76e27ef5ee3a848dffc666bd918a7366f6f1a4eb2fd9e454745d"
+      },
+      "src/imports/compositor-extensions/qtshell/CMakeLists.txt": {
+        "bytes": 1200,
+        "lines": 36,
+        "sha256": "e8ab9691aacb9177ade794f5789de806b9435a956ab8a6ca2adb2eabae49cba4"
+      },
+      "src/imports/compositor-extensions/wlshell/CMakeLists.txt": {
+        "bytes": 513,
+        "lines": 17,
+        "sha256": "d80881f593eb90b781596ad1f9b09f04ef5be0cc83001be1571bb33d2cbf453b"
+      },
+      "src/imports/compositor-extensions/xdgshell/CMakeLists.txt": {
+        "bytes": 526,
+        "lines": 18,
+        "sha256": "08cda5e6f25e4423c1c1bc450d7ad35dcfaa595536be42db37881fc0012e52f5"
+      },
+      "src/imports/texture-sharing-extension/CMakeLists.txt": {
+        "bytes": 1220,
+        "lines": 36,
+        "sha256": "c603bfc4d0f86636a25101cf567024ea30d6cd2ad5d282f57d3f9a38bfaa050c"
+      },
+      "src/imports/texture-sharing/CMakeLists.txt": {
+        "bytes": 1623,
+        "lines": 52,
+        "sha256": "b00687a387e0f1b25453197d49b51e4d44665de9f271200d8646a82df6103cf6"
+      },
+      "src/plugins/CMakeLists.txt": {
+        "bytes": 261,
+        "lines": 10,
+        "sha256": "e79ad68a032c30e197144d4fd88292b8bf4a041e4cf0c47acac7daaad67395c5"
+      },
+      "src/plugins/decorations/CMakeLists.txt": {
+        "bytes": 197,
+        "lines": 7,
+        "sha256": "0178a92f667e673c6d41c295a7c8bcbfdadc69750210e1255b7ca2f55fa8e153"
+      },
+      "src/plugins/decorations/adwaita/CMakeLists.txt": {
+        "bytes": 722,
+        "lines": 26,
+        "sha256": "8b28f5a198058b3ec21828f276afdc27a13b6a4a17ac0f42e7b940b48fa3e19c"
+      },
+      "src/plugins/hardwareintegration/CMakeLists.txt": {
+        "bytes": 363,
+        "lines": 14,
+        "sha256": "3fcd12e3b5204fccd2d6de7463fb6aa0565eff6ff05bd4d7adcb1b7162ab7ec6"
+      },
+      "src/plugins/hardwareintegration/compositor/CMakeLists.txt": {
+        "bytes": 942,
+        "lines": 32,
+        "sha256": "cfddce2cf0272614a996db5b49465372ed0279465a3ea1c9419ee8a745ddcea4"
+      },
+      "src/plugins/hardwareintegration/compositor/brcm-egl/CMakeLists.txt": {
+        "bytes": 1386,
+        "lines": 38,
+        "sha256": "eb826225f0d4d797cdd98e590b032225a264ce040e0d35b6f5770f70968c7ac4"
+      },
+      "src/plugins/hardwareintegration/compositor/dmabuf-server/CMakeLists.txt": {
+        "bytes": 1395,
+        "lines": 41,
+        "sha256": "914aca608f8435ab9deba634ae7c47ea095f6854b3f60cf53700e2b062356a67"
+      },
+      "src/plugins/hardwareintegration/compositor/drm-egl-server/CMakeLists.txt": {
+        "bytes": 1377,
+        "lines": 40,
+        "sha256": "7734a099728e367c1df94258cb7b30ad114e0456a936a7253a6ec0d06844b723"
+      },
+      "src/plugins/hardwareintegration/compositor/hardwarelayer/vsp2/CMakeLists.txt": {
+        "bytes": 1061,
+        "lines": 29,
+        "sha256": "29989b17408d00e319adca7f18882cea77f1ca014acd40eded144b0579d7b90f"
+      },
+      "src/plugins/hardwareintegration/compositor/libhybris-egl-server/CMakeLists.txt": {
+        "bytes": 1451,
+        "lines": 39,
+        "sha256": "fb4d4a671c1a5560463c497596f4c62de82aa81e062a037c053f4d6b0305d2aa"
+      },
+      "src/plugins/hardwareintegration/compositor/linux-dmabuf-unstable-v1/CMakeLists.txt": {
+        "bytes": 1494,
+        "lines": 38,
+        "sha256": "aa656ab2ef28d1b05f9a68b6f0681001d81db544ea0643eb46e7151639d3e90b"
+      },
+      "src/plugins/hardwareintegration/compositor/linux-dmabuf-v1/CMakeLists.txt": {
+        "bytes": 1469,
+        "lines": 38,
+        "sha256": "d8aec2d7b971a5b417fae64d67c0ae2733e0601c10d231fa4f77d201373b60a2"
+      },
+      "src/plugins/hardwareintegration/compositor/shm-emulation-server/CMakeLists.txt": {
+        "bytes": 1364,
+        "lines": 37,
+        "sha256": "0308b73b5e199fbe9a74042a98219fc71537cc9da5c3c3e5668993e0b80de9d8"
+      },
+      "src/plugins/hardwareintegration/compositor/vulkan-server/CMakeLists.txt": {
+        "bytes": 1608,
+        "lines": 40,
+        "sha256": "696c91f796a352ac89c78f43f9cb1cf11441bf194e531b597d3ee2500b3831a5"
+      },
+      "src/plugins/hardwareintegration/compositor/wayland-egl/CMakeLists.txt": {
+        "bytes": 817,
+        "lines": 25,
+        "sha256": "0fa53965463c9f5da027da177fe8c885baef327ab9f2e6e07d724a4921c655a9"
+      },
+      "src/plugins/hardwareintegration/compositor/wayland-eglstream-controller/CMakeLists.txt": {
+        "bytes": 1771,
+        "lines": 42,
+        "sha256": "fa1a8f5e8f6cc408599def4b2503bedf40392ee987c487d1dd265ee3fb837774"
+      },
+      "src/plugins/shellintegration/CMakeLists.txt": {
+        "bytes": 280,
+        "lines": 11,
+        "sha256": "dd83b950906c333f6651097958d680da6d7e610c835dd8cbf3762b15b419954c"
+      },
+      "src/plugins/shellintegration/ivi-shell/CMakeLists.txt": {
+        "bytes": 1397,
+        "lines": 44,
+        "sha256": "198f433586dbb4a09617b18f1096a7e49c95b2f7c514fe78f35a6d7d6343769f"
+      },
+      "src/plugins/shellintegration/qt-shell/CMakeLists.txt": {
+        "bytes": 1104,
+        "lines": 36,
+        "sha256": "54e604c388d02e2c04a6ca8aa998ca060ebdf953f11576cdfe984aff3c99f813"
+      }
+    },
+    "targets": [
+      {
+        "header_only": true,
+        "kind": "module",
+        "line_end": 7,
+        "line_start": 1,
+        "native_dependencies": [],
+        "properties": {},
+        "qt_dependencies": [],
+        "source": "src/client/CMakeLists.txt",
+        "target": "WaylandClientFeaturesPrivate"
+      },
+      {
+        "header_only": false,
+        "kind": "module",
+        "line_end": 96,
+        "line_start": 14,
+        "native_dependencies": [
+          "Wayland::Server"
+        ],
+        "properties": {},
+        "qt_dependencies": [
+          "Core",
+          "CorePrivate",
+          "Gui",
+          "GuiPrivate",
+          "WaylandGlobalPrivate"
+        ],
+        "source": "src/compositor/CMakeLists.txt",
+        "target": "WaylandCompositor"
+      },
+      {
+        "header_only": false,
+        "kind": "module",
+        "line_end": 25,
+        "line_start": 9,
+        "native_dependencies": [
+          "EGL::EGL",
+          "Wayland::Egl",
+          "Wayland::Server"
+        ],
+        "properties": {},
+        "qt_dependencies": [
+          "Core",
+          "Gui",
+          "WaylandCompositorPrivate"
+        ],
+        "source": "src/hardwareintegration/compositor/wayland-egl/CMakeLists.txt",
+        "target": "WaylandEglCompositorHwIntegrationPrivate"
+      },
+      {
+        "header_only": false,
+        "kind": "qml_module",
+        "line_end": 21,
+        "line_start": 10,
+        "native_dependencies": [],
+        "properties": {
+          "URI": "QtWayland.Compositor.IviApplication"
+        },
+        "qt_dependencies": [
+          "Core",
+          "Gui",
+          "WaylandCompositor"
+        ],
+        "source": "src/imports/compositor-extensions/iviapplication/CMakeLists.txt",
+        "target": "WaylandCompositorIviapplication"
+      },
+      {
+        "header_only": false,
+        "kind": "qml_module",
+        "line_end": 26,
+        "line_start": 15,
+        "native_dependencies": [],
+        "properties": {
+          "URI": "QtWayland.Compositor.PresentationTime"
+        },
+        "qt_dependencies": [
+          "Core",
+          "Gui",
+          "WaylandCompositorPrivate"
+        ],
+        "source": "src/imports/compositor-extensions/presentationtime/CMakeLists.txt",
+        "target": "WaylandCompositorPresentationTime"
+      },
+      {
+        "header_only": false,
+        "kind": "qml_module",
+        "line_end": 28,
+        "line_start": 8,
+        "native_dependencies": [],
+        "properties": {
+          "PLUGIN_TARGET": "WaylandCompositorQtShell",
+          "URI": "QtWayland.Compositor.QtShell"
+        },
+        "qt_dependencies": [
+          "Core",
+          "Gui",
+          "Quick",
+          "QuickPrivate",
+          "WaylandCompositor",
+          "WaylandCompositorPrivate"
+        ],
+        "source": "src/imports/compositor-extensions/qtshell/CMakeLists.txt",
+        "target": "WaylandCompositorQtShell"
+      },
+      {
+        "header_only": false,
+        "kind": "qml_module",
+        "line_end": 15,
+        "line_start": 4,
+        "native_dependencies": [],
+        "properties": {
+          "URI": "QtWayland.Compositor.WlShell"
+        },
+        "qt_dependencies": [
+          "Core",
+          "Gui",
+          "WaylandCompositor"
+        ],
+        "source": "src/imports/compositor-extensions/wlshell/CMakeLists.txt",
+        "target": "WaylandCompositorWLShell"
+      },
+      {
+        "header_only": false,
+        "kind": "qml_module",
+        "line_end": 16,
+        "line_start": 4,
+        "native_dependencies": [],
+        "properties": {
+          "URI": "QtWayland.Compositor.XdgShell"
+        },
+        "qt_dependencies": [
+          "Core",
+          "Gui",
+          "WaylandCompositor"
+        ],
+        "source": "src/imports/compositor-extensions/xdgshell/CMakeLists.txt",
+        "target": "WaylandCompositorXdgShell"
+      },
+      {
+        "header_only": false,
+        "kind": "qml_module",
+        "line_end": 38,
+        "line_start": 13,
+        "native_dependencies": [],
+        "properties": {
+          "PLUGIN_TARGET": "WaylandTextureSharing",
+          "URI": "QtWayland.Client.TextureSharing"
+        },
+        "qt_dependencies": [
+          "Core",
+          "CorePrivate",
+          "Gui",
+          "GuiPrivate",
+          "OpenGL",
+          "Qml",
+          "QuickPrivate",
+          "WaylandClient",
+          "WaylandClientPrivate"
+        ],
+        "source": "src/imports/texture-sharing/CMakeLists.txt",
+        "target": "WaylandTextureSharing"
+      },
+      {
+        "header_only": false,
+        "kind": "qml_module",
+        "line_end": 30,
+        "line_start": 10,
+        "native_dependencies": [],
+        "properties": {
+          "PLUGIN_TARGET": "WaylandTextureSharingExtension",
+          "URI": "QtWayland.Compositor.TextureSharingExtension"
+        },
+        "qt_dependencies": [
+          "Core",
+          "CorePrivate",
+          "Gui",
+          "GuiPrivate",
+          "Qml",
+          "QuickPrivate",
+          "WaylandCompositor",
+          "WaylandCompositorPrivate"
+        ],
+        "source": "src/imports/texture-sharing-extension/CMakeLists.txt",
+        "target": "WaylandTextureSharingExtension"
+      },
+      {
+        "header_only": false,
+        "kind": "plugin",
+        "line_end": 22,
+        "line_start": 8,
+        "native_dependencies": [
+          "Wayland::Client"
+        ],
+        "properties": {
+          "OUTPUT_NAME": "adwaita",
+          "PLUGIN_TYPE": "wayland-decoration-client"
+        },
+        "qt_dependencies": [
+          "Core",
+          "DBus",
+          "Gui",
+          "Svg",
+          "WaylandClientPrivate"
+        ],
+        "source": "src/plugins/decorations/adwaita/CMakeLists.txt",
+        "target": "QWaylandAdwaitaDecorationPlugin"
+      },
+      {
+        "header_only": false,
+        "kind": "plugin",
+        "line_end": 29,
+        "line_start": 13,
+        "native_dependencies": [
+          "Wayland::Server"
+        ],
+        "properties": {
+          "OUTPUT_NAME": "qt-wayland-compositor-brcm-egl",
+          "PLUGIN_TYPE": "wayland-graphics-integration-server"
+        },
+        "qt_dependencies": [
+          "CorePrivate",
+          "GuiPrivate",
+          "WaylandCompositor",
+          "WaylandCompositorPrivate"
+        ],
+        "source": "src/plugins/hardwareintegration/compositor/brcm-egl/CMakeLists.txt",
+        "target": "QWaylandBrcmClientBufferIntegrationPlugin"
+      },
+      {
+        "header_only": false,
+        "kind": "plugin",
+        "line_end": 31,
+        "line_start": 15,
+        "native_dependencies": [
+          "EGL::EGL",
+          "Libdrm::Libdrm",
+          "Wayland::Server"
+        ],
+        "properties": {
+          "OUTPUT_NAME": "qt-wayland-compositor-dmabuf-server-buffer",
+          "PLUGIN_TYPE": "wayland-graphics-integration-server"
+        },
+        "qt_dependencies": [
+          "CorePrivate",
+          "GuiPrivate",
+          "WaylandCompositor",
+          "WaylandCompositorPrivate"
+        ],
+        "source": "src/plugins/hardwareintegration/compositor/dmabuf-server/CMakeLists.txt",
+        "target": "DmaBufServerBufferIntegrationPlugin"
+      },
+      {
+        "header_only": false,
+        "kind": "plugin",
+        "line_end": 30,
+        "line_start": 15,
+        "native_dependencies": [
+          "EGL::EGL",
+          "Wayland::Server"
+        ],
+        "properties": {
+          "OUTPUT_NAME": "qt-wayland-compositor-drm-egl-server-buffer",
+          "PLUGIN_TYPE": "wayland-graphics-integration-server"
+        },
+        "qt_dependencies": [
+          "CorePrivate",
+          "GuiPrivate",
+          "WaylandCompositor",
+          "WaylandCompositorPrivate"
+        ],
+        "source": "src/plugins/hardwareintegration/compositor/drm-egl-server/CMakeLists.txt",
+        "target": "DrmEglServerBufferIntegrationPlugin"
+      },
+      {
+        "header_only": false,
+        "kind": "plugin",
+        "line_end": 26,
+        "line_start": 10,
+        "native_dependencies": [
+          "Wayland::Server"
+        ],
+        "properties": {
+          "OUTPUT_NAME": "qt-wayland-compositor-vsp2",
+          "PLUGIN_TYPE": "wayland-hardware-layer-integration"
+        },
+        "qt_dependencies": [
+          "CorePrivate",
+          "GuiPrivate",
+          "WaylandCompositor",
+          "WaylandCompositorPrivate"
+        ],
+        "source": "src/plugins/hardwareintegration/compositor/hardwarelayer/vsp2/CMakeLists.txt",
+        "target": "Vsp2HardwareLayerIntegrationPlugin"
+      },
+      {
+        "header_only": false,
+        "kind": "plugin",
+        "line_end": 29,
+        "line_start": 13,
+        "native_dependencies": [
+          "EGL::EGL",
+          "Wayland::Server"
+        ],
+        "properties": {
+          "OUTPUT_NAME": "qt-wayland-compositor-libybris-egl-server.json",
+          "PLUGIN_TYPE": "wayland-graphics-integration-server"
+        },
+        "qt_dependencies": [
+          "CorePrivate",
+          "GuiPrivate",
+          "WaylandCompositor",
+          "WaylandCompositorPrivate"
+        ],
+        "source": "src/plugins/hardwareintegration/compositor/libhybris-egl-server/CMakeLists.txt",
+        "target": "LibHybrisEglServerBufferIntegrationPlugin"
+      },
+      {
+        "header_only": false,
+        "kind": "plugin",
+        "line_end": 32,
+        "line_start": 13,
+        "native_dependencies": [
+          "EGL::EGL",
+          "Libdrm::Libdrm",
+          "Wayland::Server"
+        ],
+        "properties": {
+          "OUTPUT_NAME": "qt-wayland-compositor-linux-dmabuf-unstable-v1",
+          "PLUGIN_TYPE": "wayland-graphics-integration-server"
+        },
+        "qt_dependencies": [
+          "CorePrivate",
+          "GuiPrivate",
+          "WaylandCompositor",
+          "WaylandCompositorPrivate"
+        ],
+        "source": "src/plugins/hardwareintegration/compositor/linux-dmabuf-unstable-v1/CMakeLists.txt",
+        "target": "QWaylandDmabufUnstableClientBufferIntegrationPlugin"
+      },
+      {
+        "header_only": false,
+        "kind": "plugin",
+        "line_end": 32,
+        "line_start": 13,
+        "native_dependencies": [
+          "EGL::EGL",
+          "Libdrm::Libdrm",
+          "Wayland::Server"
+        ],
+        "properties": {
+          "OUTPUT_NAME": "qt-wayland-compositor-linux-dmabuf-v1",
+          "PLUGIN_TYPE": "wayland-graphics-integration-server"
+        },
+        "qt_dependencies": [
+          "CorePrivate",
+          "GuiPrivate",
+          "WaylandCompositor",
+          "WaylandCompositorPrivate"
+        ],
+        "source": "src/plugins/hardwareintegration/compositor/linux-dmabuf-v1/CMakeLists.txt",
+        "target": "QWaylandDmabufClientBufferIntegrationPlugin"
+      },
+      {
+        "header_only": false,
+        "kind": "plugin",
+        "line_end": 27,
+        "line_start": 13,
+        "native_dependencies": [
+          "Wayland::Server"
+        ],
+        "properties": {
+          "OUTPUT_NAME": "qt-wayland-compositor-shm-emulation-server",
+          "PLUGIN_TYPE": "wayland-graphics-integration-server"
+        },
+        "qt_dependencies": [
+          "CorePrivate",
+          "GuiPrivate",
+          "WaylandCompositor",
+          "WaylandCompositorPrivate"
+        ],
+        "source": "src/plugins/hardwareintegration/compositor/shm-emulation-server/CMakeLists.txt",
+        "target": "ShmServerBufferIntegrationPlugin"
+      },
+      {
+        "header_only": false,
+        "kind": "plugin",
+        "line_end": 30,
+        "line_start": 13,
+        "native_dependencies": [
+          "Wayland::Server"
+        ],
+        "properties": {
+          "OUTPUT_NAME": "qt-wayland-compositor-vulkan-server",
+          "PLUGIN_TYPE": "wayland-graphics-integration-server"
+        },
+        "qt_dependencies": [
+          "CorePrivate",
+          "GuiPrivate",
+          "OpenGLPrivate",
+          "WaylandCompositor",
+          "WaylandCompositorPrivate"
+        ],
+        "source": "src/plugins/hardwareintegration/compositor/vulkan-server/CMakeLists.txt",
+        "target": "VulkanServerBufferIntegrationPlugin"
+      },
+      {
+        "header_only": false,
+        "kind": "plugin",
+        "line_end": 22,
+        "line_start": 11,
+        "native_dependencies": [],
+        "properties": {
+          "OUTPUT_NAME": "qt-wayland-compositor-wayland-egl",
+          "PLUGIN_TYPE": "wayland-graphics-integration-server"
+        },
+        "qt_dependencies": [
+          "CorePrivate",
+          "GuiPrivate",
+          "WaylandCompositor",
+          "WaylandCompositorPrivate",
+          "WaylandEglCompositorHwIntegrationPrivate"
+        ],
+        "source": "src/plugins/hardwareintegration/compositor/wayland-egl/CMakeLists.txt",
+        "target": "QWaylandEglClientBufferIntegrationPlugin"
+      },
+      {
+        "header_only": false,
+        "kind": "plugin",
+        "line_end": 33,
+        "line_start": 14,
+        "native_dependencies": [
+          "EGL::EGL",
+          "Wayland::Egl",
+          "Wayland::Server"
+        ],
+        "properties": {
+          "OUTPUT_NAME": "qt-wayland-compositor-wayland-eglstream-controller",
+          "PLUGIN_TYPE": "wayland-graphics-integration-server"
+        },
+        "qt_dependencies": [
+          "CorePrivate",
+          "GuiPrivate",
+          "WaylandCompositor",
+          "WaylandCompositorPrivate"
+        ],
+        "source": "src/plugins/hardwareintegration/compositor/wayland-eglstream-controller/CMakeLists.txt",
+        "target": "QWaylandEglStreamClientBufferIntegrationPlugin"
+      },
+      {
+        "header_only": false,
+        "kind": "plugin",
+        "line_end": 26,
+        "line_start": 10,
+        "native_dependencies": [
+          "Wayland::Client"
+        ],
+        "properties": {
+          "OUTPUT_NAME": "ivi-shell",
+          "PLUGIN_TYPE": "wayland-shell-integration"
+        },
+        "qt_dependencies": [
+          "Core",
+          "Gui",
+          "GuiPrivate",
+          "WaylandClientPrivate"
+        ],
+        "source": "src/plugins/shellintegration/ivi-shell/CMakeLists.txt",
+        "target": "QWaylandIviShellIntegrationPlugin"
+      },
+      {
+        "header_only": false,
+        "kind": "plugin",
+        "line_end": 22,
+        "line_start": 8,
+        "native_dependencies": [
+          "Wayland::Client"
+        ],
+        "properties": {
+          "OUTPUT_NAME": "qt-shell",
+          "PLUGIN_TYPE": "wayland-shell-integration"
+        },
+        "qt_dependencies": [
+          "Core",
+          "Gui",
+          "GuiPrivate",
+          "WaylandClientPrivate"
+        ],
+        "source": "src/plugins/shellintegration/qt-shell/CMakeLists.txt",
+        "target": "QWaylandQtShellIntegrationPlugin"
+      },
+      {
+        "condition": "TARGET Qt::Qml",
+        "header_only": false,
+        "kind": "qml_module",
+        "line_end": 248,
+        "line_start": 235,
+        "native_dependencies": [],
+        "notes": "Attaches QML module to existing WaylandCompositor target; does not add a second compositor library.",
+        "properties": {
+          "PLUGIN_TARGET": "qwaylandcompositorplugin",
+          "QML_DEPENDENCIES": [
+            "QtQuick"
+          ],
+          "QML_FILES": [
+            "qmlfiles/WaylandCursorItem.qml",
+            "qmlfiles/WaylandOutputWindow.qml"
+          ],
+          "URI": "QtWayland.Compositor"
+        },
+        "qt_dependencies": [
+          "Qml",
+          "Quick"
+        ],
+        "source": "src/compositor/CMakeLists.txt",
+        "target": "WaylandCompositor"
+      }
+    ],
+    "upstream_dependencies": {
+      "qtbase": "025bdad181de241e81bf853c8a2d7bf3d19261a9",
+      "qtdeclarative": "4332fbbb4c340463dc8cee36dda0c85d932122d8",
+      "qtsvg": "883a58532078d003cefef0a549bfe9f885ce41f5"
+    }
+  },
+  "recipe_basis_commit": "b05267833d497ef034576741bf31968019a526c3",
+  "retained_package_observations": {
+    "hyprland-qt-support": {
+      "ELF_summary": {
+        "actual16k_load": "NOT RUN",
+        "actual_runtime": "NOT RUN",
+        "class_values": [
+          64
+        ],
+        "file_count": 4,
+        "machine_values": [
+          183
+        ],
+        "paths": [
+          "usr/lib/libhyprland-quick-style-impl.so",
+          "usr/lib/libhyprland-quick-style.so",
+          "usr/lib/qt6/qml/org/hyprland/style/impl/libhyprland-quick-style-implplugin.so",
+          "usr/lib/qt6/qml/org/hyprland/style/libhyprland-quick-styleplugin.so"
+        ]
+      },
+      "architecture": "aarch64",
+      "depends": [
+        "libgcc",
+        "libstdc++",
+        "glibc",
+        "hyprlang",
+        "libhyprlang.so=2-64",
+        "qt6-base",
+        "qt6-declarative"
+      ],
+      "exact_DT_NEEDED_and_GNU_versions": "NOT_RETAINED_BY_THIS_OBSERVATION_SCHEMA",
+      "makedepends": [
+        "cmake"
+      ],
+      "optdepends": [],
+      "provides": [
+        "libhyprland-quick-style-impl.so=libhyprland-quick-style-impl.so-64",
+        "libhyprland-quick-style.so=libhyprland-quick-style.so-64",
+        "libhyprland-quick-style-implplugin.so",
+        "libhyprland-quick-styleplugin.so"
+      ],
+      "version": "0.1.0-14"
+    },
+    "hyprpolkitagent": {
+      "ELF_summary": {
+        "actual16k_load": "NOT RUN",
+        "actual_runtime": "NOT RUN",
+        "class_values": [
+          64
+        ],
+        "file_count": 1,
+        "machine_values": [
+          183
+        ],
+        "paths": [
+          "usr/lib/hyprpolkitagent/hyprpolkitagent"
+        ]
+      },
+      "architecture": "aarch64",
+      "depends": [
+        "libgcc",
+        "libstdc++",
+        "glibc",
+        "hyprgraphics",
+        "hyprland-qt-support",
+        "hyprtoolkit",
+        "hyprutils",
+        "polkit-qt6",
+        "qt6-base",
+        "qt6-declarative",
+        "sdbus-cpp"
+      ],
+      "exact_DT_NEEDED_and_GNU_versions": "NOT_RETAINED_BY_THIS_OBSERVATION_SCHEMA",
+      "makedepends": [
+        "cmake"
+      ],
+      "optdepends": [],
+      "provides": [],
+      "version": "0.2.0-1"
+    },
+    "polkit-qt6": {
+      "ELF_summary": {
+        "actual16k_load": "NOT RUN",
+        "actual_runtime": "NOT RUN",
+        "class_values": [
+          64
+        ],
+        "file_count": 3,
+        "machine_values": [
+          183
+        ],
+        "paths": [
+          "usr/lib/libpolkit-qt6-agent-1.so.1.201.1",
+          "usr/lib/libpolkit-qt6-core-1.so.1.201.1",
+          "usr/lib/libpolkit-qt6-gui-1.so.1.201.1"
+        ]
+      },
+      "architecture": "aarch64",
+      "depends": [
+        "libgcc",
+        "libstdc++",
+        "glib2",
+        "glibc",
+        "polkit",
+        "qt6-base"
+      ],
+      "exact_DT_NEEDED_and_GNU_versions": "NOT_RETAINED_BY_THIS_OBSERVATION_SCHEMA",
+      "makedepends": [
+        "cmake",
+        "qt5-base",
+        "qt6-base"
+      ],
+      "optdepends": [],
+      "provides": [],
+      "version": "0.201.1-1"
+    },
+    "qt6-base": {
+      "ELF_summary": {
+        "actual16k_load": "NOT RUN",
+        "actual_runtime": "NOT RUN",
+        "class_values": [
+          64
+        ],
+        "file_count": 85,
+        "machine_values": [
+          183
+        ],
+        "top_level_qt_module_paths": [
+          "usr/lib/libQt6Concurrent.so.6.12.0",
+          "usr/lib/libQt6Core.so.6.12.0",
+          "usr/lib/libQt6DBus.so.6.12.0",
+          "usr/lib/libQt6EglFSDeviceIntegration.so.6.12.0",
+          "usr/lib/libQt6EglFsKmsGbmSupport.so.6.12.0",
+          "usr/lib/libQt6EglFsKmsSupport.so.6.12.0",
+          "usr/lib/libQt6Gui.so.6.12.0",
+          "usr/lib/libQt6Network.so.6.12.0",
+          "usr/lib/libQt6OpenGL.so.6.12.0",
+          "usr/lib/libQt6OpenGLWidgets.so.6.12.0",
+          "usr/lib/libQt6PrintSupport.so.6.12.0",
+          "usr/lib/libQt6Sql.so.6.12.0",
+          "usr/lib/libQt6Test.so.6.12.0",
+          "usr/lib/libQt6WaylandClient.so.6.12.0",
+          "usr/lib/libQt6Widgets.so.6.12.0",
+          "usr/lib/libQt6WlShellIntegration.so.6.12.0",
+          "usr/lib/libQt6XcbQpa.so.6.12.0",
+          "usr/lib/libQt6Xml.so.6.12.0"
+        ]
+      },
+      "architecture": "aarch64",
+      "depends": [
+        "brotli",
+        "dbus",
+        "double-conversion",
+        "fontconfig",
+        "freetype2",
+        "glib2",
+        "glibc",
+        "harfbuzz",
+        "icu",
+        "krb5",
+        "libb2",
+        "libcups",
+        "libdrm",
+        "libgcc",
+        "libgl",
+        "libice",
+        "libinput",
+        "libjpeg-turbo",
+        "libpng",
+        "libproxy",
+        "libsm",
+        "libstdc++",
+        "liburing",
+        "libx11",
+        "libxcb",
+        "libxkbcommon",
+        "libxkbcommon-x11",
+        "md4c",
+        "mesa",
+        "mtdev",
+        "openssl",
+        "pcre2",
+        "shared-mime-info",
+        "sqlite",
+        "systemd-libs",
+        "tslib",
+        "wayland",
+        "xcb-util-cursor",
+        "xcb-util-image",
+        "xcb-util-keysyms",
+        "xcb-util-renderutil",
+        "xcb-util-wm",
+        "xdg-utils",
+        "zlib",
+        "zstd",
+        "qt6-translations"
+      ],
+      "exact_DT_NEEDED_and_GNU_versions": "NOT_RETAINED_BY_THIS_OBSERVATION_SCHEMA",
+      "makedepends": [
+        "alsa-lib",
+        "cmake",
+        "cups",
+        "freetds",
+        "git",
+        "gst-plugins-base-libs",
+        "gtk3",
+        "jemalloc",
+        "libfbclient",
+        "libpulse",
+        "mariadb-libs",
+        "ninja",
+        "postgresql",
+        "renderdoc",
+        "unixodbc",
+        "vulkan-headers",
+        "xmlstarlet"
+      ],
+      "optdepends": [
+        "freetds: MS SQL driver",
+        "gdk-pixbuf2: GTK platform plugin",
+        "gtk3: GTK platform plugin",
+        "libfbclient: Firebird/iBase driver",
+        "mariadb-libs: MariaDB driver",
+        "pango: GTK platform plugin",
+        "perl: for syncqt",
+        "postgresql-libs: PostgreSQL driver",
+        "unixodbc: ODBC driver"
+      ],
+      "provides": [
+        "libQt6Core.so.6"
+      ],
+      "version": "6.12.0-2"
+    },
+    "qt6-declarative": {
+      "ELF_summary": {
+        "actual16k_load": "NOT RUN",
+        "actual_runtime": "NOT RUN",
+        "class_values": [
+          64
+        ],
+        "file_count": 135,
+        "machine_values": [
+          183
+        ],
+        "top_level_qt_module_paths": [
+          "usr/lib/libQt6LabsAnimation.so.6.12.0",
+          "usr/lib/libQt6LabsFolderListModel.so.6.12.0",
+          "usr/lib/libQt6LabsPlatform.so.6.12.0",
+          "usr/lib/libQt6LabsQmlModels.so.6.12.0",
+          "usr/lib/libQt6LabsSettings.so.6.12.0",
+          "usr/lib/libQt6LabsSharedImage.so.6.12.0",
+          "usr/lib/libQt6LabsStyleKit.so.6.12.0",
+          "usr/lib/libQt6LabsStyleKitImpl.so.6.12.0",
+          "usr/lib/libQt6LabsSynchronizer.so.6.12.0",
+          "usr/lib/libQt6LabsWavefrontMesh.so.6.12.0",
+          "usr/lib/libQt6Qml.so.6.12.0",
+          "usr/lib/libQt6QmlCompiler.so.6.12.0",
+          "usr/lib/libQt6QmlCore.so.6.12.0",
+          "usr/lib/libQt6QmlDesignSupport.so.6.12.0",
+          "usr/lib/libQt6QmlLocalStorage.so.6.12.0",
+          "usr/lib/libQt6QmlMeta.so.6.12.0",
+          "usr/lib/libQt6QmlModels.so.6.12.0",
+          "usr/lib/libQt6QmlNetwork.so.6.12.0",
+          "usr/lib/libQt6QmlWorkerScript.so.6.12.0",
+          "usr/lib/libQt6QmlXmlListModel.so.6.12.0",
+          "usr/lib/libQt6Quick.so.6.12.0",
+          "usr/lib/libQt6QuickControls2.so.6.12.0",
+          "usr/lib/libQt6QuickControls2Basic.so.6.12.0",
+          "usr/lib/libQt6QuickControls2BasicStyleImpl.so.6.12.0",
+          "usr/lib/libQt6QuickControls2FluentWinUI3.so.6.12.0",
+          "usr/lib/libQt6QuickControls2FluentWinUI3StyleImpl.so.6.12.0",
+          "usr/lib/libQt6QuickControls2Fusion.so.6.12.0",
+          "usr/lib/libQt6QuickControls2FusionStyleImpl.so.6.12.0",
+          "usr/lib/libQt6QuickControls2Imagine.so.6.12.0",
+          "usr/lib/libQt6QuickControls2ImagineStyleImpl.so.6.12.0",
+          "usr/lib/libQt6QuickControls2Impl.so.6.12.0",
+          "usr/lib/libQt6QuickControls2Material.so.6.12.0",
+          "usr/lib/libQt6QuickControls2MaterialStyleImpl.so.6.12.0",
+          "usr/lib/libQt6QuickControls2Native.so.6.12.0",
+          "usr/lib/libQt6QuickControls2Universal.so.6.12.0",
+          "usr/lib/libQt6QuickControls2UniversalStyleImpl.so.6.12.0",
+          "usr/lib/libQt6QuickDialogs2.so.6.12.0",
+          "usr/lib/libQt6QuickDialogs2QuickImpl.so.6.12.0",
+          "usr/lib/libQt6QuickDialogs2Utils.so.6.12.0",
+          "usr/lib/libQt6QuickEffects.so.6.12.0",
+          "usr/lib/libQt6QuickLayouts.so.6.12.0",
+          "usr/lib/libQt6QuickParticles.so.6.12.0",
+          "usr/lib/libQt6QuickShapes.so.6.12.0",
+          "usr/lib/libQt6QuickShapesDesignHelpers.so.6.12.0",
+          "usr/lib/libQt6QuickTemplates2.so.6.12.0",
+          "usr/lib/libQt6QuickTest.so.6.12.0",
+          "usr/lib/libQt6QuickVectorImage.so.6.12.0",
+          "usr/lib/libQt6QuickVectorImageGenerator.so.6.12.0",
+          "usr/lib/libQt6QuickVectorImageHelpers.so.6.12.0",
+          "usr/lib/libQt6QuickWidgets.so.6.12.0"
+        ]
+      },
+      "architecture": "aarch64",
+      "depends": [
+        "glibc",
+        "libgcc",
+        "libstdc++",
+        "qt6-base"
+      ],
+      "exact_DT_NEEDED_and_GNU_versions": "NOT_RETAINED_BY_THIS_OBSERVATION_SCHEMA",
+      "makedepends": [
+        "cmake",
+        "git",
+        "ninja",
+        "python",
+        "qt6-languageserver",
+        "qt6-shadertools",
+        "qt6-svg",
+        "vulkan-headers"
+      ],
+      "optdepends": [
+        "qt6-svg: for QtQuickVectorImage and svgtoqml"
+      ],
+      "provides": [],
+      "version": "6.12.0-1"
+    },
+    "qt6-translations": {
+      "ELF_summary": {
+        "actual16k_load": "NOT RUN",
+        "actual_runtime": "NOT RUN",
+        "class_values": [],
+        "file_count": 0,
+        "machine_values": [],
+        "paths": []
+      },
+      "architecture": "any",
+      "depends": [],
+      "exact_DT_NEEDED_and_GNU_versions": "NOT_RETAINED_BY_THIS_OBSERVATION_SCHEMA",
+      "makedepends": [
+        "cmake",
+        "git",
+        "ninja",
+        "qt6-tools"
+      ],
+      "optdepends": [],
+      "provides": [],
+      "version": "6.12.0-1"
+    },
+    "xdg-desktop-portal-hyprland": {
+      "ELF_summary": {
+        "actual16k_load": "NOT RUN",
+        "actual_runtime": "NOT RUN",
+        "class_values": [
+          64
+        ],
+        "file_count": 2,
+        "machine_values": [
+          183
+        ],
+        "paths": [
+          "usr/bin/hyprland-share-picker",
+          "usr/lib/xdg-desktop-portal-hyprland"
+        ]
+      },
+      "architecture": "aarch64",
+      "depends": [
+        "libgcc",
+        "libstdc++",
+        "glibc",
+        "hyprlang",
+        "libhyprlang.so=2-64",
+        "hyprutils",
+        "libhyprutils.so=13-64",
+        "libinih",
+        "pipewire",
+        "qt6-base",
+        "sdbus-cpp",
+        "libsdbus-c++.so=2-64",
+        "util-linux-libs",
+        "libuuid.so=1-64",
+        "xdg-desktop-portal"
+      ],
+      "exact_DT_NEEDED_and_GNU_versions": "NOT_RETAINED_BY_THIS_OBSERVATION_SCHEMA",
+      "makedepends": [
+        "cmake",
+        "hyprland-protocols",
+        "hyprwayland-scanner",
+        "wayland",
+        "wayland-protocols"
+      ],
+      "optdepends": [
+        "grim: required for the screenshot portal to function",
+        "slurp: support for interactive mode for the screenshot portal"
+      ],
+      "provides": [
+        "xdg-desktop-portal-impl"
+      ],
+      "version": "1.4.1-2"
+    }
+  },
+  "schema": 1,
+  "separate_elf_catalog_evidence": {
+    "compressed": {
+      "bytes": 3972352,
+      "sha256": "a69964dc50033bad129e9cef490061db1a32de682ddd52779646fe831c97196d"
+    },
+    "desktop_application_exact_ELF_joins": "UNAVAILABLE_IN_SCOPED_RETAINED_OBSERVATIONS",
+    "modules": {
+      "qt6-base": {
+        "libQt6Concurrent.so.6": "/usr/lib/libQt6Concurrent.so.6.12.0",
+        "libQt6Core.so.6": "/usr/lib/libQt6Core.so.6.12.0",
+        "libQt6DBus.so.6": "/usr/lib/libQt6DBus.so.6.12.0",
+        "libQt6EglFSDeviceIntegration.so.6": "/usr/lib/libQt6EglFSDeviceIntegration.so.6.12.0",
+        "libQt6EglFsKmsGbmSupport.so.6": "/usr/lib/libQt6EglFsKmsGbmSupport.so.6.12.0",
+        "libQt6EglFsKmsSupport.so.6": "/usr/lib/libQt6EglFsKmsSupport.so.6.12.0",
+        "libQt6Gui.so.6": "/usr/lib/libQt6Gui.so.6.12.0",
+        "libQt6Network.so.6": "/usr/lib/libQt6Network.so.6.12.0",
+        "libQt6OpenGL.so.6": "/usr/lib/libQt6OpenGL.so.6.12.0",
+        "libQt6OpenGLWidgets.so.6": "/usr/lib/libQt6OpenGLWidgets.so.6.12.0",
+        "libQt6PrintSupport.so.6": "/usr/lib/libQt6PrintSupport.so.6.12.0",
+        "libQt6Sql.so.6": "/usr/lib/libQt6Sql.so.6.12.0",
+        "libQt6Test.so.6": "/usr/lib/libQt6Test.so.6.12.0",
+        "libQt6WaylandClient.so.6": "/usr/lib/libQt6WaylandClient.so.6.12.0",
+        "libQt6Widgets.so.6": "/usr/lib/libQt6Widgets.so.6.12.0",
+        "libQt6WlShellIntegration.so.6": "/usr/lib/libQt6WlShellIntegration.so.6.12.0",
+        "libQt6XcbQpa.so.6": "/usr/lib/libQt6XcbQpa.so.6.12.0",
+        "libQt6Xml.so.6": "/usr/lib/libQt6Xml.so.6.12.0"
+      },
+      "qt6-declarative": {
+        "libQt6LabsAnimation.so.6": "/usr/lib/libQt6LabsAnimation.so.6.12.0",
+        "libQt6LabsFolderListModel.so.6": "/usr/lib/libQt6LabsFolderListModel.so.6.12.0",
+        "libQt6LabsPlatform.so.6": "/usr/lib/libQt6LabsPlatform.so.6.12.0",
+        "libQt6LabsQmlModels.so.6": "/usr/lib/libQt6LabsQmlModels.so.6.12.0",
+        "libQt6LabsSettings.so.6": "/usr/lib/libQt6LabsSettings.so.6.12.0",
+        "libQt6LabsSharedImage.so.6": "/usr/lib/libQt6LabsSharedImage.so.6.12.0",
+        "libQt6LabsStyleKit.so.6": "/usr/lib/libQt6LabsStyleKit.so.6.12.0",
+        "libQt6LabsStyleKitImpl.so.6": "/usr/lib/libQt6LabsStyleKitImpl.so.6.12.0",
+        "libQt6LabsSynchronizer.so.6": "/usr/lib/libQt6LabsSynchronizer.so.6.12.0",
+        "libQt6LabsWavefrontMesh.so.6": "/usr/lib/libQt6LabsWavefrontMesh.so.6.12.0",
+        "libQt6Qml.so.6": "/usr/lib/libQt6Qml.so.6.12.0",
+        "libQt6QmlCompiler.so.6": "/usr/lib/libQt6QmlCompiler.so.6.12.0",
+        "libQt6QmlCore.so.6": "/usr/lib/libQt6QmlCore.so.6.12.0",
+        "libQt6QmlDesignSupport.so.6": "/usr/lib/libQt6QmlDesignSupport.so.6.12.0",
+        "libQt6QmlLocalStorage.so.6": "/usr/lib/libQt6QmlLocalStorage.so.6.12.0",
+        "libQt6QmlMeta.so.6": "/usr/lib/libQt6QmlMeta.so.6.12.0",
+        "libQt6QmlModels.so.6": "/usr/lib/libQt6QmlModels.so.6.12.0",
+        "libQt6QmlNetwork.so.6": "/usr/lib/libQt6QmlNetwork.so.6.12.0",
+        "libQt6QmlWorkerScript.so.6": "/usr/lib/libQt6QmlWorkerScript.so.6.12.0",
+        "libQt6QmlXmlListModel.so.6": "/usr/lib/libQt6QmlXmlListModel.so.6.12.0",
+        "libQt6Quick.so.6": "/usr/lib/libQt6Quick.so.6.12.0",
+        "libQt6QuickControls2.so.6": "/usr/lib/libQt6QuickControls2.so.6.12.0",
+        "libQt6QuickControls2Basic.so.6": "/usr/lib/libQt6QuickControls2Basic.so.6.12.0",
+        "libQt6QuickControls2BasicStyleImpl.so.6": "/usr/lib/libQt6QuickControls2BasicStyleImpl.so.6.12.0",
+        "libQt6QuickControls2FluentWinUI3.so.6": "/usr/lib/libQt6QuickControls2FluentWinUI3.so.6.12.0",
+        "libQt6QuickControls2FluentWinUI3StyleImpl.so.6": "/usr/lib/libQt6QuickControls2FluentWinUI3StyleImpl.so.6.12.0",
+        "libQt6QuickControls2Fusion.so.6": "/usr/lib/libQt6QuickControls2Fusion.so.6.12.0",
+        "libQt6QuickControls2FusionStyleImpl.so.6": "/usr/lib/libQt6QuickControls2FusionStyleImpl.so.6.12.0",
+        "libQt6QuickControls2Imagine.so.6": "/usr/lib/libQt6QuickControls2Imagine.so.6.12.0",
+        "libQt6QuickControls2ImagineStyleImpl.so.6": "/usr/lib/libQt6QuickControls2ImagineStyleImpl.so.6.12.0",
+        "libQt6QuickControls2Impl.so.6": "/usr/lib/libQt6QuickControls2Impl.so.6.12.0",
+        "libQt6QuickControls2Material.so.6": "/usr/lib/libQt6QuickControls2Material.so.6.12.0",
+        "libQt6QuickControls2MaterialStyleImpl.so.6": "/usr/lib/libQt6QuickControls2MaterialStyleImpl.so.6.12.0",
+        "libQt6QuickControls2Native.so.6": "/usr/lib/libQt6QuickControls2Native.so.6.12.0",
+        "libQt6QuickControls2Universal.so.6": "/usr/lib/libQt6QuickControls2Universal.so.6.12.0",
+        "libQt6QuickControls2UniversalStyleImpl.so.6": "/usr/lib/libQt6QuickControls2UniversalStyleImpl.so.6.12.0",
+        "libQt6QuickDialogs2.so.6": "/usr/lib/libQt6QuickDialogs2.so.6.12.0",
+        "libQt6QuickDialogs2QuickImpl.so.6": "/usr/lib/libQt6QuickDialogs2QuickImpl.so.6.12.0",
+        "libQt6QuickDialogs2Utils.so.6": "/usr/lib/libQt6QuickDialogs2Utils.so.6.12.0",
+        "libQt6QuickEffects.so.6": "/usr/lib/libQt6QuickEffects.so.6.12.0",
+        "libQt6QuickLayouts.so.6": "/usr/lib/libQt6QuickLayouts.so.6.12.0",
+        "libQt6QuickParticles.so.6": "/usr/lib/libQt6QuickParticles.so.6.12.0",
+        "libQt6QuickShapes.so.6": "/usr/lib/libQt6QuickShapes.so.6.12.0",
+        "libQt6QuickShapesDesignHelpers.so.6": "/usr/lib/libQt6QuickShapesDesignHelpers.so.6.12.0",
+        "libQt6QuickTemplates2.so.6": "/usr/lib/libQt6QuickTemplates2.so.6.12.0",
+        "libQt6QuickTest.so.6": "/usr/lib/libQt6QuickTest.so.6.12.0",
+        "libQt6QuickVectorImage.so.6": "/usr/lib/libQt6QuickVectorImage.so.6.12.0",
+        "libQt6QuickVectorImageGenerator.so.6": "/usr/lib/libQt6QuickVectorImageGenerator.so.6.12.0",
+        "libQt6QuickVectorImageHelpers.so.6": "/usr/lib/libQt6QuickVectorImageHelpers.so.6.12.0",
+        "libQt6QuickWidgets.so.6": "/usr/lib/libQt6QuickWidgets.so.6.12.0"
+      }
+    },
+    "path": "scripts/ci/bankstown-qt3-source79-local-data/inputs/catalog333.DATA.json.gz",
+    "qt_versions": {
+      "qt6-base": "6.12.0-3",
+      "qt6-declarative": "6.12.0-1"
+    },
+    "qt_wayland_package_present": false,
+    "qtdeclarative_svg_needed_joins": [
+      {
+        "consumer": "/usr/lib/libQt6QuickVectorImageGenerator.so.6.12.0",
+        "needed": "libQt6Svg.so.6",
+        "provider": "/usr/lib/libQt6Svg.so.6.12.0"
+      }
+    ],
+    "raw": {
+      "bytes": 27829517,
+      "sha256": "aa612232f6bf711b9d1137ec8e10c8aaca99d026f26fce2b1954f64c9973b673"
+    },
+    "role": "Independent retained constructor metadata, not automatic desktop selection or required full72-module target."
+  },
+  "server_feature_provider_audit": {
+    "actual_compile": null,
+    "actual_configure": null,
+    "gui18_declared_and_generated_server_feature": "OFF",
+    "gui18_host_generated_evidence": {
+      "files": {
+        "CMakeCache.txt": {
+          "bytes": 311171,
+          "line_ranges": [
+            [
+              1727,
+              1727
+            ],
+            [
+              7165,
+              7165
+            ]
+          ],
+          "sha256": "794d398ac7e8c1450db7d853d0a739ed6a0a3a7360fd4caeeb3f739925711a57"
+        },
+        "lib/cmake/Qt6Gui/Qt6GuiConfig.cmake": {
+          "bytes": 9261,
+          "line_ranges": [
+            [
+              198,
+              200
+            ]
+          ],
+          "sha256": "d7f544031cb18de660baab87b0d6e1ea5efa0c54721cfa48b7f3f60508a64d8b"
+        },
+        "lib/cmake/Qt6Gui/Qt6GuiTargets.cmake": {
+          "bytes": 7213,
+          "line_ranges": [
+            [
+              61,
+              63
+            ]
+          ],
+          "sha256": "040756da4eb04959116cb0db00d9774b9634e34c0dfe8ed1b04be6369fe2fbdc"
+        },
+        "src/gui/qtgui-config.h": {
+          "bytes": 2213,
+          "line_ranges": [
+            [
+              32,
+              32
+            ],
+            [
+              118,
+              120
+            ]
+          ],
+          "sha256": "e618763a567cbd0c315edd7f0f2994b8fcbddd4e117cfb4f40816285dcd5c81a"
+        },
+        "src/gui/qtgui-config_p.h": {
+          "bytes": 3069,
+          "line_ranges": [
+            [
+              130,
+              132
+            ]
+          ],
+          "sha256": "4665e4f286d741be050009e7537485d0b4069237ba1692b494cb2af6d6c60710"
+        }
+      },
+      "observed": {
+        "QT_FEATURE_wayland_server": "OFF",
+        "egl": true,
+        "exported_disabled_private_feature": true,
+        "qtgui_private_macro": -1,
+        "wayland": true,
+        "wayland_client": true,
+        "waylandscanner": true
+      },
+      "role": "External GUI18 host-audit configure-build, not an installed/native provider"
+    },
+    "gui18_recipe_unchanged": true,
+    "qtbase_source_files": {
+      "cmake/QtBaseHelpers.cmake": {
+        "bytes": 12459,
+        "line_ranges": [
+          [
+            159,
+            213
+          ],
+          [
+            292,
+            299
+          ]
+        ],
+        "sha256": "d76bbecc2aee9469e84f1fc4ffff02e37da74194809c1c96e96c8d5d20f5f0f8"
+      },
+      "cmake/QtBuildHelpers.cmake": {
+        "bytes": 19258,
+        "line_ranges": [
+          [
+            446,
+            446
+          ],
+          [
+            524,
+            525
+          ]
+        ],
+        "sha256": "8afd5aaa0533d11a401e25b8a20a25cec2d73579caf0baf2cbf24e6956a47fee"
+      },
+      "cmake/QtBuildPathsHelpers.cmake": {
+        "bytes": 13568,
+        "line_ranges": [
+          [
+            165,
+            168
+          ]
+        ],
+        "sha256": "274b41a1ea10e737bc16d5e7c715d6ce95cc8ba6ca70ed3a6b05723647737eab"
+      },
+      "cmake/QtBuildRepoHelpers.cmake": {
+        "bytes": 52862,
+        "line_ranges": [
+          [
+            26,
+            35
+          ],
+          [
+            236,
+            242
+          ]
+        ],
+        "sha256": "de8c96c461b6e2585d2318e9fe1a83bfb047c3639f3e97d4c53fba94aa86ff54"
+      },
+      "cmake/QtFeature.cmake": {
+        "bytes": 83513,
+        "line_ranges": [
+          [
+            43,
+            49
+          ],
+          [
+            819,
+            838
+          ],
+          [
+            877,
+            885
+          ],
+          [
+            1171,
+            1200
+          ],
+          [
+            1245,
+            1250
+          ],
+          [
+            1296,
+            1305
+          ],
+          [
+            1444,
+            1469
+          ],
+          [
+            2073,
+            2110
+          ]
+        ],
+        "sha256": "2755378207102fa22d73ec6c3fa0bbbeb0436b97c883f870c64f73bc63d04640"
+      },
+      "cmake/QtModuleConfig.cmake.in": {
+        "bytes": 10395,
+        "line_ranges": [
+          [
+            164,
+            165
+          ]
+        ],
+        "sha256": "eedd36677c645621bcee6ebddc6a6dfae0860449d6d68b3b0964393e0e6ceeb7"
+      },
+      "cmake/QtModuleHelpers.cmake": {
+        "bytes": 91502,
+        "line_ranges": [
+          [
+            763,
+            774
+          ],
+          [
+            795,
+            795
+          ]
+        ],
+        "sha256": "31617f26c2d07b85d3e20aaaba5ab16f12a27a0bfac0dcfe4ab30ca7d8f97700"
+      },
+      "cmake/QtSetup.cmake": {
+        "bytes": 246,
+        "line_ranges": [
+          [
+            1,
+            6
+          ]
+        ],
+        "sha256": "cad44fdd8ecd3506986b2e98addddcd03bd320a32064f287f4a983fb28100c86"
+      },
+      "src/gui/configure.cmake": {
+        "bytes": 57268,
+        "line_ranges": [
+          [
+            1548,
+            1570
+          ]
+        ],
+        "sha256": "610ab871e23697d3f84da088cea322423ace5002a7b180982e5a674c6ab31943"
+      },
+      "src/gui/kernel/qtguiglobal.h": {
+        "bytes": 355,
+        "line_ranges": [
+          [
+            6,
+            12
+          ]
+        ],
+        "sha256": "5a74675400ed63acf28ea2efa39c0559f9564225a458a23ba33ef14a96990200"
+      },
+      "src/gui/kernel/qtguiglobal_p.h": {
+        "bytes": 626,
+        "line_ranges": [
+          [
+            18,
+            23
+          ]
+        ],
+        "sha256": "b50794a128fe4372f40cebcb1a48e9f79c08ed03ddb9dcb636c0ab24dd2f9dea"
+      }
+    },
+    "reasoning": [
+      "Gui package import calls qt_make_features_available, which imports both private/public feature values into shared QT_FEATURE_<name> cache variables. The feature key is not module-qualified.",
+      "QtWayland src/CMakeLists.txt gates add_subdirectory(compositor) on QT_FEATURE_wayland_server before the child compositor/configure.cmake declaration can execute.",
+      "qt_evaluate_feature returns immediately for an already defined QT_FEATURE_<name>; defining the same name in another module is not proof of independent override.",
+      "Dirty-feature cleanup resets only QT_KNOWN_FEATURES once per configuration cycle. Imported qt_make_features_available does not register those features in that list; no supported local override of the imported OFF value is established by this audit.",
+      "Generated configuration files have module-specific file/include guards, but generated feature macro names remain QT_FEATURE_<name>. Compositor private global header includes QtGui private config before its own private config; separate filenames do not establish a safe conflicting macro definition.",
+      "No QtWayland configure/compiler probe was run. This source audit does not prove every possible adaptation impossible; it refuses an unproven independent-server-ON claim against unchanged GUI18."
+    ],
+    "required_provider_obligation": "A separately selected compatible QtGui provider exporting consistent server-ON cache/headers, or separately reviewed and demonstrated upstream-supported feature handling. This audit selects neither and never edits GUI18.",
+    "source_evidence": {
+      "child_feature": "qtwayland src/compositor/configure.cmake:63-66",
+      "compositor_entry": "qtwayland src/CMakeLists.txt:40-42",
+      "early_return": "qtbase cmake/QtFeature.cmake:877-885",
+      "gui_import": "qtbase cmake/QtModuleConfig.cmake.in:164-165; generated Qt6GuiConfig.cmake:198-200",
+      "header_chain": "qtwayland src/compositor/global/qtwaylandcompositorglobal_p.h:18-21; qtbase src/gui/kernel/qtguiglobal_p.h:21",
+      "shared_feature_cache": "qtbase cmake/QtFeature.cmake:2073-2110"
+    },
+    "status": "HELD_COMPATIBLE_GUI_SERVER_FEATURE_PROVIDER_NOT_ESTABLISHED"
+  },
+  "status": "SOURCE_AND_RETAINED_METADATA_AUDIT_ONLY_NO_BUILD_OR_NATIVE_ACCEPTANCE"
+}

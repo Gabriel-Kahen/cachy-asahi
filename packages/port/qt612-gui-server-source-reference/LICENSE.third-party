@@ -1,0 +1,11 @@
+LicenseRef-Qt-ThirdParty is an index to component-specific upstream grants,
+not a new license or a blanket license for Qt.
+
+The source/ subtree preserves original notices, all LICENSES texts,
+qt_attribution.json records and their referenced license bodies in their
+original source-relative layout. source-notices.json pins the exact bytes.
+The applicable grant remains the original per-file SPDX expression and
+component notice. Qt libraries, tools, documentation and third-party code
+have different terms; this candidate does not claim commercial Qt rights.
+
+The project recipe/helper license is recorded separately in LICENSE.packaging.
