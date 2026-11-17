@@ -576,7 +576,7 @@ jobs:
           from pathlib import Path
           spec = importlib.util.spec_from_file_location('measurement_components', 'scripts/ci/measurement-tools-components-v1.py')
           measurement = importlib.util.module_from_spec(spec); spec.loader.exec_module(measurement)
-          for directory in ('scripts/release', 'scripts/client', 'scripts/benchmarks'):
+          for directory in ('scripts/release', 'scripts/release/install_inventory', 'scripts/client', 'scripts/benchmarks'):
               suite = unittest.TestLoader().discover(directory, pattern='test_*.py')
               with tempfile.TemporaryDirectory(prefix='static-measurement-source-') as temporary:
                   with measurement.discovered_source_fixture(suite, Path.cwd(), Path(temporary)):
