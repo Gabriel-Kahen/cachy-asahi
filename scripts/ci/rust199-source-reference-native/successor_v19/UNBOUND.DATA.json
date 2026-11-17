@@ -1,0 +1,30 @@
+{
+  "schema": 19,
+  "kind": "RUST199_PROJECT_TEST_PROVIDER_SUCCESSOR_V19_UNBOUND",
+  "interface": "14ddf20677652e1d4057798ddf04734924668ae9",
+  "official_predecessor": "8128cd73c85d533092d081f0b9131b2ca9893ecd",
+  "provider_policy": null,
+  "Root_provider_decision": null,
+  "llhttp_archive_signature_TEST_key_source_license_native_receipts": null,
+  "libgit2_archive_signature_TEST_key_source_license_native_receipts": null,
+  "constructor_profile": null,
+  "actual": {
+    "source": null,
+    "ref": null,
+    "run": null,
+    "job": null,
+    "approval": null,
+    "artifact": null,
+    "image": null
+  },
+  "Root_grants": null,
+  "dispatch": null,
+  "runtime": null,
+  "Root_acceptance": null,
+  "native_acceptance": false,
+  "release_acceptance": false,
+  "ALARM_authentication": false,
+  "native": "NOT RUN",
+  "signing": "NOT RUN",
+  "Source_publication": "NOT RUN"
+}
