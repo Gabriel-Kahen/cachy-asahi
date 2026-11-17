@@ -7,6 +7,7 @@ import base64
 import importlib.util
 import json
 from pathlib import Path
+import re
 
 HERE=Path(__file__).resolve().parent
 if not (HERE/'prepare.py').exists():HERE=Path('/home/gabe/Documents/ChatGPT/cachy-asahi-native349-pinned-input-carrier-20261117/scripts/ci/native349-pinned-input-carrier')
@@ -50,6 +51,7 @@ def source_binding(root,publication=None,registration=None):
     if publication is not None:
         path,digest=publication;raw=P.read(path);v=json.loads(raw)
         P.need(P.pin(raw)['sha256']==digest and v['issuer']=='Root' and v['status']=='PASS_COMPLETE_PUBLIC_GIT_READBACK_DATA_ONLY'
+            and type(v['source'])is str and re.fullmatch('[0-9a-f]{40}',v['source']) and type(v['ref'])is str and re.fullmatch('refs/heads/codex/[A-Za-z0-9_.-]+',v['ref'])
             and v['tree']==result['tree'] and v['source_map']==result['source_map'] and v['files']==95 and v['bytes']==result['source_bytes']
             and v['source']!=OLD_SOURCE and v['ref']!='refs/heads/'+OLD_REF and v['native']==v['M2']=='NOT RUN'
             and all(v[k]is True for k in('public_clone_complete','public_blob_tree_join','Root_independent_whole_file_mode_recheck','Root_independent_fresh_ref_commit_recheck')),'actual exact new Source publication only')
