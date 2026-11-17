@@ -1,0 +1,43 @@
+{
+  "actual": {
+    "ALPM": null,
+    "M2": null,
+    "Perl_preservation": null,
+    "Root_qualification": null,
+    "VM": null,
+    "actor_tools_certificate": null,
+    "authority": null,
+    "fixture": null,
+    "native": null,
+    "release": null
+  },
+  "actual_public_closure": {
+    "bytes": 7556,
+    "sha256": "135759471cc66dbcafcc0b14600a0c5fc1badcc2e1fc6e458199eb0269f731dc",
+    "status": "PASS_DECODE_AND_UNCHANGED_F51C_EMPTY_INPUTS_ONLY"
+  },
+  "base_main": "0591d933fe29a5253081ce1a03531cb5ea8512c9",
+  "new_family": "arm16k_perl_initialized_lifecycle_vm",
+  "safe_projection": {
+    "bytes": 2129,
+    "runtime": "r76",
+    "sha256": "24eb8aa8a4dcf38a9b1b486ff80cfe373dd4bb4c55df5324ccbe33e7d9fc30c3",
+    "status": "COMPLETE_INITIALIZED_READONLY_SCAN_AND_CLEANUP_ONLY"
+  },
+  "status": "PASS_SOURCE_MODEL_AND_TEMPORARY_FILESYSTEM_ONLY",
+  "tests": 24,
+  "validation": [
+    "genuine predecessor and initialized seals",
+    "new closed constructed Source and complete byte/mode inverse",
+    "exact finite operational delta and compiled generated modules/bash syntax",
+    "cold present-path descriptor refusal",
+    "authenticated initialized snapshot mutation refusal",
+    "separate qualification/lifecycle profile Source joins and fixed bounds",
+    "fresh same-inode SSH privacy guard and cached-block race refusal",
+    "eight real ordinary temporary-tree guest preservation/privacy controls",
+    "exact public r74 closure decode and unchanged f51c empty_inputs gates",
+    "four exact observational timing paths; all other roles retain strict frozen loader",
+    "misplaced fractional, negative, boolean, duplicate, nonfinite, overflow, canonical, cap, alias, single-link and changed-read refusal"
+  ],
+  "version": 2
+}
