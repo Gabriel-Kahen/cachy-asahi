@@ -206,5 +206,15 @@ class Controls(unittest.TestCase):
             with self.subTest(key=key),self.assertRaisesRegex(ValueError,'AUTHORITY_MUST_REMAIN_UNISSUED'):
                 M.require_unissued(delegation,request)
 
+    def test_official_admission_template_is_never_actual_trust(self):
+        public = self.ref('public-model',b'MODEL PUBLIC DATA')
+        trust,admission = M.trust_templates(self.fingerprint,public)
+        self.assertIsNone(trust['Root_admission'])
+        self.assertIsNone(admission['issuer']);self.assertIsNone(admission['approved'])
+        self.assertIsNone(admission['issued_epoch']);self.assertIsNone(admission['expires_epoch'])
+        trust['Root_admission'] = self.ref('unissued-proposal',admission)
+        with self.assertRaisesRegex(ValueError,'FRESH_EXTERNAL_AUDIO_TRUST'):
+            M.bind_trust(A,N,trust,self.fingerprint,1000,{})
+
 
 if __name__ == '__main__':unittest.main()

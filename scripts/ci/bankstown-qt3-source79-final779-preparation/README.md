@@ -92,7 +92,10 @@ python3.14 -I -B -Werror scripts/ci/bankstown-qt3-source79-final779-preparation/
 ```
 
 Outputs include the owner inputs, provider tuple, custody template, delegation,
-request and report. A final envelope exists only when all 779 actual refs join.
+request and report. Official trust/admission templates also record the exact
+required fingerprint and scope with issuer, approval and validity null. These
+proposals never count as the two missing actual trust files. A final envelope
+exists only when all 779 actual refs join.
 Root request/delegation issuer, approved, nonce, validity and runtime fields
 remain null, `dispatch_ready` is always false, and the CLI installs an actor
 refusal fence. Failed preparation leaves partial DATA without a completion

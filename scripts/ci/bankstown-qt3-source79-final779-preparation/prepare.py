@@ -142,6 +142,12 @@ def require_unissued(delegation, request):
          and delegation['image_ids']['qt3'] is None, 'ROOT_AUTHORITY_MUST_REMAIN_UNISSUED')
 
 
+def trust_templates(fingerprint, public_key=None):
+    return (dict(Root_admission=None,public_key=public_key,fingerprint=fingerprint),
+            dict(issuer=None,approved=None,scope=TRUST_SCOPE,public_key=public_key,
+                 fingerprint=fingerprint,issued_epoch=None,expires_epoch=None))
+
+
 def prepare(*, repo, selection, selection_pin, output):
     A = bootstrap(repo); observed = {}
     repo, out = A.ordinary(str(repo)), A.ordinary(str(output))
@@ -239,6 +245,10 @@ def prepare(*, repo, selection, selection_pin, output):
         owner_ref = A.write(out/'owner-inputs.UNISSUED.DATA.json',owner,sink)
         provider_ref = A.write(out/'complete517.REBOUND.DATA.json',provider,sink)
         custody_ref = A.write(out/'Root-custody.UNISSUED.DATA.json',custody_template,sink)
+        trust_template,admission_template = trust_templates(plan['base']['signer_fingerprint'],
+            None if missing else owner['official_trust']['public_key'])
+        trust_ref = A.write(out/'official-trust.UNISSUED.DATA.json',trust_template,sink)
+        admission_ref = A.write(out/'Root-official-admission.UNISSUED.DATA.json',admission_template,sink)
         envelope_ref = None
         if not missing:
             delegation['inputs_pin'] = owner_pin
@@ -257,6 +267,8 @@ def prepare(*, repo, selection, selection_pin, output):
             report['missing_bindings'].append('Place small wrapper/output and every non-Source reference inside selected staged root before sealing')
         report.update(status='HOLD_MISSING_FINAL_TRUST_FILES' if missing else 'COMPLETE779_ASSEMBLED_DATA_ONLY',
             owner_inputs=owner_ref,provider=provider_ref,custody_template=custody_ref,staged_inputs=envelope_ref,
+            official_trust_template=trust_ref,Root_official_admission_template=admission_ref,
+            expected_official_fingerprint=plan['base']['signer_fingerprint'],
             Root_delegation=delegation_ref,Root_request=request_ref,staged_reference_confinement=confined)
         A.unchanged(observed)
         R.source_readiness(source)
