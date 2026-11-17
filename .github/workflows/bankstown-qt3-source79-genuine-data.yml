@@ -1,0 +1,122 @@
+name: Bankstown Source79 genuine DATA
+on:
+  workflow_dispatch:
+    inputs:
+      source79_commit:
+        type: string
+        required: true
+        description: Actual independently selected public Source79 commit SHA; no default
+permissions:
+  contents: read
+defaults:
+  run:
+    shell: bash
+jobs:
+  genuine:
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
+    name: Genuine Source79 DATA (${{ matrix.python }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python:
+          - '3.12'
+          - '3.14'
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      TMPDIR: ${{ runner.temp }}/bankstown-source79-genuine-${{ matrix.python }}
+    steps:
+      - name: Require actual immutable Source CID before checkout
+        id: selected
+        env:
+          SELECTED_SOURCE79: ${{ inputs.source79_commit }}
+        run: |
+          python3 -I -B - <<'PY'
+          import os,re
+          from pathlib import Path
+          selected=os.environ['SELECTED_SOURCE79']
+          assert re.fullmatch('[0-9a-f]{40}',selected)
+          with Path(os.environ['GITHUB_OUTPUT']).open('a') as stream:
+              stream.write('commit='+selected+'\n')
+          PY
+          mkdir -m 700 "$TMPDIR"
+      - name: Checkout reviewed DATA-check code at the selected workflow revision
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      # Root must select this actual CID after full publication/readback.
+      # No branch name, synthetic identity or unpublished candidate is supplied.
+      - name: Checkout actual immutable Source79 as opaque DATA
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: ${{ steps.selected.outputs.commit }}
+          path: .source79-genuine-data-repository
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Rejoin Source metadata and export a files-only fixture
+        env:
+          SELECTED_SOURCE79: ${{ steps.selected.outputs.commit }}
+        run: |
+          python3 -I -B - <<'PY'
+          import os,subprocess
+          from pathlib import Path
+          root=Path('.source79-genuine-data-repository').resolve()
+          def git(*args):
+              return subprocess.check_output(['git','--no-replace-objects','-C',str(root),
+                  '-c','core.hooksPath=/dev/null','-c','maintenance.auto=false','-c','gc.auto=0',*args])
+          selected=os.environ['SELECTED_SOURCE79']
+          assert git('rev-parse','HEAD').decode().strip()==selected
+          assert git('rev-parse','HEAD^{tree}').decode().strip()=='3a5082263b9e0bf1bd0ffc87b2dd9570d5effb8a'
+          header=git('cat-file','commit',selected).split(b'\n\n',1)[0]
+          assert not any(line.startswith(b'parent ') for line in header.splitlines())
+          forbidden={'15d272e7a4647495ecf98c1afc36e62477b0eb74','e1c763a74f7db48aba5e2c57757abc79233c8543',
+                     'fa96de743c6806092284a2069f2aa4c01234d200','fd2755ce0d8972b69f32b2412d80180b36aac377'}
+          rows=git('ls-tree','-r','--full-tree',selected).decode().splitlines()
+          assert len(rows)==79
+          assert not {row.split()[2] for row in rows}&forbidden
+          PY
+          umask 022
+          export_root="$TMPDIR/source79"
+          test ! -e "$export_root"
+          mkdir -m 700 "$export_root"
+          git --no-replace-objects -C .source79-genuine-data-repository -c core.attributesfile=/dev/null -c tar.umask=0022 archive --format=tar HEAD | tar -xf - -C "$export_root"
+      - name: Reconstruct the exact Source78 inverse with reviewed Main code
+        run: |
+          ulimit -v 524288
+          python3 -I -B -Werror - <<'PY'
+          import importlib.util,os
+          from pathlib import Path
+          path=Path('scripts/ci/bankstown-qt3-hosted-v1/prepare_dispatch.py').resolve()
+          spec=importlib.util.spec_from_file_location('ci_trusted_source79_inverse',path)
+          module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+          scratch=Path(os.environ['TMPDIR'])
+          original=module.snapshot(scratch/'source79')
+          inverse=module.inverse_files(original)
+          output=scratch/'inverse-source78'
+          assert not output.exists();output.mkdir(mode=0o700)
+          for name,(body,mode) in inverse.items():
+              target=output/name;target.parent.mkdir(parents=True,exist_ok=True)
+              with target.open('xb') as stream:stream.write(body)
+              target.chmod(mode)
+          assert module.snapshot(output)==inverse
+          assert module.snapshot(scratch/'source79')==original
+          PY
+      - name: Check genuine Source79, frozen Source78 and constructor
+        run: |
+          ulimit -v 524288
+          python3 -I -B -Werror scripts/ci/bankstown-qt3-hosted-reader-v1/source79/test_reader.py --source79 "$TMPDIR/source79"
+          python3 -I -B -Werror scripts/ci/bankstown-qt3-hosted-reader-v1/test_source.py --source78 "$TMPDIR/inverse-source78"
+          python3 -I -B -Werror scripts/ci/bankstown-qt3-hosted-v1/test_prepare_dispatch.py --source78 "$TMPDIR/inverse-source78"
+      - name: Record DATA-only coverage
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'SUMMARY'
+          33 genuine-fixture controls per Python: Source79 wrapper13, preserved
+          Source78 Reader10 and constructor10. The Source CID was supplied explicitly;
+          these checks issue no Root grant and establish no native acceptance.
+          Complete773 custody, actual registration/Main/context, runtime evidence,
+          source/legal/key freshness and exact Qt recipe correspondence remain separate.
+          SUMMARY

@@ -1,0 +1,105 @@
+name: Bankstown Qt3 hosted Source DATA
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/bankstown-qt3-hosted-source-data.yml'
+      - '.github/workflows/native-arm-bankstown-qt3-hosted-v1.yml'
+      - 'scripts/ci/bankstown-qt3-hosted-v1/**'
+      - 'scripts/ci/bankstown-qt3-source79-local-data/**'
+      - 'scripts/ci/bankstown-qt3-hosted-reader-v1/**'
+      - 'scripts/ci/bankstown-qt3-native-source/**'
+      - 'scripts/ci/bankstown-qt3-native-profile-v1/**'
+      - 'scripts/port/bankstown-qt3-native-v1/**'
+      - 'scripts/ci/first-login-enrollment-native-source/payload/native/**'
+      - 'scripts/ci/first-login-enrollment-native-source/profile.json'
+      - 'packages/port/bankstown-source-candidate/**'
+      - 'scripts/build/build.py'
+      - 'scripts/build/container-entry.sh'
+      - 'scripts/checks/package_checks.py'
+      - 'scripts/virtual/owned_process.py'
+      - 'scripts/port/arm-rust-toolchain-inputs/**'
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/bankstown-qt3-hosted-source-data.yml'
+      - '.github/workflows/native-arm-bankstown-qt3-hosted-v1.yml'
+      - 'scripts/ci/bankstown-qt3-hosted-v1/**'
+      - 'scripts/ci/bankstown-qt3-source79-local-data/**'
+      - 'scripts/ci/bankstown-qt3-hosted-reader-v1/**'
+      - 'scripts/ci/bankstown-qt3-native-source/**'
+      - 'scripts/ci/bankstown-qt3-native-profile-v1/**'
+      - 'scripts/port/bankstown-qt3-native-v1/**'
+      - 'scripts/ci/first-login-enrollment-native-source/payload/native/**'
+      - 'scripts/ci/first-login-enrollment-native-source/profile.json'
+      - 'packages/port/bankstown-source-candidate/**'
+      - 'scripts/build/build.py'
+      - 'scripts/build/container-entry.sh'
+      - 'scripts/checks/package_checks.py'
+      - 'scripts/virtual/owned_process.py'
+      - 'scripts/port/arm-rust-toolchain-inputs/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  data:
+    name: Hosted audio DATA (${{ matrix.python }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        python:
+          - '3.12'
+          - '3.14'
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      TMPDIR: ${{ runner.temp }}/bankstown-qt3-hosted-data-${{ matrix.python }}
+    steps:
+      - name: Create private DATA scratch
+        run: mkdir -m 700 "$TMPDIR"
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Reconstruct exact Source DATA from real pinned local inputs
+        run: |
+          ulimit -v 524288
+          python3 -I -B -Werror scripts/ci/bankstown-qt3-source79-local-data/test_reconstruct.py
+          python3 -I -B -Werror scripts/ci/bankstown-qt3-source79-local-data/reconstruct.py --repo "$GITHUB_WORKSPACE" --output "$TMPDIR/reconstructed"
+      - name: Check bounded hosted producer controls
+        run: |
+          ulimit -v 524288
+          python3 -I -B -Werror scripts/ci/bankstown-qt3-hosted-v1/test_hosted.py
+          python3 -I -B -Werror scripts/ci/bankstown-qt3-hosted-v1/test_inputs.py
+          python3 -I -B -Werror scripts/ci/bankstown-qt3-hosted-v1/test_prepare.py --source72 "$TMPDIR/reconstructed/source72"
+          python3 -I -B -Werror scripts/ci/bankstown-qt3-hosted-v1/test_prepare_dispatch.py --source78 "$TMPDIR/reconstructed/source78"
+      - name: Check genuine local DATA and thin Reader composition
+        run: |
+          ulimit -v 524288
+          python3 -I -B -Werror scripts/ci/bankstown-qt3-hosted-reader-v1/test_inputs.py
+          python3 -I -B -Werror scripts/ci/bankstown-qt3-hosted-reader-v1/test_result.py
+          python3 -I -B -Werror scripts/ci/bankstown-qt3-hosted-reader-v1/test_source.py --source78 "$TMPDIR/reconstructed/source78"
+          python3 -I -B -Werror scripts/ci/bankstown-qt3-hosted-reader-v1/source79/test_reader.py --source79 "$TMPDIR/reconstructed/source79"
+      # Reconstructed DATA has the exact recorded Source79 tree/map/body pins.
+      # It is not a public CID, hosted identity, Root grant or native qualification.
+      # The separate manual genuine workflow remains available for future actual
+      # published-CID readback; automatic DATA CI requires no such CID.
+      - name: Report actor-free local reconstruction coverage
+        if: always()
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'SUMMARY'
+          Configured per Python: 108 controls, zero fixture skips.
+          This includes 8 local-input controls, 44 original producer controls,
+          10 dispatch-constructor controls, 33 frozen Reader controls and 13 Source79
+          wrapper controls. The exact Source72/78/79 DATA is locally reconstructed
+          using retained catalog bytes, 67 whole-pinned repository operands and
+          maintained constructors; no public Source CID is fabricated or required.
+
+          DATA success does not qualify native execution. Actual Source publication,
+          workflow registration, trusted runtime Main, Root grants, complete773 input
+          custody, current trust/legal/Qt correspondence and native/hardware/release
+          gates remain separate. The manual published-CID check has no default CID.
+          SUMMARY
