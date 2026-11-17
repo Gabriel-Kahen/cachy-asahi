@@ -1,0 +1,60 @@
+{
+  "actual": {
+    "ALPM": null,
+    "M2": null,
+    "Root_qualification": null,
+    "VM": null,
+    "authority": null,
+    "fixture": null,
+    "release": null
+  },
+  "files": {
+    "README.md": {
+      "bytes": 5577,
+      "mode": 420,
+      "sha256": "b5461b2557d41fb75a721b1b4cb7a781adf99e40c747165765704f368e56d324"
+    },
+    "constructor.py": {
+      "bytes": 10216,
+      "mode": 420,
+      "sha256": "e576f6def9b1babdc7af894f303dd1bef8812daab4fe13d834313b42ff7781d4"
+    },
+    "context.py": {
+      "bytes": 2862,
+      "mode": 420,
+      "sha256": "6ba6a63bd77e3c30a86e21163364cf41ff0eb76025abfef5ecf504ebb8035ce1"
+    },
+    "guest/initialized-state.sh": {
+      "bytes": 6087,
+      "mode": 420,
+      "sha256": "164ad16f5b3dc732ad9a3d26b027b1b135f5a4f09fcd46961676328929b7095c"
+    },
+    "inputs.TEMPLATE.json": {
+      "bytes": 1101,
+      "mode": 420,
+      "sha256": "d4395faa3783943baf5f70bfc8ead53ab64c392e7774cdfbb95b22de393b0c78"
+    },
+    "integration.py": {
+      "bytes": 4589,
+      "mode": 420,
+      "sha256": "c688bd4ae0cb75073bc89395e20653527eb83114df9f7de903fd39673a253474"
+    },
+    "test_guest.py": {
+      "bytes": 4842,
+      "mode": 420,
+      "sha256": "f0c4e809b02526463128d1449ffecf0396457b981c53d90f5e2286dc7ed45535"
+    },
+    "test_initialized_lifecycle.py": {
+      "bytes": 9754,
+      "mode": 420,
+      "sha256": "c91d4f161f3eecbdce06e11d0ff7f2f915ef63069b624ea512181bf59d34e3d0"
+    },
+    "validation.DATA.json": {
+      "bytes": 1219,
+      "mode": 420,
+      "sha256": "1df690e59a13a07b5f8a6b03cbd6989ecac389e57f7c935c3f4e50bd576b09fc"
+    }
+  },
+  "kind": "ARM16K_PERL_INITIALIZED_LIFECYCLE_CONSTRUCTOR_SOURCE_V1",
+  "schema": 1
+}
