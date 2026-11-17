@@ -102,7 +102,8 @@ class Commands:
         handlers = {sig: signal.signal(sig, lambda number, frame: self.cancelled.append(number))
                     for sig in (signal.SIGINT, signal.SIGTERM)}
         result = None
-        row = dict(step=step, argv=argv, cwd=str(cwd), expected=expected, success=False)
+        row = dict(step=step, argv=argv, cwd=str(cwd), expected=expected,
+                   cap_seconds=remaining, success=False)
         try:
             # No context manager/poll/wait/communicate: core owns every wait.
             child = subprocess.Popen(argv, cwd=cwd, env=self.env,
@@ -132,7 +133,17 @@ class Commands:
         self.records.append(row)
         save(self.output / 'commands.json', self.records)
         if not row['success']:
-            raise Failure('command failed or retirement unknown: ' + step)
+            # Temporary-directory cleanup can remove the log before CI can
+            # inspect it. Preserve the actual receipt and bounded combined tail
+            # in the exception; JSON escapes terminal controls and invalid bytes.
+            tail = raw[-2048:]
+            diagnostic = dict(step=step, expected=expected, cap_seconds=remaining,
+                              cancelled=self.cancelled, launch_error=row.get('launch_error'),
+                              supervision=result, log=log, log_pin=row['log_pin'],
+                              output_omitted_bytes=len(raw) - len(tail),
+                              output_tail=tail.decode('utf-8', errors='backslashreplace'))
+            raise Failure('command failed or retirement unknown: '
+                          + json.dumps(diagnostic, sort_keys=True, ensure_ascii=True))
         return raw
 
 

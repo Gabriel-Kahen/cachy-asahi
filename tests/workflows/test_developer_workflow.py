@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT
 """Focused real-child and failure controls; source-only checkout invocation."""
 import importlib.util
+import json
 import os
 from pathlib import Path
 import shutil
@@ -40,6 +41,34 @@ class WorkflowTest(unittest.TestCase):
         self.assertEqual(self.commands.records[0]['supervision']['exit'], 7)
         with self.assertRaises(W.Failure):
             self.python('pass', 'nonzero')
+
+    def test_failed_command_retains_receipt_and_bounded_safe_log_context(self):
+        raw = b'x'*3000 + b'\ncompiler: missing header\n\x1b[31m\xff\x00'
+        with self.assertRaises(W.Failure) as caught:
+            self.python('import os;os.write(1,%r);raise SystemExit(7)' % raw)
+        message = str(caught.exception)
+        diagnostic = json.loads(message.split(': ', 1)[1])
+        receipt = diagnostic['supervision']
+        self.assertEqual(receipt['exit'], 7)
+        self.assertFalse(receipt['timeout'])
+        self.assertEqual(receipt['signals'], [])
+        self.assertTrue(receipt['reaped'])
+        self.assertEqual(receipt['ownership'], 'REAPED')
+        self.assertEqual(receipt['group_census'], 'EMPTY_TWICE')
+        self.assertTrue(receipt['output_complete'])
+        self.assertIsNone(receipt['error'])
+        self.assertEqual(diagnostic['cap_seconds'], 3)
+        self.assertEqual(diagnostic['expected'], 0)
+        self.assertEqual(diagnostic['output_omitted_bytes'], len(raw) - 2048)
+        self.assertEqual(diagnostic['output_tail'], raw[-2048:].decode('utf-8', 'backslashreplace'))
+        self.assertIn('compiler: missing header', message)
+        self.assertFalse(any(ord(c) < 32 for c in message))
+        self.assertLess(len(message), 14*1024)
+        row = json.loads((self.logs / 'commands.json').read_text())[0]
+        self.assertFalse(row['success'])
+        self.assertEqual(receipt, row['supervision'])
+        self.assertEqual((self.logs / diagnostic['log']).read_bytes(), raw)
+        self.assertEqual(diagnostic['log_pin'], W.pin(raw))
 
     def test_timeout_fails_and_reaps(self):
         with self.assertRaises(W.Failure):
@@ -312,7 +341,7 @@ class ProjectWorkflowTest(unittest.TestCase):
         source = (ROOT / 'scripts/workflows/developer_workflow.py').read_text()
         nodes = {n.name: ast.get_source_segment(source, n) for n in ast.parse(source).body
                  if isinstance(n, (ast.FunctionDef, ast.ClassDef))}
-        wanted = {'load_core': 'd757ca96b9dd992e81d9151c87a1751314fac00b8eef80a146a773d9a8fe4391', 'Commands': '7d2d520e99efe072791deddccddbf68c6dc8d66e3eabc3376425a2b40e9eb24b', 'OnboardingAdapter': '5042050c3bff0c383e501a5a48bd7cce8fbe7e6e875a457db9c0949e0fcaba6f', 'IncrementalBuild': '3392355967138126c9c0104e60e858f8089ac00be9561ea68a8206cdc09be3fe', 'fixture_files': '0c787a8e74ead8232794af2482dc3d09991c5a36f47fa680b0d6552ee6dcd93d', 'journey': '1587efa37e4c6327adc8de6249709618978cb6555a806b92a75c95c87dfd5321'}
+        wanted = {'load_core': 'd757ca96b9dd992e81d9151c87a1751314fac00b8eef80a146a773d9a8fe4391', 'Commands': 'b64ef526704e5b72c25c66060f7f17d66828e1921567bc2f969ac1fbba69d130', 'OnboardingAdapter': '5042050c3bff0c383e501a5a48bd7cce8fbe7e6e875a457db9c0949e0fcaba6f', 'IncrementalBuild': '3392355967138126c9c0104e60e858f8089ac00be9561ea68a8206cdc09be3fe', 'fixture_files': '0c787a8e74ead8232794af2482dc3d09991c5a36f47fa680b0d6552ee6dcd93d', 'journey': '1587efa37e4c6327adc8de6249709618978cb6555a806b92a75c95c87dfd5321'}
         for name, digest in wanted.items():
             self.assertEqual(hashlib.sha256(nodes[name].encode()).hexdigest(), digest, name)
 
