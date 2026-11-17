@@ -19,10 +19,10 @@ SOURCE_TUPLE = dict(tree='b73f92b1ed4e6f6ab8c4210fdaa19617b1a5721f', source_file
     owner_program=dict(bytes=9673, sha256='b9197a46a6161d6d5fa9c3cf3c8edfe030ba7010b48c0dcb4fbaf68886245d4f'),
     policy=dict(bytes=21404, sha256='b12d2d4789ea5dbae9170e3a64300adc127568b6ecd40ec009a54532779d471e'),
     workflow_body=dict(bytes=6201, sha256='2ba05dea048406382cf0285c1a73f56b8671c8a322ffd2636ae41ddc64d82c99'))
-CANDIDATE_SOURCE = None
-CANDIDATE_REF = None
-METADATA_PATH = None
-METADATA_PIN = None
+CANDIDATE_SOURCE = 'c23c2874c82a3e83b76be09fe98ee6e134c8ff81'
+CANDIDATE_REF = 'codex/llhttp-reference-native-source-20261117-r6'
+METADATA_PATH = Path('/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-llhttp95-source-r1/Root-publication.ACTUAL.json')
+METADATA_PIN = dict(bytes=996,sha256='edad0024df8c149ac8649d6eb341e72a1f1475384ae013e5a7a1f50b6950dd1c')
 PUBLIC_RETENTION_PIN = dict(bytes=10144, sha256='9b3c103dc6b309568ff5215f2b282b27bb349b4a44f55b777dcf55bda3157a42')
 CONSUMED_SOURCES = ('b36a1a6dba7dd42d55646582f3d1fa2002d78d5f', '4c3de228552a910ea9b0762e71bf81d14c630bd2',
                     '28dae2796f6f50f42da19be89618c5fda0549d2c', 'd7eb16cb611c655bc2cca65501dd30c8bdfbe03f', '8f6370a35215496c0e6c10922929028f5146644b')
@@ -138,7 +138,11 @@ def source_binding(source):
         raw=read(METADATA_PATH)
         need(pin(raw)==METADATA_PIN,'whole Root-adopted actual Source95 publication')
         value=json.loads(raw)
-        need(value['issuer']=='Root' and value['status']=='PASS_COMPLETE_PUBLIC_GIT_READBACK_DATA_ONLY' and value['source']==CANDIDATE_SOURCE and value['ref']=='refs/heads/'+CANDIDATE_REF and value['tree']==SOURCE_TUPLE['tree'] and value['source_map']==SOURCE_TUPLE['source_map'] and value['program']==SOURCE_TUPLE['owner_program'] and value['policy']==SOURCE_TUPLE['policy'] and value['files']==95 and value['bytes']==1318237 and value['public_clone_complete'] is True and value['public_API_blob_join'] is True and value['Root_native_authority'] is None,'exact actual metadata only; no native authority')
+        need(value['issuer']=='Root' and value['status']=='PASS_COMPLETE_PUBLIC_GIT_READBACK_DATA_ONLY' and value['source']==CANDIDATE_SOURCE and value['ref']=='refs/heads/'+CANDIDATE_REF and value['tree']==SOURCE_TUPLE['tree'] and value['source_map']==SOURCE_TUPLE['source_map'] and value['files']==95 and value['bytes']==1318237 and value['public_clone_complete'] is True and value['public_blob_tree_join'] is True and value['Root_independent_whole_file_mode_recheck'] is True and value['Root_independent_fresh_ref_commit_recheck'] is True and value['native']==value['M2']=='NOT RUN','exact actual metadata only; no native authority')
+        delegate=value['delegated_result'];raw_delegate=read(Path(delegate['path']))
+        need(pin(raw_delegate)=={k:delegate[k]for k in('bytes','sha256')},'whole Root-adopted delegated publication receipt')
+        delegated=json.loads(raw_delegate)
+        need(delegated['source']==CANDIDATE_SOURCE and delegated['tree']==SOURCE_TUPLE['tree'] and delegated['ref']=='refs/heads/'+CANDIDATE_REF and delegated['source_map']==SOURCE_TUPLE['source_map'] and delegated['program']==SOURCE_TUPLE['owner_program'] and delegated['policy']==SOURCE_TUPLE['policy'] and delegated['public_API_blob_join'] is True and delegated['public_clone_complete'] is True and delegated['Root_native_authority'] is None,'exact Root-adopted program/policy/public blob join; no native authority')
         metadata=dict(path=str(METADATA_PATH),**METADATA_PIN)
     else:
         need(CANDIDATE_REF is METADATA_PATH is METADATA_PIN is None,'all unpublished selectors NULL')

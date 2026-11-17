@@ -37,8 +37,8 @@ OPERATOR = 'packet/operator-DRAFT/llhttp_once.py'
 PRIMITIVE = 'packet/operator-DRAFT/llhttp_dispatch_once.py'
 MODEL_CID = 'd' * 40
 MODEL_REF = 'codex/MODEL-unissued-source95'
-CANDIDATE_CID = None
-CANDIDATE_REF = None
+CANDIDATE_CID = 'c23c2874c82a3e83b76be09fe98ee6e134c8ff81'
+CANDIDATE_REF = 'codex/llhttp-reference-native-source-20261117-r6'
 
 
 def fence(event, args):
@@ -360,7 +360,7 @@ class Controls(unittest.TestCase):
         with patch.object(m,'checked',side_effect=lambda path,digest: public if path==a.publication else registration):
             m.configure(a)
         self.assertEqual((m.SOURCE,m.REF),(CANDIDATE_CID,CANDIDATE_REF))
-        self.assertEqual(m.CASE['source_files'],93)
+        self.assertEqual(m.CASE['source_files'],95)
         self.assertIsNone(json.loads(self.files['ROOT-INPUTS.UNISSUED.json'])['Root_authority'])
 
     def test_primitive_exact_five_inputs_and_registration_null_contract(self):

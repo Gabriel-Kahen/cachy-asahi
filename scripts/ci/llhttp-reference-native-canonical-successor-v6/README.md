@@ -25,8 +25,12 @@ strict768MiB bound also contains the21KB policy; controls execute only its
 unchanged read/identity functions on the public policy, without custody entry. Fenced tests read the real policy, join a temporary MODEL authority,
 and reject oversized admission/runtime documents under the unchanged limit.
 
-Initial candidate CID/ref/publication are NULL. Only Root's actual immutable
-publication receipt can bind them; no destination or receipt is invented.
+The preserved initial carrier has NULL CID/ref/publication. The final candidate
+binds Root actual `c23c2874c82a3e83b76be09fe98ee6e134c8ff81`, r6, and the
+exact996-byte Root adoption receipt (edad0024...). Its referenced delegated
+receipt is separately pinned and checked for the exact policy/program tuple;
+Root independent body/mode/ref/commit/blob joins are required. No receipt or
+destination is invented.
 Live Source/workflow selectors, registration/Main, authority, admission/runtime,
 runtime54, operational context, role, nonce, time, output and lease remain
 unissued until Root separately supplies all fresh inputs. The five consumed
@@ -51,6 +55,7 @@ python3 -I -B -Werror::ResourceWarning \
 Controls fence processes/network/locks/system mutation and use ordinary MODEL
 files, literal CLI parsing with final actions intercepted, the actual Source
 physical census and complete predecessor inverse. The actual-publication
-adapter control explicitly skips while Root metadata is absent. Runtime
+adapter control now uses the real Root adoption receipt; final controls have
+no skips. Runtime
 retention, the still-unproven inner HOLD cause, native package pair, signing,
 installation, ARM16K/M2, performance and release acceptance remain unverified.

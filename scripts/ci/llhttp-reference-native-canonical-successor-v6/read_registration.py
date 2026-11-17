@@ -6,11 +6,11 @@ MAIN=Path('/home/gabe/Documents/ChatGPT/cachy-asahi')
 BASE=MAIN/'artifacts/development/orchestrator-resume-20261114'
 OUT=Path('/home/gabe/Documents/ChatGPT/cachy-asahi-llhttp-native-canonical-successor-v6-20261117/artifacts/development/llhttp95-canonical-v6-20261117-r1/registration-DATA')
 HEAD='ba047f4a21c44294c6e32a91a8d530cc67610c99'
-CID=None
-REF=None
-ADOPTED=None
-ADOPTED_PIN=None
-PUBLIC_STORE=None
+CID='c23c2874c82a3e83b76be09fe98ee6e134c8ff81'
+REF='refs/heads/codex/llhttp-reference-native-source-20261117-r6'
+ADOPTED=BASE/'Root-llhttp95-source-r1/Root-publication.ACTUAL.json'
+ADOPTED_PIN=dict(bytes=996,sha256='edad0024df8c149ac8649d6eb341e72a1f1475384ae013e5a7a1f50b6950dd1c')
+PUBLIC_STORE=BASE/'Root-llhttp95-publication-r1/public-readback'
 REPO='Gabriel-Kahen/cachy-asahi'
 URL='https://github.com/'+REPO+'.git'
 WF='.github/workflows/native-arm-llhttp-reference-source.yml'
